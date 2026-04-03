@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search, MapPin, Sprout, FileText, ArrowLeft } from "lucide-react";
 import { searchAll, type SearchItem } from "@/lib/data/search-index";
+import { highlightMatch } from "@/lib/highlight-match";
 import SearchGroup from "@/components/search/search-group";
 import s from "./page.module.css";
 
@@ -108,8 +109,12 @@ function SearchPageContent() {
                     >
                       <span className={s.cardIcon}>{item.icon}</span>
                       <div className={s.cardContent}>
-                        <span className={s.cardTitle}>{item.title}</span>
-                        <span className={s.cardSubtitle}>{item.subtitle}</span>
+                        <span className={s.cardTitle}>
+                          {highlightMatch(item.title, query, s.highlight)}
+                        </span>
+                        <span className={s.cardSubtitle}>
+                          {highlightMatch(item.subtitle, query, s.highlight)}
+                        </span>
                       </div>
                       {item.badge && (
                         <span className={s.cardBadge}>{item.badge}</span>

@@ -12,6 +12,7 @@ import {
 import { useRouter } from "next/navigation";
 import { Search, Clock, X } from "lucide-react";
 import { searchItems, type SearchItem } from "@/lib/data/search-index";
+import { highlightMatch } from "@/lib/highlight-match";
 import s from "./search-bar.module.css";
 
 // ---------------------------------------------------------------------------
@@ -82,22 +83,9 @@ function removeRecent(query: string) {
   }
 }
 
-/** 텍스트에서 query 부분을 <mark>로 하이라이팅 (React 엘리먼트 배열 반환) */
-function highlightMatch(text: string, query: string): React.ReactNode {
-  if (!query.trim()) return text;
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const regex = new RegExp(`(${escaped})`, "gi");
-  const parts = text.split(regex);
-  if (parts.length === 1) return text;
-  return parts.map((part, i) =>
-    regex.test(part) ? (
-      <mark key={i} className={s.highlight}>
-        {part}
-      </mark>
-    ) : (
-      part
-    ),
-  );
+/** search-bar 전용 하이라이팅 래퍼 */
+function highlight(text: string, query: string): React.ReactNode {
+  return highlightMatch(text, query, s.highlight);
 }
 
 // ---------------------------------------------------------------------------
@@ -404,10 +392,10 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                       </span>
                       <div className={s.resultItemContent}>
                         <div className={s.resultItemTitle}>
-                          {highlightMatch(item.title, query)}
+                          {highlight(item.title, query)}
                         </div>
                         <div className={s.resultItemSubtitle}>
-                          {highlightMatch(item.subtitle, query)}
+                          {highlight(item.subtitle, query)}
                         </div>
                       </div>
                       {item.badge && (

@@ -252,3 +252,11 @@
 .backLink:hover {
   color: var(--foreground);
 }
+
+/* 검색어 하이라이트 */
+.highlight {
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+  color: var(--primary);
+  border-radius: 2px;
+  padding: 0 1px;
+}
