@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import {
   MapPin,
   Thermometer,
@@ -145,7 +146,15 @@ export default async function RegionDetailPage({ params }: PageProps) {
         )}
         <div className={s.heroContent}>
           <span className={s.heroOverline}>{province.name}</span>
-          <h1 className={s.heroTitle}>{province.shortName}</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <h1 className={s.heroTitle} style={{ flex: 1 }}>{province.shortName}</h1>
+            <BookmarkButton
+              id={province.id}
+              type="region"
+              title={province.name}
+              subtitle={province.description}
+            />
+          </div>
           <p className={s.heroDesc}>{province.description}</p>
           <div className={s.heroTags}>
             {province.highlights.map((tag) => (

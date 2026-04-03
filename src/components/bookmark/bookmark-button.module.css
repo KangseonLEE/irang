@@ -1,0 +1,40 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.15s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.btn:hover {
+  color: #e74c3c;
+  transform: scale(1.1);
+}
+
+.btn:active {
+  transform: scale(0.92);
+}
+
+.btn.active {
+  color: #e74c3c;
+  animation: pulse 0.3s ease-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

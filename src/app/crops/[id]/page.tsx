@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import {
   ArrowLeft,
   Sprout,
@@ -122,7 +123,15 @@ export default async function CropDetailPage({
                 난이도: {data.difficulty}
               </span>
             </div>
-            <h1 className={s.heroTitle}>{data.name}</h1>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <h1 className={s.heroTitle} style={{ flex: 1 }}>{data.name}</h1>
+              <BookmarkButton
+                id={data.id}
+                type="crop"
+                title={data.name}
+                subtitle={data.category}
+              />
+            </div>
             <p className={s.heroDesc}>{data.description}</p>
           </div>
 

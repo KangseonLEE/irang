@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import {
   ArrowLeft,
   ExternalLink,
@@ -99,7 +100,15 @@ export default async function EventDetailPage({
             {event.type}
           </span>
         </div>
-        <h1 className={s.pageTitle}>{event.title}</h1>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "4px" }}>
+          <h1 className={s.pageTitle} style={{ flex: 1 }}>{event.title}</h1>
+          <BookmarkButton
+            id={event.id}
+            type="event"
+            title={event.title}
+            subtitle={event.region}
+          />
+        </div>
       </div>
 
       <div className={s.contentGrid}>

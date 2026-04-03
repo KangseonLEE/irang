@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import {
   ArrowLeft,
   ExternalLink,
@@ -96,7 +97,15 @@ export default async function EducationDetailPage({
             {course.level}
           </span>
         </div>
-        <h1 className={s.pageTitle}>{course.title}</h1>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "4px" }}>
+          <h1 className={s.pageTitle} style={{ flex: 1 }}>{course.title}</h1>
+          <BookmarkButton
+            id={course.id}
+            type="education"
+            title={course.title}
+            subtitle={course.organization}
+          />
+        </div>
       </div>
 
       <div className={s.contentGrid}>
