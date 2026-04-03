@@ -62,6 +62,8 @@
   min-height: auto;
   justify-content: center;
   gap: 0;
+  /* 검색 드롭다운이 잘리지 않도록 overflow 허용 */
+  overflow: visible;
 }
 
 @media (min-width: 640px) {

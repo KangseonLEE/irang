@@ -101,20 +101,10 @@ export const POPULAR_TAGS: SearchTag[] = [
 // ---------------------------------------------------------------------------
 
 /**
- * 통합 검색 — 대소문자 무시, title / subtitle / keywords 에서 매칭.
- * 최대 8개 반환, 타입별 최대 3개.
+ * 통합 검색 (드롭다운용) — 최대 8개 반환, 타입별 최대 3개.
  */
 export function searchItems(query: string): SearchItem[] {
-  const q = query.trim().toLowerCase();
-  if (q.length === 0) return [];
-
-  const matches = SEARCH_INDEX.filter((item) => {
-    if (item.title.toLowerCase().includes(q)) return true;
-    if (item.subtitle.toLowerCase().includes(q)) return true;
-    if (item.keywords.some((kw) => kw.toLowerCase().includes(q))) return true;
-    if (item.badge?.toLowerCase().includes(q)) return true;
-    return false;
-  });
+  const all = searchAll(query);
 
   // 타입별로 분류
   const byType: Record<SearchItem["type"], SearchItem[]> = {
@@ -123,7 +113,7 @@ export function searchItems(query: string): SearchItem[] {
     program: [],
   };
 
-  for (const item of matches) {
+  for (const item of all) {
     if (byType[item.type].length < 3) {
       byType[item.type].push(item);
     }
@@ -136,4 +126,20 @@ export function searchItems(query: string): SearchItem[] {
   ];
 
   return results.slice(0, 8);
+}
+
+/**
+ * 통합 검색 (결과 페이지용) — 전체 매칭 결과 반환, 제한 없음.
+ */
+export function searchAll(query: string): SearchItem[] {
+  const q = query.trim().toLowerCase();
+  if (q.length === 0) return [];
+
+  return SEARCH_INDEX.filter((item) => {
+    if (item.title.toLowerCase().includes(q)) return true;
+    if (item.subtitle.toLowerCase().includes(q)) return true;
+    if (item.keywords.some((kw) => kw.toLowerCase().includes(q))) return true;
+    if (item.badge?.toLowerCase().includes(q)) return true;
+    return false;
+  });
 }

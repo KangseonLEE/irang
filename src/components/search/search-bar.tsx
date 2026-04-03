@@ -253,8 +253,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           const focused = allItems[focusedIndex];
           if (focused.type === "recent") handleRecentClick(focused.query);
           else navigateTo(focused.item.href, query);
-        } else if (results.length > 0) {
-          navigateTo(results[0].href, query);
+        } else if (query.trim().length > 0) {
+          // 드롭다운에서 선택하지 않으면 통합검색 결과 페이지로 이동
+          navigateTo(`/search?q=${encodeURIComponent(query.trim())}`, query);
         }
       } else if (e.key === "Escape") {
         setIsOpen(false);
@@ -418,6 +419,26 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
               </div>
             );
           })}
+
+          {/* 전체 검색 결과 보기 링크 */}
+          {grouped.length > 0 && query.trim().length > 0 && (
+            <div className={s.dropdownFooter}>
+              <div
+                className={s.viewAllLink}
+                role="option"
+                aria-selected={false}
+                onClick={() =>
+                  navigateTo(
+                    `/search?q=${encodeURIComponent(query.trim())}`,
+                    query
+                  )
+                }
+              >
+                <Search size={14} />
+                &ldquo;{query}&rdquo; 전체 검색 결과 보기
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
