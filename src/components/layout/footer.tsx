@@ -5,7 +5,7 @@ import s from "./footer.module.css";
 const FEEDBACK_URL = process.env.NEXT_PUBLIC_FEEDBACK_URL ?? "";
 
 const serviceLinks = [
-  { href: "/regions", label: "지역 비교" },
+  { href: "/regions", label: "지역 탐색" },
   { href: "/programs", label: "지원사업 검색" },
   { href: "/crops", label: "작물 정보" },
 ];

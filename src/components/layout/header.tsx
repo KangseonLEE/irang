@@ -7,7 +7,7 @@ import { IrangSymbol } from "@/components/brand/irang-symbol";
 import s from "./header.module.css";
 
 const navItems = [
-  { href: "/regions", label: "지역비교" },
+  { href: "/regions", label: "지역탐색" },
   { href: "/programs", label: "지원사업" },
   { href: "/crops", label: "작물정보" },
 ];
