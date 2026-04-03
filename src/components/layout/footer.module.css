@@ -2,7 +2,8 @@
   margin-top: auto;
   border-top: 1px solid var(--border);
   background-color: var(--footer-bg);
-  padding-bottom: 5rem; /* pb-20 for mobile nav clearance */
+  /* MobileNav(3.5rem) + 세이프에어리어 + 여유 1rem */
+  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
   color: var(--footer-fg);
 }
 

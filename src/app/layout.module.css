@@ -8,7 +8,8 @@
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  padding-bottom: 3.5rem; /* pb-14 for mobile nav */
+  /* MobileNav 높이(3.5rem) + iOS 세이프 에어리어 */
+  padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 @media (min-width: 768px) {
