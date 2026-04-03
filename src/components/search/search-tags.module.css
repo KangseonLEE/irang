@@ -14,10 +14,9 @@
   display: none;
 }
 
-/* 641px 이상: 줄바꿈 + 중앙 정렬 */
+/* 641px 이상: 한 줄 + 중앙 정렬 */
 @media (min-width: 641px) {
   .tags {
-    flex-wrap: wrap;
     justify-content: center;
     overflow-x: visible;
     padding-bottom: 0;
