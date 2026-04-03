@@ -8,6 +8,7 @@ import {
   ExternalLink,
   TrendingUp,
   Database,
+  Search,
 } from "lucide-react";
 import SearchGroup from "@/components/search/search-group";
 import {
@@ -21,6 +22,15 @@ import {
 } from "@/lib/data/landing";
 import s from "./page.module.css";
 
+/* ── 히어로 인기 지역 칩 데이터 ── */
+const HERO_QUICK_REGIONS = [
+  { label: "전남", href: "/regions/jeonnam" },
+  { label: "강원", href: "/regions/gangwon" },
+  { label: "경북", href: "/regions/gyeongbuk" },
+  { label: "충남", href: "/regions/chungnam" },
+  { label: "제주", href: "/regions/jeju" },
+];
+
 /* ────────────────────────────────────────────
    Page
    ──────────────────────────────────────────── */
@@ -30,19 +40,16 @@ export default function HomePage() {
     <div className={s.page}>
       {/* ═══ 히어로 — 검색 중심 ═══ */}
       <section className={s.heroSection} aria-label="검색">
-        <span className={s.heroLabel}>
-          <span className={s.heroLabelDot} />
-          귀농 정보 큐레이션
-        </span>
+        <span className={s.heroEyebrow}>귀농 정보 큐레이션 포탈</span>
 
         <h1 className={s.heroTitle}>
-          귀농, 어디서 무엇을 시작할지
+          귀농, 어디서 무엇을
           <br />
-          <span className={s.heroTitleAccent}>검색하세요</span>
+          시작할지 <span className={s.heroAccent}>이랑</span>에서 찾으세요
         </h1>
 
         <p className={s.heroSubtitle}>
-          19개 지역, 17종 작물, 18건 지원사업을 한 곳에서 비교하세요.
+          전국 13개 지역의 기후 · 작물 · 지원사업 정보를 한 곳에서 비교하세요.
         </p>
 
         <div className={s.heroSearchWrap}>
@@ -50,6 +57,22 @@ export default function HomePage() {
             <SearchGroup size="large" placeholder="지역, 작물, 지원사업 검색" />
           </Suspense>
         </div>
+
+        {/* 인기 지역 바로가기 */}
+        <div className={s.heroQuickLinks}>
+          <span className={s.heroQuickLabel}>인기 지역</span>
+          {HERO_QUICK_REGIONS.map((r) => (
+            <Link key={r.label} href={r.href} className={s.heroQuickChip}>
+              {r.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* 데이터 신뢰 지표 */}
+        <p className={s.heroTrust}>
+          <Database size={12} aria-hidden="true" />
+          기상청 · 통계청 · 심평원 · 교육부 · 농진청 공공데이터 기반
+        </p>
       </section>
 
       {/* ═══ 벤토 카드 — 실제 데이터 미리보기 ═══ */}
