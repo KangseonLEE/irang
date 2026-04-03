@@ -3,8 +3,16 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { Search } from "lucide-react";
-import { REGIONS, SUPPORT_TYPES } from "@/lib/data/programs";
+import {
+  REGIONS,
+  SUPPORT_TYPES,
+  getPeriodOptions,
+  getCurrentPeriod,
+} from "@/lib/data/programs";
 import s from "./program-filter.module.css";
+
+const PERIOD_OPTIONS = getPeriodOptions();
+const DEFAULT_PERIOD = getCurrentPeriod();
 
 interface ProgramFilterProps {
   currentFilters: {
@@ -13,6 +21,7 @@ interface ProgramFilterProps {
     supportType: string;
     query: string;
     includeClosed: boolean;
+    period: string;
   };
 }
 
@@ -85,7 +94,8 @@ export function ProgramFilter({ currentFilters }: ProgramFilterProps) {
     setLocalAge("");
     setLocalQuery("");
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    router.replace("/programs");
+    // 초기화 시 period를 현재 월로 되돌림
+    router.replace(`/programs?period=${DEFAULT_PERIOD}`);
   }, [router]);
 
   const hasActiveFilters =
@@ -93,7 +103,8 @@ export function ProgramFilter({ currentFilters }: ProgramFilterProps) {
     currentFilters.age ||
     currentFilters.supportType ||
     currentFilters.query ||
-    currentFilters.includeClosed;
+    currentFilters.includeClosed ||
+    currentFilters.period !== DEFAULT_PERIOD;
 
   return (
     <div className={s.filterCard}>
@@ -122,6 +133,26 @@ export function ProgramFilter({ currentFilters }: ProgramFilterProps) {
       </div>
 
       <div className={s.grid}>
+        {/* 조회 시점 */}
+        <div className={s.field}>
+          <label htmlFor="period-filter" className={s.label}>
+            조회 시점
+          </label>
+          <select
+            id="period-filter"
+            className={s.select}
+            value={currentFilters.period || DEFAULT_PERIOD}
+            onChange={(e) => updateFilter("period", e.target.value)}
+          >
+            {PERIOD_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+                {opt.value === DEFAULT_PERIOD ? " (현재)" : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* 지역 필터 */}
         <div className={s.field}>
           <label htmlFor="region-filter" className={s.label}>
@@ -142,23 +173,6 @@ export function ProgramFilter({ currentFilters }: ProgramFilterProps) {
           </select>
         </div>
 
-        {/* 나이 필터 */}
-        <div className={s.field}>
-          <label htmlFor="age-filter" className={s.label}>
-            나이
-          </label>
-          <input
-            id="age-filter"
-            type="number"
-            min={1}
-            max={100}
-            placeholder="만 나이 입력"
-            className={s.input}
-            value={localAge}
-            onChange={handleAgeChange}
-          />
-        </div>
-
         {/* 지원 유형 필터 */}
         <div className={s.field}>
           <label htmlFor="type-filter" className={s.label}>
@@ -177,6 +191,23 @@ export function ProgramFilter({ currentFilters }: ProgramFilterProps) {
               </option>
             ))}
           </select>
+        </div>
+
+        {/* 나이 필터 */}
+        <div className={s.field}>
+          <label htmlFor="age-filter" className={s.label}>
+            나이
+          </label>
+          <input
+            id="age-filter"
+            type="number"
+            min={1}
+            max={100}
+            placeholder="만 나이 입력"
+            className={s.input}
+            value={localAge}
+            onChange={handleAgeChange}
+          />
         </div>
 
         {/* 마감건 포함 체크박스 */}

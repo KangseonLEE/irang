@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { FileText } from "lucide-react";
+import { FileText, CalendarDays } from "lucide-react";
 import {
   filterProgramsPaginated,
+  getCurrentPeriod,
   PAGE_SIZE,
   type ProgramFilters,
 } from "@/lib/data/programs";
@@ -23,6 +24,7 @@ interface PageProps {
     supportType?: string;
     q?: string;
     includeClosed?: string;
+    period?: string;
   }>;
 }
 
@@ -30,6 +32,8 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
   const includeClosed = params.includeClosed === "1";
+  // 기본값: 현재 연월
+  const period = params.period || getCurrentPeriod();
 
   const filters: ProgramFilters = {
     region: params.region,
@@ -37,6 +41,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     supportType: params.supportType,
     query: params.q,
     includeClosed,
+    period,
   };
 
   // SSR: 첫 페이지 데이터만 렌더
@@ -45,6 +50,10 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     0,
     PAGE_SIZE
   );
+
+  // 기준일 표시 텍스트
+  const [pYear, pMonth] = period.split("-");
+  const periodLabel = `${pYear}년 ${parseInt(pMonth)}월`;
 
   return (
     <div className={s.page}>
@@ -58,9 +67,15 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         <p className={s.headerDesc}>
           나이, 지역, 희망 작물에 맞는 귀농 · 귀촌 지원사업을 찾아보세요.
         </p>
-        <p className={s.headerCount}>
-          총 <span className={s.headerCountNumber}>{total}</span>건
-        </p>
+        <div className={s.headerMeta}>
+          <p className={s.headerCount}>
+            총 <span className={s.headerCountNumber}>{total}</span>건
+          </p>
+          <span className={s.headerPeriod}>
+            <CalendarDays size={14} />
+            {periodLabel} 기준
+          </span>
+        </div>
       </div>
 
       {/* Filters + Results */}
@@ -79,6 +94,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
               supportType: params.supportType ?? "",
               query: params.q ?? "",
               includeClosed,
+              period,
             }}
           />
         </Suspense>

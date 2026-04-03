@@ -415,6 +415,24 @@ export function getProgramById(id: string): SupportProgram | undefined {
   return PROGRAMS.find((p) => p.id === id);
 }
 
+/** 조회 시점 옵션 생성 (프로그램 데이터의 연도 범위 기반) */
+export function getPeriodOptions(): { value: string; label: string }[] {
+  const options: { value: string; label: string }[] = [];
+  // 2026년 1~12월 (데이터가 모두 2026년이므로)
+  const year = 2026;
+  for (let m = 1; m <= 12; m++) {
+    const value = `${year}-${String(m).padStart(2, "0")}`;
+    options.push({ value, label: `${year}년 ${m}월` });
+  }
+  return options;
+}
+
+/** 현재 연월 문자열 (YYYY-MM) */
+export function getCurrentPeriod(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
 /** 필터 조건에 맞는 프로그램 목록 반환 */
 export interface ProgramFilters {
   region?: string;
@@ -423,12 +441,38 @@ export interface ProgramFilters {
   status?: string;
   query?: string;
   includeClosed?: boolean;
+  /** 조회 시점 "YYYY-MM" — 해당 월에 모집기간이 겹치는 사업만 표시 */
+  period?: string;
 }
 
 /** 필터만 적용 (전체 반환) */
 export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
+  // 조회 시점 기간 계산
+  let periodStart: string | null = null;
+  let periodEnd: string | null = null;
+  if (filters.period && /^\d{4}-\d{2}$/.test(filters.period)) {
+    const [y, m] = filters.period.split("-").map(Number);
+    periodStart = `${y}-${String(m).padStart(2, "0")}-01`;
+    // 해당 월의 마지막 날
+    const lastDay = new Date(y, m, 0).getDate();
+    periodEnd = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  }
+
   return PROGRAMS.filter((program) => {
+    // 조회 시점 필터: 모집기간과 선택 월이 겹치는지 확인
+    if (periodStart && periodEnd) {
+      // 모집기간과 조회 월이 겹치려면:
+      // program.applicationStart <= periodEnd AND program.applicationEnd >= periodStart
+      if (
+        program.applicationStart > periodEnd ||
+        program.applicationEnd < periodStart
+      ) {
+        return false;
+      }
+    }
+
     // 마감 제외 (기본 동작: includeClosed가 true가 아니면 마감 숨김)
+    // 단, 조회 시점이 설정된 경우 마감 여부 대신 기간으로 판단하므로 마감 필터는 유지
     if (!filters.includeClosed && program.status === "마감") {
       return false;
     }
