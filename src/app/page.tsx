@@ -30,28 +30,6 @@ export default function HomePage() {
     <div className={s.page}>
       {/* ═══ 히어로 — 검색 중심 ═══ */}
       <section className={s.heroSection} aria-label="검색">
-        {/* 장식 요소 */}
-        <div className={s.heroDecoTop} aria-hidden="true" />
-        <div className={s.heroDecoBottom} aria-hidden="true" />
-        <svg
-          className={s.heroLeaf}
-          aria-hidden="true"
-          viewBox="0 0 64 64"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M32 4C32 4 12 20 12 40C12 52 20 60 32 60C44 60 52 52 52 40C52 20 32 4 32 4Z"
-            fill="currentColor"
-          />
-          <path
-            d="M32 16V52M32 52C24 44 20 36 20 32M32 52C40 44 44 36 44 32"
-            stroke="var(--background, #fff)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
-
         <span className={s.heroLabel}>
           <span className={s.heroLabelDot} />
           귀농 정보 큐레이션

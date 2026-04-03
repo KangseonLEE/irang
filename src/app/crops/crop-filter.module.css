@@ -5,11 +5,26 @@
   gap: 12px;
 }
 
+@media (min-width: 640px) {
+  .filterWrap {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
 /* ── 검색 입력 ── */
 .searchWrap {
   position: relative;
   display: flex;
   align-items: center;
+}
+
+@media (min-width: 640px) {
+  .searchWrap {
+    max-width: 400px;
+    flex-shrink: 0;
+  }
 }
 
 .searchIcon {
@@ -78,6 +93,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .filterBar {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 .chip {

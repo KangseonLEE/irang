@@ -52,21 +52,11 @@
 .heroSection {
   composes: card;
   background:
-    radial-gradient(
-      ellipse 80% 60% at 70% 20%,
-      color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent),
-      transparent
-    ),
-    radial-gradient(
-      ellipse 60% 50% at 20% 80%,
-      color-mix(in srgb, var(--primary, #1B6B5A) 5%, transparent),
-      transparent
-    ),
     linear-gradient(
       135deg,
-      color-mix(in srgb, var(--primary, #1B6B5A) 14%, var(--background, #fff)),
-      color-mix(in srgb, var(--primary, #1B6B5A) 3%, var(--background, #fff)) 60%,
-      var(--background, #fff)
+      color-mix(in srgb, var(--primary, #1B6B5A) 10%, var(--background, #fff)) 0%,
+      color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--background, #fff)) 40%,
+      var(--background, #fff) 100%
     );
   align-items: center;
   text-align: center;
@@ -79,100 +69,28 @@
   position: relative;
 }
 
-/* 도트 패턴 배경 (매우 낮은 불투명도) */
-.heroSection::before {
+/* 하단 웨이브 커브 — 콘텐츠와 부드러운 시각적 구분 */
+.heroSection::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background-image: radial-gradient(
-    color-mix(in srgb, var(--primary, #1B6B5A) 20%, transparent) 1px,
-    transparent 1px
-  );
-  background-size: 24px 24px;
-  opacity: 0.3;
-  pointer-events: none;
-  border-radius: inherit;
-}
-
-/* 장식용 원형 — 우상단 */
-.heroDecoTop {
-  position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+  bottom: -1px;
+  left: -1px;
+  right: -1px;
+  height: 32px;
+  background: var(--card, #fff);
+  clip-path: ellipse(55% 100% at 50% 100%);
   pointer-events: none;
 }
 
 @media (min-width: 640px) {
-  .heroDecoTop {
-    width: 160px;
-    height: 160px;
-    top: -40px;
-    right: -40px;
+  .heroSection::after {
+    height: 40px;
   }
 }
 
 @media (min-width: 1024px) {
-  .heroDecoTop {
-    width: 200px;
-    height: 200px;
-    top: -50px;
-    right: -50px;
-  }
-}
-
-/* 장식용 원형 — 좌하단 (작은 원) */
-.heroDecoBottom {
-  position: absolute;
-  bottom: -20px;
-  left: -20px;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, transparent);
-  pointer-events: none;
-}
-
-@media (min-width: 640px) {
-  .heroDecoBottom {
-    width: 100px;
-    height: 100px;
-    bottom: -25px;
-    left: -25px;
-  }
-}
-
-/* 장식용 잎 SVG 위치 — 우하단 */
-.heroLeaf {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  width: 48px;
-  height: 48px;
-  color: var(--primary, #1B6B5A);
-  opacity: 0.08;
-  pointer-events: none;
-}
-
-@media (min-width: 640px) {
-  .heroLeaf {
-    width: 64px;
-    height: 64px;
-    bottom: 24px;
-    right: 24px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .heroLeaf {
-    width: 80px;
-    height: 80px;
-    bottom: 32px;
-    right: 32px;
-    opacity: 0.1;
+  .heroSection::after {
+    height: 48px;
   }
 }
 
@@ -230,8 +148,27 @@
   line-height: 1.3;
   letter-spacing: -0.02em;
   color: var(--foreground, #111);
-  margin-bottom: 8px;
+  margin-bottom: 16px;
   word-break: keep-all;
+  position: relative;
+  padding-bottom: 16px;
+}
+
+/* 타이틀 아래 액센트 라인 */
+.heroTitle::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--primary, #1B6B5A),
+    color-mix(in srgb, var(--primary, #1B6B5A) 70%, #2dd4bf)
+  );
 }
 
 @media (min-width: 640px) {
@@ -239,11 +176,18 @@
 }
 
 @media (min-width: 1024px) {
-  .heroTitle { font-size: 2.75rem; margin-bottom: 12px; }
+  .heroTitle { font-size: 2.75rem; margin-bottom: 20px; padding-bottom: 20px; }
 }
 
 .heroTitleAccent {
-  color: var(--primary, #1B6B5A);
+  background: linear-gradient(
+    135deg,
+    var(--primary, #1B6B5A) 0%,
+    color-mix(in srgb, var(--primary, #1B6B5A) 70%, #2dd4bf) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .heroSubtitle {

@@ -159,6 +159,89 @@
   color: var(--muted-foreground);
 }
 
+/* ---- Quick Stats ---- */
+.mapStats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 12px 16px;
+  background: var(--muted, #f4f4f5);
+  border-radius: 12px;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .mapStats {
+    justify-content: flex-start;
+  }
+}
+
+.mapStat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted-foreground);
+}
+
+.mapStatValue {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.mapStatLabel {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.mapStatDivider {
+  width: 1px;
+  height: 16px;
+  background: var(--border, #e5e7eb);
+  flex-shrink: 0;
+}
+
+/* ---- 인기 키워드 ---- */
+.mapKeywords {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.mapKeywordsLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mapKeywordsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .mapKeywordsList {
+    justify-content: flex-start;
+  }
+}
+
+.mapKeyword {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border, #e5e7eb);
+  color: var(--foreground);
+  background: var(--card, #fff);
+  white-space: nowrap;
+}
+
 /* ---- 카드 그리드 ---- */
 .grid {
   display: grid;

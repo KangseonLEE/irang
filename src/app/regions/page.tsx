@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, ArrowRight, GitCompareArrows } from "lucide-react";
+import { MapPin, ArrowRight, GitCompareArrows, Sprout, Landmark, FileText } from "lucide-react";
 import { PROVINCES } from "@/lib/data/regions";
+import { CROPS } from "@/lib/data/crops";
+import { PROGRAMS } from "@/lib/data/programs";
 import { fetchUnsplashPhoto, type UnsplashPhoto } from "@/lib/api/unsplash";
 import { KoreaMap } from "@/components/map/korea-map";
 import s from "./page.module.css";
@@ -13,7 +15,23 @@ export const metadata: Metadata = {
     "귀농 후보 지역을 탐색하고, 기후·작물·지원사업 정보를 확인하세요.",
 };
 
+/** 전체 도의 highlights에서 상위 인기 키워드를 추출 */
+function getPopularKeywords(limit = 8): string[] {
+  const freq = new Map<string, number>();
+  for (const p of PROVINCES) {
+    for (const h of p.highlights) {
+      freq.set(h, (freq.get(h) || 0) + 1);
+    }
+  }
+  return [...freq.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([keyword]) => keyword);
+}
+
 export default async function RegionsPage() {
+  const popularKeywords = getPopularKeywords(8);
+
   // 모든 도의 대표 이미지를 병렬로 가져오기
   const photoResults = await Promise.allSettled(
     PROVINCES.map((p) => fetchUnsplashPhoto(p.unsplashQuery))
@@ -64,6 +82,39 @@ export default async function RegionsPage() {
               </Link>
             ))}
             <span className={s.mapQuickMore}>+{PROVINCES.length - 6}</span>
+          </div>
+
+          {/* Quick Stats */}
+          <div className={s.mapStats}>
+            <div className={s.mapStat}>
+              <Landmark size={14} aria-hidden="true" />
+              <span className={s.mapStatValue}>{PROVINCES.length}개</span>
+              <span className={s.mapStatLabel}>도·광역시</span>
+            </div>
+            <span className={s.mapStatDivider} aria-hidden="true" />
+            <div className={s.mapStat}>
+              <Sprout size={14} aria-hidden="true" />
+              <span className={s.mapStatValue}>{CROPS.length}종</span>
+              <span className={s.mapStatLabel}>추천 작물</span>
+            </div>
+            <span className={s.mapStatDivider} aria-hidden="true" />
+            <div className={s.mapStat}>
+              <FileText size={14} aria-hidden="true" />
+              <span className={s.mapStatValue}>{PROGRAMS.length}건</span>
+              <span className={s.mapStatLabel}>지원사업</span>
+            </div>
+          </div>
+
+          {/* 인기 키워드 */}
+          <div className={s.mapKeywords}>
+            <span className={s.mapKeywordsLabel}>인기 키워드</span>
+            <div className={s.mapKeywordsList}>
+              {popularKeywords.map((keyword) => (
+                <span key={keyword} className={s.mapKeyword}>
+                  {keyword}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
