@@ -40,21 +40,21 @@ export default function HomePage() {
     <div className={s.page}>
       {/* ═══ 히어로 — 검색 중심 ═══ */}
       <section className={s.heroSection} aria-label="검색">
-        <span className={s.heroEyebrow}>귀농 정보 큐레이션 포탈</span>
+        <span className={s.heroEyebrow}>나의 귀농 첫걸음</span>
 
         <h1 className={s.heroTitle}>
-          귀농, 어디서 무엇을
+          막연했던 귀농,
           <br />
-          시작할지 <span className={s.heroAccent}>이랑</span>에서 찾으세요
+          <span className={s.heroAccent}>이랑</span>에서 구체적인 계획이 됩니다
         </h1>
 
         <p className={s.heroSubtitle}>
-          전국 13개 지역의 기후 · 작물 · 지원사업 정보를 한 곳에서 비교하세요.
+          5개 공공기관 데이터 기반, 내 조건에 맞는 귀농 정보를 찾아보세요.
         </p>
 
         <div className={s.heroSearchWrap}>
           <Suspense fallback={<div className={s.searchFallback} />}>
-            <SearchGroup size="large" placeholder="지역, 작물, 지원사업 검색" />
+            <SearchGroup size="large" placeholder="관심 지역이나 작물을 검색해 보세요" />
           </Suspense>
         </div>
 
@@ -76,7 +76,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ 벤토 카드 — 실제 데이터 미리보기 ═══ */}
-      <h2 className={s.sectionTitle}>한눈에 보는 귀농 정보</h2>
+      <h2 className={s.sectionTitle}>이랑이 정리한 귀농 데이터</h2>
       <section className={s.bentoGrid} aria-label="주요 서비스">
         {/* 지역 탐색 */}
         <div className={s.bentoCard}>
@@ -167,7 +167,7 @@ export default function HomePage() {
       <section className={s.trendSection} aria-label="귀농 트렌드">
         <h2 className={s.trendTitle}>
           <TrendingUp size={18} className={s.trendTitleIcon} />
-          왜 귀농인가?
+          숫자로 보는 귀농 트렌드
         </h2>
         <p className={s.trendSub}>
           2024년 귀농귀촌인통계 기준, 농촌으로 향하는 사람들이 늘고 있습니다.
@@ -233,7 +233,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ 데이터 출처 스트립 (컴팩트) ═══ */}
-      <h2 className={s.sectionTitle}>신뢰할 수 있는 데이터</h2>
+      <h2 className={s.sectionTitle}>공공데이터로 만들었습니다</h2>
       <section className={s.sourcesStrip} aria-label="데이터 출처">
         <div className={s.sourcesStripHeader}>
           <Database size={14} />
@@ -259,14 +259,14 @@ export default function HomePage() {
       <section className={s.ctaBanner} aria-label="시작하기">
         <div className={s.ctaBannerText}>
           <h2 className={s.ctaBannerTitle}>
-            어디서 시작할지 모르겠다면?
+            나에게 맞는 귀농지, 찾아볼까요?
           </h2>
           <p className={s.ctaBannerSub}>
-            간단한 질문 5개로 나에게 맞는 귀농 지역과 작물을 찾아보세요.
+            5개 질문에 답하면 조건에 맞는 지역과 작물을 추천해 드립니다.
           </p>
         </div>
         <Link href="/match" className={s.ctaBannerBtn}>
-          맞춤 추천 받기
+          추천 시작하기
           <ArrowRight size={16} />
         </Link>
       </section>
