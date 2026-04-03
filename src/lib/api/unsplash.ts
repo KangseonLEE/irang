@@ -97,30 +97,30 @@ export async function fetchUnsplashPhotos(
 // 한국 지명은 영문이 Unsplash에서 검색 품질이 높음
 const REGION_SEARCH_QUERIES: Record<string, string> = {
   // 수도권
-  "108": "Seoul South Korea cityscape",
-  "119": "Suwon Hwaseong Fortress Korea",
+  "108": "Gyeongbokgung palace Seoul Korea",
+  "119": "Suwon Hwaseong Fortress gate Korea",
   // 강원도
-  "101": "Chuncheon Nami Island Korea",
-  "211": "Inje Seorak mountain Korea nature",
-  "217": "Jeongseon Korea mountain village",
+  "101": "Seoraksan mountain Korea autumn",
+  "211": "Seoraksan mountain Korea autumn",
+  "217": "Seoraksan mountain Korea autumn",
   // 충청도
-  "131": "Cheongju Korea countryside",
-  "133": "Daejeon Korea city",
-  "238": "Geumsan Korea ginseng field",
+  "131": "Danyang bridge South Korea landscape",
+  "133": "Daejeon Expo bridge Korea",
+  "238": "Korea rice paddy field landscape",
   // 전라도
-  "146": "Jeonju Hanok Village Korea",
-  "156": "Gwangju Korea city",
-  "262": "South Korea tea plantation",
-  "259": "South Korea tea plantation",
+  "146": "Jeonju Hanok Village traditional Korea",
+  "156": "Gwangju South Korea cityscape park",
+  "262": "Korean green tea field rows",
+  "259": "Korean green tea field rows",
   // 경상도
-  "143": "Daegu Korea city",
-  "192": "Jinju lantern festival Korea",
-  "289": "South Korea countryside village",
-  "271": "Gyeongju Korea temple",
-  "272": "Gyeongju Korea temple",
+  "143": "Daegu 83 tower South Korea",
+  "192": "Tongyeong Korea harbor coast",
+  "289": "Tongyeong Korea harbor coast",
+  "271": "Bulguksa temple Gyeongju Korea",
+  "272": "Bulguksa temple Gyeongju Korea",
   // 제주
-  "184": "Jeju Island Korea landscape",
-  "189": "Seogwipo Jeju Korea coast",
+  "184": "Seongsan Ilchulbong Jeju Korea",
+  "189": "Seongsan Ilchulbong Jeju Korea",
 };
 
 /**

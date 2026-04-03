@@ -48,7 +48,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "11",
     hiraSidoCd: "110000",
     eduCode: "B10",
-    unsplashQuery: "Seoul South Korea cityscape",
+    unsplashQuery: "Gyeongbokgung palace Seoul Korea",
     personas: [
       {
         title: "도시를 완전히 떠나기 전 경험을 쌓고 싶은 분",
@@ -73,7 +73,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "31",
     hiraSidoCd: "310000",
     eduCode: "J10",
-    unsplashQuery: "Suwon Hwaseong Fortress Korea",
+    unsplashQuery: "Suwon Hwaseong Fortress gate Korea",
     personas: [
       {
         title: "서울 생활권을 유지하면서 농업을 시작하려는 분",
@@ -98,7 +98,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "32",
     hiraSidoCd: "320000",
     eduCode: "R10",
-    unsplashQuery: "Gangwon Korea mountain village nature",
+    unsplashQuery: "Seoraksan mountain Korea autumn",
     personas: [
       {
         title: "깨끗한 자연 속에서 건강한 먹거리를 키우고 싶은 분",
@@ -128,7 +128,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "33",
     hiraSidoCd: "330000",
     eduCode: "M10",
-    unsplashQuery: "Cheongju Korea rural countryside",
+    unsplashQuery: "Danyang bridge South Korea landscape",
     personas: [
       {
         title: "유기농·친환경 농업에 관심 있는 분",
@@ -153,7 +153,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "25",
     hiraSidoCd: "250000",
     eduCode: "G10",
-    unsplashQuery: "Daejeon Korea city park",
+    unsplashQuery: "Daejeon Expo bridge Korea",
     personas: [
       {
         title: "기술 기반 스마트팜에 관심 있는 분",
@@ -178,7 +178,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "34",
     hiraSidoCd: "340000",
     eduCode: "N10",
-    unsplashQuery: "Chungnam Korea rice paddy field",
+    unsplashQuery: "Korea rice paddy field landscape",
     personas: [
       {
         title: "전통 농업(쌀·인삼·참깨)의 안정적 수익을 원하는 분",
@@ -228,7 +228,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "24",
     hiraSidoCd: "240000",
     eduCode: "F10",
-    unsplashQuery: "Gwangju Korea city",
+    unsplashQuery: "Gwangju South Korea cityscape park",
     personas: [
       {
         title: "도시 생활을 유지하며 전남 농업에 접근하려는 분",
@@ -253,7 +253,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "36",
     hiraSidoCd: "360000",
     eduCode: "Q10",
-    unsplashQuery: "South Korea tea plantation",
+    unsplashQuery: "Korean green tea field rows",
     personas: [
       {
         title: "온화한 기후에서 다양한 작물을 시도하고 싶은 분",
@@ -283,7 +283,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "22",
     hiraSidoCd: "220000",
     eduCode: "D10",
-    unsplashQuery: "Daegu Korea city mountain",
+    unsplashQuery: "Daegu 83 tower South Korea",
     personas: [
       {
         title: "도시형 과수·원예 농업에 관심 있는 분",
@@ -308,7 +308,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "37",
     hiraSidoCd: "370000",
     eduCode: "S10",
-    unsplashQuery: "Gyeongju Korea temple",
+    unsplashQuery: "Bulguksa temple Gyeongju Korea",
     personas: [
       {
         title: "과수(사과·포도) 전문 농가를 꿈꾸는 분",
@@ -338,7 +338,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "38",
     hiraSidoCd: "380000",
     eduCode: "T10",
-    unsplashQuery: "Jinju lantern festival Korea",
+    unsplashQuery: "Tongyeong Korea harbor coast",
     personas: [
       {
         title: "마늘·양파·딸기 등 채소·과수 농업을 원하는 분",
@@ -368,7 +368,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "39",
     hiraSidoCd: "390000",
     eduCode: "V10",
-    unsplashQuery: "Jeju Island Korea landscape",
+    unsplashQuery: "Seongsan Ilchulbong Jeju Korea",
     personas: [
       {
         title: "감귤·아열대 작물에 도전하고 싶은 분",
