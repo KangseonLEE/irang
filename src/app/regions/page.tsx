@@ -341,16 +341,6 @@ function ClimateCard({
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             style={{ objectFit: "cover" }}
           />
-          <span className={s.cardImageCredit}>
-            📷{" "}
-            <a
-              href={`${photo.photographerUrl}?utm_source=irang&utm_medium=referral`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {photo.photographer}
-            </a>
-          </span>
         </div>
       )}
       <div className={s.cardBody}>
