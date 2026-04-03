@@ -5,48 +5,18 @@ import {
   MapPin,
   FileText,
   Sprout,
-  CloudSun,
-  BarChart3,
+  ExternalLink,
   TrendingUp,
-  Hospital,
-  GraduationCap,
-  RefreshCw,
   Database,
 } from "lucide-react";
 import SearchGroup from "@/components/search/search-group";
 import {
   dataSources,
-  type ColorKey,
+  trendStats,
+  trendReasons,
+  trendNews,
 } from "@/lib/data/landing";
 import s from "./page.module.css";
-
-/* ────────────────────────────────────────────
-   Icon & Color 매핑 (데이터 출처 섹션)
-   ──────────────────────────────────────────── */
-
-const ICON_MAP: Record<string, React.ComponentType<{ size?: number }>> = {
-  cloudSun: CloudSun,
-  barChart: BarChart3,
-  trendingUp: TrendingUp,
-  hospital: Hospital,
-  graduationCap: GraduationCap,
-};
-
-const SOURCE_ICON_CLS: Record<ColorKey, string> = {
-  amber: s.sourceIconAmber,
-  blue: s.sourceIconBlue,
-  green: s.sourceIconGreen,
-  red: s.sourceIconRed,
-  brand: s.sourceIconBrand,
-};
-
-const SOURCE_TAG_CLS: Record<ColorKey, string> = {
-  amber: s.sourceTagAmber,
-  blue: s.sourceTagBlue,
-  green: s.sourceTagGreen,
-  red: s.sourceTagRed,
-  brand: s.sourceTagBrand,
-};
 
 /* ────────────────────────────────────────────
    Page
@@ -139,65 +109,89 @@ export default function HomePage() {
         </Link>
       </section>
 
-      {/* ═══ 통계 스트립 ═══ */}
-      <ul className={s.statsRow} aria-label="주요 통계">
-        <li className={s.statItem}>
-          <span className={s.statEmoji} aria-hidden="true">🌡️</span>
-          <span className={s.statValue}>19</span>개 관측소
-        </li>
-        <li className={s.statDot} aria-hidden="true" />
-        <li className={s.statItem}>
-          <span className={s.statEmoji} aria-hidden="true">📡</span>
-          <span className={s.statValue}>5</span>개 공공 API
-        </li>
-        <li className={s.statDot} aria-hidden="true" />
-        <li className={s.statItem}>
-          <span className={s.statEmoji} aria-hidden="true">🔄</span>
-          매일 자동 업데이트
-        </li>
-      </ul>
+      {/* ═══ 귀농 트렌드 섹션 ═══ */}
+      <section className={s.trendSection} aria-label="귀농 트렌드">
+        <h2 className={s.trendTitle}>
+          <TrendingUp size={18} className={s.trendTitleIcon} />
+          왜 귀농인가?
+        </h2>
+        <p className={s.trendSub}>
+          2024년 귀농귀촌인통계 기준, 농촌으로 향하는 사람들이 늘고 있습니다.
+        </p>
 
-      {/* ═══ 데이터 출처 카드 ═══ */}
-      <section className={s.sourcesSection} aria-label="데이터 출처">
-        <div>
-          <h2 className={s.sourcesTitle}>
-            <Database size={18} className={s.sourcesTitleIcon} />
-            공공 데이터 출처
-          </h2>
-          <p className={s.sourcesSub}>
-            5개 공공 기관의 신뢰할 수 있는 데이터를 사용합니다.
+        {/* 핵심 숫자 3개 */}
+        <div className={s.trendStatsGrid}>
+          {trendStats.map((stat) => (
+            <div key={stat.label} className={s.trendStatCard}>
+              <span className={s.trendEmoji} aria-hidden="true">
+                {stat.emoji}
+              </span>
+              <span className={s.trendValue}>{stat.value}</span>
+              <span className={s.trendLabel}>{stat.label}</span>
+              <span className={s.trendStatSub}>{stat.sub}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* 귀농 이유 */}
+        <div className={s.reasonsCard}>
+          <h3 className={s.reasonsTitle}>귀농을 선택한 이유</h3>
+          <div className={s.reasonsList}>
+            {trendReasons.map((r) => (
+              <div key={r.label} className={s.reasonRow}>
+                <span className={s.reasonLabel}>{r.label}</span>
+                <div className={s.reasonBarWrap}>
+                  <div
+                    className={s.reasonBar}
+                    style={{ width: `${r.pct * 3}%` }}
+                  />
+                </div>
+                <span className={s.reasonPct}>{r.pct}%</span>
+              </div>
+            ))}
+          </div>
+          <p className={s.reasonSource}>
+            출처: 농림축산식품부 귀농귀촌 실태조사
           </p>
         </div>
 
-        <div className={s.sourcesGrid}>
-          {dataSources.map((src) => {
-            const Icon = ICON_MAP[src.iconKey];
-            return (
-              <div key={src.code} className={s.sourceItem}>
-                <div
-                  className={`${s.sourceIcon} ${SOURCE_ICON_CLS[src.colorKey]}`}
-                >
-                  <Icon size={20} />
-                </div>
-                <span
-                  className={`${s.sourceTag} ${SOURCE_TAG_CLS[src.colorKey]}`}
-                >
-                  {src.tagLabel}
+        {/* 관련 뉴스 */}
+        <div className={s.newsCard}>
+          <h3 className={s.newsTitle}>관련 뉴스</h3>
+          <div className={s.newsList}>
+            {trendNews.map((news) => (
+              <a
+                key={news.url}
+                href={news.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={s.newsItem}
+              >
+                <span className={s.newsItemTitle}>{news.title}</span>
+                <span className={s.newsItemMeta}>
+                  {news.source} · {news.date}
+                  <ExternalLink size={12} />
                 </span>
-                <span className={s.sourceName}>{src.name}</span>
-                <p className={s.sourceDesc}>{src.description}</p>
-              </div>
-            );
-          })}
+              </a>
+            ))}
+          </div>
         </div>
+      </section>
 
-        <div className={s.updateBanner}>
-          <RefreshCw size={15} className={s.updateIcon} />
+      {/* ═══ 데이터 출처 스트립 (컴팩트) ═══ */}
+      <section className={s.sourcesStrip} aria-label="데이터 출처">
+        <div className={s.sourcesStripHeader}>
+          <Database size={14} />
           <span>
-            모든 데이터는{" "}
-            <span className={s.updateStrong}>매일 자동 업데이트</span>
-            됩니다.
+            5개 공공 기관 데이터 · 매일 자동 업데이트
           </span>
+        </div>
+        <div className={s.sourcesStripList}>
+          {dataSources.map((src) => (
+            <span key={src.code} className={s.sourcesStripTag}>
+              {src.name}
+            </span>
+          ))}
         </div>
       </section>
 
