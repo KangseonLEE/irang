@@ -364,6 +364,86 @@
   text-decoration: underline;
 }
 
+/* ---- 교육·행사 카드 ---- */
+.eduCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+}
+
+@media (max-width: 639px) {
+  .eduCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+.eduCardMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.eduCardBadges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.eduTypeBadge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  white-space: nowrap;
+}
+
+.eduLevelBadge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--muted, #f4f4f5);
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.eventTypeBadge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+}
+
+.eventTypeBadge[data-type="팜스테이"],
+.eventTypeBadge[data-type="축제"] {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.eventTypeBadge[data-type="박람회"],
+.eventTypeBadge[data-type="설명회"] {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.eventTypeBadge[data-type="멘토링"] {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
 /* ---- 사이드바 ---- */
 .sidebar {
   display: flex;

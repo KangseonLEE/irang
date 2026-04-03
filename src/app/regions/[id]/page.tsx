@@ -15,11 +15,14 @@ import {
   GitCompareArrows,
   ArrowRight,
   UserCheck,
+  Calendar,
 } from "lucide-react";
 import { PROVINCES, type Province } from "@/lib/data/regions";
 import { STATIONS } from "@/lib/data/stations";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { filterPrograms } from "@/lib/data/programs";
+import { filterEducation } from "@/lib/data/education";
+import { filterEvents } from "@/lib/data/events";
 import { fetchMultipleClimateData } from "@/lib/api/weather";
 import { fetchPopulationData } from "@/lib/api/sgis";
 import { fetchMedicalFacilities } from "@/lib/api/hira";
@@ -97,6 +100,18 @@ export default async function RegionDetailPage({ params }: PageProps) {
     region: province.name,
     includeClosed: false,
   }).slice(0, 6);
+
+  // 이 도에 맞는 교육 과정 (해당 지역 + 전국, 마감 제외)
+  const matchedEducation = filterEducation({
+    region: province.name,
+    includeClosed: false,
+  }).slice(0, 4);
+
+  // 이 도에 맞는 체험·행사 (해당 지역 + 전국, 마감 제외)
+  const matchedEvents = filterEvents({
+    region: province.name,
+    includeClosed: false,
+  }).slice(0, 4);
 
   const year = new Date().getFullYear();
 
@@ -270,6 +285,93 @@ export default async function RegionDetailPage({ params }: PageProps) {
                 className={s.viewMore}
               >
                 전체 지원사업 보기 →
+              </Link>
+            </section>
+          )}
+
+          {/* 교육 과정 */}
+          {matchedEducation.length > 0 && (
+            <section className={s.section}>
+              <div className={s.sectionHeader}>
+                <GraduationCap size={20} className={s.sectionIcon} />
+                <div>
+                  <h2 className={s.sectionTitle}>귀농 교육</h2>
+                  <p className={s.sectionDesc}>
+                    {province.shortName} 지역에서 수강 가능한 교육 과정입니다.
+                  </p>
+                </div>
+              </div>
+              <div className={s.programList}>
+                {matchedEducation.map((course) => (
+                  <div key={course.id} className={s.eduCard}>
+                    <div className={s.eduCardMain}>
+                      <span className={s.programTitle}>{course.title}</span>
+                      <span className={s.programMeta}>
+                        {course.organization} · {course.schedule}
+                      </span>
+                    </div>
+                    <div className={s.eduCardBadges}>
+                      <span className={s.eduTypeBadge}>{course.type}</span>
+                      <span className={s.eduLevelBadge}>{course.level}</span>
+                      <span
+                        className={`${s.programStatus} ${course.status === "모집중" ? s.statusActive : ""}`}
+                      >
+                        {course.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Link
+                href={`/education?region=${encodeURIComponent(province.name)}`}
+                className={s.viewMore}
+              >
+                전체 교육 보기 →
+              </Link>
+            </section>
+          )}
+
+          {/* 체험·행사 */}
+          {matchedEvents.length > 0 && (
+            <section className={s.section}>
+              <div className={s.sectionHeader}>
+                <Calendar size={20} className={s.sectionIcon} />
+                <div>
+                  <h2 className={s.sectionTitle}>체험·행사</h2>
+                  <p className={s.sectionDesc}>
+                    {province.shortName} 지역에서 참여할 수 있는 행사입니다.
+                  </p>
+                </div>
+              </div>
+              <div className={s.programList}>
+                {matchedEvents.map((event) => (
+                  <div key={event.id} className={s.eduCard}>
+                    <div className={s.eduCardMain}>
+                      <span className={s.programTitle}>{event.title}</span>
+                      <span className={s.programMeta}>
+                        {event.location} ·{" "}
+                        {event.date}
+                        {event.dateEnd ? ` ~ ${event.dateEnd}` : ""}
+                      </span>
+                    </div>
+                    <div className={s.eduCardBadges}>
+                      <span className={s.eventTypeBadge} data-type={event.type}>
+                        {event.type}
+                      </span>
+                      <span
+                        className={`${s.programStatus} ${event.status === "접수중" ? s.statusActive : ""}`}
+                      >
+                        {event.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Link
+                href={`/events?region=${encodeURIComponent(province.name)}`}
+                className={s.viewMore}
+              >
+                전체 행사 보기 →
               </Link>
             </section>
           )}
