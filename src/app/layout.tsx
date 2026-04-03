@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { Header } from "@/components/layout/header";
@@ -70,6 +71,7 @@ export default function RootLayout({
       </head>
       <body className={s.body}>
         <GoogleAnalytics />
+        <Analytics />
         <ThemeProvider>
           <Header />
           <main className={s.main}>{children}</main>
