@@ -40,16 +40,16 @@ export default function HomePage() {
     <div className={s.page}>
       {/* ═══ 히어로 — 검색 중심 ═══ */}
       <section className={s.heroSection} aria-label="검색">
-        <span className={s.heroEyebrow}>나의 귀농 첫걸음</span>
+        <span className={s.heroEyebrow}>귀농을 결심한 순간부터</span>
 
         <h1 className={s.heroTitle}>
-          막연했던 귀농,
+          귀농, 막막할수록
           <br />
-          <span className={s.heroAccent}>이랑</span>에서 구체적인 계획이 됩니다
+          숫자가 답입니다
         </h1>
 
         <p className={s.heroSubtitle}>
-          5개 공공기관 데이터 기반, 내 조건에 맞는 귀농 정보를 찾아보세요.
+          농림부, 통계청, 건강보험 데이터로 만든 귀농 지도입니다.
         </p>
 
         <div className={s.heroSearchWrap}>
@@ -76,7 +76,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ 벤토 카드 — 실제 데이터 미리보기 ═══ */}
-      <h2 className={s.sectionTitle}>이랑이 정리한 귀농 데이터</h2>
+      <h2 className={s.sectionTitle}>귀농에 필요한 것들</h2>
       <section className={s.bentoGrid} aria-label="주요 서비스">
         {/* 지역 탐색 */}
         <div className={s.bentoCard}>
@@ -167,7 +167,7 @@ export default function HomePage() {
       <section className={s.trendSection} aria-label="귀농 트렌드">
         <h2 className={s.trendTitle}>
           <TrendingUp size={18} className={s.trendTitleIcon} />
-          숫자로 보는 귀농 트렌드
+          올해 귀농 트렌드
         </h2>
         <p className={s.trendSub}>
           2024년 귀농귀촌인통계 기준, 농촌으로 향하는 사람들이 늘고 있습니다.
@@ -233,7 +233,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ 데이터 출처 스트립 (컴팩트) ═══ */}
-      <h2 className={s.sectionTitle}>공공데이터로 만들었습니다</h2>
+      <h2 className={s.sectionTitle}>출처가 분명한 정보입니다</h2>
       <section className={s.sourcesStrip} aria-label="데이터 출처">
         <div className={s.sourcesStripHeader}>
           <Database size={14} />
@@ -259,14 +259,14 @@ export default function HomePage() {
       <section className={s.ctaBanner} aria-label="시작하기">
         <div className={s.ctaBannerText}>
           <h2 className={s.ctaBannerTitle}>
-            나에게 맞는 귀농지, 찾아볼까요?
+            5분이면 내 귀농지 윤곽이 잡힙니다
           </h2>
           <p className={s.ctaBannerSub}>
-            5개 질문에 답하면 조건에 맞는 지역과 작물을 추천해 드립니다.
+            나이, 예산, 원하는 삶의 방식을 알려주시면 지역과 작물을 추려드립니다.
           </p>
         </div>
         <Link href="/match" className={s.ctaBannerBtn}>
-          추천 시작하기
+          내 귀농지 찾기
           <ArrowRight size={16} />
         </Link>
       </section>
