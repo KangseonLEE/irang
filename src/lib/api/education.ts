@@ -98,9 +98,9 @@ async function fetchEduSchoolCount(
 export async function fetchSchoolCounts(
   eduCodes: string[]
 ): Promise<SchoolData[]> {
-  const apiKey = process.env.DATA_GO_KR_API_KEY;
+  const apiKey = process.env.NEIS_API_KEY;
   if (!apiKey) {
-    console.error("DATA_GO_KR_API_KEY is not set");
+    console.error("NEIS_API_KEY is not set");
     return [];
   }
 
