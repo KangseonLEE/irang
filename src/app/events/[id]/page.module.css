@@ -1,0 +1,319 @@
+/* ── 행사 상세 페이지 ── */
+
+/* 레이아웃 */
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 16px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 24px 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 40px 32px;
+  }
+}
+
+/* 뒤로가기 */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: var(--muted-foreground, #6b7280);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+@media (hover: hover) {
+  .backLink:hover {
+    color: var(--foreground, #111);
+    background: var(--muted, #f3f4f6);
+  }
+}
+
+/* ── 타이틀 섹션 ── */
+.titleSection {
+  margin-bottom: 32px;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+/* 상태 뱃지 공통 */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* 상태별 색상 */
+.statusOpen {
+  background: var(--primary, #1b6b5a);
+  color: var(--primary-foreground, #fff);
+}
+
+.statusUpcoming {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.statusClosed {
+  background: transparent;
+  color: var(--muted-foreground, #6b7280);
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+/* 행사 유형 뱃지 공통 */
+.typeBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.typeExperience {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.typeFarmstay {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.typeExpo {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.typeSeminar {
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+.typeMentoring {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.typeFestival {
+  background: #fdf4ff;
+  color: #a21caf;
+}
+
+/* 페이지 제목 */
+.pageTitle {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  color: var(--foreground, #111);
+}
+
+@media (min-width: 640px) {
+  .pageTitle {
+    font-size: 30px;
+  }
+}
+
+/* ── 콘텐츠 그리드 ── */
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .contentGrid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── 카드 ── */
+.card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.cardHeader {
+  padding: 24px 24px 0;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--foreground, #111);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cardContent {
+  padding: 16px 24px 24px;
+}
+
+/* ── 테이블 ── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableRow {
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.tableLabelCell {
+  width: 100px;
+  padding: 14px 0;
+  vertical-align: top;
+}
+
+@media (min-width: 640px) {
+  .tableLabelCell {
+    width: 140px;
+  }
+}
+
+.tableValueCell {
+  padding: 14px 0;
+  font-size: 14px;
+  color: var(--foreground, #111);
+  word-break: break-word;
+}
+
+/* 아이콘 + 라벨 */
+.iconLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--foreground, #111);
+}
+
+.iconMuted {
+  color: var(--muted-foreground, #6b7280);
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* ── 설명 텍스트 ── */
+.descriptionText {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── CTA 버튼 ── */
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  justify-content: center;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  background: var(--primary, #1b6b5a);
+  color: var(--primary-foreground, #fff);
+  text-decoration: none;
+  transition: background-color 0.15s;
+  border: none;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .ctaButton:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 90%, black);
+  }
+}
+
+.ctaNote {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 관련 행사 ── */
+.relatedList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.relatedItem {
+  border-radius: 10px;
+  transition: background-color 0.15s;
+}
+
+@media (hover: hover) {
+  .relatedItem:hover {
+    background: var(--secondary, #e8f5f1);
+  }
+}
+
+.relatedLink {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  text-decoration: none;
+  border-radius: 10px;
+}
+
+.relatedTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground, #111);
+  line-height: 1.4;
+}
+
+.relatedMeta {
+  font-size: 12px;
+  color: var(--muted-foreground, #6b7280);
+}

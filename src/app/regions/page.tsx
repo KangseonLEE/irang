@@ -4,6 +4,7 @@ import Image from "next/image";
 import { MapPin, ArrowRight, GitCompareArrows } from "lucide-react";
 import { PROVINCES } from "@/lib/data/regions";
 import { fetchUnsplashPhoto, type UnsplashPhoto } from "@/lib/api/unsplash";
+import { KoreaMap } from "@/components/map/korea-map";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -40,6 +41,32 @@ export default async function RegionsPage() {
           확인하세요.
         </p>
       </header>
+
+      {/* 인터랙티브 지도 */}
+      <section className={s.mapSection}>
+        <div className={s.mapWrapper}>
+          <KoreaMap />
+        </div>
+        <div className={s.mapGuide}>
+          <h2 className={s.mapGuideTitle}>지도에서 지역을 선택하세요</h2>
+          <p className={s.mapGuideDesc}>
+            관심 있는 지역을 클릭하면 기후, 인구, 추천 작물, 지원사업 등
+            상세 정보를 확인할 수 있습니다.
+          </p>
+          <div className={s.mapQuickLinks}>
+            {PROVINCES.slice(0, 6).map((p) => (
+              <Link
+                key={p.id}
+                href={`/regions/${p.id}`}
+                className={s.mapQuickLink}
+              >
+                {p.shortName}
+              </Link>
+            ))}
+            <span className={s.mapQuickMore}>+{PROVINCES.length - 6}</span>
+          </div>
+        </div>
+      </section>
 
       {/* Region Cards Grid */}
       <section className={s.grid}>

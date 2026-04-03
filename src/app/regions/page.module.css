@@ -45,6 +45,120 @@
   max-width: 540px;
 }
 
+/* ---- 인터랙티브 지도 섹션 ---- */
+.mapSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+}
+
+@media (min-width: 768px) {
+  .mapSection {
+    flex-direction: row;
+    align-items: center;
+    gap: 32px;
+    padding: 32px;
+  }
+}
+
+.mapWrapper {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 320px;
+}
+
+@media (min-width: 768px) {
+  .mapWrapper {
+    max-width: 360px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mapWrapper {
+    max-width: 400px;
+  }
+}
+
+.mapGuide {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .mapGuide {
+    text-align: left;
+    flex: 1;
+  }
+}
+
+.mapGuideTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .mapGuideTitle {
+    font-size: 1.5rem;
+  }
+}
+
+.mapGuideDesc {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.mapQuickLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .mapQuickLinks {
+    justify-content: flex-start;
+  }
+}
+
+.mapQuickLink {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: var(--secondary, #e8f5f1);
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+@media (hover: hover) {
+  .mapQuickLink:hover {
+    background: var(--primary, #1b6b5a);
+    color: #fff;
+  }
+}
+
+.mapQuickMore {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: var(--muted, #f4f4f5);
+  color: var(--muted-foreground);
+}
+
 /* ---- 카드 그리드 ---- */
 .grid {
   display: grid;
