@@ -8,6 +8,8 @@ const serviceLinks = [
   { href: "/regions", label: "지역 탐색" },
   { href: "/programs", label: "지원사업 검색" },
   { href: "/crops", label: "작물 정보" },
+  { href: "/about", label: "서비스 소개" },
+  { href: "/match", label: "맞춤 추천" },
 ];
 
 const dataSources = [

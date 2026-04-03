@@ -1,0 +1,509 @@
+/* ==========================================================================
+   /match — 맞춤 추천 위저드
+   CSS Module · 모바일 우선 반응형
+   ========================================================================== */
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: calc(100dvh - 64px);
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 40px 24px 80px;
+    gap: 32px;
+  }
+}
+
+/* ═══ 프로그레스 바 ═══ */
+.progressWrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progressBar {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--muted, #f3f4f6);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--primary, #1b6b5a);
+  transition: width 0.35s ease;
+}
+
+.progressLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+/* ═══ 질문 영역 ═══ */
+.questionWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.questionTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--foreground);
+  margin: 0;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+@media (min-width: 640px) {
+  .questionTitle {
+    font-size: 1.75rem;
+  }
+}
+
+.questionSubtitle {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0 0 12px;
+}
+
+/* ═══ 옵션 그리드 ═══ */
+.optionsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+@media (min-width: 480px) {
+  .optionsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ═══ 옵션 카드 ═══ */
+.optionCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 20px 16px;
+  border-radius: 14px;
+  background: var(--card, #fff);
+  border: 2px solid var(--border, #e5e7eb);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  /* reset button */
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.optionCard:hover {
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 50%, transparent);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.optionCard:active {
+  transform: scale(0.98);
+}
+
+.optionSelected {
+  border-color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+  box-shadow: 0 0 0 1px var(--primary, #1b6b5a);
+}
+
+.optionIcon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+}
+
+.optionSelected .optionIcon {
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+}
+
+.optionLabel {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.optionDesc {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+/* 복수 선택 체크 표시 */
+.optionCheck {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border, #d1d5db);
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.optionCheckActive {
+  border-color: var(--primary, #1b6b5a);
+  background: var(--primary, #1b6b5a);
+}
+
+.optionCheckActive::after {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 10px;
+  margin: 1px auto 0;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ═══ 하단 네비게이션 ═══ */
+.navBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.navBtnBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  background: none;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  font-family: inherit;
+}
+
+.navBtnBack:hover:not(:disabled) {
+  border-color: var(--foreground);
+  color: var(--foreground);
+}
+
+.navBtnBack:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.navBtnNext {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary, #1b6b5a);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  font-family: inherit;
+  margin-left: auto;
+}
+
+.navBtnNext:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.navBtnNext:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════
+   결과 화면
+   ═══════════════════════════════════════ */
+
+.resultHeader {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.resultOverline {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary, #1b6b5a);
+}
+
+.resultTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--foreground);
+  margin: 0;
+  word-break: keep-all;
+}
+
+@media (min-width: 640px) {
+  .resultTitle {
+    font-size: 1.75rem;
+  }
+}
+
+.resultDesc {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+/* ── 결과 섹션 ── */
+.resultSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resultSectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.resultSectionTitle > svg {
+  color: var(--primary, #1b6b5a);
+}
+
+/* ── 추천 지역 카드 ── */
+.resultCards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resultCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.resultCard:hover {
+  border-color: var(--primary, #1b6b5a);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.resultCardRank {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.resultCardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.resultCardTitle {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.resultCardDesc {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.resultCardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.resultCardTag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+}
+
+.resultCardLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  margin-top: 4px;
+}
+
+/* ── 추천 작물 카드 ── */
+.cropCards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 480px) {
+  .cropCards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.cropCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s;
+}
+
+.cropCard:hover {
+  border-color: var(--primary, #1b6b5a);
+}
+
+.cropEmoji {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.cropCardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cropName {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.cropMeta {
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+}
+
+.cropReason {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--primary, #1b6b5a);
+}
+
+.cropArrow {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+/* ── 결과 액션 ── */
+.resultActions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+}
+
+.resetBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  background: none;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.resetBtn:hover {
+  border-color: var(--foreground);
+  color: var(--foreground);
+}
+
+.exploreBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary, #1b6b5a);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.exploreBtn:hover {
+  opacity: 0.9;
+}

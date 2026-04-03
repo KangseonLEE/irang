@@ -10,6 +10,7 @@ const navItems = [
   { href: "/regions", label: "지역탐색" },
   { href: "/programs", label: "지원사업" },
   { href: "/crops", label: "작물정보" },
+  { href: "/about", label: "서비스소개" },
 ];
 
 export function Header() {
@@ -54,10 +55,10 @@ export function Header() {
         {/* Right Actions — 데스크탑 CTA */}
         <div className={s.actions}>
           <Link
-            href="/programs"
+            href="/match"
             className={s.ctaButton}
           >
-            지원사업 찾기
+            맞춤 추천
             <ArrowRight size={14} />
           </Link>
         </div>

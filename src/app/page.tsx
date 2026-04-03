@@ -220,14 +220,14 @@ export default function HomePage() {
       <section className={s.ctaBanner} aria-label="시작하기">
         <div className={s.ctaBannerText}>
           <h2 className={s.ctaBannerTitle}>
-            귀농의 첫걸음, 지금 시작하세요.
+            어디서 시작할지 모르겠다면?
           </h2>
           <p className={s.ctaBannerSub}>
-            회원가입 불필요 · 광고 없음 · 공공 데이터 기반
+            간단한 질문 5개로 나에게 맞는 귀농 지역과 작물을 찾아보세요.
           </p>
         </div>
-        <Link href="/programs" className={s.ctaBannerBtn}>
-          지원사업 찾기
+        <Link href="/match" className={s.ctaBannerBtn}>
+          맞춤 추천 받기
           <ArrowRight size={16} />
         </Link>
       </section>
