@@ -229,15 +229,20 @@
 }
 
 .tableLabelCell {
-  width: 140px;
+  width: 100px;
   padding: 14px 0;
   vertical-align: top;
+}
+
+@media (min-width: 640px) {
+  .tableLabelCell { width: 140px; }
 }
 
 .tableValueCell {
   padding: 14px 0;
   font-size: 14px;
   color: var(--foreground, #111);
+  word-break: break-word;
 }
 
 /* 아이콘 + 라벨 */

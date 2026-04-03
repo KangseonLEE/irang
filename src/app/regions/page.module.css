@@ -234,11 +234,16 @@
   color: var(--muted-foreground);
   border-bottom: 1px solid var(--border, #e5e7eb);
   white-space: nowrap;
+  min-width: 100px;
 }
 
 .th:first-child {
   text-align: left;
-  min-width: 140px;
+  min-width: 110px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--card, #fff);
 }
 
 .td {
@@ -246,11 +251,17 @@
   text-align: center;
   color: var(--foreground);
   border-bottom: 1px solid var(--border, #e5e7eb);
+  min-width: 100px;
+  white-space: nowrap;
 }
 
 .td:first-child {
   text-align: left;
   font-weight: 500;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--card, #fff);
 }
 
 .tdUnit {
@@ -279,6 +290,21 @@
   letter-spacing: 0.1em;
   color: var(--muted-foreground);
   background: var(--muted, #f4f4f5);
+}
+
+/* 스크롤 힌트: 모바일에서 테이블이 가로 스크롤 가능함을 시각적으로 표시 */
+@media (max-width: 639px) {
+  .tableWrap {
+    /* 우측 그라데이션 페이드로 스크롤 힌트 */
+    mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+  }
+
+  .tableWrap:hover,
+  .tableWrap:active {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
 }
 
 /* ---- 출처 표시 ---- */

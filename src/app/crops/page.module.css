@@ -344,6 +344,7 @@
 
 .thRight {
   text-align: right;
+  min-width: 90px;
 }
 
 .tdCenter {
