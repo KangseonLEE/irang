@@ -150,6 +150,12 @@ export const popularRegions = [
     climate: "연평균 11.3°C",
     highlight: "사과·인삼 전국 최고 품질",
   },
+  {
+    name: "수원",
+    provinceId: "gyeonggi",
+    climate: "연평균 12.8°C",
+    highlight: "수도권 직거래 최적 입지",
+  },
 ];
 
 export const popularCrops = [
@@ -177,6 +183,14 @@ export const popularCrops = [
     difficulty: "어려움",
     season: "3월~11월",
   },
+  {
+    id: "rice",
+    name: "쌀",
+    emoji: "\u{1F33E}",
+    badge: "식량",
+    difficulty: "쉬움",
+    season: "4월~10월",
+  },
 ];
 
 export const hotPrograms = [
@@ -186,6 +200,7 @@ export const hotPrograms = [
     region: "순천시",
     type: "보조금",
     amount: "최대 3,000만 원",
+    tag: "귀농 초기 정착",
   },
   {
     id: "prg-002",
@@ -193,6 +208,7 @@ export const hotPrograms = [
     region: "전국",
     type: "보조금",
     amount: "최대 3억 원 융자",
+    tag: "만 40세 이하 청년",
   },
   {
     id: "prg-004",
@@ -200,5 +216,14 @@ export const hotPrograms = [
     region: "전남",
     type: "보조금",
     amount: "최대 5,000만 원",
+    tag: "농촌 주거 안정",
+  },
+  {
+    id: "prg-003",
+    title: "귀농 농업창업 지원",
+    region: "전국",
+    type: "융자",
+    amount: "최대 3억 원",
+    tag: "영농 경력 없는 분",
   },
 ];

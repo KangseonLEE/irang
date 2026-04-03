@@ -438,14 +438,20 @@
   .programMeta { font-size: 11px; }
 }
 
-.programAmount {
-  font-size: 12px;
-  font-weight: 600;
+.programTag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
   color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: fit-content;
+  margin-top: 2px;
 }
 
 @media (min-width: 640px) {
-  .programAmount { font-size: 11px; }
+  .programTag { font-size: 11px; }
 }
 
 /* ── 벤토 "더보기" 링크 ── */

@@ -98,7 +98,7 @@ export default function HomePage() {
                 <div className={s.previewMain}>
                   <span className={s.previewName}>{c.name}</span>
                   <span className={s.previewSub}>
-                    난이도 {c.difficulty} · {c.season}
+                    재배 난이도 {c.difficulty} · 수확기 {c.season}
                   </span>
                 </div>
                 <span className={s.previewBadge}>{c.badge}</span>
@@ -126,9 +126,9 @@ export default function HomePage() {
               >
                 <span className={s.programTitle}>{p.title}</span>
                 <span className={s.programMeta}>
-                  {p.region} · {p.type}
+                  {p.region} · {p.type} · {p.amount}
                 </span>
-                <span className={s.programAmount}>{p.amount}</span>
+                <span className={s.programTag}>{p.tag}</span>
               </Link>
             ))}
           </div>
