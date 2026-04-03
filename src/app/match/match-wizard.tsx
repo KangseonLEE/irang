@@ -298,15 +298,35 @@ interface ScoredProvince {
 
 interface RecommendedCrop {
   crop: CropInfo;
-  reason: string;
+  reasons: string[];
 }
 
+/** 답변 선택지 → 사용자 친화적 라벨 */
+const ANSWER_LABELS: Record<string, Record<string, string>> = {
+  climate: {
+    warm: "온화한 기후 선호",
+    "four-season": "뚜렷한 사계절 선호",
+    cool: "서늘한 기후 선호",
+  },
+  priority: {
+    nature: "자연환경 우선",
+    access: "교통 접근성 우선",
+    support: "귀농 지원 혜택 우선",
+    market: "소비 시장 접근 우선",
+  },
+  lifestyle: {
+    "near-city": "도시 근교 생활",
+    moderate: "읍·면 단위 생활",
+    rural: "조용한 농촌 생활",
+  },
+};
+
 function scoreProvinces(answers: Answers): ScoredProvince[] {
-  const scores: Record<string, { score: number; reasons: string[] }> = {};
+  const scores: Record<string, { score: number; reasons: Set<string> }> = {};
 
   // 초기화
   for (const p of PROVINCES) {
-    scores[p.id] = { score: 0, reasons: [] };
+    scores[p.id] = { score: 0, reasons: new Set() };
   }
 
   // 기후 점수
@@ -317,14 +337,10 @@ function scoreProvinces(answers: Answers): ScoredProvince[] {
     for (const [pid, pts] of Object.entries(map)) {
       if (scores[pid]) {
         scores[pid].score += pts;
-        if (pts >= 8) {
-          const label =
-            ans === "warm"
-              ? "온화한 기후"
-              : ans === "cool"
-                ? "서늘한 기후"
-                : "뚜렷한 사계절";
-          scores[pid].reasons.push(label);
+        if (pts >= 7) {
+          scores[pid].reasons.add(
+            ANSWER_LABELS.climate[ans] || ans
+          );
         }
       }
     }
@@ -338,20 +354,16 @@ function scoreProvinces(answers: Answers): ScoredProvince[] {
     for (const [pid, pts] of Object.entries(map)) {
       if (scores[pid]) {
         scores[pid].score += pts;
-        if (pts >= 8) {
-          const labels: Record<string, string> = {
-            nature: "뛰어난 자연환경",
-            access: "좋은 교통 접근성",
-            support: "풍부한 귀농 지원",
-            market: "넓은 소비 시장",
-          };
-          scores[pid].reasons.push(labels[ans] || ans);
+        if (pts >= 7) {
+          scores[pid].reasons.add(
+            ANSWER_LABELS.priority[ans] || ans
+          );
         }
       }
     }
   }
 
-  // 생활환경 점수
+  // 생활환경 점수 + 이유 추가
   const lifestyleAnswers = answers.lifestyle || [];
   for (const ans of lifestyleAnswers) {
     const map = LIFESTYLE_SCORES[ans];
@@ -359,6 +371,11 @@ function scoreProvinces(answers: Answers): ScoredProvince[] {
     for (const [pid, pts] of Object.entries(map)) {
       if (scores[pid]) {
         scores[pid].score += pts;
+        if (pts >= 8) {
+          scores[pid].reasons.add(
+            ANSWER_LABELS.lifestyle[ans] || ans
+          );
+        }
       }
     }
   }
@@ -367,7 +384,7 @@ function scoreProvinces(answers: Answers): ScoredProvince[] {
   return PROVINCES.map((p) => ({
     province: p,
     score: scores[p.id]?.score ?? 0,
-    matchReasons: scores[p.id]?.reasons ?? [],
+    matchReasons: Array.from(scores[p.id]?.reasons ?? []),
   }))
     .sort((a, b) => b.score - a.score)
     .slice(0, 3);
@@ -403,39 +420,39 @@ function recommendCrops(
   // 점수화
   const scored = CROPS.map((crop) => {
     let score = 0;
-    let reason = "";
+    const reasons: string[] = [];
 
     // 카테고리 매치
-    if (
-      preferredCategories.length === 0 ||
-      preferredCategories.includes(crop.category)
-    ) {
+    if (preferredCategories.length > 0 && preferredCategories.includes(crop.category)) {
       score += 5;
-      reason = `${crop.category} 작물`;
+      reasons.push(`선호 카테고리(${crop.category})`);
+    } else if (preferredCategories.length === 0) {
+      score += 2; // 선호 미지정이면 약간의 기본 점수
     }
 
     // 지역 매치
     if (regionCropIds.has(crop.id)) {
       score += 4;
-      reason = `추천 지역에서 재배 적합`;
+      reasons.push("추천 지역에서 재배 적합");
     }
 
     // 난이도 매치
     if (experience === "none" && crop.difficulty === "쉬움") {
       score += 3;
-      reason = "초보자에게 적합한 난이도";
+      reasons.push("초보자 적합 난이도");
     } else if (experience === "some" && crop.difficulty !== "어려움") {
       score += 2;
+      reasons.push(`난이도 ${crop.difficulty}`);
     } else if (experience === "experienced") {
       score += 1;
     }
 
-    return { crop, score, reason };
+    return { crop, score, reasons };
   })
     .sort((a, b) => b.score - a.score)
     .slice(0, 4);
 
-  return scored.map((s) => ({ crop: s.crop, reason: s.reason }));
+  return scored.map((s) => ({ crop: s.crop, reasons: s.reasons }));
 }
 
 /* ── 컴포넌트 ── */
@@ -553,7 +570,7 @@ export function MatchWizard() {
                   </p>
                   {sp.matchReasons.length > 0 && (
                     <div className={s.resultCardTags}>
-                      {sp.matchReasons.slice(0, 3).map((r) => (
+                      {sp.matchReasons.slice(0, 4).map((r) => (
                         <span key={r} className={s.resultCardTag}>
                           {r}
                         </span>
@@ -588,8 +605,10 @@ export function MatchWizard() {
                   <span className={s.cropMeta}>
                     {rc.crop.category} · 난이도 {rc.crop.difficulty}
                   </span>
-                  {rc.reason && (
-                    <span className={s.cropReason}>{rc.reason}</span>
+                  {rc.reasons.length > 0 && (
+                    <span className={s.cropReason}>
+                      {rc.reasons.join(" · ")}
+                    </span>
                   )}
                 </div>
                 <ChevronRight size={16} className={s.cropArrow} />

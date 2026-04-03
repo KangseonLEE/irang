@@ -114,13 +114,11 @@
   color: inherit;
 }
 
-.optionCard:hover {
-  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 50%, transparent);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-.optionCard:active {
-  transform: scale(0.98);
+@media (hover: hover) {
+  .optionCard:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 50%, transparent);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  }
 }
 
 .optionSelected {
@@ -210,9 +208,11 @@
   font-family: inherit;
 }
 
-.navBtnBack:hover:not(:disabled) {
-  border-color: var(--foreground);
-  color: var(--foreground);
+@media (hover: hover) {
+  .navBtnBack:hover:not(:disabled) {
+    border-color: var(--foreground);
+    color: var(--foreground);
+  }
 }
 
 .navBtnBack:disabled {
@@ -237,8 +237,10 @@
   margin-left: auto;
 }
 
-.navBtnNext:hover:not(:disabled) {
-  opacity: 0.9;
+@media (hover: hover) {
+  .navBtnNext:hover:not(:disabled) {
+    opacity: 0.9;
+  }
 }
 
 .navBtnNext:disabled {
@@ -327,9 +329,11 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.resultCard:hover {
-  border-color: var(--primary, #1b6b5a);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+@media (hover: hover) {
+  .resultCard:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  }
 }
 
 .resultCardRank {
@@ -420,8 +424,10 @@
   transition: border-color 0.2s;
 }
 
-.cropCard:hover {
-  border-color: var(--primary, #1b6b5a);
+@media (hover: hover) {
+  .cropCard:hover {
+    border-color: var(--primary, #1b6b5a);
+  }
 }
 
 .cropEmoji {
@@ -485,9 +491,11 @@
   transition: border-color 0.15s, color 0.15s;
 }
 
-.resetBtn:hover {
-  border-color: var(--foreground);
-  color: var(--foreground);
+@media (hover: hover) {
+  .resetBtn:hover {
+    border-color: var(--foreground);
+    color: var(--foreground);
+  }
 }
 
 .exploreBtn {
@@ -504,6 +512,8 @@
   transition: opacity 0.15s;
 }
 
-.exploreBtn:hover {
-  opacity: 0.9;
+@media (hover: hover) {
+  .exploreBtn:hover {
+    opacity: 0.9;
+  }
 }
