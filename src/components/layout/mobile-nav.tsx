@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, MapPin, FileText, Sprout, Compass } from "lucide-react";
+import { Home, MapPin, FileText, Compass, GraduationCap } from "lucide-react";
 import styles from "./mobile-nav.module.css";
 
 const tabs = [
@@ -10,7 +10,7 @@ const tabs = [
   { href: "/regions", label: "지역", icon: MapPin },
   { href: "/match", label: "맞춤추천", icon: Compass },
   { href: "/programs", label: "지원사업", icon: FileText },
-  { href: "/crops", label: "작물", icon: Sprout },
+  { href: "/education", label: "교육", icon: GraduationCap },
 ];
 
 export function MobileNav() {

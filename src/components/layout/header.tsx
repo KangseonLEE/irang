@@ -9,8 +9,9 @@ import s from "./header.module.css";
 const navItems = [
   { href: "/regions", label: "지역탐색" },
   { href: "/programs", label: "지원사업" },
+  { href: "/education", label: "교육" },
+  { href: "/events", label: "체험·행사" },
   { href: "/crops", label: "작물정보" },
-  { href: "/about", label: "서비스소개" },
 ];
 
 export function Header() {

@@ -7,6 +7,8 @@ const FEEDBACK_URL = process.env.NEXT_PUBLIC_FEEDBACK_URL ?? "";
 const serviceLinks = [
   { href: "/regions", label: "지역 탐색" },
   { href: "/programs", label: "지원사업 검색" },
+  { href: "/education", label: "귀농 교육" },
+  { href: "/events", label: "체험·행사" },
   { href: "/crops", label: "작물 정보" },
   { href: "/about", label: "서비스 소개" },
   { href: "/match", label: "맞춤 추천" },
