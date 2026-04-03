@@ -58,41 +58,6 @@
   --footer-border: #404040;
 }
 
-/* ── Dark Theme ── */
-.dark {
-  --background: #111827;
-  --foreground: #F9FAFB;
-  --card: #1F2937;
-  --card-foreground: #F9FAFB;
-  --popover: #1F2937;
-  --popover-foreground: #F9FAFB;
-  --primary: #3EA088;
-  --primary-foreground: #041410;
-  --secondary: #092922;
-  --secondary-foreground: #D4EDE6;
-  --muted: #374151;
-  --muted-foreground: #9CA3AF;
-  --accent: #155748;
-  --accent-foreground: #D4EDE6;
-  --destructive: #EF4444;
-  --border: #374151;
-  --input: #374151;
-  --ring: #3EA088;
-  --chart-1: #3EA088;
-  --chart-2: #70BEA9;
-  --chart-3: #A8D9CC;
-  --chart-4: #1B6B5A;
-  --chart-5: #155748;
-
-  /* Footer */
-  --footer-bg: #0a0a0a;
-  --footer-fg: #d4d4d4;
-  --footer-heading: #f5f5f5;
-  --footer-muted: #a3a3a3;
-  --footer-subtle: #636363;
-  --footer-border: #262626;
-}
-
 /* ── Base Reset ── */
 *,
 *::before,

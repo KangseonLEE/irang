@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { IrangSymbol } from "@/components/brand/irang-symbol";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import s from "./header.module.css";
 
 const navItems = [
@@ -52,9 +51,8 @@ export function Header() {
           })}
         </nav>
 
-        {/* Right Actions — 테마 토글 + 데스크탑 CTA */}
+        {/* Right Actions — 데스크탑 CTA */}
         <div className={s.actions}>
-          <ThemeToggle />
           <Link
             href="/programs"
             className={s.ctaButton}

@@ -74,11 +74,6 @@
   }
 }
 
-:global(.dark) .dropdown {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-  border-color: color-mix(in srgb, var(--border) 80%, rgba(255, 255, 255, 0.08));
-}
-
 .dropdownSection {
   padding: 8px 0;
 }

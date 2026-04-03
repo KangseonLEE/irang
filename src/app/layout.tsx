@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import { ThemeProvider } from "@/components/theme/theme-provider";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
@@ -40,12 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={s.html}>
-      {/*
-        <head> 수동 사용 사유:
-        - Pretendard 폰트 로드: metadata API에서 외부 스타일시트 link를 지원하지 않음
-        - FOUC 방지 스크립트: paint-blocking이어야 하므로 <Script strategy="beforeInteractive"> 대신
-          인라인 <script>가 필요. Next.js의 beforeInteractive는 body 끝에 삽입되어 FOUC 발생 가능
-      */}
+      {/* Pretendard 폰트: metadata API에서 외부 스타일시트 link를 지원하지 않아 수동 삽입 */}
       <head>
         {/* Pretendard Variable — 한글 + 라틴 가변 폰트 */}
         <link
@@ -63,22 +57,14 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* FOUC 방지: paint 전에 다크모드 클래스 적용 */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.classList.add("dark")}}catch(e){}})();`,
-          }}
-        />
       </head>
       <body className={s.body}>
         <GoogleAnalytics />
         <Analytics />
-        <ThemeProvider>
-          <Header />
-          <main className={s.main}>{children}</main>
-          <Footer />
-          <MobileNav />
-        </ThemeProvider>
+        <Header />
+        <main className={s.main}>{children}</main>
+        <Footer />
+        <MobileNav />
       </body>
     </html>
   );
