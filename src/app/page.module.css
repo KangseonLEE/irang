@@ -658,7 +658,11 @@
   color: #fff;
   align-items: center;
   text-align: center;
-  padding: 48px 24px;
+  padding: 28px 20px;
+}
+
+@media (min-width: 640px) {
+  .ctaCard { padding: 48px 24px; }
 }
 
 @media (min-width: 768px) {
@@ -667,7 +671,7 @@
 
 .ctaIcon {
   color: rgba(255, 255, 255, 0.75);
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 @media (min-width: 768px) {
@@ -675,9 +679,14 @@
 }
 
 .ctaTitle {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 800;
   line-height: 1.3;
+  word-break: keep-all;
+}
+
+@media (min-width: 640px) {
+  .ctaTitle { font-size: 22px; }
 }
 
 @media (min-width: 768px) {
@@ -685,11 +694,15 @@
 }
 
 .ctaDesc {
-  margin-top: 10px;
-  font-size: 14px;
+  margin-top: 8px;
+  font-size: 13px;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.85);
   max-width: 480px;
+}
+
+@media (min-width: 640px) {
+  .ctaDesc { margin-top: 10px; font-size: 14px; }
 }
 
 @media (min-width: 768px) {
@@ -698,17 +711,13 @@
 
 .ctaButtons {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 24px;
-}
-
-@media (min-width: 480px) {
-  .ctaButtons { flex-direction: row; }
+  flex-direction: row;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 @media (min-width: 768px) {
-  .ctaButtons { margin-top: 36px; }
+  .ctaButtons { gap: 10px; margin-top: 36px; }
 }
 
 .ctaBtnWhite {
@@ -716,15 +725,25 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 48px;
-  padding: 12px 28px;
+  min-height: 44px;
+  padding: 10px 20px;
   border-radius: 12px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   background: #fff;
   color: var(--primary, #1B6B5A);
   text-decoration: none;
   transition: opacity 0.15s;
+  flex: 1;
+}
+
+@media (min-width: 640px) {
+  .ctaBtnWhite {
+    min-height: 48px;
+    padding: 12px 28px;
+    font-size: 15px;
+    flex: none;
+  }
 }
 
 .ctaBtnWhite:hover { opacity: 0.9; }
@@ -733,25 +752,35 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 12px 28px;
+  min-height: 44px;
+  padding: 10px 20px;
   border-radius: 12px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
   text-decoration: none;
   transition: background 0.15s;
+  flex: 1;
+}
+
+@media (min-width: 640px) {
+  .ctaBtnGhost {
+    min-height: 48px;
+    padding: 12px 28px;
+    font-size: 15px;
+    flex: none;
+  }
 }
 
 .ctaBtnGhost:hover { background: rgba(255, 255, 255, 0.1); }
 
 .ctaFootnote {
-  margin-top: 20px;
-  font-size: 13px;
+  margin-top: 14px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.6);
 }
 
 @media (min-width: 768px) {
-  .ctaFootnote { margin-top: 32px; }
+  .ctaFootnote { margin-top: 32px; font-size: 13px; }
 }

@@ -24,7 +24,7 @@ export function Footer() {
       <div className={s.inner}>
         <div className={s.grid}>
           {/* Brand */}
-          <div>
+          <div className={s.brandColumn}>
             <h3 className={s.brandTitle}>이랑</h3>
             <p className={s.brandDesc}>
               귀농을 꿈꾸는
@@ -37,7 +37,7 @@ export function Footer() {
           </div>
 
           {/* Service Links */}
-          <div>
+          <div className={s.serviceColumn}>
             <h4 className={s.sectionTitle}>서비스</h4>
             <ul className={s.linkList}>
               {serviceLinks.map((link) => (
@@ -54,7 +54,7 @@ export function Footer() {
           </div>
 
           {/* Data Sources */}
-          <div>
+          <div className={s.sourcesColumn}>
             <h4 className={s.sectionTitle}>데이터 출처</h4>
             <ul className={s.linkList}>
               {dataSources.map((source) => (

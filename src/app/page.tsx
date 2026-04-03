@@ -203,7 +203,7 @@ export default function HomePage() {
 
       {/* ═══ CTA 카드 ═══ */}
       <section className={s.ctaCard} aria-label="시작하기">
-        <Sprout size={44} className={s.ctaIcon} />
+        <Sprout size={24} className={s.ctaIcon} />
         <h2 className={s.ctaTitle}>
           귀농의 첫걸음, 지금 시작할 수 있어요.
         </h2>
