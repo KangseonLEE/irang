@@ -2,7 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
-import { REGIONS, SUPPORT_TYPES, STATUS_OPTIONS } from "@/lib/data/programs";
+import { Search } from "lucide-react";
+import { REGIONS, SUPPORT_TYPES } from "@/lib/data/programs";
 import s from "./program-filter.module.css";
 
 interface ProgramFilterProps {
@@ -10,16 +11,19 @@ interface ProgramFilterProps {
     region: string;
     age: string;
     supportType: string;
-    status: string;
+    query: string;
+    includeClosed: boolean;
   };
 }
 
 export function ProgramFilter({ currentFilters }: ProgramFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const ageDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // 나이 입력은 로컬 상태로 관리하여 즉각 반영하되, URL은 debounce로 지연 업데이트
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 로컬 상태: 입력 즉시 반영, URL은 debounce로 지연 업데이트
   const [localAge, setLocalAge] = useState(currentFilters.age);
+  const [localQuery, setLocalQuery] = useState(currentFilters.query);
 
   const updateFilter = useCallback(
     (key: string, value: string) => {
@@ -34,25 +38,53 @@ export function ProgramFilter({ currentFilters }: ProgramFilterProps) {
     [searchParams, router]
   );
 
-  const handleAgeChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      // 숫자만 허용, 빈 값도 허용 (필터 해제)
-      if (value === "" || /^\d+$/.test(value)) {
-        setLocalAge(value);
-        // 250ms debounce: 빠른 연속 입력 시 마지막 값만 URL에 반영
-        if (ageDebounceRef.current) clearTimeout(ageDebounceRef.current);
-        ageDebounceRef.current = setTimeout(() => {
-          updateFilter("age", value);
-        }, 250);
-      }
+  const updateFilterDebounced = useCallback(
+    (key: string, value: string, delay: number = 300) => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        updateFilter(key, value);
+      }, delay);
     },
     [updateFilter]
   );
 
+  const handleQueryChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setLocalQuery(value);
+      updateFilterDebounced("q", value, 300);
+    },
+    [updateFilterDebounced]
+  );
+
+  const handleAgeChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      if (value === "" || /^\d+$/.test(value)) {
+        setLocalAge(value);
+        updateFilterDebounced("age", value, 250);
+      }
+    },
+    [updateFilterDebounced]
+  );
+
+  const handleIncludeClosedChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (e.target.checked) {
+        params.set("includeClosed", "1");
+      } else {
+        params.delete("includeClosed");
+      }
+      router.replace(`/programs?${params.toString()}`);
+    },
+    [searchParams, router]
+  );
+
   const clearAllFilters = useCallback(() => {
     setLocalAge("");
-    if (ageDebounceRef.current) clearTimeout(ageDebounceRef.current);
+    setLocalQuery("");
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     router.replace("/programs");
   }, [router]);
 
@@ -60,7 +92,8 @@ export function ProgramFilter({ currentFilters }: ProgramFilterProps) {
     currentFilters.region ||
     currentFilters.age ||
     currentFilters.supportType ||
-    currentFilters.status;
+    currentFilters.query ||
+    currentFilters.includeClosed;
 
   return (
     <div className={s.filterCard}>
@@ -71,6 +104,21 @@ export function ProgramFilter({ currentFilters }: ProgramFilterProps) {
             필터 초기화
           </button>
         )}
+      </div>
+
+      {/* 텍스트 검색 */}
+      <div className={s.searchRow}>
+        <div className={s.searchInputWrap}>
+          <Search size={16} className={s.searchIcon} />
+          <input
+            id="query-filter"
+            type="text"
+            placeholder="지원사업명, 지역, 기관명으로 검색"
+            className={s.searchInput}
+            value={localQuery}
+            onChange={handleQueryChange}
+          />
+        </div>
       </div>
 
       <div className={s.grid}>
@@ -131,24 +179,19 @@ export function ProgramFilter({ currentFilters }: ProgramFilterProps) {
           </select>
         </div>
 
-        {/* 모집 상태 필터 */}
+        {/* 마감건 포함 체크박스 */}
         <div className={s.field}>
-          <label htmlFor="status-filter" className={s.label}>
-            모집 상태
+          <span className={s.label}>마감 여부</span>
+          <label htmlFor="include-closed" className={s.checkboxLabel}>
+            <input
+              id="include-closed"
+              type="checkbox"
+              className={s.checkbox}
+              checked={currentFilters.includeClosed}
+              onChange={handleIncludeClosedChange}
+            />
+            <span className={s.checkboxText}>마감건 포함</span>
           </label>
-          <select
-            id="status-filter"
-            className={s.select}
-            value={currentFilters.status || "전체"}
-            onChange={(e) => updateFilter("status", e.target.value)}
-          >
-            <option value="전체">전체 상태</option>
-            {STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
     </div>

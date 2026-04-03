@@ -21,18 +21,22 @@ interface PageProps {
     region?: string;
     age?: string;
     supportType?: string;
-    status?: string;
+    q?: string;
+    includeClosed?: string;
   }>;
 }
 
 export default async function ProgramsPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
+  const includeClosed = params.includeClosed === "1";
+
   const filters: ProgramFilters = {
     region: params.region,
     age: params.age ? Number(params.age) : undefined,
     supportType: params.supportType,
-    status: params.status,
+    query: params.q,
+    includeClosed,
   };
 
   // SSR: 첫 페이지 데이터만 렌더
@@ -73,7 +77,8 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
               region: params.region ?? "",
               age: params.age ?? "",
               supportType: params.supportType ?? "",
-              status: params.status ?? "",
+              query: params.q ?? "",
+              includeClosed,
             }}
           />
         </Suspense>

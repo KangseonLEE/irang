@@ -423,11 +423,35 @@ export interface ProgramFilters {
   age?: number;
   supportType?: string;
   status?: string;
+  query?: string;
+  includeClosed?: boolean;
 }
 
 /** 필터만 적용 (전체 반환) */
 export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
   return PROGRAMS.filter((program) => {
+    // 마감 제외 (기본 동작: includeClosed가 true가 아니면 마감 숨김)
+    if (!filters.includeClosed && program.status === "마감") {
+      return false;
+    }
+
+    // 텍스트 검색 (제목, 요약, 지역, 기관, 관련 작물)
+    if (filters.query) {
+      const q = filters.query.toLowerCase();
+      const searchable = [
+        program.title,
+        program.summary,
+        program.region,
+        program.organization,
+        ...program.relatedCrops,
+      ]
+        .join(" ")
+        .toLowerCase();
+      if (!searchable.includes(q)) {
+        return false;
+      }
+    }
+
     if (filters.region && filters.region !== "전체") {
       if (program.region !== "전국" && program.region !== filters.region) {
         return false;
