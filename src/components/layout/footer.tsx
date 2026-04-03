@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { MessageSquare } from "lucide-react";
 import s from "./footer.module.css";
+
+const FEEDBACK_URL = process.env.NEXT_PUBLIC_FEEDBACK_URL ?? "";
 
 const serviceLinks = [
   { href: "/regions", label: "지역 비교" },
@@ -62,6 +65,24 @@ export function Footer() {
             </ul>
           </div>
         </div>
+
+        {/* Feedback CTA */}
+        {FEEDBACK_URL && (
+          <div className={s.feedbackBar}>
+            <p className={s.feedbackText}>
+              이랑을 더 좋게 만들 수 있도록 의견을 들려주세요.
+            </p>
+            <a
+              href={FEEDBACK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={s.feedbackButton}
+            >
+              <MessageSquare size={16} aria-hidden="true" />
+              피드백 보내기
+            </a>
+          </div>
+        )}
 
         {/* Divider + Disclaimer */}
         <div className={s.disclaimer}>

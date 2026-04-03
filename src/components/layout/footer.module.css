@@ -85,6 +85,52 @@
   color: var(--footer-muted);
 }
 
+/* Feedback CTA */
+.feedbackBar {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 20%, transparent);
+}
+
+@media (min-width: 640px) {
+  .feedbackBar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.feedbackText {
+  font-size: 0.875rem;
+  color: var(--footer-heading);
+  margin: 0;
+}
+
+.feedbackButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary, #1B6B5A);
+  border-radius: 8px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 150ms ease;
+}
+
+.feedbackButton:hover {
+  opacity: 0.9;
+}
+
 /* Divider + disclaimer */
 .disclaimer {
   margin-top: 2.5rem;
