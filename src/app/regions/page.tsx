@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, ArrowRight, Sprout, FileText } from "lucide-react";
 import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
 import { fetchPopulationData, type PopulationData } from "@/lib/api/sgis";
 import { fetchMedicalFacilities, type MedicalFacilityData } from "@/lib/api/hira";
 import { fetchSchoolCounts, type SchoolData } from "@/lib/api/education";
+import { fetchRegionPhotos, type UnsplashPhoto } from "@/lib/api/unsplash";
 import { STATIONS, DEFAULT_STATION_IDS } from "@/lib/data/stations";
 import { RegionSelector } from "./region-selector";
 import s from "./page.module.css";
@@ -26,50 +28,44 @@ export default async function RegionsPage({ searchParams }: PageProps) {
     ? params.stations.split(",").slice(0, 4)
     : DEFAULT_STATION_IDS;
 
-  const climateData = await fetchMultipleClimateData(selectedIds);
-
-  // 선택된 관측소의 SGIS 지역코드를 추출 (중복 제거 없이 순서 보존)
+  // 선택된 관측소 메타데이터 추출 (동기 — 즉시 완료)
   const selectedStations = selectedIds
     .map((id) => STATIONS.find((st) => st.stnId === id))
     .filter((st): st is NonNullable<typeof st> => st != null);
-  const sgisCodes = selectedStations.map((st) => st.sgisCode);
-  const uniqueSgisCodes = [...new Set(sgisCodes)];
 
-  // SGIS 인구 데이터 조회 (실패해도 기후 데이터에 영향 없음)
-  let populationMap: Map<string, PopulationData> = new Map();
-  try {
-    const populationList = await fetchPopulationData(uniqueSgisCodes);
-    for (const p of populationList) {
-      populationMap.set(p.regionCode, p);
-    }
-  } catch {
-    console.error("Population data fetch failed, continuing without it");
+  const uniqueSgisCodes = [...new Set(selectedStations.map((st) => st.sgisCode))];
+  const uniqueHiraCodes = [...new Set(selectedStations.map((st) => st.hiraSidoCd))];
+  const uniqueEduCodes = [...new Set(selectedStations.map((st) => st.eduCode))];
+
+  // 5개 API를 병렬 호출 (순차→병렬: 로딩 시간 ~60-70% 단축)
+  const [climateResult, populationResult, medicalResult, schoolResult, photoResult] =
+    await Promise.allSettled([
+      fetchMultipleClimateData(selectedIds),
+      fetchPopulationData(uniqueSgisCodes),
+      fetchMedicalFacilities(uniqueHiraCodes),
+      fetchSchoolCounts(uniqueEduCodes),
+      fetchRegionPhotos(selectedIds),
+    ]);
+
+  const climateData =
+    climateResult.status === "fulfilled" ? climateResult.value : [];
+
+  const photoMap: Map<string, UnsplashPhoto> =
+    photoResult.status === "fulfilled" ? photoResult.value : new Map();
+
+  const populationMap: Map<string, PopulationData> = new Map();
+  if (populationResult.status === "fulfilled") {
+    for (const p of populationResult.value) populationMap.set(p.regionCode, p);
   }
 
-  // 심평원 의료기관 수 조회 (실패해도 다른 데이터에 영향 없음)
-  const hiraSidoCodes = selectedStations.map((st) => st.hiraSidoCd);
-  const uniqueHiraCodes = [...new Set(hiraSidoCodes)];
-  let medicalMap: Map<string, MedicalFacilityData> = new Map();
-  try {
-    const medicalList = await fetchMedicalFacilities(uniqueHiraCodes);
-    for (const m of medicalList) {
-      medicalMap.set(m.sidoCd, m);
-    }
-  } catch {
-    console.error("Medical facility data fetch failed, continuing without it");
+  const medicalMap: Map<string, MedicalFacilityData> = new Map();
+  if (medicalResult.status === "fulfilled") {
+    for (const m of medicalResult.value) medicalMap.set(m.sidoCd, m);
   }
 
-  // 교육부 학교 수 조회 (실패해도 다른 데이터에 영향 없음)
-  const eduCodes = selectedStations.map((st) => st.eduCode);
-  const uniqueEduCodes = [...new Set(eduCodes)];
-  let schoolMap: Map<string, SchoolData> = new Map();
-  try {
-    const schoolList = await fetchSchoolCounts(uniqueEduCodes);
-    for (const sc of schoolList) {
-      schoolMap.set(sc.eduCode, sc);
-    }
-  } catch {
-    console.error("School data fetch failed, continuing without it");
+  const schoolMap: Map<string, SchoolData> = new Map();
+  if (schoolResult.status === "fulfilled") {
+    for (const sc of schoolResult.value) schoolMap.set(sc.eduCode, sc);
   }
 
   const year = new Date().getFullYear();
@@ -111,7 +107,11 @@ export default async function RegionsPage({ searchParams }: PageProps) {
             </h2>
             <div className={s.climateGrid}>
               {climateData.map((data) => (
-                <ClimateCard key={data.stnId} data={data} />
+                <ClimateCard
+                  key={data.stnId}
+                  data={data}
+                  photo={photoMap.get(data.stnId)}
+                />
               ))}
             </div>
           </section>
@@ -321,21 +321,50 @@ export default async function RegionsPage({ searchParams }: PageProps) {
 
 // --- 서브 컴포넌트 ---
 
-function ClimateCard({ data }: { data: ClimateData }) {
+function ClimateCard({
+  data,
+  photo,
+}: {
+  data: ClimateData;
+  photo?: UnsplashPhoto;
+}) {
   const station = STATIONS.find((st) => st.stnId === data.stnId);
 
   return (
     <article className={s.climateCard}>
-      <span className={s.cardOverline}>{station?.province}</span>
-      <h3 className={s.cardTitle}>{data.stnName}</h3>
-      <hr className={s.cardDivider} />
-      <div className={s.cardDataList}>
-        <DataRow label="평균기온" value={`${data.avgTemp}℃`} />
-        <DataRow label="누적 강수" value={`${data.totalPrecipitation}mm`} />
-        <DataRow label="누적 일조" value={`${data.totalSunshine}hr`} />
-        <DataRow label="평균 습도" value={`${data.avgHumidity}%`} />
+      {photo && (
+        <div className={s.cardImageWrap}>
+          <Image
+            src={photo.smallUrl}
+            alt={photo.alt}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            style={{ objectFit: "cover" }}
+          />
+          <span className={s.cardImageCredit}>
+            📷{" "}
+            <a
+              href={`${photo.photographerUrl}?utm_source=irang&utm_medium=referral`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {photo.photographer}
+            </a>
+          </span>
+        </div>
+      )}
+      <div className={s.cardBody}>
+        <span className={s.cardOverline}>{station?.province}</span>
+        <h3 className={s.cardTitle}>{data.stnName}</h3>
+        <hr className={s.cardDivider} />
+        <div className={s.cardDataList}>
+          <DataRow label="평균기온" value={`${data.avgTemp}℃`} />
+          <DataRow label="누적 강수" value={`${data.totalPrecipitation}mm`} />
+          <DataRow label="누적 일조" value={`${data.totalSunshine}hr`} />
+          <DataRow label="평균 습도" value={`${data.avgHumidity}%`} />
+        </div>
+        <p className={s.cardDescription}>{station?.description}</p>
       </div>
-      <p className={s.cardDescription}>{station?.description}</p>
     </article>
   );
 }
