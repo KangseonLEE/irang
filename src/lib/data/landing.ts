@@ -250,13 +250,24 @@ export const trendNews: NewsItem[] = [
   },
 ];
 
-/* ── 히어로 대시보드 Mock 데이터 ── */
+/* ── 벤토 미리보기 데이터 ── */
 
-export const mockBarData = [
-  { name: "순천", value: 85 },
-  { name: "영주", value: 68 },
-  { name: "제주", value: 78 },
-  { name: "정선", value: 52 },
+export const popularRegions = [
+  { name: "순천", desc: "남해안 온난", stnId: "259" },
+  { name: "제주", desc: "아열대 작물", stnId: "184" },
+  { name: "영주", desc: "고랭지 과수", stnId: "271" },
+  { name: "정선", desc: "고랭지 농업", stnId: "217" },
 ];
 
-export const mockCropChips = ["매실", "고추", "블루베리"];
+export const popularCrops = [
+  { id: "strawberry", name: "딸기", emoji: "\u{1F353}", badge: "과수" },
+  { id: "chili-pepper", name: "고추", emoji: "\u{1F336}\u{FE0F}", badge: "채소" },
+  { id: "apple", name: "사과", emoji: "\u{1F34E}", badge: "과수" },
+  { id: "rice", name: "쌀", emoji: "\u{1F33E}", badge: "식량" },
+];
+
+export const hotPrograms = [
+  { id: "prg-001", title: "귀농인 정착지원금", region: "순천시", type: "보조금" },
+  { id: "prg-002", title: "청년 귀농 창업지원", region: "전국", type: "보조금" },
+  { id: "prg-004", title: "귀촌 주택 수리비 지원", region: "전남", type: "보조금" },
+];

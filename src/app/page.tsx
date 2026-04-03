@@ -15,6 +15,9 @@ import {
   trendStats,
   trendReasons,
   trendNews,
+  popularRegions,
+  popularCrops,
+  hotPrograms,
 } from "@/lib/data/landing";
 import s from "./page.module.css";
 
@@ -49,64 +52,82 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ 벤토 서비스 카드 그리드 — 3D 아이콘 ═══ */}
+      {/* ═══ 벤토 카드 — 실제 데이터 미리보기 ═══ */}
       <section className={s.bentoGrid} aria-label="주요 서비스">
         {/* 지역 비교 */}
-        <Link href="/regions" className={s.bentoCard}>
-          <div className={s.icon3dRegion} aria-hidden="true">
-            <MapPin className={s.bentoIcon} />
+        <div className={s.bentoCard}>
+          <div className={s.bentoHeader}>
+            <MapPin size={16} className={s.bentoHeaderIcon} />
+            <span className={s.bentoName}>인기 지역</span>
           </div>
-          <span className={s.bentoBig}>
-            19
-            <span className={s.bentoSuffix}>개 지역</span>
-          </span>
-          <span className={s.bentoName}>지역 비교</span>
-          <p className={s.bentoDesc}>
-            기후, 인프라, 인구 데이터로 나에게 맞는 귀농 지역을 비교하세요.
-          </p>
-          <span className={s.bentoLink}>
-            더 보기
+          <div className={s.bentoPreviewList}>
+            {popularRegions.map((r) => (
+              <Link
+                key={r.stnId}
+                href={`/regions?stations=${r.stnId}`}
+                className={s.bentoPreviewItem}
+              >
+                <span className={s.previewName}>{r.name}</span>
+                <span className={s.previewSub}>{r.desc}</span>
+              </Link>
+            ))}
+          </div>
+          <Link href="/regions" className={s.bentoMore}>
+            19개 지역 모두 비교
             <ArrowRight size={14} />
-          </span>
-        </Link>
+          </Link>
+        </div>
 
         {/* 작물 정보 */}
-        <Link href="/crops" className={s.bentoCard}>
-          <div className={s.icon3dCrop} aria-hidden="true">
-            <Sprout className={s.bentoIcon} />
+        <div className={s.bentoCard}>
+          <div className={s.bentoHeader}>
+            <Sprout size={16} className={s.bentoHeaderIcon} />
+            <span className={s.bentoName}>인기 작물</span>
           </div>
-          <span className={s.bentoBig}>
-            17
-            <span className={s.bentoSuffix}>종</span>
-          </span>
-          <span className={s.bentoName}>작물 정보</span>
-          <p className={s.bentoDesc}>
-            주요 작물의 재배 환경, 수익성, 난이도를 한눈에 확인하세요.
-          </p>
-          <span className={s.bentoLink}>
-            더 보기
+          <div className={s.bentoPreviewList}>
+            {popularCrops.map((c) => (
+              <Link
+                key={c.id}
+                href={`/crops/${c.id}`}
+                className={s.bentoPreviewItem}
+              >
+                <span className={s.previewEmoji}>{c.emoji}</span>
+                <span className={s.previewName}>{c.name}</span>
+                <span className={s.previewBadge}>{c.badge}</span>
+              </Link>
+            ))}
+          </div>
+          <Link href="/crops" className={s.bentoMore}>
+            17종 작물 모두 보기
             <ArrowRight size={14} />
-          </span>
-        </Link>
+          </Link>
+        </div>
 
         {/* 지원사업 */}
-        <Link href="/programs" className={s.bentoCard}>
-          <div className={s.icon3dProgram} aria-hidden="true">
-            <FileText className={s.bentoIcon} />
+        <div className={s.bentoCard}>
+          <div className={s.bentoHeader}>
+            <FileText size={16} className={s.bentoHeaderIcon} />
+            <span className={s.bentoName}>모집중 지원사업</span>
           </div>
-          <span className={s.bentoBig}>
-            18
-            <span className={s.bentoSuffix}>건</span>
-          </span>
-          <span className={s.bentoName}>지원사업</span>
-          <p className={s.bentoDesc}>
-            나이, 지역, 희망 작물 조건으로 받을 수 있는 지원사업을 찾아보세요.
-          </p>
-          <span className={s.bentoLink}>
-            더 보기
+          <div className={s.bentoProgramList}>
+            {hotPrograms.map((p) => (
+              <Link
+                key={p.id}
+                href={`/programs/${p.id}`}
+                className={s.bentoProgramItem}
+              >
+                <span className={s.programTitle}>{p.title}</span>
+                <span className={s.programMeta}>
+                  {p.region} · {p.type}
+                </span>
+              </Link>
+            ))}
+          </div>
+          <Link href="/programs" className={s.bentoMore}>
+            전체 지원사업 보기
             <ArrowRight size={14} />
-          </span>
-        </Link>
+          </Link>
+        </div>
       </section>
 
       {/* ═══ 귀농 트렌드 섹션 ═══ */}

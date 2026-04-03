@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   이랑 랜딩페이지 — 검색 히어로 + 3D 벤토 그리드
+   이랑 랜딩페이지 — 검색 히어로 + 데이터 벤토
    CSS Modules · 다크모드 지원 · 모바일 퍼스트
    ══════════════════════════════════════════ */
 
@@ -176,7 +176,7 @@
 }
 
 /* ══════════════════════════════════════════
-   벤토 서비스 카드 그리드 — 3D 아이콘
+   벤토 서비스 카드 그리드 — 데이터 미리보기
    ══════════════════════════════════════════ */
 .bentoGrid {
   display: grid;
@@ -185,47 +185,34 @@
 }
 
 @media (min-width: 640px) {
-  .bentoGrid {
-    gap: 16px;
-  }
+  .bentoGrid { gap: 16px; }
 }
 
 @media (min-width: 768px) {
-  .bentoGrid {
-    gap: 20px;
-  }
+  .bentoGrid { gap: 20px; }
 }
 
 /* ── 벤토 카드 (개별) ── */
 .bentoCard {
   composes: card;
-  gap: 10px;
-  padding: 16px 12px;
-  transition: transform 0.25s ease, border-color 0.2s, box-shadow 0.25s ease;
-  cursor: pointer;
+  gap: 8px;
+  padding: 14px 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
   -webkit-tap-highlight-color: transparent;
 }
 
 @media (min-width: 640px) {
-  .bentoCard {
-    gap: 14px;
-    padding: 20px;
-  }
+  .bentoCard { gap: 12px; padding: 20px; }
 }
 
 @media (min-width: 768px) {
-  .bentoCard {
-    gap: 18px;
-    padding: 28px;
-  }
+  .bentoCard { gap: 14px; padding: 24px; }
 }
 
-/* hover 효과를 포인터 디바이스에서만 적용 (터치 디바이스에서 탭 후 잔상 방지) */
 @media (hover: hover) {
   .bentoCard:hover {
-    transform: translateY(-4px);
     border-color: var(--primary, #1B6B5A);
-    box-shadow: 0 12px 32px -8px rgba(27, 107, 90, 0.12);
+    box-shadow: 0 8px 24px -8px rgba(27, 107, 90, 0.1);
   }
 }
 
@@ -234,205 +221,198 @@
   outline-offset: 2px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .bentoCard:hover { transform: none; }
-}
-
-/* ── 3D 아이콘 공통 ── */
-.icon3d {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+/* ── 벤토 카드 헤더 ── */
+.bentoHeader {
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: #fff;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  gap: 5px;
+}
+
+@media (min-width: 640px) {
+  .bentoHeader { gap: 6px; }
+}
+
+.bentoHeaderIcon {
+  color: var(--primary, #1B6B5A);
   flex-shrink: 0;
 }
 
-@media (min-width: 640px) {
-  .icon3d {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-  }
-}
-
-@media (min-width: 768px) {
-  .icon3d {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-  }
-}
-
-/* 지역비교 — Green/Teal */
-.icon3dRegion {
-  composes: icon3d;
-  background: linear-gradient(135deg, #34d399 0%, #059669 100%);
-  box-shadow:
-    0 8px 16px -4px rgba(5, 150, 105, 0.4),
-    0 2px 4px -1px rgba(5, 150, 105, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transform: perspective(500px) rotateY(-5deg) rotateX(5deg);
-}
-
-@media (hover: hover) {
-  .bentoCard:hover .icon3dRegion {
-    transform: perspective(500px) rotateY(0deg) rotateX(0deg) translateY(-2px);
-    box-shadow:
-      0 12px 24px -4px rgba(5, 150, 105, 0.5),
-      0 4px 8px -1px rgba(5, 150, 105, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-}
-
-/* 작물정보 — Amber/Orange */
-.icon3dCrop {
-  composes: icon3d;
-  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-  box-shadow:
-    0 8px 16px -4px rgba(217, 119, 6, 0.4),
-    0 2px 4px -1px rgba(217, 119, 6, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transform: perspective(500px) rotateY(-5deg) rotateX(5deg);
-}
-
-@media (hover: hover) {
-  .bentoCard:hover .icon3dCrop {
-    transform: perspective(500px) rotateY(0deg) rotateX(0deg) translateY(-2px);
-    box-shadow:
-      0 12px 24px -4px rgba(217, 119, 6, 0.5),
-      0 4px 8px -1px rgba(217, 119, 6, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-}
-
-/* 지원사업 — Purple/Violet */
-.icon3dProgram {
-  composes: icon3d;
-  background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
-  box-shadow:
-    0 8px 16px -4px rgba(124, 58, 237, 0.4),
-    0 2px 4px -1px rgba(124, 58, 237, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transform: perspective(500px) rotateY(-5deg) rotateX(5deg);
-}
-
-@media (hover: hover) {
-  .bentoCard:hover .icon3dProgram {
-    transform: perspective(500px) rotateY(0deg) rotateX(0deg) translateY(-2px);
-    box-shadow:
-      0 12px 24px -4px rgba(124, 58, 237, 0.5),
-      0 4px 8px -1px rgba(124, 58, 237, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .icon3dRegion,
-  .icon3dCrop,
-  .icon3dProgram {
-    transform: none;
-  }
-  .bentoCard:hover .icon3dRegion,
-  .bentoCard:hover .icon3dCrop,
-  .bentoCard:hover .icon3dProgram {
-    transform: none;
-  }
-}
-
-/* ── 벤토 아이콘 (SVG 반응형) ── */
-.bentoIcon {
-  width: 20px;
-  height: 20px;
-}
-
-@media (min-width: 640px) {
-  .bentoIcon { width: 24px; height: 24px; }
-}
-
-@media (min-width: 768px) {
-  .bentoIcon { width: 28px; height: 28px; }
-}
-
-/* ── 벤토 카드 텍스트 ── */
-.bentoBig {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--foreground, #111);
-  line-height: 1;
-}
-
-@media (min-width: 640px) {
-  .bentoBig { font-size: 32px; }
-}
-
-@media (min-width: 768px) {
-  .bentoBig { font-size: 40px; }
-}
-
-.bentoSuffix {
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--muted-foreground, #6b7280);
-  margin-left: 2px;
-}
-
-@media (min-width: 640px) {
-  .bentoSuffix { font-size: 13px; }
-}
-
-@media (min-width: 768px) {
-  .bentoSuffix { font-size: 16px; margin-left: 3px; }
-}
-
 .bentoName {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--foreground, #111);
 }
 
 @media (min-width: 640px) {
-  .bentoName { font-size: 15px; }
+  .bentoName { font-size: 14px; }
 }
 
 @media (min-width: 768px) {
-  .bentoName { font-size: 18px; }
+  .bentoName { font-size: 16px; }
 }
 
-.bentoDesc {
+/* ── 벤토 미리보기 리스트 (지역·작물) ── */
+.bentoPreviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+}
+
+.bentoPreviewItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 0;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  transition: opacity 0.12s;
+}
+
+@media (min-width: 640px) {
+  .bentoPreviewItem { gap: 6px; padding: 7px 0; }
+}
+
+.bentoPreviewItem:last-child {
+  border-bottom: none;
+}
+
+@media (hover: hover) {
+  .bentoPreviewItem:hover { opacity: 0.65; }
+}
+
+.previewEmoji {
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .previewEmoji { font-size: 16px; }
+}
+
+.previewName {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--foreground, #111);
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .previewName { font-size: 13px; }
+}
+
+@media (min-width: 768px) {
+  .previewName { font-size: 14px; }
+}
+
+.previewSub {
+  font-size: 10px;
   color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   display: none;
 }
 
 @media (min-width: 640px) {
-  .bentoDesc { display: block; }
+  .previewSub { display: inline; font-size: 11px; }
 }
 
-@media (min-width: 768px) {
-  .bentoDesc { font-size: 14px; }
-}
-
-.bentoLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
+.previewBadge {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
   color: var(--primary, #1B6B5A);
-  margin-top: auto;
+  white-space: nowrap;
 }
 
 @media (min-width: 640px) {
-  .bentoLink { font-size: 13px; }
+  .previewBadge { font-size: 11px; padding: 2px 6px; }
+}
+
+/* ── 벤토 지원사업 리스트 ── */
+.bentoProgramList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+}
+
+.bentoProgramItem {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 5px 0;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  transition: opacity 0.12s;
+}
+
+@media (min-width: 640px) {
+  .bentoProgramItem { padding: 7px 0; }
+}
+
+.bentoProgramItem:last-child {
+  border-bottom: none;
+}
+
+@media (hover: hover) {
+  .bentoProgramItem:hover { opacity: 0.65; }
+}
+
+.programTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--foreground, #111);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .programTitle { font-size: 13px; }
 }
 
 @media (min-width: 768px) {
-  .bentoLink { font-size: 14px; }
+  .programTitle { font-size: 14px; }
+}
+
+.programMeta {
+  font-size: 9px;
+  color: var(--muted-foreground, #6b7280);
+}
+
+@media (min-width: 640px) {
+  .programMeta { font-size: 11px; }
+}
+
+/* ── 벤토 "더보기" 링크 ── */
+.bentoMore {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--primary, #1B6B5A);
+  text-decoration: none;
+  margin-top: auto;
+  padding-top: 2px;
+}
+
+@media (min-width: 640px) {
+  .bentoMore { font-size: 12px; gap: 4px; }
+}
+
+@media (min-width: 768px) {
+  .bentoMore { font-size: 13px; }
+}
+
+@media (hover: hover) {
+  .bentoMore:hover { text-decoration: underline; }
 }
 
 /* ══════════════════════════════════════════
