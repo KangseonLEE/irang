@@ -40,12 +40,12 @@ export default function HomePage() {
     <div className={s.page}>
       {/* ═══ 히어로 — 검색 중심 ═══ */}
       <section className={s.heroSection} aria-label="검색">
-        <span className={s.heroEyebrow}>귀농을 결심한 순간부터</span>
+        <span className={s.heroEyebrow}>어디로 갈지 모르겠다면</span>
 
         <h1 className={s.heroTitle}>
-          귀농, 막막할수록
+          내 땅을 찾는
           <br />
-          숫자가 답입니다
+          가장 빠른 길
         </h1>
 
         <p className={s.heroSubtitle}>
