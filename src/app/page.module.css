@@ -850,3 +850,20 @@
 }
 
 .ctaBannerBtn:hover { opacity: 0.9; }
+
+/* ══════════════════════════════════════════
+   섹션 타이틀 (벤토·출처 영역 등)
+   ══════════════════════════════════════════ */
+.sectionTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--foreground, #111);
+  margin: 8px 0 -4px;
+}
+
+@media (min-width: 768px) {
+  .sectionTitle {
+    font-size: 20px;
+    margin: 12px 0 -8px;
+  }
+}

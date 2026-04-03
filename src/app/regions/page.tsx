@@ -68,6 +68,22 @@ export default async function RegionsPage() {
         </div>
       </section>
 
+      {/* Compare CTA */}
+      <section className={s.compareCta}>
+        <div className={s.compareCtaInner}>
+          <div>
+            <h2 className={s.compareCtaTitle}>지역을 비교해 보세요</h2>
+            <p className={s.compareCtaDesc}>
+              최대 4개 지역의 기후, 인구, 인프라를 한눈에 비교할 수 있습니다.
+            </p>
+          </div>
+          <Link href="/regions/compare" className={s.compareCtaButton}>
+            <GitCompareArrows size={16} aria-hidden="true" />
+            비교하기
+          </Link>
+        </div>
+      </section>
+
       {/* Region Cards Grid */}
       <section className={s.grid}>
         {PROVINCES.map((province) => {
@@ -110,22 +126,6 @@ export default async function RegionsPage() {
             </Link>
           );
         })}
-      </section>
-
-      {/* Compare CTA */}
-      <section className={s.compareCta}>
-        <div className={s.compareCtaInner}>
-          <div>
-            <h2 className={s.compareCtaTitle}>지역을 비교해 보세요</h2>
-            <p className={s.compareCtaDesc}>
-              최대 4개 지역의 기후, 인구, 인프라를 한눈에 비교할 수 있습니다.
-            </p>
-          </div>
-          <Link href="/regions/compare" className={s.compareCtaButton}>
-            <GitCompareArrows size={16} aria-hidden="true" />
-            비교하기
-          </Link>
-        </div>
       </section>
     </div>
   );

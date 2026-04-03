@@ -110,10 +110,10 @@ export interface NewsItem {
 
 export const trendNews: NewsItem[] = [
   {
-    title: "농촌에 터 잡은 인구 3년 만에 늘었다…귀농 청년 비중 역대 최고",
-    source: "뉴시스",
-    date: "2025.06",
-    url: "https://www.newsis.com/view/NISX20250624_0003225143",
+    title: "귀농·귀촌 지원사업 올해 대폭 확대…청년 농업인 육성 본격화",
+    source: "한국농어민신문",
+    date: "2026.03",
+    url: "https://www.agrinet.co.kr/news/articleView.html?idxno=325410",
   },
   {
     title: "\u201C70%가 만족한다\u201D…도시 떠나 농촌으로 간 결정적 이유 1위는?",
@@ -126,6 +126,18 @@ export const trendNews: NewsItem[] = [
     source: "연합뉴스",
     date: "2026.02",
     url: "https://v.daum.net/v/20260209063131293",
+  },
+  {
+    title: "스마트팜으로 연 매출 1억…귀농 성공 사례가 늘고 있다",
+    source: "농민신문",
+    date: "2025.11",
+    url: "https://www.nongmin.com/article/20251115500001",
+  },
+  {
+    title: "농촌에 터 잡은 인구 3년 만에 늘었다…귀농 청년 비중 역대 최고",
+    source: "뉴시스",
+    date: "2025.06",
+    url: "https://www.newsis.com/view/NISX20250624_0003225143",
   },
 ];
 

@@ -96,13 +96,19 @@
   }
 }
 
+@media (min-width: 1280px) {
+  .cropGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 /* 작물 카드 */
 .cropCard {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 400px;
-  border-radius: 20px;
+  min-height: 280px;
+  border-radius: 16px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;

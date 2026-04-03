@@ -53,6 +53,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ 벤토 카드 — 실제 데이터 미리보기 ═══ */}
+      <h2 className={s.sectionTitle}>한눈에 보는 귀농 정보</h2>
       <section className={s.bentoGrid} aria-label="주요 서비스">
         {/* 지역 탐색 */}
         <div className={s.bentoCard}>
@@ -209,6 +210,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ 데이터 출처 스트립 (컴팩트) ═══ */}
+      <h2 className={s.sectionTitle}>신뢰할 수 있는 데이터</h2>
       <section className={s.sourcesStrip} aria-label="데이터 출처">
         <div className={s.sourcesStripHeader}>
           <Database size={14} />

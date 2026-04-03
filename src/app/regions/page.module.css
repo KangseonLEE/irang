@@ -80,7 +80,7 @@
 
 @media (min-width: 1024px) {
   .mapWrapper {
-    max-width: 400px;
+    max-width: 480px;
   }
 }
 
@@ -284,7 +284,7 @@
 
 /* ---- 비교 CTA ---- */
 .compareCta {
-  margin-top: 8px;
+  margin-top: 0;
 }
 
 .compareCtaInner {

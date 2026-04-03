@@ -128,7 +128,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "33",
     hiraSidoCd: "330000",
     eduCode: "M10",
-    unsplashQuery: "Danyang bridge South Korea landscape",
+    unsplashQuery: "Suanbo Chungju lake South Korea landscape",
     personas: [
       {
         title: "유기농·친환경 농업에 관심 있는 분",
@@ -153,7 +153,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "25",
     hiraSidoCd: "250000",
     eduCode: "G10",
-    unsplashQuery: "Daejeon Expo bridge Korea",
+    unsplashQuery: "Daejeon Yuseong hot spring Korea cityscape",
     personas: [
       {
         title: "기술 기반 스마트팜에 관심 있는 분",
@@ -228,7 +228,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "24",
     hiraSidoCd: "240000",
     eduCode: "F10",
-    unsplashQuery: "Gwangju South Korea cityscape park",
+    unsplashQuery: "Mudeungsan mountain Gwangju Korea",
     personas: [
       {
         title: "도시 생활을 유지하며 전남 농업에 접근하려는 분",
@@ -338,7 +338,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "38",
     hiraSidoCd: "380000",
     eduCode: "T10",
-    unsplashQuery: "Tongyeong Korea harbor coast",
+    unsplashQuery: "Hallyeohaesang Tongyeong cable car Korea coast",
     personas: [
       {
         title: "마늘·양파·딸기 등 채소·과수 농업을 원하는 분",
