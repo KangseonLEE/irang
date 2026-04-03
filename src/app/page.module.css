@@ -174,13 +174,30 @@
    벤토 서비스 카드 그리드 — 데이터 미리보기
    ══════════════════════════════════════════ */
 .bentoGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  /* 스크롤바 숨김 */
+  scrollbar-width: none;
+  /* 카드가 1.5개 보이도록 패딩으로 peek 효과 */
+  padding-bottom: 4px;
+}
+
+.bentoGrid::-webkit-scrollbar {
+  display: none;
 }
 
 @media (min-width: 640px) {
-  .bentoGrid { gap: 16px; }
+  .bentoGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    overflow-x: visible;
+    scroll-snap-type: none;
+    padding-bottom: 0;
+  }
 }
 
 @media (min-width: 768px) {
@@ -194,10 +211,20 @@
   padding: 14px 12px;
   transition: border-color 0.2s, box-shadow 0.2s;
   -webkit-tap-highlight-color: transparent;
+  /* 모바일: 화면의 ~65% 너비 → 약 1.5개 노출 */
+  min-width: 65vw;
+  flex-shrink: 0;
+  scroll-snap-align: start;
 }
 
 @media (min-width: 640px) {
-  .bentoCard { gap: 12px; padding: 20px; }
+  .bentoCard {
+    gap: 12px;
+    padding: 20px;
+    min-width: 0;
+    flex-shrink: 1;
+    scroll-snap-align: none;
+  }
 }
 
 @media (min-width: 768px) {
