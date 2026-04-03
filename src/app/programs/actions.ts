@@ -1,7 +1,7 @@
 "use server";
 
 import {
-  filterProgramsPaginated,
+  filterProgramsAsync,
   PAGE_SIZE,
   type ProgramFilters,
   type PaginatedResult,
@@ -10,14 +10,17 @@ import {
 /**
  * 지원사업 추가 로드 Server Action
  * 클라이언트에서 IntersectionObserver가 트리거할 때 호출
+ * - RDA API 사용 가능 시 API 데이터, 아니면 폴백 데이터
  */
 export async function loadMorePrograms(
   filters: ProgramFilters,
   offset: number
 ): Promise<PaginatedResult> {
-  // 실제 API 연동 시 여기에 fetch/DB 쿼리로 교체
-  // 네트워크 지연 시뮬레이션 (실서비스 전환 시 제거)
-  await new Promise((r) => setTimeout(r, 300));
-
-  return filterProgramsPaginated(filters, offset, PAGE_SIZE);
+  const { programs: allFiltered } = await filterProgramsAsync(filters);
+  const programs = allFiltered.slice(offset, offset + PAGE_SIZE);
+  return {
+    programs,
+    total: allFiltered.length,
+    hasMore: offset + PAGE_SIZE < allFiltered.length,
+  };
 }

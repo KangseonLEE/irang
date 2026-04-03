@@ -1,8 +1,16 @@
 /**
- * 귀농·귀촌 지원사업 샘플 데이터
- * - 실제 API(AgriX) 연동 전까지 사용하는 정적 데이터
- * - 나중에 DB/API로 교체 시 인터페이스는 유지
+ * 귀농·귀촌 지원사업 데이터
+ * - RDA API(policyList) 연동 + 정적 폴백 데이터
+ * - RDA_API_KEY 미설정 또는 API 실패 시 샘플 데이터로 폴백
  */
+
+import {
+  fetchPolicies,
+  mapAreaName,
+  stripHtml,
+  deriveStatus,
+  type RdaPolicyItem,
+} from "@/lib/api/rda";
 
 export interface SupportProgram {
   id: string;
@@ -547,4 +555,113 @@ export function filterProgramsPaginated(
     total: all.length,
     hasMore: offset + limit < all.length,
   };
+}
+
+// ─── RDA API 연동 레이어 ───
+
+/** RDA API 응답 → SupportProgram 변환 */
+function mapRdaPolicy(item: RdaPolicyItem, index: number): SupportProgram {
+  const region = mapAreaName(item.area1Nm);
+  const status = deriveStatus(item.applStDt, item.appEdDt);
+
+  return {
+    id: `rda-${item.seq}`,
+    title: item.title,
+    summary: stripHtml(item.contents).slice(0, 200),
+    region,
+    organization: item.chargeAgency || item.chargeDept || "농촌진흥청",
+    supportType: "보조금",  // RDA API에 유형 필드 없음 → 기본값
+    supportAmount: item.price || "상세 공고 참조",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 65,
+    eligibilityDetail: item.eduTarget || "공고문 참조",
+    applicationStart: item.applStDt,
+    applicationEnd: item.appEdDt,
+    status,
+    relatedCrops: [],
+    sourceUrl: item.infoUrl || "",
+    year: new Date().getFullYear(),
+  };
+}
+
+/**
+ * RDA API에서 지원사업 데이터를 가져오고,
+ * 실패 시 정적 샘플 데이터로 폴백
+ *
+ * @returns { programs, source } — source는 "api" 또는 "fallback"
+ */
+export async function loadPrograms(): Promise<{
+  programs: SupportProgram[];
+  source: "api" | "fallback";
+}> {
+  // RDA API 시도
+  const apiData = await fetchPolicies({ pageSize: 100 });
+
+  if (apiData && apiData.length > 0) {
+    const programs = apiData.map(mapRdaPolicy);
+    return { programs, source: "api" };
+  }
+
+  // 폴백: 정적 샘플 데이터
+  return { programs: PROGRAMS, source: "fallback" };
+}
+
+/**
+ * async 버전: API 데이터로 필터링
+ * - 서버 컴포넌트에서 사용
+ */
+export async function filterProgramsAsync(
+  filters: ProgramFilters
+): Promise<{ programs: SupportProgram[]; source: "api" | "fallback" }> {
+  const { programs: allPrograms, source } = await loadPrograms();
+
+  // 조회 시점 기간 계산
+  let periodStart: string | null = null;
+  let periodEnd: string | null = null;
+  if (filters.period && /^\d{4}-\d{2}$/.test(filters.period)) {
+    const [y, m] = filters.period.split("-").map(Number);
+    periodStart = `${y}-${String(m).padStart(2, "0")}-01`;
+    const lastDay = new Date(y, m, 0).getDate();
+    periodEnd = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  }
+
+  const filtered = allPrograms.filter((program) => {
+    if (periodStart && periodEnd) {
+      if (
+        program.applicationStart > periodEnd ||
+        program.applicationEnd < periodStart
+      ) {
+        return false;
+      }
+    }
+    if (!filters.includeClosed && program.status === "마감") return false;
+    if (filters.query) {
+      const q = filters.query.toLowerCase();
+      const searchable = [
+        program.title,
+        program.summary,
+        program.region,
+        program.organization,
+        ...program.relatedCrops,
+      ]
+        .join(" ")
+        .toLowerCase();
+      if (!searchable.includes(q)) return false;
+    }
+    if (filters.region && filters.region !== "전체") {
+      if (program.region !== "전국" && program.region !== filters.region) return false;
+    }
+    if (filters.age) {
+      if (filters.age < program.eligibilityAgeMin || filters.age > program.eligibilityAgeMax) return false;
+    }
+    if (filters.supportType && filters.supportType !== "전체") {
+      if (program.supportType !== filters.supportType) return false;
+    }
+    if (filters.status && filters.status !== "전체") {
+      if (program.status !== filters.status) return false;
+    }
+    return true;
+  });
+
+  return { programs: filtered, source };
 }

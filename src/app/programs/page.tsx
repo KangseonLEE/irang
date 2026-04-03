@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { FileText, CalendarDays } from "lucide-react";
 import {
-  filterProgramsPaginated,
+  filterProgramsAsync,
   getCurrentPeriod,
   PAGE_SIZE,
   type ProgramFilters,
@@ -44,12 +44,11 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     period,
   };
 
-  // SSR: 첫 페이지 데이터만 렌더
-  const { programs, total, hasMore } = filterProgramsPaginated(
-    filters,
-    0,
-    PAGE_SIZE
-  );
+  // SSR: API → 폴백 자동 전환, 첫 페이지 데이터만 렌더
+  const { programs: allFiltered, source } = await filterProgramsAsync(filters);
+  const total = allFiltered.length;
+  const programs = allFiltered.slice(0, PAGE_SIZE);
+  const hasMore = PAGE_SIZE < total;
 
   // 기준일 표시 텍스트
   const [pYear, pMonth] = period.split("-");

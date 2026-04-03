@@ -1,8 +1,16 @@
 /**
- * 귀농 교육 과정 샘플 데이터
- * - 실제 API 연동 전까지 사용하는 정적 데이터
- * - 나중에 DB/API로 교체 시 인터페이스는 유지
+ * 귀농 교육 과정 데이터
+ * - RDA API(eduList) 연동 + 정적 폴백 데이터
+ * - RDA_API_KEY 미설정 또는 API 실패 시 샘플 데이터로 폴백
  */
+
+import {
+  fetchEducation as fetchRdaEducation,
+  mapAreaName,
+  stripHtml,
+  deriveStatus,
+  type RdaEduItem,
+} from "@/lib/api/rda";
 
 export interface EducationCourse {
   id: string;
@@ -334,4 +342,105 @@ export function filterEducation(filters: EducationFilters): EducationCourse[] {
 
     return true;
   });
+}
+
+// ─── RDA API 연동 레이어 ───
+
+/** RDA API 응답 → EducationCourse 변환 */
+function mapRdaEdu(item: RdaEduItem): EducationCourse {
+  const region = mapAreaName(item.area1Nm);
+  const status = deriveStatus(item.applStDt, item.appEdDt);
+
+  // 교육 상태: 교육 신청기간 기준 (applStDt/appEdDt)
+  let mappedStatus: EducationCourse["status"];
+  if (status === "모집중") mappedStatus = "모집중";
+  else if (status === "모집예정") mappedStatus = "모집예정";
+  else mappedStatus = "마감";
+
+  return {
+    id: `rda-edu-${item.seq}`,
+    title: item.title,
+    region,
+    organization: item.chargeAgency || item.chargeDept || "농촌진흥청",
+    type: "오프라인",           // RDA API에 유형 필드 없음 → 기본값
+    duration: item.eduTime || "상세 공고 참조",
+    schedule: item.eduStDt && item.eduEdDt
+      ? `${item.eduStDt} ~ ${item.eduEdDt}`
+      : "상세 공고 참조",
+    target: item.eduTarget || "공고문 참조",
+    cost: "상세 공고 참조",
+    description: stripHtml(item.contents).slice(0, 300),
+    capacity: item.eduCnt ? parseInt(item.eduCnt, 10) || null : null,
+    applicationStart: item.applStDt,
+    applicationEnd: item.appEdDt,
+    status: mappedStatus,
+    level: "초급",              // RDA API에 수준 필드 없음 → 기본값
+    url: item.infoUrl || "",
+  };
+}
+
+/**
+ * RDA API에서 교육 데이터를 가져오고,
+ * 실패 시 정적 샘플 데이터로 폴백
+ */
+export async function loadEducation(): Promise<{
+  courses: EducationCourse[];
+  source: "api" | "fallback";
+}> {
+  const apiData = await fetchRdaEducation({ pageSize: 100 });
+
+  if (apiData && apiData.length > 0) {
+    const courses = apiData.map(mapRdaEdu);
+    return { courses, source: "api" };
+  }
+
+  return { courses: EDUCATION_COURSES, source: "fallback" };
+}
+
+/**
+ * async 버전: API 데이터로 필터링
+ * - 서버 컴포넌트에서 사용
+ */
+export async function filterEducationAsync(
+  filters: EducationFilters
+): Promise<{ courses: EducationCourse[]; source: "api" | "fallback" }> {
+  const { courses: allCourses, source } = await loadEducation();
+
+  let periodStart: string | null = null;
+  let periodEnd: string | null = null;
+  if (filters.period && /^\d{4}-\d{2}$/.test(filters.period)) {
+    const [y, m] = filters.period.split("-").map(Number);
+    periodStart = `${y}-${String(m).padStart(2, "0")}-01`;
+    const lastDay = new Date(y, m, 0).getDate();
+    periodEnd = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  }
+
+  const filtered = allCourses.filter((course) => {
+    if (periodStart && periodEnd) {
+      if (course.applicationStart > periodEnd || course.applicationEnd < periodStart) {
+        return false;
+      }
+    }
+    if (!filters.includeClosed && course.status === "마감") return false;
+    if (filters.query) {
+      const q = filters.query.toLowerCase();
+      const searchable = [
+        course.title, course.description, course.region,
+        course.organization, course.target,
+      ].join(" ").toLowerCase();
+      if (!searchable.includes(q)) return false;
+    }
+    if (filters.region && filters.region !== "전체") {
+      if (course.region !== "전국" && course.region !== filters.region) return false;
+    }
+    if (filters.type && filters.type !== "전체") {
+      if (course.type !== filters.type) return false;
+    }
+    if (filters.level && filters.level !== "전체") {
+      if (course.level !== filters.level) return false;
+    }
+    return true;
+  });
+
+  return { courses: filtered, source };
 }

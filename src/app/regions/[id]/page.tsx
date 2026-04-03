@@ -20,8 +20,8 @@ import {
 import { PROVINCES, type Province } from "@/lib/data/regions";
 import { STATIONS } from "@/lib/data/stations";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
-import { filterPrograms } from "@/lib/data/programs";
-import { filterEducation } from "@/lib/data/education";
+import { filterProgramsAsync } from "@/lib/data/programs";
+import { filterEducationAsync } from "@/lib/data/education";
 import { filterEvents } from "@/lib/data/events";
 import { fetchMultipleClimateData } from "@/lib/api/weather";
 import { fetchPopulationData } from "@/lib/api/sgis";
@@ -95,17 +95,23 @@ export default async function RegionDetailPage({ params }: PageProps) {
     return detail?.majorRegions?.includes(province.name);
   });
 
-  // 이 도에 맞는 지원사업 필터 (해당 지역 + 전국)
-  const matchedPrograms = filterPrograms({
+  // 이 도에 맞는 지원사업 필터 (해당 지역 + 전국) — API → 폴백
+  const { programs: matchedPrograms } = await filterProgramsAsync({
     region: province.name,
     includeClosed: false,
-  }).slice(0, 6);
+  }).then(({ programs, source }) => ({
+    programs: programs.slice(0, 6),
+    source,
+  }));
 
-  // 이 도에 맞는 교육 과정 (해당 지역 + 전국, 마감 제외)
-  const matchedEducation = filterEducation({
+  // 이 도에 맞는 교육 과정 (해당 지역 + 전국, 마감 제외) — API → 폴백
+  const { courses: matchedEducation } = await filterEducationAsync({
     region: province.name,
     includeClosed: false,
-  }).slice(0, 4);
+  }).then(({ courses, source }) => ({
+    courses: courses.slice(0, 4),
+    source,
+  }));
 
   // 이 도에 맞는 체험·행사 (해당 지역 + 전국, 마감 제외)
   const matchedEvents = filterEvents({
