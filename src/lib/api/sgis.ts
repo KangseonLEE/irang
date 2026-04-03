@@ -32,11 +32,11 @@ async function getAccessToken(): Promise<string | null> {
     return cachedToken.accessToken;
   }
 
-  const consumerKey = process.env.SGIS_CONSUMER_KEY;
-  const consumerSecret = process.env.SGIS_CONSUMER_SECRET;
+  const consumerKey = process.env.SGIS_KEY;
+  const consumerSecret = process.env.SGIS_SECRET;
 
   if (!consumerKey || !consumerSecret) {
-    console.error("SGIS_CONSUMER_KEY or SGIS_CONSUMER_SECRET is not set");
+    console.error("SGIS_KEY or SGIS_SECRET is not set");
     return null;
   }
 
