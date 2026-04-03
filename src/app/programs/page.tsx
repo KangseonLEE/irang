@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { FileText, CalendarDays } from "lucide-react";
+import { FileText, CalendarDays, MessageCircle } from "lucide-react";
 import {
   filterProgramsAsync,
   getCurrentPeriod,
@@ -105,6 +105,30 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
           filters={filters}
         />
       </div>
+
+      {/* ═══ 피드백 CTA ═══ */}
+      <section className={s.feedbackCta} aria-label="의견 보내기">
+        <div className={s.feedbackCtaIcon} aria-hidden="true">
+          <MessageCircle size={22} />
+        </div>
+        <div className={s.feedbackCtaBody}>
+          <h2 className={s.feedbackCtaTitle}>
+            찾는 지원사업이 없으신가요?
+          </h2>
+          <p className={s.feedbackCtaDesc}>
+            원하는 지원사업 정보를 알려주시면 우선적으로 업데이트하겠습니다.
+          </p>
+        </div>
+        <a
+          href="https://tally.so/r/mOx0Ap"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={s.feedbackCtaBtn}
+        >
+          의견 보내기
+          <MessageCircle size={14} />
+        </a>
+      </section>
     </div>
   );
 }

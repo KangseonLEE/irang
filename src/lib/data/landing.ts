@@ -14,6 +14,8 @@ export interface DataSourceItem {
   name: string;
   code: string;
   description: string;
+  /** 내부 링크 — 해당 데이터가 활용되는 서비스 페이지 */
+  link: string;
 }
 
 export const dataSources: DataSourceItem[] = [
@@ -24,6 +26,7 @@ export const dataSources: DataSourceItem[] = [
     name: "기상청",
     code: "KMA",
     description: "ASOS 종관기상 관측 데이터",
+    link: "/regions",
   },
   {
     iconKey: "barChart",
@@ -32,6 +35,7 @@ export const dataSources: DataSourceItem[] = [
     name: "통계청 SGIS",
     code: "SGIS",
     description: "지역별 인구·고령화 데이터",
+    link: "/regions",
   },
   {
     iconKey: "trendingUp",
@@ -40,6 +44,7 @@ export const dataSources: DataSourceItem[] = [
     name: "통계청 KOSIS",
     code: "KOSIS",
     description: "농업 생산량·재배면적 통계",
+    link: "/crops",
   },
   {
     iconKey: "hospital",
@@ -48,6 +53,7 @@ export const dataSources: DataSourceItem[] = [
     name: "심평원",
     code: "HIRA",
     description: "지역별 의료기관 분포",
+    link: "/regions",
   },
   {
     iconKey: "graduationCap",
@@ -56,6 +62,7 @@ export const dataSources: DataSourceItem[] = [
     name: "교육부",
     code: "NEIS",
     description: "지역별 학교 수 데이터",
+    link: "/regions",
   },
 ];
 

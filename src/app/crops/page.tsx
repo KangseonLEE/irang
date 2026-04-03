@@ -14,18 +14,29 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }
 
 export default async function CropsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const currentCategory = (params.category ?? "전체") as CropCategory;
+  const searchQuery = params.q?.trim() ?? "";
 
   // 카테고리 필터링
-  const filteredCrops =
+  let filteredCrops =
     currentCategory === "전체"
       ? CROPS
       : CROPS.filter((c) => c.category === currentCategory);
+
+  // 텍스트 검색 필터링 (이름 + 설명, 대소문자 무시)
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filteredCrops = filteredCrops.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        c.description.toLowerCase().includes(q),
+    );
+  }
 
   return (
     <div className={s.page}>
@@ -57,7 +68,9 @@ export default async function CropsPage({ searchParams }: PageProps) {
         <div className={s.emptyState}>
           <Sprout size={32} className={s.emptyStateIcon} />
           <p className={s.emptyStateText}>
-            &lsquo;{currentCategory}&rsquo; 카테고리에 등록된 작물이 없습니다.
+            {searchQuery
+              ? `'${searchQuery}' 검색 결과가 없습니다.`
+              : `'${currentCategory}' 카테고리에 등록된 작물이 없습니다.`}
           </p>
           <Link href="/crops" className={s.emptyStateLink}>
             전체 작물 보기
