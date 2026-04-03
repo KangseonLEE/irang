@@ -17,6 +17,11 @@ export interface Station {
   eduCode: string;
 }
 
+/** 도/광역시 이름으로 대표 Station 찾기 (Cross-linking용) */
+export function getStationByProvince(province: string): Station | undefined {
+  return STATIONS.find((st) => st.province === province);
+}
+
 export const STATIONS: Station[] = [
   // 수도권
   { stnId: "108", name: "서울", province: "서울특별시", description: "수도권 기준점", sgisCode: "11", hiraSidoCd: "110000", eduCode: "B10" },

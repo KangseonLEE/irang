@@ -289,25 +289,46 @@
 }
 
 /* ---- 하단 크로스 링크 ---- */
+.crossLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .crossLinks {
+    flex-direction: row;
+    gap: 12px;
+  }
+}
+
 .crossLink {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  padding: 12px 16px;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--primary, #1B6B5A);
+  background: var(--secondary, #e8f5f1);
+  border: 1px solid var(--accent, #c4e8df);
+  border-radius: 12px;
   text-decoration: none;
-  text-underline-offset: 4px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+@media (min-width: 640px) {
+  .crossLink { flex: 1; }
 }
 
 .crossLink:hover {
-  text-decoration: underline;
+  background: var(--accent, #c4e8df);
+  border-color: var(--primary, #1B6B5A);
 }
 
 .crossLink:focus-visible {
   outline: 2px solid var(--primary, #1B6B5A);
   outline-offset: 2px;
-  border-radius: 4px;
 }
 
 /* ---- 빈 상태 ---- */

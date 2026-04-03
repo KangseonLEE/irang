@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { getProgramById, PROGRAMS } from "@/lib/data/programs";
 import type { SupportProgram } from "@/lib/data/programs";
+import { getCropByName } from "@/lib/data/crops";
+import { getStationByProvince } from "@/lib/data/stations";
 import s from "./page.module.css";
 
 export async function generateMetadata({
@@ -100,9 +102,17 @@ export default async function ProgramDetailPage({
                       </span>
                     </td>
                     <td className={s.tableValueCell}>
-                      <Link href="/regions" className={s.regionLink}>
-                        {program.region}
-                      </Link>
+                      {(() => {
+                        const station = getStationByProvince(program.region);
+                        const href = station
+                          ? `/regions?stations=${station.stnId}`
+                          : "/regions";
+                        return (
+                          <Link href={href} className={s.regionLink}>
+                            {program.region}
+                          </Link>
+                        );
+                      })()}
                     </td>
                   </tr>
                   <InfoRow
@@ -161,11 +171,21 @@ export default async function ProgramDetailPage({
               </div>
               <div className={s.cardContent}>
                 <div className={s.cropBadges}>
-                  {program.relatedCrops.map((crop) => (
-                    <Link key={crop} href="/crops" className={s.cropBadge}>
-                      {crop}
-                    </Link>
-                  ))}
+                  {program.relatedCrops.map((cropName) => {
+                    const cropInfo = getCropByName(cropName);
+                    const href = cropInfo
+                      ? `/crops/${cropInfo.id}`
+                      : "/crops";
+                    return (
+                      <Link
+                        key={cropName}
+                        href={href}
+                        className={s.cropBadge}
+                      >
+                        {cropInfo?.emoji} {cropName}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </div>

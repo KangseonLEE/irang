@@ -522,6 +522,21 @@
   border: 1px solid var(--accent);
 }
 
+.regionBadgeLink {
+  composes: regionBadge;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.regionBadgeLink:hover {
+  background: var(--accent);
+  border-color: var(--primary);
+}
+
 .regionStatsLabel {
   font-size: 14px;
   font-weight: 600;

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, Sprout, FileText } from "lucide-react";
 import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
 import { fetchPopulationData, type PopulationData } from "@/lib/api/sgis";
 import { fetchMedicalFacilities, type MedicalFacilityData } from "@/lib/api/hira";
@@ -291,13 +291,19 @@ export default async function RegionsPage({ searchParams }: PageProps) {
             공공누리 제1유형
           </p>
 
-          {/* Cross-link CTA */}
-          <div>
+          {/* Cross-link CTAs */}
+          <div className={s.crossLinks}>
             <Link
               href={`/programs${selectedStations.length > 0 ? `?region=${encodeURIComponent(selectedStations[0].province)}` : ""}`}
               className={s.crossLink}
             >
+              <FileText size={16} aria-hidden="true" />
               이 지역의 지원사업 찾기
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+            <Link href="/crops" className={s.crossLink}>
+              <Sprout size={16} aria-hidden="true" />
+              추천 작물 정보 보기
               <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>

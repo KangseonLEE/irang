@@ -63,6 +63,11 @@ export function getAllCropIds(): string[] {
   return CROPS.map((c) => c.id);
 }
 
+/** 작물 이름 → CropInfo 매핑 (Cross-linking용) */
+export function getCropByName(name: string): CropInfo | undefined {
+  return CROPS.find((c) => c.name === name);
+}
+
 export const CROP_CATEGORIES = ["전체", "식량", "채소", "과수", "특용"] as const;
 export type CropCategory = (typeof CROP_CATEGORIES)[number];
 

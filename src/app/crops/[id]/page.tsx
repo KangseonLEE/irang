@@ -25,6 +25,7 @@ import {
   CROPS,
   type CropDetailInfo,
 } from "@/lib/data/crops";
+import { getStationByProvince } from "@/lib/data/stations";
 import { fetchCropStats, type CropStatItem } from "@/lib/api/kosis";
 import { PROGRAMS } from "@/lib/data/programs";
 import s from "./page.module.css";
@@ -351,11 +352,23 @@ function RegionSection({
   return (
     <SectionWrapper icon={<MapPin size={18} />} title="인기 재배지역">
       <div className={s.regionBadges}>
-        {majorRegions.map((r) => (
-          <span key={r} className={s.regionBadge}>
-            {r}
-          </span>
-        ))}
+        {majorRegions.map((r) => {
+          const station = getStationByProvince(r);
+          return station ? (
+            <Link
+              key={r}
+              href={`/regions?stations=${station.stnId}`}
+              className={s.regionBadgeLink}
+            >
+              <MapPin size={12} />
+              {r}
+            </Link>
+          ) : (
+            <span key={r} className={s.regionBadge}>
+              {r}
+            </span>
+          );
+        })}
       </div>
 
       {top5.length > 0 && (
