@@ -82,9 +82,13 @@ export default async function CropsPage({ searchParams }: PageProps) {
 
       {filteredCrops.length === 0 && (
         <div className={s.emptyState}>
+          <Sprout size={32} className={s.emptyStateIcon} />
           <p className={s.emptyStateText}>
-            해당 카테고리에 등록된 작물이 없습니다.
+            &lsquo;{currentCategory}&rsquo; 카테고리에 등록된 작물이 없습니다.
           </p>
+          <Link href="/crops" className={s.emptyStateLink}>
+            전체 작물 보기
+          </Link>
         </div>
       )}
 

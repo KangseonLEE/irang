@@ -223,7 +223,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
                           unit="명"
                           values={selectedStations.map((st) => {
                             const p = populationMap.get(st.sgisCode);
-                            return p?.population ?? 0;
+                            return p ? p.population : null;
                           })}
                           highlight="max"
                         />
@@ -232,7 +232,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
                           unit="가구"
                           values={selectedStations.map((st) => {
                             const p = populationMap.get(st.sgisCode);
-                            return p?.householdCount ?? 0;
+                            return p ? p.householdCount : null;
                           })}
                           highlight="max"
                         />
@@ -241,7 +241,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
                           unit="%"
                           values={selectedStations.map((st) => {
                             const p = populationMap.get(st.sgisCode);
-                            return p?.agingRate ?? 0;
+                            return p ? p.agingRate : null;
                           })}
                           highlight="none"
                         />
@@ -260,7 +260,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
                             unit="개소"
                             values={selectedStations.map((st) => {
                               const m = medicalMap.get(st.hiraSidoCd);
-                              return m?.totalCount ?? 0;
+                              return m ? m.totalCount : null;
                             })}
                             highlight="max"
                           />
@@ -271,7 +271,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
                             unit="개교"
                             values={selectedStations.map((st) => {
                               const sc = schoolMap.get(st.eduCode);
-                              return sc?.totalCount ?? 0;
+                              return sc ? sc.totalCount : null;
                             })}
                             highlight="max"
                           />
@@ -406,16 +406,25 @@ function ComparisonRow({
 }: {
   label: string;
   unit: string;
-  values: number[];
+  values: (number | null)[];
   highlight: "max" | "min" | "none";
 }) {
-  const maxVal = Math.max(...values);
-  const minVal = Math.min(...values);
+  const numericValues = values.filter((v): v is number => v !== null);
+  const maxVal = numericValues.length > 0 ? Math.max(...numericValues) : 0;
+  const minVal = numericValues.length > 0 ? Math.min(...numericValues) : 0;
 
   return (
     <tr>
       <td className={s.td}>{label}</td>
       {values.map((val, i) => {
+        if (val === null) {
+          return (
+            <td key={i} className={s.td}>
+              <span className={s.tdNoData}>—</span>
+            </td>
+          );
+        }
+
         const isHighlighted =
           (highlight === "max" && val === maxVal) ||
           (highlight === "min" && val === minVal);

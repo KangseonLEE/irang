@@ -264,6 +264,11 @@
   color: var(--primary, #1B6B5A);
 }
 
+.tdNoData {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
 /* ---- 테이블 섹션 구분행 ---- */
 .sectionDivider {
   padding: 8px 12px;

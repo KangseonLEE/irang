@@ -223,18 +223,37 @@
 /* 빈 상태 */
 .emptyState {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
   min-height: 200px;
   background: var(--card, #fff);
   border: 2px dashed var(--border, #e5e7eb);
   border-radius: 20px;
-  padding: 24px;
+  padding: 32px 24px;
+}
+
+.emptyStateIcon {
+  color: var(--muted-foreground, #9ca3af);
 }
 
 .emptyStateText {
   font-size: 14px;
   color: var(--muted-foreground, #6b7280);
+  margin: 0;
+}
+
+.emptyStateLink {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+}
+
+.emptyStateLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 /* TOP 10 통계 카드 */
