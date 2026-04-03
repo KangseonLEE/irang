@@ -58,23 +58,21 @@
   );
   align-items: center;
   text-align: center;
-  padding: 40px 20px;
-  min-height: 320px;
+  padding: 32px 16px;
+  min-height: auto;
   justify-content: center;
   gap: 0;
 }
 
 @media (min-width: 640px) {
   .heroSection {
-    padding: 56px 32px;
-    min-height: 360px;
+    padding: 48px 32px;
   }
 }
 
 @media (min-width: 1024px) {
   .heroSection {
     padding: 64px 40px;
-    min-height: 400px;
   }
 }
 
@@ -115,12 +113,13 @@
 }
 
 .heroTitle {
-  font-size: 2rem;
+  font-size: 1.625rem;
   font-weight: 800;
   line-height: 1.3;
   letter-spacing: -0.02em;
   color: var(--foreground, #111);
   margin-bottom: 8px;
+  word-break: keep-all;
 }
 
 @media (min-width: 640px) {
@@ -136,14 +135,15 @@
 }
 
 .heroSubtitle {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--muted-foreground, #6b7280);
-  margin-bottom: 28px;
+  margin-bottom: 24px;
+  word-break: keep-all;
 }
 
 @media (min-width: 640px) {
-  .heroSubtitle { font-size: 1.125rem; margin-bottom: 32px; }
+  .heroSubtitle { font-size: 1rem; margin-bottom: 32px; }
 }
 
 @media (min-width: 1024px) {
@@ -178,13 +178,18 @@
    ══════════════════════════════════════════ */
 .bentoGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
 
 @media (min-width: 640px) {
   .bentoGrid {
-    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .bentoGrid {
     gap: 20px;
   }
 }
@@ -192,11 +197,18 @@
 /* ── 벤토 카드 (개별) ── */
 .bentoCard {
   composes: card;
-  gap: 16px;
-  padding: 24px;
+  gap: 10px;
+  padding: 16px 12px;
   transition: transform 0.25s ease, border-color 0.2s, box-shadow 0.25s ease;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 640px) {
+  .bentoCard {
+    gap: 14px;
+    padding: 20px;
+  }
 }
 
 @media (min-width: 768px) {
@@ -226,15 +238,31 @@
 
 /* ── 3D 아이콘 공통 ── */
 .icon3d {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .icon3d {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+  }
+}
+
+@media (min-width: 768px) {
+  .icon3d {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+  }
 }
 
 /* 지역비교 — Green/Teal */
@@ -313,12 +341,30 @@
   }
 }
 
+/* ── 벤토 아이콘 (SVG 반응형) ── */
+.bentoIcon {
+  width: 20px;
+  height: 20px;
+}
+
+@media (min-width: 640px) {
+  .bentoIcon { width: 24px; height: 24px; }
+}
+
+@media (min-width: 768px) {
+  .bentoIcon { width: 28px; height: 28px; }
+}
+
 /* ── 벤토 카드 텍스트 ── */
 .bentoBig {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 800;
   color: var(--foreground, #111);
   line-height: 1;
+}
+
+@media (min-width: 640px) {
+  .bentoBig { font-size: 32px; }
 }
 
 @media (min-width: 768px) {
@@ -326,20 +372,28 @@
 }
 
 .bentoSuffix {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 400;
   color: var(--muted-foreground, #6b7280);
-  margin-left: 3px;
+  margin-left: 2px;
+}
+
+@media (min-width: 640px) {
+  .bentoSuffix { font-size: 13px; }
 }
 
 @media (min-width: 768px) {
-  .bentoSuffix { font-size: 16px; }
+  .bentoSuffix { font-size: 16px; margin-left: 3px; }
 }
 
 .bentoName {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--foreground, #111);
+}
+
+@media (min-width: 640px) {
+  .bentoName { font-size: 15px; }
 }
 
 @media (min-width: 768px) {
@@ -350,6 +404,11 @@
   font-size: 13px;
   line-height: 1.6;
   color: var(--muted-foreground, #6b7280);
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .bentoDesc { display: block; }
 }
 
 @media (min-width: 768px) {
@@ -360,10 +419,14 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--primary, #1B6B5A);
   margin-top: auto;
+}
+
+@media (min-width: 640px) {
+  .bentoLink { font-size: 13px; }
 }
 
 @media (min-width: 768px) {

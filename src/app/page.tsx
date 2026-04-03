@@ -74,7 +74,7 @@ export default function HomePage() {
 
         <div className={s.heroSearchWrap}>
           <Suspense fallback={<div className={s.searchFallback} />}>
-            <SearchGroup size="large" placeholder="지역, 작물, 지원사업을 검색하세요" />
+            <SearchGroup size="large" placeholder="지역, 작물, 지원사업 검색" />
           </Suspense>
         </div>
       </section>
@@ -84,7 +84,7 @@ export default function HomePage() {
         {/* 지역 비교 */}
         <Link href="/regions" className={s.bentoCard}>
           <div className={s.icon3dRegion} aria-hidden="true">
-            <MapPin size={28} />
+            <MapPin className={s.bentoIcon} />
           </div>
           <span className={s.bentoBig}>
             19
@@ -103,7 +103,7 @@ export default function HomePage() {
         {/* 작물 정보 */}
         <Link href="/crops" className={s.bentoCard}>
           <div className={s.icon3dCrop} aria-hidden="true">
-            <Sprout size={28} />
+            <Sprout className={s.bentoIcon} />
           </div>
           <span className={s.bentoBig}>
             17
@@ -122,7 +122,7 @@ export default function HomePage() {
         {/* 지원사업 */}
         <Link href="/programs" className={s.bentoCard}>
           <div className={s.icon3dProgram} aria-hidden="true">
-            <FileText size={28} />
+            <FileText className={s.bentoIcon} />
           </div>
           <span className={s.bentoBig}>
             18
