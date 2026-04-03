@@ -45,8 +45,6 @@ export const SUPPORT_TYPES = [
   "컨설팅",
 ] as const;
 
-export const STATUS_OPTIONS = ["모집중", "모집예정", "마감"] as const;
-
 export const PROGRAMS: SupportProgram[] = [
   {
     id: "prg-001",

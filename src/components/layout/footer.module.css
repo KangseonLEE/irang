@@ -39,9 +39,6 @@
   }
 }
 
-/* Brand column */
-.brandColumn {}
-
 .brandTitle {
   font-size: 1.125rem;
   line-height: 1.75rem;
@@ -62,10 +59,6 @@
   line-height: 1rem;
   color: var(--footer-subtle);
 }
-
-/* Service & Sources columns */
-.serviceColumn {}
-.sourcesColumn {}
 
 /* Section heading */
 .sectionTitle {
