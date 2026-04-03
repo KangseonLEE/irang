@@ -132,21 +132,73 @@ export const trendNews: NewsItem[] = [
 /* ── 벤토 미리보기 데이터 ── */
 
 export const popularRegions = [
-  { name: "순천", desc: "남해안 온난", stnId: "259" },
-  { name: "제주", desc: "아열대 작물", stnId: "184" },
-  { name: "영주", desc: "고랭지 과수", stnId: "271" },
-  { name: "정선", desc: "고랭지 농업", stnId: "217" },
+  {
+    name: "순천",
+    provinceId: "jeonnam",
+    climate: "연평균 13.5°C",
+    highlight: "귀농 정착금 최대 3천만 원",
+  },
+  {
+    name: "제주",
+    provinceId: "jeju",
+    climate: "연평균 16.2°C",
+    highlight: "감귤·아열대 작물 특화",
+  },
+  {
+    name: "영주",
+    provinceId: "gyeongbuk",
+    climate: "연평균 11.3°C",
+    highlight: "사과·인삼 전국 최고 품질",
+  },
 ];
 
 export const popularCrops = [
-  { id: "strawberry", name: "딸기", emoji: "\u{1F353}", badge: "과수" },
-  { id: "chili-pepper", name: "고추", emoji: "\u{1F336}\u{FE0F}", badge: "채소" },
-  { id: "apple", name: "사과", emoji: "\u{1F34E}", badge: "과수" },
-  { id: "rice", name: "쌀", emoji: "\u{1F33E}", badge: "식량" },
+  {
+    id: "strawberry",
+    name: "딸기",
+    emoji: "\u{1F353}",
+    badge: "과수",
+    difficulty: "보통",
+    season: "11월~5월",
+  },
+  {
+    id: "chili-pepper",
+    name: "고추",
+    emoji: "\u{1F336}\u{FE0F}",
+    badge: "채소",
+    difficulty: "보통",
+    season: "3월~10월",
+  },
+  {
+    id: "apple",
+    name: "사과",
+    emoji: "\u{1F34E}",
+    badge: "과수",
+    difficulty: "어려움",
+    season: "3월~11월",
+  },
 ];
 
 export const hotPrograms = [
-  { id: "prg-001", title: "귀농인 정착지원금", region: "순천시", type: "보조금" },
-  { id: "prg-002", title: "청년 귀농 창업지원", region: "전국", type: "보조금" },
-  { id: "prg-004", title: "귀촌 주택 수리비 지원", region: "전남", type: "보조금" },
+  {
+    id: "prg-001",
+    title: "귀농인 정착지원금",
+    region: "순천시",
+    type: "보조금",
+    amount: "최대 3,000만 원",
+  },
+  {
+    id: "prg-002",
+    title: "청년 귀농 창업지원",
+    region: "전국",
+    type: "보조금",
+    amount: "최대 3억 원 융자",
+  },
+  {
+    id: "prg-004",
+    title: "귀촌 주택 수리비 지원",
+    region: "전남",
+    type: "보조금",
+    amount: "최대 5,000만 원",
+  },
 ];

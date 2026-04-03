@@ -54,7 +54,7 @@ export default function HomePage() {
 
       {/* ═══ 벤토 카드 — 실제 데이터 미리보기 ═══ */}
       <section className={s.bentoGrid} aria-label="주요 서비스">
-        {/* 지역 비교 */}
+        {/* 지역 탐색 */}
         <div className={s.bentoCard}>
           <div className={s.bentoHeader}>
             <MapPin size={16} className={s.bentoHeaderIcon} />
@@ -63,17 +63,20 @@ export default function HomePage() {
           <div className={s.bentoPreviewList}>
             {popularRegions.map((r) => (
               <Link
-                key={r.stnId}
-                href={`/regions?stations=${r.stnId}`}
+                key={r.provinceId}
+                href={`/regions/${r.provinceId}`}
                 className={s.bentoPreviewItem}
               >
-                <span className={s.previewName}>{r.name}</span>
-                <span className={s.previewSub}>{r.desc}</span>
+                <div className={s.previewMain}>
+                  <span className={s.previewName}>{r.name}</span>
+                  <span className={s.previewSub}>{r.climate}</span>
+                </div>
+                <span className={s.previewDetail}>{r.highlight}</span>
               </Link>
             ))}
           </div>
           <Link href="/regions" className={s.bentoMore}>
-            19개 지역 모두 비교
+            13개 지역 모두 보기
             <ArrowRight size={14} />
           </Link>
         </div>
@@ -92,7 +95,12 @@ export default function HomePage() {
                 className={s.bentoPreviewItem}
               >
                 <span className={s.previewEmoji}>{c.emoji}</span>
-                <span className={s.previewName}>{c.name}</span>
+                <div className={s.previewMain}>
+                  <span className={s.previewName}>{c.name}</span>
+                  <span className={s.previewSub}>
+                    난이도 {c.difficulty} · {c.season}
+                  </span>
+                </div>
                 <span className={s.previewBadge}>{c.badge}</span>
               </Link>
             ))}
@@ -120,6 +128,7 @@ export default function HomePage() {
                 <span className={s.programMeta}>
                   {p.region} · {p.type}
                 </span>
+                <span className={s.programAmount}>{p.amount}</span>
               </Link>
             ))}
           </div>
