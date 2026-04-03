@@ -73,7 +73,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "31",
     hiraSidoCd: "310000",
     eduCode: "J10",
-    unsplashQuery: "Suwon Korea countryside farmland",
+    unsplashQuery: "Suwon Hwaseong Fortress Korea",
     personas: [
       {
         title: "서울 생활권을 유지하면서 농업을 시작하려는 분",
@@ -253,7 +253,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "36",
     hiraSidoCd: "360000",
     eduCode: "Q10",
-    unsplashQuery: "Suncheon Bay Korea nature wetland",
+    unsplashQuery: "South Korea tea plantation",
     personas: [
       {
         title: "온화한 기후에서 다양한 작물을 시도하고 싶은 분",
@@ -308,7 +308,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "37",
     hiraSidoCd: "370000",
     eduCode: "S10",
-    unsplashQuery: "Yeongju Korea apple orchard rural",
+    unsplashQuery: "Gyeongju Korea temple",
     personas: [
       {
         title: "과수(사과·포도) 전문 농가를 꿈꾸는 분",
@@ -338,7 +338,7 @@ export const PROVINCES: Province[] = [
     sgisCode: "38",
     hiraSidoCd: "380000",
     eduCode: "T10",
-    unsplashQuery: "Jinju Korea Namgang river nature",
+    unsplashQuery: "Jinju lantern festival Korea",
     personas: [
       {
         title: "마늘·양파·딸기 등 채소·과수 농업을 원하는 분",

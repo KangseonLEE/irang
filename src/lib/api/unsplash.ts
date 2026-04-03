@@ -110,14 +110,14 @@ const REGION_SEARCH_QUERIES: Record<string, string> = {
   // 전라도
   "146": "Jeonju Hanok Village Korea",
   "156": "Gwangju Korea city",
-  "262": "Boseong green tea field Korea",
-  "259": "Suncheon Bay Korea wetland",
+  "262": "South Korea tea plantation",
+  "259": "South Korea tea plantation",
   // 경상도
   "143": "Daegu Korea city",
-  "192": "Jinju Korea Namgang river",
-  "289": "Sancheong Jirisan Korea mountain",
-  "271": "Bonghwa Korea rural mountain",
-  "272": "Yeongju Korea Buseoksa temple",
+  "192": "Jinju lantern festival Korea",
+  "289": "South Korea countryside village",
+  "271": "Gyeongju Korea temple",
+  "272": "Gyeongju Korea temple",
   // 제주
   "184": "Jeju Island Korea landscape",
   "189": "Seogwipo Jeju Korea coast",
