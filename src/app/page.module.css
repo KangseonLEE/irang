@@ -745,138 +745,64 @@
 }
 
 /* ══════════════════════════════════════════
-   CTA 카드 (기존 유지)
+   CTA 배너 (컴팩트)
    ══════════════════════════════════════════ */
-.ctaCard {
-  composes: card;
+.ctaBanner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 16px;
   background: linear-gradient(135deg, var(--primary, #1B6B5A) 0%, #0f4035 100%);
-  border: none;
   color: #fff;
-  align-items: center;
-  text-align: center;
-  padding: 28px 20px;
 }
 
 @media (min-width: 640px) {
-  .ctaCard { padding: 48px 24px; }
+  .ctaBanner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+  }
 }
 
-@media (min-width: 768px) {
-  .ctaCard { padding: 72px 40px; }
+.ctaBannerText {
+  flex: 1;
+  min-width: 0;
 }
 
-.ctaIcon {
-  color: rgba(255, 255, 255, 0.75);
-  margin-bottom: 8px;
-}
-
-@media (min-width: 768px) {
-  .ctaIcon { margin-bottom: 24px; }
-}
-
-.ctaTitle {
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1.3;
+.ctaBannerTitle {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
   word-break: keep-all;
 }
 
 @media (min-width: 640px) {
-  .ctaTitle { font-size: 22px; }
+  .ctaBannerTitle { font-size: 16px; }
 }
 
-@media (min-width: 768px) {
-  .ctaTitle { font-size: 30px; }
+.ctaBannerSub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.ctaDesc {
-  margin-top: 8px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.85);
-  max-width: 480px;
-}
-
-@media (min-width: 640px) {
-  .ctaDesc { margin-top: 10px; font-size: 14px; }
-}
-
-@media (min-width: 768px) {
-  .ctaDesc { margin-top: 16px; font-size: 16px; }
-}
-
-.ctaButtons {
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-@media (min-width: 768px) {
-  .ctaButtons { gap: 10px; margin-top: 36px; }
-}
-
-.ctaBtnWhite {
+.ctaBannerBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 44px;
+  gap: 6px;
   padding: 10px 20px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   background: #fff;
   color: var(--primary, #1B6B5A);
   text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: opacity 0.15s;
-  flex: 1;
 }
 
-@media (min-width: 640px) {
-  .ctaBtnWhite {
-    min-height: 48px;
-    padding: 12px 28px;
-    font-size: 15px;
-    flex: none;
-  }
-}
-
-.ctaBtnWhite:hover { opacity: 0.9; }
-
-.ctaBtnGhost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #fff;
-  text-decoration: none;
-  transition: background 0.15s;
-  flex: 1;
-}
-
-@media (min-width: 640px) {
-  .ctaBtnGhost {
-    min-height: 48px;
-    padding: 12px 28px;
-    font-size: 15px;
-    flex: none;
-  }
-}
-
-.ctaBtnGhost:hover { background: rgba(255, 255, 255, 0.1); }
-
-.ctaFootnote {
-  margin-top: 14px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-@media (min-width: 768px) {
-  .ctaFootnote { margin-top: 32px; font-size: 13px; }
-}
+.ctaBannerBtn:hover { opacity: 0.9; }

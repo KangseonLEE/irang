@@ -195,28 +195,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ CTA 카드 ═══ */}
-      <section className={s.ctaCard} aria-label="시작하기">
-        <Sprout size={24} className={s.ctaIcon} />
-        <h2 className={s.ctaTitle}>
-          귀농의 첫걸음, 지금 시작할 수 있어요.
-        </h2>
-        <p className={s.ctaDesc}>
-          회원가입 없이, 지금 바로 나에게 맞는 지역과 지원사업을
-          찾아보세요.
-        </p>
-        <div className={s.ctaButtons}>
-          <Link href="/programs" className={s.ctaBtnWhite}>
-            지원사업 찾기
-            <ArrowRight size={16} />
-          </Link>
-          <Link href="/regions" className={s.ctaBtnGhost}>
-            지역 비교하기
-          </Link>
+      {/* ═══ CTA 배너 ═══ */}
+      <section className={s.ctaBanner} aria-label="시작하기">
+        <div className={s.ctaBannerText}>
+          <h2 className={s.ctaBannerTitle}>
+            귀농의 첫걸음, 지금 시작하세요.
+          </h2>
+          <p className={s.ctaBannerSub}>
+            회원가입 불필요 · 광고 없음 · 공공 데이터 기반
+          </p>
         </div>
-        <p className={s.ctaFootnote}>
-          회원가입 불필요 · 광고 없음 · 공공 데이터 기반
-        </p>
+        <Link href="/programs" className={s.ctaBannerBtn}>
+          지원사업 찾기
+          <ArrowRight size={16} />
+        </Link>
       </section>
     </div>
   );
