@@ -1,0 +1,76 @@
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Page Header ── */
+/* Regions/Crops와 동일한 plain 텍스트 패턴으로 통일 */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary, #1b6b5a);
+}
+
+.headerLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.headerTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.headerDesc {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.headerCount {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin-top: 4px;
+}
+
+.headerCountNumber {
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+}
+
+/* ── Content Area ── */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Suspense Fallback ── */
+.filterFallback {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  min-height: 120px;
+}

@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
-import { MapPin } from "lucide-react";
+import { Suspense } from "react";
+import Link from "next/link";
+import { MapPin, ArrowRight } from "lucide-react";
+import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
+import { fetchPopulationData, type PopulationData } from "@/lib/api/sgis";
+import { fetchMedicalFacilities, type MedicalFacilityData } from "@/lib/api/hira";
+import { fetchSchoolCounts, type SchoolData } from "@/lib/api/education";
+import { STATIONS, DEFAULT_STATION_IDS } from "@/lib/data/stations";
+import { RegionSelector } from "./region-selector";
+import s from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "지역 비교",
@@ -7,33 +16,419 @@ export const metadata: Metadata = {
     "귀농 후보 지역의 기후, 인구, 의료 인프라, 교육 환경을 비교하세요.",
 };
 
-export default function RegionsPage() {
-  return (
-    <div className="mx-auto max-w-screen-xl px-6 py-10">
-      {/* Page Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-primary">
-          <MapPin className="h-5 w-5" />
-          <span className="text-xs font-semibold uppercase tracking-widest">
-            Region Compare
-          </span>
-        </div>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">지역 비교</h1>
-        <p className="mt-2 text-muted-foreground">
-          최대 3개 지역의 기후, 인프라, 인구 데이터를 나란히 비교할 수 있습니다.
-        </p>
-      </div>
+interface PageProps {
+  searchParams: Promise<{ stations?: string }>;
+}
 
-      {/* Placeholder — 추후 지역 선택 Combobox + 비교 카드 구현 */}
-      <div className="flex min-h-[400px] items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/30">
-        <div className="flex flex-col items-center gap-3 text-muted-foreground">
-          <MapPin className="h-12 w-12 text-primary/30" />
-          <p className="text-sm font-medium">지역 비교 기능 준비 중</p>
-          <p className="text-xs text-muted-foreground/70">
-            시/군/구 선택 → 기후·인구·의료·교육 데이터 비교
+export default async function RegionsPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const selectedIds = params.stations
+    ? params.stations.split(",").slice(0, 4)
+    : DEFAULT_STATION_IDS;
+
+  const climateData = await fetchMultipleClimateData(selectedIds);
+
+  // 선택된 관측소의 SGIS 지역코드를 추출 (중복 제거 없이 순서 보존)
+  const selectedStations = selectedIds
+    .map((id) => STATIONS.find((st) => st.stnId === id))
+    .filter((st): st is NonNullable<typeof st> => st != null);
+  const sgisCodes = selectedStations.map((st) => st.sgisCode);
+  const uniqueSgisCodes = [...new Set(sgisCodes)];
+
+  // SGIS 인구 데이터 조회 (실패해도 기후 데이터에 영향 없음)
+  let populationMap: Map<string, PopulationData> = new Map();
+  try {
+    const populationList = await fetchPopulationData(uniqueSgisCodes);
+    for (const p of populationList) {
+      populationMap.set(p.regionCode, p);
+    }
+  } catch {
+    console.error("Population data fetch failed, continuing without it");
+  }
+
+  // 심평원 의료기관 수 조회 (실패해도 다른 데이터에 영향 없음)
+  const hiraSidoCodes = selectedStations.map((st) => st.hiraSidoCd);
+  const uniqueHiraCodes = [...new Set(hiraSidoCodes)];
+  let medicalMap: Map<string, MedicalFacilityData> = new Map();
+  try {
+    const medicalList = await fetchMedicalFacilities(uniqueHiraCodes);
+    for (const m of medicalList) {
+      medicalMap.set(m.sidoCd, m);
+    }
+  } catch {
+    console.error("Medical facility data fetch failed, continuing without it");
+  }
+
+  // 교육부 학교 수 조회 (실패해도 다른 데이터에 영향 없음)
+  const eduCodes = selectedStations.map((st) => st.eduCode);
+  const uniqueEduCodes = [...new Set(eduCodes)];
+  let schoolMap: Map<string, SchoolData> = new Map();
+  try {
+    const schoolList = await fetchSchoolCounts(uniqueEduCodes);
+    for (const sc of schoolList) {
+      schoolMap.set(sc.eduCode, sc);
+    }
+  } catch {
+    console.error("School data fetch failed, continuing without it");
+  }
+
+  const year = new Date().getFullYear();
+
+  return (
+    <div className={s.page}>
+      {/* Page Header */}
+      <header className={s.pageHeader}>
+        <span className={s.headerOverline}>
+          <MapPin size={16} aria-hidden="true" />
+          Region Compare
+        </span>
+        <h1 className={s.headerTitle}>지역 비교</h1>
+        <p className={s.headerDesc}>
+          {year}년 기상 관측 데이터 기반으로 지역별 기후를 비교합니다.
+        </p>
+      </header>
+
+      {/* Region Selector */}
+      <Suspense
+        fallback={
+          <div
+            className={s.selectorSkeleton}
+            aria-busy="true"
+            aria-label="지역 선택 로딩 중"
+          />
+        }
+      >
+        <RegionSelector stations={STATIONS} selectedIds={selectedIds} />
+      </Suspense>
+
+      {/* Climate Comparison Cards */}
+      {climateData.length > 0 ? (
+        <>
+          {/* Climate Summary Cards */}
+          <section aria-labelledby="climate-heading">
+            <h2 id="climate-heading" className={s.srOnly}>
+              기후 요약
+            </h2>
+            <div className={s.climateGrid}>
+              {climateData.map((data) => (
+                <ClimateCard key={data.stnId} data={data} />
+              ))}
+            </div>
+          </section>
+
+          {/* Population Cards */}
+          {populationMap.size > 0 && (
+            <section aria-labelledby="population-heading">
+              <h2 id="population-heading" className={s.sectionTitle}>
+                인구 현황
+              </h2>
+              <div className={s.populationGrid}>
+                {selectedStations.map((station) => {
+                  const popData = populationMap.get(station.sgisCode);
+                  if (!popData) return null;
+                  return (
+                    <PopulationCard
+                      key={`pop-${station.stnId}`}
+                      stationName={station.name}
+                      province={station.province}
+                      data={popData}
+                    />
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Detailed Comparison Table */}
+          <section aria-labelledby="detail-heading">
+            <div className={s.tableCard}>
+              <div className={s.tableCardHeader}>
+                <h2 id="detail-heading" className={s.tableCardTitle}>
+                  상세 비교
+                </h2>
+                <p className={s.tableCardDesc}>
+                  {year}년 {climateData[0]?.period} 기준 관측 데이터
+                </p>
+              </div>
+              <div className={s.tableWrap}>
+                <table className={s.table}>
+                  <caption className={s.srOnly}>
+                    지역별 기후/인구/인프라 상세 비교
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th className={s.th} scope="col">
+                        항목
+                      </th>
+                      {climateData.map((d) => (
+                        <th key={d.stnId} className={s.th} scope="col">
+                          {d.stnName}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* 기후 데이터 */}
+                    <ComparisonRow
+                      label="평균기온"
+                      unit="℃"
+                      values={climateData.map((d) => d.avgTemp)}
+                      highlight="none"
+                    />
+                    <ComparisonRow
+                      label="최고기온"
+                      unit="℃"
+                      values={climateData.map((d) => d.maxTemp)}
+                      highlight="max"
+                    />
+                    <ComparisonRow
+                      label="최저기온"
+                      unit="℃"
+                      values={climateData.map((d) => d.minTemp)}
+                      highlight="min"
+                    />
+                    <ComparisonRow
+                      label="누적 강수량"
+                      unit="mm"
+                      values={climateData.map((d) => d.totalPrecipitation)}
+                      highlight="none"
+                    />
+                    <ComparisonRow
+                      label="누적 일조시간"
+                      unit="hr"
+                      values={climateData.map((d) => d.totalSunshine)}
+                      highlight="max"
+                    />
+                    <ComparisonRow
+                      label="평균 습도"
+                      unit="%"
+                      values={climateData.map((d) => d.avgHumidity)}
+                      highlight="none"
+                    />
+                    <ComparisonRow
+                      label="데이터 수"
+                      unit="일"
+                      values={climateData.map((d) => d.dataCount)}
+                      highlight="none"
+                    />
+                    {/* 인구 데이터 */}
+                    {populationMap.size > 0 && (
+                      <>
+                        <SectionDividerRow
+                          label="인구 현황"
+                          colSpan={climateData.length + 1}
+                        />
+                        <ComparisonRow
+                          label="인구수"
+                          unit="명"
+                          values={selectedStations.map((st) => {
+                            const p = populationMap.get(st.sgisCode);
+                            return p?.population ?? 0;
+                          })}
+                          highlight="max"
+                        />
+                        <ComparisonRow
+                          label="가구수"
+                          unit="가구"
+                          values={selectedStations.map((st) => {
+                            const p = populationMap.get(st.sgisCode);
+                            return p?.householdCount ?? 0;
+                          })}
+                          highlight="max"
+                        />
+                        <ComparisonRow
+                          label="고령화율"
+                          unit="%"
+                          values={selectedStations.map((st) => {
+                            const p = populationMap.get(st.sgisCode);
+                            return p?.agingRate ?? 0;
+                          })}
+                          highlight="none"
+                        />
+                      </>
+                    )}
+                    {/* 생활 인프라 데이터 */}
+                    {(medicalMap.size > 0 || schoolMap.size > 0) && (
+                      <>
+                        <SectionDividerRow
+                          label="생활 인프라"
+                          colSpan={climateData.length + 1}
+                        />
+                        {medicalMap.size > 0 && (
+                          <ComparisonRow
+                            label="의료기관 수"
+                            unit="개소"
+                            values={selectedStations.map((st) => {
+                              const m = medicalMap.get(st.hiraSidoCd);
+                              return m?.totalCount ?? 0;
+                            })}
+                            highlight="max"
+                          />
+                        )}
+                        {schoolMap.size > 0 && (
+                          <ComparisonRow
+                            label="학교 수"
+                            unit="개교"
+                            values={selectedStations.map((st) => {
+                              const sc = schoolMap.get(st.eduCode);
+                              return sc?.totalCount ?? 0;
+                            })}
+                            highlight="max"
+                          />
+                        )}
+                      </>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          {/* Data Source Notice */}
+          <p className={s.sourceNotice}>
+            출처: 기상청 종관기상관측(ASOS) | 공공데이터포털 (data.go.kr) |
+            통계지리정보서비스(SGIS) | 건강보험심사평가원 | 교육부 NEIS |
+            공공누리 제1유형
+          </p>
+
+          {/* Cross-link CTA */}
+          <div>
+            <Link
+              href={`/programs${selectedStations.length > 0 ? `?region=${encodeURIComponent(selectedStations[0].province)}` : ""}`}
+              className={s.crossLink}
+            >
+              이 지역의 지원사업 찾기
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          </div>
+        </>
+      ) : (
+        <div className={s.emptyState}>
+          <p className={s.emptyStateText}>
+            기상 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.
           </p>
         </div>
-      </div>
+      )}
     </div>
+  );
+}
+
+// --- 서브 컴포넌트 ---
+
+function ClimateCard({ data }: { data: ClimateData }) {
+  const station = STATIONS.find((st) => st.stnId === data.stnId);
+
+  return (
+    <article className={s.climateCard}>
+      <span className={s.cardOverline}>{station?.province}</span>
+      <h3 className={s.cardTitle}>{data.stnName}</h3>
+      <hr className={s.cardDivider} />
+      <div className={s.cardDataList}>
+        <DataRow label="평균기온" value={`${data.avgTemp}℃`} />
+        <DataRow label="누적 강수" value={`${data.totalPrecipitation}mm`} />
+        <DataRow label="누적 일조" value={`${data.totalSunshine}hr`} />
+        <DataRow label="평균 습도" value={`${data.avgHumidity}%`} />
+      </div>
+      <p className={s.cardDescription}>{station?.description}</p>
+    </article>
+  );
+}
+
+function PopulationCard({
+  stationName,
+  province,
+  data,
+}: {
+  stationName: string;
+  province: string;
+  data: PopulationData;
+}) {
+  const agingLabel =
+    data.agingRate >= 20
+      ? "초고령사회"
+      : data.agingRate >= 14
+        ? "고령사회"
+        : "고령화사회";
+
+  return (
+    <article className={s.populationCard}>
+      <span className={s.cardOverline}>{province}</span>
+      <h3 className={s.cardTitle}>{stationName}</h3>
+      <hr className={s.cardDivider} />
+      <div className={s.cardDataList}>
+        <DataRow
+          label="인구수"
+          value={`${(data.population / 10000).toFixed(0)}만명`}
+        />
+        <DataRow
+          label="가구수"
+          value={`${(data.householdCount / 10000).toFixed(0)}만`}
+        />
+        <DataRow label="고령화율" value={`${data.agingRate}%`} />
+      </div>
+      <p className={s.cardFooter}>
+        {data.regionName} · {agingLabel}
+      </p>
+    </article>
+  );
+}
+
+function DataRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className={s.dataRow}>
+      <span className={s.dataRowLabel}>{label}</span>
+      <span className={s.dataRowValue}>{value}</span>
+    </div>
+  );
+}
+
+function SectionDividerRow({
+  label,
+  colSpan,
+}: {
+  label: string;
+  colSpan: number;
+}) {
+  return (
+    <tr>
+      <td colSpan={colSpan} className={s.sectionDivider}>
+        {label}
+      </td>
+    </tr>
+  );
+}
+
+function ComparisonRow({
+  label,
+  unit,
+  values,
+  highlight,
+}: {
+  label: string;
+  unit: string;
+  values: number[];
+  highlight: "max" | "min" | "none";
+}) {
+  const maxVal = Math.max(...values);
+  const minVal = Math.min(...values);
+
+  return (
+    <tr>
+      <td className={s.td}>{label}</td>
+      {values.map((val, i) => {
+        const isHighlighted =
+          (highlight === "max" && val === maxVal) ||
+          (highlight === "min" && val === minVal);
+
+        return (
+          <td key={i} className={s.td}>
+            <span className={isHighlighted ? s.tdHighlight : undefined}>
+              {val.toLocaleString()}
+            </span>
+            <span className={s.tdUnit}>{unit}</span>
+          </td>
+        );
+      })}
+    </tr>
   );
 }

@@ -1,0 +1,116 @@
+/* ── Empty State ── */
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  border: 2px dashed var(--border, #e5e7eb);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--muted, #f4f4f5) 30%, transparent);
+}
+
+.emptyInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted-foreground);
+}
+
+.emptyIcon {
+  width: 48px;
+  height: 48px;
+  color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+}
+
+.emptyTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.emptyDesc {
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--muted-foreground) 70%, transparent);
+  margin: 0;
+}
+
+/* ── Result Count ── */
+.resultCount {
+  margin-bottom: 16px;
+}
+
+.resultText {
+  font-size: 14px;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.resultTotal {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.resultShowing {
+  margin-left: 4px;
+  font-size: 0.75rem;
+}
+
+/* ── Card Grid ── */
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Loading Sentinel ── */
+.sentinel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+  padding: 16px 0;
+}
+
+.loadingInner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── All Loaded ── */
+.allLoaded {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}

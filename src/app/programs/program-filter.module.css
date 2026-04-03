@@ -1,0 +1,125 @@
+/* ── Filter Card Wrapper ── */
+.filterCard {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  padding: 16px;
+}
+
+/* ── Header Row ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.clearButton {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  background: none;
+  border: none;
+  cursor: pointer;
+  /* WCAG 2.5.8: 최소 44x44px 터치 타깃 확보 */
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.clearButton:hover {
+  color: var(--foreground);
+  background: var(--muted, #f4f4f5);
+}
+
+.clearButton:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ── Grid ── */
+.grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ── Field Group ── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+/* ── Shared Input / Select Styles ── */
+.select,
+.input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  background-color: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.select:focus,
+.input:focus {
+  border-color: var(--primary, #1b6b5a);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+}
+
+/* ── Native Select (custom arrow) ── */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+/* ── Number Input — hide spinners ── */
+.input[type="number"]::-webkit-inner-spin-button,
+.input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input[type="number"] {
+  -moz-appearance: textfield;
+}

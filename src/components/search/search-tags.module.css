@@ -1,0 +1,50 @@
+/* 모바일 기본: 가로 스크롤 */
+.tags {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  justify-content: flex-start;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  padding-bottom: 4px;
+}
+
+.tags::-webkit-scrollbar {
+  display: none;
+}
+
+/* 641px 이상: 줄바꿈 + 중앙 정렬 */
+@media (min-width: 641px) {
+  .tags {
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+}
+
+.tag {
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.tag:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.tag:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, MapPin, FileText, Sprout } from "lucide-react";
-import { cn } from "@/lib/utils";
+import styles from "./mobile-nav.module.css";
 
 const tabs = [
   { href: "/", label: "홈", icon: Home },
@@ -16,8 +16,8 @@ export function MobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background md:hidden">
-      <div className="flex h-14 items-center justify-around pb-[env(safe-area-inset-bottom)]">
+    <nav className={styles.nav}>
+      <div className={styles.inner}>
         {tabs.map((tab) => {
           const isActive =
             tab.href === "/"
@@ -29,15 +29,9 @@ export function MobileNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={cn(
-                "flex min-w-[64px] flex-col items-center justify-center gap-0.5 py-1 text-[11px]",
-                "transition-colors duration-150",
-                isActive
-                  ? "font-medium text-primary"
-                  : "text-muted-foreground"
-              )}
+              className={`${styles.tab} ${isActive ? styles.active : ""}`}
             >
-              <Icon className="h-6 w-6" strokeWidth={isActive ? 2.2 : 1.8} />
+              <Icon size={24} strokeWidth={isActive ? 2.2 : 1.8} />
               <span>{tab.label}</span>
             </Link>
           );

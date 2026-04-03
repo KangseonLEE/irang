@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { FileText } from "lucide-react";
+import {
+  filterProgramsPaginated,
+  PAGE_SIZE,
+  type ProgramFilters,
+} from "@/lib/data/programs";
+import { ProgramFilter } from "./program-filter";
+import { ProgramList } from "./program-list";
+import s from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "지원사업 검색",
@@ -7,34 +16,74 @@ export const metadata: Metadata = {
     "나이, 지역, 희망 작물 조건에 맞는 귀농 지원사업을 검색하세요.",
 };
 
-export default function ProgramsPage() {
+interface PageProps {
+  searchParams: Promise<{
+    region?: string;
+    age?: string;
+    supportType?: string;
+    status?: string;
+  }>;
+}
+
+export default async function ProgramsPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+
+  const filters: ProgramFilters = {
+    region: params.region,
+    age: params.age ? Number(params.age) : undefined,
+    supportType: params.supportType,
+    status: params.status,
+  };
+
+  // SSR: 첫 페이지 데이터만 렌더
+  const { programs, total, hasMore } = filterProgramsPaginated(
+    filters,
+    0,
+    PAGE_SIZE
+  );
+
   return (
-    <div className="mx-auto max-w-screen-xl px-6 py-10">
+    <div className={s.page}>
       {/* Page Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-primary">
-          <FileText className="h-5 w-5" />
-          <span className="text-xs font-semibold uppercase tracking-widest">
-            Support Programs
-          </span>
+      <div className={s.pageHeader}>
+        <div className={s.headerTop}>
+          <FileText size={20} />
+          <span className={s.headerLabel}>Support Programs</span>
         </div>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">
-          지원사업 검색
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          나이, 지역, 희망 작물에 맞는 귀농·귀촌 지원사업을 찾아보세요.
+        <h1 className={s.headerTitle}>지원사업 검색</h1>
+        <p className={s.headerDesc}>
+          나이, 지역, 희망 작물에 맞는 귀농 · 귀촌 지원사업을 찾아보세요.
+        </p>
+        <p className={s.headerCount}>
+          총 <span className={s.headerCountNumber}>{total}</span>건
         </p>
       </div>
 
-      {/* Placeholder — 추후 필터 사이드바 + 카드 리스트 구현 */}
-      <div className="flex min-h-[400px] items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/30">
-        <div className="flex flex-col items-center gap-3 text-muted-foreground">
-          <FileText className="h-12 w-12 text-primary/30" />
-          <p className="text-sm font-medium">지원사업 검색 기능 준비 중</p>
-          <p className="text-xs text-muted-foreground/70">
-            조건 필터링 → 카드 리스트 → 상세 페이지
-          </p>
-        </div>
+      {/* Filters + Results */}
+      <div className={s.content}>
+        <Suspense
+          fallback={
+            <div className={s.filterFallback}>
+              <p>검색 조건을 불러오는 중...</p>
+            </div>
+          }
+        >
+          <ProgramFilter
+            currentFilters={{
+              region: params.region ?? "",
+              age: params.age ?? "",
+              supportType: params.supportType ?? "",
+              status: params.status ?? "",
+            }}
+          />
+        </Suspense>
+
+        <ProgramList
+          initialPrograms={programs}
+          initialHasMore={hasMore}
+          total={total}
+          filters={filters}
+        />
       </div>
     </div>
   );

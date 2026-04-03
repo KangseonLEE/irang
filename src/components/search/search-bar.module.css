@@ -1,0 +1,218 @@
+.container {
+  position: relative;
+  width: 100%;
+}
+
+/* --- Input wrapper --- */
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.inputWrap:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 16%, transparent);
+}
+
+.inputWrapLarge {
+  composes: inputWrap;
+  padding: 14px 20px;
+  font-size: 1.125rem;
+  min-height: 56px;
+  border-radius: 16px;
+}
+
+/* --- Icon & input --- */
+
+.searchIcon {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--foreground);
+  font-size: inherit;
+  line-height: 1.5;
+  min-width: 0;
+}
+
+.input::placeholder {
+  color: var(--muted-foreground);
+}
+
+/* --- Dropdown --- */
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+:global(.dark) .dropdown {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  border-color: color-mix(in srgb, var(--border) 80%, rgba(255, 255, 255, 0.08));
+}
+
+.dropdownSection {
+  padding: 8px 0;
+}
+
+.dropdownSection + .dropdownSection {
+  border-top: 1px solid var(--border);
+}
+
+.sectionLabel {
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  letter-spacing: 0.04em;
+}
+
+.sectionLabelIcon {
+  display: inline;
+  vertical-align: -1px;
+  margin-right: 4px;
+}
+
+/* --- Result item --- */
+
+.resultItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.12s;
+}
+
+.resultItem:hover,
+.resultItem:focus-visible,
+.resultItemFocused {
+  background: var(--muted);
+}
+
+.resultItemIcon {
+  font-size: 1.25rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+
+.resultItemContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.resultItemTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resultItemSubtitle {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Badge --- */
+
+.resultBadge {
+  font-size: 0.625rem;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-weight: 500;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* --- Highlight --- */
+
+.highlight {
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+  color: var(--primary);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* --- Recent searches --- */
+
+.recentIcon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.removeRecent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* WCAG 2.5.8: 최소 44x44px 터치 타깃 확보 (아이콘은 14px로 시각적 크기 유지) */
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.12s, color 0.12s;
+}
+
+.removeRecent:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.removeRecent:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* --- Empty state --- */
+
+.noResult {
+  padding: 24px;
+  text-align: center;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}

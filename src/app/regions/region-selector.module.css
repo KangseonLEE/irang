@@ -1,0 +1,152 @@
+/* ==========================================================================
+   RegionSelector — 가로 컴팩트 레이아웃
+   CSS Module · var() 기반 디자인 토큰
+   ========================================================================== */
+
+/* ---- 카드 컨테이너 ---- */
+.card {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  background: var(--card, #fff);
+  padding: 20px 24px;
+}
+
+/* ---- 헤더 (제목 + 카운터) ---- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.titleHint {
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+
+.counter {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+/* ---- 도별 그룹 흐름 (가로 배치, 줄바꿈) ---- */
+.groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+/* ---- 개별 도 그룹 (inline-flex: 라벨 + 칩들) ---- */
+.group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.groupLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* ---- 칩 버튼 ---- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.chipDefault {
+  composes: chip;
+  background: var(--muted, #f4f4f5);
+  color: var(--muted-foreground);
+}
+
+.chipDefault:hover {
+  background: color-mix(in srgb, var(--muted, #f4f4f5) 70%, transparent);
+}
+
+.chipSelected {
+  composes: chip;
+  background: var(--primary, #1b6b5a);
+  color: var(--primary-foreground, #fff);
+}
+
+.chipSelected:hover {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, black);
+}
+
+/* ---- 교체 피드백 메시지 ---- */
+.swapMessage {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+  border-radius: 12px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swapMessage { animation: none; }
+}
+
+/* ---- 스크린리더 전용 ---- */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- 스켈레톤 (Suspense fallback) ---- */
+.skeleton {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  background: var(--card, #fff);
+  padding: 20px 24px;
+  min-height: 80px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

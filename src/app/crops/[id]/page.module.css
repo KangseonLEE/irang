@@ -1,0 +1,813 @@
+/* ── 작물 상세 페이지 ── */
+/* greendaero.go.kr 참고: 정보 전달 중심, 정부 서비스 톤 */
+
+/* 레이아웃 */
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  /* mobileBar(~50px) + MobileNav(56px + safe-area) 위로 콘텐츠가 가려지지 않도록 충분한 하단 여백 */
+  padding: 16px 16px 160px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 24px 24px 160px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 32px 32px 48px;
+  }
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 28px;
+  color: var(--muted-foreground, #6b7280);
+  font-size: 15px;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.backLink:hover {
+  color: var(--foreground, #111);
+}
+
+/* ── Hero (2단) ── */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 40px;
+  background: var(--card, #fff);
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    grid-template-columns: 2fr 3fr;
+    min-height: 460px;
+  }
+}
+
+.heroImage {
+  position: relative;
+  height: 260px;
+}
+
+@media (min-width: 640px) {
+  .heroImage {
+    height: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heroImage {
+    height: 100%;
+  }
+}
+
+.heroInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 28px;
+}
+
+@media (min-width: 640px) {
+  .heroInfo {
+    padding: 36px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heroInfo {
+    padding: 40px;
+  }
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badgeCategory {
+  background: var(--secondary);
+  color: var(--primary);
+  border: 1px solid var(--accent);
+}
+
+.badgeEasy {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+:global(.dark) .badgeEasy {
+  background: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.badgeNormal {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde68a;
+}
+
+:global(.dark) .badgeNormal {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fde047;
+  border-color: rgba(234, 179, 8, 0.25);
+}
+
+.badgeHard {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+:global(.dark) .badgeHard {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.heroTitle {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--foreground, #111);
+}
+
+@media (min-width: 640px) {
+  .heroTitle {
+    font-size: 36px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heroTitle {
+    font-size: 42px;
+  }
+}
+
+.heroDesc {
+  margin-top: 14px;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--muted-foreground, #6b7280);
+}
+
+@media (min-width: 640px) {
+  .heroDesc {
+    font-size: 17px;
+  }
+}
+
+/* Quick Facts 카드 */
+.quickFacts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .quickFacts {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.factCard {
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+}
+
+.factLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  margin-bottom: 6px;
+}
+
+.factValue {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--foreground, #111);
+}
+
+/* CTA 버튼 영역 */
+.ctaGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.ctaPrimary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+}
+
+.ctaPrimary:hover {
+  background: color-mix(in srgb, var(--primary) 90%, black);
+}
+
+.ctaOutline {
+  background: transparent;
+  color: var(--foreground, #333);
+  border: 1px solid var(--border, #d1d5db);
+}
+
+.ctaOutline:hover {
+  background: var(--accent, #f3f4f6);
+}
+
+/* ── 메인 그리드 ── */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ── 공통 섹션 카드 ── */
+.section {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 28px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--foreground, #111);
+}
+
+.sectionHeaderIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--secondary);
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.sectionBody {
+  padding: 20px 28px 28px;
+}
+
+/* ── 재배 환경 그리드 ── */
+.cultivationGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .cultivationGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.cultivationItem {
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--background, #fafafa);
+  font-size: 13px;
+}
+
+.cultivationIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.cultivationIcon.climate {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.cultivationIcon.soil {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.cultivationIcon.water {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.cultivationIcon.spacing {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.cultivationIcon.fertilizer {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+:global(.dark) .cultivationIcon.climate {
+  background: rgba(251, 146, 60, 0.12);
+  color: #fb923c;
+}
+
+:global(.dark) .cultivationIcon.soil {
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80;
+}
+
+:global(.dark) .cultivationIcon.water {
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+}
+
+:global(.dark) .cultivationIcon.spacing {
+  background: rgba(167, 139, 250, 0.12);
+  color: #a78bfa;
+}
+
+:global(.dark) .cultivationIcon.fertilizer {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+
+.cultivationLabel {
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  margin-bottom: 4px;
+}
+
+.cultivationValue {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--foreground, #111);
+}
+
+/* ── 수익 정보 ── */
+.revenueHighlight {
+  padding: 28px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--secondary), var(--accent));
+  border: 1px solid var(--accent);
+  margin-bottom: 20px;
+}
+
+.revenueLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.revenueValue {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+@media (min-width: 640px) {
+  .revenueValue {
+    font-size: 38px;
+  }
+}
+
+.incomeGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .incomeGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.incomeItem {
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--background, #fafafa);
+  font-size: 13px;
+}
+
+.incomeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.incomeIcon.cost {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+.incomeIcon.labor {
+  background: #f0f9ff;
+  color: #0284c7;
+}
+
+:global(.dark) .incomeIcon.cost {
+  background: rgba(225, 29, 72, 0.12);
+  color: #fb7185;
+}
+
+:global(.dark) .incomeIcon.labor {
+  background: rgba(2, 132, 199, 0.12);
+  color: #38bdf8;
+}
+
+.incomeLabel {
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  margin-bottom: 4px;
+}
+
+.incomeValue {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--foreground, #111);
+}
+
+/* ── 인기 재배지역 ── */
+.regionBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.regionBadge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--secondary);
+  color: var(--primary);
+  border: 1px solid var(--accent);
+}
+
+.regionStatsLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  margin-bottom: 18px;
+}
+
+.regionList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.regionRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.regionMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.regionRank {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--foreground, #111);
+}
+
+.regionRankNum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.regionArea {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  font-variant-numeric: tabular-nums;
+}
+
+.regionBar {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--muted, #f3f4f6);
+  overflow: hidden;
+}
+
+.regionBarFill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--primary), var(--brand-400, #3EA088));
+  transition: width 0.4s ease;
+}
+
+.regionSource {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--muted-foreground, #9ca3af);
+}
+
+/* ── 귀농 팁 ── */
+.tipsList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tipItem {
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 12px;
+  background: var(--background, #fafafa);
+  border: 1px solid var(--border, #e5e7eb);
+  font-size: 15px;
+}
+
+.tipNum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: inherit;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.tipText {
+  font-size: inherit;
+  line-height: 1.7;
+  color: var(--foreground, #333);
+  padding-top: 6px;
+}
+
+/* ── 사이드바 ── */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    position: sticky;
+    top: 96px;
+    align-self: start;
+  }
+}
+
+.sideSection {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.sideSectionHeader {
+  padding: 20px 24px 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--foreground, #111);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sideSectionBody {
+  padding: 16px 24px 24px;
+}
+
+/* 연관 작물 */
+.relatedCropList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.relatedCropLink {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--foreground, #333);
+  border: 1px solid var(--border, #d1d5db);
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.relatedCropLink:hover {
+  background: var(--secondary);
+  border-color: var(--accent);
+  color: var(--primary);
+}
+
+/* 관련 지원사업 */
+.programList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.programCard {
+  display: block;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.programCard:hover {
+  background: var(--muted);
+  border-color: var(--primary);
+}
+
+.programTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--foreground, #111);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.programMeta {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted-foreground, #9ca3af);
+}
+
+.programMore {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.programMore:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* CTA 카드 (지역 비교) */
+.ctaCard {
+  padding: 24px;
+}
+
+.ctaCardDesc {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted-foreground, #6b7280);
+  margin-bottom: 16px;
+}
+
+/* ── 모바일 하단 바 ── */
+.mobileBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  /* MobileNav 높이(56px) + safe-area 위에 배치 */
+  bottom: calc(3.5rem + env(safe-area-inset-bottom));
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--background) 96%, transparent);
+  border-top: 1px solid var(--border, #e5e7eb);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+:global(.dark) .mobileBar {
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.3);
+  border-top-color: var(--border);
+}
+
+/* MobileNav는 768px 이상에서 숨겨지므로, 768px~1024px 구간에서는 bottom: 0 복원 */
+@media (min-width: 768px) {
+  .mobileBar {
+    bottom: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobileBar {
+    display: none;
+  }
+}
+
+.mobileBar a {
+  flex: 1;
+}
+
+/* 빈 프로그램 상태 */
+.emptyState {
+  font-size: 15px;
+  color: var(--muted-foreground, #9ca3af);
+}

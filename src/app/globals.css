@@ -1,75 +1,8 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-
-  /* 이랑 Primary Scale — Tailwind 유틸리티로 사용 가능: bg-brand-500 등 */
-  --color-brand-50: #F0F9F6;
-  --color-brand-100: #D4EDE6;
-  --color-brand-200: #A8D9CC;
-  --color-brand-300: #70BEA9;
-  --color-brand-400: #3EA088;
-  --color-brand-500: #1B6B5A;
-  --color-brand-600: #155748;
-  --color-brand-700: #0F4035;
-  --color-brand-800: #092922;
-  --color-brand-900: #041410;
-
-  /* Semantic Colors */
-  --color-success: #16A34A;
-  --color-warning: #D97706;
-  --color-error: #DC2626;
-  --color-info: #2563EB;
-}
-
 /* ═══════════════════════════════════════════
-   이랑 Light Theme
-   Brand: #1B6B5A (Deep Teal Green)
+   이랑 — Global Styles (Pure CSS, No Tailwind)
    ═══════════════════════════════════════════ */
+
+/* ── Light Theme ── */
 :root {
   --background: #FFFFFF;
   --foreground: #111827;
@@ -89,25 +22,43 @@
   --border: #E5E7EB;
   --input: #E5E7EB;
   --ring: #1B6B5A;
+  --radius: 0.5rem;
+
+  /* Brand Scale */
+  --brand-50: #F0F9F6;
+  --brand-100: #D4EDE6;
+  --brand-200: #A8D9CC;
+  --brand-300: #70BEA9;
+  --brand-400: #3EA088;
+  --brand-500: #1B6B5A;
+  --brand-600: #155748;
+  --brand-700: #0F4035;
+  --brand-800: #092922;
+  --brand-900: #041410;
+
+  /* Semantic */
+  --success: #16A34A;
+  --warning: #D97706;
+  --error: #DC2626;
+  --info: #2563EB;
+
+  /* Chart */
   --chart-1: #1B6B5A;
   --chart-2: #3EA088;
   --chart-3: #70BEA9;
   --chart-4: #A8D9CC;
   --chart-5: #D4EDE6;
-  --radius: 0.5rem;
-  --sidebar: #F9FAFB;
-  --sidebar-foreground: #111827;
-  --sidebar-primary: #1B6B5A;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F0F9F6;
-  --sidebar-accent-foreground: #155748;
-  --sidebar-border: #E5E7EB;
-  --sidebar-ring: #1B6B5A;
+
+  /* Footer */
+  --footer-bg: #1a1a1a;
+  --footer-fg: #d4d4d4;
+  --footer-heading: #ffffff;
+  --footer-muted: #a3a3a3;
+  --footer-subtle: #737373;
+  --footer-border: #404040;
 }
 
-/* ═══════════════════════════════════════════
-   이랑 Dark Theme
-   ═══════════════════════════════════════════ */
+/* ── Dark Theme ── */
 .dark {
   --background: #111827;
   --foreground: #F9FAFB;
@@ -132,24 +83,66 @@
   --chart-3: #A8D9CC;
   --chart-4: #1B6B5A;
   --chart-5: #155748;
-  --sidebar: #1F2937;
-  --sidebar-foreground: #F9FAFB;
-  --sidebar-primary: #3EA088;
-  --sidebar-primary-foreground: #041410;
-  --sidebar-accent: #092922;
-  --sidebar-accent-foreground: #D4EDE6;
-  --sidebar-border: #374151;
-  --sidebar-ring: #3EA088;
+
+  /* Footer */
+  --footer-bg: #0a0a0a;
+  --footer-fg: #d4d4d4;
+  --footer-heading: #f5f5f5;
+  --footer-muted: #a3a3a3;
+  --footer-subtle: #636363;
+  --footer-border: #262626;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
-  }
+/* ── Base Reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: var(--border);
+}
+
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* ── Links ── */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ── Lists ── */
+ul, ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Focus Visible ── */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ── Scrollbar Hide Utility ── */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Nudge Animation ── */
+@keyframes nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
 }

@@ -1,0 +1,248 @@
+/* ── 작물 상세 로딩 스켈레톤 ── */
+
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.skeleton {
+  background: var(--muted, #f3f4f6);
+  border-radius: 8px;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeletonCircle {
+  composes: skeleton;
+  border-radius: 50%;
+}
+
+.skeletonRound {
+  composes: skeleton;
+  border-radius: 20px;
+}
+
+/* 레이아웃은 page.module.css 와 동일한 구조 유지 */
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 16px 80px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 24px 24px 80px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 32px 32px 48px;
+  }
+}
+
+.backBtn {
+  composes: skeleton;
+  width: 100px;
+  height: 32px;
+  margin-bottom: 28px;
+}
+
+/* Hero */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    grid-template-columns: 2fr 3fr;
+    min-height: 460px;
+  }
+}
+
+.heroImage {
+  composes: skeleton;
+  height: 260px;
+  border-radius: 0;
+}
+
+@media (min-width: 640px) {
+  .heroImage {
+    height: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heroImage {
+    height: 100%;
+  }
+}
+
+.heroInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 28px;
+}
+
+@media (min-width: 640px) {
+  .heroInfo {
+    padding: 36px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heroInfo {
+    padding: 40px;
+  }
+}
+
+/* Main Grid */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* 섹션 카드 */
+.section {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  padding: 22px 28px 28px;
+}
+
+.sectionTitle {
+  composes: skeleton;
+  width: 140px;
+  height: 28px;
+  margin-bottom: 20px;
+}
+
+/* 재배환경 그리드 아이템 */
+.gridRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .gridRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.gridItem {
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.gridItemIcon {
+  composes: skeleton;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.gridItemText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 수익 하이라이트 */
+.revenueBox {
+  padding: 28px;
+  border-radius: 14px;
+  background: var(--muted, #f3f4f6);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 지역 바 */
+.regionBar {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.regionBarItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.regionBarMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 팁 아이템 */
+.tipRow {
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+/* 뱃지 행 */
+.badgeRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+/* Quick Facts 행 */
+.factsRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .factsRow {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.factBox {
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

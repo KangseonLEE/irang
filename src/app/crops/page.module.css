@@ -1,0 +1,367 @@
+/* ── 작물 목록 페이지 ── */
+/* credit.co.kr 참고: 대시보드 카드형 레이아웃 */
+
+/* Suspense fallback skeleton */
+.filterSkeleton {
+  height: 54px;
+  border-radius: 20px;
+  background: var(--muted);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 레이아웃 */
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 24px;
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 40px 24px;
+    gap: 24px;
+  }
+}
+
+/* 페이지 헤더 */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pageHeaderOverline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary, #1b6b5a);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pageTitle {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--foreground, #111);
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .pageTitle {
+    font-size: 30px;
+  }
+}
+
+.pageDescription {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+}
+
+/* 작물 카드 그리드 */
+.cropGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .cropGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .cropGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 작물 카드 */
+.cropCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+  border-radius: 20px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.cropCard:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.cropCardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+
+.cropCardImage {
+  transition: transform 0.3s ease;
+}
+
+.cropCard:hover .cropCardImage {
+  transform: scale(1.05);
+}
+
+.cropCardContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  height: 100%;
+  z-index: 1;
+}
+
+.cropCardCategory {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.cropCardName {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.cropCardDivider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 0;
+}
+
+.cropCardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cropCardMetaRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 16px;
+}
+
+.cropCardMetaLabel {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.cropCardMetaValue {
+  font-weight: 500;
+  color: #fff;
+}
+
+/* KOSIS 데이터 박스 */
+.cropCardKosis {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cropCardKosisRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.cropCardKosisLabel {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.cropCardKosisValue {
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+}
+
+/* 작물 카드 설명 */
+.cropCardDesc {
+  margin-top: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.5);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 빈 상태 */
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background: var(--card, #fff);
+  border: 2px dashed var(--border, #e5e7eb);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.emptyStateText {
+  font-size: 14px;
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* TOP 10 통계 카드 */
+.statsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.statsCard {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.statsCardHeader {
+  padding: 24px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statsCardTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--foreground, #111);
+  margin: 0;
+}
+
+.statsCardTitleIcon {
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+.statsCardDescription {
+  font-size: 14px;
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+}
+
+.statsCardBody {
+  padding: 16px 24px 24px;
+  overflow-x: auto;
+}
+
+/* 테이블 */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.table th {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+}
+
+.table td {
+  color: var(--foreground, #111);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--muted, #f9fafb);
+}
+
+.thCenter {
+  text-align: center;
+  width: 60px;
+}
+
+.thRight {
+  text-align: right;
+}
+
+.tdCenter {
+  text-align: center;
+  font-weight: 500;
+}
+
+.tdRight {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 출처 */
+.dataSource {
+  font-size: 12px;
+  color: var(--muted-foreground, #9ca3af);
+}
+
+/* 하단 링크 */
+.crossLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  transition: text-decoration 0.15s;
+}
+
+.crossLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.crossLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

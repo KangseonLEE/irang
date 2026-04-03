@@ -1,0 +1,36 @@
+.filterBar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+  border: none;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  line-height: 1;
+}
+
+.chip:hover {
+  opacity: 0.85;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.chipActive {
+  background: var(--primary);
+  color: white;
+}
