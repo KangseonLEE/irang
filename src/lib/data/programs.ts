@@ -71,7 +71,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-05-31",
     status: "모집중",
     relatedCrops: ["매실", "블루베리", "고추"],
-    sourceUrl: "https://www.suncheon.go.kr",
+    sourceUrl: "https://suncheon.go.kr/board/board.do?boardId=bbs_0000000000000190&category=&cntId=1943&mode=view&pageIdx=",
     year: 2026,
   },
   {
@@ -91,7 +91,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-04-15",
     status: "모집중",
     relatedCrops: [],
-    sourceUrl: "https://www.mafra.go.kr",
+    sourceUrl: "https://www.mafra.go.kr/bbs/home/792/572675/artclView.do",
     year: 2026,
   },
   {
@@ -111,7 +111,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-06-30",
     status: "모집중",
     relatedCrops: ["토마토", "파프리카", "딸기", "상추"],
-    sourceUrl: "https://www.gb.go.kr",
+    sourceUrl: "https://www.smartfarmkorea.net/contents/view.do?menuId=M0102010106",
     year: 2026,
   },
   {
@@ -131,7 +131,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-05-15",
     status: "모집중",
     relatedCrops: [],
-    sourceUrl: "https://www.jeonnam.go.kr",
+    sourceUrl: "https://jnfarm.jeonnam.go.kr/content/view.do?menuCd=farm002001009",
     year: 2026,
   },
   {
@@ -151,7 +151,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-03-31",
     status: "마감",
     relatedCrops: ["벼", "콩", "고구마"],
-    sourceUrl: "https://www.ekr.or.kr",
+    sourceUrl: "https://www.fbo.or.kr/contents/Contents.do?menuId=0500100040",
     year: 2026,
   },
   {
@@ -171,7 +171,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-03-15",
     status: "마감",
     relatedCrops: [],
-    sourceUrl: "https://www.epis.or.kr",
+    sourceUrl: "https://agriedu.net/page/client_edu_online",
     year: 2026,
   },
   {
@@ -191,7 +191,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-07-31",
     status: "모집예정",
     relatedCrops: ["사과", "배"],
-    sourceUrl: "https://www.yeongju.go.kr",
+    sourceUrl: "https://www.yeongju.go.kr/atec/page.do?mnu_uid=10795",
     year: 2026,
   },
   {
@@ -211,7 +211,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-12-31",
     status: "모집중",
     relatedCrops: ["벼", "밭작물"],
-    sourceUrl: "https://www.nongsaro.go.kr",
+    sourceUrl: "https://www.mafra.go.kr/bbs/home/792/572354/artclView.do",
     year: 2026,
   },
   {
@@ -231,7 +231,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-05-31",
     status: "모집중",
     relatedCrops: [],
-    sourceUrl: "https://www.rda.go.kr",
+    sourceUrl: "https://www.rda.go.kr/young/content/content74.do",
     year: 2026,
   },
   {
@@ -251,7 +251,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-08-31",
     status: "모집예정",
     relatedCrops: ["감귤", "한라봉", "천혜향"],
-    sourceUrl: "https://www.jeju.go.kr",
+    sourceUrl: "https://agri.jeju.go.kr/agri/notice/notice.htm?act=view&seq=59191",
     year: 2026,
   },
   {
@@ -271,7 +271,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-12-31",
     status: "모집중",
     relatedCrops: [],
-    sourceUrl: "https://www.mafra.go.kr",
+    sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/154300000011",
     year: 2026,
   },
   {
@@ -291,7 +291,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-04-30",
     status: "모집중",
     relatedCrops: ["채소류", "잡곡"],
-    sourceUrl: "https://www.cb21.net",
+    sourceUrl: "https://ares.chungbuk.go.kr/home/sub.php?menukey=1478",
     year: 2026,
   },
   {
@@ -311,7 +311,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-06-15",
     status: "모집예정",
     relatedCrops: ["배추", "무", "감자", "양배추"],
-    sourceUrl: "https://www.gwd.go.kr",
+    sourceUrl: "https://hrd.rda.go.kr/ehrd_asp/gangwon.do",
     year: 2026,
   },
   {
@@ -331,7 +331,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-07-31",
     status: "모집예정",
     relatedCrops: [],
-    sourceUrl: "https://www.energy.or.kr",
+    sourceUrl: "https://www.knrec.or.kr/biz/introduce/new_fin/intro_farm.do?gubun=A",
     year: 2026,
   },
   {
@@ -351,7 +351,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-04-30",
     status: "모집중",
     relatedCrops: ["당귀", "황기", "작약", "산양삼"],
-    sourceUrl: "https://www.sancheong.go.kr",
+    sourceUrl: "https://www.koreatimenews.com/news/article.html?no=1055437",
     year: 2026,
   },
   {
@@ -371,7 +371,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-12-31",
     status: "모집중",
     relatedCrops: [],
-    sourceUrl: "https://www.mafra.go.kr",
+    sourceUrl: "https://www.korea.kr/news/policyNewsView.do?newsId=148931163",
     year: 2026,
   },
   {
@@ -391,7 +391,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-06-30",
     status: "모집예정",
     relatedCrops: [],
-    sourceUrl: "https://www.jeonbuk.go.kr",
+    sourceUrl: "https://agriacademy.jeonbuk.go.kr/_html/scontent02/02_011_2026.php",
     year: 2026,
   },
   {
@@ -411,7 +411,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-08-15",
     status: "모집예정",
     relatedCrops: [],
-    sourceUrl: "https://www.epis.or.kr",
+    sourceUrl: "https://www.rda.go.kr/young/content/custom0201.do",
     year: 2026,
   },
 ];
@@ -560,7 +560,7 @@ export function filterProgramsPaginated(
 // ─── RDA API 연동 레이어 ───
 
 /** RDA API 응답 → SupportProgram 변환 */
-function mapRdaPolicy(item: RdaPolicyItem, index: number): SupportProgram {
+function mapRdaPolicy(item: RdaPolicyItem): SupportProgram {
   const region = mapAreaName(item.area1Nm);
   const status = deriveStatus(item.applStDt, item.appEdDt);
 

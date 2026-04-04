@@ -48,15 +48,6 @@ export interface RdaEduItem extends RdaBaseItem {
 
 // ─── API 응답 래퍼 (추정 구조, 실제 응답에 맞게 조정 필요) ───
 
-interface RdaListResponse<T> {
-  /** 직접 배열 또는 래핑 객체 모두 지원 */
-  list?: T[];
-  data?: T[];
-  items?: T[];
-  resultCode?: string;
-  totalCnt?: number;
-}
-
 // ─── 내부 유틸 ───
 
 function getApiKey(): string | null {

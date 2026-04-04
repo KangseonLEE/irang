@@ -46,7 +46,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   };
 
   // SSR: API → 폴백 자동 전환, 첫 페이지 데이터만 렌더
-  const { programs: allFiltered, source } = await filterProgramsAsync(filters);
+  const { programs: allFiltered } = await filterProgramsAsync(filters);
   const total = allFiltered.length;
   const programs = allFiltered.slice(0, PAGE_SIZE);
   const hasMore = PAGE_SIZE < total;

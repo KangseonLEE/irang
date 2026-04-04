@@ -3,7 +3,7 @@
 import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Search, MapPin, Sprout, FileText, ArrowLeft } from "lucide-react";
+import { Search, MapPin, Sprout, FileText, GraduationCap, CalendarDays, ArrowLeft } from "lucide-react";
 import { searchAll, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import SearchGroup from "@/components/search/search-group";
@@ -16,9 +16,11 @@ const TYPE_META: Record<
   region: { label: "지역", icon: MapPin },
   crop: { label: "작물", icon: Sprout },
   program: { label: "지원사업", icon: FileText },
+  education: { label: "교육", icon: GraduationCap },
+  event: { label: "체험·행사", icon: CalendarDays },
 };
 
-const TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program"];
+const TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event"];
 
 export default function SearchPage() {
   return (

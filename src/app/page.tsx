@@ -4,12 +4,12 @@ import {
   ArrowRight,
   ExternalLink,
   TrendingUp,
-  Wallet,
   ArrowLeftRight,
   Footprints,
   HelpCircle,
 } from "lucide-react";
 import SearchGroup from "@/components/search/search-group";
+import { CountUp } from "@/components/landing/count-up";
 import { FaqAccordion } from "@/components/landing/faq-accordion";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { TrendingSearches } from "@/components/landing/trending-searches";
@@ -27,16 +27,14 @@ import {
   popularRegions,
   popularCrops,
   hotPrograms,
-  costSummary,
-  costByAge,
   cityVsRural,
   interviews,
   roadmapSteps,
   faqItems,
 } from "@/lib/data/landing";
+import { fetchLatestNews } from "@/lib/api/news";
+import type { NewsArticle } from "@/lib/api/news";
 import s from "./page.module.css";
-
-const COST_MAX_RAW = Math.max(...costByAge.map((c) => c.raw));
 
 /* ── 대형 카드 캐러셀 데이터 ── */
 const serviceCards: ServiceCard[] = [
@@ -87,7 +85,10 @@ const serviceCards: ServiceCard[] = [
    → 공감(인터뷰) → 행동브릿지(로드맵) → 탐색(벤토) → 저항제거(FAQ) → 전환(CTA)
    ──────────────────────────────────────────── */
 
-export default function HomePage() {
+export default async function HomePage() {
+  // 네이버 뉴스 API → 실패 시 정적 데이터 폴백
+  const liveNews: NewsArticle[] | null = await fetchLatestNews();
+  const newsItems = liveNews ?? trendNews;
   return (
     <div className={s.page}>
       {/* ═══ 1. 히어로 — 검색 중심 ═══ */}
@@ -116,13 +117,15 @@ export default function HomePage() {
 
       {/* ═══ 2. 귀농 트렌드 — 사회적 증거 ═══ */}
       <section className={s.trendSection} aria-label="귀농 트렌드">
-        <h2 className={s.trendTitle}>
-          <TrendingUp size={18} className={s.trendTitleIcon} />
-          지금, 농촌은
-        </h2>
-        <p className={s.trendSub}>
-          같은 생각을 한 사람들, 이렇게 많아요.
-        </p>
+        <div className={s.sectionHeader}>
+          <h2 className={s.trendTitle}>
+            <TrendingUp size={18} className={s.trendTitleIcon} />
+            지금, 농촌은
+          </h2>
+          <p className={s.trendSub}>
+            같은 생각을 한 사람들, 이렇게 많아요.
+          </p>
+        </div>
 
         {/* 핵심 숫자 — 통합 카드 */}
         <div className={s.trendStatsCard}>
@@ -177,7 +180,7 @@ export default function HomePage() {
           <div className={s.newsCard}>
             <h3 className={s.newsTitle}>농촌 소식</h3>
             <div className={s.newsList}>
-              {trendNews.map((news) => (
+              {newsItems.map((news) => (
                 <a
                   key={news.url}
                   href={news.url}
@@ -228,47 +231,68 @@ export default function HomePage() {
 
       {/* ═══ 4. 귀농 비용 — 핵심 걱정 해소 ═══ */}
       <section className={s.costSection} aria-label="귀농 비용">
-        <h2 className={s.trendTitle}>
-          <Wallet size={18} className={s.trendTitleIcon} />
-          귀농, 돈이 얼마나 들까?
-        </h2>
-        <p className={s.costSub}>
-          2025 귀농귀촌 실태조사 기준, 실제 숫자입니다.
-        </p>
-
-        {/* 메인 하이라이트 */}
-        <div className={s.costHighlight}>
-          <span className={s.costBigLabel}>평균 초기 투자금</span>
-          <span className={s.costBigNum}>{costSummary.totalAvg}</span>
-          <span className={s.costBigDetail}>
-            그 중 농지 구입·임차 {costSummary.farmlandAmount} ({costSummary.farmlandPct}) · 준비 기간 평균 {costSummary.prepMonths}
-          </span>
-        </div>
-
-        {/* 연령대별 */}
-        <div className={s.costAgeGrid}>
-          {costByAge.map((c) => (
-            <div key={c.age} className={s.costAgeCard}>
-              <span className={s.costAgeLabel}>{c.age}</span>
-              <span className={s.costAgeValue}>{c.amount}</span>
-              <div className={s.costAgeBar}>
-                <div
-                  className={s.costAgeBarFill}
-                  style={{ width: `${(c.raw / COST_MAX_RAW) * 100}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* 정부 지원 안내 */}
-        <div className={s.costGovNote}>
-          <span className={s.costGovNoteText}>
-            정부 지원: 농업창업자금 {costSummary.govLoanMax} 융자 · 주택자금 {costSummary.housingMax}
-          </span>
-          <Link href="/programs" className={s.costGovLink}>
-            지원사업 보기 <ArrowRight size={14} />
+        {/* 상단: 인트로 텍스트 */}
+        <div className={s.costIntro}>
+          <span className={s.costOverline}>실제 귀농인 평균 데이터</span>
+          <h2 className={s.costTitle}>귀농, 돈이 얼마나 들까?</h2>
+          <p className={s.costDesc}>
+            30~60대 귀농인이 평균 <strong className={s.costDescStrong}>6,219만 원</strong>을
+            투자하며, 비용의 <strong className={s.costDescStrong}>84.6%</strong>는
+            12~18개월 영농 준비 단계에 집중됩니다.
+            정부 융자를 활용하면 초기 부담을 크게 줄일 수 있습니다.
+          </p>
+          <Link href="/programs?supportType=융자" className={s.costCtaOutline}>
+            지원사업 알아보기 <ArrowRight size={14} />
           </Link>
+        </div>
+
+        {/* 하단: 핵심 수치 4열 카드 — 타이틀 → 카운트업 숫자 → 서브 */}
+        <div className={s.costStatsCard}>
+          <div className={s.costStatItem}>
+            <p className={s.costStatLabel}>평균 초기 투자금</p>
+            <p className={s.costStatValue}>
+              <CountUp end={6219} className={s.costStatNum} />
+              <span className={s.costStatUnit}>만 원</span>
+            </p>
+            <p className={s.costStatSub}>월평균 약 230만 원 수준</p>
+          </div>
+          <div className={s.costStatDivider} />
+          <div className={s.costStatItem}>
+            <p className={s.costStatLabel}>평균 준비 기간</p>
+            <p className={s.costStatValue}>
+              <CountUp end={27.4} decimals={1} className={s.costStatNum} />
+              <span className={s.costStatUnit}>개월</span>
+            </p>
+            <p className={s.costStatSub}>탐색부터 정착까지</p>
+          </div>
+          <div className={s.costStatDivider} />
+          <div className={s.costStatItem}>
+            <p className={s.costStatLabel}>농업창업자금</p>
+            <p className={s.costStatValue}>
+              <CountUp end={3} prefix="최대 " className={s.costStatNum} />
+              <span className={s.costStatUnit}>억 원</span>
+            </p>
+            <p className={s.costStatSub}>정부 융자 지원</p>
+          </div>
+          <div className={s.costStatDivider} />
+          <div className={s.costStatItem}>
+            <p className={s.costStatLabel}>주택자금</p>
+            <p className={s.costStatValue}>
+              <CountUp end={7500} className={s.costStatNum} />
+              <span className={s.costStatUnit}>만 원</span>
+            </p>
+            <p className={s.costStatSub}>정부 융자 지원</p>
+          </div>
+        </div>
+
+        {/* 로드맵 브릿지 */}
+        <div className={s.costBridge}>
+          <span className={s.costBridgeText}>
+            27개월, 어떻게 준비하면 될까요?
+          </span>
+          <a href="#roadmap" className={s.costCtaPrimary}>
+            단계별 준비 로드맵 보기 <ArrowRight size={14} />
+          </a>
         </div>
 
         <p className={s.costSource}>
@@ -276,25 +300,17 @@ export default function HomePage() {
         </p>
       </section>
 
-      {/* ═══ 5. 인터뷰 카드 — 감정적 전환점 ═══ */}
-      <h2 className={s.sectionTitle}>먼저 떠난 사람들</h2>
-      <p className={s.interviewSub}>
-        도시를 떠나 새로운 삶을 시작한 사람들의 진짜 이야기
-      </p>
-      <InterviewCarousel items={interviews.slice(0, 4)} />
-      <Link href="/interviews" className={s.interviewViewAll}>
-        {interviews.length}명의 귀농인 이야기 더 보기 <ArrowRight size={14} />
-      </Link>
-
-      {/* ═══ 6. 귀농 5단계 로드맵 — 행동 브릿지 ═══ */}
+      {/* ═══ 5. 귀농 5단계 로드맵 — 행동 브릿지 (비용→로드맵 직결) ═══ */}
       <section id="roadmap" className={s.roadmapSection} aria-label="귀농 로드맵">
-        <h2 className={s.trendTitle}>
-          <Footprints size={18} className={s.trendTitleIcon} />
-          귀농, 어디서부터 시작하죠?
-        </h2>
-        <p className={s.roadmapSub}>
-          평균 27개월, 이 순서대로 준비하면 됩니다.
-        </p>
+        <div className={s.sectionHeader}>
+          <h2 className={s.trendTitle}>
+            <Footprints size={18} className={s.trendTitleIcon} />
+            귀농, 어디서부터 시작하죠?
+          </h2>
+          <p className={s.roadmapSub}>
+            평균 27개월, 이 순서대로 준비하면 됩니다.
+          </p>
+        </div>
 
         <div className={s.roadmapTimeline}>
           {roadmapSteps.map((step) => (
@@ -320,6 +336,18 @@ export default function HomePage() {
           <ArrowRight size={16} />
         </Link>
       </section>
+
+      {/* ═══ 6. 인터뷰 카드 — 감정적 전환점 ═══ */}
+      <div className={s.sectionHeader}>
+        <h2 className={s.sectionTitle}>먼저 떠난 사람들</h2>
+        <p className={s.interviewSub}>
+          도시를 떠나 새로운 삶을 시작한 사람들의 진짜 이야기
+        </p>
+      </div>
+      <InterviewCarousel items={interviews.slice(0, 4)} />
+      <Link href="/interviews" className={s.interviewViewAll}>
+        {interviews.length}명의 귀농인 이야기 더 보기 <ArrowRight size={14} />
+      </Link>
 
       {/* ═══ 7. 서비스 카드 — 탐색 시작 ═══ */}
       <section aria-label="주요 서비스">

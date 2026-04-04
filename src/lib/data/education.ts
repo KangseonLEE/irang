@@ -67,7 +67,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     applicationEnd: "2026-12-31",
     status: "모집중",
     level: "입문",
-    url: "https://www.epis.or.kr",
+    url: "https://agriedu.net/page/client_edu_online",
   },
   {
     id: "edu-002",
@@ -86,7 +86,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     applicationEnd: "2026-05-15",
     status: "모집예정",
     level: "중급",
-    url: "https://www.gwd.go.kr",
+    url: "https://hrd.rda.go.kr/ehrd_asp/gangwon.do",
   },
   {
     id: "edu-003",
@@ -105,7 +105,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     applicationEnd: "2026-03-21",
     status: "마감",
     level: "초급",
-    url: "https://www.jeonnam.go.kr",
+    url: "https://jnfarm.jeonnam.go.kr/content/view.do?menuCd=farm003001002",
   },
   {
     id: "edu-004",
@@ -124,7 +124,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     applicationEnd: "2026-04-10",
     status: "모집중",
     level: "중급",
-    url: "https://www.gb.go.kr",
+    url: "https://hrd.rda.go.kr/ehrd_asp/gyeongbuk.do",
   },
   {
     id: "edu-005",
@@ -143,7 +143,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     applicationEnd: "2026-06-15",
     status: "모집예정",
     level: "초급",
-    url: "https://www.jeju.go.kr",
+    url: "https://agri.jeju.go.kr/jeju/technologycenter/education/jeju.htm",
   },
   {
     id: "edu-006",
@@ -162,7 +162,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     applicationEnd: "2026-04-05",
     status: "모집중",
     level: "중급",
-    url: "https://www.chungnam.go.kr",
+    url: "https://cnnongup.chungnam.go.kr/sub.cs?m=307",
   },
   {
     id: "edu-007",
@@ -181,7 +181,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     applicationEnd: "2026-04-25",
     status: "모집중",
     level: "초급",
-    url: "https://www.epis.or.kr",
+    url: "https://agriedu.net/page/client_found_info",
   },
   {
     id: "edu-008",
@@ -200,7 +200,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     applicationEnd: "2026-04-15",
     status: "모집중",
     level: "입문",
-    url: "https://www.gg.go.kr",
+    url: "https://nongup.gg.go.kr/noti/31",
   },
   {
     id: "edu-009",
@@ -219,7 +219,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     applicationEnd: "2026-07-15",
     status: "모집예정",
     level: "입문",
-    url: "https://www.jeonbuk.go.kr",
+    url: "https://agriacademy.jeonbuk.go.kr/_html/scontent02/02_011_2025.php",
   },
   {
     id: "edu-010",
@@ -238,7 +238,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     applicationEnd: "2026-02-20",
     status: "마감",
     level: "심화",
-    url: "https://www.epis.or.kr",
+    url: "https://agriedu.net/page/client_edu_online?eduCategoryCode0=006&eduCategoryCode1=006002",
   },
 ];
 

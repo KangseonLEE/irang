@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import {
-  MapPin,
   Thermometer,
   Droplets,
   Sun,
@@ -18,8 +17,7 @@ import {
   UserCheck,
   Calendar,
 } from "lucide-react";
-import { PROVINCES, type Province } from "@/lib/data/regions";
-import { STATIONS } from "@/lib/data/stations";
+import { PROVINCES } from "@/lib/data/regions";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { filterProgramsAsync } from "@/lib/data/programs";
 import { filterEducationAsync } from "@/lib/data/education";

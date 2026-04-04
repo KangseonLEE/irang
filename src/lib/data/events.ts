@@ -59,7 +59,7 @@ export const EVENTS: FarmEvent[] = [
       "순천 지역 귀농에 관심 있는 도시민을 위한 일일 영농 체험 프로그램입니다. 고추 모종 정식, 텃밭 관리 실습, 선배 귀농인과의 간담회로 구성됩니다.",
     capacity: 30,
     target: "귀농 예정자 및 관심 도시민",
-    url: "https://www.suncheon.go.kr",
+    url: "https://www.suncheon.go.kr/sca/returnFarm/0015/0001/",
     status: "접수중",
   },
   {
@@ -76,7 +76,7 @@ export const EVENTS: FarmEvent[] = [
       "제주 감귤 산지에서 직접 수확하고 맛보는 체험 프로그램입니다. 감귤 수확, 선별 작업 체험, 감귤청 만들기를 진행합니다.",
     capacity: 40,
     target: "가족 단위 체험객, 귀농 희망자",
-    url: "https://www.seogwipo.go.kr",
+    url: "https://eticket.seogwipo.go.kr/contents?bmcode=tangerines",
     status: "접수예정",
   },
   {
@@ -93,7 +93,7 @@ export const EVENTS: FarmEvent[] = [
       "해발 700m 고랭지에서 배추·무 재배를 직접 체험하는 팜스테이 프로그램입니다. 파종부터 수확까지 영농 과정을 경험하고 농가 민박에서 머물며 농촌 생활을 체험합니다.",
     capacity: 15,
     target: "귀농 예정자, 농촌 체험 희망 도시민",
-    url: "https://www.pc.go.kr",
+    url: "https://tour.pc.go.kr/Home/H10000/H10200/placeDetail?place_no=769",
     status: "접수예정",
   },
   {
@@ -110,7 +110,7 @@ export const EVENTS: FarmEvent[] = [
       "전국 120개 지자체와 귀농 관련 기관이 참여하는 국내 최대 귀농귀촌 박람회입니다. 지역별 상담부스, 귀농 정책 설명회, 선배 귀농인 토크콘서트가 진행됩니다.",
     capacity: null,
     target: "귀농·귀촌 희망자 누구나",
-    url: "https://www.returnfarm.com",
+    url: "https://www.yfarmexpo.co.kr/fairDash.do?hl=KOR",
     status: "접수중",
   },
   {
@@ -127,7 +127,7 @@ export const EVENTS: FarmEvent[] = [
       "경북 영주의 사과 주산지에서 적과·봉지씌우기·수확까지 사과 재배의 핵심 작업을 체험합니다. 갓 딴 사과 시식과 사과즙 만들기 체험이 포함됩니다.",
     capacity: 25,
     target: "과수 재배 관심자, 가족 단위",
-    url: "https://www.yeongju.go.kr",
+    url: "https://www.yeongju.go.kr/atec/page.do?mnu_uid=10815",
     status: "접수예정",
   },
   {
@@ -144,7 +144,7 @@ export const EVENTS: FarmEvent[] = [
       "ICT 기반 스마트팜 시설을 직접 견학하고 운영 사례를 듣는 설명회입니다. 스마트온실 시스템 소개, 환경제어 실습, 성공 농가 인터뷰로 구성됩니다.",
     capacity: 50,
     target: "스마트팜 도입 희망 귀농인, 영농인",
-    url: "https://www.chungnam.go.kr",
+    url: "https://cnnongup.chungnam.go.kr/sub.cs?m=307",
     status: "접수중",
   },
   {
@@ -161,7 +161,7 @@ export const EVENTS: FarmEvent[] = [
       "보성 녹차밭에서 찻잎 수확부터 덖음까지 전통 차 제조 과정을 체험하는 프로그램입니다. 차 농가에서 민박하며 농촌 생활과 차 문화를 함께 즐길 수 있습니다.",
     capacity: 12,
     target: "차 문화 관심자, 귀농 예정자",
-    url: "https://www.boseong.go.kr",
+    url: "https://tour.boseong.go.kr/tour/festivity/tea_aroma",
     status: "접수중",
   },
   {
@@ -178,7 +178,7 @@ export const EVENTS: FarmEvent[] = [
       "도시에서 즐기는 농업의 가치를 체험하는 축제입니다. 텃밭 경진대회, 도시양봉 시연, 농산물 직거래 장터, 귀농 상담 부스가 운영됩니다.",
     capacity: null,
     target: "도시농업 관심 시민 누구나",
-    url: "https://www.suwon.go.kr",
+    url: "https://www.suwon.go.kr/culture/ingCultureView.do?ctrSeqNo=1958&listType=ing",
     status: "접수예정",
   },
   {
@@ -195,7 +195,7 @@ export const EVENTS: FarmEvent[] = [
       "전북에 정착한 귀농 선배 10인이 직접 경험을 나누는 멘토링 행사입니다. 분야별(과수·채소·축산) 소그룹 멘토링과 1:1 상담이 진행됩니다.",
     capacity: 60,
     target: "전북 귀농 예정자 및 초기 정착 귀농인",
-    url: "https://www.jeonbuk.go.kr",
+    url: "https://www.jeonbuk.go.kr/index.jeonbuk?menuCd=DOM_000000104008004000",
     status: "접수중",
   },
   {
@@ -212,7 +212,7 @@ export const EVENTS: FarmEvent[] = [
       "기후 변화에 따라 재배 가능성이 높아지는 아열대 작물을 소개하는 견학 설명회입니다. 망고, 패션프루트, 바나나 등 시험 재배 현장을 방문합니다.",
     capacity: 35,
     target: "신소득 작물 관심 귀농인, 영농인",
-    url: "https://www.jeju.go.kr",
+    url: "https://agri.jeju.go.kr/seogwipo/notice/edu/edurequest.htm",
     status: "접수예정",
   },
   {
@@ -229,7 +229,7 @@ export const EVENTS: FarmEvent[] = [
       "지리산 자락 산청에서 당귀, 황기, 작약 등 약용작물의 파종과 관리를 직접 체험합니다. 한방차 시음, 약초 건조 시연, 약용작물 재배 상담이 포함됩니다.",
     capacity: 20,
     target: "약용작물 재배 관심자, 귀농 예정자",
-    url: "https://www.sancheong.go.kr",
+    url: "https://donguibogam-village.sancheong.go.kr/html/sub/01_11_05.jsp",
     status: "마감",
   },
   {
@@ -246,7 +246,7 @@ export const EVENTS: FarmEvent[] = [
       "전국 어디서나 참여할 수 있는 온라인 귀농 설명회입니다. 귀농 절차 안내, 지역별 지원사업 소개, 성공 사례 발표, 실시간 Q&A로 구성됩니다.",
     capacity: 300,
     target: "귀농·귀촌 관심자 누구나",
-    url: "https://www.returnfarm.com",
+    url: "https://www.greendaero.go.kr/svc/rfph/edc/live/front/program.do",
     status: "마감",
   },
 ];

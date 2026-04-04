@@ -109,6 +109,10 @@ export const trendReasons: TrendReason[] = [
   { label: "건강·여유로운 생활", pct: 8 },
 ];
 
+/**
+ * 뉴스 아이템 (폴백 전용 — 네이버 API 미설정/장애 시 표시)
+ * 실서비스에서는 lib/api/news.ts의 fetchLatestNews()가 매일 자동 갱신
+ */
 export interface NewsItem {
   title: string;
   source: string;
@@ -118,10 +122,10 @@ export interface NewsItem {
 
 export const trendNews: NewsItem[] = [
   {
-    title: "귀농·귀촌 지원사업 올해 대폭 확대…청년 농업인 육성 본격화",
-    source: "한국농어민신문",
-    date: "2026.03",
-    url: "https://www.agrinet.co.kr/news/articleView.html?idxno=325410",
+    title: "월 110만원씩의 지원금…청년농 미래 비전 키운 '안전 소득망'",
+    source: "세계일보",
+    date: "2026.04",
+    url: "https://v.daum.net/v/20260403060340434",
   },
   {
     title: "\u201C70%가 만족한다\u201D…도시 떠나 농촌으로 간 결정적 이유 1위는?",
@@ -136,10 +140,10 @@ export const trendNews: NewsItem[] = [
     url: "https://v.daum.net/v/20260209063131293",
   },
   {
-    title: "스마트팜으로 연 매출 1억…귀농 성공 사례가 늘고 있다",
-    source: "농민신문",
-    date: "2025.11",
-    url: "https://www.nongmin.com/article/20251115500001",
+    title: "충남 귀농 청년, 스마트팜으로 1년만에 1.5억원 벌어",
+    source: "아시아경제",
+    date: "2025.06",
+    url: "https://www.asiae.co.kr/article/2025061615310943792",
   },
   {
     title: "농촌에 터 잡은 인구 3년 만에 늘었다…귀농 청년 비중 역대 최고",
@@ -215,7 +219,7 @@ export const hotPrograms = [
     title: "귀농인 정착지원금",
     region: "순천시",
     type: "보조금",
-    amount: "최대 3,000만 원",
+    amount: "월 80만원 (최대 24개월)",
     tag: "귀농 초기 정착",
   },
   {
@@ -223,7 +227,7 @@ export const hotPrograms = [
     title: "청년 귀농 창업지원",
     region: "전국",
     type: "보조금",
-    amount: "최대 3억 원 융자",
+    amount: "최대 3,000만원 (보조 70%)",
     tag: "만 40세 이하 청년",
   },
   {
@@ -231,7 +235,7 @@ export const hotPrograms = [
     title: "귀촌 주택 수리비 지원",
     region: "전남",
     type: "보조금",
-    amount: "최대 5,000만 원",
+    amount: "최대 2,000만원",
     tag: "농촌 주거 안정",
   },
   {
@@ -266,6 +270,25 @@ export const costByAge: CostByAge[] = [
   { age: "40대", amount: "9,547만 원", raw: 9547 },
   { age: "50대", amount: "6,485만 원", raw: 6485 },
   { age: "60대", amount: "5,512만 원", raw: 5512 },
+];
+
+/* ── 준비 단계별 비용 집중도 (로드맵 연계) ── */
+
+export interface CostPhase {
+  steps: string;       // 로드맵 단계 번호 (예: "1·2")
+  label: string;       // 단계 이름
+  period: string;      // 소요 기간 (roadmapSteps와 일치)
+  amount: string;      // 표시용 금액 / 태그
+  raw: number;         // 비율 계산용 (만 원 단위, 0이면 소규모)
+  desc: string;        // 비용 항목 설명
+  peak?: boolean;      // 비용 집중 하이라이트
+}
+
+export const costByPhase: CostPhase[] = [
+  { steps: "1·2", label: "탐색·교육", period: "1~6개월", amount: "소규모", raw: 0, desc: "교육비, 교통·체류비" },
+  { steps: "3", label: "현장 답사", period: "6~12개월", amount: "소규모", raw: 0, desc: "답사 교통비, 임시 체류비" },
+  { steps: "4", label: "영농 준비", period: "12~18개월", amount: "~5,260만 원", raw: 5260, desc: "농지, 농기계, 시설 투자", peak: true },
+  { steps: "5", label: "정착", period: "18~27개월", amount: "~960만 원", raw: 960, desc: "주택 마련, 초기 생활 안정" },
 ];
 
 /* ── 도시 vs 농촌 비교 데이터 ── */
@@ -542,17 +565,23 @@ export interface TrendingSearch {
   query: string;
 }
 
+/**
+ * 모든 키워드는 SEARCH_INDEX 실제 데이터와 매칭 검증 완료.
+ * - 지역명: STATIONS province 키워드 부분매칭 (전남→전라남도 등)
+ * - 작물명: CROPS name 정확매칭
+ * - 사업유형: PROGRAMS supportType / title 부분매칭
+ */
 export const trendingSearches: TrendingSearch[] = [
   { label: "전남 딸기", query: "전남 딸기" },
   { label: "경북 사과", query: "경북 사과" },
-  { label: "충남 벼농사", query: "충남 벼농사" },
+  { label: "충남 인삼", query: "충남 인삼" },
   { label: "강원 감자", query: "강원 감자" },
   { label: "제주 감귤", query: "제주 감귤" },
   { label: "귀농 지원금", query: "귀농 지원금" },
   { label: "경북 포도", query: "경북 포도" },
-  { label: "체류형 귀농", query: "체류형 귀농" },
-  { label: "전북 약초", query: "전북 약초" },
+  { label: "귀농 융자", query: "귀농 융자" },
+  { label: "순천 보조금", query: "순천 보조금" },
   { label: "귀농 교육", query: "귀농 교육" },
-  { label: "충북 생강", query: "충북 생강" },
-  { label: "양봉 시작", query: "양봉" },
+  { label: "충북 유기농", query: "충북 유기농" },
+  { label: "고구마", query: "고구마" },
 ];

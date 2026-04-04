@@ -42,9 +42,11 @@ const SECTION_META: Record<
   region: { label: "지역", icon: "\u{1F4CD}" },
   crop: { label: "작물", icon: "\u{1F331}" },
   program: { label: "지원사업", icon: "\u{1F4CB}" },
+  education: { label: "교육", icon: "\u{1F393}" },
+  event: { label: "체험·행사", icon: "\u{1F389}" },
 };
 
-const SECTION_ORDER: SearchItem["type"][] = ["region", "crop", "program"];
+const SECTION_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event"];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -250,7 +252,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
         inputRef.current?.blur();
       }
     },
-    [allItems, focusedIndex, results, navigateTo, query, handleRecentClick],
+    [allItems, focusedIndex, navigateTo, query, handleRecentClick],
   );
 
   // ----- Click outside -----

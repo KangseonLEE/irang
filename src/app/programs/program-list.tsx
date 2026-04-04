@@ -25,11 +25,13 @@ export function ProgramList({
   const [isPending, startTransition] = useTransition();
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // 필터가 바뀌면 초기 상태로 리셋
+  // 필터가 바뀌면 초기 상태로 리셋 (외부 props → 내부 state 동기화)
+  /* eslint-disable react-hooks/set-state-in-effect -- props 변경 시 state 동기화 필수 */
   useEffect(() => {
     setPrograms(initialPrograms);
     setHasMore(initialHasMore);
   }, [initialPrograms, initialHasMore]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleLoadMore = useCallback(() => {
     if (isPending || !hasMore) return;

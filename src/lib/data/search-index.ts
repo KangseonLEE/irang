@@ -7,13 +7,15 @@
 import { STATIONS } from "./stations";
 import { CROPS } from "./crops";
 import { PROGRAMS } from "./programs";
+import { EDUCATION_COURSES } from "./education";
+import { EVENTS } from "./events";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 export interface SearchItem {
-  type: "region" | "crop" | "program";
+  type: "region" | "crop" | "program" | "education" | "event";
   id: string;
   title: string;
   subtitle: string;
@@ -48,7 +50,7 @@ const regionItems: SearchItem[] = STATIONS.map((s) => ({
   id: s.stnId,
   title: s.name,
   subtitle: truncate(`${s.province} · ${s.description}`, 40),
-  href: `/regions?station=${s.stnId}`,
+  href: `/regions?stations=${s.stnId}`,
   keywords: [s.province],
   icon: "\u{1F4CD}", // 📍
 }));
@@ -75,10 +77,34 @@ const programItems: SearchItem[] = PROGRAMS.map((p) => ({
   badge: p.status,
 }));
 
+const educationItems: SearchItem[] = EDUCATION_COURSES.map((e) => ({
+  type: "education" as const,
+  id: e.id,
+  title: e.title,
+  subtitle: truncate(e.description, 50),
+  href: `/education/${e.id}`,
+  keywords: [e.region, e.type, e.level, e.organization],
+  icon: "\u{1F393}", // 🎓
+  badge: e.status,
+}));
+
+const eventItems: SearchItem[] = EVENTS.map((e) => ({
+  type: "event" as const,
+  id: e.id,
+  title: e.title,
+  subtitle: truncate(e.description, 50),
+  href: `/events/${e.id}`,
+  keywords: [e.region, e.type, e.organization, e.target],
+  icon: "\u{1F389}", // 🎉
+  badge: e.status,
+}));
+
 export const SEARCH_INDEX: SearchItem[] = [
   ...regionItems,
   ...cropItems,
   ...programItems,
+  ...educationItems,
+  ...eventItems,
 ];
 
 // ---------------------------------------------------------------------------
@@ -111,6 +137,8 @@ export function searchItems(query: string): SearchItem[] {
     region: [],
     crop: [],
     program: [],
+    education: [],
+    event: [],
   };
 
   for (const item of all) {
@@ -123,23 +151,51 @@ export function searchItems(query: string): SearchItem[] {
     ...byType.region,
     ...byType.crop,
     ...byType.program,
+    ...byType.education,
+    ...byType.event,
   ];
 
-  return results.slice(0, 8);
+  return results.slice(0, 10);
+}
+
+/**
+ * 개별 항목이 단일 검색어(term)에 매칭되는지 확인
+ */
+function matchesTerm(item: SearchItem, term: string): boolean {
+  if (item.title.toLowerCase().includes(term)) return true;
+  if (item.subtitle.toLowerCase().includes(term)) return true;
+  if (item.keywords.some((kw) => kw.toLowerCase().includes(term))) return true;
+  if (item.badge?.toLowerCase().includes(term)) return true;
+  return false;
 }
 
 /**
  * 통합 검색 (결과 페이지용) — 전체 매칭 결과 반환, 제한 없음.
+ *
+ * 복합 쿼리 지원:
+ *   "전남 딸기" → "전남" OR "딸기" 로 분리하여 매칭
+ *   더 많은 단어가 매칭되는 항목이 상위에 노출 (관련도 정렬)
  */
 export function searchAll(query: string): SearchItem[] {
   const q = query.trim().toLowerCase();
   if (q.length === 0) return [];
 
-  return SEARCH_INDEX.filter((item) => {
-    if (item.title.toLowerCase().includes(q)) return true;
-    if (item.subtitle.toLowerCase().includes(q)) return true;
-    if (item.keywords.some((kw) => kw.toLowerCase().includes(q))) return true;
-    if (item.badge?.toLowerCase().includes(q)) return true;
-    return false;
-  });
+  const terms = q.split(/\s+/).filter(Boolean);
+  if (terms.length === 0) return [];
+
+  // 단일 단어: 기존 동작과 동일 (정렬 없이 원본 순서 유지)
+  if (terms.length === 1) {
+    return SEARCH_INDEX.filter((item) => matchesTerm(item, terms[0]));
+  }
+
+  // 복합 쿼리: OR 매칭 + 매칭 단어 수 기준 관련도 정렬
+  const scored = SEARCH_INDEX
+    .map((item) => ({
+      item,
+      score: terms.filter((t) => matchesTerm(item, t)).length,
+    }))
+    .filter(({ score }) => score > 0);
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map(({ item }) => item);
 }

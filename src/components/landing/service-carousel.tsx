@@ -54,8 +54,10 @@ export function ServiceCarousel({ cards }: ServiceCarouselProps) {
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
 
-  // 렌더 시 refs 배열 길이를 cards.length에 맞춤
-  cardRefs.current.length = cards.length;
+  // refs 배열 길이를 cards.length에 맞춤 (useEffect로 이동하여 렌더 중 ref 접근 방지)
+  useEffect(() => {
+    cardRefs.current.length = cards.length;
+  }, [cards.length]);
 
   /* ── IntersectionObserver: 가장 많이 보이는 카드 추적 ── */
 
@@ -63,11 +65,14 @@ export function ServiceCarousel({ cards }: ServiceCarouselProps) {
     const track = trackRef.current;
     if (!track) return;
 
+    // cleanup에서 사용할 ref 값을 effect 본문에서 캡처
+    const currentRatioMap = ratioMap.current;
+
     const observer = new IntersectionObserver(
       (entries) => {
         // 각 entry의 ratio를 Map에 누적
         entries.forEach((entry) => {
-          ratioMap.current.set(entry.target, entry.intersectionRatio);
+          currentRatioMap.set(entry.target, entry.intersectionRatio);
         });
 
         // 전체 카드 중 가장 많이 보이는 카드를 current로
@@ -75,7 +80,7 @@ export function ServiceCarousel({ cards }: ServiceCarouselProps) {
         let maxIdx = 0;
         cardRefs.current.forEach((el, idx) => {
           if (!el) return;
-          const ratio = ratioMap.current.get(el) ?? 0;
+          const ratio = currentRatioMap.get(el) ?? 0;
           if (ratio > maxRatio) {
             maxRatio = ratio;
             maxIdx = idx;
@@ -96,7 +101,7 @@ export function ServiceCarousel({ cards }: ServiceCarouselProps) {
 
     return () => {
       observer.disconnect();
-      ratioMap.current.clear();
+      currentRatioMap.clear();
     };
   }, [cards.length]);
 

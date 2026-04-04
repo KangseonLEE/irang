@@ -8,7 +8,6 @@
 import { getPopulationFallback } from "@/lib/data/population";
 
 const AUTH_URL = "https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json";
-const POPULATION_URL = "https://sgisapi.mods.go.kr/OpenAPI3/stats/population.json";
 const SEARCH_STATS_URL = "https://sgisapi.mods.go.kr/OpenAPI3/stats/searchStats.json";
 
 export interface PopulationData {

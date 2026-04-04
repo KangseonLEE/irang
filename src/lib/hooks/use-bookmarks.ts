@@ -44,11 +44,13 @@ export function useBookmarks() {
   const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
   const [mounted, setMounted] = useState(false);
 
-  // 클라이언트 마운트 시 localStorage에서 로드
+  // 클라이언트 마운트 시 localStorage에서 로드 (외부 스토리지 → state 동기화)
+  /* eslint-disable react-hooks/set-state-in-effect -- SSR hydration: localStorage 읽기는 effect에서만 가능 */
   useEffect(() => {
     setBookmarks(loadBookmarks());
     setMounted(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const isBookmarked = useCallback(
     (id: string, type: BookmarkType): boolean => {

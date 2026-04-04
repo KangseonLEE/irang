@@ -101,7 +101,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
     includeClosed,
   };
 
-  const { courses, source } = await filterEducationAsync(filters);
+  const { courses } = await filterEducationAsync(filters);
 
   // 기준일 표시 텍스트
   const [pYear, pMonth] = period.split("-");
