@@ -1,0 +1,227 @@
+/* ══════════════════════════════════════════
+   인터뷰 목록 페이지
+   ══════════════════════════════════════════ */
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 640px) {
+  .page { padding: 32px 24px 80px; gap: 32px; }
+}
+
+/* ── 헤더 ── */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.headerOverline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary, #1B6B5A);
+}
+
+.headerTitle {
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  color: var(--foreground, #111);
+  letter-spacing: -0.02em;
+}
+
+.headerDesc {
+  font-size: var(--fs-body);
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-relaxed);
+  word-break: keep-all;
+}
+
+.headerCount {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.headerCount strong {
+  color: var(--primary, #1B6B5A);
+  font-weight: 700;
+}
+
+/* ── 카드 그리드 ── */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+}
+
+@media (min-width: 960px) {
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+}
+
+/* ── 카드 ── */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px 20px;
+  border-radius: 20px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  text-decoration: none;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--primary, #1B6B5A);
+    box-shadow: 0 8px 28px -8px rgba(27, 107, 90, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ── 카드 헤더 (아바타 + 이름) ── */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cardProfile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardName {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  color: var(--foreground, #111);
+}
+
+.cardAge {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 태그 (직업 변화) ── */
+.cardTags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cardTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+  color: var(--primary, #1B6B5A);
+}
+
+.cardTagArrow {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 인용문 ── */
+.cardQuote {
+  font-size: var(--fs-h4);
+  font-weight: 600;
+  font-style: italic;
+  color: var(--foreground, #111);
+  line-height: var(--lh-relaxed);
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+  flex: 1;
+}
+
+/* ── 카드 푸터 ── */
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.cardCrop {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--muted, #f3f4f6);
+}
+
+.cardCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1B6B5A);
+}
+
+/* ── 하단 CTA ── */
+.bottomCta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--primary, #1B6B5A) 0%, #0f4035 100%);
+  color: #fff;
+}
+
+@media (max-width: 480px) {
+  .bottomCta { flex-direction: column; text-align: center; }
+}
+
+.bottomCtaText {
+  font-size: var(--fs-body-lg);
+  font-weight: 700;
+}
+
+.bottomCtaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  background: #fff;
+  color: var(--primary, #1B6B5A);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.bottomCtaBtn:hover { opacity: 0.9; }

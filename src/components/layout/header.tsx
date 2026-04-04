@@ -32,9 +32,10 @@ export function Header() {
             className={s.logo}
             aria-label="이랑 홈으로 이동"
           >
-            <IrangSymbol size={26} />
-            <span className={s.logoText}>
-              이랑
+            <IrangSymbol size={28} />
+            <span className={s.logoTextWrap}>
+              <span className={s.logoTitle}>이랑</span>
+              <span className={s.logoSub}>귀농, 이랑 같이</span>
             </span>
           </Link>
 

@@ -1,0 +1,80 @@
+/* ══════════════════════════════════════════
+   FarmerAvatar — ���니셜 아바타
+   그라데이션 원형 + 이름 첫 글자
+   ══════════════════════════════════════════ */
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.07),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  border: 2.5px solid rgba(255, 255, 255, 0.85);
+  position: relative;
+  overflow: hidden;
+}
+
+.initial {
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+/* ── 사이즈 변형 ── */
+
+/* sm: 랜딩 카드용 */
+.sm {
+  width: 44px;
+  height: 44px;
+}
+.sm .initial {
+  font-size: 16px;
+}
+
+/* md: 기본 */
+.md {
+  width: 56px;
+  height: 56px;
+}
+.md .initial {
+  font-size: 20px;
+}
+
+/* lg: 상세 페이지 헤더용 */
+.lg {
+  width: 72px;
+  height: 72px;
+}
+.lg .initial {
+  font-size: 26px;
+}
+
+@media (min-width: 640px) {
+  .sm {
+    width: 48px;
+    height: 48px;
+  }
+  .sm .initial {
+    font-size: 17px;
+  }
+
+  .md {
+    width: 64px;
+    height: 64px;
+  }
+  .md .initial {
+    font-size: 22px;
+  }
+
+  .lg {
+    width: 80px;
+    height: 80px;
+  }
+  .lg .initial {
+    font-size: 30px;
+  }
+}

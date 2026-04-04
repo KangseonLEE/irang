@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, ArrowRight, GitCompareArrows, Sprout, Landmark, FileText } from "lucide-react";
@@ -7,6 +8,7 @@ import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
 import { fetchUnsplashPhoto, type UnsplashPhoto } from "@/lib/api/unsplash";
 import { KoreaMap } from "@/components/map/korea-map";
+import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -47,6 +49,11 @@ export default async function RegionsPage() {
 
   return (
     <div className={s.page}>
+      {/* 로드맵 단계 컨텍스트 */}
+      <Suspense>
+        <RoadmapBanner />
+      </Suspense>
+
       {/* Page Header */}
       <header className={s.pageHeader}>
         <span className={s.headerOverline}>

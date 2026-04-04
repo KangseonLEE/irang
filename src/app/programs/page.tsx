@@ -9,6 +9,7 @@ import {
 } from "@/lib/data/programs";
 import { ProgramFilter } from "./program-filter";
 import { ProgramList } from "./program-list";
+import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -56,6 +57,11 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
 
   return (
     <div className={s.page}>
+      {/* 로드맵 단계 컨텍스트 */}
+      <Suspense>
+        <RoadmapBanner />
+      </Suspense>
+
       {/* Page Header */}
       <div className={s.pageHeader}>
         <div className={s.headerTop}>

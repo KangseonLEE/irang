@@ -1,268 +1,349 @@
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  MapPin,
-  FileText,
-  Sprout,
   ExternalLink,
   TrendingUp,
-  Database,
-  Search,
+  Wallet,
+  ArrowLeftRight,
+  Footprints,
+  HelpCircle,
 } from "lucide-react";
 import SearchGroup from "@/components/search/search-group";
+import { FaqAccordion } from "@/components/landing/faq-accordion";
+import { InterviewCarousel } from "@/components/landing/interview-carousel";
+import { TrendingSearches } from "@/components/landing/trending-searches";
+import { ServiceCarousel } from "@/components/landing/service-carousel";
+import type { ServiceCard } from "@/components/landing/service-carousel";
 import {
-  dataSources,
+  RegionIllustration,
+  CropIllustration,
+  ProgramIllustration,
+} from "@/components/illustrations";
+import {
   trendStats,
   trendReasons,
   trendNews,
   popularRegions,
   popularCrops,
   hotPrograms,
+  costSummary,
+  costByAge,
+  cityVsRural,
+  interviews,
+  roadmapSteps,
+  faqItems,
 } from "@/lib/data/landing";
 import s from "./page.module.css";
 
-/* ── 히어로 인기 지역 칩 데이터 ── */
-const HERO_QUICK_REGIONS = [
-  { label: "전남", href: "/regions/jeonnam" },
-  { label: "강원", href: "/regions/gangwon" },
-  { label: "경북", href: "/regions/gyeongbuk" },
-  { label: "충남", href: "/regions/chungnam" },
-  { label: "제주", href: "/regions/jeju" },
+const COST_MAX_RAW = Math.max(...costByAge.map((c) => c.raw));
+
+/* ── 대형 카드 캐러셀 데이터 ── */
+const serviceCards: ServiceCard[] = [
+  {
+    badge: "지역탐색",
+    title: "인기 지역",
+    desc: "귀농인이 가장 많이 찾는 지역과 특징을 한눈에 비교하세요.",
+    variant: "region",
+    items: popularRegions.map((r) => ({
+      label: r.name,
+      sub: `${r.climate} · ${r.highlight}`,
+      href: `/regions/${r.provinceId}`,
+    })),
+    more: { label: "13개 지역 모두 보기", href: "/regions" },
+    illustration: <RegionIllustration />,
+  },
+  {
+    badge: "작물정보",
+    title: "인기 작물",
+    desc: "초보 귀농인도 도전할 수 있는 작물, 난이도와 수익성을 비교합니다.",
+    variant: "crop",
+    items: popularCrops.map((c) => ({
+      label: c.name,
+      sub: `재배 난이도 ${c.difficulty} · 수확기 ${c.season}`,
+      href: `/crops/${c.id}`,
+    })),
+    more: { label: "17종 작물 모두 보기", href: "/crops" },
+    illustration: <CropIllustration />,
+  },
+  {
+    badge: "지원사업",
+    title: "모집중인 지원사업",
+    desc: "지금 신청 가능한 정부·지자체 귀농 지원사업을 확인하세요.",
+    variant: "program",
+    items: hotPrograms.map((p) => ({
+      label: p.title,
+      sub: `${p.region} · ${p.type} · ${p.amount}`,
+      href: `/programs/${p.id}`,
+    })),
+    more: { label: "전체 지원사업 보기", href: "/programs" },
+    illustration: <ProgramIllustration />,
+  },
 ];
 
 /* ────────────────────────────────────────────
-   Page
+   Page — 섹션 순서:
+   호기심(히어로) → 사회증거(트렌드) → 현실확인(비교→비용)
+   → 공감(인터뷰) → 행동브릿지(로드맵) → 탐색(벤토) → 저항제거(FAQ) → 전환(CTA)
    ──────────────────────────────────────────── */
 
 export default function HomePage() {
   return (
     <div className={s.page}>
-      {/* ═══ 히어로 — 검색 중심 ═══ */}
+      {/* ═══ 1. 히어로 — 검색 중심 ═══ */}
       <section className={s.heroSection} aria-label="검색">
-        <span className={s.heroEyebrow}>어디로 갈지 모르겠다면</span>
+        <span className={s.heroEyebrow}>귀농, 이랑 같이</span>
 
         <h1 className={s.heroTitle}>
-          내 땅을 찾는
+          막막했던 귀농,
           <br />
-          가장 빠른 길
+          이제 비교하고 결정하세요
         </h1>
 
         <p className={s.heroSubtitle}>
-          농림부, 통계청, 건강보험 데이터로 만든 귀농 지도입니다.
+          지역, 작물, 지원금까지 — 공공데이터 기반으로 한곳에서.
         </p>
 
         <div className={s.heroSearchWrap}>
           <Suspense fallback={<div className={s.searchFallback} />}>
-            <SearchGroup size="large" placeholder="관심 지역이나 작물을 검색해 보세요" />
+            <SearchGroup size="large" placeholder="궁금한 지역이나 작물을 검색해보세요" hideTags />
           </Suspense>
         </div>
 
-        {/* 인기 지역 바로가기 */}
-        <div className={s.heroQuickLinks}>
-          <span className={s.heroQuickLabel}>인기 지역</span>
-          {HERO_QUICK_REGIONS.map((r) => (
-            <Link key={r.label} href={r.href} className={s.heroQuickChip}>
-              {r.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* 데이터 신뢰 지표 */}
-        <p className={s.heroTrust}>
-          <Database size={12} aria-hidden="true" />
-          기상청 · 통계청 · 심평원 · 교육부 · 농진청 공공데이터 기반
-        </p>
+        {/* 인기 검색어 슬라이더 */}
+        <TrendingSearches />
       </section>
 
-      {/* ═══ 벤토 카드 — 실제 데이터 미리보기 ═══ */}
-      <h2 className={s.sectionTitle}>귀농에 필요한 것들</h2>
-      <section className={s.bentoGrid} aria-label="주요 서비스">
-        {/* 지역 탐색 */}
-        <div className={s.bentoCard}>
-          <div className={s.bentoHeader}>
-            <MapPin size={16} className={s.bentoHeaderIcon} />
-            <span className={s.bentoName}>인기 지역</span>
-          </div>
-          <div className={s.bentoPreviewList}>
-            {popularRegions.map((r) => (
-              <Link
-                key={r.provinceId}
-                href={`/regions/${r.provinceId}`}
-                className={s.bentoPreviewItem}
-              >
-                <div className={s.previewMain}>
-                  <span className={s.previewName}>{r.name}</span>
-                  <span className={s.previewSub}>{r.climate}</span>
-                </div>
-                <span className={s.previewDetail}>{r.highlight}</span>
-              </Link>
-            ))}
-          </div>
-          <Link href="/regions" className={s.bentoMore}>
-            13개 지역 모두 보기
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-
-        {/* 작물 정보 */}
-        <div className={s.bentoCard}>
-          <div className={s.bentoHeader}>
-            <Sprout size={16} className={s.bentoHeaderIcon} />
-            <span className={s.bentoName}>인기 작물</span>
-          </div>
-          <div className={s.bentoPreviewList}>
-            {popularCrops.map((c) => (
-              <Link
-                key={c.id}
-                href={`/crops/${c.id}`}
-                className={s.bentoPreviewItem}
-              >
-                <span className={s.previewEmoji}>{c.emoji}</span>
-                <div className={s.previewMain}>
-                  <span className={s.previewName}>{c.name}</span>
-                  <span className={s.previewSub}>
-                    재배 난이도 {c.difficulty} · 수확기 {c.season}
-                  </span>
-                </div>
-                <span className={s.previewBadge}>{c.badge}</span>
-              </Link>
-            ))}
-          </div>
-          <Link href="/crops" className={s.bentoMore}>
-            17종 작물 모두 보기
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-
-        {/* 지원사업 */}
-        <div className={s.bentoCard}>
-          <div className={s.bentoHeader}>
-            <FileText size={16} className={s.bentoHeaderIcon} />
-            <span className={s.bentoName}>모집중 지원사업</span>
-          </div>
-          <div className={s.bentoProgramList}>
-            {hotPrograms.map((p) => (
-              <Link
-                key={p.id}
-                href={`/programs/${p.id}`}
-                className={s.bentoProgramItem}
-              >
-                <span className={s.programTitle}>{p.title}</span>
-                <span className={s.programMeta}>
-                  {p.region} · {p.type} · {p.amount}
-                </span>
-                <span className={s.programTag}>{p.tag}</span>
-              </Link>
-            ))}
-          </div>
-          <Link href="/programs" className={s.bentoMore}>
-            전체 지원사업 보기
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-      </section>
-
-      {/* ═══ 귀농 트렌드 섹션 ═══ */}
+      {/* ═══ 2. 귀농 트렌드 — 사회적 증거 ═══ */}
       <section className={s.trendSection} aria-label="귀농 트렌드">
         <h2 className={s.trendTitle}>
           <TrendingUp size={18} className={s.trendTitleIcon} />
-          올해 귀농 트렌드
+          지금, 농촌은
         </h2>
         <p className={s.trendSub}>
-          2024년 귀농귀촌인통계 기준, 농촌으로 향하는 사람들이 늘고 있습니다.
+          같은 생각을 한 사람들, 이렇게 많아요.
         </p>
 
-        {/* 핵심 숫자 3개 */}
-        <div className={s.trendStatsGrid}>
-          {trendStats.map((stat) => (
-            <div key={stat.label} className={s.trendStatCard}>
-              <span className={s.trendEmoji} aria-hidden="true">
-                {stat.emoji}
-              </span>
-              <span className={s.trendValue}>{stat.value}</span>
-              <span className={s.trendLabel}>{stat.label}</span>
-              <span className={s.trendStatSub}>{stat.sub}</span>
+        {/* 핵심 숫자 — 통합 카드 */}
+        <div className={s.trendStatsCard}>
+          {trendStats.map((stat, i) => (
+            <Fragment key={stat.label}>
+              {i > 0 && <div className={s.trendStatDivider} role="separator" />}
+              <Link href={stat.href} className={s.trendStatItem}>
+                <span className={s.trendValue}>{stat.value}</span>
+                <span className={s.trendLabel}>{stat.label}</span>
+                <span className={s.trendStatSub}>{stat.sub}</span>
+              </Link>
+            </Fragment>
+          ))}
+        </div>
+
+        {/* 귀농 이유 + 농촌 소식 — 2열 그리드 */}
+        <div className={s.trendBottomGrid}>
+          {/* 귀농 이유 차트 */}
+          <div className={s.reasonsCard}>
+            <h3 className={s.reasonsTitle}>사람들이 농촌을 선택한 이유</h3>
+            <div className={s.reasonsList}>
+              {trendReasons.map((r, i) => {
+                const maxPct = trendReasons[0].pct;
+                const isTop = i === 0;
+                return (
+                  <div
+                    key={r.label}
+                    className={`${s.reasonRow} ${isTop ? s.reasonRowTop : ""}`}
+                  >
+                    <div className={s.reasonLabelRow}>
+                      <span className={s.reasonLabel}>{r.label}</span>
+                      <span className={`${s.reasonPct} ${isTop ? s.reasonPctTop : ""}`}>
+                        {r.pct}%
+                      </span>
+                    </div>
+                    <div className={s.reasonBarWrap}>
+                      <div
+                        className={`${s.reasonBar} ${isTop ? s.reasonBarTop : ""}`}
+                        style={{ width: `${(r.pct / maxPct) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <p className={s.reasonSource}>
+              출처: 농림축산식품부 귀농귀촌 실태조사 (복수응답)
+            </p>
+          </div>
+
+          {/* 관련 뉴스 */}
+          <div className={s.newsCard}>
+            <h3 className={s.newsTitle}>농촌 소식</h3>
+            <div className={s.newsList}>
+              {trendNews.map((news) => (
+                <a
+                  key={news.url}
+                  href={news.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={s.newsItem}
+                >
+                  <span className={s.newsItemTitle}>{news.title}</span>
+                  <span className={s.newsItemMeta}>
+                    {news.source} · {news.date}
+                    <ExternalLink size={12} />
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ 3. 도시 vs 농촌 비교 — 맥락 형성 ═══ */}
+      <section className={s.compareSection} aria-label="도시 농촌 비교">
+        <h2 className={s.trendTitle}>
+          <ArrowLeftRight size={18} className={s.trendTitleIcon} />
+          도시에서 농촌으로, 뭐가 달라질까?
+        </h2>
+
+        <div className={s.compareTable}>
+          <div className={s.compareRowHeader}>
+            <span className={s.compareHeaderCell} />
+            <span className={s.compareHeaderCell}>도시</span>
+            <span className={s.compareHeaderCell}>농촌</span>
+            <span className={s.compareHeaderCell} />
+          </div>
+          {cityVsRural.map((row) => (
+            <div key={row.label} className={s.compareRow}>
+              <span className={s.compareLabel}>{row.label}</span>
+              <span className={s.compareCity}>{row.city}</span>
+              <span className={s.compareRural}>{row.rural}</span>
+              <span className={s.compareChange}>{row.change}</span>
             </div>
           ))}
         </div>
 
-        {/* 귀농 이유 */}
-        <div className={s.reasonsCard}>
-          <h3 className={s.reasonsTitle}>귀농을 선택한 이유</h3>
-          <div className={s.reasonsList}>
-            {trendReasons.map((r) => (
-              <div key={r.label} className={s.reasonRow}>
-                <span className={s.reasonLabel}>{r.label}</span>
-                <div className={s.reasonBarWrap}>
-                  <div
-                    className={s.reasonBar}
-                    style={{ width: `${r.pct * 3}%` }}
-                  />
-                </div>
-                <span className={s.reasonPct}>{r.pct}%</span>
-              </div>
-            ))}
-          </div>
-          <p className={s.reasonSource}>
-            출처: 농림축산식품부 귀농귀촌 실태조사
-          </p>
-        </div>
-
-        {/* 관련 뉴스 */}
-        <div className={s.newsCard}>
-          <h3 className={s.newsTitle}>관련 뉴스</h3>
-          <div className={s.newsList}>
-            {trendNews.map((news) => (
-              <a
-                key={news.url}
-                href={news.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={s.newsItem}
-              >
-                <span className={s.newsItemTitle}>{news.title}</span>
-                <span className={s.newsItemMeta}>
-                  {news.source} · {news.date}
-                  <ExternalLink size={12} />
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
+        <p className={s.compareNote}>
+          귀농 가구 절반 이상이 농업 외 부수입(투잡)을 병행합니다. 5년차 귀농가구의 농업소득은 일반 농가 평균보다 60% 높아요.
+        </p>
       </section>
 
-      {/* ═══ 데이터 출처 스트립 (컴팩트) ═══ */}
-      <h2 className={s.sectionTitle}>출처가 분명한 정보입니다</h2>
-      <section className={s.sourcesStrip} aria-label="데이터 출처">
-        <div className={s.sourcesStripHeader}>
-          <Database size={14} />
-          <span>
-            5개 공공 기관 데이터 · 매일 자동 업데이트
+      {/* ═══ 4. 귀농 비용 — 핵심 걱정 해소 ═══ */}
+      <section className={s.costSection} aria-label="귀농 비용">
+        <h2 className={s.trendTitle}>
+          <Wallet size={18} className={s.trendTitleIcon} />
+          귀농, 돈이 얼마나 들까?
+        </h2>
+        <p className={s.costSub}>
+          2025 귀농귀촌 실태조사 기준, 실제 숫자입니다.
+        </p>
+
+        {/* 메인 하이라이트 */}
+        <div className={s.costHighlight}>
+          <span className={s.costBigLabel}>평균 초기 투자금</span>
+          <span className={s.costBigNum}>{costSummary.totalAvg}</span>
+          <span className={s.costBigDetail}>
+            그 중 농지 구입·임차 {costSummary.farmlandAmount} ({costSummary.farmlandPct}) · 준비 기간 평균 {costSummary.prepMonths}
           </span>
         </div>
-        <div className={s.sourcesStripList}>
-          {dataSources.map((src) => (
-            <Link
-              key={src.code}
-              href={src.link}
-              className={s.sourcesStripTag}
-              title={src.description}
-            >
-              {src.name}
-            </Link>
+
+        {/* 연령대별 */}
+        <div className={s.costAgeGrid}>
+          {costByAge.map((c) => (
+            <div key={c.age} className={s.costAgeCard}>
+              <span className={s.costAgeLabel}>{c.age}</span>
+              <span className={s.costAgeValue}>{c.amount}</span>
+              <div className={s.costAgeBar}>
+                <div
+                  className={s.costAgeBarFill}
+                  style={{ width: `${(c.raw / COST_MAX_RAW) * 100}%` }}
+                />
+              </div>
+            </div>
           ))}
         </div>
+
+        {/* 정부 지원 안내 */}
+        <div className={s.costGovNote}>
+          <span className={s.costGovNoteText}>
+            정부 지원: 농업창업자금 {costSummary.govLoanMax} 융자 · 주택자금 {costSummary.housingMax}
+          </span>
+          <Link href="/programs" className={s.costGovLink}>
+            지원사업 보기 <ArrowRight size={14} />
+          </Link>
+        </div>
+
+        <p className={s.costSource}>
+          출처: 농림축산식품부 2025 귀농귀촌 실태조사
+        </p>
       </section>
 
-      {/* ═══ CTA 배너 ═══ */}
+      {/* ═══ 5. 인터뷰 카드 — 감정적 전환점 ═══ */}
+      <h2 className={s.sectionTitle}>먼저 떠난 사람들</h2>
+      <p className={s.interviewSub}>
+        도시를 떠나 새로운 삶을 시작한 사람들의 진짜 이야기
+      </p>
+      <InterviewCarousel items={interviews.slice(0, 4)} />
+      <Link href="/interviews" className={s.interviewViewAll}>
+        {interviews.length}명의 귀농인 이야기 더 보기 <ArrowRight size={14} />
+      </Link>
+
+      {/* ═══ 6. 귀농 5단계 로드맵 — 행동 브릿지 ═══ */}
+      <section id="roadmap" className={s.roadmapSection} aria-label="귀농 로드맵">
+        <h2 className={s.trendTitle}>
+          <Footprints size={18} className={s.trendTitleIcon} />
+          귀농, 어디서부터 시작하죠?
+        </h2>
+        <p className={s.roadmapSub}>
+          평균 27개월, 이 순서대로 준비하면 됩니다.
+        </p>
+
+        <div className={s.roadmapTimeline}>
+          {roadmapSteps.map((step) => (
+            <div key={step.step} className={s.roadmapStep}>
+              <div className={s.roadmapDot}>{step.step}</div>
+              <div className={s.roadmapContent}>
+                <span className={s.roadmapStepTitle}>{step.title}</span>
+                <span className={s.roadmapPeriod}>{step.period}</span>
+                <span className={s.roadmapDesc}>{step.desc}</span>
+                {step.link && (
+                  <Link href={step.link.href} className={s.roadmapCta}>
+                    {step.link.label} <ArrowRight size={14} />
+                  </Link>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 로드맵 하단 CTA */}
+        <Link href="/match" className={s.roadmapBottomCta}>
+          1단계부터 시작해볼까요? &mdash; 맞춤 귀농 플랜 받기
+          <ArrowRight size={16} />
+        </Link>
+      </section>
+
+      {/* ═══ 7. 서비스 카드 — 탐색 시작 ═══ */}
+      <section aria-label="주요 서비스">
+        <h2 className={s.sectionTitle}>여기서 시작하세요</h2>
+        <ServiceCarousel cards={serviceCards} />
+      </section>
+
+      {/* ═══ 8. FAQ — 잔여 저항 제거 ═══ */}
+      <section className={s.faqSection} aria-label="자주 묻는 질문">
+        <h2 className={s.trendTitle}>
+          <HelpCircle size={18} className={s.trendTitleIcon} />
+          이것, 궁금하셨죠?
+        </h2>
+        <FaqAccordion items={faqItems} />
+      </section>
+
+      {/* ═══ 9. CTA 배너 — 최종 전환 ═══ */}
       <section className={s.ctaBanner} aria-label="시작하기">
         <div className={s.ctaBannerText}>
           <h2 className={s.ctaBannerTitle}>
-            5분이면 내 귀농지 윤곽이 잡힙니다
+            내 땅, 어디쯤일까요?
           </h2>
           <p className={s.ctaBannerSub}>
-            나이, 예산, 원하는 삶의 방식을 알려주시면 지역과 작물을 추려드립니다.
+            나이, 예산, 원하는 삶의 방식만 알려주세요.
           </p>
         </div>
         <Link href="/match" className={s.ctaBannerBtn}>

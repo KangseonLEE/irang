@@ -8,11 +8,14 @@ import s from "./search-group.module.css";
 interface SearchGroupProps {
   placeholder?: string;
   size?: "default" | "large";
+  /** 인기 태그 숨김 (히어로 등 간결한 레이아웃용) */
+  hideTags?: boolean;
 }
 
 export default function SearchGroup({
   placeholder,
   size = "default",
+  hideTags = false,
 }: SearchGroupProps) {
   const searchBarRef = useRef<SearchBarHandle>(null);
 
@@ -27,7 +30,7 @@ export default function SearchGroup({
         size={size}
         placeholder={placeholder}
       />
-      <SearchTags onTagClick={handleTagClick} />
+      {!hideTags && <SearchTags onTagClick={handleTagClick} />}
     </div>
   );
 }

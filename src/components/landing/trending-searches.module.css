@@ -1,0 +1,104 @@
+/* ══════════════════════════════════════════
+   TrendingSearches — 인기 검색어 세로 로테이션
+   고정 라벨 + 키워드만 슬라이드
+   ══════════════════════════════════════════ */
+
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  height: 30px;
+}
+
+/* ── 고정 라벨 ── */
+.label {
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── 롤러 (키워드가 돌아가는 영역) ── */
+.roller {
+  height: 30px;
+  overflow: hidden;
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      #000 25%,
+      #000 75%,
+      transparent 100%
+    );
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      #000 25%,
+      #000 75%,
+      transparent 100%
+    );
+}
+
+/* ── 세로 슬라이드 트랙 ── */
+.track {
+  display: flex;
+  flex-direction: column;
+  animation: roll calc(var(--item-count) * 3s) ease-in-out infinite;
+}
+
+/*
+ * 12개 아이템 + 복제 1 = 13 슬롯
+ * step ≈ 7.692%
+ * 각 구간: hold(정지) → slide(전환)
+ */
+@keyframes roll {
+  0%,    6.8%  { transform: translateY(0); }
+  7.7%,  14.5% { transform: translateY(calc(-1 * 30px)); }
+  15.4%, 22.2% { transform: translateY(calc(-2 * 30px)); }
+  23.1%, 29.9% { transform: translateY(calc(-3 * 30px)); }
+  30.8%, 37.6% { transform: translateY(calc(-4 * 30px)); }
+  38.5%, 45.3% { transform: translateY(calc(-5 * 30px)); }
+  46.2%, 53.0% { transform: translateY(calc(-6 * 30px)); }
+  53.8%, 60.7% { transform: translateY(calc(-7 * 30px)); }
+  61.5%, 68.4% { transform: translateY(calc(-8 * 30px)); }
+  69.2%, 76.1% { transform: translateY(calc(-9 * 30px)); }
+  76.9%, 83.8% { transform: translateY(calc(-10 * 30px)); }
+  84.6%, 91.5% { transform: translateY(calc(-11 * 30px)); }
+  92.3%, 100%  { transform: translateY(calc(-12 * 30px)); }
+}
+
+/* ── 개별 키워드 아이템 ── */
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+@media (hover: hover) {
+  .item:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+/* ── 다크모드 ── */
+@media (prefers-color-scheme: dark) {
+  .label {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .item {
+    color: rgba(255, 255, 255, 0.82);
+  }
+}

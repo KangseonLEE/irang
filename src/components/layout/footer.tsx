@@ -10,16 +10,18 @@ const serviceLinks = [
   { href: "/education", label: "귀농 교육" },
   { href: "/events", label: "체험·행사" },
   { href: "/crops", label: "작물 정보" },
+  { href: "/interviews", label: "귀농인 이야기" },
   { href: "/about", label: "서비스 소개" },
   { href: "/match", label: "맞춤 추천" },
 ];
 
 const dataSources = [
-  "통계청 KOSIS",
+  "기상청 ASOS",
+  "통계청 KOSIS · SGIS",
   "농림축산식품부",
-  "귀농귀촌종합센터",
-  "기상청 기후 데이터",
   "건강보험심사평가원",
+  "교육부 NEIS",
+  "농촌진흥청 RDA",
 ];
 
 export function Footer() {

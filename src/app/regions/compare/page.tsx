@@ -10,6 +10,7 @@ import { fetchSchoolCounts, type SchoolData } from "@/lib/api/education";
 import { fetchRegionPhotos, type UnsplashPhoto } from "@/lib/api/unsplash";
 import { STATIONS, DEFAULT_STATION_IDS } from "@/lib/data/stations";
 import { RegionSelector } from "./region-selector";
+import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -72,6 +73,11 @@ export default async function RegionsPage({ searchParams }: PageProps) {
 
   return (
     <div className={s.page}>
+      {/* 로드맵 단계 컨텍스트 */}
+      <Suspense>
+        <RoadmapBanner />
+      </Suspense>
+
       {/* Back Link */}
       <Link href="/regions" className={s.backLink}>
         ← 지역 목록으로
