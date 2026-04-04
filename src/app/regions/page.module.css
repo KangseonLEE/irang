@@ -24,7 +24,7 @@
   align-items: center;
   gap: 6px;
   color: var(--primary, #1b6b5a);
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -39,7 +39,7 @@
 }
 
 .headerDesc {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
   max-width: 540px;
@@ -99,22 +99,16 @@
 }
 
 .mapGuideTitle {
-  font-size: 1.25rem;
+  font-size: var(--fs-h3);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
 }
 
-@media (min-width: 768px) {
-  .mapGuideTitle {
-    font-size: 1.5rem;
-  }
-}
-
 .mapGuideDesc {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
-  line-height: 1.7;
+  line-height: var(--lh-relaxed);
   margin: 0;
 }
 
@@ -133,7 +127,7 @@
 }
 
 .mapQuickLink {
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   padding: 6px 14px;
   border-radius: 8px;
@@ -151,7 +145,7 @@
 }
 
 .mapQuickMore {
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 500;
   padding: 6px 14px;
   border-radius: 8px;
@@ -185,13 +179,13 @@
 }
 
 .mapStatValue {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 700;
   color: var(--foreground);
 }
 
 .mapStatLabel {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
 }
 
@@ -211,7 +205,7 @@
 }
 
 .mapKeywordsLabel {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   color: var(--muted-foreground);
   text-transform: uppercase;
@@ -232,7 +226,7 @@
 }
 
 .mapKeyword {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 500;
   padding: 4px 10px;
   border-radius: 20px;
@@ -318,15 +312,15 @@
 }
 
 .cardTitle {
-  font-size: 1.125rem;
+  font-size: var(--fs-h4);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
 }
 
 .cardDesc {
-  font-size: 0.8125rem;
-  line-height: 1.6;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-normal);
   color: var(--muted-foreground);
   margin: 0;
   display: -webkit-box;
@@ -344,7 +338,7 @@
 }
 
 .cardTag {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 500;
   padding: 3px 8px;
   border-radius: 6px;
@@ -360,7 +354,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
 }
@@ -389,14 +383,14 @@
 }
 
 .compareCtaTitle {
-  font-size: 1.125rem;
+  font-size: var(--fs-h4);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
 }
 
 .compareCtaDesc {
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 4px 0 0;
 }
@@ -406,7 +400,7 @@
   align-items: center;
   gap: 6px;
   padding: 10px 20px;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: #fff;
   background: var(--primary, #1b6b5a);

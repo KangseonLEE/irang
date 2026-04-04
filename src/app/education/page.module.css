@@ -27,7 +27,7 @@
 }
 
 .headerLabel {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -42,7 +42,7 @@
 }
 
 .headerDesc {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -56,7 +56,7 @@
 }
 
 .headerCount {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -70,7 +70,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--muted-foreground);
   padding: 3px 10px;
@@ -111,7 +111,7 @@
 }
 
 .filterLabel {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--muted-foreground);
   flex-shrink: 0;
@@ -128,7 +128,7 @@
   display: inline-flex;
   align-items: center;
   padding: 5px 12px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--muted-foreground);
   background: var(--muted, #f9fafb);
@@ -188,7 +188,7 @@
   width: 100%;
   height: 36px;
   padding: 0 12px 0 36px;
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   color: var(--foreground);
   background-color: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
@@ -212,7 +212,7 @@
   align-items: center;
   gap: 6px;
   padding: 5px 12px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--muted-foreground);
   background: var(--muted, #f9fafb);
@@ -241,7 +241,7 @@
   display: inline-flex;
   align-items: center;
   padding: 5px 12px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
   text-decoration: none;
   border-radius: 9999px;
@@ -265,7 +265,7 @@
 
 /* ── Result Count ── */
 .resultCount {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -337,7 +337,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.7rem;
+  font-size: var(--fs-overline);
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 6px;
@@ -371,7 +371,7 @@
 }
 
 .levelBadge {
-  font-size: 0.7rem;
+  font-size: var(--fs-overline);
   font-weight: 500;
   color: var(--muted-foreground);
   padding: 2px 8px;
@@ -382,9 +382,9 @@
 
 /* ── Card Title ── */
 .cardTitle {
-  font-size: 0.9375rem;
+  font-size: var(--fs-body);
   font-weight: 600;
-  line-height: 1.4;
+  line-height: var(--lh-snug);
   color: var(--foreground);
   margin: 0;
   display: -webkit-box;
@@ -398,7 +398,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
 }
 
@@ -444,7 +444,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
 }
 
@@ -462,8 +462,8 @@
 
 /* ── Card Description ── */
 .cardDesc {
-  font-size: 0.75rem;
-  line-height: 1.6;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
   color: var(--muted-foreground);
   margin: 0;
   display: -webkit-box;
@@ -483,13 +483,13 @@
 }
 
 .cardCost {
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
 }
 
 .cardCapacity {
-  font-size: 0.7rem;
+  font-size: var(--fs-overline);
   color: var(--muted-foreground);
   display: flex;
   align-items: center;
@@ -500,7 +500,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--primary, #1b6b5a);
   text-decoration: none;
@@ -546,13 +546,13 @@
 }
 
 .emptyTitle {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 500;
   margin: 0;
 }
 
 .emptyDesc {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: color-mix(in srgb, var(--muted-foreground) 70%, transparent);
   margin: 0;
 }

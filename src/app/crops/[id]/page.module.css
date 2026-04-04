@@ -27,7 +27,7 @@
   gap: 6px;
   margin-bottom: 28px;
   color: var(--muted-foreground, #6b7280);
-  font-size: 15px;
+  font-size: var(--fs-body);
   text-decoration: none;
   transition: color 0.15s;
 }
@@ -102,7 +102,7 @@
   display: inline-block;
   padding: 4px 14px;
   border-radius: 9999px;
-  font-size: 13px;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -152,15 +152,9 @@
 
 .heroDesc {
   margin-top: 14px;
-  font-size: 16px;
-  line-height: 1.75;
+  font-size: var(--fs-body);
+  line-height: var(--lh-relaxed);
   color: var(--muted-foreground, #6b7280);
-}
-
-@media (min-width: 640px) {
-  .heroDesc {
-    font-size: 17px;
-  }
 }
 
 /* Quick Facts 카드 */
@@ -187,16 +181,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--muted-foreground, #6b7280);
   margin-bottom: 6px;
 }
 
 .factValue {
-  font-size: 17px;
+  font-size: var(--fs-h4);
   font-weight: 700;
-  line-height: 1.4;
+  line-height: var(--lh-snug);
   color: var(--foreground, #111);
 }
 
@@ -212,7 +206,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 22px;
-  font-size: 14px;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   border-radius: 8px;
   text-decoration: none;
@@ -272,7 +266,7 @@
   align-items: center;
   gap: 10px;
   padding: 22px 28px 0;
-  font-size: 20px;
+  font-size: var(--fs-h3);
   font-weight: 700;
   color: var(--foreground, #111);
 }
@@ -313,7 +307,7 @@
   border-radius: 12px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--background, #fafafa);
-  font-size: 13px;
+  font-size: var(--fs-body-sm);
 }
 
 .cultivationIcon {
@@ -359,9 +353,9 @@
 }
 
 .cultivationValue {
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 500;
-  line-height: 1.6;
+  line-height: var(--lh-normal);
   color: var(--foreground, #111);
 }
 
@@ -375,7 +369,7 @@
 }
 
 .revenueLabel {
-  font-size: 14px;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--primary);
   margin-bottom: 8px;
@@ -413,7 +407,7 @@
   border-radius: 12px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--background, #fafafa);
-  font-size: 13px;
+  font-size: var(--fs-body-sm);
 }
 
 .incomeIcon {
@@ -444,9 +438,9 @@
 }
 
 .incomeValue {
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 500;
-  line-height: 1.6;
+  line-height: var(--lh-normal);
   color: var(--foreground, #111);
 }
 
@@ -462,7 +456,7 @@
   display: inline-block;
   padding: 6px 16px;
   border-radius: 9999px;
-  font-size: 14px;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   background: var(--secondary);
   color: var(--primary);
@@ -485,7 +479,7 @@
 }
 
 .regionStatsLabel {
-  font-size: 14px;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--muted-foreground, #6b7280);
   margin-bottom: 18px;
@@ -513,7 +507,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 16px;
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--foreground, #111);
 }
@@ -527,13 +521,13 @@
   border-radius: 50%;
   background: var(--primary);
   color: var(--primary-foreground);
-  font-size: 13px;
+  font-size: var(--fs-body-sm);
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .regionArea {
-  font-size: 16px;
+  font-size: var(--fs-body);
   font-weight: 500;
   color: var(--muted-foreground, #6b7280);
   font-variant-numeric: tabular-nums;
@@ -556,7 +550,7 @@
 
 .regionSource {
   margin-top: 16px;
-  font-size: 13px;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground, #9ca3af);
 }
 
@@ -574,7 +568,7 @@
   border-radius: 12px;
   background: var(--background, #fafafa);
   border: 1px solid var(--border, #e5e7eb);
-  font-size: 15px;
+  font-size: var(--fs-body);
 }
 
 .tipNum {
@@ -593,7 +587,7 @@
 
 .tipText {
   font-size: inherit;
-  line-height: 1.7;
+  line-height: var(--lh-relaxed);
   color: var(--foreground, #333);
   padding-top: 6px;
 }
@@ -622,7 +616,7 @@
 
 .sideSectionHeader {
   padding: 20px 24px 0;
-  font-size: 17px;
+  font-size: var(--fs-h4);
   font-weight: 700;
   color: var(--foreground, #111);
   display: flex;
@@ -645,7 +639,7 @@
   display: inline-block;
   padding: 6px 16px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: var(--fs-body-sm);
   font-weight: 500;
   color: var(--foreground, #333);
   border: 1px solid var(--border, #d1d5db);
@@ -681,10 +675,10 @@
 }
 
 .programTitle {
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--foreground, #111);
-  line-height: 1.5;
+  line-height: var(--lh-normal);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -696,7 +690,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground, #9ca3af);
 }
 
@@ -705,7 +699,7 @@
   align-items: center;
   gap: 6px;
   padding-top: 8px;
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--primary);
   text-decoration: none;
@@ -722,8 +716,8 @@
 }
 
 .ctaCardDesc {
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
   color: var(--muted-foreground, #6b7280);
   margin-bottom: 16px;
 }
@@ -765,6 +759,6 @@
 
 /* 빈 프로그램 상태 */
 .emptyState {
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--muted-foreground, #9ca3af);
 }

@@ -24,13 +24,13 @@
 }
 
 .emptyTitle {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 500;
   margin: 0;
 }
 
 .emptyDesc {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: color-mix(in srgb, var(--muted-foreground) 70%, transparent);
   margin: 0;
 }
@@ -41,7 +41,7 @@
 }
 
 .resultText {
-  font-size: 14px;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -53,7 +53,7 @@
 
 .resultShowing {
   margin-left: 4px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
 }
 
 /* ── Card Grid ── */
@@ -88,7 +88,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
 }
 
@@ -111,6 +111,6 @@
 .allLoaded {
   margin-top: 24px;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
 }

@@ -39,7 +39,7 @@
 }
 
 .headerLabel {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -54,7 +54,7 @@
 }
 
 .headerDesc {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -68,7 +68,7 @@
 }
 
 .headerCount {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -82,7 +82,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--muted-foreground);
   padding: 3px 10px;
@@ -112,7 +112,7 @@
 }
 
 .filterLabel {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   color: var(--muted-foreground);
   white-space: nowrap;
@@ -127,7 +127,7 @@
   align-items: center;
   padding: 6px 14px;
   border-radius: 20px;
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 500;
   white-space: nowrap;
   text-decoration: none;
@@ -185,7 +185,7 @@
   width: 100%;
   height: 38px;
   padding: 0 12px 0 36px;
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   color: var(--foreground);
   background-color: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
@@ -208,7 +208,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   cursor: pointer;
   user-select: none;
@@ -280,12 +280,12 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
   white-space: nowrap;
-  line-height: 1.2;
+  line-height: var(--lh-tight);
 }
 
 /* 일일체험 / 팜스테이: green tint */
@@ -310,12 +310,12 @@
 .statusBadge {
   display: inline-flex;
   align-items: center;
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
   white-space: nowrap;
-  line-height: 1.2;
+  line-height: var(--lh-tight);
 }
 
 .statusOpen {
@@ -343,11 +343,11 @@
 }
 
 .cardTitle {
-  font-size: 1rem;
+  font-size: var(--fs-body);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
-  line-height: 1.4;
+  line-height: var(--lh-snug);
 }
 
 .cardMeta {
@@ -360,9 +360,9 @@
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
 }
 
 .cardMetaIcon {
@@ -376,8 +376,8 @@
 }
 
 .cardDesc {
-  font-size: 0.8125rem;
-  line-height: 1.6;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-normal);
   color: var(--muted-foreground);
   margin: 0;
   display: -webkit-box;
@@ -396,7 +396,7 @@
 }
 
 .cardCost {
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
 }
@@ -405,7 +405,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--primary, #1b6b5a);
   text-decoration: none;
@@ -445,14 +445,14 @@
 }
 
 .emptyStateText {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground, #6b7280);
   margin: 0;
   text-align: center;
 }
 
 .emptyStateLink {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 500;
   color: var(--primary, #1b6b5a);
   text-decoration: none;

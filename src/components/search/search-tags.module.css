@@ -26,7 +26,7 @@
 .tag {
   padding: 6px 16px;
   border-radius: 9999px;
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 500;
   border: 1px solid var(--border);
   background: var(--card);
@@ -34,7 +34,7 @@
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background-color 0.15s;
   white-space: nowrap;
-  line-height: 1.4;
+  line-height: var(--lh-snug);
 }
 
 .tag:hover {

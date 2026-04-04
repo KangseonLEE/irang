@@ -43,7 +43,7 @@
 }
 
 .progressLabel {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   color: var(--muted-foreground);
   white-space: nowrap;
@@ -58,7 +58,7 @@
 }
 
 .questionTitle {
-  font-size: 1.5rem;
+  font-size: var(--fs-h2);
   font-weight: 800;
   color: var(--foreground);
   margin: 0;
@@ -66,14 +66,8 @@
   word-break: keep-all;
 }
 
-@media (min-width: 640px) {
-  .questionTitle {
-    font-size: 1.75rem;
-  }
-}
-
 .questionSubtitle {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0 0 12px;
 }
@@ -144,14 +138,14 @@
 }
 
 .optionLabel {
-  font-size: 0.9375rem;
+  font-size: var(--fs-body);
   font-weight: 700;
   color: var(--foreground);
 }
 
 .optionDesc {
-  font-size: 0.75rem;
-  line-height: 1.5;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
   color: var(--muted-foreground);
 }
 
@@ -197,7 +191,7 @@
   align-items: center;
   gap: 4px;
   padding: 10px 16px;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--muted-foreground);
   background: none;
@@ -225,7 +219,7 @@
   align-items: center;
   gap: 4px;
   padding: 10px 20px;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: #fff;
   background: var(--primary, #1b6b5a);
@@ -261,7 +255,7 @@
 }
 
 .resultOverline {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -269,21 +263,15 @@
 }
 
 .resultTitle {
-  font-size: 1.5rem;
+  font-size: var(--fs-h2);
   font-weight: 800;
   color: var(--foreground);
   margin: 0;
   word-break: keep-all;
 }
 
-@media (min-width: 640px) {
-  .resultTitle {
-    font-size: 1.75rem;
-  }
-}
-
 .resultDesc {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -299,7 +287,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.125rem;
+  font-size: var(--fs-h4);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
@@ -345,7 +333,7 @@
   border-radius: 10px;
   background: var(--primary, #1b6b5a);
   color: #fff;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 800;
   flex-shrink: 0;
 }
@@ -359,15 +347,15 @@
 }
 
 .resultCardTitle {
-  font-size: 1.0625rem;
+  font-size: var(--fs-h4);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
 }
 
 .resultCardDesc {
-  font-size: 0.8125rem;
-  line-height: 1.6;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-normal);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -380,7 +368,7 @@
 }
 
 .resultCardTag {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 500;
   padding: 3px 8px;
   border-radius: 6px;
@@ -392,7 +380,7 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
   margin-top: 4px;
@@ -445,18 +433,18 @@
 }
 
 .cropName {
-  font-size: 0.9375rem;
+  font-size: var(--fs-body);
   font-weight: 700;
   color: var(--foreground);
 }
 
 .cropMeta {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   color: var(--muted-foreground);
 }
 
 .cropReason {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 500;
   color: var(--primary, #1b6b5a);
 }
@@ -480,7 +468,7 @@
   align-items: center;
   gap: 6px;
   padding: 10px 20px;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--muted-foreground);
   background: none;
@@ -503,7 +491,7 @@
   align-items: center;
   gap: 6px;
   padding: 10px 20px;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: #fff;
   background: var(--primary, #1b6b5a);

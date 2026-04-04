@@ -29,21 +29,15 @@
 }
 
 .resultTitle {
-  font-size: 1.25rem;
+  font-size: var(--fs-h3);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
   word-break: keep-all;
 }
 
-@media (min-width: 640px) {
-  .resultTitle {
-    font-size: 1.5rem;
-  }
-}
-
 .resultCount {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -69,14 +63,14 @@
 }
 
 .emptyTitle {
-  font-size: 1.5rem;
+  font-size: var(--fs-h2);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
 }
 
 .emptyDesc {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -98,7 +92,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1rem;
+  font-size: var(--fs-body);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
@@ -109,7 +103,7 @@
 }
 
 .sectionCount {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   color: var(--muted-foreground);
   background: var(--muted);
@@ -167,7 +161,7 @@
 }
 
 .cardTitle {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--foreground);
   overflow: hidden;
@@ -176,7 +170,7 @@
 }
 
 .cardSubtitle {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -184,7 +178,7 @@
 }
 
 .cardBadge {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 500;
   padding: 2px 8px;
   border-radius: 9999px;
@@ -205,14 +199,14 @@
 }
 
 .noResultText {
-  font-size: 1rem;
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--foreground);
   margin: 0;
 }
 
 .noResultHint {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -227,7 +221,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 500;
   color: var(--primary);
   text-decoration: none;
@@ -243,7 +237,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 500;
   color: var(--muted-foreground);
   text-decoration: none;

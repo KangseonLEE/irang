@@ -14,7 +14,7 @@
 
 /* ---- 뒤로가기 ---- */
 .backLink {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   text-decoration: none;
   transition: color 0.15s;
@@ -69,7 +69,7 @@
 }
 
 .heroOverline {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   color: rgba(255, 255, 255, 0.8);
   letter-spacing: 0.05em;
@@ -90,7 +90,7 @@
 }
 
 .heroDesc {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: rgba(255, 255, 255, 0.9);
   margin: 0;
   max-width: 480px;
@@ -104,7 +104,7 @@
 }
 
 .heroTag {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 500;
   padding: 4px 10px;
   border-radius: 6px;
@@ -156,26 +156,26 @@
 
 .statLabel {
   display: block;
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   color: var(--muted-foreground);
 }
 
 .statValue {
   display: block;
-  font-size: 1rem;
+  font-size: var(--fs-body);
   font-weight: 700;
   color: var(--foreground);
 }
 
 .statSub {
   display: block;
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   color: var(--muted-foreground);
 }
 
 /* ---- 복수 관측소 안내 ---- */
 .multiStationNote {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
   padding: 10px 14px;
   background: var(--muted, #f4f4f5);
@@ -230,14 +230,14 @@
 }
 
 .sectionTitle {
-  font-size: 1.125rem;
+  font-size: var(--fs-h4);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
 }
 
 .sectionDesc {
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 2px 0 0;
 }
@@ -279,14 +279,14 @@
 
 .cropName {
   display: block;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--foreground);
 }
 
 .cropMeta {
   display: block;
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   color: var(--muted-foreground);
 }
 
@@ -323,20 +323,20 @@
 
 .programTitle {
   display: block;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--foreground);
 }
 
 .programMeta {
   display: block;
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   color: var(--muted-foreground);
   margin-top: 2px;
 }
 
 .programStatus {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
@@ -354,7 +354,7 @@
 .viewMore {
   display: inline-block;
   margin-top: 12px;
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
   text-decoration: none;
@@ -398,7 +398,7 @@
 }
 
 .eduTypeBadge {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
@@ -408,7 +408,7 @@
 }
 
 .eduLevelBadge {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 500;
   padding: 3px 8px;
   border-radius: 6px;
@@ -418,7 +418,7 @@
 }
 
 .eventTypeBadge {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
@@ -474,17 +474,17 @@
 }
 
 .sideSectionTitle {
-  font-size: 0.9375rem;
+  font-size: var(--fs-body);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
 }
 
 .sideDesc {
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0 0 12px;
-  line-height: 1.6;
+  line-height: var(--lh-normal);
 }
 
 /* 페르소나 */
@@ -501,15 +501,15 @@
 }
 
 .personaTitle {
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--foreground);
   margin: 0 0 4px;
 }
 
 .personaDesc {
-  font-size: 0.75rem;
-  line-height: 1.6;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -520,7 +520,7 @@
   align-items: center;
   gap: 6px;
   padding: 10px 16px;
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: #fff;
   background: var(--primary, #1b6b5a);
@@ -535,9 +535,9 @@
 
 /* 출처 */
 .sourceNotice {
-  font-size: 0.6875rem;
+  font-size: var(--fs-overline);
   color: var(--muted-foreground);
-  line-height: 1.6;
+  line-height: var(--lh-normal);
 }
 
 .sourceNotice p {

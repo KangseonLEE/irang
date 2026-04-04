@@ -43,7 +43,7 @@
   background: transparent;
   color: var(--foreground);
   font-size: inherit;
-  line-height: 1.5;
+  line-height: var(--lh-normal);
   min-width: 0;
 }
 
@@ -84,7 +84,7 @@
 
 .sectionLabel {
   padding: 8px 16px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   color: var(--muted-foreground);
   letter-spacing: 0.04em;
@@ -131,7 +131,7 @@
 }
 
 .resultItemTitle {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 500;
   color: var(--foreground);
   overflow: hidden;
@@ -140,7 +140,7 @@
 }
 
 .resultItemSubtitle {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -150,7 +150,7 @@
 /* --- Badge --- */
 
 .resultBadge {
-  font-size: 0.625rem;
+  font-size: var(--fs-overline);
   padding: 2px 8px;
   border-radius: 9999px;
   font-weight: 500;
@@ -222,7 +222,7 @@
   justify-content: center;
   gap: 6px;
   padding: 12px 16px;
-  font-size: 0.8125rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--primary);
   cursor: pointer;
@@ -239,5 +239,5 @@
   padding: 24px;
   text-align: center;
   color: var(--muted-foreground);
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
 }

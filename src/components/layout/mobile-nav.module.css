@@ -44,7 +44,7 @@
   gap: 0.125rem;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
-  font-size: 11px;
+  font-size: var(--fs-overline);
   line-height: 1;
   transition: color 150ms ease;
   color: var(--muted-foreground);

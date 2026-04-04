@@ -5,7 +5,7 @@
 
 /* ---- 뒤로가기 ---- */
 .backLink {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   text-decoration: none;
   transition: color 0.15s;
@@ -37,7 +37,7 @@
   align-items: center;
   gap: 6px;
   color: var(--primary, #1B6B5A);
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -52,14 +52,14 @@
 }
 
 .headerDesc {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }
 
 /* ---- 섹션 제목 ---- */
 .sectionTitle {
-  font-size: 1.25rem;
+  font-size: var(--fs-h3);
   font-weight: 600;
   letter-spacing: -0.025em;
   color: var(--foreground);
@@ -149,14 +149,14 @@
 
 /* ---- 카드 공통 내부 요소 ---- */
 .cardOverline {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 500;
   letter-spacing: 0.05em;
   color: var(--muted-foreground);
 }
 
 .cardTitle {
-  font-size: 1rem;
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--foreground);
   margin: 0;
@@ -176,8 +176,8 @@
 
 .cardDescription {
   margin-top: auto;
-  font-size: 0.75rem;
-  line-height: 1.6;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
   color: var(--muted-foreground);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -187,7 +187,7 @@
 
 .cardFooter {
   margin-top: auto;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
 }
 
@@ -196,7 +196,7 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
 }
 
 .dataRowLabel {
@@ -222,14 +222,14 @@
 }
 
 .tableCardTitle {
-  font-size: 1.25rem;
+  font-size: var(--fs-h3);
   font-weight: 600;
   color: var(--foreground);
   margin: 0;
 }
 
 .tableCardDesc {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 4px 0 0;
 }
@@ -244,7 +244,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
 }
 
 .srOnly {
@@ -263,7 +263,7 @@
   padding: 10px 12px;
   text-align: center;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   border-bottom: 1px solid var(--border, #e5e7eb);
   white-space: nowrap;
@@ -299,7 +299,7 @@
 
 .tdUnit {
   margin-left: 2px;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
 }
 
@@ -310,14 +310,14 @@
 
 .tdNoData {
   color: var(--muted-foreground);
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
 }
 
 /* ---- 테이블 섹션 구분행 ---- */
 .sectionDivider {
   padding: 8px 12px;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -342,7 +342,7 @@
 
 /* ---- 출처 표시 ---- */
 .sourceNotice {
-  font-size: 0.75rem;
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
   margin: 0;
 }
@@ -366,7 +366,7 @@
   align-items: center;
   gap: 6px;
   padding: 12px 16px;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--primary, #1B6B5A);
   background: var(--secondary, #e8f5f1);
@@ -402,7 +402,7 @@
 }
 
 .emptyStateText {
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
   margin: 0;
 }

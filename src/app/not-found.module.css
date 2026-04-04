@@ -18,7 +18,7 @@
 
 .title {
   margin-top: 1rem;
-  font-size: 1.25rem;
+  font-size: var(--fs-h3);
   line-height: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -26,7 +26,7 @@
 
 .description {
   margin-top: 0.5rem;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   line-height: 1.25rem;
   color: var(--muted-foreground, #71717a);
 }
@@ -44,7 +44,7 @@
   border-radius: 10px;
   background: var(--primary, #1B6B5A);
   padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   line-height: 1.25rem;
   font-weight: 500;
   color: var(--primary-foreground, #fff);
@@ -63,7 +63,7 @@
   border-radius: 10px;
   border: 1px solid var(--border, #e4e4e7);
   padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  font-size: var(--fs-body-sm);
   line-height: 1.25rem;
   font-weight: 500;
   color: var(--foreground, #09090b);
