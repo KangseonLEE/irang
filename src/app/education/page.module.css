@@ -127,7 +127,8 @@
 .pill {
   display: inline-flex;
   align-items: center;
-  padding: 5px 12px;
+  min-height: 44px;
+  padding: 10px 14px;
   font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--muted-foreground);
@@ -211,7 +212,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
+  min-height: 44px;
+  padding: 10px 14px;
   font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--muted-foreground);
@@ -240,7 +242,8 @@
 .resetLink {
   display: inline-flex;
   align-items: center;
-  padding: 5px 12px;
+  min-height: 44px;
+  padding: 10px 14px;
   font-size: var(--fs-caption);
   color: var(--muted-foreground);
   text-decoration: none;

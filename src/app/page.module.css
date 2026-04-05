@@ -973,6 +973,9 @@
     grid-area: label;
     font-size: var(--fs-caption);
     font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .compareCity {

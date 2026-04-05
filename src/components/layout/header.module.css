@@ -122,9 +122,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   border: none;
   background: transparent;
   color: var(--muted-foreground);
@@ -132,9 +132,11 @@
   transition: color 150ms ease, background-color 150ms ease;
 }
 
-.bookmarkBtn:hover {
-  background-color: color-mix(in srgb, var(--secondary) 60%, transparent);
-  color: #e74c3c;
+@media (hover: hover) {
+  .bookmarkBtn:hover {
+    background-color: color-mix(in srgb, var(--secondary) 60%, transparent);
+    color: #e74c3c;
+  }
 }
 
 .badge {

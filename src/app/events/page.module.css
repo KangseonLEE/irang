@@ -125,7 +125,8 @@
 .pill {
   display: inline-flex;
   align-items: center;
-  padding: 6px 14px;
+  min-height: 44px;
+  padding: 10px 14px;
   border-radius: 20px;
   font-size: var(--fs-body-sm);
   font-weight: 500;
