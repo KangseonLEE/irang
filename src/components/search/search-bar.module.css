@@ -23,10 +23,18 @@
 
 .inputWrapLarge {
   composes: inputWrap;
-  padding: 14px 20px;
-  font-size: 1.125rem;
-  min-height: 56px;
+  padding: 12px 14px;
+  font-size: 0.9375rem; /* 15px — 모바일에서 placeholder 잘림 방지 */
+  min-height: 52px;
   border-radius: 16px;
+}
+
+@media (min-width: 640px) {
+  .inputWrapLarge {
+    padding: 14px 20px;
+    font-size: 1.125rem;
+    min-height: 56px;
+  }
 }
 
 /* --- Icon & input --- */

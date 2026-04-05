@@ -11,8 +11,8 @@
 .line {
   stroke-dasharray: 40;
   animation:
-    drawLoop 5s ease-in-out infinite,
-    wave 2.5s ease-in-out infinite;
+    drawLoop 8s ease-in-out infinite,
+    wave 4s ease-in-out infinite;
 }
 
 /*
@@ -45,8 +45,8 @@
 @media (hover: hover) {
   .symbol:hover .line {
     animation:
-      drawLoop 5s ease-in-out infinite,
-      waveHover 1.2s ease-in-out infinite;
+      drawLoop 8s ease-in-out infinite,
+      waveHover 1.8s ease-in-out infinite;
   }
 }
 

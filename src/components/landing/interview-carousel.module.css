@@ -16,7 +16,7 @@
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding-bottom: 4px;
+  padding: 0 4px 4px;
 }
 
 .scrollArea::-webkit-scrollbar { display: none; }
@@ -46,10 +46,16 @@
   flex-direction: column;
   gap: 12px;
   text-decoration: none;
-  min-width: 78vw;
+  min-width: 72vw;
   flex-shrink: 0;
   scroll-snap-align: center;
   transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+@media (min-width: 480px) {
+  .card {
+    min-width: 65vw;
+  }
 }
 
 @media (min-width: 768px) {
@@ -89,7 +95,7 @@
 
 /* ── 인용문 ── */
 .quote {
-  font-size: var(--fs-body-lg);
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--foreground, #111);
   line-height: 1.65;
@@ -97,6 +103,18 @@
   letter-spacing: -0.01em;
   word-break: keep-all;
   flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .quote {
+    font-size: var(--fs-body-lg);
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
 }
 
 /* ── 태그 ── */

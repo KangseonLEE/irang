@@ -7,6 +7,8 @@ import s from "./search-group.module.css";
 
 interface SearchGroupProps {
   placeholder?: string;
+  /** 모바일(< 640px)에서만 사용할 짧은 placeholder */
+  mobilePlaceholder?: string;
   size?: "default" | "large";
   /** 인기 태그 숨김 (히어로 등 간결한 레이아웃용) */
   hideTags?: boolean;
@@ -14,6 +16,7 @@ interface SearchGroupProps {
 
 export default function SearchGroup({
   placeholder,
+  mobilePlaceholder,
   size = "default",
   hideTags = false,
 }: SearchGroupProps) {
@@ -29,6 +32,7 @@ export default function SearchGroup({
         ref={searchBarRef}
         size={size}
         placeholder={placeholder}
+        mobilePlaceholder={mobilePlaceholder}
       />
       {!hideTags && <SearchTags onTagClick={handleTagClick} />}
     </div>

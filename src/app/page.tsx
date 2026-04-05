@@ -102,12 +102,13 @@ export default async function HomePage() {
         </h1>
 
         <p className={s.heroSubtitle}>
-          지역, 작물, 지원금까지 — 공공데이터 기반으로 한곳에서.
+          지역, 작물, 지원금까지 —<br />
+          공공데이터 기반으로 한곳에서.
         </p>
 
         <div className={s.heroSearchWrap}>
           <Suspense fallback={<div className={s.searchFallback} />}>
-            <SearchGroup size="large" placeholder="궁금한 지역이나 작물을 검색해보세요" hideTags />
+            <SearchGroup size="large" placeholder="궁금한 지역이나 작물을 검색해보세요" mobilePlaceholder="지역, 작물, 지원사업 검색" hideTags />
           </Suspense>
         </div>
 
@@ -204,7 +205,7 @@ export default async function HomePage() {
       <section className={s.compareSection} aria-label="도시 농촌 비교">
         <h2 className={s.trendTitle}>
           <ArrowLeftRight size={18} className={s.trendTitleIcon} />
-          도시에서 농촌으로, 뭐가 달라질까?
+          월급은 줄어도, 삶은 넉넉해지더라
         </h2>
 
         <div className={s.compareTable}>
@@ -241,9 +242,6 @@ export default async function HomePage() {
             12~18개월 영농 준비 단계에 집중됩니다.
             정부 융자를 활용하면 초기 부담을 크게 줄일 수 있습니다.
           </p>
-          <Link href="/programs?supportType=융자" className={s.costCtaOutline}>
-            지원사업 알아보기 <ArrowRight size={14} />
-          </Link>
         </div>
 
         {/* 하단: 핵심 수치 4열 카드 — 타이틀 → 카운트업 숫자 → 서브 */}
@@ -285,15 +283,10 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* 로드맵 브릿지 */}
-        <div className={s.costBridge}>
-          <span className={s.costBridgeText}>
-            27개월, 어떻게 준비하면 될까요?
-          </span>
-          <a href="#roadmap" className={s.costCtaPrimary}>
-            단계별 준비 로드맵 보기 <ArrowRight size={14} />
-          </a>
-        </div>
+        {/* 데이터 아래 CTA */}
+        <Link href="/programs?supportType=융자" className={s.costCtaOutline}>
+          지원사업 알아보기 <ArrowRight size={14} />
+        </Link>
 
         <p className={s.costSource}>
           출처: 농림축산식품부 2025 귀농귀촌 실태조사
@@ -332,8 +325,10 @@ export default async function HomePage() {
 
         {/* 로드맵 하단 CTA */}
         <Link href="/match" className={s.roadmapBottomCta}>
-          1단계부터 시작해볼까요? &mdash; 맞춤 귀농 플랜 받기
-          <ArrowRight size={16} />
+          <span>1단계부터 시작해볼까요?</span>
+          <span className={s.roadmapBottomCtaSub}>
+            맞춤 귀농 플랜 받기 <ArrowRight size={16} />
+          </span>
         </Link>
       </section>
 

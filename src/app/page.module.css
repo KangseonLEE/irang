@@ -40,14 +40,21 @@
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition: box-shadow 0.2s, border-color 0.2s, background 0.15s, transform 0.18s ease;
 }
 
 @media (hover: hover) {
   .card:hover {
-    box-shadow: var(--shadow-lg);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--background, #fff));
     border-color: var(--primary, #1B6B5A);
+    box-shadow: 0 8px 28px -6px rgba(27, 107, 90, 0.18);
+    transform: translateY(-3px);
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: box-shadow 0.2s, border-color 0.2s, background 0.15s; }
+  .card:hover { transform: none; }
 }
 
 @media (min-width: 768px) {
@@ -123,7 +130,7 @@
   line-height: var(--lh-tight);
   letter-spacing: -0.03em;
   color: #fff;
-  margin: 0 auto 12px;
+  margin: 0 auto 8px;
   max-width: 720px;
   word-break: keep-all;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -159,7 +166,7 @@
   font-size: clamp(1rem, 1.8vw, 1.25rem);
   font-weight: 500;
   color: rgba(255, 255, 255, 0.88);
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   max-width: 520px;
   word-break: keep-all;
   line-height: var(--lh-normal);
@@ -314,8 +321,25 @@
 
 @media (hover: hover) {
   .trendSection:hover {
-    box-shadow: none;
+    background: var(--cream);
     border-color: transparent;
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+/* ── 섹션 헤더: 타이틀 + 서브타이틀 묶음 ── */
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .sectionHeader {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 12px;
   }
 }
 
@@ -328,6 +352,7 @@
   color: var(--foreground, #111);
   letter-spacing: -0.02em;
   line-height: var(--lh-tight);
+  flex-shrink: 0;
 }
 
 .trendTitleIcon {
@@ -337,7 +362,6 @@
 .trendSub {
   font-size: var(--fs-body);
   color: var(--muted-foreground, #6b7280);
-  margin-top: -8px;
   line-height: var(--lh-normal);
 }
 
@@ -389,7 +413,11 @@
 }
 
 .trendStatItem:hover {
-  background-color: color-mix(in srgb, var(--primary, #1B6B5A) 6%, transparent);
+  background-color: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
+}
+
+.trendStatItem:hover .trendValue {
+  color: var(--primary, #1B6B5A);
 }
 
 .trendStatItem:focus-visible {
@@ -416,14 +444,26 @@
 }
 
 .trendLabel {
-  font-size: var(--fs-caption);
+  font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--foreground, #111);
 }
 
+@media (min-width: 768px) {
+  .trendLabel {
+    font-size: var(--fs-caption);
+  }
+}
+
 .trendStatSub {
-  font-size: var(--fs-overline);
+  font-size: var(--fs-caption);
   color: var(--muted-foreground, #6b7280);
+}
+
+@media (min-width: 768px) {
+  .trendStatSub {
+    font-size: var(--fs-overline);
+  }
 }
 
 /* 귀농 이유 카드 */
@@ -542,8 +582,14 @@
 
 .reasonSource {
   margin-top: 16px;
-  font-size: var(--fs-overline);
+  font-size: var(--fs-caption);
   color: var(--muted-foreground, #6b7280);
+}
+
+@media (min-width: 768px) {
+  .reasonSource {
+    font-size: var(--fs-overline);
+  }
 }
 
 /* 하단 2열 그리드 (이유 차트 + 뉴스) */
@@ -605,8 +651,8 @@
   padding-top: 0;
 }
 
-.newsItem:hover {
-  opacity: 0.8;
+.newsItem:hover .newsItemTitle {
+  color: var(--primary, #1B6B5A);
 }
 
 .newsItemTitle {
@@ -629,7 +675,7 @@
 }
 
 /* ══════════════════════════════════════════
-   귀농 비용 섹션
+   귀농 비용 섹션 — HDC IR 스타일
    ══════════════════════════════════════════ */
 .costSection {
   composes: card;
@@ -645,136 +691,211 @@
 
 @media (hover: hover) {
   .costSection:hover {
-    box-shadow: none;
+    background: var(--cream);
     border-color: transparent;
+    box-shadow: none;
+    transform: none;
   }
 }
 
-.costSub {
+/* ── 상단: 인트로 텍스트 영역 ── */
+.costIntro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.costOverline {
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--primary, #1B6B5A);
+  letter-spacing: 0.04em;
+}
+
+.costTitle {
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  color: var(--foreground, #111);
+  letter-spacing: -0.02em;
+  line-height: var(--lh-tight);
+}
+
+.costDesc {
   font-size: var(--fs-body);
   color: var(--muted-foreground, #6b7280);
-  margin-top: -8px;
   line-height: var(--lh-normal);
+  margin-top: 0;
+  max-width: 580px;
 }
 
-.costHighlight {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 20px 16px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #e8f5f1 0%, #ddf0ea 100%);
-  border: 2px solid var(--primary, #1B6B5A);
-  box-shadow: var(--shadow-md);
-  gap: 4px;
-}
-
-.costBigNum {
-  font-size: 40px;
-  font-weight: 800;
-  color: var(--primary, #1B6B5A);
-  line-height: 1.2;
-}
-
-@media (min-width: 768px) {
-  .costBigNum { font-size: 52px; }
-}
-
-.costBigLabel {
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground, #111);
-}
-
-.costBigDetail {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground, #6b7280);
-  line-height: var(--lh-normal);
-}
-
-.costAgeGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-
-@media (min-width: 640px) {
-  .costAgeGrid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
-}
-
-.costAgeCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 14px 8px;
-  border-radius: 12px;
-  background: var(--muted, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-  gap: 4px;
-}
-
-.costAgeLabel {
-  font-size: var(--fs-caption);
-  font-weight: 500;
-  color: var(--muted-foreground, #6b7280);
-}
-
-.costAgeValue {
-  font-size: var(--fs-h4);
+.costDescStrong {
   font-weight: 700;
-  color: var(--foreground, #111);
-}
-
-.costAgeBar {
-  width: 100%;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--border, #e5e7eb);
-  overflow: hidden;
-  margin-top: 4px;
-}
-
-.costAgeBarFill {
-  height: 100%;
-  border-radius: 2px;
-  background: var(--primary, #1B6B5A);
-}
-
-.costGovNote {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, transparent);
-  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 12%, transparent);
-}
-
-.costGovNoteText {
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  color: var(--foreground, #111);
-  flex: 1;
-  line-height: var(--lh-normal);
-}
-
-.costGovLink {
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
   color: var(--primary, #1B6B5A);
-  text-decoration: none;
-  white-space: nowrap;
-  flex-shrink: 0;
+}
+
+/* ── CTA 버튼 (공통) ── */
+.costCta {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 150ms ease, box-shadow 150ms ease, transform 100ms ease;
+  width: fit-content;
+}
+
+.costCtaPrimary {
+  composes: costCta;
+  background: var(--primary, #1B6B5A);
+  color: #fff;
+  margin-top: 12px;
 }
 
 @media (hover: hover) {
-  .costGovLink:hover { text-decoration: underline; }
+  .costCtaPrimary:hover {
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 88%, #000);
+    box-shadow: 0 4px 12px rgba(27, 107, 90, 0.2);
+  }
+  .costCtaPrimary:active { transform: scale(0.97); }
 }
+
+.costCtaOutline {
+  composes: costCta;
+  background: transparent;
+  color: var(--primary, #1B6B5A);
+  border: 1.5px solid var(--primary, #1B6B5A);
+}
+
+@media (hover: hover) {
+  .costCtaOutline:hover {
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+    box-shadow: 0 2px 8px rgba(27, 107, 90, 0.12);
+  }
+  .costCtaOutline:active { transform: scale(0.97); }
+}
+
+/* ── 하단: 핵심 수치 4열 카드 (HDC 패턴) ── */
+.costStatsCard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 12px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .costStatsCard {
+    display: flex;
+    flex-direction: row;
+  }
+}
+
+.costStatDivider {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .costStatDivider {
+    display: block;
+    align-self: stretch;
+    background: var(--border, #e5e7eb);
+    height: auto;
+    width: 1px;
+    margin: 12px 0;
+    flex-shrink: 0;
+  }
+}
+
+.costStatItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px;
+  gap: 0;
+  /* 모바일 2x2 그리드 구분선 */
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  border-right: 1px solid var(--border, #e5e7eb);
+}
+
+.costStatItem:nth-child(even) {
+  border-right: none;
+}
+
+.costStatItem:nth-last-child(-n+2) {
+  border-bottom: none;
+}
+
+@media (min-width: 768px) {
+  .costStatItem {
+    padding: 16px 18px;
+    border-bottom: none;
+    border-right: none;
+  }
+}
+
+/* 순서: 타이틀(Label) → 숫자(Value) → 서브(Sub) */
+.costStatLabel {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  letter-spacing: 0.02em;
+}
+
+@media (min-width: 768px) {
+  .costStatLabel {
+    font-size: var(--fs-caption);
+  }
+}
+
+.costStatValue {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--foreground, #111);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 768px) {
+  .costStatValue { font-size: 36px; }
+}
+
+.costStatNum {
+  font-variant-numeric: tabular-nums;
+}
+
+.costStatUnit {
+  font-size: 0.5em;
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  letter-spacing: 0;
+  margin-left: 2px;
+}
+
+@media (min-width: 768px) {
+  .costStatUnit {
+    font-size: 0.45em;
+  }
+}
+
+.costStatSub {
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--foreground, #111);
+}
+
+@media (min-width: 768px) {
+  .costStatSub {
+    font-size: var(--fs-overline);
+  }
+}
+
 
 .costSource {
   font-size: var(--fs-overline);
@@ -788,6 +909,15 @@
   composes: card;
   gap: 16px;
   background: var(--card, #fff);
+}
+
+@media (hover: hover) {
+  .compareSection:hover {
+    background: var(--card, #fff);
+    border-color: transparent;
+    box-shadow: var(--shadow-sm);
+    transform: none;
+  }
 }
 
 @media (min-width: 768px) {
@@ -818,11 +948,17 @@
 }
 
 .compareHeaderCell {
-  font-size: var(--fs-overline);
+  font-size: var(--fs-caption);
   font-weight: 700;
   color: var(--muted-foreground, #6b7280);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+@media (min-width: 768px) {
+  .compareHeaderCell {
+    font-size: var(--fs-overline);
+  }
 }
 
 .compareLabel {
@@ -876,7 +1012,6 @@
 .interviewSub {
   font-size: var(--fs-body);
   color: var(--muted-foreground, #6b7280);
-  margin-top: -8px;
   line-height: var(--lh-normal);
 }
 
@@ -914,7 +1049,7 @@
   min-width: 72vw;
   flex-shrink: 0;
   scroll-snap-align: start;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.15s, transform 0.18s ease;
 }
 
 @media (min-width: 768px) {
@@ -928,9 +1063,16 @@
 
 @media (hover: hover) {
   .interviewCard:hover {
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--background, #fff));
     border-color: var(--primary, #1B6B5A);
-    box-shadow: 0 8px 24px -8px rgba(27, 107, 90, 0.1);
+    box-shadow: 0 8px 28px -6px rgba(27, 107, 90, 0.18);
+    transform: translateY(-3px);
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interviewCard { transition: border-color 0.2s, box-shadow 0.2s, background 0.15s; }
+  .interviewCard:hover { transform: none; }
 }
 
 .interviewEmoji {
@@ -1011,7 +1153,8 @@
 
 @media (hover: hover) {
   .interviewViewAll:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 15%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #1B6B5A) 40%, transparent);
   }
 }
 
@@ -1032,15 +1175,16 @@
 
 @media (hover: hover) {
   .roadmapSection:hover {
-    box-shadow: none;
+    background: var(--cream);
     border-color: transparent;
+    box-shadow: none;
+    transform: none;
   }
 }
 
 .roadmapSub {
   font-size: var(--fs-body);
   color: var(--muted-foreground, #6b7280);
-  margin-top: -8px;
   line-height: var(--lh-normal);
 }
 
@@ -1152,7 +1296,11 @@
 }
 
 @media (hover: hover) {
-  .roadmapLink:hover { text-decoration: underline; }
+  .roadmapLink:hover {
+    color: var(--primary, #1B6B5A);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 }
 
 /* ── 로드맵 스텝별 CTA 버튼 ── */
@@ -1169,13 +1317,25 @@
   text-decoration: none;
   margin-top: 6px;
   width: fit-content;
+  align-self: flex-end;
   transition: background-color 0.15s, transform 0.1s;
+}
+
+/* 모바일: 컴팩트 + 우측 정렬 */
+@media (max-width: 767px) {
+  .roadmapCta {
+    width: fit-content;
+    align-self: flex-end;
+    padding: 6px 14px;
+    font-size: var(--fs-caption);
+  }
 }
 
 @media (hover: hover) {
   .roadmapCta:hover {
-    background: #145a4b;
-    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 85%, black);
+    box-shadow: 0 4px 14px rgba(27, 107, 90, 0.25);
+    transform: translateY(-2px);
   }
 }
 
@@ -1188,9 +1348,10 @@
 /* ── 로드맵 하단 전체 CTA 배너 ── */
 .roadmapBottomCta {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   padding: 16px 24px;
   border-radius: 14px;
   font-size: var(--fs-body);
@@ -1202,18 +1363,33 @@
   box-shadow: 0 4px 16px rgba(27, 107, 90, 0.2);
 }
 
+.roadmapBottomCtaSub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  opacity: 0.85;
+}
+
 @media (hover: hover) {
   .roadmapBottomCta:hover {
-    opacity: 0.92;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(27, 107, 90, 0.25);
+    box-shadow: 0 8px 24px rgba(27, 107, 90, 0.35);
+    filter: brightness(1.08);
   }
 }
 
 @media (min-width: 768px) {
   .roadmapBottomCta {
+    flex-direction: row;
+    gap: 10px;
     padding: 18px 32px;
     border-radius: 16px;
+  }
+
+  .roadmapBottomCtaSub {
+    font-size: var(--fs-body);
   }
 }
 
@@ -1223,6 +1399,15 @@
 .faqSection {
   composes: card;
   gap: 16px;
+}
+
+@media (hover: hover) {
+  .faqSection:hover {
+    background: var(--card, #fff);
+    border-color: transparent;
+    box-shadow: var(--shadow-sm);
+    transform: none;
+  }
 }
 
 @media (min-width: 768px) {
@@ -1246,22 +1431,29 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 14px 0;
+  padding: 14px 4px;
   background: none;
   border: none;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
   cursor: pointer;
   text-align: left;
   font-size: var(--fs-body);
   font-weight: 600;
   color: var(--foreground, #111);
   line-height: var(--lh-normal);
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
 }
 
 @media (min-width: 768px) {
-  .faqQuestion { padding: 16px 0; }
+  .faqQuestion { padding: 16px 4px; }
 }
 
-.faqQuestion:hover { color: var(--primary, #1B6B5A); }
+.faqQuestion:hover {
+  color: var(--primary, #1B6B5A);
+  border-left-color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, transparent);
+}
 
 .faqIcon {
   flex-shrink: 0;
@@ -1340,10 +1532,17 @@
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: opacity 0.15s;
+  transition: background 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
-.ctaBannerBtn:hover { opacity: 0.9; }
+@media (hover: hover) {
+  .ctaBannerBtn:hover {
+    background: var(--primary, #1B6B5A);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(27, 107, 90, 0.3);
+  }
+}
 
 /* ══════════════════════════════════════════
    섹션 타이틀 (벤토·출처 영역 등)
@@ -1352,13 +1551,7 @@
   font-size: var(--fs-h2);
   font-weight: 800;
   color: var(--foreground, #111);
-  margin: 8px 0 12px;
   letter-spacing: -0.02em;
   line-height: var(--lh-tight);
-}
-
-@media (min-width: 768px) {
-  .sectionTitle {
-    margin: 12px 0 16px;
-  }
+  flex-shrink: 0;
 }

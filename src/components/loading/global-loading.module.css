@@ -1,0 +1,64 @@
+/* ══════════════════════════════════════════
+   Global Loading — 로고 + 회전 메시지
+   ══════════════════════════════════════════ */
+
+.overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  min-height: 60vh;
+  padding: 32px;
+}
+
+/* 로고 심볼 — 부드러운 펄스 */
+.logo {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.7; transform: scale(1.06); }
+}
+
+/* 메시지 영역 */
+.messageWrap {
+  text-align: center;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.message {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  line-height: 1.5;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sub {
+  font-size: 13px;
+  color: var(--muted-foreground, #9ca3af);
+  margin-top: 4px;
+}
+
+/* 모션 감소 */
+@media (prefers-reduced-motion: reduce) {
+  .logo { animation: none; }
+  .message { animation: none; }
+}

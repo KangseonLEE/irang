@@ -77,22 +77,22 @@ export interface TrendStat {
 
 export const trendStats: TrendStat[] = [
   {
-    value: "42.2만",
-    label: "2024 귀촌 인구",
-    sub: "전년 대비 +5.7%",
-    href: "/regions",
+    value: "1.2만",
+    label: "2024 귀농 인구",
+    sub: "귀촌 42.2만 포함 시 +5.7%",
+    href: "/stats/population",
   },
   {
     value: "13.1%",
     label: "청년 귀농 비율",
     sub: "역대 최고 기록",
-    href: "/programs",
+    href: "/stats/youth",
   },
   {
     value: "70%",
     label: "귀농 만족도",
     sub: "도시 대비 생활비 25%↓",
-    href: "/interviews",
+    href: "/stats/satisfaction",
   },
 ];
 
@@ -308,10 +308,16 @@ export const cityVsRural: CompareRow[] = [
     change: "-25.1%",
   },
   {
+    label: "주거비 (3.3㎡당)",
+    city: "1,800만 원",
+    rural: "350만 원",
+    change: "-80%",
+  },
+  {
     label: "주거 형태",
-    city: "아파트 위주",
-    rural: "단독주택 위주",
-    change: "더 넓게",
+    city: "아파트 58㎡",
+    rural: "단독주택 130㎡",
+    change: "2.2배 넓게",
   },
   {
     label: "출퇴근",
@@ -320,16 +326,22 @@ export const cityVsRural: CompareRow[] = [
     change: "-48분",
   },
   {
+    label: "미세먼지 (PM2.5)",
+    city: "24㎍/㎥",
+    rural: "17㎍/㎥",
+    change: "-29%",
+  },
+  {
     label: "5년차 소득",
-    city: "—",
+    city: "3,800만 원",
     rural: "3,300만 원",
-    change: "첫해 대비 +30%",
+    change: "격차 ↓ 추세",
   },
   {
     label: "생활 만족도",
-    city: "—",
-    rural: "70% 만족",
-    change: "",
+    city: "52%",
+    rural: "70%",
+    change: "+18%p",
   },
 ];
 

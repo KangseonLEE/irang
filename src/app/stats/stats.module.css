@@ -1,0 +1,541 @@
+/* ══════════════════════════════════════════
+   통계 서브페이지 공용 스타일
+   /stats/population · /stats/youth · /stats/satisfaction
+   CSS Module · 모바일 우선 반응형
+   ══════════════════════════════════════════ */
+
+/* ── 페이지 컨테이너 ── */
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 24px 80px;
+    gap: 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 40px 32px 64px;
+    gap: 40px;
+  }
+}
+
+/* ── 뒤로가기 링크 ── */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.backLink:hover {
+  color: var(--primary, #1B6B5A);
+}
+
+/* ── 페이지 헤더 ── */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.headerOverline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary, #1B6B5A);
+}
+
+.headerTitle {
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  color: var(--foreground, #111);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.headerDesc {
+  font-size: var(--fs-body);
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-relaxed);
+  word-break: keep-all;
+  margin: 0;
+}
+
+/* ── 카드 ── */
+.card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 28px 24px;
+  }
+}
+
+.cardTitle {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--foreground, #111);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardTitleIcon {
+  color: var(--primary, #1B6B5A);
+  flex-shrink: 0;
+}
+
+/* ── 테이블 ── */
+.tableWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-body-sm);
+}
+
+.table th,
+.table td {
+  padding: 10px 12px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table th {
+  font-weight: 700;
+  color: var(--foreground, #111);
+  border-bottom: 2px solid var(--foreground, #111);
+  font-size: var(--fs-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table td {
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  color: var(--foreground, #111);
+}
+
+.table th:first-child,
+.table td:first-child {
+  text-align: left;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, transparent);
+}
+
+/* 마지막 행 (최신 연도) 강조 */
+.table tbody tr:last-child {
+  font-weight: 700;
+}
+
+.table tbody tr:last-child td {
+  color: var(--primary, #1B6B5A);
+}
+
+/* ── CSS 바 차트 ── */
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chartRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chartLabel {
+  flex-shrink: 0;
+  width: 40px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  text-align: right;
+}
+
+.chartBarWrap {
+  flex: 1;
+  height: 24px;
+  background: var(--muted, #f9fafb);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.chartBar {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--primary, #1B6B5A);
+  transition: width 0.3s ease;
+  min-width: 2px;
+}
+
+.chartBarSecondary {
+  composes: chartBar;
+  background: var(--chart-4, #A8D9CC);
+}
+
+.chartValue {
+  flex-shrink: 0;
+  width: 52px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--foreground, #111);
+  text-align: right;
+}
+
+/* 이중 바 (귀농 + 귀촌) — 범례 */
+.chartLegend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  margin-bottom: 4px;
+}
+
+.legendDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 4px;
+}
+
+.legendPrimary {
+  composes: legendDot;
+  background: var(--primary, #1B6B5A);
+}
+
+.legendSecondary {
+  composes: legendDot;
+  background: var(--chart-4, #A8D9CC);
+}
+
+/* ── 비율 바 (만족도 분포 등) ── */
+.ratioChart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ratioRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ratioLabel {
+  flex-shrink: 0;
+  width: 72px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground, #111);
+  text-align: right;
+}
+
+@media (min-width: 640px) {
+  .ratioLabel {
+    width: 80px;
+  }
+}
+
+.ratioBarWrap {
+  flex: 1;
+  height: 28px;
+  background: var(--muted, #f9fafb);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ratioBar {
+  height: 100%;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: #fff;
+  transition: width 0.3s ease;
+  min-width: fit-content;
+}
+
+/* 색상 변형 */
+.ratioBarGreen {
+  composes: ratioBar;
+  background: var(--primary, #1B6B5A);
+}
+
+.ratioBarLightGreen {
+  composes: ratioBar;
+  background: var(--chart-2, #3EA088);
+}
+
+.ratioBarAmber {
+  composes: ratioBar;
+  background: var(--warning, #D97706);
+}
+
+.ratioBarRed {
+  composes: ratioBar;
+  background: var(--error, #DC2626);
+}
+
+/* ── 요인 리스트 (만족/불만족 요인) ── */
+.factorList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.factorRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.factorRank {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
+  color: var(--primary, #1B6B5A);
+  font-size: var(--fs-caption);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.factorLabel {
+  flex: 1;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground, #111);
+}
+
+.factorBarWrap {
+  width: 120px;
+  height: 20px;
+  background: var(--muted, #f9fafb);
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .factorBarWrap {
+    width: 160px;
+  }
+}
+
+.factorBar {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--primary, #1B6B5A);
+  transition: width 0.3s ease;
+}
+
+.factorBarNegative {
+  composes: factorBar;
+  background: var(--error, #DC2626);
+}
+
+.factorPct {
+  flex-shrink: 0;
+  width: 40px;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
+  text-align: right;
+}
+
+/* ── 분석 요약 텍스트 ── */
+.summary {
+  font-size: var(--fs-body);
+  color: var(--foreground, #111);
+  line-height: var(--lh-relaxed);
+  word-break: keep-all;
+  padding: 20px 24px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--background, #fff));
+  border-left: 4px solid var(--primary, #1B6B5A);
+  margin: 0;
+}
+
+/* ── 출처 표기 ── */
+.source {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sourceLabel {
+  font-weight: 600;
+}
+
+/* ── 큰 숫자 하이라이트 ── */
+.bigNumber {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--primary, #1B6B5A);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+@media (min-width: 640px) {
+  .bigNumber {
+    font-size: 56px;
+  }
+}
+
+.bigNumberSub {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground, #6b7280);
+  margin-top: 4px;
+}
+
+/* ── 2열 그리드 (데스크톱에서) ── */
+.twoCol {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 640px) {
+  .twoCol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+}
+
+/* ── 인터뷰 연결 카드 ── */
+.interviewLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary, #1B6B5A) 0%, #0f4035 100%);
+  color: #fff;
+  text-decoration: none;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  transition: opacity 0.15s;
+}
+
+.interviewLink:hover {
+  opacity: 0.92;
+}
+
+.interviewLinkArrow {
+  flex-shrink: 0;
+}
+
+/* ── 하단 네비게이션 (다른 통계 보기) ── */
+.navFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.navFooterTitle {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.navFooterLinks {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.navFooterLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground, #111);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.navFooterLink:hover {
+  border-color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, var(--background, #fff));
+  color: var(--primary, #1B6B5A);
+}
+
+.navFooterLinkActive {
+  composes: navFooterLink;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+  border-color: var(--primary, #1B6B5A);
+  color: var(--primary, #1B6B5A);
+  pointer-events: none;
+}
+
+/* ── 스크린 리더 전용 ── */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

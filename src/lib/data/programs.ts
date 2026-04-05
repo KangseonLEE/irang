@@ -91,7 +91,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-04-15",
     status: "모집중",
     relatedCrops: [],
-    sourceUrl: "https://www.mafra.go.kr/bbs/home/792/572675/artclView.do",
+    sourceUrl: "https://www.mafra.go.kr/home/5109/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGaG9tZSUyRjc5MiUyRjU4MDEzNyUyRmFydGNsVmlldy5kbyUzRg%3D%3D",
     year: 2026,
   },
   {
@@ -211,7 +211,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-12-31",
     status: "모집중",
     relatedCrops: ["벼", "밭작물"],
-    sourceUrl: "https://www.mafra.go.kr/bbs/home/792/572354/artclView.do",
+    sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/SD0000012329",
     year: 2026,
   },
   {
@@ -291,7 +291,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-04-30",
     status: "모집중",
     relatedCrops: ["채소류", "잡곡"],
-    sourceUrl: "https://ares.chungbuk.go.kr/home/sub.php?menukey=1478",
+    sourceUrl: "https://ares.chungbuk.go.kr/home/sub.php?menukey=1719",
     year: 2026,
   },
   {
@@ -371,7 +371,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-12-31",
     status: "모집중",
     relatedCrops: [],
-    sourceUrl: "https://www.korea.kr/news/policyNewsView.do?newsId=148931163",
+    sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/544000000218",
     year: 2026,
   },
   {

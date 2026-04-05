@@ -21,6 +21,8 @@ import s from "./search-bar.module.css";
 
 interface SearchBarProps {
   placeholder?: string;
+  /** 모바일(< 640px)에서만 사용할 짧은 placeholder */
+  mobilePlaceholder?: string;
   size?: "default" | "large";
 }
 
@@ -105,6 +107,7 @@ type FlatItem =
 export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   {
     placeholder = "지역, 작물, 지원사업 검색...",
+    mobilePlaceholder,
     size = "default",
   },
   ref,
@@ -119,6 +122,19 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const [isOpen, setIsOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+
+  // 모바일 반응형 placeholder
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (!mobilePlaceholder) return;
+    const mql = window.matchMedia("(max-width: 639px)");
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [mobilePlaceholder]);
+
+  const activePlaceholder = mobilePlaceholder && isMobile ? mobilePlaceholder : placeholder;
 
   // 마운트 시 최근 검색어 로드
   useEffect(() => {
@@ -304,7 +320,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => setIsOpen(true)}
-          placeholder={placeholder}
+          placeholder={activePlaceholder}
           role="combobox"
           aria-label="통합 검색"
           aria-expanded={isOpen}
