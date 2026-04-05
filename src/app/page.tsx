@@ -313,23 +313,23 @@ export default async function HomePage() {
                 <span className={s.roadmapStepTitle}>{step.title}</span>
                 <span className={s.roadmapPeriod}>{step.period}</span>
                 <span className={s.roadmapDesc}>{step.desc}</span>
-                {step.link && (
-                  <Link href={step.link.href} className={s.roadmapCta}>
-                    {step.link.label} <ArrowRight size={14} />
-                  </Link>
-                )}
               </div>
             </div>
           ))}
         </div>
 
         {/* 로드맵 하단 CTA */}
-        <Link href="/match" className={s.roadmapBottomCta}>
-          <span>1단계부터 시작해볼까요?</span>
-          <span className={s.roadmapBottomCtaSub}>
-            맞춤 귀농 플랜 받기 <ArrowRight size={16} />
-          </span>
-        </Link>
+        <div className={s.roadmapCtaGroup}>
+          <Link href="/match" className={s.roadmapBottomCta}>
+            <span>1단계부터 시작해볼까요?</span>
+            <span className={s.roadmapBottomCtaSub}>
+              맞춤 귀농 플랜 받기 <ArrowRight size={16} />
+            </span>
+          </Link>
+          <Link href="/regions" className={s.roadmapSecondary}>
+            지역·작물·지원사업 둘러보기 <ArrowRight size={14} />
+          </Link>
+        </div>
       </section>
 
       {/* ═══ 6. 인터뷰 카드 — 감정적 전환점 ═══ */}
@@ -344,9 +344,9 @@ export default async function HomePage() {
         {interviews.length}명의 귀농인 이야기 더 보기 <ArrowRight size={14} />
       </Link>
 
-      {/* ═══ 7. 서비스 카드 — 탐색 시작 ═══ */}
-      <section aria-label="주요 서비스">
-        <h2 className={s.sectionTitle}>여기서 시작하세요</h2>
+      {/* ═══ 7. 서비스 카드 — 인기 데이터 ═══ */}
+      <section aria-label="인기 데이터">
+        <h2 className={s.sectionTitle}>지금 귀농인들이 찾는 것</h2>
         <ServiceCarousel cards={serviceCards} />
       </section>
 

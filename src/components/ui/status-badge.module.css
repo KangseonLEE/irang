@@ -1,0 +1,28 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--fs-overline, 11px);
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.green {
+  composes: badge;
+  color: #059669;
+  background: color-mix(in srgb, #059669 12%, transparent);
+}
+
+.amber {
+  composes: badge;
+  color: #d97706;
+  background: color-mix(in srgb, #d97706 12%, transparent);
+}
+
+.gray {
+  composes: badge;
+  color: var(--muted-foreground, #6b7280);
+  background: color-mix(in srgb, var(--muted-foreground, #6b7280) 12%, transparent);
+}

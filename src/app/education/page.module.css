@@ -79,193 +79,6 @@
   border: 1px solid var(--border, #e5e7eb);
 }
 
-/* ── Filter Bar ── */
-.filterBar {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: var(--card, #fff);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
-  padding: 16px;
-}
-
-.filterRow {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding-bottom: 2px;
-}
-
-.filterRow::-webkit-scrollbar {
-  display: none;
-}
-
-.filterGroup {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.filterLabel {
-  font-size: var(--fs-caption);
-  font-weight: 500;
-  color: var(--muted-foreground);
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.filterPills {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 10px 14px;
-  font-size: var(--fs-caption);
-  font-weight: 500;
-  color: var(--muted-foreground);
-  background: var(--muted, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 9999px;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
-}
-
-@media (hover: hover) {
-  .pill:hover {
-    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
-    color: var(--foreground);
-  }
-}
-
-.pill:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
-}
-
-.pillActive {
-  composes: pill;
-  color: var(--primary, #1b6b5a);
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
-  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
-  font-weight: 600;
-}
-
-/* ── Filter Actions (검색 + 마감 포함 + 초기화) ── */
-.filterActions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.searchForm {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 180px;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 12px;
-  color: var(--muted-foreground, #6b7280);
-  pointer-events: none;
-  flex-shrink: 0;
-}
-
-.searchInput {
-  width: 100%;
-  height: 36px;
-  padding: 0 12px 0 36px;
-  font-size: var(--fs-body-sm);
-  color: var(--foreground);
-  background-color: var(--muted, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 9999px;
-  outline: none;
-  transition: border-color 0.15s, background-color 0.15s;
-}
-
-.searchInput::placeholder {
-  color: var(--muted-foreground, #9ca3af);
-}
-
-.searchInput:focus {
-  background-color: var(--card, #fff);
-  border-color: var(--primary, #1b6b5a);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
-}
-
-.closedToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 10px 14px;
-  font-size: var(--fs-caption);
-  font-weight: 500;
-  color: var(--muted-foreground);
-  background: var(--muted, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 9999px;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
-}
-
-@media (hover: hover) {
-  .closedToggle:hover {
-    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
-    color: var(--foreground);
-  }
-}
-
-.closedToggleActive {
-  composes: closedToggle;
-  color: var(--primary, #1b6b5a);
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
-  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
-}
-
-.resetLink {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 10px 14px;
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-  text-decoration: none;
-  border-radius: 9999px;
-  white-space: nowrap;
-  transition: color 0.15s, background-color 0.15s;
-}
-
-@media (hover: hover) {
-  .resetLink:hover {
-    color: var(--foreground);
-    background: var(--muted, #f4f4f5);
-  }
-}
-
-/* ── Divider inside filter bar ── */
-.filterDivider {
-  border: none;
-  border-top: 1px solid var(--border, #e5e7eb);
-  margin: 0;
-}
-
 /* ── Result Count ── */
 .resultCount {
   font-size: var(--fs-body-sm);
@@ -308,6 +121,8 @@
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 16px;
   padding: 20px;
+  text-decoration: none;
+  color: inherit;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -324,6 +139,11 @@
   }
 }
 
+.card:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
 .cardClosed {
   opacity: 0.55;
 }
@@ -334,43 +154,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-}
-
-.statusBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: var(--fs-overline);
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-
-.statusOpen {
-  composes: statusBadge;
-  color: #059669;
-  background: color-mix(in srgb, #059669 10%, transparent);
-}
-
-.statusOpen::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.statusUpcoming {
-  composes: statusBadge;
-  color: var(--warning, #d97706);
-  background: color-mix(in srgb, var(--warning, #d97706) 10%, transparent);
-}
-
-.statusClosed {
-  composes: statusBadge;
-  color: var(--muted-foreground);
-  background: var(--muted, #f4f4f5);
 }
 
 .levelBadge {

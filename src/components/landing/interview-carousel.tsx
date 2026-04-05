@@ -21,7 +21,7 @@ export function InterviewCarousel({ items }: InterviewCarouselProps) {
     const el = scrollRef.current;
     if (!el || !el.children.length) return;
     const card = el.children[0] as HTMLElement;
-    const cardWidth = card.offsetWidth + 12; // gap 포함
+    const cardWidth = card.offsetWidth + 16; // gap 포함
     const idx = Math.round(el.scrollLeft / cardWidth);
     setActiveIndex(Math.min(idx, items.length - 1));
   }, [items.length]);
@@ -47,7 +47,7 @@ export function InterviewCarousel({ items }: InterviewCarouselProps) {
     const el = scrollRef.current;
     if (!el || !el.children.length) return;
     const card = el.children[0] as HTMLElement;
-    const cardWidth = card.offsetWidth + 12;
+    const cardWidth = card.offsetWidth + 16;
     const target =
       direction === "next"
         ? el.scrollLeft + cardWidth
@@ -65,7 +65,14 @@ export function InterviewCarousel({ items }: InterviewCarouselProps) {
             href={`/interviews/${person.id}`}
             className={s.card}
           >
-            <FarmerAvatar name={person.name} seed={person.id} size="sm" />
+            {/* 상단: 아바타 + 이야기 읽기 */}
+            <div className={s.cardTop}>
+              <FarmerAvatar name={person.name} seed={person.id} size="sm" />
+              <span className={s.readMore}>
+                이야기 읽기 <ArrowRight size={12} />
+              </span>
+            </div>
+
             <div className={s.profile}>
               <span className={s.name}>
                 {person.name} · {person.age}
@@ -74,16 +81,21 @@ export function InterviewCarousel({ items }: InterviewCarouselProps) {
                 {person.prevJob} &rarr; {person.currentJob}
               </span>
             </div>
-            <p className={s.quote}>
-              &ldquo;{person.quote}&rdquo;
-            </p>
+
+            {/* 귀농 동기 1줄 미리보기 */}
+            <p className={s.motivation}>{person.motivation}</p>
+
+            <p className={s.quote}>{person.quote}</p>
+
             <div className={s.tags}>
               <span className={s.tag}>{person.region}</span>
               <span className={s.tag}>{person.crop}</span>
             </div>
-            <span className={s.readMore}>
-              이야기 읽기 <ArrowRight size={12} />
-            </span>
+
+            {/* 출처 */}
+            <div className={s.source}>
+              {person.sourceName} · {person.sourceDate}
+            </div>
           </Link>
         ))}
       </div>

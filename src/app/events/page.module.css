@@ -91,140 +91,6 @@
   border: 1px solid var(--border, #e5e7eb);
 }
 
-/* ── Filter Bar ── */
-.filterBar {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.filterRow {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  padding-bottom: 2px;
-}
-
-.filterRow::-webkit-scrollbar {
-  display: none;
-}
-
-.filterLabel {
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--muted-foreground);
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  padding: 0 4px;
-  flex-shrink: 0;
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 10px 14px;
-  border-radius: 20px;
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  white-space: nowrap;
-  text-decoration: none;
-  color: var(--muted-foreground);
-  background: var(--muted, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
-  flex-shrink: 0;
-}
-
-.pill:focus-visible {
-  outline: 2px solid var(--ring, #1b6b5a);
-  outline-offset: 2px;
-}
-
-.pillActive {
-  background: var(--primary, #1b6b5a);
-  color: var(--primary-foreground, #fff);
-  border-color: var(--primary, #1b6b5a);
-}
-
-@media (hover: hover) {
-  .pill:not(.pillActive):hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, var(--muted, #f9fafb));
-    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 25%, var(--border, #e5e7eb));
-    color: var(--foreground);
-  }
-}
-
-/* ── Search Row ── */
-.searchRow {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.searchInputWrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 200px;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 12px;
-  color: var(--muted-foreground, #6b7280);
-  pointer-events: none;
-  flex-shrink: 0;
-}
-
-.searchInput {
-  width: 100%;
-  height: 38px;
-  padding: 0 12px 0 36px;
-  font-size: var(--fs-body-sm);
-  color: var(--foreground);
-  background-color: var(--muted, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
-  outline: none;
-  transition: border-color 0.15s, background-color 0.15s;
-}
-
-.searchInput::placeholder {
-  color: var(--muted-foreground, #9ca3af);
-}
-
-.searchInput:focus {
-  background-color: var(--card, #fff);
-  border-color: var(--primary, #1b6b5a);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
-}
-
-.checkboxLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.checkbox {
-  width: 15px;
-  height: 15px;
-  accent-color: var(--primary, #1b6b5a);
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
 /* ── Card Grid ── */
 .grid {
   display: grid;
@@ -253,6 +119,13 @@
   border-radius: 16px;
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
 }
 
 @media (hover: hover) {
@@ -305,33 +178,6 @@
 .typeBadgeBlue {
   background: color-mix(in srgb, #2563eb 12%, transparent);
   color: #1d4ed8;
-}
-
-/* ── Status Badge ── */
-.statusBadge {
-  display: inline-flex;
-  align-items: center;
-  font-size: var(--fs-overline);
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-  white-space: nowrap;
-  line-height: var(--lh-tight);
-}
-
-.statusOpen {
-  background: color-mix(in srgb, var(--success, #16a34a) 12%, transparent);
-  color: var(--success, #16a34a);
-}
-
-.statusUpcoming {
-  background: color-mix(in srgb, var(--info, #2563eb) 12%, transparent);
-  color: var(--info, #2563eb);
-}
-
-.statusClosed {
-  background: color-mix(in srgb, var(--muted-foreground, #6b7280) 12%, transparent);
-  color: var(--muted-foreground, #6b7280);
 }
 
 /* ── Card Body ── */
@@ -415,16 +261,7 @@
   transition: background-color 0.15s;
 }
 
-@media (hover: hover) {
-  .cardLink:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  }
-}
-
-.cardLink:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
-}
+/* cardLink은 이제 시각 힌트 span — 별도 인터랙션 불필요 */
 
 /* ── Empty State ── */
 .emptyState {

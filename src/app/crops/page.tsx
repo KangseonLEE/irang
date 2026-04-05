@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
 import { Sprout, ArrowRight } from "lucide-react";
-import { CROPS, type CropCategory } from "@/lib/data/crops";
-import { CropFilter } from "./crop-filter";
+import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
+import {
+  FilterBar,
+  FilterRow,
+  FilterGroup,
+  FilterDivider,
+  FilterActions,
+} from "@/components/filter/filter-bar";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -14,12 +19,13 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-  searchParams: Promise<{ category?: string; q?: string }>;
+  searchParams: Promise<{ category?: string; difficulty?: string; q?: string }>;
 }
 
 export default async function CropsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const currentCategory = (params.category ?? "전체") as CropCategory;
+  const currentDifficulty = (params.difficulty ?? "전체") as CropDifficulty;
   const searchQuery = params.q?.trim() ?? "";
 
   // 카테고리 필터링
@@ -27,6 +33,13 @@ export default async function CropsPage({ searchParams }: PageProps) {
     currentCategory === "전체"
       ? CROPS
       : CROPS.filter((c) => c.category === currentCategory);
+
+  // 난이도 필터링
+  if (currentDifficulty !== "전체") {
+    filteredCrops = filteredCrops.filter(
+      (c) => c.difficulty === currentDifficulty,
+    );
+  }
 
   // 텍스트 검색 필터링 (이름 + 설명, 대소문자 무시)
   if (searchQuery) {
@@ -38,24 +51,61 @@ export default async function CropsPage({ searchParams }: PageProps) {
     );
   }
 
+  // 현재 활성 필터 (URL 빌딩용)
+  const currentFilters: Record<string, string | undefined> = {
+    category: params.category,
+    difficulty: params.difficulty,
+    q: params.q,
+  };
+
   return (
     <div className={s.page}>
       {/* Page Header */}
-      <header className={s.pageHeader}>
-        <div className={s.pageHeaderOverline}>
-          <Sprout size={16} />
-          <span>Crop Info</span>
+      <div className={s.pageHeader}>
+        <div className={s.headerTop}>
+          <Sprout size={20} />
+          <span className={s.headerLabel}>Crop Info</span>
         </div>
-        <h1 className={s.pageTitle}>작물 정보</h1>
-        <p className={s.pageDescription}>
+        <h1 className={s.headerTitle}>작물 정보</h1>
+        <p className={s.headerDesc}>
           주요 작물의 재배 환경, 예상 수익, 재배 난이도를 한눈에 비교하세요.
         </p>
-      </header>
+        <div className={s.headerMeta}>
+          <p className={s.headerCount}>
+            총 <span className={s.headerCountNumber}>{filteredCrops.length}</span>건
+          </p>
+        </div>
+      </div>
 
-      {/* Category Filter */}
-      <Suspense fallback={<div className={s.filterSkeleton} />}>
-        <CropFilter currentCategory={currentCategory} />
-      </Suspense>
+      {/* Filter Bar */}
+      <FilterBar>
+        <FilterRow>
+          <FilterGroup
+            label="카테고리"
+            paramKey="category"
+            options={CROP_CATEGORIES.filter((c) => c !== "전체")}
+            currentValue={params.category}
+            currentFilters={currentFilters}
+            basePath="/crops"
+          />
+        </FilterRow>
+        <FilterRow>
+          <FilterGroup
+            label="난이도"
+            paramKey="difficulty"
+            options={CROP_DIFFICULTIES.filter((d) => d !== "전체")}
+            currentValue={params.difficulty}
+            currentFilters={currentFilters}
+            basePath="/crops"
+          />
+        </FilterRow>
+        <FilterDivider />
+        <FilterActions
+          basePath="/crops"
+          currentFilters={currentFilters}
+          searchPlaceholder="작물명, 설명으로 검색..."
+        />
+      </FilterBar>
 
       {/* Crop Card Grid */}
       <div className={s.cropGrid}>
@@ -70,7 +120,9 @@ export default async function CropsPage({ searchParams }: PageProps) {
           <p className={s.emptyStateText}>
             {searchQuery
               ? `'${searchQuery}' 검색 결과가 없습니다.`
-              : `'${currentCategory}' 카테고리에 등록된 작물이 없습니다.`}
+              : currentDifficulty !== "전체"
+                ? `'${currentCategory}' 카테고리의 '${currentDifficulty}' 난이도 작물이 없습니다.`
+                : `'${currentCategory}' 카테고리에 등록된 작물이 없습니다.`}
           </p>
           <Link href="/crops" className={s.emptyStateLink}>
             전체 작물 보기
@@ -120,18 +172,13 @@ function CropCard({
 
       {/* 텍스트 정보 영역 */}
       <div className={s.cropCardContent}>
-        {/* L1: 이모지 + 작물명 + 난이도 */}
+        {/* L1: 작물명 + 난이도 */}
         <div className={s.cropCardNameRow}>
-          <div className={s.cropCardNameGroup}>
-            <span className={s.cropCardEmoji} aria-hidden="true">
-              {crop.emoji}
-            </span>
-            <h3 className={s.cropCardName}>{crop.name}</h3>
-          </div>
+          <h3 className={s.cropCardName}>{crop.name}</h3>
           <span
             className={`${s.difficultyBadge} ${DIFFICULTY_CLASS[crop.difficulty] ?? s.difficultyMedium}`}
           >
-            {crop.difficulty}
+            난이도 · {crop.difficulty}
           </span>
         </div>
 

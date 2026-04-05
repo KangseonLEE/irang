@@ -209,9 +209,18 @@ export function ServiceCarousel({ cards }: ServiceCarouselProps) {
         ))}
       </div>
 
-      {/* 하단 컨트롤 */}
+      {/* 하단 컨트롤: 화살표 + 도트 가운데 정렬 */}
       <div className={s.controls}>
-        {/* 도트 인디케이터 — 클릭 가능 */}
+        <button
+          type="button"
+          className={s.arrowBtn}
+          onClick={goPrev}
+          disabled={!canPrev}
+          aria-label="이전 카드"
+        >
+          <ChevronLeft size={18} />
+        </button>
+
         <div className={s.dots} role="tablist" aria-label="슬라이드 선택">
           {cards.map((card, i) => (
             <button
@@ -226,27 +235,15 @@ export function ServiceCarousel({ cards }: ServiceCarouselProps) {
           ))}
         </div>
 
-        {/* 화살표 */}
-        <div className={s.arrows}>
-          <button
-            type="button"
-            className={s.arrowBtn}
-            onClick={goPrev}
-            disabled={!canPrev}
-            aria-label="이전 카드"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <button
-            type="button"
-            className={s.arrowBtn}
-            onClick={goNext}
-            disabled={!canNext}
-            aria-label="다음 카드"
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
+        <button
+          type="button"
+          className={s.arrowBtn}
+          onClick={goNext}
+          disabled={!canNext}
+          aria-label="다음 카드"
+        >
+          <ChevronRight size={18} />
+        </button>
       </div>
     </div>
   );

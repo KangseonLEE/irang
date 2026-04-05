@@ -11,7 +11,6 @@ import {
   Monitor,
   Building2,
   Combine,
-  Search,
 } from "lucide-react";
 import {
   filterEducationAsync,
@@ -23,6 +22,14 @@ import {
   type EducationFilters,
 } from "@/lib/data/education";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
+import {
+  FilterBar,
+  FilterRow,
+  FilterGroup,
+  FilterDivider,
+  FilterActions,
+} from "@/components/filter/filter-bar";
+import { StatusBadge } from "@/components/ui/status-badge";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -42,26 +49,6 @@ interface PageProps {
   }>;
 }
 
-/** 현재 활성 필터를 유지하면서 특정 필터만 변경하는 URL 생성 */
-function buildFilterUrl(
-  current: Record<string, string | undefined>,
-  key: string,
-  value: string | undefined,
-): string {
-  const params = new URLSearchParams();
-
-  const merged = { ...current, [key]: value };
-
-  for (const [k, v] of Object.entries(merged)) {
-    if (v && v !== "전체") {
-      params.set(k, v);
-    }
-  }
-
-  const qs = params.toString();
-  return qs ? `/education?${qs}` : "/education";
-}
-
 /** 교육 유형 아이콘 */
 function TypeIcon({ type }: { type: EducationCourse["type"] }) {
   switch (type) {
@@ -74,17 +61,7 @@ function TypeIcon({ type }: { type: EducationCourse["type"] }) {
   }
 }
 
-/** 상태 배지 */
-function StatusBadge({ status }: { status: EducationCourse["status"] }) {
-  switch (status) {
-    case "모집중":
-      return <span className={s.statusOpen}>모집중</span>;
-    case "모집예정":
-      return <span className={s.statusUpcoming}>모집예정</span>;
-    case "마감":
-      return <span className={s.statusClosed}>마감</span>;
-  }
-}
+/* StatusBadge is now a shared component from @/components/ui/status-badge */
 
 export default async function EducationPage({ searchParams }: PageProps) {
   const params = await searchParams;
@@ -146,127 +123,47 @@ export default async function EducationPage({ searchParams }: PageProps) {
       </div>
 
       {/* Filter Bar */}
-      <div className={s.filterBar}>
-        {/* 지역 필터 */}
-        <div className={s.filterRow}>
-          <div className={s.filterGroup}>
-            <span className={s.filterLabel}>지역</span>
-            <div className={s.filterPills}>
-              <Link
-                href={buildFilterUrl(currentFilters, "region", undefined)}
-                className={!params.region ? s.pillActive : s.pill}
-              >
-                전체
-              </Link>
-              {EDUCATION_REGIONS.map((region) => (
-                <Link
-                  key={region}
-                  href={buildFilterUrl(currentFilters, "region", region)}
-                  className={params.region === region ? s.pillActive : s.pill}
-                >
-                  {region}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* 유형 + 난이도 필터 */}
-        <div className={s.filterRow}>
-          <div className={s.filterGroup}>
-            <span className={s.filterLabel}>유형</span>
-            <div className={s.filterPills}>
-              <Link
-                href={buildFilterUrl(currentFilters, "type", undefined)}
-                className={!params.type ? s.pillActive : s.pill}
-              >
-                전체
-              </Link>
-              {EDUCATION_TYPES.map((t) => (
-                <Link
-                  key={t}
-                  href={buildFilterUrl(currentFilters, "type", t)}
-                  className={params.type === t ? s.pillActive : s.pill}
-                >
-                  {t}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className={s.filterGroup}>
-            <span className={s.filterLabel}>난이도</span>
-            <div className={s.filterPills}>
-              <Link
-                href={buildFilterUrl(currentFilters, "level", undefined)}
-                className={!params.level ? s.pillActive : s.pill}
-              >
-                전체
-              </Link>
-              {EDUCATION_LEVELS.map((lv) => (
-                <Link
-                  key={lv}
-                  href={buildFilterUrl(currentFilters, "level", lv)}
-                  className={params.level === lv ? s.pillActive : s.pill}
-                >
-                  {lv}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <hr className={s.filterDivider} />
-
-        {/* 검색 + 마감 포함 + 초기화 */}
-        <div className={s.filterActions}>
-          <form className={s.searchForm} action="/education" method="get">
-            {/* 기존 필터를 hidden으로 유지 */}
-            {params.region && (
-              <input type="hidden" name="region" value={params.region} />
-            )}
-            {params.type && (
-              <input type="hidden" name="type" value={params.type} />
-            )}
-            {params.level && (
-              <input type="hidden" name="level" value={params.level} />
-            )}
-            {params.period && (
-              <input type="hidden" name="period" value={params.period} />
-            )}
-            {params.includeClosed && (
-              <input
-                type="hidden"
-                name="includeClosed"
-                value={params.includeClosed}
-              />
-            )}
-            <Search size={16} className={s.searchIcon} />
-            <input
-              type="text"
-              name="q"
-              defaultValue={params.q ?? ""}
-              placeholder="교육명, 기관명 검색..."
-              className={s.searchInput}
-            />
-          </form>
-
-          <Link
-            href={buildFilterUrl(
-              currentFilters,
-              "includeClosed",
-              includeClosed ? undefined : "1",
-            )}
-            className={includeClosed ? s.closedToggleActive : s.closedToggle}
-          >
-            마감 포함
-          </Link>
-
-          <Link href="/education" className={s.resetLink}>
-            초기화
-          </Link>
-        </div>
-      </div>
+      <FilterBar>
+        <FilterRow>
+          <FilterGroup
+            label="지역"
+            paramKey="region"
+            options={EDUCATION_REGIONS}
+            currentValue={params.region}
+            currentFilters={currentFilters}
+            basePath="/education"
+          />
+        </FilterRow>
+        <FilterRow>
+          <FilterGroup
+            label="유형"
+            paramKey="type"
+            options={EDUCATION_TYPES}
+            currentValue={params.type}
+            currentFilters={currentFilters}
+            basePath="/education"
+          />
+          <FilterGroup
+            label="난이도"
+            paramKey="level"
+            options={EDUCATION_LEVELS}
+            currentValue={params.level}
+            currentFilters={currentFilters}
+            basePath="/education"
+          />
+        </FilterRow>
+        <FilterDivider />
+        <FilterActions
+          basePath="/education"
+          currentFilters={currentFilters}
+          searchPlaceholder="교육명, 기관명 검색..."
+          toggle={{
+            paramKey: "includeClosed",
+            label: "마감 포함",
+            isActive: includeClosed,
+          }}
+        />
+      </FilterBar>
 
       {/* Result Count */}
       <p className={s.resultCount}>
@@ -302,7 +199,12 @@ function CourseCard({ course }: { course: EducationCourse }) {
   const isClosed = course.status === "마감";
 
   return (
-    <div className={`${s.card}${isClosed ? ` ${s.cardClosed}` : ""}`}>
+    <a
+      href={course.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`${s.card}${isClosed ? ` ${s.cardClosed}` : ""}`}
+    >
       {/* 상단: 상태 + 난이도 */}
       <div className={s.cardTopRow}>
         <StatusBadge status={course.status} />
@@ -347,19 +249,14 @@ function CourseCard({ course }: { course: EducationCourse }) {
       {/* 설명 */}
       <p className={s.cardDesc}>{course.description}</p>
 
-      {/* 하단: 비용 + 상세 링크 */}
+      {/* 하단: 비용 */}
       <div className={s.cardFooter}>
         <span className={s.cardCost}>{course.cost}</span>
-        <a
-          href={course.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={s.cardLink}
-        >
+        <span className={s.cardLink} aria-hidden="true">
           상세보기
           <ExternalLink size={12} />
-        </a>
+        </span>
       </div>
-    </div>
+    </a>
   );
 }

@@ -1,18 +1,5 @@
 /* ── 작물 목록 페이지 ── */
 
-/* Suspense fallback skeleton */
-.filterSkeleton {
-  height: 54px;
-  border-radius: 20px;
-  background: var(--muted);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
 /* 레이아웃 */
 .page {
   max-width: 1280px;
@@ -37,37 +24,59 @@
   }
 }
 
-/* 페이지 헤더 */
+/* ── Page Header ── */
 .pageHeader {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding-bottom: 4px;
 }
 
-.pageHeaderOverline {
+.headerTop {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--primary, #1b6b5a);
+}
+
+.headerLabel {
   font-size: var(--fs-caption);
   font-weight: 600;
-  letter-spacing: 0.08em;
   text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
-.pageTitle {
-  font-size: var(--fs-h2);
-  font-weight: 800;
-  line-height: 1.3;
-  color: var(--foreground, #111);
+.headerTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
   margin: 0;
 }
 
-.pageDescription {
-  font-size: var(--fs-body);
-  line-height: var(--lh-normal);
-  color: var(--muted-foreground, #6b7280);
+.headerDesc {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
   margin: 0;
+}
+
+.headerMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.headerCount {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.headerCountNumber {
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
 }
 
 /* ── 작물 카드 그리드 ── */
@@ -176,31 +185,12 @@
   }
 }
 
-/* L1: 이모지 + 작물명 + 난이도 한 줄 */
+/* L1: 작물명 + 난이도 한 줄 */
 .cropCardNameRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-}
-
-.cropCardNameGroup {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-}
-
-.cropCardEmoji {
-  font-size: 16px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-@media (min-width: 640px) {
-  .cropCardEmoji {
-    font-size: 18px;
-  }
 }
 
 .cropCardName {

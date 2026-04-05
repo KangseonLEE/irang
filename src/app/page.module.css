@@ -670,11 +670,17 @@
 }
 
 .costTitle {
-  font-size: var(--fs-h2);
+  font-size: var(--fs-h3);
   font-weight: 800;
   color: var(--foreground, #111);
   letter-spacing: -0.02em;
   line-height: var(--lh-tight);
+}
+
+@media (min-width: 640px) {
+  .costTitle {
+    font-size: var(--fs-h2);
+  }
 }
 
 .costDesc {
@@ -1197,6 +1203,7 @@
   background: var(--cream);
   border: none;
   box-shadow: none;
+  overflow: visible;
 }
 
 @media (min-width: 768px) {
@@ -1218,59 +1225,75 @@
   line-height: var(--lh-normal);
 }
 
+/* ── 모바일: 가로 스크롤 스냅 / 데스크탑: 5열 그리드 ── */
 .roadmapTimeline {
   display: flex;
-  flex-direction: column;
-  gap: 0;
-  position: relative;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+
+  /* 카드가 섹션 패딩을 뚫고 edge-to-edge 느낌 */
+  margin-left: -24px;
+  margin-right: -24px;
+  padding-left: 24px;
+  padding-right: 24px;
 }
 
-/* 세로 연결선 */
-.roadmapTimeline::before {
-  content: "";
-  position: absolute;
-  left: 21px;
-  top: 32px;
-  bottom: 32px;
-  width: 2px;
-  background: var(--border, #e5e7eb);
+.roadmapTimeline::-webkit-scrollbar {
+  display: none;
 }
 
 @media (min-width: 768px) {
   .roadmapTimeline {
-    flex-direction: row;
-    gap: 0;
-  }
-  .roadmapTimeline::before {
-    left: 0;
-    right: 0;
-    top: 21px;
-    bottom: auto;
-    width: auto;
-    height: 2px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    overflow: visible;
+    scroll-snap-type: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
 }
 
+/* ── 스텝 카드 ── */
 .roadmapStep {
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 12px 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 18px;
+  border-radius: 16px;
+  background: var(--background, #fff);
+  border: 1px solid var(--border, #e5e7eb);
   position: relative;
   z-index: 1;
+
+  /* 모바일: ~78vw 폭으로 다음 카드 살짝 보이게 */
+  flex: 0 0 78%;
+  min-width: 0;
+  scroll-snap-align: start;
 }
 
 @media (min-width: 768px) {
   .roadmapStep {
-    flex-direction: column;
-    align-items: center;
+    padding: 24px 20px;
     text-align: center;
-    flex: 1;
-    padding: 0 8px;
-    gap: 12px;
+    align-items: center;
   }
 }
 
+@media (hover: hover) {
+  .roadmapStep:hover {
+    border-color: color-mix(in srgb, var(--primary, #1B6B5A) 35%, transparent);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+  }
+}
+
+/* ── 번호 원 ── */
 .roadmapDot {
   width: 36px;
   height: 36px;
@@ -1285,15 +1308,18 @@
   flex-shrink: 0;
 }
 
+/* ── 콘텐츠 ── */
 .roadmapContent {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   flex: 1;
 }
 
 @media (min-width: 768px) {
-  .roadmapContent { align-items: center; }
+  .roadmapContent {
+    align-items: center;
+  }
 }
 
 .roadmapStepTitle {
@@ -1303,79 +1329,42 @@
 }
 
 .roadmapPeriod {
-  font-size: var(--fs-caption);
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  font-size: var(--fs-overline);
   font-weight: 600;
   color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+  padding: 2px 10px;
+  border-radius: 9999px;
 }
 
 .roadmapDesc {
   font-size: var(--fs-caption);
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
-}
-
-.roadmapLink {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--primary, #1B6B5A);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
   margin-top: 2px;
 }
 
-@media (hover: hover) {
-  .roadmapLink:hover {
-    color: var(--primary, #1B6B5A);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-}
 
-/* ── 로드맵 스텝별 CTA 버튼 ── */
-.roadmapCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-body-sm);
-  font-weight: 700;
-  color: #fff;
-  background: var(--primary, #1B6B5A);
-  padding: 8px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  margin-top: 6px;
-  width: fit-content;
-  align-self: flex-end;
-  transition: background-color 0.15s, transform 0.1s;
-}
-
-/* 모바일: 컴팩트 + 우측 정렬 */
-@media (max-width: 767px) {
-  .roadmapCta {
-    width: fit-content;
-    align-self: flex-end;
-    padding: 6px 14px;
-    font-size: var(--fs-caption);
-  }
-}
-
-@media (hover: hover) {
-  .roadmapCta:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 85%, black);
-    box-shadow: 0 4px 14px rgba(27, 107, 90, 0.25);
-    transform: translateY(-2px);
-  }
+/* ── 로드맵 하단 CTA 그룹 ── */
+.roadmapCtaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
 }
 
 @media (min-width: 768px) {
-  .roadmapCta {
-    padding: 8px 18px;
+  .roadmapCtaGroup {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
   }
 }
 
-/* ── 로드맵 하단 전체 CTA 배너 ── */
+/* ── 로드맵 하단 전체 CTA 배너 (Primary) ── */
 .roadmapBottomCta {
   display: flex;
   flex-direction: column;
@@ -1418,9 +1407,42 @@
     border-radius: 16px;
   }
 
+  .roadmapBottomCta {
+    flex: 1;
+  }
+
   .roadmapBottomCtaSub {
     font-size: var(--fs-body);
   }
+}
+
+/* ── 로드맵 하단 Secondary 링크 ── */
+.roadmapSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1B6B5A);
+  background: var(--background, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  text-decoration: none;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+@media (hover: hover) {
+  .roadmapSecondary:hover {
+    border-color: var(--primary, #1B6B5A);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 5%, transparent);
+  }
+}
+
+.roadmapSecondary:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
 }
 
 /* ══════════════════════════════════════════

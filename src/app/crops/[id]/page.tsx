@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import {
-  ArrowLeft,
   Sprout,
   MapPin,
   Thermometer,
@@ -17,8 +16,10 @@ import {
   FlaskConical,
   Calendar,
   TrendingUp,
-  Users,
   FileText,
+  ExternalLink,
+  ChevronRight,
+  Gauge,
 } from "lucide-react";
 import {
   getCropWithDetail,
@@ -29,7 +30,39 @@ import {
 import { getStationByProvince } from "@/lib/data/stations";
 import { fetchCropStats, type CropStatItem } from "@/lib/api/kosis";
 import { PROGRAMS } from "@/lib/data/programs";
+import { GlossaryTerm } from "@/components/ui/term-tooltip";
+import { AnchorTabNav } from "./anchor-tab-nav";
 import s from "./page.module.css";
+
+// ── 수익 정보 파싱 유틸 ──
+
+/** "ha당 약 500~800만 원 (쌀값 변동에 따라 차이)" → { main, note } */
+function parseRevenueRange(raw: string): { main: string; note: string | null } {
+  const match = raw.match(/^(.+?)\s*\((.+)\)\s*$/);
+  if (match) {
+    return { main: match[1].trim(), note: match[2].trim() };
+  }
+  return { main: raw, note: null };
+}
+
+/** 수익 텍스트 내 ha/10a를 GlossaryTerm으로 변환 */
+function RevenueText({ text }: { text: string }) {
+  // "ha당" 또는 "10a당"을 찾�� GlossaryTerm으로 치환
+  const parts = text.split(/((?:10a|ha)당)/);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part === "ha당") {
+          return <span key={i}><GlossaryTerm term="ha" />당</span>;
+        }
+        if (part === "10a당") {
+          return <span key={i}><GlossaryTerm term="10a" />당</span>;
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </>
+  );
+}
 
 // ── Metadata & Static Params ──
 
@@ -90,127 +123,268 @@ export default async function CropDetailPage({
 
   const { detail } = data;
 
+  // 지원사업 목록으로 이동 시 작물명 + 주요 지역 자동 필터
+  const programsParams = new URLSearchParams();
+  programsParams.set("q", data.name);
+  if (detail.majorRegions.length > 0) {
+    programsParams.set("region", detail.majorRegions[0]);
+  }
+  const programsHref = `/programs?${programsParams.toString()}`;
+
+  const anchorSections = [
+    { id: "overview", label: "개요" },
+    { id: "cultivation", label: "재배환경" },
+    { id: "income", label: "수익정보" },
+    { id: "region", label: "재배지역" },
+    { id: "tips", label: "귀농팁" },
+  ];
+
   return (
     <div className={s.page}>
-      {/* 뒤로가기 */}
-      <Link href="/crops" className={s.backLink}>
-        <ArrowLeft size={18} />
-        작물 목록
-      </Link>
+      {/* ── 브레드크럼 + 출처 ── */}
+      <div className={s.topBar}>
+        <nav className={s.breadcrumb} aria-label="현재 위치">
+          <Link href="/crops" className={s.breadcrumbLink}>작물</Link>
+          <ChevronRight size={14} aria-hidden="true" />
+          <span className={s.breadcrumbLink}>{data.category}</span>
+          <ChevronRight size={14} aria-hidden="true" />
+          <span className={s.breadcrumbCurrent}>{data.name}</span>
+        </nav>
+        <span className={s.sourceTag}>출처: 농촌진흥청 · KOSIS</span>
+      </div>
 
-      {/* ── Hero (2단) ── */}
-      <div className={s.hero}>
-        <div className={s.heroImage}>
+      {/* ── Hero ── */}
+      <section className={s.hero}>
+        <div className={s.heroImageWrap}>
           <Image
             src={`/crops/${data.id}.jpg`}
             alt={data.name}
             fill
-            sizes="(max-width: 1024px) 100vw, 480px"
+            sizes="(max-width: 1024px) 100vw, 1280px"
             style={{ objectFit: "cover" }}
             priority
           />
+          <div className={s.heroOverlay} />
+          <div className={s.heroPills}>
+            <span className={s.heroPill}>{data.category}</span>
+            <span className={s.heroPill}>{data.growingSeason}</span>
+            {detail.majorRegions.slice(0, 2).map((r) => (
+              <span key={r} className={s.heroPill}>{r}</span>
+            ))}
+          </div>
         </div>
 
-        <div className={s.heroInfo}>
-          <div>
-            <div className={s.badges}>
-              <span className={`${s.badge} ${s.badgeCategory}`}>
-                {data.category}
-              </span>
-              <span
-                className={`${s.badge} ${DIFFICULTY_BADGE[data.difficulty] ?? s.badgeNormal}`}
-              >
-                난이도: {data.difficulty}
-              </span>
-            </div>
-            <div className={s.heroTitleRow}>
+        <div className={s.heroContent}>
+          <div className={s.heroTitleRow}>
+            <div>
+              <div className={s.heroBadges}>
+                <span className={`${s.badge} ${s.badgeCategory}`}>
+                  {data.category}
+                </span>
+                <span
+                  className={`${s.badge} ${DIFFICULTY_BADGE[data.difficulty] ?? s.badgeNormal}`}
+                >
+                  <Gauge size={12} />
+                  난이도 · {data.difficulty}
+                </span>
+              </div>
               <h1 className={s.heroTitle}>{data.name}</h1>
-              <BookmarkButton
-                id={data.id}
-                type="crop"
-                title={data.name}
-                subtitle={data.category}
-              />
             </div>
-            <p className={s.heroDesc}>{data.description}</p>
+            <BookmarkButton
+              id={data.id}
+              type="crop"
+              title={data.name}
+              subtitle={data.category}
+            />
           </div>
+          <p className={s.heroDesc}>{data.description}</p>
 
-          {/* Quick Facts */}
-          <div className={s.quickFacts}>
-            <div className={s.factCard}>
-              <div className={s.factLabel}>
-                <Calendar size={16} />
-                재배 시기
+          {/* Quick Stats — 요약 프로필 카드 */}
+          <div className={s.quickStats}>
+            <div className={s.statCard}>
+              <span className={`${s.statIcon} ${s.statIconDifficulty}`}>
+                <Gauge size={18} />
+              </span>
+              <div>
+                <p className={s.statLabel}>난이도</p>
+                <p className={s.statValue}>{data.difficulty}</p>
               </div>
-              <div className={s.factValue}>{data.growingSeason}</div>
             </div>
-            <div className={s.factCard}>
-              <div className={s.factLabel}>
-                <TrendingUp size={16} />
-                예상 수익
+            <div className={s.statCard}>
+              <span className={`${s.statIcon} ${s.statIconSeason}`}>
+                <Calendar size={18} />
+              </span>
+              <div>
+                <p className={s.statLabel}>재배 시기</p>
+                <p className={s.statValue}>{data.growingSeason}</p>
               </div>
-              <div className={s.factValue}>{detail.income.revenueRange}</div>
             </div>
-            <div className={s.factCard}>
-              <div className={s.factLabel}>
-                <MapPin size={16} />
-                주요 산지
-              </div>
-              <div className={s.factValue}>
-                {detail.majorRegions.slice(0, 2).join(", ")}
+            <div className={s.statCard}>
+              <span className={`${s.statIcon} ${s.statIconRevenue}`}>
+                <TrendingUp size={18} />
+              </span>
+              <div>
+                <p className={s.statLabel}>예상 수익</p>
+                <p className={s.statValue}><RevenueText text={parseRevenueRange(detail.income.revenueRange).main} /></p>
               </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* CTA */}
-          <div className={s.ctaGroup}>
-            {relatedPrograms.length > 0 && (
+      {/* ── Sticky Anchor Tab ── */}
+      <AnchorTabNav sections={anchorSections} />
+
+      {/* ── 본문 ── */}
+      <div className={s.mainGrid}>
+        <div className={s.mainContent}>
+          {/* 개요 */}
+          <section id="overview" className={s.section}>
+            <SectionHeader icon={<Sprout size={18} />} title="개요" />
+            <div className={s.sectionBody}>
+              <p className={s.overviewText}>{data.description}</p>
+              <div className={s.matchBox}>
+                <div className={s.matchItem}>
+                  <span className={s.matchGood}>추천</span>
+                  <p className={s.matchText}>
+                    {data.difficulty === "쉬움"
+                      ? "귀농 초보자, 안정적 수확을 원하는 분"
+                      : data.difficulty === "보통"
+                        ? "기초 재배 경험이 있는 분, 중기 수익을 목표로 하는 분"
+                        : "전문 농업인, 장기 투자형 귀농을 계획하는 분"}
+                  </p>
+                </div>
+                <div className={s.matchItem}>
+                  <span className={s.matchCaution}>참고</span>
+                  <p className={s.matchText}>
+                    {data.difficulty === "쉬움"
+                      ? "대규모 고수익을 단기간에 기대하기는 어려울 수 있습니다"
+                      : data.difficulty === "보통"
+                        ? "품종에 따라 재배 난이도 편차가 있으므로 사전 조사가 필요합니다"
+                        : "초기 투자비용과 기술 습득 기간을 충분히 고려해야 합니다"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 재배환경 */}
+          <CultivationSection cultivation={detail.cultivation} />
+
+          {/* 수익정보 */}
+          <IncomeSection income={detail.income} />
+
+          {/* 인기 재배지역 */}
+          <RegionSection
+            majorRegions={detail.majorRegions}
+            cropStats={cropStats}
+          />
+
+          {/* 귀농 팁 */}
+          <TipsSection tips={detail.tips} />
+        </div>
+
+        {/* 사이드바 */}
+        <aside className={s.sidebar}>
+          {/* 사이드 프로필 카드 */}
+          <div className={s.sideProfile}>
+            <h3 className={s.sideProfileTitle}>{data.name}</h3>
+            <dl className={s.sideProfileList}>
+              <div className={s.sideProfileRow}>
+                <dt>카테고리</dt>
+                <dd>{data.category}</dd>
+              </div>
+              <div className={s.sideProfileRow}>
+                <dt>난이도</dt>
+                <dd>
+                  <span className={`${s.badgeSm} ${DIFFICULTY_BADGE[data.difficulty] ?? s.badgeNormal}`}>
+                    {data.difficulty}
+                  </span>
+                </dd>
+              </div>
+              <div className={s.sideProfileRow}>
+                <dt>재배 시기</dt>
+                <dd>{data.growingSeason}</dd>
+              </div>
+              <div className={s.sideProfileRow}>
+                <dt>예상 수익</dt>
+                <dd className={s.sideProfileHighlight}>
+                  <RevenueText text={parseRevenueRange(detail.income.revenueRange).main} />
+                </dd>
+              </div>
+              {parseRevenueRange(detail.income.revenueRange).note && (
+                <div className={s.sideProfileRow}>
+                  <dt />
+                  <dd className={s.sideProfileNote}>
+                    {parseRevenueRange(detail.income.revenueRange).note}
+                  </dd>
+                </div>
+              )}
+              <div className={s.sideProfileRow}>
+                <dt>주요 산지</dt>
+                <dd>{detail.majorRegions.slice(0, 3).join(", ")}</dd>
+              </div>
+            </dl>
+            <div className={s.sideCtas}>
               <Link
-                href={`/programs/${relatedPrograms[0].id}`}
+                href={programsHref}
                 className={`${s.ctaButton} ${s.ctaPrimary}`}
               >
                 <FileText size={16} />
                 관련 지원사업 보기
               </Link>
-            )}
-            <Link
-              href="/regions"
-              className={`${s.ctaButton} ${s.ctaOutline}`}
-            >
-              <MapPin size={16} />
-              지역 비교하기
-            </Link>
+              <Link
+                href="/regions"
+                className={`${s.ctaButton} ${s.ctaOutline}`}
+              >
+                <MapPin size={16} />
+                지역 비교하기
+              </Link>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* ── 본문 그리드 ── */}
-      <div className={s.mainGrid}>
-        {/* 좌측: 본문 */}
-        <div className={s.mainContent}>
-          <CultivationSection cultivation={detail.cultivation} />
-          <IncomeSection income={detail.income} />
-          <RegionSection
-            majorRegions={detail.majorRegions}
-            cropStats={cropStats}
-          />
-          <TipsSection tips={detail.tips} />
-        </div>
-
-        {/* 우측: 사이드바 */}
-        <aside className={s.sidebar}>
+          {/* 관련 작물 */}
           {relatedCrops.length > 0 && (
-            <RelatedCropsSection relatedCrops={relatedCrops} />
+            <div className={s.sideSection}>
+              <h3 className={s.sideSectionHeader}>
+                <Leaf size={16} />
+                관련 작물
+              </h3>
+              <div className={s.relatedCropList}>
+                {relatedCrops.map((crop) => (
+                  <Link
+                    key={crop.id}
+                    href={`/crops/${crop.id}`}
+                    className={s.relatedCropCard}
+                  >
+                    <div className={s.relatedCropImageWrap}>
+                      <Image
+                        src={`/crops/${crop.id}.jpg`}
+                        alt={crop.name}
+                        fill
+                        sizes="60px"
+                        style={{ objectFit: "cover" }}
+                      />
+                    </div>
+                    <div>
+                      <p className={s.relatedCropName}>{crop.name}</p>
+                      <p className={s.relatedCropMeta}>{crop.category} · {crop.difficulty}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
           )}
-          <RelatedProgramsSection relatedPrograms={relatedPrograms} />
-          <RegionCtaSection />
+
+          {/* 관련 지원사업 */}
+          <RelatedProgramsSection relatedPrograms={relatedPrograms} moreHref={programsHref} />
         </aside>
       </div>
 
       {/* 모바일 하단 바 */}
       <div className={s.mobileBar}>
         <Link
-          href="/programs"
+          href={programsHref}
           className={`${s.ctaButton} ${s.ctaPrimary}`}
         >
           <FileText size={16} />
@@ -230,23 +404,18 @@ export default async function CropDetailPage({
 
 // ── 서브 컴포넌트 ──
 
-function SectionWrapper({
+function SectionHeader({
   icon,
   title,
-  children,
 }: {
   icon: React.ReactNode;
   title: string;
-  children: React.ReactNode;
 }) {
   return (
-    <section className={s.section}>
-      <h2 className={s.sectionHeader}>
-        <span className={s.sectionHeaderIcon}>{icon}</span>
-        {title}
-      </h2>
-      <div className={s.sectionBody}>{children}</div>
-    </section>
+    <h2 className={s.sectionHeader}>
+      <span className={s.sectionHeaderIcon}>{icon}</span>
+      {title}
+    </h2>
   );
 }
 
@@ -256,54 +425,36 @@ function CultivationSection({
   cultivation: CropDetailInfo["cultivation"];
 }) {
   const items = [
-    {
-      icon: <Thermometer size={20} />,
-      cls: s.climate,
-      label: "기후",
-      value: cultivation.climate,
-    },
-    {
-      icon: <Leaf size={20} />,
-      cls: s.soil,
-      label: "토양",
-      value: cultivation.soil,
-    },
-    {
-      icon: <Droplets size={20} />,
-      cls: s.water,
-      label: "수분",
-      value: cultivation.water,
-    },
-    {
-      icon: <Ruler size={20} />,
-      cls: s.spacing,
-      label: "간격",
-      value: cultivation.spacing,
-    },
-    {
-      icon: <FlaskConical size={20} />,
-      cls: s.fertilizer,
-      label: "비료",
-      value: cultivation.fertilizerNote,
-    },
+    { icon: <Thermometer size={20} />, cls: s.fIconClimate, label: "기후", value: cultivation.climate },
+    { icon: <Leaf size={20} />, cls: s.fIconSoil, label: "토양", value: cultivation.soil },
+    { icon: <Droplets size={20} />, cls: s.fIconWater, label: "수분", value: cultivation.water },
+    { icon: <Ruler size={20} />, cls: s.fIconSpacing, label: "간격", value: cultivation.spacing },
   ];
 
   return (
-    <SectionWrapper icon={<Sprout size={18} />} title="재배 환경">
-      <div className={s.cultivationGrid}>
-        {items.map((item) => (
-          <div key={item.label} className={s.cultivationItem}>
-            <div className={`${s.cultivationIcon} ${item.cls}`}>
-              {item.icon}
+    <section id="cultivation" className={s.section}>
+      <SectionHeader icon={<Sprout size={18} />} title="재배 환경" />
+      <div className={s.sectionBody}>
+        <div className={s.featureGrid}>
+          {items.map((item) => (
+            <div key={item.label} className={s.featureCard}>
+              <span className={`${s.featureIcon} ${item.cls}`}>{item.icon}</span>
+              <p className={s.featureLabel}>{item.label}</p>
+              <p className={s.featureValue}>{item.value}</p>
             </div>
-            <div>
-              <p className={s.cultivationLabel}>{item.label}</p>
-              <p className={s.cultivationValue}>{item.value}</p>
-            </div>
+          ))}
+        </div>
+
+        {/* 비료 정보 — 별도 카드 */}
+        <div className={s.fertilizerCard}>
+          <div className={s.fertilizerHeader}>
+            <FlaskConical size={16} />
+            <span>비료 · 시비 정보</span>
           </div>
-        ))}
+          <p className={s.fertilizerText}>{cultivation.fertilizerNote}</p>
+        </div>
       </div>
-    </SectionWrapper>
+    </section>
   );
 }
 
@@ -312,35 +463,45 @@ function IncomeSection({
 }: {
   income: CropDetailInfo["income"];
 }) {
+  const { main, note } = parseRevenueRange(income.revenueRange);
   return (
-    <SectionWrapper icon={<TrendingUp size={18} />} title="수익 정보">
-      {/* 수익 강조 */}
-      <div className={s.revenueHighlight}>
-        <p className={s.revenueLabel}>예상 수익 (10a 기준)</p>
-        <p className={s.revenueValue}>{income.revenueRange}</p>
-      </div>
+    <section id="income" className={s.section}>
+      <SectionHeader icon={<TrendingUp size={18} />} title="수익 정보" />
+      <div className={s.sectionBody}>
+        {/* 수익 카드 — 토스 패턴: 숫자 우선 */}
+        <div className={s.revenueCard}>
+          <div className={s.revenueTop}>
+            <p className={s.revenueLabel}>예상 연 수익</p>
+          </div>
+          <p className={s.revenueAmount}><RevenueText text={main} /></p>
+          {note && (
+            <p className={s.revenueSubNote}>{note}</p>
+          )}
+          <p className={s.revenueNote}>
+            품종 · 기후 · 기술 수준에 따라 실제 수익은 달라질 수 있습니다
+          </p>
+        </div>
 
-      <div className={s.incomeGrid}>
-        <div className={s.incomeItem}>
-          <div className={`${s.incomeIcon} ${s.cost}`}>
-            <DollarSign size={20} />
+        {/* 비용 구조 테이블 */}
+        <div className={s.costTable}>
+          <div className={s.costRow}>
+            <div className={s.costLabelWrap}>
+              <span className={`${s.costDot} ${s.costDotExpense}`} />
+              <span className={s.costLabel}>비용</span>
+            </div>
+            <p className={s.costValue}>{income.costNote}</p>
           </div>
-          <div>
-            <p className={s.incomeLabel}>비용</p>
-            <p className={s.incomeValue}>{income.costNote}</p>
-          </div>
-        </div>
-        <div className={s.incomeItem}>
-          <div className={`${s.incomeIcon} ${s.labor}`}>
-            <Users size={20} />
-          </div>
-          <div>
-            <p className={s.incomeLabel}>노동력</p>
-            <p className={s.incomeValue}>{income.laborNote}</p>
+          <div className={s.costDivider} />
+          <div className={s.costRow}>
+            <div className={s.costLabelWrap}>
+              <span className={`${s.costDot} ${s.costDotLabor}`} />
+              <span className={s.costLabel}>노동력</span>
+            </div>
+            <p className={s.costValue}>{income.laborNote}</p>
           </div>
         </div>
       </div>
-    </SectionWrapper>
+    </section>
   );
 }
 
@@ -359,112 +520,103 @@ function RegionSection({
   const maxArea = top5.length > 0 ? top5[0].cultivationArea : 1;
 
   return (
-    <SectionWrapper icon={<MapPin size={18} />} title="인기 재배지역">
-      <div className={s.regionBadges}>
-        {majorRegions.map((r) => {
-          const station = getStationByProvince(r);
-          return station ? (
-            <Link
-              key={r}
-              href={`/regions?stations=${station.stnId}`}
-              className={s.regionBadgeLink}
-            >
-              <MapPin size={12} />
-              {r}
-            </Link>
-          ) : (
-            <span key={r} className={s.regionBadge}>
-              {r}
-            </span>
-          );
-        })}
-      </div>
+    <section id="region" className={s.section}>
+      <SectionHeader icon={<MapPin size={18} />} title="인기 재배지역" />
+      <div className={s.sectionBody}>
+        <div className={s.regionPills}>
+          {majorRegions.map((r) => {
+            const station = getStationByProvince(r);
+            return station ? (
+              <Link
+                key={r}
+                href={`/regions?stations=${station.stnId}`}
+                className={s.regionPillLink}
+              >
+                <MapPin size={12} />
+                {r}
+              </Link>
+            ) : (
+              <span key={r} className={s.regionPill}>{r}</span>
+            );
+          })}
+        </div>
 
-      {top5.length > 0 && (
-        <>
-          <p className={s.regionStatsLabel}>
-            KOSIS 통계 ({top5[0].year}년 기준, 재배면적 상위 5개 지역)
-          </p>
-          <div className={s.regionList}>
-            {top5.map((stat, idx) => {
-              const pct = Math.round(
-                (stat.cultivationArea / maxArea) * 100
-              );
-              return (
-                <div key={stat.regionName} className={s.regionRow}>
-                  <div className={s.regionMeta}>
-                    <span className={s.regionRank}>
-                      <span className={s.regionRankNum}>{idx + 1}</span>
-                      {stat.regionName}
-                    </span>
-                    <span className={s.regionArea}>
-                      {stat.cultivationArea.toLocaleString()} ha
+        {top5.length > 0 && (
+          <div className={s.chartSection}>
+            <p className={s.chartTitle}>
+              재배면적 상위 지역 ({top5[0].year}년 KOSIS 기준)
+            </p>
+            <div
+              className={s.chartContainer}
+              role="img"
+              aria-label={`재배면적: ${top5.map((st) => `${st.regionName} ${st.cultivationArea.toLocaleString()}ha`).join(", ")}`}
+            >
+              {top5.map((stat, idx) => {
+                const pct = Math.round((stat.cultivationArea / maxArea) * 100);
+                return (
+                  <div key={stat.regionName} className={s.chartRow}>
+                    <div className={s.chartMeta}>
+                      <span className={s.chartRank}>{idx + 1}</span>
+                      <span className={s.chartLabel}>{stat.regionName}</span>
+                    </div>
+                    <div className={s.chartBarWrap}>
+                      <div
+                        className={s.chartBar}
+                        style={{ width: `${pct}%` }}
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <span className={s.chartValue}>
+                      {stat.cultivationArea.toLocaleString()} <GlossaryTerm term="ha" />
                     </span>
                   </div>
-                  <div className={s.regionBar}>
-                    <div
-                      className={s.regionBarFill}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+            <p className={s.chartSource}>
+              출처: KOSIS 국가통계포털
+              <a
+                href="https://kosis.kr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={s.chartSourceLink}
+              >
+                kosis.kr <ExternalLink size={10} />
+              </a>
+            </p>
           </div>
-          <p className={s.regionSource}>
-            출처: KOSIS 국가통계포털 (kosis.kr)
-          </p>
-        </>
-      )}
-    </SectionWrapper>
+        )}
+
+        <Link href="/regions" className={s.regionCta}>
+          지역별 상세 비교하기
+          <ArrowRight size={14} />
+        </Link>
+      </div>
+    </section>
   );
 }
 
 function TipsSection({ tips }: { tips: string[] }) {
   return (
-    <SectionWrapper icon={<Lightbulb size={18} />} title="귀농 팁">
-      <div className={s.tipsList}>
-        {tips.map((tip, idx) => (
-          <div key={idx} className={s.tipItem}>
-            <span className={s.tipNum}>{idx + 1}</span>
-            <p className={s.tipText}>{tip}</p>
-          </div>
-        ))}
-      </div>
-    </SectionWrapper>
-  );
-}
-
-function RelatedCropsSection({
-  relatedCrops,
-}: {
-  relatedCrops: Array<{ id: string; name: string }>;
-}) {
-  return (
-    <div className={s.sideSection}>
-      <h3 className={s.sideSectionHeader}>
-        <Leaf size={18} />
-        연관 작물
-      </h3>
-      <div className={s.sideSectionBody}>
-        <div className={s.relatedCropList}>
-          {relatedCrops.map((crop) => (
-            <Link
-              key={crop.id}
-              href={`/crops/${crop.id}`}
-              className={s.relatedCropLink}
-            >
-              {crop.name}
-            </Link>
+    <section id="tips" className={s.section}>
+      <SectionHeader icon={<Lightbulb size={18} />} title="귀농 팁" />
+      <div className={s.sectionBody}>
+        <div className={s.tipsList}>
+          {tips.map((tip, idx) => (
+            <div key={idx} className={s.tipItem}>
+              <span className={s.tipNum}>{String(idx + 1).padStart(2, "0")}</span>
+              <p className={s.tipText}>{tip}</p>
+            </div>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
 function RelatedProgramsSection({
   relatedPrograms,
+  moreHref,
 }: {
   relatedPrograms: Array<{
     id: string;
@@ -472,64 +624,38 @@ function RelatedProgramsSection({
     supportType: string;
     region: string;
   }>;
+  moreHref: string;
 }) {
   return (
     <div className={s.sideSection}>
       <h3 className={s.sideSectionHeader}>
-        <DollarSign size={18} />
+        <DollarSign size={16} />
         관련 지원사업
       </h3>
-      <div className={s.sideSectionBody}>
-        {relatedPrograms.length > 0 ? (
-          <div className={s.programList}>
-            {relatedPrograms.map((program) => (
-              <Link
-                key={program.id}
-                href={`/programs/${program.id}`}
-                className={s.programCard}
-              >
-                <p className={s.programTitle}>{program.title}</p>
-                <div className={s.programMeta}>
-                  <span>{program.region}</span>
-                  <span aria-hidden="true">·</span>
-                  <span>{program.supportType}</span>
-                </div>
-              </Link>
-            ))}
-            <Link href="/programs" className={s.programMore}>
-              더보기
-              <ArrowRight size={16} />
+      {relatedPrograms.length > 0 ? (
+        <div className={s.programList}>
+          {relatedPrograms.map((program) => (
+            <Link
+              key={program.id}
+              href={`/programs/${program.id}`}
+              className={s.programCard}
+            >
+              <p className={s.programTitle}>{program.title}</p>
+              <div className={s.programMeta}>
+                <span>{program.region}</span>
+                <span aria-hidden="true">·</span>
+                <span>{program.supportType}</span>
+              </div>
             </Link>
-          </div>
-        ) : (
-          <p className={s.emptyState}>
-            현재 등록된 관련 지원사업이 없습니다.
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function RegionCtaSection() {
-  return (
-    <div className={s.sideSection}>
-      <h3 className={s.sideSectionHeader}>
-        <MapPin size={18} />
-        지역 비교
-      </h3>
-      <div className={`${s.sideSectionBody} ${s.ctaCard}`}>
-        <p className={s.ctaCardDesc}>
-          귀농 후보 지역의 기후, 인구, 생활 인프라를 비교해보세요.
-        </p>
-        <Link
-          href="/regions"
-          className={`${s.ctaButton} ${s.ctaOutline}`}
-        >
-          지역 비교하기
-          <ArrowRight size={16} />
-        </Link>
-      </div>
+          ))}
+          <Link href={moreHref} className={s.programMore}>
+            전체 지원사업 보기
+            <ArrowRight size={14} />
+          </Link>
+        </div>
+      ) : (
+        <p className={s.emptyNote}>현재 등록된 관련 지원사업이 없습니다.</p>
+      )}
     </div>
   );
 }

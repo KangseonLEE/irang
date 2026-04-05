@@ -54,28 +54,6 @@
   color: var(--muted-foreground);
 }
 
-/* ── Status Indicators ── */
-.statusActive {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-caption);
-  font-weight: 500;
-  color: #059669; /* emerald-600 */
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: currentColor;
-}
-
-.statusDefault {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-}
-
 /* ── Title ── */
 .title {
   font-size: var(--fs-body-sm);

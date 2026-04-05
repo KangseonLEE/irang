@@ -9,14 +9,16 @@
 
 /* ── 캐러셀 트랙 ── */
 .track {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
   gap: 16px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
   scrollbar-width: none;
-  padding: 0 4px 4px;
+  padding: 0 0 4px;
 }
 
 .track::-webkit-scrollbar {
@@ -27,8 +29,6 @@
 .card {
   display: flex;
   flex-direction: column;
-  min-width: 82vw;
-  flex-shrink: 0;
   scroll-snap-align: start;
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 20px;
@@ -38,30 +38,39 @@
   background: var(--card, #fff);
 }
 
-/* ── 카드 배경 변형 ── */
+/* ── 카드 배경 변형 + 상단 accent ── */
 .cardRegion {
   background: #F0F9F6;
+  border-top: 3px solid var(--primary, #1B6B5A);
 }
 
 .cardCrop {
   background: #FFF8EE;
+  border-top: 3px solid #d97706;
 }
 
 .cardProgram {
   background: #F0F4FF;
+  border-top: 3px solid #2563eb;
 }
 
 @media (min-width: 640px) {
+  .track {
+    grid-auto-columns: min(75vw, 720px);
+  }
+
   .card {
     flex-direction: row;
-    min-width: min(75vw, 720px);
     min-height: 400px;
   }
 }
 
 @media (min-width: 1024px) {
+  .track {
+    grid-auto-columns: min(72vw, 860px);
+  }
+
   .card {
-    min-width: min(72vw, 860px);
     min-height: 440px;
   }
 }
@@ -254,25 +263,19 @@
   }
 }
 
-/* ── 오른쪽: 일러스트 영역 ── */
+/* ── 오른쪽: 일러스트 영역 (모바일 숨김) ── */
 .cardIllust {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  flex-shrink: 0;
-}
-
-.cardIllust > svg {
-  width: 100%;
-  height: auto;
-  max-height: 200px;
+  display: none;
 }
 
 @media (min-width: 640px) {
   .cardIllust {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex: 0 0 44%;
     padding: 24px;
+    flex-shrink: 0;
   }
 
   .cardIllust > svg {
@@ -289,30 +292,31 @@
   }
 }
 
-/* ── 하단 컨트롤 ── */
+/* ── 하단 컨트롤 (인터뷰 캐러셀과 통일) ── */
 .controls {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 12px;
   margin-top: 20px;
-  padding: 0 4px;
 }
 
 /* 도트 인디케이터 */
 .dots {
   display: flex;
+  align-items: center;
   gap: 6px;
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   border: none;
   padding: 0;
-  background: var(--border, #e5e7eb);
+  background: var(--border, #d1d5db);
   cursor: pointer;
-  transition: background 0.2s, width 0.2s, border-radius 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 @media (hover: hover) {
@@ -323,35 +327,31 @@
 
 .dotActive {
   background: var(--primary, #1B6B5A);
-  width: 20px;
-  border-radius: 4px;
+  transform: scale(1.3);
 }
 
 /* 화살표 버튼 */
-.arrows {
-  display: none;
-  gap: 6px;
-}
-
-@media (min-width: 640px) {
-  .arrows {
-    display: flex;
-  }
-}
-
 .arrowBtn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   color: var(--foreground, #111);
   cursor: pointer;
-  transition: border-color 0.1s, color 0.1s, opacity 0.1s;
+  transition: border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 640px) {
+  .arrowBtn {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .arrowBtn:disabled {

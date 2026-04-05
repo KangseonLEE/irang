@@ -10,22 +10,24 @@
 
 /* ── 스크롤 영역 (모바일: 가로 스크롤, 데스크탑: 그리드) ── */
 .scrollArea {
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  gap: 16px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding: 0 4px 4px;
+  padding: 0 0 4px;
 }
 
 .scrollArea::-webkit-scrollbar { display: none; }
 
 @media (min-width: 768px) {
   .scrollArea {
-    display: grid;
+    grid-auto-flow: row;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    grid-auto-columns: auto;
     overflow-x: visible;
     scroll-snap-type: none;
     padding-bottom: 0;
@@ -46,23 +48,12 @@
   flex-direction: column;
   gap: 12px;
   text-decoration: none;
-  min-width: 72vw;
-  flex-shrink: 0;
-  scroll-snap-align: center;
+  scroll-snap-align: start;
   transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-@media (min-width: 480px) {
-  .card {
-    min-width: 65vw;
-  }
 }
 
 @media (min-width: 768px) {
   .card {
-    min-width: 0;
-    flex-shrink: 1;
-    scroll-snap-align: none;
     padding: 24px 20px;
   }
 }
@@ -72,6 +63,13 @@
     border-color: var(--primary, #1B6B5A);
     box-shadow: 0 8px 24px -8px rgba(27, 107, 90, 0.1);
   }
+}
+
+/* ── 카드 상단: 아바타 + 이야기 읽기 ── */
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* ── 프로필 ── */
@@ -93,20 +91,50 @@
   line-height: var(--lh-snug);
 }
 
+/* ── 귀농 동기 미리보기 ── */
+.motivation {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-snug);
+  margin: 0;
+  padding-left: 10px;
+  border-left: 2px solid color-mix(in srgb, var(--primary, #1B6B5A) 30%, transparent);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* ── 인용문 ── */
 .quote {
   font-size: var(--fs-body);
   font-weight: 600;
   color: var(--foreground, #111);
   line-height: 1.65;
-  font-style: italic;
   letter-spacing: -0.01em;
   word-break: keep-all;
   flex: 1;
+  margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.quote::before {
+  content: "\201C";
+  color: color-mix(in srgb, var(--primary, #1B6B5A) 30%, transparent);
+  font-size: 1.2em;
+  font-weight: 700;
+  margin-right: 2px;
+}
+
+.quote::after {
+  content: "\201D";
+  color: color-mix(in srgb, var(--primary, #1B6B5A) 30%, transparent);
+  font-size: 1.2em;
+  font-weight: 700;
+  margin-left: 1px;
 }
 
 @media (min-width: 768px) {
@@ -122,7 +150,16 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
+}
+
+/* ── 출처 ── */
+.source {
+  font-size: var(--fs-overline);
+  color: color-mix(in srgb, var(--muted-foreground, #6b7280) 70%, transparent);
+  text-align: right;
   margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--border, #e5e7eb);
 }
 
 .tag {
@@ -134,15 +171,14 @@
   color: var(--primary, #1B6B5A);
 }
 
-/* ── 더 보기 ── */
+/* ── 더 보기 (우측 상단) ── */
 .readMore {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: var(--fs-body-sm);
+  font-size: var(--fs-caption);
   font-weight: 600;
   color: var(--primary, #1B6B5A);
-  margin-top: 4px;
 }
 
 /* ══════════════════════════════════════════

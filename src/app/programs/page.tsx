@@ -5,11 +5,19 @@ import {
   filterProgramsAsync,
   getCurrentPeriod,
   PAGE_SIZE,
+  REGIONS,
+  SUPPORT_TYPES,
   type ProgramFilters,
 } from "@/lib/data/programs";
-import { ProgramFilter } from "./program-filter";
 import { ProgramList } from "./program-list";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
+import {
+  FilterBar,
+  FilterRow,
+  FilterGroup,
+  FilterDivider,
+  FilterActions,
+} from "@/components/filter/filter-bar";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -55,6 +63,16 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   const [pYear, pMonth] = period.split("-");
   const periodLabel = `${pYear}년 ${parseInt(pMonth)}월`;
 
+  // 현재 활성 필터 (URL 빌딩용)
+  const currentFilters: Record<string, string | undefined> = {
+    region: params.region,
+    supportType: params.supportType,
+    q: params.q,
+    age: params.age,
+    period: params.period,
+    includeClosed: params.includeClosed,
+  };
+
   return (
     <div className={s.page}>
       {/* 로드맵 단계 컨텍스트 */}
@@ -83,34 +101,47 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* Filters + Results */}
-      <div className={s.content}>
-        <Suspense
-          fallback={
-            <div className={s.filterFallback}>
-              <p>검색 조건을 불러오는 중...</p>
-            </div>
-          }
-        >
-          <ProgramFilter
-            currentFilters={{
-              region: params.region ?? "",
-              age: params.age ?? "",
-              supportType: params.supportType ?? "",
-              query: params.q ?? "",
-              includeClosed,
-              period,
-            }}
+      {/* Filter Bar */}
+      <FilterBar>
+        <FilterRow>
+          <FilterGroup
+            label="지역"
+            paramKey="region"
+            options={REGIONS}
+            currentValue={params.region}
+            currentFilters={currentFilters}
+            basePath="/programs"
           />
-        </Suspense>
-
-        <ProgramList
-          initialPrograms={programs}
-          initialHasMore={hasMore}
-          total={total}
-          filters={filters}
+        </FilterRow>
+        <FilterRow>
+          <FilterGroup
+            label="지원 유형"
+            paramKey="supportType"
+            options={SUPPORT_TYPES}
+            currentValue={params.supportType}
+            currentFilters={currentFilters}
+            basePath="/programs"
+          />
+        </FilterRow>
+        <FilterDivider />
+        <FilterActions
+          basePath="/programs"
+          currentFilters={currentFilters}
+          searchPlaceholder="지원사업명, 지역, 기관명으로 검색"
+          toggle={{
+            paramKey: "includeClosed",
+            label: "마감 포함",
+            isActive: includeClosed,
+          }}
         />
-      </div>
+      </FilterBar>
+
+      <ProgramList
+        initialPrograms={programs}
+        initialHasMore={hasMore}
+        total={total}
+        filters={filters}
+      />
 
       {/* ═══ 피드백 CTA ═══ */}
       <section className={s.feedbackCta} aria-label="의견 보내기">

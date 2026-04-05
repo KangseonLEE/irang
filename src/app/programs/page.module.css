@@ -76,26 +76,6 @@
   border: 1px solid var(--border, #e5e7eb);
 }
 
-/* ── Content Area ── */
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* ── Suspense Fallback ── */
-.filterFallback {
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted-foreground);
-  font-size: var(--fs-body-sm);
-  min-height: 120px;
-}
-
 /* ══════════════════════════════════════════
    피드백 CTA 카드
    ══════════════════════════════════════════ */

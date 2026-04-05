@@ -496,7 +496,6 @@ export interface RoadmapStep {
   title: string;
   period: string;
   desc: string;
-  link?: { label: string; href: string };
 }
 
 export const roadmapSteps: RoadmapStep[] = [
@@ -505,28 +504,24 @@ export const roadmapSteps: RoadmapStep[] = [
     title: "정보 탐색",
     period: "1~3개월",
     desc: "귀농 결심, 지역·작물 탐색",
-    link: { label: "지역 비교하기", href: "/regions?step=1" },
   },
   {
     step: 2,
     title: "교육 이수",
     period: "3~6개월",
     desc: "귀농 교육 100시간 이상 이수",
-    link: { label: "교육 찾기", href: "/education?step=2" },
   },
   {
     step: 3,
     title: "지역 선정",
     period: "6~12개월",
     desc: "체류형 귀농, 현장 답사",
-    link: { label: "지역 비교하기", href: "/regions/compare?step=3" },
   },
   {
     step: 4,
     title: "영농 시작",
     period: "12~18개월",
     desc: "농지 확보, 작물 결정, 창업",
-    link: { label: "지원사업 찾기", href: "/programs?step=4" },
   },
   {
     step: 5,

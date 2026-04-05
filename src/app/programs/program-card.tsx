@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { SupportProgram } from "@/lib/data/programs";
+import { StatusBadge } from "@/components/ui/status-badge";
 import s from "./program-card.module.css";
 
 /** supportType -> 사용자 친화적 라벨 */
@@ -20,17 +21,10 @@ export function ProgramCard({ program }: { program: SupportProgram }) {
   return (
     <Link href={`/programs/${program.id}`} className={s.link}>
       <div className={`${s.card}${isClosed ? ` ${s.closed}` : ""}`}>
-        {/* 상단: 유형(overline) + 상태(dot indicator) */}
+        {/* 상단: 유형(overline) + 상태 */}
         <div className={s.topRow}>
           <span className={s.typeLabel}>{typeLabel}</span>
-          {program.status === "모집중" ? (
-            <span className={s.statusActive}>
-              <span className={s.dot} />
-              모집중
-            </span>
-          ) : (
-            <span className={s.statusDefault}>{program.status}</span>
-          )}
+          <StatusBadge status={program.status} />
         </div>
 
         {/* 제목 -- L1: 가장 큰 텍스트 */}

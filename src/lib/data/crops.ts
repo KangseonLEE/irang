@@ -71,6 +71,9 @@ export function getCropByName(name: string): CropInfo | undefined {
 export const CROP_CATEGORIES = ["전체", "식량", "채소", "과수", "특용"] as const;
 export type CropCategory = (typeof CROP_CATEGORIES)[number];
 
+export const CROP_DIFFICULTIES = ["전체", "쉬움", "보통", "어려움"] as const;
+export type CropDifficulty = (typeof CROP_DIFFICULTIES)[number];
+
 export const CROPS: CropInfo[] = [
   // 식량작물
   {
