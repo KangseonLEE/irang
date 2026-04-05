@@ -46,6 +46,51 @@
 - 아이콘: lucide-react 전용. 크기는 `size` prop 사용 (14~20px 범위).
 - 장식 요소에는 `aria-hidden="true"` + `pointer-events: none` 필수.
 
+### 공통 컴포넌트 (반드시 재사용)
+
+> 아래 컴포넌트가 이미 존재한다. 새 페이지/기능 추가 시 반드시 이것을 사용하고, 절대 페이지별로 중복 구현하지 않는다.
+
+#### FilterBar (`@/components/filter/filter-bar`)
+
+- 리스트형 페이지의 필터 UI 공통 컴포넌트 (교육, 체험행사, 작물정보, 지원사업)
+- 구성: `FilterBar` → `FilterRow` → `FilterGroup` / `FilterDivider` / `FilterActions`
+- `FilterGroup`: Link 기반 pill 필터 (Server Component, JS 없이 동작)
+- `FilterActions`: 검색 폼 + 토글(마감 포함 등) + 초기화 링크
+- `buildFilterUrl()`: 필터 URL 빌더 헬퍼 (같은 모듈에서 export)
+- **새 필터 추가 시**: `FilterGroup`에 `options` 배열과 `paramKey`만 전달
+
+#### StatusBadge (`@/components/ui/status-badge`)
+
+- 상태칩 공통 컴포넌트 (모집중/접수중 → 초록, 모집예정/접수예정 → 앰버, 마감 → 회색)
+- 색상: 초록 `#059669`, 앰버 `#d97706`, 회색 `var(--muted-foreground)`
+- CSS Modules `composes` 패턴 사용 (badge 기본 + 색상 변형)
+- **모든 상태 표시에 이 컴포넌트 사용**. 인라인 상태 표시(dot+text 등) 금지.
+
+#### TermTooltip / GlossaryTerm (`@/components/ui/term-tooltip`)
+
+- 전문 용어 CSS-only 툴팁 (hover/focus-within, `"use client"` 불필요)
+- `GlossaryTerm`: 내장 용어 사전(`GLOSSARY`)에서 자동 매칭 (ha, 10a 등)
+- `TermTooltip`: 커스텀 용어-설명 직접 전달
+- **초보자가 모를 수 있는 농업/부동산 전문 용어에 적극 적용**
+
+### 페이지 레이아웃 표준 (교육 페이지 기준)
+
+> 리스트형 페이지(교육, 체험행사, 작물정보, 지원사업)는 아래 구조를 따른다.
+
+```
+<div className={s.page}>
+  <PageHeader />       ← headerTop(아이콘+라벨) + h1 + 설명 + 메타(건수+기준월)
+  <FilterBar />        ← 공통 FilterBar 컴포넌트
+  <div className={s.grid}>  ← 1열(모바일) → 2열(640px) → 3열(1024px)
+    <Card /> ...
+  </div>
+</div>
+```
+
+- 기준 페이지: `/education/page.tsx` — 새 리스트 페이지 추가 시 이 파일을 참조
+- 카드 border-radius: `16~20px`, hover 시 `border-color` 변화 + 미세 `box-shadow`
+- 빈 상태(empty state): dashed border + 아이콘 + 안내 텍스트 + 초기화 링크
+
 ### 데이터 아키텍처
 
 - 정적 데이터: `src/lib/data/*.ts` (빌드 타임 소비)
