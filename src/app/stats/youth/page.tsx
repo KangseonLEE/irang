@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, TrendingUp, Sprout } from "lucide-react";
-import { youthData, youthSummary, farmingReasons } from "@/lib/data/stats";
+import { youthData, youthSummary, farmingReasons, youthCauses } from "@/lib/data/stats";
+import YouthTrendChart from "@/components/charts/youth-trend-chart";
+import FactorBarChart from "@/components/charts/factor-bar-chart";
+import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import s from "../stats.module.css";
 
 export const metadata: Metadata = {
@@ -10,14 +13,7 @@ export const metadata: Metadata = {
     "2015~2024년 전체 귀농인 중 청년(40세 미만) 비율 추이와 귀농 사유 분석.",
 };
 
-function barWidth(value: number, max: number): string {
-  return `${Math.round((value / max) * 100)}%`;
-}
-
 export default function YouthPage() {
-  const maxRatio = Math.max(...youthData.map((d) => d.ratio));
-  const maxReason = Math.max(...farmingReasons.map((r) => r.pct));
-
   return (
     <div className={s.page}>
       {/* 뒤로가기 */}
@@ -52,7 +48,7 @@ export default function YouthPage() {
         </div>
       </div>
 
-      {/* 바 차트 — 청년 비율 추이 */}
+      {/* 막대 + 추세선 혼합 차트 */}
       <section className={s.card} aria-labelledby="chart-youth-title">
         <h2 className={s.cardTitle} id="chart-youth-title">
           <span className={s.cardTitleIcon} aria-hidden="true">
@@ -60,20 +56,7 @@ export default function YouthPage() {
           </span>
           청년 귀농 비율 추이 (40세 미만)
         </h2>
-        <div className={s.chart} role="img" aria-label="2015년부터 2024년까지 청년 귀농 비율 추이 바 차트">
-          {youthData.map((d) => (
-            <div className={s.chartRow} key={d.year}>
-              <span className={s.chartLabel}>{d.year}</span>
-              <div className={s.chartBarWrap}>
-                <div
-                  className={s.chartBar}
-                  style={{ width: barWidth(d.ratio, maxRatio) }}
-                />
-              </div>
-              <span className={s.chartValue}>{d.ratio}%</span>
-            </div>
-          ))}
-        </div>
+        <YouthTrendChart data={youthData} />
       </section>
 
       {/* 테이블 */}
@@ -110,7 +93,7 @@ export default function YouthPage() {
         </div>
       </section>
 
-      {/* 귀농 사유 Top 5 */}
+      {/* 귀농 사유 Top 5 — 인터랙티브 수평 바 */}
       <section className={s.card} aria-labelledby="reasons-title">
         <h2 className={s.cardTitle} id="reasons-title">
           <span className={s.cardTitleIcon} aria-hidden="true">
@@ -118,21 +101,15 @@ export default function YouthPage() {
           </span>
           귀농 사유 Top 5
         </h2>
-        <div className={s.factorList}>
-          {farmingReasons.map((r, i) => (
-            <div className={s.factorRow} key={r.label}>
-              <span className={s.factorRank}>{i + 1}</span>
-              <span className={s.factorLabel}>{r.label}</span>
-              <div className={s.factorBarWrap}>
-                <div
-                  className={s.factorBar}
-                  style={{ width: barWidth(r.pct, maxReason) }}
-                />
-              </div>
-              <span className={s.factorPct}>{r.pct}%</span>
-            </div>
-          ))}
-        </div>
+        <FactorBarChart data={farmingReasons} variant="positive" highlightTop={2} />
+      </section>
+
+      {/* 원인 분석 */}
+      <section className={s.card}>
+        <CauseAnalysisSection
+          title="왜 청년 귀농이 늘고 있을까?"
+          causes={youthCauses}
+        />
       </section>
 
       {/* 분석 요약 */}

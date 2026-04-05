@@ -1,0 +1,143 @@
+/* ══════════════════════════════════════════
+   원인 분석(Cause Analysis) 아코디언 섹션
+   ══════════════════════════════════════════ */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-h4, 18px);
+  font-weight: 700;
+  color: var(--foreground, #111);
+  margin: 0;
+}
+
+.sectionTitle svg {
+  color: var(--primary, #1B6B5A);
+  flex-shrink: 0;
+}
+
+/* ── 아코디언 리스트 ── */
+.causeList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.causeItem {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card, #fff);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.causeItemOpen {
+  border-color: color-mix(in srgb, var(--primary, #1B6B5A) 30%, var(--border, #e5e7eb));
+  box-shadow: 0 2px 8px rgba(27, 107, 90, 0.06);
+}
+
+/* ── 헤더 (토글 버튼) ── */
+.causeHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.causeHeader:hover {
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 3%, transparent);
+}
+
+.causeNumber {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
+  color: var(--primary, #1B6B5A);
+  font-size: var(--fs-caption, 13px);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.causeLabel {
+  flex: 1;
+  font-size: var(--fs-body-sm, 14px);
+  font-weight: 700;
+  color: var(--foreground, #111);
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.causeChevron {
+  flex-shrink: 0;
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 본문 (펼쳤을 때) ── */
+.causeBody {
+  padding: 0 16px 16px 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.causeDesc {
+  font-size: var(--fs-body-sm, 14px);
+  color: var(--foreground, #111);
+  line-height: var(--lh-relaxed, 1.8);
+  word-break: keep-all;
+  margin: 0;
+}
+
+.causeSource {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-caption, 13px);
+  color: var(--primary, #1B6B5A);
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.12s;
+  word-break: break-all;
+}
+
+.causeSource:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+/* ── 모바일 ── */
+@media (max-width: 639px) {
+  .causeBody {
+    padding-left: 16px;
+  }
+}

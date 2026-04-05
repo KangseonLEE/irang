@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, BarChart3, Users, TrendingUp } from "lucide-react";
-import { populationData, populationSummary } from "@/lib/data/stats";
+import { populationData, populationSummary, populationCauses } from "@/lib/data/stats";
+import PopulationTrendChart from "@/components/charts/population-trend-chart";
+import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import s from "../stats.module.css";
 
 export const metadata: Metadata = {
@@ -10,15 +12,7 @@ export const metadata: Metadata = {
     "2015~2024년 귀농·귀촌 인구 10년 추이 데이터. 귀농 인구와 귀촌 인구 변화를 한눈에 확인하세요.",
 };
 
-/** 바 차트에서 최대값 대비 비율 계산 */
-function barWidth(value: number, max: number): string {
-  return `${Math.round((value / max) * 100)}%`;
-}
-
 export default function PopulationPage() {
-  const maxFarming = Math.max(...populationData.map((d) => d.farming));
-  const maxRural = Math.max(...populationData.map((d) => d.rural));
-
   return (
     <div className={s.page}>
       {/* 뒤로가기 */}
@@ -53,52 +47,15 @@ export default function PopulationPage() {
         </div>
       </div>
 
-      {/* 바 차트 — 귀농 인구 */}
-      <section className={s.card} aria-labelledby="chart-farming-title">
-        <h2 className={s.cardTitle} id="chart-farming-title">
-          <span className={s.cardTitleIcon} aria-hidden="true">
-            <BarChart3 size={20} />
-          </span>
-          귀농 인구 추이
-        </h2>
-        <div className={s.chart} role="img" aria-label="2015년부터 2024년까지 귀농 인구 추이 바 차트">
-          {populationData.map((d) => (
-            <div className={s.chartRow} key={d.year}>
-              <span className={s.chartLabel}>{d.year}</span>
-              <div className={s.chartBarWrap}>
-                <div
-                  className={s.chartBar}
-                  style={{ width: barWidth(d.farming, maxFarming) }}
-                />
-              </div>
-              <span className={s.chartValue}>{d.farming}만</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 바 차트 — 귀촌 인구 */}
-      <section className={s.card} aria-labelledby="chart-rural-title">
-        <h2 className={s.cardTitle} id="chart-rural-title">
+      {/* 복합 차트 — 귀농(라인) + 귀촌(영역) */}
+      <section className={s.card} aria-labelledby="chart-combined-title">
+        <h2 className={s.cardTitle} id="chart-combined-title">
           <span className={s.cardTitleIcon} aria-hidden="true">
             <TrendingUp size={20} />
           </span>
-          귀촌 인구 추이
+          귀농·귀촌 인구 추이 (2015~2024)
         </h2>
-        <div className={s.chart} role="img" aria-label="2015년부터 2024년까지 귀촌 인구 추이 바 차트">
-          {populationData.map((d) => (
-            <div className={s.chartRow} key={d.year}>
-              <span className={s.chartLabel}>{d.year}</span>
-              <div className={s.chartBarWrap}>
-                <div
-                  className={s.chartBarSecondary}
-                  style={{ width: barWidth(d.rural, maxRural) }}
-                />
-              </div>
-              <span className={s.chartValue}>{d.rural}만</span>
-            </div>
-          ))}
-        </div>
+        <PopulationTrendChart data={populationData} />
       </section>
 
       {/* 테이블 */}
@@ -131,6 +88,14 @@ export default function PopulationPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      {/* 원인 분석 */}
+      <section className={s.card}>
+        <CauseAnalysisSection
+          title="왜 이런 결과가 나왔을까?"
+          causes={populationCauses}
+        />
       </section>
 
       {/* 분석 요약 */}

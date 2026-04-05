@@ -924,6 +924,8 @@
   .compareSection { gap: 24px; padding: 32px; }
 }
 
+/* ── 비교 테이블: 데스크탑 4열 기본 / 모바일 Stacked Card ── */
+
 .compareTable {
   display: flex;
   flex-direction: column;
@@ -985,6 +987,74 @@
   font-weight: 700;
   color: var(--primary, #1B6B5A);
   text-align: right;
+}
+
+/* ── 모바일 전용: Stacked Card ── */
+@media (max-width: 639px) {
+  .compareTable {
+    gap: 10px;
+  }
+
+  .compareRowHeader {
+    display: none;
+  }
+
+  .compareRow {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "label  change"
+      "city   rural";
+    gap: 6px 12px;
+    padding: 14px 16px;
+    background: var(--muted, #f9fafb);
+    border-radius: 12px;
+    border: 1px solid var(--border, #e5e7eb);
+    border-bottom: 1px solid var(--border, #e5e7eb);
+  }
+
+  .compareLabel {
+    grid-area: label;
+    font-size: var(--fs-caption);
+    font-weight: 700;
+  }
+
+  .compareCity {
+    grid-area: city;
+  }
+
+  .compareCity::before {
+    content: "도시";
+    font-size: var(--fs-overline);
+    font-weight: 600;
+    color: var(--muted-foreground, #6b7280);
+    opacity: 0.7;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .compareRural {
+    grid-area: rural;
+  }
+
+  .compareRural::before {
+    content: "농촌";
+    font-size: var(--fs-overline);
+    font-weight: 600;
+    color: var(--primary, #1B6B5A);
+    opacity: 0.6;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .compareChange {
+    grid-area: change;
+    font-size: var(--fs-caption);
+    font-weight: 800;
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+    padding: 2px 8px;
+    border-radius: 6px;
+    justify-self: end;
+  }
 }
 
 .compareNote {

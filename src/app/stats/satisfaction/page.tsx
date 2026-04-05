@@ -13,7 +13,11 @@ import {
   satisfactionFactors,
   dissatisfactionFactors,
   satisfactionSummary,
+  satisfactionCauses,
 } from "@/lib/data/stats";
+import SatisfactionDonutChart from "@/components/charts/satisfaction-donut-chart";
+import FactorBarChart from "@/components/charts/factor-bar-chart";
+import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import s from "../stats.module.css";
 
 export const metadata: Metadata = {
@@ -22,26 +26,7 @@ export const metadata: Metadata = {
     "귀농인의 70%가 만족한다고 답한 귀농 생활. 만족·불만족 요인을 상세히 분석합니다.",
 };
 
-/** 만족도 분포 색상 매핑 */
-const segmentColors: Record<string, string> = {
-  "매우 만족": s.ratioBarGreen,
-  "만족": s.ratioBarLightGreen,
-  "보통": s.ratioBarAmber,
-  "불만족": s.ratioBarRed,
-};
-
-function barWidth(value: number, max: number): string {
-  return `${Math.round((value / max) * 100)}%`;
-}
-
 export default function SatisfactionPage() {
-  const maxSatisfaction = Math.max(
-    ...satisfactionFactors.map((f) => f.pct),
-  );
-  const maxDissatisfaction = Math.max(
-    ...dissatisfactionFactors.map((f) => f.pct),
-  );
-
   return (
     <div className={s.page}>
       {/* 뒤로가기 */}
@@ -76,7 +61,7 @@ export default function SatisfactionPage() {
         </div>
       </div>
 
-      {/* 만족도 분포 */}
+      {/* 도넛 차트 — 만족도 분포 */}
       <section className={s.card} aria-labelledby="dist-title">
         <h2 className={s.cardTitle} id="dist-title">
           <span className={s.cardTitleIcon} aria-hidden="true">
@@ -84,21 +69,7 @@ export default function SatisfactionPage() {
           </span>
           만족도 분포
         </h2>
-        <div className={s.ratioChart} role="img" aria-label="귀농 만족도 분포: 매우 만족 18%, 만족 52%, 보통 22%, 불만족 8%">
-          {satisfactionSegments.map((seg) => (
-            <div className={s.ratioRow} key={seg.label}>
-              <span className={s.ratioLabel}>{seg.label}</span>
-              <div className={s.ratioBarWrap}>
-                <div
-                  className={segmentColors[seg.label] || s.ratioBar}
-                  style={{ width: `${seg.pct}%` }}
-                >
-                  {seg.pct}%
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <SatisfactionDonutChart data={satisfactionSegments} />
       </section>
 
       {/* 만족 요인 / 불만족 요인 — 2열 */}
@@ -111,21 +82,11 @@ export default function SatisfactionPage() {
             </span>
             만족 요인
           </h2>
-          <div className={s.factorList}>
-            {satisfactionFactors.map((f, i) => (
-              <div className={s.factorRow} key={f.label}>
-                <span className={s.factorRank}>{i + 1}</span>
-                <span className={s.factorLabel}>{f.label}</span>
-                <div className={s.factorBarWrap}>
-                  <div
-                    className={s.factorBar}
-                    style={{ width: barWidth(f.pct, maxSatisfaction) }}
-                  />
-                </div>
-                <span className={s.factorPct}>{f.pct}%</span>
-              </div>
-            ))}
-          </div>
+          <FactorBarChart
+            data={satisfactionFactors}
+            variant="positive"
+            highlightTop={2}
+          />
         </section>
 
         {/* 불만족 요인 Top 3 */}
@@ -136,23 +97,21 @@ export default function SatisfactionPage() {
             </span>
             불만족 요인
           </h2>
-          <div className={s.factorList}>
-            {dissatisfactionFactors.map((f, i) => (
-              <div className={s.factorRow} key={f.label}>
-                <span className={s.factorRank}>{i + 1}</span>
-                <span className={s.factorLabel}>{f.label}</span>
-                <div className={s.factorBarWrap}>
-                  <div
-                    className={s.factorBarNegative}
-                    style={{ width: barWidth(f.pct, maxDissatisfaction) }}
-                  />
-                </div>
-                <span className={s.factorPct}>{f.pct}%</span>
-              </div>
-            ))}
-          </div>
+          <FactorBarChart
+            data={dissatisfactionFactors}
+            variant="negative"
+            highlightTop={2}
+          />
         </section>
       </div>
+
+      {/* 원인 분석 */}
+      <section className={s.card}>
+        <CauseAnalysisSection
+          title="만족과 불만족, 그 이유는?"
+          causes={satisfactionCauses}
+        />
+      </section>
 
       {/* 분석 요약 */}
       <blockquote className={s.summary}>

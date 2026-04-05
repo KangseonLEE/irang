@@ -52,6 +52,51 @@ export const populationSummary = {
   source: "통계청 귀농귀촌인통계 (2024)",
 };
 
+/** 인구 추이 원인 분석 — 공식 보고서 기반 */
+export interface CauseAnalysis {
+  label: string;
+  description: string;
+  source: string;
+  sourceUrl: string;
+  /** 해당 원인과 연관된 연도 (차트 하이라이트용) */
+  relatedYears?: number[];
+}
+
+export const populationCauses: CauseAnalysis[] = [
+  {
+    label: "코로나19 팬데믹 — 농촌 이주 가속",
+    description:
+      "2020년 코로나19로 재택·원격근무가 확산되면서 농촌 생활에 대한 관심이 급증했습니다. 귀농·귀촌 의향 '있음' 응답이 2024년 57.3%로 전년(37.2%) 대비 20.1%p 급증했으며, 비대면 업무 환경이 도시 탈출의 심리적 장벽을 낮춘 것으로 분석됩니다.",
+    source: "한국농촌경제연구원, 2020 귀농·귀촌 동향과 시사점",
+    sourceUrl: "https://eiec.kdi.re.kr/policy/domesticView.do?ac=0000158941",
+    relatedYears: [2020, 2021],
+  },
+  {
+    label: "수도권 주택가격 급등 — 압출 효과",
+    description:
+      "2019년 말부터 급등하기 시작한 수도권 주택가격이 도시 지역의 압출(push) 요인으로 작용했습니다. 귀촌 사유 중 '주택'이 26.6%를 차지하며, 수도권에서 이동한 귀촌인이 전체의 42.7%에 달합니다.",
+    source: "농림축산식품부, 2024 귀농·귀촌 통계",
+    sourceUrl: "https://www.freezine.co.kr/news/articleView.html?idxno=10836",
+    relatedYears: [2020, 2021, 2022],
+  },
+  {
+    label: "베이비부머 은퇴 본격화",
+    description:
+      "1955~1963년생 베이비부머 세대의 은퇴가 본격화되면서 60대 귀농·귀촌인이 꾸준히 증가하고 있습니다. 연고지 농촌으로 돌아가는 U턴형이 귀농의 75.6%를 차지합니다.",
+    source: "농림축산식품부, 2023 귀농·귀촌 실태조사",
+    sourceUrl: "https://eiec.kdi.re.kr/policy/materialView.do?num=248593&topic=O",
+    relatedYears: [2022, 2023, 2024],
+  },
+  {
+    label: "2024년 역대 최대 — 3년 만의 반등",
+    description:
+      "2024년 귀촌 인구 42.2만 명은 역대 최대치로, 2021년 이후 3년 만의 반등입니다. 30대가 전체 귀촌인의 23.4%로 최대 비중을 차지했으며, 직업(32.0%), 주택(26.6%), 가족(24.2%) 순으로 귀촌 사유가 집계됐습니다.",
+    source: "통계청 귀농귀촌인통계 (2024)",
+    sourceUrl: "https://www.freezine.co.kr/news/articleView.html?idxno=10836",
+    relatedYears: [2024],
+  },
+];
+
 /* ── 2. 청년 귀농 트렌드 ── */
 
 export const youthData: YouthRatio[] = [
@@ -83,6 +128,33 @@ export const youthSummary = {
   source: "농림축산식품부 귀농귀촌 실태조사 (2024)",
 };
 
+export const youthCauses: CauseAnalysis[] = [
+  {
+    label: "스마트팜 확산 — 기술 기반 농업 진입 장벽 하락",
+    description:
+      "센서·자동화 시스템을 활용한 스마트팜 도입으로 노동 강도가 줄고 경험 없이도 생산성을 유지할 수 있게 되었습니다. 스마트팜 딸기 재배 시 생산량 30~50% 증가가 가능하며, 이는 IT에 익숙한 청년층에게 매력적인 진입 경로가 되고 있습니다.",
+    source: "농림축산식품부, 스마트팜 산업 활성화 동향",
+    sourceUrl: "https://www.narasallim.net/project/1378",
+    relatedYears: [2020, 2021, 2022, 2023, 2024],
+  },
+  {
+    label: "정부 청년 귀농 지원 정책 강화",
+    description:
+      "2023년부터 「제1차 후계·청년농 육성 기본계획('23~'27)」이 추진 중이며, 2024년에는 지원 대상을 농촌 거주·관련 산업 청년으로 확대했습니다. 청년창업 스마트팜 종합자금 30억 한도(연리 1%, 5년 거치), 교육비 무료, 임대형 스마트팜 우선 입주 등의 혜택이 제공됩니다.",
+    source: "농림축산식품부, 농업·농촌 청년정책 추진방향 (2024.08)",
+    sourceUrl: "https://www.gov.kr/portal/ntnadmNews/3734523",
+    relatedYears: [2023, 2024],
+  },
+  {
+    label: "'농업의 비전' — 청년 귀농 사유 7년 연속 최고",
+    description:
+      "30대 이하 청년층이 '농업의 비전 및 발전 가능성'을 귀농 사유로 꼽은 비율이 27.3%로 7년 연속 최고치를 기록했습니다. 6차 산업, 체험 농업, 로컬 브랜딩 등 새로운 농업 모델이 청년들에게 창업 기회로 인식되고 있습니다.",
+    source: "대한민국 정책브리핑, 청년층 귀농 이유 분석",
+    sourceUrl: "https://www.korea.kr/news/policyNewsView.do?newsId=148940202",
+    relatedYears: [2022, 2023, 2024],
+  },
+];
+
 /* ── 3. 귀농 만족도 조사 ── */
 
 export const satisfactionSegments: SatisfactionSegment[] = [
@@ -113,3 +185,34 @@ export const satisfactionSummary = {
     "귀농인의 70%가 현재 생활에 만족한다고 응답했으며, 자연환경과 여유로운 삶이 가장 큰 만족 요인으로 꼽혔습니다. 반면 의료 접근성, 문화생활 부족, 소득 불안정이 주요 불만 요인입니다. 도시 대비 월 생활비가 25% 낮아 경제적 여유가 만족도에 기여하고 있습니다.",
   source: "농림축산식품부 귀농귀촌 실태조사 (2024)",
 };
+
+export const satisfactionCauses: CauseAnalysis[] = [
+  {
+    label: "자연환경 + 여유 — 만족도 핵심 드라이버",
+    description:
+      "귀농 사유 1위가 '자연환경'(30.3%)이고 만족 요인 1위도 '자연환경'(45%)으로, 기대와 현실이 일치하는 유일한 영역입니다. 귀농·귀촌 10가구 중 7가구(71.9%)가 생활에 만족하며, 지역주민과의 관계가 좋다는 응답도 75.5%에 달합니다.",
+    source: "농림축산식품부, 2023 귀농·귀촌 실태조사",
+    sourceUrl: "https://www.mafra.go.kr/bbs/home/792/569593/artclView.do",
+  },
+  {
+    label: "생활비 25% 절감 — 그러나 소득도 감소",
+    description:
+      "귀농 가구의 월평균 생활비는 도시 239만원에서 173만원으로 25.1% 감소했습니다. 하지만 이는 자발적 절약이 아닌 소득 감소에 따른 강제적 지출 축소로 해석됩니다. 5년차 귀농가구 연평균 소득은 3,300만원 수준입니다.",
+    source: "서울신문, 5년차 귀농가구 연평균 소득 3300만원",
+    sourceUrl: "https://www.seoul.co.kr/news/society/2026/02/25/20260225500116",
+  },
+  {
+    label: "의료 접근성 — 불만족 1위 요인의 구조적 원인",
+    description:
+      "농촌 지역은 도시 대비 의료서비스 접근성, 이용 가능 범위, 응급의료 모두 낮은 수준입니다. 한국보건사회연구원 연구에 따르면 농촌 1인 가구 비율이 높아질수록 미충족 의료 수요가 증가하며, 이는 귀농인의 장기 정착을 저해하는 핵심 요인입니다.",
+    source: "한국농촌경제연구원, 농촌·도시 건강실태 및 의료비용 효과 비교",
+    sourceUrl: "https://repository.krei.re.kr/bitstream/2018.oak/24943/1/P257.pdf",
+  },
+  {
+    label: "초기 3년 — 정착 성패의 분기점",
+    description:
+      "귀촌인의 최대 고민은 경제 문제이며, 초기 3년간 집중 관리가 필요합니다. 농외소득이 200만원 이상 급감하면서 전체 소득을 끌어내리는 구조가 확인되었으며, 이 시기를 넘기면 만족도가 안정화되는 경향이 있습니다.",
+    source: "서울신문, 귀촌인의 최대 고민은 경제",
+    sourceUrl: "https://www.seoul.co.kr/news/plan/disappear-population/2025/10/16/20251016010003",
+  },
+];
