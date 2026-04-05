@@ -99,10 +99,19 @@
 }
 
 .mapGuideTitle {
-  font-size: var(--fs-h3);
+  font-size: var(--fs-h4);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .mapGuideTitle {
+    font-size: var(--fs-h3);
+  }
 }
 
 .mapGuideDesc {

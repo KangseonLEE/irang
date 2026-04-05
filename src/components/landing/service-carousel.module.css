@@ -126,11 +126,14 @@
 
 /* 제목 */
 .cardTitle {
-  font-size: var(--fs-h2);
+  font-size: var(--fs-h3);
   font-weight: 800;
   color: var(--foreground, #111);
   letter-spacing: -0.02em;
   line-height: var(--lh-tight);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media (min-width: 640px) {
@@ -360,37 +363,5 @@
   .arrowBtn:not(:disabled):hover {
     border-color: var(--primary, #1B6B5A);
     color: var(--primary, #1B6B5A);
-  }
-}
-
-/* ── 다크모드 ── */
-@media (prefers-color-scheme: dark) {
-  .card {
-    background: var(--card, #1a1a1a);
-  }
-
-  .cardRegion {
-    background: rgba(27, 107, 90, 0.08);
-  }
-
-  .cardCrop {
-    background: rgba(200, 134, 10, 0.08);
-  }
-
-  .cardProgram {
-    background: rgba(37, 99, 235, 0.06);
-  }
-
-  .badge {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.6);
-  }
-
-  .item {
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .arrowBtn {
-    background: var(--card, #1a1a1a);
   }
 }

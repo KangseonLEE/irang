@@ -129,6 +129,9 @@
   letter-spacing: -0.02em;
   line-height: 1.3;
   color: var(--foreground, #111);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── 콘텐츠 그리드 ── */

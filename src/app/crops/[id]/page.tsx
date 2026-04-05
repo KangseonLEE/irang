@@ -123,8 +123,8 @@ export default async function CropDetailPage({
                 난이도: {data.difficulty}
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <h1 className={s.heroTitle} style={{ flex: 1 }}>{data.name}</h1>
+            <div className={s.heroTitleRow}>
+              <h1 className={s.heroTitle}>{data.name}</h1>
               <BookmarkButton
                 id={data.id}
                 type="crop"

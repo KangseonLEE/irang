@@ -1,5 +1,4 @@
 /* ── 작물 목록 페이지 ── */
-/* credit.co.kr 참고: 대시보드 카드형 레이아웃 */
 
 /* Suspense fallback skeleton */
 .filterSkeleton {
@@ -71,42 +70,45 @@
   margin: 0;
 }
 
-/* 작물 카드 그리드 */
+/* ── 작물 카드 그리드 ── */
 .cropGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 @media (min-width: 640px) {
   .cropGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
   }
 }
 
 @media (min-width: 1024px) {
   .cropGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1280px) {
-  .cropGrid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-/* 작물 카드 */
+/* ── 작물 카드 (리디자인: 밝은 이미지 + 정보 하단) ── */
 .cropCard {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 280px;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
   border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .cropCard:hover {
+    border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    box-shadow: 0 4px 20px rgba(27, 107, 90, 0.08);
+  }
 }
 
 .cropCard:focus-visible {
@@ -114,113 +116,179 @@
   outline-offset: 2px;
 }
 
-.cropCardOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.5));
-  pointer-events: none;
+/* 이미지 래퍼 — aspect-ratio로 높이 제어 */
+.cropCardImageWrap {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .cropCardImage {
   transition: transform 0.3s ease;
 }
 
-.cropCard:hover .cropCardImage {
-  transform: scale(1.05);
+@media (hover: hover) {
+  .cropCard:hover .cropCardImage {
+    transform: scale(1.04);
+  }
 }
 
-.cropCardContent {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 24px;
-  height: 100%;
-  z-index: 1;
-}
-
+/* 카테고리 pill — 이미지 위 좌하단, frosted glass */
 .cropCardCategory {
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.cropCardName {
-  font-size: var(--fs-h2);
-  font-weight: 700;
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
   color: #fff;
-  margin: 0;
+  background: rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  z-index: 2;
 }
 
-.cropCardDivider {
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  margin: 0;
+/* backdrop-filter 미지원 폴백 */
+@supports not (backdrop-filter: blur(1px)) {
+  .cropCardCategory {
+    background: rgba(0, 0, 0, 0.65);
+  }
 }
 
-.cropCardMeta {
+/* ── 텍스트 정보 영역 ── */
+.cropCardContent {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
+  padding: 10px 12px 12px;
 }
 
-.cropCardMetaRow {
+@media (min-width: 640px) {
+  .cropCardContent {
+    gap: 6px;
+    padding: 12px 14px 14px;
+  }
+}
+
+/* L1: 이모지 + 작물명 + 난이도 한 줄 */
+.cropCardNameRow {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  font-size: var(--fs-body);
-}
-
-.cropCardMetaLabel {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.cropCardMetaValue {
-  font-weight: 500;
-  color: #fff;
-}
-
-/* KOSIS 데이터 박스 */
-.cropCardKosis {
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
   gap: 6px;
 }
 
-.cropCardKosisRow {
+.cropCardNameGroup {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
 }
 
-.cropCardKosisLabel {
-  font-size: var(--fs-body-sm);
-  color: rgba(255, 255, 255, 0.6);
+.cropCardEmoji {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
-.cropCardKosisValue {
-  font-size: var(--fs-body);
-  font-weight: 500;
-  color: #fff;
+@media (min-width: 640px) {
+  .cropCardEmoji {
+    font-size: 18px;
+  }
 }
 
-/* 작물 카드 설명 */
+.cropCardName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--foreground, #111);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .cropCardName {
+    font-size: 16px;
+  }
+}
+
+/* 난이도 pill — color-coded */
+.difficultyBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .difficultyBadge {
+    font-size: 11px;
+    padding: 2px 10px;
+  }
+}
+
+.difficultyEasy {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.difficultyMedium {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.difficultyHard {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* L2: 재배시기 */
+.cropCardSeason {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted-foreground, #6b7280);
+  line-height: 1.4;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .cropCardSeason {
+    font-size: 13px;
+  }
+}
+
+/* L3: 설명 — 1줄 클램프 */
 .cropCardDesc {
-  margin-top: auto;
-  font-size: var(--fs-body-sm);
-  line-height: var(--lh-normal);
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--muted-foreground, #9ca3af);
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  margin: 0;
 }
 
-/* 빈 상태 */
+@media (min-width: 640px) {
+  .cropCardDesc {
+    font-size: 13px;
+    -webkit-line-clamp: 2;
+  }
+}
+
+/* ── 빈 상태 ── */
 .emptyState {
   display: flex;
   flex-direction: column;
@@ -251,9 +319,11 @@
   text-decoration: none;
 }
 
-.emptyStateLink:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+@media (hover: hover) {
+  .emptyStateLink:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
 }
 
 /* TOP 10 통계 카드 */
@@ -333,8 +403,10 @@
   border-bottom: none;
 }
 
-.table tbody tr:hover {
-  background: var(--muted, #f9fafb);
+@media (hover: hover) {
+  .table tbody tr:hover {
+    background: var(--muted, #f9fafb);
+  }
 }
 
 .thCenter {
@@ -375,9 +447,11 @@
   transition: text-decoration 0.15s;
 }
 
-.crossLink:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+@media (hover: hover) {
+  .crossLink:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
 }
 
 .crossLink:focus-visible {

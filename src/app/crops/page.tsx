@@ -91,6 +91,13 @@ export default async function CropsPage({ searchParams }: PageProps) {
 
 // --- 서브 컴포넌트 ---
 
+// 난이도 → CSS class 매핑
+const DIFFICULTY_CLASS: Record<string, string> = {
+  쉬움: s.difficultyEasy,
+  보통: s.difficultyMedium,
+  어려움: s.difficultyHard,
+};
+
 function CropCard({
   crop,
 }: {
@@ -98,43 +105,40 @@ function CropCard({
 }) {
   return (
     <Link href={`/crops/${crop.id}`} className={s.cropCard}>
-      {/* 배경 작물 이미지 */}
-      <Image
-        src={`/crops/${crop.id}.jpg`}
-        alt={crop.name}
-        fill
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-        className={s.cropCardImage}
-        style={{ objectFit: "cover" }}
-      />
-
-      {/* 다크 오버레이 */}
-      <div className={s.cropCardOverlay} />
-
-      {/* 콘텐츠 */}
-      <div className={s.cropCardContent}>
-        {/* 상단: 카테고리 */}
+      {/* 이미지 영역 — aspect-ratio 기반 */}
+      <div className={s.cropCardImageWrap}>
+        <Image
+          src={`/crops/${crop.id}.jpg`}
+          alt={`${crop.name} 작물 사진`}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className={s.cropCardImage}
+          style={{ objectFit: "cover" }}
+        />
         <span className={s.cropCardCategory}>{crop.category}</span>
+      </div>
 
-        {/* 작물명 */}
-        <h3 className={s.cropCardName}>{crop.name}</h3>
-
-        {/* 구분선 */}
-        <hr className={s.cropCardDivider} />
-
-        {/* 메타 데이터 */}
-        <div className={s.cropCardMeta}>
-          <div className={s.cropCardMetaRow}>
-            <span className={s.cropCardMetaLabel}>재배 시기</span>
-            <span className={s.cropCardMetaValue}>{crop.growingSeason}</span>
+      {/* 텍스트 정보 영역 */}
+      <div className={s.cropCardContent}>
+        {/* L1: 이모지 + 작물명 + 난이도 */}
+        <div className={s.cropCardNameRow}>
+          <div className={s.cropCardNameGroup}>
+            <span className={s.cropCardEmoji} aria-hidden="true">
+              {crop.emoji}
+            </span>
+            <h3 className={s.cropCardName}>{crop.name}</h3>
           </div>
-          <div className={s.cropCardMetaRow}>
-            <span className={s.cropCardMetaLabel}>재배 난이도</span>
-            <span className={s.cropCardMetaValue}>{crop.difficulty}</span>
-          </div>
+          <span
+            className={`${s.difficultyBadge} ${DIFFICULTY_CLASS[crop.difficulty] ?? s.difficultyMedium}`}
+          >
+            {crop.difficulty}
+          </span>
         </div>
 
-        {/* 설명 */}
+        {/* L2: 재배시기 */}
+        <p className={s.cropCardSeason}>{crop.growingSeason}</p>
+
+        {/* L3: 설명 */}
         <p className={s.cropCardDesc}>{crop.description}</p>
       </div>
     </Link>

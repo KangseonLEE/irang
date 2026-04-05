@@ -56,6 +56,10 @@
   font-weight: 800;
   color: var(--foreground, #111);
   letter-spacing: -0.02em;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .meta {
@@ -127,6 +131,10 @@
   font-size: var(--fs-body-lg);
   font-weight: 700;
   color: var(--foreground, #111);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sectionIcon {
@@ -212,6 +220,9 @@
   font-size: var(--fs-body-lg);
   font-weight: 700;
   color: var(--foreground, #111);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .relatedGrid {

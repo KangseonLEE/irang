@@ -131,7 +131,14 @@
   border: 1px solid #fecaca;
 }
 
+.heroTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .heroTitle {
+  flex: 1;
   font-size: 28px;
   font-weight: 800;
   line-height: 1.3;
@@ -160,13 +167,14 @@
 /* Quick Facts 카드 */
 .quickFacts {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
 @media (min-width: 640px) {
   .quickFacts {
     grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
   }
 }
 
@@ -265,10 +273,19 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 22px 28px 0;
+  padding: 18px 18px 0;
   font-size: var(--fs-h3);
   font-weight: 700;
   color: var(--foreground, #111);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .sectionHeader {
+    padding: 22px 28px 0;
+  }
 }
 
 .sectionHeaderIcon {
@@ -284,7 +301,13 @@
 }
 
 .sectionBody {
-  padding: 20px 28px 28px;
+  padding: 16px 18px 18px;
+}
+
+@media (min-width: 640px) {
+  .sectionBody {
+    padding: 20px 28px 28px;
+  }
 }
 
 /* ── 재배 환경 그리드 ── */
@@ -615,17 +638,32 @@
 }
 
 .sideSectionHeader {
-  padding: 20px 24px 0;
+  padding: 16px 18px 0;
   font-size: var(--fs-h4);
   font-weight: 700;
   color: var(--foreground, #111);
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .sideSectionHeader {
+    padding: 20px 24px 0;
+  }
 }
 
 .sideSectionBody {
-  padding: 16px 24px 24px;
+  padding: 14px 18px 18px;
+}
+
+@media (min-width: 640px) {
+  .sideSectionBody {
+    padding: 16px 24px 24px;
+  }
 }
 
 /* 연관 작물 */

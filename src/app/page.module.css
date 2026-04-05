@@ -251,59 +251,6 @@
   margin: 0;
 }
 
-/* ── 히어로 다크모드 대응 ── */
-@media (prefers-color-scheme: dark) {
-  .heroSection {
-    background:
-      linear-gradient(
-        180deg,
-        rgba(8, 28, 22, 0.80) 0%,
-        rgba(10, 24, 18, 0.72) 50%,
-        rgba(8, 28, 22, 0.85) 100%
-      ),
-      url("/images/hero-farm.webp") center / cover no-repeat;
-  }
-
-  .heroEyebrow {
-    background: rgba(255, 255, 255, 0.10);
-  }
-
-  .heroAccent {
-    color: #7FE8C8;
-  }
-
-  .heroAccent::after {
-    background: rgba(127, 232, 200, 0.25);
-  }
-
-  .heroSubtitle {
-    color: rgba(255, 255, 255, 0.80);
-  }
-
-  .heroSearchWrap {
-    filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.4));
-  }
-
-  .searchFallback {
-    background: #1a2e28;
-    border-color: rgba(255, 255, 255, 0.12);
-  }
-
-  .heroQuickChip {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.18);
-  }
-
-  .heroQuickChip:hover {
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.35);
-  }
-
-  .heroTrust {
-    color: rgba(255, 255, 255, 0.50);
-  }
-}
-
 /* ══════════════════════════════════════════
    귀농 트렌드 섹션
    ══════════════════════════════════════════ */
@@ -347,12 +294,22 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: var(--fs-h2);
+  font-size: var(--fs-h3);
   font-weight: 800;
   color: var(--foreground, #111);
   letter-spacing: -0.02em;
   line-height: var(--lh-tight);
   flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .trendTitle {
+    font-size: var(--fs-h2);
+  }
 }
 
 .trendTitleIcon {
@@ -1618,10 +1575,19 @@
    섹션 타이틀 (벤토·출처 영역 등)
    ══════════════════════════════════════════ */
 .sectionTitle {
-  font-size: var(--fs-h2);
+  font-size: var(--fs-h3);
   font-weight: 800;
   color: var(--foreground, #111);
   letter-spacing: -0.02em;
   line-height: var(--lh-tight);
   flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .sectionTitle {
+    font-size: var(--fs-h2);
+  }
 }

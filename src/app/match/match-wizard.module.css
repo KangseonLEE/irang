@@ -58,12 +58,24 @@
 }
 
 .questionTitle {
-  font-size: var(--fs-h2);
+  font-size: var(--fs-h3);
   font-weight: 800;
   color: var(--foreground);
   margin: 0;
   letter-spacing: -0.02em;
   word-break: keep-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .questionTitle {
+    font-size: var(--fs-h2);
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
 }
 
 .questionSubtitle {

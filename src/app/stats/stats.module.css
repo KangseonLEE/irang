@@ -68,6 +68,9 @@
   color: var(--foreground, #111);
   letter-spacing: -0.02em;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .headerDesc {
@@ -104,6 +107,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cardTitleIcon {

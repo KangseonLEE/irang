@@ -81,6 +81,9 @@
   color: #fff;
   margin: 0;
   letter-spacing: -0.025em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media (min-width: 768px) {
@@ -234,6 +237,10 @@
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sectionDesc {
@@ -478,6 +485,10 @@
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sideDesc {
