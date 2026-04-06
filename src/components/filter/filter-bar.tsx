@@ -144,46 +144,49 @@ export function FilterActions({
         />
       </form>
 
-      {/* 선택적 숫자 입력 (예: 나이) */}
-      {numberInput && (
-        <form className={s.numberForm} action={basePath} method="get">
-          {Object.entries(currentFilters).map(([k, v]) =>
-            v && k !== numberInput.paramKey ? (
-              <input key={k} type="hidden" name={k} value={v} />
-            ) : null,
-          )}
-          <label className={s.numberLabel}>{numberInput.label}</label>
-          <input
-            type="number"
-            name={numberInput.paramKey}
-            defaultValue={currentFilters[numberInput.paramKey] ?? ""}
-            placeholder={numberInput.placeholder}
-            min={numberInput.min}
-            max={numberInput.max}
-            className={s.numberInput}
-          />
-        </form>
-      )}
+      {/* 보조 컨트롤 — 모바일에서 2행 분리 */}
+      <div className={s.filterSecondary}>
+        {/* 선택적 숫자 입력 (예: 나이) */}
+        {numberInput && (
+          <form className={s.numberForm} action={basePath} method="get">
+            {Object.entries(currentFilters).map(([k, v]) =>
+              v && k !== numberInput.paramKey ? (
+                <input key={k} type="hidden" name={k} value={v} />
+              ) : null,
+            )}
+            <label className={s.numberLabel}>{numberInput.label}</label>
+            <input
+              type="number"
+              name={numberInput.paramKey}
+              defaultValue={currentFilters[numberInput.paramKey] ?? ""}
+              placeholder={numberInput.placeholder}
+              min={numberInput.min}
+              max={numberInput.max}
+              className={s.numberInput}
+            />
+          </form>
+        )}
 
-      {/* 선택적 토글 (예: 마감 포함) */}
-      {toggle && (
-        <Link
-          href={buildFilterUrl(
-            basePath,
-            currentFilters,
-            toggle.paramKey,
-            toggle.isActive ? undefined : "1",
-          )}
-          className={toggle.isActive ? s.toggleActive : s.toggle}
-        >
-          {toggle.label}
+        {/* 선택적 토글 (예: 마감 포함) */}
+        {toggle && (
+          <Link
+            href={buildFilterUrl(
+              basePath,
+              currentFilters,
+              toggle.paramKey,
+              toggle.isActive ? undefined : "1",
+            )}
+            className={toggle.isActive ? s.toggleActive : s.toggle}
+          >
+            {toggle.label}
+          </Link>
+        )}
+
+        {/* 초기화 */}
+        <Link href={basePath} className={s.resetLink}>
+          초기화
         </Link>
-      )}
-
-      {/* 초기화 */}
-      <Link href={basePath} className={s.resetLink}>
-        초기화
-      </Link>
+      </div>
     </div>
   );
 }

@@ -37,8 +37,8 @@
 }
 
 .filterLabel {
-  font-size: var(--fs-caption);
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--muted-foreground);
   flex-shrink: 0;
   white-space: nowrap;
@@ -50,13 +50,13 @@
   flex-shrink: 0;
 }
 
-/* ── Pill ── */
+/* ── Pill (당근·토스·배민 기준 32px) ── */
 .pill {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  padding: 10px 14px;
-  font-size: var(--fs-caption);
+  min-height: 32px;
+  padding: 6px 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--muted-foreground);
   background: var(--muted, #f9fafb);
@@ -95,12 +95,32 @@
   margin: 0;
 }
 
-/* ── Actions (검색 + 토글 + 초기화) ── */
+/* ── Actions (검색 + 보조 컨트롤) ── */
 .filterActions {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+/* 보조 컨트롤 (나이 · 토글 · 초기화) */
+.filterSecondary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 모바일: 검색 / 보조 컨트롤 2행 분리 */
+@media (max-width: 639px) {
+  .filterActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchForm {
+    flex: unset;
+    min-width: unset;
+  }
 }
 
 /* ── Search ── */
@@ -148,9 +168,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 44px;
-  padding: 10px 14px;
-  font-size: var(--fs-caption);
+  min-height: 32px;
+  padding: 6px 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--muted-foreground);
   background: var(--muted, #f9fafb);
@@ -184,17 +204,17 @@
 }
 
 .numberLabel {
-  font-size: var(--fs-caption);
+  font-size: 13px;
   font-weight: 500;
   color: var(--muted-foreground);
   white-space: nowrap;
 }
 
 .numberInput {
-  width: 80px;
-  height: 36px;
+  width: 72px;
+  height: 32px;
   padding: 0 10px;
-  font-size: var(--fs-body-sm);
+  font-size: 13px;
   color: var(--foreground);
   background-color: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
@@ -225,9 +245,9 @@
 .resetLink {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  padding: 10px 14px;
-  font-size: var(--fs-caption);
+  min-height: 32px;
+  padding: 6px 12px;
+  font-size: 13px;
   color: var(--muted-foreground);
   text-decoration: none;
   border-radius: 9999px;
