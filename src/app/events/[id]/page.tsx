@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   ArrowLeft,
   ExternalLink,
@@ -38,12 +39,6 @@ export function generateStaticParams() {
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
 }
-
-const STATUS_CLASS: Record<FarmEvent["status"], string> = {
-  접수중: s.statusOpen,
-  접수예정: s.statusUpcoming,
-  마감: s.statusClosed,
-};
 
 const TYPE_CLASS: Record<FarmEvent["type"], string> = {
   일일체험: s.typeExperience,
@@ -93,9 +88,7 @@ export default async function EventDetailPage({
       {/* Title + Badges */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
-          <span className={`${s.statusBadge} ${STATUS_CLASS[event.status]}`}>
-            {event.status}
-          </span>
+          <StatusBadge status={event.status} />
           <span className={`${s.typeBadge} ${TYPE_CLASS[event.type]}`}>
             {event.type}
           </span>

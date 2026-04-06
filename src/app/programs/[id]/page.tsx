@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   ArrowLeft,
   ExternalLink,
@@ -69,11 +70,7 @@ export default async function ProgramDetailPage({
       {/* Title + Status */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
-          <span
-            className={`${s.statusBadge} ${s[`status_${program.status}`]}`}
-          >
-            {program.status}
-          </span>
+          <StatusBadge status={program.status} />
           <span className={`${s.typeLabel} ${TYPE_CLASS[program.supportType]}`}>
             {program.supportType}
           </span>

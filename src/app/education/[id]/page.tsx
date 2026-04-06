@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   ArrowLeft,
   ExternalLink,
@@ -42,12 +43,6 @@ export function generateStaticParams() {
 interface EducationDetailPageProps {
   params: Promise<{ id: string }>;
 }
-
-const STATUS_CLASS: Record<EducationCourse["status"], string> = {
-  모집중: s.statusOpen,
-  모집예정: s.statusUpcoming,
-  마감: s.statusClosed,
-};
 
 const LEVEL_CLASS: Record<EducationCourse["level"], string> = {
   입문: s.levelBeginner,
@@ -90,9 +85,7 @@ export default async function EducationDetailPage({
       {/* Title + Badges */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
-          <span className={`${s.statusBadge} ${STATUS_CLASS[course.status]}`}>
-            {course.status}
-          </span>
+          <StatusBadge status={course.status} />
           <span className={`${s.levelBadge} ${LEVEL_CLASS[course.level]}`}>
             {course.level}
           </span>

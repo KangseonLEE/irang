@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { FileText, CalendarDays, MessageCircle } from "lucide-react";
+import { FileText, MessageCircle } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   filterProgramsAsync,
   getCurrentPeriod,
@@ -81,25 +82,14 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
       </Suspense>
 
       {/* Page Header */}
-      <div className={s.pageHeader}>
-        <div className={s.headerTop}>
-          <FileText size={20} />
-          <span className={s.headerLabel}>Support Programs</span>
-        </div>
-        <h1 className={s.headerTitle}>지원사업 검색</h1>
-        <p className={s.headerDesc}>
-          나이, 지역, 희망 작물에 맞는 귀농 · 귀촌 지원사업을 찾아보세요.
-        </p>
-        <div className={s.headerMeta}>
-          <p className={s.headerCount}>
-            총 <span className={s.headerCountNumber}>{total}</span>건
-          </p>
-          <span className={s.headerPeriod}>
-            <CalendarDays size={14} />
-            {periodLabel} 기준
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        icon={<FileText size={20} />}
+        label="Support Programs"
+        title="지원사업 검색"
+        description="나이, 지역, 희망 작물에 맞는 귀농 · 귀촌 지원사업을 찾아보세요."
+        count={total}
+        periodLabel={periodLabel}
+      />
 
       {/* Filter Bar */}
       <FilterBar>

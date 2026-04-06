@@ -54,34 +54,6 @@
   margin-bottom: 8px;
 }
 
-/* 상태 뱃지 공통 */
-.statusBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 12px;
-  border-radius: 9999px;
-  font-size: var(--fs-caption);
-  font-weight: 500;
-  line-height: var(--lh-normal);
-}
-
-/* 상태별 색상 */
-.statusOpen {
-  background: var(--primary, #1b6b5a);
-  color: var(--primary-foreground, #fff);
-}
-
-.statusUpcoming {
-  background: #fef9c3;
-  color: #854d0e;
-}
-
-.statusClosed {
-  background: transparent;
-  color: var(--muted-foreground, #6b7280);
-  border: 1px solid var(--border, #e5e7eb);
-}
-
 /* 행사 유형 뱃지 공통 */
 .typeBadge {
   display: inline-flex;

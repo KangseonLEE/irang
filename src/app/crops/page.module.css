@@ -24,61 +24,6 @@
   }
 }
 
-/* ── Page Header ── */
-.pageHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 4px;
-}
-
-.headerTop {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--primary, #1b6b5a);
-}
-
-.headerLabel {
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.headerTitle {
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--foreground);
-  margin: 0;
-}
-
-.headerDesc {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  margin: 0;
-}
-
-.headerMeta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 4px;
-}
-
-.headerCount {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  margin: 0;
-}
-
-.headerCountNumber {
-  font-weight: 600;
-  color: var(--primary, #1b6b5a);
-}
-
 /* ── 작물 카드 그리드 ── */
 .cropGrid {
   display: grid;
@@ -275,44 +220,6 @@
   .cropCardDesc {
     font-size: 13px;
     -webkit-line-clamp: 2;
-  }
-}
-
-/* ── 빈 상태 ── */
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  min-height: 200px;
-  background: var(--card, #fff);
-  border: 2px dashed var(--border, #e5e7eb);
-  border-radius: 20px;
-  padding: 32px 24px;
-}
-
-.emptyStateIcon {
-  color: var(--muted-foreground, #9ca3af);
-}
-
-.emptyStateText {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground, #6b7280);
-  margin: 0;
-}
-
-.emptyStateLink {
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  color: var(--primary, #1b6b5a);
-  text-decoration: none;
-}
-
-@media (hover: hover) {
-  .emptyStateLink:hover {
-    text-decoration: underline;
-    text-underline-offset: 4px;
   }
 }
 

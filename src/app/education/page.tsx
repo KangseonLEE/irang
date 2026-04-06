@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import Link from "next/link";
 import {
   GraduationCap,
   CalendarDays,
@@ -29,6 +28,8 @@ import {
   FilterDivider,
   FilterActions,
 } from "@/components/filter/filter-bar";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import s from "./page.module.css";
 
@@ -102,25 +103,14 @@ export default async function EducationPage({ searchParams }: PageProps) {
       </Suspense>
 
       {/* Page Header */}
-      <div className={s.pageHeader}>
-        <div className={s.headerTop}>
-          <GraduationCap size={20} />
-          <span className={s.headerLabel}>Education</span>
-        </div>
-        <h1 className={s.headerTitle}>귀농 교육</h1>
-        <p className={s.headerDesc}>
-          귀농에 필요한 교육 과정을 지역, 유형, 난이도별로 찾아보세요.
-        </p>
-        <div className={s.headerMeta}>
-          <p className={s.headerCount}>
-            총 <span className={s.headerCountNumber}>{courses.length}</span>건
-          </p>
-          <span className={s.headerPeriod}>
-            <CalendarDays size={14} />
-            {periodLabel} 기준
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        icon={<GraduationCap size={20} />}
+        label="Education"
+        title="귀농 교육"
+        description="귀농에 필요한 교육 과정을 지역, 유형, 난이도별로 찾아보세요."
+        count={courses.length}
+        periodLabel={periodLabel}
+      />
 
       {/* Filter Bar */}
       <FilterBar>
@@ -165,24 +155,12 @@ export default async function EducationPage({ searchParams }: PageProps) {
         />
       </FilterBar>
 
-      {/* Result Count */}
-      <p className={s.resultCount}>
-        검색 결과 <span className={s.resultTotal}>{courses.length}</span>건
-      </p>
-
       {/* Course Grid or Empty */}
       {courses.length === 0 ? (
-        <div className={s.empty}>
-          <div className={s.emptyInner}>
-            <GraduationCap className={s.emptyIcon} />
-            <p className={s.emptyTitle}>
-              조건에 맞는 교육 과정이 없습니다
-            </p>
-            <p className={s.emptyDesc}>
-              검색 조건을 변경하거나 필터를 초기화해 보세요.
-            </p>
-          </div>
-        </div>
+        <EmptyState
+          icon={<GraduationCap size={32} />}
+          message={<>조건에 맞는 교육 과정이 없습니다.<br />검색 조건을 변경하거나 필터를 초기화해 보세요.</>}
+        />
       ) : (
         <div className={s.grid}>
           {courses.map((course) => (

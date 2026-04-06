@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, ArrowRight, GitCompareArrows, Sprout, Landmark, FileText } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 import { PROVINCES } from "@/lib/data/regions";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
@@ -55,17 +56,12 @@ export default async function RegionsPage() {
       </Suspense>
 
       {/* Page Header */}
-      <header className={s.pageHeader}>
-        <span className={s.headerOverline}>
-          <MapPin size={16} aria-hidden="true" />
-          Regions
-        </span>
-        <h1 className={s.headerTitle}>지역 탐색</h1>
-        <p className={s.headerDesc}>
-          귀농을 고려 중인 지역을 선택해 기후, 인구, 추천 작물, 지원사업 정보를
-          확인하세요.
-        </p>
-      </header>
+      <PageHeader
+        icon={<MapPin size={20} />}
+        label="Regions"
+        title="지역 탐색"
+        description="귀농을 고려 중인 지역을 선택해 기후, 인구, 추천 작물, 지원사업 정보를 확인하세요."
+      />
 
       {/* 인터랙티브 지도 */}
       <section className={s.mapSection}>

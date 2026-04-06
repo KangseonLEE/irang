@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Sprout, ArrowRight } from "lucide-react";
 import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   FilterBar,
   FilterRow,
@@ -61,21 +63,13 @@ export default async function CropsPage({ searchParams }: PageProps) {
   return (
     <div className={s.page}>
       {/* Page Header */}
-      <div className={s.pageHeader}>
-        <div className={s.headerTop}>
-          <Sprout size={20} />
-          <span className={s.headerLabel}>Crop Info</span>
-        </div>
-        <h1 className={s.headerTitle}>작물 정보</h1>
-        <p className={s.headerDesc}>
-          주요 작물의 재배 환경, 예상 수익, 재배 난이도를 한눈에 비교하세요.
-        </p>
-        <div className={s.headerMeta}>
-          <p className={s.headerCount}>
-            총 <span className={s.headerCountNumber}>{filteredCrops.length}</span>건
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        icon={<Sprout size={20} />}
+        label="Crop Info"
+        title="작물 정보"
+        description="주요 작물의 재배 환경, 예상 수익, 재배 난이도를 한눈에 비교하세요."
+        count={filteredCrops.length}
+      />
 
       {/* Filter Bar */}
       <FilterBar>
@@ -115,19 +109,18 @@ export default async function CropsPage({ searchParams }: PageProps) {
       </div>
 
       {filteredCrops.length === 0 && (
-        <div className={s.emptyState}>
-          <Sprout size={32} className={s.emptyStateIcon} />
-          <p className={s.emptyStateText}>
-            {searchQuery
+        <EmptyState
+          icon={<Sprout size={32} />}
+          message={
+            searchQuery
               ? `'${searchQuery}' 검색 결과가 없습니다.`
               : currentDifficulty !== "전체"
                 ? `'${currentCategory}' 카테고리의 '${currentDifficulty}' 난이도 작물이 없습니다.`
-                : `'${currentCategory}' 카테고리에 등록된 작물이 없습니다.`}
-          </p>
-          <Link href="/crops" className={s.emptyStateLink}>
-            전체 작물 보기
-          </Link>
-        </div>
+                : `'${currentCategory}' 카테고리에 등록된 작물이 없습니다.`
+          }
+          linkHref="/crops"
+          linkText="전체 작물 보기"
+        />
       )}
 
       {/* Cross-link CTA */}

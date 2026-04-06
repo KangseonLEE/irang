@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import {
   Calendar,
-  CalendarDays,
   MapPin,
   Clock,
   Users,
@@ -24,6 +22,8 @@ import {
   FilterDivider,
   FilterActions,
 } from "@/components/filter/filter-bar";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import s from "./page.module.css";
 
@@ -123,26 +123,14 @@ export default async function EventsPage({ searchParams }: PageProps) {
   return (
     <div className={s.page}>
       {/* ── Page Header ── */}
-      <div className={s.pageHeader}>
-        <div className={s.headerTop}>
-          <Calendar size={20} />
-          <span className={s.headerLabel}>Events</span>
-        </div>
-        <h1 className={s.headerTitle}>체험·행사</h1>
-        <p className={s.headerDesc}>
-          귀농 일일체험, 팜스테이, 박람회, 설명회 등 다양한 체험과 행사를
-          찾아보세요.
-        </p>
-        <div className={s.headerMeta}>
-          <p className={s.headerCount}>
-            총 <span className={s.headerCountNumber}>{events.length}</span>건
-          </p>
-          <span className={s.headerPeriod}>
-            <CalendarDays size={14} />
-            {periodLabel} 기준
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        icon={<Calendar size={20} />}
+        label="Events"
+        title="체험·행사"
+        description="귀농 일일체험, 팜스테이, 박람회, 설명회 등 다양한 체험과 행사를 찾아보세요."
+        count={events.length}
+        periodLabel={periodLabel}
+      />
 
       {/* ── Filter Bar ── */}
       <FilterBar>
@@ -182,17 +170,12 @@ export default async function EventsPage({ searchParams }: PageProps) {
       {/* ── Card Grid ── */}
       <div className={s.grid}>
         {events.length === 0 ? (
-          <div className={s.emptyState}>
-            <Calendar size={32} className={s.emptyStateIcon} />
-            <p className={s.emptyStateText}>
-              조건에 맞는 체험·행사가 없습니다.
-              <br />
-              필터를 변경하거나 마감 행사를 포함해 보세요.
-            </p>
-            <Link href="/events" className={s.emptyStateLink}>
-              전체 행사 보기
-            </Link>
-          </div>
+          <EmptyState
+            icon={<Calendar size={32} />}
+            message={<>조건에 맞는 체험·행사가 없습니다.<br />필터를 변경하거나 마감 행사를 포함해 보세요.</>}
+            linkHref="/events"
+            linkText="전체 행사 보기"
+          />
         ) : (
           events.map((event) => (
             <EventCard key={event.id} event={event} />

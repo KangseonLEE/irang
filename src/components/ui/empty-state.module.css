@@ -1,0 +1,40 @@
+/* ── Empty State (공통) ── */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 240px;
+  background: var(--card, #fff);
+  border: 2px dashed var(--border, #e5e7eb);
+  border-radius: 20px;
+  padding: 32px 24px;
+  grid-column: 1 / -1;
+}
+
+.icon {
+  color: var(--muted-foreground, #9ca3af);
+}
+
+.text {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+  text-align: center;
+}
+
+.link {
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}

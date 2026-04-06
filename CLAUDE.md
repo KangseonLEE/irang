@@ -66,12 +66,27 @@
 - CSS Modules `composes` 패턴 사용 (badge 기본 + 색상 변형)
 - **모든 상태 표시에 이 컴포넌트 사용**. 인라인 상태 표시(dot+text 등) 금지.
 
+#### PageHeader (`@/components/ui/page-header`)
+
+- 리스트형 페이지 상단 헤더 공통 컴포넌트
+- Props: `icon`, `label`, `title`, `description`, `count?`, `periodLabel?`
+- 건수(`count`)와 기준월(`periodLabel`)은 선택 — 필요 시만 전달
+- **페이지마다 `.pageHeader`, `.headerTop`, `.headerTitle` 등을 새로 정의하지 않는다**
+
+#### EmptyState (`@/components/ui/empty-state`)
+
+- 빈 상태(결과 없음) UI 공통 컴포넌트
+- Props: `icon`, `message`, `linkHref?`, `linkText?`
+- **페이지마다 `.emptyState`, `.emptyStateIcon`, `.emptyStateText` 등을 새로 정의하지 않는다**
+
 #### TermTooltip / GlossaryTerm (`@/components/ui/term-tooltip`)
 
 - 전문 용어 CSS-only 툴팁 (hover/focus-within, `"use client"` 불필요)
-- `GlossaryTerm`: 내장 용어 사전(`GLOSSARY`)에서 자동 매칭 (ha, 10a 등)
+- `GlossaryTerm`: 내장 용어 사전(`GLOSSARY`)에서 자동 매칭
+  - 등록 용어: ha, 10a, 노지, 시설재배, 스마트팜, 전업농, 겸업농, 영농정착지원금, 체류형귀농, 귀농, 귀촌
 - `TermTooltip`: 커스텀 용어-설명 직접 전달
 - **초보자가 모를 수 있는 농업/부동산 전문 용어에 적극 적용**
+- 새 용어 추가: `term-tooltip.tsx`의 `GLOSSARY` 객체에 key-value 추가
 
 ### 페이지 레이아웃 표준 (교육 페이지 기준)
 
@@ -79,17 +94,17 @@
 
 ```
 <div className={s.page}>
-  <PageHeader />       ← headerTop(아이콘+라벨) + h1 + 설명 + 메타(건수+기준월)
+  <PageHeader />       ← 공통 PageHeader 컴포넌트
   <FilterBar />        ← 공통 FilterBar 컴포넌트
   <div className={s.grid}>  ← 1열(모바일) → 2열(640px) → 3열(1024px)
     <Card /> ...
+    {empty && <EmptyState />}  ← 공통 EmptyState 컴포넌트
   </div>
 </div>
 ```
 
 - 기준 페이지: `/education/page.tsx` — 새 리스트 페이지 추가 시 이 파일을 참조
 - 카드 border-radius: `16~20px`, hover 시 `border-color` 변화 + 미세 `box-shadow`
-- 빈 상태(empty state): dashed border + 아이콘 + 안내 텍스트 + 초기화 링크
 
 ### 데이터 아키텍처
 
@@ -215,6 +230,46 @@
 
 - 코드 변경 후 반드시 `npm run build`로 검증한다. 0 에러가 확인되어야 완료.
 - TypeScript 타입 에러, CSS Module 참조 누락, 미사용 import를 빌드로 잡는다.
+
+### 8. 반복 문제 방지 — 코드 작성 전 체크리스트
+
+> 아래 체크리스트를 **코드를 한 줄이라도 작성하기 전에** 확인한다. 과거에 반복적으로 발생했던 문제들을 방지하기 위한 규칙이다.
+
+#### 체크리스트 A: "이미 있는 것을 또 만들고 있지 않은가?"
+
+| 만들려는 것 | 먼저 확인할 공통 컴포넌트 |
+|-------------|--------------------------|
+| 페이지 헤더 (아이콘+라벨+h1+설명+건수) | `@/components/ui/page-header` |
+| 필터 바 (pill 필터, 검색, 토글) | `@/components/filter/filter-bar` |
+| 상태 배지 (모집중/마감 등) | `@/components/ui/status-badge` |
+| 빈 상태 UI (dashed border + 안내문) | `@/components/ui/empty-state` |
+| 전문 용어 툴팁 (ha, 10a 등) | `@/components/ui/term-tooltip` |
+
+**위 목록에 해당하는 UI를 페이지 파일 안에 직접 구현하면 안 된다.** 공통 컴포넌트를 import하여 사용한다.
+
+#### 체크리스트 B: "CSS를 복붙하고 있지 않은가?"
+
+- 새 `page.module.css`에 CSS를 작성하기 전에, 동일한 스타일이 **다른 page.module.css에 이미 있는지** 검색한다.
+- 3개 이상의 파일에서 동일 CSS 블록이 나타나면 → `src/components/` 아래에 공통 컴포넌트/CSS로 추출한다.
+- **절대 금지**: `.pageHeader`, `.headerTop`, `.headerTitle`, `.statusBadge`, `.emptyState` 등 공통 패턴을 page.module.css에 새로 정의하는 것.
+
+#### 체크리스트 C: "인라인 스타일을 쓰고 있지 않은가?"
+
+- `style={{ display: "flex", ... }}` 같은 인라인 스타일은 원칙적으로 금지.
+- **허용 예외**: 동적 계산 값 (`width: ${progress}%`), `objectFit`, 1회성 크기 지정.
+- 인라인 스타일이 3번 이상 반복되면 반드시 CSS class로 추출한다.
+
+#### 체크리스트 D: "클라이언트 컴포넌트가 정말 필요한가?"
+
+- `"use client"` 추가 전: 이 컴포넌트에 `useState`, `useEffect`, `onClick` 등이 **진짜 필요한지** 확인한다.
+- CSS-only로 해결 가능한 인터랙션 (hover 툴팁, 토글 등)은 서버 컴포넌트로 유지한다.
+- Link 기반 필터링은 서버 컴포넌트에서 가능 → `useRouter`/`useSearchParams` 불필요.
+
+#### 체크리스트 E: "@media (hover: hover) 래핑했는가?"
+
+- 모든 `:hover` 스타일은 `@media (hover: hover) { }` 안에 넣어야 한다.
+- 터치 디바이스에서 hover가 고착(sticky)되는 문제를 방지한다.
+- 이 규칙을 어긴 hover 스타일이 발견되면 즉시 수정한다.
 
 ---
 
