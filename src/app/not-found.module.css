@@ -55,8 +55,10 @@
   transition: background-color 0.15s ease;
 }
 
-.primaryButton:hover {
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 90%, black);
+@media (hover: hover) {
+  .primaryButton:hover {
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 90%, black);
+  }
 }
 
 .outlineButton {
@@ -75,6 +77,8 @@
   transition: background-color 0.15s ease;
 }
 
-.outlineButton:hover {
-  background: var(--muted, #f4f4f5);
+@media (hover: hover) {
+  .outlineButton:hover {
+    background: var(--muted, #f4f4f5);
+  }
 }

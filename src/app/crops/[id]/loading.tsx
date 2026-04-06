@@ -10,12 +10,12 @@ export default function CropDetailLoading() {
         <div className={s.heroImage} />
         <div className={s.heroInfo}>
           <div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+            <div className={s.flexRow}>
               <div className={s.skeletonRound} style={{ width: 64, height: 28 }} />
               <div className={s.skeletonRound} style={{ width: 96, height: 28 }} />
             </div>
             <div className={s.skeleton} style={{ width: 200, height: 40, marginBottom: 14 }} />
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className={s.flexCol}>
               <div className={s.skeleton} style={{ width: "100%", height: 18 }} />
               <div className={s.skeleton} style={{ width: "80%", height: 18 }} />
             </div>
@@ -28,7 +28,7 @@ export default function CropDetailLoading() {
               </div>
             ))}
           </div>
-          <div style={{ display: "flex", gap: 10 }}>
+          <div className={s.ctaRow}>
             <div className={s.skeleton} style={{ width: 160, height: 40, borderRadius: 8 }} />
             <div className={s.skeleton} style={{ width: 120, height: 40, borderRadius: 8 }} />
           </div>
@@ -58,8 +58,8 @@ export default function CropDetailLoading() {
           <div className={s.section}>
             <div className={s.sectionTitle} />
             <div className={s.revenueBox}>
-              <div className={s.skeleton} style={{ width: 120, height: 16, background: "rgba(0,0,0,0.06)" }} />
-              <div className={s.skeleton} style={{ width: 200, height: 36, background: "rgba(0,0,0,0.06)" }} />
+              <div className={s.skeleton} style={{ width: 120, height: 16 }} />
+              <div className={s.skeleton} style={{ width: 200, height: 36 }} />
             </div>
             <div className={s.gridRow}>
               {[0, 1].map((i) => (
@@ -86,7 +86,7 @@ export default function CropDetailLoading() {
               {[0, 1, 2, 3, 4].map((i) => (
                 <div key={i} className={s.regionBarItem}>
                   <div className={s.regionBarMeta}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div className={s.flexRowCenter}>
                       <div className={s.skeletonCircle} style={{ width: 30, height: 30 }} />
                       <div className={s.skeleton} style={{ width: 72, height: 18 }} />
                     </div>
@@ -101,11 +101,11 @@ export default function CropDetailLoading() {
           {/* Tips */}
           <div className={s.section}>
             <div className={s.sectionTitle} />
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div className={s.tipsCol}>
               {[0, 1, 2].map((i) => (
                 <div key={i} className={s.tipRow}>
                   <div className={s.skeletonCircle} style={{ width: 36, height: 36, flexShrink: 0 }} />
-                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div className={s.flexCol} style={{ flex: 1 }}>
                     <div className={s.skeleton} style={{ width: "100%", height: 18 }} />
                     <div className={s.skeleton} style={{ width: "70%", height: 18 }} />
                   </div>
@@ -120,7 +120,7 @@ export default function CropDetailLoading() {
           {[0, 1, 2].map((i) => (
             <div key={i} className={s.section}>
               <div className={s.sectionTitle} style={{ width: 100 }} />
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <div className={s.sidebarTags}>
                 {[0, 1, 2].map((j) => (
                   <div key={j} className={s.skeleton} style={{ width: 80, height: 32, borderRadius: 8 }} />
                 ))}

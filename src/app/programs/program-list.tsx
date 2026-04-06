@@ -5,6 +5,7 @@ import { Loader2, FileText } from "lucide-react";
 import { loadMorePrograms } from "./actions";
 import { ProgramCard } from "./program-card";
 import type { SupportProgram, ProgramFilters } from "@/lib/data/programs";
+import { CardGrid } from "@/components/ui/card-grid";
 import s from "./program-list.module.css";
 
 interface ProgramListProps {
@@ -93,11 +94,11 @@ export function ProgramList({
       </div>
 
       {/* 3열 카드 그리드 */}
-      <div className={s.grid}>
+      <CardGrid>
         {programs.map((program) => (
           <ProgramCard key={program.id} program={program} />
         ))}
-      </div>
+      </CardGrid>
 
       {/* 로딩 인디케이터 + 센티넬 */}
       {hasMore && (

@@ -147,8 +147,10 @@
   transition: opacity 0.15s;
 }
 
-.heroPrimaryBtn:hover {
-  opacity: 0.9;
+@media (hover: hover) {
+  .heroPrimaryBtn:hover {
+    opacity: 0.9;
+  }
 }
 
 .heroSecondaryBtn {
@@ -166,8 +168,10 @@
   transition: border-color 0.15s;
 }
 
-.heroSecondaryBtn:hover {
-  border-color: var(--primary, #1b6b5a);
+@media (hover: hover) {
+  .heroSecondaryBtn:hover {
+    border-color: var(--primary, #1b6b5a);
+  }
 }
 
 /* ═══ 공통 섹션 제목 ═══ */
@@ -218,9 +222,11 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.featureCard:hover {
-  border-color: var(--primary, #1b6b5a);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+@media (hover: hover) {
+  .featureCard:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
 }
 
 .featureIcon {
@@ -494,8 +500,10 @@
   transition: opacity 0.15s;
 }
 
-.matchCtaButton:hover {
-  opacity: 0.9;
+@media (hover: hover) {
+  .matchCtaButton:hover {
+    opacity: 0.9;
+  }
 }
 
 /* ═══ 면책 조항 ═══ */

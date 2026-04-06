@@ -10,6 +10,7 @@ import { PROGRAMS } from "@/lib/data/programs";
 import { fetchUnsplashPhoto, type UnsplashPhoto } from "@/lib/api/unsplash";
 import { KoreaMap } from "@/components/map/korea-map";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
+import { CardGrid } from "@/components/ui/card-grid";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -139,7 +140,7 @@ export default async function RegionsPage() {
       </section>
 
       {/* Region Cards Grid */}
-      <section className={s.grid}>
+      <CardGrid>
         {PROVINCES.map((province) => {
           const photo = photoMap.get(province.id);
           return (
@@ -180,7 +181,7 @@ export default async function RegionsPage() {
             </Link>
           );
         })}
-      </section>
+      </CardGrid>
     </div>
   );
 }

@@ -212,26 +212,6 @@
   white-space: nowrap;
 }
 
-/* ---- 카드 그리드 ---- */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-
-@media (min-width: 640px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-  }
-}
-
 /* ---- 지역 카드 ---- */
 .card {
   display: flex;
@@ -245,9 +225,11 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.card:hover {
-  border-color: var(--primary, #1b6b5a);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
 }
 
 .card:focus-visible {
@@ -393,6 +375,8 @@
   transition: opacity 0.15s;
 }
 
-.compareCtaButton:hover {
-  opacity: 0.9;
+@media (hover: hover) {
+  .compareCtaButton:hover {
+    opacity: 0.9;
+  }
 }

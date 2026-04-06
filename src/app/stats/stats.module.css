@@ -40,8 +40,10 @@
   transition: color 0.15s;
 }
 
-.backLink:hover {
-  color: var(--primary, #1B6B5A);
+@media (hover: hover) {
+  .backLink:hover {
+    color: var(--primary, #1B6B5A);
+  }
 }
 
 /* ── 페이지 헤더 ── */
@@ -159,8 +161,10 @@
   border-bottom: none;
 }
 
-.table tbody tr:hover {
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, transparent);
+@media (hover: hover) {
+  .table tbody tr:hover {
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, transparent);
+  }
 }
 
 /* 마지막 행 (최신 연도) 강조 */
@@ -472,8 +476,10 @@
   transition: opacity 0.15s;
 }
 
-.interviewLink:hover {
-  opacity: 0.92;
+@media (hover: hover) {
+  .interviewLink:hover {
+    opacity: 0.92;
+  }
 }
 
 .interviewLinkArrow {
@@ -519,10 +525,12 @@
   transition: border-color 0.15s, background 0.15s;
 }
 
-.navFooterLink:hover {
-  border-color: var(--primary, #1B6B5A);
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, var(--background, #fff));
-  color: var(--primary, #1B6B5A);
+@media (hover: hover) {
+  .navFooterLink:hover {
+    border-color: var(--primary, #1B6B5A);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, var(--background, #fff));
+    color: var(--primary, #1B6B5A);
+  }
 }
 
 .navFooterLinkActive {

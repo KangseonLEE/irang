@@ -79,6 +79,12 @@
 - Props: `icon`, `message`, `linkHref?`, `linkText?`
 - **페이지마다 `.emptyState`, `.emptyStateIcon`, `.emptyStateText` 등을 새로 정의하지 않는다**
 
+#### CardGrid (`@/components/ui/card-grid`)
+
+- 반응형 카드 그리드 공통 컴포넌트: 1열(모바일) → 2열(640px) → 3열(1024px)
+- Props: `children`, `className?` (추가 스타일 오버라이드 시)
+- **페이지마다 `.grid` + 동일 미디어쿼리 3단계를 새로 정의하지 않는다**
+
 #### TermTooltip / GlossaryTerm (`@/components/ui/term-tooltip`)
 
 - 전문 용어 CSS-only 툴팁 (hover/focus-within, `"use client"` 불필요)
@@ -243,6 +249,7 @@
 | 필터 바 (pill 필터, 검색, 토글) | `@/components/filter/filter-bar` |
 | 상태 배지 (모집중/마감 등) | `@/components/ui/status-badge` |
 | 빈 상태 UI (dashed border + 안내문) | `@/components/ui/empty-state` |
+| 반응형 카드 그리드 (1→2→3열) | `@/components/ui/card-grid` |
 | 전문 용어 툴팁 (ha, 10a 등) | `@/components/ui/term-tooltip` |
 
 **위 목록에 해당하는 UI를 페이지 파일 안에 직접 구현하면 안 된다.** 공통 컴포넌트를 import하여 사용한다.

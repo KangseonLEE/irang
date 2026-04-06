@@ -369,12 +369,14 @@
   transition: background-color 150ms ease;
 }
 
-.trendStatItem:hover {
-  background-color: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
-}
+@media (hover: hover) {
+  .trendStatItem:hover {
+    background-color: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
+  }
 
-.trendStatItem:hover .trendValue {
-  color: var(--primary, #1B6B5A);
+  .trendStatItem:hover .trendValue {
+    color: var(--primary, #1B6B5A);
+  }
 }
 
 .trendStatItem:focus-visible {

@@ -31,6 +31,7 @@ import {
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { CardGrid } from "@/components/ui/card-grid";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -162,11 +163,11 @@ export default async function EducationPage({ searchParams }: PageProps) {
           message={<>조건에 맞는 교육 과정이 없습니다.<br />검색 조건을 변경하거나 필터를 초기화해 보세요.</>}
         />
       ) : (
-        <div className={s.grid}>
+        <CardGrid>
           {courses.map((course) => (
             <CourseCard key={course.id} course={course} />
           ))}
-        </div>
+        </CardGrid>
       )}
     </div>
   );

@@ -25,6 +25,7 @@ import {
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { CardGrid } from "@/components/ui/card-grid";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -168,7 +169,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
       </FilterBar>
 
       {/* ── Card Grid ── */}
-      <div className={s.grid}>
+      <CardGrid>
         {events.length === 0 ? (
           <EmptyState
             icon={<Calendar size={32} />}
@@ -181,7 +182,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
             <EventCard key={event.id} event={event} />
           ))
         )}
-      </div>
+      </CardGrid>
     </div>
   );
 }

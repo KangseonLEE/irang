@@ -138,9 +138,11 @@
   transition: border-color 0.15s, background-color 0.15s;
 }
 
-.card:hover {
-  border-color: var(--primary);
-  background: var(--muted);
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--primary);
+    background: var(--muted);
+  }
 }
 
 .card:focus-visible {
@@ -235,9 +237,11 @@
   text-decoration: none;
 }
 
-.noResultLink:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+@media (hover: hover) {
+  .noResultLink:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
 }
 
 /* 뒤로가기 */
@@ -251,8 +255,10 @@
   text-decoration: none;
 }
 
-.backLink:hover {
-  color: var(--foreground);
+@media (hover: hover) {
+  .backLink:hover {
+    color: var(--foreground);
+  }
 }
 
 /* 검색어 하이라이트 */

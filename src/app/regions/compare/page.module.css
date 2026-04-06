@@ -11,8 +11,10 @@
   transition: color 0.15s;
 }
 
-.backLink:hover {
-  color: var(--foreground);
+@media (hover: hover) {
+  .backLink:hover {
+    color: var(--foreground);
+  }
 }
 
 /* ---- 페이지 컨테이너 ---- */
@@ -380,9 +382,11 @@
   .crossLink { flex: 1; }
 }
 
-.crossLink:hover {
-  background: var(--accent, #c4e8df);
-  border-color: var(--primary, #1B6B5A);
+@media (hover: hover) {
+  .crossLink:hover {
+    background: var(--accent, #c4e8df);
+    border-color: var(--primary, #1B6B5A);
+  }
 }
 
 .crossLink:focus-visible {

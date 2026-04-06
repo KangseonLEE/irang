@@ -246,3 +246,39 @@
   flex-direction: column;
   gap: 8px;
 }
+
+/* ── 인라인 스타일 대체 유틸 클래스 ── */
+.flexRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.flexCol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flexRowCenter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ctaRow {
+  display: flex;
+  gap: 10px;
+}
+
+.tipsCol {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebarTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

@@ -20,8 +20,10 @@
   transition: color 0.15s;
 }
 
-.backLink:hover {
-  color: var(--foreground);
+@media (hover: hover) {
+  .backLink:hover {
+    color: var(--foreground);
+  }
 }
 
 /* ---- 히어로 ---- */
@@ -274,9 +276,11 @@
   transition: border-color 0.15s, background 0.15s;
 }
 
-.cropCard:hover {
-  border-color: var(--primary, #1b6b5a);
-  background: var(--secondary, #e8f5f1);
+@media (hover: hover) {
+  .cropCard:hover {
+    border-color: var(--primary, #1b6b5a);
+    background: var(--secondary, #e8f5f1);
+  }
 }
 
 .cropEmoji {
@@ -323,9 +327,11 @@
   transition: border-color 0.15s, background 0.15s;
 }
 
-.programCard:hover {
-  border-color: var(--primary, #1b6b5a);
-  background: var(--secondary, #e8f5f1);
+@media (hover: hover) {
+  .programCard:hover {
+    border-color: var(--primary, #1b6b5a);
+    background: var(--secondary, #e8f5f1);
+  }
 }
 
 .programTitle {
@@ -367,8 +373,10 @@
   text-decoration: none;
 }
 
-.viewMore:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .viewMore:hover {
+    text-decoration: underline;
+  }
 }
 
 /* ---- 교육·행사 카드 ---- */
@@ -540,8 +548,10 @@
   transition: opacity 0.15s;
 }
 
-.compareCta:hover {
-  opacity: 0.9;
+@media (hover: hover) {
+  .compareCta:hover {
+    opacity: 0.9;
+  }
 }
 
 /* 출처 */
