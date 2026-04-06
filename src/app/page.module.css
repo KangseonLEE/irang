@@ -1320,11 +1320,7 @@
   scrollbar-width: none;
   padding-bottom: 4px;
 
-  /* 카드가 섹션 패딩을 뚫고 edge-to-edge 느낌 */
-  margin-left: -24px;
-  margin-right: -24px;
-  padding-left: 24px;
-  padding-right: 24px;
+  /* 버튼과 동일한 좌우 여백 유지 */
 }
 
 .roadmapTimeline::-webkit-scrollbar {

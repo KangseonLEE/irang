@@ -187,6 +187,41 @@
 
 ---
 
+## OG 이미지 컨벤션
+
+### 디자인 방향
+
+- 토스/네이버 스타일: 밝은 크림 배경 + 심볼 SVG + 나눔명조 워드마크
+- 장식 요소(그래디언트, 아이콘 클러스터, 패턴 등) 금지 — 극도로 미니멀하게
+
+### 파일 위치
+
+- 각 라우트의 `opengraph-image.tsx` (Next.js 파일 컨벤션)
+- 공통 모듈: `src/lib/og/constants.ts` (사이즈 상수), `src/lib/og/fonts.ts` (폰트 로딩)
+
+### 폰트
+
+- **나눔명조 ExtraBold (weight 800)** — `layout.tsx`의 `--font-logo`와 동일 폰트
+- 로딩 방식: Google Fonts CSS API → woff URL 파싱 → `ArrayBuffer` 변환
+- 서브셋: "이랑" 2글자 (`text=이랑`)
+
+### Satori 제약 사항
+
+| 제약 | 내용 |
+|------|------|
+| 지원 폰트 포맷 | woff만 지원 — woff2 미지원 |
+| 레이아웃 | Flexbox만 지원 — CSS Grid 사용 불가 |
+| `display` 필수 | 모든 `div`에 `display: "flex"` 명시 필수 |
+| Pretendard 사용 불가 | COLR 테이블 포함으로 Satori에서 렌더링 실패 |
+
+### 새 OG 이미지 추가 시
+
+1. 기존 `opengraph-image.tsx` 4개 중 하나를 복사하여 시작한다.
+2. 공통 심볼 SVG + 워드마크 레이아웃 구조를 유지한다.
+3. `src/lib/og/fonts.ts`의 폰트 로딩 함수를 재사용한다 — 중복 구현 금지.
+
+---
+
 ## David의 작업 철학 — 에이전트가 반드시 따를 것
 
 > 아래는 David가 반복적으로 중시하는 판단 기준이다. 코드 변경, 디자인 결정, 데이터 처리 시 이 원칙을 우선 적용한다.
