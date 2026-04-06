@@ -164,6 +164,108 @@
   line-height: var(--lh-normal);
 }
 
+/* ---- 로딩 안내 배너 ---- */
+.loadingBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 16px;
+  background: var(--muted, #f4f4f5);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border, #e5e7eb);
+  border-top-color: var(--primary, #1b6b5a);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loadingBannerTitle {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.loadingBannerDesc {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  margin: 0;
+  line-height: var(--lh-normal);
+}
+
+/* ---- 스켈레톤 리스트 ---- */
+.skeletonList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.skeletonItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.skeletonItem:last-child {
+  border-bottom: none;
+}
+
+.skeletonLine {
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--border, #e5e7eb) 25%,
+    color-mix(in srgb, var(--border, #e5e7eb) 60%, transparent) 50%,
+    var(--border, #e5e7eb) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeletonLine:nth-child(1) { width: 60%; }
+.skeletonLine:nth-child(2) { width: 85%; height: 10px; }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---- 인라인 로딩 (더 불러오는 중) ---- */
+.inlineLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+}
+
+.inlineSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border, #e5e7eb);
+  border-top-color: var(--primary, #1b6b5a);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
 /* ---- 로딩 / 더보기 ---- */
 .loadingText {
   font-size: var(--fs-body-sm);

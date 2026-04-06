@@ -29,6 +29,9 @@ export function MedicalModal({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
+  const isInitialLoad = loading && page === 1;
+  const isLoadingMore = loading && page > 1;
+
   useEffect(() => {
     let cancelled = false;
 
@@ -74,8 +77,33 @@ export function MedicalModal({
         <strong>{totalCount.toLocaleString()}개</strong>
       </p>
 
+      {/* 초기 로딩 — 안내 배너 + 스켈레톤 */}
+      {isInitialLoad && (
+        <>
+          <div className={s.loadingBanner}>
+            <div className={s.spinner} />
+            <p className={s.loadingBannerTitle}>
+              의료기관 {totalCount.toLocaleString()}건을 불러오고 있습니다
+            </p>
+            {totalCount > 500 && (
+              <p className={s.loadingBannerDesc}>
+                데이터가 많아 조회에 시간이 걸릴 수 있습니다
+              </p>
+            )}
+          </div>
+          <div className={s.skeletonList}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className={s.skeletonItem}>
+                <div className={s.skeletonLine} />
+                <div className={s.skeletonLine} />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       {/* 유형별 요약 */}
-      {Object.keys(typeCount).length > 0 && (
+      {!isInitialLoad && Object.keys(typeCount).length > 0 && (
         <div className={s.badgeGroup}>
           {Object.entries(typeCount)
             .sort((a, b) => b[1] - a[1])
@@ -88,19 +116,28 @@ export function MedicalModal({
       )}
 
       {/* 리스트 */}
-      <div className={s.list}>
-        {items.map((item, i) => (
-          <div key={`${item.name}-${i}`} className={s.listItem}>
-            <div className={s.listItemMain}>
-              <span className={s.listItemName}>{item.name}</span>
-              <span className={s.listItemMeta}>{item.type}</span>
+      {!isInitialLoad && items.length > 0 && (
+        <div className={s.list}>
+          {items.map((item, i) => (
+            <div key={`${item.name}-${i}`} className={s.listItem}>
+              <div className={s.listItemMain}>
+                <span className={s.listItemName}>{item.name}</span>
+                <span className={s.listItemMeta}>{item.type}</span>
+              </div>
+              <span className={s.listItemSub}>{item.address}</span>
             </div>
-            <span className={s.listItemSub}>{item.address}</span>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {loading && <div className={s.loadingText}>불러오는 중...</div>}
+      {/* 추가 페이지 로딩 */}
+      {isLoadingMore && (
+        <div className={s.inlineLoading}>
+          <div className={s.inlineSpinner} />
+          추가 데이터를 불러오는 중...
+        </div>
+      )}
+
       {error && (
         <div className={s.loadingText}>데이터를 불러올 수 없습니다.</div>
       )}

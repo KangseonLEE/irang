@@ -103,7 +103,12 @@ export function PopulationModal({
       <div className={s.chartSection}>
         <h4 className={s.chartTitle}>최근 10년 인구 추이</h4>
         {loading ? (
-          <div className={s.chartPlaceholder}>데이터 불러오는 중...</div>
+          <div className={s.chartPlaceholder}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <div className={s.inlineSpinner} />
+              <span>인구 추이 데이터를 불러오는 중...</span>
+            </div>
+          </div>
         ) : error || trendData.length === 0 ? (
           <div className={s.chartPlaceholder}>
             인구 추이 데이터를 불러올 수 없습니다.
