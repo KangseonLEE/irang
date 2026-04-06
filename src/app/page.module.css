@@ -323,9 +323,13 @@
 
 .trendSub {
   margin: 0;
-  font-size: var(--fs-body);
+  font-size: var(--fs-caption);
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
+}
+
+@media (min-width: 640px) {
+  .trendSub { font-size: var(--fs-body-sm); }
 }
 
 /* 핵심 숫자 — 통합 카드 */
@@ -1118,9 +1122,13 @@
 
 .interviewSub {
   margin: 0;
-  font-size: var(--fs-body);
+  font-size: var(--fs-caption);
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
+}
+
+@media (min-width: 640px) {
+  .interviewSub { font-size: var(--fs-body-sm); }
 }
 
 .interviewGrid {
@@ -1293,9 +1301,13 @@
 
 .roadmapSub {
   margin: 0;
-  font-size: var(--fs-body);
+  font-size: var(--fs-caption);
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
+}
+
+@media (min-width: 640px) {
+  .roadmapSub { font-size: var(--fs-body-sm); }
 }
 
 /* ── 모바일: 가로 스크롤 스냅 / 데스크탑: 5열 그리드 ── */
@@ -1750,7 +1762,7 @@
    섹션 타이틀 (벤토·출처 영역 등)
    ══════════════════════════════════════════ */
 .sectionTitle {
-  margin: 0 0 12px;
+  margin: 0 0 20px;
   font-size: var(--fs-h3);
   font-weight: 800;
   color: var(--foreground, #111);
