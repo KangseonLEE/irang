@@ -298,6 +298,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin: 0;
   font-size: var(--fs-h3);
   font-weight: 800;
   color: var(--foreground, #111);
@@ -321,6 +322,7 @@
 }
 
 .trendSub {
+  margin: 0;
   font-size: var(--fs-body);
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
@@ -682,6 +684,7 @@
 }
 
 .costTitle {
+  margin: 0;
   font-size: var(--fs-h3);
   font-weight: 800;
   color: var(--foreground, #111);
@@ -699,7 +702,7 @@
   font-size: var(--fs-body);
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
-  margin-top: 0;
+  margin: 0;
   max-width: 580px;
 }
 
@@ -1108,6 +1111,7 @@
 }
 
 .interviewSub {
+  margin: 0;
   font-size: var(--fs-body);
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
@@ -1282,6 +1286,7 @@
 }
 
 .roadmapSub {
+  margin: 0;
   font-size: var(--fs-body);
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
@@ -1739,6 +1744,7 @@
    섹션 타이틀 (벤토·출처 영역 등)
    ══════════════════════════════════════════ */
 .sectionTitle {
+  margin: 0;
   font-size: var(--fs-h3);
   font-weight: 800;
   color: var(--foreground, #111);
