@@ -58,8 +58,10 @@
   transition: background 0.12s;
 }
 
-.causeHeader:hover {
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 3%, transparent);
+@media (hover: hover) {
+  .causeHeader:hover {
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 3%, transparent);
+  }
 }
 
 .causeNumber {
@@ -130,9 +132,11 @@
   word-break: break-all;
 }
 
-.causeSource:hover {
-  opacity: 0.75;
-  text-decoration: underline;
+@media (hover: hover) {
+  .causeSource:hover {
+    opacity: 0.75;
+    text-decoration: underline;
+  }
 }
 
 /* ── 모바일 ── */

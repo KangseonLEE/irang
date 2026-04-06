@@ -95,9 +95,11 @@
   color: var(--muted-foreground);
 }
 
-.navLink:hover {
-  background-color: color-mix(in srgb, var(--secondary) 60%, transparent);
-  color: var(--foreground);
+@media (hover: hover) {
+  .navLink:hover {
+    background-color: color-mix(in srgb, var(--secondary) 60%, transparent);
+    color: var(--foreground);
+  }
 }
 
 .navLink:focus-visible {
@@ -171,8 +173,10 @@
   transition: background-color 150ms ease;
 }
 
-.ctaButton:hover {
-  background-color: color-mix(in srgb, var(--primary) 90%, black);
+@media (hover: hover) {
+  .ctaButton:hover {
+    background-color: color-mix(in srgb, var(--primary) 90%, black);
+  }
 }
 
 .ctaButton:focus-visible {

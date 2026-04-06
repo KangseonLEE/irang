@@ -120,9 +120,11 @@
   border: 1px solid transparent;
 }
 
-.donutLegendItem:hover {
-  background: var(--muted, #f9fafb);
-  border-color: var(--border, #e5e7eb);
+@media (hover: hover) {
+  .donutLegendItem:hover {
+    background: var(--muted, #f9fafb);
+    border-color: var(--border, #e5e7eb);
+  }
 }
 
 .donutLegendItemActive {

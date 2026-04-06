@@ -65,8 +65,10 @@
   transition: background 0.15s;
 }
 
-.closeBtn:hover {
-  background: #f1f5f9;
+@media (hover: hover) {
+  .closeBtn:hover {
+    background: #f1f5f9;
+  }
 }
 
 /* ── 본문 ── */
@@ -132,8 +134,10 @@
   transition: background 0.1s;
 }
 
-.item:hover {
-  background: #f8fafc;
+@media (hover: hover) {
+  .item:hover {
+    background: #f8fafc;
+  }
 }
 
 .itemLink {
@@ -175,9 +179,11 @@
   transition: color 0.15s, background 0.15s;
 }
 
-.removeBtn:hover {
-  color: #ef4444;
-  background: #fef2f2;
+@media (hover: hover) {
+  .removeBtn:hover {
+    color: #ef4444;
+    background: #fef2f2;
+  }
 }
 
 /* ── 푸터 ── */
@@ -203,9 +209,11 @@
   transition: color 0.15s, border-color 0.15s;
 }
 
-.clearBtn:hover {
-  color: #ef4444;
-  border-color: #fca5a5;
+@media (hover: hover) {
+  .clearBtn:hover {
+    color: #ef4444;
+    border-color: #fca5a5;
+  }
 }
 
 /* 모바일 대응: 패널을 하단 시트로 */

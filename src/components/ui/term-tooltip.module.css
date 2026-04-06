@@ -38,7 +38,12 @@
   border-color: var(--foreground, #1f2937) transparent transparent transparent;
 }
 
-.wrapper:hover .tooltip,
 .wrapper:focus-within .tooltip {
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .wrapper:hover .tooltip {
+    opacity: 1;
+  }
 }

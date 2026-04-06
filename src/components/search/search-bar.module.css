@@ -115,10 +115,15 @@
   transition: background-color 0.12s;
 }
 
-.resultItem:hover,
 .resultItem:focus-visible,
 .resultItemFocused {
   background: var(--muted);
+}
+
+@media (hover: hover) {
+  .resultItem:hover {
+    background: var(--muted);
+  }
 }
 
 .resultItemIcon {
@@ -207,9 +212,11 @@
   transition: background-color 0.12s, color 0.12s;
 }
 
-.removeRecent:hover {
-  background: var(--muted);
-  color: var(--foreground);
+@media (hover: hover) {
+  .removeRecent:hover {
+    background: var(--muted);
+    color: var(--foreground);
+  }
 }
 
 .removeRecent:focus-visible {
@@ -237,8 +244,10 @@
   transition: background-color 0.12s;
 }
 
-.viewAllLink:hover {
-  background: var(--muted);
+@media (hover: hover) {
+  .viewAllLink:hover {
+    background: var(--muted);
+  }
 }
 
 /* --- Empty state --- */

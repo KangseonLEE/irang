@@ -211,9 +211,11 @@
   flex-shrink: 0;
 }
 
-.arrow:not(:disabled):hover {
-  border-color: var(--primary, #1B6B5A);
-  color: var(--primary, #1B6B5A);
+@media (hover: hover) {
+  .arrow:not(:disabled):hover {
+    border-color: var(--primary, #1B6B5A);
+    color: var(--primary, #1B6B5A);
+  }
 }
 
 .arrow:disabled {

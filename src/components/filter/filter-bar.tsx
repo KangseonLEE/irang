@@ -106,15 +106,24 @@ interface FilterActionsProps {
     label: string;
     isActive: boolean;
   };
+  /** 숫자 입력 필드 (예: 나이) — 없으면 렌더링하지 않음 */
+  numberInput?: {
+    paramKey: string;
+    label: string;
+    placeholder?: string;
+    min?: number;
+    max?: number;
+  };
 }
 
-/** 검색 폼 + 선택적 토글 + 초기화 링크 */
+/** 검색 폼 + 선택적 숫자 입력 + 선택적 토글 + 초기화 링크 */
 export function FilterActions({
   basePath,
   currentFilters,
   searchPlaceholder = "검색...",
   searchParamKey = "q",
   toggle,
+  numberInput,
 }: FilterActionsProps) {
   return (
     <div className={s.filterActions}>
@@ -134,6 +143,27 @@ export function FilterActions({
           className={s.searchInput}
         />
       </form>
+
+      {/* 선택적 숫자 입력 (예: 나이) */}
+      {numberInput && (
+        <form className={s.numberForm} action={basePath} method="get">
+          {Object.entries(currentFilters).map(([k, v]) =>
+            v && k !== numberInput.paramKey ? (
+              <input key={k} type="hidden" name={k} value={v} />
+            ) : null,
+          )}
+          <label className={s.numberLabel}>{numberInput.label}</label>
+          <input
+            type="number"
+            name={numberInput.paramKey}
+            defaultValue={currentFilters[numberInput.paramKey] ?? ""}
+            placeholder={numberInput.placeholder}
+            min={numberInput.min}
+            max={numberInput.max}
+            className={s.numberInput}
+          />
+        </form>
+      )}
 
       {/* 선택적 토글 (예: 마감 포함) */}
       {toggle && (

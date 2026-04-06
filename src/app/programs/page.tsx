@@ -118,6 +118,13 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
           basePath="/programs"
           currentFilters={currentFilters}
           searchPlaceholder="지원사업명, 지역, 기관명으로 검색"
+          numberInput={{
+            paramKey: "age",
+            label: "나이",
+            placeholder: "만 나이",
+            min: 18,
+            max: 80,
+          }}
           toggle={{
             paramKey: "includeClosed",
             label: "마감 포함",

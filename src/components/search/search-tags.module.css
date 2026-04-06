@@ -37,10 +37,12 @@
   line-height: var(--lh-snug);
 }
 
-.tag:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 8%, transparent);
+@media (hover: hover) {
+  .tag:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+  }
 }
 
 .tag:focus-visible {

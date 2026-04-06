@@ -175,6 +175,52 @@
   border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
 }
 
+/* ── Number Input (예: 나이) ── */
+.numberForm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.numberLabel {
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.numberInput {
+  width: 80px;
+  height: 36px;
+  padding: 0 10px;
+  font-size: var(--fs-body-sm);
+  color: var(--foreground);
+  background-color: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 9999px;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.15s, background-color 0.15s;
+  -moz-appearance: textfield;
+}
+
+.numberInput::-webkit-inner-spin-button,
+.numberInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.numberInput::placeholder {
+  color: var(--muted-foreground, #9ca3af);
+}
+
+.numberInput:focus {
+  background-color: var(--card, #fff);
+  border-color: var(--primary, #1b6b5a);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+}
+
 /* ── Reset ── */
 .resetLink {
   display: inline-flex;

@@ -62,8 +62,10 @@
   transition: background-color 0.15s;
 }
 
-.backLink:hover {
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 15%, transparent);
+@media (hover: hover) {
+  .backLink:hover {
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 15%, transparent);
+  }
 }
 
 /* 모바일: 간소화 */

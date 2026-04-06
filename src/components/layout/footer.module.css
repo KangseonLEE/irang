@@ -84,8 +84,10 @@
   transition: color 150ms ease;
 }
 
-.serviceLink:hover {
-  color: var(--footer-heading);
+@media (hover: hover) {
+  .serviceLink:hover {
+    color: var(--footer-heading);
+  }
 }
 
 .sourceItem {
@@ -143,8 +145,10 @@
   transition: opacity 150ms ease;
 }
 
-.feedbackButton:hover {
-  opacity: 0.9;
+@media (hover: hover) {
+  .feedbackButton:hover {
+    opacity: 0.9;
+  }
 }
 
 /* ── Divider + disclaimer ── */
@@ -200,6 +204,8 @@
   transition: color 150ms ease;
 }
 
-.legalLink:hover {
-  color: var(--footer-fg);
+@media (hover: hover) {
+  .legalLink:hover {
+    color: var(--footer-fg);
+  }
 }
