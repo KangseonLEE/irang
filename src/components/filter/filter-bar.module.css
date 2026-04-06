@@ -110,7 +110,16 @@
   gap: 8px;
 }
 
-/* 모바일: 검색 / 보조 컨트롤 2행 분리 */
+/* ── Search ── */
+.searchForm {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 180px;
+}
+
+/* 모바일: 검색 전폭 + 보조 컨트롤 2행 분리 */
 @media (max-width: 639px) {
   .filterActions {
     flex-direction: column;
@@ -121,15 +130,6 @@
     flex: unset;
     min-width: unset;
   }
-}
-
-/* ── Search ── */
-.searchForm {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 180px;
 }
 
 .searchIcon {
