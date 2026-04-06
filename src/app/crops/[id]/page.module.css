@@ -1124,3 +1124,94 @@
   color: var(--muted-foreground, #9ca3af);
   margin: 0;
 }
+
+/* ══════════════════════════════════════════
+   모바일 반응형 최적화 (< 480px)
+   ══════════════════════════════════════════ */
+@media (max-width: 479px) {
+  /* ── 페이지 하단 패딩 조정 (160px → 100px) ── */
+  .page {
+    padding-bottom: 100px;
+  }
+
+  /* ── Hero 이미지 높이 축소 ── */
+  .heroImageWrap {
+    height: 180px;
+  }
+
+  .heroContent {
+    padding: 20px 16px;
+    gap: 14px;
+  }
+
+  /* heroDesc 2줄 클램프 */
+  .heroDesc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ── quickStats: 3-column → 1-column ── */
+  .quickStats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .statCard {
+    padding: 12px 14px;
+  }
+
+  .statValue {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  /* ── 재배환경 Feature Grid: 2×2 → 1-column 수평 카드 ── */
+  .featureGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .featureCard {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  /* ── 수익 금액 폰트 축소 ── */
+  .revenueAmount {
+    font-size: clamp(24px, 5vw, 36px);
+  }
+
+  /* ── 차트: 2-row 스택 (라벨+값 / bar) ── */
+  .chartRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+
+  .chartMeta {
+    flex-shrink: 0;
+  }
+
+  .chartBarWrap {
+    width: 100%;
+    order: 3;
+    height: 6px;
+  }
+
+  .chartValue {
+    min-width: unset;
+    margin-left: auto;
+    font-size: var(--fs-caption);
+  }
+}
+
+/* ── 사이드바 프로필 카드: 모바일/태블릿 숨김 ── */
+@media (max-width: 1023px) {
+  .sideProfile {
+    display: none;
+  }
+}
