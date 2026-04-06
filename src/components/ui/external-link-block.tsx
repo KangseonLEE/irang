@@ -1,4 +1,4 @@
-import { ExternalLink, Shield, AlertCircle, Search } from "lucide-react";
+import { ExternalLink, Shield, AlertCircle, Search, Monitor } from "lucide-react";
 import s from "./external-link-block.module.css";
 
 interface ExternalLinkBlockProps {
@@ -105,6 +105,13 @@ export function ExternalLinkBlock({
           이 링크는 최근 변경이 확인되었습니다. 페이지 내용이 다를 수 있으니
           기관 홈페이지에서 직접 검색을 권장합니다.
         </p>
+
+        {isGov && (
+          <p className={s.desktopHint}>
+            <Monitor size={14} aria-hidden="true" />
+            일부 정부·공공기관 사이트는 모바일 화면에 최적화되어 있지 않습니다. 원문 확인은 PC 환경을 권장합니다.
+          </p>
+        )}
       </div>
     );
   }
@@ -141,6 +148,13 @@ export function ExternalLinkBlock({
           ? "정부·공공기관 원문 사이트로 연결됩니다. 모집 종료 후 원문이 삭제될 수 있으며, 이 경우 이랑에 저장된 내용을 참고하세요."
           : "외부 사이트로 연결됩니다. 페이지가 변경되었을 수 있으며, 이 경우 이랑에 저장된 내용을 참고하세요."}
       </p>
+
+      {isGov && (
+        <p className={s.desktopHint}>
+          <Monitor size={14} aria-hidden="true" />
+          일부 정부·공공기관 사이트는 모바일 화면에 최적화되어 있지 않습니다. 원문 확인은 PC 환경을 권장합니다.
+        </p>
+      )}
     </div>
   );
 }

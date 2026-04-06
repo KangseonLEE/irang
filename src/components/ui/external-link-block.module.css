@@ -161,3 +161,23 @@
   color: #92400e;
   margin: 0;
 }
+
+/* PC 환경 권장 안내 (.go.kr 등 정부 사이트용) */
+.desktopHint {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f0f4ff;
+  color: #3b5998;
+  border: 1px solid #dbe4ff;
+  border-radius: 6px;
+  font-size: var(--fs-caption, 13px);
+  line-height: var(--lh-relaxed, 1.8);
+  margin: 0;
+}
+
+.desktopHint svg {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
