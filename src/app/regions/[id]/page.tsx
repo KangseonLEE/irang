@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
+import { ShareButton } from "@/components/ui/share-button";
 import {
   Thermometer,
   Droplets,
@@ -146,6 +147,14 @@ export default async function RegionDetailPage({ params }: PageProps) {
           <span className={s.heroOverline}>{province.name}</span>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <h1 className={s.heroTitle} style={{ flex: 1 }}>{province.shortName}</h1>
+            <ShareButton
+              title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
+              text={`${province.name} 귀농 정보: ${province.description}`}
+              contentType="region"
+              variant="ghost"
+              size="sm"
+              showLabel={false}
+            />
             <BookmarkButton
               id={province.id}
               type="region"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -23,6 +23,7 @@ import {
   type AssessmentResult,
   type ResultTier,
 } from "@/lib/data/assessment";
+import { analytics } from "@/lib/analytics";
 import s from "./assessment-wizard.module.css";
 
 /* ── 화면 상태 ── */
@@ -41,6 +42,7 @@ export function AssessmentWizard() {
   /* ── 핸들러 ── */
 
   const handleStart = useCallback(() => {
+    analytics.assessStart();
     setPhase("quiz");
     setStep(0);
     setAnswers({});
@@ -90,6 +92,7 @@ export function AssessmentWizard() {
       if (typeof navigator.share === "function") {
         try {
           await navigator.share({ title: shareTitle, text: shareText, url });
+          analytics.share("assessment", "native_share");
           return;
         } catch (err) {
           // 사용자가 공유를 취소한 경우 (AbortError) → 무시
@@ -100,6 +103,7 @@ export function AssessmentWizard() {
       // Fallback: 클립보드 복사 (데스크톱)
       try {
         await navigator.clipboard.writeText(url);
+        analytics.share("assessment", "clipboard");
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch {
@@ -114,6 +118,13 @@ export function AssessmentWizard() {
     () => (phase === "result" ? calculateResult(answers) : null),
     [phase, answers]
   );
+
+  // 결과 화면 진입 시 완료 이벤트 전송
+  useEffect(() => {
+    if (result) {
+      analytics.assessComplete(result.tier.id, result.totalScore);
+    }
+  }, [result]);
 
   /* ═══ 인트로 화면 ═══ */
   if (phase === "intro") {

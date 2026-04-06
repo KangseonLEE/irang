@@ -10,6 +10,7 @@
     "check-links": "bash scripts/check-links.sh"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
     "@svg-maps/south-korea": "^2.0.0",
     "@vercel/analytics": "^2.0.1",
     "lucide-react": "^1.7.0",
@@ -24,6 +25,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
+    "schema-dts": "^2.0.0",
     "typescript": "^5"
   }
 }

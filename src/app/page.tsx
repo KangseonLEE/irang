@@ -34,6 +34,8 @@ import {
 } from "@/lib/data/landing";
 import { fetchLatestNews } from "@/lib/api/news";
 import type { NewsArticle } from "@/lib/api/news";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { FAQPage } from "schema-dts";
 import s from "./page.module.css";
 
 /* ── 대형 카드 캐러셀 데이터 ── */
@@ -91,6 +93,22 @@ export default async function HomePage() {
   const newsItems = liveNews ?? trendNews;
   return (
     <div className={s.page}>
+      {/* ── FAQ 구조화 데이터 (JSON-LD) ── */}
+      <JsonLd<FAQPage>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqItems.map((item) => ({
+            "@type": "Question" as const,
+            name: item.q,
+            acceptedAnswer: {
+              "@type": "Answer" as const,
+              text: item.a,
+            },
+          })),
+        }}
+      />
+
       {/* ═══ 1. 히어로 — 검색 중심 ═══ */}
       <section className={s.heroSection} aria-label="검색">
         <span className={s.heroEyebrow}>귀농, 이랑 같이</span>

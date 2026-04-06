@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
+import { ShareButton } from "@/components/ui/share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
 import {
@@ -78,6 +79,14 @@ export default async function ProgramDetailPage({
         </div>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "4px" }}>
           <h1 className={s.pageTitle} style={{ flex: 1 }}>{program.title}</h1>
+          <ShareButton
+            title={`${program.title} | 이랑`}
+            text={`${program.title}: ${program.summary.slice(0, 80)}`}
+            contentType="program"
+            variant="ghost"
+            size="sm"
+            showLabel={false}
+          />
           <BookmarkButton
             id={program.id}
             type="program"

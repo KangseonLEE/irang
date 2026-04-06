@@ -4,6 +4,8 @@ import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { WebSite, Organization } from "schema-dts";
 import "./globals.css";
 import s from "./layout.module.css";
 
@@ -41,6 +43,37 @@ export default function RootLayout({
     <html lang="ko" className={s.html}>
       {/* Pretendard 폰트: metadata API에서 외부 스타일시트 link를 지원하지 않아 수동 삽입 */}
       <head>
+        {/* ── 구조화 데이터 (JSON-LD) ── */}
+        <JsonLd<WebSite>
+          data={{
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "이랑",
+            alternateName: "이랑 — 귀농 정보 큐레이션 포탈",
+            url: "https://irang-wheat.vercel.app",
+            description:
+              "귀농 예정자를 위한 지역 비교, 지원사업 검색, 작물 정보를 한곳에서.",
+            potentialAction: {
+              "@type": "SearchAction",
+              target:
+                "https://irang-wheat.vercel.app/search?q={search_term_string}",
+              "query-input": "required name=search_term_string",
+            },
+          }}
+        />
+        <JsonLd<Organization>
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "이랑",
+            url: "https://irang-wheat.vercel.app",
+            logo: "https://irang-wheat.vercel.app/icon.svg",
+            description:
+              "귀농 예정자를 위한 지역 비교, 지원사업 검색, 작물 정보를 한곳에서 제공하는 큐레이션 포탈.",
+            sameAs: [],
+          }}
+        />
+
         {/* Pretendard Variable — 한글 + 라틴 가변 폰트 */}
         <link
           rel="stylesheet"

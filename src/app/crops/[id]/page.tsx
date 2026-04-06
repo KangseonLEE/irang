@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
+import { ShareButton } from "@/components/ui/share-button";
 import {
   Sprout,
   MapPin,
@@ -190,6 +191,14 @@ export default async function CropDetailPage({
               </div>
               <h1 className={s.heroTitle}>{data.name}</h1>
             </div>
+            <ShareButton
+              title={`${data.name} — 작물 정보 | 이랑`}
+              text={`${data.name}: ${data.description?.slice(0, 80) ?? data.category}`}
+              contentType="crop"
+              variant="ghost"
+              size="sm"
+              showLabel={false}
+            />
             <BookmarkButton
               id={data.id}
               type="crop"

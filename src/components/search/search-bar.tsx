@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { Search, Clock, X } from "lucide-react";
 import { searchItems, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
+import { analytics } from "@/lib/analytics";
 import s from "./search-bar.module.css";
 
 // ---------------------------------------------------------------------------
@@ -214,7 +215,10 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // ----- Navigate to result -----
   const navigateTo = useCallback(
     (href: string, searchQuery?: string) => {
-      if (searchQuery) saveRecent(searchQuery);
+      if (searchQuery) {
+        saveRecent(searchQuery);
+        analytics.search(searchQuery);
+      }
       setIsOpen(false);
       setQuery("");
       setResults([]);

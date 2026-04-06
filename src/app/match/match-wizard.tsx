@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { PROVINCES, type Province } from "@/lib/data/regions";
 import { CROPS, CROP_DETAILS, type CropInfo } from "@/lib/data/crops";
+import { analytics } from "@/lib/analytics";
 import s from "./match-wizard.module.css";
 
 /* ── 질문 정의 ── */
@@ -471,6 +472,11 @@ export function MatchWizard() {
   const [showResult, setShowResult] = useState(false);
   const [prefilled, setPrefilled] = useState<Set<string>>(new Set());
 
+  // 매칭 시작 이벤트 (마운트 시 1회)
+  useEffect(() => {
+    analytics.matchStart();
+  }, []);
+
   // URL 쿼리 파라미터로 pre-fill (진단 결과 → 맞춤추천 연결용)
   useEffect(() => {
     const experience = searchParams.get("experience");
@@ -550,6 +556,13 @@ export function MatchWizard() {
     setAnswers({});
     setShowResult(false);
   }, []);
+
+  // 결과 화면 진입 시 완료 이벤트 전송
+  useEffect(() => {
+    if (showResult) {
+      analytics.matchComplete();
+    }
+  }, [showResult]);
 
   // 결과 계산
   const topProvinces = useMemo(
