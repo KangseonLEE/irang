@@ -298,6 +298,8 @@ export interface CompareRow {
   city: string;
   rural: string;
   change: string;
+  /** 변화 방향의 의미: positive=농촌 유리, caution=아직 불리하나 개선 추세, neutral=중립 */
+  sentiment: "positive" | "caution" | "neutral";
 }
 
 export const cityVsRural: CompareRow[] = [
@@ -306,42 +308,49 @@ export const cityVsRural: CompareRow[] = [
     city: "239만 원",
     rural: "173만 원",
     change: "-25.1%",
+    sentiment: "positive",
   },
   {
     label: "주거비 (3.3㎡당)",
     city: "1,800만 원",
     rural: "350만 원",
     change: "-80%",
+    sentiment: "positive",
   },
   {
     label: "주거 형태",
     city: "아파트 58㎡",
     rural: "단독주택 130㎡",
     change: "2.2배 넓게",
+    sentiment: "positive",
   },
   {
     label: "출퇴근",
     city: "평균 58분",
     rural: "차로 10분",
     change: "-48분",
+    sentiment: "positive",
   },
   {
     label: "미세먼지 (PM2.5)",
     city: "24㎍/㎥",
     rural: "17㎍/㎥",
     change: "-29%",
+    sentiment: "positive",
   },
   {
     label: "5년차 소득",
     city: "3,800만 원",
     rural: "3,300만 원",
     change: "격차 ↓ 추세",
+    sentiment: "caution",
   },
   {
     label: "생활 만족도",
     city: "52%",
     rural: "70%",
     change: "+18%p",
+    sentiment: "positive",
   },
 ];
 

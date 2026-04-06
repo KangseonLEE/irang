@@ -227,7 +227,7 @@ export default async function HomePage() {
       <section className={s.compareSection} aria-label="도시 농촌 비교">
         <h2 className={s.trendTitle}>
           <ArrowLeftRight size={18} className={s.trendTitleIcon} />
-          월급은 줄어도, 삶은 넉넉해지더라
+          월급은 줄어도,<br className={s.mobileBreak} /> 삶은 넉넉해지더라
         </h2>
 
         <div className={s.compareTable}>
@@ -237,14 +237,24 @@ export default async function HomePage() {
             <span className={s.compareHeaderCell}>농촌</span>
             <span className={s.compareHeaderCell} />
           </div>
-          {cityVsRural.map((row) => (
-            <div key={row.label} className={s.compareRow}>
-              <span className={s.compareLabel}>{row.label}</span>
-              <span className={s.compareCity}>{row.city}</span>
-              <span className={s.compareRural}>{row.rural}</span>
-              <span className={s.compareChange}>{row.change}</span>
-            </div>
-          ))}
+          {cityVsRural.map((row) => {
+            const sentimentClass =
+              row.sentiment === "caution"
+                ? s.changeCaution
+                : row.sentiment === "neutral"
+                  ? s.changeNeutral
+                  : s.changePositive;
+            return (
+              <div key={row.label} className={s.compareRow}>
+                <span className={s.compareLabel}>{row.label}</span>
+                <span className={s.compareCity}>{row.city}</span>
+                <span className={s.compareRural}>{row.rural}</span>
+                <span className={`${s.compareChange} ${sentimentClass}`}>
+                  {row.change}
+                </span>
+              </div>
+            );
+          })}
         </div>
 
         <p className={s.compareNote}>

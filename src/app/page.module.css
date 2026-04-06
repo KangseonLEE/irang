@@ -455,7 +455,7 @@
 .reasonsList {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 @media (min-width: 768px) {
@@ -465,7 +465,11 @@
 .reasonRow {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+}
+
+@media (min-width: 768px) {
+  .reasonRow { gap: 8px; }
 }
 
 /* 1위 항목 — 좌측 accent border */
@@ -496,8 +500,8 @@
 
 .reasonBarWrap {
   width: 100%;
-  height: 20px;
-  border-radius: 10px;
+  height: 16px;
+  border-radius: 8px;
   background: var(--border, #e5e7eb);
   overflow: hidden;
 }
@@ -508,7 +512,7 @@
 
 .reasonBar {
   height: 100%;
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--muted-foreground, #9ca3af);
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -956,8 +960,20 @@
 .compareChange {
   font-size: var(--fs-body-sm);
   font-weight: 700;
-  color: var(--primary, #1B6B5A);
   text-align: right;
+}
+
+/* ── 변화 키워드 감정(sentiment) 색상 ── */
+.changePositive {
+  color: var(--primary, #1B6B5A);
+}
+
+.changeCaution {
+  color: #B45309;
+}
+
+.changeNeutral {
+  color: var(--muted-foreground, #6b7280);
 }
 
 /* ── 모바일 전용: Stacked Card ── */
@@ -1024,10 +1040,48 @@
     grid-area: change;
     font-size: var(--fs-caption);
     font-weight: 800;
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
     padding: 2px 8px;
     border-radius: 6px;
     justify-self: end;
+  }
+
+  /* 모바일 pill 배경 — sentiment별 */
+  .changePositive {
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+  }
+
+  .changeCaution {
+    background: rgba(180, 83, 9, 0.08);
+  }
+
+  .changeNeutral {
+    background: var(--muted, #f9fafb);
+  }
+}
+
+/* ── 비교 섹션 타이틀 — 모바일 줄바꿈 허용 ── */
+.compareSection .trendTitle {
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+@media (min-width: 640px) {
+  .compareSection .trendTitle {
+    white-space: nowrap;
+  }
+}
+
+/* 모바일 전용 줄바꿈 */
+.mobileBreak {
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .mobileBreak {
+    display: none;
   }
 }
 
