@@ -219,7 +219,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     applicationEnd: "2026-07-15",
     status: "모집예정",
     level: "입문",
-    url: "https://agriacademy.jeonbuk.go.kr/_html/scontent02/02_011_2025.php",
+    url: "https://agriacademy.jeonbuk.go.kr/_html/scontent02/02_011_2026.php",
   },
   {
     id: "edu-010",

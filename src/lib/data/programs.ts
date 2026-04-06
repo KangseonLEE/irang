@@ -71,7 +71,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-05-31",
     status: "모집중",
     relatedCrops: ["매실", "블루베리", "고추"],
-    sourceUrl: "https://suncheon.go.kr/board/board.do?boardId=bbs_0000000000000190&category=&cntId=1943&mode=view&pageIdx=",
+    sourceUrl: "https://suncheon.go.kr/board/board.do?boardId=bbs_0000000000000190&cntId=1943&mode=view",
     year: 2026,
   },
   {
