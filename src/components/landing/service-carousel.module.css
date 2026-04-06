@@ -155,7 +155,7 @@
 
 /* 설명 */
 .cardDesc {
-  font-size: var(--fs-body);
+  font-size: var(--fs-body-sm);
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
   margin-bottom: 4px;

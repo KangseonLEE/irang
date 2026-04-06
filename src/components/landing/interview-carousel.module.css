@@ -110,7 +110,7 @@
   font-size: var(--fs-body);
   font-weight: 600;
   color: var(--foreground, #111);
-  line-height: 1.65;
+  line-height: 1.45;
   letter-spacing: -0.01em;
   word-break: keep-all;
   flex: 1;

@@ -82,9 +82,6 @@ export function InterviewCarousel({ items }: InterviewCarouselProps) {
               </span>
             </div>
 
-            {/* 귀농 동기 1줄 미리보기 */}
-            <p className={s.motivation}>{person.motivation}</p>
-
             <p className={s.quote}>{person.quote}</p>
 
             <div className={s.tags}>
