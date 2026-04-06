@@ -15,7 +15,7 @@ import {
   Tag,
   CalendarDays,
 } from "lucide-react";
-import { getEventById, EVENTS } from "@/lib/data/events";
+import { getEventById, getEventByIdAsync, EVENTS } from "@/lib/data/events";
 import type { FarmEvent } from "@/lib/data/events";
 import s from "./page.module.css";
 
@@ -25,7 +25,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const event = getEventById(id);
+  const event = await getEventByIdAsync(id);
   return {
     title: event ? event.title : "행사 상세",
     description: event?.description.slice(0, 160),
@@ -69,7 +69,7 @@ export default async function EventDetailPage({
   params,
 }: EventDetailPageProps) {
   const { id } = await params;
-  const event = getEventById(id);
+  const event = await getEventByIdAsync(id);
 
   if (!event) {
     notFound();

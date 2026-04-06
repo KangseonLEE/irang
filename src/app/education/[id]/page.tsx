@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import {
   getEducationById,
+  getEducationByIdAsync,
   EDUCATION_COURSES,
 } from "@/lib/data/education";
 import type { EducationCourse } from "@/lib/data/education";
@@ -29,7 +30,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const course = getEducationById(id);
+  const course = await getEducationByIdAsync(id);
   return {
     title: course ? course.title : "교육 과정 상세",
     description: course?.description.slice(0, 160),
@@ -66,7 +67,7 @@ export default async function EducationDetailPage({
   params,
 }: EducationDetailPageProps) {
   const { id } = await params;
-  const course = getEducationById(id);
+  const course = await getEducationByIdAsync(id);
 
   if (!course) {
     notFound();

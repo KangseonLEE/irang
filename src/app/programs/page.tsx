@@ -19,6 +19,7 @@ import {
   FilterDivider,
   FilterActions,
 } from "@/components/filter/filter-bar";
+import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -132,6 +133,14 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
           }}
         />
       </FilterBar>
+
+      <IncludeClosedHint
+        resultCount={total}
+        includeClosed={includeClosed}
+        basePath="/programs"
+        currentFilters={currentFilters}
+        itemLabel="지원사업"
+      />
 
       <ProgramList
         initialPrograms={programs}

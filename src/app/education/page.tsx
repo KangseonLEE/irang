@@ -28,6 +28,7 @@ import {
   FilterDivider,
   FilterActions,
 } from "@/components/filter/filter-bar";
+import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -155,6 +156,14 @@ export default async function EducationPage({ searchParams }: PageProps) {
           }}
         />
       </FilterBar>
+
+      <IncludeClosedHint
+        resultCount={courses.length}
+        includeClosed={includeClosed}
+        basePath="/education"
+        currentFilters={currentFilters}
+        itemLabel="교육과정"
+      />
 
       {/* Course Grid or Empty */}
       {courses.length === 0 ? (

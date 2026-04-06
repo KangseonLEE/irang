@@ -1,0 +1,66 @@
+# 이랑 데이터 자동 동기화
+# - 매일 06:00 KST (21:00 UTC)에 실행
+# - Phase A: RDA API 동기화 + 상태 자동 업데이트
+# - Phase B: 정부/공공 사이트 크롤링
+
+name: Daily Data Sync
+
+on:
+  schedule:
+    - cron: "0 21 * * *" # 06:00 KST (UTC+9)
+  workflow_dispatch: # 수동 실행 지원
+
+jobs:
+  sync-rda:
+    name: "Phase A: RDA API Sync"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger sync-rda Edge Function
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/sync-rda" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            --max-time 30)
+
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | head -n -1)
+
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+
+          if [ "$http_code" -ge 500 ]; then
+            echo "::error::sync-rda failed with HTTP $http_code"
+            exit 1
+          fi
+
+  sync-crawl:
+    name: "Phase B: Crawl Sites"
+    runs-on: ubuntu-latest
+    needs: sync-rda
+    strategy:
+      matrix:
+        target:
+          - rda-programs
+          - rda-education
+          - agrix-programs
+    steps:
+      - name: "Crawl: ${{ matrix.target }}"
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/sync-crawl" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"target": "${{ matrix.target }}"}' \
+            --max-time 60)
+
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | head -n -1)
+
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+
+          # 크롤링은 partial 실패도 허용
+          if [ "$http_code" -ge 500 ]; then
+            echo "::warning::${{ matrix.target }} returned HTTP $http_code"
+          fi

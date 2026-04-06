@@ -112,13 +112,13 @@ export const SEARCH_INDEX: SearchItem[] = [
 // ---------------------------------------------------------------------------
 
 export const POPULAR_TAGS: SearchTag[] = [
-  { label: "#순천", query: "순천", type: "search" },
-  { label: "#블루베리", query: "블루베리", type: "search" },
-  { label: "#보조금", query: "보조금", type: "search" },
+  { label: "#귀농융자", query: "융자", type: "search" },
+  { label: "#청년농업인", query: "청년", type: "search" },
+  { label: "#체류형", query: "체류형", type: "search" },
   { label: "#모집중", query: "모집중", type: "search" },
   { label: "#초보추천", query: "쉬움", type: "search" },
-  { label: "#과수", query: "과수", type: "search" },
-  { label: "#전남", query: "전남", type: "search" },
+  { label: "#스마트팜", query: "스마트팜", type: "search" },
+  { label: "#박람회", query: "박람회", type: "search" },
   { label: "#교육지원", query: "교육", type: "search" },
 ];
 

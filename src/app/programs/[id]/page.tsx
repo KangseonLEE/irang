@@ -15,7 +15,7 @@ import {
   Users,
   Leaf,
 } from "lucide-react";
-import { getProgramById, PROGRAMS } from "@/lib/data/programs";
+import { getProgramById, getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import type { SupportProgram } from "@/lib/data/programs";
 import { getCropByName } from "@/lib/data/crops";
 import { getStationByProvince } from "@/lib/data/stations";
@@ -27,7 +27,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const program = getProgramById(id);
+  const program = await getProgramByIdAsync(id);
   return {
     title: program ? program.title : "지원사업 상세",
     description: program?.summary,
@@ -55,7 +55,7 @@ export default async function ProgramDetailPage({
   params,
 }: ProgramDetailPageProps) {
   const { id } = await params;
-  const program = getProgramById(id);
+  const program = await getProgramByIdAsync(id);
 
   if (!program) {
     notFound();

@@ -11,6 +11,7 @@ import {
   deriveStatus,
   type RdaEduItem,
 } from "@/lib/api/rda";
+import { getSupabase, isSupabaseConfigured, type EducationRow } from "@/lib/supabase";
 
 export interface EducationCourse {
   id: string;
@@ -53,194 +54,157 @@ export const EDUCATION_LEVELS = ["입문", "초급", "중급", "심화"] as cons
 
 export const EDUCATION_COURSES: EducationCourse[] = [
   {
-    id: "edu-001",
-    title: "귀농·귀촌 온라인 기초 교육",
-    region: "전국",
-    organization: "농림수산식품교육문화정보원",
-    type: "온라인",
-    duration: "100시간 (8주)",
-    schedule: "상시",
-    target: "귀농 예정자 및 귀농 5년 이내 초기 정착자",
+    id: "ED-001",
+    title: "서울시 전원생활교육 (귀촌 준비 기초)",
+    region: "서울특별시",
+    organization: "서울시 농업기술센터",
+    type: "오프라인",
+    duration: "30시간 (5일)",
+    schedule:
+      "1기 3.23~27 / 2기 4.6~10 / 3기 4.20~24 (각 5일, 6시간/일)",
+    target: "서울시민 (5년 이내 수강자 제외)",
     cost: "무료",
     description:
-      "귀농·귀촌에 필요한 기초 지식을 온라인으로 학습하는 과정입니다. 작물재배 기초, 농촌생활 적응, 귀농 지원제도 안내 등 필수 교육을 포함합니다. 농림축산식품부 귀농교육 100시간 이수 인정 과정입니다.",
+      "전원생활 준비 및 성공사례, 채소·과수·화훼 기초영농기술, 농기계 안전사용법을 배우는 서울시 공식 귀촌 준비 교육 과정입니다. 기별 40명 선착순 모집.",
+    capacity: 40,
+    applicationStart: "2026-02-10",
+    applicationEnd: "2026-04-17",
+    status: "모집중",
+    level: "입문",
+    url: "https://agro.seoul.go.kr/archives/55475",
+  },
+  {
+    id: "ED-002",
+    title: "서울시 스마트팜 실용교육",
+    region: "서울특별시",
+    organization: "서울시 농업기술센터",
+    type: "오프라인",
+    duration: "14시간 (3일)",
+    schedule: "2026.4.21(월) ~ 4.23(수)",
+    target: "서울 거주자 (주민등록상)",
+    cost: "무료",
+    description:
+      "식물공장과 아쿠아포닉스, 디지털농업 동향 및 사례, 강남농협 현장견학, 스마트팜 원예작물 재배생리, 온실 구축 및 운영 기초가이드를 배우는 실용 교육입니다.",
+    capacity: 45,
+    applicationStart: "2026-04-06",
+    applicationEnd: "2026-04-10",
+    status: "모집중",
+    level: "초급",
+    url: "https://agro.seoul.go.kr/archives/55870",
+  },
+  {
+    id: "ED-003",
+    title: "화성특례시 귀농귀촌 교육 (기초반+주말반)",
+    region: "경기도",
+    organization: "화성시농업기술센터 기술기획과",
+    type: "오프라인",
+    duration: "기초반 60시간(15회) / 주말반 35시간(5회)",
+    schedule: "기초반 3~4월(수·목) / 주말반 5~6월(토)",
+    target: "화성시 귀농귀촌 희망 시민 및 직장인",
+    cost: "무료",
+    description:
+      "기초반은 매주 수·목 오후 4시간씩 총 15회, 주말반은 매주 토요일 7시간씩 총 5회로 직장인도 참여할 수 있는 귀농귀촌 교육입니다. 기초반 50명, 주말반 70명 모집.",
+    capacity: 120,
+    applicationStart: "2026-02-02",
+    applicationEnd: "2026-02-20",
+    status: "마감",
+    level: "입문",
+    url: "https://www.gninews.co.kr/news/article.html?no=769163",
+  },
+  {
+    id: "ED-004",
+    title: "서귀포시 귀농귀촌 기본교육 (상반기)",
+    region: "제주특별자치도",
+    organization: "서귀포시 마을활력과 / 제주특별자치도농업기술원",
+    type: "오프라인",
+    duration: "16시간 (4일)",
+    schedule: "2026.3.10(화) ~ 3.13(금), 오후 1~5시",
+    target: "서귀포시 귀농귀촌 희망자",
+    cost: "무료",
+    description:
+      "귀농귀촌 정책사업 안내, 귀농귀촌 성공사례 공유, 제주 농업 분야 이해를 중심으로 한 기본 교육입니다. 제주특별자치도농업기술원 미래농업육성관에서 진행됩니다.",
+    capacity: 80,
+    applicationStart: "2026-02-25",
+    applicationEnd: "2026-02-27",
+    status: "마감",
+    level: "입문",
+    url: "https://www.jejudomin.co.kr/news/articleView.html?idxno=317057",
+  },
+  {
+    id: "ED-005",
+    title: "충남 스마트팜 청년창업 교육 (제8기)",
+    region: "충청남도",
+    organization: "충청남도농업기술원",
+    type: "혼합",
+    duration: "6개월 (이론1개월+실습2개월+현장3개월)",
+    schedule: "2026.2.2. ~ 2026.11.30.",
+    target: "충남도내 청년농업인 또는 충남 전입 예정자 (만 18~44세)",
+    cost: "무료 (현장실습 훈련비 월 최대 100만원 별도 지급)",
+    description:
+      "스마트팜 기본역량 이론과정(1개월), 활용능력 실습과정(2개월), 현장실습교육(3개월)을 체계적으로 배우는 청년 대상 창업지원 교육입니다.",
+    capacity: 30,
+    applicationStart: "2025-12-29",
+    applicationEnd: "2026-01-02",
+    status: "마감",
+    level: "중급",
+    url: "https://youth.chungnam.go.kr/web/main/bbs/cnyouth_notice/497",
+  },
+  {
+    id: "ED-006",
+    title: "농촌진흥청 농촌인적자원개발센터 교육 (연간 391개 과정)",
+    region: "전국",
+    organization: "농촌진흥청 농촌인적자원개발센터",
+    type: "혼합",
+    duration: "과정별 상이 (연간 391개 과정)",
+    schedule: "상시 운영",
+    target: "귀농귀촌 희망자 및 농업인 누구나",
+    cost: "국비 70~90% 지원 (개인 부담 최소)",
+    description:
+      "귀농귀촌 아카데미, 맞춤형교육, 농산업 창업교육, 청년귀촌장기교육 등 연간 391개 과정을 운영합니다. 농업교육포털(agriedu.net) 또는 그린대로에서 신청할 수 있습니다.",
     capacity: null,
     applicationStart: "2026-01-01",
     applicationEnd: "2026-12-31",
     status: "모집중",
     level: "입문",
-    url: "https://agriedu.net/page/client_edu_online",
+    url: "https://agriedu.net/",
   },
   {
-    id: "edu-002",
-    title: "강원도 고랭지 채소 재배 실습 교육",
-    region: "강원도",
-    organization: "강원도 농업기술원",
-    type: "오프라인",
-    duration: "80시간 (4주)",
-    schedule: "2026.06.01 ~ 06.26",
-    target: "강원도 고랭지 지역 귀농 예정자 및 초기 정착 농업인",
-    cost: "무료 (숙식 제공)",
-    description:
-      "해발 600m 이상 고랭지 환경에 적합한 배추, 무, 감자 등의 재배 기술을 현장 실습 중심으로 배우는 교육입니다. 병해충 관리, 토양 분석, 수확 후 관리 등 실무 역량을 강화합니다.",
-    capacity: 20,
-    applicationStart: "2026-04-15",
-    applicationEnd: "2026-05-15",
-    status: "모집예정",
-    level: "중급",
-    url: "https://hrd.rda.go.kr/ehrd_asp/gangwon.do",
-  },
-  {
-    id: "edu-003",
-    title: "전남 귀농귀촌 아카데미",
-    region: "전라남도",
-    organization: "전라남도 농업기술원",
-    type: "혼합",
-    duration: "120시간 (10주)",
-    schedule: "2026.04.07 ~ 06.13",
-    target: "전남 지역 이주 예정 귀농·귀촌인",
-    cost: "무료",
-    description:
-      "온라인 이론 학습과 전남 현지 농가 실습을 결합한 종합 귀농 교육 과정입니다. 지역 특화 작물(매실, 블루베리, 녹차 등) 재배 체험과 선배 귀농인 멘토링을 제공합니다.",
-    capacity: 30,
-    applicationStart: "2026-02-17",
-    applicationEnd: "2026-03-21",
-    status: "마감",
-    level: "초급",
-    url: "https://jnfarm.jeonnam.go.kr/content/view.do?menuCd=farm003001002",
-  },
-  {
-    id: "edu-004",
-    title: "경북 과수 전문 재배 교육",
-    region: "경상북도",
-    organization: "경상북도 농업기술원 과수과",
-    type: "오프라인",
-    duration: "60시간 (3주)",
-    schedule: "2026.05.11 ~ 05.29",
-    target: "사과·배·복숭아 재배 예정 귀농인 및 초기 과수 농업인",
-    cost: "10만 원",
-    description:
-      "경북 주요 과수(사과, 배, 복숭아)의 전정, 적과, 병해충 방제, 수확 후 처리 등 전문 재배 기술을 체계적으로 교육합니다. 영주·안동·상주 지역 선진 과수원 현장 견학이 포함됩니다.",
-    capacity: 25,
-    applicationStart: "2026-03-10",
-    applicationEnd: "2026-04-10",
-    status: "모집중",
-    level: "중급",
-    url: "https://hrd.rda.go.kr/ehrd_asp/gyeongbuk.do",
-  },
-  {
-    id: "edu-005",
-    title: "제주 감귤 재배 기술 교육",
-    region: "제주특별자치도",
-    organization: "제주특별자치도 감귤농업기술센터",
-    type: "오프라인",
-    duration: "40시간 (2주)",
-    schedule: "2026.07.06 ~ 07.17",
-    target: "제주 감귤 재배 입문자 및 품종 전환 희망 농업인",
-    cost: "무료",
-    description:
-      "감귤 재배의 기초부터 신품종(한라봉, 천혜향, 레드향) 관리 기술까지 다루는 현장 중심 교육입니다. 기후 변화 대응 재배 기술과 친환경 병해충 방제법을 집중 교육합니다.",
-    capacity: 15,
-    applicationStart: "2026-05-01",
-    applicationEnd: "2026-06-15",
-    status: "모집예정",
-    level: "초급",
-    url: "https://agri.jeju.go.kr/jeju/technologycenter/education/jeju.htm",
-  },
-  {
-    id: "edu-006",
-    title: "충남 스마트팜 기초·실습 교육",
-    region: "충청남도",
-    organization: "충청남도 농업기술원 스마트팜센터",
-    type: "혼합",
-    duration: "60시간 (5주)",
-    schedule: "2026.04.20 ~ 05.22",
-    target: "스마트팜 도입 예정 귀농인 및 시설원예 농업인",
-    cost: "5만 원",
-    description:
-      "ICT 기반 스마트팜의 원리와 운영 기술을 이론(온라인)과 실습(현장)으로 배우는 과정입니다. 환경제어 시스템, IoT 센서 활용, 데이터 기반 작물 관리 등 실무 역량을 키웁니다.",
-    capacity: 20,
-    applicationStart: "2026-03-01",
-    applicationEnd: "2026-04-05",
-    status: "모집중",
-    level: "중급",
-    url: "https://cnnongup.chungnam.go.kr/sub.cs?m=307",
-  },
-  {
-    id: "edu-007",
-    title: "귀농 창업 경영 교육",
-    region: "전국",
-    organization: "농림수산식품교육문화정보원",
-    type: "온라인",
-    duration: "40시간 (4주)",
-    schedule: "2026.05.04 ~ 05.29",
-    target: "영농 창업을 준비하는 귀농 예정자 및 초기 귀농인",
-    cost: "무료",
-    description:
-      "영농 사업계획서 작성, 농산물 원가 분석, 자금 조달, 세무·회계 기초 등 귀농 창업에 필요한 경영 역량을 체계적으로 학습합니다. 성공 귀농 사례 분석과 전문가 화상 멘토링이 포함됩니다.",
-    capacity: null,
-    applicationStart: "2026-04-01",
-    applicationEnd: "2026-04-25",
-    status: "모집중",
-    level: "초급",
-    url: "https://agriedu.net/page/client_found_info",
-  },
-  {
-    id: "edu-008",
-    title: "경기도 도시농업 체험 교육",
-    region: "경기도",
-    organization: "경기도 농업기술원",
-    type: "오프라인",
-    duration: "24시간 (3일)",
-    schedule: "2026.04.24 ~ 04.26",
-    target: "귀농 전 단계 도시민 및 주말농장 운영 희망자",
-    cost: "3만 원",
-    description:
-      "도시농업의 기초를 체험하며 귀농에 대한 관심을 높이는 단기 입문 과정입니다. 텃밭 조성, 친환경 재배, 퇴비 만들기 등 실습 위주로 진행되며, 귀농 상담도 함께 제공합니다.",
-    capacity: 40,
-    applicationStart: "2026-03-15",
-    applicationEnd: "2026-04-15",
-    status: "모집중",
-    level: "입문",
-    url: "https://nongup.gg.go.kr/noti/31",
-  },
-  {
-    id: "edu-009",
-    title: "전북 소규모 축산 입문 교육",
+    id: "ED-007",
+    title: "무주군 전북에서 살아보기 (영농체험형)",
     region: "전라북도",
-    organization: "전라북도 축산진흥연구센터",
+    organization: "무주군 / 그린대로 플랫폼",
     type: "오프라인",
-    duration: "50시간 (2주)",
-    schedule: "2026.08.03 ~ 08.14",
-    target: "축산업 입문을 희망하는 귀농 예정자",
-    cost: "무료 (교재비 별도)",
+    duration: "3개월 (1기) / 2개월 (2기)",
+    schedule: "1기 2026.4~6월 / 2기 2026.9~11월",
+    target: "전북 귀농귀촌 관심자",
+    cost: "문의 필요",
     description:
-      "한우, 돼지, 닭 등 소규모 축산의 기초 사양관리, 축사 설계, 방역, 사료 배합 등을 배우는 실습 중심 교육입니다. 전북 지역 우수 축산 농가 견학과 수의사 특강이 포함됩니다.",
-    capacity: 15,
-    applicationStart: "2026-06-01",
-    applicationEnd: "2026-07-15",
-    status: "모집예정",
+      "무주군에 3개월간 체류하며 사과, 블루베리 등 지역 특화작목 영농체험을 하는 프로그램입니다. 지역 탐색, 주민 교류 등 귀농 전 농촌생활을 직접 체험할 수 있습니다.",
+    capacity: null,
+    applicationStart: "2026-03-01",
+    applicationEnd: "2026-04-03",
+    status: "마감",
     level: "입문",
-    url: "https://agriacademy.jeonbuk.go.kr/_html/scontent02/02_011_2026.php",
+    url: "https://www.mjjnews.net/news/article.html?no=55756",
   },
   {
-    id: "edu-010",
-    title: "농산물 유통·마케팅 전문 과정",
-    region: "전국",
-    organization: "농림수산식품교육문화정보원",
-    type: "온라인",
-    duration: "30시간 (3주)",
-    schedule: "2026.03.02 ~ 03.20",
-    target: "농산물 판매·유통 역량 강화를 원하는 귀농인",
-    cost: "무료",
+    id: "ED-008",
+    title: "영주 소백산귀농드림타운 체류형 농업창업교육",
+    region: "경상북도",
+    organization: "영주시 농업기술센터",
+    type: "오프라인",
+    duration: "수개월 (체류형)",
+    schedule: "수시 접수 (제11기 운영 중)",
+    target: "귀농 희망자 (영주 지역 체류 가능자)",
+    cost: "입교비 소정 (확인 필요)",
     description:
-      "농산물 직거래, 온라인 판매 채널 구축, SNS 마케팅, 브랜딩 전략 등 농산물 유통·마케팅 전반을 다루는 과정입니다. 로컬푸드 직매장 입점, 꾸러미 사업 등 실전 사례를 중심으로 교육합니다.",
-    capacity: null,
-    applicationStart: "2026-01-15",
-    applicationEnd: "2026-02-20",
-    status: "마감",
-    level: "심화",
-    url: "https://agriedu.net/page/client_edu_online?eduCategoryCode0=006&eduCategoryCode1=006002",
+      "영주 소백산 인근 귀농드림타운에서 체류하며 농업을 학습하고 현장실습을 병행하는 체류형 교육 프로그램입니다. 현재 제11기 운영 중이며 5세대 추가 모집 중입니다.",
+    capacity: 5,
+    applicationStart: "2026-01-01",
+    applicationEnd: "2026-12-31",
+    status: "모집중",
+    level: "초급",
+    url: "http://www.ttlnews.com/news/articleView.html?idxno=3085607",
   },
 ];
 
@@ -248,6 +212,51 @@ export const EDUCATION_COURSES: EducationCourse[] = [
 
 /** ID로 단일 교육 과정 조회 */
 export function getEducationById(id: string): EducationCourse | undefined {
+  return EDUCATION_COURSES.find((c) => c.id === id);
+}
+
+/** ID(slug)로 단일 교육과정 조회 — Supabase → 정적 폴백 (비동기) */
+export async function getEducationByIdAsync(
+  id: string
+): Promise<EducationCourse | undefined> {
+  // 1️⃣ Supabase 시도
+  if (isSupabaseConfigured) {
+    try {
+      const sb = getSupabase()!;
+      const { data, error } = await sb
+        .from("education_courses")
+        .select("*")
+        .eq("slug", id)
+        .maybeSingle();
+
+      if (!error && data) {
+        const row = data as unknown as EducationRow;
+        return {
+          id: row.slug,
+          title: row.title,
+          region: row.region,
+          organization: row.organization,
+          type: row.type as EducationCourse["type"],
+          duration: row.duration,
+          schedule: row.schedule,
+          target: row.target,
+          cost: row.cost,
+          description: row.description,
+          capacity: row.capacity,
+          applicationStart: row.application_start,
+          applicationEnd: row.application_end,
+          status: row.status as EducationCourse["status"],
+          level: row.level as EducationCourse["level"],
+          url: row.url,
+          linkStatus: (row.link_status ?? undefined) as EducationCourse["linkStatus"],
+        };
+      }
+    } catch {
+      // Supabase 에러 → 정적 폴백
+    }
+  }
+
+  // 2️⃣ 정적 폴백
   return EDUCATION_COURSES.find((c) => c.id === id);
 }
 
@@ -392,15 +401,53 @@ function mapRdaEdu(item: RdaEduItem): EducationCourse {
  */
 export async function loadEducation(): Promise<{
   courses: EducationCourse[];
-  source: "api" | "fallback";
+  source: "supabase" | "api" | "fallback";
 }> {
-  const apiData = await fetchRdaEducation({ pageSize: 100 });
+  // 1️⃣ Supabase 시도
+  if (isSupabaseConfigured) {
+    try {
+      const sb = getSupabase()!;
+      const { data, error } = await sb
+        .from("education_courses")
+        .select("*")
+        .order("application_end", { ascending: true });
 
+      if (!error && data && data.length > 0) {
+        const rows = data as unknown as EducationRow[];
+        const courses: EducationCourse[] = rows.map((row) => ({
+          id: row.slug,
+          title: row.title,
+          region: row.region,
+          organization: row.organization,
+          type: row.type as EducationCourse["type"],
+          duration: row.duration,
+          schedule: row.schedule,
+          target: row.target,
+          cost: row.cost,
+          description: row.description,
+          capacity: row.capacity,
+          applicationStart: row.application_start,
+          applicationEnd: row.application_end,
+          status: row.status as EducationCourse["status"],
+          level: row.level as EducationCourse["level"],
+          url: row.url,
+          linkStatus: (row.link_status ?? undefined) as EducationCourse["linkStatus"],
+        }));
+        return { courses, source: "supabase" };
+      }
+    } catch {
+      // Supabase 에러 → 다음 소스로
+    }
+  }
+
+  // 2️⃣ RDA API 시도
+  const apiData = await fetchRdaEducation({ pageSize: 100 });
   if (apiData && apiData.length > 0) {
     const courses = apiData.map(mapRdaEdu);
     return { courses, source: "api" };
   }
 
+  // 3️⃣ 정적 폴백
   return { courses: EDUCATION_COURSES, source: "fallback" };
 }
 
@@ -410,7 +457,7 @@ export async function loadEducation(): Promise<{
  */
 export async function filterEducationAsync(
   filters: EducationFilters
-): Promise<{ courses: EducationCourse[]; source: "api" | "fallback" }> {
+): Promise<{ courses: EducationCourse[]; source: "supabase" | "api" | "fallback" }> {
   const { courses: allCourses, source } = await loadEducation();
 
   let periodStart: string | null = null;

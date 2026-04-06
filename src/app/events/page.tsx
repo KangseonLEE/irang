@@ -8,7 +8,7 @@ import {
   Tag,
 } from "lucide-react";
 import {
-  filterEvents,
+  filterEventsAsync,
   getCurrentPeriod,
   EVENT_TYPES,
   EVENT_REGIONS,
@@ -22,6 +22,7 @@ import {
   FilterDivider,
   FilterActions,
 } from "@/components/filter/filter-bar";
+import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -106,7 +107,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
     includeClosed,
   };
 
-  const events = filterEvents(filters);
+  const { events } = await filterEventsAsync(filters);
 
   // 기준일 표시 텍스트
   const [pYear, pMonth] = period.split("-");
@@ -167,6 +168,14 @@ export default async function EventsPage({ searchParams }: PageProps) {
           }}
         />
       </FilterBar>
+
+      <IncludeClosedHint
+        resultCount={events.length}
+        includeClosed={includeClosed}
+        basePath="/events"
+        currentFilters={currentParams}
+        itemLabel="행사"
+      />
 
       {/* ── Card Grid ── */}
       <CardGrid>
