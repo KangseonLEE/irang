@@ -83,9 +83,10 @@
       rgba(13, 46, 39, 0.78) 100%
     ),
     url("/images/hero-farm.webp") center / cover no-repeat;
-  /* 검색 드롭다운이 잘리지 않도록 */
+  /* 검색 드롭다운이 후속 섹션에 가리지 않도록 */
   overflow: visible;
   position: relative;
+  z-index: 10;
 }
 
 @media (min-width: 640px) {
@@ -182,6 +183,9 @@
   max-width: 580px;
   margin-bottom: 20px;
   filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.25));
+  /* 검색 드롭다운이 TrendingSearches 위에 표시되도록 */
+  position: relative;
+  z-index: 5;
 }
 
 @media (min-width: 640px) {
@@ -1547,6 +1551,72 @@
 /* ══════════════════════════════════════════
    CTA 배너 (컴팩트)
    ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   귀농 적합성 진단 배너
+   ══���═════════════════════════════���═════════ */
+.assessBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 32px 24px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 50%, #fefce8 100%);
+  border: 1px solid #d1fae5;
+}
+
+.assessEmoji {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.assessTitle {
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  color: var(--foreground, #111);
+  margin: 0;
+  word-break: keep-all;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 640px) {
+  .assessTitle {
+    font-size: var(--fs-h2);
+  }
+}
+
+.assessDesc {
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--muted-foreground, #6b7280);
+  max-width: 400px;
+  margin: 0;
+  word-break: keep-all;
+}
+
+.assessBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary, #1b6b5a);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.1s;
+  margin-top: 4px;
+}
+
+@media (hover: hover) {
+  .assessBtn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+}
+
 .ctaBanner {
   display: flex;
   flex-direction: column;

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { MatchWizard } from "./match-wizard";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function MatchPage() {
-  return <MatchWizard />;
+  return (
+    <Suspense>
+      <MatchWizard />
+    </Suspense>
+  );
 }

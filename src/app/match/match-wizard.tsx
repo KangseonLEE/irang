@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   ArrowLeft,
@@ -457,10 +458,40 @@ function recommendCrops(
 
 /* ── 컴포넌트 ── */
 
+/** 유효한 옵션 ID인지 확인 */
+function isValidOptionId(questionId: string, optionId: string): boolean {
+  const q = QUESTIONS.find((q) => q.id === questionId);
+  return q ? q.options.some((o) => o.id === optionId) : false;
+}
+
 export function MatchWizard() {
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [showResult, setShowResult] = useState(false);
+  const [prefilled, setPrefilled] = useState<Set<string>>(new Set());
+
+  // URL 쿼리 파라미터로 pre-fill (진단 결과 → 맞춤추천 연결용)
+  useEffect(() => {
+    const experience = searchParams.get("experience");
+    const lifestyle = searchParams.get("lifestyle");
+    const newAnswers: Answers = {};
+    const newPrefilled = new Set<string>();
+
+    if (experience && isValidOptionId("experience", experience)) {
+      newAnswers.experience = [experience];
+      newPrefilled.add("experience");
+    }
+    if (lifestyle && isValidOptionId("lifestyle", lifestyle)) {
+      newAnswers.lifestyle = [lifestyle];
+      newPrefilled.add("lifestyle");
+    }
+
+    if (Object.keys(newAnswers).length > 0) {
+      setAnswers((prev) => ({ ...prev, ...newAnswers }));
+      setPrefilled(newPrefilled);
+    }
+  }, [searchParams]);
 
   const currentQuestion = QUESTIONS[step];
   const totalSteps = QUESTIONS.length;
@@ -653,6 +684,13 @@ export function MatchWizard() {
         <h1 className={s.questionTitle}>{currentQuestion.title}</h1>
         <p className={s.questionSubtitle}>{currentQuestion.subtitle}</p>
 
+        {/* pre-fill 안내 */}
+        {prefilled.has(currentQuestion.id) && selectedForCurrent.length > 0 && (
+          <p className={s.prefillHint}>
+            적합성 진단 결과를 바탕으로 미리 선택되었어요. 변경할 수도 있습니다.
+          </p>
+        )}
+
         <div className={s.optionsGrid}>
           {currentQuestion.options.map((opt) => {
             const Icon = opt.icon;
@@ -693,6 +731,20 @@ export function MatchWizard() {
           <ArrowLeft size={16} />
           이전
         </button>
+
+        {/* pre-fill된 단일 선택 질문: 건너뛰기 버튼 표시 */}
+        {!currentQuestion.multiple &&
+          prefilled.has(currentQuestion.id) &&
+          selectedForCurrent.length > 0 && (
+            <button
+              onClick={handleNext}
+              className={s.navBtnNext}
+              type="button"
+            >
+              이대로 넘어가기
+              <ArrowRight size={16} />
+            </button>
+          )}
 
         {currentQuestion.multiple && (
           <button

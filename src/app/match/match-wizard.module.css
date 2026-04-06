@@ -84,6 +84,17 @@
   margin: 0 0 12px;
 }
 
+.prefillHint {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 0 0 4px;
+  word-break: keep-all;
+}
+
 /* ═══ 옵션 그리드 ═══ */
 .optionsGrid {
   display: grid;

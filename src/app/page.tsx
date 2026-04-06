@@ -332,6 +332,21 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ═══ 5.5 귀농 적합성 진단 — 자기 점검 브릿지 ═══ */}
+      <section className={s.assessBanner} aria-label="귀농 적합성 진단">
+        <span className={s.assessEmoji}>🧑‍🌾</span>
+        <h2 className={s.assessTitle}>
+          나는 귀농에 맞는 사람일까?
+        </h2>
+        <p className={s.assessDesc}>
+          3분이면 충분해요. 10가지 질문으로 나의 귀농 준비 상태를 점검하고, 맞춤 행동 가이드를 받아보세요.
+        </p>
+        <Link href="/assess" className={s.assessBtn}>
+          무료 진단 시작하기
+          <ArrowRight size={16} />
+        </Link>
+      </section>
+
       {/* ═══ 6. 인터뷰 카드 — 감정적 전환점 ═══ */}
       <div className={s.sectionHeader}>
         <h2 className={s.sectionTitle}>먼저 떠난 사람들</h2>
