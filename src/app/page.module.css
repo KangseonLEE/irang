@@ -1363,7 +1363,7 @@
 @media (min-width: 768px) {
   .roadmapCtaGroup {
     flex-direction: row;
-    align-items: center;
+    align-items: stretch;
     gap: 12px;
   }
 }
@@ -1447,6 +1447,15 @@
 .roadmapSecondary:focus-visible {
   outline: 2px solid var(--primary, #1B6B5A);
   outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .roadmapSecondary {
+    flex: 1;
+    padding: 18px 32px;
+    border-radius: 16px;
+    font-size: var(--fs-body);
+  }
 }
 
 /* ══════════════════════════════════════════
