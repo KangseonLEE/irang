@@ -85,6 +85,27 @@
 - Props: `children`, `className?` (추가 스타일 오버라이드 시)
 - **페이지마다 `.grid` + 동일 미디어쿼리 3단계를 새로 정의하지 않는다**
 
+#### ClimateSection (`@/components/stats/climate-section`)
+
+- 기후 정보 섹션 공용 컴포넌트 (시/도, 시군구 상세 페이지에서 공유)
+- 3단 카드 그리드 (기온, 강수량, 일조시간) + farming tip
+- Props: `climate: ClimateInfo`, `provinceShortName`, `notice?` (하단 안내 문구)
+- `ClimateInfo` 인터페이스도 이 파일에서 export — 다른 곳에서 중복 정의 금지
+- **기후 관련 UI를 새로 만들지 않고 이 컴포넌트 사용**
+
+#### Modal (`@/components/ui/modal`)
+
+- 공용 모달 컴포넌트 (Portal 렌더링, ESC 닫기, 포커스 트랩, 스크롤 잠금)
+- Props: `open`, `onClose`, `title`, `children`
+- z-index: 200, max-width: 640px, max-height: 80vh
+- **모달이 필요하면 반드시 이 컴포넌트 사용. 페이지별 모달 재구현 금지**
+
+#### formatPopulation / SEOUL_AREA_KM2 (`@/lib/format`)
+
+- `formatPopulation(pop)`: 인구수 → "N만명" 또는 "N명" 포맷
+- `SEOUL_AREA_KM2 = 605`: 서울 면적 기준 상수 (면적 비교 계산용)
+- **인구 포맷이나 서울 비교 로직을 인라인으로 재작성하지 않는다**
+
 #### TermTooltip / GlossaryTerm (`@/components/ui/term-tooltip`)
 
 - 전문 용어 CSS-only 툴팁 (hover/focus-within, `"use client"` 불필요)
@@ -184,6 +205,32 @@
 
 - SVG 라벨 위치는 path centroid 기반 계산 (수동 보정 포함)
 - 지도 옆 빈 공간에는 Quick Stats + 인기 키워드로 밀도 확보
+- **인구밀도 Choropleth**: `densityMap` prop으로 밀도 데이터 전달 → CSS 변수 `--density-fill`로 색상 적용
+  - 색상: primary 12%(연함) ~ 65%(진함), 로그 스케일 (`Math.log1p`)
+  - 호버: `filter: brightness(0.88) saturate(1.3)` — 밀도 색상을 유지하면서 인터랙션 표시
+  - 유틸리티: `@/lib/map-utils.ts` (`getDensityColor`, `getDensityRange`)
+  - KoreaMap: 시/도 밀도 (POPULATION_FALLBACK + PROVINCES.area, API 불필요)
+  - ProvinceMap: 시군구 밀도 (`fetchSubRegionPopulations` 1회 호출)
+
+### 지역 상세 페이지 아키텍처
+
+> 시/도(`RegionStats`)와 시군구(`SigunguStats`)는 동일한 패턴을 따른다.
+
+```
+[Server Component: page.tsx]
+  ↓ API 병렬 호출 (Promise.allSettled)
+  ↓ 결과를 props로 직렬화
+[Client Component: *-stats.tsx]
+  ↓ 클릭 가능한 Stat Cards (면적/인구/의료/학교)
+  ↓ ClimateSection (공용 컴포넌트)
+  ↓ 모달 (AreaModal, PopulationModal, MedicalModal, SchoolModal)
+```
+
+- **서버/클라이언트 경계**: 서버가 데이터 페칭, 클라이언트가 인터랙션(모달 상태) 담당
+- **모달 데이터 레이지 로딩**: 모달 내 리스트(의료기관, 학교)는 모달 오픈 시 `/api/*` Route Handler 호출
+- **API 프록시 패턴**: `/api/medical-list`, `/api/school-list`, `/api/population-trend` — 외부 API 키 보호 + 캐싱
+- **시군구 폴백**: Phase 1(시군구 수준) 실패 → Phase 2(시/도 수준) 자동 전환
+- **의료기관 정렬**: `TYPE_PRIORITY` (상급종합 → 보건진료소) 크기순 기본 정렬
 
 ---
 

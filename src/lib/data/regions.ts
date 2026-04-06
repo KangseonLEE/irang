@@ -16,6 +16,8 @@ export interface Province {
   name: string;
   /** 약칭 (예: "강원") */
   shortName: string;
+  /** 면적 (km²) */
+  area: number;
   /** 한 줄 소개 */
   description: string;
   /** 핵심 키워드 (3~4개) */
@@ -41,6 +43,7 @@ export const PROVINCES: Province[] = [
     id: "seoul",
     name: "서울특별시",
     shortName: "서울",
+    area: 605,
     description: "수도권 중심, 도시 농업과 주말 농장의 시작점",
     highlights: ["도시농업", "주말농장", "직거래 시장", "교육 인프라"],
     stationIds: ["108"],
@@ -63,9 +66,36 @@ export const PROVINCES: Province[] = [
     ],
   },
   {
+    id: "incheon",
+    name: "인천광역시",
+    shortName: "인천",
+    area: 1063,
+    description: "수도권 서해안의 도시 농업과 섬 특산물의 접점",
+    highlights: ["섬 농업", "도시농업", "서해안 기후", "물류 허브"],
+    stationIds: ["112"],
+    representativeStationId: "112",
+    sgisCode: "23",
+    hiraSidoCd: "230000",
+    eduCode: "E10",
+    unsplashQuery: "Incheon Songdo Central Park Korea",
+    personas: [
+      {
+        title: "섬 지역 특산물 재배에 관심 있는 분",
+        description:
+          "강화도 순무·인삼, 옹진 해양 특산물 등 섬 농업 특화 작물을 재배할 수 있습니다.",
+      },
+      {
+        title: "수도권 접근성과 서해안 환경을 동시에 원하는 분",
+        description:
+          "서울 생활권이면서 강화·옹진 등 자연환경이 풍부한 농업 지역을 보유하고 있습니다.",
+      },
+    ],
+  },
+  {
     id: "gyeonggi",
     name: "경기도",
     shortName: "경기",
+    area: 10187,
     description: "수도권 소비시장과 가까운 근교 농업의 최적지",
     highlights: ["근교 농업", "직거래 유통", "스마트팜", "체험농장"],
     stationIds: ["119"],
@@ -91,6 +121,7 @@ export const PROVINCES: Province[] = [
     id: "gangwon",
     name: "강원도",
     shortName: "강원",
+    area: 16827,
     description: "청정 자연 속 고랭지 농업과 산촌 체험의 중심",
     highlights: ["고랭지 채소", "청정 환경", "산촌 생활", "관광 연계"],
     stationIds: ["101", "211", "217"],
@@ -121,6 +152,7 @@ export const PROVINCES: Province[] = [
     id: "chungbuk",
     name: "충청북도",
     shortName: "충북",
+    area: 7407,
     description: "내륙 중심의 유기농·친환경 농업 선도 지역",
     highlights: ["유기농", "친환경 인증", "내륙 기후", "교통 요충지"],
     stationIds: ["131"],
@@ -143,9 +175,36 @@ export const PROVINCES: Province[] = [
     ],
   },
   {
+    id: "sejong",
+    name: "세종특별자치시",
+    shortName: "세종",
+    area: 465,
+    description: "행정수도의 도농복합 도시, 스마트팜과 귀농의 새 거점",
+    highlights: ["도농복합", "스마트팜", "행정수도", "신도시 인프라"],
+    stationIds: ["239"],
+    representativeStationId: "239",
+    sgisCode: "29",
+    hiraSidoCd: "290000",
+    eduCode: "I10",
+    unsplashQuery: "Sejong City government complex Korea",
+    personas: [
+      {
+        title: "신도시 인프라를 누리며 농업에 입문하려는 분",
+        description:
+          "세종시는 도심과 농촌이 공존하는 도농복합 도시로, 교육·의료·문화 인프라가 풍부합니다.",
+      },
+      {
+        title: "정부 지원 사업에 가까이 접근하고 싶은 분",
+        description:
+          "농림축산식품부 등 정부 부처가 소재해 귀농·귀촌 정책 정보를 가장 빠르게 얻을 수 있습니다.",
+      },
+    ],
+  },
+  {
     id: "daejeon",
     name: "대전광역시",
     shortName: "대전",
+    area: 540,
     description: "과학기술 도시에서 시작하는 스마트 농업",
     highlights: ["스마트팜", "연구기관 연계", "교통 허브", "도시 근교"],
     stationIds: ["133"],
@@ -171,6 +230,7 @@ export const PROVINCES: Province[] = [
     id: "chungnam",
     name: "충청남도",
     shortName: "충남",
+    area: 8226,
     description: "쌀·인삼·딸기의 전통 농업 강호, 서해안 온화한 기후",
     highlights: ["쌀 주산지", "인삼 특구", "서해안 기후", "귀농 지원 활발"],
     stationIds: ["238"],
@@ -196,6 +256,7 @@ export const PROVINCES: Province[] = [
     id: "jeonbuk",
     name: "전라북도",
     shortName: "전북",
+    area: 8069,
     description: "호남 평야의 비옥한 땅, 한국 농업의 곡창지대",
     highlights: ["호남 평야", "쌀·콩", "전통 식문화", "축산 컨설팅"],
     stationIds: ["146"],
@@ -221,6 +282,7 @@ export const PROVINCES: Province[] = [
     id: "gwangju",
     name: "광주광역시",
     shortName: "광주",
+    area: 501,
     description: "전남 농업권의 거점 도시, 문화와 농업의 교차점",
     highlights: ["전남 거점", "로컬푸드", "문화도시", "교육 인프라"],
     stationIds: ["156"],
@@ -246,6 +308,7 @@ export const PROVINCES: Province[] = [
     id: "jeonnam",
     name: "전라남도",
     shortName: "전남",
+    area: 12335,
     description: "온화한 남해안 기후, 다양한 작물과 풍부한 귀농 지원",
     highlights: ["온난 기후", "다품목 재배", "귀농 지원금", "남해안 생활"],
     stationIds: ["262", "259"],
@@ -273,9 +336,36 @@ export const PROVINCES: Province[] = [
     ],
   },
   {
+    id: "busan",
+    name: "부산광역시",
+    shortName: "부산",
+    area: 770,
+    description: "해양 도시에서 시작하는 도시 농업과 근교 원예",
+    highlights: ["도시농업", "근교 원예", "해양 기후", "직거래 시장"],
+    stationIds: ["159"],
+    representativeStationId: "159",
+    sgisCode: "21",
+    hiraSidoCd: "210000",
+    eduCode: "C10",
+    unsplashQuery: "Busan Haeundae beach Korea cityscape",
+    personas: [
+      {
+        title: "도시 농업·옥상 텃밭으로 농업을 시작하려는 분",
+        description:
+          "부산시 도시농업 지원 사업이 활발하며, 기장군 등 근교에서 원예·화훼 재배가 가능합니다.",
+      },
+      {
+        title: "경남 귀농 준비의 거점으로 활용하려는 분",
+        description:
+          "양산·김해 등 경남 농업지역과 인접해 있어, 도시 생활을 유지하며 영농 준비가 가능합니다.",
+      },
+    ],
+  },
+  {
     id: "daegu",
     name: "대구광역시",
     shortName: "대구",
+    area: 883,
     description: "분지 기후의 도시 근교 농업과 과수원 전통",
     highlights: ["분지 기후", "사과 전통", "도시 근교", "경북 거점"],
     stationIds: ["143"],
@@ -298,9 +388,36 @@ export const PROVINCES: Province[] = [
     ],
   },
   {
+    id: "ulsan",
+    name: "울산광역시",
+    shortName: "울산",
+    area: 1062,
+    description: "산업 도시 근교의 친환경 농업과 울주 배 특구",
+    highlights: ["배 특산지", "친환경 농업", "울주군 농촌", "산업도시 근교"],
+    stationIds: ["152"],
+    representativeStationId: "152",
+    sgisCode: "26",
+    hiraSidoCd: "260000",
+    eduCode: "H10",
+    unsplashQuery: "Ulsan Taehwagang Grand Park Korea",
+    personas: [
+      {
+        title: "울주군에서 배·감 등 과수 농업을 시작하려는 분",
+        description:
+          "울주군은 전국적으로 유명한 배 산지이며, 과수원 조성 지원 사업이 있습니다.",
+      },
+      {
+        title: "산업도시 소득을 병행하며 귀농을 준비하는 분",
+        description:
+          "울산 도심에서 30분 내 울주군 농촌에 접근 가능해, 단계적 귀농 준비에 적합합니다.",
+      },
+    ],
+  },
+  {
     id: "gyeongbuk",
     name: "경상북도",
     shortName: "경북",
+    area: 19033,
     description: "사과·포도·인삼의 과수 강국, 전통 농촌 마을 보존",
     highlights: ["사과 주산지", "포도·인삼", "전통 농촌", "스마트팜 단지"],
     stationIds: ["271", "272"],
@@ -331,6 +448,7 @@ export const PROVINCES: Province[] = [
     id: "gyeongnam",
     name: "경상남도",
     shortName: "경남",
+    area: 10540,
     description: "지리산 자락부터 남해안까지, 마늘·딸기·약용작물의 보고",
     highlights: ["마늘·딸기", "약용작물", "지리산 자락", "남해안 기후"],
     stationIds: ["192", "289"],
@@ -361,6 +479,7 @@ export const PROVINCES: Province[] = [
     id: "jeju",
     name: "제주특별자치도",
     shortName: "제주",
+    area: 1850,
     description: "아열대 기후의 감귤 왕국, 관광과 농업의 융합",
     highlights: ["감귤·아열대", "관광 연계", "팜스테이", "청정 환경"],
     stationIds: ["184", "189"],

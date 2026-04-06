@@ -1,0 +1,143 @@
+/* ==========================================================================
+   ClimateSection 공용 컴포넌트 스타일
+   시/도, 시군구 상세 페이지에서 동일하게 사용
+   ========================================================================== */
+
+/* ── 섹션 래퍼 ── */
+.section {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  padding: 20px;
+}
+
+@media (min-width: 640px) {
+  .section {
+    padding: 24px;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sectionIcon {
+  color: var(--primary, #1b6b5a);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.sectionDesc {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  margin: 2px 0 0;
+}
+
+/* ── 기후 그리드 (항상 3단) ── */
+.climateGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .climateGrid {
+    gap: 12px;
+  }
+}
+
+/* ── 기후 카드 ── */
+.climateCard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  background: var(--muted, #f4f4f5);
+  border-radius: 10px;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .climateCard {
+    gap: 4px;
+    padding: 16px;
+    border-radius: 12px;
+  }
+}
+
+.climateCardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--secondary, #e8f5f1);
+  color: var(--primary, #1b6b5a);
+  margin-bottom: 2px;
+}
+
+@media (min-width: 640px) {
+  .climateCardIcon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+  }
+}
+
+.climateCardLabel {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.climateCardValue {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+@media (min-width: 640px) {
+  .climateCardValue {
+    font-size: var(--fs-body);
+  }
+}
+
+.climateCardDetail {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+}
+
+.climateCardTip {
+  display: block;
+  font-size: var(--fs-overline);
+  color: var(--primary, #1b6b5a);
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--border, #e5e7eb);
+  line-height: var(--lh-normal);
+}
+
+/* ── 하단 안내 ── */
+.notice {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  margin: 12px 0 0;
+  padding: 8px 12px;
+  background: var(--muted, #f4f4f5);
+  border-radius: 8px;
+  line-height: var(--lh-normal);
+}

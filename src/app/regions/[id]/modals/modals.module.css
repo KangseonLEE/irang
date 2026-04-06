@@ -1,0 +1,200 @@
+/* ==========================================================================
+   지역 상세 — 모달 공통 스타일
+   ========================================================================== */
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---- 통계 그리드 ---- */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px;
+  background: var(--muted, #f4f4f5);
+  border-radius: 12px;
+}
+
+.statItemLabel {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+}
+
+.statItemValue {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+/* ---- 요약 텍스트 ---- */
+.summary {
+  font-size: var(--fs-body-sm);
+  color: var(--foreground);
+  margin: 0;
+  line-height: var(--lh-normal);
+}
+
+/* ---- 배지 그룹 ---- */
+.badgeGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge {
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+}
+
+/* ---- 리스트 ---- */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+}
+
+.listItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.listItem:last-child {
+  border-bottom: none;
+}
+
+.listItemMain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.listItemName {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listItemMeta {
+  font-size: var(--fs-overline);
+  color: var(--primary, #1b6b5a);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.listItemSub {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- 차트 섹션 ---- */
+.chartSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chartTitle {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.chartWrapper {
+  width: 100%;
+  height: 260px;
+}
+
+.chartPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  background: var(--muted, #f4f4f5);
+  border-radius: 12px;
+}
+
+/* ---- 인사이트 ---- */
+.insight {
+  padding: 14px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  border-radius: 12px;
+}
+
+.insightTitle {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  margin: 0 0 6px;
+}
+
+.insightText {
+  font-size: var(--fs-body-sm);
+  color: var(--foreground);
+  margin: 0;
+  line-height: var(--lh-normal);
+}
+
+/* ---- 로딩 / 더보기 ---- */
+.loadingText {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  text-align: center;
+  padding: 12px;
+}
+
+.loadMoreBtn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: none;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+@media (hover: hover) {
+  .loadMoreBtn:hover {
+    background: var(--secondary, #e8f5f1);
+  }
+}
+
+/* ---- 출처 ---- */
+.source {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+  margin: 0;
+}

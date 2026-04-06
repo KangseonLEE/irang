@@ -72,6 +72,65 @@ async function fetchSidoMedicalCount(
 }
 
 /**
+ * 특정 시군구의 의료기관 총 수를 조회한다.
+ * sidoCd + sgguCd 조합으로 시군구 수준 필터링.
+ */
+async function fetchSigunguMedicalCount(
+  apiKey: string,
+  sidoCd: string,
+  sgguCd: string
+): Promise<MedicalFacilityData | null> {
+  const url = new URL(API_BASE);
+  url.searchParams.set("serviceKey", apiKey);
+  url.searchParams.set("sidoCd", sidoCd);
+  url.searchParams.set("sgguCd", sgguCd);
+  url.searchParams.set("pageNo", "1");
+  url.searchParams.set("numOfRows", "1");
+  url.searchParams.set("_type", "json");
+
+  try {
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const json = await res.json();
+    const totalCount = json?.response?.body?.totalCount;
+
+    if (totalCount == null) {
+      throw new Error("totalCount not found in response");
+    }
+
+    return {
+      sidoCd: `${sidoCd}_${sgguCd}`,
+      sidoName: sgguCd,
+      totalCount: Number(totalCount),
+    };
+  } catch (error) {
+    console.error(
+      `Failed to fetch medical facility count for sigungu ${sidoCd}/${sgguCd}:`,
+      error
+    );
+    return null;
+  }
+}
+
+/**
+ * 시군구 단위 의료기관 수 조회.
+ * API 실패 시 null을 반환 (상위 시/도 데이터로 폴백 처리는 호출자가 담당).
+ */
+export async function fetchSigunguMedicalFacilities(
+  sidoCd: string,
+  sgguCd: string
+): Promise<MedicalFacilityData | null> {
+  const apiKey = process.env.DATA_GO_KR_API_KEY;
+  if (!apiKey) {
+    console.error("DATA_GO_KR_API_KEY is not set");
+    return null;
+  }
+
+  return fetchSigunguMedicalCount(apiKey, sidoCd, sgguCd);
+}
+
+/**
  * 여러 시도의 의료기관 수를 병렬 조회한다.
  * API 실패 시 빈 배열을 반환한다 (graceful degradation).
  */

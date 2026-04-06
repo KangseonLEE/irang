@@ -1,150 +1,190 @@
 /* ==========================================================================
-   /regions/[id] — 지역 상세 페이지
+   /regions/[id]/[sigungu] — 군/구 상세 페이지
+   시/도 상세(regions/[id])와 동일한 패턴 · 배너이미지·사이드바 제외
    CSS Module · 모바일 우선 반응형 (640 / 768 / 1024)
    ========================================================================== */
 
 .page {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 20px 14px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
-/* ---- 뒤로가기 ---- */
-.backLink {
-  font-size: var(--fs-body-sm);
+@media (min-width: 768px) {
+  .page {
+    padding: 24px 16px;
+  }
+}
+
+/* ---- 브레드크럼 ---- */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: wrap;
+  font-size: var(--fs-overline);
+}
+
+@media (min-width: 640px) {
+  .breadcrumb {
+    gap: 4px;
+    font-size: var(--fs-caption);
+  }
+}
+
+.breadcrumbLink {
   color: var(--muted-foreground);
   text-decoration: none;
   transition: color 0.15s;
 }
 
 @media (hover: hover) {
-  .backLink:hover {
+  .breadcrumbLink:hover {
     color: var(--foreground);
+    text-decoration: underline;
   }
 }
 
-/* ---- 히어로 배너 (이미지 독립) ---- */
-.heroBanner {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  border-radius: 20px;
-  overflow: hidden;
-  background: var(--muted, #f4f4f5);
+.breadcrumbSep {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
 }
 
-@media (min-width: 768px) {
-  .heroBanner {
-    height: 280px;
+.breadcrumbCurrent {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* ---- 히어로 ---- */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (min-width: 640px) {
+  .hero {
+    gap: 8px;
   }
-}
-
-/* ---- 히어로 정보 (텍스트 독립) ---- */
-.heroInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.heroInfoMain {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 .heroOverline {
-  font-size: var(--fs-caption);
+  font-size: var(--fs-overline);
   font-weight: 500;
   color: var(--muted-foreground);
   letter-spacing: 0.05em;
 }
 
-.heroTitleRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+@media (min-width: 640px) {
+  .heroOverline {
+    font-size: var(--fs-caption);
+  }
 }
 
 .heroTitle {
-  font-size: 2rem;
+  font-size: var(--fs-h4);
   font-weight: 800;
   color: var(--foreground);
   margin: 0;
   letter-spacing: -0.025em;
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .heroTitle {
+    font-size: var(--fs-h3);
+  }
 }
 
 @media (min-width: 768px) {
   .heroTitle {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
 }
 
-.heroActions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
 .heroDesc {
-  font-size: var(--fs-body-sm);
+  font-size: var(--fs-caption);
   color: var(--muted-foreground);
   margin: 0;
-  max-width: 560px;
+  max-width: 480px;
   line-height: var(--lh-normal);
+}
+
+@media (min-width: 640px) {
+  .heroDesc {
+    font-size: var(--fs-body-sm);
+  }
 }
 
 .heroTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 4px;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+@media (min-width: 640px) {
+  .heroTags {
+    gap: 6px;
+    margin-top: 4px;
+  }
 }
 
 .heroTag {
   font-size: var(--fs-overline);
   font-weight: 500;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 6px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   color: var(--primary, #1b6b5a);
 }
 
-/* ---- 스탯 그리드 (auto-fit: 빈 여백 없이 꽉 채움) ---- */
+@media (min-width: 640px) {
+  .heroTag {
+    padding: 4px 10px;
+  }
+}
+
+/* ---- Stats Grid (시/도와 동일 패턴) ---- */
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .statCard {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   padding: 16px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 14px;
-  min-width: 0;
   cursor: pointer;
   text-align: left;
   font: inherit;
-  transition: border-color 0.15s, background 0.15s;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 @media (hover: hover) {
   .statCard:hover {
     border-color: var(--primary, #1b6b5a);
-    background: var(--secondary, #e8f5f1);
+    box-shadow: 0 2px 8px rgba(27, 107, 90, 0.08);
   }
+}
+
+.statBody {
+  display: flex;
+  flex-direction: column;
 }
 
 .statIcon {
@@ -159,55 +199,87 @@
   flex-shrink: 0;
 }
 
-.statBody {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
 .statLabel {
+  display: block;
   font-size: var(--fs-overline);
   color: var(--muted-foreground);
 }
 
 .statValue {
+  display: block;
   font-size: var(--fs-body);
   font-weight: 700;
   color: var(--foreground);
 }
 
 .statSub {
+  display: block;
   font-size: var(--fs-overline);
   color: var(--muted-foreground);
-  line-height: var(--lh-normal);
 }
 
-/* ---- 복수 관측소 안내 ---- */
-.multiStationNote {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-  padding: 10px 14px;
-  background: var(--muted, #f4f4f5);
-  border-radius: 10px;
+/* ---- 섹션 공통 ---- */
+.section {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  padding: 20px;
 }
 
-.multiStationNote p {
+@media (min-width: 640px) {
+  .section {
+    padding: 24px;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sectionIcon {
+  color: var(--primary, #1b6b5a);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  color: var(--foreground);
   margin: 0;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sectionDesc {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  margin: 2px 0 0;
 }
 
 /* ---- 기후 정보 그리드 (항상 3단) ---- */
 .climateGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .climateGrid {
+    gap: 12px;
+  }
 }
 
 .climateCard {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 12px;
+  padding: 10px;
   background: var(--muted, #f4f4f5);
   border-radius: 10px;
   min-width: 0;
@@ -277,73 +349,13 @@
   line-height: var(--lh-normal);
 }
 
-.climateNote {
+.inheritNotice {
   font-size: var(--fs-caption);
   color: var(--muted-foreground);
   margin: 12px 0 0;
   padding: 8px 12px;
   background: var(--muted, #f4f4f5);
   border-radius: 8px;
-}
-
-/* ---- 메인 콘텐츠 그리드 ---- */
-.contentGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-@media (min-width: 1024px) {
-  .contentGrid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 16px;
-    align-items: start;
-  }
-}
-
-.mainContent {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* ---- 섹션 공통 ---- */
-.section {
-  background: var(--card, #fff);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
-  padding: 24px;
-}
-
-.sectionHeader {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.sectionIcon {
-  color: var(--primary, #1b6b5a);
-  margin-top: 2px;
-  flex-shrink: 0;
-}
-
-.sectionTitle {
-  font-size: var(--fs-h4);
-  font-weight: 700;
-  color: var(--foreground);
-  margin: 0;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sectionDesc {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  margin: 2px 0 0;
 }
 
 /* ---- 추천 작물 ---- */
@@ -402,7 +414,22 @@
   flex-shrink: 0;
 }
 
-/* ---- 지원사업 ---- */
+.mainCropsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mainCropBadge {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+}
+
+/* ---- 지원사업 · 교육 · 행사 (시/도와 동일 패턴) ---- */
 .programList {
   display: flex;
   flex-direction: column;
@@ -474,7 +501,7 @@
   }
 }
 
-/* ---- 교육·행사 카드 ---- */
+/* 교육·행사 카드 */
 .eduCard {
   display: flex;
   align-items: center;
@@ -564,170 +591,38 @@
   color: #6d28d9;
 }
 
-/* ---- 시/군/구 그리드 ---- */
-.sigunguGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-@media (min-width: 768px) {
-  .sigunguGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.sigunguCard {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 14px;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.15s, background 0.15s;
-  position: relative;
-}
-
-@media (hover: hover) {
-  .sigunguCard:hover {
-    border-color: var(--primary, #1b6b5a);
-    background: var(--secondary, #e8f5f1);
-  }
-}
-
-.sigunguName {
+/* 빈 상태 안내 */
+.infoEmpty {
   font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.sigunguTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.sigunguTag {
-  font-size: var(--fs-overline);
-  font-weight: 500;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
-  color: var(--primary, #1b6b5a);
-  white-space: nowrap;
-}
-
-.sigunguCrops {
-  font-size: var(--fs-overline);
   color: var(--muted-foreground);
-}
-
-.sigunguArrow {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  color: var(--muted-foreground);
-  flex-shrink: 0;
-}
-
-/* ---- 사이드바 ---- */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-@media (min-width: 1024px) {
-  .sidebar {
-    position: sticky;
-    top: 80px;
-  }
-}
-
-.sideSection {
-  background: var(--card, #fff);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
-  padding: 20px;
-}
-
-.sideSectionHeader {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--primary, #1b6b5a);
-  margin-bottom: 14px;
-}
-
-.sideSectionTitle {
-  font-size: var(--fs-body);
-  font-weight: 700;
-  color: var(--foreground);
   margin: 0;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sideDesc {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  margin: 0 0 12px;
-  line-height: var(--lh-normal);
-}
-
-/* 페르소나 */
-.personaList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.personaCard {
-  padding: 14px;
+  padding: 16px;
+  text-align: center;
   background: var(--muted, #f4f4f5);
   border-radius: 12px;
-}
-
-.personaTitle {
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground);
-  margin: 0 0 4px;
-}
-
-.personaDesc {
-  font-size: var(--fs-caption);
   line-height: var(--lh-normal);
-  color: var(--muted-foreground);
-  margin: 0;
 }
 
-/* 비교 CTA */
-.compareCta {
+/* ---- 뒤로가기 링크 ---- */
+.backLink {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 16px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: #fff;
-  background: var(--primary, #1b6b5a);
-  border-radius: 10px;
+  color: var(--primary, #1b6b5a);
   text-decoration: none;
   transition: opacity 0.15s;
 }
 
 @media (hover: hover) {
-  .compareCta:hover {
-    opacity: 0.9;
+  .backLink:hover {
+    opacity: 0.8;
+    text-decoration: underline;
   }
 }
 
-/* 출처 */
+/* ---- 데이터 출처 ---- */
 .sourceNotice {
   font-size: var(--fs-overline);
   color: var(--muted-foreground);
@@ -736,4 +631,9 @@
 
 .sourceNotice p {
   margin: 0;
+}
+
+.fallbackNotice {
+  margin-top: 4px !important;
+  font-style: italic;
 }

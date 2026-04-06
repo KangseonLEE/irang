@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { PROVINCES } from "@/lib/data/regions";
+import { SIGUNGUS } from "@/lib/data/sigungus";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
 import { EDUCATION_COURSES } from "@/lib/data/education";
@@ -82,6 +83,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
+  // ── 동적 페이지: 시/군/구 상세 ──
+  const sigunguPages: MetadataRoute.Sitemap = SIGUNGUS.map((sg) => ({
+    url: `${BASE_URL}/regions/${sg.sidoId}/${sg.id}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.5,
+  }));
+
   // ── 동적 페이지: 작물 상세 ──
   const cropPages: MetadataRoute.Sitemap = CROPS.map((c) => ({
     url: `${BASE_URL}/crops/${c.id}`,
@@ -117,6 +126,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...staticPages,
     ...regionPages,
+    ...sigunguPages,
     ...cropPages,
     ...programPages,
     ...educationPages,

@@ -4,6 +4,7 @@ import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { WebSite, Organization } from "schema-dts";
 import "./globals.css";
@@ -98,6 +99,7 @@ export default function RootLayout({
         />
       </head>
       <body className={s.body}>
+        <ScrollToTop />
         <GoogleAnalytics />
         <Analytics />
         <Header />

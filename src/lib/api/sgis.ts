@@ -1,8 +1,11 @@
 /**
  * SGIS 통계지리정보서비스 API 유틸리티
- * - 시도별 인구통계 데이터 조회
+ * - 시도별 / 시군구별 인구통계 데이터 조회
  * - 서버 컴포넌트에서만 호출 (API Key 보호)
  * - SGIS API 장애 시 fallback 데이터 사용
+ *
+ * ⚠ 빌드 시 동시에 수백 개 요청이 발생하면 SGIS rate limit(HTTP 404)에 걸릴 수 있음.
+ *   → generateStaticParams를 30개 이내로 제한하고, 나머지는 ISR on-demand로 처리.
  */
 
 import { getPopulationFallback } from "@/lib/data/population";
@@ -44,7 +47,8 @@ async function getAccessToken(): Promise<string | null> {
   url.searchParams.set("consumer_secret", consumerSecret);
 
   try {
-    const res = await fetch(url.toString(), { cache: "no-store" });
+    // revalidate: 3600 (1시간) — SGIS 토큰 유효기간(2시간)보다 짧게 설정
+    const res = await fetch(url.toString(), { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
@@ -85,20 +89,19 @@ interface SGISPopulationResult {
 }
 
 /**
- * SGIS API로 시도별 인구 데이터를 조회한다.
- * API 장애 시 fallback 상수 데이터로 대체한다.
+ * SGIS API로 특정 지역(시도/시군구)의 인구 데이터를 조회한다.
+ * admCd에 코드(2자리 시도 or 5자리 시군구)를 넣어 조회.
  */
 async function fetchFromSGIS(
   accessToken: string,
   regionCode: string,
   year: number
 ): Promise<PopulationData | null> {
-  // 인구 통계 조회 시도
   const url = new URL(SEARCH_STATS_URL);
   url.searchParams.set("accessToken", accessToken);
   url.searchParams.set("admCd", regionCode);
   url.searchParams.set("year", String(year));
-  url.searchParams.set("low_search", "0"); // 시도 단위
+  url.searchParams.set("low_search", "0");
 
   try {
     const res = await fetch(url.toString(), { next: { revalidate: 86400 } });
@@ -133,6 +136,88 @@ async function fetchFromSGIS(
   } catch (error) {
     console.error(`SGIS stats failed for region ${regionCode}:`, error);
     return null;
+  }
+}
+
+/**
+ * SGIS API로 시군구 단위 인구 데이터를 조회한다.
+ * 시군구 코드(5자리)를 admCd에 넣어 직접 조회한다.
+ * API 실패 시 null을 반환한다 (상위 시/도 데이터로 폴백 처리는 호출자가 담당).
+ *
+ * ⚠ 빌드 시 SGIS rate limit으로 404가 발생할 수 있으나,
+ *   ISR 런타임에서는 단일 요청이므로 정상 작동한다.
+ */
+export async function fetchSigunguPopulationData(
+  sgisCode: string
+): Promise<PopulationData | null> {
+  const year = new Date().getFullYear();
+  const accessToken = await getAccessToken();
+
+  if (accessToken) {
+    const result = await fetchFromSGIS(accessToken, sgisCode, year);
+    if (result) return result;
+  }
+
+  return null;
+}
+
+/**
+ * 특정 시/도의 하위 시군구 인구 데이터를 한 번에 조회한다.
+ * SGIS low_search=1 옵션으로 하위 행정구역 데이터를 일괄 반환받는다.
+ * → 시/도 상세 페이지의 시군구 밀도 지도에 사용.
+ *
+ * @returns sgisCode → PopulationData 매핑 (실패 시 빈 객체)
+ */
+export async function fetchSubRegionPopulations(
+  provinceSgisCode: string,
+): Promise<Record<string, PopulationData>> {
+  const year = new Date().getFullYear();
+  const accessToken = await getAccessToken();
+  if (!accessToken) return {};
+
+  const url = new URL(SEARCH_STATS_URL);
+  url.searchParams.set("accessToken", accessToken);
+  url.searchParams.set("admCd", provinceSgisCode);
+  url.searchParams.set("year", String(year));
+  url.searchParams.set("low_search", "1"); // 하위 행정구역 일괄 조회
+
+  try {
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const json = await res.json();
+    if (json.errCd !== 0 && json.errCd !== "0") {
+      throw new Error(`SGIS sub-region error: ${json.errMsg || json.errCd}`);
+    }
+
+    const results = json.result;
+    if (!results || !Array.isArray(results)) return {};
+
+    const map: Record<string, PopulationData> = {};
+    for (const item of results as SGISPopulationResult[]) {
+      const population = parseInt(item.population, 10) || 0;
+      const pop65Over = parseInt(item.population_65_over || "0", 10);
+      const agingRate =
+        population > 0
+          ? Math.round((pop65Over / population) * 1000) / 10
+          : 0;
+
+      map[item.adm_cd] = {
+        regionCode: item.adm_cd,
+        regionName: item.adm_nm || "",
+        population,
+        householdCount: parseInt(item.household, 10) || 0,
+        agingRate,
+      };
+    }
+
+    return map;
+  } catch (error) {
+    console.error(
+      `SGIS sub-region fetch failed for ${provinceSgisCode}:`,
+      error,
+    );
+    return {};
   }
 }
 

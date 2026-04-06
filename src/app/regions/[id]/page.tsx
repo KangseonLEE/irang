@@ -5,26 +5,26 @@ import Image from "next/image";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
 import {
-  Thermometer,
-  Droplets,
-  Sun,
-  Users,
-  Building2,
-  GraduationCap,
   Sprout,
   FileText,
+  GraduationCap,
   GitCompareArrows,
   ArrowRight,
   UserCheck,
   Calendar,
+  MapPin,
 } from "lucide-react";
+import { RegionStats } from "./region-stats";
 import { PROVINCES } from "@/lib/data/regions";
+import { getSigungusBySidoId } from "@/lib/data/sigungus";
+import { loadProvinceMap } from "@/lib/data/province-maps";
+import { ProvinceMap } from "@/components/map/province-map";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { filterProgramsAsync } from "@/lib/data/programs";
 import { filterEducationAsync } from "@/lib/data/education";
 import { filterEvents } from "@/lib/data/events";
 import { fetchMultipleClimateData } from "@/lib/api/weather";
-import { fetchPopulationData } from "@/lib/api/sgis";
+import { fetchPopulationData, fetchSubRegionPopulations } from "@/lib/api/sgis";
 import { fetchMedicalFacilities } from "@/lib/api/hira";
 import { fetchSchoolCounts } from "@/lib/api/education";
 import { fetchUnsplashPhoto } from "@/lib/api/unsplash";
@@ -56,14 +56,15 @@ export default async function RegionDetailPage({ params }: PageProps) {
   // 해당 도의 관측소 목록
   const stationIds = province.stationIds;
 
-  // 5개 API 병렬 호출
-  const [climateResult, populationResult, medicalResult, schoolResult, photoResult] =
+  // 6개 API 병렬 호출 (시군구 인구 밀도 지도용 추가)
+  const [climateResult, populationResult, medicalResult, schoolResult, photoResult, subRegionPopResult] =
     await Promise.allSettled([
       fetchMultipleClimateData(stationIds),
       fetchPopulationData([province.sgisCode]),
       fetchMedicalFacilities([province.hiraSidoCd]),
       fetchSchoolCounts([province.eduCode]),
       fetchUnsplashPhoto(province.unsplashQuery),
+      fetchSubRegionPopulations(province.sgisCode),
     ]);
 
   const climateData =
@@ -119,6 +120,29 @@ export default async function RegionDetailPage({ params }: PageProps) {
     includeClosed: false,
   }).slice(0, 4);
 
+  // 해당 시/도의 시/군/구 목록
+  const sigungus = getSigungusBySidoId(province.id);
+
+  // 시군구 지도 데이터 로드 (code-splitting: 해당 시/도만 로드)
+  let mapData: { viewBox: string; sigungus: { sigunguId: string; name: string; path: string; labelX: number; labelY: number }[] } | null = null;
+  try {
+    mapData = await loadProvinceMap(province.id);
+  } catch {
+    // 지도 데이터 로드 실패 시 카드 그리드만 표시
+    console.warn(`Province map data not found for ${province.id}`);
+  }
+
+  // 시군구 인구밀도 지도 데이터
+  const subRegionPop =
+    subRegionPopResult.status === "fulfilled" ? subRegionPopResult.value : {};
+  const sigunguDensityMap: Record<string, number> = {};
+  for (const sg of sigungus) {
+    const pop = subRegionPop[sg.sgisCode];
+    if (pop && sg.area > 0) {
+      sigunguDensityMap[sg.id] = pop.population / sg.area;
+    }
+  }
+
   const year = new Date().getFullYear();
 
   return (
@@ -128,39 +152,42 @@ export default async function RegionDetailPage({ params }: PageProps) {
         ← 지역 목록으로
       </Link>
 
-      {/* Hero */}
-      <header className={s.hero}>
-        {photo && (
-          <div className={s.heroImage}>
-            <Image
-              src={photo.url}
-              alt={`${province.name} 풍경`}
-              fill
-              sizes="(max-width: 768px) 100vw, 1280px"
-              style={{ objectFit: "cover" }}
-              priority
-            />
-            <div className={s.heroOverlay} />
-          </div>
-        )}
-        <div className={s.heroContent}>
+      {/* Hero Banner */}
+      {photo && (
+        <div className={s.heroBanner}>
+          <Image
+            src={photo.url}
+            alt={`${province.name} 풍경`}
+            fill
+            sizes="(max-width: 768px) 100vw, 1280px"
+            style={{ objectFit: "cover" }}
+            priority
+          />
+        </div>
+      )}
+
+      {/* Hero Info */}
+      <header className={s.heroInfo}>
+        <div className={s.heroInfoMain}>
           <span className={s.heroOverline}>{province.name}</span>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <h1 className={s.heroTitle} style={{ flex: 1 }}>{province.shortName}</h1>
-            <ShareButton
-              title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
-              text={`${province.name} 귀농 정보: ${province.description}`}
-              contentType="region"
-              variant="ghost"
-              size="sm"
-              showLabel={false}
-            />
-            <BookmarkButton
-              id={province.id}
-              type="region"
-              title={province.name}
-              subtitle={province.description}
-            />
+          <div className={s.heroTitleRow}>
+            <h1 className={s.heroTitle}>{province.shortName}</h1>
+            <div className={s.heroActions}>
+              <ShareButton
+                title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
+                text={`${province.name} 귀농 정보: ${province.description}`}
+                contentType="region"
+                variant="ghost"
+                size="sm"
+                showLabel={false}
+              />
+              <BookmarkButton
+                id={province.id}
+                type="region"
+                title={province.name}
+                subtitle={province.description}
+              />
+            </div>
           </div>
           <p className={s.heroDesc}>{province.description}</p>
           <div className={s.heroTags}>
@@ -173,61 +200,32 @@ export default async function RegionDetailPage({ params }: PageProps) {
         </div>
       </header>
 
-      {/* Stats Grid */}
-      <section className={s.statsGrid}>
-        {mainClimate && (
-          <>
-            <StatCard
-              icon={<Thermometer size={18} />}
-              label="평균기온"
-              value={`${mainClimate.avgTemp}℃`}
-            />
-            <StatCard
-              icon={<Droplets size={18} />}
-              label="누적 강수"
-              value={`${mainClimate.totalPrecipitation}mm`}
-            />
-            <StatCard
-              icon={<Sun size={18} />}
-              label="일조시간"
-              value={`${mainClimate.totalSunshine}hr`}
-            />
-          </>
-        )}
-        {population && (
-          <StatCard
-            icon={<Users size={18} />}
-            label="인구"
-            value={`${(population.population / 10000).toFixed(0)}만명`}
-            sub={`고령화율 ${population.agingRate}%`}
-          />
-        )}
-        {medical && (
-          <StatCard
-            icon={<Building2 size={18} />}
-            label="의료기관"
-            value={`${medical.totalCount.toLocaleString()}개`}
-          />
-        )}
-        {school && (
-          <StatCard
-            icon={<GraduationCap size={18} />}
-            label="학교"
-            value={`${school.totalCount.toLocaleString()}개`}
-          />
-        )}
-      </section>
-
-      {/* Multi-station climate note */}
-      {climateData.length > 1 && (
-        <div className={s.multiStationNote}>
-          <p>
-            {province.shortName}에는{" "}
-            {climateData.map((d) => d.stnName).join(", ")} 관측소가 있습니다.
-            위 수치는 {mainClimate?.stnName} 기준입니다.
-          </p>
-        </div>
-      )}
+      {/* Stats + Climate (클릭 가능 — 모달 지원) */}
+      <RegionStats
+        provinceShortName={province.shortName}
+        provinceName={province.name}
+        area={province.area}
+        population={population}
+        medical={medical}
+        school={school}
+        climate={
+          mainClimate
+            ? {
+                stnName: mainClimate.stnName,
+                period: mainClimate.period,
+                avgTemp: mainClimate.avgTemp,
+                maxTemp: mainClimate.maxTemp,
+                minTemp: mainClimate.minTemp,
+                totalPrecipitation: mainClimate.totalPrecipitation,
+                totalSunshine: mainClimate.totalSunshine,
+              }
+            : null
+        }
+        allStationNames={climateData.map((d) => d.stnName)}
+        sgisCode={province.sgisCode}
+        hiraSidoCd={province.hiraSidoCd}
+        eduCode={province.eduCode}
+      />
 
       {/* Main Content Grid */}
       <div className={s.contentGrid}>
@@ -325,7 +323,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
               </div>
               <div className={s.programList}>
                 {matchedEducation.map((course) => (
-                  <div key={course.id} className={s.eduCard}>
+                  <Link key={course.id} href={`/education/${course.id}`} className={s.eduCard}>
                     <div className={s.eduCardMain}>
                       <span className={s.programTitle}>{course.title}</span>
                       <span className={s.programMeta}>
@@ -341,7 +339,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
                         {course.status}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
               <Link
@@ -367,7 +365,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
               </div>
               <div className={s.programList}>
                 {matchedEvents.map((event) => (
-                  <div key={event.id} className={s.eduCard}>
+                  <Link key={event.id} href={`/events/${event.id}`} className={s.eduCard}>
                     <div className={s.eduCardMain}>
                       <span className={s.programTitle}>{event.title}</span>
                       <span className={s.programMeta}>
@@ -386,7 +384,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
                         {event.status}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
               <Link
@@ -395,6 +393,31 @@ export default async function RegionDetailPage({ params }: PageProps) {
               >
                 전체 행사 보기 →
               </Link>
+            </section>
+          )}
+
+          {/* 시/군/구 둘러보기 */}
+          {sigungus.length > 0 && (
+            <section className={s.section}>
+              <div className={s.sectionHeader}>
+                <MapPin size={20} className={s.sectionIcon} />
+                <div>
+                  <h2 className={s.sectionTitle}>시/군/구 둘러보기</h2>
+                  <p className={s.sectionDesc}>
+                    지도에서 시/군/구를 클릭하면 상세 페이지로 이동합니다.
+                  </p>
+                </div>
+              </div>
+
+              {/* 시군구 지도 */}
+              {mapData && (
+                <ProvinceMap
+                  provinceId={province.id}
+                  sigungus={mapData.sigungus}
+                  viewBox={mapData.viewBox}
+                  densityMap={sigunguDensityMap}
+                />
+              )}
             </section>
           )}
         </div>
@@ -448,27 +471,3 @@ export default async function RegionDetailPage({ params }: PageProps) {
   );
 }
 
-// --- 서브 컴포넌트 ---
-
-function StatCard({
-  icon,
-  label,
-  value,
-  sub,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  sub?: string;
-}) {
-  return (
-    <div className={s.statCard}>
-      <div className={s.statIcon}>{icon}</div>
-      <div>
-        <span className={s.statLabel}>{label}</span>
-        <span className={s.statValue}>{value}</span>
-        {sub && <span className={s.statSub}>{sub}</span>}
-      </div>
-    </div>
-  );
-}
