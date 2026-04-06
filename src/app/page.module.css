@@ -610,8 +610,10 @@
   padding-top: 0;
 }
 
-.newsItem:hover .newsItemTitle {
-  color: var(--primary, #1B6B5A);
+@media (hover: hover) {
+  .newsItem:hover .newsItemTitle {
+    color: var(--primary, #1B6B5A);
+  }
 }
 
 .newsItemTitle {
@@ -1503,10 +1505,12 @@
   .faqQuestion { padding: 16px 4px; }
 }
 
-.faqQuestion:hover {
-  color: var(--primary, #1B6B5A);
-  border-left-color: var(--primary, #1B6B5A);
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, transparent);
+@media (hover: hover) {
+  .faqQuestion:hover {
+    color: var(--primary, #1B6B5A);
+    border-left-color: var(--primary, #1B6B5A);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, transparent);
+  }
 }
 
 .faqIcon {

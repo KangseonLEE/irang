@@ -33,9 +33,11 @@
   transition: color 0.15s, background-color 0.15s;
 }
 
-.backLink:hover {
-  color: var(--foreground, #111);
-  background: var(--muted, #f3f4f6);
+@media (hover: hover) {
+  .backLink:hover {
+    color: var(--foreground, #111);
+    background: var(--muted, #f3f4f6);
+  }
 }
 
 /* ── 타이틀 섹션 ── */
