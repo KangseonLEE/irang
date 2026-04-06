@@ -283,7 +283,7 @@
 .sectionHeader {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 @media (min-width: 768px) {
@@ -671,7 +671,7 @@
 .costIntro {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .costOverline {
