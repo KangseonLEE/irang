@@ -254,31 +254,3 @@
   }
 }
 
-/* ── 원문 버튼 ── */
-.sourceButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  border-radius: 8px;
-  background: var(--primary, #1b6b5a);
-  color: var(--primary-foreground, #fff);
-  text-decoration: none;
-  transition: background-color 0.15s;
-  border: none;
-  cursor: pointer;
-}
-
-@media (hover: hover) {
-  .sourceButton:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 90%, black);
-  }
-}
-
-.sourceNote {
-  margin-top: 8px;
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground, #6b7280);
-}

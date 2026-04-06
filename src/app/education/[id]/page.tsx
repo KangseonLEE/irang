@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { ExternalLinkBlock } from "@/components/ui/external-link-block";
 import {
   ArrowLeft,
-  ExternalLink,
   MapPin,
   Building2,
   Calendar,
@@ -195,18 +195,10 @@ export default async function EducationDetailPage({
               <h2 className={s.cardTitle}>신청 안내</h2>
             </div>
             <div className={s.cardContent}>
-              <a
+              <ExternalLinkBlock
                 href={course.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={s.ctaButton}
-              >
-                <ExternalLink size={16} />
-                교육 신청 페이지
-              </a>
-              <p className={s.ctaNote}>
-                상세 내용과 신청 방법은 원문 페이지에서 확인하세요.
-              </p>
+                label="교육 신청 페이지"
+              />
             </div>
           </div>
 

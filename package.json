@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check-links": "bash scripts/check-links.sh"
   },
   "dependencies": {
     "@svg-maps/south-korea": "^2.0.0",

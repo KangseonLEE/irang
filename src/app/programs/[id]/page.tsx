@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { ExternalLinkBlock } from "@/components/ui/external-link-block";
 import {
   ArrowLeft,
-  ExternalLink,
   MapPin,
   Building2,
   Calendar,
@@ -203,18 +203,10 @@ export default async function ProgramDetailPage({
               <h2 className={s.cardTitle}>원문 확인</h2>
             </div>
             <div className={s.cardContent}>
-              <a
+              <ExternalLinkBlock
                 href={program.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={s.sourceButton}
-              >
-                <ExternalLink size={16} />
-                원문 페이지 방문
-              </a>
-              <p className={s.sourceNote}>
-                상세 내용과 신청 방법은 원문 페이지에서 확인하세요.
-              </p>
+                label="원문 페이지 방문"
+              />
             </div>
           </div>
         </div>

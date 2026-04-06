@@ -1,0 +1,82 @@
+/* ═══════════════════════════════════════════
+   ExternalLinkBlock — 외부 원문 링크 블록
+   도메인 배지 + 면책 안내 포함
+   ═══════════════════════════════════════════ */
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── CTA 버튼 ── */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  border-radius: 8px;
+  background: var(--primary, #1b6b5a);
+  color: var(--primary-foreground, #fff);
+  text-decoration: none;
+  transition: background-color 0.15s;
+  border: none;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+@media (hover: hover) {
+  .button:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 90%, black);
+  }
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 3px;
+}
+
+/* ── 메타 정보 (도메인 배지) ── */
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 정부 도메인 배지 (.go.kr, .or.kr 등) */
+.govBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 일반 도메인 배지 */
+.domainBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--muted, #f3f4f6);
+  color: var(--muted-foreground, #6b7280);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ── 면책 안내 ── */
+.notice {
+  font-size: var(--fs-caption, 13px);
+  line-height: var(--lh-relaxed, 1.8);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+}
