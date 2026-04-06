@@ -21,6 +21,7 @@ import {
   calculateResult,
   type Answers,
   type AssessmentResult,
+  type ResultTier,
 } from "@/lib/data/assessment";
 import s from "./assessment-wizard.module.css";
 
