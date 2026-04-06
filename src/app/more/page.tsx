@@ -20,7 +20,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   {
-    href: "/assess",
+    href: "/match?mode=assess",
     label: "귀농 적합성 진단",
     icon: ClipboardCheck,
     desc: "10문항으로 나의 귀농 준비 상태 점검",

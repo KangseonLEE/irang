@@ -24,6 +24,7 @@ import {
   type ResultTier,
 } from "@/lib/data/assessment";
 import { analytics } from "@/lib/analytics";
+import { ResultSaveCta } from "@/components/result/result-save-cta";
 import s from "./assessment-wizard.module.css";
 
 /* ── 화면 상태 ── */
@@ -270,6 +271,9 @@ export function AssessmentWizard() {
             </ul>
           </div>
         </div>
+
+        {/* 결과 출력/저장 CTA */}
+        <ResultSaveCta printTitle={`이랑 - 귀농 적합성 진단 결과 (${tier.title})`} />
 
         {/* CTA 버튼 */}
         <div className={s.resultActions}>

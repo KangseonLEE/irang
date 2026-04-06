@@ -1,0 +1,195 @@
+/* ==========================================================================
+   ServiceGateway — 맞춤추천·적합성 진단 선택 화면
+   ========================================================================== */
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-height: calc(100dvh - 64px);
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 48px 24px 80px;
+    gap: 36px;
+  }
+}
+
+/* ── 히어로 ── */
+.hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.eyebrow {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary, #1b6b5a);
+}
+
+.title {
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  color: var(--foreground);
+  margin: 0;
+  word-break: keep-all;
+  line-height: 1.3;
+}
+
+@media (min-width: 640px) {
+  .title {
+    font-size: var(--fs-h1);
+  }
+}
+
+.desc {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+/* ── 카드 그리드 ── */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── 선택 카드 ── */
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px 20px;
+  border-radius: 16px;
+  background: var(--card, #fff);
+  border: 2px solid var(--border, #e5e7eb);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 6px 24px rgba(27, 107, 90, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: border-color 0.2s, box-shadow 0.2s; }
+  .card:hover { transform: none; }
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 28px 24px;
+  }
+}
+
+/* ── 카드 아이콘 ── */
+.cardIcon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+.cardIconAssess {
+  background: color-mix(in srgb, #e67e22 10%, transparent);
+  color: #d4730d;
+}
+
+/* ── 카드 본문 ── */
+.cardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardTitle {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.cardDesc {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  margin: 0;
+  line-height: var(--lh-normal);
+  word-break: keep-all;
+}
+
+.cardMeta {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.cardMetaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+}
+
+.cardIconAssess ~ .cardBody .cardMetaItem {
+  color: #d4730d;
+}
+
+/* ── 화살표 ── */
+.cardArrow {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.card:hover .cardArrow {
+  color: var(--primary, #1b6b5a);
+  transform: translateX(2px);
+}
+
+/* ── 하단 힌트 ── */
+.hint {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  text-align: center;
+  margin: 0;
+  padding: 16px 20px;
+  background: var(--muted, #f4f4f5);
+  border-radius: 12px;
+  line-height: var(--lh-normal);
+  word-break: keep-all;
+}
+
+.hint strong {
+  color: var(--primary, #1b6b5a);
+  font-weight: 600;
+}

@@ -2,7 +2,6 @@ import { Fragment, Suspense } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  ExternalLink,
   TrendingUp,
   ArrowLeftRight,
   Footprints,
@@ -35,6 +34,10 @@ import {
 } from "@/lib/data/landing";
 import { fetchLatestNews } from "@/lib/api/news";
 import type { NewsArticle } from "@/lib/api/news";
+import { NewsTabs, type UnifiedNewsItem } from "@/components/landing/news-tabs";
+import { EVENTS } from "@/lib/data/events";
+import { EDUCATION_COURSES } from "@/lib/data/education";
+import { PROGRAMS } from "@/lib/data/programs";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
 import s from "./page.module.css";
@@ -92,6 +95,44 @@ export default async function HomePage() {
   // 네이버 뉴스 API → 실패 시 정적 데이터 폴백
   const liveNews: NewsArticle[] | null = await fetchLatestNews();
   const newsItems = liveNews ?? trendNews;
+
+  // 통합 뉴스 아이템 구성 (뉴스 + 교육 + 행사 + 지원)
+  const unifiedNews: UnifiedNewsItem[] = [
+    ...newsItems.map((n) => ({
+      title: n.title,
+      source: n.source,
+      date: n.date,
+      url: n.url,
+      category: "news" as const,
+    })),
+    ...EVENTS.filter((e) => e.status !== "마감")
+      .slice(0, 5)
+      .map((e) => ({
+        title: e.title,
+        source: e.type,
+        date: e.date.slice(0, 7).replace("-", "."),
+        url: e.url,
+        category: "event" as const,
+      })),
+    ...EDUCATION_COURSES.filter((c) => c.status !== "마감")
+      .slice(0, 5)
+      .map((c) => ({
+        title: c.title,
+        source: c.type,
+        date: c.applicationStart.slice(0, 7).replace("-", "."),
+        url: c.url,
+        category: "education" as const,
+      })),
+    ...PROGRAMS.filter((p) => p.status !== "마감")
+      .slice(0, 5)
+      .map((p) => ({
+        title: p.title,
+        source: p.supportType,
+        date: p.applicationStart.slice(0, 7).replace("-", "."),
+        url: p.sourceUrl,
+        category: "program" as const,
+      })),
+  ];
 
   // 인기 검색어: Supabase 실데이터 → 큐레이션 폴백
   const trendingData = await getTrendingSearches(7, 12);
@@ -199,27 +240,8 @@ export default async function HomePage() {
             </p>
           </div>
 
-          {/* 관련 뉴스 */}
-          <div className={s.newsCard}>
-            <h3 className={s.newsTitle}>농촌 소식</h3>
-            <div className={s.newsList}>
-              {newsItems.map((news) => (
-                <a
-                  key={news.url}
-                  href={news.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={s.newsItem}
-                >
-                  <span className={s.newsItemTitle}>{news.title}</span>
-                  <span className={s.newsItemMeta}>
-                    {news.source} · {news.date}
-                    <ExternalLink size={12} />
-                  </span>
-                </a>
-              ))}
-            </div>
-          </div>
+          {/* 농촌 소식 (탭 분류) */}
+          <NewsTabs items={unifiedNews} />
         </div>
       </section>
 
@@ -372,7 +394,7 @@ export default async function HomePage() {
         <p className={s.assessDesc}>
           3분이면 충분해요. 10가지 질문으로 나의 귀농 준비 상태를 점검하고, 맞춤 행동 가이드를 받아보세요.
         </p>
-        <Link href="/assess" className={s.assessBtn}>
+        <Link href="/match?mode=assess" className={s.assessBtn}>
           무료 진단 시작하기
           <ArrowRight size={16} />
         </Link>

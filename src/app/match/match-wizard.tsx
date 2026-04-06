@@ -29,6 +29,7 @@ import {
 import { PROVINCES, type Province } from "@/lib/data/regions";
 import { CROPS, CROP_DETAILS, type CropInfo } from "@/lib/data/crops";
 import { analytics } from "@/lib/analytics";
+import { ResultSaveCta } from "@/components/result/result-save-cta";
 import s from "./match-wizard.module.css";
 
 /* ── 질문 정의 ── */
@@ -660,6 +661,9 @@ export function MatchWizard() {
             ))}
           </div>
         </section>
+
+        {/* 결과 출력/저장 CTA */}
+        <ResultSaveCta printTitle="이랑 - 맞춤 귀농지 추천 결과" />
 
         {/* 액션 버튼 */}
         <div className={s.resultActions}>

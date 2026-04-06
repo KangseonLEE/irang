@@ -68,7 +68,7 @@ export const PLAN_STEPS: PlanStep[] = [
         label: "귀농 적합성 자가 진단",
         description:
           "체력, 경제적 여건, 농촌 생활 적응력 등을 종합적으로 평가하여 본인의 귀농 준비 수준을 파악합니다.",
-        irangLink: "/assess",
+        irangLink: "/match?mode=assess",
         irangLinkLabel: "적합성 진단 바로가기",
       },
       {
