@@ -252,3 +252,50 @@ WHERE status IN ('접수중', '접수예정')
 ORDER BY
   CASE status WHEN '접수중' THEN 0 WHEN '접수예정' THEN 1 END,
   date_start ASC;
+
+-- ==========================================================================
+-- 9. 검색 로그 (search_logs) — 인기 검색어 집계용
+-- ==========================================================================
+
+CREATE TABLE IF NOT EXISTS search_logs (
+  id          UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  query       TEXT NOT NULL,
+  result_count INT DEFAULT 0,
+  created_at  TIMESTAMPTZ DEFAULT now()
+);
+
+-- 집계 쿼리 성능을 위한 인덱스
+CREATE INDEX IF NOT EXISTS idx_search_logs_created
+  ON search_logs (created_at DESC);
+
+-- RLS 활성화
+ALTER TABLE search_logs ENABLE ROW LEVEL SECURITY;
+
+-- 누구나 INSERT 가능 (anon key로 클라이언트에서 기록)
+CREATE POLICY "SearchLogs: public insert" ON search_logs
+  FOR INSERT WITH CHECK (true);
+
+-- 읽기는 서비스 롤만 (집계 쿼리는 서버 사이드에서)
+CREATE POLICY "SearchLogs: service read" ON search_logs
+  FOR SELECT USING (auth.role() = 'service_role');
+
+-- ==========================================================================
+-- 10. 인기 검색어 집계 함수
+-- ==========================================================================
+
+-- 최근 N일간 상위 검색어 반환 (기본 7일, 상위 12개)
+CREATE OR REPLACE FUNCTION get_trending_searches(
+  days_back INT DEFAULT 7,
+  max_results INT DEFAULT 12
+)
+RETURNS TABLE(query TEXT, search_count BIGINT) AS $$
+  SELECT
+    lower(trim(sl.query)) AS query,
+    count(*) AS search_count
+  FROM search_logs sl
+  WHERE sl.created_at >= now() - (days_back || ' days')::interval
+    AND length(trim(sl.query)) >= 2
+  GROUP BY lower(trim(sl.query))
+  ORDER BY search_count DESC
+  LIMIT max_results;
+$$ LANGUAGE sql STABLE;

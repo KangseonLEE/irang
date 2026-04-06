@@ -15,6 +15,7 @@ import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { TrendingSearches } from "@/components/landing/trending-searches";
 import { ServiceCarousel } from "@/components/landing/service-carousel";
 import type { ServiceCard } from "@/components/landing/service-carousel";
+import { getTrendingSearches } from "@/lib/supabase";
 import {
   RegionIllustration,
   CropIllustration,
@@ -91,6 +92,9 @@ export default async function HomePage() {
   // 네이버 뉴스 API → 실패 시 정적 데이터 폴백
   const liveNews: NewsArticle[] | null = await fetchLatestNews();
   const newsItems = liveNews ?? trendNews;
+
+  // 인기 검색어: Supabase 실데이터 → 큐레이션 폴백
+  const trendingData = await getTrendingSearches(7, 12);
   return (
     <div className={s.page}>
       {/* ── FAQ 구조화 데이터 (JSON-LD) ── */}
@@ -131,7 +135,7 @@ export default async function HomePage() {
         </div>
 
         {/* 인기 검색어 슬라이더 */}
-        <TrendingSearches />
+        <TrendingSearches serverTrending={trendingData} />
       </section>
 
       {/* ═══ 2. 귀농 트렌드 — 사회적 증거 ═══ */}

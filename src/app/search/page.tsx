@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search, MapPin, Sprout, FileText, GraduationCap, CalendarDays, ArrowLeft } from "lucide-react";
 import { searchAll, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
+import { logSearch } from "@/lib/supabase";
 import SearchGroup from "@/components/search/search-group";
 import s from "./page.module.css";
 
@@ -61,6 +62,15 @@ function SearchPageContent() {
   );
 
   const totalCount = results.length;
+
+  // 검색어가 있을 때 로그 기록 (동일 검색어 중복 방지)
+  const loggedRef = useRef("");
+  useEffect(() => {
+    if (query && query !== loggedRef.current) {
+      loggedRef.current = query;
+      logSearch(query, totalCount);
+    }
+  }, [query, totalCount]);
 
   return (
     <div className={s.page}>
