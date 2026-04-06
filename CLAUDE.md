@@ -285,6 +285,15 @@
 - 빌드 명령: `npm run build`
 - SGIS API 관련 경고는 정상 (Dynamic route fallback)
 - 커밋 후 `git push origin main` → Vercel 자동 배포
+- **배포 상태 자동 확인**: `git push` 후 반드시 아래 명령으로 배포 완료를 확인하고 결과를 사용자에게 보고한다.
+  ```bash
+  # 1) 최신 배포 ID 조회
+  gh api repos/KangseonLEE/irang/deployments --jq '.[0].id'
+  # 2) 해당 배포의 상태 확인 (success / pending / failure)
+  gh api repos/KangseonLEE/irang/deployments/{id}/statuses --jq '.[0] | "\(.state) | \(.description)"'
+  ```
+  - `pending`이면 30초 후 재확인, 최대 3회 재시도
+  - 결과를 ✅/❌ 이모지와 함께 간결하게 보고
 - 커밋 메시지 접두사: `feat:`, `fix:`, `style:`, `copy:`, `redesign:`, `refactor:`
 
 ---
