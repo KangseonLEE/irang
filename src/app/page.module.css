@@ -673,7 +673,7 @@
 .costIntro {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .costOverline {
@@ -699,11 +699,17 @@
 }
 
 .costDesc {
-  font-size: var(--fs-body);
+  font-size: var(--fs-caption);
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
   margin: 0;
   max-width: 580px;
+}
+
+@media (min-width: 640px) {
+  .costDesc {
+    font-size: var(--fs-body-sm);
+  }
 }
 
 .costDescStrong {

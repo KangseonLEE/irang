@@ -135,6 +135,7 @@
 
 /* 제목 */
 .cardTitle {
+  margin: 0;
   font-size: var(--fs-h3);
   font-weight: 800;
   color: var(--foreground, #111);
@@ -155,10 +156,10 @@
 
 /* 설명 */
 .cardDesc {
+  margin: 0;
   font-size: var(--fs-caption);
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
-  margin-bottom: 4px;
 }
 
 @media (min-width: 640px) {

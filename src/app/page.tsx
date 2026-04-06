@@ -269,10 +269,9 @@ export default async function HomePage() {
           <span className={s.costOverline}>실제 귀농인 평균 데이터</span>
           <h2 className={s.costTitle}>귀농, 돈이 얼마나 들까?</h2>
           <p className={s.costDesc}>
-            30~60대 귀농인이 평균 <strong className={s.costDescStrong}>6,219만 원</strong>을
-            투자하며, 비용의 <strong className={s.costDescStrong}>84.6%</strong>는
-            12~18개월 영농 준비 단계에 집중됩니다.
-            정부 융자를 활용하면 초기 부담을 크게 줄일 수 있습니다.
+            평균 <strong className={s.costDescStrong}>6,219만 원</strong> 투자,
+            비용의 <strong className={s.costDescStrong}>84.6%</strong>가 영농 준비에 집중.
+            정부 융자로 초기 부담을 줄일 수 있습니다.
           </p>
         </div>
 
