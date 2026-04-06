@@ -63,9 +63,20 @@ export function getAllCropIds(): string[] {
   return CROPS.map((c) => c.id);
 }
 
-/** 작물 이름 → CropInfo 매핑 (Cross-linking용) */
+/** 작물 별칭 → 정규 이름 매핑 */
+const CROP_ALIAS: Record<string, string> = {
+  벼: "쌀",
+  한라봉: "감귤",
+  천혜향: "감귤",
+  산양삼: "인삼",
+};
+
+/** 작물 이름 → CropInfo 매핑 (Cross-linking용, 별칭 지원) */
 export function getCropByName(name: string): CropInfo | undefined {
-  return CROPS.find((c) => c.name === name);
+  return (
+    CROPS.find((c) => c.name === name) ??
+    CROPS.find((c) => c.name === CROP_ALIAS[name])
+  );
 }
 
 export const CROP_CATEGORIES = ["전체", "식량", "채소", "과수", "특용"] as const;

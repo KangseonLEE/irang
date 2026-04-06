@@ -95,9 +95,8 @@
   letter-spacing: -0.02em;
   line-height: 1.3;
   color: var(--foreground, #111);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 /* 요약 */
@@ -227,30 +226,84 @@
   color: var(--muted-foreground, #6b7280);
 }
 
-/* ── 관련 작물 뱃지 ── */
-.cropBadges {
+/* ── 관련 작물 ── */
+.cropList {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-direction: column;
+  gap: 0;
 }
 
-.cropBadge {
-  display: inline-block;
-  padding: 5px 14px;
-  border-radius: 8px;
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  color: var(--foreground, #333);
-  border: 1px solid var(--border, #d1d5db);
+/* 링크 가능한 작물 아이템 */
+.cropItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
-  transition: all 0.15s;
+  transition: background-color 0.12s;
+}
+
+.cropItem:last-child {
+  border-bottom: none;
+}
+
+.cropEmoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.cropItemText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cropItemName {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--foreground, #111);
+}
+
+.cropItemSub {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.cropArrow {
+  color: var(--muted-foreground, #9ca3af);
+  flex-shrink: 0;
+  transition: color 0.12s, transform 0.12s;
 }
 
 @media (hover: hover) {
-  .cropBadge:hover {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-    color: #166534;
+  .cropItem:hover .cropItemName {
+    color: var(--primary, #1B6B5A);
   }
+
+  .cropItem:hover .cropArrow {
+    color: var(--primary, #1B6B5A);
+    transform: translateX(2px);
+  }
+}
+
+/* 링크 없는 작물 (정보만 표시) */
+.cropItemStatic {
+  composes: cropItem;
+  cursor: default;
+}
+
+.cropEmojiMuted {
+  composes: cropEmoji;
+  background: var(--muted, #f3f4f6);
 }
 

@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
 import {
   ArrowLeft,
+  ArrowRight,
   MapPin,
   Building2,
   Calendar,
@@ -176,20 +177,32 @@ export default async function ProgramDetailPage({
                 </h2>
               </div>
               <div className={s.cardContent}>
-                <div className={s.cropBadges}>
+                <div className={s.cropList}>
                   {program.relatedCrops.map((cropName) => {
                     const cropInfo = getCropByName(cropName);
-                    const href = cropInfo
-                      ? `/crops/${cropInfo.id}`
-                      : "/crops";
+                    if (cropInfo) {
+                      return (
+                        <Link
+                          key={cropName}
+                          href={`/crops/${cropInfo.id}`}
+                          className={s.cropItem}
+                        >
+                          <span className={s.cropEmoji}>{cropInfo.emoji}</span>
+                          <span className={s.cropItemText}>
+                            <span className={s.cropItemName}>{cropName}</span>
+                            <span className={s.cropItemSub}>{cropInfo.category} · {cropInfo.difficulty}</span>
+                          </span>
+                          <ArrowRight size={14} className={s.cropArrow} />
+                        </Link>
+                      );
+                    }
                     return (
-                      <Link
-                        key={cropName}
-                        href={href}
-                        className={s.cropBadge}
-                      >
-                        {cropInfo?.emoji} {cropName}
-                      </Link>
+                      <span key={cropName} className={s.cropItemStatic}>
+                        <span className={s.cropEmojiMuted}>🌱</span>
+                        <span className={s.cropItemText}>
+                          <span className={s.cropItemName}>{cropName}</span>
+                        </span>
+                      </span>
                     );
                   })}
                 </div>
