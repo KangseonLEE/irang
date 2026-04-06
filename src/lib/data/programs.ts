@@ -28,6 +28,8 @@ export interface SupportProgram {
   status: "모집중" | "모집예정" | "마감";
   relatedCrops: string[];
   sourceUrl: string;
+  /** 원문 링크 상태 — 헬스체크 결과 반영 */
+  linkStatus?: "active" | "broken" | "unverified";
   year: number;
 }
 
@@ -467,6 +469,11 @@ export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
   }
 
   return PROGRAMS.filter((program) => {
+    // 원문 링크 깨진 항목은 목록에서 숨김
+    if (program.linkStatus === "broken") {
+      return false;
+    }
+
     // 조회 시점 필터: 모집기간과 선택 월이 겹치는지 확인
     if (periodStart && periodEnd) {
       // 모집기간과 조회 월이 겹치려면:
@@ -626,6 +633,9 @@ export async function filterProgramsAsync(
   }
 
   const filtered = allPrograms.filter((program) => {
+    // 원문 링크 깨진 항목은 목록에서 숨김
+    if (program.linkStatus === "broken") return false;
+
     if (periodStart && periodEnd) {
       if (
         program.applicationStart > periodEnd ||

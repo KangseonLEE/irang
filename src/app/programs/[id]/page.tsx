@@ -206,6 +206,8 @@ export default async function ProgramDetailPage({
               <ExternalLinkBlock
                 href={program.sourceUrl}
                 label="원문 페이지 방문"
+                linkStatus={program.linkStatus}
+                title={program.title}
               />
             </div>
           </div>

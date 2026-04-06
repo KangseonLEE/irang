@@ -198,6 +198,8 @@ export default async function EducationDetailPage({
               <ExternalLinkBlock
                 href={course.url}
                 label="교육 신청 페이지"
+                linkStatus={course.linkStatus}
+                title={course.title}
               />
             </div>
           </div>

@@ -1,0 +1,43 @@
+# ═══════════════════════════════════════════
+# 매일 외부 원문 링크 헬스체크
+# - 매일 오전 9시(KST) 자동 실행
+# - 깨진 링크 발견 시 GitHub Issue 자동 생성
+# - 수동 실행 가능 (Actions 탭 → Run workflow)
+# ═══════════════════════════════════════════
+
+name: "🔗 외부 링크 헬스체크"
+
+on:
+  schedule:
+    # 매일 KST 오전 9시 (UTC 00:00)
+    - cron: "0 0 * * *"
+  workflow_dispatch: # 수동 실행 지원
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  check-links:
+    name: 외부 URL 헬스체크
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: link-check 라벨 생성 (없으면)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "link-check" \
+            --description "외부 링크 헬스체크 자동 이슈" \
+            --color "d73a4a" \
+            2>/dev/null || true
+
+      - name: 외부 링크 헬스체크 실행
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/check-links.sh --ci

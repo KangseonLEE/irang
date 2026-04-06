@@ -29,6 +29,8 @@ export interface EducationCourse {
   status: "모집중" | "모집예정" | "마감";
   level: "입문" | "초급" | "중급" | "심화";
   url: string;
+  /** 원문 링크 상태 — 헬스체크 결과 반영 */
+  linkStatus?: "active" | "broken" | "unverified";
 }
 
 export const EDUCATION_REGIONS = [
@@ -290,6 +292,11 @@ export function filterEducation(filters: EducationFilters): EducationCourse[] {
   }
 
   return EDUCATION_COURSES.filter((course) => {
+    // 원문 링크 깨진 항목은 목록에서 숨김
+    if (course.linkStatus === "broken") {
+      return false;
+    }
+
     // 조회 시점 필터: 모집기간과 선택 월이 겹치는지 확인
     if (periodStart && periodEnd) {
       if (
@@ -416,6 +423,9 @@ export async function filterEducationAsync(
   }
 
   const filtered = allCourses.filter((course) => {
+    // 원문 링크 깨진 항목은 목록에서 숨김
+    if (course.linkStatus === "broken") return false;
+
     if (periodStart && periodEnd) {
       if (course.applicationStart > periodEnd || course.applicationEnd < periodStart) {
         return false;
