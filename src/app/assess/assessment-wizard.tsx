@@ -77,16 +77,36 @@ export function AssessmentWizard() {
     setCopied(false);
   }, []);
 
-  const handleShare = useCallback(async () => {
-    const url = window.location.origin + "/assess";
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* fallback: 지원하지 않는 브라우저 */
-    }
-  }, []);
+  const handleShare = useCallback(
+    async (tier?: ResultTier) => {
+      const url = window.location.origin + "/assess";
+      const shareTitle = "귀농 적합성 진단 - 이랑";
+      const shareText = tier
+        ? `나의 귀농 준비 단계는 "${tier.title}" ${tier.emoji}\n${tier.summary}`
+        : "나는 귀농에 얼마나 준비되어 있을까? 3분 자가진단으로 확인해보세요.";
+
+      // Web Share API (iOS/Android 네이티브 공유시트)
+      if (typeof navigator.share === "function") {
+        try {
+          await navigator.share({ title: shareTitle, text: shareText, url });
+          return;
+        } catch (err) {
+          // 사용자가 공유를 취소한 경우 (AbortError) → 무시
+          if (err instanceof Error && err.name === "AbortError") return;
+        }
+      }
+
+      // Fallback: 클립보드 복사 (데스크톱)
+      try {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        /* noop */
+      }
+    },
+    []
+  );
 
   // 결과 계산 (결과 화면일 때만)
   const result = useMemo<AssessmentResult | null>(
@@ -255,12 +275,12 @@ export function AssessmentWizard() {
               다시 진단하기
             </button>
             <button
-              onClick={handleShare}
+              onClick={() => handleShare(tier)}
               className={s.shareBtn}
               type="button"
             >
               {copied ? <Check size={16} /> : <Share2 size={16} />}
-              {copied ? "복사됨!" : "결과 공유"}
+              {copied ? "링크 복사됨!" : "결과 공유"}
             </button>
           </div>
         </div>
