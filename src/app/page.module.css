@@ -707,7 +707,6 @@
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
   margin: 0;
-  max-width: 580px;
 }
 
 @media (min-width: 640px) {
@@ -754,15 +753,14 @@
 
 .costCtaOutline {
   composes: costCta;
-  background: transparent;
-  color: var(--primary, #1B6B5A);
-  border: 1.5px solid var(--primary, #1B6B5A);
+  background: var(--primary, #1B6B5A);
+  color: #fff;
 }
 
 @media (hover: hover) {
   .costCtaOutline:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
-    box-shadow: 0 2px 8px rgba(27, 107, 90, 0.12);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 88%, #000);
+    box-shadow: 0 4px 12px rgba(27, 107, 90, 0.2);
   }
   .costCtaOutline:active { transform: scale(0.97); }
 }
@@ -836,12 +834,6 @@
   letter-spacing: 0.02em;
 }
 
-@media (min-width: 768px) {
-  .costStatLabel {
-    font-size: var(--fs-caption);
-  }
-}
-
 .costStatValue {
   font-size: 28px;
   font-weight: 800;
@@ -866,22 +858,10 @@
   margin-left: 2px;
 }
 
-@media (min-width: 768px) {
-  .costStatUnit {
-    font-size: 0.45em;
-  }
-}
-
 .costStatSub {
   font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--foreground, #111);
-}
-
-@media (min-width: 768px) {
-  .costStatSub {
-    font-size: var(--fs-overline);
-  }
 }
 
 
@@ -1774,4 +1754,33 @@
   .sectionTitle {
     font-size: var(--fs-h2);
   }
+}
+
+/* ══════════════════════════════════════════
+   데스크탑 텍스트 스케일-업
+   글로벌 변수가 모바일>데스크탑이므로,
+   랜딩 본문은 별도로 올려줌 (타이틀 제외)
+   ══════════════════════════════════════════ */
+@media (min-width: 1024px) {
+  /* 비용 섹션 */
+  .costOverline   { font-size: 14px; }
+  .costDesc       { font-size: 16px; }
+  .costStatLabel  { font-size: 16px; }
+  .costStatSub    { font-size: 14px; }
+  .costSource     { font-size: 13px; }
+
+  /* 비교 섹션 */
+  .compareNote    { font-size: 15px; }
+
+  /* 인터뷰 */
+  .interviewSub   { font-size: 16px; }
+
+  /* 로드맵 */
+  .roadmapSub     { font-size: 16px; }
+
+  /* 적합성 진단 */
+  .assessDesc     { font-size: 16px; }
+
+  /* CTA 배너 */
+  .ctaBannerSub   { font-size: 16px; }
 }
