@@ -21,12 +21,16 @@ import {
   ExternalLink,
   ChevronRight,
   Gauge,
+  Scale,
+  ThumbsUp,
+  AlertTriangle,
 } from "lucide-react";
 import {
   getCropWithDetail,
   getAllCropIds,
   CROPS,
   type CropDetailInfo,
+  type ProsConsInfo,
 } from "@/lib/data/crops";
 import { getStationByProvince } from "@/lib/data/stations";
 import { fetchCropStats, type CropStatItem } from "@/lib/api/kosis";
@@ -135,6 +139,7 @@ export default async function CropDetailPage({
 
   const anchorSections = [
     { id: "overview", label: "개요" },
+    ...(detail.prosCons ? [{ id: "pros-cons", label: "장단점" }] : []),
     { id: "cultivation", label: "재배환경" },
     { id: "income", label: "수익정보" },
     { id: "region", label: "재배지역" },
@@ -277,6 +282,11 @@ export default async function CropDetailPage({
               </div>
             </div>
           </section>
+
+          {/* 장점과 단점 */}
+          {detail.prosCons && (
+            <ProsConsSection prosCons={detail.prosCons} />
+          )}
 
           {/* 재배환경 */}
           <CultivationSection cultivation={detail.cultivation} />
@@ -515,6 +525,69 @@ function IncomeSection({
   );
 }
 
+/** 카테고리 → 한글 라벨 */
+const CATEGORY_LABEL: Record<string, string> = {
+  수익성: "수익성",
+  재배난이도: "재배",
+  시장성: "시장",
+  안정성: "안정",
+  생활: "생활",
+  확장성: "확장",
+};
+
+function ProsConsSection({ prosCons }: { prosCons: ProsConsInfo }) {
+  return (
+    <section id="pros-cons" className={s.section}>
+      <SectionHeader icon={<Scale size={18} />} title="장점과 단점" />
+      <div className={s.sectionBody}>
+        {/* 장점 */}
+        <div className={s.prosGroup}>
+          <div className={s.prosGroupHeader}>
+            <ThumbsUp size={14} />
+            <span>장점</span>
+          </div>
+          <div className={s.prosConsList}>
+            {prosCons.pros.map((item, idx) => (
+              <div key={idx} className={s.prosItem}>
+                <span className={s.prosCategoryBadge}>
+                  {CATEGORY_LABEL[item.category] ?? item.category}
+                </span>
+                <p className={s.prosConsText}>{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 단점 */}
+        <div className={s.consGroup}>
+          <div className={s.consGroupHeader}>
+            <AlertTriangle size={14} />
+            <span>단점</span>
+          </div>
+          <div className={s.prosConsList}>
+            {prosCons.cons.map((item, idx) => (
+              <div key={idx} className={s.consItem}>
+                <span className={s.consCategoryBadge}>
+                  {CATEGORY_LABEL[item.category] ?? item.category}
+                </span>
+                <p className={s.prosConsText}>{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 종합 평가 */}
+        {prosCons.verdict && (
+          <div className={s.verdictCard}>
+            <Lightbulb size={16} />
+            <p className={s.verdictText}>{prosCons.verdict}</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function RegionSection({
   majorRegions,
   cropStats,
@@ -527,15 +600,22 @@ function RegionSection({
     .sort((a, b) => b.cultivationArea - a.cultivationArea)
     .slice(0, 5);
 
-  const maxArea = top5.length > 0 ? top5[0].cultivationArea : 1;
+  const kosisYear = top5.length > 0 ? top5[0].year : null;
 
   return (
     <section id="region" className={s.section}>
-      <SectionHeader icon={<MapPin size={18} />} title="인기 재배지역" />
+      <div className={s.sectionHeader}>
+        <span className={s.sectionHeaderIcon}><MapPin size={18} /></span>
+        <span>인기 재배지역</span>
+        {kosisYear && (
+          <span className={s.kosisBadge}>{kosisYear}년 KOSIS</span>
+        )}
+      </div>
       <div className={s.sectionBody}>
         <div className={s.regionPills}>
           {majorRegions.map((r) => {
             const station = getStationByProvince(r);
+            const stat = top5.find((st) => st.regionName === r);
             return station ? (
               <Link
                 key={r}
@@ -544,46 +624,40 @@ function RegionSection({
               >
                 <MapPin size={12} />
                 {r}
+                {stat && (
+                  <span className={s.regionPillArea}>
+                    {stat.cultivationArea.toLocaleString()}ha
+                  </span>
+                )}
               </Link>
             ) : (
-              <span key={r} className={s.regionPill}>{r}</span>
+              <span key={r} className={s.regionPill}>
+                {r}
+                {stat && (
+                  <span className={s.regionPillArea}>
+                    {stat.cultivationArea.toLocaleString()}ha
+                  </span>
+                )}
+              </span>
             );
           })}
         </div>
 
         {top5.length > 0 && (
-          <div className={s.chartSection}>
-            <p className={s.chartTitle}>
-              재배면적 상위 지역 ({top5[0].year}년 KOSIS 기준)
-            </p>
-            <div
-              className={s.chartContainer}
-              role="img"
-              aria-label={`재배면적: ${top5.map((st) => `${st.regionName} ${st.cultivationArea.toLocaleString()}ha`).join(", ")}`}
-            >
-              {top5.map((stat, idx) => {
-                const pct = Math.round((stat.cultivationArea / maxArea) * 100);
-                return (
-                  <div key={stat.regionName} className={s.chartRow}>
-                    <div className={s.chartMeta}>
-                      <span className={s.chartRank}>{idx + 1}</span>
-                      <span className={s.chartLabel}>{stat.regionName}</span>
-                    </div>
-                    <div className={s.chartBarWrap}>
-                      <div
-                        className={s.chartBar}
-                        style={{ width: `${pct}%` }}
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <span className={s.chartValue}>
-                      {stat.cultivationArea.toLocaleString()} <GlossaryTerm term="ha" />
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <p className={s.chartSource}>
+          <div className={s.regionRanking}>
+            <p className={s.regionRankingTitle}>재배면적 상위</p>
+            <ol className={s.regionRankingList}>
+              {top5.map((stat, idx) => (
+                <li key={stat.regionName} className={s.regionRankItem}>
+                  <span className={s.regionRankNum}>{idx + 1}</span>
+                  <span className={s.regionRankName}>{stat.regionName}</span>
+                  <span className={s.regionRankValue}>
+                    {stat.cultivationArea.toLocaleString()} <GlossaryTerm term="ha" />
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <p className={s.regionSource}>
               출처: KOSIS 국가통계포털
               <a
                 href="https://kosis.kr"

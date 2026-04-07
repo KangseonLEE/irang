@@ -32,7 +32,7 @@ export function NewsTabs({ items }: NewsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>("all");
 
   const filtered = useMemo(() => {
-    if (activeTab === "all") return items.slice(0, 6);
+    if (activeTab === "all") return items.slice(0, 5);
     return items
       .filter((item) => item.category === activeTab)
       .slice(0, 5);

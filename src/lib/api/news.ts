@@ -18,6 +18,13 @@ const CACHE_TTL = 60 * 60 * 24; // 24시간
 const SEARCH_QUERY = "귀농 귀촌";
 const DISPLAY_COUNT = 5;
 
+/** 카테고리별 검색 키워드 */
+const CATEGORY_QUERIES: Record<string, string> = {
+  education: "귀농 교육 농업 연수",
+  event: "농촌 축제 체험 박람회",
+  program: "귀농 지원사업 보조금 정착",
+};
+
 // ─── 타입 ───
 
 /** 네이버 API 원본 응답 아이템 */
@@ -124,6 +131,25 @@ function extractSource(originallink: string): string {
  * - API 키 미설정 또는 에러 시 null 반환
  */
 export async function fetchLatestNews(): Promise<NewsArticle[] | null> {
+  return fetchNewsByQuery(SEARCH_QUERY);
+}
+
+/**
+ * 카테고리별 뉴스를 가져옵니다.
+ * - education: 귀농 교육 관련 기사
+ * - event: 농촌 축제·체험 관련 기사
+ * - program: 지원사업·보조금 관련 기사
+ */
+export async function fetchNewsByCategory(
+  category: "education" | "event" | "program"
+): Promise<NewsArticle[] | null> {
+  const query = CATEGORY_QUERIES[category];
+  if (!query) return null;
+  return fetchNewsByQuery(query);
+}
+
+/** 네이버 뉴스 검색 공통 로직 */
+async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
   const clientId = process.env.NAVER_CLIENT_ID;
   const clientSecret = process.env.NAVER_CLIENT_SECRET;
 
@@ -134,7 +160,7 @@ export async function fetchLatestNews(): Promise<NewsArticle[] | null> {
 
   try {
     const params = new URLSearchParams({
-      query: SEARCH_QUERY,
+      query,
       display: String(DISPLAY_COUNT),
       sort: "sim",    // 관련도순 (품질 우선, 최신 뉴스도 상위 노출)
     });
@@ -155,7 +181,7 @@ export async function fetchLatestNews(): Promise<NewsArticle[] | null> {
     const data: NaverNewsResponse = await res.json();
 
     if (!data.items?.length) {
-      console.warn("[news] 검색 결과 0건");
+      console.warn(`[news] "${query}" 검색 결과 0건`);
       return null;
     }
 

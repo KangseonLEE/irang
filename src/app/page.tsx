@@ -32,12 +32,9 @@ import {
   roadmapSteps,
   faqItems,
 } from "@/lib/data/landing";
-import { fetchLatestNews } from "@/lib/api/news";
+import { fetchLatestNews, fetchNewsByCategory } from "@/lib/api/news";
 import type { NewsArticle } from "@/lib/api/news";
 import { NewsTabs, type UnifiedNewsItem } from "@/components/landing/news-tabs";
-import { EVENTS } from "@/lib/data/events";
-import { EDUCATION_COURSES } from "@/lib/data/education";
-import { PROGRAMS } from "@/lib/data/programs";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
 import s from "./page.module.css";
@@ -92,46 +89,32 @@ const serviceCards: ServiceCard[] = [
    ──────────────────────────────────────────── */
 
 export default async function HomePage() {
-  // 네이버 뉴스 API → 실패 시 정적 데이터 폴백
-  const liveNews: NewsArticle[] | null = await fetchLatestNews();
-  const newsItems = liveNews ?? trendNews;
+  // 네이버 뉴스 API — 카테고리별 병렬 호출 → 실패 시 정적 폴백
+  const [liveNews, eduNews, eventNews, programNews] = await Promise.all([
+    fetchLatestNews(),
+    fetchNewsByCategory("education"),
+    fetchNewsByCategory("event"),
+    fetchNewsByCategory("program"),
+  ]);
 
-  // 통합 뉴스 아이템 구성 (뉴스 + 교육 + 행사 + 지원)
-  const unifiedNews: UnifiedNewsItem[] = [
-    ...newsItems.map((n) => ({
+  const toItems = (
+    articles: NewsArticle[] | null,
+    fallback: NewsArticle[],
+    category: UnifiedNewsItem["category"]
+  ): UnifiedNewsItem[] =>
+    (articles ?? fallback).map((n) => ({
       title: n.title,
       source: n.source,
       date: n.date,
       url: n.url,
-      category: "news" as const,
-    })),
-    ...EVENTS.filter((e) => e.status !== "마감")
-      .slice(0, 5)
-      .map((e) => ({
-        title: e.title,
-        source: e.type,
-        date: e.date.slice(0, 7).replace("-", "."),
-        url: e.url,
-        category: "event" as const,
-      })),
-    ...EDUCATION_COURSES.filter((c) => c.status !== "마감")
-      .slice(0, 5)
-      .map((c) => ({
-        title: c.title,
-        source: c.type,
-        date: c.applicationStart.slice(0, 7).replace("-", "."),
-        url: c.url,
-        category: "education" as const,
-      })),
-    ...PROGRAMS.filter((p) => p.status !== "마감")
-      .slice(0, 5)
-      .map((p) => ({
-        title: p.title,
-        source: p.supportType,
-        date: p.applicationStart.slice(0, 7).replace("-", "."),
-        url: p.sourceUrl,
-        category: "program" as const,
-      })),
+      category,
+    }));
+
+  const unifiedNews: UnifiedNewsItem[] = [
+    ...toItems(liveNews, trendNews, "news"),
+    ...toItems(eduNews, [], "education"),
+    ...toItems(eventNews, [], "event"),
+    ...toItems(programNews, [], "program"),
   ];
 
   // 인기 검색어: Supabase 실데이터 → 큐레이션 폴백

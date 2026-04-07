@@ -37,6 +37,28 @@ export interface KosisConfig {
   objL1Code?: string;
 }
 
+/** 장단점 카테고리 */
+export type ProsConsCategory =
+  | "수익성"
+  | "재배난이도"
+  | "시장성"
+  | "안정성"
+  | "생활"
+  | "확장성";
+
+/** 장단점 항목 */
+export interface ProsConsItem {
+  category: ProsConsCategory;
+  text: string;
+}
+
+/** 장단점 정보 */
+export interface ProsConsInfo {
+  pros: ProsConsItem[];
+  cons: ProsConsItem[];
+  verdict?: string;
+}
+
 /** 작물 상세 정보 — CropInfo.id로 1:1 매핑 */
 export interface CropDetailInfo {
   id: string;
@@ -46,6 +68,7 @@ export interface CropDetailInfo {
   tips: string[];
   relatedCropIds: string[];
   kosisConfig?: KosisConfig;
+  prosCons?: ProsConsInfo;
 }
 
 /** 기본 정보 + 상세 정보를 합쳐 반환. 상세가 없으면 null */
@@ -291,6 +314,20 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["soybean", "corn", "sweet-potato"],
     kosisConfig: { tblId: "DT_1ET0034" },
+    prosCons: {
+      pros: [
+        { category: "재배난이도", text: "기계화율이 높아 대면적 관리가 수월하고, 기술 진입 장벽이 낮음" },
+        { category: "안정성", text: "공익직불·전략작물직불 등 정부 소득보전 제도가 잘 갖춰져 있음" },
+        { category: "시장성", text: "RPC 계약재배 등 판로가 안정적이고 유통구조가 체계적" },
+        { category: "생활", text: "이앙·수확기 외에는 관리 부담이 적어 여유로운 농촌 생활 가능" },
+      ],
+      cons: [
+        { category: "수익성", text: "ha당 수익이 500~800만 원으로 다른 작물 대비 낮은 편" },
+        { category: "시장성", text: "1인당 쌀 소비량이 매년 감소하는 추세로 장기 전망에 불확실성" },
+        { category: "수익성", text: "농기계(이앙기·콤바인) 초기 구입 또는 임차 비용이 필요" },
+      ],
+      verdict: "안정적인 소득과 여유로운 생활을 원하는 귀농 입문자에게 적합한 작물",
+    },
   },
   {
     id: "soybean",
@@ -314,6 +351,20 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["rice", "corn", "sesame"],
     kosisConfig: { tblId: "DT_1ET0292" },
+    prosCons: {
+      pros: [
+        { category: "재배난이도", text: "재배 기술이 비교적 단순하고, 병해충 관리 부담이 적음" },
+        { category: "수익성", text: "생산비가 낮아 소규모에서도 수지를 맞추기 쉬움" },
+        { category: "확장성", text: "질소고정 효과로 후작물에 유리해 윤작 체계에 핵심 역할" },
+        { category: "시장성", text: "토종콩·약콩 등 특수 품종은 직거래 시 높은 프리미엄 확보 가능" },
+      ],
+      cons: [
+        { category: "수익성", text: "ha당 300~500만 원으로 수익 규모 자체는 크지 않음" },
+        { category: "시장성", text: "수입 대두와의 가격 경쟁이 존재해 일반콩은 수익 압박" },
+        { category: "안정성", text: "개화·결협기 가뭄이나 과습에 수량이 크게 좌우됨" },
+      ],
+      verdict: "낮은 비용으로 안정적인 부수입을 원하거나, 윤작 체계를 구축하려는 분에게 추천",
+    },
   },
   {
     id: "sweet-potato",
@@ -337,6 +388,20 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["potato", "corn", "lettuce"],
     kosisConfig: { tblId: "DT_1ET0292" },
+    prosCons: {
+      pros: [
+        { category: "재배난이도", text: "병해충에 강하고 재배가 쉬워 초보 귀농인도 도전 가능" },
+        { category: "안정성", text: "저장성이 좋아 출하 시기를 조절해 유리한 가격에 판매 가능" },
+        { category: "시장성", text: "꿀고구마(호박고구마) 등 소비자 선호 품종의 직거래 수요가 높음" },
+        { category: "확장성", text: "체험농장·말랭이 가공 등 6차산업 연계가 활발" },
+      ],
+      cons: [
+        { category: "재배난이도", text: "수확 작업이 노동 집약적이라 인력 확보가 필요" },
+        { category: "안정성", text: "품종에 따라 수익성 편차가 크고, 유행 품종이 바뀔 수 있음" },
+        { category: "수익성", text: "묘 구입비와 비닐멀칭 자재비 등 자재비 비중이 높음" },
+      ],
+      verdict: "귀농 입문자에게 가장 추천되는 작물 중 하나 — 직거래와 체험농장 병행 시 수익성 우수",
+    },
   },
   {
     id: "potato",
@@ -360,6 +425,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["sweet-potato", "corn", "napa-cabbage"],
     kosisConfig: { tblId: "DT_1ET0292" },
+    prosCons: {
+      pros: [
+        { category: "수익성", text: "고랭지 여름 감자는 시세가 높아 프리미엄 수익 기대 가능" },
+        { category: "생활", text: "봄·가을 이모작이 가능해 토지 활용도와 연간 수익을 높일 수 있음" },
+        { category: "재배난이도", text: "재배 기간이 짧고 중간 관리가 비교적 수월" },
+      ],
+      cons: [
+        { category: "안정성", text: "역병 등 병해 리스크가 높아 검역 인증 씨감자 사용이 필수" },
+        { category: "수익성", text: "저장 시설(저온저장고) 투자가 필요하고 저장 중 손실 발생" },
+        { category: "시장성", text: "출하 시기가 겹치면 산지 가격이 크게 하락할 수 있음" },
+      ],
+      verdict: "강원도 등 서늘한 지역에서 이모작과 함께 운영하면 높은 토지 효율을 기대할 수 있는 작물",
+    },
   },
   {
     id: "corn",
@@ -383,6 +461,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["sweet-potato", "potato", "soybean"],
     kosisConfig: { tblId: "DT_1ET0292" },
+    prosCons: {
+      pros: [
+        { category: "생활", text: "재배 기간이 짧아(3~4개월) 노동 집중 기간이 한정적" },
+        { category: "시장성", text: "초당옥수수 등 프리미엄 품종은 택배·직거래 수요가 높음" },
+        { category: "수익성", text: "생산비가 낮고 종자·비료비 외 큰 비용이 들지 않음" },
+      ],
+      cons: [
+        { category: "수익성", text: "ha당 300~700만 원으로 전업 소득원으로는 부족할 수 있음" },
+        { category: "안정성", text: "수확 시기가 집중되어 적기 출하를 놓치면 품질 저하" },
+        { category: "시장성", text: "일반 옥수수는 수입산과의 가격 경쟁에서 불리" },
+      ],
+      verdict: "부업형 귀농이나 다른 작물과의 병행 재배에 적합 — 시차재배로 출하 기간을 늘리는 것이 핵심",
+    },
   },
   {
     id: "chili-pepper",
@@ -407,6 +498,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["garlic", "onion", "napa-cabbage"],
     kosisConfig: { tblId: "DT_1ET0292" },
+    prosCons: {
+      pros: [
+        { category: "수익성", text: "ha당 800~1,500만 원으로 채소류 중 높은 수익 기대" },
+        { category: "시장성", text: "국내 고추 수요가 안정적이고 건고추 형태로 장기 저장·판매 가능" },
+        { category: "안정성", text: "비가림 재배 시 병해가 크게 줄어 품질과 수량 안정화" },
+      ],
+      cons: [
+        { category: "재배난이도", text: "탄저병·역병 등 병해충 방제가 수확량을 좌우할 만큼 중요" },
+        { category: "생활", text: "수확·건조·탈꼭지 등 노동 강도가 높아 가족 노동력이 필요" },
+        { category: "안정성", text: "건고추 가격 변동이 크고, 수입산과의 가격 경쟁이 존재" },
+      ],
+      verdict: "기술 습득에 시간을 투자할 의지가 있다면 채소류 중 높은 수익을 기대할 수 있는 작물",
+    },
   },
   {
     id: "napa-cabbage",
@@ -430,6 +534,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["chili-pepper", "garlic", "onion"],
     kosisConfig: { tblId: "DT_1ET0292" },
+    prosCons: {
+      pros: [
+        { category: "시장성", text: "김장 수요가 매년 안정적이라 가을배추 판매 기반이 탄탄" },
+        { category: "생활", text: "단기 재배(60~90일)로 연중 여러 작기 운영이 가능" },
+        { category: "안정성", text: "계약 재배 제도를 활용하면 가격 하락 리스크를 줄일 수 있음" },
+      ],
+      cons: [
+        { category: "안정성", text: "풍작 시 가격이 급락하는 '배추 파동'이 반복적으로 발생" },
+        { category: "안정성", text: "고랭지 재배 시 기상 변동(냉해·폭우)에 따른 피해 위험이 큼" },
+        { category: "재배난이도", text: "정식·수확 시 인력이 대량으로 필요하고, 기계화가 어려운 부분 존재" },
+      ],
+      verdict: "계약 재배를 활용해 리스크를 관리하면서 김장 시즌 안정 수입을 노리기에 적합",
+    },
   },
   {
     id: "garlic",
@@ -453,6 +570,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["onion", "chili-pepper", "napa-cabbage"],
     kosisConfig: { tblId: "DT_1ET0292" },
+    prosCons: {
+      pros: [
+        { category: "시장성", text: "국내 마늘 수요가 안정적이고, 건마늘·깐마늘 등 가공 수요도 꾸준" },
+        { category: "확장성", text: "마늘쫑도 별도 수입원이 되어 추가 수익 확보 가능" },
+        { category: "재배난이도", text: "기계화(파종기·수확기)가 진행되면서 노동 부담이 점차 감소" },
+      ],
+      cons: [
+        { category: "수익성", text: "종구(씨마늘) 비용이 상당해 초기 투입 자본이 필요" },
+        { category: "생활", text: "심기·수확이 노동 집약적이라 작기별 인력 확보가 관건" },
+        { category: "시장성", text: "수입 마늘과의 가격 경쟁이 있어 소규모 농가는 부담" },
+      ],
+      verdict: "의성·남해 등 산지에서 시작하면 기존 유통망을 활용해 안정적 수입 확보 가능",
+    },
   },
   {
     id: "onion",
@@ -476,6 +606,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["garlic", "napa-cabbage", "chili-pepper"],
     kosisConfig: { tblId: "DT_1ET0292" },
+    prosCons: {
+      pros: [
+        { category: "수익성", text: "대량 생산이 가능하고, 저장 양파 출하 전략으로 비수기 고가 판매 가능" },
+        { category: "확장성", text: "양파즙·양파 가공품 등 6차산업과 연계해 부가가치를 높일 수 있음" },
+        { category: "시장성", text: "국내 소비량이 많고 김치·요리 필수 식재료로 수요 기반이 탄탄" },
+      ],
+      cons: [
+        { category: "안정성", text: "가격 변동이 채소류 중 가장 극심 — 풍작 시 폭락이 반복됨" },
+        { category: "재배난이도", text: "정식 시 인력이 대량으로 필요하고, 기계화가 아직 부분적" },
+        { category: "시장성", text: "과잉 생산 위험이 상존해 재배 면적 조절이 중요" },
+      ],
+      verdict: "저장·출하 전략을 잘 세우고, 가공 연계까지 고려하면 규모의 경제를 실현할 수 있는 작물",
+    },
   },
   {
     id: "lettuce",
@@ -499,6 +642,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["sweet-potato", "napa-cabbage", "chili-pepper"],
     kosisConfig: { tblId: "DT_1ET0017" },
+    prosCons: {
+      pros: [
+        { category: "수익성", text: "소규모 비닐하우스에서도 시작할 수 있어 초기 투자 부담이 적음" },
+        { category: "수익성", text: "연중 다회 수확이 가능해 지속적인 현금 흐름을 확보할 수 있음" },
+        { category: "시장성", text: "로컬푸드 매장·직거래에 적합하고, 소비자 접근성이 높음" },
+      ],
+      cons: [
+        { category: "생활", text: "수확·포장이 매일 반복되어 꾸준한 노동이 필요" },
+        { category: "안정성", text: "여름 고온기에는 추대(꽃대) 발생으로 재배가 어려움" },
+        { category: "수익성", text: "하우스 시설비가 주요 투자 항목이고, 난방·냉방 비용 발생 가능" },
+      ],
+      verdict: "소규모로 안정적인 일일 수입을 원하는 분에게 적합 — 귀농 입문용으로 추천",
+    },
   },
   {
     id: "apple",
@@ -523,6 +679,20 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["pear", "grape", "citrus"],
     kosisConfig: { tblId: "DT_1AG20411" },
+    prosCons: {
+      pros: [
+        { category: "수익성", text: "성목 기준 ha당 1,500~3,000만 원으로 고소득 작물" },
+        { category: "시장성", text: "국내 소비 수요가 안정적이고 직거래·온라인 판매 채널이 다양" },
+        { category: "확장성", text: "사과즙·사과잼·체험농장 등 6차산업 연계가 활발" },
+        { category: "안정성", text: "저장성이 좋아 CA저장으로 출하 시기를 조절해 가격 대응 가능" },
+      ],
+      cons: [
+        { category: "재배난이도", text: "전정·적과·봉지씌우기 등 숙련된 기술 없이는 품질 확보 어려움" },
+        { category: "안정성", text: "기후변화로 재배 적지가 북상 중 — 기존 산지의 품질 저하 우려" },
+        { category: "수익성", text: "묘목 식재 후 3~5년간 수확 불가, 초기 투자 회수까지 시간 소요" },
+      ],
+      verdict: "중장기 투자 여력이 있고 기술을 배울 의지가 있다면 높은 수익이 가능한 작물",
+    },
   },
   {
     id: "pear",
@@ -546,6 +716,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["apple", "grape", "citrus"],
     kosisConfig: { tblId: "DT_1AG20411" },
+    prosCons: {
+      pros: [
+        { category: "수익성", text: "ha당 1,200~2,500만 원으로 과수 중 안정적 고소득" },
+        { category: "시장성", text: "나주배 등 브랜드 가치가 높고, 선물용 수요가 꾸준" },
+        { category: "확장성", text: "배즙·배 가공품 등으로 부가가치를 높일 수 있음" },
+      ],
+      cons: [
+        { category: "수익성", text: "과수원 조성 비용이 높고, 첫 수확까지 4~5년 소요" },
+        { category: "재배난이도", text: "인공수분이 필수이고, 전정·적과 등 세밀한 관리 기술 필요" },
+        { category: "생활", text: "봉지씌우기 작업 시 대량 인력이 필요해 인건비 부담" },
+      ],
+      verdict: "브랜드 산지(나주 등) 인근에서 기술을 익히며 시작하면 안정적인 고소득이 가능",
+    },
   },
   {
     id: "grape",
@@ -569,6 +752,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["apple", "pear", "strawberry"],
     kosisConfig: { tblId: "DT_1AG20411" },
+    prosCons: {
+      pros: [
+        { category: "수익성", text: "샤인머스캣 기준 ha당 2,000~4,000만 원의 높은 수익" },
+        { category: "확장성", text: "와이너리·체험농장과 연계해 6차산업 부가가치 창출 가능" },
+        { category: "시장성", text: "프리미엄 품종의 직거래·택배 판매 수요가 매우 높음" },
+      ],
+      cons: [
+        { category: "수익성", text: "비가림 시설·덕 설치·묘목 등 초기 투자 규모가 큼" },
+        { category: "시장성", text: "샤인머스캣 재배 급증으로 향후 공급 과잉·가격 하락 우려" },
+        { category: "재배난이도", text: "적방·적과·봉지 등 세밀한 손작업이 많아 숙련도가 요구됨" },
+      ],
+      verdict: "현재 수익성은 최상위이나 공급 과잉 리스크를 고려해 품종 다양화 전략이 필요",
+    },
   },
   {
     id: "citrus",
@@ -592,6 +788,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["apple", "pear", "grape"],
     kosisConfig: { tblId: "DT_1AG20411" },
+    prosCons: {
+      pros: [
+        { category: "수익성", text: "만감류(한라봉·천혜향)는 kg당 단가가 높아 고소득 가능" },
+        { category: "확장성", text: "감귤 주스·초콜릿·건조 감귤 등 가공품 종류가 다양" },
+        { category: "시장성", text: "제주 브랜드 파워가 강하고, 관광·체험과 연계하기 좋음" },
+      ],
+      cons: [
+        { category: "안정성", text: "재배 가능 지역이 제주·남해안으로 제한되어 있음" },
+        { category: "수익성", text: "하우스 재배 시 겨울 난방비 부담이 크고, 유가에 민감" },
+        { category: "안정성", text: "태풍·동해 등 기후 재해에 취약한 편" },
+      ],
+      verdict: "제주 또는 남해안 지역 정착 계획이 있다면 관광·가공과 시너지를 낼 수 있는 작물",
+    },
   },
   {
     id: "strawberry",
@@ -616,6 +825,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["grape", "lettuce", "citrus"],
     kosisConfig: { tblId: "DT_1ET0017" },
+    prosCons: {
+      pros: [
+        { category: "수익성", text: "10a당 1,500~3,000만 원으로 면적 대비 최고 수준의 수익" },
+        { category: "확장성", text: "체험농장·딸기 따기 관광이 매우 인기 있어 부가 수입 확보 용이" },
+        { category: "시장성", text: "겨울 과일 수요가 높고, 소비자 선호도가 꾸준히 증가" },
+      ],
+      cons: [
+        { category: "수익성", text: "하우스·난방·양액 시설 등 초기 투자 규모가 상당" },
+        { category: "재배난이도", text: "육묘 기술이 수확량의 70%를 결정할 만큼 핵심적이고 난이도 높음" },
+        { category: "생활", text: "겨울 내내 매일 수확·관리가 필요해 연속 휴가가 어려움" },
+      ],
+      verdict: "높은 투자 대비 높은 수익 — 시설원예 기술을 제대로 익히겠다는 각오가 있다면 최고의 선택",
+    },
   },
   {
     id: "ginseng",
@@ -640,6 +862,19 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["sesame", "chili-pepper"],
     kosisConfig: { tblId: "DT_1ET0292" },
+    prosCons: {
+      pros: [
+        { category: "수익성", text: "ha당 3,000~6,000만 원으로 전 작물 중 최고 수준의 수익" },
+        { category: "확장성", text: "홍삼·인삼 가공품으로 6차산업 연계 시 부가가치가 극대화" },
+        { category: "시장성", text: "금산·풍기 등 산지 브랜드 파워가 강하고, 수출 수요도 있음" },
+      ],
+      cons: [
+        { category: "수익성", text: "수확까지 4~6년이 걸려 초기 투자 회수 기간이 매우 긴 편" },
+        { category: "안정성", text: "한 번 재배한 토지에서는 연작이 불가하여 새 토지 확보가 필수" },
+        { category: "재배난이도", text: "뿌리 썩음병 등 병해 관리가 어렵고, 해가림 시설 관리에 전문성 필요" },
+      ],
+      verdict: "장기 투자형 귀농을 계획하고 4~6년 생활비를 확보할 수 있다면 최고 수익의 특용작물",
+    },
   },
   {
     id: "sesame",
@@ -663,5 +898,18 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     relatedCropIds: ["soybean", "corn", "ginseng"],
     kosisConfig: { tblId: "DT_1ET0292" },
+    prosCons: {
+      pros: [
+        { category: "시장성", text: "국산 참깨는 수입산 대비 2~3배 높은 가격으로 프리미엄 판매 가능" },
+        { category: "수익성", text: "생산비가 낮아 소규모 면적에서도 수지를 맞추기 쉬움" },
+        { category: "생활", text: "소규모 재배 시 부업형 귀농에 적합하고, 다른 작물과 병행 가능" },
+      ],
+      cons: [
+        { category: "재배난이도", text: "수확·탈립 과정이 노동 집약적이고, 기계 수확이 어려움" },
+        { category: "수익성", text: "단위면적당 생산량에 한계가 있어 대규모 소득원으로는 부족" },
+        { category: "안정성", text: "수확 적기를 놓치면 꼬투리가 터져 수확량 손실이 큼" },
+      ],
+      verdict: "부업형 귀농이나 다른 작물과의 복합 경영에 적합 — 국산 프리미엄으로 소규모에서도 수익성 확보",
+    },
   },
 ];
