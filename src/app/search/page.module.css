@@ -411,6 +411,28 @@
   }
 }
 
+.requestLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 25%, transparent);
+  transition: background-color 0.12s, border-color 0.12s;
+}
+
+@media (hover: hover) {
+  .requestLink:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+    border-color: var(--primary, #1b6b5a);
+  }
+}
+
 /* 뒤로가기 */
 .backLink {
   display: inline-flex;

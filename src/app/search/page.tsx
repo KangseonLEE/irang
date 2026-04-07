@@ -3,7 +3,7 @@
 import { Suspense, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Search, MapPin, Sprout, FileText, GraduationCap, CalendarDays, ArrowLeft, TrendingUp } from "lucide-react";
+import { Search, MapPin, Sprout, FileText, GraduationCap, CalendarDays, ArrowLeft, TrendingUp, MessageSquarePlus } from "lucide-react";
 import { searchAll, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import { logSearch } from "@/lib/supabase";
@@ -109,24 +109,30 @@ function SearchPageContent() {
             지역, 작물, 지원사업을 한번에 검색하세요.
           </p>
 
-          {/* 인기 검색어 */}
-          <div className={s.popularSection}>
-            <h2 className={s.popularTitle}>
-              <TrendingUp size={16} />
-              다른 사람들이 많이 찾는 검색어
-            </h2>
-            <div className={s.popularTags}>
-              {POPULAR_TAGS.map((tag) => (
-                <Link
-                  key={tag.label}
-                  href={`/search?q=${encodeURIComponent(tag.query)}`}
-                  className={s.popularTag}
-                >
-                  {tag.label}
-                </Link>
-              ))}
-            </div>
-          </div>
+          {/* 인기 검색어 — 검색 결과가 있는 태그만 표시 */}
+          {(() => {
+            const validTags = POPULAR_TAGS.filter((tag) => searchAll(tag.query).length > 0);
+            if (validTags.length === 0) return null;
+            return (
+              <div className={s.popularSection}>
+                <h2 className={s.popularTitle}>
+                  <TrendingUp size={16} />
+                  다른 사람들이 많이 찾는 검색어
+                </h2>
+                <div className={s.popularTags}>
+                  {validTags.map((tag) => (
+                    <Link
+                      key={tag.label}
+                      href={`/search?q=${encodeURIComponent(tag.query)}`}
+                      className={s.popularTag}
+                    >
+                      {tag.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* 최근 검색어 */}
           {recentSearches.length > 0 && (
@@ -233,6 +239,15 @@ function SearchPageContent() {
               <FileText size={16} /> 지원사업
             </Link>
           </div>
+          <a
+            href="https://tally.so/r/9qv8lp"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={s.requestLink}
+          >
+            <MessageSquarePlus size={16} />
+            찾는 정보가 없나요? 정보 추가 요청하기
+          </a>
         </div>
       )}
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Link from "next/link";
 import {
   GraduationCap,
   CalendarDays,
@@ -33,7 +34,19 @@ import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
+import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
+import { SectionNav } from "@/components/layout/section-nav";
+import { Pagination } from "@/components/ui/pagination";
 import s from "./page.module.css";
+import dt from "@/components/ui/data-table.module.css";
+
+const TABLE_PAGE_SIZE = 20;
+
+const sectionNavItems = [
+  { href: "/programs", label: "지원사업" },
+  { href: "/education", label: "교육" },
+  { href: "/events", label: "체험·행사" },
+];
 
 export const metadata: Metadata = {
   title: "귀농 교육",
@@ -49,6 +62,8 @@ interface PageProps {
     q?: string;
     period?: string;
     includeClosed?: string;
+    view?: string;
+    page?: string;
   }>;
 }
 
@@ -70,6 +85,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
   const includeClosed = params.includeClosed === "1";
+  const viewMode: ViewMode = params.view === "table" ? "table" : "card";
   const period = params.period || getCurrentPeriod();
 
   const filters: EducationFilters = {
@@ -83,6 +99,14 @@ export default async function EducationPage({ searchParams }: PageProps) {
 
   const { courses } = await filterEducationAsync(filters);
 
+  // 테이블 페이지네이션
+  const tablePage = Math.max(1, Number(params.page) || 1);
+  const tableTotalPages = Math.ceil(courses.length / TABLE_PAGE_SIZE);
+  const tableRows = courses.slice(
+    (tablePage - 1) * TABLE_PAGE_SIZE,
+    tablePage * TABLE_PAGE_SIZE,
+  );
+
   // 기준일 표시 텍스트
   const [pYear, pMonth] = period.split("-");
   const periodLabel = `${pYear}년 ${parseInt(pMonth)}월`;
@@ -95,10 +119,17 @@ export default async function EducationPage({ searchParams }: PageProps) {
     q: params.q,
     period: params.period,
     includeClosed: params.includeClosed,
+    view: params.view,
+    page: params.page,
   };
 
   return (
     <div className={s.page}>
+      {/* 섹션 내비게이션 (지원사업 / 교육 / 체험·행사) */}
+      <Suspense>
+        <SectionNav items={sectionNavItems} />
+      </Suspense>
+
       {/* 로드맵 단계 컨텍스트 */}
       <Suspense>
         <RoadmapBanner />
@@ -110,7 +141,6 @@ export default async function EducationPage({ searchParams }: PageProps) {
         label="Education"
         title="귀농 교육"
         description="귀농에 필요한 교육 과정을 지역, 유형, 난이도별로 찾아보세요."
-        count={courses.length}
         periodLabel={periodLabel}
       />
 
@@ -165,12 +195,60 @@ export default async function EducationPage({ searchParams }: PageProps) {
         itemLabel="교육과정"
       />
 
-      {/* Course Grid or Empty */}
+      {/* 보기 모드 토글 */}
+      <div className={s.toolbar}>
+        <p className={s.resultText}>
+          검색 결과 <span className={s.resultTotal}>{courses.length}</span>건
+        </p>
+        <Suspense>
+          <ViewToggle current={viewMode} />
+        </Suspense>
+      </div>
+
+      {/* Course Grid / Table / Empty */}
       {courses.length === 0 ? (
         <EmptyState
           icon={<GraduationCap size={32} />}
           message={<>조건에 맞는 교육 과정이 없습니다.<br />검색 조건을 변경하거나 필터를 초기화해 보세요.</>}
         />
+      ) : viewMode === "table" ? (
+        <>
+          <div className={dt.wrap}>
+            <table className={dt.table}>
+              <thead>
+                <tr>
+                  <th>상태</th>
+                  <th>교육명</th>
+                  <th>지역</th>
+                  <th>유형</th>
+                  <th>난이도</th>
+                  <th>비용</th>
+                  <th className={dt.hideOnMobile}>기관</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tableRows.map((c) => (
+                  <tr key={c.id} className={dt.clickableRow}>
+                    <td><StatusBadge status={c.status} /></td>
+                    <td className={dt.titleCell}>
+                      <Link href={c.url} target="_blank" rel="noopener noreferrer" className={`${dt.titleLink} ${dt.rowLink}`}>
+                        {c.title}
+                      </Link>
+                    </td>
+                    <td className={dt.muted}>{c.region}</td>
+                    <td className={dt.muted}>{c.type}</td>
+                    <td className={dt.muted}>{c.level}</td>
+                    <td className={dt.amount}>{c.cost}</td>
+                    <td className={`${dt.muted} ${dt.hideOnMobile}`}>{c.organization}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Suspense>
+            <Pagination currentPage={tablePage} totalPages={tableTotalPages} />
+          </Suspense>
+        </>
       ) : (
         <CardGrid>
           {courses.map((course) => (

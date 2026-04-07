@@ -20,7 +20,15 @@ interface TrendItem {
 const AUTH_URL =
   "https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json";
 const STATS_URL =
-  "https://sgisapi.mods.go.kr/OpenAPI3/stats/searchStats.json";
+  "https://sgisapi.mods.go.kr/OpenAPI3/stats/population.json";
+
+/**
+ * 통계 데이터 최신 가용 연도.
+ * SGIS 통계는 보통 1~2년 지연 — 현재 연도 - 2를 안전한 최신으로 사용.
+ */
+function getLatestAvailableYear(): number {
+  return new Date().getFullYear() - 2; // 2026 → 2024
+}
 
 async function getAccessToken(): Promise<string | null> {
   const consumerKey = process.env.SGIS_KEY;
@@ -50,29 +58,36 @@ async function fetchYearData(
 ): Promise<TrendItem | null> {
   const url = new URL(STATS_URL);
   url.searchParams.set("accessToken", accessToken);
-  url.searchParams.set("admCd", regionCode);
+  url.searchParams.set("adm_cd", regionCode);
   url.searchParams.set("year", String(year));
-  url.searchParams.set("low_search", "0");
 
   try {
     const res = await fetch(url.toString());
     if (!res.ok) return null;
 
     const json = await res.json();
-    if (json.errCd !== 0 && json.errCd !== "0") return null;
+    // SGIS 에러 응답
+    if (json.errCd && json.errCd !== 0 && json.errCd !== "0") return null;
 
     const item = Array.isArray(json.result) ? json.result[0] : json.result;
     if (!item) return null;
 
-    const population = parseInt(item.population, 10) || 0;
-    const household = parseInt(item.household, 10) || 0;
-    const pop65Over = parseInt(item.population_65_over || "0", 10);
+    const population = parseInt(item.tot_ppltn, 10) || 0;
+    const householdCount = parseInt(item.tot_family, 10) || 0;
+
+    // 고령화율(65+/전체) 계산:
+    // SGIS는 직접 제공하지 않으므로 노인부양비 + 유소년부양비로 역산
+    // oldage_suprt_per = (65+) / (15~64) × 100
+    // juv_suprt_per = (0~14) / (15~64) × 100
+    // → agingRate = oldage / (100 + oldage + juv) × 100
+    const oldageDep = parseFloat(item.oldage_suprt_per) || 0;
+    const juvDep = parseFloat(item.juv_suprt_per) || 0;
     const agingRate =
-      population > 0
-        ? Math.round((pop65Over / population) * 1000) / 10
+      oldageDep + juvDep > 0
+        ? Math.round((oldageDep / (100 + oldageDep + juvDep)) * 1000) / 10
         : 0;
 
-    return { year, population, householdCount: household, agingRate };
+    return { year, population, householdCount, agingRate };
   } catch {
     return null;
   }
@@ -101,14 +116,14 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const currentYear = new Date().getFullYear();
-  const startYear = currentYear - yearsParam + 1;
+  const latestYear = getLatestAvailableYear();
+  const startYear = latestYear - yearsParam + 1;
   const years = Array.from(
     { length: yearsParam },
     (_, i) => startYear + i
   );
 
-  // 병렬 호출 (rate limit 고려하여 최대 10개)
+  // 병렬 호출
   const results = await Promise.allSettled(
     years.map((year) => fetchYearData(accessToken, sgisCode, year))
   );

@@ -6,7 +6,6 @@ import {
   Users,
   BarChart3,
   Info,
-  Route,
   type LucideIcon,
 } from "lucide-react";
 import s from "./page.module.css";
@@ -19,12 +18,6 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  {
-    href: "/guide",
-    label: "귀농 가이드",
-    icon: Route,
-    desc: "5단계 프로세스 & 체크리스트",
-  },
   {
     href: "/crops",
     label: "작물정보",

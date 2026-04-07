@@ -43,7 +43,123 @@
   line-height: var(--lh-normal);
 }
 
-/* ---- 배지 그룹 ---- */
+/* ---- 검색 ---- */
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--muted-foreground, #9ca3af);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 36px 10px 36px;
+  font-size: var(--fs-body-sm);
+  font-family: inherit;
+  color: var(--foreground, #111);
+  background: var(--muted, #f4f4f5);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.searchInput::placeholder {
+  color: var(--muted-foreground, #9ca3af);
+}
+
+.searchInput:focus {
+  border-color: var(--primary, #1b6b5a);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
+}
+
+.searchClear {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  color: var(--muted-foreground, #9ca3af);
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s;
+}
+
+@media (hover: hover) {
+  .searchClear:hover {
+    color: var(--foreground, #111);
+    background: var(--border, #e5e7eb);
+  }
+}
+
+/* ---- 필터 칩 그룹 ---- */
+.filterGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filterChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  font-family: inherit;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--muted, #f4f4f5);
+  color: var(--muted-foreground, #6b7280);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+@media (hover: hover) {
+  .filterChip:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.filterChipActive {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  color: var(--primary, #1b6b5a);
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+}
+
+.filterChipCount {
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+}
+
+.filterChipActive .filterChipCount {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+}
+
+/* ---- 필터 결과 안내 ---- */
+.filterResult {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+}
+
+/* ---- 배지 그룹 (레거시, 유형 요약용) ---- */
 .badgeGroup {
   display: flex;
   flex-wrap: wrap;
@@ -78,8 +194,35 @@
   border-bottom: 1px solid var(--border, #e5e7eb);
 }
 
-.listItem:last-child {
+.listItem:last-child,
+.listItemLink:last-child {
   border-bottom: none;
+}
+
+/* ── 클릭 가능한 리스트 아이템 (네이버 지도 연결) ── */
+.listItemLink {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.12s;
+}
+
+@media (hover: hover) {
+  .listItemLink:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+  }
+
+  .listItemLink:hover .listItemName {
+    color: var(--primary, #1b6b5a);
+  }
+
+  .listItemLink:hover .listItemMapHint {
+    opacity: 1;
+  }
 }
 
 .listItemMain {
@@ -96,6 +239,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color 0.12s;
 }
 
 .listItemMeta {
@@ -105,12 +249,31 @@
   flex-shrink: 0;
 }
 
+.listItemBottom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .listItemSub {
+  flex: 1;
   font-size: var(--fs-overline);
   color: var(--muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.listItemMapHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition: opacity 0.12s;
 }
 
 /* ---- 차트 섹션 ---- */

@@ -10,6 +10,16 @@
   gap: 20px;
   min-height: 60vh;
   padding: 32px;
+  animation: loadingEnter 400ms ease-out both;
+}
+
+@keyframes loadingEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* 로고 심볼 — 부드러운 펄스 */

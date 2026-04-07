@@ -61,8 +61,8 @@ const steps = [
   {
     icon: MousePointerClick,
     step: "02",
-    title: "맞춤 추천",
-    description: "간단한 질문으로 나에게 맞는 지역과 작물을 추천받습니다.",
+    title: "귀농 가이드",
+    description: "적합성 진단과 맞춤 질문으로 나에게 맞는 지역과 작물을 추천받습니다.",
   },
   {
     icon: Target,
@@ -227,7 +227,7 @@ export default function AboutPage() {
             추천해 드립니다.
           </p>
           <Link href="/match" className={s.matchCtaButton}>
-            맞춤 추천 받기
+            귀농 가이드 시작하기
             <ArrowRight size={16} />
           </Link>
         </div>

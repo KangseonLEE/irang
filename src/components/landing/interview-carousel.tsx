@@ -14,21 +14,27 @@ interface InterviewCarouselProps {
 export function InterviewCarousel({ items }: InterviewCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [showArrows, setShowArrows] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(1);
 
   /** 현재 보이는 카드 인덱스 계산 */
   const updateIndex = useCallback(() => {
     const el = scrollRef.current;
     if (!el || !el.children.length) return;
     const card = el.children[0] as HTMLElement;
-    const cardWidth = card.offsetWidth + 16; // gap 포함
+    const gap = 16;
+    const cardWidth = card.offsetWidth + gap;
     const idx = Math.round(el.scrollLeft / cardWidth);
     setActiveIndex(Math.min(idx, items.length - 1));
   }, [items.length]);
 
-  /** 모바일 여부 판단 (768px 미만에서만 캐러셀 UI) */
+  /** 반응형 visible count 계산 */
   useEffect(() => {
-    const check = () => setShowArrows(window.innerWidth < 768);
+    const check = () => {
+      const w = window.innerWidth;
+      if (w >= 1024) setVisibleCount(3);
+      else if (w >= 768) setVisibleCount(2);
+      else setVisibleCount(1);
+    };
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -47,13 +53,18 @@ export function InterviewCarousel({ items }: InterviewCarouselProps) {
     const el = scrollRef.current;
     if (!el || !el.children.length) return;
     const card = el.children[0] as HTMLElement;
-    const cardWidth = card.offsetWidth + 16;
+    const gap = 16;
+    const cardWidth = card.offsetWidth + gap;
     const target =
       direction === "next"
         ? el.scrollLeft + cardWidth
         : el.scrollLeft - cardWidth;
     el.scrollTo({ left: target, behavior: "smooth" });
   };
+
+  const maxIndex = Math.max(0, items.length - visibleCount);
+  const canPrev = activeIndex > 0;
+  const canNext = activeIndex < maxIndex;
 
   return (
     <div className={s.wrapper}>
@@ -97,37 +108,35 @@ export function InterviewCarousel({ items }: InterviewCarouselProps) {
         ))}
       </div>
 
-      {/* 모바일 전용: 화살표 + 인디케이터 */}
-      {showArrows && (
-        <div className={s.controls}>
-          <button
-            className={s.arrow}
-            onClick={() => scrollTo("prev")}
-            disabled={activeIndex === 0}
-            aria-label="이전 인터뷰"
-          >
-            <ChevronLeft size={18} />
-          </button>
+      {/* 캐러셀 컨트롤: 모바일 + 데스크탑 */}
+      <div className={s.controls}>
+        <button
+          className={s.arrow}
+          onClick={() => scrollTo("prev")}
+          disabled={!canPrev}
+          aria-label="이전 인터뷰"
+        >
+          <ChevronLeft size={18} />
+        </button>
 
-          <div className={s.dots}>
-            {items.map((_, i) => (
-              <span
-                key={i}
-                className={`${s.dot} ${i === activeIndex ? s.dotActive : ""}`}
-              />
-            ))}
-          </div>
-
-          <button
-            className={s.arrow}
-            onClick={() => scrollTo("next")}
-            disabled={activeIndex === items.length - 1}
-            aria-label="다음 인터뷰"
-          >
-            <ChevronRight size={18} />
-          </button>
+        <div className={s.dots}>
+          {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+            <span
+              key={i}
+              className={`${s.dot} ${i === activeIndex ? s.dotActive : ""}`}
+            />
+          ))}
         </div>
-      )}
+
+        <button
+          className={s.arrow}
+          onClick={() => scrollTo("next")}
+          disabled={!canNext}
+          aria-label="다음 인터뷰"
+        >
+          <ChevronRight size={18} />
+        </button>
+      </div>
     </div>
   );
 }

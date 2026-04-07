@@ -1,10 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, BarChart3, Users, TrendingUp } from "lucide-react";
-import { populationData, populationSummary, populationCauses } from "@/lib/data/stats";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Users,
+  TrendingUp,
+  BarChart3,
+  MessageCircle,
+  Calendar,
+  ArrowUpRight,
+} from "lucide-react";
+import {
+  populationData,
+  populationSummary,
+  populationCauses,
+} from "@/lib/data/stats";
 import PopulationTrendChart from "@/components/charts/population-trend-chart";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
-import s from "../stats.module.css";
+import s from "./page.module.css";
+import shared from "../stats.module.css";
 
 export const metadata: Metadata = {
   title: "귀농·귀촌 인구 추이",
@@ -13,84 +27,106 @@ export const metadata: Metadata = {
 };
 
 export default function PopulationPage() {
+  const latest = populationData[populationData.length - 1];
+  const prev = populationData[populationData.length - 2];
+  const totalLatest = latest.farming + latest.rural;
+  const totalPrev = prev.farming + prev.rural;
+  const growthPct = (((totalLatest - totalPrev) / totalPrev) * 100).toFixed(1);
+
   return (
     <div className={s.page}>
       {/* 뒤로가기 */}
-      <Link href="/" className={s.backLink}>
+      <Link href="/" className={shared.backLink}>
         <ArrowLeft size={16} aria-hidden="true" />
         메인으로
       </Link>
 
-      {/* 페이지 헤더 */}
-      <header className={s.pageHeader}>
-        <span className={s.headerOverline}>
-          <Users size={16} aria-hidden="true" />
-          Population Trend
-        </span>
-        <h1 className={s.headerTitle}>{populationSummary.title}</h1>
-        <p className={s.headerDesc}>
-          2015~2024년 10년간 귀농·귀촌 인구 변화를 데이터로 확인하세요.
-        </p>
+      {/* ── 헤더 + KPI 한 블록 ── */}
+      <header className={s.dashHeader}>
+        <div className={s.dashHeaderText}>
+          <span className={s.overline}>
+            <Users size={14} aria-hidden="true" />
+            Population Trend
+          </span>
+          <h1 className={s.title}>{populationSummary.title}</h1>
+          <p className={s.desc}>
+            2015~2024년 10년간 귀농·귀촌 인구 변화를 데이터로 확인하세요.
+          </p>
+        </div>
+        <div className={s.kpiRow}>
+          <div className={s.kpiItem}>
+            <span className={s.kpiValue}>{latest.farming}만</span>
+            <span className={s.kpiLabel}>2024 귀농 인구</span>
+          </div>
+          <div className={s.kpiDivider} />
+          <div className={s.kpiItem}>
+            <span className={s.kpiValue}>{latest.rural}만</span>
+            <span className={s.kpiLabel}>2024 귀촌 인구</span>
+          </div>
+          <div className={s.kpiDivider} />
+          <div className={s.kpiItem}>
+            <span className={s.kpiValue}>
+              <ArrowUpRight size={18} className={s.kpiIcon} />
+              +{growthPct}%
+            </span>
+            <span className={s.kpiLabel}>전년 대비 증가</span>
+          </div>
+          <div className={s.kpiDivider} />
+          <div className={s.kpiItem}>
+            <span className={s.kpiValue}>
+              <Calendar size={18} className={s.kpiIcon} />
+              10년
+            </span>
+            <span className={s.kpiLabel}>데이터 기간</span>
+          </div>
+        </div>
       </header>
 
-      {/* 핵심 수치 */}
-      <div className={s.card}>
-        <div className={s.twoCol}>
-          <div>
-            <p className={s.bigNumber}>1.2만</p>
-            <p className={s.bigNumberSub}>2024년 귀농 인구</p>
+      {/* ── 메인 대시보드 그리드 ── */}
+      <div className={s.dashGrid}>
+        {/* 좌: 복합 차트 */}
+        <section className={s.card} aria-labelledby="chart-title">
+          <h2 className={s.cardTitle} id="chart-title">
+            <TrendingUp size={18} className={s.cardIcon} />
+            귀농·귀촌 인구 추이
+          </h2>
+          <PopulationTrendChart data={populationData} />
+          <p className={s.chartSource}>출처: {populationSummary.source}</p>
+        </section>
+
+        {/* 우: 테이블 */}
+        <section className={s.card} aria-labelledby="table-title">
+          <h2 className={s.cardTitle} id="table-title">
+            <BarChart3 size={18} className={s.cardIcon} />
+            연도별 상세 데이터
+          </h2>
+          <div className={shared.tableWrap}>
+            <table className={shared.table}>
+              <thead>
+                <tr>
+                  <th scope="col">연도</th>
+                  <th scope="col">귀농</th>
+                  <th scope="col">귀촌</th>
+                  <th scope="col">합계</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...populationData].reverse().map((d) => (
+                  <tr key={d.year}>
+                    <td>{d.year}</td>
+                    <td>{d.farming}만</td>
+                    <td>{d.rural}만</td>
+                    <td>{(d.farming + d.rural).toFixed(1)}만</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div>
-            <p className={s.bigNumber}>42.2만</p>
-            <p className={s.bigNumberSub}>2024년 귀촌 인구 (전년 대비 +5.7%)</p>
-          </div>
-        </div>
+          <p className={s.chartSource}>출처: {populationSummary.source}</p>
+        </section>
       </div>
 
-      {/* 복합 차트 — 귀농(라인) + 귀촌(영역) */}
-      <section className={s.card} aria-labelledby="chart-combined-title">
-        <h2 className={s.cardTitle} id="chart-combined-title">
-          <span className={s.cardTitleIcon} aria-hidden="true">
-            <TrendingUp size={20} />
-          </span>
-          귀농·귀촌 인구 추이 (2015~2024)
-        </h2>
-        <PopulationTrendChart data={populationData} />
-      </section>
-
-      {/* 테이블 */}
-      <section className={s.card} aria-labelledby="table-title">
-        <h2 className={s.cardTitle} id="table-title">
-          <span className={s.cardTitleIcon} aria-hidden="true">
-            <BarChart3 size={20} />
-          </span>
-          연도별 상세 데이터
-        </h2>
-        <div className={s.tableWrap}>
-          <table className={s.table}>
-            <thead>
-              <tr>
-                <th scope="col">연도</th>
-                <th scope="col">귀농 (만 명)</th>
-                <th scope="col">귀촌 (만 명)</th>
-                <th scope="col">합계 (만 명)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {populationData.map((d) => (
-                <tr key={d.year}>
-                  <td>{d.year}</td>
-                  <td>{d.farming}</td>
-                  <td>{d.rural}</td>
-                  <td>{(d.farming + d.rural).toFixed(1)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* 원인 분석 */}
+      {/* ── 원인 분석 ── */}
       <section className={s.card}>
         <CauseAnalysisSection
           title="왜 이런 결과가 나왔을까?"
@@ -98,34 +134,22 @@ export default function PopulationPage() {
         />
       </section>
 
-      {/* 분석 요약 */}
-      <blockquote className={s.summary}>
-        {populationSummary.description}
-      </blockquote>
+      {/* ── 요약 + 인터뷰 CTA ── */}
+      <div className={s.bottomRow}>
+        <blockquote className={s.summary}>
+          {populationSummary.description}
+        </blockquote>
+        <Link href="/interviews" className={s.interviewCta}>
+          <MessageCircle size={16} aria-hidden="true" />
+          <span>귀농인들의 생생한 이야기</span>
+          <ArrowRight size={14} />
+        </Link>
+      </div>
 
-      {/* 출처 */}
-      <p className={s.source}>
-        <span className={s.sourceLabel}>출처:</span>
-        {populationSummary.source}
-      </p>
-
-      {/* 다른 통계 보기 */}
-      <nav className={s.navFooter} aria-label="다른 통계 페이지">
-        <p className={s.navFooterTitle}>다른 통계 보기</p>
-        <div className={s.navFooterLinks}>
-          <span className={s.navFooterLinkActive} aria-current="page">
-            귀농·귀촌 인구
-          </span>
-          <Link href="/stats/youth" className={s.navFooterLink}>
-            청년 귀농 트렌드
-            <ArrowRight size={14} aria-hidden="true" />
-          </Link>
-          <Link href="/stats/satisfaction" className={s.navFooterLink}>
-            귀농 만족도
-            <ArrowRight size={14} aria-hidden="true" />
-          </Link>
-        </div>
-      </nav>
+      {/* ── 출처 ── */}
+      <footer className={s.footer}>
+        <p className={s.source}>출처: {populationSummary.source}</p>
+      </footer>
     </div>
   );
 }

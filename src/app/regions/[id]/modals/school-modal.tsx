@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { Search, MapPin } from "lucide-react";
 import s from "./modals.module.css";
 
 interface SchoolItem {
@@ -17,6 +18,20 @@ interface SchoolModalProps {
   sigunguName?: string;
 }
 
+/** 네이버 지도 검색 URL (학교명만 검색) */
+function naverMapUrl(name: string) {
+  return `https://map.naver.com/v5/search/${encodeURIComponent(name)}`;
+}
+
+/** 학교 유형 필터 옵션 */
+const SCHOOL_FILTERS = [
+  { label: "전체", value: "" },
+  { label: "초등학교", value: "초등학교" },
+  { label: "중학교", value: "중학교" },
+  { label: "고등학교", value: "고등학교" },
+  { label: "특수학교", value: "특수학교" },
+] as const;
+
 export function SchoolModal({
   provinceShortName,
   totalCount,
@@ -28,6 +43,10 @@ export function SchoolModal({
   const [error, setError] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+
+  // ── 검색 & 필터 상태 ──
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("");
 
   const isInitialLoad = loading && page === 1;
   const isLoadingMore = loading && page > 1;
@@ -63,12 +82,37 @@ export function SchoolModal({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eduCode, sigunguName, page]);
 
-  // 유형별 그룹핑
-  const typeCount = items.reduce<Record<string, number>>((acc, item) => {
-    const type = item.type || "기타";
-    acc[type] = (acc[type] || 0) + 1;
-    return acc;
-  }, {});
+  // ── 유형별 카운트 ──
+  const typeCount = useMemo(
+    () =>
+      items.reduce<Record<string, number>>((acc, item) => {
+        const type = item.type || "기타";
+        acc[type] = (acc[type] || 0) + 1;
+        return acc;
+      }, {}),
+    [items]
+  );
+
+  // ── 검색 + 필터 적용 ──
+  const filteredItems = useMemo(() => {
+    let result = items;
+    if (activeFilter) {
+      result = result.filter((item) => item.type.includes(activeFilter));
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter(
+        (item) =>
+          item.name.toLowerCase().includes(q) ||
+          item.address.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [items, activeFilter, searchQuery]);
+
+  const handleFilterClick = useCallback((value: string) => {
+    setActiveFilter((prev) => (prev === value ? "" : value));
+  }, []);
 
   return (
     <div className={s.modalContent}>
@@ -76,6 +120,30 @@ export function SchoolModal({
         {provinceShortName} 지역에 등록된 학교 총{" "}
         <strong>{totalCount.toLocaleString()}개</strong>
       </p>
+
+      {/* ── 검색 ── */}
+      {!isInitialLoad && items.length > 0 && (
+        <div className={s.searchWrapper}>
+          <Search size={16} className={s.searchIcon} />
+          <input
+            type="text"
+            className={s.searchInput}
+            placeholder="학교명 또는 주소 검색"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              className={s.searchClear}
+              onClick={() => setSearchQuery("")}
+              aria-label="검색어 지우기"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      )}
 
       {/* 초기 로딩 — 안내 배너 + 스켈레톤 */}
       {isInitialLoad && (
@@ -102,24 +170,50 @@ export function SchoolModal({
         </>
       )}
 
-      {/* 유형별 요약 */}
+      {/* ── 유형별 필터 (토글) ── */}
       {!isInitialLoad && Object.keys(typeCount).length > 0 && (
-        <div className={s.badgeGroup}>
-          {Object.entries(typeCount)
-            .sort((a, b) => b[1] - a[1])
-            .map(([type, count]) => (
-              <span key={type} className={s.badge}>
-                {type} {count}
-              </span>
-            ))}
+        <div className={s.filterGroup}>
+          {SCHOOL_FILTERS.map(({ label, value }) => {
+            const matchCount = value
+              ? typeCount[value] ?? 0
+              : items.length;
+            if (value && matchCount === 0) return null;
+            const isActive = activeFilter === value;
+            return (
+              <button
+                key={label}
+                type="button"
+                className={`${s.filterChip} ${isActive ? s.filterChipActive : ""}`}
+                onClick={() => handleFilterClick(value)}
+              >
+                {label}
+                {value && <span className={s.filterChipCount}>{matchCount}</span>}
+              </button>
+            );
+          })}
         </div>
       )}
 
-      {/* 리스트 */}
-      {!isInitialLoad && items.length > 0 && (
+      {/* ── 필터/검색 결과 카운트 ── */}
+      {!isInitialLoad && (activeFilter || searchQuery) && (
+        <p className={s.filterResult}>
+          {filteredItems.length === 0
+            ? "조건에 맞는 결과가 없습니다"
+            : `${filteredItems.length.toLocaleString()}건 표시 중`}
+        </p>
+      )}
+
+      {/* ── 리스트 (네이버 지도 연결) ── */}
+      {!isInitialLoad && filteredItems.length > 0 && (
         <div className={s.list}>
-          {items.map((item, i) => (
-            <div key={`${item.name}-${i}`} className={s.listItem}>
+          {filteredItems.map((item, i) => (
+            <a
+              key={`${item.name}-${i}`}
+              href={naverMapUrl(item.name)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={s.listItemLink}
+            >
               <div className={s.listItemMain}>
                 <span className={s.listItemName}>{item.name}</span>
                 <span className={s.listItemMeta}>
@@ -127,8 +221,14 @@ export function SchoolModal({
                   {item.foundType ? ` · ${item.foundType}` : ""}
                 </span>
               </div>
-              <span className={s.listItemSub}>{item.address}</span>
-            </div>
+              <div className={s.listItemBottom}>
+                <span className={s.listItemSub}>{item.address}</span>
+                <span className={s.listItemMapHint}>
+                  <MapPin size={12} />
+                  지도
+                </span>
+              </div>
+            </a>
           ))}
         </div>
       )}
@@ -155,7 +255,9 @@ export function SchoolModal({
         </button>
       )}
 
-      <p className={s.source}>출처: 교육부 NEIS</p>
+      <p className={s.source}>
+        출처: 교육부 NEIS · 항목을 누르면 네이버 지도에서 확인할 수 있습니다
+      </p>
     </div>
   );
 }

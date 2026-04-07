@@ -349,10 +349,27 @@ export function getCurrentPeriod(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
+/** 연령대 필터 옵션 (19세~79세, 10살 간격) */
+export const AGE_RANGES = [
+  "19~29세",
+  "30~39세",
+  "40~49세",
+  "50~59세",
+  "60~69세",
+  "70~79세",
+] as const;
+
+/** "19~29세" → { min: 19, max: 29 } */
+function parseAgeRange(range: string): { min: number; max: number } | null {
+  const match = range.match(/(\d+)~(\d+)/);
+  if (!match) return null;
+  return { min: Number(match[1]), max: Number(match[2]) };
+}
+
 /** 필터 조건에 맞는 프로그램 목록 반환 */
 export interface ProgramFilters {
   region?: string;
-  age?: number;
+  age?: string;
   supportType?: string;
   status?: string;
   query?: string;
@@ -422,10 +439,8 @@ export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
     }
 
     if (filters.age) {
-      if (
-        filters.age < program.eligibilityAgeMin ||
-        filters.age > program.eligibilityAgeMax
-      ) {
+      const range = parseAgeRange(filters.age);
+      if (range && (range.min > program.eligibilityAgeMax || range.max < program.eligibilityAgeMin)) {
         return false;
       }
     }
@@ -604,7 +619,8 @@ export async function filterProgramsAsync(
       if (program.region !== "전국" && program.region !== filters.region) return false;
     }
     if (filters.age) {
-      if (filters.age < program.eligibilityAgeMin || filters.age > program.eligibilityAgeMax) return false;
+      const range = parseAgeRange(filters.age);
+      if (range && (range.min > program.eligibilityAgeMax || range.max < program.eligibilityAgeMin)) return false;
     }
     if (filters.supportType && filters.supportType !== "전체") {
       if (program.supportType !== filters.supportType) return false;

@@ -18,12 +18,6 @@ export function RegionSelector({ stations, selectedIds }: RegionSelectorProps) {
   const [swapMessage, setSwapMessage] = useState("");
   const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showSwapFeedback = useCallback((replacedName: string, newName: string) => {
-    if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
-    setSwapMessage(`최대 ${MAX_SELECTION}개까지 선택 가능합니다. "${replacedName}" 대신 "${newName}"(으)로 교체되었습니다.`);
-    messageTimerRef.current = setTimeout(() => setSwapMessage(""), 3000);
-  }, []);
-
   const toggleStation = useCallback(
     (stnId: string) => {
       let newIds: string[];
@@ -33,25 +27,21 @@ export function RegionSelector({ stations, selectedIds }: RegionSelectorProps) {
         if (selectedIds.length <= 1) return;
         newIds = selectedIds.filter((id) => id !== stnId);
       } else {
-        // 최대 4개까지 선택 — 초과 시 가장 오래된 선택을 교체하고 피드백 제공
+        // 최대 3개까지 선택 — 초과 시 안내 메시지
         if (selectedIds.length >= MAX_SELECTION) {
-          const replacedId = selectedIds[0];
-          const replacedStation = stations.find((st) => st.stnId === replacedId);
-          const newStation = stations.find((st) => st.stnId === stnId);
-          newIds = [...selectedIds.slice(1), stnId];
-          if (replacedStation && newStation) {
-            showSwapFeedback(replacedStation.name, newStation.name);
-          }
-        } else {
-          newIds = [...selectedIds, stnId];
+          if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
+          setSwapMessage(`최대 ${MAX_SELECTION}개까지만 비교할 수 있습니다. 기존 선택을 해제한 후 다시 시도해주세요.`);
+          messageTimerRef.current = setTimeout(() => setSwapMessage(""), 3000);
+          return;
         }
+        newIds = [...selectedIds, stnId];
       }
 
       const params = new URLSearchParams(searchParams.toString());
       params.set("stations", newIds.join(","));
-      router.push(`/regions?${params.toString()}`);
+      router.push(`/regions/compare?${params.toString()}`);
     },
-    [selectedIds, searchParams, router, stations, showSwapFeedback],
+    [selectedIds, searchParams, router],
   );
 
   // 도별 그룹핑

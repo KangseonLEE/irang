@@ -2,7 +2,8 @@ import Link from "next/link";
 import { MessageSquare } from "lucide-react";
 import s from "./footer.module.css";
 
-const FEEDBACK_URL = process.env.NEXT_PUBLIC_FEEDBACK_URL ?? "";
+const FEEDBACK_URL =
+  process.env.NEXT_PUBLIC_FEEDBACK_URL || "https://tally.so/r/7Rv4aR";
 
 const serviceLinks = [
   { href: "/regions", label: "지역 탐색" },
@@ -12,7 +13,7 @@ const serviceLinks = [
   { href: "/crops", label: "작물 정보" },
   { href: "/interviews", label: "귀농인 이야기" },
   { href: "/about", label: "서비스 소개" },
-  { href: "/match", label: "맞춤 추천" },
+  { href: "/match", label: "귀농 가이드" },
 ];
 
 const dataSources = [
@@ -28,15 +29,27 @@ export function Footer() {
   return (
     <footer className={s.footer}>
       <div className={s.inner}>
+        {/* Feedback CTA — 푸터 최상단 */}
+        <div className={s.feedbackBar}>
+          <p className={s.feedbackText}>
+            이랑을 더 좋게 만들 수 있도록 의견을 들려주세요.
+          </p>
+          <a
+            href={FEEDBACK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={s.feedbackButton}
+          >
+            <MessageSquare size={16} aria-hidden="true" />
+            설문 참여하기
+          </a>
+        </div>
+
         <div className={s.grid}>
           {/* Brand */}
           <div>
             <h3 className={s.brandTitle}>이랑</h3>
-            <p className={s.brandDesc}>
-              귀농을 꿈꾸는
-              <br />
-              모든 이의 시작점
-            </p>
+            <p className={s.brandSlogan}>귀농을 꿈꾸는 모든 이들의 시작점</p>
             <p className={s.brandEmail}>
               contact@irang.app
             </p>
@@ -59,8 +72,8 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Data Sources */}
-          <div>
+          {/* Data Sources — 데스크탑에서만 표시 */}
+          <div className={s.dataSourceGroup}>
             <h4 className={s.sectionTitle}>데이터 출처</h4>
             <ul className={s.linkList}>
               {dataSources.map((source) => (
@@ -71,24 +84,6 @@ export function Footer() {
             </ul>
           </div>
         </div>
-
-        {/* Feedback CTA */}
-        {FEEDBACK_URL && (
-          <div className={s.feedbackBar}>
-            <p className={s.feedbackText}>
-              이랑을 더 좋게 만들 수 있도록 의견을 들려주세요.
-            </p>
-            <a
-              href={FEEDBACK_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={s.feedbackButton}
-            >
-              <MessageSquare size={16} aria-hidden="true" />
-              피드백 보내기
-            </a>
-          </div>
-        )}
 
         {/* Divider + Disclaimer */}
         <div className={s.disclaimer}>

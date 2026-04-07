@@ -1,51 +1,33 @@
 /* ══════════════════════════════════════════
-   IrangSymbol — 밭고랑 무한 루프 애니메이션
-   그려짐 → 물결 → 지워짐 → 반복 (GIF 스타일)
+   IrangSymbol — 밭고랑 애니메이션
+   그려짐 → 물결 → 정지 (최초 로딩 시 1회만)
    ══════════════════════════════════════════ */
 
 .symbol {
   display: inline-block;
 }
 
-/* ── 스트로크 루프 + 물결 ── */
+/* ── 스트로크: 1회 재생 후 유지 ── */
 .line {
   stroke-dasharray: 40;
-  animation:
-    drawLoop 8s ease-in-out infinite,
-    wave 4s ease-in-out infinite;
+  stroke-dashoffset: 40;
+  animation: drawOnce 1.2s ease-out forwards;
 }
 
-/*
- * drawLoop 타이밍 (5s 기준):
- *  0%~12%  (0~0.6s)   → 그려짐
- * 12%~55%  (0.6~2.75s) → 유지 (물결)
- * 55%~67%  (2.75~3.35s)→ 지워짐
- * 67%~100% (3.35~5s)   → 숨김 (대기)
- */
-.line1 { animation-delay: 0s, 0s; }
-.line2 { animation-delay: 0.15s, 0.15s; }
-.line3 { animation-delay: 0.3s, 0.3s; }
+.line1 { animation-delay: 0s; }
+.line2 { animation-delay: 0.15s; }
+.line3 { animation-delay: 0.3s; }
 
-@keyframes drawLoop {
+@keyframes drawOnce {
   0%   { stroke-dashoffset: 40; }
-  12%  { stroke-dashoffset: 0; }
-  55%  { stroke-dashoffset: 0; }
-  67%  { stroke-dashoffset: -40; }
-  100% { stroke-dashoffset: -40; }
+  100% { stroke-dashoffset: 0; }
 }
 
-/* ── 물결 흔들림 (지속) ── */
-@keyframes wave {
-  0%, 100% { transform: translateY(0); }
-  25%      { transform: translateY(-0.6px); }
-  75%      { transform: translateY(0.6px); }
-}
-
-/* ── 호버: 물결 더 뚜렷 ── */
+/* ── 호버: 물결 효과 ── */
 @media (hover: hover) {
   .symbol:hover .line {
     animation:
-      drawLoop 8s ease-in-out infinite,
+      drawOnce 1.2s ease-out forwards,
       waveHover 1.8s ease-in-out infinite;
   }
 }

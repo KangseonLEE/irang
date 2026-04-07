@@ -77,22 +77,24 @@ export default async function ProgramDetailPage({
             {program.supportType}
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "4px" }}>
-          <h1 className={s.pageTitle} style={{ flex: 1 }}>{program.title}</h1>
-          <ShareButton
-            title={`${program.title} | 이랑`}
-            text={`${program.title}: ${program.summary.slice(0, 80)}`}
-            contentType="program"
-            variant="ghost"
-            size="sm"
-            showLabel={false}
-          />
-          <BookmarkButton
-            id={program.id}
-            type="program"
-            title={program.title}
-            subtitle={program.region}
-          />
+        <div className={s.titleRow}>
+          <h1 className={s.pageTitle}>{program.title}</h1>
+          <div className={s.titleActions}>
+            <ShareButton
+              title={`${program.title} | 이랑`}
+              text={`${program.title}: ${program.summary.slice(0, 80)}`}
+              contentType="program"
+              variant="ghost"
+              size="sm"
+              showLabel={false}
+            />
+            <BookmarkButton
+              id={program.id}
+              type="program"
+              title={program.title}
+              subtitle={program.region}
+            />
+          </div>
         </div>
         <p className={s.pageSummary}>{program.summary}</p>
       </div>

@@ -1,18 +1,29 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Loader2, FileText } from "lucide-react";
 import { loadMorePrograms } from "./actions";
 import { ProgramCard } from "./program-card";
 import type { SupportProgram, ProgramFilters } from "@/lib/data/programs";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
+import { Pagination } from "@/components/ui/pagination";
+import type { ViewMode } from "@/components/ui/view-toggle";
 import s from "./program-list.module.css";
+import dt from "@/components/ui/data-table.module.css";
+
+const TABLE_PAGE_SIZE = 20;
 
 interface ProgramListProps {
   initialPrograms: SupportProgram[];
   initialHasMore: boolean;
   total: number;
   filters: ProgramFilters;
+  viewMode?: ViewMode;
+  /** 테이블 뷰용 전체 데이터 */
+  allPrograms?: SupportProgram[];
 }
 
 export function ProgramList({
@@ -20,7 +31,11 @@ export function ProgramList({
   initialHasMore,
   total,
   filters,
+  viewMode = "card",
+  allPrograms,
 }: ProgramListProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [programs, setPrograms] = useState(initialPrograms);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [isPending, startTransition] = useTransition();
@@ -78,20 +93,60 @@ export function ProgramList({
     );
   }
 
+  /* ── 테이블 뷰 ── */
+  if (viewMode === "table") {
+    const allRows = allPrograms ?? programs;
+    const currentPage = Math.max(1, Number(searchParams.get("page")) || 1);
+    const totalPages = Math.ceil(allRows.length / TABLE_PAGE_SIZE);
+    const rows = allRows.slice(
+      (currentPage - 1) * TABLE_PAGE_SIZE,
+      currentPage * TABLE_PAGE_SIZE,
+    );
+
+    return (
+      <>
+        <div className={dt.wrap}>
+          <table className={dt.table}>
+            <thead>
+              <tr>
+                <th>상태</th>
+                <th>사업명</th>
+                <th>지역</th>
+                <th>유형</th>
+                <th>지원금</th>
+                <th className={dt.hideOnMobile}>담당기관</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((p) => (
+                <tr
+                  key={p.id}
+                  className={dt.clickableRow}
+                  onClick={() => router.push(`/programs/${p.id}`)}
+                >
+                  <td><StatusBadge status={p.status} /></td>
+                  <td className={dt.titleCell}>
+                    <Link href={`/programs/${p.id}`} className={dt.titleLink}>
+                      {p.title}
+                    </Link>
+                  </td>
+                  <td className={dt.muted}>{p.region}</td>
+                  <td className={dt.muted}>{p.supportType}</td>
+                  <td className={dt.amount}>{p.supportAmount}</td>
+                  <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.organization}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <Pagination currentPage={currentPage} totalPages={totalPages} />
+      </>
+    );
+  }
+
+  /* ── 카드 뷰 (기존) ── */
   return (
     <>
-      {/* 결과 카운트 */}
-      <div className={s.resultCount}>
-        <p className={s.resultText}>
-          검색 결과{" "}
-          <span className={s.resultTotal}>{total}</span>건
-          {programs.length < total && (
-            <span className={s.resultShowing}>
-              (현재 {programs.length}건 표시)
-            </span>
-          )}
-        </p>
-      </div>
 
       {/* 3열 카드 그리드 */}
       <CardGrid>

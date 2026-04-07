@@ -4,7 +4,7 @@
    ========================================================================== */
 
 .page {
-  max-width: 800px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 24px 16px 80px;
   display: flex;
@@ -115,6 +115,14 @@
   gap: 0;
   min-width: max-content;
   padding: 0 4px;
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .timelineTrack {
+    min-width: 0;
+    justify-content: space-between;
+  }
 }
 
 .timelineDot {
@@ -169,75 +177,195 @@
   background: var(--border, #e5e7eb);
 }
 
-/* ═══ 단계 상세 섹션 ═══ */
+/* ═══ 단계 상세 섹션 (아코디언) ═══ */
 .stepSection {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 28px 20px;
-  border-radius: 20px;
+  border-radius: 16px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
+  transition: border-color 0.2s;
 }
 
 @media (min-width: 640px) {
   .stepSection {
-    padding: 32px 28px;
-    gap: 24px;
+    border-radius: 20px;
   }
 }
 
-/* 단계 헤더 */
+.stepSection[open] {
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, var(--border, #e5e7eb));
+}
+
+/* ── summary: 마커만 제거, 레이아웃은 내부 div 담당 ── */
 .stepHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
 }
 
-.stepBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-caption, 0.75rem);
-  font-weight: 700;
-  color: var(--primary, #1b6b5a);
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  padding: 4px 12px;
-  border-radius: 8px;
-  width: fit-content;
+.stepHeader::-webkit-details-marker,
+.stepHeader::marker {
+  display: none;
+  content: "";
 }
 
-.stepTitle {
-  font-size: var(--fs-h2, 1.5rem);
-  font-weight: 800;
-  color: var(--foreground);
-  margin: 0;
-}
-
-.stepMeta {
+/* ── 실제 헤더 레이아웃 (summary 안의 div) ── */
+.stepHeaderRow {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 16px;
+  transition: background-color 0.15s;
+  border-radius: inherit;
 }
 
-.stepPeriod {
-  display: inline-flex;
+@media (hover: hover) {
+  .stepHeader:hover .stepHeaderRow {
+    background-color: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+  }
+}
+
+@media (min-width: 640px) {
+  .stepHeaderRow {
+    padding: 20px 24px;
+  }
+}
+
+/* 아이콘 */
+.stepIcon {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: var(--fs-body-sm, 0.875rem);
-  font-weight: 500;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+@media (max-width: 479px) {
+  .stepIcon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+}
+
+/* 텍스트 (STEP n + 제목) */
+.stepHeaderText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.stepLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--primary, #1b6b5a);
+  line-height: 1;
+}
+
+.stepTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+  line-height: 1.3;
+}
+
+@media (min-width: 640px) {
+  .stepTitle {
+    font-size: 1.2rem;
+  }
+}
+
+/* 기간 뱃지 */
+.stepPeriodBadge {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
   color: var(--muted-foreground, #6b7280);
+  background: var(--muted, #f3f4f6);
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+@media (max-width: 479px) {
+  .stepPeriodBadge {
+    display: none;
+  }
+}
+
+/* 화살표 */
+.stepChevron {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  position: relative;
+}
+
+.stepChevron::before,
+.stepChevron::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--muted-foreground, #9ca3af);
+  transition: transform 0.25s ease;
+}
+
+.stepChevron::before {
+  left: 2px;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.stepChevron::after {
+  right: 2px;
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+.stepSection[open] .stepChevron::before {
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+.stepSection[open] .stepChevron::after {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+/* ── 아코디언 본문 ── */
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px 20px;
+}
+
+@media (min-width: 640px) {
+  .stepContent {
+    padding: 0 24px 24px;
+    gap: 20px;
+  }
 }
 
 .stepSummary {
   font-size: var(--fs-body-sm, 0.875rem);
   line-height: 1.7;
   color: var(--muted-foreground, #6b7280);
-  margin: 4px 0 0;
+  margin: 0;
   word-break: keep-all;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--muted, #f9fafb);
 }
 
-/* 단계 바디 */
+/* 상세 본문 (주요과업, 체크리스트, 팁 등) */
 .stepBody {
   display: flex;
   flex-direction: column;

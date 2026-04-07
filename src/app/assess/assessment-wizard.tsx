@@ -5,8 +5,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
-  Clock,
-  ListChecks,
   RotateCcw,
   Lightbulb,
   BarChart3,
@@ -17,9 +15,11 @@ import {
 import {
   QUESTIONS,
   DIMENSIONS,
-  RESULT_TIERS,
+  DEMOGRAPHIC_QUESTIONS,
   calculateResult,
+  getDemographicHints,
   type Answers,
+  type DemographicAnswers,
   type AssessmentResult,
   type ResultTier,
 } from "@/lib/data/assessment";
@@ -28,33 +28,58 @@ import { ResultSaveCta } from "@/components/result/result-save-cta";
 import s from "./assessment-wizard.module.css";
 
 /* ── 화면 상태 ── */
-type Phase = "intro" | "quiz" | "result";
+type Phase = "demographic" | "quiz" | "result";
 
-export function AssessmentWizard() {
-  const [phase, setPhase] = useState<Phase>("intro");
+interface AssessmentWizardProps {
+  onBack?: () => void;
+}
+
+export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
+  const [phase, setPhase] = useState<Phase>("demographic");
+  const [demoStep, setDemoStep] = useState(0);
+  const [demoAnswers, setDemoAnswers] = useState<DemographicAnswers>({});
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [copied, setCopied] = useState(false);
 
+  const totalDemoSteps = DEMOGRAPHIC_QUESTIONS.length;
   const totalSteps = QUESTIONS.length;
   const currentQuestion = QUESTIONS[step];
-  const progress = ((step + 1) / totalSteps) * 100;
 
-  /* ── 핸들러 ── */
+  // 진행률: 인구통계(0~demoSteps) + 진단(demoSteps~total)
+  const totalAllSteps = totalDemoSteps + totalSteps;
+  const currentAllStep =
+    phase === "demographic" ? demoStep + 1 : totalDemoSteps + step + 1;
+  const progress = (currentAllStep / totalAllSteps) * 100;
 
-  const handleStart = useCallback(() => {
+  // 진입 시 분석 이벤트 전송
+  useEffect(() => {
     analytics.assessStart();
-    setPhase("quiz");
-    setStep(0);
-    setAnswers({});
   }, []);
 
+  /* ── 인구통계 선택 핸들러 ── */
+  const handleDemoSelect = useCallback(
+    (value: string) => {
+      const qId = DEMOGRAPHIC_QUESTIONS[demoStep].id;
+      setDemoAnswers((prev) => ({ ...prev, [qId]: value }));
+
+      setTimeout(() => {
+        if (demoStep < totalDemoSteps - 1) {
+          setDemoStep((s) => s + 1);
+        } else {
+          setPhase("quiz");
+        }
+      }, 250);
+    },
+    [demoStep, totalDemoSteps]
+  );
+
+  /* ── 진단 선택 핸들러 ── */
   const handleSelect = useCallback(
     (score: number) => {
       const qId = currentQuestion.id;
       setAnswers((prev) => ({ ...prev, [qId]: score }));
 
-      // 자동 다음 이동 (250ms 딜레이)
       setTimeout(() => {
         if (step < totalSteps - 1) {
           setStep((s) => s + 1);
@@ -67,15 +92,27 @@ export function AssessmentWizard() {
   );
 
   const handleBack = useCallback(() => {
-    if (step > 0) {
-      setStep((s) => s - 1);
-    } else {
-      setPhase("intro");
+    if (phase === "demographic") {
+      if (demoStep > 0) {
+        setDemoStep((s) => s - 1);
+      } else if (onBack) {
+        onBack();
+      }
+    } else if (phase === "quiz") {
+      if (step > 0) {
+        setStep((s) => s - 1);
+      } else {
+        // 진단 첫 문항에서 뒤로 가면 인구통계 마지막 문항으로
+        setPhase("demographic");
+        setDemoStep(totalDemoSteps - 1);
+      }
     }
-  }, [step]);
+  }, [phase, step, demoStep, totalDemoSteps, onBack]);
 
   const handleReset = useCallback(() => {
-    setPhase("intro");
+    setPhase("demographic");
+    setDemoStep(0);
+    setDemoAnswers({});
     setStep(0);
     setAnswers({});
     setCopied(false);
@@ -127,43 +164,6 @@ export function AssessmentWizard() {
     }
   }, [result]);
 
-  /* ═══ 인트로 화면 ═══ */
-  if (phase === "intro") {
-    return (
-      <div className={s.page}>
-        <div className={s.intro}>
-          <span className={s.introEmoji}>🧑‍🌾</span>
-          <h1 className={s.introTitle}>
-            나는 귀농에<br />
-            얼마나 준비되어 있을까?
-          </h1>
-          <p className={s.introDesc}>
-            10가지 질문으로 나의 귀농 준비 상태를 객관적으로 점검하고,
-            맞춤 행동 가이드를 받아보세요.
-          </p>
-          <div className={s.introMeta}>
-            <span className={s.introMetaItem}>
-              <Clock size={16} />
-              약 3분
-            </span>
-            <span className={s.introMetaItem}>
-              <ListChecks size={16} />
-              10문항
-            </span>
-          </div>
-          <button
-            onClick={handleStart}
-            className={s.introStartBtn}
-            type="button"
-          >
-            진단 시작하기
-            <ArrowRight size={18} />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   /* ═══ 결과 화면 ═══ */
   if (phase === "result" && result) {
     const { totalScore, tier, dimensions } = result;
@@ -172,8 +172,13 @@ export function AssessmentWizard() {
     const weakest = [...dimensions].sort((a, b) => a.percent - b.percent)[0];
     const weakDim = DIMENSIONS.find((d) => d.id === weakest.id);
 
-    // matchParams → URL
-    const matchUrl = `/match?experience=${tier.matchParams.experience}&lifestyle=${tier.matchParams.lifestyle}`;
+    // 인구통계 기반 맞춤 지원 힌트
+    const demoHints = getDemographicHints(demoAnswers);
+
+    // matchParams → URL (인구통계 정보도 전달)
+    const demoParams = demoAnswers.ageGroup === "youth" ? "&ageGroup=youth" : "";
+    const genderParam = demoAnswers.gender === "female" ? "&gender=female" : "";
+    const matchUrl = `/match?experience=${tier.matchParams.experience}&lifestyle=${tier.matchParams.lifestyle}${demoParams}${genderParam}`;
 
     return (
       <div className={s.resultPage}>
@@ -252,6 +257,23 @@ export function AssessmentWizard() {
           </div>
         </div>
 
+        {/* 맞춤 지원 안내 (인구통계 기반) */}
+        {demoHints.length > 0 && (
+          <div className={s.demoHintsCard}>
+            <h2 className={s.demoHintsTitle}>
+              🎯 나에게 맞는 지원사업
+            </h2>
+            <ul className={s.demoHintsList}>
+              {demoHints.map((hint, i) => (
+                <li key={i} className={s.demoHintItem}>{hint}</li>
+              ))}
+            </ul>
+            <Link href="/programs" className={s.demoHintsLink}>
+              전체 지원사업 확인하기 →
+            </Link>
+          </div>
+        )}
+
         {/* 실행 팁 */}
         <div className={s.card}>
           <div className={s.cardHeader}>
@@ -304,7 +326,60 @@ export function AssessmentWizard() {
     );
   }
 
-  /* ═══ 질문 화면 ═══ */
+  /* ═══ 인구통계 질문 화면 ═══ */
+  if (phase === "demographic") {
+    const currentDemo = DEMOGRAPHIC_QUESTIONS[demoStep];
+    const selectedDemoValue = demoAnswers[currentDemo?.id];
+
+    return (
+      <div className={s.page}>
+        <div className={s.progressWrap}>
+          <div className={s.progressBar}>
+            <div className={s.progressFill} style={{ width: `${progress}%` }} />
+          </div>
+          <span className={s.progressLabel}>
+            {currentAllStep} / {totalAllSteps}
+          </span>
+        </div>
+
+        <div className={s.questionWrap}>
+          <span className={s.dimensionTag}>기본 정보</span>
+          <h1 className={s.questionTitle}>{currentDemo.question}</h1>
+          <p className={s.demoSubtitle}>
+            맞춤 지원사업 추천을 위해 사용되며, 진단 점수에는 반영되지 않습니다.
+          </p>
+
+          <div className={s.optionsList}>
+            {currentDemo.options.map((opt, i) => {
+              const isSelected = selectedDemoValue === opt.value;
+              return (
+                <button
+                  key={i}
+                  className={`${s.optionCard} ${isSelected ? s.optionSelected : ""}`}
+                  onClick={() => handleDemoSelect(opt.value)}
+                  type="button"
+                >
+                  <span className={s.optionNumber}>
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  <span className={s.optionLabel}>{opt.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className={s.navBar}>
+          <button onClick={handleBack} className={s.navBtnBack} type="button">
+            <ArrowLeft size={16} />
+            이전
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ═══ 진단 질문 화면 ═══ */
   const selectedScore = answers[currentQuestion?.id];
 
   return (
@@ -318,7 +393,7 @@ export function AssessmentWizard() {
           />
         </div>
         <span className={s.progressLabel}>
-          {step + 1} / {totalSteps}
+          {currentAllStep} / {totalAllSteps}
         </span>
       </div>
 

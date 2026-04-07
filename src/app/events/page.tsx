@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import Link from "next/link";
 import {
   Calendar,
   MapPin,
@@ -27,7 +29,19 @@ import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
+import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
+import { SectionNav } from "@/components/layout/section-nav";
+import { Pagination } from "@/components/ui/pagination";
 import s from "./page.module.css";
+import dt from "@/components/ui/data-table.module.css";
+
+const TABLE_PAGE_SIZE = 20;
+
+const sectionNavItems = [
+  { href: "/programs", label: "지원사업" },
+  { href: "/education", label: "교육" },
+  { href: "/events", label: "체험·행사" },
+];
 
 export const metadata: Metadata = {
   title: "체험·행사",
@@ -42,6 +56,8 @@ interface PageProps {
     q?: string;
     period?: string;
     includeClosed?: string;
+    view?: string;
+    page?: string;
   }>;
 }
 
@@ -97,6 +113,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
   const includeClosed = params.includeClosed === "1";
+  const viewMode: ViewMode = params.view === "table" ? "table" : "card";
   const period = params.period || getCurrentPeriod();
 
   const filters: EventFilters = {
@@ -109,6 +126,14 @@ export default async function EventsPage({ searchParams }: PageProps) {
 
   const { events } = await filterEventsAsync(filters);
 
+  // 테이블 페이지네이션
+  const tablePage = Math.max(1, Number(params.page) || 1);
+  const tableTotalPages = Math.ceil(events.length / TABLE_PAGE_SIZE);
+  const tableRows = events.slice(
+    (tablePage - 1) * TABLE_PAGE_SIZE,
+    tablePage * TABLE_PAGE_SIZE,
+  );
+
   // 기준일 표시 텍스트
   const [pYear, pMonth] = period.split("-");
   const periodLabel = `${pYear}년 ${parseInt(pMonth)}월`;
@@ -120,17 +145,23 @@ export default async function EventsPage({ searchParams }: PageProps) {
     q: params.q,
     period: params.period,
     includeClosed: params.includeClosed,
+    view: params.view,
+    page: params.page,
   };
 
   return (
     <div className={s.page}>
+      {/* 섹션 내비게이션 (지원사업 / 교육 / 체험·행사) */}
+      <Suspense>
+        <SectionNav items={sectionNavItems} />
+      </Suspense>
+
       {/* ── Page Header ── */}
       <PageHeader
         icon={<Calendar size={20} />}
         label="Events"
         title="체험·행사"
         description="귀농 일일체험, 팜스테이, 박람회, 설명회 등 다양한 체험과 행사를 찾아보세요."
-        count={events.length}
         periodLabel={periodLabel}
       />
 
@@ -177,21 +208,69 @@ export default async function EventsPage({ searchParams }: PageProps) {
         itemLabel="행사"
       />
 
-      {/* ── Card Grid ── */}
-      <CardGrid>
-        {events.length === 0 ? (
-          <EmptyState
-            icon={<Calendar size={32} />}
-            message={<>조건에 맞는 체험·행사가 없습니다.<br />필터를 변경하거나 마감 행사를 포함해 보세요.</>}
-            linkHref="/events"
-            linkText="전체 행사 보기"
-          />
-        ) : (
-          events.map((event) => (
+      {/* 보기 모드 토글 */}
+      <div className={s.toolbar}>
+        <p className={s.resultText}>
+          검색 결과 <span className={s.resultTotal}>{events.length}</span>건
+        </p>
+        <Suspense>
+          <ViewToggle current={viewMode} />
+        </Suspense>
+      </div>
+
+      {/* ── Card Grid / Table / Empty ── */}
+      {events.length === 0 ? (
+        <EmptyState
+          icon={<Calendar size={32} />}
+          message={<>조건에 맞는 체험·행사가 없습니다.<br />필터를 변경하거나 마감 행사를 포함해 보세요.</>}
+          linkHref="/events"
+          linkText="전체 행사 보기"
+        />
+      ) : viewMode === "table" ? (
+        <>
+          <div className={dt.wrap}>
+            <table className={dt.table}>
+              <thead>
+                <tr>
+                  <th>상태</th>
+                  <th>행사명</th>
+                  <th>지역</th>
+                  <th>유형</th>
+                  <th>일정</th>
+                  <th className={dt.hideOnMobile}>비용</th>
+                  <th className={dt.hideOnMobile}>주관</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tableRows.map((ev) => (
+                  <tr key={ev.id} className={dt.clickableRow}>
+                    <td><StatusBadge status={ev.status} /></td>
+                    <td className={dt.titleCell}>
+                      <Link href={ev.url} target="_blank" rel="noopener noreferrer" className={`${dt.titleLink} ${dt.rowLink}`}>
+                        {ev.title}
+                      </Link>
+                    </td>
+                    <td className={dt.muted}>{ev.region}</td>
+                    <td className={dt.muted}>{ev.type}</td>
+                    <td className={dt.muted}>{formatEventPeriod(ev.date, ev.dateEnd)}</td>
+                    <td className={`${dt.amount} ${dt.hideOnMobile}`}>{ev.cost}</td>
+                    <td className={`${dt.muted} ${dt.hideOnMobile}`}>{ev.organization}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Suspense>
+            <Pagination currentPage={tablePage} totalPages={tableTotalPages} />
+          </Suspense>
+        </>
+      ) : (
+        <CardGrid>
+          {events.map((event) => (
             <EventCard key={event.id} event={event} />
-          ))
-        )}
-      </CardGrid>
+          ))}
+        </CardGrid>
+      )}
     </div>
   );
 }

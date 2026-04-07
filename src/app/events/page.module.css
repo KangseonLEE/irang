@@ -9,18 +9,22 @@
   gap: 16px;
 }
 
-@media (min-width: 640px) {
-  .page {
-    padding: 32px 24px;
-    gap: 20px;
-  }
+/* ── Toolbar (결과 수 + 보기 토글) ── */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-@media (min-width: 1024px) {
-  .page {
-    padding: 40px 24px;
-    gap: 24px;
-  }
+.resultText {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.resultTotal {
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
 }
 
 /* ── Card ── */

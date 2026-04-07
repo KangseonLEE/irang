@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, ArrowRight, Sprout, FileText } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
 import { fetchPopulationData, type PopulationData } from "@/lib/api/sgis";
 import { fetchMedicalFacilities, type MedicalFacilityData } from "@/lib/api/hira";
 import { fetchSchoolCounts, type SchoolData } from "@/lib/api/education";
 import { fetchRegionPhotos, type UnsplashPhoto } from "@/lib/api/unsplash";
 import { STATIONS, DEFAULT_STATION_IDS } from "@/lib/data/stations";
+import { PROGRAMS } from "@/lib/data/programs";
 import { RegionSelector } from "./region-selector";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import s from "./page.module.css";
@@ -126,29 +127,6 @@ export default async function RegionsPage({ searchParams }: PageProps) {
               ))}
             </div>
           </section>
-
-          {/* Population Cards */}
-          {populationMap.size > 0 && (
-            <section aria-labelledby="population-heading">
-              <h2 id="population-heading" className={s.sectionTitle}>
-                인구 현황
-              </h2>
-              <div className={s.populationGrid}>
-                {selectedStations.map((station) => {
-                  const popData = populationMap.get(station.sgisCode);
-                  if (!popData) return null;
-                  return (
-                    <PopulationCard
-                      key={`pop-${station.stnId}`}
-                      stationName={station.name}
-                      province={station.province}
-                      data={popData}
-                    />
-                  );
-                })}
-              </div>
-            </section>
-          )}
 
           {/* Detailed Comparison Table */}
           <section aria-labelledby="detail-heading">
@@ -289,6 +267,36 @@ export default async function RegionsPage({ searchParams }: PageProps) {
                         )}
                       </>
                     )}
+                    {/* 귀농 지원 */}
+                    <SectionDividerRow
+                      label="귀농 지원"
+                      colSpan={climateData.length + 1}
+                    />
+                    <ComparisonRow
+                      label="지원사업 수"
+                      unit="건"
+                      values={selectedStations.map((st) => {
+                        return PROGRAMS.filter(
+                          (p) =>
+                            p.linkStatus !== "broken" &&
+                            (p.region === "전국" || p.region === st.province),
+                        ).length;
+                      })}
+                      highlight="max"
+                    />
+                    <ComparisonRow
+                      label="모집중 사업"
+                      unit="건"
+                      values={selectedStations.map((st) => {
+                        return PROGRAMS.filter(
+                          (p) =>
+                            p.linkStatus !== "broken" &&
+                            p.status === "모집중" &&
+                            (p.region === "전국" || p.region === st.province),
+                        ).length;
+                      })}
+                      highlight="max"
+                    />
                   </tbody>
                 </table>
               </div>
@@ -302,22 +310,6 @@ export default async function RegionsPage({ searchParams }: PageProps) {
             공공누리 제1유형
           </p>
 
-          {/* Cross-link CTAs */}
-          <div className={s.crossLinks}>
-            <Link
-              href={`/programs${selectedStations.length > 0 ? `?region=${encodeURIComponent(selectedStations[0].province)}` : ""}`}
-              className={s.crossLink}
-            >
-              <FileText size={16} aria-hidden="true" />
-              이 지역의 지원사업 찾기
-              <ArrowRight size={16} aria-hidden="true" />
-            </Link>
-            <Link href="/crops" className={s.crossLink}>
-              <Sprout size={16} aria-hidden="true" />
-              추천 작물 정보 보기
-              <ArrowRight size={16} aria-hidden="true" />
-            </Link>
-          </div>
         </>
       ) : (
         <div className={s.emptyState}>
@@ -366,45 +358,6 @@ function ClimateCard({
         </div>
         <p className={s.cardDescription}>{station?.description}</p>
       </div>
-    </article>
-  );
-}
-
-function PopulationCard({
-  stationName,
-  province,
-  data,
-}: {
-  stationName: string;
-  province: string;
-  data: PopulationData;
-}) {
-  const agingLabel =
-    data.agingRate >= 20
-      ? "초고령사회"
-      : data.agingRate >= 14
-        ? "고령사회"
-        : "고령화사회";
-
-  return (
-    <article className={s.populationCard}>
-      <span className={s.cardOverline}>{province}</span>
-      <h3 className={s.cardTitle}>{stationName}</h3>
-      <hr className={s.cardDivider} />
-      <div className={s.cardDataList}>
-        <DataRow
-          label="인구수"
-          value={`${(data.population / 10000).toFixed(0)}만명`}
-        />
-        <DataRow
-          label="가구수"
-          value={`${(data.householdCount / 10000).toFixed(0)}만`}
-        />
-        <DataRow label="고령화율" value={`${data.agingRate}%`} />
-      </div>
-      <p className={s.cardFooter}>
-        {data.regionName} · {agingLabel}
-      </p>
     </article>
   );
 }
@@ -477,3 +430,4 @@ function ComparisonRow({
     </tr>
   );
 }
+

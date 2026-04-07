@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { FileText, MessageCircle } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
+import { SectionNav } from "@/components/layout/section-nav";
 import {
   filterProgramsAsync,
   getCurrentPeriod,
   PAGE_SIZE,
   REGIONS,
   SUPPORT_TYPES,
+  AGE_RANGES,
   type ProgramFilters,
 } from "@/lib/data/programs";
 import { ProgramList } from "./program-list";
@@ -21,6 +24,12 @@ import {
 } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import s from "./page.module.css";
+
+const sectionNavItems = [
+  { href: "/programs", label: "지원사업" },
+  { href: "/education", label: "교육" },
+  { href: "/events", label: "체험·행사" },
+];
 
 export const metadata: Metadata = {
   title: "지원사업 검색",
@@ -36,6 +45,7 @@ interface PageProps {
     q?: string;
     includeClosed?: string;
     period?: string;
+    view?: string;
   }>;
 }
 
@@ -43,12 +53,13 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
   const includeClosed = params.includeClosed === "1";
+  const viewMode: ViewMode = params.view === "table" ? "table" : "card";
   // 기본값: 현재 연월
   const period = params.period || getCurrentPeriod();
 
   const filters: ProgramFilters = {
     region: params.region,
-    age: params.age ? Number(params.age) : undefined,
+    age: params.age,
     supportType: params.supportType,
     query: params.q,
     includeClosed,
@@ -73,10 +84,16 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     age: params.age,
     period: params.period,
     includeClosed: params.includeClosed,
+    view: params.view,
   };
 
   return (
     <div className={s.page}>
+      {/* 섹션 내비게이션 (지원사업 / 교육 / 체험·행사) */}
+      <Suspense>
+        <SectionNav items={sectionNavItems} />
+      </Suspense>
+
       {/* 로드맵 단계 컨텍스트 */}
       <Suspense>
         <RoadmapBanner />
@@ -88,7 +105,6 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         label="Support Programs"
         title="지원사업 검색"
         description="나이, 지역, 희망 작물에 맞는 귀농 · 귀촌 지원사업을 찾아보세요."
-        count={total}
         periodLabel={periodLabel}
       />
 
@@ -114,18 +130,21 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             basePath="/programs"
           />
         </FilterRow>
+        <FilterRow>
+          <FilterGroup
+            label="연령대"
+            paramKey="age"
+            options={AGE_RANGES}
+            currentValue={params.age}
+            currentFilters={currentFilters}
+            basePath="/programs"
+          />
+        </FilterRow>
         <FilterDivider />
         <FilterActions
           basePath="/programs"
           currentFilters={currentFilters}
           searchPlaceholder="지원사업명, 지역, 기관명으로 검색"
-          numberInput={{
-            paramKey: "age",
-            label: "나이",
-            placeholder: "만 나이",
-            min: 18,
-            max: 80,
-          }}
           toggle={{
             paramKey: "includeClosed",
             label: "마감 포함",
@@ -142,11 +161,22 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         itemLabel="지원사업"
       />
 
+      <div className={s.toolbar}>
+        <p className={s.resultText}>
+          검색 결과 <span className={s.resultTotal}>{total}</span>건
+        </p>
+        <Suspense>
+          <ViewToggle current={viewMode} />
+        </Suspense>
+      </div>
+
       <ProgramList
         initialPrograms={programs}
         initialHasMore={hasMore}
         total={total}
         filters={filters}
+        viewMode={viewMode}
+        allPrograms={viewMode === "table" ? allFiltered : undefined}
       />
 
       {/* ═══ 피드백 CTA ═══ */}

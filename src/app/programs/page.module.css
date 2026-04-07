@@ -8,6 +8,26 @@
 }
 
 /* ══════════════════════════════════════════
+   보기 모드 토글 바
+   ══════════════════════════════════════════ */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resultText {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.resultTotal {
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+}
+
+/* ══════════════════════════════════════════
    피드백 CTA 카드
    ══════════════════════════════════════════ */
 .feedbackCta {

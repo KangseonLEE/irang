@@ -11,6 +11,24 @@
   gap: 16px;
 }
 
+/* ── Toolbar (결과 수 + 보기 토글) ── */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resultText {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.resultTotal {
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+}
+
 /* ── Course Card ── */
 .card {
   position: relative;

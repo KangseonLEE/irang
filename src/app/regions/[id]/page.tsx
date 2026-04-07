@@ -250,11 +250,17 @@ export default async function RegionDetailPage({ params }: PageProps) {
                     href={`/crops/${crop.id}`}
                     className={s.cropCard}
                   >
-                    <span className={s.cropEmoji}>{crop.emoji}</span>
+                    <Image
+                      src={`/crops/${crop.id}.jpg`}
+                      alt={crop.name}
+                      width={48}
+                      height={48}
+                      className={s.cropImage}
+                    />
                     <div>
                       <span className={s.cropName}>{crop.name}</span>
                       <span className={s.cropMeta}>
-                        {crop.category} · {crop.difficulty}
+                        {crop.category} · 재배난이도: {crop.difficulty}
                       </span>
                     </div>
                     <ArrowRight size={14} className={s.cropArrow} />

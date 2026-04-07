@@ -167,12 +167,12 @@
   }
 }
 
-/* 마지막 행 (최신 연도) 강조 */
-.table tbody tr:last-child {
+/* 첫 번째 행 (최신 연도) 강조 */
+.table tbody tr:first-child {
   font-weight: 700;
 }
 
-.table tbody tr:last-child td {
+.table tbody tr:first-child td {
   color: var(--primary, #1B6B5A);
 }
 

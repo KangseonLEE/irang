@@ -588,3 +588,69 @@
   color: #b45309;
   font-weight: 700;
 }
+
+/* ═══ 인구통계 질문 ═══ */
+.demoSubtitle {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  margin: 4px 0 0;
+  line-height: var(--lh-normal);
+}
+
+/* ═══ 맞춤 지원사업 카드 (결과 화면) ═══ */
+.demoHintsCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border: 1px solid #bbf7d0;
+}
+
+.demoHintsTitle {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  color: var(--foreground, #111);
+  margin: 0;
+}
+
+.demoHintsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demoHintItem {
+  font-size: var(--fs-body-sm);
+  color: var(--foreground, #111);
+  line-height: var(--lh-normal);
+  padding-left: 16px;
+  position: relative;
+  word-break: keep-all;
+}
+
+.demoHintItem::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--primary, #1b6b5a);
+  font-weight: 700;
+}
+
+.demoHintsLink {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+@media (hover: hover) {
+  .demoHintsLink:hover {
+    text-decoration: underline;
+  }
+}

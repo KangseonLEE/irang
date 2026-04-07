@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Clock, X } from "lucide-react";
+import { Search, Clock, X, MessageSquarePlus } from "lucide-react";
 import { searchItems, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
@@ -385,9 +385,20 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 
           {/* 검색 결과 */}
           {!showRecent && grouped.length === 0 && query.trim().length > 0 && (
-            <p className={s.noResult}>
-              &ldquo;{query}&rdquo;에 대한 검색 결과가 없습니다
-            </p>
+            <div className={s.noResult}>
+              <p className={s.noResultText}>
+                &ldquo;{query}&rdquo;에 대한 검색 결과가 없습니다
+              </p>
+              <a
+                href="https://tally.so/r/9qv8lp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={s.requestLink}
+              >
+                <MessageSquarePlus size={14} />
+                정보 추가 요청하기
+              </a>
+            </div>
           )}
 
           {grouped.map((section) => {

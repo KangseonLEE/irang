@@ -144,7 +144,7 @@ export default async function RegionsPage() {
                 <GitCompareArrows size={18} aria-hidden="true" />
                 <div>
                   <span className={s.compareCtaTitle}>지역 비교하기</span>
-                  <span className={s.compareCtaDesc}>최대 4개 지역을 한눈에 비교</span>
+                  <span className={s.compareCtaDesc}>최대 3개 지역을 한눈에 비교</span>
                 </div>
               </div>
               <span className={s.compareCtaArrow}>→</span>

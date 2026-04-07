@@ -11,10 +11,10 @@ import SearchGroup from "@/components/search/search-group";
 import { CountUp } from "@/components/landing/count-up";
 import { FaqAccordion } from "@/components/landing/faq-accordion";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
-import { TrendingSearches } from "@/components/landing/trending-searches";
+import { TrendingSearchesSkeleton } from "@/components/landing/trending-searches";
+import { TrendingSearchesLoader } from "@/components/landing/trending-searches-loader";
 import { ServiceCarousel } from "@/components/landing/service-carousel";
 import type { ServiceCard } from "@/components/landing/service-carousel";
-import { getTrendingSearches } from "@/lib/supabase";
 import {
   RegionIllustration,
   CropIllustration,
@@ -23,7 +23,6 @@ import {
 import {
   trendStats,
   trendReasons,
-  trendNews,
   popularRegions,
   popularCrops,
   hotPrograms,
@@ -32,9 +31,7 @@ import {
   roadmapSteps,
   faqItems,
 } from "@/lib/data/landing";
-import { fetchLatestNews, fetchNewsByCategory } from "@/lib/api/news";
-import type { NewsArticle } from "@/lib/api/news";
-import { NewsTabs, type UnifiedNewsItem } from "@/components/landing/news-tabs";
+import { NewsTabsLoader } from "@/components/landing/news-tabs-loader";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
 import s from "./page.module.css";
@@ -88,37 +85,7 @@ const serviceCards: ServiceCard[] = [
    → 공감(인터뷰) → 행동브릿지(로드맵) → 탐색(벤토) → 저항제거(FAQ) → 전환(CTA)
    ──────────────────────────────────────────── */
 
-export default async function HomePage() {
-  // 네이버 뉴스 API — 카테고리별 병렬 호출 → 실패 시 정적 폴백
-  const [liveNews, eduNews, eventNews, programNews] = await Promise.all([
-    fetchLatestNews(),
-    fetchNewsByCategory("education"),
-    fetchNewsByCategory("event"),
-    fetchNewsByCategory("program"),
-  ]);
-
-  const toItems = (
-    articles: NewsArticle[] | null,
-    fallback: NewsArticle[],
-    category: UnifiedNewsItem["category"]
-  ): UnifiedNewsItem[] =>
-    (articles ?? fallback).map((n) => ({
-      title: n.title,
-      source: n.source,
-      date: n.date,
-      url: n.url,
-      category,
-    }));
-
-  const unifiedNews: UnifiedNewsItem[] = [
-    ...toItems(liveNews, trendNews, "news"),
-    ...toItems(eduNews, [], "education"),
-    ...toItems(eventNews, [], "event"),
-    ...toItems(programNews, [], "program"),
-  ];
-
-  // 인기 검색어: Supabase 실데이터 → 큐레이션 폴백
-  const trendingData = await getTrendingSearches(7, 12);
+export default function HomePage() {
   return (
     <div className={s.page}>
       {/* ── FAQ 구조화 데이터 (JSON-LD) ── */}
@@ -158,8 +125,10 @@ export default async function HomePage() {
           </Suspense>
         </div>
 
-        {/* 인기 검색어 슬라이더 */}
-        <TrendingSearches serverTrending={trendingData} />
+        {/* 인기 검색어 슬라이더 — Suspense로 비동기 분리 */}
+        <Suspense fallback={<TrendingSearchesSkeleton />}>
+          <TrendingSearchesLoader />
+        </Suspense>
       </section>
 
       {/* ═══ 2. 귀농 트렌드 — 사회적 증거 ═══ */}
@@ -183,6 +152,7 @@ export default async function HomePage() {
                 <span className={s.trendValue}>{stat.value}</span>
                 <span className={s.trendLabel}>{stat.label}</span>
                 <span className={s.trendStatSub}>{stat.sub}</span>
+                <span className={s.trendStatHint}>자세히 보기 →</span>
               </Link>
             </Fragment>
           ))}
@@ -223,8 +193,10 @@ export default async function HomePage() {
             </p>
           </div>
 
-          {/* 농촌 소식 (탭 분류) */}
-          <NewsTabs items={unifiedNews} />
+          {/* 농촌 소식 (탭 분류) — Suspense로 비동기 분리 */}
+          <Suspense fallback={<div className={s.newsSkeleton}><p className={s.newsSkeletonText}>소식을 불러오는 중...</p></div>}>
+            <NewsTabsLoader />
+          </Suspense>
         </div>
       </section>
 
@@ -376,7 +348,7 @@ export default async function HomePage() {
             도시를 떠나 새로운 삶을 시작한 사람들의 진짜 이야기
           </p>
         </div>
-        <InterviewCarousel items={interviews.slice(0, 4)} />
+        <InterviewCarousel items={interviews.slice(0, 6)} />
         <Link href="/interviews" className={s.interviewViewAll}>
           {interviews.length}명의 귀농인 이야기 더 보기 <ArrowRight size={14} />
         </Link>

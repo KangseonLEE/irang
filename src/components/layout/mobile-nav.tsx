@@ -17,7 +17,7 @@ import s from "./mobile-nav.module.css";
 const tabs = [
   { href: "/", label: "홈", icon: Home },
   { href: "/regions", label: "지역", icon: MapPin },
-  { href: "/match", label: "맞춤추천", icon: Compass },
+  { href: "/match", label: "귀농가이드", icon: Compass },
   { href: "/programs", label: "지원사업", icon: FileText },
 ];
 

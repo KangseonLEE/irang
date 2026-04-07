@@ -1,0 +1,88 @@
+/* Pagination — 테이블 뷰 페이지 이동 */
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.pages {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted-foreground, #6b7280);
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 150ms, color 150ms;
+}
+
+@media (hover: hover) {
+  .page:hover {
+    background: var(--muted, #f4f4f5);
+    color: var(--foreground);
+  }
+}
+
+.pageActive {
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+  font-weight: 600;
+}
+
+.pageActive:hover {
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+}
+
+.dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  color: var(--muted-foreground, #9ca3af);
+  font-size: var(--fs-body-sm);
+  user-select: none;
+}
+
+.arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  color: var(--foreground, #333);
+  cursor: pointer;
+  transition: background-color 150ms, border-color 150ms, opacity 150ms;
+}
+
+@media (hover: hover) {
+  .arrow:hover:not(:disabled) {
+    background: var(--muted, #f4f4f5);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  }
+}
+
+.arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

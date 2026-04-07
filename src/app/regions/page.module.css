@@ -90,13 +90,14 @@
 .densityLegend {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 4px;
   margin-top: 4px;
 }
 
-@media (max-width: 639px) {
+@media (min-width: 1024px) {
   .densityLegend {
-    align-items: center;
+    align-items: flex-start;
   }
 }
 

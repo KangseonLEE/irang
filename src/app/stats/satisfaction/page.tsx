@@ -149,22 +149,11 @@ export default function SatisfactionPage() {
         </Link>
       </div>
 
-      {/* ── 출처 + 네비게이션 ── */}
+      {/* ── 출처 ── */}
       <footer className={s.footer}>
         <p className={s.source}>
           출처: {satisfactionSummary.source}
         </p>
-        <nav className={s.navLinks} aria-label="다른 통계 페이지">
-          <Link href="/stats/population" className={s.navLink}>
-            귀농·귀촌 인구 <ArrowRight size={14} />
-          </Link>
-          <Link href="/stats/youth" className={s.navLink}>
-            청년 귀농 트렌드 <ArrowRight size={14} />
-          </Link>
-          <span className={s.navLinkActive} aria-current="page">
-            귀농 만족도
-          </span>
-        </nav>
       </footer>
     </div>
   );

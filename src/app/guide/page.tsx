@@ -67,7 +67,7 @@ const STEPS: GuideStep[] = [
     links: [
       { label: "지역 비교하기", href: "/regions" },
       { label: "작물 정보 보기", href: "/crops" },
-      { label: "맞춤 추천 받기", href: "/match" },
+      { label: "귀농 가이드 시작하기", href: "/match" },
     ],
   },
   {
@@ -264,29 +264,36 @@ export default function GuidePage() {
         </div>
       </section>
 
-      {/* ═══ 각 단계 상세 ═══ */}
+      {/* ═══ 각 단계 상세 (아코디언) ═══ */}
       {STEPS.map((step) => {
         const Icon = step.icon;
         return (
-          <section key={step.step} id={`step-${step.step}`} className={s.stepSection}>
-            {/* 단계 헤더 */}
-            <div className={s.stepHeader}>
-              <div className={s.stepBadge}>
-                <Icon size={20} />
-                <span>STEP {step.step}</span>
-              </div>
-              <h2 className={s.stepTitle}>{step.title}</h2>
-              <div className={s.stepMeta}>
-                <span className={s.stepPeriod}>
-                  <Clock size={14} />
+          <details
+            key={step.step}
+            id={`step-${step.step}`}
+            className={s.stepSection}
+            open={step.step === 1}
+          >
+            <summary className={s.stepHeader}>
+              <div className={s.stepHeaderRow}>
+                <div className={s.stepIcon}>
+                  <Icon size={18} />
+                </div>
+                <div className={s.stepHeaderText}>
+                  <span className={s.stepLabel}>STEP {step.step}</span>
+                  <h2 className={s.stepTitle}>{step.title}</h2>
+                </div>
+                <span className={s.stepPeriodBadge}>
                   {step.period}
                 </span>
+                <span className={s.stepChevron} aria-hidden="true" />
               </div>
-              <p className={s.stepSummary}>{step.summary}</p>
-            </div>
+            </summary>
 
-            {/* 상세 설명 */}
-            <div className={s.stepBody}>
+            <div className={s.stepContent}>
+              <p className={s.stepSummary}>{step.summary}</p>
+
+              <div className={s.stepBody}>
               <div className={s.stepDetails}>
                 <h3 className={s.subHeading}>주요 과업</h3>
                 <ol className={s.detailList}>
@@ -346,7 +353,8 @@ export default function GuidePage() {
                 ))}
               </div>
             </div>
-          </section>
+            </div>
+          </details>
         );
       })}
 
@@ -379,7 +387,7 @@ export default function GuidePage() {
         </p>
         <div className={s.ctaButtons}>
           <Link href="/match" className={s.ctaPrimary}>
-            맞춤 추천 받기
+            귀농 가이드 시작하기
             <ArrowRight size={16} />
           </Link>
           <Link href="/regions" className={s.ctaSecondary}>

@@ -1,5 +1,6 @@
 /* ══════════════════════════════════════════
-   InterviewCarousel — 모바일 캐러셀 + 데스크탑 그리드
+   InterviewCarousel — 모바일/태블릿/데스크탑 캐러셀
+   모바일: 1장씩, 태블릿: 2장씩, 데스크탑: 3장씩 슬라이드
    ══════════════════════════════════════════ */
 
 .wrapper {
@@ -8,7 +9,7 @@
   gap: 12px;
 }
 
-/* ── 스크롤 영역 (모바일: 가로 스크롤, 데스크탑: 그리드) ── */
+/* ── 스크롤 영역: 모든 브레이크포인트에서 가로 스크롤 ── */
 .scrollArea {
   display: grid;
   grid-auto-flow: column;
@@ -23,19 +24,19 @@
 
 .scrollArea::-webkit-scrollbar { display: none; }
 
+/* 태블릿: 2장씩 */
 @media (min-width: 768px) {
   .scrollArea {
-    grid-auto-flow: row;
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-columns: auto;
-    overflow-x: visible;
-    scroll-snap-type: none;
+    grid-auto-columns: calc((100% - 16px) / 2);
     padding-bottom: 0;
   }
 }
 
+/* 데스크탑: 3장씩 */
 @media (min-width: 1024px) {
-  .scrollArea { grid-template-columns: repeat(4, 1fr); }
+  .scrollArea {
+    grid-auto-columns: calc((100% - 32px) / 3);
+  }
 }
 
 /* ── 카드 ── */
@@ -140,8 +141,7 @@
 @media (min-width: 768px) {
   .quote {
     font-size: var(--fs-body-lg);
-    -webkit-line-clamp: unset;
-    overflow: visible;
+    -webkit-line-clamp: 4;
   }
 }
 
@@ -182,17 +182,14 @@
 }
 
 /* ══════════════════════════════════════════
-   모바일 컨트롤: 화살표 + 인디케이터 닷
+   캐러셀 컨트롤: 화살표 + 인디케이터 닷
+   모든 브레이크포인트에서 표시
    ══════════════════════════════════════════ */
 .controls {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-}
-
-@media (min-width: 768px) {
-  .controls { display: none; }
 }
 
 /* 화살표 버튼 */
@@ -221,6 +218,14 @@
 .arrow:disabled {
   opacity: 0.3;
   cursor: default;
+}
+
+/* 데스크탑 화살표 사이즈 업 */
+@media (min-width: 1024px) {
+  .arrow {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 /* 인디케이터 닷 */

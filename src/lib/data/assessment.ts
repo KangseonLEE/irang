@@ -25,6 +25,21 @@ export interface AssessmentQuestion {
   options: AssessmentOption[];
 }
 
+/* ── 인구통계 질문 (점수 무관, 맞춤 지원 추천용) ── */
+
+export interface DemographicOption {
+  label: string;
+  value: string;
+}
+
+export interface DemographicQuestion {
+  id: string;
+  question: string;
+  options: DemographicOption[];
+}
+
+export type DemographicAnswers = Record<string, string>; // questionId → value
+
 export interface ResultTier {
   id: string;
   range: [number, number]; // [min, max]
@@ -286,6 +301,55 @@ export const QUESTIONS: AssessmentQuestion[] = [
     ],
   },
 ];
+
+/* ── 인구통계 질문 (진단 시작 전 수집, 점수에 미반영) ── */
+
+export const DEMOGRAPHIC_QUESTIONS: DemographicQuestion[] = [
+  {
+    id: "ageGroup",
+    question: "현재 연령대가 어떻게 되시나요?",
+    options: [
+      { label: "만 39세 이하 (청년)", value: "youth" },
+      { label: "만 40~49세", value: "40s" },
+      { label: "만 50~59세", value: "50s" },
+      { label: "만 60세 이상", value: "60plus" },
+    ],
+  },
+  {
+    id: "gender",
+    question: "성별을 알려주세요.",
+    options: [
+      { label: "남성", value: "male" },
+      { label: "여성", value: "female" },
+      { label: "선택하지 않음", value: "unspecified" },
+    ],
+  },
+];
+
+/** 인구통계 기반 맞춤 지원 힌트 생성 */
+export function getDemographicHints(demo: DemographicAnswers): string[] {
+  const hints: string[] = [];
+
+  if (demo.ageGroup === "youth") {
+    hints.push("청년 귀농 정착지원금(월 최대 110만 원, 최장 3년)을 신청할 수 있어요.");
+    hints.push("청년 창업농 영농정착 지원사업도 확인해보세요.");
+  }
+
+  if (demo.gender === "female") {
+    hints.push("여성 농업인 센터에서 경영·교육·복지 통합 지원을 받을 수 있어요.");
+    hints.push("여성 농업인 영농교육, 육아·가사 도우미 지원사업도 살펴보세요.");
+  }
+
+  if (demo.ageGroup === "youth" && demo.gender === "female") {
+    hints.push("청년+여성 우대 가산점이 적용되는 지원사업이 있으니 꼭 체크하세요!");
+  }
+
+  if (demo.ageGroup === "60plus") {
+    hints.push("귀농귀촌 은퇴자 프로그램과 농촌 체험·치유 과정도 참고해보세요.");
+  }
+
+  return hints;
+}
 
 /* ── 결과 등급 ── */
 

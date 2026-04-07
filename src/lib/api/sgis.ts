@@ -11,7 +11,7 @@
 import { getPopulationFallback } from "@/lib/data/population";
 
 const AUTH_URL = "https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json";
-const SEARCH_STATS_URL = "https://sgisapi.mods.go.kr/OpenAPI3/stats/searchStats.json";
+const POPULATION_URL = "https://sgisapi.mods.go.kr/OpenAPI3/stats/population.json";
 
 export interface PopulationData {
   regionCode: string;
@@ -79,13 +79,12 @@ async function getAccessToken(): Promise<string | null> {
 interface SGISPopulationResult {
   adm_cd: string;
   adm_nm: string;
-  population: string;
-  household: string;
+  tot_ppltn: string;       // 총 인구
+  tot_family: string;      // 총 세대수
   avg_age?: string;
-  // 연령대별 인구
-  population_0_14?: string;
-  population_15_64?: string;
-  population_65_over?: string;
+  // 부양비 (고령화율 역산용)
+  oldage_suprt_per?: string; // 노인부양비: (65+) / (15~64) × 100
+  juv_suprt_per?: string;    // 유소년부양비: (0~14) / (15~64) × 100
 }
 
 /**
@@ -97,11 +96,10 @@ async function fetchFromSGIS(
   regionCode: string,
   year: number
 ): Promise<PopulationData | null> {
-  const url = new URL(SEARCH_STATS_URL);
+  const url = new URL(POPULATION_URL);
   url.searchParams.set("accessToken", accessToken);
-  url.searchParams.set("admCd", regionCode);
+  url.searchParams.set("adm_cd", regionCode);
   url.searchParams.set("year", String(year));
-  url.searchParams.set("low_search", "0");
 
   try {
     const res = await fetch(url.toString(), { next: { revalidate: 86400 } });
@@ -121,10 +119,20 @@ async function fetchFromSGIS(
     // SGIS 응답 구조에 따라 파싱
     const item: SGISPopulationResult = Array.isArray(result) ? result[0] : result;
 
-    const population = parseInt(item.population, 10) || 0;
-    const household = parseInt(item.household, 10) || 0;
-    const pop65Over = parseInt(item.population_65_over || "0", 10);
-    const agingRate = population > 0 ? Math.round((pop65Over / population) * 1000) / 10 : 0;
+    const population = parseInt(item.tot_ppltn, 10) || 0;
+    const household = parseInt(item.tot_family, 10) || 0;
+
+    // 고령화율(65+/전체) 계산:
+    // SGIS population.json은 직접 제공하지 않으므로 부양비로 역산
+    // oldage_suprt_per = (65+) / (15~64) × 100
+    // juv_suprt_per = (0~14) / (15~64) × 100
+    // → agingRate = oldage / (100 + oldage + juv) × 100
+    const oldageDep = parseFloat(item.oldage_suprt_per || "0");
+    const juvDep = parseFloat(item.juv_suprt_per || "0");
+    const agingRate =
+      oldageDep + juvDep > 0
+        ? Math.round((oldageDep / (100 + oldageDep + juvDep)) * 1000) / 10
+        : 0;
 
     return {
       regionCode,
@@ -150,7 +158,8 @@ async function fetchFromSGIS(
 export async function fetchSigunguPopulationData(
   sgisCode: string
 ): Promise<PopulationData | null> {
-  const year = new Date().getFullYear();
+  // SGIS 통계는 보통 1~2년 지연 — 현재 연도 - 2를 안전한 최신으로 사용
+  const year = new Date().getFullYear() - 2;
   const accessToken = await getAccessToken();
 
   if (accessToken) {
@@ -171,13 +180,14 @@ export async function fetchSigunguPopulationData(
 export async function fetchSubRegionPopulations(
   provinceSgisCode: string,
 ): Promise<Record<string, PopulationData>> {
-  const year = new Date().getFullYear();
+  // SGIS 통계는 보통 1~2년 지연 — 현재 연도 - 2를 안전한 최신으로 사용
+  const year = new Date().getFullYear() - 2;
   const accessToken = await getAccessToken();
   if (!accessToken) return {};
 
-  const url = new URL(SEARCH_STATS_URL);
+  const url = new URL(POPULATION_URL);
   url.searchParams.set("accessToken", accessToken);
-  url.searchParams.set("admCd", provinceSgisCode);
+  url.searchParams.set("adm_cd", provinceSgisCode);
   url.searchParams.set("year", String(year));
   url.searchParams.set("low_search", "1"); // 하위 행정구역 일괄 조회
 
@@ -195,18 +205,22 @@ export async function fetchSubRegionPopulations(
 
     const map: Record<string, PopulationData> = {};
     for (const item of results as SGISPopulationResult[]) {
-      const population = parseInt(item.population, 10) || 0;
-      const pop65Over = parseInt(item.population_65_over || "0", 10);
+      const population = parseInt(item.tot_ppltn, 10) || 0;
+      const household = parseInt(item.tot_family, 10) || 0;
+
+      // 고령화율 역산: oldage / (100 + oldage + juv) × 100
+      const oldageDep = parseFloat(item.oldage_suprt_per || "0");
+      const juvDep = parseFloat(item.juv_suprt_per || "0");
       const agingRate =
-        population > 0
-          ? Math.round((pop65Over / population) * 1000) / 10
+        oldageDep + juvDep > 0
+          ? Math.round((oldageDep / (100 + oldageDep + juvDep)) * 1000) / 10
           : 0;
 
       map[item.adm_cd] = {
         regionCode: item.adm_cd,
         regionName: item.adm_nm || "",
         population,
-        householdCount: parseInt(item.household, 10) || 0,
+        householdCount: household,
         agingRate,
       };
     }
@@ -230,7 +244,8 @@ export async function fetchPopulationData(
 ): Promise<PopulationData[]> {
   // 중복 제거
   const uniqueCodes = [...new Set(regionCodes)];
-  const year = new Date().getFullYear();
+  // SGIS 통계는 보통 1~2년 지연 — 현재 연도 - 2를 안전한 최신으로 사용
+  const year = new Date().getFullYear() - 2;
 
   // SGIS 토큰 발급 시도
   const accessToken = await getAccessToken();

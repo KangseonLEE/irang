@@ -10,6 +10,18 @@
   gap: 6px;
   margin-top: 8px;
   height: var(--row-h);
+  animation: slideUp 600ms ease-out both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── 고정 라벨 ── */
@@ -44,31 +56,14 @@
 }
 
 /* ── 세로 슬라이드 트랙 ── */
+/* animation-name / animation-duration 은 아이템 수에 따라
+   컴포넌트에서 동적 주입 (buildRollKeyframes + inline style).
+   키워드당 4.5초 고정, 필터 후 아이템 수가 변해도 속도 일정. */
 .track {
   display: flex;
   flex-direction: column;
-  animation: roll calc(var(--item-count) * 3s) ease-in-out infinite;
-}
-
-/*
- * 12개 아이템 + 복제 1 = 13 슬롯
- * step ≈ 7.692%
- * 각 구간: hold(정지) → slide(전환)
- */
-@keyframes roll {
-  0%,    6.8%  { transform: translateY(0); }
-  7.7%,  14.5% { transform: translateY(calc(-1 * var(--row-h))); }
-  15.4%, 22.2% { transform: translateY(calc(-2 * var(--row-h))); }
-  23.1%, 29.9% { transform: translateY(calc(-3 * var(--row-h))); }
-  30.8%, 37.6% { transform: translateY(calc(-4 * var(--row-h))); }
-  38.5%, 45.3% { transform: translateY(calc(-5 * var(--row-h))); }
-  46.2%, 53.0% { transform: translateY(calc(-6 * var(--row-h))); }
-  53.8%, 60.7% { transform: translateY(calc(-7 * var(--row-h))); }
-  61.5%, 68.4% { transform: translateY(calc(-8 * var(--row-h))); }
-  69.2%, 76.1% { transform: translateY(calc(-9 * var(--row-h))); }
-  76.9%, 83.8% { transform: translateY(calc(-10 * var(--row-h))); }
-  84.6%, 91.5% { transform: translateY(calc(-11 * var(--row-h))); }
-  92.3%, 100%  { transform: translateY(calc(-12 * var(--row-h))); }
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
 }
 
 /* ── 개별 키워드 아이템 ── */
@@ -91,6 +86,22 @@
     text-decoration: underline;
     text-underline-offset: 3px;
   }
+}
+
+/* ── 로딩 스켈레톤 ── */
+.skeleton {
+  display: inline-flex;
+  align-items: center;
+  height: var(--row-h);
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
 }
 
 /* ── 데스크탑 스케일업 ── */
