@@ -61,13 +61,13 @@ export async function checkUrlHealth(
 
 // ─── 크롤링 대상 정의 ───
 
-export type CrawlTargetType = "rda-listing" | "agrix-api";
+export type CrawlTargetType = "rda-listing" | "agrix-api" | "rda-events";
 
 export interface CrawlTarget {
   id: string;
   name: string;
   url: string;
-  category: "programs" | "education";
+  category: "programs" | "education" | "events";
   type: CrawlTargetType;
   /** POST 요청 시 추가 파라미터 */
   params?: Record<string, string>;
@@ -100,6 +100,13 @@ export const CRAWL_TARGETS: CrawlTarget[] = [
     url: "https://uni.agrix.go.kr/docs7/customizedNew/introduce/IntroduceSaupList.do",
     category: "programs",
     type: "agrix-api",
+  },
+  {
+    id: "rda-events",
+    name: "똑똑!청년농부 행사·체험",
+    url: "https://www.rda.go.kr/young/custom.do",
+    category: "events",
+    type: "rda-events",
   },
 ];
 
@@ -248,7 +255,63 @@ function parseRdaListingHtml(html: string): CrawledItem[] {
 }
 
 // ═══════════════════════════════════════
-// 2. uni.agrix.go.kr JSON API 파서
+// 2. RDA 행사·체험 크롤러 (키워드 기반)
+// ═══════════════════════════════════════
+
+const EVENT_KEYWORDS = ["박람회", "체험", "축제", "설명회", "멘토링", "현장방문", "견학"];
+
+const EVENT_TYPE_MAP: Record<string, string> = {
+  박람회: "박람회",
+  체험: "일일체험",
+  축제: "축제",
+  설명회: "설명회",
+  멘토링: "멘토링",
+  현장방문: "일일체험",
+  견학: "일일체험",
+};
+
+/**
+ * 제목에서 행사 유형 추론
+ */
+export function inferEventType(title: string): string {
+  for (const [kw, type] of Object.entries(EVENT_TYPE_MAP)) {
+    if (title.includes(kw)) return type;
+  }
+  return "설명회";
+}
+
+/**
+ * RDA에서 행사성 키워드로 검색 → 중복 제거 후 반환
+ * 여러 키워드를 순회하며 최대 30건 수집
+ */
+export async function fetchRdaEvents(): Promise<CrawledItem[]> {
+  const allItems: CrawledItem[] = [];
+  const seenTitles = new Set<string>();
+
+  for (const keyword of EVENT_KEYWORDS) {
+    if (allItems.length >= 30) break;
+
+    const items = await fetchRdaListing({
+      search_keyword: keyword,
+      search_ingState: "진행중",
+    });
+
+    for (const item of items) {
+      if (seenTitles.has(item.title)) continue;
+      seenTitles.add(item.title);
+      allItems.push(item);
+    }
+
+    console.log(
+      `[crawl] rda-events "${keyword}": ${items.length}건 (누적 ${allItems.length}건)`
+    );
+  }
+
+  return allItems;
+}
+
+// ═══════════════════════════════════════
+// 3. uni.agrix.go.kr JSON API 파서
 // ═══════════════════════════════════════
 
 interface AgrixResult {

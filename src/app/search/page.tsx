@@ -3,8 +3,8 @@
 import { Suspense, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Search, MapPin, Sprout, FileText, GraduationCap, CalendarDays, ArrowLeft } from "lucide-react";
-import { searchAll, type SearchItem } from "@/lib/data/search-index";
+import { Search, MapPin, Sprout, FileText, GraduationCap, CalendarDays, ArrowLeft, TrendingUp } from "lucide-react";
+import { searchAll, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import { logSearch } from "@/lib/supabase";
 import SearchGroup from "@/components/search/search-group";
@@ -72,6 +72,18 @@ function SearchPageContent() {
     }
   }, [query, totalCount]);
 
+  // 최근 검색어 (localStorage)
+  const recentSearches = useMemo(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = localStorage.getItem("irang-recent-searches");
+      return raw ? (JSON.parse(raw) as string[]).slice(0, 5) : [];
+    } catch {
+      return [];
+    }
+  }, // eslint-disable-next-line react-hooks/exhaustive-deps
+  [query]); // query 변경 시 다시 읽음
+
   return (
     <div className={s.page}>
       {/* 검색바 */}
@@ -96,6 +108,67 @@ function SearchPageContent() {
           <p className={s.emptyDesc}>
             지역, 작물, 지원사업을 한번에 검색하세요.
           </p>
+
+          {/* 인기 검색어 */}
+          <div className={s.popularSection}>
+            <h2 className={s.popularTitle}>
+              <TrendingUp size={16} />
+              다른 사람들이 많이 찾는 검색어
+            </h2>
+            <div className={s.popularTags}>
+              {POPULAR_TAGS.map((tag) => (
+                <Link
+                  key={tag.label}
+                  href={`/search?q=${encodeURIComponent(tag.query)}`}
+                  className={s.popularTag}
+                >
+                  {tag.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* 최근 검색어 */}
+          {recentSearches.length > 0 && (
+            <div className={s.recentSection}>
+              <h2 className={s.recentTitle}>최근 검색어</h2>
+              <div className={s.recentTags}>
+                {recentSearches.map((q) => (
+                  <Link
+                    key={q}
+                    href={`/search?q=${encodeURIComponent(q)}`}
+                    className={s.recentTag}
+                  >
+                    <Search size={12} />
+                    {q}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 빠른 탐색 */}
+          <div className={s.quickLinks}>
+            <h2 className={s.quickLinksTitle}>바로 탐색하기</h2>
+            <div className={s.quickLinksGrid}>
+              <Link href="/regions" className={s.quickLink}>
+                <MapPin size={16} />
+                지역 비교
+              </Link>
+              <Link href="/crops" className={s.quickLink}>
+                <Sprout size={16} />
+                작물 정보
+              </Link>
+              <Link href="/programs" className={s.quickLink}>
+                <FileText size={16} />
+                지원사업
+              </Link>
+              <Link href="/education" className={s.quickLink}>
+                <GraduationCap size={16} />
+                교육
+              </Link>
+            </div>
+          </div>
         </div>
       )}
 

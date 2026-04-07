@@ -313,6 +313,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "윤작 작물로 활용하면 토양 질소를 자연 보충하여 후작물에 유리합니다.",
     ],
     relatedCropIds: ["rice", "corn", "sesame"],
+    kosisConfig: { tblId: "DT_1ET0292" },
   },
   {
     id: "sweet-potato",
@@ -335,6 +336,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "직거래·체험농장과 연계하면 수익성을 크게 높일 수 있습니다.",
     ],
     relatedCropIds: ["potato", "corn", "lettuce"],
+    kosisConfig: { tblId: "DT_1ET0292" },
   },
   {
     id: "potato",
@@ -357,6 +359,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "봄·가을 이모작이 가능한 지역이라면 연간 수익을 높일 수 있습니다.",
     ],
     relatedCropIds: ["sweet-potato", "corn", "napa-cabbage"],
+    kosisConfig: { tblId: "DT_1ET0292" },
   },
   {
     id: "corn",
@@ -379,6 +382,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "옥수수 후작으로 배추·무를 심으면 토지 활용도를 높일 수 있습니다.",
     ],
     relatedCropIds: ["sweet-potato", "potato", "soybean"],
+    kosisConfig: { tblId: "DT_1ET0292" },
   },
   {
     id: "chili-pepper",
@@ -402,6 +406,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "첫해부터 대면적보다 1,000평 이하로 시작해 병해 관리 노하우를 익히세요.",
     ],
     relatedCropIds: ["garlic", "onion", "napa-cabbage"],
+    kosisConfig: { tblId: "DT_1ET0292" },
   },
   {
     id: "napa-cabbage",
@@ -424,6 +429,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "배추 계약 재배를 활용하면 가격 하락 위험을 줄일 수 있습니다.",
     ],
     relatedCropIds: ["chili-pepper", "garlic", "onion"],
+    kosisConfig: { tblId: "DT_1ET0292" },
   },
   {
     id: "garlic",
@@ -446,6 +452,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "마늘쫑도 별도 수입원이 되니, 출하 루트를 미리 확보해두세요.",
     ],
     relatedCropIds: ["onion", "chili-pepper", "napa-cabbage"],
+    kosisConfig: { tblId: "DT_1ET0292" },
   },
   {
     id: "onion",
@@ -468,6 +475,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "양파즙·양파 가공품 등 6차산업과 연계하면 부가가치를 높일 수 있습니다.",
     ],
     relatedCropIds: ["garlic", "napa-cabbage", "chili-pepper"],
+    kosisConfig: { tblId: "DT_1ET0292" },
   },
   {
     id: "lettuce",
@@ -490,6 +498,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "여름 고온기에는 추대(꽃대) 방지 품종을 선택하세요.",
     ],
     relatedCropIds: ["sweet-potato", "napa-cabbage", "chili-pepper"],
+    kosisConfig: { tblId: "DT_1ET0017" },
   },
   {
     id: "apple",
@@ -513,6 +522,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "첫 수확까지 3~5년이 걸리므로, 그 사이 소득원(단기 작물)을 병행하세요.",
     ],
     relatedCropIds: ["pear", "grape", "citrus"],
+    kosisConfig: { tblId: "DT_1AG20411" },
   },
   {
     id: "pear",
@@ -535,6 +545,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "봉지씌우기 작업이 인건비의 상당 부분을 차지하니 적기에 인력 확보가 필요합니다.",
     ],
     relatedCropIds: ["apple", "grape", "citrus"],
+    kosisConfig: { tblId: "DT_1AG20411" },
   },
   {
     id: "grape",
@@ -557,6 +568,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "와이너리·체험농장과 연계하면 6차산업으로 부가가치를 높일 수 있습니다.",
     ],
     relatedCropIds: ["apple", "pear", "strawberry"],
+    kosisConfig: { tblId: "DT_1AG20411" },
   },
   {
     id: "citrus",
@@ -579,6 +591,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "감귤 가공(주스, 초콜릿 등)으로 부가가치를 높이는 농가가 늘고 있습니다.",
     ],
     relatedCropIds: ["apple", "pear", "grape"],
+    kosisConfig: { tblId: "DT_1AG20411" },
   },
   {
     id: "strawberry",
@@ -602,6 +615,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "첫해는 소규모(100~200평)로 시작해 환경 제어 감각을 익히세요.",
     ],
     relatedCropIds: ["grape", "lettuce", "citrus"],
+    kosisConfig: { tblId: "DT_1ET0017" },
   },
   {
     id: "ginseng",
@@ -625,6 +639,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "홍삼 가공까지 하면 부가가치가 크게 올라갑니다.",
     ],
     relatedCropIds: ["sesame", "chili-pepper"],
+    kosisConfig: { tblId: "DT_1ET0292" },
   },
   {
     id: "sesame",
@@ -647,5 +662,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "들깨와 함께 재배하면 작업을 효율적으로 분산할 수 있습니다.",
     ],
     relatedCropIds: ["soybean", "corn", "ginseng"],
+    kosisConfig: { tblId: "DT_1ET0292" },
   },
 ];

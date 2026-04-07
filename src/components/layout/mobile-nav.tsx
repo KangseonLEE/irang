@@ -25,6 +25,7 @@ const tabs = [
 const morePaths = [
   "/more",
   "/assess",
+  "/guide",
   "/crops",
   "/education",
   "/events",

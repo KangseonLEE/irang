@@ -15,9 +15,11 @@ import { getServiceClient } from "../_shared/supabase-client.ts";
 import {
   CRAWL_TARGETS,
   fetchRdaListing,
+  fetchRdaEvents,
   fetchAgrixPrograms,
   checkUrlHealth,
   crawlSlug,
+  inferEventType,
   type CrawlTarget,
   type CrawledItem,
 } from "../_shared/crawl-utils.ts";
@@ -112,7 +114,9 @@ async function crawlTarget(supabase: any, target: CrawlTarget): Promise<CrawlRes
     console.log(`[sync-crawl] ${target.name} 크롤링 시작...`);
 
     // ─── 데이터 수집 (타겟 타입별) ───
-    if (target.type === "rda-listing") {
+    if (target.type === "rda-events") {
+      items = await fetchRdaEvents();
+    } else if (target.type === "rda-listing") {
       items = await fetchRdaListing(target.params);
     } else if (target.type === "agrix-api") {
       items = await fetchAgrixPrograms(1, 30);
@@ -126,7 +130,9 @@ async function crawlTarget(supabase: any, target: CrawlTarget): Promise<CrawlRes
       const tableName =
         target.category === "programs"
           ? "support_programs"
-          : "education_courses";
+          : target.category === "events"
+            ? "farm_events"
+            : "education_courses";
 
       // 이미 검증된 항목이면 스킵
       const { data: existing } = await supabase
@@ -150,7 +156,31 @@ async function crawlTarget(supabase: any, target: CrawlTarget): Promise<CrawlRes
       const region = mapAreaName(item.region || "전국");
       const today = new Date().toISOString().slice(0, 10);
 
-      if (target.category === "programs") {
+      if (target.category === "events") {
+        const eventType = inferEventType(item.title);
+        const { error } = await supabase.from("farm_events").upsert(
+          {
+            slug,
+            title: item.title,
+            region,
+            organization: item.organization || target.name,
+            type: eventType,
+            date_start: item.dateStart || today,
+            date_end: item.dateEnd || null,
+            location: region,
+            cost: "상세 공고 참조",
+            description: `${target.name}에서 수집된 행사 정보입니다.`,
+            capacity: null,
+            target: item.capacity || "상세 공고 참조",
+            url: item.url,
+            status: item.status === "마감" ? "마감" : item.status === "모집예정" ? "접수예정" : "접수중",
+            is_verified: linkStatus !== "broken",
+          },
+          { onConflict: "slug" }
+        );
+        if (error) errors.push(`${item.title}: ${error.message}`);
+        else newItems++;
+      } else if (target.category === "programs") {
         const { error } = await supabase.from("support_programs").upsert(
           {
             slug,

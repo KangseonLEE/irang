@@ -1,0 +1,561 @@
+/* ==========================================================================
+   /guide — 귀농 프로세스 가이드 (5단계)
+   CSS Module · 모바일 우선 반응형 (640 / 768 / 1024)
+   ========================================================================== */
+
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 24px 80px;
+    gap: 40px;
+  }
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding-bottom: 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 48px 32px 64px;
+    gap: 48px;
+  }
+}
+
+/* ═══ 히어로 ═══ */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 16px 32px;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary, #1b6b5a) 6%, var(--background, #fff)),
+    var(--background, #fff)
+  );
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+@media (min-width: 640px) {
+  .hero {
+    padding: 56px 32px 40px;
+  }
+}
+
+.heroOverline {
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--primary, #1b6b5a);
+  margin-bottom: 12px;
+}
+
+.heroTitle {
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+  margin: 0 0 12px;
+  word-break: keep-all;
+}
+
+@media (min-width: 480px) {
+  .heroTitle {
+    font-size: 1.75rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .heroTitle {
+    font-size: 2.1rem;
+  }
+}
+
+.accent {
+  color: var(--primary, #1b6b5a);
+}
+
+.heroDesc {
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.7;
+  color: var(--muted-foreground, #6b7280);
+  max-width: 520px;
+  margin: 0;
+  word-break: keep-all;
+}
+
+/* ═══ 타임라인 요약 (가로 스크롤) ═══ */
+.timelineOverview {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px 0;
+}
+
+.timelineOverview::-webkit-scrollbar {
+  display: none;
+}
+
+.timelineTrack {
+  display: flex;
+  gap: 0;
+  min-width: max-content;
+  padding: 0 4px;
+}
+
+.timelineDot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 24px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+@media (hover: hover) {
+  .timelineDot:hover {
+    background: var(--muted, #f9fafb);
+  }
+}
+
+.timelineDotIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  z-index: 1;
+}
+
+.timelineDotLabel {
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.timelineDotPeriod {
+  font-size: var(--fs-caption, 0.75rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.timelineConnector {
+  position: absolute;
+  top: 36px;
+  right: -12px;
+  width: 24px;
+  height: 2px;
+  background: var(--border, #e5e7eb);
+}
+
+/* ═══ 단계 상세 섹션 ═══ */
+.stepSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 20px;
+  border-radius: 20px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+@media (min-width: 640px) {
+  .stepSection {
+    padding: 32px 28px;
+    gap: 24px;
+  }
+}
+
+/* 단계 헤더 */
+.stepHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stepBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-caption, 0.75rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  padding: 4px 12px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.stepTitle {
+  font-size: var(--fs-h2, 1.5rem);
+  font-weight: 800;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.stepMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stepPeriod {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.stepSummary {
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.7;
+  color: var(--muted-foreground, #6b7280);
+  margin: 4px 0 0;
+  word-break: keep-all;
+}
+
+/* 단계 바디 */
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 상세 설명 */
+.subHeading {
+  font-size: var(--fs-body, 1rem);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0 0 8px;
+}
+
+.detailList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.detailItem {
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.7;
+  color: var(--foreground);
+}
+
+/* 체크리스트 */
+.checklistCard {
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.checklistTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  margin: 0 0 12px;
+}
+
+.checklistItems {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checklistItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.5;
+  color: var(--foreground);
+}
+
+.checkBox {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--border, #d1d5db);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* 팁 */
+.tipsCard {
+  padding: 20px;
+  border-radius: 14px;
+  background: color-mix(in srgb, #eab308 6%, var(--background, #fff));
+  border: 1px solid color-mix(in srgb, #eab308 20%, var(--border, #e5e7eb));
+}
+
+.tipsTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 700;
+  color: #a16207;
+  margin: 0 0 10px;
+}
+
+.tipsList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tipItem {
+  font-size: var(--fs-caption, 0.75rem);
+  line-height: 1.65;
+  color: var(--foreground);
+  padding-left: 16px;
+  position: relative;
+}
+
+.tipItem::before {
+  content: "💡";
+  position: absolute;
+  left: 0;
+  font-size: 0.625rem;
+}
+
+/* 주의사항 */
+.cautionCard {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: color-mix(in srgb, #ef4444 5%, var(--background, #fff));
+  border: 1px solid color-mix(in srgb, #ef4444 20%, var(--border, #e5e7eb));
+  color: #dc2626;
+}
+
+.cautionCard > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cautionText {
+  font-size: var(--fs-caption, 0.75rem);
+  line-height: 1.65;
+  color: #991b1b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* 관련 링크 */
+.stepLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.stepLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  font-size: var(--fs-caption, 0.75rem);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+@media (hover: hover) {
+  .stepLink:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  }
+}
+
+/* ═══ 비용 요약 ═══ */
+.costSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.costTitle {
+  font-size: var(--fs-h3, 1.25rem);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.costDesc {
+  font-size: var(--fs-body-sm, 0.875rem);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.costGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 480px) {
+  .costGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.costCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.costHighlight {
+  border-color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+}
+
+.costPhase {
+  font-size: var(--fs-caption, 0.75rem);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.costAmount {
+  font-size: var(--fs-h4, 1.125rem);
+  font-weight: 800;
+  color: var(--foreground);
+}
+
+.costHighlight .costAmount {
+  color: var(--primary, #1b6b5a);
+}
+
+.costNote {
+  font-size: var(--fs-caption, 0.75rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ═══ CTA ═══ */
+.ctaSection {
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--primary, #1b6b5a) 0%, #0f4035 100%);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .ctaSection {
+    padding: 48px 40px;
+  }
+}
+
+.ctaTitle {
+  font-size: var(--fs-h3, 1.25rem);
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px;
+  word-break: keep-all;
+}
+
+.ctaDesc {
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 20px;
+  word-break: keep-all;
+}
+
+.ctaButtons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (min-width: 480px) {
+  .ctaButtons {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 28px;
+  font-size: var(--fs-body, 1rem);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: #fff;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+@media (hover: hover) {
+  .ctaPrimary:hover {
+    opacity: 0.9;
+  }
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 24px;
+  font-size: var(--fs-body, 1rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+@media (hover: hover) {
+  .ctaSecondary:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+}

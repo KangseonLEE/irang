@@ -15,6 +15,8 @@ export const KOSIS_TABLE = {
   FRUIT_AREA: "DT_1AG20411",
   /** 시설작물 재배면적 */
   FACILITY_CROP_AREA: "DT_1ET0017",
+  /** 농작물 생산조사 — 식량작물(미곡 제외), 채소, 특용작물 통합 */
+  CROP_PRODUCTION: "DT_1ET0292",
 } as const;
 
 /** KOSIS API 응답 원본 아이템 */
@@ -42,7 +44,8 @@ export interface CropStatItem {
  * 당해년도를 먼저 시도한 뒤 데이터가 없으면 전년도로 fallback한다.
  */
 export async function fetchCropStats(
-  tblId: string
+  tblId: string,
+  objL1Code?: string
 ): Promise<CropStatItem[]> {
   const apiKey = process.env.KOSIS_API_KEY;
   if (!apiKey) {
@@ -53,11 +56,11 @@ export async function fetchCropStats(
   const currentYear = new Date().getFullYear();
 
   // 당해년도 시도
-  const items = await fetchFromKOSIS(tblId, apiKey, currentYear);
+  const items = await fetchFromKOSIS(tblId, apiKey, currentYear, objL1Code);
   if (items.length > 0) return items;
 
   // fallback: 전년도
-  return fetchFromKOSIS(tblId, apiKey, currentYear - 1);
+  return fetchFromKOSIS(tblId, apiKey, currentYear - 1, objL1Code);
 }
 
 // --- 내부 함수 ---
@@ -65,13 +68,14 @@ export async function fetchCropStats(
 async function fetchFromKOSIS(
   tblId: string,
   apiKey: string,
-  year: number
+  year: number,
+  objL1Code?: string
 ): Promise<CropStatItem[]> {
   const url = new URL(API_BASE);
   url.searchParams.set("method", "getList");
   url.searchParams.set("apiKey", apiKey);
   url.searchParams.set("itmId", "ALL");
-  url.searchParams.set("objL1", "ALL");
+  url.searchParams.set("objL1", objL1Code || "ALL");
   url.searchParams.set("objL2", "");
   url.searchParams.set("format", "json");
   url.searchParams.set("jsonVD", "Y");

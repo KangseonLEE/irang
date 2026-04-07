@@ -109,9 +109,10 @@ export default async function CropDetailPage({
   }
 
   const cropStats = data.detail.kosisConfig
-    ? await fetchCropStats(data.detail.kosisConfig.tblId).catch(
-        () => [] as CropStatItem[]
-      )
+    ? await fetchCropStats(
+        data.detail.kosisConfig.tblId,
+        data.detail.kosisConfig.objL1Code
+      ).catch(() => [] as CropStatItem[])
     : [];
 
   const relatedPrograms = PROGRAMS.filter((p) =>

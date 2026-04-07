@@ -44,6 +44,7 @@ jobs:
           - rda-programs
           - rda-education
           - agrix-programs
+          - rda-events
     steps:
       - name: "Crawl: ${{ matrix.target }}"
         run: |
