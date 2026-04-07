@@ -18,6 +18,7 @@ import {
   Calendar,
   TrendingUp,
   FileText,
+  ExternalLink,
   ChevronRight,
   Gauge,
   Scale,
@@ -606,6 +607,7 @@ function RegionSection({
     .sort((a, b) => b.cultivationArea - a.cultivationArea)
     .slice(0, 5);
 
+  const maxArea = top5.length > 0 ? top5[0].cultivationArea : 1;
   const kosisYear = top5.length > 0 ? top5[0].year : null;
 
   return (
@@ -621,27 +623,58 @@ function RegionSection({
         {top5.length > 0 ? (
           <div className={s.regionRanking}>
             <p className={s.regionRankingTitle}>재배면적 상위</p>
-            <ol className={s.regionRankList}>
+            <div
+              className={s.chartContainer}
+              role="img"
+              aria-label={`재배면적: ${top5.map((st) => `${st.regionName} ${st.cultivationArea.toLocaleString()}ha`).join(", ")}`}
+            >
               {top5.map((stat, idx) => {
+                const pct = Math.round((stat.cultivationArea / maxArea) * 100);
                 const province = PROVINCES.find((p) => p.name === stat.regionName);
-                return province ? (
-                  <li key={stat.regionName}>
-                    <Link href={`/regions/${province.id}`} className={s.regionRankItem}>
-                      <span className={s.regionRankNum}>{idx + 1}</span>
-                      <span className={s.regionRankName}>{stat.regionName}</span>
-                      <ArrowRight size={14} className={s.regionRankArrow} />
-                    </Link>
-                  </li>
-                ) : (
-                  <li key={stat.regionName}>
-                    <div className={s.regionRankItem}>
-                      <span className={s.regionRankNum}>{idx + 1}</span>
-                      <span className={s.regionRankName}>{stat.regionName}</span>
+                const inner = (
+                  <>
+                    <div className={s.chartMeta}>
+                      <span className={s.chartRank}>{idx + 1}</span>
+                      <span className={s.chartLabel}>{stat.regionName}</span>
                     </div>
-                  </li>
+                    <div className={s.chartBarWrap}>
+                      <div
+                        className={s.chartBar}
+                        style={{ width: `${pct}%` }}
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <span className={s.chartValue}>
+                      {stat.cultivationArea.toLocaleString()}ha
+                    </span>
+                  </>
+                );
+                return province ? (
+                  <Link
+                    key={stat.regionName}
+                    href={`/regions/${province.id}`}
+                    className={s.chartRow}
+                  >
+                    {inner}
+                  </Link>
+                ) : (
+                  <div key={stat.regionName} className={s.chartRow}>
+                    {inner}
+                  </div>
                 );
               })}
-            </ol>
+            </div>
+            <p className={s.regionSource}>
+              출처: KOSIS 국가통계포털
+              <a
+                href="https://kosis.kr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={s.chartSourceLink}
+              >
+                kosis.kr <ExternalLink size={10} />
+              </a>
+            </p>
           </div>
         ) : (
           <div className={s.regionPills}>

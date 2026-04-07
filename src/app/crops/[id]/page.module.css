@@ -818,7 +818,7 @@
   margin-left: 2px;
 }
 
-/* 재배면적 순위 리스트 */
+/* 재배면적 차트 */
 .regionRanking {
   margin-bottom: 16px;
 }
@@ -827,41 +827,44 @@
   font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--muted-foreground, #6b7280);
-  margin: 0 0 10px;
+  margin: 0 0 16px;
 }
 
-.regionRankList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.chartContainer {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 14px;
 }
 
-.regionRankItem {
-  display: flex;
+.chartRow {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
   align-items: center;
   gap: 10px;
-  padding: 10px 8px;
-  border-bottom: 1px solid var(--border, #f3f4f6);
   text-decoration: none;
   color: inherit;
   border-radius: 8px;
+  padding: 2px 4px;
   transition: background-color 0.15s;
 }
 
-li:last-child .regionRankItem {
-  border-bottom: none;
-}
-
 @media (hover: hover) {
-  a.regionRankItem:hover {
+  a.chartRow:hover {
     background: var(--muted, #f3f4f6);
   }
 }
 
-.regionRankNum {
+@media (min-width: 640px) {
+  .chartRow { grid-template-columns: 120px 1fr auto; }
+}
+
+.chartMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chartRank {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -875,27 +878,64 @@ li:last-child .regionRankItem {
   flex-shrink: 0;
 }
 
-li:nth-child(n+4) .regionRankNum {
+.chartRow:nth-child(n+4) .chartRank {
   background: var(--muted, #e5e7eb);
   color: var(--muted-foreground, #6b7280);
 }
 
-.regionRankName {
+.chartLabel {
   font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--foreground, #111);
-  flex: 1;
+  white-space: nowrap;
 }
 
-.regionRankArrow {
+.chartBarWrap {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--muted, #f3f4f6);
+  overflow: hidden;
+}
+
+.chartBar {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--primary, #1B6B5A), var(--brand-400, #3EA088));
+  transition: width 0.5s ease;
+}
+
+.chartValue {
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  min-width: 72px;
+  text-align: right;
+}
+
+.regionSource {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: var(--fs-overline);
   color: var(--muted-foreground, #9ca3af);
-  flex-shrink: 0;
-  transition: color 0.15s;
+}
+
+.chartSourceLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--primary, #1B6B5A);
+  text-decoration: none;
 }
 
 @media (hover: hover) {
-  a.regionRankItem:hover .regionRankArrow {
-    color: var(--primary, #1B6B5A);
+  .chartSourceLink:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 }
 
@@ -1297,9 +1337,14 @@ li:nth-child(n+4) .regionRankNum {
     font-size: clamp(24px, 5vw, 36px);
   }
 
-  /* ── 재배지역 순위: 모바일 최적화 ── */
-  .regionRankItem {
-    padding: 8px 6px;
+  /* ── 재배지역 차트: 모바일 최적화 ── */
+  .chartRow {
+    grid-template-columns: 80px 1fr auto;
+    gap: 6px;
+  }
+
+  .chartValue {
+    font-size: var(--fs-caption);
   }
 }
 
