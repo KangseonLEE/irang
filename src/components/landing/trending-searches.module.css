@@ -4,11 +4,12 @@
    ══════════════════════════════════════════ */
 
 .wrapper {
+  --row-h: 30px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   margin-top: 8px;
-  height: 30px;
+  height: var(--row-h);
 }
 
 /* ── 고정 라벨 ── */
@@ -22,7 +23,7 @@
 
 /* ── 롤러 (키워드가 돌아가는 영역) ── */
 .roller {
-  height: 30px;
+  height: var(--row-h);
   overflow: hidden;
   mask-image:
     linear-gradient(
@@ -56,18 +57,18 @@
  */
 @keyframes roll {
   0%,    6.8%  { transform: translateY(0); }
-  7.7%,  14.5% { transform: translateY(calc(-1 * 30px)); }
-  15.4%, 22.2% { transform: translateY(calc(-2 * 30px)); }
-  23.1%, 29.9% { transform: translateY(calc(-3 * 30px)); }
-  30.8%, 37.6% { transform: translateY(calc(-4 * 30px)); }
-  38.5%, 45.3% { transform: translateY(calc(-5 * 30px)); }
-  46.2%, 53.0% { transform: translateY(calc(-6 * 30px)); }
-  53.8%, 60.7% { transform: translateY(calc(-7 * 30px)); }
-  61.5%, 68.4% { transform: translateY(calc(-8 * 30px)); }
-  69.2%, 76.1% { transform: translateY(calc(-9 * 30px)); }
-  76.9%, 83.8% { transform: translateY(calc(-10 * 30px)); }
-  84.6%, 91.5% { transform: translateY(calc(-11 * 30px)); }
-  92.3%, 100%  { transform: translateY(calc(-12 * 30px)); }
+  7.7%,  14.5% { transform: translateY(calc(-1 * var(--row-h))); }
+  15.4%, 22.2% { transform: translateY(calc(-2 * var(--row-h))); }
+  23.1%, 29.9% { transform: translateY(calc(-3 * var(--row-h))); }
+  30.8%, 37.6% { transform: translateY(calc(-4 * var(--row-h))); }
+  38.5%, 45.3% { transform: translateY(calc(-5 * var(--row-h))); }
+  46.2%, 53.0% { transform: translateY(calc(-6 * var(--row-h))); }
+  53.8%, 60.7% { transform: translateY(calc(-7 * var(--row-h))); }
+  61.5%, 68.4% { transform: translateY(calc(-8 * var(--row-h))); }
+  69.2%, 76.1% { transform: translateY(calc(-9 * var(--row-h))); }
+  76.9%, 83.8% { transform: translateY(calc(-10 * var(--row-h))); }
+  84.6%, 91.5% { transform: translateY(calc(-11 * var(--row-h))); }
+  92.3%, 100%  { transform: translateY(calc(-12 * var(--row-h))); }
 }
 
 /* ── 개별 키워드 아이템 ── */
@@ -75,7 +76,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 30px;
+  height: var(--row-h);
   font-size: var(--fs-body-sm);
   font-weight: 700;
   color: rgba(255, 255, 255, 0.92);
@@ -89,5 +90,21 @@
     color: #fff;
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+}
+
+/* ── 데스크탑 스케일업 ── */
+@media (min-width: 1024px) {
+  .wrapper {
+    --row-h: 36px;
+    gap: 8px;
+  }
+
+  .label {
+    font-size: 16px;
+  }
+
+  .item {
+    font-size: 16px;
   }
 }
