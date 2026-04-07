@@ -1,0 +1,140 @@
+/* ==========================================================================
+   CropSelector — 카테고리별 칩 레이아웃
+   RegionSelector 패턴 재활용
+   ========================================================================== */
+
+.card {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  background: var(--card, #fff);
+  padding: 20px 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.titleHint {
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+
+.counter {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.groupLabel {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 14px;
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  line-height: 1;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.chipDefault {
+  composes: chip;
+  background: var(--muted, #f4f4f5);
+  color: var(--muted-foreground);
+}
+
+@media (hover: hover) {
+  .chipDefault:hover {
+    background: color-mix(in srgb, var(--muted, #f4f4f5) 70%, transparent);
+  }
+}
+
+.chipSelected {
+  composes: chip;
+  background: var(--primary, #1b6b5a);
+  color: var(--primary-foreground, #fff);
+}
+
+@media (hover: hover) {
+  .chipSelected:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, black);
+  }
+}
+
+.chipEmoji {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.swapMessage {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+  border-radius: 12px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swapMessage { animation: none; }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -333,6 +333,38 @@
 }
 
 /* 하단 링크 */
+.crossLinks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+}
+
+.compareLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary-foreground, #fff);
+  background: var(--primary, #1b6b5a);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+
+@media (hover: hover) {
+  .compareLink:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 90%, black);
+  }
+}
+
+.compareLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
 .crossLink {
   display: inline-flex;
   align-items: center;

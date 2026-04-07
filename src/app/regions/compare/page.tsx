@@ -26,7 +26,7 @@ interface PageProps {
 export default async function RegionsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const selectedIds = params.stations
-    ? params.stations.split(",").slice(0, 4)
+    ? params.stations.split(",").slice(0, 3)
     : DEFAULT_STATION_IDS;
 
   // 선택된 관측소 메타데이터 추출 (동기 — 즉시 완료)

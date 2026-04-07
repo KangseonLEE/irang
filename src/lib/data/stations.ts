@@ -55,5 +55,5 @@ export const STATIONS: Station[] = [
   { stnId: "189", name: "서귀포", province: "제주특별자치도", description: "아열대 작물", sgisCode: "39", hiraSidoCd: "390000", eduCode: "V10" },
 ];
 
-/** 기본 표시 지역 (페이지 최초 로딩 시) */
-export const DEFAULT_STATION_IDS = ["108", "146", "143", "184"];
+/** 기본 표시 지역 (페이지 최초 로딩 시, 최대 3개) */
+export const DEFAULT_STATION_IDS = ["108", "146", "184"];

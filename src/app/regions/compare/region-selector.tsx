@@ -5,7 +5,7 @@ import { useCallback, useRef, useState } from "react";
 import type { Station } from "@/lib/data/stations";
 import s from "./region-selector.module.css";
 
-const MAX_SELECTION = 4;
+const MAX_SELECTION = 3;
 
 interface RegionSelectorProps {
   stations: Station[];

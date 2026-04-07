@@ -347,8 +347,15 @@ export default async function CropDetailPage({
             </dl>
             <div className={s.sideCtas}>
               <Link
-                href={programsHref}
+                href={`/crops/compare?ids=${data.id}${detail.relatedCropIds.length > 0 ? `,${detail.relatedCropIds[0]}` : ""}`}
                 className={`${s.ctaButton} ${s.ctaPrimary}`}
+              >
+                <Scale size={16} />
+                작물 비교하기
+              </Link>
+              <Link
+                href={programsHref}
+                className={`${s.ctaButton} ${s.ctaOutline}`}
               >
                 <FileText size={16} />
                 관련 지원사업 보기

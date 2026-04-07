@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Sprout, ArrowRight } from "lucide-react";
+import { Sprout, ArrowRight, Scale } from "lucide-react";
 import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -123,8 +123,13 @@ export default async function CropsPage({ searchParams }: PageProps) {
         />
       )}
 
-      {/* Cross-link CTA */}
-      <div>
+      {/* Cross-link CTAs */}
+      <div className={s.crossLinks}>
+        <Link href="/crops/compare" className={s.compareLink}>
+          <Scale size={16} />
+          작물 비교하기
+          <ArrowRight size={14} />
+        </Link>
         <Link href="/programs" className={s.crossLink}>
           관련 지원사업 찾기
           <ArrowRight size={16} />
