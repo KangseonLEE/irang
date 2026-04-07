@@ -5,7 +5,6 @@ import {
   CalendarDays,
   Users,
   BarChart3,
-  ClipboardCheck,
   Info,
   type LucideIcon,
 } from "lucide-react";
@@ -19,12 +18,6 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  {
-    href: "/match?mode=assess",
-    label: "귀농 적합성 진단",
-    icon: ClipboardCheck,
-    desc: "10문항으로 나의 귀농 준비 상태 점검",
-  },
   {
     href: "/crops",
     label: "작물정보",

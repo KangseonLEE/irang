@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useRef } from "react";
 import {
   Home,
   MapPin,
@@ -32,11 +33,55 @@ const morePaths = [
   "/about",
 ];
 
+// 재탭 시 스크롤 투 탑 → 새로고침 지원 경로 (리스트/피드형 페이지)
+const scrollableRoots = ["/", "/regions", "/programs"];
+
+function isScrollablePage(pathname: string) {
+  return scrollableRoots.some(
+    (root) => pathname === root || pathname.startsWith(root + "/"),
+  );
+}
+
+const SCROLL_TOP_THRESHOLD = 30;
+
 export function MobileNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const lastTapRef = useRef<{ path: string; time: number }>({
+    path: "",
+    time: 0,
+  });
 
   const isMoreActive = morePaths.some(
     (p) => pathname === p || pathname.startsWith(p + "/"),
+  );
+
+  const handleTabClick = useCallback(
+    (e: React.MouseEvent, href: string) => {
+      const isActive =
+        href === "/"
+          ? pathname === "/"
+          : pathname === href || pathname.startsWith(href + "/");
+
+      // 현재 탭이 아니면 기본 Link 동작 (페이지 이동)
+      if (!isActive) return;
+
+      // 현재 탭 재탭 — 스크롤 가능 페이지만 처리
+      if (!isScrollablePage(pathname)) return;
+
+      e.preventDefault();
+
+      const scrollY = window.scrollY;
+
+      if (scrollY > SCROLL_TOP_THRESHOLD) {
+        // 1단계: 스크롤 투 탑
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        // 2단계: 이미 상단 → 새로고침
+        router.refresh();
+      }
+    },
+    [pathname, router],
   );
 
   return (
@@ -54,6 +99,7 @@ export function MobileNav() {
               key={tab.href}
               href={tab.href}
               className={`${s.tab} ${isActive ? s.active : ""}`}
+              onClick={(e) => handleTabClick(e, tab.href)}
             >
               <Icon size={24} strokeWidth={isActive ? 2.2 : 1.8} />
               <span>{tab.label}</span>
@@ -61,7 +107,7 @@ export function MobileNav() {
           );
         })}
 
-        {/* 더보기 — 별도 페이지로 이동 */}
+        {/* 더보기 — 고정 페이지이므로 재탭 처리 없음 */}
         <Link
           href="/more"
           className={`${s.tab} ${isMoreActive ? s.active : ""}`}

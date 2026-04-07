@@ -187,11 +187,11 @@
 /* ── 반응형 ── */
 @media (max-width: 639px) {
   .label {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .labelDense {
-    font-size: 8px;
+    font-size: 10px;
   }
 
   .tooltip {
