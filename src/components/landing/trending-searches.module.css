@@ -96,15 +96,15 @@
 /* ── 데스크탑 스케일업 ── */
 @media (min-width: 1024px) {
   .wrapper {
-    --row-h: 36px;
-    gap: 8px;
+    --row-h: 40px;
+    gap: 10px;
   }
 
   .label {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .item {
-    font-size: 16px;
+    font-size: 18px;
   }
 }
