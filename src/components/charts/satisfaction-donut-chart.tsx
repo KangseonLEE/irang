@@ -75,7 +75,7 @@ export default function SatisfactionDonutChart({ data }: Props) {
               animationEasing="ease-out"
               label={({ cx, cy, midAngle, outerRadius: or, pct }: any) => {
                 const RADIAN = Math.PI / 180;
-                const radius = or + 28;
+                const radius = or + 38;
                 const x = cx + radius * Math.cos(-midAngle * RADIAN);
                 const y = cy + radius * Math.sin(-midAngle * RADIAN);
                 return (
@@ -85,7 +85,7 @@ export default function SatisfactionDonutChart({ data }: Props) {
                     fill="#6b7280"
                     textAnchor="middle"
                     dominantBaseline="central"
-                    fontSize={12}
+                    fontSize={14}
                     fontWeight={700}
                   >
                     {pct}%
