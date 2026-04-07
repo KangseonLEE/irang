@@ -249,18 +249,26 @@
   .th:first-child { width: 110px; }
 }
 
-.td {
+/* 라벨 셀 (첫 번째 열) */
+.tdLabel {
   padding: 10px 12px;
-  text-align: left;
-  color: var(--foreground, #333);
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
   border-bottom: 1px solid var(--border, #f3f4f6);
   vertical-align: top;
   white-space: nowrap;
 }
 
-.td:first-child {
-  font-weight: 600;
-  color: var(--muted-foreground, #6b7280);
+/* 데이터 셀 */
+.tdValue {
+  padding: 10px 12px;
+  font-size: var(--fs-body-sm);
+  color: var(--foreground, #333);
+  line-height: var(--lh-normal);
+  border-bottom: 1px solid var(--border, #f3f4f6);
+  vertical-align: top;
+  word-break: keep-all;
 }
 
 .tdUnit {
@@ -280,14 +288,17 @@
 }
 
 /* ---- 테이블 섹션 구분행 ---- */
-.sectionDivider {
+.dividerRow {
+  background: var(--muted, #f9fafb);
+}
+
+.dividerCell {
   padding: 8px 12px;
   font-size: var(--fs-caption);
   font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--muted-foreground, #6b7280);
-  background: var(--muted, #f9fafb);
   border-bottom: 1px solid var(--border, #e5e7eb);
 }
 

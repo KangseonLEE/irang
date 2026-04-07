@@ -379,8 +379,8 @@ function SectionDividerRow({
   colSpan: number;
 }) {
   return (
-    <tr>
-      <td colSpan={colSpan} className={s.sectionDivider}>
+    <tr className={s.dividerRow}>
+      <td colSpan={colSpan} className={s.dividerCell}>
         {label}
       </td>
     </tr>
@@ -404,11 +404,11 @@ function ComparisonRow({
 
   return (
     <tr>
-      <td className={s.td}>{label}</td>
+      <td className={s.tdLabel}>{label}</td>
       {values.map((val, i) => {
         if (val === null) {
           return (
-            <td key={i} className={s.td}>
+            <td key={i} className={s.tdValue}>
               <span className={s.tdNoData}>—</span>
             </td>
           );
@@ -419,7 +419,7 @@ function ComparisonRow({
           (highlight === "min" && val === minVal);
 
         return (
-          <td key={i} className={s.td}>
+          <td key={i} className={s.tdValue}>
             <span className={isHighlighted ? s.tdHighlight : undefined}>
               {val.toLocaleString()}
             </span>
