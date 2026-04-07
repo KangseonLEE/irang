@@ -106,7 +106,7 @@ export default function HomePage() {
 
       {/* ═══ 1. 히어로 — 검색 중심 ═══ */}
       <section className={s.heroSection} aria-label="검색">
-        <span className={s.heroEyebrow}>귀농, 이랑 같이</span>
+        <span className={s.heroEyebrow}>귀농을 꿈꾸는 모든 이들의 시작점</span>
 
         <h1 className={s.heroTitle}>
           막막했던 귀농,

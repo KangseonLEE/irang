@@ -111,7 +111,7 @@ export function Header() {
             <IrangSymbol size={28} />
             <span className={s.logoTextWrap}>
               <span className={s.logoTitle}>이랑</span>
-              <span className={s.logoSub}>귀농, 이랑 같이</span>
+              <span className={s.logoSub}>귀농을 꿈꾸는 모든 이들의 시작점</span>
             </span>
           </Link>
 
