@@ -1,0 +1,308 @@
+/* ══════════════════════════════════════════
+   귀농 만족도 — 대시보드 레이아웃
+   CSS Module · 모바일 우선 반응형
+   ══════════════════════════════════════════ */
+
+/* ── 페이지 ── */
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 640px) {
+  .page { padding: 32px 24px 64px; gap: 24px; }
+}
+
+@media (min-width: 1024px) {
+  .page { padding: 40px 32px 64px; gap: 28px; }
+}
+
+/* ── 헤더 + KPI 블록 ── */
+.dashHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 20px;
+  border-radius: 20px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 640px) {
+  .dashHeader { padding: 28px 28px; }
+}
+
+.dashHeaderText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.overline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary, #1B6B5A);
+}
+
+.title {
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  color: var(--foreground, #111);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .title { font-size: var(--fs-h2); }
+}
+
+.desc {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+  line-height: var(--lh-normal);
+}
+
+/* ── KPI 4칸 ── */
+.kpiRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--background, #fff);
+}
+
+@media (min-width: 640px) {
+  .kpiRow {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.kpiItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  border-right: 1px solid var(--border, #e5e7eb);
+}
+
+.kpiItem:nth-child(2) { border-right: none; }
+.kpiItem:nth-child(n+3) { border-bottom: none; }
+.kpiItem:nth-child(3) { border-right: 1px solid var(--border, #e5e7eb); }
+
+/* divider는 모바일에서 숨기고, 태블릿+에서 세로 라인 */
+.kpiDivider { display: none; }
+
+@media (min-width: 640px) {
+  .kpiItem {
+    padding: 16px 20px;
+    border-bottom: none;
+    border-right: none;
+  }
+  .kpiItem:nth-child(3) { border-right: none; }
+
+  .kpiDivider {
+    display: block;
+    width: 1px;
+    align-self: stretch;
+    background: var(--border, #e5e7eb);
+    margin: 10px 0;
+    flex-shrink: 0;
+  }
+}
+
+.kpiValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--primary, #1B6B5A);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+@media (min-width: 640px) {
+  .kpiValue { font-size: 30px; }
+}
+
+.kpiIcon {
+  color: var(--primary, #1B6B5A);
+  flex-shrink: 0;
+}
+
+.kpiLabel {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 메인 대시보드 그리드 ── */
+.dashGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .dashGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+}
+
+/* ── 카드 ── */
+.card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 640px) {
+  .card { padding: 24px; }
+}
+
+.cardTitle {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  color: var(--foreground, #111);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardIcon {
+  color: var(--primary, #1B6B5A);
+  flex-shrink: 0;
+}
+
+/* ── 요인 세로 스택 ── */
+.factorsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── 하단: 요약 + CTA ── */
+.bottomRow {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .bottomRow {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 20px;
+  }
+}
+
+.summary {
+  flex: 1;
+  font-size: var(--fs-body-sm);
+  color: var(--foreground, #333);
+  line-height: var(--lh-relaxed);
+  word-break: keep-all;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--background, #fff));
+  border-left: 4px solid var(--primary, #1B6B5A);
+  margin: 0;
+}
+
+.interviewCta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  background: var(--primary, #1B6B5A);
+  color: #fff;
+  text-decoration: none;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+@media (hover: hover) {
+  .interviewCta:hover { opacity: 0.9; }
+}
+
+/* ── 푸터 ── */
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.source {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+}
+
+.navLinks {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground, #111);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+@media (hover: hover) {
+  .navLink:hover {
+    border-color: var(--primary, #1B6B5A);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, var(--background, #fff));
+    color: var(--primary, #1B6B5A);
+  }
+}
+
+.navLinkActive {
+  composes: navLink;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+  border-color: var(--primary, #1B6B5A);
+  color: var(--primary, #1B6B5A);
+  pointer-events: none;
+}
