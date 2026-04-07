@@ -199,6 +199,12 @@
   flex-shrink: 0;
 }
 
+.chartSource {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground, #9ca3af);
+  margin: 4px 0 0;
+}
+
 /* ── 요인 세로 스택 ── */
 .factorsStack {
   display: flex;

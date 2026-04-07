@@ -97,6 +97,13 @@ export default function FactorBarChart({
             animationDuration={800}
             animationEasing="ease-out"
             barSize={28}
+            label={{
+              position: "right",
+              fontSize: 13,
+              fontWeight: 700,
+              fill: "#374151",
+              formatter: (v: unknown) => `${v}%`,
+            }}
           >
             {enrichedData.map((entry) => (
               <Cell

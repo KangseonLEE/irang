@@ -96,6 +96,7 @@ export default function SatisfactionPage() {
             만족도 분포
           </h2>
           <SatisfactionDonutChart data={satisfactionSegments} />
+          <p className={s.chartSource}>출처: {satisfactionSummary.source}</p>
         </section>
 
         {/* 우: 만족/불만족 요인 세로 스택 */}
@@ -110,6 +111,7 @@ export default function SatisfactionPage() {
               variant="positive"
               highlightTop={2}
             />
+            <p className={s.chartSource}>출처: {satisfactionSummary.source}</p>
           </section>
 
           <section className={s.card} aria-labelledby="neg-title">
@@ -122,6 +124,7 @@ export default function SatisfactionPage() {
               variant="negative"
               highlightTop={2}
             />
+            <p className={s.chartSource}>출처: {satisfactionSummary.source}</p>
           </section>
         </div>
       </div>
