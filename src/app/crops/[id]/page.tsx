@@ -32,7 +32,7 @@ import {
   type CropDetailInfo,
   type ProsConsInfo,
 } from "@/lib/data/crops";
-import { getStationByProvince } from "@/lib/data/stations";
+import { PROVINCES } from "@/lib/data/regions";
 import { fetchCropStats, type CropStatItem } from "@/lib/api/kosis";
 import { PROGRAMS } from "@/lib/data/programs";
 import { GlossaryTerm } from "@/components/ui/term-tooltip";
@@ -607,6 +607,7 @@ function RegionSection({
     .sort((a, b) => b.cultivationArea - a.cultivationArea)
     .slice(0, 5);
 
+  const maxArea = top5.length > 0 ? top5[0].cultivationArea : 1;
   const kosisYear = top5.length > 0 ? top5[0].year : null;
 
   return (
@@ -619,51 +620,50 @@ function RegionSection({
         )}
       </div>
       <div className={s.sectionBody}>
-        <div className={s.regionPills}>
-          {majorRegions.map((r) => {
-            const station = getStationByProvince(r);
-            const stat = top5.find((st) => st.regionName === r);
-            return station ? (
-              <Link
-                key={r}
-                href={`/regions?stations=${station.stnId}`}
-                className={s.regionPillLink}
-              >
-                <MapPin size={12} />
-                {r}
-                {stat && (
-                  <span className={s.regionPillArea}>
-                    {stat.cultivationArea.toLocaleString()}ha
-                  </span>
-                )}
-              </Link>
-            ) : (
-              <span key={r} className={s.regionPill}>
-                {r}
-                {stat && (
-                  <span className={s.regionPillArea}>
-                    {stat.cultivationArea.toLocaleString()}ha
-                  </span>
-                )}
-              </span>
-            );
-          })}
-        </div>
-
-        {top5.length > 0 && (
+        {top5.length > 0 ? (
           <div className={s.regionRanking}>
             <p className={s.regionRankingTitle}>재배면적 상위</p>
-            <ol className={s.regionRankingList}>
-              {top5.map((stat, idx) => (
-                <li key={stat.regionName} className={s.regionRankItem}>
-                  <span className={s.regionRankNum}>{idx + 1}</span>
-                  <span className={s.regionRankName}>{stat.regionName}</span>
-                  <span className={s.regionRankValue}>
-                    {stat.cultivationArea.toLocaleString()} <GlossaryTerm term="ha" />
-                  </span>
-                </li>
-              ))}
-            </ol>
+            <div
+              className={s.chartContainer}
+              role="img"
+              aria-label={`재배면적: ${top5.map((st) => `${st.regionName} ${st.cultivationArea.toLocaleString()}ha`).join(", ")}`}
+            >
+              {top5.map((stat, idx) => {
+                const pct = Math.round((stat.cultivationArea / maxArea) * 100);
+                const province = PROVINCES.find((p) => p.name === stat.regionName);
+                const inner = (
+                  <>
+                    <div className={s.chartMeta}>
+                      <span className={s.chartRank}>{idx + 1}</span>
+                      <span className={s.chartLabel}>{stat.regionName}</span>
+                    </div>
+                    <div className={s.chartBarWrap}>
+                      <div
+                        className={s.chartBar}
+                        style={{ width: `${pct}%` }}
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <span className={s.chartValue}>
+                      {stat.cultivationArea.toLocaleString()}ha
+                    </span>
+                  </>
+                );
+                return province ? (
+                  <Link
+                    key={stat.regionName}
+                    href={`/regions/${province.id}`}
+                    className={s.chartRow}
+                  >
+                    {inner}
+                  </Link>
+                ) : (
+                  <div key={stat.regionName} className={s.chartRow}>
+                    {inner}
+                  </div>
+                );
+              })}
+            </div>
             <p className={s.regionSource}>
               출처: KOSIS 국가통계포털
               <a
@@ -675,6 +675,24 @@ function RegionSection({
                 kosis.kr <ExternalLink size={10} />
               </a>
             </p>
+          </div>
+        ) : (
+          <div className={s.regionPills}>
+            {majorRegions.map((r) => {
+              const province = PROVINCES.find((p) => p.name === r);
+              return province ? (
+                <Link
+                  key={r}
+                  href={`/regions/${province.id}`}
+                  className={s.regionPillLink}
+                >
+                  <MapPin size={12} />
+                  {r}
+                </Link>
+              ) : (
+                <span key={r} className={s.regionPill}>{r}</span>
+              );
+            })}
           </div>
         )}
 

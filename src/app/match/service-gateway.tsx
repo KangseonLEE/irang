@@ -45,37 +45,6 @@ export function ServiceGateway() {
       </div>
 
       <div className={s.cards}>
-        {/* 맞춤 지역·작물 추천 */}
-        <button
-          type="button"
-          className={s.card}
-          onClick={() => setMode("match")}
-        >
-          <div className={s.cardIcon}>
-            <MapPin size={28} />
-          </div>
-          <div className={s.cardBody}>
-            <h2 className={s.cardTitle}>맞춤 지역·작물 추천</h2>
-            <p className={s.cardDesc}>
-              기후, 생활환경, 관심 작물 등 5가지 질문에 답하면
-              나에게 딱 맞는 귀농 지역과 작물을 추천해 드립니다.
-            </p>
-            <div className={s.cardMeta}>
-              <span className={s.cardMetaItem}>
-                <ListChecks size={14} />
-                5문항
-              </span>
-              <span className={s.cardMetaItem}>
-                <Clock size={14} />
-                약 2분
-              </span>
-            </div>
-          </div>
-          <div className={s.cardArrow}>
-            <ArrowRight size={20} />
-          </div>
-        </button>
-
         {/* 귀농 적합성 진단 */}
         <button
           type="button"
@@ -99,6 +68,37 @@ export function ServiceGateway() {
               <span className={s.cardMetaItem}>
                 <Clock size={14} />
                 약 3분
+              </span>
+            </div>
+          </div>
+          <div className={s.cardArrow}>
+            <ArrowRight size={20} />
+          </div>
+        </button>
+
+        {/* 맞춤 지역·작물 추천 */}
+        <button
+          type="button"
+          className={s.card}
+          onClick={() => setMode("match")}
+        >
+          <div className={s.cardIcon}>
+            <MapPin size={28} />
+          </div>
+          <div className={s.cardBody}>
+            <h2 className={s.cardTitle}>맞춤 지역·작물 추천</h2>
+            <p className={s.cardDesc}>
+              기후, 생활환경, 관심 작물 등 5가지 질문에 답하면
+              나에게 딱 맞는 귀농 지역과 작물을 추천해 드립니다.
+            </p>
+            <div className={s.cardMeta}>
+              <span className={s.cardMetaItem}>
+                <ListChecks size={14} />
+                5문항
+              </span>
+              <span className={s.cardMetaItem}>
+                <Clock size={14} />
+                약 2분
               </span>
             </div>
           </div>

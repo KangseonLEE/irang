@@ -21,10 +21,14 @@
   color: #fff;
   background: var(--foreground, #1f2937);
   border-radius: 6px;
-  white-space: nowrap;
+  white-space: normal;
+  width: max-content;
+  max-width: 260px;
+  text-align: center;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.15s;
+  z-index: 50;
 }
 
 .tooltip::after {
