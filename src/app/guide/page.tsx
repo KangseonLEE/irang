@@ -253,7 +253,7 @@ export default function GuidePage() {
             return (
               <a key={step.step} href={`#step-${step.step}`} className={s.timelineDot}>
                 <div className={s.timelineDotIcon}>
-                  <Icon size={18} />
+                  <Icon size={22} />
                 </div>
                 <span className={s.timelineDotLabel}>{step.title}</span>
                 <span className={s.timelineDotPeriod}>{step.period}</span>
