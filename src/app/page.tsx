@@ -369,16 +369,18 @@ export default async function HomePage() {
       </section>
 
       {/* ═══ 6. 인터뷰 카드 — 감정적 전환점 ═══ */}
-      <div className={s.sectionHeader}>
-        <h2 className={s.sectionTitle}>먼저 떠난 사람들</h2>
-        <p className={s.interviewSub}>
-          도시를 떠나 새로운 삶을 시작한 사람들의 진짜 이야기
-        </p>
-      </div>
-      <InterviewCarousel items={interviews.slice(0, 4)} />
-      <Link href="/interviews" className={s.interviewViewAll}>
-        {interviews.length}명의 귀농인 이야기 더 보기 <ArrowRight size={14} />
-      </Link>
+      <section className={s.interviewSection} aria-label="인터뷰">
+        <div className={s.sectionHeader}>
+          <h2 className={s.sectionTitle}>먼저 떠난 사람들</h2>
+          <p className={s.interviewSub}>
+            도시를 떠나 새로운 삶을 시작한 사람들의 진짜 이야기
+          </p>
+        </div>
+        <InterviewCarousel items={interviews.slice(0, 4)} />
+        <Link href="/interviews" className={s.interviewViewAll}>
+          {interviews.length}명의 귀농인 이야기 더 보기 <ArrowRight size={14} />
+        </Link>
+      </section>
 
       {/* ═══ 7. 서비스 카드 — 인기 데이터 ═══ */}
       <section aria-label="인기 데이터">
