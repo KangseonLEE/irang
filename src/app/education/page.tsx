@@ -31,6 +31,7 @@ import {
 } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import { PageHeader } from "@/components/ui/page-header";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
@@ -313,7 +314,7 @@ function CourseCard({ course }: { course: EducationCourse }) {
       </div>
 
       {/* 설명 */}
-      <p className={s.cardDesc}>{course.description}</p>
+      <p className={s.cardDesc}><AutoGlossary text={course.description} /></p>
 
       {/* 하단: 비용 */}
       <div className={s.cardFooter}>

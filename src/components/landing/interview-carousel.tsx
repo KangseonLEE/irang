@@ -4,6 +4,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
+import { useDragScroll } from "@/lib/hooks/use-drag-scroll";
 import type { InterviewCard } from "@/lib/data/landing";
 import s from "./interview-carousel.module.css";
 
@@ -15,6 +16,9 @@ export function InterviewCarousel({ items }: InterviewCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(1);
+
+  // 마우스 드래그 스크롤
+  useDragScroll(scrollRef);
 
   /** 현재 보이는 카드 인덱스 계산 */
   const updateIndex = useCallback(() => {

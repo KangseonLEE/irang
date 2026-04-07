@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import {
   Sprout,
   FileText,
@@ -189,7 +190,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
               />
             </div>
           </div>
-          <p className={s.heroDesc}>{province.description}</p>
+          <p className={s.heroDesc}><AutoGlossary text={province.description} /></p>
           <div className={s.heroTags}>
             {province.highlights.map((tag) => (
               <span key={tag} className={s.heroTag}>
@@ -440,7 +441,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
               {province.personas.map((persona, i) => (
                 <div key={i} className={s.personaCard}>
                   <h4 className={s.personaTitle}>{persona.title}</h4>
-                  <p className={s.personaDesc}>{persona.description}</p>
+                  <p className={s.personaDesc}><AutoGlossary text={persona.description} /></p>
                 </div>
               ))}
             </div>

@@ -8,6 +8,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { useDragScroll } from "@/lib/hooks/use-drag-scroll";
 import s from "./service-carousel.module.css";
 
 /* ── 타입 ── */
@@ -49,6 +50,9 @@ export function ServiceCarousel({ cards }: ServiceCarouselProps) {
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const ratioMap = useRef(new Map<Element, number>());
   const rafId = useRef<number | null>(null);
+
+  // 마우스 드래그 스크롤
+  useDragScroll(trackRef);
 
   const [current, setCurrent] = useState(0);
   const [canPrev, setCanPrev] = useState(false);

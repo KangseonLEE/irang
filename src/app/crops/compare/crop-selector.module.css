@@ -48,10 +48,11 @@
   flex-wrap: wrap;
 }
 
+/* 카테고리 라벨 — 타이포 전용 (배경 없이 위계만 잡음) */
 .groupLabel {
   font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--muted-foreground);
+  font-weight: 700;
+  color: var(--foreground);
   flex-shrink: 0;
   line-height: 1;
 }

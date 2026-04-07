@@ -85,6 +85,21 @@
   position: relative;
 }
 
+/* 호버 브릿지: navLink ↔ dropdown 사이 4px 간격을 투명하게 연결 */
+.navGroup::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 8px;
+  pointer-events: none;
+}
+
+.navGroup:hover::after {
+  pointer-events: auto;
+}
+
 .navLink {
   display: inline-flex;
   align-items: center;

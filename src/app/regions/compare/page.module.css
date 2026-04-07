@@ -198,7 +198,11 @@
 }
 
 .tableCardHeader {
-  padding: 20px 24px 0;
+  padding: 16px 12px 0;
+}
+
+@media (min-width: 640px) {
+  .tableCardHeader { padding: 20px 24px 0; }
 }
 
 .tableCardTitle {
@@ -219,19 +223,27 @@
 
 /* ---- 테이블 ---- */
 .tableWrap {
-  padding: 12px 24px 24px;
+  padding: 16px 12px 16px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 640px) {
+  .tableWrap { padding: 20px 24px 24px; }
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--fs-body-sm);
-  table-layout: fixed;
+}
+
+@media (min-width: 640px) {
+  .table { table-layout: fixed; }
 }
 
 .th {
-  padding: 10px 12px;
+  padding: 8px;
   text-align: left;
   font-size: var(--fs-body-sm);
   font-weight: 600;
@@ -240,8 +252,11 @@
   white-space: nowrap;
 }
 
+@media (min-width: 640px) {
+  .th { padding: 10px 12px; }
+}
+
 .th:first-child {
-  width: 90px;
   color: var(--muted-foreground, #6b7280);
 }
 
@@ -251,24 +266,35 @@
 
 /* 라벨 셀 (첫 번째 열) */
 .tdLabel {
-  padding: 10px 12px;
+  padding: 8px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--muted-foreground, #6b7280);
   border-bottom: 1px solid var(--border, #f3f4f6);
-  vertical-align: top;
-  white-space: nowrap;
+  vertical-align: middle;
+  word-break: keep-all;
+}
+
+@media (min-width: 640px) {
+  .tdLabel {
+    padding: 10px 12px;
+    white-space: nowrap;
+  }
 }
 
 /* 데이터 셀 */
 .tdValue {
-  padding: 10px 12px;
+  padding: 8px;
   font-size: var(--fs-body-sm);
   color: var(--foreground, #333);
   line-height: var(--lh-normal);
   border-bottom: 1px solid var(--border, #f3f4f6);
-  vertical-align: top;
-  word-break: keep-all;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .tdValue { padding: 10px 12px; }
 }
 
 .tdUnit {

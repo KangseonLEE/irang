@@ -7,12 +7,15 @@ import {
   Tractor,
   Home,
   ArrowRight,
-  CheckCircle2,
-  Clock,
+  ChevronDown,
+  ChevronRight,
   Lightbulb,
   AlertTriangle,
   type LucideIcon,
 } from "lucide-react";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { TimelineLink, AccordionScrollWrapper } from "./timeline-nav";
+import { ChecklistInteractive } from "./checklist-interactive";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -32,7 +35,8 @@ interface GuideStep {
   details: string[];
   checklist: string[];
   tips: string[];
-  caution?: string;
+  caution: string;
+  cost: { amount: string; desc: string; highlight?: boolean };
   links: { label: string; href: string }[];
 }
 
@@ -64,10 +68,13 @@ const STEPS: GuideStep[] = [
       "작물 정보 페이지에서 난이도·수익성을 먼저 확인하면 후보를 좁히기 쉽습니다.",
       "처음부터 1곳에 올인하지 마세요. 비교 과정이 오히려 시간을 절약합니다.",
     ],
+    caution:
+      "가족 합의 없이 진행하면 중도 포기 가능성이 높습니다. 배우자와 자녀의 동의를 반드시 먼저 구하세요.",
+    cost: { amount: "약 30~50만 원", desc: "서적·자료비, 교통비, 온라인 강의 등" },
     links: [
       { label: "지역 비교하기", href: "/regions" },
       { label: "작물 정보 보기", href: "/crops" },
-      { label: "귀농 가이드 시작하기", href: "/match" },
+      { label: "나에게 맞는 추천받기", href: "/match" },
     ],
   },
   {
@@ -99,6 +106,7 @@ const STEPS: GuideStep[] = [
     ],
     caution:
       "교육 이수 없이는 대부분의 귀농 지원사업 신청이 불가합니다. 이 단계를 건너뛰지 마세요.",
+    cost: { amount: "약 50~100만 원", desc: "교육비(일부 무료), 체류형 숙박비, 교통비" },
     links: [
       { label: "교육 프로그램 보기", href: "/education" },
       { label: "지원사업 확인하기", href: "/programs" },
@@ -124,6 +132,8 @@ const STEPS: GuideStep[] = [
       "지역 농업기술센터 상담",
       "농지 매물·임대 시세 확인",
       "생활 인프라 접근성 확인 (의료·교육·마트)",
+      "배우자 취업·활동 가능성 확인",
+      "자녀 교육 환경 확인 (전학 절차 포함)",
       "지역 귀농인 모임 참석",
     ],
     tips: [
@@ -131,6 +141,9 @@ const STEPS: GuideStep[] = [
       "선배 귀농인의 실제 후기가 가장 신뢰도 높은 정보입니다. 인터뷰 페이지를 참고하세요.",
       "너무 외진 곳은 판로 확보가 어려울 수 있습니다. RPC(미곡종합처리장)나 산지유통센터(APC) 접근성도 고려하세요.",
     ],
+    caution:
+      "1~2회 단기 방문만으로 결정하지 마세요. 계절에 따라 환경이 크게 달라지며, 최소 2회 이상 방문을 권장합니다.",
+    cost: { amount: "약 50~100만 원", desc: "2~3회 답사 교통비, 임시 숙박비" },
     links: [
       { label: "지역 상세 보기", href: "/regions" },
       { label: "귀농인 인터뷰", href: "/interviews" },
@@ -153,20 +166,23 @@ const STEPS: GuideStep[] = [
     ],
     checklist: [
       "농지 확보 (매입 또는 임차 계약)",
+      "농지취득자격증명 발급",
       "최종 작물 결정",
       "영농 계획서 작성",
       "귀농 창업 지원금 신청",
       "농기계·시설 확보 (임대 또는 구매)",
       "종자·자재 구입",
       "농업경영체 등록",
+      "전입신고 완료",
     ],
     tips: [
       "농업경영체 등록은 각종 보조금·면세유 등의 혜택을 받기 위한 필수 절차입니다.",
       "첫 해는 소규모(3,000㎡ 이하)로 시작하여 재배 기술을 익힌 후 확대하세요.",
-      "지원사업은 신청 기간이 정해져 있으니, 지원사업 페이지에서 마감일을 꼭 확인하세요.",
+      "대부분의 지원사업은 연초(1~3월) 또는 하반기(7~8월)에 공고됩니다. 시기를 놓치지 마세요.",
     ],
     caution:
-      "이 단계의 투자 비용이 평균 5,260만 원으로 가장 큽니다. 지원사업을 최대한 활용하고, 무리한 초기 투자는 피하세요.",
+      "이 단계의 투자 비용이 평균 약 5,260만 원으로 가장 큽니다. 지원사업을 최대한 활용하고, 무리한 초기 투자는 피하세요.",
+    cost: { amount: "약 5,260만 원", desc: "농지, 농기계, 시설 투자", highlight: true },
     links: [
       { label: "작물 난이도·수익 비교", href: "/crops" },
       { label: "지원사업 검색", href: "/programs" },
@@ -194,6 +210,7 @@ const STEPS: GuideStep[] = [
       "판로 확보 (1개 이상 판매 채널)",
       "1년차 영농 결과 분석",
       "멘토링 프로그램 참여",
+      "가족 적응 지원 프로그램 참여",
       "2년차 영농 계획 수립",
     ],
     tips: [
@@ -201,29 +218,14 @@ const STEPS: GuideStep[] = [
       "6차 산업(가공·체험·판매)으로 확장하면 부가가치를 높일 수 있습니다.",
       "힘든 시기에 귀농인 네트워크가 큰 힘이 됩니다. 동기생·선배 귀농인과의 관계를 유지하세요.",
     ],
+    caution:
+      "첫 수확까지 소득 공백이 발생합니다. 채소류 3~6개월, 과수류는 3~5년이 걸리므로, 그 기간의 생활비를 미리 확보하세요.",
+    cost: { amount: "약 960만 원", desc: "주택 마련, 초기 생활 안정" },
     links: [
       { label: "지원사업 검색", href: "/programs" },
       { label: "체험·행사 일정", href: "/events" },
       { label: "귀농인 이야기", href: "/interviews" },
     ],
-  },
-];
-
-// ─── 비용 요약 ───
-
-const costSummary = [
-  { phase: "1·2단계 탐색·교육", amount: "소규모", desc: "교육비, 교통·체류비" },
-  { phase: "3단계 현장 답사", amount: "소규모", desc: "답사 교통비, 임시 숙박비" },
-  {
-    phase: "4단계 영농 준비",
-    amount: "~5,260만 원",
-    desc: "농지, 농기계, 시설 투자",
-    highlight: true,
-  },
-  {
-    phase: "5단계 정착",
-    amount: "~960만 원",
-    desc: "주택 마련, 초기 생활 안정",
   },
 ];
 
@@ -238,35 +240,54 @@ export default function GuidePage() {
         <h1 className={s.heroTitle}>
           귀농, <span className={s.accent}>5단계</span>로 준비하세요
         </h1>
-        <p className={s.heroDesc}>
-          정보 탐색부터 정착까지, 평균 18~27개월의 여정을 단계별로 안내합니다.
-          <br />
-          각 단계의 체크리스트를 따라가면 놓치는 것 없이 준비할 수 있습니다.
-        </p>
+        <div className={s.heroDescGroup}>
+          <p className={s.heroDesc}>
+            정보 탐색부터 정착까지,
+            <br />
+            평균 18~27개월의 여정을 단계별로 안내합니다.
+          </p>
+          <p className={s.heroDesc}>
+            각 단계의 체크리스트에 진행 상황을 기록하며
+            <br />
+            놓치는 것 없이 체계적으로 준비할 수 있습니다.
+          </p>
+        </div>
+        <span className={s.heroCostBadge}>
+          총 예상 비용 약 6,350~6,500만 원 · 지원사업 활용 시 절감 가능
+        </span>
+        <span className={s.heroCostSource}>
+          출처: 농림축산식품부 귀농인 실태조사 기준 평균
+        </span>
       </section>
 
       {/* ═══ 타임라인 요약 ═══ */}
       <section className={s.timelineOverview}>
+        <p className={s.timelineNote}>
+          일부 단계는 병행할 수 있으며, 이전 단계로 돌아가는 것은 자연스러운 과정입니다.
+        </p>
         <div className={s.timelineTrack}>
           {STEPS.map((step, i) => {
             const Icon = step.icon;
             return (
-              <a key={step.step} href={`#step-${step.step}`} className={s.timelineDot}>
+              <TimelineLink key={step.step} stepId={`step-${step.step}`} className={s.timelineDot}>
+                <span className={s.timelineDotStep}>Step {step.step}</span>
                 <div className={s.timelineDotIcon}>
-                  <Icon size={22} />
+                  <Icon size={24} />
                 </div>
                 <span className={s.timelineDotLabel}>{step.title}</span>
                 <span className={s.timelineDotPeriod}>{step.period}</span>
                 {i < STEPS.length - 1 && <div className={s.timelineConnector} />}
-              </a>
+              </TimelineLink>
             );
           })}
         </div>
       </section>
 
       {/* ═══ 각 단계 상세 (아코디언) ═══ */}
-      {STEPS.map((step) => {
+      <AccordionScrollWrapper>
+      {STEPS.map((step, stepIdx) => {
         const Icon = step.icon;
+        const nextStep = STEPS[stepIdx + 1];
         return (
           <details
             key={step.step}
@@ -281,47 +302,54 @@ export default function GuidePage() {
                 </div>
                 <div className={s.stepHeaderText}>
                   <span className={s.stepLabel}>STEP {step.step}</span>
-                  <h2 className={s.stepTitle}>{step.title}</h2>
+                  <span className={s.stepTitle} role="heading" aria-level={2}>{step.title}</span>
                 </div>
                 <span className={s.stepPeriodBadge}>
                   {step.period}
                 </span>
-                <span className={s.stepChevron} aria-hidden="true" />
+                <ChevronDown size={20} className={s.stepChevron} aria-hidden="true" />
               </div>
             </summary>
 
             <div className={s.stepContent}>
-              <p className={s.stepSummary}>{step.summary}</p>
+              {/* 1. 요약 */}
+              <p className={s.stepSummary}>
+                <span className={s.stepSummaryPeriod}>{step.period}</span>
+                <AutoGlossary text={step.summary} />
+              </p>
 
               <div className={s.stepBody}>
+              {/* 2. 주의사항 (위험 신호를 먼저 노출) */}
+              <div className={s.cautionCard}>
+                <AlertTriangle size={16} />
+                <p className={s.cautionText}><AutoGlossary text={step.caution} /></p>
+              </div>
+
+              {/* 3. 주요 과업 */}
               <div className={s.stepDetails}>
                 <h3 className={s.subHeading}>주요 과업</h3>
                 <ol className={s.detailList}>
                   {step.details.map((d, i) => (
                     <li key={i} className={s.detailItem}>
-                      {d}
+                      <AutoGlossary text={d} maxHighlights={2} />
                     </li>
                   ))}
                 </ol>
               </div>
 
-              {/* 체크리스트 */}
-              <div className={s.checklistCard}>
-                <h3 className={s.checklistTitle}>
-                  <CheckCircle2 size={16} />
-                  체크리스트
-                </h3>
-                <ul className={s.checklistItems}>
-                  {step.checklist.map((item, i) => (
-                    <li key={i} className={s.checklistItem}>
-                      <span className={s.checkBox} />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+              {/* 4. 체크리스트 (localStorage 인터랙티브) */}
+              <ChecklistInteractive stepId={step.step} items={step.checklist} />
+
+              {/* 5. 예상 비용 */}
+              <div className={`${s.stepCostCard} ${step.cost.highlight ? s.stepCostHighlight : ""}`}>
+                <div className={s.stepCostHeader}>
+                  <span className={s.stepCostLabel}>예상 비용</span>
+                  <span className={s.stepCostAmount}>{step.cost.amount}</span>
+                </div>
+                <span className={s.stepCostDesc}>{step.cost.desc}</span>
               </div>
 
-              {/* 팁 */}
+              {/* 6. 팁 */}
               <div className={s.tipsCard}>
                 <h3 className={s.tipsTitle}>
                   <Lightbulb size={16} />팁
@@ -329,21 +357,13 @@ export default function GuidePage() {
                 <ul className={s.tipsList}>
                   {step.tips.map((tip, i) => (
                     <li key={i} className={s.tipItem}>
-                      {tip}
+                      <AutoGlossary text={tip} maxHighlights={2} />
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* 주의사항 */}
-              {step.caution && (
-                <div className={s.cautionCard}>
-                  <AlertTriangle size={16} />
-                  <p className={s.cautionText}>{step.caution}</p>
-                </div>
-              )}
-
-              {/* 관련 링크 */}
+              {/* 7. 관련 링크 + 다음 단계 */}
               <div className={s.stepLinks}>
                 {step.links.map((link) => (
                   <Link key={link.href} href={link.href} className={s.stepLink}>
@@ -352,42 +372,29 @@ export default function GuidePage() {
                   </Link>
                 ))}
               </div>
+
+              {nextStep && (
+                <TimelineLink stepId={`step-${nextStep.step}`} className={s.nextStepLink}>
+                  다음 단계: {nextStep.title}
+                  <ChevronRight size={16} />
+                </TimelineLink>
+              )}
             </div>
             </div>
           </details>
         );
       })}
-
-      {/* ═══ 비용 요약 ═══ */}
-      <section className={s.costSection}>
-        <h2 className={s.costTitle}>단계별 예상 비용</h2>
-        <p className={s.costDesc}>
-          귀농 초기 투자 비용은 평균 6,220만 원이며, 4단계(영농 준비)에 집중됩니다.
-          지원사업을 활용하면 실제 부담을 줄일 수 있습니다.
-        </p>
-        <div className={s.costGrid}>
-          {costSummary.map((c) => (
-            <div
-              key={c.phase}
-              className={`${s.costCard} ${c.highlight ? s.costHighlight : ""}`}
-            >
-              <span className={s.costPhase}>{c.phase}</span>
-              <span className={s.costAmount}>{c.amount}</span>
-              <span className={s.costNote}>{c.desc}</span>
-            </div>
-          ))}
-        </div>
-      </section>
+      </AccordionScrollWrapper>
 
       {/* ═══ CTA ═══ */}
       <section className={s.ctaSection}>
-        <h2 className={s.ctaTitle}>어디서 시작할지 모르겠다면?</h2>
+        <h2 className={s.ctaTitle}>나에게 맞는 귀농 전략을 찾아보세요</h2>
         <p className={s.ctaDesc}>
-          간단한 질문 5개에 답하면, 나의 상황에 맞는 지역과 작물을 추천해 드립니다.
+          간단한 질문에 답하면, 상황에 맞는 지역과 작물을 추천해 드립니다.
         </p>
         <div className={s.ctaButtons}>
           <Link href="/match" className={s.ctaPrimary}>
-            귀농 가이드 시작하기
+            맞춤 추천받기
             <ArrowRight size={16} />
           </Link>
           <Link href="/regions" className={s.ctaSecondary}>

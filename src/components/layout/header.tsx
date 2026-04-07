@@ -52,11 +52,12 @@ const navGroups: NavGroup[] = [
   },
   {
     label: "정보",
-    basePaths: ["/guide", "/interviews", "/stats"],
+    basePaths: ["/guide", "/interviews", "/stats", "/glossary"],
     children: [
       { href: "/guide", label: "귀농 로드맵", desc: "5단계 귀농 준비 가이드" },
       { href: "/interviews", label: "귀농인 이야기", desc: "실제 귀농인 인터뷰" },
       { href: "/stats/population", label: "통계", desc: "귀농 인구·청년·만족도 추이" },
+      { href: "/glossary", label: "농업 용어집", desc: "처음 만나는 농업 용어 해설" },
     ],
   },
 ];

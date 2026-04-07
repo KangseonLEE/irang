@@ -19,6 +19,7 @@ import { getProgramById, getProgramByIdAsync, PROGRAMS } from "@/lib/data/progra
 import type { SupportProgram } from "@/lib/data/programs";
 import { getCropByName } from "@/lib/data/crops";
 import { getStationByProvince } from "@/lib/data/stations";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page.module.css";
 
 export async function generateMetadata({
@@ -96,7 +97,7 @@ export default async function ProgramDetailPage({
             />
           </div>
         </div>
-        <p className={s.pageSummary}>{program.summary}</p>
+        <p className={s.pageSummary}><AutoGlossary text={program.summary} /></p>
       </div>
 
       <div className={s.contentGrid}>
@@ -170,7 +171,7 @@ export default async function ProgramDetailPage({
             </div>
             <div className={s.cardContent}>
               <p className={s.eligibilityText}>
-                {program.eligibilityDetail}
+                <AutoGlossary text={program.eligibilityDetail} />
               </p>
             </div>
           </div>

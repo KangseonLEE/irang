@@ -36,6 +36,7 @@ import { PROVINCES } from "@/lib/data/regions";
 import { fetchCropStats, type CropStatItem } from "@/lib/api/kosis";
 import { PROGRAMS } from "@/lib/data/programs";
 import { GlossaryTerm } from "@/components/ui/term-tooltip";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { AnchorTabNav } from "./anchor-tab-nav";
 import s from "./page.module.css";
 
@@ -212,7 +213,7 @@ export default async function CropDetailPage({
               subtitle={data.category}
             />
           </div>
-          <p className={s.heroDesc}>{data.description}</p>
+          <p className={s.heroDesc}><AutoGlossary text={data.description} /></p>
 
           {/* Quick Stats — 요약 프로필 카드 */}
           <div className={s.quickStats}>
@@ -257,7 +258,7 @@ export default async function CropDetailPage({
           <section id="overview" className={s.section}>
             <SectionHeader icon={<Sprout size={18} />} title="개요" />
             <div className={s.sectionBody}>
-              <p className={s.overviewText}>{data.description}</p>
+              <p className={s.overviewText}><AutoGlossary text={data.description} /></p>
               <div className={s.matchBox}>
                 <div className={s.matchItem}>
                   <span className={s.matchGood}>추천</span>
@@ -467,7 +468,7 @@ function CultivationSection({
             <div key={item.label} className={s.featureCard}>
               <span className={`${s.featureIcon} ${item.cls}`}>{item.icon}</span>
               <p className={s.featureLabel}>{item.label}</p>
-              <p className={s.featureValue}>{item.value}</p>
+              <p className={s.featureValue}><AutoGlossary text={item.value} /></p>
             </div>
           ))}
         </div>
@@ -478,7 +479,7 @@ function CultivationSection({
             <FlaskConical size={16} />
             <span>비료 · 시비 정보</span>
           </div>
-          <p className={s.fertilizerText}>{cultivation.fertilizerNote}</p>
+          <p className={s.fertilizerText}><AutoGlossary text={cultivation.fertilizerNote} /></p>
         </div>
       </div>
     </section>
@@ -516,7 +517,7 @@ function IncomeSection({
               <span className={`${s.costDot} ${s.costDotExpense}`} />
               <span className={s.costLabel}>비용</span>
             </div>
-            <p className={s.costValue}>{income.costNote}</p>
+            <p className={s.costValue}><AutoGlossary text={income.costNote} /></p>
           </div>
           <div className={s.costDivider} />
           <div className={s.costRow}>
@@ -524,7 +525,7 @@ function IncomeSection({
               <span className={`${s.costDot} ${s.costDotLabor}`} />
               <span className={s.costLabel}>노동력</span>
             </div>
-            <p className={s.costValue}>{income.laborNote}</p>
+            <p className={s.costValue}><AutoGlossary text={income.laborNote} /></p>
           </div>
         </div>
       </div>
@@ -559,7 +560,7 @@ function ProsConsSection({ prosCons }: { prosCons: ProsConsInfo }) {
                 <span className={s.prosCategoryBadge}>
                   {CATEGORY_LABEL[item.category] ?? item.category}
                 </span>
-                <p className={s.prosConsText}>{item.text}</p>
+                <p className={s.prosConsText}><AutoGlossary text={item.text} /></p>
               </div>
             ))}
           </div>
@@ -577,7 +578,7 @@ function ProsConsSection({ prosCons }: { prosCons: ProsConsInfo }) {
                 <span className={s.consCategoryBadge}>
                   {CATEGORY_LABEL[item.category] ?? item.category}
                 </span>
-                <p className={s.prosConsText}>{item.text}</p>
+                <p className={s.prosConsText}><AutoGlossary text={item.text} /></p>
               </div>
             ))}
           </div>
@@ -587,7 +588,7 @@ function ProsConsSection({ prosCons }: { prosCons: ProsConsInfo }) {
         {prosCons.verdict && (
           <div className={s.verdictCard}>
             <Lightbulb size={16} />
-            <p className={s.verdictText}>{prosCons.verdict}</p>
+            <p className={s.verdictText}><AutoGlossary text={prosCons.verdict} maxHighlights={5} /></p>
           </div>
         )}
       </div>
@@ -714,7 +715,7 @@ function TipsSection({ tips }: { tips: string[] }) {
           {tips.map((tip, idx) => (
             <div key={idx} className={s.tipItem}>
               <span className={s.tipNum}>{String(idx + 1).padStart(2, "0")}</span>
-              <p className={s.tipText}>{tip}</p>
+              <p className={s.tipText}><AutoGlossary text={tip} maxHighlights={5} /></p>
             </div>
           ))}
         </div>
