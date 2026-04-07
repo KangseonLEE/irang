@@ -603,7 +603,7 @@ function RegionSection({
   cropStats: CropStatItem[];
 }) {
   const top5 = cropStats
-    .filter((st) => st.regionName !== "전국" && st.cultivationArea > 0)
+    .filter((st) => st.regionName !== "전국" && st.regionName !== "계" && st.cultivationArea > 0)
     .sort((a, b) => b.cultivationArea - a.cultivationArea)
     .slice(0, 5);
 
