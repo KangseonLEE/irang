@@ -35,8 +35,10 @@ export function RoadmapClient() {
           return (
             <button
               key={p.id}
+              id={`tab-${p.id}`}
               role="tab"
               aria-selected={p.id === activeId}
+              aria-controls={`panel-${p.id}`}
               className={`${s.tab} ${p.id === activeId ? s.tabActive : ""}`}
               onClick={() => setActiveId(p.id)}
             >
@@ -58,7 +60,12 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
   const Icon = program.icon;
 
   return (
-    <>
+    <div
+      role="tabpanel"
+      id={`panel-${program.id}`}
+      aria-labelledby={`tab-${program.id}`}
+      className={s.tabPanel}
+    >
       {/* 요약 카드 */}
       <div className={s.summaryCard}>
         <div className={s.summaryHeader}>
@@ -100,6 +107,7 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
                 className={`${s.eligibilityBadge} ${
                   item.required ? s.eligibilityRequired : s.eligibilityOptional
                 }`}
+                aria-label={item.required ? "필수 조건" : "우대 조건"}
               >
                 {item.required ? "✓" : "★"}
               </span>
@@ -107,9 +115,7 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
                 <p className={s.eligibilityLabel}>
                   {item.label}
                   {!item.required && (
-                    <span style={{ fontWeight: 500, color: "#a16207", marginLeft: 6, fontSize: "0.6875rem" }}>
-                      우대
-                    </span>
+                    <span className={s.eligibilityUdae}>우대</span>
                   )}
                 </p>
                 <p className={s.eligibilityDetail}>{item.detail}</p>
@@ -136,11 +142,11 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
                 </div>
                 <p className={s.stepDesc}>{step.description}</p>
                 {step.tips && step.tips.length > 0 && (
-                  <div className={s.stepTips}>
+                  <ul className={s.stepTips}>
                     {step.tips.map((tip, i) => (
-                      <p key={i} className={s.stepTip}>{tip}</p>
+                      <li key={i} className={s.stepTip}>{tip}</li>
                     ))}
-                  </div>
+                  </ul>
                 )}
                 {step.documents && step.documents.length > 0 && (
                   <div className={s.stepDocs}>
@@ -241,6 +247,6 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
           )}
         </div>
       </section>
-    </>
+    </div>
   );
 }
