@@ -468,11 +468,67 @@
   color: #a16207;
 }
 
+/* 서류 접기/펼치기 */
+.stepDocsDetails {
+  margin-top: 6px;
+}
+
+.stepDocsSummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  border-radius: 6px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: background-color 0.15s;
+}
+
+.stepDocsSummary::-webkit-details-marker { display: none; }
+
+.stepDocsSummary::after {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid currentColor;
+  margin-left: 2px;
+  transition: transform 0.2s;
+}
+
+.stepDocsDetails[open] > .stepDocsSummary::after {
+  transform: rotate(180deg);
+}
+
+@media (hover: hover) {
+  .stepDocsSummary:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  }
+}
+
+.stepDocsSummary:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
 .stepDocs {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin-top: 6px;
+  margin-top: 8px;
+  animation: docsReveal 0.2s ease;
+}
+
+@keyframes docsReveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .stepDocTag {

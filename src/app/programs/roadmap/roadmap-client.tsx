@@ -149,11 +149,17 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
                   </ul>
                 )}
                 {step.documents && step.documents.length > 0 && (
-                  <div className={s.stepDocs}>
-                    {step.documents.map((doc, i) => (
-                      <span key={i} className={s.stepDocTag}>{doc}</span>
-                    ))}
-                  </div>
+                  <details className={s.stepDocsDetails}>
+                    <summary className={s.stepDocsSummary}>
+                      <FileText size={13} />
+                      필요 서류 {step.documents.length}건
+                    </summary>
+                    <div className={s.stepDocs}>
+                      {step.documents.map((doc, i) => (
+                        <span key={i} className={s.stepDocTag}>{doc}</span>
+                      ))}
+                    </div>
+                  </details>
                 )}
               </div>
             </div>
