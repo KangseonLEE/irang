@@ -28,7 +28,7 @@
 
 .popover {
   position: absolute;
-  z-index: 9999;
+  z-index: var(--z-tooltip);
   max-width: min(360px, calc(100vw - 24px));
   width: max-content;
   padding: 12px 16px;

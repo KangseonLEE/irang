@@ -68,6 +68,18 @@
   --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
   --shadow-lg: 0 8px 24px rgba(27,107,90,0.12);
 
+  /* ── Z-Index Layer Stack ──
+     전역 레이어 관리. 컴포넌트 간 z-index 충돌 방지.
+     내부 장식용(1~2)은 하드코딩 허용, 크로스 컴포넌트 레이어만 변수 사용. */
+  --z-float: 10;          /* 맵 툴팁, 인라인 팝업 */
+  --z-sticky: 30;         /* 고정 탭 (anchorTab 등) */
+  --z-mobile-overlay: 49; /* 모바일 메뉴 배경 (헤더 아래) */
+  --z-header: 50;         /* 글로벌 헤더, 모바일 하단 네비 */
+  --z-dropdown: 60;       /* 헤더 드롭다운 */
+  --z-overlay: 100;       /* 검색 드롭다운, 북마크, 토스트 */
+  --z-modal: 200;         /* 모달 다이얼로그 */
+  --z-tooltip: 9999;      /* Portal 기반 용어 툴팁 */
+
   /* ── Typography Scale — Minor Third (1.2) ──
      Mobile-first. Overridden at 768px and 1024px.
      Benchmark: 토스·당근·배민·카카오·네이버·오늘의집·직방·원티드·리디·야놀자

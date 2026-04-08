@@ -73,7 +73,7 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   max-height: 60vh;
   overflow-y: auto;
-  z-index: 100;
+  z-index: var(--z-overlay);
 }
 
 @media (min-width: 640px) {

@@ -16,7 +16,30 @@ import {
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { TimelineLink, AccordionScrollWrapper } from "./timeline-nav";
 import { ChecklistInteractive } from "./checklist-interactive";
+import { GuideTimeline } from "./guide-timeline";
+import { interviews } from "@/lib/data/landing";
+import { MessageSquareQuote } from "lucide-react";
 import s from "./page.module.css";
+
+/**
+ * 가이드 단계별 관련 인터뷰 매핑
+ * 각 인터뷰의 동기·조언이 해당 단계와 연관되는 것을 기준으로 선정
+ */
+const STEP_INTERVIEWS: Record<number, string[]> = {
+  1: ["lee-gyuho", "lee-jonghyun"],      // 동기·결심 관련
+  2: ["kim-gwanghun", "yeom-sujeong"],    // 교육·공부 관련
+  3: ["kang-namwook", "lee-jonghyun"],    // 지역 이주 관련
+  4: ["jo-sungsu", "yeom-sujeong"],       // 영농 시작 관련
+  5: ["bae-dongju", "kang-namwook"],      // 정착·커뮤니티 관련
+};
+
+const STEP_INTERVIEW_FIELDS: Record<number, "motivation" | "challenge" | "advice"> = {
+  1: "motivation",
+  2: "advice",
+  3: "motivation",
+  4: "challenge",
+  5: "advice",
+};
 
 export const metadata: Metadata = {
   title: "귀농 프로세스 가이드 | 5단계 로드맵",
@@ -260,28 +283,15 @@ export default function GuidePage() {
         </span>
       </section>
 
-      {/* ═══ 타임라인 요약 ═══ */}
-      <section className={s.timelineOverview}>
-        <p className={s.timelineNote}>
-          일부 단계는 병행할 수 있으며, 이전 단계로 돌아가는 것은 자연스러운 과정입니다.
-        </p>
-        <div className={s.timelineTrack}>
-          {STEPS.map((step, i) => {
-            const Icon = step.icon;
-            return (
-              <TimelineLink key={step.step} stepId={`step-${step.step}`} className={s.timelineDot}>
-                <span className={s.timelineDotStep}>Step {step.step}</span>
-                <div className={s.timelineDotIcon}>
-                  <Icon size={24} />
-                </div>
-                <span className={s.timelineDotLabel}>{step.title}</span>
-                <span className={s.timelineDotPeriod}>{step.period}</span>
-                {i < STEPS.length - 1 && <div className={s.timelineConnector} />}
-              </TimelineLink>
-            );
-          })}
-        </div>
-      </section>
+      {/* ═══ 타임라인 요약 (진행률 시각화 포함) ═══ */}
+      <GuideTimeline
+        steps={STEPS.map((step) => ({
+          step: step.step,
+          title: step.title,
+          period: step.period,
+          checklistLength: step.checklist.length,
+        }))}
+      />
 
       {/* ═══ 각 단계 상세 (아코디언) ═══ */}
       <AccordionScrollWrapper>
@@ -363,7 +373,38 @@ export default function GuidePage() {
                 </ul>
               </div>
 
-              {/* 7. 관련 링크 + 다음 단계 */}
+              {/* 7. 선배 귀농인의 한마디 */}
+              {STEP_INTERVIEWS[step.step] && (
+                <div className={s.interviewCards}>
+                  <h3 className={s.interviewCardsTitle}>
+                    <MessageSquareQuote size={16} />
+                    선배 귀농인의 한마디
+                  </h3>
+                  <div className={s.interviewCardsList}>
+                    {STEP_INTERVIEWS[step.step].map((id) => {
+                      const person = interviews.find((iv) => iv.id === id);
+                      if (!person) return null;
+                      const field = STEP_INTERVIEW_FIELDS[step.step] ?? "advice";
+                      return (
+                        <Link
+                          key={id}
+                          href={`/interviews#${id}`}
+                          className={s.interviewCard}
+                        >
+                          <p className={s.interviewQuote}>
+                            &ldquo;{person[field]}&rdquo;
+                          </p>
+                          <span className={s.interviewPerson}>
+                            {person.name} · {person.region} · {person.crop}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 8. 관련 링크 + 다음 단계 */}
               <div className={s.stepLinks}>
                 {step.links.map((link) => (
                   <Link key={link.href} href={link.href} className={s.stepLink}>

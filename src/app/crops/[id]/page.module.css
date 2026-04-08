@@ -310,7 +310,7 @@
 .anchorTab {
   position: sticky;
   top: 60px;
-  z-index: 30;
+  z-index: var(--z-sticky);
   display: flex;
   overflow-x: auto;
   scrollbar-width: none;

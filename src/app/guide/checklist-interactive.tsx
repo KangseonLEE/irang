@@ -47,6 +47,8 @@ export function ChecklistInteractive({ stepId, items }: ChecklistInteractiveProp
         } catch {
           /* localStorage 사용 불가 환경 무시 */
         }
+        // 타임라인 진행률 업데이트 트리거
+        window.dispatchEvent(new Event("checklist-updated"));
         return next;
       });
     },

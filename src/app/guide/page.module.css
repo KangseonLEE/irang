@@ -266,6 +266,46 @@
   }
 }
 
+/* ── 타임라인 진행 상태 ── */
+
+.timelineDotIcon {
+  position: relative;
+}
+
+.timelineDotInProgress {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
+}
+
+.timelineDotComplete {
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+}
+
+.progressRing {
+  position: absolute;
+  inset: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  pointer-events: none;
+}
+
+.progressRingBg {
+  stroke: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+}
+
+.progressRingFill {
+  stroke: var(--primary, #1b6b5a);
+  transition: stroke-dasharray 0.4s ease;
+}
+
+@media (min-width: 640px) {
+  .progressRing {
+    inset: -5px;
+    width: calc(100% + 10px);
+    height: calc(100% + 10px);
+  }
+}
+
 /* ═══ 단계 상세 섹션 (아코디언) ═══ */
 .stepSection {
   border-radius: 16px;
@@ -704,6 +744,72 @@
   color: var(--muted-foreground, #6b7280);
   text-align: right;
   word-break: keep-all;
+}
+
+/* 선배 귀농인의 한마디 */
+.interviewCards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.interviewCardsTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  margin: 0;
+}
+
+.interviewCardsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .interviewCardsList {
+    flex-direction: row;
+  }
+}
+
+.interviewCard {
+  flex: 1;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (hover: hover) {
+  .interviewCard:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, var(--border, #e5e7eb));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.interviewQuote {
+  font-size: var(--fs-caption, 0.75rem);
+  line-height: 1.65;
+  color: var(--foreground);
+  margin: 0;
+  word-break: keep-all;
+  font-style: italic;
+}
+
+.interviewPerson {
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
 }
 
 /* 관련 링크 */
