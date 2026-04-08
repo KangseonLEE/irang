@@ -382,7 +382,7 @@
 
 .costBarFill {
   height: 100%;
-  /* width는 AnimatedBar 컴포넌트가 인라인 style로 제어 */
+  /* width는 AnimatedBar 컴포넌트가 rAF로 직접 제어 — CSS transition 사용 금지 */
   border-radius: inherit;
   background: var(--primary, #1B6B5A);
   opacity: 0.65;
@@ -390,7 +390,7 @@
   align-items: center;
   justify-content: flex-end;
   padding-right: 8px;
-  transition: width 0.05s linear;
+  will-change: width;
 }
 
 .costBarPercent {

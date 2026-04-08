@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 interface AnimatedBarProps {
   /** 채워질 퍼센트 (0~100) */
   percent: number;
-  /** 애니메이션 지속 시간 ms (기본 1600) */
+  /** 애니메이션 지속 시간 ms (기본 2400) */
   duration?: number;
   /** 바 전체 className */
   barClassName?: string;
@@ -24,7 +24,7 @@ function easeOutExpo(t: number): number {
 
 export function AnimatedBar({
   percent,
-  duration = 1600,
+  duration = 2400,
   barClassName,
   fillClassName,
   percentClassName,
@@ -33,6 +33,7 @@ export function AnimatedBar({
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const rafId = useRef<number>(0);
+  const hasPlayed = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
@@ -40,8 +41,10 @@ export function AnimatedBar({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          // 뷰포트 진입 → 0부터 애니메이션 시작
+        if (entry.isIntersecting && !hasPlayed.current) {
+          hasPlayed.current = true;
+          observer.disconnect();
+
           if (rafId.current) cancelAnimationFrame(rafId.current);
           setWidth(0);
 
@@ -61,10 +64,6 @@ export function AnimatedBar({
           }
 
           rafId.current = requestAnimationFrame(tick);
-        } else {
-          // 뷰포트 이탈 → 리셋 (다시 보일 때 재생되도록)
-          if (rafId.current) cancelAnimationFrame(rafId.current);
-          setWidth(0);
         }
       },
       { threshold: 0.3 },
@@ -81,7 +80,7 @@ export function AnimatedBar({
     <div ref={ref} className={barClassName}>
       <div
         className={fillClassName}
-        style={{ width: `${width}%` }}
+        style={{ width: `${width}%`, transition: "none" }}
       >
         {showPercent && width > 10 && (
           <span className={percentClassName}>

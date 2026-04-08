@@ -11,7 +11,7 @@ interface CountUpProps {
   separator?: boolean;
   /** 숫자 앞 접두사 (예: "최대 ") */
   prefix?: string;
-  /** 애니메이션 지속 시간 ms (기본 1600) */
+  /** 애니메이션 지속 시간 ms (기본 2400) */
   duration?: number;
   /** 추가 className */
   className?: string;
@@ -36,18 +36,17 @@ export function CountUp({
   decimals = 0,
   separator = true,
   prefix = "",
-  duration = 1600,
+  duration = 2400,
   className,
 }: CountUpProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const [display, setDisplay] = useState(prefix + formatNumber(0, decimals, separator));
   const rafId = useRef<number>(0);
+  const hasPlayed = useRef(false);
 
   const animate = useCallback(() => {
-    // 이전 애니메이션 취소
     if (rafId.current) cancelAnimationFrame(rafId.current);
 
-    // 0부터 시작
     setDisplay(prefix + formatNumber(0, decimals, separator));
 
     const start = performance.now();
@@ -76,8 +75,10 @@ export function CountUp({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && !hasPlayed.current) {
+          hasPlayed.current = true;
           animate();
+          observer.disconnect();
         }
       },
       { threshold: 0.3 },
