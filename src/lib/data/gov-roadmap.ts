@@ -358,8 +358,8 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       { label: "작물 정보", href: "/crops" },
       { label: "귀농 5단계 가이드", href: "/guide" },
       {
-        label: "청년농 포털",
-        href: "https://www.young-farmer.kr",
+        label: "청년농 탄탄대로",
+        href: "https://youngfarmer.greendaero.go.kr",
         external: true,
       },
     ],
@@ -494,7 +494,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       { label: "지원사업 검색", href: "/programs" },
       {
         label: "농지은행 포털",
-        href: "https://www.farmbank.kr",
+        href: "https://www.fbo.or.kr",
         external: true,
       },
     ],
@@ -665,8 +665,13 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       { label: "지역 비교하기", href: "/regions" },
       { label: "지원사업 검색", href: "/programs" },
       {
-        label: "산림청 귀산촌 포털",
-        href: "https://www.sansaram.forest.go.kr",
+        label: "산림청 귀산촌 안내",
+        href: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?cmsId=FC_000434&mn=AR02_06_02_02",
+        external: true,
+      },
+      {
+        label: "한국임업진흥원",
+        href: "https://www.kofpi.or.kr",
         external: true,
       },
     ],
