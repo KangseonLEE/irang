@@ -47,6 +47,8 @@ export function NewsTabs({ items }: NewsTabsProps) {
   const [isPaused, setIsPaused] = useState(false);
   const [brokenImgs, setBrokenImgs] = useState<Set<string>>(new Set());
   const nextIdxRef = useRef<number | null>(null);
+  const touchRef = useRef<{ x: number; y: number; t: number } | null>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
     if (activeTab === "all") return items.slice(0, 4);
@@ -92,6 +94,50 @@ export function NewsTabs({ items }: NewsTabsProps) {
     return () => clearInterval(timer);
   }, [filtered.length, isPaused, featuredIdx, transitionTo]);
 
+  // ── 모바일 스와이프로 탭 전환 ──
+  const switchTab = useCallback(
+    (direction: 1 | -1) => {
+      const tabIds = TABS.map((t) => t.id);
+      const curIdx = tabIds.indexOf(activeTab);
+      const nextIdx = curIdx + direction;
+      if (nextIdx >= 0 && nextIdx < tabIds.length) {
+        setActiveTab(tabIds[nextIdx]);
+      }
+    },
+    [activeTab],
+  );
+
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      touchRef.current = { x: touch.clientX, y: touch.clientY, t: Date.now() };
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!touchRef.current) return;
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - touchRef.current.x;
+      const dy = touch.clientY - touchRef.current.y;
+      const dt = Date.now() - touchRef.current.t;
+      touchRef.current = null;
+
+      // 가로 40px 이상 + 세로보다 가로가 큰 + 500ms 이내
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) && dt < 500) {
+        switchTab(dx < 0 ? 1 : -1); // 왼쪽 스와이프 → 다음 탭
+      }
+    };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [switchTab]);
+
   // 리스트 아이템 호버로 Featured 전환
   const selectFeatured = useCallback(
     (idx: number) => {
@@ -131,7 +177,7 @@ export function NewsTabs({ items }: NewsTabsProps) {
       </div>
 
       {/* 2단 레이아웃: Featured + List */}
-      <div className={s.body} role="tabpanel">
+      <div ref={bodyRef} className={s.body} role="tabpanel">
         {filtered.length > 0 ? (
           <>
             {/* 좌측: Featured 속보 (자동 전환) */}

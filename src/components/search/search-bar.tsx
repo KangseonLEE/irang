@@ -47,9 +47,10 @@ const SECTION_META: Record<
   program: { label: "지원사업", icon: "\u{1F4CB}" },
   education: { label: "교육", icon: "\u{1F393}" },
   event: { label: "체험·행사", icon: "\u{1F389}" },
+  guide: { label: "가이드·정보", icon: "\u{1F4D6}" },
 };
 
-const SECTION_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event"];
+const SECTION_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide"];
 
 // ---------------------------------------------------------------------------
 // Helpers

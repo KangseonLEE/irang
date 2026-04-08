@@ -15,7 +15,7 @@ import { EVENTS } from "./events";
 // ---------------------------------------------------------------------------
 
 export interface SearchItem {
-  type: "region" | "crop" | "program" | "education" | "event";
+  type: "region" | "crop" | "program" | "education" | "event" | "guide";
   id: string;
   title: string;
   subtitle: string;
@@ -99,12 +99,92 @@ const eventItems: SearchItem[] = EVENTS.map((e) => ({
   badge: e.status,
 }));
 
+// ---------------------------------------------------------------------------
+// 가이드 / 정보 페이지
+// ---------------------------------------------------------------------------
+
+const guideItems: SearchItem[] = [
+  {
+    type: "guide",
+    id: "costs",
+    title: "귀농 비용 가이드",
+    subtitle: "연령·작물별 초기 투자금 분석 & 지원금",
+    href: "/costs",
+    keywords: ["비용", "투자금", "자금", "돈", "얼마", "예산", "생활비", "주거비", "영농비", "절감", "시뮬레이션"],
+    icon: "\u{1F4B0}", // 💰
+  },
+  {
+    type: "guide",
+    id: "gov-roadmap",
+    title: "정부사업 진입 가이드",
+    subtitle: "4대 핵심 정부사업 신청 절차 안내",
+    href: "/programs/roadmap",
+    keywords: ["정부사업", "신청", "절차", "자격", "서류", "보조금", "융자", "청년창업농", "농지은행", "귀산촌", "로드맵"],
+    icon: "\u{1F3DB}\u{FE0F}", // 🏛️
+  },
+  {
+    type: "guide",
+    id: "guide-5step",
+    title: "귀농 5단계 로드맵",
+    subtitle: "준비부터 정착까지 체크리스트 가이드",
+    href: "/guide",
+    keywords: ["가이드", "로드맵", "5단계", "준비", "프로세스", "체크리스트", "순서", "과정", "절차", "정보탐색", "교육이수", "지역선정", "영농시작", "정착"],
+    icon: "\u{1F4CB}", // 📋
+  },
+  {
+    type: "guide",
+    id: "stats-population",
+    title: "귀농·귀촌 인구 통계",
+    subtitle: "10년 추이 데이터 & 원인 분석",
+    href: "/stats/population",
+    keywords: ["통계", "인구", "추이", "트렌드", "데이터", "현황", "몇명", "증가", "감소"],
+    icon: "\u{1F4CA}", // 📊
+  },
+  {
+    type: "guide",
+    id: "stats-satisfaction",
+    title: "귀농 만족도 통계",
+    subtitle: "귀농인 생활 만족도 조사 결과",
+    href: "/stats/satisfaction",
+    keywords: ["만족도", "만족", "통계", "조사", "생활", "후회"],
+    icon: "\u{1F4CA}", // 📊
+  },
+  {
+    type: "guide",
+    id: "stats-youth",
+    title: "청년 귀농 통계",
+    subtitle: "청년층 귀농 현황 & 지원 정책",
+    href: "/stats/youth",
+    keywords: ["청년", "청년귀농", "통계", "MZ", "20대", "30대"],
+    icon: "\u{1F4CA}", // 📊
+  },
+  {
+    type: "guide",
+    id: "glossary",
+    title: "농업 용어집",
+    subtitle: "처음 만나는 농업 용어 해설",
+    href: "/glossary",
+    keywords: ["용어", "사전", "뜻", "의미", "설명", "농업용어", "재배", "토양", "비료", "병해충"],
+    icon: "\u{1F4D6}", // 📖
+  },
+  {
+    type: "guide",
+    id: "match",
+    title: "귀농 유형 진단",
+    subtitle: "나에게 맞는 귀농 유형 · 지역 · 작물 추천",
+    href: "/match",
+    keywords: ["진단", "유형", "테스트", "추천", "맞춤", "적합", "나에게맞는", "어디", "뭐가좋을까"],
+    icon: "\u{1F50D}", // 🔍
+  },
+];
+
 export const SEARCH_INDEX: SearchItem[] = [
   ...regionItems,
   ...cropItems,
   ...programItems,
   ...educationItems,
   ...eventItems,
+  ...guideItems,
 ];
 
 // ---------------------------------------------------------------------------
@@ -139,6 +219,7 @@ export function searchItems(query: string): SearchItem[] {
     program: [],
     education: [],
     event: [],
+    guide: [],
   };
 
   for (const item of all) {
@@ -153,6 +234,7 @@ export function searchItems(query: string): SearchItem[] {
     ...byType.program,
     ...byType.education,
     ...byType.event,
+    ...byType.guide,
   ];
 
   return results.slice(0, 10);

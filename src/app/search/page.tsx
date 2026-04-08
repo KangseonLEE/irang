@@ -3,7 +3,7 @@
 import { Suspense, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Search, MapPin, Sprout, FileText, GraduationCap, CalendarDays, ArrowLeft, TrendingUp, MessageSquarePlus } from "lucide-react";
+import { Search, MapPin, Sprout, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, MessageSquarePlus } from "lucide-react";
 import { searchAll, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import { logSearch } from "@/lib/supabase";
@@ -19,9 +19,10 @@ const TYPE_META: Record<
   program: { label: "지원사업", icon: FileText },
   education: { label: "교육", icon: GraduationCap },
   event: { label: "체험·행사", icon: CalendarDays },
+  guide: { label: "가이드·정보", icon: BookOpen },
 };
 
-const TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event"];
+const TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide"];
 
 export default function SearchPage() {
   return (
