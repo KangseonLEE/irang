@@ -206,8 +206,8 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       { label: "귀농 5단계 가이드", href: "/guide" },
       { label: "지원사업 검색", href: "/programs" },
       {
-        label: "귀농귀촌종합센터",
-        href: "https://www.returnfarm.com",
+        label: "귀농귀촌 그린대로",
+        href: "https://www.greendaero.go.kr",
         external: true,
       },
     ],
