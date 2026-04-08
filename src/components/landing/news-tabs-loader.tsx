@@ -58,12 +58,12 @@ function dedupWithin(items: UnifiedNewsItem[]): UnifiedNewsItem[] {
 // ─── 메인 ───
 
 export async function NewsTabsLoader() {
-  const [liveNews, eduNews, eventNews, programNews] = await Promise.all([
-    fetchLatestNews(),
-    fetchNewsByCategory("education"),
-    fetchNewsByCategory("event"),
-    fetchNewsByCategory("program"),
-  ]);
+  // 순차 호출 — 네이버 API 초당 호출 제한(Rate Limit) 회피
+  // Promise.all 병렬 호출 시 Vercel 빌드 환경에서 일부 요청이 거부됨
+  const liveNews = await fetchLatestNews();
+  const eduNews = await fetchNewsByCategory("education");
+  const eventNews = await fetchNewsByCategory("event");
+  const programNews = await fetchNewsByCategory("program");
 
   const toItems = (
     articles: NewsArticle[] | null,
@@ -81,6 +81,10 @@ export async function NewsTabsLoader() {
       category,
     }));
 
+  console.log(
+    `[news-tabs] API 결과: news=${liveNews?.length ?? "null"}, edu=${eduNews?.length ?? "null"}, event=${eventNews?.length ?? "null"}, program=${programNews?.length ?? "null"}`,
+  );
+
   // 각 카테고리 독립적으로 중복 제거
   const newsItems = dedupWithin(toItems(liveNews, trendNews, "news"));
   const eduItems = dedupWithin(toItems(eduNews, [], "education"));
@@ -94,28 +98,31 @@ export async function NewsTabsLoader() {
     ...programItems,
   ];
 
-  // ── OG 이미지: 모든 기사에 썸네일 추출 (병렬) ──
+  // ── OG 이미지: 동시 3개씩 병렬 추출 (너무 많으면 타임아웃) ──
   console.log(`[og] 총 ${unifiedNews.length}개 기사에서 OG 이미지 추출 시작`);
 
-  const ogResults = await Promise.allSettled(
-    unifiedNews.map(async (item) => {
-      // 1차: 네이버 뉴스 URL (항상 og:image 존재, 가장 안정적)
-      if (item.naverUrl) {
-        const og = await fetchOgImage(item.naverUrl);
-        if (og) return og;
-      }
-      // 2차: 원본 URL 폴백
-      return fetchOgImage(item.url);
-    }),
-  );
-
+  const CONCURRENCY = 3;
   let ogCount = 0;
-  ogResults.forEach((result, i) => {
-    if (result.status === "fulfilled" && result.value) {
-      unifiedNews[i].thumbnail = result.value;
-      ogCount++;
-    }
-  });
+
+  for (let i = 0; i < unifiedNews.length; i += CONCURRENCY) {
+    const batch = unifiedNews.slice(i, i + CONCURRENCY);
+    const results = await Promise.allSettled(
+      batch.map(async (item) => {
+        if (item.naverUrl) {
+          const og = await fetchOgImage(item.naverUrl);
+          if (og) return og;
+        }
+        return fetchOgImage(item.url);
+      }),
+    );
+    results.forEach((result, j) => {
+      if (result.status === "fulfilled" && result.value) {
+        unifiedNews[i + j].thumbnail = result.value;
+        ogCount++;
+      }
+    });
+  }
+
   console.log(`[og] OG 이미지 추출 완료: ${ogCount}/${unifiedNews.length}개 성공`);
 
   return <NewsTabs items={unifiedNews} />;

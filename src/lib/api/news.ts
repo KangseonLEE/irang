@@ -264,7 +264,12 @@ export async function fetchNewsByCategory(
   return fetchNewsByQuery(query);
 }
 
-/** 네이버 뉴스 검색 공통 로직 */
+/** 짧은 대기 */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** 네이버 뉴스 검색 공통 로직 — 실패 시 최대 2회 재시도 */
 async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
   const clientId = process.env.NAVER_CLIENT_ID;
   const clientSecret = process.env.NAVER_CLIENT_SECRET;
@@ -274,43 +279,56 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
     return null;
   }
 
-  try {
-    const params = new URLSearchParams({
-      query,
-      display: String(DISPLAY_COUNT),
-      sort: "sim",    // 관련도순 (품질 우선, 최신 뉴스도 상위 노출)
-    });
+  const MAX_RETRIES = 2;
 
-    const res = await fetch(`${API_URL}?${params}`, {
-      headers: {
-        "X-Naver-Client-Id": clientId,
-        "X-Naver-Client-Secret": clientSecret,
-      },
-      next: { revalidate: CACHE_TTL },
-    });
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      if (attempt > 0) {
+        console.log(`[news] "${query}" 재시도 ${attempt}/${MAX_RETRIES}`);
+        await sleep(300 * attempt); // 300ms, 600ms 대기
+      }
 
-    if (!res.ok) {
-      console.error(`[news] 네이버 API 응답 에러: ${res.status}`);
+      const params = new URLSearchParams({
+        query,
+        display: String(DISPLAY_COUNT),
+        sort: "sim",
+      });
+
+      const res = await fetch(`${API_URL}?${params}`, {
+        headers: {
+          "X-Naver-Client-Id": clientId,
+          "X-Naver-Client-Secret": clientSecret,
+        },
+        next: { revalidate: CACHE_TTL },
+      });
+
+      if (!res.ok) {
+        console.error(`[news] "${query}" API 에러: ${res.status}`);
+        if (attempt < MAX_RETRIES) continue;
+        return null;
+      }
+
+      const data: NaverNewsResponse = await res.json();
+
+      if (!data.items?.length) {
+        console.warn(`[news] "${query}" 검색 결과 0건`);
+        return null;
+      }
+
+      console.log(`[news] ✅ "${query}" → ${data.items.length}건`);
+      return data.items.map((item) => ({
+        title: stripHtml(item.title),
+        description: stripHtml(item.description),
+        source: extractSource(item.originallink),
+        date: formatDate(item.pubDate),
+        url: item.originallink || item.link,
+        naverUrl: item.link || undefined,
+      }));
+    } catch (err) {
+      console.error(`[news] "${query}" fetch 실패:`, err);
+      if (attempt < MAX_RETRIES) continue;
       return null;
     }
-
-    const data: NaverNewsResponse = await res.json();
-
-    if (!data.items?.length) {
-      console.warn(`[news] "${query}" 검색 결과 0건`);
-      return null;
-    }
-
-    return data.items.map((item) => ({
-      title: stripHtml(item.title),
-      description: stripHtml(item.description),
-      source: extractSource(item.originallink),
-      date: formatDate(item.pubDate),
-      url: item.originallink || item.link,
-      naverUrl: item.link || undefined,
-    }));
-  } catch (err) {
-    console.error("[news] 뉴스 fetch 실패:", err);
-    return null;
   }
+  return null;
 }
