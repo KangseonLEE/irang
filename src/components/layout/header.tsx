@@ -153,9 +153,17 @@ export function Header() {
                   </button>
                   <div className={s.dropdown}>
                     {group.children.map((child) => {
+                      // 더 구체적인 sibling 경로가 매칭되면 짧은 경로는 비활성
+                      const hasMoreSpecificSibling = group.children.some(
+                        (other) =>
+                          other !== child &&
+                          other.href.length > child.href.length &&
+                          pathname.startsWith(other.href),
+                      );
                       const isChildActive =
                         pathname === child.href ||
-                        pathname.startsWith(child.href + "/");
+                        (!hasMoreSpecificSibling &&
+                          pathname.startsWith(child.href + "/"));
                       return (
                         <Link
                           key={child.href}
@@ -247,9 +255,16 @@ export function Header() {
               <div key={group.label} className={s.mobileGroup}>
                 <span className={s.mobileGroupLabel}>{group.label}</span>
                 {group.children.map((child) => {
+                  const hasMoreSpecificSibling = group.children.some(
+                    (other) =>
+                      other !== child &&
+                      other.href.length > child.href.length &&
+                      pathname.startsWith(other.href),
+                  );
                   const isActive =
                     pathname === child.href ||
-                    pathname.startsWith(child.href + "/");
+                    (!hasMoreSpecificSibling &&
+                      pathname.startsWith(child.href + "/"));
                   return (
                     <Link
                       key={child.href}
