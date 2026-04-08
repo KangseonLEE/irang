@@ -190,7 +190,7 @@
 
 .difficultyMedium {
   background: #fef9c3;
-  color: #a16207;
+  color: var(--warning-fg, #a16207);
 }
 
 .difficultyHard {
@@ -497,6 +497,17 @@
   font-weight: 600;
   line-height: var(--lh-normal);
   color: var(--foreground, #333);
+}
+
+/* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
+@media (min-width: 1024px) {
+  .summaryCategory {
+    font-size: 13px;
+  }
+
+  .summaryBadge {
+    font-size: 13px;
+  }
 }
 
 /* ---- 유틸 ---- */

@@ -1,0 +1,120 @@
+/* ==========================================================================
+   시군구 통계 섹션 스켈레톤 (Suspense fallback)
+   SigunguData API 호출 대기 중 표시
+   ========================================================================== */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.bone {
+  background: var(--muted, #f4f4f5);
+  border-radius: 6px;
+  animation: pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Stats Grid ── */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .statsGrid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.statCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.statIcon {
+  composes: bone;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.statBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statLabel {
+  composes: bone;
+  width: 3rem;
+  height: 0.75rem;
+}
+
+.statValue {
+  composes: bone;
+  width: 5rem;
+  height: 1.25rem;
+}
+
+.statSub {
+  composes: bone;
+  width: 6rem;
+  height: 0.625rem;
+}
+
+/* ── Climate Card ── */
+.climateCard {
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.climateTitle {
+  composes: bone;
+  width: 6rem;
+  height: 1rem;
+}
+
+.climateGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .climateGrid { grid-template-columns: repeat(5, 1fr); }
+}
+
+.climateItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.climateLabel {
+  composes: bone;
+  width: 3.5rem;
+  height: 0.75rem;
+}
+
+.climateValue {
+  composes: bone;
+  width: 4.5rem;
+  height: 1.25rem;
+}

@@ -35,6 +35,16 @@ export interface SubProgram {
   conditions: string[];
 }
 
+/** 공식 출처 정보 — 정책 데이터 검증용 */
+export interface PolicySource {
+  /** 출처 이름 (예: "찾기쉬운 생활법령") */
+  label: string;
+  /** 크롤링/확인 대상 URL */
+  url: string;
+  /** 이 출처에서 검증하는 데이터 필드 */
+  covers: string[];
+}
+
 export interface GovProgramRoadmap {
   id: string;
   name: string;
@@ -44,6 +54,7 @@ export interface GovProgramRoadmap {
   summary: string;
   targetAudience: string;
   supportAmount: string;
+  supportType: "보조금" | "융자" | "현물" | "혼합";
   eligibility: EligibilityItem[];
   applicationPeriod: {
     typical: string;
@@ -55,6 +66,10 @@ export interface GovProgramRoadmap {
   caution: string;
   relatedLinks: { label: string; href: string; external?: boolean }[];
   subPrograms?: SubProgram[];
+  /** 공식 출처 목록 — 정책 데이터 검증 스크립트에서 사용 */
+  sources?: PolicySource[];
+  /** 마지막 공식 데이터 검증일 (YYYY-MM-DD) */
+  lastVerified?: string;
 }
 
 /* ── 데이터 ── */
@@ -70,33 +85,39 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     agency: "농림축산식품부 · 각 지자체",
     icon: Sprout,
     summary:
-      "도시에서 농촌으로 이주하여 농업에 종사하려는 분을 위한 포괄적 정착 지원 사업입니다. 주거, 교육, 멘토링, 영농 정착자금까지 단계별로 지원합니다.",
-    targetAudience: "도시 → 농촌 이주 희망자 (연령 제한 없음, 세부사업별 상이)",
-    supportAmount: "최대 3억 원 (영농정착자금 기준, 융자)",
+      "도시에서 농촌으로 이주하여 농업에 종사하려는 분을 위한 포괄적 정착 지원 사업입니다. 창업자금 최대 3억 원(연 2%, 5년 거치 10년 상환)과 주택구입비 최대 7,500만 원을 융자 지원합니다.",
+    targetAudience: "귀농인 · 재촌비농업인 · 귀농희망자 (만 65세 이하)",
+    supportAmount: "창업자금 최대 3억 원 + 주택자금 최대 7,500만 원 (융자)",
+    supportType: "융자",
     eligibility: [
       {
         label: "귀농 교육 이수",
-        detail: "농업교육기관 100시간 이상 교육 이수 (온·오프라인 병행 가능)",
+        detail: "농업교육기관 100시간 이상 이수 (온·오프라인 병행 가능)",
         required: true,
       },
       {
         label: "농촌 전입",
-        detail: "농촌 지역으로 주민등록 전입 완료 (전입 후 5년 이내)",
+        detail: "농촌 지역 주민등록 전입 완료 (5년 이내)",
         required: true,
       },
       {
         label: "영농 계획",
-        detail: "구체적인 영농 계획서 제출 (작물, 규모, 투자 계획 등)",
+        detail: "영농 계획서 제출 (작물·규모·투자 계획 포함)",
         required: true,
       },
       {
         label: "농업경영체 등록",
-        detail: "농업경영정보시스템(AGRIX)에 농업경영체 등록",
+        detail: "농업경영체 등록 (AGRIX 시스템)",
         required: true,
       },
       {
-        label: "세대주",
-        detail: "세대주 또는 세대원으로서 실제 영농 종사",
+        label: "연령 기준",
+        detail: "신청연도 기준 만 65세 이하",
+        required: true,
+      },
+      {
+        label: "전입 전 거주",
+        detail: "농촌 전입 전 1년 이상 타 지역 거주 이력",
         required: true,
       },
       {
@@ -157,13 +178,15 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
           "거주지 시·군·구 홈페이지 또는 귀농귀촌종합센터에서 공고를 확인하고 신청합니다.",
         duration: "공고 후 2~4주",
         documents: [
-          "사업 신청서",
-          "귀농 교육 이수 확인서",
-          "영농계획서",
+          "사업 신청서 (지자체 양식)",
+          "농업창업계획서 (작물, 규모, 투자 계획)",
+          "귀농 교육 이수 확인서 (100시간 이상)",
           "농업경영체 등록 확인서",
-          "주민등록등본",
+          "주민등록등본 (농촌 전입 확인)",
           "가족관계증명서",
-          "소득금액증명원",
+          "금융기관 신용조사서",
+          "사업자등록사실여부 증명서",
+          "소득금액증명원 (직전 3년)",
         ],
         tips: [
           "지자체별 추가 서류가 있을 수 있으니 공고문을 반드시 확인하세요",
@@ -183,18 +206,21 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       },
     ],
     requiredDocuments: [
+      "사업 신청서 (지자체 양식)",
+      "농업창업계획서 (작물, 규모, 투자 계획)",
       "귀농 교육 이수 확인서 (100시간 이상)",
-      "영농계획서 (작물, 규모, 투자 계획)",
       "농업경영체 등록 확인서",
       "주민등록등본 (농촌 전입 확인)",
       "가족관계증명서",
+      "금융기관 신용조사서",
+      "사업자등록사실여부 증명서",
       "소득금액증명원 (직전 3년)",
       "농지 임대차 계약서 또는 소유 증빙",
-      "사업 신청서 (지자체 양식)",
+      "견적서 등 투자 계획 증빙",
     ],
     obligations: [
       "선정 후 5년 이상 계속 영농 종사 의무",
-      "영농정착자금은 융자로 약정 기간 내 상환 필요",
+      "융자금 상환: 연 2%, 5년 거치 10년 원금균등분할",
       "매년 영농 실적 보고 (시·군·구에 제출)",
       "사업 목적 외 자금 사용 시 전액 환수",
       "농촌 거주지 이탈(도시 전출) 시 지원금 반환",
@@ -211,6 +237,24 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         external: true,
       },
     ],
+    sources: [
+      {
+        label: "찾기쉬운 생활법령 — 농업창업자금",
+        url: "https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&csmSeq=1765&ccfNo=3&cciNo=2&cnpClsNo=1",
+        covers: ["eligibility", "supportAmount", "requiredDocuments"],
+      },
+      {
+        label: "농진청 청년농업인 지원정책",
+        url: "https://www.rda.go.kr/young/content/custom0201.do",
+        covers: ["eligibility", "supportAmount", "obligations", "steps"],
+      },
+      {
+        label: "그린대로 귀농귀촌 절차안내",
+        url: "https://www.greendaero.go.kr/svc/rfph/front/rfphStep.do",
+        covers: ["steps", "applicationPeriod"],
+      },
+    ],
+    lastVerified: "2026-04-08",
   },
 
   /* ═══════════════════════════════════════════
@@ -223,18 +267,24 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     agency: "농림축산식품부",
     icon: UserCheck,
     summary:
-      "만 18~40세 청년이 새롭게 농업에 진입할 수 있도록 영농 정착금(월 최대 110만 원)과 경영비를 지원하는 사업입니다. 최대 3년간 지원받을 수 있습니다.",
-    targetAudience: "만 18~40세, 독립 경영 3년 이하의 청년 농업인",
+      "만 18~39세 청년이 새롭게 농업에 진입할 수 있도록 영농 정착금(월 최대 110만 원)을 최대 3년간 지원합니다. 전국 연간 5,000명 선발하며, 청년농업희망카드(바우처)로 지급됩니다.",
+    targetAudience: "만 18~39세, 독립 경영 3년 이하의 청년 농업인",
     supportAmount: "월 최대 110만 원 (최대 3년, 매년 감액)",
+    supportType: "보조금",
     eligibility: [
       {
         label: "연령 조건",
-        detail: "사업 시행 연도 1월 1일 기준 만 18세 이상 ~ 만 40세 미만",
+        detail: "만 18세 이상 ~ 39세 이하 (사업 시행연도 1월 1일 기준)",
         required: true,
       },
       {
         label: "독립 경영 기간",
         detail: "독립적 영농 경영을 시작한 지 3년 이하",
+        required: true,
+      },
+      {
+        label: "병역 요건",
+        detail: "병역필 또는 면제자 (면접 심사 전일 기준)",
         required: true,
       },
       {
@@ -244,17 +294,17 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       },
       {
         label: "농업경영체 등록",
-        detail: "농업경영정보시스템(AGRIX) 등록 완료",
+        detail: "농업경영체 등록 완료 (AGRIX 시스템)",
         required: true,
       },
       {
         label: "경영 계획서",
-        detail: "3년 이상의 구체적 영농 경영 계획서 제출",
+        detail: "3년 이상 영농 경영 계획서 제출",
         required: true,
       },
       {
         label: "가구 소득",
-        detail: "가구원 합산 소득이 도시근로자 가구 평균 소득의 130% 이하",
+        detail: "가구 소득이 도시근로자 평균의 130% 이하",
         required: true,
       },
       {
@@ -264,7 +314,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       },
     ],
     applicationPeriod: {
-      typical: "매년 1~2월 (시·군 접수)",
+      typical: "전년도 11~12월 접수, 익년 1월 선발",
       frequency: "연 1회",
     },
     steps: [
@@ -300,12 +350,13 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         duration: "공고 후 2~3주",
         documents: [
           "사업 신청서 (소정 양식)",
-          "영농경영계획서 (3년 이상)",
-          "교육 이수 확인서",
+          "영농 경영 계획서 (3년 이상)",
+          "영농 교육 이수 확인서 (100시간 이상)",
           "농업경영체 등록 확인서",
           "소득금액증명원 (가구원 전원)",
           "주민등록등본",
           "졸업증명서 (농업계 학교 해당 시)",
+          "건강보험자격득실확인서",
         ],
       },
       {
@@ -324,7 +375,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         order: 5,
         title: "선정 및 정착금 지급",
         description:
-          "선정 후 매월 정착금이 지급됩니다. 1년차 월 110만 원, 2년차 월 100만 원, 3년차 월 90만 원으로 체감됩니다.",
+          "선정 후 청년농업희망카드(바우처)로 매월 정착금이 지급됩니다. 1년차 월 110만 원, 2년차 월 100만 원, 3년차 월 90만 원으로 체감됩니다.",
         duration: "최대 3년",
         tips: [
           "분기별 영농 활동 보고서를 제출해야 합니다",
@@ -344,12 +395,13 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       "건강보험자격득실확인서",
     ],
     obligations: [
-      "선정 후 5년 이상 영농 종사 의무",
-      "분기별 영농 활동 보고서 제출",
-      "연 1회 이상 의무 교육 참석",
-      "지정 멘토와 정기 상담 (월 1회 이상)",
-      "영농 중단 시 정착금 일부 반환 가능",
-      "타 지역 전출 시 지원 중단",
+      "독립경영 이행: 다음 연도 3월 31일까지 경영주 등록",
+      "경영장부 매월 25일까지 제출",
+      "재해보험 · 의무자조금 가입 유지 (80% 이상)",
+      "의무교육 과정 이수 (미이수 시 2개월 지급 중단)",
+      "전업적 독립영농 유지 (상근직·학업 병행 불가)",
+      "지급 완료 후 동일 기간 영농 종사 의무",
+      "서류 거짓 작성 시 전액 환수 및 자격 박탈",
     ],
     caution:
       "청년창업농은 '독립 경영'이 핵심 조건입니다. 부모 농장에서 근무하더라도 별도 경영체를 등록해야 하며, 이중 취업(농업 외 정규직)은 지원 대상에서 제외될 수 있습니다.",
@@ -363,6 +415,29 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         external: true,
       },
     ],
+    sources: [
+      {
+        label: "찾기쉬운 생활법령 — 청년후계농 지원",
+        url: "https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&csmSeq=1765&ccfNo=3&cciNo=4&cnpClsNo=2",
+        covers: ["eligibility", "obligations", "supportAmount"],
+      },
+      {
+        label: "서울시 2026 청년농업인 선발 공고",
+        url: "https://agro.seoul.go.kr/archives/54938",
+        covers: ["eligibility", "applicationPeriod", "requiredDocuments"],
+      },
+      {
+        label: "농진청 청년농업인 지원정책",
+        url: "https://www.rda.go.kr/young/content/custom0201.do",
+        covers: ["eligibility", "supportAmount", "obligations"],
+      },
+      {
+        label: "농림축산식품부 시행지침 공고",
+        url: "https://www.mafra.go.kr/home/5108/subview.do",
+        covers: ["eligibility", "applicationPeriod", "requiredDocuments", "obligations"],
+      },
+    ],
+    lastVerified: "2026-04-08",
   },
 
   /* ═══════════════════════════════════════════
@@ -375,9 +450,10 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     agency: "한국농어촌공사",
     icon: Landmark,
     summary:
-      "농지를 확보하기 어려운 귀농인과 청년 농업인에게 농지 임대, 매매, 교환 등의 서비스를 제공합니다. 시세보다 저렴한 조건으로 농지를 이용할 수 있습니다.",
+      "농지를 확보하기 어려운 귀농인과 청년 농업인에게 임대수탁, 선임대후매도, 매매 등의 서비스를 제공합니다. 2026년부터 위탁 수수료가 전면 폐지되어 농업인 부담이 크게 줄었습니다.",
     targetAudience: "농업인, 귀농인, 청년 농업인, 농업법인",
-    supportAmount: "농지 임대료 시세 대비 70~90% 수준",
+    supportAmount: "임대 표준임차료 기준 · 매매 연리 1% (최장 30년)",
+    supportType: "현물",
     eligibility: [
       {
         label: "농업인 자격",
@@ -391,7 +467,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       },
       {
         label: "거주 요건",
-        detail: "농지 소재지와 동일 또는 인접 시·군·구 거주 (또는 전입 예정)",
+        detail: "농지 소재지와 같은 시·군·구 거주 (전입 예정자 포함)",
         required: true,
       },
       {
@@ -445,6 +521,8 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
           "영농계획서 (해당 농지 기준)",
           "주민등록등본",
           "신분증 사본",
+          "소득금액증명원 (매매 시)",
+          "농지원부 사본 (보유 농지가 있는 경우)",
         ],
       },
       {
@@ -474,7 +552,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     requiredDocuments: [
       "농지 임대(매매) 신청서",
       "농업경영체 등록 확인서",
-      "영농계획서",
+      "영농계획서 (해당 농지 기준)",
       "주민등록등본",
       "신분증 사본",
       "소득금액증명원 (매매 시)",
@@ -502,34 +580,62 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       {
         name: "농지임대수탁사업",
         target: "직접 경작이 어려운 농지 소유자 → 경작 희망자에게 임대",
-        support: "시세 대비 저렴한 임대료로 최대 5년간 농지 이용",
+        support: "표준임차료 기준, 5~10년 임대 (2026년부터 위탁 수수료 폐지)",
         conditions: [
           "농업경영체 등록",
-          "농지 소재지 30km 이내 거주",
+          "위탁자: 농지 취득 후 3년 이상 소유",
           "직접 경작 의무",
         ],
       },
       {
-        name: "경영회생농지 매입사업",
-        target: "경영 곤란 농가 농지를 공사가 매입 후 재임대",
-        support: "감정평가액 기준 매입, 임대 조건으로 재이용 가능",
+        name: "선임대후매도사업",
+        target: "39세 이하 청년 농업인 대상, 희망 농지를 공사가 매입 후 임대",
+        support: "최장 30년 임대, 원리금 상환 완료 시 소유권 이전 (연리 1%)",
         conditions: [
-          "경영 곤란 농가 또는 고령 은퇴 농업인 소유 농지",
-          "매입 후 5년 이상 임대",
+          "39세 이하 청년농",
+          "1ha 이내 (경력 2년 이하 0.5ha)",
+          "표준임차료 50~100%",
+        ],
+      },
+      {
+        name: "경영회생농지 매입사업",
+        target: "경영 곤란 농가 농지를 공사가 매입 후 장기 임대",
+        support: "감정평가액 기준 매입, 최대 10년 장기 임대 + 환매권 보장",
+        conditions: [
+          "부채·재해로 경영 곤란 농업인",
+          "경영 회복 후 우선 매수권",
           "귀농인·청년 농업인 우선 배정",
         ],
       },
       {
         name: "농지매매사업",
-        target: "농업인이 농지를 직접 매입·매도할 수 있도록 중개 지원",
-        support: "공사가 적정 가격을 산정하여 거래 투명성 확보",
+        target: "영농규모 확대 희망 농업인·농업법인에게 농지 매도",
+        support: "매입자금 최장 30년 상환 (연리 1%), 2년 거치 가능",
         conditions: [
           "매수자: 농업경영체 등록 필수",
-          "매도자: 농업인 또는 비농업인 농지 소유자",
-          "거래 중개 수수료 없음",
+          "매도자: 이농인·은퇴농 등",
+          "중개 수수료 없음",
         ],
       },
     ],
+    sources: [
+      {
+        label: "농지은행 통합포털",
+        url: "https://www.fbo.or.kr",
+        covers: ["subPrograms", "supportAmount", "eligibility"],
+      },
+      {
+        label: "농지은행 임대사업 총정리",
+        url: "https://youyounews.co.kr/%EB%86%8D%EC%A7%80%EC%9D%80%ED%96%89-%EC%9E%84%EB%8C%80%EC%82%AC%EC%97%85-%EC%B4%9D%EC%A0%95%EB%A6%AC/",
+        covers: ["subPrograms", "obligations"],
+      },
+      {
+        label: "정책브리핑 — 농지은행 제도 개선",
+        url: "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156681808",
+        covers: ["subPrograms", "supportAmount"],
+      },
+    ],
+    lastVerified: "2026-04-08",
   },
 
   /* ═══════════════════════════════════════════
@@ -545,10 +651,11 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       "산촌 지역으로 이주하여 산림 자원을 활용한 창업을 하려는 분에게 창업 자금과 주거 지원을 제공합니다. 임산물 재배, 산촌 체험, 목재 가공 등이 대상입니다.",
     targetAudience: "산촌 이주 후 산림 자원 활용 창업 희망자",
     supportAmount: "최대 5억 원 (융자, 이자율 2% 이내)",
+    supportType: "융자",
     eligibility: [
       {
         label: "산촌 전입",
-        detail: "산촌진흥지역으로 전입한 자 (전입 후 5년 이내)",
+        detail: "산촌진흥지역 전입 완료 (5년 이내)",
         required: true,
       },
       {
@@ -568,7 +675,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       },
       {
         label: "산림 관련 자격",
-        detail: "산림기사, 산림경영기능사 등 자격증 보유 시 가산점",
+        detail: "관련 자격증 보유 시 가산점 부여 (산림기사 등)",
         required: false,
       },
     ],
@@ -609,12 +716,13 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         duration: "공고 후 3~4주",
         documents: [
           "지원 신청서 (소정 양식)",
-          "귀산촌 교육 이수 확인서",
-          "창업 사업 계획서",
+          "귀산촌 교육 이수 확인서 (40시간 이상)",
+          "창업 사업 계획서 (산림 자원 활용)",
           "임업경영체 등록 확인서 (또는 등록 예정 확인서)",
-          "주민등록등본",
+          "주민등록등본 (산촌진흥지역 전입 확인)",
           "소득금액증명원",
           "산림(임야) 소유 또는 이용 계획 증빙",
+          "관련 자격증 사본 (해당 시)",
         ],
       },
       {
@@ -645,7 +753,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       "지원 신청서 (소정 양식)",
       "귀산촌 교육 이수 확인서 (40시간 이상)",
       "창업 사업 계획서 (산림 자원 활용)",
-      "임업경영체 등록 확인서",
+      "임업경영체 등록 확인서 (또는 등록 예정 확인서)",
       "주민등록등본 (산촌진흥지역 전입 확인)",
       "소득금액증명원",
       "산림(임야) 소유 또는 이용 계획 증빙",
@@ -675,6 +783,19 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         external: true,
       },
     ],
+    sources: [
+      {
+        label: "산림청 산촌/귀산촌 지원사업",
+        url: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?cmsId=FC_000434&mn=AR02_06_02_02",
+        covers: ["eligibility", "supportAmount", "steps"],
+      },
+      {
+        label: "정부24 산림사업종합자금",
+        url: "https://www.gov.kr/portal/service/serviceInfo/SD0000010823",
+        covers: ["supportAmount", "obligations"],
+      },
+    ],
+    lastVerified: "2026-04-08",
   },
 ];
 

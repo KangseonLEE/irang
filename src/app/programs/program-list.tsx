@@ -130,7 +130,7 @@ export function ProgramList({
                     <Link href={`/programs/${p.id}`} className={dt.titleLink}>
                       {p.title}
                     </Link>
-                    {isNewProgram(p.createdAt) && (
+                    {isNewProgram(p.createdAt, p.status) && (
                       <span className={s.newTag}>신규</span>
                     )}
                   </td>

@@ -1,0 +1,172 @@
+/* ══════════════════════════════════════
+   StepOverview — 귀농 5단계 요약 카드
+   공용 컴포넌트 · 모바일 우선 반응형
+   ══════════════════════════════════════ */
+
+/* ── 컨테이너: 모바일 가로 스크롤 → 데스크탑 5열 그리드 ── */
+.track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0 8px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .track {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    overflow: visible;
+    padding: 0;
+  }
+}
+
+/* ── 개별 카드 ── */
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  min-width: 148px;
+  flex-shrink: 0;
+  padding: 20px 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  text-decoration: none;
+  color: inherit;
+  scroll-snap-align: start;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+@media (min-width: 768px) {
+  .card {
+    min-width: 0;
+    padding: 24px 12px 18px;
+  }
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 50%, transparent);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.card:active {
+  border-color: var(--primary, #1b6b5a);
+}
+
+/* 비용 집중 단계 강조 */
+.cardHighlight {
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 3%, var(--card, #fff));
+}
+
+/* ── 아이콘 원형 ── */
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  margin-bottom: 4px;
+}
+
+@media (min-width: 768px) {
+  .icon {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.iconHighlight {
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+}
+
+/* ── 텍스트 ── */
+.stepLabel {
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primary, #1b6b5a);
+}
+
+.title {
+  font-size: var(--fs-body, 0.9375rem);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+@media (min-width: 1024px) {
+  .title { font-size: 1.0625rem; }
+}
+
+.period {
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+/* ── 비용 영역 ── */
+.cost {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.costAmount {
+  font-size: var(--fs-body-sm, 0.8125rem);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.costHighlight {
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-body, 0.9375rem);
+}
+
+.costDesc {
+  font-size: var(--fs-overline, 0.6875rem);
+  color: var(--muted-foreground, #9ca3af);
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+/* ── 링크 힌트 ── */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 600;
+  color: var(--muted-foreground, #9ca3af);
+  margin-top: 8px;
+  transition: color 0.15s;
+}
+
+@media (hover: hover) {
+  .card:hover .link {
+    color: var(--primary, #1b6b5a);
+  }
+}

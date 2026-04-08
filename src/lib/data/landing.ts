@@ -356,6 +356,11 @@ export const cityVsRural: CompareRow[] = [
 
 /* ── 귀농인 인터뷰 카드 (공개 보도 기반, 실명) ── */
 
+export interface CropLink {
+  name: string;
+  href: string;
+}
+
 export interface InterviewCard {
   id: string;
   name: string;
@@ -374,6 +379,10 @@ export interface InterviewCard {
   motivation: string;
   challenge: string;
   advice: string;
+  /** 지역 데이터 페이지 링크 */
+  regionUrl: string;
+  /** 작물 데이터 페이지 링크 (매칭되는 작물만) */
+  cropLinks: CropLink[];
 }
 
 export const interviews: InterviewCard[] = [
@@ -393,6 +402,12 @@ export const interviews: InterviewCard[] = [
     motivation: "부모님이 순천에서 농사를 짓고 계셨는데, 도시 생활을 하면서 '결국 돌아가게 되지 않을까' 싶었어요. 막상 시작해보니 생각보다 가능성이 많더라고요.",
     challenge: "처음에는 체력적으로 많이 힘들었어요. 딸기 수확 시즌에는 새벽부터 움직여야 하니까요. 그래도 직접 키운 작물이 시장에 나가는 걸 보면 뿌듯합니다.",
     advice: "재배만 하지 말고, 본인이 할 수 있는 다른 것을 새로 생각해내기만 한다면 농업은 정말 유망해요. 젊을 때 시작할수록 유리합니다.",
+    regionUrl: "/regions/jeonnam/suncheon",
+    cropLinks: [
+      { name: "딸기", href: "/crops/strawberry" },
+      { name: "콩", href: "/crops/soybean" },
+      { name: "고구마", href: "/crops/sweet-potato" },
+    ],
   },
   {
     id: "bae-dongju",
@@ -410,6 +425,8 @@ export const interviews: InterviewCard[] = [
     motivation: "농업의 가치를 알리고 싶었어요. 단순 재배가 아니라 가공까지 해야 부가가치가 생긴다는 걸 일찍 깨달았죠.",
     challenge: "농산물 가공은 위생 기준, 인증 절차가 까다로워요. 혼자 다 해야 하니까 행정 업무량이 상당했습니다.",
     advice: "귀농 전에 체류형 프로그램부터 참여해보세요. 막연히 '농촌이 좋겠다'가 아니라, 실제로 살아보고 결정하는 게 중요합니다.",
+    regionUrl: "/regions/chungnam/gongju",
+    cropLinks: [],
   },
   {
     id: "kang-namwook",
@@ -427,6 +444,8 @@ export const interviews: InterviewCard[] = [
     motivation: "코로나로 가게 운영이 어려워졌을 때 아버지가 '한번 와봐라' 하셔서요. 와보니 스마트팜이 생각보다 체계적이더라고요.",
     challenge: "농업을 전혀 몰랐기 때문에 처음 1년은 배우기만 했어요. 스마트팜 교육이 정말 도움이 많이 됐습니다.",
     advice: "스마트팜은 데이터로 관리하니까 IT 감각이 있는 분들에게 정말 잘 맞아요. 정부 지원사업도 적극 활용하세요.",
+    regionUrl: "/regions/jeonnam/gangjin",
+    cropLinks: [{ name: "딸기", href: "/crops/strawberry" }],
   },
   {
     id: "lee-gyuho",
@@ -444,6 +463,8 @@ export const interviews: InterviewCard[] = [
     motivation: "퇴직하고 뭘 할까 고민하다, 어릴 때 시골에서 자란 기억이 떠올랐어요. '다시 흙을 만져보자'는 마음으로 시작했죠.",
     challenge: "중장비 없이 하려면 체력이 관건이에요. 처음엔 통나무 하나 옮기기도 힘들었는데, 1년 지나니 몸이 적응하더라고요.",
     advice: "50대도 전혀 늦지 않아요. 오히려 인생 경험이 농사에 도움이 됩니다. 다만 체력은 미리미리 만들어두세요.",
+    regionUrl: "/regions/chungnam/dangjin",
+    cropLinks: [{ name: "벼", href: "/crops/rice" }],
   },
   {
     id: "lee-jonghyun",
@@ -461,6 +482,8 @@ export const interviews: InterviewCard[] = [
     motivation: "각자 안정적인 직장이 있었지만, 누군가의 지시가 아니라 '우리 의지대로 일하자'는 마음이 컸어요. 농업이라면 가능하겠다 싶었죠.",
     challenge: "잘할 수 있을까 겁이 나기도 했지만, 둘이 함께라 든든했어요. 밤낮없이 하우스에 붙어 살다시피 한 첫해가 가장 힘들었습니다.",
     advice: "부부가 함께 한다면 정말 든든합니다. 재배기술을 정교하게 다듬으면서 규모를 점차 늘려가는 전략이 중요해요.",
+    regionUrl: "/regions/gyeonggi/yeoju",
+    cropLinks: [],
   },
   {
     id: "yeom-sujeong",
@@ -478,6 +501,8 @@ export const interviews: InterviewCard[] = [
     motivation: "남편 퇴직이 얼마 남지 않기도 했고, 인생 2모작을 고민하다 정년 없이 오래 종사할 수 있는 농업을 택했어요.",
     challenge: "자연재해 대응이 가장 어려웠어요. 투자비용을 최소화하면서도 재해를 이겨낼 수 있는 시설을 갖추는 게 관건이었습니다.",
     advice: "인터넷으로 선도농가를 찾아 주말마다 방문해서 배웠어요. 철저한 계획과 공부가 성공의 열쇠입니다.",
+    regionUrl: "/regions/chungnam/cheonan",
+    cropLinks: [{ name: "딸기", href: "/crops/strawberry" }],
   },
   {
     id: "kim-gwanghun",
@@ -495,6 +520,8 @@ export const interviews: InterviewCard[] = [
     motivation: "대기업의 톱니바퀴 같은 삶에 회의감을 느꼈어요. 온전히 '내 것'이 될 수 있는 일, 주체적인 삶을 찾고 싶었습니다.",
     challenge: "처음에 일본 신품종을 시도했다가 흰가루병에 취약해서 실패했어요. 품종 선택의 중요성을 뼈저리게 느꼈습니다.",
     advice: "스마트팜이 농사를 대신 지어주진 않아요. 작물 지식과 스마트팜 이해를 바탕으로 자신만의 농법을 찾아야 합니다. 무리한 시설 투자보다 감당할 수 있는 규모로 시작하세요.",
+    regionUrl: "/regions/chungbuk/chungju",
+    cropLinks: [{ name: "딸기", href: "/crops/strawberry" }],
   },
 ];
 

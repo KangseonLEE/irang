@@ -400,8 +400,14 @@ export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
       return false;
     }
 
+    // 마감 제외 (기본 동작: includeClosed가 true가 아니면 마감 숨김)
+    if (!filters.includeClosed && program.status === "마감") {
+      return false;
+    }
+
     // 조회 시점 필터: 모집기간과 선택 월이 겹치는지 확인
-    if (periodStart && periodEnd) {
+    // includeClosed가 true이면 기간 필터를 적용하지 않음 (마감된 과거 프로그램도 표시)
+    if (!filters.includeClosed && periodStart && periodEnd) {
       // 모집기간과 조회 월이 겹치려면:
       // program.applicationStart <= periodEnd AND program.applicationEnd >= periodStart
       if (
@@ -410,12 +416,6 @@ export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
       ) {
         return false;
       }
-    }
-
-    // 마감 제외 (기본 동작: includeClosed가 true가 아니면 마감 숨김)
-    // 단, 조회 시점이 설정된 경우 마감 여부 대신 기간으로 판단하므로 마감 필터는 유지
-    if (!filters.includeClosed && program.status === "마감") {
-      return false;
     }
 
     // 텍스트 검색 (제목, 요약, 지역, 기관, 관련 작물)
@@ -597,7 +597,11 @@ export async function filterProgramsAsync(
     // 원문 링크 깨진 항목은 목록에서 숨김
     if (program.linkStatus === "broken") return false;
 
-    if (periodStart && periodEnd) {
+    // 마감 제외 (includeClosed가 false이면 마감 숨김)
+    if (!filters.includeClosed && program.status === "마감") return false;
+
+    // 조회 시점 필터 (includeClosed가 true이면 기간 필터 스킵)
+    if (!filters.includeClosed && periodStart && periodEnd) {
       if (
         program.applicationStart > periodEnd ||
         program.applicationEnd < periodStart
@@ -605,7 +609,6 @@ export async function filterProgramsAsync(
         return false;
       }
     }
-    if (!filters.includeClosed && program.status === "마감") return false;
     if (filters.query) {
       const q = filters.query.toLowerCase();
       const searchable = [

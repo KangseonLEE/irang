@@ -157,7 +157,7 @@ export function RegionStats({
           provinceShortName={provinceShortName}
           notice={
             allStationNames.length > 1
-              ? `${provinceShortName}에는 ${allStationNames.join(", ")} 관측소가 있습니다. 위 수치는 ${climate.stnName} 기준입니다.`
+              ? `${provinceShortName}에는 ${allStationNames.join(", ")} 관측소가 있어요. 위 수치는 ${climate.stnName} 기준이에요.`
               : undefined
           }
         />

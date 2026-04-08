@@ -359,6 +359,27 @@
   }
 }
 
+.cropCardWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cropCompareLink {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  text-decoration: none;
+  text-align: right;
+  padding: 0 4px;
+  transition: color 0.15s;
+}
+
+@media (hover: hover) {
+  .cropCompareLink:hover {
+    color: var(--primary, #1b6b5a);
+  }
+}
+
 .cropCard {
   display: flex;
   align-items: center;
@@ -553,7 +574,7 @@
 .eventTypeBadge[data-type="팜스테이"],
 .eventTypeBadge[data-type="축제"] {
   background: #fef3c7;
-  color: #92400e;
+  color: var(--warning-fg-strong, #92400e);
 }
 
 .eventTypeBadge[data-type="박람회"],

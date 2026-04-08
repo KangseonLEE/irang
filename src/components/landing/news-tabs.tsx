@@ -1,16 +1,22 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { ExternalLink } from "lucide-react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { ExternalLink, Newspaper } from "lucide-react";
 import s from "./news-tabs.module.css";
 
 /* ── 통합 뉴스 아이템 ── */
 
 export interface UnifiedNewsItem {
   title: string;
+  /** 기사 본문 요약 */
+  description?: string;
   source: string;
   date: string;
   url: string;
+  /** 네이버 뉴스 URL — OG 추출용 (서버 전용, 클라이언트에선 미사용) */
+  naverUrl?: string;
+  /** OG 이미지 썸네일 URL (선택) */
+  thumbnail?: string;
   /** 탭 분류: news(전체 뉴스), education, event, program */
   category: "news" | "education" | "event" | "program";
 }
@@ -28,18 +34,84 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
+const ROTATE_INTERVAL = 5000; // 5초마다 자동 전환
+const SLIDE_OUT_MS = 250;     // slideOut 애니메이션 시간과 일치
+const SLIDE_IN_MS = 350;      // slideIn 애니메이션 시간과 일치
+
+type SlidePhase = "idle" | "out" | "in";
+
 export function NewsTabs({ items }: NewsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>("all");
+  const [featuredIdx, setFeaturedIdx] = useState(0);
+  const [slidePhase, setSlidePhase] = useState<SlidePhase>("idle");
+  const [isPaused, setIsPaused] = useState(false);
+  const [brokenImgs, setBrokenImgs] = useState<Set<string>>(new Set());
+  const nextIdxRef = useRef<number | null>(null);
 
   const filtered = useMemo(() => {
-    if (activeTab === "all") return items.slice(0, 5);
+    if (activeTab === "all") return items.slice(0, 4);
     return items
       .filter((item) => item.category === activeTab)
-      .slice(0, 5);
+      .slice(0, 4);
   }, [activeTab, items]);
+
+  // 탭 변경 시 Featured 인덱스 리셋
+  useEffect(() => {
+    setFeaturedIdx(0);
+    setSlidePhase("idle");
+  }, [activeTab]);
+
+  /** slide-out → 콘텐츠 교체 → slide-in 시퀀스 */
+  const transitionTo = useCallback(
+    (nextIdx: number) => {
+      if (nextIdx === featuredIdx || slidePhase !== "idle") return;
+      nextIdxRef.current = nextIdx;
+      setSlidePhase("out");
+
+      setTimeout(() => {
+        setFeaturedIdx(nextIdxRef.current ?? nextIdx);
+        setSlidePhase("in");
+
+        setTimeout(() => {
+          setSlidePhase("idle");
+        }, SLIDE_IN_MS);
+      }, SLIDE_OUT_MS);
+    },
+    [featuredIdx, slidePhase],
+  );
+
+  // 자동 전환
+  useEffect(() => {
+    if (filtered.length <= 1 || isPaused) return;
+
+    const timer = setInterval(() => {
+      const next = (featuredIdx + 1) % filtered.length;
+      transitionTo(next);
+    }, ROTATE_INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [filtered.length, isPaused, featuredIdx, transitionTo]);
+
+  // 리스트 아이템 호버로 Featured 전환
+  const selectFeatured = useCallback(
+    (idx: number) => {
+      transitionTo(idx);
+    },
+    [transitionTo],
+  );
+
+  const slideClass =
+    slidePhase === "out"
+      ? s.featuredSlideOut
+      : slidePhase === "in"
+        ? s.featuredSlideIn
+        : "";
+
+  const featured = filtered[featuredIdx] ?? null;
 
   return (
     <div className={s.newsCard}>
+      {/* 헤더: 타이틀 + 탭 */}
       <div className={s.header}>
         <h3 className={s.title}>농촌 소식</h3>
         <div className={s.tabs} role="tablist">
@@ -58,23 +130,78 @@ export function NewsTabs({ items }: NewsTabsProps) {
         </div>
       </div>
 
-      <div className={s.list} role="tabpanel">
+      {/* 2단 레이아웃: Featured + List */}
+      <div className={s.body} role="tabpanel">
         {filtered.length > 0 ? (
-          filtered.map((item, i) => (
-            <a
-              key={`${item.category}-${i}`}
-              href={item.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={s.item}
-            >
-              <span className={s.itemTitle}>{item.title}</span>
-              <span className={s.itemMeta}>
-                {item.source} · {item.date}
-                <ExternalLink size={12} />
-              </span>
-            </a>
-          ))
+          <>
+            {/* 좌측: Featured 속보 (자동 전환) */}
+            {featured && (
+              <a
+                href={featured.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${s.featured}${slideClass ? ` ${slideClass}` : ""}`}
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+              >
+                {/* 비주얼 영역 — OG 이미지 또는 폴백 그라데이션 */}
+                <div className={s.featuredVisual}>
+                  {featured.thumbnail && !brokenImgs.has(featured.thumbnail) ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={featured.thumbnail}
+                      alt=""
+                      className={s.featuredImg}
+                      loading="lazy"
+                      onError={(e) => {
+                        setBrokenImgs((prev) => new Set(prev).add(featured.thumbnail!));
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <Newspaper size={28} className={s.featuredIcon} />
+                  )}
+                  <span className={s.featuredBadge}>{featured.source}</span>
+                </div>
+
+                {/* 텍스트 영역 */}
+                <div className={s.featuredText}>
+                  <span className={s.featuredTitle}>{featured.title}</span>
+                  {featured.description && (
+                    <span className={s.featuredDesc}>{featured.description}</span>
+                  )}
+                  <span className={s.featuredMeta}>
+                    {featured.source} · {featured.date}
+                    <ExternalLink size={12} />
+                  </span>
+                </div>
+              </a>
+            )}
+
+            {/* 우측: 전체 리스트 (현재 Featured 하이라이트) */}
+            <div className={s.list}>
+              {filtered.map((item, i) => (
+                <a
+                  key={`${item.category}-${i}`}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${s.item} ${i === featuredIdx ? s.itemActive : ""}`}
+                  onMouseEnter={() => {
+                    setIsPaused(true);
+                    selectFeatured(i);
+                  }}
+                  onMouseLeave={() => setIsPaused(false)}
+                >
+                  <span className={s.itemTitle}>{item.title}</span>
+                  <span className={s.itemMeta}>
+                    {item.source} · {item.date}
+                    <ExternalLink size={12} />
+                  </span>
+                </a>
+              ))}
+            </div>
+          </>
         ) : (
           <p className={s.empty}>해당 카테고리의 소식이 없습니다.</p>
         )}

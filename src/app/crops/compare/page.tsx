@@ -22,6 +22,7 @@ import {
   type CropDetailInfo,
   type ProsConsCategory,
 } from "@/lib/data/crops";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { CropSelector } from "./crop-selector";
 import s from "./page.module.css";
 
@@ -325,7 +326,7 @@ function ProsConsColumn({ crop }: { crop: CropWithDetail }) {
             <span className={s.prosBadge}>
               {CAT_LABEL[item.category] ?? item.category}
             </span>
-            <span className={s.prosConsText}>{item.text}</span>
+            <span className={s.prosConsText}><AutoGlossary text={item.text} /></span>
           </div>
         ))}
       </div>
@@ -340,7 +341,7 @@ function ProsConsColumn({ crop }: { crop: CropWithDetail }) {
             <span className={s.consBadge}>
               {CAT_LABEL[item.category] ?? item.category}
             </span>
-            <span className={s.prosConsText}>{item.text}</span>
+            <span className={s.prosConsText}><AutoGlossary text={item.text} /></span>
           </div>
         ))}
       </div>
@@ -349,7 +350,7 @@ function ProsConsColumn({ crop }: { crop: CropWithDetail }) {
       {pc.verdict && (
         <div className={s.verdictCard}>
           <Lightbulb size={14} />
-          <span className={s.verdictText}>{pc.verdict}</span>
+          <span className={s.verdictText}><AutoGlossary text={pc.verdict} /></span>
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -14,9 +14,31 @@ import {
   Calendar,
   Coins,
   Layers,
+  Lightbulb,
+  Banknote,
 } from "lucide-react";
 import { GOV_PROGRAMS, type GovProgramRoadmap } from "@/lib/data/gov-roadmap";
+import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import s from "./page.module.css";
+
+/* ── 섹션 점프 내비 정의 ── */
+const BASE_SECTIONS = [
+  { id: "summary", label: "요약" },
+  { id: "eligibility", label: "자격 요건" },
+  { id: "steps", label: "신청 절차" },
+  { id: "obligations", label: "유의사항" },
+];
+
+/** 세부사업이 있는 프로그램은 "세부사업" 탭을 동적 추가 */
+function getSectionNav(program: GovProgramRoadmap) {
+  if (program.subPrograms && program.subPrograms.length > 0) {
+    const nav = [...BASE_SECTIONS];
+    // "유의사항" 앞에 "세부사업" 삽입
+    nav.splice(3, 0, { id: "subprograms", label: "세부사업" });
+    return nav;
+  }
+  return BASE_SECTIONS;
+}
 
 /* ==========================================================================
    RoadmapClient — 탭 전환 + 사업별 콘텐츠 렌더링
@@ -55,10 +77,61 @@ export function RoadmapClient() {
   );
 }
 
+/* ── Sticky 섹션 점프 내비 ── */
+function SectionJumpNav({ program }: { program: GovProgramRoadmap }) {
+  const [activeSection, setActiveSection] = useState("summary");
+  const sectionNav = getSectionNav(program);
+
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    const sectionIds = sectionNav.map((n) => `${n.id}-${program.id}`);
+
+    sectionIds.forEach((id, idx) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setActiveSection(sectionNav[idx].id);
+          }
+        },
+        { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+      );
+      observer.observe(el);
+      observers.push(observer);
+    });
+
+    return () => observers.forEach((o) => o.disconnect());
+  }, [program.id, sectionNav]);
+
+  const handleClick = useCallback(
+    (sectionId: string) => {
+      const el = document.getElementById(`${sectionId}-${program.id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    },
+    [program.id],
+  );
+
+  return (
+    <nav className={s.sectionNav} aria-label="섹션 바로가기">
+      {sectionNav.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          className={`${s.sectionNavItem} ${activeSection === item.id ? s.sectionNavActive : ""}`}
+          onClick={() => handleClick(item.id)}
+        >
+          {item.label}
+        </button>
+      ))}
+    </nav>
+  );
+}
+
 /* ── 개별 사업 콘텐츠 ── */
 function ProgramContent({ program }: { program: GovProgramRoadmap }) {
-  const Icon = program.icon;
-
   return (
     <div
       role="tabpanel"
@@ -66,17 +139,16 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
       aria-labelledby={`tab-${program.id}`}
       className={s.tabPanel}
     >
-      {/* 요약 카드 */}
-      <div className={s.summaryCard}>
-        <div className={s.summaryHeader}>
-          <div className={s.summaryIcon}>
-            <Icon size={22} />
-          </div>
-          <div className={s.summaryTitleGroup}>
-            <h2 className={s.summaryName}>{program.name}</h2>
-            <p className={s.summaryAgency}>{program.agency}</p>
-          </div>
+      {/* 섹션 점프 내비 */}
+      <SectionJumpNav program={program} />
+
+      {/* 요약 */}
+      <div id={`summary-${program.id}`} className={s.summaryCard}>
+        <div className={s.summaryTitleGroup}>
+          <h2 className={s.summaryName}>{program.name}</h2>
+          <p className={s.summaryAgency}>{program.agency}</p>
         </div>
+        <hr className={s.summarySeparator} />
         <p className={s.summaryDesc}>{program.summary}</p>
         <div className={s.summaryMeta}>
           <span className={s.metaBadge}>
@@ -87,6 +159,11 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
             <Coins size={13} />
             {program.supportAmount}
           </span>
+          <SupportTypeBadge
+            type={program.supportType}
+            variant="meta"
+            icon={<Banknote size={13} />}
+          />
           <span className={s.metaBadge}>
             <Calendar size={13} />
             {program.applicationPeriod.typical}
@@ -95,7 +172,7 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
       </div>
 
       {/* 자격 요건 */}
-      <section className={s.section}>
+      <section id={`eligibility-${program.id}`} className={s.section}>
         <h3 className={s.sectionTitle}>
           <CheckCircle2 size={20} />
           자격 요건
@@ -125,14 +202,29 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
         </div>
       </section>
 
+      {/* 핵심 의무사항 미리보기 — 자격 요건 직후, 신청 절차 전 */}
+      {program.obligations.length > 0 && (
+        <div className={s.obligationsPreview}>
+          <p className={s.obligationsPreviewTitle}>
+            <ShieldAlert size={15} />
+            이것만은 꼭 확인하세요
+          </p>
+          <ul className={s.obligationsPreviewList}>
+            {program.obligations.slice(0, 2).map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* 신청 절차 */}
-      <section className={s.section}>
+      <section id={`steps-${program.id}`} className={s.section}>
         <h3 className={s.sectionTitle}>
           <ArrowRight size={20} />
           신청 절차
         </h3>
         <div className={s.stepsTimeline}>
-          {program.steps.map((step) => (
+          {program.steps.map((step, stepIdx) => (
             <div key={step.order} className={s.stepItem}>
               <span className={s.stepNumber}>{step.order}</span>
               <div className={s.stepBody}>
@@ -142,11 +234,17 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
                 </div>
                 <p className={s.stepDesc}>{step.description}</p>
                 {step.tips && step.tips.length > 0 && (
-                  <ul className={s.stepTips}>
-                    {step.tips.map((tip, i) => (
-                      <li key={i} className={s.stepTip}>{tip}</li>
-                    ))}
-                  </ul>
+                  <details className={s.stepTipsDetails} open={stepIdx === 0 || undefined}>
+                    <summary className={s.stepTipsSummary}>
+                      <Lightbulb size={13} />
+                      팁 {step.tips.length}건
+                    </summary>
+                    <ul className={s.stepTips}>
+                      {step.tips.map((tip, i) => (
+                        <li key={i} className={s.stepTip}>{tip}</li>
+                      ))}
+                    </ul>
+                  </details>
                 )}
                 {step.documents && step.documents.length > 0 && (
                   <details className={s.stepDocsDetails}>
@@ -165,29 +263,33 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
             </div>
           ))}
         </div>
+
+        {/* 외부 신청 포털 바로가기 — 신청 절차 직후 */}
+        {program.relatedLinks.filter((l) => l.external).length > 0 && (
+          <div className={s.stepsPortalLinks}>
+            {program.relatedLinks
+              .filter((l) => l.external)
+              .map((link, i) => (
+                <a
+                  key={i}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={s.stepsPortalLink}
+                >
+                  <ExternalLink size={14} />
+                  {link.label} 바로가기
+                </a>
+              ))}
+          </div>
+        )}
       </section>
 
-      {/* 필요 서류 */}
-      <section className={s.section}>
-        <h3 className={s.sectionTitle}>
-          <FileText size={20} />
-          필요 서류
-        </h3>
-        <div className={s.docsList}>
-          {program.requiredDocuments.map((doc, i) => (
-            <div key={i} className={s.docItem}>
-              <FileText size={14} />
-              <span>{doc}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 선정 후 의무사항 */}
-      <section className={s.section}>
+      {/* 유의사항 (의무사항 + 주의사항 통합) */}
+      <section id={`obligations-${program.id}`} className={s.section}>
         <h3 className={s.sectionTitle}>
           <ShieldAlert size={20} />
-          선정 후 의무사항
+          유의사항
         </h3>
         <div className={s.obligationsList}>
           {program.obligations.map((item, i) => (
@@ -197,17 +299,15 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
             </div>
           ))}
         </div>
+        <div className={s.cautionCard}>
+          <AlertTriangle size={18} />
+          <p className={s.cautionText}>{program.caution}</p>
+        </div>
       </section>
-
-      {/* 주의사항 */}
-      <div className={s.cautionCard}>
-        <AlertTriangle size={18} />
-        <p className={s.cautionText}>{program.caution}</p>
-      </div>
 
       {/* 농지은행 세부사업 (해당 시) */}
       {program.subPrograms && program.subPrograms.length > 0 && (
-        <section className={s.section}>
+        <section id={`subprograms-${program.id}`} className={s.section}>
           <h3 className={s.sectionTitle}>
             <Layers size={20} />
             세부사업 분류

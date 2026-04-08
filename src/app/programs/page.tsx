@@ -14,6 +14,7 @@ import {
   type ProgramFilters,
 } from "@/lib/data/programs";
 import Link from "next/link";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ProgramList } from "./program-list";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import {
@@ -107,7 +108,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         </div>
         <div className={s.guideBannerBody}>
           <span className={s.guideBannerTitle}>정부사업, 어떻게 신청하나요?</span>
-          <span className={s.guideBannerDesc}>4대 핵심 사업의 자격 요건·신청 절차 안내</span>
+          <span className={s.guideBannerDesc}><AutoGlossary text="4대 핵심 사업의 자격 요건·신청 절차 안내" /></span>
         </div>
         <ArrowRight size={16} className={s.guideBannerArrow} />
       </Link>
@@ -202,7 +203,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             찾는 지원사업이 없으신가요?
           </h2>
           <p className={s.feedbackCtaDesc}>
-            원하는 지원사업 정보를 알려주시면 우선적으로 업데이트하겠습니다.
+            <AutoGlossary text="원하는 지원사업 정보를 알려주시면 우선적으로 업데이트하겠습니다." />
           </p>
         </div>
         <a

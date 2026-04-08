@@ -15,13 +15,15 @@ import {
   MousePointerClick,
   Target,
 } from "lucide-react";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { IrangSymbol } from "@/components/brand/irang-symbol";
+import { CROPS } from "@/lib/data/crops";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "서비스 소개",
   description:
-    "이랑은 귀농을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스입니다. 지역, 작물, 지원사업 정보를 한곳에서 비교하세요.",
+    "이랑은 귀농을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스예요. 지역, 작물, 지원사업 정보를 한곳에서 비교하세요.",
 };
 
 const features = [
@@ -37,7 +39,7 @@ const features = [
     icon: Sprout,
     title: "작물 정보",
     description:
-      "17종 주요 작물의 재배 환경, 예상 수익, 난이도를 확인하고 내 지역에 적합한 작물을 찾아보세요.",
+      `${CROPS.length}종 주요 작물의 재배 환경, 예상 수익, 난이도를 확인하고 내 지역에 적합한 작물을 찾아보세요.`,
     href: "/crops",
     color: "amber" as const,
   },
@@ -56,19 +58,19 @@ const steps = [
     icon: Search,
     step: "01",
     title: "정보 탐색",
-    description: "지역, 작물, 지원사업 정보를 검색하고 비교합니다.",
+    description: "지역, 작물, 지원사업 정보를 검색하고 비교해요.",
   },
   {
     icon: MousePointerClick,
     step: "02",
-    title: "귀농 가이드",
-    description: "적합성 진단과 맞춤 질문으로 나에게 맞는 지역과 작물을 추천받습니다.",
+    title: "귀농 유형 진단",
+    description: "적합성 진단과 맞춤 질문으로 나에게 맞는 지역과 작물을 추천받아요.",
   },
   {
     icon: Target,
     step: "03",
     title: "의사결정",
-    description: "비교 데이터를 기반으로 귀농 계획을 구체화합니다.",
+    description: "비교 데이터를 기반으로 귀농 계획을 구체화해요.",
   },
 ];
 
@@ -120,10 +122,9 @@ export default function AboutPage() {
           <span className={s.heroAccent}>이랑</span>이 알려드립니다
         </h1>
         <p className={s.heroDesc}>
-          이랑은 귀농을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스입니다.
+          <AutoGlossary text="이랑은 귀농을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스예요." />
           <br />
-          공공 데이터를 기반으로 지역, 작물, 지원사업 정보를 한곳에서 비교하고
-          의사결정을 도와드립니다.
+          <AutoGlossary text="공공 데이터를 기반으로 지역, 작물, 지원사업 정보를 한곳에서 비교하고 의사결정을 도와드려요." />
         </p>
         <div className={s.heroCtas}>
           <Link href="/match" className={s.heroPrimaryBtn}>
@@ -140,7 +141,7 @@ export default function AboutPage() {
       <section className={s.featuresSection}>
         <h2 className={s.sectionTitle}>핵심 기능</h2>
         <p className={s.sectionDesc}>
-          귀농 의사결정에 필요한 세 가지 핵심 정보를 제공합니다.
+          귀농 의사결정에 필요한 세 가지 핵심 정보를 제공해요.
         </p>
         <div className={s.featuresGrid}>
           {features.map((f) => {
@@ -151,7 +152,7 @@ export default function AboutPage() {
                   <Icon size={24} />
                 </div>
                 <h3 className={s.featureTitle}>{f.title}</h3>
-                <p className={s.featureDesc}>{f.description}</p>
+                <p className={s.featureDesc}><AutoGlossary text={f.description} /></p>
                 <span className={s.featureLink}>
                   자세히 보기 <ArrowRight size={14} />
                 </span>
@@ -177,7 +178,7 @@ export default function AboutPage() {
                   <Icon size={20} />
                 </div>
                 <h3 className={s.stepTitle}>{step.title}</h3>
-                <p className={s.stepDesc}>{step.description}</p>
+                <p className={s.stepDesc}><AutoGlossary text={step.description} /></p>
                 {i < steps.length - 1 && (
                   <div className={s.stepArrow}>
                     <ArrowRight size={16} />
@@ -196,7 +197,7 @@ export default function AboutPage() {
           <h2 className={s.sectionTitle}>신뢰할 수 있는 공공 데이터</h2>
         </div>
         <p className={s.sectionDesc}>
-          5개 공공기관의 데이터를 활용하여 객관적인 정보를 제공합니다.
+          5개 공공기관의 데이터를 활용하여 객관적인 정보를 제공해요.
         </p>
         <div className={s.dataGrid}>
           {dataSources.map((src) => {
@@ -208,7 +209,7 @@ export default function AboutPage() {
                 </div>
                 <div className={s.dataCardBody}>
                   <span className={s.dataCardName}>{src.name}</span>
-                  <span className={s.dataCardDesc}>{src.description}</span>
+                  <span className={s.dataCardDesc}><AutoGlossary text={src.description} /></span>
                 </div>
               </div>
             );
@@ -223,11 +224,10 @@ export default function AboutPage() {
             아직 어디서 시작할지 모르겠다면?
           </h2>
           <p className={s.matchCtaDesc}>
-            간단한 질문 5개에 답하면, 나의 상황과 선호에 맞는 귀농 지역과 작물을
-            추천해 드립니다.
+            <AutoGlossary text="간단한 질문 5개에 답하면, 나의 상황과 선호에 맞는 귀농 지역과 작물을 추천해 드립니다." />
           </p>
           <Link href="/match" className={s.matchCtaButton}>
-            귀농 가이드 시작하기
+            귀농 유형 진단 시작하기
             <ArrowRight size={16} />
           </Link>
         </div>

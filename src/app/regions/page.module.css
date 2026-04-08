@@ -333,3 +333,8 @@
   color: var(--primary, #1b6b5a);
   flex-shrink: 0;
 }
+
+/* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
+@media (min-width: 1024px) {
+  .densityLegendTitle { font-size: 13px; }
+}

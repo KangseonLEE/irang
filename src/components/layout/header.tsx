@@ -38,7 +38,16 @@ const navGroups: NavGroup[] = [
     basePaths: ["/crops"],
     children: [
       { href: "/crops", label: "작물 정보", desc: "재배 난이도·수익성·적합 기후" },
-      { href: "/crops/compare", label: "작물 비교", desc: "최대 4종 작물 비교" },
+      { href: "/crops/compare", label: "작물 비교", desc: "최대 3종 작물 비교" },
+    ],
+  },
+  {
+    label: "준비하기",
+    basePaths: ["/guide", "/costs", "/interviews"],
+    children: [
+      { href: "/guide", label: "귀농 로드맵", desc: "5단계 귀농 준비 가이드" },
+      { href: "/costs", label: "비용 가이드", desc: "연령·작물별 비용 분석 & 지원금" },
+      { href: "/interviews", label: "귀농인 이야기", desc: "실제 귀농인 인터뷰" },
     ],
   },
   {
@@ -52,11 +61,9 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "정보",
-    basePaths: ["/guide", "/interviews", "/stats", "/glossary"],
+    label: "자료",
+    basePaths: ["/stats", "/glossary"],
     children: [
-      { href: "/guide", label: "귀농 로드맵", desc: "5단계 귀농 준비 가이드" },
-      { href: "/interviews", label: "귀농인 이야기", desc: "실제 귀농인 인터뷰" },
       { href: "/stats/population", label: "통계", desc: "귀농 인구·청년·만족도 추이" },
       { href: "/glossary", label: "농업 용어집", desc: "처음 만나는 농업 용어 해설" },
     ],
@@ -72,25 +79,46 @@ export function Header() {
   const [navHidden, setNavHidden] = useState(false);
   const { count, mounted } = useBookmarks();
 
-  // 페이지 이동 시 모바일 메뉴 닫기 (하단 바텀 네비게이션 포함)
+  // 페이지 이동 시 모바일 메뉴 + 데스크탑 드롭다운 닫기
   useEffect(() => {
     setMobileMenuOpen(false);
+    setNavHidden(true);
+
+    // :focus-within 해제 → 드롭다운 CSS 비활성화
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
+    // 마우스가 nav 영역을 벗어나면 hover 다시 활성화
+    const navEl = document.querySelector(`nav[aria-label="주요 메뉴"]`);
+    const reset = () => setNavHidden(false);
+
+    if (navEl) {
+      navEl.addEventListener("mouseleave", reset, { once: true });
+    }
+
+    // 터치 디바이스 fallback — mouseleave 미발생 시 자동 해제
+    const t = setTimeout(() => {
+      setNavHidden(false);
+      navEl?.removeEventListener("mouseleave", reset);
+    }, 400);
+
+    return () => {
+      clearTimeout(t);
+      navEl?.removeEventListener("mouseleave", reset);
+    };
   }, [pathname]);
 
-  // 드롭다운 아이템 클릭 후 hover 무시 해제 (마우스 이탈 시)
+  // 드롭다운 아이템 클릭 후 즉시 숨기기 (pathname 변경 전 선제 처리)
   const hideDropdowns = useCallback(() => {
     setNavHidden(true);
-    // 마우스가 nav 영역을 벗어나면 다시 hover 활성화
-    const handleMouseLeave = () => setNavHidden(false);
-    const navEl = document.querySelector(`nav[aria-label="주요 메뉴"]`);
-    if (navEl) {
-      navEl.addEventListener("mouseleave", handleMouseLeave, { once: true });
-    } else {
-      setTimeout(() => setNavHidden(false), 300);
+    // :focus-within 해제
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
     }
   }, []);
 
-  // 첫 방문 사용자에게 귀농 가이드 툴팁 표시
+  // 첫 방문 사용자에게 귀농 유형 진단 툴팁 표시
   useEffect(() => {
     if (!mobileMenuOpen) return;
     try {
@@ -201,7 +229,7 @@ export function Header() {
               href="/match"
               className={s.ctaButton}
             >
-              귀농 가이드
+              귀농 유형 진단
               <ArrowRight size={14} />
             </Link>
             {/* 모바일 햄버거 */}
@@ -222,14 +250,14 @@ export function Header() {
       {mobileMenuOpen && (
         <div className={s.mobileOverlay} role="dialog" aria-label="메뉴">
           <nav className={s.mobileNav}>
-            {/* 귀농 가이드 CTA — 최상단 배치 + 첫 방문 툴팁 */}
+            {/* 귀농 유형 진단 CTA — 최상단 배치 + 첫 방문 툴팁 */}
             <div className={s.mobileCtaWrap}>
               <Link
                 href="/match"
                 className={s.mobileCta}
                 onClick={() => { closeMobile(); dismissGuideTooltip(); }}
               >
-                귀농 가이드 시작하기
+                귀농 유형 진단 시작하기
                 <ArrowRight size={16} />
               </Link>
               {showGuideTooltip && (
@@ -237,7 +265,7 @@ export function Header() {
                   <span className={s.guideTooltipArrow} />
                   <p className={s.guideTooltipText}>
                     어디서부터 준비해야 할지 고민이라면,<br />
-                    3분이면 나만의 귀농 플랜을 받아볼 수 있어요.
+                    3분이면 나에게 맞는 귀농 유형을 알 수 있어요.
                   </p>
                   <button
                     type="button"

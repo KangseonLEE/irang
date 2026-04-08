@@ -261,3 +261,30 @@
     background: var(--muted, #f4f4f5);
   }
 }
+
+/* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
+@media (min-width: 1024px) {
+  .filterLabel {
+    font-size: 15px;
+  }
+
+  .pill {
+    font-size: 15px;
+  }
+
+  .toggle {
+    font-size: 15px;
+  }
+
+  .numberLabel {
+    font-size: 15px;
+  }
+
+  .numberInput {
+    font-size: 15px;
+  }
+
+  .resetLink {
+    font-size: 15px;
+  }
+}

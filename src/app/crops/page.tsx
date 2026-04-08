@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Sprout, ArrowRight, Scale } from "lucide-react";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -184,7 +185,7 @@ function CropCard({
         <p className={s.cropCardSeason}>{crop.growingSeason}</p>
 
         {/* L3: 설명 */}
-        <p className={s.cropCardDesc}>{crop.description}</p>
+        <p className={s.cropCardDesc}><AutoGlossary text={crop.description} /></p>
       </div>
     </Link>
   );

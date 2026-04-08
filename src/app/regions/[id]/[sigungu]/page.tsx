@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
   ChevronRight,
   Sprout,
   ArrowLeft,
-  ArrowRight,
   FileText,
   GraduationCap,
   Calendar,
@@ -13,10 +13,12 @@ import {
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS, getSigunguBySidoAndId } from "@/lib/data/sigungus";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
+import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { PROGRAMS } from "@/lib/data/programs";
 import { EDUCATION_COURSES } from "@/lib/data/education";
 import { EVENTS } from "@/lib/data/events";
 import { SigunguData } from "./sigungu-data";
+import { SigunguStatsSkeleton } from "./sigungu-stats-skeleton";
 import s from "./page.module.css";
 
 interface PageProps {
@@ -27,18 +29,18 @@ export const dynamicParams = true;
 export const revalidate = 86400;
 
 export async function generateStaticParams() {
-  // 귀농인기 키워드 포함 항목 우선으로 상위 30개만 사전 빌드
-  // 나머지 196개는 ISR on-demand (첫 방문 시 생성 → 24시간 캐시)
-  // ⚠ 전체 226개를 빌드하면 SGIS API rate limit에 걸림
+  // 귀농인기 키워드 포함 항목 우선으로 상위 100개 사전 빌드
+  // 나머지 ~126개는 ISR on-demand (첫 방문 시 생성 → 24시간 캐시)
+  // ⚠ 전체 226개를 빌드하면 SGIS API rate limit에 걸릴 수 있어 100개로 제한
   const popular = SIGUNGUS.filter((sg) =>
     sg.highlights.includes("귀농인기")
   );
   const rest = SIGUNGUS.filter(
     (sg) => !sg.highlights.includes("귀농인기")
   );
-  const top30 = [...popular, ...rest].slice(0, 30);
+  const top100 = [...popular, ...rest].slice(0, 100);
 
-  return top30.map((sg) => ({
+  return top100.map((sg) => ({
     id: sg.sidoId,
     sigungu: sg.id,
   }));
@@ -136,8 +138,10 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         </div>
       </header>
 
-      {/* ── API 데이터 섹션: 통계 + 기후 ── */}
-      <SigunguData province={province} sigungu={sigungu} />
+      {/* ── API 데이터 섹션: 통계 + 기후 (스트리밍) ── */}
+      <Suspense fallback={<SigunguStatsSkeleton />}>
+        <SigunguData province={province} sigungu={sigungu} />
+      </Suspense>
 
       {/* ── 대표 작물 (정적 매칭) ── */}
       <section className={s.section} aria-label="대표 작물">
@@ -146,33 +150,20 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           <div>
             <h2 className={s.sectionTitle}>대표 작물</h2>
             <p className={s.sectionDesc}>
-              {sigungu.name}에서 주로 재배되는 작물입니다.
+              {sigungu.name}에서 주로 재배되는 작물이에요.
             </p>
           </div>
         </div>
         {matchedCrops.length > 0 ? (
           <div className={s.cropGrid}>
             {matchedCrops.map((crop) => (
-              <Link
+              <CropLinkCard
                 key={crop.id}
+                cropId={crop.id}
+                name={crop.name}
                 href={`/crops/${crop.id}`}
-                className={s.cropCard}
-              >
-                <img
-                  src={`/crops/${crop.id}.jpg`}
-                  alt={crop.name}
-                  width={48}
-                  height={48}
-                  className={s.cropImage}
-                />
-                <div>
-                  <span className={s.cropName}>{crop.name}</span>
-                  <span className={s.cropMeta}>
-                    {crop.category} · 재배난이도: {crop.difficulty}
-                  </span>
-                </div>
-                <ArrowRight size={14} className={s.cropArrow} />
-              </Link>
+                meta={`${crop.category} · 재배난이도: ${crop.difficulty}`}
+              />
             ))}
           </div>
         ) : (
@@ -193,7 +184,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           <div>
             <h2 className={s.sectionTitle}>관련 지원사업</h2>
             <p className={s.sectionDesc}>
-              {province.shortName} 지역에서 신청 가능한 지원사업입니다.
+              {province.shortName} 지역에서 신청 가능한 지원사업이에요.
             </p>
           </div>
         </div>
@@ -240,7 +231,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           <div>
             <h2 className={s.sectionTitle}>귀농 교육</h2>
             <p className={s.sectionDesc}>
-              {province.shortName} 지역에서 수강 가능한 교육 과정입니다.
+              {province.shortName} 지역에서 수강 가능한 교육 과정이에요.
             </p>
           </div>
         </div>
@@ -286,7 +277,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           <div>
             <h2 className={s.sectionTitle}>체험·행사</h2>
             <p className={s.sectionDesc}>
-              {province.shortName} 지역에서 참여할 수 있는 행사입니다.
+              {province.shortName} 지역에서 참여할 수 있는 행사예요.
             </p>
           </div>
         </div>

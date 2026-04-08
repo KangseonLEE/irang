@@ -22,7 +22,7 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
     (replacedName: string, newName: string) => {
       if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
       setSwapMessage(
-        `최대 ${MAX_SELECTION}개까지 선택 가능합니다. "${replacedName}" 대신 "${newName}"(으)로 교체되었습니다.`,
+        `최대 ${MAX_SELECTION}개까지 선택할 수 있어요. "${replacedName}" 대신 "${newName}"(으)로 교체했어요.`,
       );
       messageTimerRef.current = setTimeout(() => setSwapMessage(""), 3000);
     },

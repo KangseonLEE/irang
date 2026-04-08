@@ -23,26 +23,12 @@ export default function CropsError({
       <p className={s.description}>
         일시적인 데이터 오류일 수 있습니다. 다시 시도해 주세요.
       </p>
-      <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem" }}>
+      <div className={s.actions}>
         <button onClick={reset} className={s.retryButton}>
           <RotateCcw size={16} />
           다시 시도
         </button>
-        <Link
-          href="/crops"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            padding: "0.5rem 1rem",
-            borderRadius: "10px",
-            border: "1px solid var(--border, #e4e4e7)",
-            fontSize: "0.875rem",
-            fontWeight: 500,
-            color: "var(--foreground)",
-            textDecoration: "none",
-          }}
-        >
+        <Link href="/crops" className={s.secondaryButton}>
           <Home size={16} />
           작물 목록
         </Link>

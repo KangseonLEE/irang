@@ -6,8 +6,13 @@ import {
   Users,
   BarChart3,
   Info,
+  Map,
+  Wallet,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { CROPS } from "@/lib/data/crops";
 import s from "./page.module.css";
 
 interface MenuItem {
@@ -22,7 +27,19 @@ const menuItems: MenuItem[] = [
     href: "/crops",
     label: "작물정보",
     icon: Sprout,
-    desc: "17종 작물의 난이도·수익성 비교",
+    desc: `${CROPS.length}종 작물의 난이도·수익성 비교`,
+  },
+  {
+    href: "/guide",
+    label: "귀농 로드맵",
+    icon: Map,
+    desc: "5단계 귀농 준비 가이드",
+  },
+  {
+    href: "/costs",
+    label: "비용 가이드",
+    icon: Wallet,
+    desc: "연령·작물별 비용 분석 & 지원금",
   },
   {
     href: "/education",
@@ -49,6 +66,12 @@ const menuItems: MenuItem[] = [
     desc: "귀농·귀촌 인구 통계",
   },
   {
+    href: "/glossary",
+    label: "농업 용어집",
+    icon: BookOpen,
+    desc: "처음 만나는 농업 용어 해설",
+  },
+  {
     href: "/about",
     label: "서비스 소개",
     icon: Info,
@@ -71,7 +94,7 @@ export default function MorePage() {
               </div>
               <div className={s.menuText}>
                 <span className={s.menuLabel}>{item.label}</span>
-                <span className={s.menuDesc}>{item.desc}</span>
+                <span className={s.menuDesc}><AutoGlossary text={item.desc} /></span>
               </div>
             </Link>
           );

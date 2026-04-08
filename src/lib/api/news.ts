@@ -16,7 +16,7 @@ const CACHE_TTL = 60 * 60 * 24; // 24시간
 
 /** 검색 키워드 — 핵심 2어로 관련도 극대화 */
 const SEARCH_QUERY = "귀농 귀촌";
-const DISPLAY_COUNT = 5;
+const DISPLAY_COUNT = 10; // 중복 제거 후에도 충분한 기사 확보
 
 /** 카테고리별 검색 키워드 */
 const CATEGORY_QUERIES: Record<string, string> = {
@@ -50,6 +50,12 @@ export interface NewsArticle {
   source: string;
   date: string;   // "YYYY.MM" 형식
   url: string;
+  /** 기사 본문 요약 (HTML 제거 후) */
+  description?: string;
+  /** 네이버 뉴스 URL — OG 이미지 추출용 (네이버가 가장 안정적) */
+  naverUrl?: string;
+  /** OG 이미지 URL (선택) — Featured 카드 썸네일용 */
+  thumbnail?: string;
 }
 
 // ─── 유틸 ───
@@ -123,6 +129,116 @@ function extractSource(originallink: string): string {
   }
 }
 
+// ─── OG 이미지 추출 ───
+
+/**
+ * 기사 URL에서 Open Graph 이미지를 추출합니다.
+ * - 5초 타임아웃으로 느린 사이트 대응
+ * - og:image → twitter:image → <link rel="image_src"> 순으로 폴백
+ * - 실패 시 undefined 반환 (페이지 렌더링 블로킹 방지)
+ */
+export async function fetchOgImage(url: string): Promise<string | undefined> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml",
+      },
+      redirect: "follow",
+      next: { revalidate: CACHE_TTL },
+    });
+    clearTimeout(timer);
+
+    if (!res.ok) {
+      console.warn(`[og] HTTP ${res.status} — ${url}`);
+      return undefined;
+    }
+
+    const text = await res.text();
+    const head = text.slice(0, 25000);
+
+    // 1. og:image (property="og:image" content="...") — 속성 순서 무관
+    const ogPatterns = [
+      /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
+    ];
+
+    for (const pattern of ogPatterns) {
+      const m = head.match(pattern);
+      if (m?.[1]) {
+        const resolved = resolveImageUrl(m[1].trim(), url);
+        console.log(`[og] ✅ og:image — ${resolved.slice(0, 80)}...`);
+        return resolved;
+      }
+    }
+
+    // 2. twitter:image 폴백
+    const twitterPatterns = [
+      /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
+      /<meta[^>]+property=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+    ];
+
+    for (const pattern of twitterPatterns) {
+      const m = head.match(pattern);
+      if (m?.[1]) {
+        const resolved = resolveImageUrl(m[1].trim(), url);
+        console.log(`[og] ✅ twitter:image — ${resolved.slice(0, 80)}...`);
+        return resolved;
+      }
+    }
+
+    // 3. <link rel="image_src"> 폴백
+    const linkMatch = head.match(
+      /<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["']/i,
+    );
+    if (linkMatch?.[1]) {
+      const resolved = resolveImageUrl(linkMatch[1].trim(), url);
+      console.log(`[og] ✅ image_src — ${resolved.slice(0, 80)}...`);
+      return resolved;
+    }
+
+    console.warn(`[og] ❌ OG 태그 없음 — ${url}`);
+    return undefined;
+  } catch (err) {
+    console.warn(`[og] ❌ fetch 실패 — ${url}`, err instanceof Error ? err.message : err);
+    return undefined;
+  }
+}
+
+/** HTML 엔티티 디코딩 (og:image URL에 &#x3D; 등이 포함되는 경우) */
+function decodeHtmlEntities(str: string): string {
+  return str
+    .replace(/&#x([0-9A-Fa-f]+);/g, (_, hex) =>
+      String.fromCharCode(parseInt(hex, 16)),
+    )
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(Number(dec)))
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"');
+}
+
+/** 상대/프로토콜 상대 URL → 절대 URL 변환 + 엔티티 디코딩 */
+function resolveImageUrl(imgUrl: string, pageUrl: string): string {
+  const decoded = decodeHtmlEntities(imgUrl);
+  if (decoded.startsWith("//")) return `https:${decoded}`;
+  if (decoded.startsWith("/")) {
+    const origin = new URL(pageUrl).origin;
+    return `${origin}${decoded}`;
+  }
+  if (!decoded.startsWith("http")) {
+    const base = new URL(pageUrl);
+    return new URL(decoded, base).href;
+  }
+  return decoded;
+}
+
 // ─── 메인 ───
 
 /**
@@ -187,9 +303,11 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
 
     return data.items.map((item) => ({
       title: stripHtml(item.title),
+      description: stripHtml(item.description),
       source: extractSource(item.originallink),
       date: formatDate(item.pubDate),
       url: item.originallink || item.link,
+      naverUrl: item.link || undefined,
     }));
   } catch (err) {
     console.error("[news] 뉴스 fetch 실패:", err);

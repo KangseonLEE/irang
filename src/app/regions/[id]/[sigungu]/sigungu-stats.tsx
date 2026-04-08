@@ -151,7 +151,7 @@ export function SigunguStats({
         <ClimateSection
           climate={climate}
           provinceShortName={provinceShortName}
-          notice={`시군구별 기상 관측소가 없어 ${provinceShortName} 대표 관측소 데이터를 표시합니다.`}
+          notice={`시군구별 기상 관측소가 없어 ${provinceShortName} 대표 관측소 데이터를 표시해요.`}
         />
       )}
 

@@ -306,19 +306,19 @@ export function filterEducation(filters: EducationFilters): EducationCourse[] {
       return false;
     }
 
-    // 조회 시점 필터: 모집기간과 선택 월이 겹치는지 확인
-    if (periodStart && periodEnd) {
+    // 마감 제외 (기본 동작: includeClosed가 true가 아니면 마감 숨김)
+    if (!filters.includeClosed && course.status === "마감") {
+      return false;
+    }
+
+    // 조회 시점 필터 (includeClosed가 true이면 기간 필터 스킵)
+    if (!filters.includeClosed && periodStart && periodEnd) {
       if (
         course.applicationStart > periodEnd ||
         course.applicationEnd < periodStart
       ) {
         return false;
       }
-    }
-
-    // 마감 제외 (기본 동작: includeClosed가 true가 아니면 마감 숨김)
-    if (!filters.includeClosed && course.status === "마감") {
-      return false;
     }
 
     // 텍스트 검색 (제목, 설명, 지역, 기관, 대상)
@@ -473,12 +473,12 @@ export async function filterEducationAsync(
     // 원문 링크 깨진 항목은 목록에서 숨김
     if (course.linkStatus === "broken") return false;
 
-    if (periodStart && periodEnd) {
+    if (!filters.includeClosed && course.status === "마감") return false;
+    if (!filters.includeClosed && periodStart && periodEnd) {
       if (course.applicationStart > periodEnd || course.applicationEnd < periodStart) {
         return false;
       }
     }
-    if (!filters.includeClosed && course.status === "마감") return false;
     if (filters.query) {
       const q = filters.query.toLowerCase();
       const searchable = [

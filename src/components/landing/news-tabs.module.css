@@ -1,16 +1,17 @@
 /* ==========================================================================
-   NewsTabs — 랜딩 농촌 소식 탭 카드
+   NewsTabs — 2단 레이아웃 (Featured 속보 + 리스트)
    ========================================================================== */
 
 .newsCard {
-  padding: 16px;
-  border-radius: 12px;
-  background: var(--muted, #f9fafb);
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
+  box-shadow: var(--shadow-sm);
 }
 
 @media (min-width: 768px) {
-  .newsCard { padding: 20px 24px; }
+  .newsCard { padding: 24px 28px; }
 }
 
 /* ── 헤더 (타이틀 + 탭) ── */
@@ -18,7 +19,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 @media (min-width: 480px) {
@@ -32,17 +33,22 @@
 
 .title {
   font-size: var(--fs-body);
-  font-weight: 700;
+  font-weight: 800;
   color: var(--foreground, #111);
   margin: 0;
   flex-shrink: 0;
+  letter-spacing: -0.01em;
+}
+
+@media (min-width: 640px) {
+  .title { font-size: var(--fs-h4, 1.125rem); }
 }
 
 /* ── 탭 바 ── */
 .tabs {
   display: flex;
   gap: 4px;
-  background: var(--background, #fff);
+  background: var(--muted, #f9fafb);
   border-radius: 8px;
   padding: 3px;
   border: 1px solid var(--border, #e5e7eb);
@@ -74,34 +80,220 @@
   }
 }
 
-/* ── 리스트 ── */
+/* ── 본문: 2단 레이아웃 ── */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 180px;
+}
+
+@media (min-width: 768px) {
+  .body {
+    flex-direction: row;
+    gap: 20px;
+    align-items: stretch;
+  }
+}
+
+/* ── Featured 속보 (좌측) ── */
+.featured {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--border, #e5e7eb);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+}
+
+/* 전환 애니메이션 — 슬라이드 */
+.featuredSlideIn {
+  animation: slideIn 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.featuredSlideOut {
+  animation: slideOut 0.25s cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+@media (hover: hover) {
+  .featured:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 4px 16px rgba(27, 107, 90, 0.1);
+  }
+
+  .featured:hover .featuredTitle {
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+@media (min-width: 768px) {
+  .featured {
+    width: 340px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .featured {
+    width: 400px;
+  }
+}
+
+/* 비주얼 영역 — 썸네일 대용 */
+.featuredVisual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 120px;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--primary, #1B6B5A) 12%, var(--muted, #f9fafb)) 0%,
+      color-mix(in srgb, var(--primary, #1B6B5A) 6%, var(--muted, #f9fafb)) 100%
+    );
+}
+
+@media (min-width: 768px) {
+  .featuredVisual { height: 160px; }
+}
+
+/* OG 이미지 썸네일 */
+.featuredImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.featuredIcon {
+  color: var(--primary, #1b6b5a);
+  opacity: 0.25;
+}
+
+.featuredBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary, #1b6b5a);
+}
+
+/* 텍스트 영역 */
+.featuredText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  flex: 1;
+}
+
+.featuredTitle {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground, #111);
+  line-height: var(--lh-snug, 1.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.12s;
+}
+
+@media (min-width: 768px) {
+  .featuredTitle {
+    font-size: var(--fs-body-lg, 1rem);
+  }
+}
+
+.featuredDesc {
+  font-size: var(--fs-body-sm, 0.875rem);
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-normal, 1.5);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.featuredMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 리스트 (우측) ── */
 .list {
   display: flex;
   flex-direction: column;
   gap: 0;
-  min-height: 180px;
+  flex: 1;
+  min-width: 0;
 }
 
 .item {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 2px;
-  padding: 10px 0;
+  padding: 10px 8px;
   border-bottom: 1px solid var(--border, #e5e7eb);
+  border-left: 2px solid transparent;
   text-decoration: none;
-  transition: background-color 0.12s;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s, border-left-color 0.15s;
+}
+
+@media (min-width: 768px) {
+  .item { flex: 1; }
 }
 
 .item:last-child {
   border-bottom: none;
-  padding-bottom: 0;
 }
 
-.item:first-child {
-  padding-top: 0;
+/* 현재 Featured로 선택된 아이템 하이라이트 */
+.itemActive {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
+  border-left-color: var(--primary, #1b6b5a);
 }
 
 @media (hover: hover) {
+  .item:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+  }
+
   .item:hover .itemTitle {
     color: var(--primary, #1b6b5a);
   }
@@ -112,11 +304,15 @@
   font-weight: 500;
   color: var(--foreground, #111);
   line-height: var(--lh-normal);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
   transition: color 0.12s;
+}
+
+.itemActive .itemTitle {
+  font-weight: 600;
+  color: var(--foreground, #111);
 }
 
 .itemMeta {
@@ -135,4 +331,5 @@
   color: var(--muted-foreground);
   padding: 32px 0;
   margin: 0;
+  grid-column: 1 / -1;
 }

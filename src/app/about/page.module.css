@@ -244,8 +244,8 @@
 }
 
 .featureIcon.amber {
-  background: color-mix(in srgb, #d97706 10%, transparent);
-  color: #d97706;
+  background: color-mix(in srgb, var(--warning, #d97706) 10%, transparent);
+  color: var(--warning, #d97706);
 }
 
 .featureIcon.blue {

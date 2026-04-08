@@ -31,6 +31,18 @@
   color: var(--muted-foreground, #71717a);
 }
 
+/* 버튼 그룹 래퍼 */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* actions 안에서는 retryButton 자체 마진 제거 (actions가 대신 담당) */
+.actions .retryButton {
+  margin-top: 0;
+}
+
 .retryButton {
   display: inline-flex;
   align-items: center;
@@ -39,7 +51,7 @@
   border-radius: 10px;
   border: none;
   background: var(--primary, #1B6B5A);
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1.25rem;
   font-size: var(--fs-body-sm);
   line-height: 1.25rem;
   font-weight: 500;
@@ -50,4 +62,26 @@
 
 .retryButton:hover {
   background: color-mix(in srgb, var(--primary, #1B6B5A) 90%, black);
+}
+
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--border, #e4e4e7);
+  background: var(--card, #fff);
+  padding: 0.625rem 1.25rem;
+  font-size: var(--fs-body-sm);
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--foreground);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.secondaryButton:hover {
+  border-color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
 }

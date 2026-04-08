@@ -49,7 +49,7 @@ export default function YouthPage() {
           </span>
           <h1 className={s.title}>{youthSummary.title}</h1>
           <p className={s.desc}>
-            전체 귀농인 중 40세 미만 청년 비율 10년 추이와 귀농 사유를 분석합니다.
+            전체 귀농인 중 40세 미만 청년 비율 10년 추이와 귀농 사유를 분석했어요.
           </p>
         </div>
         <div className={s.kpiRow}>

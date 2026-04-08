@@ -25,6 +25,7 @@ import {
   FilterActions,
 } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -325,7 +326,7 @@ function EventCard({ event }: { event: FarmEvent }) {
           )}
         </div>
 
-        <p className={s.cardDesc}>{event.description}</p>
+        <p className={s.cardDesc}><AutoGlossary text={event.description} /></p>
       </div>
 
       {/* Footer */}

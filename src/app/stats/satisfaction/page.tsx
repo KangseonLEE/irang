@@ -27,7 +27,7 @@ import shared from "../stats.module.css";
 export const metadata: Metadata = {
   title: "귀농 만족도 조사",
   description:
-    "귀농인의 70%가 만족한다고 답한 귀농 생활. 만족·불만족 요인을 상세히 분석합니다.",
+    "귀농인의 70%가 만족한다고 답한 귀농 생활. 만족·불만족 요인을 상세히 분석해요.",
 };
 
 export default function SatisfactionPage() {
@@ -52,7 +52,7 @@ export default function SatisfactionPage() {
           </span>
           <h1 className={s.title}>{satisfactionSummary.title}</h1>
           <p className={s.desc}>
-            귀농인의 생활 만족도와 주요 만족·불만족 요인을 분석합니다.
+            귀농인의 생활 만족도와 주요 만족·불만족 요인을 분석했어요.
           </p>
         </div>
         <div className={s.kpiRow}>

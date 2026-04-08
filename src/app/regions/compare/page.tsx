@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin } from "lucide-react";
+import { MapPin, Sprout } from "lucide-react";
 import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
 import { fetchPopulationData, type PopulationData } from "@/lib/api/sgis";
 import { fetchMedicalFacilities, type MedicalFacilityData } from "@/lib/api/hira";
@@ -10,7 +10,9 @@ import { fetchSchoolCounts, type SchoolData } from "@/lib/api/education";
 import { fetchRegionPhotos, type UnsplashPhoto } from "@/lib/api/unsplash";
 import { STATIONS, DEFAULT_STATION_IDS } from "@/lib/data/stations";
 import { PROGRAMS } from "@/lib/data/programs";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { RegionSelector } from "./region-selector";
+import { CropSuitabilitySection } from "./crop-suitability-section";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import s from "./page.module.css";
 
@@ -21,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-  searchParams: Promise<{ stations?: string }>;
+  searchParams: Promise<{ stations?: string; crop?: string }>;
 }
 
 export default async function RegionsPage({ searchParams }: PageProps) {
@@ -29,6 +31,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
   const selectedIds = params.stations
     ? params.stations.split(",").slice(0, 3)
     : DEFAULT_STATION_IDS;
+  const selectedCropId = params.crop ?? null;
 
   // 선택된 관측소 메타데이터 추출 (동기 — 즉시 완료)
   const selectedStations = selectedIds
@@ -92,7 +95,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
         </span>
         <h1 className={s.headerTitle}>지역 비교</h1>
         <p className={s.headerDesc}>
-          {year}년 기상 관측 데이터 기반으로 지역별 기후를 비교합니다.
+          <AutoGlossary text={`${year}년 기상 관측 데이터 기반으로 지역별 기후를 비교해요.`} />
         </p>
       </header>
 
@@ -108,6 +111,12 @@ export default async function RegionsPage({ searchParams }: PageProps) {
       >
         <RegionSelector stations={STATIONS} selectedIds={selectedIds} />
       </Suspense>
+
+      {/* Crop Suitability Shortcut */}
+      <a href="#suitability-heading" className={s.cropToolHint}>
+        <Sprout size={14} aria-hidden="true" />
+        작물 적합성도 확인하기 ↓
+      </a>
 
       {/* Climate Comparison Cards */}
       {climateData.length > 0 ? (
@@ -303,6 +312,13 @@ export default async function RegionsPage({ searchParams }: PageProps) {
             </div>
           </section>
 
+          {/* Crop Suitability Check */}
+          <CropSuitabilitySection
+            cropId={selectedCropId}
+            climateData={climateData}
+            selectedStations={selectedStations}
+          />
+
           {/* Data Source Notice */}
           <p className={s.sourceNotice}>
             출처: 기상청 종관기상관측(ASOS) | 공공데이터포털 (data.go.kr) |
@@ -356,7 +372,7 @@ function ClimateCard({
           <DataRow label="누적 일조" value={`${data.totalSunshine}hr`} />
           <DataRow label="평균 습도" value={`${data.avgHumidity}%`} />
         </div>
-        <p className={s.cardDescription}>{station?.description}</p>
+        <p className={s.cardDescription}>{station?.description ? <AutoGlossary text={station.description} /> : null}</p>
       </div>
     </article>
   );

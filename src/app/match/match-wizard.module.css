@@ -57,6 +57,10 @@
   flex: 1;
 }
 
+@media (min-width: 640px) {
+  .questionWrap { flex: initial; }
+}
+
 .questionTitle {
   font-size: var(--fs-h3);
   font-weight: 800;

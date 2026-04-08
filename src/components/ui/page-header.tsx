@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { CalendarDays } from "lucide-react";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page-header.module.css";
 
 interface PageHeaderProps {
@@ -26,7 +27,7 @@ export function PageHeader({
         {label}
       </div>
       <h1 className={s.headerTitle}>{title}</h1>
-      <p className={s.headerDesc}>{description}</p>
+      <p className={s.headerDesc}><AutoGlossary text={description} /></p>
       {(count != null || periodLabel) && (
         <div className={s.headerMeta}>
           {count != null && (

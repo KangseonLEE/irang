@@ -49,8 +49,8 @@ export function ServiceGateway() {
         </div>
         <div className={s.infoBannerBody}>
           <ul className={s.infoBannerList}>
-            <li>나의 귀농 적합도와 부족한 부분을 분석해 드리는 자가진단입니다.</li>
-            <li>진단 결과를 바탕으로 맞춤 지역·작물 추천까지 이어집니다.</li>
+            <li>나의 귀농 적합도와 부족한 부분을 분석해 드리는 자가진단이에요.</li>
+            <li>진단 결과를 바탕으로 맞춤 지역·작물 추천까지 이어져요.</li>
           </ul>
         </div>
       </aside>
@@ -72,7 +72,7 @@ export function ServiceGateway() {
             </div>
             <p className={s.cardDesc}>
               동기, 재정, 가족, 경험, 적응력 — 5가지 차원으로
-              나의 귀농 준비 상태를 객관적으로 점검합니다.
+              나의 귀농 준비 상태를 객관적으로 점검해요.
             </p>
             <p className={s.cardHint}>
               어디서부터 시작할지 모르겠다면 이 진단을 먼저 해보세요.

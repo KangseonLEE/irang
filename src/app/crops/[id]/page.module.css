@@ -206,7 +206,7 @@
 
 .badgeHard {
   background: #fef2f2;
-  color: #991b1b;
+  color: var(--error-fg, #991b1b);
   border: 1px solid #fecaca;
 }
 
@@ -288,7 +288,7 @@
 
 .statIconRevenue {
   background: #fef3c7;
-  color: #d97706;
+  color: var(--warning, #d97706);
 }
 
 .statLabel {
@@ -474,7 +474,7 @@
   font-size: var(--fs-overline);
   font-weight: 700;
   background: #fef3c7;
-  color: #92400e;
+  color: var(--warning-fg-strong, #92400e);
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -670,6 +670,159 @@
 .costDivider {
   height: 1px;
   background: var(--border, #e5e7eb);
+}
+
+/* ── 수익 지표 (Quick Indicators) ── */
+.incomeIndicators {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 480px) {
+  .incomeIndicators {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+.indicatorCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+}
+
+.indicatorIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.indicatorIconScale { background: #fef3c7; color: #d97706; }
+.indicatorIconWork { background: #dbeafe; color: #2563eb; }
+.indicatorIconIntensity { background: #fce7f3; color: #db2777; }
+
+.indicatorLabel {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #9ca3af);
+  margin: 0;
+}
+
+.indicatorValue {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground, #111);
+  line-height: var(--lh-snug);
+  margin: 0;
+}
+
+.intensityBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  width: fit-content;
+}
+
+.intensityLow { background: #dcfce7; color: #15803d; }
+.intensityMedium { background: #fef9c3; color: #a16207; }
+.intensityHigh { background: #fee2e2; color: #b91c1c; }
+
+/* ── 재배 방법 (Step-by-step) ── */
+.stepsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.stepItem {
+  display: flex;
+  gap: 16px;
+  position: relative;
+  padding-bottom: 24px;
+}
+
+.stepItem:last-child {
+  padding-bottom: 0;
+}
+
+/* 세로 타임라인 */
+.stepItem::before {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 36px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border, #e5e7eb);
+}
+
+.stepItem:last-child::before {
+  display: none;
+}
+
+.stepBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: var(--primary, #1B6B5A);
+  color: #fff;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  z-index: 1;
+}
+
+.stepBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.stepHeader {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.stepTitle {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground, #111);
+  margin: 0;
+}
+
+.stepPeriod {
+  font-size: var(--fs-caption);
+  color: var(--primary, #1B6B5A);
+  font-weight: 600;
+  background: var(--primary-ghost, rgba(27, 107, 90, 0.08));
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.stepDesc {
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
 }
 
 /* ── 장점과 단점 ── */
@@ -1376,5 +1529,16 @@
 @media (max-width: 1023px) {
   .sideProfile {
     display: none;
+  }
+}
+
+/* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
+@media (min-width: 1024px) {
+  .heroPill {
+    font-size: 13px;
+  }
+
+  .chartRank {
+    font-size: 13px;
   }
 }

@@ -53,41 +53,6 @@
   margin-bottom: 8px;
 }
 
-/* 지원 유형 뱃지 공통 */
-.typeLabel {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 9999px;
-  font-size: var(--fs-caption);
-  font-weight: 500;
-}
-
-.typeGrant {
-  background: #ecfdf5;
-  color: #047857;
-}
-
-.typeLoan {
-  background: #eff6ff;
-  color: #1d4ed8;
-}
-
-.typeEducation {
-  background: #f5f3ff;
-  color: #6d28d9;
-}
-
-.typeInKind {
-  background: #fffbeb;
-  color: #b45309;
-}
-
-.typeConsulting {
-  background: #fff1f2;
-  color: #be123c;
-}
-
 /* 제목 + 액션 버튼 행 */
 .titleRow {
   display: flex;
@@ -149,7 +114,26 @@
   gap: 24px;
 }
 
-/* ── 카드 ── */
+/* ── 플랫 섹션 (카드 래핑 없음) ── */
+.section {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  line-height: var(--lh-snug);
+  color: var(--foreground, #111);
+  margin: 0 0 8px;
+}
+
+/* ── 카드 (사이드바 전용) ── */
 .card {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);

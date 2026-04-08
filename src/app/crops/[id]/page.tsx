@@ -24,6 +24,10 @@ import {
   Scale,
   ThumbsUp,
   AlertTriangle,
+  ClipboardList,
+  Maximize2,
+  Clock,
+  Zap,
 } from "lucide-react";
 import {
   getCropWithDetail,
@@ -31,6 +35,8 @@ import {
   CROPS,
   type CropDetailInfo,
   type ProsConsInfo,
+  type CultivationStep,
+  type IncomeInfo,
 } from "@/lib/data/crops";
 import { PROVINCES } from "@/lib/data/regions";
 import { fetchCropStats, type CropStatItem } from "@/lib/api/kosis";
@@ -142,6 +148,7 @@ export default async function CropDetailPage({
     { id: "overview", label: "개요" },
     ...(detail.prosCons ? [{ id: "pros-cons", label: "장단점" }] : []),
     { id: "cultivation", label: "재배환경" },
+    ...(detail.cultivationSteps?.length ? [{ id: "grow-steps", label: "재배방법" }] : []),
     { id: "income", label: "수익정보" },
     { id: "region", label: "재배지역" },
     { id: "tips", label: "귀농팁" },
@@ -276,10 +283,10 @@ export default async function CropDetailPage({
                   <span className={s.matchCaution}>참고</span>
                   <p className={s.matchText}>
                     {data.difficulty === "쉬움"
-                      ? "대규모 고수익을 단기간에 기대하기는 어려울 수 있습니다"
+                      ? "대규모 고수익을 단기간에 기대하기는 어려울 수 있어요"
                       : data.difficulty === "보통"
-                        ? "품종에 따라 재배 난이도 편차가 있으므로 사전 조사가 필요합니다"
-                        : "초기 투자비용과 기술 습득 기간을 충분히 고려해야 합니다"}
+                        ? "품종에 따라 재배 난이도 편차가 있으므로 사전 조사가 필요해요"
+                        : "초기 투자비용과 기술 습득 기간을 충분히 고려해야 해요"}
                   </p>
                 </div>
               </div>
@@ -293,6 +300,11 @@ export default async function CropDetailPage({
 
           {/* 재배환경 */}
           <CultivationSection cultivation={detail.cultivation} />
+
+          {/* 재배 방법 (단계별) */}
+          {detail.cultivationSteps && detail.cultivationSteps.length > 0 && (
+            <GrowStepsSection steps={detail.cultivationSteps} />
+          )}
 
           {/* 수익정보 */}
           <IncomeSection income={detail.income} />
@@ -488,12 +500,20 @@ function CultivationSection({
   );
 }
 
+const INTENSITY_STYLE: Record<string, string> = {
+  낮음: s.intensityLow,
+  보통: s.intensityMedium,
+  높음: s.intensityHigh,
+};
+
 function IncomeSection({
   income,
 }: {
   income: CropDetailInfo["income"];
 }) {
   const { main, note } = parseRevenueRange(income.revenueRange);
+  const hasIndicators = income.minScale || income.annualWorkdays || income.laborIntensity;
+
   return (
     <section id="income" className={s.section}>
       <SectionHeader icon={<TrendingUp size={18} />} title="수익 정보" />
@@ -511,6 +531,41 @@ function IncomeSection({
             품종 · 기후 · 기술 수준에 따라 실제 수익은 달라질 수 있습니다
           </p>
         </div>
+
+        {/* 수익 지표 카드 */}
+        {hasIndicators && (
+          <div className={s.incomeIndicators}>
+            {income.minScale && (
+              <div className={s.indicatorCard}>
+                <span className={`${s.indicatorIcon} ${s.indicatorIconScale}`}>
+                  <Maximize2 size={16} />
+                </span>
+                <p className={s.indicatorLabel}>최소 권장 규모</p>
+                <p className={s.indicatorValue}>{income.minScale}</p>
+              </div>
+            )}
+            {income.annualWorkdays && (
+              <div className={s.indicatorCard}>
+                <span className={`${s.indicatorIcon} ${s.indicatorIconWork}`}>
+                  <Clock size={16} />
+                </span>
+                <p className={s.indicatorLabel}>연간 노동일수</p>
+                <p className={s.indicatorValue}>{income.annualWorkdays}</p>
+              </div>
+            )}
+            {income.laborIntensity && (
+              <div className={s.indicatorCard}>
+                <span className={`${s.indicatorIcon} ${s.indicatorIconIntensity}`}>
+                  <Zap size={16} />
+                </span>
+                <p className={s.indicatorLabel}>노동 강도</p>
+                <span className={`${s.intensityBadge} ${INTENSITY_STYLE[income.laborIntensity] ?? s.intensityMedium}`}>
+                  {income.laborIntensity}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 비용 구조 테이블 */}
         <div className={s.costTable}>
@@ -703,6 +758,32 @@ function RegionSection({
           지역별 상세 비교하기
           <ArrowRight size={14} />
         </Link>
+      </div>
+    </section>
+  );
+}
+
+function GrowStepsSection({ steps }: { steps: CultivationStep[] }) {
+  return (
+    <section id="grow-steps" className={s.section}>
+      <SectionHeader icon={<ClipboardList size={18} />} title="재배 방법" />
+      <div className={s.sectionBody}>
+        <div className={s.stepsList}>
+          {steps.map((step) => (
+            <div key={step.step} className={s.stepItem}>
+              <span className={s.stepBadge}>{step.step}</span>
+              <div className={s.stepBody}>
+                <div className={s.stepHeader}>
+                  <p className={s.stepTitle}>{step.title}</p>
+                  <span className={s.stepPeriod}>{step.period}</span>
+                </div>
+                <p className={s.stepDesc}>
+                  <AutoGlossary text={step.description} maxHighlights={3} />
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

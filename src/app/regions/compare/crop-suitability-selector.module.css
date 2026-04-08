@@ -1,0 +1,132 @@
+/* ==========================================================================
+   CropSuitabilitySelector — 작물 적합성 검사용 작물 선택 칩
+   region-selector.module.css와 동일 패턴
+   ========================================================================== */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.title {
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.titleHint {
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+
+.counter {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+/* ---- 카테고리 그룹 (세로 행 + 가로 칩 흐름) ---- */
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.group {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr; /* label 고정폭 + chips 자유 */
+  align-items: start;
+  gap: 0 8px;
+}
+
+.groupLabel {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+  line-height: 30px; /* 첫 번째 칩 높이에 세로 정렬 */
+  /* Earthy Neutral Tint System — irang-project.md 기준 */
+}
+
+/* 카테고리별 라벨 색상 */
+.group:nth-child(1) .groupLabel { color: #6B6050; } /* 식량 */
+.group:nth-child(2) .groupLabel { color: #0F4035; } /* 채소 */
+.group:nth-child(3) .groupLabel { color: #685050; } /* 과수 */
+.group:nth-child(4) .groupLabel { color: #505465; } /* 특용 */
+
+.groupChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ---- 칩 ---- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 14px;
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  line-height: 1;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.chipDefault {
+  composes: chip;
+  background: var(--muted, #f4f4f5);
+  color: var(--muted-foreground);
+}
+
+.chipDefault:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .chipDefault:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, var(--muted, #f4f4f5));
+    color: var(--foreground);
+  }
+}
+
+.chipSelected {
+  composes: chip;
+  background: var(--primary, #1b6b5a);
+  color: var(--primary-foreground, #fff);
+}
+
+.chipSelected:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .chipSelected:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, black);
+  }
+}
+
+.chipEmoji {
+  font-size: 0.875rem;
+  line-height: 1;
+}

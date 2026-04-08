@@ -257,19 +257,19 @@ export function filterEvents(filters: EventFilters): FarmEvent[] {
   }
 
   return EVENTS.filter((event) => {
-    // 조회 시점 필터: 행사 기간(date ~ dateEnd)과 선택 월이 겹치는지 확인
-    if (periodStart && periodEnd) {
+    // 마감 제외 (기본 동작)
+    if (!filters.includeClosed && event.status === "마감") {
+      return false;
+    }
+
+    // 조회 시점 필터 (includeClosed가 true이면 기간 필터 스킵)
+    if (!filters.includeClosed && periodStart && periodEnd) {
       const eventStart = event.date;
       const eventEnd = event.dateEnd ?? event.date;
       // 겹치려면: eventStart <= periodEnd AND eventEnd >= periodStart
       if (eventStart > periodEnd || eventEnd < periodStart) {
         return false;
       }
-    }
-
-    // 마감 제외 (기본 동작)
-    if (!filters.includeClosed && event.status === "마감") {
-      return false;
     }
 
     // 텍스트 검색
@@ -362,7 +362,8 @@ export async function filterEventsAsync(
 
   const filtered = allEvents.filter((event) => {
     // 기간 필터
-    if (filters.period && /^\d{4}-\d{2}$/.test(filters.period)) {
+    if (!filters.includeClosed && event.status === "마감") return false;
+    if (!filters.includeClosed && filters.period && /^\d{4}-\d{2}$/.test(filters.period)) {
       const [y, m] = filters.period.split("-").map(Number);
       const periodStart = `${y}-${String(m).padStart(2, "0")}-01`;
       const lastDay = new Date(y, m, 0).getDate();
@@ -370,7 +371,6 @@ export async function filterEventsAsync(
       const eventEnd = event.dateEnd || event.date;
       if (event.date > periodEnd || eventEnd < periodStart) return false;
     }
-    if (!filters.includeClosed && event.status === "마감") return false;
     if (filters.query) {
       const q = filters.query.toLowerCase();
       const searchable = [

@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+
+# policy check snapshots
+/.policy-snapshots
 /.pnp
 .pnp.*
 .yarn/*

@@ -1,0 +1,201 @@
+/* ==========================================================================
+   /regions/[id]/[sigungu] — 시군구 상세 페이지 스켈레톤 로딩
+   ========================================================================== */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.bone {
+  background: var(--muted, #f4f4f5);
+  border-radius: 6px;
+  animation: pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .page { padding: 24px 16px; }
+}
+
+/* ── 브레드크럼 ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.breadcrumbItem {
+  composes: bone;
+  width: 3.5rem;
+  height: 0.75rem;
+}
+
+.breadcrumbSep {
+  composes: bone;
+  width: 0.5rem;
+  height: 0.75rem;
+}
+
+.breadcrumbItemLong {
+  composes: bone;
+  width: 5rem;
+  height: 0.75rem;
+}
+
+/* ── Hero ── */
+.hero {
+  padding: 24px 20px;
+  border-radius: 20px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.heroOverline {
+  composes: bone;
+  width: 4rem;
+  height: 0.75rem;
+}
+
+.heroTitle {
+  composes: bone;
+  width: 8rem;
+  height: 2rem;
+}
+
+.heroDesc {
+  composes: bone;
+  width: 100%;
+  max-width: 28rem;
+  height: 1rem;
+}
+
+.heroTags {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.heroTag {
+  composes: bone;
+  width: 4rem;
+  height: 1.5rem;
+  border-radius: 20px;
+}
+
+/* ── Stats Grid ── */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .statsGrid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.statCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.statIcon {
+  composes: bone;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.statBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statLabel {
+  composes: bone;
+  width: 3rem;
+  height: 0.75rem;
+}
+
+.statValue {
+  composes: bone;
+  width: 5rem;
+  height: 1.25rem;
+}
+
+.statSub {
+  composes: bone;
+  width: 6rem;
+  height: 0.625rem;
+}
+
+/* ── 섹션 ── */
+.section {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  composes: bone;
+  width: 6rem;
+  height: 1.25rem;
+}
+
+.sectionDesc {
+  composes: bone;
+  width: 14rem;
+  height: 0.875rem;
+}
+
+.itemRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.itemRow:last-child { border-bottom: none; }
+
+.itemText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.itemTitle {
+  composes: bone;
+  width: 10rem;
+  height: 1rem;
+}
+
+.itemMeta {
+  composes: bone;
+  width: 8rem;
+  height: 0.75rem;
+}

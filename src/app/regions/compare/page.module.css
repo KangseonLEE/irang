@@ -66,6 +66,30 @@
   margin: 0;
 }
 
+/* ---- 작물 적합성 바로가기 ---- */
+.cropToolHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  padding: 6px 14px;
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
+  align-self: flex-start;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+@media (hover: hover) {
+  .cropToolHint:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+  }
+}
+
 /* ---- Selector Skeleton ---- */
 .selectorSkeleton {
   border: 1px solid var(--border, #e5e7eb);
@@ -333,6 +357,8 @@
   font-size: var(--fs-caption);
   color: var(--muted-foreground);
   margin: 0;
+  padding-top: 4px;                /* 이전 요소(카드)와 gap 외 추가 여백 */
+  border-top: 1px solid var(--border, #e5e7eb); /* 카드와 명시적 구분선 */
 }
 
 /* ---- 빈 상태 ---- */

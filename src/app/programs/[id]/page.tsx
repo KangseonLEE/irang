@@ -16,10 +16,10 @@ import {
   Leaf,
 } from "lucide-react";
 import { getProgramById, getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
-import type { SupportProgram } from "@/lib/data/programs";
 import { getCropByName } from "@/lib/data/crops";
 import { getStationByProvince } from "@/lib/data/stations";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import s from "./page.module.css";
 
 export async function generateMetadata({
@@ -44,14 +44,6 @@ interface ProgramDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-const TYPE_CLASS: Record<SupportProgram["supportType"], string> = {
-  보조금: s.typeGrant,
-  융자: s.typeLoan,
-  교육: s.typeEducation,
-  현물: s.typeInKind,
-  컨설팅: s.typeConsulting,
-};
-
 export default async function ProgramDetailPage({
   params,
 }: ProgramDetailPageProps) {
@@ -74,9 +66,7 @@ export default async function ProgramDetailPage({
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
           <StatusBadge status={program.status} />
-          <span className={`${s.typeLabel} ${TYPE_CLASS[program.supportType]}`}>
-            {program.supportType}
-          </span>
+          <SupportTypeBadge type={program.supportType} prefix="지원 유형: " />
         </div>
         <div className={s.titleRow}>
           <h1 className={s.pageTitle}>{program.title}</h1>
@@ -103,78 +93,78 @@ export default async function ProgramDetailPage({
       <div className={s.contentGrid}>
         {/* Main Info */}
         <div className={s.mainContent}>
-          {/* Basic Information Table */}
-          <div className={s.card}>
-            <div className={s.cardHeader}>
-              <h2 className={s.cardTitle}>기본 정보</h2>
-            </div>
-            <div className={s.cardContent}>
-              <table className={s.table}>
-                <tbody>
-                  <tr className={s.tableRow}>
-                    <td className={s.tableLabelCell}>
-                      <span className={s.iconLabel}>
-                        <span className={s.iconMuted}>
-                          <MapPin size={16} />
-                        </span>
-                        지역
+          {/* Basic Information */}
+          <section className={s.section}>
+            <h2 className={s.sectionTitle}>기본 정보</h2>
+            <table className={s.table}>
+              <tbody>
+                <tr className={s.tableRow}>
+                  <td className={s.tableLabelCell}>
+                    <span className={s.iconLabel}>
+                      <span className={s.iconMuted}>
+                        <MapPin size={16} />
                       </span>
-                    </td>
-                    <td className={s.tableValueCell}>
-                      {(() => {
-                        const station = getStationByProvince(program.region);
-                        const href = station
-                          ? `/regions?stations=${station.stnId}`
-                          : "/regions";
-                        return (
-                          <Link href={href} className={s.regionLink}>
-                            {program.region}
-                          </Link>
-                        );
-                      })()}
-                    </td>
-                  </tr>
-                  <InfoRow
-                    icon={<Building2 size={16} />}
-                    label="담당 기관"
-                    value={program.organization}
-                  />
-                  <InfoRow
-                    icon={<Coins size={16} />}
-                    label="지원 유형"
-                    value={program.supportType}
-                  />
-                  <InfoRow
-                    icon={<Coins size={16} />}
-                    label="지원 금액"
-                    value={program.supportAmount}
-                  />
-                  <InfoRow
-                    icon={<Calendar size={16} />}
-                    label="신청 기간"
-                    value={`${program.applicationStart} ~ ${program.applicationEnd}`}
-                  />
-                  <InfoRow
-                    icon={<Users size={16} />}
-                    label="대상 연령"
-                    value={`만 ${program.eligibilityAgeMin}세 ~ ${program.eligibilityAgeMax}세`}
-                  />
-                </tbody>
-              </table>
-            </div>
-          </div>
+                      지역
+                    </span>
+                  </td>
+                  <td className={s.tableValueCell}>
+                    {(() => {
+                      const station = getStationByProvince(program.region);
+                      const href = station
+                        ? `/regions?stations=${station.stnId}`
+                        : "/regions";
+                      return (
+                        <Link href={href} className={s.regionLink}>
+                          {program.region}
+                        </Link>
+                      );
+                    })()}
+                  </td>
+                </tr>
+                <InfoRow
+                  icon={<Building2 size={16} />}
+                  label="담당 기관"
+                  value={program.organization}
+                />
+                <tr className={s.tableRow}>
+                  <td className={s.tableLabelCell}>
+                    <span className={s.iconLabel}>
+                      <span className={s.iconMuted}>
+                        <Coins size={16} />
+                      </span>
+                      지원 유형
+                    </span>
+                  </td>
+                  <td className={s.tableValueCell}>
+                    <SupportTypeBadge type={program.supportType} />
+                  </td>
+                </tr>
+                <InfoRow
+                  icon={<Coins size={16} />}
+                  label="지원 금액"
+                  value={program.supportAmount}
+                />
+                <InfoRow
+                  icon={<Calendar size={16} />}
+                  label="신청 기간"
+                  value={`${program.applicationStart} ~ ${program.applicationEnd}`}
+                />
+                <InfoRow
+                  icon={<Users size={16} />}
+                  label="대상 연령"
+                  value={`만 ${program.eligibilityAgeMin}세 ~ ${program.eligibilityAgeMax}세`}
+                />
+              </tbody>
+            </table>
+          </section>
 
           {/* Eligibility */}
-          <div className={s.card}>
-            <div className={s.cardHeader}>
-              <h2 className={s.cardTitle}>자격 조건</h2>
-            </div>
-            <div className={s.cardContent}>
-              <p className={s.eligibilityText}>
-                <AutoGlossary text={program.eligibilityDetail} />
-              </p>
-            </div>
-          </div>
+          <section className={s.section}>
+            <h2 className={s.sectionTitle}>자격 조건</h2>
+            <p className={s.eligibilityText}>
+              <AutoGlossary text={program.eligibilityDetail} />
+            </p>
+          </section>
         </div>
 
         {/* Sidebar */}

@@ -636,8 +636,8 @@
 .tipsCard {
   padding: 20px;
   border-radius: 14px;
-  background: color-mix(in srgb, #eab308 6%, var(--background, #fff));
-  border: 1px solid color-mix(in srgb, #eab308 20%, var(--border, #e5e7eb));
+  background: color-mix(in srgb, var(--warning-light, #eab308) 6%, var(--background, #fff));
+  border: 1px solid color-mix(in srgb, var(--warning-light, #eab308) 20%, var(--border, #e5e7eb));
 }
 
 .tipsTitle {
@@ -646,7 +646,7 @@
   gap: 6px;
   font-size: var(--fs-body-sm, 0.875rem);
   font-weight: 700;
-  color: #a16207;
+  color: var(--warning-fg, #a16207);
   margin: 0 0 10px;
 }
 
@@ -680,9 +680,9 @@
   gap: 10px;
   padding: 16px 20px;
   border-radius: 12px;
-  background: color-mix(in srgb, #ef4444 5%, var(--background, #fff));
-  border: 1px solid color-mix(in srgb, #ef4444 20%, var(--border, #e5e7eb));
-  color: #dc2626;
+  background: color-mix(in srgb, var(--error-light, #ef4444) 5%, var(--background, #fff));
+  border: 1px solid color-mix(in srgb, var(--error-light, #ef4444) 20%, var(--border, #e5e7eb));
+  color: var(--error, #dc2626);
 }
 
 .cautionCard > svg {
@@ -693,7 +693,7 @@
 .cautionText {
   font-size: var(--fs-caption, 0.75rem);
   line-height: 1.65;
-  color: #991b1b;
+  color: var(--error-fg, #991b1b);
   margin: 0;
   font-weight: 500;
 }
@@ -954,4 +954,18 @@
   .ctaSecondary:hover {
     background: rgba(255, 255, 255, 0.18);
   }
+}
+
+/* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
+@media (min-width: 1024px) {
+  /* 11px (0.6875rem) → 13px */
+  .heroCostSource,
+  .timelineDotPeriod,
+  .stepLabel,
+  .stepPeriodBadge,
+  .stepSummaryPeriod,
+  .checklistProgress {
+    font-size: 13px;
+  }
+
 }

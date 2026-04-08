@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { getEventById, getEventByIdAsync, EVENTS } from "@/lib/data/events";
 import type { FarmEvent } from "@/lib/data/events";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page.module.css";
 
 export async function generateMetadata({
@@ -165,7 +166,7 @@ export default async function EventDetailPage({
               <h2 className={s.cardTitle}>행사 내용</h2>
             </div>
             <div className={s.cardContent}>
-              <p className={s.descriptionText}>{event.description}</p>
+              <p className={s.descriptionText}><AutoGlossary text={event.description} /></p>
             </div>
           </div>
         </div>

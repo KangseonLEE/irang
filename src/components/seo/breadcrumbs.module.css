@@ -40,3 +40,10 @@
   color: var(--color-text-primary, #333);
   font-weight: 500;
 }
+
+/* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
+@media (min-width: 1024px) {
+  .list {
+    font-size: 15px;
+  }
+}

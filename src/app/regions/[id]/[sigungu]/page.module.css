@@ -580,7 +580,7 @@
 .eventTypeBadge[data-type="팜스테이"],
 .eventTypeBadge[data-type="축제"] {
   background: #fef3c7;
-  color: #92400e;
+  color: var(--warning-fg-strong, #92400e);
 }
 
 .eventTypeBadge[data-type="박람회"],

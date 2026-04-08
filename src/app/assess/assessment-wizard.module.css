@@ -138,6 +138,10 @@
   flex: 1;
 }
 
+@media (min-width: 640px) {
+  .questionWrap { flex: initial; }
+}
+
 .dimensionTag {
   display: inline-flex;
   align-items: center;

@@ -67,13 +67,6 @@
   white-space: nowrap;
 }
 
-.typeLabel {
-  font-size: var(--fs-caption);
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  color: var(--muted-foreground);
-}
-
 /* ── Title ── */
 .title {
   font-size: var(--fs-body-sm);
@@ -122,4 +115,9 @@
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
+@media (min-width: 1024px) {
+  .newBadge { font-size: 13px; }
 }

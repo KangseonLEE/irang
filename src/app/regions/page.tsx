@@ -16,6 +16,7 @@ import { PROVINCES } from "@/lib/data/regions";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
 import { POPULATION_FALLBACK } from "@/lib/data/population";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { KoreaMap } from "@/components/map/korea-map";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import s from "./page.module.css";
@@ -59,7 +60,7 @@ export default async function RegionsPage() {
             지도에서 <span className={s.mainTitleAccent}>관심 지역</span>을 선택하세요
           </h2>
           <p className={s.mainDesc}>
-            지역을 클릭하면 기후·인구·추천 작물·지원사업 등 상세 정보를 확인할 수 있습니다.
+            <AutoGlossary text="지역을 클릭하면 기후·인구·추천 작물·지원사업 등 상세 정보를 확인할 수 있습니다." />
           </p>
           <div className={s.densityLegend}>
             <span className={s.densityLegendTitle}>인구밀도</span>
@@ -112,28 +113,28 @@ export default async function RegionsPage() {
                 <Thermometer size={18} className={s.infoIcon} aria-hidden="true" />
                 <div>
                   <span className={s.infoItemTitle}>기후 데이터</span>
-                  <span className={s.infoItemDesc}>월별 기온·강수량·일조시간</span>
+                  <span className={s.infoItemDesc}><AutoGlossary text="월별 기온·강수량·일조시간" /></span>
                 </div>
               </div>
               <div className={s.infoItem}>
                 <Users size={18} className={s.infoIcon} aria-hidden="true" />
                 <div>
                   <span className={s.infoItemTitle}>인구·인프라</span>
-                  <span className={s.infoItemDesc}>인구 추이, 의료·교육 시설</span>
+                  <span className={s.infoItemDesc}><AutoGlossary text="인구 추이, 의료·교육 시설" /></span>
                 </div>
               </div>
               <div className={s.infoItem}>
                 <Sprout size={18} className={s.infoIcon} aria-hidden="true" />
                 <div>
                   <span className={s.infoItemTitle}>추천 작물</span>
-                  <span className={s.infoItemDesc}>적합 작물, 예상 수익, 난이도</span>
+                  <span className={s.infoItemDesc}><AutoGlossary text="적합 작물, 예상 수익, 난이도" /></span>
                 </div>
               </div>
               <div className={s.infoItem}>
                 <HeartHandshake size={18} className={s.infoIcon} aria-hidden="true" />
                 <div>
                   <span className={s.infoItemTitle}>지원사업</span>
-                  <span className={s.infoItemDesc}>정착금, 농지 임대, 교육 프로그램</span>
+                  <span className={s.infoItemDesc}><AutoGlossary text="정착금, 농지 임대, 교육 프로그램" /></span>
                 </div>
               </div>
             </div>

@@ -181,7 +181,7 @@
 
 @media (hover: hover) {
   .removeBtn:hover {
-    color: #ef4444;
+    color: var(--error-light, #ef4444);
     background: #fef2f2;
   }
 }
@@ -211,7 +211,7 @@
 
 @media (hover: hover) {
   .clearBtn:hover {
-    color: #ef4444;
+    color: var(--error-light, #ef4444);
     border-color: #fca5a5;
   }
 }

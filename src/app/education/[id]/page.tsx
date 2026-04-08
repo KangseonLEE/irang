@@ -22,6 +22,7 @@ import {
   EDUCATION_COURSES,
 } from "@/lib/data/education";
 import type { EducationCourse } from "@/lib/data/education";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page.module.css";
 
 export async function generateMetadata({
@@ -168,7 +169,7 @@ export default async function EducationDetailPage({
               <h2 className={s.cardTitle}>교육 내용</h2>
             </div>
             <div className={s.cardContent}>
-              <p className={s.descriptionText}>{course.description}</p>
+              <p className={s.descriptionText}><AutoGlossary text={course.description} /></p>
             </div>
           </div>
 

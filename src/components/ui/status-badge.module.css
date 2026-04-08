@@ -17,8 +17,8 @@
 
 .amber {
   composes: badge;
-  color: #d97706;
-  background: color-mix(in srgb, #d97706 12%, transparent);
+  color: var(--warning, #d97706);
+  background: color-mix(in srgb, var(--warning, #d97706) 12%, transparent);
 }
 
 .gray {

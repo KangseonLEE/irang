@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { PROVINCES, type Province } from "@/lib/data/regions";
 import { CROPS, CROP_DETAILS, type CropInfo } from "@/lib/data/crops";
+import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { analytics } from "@/lib/analytics";
 import { ResultSaveCta } from "@/components/result/result-save-cta";
 import s from "./match-wizard.module.css";
@@ -639,25 +640,13 @@ export function MatchWizard() {
           </h2>
           <div className={s.cropCards}>
             {recommendedCrops.map((rc) => (
-              <Link
+              <CropLinkCard
                 key={rc.crop.id}
+                cropId={rc.crop.id}
+                name={rc.crop.name}
                 href={`/crops/${rc.crop.id}`}
-                className={s.cropCard}
-              >
-                <span className={s.cropEmoji}>{rc.crop.emoji}</span>
-                <div className={s.cropCardBody}>
-                  <span className={s.cropName}>{rc.crop.name}</span>
-                  <span className={s.cropMeta}>
-                    {rc.crop.category} · 난이도 {rc.crop.difficulty}
-                  </span>
-                  {rc.reasons.length > 0 && (
-                    <span className={s.cropReason}>
-                      {rc.reasons.join(" · ")}
-                    </span>
-                  )}
-                </div>
-                <ChevronRight size={16} className={s.cropArrow} />
-              </Link>
+                meta={`${rc.crop.category} · 난이도 ${rc.crop.difficulty}${rc.reasons.length > 0 ? ` · ${rc.reasons.join(" · ")}` : ""}`}
+              />
             ))}
           </div>
         </section>

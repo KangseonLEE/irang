@@ -41,7 +41,7 @@ export default function GlobalError({
             height="48"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#ef4444"
+            stroke="var(--error-light, #ef4444)"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"

@@ -171,3 +171,14 @@
   font-weight: 600;
   margin-top: 8px;
 }
+
+/* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
+@media (min-width: 1024px) {
+  .tooltipLabel {
+    font-size: 13px;
+  }
+
+  .tooltipRow {
+    font-size: 15px;
+  }
+}

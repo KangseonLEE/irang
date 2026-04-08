@@ -45,7 +45,7 @@
 
 .cardCrop {
   background: #FFF8EE;
-  border-top: 3px solid #d97706;
+  border-top: 3px solid var(--warning, #d97706);
 }
 
 .cardProgram {

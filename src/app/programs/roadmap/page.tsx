@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Search, BookOpen } from "lucide-react";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { RoadmapClient } from "./roadmap-client";
 import s from "./page.module.css";
 
@@ -26,8 +27,7 @@ export default function ProgramRoadmapPage() {
           정부사업, <span className={s.accent}>어떻게 신청</span>하나요?
         </h1>
         <p className={s.heroDesc}>
-          귀농·귀촌을 위한 4대 핵심 정부사업의 자격 요건부터 신청 절차, 필요
-          서류, 선정 후 의무사항까지 한곳에서 확인하세요.
+          <AutoGlossary text="귀농·귀촌을 위한 4대 핵심 정부사업의 자격 요건부터 신청 절차, 필요 서류, 선정 후 의무사항까지 한곳에서 확인하세요." />
         </p>
       </section>
 
@@ -38,9 +38,7 @@ export default function ProgramRoadmapPage() {
       <section className={s.ctaSection}>
         <h2 className={s.ctaTitle}>나에게 맞는 사업을 찾아보세요</h2>
         <p className={s.ctaDesc}>
-          이랑이 제공하는 지원사업 검색과 맞춤 추천으로
-          <br />
-          나에게 딱 맞는 사업을 빠르게 찾을 수 있습니다.
+          <AutoGlossary text="이랑이 제공하는 지원사업 검색과 맞춤 추천으로 나에게 딱 맞는 사업을 빠르게 찾을 수 있습니다." />
         </p>
         <div className={s.ctaButtons}>
           <Link href="/programs" className={s.ctaPrimary}>

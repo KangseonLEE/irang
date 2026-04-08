@@ -1,0 +1,57 @@
+# ═══════════════════════════════════════════
+# 매주 정책 데이터 출처 검증
+# - 매주 월요일 오전 9시(KST) 자동 실행
+# - 출처 URL 접근성 확인 + 스냅샷 변경 감지
+# - 실패/갱신 필요 시 GitHub Issue 자동 생성
+# - 수동 실행 가능 (Actions 탭 → Run workflow)
+# ═══════════════════════════════════════════
+
+name: "📋 정책 데이터 출처 검증"
+
+on:
+  schedule:
+    # 매주 월요일 KST 오전 9시 (UTC 00:00)
+    - cron: "0 0 * * 1"
+  workflow_dispatch: # 수동 실행 지원
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  check-policy:
+    name: 정책 출처 URL 검증
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: policy-check 라벨 생성 (없으면)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "policy-check" \
+            --description "정책 데이터 출처 검증 자동 이슈" \
+            --color "7057ff" \
+            2>/dev/null || true
+
+      - name: 스냅샷 캐시 복원
+        uses: actions/cache@v4
+        with:
+          path: .policy-snapshots
+          key: policy-snapshots-${{ github.ref_name }}
+          restore-keys: |
+            policy-snapshots-
+
+      - name: 정책 출처 검증 실행
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx tsx scripts/check-policy-sources.ts --ci --snapshot

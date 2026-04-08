@@ -42,6 +42,16 @@
   --error: #DC2626;
   --info: #2563EB;
 
+  /* Warning (Amber) scale — 팁·우대·융자 경고 등 */
+  --warning-light: #eab308;
+  --warning-fg: #a16207;
+  --warning-fg-strong: #92400e;
+  --warning-fg-muted: #78350f;
+
+  /* Error (Red) scale — 의무사항·주의사항 등 */
+  --error-light: #ef4444;
+  --error-fg: #991b1b;
+
   /* Chart */
   --chart-1: #1B6B5A;
   --chart-2: #3EA088;
@@ -113,17 +123,22 @@
   }
 }
 
-/* ── Typography — Desktop ── */
+/* ── Typography — Desktop ──
+   40~60대 가독성 기준 (정부사업 가이드 roadmap 스케일 전역 적용)
+   · 본문(body):    16→17px (1.0625rem)
+   · 보조(body-sm): 15px 유지
+   · 캡션(caption):  13→15px (body-sm과 동일, 최소 가독 기준)
+   · 오버라인:       12→13px */
 @media (min-width: 1024px) {
   :root {
     --fs-h2:       32px;
     --fs-h3:       24px;
     --fs-h4:       20px;
     --fs-body-lg:  18px;
-    --fs-body:     16px;
+    --fs-body:     17px;
     --fs-body-sm:  15px;
-    --fs-caption:  13px;
-    --fs-overline: 12px;
+    --fs-caption:  15px;
+    --fs-overline: 13px;
   }
 }
 

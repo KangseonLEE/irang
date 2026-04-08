@@ -87,7 +87,7 @@
 
 /* 박람회 / 축제: amber tint */
 .typeBadgeAmber {
-  background: color-mix(in srgb, #d97706 12%, transparent);
+  background: color-mix(in srgb, var(--warning, #d97706) 12%, transparent);
   color: #b45309;
 }
 
