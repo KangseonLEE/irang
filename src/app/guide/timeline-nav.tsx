@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useEffect, useRef } from "react";
+import s from "./timeline-nav.module.css";
 
 /* ═══════════════════════════════════════════════════════
    TimelineLink — 타임라인 클릭 → 해당 단계 스크롤 + 열기
@@ -55,12 +56,13 @@ export function AccordionScrollWrapper({ children }: AccordionScrollWrapperProps
     const detailsElements = container.querySelectorAll("details");
 
     const handleToggle = (e: Event) => {
-      const details = e.target as HTMLDetailsElement;
-      if (!details.open) return;
+      if (!(e.target instanceof HTMLDetailsElement)) return;
+      if (!e.target.open) return;
 
       // 애니메이션 후 스크롤 (CSS transition 시간 고려)
+      const target = e.target;
       requestAnimationFrame(() => {
-        details.scrollIntoView({ behavior: "smooth", block: "start" });
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     };
 
@@ -76,7 +78,7 @@ export function AccordionScrollWrapper({ children }: AccordionScrollWrapperProps
   }, []);
 
   return (
-    <div ref={ref} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+    <div ref={ref} className={s.accordionGroup}>
       {children}
     </div>
   );
