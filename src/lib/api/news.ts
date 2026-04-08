@@ -12,7 +12,8 @@
  */
 
 const API_URL = "https://openapi.naver.com/v1/search/news.json";
-const CACHE_TTL = 60 * 60 * 24; // 24시간
+const NEWS_CACHE_TTL = 60 * 60;      // 1시간 — 페이지 ISR과 동일 주기
+const OG_CACHE_TTL = 60 * 60 * 24;   // 24시간 — OG 이미지는 자주 안 바뀜
 
 /** 검색 키워드 — 핵심 2어로 관련도 극대화 */
 const SEARCH_QUERY = "귀농 귀촌";
@@ -150,7 +151,7 @@ export async function fetchOgImage(url: string): Promise<string | undefined> {
         Accept: "text/html,application/xhtml+xml",
       },
       redirect: "follow",
-      next: { revalidate: CACHE_TTL },
+      next: { revalidate: OG_CACHE_TTL },
     });
     clearTimeout(timer);
 
@@ -269,7 +270,12 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** 네이버 뉴스 검색 공통 로직 — 실패 시 최대 2회 재시도 */
+/**
+ * 네이버 뉴스 검색 공통 로직
+ * - cache: 'no-store'로 설정하여 실패 결과가 Vercel Data Cache에 저장되는 것을 방지
+ * - 대신 서버 컴포넌트의 ISR(revalidate)로 페이지 단위 캐시 관리
+ * - 호출 간 500ms 딜레이로 Rate Limit 회피
+ */
 async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
   const clientId = process.env.NAVER_CLIENT_ID;
   const clientSecret = process.env.NAVER_CLIENT_SECRET;
@@ -285,7 +291,7 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
     try {
       if (attempt > 0) {
         console.log(`[news] "${query}" 재시도 ${attempt}/${MAX_RETRIES}`);
-        await sleep(300 * attempt); // 300ms, 600ms 대기
+        await sleep(500 * attempt);
       }
 
       const params = new URLSearchParams({
@@ -299,7 +305,9 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
           "X-Naver-Client-Id": clientId,
           "X-Naver-Client-Secret": clientSecret,
         },
-        next: { revalidate: CACHE_TTL },
+        // ISR(revalidate=3600)과 동일 주기로 Data Cache 갱신
+        // — 실패 응답도 1시간 후 자동 만료되어 재시도
+        next: { revalidate: NEWS_CACHE_TTL },
       });
 
       if (!res.ok) {

@@ -1,4 +1,7 @@
 import { Suspense } from "react";
+
+/** 홈페이지 ISR — 뉴스 데이터를 1시간마다 갱신 */
+export const revalidate = 3600;
 import Link from "next/link";
 import {
   ArrowRight,
@@ -10,13 +13,12 @@ import {
   BookOpen,
 } from "lucide-react";
 import SearchGroup from "@/components/search/search-group";
-import { CountUp } from "@/components/landing/count-up";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { TrendingSearchesSkeleton } from "@/components/landing/trending-searches";
 import { TrendingSearchesLoader } from "@/components/landing/trending-searches-loader";
 import { NewsTabsLoader } from "@/components/landing/news-tabs-loader";
 import { FarmerIllustration } from "@/components/landing/farmer-illustration";
-import { AnimatedBar } from "@/components/landing/animated-bar";
+import { CostSection } from "@/components/landing/cost-section";
 import { interviews } from "@/lib/data/landing";
 import { CROPS } from "@/lib/data/crops";
 import s from "./page.module.css";
@@ -117,87 +119,15 @@ export default function HomePage() {
       </section>
 
       {/* ═══ 2. 비용 티저 — 핵심 수치 + /costs CTA ═══ */}
-      <section className={s.costSection} aria-label="귀농 비용">
-        {/* 상단: 타이틀 + 설명 */}
-        <div className={s.costHeader}>
-          <span className={s.costOverline}>실제 귀농인 평균 데이터</span>
-          <h2 className={s.costTitle}>귀농, 돈이 얼마나 들까?</h2>
-        </div>
-
-        {/* 메인: 히어로 넘버 + 보조 수치 */}
-        <div className={s.costLayout}>
-          {/* 좌측: 핵심 수치 카드 */}
-          <div className={s.costHero}>
-            <p className={s.costHeroLabel}>평균 초기 투자금</p>
-            <p className={s.costHeroValue}>
-              <CountUp end={6219} className={s.costHeroNum} />
-              <span className={s.costHeroUnit}>만 원</span>
-            </p>
-            <p className={s.costHeroSub}>
-              평균 준비 기간 <strong>27.4개월</strong> 기준,
-              월평균 약 230만 원 수준
-            </p>
-            <div className={s.costBarWrap}>
-              <span className={s.costBarCaption}>
-                투자금의 <strong>84.6%</strong>가 영농 준비비
-              </span>
-              <AnimatedBar
-                percent={84.6}
-                barClassName={s.costBar}
-                fillClassName={s.costBarFill}
-                percentClassName={s.costBarPercent}
-              />
-              <div className={s.costBarLegend}>
-                <span>영농 준비비</span>
-                <span>기타 (주거·생활)</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 우측: 보조 수치 그리드 */}
-          <div className={s.costGrid}>
-            <div className={s.costGridItem}>
-              <p className={s.costGridLabel}>평균 준비 기간</p>
-              <p className={s.costGridValue}>
-                <CountUp end={27.4} decimals={1} className={s.costGridNum} />
-                <span className={s.costGridUnit}>개월</span>
-              </p>
-              <p className={s.costGridSub}>탐색부터 정착까지</p>
-            </div>
-            <div className={s.costGridItem}>
-              <p className={s.costGridLabel}>농업창업자금</p>
-              <p className={s.costGridValue}>
-                <CountUp end={3} prefix="최대 " className={s.costGridNum} />
-                <span className={s.costGridUnit}>억 원</span>
-              </p>
-              <p className={s.costGridSub}>정부 융자 지원</p>
-            </div>
-            <div className={s.costGridItem}>
-              <p className={s.costGridLabel}>주택자금</p>
-              <p className={s.costGridValue}>
-                <CountUp end={7500} className={s.costGridNum} />
-                <span className={s.costGridUnit}>만 원</span>
-              </p>
-              <p className={s.costGridSub}>정부 융자 지원</p>
-            </div>
-          </div>
-        </div>
-
-        {/* 하단: CTA + 출처 */}
-        <div className={s.costFooter}>
-          <div className={s.costCtaGroup}>
-            <Link href="/costs" className={s.costCtaPrimary}>
-              비용 가이드 전체 보기 <ArrowRight size={14} />
-            </Link>
-            <Link href="/programs?supportType=융자" className={s.costCtaOutline}>
-              지원사업 확인하기 <ArrowRight size={14} />
-            </Link>
-          </div>
-          <p className={s.costSource}>
-            출처: 농림축산식품부 2025 귀농귀촌 실태조사
-          </p>
-        </div>
-      </section>
+      <CostSection
+        barPercent={84.6}
+        counts={[
+          { end: 6219 },
+          { end: 27.4, decimals: 1 },
+          { end: 3, prefix: "최대 " },
+          { end: 7500 },
+        ]}
+      />
 
       {/* ═══ 3. 서비스 맵 — 6개 서브페이지 허브 ═══ */}
       <section className={s.serviceMapSection} aria-label="서비스 안내">

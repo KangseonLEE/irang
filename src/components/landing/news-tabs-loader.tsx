@@ -57,12 +57,19 @@ function dedupWithin(items: UnifiedNewsItem[]): UnifiedNewsItem[] {
 
 // ─── 메인 ───
 
+/** 짧은 대기 */
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 export async function NewsTabsLoader() {
-  // 순차 호출 — 네이버 API 초당 호출 제한(Rate Limit) 회피
-  // Promise.all 병렬 호출 시 Vercel 빌드 환경에서 일부 요청이 거부됨
+  // 순차 호출 + 500ms 간격 — 네이버 API Rate Limit 회피
   const liveNews = await fetchLatestNews();
+  await sleep(500);
   const eduNews = await fetchNewsByCategory("education");
+  await sleep(500);
   const eventNews = await fetchNewsByCategory("event");
+  await sleep(500);
   const programNews = await fetchNewsByCategory("program");
 
   const toItems = (
