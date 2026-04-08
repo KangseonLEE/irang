@@ -46,6 +46,7 @@ const navGroups: NavGroup[] = [
     basePaths: ["/programs", "/education", "/events"],
     children: [
       { href: "/programs", label: "지원사업", desc: "귀농·귀촌 지원금 & 정책" },
+      { href: "/programs/roadmap", label: "정부사업 가이드", desc: "4대 사업 신청 절차 안내" },
       { href: "/education", label: "교육 프로그램", desc: "온·오프라인 귀농 교육" },
       { href: "/events", label: "체험·행사", desc: "현장 체험 & 박람회 일정" },
     ],

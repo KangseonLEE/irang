@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { FileText, MessageCircle } from "lucide-react";
+import { FileText, MessageCircle, ArrowRight, Map } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { SectionNav } from "@/components/layout/section-nav";
@@ -13,6 +13,7 @@ import {
   AGE_RANGES,
   type ProgramFilters,
 } from "@/lib/data/programs";
+import Link from "next/link";
 import { ProgramList } from "./program-list";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import {
@@ -98,6 +99,18 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
       <Suspense>
         <RoadmapBanner />
       </Suspense>
+
+      {/* 정부사업 진입 가이드 배너 */}
+      <Link href="/programs/roadmap" className={s.guideBanner}>
+        <div className={s.guideBannerIcon} aria-hidden="true">
+          <Map size={18} />
+        </div>
+        <div className={s.guideBannerBody}>
+          <span className={s.guideBannerTitle}>정부사업, 어떻게 신청하나요?</span>
+          <span className={s.guideBannerDesc}>4대 핵심 사업의 자격 요건·신청 절차 안내</span>
+        </div>
+        <ArrowRight size={16} className={s.guideBannerArrow} />
+      </Link>
 
       {/* Page Header */}
       <PageHeader

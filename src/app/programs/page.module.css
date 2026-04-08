@@ -28,6 +28,64 @@
 }
 
 /* ══════════════════════════════════════════
+   정부사업 가이드 배너
+   ══════════════════════════════════════════ */
+.guideBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, var(--background, #fff));
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, var(--border, #e5e7eb));
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+@media (hover: hover) {
+  .guideBanner:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 9%, var(--background, #fff));
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, var(--border, #e5e7eb));
+  }
+}
+
+.guideBannerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+.guideBannerBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.guideBannerTitle {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.guideBannerDesc {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+}
+
+.guideBannerArrow {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
    피드백 CTA 카드
    ══════════════════════════════════════════ */
 .feedbackCta {
