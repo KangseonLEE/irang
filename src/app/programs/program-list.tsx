@@ -7,6 +7,7 @@ import { Loader2, FileText } from "lucide-react";
 import { loadMorePrograms } from "./actions";
 import { ProgramCard } from "./program-card";
 import type { SupportProgram, ProgramFilters } from "@/lib/data/programs";
+import { isNewProgram } from "./program-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
 import { Pagination } from "@/components/ui/pagination";
@@ -129,6 +130,9 @@ export function ProgramList({
                     <Link href={`/programs/${p.id}`} className={dt.titleLink}>
                       {p.title}
                     </Link>
+                    {isNewProgram(p.createdAt) && (
+                      <span className={s.newTag}>신규</span>
+                    )}
                   </td>
                   <td className={dt.muted}>{p.region}</td>
                   <td className={dt.muted}>{p.supportType}</td>

@@ -154,7 +154,7 @@
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 20px;
-  overflow: hidden;
+  /* overflow: hidden 제거 — 용어 툴팁(GlossaryTerm)이 잘리지 않도록 */
 }
 
 .cardHeader {

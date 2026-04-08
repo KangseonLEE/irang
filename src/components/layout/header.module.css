@@ -156,6 +156,11 @@
   display: flex;
 }
 
+/* 드롭다운 아이템 클릭 직후 hover 무시 → 마우스 이탈 시 해제 */
+.navHidden .dropdown {
+  display: none !important;
+}
+
 /* 드롭다운 아이템 */
 .dropdownItem {
   display: flex;

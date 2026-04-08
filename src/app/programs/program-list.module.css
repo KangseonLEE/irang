@@ -88,6 +88,21 @@
   }
 }
 
+/* ── Table New Tag ── */
+.newTag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  background: #e8590c;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
 /* ── All Loaded ── */
 .allLoaded {
   margin-top: 24px;

@@ -1,7 +1,7 @@
 /* ==========================================================================
    TermTooltip
-   데스크탑: 인라인 :hover 팝업
-   모바일:   Portal 말풍선 (용어 근처 자동 배치)
+   모든 기기: Portal 기반 동적 배치 (뷰포트 경계 자동 보정)
+   데스크탑: hover 트리거 / 모바일: click 트리거
    ========================================================================== */
 
 /* ── 래퍼 ── */
@@ -10,13 +10,6 @@
   position: relative;
   display: inline;
   -webkit-tap-highlight-color: transparent;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .wrapper {
-    display: inline-flex;
-    align-items: center;
-  }
 }
 
 .term {
@@ -31,73 +24,12 @@
   border-radius: 2px;
 }
 
-/* ═══ 데스크탑 인라인 툴팁 (호버) ═══ */
-
-.tooltip {
-  display: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .tooltip {
-    display: block;
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 8px 12px;
-    font-size: var(--fs-caption, 12px);
-    line-height: 1.55;
-    color: #fff;
-    background: var(--foreground, #1f2937);
-    border-radius: 8px;
-    white-space: normal;
-    width: max-content;
-    max-width: 280px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.15s;
-    z-index: 50;
-  }
-
-  .tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 5px;
-    border-style: solid;
-    border-color: var(--foreground, #1f2937) transparent transparent transparent;
-  }
-
-  .wrapper:hover .tooltip {
-    opacity: 1;
-    pointer-events: auto;
-  }
-}
-
-.tooltipLink {
-  display: block;
-  margin-top: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  color: color-mix(in srgb, var(--primary, #1b6b5a) 60%, #fff);
-  text-decoration: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .tooltipLink:hover {
-    text-decoration: underline;
-  }
-}
-
-/* ═══ 모바일 Portal 말풍선 ═══ */
+/* ═══ Portal 팝오버 (모든 기기 공통) ═══ */
 
 .popover {
   position: absolute;
   z-index: 9999;
-  max-width: calc(100vw - 24px);
+  max-width: min(360px, calc(100vw - 24px));
   width: max-content;
   padding: 12px 16px;
   font-size: 13px;
@@ -130,6 +62,12 @@
   text-decoration: none;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .popoverLink:hover {
+    text-decoration: underline;
+  }
+}
+
 /* ── 화살표 ── */
 
 .popoverArrow {
@@ -143,17 +81,15 @@
   border-top: 7px solid var(--foreground, #1f2937);
 }
 
+/* 아래 배치일 때: 팝오버를 아래로 */
+.popoverBelow {
+  margin-top: 4px;
+}
+
 /* 아래 배치일 때: 화살표를 위로 */
 .popoverArrowUp {
   bottom: auto;
   top: -6px;
   border-top: none;
   border-bottom: 7px solid var(--foreground, #1f2937);
-}
-
-/* 마우스/트랙패드 환경에서 Portal 말풍선 숨김 (호버 툴팁 사용) */
-@media (hover: hover) and (pointer: fine) {
-  .popover {
-    display: none;
-  }
 }

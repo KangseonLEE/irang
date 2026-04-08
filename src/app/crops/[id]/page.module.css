@@ -63,10 +63,15 @@
 /* ── Hero ── */
 .hero {
   border-radius: 20px;
-  overflow: hidden;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   margin-bottom: 0;
+}
+
+/* 이미지가 border-radius를 넘지 않도록 상단만 clip */
+.hero > :first-child {
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
 }
 
 .heroImageWrap {
@@ -142,6 +147,25 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* 데스크탑에서 공유/북마크 아이콘 확대 */
+@media (min-width: 1024px) {
+  .heroActions :global(button) {
+    width: 44px;
+    height: 44px;
+  }
+  .heroActions :global(button svg) {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 .heroBadges {
@@ -292,16 +316,16 @@
   scrollbar-width: none;
   background: var(--background, #fff);
   border-bottom: 1px solid var(--border, #e5e7eb);
-  margin: 20px -16px 24px;
-  padding: 0 16px;
+  margin: 20px 0 24px;
+  padding: 0;
 }
 
 @media (min-width: 640px) {
-  .anchorTab { margin: 20px -24px 32px; padding: 0 24px; }
+  .anchorTab { margin: 20px 0 32px; }
 }
 
 @media (min-width: 1024px) {
-  .anchorTab { margin: 20px -32px 32px; padding: 0 32px; }
+  .anchorTab { margin: 20px 0 32px; }
 }
 
 .anchorTab::-webkit-scrollbar { display: none; }
@@ -367,7 +391,7 @@
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 20px;
-  overflow: hidden;
+  /* overflow: hidden 제거 — 용어 툴팁이 잘리지 않도록 */
 }
 
 .sectionHeader {

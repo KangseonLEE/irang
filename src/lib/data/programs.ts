@@ -32,6 +32,8 @@ export interface SupportProgram {
   /** 원문 링크 상태 — 헬스체크 결과 반영 */
   linkStatus?: "active" | "broken" | "unverified";
   year: number;
+  /** DB 등록일 — "신규" 뱃지 판정에 사용 */
+  createdAt?: string;
 }
 
 export const REGIONS = [
@@ -320,6 +322,7 @@ export async function getProgramByIdAsync(
           sourceUrl: row.source_url,
           linkStatus: (row.link_status ?? undefined) as SupportProgram["linkStatus"],
           year: row.year,
+          createdAt: row.created_at,
         };
       }
     } catch {
@@ -551,6 +554,7 @@ export async function loadPrograms(): Promise<{
           sourceUrl: row.source_url,
           linkStatus: (row.link_status ?? undefined) as SupportProgram["linkStatus"],
           year: row.year,
+          createdAt: row.created_at,
         }));
         return { programs, source: "supabase" };
       }

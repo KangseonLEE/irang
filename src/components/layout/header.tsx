@@ -67,12 +67,27 @@ export function Header() {
   const [bookmarkOpen, setBookmarkOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showGuideTooltip, setShowGuideTooltip] = useState(false);
+  /** 드롭다운 클릭 후 일시적으로 hover를 무시하기 위한 플래그 */
+  const [navHidden, setNavHidden] = useState(false);
   const { count, mounted } = useBookmarks();
 
   // 페이지 이동 시 모바일 메뉴 닫기 (하단 바텀 네비게이션 포함)
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  // 드롭다운 아이템 클릭 후 hover 무시 해제 (마우스 이탈 시)
+  const hideDropdowns = useCallback(() => {
+    setNavHidden(true);
+    // 마우스가 nav 영역을 벗어나면 다시 hover 활성화
+    const handleMouseLeave = () => setNavHidden(false);
+    const navEl = document.querySelector(`nav[aria-label="주요 메뉴"]`);
+    if (navEl) {
+      navEl.addEventListener("mouseleave", handleMouseLeave, { once: true });
+    } else {
+      setTimeout(() => setNavHidden(false), 300);
+    }
+  }, []);
 
   // 첫 방문 사용자에게 귀농 가이드 툴팁 표시
   useEffect(() => {
@@ -118,7 +133,7 @@ export function Header() {
 
           {/* Desktop Navigation — 드롭다운 GNB */}
           <nav
-            className={s.nav}
+            className={`${s.nav}${navHidden ? ` ${s.navHidden}` : ""}`}
             aria-label="주요 메뉴"
           >
             {navGroups.map((group) => {
@@ -145,6 +160,7 @@ export function Header() {
                           key={child.href}
                           href={child.href}
                           className={`${s.dropdownItem} ${isChildActive ? s.dropdownItemActive : ""}`}
+                          onClick={hideDropdowns}
                         >
                           <span className={s.dropdownLabel}>{child.label}</span>
                           {child.desc && (

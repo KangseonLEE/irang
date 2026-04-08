@@ -198,20 +198,22 @@ export default async function CropDetailPage({
               </div>
               <h1 className={s.heroTitle}>{data.name}</h1>
             </div>
-            <ShareButton
-              title={`${data.name} — 작물 정보 | 이랑`}
-              text={`${data.name}: ${data.description?.slice(0, 80) ?? data.category}`}
-              contentType="crop"
-              variant="ghost"
-              size="sm"
-              showLabel={false}
-            />
-            <BookmarkButton
-              id={data.id}
-              type="crop"
-              title={data.name}
-              subtitle={data.category}
-            />
+            <div className={s.heroActions}>
+              <ShareButton
+                title={`${data.name} — 작물 정보 | 이랑`}
+                text={`${data.name}: ${data.description?.slice(0, 80) ?? data.category}`}
+                contentType="crop"
+                variant="ghost"
+                size="sm"
+                showLabel={false}
+              />
+              <BookmarkButton
+                id={data.id}
+                type="crop"
+                title={data.name}
+                subtitle={data.category}
+              />
+            </div>
           </div>
           <p className={s.heroDesc}><AutoGlossary text={data.description} /></p>
 

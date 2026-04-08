@@ -138,6 +138,15 @@
   overflow: hidden;
 }
 
+.panelOpen {
+  animation: panelSlideDown 0.2s ease-out;
+}
+
+@keyframes panelSlideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .panelInner {
   padding: 0 16px 16px;
 }

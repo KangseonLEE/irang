@@ -113,6 +113,7 @@ export interface ProgramRow {
   source_url: string;
   link_status: string | null;
   year: number;
+  created_at: string;
 }
 
 export interface EducationRow {

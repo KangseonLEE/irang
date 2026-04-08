@@ -7,8 +7,9 @@ import s from "./term-tooltip.module.css";
 
 /* ==========================================================================
    TermTooltip
-   데스크탑: CSS :hover 인라인 팝업
-   모바일:   클릭 → Portal 말풍선 (용어 위치 기준 자동 배치)
+   모든 기기: Portal 기반 동적 배치 (뷰포트 경계 자동 보정)
+   데스크탑: hover 트리거
+   모바일:   click/tap 트리거
    ========================================================================== */
 
 interface TermTooltipProps {
@@ -24,8 +25,8 @@ interface PopoverPos {
   placement: "above" | "below";
 }
 
-const POPOVER_GAP = 8; // 용어와 말풍선 사이 간격(px)
-const VIEWPORT_PAD = 12; // 화면 가장자리 여백(px)
+const POPOVER_GAP = 8;
+const VIEWPORT_PAD = 12;
 
 export function TermTooltip({ term, description, glossarySlug }: TermTooltipProps) {
   const [open, setOpen] = useState(false);
@@ -33,12 +34,13 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
   const [pos, setPos] = useState<PopoverPos | null>(null);
   const termRef = useRef<HTMLSpanElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const hoverTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // 위치 계산
+  // ── 위치 계산 (뷰포트 경계 자동 보정) ──
   const calcPosition = useCallback(() => {
     const termEl = termRef.current;
     const popEl = popoverRef.current;
@@ -49,7 +51,7 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
     const vw = window.innerWidth;
     const vh = window.visualViewport?.height ?? window.innerHeight;
 
-    // 좌우 위치: 용어 중앙 기준, 화면 밖으로 나가지 않도록 보정
+    // 좌우: 용어 중앙 기준, 화면 밖으로 나가지 않도록 보정
     const termCenterX = rect.left + rect.width / 2;
     let left = termCenterX - popRect.width / 2;
     left = Math.max(VIEWPORT_PAD, Math.min(left, vw - popRect.width - VIEWPORT_PAD));
@@ -59,7 +61,6 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
 
     // 위/아래 판단: 위 공간이 부족하면 아래로
     const spaceAbove = rect.top;
-    const spaceBelow = vh - rect.bottom;
 
     let placement: "above" | "below";
     let top: number;
@@ -75,14 +76,13 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
     setPos({ top, left, arrowLeft, placement });
   }, []);
 
-  // open 시 위치 계산 + 스크롤/리사이즈 시 닫기
+  // ── open 시 위치 계산 + 스크롤/리사이즈 시 닫기 ──
   useEffect(() => {
     if (!open) {
       setPos(null);
       return;
     }
 
-    // 첫 프레임에 위치 계산
     requestAnimationFrame(calcPosition);
 
     const handleClose = () => setOpen(false);
@@ -95,7 +95,7 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
     };
   }, [open, calcPosition]);
 
-  // 외부 클릭/터치 시 닫기
+  // ── 외부 클릭/터치 시 닫기 ──
   useEffect(() => {
     if (!open) return;
 
@@ -118,6 +118,18 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
     };
   }, [open]);
 
+  // ── 호버 핸들러 (데스크탑) ──
+  const handleMouseEnter = useCallback(() => {
+    clearTimeout(hoverTimeout.current);
+    setOpen(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    // 짧은 딜레이: 용어 → 팝오버로 마우스 이동 시 깜빡임 방지
+    hoverTimeout.current = setTimeout(() => setOpen(false), 120);
+  }, []);
+
+  // ── 클릭 핸들러 (모바일 + 키보드) ──
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -125,7 +137,11 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
   };
 
   return (
-    <span className={s.wrapper}>
+    <span
+      className={s.wrapper}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <span
         ref={termRef}
         className={s.term}
@@ -143,21 +159,7 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
         {term}
       </span>
 
-      {/* 데스크탑: 인라인 호버 툴팁 */}
-      <span className={s.tooltip} role="tooltip">
-        {description}
-        {glossarySlug && (
-          <a
-            href={`/glossary#${glossarySlug}`}
-            className={s.tooltipLink}
-            onClick={(e) => e.stopPropagation()}
-          >
-            자세히 →
-          </a>
-        )}
-      </span>
-
-      {/* 모바일: Portal 말풍선 (용어 근처에 배치) */}
+      {/* Portal 기반 팝오버 (모든 기기 공통) */}
       {mounted &&
         open &&
         createPortal(
@@ -172,6 +174,8 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
                 : { top: 0, left: -9999 }
             }
             onClick={(e) => e.stopPropagation()}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
             <p className={s.popoverText}>{description}</p>
             {glossarySlug && (
