@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, ChevronDown, SearchX } from "lucide-react";
 import type { GlossaryCategory, GlossaryEntry } from "@/lib/data/glossary";
 import s from "./page.module.css";
@@ -121,6 +121,24 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
     },
     [],
   );
+
+  // ── URL 해시(#slug)로 직접 이동: 툴팁 "자세히" 링크 지원 ──
+  useEffect(() => {
+    const hash = window.location.hash.slice(1); // "#slug" → "slug"
+    if (!hash) return;
+
+    const target = entries.find((e) => e.slug === hash);
+    if (!target) return;
+
+    // 카테고리 필터가 걸려 있으면 해제 (해당 용어가 보이도록)
+    setSelectedCategory("all");
+    setQuery("");
+
+    // DOM 업데이트 후 스크롤 + 확장
+    requestAnimationFrame(() => {
+      scrollToSlug(hash);
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const categories = Object.entries(categoryLabels) as [GlossaryCategory, string][];
 

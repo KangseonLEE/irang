@@ -82,10 +82,10 @@ export const QUESTIONS: AssessmentQuestion[] = [
     id: "q1",
     dimension: "motivation",
     dimensionLabel: "동기·마인드셋",
-    question: "귀농을 생각하게 된 가장 큰 이유는 무엇인가요?",
+    question: "귀농(시골에서 농사지으며 사는 것)에 대해 어떤 마음이세요?",
     options: [
-      { label: "도시 생활이 지쳐서, 일단 벗어나고 싶어요", score: 1 },
-      { label: "자연 속에서 여유로운 삶을 살고 싶어요", score: 2 },
+      { label: "아직 잘 모르겠지만, 한번 알아보고 싶어요", score: 1 },
+      { label: "자연 속에서 여유로운 삶을 살고 싶다는 생각이 있어요", score: 2 },
       { label: "직접 농사를 지으며 건강한 먹거리를 만들고 싶어요", score: 3 },
       {
         label: "구체적인 영농 계획이 있고, 농업을 사업으로 생각해요",
@@ -100,7 +100,7 @@ export const QUESTIONS: AssessmentQuestion[] = [
     question:
       "귀농 후 처음 1~2년 동안 수입이 거의 없을 수 있다는 걸 알고 계셨나요?",
     options: [
-      { label: "처음 알았어요, 좀 걱정이 되네요", score: 1 },
+      { label: "처음 알았어요! 귀농 생활이 어떤지 아직 잘 모르겠어요", score: 1 },
       {
         label: "들어는 봤지만 구체적으로 생각해본 적은 없어요",
         score: 2,
@@ -140,7 +140,7 @@ export const QUESTIONS: AssessmentQuestion[] = [
       "귀농 후 농외소득(부업, 프리랜서 등)에 대해 어떻게 생각하세요?",
     options: [
       {
-        label: "농사만으로 충분하지 않을까요? 아직 생각해본 적 없어요",
+        label: "아직 귀농 후 생활에 대해 생각해본 적이 없어요",
         score: 1,
       },
       {
@@ -168,7 +168,7 @@ export const QUESTIONS: AssessmentQuestion[] = [
       "가족(배우자, 자녀 등)과 귀농에 대해 얼마나 이야기를 나눠보셨나요?",
     options: [
       {
-        label: "아직 꺼내보지 못했어요, 반대할까 봐 걱정이에요",
+        label: "혼자 결정할 상황이거나, 아직 가족에게 꺼내보지 못했어요",
         score: 1,
       },
       {
@@ -216,15 +216,18 @@ export const QUESTIONS: AssessmentQuestion[] = [
     id: "q7",
     dimension: "experience",
     dimensionLabel: "경험·역량",
-    question: "지금까지 농사와 관련된 경험이 있으신가요?",
+    question: "농사나 식물 재배와 관련된 경험이 있으신가요?",
     options: [
-      { label: "전혀 없어요, 흙을 만져본 적도 거의 없어요", score: 1 },
       {
-        label: "베란다 텃밭이나 화분 키우기 정도는 해봤어요",
+        label: "전혀 없어요! 하지만 한번 알아보고 싶은 마음이에요",
+        score: 1,
+      },
+      {
+        label: "화분이나 베란다 텃밭 정도는 키워본 적 있어요",
         score: 2,
       },
       {
-        label: "주말농장이나 체험 농장을 1년 이상 다녀봤어요",
+        label: "주말농장이나 체험 농장에 다녀본 경험이 있어요",
         score: 3,
       },
       {
@@ -237,18 +240,18 @@ export const QUESTIONS: AssessmentQuestion[] = [
     id: "q8",
     dimension: "experience",
     dimensionLabel: "경험·역량",
-    question: "귀농과 관련된 교육이나 정보 수집을 해보셨나요?",
+    question: "귀농에 대해 얼마나 알아보셨나요?",
     options: [
       {
-        label: "유튜브 영상이나 블로그 글을 가끔 보는 정도예요",
+        label: "아직 잘 몰라요, 이 테스트가 처음이에요!",
         score: 1,
       },
       {
-        label: "귀농 관련 책을 읽거나 온라인 강의를 들어봤어요",
+        label: "SNS나 유튜브에서 귀농 관련 콘텐츠를 본 적 있어요",
         score: 2,
       },
       {
-        label: "귀농귀촌종합센터나 지자체 설명회에 참석해봤어요",
+        label: "귀농 관련 책·강의를 찾아봤거나 설명회에 참석해봤어요",
         score: 3,
       },
       {
@@ -360,13 +363,13 @@ export const RESULT_TIERS: ResultTier[] = [
     title: "귀농의 씨앗을 품은 단계",
     emoji: "🌱",
     summary:
-      "귀농에 대한 관심이 싹트고 있어요. 지금은 마음속 씨앗을 소중히 키울 때입니다.",
+      "귀농에 대한 관심이 싹트고 있어요! 테스트를 해본 것만으로도 멋진 첫걸음이에요.",
     description:
-      "아직은 귀농이 막연한 꿈일 수 있어요. 하지만 관심을 갖기 시작한 것 자체가 중요한 첫걸음입니다. 지금 단계에서는 귀농의 현실을 차근차근 알아가면서, 정말 나에게 맞는 길인지 탐색해보세요. 서두르지 않아도 괜찮아요.",
+      "지금은 귀농이 조금 먼 이야기처럼 느껴질 수 있어요. 하지만 궁금해서 이 테스트를 해봤다는 것 자체가 소중한 시작입니다. 서두를 필요 없이, 귀농이 어떤 것인지 가볍게 알아가는 것부터 시작해보세요. 이랑이 함께할게요!",
     tips: [
       "귀농귀촌종합센터의 무료 온라인 교육부터 가볍게 시작해보세요",
       "주말에 가까운 체험 농장을 방문해서 농사의 현실을 느껴보세요",
-      "귀농한 사람들의 인터뷰나 수기를 읽으며 현실적인 기대치를 만들어보세요",
+      "이랑의 귀농 선배 인터뷰를 읽으며 다양한 귀농 이야기를 만나보세요",
     ],
     matchParams: { experience: "none", lifestyle: "near-city" },
   },
