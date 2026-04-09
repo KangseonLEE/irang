@@ -167,7 +167,7 @@ export function CostSection({
         {/* 우측: 보조 수치 그리드 */}
         <div className={s.costGrid}>
           <div className={s.costGridItem}>
-            <p className={s.costGridLabel}>평균 준비 기간</p>
+            <p className={s.costGridLabel}>준비 기간</p>
             <p className={s.costGridValue}>
               <span className={s.costGridNum}>{values[1]}</span>
               <span className={s.costGridUnit}>개월</span>
@@ -197,10 +197,10 @@ export function CostSection({
       <div className={s.costFooter}>
         <div className={s.costCtaGroup}>
           <Link href="/costs" className={s.costCtaPrimary}>
-            비용 가이드 전체 보기 <ArrowRight size={14} />
+            비용 가이드 보기 <ArrowRight size={14} />
           </Link>
           <Link href="/programs?supportType=융자" className={s.costCtaOutline}>
-            지원사업 확인하기 <ArrowRight size={14} />
+            지원사업 확인 <ArrowRight size={14} />
           </Link>
         </div>
         <p className={s.costSource}>

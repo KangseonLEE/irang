@@ -153,87 +153,87 @@ export const trendNews: NewsItem[] = [
   },
 ];
 
-/** 교육·연수 폴백 뉴스 — API 장애 시 표시 (네이버 뉴스 검색으로 연결) */
+/** 교육·연수 폴백 뉴스 — API 장애 시 표시 (실제 기사 URL, HTTP 200 검증 완료) */
 export const trendEduNews: NewsItem[] = [
   {
-    title: "귀농귀촌 종합센터, 2026 상반기 온라인 교육 수강생 모집",
-    source: "농민신문",
-    date: "2026.03",
-    url: "https://search.naver.com/search.naver?where=news&query=%EA%B7%80%EB%86%8D%EA%B7%80%EC%B4%8C+%EC%98%A8%EB%9D%BC%EC%9D%B8+%EA%B5%90%EC%9C%A1+%EC%88%98%EA%B0%95%EC%83%9D+%EB%AA%A8%EC%A7%91",
+    title: "2025년 스마트팜 실용교육 교육생 모집 공고",
+    source: "서울농업기술센터",
+    date: "2025.04",
+    url: "https://agro.seoul.go.kr/archives/53250",
   },
   {
-    title: "농업기술센터 '스마트팜 입문' 무료 연수 과정 안내",
-    source: "한국농어민신문",
-    date: "2026.02",
-    url: "https://search.naver.com/search.naver?where=news&query=%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%8C%9C+%EC%9E%85%EB%AC%B8+%EB%AC%B4%EB%A3%8C+%EC%97%B0%EC%88%98",
+    title: "스마트팜 청년창업 보육센터 2025년 8기 교육생 모집 공고",
+    source: "농촌진흥청",
+    date: "2025.04",
+    url: "https://www.rda.go.kr/young/custom/edu/view.do?sId=45937",
   },
   {
-    title: "전남도, 청년 귀농인 대상 실습 중심 농업 교육 확대",
-    source: "연합뉴스",
-    date: "2026.01",
-    url: "https://search.naver.com/search.naver?where=news&query=%EC%B2%AD%EB%85%84+%EA%B7%80%EB%86%8D+%EB%86%8D%EC%97%85+%EA%B5%90%EC%9C%A1+%EC%8B%A4%EC%8A%B5",
+    title: "화순군, 2025 현장실습교육 연수 약정 체결",
+    source: "뉴스로",
+    date: "2025.03",
+    url: "https://www.newsro.kr/article243/800869/",
   },
   {
-    title: "농식품부, 귀농 교육 이수 시 정착 지원금 우대 혜택 발표",
-    source: "뉴시스",
-    date: "2025.12",
-    url: "https://search.naver.com/search.naver?where=news&query=%EA%B7%80%EB%86%8D+%EA%B5%90%EC%9C%A1+%EC%9D%B4%EC%88%98+%EC%A0%95%EC%B0%A9+%EC%A7%80%EC%9B%90%EA%B8%88",
+    title: "함양군, '2025년 귀농귀촌 전문교육' 수료식 개최",
+    source: "뉴스로",
+    date: "2025.05",
+    url: "https://www.newsro.kr/article243/970952/",
   },
 ];
 
-/** 축제·체험 폴백 뉴스 — API 장애 시 표시 (네이버 뉴스 검색으로 연결) */
+/** 축제·체험 폴백 뉴스 — API 장애 시 표시 (실제 기사 URL, HTTP 200 검증 완료) */
 export const trendEventNews: NewsItem[] = [
   {
-    title: "2026 대한민국 농업박람회, 5월 수원 컨벤션센터에서 개최",
-    source: "경기일보",
-    date: "2026.03",
-    url: "https://search.naver.com/search.naver?where=news&query=%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD+%EB%86%8D%EC%97%85%EB%B0%95%EB%9E%8C%ED%9A%8C+2026",
+    title: "'농업·농촌 혁신이 만드는 성장과 행복', 2025 대한민국 농업박람회 개최",
+    source: "정책브리핑",
+    date: "2025.09",
+    url: "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156711948",
   },
   {
-    title: "충북 영동 '포도 와인 축제' 체험 프로그램 사전 예약 시작",
-    source: "중앙일보",
-    date: "2026.02",
-    url: "https://search.naver.com/search.naver?where=news&query=%EC%98%81%EB%8F%99+%ED%8F%AC%EB%8F%84+%EC%99%80%EC%9D%B8+%EC%B6%95%EC%A0%9C+%EC%B2%B4%ED%97%98",
+    title: "세 명의 기자와 '2025 농업박람회' 현장을 가다",
+    source: "정책브리핑",
+    date: "2025.10",
+    url: "https://www.korea.kr/news/reporterView.do?newsId=148950726",
   },
   {
-    title: "전북 완주 '로컬푸드 농촌 체험' 주말 가족 프로그램 인기",
-    source: "한겨레",
-    date: "2026.01",
-    url: "https://search.naver.com/search.naver?where=news&query=%EC%99%84%EC%A3%BC+%EB%A1%9C%EC%BB%AC%ED%91%B8%EB%93%9C+%EB%86%8D%EC%B4%8C+%EC%B2%B4%ED%97%98",
+    title: "'Y-FARM EXPO 2025'에서 안성시 청년·귀농 정책 알린다!",
+    source: "뉴스로",
+    date: "2025.04",
+    url: "https://www.newsro.kr/article243/894544",
   },
   {
-    title: "경남 하동 녹차밭 귀농 체험 행사, 참가자 2배 증가",
-    source: "경향신문",
-    date: "2025.11",
-    url: "https://search.naver.com/search.naver?where=news&query=%ED%95%98%EB%8F%99+%EB%85%B9%EC%B0%A8+%EA%B7%80%EB%86%8D+%EC%B2%B4%ED%97%98",
+    title: "부안군귀농귀촌센터, 2025 A FARM SHOW 창농·귀농 박람회 참가",
+    source: "내외일보",
+    date: "2025.08",
+    url: "https://www.naewoeilbo.com/news/articleView.html?idxno=2171314",
   },
 ];
 
-/** 지원사업 폴백 뉴스 — API 장애 시 표시 (네이버 뉴스 검색으로 연결) */
+/** 지원사업 폴백 뉴스 — API 장애 시 표시 (실제 기사 URL, HTTP 200 검증 완료) */
 export const trendProgramNews: NewsItem[] = [
   {
-    title: "농식품부, 2026년 귀농 창업 보조금 최대 3억 원으로 확대",
-    source: "매일경제",
-    date: "2026.03",
-    url: "https://search.naver.com/search.naver?where=news&query=%EA%B7%80%EB%86%8D+%EC%B0%BD%EC%97%85+%EB%B3%B4%EC%A1%B0%EA%B8%88+%ED%99%95%EB%8C%80",
+    title: "2026년 청년농업인 영농정착지원사업 모집 개시",
+    source: "농림축산식품부",
+    date: "2025.11",
+    url: "https://www.mafra.go.kr/home/5109/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGaG9tZSUyRjc5MiUyRjU3NTgxMCUyRmFydGNsVmlldy5kbyUzRg%3D%3D",
   },
   {
-    title: "귀농인 주택 신축·수리 융자 7,500만 원…신청 방법 총정리",
-    source: "한국경제",
-    date: "2026.02",
-    url: "https://search.naver.com/search.naver?where=news&query=%EA%B7%80%EB%86%8D+%EC%A3%BC%ED%83%9D+%EC%9C%B5%EC%9E%90+%EC%8B%A0%EC%B2%AD",
+    title: "귀농인 대상 농업창업·주택구입 자금 지원",
+    source: "정책브리핑",
+    date: "2024.07",
+    url: "https://www.korea.kr/news/policyNewsView.do?newsId=148931163",
   },
   {
-    title: "지자체별 귀농 정착 지원금 비교…순천·영주·제주 상위권",
-    source: "서울경제",
-    date: "2026.01",
-    url: "https://search.naver.com/search.naver?where=news&query=%EA%B7%80%EB%86%8D+%EC%A0%95%EC%B0%A9+%EC%A7%80%EC%9B%90%EA%B8%88+%EC%A7%80%EC%9E%90%EC%B2%B4",
+    title: "곡성군, 귀농인 성공 정착 돕는 '귀농닥터 지원사업' 협약식 개최",
+    source: "한국연합신문",
+    date: "2026.04",
+    url: "https://www.koreaunionnews.com/2100423",
   },
   {
-    title: "농촌진흥청, 신규 귀농인 멘토링 사업 참여 농가 모집",
-    source: "뉴스1",
-    date: "2025.12",
-    url: "https://search.naver.com/search.naver?where=news&query=%EB%86%8D%EC%B4%8C%EC%A7%84%ED%9D%A5%EC%B2%AD+%EA%B7%80%EB%86%8D+%EB%A9%98%ED%86%A0%EB%A7%81",
+    title: "함평군, 귀농인 농업 창업 및 주택 구매 융자 지원 접수",
+    source: "뉴스로",
+    date: "2025.06",
+    url: "https://www.newsro.kr/article243/1008700/",
   },
 ];
 

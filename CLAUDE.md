@@ -12,6 +12,42 @@
 - **코드 저장소**: `~/Workspace/irang/`
 - **볼트 문서**: `/Users/igangseon/David_agit/10.projects/이랑*.md`
 
+### 프로젝트 구조
+
+```
+src/
+├── app/                    # Next.js App Router 페이지
+│   ├── page.tsx            # 랜딩 페이지 (ISR 1h)
+│   ├── regions/            # 지역 정보 (시도 → 시군구)
+│   ├── crops/              # 작물 정보 + 비교
+│   ├── education/          # 귀농 교육
+│   ├── events/             # 체험 행사
+│   ├── programs/           # 지원사업 + 로드맵
+│   ├── interviews/         # 귀농인 인터뷰
+│   ├── stats/              # 통계 (인구·청년·만족도)
+│   ├── costs/              # 비용 가이드
+│   ├── assess/             # 유형 진단
+│   ├── match/              # 매칭 결과
+│   ├── search/             # 통합 검색
+│   ├── glossary/           # 용어 사전
+│   └── api/                # Route Handlers (프록시)
+├── components/
+│   ├── ui/                 # 공통 UI (PageHeader, Badge, Modal …)
+│   ├── filter/             # FilterBar 계열
+│   ├── landing/            # 랜딩 전용 (CostSection, NewsTabs …)
+│   ├── charts/             # Recharts 래퍼
+│   ├── map/                # SVG 지도
+│   └── layout/             # Header, Footer, Nav
+├── lib/
+│   ├── api/                # 외부 API 연동 (8개)
+│   ├── data/               # 정적 데이터 (폴백 포함)
+│   ├── og/                 # OG 이미지 공용 모듈
+│   └── hooks/              # 커스텀 훅
+└── types/                  # 공유 타입 정의
+scripts/                    # 유틸리티 스크립트
+supabase/                   # Supabase 마이그레이션
+```
+
 ---
 
 ## 데이터 조회 원칙
@@ -20,10 +56,20 @@
 - 연도를 하드코딩하지 않고 `new Date().getFullYear()`로 동적 산출한다.
 - 예시: 2026년에 실행하면 startDt=20260101, endDt=20261231
 
-## 환경변수
+## 환경변수 & 외부 API
 
-- API 키는 `.env.local`에서 관리한다.
-- `DATA_GO_KR_API_KEY`: data.go.kr 공통 인증키 (기상청, 심평원, 교육부)
+API 키는 `.env.local`에서 관리한다. Vercel 환경변수에도 동일하게 설정.
+
+| 환경변수 | 용도 | API 파일 | 폴백 |
+|---------|------|----------|------|
+| `DATA_GO_KR_API_KEY` | data.go.kr 공통 (기상청·심평원·교육부) | `weather.ts`, `hira.ts`, `education.ts` | 정적 데이터 |
+| `KOSIS_API_KEY` | 통계청 KOSIS (인구·귀농 통계) | `kosis.ts` | `POPULATION_FALLBACK` |
+| `NAVER_CLIENT_ID` / `SECRET` | 네이버 뉴스 검색 | `news.ts` | `landing.ts` 정적 뉴스 |
+| `NEIS_API_KEY` | 교육부 NEIS (학교 목록) | Route Handler | 빈 리스트 |
+| `RDA_API_KEY` | 농진청 (작물 상세) | `rda.ts` | `crops.ts` 정적 |
+| `SGIS_KEY` / `SECRET` | 통계청 SGIS (인구 밀도) | `sgis.ts` | `population.ts` 정적 |
+| `UNSPLASH_ACCESS_KEY` | Unsplash (지역 이미지) | `unsplash.ts` | 기본 이미지 |
+| `NEXT_PUBLIC_SUPABASE_URL` / `ANON_KEY` | Supabase (북마크·진단) | `supabase.ts` | 로컬 스토리지 |
 
 ---
 
@@ -152,78 +198,9 @@
 
 ## 카피라이팅 원칙
 
-> 토스 라이팅 원칙 + 제일기획 수준 벤치마킹 기반
+> 상세 규칙은 `.claude/rules/copywriting.md` 참조
 
-### 핵심 규칙
-
-1. **"~합니다" 금지**. "~세요" 또는 명사 종결 사용.
-2. **서비스를 주어로 세우지 않는다**. "이랑이 정리한 ~" ← 금지. 사용자 관점으로.
-3. **섹션 제목 10자 이내**. 길어도 13자 초과 금지.
-4. **잡초 제거**: "앞으로", "다양한", "기반" 같은 넣어도 빠져도 그만인 단어 삭제.
-5. **빈 문장 제거**: 제목에서 한 말을 서브헤드에서 반복하지 않음.
-6. **설명하지 말고 느끼게**: 기능 나열보다 사용자 감정/상태 변화를 담는다.
-7. **소리 내어 읽었을 때 자연스러운 문장**. 한자어·문어체 금지.
-8. **강요 대신 제안**: 공포 마케팅, 손실 강조 금지. 혜택을 중립적으로.
-
-### UX 라이팅 톤 가이드 (토스·카카오·네이버 벤치마크)
-
-> UI에 노출되는 모든 텍스트(제목, 설명, 라벨, 버튼, CTA, 빈 상태 안내)에 적용한다.
-
-#### 톤 원칙
-
-| 원칙 | 설명 | 예시 |
-|------|------|------|
-| **서술체 종결** | "~이에요", "~예요", "~어요" 사용. "~입니다/합니다" 금지 | ✗ "7개 지역의 데이터입니다" → ✓ "7개 지역의 데이터예요" |
-| **짧고 자연스럽게** | 소리 내어 읽었을 때 대화하듯 자연스러운 문장 | ✗ "관련 데이터 살펴보기" → ✓ "정착한 지역과 작물이에요" |
-| **맥락 연결** | 사용자의 현재 행동·화면에 자연스럽게 연결 | 인터뷰 읽은 후 → "{이름}님이 정착한 지역과 작물이에요" |
-| **군더더기 제거** | "보기", "정보", "관련", "데이터", "살펴보기" 등 불필요한 수식어 제거 | ✗ "전남 순천 데이터 보기" → ✓ "전남 순천" |
-| **감정 먼저** | 기능 설명보다 사용자의 감정·상태 변화를 먼저 담는다 | ✗ "귀농 매칭 시작" → ✓ "내 땅, 어디쯤일까요?" |
-
-#### 문장 종결 패턴
-
-| 패턴 | 용도 | 예시 |
-|------|------|------|
-| **~이에요/예요** | 정보 제시, 현황 안내 | "총 7명의 이야기예요" |
-| **~세요** | 행동 유도 (부드러운 제안) | "지역별로 비교해 보세요" |
-| **~ㄹ까요?** | 탐색 유도 (호기심 자극) | "내 땅, 어디쯤일까요?" |
-| **명사 종결** | 섹션 제목, 라벨 | "귀농인 이야기", "지역 비교" |
-| **~거든요** | 근거 제시, 신뢰감 | "출처가 분명한 숫자거든요" |
-
-#### 금지 패턴
-
-| 금지 | 이유 | 대안 |
-|------|------|------|
-| "~합니다/입니다" | 관공서 톤, 딱딱함 | "~이에요/예요/어요" |
-| "관련 정보", "데이터 보기" | 군더더기 | 핵심 명사만 남기기 |
-| "다양한", "앞으로", "기반" | 빈 수식어 (있어도 없어도 동일) | 삭제 |
-| "이랑이 제공하는~" | 서비스 주어 금지 | 사용자 관점으로 전환 |
-| "반드시 ~해야 합니다" | 강요/공포 마케팅 | "~해 보세요" (제안) |
-
-### 카피 패턴 (참고)
-
-| 패턴 | 예시 |
-|------|------|
-| 끊어 말하기 (쉼표 분절) | "귀농, 막막할수록 숫자가 답이에요" |
-| 범위 확장형 (~부터 ~까지) | "세금 납부, 등본 발급까지 토스로 한 번에" |
-| 수치/시간 구체화 | "5분이면 내 귀농지 윤곽이 잡혀요" |
-| 감정형 선언 (마침표.) | "출처가 분명한 숫자예요" |
-
-### 현재 적용된 랜딩 카피 (변경 시 위 원칙 준수)
-
-```
-[아이브로우] 어디로 갈지 모르겠다면
-[헤드라인]   내 땅을 찾는 / 가장 빠른 길
-[서브헤드]   지역, 작물, 지원금까지 한 곳에서 비교하세요.
-[벤토 섹션]  여기서 시작하세요
-[트렌드]     지금, 농촌은
-[트렌드 서브] 같은 생각을 한 사람들, 이렇게 많아요.
-[귀농 이유]  떠난 사람들의 이유
-[뉴스]       농촌 소식
-[데이터]     믿을 수 있는 숫자
-[CTA 제목]   내 땅, 어디쯤일까요?
-[CTA 설명]   나이, 예산, 원하는 삶의 방식만 알려주세요.
-[CTA 버튼]   내 귀농지 찾기
-```
+**핵심 3줄 요약**: "~합니다" 금지 → "~세요/~예요" 사용. 서비스 주어 금지. 섹션 제목 10자 이내.
 
 ---
 
@@ -380,93 +357,9 @@
 
 ### 9. 반복 문제 방지 — 코드 작성 전 체크리스트
 
-> 아래 체크리스트를 **코드를 한 줄이라도 작성하기 전에** 확인한다. 과거에 반복적으로 발생했던 문제들을 방지하기 위한 규칙이다.
+> 상세 체크리스트(A~H)는 `.claude/rules/checklist.md` 참조
 
-#### 체크리스트 A: "이미 있는 것을 또 만들고 있지 않은가?"
-
-| 만들려는 것 | 먼저 확인할 공통 컴포넌트 |
-|-------------|--------------------------|
-| 페이지 헤더 (아이콘+라벨+h1+설명+건수) | `@/components/ui/page-header` |
-| 필터 바 (pill 필터, 검색, 토글) | `@/components/filter/filter-bar` |
-| 상태 배지 (모집중/마감 등) | `@/components/ui/status-badge` |
-| 빈 상태 UI (dashed border + 안내문) | `@/components/ui/empty-state` |
-| 반응형 카드 그리드 (1→2→3열) | `@/components/ui/card-grid` |
-| 전문 용어 툴팁 (ha, 10a 등) | `@/components/ui/term-tooltip` |
-| 본문 텍스트 용어 자동 감지 | `@/components/ui/auto-glossary` |
-
-**위 목록에 해당하는 UI를 페이지 파일 안에 직접 구현하면 안 된다.** 공통 컴포넌트를 import하여 사용한다.
-
-#### 체크리스트 A-2: "본문 텍스트에 AutoGlossary를 적용했는가?"
-
-- 사용자가 읽는 **2줄 이상의 본문 텍스트**에는 `<AutoGlossary text={...} />`를 적용한다.
-- 대상: 설명(description), 이야기(story), 조언(advice), 후기, 프로그램 상세, 작물 설명 등
-- 비대상: 제목, 라벨, 버튼, 짧은 메타 텍스트(나이, 지역명 등)
-- 새 페이지에 농업 관련 본문이 있으면 **반드시** `auto-glossary`를 import하여 적용한다.
-
-#### 체크리스트 A-3: "UI 텍스트가 UX 라이팅 톤 가이드를 따르는가?"
-
-- 모든 UI 텍스트는 위 "UX 라이팅 톤 가이드" 섹션의 규칙을 따른다.
-- "~합니다/입니다" → "~이에요/예요/어요" 변환 필수.
-- 불필요한 수식어("관련", "데이터 보기", "정보", "살펴보기") 제거.
-- 섹션 제목은 10자 이내 (최대 13자).
-
-#### 체크리스트 B: "CSS를 복붙하고 있지 않은가?"
-
-- 새 `page.module.css`에 CSS를 작성하기 전에, 동일한 스타일이 **다른 page.module.css에 이미 있는지** 검색한다.
-- 3개 이상의 파일에서 동일 CSS 블록이 나타나면 → `src/components/` 아래에 공통 컴포넌트/CSS로 추출한다.
-- **절대 금지**: `.pageHeader`, `.headerTop`, `.headerTitle`, `.statusBadge`, `.emptyState` 등 공통 패턴을 page.module.css에 새로 정의하는 것.
-
-#### 체크리스트 C: "인라인 스타일을 쓰고 있지 않은가?"
-
-- `style={{ display: "flex", ... }}` 같은 인라인 스타일은 원칙적으로 금지.
-- **허용 예외**: 동적 계산 값 (`width: ${progress}%`), `objectFit`, 1회성 크기 지정.
-- 인라인 스타일이 3번 이상 반복되면 반드시 CSS class로 추출한다.
-
-#### 체크리스트 D: "클라이언트 컴포넌트가 정말 필요한가?"
-
-- `"use client"` 추가 전: 이 컴포넌트에 `useState`, `useEffect`, `onClick` 등이 **진짜 필요한지** 확인한다.
-- CSS-only로 해결 가능한 인터랙션 (hover 툴팁, 토글 등)은 서버 컴포넌트로 유지한다.
-- Link 기반 필터링은 서버 컴포넌트에서 가능 → `useRouter`/`useSearchParams` 불필요.
-
-#### 체크리스트 E: "@media (hover: hover) 래핑했는가?"
-
-- 모든 `:hover` 스타일은 `@media (hover: hover) { }` 안에 넣어야 한다.
-- 터치 디바이스에서 hover가 고착(sticky)되는 문제를 방지한다.
-- 이 규칙을 어긴 hover 스타일이 발견되면 즉시 수정한다.
-
-#### 체크리스트 F: "SPA 네비게이션 후 UI 상태가 정리되는가?"
-
-- pathname 변경 시 **모바일 메뉴 + 데스크탑 드롭다운** 모두 닫혀야 한다.
-- CSS `:hover`와 `:focus-within`은 SPA 네비게이션 후에도 잔존할 수 있다:
-  - `:hover` — 마우스가 같은 위치에 머물면 유지 → `navHidden` 상태 + `!important`로 강제 숨김
-  - `:focus-within` — 클릭한 링크에 포커스가 남아있으면 유지 → `document.activeElement.blur()`로 해제
-- 터치 디바이스(태블릿 768px+)에서는 `mouseleave` 이벤트가 발생하지 않으므로, fallback 타이머(400ms)로 상태를 자동 복원해야 한다.
-- **패턴**:
-  ```typescript
-  useEffect(() => {
-    setMobileMenuOpen(false);
-    setNavHidden(true);
-    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-    // mouseleave 리스너 + fallback 타이머
-  }, [pathname]);
-  ```
-
-#### 체크리스트 G: "CSS 선언 순서가 올바른가?"
-
-- **기본 규칙 → `@media` 오버라이드** 순서를 반드시 지킨다.
-- 미디어쿼리가 기본 규칙보다 **위에** 선언되면, 기본 규칙이 나중에 파싱되어 오버라이드를 무효화한다.
-- CSS Modules에서도 동일: 같은 파일 내 선언 순서가 specificity를 결정한다.
-- **검증 방법**: 미디어쿼리를 작성한 뒤, 해당 셀렉터의 기본 규칙이 미디어쿼리보다 **아래에** 있지 않은지 반드시 확인한다.
-- 잘못된 예:
-  ```css
-  @media (max-width: 639px) { .foo { flex: unset; } }  /* 113행 */
-  .foo { flex: 1; }                                      /* 127행 ← 이게 이김! */
-  ```
-- 올바른 예:
-  ```css
-  .foo { flex: 1; }                                      /* 기본 먼저 */
-  @media (max-width: 639px) { .foo { flex: unset; } }   /* 오버라이드 나중에 */
-  ```
+**핵심 3줄 요약**: 공통 컴포넌트 재사용 필수. 인라인 스타일·CSS 복붙 금지. Server↔Client 경계 준수.
 
 ---
 
@@ -485,6 +378,48 @@
   - `pending`이면 30초 후 재확인, 최대 3회 재시도
   - 결과를 ✅/❌ 이모지와 함께 간결하게 보고
 - 커밋 메시지 접두사: `feat:`, `fix:`, `style:`, `copy:`, `redesign:`, `refactor:`
+
+### Scripts
+
+| 명령 | 스크립트 | 설명 |
+|------|---------|------|
+| `npm run check-links` | `scripts/check-links.sh` | 전체 외부 URL 유효성 검사 (HTTP 상태코드 + 타이틀) |
+| `npm run check-policy` | `scripts/check-policy-sources.ts` | 지원사업 출처 URL 검증 (스냅샷 비교 모드 포함) |
+| — | `scripts/generate-province-maps.ts` | 시도별 SVG 지도 데이터 생성 |
+
+---
+
+## Lessons Learned (삽질 기록)
+
+> 실제 개발 중 발생한 문제와 해결 패턴. 같은 실수를 반복하지 않기 위한 기록.
+
+### Vercel 공유 IP에서 네이버 API 레이트 리밋
+
+- **증상**: 로컬에서는 정상, Vercel 배포 후 뉴스 카테고리 빈 배열 반환
+- **원인**: Vercel 서버리스 함수가 공유 IP를 사용 → 네이버 API가 429/빈 응답
+- **해결**: `next: { revalidate: 3600 }` + 카테고리별 정적 폴백 데이터 (`landing.ts`)
+- **교훈**: 외부 API 의존 데이터는 **반드시** 의미 있는 폴백 데이터를 준비할 것. 빈 `[]`은 폴백이 아님.
+
+### Server → Client Component 함수 전달 불가
+
+- **증상**: `Functions cannot be passed directly to Client Components`
+- **원인**: Render prop 패턴으로 Server → Client에 함수를 전달
+- **해결**: Client Component를 자체 완결형으로 리팩터링 (JSX 내부 포함)
+- **교훈**: Server↔Client 경계에서는 **직렬화 가능한 값(props)만** 전달 가능
+
+### `cache: "no-store"` + ISR 충돌
+
+- **증상**: `DYNAMIC_SERVER_USAGE` 빌드 에러
+- **원인**: `cache: "no-store"` fetch와 `export const revalidate = 3600` 공존 불가
+- **해결**: `cache: "no-store"` → `next: { revalidate: N }` 으로 교체
+- **교훈**: ISR 페이지 내 모든 fetch는 `next: { revalidate }` 사용
+
+### CSS transition vs rAF 직접 제어 충돌
+
+- **증상**: 애니메이션이 끊기거나 이상하게 점프
+- **원인**: CSS transition과 rAF로 같은 속성을 동시 제어 시 충돌
+- **해결**: rAF로 직접 제어하는 속성에는 CSS transition 제거
+- **교훈**: 애니메이션 제어 방식은 하나만 선택 (CSS transition OR JS rAF)
 
 ---
 
