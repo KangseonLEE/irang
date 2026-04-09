@@ -153,6 +153,90 @@ export const trendNews: NewsItem[] = [
   },
 ];
 
+/** 교육·연수 폴백 뉴스 — API 장애 시 표시 */
+export const trendEduNews: NewsItem[] = [
+  {
+    title: "귀농귀촌 종합센터, 2026 상반기 온라인 교육 수강생 모집",
+    source: "농민신문",
+    date: "2026.03",
+    url: "https://www.nongmin.com",
+  },
+  {
+    title: "농업기술센터 '스마트팜 입문' 무료 연수 과정 안내",
+    source: "한국농어민신문",
+    date: "2026.02",
+    url: "https://www.agrinet.co.kr",
+  },
+  {
+    title: "전남도, 청년 귀농인 대상 실습 중심 농업 교육 확대",
+    source: "연합뉴스",
+    date: "2026.01",
+    url: "https://www.yna.co.kr",
+  },
+  {
+    title: "농식품부, 귀농 교육 이수 시 정착 지원금 우대 혜택 발표",
+    source: "뉴시스",
+    date: "2025.12",
+    url: "https://www.newsis.com",
+  },
+];
+
+/** 축제·체험 폴백 뉴스 — API 장애 시 표시 */
+export const trendEventNews: NewsItem[] = [
+  {
+    title: "2026 대한민국 농업박람회, 5월 수원 컨벤션센터에서 개최",
+    source: "경기일보",
+    date: "2026.03",
+    url: "https://www.kyeonggi.com",
+  },
+  {
+    title: "충북 영동 '포도 와인 축제' 체험 프로그램 사전 예약 시작",
+    source: "중앙일보",
+    date: "2026.02",
+    url: "https://www.joongang.co.kr",
+  },
+  {
+    title: "전북 완주 '로컬푸드 농촌 체험' 주말 가족 프로그램 인기",
+    source: "한겨레",
+    date: "2026.01",
+    url: "https://www.hani.co.kr",
+  },
+  {
+    title: "경남 하동 녹차밭 귀농 체험 행사, 참가자 2배 증가",
+    source: "경향신문",
+    date: "2025.11",
+    url: "https://www.khan.co.kr",
+  },
+];
+
+/** 지원사업 폴백 뉴스 — API 장애 시 표시 */
+export const trendProgramNews: NewsItem[] = [
+  {
+    title: "농식품부, 2026년 귀농 창업 보조금 최대 3억 원으로 확대",
+    source: "매일경제",
+    date: "2026.03",
+    url: "https://www.mk.co.kr",
+  },
+  {
+    title: "귀농인 주택 신축·수리 융자 7,500만 원…신청 방법 총정리",
+    source: "한국경제",
+    date: "2026.02",
+    url: "https://www.hankyung.com",
+  },
+  {
+    title: "지자체별 귀농 정착 지원금 비교…순천·영주·제주 상위권",
+    source: "서울경제",
+    date: "2026.01",
+    url: "https://www.sedaily.com",
+  },
+  {
+    title: "농촌진흥청, 신규 귀농인 멘토링 사업 참여 농가 모집",
+    source: "뉴스1",
+    date: "2025.12",
+    url: "https://www.news1.kr",
+  },
+];
+
 /* ── 벤토 미리보기 데이터 ── */
 
 export const popularRegions = [

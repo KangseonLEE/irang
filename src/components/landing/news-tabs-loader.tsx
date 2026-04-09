@@ -4,7 +4,12 @@ import {
   fetchOgImage,
   type NewsArticle,
 } from "@/lib/api/news";
-import { trendNews } from "@/lib/data/landing";
+import {
+  trendNews,
+  trendEduNews,
+  trendEventNews,
+  trendProgramNews,
+} from "@/lib/data/landing";
 import { NewsTabs, type UnifiedNewsItem } from "./news-tabs";
 
 // ─── 중복 제거: 문자 바이그램 유사도 ───
@@ -63,13 +68,13 @@ function sleep(ms: number) {
 }
 
 export async function NewsTabsLoader() {
-  // 순차 호출 + 500ms 간격 — 네이버 API Rate Limit 회피
+  // 순차 호출 + 1.5초 간격 — Vercel 공유 IP에서 네이버 API Rate Limit 회피
   const liveNews = await fetchLatestNews();
-  await sleep(500);
+  await sleep(1500);
   const eduNews = await fetchNewsByCategory("education");
-  await sleep(500);
+  await sleep(1500);
   const eventNews = await fetchNewsByCategory("event");
-  await sleep(500);
+  await sleep(1500);
   const programNews = await fetchNewsByCategory("program");
 
   const toItems = (
@@ -93,10 +98,11 @@ export async function NewsTabsLoader() {
   );
 
   // 각 카테고리 독립적으로 중복 제거
+  // 각 카테고리에 정적 폴백 데이터 제공 — API 실패 시에도 콘텐츠 보장
   const newsItems = dedupWithin(toItems(liveNews, trendNews, "news"));
-  const eduItems = dedupWithin(toItems(eduNews, [], "education"));
-  const eventItems = dedupWithin(toItems(eventNews, [], "event"));
-  const programItems = dedupWithin(toItems(programNews, [], "program"));
+  const eduItems = dedupWithin(toItems(eduNews, trendEduNews, "education"));
+  const eventItems = dedupWithin(toItems(eventNews, trendEventNews, "event"));
+  const programItems = dedupWithin(toItems(programNews, trendProgramNews, "program"));
 
   const unifiedNews: UnifiedNewsItem[] = [
     ...newsItems,
