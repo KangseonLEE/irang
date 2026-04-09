@@ -45,12 +45,14 @@
   align-items: center;
   gap: 12px;
   color: var(--primary, #1b6b5a);
+  min-width: 0; /* flex 자식 텍스트 말줄임 허용 */
 }
 
 .ctaText {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .ctaLabel {
@@ -62,6 +64,10 @@
 .ctaDesc {
   font-size: var(--fs-caption, 13px);
   color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .ctaArrow {
@@ -144,6 +150,9 @@
 .menuDesc {
   font-size: var(--fs-caption, 13px);
   color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── 서비스 소개 링크 ── */

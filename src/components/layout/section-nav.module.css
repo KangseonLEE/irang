@@ -4,6 +4,9 @@
    ========================================================================== */
 
 .nav {
+  position: sticky;
+  top: 3.5rem; /* 헤더 높이(56px) 아래 고정 */
+  z-index: calc(var(--z-header, 50) - 5); /* 헤더(50)보다 아래 */
   border-bottom: 1px solid var(--border, #e5e7eb);
   background: var(--background, #fff);
   overflow-x: auto;
