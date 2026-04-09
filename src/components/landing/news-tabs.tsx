@@ -40,12 +40,23 @@ const SLIDE_IN_MS = 350;      // slideIn 애니메이션 시간과 일치
 
 type SlidePhase = "idle" | "out" | "in";
 
+type TabSlide = "idle" | "out-left" | "in-right" | "out-right" | "in-left";
+
+const TAB_SLIDE_CLASS: Record<TabSlide, string> = {
+  "idle": "",
+  "out-left": "bodySlideOutLeft",
+  "in-right": "bodySlideInRight",
+  "out-right": "bodySlideOutRight",
+  "in-left": "bodySlideInLeft",
+};
+
 export function NewsTabs({ items }: NewsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>("all");
   const [featuredIdx, setFeaturedIdx] = useState(0);
   const [slidePhase, setSlidePhase] = useState<SlidePhase>("idle");
   const [isPaused, setIsPaused] = useState(false);
   const [brokenImgs, setBrokenImgs] = useState<Set<string>>(new Set());
+  const [tabSlide, setTabSlide] = useState<TabSlide>("idle");
   const nextIdxRef = useRef<number | null>(null);
   const touchRef = useRef<{ x: number; y: number; t: number } | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -94,17 +105,29 @@ export function NewsTabs({ items }: NewsTabsProps) {
     return () => clearInterval(timer);
   }, [filtered.length, isPaused, featuredIdx, transitionTo]);
 
-  // ── 모바일 스와이프로 탭 전환 ──
+  // ── 모바일 스와이프로 탭 전환 (슬라이드 애니메이션) ──
   const switchTab = useCallback(
     (direction: 1 | -1) => {
       const tabIds = TABS.map((t) => t.id);
       const curIdx = tabIds.indexOf(activeTab);
       const nextIdx = curIdx + direction;
-      if (nextIdx >= 0 && nextIdx < tabIds.length) {
+      if (nextIdx < 0 || nextIdx >= tabIds.length || tabSlide !== "idle") return;
+
+      // Phase 1: 현재 콘텐츠 슬라이드 아웃
+      setTabSlide(direction === 1 ? "out-left" : "out-right");
+
+      setTimeout(() => {
+        // Phase 2: 탭 데이터 교체 + 새 콘텐츠 슬라이드 인
         setActiveTab(tabIds[nextIdx]);
-      }
+        setTabSlide(direction === 1 ? "in-right" : "in-left");
+
+        setTimeout(() => {
+          // Phase 3: 애니메이션 완료
+          setTabSlide("idle");
+        }, 250);
+      }, 200);
     },
-    [activeTab],
+    [activeTab, tabSlide],
   );
 
   useEffect(() => {
@@ -177,7 +200,11 @@ export function NewsTabs({ items }: NewsTabsProps) {
       </div>
 
       {/* 2단 레이아웃: Featured + List */}
-      <div ref={bodyRef} className={s.body} role="tabpanel">
+      <div
+        ref={bodyRef}
+        className={`${s.body}${TAB_SLIDE_CLASS[tabSlide] ? ` ${s[TAB_SLIDE_CLASS[tabSlide]]}` : ""}`}
+        role="tabpanel"
+      >
         {filtered.length > 0 ? (
           <>
             {/* 좌측: Featured 속보 (자동 전환) */}

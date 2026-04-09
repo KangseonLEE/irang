@@ -437,7 +437,7 @@
 /* ── 우측: 보조 수치 3칸 ── */
 .costGrid {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 0;
   border-radius: 16px;
   overflow: hidden;
@@ -457,25 +457,36 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--border, #e5e7eb);
+  padding: 12px 10px;
+  border-right: 1px solid var(--border, #e5e7eb);
+  text-align: center;
 }
 
 .costGridItem:last-child {
-  border-bottom: none;
+  border-right: none;
 }
 
 @media (min-width: 768px) {
   .costGridItem {
     padding: 14px 20px;
+    border-right: none;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    text-align: left;
+  }
+  .costGridItem:last-child {
+    border-bottom: none;
   }
 }
 
 .costGridLabel {
   margin: 0;
-  font-size: var(--fs-body-sm);
+  font-size: var(--fs-overline);
   font-weight: 600;
   color: var(--muted-foreground, #6b7280);
+}
+
+@media (min-width: 480px) {
+  .costGridLabel { font-size: var(--fs-body-sm); }
 }
 
 @media (min-width: 768px) {
@@ -484,11 +495,15 @@
 
 .costGridValue {
   margin: 0;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--foreground, #111);
   line-height: 1.2;
   letter-spacing: -0.02em;
+}
+
+@media (min-width: 480px) {
+  .costGridValue { font-size: 24px; }
 }
 
 @media (min-width: 768px) {
@@ -512,6 +527,11 @@
   font-size: var(--fs-overline);
   font-weight: 500;
   color: var(--muted-foreground, #6b7280);
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .costGridSub { display: block; }
 }
 
 /* ── 푸터: CTA + 출처 ── */
@@ -531,7 +551,7 @@
 
 .costCtaGroup {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 10px;
 }
 
@@ -547,7 +567,14 @@
   text-decoration: none;
   cursor: pointer;
   transition: background-color 150ms ease, box-shadow 150ms ease, transform 100ms ease;
-  width: fit-content;
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .costCta {
+    flex: none;
+    width: fit-content;
+  }
 }
 
 .costCtaPrimary {
