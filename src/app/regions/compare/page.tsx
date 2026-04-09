@@ -14,6 +14,7 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { RegionSelector } from "./region-selector";
 import { CropSuitabilitySection } from "./crop-suitability-section";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
+import { DesktopHint } from "@/components/ui/desktop-hint";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -77,6 +78,9 @@ export default async function RegionsPage({ searchParams }: PageProps) {
 
   return (
     <div className={s.page}>
+      {/* 모바일 데스크톱 권장 안내 */}
+      <DesktopHint message="지역 비교는 넓은 화면에서 더 잘 보여요" />
+
       {/* 로드맵 단계 컨텍스트 */}
       <Suspense>
         <RoadmapBanner />

@@ -24,6 +24,7 @@ import {
 } from "@/lib/data/crops";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { CropSelector } from "./crop-selector";
+import { DesktopHint } from "@/components/ui/desktop-hint";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -69,6 +70,9 @@ export default async function CropComparePage({ searchParams }: PageProps) {
 
   return (
     <div className={s.page}>
+      {/* 모바일 데스크톱 권장 안내 */}
+      <DesktopHint message="작물 비교는 넓은 화면에서 더 잘 보여요" />
+
       {/* Back Link */}
       <Link href="/crops" className={s.backLink}>
         ← 작물 목록으로

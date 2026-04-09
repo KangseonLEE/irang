@@ -1,0 +1,48 @@
+/* DesktopHint — 모바일 전용 데스크톱 권장 배너 */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+}
+
+/* 768px 이상에서는 숨김 */
+@media (min-width: 768px) {
+  .banner { display: none; }
+}
+
+.icon {
+  flex-shrink: 0;
+  color: var(--primary, #1b6b5a);
+}
+
+.text {
+  flex: 1;
+  font-size: var(--fs-caption, 13px);
+  color: var(--foreground, #333);
+  line-height: 1.4;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted-foreground, #6b7280);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+@media (hover: hover) {
+  .close:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  }
+}
