@@ -1,6 +1,8 @@
 import Script from "next/script";
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+const GA_ID_RAW = process.env.NEXT_PUBLIC_GA_ID ?? "";
+/** GA Measurement ID 형식 검증 (G-XXXXXXXXXX) — XSS 방지 */
+const GA_ID = /^G-[A-Z0-9]+$/.test(GA_ID_RAW) ? GA_ID_RAW : "";
 
 export function GoogleAnalytics() {
   if (!GA_ID) return null;

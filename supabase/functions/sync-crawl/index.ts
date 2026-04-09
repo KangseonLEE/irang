@@ -42,16 +42,20 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  // 인증: CRON_SECRET 검증 (GitHub Actions / 수동 호출 시 필수)
+  // 인증: CRON_SECRET 검증 (필수 — 미설정 시 요청 거부)
   const cronSecret = Deno.env.get("CRON_SECRET");
-  if (cronSecret) {
-    const authHeader = req.headers.get("authorization") ?? "";
-    if (authHeader !== `Bearer ${cronSecret}`) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+  if (!cronSecret) {
+    return new Response(JSON.stringify({ error: "CRON_SECRET not configured" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  const authHeader = req.headers.get("authorization") ?? "";
+  if (authHeader !== `Bearer ${cronSecret}`) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   // ─── 타겟 결정 ───
