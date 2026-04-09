@@ -647,15 +647,53 @@
   gap: 4px;
 }
 
+.programCardTitleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
 .programCardTitle {
   font-size: var(--fs-body-sm);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
+  flex: 1;
+  min-width: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.programStatusOpen {
+  flex-shrink: 0;
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, #16a34a 12%, transparent);
+  color: #16a34a;
+  white-space: nowrap;
+}
+
+.programStatusClosed {
+  flex-shrink: 0;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--muted-foreground, #9ca3af) 10%, transparent);
+  color: var(--muted-foreground, #9ca3af);
+  white-space: nowrap;
+}
+
+.programClosedHint {
+  font-size: var(--fs-overline);
+  line-height: var(--lh-snug);
+  color: var(--muted-foreground, #9ca3af);
+  margin: 0;
+  font-style: italic;
 }
 
 .programCardDesc {

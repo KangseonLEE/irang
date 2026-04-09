@@ -308,3 +308,200 @@
   background: var(--muted, #f3f4f6);
 }
 
+/* ═══════════════════════════════════════════
+   가이드 콘텐츠 (프로그램별 상세 안내)
+   ═══════════════════════════════════════════ */
+
+/* ── 상세 소개 ── */
+.guideIntro {
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--foreground, #111);
+  margin: 0 0 16px;
+}
+
+.guideHighlights {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guideHighlightItem {
+  position: relative;
+  padding-left: 20px;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-normal);
+  color: var(--foreground, #111);
+}
+
+.guideHighlightItem::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--primary, #1b6b5a);
+  font-weight: 700;
+}
+
+/* ── 신청 절차 (타임라인 스타일) ── */
+.guideSteps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.guideStep {
+  display: flex;
+  gap: 14px;
+  position: relative;
+  padding-bottom: 24px;
+}
+
+.guideStep:last-child {
+  padding-bottom: 0;
+}
+
+/* 세로 연결선 */
+.guideStep:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 40px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border, #e5e7eb);
+}
+
+.guideStepIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.guideStepContent {
+  flex: 1;
+  min-width: 0;
+  padding-top: 4px;
+}
+
+.guideStepTitle {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground, #111);
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guideStepNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.guideStepDesc {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-relaxed);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+}
+
+/* ── FAQ (Accordion) ── */
+.guideFaqList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.guideFaqItem {
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.guideFaqItem:last-child {
+  border-bottom: none;
+}
+
+.guideFaqQuestion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground, #111);
+  cursor: pointer;
+  list-style: none;
+}
+
+.guideFaqQuestion::-webkit-details-marker {
+  display: none;
+}
+
+.guideFaqChevron {
+  color: var(--muted-foreground, #9ca3af);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.guideFaqItem[open] .guideFaqChevron {
+  transform: rotate(180deg);
+}
+
+.guideFaqAnswer {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-relaxed);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+  padding: 0 0 14px 0;
+}
+
+/* ── 유용한 팁 ── */
+.guideTips {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.guideTipItem {
+  position: relative;
+  padding: 12px 12px 12px 40px;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-normal);
+  color: var(--foreground, #111);
+  background: color-mix(in srgb, #f59e0b 6%, transparent);
+  border-radius: 12px;
+}
+
+.guideTipItem::before {
+  content: "💡";
+  position: absolute;
+  left: 12px;
+  top: 12px;
+}
+

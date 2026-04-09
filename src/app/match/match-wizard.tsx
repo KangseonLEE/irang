@@ -218,7 +218,7 @@ const FARM_TYPES: FarmType[] = [
     description:
       "평일에는 도시 생활을 유지하면서 주말에 텃밭이나 소규모 농장을 운영하는 스타일이에요. 도시 근교에서 시작하기에 적합하며, 초기 부담이 적습니다.",
     traits: ["도시 근교 선호", "초보 친화", "소규모 시작"],
-    programIds: ["SP-001", "SP-011", "SP-008"],
+    programIds: ["SP-001", "SP-011", "SP-014", "SP-008"],
   },
   {
     id: "smartfarm",
@@ -228,7 +228,7 @@ const FARM_TYPES: FarmType[] = [
     description:
       "ICT 기술과 데이터를 활용한 스마트 농업에 관심이 많은 스타일이에요. 생산성과 시장성을 중시하며, 체계적인 농업 경영을 지향합니다.",
     traits: ["기술 기반", "시장 지향", "효율 중시"],
-    programIds: ["SP-003", "SP-004", "SP-002"],
+    programIds: ["SP-012", "SP-003", "SP-004", "SP-002", "SP-011"],
   },
   {
     id: "rural-life",
@@ -238,7 +238,7 @@ const FARM_TYPES: FarmType[] = [
     description:
       "맑은 공기와 여유로운 환경에서 자급자족하며 살고 싶은 스타일이에요. 농촌 공동체에 자연스럽게 녹아들어 풍요로운 전원생활을 즐길 수 있습니다.",
     traits: ["자연환경 중시", "자급자족", "공동체 생활"],
-    programIds: ["SP-005", "SP-009", "SP-010"],
+    programIds: ["SP-005", "SP-009", "SP-010", "SP-011"],
   },
   {
     id: "young-entrepreneur",
@@ -248,7 +248,7 @@ const FARM_TYPES: FarmType[] = [
     description:
       "농업을 하나의 사업으로 바라보고, 적극적으로 경영 역량을 키워가는 스타일이에요. 정부 지원사업과 교육을 적극 활용하여 빠르게 정착할 수 있습니다.",
     traits: ["사업 마인드", "적극적 성장", "지원사업 활용"],
-    programIds: ["SP-002", "SP-003", "SP-001"],
+    programIds: ["SP-012", "SP-002", "SP-003", "SP-001", "SP-011"],
   },
 ];
 
@@ -305,11 +305,19 @@ function classifyFarmType(answers: Answers): FarmType {
   return FARM_TYPES.find((t) => t.id === sorted[0][0]) ?? FARM_TYPES[0];
 }
 
-/** 유형별 추천 지원사업 조회 */
+/** 상태 우선순위 (모집중 > 모집예정 > 마감) */
+const STATUS_PRIORITY: Record<SupportProgram["status"], number> = {
+  "모집중": 0,
+  "모집예정": 1,
+  "마감": 2,
+};
+
+/** 유형별 추천 지원사업 조회 — 모집중 우선 정렬 */
 function getRecommendedPrograms(farmType: FarmType): SupportProgram[] {
   return farmType.programIds
     .map((id) => PROGRAMS.find((p) => p.id === id))
-    .filter((p): p is SupportProgram => p != null);
+    .filter((p): p is SupportProgram => p != null)
+    .sort((a, b) => (STATUS_PRIORITY[a.status] ?? 9) - (STATUS_PRIORITY[b.status] ?? 9));
 }
 
 /* ── 스코어링 로직 ── */
@@ -815,8 +823,24 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
                   className={s.programCard}
                 >
                   <div className={s.programCardBody}>
-                    <h3 className={s.programCardTitle}>{prog.title}</h3>
+                    <div className={s.programCardTitleRow}>
+                      <h3 className={s.programCardTitle}>{prog.title}</h3>
+                      <span
+                        className={
+                          prog.status === "마감"
+                            ? s.programStatusClosed
+                            : s.programStatusOpen
+                        }
+                      >
+                        {prog.status}
+                      </span>
+                    </div>
                     <p className={s.programCardDesc}>{prog.summary}</p>
+                    {prog.status === "마감" && (
+                      <p className={s.programClosedHint}>
+                        매년 유사 시기에 재공고되는 사업입니다
+                      </p>
+                    )}
                     <div className={s.programCardMeta}>
                       <span className={s.programCardBadge}>{prog.supportType}</span>
                       <span className={s.programCardRegion}>{prog.region}</span>

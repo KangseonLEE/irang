@@ -14,8 +14,12 @@ import {
   Coins,
   Users,
   Leaf,
+  Lightbulb,
+  HelpCircle,
+  ChevronDown,
 } from "lucide-react";
 import { getProgramById, getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
+import { getProgramGuide, type ProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
 import { getStationByProvince } from "@/lib/data/stations";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
@@ -56,6 +60,8 @@ export default async function ProgramDetailPage({
   if (!program) {
     notFound();
   }
+
+  const guide = getProgramGuide(id);
 
   return (
     <div className={s.page}>
@@ -168,6 +174,78 @@ export default async function ProgramDetailPage({
               <AutoGlossary text={program.eligibilityDetail} />
             </p>
           </section>
+
+          {/* ── 가이드 콘텐츠 (특정 프로그램용 상세 안내) ── */}
+          {guide && (
+            <>
+              {/* 상세 소개 */}
+              <section className={s.section}>
+                <h2 className={s.sectionTitle}>상세 안내</h2>
+                <p className={s.guideIntro}>{guide.intro}</p>
+                <ul className={s.guideHighlights}>
+                  {guide.highlights.map((h) => (
+                    <li key={h} className={s.guideHighlightItem}>{h}</li>
+                  ))}
+                </ul>
+              </section>
+
+              {/* 신청 절차 */}
+              <section className={s.section}>
+                <h2 className={s.sectionTitle}>신청 절차</h2>
+                <ol className={s.guideSteps}>
+                  {guide.steps.map((step, i) => {
+                    const Icon = step.icon;
+                    return (
+                      <li key={i} className={s.guideStep}>
+                        <div className={s.guideStepIcon}>
+                          <Icon size={18} />
+                        </div>
+                        <div className={s.guideStepContent}>
+                          <h3 className={s.guideStepTitle}>
+                            <span className={s.guideStepNum}>{i + 1}</span>
+                            {step.title}
+                          </h3>
+                          <p className={s.guideStepDesc}>{step.description}</p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </section>
+
+              {/* FAQ */}
+              <section className={s.section}>
+                <h2 className={s.sectionTitle}>
+                  <HelpCircle size={18} className={s.iconMuted} />
+                  자주 묻는 질문
+                </h2>
+                <div className={s.guideFaqList}>
+                  {guide.faq.map((item, i) => (
+                    <details key={i} className={s.guideFaqItem}>
+                      <summary className={s.guideFaqQuestion}>
+                        {item.question}
+                        <ChevronDown size={16} className={s.guideFaqChevron} />
+                      </summary>
+                      <p className={s.guideFaqAnswer}>{item.answer}</p>
+                    </details>
+                  ))}
+                </div>
+              </section>
+
+              {/* 팁 */}
+              <section className={s.section}>
+                <h2 className={s.sectionTitle}>
+                  <Lightbulb size={18} className={s.iconMuted} />
+                  유용한 팁
+                </h2>
+                <ul className={s.guideTips}>
+                  {guide.tips.map((tip) => (
+                    <li key={tip} className={s.guideTipItem}>{tip}</li>
+                  ))}
+                </ul>
+              </section>
+            </>
+          )}
         </div>
 
         {/* Sidebar */}
