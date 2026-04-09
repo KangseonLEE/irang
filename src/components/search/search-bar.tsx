@@ -189,6 +189,13 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     );
   }, [showRecent, recentSearches, grouped]);
 
+  // id → flat index 사전 매핑 (렌더 시 mutable counter 사용 방지)
+  const flatIndexMap = useMemo(() => {
+    const map = new Map<string, number>();
+    allItems.forEach((item, i) => map.set(item.id, i));
+    return map;
+  }, [allItems]);
+
   // Reset focusedIndex when results change
   useEffect(() => {
     setFocusedIndex(-1);
@@ -303,9 +310,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       ? `search-item-${allItems[focusedIndex].id}`
       : undefined;
 
-  // ----- Render helper: compute flat index for an item -----
-  let flatCounter = 0;
-
   // ----- Render -----
   const wrapClass = size === "large" ? s.inputWrapLarge : s.inputWrap;
 
@@ -353,7 +357,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
               </div>
               {recentSearches.map((q, i) => {
                 const itemId = `recent-${i}`;
-                const currentFlatIndex = flatCounter++;
+                const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
                 return (
                   <div
                     key={`recent-${q}`}
@@ -411,7 +415,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                 </div>
                 {section.items.map((item) => {
                   const itemId = `${item.type}-${item.id}`;
-                  const currentFlatIndex = flatCounter++;
+                  const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
                   return (
                     <div
                       key={itemId}

@@ -24,6 +24,7 @@ function isRateLimited(ip: string): boolean {
   const now = Date.now();
   const entry = rateLimitMap.get(ip);
 
+  // 만료된 엔트리는 조회 시 정리 (서버리스 환경에서 setInterval 대신 lazy cleanup)
   if (!entry || now > entry.resetAt) {
     rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
     return false;
@@ -32,14 +33,6 @@ function isRateLimited(ip: string): boolean {
   entry.count++;
   return entry.count > RATE_LIMIT_MAX;
 }
-
-// 주기적 메모리 정리 (5분마다)
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, entry] of rateLimitMap) {
-    if (now > entry.resetAt) rateLimitMap.delete(ip);
-  }
-}, 5 * 60_000);
 
 export async function POST(request: NextRequest) {
   // IP 추출 (Vercel 환경: x-forwarded-for)

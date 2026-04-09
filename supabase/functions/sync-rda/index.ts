@@ -21,6 +21,18 @@ Deno.serve(async (req: Request) => {
     });
   }
 
+  // 인증: CRON_SECRET 검증 (GitHub Actions / 수동 호출 시 필수)
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  if (cronSecret) {
+    const authHeader = req.headers.get("authorization") ?? "";
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
   const supabase = getServiceClient();
   const errors: string[] = [];
 

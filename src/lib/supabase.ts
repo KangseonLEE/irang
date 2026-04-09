@@ -32,14 +32,19 @@ export function getSupabase(): SupabaseClient | null {
  * Service role 클라이언트 — 쓰기 용도 (서버 전용)
  * - API Route / Edge Function / 마이그레이션 스크립트에서만 사용
  * - SUPABASE_SERVICE_ROLE_KEY 필요
+ * - 싱글턴: 모듈 로드 시 1회만 생성, 이후 재사용
  */
+let _adminClient: SupabaseClient | null = null;
+
 export function getSupabaseAdmin(): SupabaseClient | null {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
   if (!supabaseUrl || !serviceRoleKey) return null;
-
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
-  });
+  if (!_adminClient) {
+    _adminClient = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+    });
+  }
+  return _adminClient;
 }
 
 // ── 검색 로그 ─���

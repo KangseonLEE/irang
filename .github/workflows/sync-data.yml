@@ -19,7 +19,7 @@ jobs:
         run: |
           response=$(curl -s -w "\n%{http_code}" -X POST \
             "${{ secrets.SUPABASE_URL }}/functions/v1/sync-rda" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json" \
             --max-time 30)
 
@@ -50,7 +50,7 @@ jobs:
         run: |
           response=$(curl -s -w "\n%{http_code}" -X POST \
             "${{ secrets.SUPABASE_URL }}/functions/v1/sync-crawl" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json" \
             -d '{"target": "${{ matrix.target }}"}' \
             --max-time 60)

@@ -351,6 +351,7 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
             aria-valuenow={currentAllStep}
             aria-valuemin={1}
             aria-valuemax={totalAllSteps}
+            aria-valuetext={`${totalAllSteps}단계 중 ${currentAllStep}단계`}
             aria-label="진행률"
           >
             <div className={s.progressFill} style={{ width: `${progress}%` }} />

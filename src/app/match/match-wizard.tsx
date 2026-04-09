@@ -694,6 +694,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
           aria-valuenow={step + 1}
           aria-valuemin={1}
           aria-valuemax={totalSteps}
+          aria-valuetext={`${totalSteps}단계 중 ${step + 1}단계`}
           aria-label="진행률"
         >
           <div
