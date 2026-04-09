@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   더보기 페이지
+   더보기 페이지 (그룹형)
    ══════════════════════════════════════════ */
 .page {
   max-width: 640px;
@@ -7,7 +7,7 @@
   padding: 24px 16px 40px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 8px;
 }
 
 .title {
@@ -18,13 +18,81 @@
   letter-spacing: -0.02em;
 }
 
-/* ── 메뉴 리스트 ── */
-.menu {
+/* ── 유형 진단 CTA ── */
+.ctaBanner {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
 }
 
+@media (hover: hover) {
+  .ctaBanner:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+  }
+}
+
+.ctaLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--primary, #1b6b5a);
+}
+
+.ctaText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ctaLabel {
+  font-size: var(--fs-body, 15px);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+}
+
+.ctaDesc {
+  font-size: var(--fs-caption, 13px);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.ctaArrow {
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+/* ── 그룹 ── */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.groupLabel {
+  margin: 0;
+  font-size: var(--fs-overline, 11px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground, #6b7280);
+  padding: 14px 14px 6px;
+}
+
+.groupItems {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── 메뉴 아이템 ── */
 .menuItem {
   display: flex;
   align-items: center;
@@ -76,4 +144,25 @@
 .menuDesc {
   font-size: var(--fs-caption, 13px);
   color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 서비스 소개 링크 ── */
+.aboutLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border, #e5e7eb);
+  font-size: var(--fs-caption, 13px);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+@media (hover: hover) {
+  .aboutLink:hover {
+    color: var(--foreground, #111);
+  }
 }

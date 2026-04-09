@@ -3,13 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Heart, Menu, X } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 import { IrangSymbol } from "@/components/brand/irang-symbol";
 import { BookmarkList } from "@/components/bookmark/bookmark-list";
 import { useBookmarks } from "@/lib/hooks/use-bookmarks";
 import s from "./header.module.css";
-
-const GUIDE_TOOLTIP_KEY = "irang_guide_tooltip_dismissed";
 
 /* ── 네비게이션 구조 ── */
 interface NavChild {
@@ -73,15 +71,12 @@ const navGroups: NavGroup[] = [
 export function Header() {
   const pathname = usePathname();
   const [bookmarkOpen, setBookmarkOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showGuideTooltip, setShowGuideTooltip] = useState(false);
   /** 드롭다운 클릭 후 일시적으로 hover를 무시하기 위한 플래그 */
   const [navHidden, setNavHidden] = useState(false);
   const { count, mounted } = useBookmarks();
 
-  // 페이지 이동 시 모바일 메뉴 + 데스크탑 드롭다운 닫기
+  // 페이지 이동 시 데스크탑 드롭다운 닫기
   useEffect(() => {
-    setMobileMenuOpen(false);
     setNavHidden(true);
 
     // :focus-within 해제 → 드롭다운 CSS 비활성화
@@ -118,30 +113,6 @@ export function Header() {
     }
   }, []);
 
-  // 첫 방문 사용자에게 귀농 유형 진단 툴팁 표시
-  useEffect(() => {
-    if (!mobileMenuOpen) return;
-    try {
-      const dismissed = localStorage.getItem(GUIDE_TOOLTIP_KEY);
-      if (!dismissed) {
-        setShowGuideTooltip(true);
-      }
-    } catch {
-      // localStorage 접근 불가 시 무시
-    }
-  }, [mobileMenuOpen]);
-
-  const dismissGuideTooltip = useCallback(() => {
-    setShowGuideTooltip(false);
-    try {
-      localStorage.setItem(GUIDE_TOOLTIP_KEY, "1");
-    } catch {
-      // localStorage 접근 불가 시 무시
-    }
-  }, []);
-
-  const closeMobile = () => setMobileMenuOpen(false);
-
   return (
     <>
       <header className={s.header}>
@@ -151,7 +122,6 @@ export function Header() {
             href="/"
             className={s.logo}
             aria-label="이랑 홈으로 이동"
-            onClick={closeMobile}
           >
             <IrangSymbol size={28} />
             <span className={s.logoTextWrap}>
@@ -232,86 +202,9 @@ export function Header() {
               귀농 유형 진단
               <ArrowRight size={14} />
             </Link>
-            {/* 모바일 햄버거 */}
-            <button
-              type="button"
-              className={s.menuBtn}
-              onClick={() => setMobileMenuOpen((v) => !v)}
-              aria-label={mobileMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
-              aria-expanded={mobileMenuOpen}
-            >
-              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
           </div>
         </div>
       </header>
-
-      {/* ── 모바일 풀스크린 메뉴 ── */}
-      {mobileMenuOpen && (
-        <div className={s.mobileOverlay} role="dialog" aria-label="메뉴">
-          <nav className={s.mobileNav}>
-            {/* 귀농 유형 진단 CTA — 최상단 배치 + 첫 방문 툴팁 */}
-            <div className={s.mobileCtaWrap}>
-              <Link
-                href="/match"
-                className={s.mobileCta}
-                onClick={() => { closeMobile(); dismissGuideTooltip(); }}
-              >
-                귀농 유형 진단 시작하기
-                <ArrowRight size={16} />
-              </Link>
-              {showGuideTooltip && (
-                <div className={s.guideTooltip}>
-                  <span className={s.guideTooltipArrow} />
-                  <p className={s.guideTooltipText}>
-                    어디서부터 준비해야 할지 고민이라면,<br />
-                    3분이면 나에게 맞는 귀농 유형을 알 수 있어요.
-                  </p>
-                  <button
-                    type="button"
-                    className={s.guideTooltipClose}
-                    onClick={dismissGuideTooltip}
-                    aria-label="안내 닫기"
-                  >
-                    알겠어요
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {navGroups.map((group) => (
-              <div key={group.label} className={s.mobileGroup}>
-                <span className={s.mobileGroupLabel}>{group.label}</span>
-                {group.children.map((child) => {
-                  const hasMoreSpecificSibling = group.children.some(
-                    (other) =>
-                      other !== child &&
-                      other.href.length > child.href.length &&
-                      pathname.startsWith(other.href),
-                  );
-                  const isActive =
-                    pathname === child.href ||
-                    (!hasMoreSpecificSibling &&
-                      pathname.startsWith(child.href + "/"));
-                  return (
-                    <Link
-                      key={child.href}
-                      href={child.href}
-                      className={`${s.mobileLink} ${isActive ? s.mobileLinkActive : ""}`}
-                      onClick={closeMobile}
-                    >
-                      <span className={s.mobileLinkLabel}>{child.label}</span>
-                      {child.desc && (
-                        <span className={s.mobileLinkDesc}>{child.desc}</span>
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            ))}
-          </nav>
-        </div>
-      )}
 
       <BookmarkList open={bookmarkOpen} onClose={() => setBookmarkOpen(false)} />
     </>
