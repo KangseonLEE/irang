@@ -27,6 +27,9 @@ export async function generateStaticParams() {
   return PROVINCES.map((p) => ({ id: p.id }));
 }
 
+/** 기후·인구·의료 등 외부 API 데이터를 1시간마다 재검증 */
+export const revalidate = 3600;
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const province = PROVINCES.find((p) => p.id === id);

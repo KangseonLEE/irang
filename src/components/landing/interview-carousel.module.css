@@ -236,11 +236,24 @@
 }
 
 .dot {
+  /* 시각적 크기는 7px이지만, 터치 타깃 44px 확보를 위해 패딩 사용 */
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: var(--border, #d1d5db);
   transition: background-color 0.2s, transform 0.2s;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  /* 44px 최소 터치 영역 확보 */
+  box-sizing: content-box;
+  position: relative;
+}
+
+.dot::before {
+  content: "";
+  position: absolute;
+  inset: -18px;
 }
 
 .dotActive {

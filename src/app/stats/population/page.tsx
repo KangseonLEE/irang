@@ -15,7 +15,7 @@ import {
   populationSummary,
   populationCauses,
 } from "@/lib/data/stats";
-import PopulationTrendChart from "@/components/charts/population-trend-chart";
+import { PopulationTrendChart } from "@/components/charts/lazy";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import s from "./page.module.css";
 import shared from "../stats.module.css";

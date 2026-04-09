@@ -57,6 +57,17 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
     analytics.assessStart();
   }, []);
 
+  // 스텝 변경 시 step_view 이벤트 전송
+  useEffect(() => {
+    if (phase === "demographic") {
+      const q = DEMOGRAPHIC_QUESTIONS[demoStep];
+      if (q) analytics.assessStepView(demoStep + 1, q.id);
+    } else if (phase === "quiz") {
+      const q = QUESTIONS[step];
+      if (q) analytics.assessStepView(totalDemoSteps + step + 1, q.id);
+    }
+  }, [phase, demoStep, step, totalDemoSteps]);
+
   /* ── 인구통계 선택 핸들러 ── */
   const handleDemoSelect = useCallback(
     (value: string) => {
@@ -69,7 +80,7 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
         } else {
           setPhase("quiz");
         }
-      }, 250);
+      }, 400);
     },
     [demoStep, totalDemoSteps]
   );
@@ -86,7 +97,7 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
         } else {
           setPhase("result");
         }
-      }, 250);
+      }, 400);
     },
     [currentQuestion, step, totalSteps]
   );
@@ -334,7 +345,14 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
     return (
       <div className={s.page}>
         <div className={s.progressWrap}>
-          <div className={s.progressBar}>
+          <div
+            className={s.progressBar}
+            role="progressbar"
+            aria-valuenow={currentAllStep}
+            aria-valuemin={1}
+            aria-valuemax={totalAllSteps}
+            aria-label="진행률"
+          >
             <div className={s.progressFill} style={{ width: `${progress}%` }} />
           </div>
           <span className={s.progressLabel}>
@@ -386,7 +404,14 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
     <div className={s.page}>
       {/* 진행 바 */}
       <div className={s.progressWrap}>
-        <div className={s.progressBar}>
+        <div
+          className={s.progressBar}
+          role="progressbar"
+          aria-valuenow={currentAllStep}
+          aria-valuemin={1}
+          aria-valuemax={totalAllSteps}
+          aria-label="진행률"
+        >
           <div
             className={s.progressFill}
             style={{ width: `${progress}%` }}

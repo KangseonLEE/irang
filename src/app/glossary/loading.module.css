@@ -1,0 +1,103 @@
+/* ==========================================================================
+   /glossary — 용어집 로딩 스켈레톤
+   ========================================================================== */
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+
+/* Page Header */
+.header {
+  margin-bottom: 2rem;
+}
+
+.overline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary, #1B6B5A);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.title {
+  margin-top: 0.5rem;
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.description {
+  margin-top: 0.5rem;
+  color: var(--muted-foreground, #71717a);
+}
+
+/* Category tabs */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+/* Term list */
+.termList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.termCard {
+  border-radius: 12px;
+  border: 1px solid var(--border, #e4e4e7);
+  background: var(--card, #fff);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Skeleton Animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.skeleton {
+  background: var(--muted, #f4f4f5);
+  border-radius: 6px;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeletonTab {
+  composes: skeleton;
+  width: 4rem;
+  height: 2rem;
+  border-radius: 9999px;
+}
+
+.skeletonTerm {
+  composes: skeleton;
+  width: 6rem;
+  height: 1rem;
+}
+
+.skeletonDef {
+  composes: skeleton;
+  width: 90%;
+  height: 0.875rem;
+}
+
+.skeletonSearch {
+  composes: skeleton;
+  width: 100%;
+  max-width: 20rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}

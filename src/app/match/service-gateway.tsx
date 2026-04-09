@@ -65,7 +65,7 @@ export function ServiceGateway() {
         {/* 귀농 적합성 진단 */}
         <button
           type="button"
-          className={s.card}
+          className={`${s.card} ${s.cardRecommended}`}
           onClick={() => setMode("assess")}
         >
           <div className={`${s.cardIcon} ${s.cardIconAssess}`}>

@@ -267,3 +267,16 @@
   transform: translateX(2px);
 }
 
+/* ── 추천 카드 강조 ── */
+.cardRecommended {
+  border-color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 3%, var(--card, #fff));
+}
+
+@media (hover: hover) {
+  .cardRecommended:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 8px 28px rgba(27, 107, 90, 0.16);
+  }
+}
+

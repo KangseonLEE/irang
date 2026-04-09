@@ -174,7 +174,7 @@ export function Header() {
                   <button
                     type="button"
                     className={`${s.navLink} ${isGroupActive ? s.active : ""}`}
-                    aria-expanded={false}
+                    aria-haspopup="true"
                     onMouseDown={(e) => e.preventDefault()}
                   >
                     {group.label}

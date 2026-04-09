@@ -12,6 +12,7 @@ import "./globals.css";
 import s from "./layout.module.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://irang-wheat.vercel.app"),
   title: {
     default: "이랑 — 귀농 정보 큐레이션 포탈",
     template: "%s | 이랑",
@@ -75,6 +76,11 @@ export default function RootLayout({
             sameAs: [],
           }}
         />
+
+        {/* 폰트 CDN preconnect — 연결 시간 단축 */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 
         {/* Pretendard Variable — 한글 + 라틴 가변 폰트 */}
         <link

@@ -40,6 +40,9 @@ export function generateStaticParams() {
   return PROGRAMS.map((p) => ({ id: p.id }));
 }
 
+/** Supabase 지원사업 데이터를 1시간마다 재검증 */
+export const revalidate = 3600;
+
 interface ProgramDetailPageProps {
   params: Promise<{ id: string }>;
 }

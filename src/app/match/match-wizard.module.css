@@ -68,17 +68,12 @@
   margin: 0;
   letter-spacing: -0.02em;
   word-break: keep-all;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: var(--lh-snug, 1.4);
 }
 
 @media (min-width: 640px) {
   .questionTitle {
     font-size: var(--fs-h2);
-    white-space: normal;
-    overflow: visible;
-    text-overflow: unset;
   }
 }
 

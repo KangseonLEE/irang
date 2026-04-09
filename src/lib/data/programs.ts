@@ -570,8 +570,12 @@ export async function loadPrograms(): Promise<{
     return { programs, source: "api" };
   }
 
-  // 3️⃣ 정적 폴백
-  return { programs: PROGRAMS, source: "fallback" };
+  // 3️⃣ 정적 폴백 — 하드코딩 status 대신 날짜 기반으로 재계산
+  const programs = PROGRAMS.map((p) => ({
+    ...p,
+    status: deriveStatus(p.applicationStart, p.applicationEnd),
+  }));
+  return { programs, source: "fallback" };
 }
 
 /**

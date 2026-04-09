@@ -95,6 +95,9 @@ export function generateStaticParams() {
   return getAllCropIds().map((id) => ({ id }));
 }
 
+/** KOSIS 작물 통계 API 데이터를 1시간마다 재검증 */
+export const revalidate = 3600;
+
 // ── 난이도 뱃지 매핑 ──
 
 const DIFFICULTY_BADGE: Record<string, string> = {

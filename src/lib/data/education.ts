@@ -447,8 +447,17 @@ export async function loadEducation(): Promise<{
     return { courses, source: "api" };
   }
 
-  // 3️⃣ 정적 폴백
-  return { courses: EDUCATION_COURSES, source: "fallback" };
+  // 3️⃣ 정적 폴백 — 날짜 기반 상태 재계산
+  const courses = EDUCATION_COURSES.map((c) => {
+    const derived = deriveStatus(c.applicationStart, c.applicationEnd);
+    const statusMap: Record<string, EducationCourse["status"]> = {
+      "모집중": "모집중",
+      "모집예정": "모집예정",
+      "마감": "마감",
+    };
+    return { ...c, status: statusMap[derived] ?? c.status };
+  });
+  return { courses, source: "fallback" };
 }
 
 /**

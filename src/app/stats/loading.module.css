@@ -1,0 +1,103 @@
+/* ==========================================================================
+   /stats — 통계 페이지 로딩 스켈레톤
+   ========================================================================== */
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.headerTitle {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.headerDesc {
+  margin-top: 0.5rem;
+  color: var(--muted-foreground, #71717a);
+}
+
+/* Stats summary cards */
+.summaryGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .summaryGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.summaryCard {
+  border-radius: 16px;
+  border: 1px solid var(--border, #e4e4e7);
+  background: var(--card, #fff);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Chart placeholder */
+.chartPlaceholder {
+  border-radius: 20px;
+  border: 1px solid var(--border, #e4e4e7);
+  background: var(--card, #fff);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Skeleton Animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.skeleton {
+  background: var(--muted, #f4f4f5);
+  border-radius: 6px;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeletonLabel {
+  composes: skeleton;
+  width: 4rem;
+  height: 0.75rem;
+}
+
+.skeletonValue {
+  composes: skeleton;
+  width: 5rem;
+  height: 1.5rem;
+}
+
+.skeletonChartTitle {
+  composes: skeleton;
+  width: 10rem;
+  height: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.skeletonChart {
+  composes: skeleton;
+  height: 16rem;
+  border-radius: 12px;
+}
+
+.skeletonChartSmall {
+  composes: skeleton;
+  height: 12rem;
+  border-radius: 12px;
+}

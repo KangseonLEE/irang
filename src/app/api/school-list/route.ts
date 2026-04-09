@@ -20,15 +20,35 @@ interface SchoolItem {
 
 const API_BASE = "https://open.neis.go.kr/hub/schoolInfo";
 
+/** 시도교육청 코드: 대문자 1자리 + 숫자 2자리 (예: J10) */
+const VALID_EDU_CODE = /^[A-Z]\d{2}$/;
+const VALID_PAGE_PATTERN = /^\d{1,3}$/;
+/** 시군구명에 허용되지 않는 문자 차단 */
+const VALID_SIGUNGU_NAME = /^[가-힣\s]{1,20}$/;
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const eduCode = searchParams.get("eduCode");
   const sigunguName = searchParams.get("sigunguName");
   const page = searchParams.get("page") || "1";
 
-  if (!eduCode) {
+  if (!eduCode || !VALID_EDU_CODE.test(eduCode)) {
     return NextResponse.json(
-      { error: "eduCode is required" },
+      { error: "eduCode is required and must be a valid education office code" },
+      { status: 400 }
+    );
+  }
+
+  if (sigunguName && !VALID_SIGUNGU_NAME.test(sigunguName)) {
+    return NextResponse.json(
+      { error: "sigunguName must be a valid Korean district name" },
+      { status: 400 }
+    );
+  }
+
+  if (!VALID_PAGE_PATTERN.test(page)) {
+    return NextResponse.json(
+      { error: "page must be a number" },
       { status: 400 }
     );
   }

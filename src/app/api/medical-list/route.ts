@@ -19,7 +19,7 @@ interface MedicalItem {
 }
 
 const API_BASE =
-  "http://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList";
+  "https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList";
 
 /** 의료기관 종별 우선순위 (큰 병원 → 작은 의원) */
 const TYPE_PRIORITY: Record<string, number> = {
@@ -44,15 +44,33 @@ function getTypePriority(type: string): number {
   return 99;
 }
 
+/** 허용된 시도코드 (6자리 숫자) */
+const VALID_SIDO_PATTERN = /^\d{6}$/;
+const VALID_PAGE_PATTERN = /^\d{1,3}$/;
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const sidoCd = searchParams.get("sidoCd");
   const sgguCd = searchParams.get("sgguCd");
   const page = searchParams.get("page") || "1";
 
-  if (!sidoCd) {
+  if (!sidoCd || !VALID_SIDO_PATTERN.test(sidoCd)) {
     return NextResponse.json(
-      { error: "sidoCd is required" },
+      { error: "sidoCd is required and must be a 6-digit code" },
+      { status: 400 }
+    );
+  }
+
+  if (sgguCd && !VALID_SIDO_PATTERN.test(sgguCd)) {
+    return NextResponse.json(
+      { error: "sgguCd must be a 6-digit code" },
+      { status: 400 }
+    );
+  }
+
+  if (!VALID_PAGE_PATTERN.test(page)) {
+    return NextResponse.json(
+      { error: "page must be a number" },
       { status: 400 }
     );
   }

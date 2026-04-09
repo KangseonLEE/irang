@@ -5,7 +5,7 @@
  */
 
 const API_BASE =
-  "http://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList";
+  "https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList";
 
 /** 심평원 시도코드 → 시도명 매핑 */
 const SIDO_NAME_MAP: Record<string, string> = {

@@ -101,9 +101,17 @@ export async function GET(request: NextRequest) {
     15
   );
 
-  if (!sgisCode) {
+  // sgisCode: 시도 2자리 또는 시군구 5자리 숫자만 허용
+  if (!sgisCode || !/^\d{2,5}$/.test(sgisCode)) {
     return NextResponse.json(
-      { error: "sgisCode is required" },
+      { error: "sgisCode is required and must be a 2-5 digit code" },
+      { status: 400 }
+    );
+  }
+
+  if (isNaN(yearsParam) || yearsParam < 1) {
+    return NextResponse.json(
+      { error: "years must be a positive number" },
       { status: 400 }
     );
   }

@@ -483,6 +483,14 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
     analytics.matchStart();
   }, []);
 
+  // 스텝 변경 시 step_view 이벤트 전송
+  useEffect(() => {
+    const q = QUESTIONS[step];
+    if (q) {
+      analytics.matchStepView(step + 1, q.id);
+    }
+  }, [step]);
+
   // URL 쿼리 파라미터로 pre-fill (진단 결과 → 맞춤추천 연결용)
   useEffect(() => {
     const experience = searchParams.get("experience");
@@ -535,7 +543,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
           } else {
             setShowResult(true);
           }
-        }, 250);
+        }, 400);
       }
     },
     [currentQuestion, step, totalSteps]
@@ -680,7 +688,14 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
     <div className={s.page}>
       {/* 진행 바 */}
       <div className={s.progressWrap}>
-        <div className={s.progressBar}>
+        <div
+          className={s.progressBar}
+          role="progressbar"
+          aria-valuenow={step + 1}
+          aria-valuemin={1}
+          aria-valuemax={totalSteps}
+          aria-label="진행률"
+        >
           <div
             className={s.progressFill}
             style={{ width: `${progress}%` }}

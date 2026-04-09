@@ -43,11 +43,27 @@ export const analytics = {
       value: score,
     }),
 
+  // -- Assessment step view --
+  assessStepView: (stepNumber: number, questionId: string) =>
+    trackEvent({
+      action: "assess_step_view",
+      category: "assessment",
+      label: questionId,
+      value: stepNumber,
+    }),
+
   // -- Match wizard --
   matchStart: () =>
     trackEvent({ action: "match_start", category: "match" }),
   matchComplete: () =>
     trackEvent({ action: "match_complete", category: "match" }),
+  matchStepView: (stepNumber: number, questionId: string) =>
+    trackEvent({
+      action: "match_step_view",
+      category: "match",
+      label: questionId,
+      value: stepNumber,
+    }),
 
   // -- Navigation / Content views --
   regionView: (regionId: string) =>

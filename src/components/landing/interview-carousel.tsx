@@ -123,11 +123,23 @@ export function InterviewCarousel({ items }: InterviewCarouselProps) {
           <ChevronLeft size={18} />
         </button>
 
-        <div className={s.dots}>
+        <div className={s.dots} role="tablist" aria-label="인터뷰 캐러셀 탐색">
           {Array.from({ length: maxIndex + 1 }).map((_, i) => (
-            <span
+            <button
               key={i}
+              type="button"
+              role="tab"
+              aria-selected={i === activeIndex}
+              aria-label={`인터뷰 ${i + 1}번 보기`}
               className={`${s.dot} ${i === activeIndex ? s.dotActive : ""}`}
+              onClick={() => {
+                const el = scrollRef.current;
+                if (!el || !el.children.length) return;
+                const card = el.children[0] as HTMLElement;
+                const gap = 16;
+                const cardWidth = card.offsetWidth + gap;
+                el.scrollTo({ left: cardWidth * i, behavior: "smooth" });
+              }}
             />
           ))}
         </div>

@@ -18,8 +18,10 @@ import {
   satisfactionSummary,
   satisfactionCauses,
 } from "@/lib/data/stats";
-import SatisfactionDonutChart from "@/components/charts/satisfaction-donut-chart";
-import FactorBarChart from "@/components/charts/factor-bar-chart";
+import {
+  SatisfactionDonutChart,
+  FactorBarChart,
+} from "@/components/charts/lazy";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import s from "./page.module.css";
 import shared from "../stats.module.css";

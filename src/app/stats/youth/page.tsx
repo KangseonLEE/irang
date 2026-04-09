@@ -15,8 +15,7 @@ import {
   farmingReasons,
   youthCauses,
 } from "@/lib/data/stats";
-import YouthTrendChart from "@/components/charts/youth-trend-chart";
-import FactorBarChart from "@/components/charts/factor-bar-chart";
+import { YouthTrendChart, FactorBarChart } from "@/components/charts/lazy";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import s from "./page.module.css";
 import shared from "../stats.module.css";
