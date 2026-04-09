@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com",
               "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
-              "img-src 'self' data: https://images.unsplash.com",
+              "img-src 'self' data: https: blob:",
               "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com",
               "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://sgisapi.kostat.go.kr https://apis.data.go.kr https://va.vercel-scripts.com",
               "frame-ancestors 'none'",
