@@ -10,7 +10,6 @@ import {
   GraduationCap,
   MapPin,
   CheckCircle2,
-  Lightbulb,
   type LucideIcon,
 } from "lucide-react";
 
