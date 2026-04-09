@@ -162,10 +162,10 @@ export const trendEduNews: NewsItem[] = [
     url: "https://agro.seoul.go.kr/archives/53250",
   },
   {
-    title: "스마트팜 청년창업 보육센터 2025년 8기 교육생 모집 공고",
-    source: "농촌진흥청",
-    date: "2025.04",
-    url: "https://www.rda.go.kr/young/custom/edu/view.do?sId=45937",
+    title: "농식품부, 스마트농업 전문인력 교육기관 모집",
+    source: "정책브리핑",
+    date: "2025.03",
+    url: "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156639853",
   },
   {
     title: "화순군, 2025 현장실습교육 연수 약정 체결",

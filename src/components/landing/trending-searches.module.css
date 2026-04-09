@@ -5,10 +5,12 @@
 
 .wrapper {
   --row-h: 30px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   margin-top: 8px;
+  width: 100%;
   height: var(--row-h);
   animation: slideUp 600ms ease-out both;
 }

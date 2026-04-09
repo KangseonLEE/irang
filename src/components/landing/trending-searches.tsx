@@ -71,7 +71,7 @@ export function TrendingSearches({ serverTrending }: TrendingSearchesProps) {
       {/* 아이템 수에 맞는 동적 키프레임 주입 */}
       <style>{rollCSS}</style>
 
-      <span className={s.label}>지금 많이 검색하는</span>
+      <span className={s.label}>지금 많이 찾는 키워드는</span>
 
       <div
         className={s.roller}
@@ -104,7 +104,7 @@ export function TrendingSearches({ serverTrending }: TrendingSearchesProps) {
 export function TrendingSearchesSkeleton() {
   return (
     <div className={s.wrapper}>
-      <span className={s.label}>지금 많이 검색하는</span>
+      <span className={s.label}>지금 많이 찾는 키워드는</span>
       <div className={s.roller} aria-label="인기 검색어 불러오는 중">
         <span className={s.skeleton}>불러오는 중...</span>
       </div>
