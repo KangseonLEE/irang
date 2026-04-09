@@ -117,9 +117,7 @@ export default function AboutPage() {
         </div>
         <span className={s.heroOverline}>About IRANG</span>
         <h1 className={s.heroTitle}>
-          귀농, 어디서 무엇을 시작할지
-          <br />
-          <span className={s.heroAccent}>이랑</span>이 알려드립니다
+          귀농의 모든 것, <span className={s.heroAccent}>이랑</span>이 안내합니다
         </h1>
         <p className={s.heroDesc}>
           <AutoGlossary text="이랑은 귀농을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스예요." />

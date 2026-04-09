@@ -25,8 +25,7 @@ export default function InterviewsPage() {
       <header className={s.hero}>
         <p className={s.heroOverline}>귀농인 이야기</p>
         <h1 className={s.heroTitle}>
-          도시를 떠나,{" "}
-          <span className={s.heroTitleAccent}>땅 위에서 다시 시작한 사람들</span>
+          <span className={s.heroTitleAccent}>귀농</span>으로 다시 시작한 사람들
         </h1>
         <p className={s.heroDesc}>
           나이, 지역, 작물 모두 다르지만 한 가지 공통점이 있습니다.

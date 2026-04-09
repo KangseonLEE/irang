@@ -54,7 +54,9 @@
   color: var(--foreground, #111827);
   letter-spacing: -0.025em;
   line-height: 1.35;
-  word-break: keep-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   margin: 0;
 }
 
