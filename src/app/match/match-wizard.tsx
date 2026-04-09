@@ -467,7 +467,11 @@ function isValidOptionId(questionId: string, optionId: string): boolean {
   return q ? q.options.some((o) => o.id === optionId) : false;
 }
 
-export function MatchWizard() {
+interface MatchWizardProps {
+  onBack?: () => void;
+}
+
+export function MatchWizard({ onBack }: MatchWizardProps) {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
@@ -550,8 +554,10 @@ export function MatchWizard() {
       setShowResult(false);
     } else if (step > 0) {
       setStep((s) => s - 1);
+    } else if (onBack) {
+      onBack();
     }
-  }, [step, showResult]);
+  }, [step, showResult, onBack]);
 
   const handleReset = useCallback(() => {
     setStep(0);
@@ -730,7 +736,6 @@ export function MatchWizard() {
       <div className={s.navBar}>
         <button
           onClick={handleBack}
-          disabled={step === 0}
           className={s.navBtnBack}
           type="button"
         >

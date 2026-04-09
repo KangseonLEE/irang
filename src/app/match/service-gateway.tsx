@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   MapPin,
@@ -28,7 +28,13 @@ export function ServiceGateway() {
 
   const [mode, setMode] = useState<Mode>(initialMode);
 
-  if (mode === "match") return <MatchWizard />;
+  // 모드 전환 시 스크롤을 최상단으로 이동
+  // (pathname이 /match로 동일하므로 ScrollToTop이 감지하지 못함)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [mode]);
+
+  if (mode === "match") return <MatchWizard onBack={() => setMode("select")} />;
   if (mode === "assess") return <AssessmentWizard onBack={() => setMode("select")} />;
 
   /* ═══ 서비스 선택 화면 ═══ */
