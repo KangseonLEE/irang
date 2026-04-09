@@ -527,3 +527,187 @@
     opacity: 0.9;
   }
 }
+
+/* ═══════════════════════════════════════
+   귀농 유형 카드
+   ═══════════════════════════════════════ */
+
+.farmTypeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 32px 24px;
+  border-radius: 20px;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--primary, #1b6b5a) 6%, var(--card, #fff)),
+    var(--card, #fff)
+  );
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+}
+
+.farmTypeEmoji {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.farmTypeOverline {
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary, #1b6b5a);
+  margin-top: 4px;
+}
+
+.farmTypeLabel {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--foreground);
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+
+@media (min-width: 640px) {
+  .farmTypeLabel {
+    font-size: 2rem;
+  }
+}
+
+.farmTypeTagline {
+  font-size: var(--fs-body);
+  font-weight: 500;
+  color: var(--primary, #1b6b5a);
+  margin: 0;
+}
+
+.farmTypeDesc {
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed, 1.7);
+  color: var(--muted-foreground);
+  margin: 4px 0 0;
+  max-width: 480px;
+  word-break: keep-all;
+}
+
+.farmTypeTraits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.farmTypeTrait {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+}
+
+/* ═══════════════════════════════════════
+   추천 지원사업 카드
+   ═══════════════════════════════════════ */
+
+.programCards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.programCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+@media (hover: hover) {
+  .programCard:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.programCardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.programCardTitle {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.programCardDesc {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
+  color: var(--muted-foreground);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.programCardMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.programCardBadge {
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+}
+
+.programCardRegion {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+}
+
+.programCardArrow {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.programViewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  align-self: flex-end;
+}
+
+@media (hover: hover) {
+  .programViewAll:hover {
+    text-decoration: underline;
+  }
+}
