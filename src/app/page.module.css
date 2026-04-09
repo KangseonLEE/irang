@@ -160,7 +160,7 @@
 .heroSearchWrap {
   width: 100%;
   max-width: 580px;
-  margin-bottom: 20px;
+  margin-bottom: 6px;
   filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.25));
   position: relative;
   z-index: 5;
@@ -168,7 +168,7 @@
 
 @media (min-width: 640px) {
   .heroSearchWrap {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
   }
 }
 
@@ -190,7 +190,7 @@
   align-items: center;
   align-self: center;
   gap: 6px;
-  margin-top: 12px;
+  margin-top: 6px;
   padding: 8px 18px;
   border-radius: 20px;
   font-size: var(--fs-body-sm);

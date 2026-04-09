@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Sprout } from "lucide-react";
 import s from "./news-tabs.module.css";
 
 /* ── 통합 뉴스 아이템 ── */
@@ -217,25 +217,25 @@ export function NewsTabs({ items }: NewsTabsProps) {
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
               >
-                {/* 비주얼 영역 — OG 이미지 또는 폴백 그라데이션 */}
+                {/* 비주얼 영역 — OG 이미지 또는 일러스트 폴백 */}
                 <div className={s.featuredVisual}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={
-                      featured.thumbnail && !brokenImgs.has(featured.thumbnail)
-                        ? featured.thumbnail
-                        : "/news-fallback.jpg"
-                    }
-                    alt=""
-                    className={s.featuredImg}
-                    loading="lazy"
-                    onError={(e) => {
-                      if (featured.thumbnail) {
+                  {featured.thumbnail && !brokenImgs.has(featured.thumbnail) ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={featured.thumbnail}
+                      alt=""
+                      className={s.featuredImg}
+                      loading="lazy"
+                      onError={() => {
                         setBrokenImgs((prev) => new Set(prev).add(featured.thumbnail!));
-                        (e.target as HTMLImageElement).src = "/news-fallback.jpg";
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                  ) : (
+                    <div className={s.featuredIllust}>
+                      <Sprout size={32} />
+                      <span>농촌 소식</span>
+                    </div>
+                  )}
                   <span className={s.featuredBadge}>{featured.source}</span>
                 </div>
 
