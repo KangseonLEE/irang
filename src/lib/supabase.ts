@@ -45,8 +45,8 @@ export function getSupabaseAdmin(): SupabaseClient | null {
 // ── 검색 로그 ─���
 
 /**
- * 검색어를 search_logs 테이블에 기록 (클라이언트에서 호출)
- * - anon key로 INSERT 가능 (RLS: public insert)
+ * 검색어를 search_logs 테이블에 기록 (서버 사이드 Route Handler 경유)
+ * - /api/search-log POST → service_role key로 INSERT
  * - 빈 검색어, 2자 미만은 무시
  * - fire-and-forget (에러 시 조용히 무시)
  */
@@ -54,14 +54,13 @@ export function logSearch(query: string, resultCount: number): void {
   const trimmed = query.trim();
   if (trimmed.length < 2) return;
 
-  const sb = getSupabase();
-  if (!sb) return;
-
-  sb.from("search_logs")
-    .insert({ query: trimmed, result_count: resultCount })
-    .then(({ error }) => {
-      if (error) console.warn("[search-log] insert failed:", error.message);
-    });
+  fetch("/api/search-log", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query: trimmed, resultCount }),
+  }).catch(() => {
+    // fire-and-forget: 실패 시 조용히 무시
+  });
 }
 
 /**

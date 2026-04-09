@@ -47,12 +47,13 @@
 
 | 영역 | 기술 |
 |------|------|
-| Frontend | Next.js 16 (App Router) / TypeScript / Tailwind CSS / shadcn/ui v3 |
+| Frontend | Next.js 16 (App Router) / TypeScript / CSS Modules / lucide-react |
 | Backend | Next.js API Routes (Serverless) |
-| Database | Supabase (PostgreSQL) |
+| Database | Supabase (PostgreSQL + Edge Functions) |
 | Hosting | Vercel |
-| Data Pipeline | GitHub Actions / Python (공공데이터 API + 크롤링) |
-| Analytics | Google Analytics 4 |
+| Data Pipeline | GitHub Actions / TypeScript (공공데이터 API + Supabase Edge Functions) |
+| CI/CD | GitHub Actions (Lint · Type-check · Build) + Vercel 자동 배포 |
+| Analytics | Google Analytics 4 + Vercel Analytics |
 
 ---
 
@@ -116,17 +117,47 @@ npm run dev
 
 ```
 src/
-├── app/
-│   ├── page.tsx          # 홈 (Hero + Feature Cards)
-│   ├── regions/          # 지역 비교
-│   ├── programs/         # 지원사업 검색
-│   └── crops/            # 작물 정보
+├── app/                    # Next.js App Router 페이지
+│   ├── page.tsx            # 랜딩 페이지
+│   ├── regions/            # 지역 비교 (시도 → 시군구)
+│   ├── crops/              # 작물 정보
+│   ├── programs/           # 지원사업 검색
+│   ├── education/          # 귀농 교육
+│   ├── events/             # 체험 행사
+│   ├── interviews/         # 귀농인 인터뷰
+│   ├── stats/              # 통계 (인구·청년·만족도)
+│   ├── match/              # 맞춤 지역·작물 추천
+│   ├── assess/             # 귀농 적합성 진단
+│   ├── search/             # 통합 검색
+│   └── api/                # Route Handlers (프록시)
 ├── components/
-│   ├── layout/           # Header, Footer, MobileNav
-│   └── ui/               # shadcn/ui 컴포넌트
-└── lib/
-    └── supabase/         # Supabase 클라이언트
+│   ├── ui/                 # 공통 UI 컴포넌트
+│   ├── filter/             # FilterBar 계열
+│   ├── landing/            # 랜딩 전용 섹션
+│   ├── charts/             # Recharts 래퍼
+│   ├── map/                # SVG 지도
+│   └── layout/             # Header, Footer, Nav
+├── lib/
+│   ├── api/                # 외부 API 연동 (8개)
+│   ├── data/               # 정적 데이터 (폴백 포함)
+│   └── hooks/              # 커스텀 훅
+└── types/                  # 공유 타입 정의
+supabase/                   # Supabase 스키마·마이그레이션·Edge Functions
+scripts/                    # 유틸리티 스크립트
 ```
+
+---
+
+## CI/CD & 자동화
+
+| 워크플로우 | 트리거 | 설명 |
+|-----------|--------|------|
+| **CI** (`ci.yml`) | PR / main push | ESLint 린트 → TypeScript 타입 체크 → Next.js 빌드 |
+| **외부 링크 헬스체크** (`check-links.yml`) | 매일 09:00 KST | `sourceUrl` 유효성 검증, 깨진 링크 발견 시 Issue 자동 생성 |
+| **정책 데이터 검증** (`check-policy.yml`) | 매주 월 09:00 KST | 정부 지원사업 출처 URL 스냅샷 비교 |
+| **데이터 동기화** (`sync-data.yml`) | 매일 06:00 KST | Supabase Edge Function 호출 (RDA API + 웹 크롤링) |
+
+배포는 `git push origin main` 시 **Vercel이 자동으로** 트리거합니다.
 
 ---
 

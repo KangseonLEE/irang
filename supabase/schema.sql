@@ -271,13 +271,10 @@ CREATE INDEX IF NOT EXISTS idx_search_logs_created
 -- RLS 활성화
 ALTER TABLE search_logs ENABLE ROW LEVEL SECURITY;
 
--- 누구나 INSERT 가능 (anon key로 클라이언트에서 기록)
-CREATE POLICY "SearchLogs: public insert" ON search_logs
-  FOR INSERT WITH CHECK (true);
-
--- 읽기는 서비스 롤만 (집계 쿼리는 서버 사이드에서)
-CREATE POLICY "SearchLogs: service read" ON search_logs
-  FOR SELECT USING (auth.role() = 'service_role');
+-- INSERT + SELECT 모두 서비스 롤만 허용
+-- 클라이언트는 /api/search-log Route Handler를 통해 서버 사이드 INSERT
+CREATE POLICY "SearchLogs: service all" ON search_logs
+  FOR ALL USING (auth.role() = 'service_role');
 
 -- ==========================================================================
 -- 10. 인기 검색어 집계 함수

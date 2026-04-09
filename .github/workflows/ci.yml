@@ -1,0 +1,52 @@
+# ═══════════════════════════════════════════
+# PR / main 푸시 시 품질 게이트
+# - ESLint 린트
+# - TypeScript 타입 체크
+# - Next.js 빌드 검증
+# ═══════════════════════════════════════════
+
+name: "CI"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  quality-gate:
+    name: Lint · Type-check · Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript type-check
+        run: npx tsc --noEmit
+
+      - name: Next.js build
+        run: npm run build
+        env:
+          # 빌드 시 외부 API 키 없이도 정적 폴백으로 성공해야 함
+          NEXT_TELEMETRY_DISABLED: 1
