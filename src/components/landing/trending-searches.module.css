@@ -72,6 +72,7 @@
 .item {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
   height: var(--row-h);
   font-size: var(--fs-body-sm);

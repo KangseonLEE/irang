@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, HelpCircle } from "lucide-react";
 import s from "@/app/page.module.css";
 
 // ─── 이징 함수 ───
@@ -145,7 +145,14 @@ export function CostSection({
           </p>
           <div className={s.costBarWrap}>
             <span className={s.costBarCaption}>
-              투자금의 <strong>84.6%</strong>가 영농 준비비
+              투자금의 <strong>84.6%</strong>가{" "}
+              <span className={s.tooltipAnchor} tabIndex={0}>
+                영농 준비비
+                <HelpCircle size={13} className={s.tooltipIcon} />
+                <span className={s.tooltip} role="tooltip">
+                  농지 구입·임차, 농기계·시설, 종자·비료 등 농업 활동을 시작하기 위한 비용
+                </span>
+              </span>
             </span>
             <div className={s.costBar}>
               <div

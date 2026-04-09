@@ -160,7 +160,7 @@
 .heroSearchWrap {
   width: 100%;
   max-width: 580px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.25));
   position: relative;
   z-index: 5;
@@ -190,7 +190,7 @@
   align-items: center;
   align-self: center;
   gap: 6px;
-  margin-top: 6px;
+  margin-top: 20px;
   padding: 8px 18px;
   border-radius: 20px;
   font-size: var(--fs-body-sm);
@@ -371,14 +371,14 @@
 }
 
 .costBar {
-  height: 14px;
-  border-radius: 7px;
+  height: 20px;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
   overflow: hidden;
 }
 
 @media (min-width: 768px) {
-  .costBar { height: 18px; border-radius: 9px; }
+  .costBar { height: 22px; border-radius: 11px; }
 }
 
 .costBarFill {
@@ -395,14 +395,14 @@
 }
 
 .costBarPercent {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   color: #fff;
   line-height: 1;
 }
 
 @media (min-width: 768px) {
-  .costBarPercent { font-size: 11px; }
+  .costBarPercent { font-size: 12px; }
 }
 
 .costBarLegend {
@@ -433,6 +433,81 @@
   background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
   margin-right: 4px;
   vertical-align: middle;
+}
+
+/* ── 영농 준비비 툴팁 ── */
+.tooltipAnchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  cursor: help;
+  border-bottom: 1px dashed var(--muted-foreground, #6b7280);
+}
+
+.tooltipIcon {
+  color: var(--muted-foreground, #6b7280);
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 260px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: var(--fs-overline, 0.75rem);
+  font-weight: 500;
+  line-height: 1.5;
+  color: #fff;
+  background: var(--foreground, #1a1a1a);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+  white-space: normal;
+}
+
+/* 말풍선 꼬리 */
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--foreground, #1a1a1a);
+}
+
+/* 데스크탑: hover로 표시 */
+@media (hover: hover) {
+  .tooltipAnchor:hover .tooltip {
+    opacity: 1;
+  }
+  .tooltipAnchor:hover .tooltipIcon {
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+/* 모바일: focus(탭)으로 표시 */
+.tooltipAnchor:focus-within .tooltip {
+  opacity: 1;
+}
+
+/* 모바일에서 왼쪽으로 밀리지 않게 보정 */
+@media (max-width: 400px) {
+  .tooltip {
+    left: 0;
+    transform: translateX(0);
+  }
+  .tooltip::after {
+    left: 40px;
+  }
 }
 
 /* ── 우측: 보조 수치 3칸 ── */
