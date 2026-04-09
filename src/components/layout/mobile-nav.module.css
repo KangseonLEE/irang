@@ -14,17 +14,32 @@
   background-color: var(--background);
   /* iOS Safari: 배경을 세이프 에어리어까지 확장 */
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* GPU 합성 레이어로 승격 — 스크롤 시 깜빡임/갭 방지 */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
-/* 브라우저 하단 툴바가 숨겨질 때 빈 공간을 배경색으로 채움 */
+/* 브라우저 하단 툴바가 숨겨질 때 빈 공간을 배경색으로 채움
+   Safari/Chrome 동적 뷰포트 전환 시 nav 아래 노출 영역 커버 */
+.nav::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+  background-color: var(--background);
+  z-index: -1;
+}
+
 .nav::after {
   content: "";
   position: absolute;
-  bottom: -200px;
+  bottom: -300px;
   left: 0;
   right: 0;
-  height: 200px;
-  background-color: inherit;
+  height: 300px;
+  background-color: var(--background);
   pointer-events: none;
 }
 

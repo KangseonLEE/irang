@@ -155,6 +155,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;              /* 가로 스크롤/바운스 전역 차단 */
+  background-color: var(--background); /* 오버스크롤 바운스 시 빈 공간 방지 */
 }
 
 body {
