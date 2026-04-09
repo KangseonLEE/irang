@@ -93,6 +93,17 @@ export function NewsTabs({ items }: NewsTabsProps) {
     [featuredIdx, slidePhase],
   );
 
+  // 탭 복귀 시 isPaused 자동 해제 (링크 클릭 후 돌아왔을 때)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        setIsPaused(false);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
   // 자동 전환
   useEffect(() => {
     if (filtered.length <= 1 || isPaused) return;

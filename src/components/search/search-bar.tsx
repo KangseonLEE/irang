@@ -337,7 +337,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
         />
       </div>
 
-      {isOpen && (
+      {isOpen && (showRecent || grouped.length > 0 || (query.trim().length > 0 && grouped.length === 0)) && (
         <div
           id="search-listbox"
           className={s.dropdown}
