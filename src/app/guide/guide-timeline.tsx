@@ -114,9 +114,6 @@ export function GuideTimeline({ steps }: GuideTimelineProps) {
 
   return (
     <section className={s.timelineOverview}>
-      <p className={s.timelineNote}>
-        일부 단계는 병행할 수 있으며, 이전 단계로 돌아가는 것은 자연스러운 과정이에요.
-      </p>
       <div className={s.timelineTrack}>
         {steps.map((step, i) => {
           const Icon = STEP_ICONS[step.step] ?? Search;
@@ -169,6 +166,9 @@ export function GuideTimeline({ steps }: GuideTimelineProps) {
           );
         })}
       </div>
+      <p className={s.timelineNote}>
+        일부 단계는 병행할 수 있으며, 이전 단계로 돌아가는 것은 자연스러운 과정이에요.
+      </p>
     </section>
   );
 }

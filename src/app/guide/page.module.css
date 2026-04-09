@@ -105,9 +105,17 @@
   word-break: keep-all;
 }
 
+.heroCostGroup {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
 .heroCostBadge {
   display: inline-flex;
-  margin-top: 12px;
   padding: 6px 16px;
   font-size: var(--fs-caption, 0.75rem);
   font-weight: 600;
@@ -118,11 +126,11 @@
 }
 
 .heroCostSource {
-  display: block;
-  margin-top: 10px;
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   line-height: 1.4;
   color: var(--muted-foreground, #6b7280);
+  letter-spacing: 0.01em;
+  padding-left: 2px;
 }
 
 /* ═══ 타임라인 요약 ═══ */
@@ -135,7 +143,7 @@
   line-height: 1.6;
   color: var(--muted-foreground, #6b7280);
   text-align: center;
-  margin: 0 0 4px;
+  margin: 8px 0 0;
   word-break: keep-all;
 }
 
