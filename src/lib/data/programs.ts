@@ -8,9 +8,9 @@ import {
   fetchPolicies,
   mapAreaName,
   stripHtml,
-  deriveStatus,
   type RdaPolicyItem,
 } from "@/lib/api/rda";
+import { deriveStatus } from "@/lib/program-status";
 import { getSupabase, isSupabaseConfigured, type ProgramRow } from "@/lib/supabase";
 
 export interface SupportProgram {
@@ -276,7 +276,7 @@ export const PROGRAMS: SupportProgram[] = [
     applicationEnd: "2026-05-29",
     status: "모집예정",
     relatedCrops: ["딸기", "토마토", "파프리카", "상추"],
-    sourceUrl: "https://www.smartfarmkorea.net",
+    sourceUrl: "https://www.smartfarmkorea.net/edu/pnbsns/all.do?menuId=M01050701",
     year: 2026,
   },
   {
@@ -343,9 +343,11 @@ export const PROGRAMS: SupportProgram[] = [
 
 // --- 헬퍼 함수 ---
 
-/** ID(slug)로 단일 프로그램 조회 — 정적 데이터만 (동기) */
+/** ID(slug)로 단일 프로그램 조회 — 정적 데이터만 (동기, 날짜 기반 상태) */
 export function getProgramById(id: string): SupportProgram | undefined {
-  return PROGRAMS.find((p) => p.id === id);
+  const p = PROGRAMS.find((p) => p.id === id);
+  if (!p) return undefined;
+  return { ...p, status: deriveStatus(p.applicationStart, p.applicationEnd) };
 }
 
 /** ID(slug)로 단일 프로그램 조회 — Supabase → 정적 폴백 (비동기) */
@@ -441,7 +443,7 @@ export interface ProgramFilters {
   period?: string;
 }
 
-/** 필터만 적용 (전체 반환) */
+/** 필터만 적용 (전체 반환) — 날짜 기반 상태 자동 산출 */
 export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
   // 조회 시점 기간 계산
   let periodStart: string | null = null;
@@ -454,7 +456,13 @@ export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
     periodEnd = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
   }
 
-  return PROGRAMS.filter((program) => {
+  // 날짜 기반으로 상태를 재계산한 프로그램 목록
+  const livePrograms = PROGRAMS.map((p) => ({
+    ...p,
+    status: deriveStatus(p.applicationStart, p.applicationEnd),
+  }));
+
+  return livePrograms.filter((program) => {
     // 원문 링크 깨진 항목은 목록에서 숨김
     if (program.linkStatus === "broken") {
       return false;

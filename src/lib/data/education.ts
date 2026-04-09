@@ -8,9 +8,9 @@ import {
   fetchEducation as fetchRdaEducation,
   mapAreaName,
   stripHtml,
-  deriveStatus,
   type RdaEduItem,
 } from "@/lib/api/rda";
+import { deriveStatus } from "@/lib/program-status";
 import { getSupabase, isSupabaseConfigured, type EducationRow } from "@/lib/supabase";
 
 export interface EducationCourse {

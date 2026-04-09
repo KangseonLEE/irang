@@ -220,13 +220,7 @@ export function stripHtml(html: string): string {
 
 /**
  * 신청기간 기반 상태 판별
+ * — 실제 로직은 공용 유틸(@/lib/program-status)로 이동.
+ *   기존 import 호환을 위해 re-export 유지.
  */
-export function deriveStatus(
-  applStDt: string,
-  appEdDt: string
-): "모집중" | "모집예정" | "마감" {
-  const today = new Date().toISOString().slice(0, 10);
-  if (today < applStDt) return "모집예정";
-  if (today > appEdDt) return "마감";
-  return "모집중";
-}
+export { deriveStatus } from "@/lib/program-status";

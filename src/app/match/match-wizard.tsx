@@ -30,6 +30,7 @@ import {
 import { PROVINCES, type Province } from "@/lib/data/regions";
 import { CROPS, CROP_DETAILS, type CropInfo } from "@/lib/data/crops";
 import { PROGRAMS, type SupportProgram } from "@/lib/data/programs";
+import { deriveStatus } from "@/lib/program-status";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { analytics } from "@/lib/analytics";
 import { ResultSaveCta } from "@/components/result/result-save-cta";
@@ -312,11 +313,15 @@ const STATUS_PRIORITY: Record<SupportProgram["status"], number> = {
   "마감": 2,
 };
 
-/** 유형별 추천 지원사업 조회 — 모집중 우선 정렬 */
+/** 유형별 추천 지원사업 조회 — 날짜 기반 상태 자동 갱신 + 모집중 우선 정렬 */
 function getRecommendedPrograms(farmType: FarmType): SupportProgram[] {
   return farmType.programIds
     .map((id) => PROGRAMS.find((p) => p.id === id))
     .filter((p): p is SupportProgram => p != null)
+    .map((p) => ({
+      ...p,
+      status: deriveStatus(p.applicationStart, p.applicationEnd),
+    }))
     .sort((a, b) => (STATUS_PRIORITY[a.status] ?? 9) - (STATUS_PRIORITY[b.status] ?? 9));
 }
 
