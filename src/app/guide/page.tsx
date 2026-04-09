@@ -281,7 +281,9 @@ export default function GuidePage() {
           </p>
         </div>
         <span className={s.heroCostBadge}>
-          총 예상 비용 약 6,350~6,500만 원 · 지원사업 활용 시 절감 가능
+          총 예상 비용 약 6,350~6,500만 원
+          <br />
+          지원사업 활용 시 절감 가능
         </span>
         <span className={s.heroCostSource}>
           출처: 농림축산식품부 귀농인 실태조사 기준 평균
