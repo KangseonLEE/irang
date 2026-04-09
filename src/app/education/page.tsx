@@ -125,12 +125,13 @@ export default async function EducationPage({ searchParams }: PageProps) {
   };
 
   return (
-    <div className={s.page}>
-      {/* 섹션 내비게이션 (지원사업 / 교육 / 체험·행사) */}
+    <>
+      {/* 섹션 내비게이션 — .page 바깥에서 full-width sticky */}
       <Suspense>
         <SectionNav items={sectionNavItems} />
       </Suspense>
 
+    <div className={s.page}>
       {/* 로드맵 단계 컨텍스트 */}
       <Suspense>
         <RoadmapBanner />
@@ -258,6 +259,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
         </CardGrid>
       )}
     </div>
+    </>
   );
 }
 

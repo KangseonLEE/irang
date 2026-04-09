@@ -151,12 +151,13 @@ export default async function EventsPage({ searchParams }: PageProps) {
   };
 
   return (
-    <div className={s.page}>
-      {/* 섹션 내비게이션 (지원사업 / 교육 / 체험·행사) */}
+    <>
+      {/* 섹션 내비게이션 — .page 바깥에서 full-width sticky */}
       <Suspense>
         <SectionNav items={sectionNavItems} />
       </Suspense>
 
+    <div className={s.page}>
       {/* ── Page Header ── */}
       <PageHeader
         icon={<Calendar size={20} />}
@@ -273,6 +274,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
         </CardGrid>
       )}
     </div>
+    </>
   );
 }
 

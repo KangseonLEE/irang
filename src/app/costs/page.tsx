@@ -5,7 +5,6 @@ import {
   ArrowRight,
   TrendingDown,
   Calendar,
-  Coins,
   Users,
   Search,
   Banknote,
@@ -13,7 +12,6 @@ import {
   PiggyBank,
   Home,
 } from "lucide-react";
-import { PageHeader } from "@/components/ui/page-header";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import {
@@ -187,12 +185,17 @@ export default function CostsPage() {
   return (
     <div className={s.page}>
       {/* ═══ 히어로 ═══ */}
-      <PageHeader
-        icon={<Coins size={20} />}
-        label="Cost Guide"
-        title="귀농, 실제로 얼마가 필요할까?"
-        description="평균 6,219만 원. 하지만 연령, 작물, 지역에 따라 달라집니다. 내 상황에 맞는 현실적 비용을 확인하세요."
-      />
+      <section className={s.hero}>
+        <span className={s.heroOverline}>Cost Guide</span>
+        <h1 className={s.heroTitle}>
+          귀농, <span className={s.heroAccent}>실제로 얼마</span>가 필요할까?
+        </h1>
+        <p className={s.heroDesc}>
+          평균 6,219만 원. 하지만 연령, 작물, 지역에 따라 달라집니다.
+          <br />
+          내 상황에 맞는 현실적 비용을 확인하세요.
+        </p>
+      </section>
 
       {/* ═══ 비용 요약 스냅샷 ═══ */}
       <section className={s.snapshot} aria-label="비용 요약">
