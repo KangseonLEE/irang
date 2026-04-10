@@ -82,6 +82,26 @@
   border-radius: 8px;
 }
 
+/* ── 아이콘 + 도트 래퍼 ── */
+.iconWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 활성 탭 도트 인디케이터 */
+.dot {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary, #1b6b5a);
+}
+
 .tab.active {
   font-weight: 500;
   color: var(--primary, #1b6b5a);

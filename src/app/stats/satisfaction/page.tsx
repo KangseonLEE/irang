@@ -11,6 +11,7 @@ import {
   Clock,
   Users,
 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import {
   satisfactionSegments,
   satisfactionFactors,
@@ -66,7 +67,7 @@ export default function SatisfactionPage() {
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <TrendingDown size={18} className={s.kpiIcon} />
+              <Icon icon={TrendingDown} size="lg" className={s.kpiIcon} />
               25%
             </span>
             <span className={s.kpiLabel}>생활비 절감</span>
@@ -74,7 +75,7 @@ export default function SatisfactionPage() {
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <Clock size={18} className={s.kpiIcon} />
+              <Icon icon={Clock} size="lg" className={s.kpiIcon} />
               3년
             </span>
             <span className={s.kpiLabel}>정착 분기점</span>
@@ -82,7 +83,7 @@ export default function SatisfactionPage() {
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <Users size={18} className={s.kpiIcon} />
+              <Icon icon={Users} size="lg" className={s.kpiIcon} />
               75%
             </span>
             <span className={s.kpiLabel}>지역 관계 만족</span>
@@ -95,7 +96,7 @@ export default function SatisfactionPage() {
         {/* 좌: 도넛 차트 */}
         <section className={s.card} aria-labelledby="dist-title">
           <h2 className={s.cardTitle} id="dist-title">
-            <Heart size={18} className={s.cardIcon} />
+            <Icon icon={Heart} size="lg" className={s.cardIcon} />
             만족도 분포
           </h2>
           <SatisfactionDonutChart data={satisfactionSegments} />
@@ -106,7 +107,7 @@ export default function SatisfactionPage() {
         <div className={s.factorsStack}>
           <section className={s.card} aria-labelledby="pos-title">
             <h2 className={s.cardTitle} id="pos-title">
-              <ThumbsUp size={18} className={s.cardIcon} />
+              <Icon icon={ThumbsUp} size="lg" className={s.cardIcon} />
               만족 요인
             </h2>
             <FactorBarChart
@@ -119,7 +120,7 @@ export default function SatisfactionPage() {
 
           <section className={s.card} aria-labelledby="neg-title">
             <h2 className={s.cardTitle} id="neg-title">
-              <ThumbsDown size={18} className={s.cardIcon} />
+              <Icon icon={ThumbsDown} size="lg" className={s.cardIcon} />
               불만족 요인
             </h2>
             <FactorBarChart

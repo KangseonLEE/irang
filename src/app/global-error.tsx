@@ -42,7 +42,7 @@ export default function GlobalError({
             viewBox="0 0 24 24"
             fill="none"
             stroke="var(--error-light, #ef4444)"
-            strokeWidth="2"
+            strokeWidth="1.75"
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{ opacity: 0.6 }}

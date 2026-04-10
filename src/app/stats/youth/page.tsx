@@ -9,6 +9,7 @@ import {
   Users,
   Award,
 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import {
   youthData,
   youthSummary,
@@ -60,7 +61,7 @@ export default function YouthPage() {
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <TrendingUp size={18} className={s.kpiIcon} />
+              <Icon icon={TrendingUp} size="lg" className={s.kpiIcon} />
               +{growthPp}%p
             </span>
             <span className={s.kpiLabel}>10년간 증가폭</span>
@@ -68,7 +69,7 @@ export default function YouthPage() {
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <Award size={18} className={s.kpiIcon} />
+              <Icon icon={Award} size="lg" className={s.kpiIcon} />
               역대 최고
             </span>
             <span className={s.kpiLabel}>2024 기록</span>
@@ -76,7 +77,7 @@ export default function YouthPage() {
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <Users size={18} className={s.kpiIcon} />
+              <Icon icon={Users} size="lg" className={s.kpiIcon} />
               40세 미만
             </span>
             <span className={s.kpiLabel}>대상 연령</span>
@@ -89,7 +90,7 @@ export default function YouthPage() {
         {/* 좌: 청년 비율 추이 차트 */}
         <section className={s.card} aria-labelledby="chart-youth-title">
           <h2 className={s.cardTitle} id="chart-youth-title">
-            <TrendingUp size={18} className={s.cardIcon} />
+            <Icon icon={TrendingUp} size="lg" className={s.cardIcon} />
             청년 귀농 비율 추이
           </h2>
           <YouthTrendChart data={youthData} />
@@ -100,7 +101,7 @@ export default function YouthPage() {
         <div className={s.factorsStack}>
           <section className={s.card} aria-labelledby="reasons-title">
             <h2 className={s.cardTitle} id="reasons-title">
-              <Sprout size={18} className={s.cardIcon} />
+              <Icon icon={Sprout} size="lg" className={s.cardIcon} />
               귀농 사유 Top 5
             </h2>
             <FactorBarChart
@@ -113,7 +114,7 @@ export default function YouthPage() {
 
           <section className={s.card} aria-labelledby="table-youth-title">
             <h2 className={s.cardTitle} id="table-youth-title">
-              <TrendingUp size={18} className={s.cardIcon} />
+              <Icon icon={TrendingUp} size="lg" className={s.cardIcon} />
               연도별 상세 데이터
             </h2>
             <div className={shared.tableWrap}>

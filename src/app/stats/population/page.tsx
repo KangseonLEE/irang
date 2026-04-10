@@ -10,6 +10,7 @@ import {
   Calendar,
   ArrowUpRight,
 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import {
   populationData,
   populationSummary,
@@ -67,7 +68,7 @@ export default function PopulationPage() {
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <ArrowUpRight size={18} className={s.kpiIcon} />
+              <Icon icon={ArrowUpRight} size="lg" className={s.kpiIcon} />
               +{growthPct}%
             </span>
             <span className={s.kpiLabel}>전년 대비 증가</span>
@@ -75,7 +76,7 @@ export default function PopulationPage() {
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <Calendar size={18} className={s.kpiIcon} />
+              <Icon icon={Calendar} size="lg" className={s.kpiIcon} />
               10년
             </span>
             <span className={s.kpiLabel}>데이터 기간</span>
@@ -88,7 +89,7 @@ export default function PopulationPage() {
         {/* 좌: 복합 차트 */}
         <section className={s.card} aria-labelledby="chart-title">
           <h2 className={s.cardTitle} id="chart-title">
-            <TrendingUp size={18} className={s.cardIcon} />
+            <Icon icon={TrendingUp} size="lg" className={s.cardIcon} />
             귀농·귀촌 인구 추이
           </h2>
           <PopulationTrendChart data={populationData} />
@@ -98,7 +99,7 @@ export default function PopulationPage() {
         {/* 우: 테이블 */}
         <section className={s.card} aria-labelledby="table-title">
           <h2 className={s.cardTitle} id="table-title">
-            <BarChart3 size={18} className={s.cardIcon} />
+            <Icon icon={BarChart3} size="lg" className={s.cardIcon} />
             연도별 상세 데이터
           </h2>
           <div className={shared.tableWrap}>
