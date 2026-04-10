@@ -149,7 +149,7 @@
 .costDesc {
   font-size: var(--fs-overline, 0.6875rem);
   color: var(--muted-foreground, #6b7280);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
   word-break: keep-all;
 }
 

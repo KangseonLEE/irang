@@ -39,7 +39,7 @@
   gap: 8px;
   font-size: 13px;
   color: var(--primary-foreground);
-  line-height: 1.6;
+  line-height: var(--lh-normal);
 }
 
 .tooltipDot {
@@ -179,6 +179,6 @@
   }
 
   .tooltipRow {
-    font-size: 15px;
+    font-size: var(--fs-body-sm);
   }
 }

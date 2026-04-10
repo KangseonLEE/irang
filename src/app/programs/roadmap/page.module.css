@@ -76,7 +76,7 @@
 
 .heroDesc {
   font-size: var(--fs-body-sm, 0.875rem);
-  line-height: 1.6;
+  line-height: var(--lh-normal);
   color: var(--muted-foreground, #6b7280);
   margin: 0;
   word-break: keep-all;
@@ -418,7 +418,7 @@
 
 .eligibilityDetail {
   font-size: 0.8125rem;
-  line-height: 1.6;
+  line-height: var(--lh-normal);
   color: var(--muted-foreground, #6b7280);
   margin: 2px 0 0;
   word-break: keep-all;
@@ -740,7 +740,7 @@
 }
 
 @media (min-width: 1024px) {
-  .docItem { font-size: var(--fs-body-sm, 0.875rem); line-height: 1.4; }
+  .docItem { font-size: var(--fs-body-sm, 0.875rem); line-height: var(--lh-snug); }
 }
 
 .docItem > svg {
@@ -799,7 +799,7 @@
 }
 
 @media (min-width: 1024px) {
-  .obligationsPreviewList > li { font-size: var(--fs-body, 1rem); line-height: 1.6; }
+  .obligationsPreviewList > li { font-size: var(--fs-body, 1rem); line-height: var(--lh-normal); }
 }
 
 /* ═══ 의무사항 ═══ */
@@ -822,14 +822,14 @@
   align-items: flex-start;
   gap: 8px;
   font-size: 0.8125rem;
-  line-height: 1.6;
+  line-height: var(--lh-normal);
   color: var(--foreground);
   word-break: keep-all;
   overflow-wrap: break-word;
 }
 
 @media (min-width: 1024px) {
-  .obligationItem { font-size: var(--fs-body-sm, 0.875rem); line-height: 1.4; }
+  .obligationItem { font-size: var(--fs-body-sm, 0.875rem); line-height: var(--lh-snug); }
 }
 
 .obligationItem > svg {
@@ -902,7 +902,7 @@
 
 .subProgramTarget {
   font-size: 0.8125rem;
-  line-height: 1.6;
+  line-height: var(--lh-normal);
   color: var(--muted-foreground, #6b7280);
   margin: 0 0 3px;
   word-break: keep-all;
@@ -995,23 +995,23 @@
 
   /* 자격 요건 */
   .eligibilityLabel { font-size: 1.0625rem; }
-  .eligibilityDetail { font-size: var(--fs-body, 1rem); line-height: 1.6; }
+  .eligibilityDetail { font-size: var(--fs-body, 1rem); line-height: var(--lh-normal); }
   .eligibilityUdae { font-size: var(--fs-body-sm, 0.9375rem); }
 
   /* 신청 절차 */
   .stepTitle { font-size: 1.0625rem; }
   .stepDuration { font-size: var(--fs-body-sm, 0.9375rem); }
-  .stepDesc { font-size: var(--fs-body, 1rem); line-height: 1.6; }
-  .stepTip { font-size: var(--fs-body-sm, 0.9375rem); line-height: 1.6; }
+  .stepDesc { font-size: var(--fs-body, 1rem); line-height: var(--lh-normal); }
+  .stepTip { font-size: var(--fs-body-sm, 0.9375rem); line-height: var(--lh-normal); }
   .stepDocsSummary { font-size: var(--fs-body-sm, 0.9375rem); }
   .stepDocTag { font-size: var(--fs-body-sm, 0.9375rem); }
 
   /* 필요 서류 · 의무사항 */
-  .docItem { font-size: 1.0625rem; line-height: 1.6; }
-  .obligationItem { font-size: 1.0625rem; line-height: 1.6; }
+  .docItem { font-size: 1.0625rem; line-height: var(--lh-normal); }
+  .obligationItem { font-size: 1.0625rem; line-height: var(--lh-normal); }
 
   /* 주의사항 */
-  .cautionText { font-size: var(--fs-body, 1rem); line-height: 1.6; }
+  .cautionText { font-size: var(--fs-body, 1rem); line-height: var(--lh-normal); }
 
   /* 세부사업 */
   .subProgramName { font-size: 1.0625rem; }

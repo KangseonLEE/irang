@@ -134,7 +134,7 @@
   font-weight: 800;
   color: var(--primary, #1b6b5a);
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: var(--lh-tight);
 }
 
 @media (min-width: 640px) {

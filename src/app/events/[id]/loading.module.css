@@ -5,7 +5,19 @@
 .container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+  padding: 16px 16px;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 24px 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 40px 32px;
+  }
 }
 
 .backLink {

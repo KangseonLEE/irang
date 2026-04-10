@@ -106,7 +106,7 @@
     max-width: 220px;
     white-space: normal;
     word-break: keep-all;
-    line-height: 1.4;
+    line-height: var(--lh-snug);
   }
 
   .hideOnMobile {

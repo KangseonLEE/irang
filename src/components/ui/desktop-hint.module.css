@@ -23,7 +23,7 @@
   flex: 1;
   font-size: var(--fs-caption, 13px);
   color: var(--foreground, #333);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
 }
 
 .close {

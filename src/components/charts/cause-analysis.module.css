@@ -83,7 +83,7 @@
   font-size: var(--fs-body-sm, 14px);
   font-weight: 700;
   color: var(--foreground, #111827);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
   word-break: keep-all;
 }
 

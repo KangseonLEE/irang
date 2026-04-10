@@ -15,7 +15,7 @@
 }
 
 @media (min-width: 1024px) {
-  .page { padding: 32px 32px 48px; }
+  .page { padding: 40px 32px 48px; }
 }
 
 /* ── 상단 바: 브레드크럼 + 출처 ── */

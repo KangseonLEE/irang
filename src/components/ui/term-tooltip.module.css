@@ -97,7 +97,7 @@
 /* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
 @media (min-width: 1024px) {
   .popover {
-    font-size: 15px;
+    font-size: var(--fs-body-sm);
   }
 
   .popoverLink {

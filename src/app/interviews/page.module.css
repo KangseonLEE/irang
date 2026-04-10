@@ -74,7 +74,7 @@
 .heroDesc {
   font-size: var(--fs-body-sm);
   color: var(--muted-foreground, #6b7280);
-  line-height: 1.6;
+  line-height: var(--lh-normal);
   word-break: keep-all;
   margin: 0;
 }

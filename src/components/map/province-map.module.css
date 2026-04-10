@@ -145,7 +145,7 @@
 .tooltipDesc {
   font-size: 0.75rem;
   color: var(--muted-foreground, #6b7280);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
   white-space: normal;
   max-width: 220px;
 }

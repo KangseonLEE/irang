@@ -139,7 +139,7 @@
 }
 
 .cropCardName {
-  font-size: 15px;
+  font-size: var(--fs-body-sm);
   font-weight: 700;
   color: var(--foreground, #111827);
   margin: 0;
@@ -193,7 +193,7 @@
   font-size: 12px;
   font-weight: 400;
   color: var(--muted-foreground, #6b7280);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
   margin: 0;
 }
 
@@ -337,7 +337,7 @@
   }
 
   .cropCardDesc {
-    font-size: 15px;
+    font-size: var(--fs-body-sm);
   }
 }
 

@@ -6,7 +6,7 @@
   padding: 3px 8px;
   border-radius: 6px;
   white-space: nowrap;
-  line-height: 1.2;
+  line-height: var(--lh-tight);
 }
 
 .green {

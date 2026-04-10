@@ -265,26 +265,26 @@
 /* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
 @media (min-width: 1024px) {
   .filterLabel {
-    font-size: 15px;
+    font-size: var(--fs-body-sm);
   }
 
   .pill {
-    font-size: 15px;
+    font-size: var(--fs-body-sm);
   }
 
   .toggle {
-    font-size: 15px;
+    font-size: var(--fs-body-sm);
   }
 
   .numberLabel {
-    font-size: 15px;
+    font-size: var(--fs-body-sm);
   }
 
   .numberInput {
-    font-size: 15px;
+    font-size: var(--fs-body-sm);
   }
 
   .resetLink {
-    font-size: 15px;
+    font-size: var(--fs-body-sm);
   }
 }

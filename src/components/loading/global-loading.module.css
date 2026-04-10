@@ -43,7 +43,7 @@
 }
 
 .message {
-  font-size: 15px;
+  font-size: var(--fs-body-sm);
   font-weight: 500;
   color: var(--muted-foreground, #6b7280);
   line-height: 1.5;

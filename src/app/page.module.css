@@ -586,7 +586,7 @@
   font-size: 18px;
   font-weight: 800;
   color: var(--foreground, #111827);
-  line-height: 1.2;
+  line-height: var(--lh-tight);
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
@@ -1140,8 +1140,8 @@
 @media (min-width: 1024px) {
   /* 비용 섹션 */
   .costOverline    { font-size: 14px; }
-  .costHeroSub     { font-size: 15px; }
-  .costGridLabel   { font-size: 15px; }
+  .costHeroSub     { font-size: var(--fs-body-sm); }
+  .costGridLabel   { font-size: var(--fs-body-sm); }
   .costGridSub     { font-size: 13px; }
 
   /* 인터뷰 */

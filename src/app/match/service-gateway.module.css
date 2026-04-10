@@ -204,7 +204,7 @@
   padding: 2px 8px;
   font-size: var(--fs-overline);
   font-weight: 700;
-  line-height: 1.4;
+  line-height: var(--lh-snug);
   color: var(--primary-foreground);
   background: #d4730d;
   border-radius: 6px;
