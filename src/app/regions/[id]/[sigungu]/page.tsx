@@ -148,7 +148,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       {/* ── 대표 작물 (정적 매칭) ── */}
       <section className={s.section} aria-label="대표 작물">
         <div className={s.sectionHeader}>
-          <Icon icon={Sprout} size="lg" variant="soft" box="md" />
+          <Icon icon={Sprout} size="lg" />
           <div>
             <h2 className={s.sectionTitle}>대표 작물</h2>
             <p className={s.sectionDesc}>
@@ -182,7 +182,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       {/* ── 관련 지원사업 ── */}
       <section className={s.section} aria-label="관련 지원사업">
         <div className={s.sectionHeader}>
-          <Icon icon={FileText} size="lg" variant="soft" box="md" />
+          <Icon icon={FileText} size="lg" />
           <div>
             <h2 className={s.sectionTitle}>관련 지원사업</h2>
             <p className={s.sectionDesc}>
@@ -229,7 +229,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       {/* ── 귀농 교육 ── */}
       <section className={s.section} aria-label="귀농 교육">
         <div className={s.sectionHeader}>
-          <Icon icon={GraduationCap} size="lg" variant="soft" box="md" />
+          <Icon icon={GraduationCap} size="lg" />
           <div>
             <h2 className={s.sectionTitle}>귀농 교육</h2>
             <p className={s.sectionDesc}>
@@ -275,7 +275,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       {/* ── 체험·행사 ── */}
       <section className={s.section} aria-label="체험·행사">
         <div className={s.sectionHeader}>
-          <Icon icon={Calendar} size="lg" variant="soft" box="md" />
+          <Icon icon={Calendar} size="lg" />
           <div>
             <h2 className={s.sectionTitle}>체험·행사</h2>
             <p className={s.sectionDesc}>

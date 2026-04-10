@@ -73,7 +73,7 @@ export function RegionStats({
           onClick={() => setActiveModal("area")}
           aria-haspopup="dialog"
         >
-          <Icon icon={Ruler} size="lg" variant="soft" box="lg" />
+          <Icon icon={Ruler} size="lg"  />
           <div className={s.statBody}>
             <span className={s.statLabel}>면적</span>
             <span className={s.statValue}>
@@ -91,7 +91,7 @@ export function RegionStats({
             onClick={() => setActiveModal("population")}
             aria-haspopup="dialog"
           >
-            <Icon icon={Users} size="lg" variant="soft" box="lg" />
+            <Icon icon={Users} size="lg"  />
             <div className={s.statBody}>
               <span className={s.statLabel}>인구</span>
               <span className={s.statValue}>
@@ -112,7 +112,7 @@ export function RegionStats({
             onClick={() => setActiveModal("medical")}
             aria-haspopup="dialog"
           >
-            <Icon icon={Building2} size="lg" variant="soft" box="lg" />
+            <Icon icon={Building2} size="lg"  />
             <div className={s.statBody}>
               <span className={s.statLabel}>의료기관</span>
               <span className={s.statValue}>
@@ -131,7 +131,7 @@ export function RegionStats({
             onClick={() => setActiveModal("school")}
             aria-haspopup="dialog"
           >
-            <Icon icon={GraduationCap} size="lg" variant="soft" box="lg" />
+            <Icon icon={GraduationCap} size="lg"  />
             <div className={s.statBody}>
               <span className={s.statLabel}>학교</span>
               <span className={s.statValue}>

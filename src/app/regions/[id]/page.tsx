@@ -110,7 +110,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
           {matchedCrops.length > 0 && (
             <section className={s.section}>
               <div className={s.sectionHeader}>
-                <Icon icon={Sprout} size="lg" variant="soft" box="md" />
+                <Icon icon={Sprout} size="lg" />
                 <div>
                   <h2 className={s.sectionTitle}>추천 작물</h2>
                   <p className={s.sectionDesc}>

@@ -1,18 +1,15 @@
 /**
  * Icon — 통일된 아이콘 래퍼 컴포넌트
  *
- * lucide-react 아이콘을 감싸서 사이즈·컨테이너·컬러를 일관되게 적용.
- * 기존 코드와 점진적으로 교체 가능하도록 설계.
+ * lucide-react 아이콘(또는 커스텀 아이콘)을 감싸서
+ * strokeWidth 1.75 · 사이즈 토큰 · 컬러를 일관되게 적용.
  *
  * @example
- * // 인라인 (bare)
+ * // 인라인 (기본)
  * <Icon icon={Search} size="md" />
  *
- * // 섹션 헤더 (soft 배경 박스)
- * <Icon icon={Sprout} size="lg" variant="soft" box="md" />
- *
  * // 시맨틱 컬러
- * <Icon icon={AlertTriangle} size="lg" variant="soft" box="md" color="warning" />
+ * <Icon icon={Gauge} size="lg" color="success" />
  */
 
 import type { LucideIcon } from "lucide-react";

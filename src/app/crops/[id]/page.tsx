@@ -230,21 +230,21 @@ export default async function CropDetailPage({
           {/* Quick Stats — 요약 프로필 카드 */}
           <div className={s.quickStats}>
             <div className={s.statCard}>
-              <Icon icon={Gauge} size="lg" variant="soft" box="lg" color="success" />
+              <Icon icon={Gauge} size="lg" color="success" />
               <div>
                 <p className={s.statLabel}>난이도</p>
                 <p className={s.statValue}>{data.difficulty}</p>
               </div>
             </div>
             <div className={s.statCard}>
-              <Icon icon={Calendar} size="lg" variant="soft" box="lg" color="info" />
+              <Icon icon={Calendar} size="lg" color="info" />
               <div>
                 <p className={s.statLabel}>재배 시기</p>
                 <p className={s.statValue}>{data.growingSeason}</p>
               </div>
             </div>
             <div className={s.statCard}>
-              <Icon icon={TrendingUp} size="lg" variant="soft" box="lg" color="warning" />
+              <Icon icon={TrendingUp} size="lg" color="warning" />
               <div>
                 <p className={s.statLabel}>예상 수익</p>
                 <p className={s.statValue}><RevenueText text={parseRevenueRange(detail.income.revenueRange).main} /></p>
@@ -262,7 +262,7 @@ export default async function CropDetailPage({
         <div className={s.mainContent}>
           {/* 개요 */}
           <section id="overview" className={s.section}>
-            <SectionHeader icon={<Icon icon={Sprout} size="lg" variant="soft" box="md" />} title="개요" />
+            <SectionHeader icon={<Icon icon={Sprout} size="lg" />} title="개요" />
             <div className={s.sectionBody}>
               <p className={s.overviewText}><AutoGlossary text={data.description} /></p>
               <div className={s.matchBox}>
@@ -472,7 +472,7 @@ function CultivationSection({
 
   return (
     <section id="cultivation" className={s.section}>
-      <SectionHeader icon={<Icon icon={Sprout} size="lg" variant="soft" box="md" />} title="재배 환경" />
+      <SectionHeader icon={<Icon icon={Sprout} size="lg" />} title="재배 환경" />
       <div className={s.sectionBody}>
         <div className={s.featureGrid}>
           {items.map((item) => (
@@ -513,7 +513,7 @@ function IncomeSection({
 
   return (
     <section id="income" className={s.section}>
-      <SectionHeader icon={<Icon icon={TrendingUp} size="lg" variant="soft" box="md" />} title="수익 정보" />
+      <SectionHeader icon={<Icon icon={TrendingUp} size="lg" />} title="수익 정보" />
       <div className={s.sectionBody}>
         {/* 수익 카드 — 토스 패턴: 숫자 우선 */}
         <div className={s.revenueCard}>
@@ -600,7 +600,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 function ProsConsSection({ prosCons }: { prosCons: ProsConsInfo }) {
   return (
     <section id="pros-cons" className={s.section}>
-      <SectionHeader icon={<Icon icon={Scale} size="lg" variant="soft" box="md" />} title="장점과 단점" />
+      <SectionHeader icon={<Icon icon={Scale} size="lg" />} title="장점과 단점" />
       <div className={s.sectionBody}>
         {/* 장점 */}
         <div className={s.prosGroup}>
@@ -668,7 +668,7 @@ function RegionSection({
   return (
     <section id="region" className={s.section}>
       <div className={s.sectionHeader}>
-        <Icon icon={MapPin} size="lg" variant="soft" box="md" />
+        <Icon icon={MapPin} size="lg" />
         <span>인기 재배지역</span>
         {kosisYear && (
           <span className={s.kosisBadge}>{kosisYear}년 KOSIS</span>
@@ -753,7 +753,7 @@ function RegionSection({
 function GrowStepsSection({ steps }: { steps: CultivationStep[] }) {
   return (
     <section id="grow-steps" className={s.section}>
-      <SectionHeader icon={<Icon icon={ClipboardList} size="lg" variant="soft" box="md" />} title="재배 방법" />
+      <SectionHeader icon={<Icon icon={ClipboardList} size="lg" />} title="재배 방법" />
       <div className={s.sectionBody}>
         <div className={s.stepsList}>
           {steps.map((step) => (
@@ -779,7 +779,7 @@ function GrowStepsSection({ steps }: { steps: CultivationStep[] }) {
 function TipsSection({ tips }: { tips: string[] }) {
   return (
     <section id="tips" className={s.section}>
-      <SectionHeader icon={<Icon icon={Lightbulb} size="lg" variant="soft" box="md" />} title="귀농 팁" />
+      <SectionHeader icon={<Icon icon={Lightbulb} size="lg" />} title="귀농 팁" />
       <div className={s.sectionBody}>
         <div className={s.tipsList}>
           {tips.map((tip, idx) => (
