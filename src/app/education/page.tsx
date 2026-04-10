@@ -7,7 +7,6 @@ import {
   MapPin,
   Clock,
   Users,
-  ExternalLink,
   Monitor,
   Building2,
   Combine,
@@ -238,7 +237,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
                   <tr key={c.id} className={dt.clickableRow}>
                     <td><StatusBadge status={c.status} /></td>
                     <td className={dt.titleCell}>
-                      <Link href={c.url} target="_blank" rel="noopener noreferrer" className={`${dt.titleLink} ${dt.rowLink}`}>
+                      <Link href={`/education/${c.id}`} className={`${dt.titleLink} ${dt.rowLink}`}>
                         {c.title}
                       </Link>
                     </td>
@@ -273,10 +272,8 @@ function CourseCard({ course }: { course: EducationCourse }) {
   const isClosed = course.status === "마감";
 
   return (
-    <a
-      href={course.url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      href={`/education/${course.id}`}
       className={`${s.card}${isClosed ? ` ${s.cardClosed}` : ""}`}
     >
       {/* 상단: 상태 + 난이도 */}
@@ -328,9 +325,8 @@ function CourseCard({ course }: { course: EducationCourse }) {
         <span className={s.cardCost}>{course.cost}</span>
         <span className={s.cardLink} aria-hidden="true">
           상세보기
-          <ExternalLink size={12} />
         </span>
       </div>
-    </a>
+    </Link>
   );
 }

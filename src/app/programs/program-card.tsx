@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { MapPin, Calendar } from "lucide-react";
 import type { SupportProgram } from "@/lib/data/programs";
+import { formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import s from "./program-card.module.css";
@@ -44,16 +46,40 @@ export function ProgramCard({ program }: { program: SupportProgram }) {
           </div>
         </div>
 
-        {/* 제목 -- L1: 가장 큰 텍스트 */}
+        {/* 제목 */}
         <h3 className={s.title}>{program.title}</h3>
+
+        {/* 기관 + 지역 */}
+        <div className={s.subtitle}>
+          <MapPin size={13} />
+          <span className={s.region}>{program.region}</span>
+          <span className={s.dot} />
+          <span className={s.org}>{program.organization}</span>
+        </div>
 
         {/* 구분선 */}
         <hr className={s.divider} />
 
-        {/* 하단 메타: 담당기관 + 금액 */}
-        <div className={s.meta}>
-          <span className={s.org}>{program.organization}</span>
+        {/* 메타 정보 */}
+        <div className={s.metaGrid}>
+          <div className={s.metaItem}>
+            <Calendar size={13} />
+            <span className={s.metaValue}>
+              {formatDate(program.applicationStart)} ~{" "}
+              {formatDate(program.applicationEnd)}
+            </span>
+          </div>
+        </div>
+
+        {/* 요약 */}
+        <p className={s.summary}>{program.summary}</p>
+
+        {/* 하단: 지원금액 + CTA */}
+        <div className={s.footer}>
           <span className={s.amount}>{program.supportAmount}</span>
+          <span className={s.detailLink} aria-hidden="true">
+            상세보기
+          </span>
         </div>
       </div>
     </Link>

@@ -6,7 +6,6 @@ import {
   MapPin,
   Clock,
   Users,
-  ExternalLink,
   Tag,
 } from "lucide-react";
 import { formatDate, formatDateRange } from "@/lib/format";
@@ -225,7 +224,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
                   <tr key={ev.id} className={dt.clickableRow}>
                     <td><StatusBadge status={ev.status} /></td>
                     <td className={dt.titleCell}>
-                      <Link href={ev.url} target="_blank" rel="noopener noreferrer" className={`${dt.titleLink} ${dt.rowLink}`}>
+                      <Link href={`/events/${ev.id}`} className={`${dt.titleLink} ${dt.rowLink}`}>
                         {ev.title}
                       </Link>
                     </td>
@@ -259,10 +258,8 @@ export default async function EventsPage({ searchParams }: PageProps) {
 
 function EventCard({ event }: { event: FarmEvent }) {
   return (
-    <a
-      href={event.url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      href={`/events/${event.id}`}
       className={s.card}
     >
       {/* Header: badges */}
@@ -312,10 +309,9 @@ function EventCard({ event }: { event: FarmEvent }) {
       <div className={s.cardFooter}>
         <span className={s.cardCost}>{event.cost}</span>
         <span className={s.cardLink} aria-hidden="true">
-          자세히 보기
-          <ExternalLink size={12} />
+          상세보기
         </span>
       </div>
-    </a>
+    </Link>
   );
 }
