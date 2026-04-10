@@ -7,12 +7,12 @@ import {
   ExternalLink,
   MapPin,
   Briefcase,
-  Sprout,
   Quote,
   Lightbulb,
   AlertTriangle,
   MessageCircle,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { interviews } from "@/lib/data/landing";
 import { CROPS } from "@/lib/data/crops";

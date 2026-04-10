@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   ChevronRight,
   MapPin,
-  Sprout,
   Sun,
   Snowflake,
   CloudSun,
@@ -27,6 +26,7 @@ import {
   RotateCcw,
   FileText,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { PROVINCES, type Province } from "@/lib/data/regions";
 import { CROPS, CROP_DETAILS, type CropInfo } from "@/lib/data/crops";
 import { PROGRAMS, type SupportProgram } from "@/lib/data/programs";

@@ -4,12 +4,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
   ChevronRight,
-  Sprout,
   ArrowLeft,
   FileText,
   GraduationCap,
   Calendar,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS, getSigunguBySidoAndId } from "@/lib/data/sigungus";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";

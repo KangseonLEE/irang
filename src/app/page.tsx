@@ -6,12 +6,12 @@ import Link from "next/link";
 import {
   ArrowRight,
   MapPin,
-  Sprout,
   Calculator,
   Compass,
   Footprints,
   BookOpen,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import SearchGroup from "@/components/search/search-group";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";

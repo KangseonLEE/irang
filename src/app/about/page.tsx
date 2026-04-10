@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   MapPin,
-  Sprout,
   FileText,
   ArrowRight,
   Database,
@@ -15,6 +14,7 @@ import {
   MousePointerClick,
   Target,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { IrangSymbol } from "@/components/brand/irang-symbol";

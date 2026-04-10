@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
-  Sprout,
   Briefcase,
   Quote,
   MapPin,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { interviews } from "@/lib/data/landing";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";

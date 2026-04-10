@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Sprout, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import type { ClimateData } from "@/lib/api/weather";

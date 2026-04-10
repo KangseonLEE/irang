@@ -2,7 +2,8 @@
 
 import { useRef, useEffect } from "react";
 import Link from "next/link";
-import { X, Trash2, MapPin, Sprout, FileText, GraduationCap, CalendarDays, Heart } from "lucide-react";
+import { X, Trash2, MapPin, FileText, GraduationCap, CalendarDays, Heart } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { useBookmarks, type BookmarkType } from "@/lib/hooks/use-bookmarks";
 import s from "./bookmark-list.module.css";
 

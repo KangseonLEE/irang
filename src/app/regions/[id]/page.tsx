@@ -6,11 +6,11 @@ import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import {
-  Sprout,
   GitCompareArrows,
   ArrowRight,
   UserCheck,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { PROVINCES } from "@/lib/data/regions";
 import { getSigungusBySidoId } from "@/lib/data/sigungus";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";

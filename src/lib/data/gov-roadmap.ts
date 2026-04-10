@@ -4,12 +4,12 @@
    ========================================================================== */
 
 import {
-  Sprout,
   UserCheck,
   Landmark,
   TreePine,
   type LucideIcon,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 
 /* ── 타입 ── */
 

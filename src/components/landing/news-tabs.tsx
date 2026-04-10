@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import { ExternalLink, Sprout } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import s from "./news-tabs.module.css";
 
 /* ── 통합 뉴스 아이템 ── */

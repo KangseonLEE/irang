@@ -1,4 +1,4 @@
-import { Sprout } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import s from "./loading.module.css";
 

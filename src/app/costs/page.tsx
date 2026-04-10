@@ -8,10 +8,10 @@ import {
   Users,
   Search,
   Banknote,
-  Sprout,
   PiggyBank,
   Home,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import {

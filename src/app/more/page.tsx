@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 import {
   MapPin,
   GitCompareArrows,
-  Sprout,
   Map,
   Wallet,
   Users,
@@ -25,6 +24,7 @@ import {
   Info,
   type LucideIcon,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page.module.css";

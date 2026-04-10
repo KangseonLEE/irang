@@ -5,7 +5,6 @@ import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
 import {
-  Sprout,
   MapPin,
   Thermometer,
   DollarSign,
@@ -28,6 +27,7 @@ import {
   Clock,
   Zap,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import {
   getCropWithDetail,
   getAllCropIds,

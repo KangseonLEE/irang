@@ -3,12 +3,12 @@ import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
-  Sprout,
   TrendingUp,
   MessageCircle,
   Users,
   Award,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import {
   youthData,

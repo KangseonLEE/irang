@@ -4,13 +4,13 @@ import Link from "next/link";
 import {
   MapPin,
   GitCompareArrows,
-  Sprout,
   Landmark,
   FileText,
   Thermometer,
   Users,
   HeartHandshake,
 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
 import { PROVINCES } from "@/lib/data/regions";
