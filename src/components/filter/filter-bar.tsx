@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { Icon } from "@/components/ui/icon";
 import s from "./filter-bar.module.css";
 

@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Heart, Search } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
+import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { IrangSymbol } from "@/components/brand/irang-symbol";
 import { BookmarkList } from "@/components/bookmark/bookmark-list";
 import { useBookmarks } from "@/lib/hooks/use-bookmarks";

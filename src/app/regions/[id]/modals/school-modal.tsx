@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Search, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
+import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { Icon } from "@/components/ui/icon";
 import { DataSource } from "@/components/ui/data-source";
 import s from "./modals.module.css";

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Search, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
+import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { RoadmapClient } from "./roadmap-client";
 import s from "./page.module.css";

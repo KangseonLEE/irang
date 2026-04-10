@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Search, ChevronDown, SearchX } from "lucide-react";
+import { ChevronDown, SearchX } from "lucide-react";
+import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { Icon } from "@/components/ui/icon";
 import type { GlossaryCategory, GlossaryEntry } from "@/lib/data/glossary";
 import s from "./page.module.css";

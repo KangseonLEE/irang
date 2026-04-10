@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { IrangSearch as Search } from "@/components/ui/irang-search";
 import s from "./loading.module.css";
 
 export default function SearchLoading() {

@@ -10,7 +10,8 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Clock, X, MessageSquarePlus } from "lucide-react";
+import { Clock, X, MessageSquarePlus } from "lucide-react";
+import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchItems, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";

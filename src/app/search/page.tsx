@@ -3,7 +3,8 @@
 import { Suspense, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Search, MapPin, Sprout, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, MessageSquarePlus } from "lucide-react";
+import { MapPin, Sprout, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, MessageSquarePlus } from "lucide-react";
+import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchAll, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import { logSearch } from "@/lib/supabase";

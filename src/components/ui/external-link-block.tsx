@@ -1,4 +1,5 @@
-import { ExternalLink, Shield, AlertCircle, Search, Monitor } from "lucide-react";
+import { ExternalLink, Shield, AlertCircle, Monitor } from "lucide-react";
+import { IrangSearch as Search } from "@/components/ui/irang-search";
 import s from "./external-link-block.module.css";
 
 interface ExternalLinkBlockProps {
