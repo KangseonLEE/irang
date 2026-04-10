@@ -85,7 +85,7 @@
 
 @media (hover: hover) {
   .item:hover {
-    color: #fff;
+    color: var(--primary-foreground);
     text-decoration: underline;
     text-underline-offset: 3px;
   }

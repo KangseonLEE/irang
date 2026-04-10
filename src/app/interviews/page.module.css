@@ -318,7 +318,7 @@
   padding: 20px 24px;
   border-radius: var(--radius-lg);
   background: linear-gradient(135deg, var(--primary, #1b6b5a) 0%, var(--brand-700, #0f4035) 100%);
-  color: #fff;
+  color: var(--primary-foreground);
 }
 
 @media (max-width: 480px) {
@@ -339,7 +339,7 @@
   border-radius: 10px;
   font-size: var(--fs-body-sm);
   font-weight: 700;
-  background: #fff;
+  background: var(--card);
   color: var(--primary, #1b6b5a);
   text-decoration: none;
   white-space: nowrap;

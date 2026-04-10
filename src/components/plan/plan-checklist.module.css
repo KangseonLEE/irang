@@ -96,7 +96,7 @@
   height: 28px;
   border-radius: 50%;
   background: var(--primary, #1b6b5a);
-  color: #fff;
+  color: var(--primary-foreground);
   font-size: var(--fs-body-sm);
   font-weight: 700;
   flex-shrink: 0;

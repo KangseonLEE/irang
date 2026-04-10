@@ -170,7 +170,7 @@
   padding: 8px 16px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: #fff;
+  color: var(--primary-foreground);
   background: var(--primary, #1b6b5a);
   border-radius: 8px;
   text-decoration: none;

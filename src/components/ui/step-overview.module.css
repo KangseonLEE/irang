@@ -94,7 +94,7 @@
 
 .iconHighlight {
   background: var(--primary, #1b6b5a);
-  color: #fff;
+  color: var(--primary-foreground);
 }
 
 /* ── 텍스트 ── */

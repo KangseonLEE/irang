@@ -205,7 +205,7 @@
   font-size: var(--fs-overline);
   font-weight: 700;
   line-height: 1.4;
-  color: #fff;
+  color: var(--primary-foreground);
   background: #d4730d;
   border-radius: 6px;
   white-space: nowrap;

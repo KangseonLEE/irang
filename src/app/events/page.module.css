@@ -93,7 +93,7 @@
 
 /* 설명회 / 멘토링: blue tint */
 .typeBadgeBlue {
-  background: color-mix(in srgb, #2563eb 12%, transparent);
+  background: color-mix(in srgb, var(--info, #2563eb) 12%, transparent);
   color: #1d4ed8;
 }
 

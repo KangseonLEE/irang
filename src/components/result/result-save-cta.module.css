@@ -38,7 +38,7 @@
 }
 
 .saveBtn {
-  color: #fff;
+  color: var(--primary-foreground);
   background: var(--primary, #1b6b5a);
   border: none;
 }
@@ -117,7 +117,7 @@
   padding: 12px 28px;
   font-size: var(--fs-body);
   font-weight: 700;
-  color: #fff;
+  color: var(--primary-foreground);
   background: var(--primary, #1b6b5a);
   border: none;
   border-radius: 12px;

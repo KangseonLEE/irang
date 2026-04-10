@@ -141,7 +141,7 @@
   padding: 12px 24px;
   font-size: var(--fs-body);
   font-weight: 600;
-  color: #fff;
+  color: var(--primary-foreground);
   background: var(--primary, #1b6b5a);
   border-radius: 12px;
   text-decoration: none;
@@ -240,7 +240,7 @@
 }
 
 .featureIcon.green {
-  background: color-mix(in srgb, #1b6b5a 10%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   color: #1b6b5a;
 }
 
@@ -250,7 +250,7 @@
 }
 
 .featureIcon.blue {
-  background: color-mix(in srgb, #2563eb 10%, transparent);
+  background: color-mix(in srgb, var(--info, #2563eb) 10%, transparent);
   color: #2563eb;
 }
 
@@ -473,7 +473,7 @@
 .matchCtaTitle {
   font-size: var(--fs-h3);
   font-weight: 700;
-  color: #fff;
+  color: var(--primary-foreground);
   margin: 0;
   word-break: keep-all;
 }
@@ -495,7 +495,7 @@
   font-size: var(--fs-body);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
-  background: #fff;
+  background: var(--card);
   border-radius: 12px;
   text-decoration: none;
   transition: opacity 0.15s;

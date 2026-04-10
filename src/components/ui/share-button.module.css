@@ -15,7 +15,7 @@
 
 /* ── Variants ── */
 .variant_default {
-  color: #fff;
+  color: var(--primary-foreground);
   background: var(--primary, #1b6b5a);
   border: none;
 }

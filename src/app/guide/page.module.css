@@ -287,7 +287,7 @@
 
 .timelineDotComplete {
   background: var(--primary, #1b6b5a);
-  color: #fff;
+  color: var(--primary-foreground);
 }
 
 .progressRing {
@@ -898,7 +898,7 @@
 .ctaTitle {
   font-size: var(--fs-h3, 1.25rem);
   font-weight: 700;
-  color: #fff;
+  color: var(--primary-foreground);
   margin: 0 0 8px;
   word-break: keep-all;
 }
@@ -933,7 +933,7 @@
   font-size: var(--fs-body, 1rem);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
-  background: #fff;
+  background: var(--card);
   border-radius: 12px;
   text-decoration: none;
   transition: opacity 0.15s;

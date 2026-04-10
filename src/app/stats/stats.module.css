@@ -302,7 +302,7 @@
   padding-right: 8px;
   font-size: var(--fs-caption);
   font-weight: 700;
-  color: #fff;
+  color: var(--primary-foreground);
   transition: width 0.3s ease;
   min-width: fit-content;
 }
@@ -469,7 +469,7 @@
   padding: 16px 20px;
   border-radius: 12px;
   background: linear-gradient(135deg, var(--primary, #1b6b5a) 0%, #0f4035 100%);
-  color: #fff;
+  color: var(--primary-foreground);
   text-decoration: none;
   font-size: var(--fs-body-sm);
   font-weight: 700;

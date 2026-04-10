@@ -51,7 +51,7 @@
   border-radius: 10px;
 
   background: var(--foreground, #111827);
-  color: #fff;
+  color: var(--primary-foreground);
   font-size: var(--fs-body-sm);
   font-weight: 500;
   white-space: nowrap;

@@ -41,13 +41,13 @@
 
 .pageActive {
   background: var(--primary, #1b6b5a);
-  color: #fff;
+  color: var(--primary-foreground);
   font-weight: 600;
 }
 
 .pageActive:hover {
   background: var(--primary, #1b6b5a);
-  color: #fff;
+  color: var(--primary-foreground);
 }
 
 .dots {

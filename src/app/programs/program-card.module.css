@@ -62,7 +62,7 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   line-height: 1.35;
-  color: #fff;
+  color: var(--primary-foreground);
   background: #e8590c;
   white-space: nowrap;
 }

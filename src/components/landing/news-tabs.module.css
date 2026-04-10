@@ -70,7 +70,7 @@
 
 .tabActive {
   background: var(--primary, #1b6b5a);
-  color: #fff;
+  color: var(--primary-foreground);
 }
 
 @media (hover: hover) {
@@ -253,7 +253,7 @@
   border-radius: 6px;
   font-size: var(--fs-overline);
   font-weight: 700;
-  color: #fff;
+  color: var(--primary-foreground);
   background: var(--primary, #1b6b5a);
 }
 

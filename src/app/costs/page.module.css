@@ -529,7 +529,7 @@
 }
 
 .difficultyHard {
-  background: color-mix(in srgb, #ef4444 10%, transparent);
+  background: color-mix(in srgb, var(--error-light, #ef4444) 10%, transparent);
   color: #dc2626;
 }
 
@@ -958,7 +958,7 @@
 .ctaTitle {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--primary-foreground);
   margin: 0 0 6px;
   word-break: keep-all;
 }
@@ -994,7 +994,7 @@
   font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
-  background: #fff;
+  background: var(--card);
   border-radius: 10px;
   text-decoration: none;
   transition: opacity 0.15s;
