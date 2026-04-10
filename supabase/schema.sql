@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS support_programs (
   slug          TEXT UNIQUE NOT NULL,               -- URL-safe identifier (e.g. "prg-001")
   title         TEXT NOT NULL,
   summary       TEXT NOT NULL,
+  description   TEXT NOT NULL DEFAULT '',          -- 상세 설명 (Phase 2 확장)
   region        TEXT NOT NULL,                       -- "전국", "전라남도", etc.
   organization  TEXT NOT NULL,
   support_type  TEXT NOT NULL CHECK (support_type IN ('보조금','융자','교육','현물','컨설팅')),
@@ -85,6 +86,8 @@ CREATE TABLE IF NOT EXISTS farm_events (
   type          TEXT NOT NULL CHECK (type IN ('일일체험','팜스테이','박람회','설명회','멘토링','축제')),
   date_start    DATE NOT NULL,
   date_end      DATE,                                -- NULL = 1일 행사
+  application_start DATE,                          -- 접수 시작일 (Phase 2 확장)
+  application_end   DATE,                          -- 접수 종료일 (Phase 2 확장)
   location      TEXT NOT NULL DEFAULT '',
   cost          TEXT NOT NULL DEFAULT '무료',
   description   TEXT NOT NULL DEFAULT '',

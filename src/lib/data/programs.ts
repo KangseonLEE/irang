@@ -17,6 +17,7 @@ export interface SupportProgram {
   id: string;
   title: string;
   summary: string;
+  description?: string;
   region: string;
   organization: string;
   supportType: "보조금" | "융자" | "교육" | "현물" | "컨설팅";
@@ -370,6 +371,7 @@ export async function getProgramByIdAsync(
           id: row.slug,
           title: row.title,
           summary: row.summary,
+          description: row.description || undefined,
           region: row.region,
           organization: row.organization,
           supportType: row.support_type as SupportProgram["supportType"],
@@ -567,6 +569,7 @@ function mapRdaPolicy(item: RdaPolicyItem): SupportProgram {
     id: `rda-${item.seq}`,
     title: item.title,
     summary: stripHtml(item.contents).slice(0, 200),
+    description: undefined,
     region,
     organization: item.chargeAgency || item.chargeDept || "농촌진흥청",
     supportType: "보조금",  // RDA API에 유형 필드 없음 → 기본값
@@ -608,6 +611,7 @@ export async function loadPrograms(): Promise<{
           id: row.slug,
           title: row.title,
           summary: row.summary,
+          description: row.description || undefined,
           region: row.region,
           organization: row.organization,
           supportType: row.support_type as SupportProgram["supportType"],

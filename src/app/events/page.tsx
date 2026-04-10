@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Tag,
 } from "lucide-react";
+import { formatDate, formatDateRange } from "@/lib/format";
 import {
   filterEventsAsync,
   getCurrentPeriod,
@@ -61,35 +62,6 @@ interface PageProps {
     view?: string;
     page?: string;
   }>;
-}
-
-/** 날짜 포맷: "2026-05-15" → "2026. 5. 15 (금)" */
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + "T00:00:00");
-  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-  const y = d.getFullYear();
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
-  const dow = dayNames[d.getDay()];
-  return `${y}. ${m}. ${day} (${dow})`;
-}
-
-/** 행사 기간 표시 */
-function formatEventPeriod(date: string, dateEnd: string | null): string {
-  if (!dateEnd) {
-    return formatDate(date);
-  }
-  // 같은 월이면 간략 표시
-  const start = new Date(date + "T00:00:00");
-  const end = new Date(dateEnd + "T00:00:00");
-  if (
-    start.getFullYear() === end.getFullYear() &&
-    start.getMonth() === end.getMonth()
-  ) {
-    const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-    return `${start.getFullYear()}. ${start.getMonth() + 1}. ${start.getDate()} ~ ${end.getDate()} (${dayNames[end.getDay()]})`;
-  }
-  return `${formatDate(date)} ~ ${formatDate(dateEnd)}`;
 }
 
 /** 행사 유형별 배지 색상 클래스 */
@@ -259,7 +231,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
                     </td>
                     <td className={dt.muted}>{ev.region}</td>
                     <td className={dt.muted}>{ev.type}</td>
-                    <td className={dt.muted}>{formatEventPeriod(ev.date, ev.dateEnd)}</td>
+                    <td className={dt.muted}>{formatDateRange(ev.date, ev.dateEnd)}</td>
                     <td className={`${dt.amount} ${dt.hideOnMobile}`}>{ev.cost}</td>
                     <td className={`${dt.muted} ${dt.hideOnMobile}`}>{ev.organization}</td>
                   </tr>
@@ -312,7 +284,7 @@ function EventCard({ event }: { event: FarmEvent }) {
           <div className={s.cardMetaRow}>
             <Clock size={14} className={s.cardMetaIcon} />
             <span className={s.cardMetaValue}>
-              {formatEventPeriod(event.date, event.dateEnd)}
+              {formatDateRange(event.date, event.dateEnd)}
             </span>
           </div>
           <div className={s.cardMetaRow}>

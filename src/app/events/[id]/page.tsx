@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
+import { ShareButton } from "@/components/ui/share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { ExternalLinkBlock } from "@/components/ui/external-link-block";
+import { formatDateRange } from "@/lib/format";
 import {
   ArrowLeft,
-  ExternalLink,
   MapPin,
   Building2,
   Calendar,
@@ -50,11 +52,6 @@ const TYPE_CLASS: Record<FarmEvent["type"], string> = {
   축제: s.typeFestival,
 };
 
-function formatEventDate(date: string, dateEnd: string | null): string {
-  if (!dateEnd) return date;
-  return `${date} ~ ${dateEnd}`;
-}
-
 function getRelatedEvents(
   current: FarmEvent,
   limit: number = 3
@@ -94,14 +91,24 @@ export default async function EventDetailPage({
             {event.type}
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "4px" }}>
-          <h1 className={s.pageTitle} style={{ flex: 1 }}>{event.title}</h1>
-          <BookmarkButton
-            id={event.id}
-            type="event"
-            title={event.title}
-            subtitle={event.region}
-          />
+        <div className={s.titleRow}>
+          <h1 className={s.pageTitle}>{event.title}</h1>
+          <div className={s.titleActions}>
+            <ShareButton
+              title={`${event.title} | 이랑`}
+              text={`${event.title}: ${event.description.slice(0, 80)}`}
+              contentType="event"
+              variant="ghost"
+              size="sm"
+              showLabel={false}
+            />
+            <BookmarkButton
+              id={event.id}
+              type="event"
+              title={event.title}
+              subtitle={event.region}
+            />
+          </div>
         </div>
       </div>
 
@@ -134,7 +141,7 @@ export default async function EventDetailPage({
                   <InfoRow
                     icon={<Calendar size={16} />}
                     label="행사 일시"
-                    value={formatEventDate(event.date, event.dateEnd)}
+                    value={formatDateRange(event.date, event.dateEnd)}
                   />
                   <InfoRow
                     icon={<Coins size={16} />}
@@ -150,6 +157,13 @@ export default async function EventDetailPage({
                         : "제한 없음"
                     }
                   />
+                  {event.applicationStart && event.applicationEnd && (
+                    <InfoRow
+                      icon={<CalendarDays size={16} />}
+                      label="접수 기간"
+                      value={formatDateRange(event.applicationStart, event.applicationEnd)}
+                    />
+                  )}
                   <InfoRow
                     icon={<Tag size={16} />}
                     label="대상"
@@ -169,6 +183,17 @@ export default async function EventDetailPage({
               <p className={s.descriptionText}><AutoGlossary text={event.description} /></p>
             </div>
           </div>
+
+          {/* 접수 기간 미제공 안내 (데이터 없을 때만) */}
+          {!event.applicationStart && (
+            <div className={s.card}>
+              <div className={s.cardContent} style={{ paddingTop: "24px" }}>
+                <p className={s.missingInfoNotice}>
+                  접수 기간 정보가 아직 제공되지 않습니다. 원문 페이지에서 확인해 주세요.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Sidebar */}
@@ -179,18 +204,11 @@ export default async function EventDetailPage({
               <h2 className={s.cardTitle}>참가 신청</h2>
             </div>
             <div className={s.cardContent}>
-              <a
+              <ExternalLinkBlock
                 href={event.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={s.ctaButton}
-              >
-                <ExternalLink size={16} />
-                신청 페이지 방문
-              </a>
-              <p className={s.ctaNote}>
-                상세 내용과 신청 방법은 원문 페이지에서 확인하세요.
-              </p>
+                label="신청 페이지 방문"
+                title={event.title}
+              />
             </div>
           </div>
 

@@ -15,6 +15,8 @@ export interface FarmEvent {
   type: "일일체험" | "팜스테이" | "박람회" | "설명회" | "멘토링" | "축제";
   date: string;
   dateEnd: string | null;
+  applicationStart?: string;
+  applicationEnd?: string;
   location: string;
   cost: string;
   description: string;
@@ -199,6 +201,8 @@ export async function getEventByIdAsync(
           type: row.type as FarmEvent["type"],
           date: row.date_start,
           dateEnd: row.date_end,
+          applicationStart: row.application_start ?? undefined,
+          applicationEnd: row.application_end ?? undefined,
           location: row.location,
           cost: row.cost,
           description: row.description,
@@ -334,6 +338,8 @@ export async function loadEvents(): Promise<{
           type: row.type as FarmEvent["type"],
           date: row.date_start,
           dateEnd: row.date_end,
+          applicationStart: row.application_start ?? undefined,
+          applicationEnd: row.application_end ?? undefined,
           location: row.location,
           cost: row.cost,
           description: row.description,

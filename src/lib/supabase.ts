@@ -103,6 +103,7 @@ export interface ProgramRow {
   slug: string;
   title: string;
   summary: string;
+  description: string;
   region: string;
   organization: string;
   support_type: string;
@@ -148,6 +149,8 @@ export interface EventRow {
   type: string;
   date_start: string;
   date_end: string | null;
+  application_start: string | null;
+  application_end: string | null;
   location: string;
   cost: string;
   description: string;

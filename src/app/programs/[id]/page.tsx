@@ -18,6 +18,7 @@ import {
   HelpCircle,
   ChevronDown,
 } from "lucide-react";
+import { formatDate } from "@/lib/format";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
@@ -156,7 +157,7 @@ export default async function ProgramDetailPage({
                 <InfoRow
                   icon={<Calendar size={16} />}
                   label="신청 기간"
-                  value={`${program.applicationStart} ~ ${program.applicationEnd}`}
+                  value={`${formatDate(program.applicationStart)} ~ ${formatDate(program.applicationEnd)}`}
                 />
                 <InfoRow
                   icon={<Users size={16} />}
@@ -174,6 +175,25 @@ export default async function ProgramDetailPage({
               <AutoGlossary text={program.eligibilityDetail} />
             </p>
           </section>
+
+          {/* 상세 설명 (DB에 description이 있는 경우에만 표시) */}
+          {program.description && (
+            <section className={s.section}>
+              <h2 className={s.sectionTitle}>사업 설명</h2>
+              <p className={s.descriptionText}>
+                <AutoGlossary text={program.description} />
+              </p>
+            </section>
+          )}
+
+          {/* ── 상세 안내 미제공 안내 ── */}
+          {!guide && (
+            <section className={s.section}>
+              <p className={s.missingInfoNotice}>
+                이 사업에 대한 상세 안내 정보가 아직 준비되지 않았습니다. 원문 페이지에서 자세한 내용을 확인해 주세요.
+              </p>
+            </section>
+          )}
 
           {/* ── 가이드 콘텐츠 (특정 프로그램용 상세 안내) ── */}
           {guide && (

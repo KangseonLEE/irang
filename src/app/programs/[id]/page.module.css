@@ -505,3 +505,21 @@
   top: 12px;
 }
 
+/* ── 상세 설명 ── */
+.descriptionText {
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 상세 안내 미제공 안내 ── */
+.missingInfoNotice {
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--muted-foreground, #6b7280);
+  background: var(--muted, #f3f4f6);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 0;
+}
+

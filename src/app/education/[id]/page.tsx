@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
+import { ShareButton } from "@/components/ui/share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
+import { formatDate } from "@/lib/format";
 import {
   ArrowLeft,
   MapPin,
@@ -91,14 +93,24 @@ export default async function EducationDetailPage({
             {course.level}
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "4px" }}>
-          <h1 className={s.pageTitle} style={{ flex: 1 }}>{course.title}</h1>
-          <BookmarkButton
-            id={course.id}
-            type="education"
-            title={course.title}
-            subtitle={course.organization}
-          />
+        <div className={s.titleRow}>
+          <h1 className={s.pageTitle}>{course.title}</h1>
+          <div className={s.titleActions}>
+            <ShareButton
+              title={`${course.title} | 이랑`}
+              text={`${course.title}: ${course.description.slice(0, 80)}`}
+              contentType="education"
+              variant="ghost"
+              size="sm"
+              showLabel={false}
+            />
+            <BookmarkButton
+              id={course.id}
+              type="education"
+              title={course.title}
+              subtitle={course.organization}
+            />
+          </div>
         </div>
       </div>
 
@@ -182,7 +194,16 @@ export default async function EducationDetailPage({
             </div>
             <div className={s.cardContent}>
               <p className={s.periodText}>
-                {course.applicationStart} ~ {course.applicationEnd}
+                {formatDate(course.applicationStart)} ~ {formatDate(course.applicationEnd)}
+              </p>
+            </div>
+          </div>
+
+          {/* 안내 */}
+          <div className={s.card}>
+            <div className={s.cardContent} style={{ paddingTop: "24px" }}>
+              <p className={s.missingInfoNotice}>
+                교육 과정에 대한 커리큘럼 등 상세 정보는 원문 페이지에서 확인해 주세요.
               </p>
             </div>
           </div>
