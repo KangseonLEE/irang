@@ -317,7 +317,7 @@
 
 /* ═══ 단계 상세 섹션 (아코디언) ═══ */
 .stepSection {
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   transition: border-color 0.3s;
@@ -454,7 +454,7 @@
   font-size: 0.6875rem;
   font-weight: 600;
   color: var(--muted-foreground, #6b7280);
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   padding: 4px 10px;
   border-radius: 6px;
   white-space: nowrap;
@@ -469,7 +469,7 @@
 /* 화살표 (SVG 아이콘) */
 .stepChevron {
   flex-shrink: 0;
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   transition: transform 0.25s ease;
 }
 
@@ -567,7 +567,7 @@
 /* 체크리스트 */
 .checklistCard {
   padding: 20px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
 }
@@ -637,14 +637,14 @@
 
 .checklistItemChecked {
   text-decoration: line-through;
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   transition: color 0.15s;
 }
 
 /* 팁 */
 .tipsCard {
   padding: 20px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: color-mix(in srgb, var(--warning-light, #eab308) 6%, var(--background, #fff));
   border: 1px solid color-mix(in srgb, var(--warning-light, #eab308) 20%, var(--border, #e5e7eb));
 }

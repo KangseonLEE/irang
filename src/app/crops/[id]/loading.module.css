@@ -7,7 +7,7 @@
 }
 
 .skeleton {
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   border-radius: 8px;
   animation: shimmer 1.5s ease-in-out infinite;
 }
@@ -183,7 +183,7 @@
 .revenueBox {
   padding: 28px;
   border-radius: 14px;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;

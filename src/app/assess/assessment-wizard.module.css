@@ -112,7 +112,7 @@
   flex: 1;
   height: 6px;
   border-radius: 3px;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   overflow: hidden;
 }
 
@@ -185,7 +185,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--card, #fff);
   border: 2px solid var(--border, #e5e7eb);
   cursor: pointer;
@@ -224,7 +224,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   color: var(--muted-foreground, #6b7280);
   font-size: var(--fs-body-sm);
   font-weight: 700;
@@ -424,7 +424,7 @@
 .dimensionBarWrap {
   height: 10px;
   border-radius: 5px;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   overflow: hidden;
 }
 
@@ -572,7 +572,7 @@
 }
 
 .shareBtn:active {
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
 }
 
 /* ── 약한 차원 하이라이트 메시지 ── */
@@ -607,7 +607,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 20px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
   border: 1px solid #bbf7d0;
 }
@@ -615,7 +615,7 @@
 .demoHintsTitle {
   font-size: var(--fs-h4);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
@@ -630,7 +630,7 @@
 
 .demoHintItem {
   font-size: var(--fs-body-sm);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: var(--lh-normal);
   padding-left: 16px;
   position: relative;

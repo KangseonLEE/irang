@@ -93,7 +93,7 @@
 
 .chipDefault {
   composes: chip;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   color: var(--muted-foreground);
 }
 
@@ -104,7 +104,7 @@
 
 @media (hover: hover) {
   .chipDefault:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, var(--muted, #f4f4f5));
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, var(--muted, #f9fafb));
     color: var(--foreground);
   }
 }

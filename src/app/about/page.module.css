@@ -215,7 +215,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 24px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
@@ -308,7 +308,7 @@
   text-align: center;
   gap: 8px;
   padding: 28px 20px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
 }

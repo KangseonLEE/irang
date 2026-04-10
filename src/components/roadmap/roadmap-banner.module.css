@@ -10,7 +10,7 @@
   padding: 10px 16px;
   border-radius: 10px;
   background: linear-gradient(135deg, #e8f5f1 0%, #f0faf7 100%);
-  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
   font-size: var(--fs-body-sm);
 }
 
@@ -23,19 +23,19 @@
 }
 
 .icon {
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   flex-shrink: 0;
 }
 
 .label {
   font-weight: 700;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   white-space: nowrap;
 }
 
 .stepName {
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   white-space: nowrap;
 }
 
@@ -52,19 +52,19 @@
   gap: 4px;
   font-size: var(--fs-caption);
   font-weight: 600;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
   padding: 4px 10px;
   border-radius: 6px;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   transition: background-color 0.15s;
 }
 
 @media (hover: hover) {
   .backLink:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 15%, transparent);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
   }
 }
 

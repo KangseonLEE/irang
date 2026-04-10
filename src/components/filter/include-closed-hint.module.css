@@ -40,7 +40,7 @@
 
 .text {
   font-size: var(--fs-body-sm, 14px);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: var(--lh-normal, 1.6);
   margin: 0;
   word-break: keep-all;

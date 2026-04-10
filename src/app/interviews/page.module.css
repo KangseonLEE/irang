@@ -172,7 +172,7 @@
 .cardName {
   font-size: var(--fs-h4);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .cardMeta {
@@ -231,7 +231,7 @@
   font-size: var(--fs-body);
   font-weight: 600;
   font-style: italic;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: var(--lh-relaxed);
   letter-spacing: -0.01em;
   word-break: keep-all;
@@ -266,7 +266,7 @@
   color: var(--muted-foreground, #6b7280);
   padding: 2px 8px;
   border-radius: 6px;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   white-space: nowrap;
 }
 
@@ -316,7 +316,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 20px 24px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: linear-gradient(135deg, var(--primary, #1b6b5a) 0%, var(--brand-700, #0f4035) 100%);
   color: #fff;
 }

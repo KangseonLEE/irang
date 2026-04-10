@@ -42,7 +42,7 @@
 
 @media (hover: hover) {
   .backLink:hover {
-    color: var(--primary, #1B6B5A);
+    color: var(--primary, #1b6b5a);
   }
 }
 
@@ -61,13 +61,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
 }
 
 .headerTitle {
   font-size: var(--fs-h2);
   font-weight: 800;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   letter-spacing: -0.02em;
   margin: 0;
   white-space: nowrap;
@@ -104,7 +104,7 @@
 .cardTitle {
   font-size: var(--fs-h3);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
   display: flex;
   align-items: center;
@@ -115,7 +115,7 @@
 }
 
 .cardTitleIcon {
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   flex-shrink: 0;
 }
 
@@ -140,8 +140,8 @@
 
 .table th {
   font-weight: 700;
-  color: var(--foreground, #111);
-  border-bottom: 2px solid var(--foreground, #111);
+  color: var(--foreground, #111827);
+  border-bottom: 2px solid var(--foreground, #111827);
   font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -149,7 +149,7 @@
 
 .table td {
   border-bottom: 1px solid var(--border, #e5e7eb);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .table th:first-child,
@@ -163,7 +163,7 @@
 
 @media (hover: hover) {
   .table tbody tr:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, transparent);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
   }
 }
 
@@ -173,7 +173,7 @@
 }
 
 .table tbody tr:first-child td {
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
 }
 
 /* ── CSS 바 차트 ── */
@@ -210,7 +210,7 @@
 .chartBar {
   height: 100%;
   border-radius: 6px;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   transition: width 0.3s ease;
   min-width: 2px;
 }
@@ -225,7 +225,7 @@
   width: 52px;
   font-size: var(--fs-caption);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   text-align: right;
 }
 
@@ -249,7 +249,7 @@
 
 .legendPrimary {
   composes: legendDot;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
 }
 
 .legendSecondary {
@@ -275,7 +275,7 @@
   width: 72px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   text-align: right;
 }
 
@@ -310,7 +310,7 @@
 /* 색상 변형 */
 .ratioBarGreen {
   composes: ratioBar;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
 }
 
 .ratioBarLightGreen {
@@ -346,8 +346,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
-  color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
   font-size: var(--fs-caption);
   font-weight: 800;
   display: flex;
@@ -359,7 +359,7 @@
   flex: 1;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .factorBarWrap {
@@ -380,7 +380,7 @@
 .factorBar {
   height: 100%;
   border-radius: 6px;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   transition: width 0.3s ease;
 }
 
@@ -401,13 +401,13 @@
 /* ── 분석 요약 텍스트 ── */
 .summary {
   font-size: var(--fs-body);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: var(--lh-relaxed);
   word-break: keep-all;
   padding: 20px 24px;
   border-radius: 12px;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--background, #fff));
-  border-left: 4px solid var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--background, #fff));
+  border-left: 4px solid var(--primary, #1b6b5a);
   margin: 0;
 }
 
@@ -428,7 +428,7 @@
 .bigNumber {
   font-size: 48px;
   font-weight: 800;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   letter-spacing: -0.03em;
   line-height: 1;
 }
@@ -468,7 +468,7 @@
   gap: 12px;
   padding: 16px 20px;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--primary, #1B6B5A) 0%, #0f4035 100%);
+  background: linear-gradient(135deg, var(--primary, #1b6b5a) 0%, #0f4035 100%);
   color: #fff;
   text-decoration: none;
   font-size: var(--fs-body-sm);
@@ -520,24 +520,24 @@
   border: 1px solid var(--border, #e5e7eb);
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   text-decoration: none;
   transition: border-color 0.15s, background 0.15s;
 }
 
 @media (hover: hover) {
   .navFooterLink:hover {
-    border-color: var(--primary, #1B6B5A);
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, var(--background, #fff));
-    color: var(--primary, #1B6B5A);
+    border-color: var(--primary, #1b6b5a);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, var(--background, #fff));
+    color: var(--primary, #1b6b5a);
   }
 }
 
 .navFooterLinkActive {
   composes: navFooterLink;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
-  border-color: var(--primary, #1B6B5A);
-  color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border-color: var(--primary, #1b6b5a);
+  color: var(--primary, #1b6b5a);
   pointer-events: none;
 }
 

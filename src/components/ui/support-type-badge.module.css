@@ -60,4 +60,4 @@
 .mixed > svg { color: #7c3aed; }
 
 .fallback   { background: var(--muted, #f9fafb); color: var(--muted-foreground, #6b7280); }
-.fallback > svg { color: var(--muted-foreground, #9ca3af); }
+.fallback > svg { color: var(--muted-foreground, #6b7280); }

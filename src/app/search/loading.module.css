@@ -26,7 +26,7 @@
 
 .emptyDesc {
   margin-top: 0.5rem;
-  color: var(--muted-foreground, #71717a);
+  color: var(--muted-foreground, #6b7280);
 }
 
 /* Quick links grid */
@@ -47,7 +47,7 @@
 }
 
 .skeleton {
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 6px;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

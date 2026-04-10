@@ -5,7 +5,7 @@
 /* ── caption 변형 (기본) ── */
 .caption {
   font-size: var(--fs-overline, 0.6875rem);
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   margin: 4px 0 0;
   line-height: var(--lh-normal, 1.6);
 }
@@ -17,8 +17,8 @@
   gap: 4px;
   font-size: var(--fs-overline, 0.6875rem);
   font-weight: 500;
-  color: var(--muted-foreground, #9ca3af);
-  background: var(--muted, #f4f4f5);
+  color: var(--muted-foreground, #6b7280);
+  background: var(--muted, #f9fafb);
   padding: 3px 10px;
   border-radius: 6px;
   white-space: nowrap;
@@ -30,7 +30,7 @@
   align-items: center;
   gap: 3px;
   margin-left: 6px;
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   text-decoration: none;
   transition: color 0.15s;
 }
@@ -44,5 +44,5 @@
 
 /* ── 부가 설명 ── */
 .note {
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
 }

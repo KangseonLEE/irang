@@ -45,7 +45,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   font-size: var(--fs-caption);
   font-weight: 600;
   text-transform: uppercase;
@@ -169,7 +169,7 @@
 .cardTitle {
   font-size: 17px;
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
@@ -235,7 +235,7 @@
   gap: 8px;
   font-size: var(--fs-h4);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
@@ -271,7 +271,7 @@
   text-align: left;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   border-bottom: 2px solid var(--border, #e5e7eb);
   white-space: nowrap;
 }
@@ -329,7 +329,7 @@
 
 .tdHighlight {
   font-weight: 700;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
 }
 
 .tdNoData {
@@ -360,7 +360,7 @@
   min-height: 300px;
   border-radius: 20px;
   border: 2px dashed var(--border, #e5e7eb);
-  background: color-mix(in srgb, var(--muted, #f4f4f5) 30%, transparent);
+  background: color-mix(in srgb, var(--muted, #f9fafb) 30%, transparent);
 }
 
 .emptyStateText {

@@ -12,14 +12,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: var(--fs-h4, 18px);
+  font-size: var(--fs-section-title, 18px);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
 .sectionTitle svg {
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   flex-shrink: 0;
 }
 
@@ -39,7 +39,7 @@
 }
 
 .causeItemOpen {
-  border-color: color-mix(in srgb, var(--primary, #1B6B5A) 30%, var(--border, #e5e7eb));
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, var(--border, #e5e7eb));
   box-shadow: 0 2px 8px rgba(27, 107, 90, 0.06);
 }
 
@@ -60,7 +60,7 @@
 
 @media (hover: hover) {
   .causeHeader:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 3%, transparent);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 3%, transparent);
   }
 }
 
@@ -69,8 +69,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
-  color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
   font-size: var(--fs-caption, 13px);
   font-weight: 800;
   display: flex;
@@ -82,7 +82,7 @@
   flex: 1;
   font-size: var(--fs-body-sm, 14px);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: 1.4;
   word-break: keep-all;
 }
@@ -114,7 +114,7 @@
 
 .causeDesc {
   font-size: var(--fs-body-sm, 14px);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: var(--lh-relaxed, 1.8);
   word-break: keep-all;
   margin: 0;
@@ -125,7 +125,7 @@
   align-items: center;
   gap: 6px;
   font-size: var(--fs-caption, 13px);
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   text-decoration: none;
   font-weight: 600;
   transition: opacity 0.12s;

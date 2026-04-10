@@ -6,7 +6,7 @@
   min-height: 300px;
   border: 2px dashed var(--border, #e5e7eb);
   border-radius: 20px;
-  background: color-mix(in srgb, var(--muted, #f4f4f5) 30%, transparent);
+  background: color-mix(in srgb, var(--muted, #f9fafb) 30%, transparent);
 }
 
 .emptyInner {

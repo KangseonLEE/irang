@@ -18,7 +18,7 @@
 @media (hover: hover) {
   .card:hover {
     border-color: var(--primary, #1b6b5a);
-    background: var(--secondary, #e8f5f1);
+    background: var(--secondary, #f0f9f6);
   }
 }
 

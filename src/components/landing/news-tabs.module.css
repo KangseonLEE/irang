@@ -4,7 +4,7 @@
 
 .newsCard {
   padding: 20px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   box-shadow: var(--shadow-sm);
@@ -34,7 +34,7 @@
 .title {
   font-size: var(--fs-body);
   font-weight: 800;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
   flex-shrink: 0;
   letter-spacing: -0.01em;
@@ -209,8 +209,8 @@
   background:
     linear-gradient(
       135deg,
-      color-mix(in srgb, var(--primary, #1B6B5A) 12%, var(--muted, #f9fafb)) 0%,
-      color-mix(in srgb, var(--primary, #1B6B5A) 6%, var(--muted, #f9fafb)) 100%
+      color-mix(in srgb, var(--primary, #1b6b5a) 12%, var(--muted, #f9fafb)) 0%,
+      color-mix(in srgb, var(--primary, #1b6b5a) 6%, var(--muted, #f9fafb)) 100%
     );
 }
 
@@ -269,7 +269,7 @@
 .featuredTitle {
   font-size: var(--fs-body);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: var(--lh-snug, 1.4);
   white-space: nowrap;
   overflow: hidden;
@@ -351,7 +351,7 @@
 .itemTitle {
   font-size: var(--fs-body-sm);
   font-weight: 500;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: var(--lh-normal);
   white-space: nowrap;
   overflow: hidden;
@@ -361,7 +361,7 @@
 
 .itemActive .itemTitle {
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .itemMeta {

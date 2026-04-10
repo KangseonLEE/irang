@@ -31,7 +31,7 @@
   flex: 1;
   height: 6px;
   border-radius: 3px;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   overflow: hidden;
 }
 
@@ -117,7 +117,7 @@
   text-align: center;
   gap: 8px;
   padding: 20px 16px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--card, #fff);
   border: 2px solid var(--border, #e5e7eb);
   cursor: pointer;
@@ -331,7 +331,7 @@
   align-items: flex-start;
   gap: 16px;
   padding: 20px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
@@ -624,7 +624,7 @@
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
@@ -683,15 +683,15 @@
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 6px;
-  background: color-mix(in srgb, var(--muted-foreground, #9ca3af) 10%, transparent);
-  color: var(--muted-foreground, #9ca3af);
+  background: color-mix(in srgb, var(--muted-foreground, #6b7280) 10%, transparent);
+  color: var(--muted-foreground, #6b7280);
   white-space: nowrap;
 }
 
 .programClosedHint {
   font-size: var(--fs-overline);
   line-height: var(--lh-snug);
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   margin: 0;
   font-style: italic;
 }

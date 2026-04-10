@@ -141,7 +141,7 @@
 .cropCardName {
   font-size: 15px;
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -208,7 +208,7 @@
   font-size: 12px;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -251,7 +251,7 @@
   gap: 8px;
   font-size: var(--fs-h4);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
@@ -293,7 +293,7 @@
 }
 
 .table td {
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .table tbody tr:last-child td {
@@ -344,7 +344,7 @@
 /* 출처 */
 .dataSource {
   font-size: var(--fs-caption);
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
 }
 
 /* 하단 링크 */

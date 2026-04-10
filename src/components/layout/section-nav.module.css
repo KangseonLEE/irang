@@ -44,7 +44,7 @@
 
 @media (hover: hover) {
   .tab:hover {
-    color: var(--foreground, #111);
+    color: var(--foreground, #111827);
   }
 }
 

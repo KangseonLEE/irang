@@ -36,7 +36,7 @@
 
 .progressBar {
   height: 6px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -79,7 +79,7 @@
 
 @media (hover: hover) {
   .accordionTrigger:hover {
-    background: var(--muted, #f4f4f5);
+    background: var(--muted, #f9fafb);
   }
 }
 
@@ -156,7 +156,7 @@
   color: var(--muted-foreground);
   margin: 0 0 12px;
   padding: 10px 12px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 8px;
   line-height: var(--lh-normal);
 }

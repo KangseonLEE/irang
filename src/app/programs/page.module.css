@@ -95,7 +95,7 @@
   text-align: center;
   gap: 12px;
   padding: 28px 20px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border, #e5e7eb);
   background: linear-gradient(
     135deg,
@@ -137,7 +137,7 @@
 .feedbackCtaTitle {
   font-size: var(--fs-body);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
   word-break: keep-all;
 }

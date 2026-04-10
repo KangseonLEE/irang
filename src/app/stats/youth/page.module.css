@@ -51,13 +51,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
 }
 
 .title {
   font-size: var(--fs-h3);
   font-weight: 800;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   letter-spacing: -0.02em;
   margin: 0;
 }
@@ -131,7 +131,7 @@
   gap: 4px;
   font-size: 26px;
   font-weight: 800;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
@@ -141,7 +141,7 @@
 }
 
 .kpiIcon {
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   flex-shrink: 0;
 }
 
@@ -186,7 +186,7 @@
 .cardTitle {
   font-size: var(--fs-h4);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
   display: flex;
   align-items: center;
@@ -194,7 +194,7 @@
 }
 
 .cardIcon {
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   flex-shrink: 0;
 }
 
@@ -228,8 +228,8 @@
   word-break: keep-all;
   padding: 16px 20px;
   border-radius: 12px;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--background, #fff));
-  border-left: 4px solid var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--background, #fff));
+  border-left: 4px solid var(--primary, #1b6b5a);
   margin: 0;
 }
 
@@ -240,7 +240,7 @@
   gap: 8px;
   padding: 14px 24px;
   border-radius: 12px;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   color: #fff;
   text-decoration: none;
   font-size: var(--fs-body-sm);
@@ -279,23 +279,23 @@
   border: 1px solid var(--border, #e5e7eb);
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   text-decoration: none;
   transition: border-color 0.15s, background 0.15s;
 }
 
 @media (hover: hover) {
   .navLink:hover {
-    border-color: var(--primary, #1B6B5A);
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, var(--background, #fff));
-    color: var(--primary, #1B6B5A);
+    border-color: var(--primary, #1b6b5a);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, var(--background, #fff));
+    color: var(--primary, #1b6b5a);
   }
 }
 
 .navLinkActive {
   composes: navLink;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
-  border-color: var(--primary, #1B6B5A);
-  color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border-color: var(--primary, #1b6b5a);
+  color: var(--primary, #1b6b5a);
   pointer-events: none;
 }

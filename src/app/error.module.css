@@ -28,7 +28,7 @@
   margin-top: 0.5rem;
   font-size: var(--fs-body-sm);
   line-height: 1.25rem;
-  color: var(--muted-foreground, #71717a);
+  color: var(--muted-foreground, #6b7280);
 }
 
 /* 버튼 그룹 래퍼 */
@@ -50,7 +50,7 @@
   margin-top: 1.5rem;
   border-radius: 10px;
   border: none;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   padding: 0.625rem 1.25rem;
   font-size: var(--fs-body-sm);
   line-height: 1.25rem;
@@ -61,7 +61,7 @@
 }
 
 .retryButton:hover {
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 90%, black);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 90%, black);
 }
 
 .secondaryButton {
@@ -69,7 +69,7 @@
   align-items: center;
   gap: 0.5rem;
   border-radius: 10px;
-  border: 1px solid var(--border, #e4e4e7);
+  border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   padding: 0.625rem 1.25rem;
   font-size: var(--fs-body-sm);

@@ -31,7 +31,7 @@
 }
 
 .sectionTitle {
-  font-size: var(--fs-h4);
+  font-size: var(--fs-section-title);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
@@ -62,7 +62,7 @@
   flex-direction: column;
   gap: 2px;
   padding: 10px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 10px;
   min-width: 0;
 }
@@ -82,7 +82,7 @@
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  background: var(--secondary, #e8f5f1);
+  background: var(--secondary, #f0f9f6);
   color: var(--primary, #1b6b5a);
   margin-bottom: 2px;
 }
@@ -137,7 +137,7 @@
   color: var(--muted-foreground);
   margin: 12px 0 0;
   padding: 8px 12px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 8px;
   line-height: var(--lh-normal);
 }

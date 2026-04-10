@@ -40,7 +40,7 @@
 /* ── 카드 배경 변형 + 상단 accent ── */
 .cardRegion {
   background: #F0F9F6;
-  border-top: 3px solid var(--primary, #1B6B5A);
+  border-top: 3px solid var(--primary, #1b6b5a);
 }
 
 .cardCrop {
@@ -82,13 +82,13 @@
 
 @media (hover: hover) {
   .card:hover {
-    border-color: var(--primary, #1B6B5A);
+    border-color: var(--primary, #1b6b5a);
     box-shadow: 0 12px 32px -8px rgba(27, 107, 90, 0.1);
   }
 }
 
 .card:active {
-  border-color: var(--primary, #1B6B5A);
+  border-color: var(--primary, #1b6b5a);
   transition-duration: 0.05s;
 }
 
@@ -137,7 +137,7 @@
   margin: 0;
   font-size: var(--fs-h3);
   font-weight: 800;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   letter-spacing: -0.02em;
   line-height: var(--lh-tight);
   white-space: nowrap;
@@ -197,7 +197,7 @@
 
 @media (hover: hover) {
   .item:hover .itemLabel {
-    color: var(--primary, #1B6B5A);
+    color: var(--primary, #1b6b5a);
   }
 }
 
@@ -219,7 +219,7 @@
 .itemLabel {
   font-size: var(--fs-body);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   word-break: keep-all;
   overflow-wrap: break-word;
 }
@@ -264,7 +264,7 @@
   margin-top: 12px;
   font-size: var(--fs-body);
   font-weight: 600;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   text-decoration: none;
   transition: opacity 0.1s;
   -webkit-tap-highlight-color: transparent;
@@ -276,7 +276,7 @@
 
 @media (hover: hover) {
   .moreLink:hover {
-    color: color-mix(in srgb, var(--primary, #1B6B5A) 80%, black);
+    color: color-mix(in srgb, var(--primary, #1b6b5a) 80%, black);
     text-decoration: underline;
     text-underline-offset: 3px;
   }
@@ -345,7 +345,7 @@
 }
 
 .dotActive {
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   transform: scale(1.3);
 }
 
@@ -359,7 +359,7 @@
   border-radius: 50%;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
   flex-shrink: 0;
@@ -380,7 +380,7 @@
 
 @media (hover: hover) {
   .arrowBtn:not(:disabled):hover {
-    border-color: var(--primary, #1B6B5A);
-    color: var(--primary, #1B6B5A);
+    border-color: var(--primary, #1b6b5a);
+    color: var(--primary, #1b6b5a);
   }
 }

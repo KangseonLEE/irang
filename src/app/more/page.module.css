@@ -14,7 +14,7 @@
   margin: 0;
   font-size: var(--fs-h3, 20px);
   font-weight: 800;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   letter-spacing: -0.02em;
 }
 
@@ -27,7 +27,7 @@
   padding: 16px;
   margin-top: 4px;
   margin-bottom: 8px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
   text-decoration: none;
@@ -111,7 +111,7 @@
 
 @media (hover: hover) {
   .menuItem:hover {
-    background: var(--muted, #f3f4f6);
+    background: var(--muted, #f9fafb);
   }
 }
 
@@ -128,7 +128,7 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   color: var(--muted-foreground, #6b7280);
   flex-shrink: 0;
 }
@@ -144,7 +144,7 @@
 .menuLabel {
   font-size: var(--fs-body, 15px);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .menuDesc {
@@ -172,6 +172,6 @@
 
 @media (hover: hover) {
   .aboutLink:hover {
-    color: var(--foreground, #111);
+    color: var(--foreground, #111827);
   }
 }

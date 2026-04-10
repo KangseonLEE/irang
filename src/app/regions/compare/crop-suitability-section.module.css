@@ -35,9 +35,9 @@
 }
 
 .sectionTitle {
-  font-size: var(--fs-h4);
+  font-size: var(--fs-section-title);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
@@ -51,7 +51,7 @@
 .selectorSkeleton {
   min-height: 60px;
   border-radius: 12px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   animation: pulse 1.5s ease-in-out infinite;
 }
 
@@ -136,7 +136,7 @@
   text-align: left;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   border-bottom: 2px solid var(--border, #e5e7eb);
   white-space: nowrap;
 }

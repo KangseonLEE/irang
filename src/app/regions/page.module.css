@@ -195,7 +195,7 @@
   align-items: center;
   gap: 10px;
   padding: 12px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 12px;
 }
 

@@ -46,8 +46,8 @@
 
 @media (hover: hover) {
   .card:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--background, #fff));
-    border-color: var(--primary, #1B6B5A);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--background, #fff));
+    border-color: var(--primary, #1b6b5a);
     box-shadow: 0 8px 28px -6px rgba(27, 107, 90, 0.18);
     transform: translateY(-3px);
   }
@@ -253,7 +253,7 @@
 .costOverline {
   font-size: var(--fs-overline);
   font-weight: 700;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -262,7 +262,7 @@
   margin: 0;
   font-size: var(--fs-h3);
   font-weight: 800;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   letter-spacing: -0.02em;
   line-height: var(--lh-tight);
 }
@@ -292,14 +292,14 @@
   flex-direction: column;
   gap: 8px;
   padding: 24px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background:
     linear-gradient(
       145deg,
-      color-mix(in srgb, var(--primary, #1B6B5A) 8%, var(--card, #fff)) 0%,
-      color-mix(in srgb, var(--primary, #1B6B5A) 3%, var(--card, #fff)) 100%
+      color-mix(in srgb, var(--primary, #1b6b5a) 8%, var(--card, #fff)) 0%,
+      color-mix(in srgb, var(--primary, #1b6b5a) 3%, var(--card, #fff)) 100%
     );
-  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
   flex: 1;
 }
 
@@ -318,7 +318,7 @@
   margin: 0;
   font-size: 44px;
   font-weight: 800;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   line-height: 1.1;
   letter-spacing: -0.03em;
 }
@@ -356,7 +356,7 @@
 
 .costHeroSub strong {
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 /* 비용 구성 프로그레스 바 */
@@ -378,13 +378,13 @@
 
 .costBarCaption strong {
   font-weight: 700;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
 }
 
 .costBar {
   height: 20px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   overflow: hidden;
 }
 
@@ -396,7 +396,7 @@
   height: 100%;
   /* width는 AnimatedBar 컴포넌트가 rAF로 직접 제어 — CSS transition 사용 금지 */
   border-radius: inherit;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   opacity: 0.65;
   display: flex;
   align-items: center;
@@ -429,7 +429,7 @@
   width: 8px;
   height: 8px;
   border-radius: 2px;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   opacity: 0.65;
   margin-right: 4px;
   vertical-align: middle;
@@ -441,7 +441,7 @@
   width: 8px;
   height: 8px;
   border-radius: 2px;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   margin-right: 4px;
   vertical-align: middle;
 }
@@ -526,7 +526,7 @@
   display: flex;
   flex-direction: row;
   gap: 0;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--border, #e5e7eb);
   flex: 1;
@@ -585,7 +585,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 800;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: 1.2;
   letter-spacing: -0.02em;
   white-space: nowrap;
@@ -677,13 +677,13 @@
 
 .costCtaPrimary {
   composes: costCta;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   color: #fff;
 }
 
 @media (hover: hover) {
   .costCtaPrimary:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 88%, #000);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 88%, #000);
     box-shadow: 0 4px 12px rgba(27, 107, 90, 0.2);
   }
   .costCtaPrimary:active { transform: scale(0.97); }
@@ -692,13 +692,13 @@
 .costCtaOutline {
   composes: costCta;
   background: transparent;
-  color: var(--primary, #1B6B5A);
-  border: 1.5px solid var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
+  border: 1.5px solid var(--primary, #1b6b5a);
 }
 
 @media (hover: hover) {
   .costCtaOutline:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
     box-shadow: 0 2px 8px rgba(27, 107, 90, 0.12);
   }
   .costCtaOutline:active { transform: scale(0.97); }
@@ -742,7 +742,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
@@ -752,7 +752,7 @@
 
 @media (hover: hover) {
   .serviceMapCard:hover {
-    border-color: var(--primary, #1B6B5A);
+    border-color: var(--primary, #1b6b5a);
     box-shadow: 0 4px 16px rgba(27, 107, 90, 0.1);
     transform: translateY(-2px);
   }
@@ -775,14 +775,14 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
-  color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
 }
 
 /* 카드 variant별 아이콘 색상 — earthy tint */
 .serviceMap_region .serviceMapIcon {
-  background: color-mix(in srgb, #1B6B5A 10%, transparent);
-  color: #1B6B5A;
+  background: color-mix(in srgb, #1b6b5a 10%, transparent);
+  color: #1b6b5a;
 }
 
 .serviceMap_crop .serviceMapIcon {
@@ -821,7 +821,7 @@
 .serviceMapTitle {
   font-size: var(--fs-body);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .serviceMapDesc {
@@ -835,13 +835,13 @@
 
 .serviceMapArrow {
   flex-shrink: 0;
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   transition: transform 0.15s, color 0.15s;
 }
 
 @media (hover: hover) {
   .serviceMapCard:hover .serviceMapArrow {
-    color: var(--primary, #1B6B5A);
+    color: var(--primary, #1b6b5a);
   }
 }
 
@@ -876,19 +876,19 @@
   align-self: flex-start;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   text-decoration: none;
   padding: 10px 20px;
   border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 20%, transparent);
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
   transition: background-color 0.15s;
 }
 
 @media (hover: hover) {
   .interviewViewAll:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 15%, transparent);
-    border-color: color-mix(in srgb, var(--primary, #1B6B5A) 40%, transparent);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
   }
 }
 
@@ -914,7 +914,7 @@
 
 .newsSkeletonText {
   font-size: var(--fs-body-sm);
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   animation: newsPulse 1.5s ease-in-out infinite;
 }
 
@@ -966,7 +966,7 @@
 .matchTeaserOverline {
   font-size: var(--fs-overline);
   font-weight: 700;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -975,7 +975,7 @@
   margin: 0;
   font-size: var(--fs-h3);
   font-weight: 800;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   letter-spacing: -0.02em;
   line-height: var(--lh-tight);
   word-break: keep-all;
@@ -1016,9 +1016,9 @@
   border-radius: 16px;
   font-size: var(--fs-overline);
   font-weight: 600;
-  color: var(--primary, #1B6B5A);
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 7%, #fff);
-  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 16%, transparent);
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 7%, #fff);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 16%, transparent);
   white-space: nowrap;
   letter-spacing: -0.01em;
 }
@@ -1051,7 +1051,7 @@
 .matchIllust {
   width: 120px;
   height: auto;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   display: none;
 }
 
@@ -1075,7 +1075,7 @@
   font-size: var(--fs-body);
   font-weight: 700;
   color: #fff;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   text-decoration: none;
   white-space: nowrap;
   transition: background-color 0.15s, transform 0.15s, box-shadow 0.15s;
@@ -1084,7 +1084,7 @@
 
 @media (hover: hover) {
   .matchTeaserBtn:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 88%, #000);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 88%, #000);
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(27, 107, 90, 0.25);
   }
@@ -1119,7 +1119,7 @@
   margin: 0 0 20px;
   font-size: var(--fs-h3);
   font-weight: 800;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   letter-spacing: -0.02em;
   line-height: var(--lh-tight);
   flex-shrink: 0;

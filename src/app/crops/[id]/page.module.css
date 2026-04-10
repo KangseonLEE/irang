@@ -43,12 +43,12 @@
 
 @media (hover: hover) {
   .breadcrumbLink:hover {
-    color: var(--foreground, #111);
+    color: var(--foreground, #111827);
   }
 }
 
 .breadcrumbCurrent {
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   font-weight: 600;
 }
 
@@ -215,7 +215,7 @@
   font-size: 28px;
   font-weight: 800;
   line-height: var(--lh-tight);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
@@ -250,8 +250,8 @@
   align-items: center;
   gap: 10px;
   padding: 14px;
-  border-radius: 14px;
-  background: var(--muted, #f3f4f6);
+  border-radius: var(--radius-lg);
+  background: var(--muted, #f9fafb);
 }
 
 @media (min-width: 640px) {
@@ -293,7 +293,7 @@
 .statValue {
   font-size: var(--fs-body-sm);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
   line-height: var(--lh-snug);
 }
@@ -337,14 +337,14 @@
 }
 
 .anchorTabItem[data-active="true"] {
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   font-weight: 600;
-  border-bottom-color: var(--primary, #1B6B5A);
+  border-bottom-color: var(--primary, #1b6b5a);
 }
 
 @media (hover: hover) {
   .anchorTabItem:hover {
-    color: var(--foreground, #111);
+    color: var(--foreground, #111827);
   }
 }
 
@@ -393,7 +393,7 @@
   padding: 20px 20px 0;
   font-size: var(--fs-h3);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
@@ -409,7 +409,7 @@
   height: 34px;
   border-radius: 8px;
   background: var(--secondary, #F0F9F6);
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   flex-shrink: 0;
 }
 
@@ -442,7 +442,7 @@
   gap: 10px;
   padding: 14px 16px;
   border-radius: 12px;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
 }
 
 .matchGood {
@@ -497,8 +497,8 @@
   flex-direction: column;
   gap: 8px;
   padding: 16px;
-  border-radius: 14px;
-  background: var(--muted, #f3f4f6);
+  border-radius: var(--radius-lg);
+  background: var(--muted, #f9fafb);
 }
 
 .featureIcon {
@@ -525,7 +525,7 @@
 .featureValue {
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: var(--lh-snug);
   margin: 0;
 }
@@ -543,7 +543,7 @@
   gap: 6px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin-bottom: 8px;
 }
 
@@ -557,7 +557,7 @@
 /* ── 수익정보 (토스 패턴 — 숫자 우선, 미니멀) ── */
 .revenueCard {
   padding: 24px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border, #e5e7eb);
   margin-bottom: 20px;
 }
@@ -577,20 +577,20 @@
 .revenueLabel {
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
 .revenueUnit {
   font-size: var(--fs-caption);
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   flex-shrink: 0;
 }
 
 .revenueAmount {
   font-size: clamp(30px, 6vw, 48px);
   font-weight: 800;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   line-height: 1.1;
   letter-spacing: -0.03em;
   margin: 0 0 12px;
@@ -605,7 +605,7 @@
 
 .revenueNote {
   font-size: var(--fs-caption);
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-snug);
   margin: 0;
   padding-top: 12px;
@@ -648,7 +648,7 @@
 .costLabel {
   font-size: var(--fs-body);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .costValue {
@@ -705,14 +705,14 @@
 
 .indicatorLabel {
   font-size: var(--fs-caption);
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   margin: 0;
 }
 
 .indicatorValue {
   font-size: var(--fs-body);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: var(--lh-snug);
   margin: 0;
 }
@@ -774,7 +774,7 @@
   height: 36px;
   min-width: 36px;
   border-radius: 50%;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   color: #fff;
   font-size: var(--fs-caption);
   font-weight: 700;
@@ -797,13 +797,13 @@
 .stepTitle {
   font-size: var(--fs-body);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
 .stepPeriod {
   font-size: var(--fs-caption);
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   font-weight: 600;
   background: var(--primary-ghost, rgba(27, 107, 90, 0.08));
   padding: 2px 8px;
@@ -913,8 +913,8 @@
   gap: 10px;
   padding: 14px 16px;
   border-radius: 12px;
-  background: var(--muted, #f3f4f6);
-  color: var(--primary, #1B6B5A);
+  background: var(--muted, #f9fafb);
+  color: var(--primary, #1b6b5a);
 }
 
 .verdictCard svg {
@@ -940,7 +940,7 @@
   border-radius: 9999px;
   font-size: var(--fs-overline);
   font-weight: 600;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   color: var(--muted-foreground, #6b7280);
   margin-left: auto;
   white-space: nowrap;
@@ -962,7 +962,7 @@
   font-size: var(--fs-body-sm);
   font-weight: 600;
   background: var(--secondary, #F0F9F6);
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   border: 1px solid var(--accent, #e6f2ef);
 }
 
@@ -976,7 +976,7 @@
 @media (hover: hover) {
   .regionPillLink:hover {
     background: var(--accent, #e6f2ef);
-    border-color: var(--primary, #1B6B5A);
+    border-color: var(--primary, #1b6b5a);
   }
 }
 
@@ -1019,7 +1019,7 @@
 
 @media (hover: hover) {
   a.chartRow:hover {
-    background: var(--muted, #f3f4f6);
+    background: var(--muted, #f9fafb);
   }
 }
 
@@ -1040,7 +1040,7 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   color: var(--primary-foreground, #fff);
   font-size: 11px;
   font-weight: 700;
@@ -1055,7 +1055,7 @@
 .chartLabel {
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   white-space: nowrap;
 }
 
@@ -1063,14 +1063,14 @@
   width: 100%;
   height: 8px;
   border-radius: 4px;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   overflow: hidden;
 }
 
 .chartBar {
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--primary, #1B6B5A), var(--brand-400, #3EA088));
+  background: linear-gradient(90deg, var(--primary, #1b6b5a), var(--brand-400, #3EA088));
   transition: width 0.5s ease;
 }
 
@@ -1090,7 +1090,7 @@
   gap: 6px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   text-decoration: none;
 }
 
@@ -1113,13 +1113,13 @@
   gap: 14px;
   padding: 16px;
   border-radius: 12px;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
 }
 
 .tipNum {
   font-size: var(--fs-body-sm);
   font-weight: 800;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   flex-shrink: 0;
   min-width: 24px;
 }
@@ -1160,7 +1160,7 @@
 .sideProfileTitle {
   font-size: var(--fs-h4);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
@@ -1190,20 +1190,20 @@
 }
 
 .sideProfileRow dd {
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   font-weight: 600;
   margin: 0;
   text-align: right;
 }
 
 .sideProfileHighlight {
-  color: var(--primary, #1B6B5A) !important;
+  color: var(--primary, #1b6b5a) !important;
 }
 
 .sideProfileNote {
   font-size: var(--fs-caption) !important;
   font-weight: 400 !important;
-  color: var(--muted-foreground, #9ca3af) !important;
+  color: var(--muted-foreground, #6b7280) !important;
   line-height: var(--lh-snug);
 }
 
@@ -1227,7 +1227,7 @@
   gap: 8px;
   font-size: var(--fs-body);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0 0 14px;
 }
 
@@ -1251,7 +1251,7 @@
 
 @media (hover: hover) {
   .relatedCropCard:hover {
-    background: var(--muted, #f3f4f6);
+    background: var(--muted, #f9fafb);
   }
 }
 
@@ -1267,7 +1267,7 @@
 .relatedCropName {
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
 }
 
@@ -1295,15 +1295,15 @@
 
 @media (hover: hover) {
   .programCard:hover {
-    background: var(--muted, #f3f4f6);
-    border-color: var(--primary, #1B6B5A);
+    background: var(--muted, #f9fafb);
+    border-color: var(--primary, #1b6b5a);
   }
 }
 
 .programTitle {
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: var(--lh-snug);
   margin: 0;
   display: -webkit-box;
@@ -1318,7 +1318,7 @@
   align-items: center;
   gap: 6px;
   font-size: var(--fs-caption);
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
 }
 
 .programMore {
@@ -1327,7 +1327,7 @@
   gap: 4px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   text-decoration: none;
   padding-top: 4px;
 }
@@ -1356,14 +1356,14 @@
 }
 
 .ctaPrimary {
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   color: var(--primary-foreground, #fff);
   border: none;
 }
 
 @media (hover: hover) {
   .ctaPrimary:hover {
-    background: color-mix(in srgb, var(--primary, #1B6B5A) 90%, black);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 90%, black);
   }
 }
 
@@ -1375,8 +1375,8 @@
 
 @media (hover: hover) {
   .ctaOutline:hover {
-    background: var(--muted, #f3f4f6);
-    border-color: var(--primary, #1B6B5A);
+    background: var(--muted, #f9fafb);
+    border-color: var(--primary, #1b6b5a);
   }
 }
 
@@ -1418,7 +1418,7 @@
 /* 빈 상태 */
 .emptyNote {
   font-size: var(--fs-body-sm);
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   margin: 0;
 }
 

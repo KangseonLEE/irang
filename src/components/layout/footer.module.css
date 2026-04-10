@@ -137,8 +137,8 @@
   margin-bottom: 1.25rem;
   padding: 0.875rem 1rem;
   border-radius: 12px;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 20%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
 }
 
 @media (min-width: 640px) {
@@ -171,7 +171,7 @@
   font-size: var(--fs-body-sm);
   font-weight: 600;
   color: #fff;
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   border-radius: 8px;
   text-decoration: none;
   white-space: nowrap;

@@ -35,8 +35,8 @@
 
 @media (hover: hover) {
   .backLink:hover {
-    color: var(--foreground, #111);
-    background: var(--muted, #f3f4f6);
+    color: var(--foreground, #111827);
+    background: var(--muted, #f9fafb);
   }
 }
 
@@ -76,7 +76,7 @@
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.3;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   word-break: keep-all;
   overflow-wrap: break-word;
 }
@@ -126,10 +126,10 @@
 }
 
 .sectionTitle {
-  font-size: var(--fs-h4);
+  font-size: var(--fs-section-title);
   font-weight: 700;
   line-height: var(--lh-snug);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0 0 8px;
 }
 
@@ -149,7 +149,7 @@
   font-size: var(--fs-h4);
   font-weight: 700;
   line-height: var(--lh-snug);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0;
   display: flex;
   align-items: center;
@@ -187,7 +187,7 @@
 .tableValueCell {
   padding: 14px 0;
   font-size: var(--fs-body-sm);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   word-break: break-word;
 }
 
@@ -198,7 +198,7 @@
   gap: 6px;
   font-size: var(--fs-body-sm);
   font-weight: 500;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .iconMuted {
@@ -272,7 +272,7 @@
 .cropItemName {
   font-size: var(--fs-body);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .cropItemSub {
@@ -281,18 +281,18 @@
 }
 
 .cropArrow {
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   flex-shrink: 0;
   transition: color 0.12s, transform 0.12s;
 }
 
 @media (hover: hover) {
   .cropItem:hover .cropItemName {
-    color: var(--primary, #1B6B5A);
+    color: var(--primary, #1b6b5a);
   }
 
   .cropItem:hover .cropArrow {
-    color: var(--primary, #1B6B5A);
+    color: var(--primary, #1b6b5a);
     transform: translateX(2px);
   }
 }
@@ -305,7 +305,7 @@
 
 .cropEmojiMuted {
   composes: cropEmoji;
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
 }
 
 /* ═══════════════════════════════════════════
@@ -316,7 +316,7 @@
 .guideIntro {
   font-size: var(--fs-body-sm);
   line-height: var(--lh-relaxed);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0 0 16px;
 }
 
@@ -334,7 +334,7 @@
   padding-left: 20px;
   font-size: var(--fs-body-sm);
   line-height: var(--lh-normal);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .guideHighlightItem::before {
@@ -400,7 +400,7 @@
 .guideStepTitle {
   font-size: var(--fs-body-sm);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   margin: 0 0 4px;
   display: flex;
   align-items: center;
@@ -451,7 +451,7 @@
   padding: 14px 0;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   cursor: pointer;
   list-style: none;
 }
@@ -461,7 +461,7 @@
 }
 
 .guideFaqChevron {
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   flex-shrink: 0;
   transition: transform 0.2s ease;
 }
@@ -493,7 +493,7 @@
   padding: 12px 12px 12px 40px;
   font-size: var(--fs-body-sm);
   line-height: var(--lh-normal);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   background: color-mix(in srgb, #f59e0b 6%, transparent);
   border-radius: 12px;
 }
@@ -517,7 +517,7 @@
   font-size: var(--fs-body-sm);
   line-height: var(--lh-relaxed);
   color: var(--muted-foreground, #6b7280);
-  background: var(--muted, #f3f4f6);
+  background: var(--muted, #f9fafb);
   border-radius: 12px;
   padding: 16px 20px;
   margin: 0;

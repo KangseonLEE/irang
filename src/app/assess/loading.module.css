@@ -20,7 +20,7 @@
 }
 
 .description {
-  color: var(--muted-foreground, #71717a);
+  color: var(--muted-foreground, #6b7280);
   font-size: 0.875rem;
 }
 
@@ -34,7 +34,7 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   margin-bottom: 1.5rem;
 }

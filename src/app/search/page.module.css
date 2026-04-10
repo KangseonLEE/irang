@@ -229,7 +229,7 @@
   align-items: center;
   gap: 6px;
   padding: 16px 12px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--card);
   border: 1px solid var(--border);
   font-size: var(--fs-body-sm);

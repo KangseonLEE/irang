@@ -61,7 +61,7 @@
 
 @media (hover: hover) {
   .card:hover {
-    border-color: var(--primary, #1B6B5A);
+    border-color: var(--primary, #1b6b5a);
     box-shadow: 0 8px 24px -8px rgba(27, 107, 90, 0.1);
   }
 }
@@ -83,7 +83,7 @@
 .name {
   font-size: var(--fs-body);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .meta {
@@ -99,7 +99,7 @@
   line-height: var(--lh-snug);
   margin: 0;
   padding-left: 10px;
-  border-left: 2px solid color-mix(in srgb, var(--primary, #1B6B5A) 30%, transparent);
+  border-left: 2px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -110,7 +110,7 @@
 .quote {
   font-size: var(--fs-body);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   line-height: 1.45;
   letter-spacing: -0.01em;
   word-break: keep-all;
@@ -124,7 +124,7 @@
 
 .quote::before {
   content: "\201C";
-  color: color-mix(in srgb, var(--primary, #1B6B5A) 30%, transparent);
+  color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
   font-size: 1.2em;
   font-weight: 700;
   margin-right: 2px;
@@ -132,7 +132,7 @@
 
 .quote::after {
   content: "\201D";
-  color: color-mix(in srgb, var(--primary, #1B6B5A) 30%, transparent);
+  color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
   font-size: 1.2em;
   font-weight: 700;
   margin-left: 1px;
@@ -167,8 +167,8 @@
   font-weight: 500;
   padding: 2px 8px;
   border-radius: 6px;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
-  color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
 }
 
 /* ── 더 보기 (우측 상단) ── */
@@ -178,7 +178,7 @@
   gap: 4px;
   font-size: var(--fs-caption);
   font-weight: 600;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
 }
 
 /* ══════════════════════════════════════════
@@ -202,7 +202,7 @@
   border-radius: 50%;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
   flex-shrink: 0;
@@ -210,8 +210,8 @@
 
 @media (hover: hover) {
   .arrow:not(:disabled):hover {
-    border-color: var(--primary, #1B6B5A);
-    color: var(--primary, #1B6B5A);
+    border-color: var(--primary, #1b6b5a);
+    color: var(--primary, #1b6b5a);
   }
 }
 
@@ -257,6 +257,6 @@
 }
 
 .dotActive {
-  background: var(--primary, #1B6B5A);
+  background: var(--primary, #1b6b5a);
   transform: scale(1.3);
 }

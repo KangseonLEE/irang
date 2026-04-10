@@ -91,7 +91,7 @@
 .donutCenterValue {
   font-size: 32px;
   font-weight: 800;
-  color: var(--primary, #1B6B5A);
+  color: var(--primary, #1b6b5a);
   line-height: 1;
 }
 
@@ -144,13 +144,13 @@
   flex: 1;
   font-size: var(--fs-body-sm, 14px);
   font-weight: 600;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 .donutLegendPct {
   font-size: var(--fs-body-sm, 14px);
   font-weight: 700;
-  color: var(--foreground, #111);
+  color: var(--foreground, #111827);
 }
 
 /* ── 유의미 데이터 강조 포인트 ── */
@@ -165,8 +165,8 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: 20px;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
-  color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
   font-size: var(--fs-caption, 13px);
   font-weight: 600;
   margin-top: 8px;

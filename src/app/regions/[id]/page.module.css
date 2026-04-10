@@ -33,7 +33,7 @@
   height: 200px;
   border-radius: 20px;
   overflow: hidden;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
 }
 
 @media (min-width: 768px) {
@@ -132,7 +132,7 @@
   padding: 16px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   min-width: 0;
   cursor: pointer;
   text-align: left;
@@ -143,7 +143,7 @@
 @media (hover: hover) {
   .statCard:hover {
     border-color: var(--primary, #1b6b5a);
-    background: var(--secondary, #e8f5f1);
+    background: var(--secondary, #f0f9f6);
   }
 }
 
@@ -154,7 +154,7 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: var(--secondary, #e8f5f1);
+  background: var(--secondary, #f0f9f6);
   color: var(--primary, #1b6b5a);
   flex-shrink: 0;
 }
@@ -188,7 +188,7 @@
   font-size: var(--fs-caption);
   color: var(--muted-foreground);
   padding: 10px 14px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 10px;
 }
 
@@ -208,7 +208,7 @@
   flex-direction: column;
   gap: 2px;
   padding: 12px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 10px;
   min-width: 0;
 }
@@ -228,7 +228,7 @@
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  background: var(--secondary, #e8f5f1);
+  background: var(--secondary, #f0f9f6);
   color: var(--primary, #1b6b5a);
   margin-bottom: 2px;
 }
@@ -282,7 +282,7 @@
   color: var(--muted-foreground);
   margin: 12px 0 0;
   padding: 8px 12px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 8px;
 }
 
@@ -330,7 +330,7 @@
 }
 
 .sectionTitle {
-  font-size: var(--fs-h4);
+  font-size: var(--fs-section-title);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
@@ -395,7 +395,7 @@
 @media (hover: hover) {
   .cropCard:hover {
     border-color: var(--primary, #1b6b5a);
-    background: var(--secondary, #e8f5f1);
+    background: var(--secondary, #f0f9f6);
   }
 }
 
@@ -449,7 +449,7 @@
 @media (hover: hover) {
   .programCard:hover {
     border-color: var(--primary, #1b6b5a);
-    background: var(--secondary, #e8f5f1);
+    background: var(--secondary, #f0f9f6);
   }
 }
 
@@ -472,14 +472,14 @@
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   color: var(--muted-foreground);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .statusActive {
-  background: var(--secondary, #e8f5f1);
+  background: var(--secondary, #f0f9f6);
   color: var(--primary, #1b6b5a);
 }
 
@@ -515,7 +515,7 @@
 @media (hover: hover) {
   .eduCard:hover {
     border-color: var(--primary, #1b6b5a);
-    background: var(--secondary, #e8f5f1);
+    background: var(--secondary, #f0f9f6);
   }
 }
 
@@ -556,7 +556,7 @@
   font-weight: 500;
   padding: 3px 8px;
   border-radius: 6px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   color: var(--muted-foreground);
   white-space: nowrap;
 }
@@ -617,7 +617,7 @@
 @media (hover: hover) {
   .sigunguCard:hover {
     border-color: var(--primary, #1b6b5a);
-    background: var(--secondary, #e8f5f1);
+    background: var(--secondary, #f0f9f6);
   }
 }
 
@@ -712,7 +712,7 @@
 
 .personaCard {
   padding: 14px;
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 12px;
 }
 

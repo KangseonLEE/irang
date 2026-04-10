@@ -24,7 +24,7 @@
 .inputWrapLarge {
   composes: inputWrap;
   padding: 12px 14px;
-  font-size: 0.9375rem; /* 15px — 모바일에서 placeholder 잘림 방지 */
+  font-size: var(--fs-body-sm); /* 15px — 모바일에서 placeholder 잘림 방지 */
   min-height: 52px;
   border-radius: 16px;
 }

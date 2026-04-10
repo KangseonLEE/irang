@@ -23,7 +23,7 @@
 
 .headerDesc {
   margin-top: 0.5rem;
-  color: var(--muted-foreground, #71717a);
+  color: var(--muted-foreground, #6b7280);
 }
 
 /* Stats summary cards */
@@ -42,7 +42,7 @@
 
 .summaryCard {
   border-radius: 16px;
-  border: 1px solid var(--border, #e4e4e7);
+  border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   padding: 1.25rem;
   display: flex;
@@ -53,7 +53,7 @@
 /* Chart placeholder */
 .chartPlaceholder {
   border-radius: 20px;
-  border: 1px solid var(--border, #e4e4e7);
+  border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -66,7 +66,7 @@
 }
 
 .skeleton {
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 6px;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

@@ -9,7 +9,7 @@
 }
 
 .bone {
-  background: var(--muted, #f4f4f5);
+  background: var(--muted, #f9fafb);
   border-radius: 6px;
   animation: pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

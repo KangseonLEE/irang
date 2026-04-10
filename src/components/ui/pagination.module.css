@@ -34,7 +34,7 @@
 
 @media (hover: hover) {
   .page:hover {
-    background: var(--muted, #f4f4f5);
+    background: var(--muted, #f9fafb);
     color: var(--foreground);
   }
 }
@@ -56,7 +56,7 @@
   justify-content: center;
   min-width: 32px;
   height: 32px;
-  color: var(--muted-foreground, #9ca3af);
+  color: var(--muted-foreground, #6b7280);
   font-size: var(--fs-body-sm);
   user-select: none;
 }
@@ -77,7 +77,7 @@
 
 @media (hover: hover) {
   .arrow:hover:not(:disabled) {
-    background: var(--muted, #f4f4f5);
+    background: var(--muted, #f9fafb);
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
   }
 }
