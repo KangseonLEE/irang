@@ -13,6 +13,7 @@ import {
   AGE_RANGES,
   type ProgramFilters,
 } from "@/lib/data/programs";
+import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import Link from "next/link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ProgramList } from "./program-list";
@@ -69,14 +70,17 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   };
 
   // SSR: API → 폴백 자동 전환, 첫 페이지 데이터만 렌더
-  const { programs: allFiltered } = await filterProgramsAsync(filters);
+  const [{ programs: allFiltered }, lastSyncAt] = await Promise.all([
+    filterProgramsAsync(filters),
+    loadSyncMeta("support_programs"),
+  ]);
   const total = allFiltered.length;
   const programs = allFiltered.slice(0, PAGE_SIZE);
   const hasMore = PAGE_SIZE < total;
 
-  // 기준일 표시 텍스트
-  const [pYear, pMonth] = period.split("-");
-  const periodLabel = `${pYear}년 ${parseInt(pMonth)}월`;
+  // 기준일 표시 텍스트 (sync 시각 기반 자동 생성, 폴백: 현재 연월)
+  const periodLabel = buildPeriodLabel(lastSyncAt, period);
+  const dataYear = getDataYear(lastSyncAt);
 
   // 현재 활성 필터 (URL 빌딩용)
   const currentFilters: Record<string, string | undefined> = {
@@ -121,6 +125,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         title="지원사업 검색"
         description="나이, 지역, 희망 작물에 맞는 귀농 · 귀촌 지원사업을 찾아보세요."
         periodLabel={periodLabel}
+        dataNote={`${dataYear}년 데이터만 제공되며, 연도 변경은 지원되지 않습니다.`}
       />
 
       {/* Filter Bar */}

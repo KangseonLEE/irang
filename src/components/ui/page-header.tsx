@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Info } from "lucide-react";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page-header.module.css";
 
@@ -10,6 +10,8 @@ interface PageHeaderProps {
   description: string;
   count?: number;
   periodLabel?: string;
+  /** 데이터 기준 안내 (예: "2026년 데이터만 제공되며, 연도 변경은 지원되지 않습니다") */
+  dataNote?: string;
 }
 
 export function PageHeader({
@@ -19,6 +21,7 @@ export function PageHeader({
   description,
   count,
   periodLabel,
+  dataNote,
 }: PageHeaderProps) {
   return (
     <div className={s.pageHeader}>
@@ -42,6 +45,12 @@ export function PageHeader({
             </span>
           )}
         </div>
+      )}
+      {dataNote && (
+        <p className={s.dataNote}>
+          <Info size={12} aria-hidden="true" />
+          {dataNote}
+        </p>
       )}
     </div>
   );

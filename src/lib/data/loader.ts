@@ -48,6 +48,68 @@ interface LoadResult<T> {
 }
 
 // ═══════════════════════════════════════
+// 0. 갱신 메타 정보
+// ═══════════════════════════════════════
+
+/**
+ * 데이터 갱신 메타 정보 조회
+ * - data_sync_log에서 해당 테이블의 최신 성공 sync 시각을 반환
+ * - Supabase 미설정 또는 로그 없으면 null 반환
+ */
+export async function loadSyncMeta(
+  tableName: string
+): Promise<string | null> {
+  if (!isSupabaseConfigured) return null;
+
+  try {
+    const sb = getSupabase()!;
+    const { data, error } = await sb
+      .from("data_sync_log")
+      .select("created_at")
+      .eq("table_name", tableName)
+      .eq("status", "success")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!error && data?.created_at) {
+      return data.created_at;
+    }
+  } catch {
+    // Supabase 에러 → null
+  }
+
+  return null;
+}
+
+/**
+ * periodLabel 자동 생성
+ * - sync 시각이 있으면 해당 날짜 기반, 없으면 fallbackPeriod("YYYY-MM") 기반
+ */
+export function buildPeriodLabel(
+  lastSyncAt: string | null,
+  fallbackPeriod: string
+): string {
+  if (lastSyncAt) {
+    const d = new Date(lastSyncAt);
+    return `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
+  }
+  const [pYear, pMonth] = fallbackPeriod.split("-");
+  return `${pYear}년 ${parseInt(pMonth)}월`;
+}
+
+/**
+ * 데이터 기준 연도 추출
+ * - sync 시각이 있으면 해당 연도, 없으면 현재 연도
+ */
+export function getDataYear(lastSyncAt: string | null): number {
+  if (lastSyncAt) {
+    return new Date(lastSyncAt).getFullYear();
+  }
+  return new Date().getFullYear();
+}
+
+// ═══════════════════════════════════════
 // 1. 지원사업
 // ═══════════════════════════════════════
 

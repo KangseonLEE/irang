@@ -21,6 +21,7 @@ import {
   type EducationCourse,
   type EducationFilters,
 } from "@/lib/data/education";
+import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import {
   FilterBar,
@@ -98,7 +99,10 @@ export default async function EducationPage({ searchParams }: PageProps) {
     includeClosed,
   };
 
-  const { courses } = await filterEducationAsync(filters);
+  const [{ courses }, lastSyncAt] = await Promise.all([
+    filterEducationAsync(filters),
+    loadSyncMeta("education_courses"),
+  ]);
 
   // 테이블 페이지네이션
   const tablePage = Math.max(1, Number(params.page) || 1);
@@ -108,9 +112,9 @@ export default async function EducationPage({ searchParams }: PageProps) {
     tablePage * TABLE_PAGE_SIZE,
   );
 
-  // 기준일 표시 텍스트
-  const [pYear, pMonth] = period.split("-");
-  const periodLabel = `${pYear}년 ${parseInt(pMonth)}월`;
+  // 기준일 표시 텍스트 (sync 시각 기반 자동 생성, 폴백: 현재 연월)
+  const periodLabel = buildPeriodLabel(lastSyncAt, period);
+  const dataYear = getDataYear(lastSyncAt);
 
   // 현재 활성 필터 (URL 빌딩용)
   const currentFilters: Record<string, string | undefined> = {
@@ -144,6 +148,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
         title="귀농 교육"
         description="귀농에 필요한 교육 과정을 지역, 유형, 난이도별로 찾아보세요."
         periodLabel={periodLabel}
+        dataNote={`${dataYear}년 데이터만 제공되며, 연도 변경은 지원되지 않습니다.`}
       />
 
       {/* Filter Bar */}

@@ -63,3 +63,13 @@
   background: var(--muted, #f4f4f5);
   border: 1px solid var(--border, #e5e7eb);
 }
+
+.dataNote {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--muted-foreground, #71717a);
+  line-height: 1.4;
+}

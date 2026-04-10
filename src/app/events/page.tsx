@@ -17,6 +17,7 @@ import {
   type FarmEvent,
   type EventFilters,
 } from "@/lib/data/events";
+import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import {
   FilterBar,
   FilterRow,
@@ -125,7 +126,10 @@ export default async function EventsPage({ searchParams }: PageProps) {
     includeClosed,
   };
 
-  const { events } = await filterEventsAsync(filters);
+  const [{ events }, lastSyncAt] = await Promise.all([
+    filterEventsAsync(filters),
+    loadSyncMeta("farm_events"),
+  ]);
 
   // 테이블 페이지네이션
   const tablePage = Math.max(1, Number(params.page) || 1);
@@ -135,9 +139,9 @@ export default async function EventsPage({ searchParams }: PageProps) {
     tablePage * TABLE_PAGE_SIZE,
   );
 
-  // 기준일 표시 텍스트
-  const [pYear, pMonth] = period.split("-");
-  const periodLabel = `${pYear}년 ${parseInt(pMonth)}월`;
+  // 기준일 표시 텍스트 (sync 시각 기반 자동 생성, 폴백: 현재 연월)
+  const periodLabel = buildPeriodLabel(lastSyncAt, period);
+  const dataYear = getDataYear(lastSyncAt);
 
   // 현재 필터 상태 (pill URL 빌드용)
   const currentParams: Record<string, string | undefined> = {
@@ -165,6 +169,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
         title="체험·행사"
         description="귀농 일일체험, 팜스테이, 박람회, 설명회 등 다양한 체험과 행사를 찾아보세요."
         periodLabel={periodLabel}
+        dataNote={`${dataYear}년 데이터만 제공되며, 연도 변경은 지원되지 않습니다.`}
       />
 
       {/* ── Filter Bar ── */}
