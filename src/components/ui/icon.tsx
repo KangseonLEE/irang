@@ -29,7 +29,7 @@ const SIZE_MAP = {
 } as const;
 
 type IconSize = keyof typeof SIZE_MAP;
-type BoxSize = "sm" | "md" | "lg";
+type BoxSize = "sm" | "md" | "lg" | "xl";
 type Variant = "bare" | "soft" | "solid";
 type SemanticColor = "primary" | "success" | "warning" | "error" | "info";
 
@@ -86,7 +86,7 @@ export function Icon({
       aria-label={decorative ? undefined : label}
       aria-hidden={decorative ? "true" : undefined}
     >
-      <LucideIcon size={iconPx} />
+      <LucideIcon size={iconPx} strokeWidth={1.75} />
     </span>
   );
 }

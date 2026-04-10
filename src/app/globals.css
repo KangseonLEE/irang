@@ -85,12 +85,20 @@
   --icon-md:  16px;
   --icon-lg:  20px;
   --icon-xl:  24px;
-  --icon-2xl: 32px;
+  --icon-2xl: 48px;
 
   --icon-box-sm: 28px;   /* soft/solid 컨테이너 — sm */
   --icon-box-md: 34px;   /* soft/solid 컨테이너 — md (섹션 헤더) */
   --icon-box-lg: 40px;   /* soft/solid 컨테이너 — lg (히어로/빈상태) */
+  --icon-box-xl: 64px;   /* soft/solid 컨테이너 — xl (빈상태 히어로) */
   --icon-box-radius: 10px;
+
+  /* Semantic icon backgrounds — soft variant 전용 */
+  --icon-bg-primary: #f0f9f6;
+  --icon-bg-success: #ecfdf5;
+  --icon-bg-warning: #fffbeb;
+  --icon-bg-error:   #fef2f2;
+  --icon-bg-info:    #eff6ff;
 
   /* ── Z-Index Layer Stack ──
      전역 레이어 관리. 컴포넌트 간 z-index 충돌 방지.

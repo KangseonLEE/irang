@@ -51,23 +51,28 @@
   height: var(--icon-box-lg, 40px);
 }
 
+.boxXl {
+  width: var(--icon-box-xl, 64px);
+  height: var(--icon-box-xl, 64px);
+}
+
 /* ---- 시맨틱 컬러 변형 (soft 전용) ---- */
 .colorSuccess {
   color: var(--success, #16a34a);
-  background: #ecfdf5;
+  background: var(--icon-bg-success, #ecfdf5);
 }
 
 .colorWarning {
   color: var(--warning, #d97706);
-  background: #fffbeb;
+  background: var(--icon-bg-warning, #fffbeb);
 }
 
 .colorError {
   color: var(--error, #dc2626);
-  background: #fef2f2;
+  background: var(--icon-bg-error, #fef2f2);
 }
 
 .colorInfo {
   color: var(--info, #2563eb);
-  background: #eff6ff;
+  background: var(--icon-bg-info, #eff6ff);
 }
