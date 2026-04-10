@@ -15,6 +15,7 @@ import { RegionSelector } from "./region-selector";
 import { CropSuitabilitySection } from "./crop-suitability-section";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { DesktopHint } from "@/components/ui/desktop-hint";
+import { DataSource } from "@/components/ui/data-source";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -324,11 +325,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
           />
 
           {/* Data Source Notice */}
-          <p className={s.sourceNotice}>
-            출처: 기상청 종관기상관측(ASOS) | 공공데이터포털 (data.go.kr) |
-            통계지리정보서비스(SGIS) | 건강보험심사평가원 | 교육부 NEIS |
-            공공누리 제1유형
-          </p>
+          <DataSource source="기상청 종관기상관측(ASOS) · 공공데이터포털 (data.go.kr) · 통계지리정보서비스(SGIS) · 건강보험심사평가원 · 교육부 NEIS · 공공누리 제1유형" />
 
         </>
       ) : (

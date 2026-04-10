@@ -457,13 +457,6 @@
   }
 }
 
-/* ---- 출처 ---- */
-.source {
-  font-size: var(--fs-overline);
-  color: var(--muted-foreground);
-  margin: 0;
-}
-
 /* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
 @media (min-width: 1024px) {
   .searchClear { font-size: 14px; }

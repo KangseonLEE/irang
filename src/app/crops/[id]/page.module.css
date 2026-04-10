@@ -52,14 +52,6 @@
   font-weight: 600;
 }
 
-.sourceTag {
-  font-size: var(--fs-overline);
-  color: var(--muted-foreground, #9ca3af);
-  background: var(--muted, #f3f4f6);
-  padding: 3px 10px;
-  border-radius: 9999px;
-}
-
 /* ── Hero ── */
 .hero {
   border-radius: 20px;
@@ -1090,30 +1082,6 @@
   white-space: nowrap;
   min-width: 72px;
   text-align: right;
-}
-
-.regionSource {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-  font-size: var(--fs-overline);
-  color: var(--muted-foreground, #9ca3af);
-}
-
-.chartSourceLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  color: var(--primary, #1B6B5A);
-  text-decoration: none;
-}
-
-@media (hover: hover) {
-  .chartSourceLink:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
 }
 
 .regionCta {

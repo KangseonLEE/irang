@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { DataSource } from "@/components/ui/data-source";
 import s from "./modals.module.css";
 
 interface TrendItem {
@@ -186,7 +187,7 @@ export function PopulationModal({
         </p>
       </div>
 
-      <p className={s.source}>출처: SGIS 통계지리정보서비스</p>
+      <DataSource source="SGIS 통계지리정보서비스" />
     </div>
   );
 }

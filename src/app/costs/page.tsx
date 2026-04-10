@@ -21,6 +21,7 @@ import {
 } from "@/lib/data/landing";
 import { GUIDE_STEP_SUMMARIES } from "@/lib/data/guide-steps";
 import { StepOverview } from "@/components/ui/step-overview";
+import { DataSource } from "@/components/ui/data-source";
 import { CROPS } from "@/lib/data/crops";
 import s from "./page.module.css";
 
@@ -230,9 +231,7 @@ export default function CostsPage() {
             sub="정부 융자 지원"
           />
         </div>
-        <p className={s.source}>
-          출처: 농림축산식품부 2025 귀농귀촌 실태조사
-        </p>
+        <DataSource source="농림축산식품부 2025 귀농귀촌 실태조사" />
       </section>
 
       {/* ═══ 연령별 초기 투자 비용 ═══ */}

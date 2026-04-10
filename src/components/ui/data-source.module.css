@@ -1,0 +1,48 @@
+/* ==========================================================================
+   DataSource — 통합 출처 표시 컴포넌트
+   ========================================================================== */
+
+/* ── caption 변형 (기본) ── */
+.caption {
+  font-size: var(--fs-overline, 0.6875rem);
+  color: var(--muted-foreground, #9ca3af);
+  margin: 4px 0 0;
+  line-height: var(--lh-normal, 1.6);
+}
+
+/* ── badge 변형 ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 500;
+  color: var(--muted-foreground, #9ca3af);
+  background: var(--muted, #f4f4f5);
+  padding: 3px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* ── 출처 링크 ── */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  color: var(--muted-foreground, #9ca3af);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--primary, #1b6b5a);
+    text-decoration: underline;
+  }
+}
+
+/* ── 부가 설명 ── */
+.note {
+  color: var(--muted-foreground, #9ca3af);
+}

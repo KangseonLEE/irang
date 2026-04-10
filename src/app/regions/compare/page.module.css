@@ -352,15 +352,6 @@
   border-bottom: 1px solid var(--border, #e5e7eb);
 }
 
-/* ---- 출처 표시 ---- */
-.sourceNotice {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-  margin: 0;
-  padding-top: 4px;                /* 이전 요소(카드)와 gap 외 추가 여백 */
-  border-top: 1px solid var(--border, #e5e7eb); /* 카드와 명시적 구분선 */
-}
-
 /* ---- 빈 상태 ---- */
 .emptyState {
   display: flex;

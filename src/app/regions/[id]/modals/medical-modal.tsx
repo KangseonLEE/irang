@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Search, MapPin } from "lucide-react";
+import { DataSource } from "@/components/ui/data-source";
 import s from "./modals.module.css";
 
 interface MedicalItem {
@@ -258,10 +259,7 @@ export function MedicalModal({
         </button>
       )}
 
-      <p className={s.source}>
-        출처: 건강보험심사평가원 · 항목을 누르면 네이버 지도에서 확인할 수
-        있습니다
-      </p>
+      <DataSource source="건강보험심사평가원" note="항목을 누르면 네이버 지도에서 확인할 수 있습니다" />
     </div>
   );
 }

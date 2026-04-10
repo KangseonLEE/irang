@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Search, MapPin } from "lucide-react";
+import { DataSource } from "@/components/ui/data-source";
 import s from "./modals.module.css";
 
 interface SchoolItem {
@@ -255,9 +256,7 @@ export function SchoolModal({
         </button>
       )}
 
-      <p className={s.source}>
-        출처: 교육부 NEIS · 항목을 누르면 네이버 지도에서 확인할 수 있습니다
-      </p>
+      <DataSource source="교육부 NEIS" note="항목을 누르면 네이버 지도에서 확인할 수 있습니다" />
     </div>
   );
 }

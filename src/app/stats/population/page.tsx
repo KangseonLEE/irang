@@ -17,6 +17,7 @@ import {
 } from "@/lib/data/stats";
 import { PopulationTrendChart } from "@/components/charts/lazy";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
+import { DataSource } from "@/components/ui/data-source";
 import s from "./page.module.css";
 import shared from "../stats.module.css";
 
@@ -91,7 +92,7 @@ export default function PopulationPage() {
             귀농·귀촌 인구 추이
           </h2>
           <PopulationTrendChart data={populationData} />
-          <p className={s.chartSource}>출처: {populationSummary.source}</p>
+          <DataSource source={populationSummary.source} />
         </section>
 
         {/* 우: 테이블 */}
@@ -122,7 +123,7 @@ export default function PopulationPage() {
               </tbody>
             </table>
           </div>
-          <p className={s.chartSource}>출처: {populationSummary.source}</p>
+          <DataSource source={populationSummary.source} />
         </section>
       </div>
 
@@ -148,7 +149,7 @@ export default function PopulationPage() {
 
       {/* ── 출처 ── */}
       <footer className={s.footer}>
-        <p className={s.source}>출처: {populationSummary.source}</p>
+        <DataSource source={populationSummary.source} />
       </footer>
     </div>
   );

@@ -19,6 +19,7 @@ import { EDUCATION_COURSES } from "@/lib/data/education";
 import { EVENTS } from "@/lib/data/events";
 import { SigunguData } from "./sigungu-data";
 import { SigunguStatsSkeleton } from "./sigungu-stats-skeleton";
+import { DataSource } from "@/components/ui/data-source";
 import s from "./page.module.css";
 
 interface PageProps {
@@ -328,10 +329,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
       {/* ── 데이터 출처 ── */}
       <footer className={s.sourceNotice}>
-        <p>
-          {year}년 기준 · 기상청 ASOS · SGIS 통계지리정보 · 건강보험심사평가원 ·
-          교육부 NEIS
-        </p>
+        <DataSource source={`${year}년 기준 · 기상청 ASOS · SGIS 통계지리정보 · 건강보험심사평가원 · 교육부 NEIS`} />
       </footer>
     </div>
   );

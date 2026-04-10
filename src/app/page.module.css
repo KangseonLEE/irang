@@ -704,12 +704,6 @@
   .costCtaOutline:active { transform: scale(0.97); }
 }
 
-.costSource {
-  margin: 0;
-  font-size: var(--fs-overline);
-  color: var(--muted-foreground, #9ca3af);
-}
-
 /* ══════════════════════════════════════════
    3. 서비스 맵 — 6개 서브페이지 허브
    ══════════════════════════════════════════ */

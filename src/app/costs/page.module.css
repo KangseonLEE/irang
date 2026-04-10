@@ -189,13 +189,6 @@
   color: var(--muted-foreground, #9ca3af);
 }
 
-.source {
-  font-size: var(--fs-overline);
-  color: var(--muted-foreground, #9ca3af);
-  text-align: center;
-  margin: 0;
-}
-
 /* ═══ 섹션 공통 ═══ */
 .section {
   display: flex;

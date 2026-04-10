@@ -23,6 +23,7 @@ import {
   FactorBarChart,
 } from "@/components/charts/lazy";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
+import { DataSource } from "@/components/ui/data-source";
 import s from "./page.module.css";
 import shared from "../stats.module.css";
 
@@ -98,7 +99,7 @@ export default function SatisfactionPage() {
             만족도 분포
           </h2>
           <SatisfactionDonutChart data={satisfactionSegments} />
-          <p className={s.chartSource}>출처: {satisfactionSummary.source}</p>
+          <DataSource source={satisfactionSummary.source} />
         </section>
 
         {/* 우: 만족/불만족 요인 세로 스택 */}
@@ -113,7 +114,7 @@ export default function SatisfactionPage() {
               variant="positive"
               highlightTop={2}
             />
-            <p className={s.chartSource}>출처: {satisfactionSummary.source}</p>
+            <DataSource source={satisfactionSummary.source} />
           </section>
 
           <section className={s.card} aria-labelledby="neg-title">
@@ -126,7 +127,7 @@ export default function SatisfactionPage() {
               variant="negative"
               highlightTop={2}
             />
-            <p className={s.chartSource}>출처: {satisfactionSummary.source}</p>
+            <DataSource source={satisfactionSummary.source} />
           </section>
         </div>
       </div>
@@ -153,9 +154,7 @@ export default function SatisfactionPage() {
 
       {/* ── 출처 ── */}
       <footer className={s.footer}>
-        <p className={s.source}>
-          출처: {satisfactionSummary.source}
-        </p>
+        <DataSource source={satisfactionSummary.source} />
       </footer>
     </div>
   );

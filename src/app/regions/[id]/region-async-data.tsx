@@ -18,6 +18,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { RegionStats } from "./region-stats";
+import { DataSource } from "@/components/ui/data-source";
 import { ProvinceMap } from "@/components/map/province-map";
 import type { Province } from "@/lib/data/regions";
 import type { Sigungu } from "@/lib/data/sigungus";
@@ -321,9 +322,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
 
       {/* 데이터 출처 */}
       <div className={s.sourceNotice}>
-        <p>
-          {year}년 기준 · 기상청 ASOS · SGIS · 심평원 · 교육부 NEIS
-        </p>
+        <DataSource source={`${year}년 기준 · 기상청 ASOS · SGIS · 심평원 · 교육부 NEIS`} />
       </div>
     </>
   );

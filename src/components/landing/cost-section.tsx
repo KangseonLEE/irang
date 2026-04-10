@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { ArrowRight, HelpCircle } from "lucide-react";
+import { DataSource } from "@/components/ui/data-source";
 import s from "@/app/page.module.css";
 
 // ─── 이징 함수 ───
@@ -210,9 +211,7 @@ export function CostSection({
             지원사업 확인 <ArrowRight size={14} />
           </Link>
         </div>
-        <p className={s.costSource}>
-          출처: 농림축산식품부 2025 귀농귀촌 실태조사
-        </p>
+        <DataSource source="농림축산식품부 2025 귀농귀촌 실태조사" />
       </div>
     </div>
   );

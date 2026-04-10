@@ -18,7 +18,6 @@ import {
   Calendar,
   TrendingUp,
   FileText,
-  ExternalLink,
   ChevronRight,
   Gauge,
   Scale,
@@ -42,6 +41,7 @@ import { fetchCropStats, type CropStatItem } from "@/lib/api/kosis";
 import { PROGRAMS } from "@/lib/data/programs";
 import { GlossaryTerm } from "@/components/ui/term-tooltip";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { DataSource } from "@/components/ui/data-source";
 import { AnchorTabNav } from "./anchor-tab-nav";
 import s from "./page.module.css";
 
@@ -167,7 +167,7 @@ export default async function CropDetailPage({
           <ChevronRight size={14} aria-hidden="true" />
           <span className={s.breadcrumbCurrent}>{data.name}</span>
         </nav>
-        <span className={s.sourceTag}>출처: 농촌진흥청 · KOSIS</span>
+        <DataSource source="농촌진흥청 · KOSIS" variant="badge" />
       </div>
 
       {/* ── Hero ── */}
@@ -724,17 +724,7 @@ function RegionSection({
                 );
               })}
             </div>
-            <p className={s.regionSource}>
-              출처: KOSIS 국가통계포털
-              <a
-                href="https://kosis.kr"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={s.chartSourceLink}
-              >
-                kosis.kr <ExternalLink size={10} />
-              </a>
-            </p>
+            <DataSource source="KOSIS 국가통계포털" href="https://kosis.kr" />
           </div>
         ) : (
           <div className={s.regionPills}>

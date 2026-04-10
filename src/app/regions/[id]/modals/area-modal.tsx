@@ -1,5 +1,6 @@
 "use client";
 
+import { DataSource } from "@/components/ui/data-source";
 import s from "./modals.module.css";
 
 interface AreaModalProps {
@@ -62,9 +63,7 @@ export function AreaModal({
         </div>
       )}
 
-      <p className={s.source}>
-        출처: 국토교통부 토지이용현황 · 통계청 주민등록인구현황
-      </p>
+      <DataSource source="국토교통부 토지이용현황 · 통계청 주민등록인구현황" />
     </div>
   );
 }

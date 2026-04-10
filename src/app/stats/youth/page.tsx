@@ -17,6 +17,7 @@ import {
 } from "@/lib/data/stats";
 import { YouthTrendChart, FactorBarChart } from "@/components/charts/lazy";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
+import { DataSource } from "@/components/ui/data-source";
 import s from "./page.module.css";
 import shared from "../stats.module.css";
 
@@ -92,7 +93,7 @@ export default function YouthPage() {
             청년 귀농 비율 추이
           </h2>
           <YouthTrendChart data={youthData} />
-          <p className={s.chartSource}>출처: {youthSummary.source}</p>
+          <DataSource source={youthSummary.source} />
         </section>
 
         {/* 우: 귀농 사유 + 테이블 세로 스택 */}
@@ -107,7 +108,7 @@ export default function YouthPage() {
               variant="positive"
               highlightTop={2}
             />
-            <p className={s.chartSource}>출처: {youthSummary.source}</p>
+            <DataSource source={youthSummary.source} />
           </section>
 
           <section className={s.card} aria-labelledby="table-youth-title">
@@ -146,7 +147,7 @@ export default function YouthPage() {
                 </tbody>
               </table>
             </div>
-            <p className={s.chartSource}>출처: {youthSummary.source}</p>
+            <DataSource source={youthSummary.source} />
           </section>
         </div>
       </div>
@@ -173,7 +174,7 @@ export default function YouthPage() {
 
       {/* ── 출처 ── */}
       <footer className={s.footer}>
-        <p className={s.source}>출처: {youthSummary.source}</p>
+        <DataSource source={youthSummary.source} />
       </footer>
     </div>
   );
