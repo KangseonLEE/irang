@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Ruler, Users, Building2, GraduationCap } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Modal } from "@/components/ui/modal";
 import { ClimateSection } from "@/components/stats/climate-section";
 import type { ClimateInfo } from "@/components/stats/climate-section";
@@ -78,7 +79,7 @@ export function SigunguStats({
           onClick={() => setActiveModal("area")}
           aria-haspopup="dialog"
         >
-          <div className={s.statIcon}><Ruler size={18} /></div>
+          <Icon icon={Ruler} size="lg" variant="soft" box="lg" />
           <div className={s.statBody}>
             <span className={s.statLabel}>면적</span>
             <span className={s.statValue}>{area.toLocaleString()} km²</span>
@@ -93,7 +94,7 @@ export function SigunguStats({
             onClick={() => setActiveModal("population")}
             aria-haspopup="dialog"
           >
-            <div className={s.statIcon}><Users size={18} /></div>
+            <Icon icon={Users} size="lg" variant="soft" box="lg" />
             <div className={s.statBody}>
               <span className={s.statLabel}>인구</span>
               <span className={s.statValue}>{formatPopulation(population.population)}</span>
@@ -116,7 +117,7 @@ export function SigunguStats({
             onClick={() => setActiveModal("medical")}
             aria-haspopup="dialog"
           >
-            <div className={s.statIcon}><Building2 size={18} /></div>
+            <Icon icon={Building2} size="lg" variant="soft" box="lg" />
             <div className={s.statBody}>
               <span className={s.statLabel}>의료기관</span>
               <span className={s.statValue}>{medical.totalCount.toLocaleString()}개</span>
@@ -134,7 +135,7 @@ export function SigunguStats({
             onClick={() => setActiveModal("school")}
             aria-haspopup="dialog"
           >
-            <div className={s.statIcon}><GraduationCap size={18} /></div>
+            <Icon icon={GraduationCap} size="lg" variant="soft" box="lg" />
             <div className={s.statBody}>
               <span className={s.statLabel}>학교</span>
               <span className={s.statValue}>{school.totalCount.toLocaleString()}개</span>

@@ -14,6 +14,7 @@ import {
 import { PROVINCES } from "@/lib/data/regions";
 import { getSigungusBySidoId } from "@/lib/data/sigungus";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
+import { Icon } from "@/components/ui/icon";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { RegionAsyncData } from "./region-async-data";
 import { RegionAsyncSkeleton } from "./region-async-skeleton";
@@ -109,7 +110,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
           {matchedCrops.length > 0 && (
             <section className={s.section}>
               <div className={s.sectionHeader}>
-                <Sprout size={20} className={s.sectionIcon} />
+                <Icon icon={Sprout} size="lg" variant="soft" box="md" />
                 <div>
                   <h2 className={s.sectionTitle}>추천 작물</h2>
                   <p className={s.sectionDesc}>

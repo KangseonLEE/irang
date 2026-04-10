@@ -13,6 +13,7 @@ import {
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS, getSigunguBySidoAndId } from "@/lib/data/sigungus";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
+import { Icon } from "@/components/ui/icon";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { PROGRAMS } from "@/lib/data/programs";
 import { EDUCATION_COURSES } from "@/lib/data/education";
@@ -147,7 +148,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       {/* ── 대표 작물 (정적 매칭) ── */}
       <section className={s.section} aria-label="대표 작물">
         <div className={s.sectionHeader}>
-          <Sprout size={20} className={s.sectionIcon} />
+          <Icon icon={Sprout} size="lg" variant="soft" box="md" />
           <div>
             <h2 className={s.sectionTitle}>대표 작물</h2>
             <p className={s.sectionDesc}>
@@ -181,7 +182,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       {/* ── 관련 지원사업 ── */}
       <section className={s.section} aria-label="관련 지원사업">
         <div className={s.sectionHeader}>
-          <FileText size={20} className={s.sectionIcon} />
+          <Icon icon={FileText} size="lg" variant="soft" box="md" />
           <div>
             <h2 className={s.sectionTitle}>관련 지원사업</h2>
             <p className={s.sectionDesc}>
@@ -228,7 +229,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       {/* ── 귀농 교육 ── */}
       <section className={s.section} aria-label="귀농 교육">
         <div className={s.sectionHeader}>
-          <GraduationCap size={20} className={s.sectionIcon} />
+          <Icon icon={GraduationCap} size="lg" variant="soft" box="md" />
           <div>
             <h2 className={s.sectionTitle}>귀농 교육</h2>
             <p className={s.sectionDesc}>
@@ -274,7 +275,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       {/* ── 체험·행사 ── */}
       <section className={s.section} aria-label="체험·행사">
         <div className={s.sectionHeader}>
-          <Calendar size={20} className={s.sectionIcon} />
+          <Icon icon={Calendar} size="lg" variant="soft" box="md" />
           <div>
             <h2 className={s.sectionTitle}>체험·행사</h2>
             <p className={s.sectionDesc}>

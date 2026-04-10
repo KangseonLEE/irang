@@ -1,0 +1,73 @@
+/* ==========================================================================
+   Icon — 공통 아이콘 래퍼
+   사이즈 스케일(xs~2xl) × 컨테이너(bare / soft / solid)
+   CSS Module · globals.css 토큰 참조
+   ========================================================================== */
+
+/* ---- 공통 ---- */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* ---- bare: 아이콘만 (버튼, 인라인, 네비) ---- */
+.bare {
+  color: currentColor;
+}
+
+/* ---- soft: 연한 배경 박스 (섹션 헤더, 통계 카드) ---- */
+.soft {
+  border-radius: var(--icon-box-radius, 10px);
+  color: var(--primary, #1b6b5a);
+  background: var(--secondary, #f0f9f6);
+}
+
+/* ---- solid: 진한 배경 (강조, 히어로) ---- */
+.solid {
+  border-radius: var(--icon-box-radius, 10px);
+  color: var(--primary-foreground, #fff);
+  background: var(--primary, #1b6b5a);
+}
+
+/* ---- 사이즈별 아이콘 크기 (bare에만 적용) ---- */
+/* bare는 box 없이 아이콘만 → 컨테이너 크기 = 아이콘 크기 */
+
+/* ---- soft/solid 컨테이너 사이즈 ---- */
+.boxSm {
+  width: var(--icon-box-sm, 28px);
+  height: var(--icon-box-sm, 28px);
+}
+
+.boxMd {
+  width: var(--icon-box-md, 34px);
+  height: var(--icon-box-md, 34px);
+}
+
+.boxLg {
+  width: var(--icon-box-lg, 40px);
+  height: var(--icon-box-lg, 40px);
+}
+
+/* ---- 시맨틱 컬러 변형 (soft 전용) ---- */
+.colorSuccess {
+  color: var(--success, #16a34a);
+  background: #ecfdf5;
+}
+
+.colorWarning {
+  color: var(--warning, #d97706);
+  background: #fffbeb;
+}
+
+.colorError {
+  color: var(--error, #dc2626);
+  background: #fef2f2;
+}
+
+.colorInfo {
+  color: var(--info, #2563eb);
+  background: #eff6ff;
+}

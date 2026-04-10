@@ -78,6 +78,20 @@
   --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
   --shadow-lg: 0 8px 24px rgba(27,107,90,0.12);
 
+  /* ── Icon Scale ──
+     6단계 사이즈 + 3단계 컨테이너. 아이콘 일관성 확보. */
+  --icon-xs:  12px;
+  --icon-sm:  14px;
+  --icon-md:  16px;
+  --icon-lg:  20px;
+  --icon-xl:  24px;
+  --icon-2xl: 32px;
+
+  --icon-box-sm: 28px;   /* soft/solid 컨테이너 — sm */
+  --icon-box-md: 34px;   /* soft/solid 컨테이너 — md (섹션 헤더) */
+  --icon-box-lg: 40px;   /* soft/solid 컨테이너 — lg (히어로/빈상태) */
+  --icon-box-radius: 10px;
+
   /* ── Z-Index Layer Stack ──
      전역 레이어 관리. 컴포넌트 간 z-index 충돌 방지.
      내부 장식용(1~2)은 하드코딩 허용, 크로스 컴포넌트 레이어만 변수 사용. */

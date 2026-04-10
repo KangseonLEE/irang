@@ -17,6 +17,7 @@ import {
   Calendar,
   MapPin,
 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { RegionStats } from "./region-stats";
 import { DataSource } from "@/components/ui/data-source";
 import { ProvinceMap } from "@/components/map/province-map";
@@ -169,7 +170,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
       {matchedPrograms.length > 0 && (
         <section className={s.section}>
           <div className={s.sectionHeader}>
-            <FileText size={20} className={s.sectionIcon} />
+            <Icon icon={FileText} size="lg" variant="soft" box="md" />
             <div>
               <h2 className={s.sectionTitle}>관련 지원사업</h2>
               <p className={s.sectionDesc}>
@@ -214,7 +215,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
       {matchedEducation.length > 0 && (
         <section className={s.section}>
           <div className={s.sectionHeader}>
-            <GraduationCap size={20} className={s.sectionIcon} />
+            <Icon icon={GraduationCap} size="lg" variant="soft" box="md" />
             <div>
               <h2 className={s.sectionTitle}>귀농 교육</h2>
               <p className={s.sectionDesc}>
@@ -256,7 +257,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
       {matchedEvents.length > 0 && (
         <section className={s.section}>
           <div className={s.sectionHeader}>
-            <Calendar size={20} className={s.sectionIcon} />
+            <Icon icon={Calendar} size="lg" variant="soft" box="md" />
             <div>
               <h2 className={s.sectionTitle}>체험·행사</h2>
               <p className={s.sectionDesc}>
@@ -301,7 +302,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
       {sigungus.length > 0 && (
         <section className={s.section}>
           <div className={s.sectionHeader}>
-            <MapPin size={20} className={s.sectionIcon} />
+            <Icon icon={MapPin} size="lg" variant="soft" box="md" />
             <div>
               <h2 className={s.sectionTitle}>시/군/구 둘러보기</h2>
               <p className={s.sectionDesc}>
