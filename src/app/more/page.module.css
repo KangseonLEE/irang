@@ -125,10 +125,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--muted, #f9fafb);
+  width: 24px;
+  height: 24px;
   color: var(--muted-foreground, #6b7280);
   flex-shrink: 0;
 }

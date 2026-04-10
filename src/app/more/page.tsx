@@ -183,7 +183,7 @@ export default function MorePage() {
                     className={s.menuItem}
                   >
                     <div className={s.menuIcon}>
-                      <Icon size={20} strokeWidth={1.75} />
+                      <Icon size={22} strokeWidth={1.75} />
                     </div>
                     <div className={s.menuText}>
                       <span className={s.menuLabel}>{child.label}</span>
