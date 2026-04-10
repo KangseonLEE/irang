@@ -90,10 +90,10 @@
   justify-content: center;
 }
 
-/* 활성 탭 도트 인디케이터 */
+/* 활성 탭 도트 인디케이터 — 아이콘 상단에 배치 */
 .dot {
   position: absolute;
-  bottom: -2px;
+  top: -3px;
   left: 50%;
   transform: translateX(-50%);
   width: 4px;
