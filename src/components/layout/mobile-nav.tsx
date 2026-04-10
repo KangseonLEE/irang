@@ -100,10 +100,7 @@ export function MobileNav() {
               className={`${s.tab} ${isActive ? s.active : ""}`}
               onClick={(e) => handleTabClick(e, tab.href)}
             >
-              <span className={s.iconWrap}>
-                <Icon size={24} strokeWidth={isActive ? 2.0 : 1.75} />
-                {isActive && <span className={s.dot} />}
-              </span>
+              <Icon size={24} strokeWidth={isActive ? 2.0 : 1.75} />
               <span>{tab.label}</span>
             </Link>
           );
@@ -114,10 +111,7 @@ export function MobileNav() {
           href="/more"
           className={`${s.tab} ${isMoreActive ? s.active : ""}`}
         >
-          <span className={s.iconWrap}>
-            <MoreHorizontal size={24} strokeWidth={isMoreActive ? 2.0 : 1.75} />
-            {isMoreActive && <span className={s.dot} />}
-          </span>
+          <MoreHorizontal size={24} strokeWidth={isMoreActive ? 2.0 : 1.75} />
           <span>더보기</span>
         </Link>
       </div>
