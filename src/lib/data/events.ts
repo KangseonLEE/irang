@@ -58,6 +58,8 @@ export const EVENTS: FarmEvent[] = [
     type: "박람회",
     date: "2026-04-24",
     dateEnd: "2026-04-26",
+    applicationStart: "2026-03-01",
+    applicationEnd: "2026-04-23",
     location: "수원컨벤션센터",
     cost: "사전등록 시 무료",
     description:
@@ -75,6 +77,8 @@ export const EVENTS: FarmEvent[] = [
     type: "박람회",
     date: "2026-05-27",
     dateEnd: "2026-05-29",
+    applicationStart: "2026-04-01",
+    applicationEnd: "2026-05-26",
     location: "창원컨벤션센터(CECO) 제1,2전시장",
     cost: "무료 (사전등록)",
     description:
@@ -92,6 +96,8 @@ export const EVENTS: FarmEvent[] = [
     type: "박람회",
     date: "2026-06-18",
     dateEnd: "2026-06-20",
+    applicationStart: "2026-04-01",
+    applicationEnd: "2026-06-17",
     location: "청주 OSCO (오스코)",
     cost: "무료 (사전등록 ~6/17)",
     description:
@@ -126,6 +132,8 @@ export const EVENTS: FarmEvent[] = [
     type: "일일체험",
     date: "2026-04-01",
     dateEnd: "2026-06-30",
+    applicationStart: "2026-02-01",
+    applicationEnd: "2026-03-15",
     location: "전라북도 무주군",
     cost: "문의 필요 (1551-6858)",
     description:
@@ -143,6 +151,8 @@ export const EVENTS: FarmEvent[] = [
     type: "일일체험",
     date: "2026-04-01",
     dateEnd: "2026-06-30",
+    applicationStart: "2026-02-01",
+    applicationEnd: "2026-03-31",
     location: "강원도 영월군 요선농촌체험휴양마을",
     cost: "체류 지원 (주거+영농실습)",
     description:
@@ -160,6 +170,8 @@ export const EVENTS: FarmEvent[] = [
     type: "설명회",
     date: "2026-03-10",
     dateEnd: "2026-03-13",
+    applicationStart: "2026-02-10",
+    applicationEnd: "2026-03-07",
     location: "제주특별자치도농업기술원 미래농업육성관 대강당",
     cost: "무료",
     description:
