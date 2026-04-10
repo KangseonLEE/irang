@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Heart } from "lucide-react";
+import { ArrowRight, Heart, Search } from "lucide-react";
 import { IrangSymbol } from "@/components/brand/irang-symbol";
 import { BookmarkList } from "@/components/bookmark/bookmark-list";
 import { useBookmarks } from "@/lib/hooks/use-bookmarks";
@@ -185,6 +185,13 @@ export function Header() {
 
           {/* Right Actions */}
           <div className={s.actions}>
+            <Link
+              href="/search"
+              className={s.searchBtn}
+              aria-label="통합검색"
+            >
+              <Search size={20} />
+            </Link>
             <button
               type="button"
               className={s.bookmarkBtn}
