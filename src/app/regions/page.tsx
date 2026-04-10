@@ -11,6 +11,7 @@ import {
   Users,
   HeartHandshake,
 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
 import { PROVINCES } from "@/lib/data/regions";
 import { CROPS } from "@/lib/data/crops";
@@ -46,7 +47,7 @@ export default async function RegionsPage() {
 
       {/* Page Header */}
       <PageHeader
-        icon={<MapPin size={20} />}
+        icon={<MapPin size={20} strokeWidth={1.75} />}
         label="Regions"
         title="지역 탐색"
         description="귀농을 고려 중인 지역을 선택해 기후, 인구, 추천 작물, 지원사업 정보를 확인하세요."
@@ -84,21 +85,21 @@ export default async function RegionsPage() {
             {/* Quick Stats */}
             <div className={s.statsGrid}>
               <div className={s.statCard}>
-                <Landmark size={18} className={s.statIcon} aria-hidden="true" />
+                <Icon icon={Landmark} size="lg" className={s.statIcon} />
                 <div className={s.statText}>
                   <span className={s.statValue}>{PROVINCES.length}개</span>
                   <span className={s.statLabel}>도·광역시</span>
                 </div>
               </div>
               <div className={s.statCard}>
-                <Sprout size={18} className={s.statIcon} aria-hidden="true" />
+                <Icon icon={Sprout} size="lg" className={s.statIcon} />
                 <div className={s.statText}>
                   <span className={s.statValue}>{CROPS.length}종</span>
                   <span className={s.statLabel}>추천 작물</span>
                 </div>
               </div>
               <div className={s.statCard}>
-                <FileText size={18} className={s.statIcon} aria-hidden="true" />
+                <Icon icon={FileText} size="lg" className={s.statIcon} />
                 <div className={s.statText}>
                   <span className={s.statValue}>{PROGRAMS.length}건</span>
                   <span className={s.statLabel}>지원사업</span>
@@ -110,28 +111,28 @@ export default async function RegionsPage() {
             <div className={s.infoList}>
               <h3 className={s.infoListTitle}>지역별 확인 가능 정보</h3>
               <div className={s.infoItem}>
-                <Thermometer size={18} className={s.infoIcon} aria-hidden="true" />
+                <Icon icon={Thermometer} size="lg" className={s.infoIcon} />
                 <div>
                   <span className={s.infoItemTitle}>기후 데이터</span>
                   <span className={s.infoItemDesc}><AutoGlossary text="월별 기온·강수량·일조시간" /></span>
                 </div>
               </div>
               <div className={s.infoItem}>
-                <Users size={18} className={s.infoIcon} aria-hidden="true" />
+                <Icon icon={Users} size="lg" className={s.infoIcon} />
                 <div>
                   <span className={s.infoItemTitle}>인구·인프라</span>
                   <span className={s.infoItemDesc}><AutoGlossary text="인구 추이, 의료·교육 시설" /></span>
                 </div>
               </div>
               <div className={s.infoItem}>
-                <Sprout size={18} className={s.infoIcon} aria-hidden="true" />
+                <Icon icon={Sprout} size="lg" className={s.infoIcon} />
                 <div>
                   <span className={s.infoItemTitle}>추천 작물</span>
                   <span className={s.infoItemDesc}><AutoGlossary text="적합 작물, 예상 수익, 난이도" /></span>
                 </div>
               </div>
               <div className={s.infoItem}>
-                <HeartHandshake size={18} className={s.infoIcon} aria-hidden="true" />
+                <Icon icon={HeartHandshake} size="lg" className={s.infoIcon} />
                 <div>
                   <span className={s.infoItemTitle}>지원사업</span>
                   <span className={s.infoItemDesc}><AutoGlossary text="정착금, 농지 임대, 교육 프로그램" /></span>
@@ -142,7 +143,7 @@ export default async function RegionsPage() {
             {/* 비교 CTA */}
             <Link href="/regions/compare" className={s.compareCta}>
               <div className={s.compareCtaContent}>
-                <GitCompareArrows size={18} aria-hidden="true" />
+                <Icon icon={GitCompareArrows} size="lg" />
                 <div>
                   <span className={s.compareCtaTitle}>지역 비교하기</span>
                   <span className={s.compareCtaDesc}>최대 3개 지역을 한눈에 비교</span>

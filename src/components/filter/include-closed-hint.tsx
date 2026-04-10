@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import { Info } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import s from "./include-closed-hint.module.css";
 
 interface IncludeClosedHintProps {
@@ -54,7 +55,7 @@ export function IncludeClosedHint({
   return (
     <div className={s.hint} role="status">
       <div className={s.iconWrap}>
-        <Info size={18} />
+        <Icon icon={Info} size="lg" />
       </div>
       <div className={s.body}>
         <p className={s.text}>

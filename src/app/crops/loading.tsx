@@ -1,4 +1,5 @@
 import { Sprout } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import s from "./loading.module.css";
 
 export default function CropsLoading() {
@@ -7,7 +8,7 @@ export default function CropsLoading() {
       {/* Page Header */}
       <div className={s.header}>
         <div className={s.overline}>
-          <Sprout size={20} />
+          <Icon icon={Sprout} size="lg" />
           <span className={s.overlineText}>
             Crop Info
           </span>

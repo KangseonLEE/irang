@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { getEventByIdAsync, EVENTS } from "@/lib/data/events";
 import type { FarmEvent } from "@/lib/data/events";
+import { Icon } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page.module.css";
 
@@ -79,7 +80,7 @@ export default async function EventDetailPage({
     <div className={s.page}>
       {/* Back link */}
       <Link href="/events" className={s.backLink}>
-        <ArrowLeft size={16} />
+        <Icon icon={ArrowLeft} size="md" />
         행사 목록으로
       </Link>
 
@@ -124,32 +125,32 @@ export default async function EventDetailPage({
               <table className={s.table}>
                 <tbody>
                   <InfoRow
-                    icon={<Building2 size={16} />}
+                    icon={<Building2 size={16} strokeWidth={1.75} />}
                     label="주최 기관"
                     value={event.organization}
                   />
                   <InfoRow
-                    icon={<MapPin size={16} />}
+                    icon={<MapPin size={16} strokeWidth={1.75} />}
                     label="지역"
                     value={event.region}
                   />
                   <InfoRow
-                    icon={<MapPinned size={16} />}
+                    icon={<MapPinned size={16} strokeWidth={1.75} />}
                     label="장소"
                     value={event.location}
                   />
                   <InfoRow
-                    icon={<Calendar size={16} />}
+                    icon={<Calendar size={16} strokeWidth={1.75} />}
                     label="행사 일시"
                     value={formatDateRange(event.date, event.dateEnd)}
                   />
                   <InfoRow
-                    icon={<Coins size={16} />}
+                    icon={<Coins size={16} strokeWidth={1.75} />}
                     label="비용"
                     value={event.cost}
                   />
                   <InfoRow
-                    icon={<Users size={16} />}
+                    icon={<Users size={16} strokeWidth={1.75} />}
                     label="정원"
                     value={
                       event.capacity !== null
@@ -159,13 +160,13 @@ export default async function EventDetailPage({
                   />
                   {event.applicationStart && event.applicationEnd && (
                     <InfoRow
-                      icon={<CalendarDays size={16} />}
+                      icon={<CalendarDays size={16} strokeWidth={1.75} />}
                       label="접수 기간"
                       value={formatDateRange(event.applicationStart, event.applicationEnd)}
                     />
                   )}
                   <InfoRow
-                    icon={<Tag size={16} />}
+                    icon={<Tag size={16} strokeWidth={1.75} />}
                     label="대상"
                     value={event.target}
                   />
@@ -217,7 +218,7 @@ export default async function EventDetailPage({
             <div className={s.card}>
               <div className={s.cardHeader}>
                 <h2 className={s.cardTitle}>
-                  <CalendarDays size={16} />
+                  <Icon icon={CalendarDays} size="md" />
                   관련 행사
                 </h2>
               </div>

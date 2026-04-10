@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   MessageCircle,
 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { interviews } from "@/lib/data/landing";
 import { CROPS } from "@/lib/data/crops";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
@@ -71,7 +72,7 @@ export default async function InterviewDetailPage({
     <div className={s.page}>
       {/* ═══ 뒤로가기 ═══ */}
       <Link href="/interviews" className={s.backLink}>
-        <ArrowLeft size={16} />
+        <Icon icon={ArrowLeft} size="md" />
         귀농인 이야기
       </Link>
 
@@ -85,11 +86,11 @@ export default async function InterviewDetailPage({
               <p className={s.heroMeta}>{person.age} · {person.region}</p>
               <div className={s.heroTags}>
                 <span className={s.heroTag}>
-                  <Briefcase size={12} /> {person.prevJob}
+                  <Icon icon={Briefcase} size="xs" /> {person.prevJob}
                 </span>
                 <span className={s.heroTagArrow}>&rarr;</span>
                 <span className={s.heroTag}>
-                  <Sprout size={12} /> {person.currentJob}
+                  <Icon icon={Sprout} size="xs" /> {person.currentJob}
                 </span>
               </div>
             </div>
@@ -100,29 +101,29 @@ export default async function InterviewDetailPage({
             rel="noopener noreferrer"
             className={s.sourceLink}
           >
-            <ExternalLink size={13} />
+            <Icon icon={ExternalLink} size="sm" />
             원문 기사
           </a>
         </div>
 
         <blockquote className={s.heroQuote}>
-          <Quote size={20} className={s.heroQuoteIcon} />
+          <Icon icon={Quote} size="lg" className={s.heroQuoteIcon} />
           <p className={s.heroQuoteText}><AutoGlossary text={person.quote} /></p>
         </blockquote>
 
         {/* 정보 뱃지 */}
         <div className={s.heroInfoBadges}>
           <Link href={person.regionUrl} className={s.heroInfoBadgeLink}>
-            <MapPin size={13} /> {person.region}
+            <Icon icon={MapPin} size="sm" /> {person.region}
           </Link>
           {person.cropLinks.map((cl) => (
             <Link key={cl.href} href={cl.href} className={s.heroInfoBadgeLink}>
-              <Sprout size={13} /> {cl.name}
+              <Icon icon={Sprout} size="sm" /> {cl.name}
             </Link>
           ))}
           {person.cropLinks.length === 0 && (
             <span className={s.heroInfoBadge}>
-              <Sprout size={13} /> {person.crop}
+              <Icon icon={Sprout} size="sm" /> {person.crop}
             </span>
           )}
         </div>
@@ -131,7 +132,7 @@ export default async function InterviewDetailPage({
       {/* ═══ 본문: 이야기 (메인 콘텐츠, 가장 넓은 공간) ═══ */}
       <section className={s.storySection}>
         <h2 className={s.storyTitle}>
-          <MessageCircle size={18} className={s.sectionIcon} />
+          <Icon icon={MessageCircle} size="lg" className={s.sectionIcon} />
           이야기
         </h2>
         <p className={s.storyBody}><AutoGlossary text={person.story} /></p>
@@ -141,7 +142,7 @@ export default async function InterviewDetailPage({
       <div className={s.insightGrid}>
         <section className={s.insightCard} data-variant="motivation">
           <h2 className={s.insightTitle}>
-            <Lightbulb size={16} />
+            <Icon icon={Lightbulb} size="md" />
             귀농을 결심한 이유
           </h2>
           <p className={s.insightBody}><AutoGlossary text={person.motivation} /></p>
@@ -149,7 +150,7 @@ export default async function InterviewDetailPage({
 
         <section className={s.insightCard} data-variant="challenge">
           <h2 className={s.insightTitle}>
-            <AlertTriangle size={16} />
+            <Icon icon={AlertTriangle} size="md" />
             가장 어려웠던 점
           </h2>
           <p className={s.insightBody}><AutoGlossary text={person.challenge} /></p>
@@ -173,14 +174,14 @@ export default async function InterviewDetailPage({
         {/* 지역 */}
         <div className={s.dataGroup}>
           <h3 className={s.dataGroupLabel}>
-            <MapPin size={14} /> 지역
+            <Icon icon={MapPin} size="sm" /> 지역
           </h3>
           <Link href={person.regionUrl} className={s.dataCard}>
             <div className={s.dataCardInfo}>
               <span className={s.dataCardLabel}>{person.region}</span>
               <span className={s.dataCardDesc}>기후·인구·의료·교육</span>
             </div>
-            <ArrowRight size={14} className={s.dataCardArrow} />
+            <Icon icon={ArrowRight} size="sm" className={s.dataCardArrow} />
           </Link>
         </div>
 
@@ -188,7 +189,7 @@ export default async function InterviewDetailPage({
         {person.cropLinks.length > 0 && (
           <div className={s.dataGroup}>
             <h3 className={s.dataGroupLabel}>
-              <Sprout size={14} /> 작물
+              <Icon icon={Sprout} size="sm" /> 작물
             </h3>
             <div className={s.dataGrid}>
               {person.cropLinks.map((cl) => {

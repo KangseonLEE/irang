@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { JsonLd } from "./json-ld";
 import type { BreadcrumbList as BreadcrumbListSchema } from "schema-dts";
+import { Icon } from "@/components/ui/icon";
 import s from "./breadcrumbs.module.css";
 
 const BASE_URL = "https://irang-wheat.vercel.app";
@@ -58,11 +59,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
             return (
               <li key={`${crumb.label}-${index}`} className={s.item}>
                 {index > 0 && (
-                  <ChevronRight
-                    size={14}
-                    className={s.separator}
-                    aria-hidden="true"
-                  />
+                  <Icon icon={ChevronRight} size="sm" className={s.separator} />
                 )}
                 {isLast || !crumb.href ? (
                   <span className={s.current} aria-current="page">

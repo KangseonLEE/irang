@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Sprout } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
 import { fetchPopulationData, type PopulationData } from "@/lib/api/sgis";
 import { fetchMedicalFacilities, type MedicalFacilityData } from "@/lib/api/hira";
@@ -95,7 +96,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
       {/* Page Header */}
       <header className={s.pageHeader}>
         <span className={s.headerOverline}>
-          <MapPin size={16} aria-hidden="true" />
+          <Icon icon={MapPin} size="md" />
           Region Compare
         </span>
         <h1 className={s.headerTitle}>지역 비교</h1>
@@ -119,7 +120,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
 
       {/* Crop Suitability Shortcut */}
       <a href="#suitability-heading" className={s.cropToolHint}>
-        <Sprout size={14} aria-hidden="true" />
+        <Icon icon={Sprout} size="sm" />
         작물 적합성도 확인하기 ↓
       </a>
 

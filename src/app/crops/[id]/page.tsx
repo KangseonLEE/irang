@@ -163,9 +163,9 @@ export default async function CropDetailPage({
       <div className={s.topBar}>
         <nav className={s.breadcrumb} aria-label="현재 위치">
           <Link href="/crops" className={s.breadcrumbLink}>작물</Link>
-          <ChevronRight size={14} aria-hidden="true" />
+          <Icon icon={ChevronRight} size="sm" />
           <span className={s.breadcrumbLink}>{data.category}</span>
-          <ChevronRight size={14} aria-hidden="true" />
+          <Icon icon={ChevronRight} size="sm" />
           <span className={s.breadcrumbCurrent}>{data.name}</span>
         </nav>
         <DataSource source="농촌진흥청 · KOSIS" variant="badge" />
@@ -202,7 +202,7 @@ export default async function CropDetailPage({
                 <span
                   className={`${s.badge} ${DIFFICULTY_BADGE[data.difficulty] ?? s.badgeNormal}`}
                 >
-                  <Gauge size={12} />
+                  <Icon icon={Gauge} size="xs" />
                   난이도 · {data.difficulty}
                 </span>
               </div>
@@ -362,21 +362,21 @@ export default async function CropDetailPage({
                 href={`/crops/compare?ids=${data.id}${detail.relatedCropIds.length > 0 ? `,${detail.relatedCropIds[0]}` : ""}`}
                 className={`${s.ctaButton} ${s.ctaPrimary}`}
               >
-                <Scale size={16} />
+                <Icon icon={Scale} size="md" />
                 작물 비교하기
               </Link>
               <Link
                 href={programsHref}
                 className={`${s.ctaButton} ${s.ctaOutline}`}
               >
-                <FileText size={16} />
+                <Icon icon={FileText} size="md" />
                 관련 지원사업 보기
               </Link>
               <Link
                 href="/regions"
                 className={`${s.ctaButton} ${s.ctaOutline}`}
               >
-                <MapPin size={16} />
+                <Icon icon={MapPin} size="md" />
                 지역 비교하기
               </Link>
             </div>
@@ -386,7 +386,7 @@ export default async function CropDetailPage({
           {relatedCrops.length > 0 && (
             <div className={s.sideSection}>
               <h3 className={s.sideSectionHeader}>
-                <Leaf size={16} />
+                <Icon icon={Leaf} size="md" />
                 관련 작물
               </h3>
               <div className={s.relatedCropList}>
@@ -426,14 +426,14 @@ export default async function CropDetailPage({
           href={programsHref}
           className={`${s.ctaButton} ${s.ctaPrimary}`}
         >
-          <FileText size={16} />
+          <Icon icon={FileText} size="md" />
           지원사업 보기
         </Link>
         <Link
           href="/regions"
           className={`${s.ctaButton} ${s.ctaOutline}`}
         >
-          <MapPin size={16} />
+          <Icon icon={MapPin} size="md" />
           지역 비교
         </Link>
       </div>
@@ -464,10 +464,10 @@ function CultivationSection({
   cultivation: CropDetailInfo["cultivation"];
 }) {
   const items = [
-    { icon: <Thermometer size={20} />, cls: s.fIconClimate, label: "기후", value: cultivation.climate },
-    { icon: <Leaf size={20} />, cls: s.fIconSoil, label: "토양", value: cultivation.soil },
-    { icon: <Droplets size={20} />, cls: s.fIconWater, label: "수분", value: cultivation.water },
-    { icon: <Ruler size={20} />, cls: s.fIconSpacing, label: "간격", value: cultivation.spacing },
+    { icon: <Thermometer size={20} strokeWidth={1.75} />, cls: s.fIconClimate, label: "기후", value: cultivation.climate },
+    { icon: <Leaf size={20} strokeWidth={1.75} />, cls: s.fIconSoil, label: "토양", value: cultivation.soil },
+    { icon: <Droplets size={20} strokeWidth={1.75} />, cls: s.fIconWater, label: "수분", value: cultivation.water },
+    { icon: <Ruler size={20} strokeWidth={1.75} />, cls: s.fIconSpacing, label: "간격", value: cultivation.spacing },
   ];
 
   return (
@@ -487,7 +487,7 @@ function CultivationSection({
         {/* 비료 정보 — 별도 카드 */}
         <div className={s.fertilizerCard}>
           <div className={s.fertilizerHeader}>
-            <FlaskConical size={16} />
+            <Icon icon={FlaskConical} size="md" />
             <span>비료 · 시비 정보</span>
           </div>
           <p className={s.fertilizerText}><AutoGlossary text={cultivation.fertilizerNote} /></p>
@@ -535,7 +535,7 @@ function IncomeSection({
             {income.minScale && (
               <div className={s.indicatorCard}>
                 <span className={`${s.indicatorIcon} ${s.indicatorIconScale}`}>
-                  <Maximize2 size={16} />
+                  <Icon icon={Maximize2} size="md" />
                 </span>
                 <p className={s.indicatorLabel}>최소 권장 규모</p>
                 <p className={s.indicatorValue}>{income.minScale}</p>
@@ -544,7 +544,7 @@ function IncomeSection({
             {income.annualWorkdays && (
               <div className={s.indicatorCard}>
                 <span className={`${s.indicatorIcon} ${s.indicatorIconWork}`}>
-                  <Clock size={16} />
+                  <Icon icon={Clock} size="md" />
                 </span>
                 <p className={s.indicatorLabel}>연간 노동일수</p>
                 <p className={s.indicatorValue}>{income.annualWorkdays}</p>
@@ -553,7 +553,7 @@ function IncomeSection({
             {income.laborIntensity && (
               <div className={s.indicatorCard}>
                 <span className={`${s.indicatorIcon} ${s.indicatorIconIntensity}`}>
-                  <Zap size={16} />
+                  <Icon icon={Zap} size="md" />
                 </span>
                 <p className={s.indicatorLabel}>노동 강도</p>
                 <span className={`${s.intensityBadge} ${INTENSITY_STYLE[income.laborIntensity] ?? s.intensityMedium}`}>
@@ -605,7 +605,7 @@ function ProsConsSection({ prosCons }: { prosCons: ProsConsInfo }) {
         {/* 장점 */}
         <div className={s.prosGroup}>
           <div className={s.prosGroupHeader}>
-            <ThumbsUp size={14} />
+            <Icon icon={ThumbsUp} size="sm" />
             <span>장점</span>
           </div>
           <div className={s.prosConsList}>
@@ -623,7 +623,7 @@ function ProsConsSection({ prosCons }: { prosCons: ProsConsInfo }) {
         {/* 단점 */}
         <div className={s.consGroup}>
           <div className={s.consGroupHeader}>
-            <AlertTriangle size={14} />
+            <Icon icon={AlertTriangle} size="sm" />
             <span>단점</span>
           </div>
           <div className={s.prosConsList}>
@@ -641,7 +641,7 @@ function ProsConsSection({ prosCons }: { prosCons: ProsConsInfo }) {
         {/* 종합 평가 */}
         {prosCons.verdict && (
           <div className={s.verdictCard}>
-            <Lightbulb size={16} />
+            <Icon icon={Lightbulb} size="md" />
             <p className={s.verdictText}><AutoGlossary text={prosCons.verdict} maxHighlights={5} /></p>
           </div>
         )}
@@ -731,7 +731,7 @@ function RegionSection({
                   href={`/regions/${province.id}`}
                   className={s.regionPillLink}
                 >
-                  <MapPin size={12} />
+                  <Icon icon={MapPin} size="xs" />
                   {r}
                 </Link>
               ) : (
@@ -743,7 +743,7 @@ function RegionSection({
 
         <Link href="/regions" className={s.regionCta}>
           지역별 상세 비교하기
-          <ArrowRight size={14} />
+          <Icon icon={ArrowRight} size="sm" />
         </Link>
       </div>
     </section>
@@ -809,7 +809,7 @@ function RelatedProgramsSection({
   return (
     <div className={s.sideSection}>
       <h3 className={s.sideSectionHeader}>
-        <DollarSign size={16} />
+        <Icon icon={DollarSign} size="md" />
         관련 지원사업
       </h3>
       {relatedPrograms.length > 0 ? (
@@ -830,7 +830,7 @@ function RelatedProgramsSection({
           ))}
           <Link href={moreHref} className={s.programMore}>
             전체 지원사업 보기
-            <ArrowRight size={14} />
+            <Icon icon={ArrowRight} size="sm" />
           </Link>
         </div>
       ) : (

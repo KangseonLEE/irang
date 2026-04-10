@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   type LucideIcon,
 } from "lucide-react";
+import { Icon as IconWrap } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { TimelineLink, AccordionScrollWrapper } from "./timeline-nav";
 import { ChecklistInteractive } from "./checklist-interactive";
@@ -317,7 +318,7 @@ export default function GuidePage() {
             <summary className={s.stepHeader}>
               <div className={s.stepHeaderRow}>
                 <div className={s.stepIcon}>
-                  <Icon size={18} />
+                  <Icon size={18} strokeWidth={1.75} />
                 </div>
                 <div className={s.stepHeaderText}>
                   <span className={s.stepLabel}>STEP {step.step}</span>
@@ -326,7 +327,7 @@ export default function GuidePage() {
                 <span className={s.stepPeriodBadge}>
                   {step.period}
                 </span>
-                <ChevronDown size={20} className={s.stepChevron} aria-hidden="true" />
+                <IconWrap icon={ChevronDown} size="lg" className={s.stepChevron} />
               </div>
             </summary>
 
@@ -340,7 +341,7 @@ export default function GuidePage() {
               <div className={s.stepBody}>
               {/* 2. 주의사항 (위험 신호를 먼저 노출) */}
               <div className={s.cautionCard}>
-                <AlertTriangle size={16} />
+                <IconWrap icon={AlertTriangle} size="md" />
                 <p className={s.cautionText}><AutoGlossary text={step.caution} /></p>
               </div>
 
@@ -377,7 +378,7 @@ export default function GuidePage() {
               {/* 6. 팁 */}
               <div className={s.tipsCard}>
                 <h3 className={s.tipsTitle}>
-                  <Lightbulb size={16} />팁
+                  <IconWrap icon={Lightbulb} size="md" />팁
                 </h3>
                 <ul className={s.tipsList}>
                   {step.tips.map((tip, i) => (
@@ -392,7 +393,7 @@ export default function GuidePage() {
               {STEP_INTERVIEWS[step.step] && (
                 <div className={s.interviewCards}>
                   <h3 className={s.interviewCardsTitle}>
-                    <MessageSquareQuote size={16} />
+                    <IconWrap icon={MessageSquareQuote} size="md" />
                     선배 귀농인의 한마디
                   </h3>
                   <div className={s.interviewCardsList}>
@@ -424,7 +425,7 @@ export default function GuidePage() {
                 {step.links.map((link) => (
                   <Link key={link.href} href={link.href} className={s.stepLink}>
                     {link.label}
-                    <ArrowRight size={14} />
+                    <IconWrap icon={ArrowRight} size="sm" />
                   </Link>
                 ))}
               </div>
@@ -432,7 +433,7 @@ export default function GuidePage() {
               {nextStep && (
                 <TimelineLink stepId={`step-${nextStep.step}`} className={s.nextStepLink}>
                   다음 단계: {nextStep.title}
-                  <ChevronRight size={16} />
+                  <IconWrap icon={ChevronRight} size="md" />
                 </TimelineLink>
               )}
             </div>
@@ -451,7 +452,7 @@ export default function GuidePage() {
         <div className={s.ctaButtons}>
           <Link href="/match" className={s.ctaPrimary}>
             맞춤 추천받기
-            <ArrowRight size={16} />
+            <IconWrap icon={ArrowRight} size="md" />
           </Link>
           <Link href="/regions" className={s.ctaSecondary}>
             지역 탐색하기

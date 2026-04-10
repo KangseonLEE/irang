@@ -8,6 +8,7 @@ import {
   Users,
   Tag,
 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { formatDate, formatDateRange } from "@/lib/format";
 import {
   filterEventsAsync,
@@ -135,7 +136,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
     <div className={s.page}>
       {/* ── Page Header ── */}
       <PageHeader
-        icon={<Calendar size={20} />}
+        icon={<Calendar size={20} strokeWidth={1.75} />}
         label="Events"
         title="체험·행사"
         description="귀농 일일체험, 팜스테이, 박람회, 설명회 등 다양한 체험과 행사를 찾아보세요."
@@ -199,7 +200,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
       {/* ── Card Grid / Table / Empty ── */}
       {events.length === 0 ? (
         <EmptyState
-          icon={<Calendar size={32} />}
+          icon={<Calendar size={32} strokeWidth={1.75} />}
           message={<>조건에 맞는 체험·행사가 없습니다.<br />필터를 변경하거나 마감 행사를 포함해 보세요.</>}
           linkHref="/events"
           linkText="전체 행사 보기"
@@ -266,7 +267,7 @@ function EventCard({ event }: { event: FarmEvent }) {
       <div className={s.cardHeader}>
         <div className={s.cardBadges}>
           <span className={`${s.typeBadge} ${getTypeBadgeClass(event.type)}`}>
-            <Tag size={10} />
+            <Icon icon={Tag} size="xs" />
             {event.type}
           </span>
           <StatusBadge status={event.status} />
@@ -279,22 +280,22 @@ function EventCard({ event }: { event: FarmEvent }) {
 
         <div className={s.cardMeta}>
           <div className={s.cardMetaRow}>
-            <Clock size={14} className={s.cardMetaIcon} />
+            <Icon icon={Clock} size="sm" className={s.cardMetaIcon} />
             <span className={s.cardMetaValue}>
               {formatDateRange(event.date, event.dateEnd)}
             </span>
           </div>
           <div className={s.cardMetaRow}>
-            <MapPin size={14} className={s.cardMetaIcon} />
+            <Icon icon={MapPin} size="sm" className={s.cardMetaIcon} />
             <span className={s.cardMetaValue}>{event.location}</span>
           </div>
           <div className={s.cardMetaRow}>
-            <Calendar size={14} className={s.cardMetaIcon} />
+            <Icon icon={Calendar} size="sm" className={s.cardMetaIcon} />
             <span className={s.cardMetaValue}>{event.organization}</span>
           </div>
           {event.capacity && (
             <div className={s.cardMetaRow}>
-              <Users size={14} className={s.cardMetaIcon} />
+              <Icon icon={Users} size="sm" className={s.cardMetaIcon} />
               <span className={s.cardMetaValue}>
                 정원 {event.capacity}명 | {event.target}
               </span>

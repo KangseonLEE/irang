@@ -43,7 +43,7 @@ export default function SatisfactionPage() {
     <div className={s.page}>
       {/* 뒤로가기 */}
       <Link href="/" className={shared.backLink}>
-        <ArrowLeft size={16} aria-hidden="true" />
+        <Icon icon={ArrowLeft} size="md" />
         메인으로
       </Link>
 
@@ -51,7 +51,7 @@ export default function SatisfactionPage() {
       <header className={s.dashHeader}>
         <div className={s.dashHeaderText}>
           <span className={s.overline}>
-            <Heart size={14} aria-hidden="true" />
+            <Icon icon={Heart} size="sm" />
             Satisfaction
           </span>
           <h1 className={s.title}>{satisfactionSummary.title}</h1>
@@ -147,9 +147,9 @@ export default function SatisfactionPage() {
           {satisfactionSummary.description}
         </blockquote>
         <Link href="/interviews" className={s.interviewCta}>
-          <MessageCircle size={16} aria-hidden="true" />
+          <Icon icon={MessageCircle} size="md" />
           <span>귀농인들의 생생한 이야기</span>
-          <ArrowRight size={14} />
+          <Icon icon={ArrowRight} size="sm" />
         </Link>
       </div>
 

@@ -116,11 +116,11 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         <Link href="/regions" className={s.breadcrumbLink}>
           지역 탐색
         </Link>
-        <ChevronRight size={14} className={s.breadcrumbSep} aria-hidden="true" />
+        <Icon icon={ChevronRight} size="sm" className={s.breadcrumbSep} />
         <Link href={`/regions/${province.id}`} className={s.breadcrumbLink}>
           {province.shortName}
         </Link>
-        <ChevronRight size={14} className={s.breadcrumbSep} aria-hidden="true" />
+        <Icon icon={ChevronRight} size="sm" className={s.breadcrumbSep} />
         <span className={s.breadcrumbCurrent} aria-current="page">
           {sigungu.name}
         </span>
@@ -324,7 +324,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
       {/* ── 돌아가기 링크 ── */}
       <Link href={`/regions/${province.id}`} className={s.backLink}>
-        <ArrowLeft size={16} />
+        <Icon icon={ArrowLeft} size="md" />
         {province.shortName} 상세로 돌아가기
       </Link>
 

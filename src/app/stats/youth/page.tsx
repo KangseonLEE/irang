@@ -37,7 +37,7 @@ export default function YouthPage() {
     <div className={s.page}>
       {/* 뒤로가기 */}
       <Link href="/" className={shared.backLink}>
-        <ArrowLeft size={16} aria-hidden="true" />
+        <Icon icon={ArrowLeft} size="md" />
         메인으로
       </Link>
 
@@ -45,7 +45,7 @@ export default function YouthPage() {
       <header className={s.dashHeader}>
         <div className={s.dashHeaderText}>
           <span className={s.overline}>
-            <Sprout size={14} aria-hidden="true" />
+            <Icon icon={Sprout} size="sm" />
             Youth Farming
           </span>
           <h1 className={s.title}>{youthSummary.title}</h1>
@@ -167,9 +167,9 @@ export default function YouthPage() {
           {youthSummary.description}
         </blockquote>
         <Link href="/interviews" className={s.interviewCta}>
-          <MessageCircle size={16} aria-hidden="true" />
+          <Icon icon={MessageCircle} size="md" />
           <span>귀농인들의 생생한 이야기</span>
-          <ArrowRight size={14} />
+          <Icon icon={ArrowRight} size="sm" />
         </Link>
       </div>
 

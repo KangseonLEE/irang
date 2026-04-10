@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BookOpen } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { GLOSSARY_ENTRIES, CATEGORY_LABELS } from "@/lib/data/glossary";
 import { GlossaryClient } from "./glossary-client";
 import s from "./page.module.css";
@@ -14,7 +15,7 @@ export default function GlossaryPage() {
     <div className={s.page}>
       <header className={s.pageHeader}>
         <span className={s.headerOverline}>
-          <BookOpen size={16} aria-hidden="true" />
+          <Icon icon={BookOpen} size="md" />
           Glossary
         </span>
         <h1 className={s.headerTitle}>농업 용어집</h1>

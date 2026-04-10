@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Sprout, MapPin } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import type { ClimateData } from "@/lib/api/weather";
 import { STATIONS, type Station } from "@/lib/data/stations";
@@ -127,7 +128,7 @@ export function CropSuitabilitySection({
   return (
     <section id="suitability-heading" className={s.section} aria-labelledby="suitability-title">
       <div className={s.sectionHeader}>
-        <Sprout size={20} className={s.sectionIcon} />
+        <Icon icon={Sprout} size="lg" className={s.sectionIcon} />
         <div>
           <h2 id="suitability-title" className={s.sectionTitle}>
             작물 적합성을 확인해 보세요
@@ -290,7 +291,7 @@ export function CropSuitabilitySection({
             return (
               <div className={s.suggestion}>
                 <div className={s.suggestionHeader}>
-                  <MapPin size={14} className={s.suggestionIcon} />
+                  <Icon icon={MapPin} size="sm" className={s.suggestionIcon} />
                   <span className={s.suggestionLabel}>
                     {crop.name} 재배에 적합한 지역
                   </span>

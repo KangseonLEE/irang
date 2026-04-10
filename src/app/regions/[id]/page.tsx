@@ -145,7 +145,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
           {/* 이런 분에게 추천 */}
           <section className={s.sideSection}>
             <div className={s.sideSectionHeader}>
-              <UserCheck size={18} />
+              <Icon icon={UserCheck} size="lg" />
               <h3 className={s.sideSectionTitle}>이런 분에게 추천</h3>
             </div>
             <div className={s.personaList}>
@@ -161,7 +161,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
           {/* 비교 CTA */}
           <section className={s.sideSection}>
             <div className={s.sideSectionHeader}>
-              <GitCompareArrows size={18} />
+              <Icon icon={GitCompareArrows} size="lg" />
               <h3 className={s.sideSectionTitle}>다른 지역과 비교</h3>
             </div>
             <p className={s.sideDesc}>
@@ -173,7 +173,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
               className={s.compareCta}
             >
               비교 페이지로 이동
-              <ArrowRight size={14} />
+              <Icon icon={ArrowRight} size="sm" />
             </Link>
           </section>
         </aside>

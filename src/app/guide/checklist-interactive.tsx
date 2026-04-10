@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { CheckCircle2, Circle } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import s from "./page.module.css";
 
 /* ==========================================================================
@@ -61,7 +62,7 @@ export function ChecklistInteractive({ stepId, items }: ChecklistInteractiveProp
   return (
     <div className={s.checklistCard}>
       <h3 className={s.checklistTitle}>
-        <CheckCircle2 size={16} />
+        <Icon icon={CheckCircle2} size="md" />
         완료 체크리스트
         {mounted && completedCount > 0 && (
           <span className={s.checklistProgress}>
@@ -79,9 +80,9 @@ export function ChecklistInteractive({ stepId, items }: ChecklistInteractiveProp
               aria-label={checked[i] ? `${item} 완료 해제` : `${item} 완료 표시`}
             >
               {mounted && checked[i] ? (
-                <CheckCircle2 size={16} />
+                <Icon icon={CheckCircle2} size="md" />
               ) : (
-                <Circle size={16} />
+                <Icon icon={Circle} size="md" />
               )}
             </button>
             <span className={mounted && checked[i] ? s.checklistItemChecked : ""}>

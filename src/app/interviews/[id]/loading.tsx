@@ -1,4 +1,5 @@
 import { ArrowLeft } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import s from "./loading.module.css";
 
 export default function InterviewDetailLoading() {
@@ -6,7 +7,7 @@ export default function InterviewDetailLoading() {
     <div className={s.container}>
       {/* Back link */}
       <div className={s.backLink}>
-        <ArrowLeft size={16} />
+        <Icon icon={ArrowLeft} size="md" />
         <span>인터뷰 목록으로</span>
       </div>
 

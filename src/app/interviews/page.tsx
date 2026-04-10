@@ -7,6 +7,7 @@ import {
   Quote,
   MapPin,
 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { interviews } from "@/lib/data/landing";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
@@ -70,7 +71,7 @@ export default function InterviewsPage() {
               <div className={s.cardProfile}>
                 <span className={s.cardName}>{person.name}</span>
                 <span className={s.cardMeta}>
-                  <MapPin size={12} /> {person.region} · {person.age}
+                  <Icon icon={MapPin} size="xs" /> {person.region} · {person.age}
                 </span>
               </div>
             </div>
@@ -78,19 +79,19 @@ export default function InterviewsPage() {
             {/* 직업 변화 */}
             <div className={s.cardTags}>
               <span className={s.cardTag}>
-                <Briefcase size={11} />
+                <Icon icon={Briefcase} size="xs" />
                 {person.prevJob}
               </span>
               <span className={s.cardTagArrow}>&rarr;</span>
               <span className={s.cardTag}>
-                <Sprout size={11} />
+                <Icon icon={Sprout} size="xs" />
                 {person.currentJob}
               </span>
             </div>
 
             {/* 인용문 */}
             <div className={s.cardQuoteWrap}>
-              <Quote size={16} className={s.cardQuoteIcon} />
+              <Icon icon={Quote} size="md" className={s.cardQuoteIcon} />
               <p className={s.cardQuote}><AutoGlossary text={person.quote} /></p>
             </div>
 
@@ -98,14 +99,14 @@ export default function InterviewsPage() {
             <div className={s.cardFooter}>
               <div className={s.cardFooterBadges}>
                 <span className={s.cardRegionBadge}>
-                  <MapPin size={11} /> {person.region}
+                  <Icon icon={MapPin} size="xs" /> {person.region}
                 </span>
                 <span className={s.cardCrop}>
-                  <Sprout size={11} /> {person.crop}
+                  <Icon icon={Sprout} size="xs" /> {person.crop}
                 </span>
               </div>
               <span className={s.cardCta}>
-                이야기 읽기 <ArrowRight size={14} />
+                이야기 읽기 <Icon icon={ArrowRight} size="sm" />
               </span>
             </div>
           </Link>
@@ -116,7 +117,7 @@ export default function InterviewsPage() {
       <div className={s.bottomCta}>
         <p className={s.bottomCtaText}>나도 이런 삶을 시작해볼까?</p>
         <Link href="/match" className={s.bottomCtaBtn}>
-          맞춤 귀농지 찾기 <ArrowRight size={16} />
+          맞춤 귀농지 찾기 <Icon icon={ArrowRight} size="md" />
         </Link>
       </div>
     </div>

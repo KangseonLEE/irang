@@ -12,6 +12,7 @@ import {
   Footprints,
   BookOpen,
 } from "lucide-react";
+import { Icon as IconWrap } from "@/components/ui/icon";
 import SearchGroup from "@/components/search/search-group";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { TrendingSearchesSkeleton } from "@/components/landing/trending-searches";
@@ -111,7 +112,7 @@ export default function HomePage() {
         </Suspense>
 
         <Link href="/match" className={s.heroSecondaryCta}>
-          <Compass size={14} />
+          <IconWrap icon={Compass} size="sm" />
           귀농 유형 먼저 진단해 보기
         </Link>
       </section>
@@ -143,13 +144,13 @@ export default function HomePage() {
                 className={`${s.serviceMapCard} ${s[`serviceMap_${item.variant}`]}`}
               >
                 <div className={s.serviceMapIcon}>
-                  <Icon size={20} />
+                  <Icon size={20} strokeWidth={1.75} />
                 </div>
                 <div className={s.serviceMapText}>
                   <span className={s.serviceMapTitle}>{item.title}</span>
                   <span className={s.serviceMapDesc}>{item.desc}</span>
                 </div>
-                <ArrowRight size={14} className={s.serviceMapArrow} />
+                <IconWrap icon={ArrowRight} size="sm" className={s.serviceMapArrow} />
               </Link>
             );
           })}
@@ -173,7 +174,7 @@ export default function HomePage() {
         </div>
         <InterviewCarousel items={interviews.slice(0, 6)} />
         <Link href="/interviews" className={s.interviewViewAll}>
-          {interviews.length}명의 귀농인 이야기 더 보기 <ArrowRight size={14} />
+          {interviews.length}명의 귀농인 이야기 더 보기 <IconWrap icon={ArrowRight} size="sm" />
         </Link>
       </section>
 
@@ -201,7 +202,7 @@ export default function HomePage() {
           <FarmerIllustration className={s.matchIllust} />
           <Link href="/match" className={s.matchTeaserBtn}>
             무료 진단 시작하기
-            <ArrowRight size={16} />
+            <IconWrap icon={ArrowRight} size="md" />
           </Link>
         </div>
       </section>

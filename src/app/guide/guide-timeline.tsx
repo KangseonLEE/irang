@@ -130,7 +130,7 @@ export function GuideTimeline({ steps }: GuideTimelineProps) {
                   isComplete ? s.timelineDotComplete : hasProgress ? s.timelineDotInProgress : ""
                 }`}
               >
-                <Icon size={24} />
+                <Icon size={24} strokeWidth={1.75} />
                 {/* 진행률 링 (SVG) */}
                 {hasProgress && (
                   <svg className={s.progressRing} viewBox="0 0 44 44">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Sprout, ArrowRight, Scale } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
 import { PageHeader } from "@/components/ui/page-header";
@@ -65,7 +66,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
     <div className={s.page}>
       {/* Page Header */}
       <PageHeader
-        icon={<Sprout size={20} />}
+        icon={<Sprout size={20} strokeWidth={1.75} />}
         label="Crop Info"
         title="작물 정보"
         description="주요 작물의 재배 환경, 예상 수익, 재배 난이도를 한눈에 비교하세요."
@@ -111,7 +112,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
 
       {filteredCrops.length === 0 && (
         <EmptyState
-          icon={<Sprout size={32} />}
+          icon={<Sprout size={32} strokeWidth={1.75} />}
           message={
             searchQuery
               ? `'${searchQuery}' 검색 결과가 없습니다.`
@@ -127,13 +128,13 @@ export default async function CropsPage({ searchParams }: PageProps) {
       {/* Cross-link CTAs */}
       <div className={s.crossLinks}>
         <Link href="/crops/compare" className={s.compareLink}>
-          <Scale size={16} />
+          <Icon icon={Scale} size="md" />
           작물 비교하기
-          <ArrowRight size={14} />
+          <Icon icon={ArrowRight} size="sm" />
         </Link>
         <Link href="/programs" className={s.crossLink}>
           관련 지원사업 찾기
-          <ArrowRight size={16} />
+          <Icon icon={ArrowRight} size="md" />
         </Link>
       </div>
     </div>

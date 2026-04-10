@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, ChevronDown, SearchX } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import type { GlossaryCategory, GlossaryEntry } from "@/lib/data/glossary";
 import s from "./page.module.css";
 
@@ -148,7 +149,7 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
     <>
       {/* 검색 */}
       <div className={s.searchBar}>
-        <Search size={18} className={s.searchIcon} aria-hidden="true" />
+        <Icon icon={Search} size="lg" className={s.searchIcon} />
         <input
           type="search"
           className={s.searchInput}
@@ -201,7 +202,7 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
       {/* 용어 리스트 */}
       {filtered.length === 0 ? (
         <div className={s.emptyState}>
-          <SearchX size={40} className={s.emptyIcon} aria-hidden="true" />
+          <Icon icon={SearchX} size="2xl" className={s.emptyIcon} />
           <p className={s.emptyTitle}>검색 결과가 없습니다</p>
           <p className={s.emptyDesc}>
             다른 검색어를 입력하거나 필터를 변경해 보세요.
@@ -247,10 +248,10 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
                       <span className={s.categoryBadge}>
                         {categoryLabels[entry.category]}
                       </span>
-                      <ChevronDown
-                        size={18}
+                      <Icon
+                        icon={ChevronDown}
+                        size="lg"
                         className={isExpanded ? s.termExpandIconOpen : s.termExpandIcon}
-                        aria-hidden="true"
                       />
                     </div>
 

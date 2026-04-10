@@ -12,6 +12,7 @@ import {
   TrendingUp,
   MapPin,
 } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import {
   CROPS,
   getCropWithDetail,
@@ -78,7 +79,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
       {/* Page Header */}
       <header className={s.pageHeader}>
         <span className={s.headerOverline}>
-          <Scale size={16} aria-hidden="true" />
+          <Icon icon={Scale} size="md" />
           Crop Compare
         </span>
         <h1 className={s.headerTitle}>작물 비교</h1>
@@ -209,7 +210,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
               <div className={s.tableCard}>
                 <div className={s.tableCardHeader}>
                   <h2 id="proscons-heading" className={s.tableCardTitle}>
-                    <Scale size={18} /> 장단점 비교
+                    <Icon icon={Scale} size="lg" /> 장단점 비교
                   </h2>
                 </div>
                 <div className={s.prosConsGrid}>
@@ -251,18 +252,18 @@ function SummaryCard({ crop }: { crop: CropWithDetail }) {
           <span
             className={`${s.summaryBadge} ${DIFFICULTY_CLASS[crop.difficulty] ?? s.difficultyMedium}`}
           >
-            <Gauge size={10} /> {crop.difficulty}
+            <Icon icon={Gauge} size="xs" /> {crop.difficulty}
           </span>
           <span className={s.summaryInfo}>
-            <Calendar size={10} /> {crop.growingSeason}
+            <Icon icon={Calendar} size="xs" /> {crop.growingSeason}
           </span>
         </div>
         <p className={s.summaryStat}>
-          <TrendingUp size={12} />
+          <Icon icon={TrendingUp} size="xs" />
           {crop.detail.income.revenueRange.split("(")[0].trim()}
         </p>
         <p className={s.summaryRegion}>
-          <MapPin size={12} />
+          <Icon icon={MapPin} size="xs" />
           {crop.detail.majorRegions.slice(0, 2).join(", ")}
         </p>
       </div>
@@ -320,7 +321,7 @@ function ProsConsColumn({ crop }: { crop: CropWithDetail }) {
       {/* 장점 */}
       <div className={s.prosGroup}>
         <p className={s.prosGroupLabel}>
-          <ThumbsUp size={12} /> 장점
+          <Icon icon={ThumbsUp} size="xs" /> 장점
         </p>
         {pc.pros.map((item, idx) => (
           <div key={idx} className={s.prosItem}>
@@ -335,7 +336,7 @@ function ProsConsColumn({ crop }: { crop: CropWithDetail }) {
       {/* 단점 */}
       <div className={s.consGroup}>
         <p className={s.consGroupLabel}>
-          <AlertTriangle size={12} /> 단점
+          <Icon icon={AlertTriangle} size="xs" /> 단점
         </p>
         {pc.cons.map((item, idx) => (
           <div key={idx} className={s.consItem}>
@@ -350,7 +351,7 @@ function ProsConsColumn({ crop }: { crop: CropWithDetail }) {
       {/* 종합 */}
       {pc.verdict && (
         <div className={s.verdictCard}>
-          <Lightbulb size={14} />
+          <Icon icon={Lightbulb} size="sm" />
           <span className={s.verdictText}><AutoGlossary text={pc.verdict} /></span>
         </div>
       )}

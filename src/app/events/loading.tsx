@@ -1,4 +1,5 @@
 import { Calendar } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import s from "./loading.module.css";
 
 export default function EventsLoading() {
@@ -7,7 +8,7 @@ export default function EventsLoading() {
       {/* Page Header */}
       <div className={s.header}>
         <div className={s.overline}>
-          <Calendar size={20} />
+          <Icon icon={Calendar} size="lg" />
           <span className={s.overlineText}>Events</span>
         </div>
         <h1 className={s.title}>체험·행사</h1>

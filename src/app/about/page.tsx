@@ -15,6 +15,7 @@ import {
   MousePointerClick,
   Target,
 } from "lucide-react";
+import { Icon as IconWrap } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { IrangSymbol } from "@/components/brand/irang-symbol";
 import { CROPS } from "@/lib/data/crops";
@@ -127,7 +128,7 @@ export default function AboutPage() {
         <div className={s.heroCtas}>
           <Link href="/match" className={s.heroPrimaryBtn}>
             나에게 맞는 지역 찾기
-            <ArrowRight size={16} />
+            <IconWrap icon={ArrowRight} size="md" />
           </Link>
           <Link href="/regions" className={s.heroSecondaryBtn}>
             지역 탐색하기
@@ -147,12 +148,12 @@ export default function AboutPage() {
             return (
               <Link key={f.title} href={f.href} className={s.featureCard}>
                 <div className={`${s.featureIcon} ${s[f.color]}`}>
-                  <Icon size={24} />
+                  <Icon size={24} strokeWidth={1.75} />
                 </div>
                 <h3 className={s.featureTitle}>{f.title}</h3>
                 <p className={s.featureDesc}><AutoGlossary text={f.description} /></p>
                 <span className={s.featureLink}>
-                  자세히 보기 <ArrowRight size={14} />
+                  자세히 보기 <IconWrap icon={ArrowRight} size="sm" />
                 </span>
               </Link>
             );
@@ -173,13 +174,13 @@ export default function AboutPage() {
               <div key={step.step} className={s.stepCard}>
                 <span className={s.stepNumber}>{step.step}</span>
                 <div className={s.stepIcon}>
-                  <Icon size={20} />
+                  <Icon size={20} strokeWidth={1.75} />
                 </div>
                 <h3 className={s.stepTitle}>{step.title}</h3>
                 <p className={s.stepDesc}><AutoGlossary text={step.description} /></p>
                 {i < steps.length - 1 && (
                   <div className={s.stepArrow}>
-                    <ArrowRight size={16} />
+                    <IconWrap icon={ArrowRight} size="md" />
                   </div>
                 )}
               </div>
@@ -191,7 +192,7 @@ export default function AboutPage() {
       {/* ═══ 데이터 출처 ═══ */}
       <section className={s.dataSection}>
         <div className={s.dataHeader}>
-          <Database size={18} className={s.dataIcon} />
+          <IconWrap icon={Database} size="lg" className={s.dataIcon} />
           <h2 className={s.sectionTitle}>신뢰할 수 있는 공공 데이터</h2>
         </div>
         <p className={s.sectionDesc}>
@@ -203,7 +204,7 @@ export default function AboutPage() {
             return (
               <div key={src.code} className={s.dataCard}>
                 <div className={s.dataCardIcon}>
-                  <Icon size={20} />
+                  <Icon size={20} strokeWidth={1.75} />
                 </div>
                 <div className={s.dataCardBody}>
                   <span className={s.dataCardName}>{src.name}</span>
@@ -226,7 +227,7 @@ export default function AboutPage() {
           </p>
           <Link href="/match" className={s.matchCtaButton}>
             귀농 유형 진단 시작하기
-            <ArrowRight size={16} />
+            <IconWrap icon={ArrowRight} size="md" />
           </Link>
         </div>
       </section>

@@ -25,6 +25,7 @@ import {
   Info,
   type LucideIcon,
 } from "lucide-react";
+import { Icon as IconWrap } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page.module.css";
 
@@ -156,7 +157,7 @@ export default function MorePage() {
       {/* 유형 진단 CTA */}
       <Link href="/match" className={s.ctaBanner}>
         <div className={s.ctaLeft}>
-          <Compass size={22} />
+          <IconWrap icon={Compass} size="xl" />
           <div className={s.ctaText}>
             <span className={s.ctaLabel}>귀농 유형 진단</span>
             <span className={s.ctaDesc}>
@@ -164,7 +165,7 @@ export default function MorePage() {
             </span>
           </div>
         </div>
-        <ArrowRight size={18} className={s.ctaArrow} />
+        <IconWrap icon={ArrowRight} size="lg" className={s.ctaArrow} />
       </Link>
 
       {/* 5그룹 네비게이션 */}
@@ -182,7 +183,7 @@ export default function MorePage() {
                     className={s.menuItem}
                   >
                     <div className={s.menuIcon}>
-                      <Icon size={20} />
+                      <Icon size={20} strokeWidth={1.75} />
                     </div>
                     <div className={s.menuText}>
                       <span className={s.menuLabel}>{child.label}</span>
@@ -200,7 +201,7 @@ export default function MorePage() {
 
       {/* 서비스 소개 — 하단 분리 */}
       <Link href="/about" className={s.aboutLink}>
-        <Info size={16} />
+        <IconWrap icon={Info} size="md" />
         <span>서비스 소개</span>
       </Link>
     </div>

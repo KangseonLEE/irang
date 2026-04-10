@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Search, MapPin } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { DataSource } from "@/components/ui/data-source";
 import s from "./modals.module.css";
 
@@ -128,7 +129,7 @@ export function MedicalModal({
       {/* ── 검색 ── */}
       {!isInitialLoad && items.length > 0 && (
         <div className={s.searchWrapper}>
-          <Search size={16} className={s.searchIcon} />
+          <Icon icon={Search} size="md" className={s.searchIcon} />
           <input
             type="text"
             className={s.searchInput}
@@ -228,7 +229,7 @@ export function MedicalModal({
               <div className={s.listItemBottom}>
                 <span className={s.listItemSub}>{item.address}</span>
                 <span className={s.listItemMapHint}>
-                  <MapPin size={12} />
+                  <Icon icon={MapPin} size="xs" />
                   지도
                 </span>
               </div>

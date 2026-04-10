@@ -6,6 +6,7 @@ import {
   getPrecipitationTip,
   getSunshineTip,
 } from "@/lib/climate-tips";
+import { Icon } from "@/components/ui/icon";
 import s from "./climate-section.module.css";
 
 // ── 공용 인터페이스 ──
@@ -46,7 +47,7 @@ export function ClimateSection({
   return (
     <section className={s.section} aria-label="기후 정보">
       <div className={s.sectionHeader}>
-        <Thermometer size={20} className={s.sectionIcon} />
+        <Icon icon={Thermometer} size="lg" className={s.sectionIcon} />
         <div>
           <h2 className={s.sectionTitle}>기후 정보</h2>
           <p className={s.sectionDesc}>
@@ -59,7 +60,7 @@ export function ClimateSection({
         {/* 평균기온 */}
         <div className={s.climateCard}>
           <div className={s.climateCardIcon}>
-            <Thermometer size={16} />
+            <Icon icon={Thermometer} size="md" />
           </div>
           <span className={s.climateCardLabel}>평균기온</span>
           <span className={s.climateCardValue}>{climate.avgTemp}°C</span>
@@ -74,7 +75,7 @@ export function ClimateSection({
         {/* 누적 강수량 */}
         <div className={s.climateCard}>
           <div className={s.climateCardIcon}>
-            <Droplets size={16} />
+            <Icon icon={Droplets} size="md" />
           </div>
           <span className={s.climateCardLabel}>누적 강수량</span>
           <span className={s.climateCardValue}>
@@ -88,7 +89,7 @@ export function ClimateSection({
         {/* 일조시간 */}
         <div className={s.climateCard}>
           <div className={s.climateCardIcon}>
-            <Sun size={16} />
+            <Icon icon={Sun} size="md" />
           </div>
           <span className={s.climateCardLabel}>일조시간</span>
           <span className={s.climateCardValue}>{climate.totalSunshine}hr</span>

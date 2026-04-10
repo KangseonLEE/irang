@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import s from "./filter-bar.module.css";
 
 // ─── 유틸리티 ───
@@ -134,7 +135,7 @@ export function FilterActions({
             <input key={k} type="hidden" name={k} value={v} />
           ) : null,
         )}
-        <Search size={16} className={s.searchIcon} />
+        <Icon icon={Search} size="md" className={s.searchIcon} />
         <input
           type="text"
           name={searchParamKey}

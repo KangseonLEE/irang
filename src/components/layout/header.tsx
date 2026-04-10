@@ -190,7 +190,7 @@ export function Header() {
               className={s.searchBtn}
               aria-label="통합검색"
             >
-              <Search size={20} />
+              <Search size={20} strokeWidth={1.75} />
             </Link>
             <button
               type="button"
@@ -198,7 +198,7 @@ export function Header() {
               onClick={() => setBookmarkOpen(true)}
               aria-label="저장 목록 열기"
             >
-              <Heart size={20} />
+              <Heart size={20} strokeWidth={1.75} />
               {mounted && count > 0 && (
                 <span className={s.badge}>{count > 99 ? "99+" : count}</span>
               )}
@@ -208,7 +208,7 @@ export function Header() {
               className={s.ctaButton}
             >
               귀농 유형 진단
-              <ArrowRight size={14} />
+              <ArrowRight size={14} strokeWidth={1.75} />
             </Link>
           </div>
         </div>
