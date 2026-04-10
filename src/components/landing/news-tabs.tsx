@@ -70,8 +70,10 @@ export function NewsTabs({ items }: NewsTabsProps) {
 
   // 탭 변경 시 Featured 인덱스 리셋
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     setFeaturedIdx(0);
     setSlidePhase("idle");
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [activeTab]);
 
   /** slide-out → 콘텐츠 교체 → slide-in 시퀀스 */

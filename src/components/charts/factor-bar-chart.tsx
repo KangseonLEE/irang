@@ -27,6 +27,7 @@ const COLOR_NEGATIVE = "#DC2626";
 const COLOR_NEGATIVE_MUTED = "rgba(220, 38, 38, 0.18)";
 
 /* ── 커스텀 툴팁 ── */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null;
   const { label, pct, rank } = payload[0].payload;

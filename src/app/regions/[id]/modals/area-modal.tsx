@@ -13,7 +13,6 @@ const SEOUL_AREA = 605;
 const NATIONAL_AREA = 100_401; // 대한민국 총 면적 (km²)
 
 export function AreaModal({
-  provinceName,
   provinceShortName,
   area,
   population,

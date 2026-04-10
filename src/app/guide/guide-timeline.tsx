@@ -42,6 +42,7 @@ export function GuideTimeline({ steps }: GuideTimelineProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     const result: Record<number, number> = {};
     for (const step of steps) {

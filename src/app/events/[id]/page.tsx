@@ -15,7 +15,7 @@ import {
   Tag,
   CalendarDays,
 } from "lucide-react";
-import { getEventById, getEventByIdAsync, EVENTS } from "@/lib/data/events";
+import { getEventByIdAsync, EVENTS } from "@/lib/data/events";
 import type { FarmEvent } from "@/lib/data/events";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page.module.css";

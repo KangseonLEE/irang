@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import {
   Home,
   MapPin,
@@ -50,10 +50,6 @@ const SCROLL_TOP_THRESHOLD = 30;
 export function MobileNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const lastTapRef = useRef<{ path: string; time: number }>({
-    path: "",
-    time: 0,
-  });
 
   const isMoreActive = morePaths.some(
     (p) => pathname === p || pathname.startsWith(p + "/"),

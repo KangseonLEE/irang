@@ -16,9 +16,7 @@ import {
   GraduationCap,
   Calendar,
   MapPin,
-  ArrowRight,
 } from "lucide-react";
-import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { RegionStats } from "./region-stats";
 import { ProvinceMap } from "@/components/map/province-map";
 import type { Province } from "@/lib/data/regions";

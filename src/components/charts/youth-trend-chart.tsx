@@ -26,8 +26,10 @@ interface Props {
 }
 
 /* ── 커스텀 툴팁 ── */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ratio = payload.find((p: any) => p.dataKey === "ratio");
 
   return (
@@ -43,6 +45,7 @@ function CustomTooltip({ active, payload, label }: any) {
           <span className={s.tooltipValue}>{ratio.value}%</span>
         </div>
       )}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {payload.find((p: any) => p.dataKey === "trendline") && (
         <div className={s.tooltipRow}>
           <span
@@ -51,6 +54,7 @@ function CustomTooltip({ active, payload, label }: any) {
           />
           <span>추세선</span>
           <span className={s.tooltipValue}>
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {payload.find((p: any) => p.dataKey === "trendline")?.value?.toFixed(1)}%
           </span>
         </div>

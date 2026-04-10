@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Sprout,
   Scale,
   ThumbsUp,
   AlertTriangle,
@@ -12,8 +11,6 @@ import {
   Calendar,
   TrendingUp,
   MapPin,
-  Droplets,
-  Thermometer,
 } from "lucide-react";
 import {
   CROPS,

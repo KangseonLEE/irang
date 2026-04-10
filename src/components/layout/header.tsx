@@ -77,6 +77,7 @@ export function Header() {
 
   // 페이지 이동 시 데스크탑 드롭다운 닫기
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNavHidden(true);
 
     // :focus-within 해제 → 드롭다운 CSS 비활성화

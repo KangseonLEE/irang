@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import {
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
-  Sector,
   Tooltip,
 } from "recharts";
 import type { SatisfactionSegment } from "@/lib/data/stats";
@@ -28,6 +27,7 @@ interface Props {
 }
 
 /* ── 커스텀 툴팁 ── */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null;
   const { label, pct } = payload[0].payload;
@@ -73,6 +73,7 @@ export default function SatisfactionDonutChart({ data }: Props) {
               onMouseLeave={() => setHoveredIdx(null)}
               animationDuration={1000}
               animationEasing="ease-out"
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               label={({ cx, cy, midAngle, outerRadius: or, pct }: any) => {
                 const RADIAN = Math.PI / 180;
                 const radius = or + 38;

@@ -641,8 +641,10 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
     }
 
     if (Object.keys(newAnswers).length > 0) {
+      /* eslint-disable react-hooks/set-state-in-effect */
       setAnswers((prev) => ({ ...prev, ...newAnswers }));
       setPrefilled(newPrefilled);
+      /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [searchParams]);
 

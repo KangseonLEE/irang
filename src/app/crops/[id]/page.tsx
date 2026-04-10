@@ -36,7 +36,6 @@ import {
   type CropDetailInfo,
   type ProsConsInfo,
   type CultivationStep,
-  type IncomeInfo,
 } from "@/lib/data/crops";
 import { PROVINCES } from "@/lib/data/regions";
 import { fetchCropStats, type CropStatItem } from "@/lib/api/kosis";

@@ -22,6 +22,7 @@ export function ChecklistInteractive({ stepId, items }: ChecklistInteractiveProp
 
   /* 마운트 시 localStorage에서 상태 복원 */
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     try {
       const saved = localStorage.getItem(storageKey);

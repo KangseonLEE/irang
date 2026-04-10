@@ -21,7 +21,6 @@ import type { Thing, WithContext } from "schema-dts";
  * />
  * ```
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function JsonLd<T extends Thing = Thing>({
   data,
 }: {

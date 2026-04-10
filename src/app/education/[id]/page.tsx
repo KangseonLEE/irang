@@ -17,7 +17,6 @@ import {
   BookOpen,
 } from "lucide-react";
 import {
-  getEducationById,
   getEducationByIdAsync,
   EDUCATION_COURSES,
 } from "@/lib/data/education";

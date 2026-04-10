@@ -37,6 +37,7 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
   const hoverTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -49,7 +50,6 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
     const rect = termEl.getBoundingClientRect();
     const popRect = popEl.getBoundingClientRect();
     const vw = window.innerWidth;
-    const vh = window.visualViewport?.height ?? window.innerHeight;
 
     // 좌우: 용어 중앙 기준, 화면 밖으로 나가지 않도록 보정
     const termCenterX = rect.left + rect.width / 2;
@@ -79,6 +79,7 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
   // ── open 시 위치 계산 + 스크롤/리사이즈 시 닫기 ──
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPos(null);
       return;
     }

@@ -24,6 +24,16 @@ function getInterviewById(id: string) {
   return interviews.find((i) => i.id === id) ?? null;
 }
 
+function pickRandomOthers(excludeId: string, count: number) {
+  const others = interviews.filter((i) => i.id !== excludeId);
+  // Fisher-Yates shuffle
+  for (let i = others.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [others[i], others[j]] = [others[j], others[i]];
+  }
+  return others.slice(0, count);
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -55,10 +65,7 @@ export default async function InterviewDetailPage({
   if (!person) return notFound();
 
   // 다른 인터뷰: 셔플 후 최대 3개
-  const otherInterviews = interviews
-    .filter((i) => i.id !== id)
-    .sort(() => 0.5 - Math.random())
-    .slice(0, 3);
+  const otherInterviews = pickRandomOthers(id, 3);
 
   return (
     <div className={s.page}>

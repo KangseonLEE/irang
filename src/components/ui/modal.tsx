@@ -22,6 +22,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
 
   // SSR-safe: createPortal은 클라이언트에서만 동작
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

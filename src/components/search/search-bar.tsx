@@ -130,6 +130,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   useEffect(() => {
     if (!mobilePlaceholder) return;
     const mql = window.matchMedia("(max-width: 639px)");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobile(mql.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mql.addEventListener("change", handler);
@@ -140,6 +141,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 
   // 마운트 시 최근 검색어 로드
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRecentSearches(loadRecent());
   }, []);
 
@@ -198,6 +200,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 
   // Reset focusedIndex when results change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFocusedIndex(-1);
   }, [allItems.length]);
 

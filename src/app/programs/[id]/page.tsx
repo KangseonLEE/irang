@@ -18,8 +18,8 @@ import {
   HelpCircle,
   ChevronDown,
 } from "lucide-react";
-import { getProgramById, getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
-import { getProgramGuide, type ProgramGuide } from "@/lib/data/program-guides";
+import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
+import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
 import { getStationByProvince } from "@/lib/data/stations";
 import { AutoGlossary } from "@/components/ui/auto-glossary";

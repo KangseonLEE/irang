@@ -131,8 +131,10 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
     if (!target) return;
 
     // 카테고리 필터가 걸려 있으면 해제 (해당 용어가 보이도록)
+    /* eslint-disable react-hooks/set-state-in-effect */
     setSelectedCategory("all");
     setQuery("");
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     // DOM 업데이트 후 스크롤 + 확장
     requestAnimationFrame(() => {
@@ -222,11 +224,11 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
               {items.map((entry) => {
                 const isExpanded = expandedSlug === entry.slug;
                 return (
-                  <article
+                  <div
                     key={entry.slug}
                     id={entry.slug}
                     className={isExpanded ? s.termCardExpanded : s.termCard}
-                    role="listitem"
+                    role="button"
                     onClick={() => toggleExpand(entry.slug)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
@@ -275,7 +277,7 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
                         )}
                       </div>
                     )}
-                  </article>
+                  </div>
                 );
               })}
             </section>

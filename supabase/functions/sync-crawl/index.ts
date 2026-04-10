@@ -120,6 +120,7 @@ Deno.serve(async (req: Request) => {
 // ─── 개별 타겟 크롤링 ───
 
 // deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function crawlTarget(supabase: any, target: CrawlTarget): Promise<CrawlResult> {
   const errors: string[] = [];
   let newItems = 0;

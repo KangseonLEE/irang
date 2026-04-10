@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Download, Save, X, UserPlus, ArrowRight } from "lucide-react";
+import { Download, Save, UserPlus, ArrowRight } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import s from "./result-save-cta.module.css";
 

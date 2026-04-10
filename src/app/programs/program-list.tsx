@@ -30,7 +30,7 @@ interface ProgramListProps {
 export function ProgramList({
   initialPrograms,
   initialHasMore,
-  total,
+  // total is received via props but not used in this component
   filters,
   viewMode = "card",
   allPrograms,

@@ -41,8 +41,10 @@ export default function PlanChecklist({ steps }: Props) {
 
   // 클라이언트 hydration 후 localStorage 로드
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     setCheckedItems(loadCheckedItems());
     setHydrated(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   const toggleCheck = useCallback((itemId: string) => {

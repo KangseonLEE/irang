@@ -110,7 +110,7 @@ async function checkUrl(
       finalUrl: res.url,
       contentLength: text.length,
     };
-  } catch (err: any) {
+  } catch {
     return {
       ok: false,
       status: 0,
@@ -366,8 +366,9 @@ function createGitHubIssue(
       { encoding: "utf-8", stdio: "pipe" },
     );
     console.log("\n✅ GitHub Issue가 생성되었습니다.");
-  } catch (err: any) {
-    console.log(`\n⚠️  Issue 생성 실패: ${err.message}`);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.log(`\n⚠️  Issue 생성 실패: ${message}`);
   }
 }
 

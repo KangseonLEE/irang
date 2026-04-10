@@ -32,7 +32,6 @@ interface PopulationModalProps {
 }
 
 export function PopulationModal({
-  provinceShortName,
   population,
   sgisCode,
   density,

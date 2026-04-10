@@ -11,7 +11,6 @@ import {
   CartesianGrid,
   Tooltip,
   ReferenceLine,
-  Dot,
 } from "recharts";
 import type { YearlyPopulation } from "@/lib/data/stats";
 import s from "./chart-styles.module.css";
@@ -19,8 +18,6 @@ import s from "./chart-styles.module.css";
 /* ── 브랜드 색상 ── */
 const COLOR_PRIMARY = "#1B6B5A";
 const COLOR_SECONDARY = "#A8D9CC";
-const COLOR_SECONDARY_FILL = "rgba(168, 217, 204, 0.25)";
-const COLOR_MUTED = "rgba(27, 107, 90, 0.15)";
 
 /* ── 유의미 연도 ── */
 const SIGNIFICANT_YEARS = new Set([2020, 2024]);
@@ -30,6 +27,7 @@ interface Props {
 }
 
 /* ── 커스텀 툴팁 ── */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   const isSignificant = SIGNIFICANT_YEARS.has(label);
@@ -39,6 +37,7 @@ function CustomTooltip({ active, payload, label }: any) {
       <p className={s.tooltipLabel}>
         {label}년 {isSignificant ? "★" : ""}
       </p>
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {payload.map((entry: any, i: number) => (
         <div className={s.tooltipRow} key={i}>
           <span
@@ -54,6 +53,7 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 /* ── 귀촌 라인 커스텀 Dot (유의미 연도 강조) ── */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function RuralDot(props: any) {
   const { cx, cy, payload } = props;
   if (!cx || !cy) return null;
@@ -73,6 +73,7 @@ function RuralDot(props: any) {
 }
 
 /* ── 귀농 라인 커스텀 Dot ── */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function FarmingDot(props: any) {
   const { cx, cy, payload } = props;
   if (!cx || !cy) return null;
@@ -92,8 +93,10 @@ function FarmingDot(props: any) {
 }
 
 export default function PopulationTrendChart({ data }: Props) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hoveredYear, setHoveredYear] = useState<number | null>(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMouseMove = useCallback((state: any) => {
     if (state?.activePayload?.[0]) {
       setHoveredYear(state.activePayload[0].payload.year);
