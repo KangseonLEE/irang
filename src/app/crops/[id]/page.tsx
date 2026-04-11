@@ -37,7 +37,13 @@ import {
   type CultivationStep,
 } from "@/lib/data/crops";
 import { PROVINCES } from "@/lib/data/regions";
-import { fetchCropStats, fetchRiceIncome, type CropStatItem } from "@/lib/api/kosis";
+import {
+  fetchCropStats,
+  fetchRiceIncome,
+  fetchCropIncome,
+  CROP_INCOME_TABLE,
+  type CropStatItem,
+} from "@/lib/api/kosis";
 import { PROGRAMS } from "@/lib/data/programs";
 import { GlossaryTerm } from "@/components/ui/term-tooltip";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
@@ -129,7 +135,7 @@ export default async function CropDetailPage({
       ).catch(() => [] as CropStatItem[])
     : [];
 
-  // 쌀: KOSIS 생산비조사에서 최신 소득 데이터 자동 갱신
+  // KOSIS 생산비조사에서 최신 소득 데이터 자동 갱신 (쌀·마늘·양파·콩)
   let incomeData = data.detail.income;
   if (id === "rice") {
     const riceIncome = await fetchRiceIncome().catch(() => null);
@@ -140,6 +146,18 @@ export default async function CropDetailPage({
         ...incomeData,
         revenueRange: `10a당 약 ${per10a}만 원 (3,000평 재배 시 연 약 ${per1ha.toLocaleString()}만 원)`,
         source: `통계청 농축산물생산비조사 ${riceIncome.year}년산 (소득 = 총수입 − 경영비)`,
+      };
+    }
+  } else if (id in CROP_INCOME_TABLE) {
+    const tblId = CROP_INCOME_TABLE[id];
+    const cropIncome = await fetchCropIncome(tblId).catch(() => null);
+    if (cropIncome && cropIncome.income > 0) {
+      const per10a = Math.round(cropIncome.income / 10000);
+      const per3000 = Math.round((cropIncome.income * 10) / 10000);
+      incomeData = {
+        ...incomeData,
+        revenueRange: `10a당 약 ${per10a}만 원 (3,000평 재배 시 연 약 ${per3000.toLocaleString()}만 원)`,
+        source: `통계청 농축산물생산비조사 ${cropIncome.year}년산 (소득 = 총수입 − 경영비)`,
       };
     }
   }

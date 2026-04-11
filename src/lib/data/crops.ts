@@ -467,13 +467,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소고정 작물이라 질소비료 최소화, 인산·칼리 위주 시비",
     },
     income: {
-      revenueRange: "3,000평 재배 시 연 약 300~500만 원 (추정치)",
+      revenueRange: "10a당 약 43만 원 (3,000평 재배 시 연 약 432만 원)",
       costNote: "생산비 낮은 편, 종자·비료비 외 큰 비용 없음",
       laborNote: "파종·수확기 외에는 노동력 부담 적음",
       minScale: "밭 2,000~3,000평",
       annualWorkdays: "약 50~70일",
       laborIntensity: "낮음",
-      source: "추정치 (공식 소득통계 미등재, 향후 검증 예정)",
+      source: "통계청 농축산물생산비조사 2025년산 (소득 = 총수입 − 경영비)",
       varieties: [
         { name: "일반 백태", note: "두부·된장 등 가공용, 안정적 수요" },
         { name: "토종콩·약콩", note: "직거래 시 프리미엄 단가 가능" },
@@ -495,7 +495,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
         { category: "시장성", text: "토종콩·약콩 등 특수 품종은 직거래 시 높은 프리미엄 확보 가능" },
       ],
       cons: [
-        { category: "수익성", text: "ha당 300~500만 원으로 수익 규모 자체는 크지 않음" },
+        { category: "수익성", text: "10a당 약 43만 원으로 소득 규모 자체는 크지 않음" },
         { category: "시장성", text: "수입 대두와의 가격 경쟁이 존재해 일반콩은 수익 압박" },
         { category: "안정성", text: "개화·결협기 가뭄이나 과습에 수량이 크게 좌우됨" },
       ],
@@ -935,13 +935,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "인산·칼리 기비 충분히, 봄 추비 2회",
     },
     income: {
-      revenueRange: "3,000평 재배 시 연 약 600~1,200만 원 (추정치, 난지형/한지형에 따라 차이)",
+      revenueRange: "10a당 약 295만 원 (3,000평 재배 시 연 약 2,949만 원)",
       costNote: "종구비가 상당, 기계화로 노동비 절감 가능",
       laborNote: "심기·수확이 노동 집약적이나 기계화 진행 중",
       minScale: "밭 1,000~2,000평",
       annualWorkdays: "약 120~150일",
       laborIntensity: "보통",
-      source: "추정치 (공식 소득통계 미등재, 향후 검증 예정)",
+      source: "통계청 농축산물생산비조사 2025년산 (소득 = 총수입 − 경영비)",
       varieties: [
         { name: "난지형(남해·제주)", note: "따뜻한 지역, 6월 수확" },
         { name: "한지형(의성·서산)", note: "추운 지역, 단가 높음" },
@@ -1012,13 +1012,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "인산·칼리 기비 충실, 질소 과다 시 저장성 저하",
     },
     income: {
-      revenueRange: "3,000평 재배 시 연 약 400~1,000만 원 (추정치, 가격 변동 매우 큼)",
+      revenueRange: "10a당 약 149만 원 (3,000평 재배 시 연 약 1,494만 원)",
       costNote: "묘 구입비, 정식 인건비가 주요 비용",
       laborNote: "정식·수확 시 인력 대량 필요, 기계화 진행 중",
       minScale: "밭 2,000~3,000평",
       annualWorkdays: "약 120~150일",
       laborIntensity: "보통",
-      source: "추정치 (공식 소득통계 미등재, 향후 검증 예정)",
+      source: "통계청 농축산물생산비조사 2025년산 (소득 = 총수입 − 경영비)",
     },
     majorRegions: ["전라남도", "경상남도", "경상북도"],
     tips: [
