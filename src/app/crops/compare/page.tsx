@@ -29,7 +29,7 @@ import s from "./page.module.css";
 export const metadata: Metadata = {
   title: "작물 비교",
   description:
-    "귀농 후보 작물의 난이도, 수익성, 장단점을 나란히 비교해보세요.",
+    "귀농 후보 작물의 난이도, 소득, 장단점을 나란히 비교해보세요.",
 };
 
 const DEFAULT_CROP_IDS = ["rice", "apple", "strawberry"];
@@ -85,7 +85,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
         </span>
         <h1 className={s.headerTitle}>작물 비교</h1>
         <p className={s.headerDesc}>
-          최대 3개 작물의 난이도, 수익, 장단점을 나란히 비교해보세요.
+          최대 3개 작물의 난이도, 소득, 장단점을 나란히 비교해보세요.
         </p>
       </header>
 
@@ -233,7 +233,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
           {/* 데이터 출처 */}
           <DataSource
             source="농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)"
-            note="소득 = 총수입 − 경영비 (순수익 기준). 품종·기후·기술 수준에 따라 실제 소득은 달라질 수 있습니다."
+            note="소득 = 판매 수입 − 생산 경비 (인건비·자재비 등). 재배 환경, 기술 수준에 따라 달라질 수 있습니다."
           />
         </>
       )}

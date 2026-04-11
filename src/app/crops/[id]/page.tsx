@@ -46,9 +46,9 @@ import { Icon } from "@/components/ui/icon";
 import { AnchorTabNav } from "./anchor-tab-nav";
 import s from "./page.module.css";
 
-// ── 수익 정보 파싱 유틸 ──
+// ── 소득 정보 파싱 유틸 ──
 
-/** "ha당 약 500~800만 원 (쌀값 변동에 따라 차이)" → { main, note } */
+/** "10a당 약 511만 원 (3,000평 재배 시 연 약 5,114만 원)" → { main, note } */
 function parseRevenueRange(raw: string): { main: string; note: string | null } {
   const match = raw.match(/^(.+?)\s*\((.+)\)\s*$/);
   if (match) {
@@ -57,7 +57,7 @@ function parseRevenueRange(raw: string): { main: string; note: string | null } {
   return { main: raw, note: null };
 }
 
-/** 수익 텍스트 내 ha/10a를 GlossaryTerm으로 변환 */
+/** 소득 텍스트 내 ha/10a를 GlossaryTerm으로 변환 */
 function RevenueText({ text }: { text: string }) {
   // "ha당" 또는 "10a당"을 찾�� GlossaryTerm으로 치환
   const parts = text.split(/((?:10a|1ha)당)/);
@@ -513,19 +513,19 @@ function IncomeSection({
 
   return (
     <section id="income" className={s.section}>
-      <SectionHeader icon={<Icon icon={TrendingUp} size="lg" />} title="수익 정보" />
+      <SectionHeader icon={<Icon icon={TrendingUp} size="lg" />} title="소득 정보" />
       <div className={s.sectionBody}>
-        {/* 수익 카드 — 토스 패턴: 숫자 우선 */}
+        {/* 소득 카드 — 토스 패턴: 숫자 우선 */}
         <div className={s.revenueCard}>
           <div className={s.revenueTop}>
-            <p className={s.revenueLabel}>예상 연 수익</p>
+            <p className={s.revenueLabel}>예상 연 소득</p>
           </div>
           <p className={s.revenueAmount}><RevenueText text={main} /></p>
           {note && (
             <p className={s.revenueSubNote}>{note}</p>
           )}
           <p className={s.revenueNote}>
-            품종 · 기후 · 기술 수준에 따라 실제 수익은 달라질 수 있습니다
+            소득 = 판매 수입 − 생산 경비 (인건비·자재비 등). 재배 환경, 기술 수준에 따라 달라질 수 있습니다.
           </p>
         </div>
 
