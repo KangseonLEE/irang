@@ -510,6 +510,7 @@ function IncomeSection({
 }) {
   const { main, note } = parseRevenueRange(income.revenueRange);
   const hasIndicators = income.minScale || income.annualWorkdays || income.laborIntensity;
+  const isEstimated = income.source?.includes("추정");
 
   return (
     <section id="income" className={s.section}>
@@ -519,6 +520,11 @@ function IncomeSection({
         <div className={s.revenueCard}>
           <div className={s.revenueTop}>
             <p className={s.revenueLabel}>예상 연 소득</p>
+            {isEstimated && (
+              <span className={s.estimateBadge}>
+                <Icon icon={AlertTriangle} size="xs" /> 참고용 추정치
+              </span>
+            )}
           </div>
           <p className={s.revenueAmount}><RevenueText text={main} /></p>
           {note && (

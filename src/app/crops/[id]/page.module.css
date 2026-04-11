@@ -612,6 +612,21 @@
   border-top: 1px solid var(--border, #e5e7eb);
 }
 
+.estimateBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: color-mix(in srgb, var(--warning, #d97706) 90%, transparent);
+  background: color-mix(in srgb, var(--warning, #d97706) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warning, #d97706) 20%, transparent);
+  border-radius: var(--radius-full, 9999px);
+  padding: 2px 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 /* 품종별 수익 비교 */
 .varietyTable {
   display: flex;
