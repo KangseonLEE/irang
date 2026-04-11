@@ -392,13 +392,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 과다 시 도복·병해 증가, 분시법 적용 권장",
     },
     income: {
-      revenueRange: "1ha당 약 500~800만 원 (쌀값 변동에 따라 차이)",
+      revenueRange: "10a당 약 57만 원 (3,000평 재배 시 연 약 571만 원)",
       costNote: "기계화율 높아 노동비 비중 낮음, 농기계 초기 투자 필요",
       laborNote: "이앙·수확 시기에 집중, 그 외 기간 관리 부담 적음",
       minScale: "논 3,000평(1ha) 이상",
       annualWorkdays: "약 60~80일 (이앙·수확기 집중)",
       laborIntensity: "낮음",
-      source: "KOSIS 농축산물생산비조사 (본 자료집 미수록, 추후 검증 예정)",
+      source: "통계청 농축산물생산비조사 2024년산 (소득 = 총수입 − 경영비)",
     },
     majorRegions: ["전라남도", "충청남도", "경상북도", "전라북도"],
     tips: [
@@ -417,7 +417,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
         { category: "생활", text: "이앙·수확기 외에는 관리 부담이 적어 여유로운 농촌 생활 가능" },
       ],
       cons: [
-        { category: "수익성", text: "ha당 수익이 500~800만 원으로 다른 작물 대비 낮은 편" },
+        { category: "수익성", text: "10a당 소득 약 57만 원으로 다른 작물 대비 낮은 편" },
         { category: "시장성", text: "1인당 쌀 소비량이 매년 감소하는 추세로 장기 전망에 불확실성" },
         { category: "수익성", text: "농기계(이앙기·콤바인) 초기 구입 또는 임차 비용이 필요" },
       ],
@@ -467,13 +467,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소고정 작물이라 질소비료 최소화, 인산·칼리 위주 시비",
     },
     income: {
-      revenueRange: "1ha당 약 300~500만 원",
+      revenueRange: "3,000평 재배 시 연 약 300~500만 원 (추정치)",
       costNote: "생산비 낮은 편, 종자·비료비 외 큰 비용 없음",
       laborNote: "파종·수확기 외에는 노동력 부담 적음",
       minScale: "밭 2,000~3,000평",
       annualWorkdays: "약 50~70일",
       laborIntensity: "낮음",
-      source: "KOSIS 농축산물생산비조사 (본 자료집 미수록, 추후 검증 예정)",
+      source: "추정치 (공식 소득통계 미등재, 향후 검증 예정)",
       varieties: [
         { name: "일반 백태", note: "두부·된장 등 가공용, 안정적 수요" },
         { name: "토종콩·약콩", note: "직거래 시 프리미엄 단가 가능" },
@@ -935,13 +935,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "인산·칼리 기비 충분히, 봄 추비 2회",
     },
     income: {
-      revenueRange: "1ha당 약 600~1,200만 원 (난지형/한지형에 따라 차이)",
+      revenueRange: "3,000평 재배 시 연 약 600~1,200만 원 (추정치, 난지형/한지형에 따라 차이)",
       costNote: "종구비가 상당, 기계화로 노동비 절감 가능",
       laborNote: "심기·수확이 노동 집약적이나 기계화 진행 중",
       minScale: "밭 1,000~2,000평",
       annualWorkdays: "약 120~150일",
       laborIntensity: "보통",
-      source: "KOSIS 농축산물생산비조사 (본 자료집 미수록, 추후 검증 예정)",
+      source: "추정치 (공식 소득통계 미등재, 향후 검증 예정)",
       varieties: [
         { name: "난지형(남해·제주)", note: "따뜻한 지역, 6월 수확" },
         { name: "한지형(의성·서산)", note: "추운 지역, 단가 높음" },
@@ -1012,13 +1012,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "인산·칼리 기비 충실, 질소 과다 시 저장성 저하",
     },
     income: {
-      revenueRange: "1ha당 약 400~1,000만 원 (가격 변동 매우 큼)",
+      revenueRange: "3,000평 재배 시 연 약 400~1,000만 원 (추정치, 가격 변동 매우 큼)",
       costNote: "묘 구입비, 정식 인건비가 주요 비용",
       laborNote: "정식·수확 시 인력 대량 필요, 기계화 진행 중",
       minScale: "밭 2,000~3,000평",
       annualWorkdays: "약 120~150일",
       laborIntensity: "보통",
-      source: "KOSIS 농축산물생산비조사 (본 자료집 미수록, 추후 검증 예정)",
+      source: "추정치 (공식 소득통계 미등재, 향후 검증 예정)",
     },
     majorRegions: ["전라남도", "경상남도", "경상북도"],
     tips: [
