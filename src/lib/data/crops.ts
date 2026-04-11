@@ -24,6 +24,16 @@ export interface CultivationDetail {
   fertilizerNote: string;
 }
 
+/** 품종·재배방식별 수익 정보 */
+export interface VarietyIncome {
+  /** 품종명 또는 재배방식 (예: "샤인머스캣", "노지재배", "토경재배") */
+  name: string;
+  /** 공식 통계 기반 소득 범위 — 검증된 데이터가 없으면 생략 */
+  revenueRange?: string;
+  /** 한줄 특성 설명 */
+  note?: string;
+}
+
 /** 수익 정보 */
 export interface IncomeInfo {
   revenueRange: string;
@@ -35,6 +45,10 @@ export interface IncomeInfo {
   annualWorkdays?: string;
   /** 노동 강도 */
   laborIntensity?: "낮음" | "보통" | "높음";
+  /** 수익 데이터 출처 (예: "농촌진흥청 농업소득자료집 2024") */
+  source?: string;
+  /** 품종별 수익 정보 */
+  varieties?: VarietyIncome[];
 }
 
 /** 재배 방법 단계 */
@@ -378,12 +392,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 과다 시 도복·병해 증가, 분시법 적용 권장",
     },
     income: {
-      revenueRange: "ha당 약 500~800만 원 (쌀값 변동에 따라 차이)",
+      revenueRange: "1ha당 약 500~800만 원 (쌀값 변동에 따라 차이)",
       costNote: "기계화율 높아 노동비 비중 낮음, 농기계 초기 투자 필요",
       laborNote: "이앙·수확 시기에 집중, 그 외 기간 관리 부담 적음",
       minScale: "논 3,000평(1ha) 이상",
       annualWorkdays: "약 60~80일 (이앙·수확기 집중)",
       laborIntensity: "낮음",
+      source: "KOSIS 농축산물생산비조사 (본 자료집 미수록, 추후 검증 예정)",
     },
     majorRegions: ["전라남도", "충청남도", "경상북도", "전라북도"],
     tips: [
@@ -452,12 +467,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소고정 작물이라 질소비료 최소화, 인산·칼리 위주 시비",
     },
     income: {
-      revenueRange: "ha당 약 300~500만 원",
+      revenueRange: "1ha당 약 300~500만 원",
       costNote: "생산비 낮은 편, 종자·비료비 외 큰 비용 없음",
       laborNote: "파종·수확기 외에는 노동력 부담 적음",
       minScale: "밭 2,000~3,000평",
       annualWorkdays: "약 50~70일",
       laborIntensity: "낮음",
+      source: "KOSIS 농축산물생산비조사 (본 자료집 미수록, 추후 검증 예정)",
+      varieties: [
+        { name: "일반 백태", note: "두부·된장 등 가공용, 안정적 수요" },
+        { name: "토종콩·약콩", note: "직거래 시 프리미엄 단가 가능" },
+      ],
     },
     majorRegions: ["충청북도", "경상북도", "전라북도"],
     tips: [
@@ -489,7 +509,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     investmentDetail: {
       initialCost: "종자·비료 위주 500만 원 미만 (논콩 활용 시 추가 비용 적음)",
-      annualOperatingCost: "ha당 약 150~250만 원",
+      annualOperatingCost: "1ha당 약 150~250만 원",
       breakEvenPeriod: "첫 해부터 수익 가능",
       minimumArea: "3,000㎡(약 900평) 이상 권장",
       annualLaborDays: "연 30~50일 (파종·수확기 집중)",
@@ -525,12 +545,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "칼리 비료 중요, 질소 과다 시 잎만 무성해짐",
     },
     income: {
-      revenueRange: "ha당 약 600~1,200만 원 (품종·판매 방식에 따라 차이 큼)",
+      revenueRange: "10a당 약 171만 원 (1ha당 약 1,711만 원, 소득 기준 2024)",
       costNote: "묘 구입비, 비닐멀칭 자재비가 주요 비용",
       laborNote: "수확이 노동 집약적, 기계 수확 도입 시 효율 향상",
       minScale: "밭 1,000~2,000평",
       annualWorkdays: "약 100~130일",
       laborIntensity: "보통",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      varieties: [
+        { name: "밤고구마", note: "전분용·군고구마용, 저장성 우수" },
+        { name: "꿀고구마(호박고구마)", note: "소비자 선호도·단가 높음, 직거래 유리" },
+      ],
     },
     majorRegions: ["전라남도", "충청남도", "경기도"],
     tips: [
@@ -562,7 +587,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     investmentDetail: {
       initialCost: "묘 구입·비닐멀칭·소형 농기계 등 1,000~2,000만 원",
-      annualOperatingCost: "ha당 약 400~600만 원 (묘·멀칭·비료·인건비)",
+      annualOperatingCost: "1ha당 약 400~600만 원 (묘·멀칭·비료·인건비)",
       breakEvenPeriod: "1~2년차부터 수익 발생",
       minimumArea: "1,000㎡(약 300평) 이상이면 시작 가능",
       annualLaborDays: "연 50~80일 (수확기 집중 노동)",
@@ -598,12 +623,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "칼리·인산 충분히, 질소는 분시 필요",
     },
     income: {
-      revenueRange: "ha당 약 400~800만 원 (고랭지 감자는 프리미엄)",
+      revenueRange: "10a당 약 95~125만 원 (가을~봄감자, 소득 기준 2024)",
       costNote: "씨감자, 농약비 비중이 높음, 저장 시설 필요",
       laborNote: "심기·수확 시 집중 노동, 중간 관리는 비교적 수월",
       minScale: "밭 1,500~3,000평",
       annualWorkdays: "약 80~100일",
       laborIntensity: "보통",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      varieties: [
+        { name: "봄감자", revenueRange: "10a당 약 125만 원 (1ha당 약 1,250만 원)", note: "가장 보편적, 수미·대서 품종" },
+        { name: "가을감자", revenueRange: "10a당 약 95만 원 (1ha당 약 946만 원)", note: "이모작 가능, 소득 다소 낮음" },
+      ],
     },
     majorRegions: ["강원도", "경상북도", "제주특별자치도"],
     tips: [
@@ -634,7 +664,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     investmentDetail: {
       initialCost: "씨감자·농기계·저온저장고 등 1,500~3,000만 원",
-      annualOperatingCost: "ha당 약 400~600만 원 (씨감자·농약·비료)",
+      annualOperatingCost: "1ha당 약 400~600만 원 (씨감자·농약·비료)",
       breakEvenPeriod: "1~2년차부터 수익 발생 (저장고 투자 시 3년)",
       minimumArea: "3,000㎡(약 900평) 이상 권장",
       annualLaborDays: "연 40~60일 (파종·수확기 집중)",
@@ -670,12 +700,18 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 요구량이 높음, 웃거름 2~3회 분시",
     },
     income: {
-      revenueRange: "ha당 약 300~700만 원 (찰옥수수·초당옥수수는 상단)",
+      revenueRange: "10a당 약 114만 원 (노지풋옥수수, 1ha당 약 1,135만 원, 소득 기준 2024)",
       costNote: "종자비·비료비 외 큰 비용 없음, 비닐멀칭 권장",
       laborNote: "재배 기간 짧아 노동 부담 적음, 수확 시기가 집중",
       minScale: "밭 1,000~2,000평",
       annualWorkdays: "약 60~80일",
       laborIntensity: "낮음",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      varieties: [
+        { name: "찰옥수수", note: "삶아먹는 식용, 택배 직거래 가능" },
+        { name: "초당옥수수", note: "높은 당도, 직거래 프리미엄" },
+        { name: "풋옥수수(일반)", note: "가장 보편적, 공식 통계 기준 작목" },
+      ],
     },
     majorRegions: ["강원도", "충청북도", "경기도"],
     tips: [
@@ -706,7 +742,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     investmentDetail: {
       initialCost: "종자·비닐멀칭·소형 농기계 등 500~1,000만 원",
-      annualOperatingCost: "ha당 약 200~350만 원",
+      annualOperatingCost: "1ha당 약 200~350만 원",
       breakEvenPeriod: "첫 해부터 수익 가능",
       minimumArea: "2,000㎡(약 600평) 이상 권장",
       annualLaborDays: "연 30~50일 (재배 기간이 짧아 부담 적음)",
@@ -742,12 +778,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "칼슘 결핍 주의, 장기 재배이므로 추비 3~4회 필수",
     },
     income: {
-      revenueRange: "ha당 약 800~1,500만 원 (건고추 기준, 가격 변동 큼)",
+      revenueRange: "10a당 약 1,259만 원 (시설고추, 소득 기준 2024)",
       costNote: "농약비·인건비가 상당, 비가림 시설 투자 고려",
       laborNote: "수확·건조·탈꼭지 등 노동 집약적, 가족 노동력 중요",
       minScale: "밭 1,000~2,000평",
       annualWorkdays: "약 180~220일 (수확·건조 포함)",
       laborIntensity: "높음",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      varieties: [
+        { name: "시설고추", note: "연중 출하 가능, 공식 통계 기준 작목" },
+        { name: "노지 건고추", note: "건조 비용 포함, 가격 변동 큼 (공식 통계 미수록)" },
+      ],
     },
     majorRegions: ["충청북도", "경상북도", "전라남도", "충청남도"],
     tips: [
@@ -780,7 +821,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     investmentDetail: {
       initialCost: "비가림 시설·건조기·묘 구입 등 2,000~4,000만 원",
-      annualOperatingCost: "ha당 약 600~1,000만 원 (농약·인건비 비중 높음)",
+      annualOperatingCost: "1ha당 약 600~1,000만 원 (농약·인건비 비중 높음)",
       breakEvenPeriod: "2~3년차 (비가림 시설 투자 회수 포함)",
       minimumArea: "1,000~2,000㎡(300~600평) 권장 (초보자 기준)",
       annualLaborDays: "연 80~120일 (수확·건조·방제 등 연중 관리)",
@@ -816,12 +857,18 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 흡수량 많음, 분시 3~4회 필요",
     },
     income: {
-      revenueRange: "ha당 약 500~1,000만 원 (김장철 가격에 따라 변동)",
+      revenueRange: "10a당 약 116~260만 원 (봄~가을배추, 소득 기준 2024)",
       costNote: "종자·비료·농약비 중심, 가격 폭락 리스크 있음",
       laborNote: "정식·수확 시 인력 필요, 기계화 어려운 부분 존재",
       minScale: "밭 2,000~3,000평",
       annualWorkdays: "약 100~130일 (작기당)",
       laborIntensity: "보통",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      varieties: [
+        { name: "봄배추", revenueRange: "10a당 약 116만 원 (1ha당 약 1,158만 원)", note: "3~6월 출하, 가격 변동 보통" },
+        { name: "가을배추(김장)", revenueRange: "10a당 약 260만 원 (1ha당 약 2,603만 원)", note: "김장 수요로 가장 소득 높음" },
+        { name: "고랭지 여름배추", revenueRange: "10a당 약 121만 원 (1ha당 약 1,213만 원)", note: "7~8월 출하, 기상 리스크 큼" },
+      ],
     },
     majorRegions: ["강원도", "전라남도", "충청남도"],
     tips: [
@@ -852,7 +899,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     investmentDetail: {
       initialCost: "종자·비료·농기계 임차 등 500~1,500만 원",
-      annualOperatingCost: "ha당 약 300~500만 원",
+      annualOperatingCost: "1ha당 약 300~500만 원",
       breakEvenPeriod: "첫 해부터 수익 가능 (가격 변동에 따라 차이)",
       minimumArea: "3,000㎡(약 900평) 이상 권장",
       annualLaborDays: "연 40~70일 (정식·수확기 집중)",
@@ -888,12 +935,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "인산·칼리 기비 충분히, 봄 추비 2회",
     },
     income: {
-      revenueRange: "ha당 약 600~1,200만 원 (난지형/한지형에 따라 차이)",
+      revenueRange: "1ha당 약 600~1,200만 원 (난지형/한지형에 따라 차이)",
       costNote: "종구비가 상당, 기계화로 노동비 절감 가능",
       laborNote: "심기·수확이 노동 집약적이나 기계화 진행 중",
       minScale: "밭 1,000~2,000평",
       annualWorkdays: "약 120~150일",
       laborIntensity: "보통",
+      source: "KOSIS 농축산물생산비조사 (본 자료집 미수록, 추후 검증 예정)",
+      varieties: [
+        { name: "난지형(남해·제주)", note: "따뜻한 지역, 6월 수확" },
+        { name: "한지형(의성·서산)", note: "추운 지역, 단가 높음" },
+      ],
     },
     majorRegions: ["경상남도", "전라남도", "충청남도", "경상북도"],
     tips: [
@@ -924,7 +976,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     investmentDetail: {
       initialCost: "종구(씨마늘)·농기계 등 1,500~3,000만 원 (종구비 비중 높음)",
-      annualOperatingCost: "ha당 약 500~800만 원",
+      annualOperatingCost: "1ha당 약 500~800만 원",
       breakEvenPeriod: "1~2년차부터 수익 발생",
       minimumArea: "2,000㎡(약 600평) 이상 권장",
       annualLaborDays: "연 50~80일 (심기·수확기 집중 노동)",
@@ -960,12 +1012,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "인산·칼리 기비 충실, 질소 과다 시 저장성 저하",
     },
     income: {
-      revenueRange: "ha당 약 400~1,000만 원 (가격 변동 매우 큼)",
+      revenueRange: "1ha당 약 400~1,000만 원 (가격 변동 매우 큼)",
       costNote: "묘 구입비, 정식 인건비가 주요 비용",
       laborNote: "정식·수확 시 인력 대량 필요, 기계화 진행 중",
       minScale: "밭 2,000~3,000평",
       annualWorkdays: "약 120~150일",
       laborIntensity: "보통",
+      source: "KOSIS 농축산물생산비조사 (본 자료집 미수록, 추후 검증 예정)",
     },
     majorRegions: ["전라남도", "경상남도", "경상북도"],
     tips: [
@@ -996,7 +1049,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     ],
     investmentDetail: {
       initialCost: "묘 구입·저장시설·농기계 등 1,500~3,000만 원",
-      annualOperatingCost: "ha당 약 400~700만 원 (묘·정식 인건비 비중 높음)",
+      annualOperatingCost: "1ha당 약 400~700만 원 (묘·정식 인건비 비중 높음)",
       breakEvenPeriod: "1~2년차 (저장시설 투자 시 3년)",
       minimumArea: "3,000㎡(약 900평) 이상 권장",
       annualLaborDays: "연 50~80일 (정식·수확기 집중)",
@@ -1032,12 +1085,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 비료 적정량 유지, 과다 시 맛 저하",
     },
     income: {
-      revenueRange: "10a당 약 200~400만 원 (연중 다회 수확 가능)",
+      revenueRange: "10a당 약 502만 원 (시설상추, 소득 기준 2024)",
       costNote: "시설비(하우스)가 주요 투자, 운영비는 낮은 편",
       laborNote: "수확·포장이 매일 반복, 꾸준한 노동 필요",
       minScale: "시설 300~500평",
       annualWorkdays: "약 250~300일 (연중 수확)",
       laborIntensity: "보통",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
     },
     majorRegions: ["충청남도", "경기도", "강원도"],
     tips: [
@@ -1104,12 +1158,18 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "칼슘·붕소 결핍 주의, 엽면시비 병행",
     },
     income: {
-      revenueRange: "ha당 약 1,500~3,000만 원 (품종·품질에 따라 차이 큼)",
+      revenueRange: "10a당 약 511만 원 (1ha당 약 5,114만 원, 소득 기준 2024)",
       costNote: "묘목·지주·방조망 등 초기 투자비 높음, 수확까지 3~5년",
       laborNote: "전정·적과·봉지씌우기·수확 등 연중 관리 작업 많음",
       minScale: "과수원 3,000~5,000평",
       annualWorkdays: "약 200~250일 (연중 관리)",
       laborIntensity: "높음",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      varieties: [
+        { name: "후지(부사)", note: "국내 재배 70%, 저장성 좋음, 11월 수확" },
+        { name: "홍로", note: "추석 출하용, 9월 조생종" },
+        { name: "감홍·시나노스위트", note: "프리미엄 품종, 고당도 직거래 유리" },
+      ],
     },
     majorRegions: ["경상북도", "충청북도", "강원도", "경상남도"],
     tips: [
@@ -1122,7 +1182,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     kosisConfig: { tblId: "DT_1AG20411" },
     prosCons: {
       pros: [
-        { category: "수익성", text: "성목 기준 ha당 1,500~3,000만 원으로 고소득 작물" },
+        { category: "수익성", text: "성목 기준 1ha당1,500~3,000만 원으로 고소득 작물" },
         { category: "시장성", text: "국내 소비 수요가 안정적이고 직거래·온라인 판매 채널이 다양" },
         { category: "확장성", text: "사과즙·사과잼·체험농장 등 6차산업 연계가 활발" },
         { category: "안정성", text: "저장성이 좋아 CA저장으로 출하 시기를 조절해 가격 대응 가능" },
@@ -1142,8 +1202,8 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       { step: 5, title: "수확·선과·출하", period: "매년 9~11월", description: "품종별 수확 시기 상이. 선과장 이용 선별. CA저장으로 출하 시기 조절" },
     ],
     investmentDetail: {
-      initialCost: "묘목·지주·방조망·관수 시설 등 ha당 3,000~6,000만 원",
-      annualOperatingCost: "ha당 약 800~1,200만 원 (농약·비료·인건비)",
+      initialCost: "묘목·지주·방조망·관수 시설 등 1ha당3,000~6,000만 원",
+      annualOperatingCost: "1ha당 약 800~1,200만 원 (농약·비료·인건비)",
       breakEvenPeriod: "5~7년 (식재 후 3~5년 무수확 + 초기 수확 2년)",
       minimumArea: "3,000㎡(약 1,000평) 이상 권장",
       annualLaborDays: "연 150~200일 (전정·적과·수확 등 연중 관리)",
@@ -1179,12 +1239,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "유기질 비료 위주, 칼슘·붕소 엽면시비 병행",
     },
     income: {
-      revenueRange: "ha당 약 1,200~2,500만 원 (신고배 기준)",
+      revenueRange: "10a당 약 432만 원 (1ha당 약 4,319만 원, 소득 기준 2024)",
       costNote: "과수원 조성 비용 높음, 봉지씌우기 인건비 상당",
       laborNote: "전정·수분·적과·봉지·수확 등 연중 세밀한 관리 필요",
       minScale: "과수원 3,000~5,000평",
       annualWorkdays: "약 200~250일",
       laborIntensity: "높음",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      varieties: [
+        { name: "신고(나주배)", note: "국내 재배 80%, 선물용 수요 안정적" },
+        { name: "원황·화산", note: "조생종, 8~9월 출하로 시기 분산" },
+      ],
     },
     majorRegions: ["전라남도", "충청남도", "경기도"],
     tips: [
@@ -1215,8 +1280,8 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       { step: 5, title: "수확·저장·출하", period: "매년 9~10월", description: "과피 색·당도 확인 후 수확. 저온저장(0~1℃)으로 출하 조절" },
     ],
     investmentDetail: {
-      initialCost: "묘목·지주·수분수·방조망 등 ha당 3,000~5,000만 원",
-      annualOperatingCost: "ha당 약 700~1,100만 원 (봉지·인건비·농약)",
+      initialCost: "묘목·지주·수분수·방조망 등 1ha당3,000~5,000만 원",
+      annualOperatingCost: "1ha당 약 700~1,100만 원 (봉지·인건비·농약)",
       breakEvenPeriod: "6~8년 (식재 후 4~5년 무수확)",
       minimumArea: "3,000㎡(약 1,000평) 이상 권장",
       annualLaborDays: "연 150~200일 (인공수분·전정·봉지씌우기·수확)",
@@ -1252,12 +1317,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "칼슘·마그네슘 중요, 착색기 질소 제한",
     },
     income: {
-      revenueRange: "ha당 약 2,000~4,000만 원 (샤인머스캣 기준 상단)",
+      revenueRange: "10a당 약 548~705만 원 (노지~시설, 소득 기준 2024)",
       costNote: "비가림 시설·덕 설치 초기 투자 큼, 묘목비 고가",
       laborNote: "적방·적과·봉지·수확 등 세밀한 손작업 많음",
       minScale: "과수원 2,000~3,000평",
       annualWorkdays: "약 200~250일",
       laborIntensity: "높음",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      varieties: [
+        { name: "노지포도", revenueRange: "10a당 약 548만 원 (1ha당 약 5,479만 원)", note: "거봉·캠벨얼리 등, 전통 노지 재배" },
+        { name: "시설포도", revenueRange: "10a당 약 705만 원 (1ha당 약 7,048만 원)", note: "샤인머스캣 등 고급 품종, 시설 투자 필요" },
+      ],
     },
     majorRegions: ["경상북도", "충청남도", "경기도"],
     tips: [
@@ -1269,7 +1339,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     kosisConfig: { tblId: "DT_1AG20411" },
     prosCons: {
       pros: [
-        { category: "수익성", text: "샤인머스캣 기준 ha당 2,000~4,000만 원의 높은 수익" },
+        { category: "수익성", text: "품종에 따라 1ha당 1,200~4,000만 원 — 샤인머스캣은 최상위 수익 구간" },
         { category: "확장성", text: "와이너리·체험농장과 연계해 6차산업 부가가치 창출 가능" },
         { category: "시장성", text: "프리미엄 품종의 직거래·택배 판매 수요가 매우 높음" },
       ],
@@ -1288,8 +1358,8 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       { step: 5, title: "저장·출하", period: "매년 9~10월", description: "예냉 후 저온저장. 직거래·택배·로컬마켓 출하" },
     ],
     investmentDetail: {
-      initialCost: "비가림 시설·덕 설치·묘목 등 ha당 4,000~8,000만 원",
-      annualOperatingCost: "ha당 약 800~1,500만 원 (시설유지·인건비·농약)",
+      initialCost: "비가림 시설·덕 설치·묘목 등 1ha당4,000~8,000만 원",
+      annualOperatingCost: "1ha당 약 800~1,500만 원 (시설유지·인건비·농약)",
       breakEvenPeriod: "4~6년 (식재 후 2~3년 무수확)",
       minimumArea: "2,000㎡(약 600평) 이상 권장",
       annualLaborDays: "연 150~200일 (적방·적과·수확 등 세밀 작업)",
@@ -1325,12 +1395,18 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소·칼리 위주, 미량원소(마그네슘·아연) 보충",
     },
     income: {
-      revenueRange: "ha당 약 1,000~2,500만 원 (만감류는 더 높음)",
+      revenueRange: "10a당 약 287만 원 (노지감귤, 1ha당 약 2,866만 원, 소득 기준 2024)",
       costNote: "하우스 재배 시 난방비 부담, 노지 재배 상대적 저비용",
       laborNote: "적과·수확 시 인력 집중, 비수기 전정·방제 관리",
       minScale: "과수원 3,000~5,000평",
       annualWorkdays: "약 180~220일",
       laborIntensity: "보통",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      varieties: [
+        { name: "노지감귤(온주밀감)", note: "제주 중심, 재배 쉬움, 가격 낮음" },
+        { name: "한라봉(부지화)", note: "하우스 재배, 난방비 고려 필요" },
+        { name: "천혜향·레드향", note: "최고 프리미엄, 재배 난이도 높음" },
+      ],
     },
     majorRegions: ["제주특별자치도", "경상남도", "전라남도"],
     tips: [
@@ -1360,8 +1436,8 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       { step: 4, title: "수확·출하", period: "매년 10~12월 (노지감귤)", description: "착색·당도 확인 후 수확. 농협 선과장 또는 직거래 출하" },
     ],
     investmentDetail: {
-      initialCost: "묘목·하우스(만감류) 등 ha당 2,000~6,000만 원",
-      annualOperatingCost: "ha당 약 600~1,200만 원 (난방비 변동 큼)",
+      initialCost: "묘목·하우스(만감류) 등 1ha당2,000~6,000만 원",
+      annualOperatingCost: "1ha당 약 600~1,200만 원 (난방비 변동 큼)",
       breakEvenPeriod: "4~6년 (식재 후 3~4년 무수확)",
       minimumArea: "3,000㎡(약 1,000평) 이상 권장",
       annualLaborDays: "연 120~180일 (적과·수확·전정·방제)",
@@ -1397,12 +1473,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "양액 재배 시 EC·pH 정밀 관리 필요",
     },
     income: {
-      revenueRange: "10a당 약 1,500~3,000만 원 (고설재배 시 상단)",
+      revenueRange: "10a당 약 1,069~1,500만 원 (토경~수경, 소득 기준 2024)",
       costNote: "하우스·난방·양액 시설 초기 투자 상당, 묘 관리비도 높음",
       laborNote: "수확이 매일 반복, 겨울 내내 지속적 관리 필요",
       minScale: "시설 300~500평",
       annualWorkdays: "약 250~300일 (겨울 연속 관리)",
       laborIntensity: "높음",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      varieties: [
+        { name: "토경재배", revenueRange: "10a당 약 1,069만 원", note: "설향 등 일반 재배, 초기 투자 적음" },
+        { name: "수경재배(고설)", revenueRange: "10a당 약 1,500만 원", note: "금실 등 고품질 품종, 노동 효율 높음" },
+      ],
     },
     majorRegions: ["경상남도", "충청남도", "전라북도"],
     tips: [
@@ -1470,12 +1551,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "유기질 기비 위주, 화학비료 최소화",
     },
     income: {
-      revenueRange: "ha당 약 3,000~6,000만 원 (4~6년근 기준, 장기 투자)",
+      revenueRange: "10a당 약 563만 원 (4년근 1기작 합계, 연평균 약 141만 원, 소득 기준 2024)",
       costNote: "차광 시설·묘삼비·토지 비용 높음, 투자 회수까지 4~6년",
       laborNote: "해가림 관리·병해 방제에 세심한 관리 필요",
       minScale: "밭 3,000~5,000평",
       annualWorkdays: "약 150~180일 (4~6년 장기)",
       laborIntensity: "보통",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      varieties: [
+        { name: "수삼(4~6년근)", note: "생물 출하, 가장 보편적" },
+        { name: "홍삼 가공 원료용", note: "건조·가공 시 부가가치 상승" },
+      ],
     },
     majorRegions: ["충청남도", "경상북도", "전라북도"],
     tips: [
@@ -1506,8 +1592,8 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       { step: 4, title: "수확·가공", period: "4~6년차 가을", description: "기계 또는 수작업 굴취. 수삼 출하 또는 홍삼 가공" },
     ],
     investmentDetail: {
-      initialCost: "해가림 시설·묘삼·토지 임차 등 ha당 5,000만~1억 원",
-      annualOperatingCost: "ha당 약 500~800만 원 (병해 방제·시설 유지)",
+      initialCost: "해가림 시설·묘삼·토지 임차 등 1ha당5,000만~1억 원",
+      annualOperatingCost: "1ha당 약 500~800만 원 (병해 방제·시설 유지)",
       breakEvenPeriod: "6~8년 (4~6년 재배 + 투자 회수 2년)",
       minimumArea: "3,000㎡(약 1,000평) 이상 권장",
       annualLaborDays: "연 80~120일 (해가림 관리·병해 방제 중심)",
@@ -1543,12 +1629,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "인산·칼리 위주, 질소는 적정량",
     },
     income: {
-      revenueRange: "10a당 약 200~400만 원 (들깨 대비 높은 단가)",
+      revenueRange: "10a당 약 105만 원 (소득 기준 2024)",
       costNote: "생산비 낮은 편, 종자·비료비 위주",
       laborNote: "수확·탈립이 노동 집약적, 기계 수확 어려움",
       minScale: "밭 1,000~2,000평",
       annualWorkdays: "약 80~100일",
       laborIntensity: "보통",
+      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
     },
     majorRegions: ["충청남도", "전라남도", "경상북도"],
     tips: [
@@ -1615,12 +1702,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "기비(밑거름) 위주, 추비 1~2회. 질소 과다 시 잎 연약·저장성 저하",
     },
     income: {
-      revenueRange: "ha당 약 4,000~8,000만 원 (추정, 공식 소득통계 미등재)",
+      revenueRange: "1ha당 약 4,000~8,000만 원 (추정, 공식 소득통계 미등재)",
       costNote: "종자비 저렴, 하우스 유지·난방비(겨울)와 수확 인건비가 주요 비용",
       laborNote: "파종·솎음·수확 모두 수작업. 주 2~3회 수확 작업으로 꾸준한 노동 필요",
       minScale: "시설 1,000~2,000평 (비가림하우스 3~5동)",
       annualWorkdays: "약 200~250일 (주 5~6일, 수확 주기 짧음)",
       laborIntensity: "보통",
+      source: "농업관측센터 추정치 (공식 소득통계 미등재)",
     },
     majorRegions: ["경기도", "충청남도", "전라북도", "전라남도"],
     tips: [
@@ -1638,7 +1726,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
         { category: "확장성", text: "수경재배·스마트팜 연계 용이. 지자체 스마트팜 지원사업 활용 시 초기 투자 부담 절감" },
       ],
       cons: [
-        { category: "수익성", text: "공식 소득통계 미등재 작목으로 ha당 수익 예측이 불확실. 단가 변동 리스크 존재" },
+        { category: "수익성", text: "공식 소득통계 미등재 작목으로 1ha당수익 예측이 불확실. 단가 변동 리스크 존재" },
         { category: "안정성", text: "고온기(6~8월) 추대 발생 시 상품성 급감 — 시설 온도 관리 실패 시 시기 전체 수확 손실 가능" },
         { category: "시장성", text: "대형마트 입점은 일정 물량·규격·포장 품질 요구 — 소규모 농가의 유통 채널 확보가 쉽지 않음" },
       ],
@@ -1690,6 +1778,11 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       minScale: "시설 1,000~2,000평 (비닐하우스·가온 설비 포함)",
       annualWorkdays: "약 280~320일 (거의 연중 관리, 겨울 가온 포함)",
       laborIntensity: "높음",
+      source: "제주특별자치도농업기술원 · 농촌진흥청",
+      varieties: [
+        { name: "어윈(애플망고)", revenueRange: "10a당 약 1,500~2,000만 원", note: "국내 주력 품종, 6~8월 출하" },
+        { name: "금황(국산 신품종)", revenueRange: "10a당 약 1,800~2,500만 원", note: "로열티 없는 국산 품종, 보급 확대 중" },
+      ],
     },
     majorRegions: ["제주특별자치도", "전라남도", "경상남도"],
     tips: [

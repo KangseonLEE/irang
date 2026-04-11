@@ -20,6 +20,7 @@ import {
   type CropDetailInfo,
   type ProsConsCategory,
 } from "@/lib/data/crops";
+import { DataSource } from "@/components/ui/data-source";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { CropSelector } from "./crop-selector";
 import { DesktopHint } from "@/components/ui/desktop-hint";
@@ -126,7 +127,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
               <div className={s.tableWrap}>
                 <table className={s.table}>
                   <caption className={s.srOnly}>
-                    작물별 재배환경·수익 상세 비교
+                    작물별 재배환경·소득 상세 비교
                   </caption>
                   <thead>
                     <tr>
@@ -152,9 +153,16 @@ export default async function CropComparePage({ searchParams }: PageProps) {
                       values={crops.map((c) => c.growingSeason)}
                     />
                     <TextRow
-                      label="예상 수익"
+                      label="예상 소득"
                       values={crops.map((c) => c.detail.income.revenueRange)}
                       highlight
+                    />
+                    <TextRow
+                      label="출처"
+                      values={crops.map(
+                        (c) =>
+                          c.detail.income.source ?? "농촌진흥청 농업소득자료집",
+                      )}
                     />
                     <SectionDividerRow
                       label="재배환경"
@@ -221,6 +229,12 @@ export default async function CropComparePage({ searchParams }: PageProps) {
               </div>
             </section>
           )}
+
+          {/* 데이터 출처 */}
+          <DataSource
+            source="농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)"
+            note="소득 = 총수입 − 경영비 (순수익 기준). 품종·기후·기술 수준에 따라 실제 소득은 달라질 수 있습니다."
+          />
         </>
       )}
     </div>

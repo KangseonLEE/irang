@@ -612,6 +612,91 @@
   border-top: 1px solid var(--border, #e5e7eb);
 }
 
+/* 품종별 수익 비교 */
+.varietyTable {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--card, #ffffff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.varietyTitle {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  margin: 0 0 12px 0;
+  letter-spacing: -0.01em;
+}
+
+.varietyRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.varietyRow + .varietyRow {
+  border-top: 1px solid var(--border, #f3f4f6);
+}
+
+.varietyNameWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.varietyDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary, #16a34a);
+  flex-shrink: 0;
+}
+
+.varietyName {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  white-space: nowrap;
+}
+
+.varietyRight {
+  text-align: right;
+  min-width: 0;
+}
+
+.varietyRevenue {
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: var(--foreground, #111827);
+  margin: 0;
+}
+
+.varietyNote {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #9ca3af);
+  margin: 2px 0 0 0;
+  line-height: var(--lh-normal);
+}
+
+@media (max-width: 480px) {
+  .varietyRow {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .varietyRight {
+    text-align: left;
+    padding-left: 14px;
+  }
+}
+
 /* 비용 구조 테이블 */
 .costTable {
   display: flex;

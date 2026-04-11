@@ -60,12 +60,12 @@ function parseRevenueRange(raw: string): { main: string; note: string | null } {
 /** 수익 텍스트 내 ha/10a를 GlossaryTerm으로 변환 */
 function RevenueText({ text }: { text: string }) {
   // "ha당" 또는 "10a당"을 찾�� GlossaryTerm으로 치환
-  const parts = text.split(/((?:10a|ha)당)/);
+  const parts = text.split(/((?:10a|1ha)당)/);
   return (
     <>
       {parts.map((part, i) => {
-        if (part === "ha당") {
-          return <span key={i}><GlossaryTerm term="ha" />당</span>;
+        if (part === "1ha당") {
+          return <span key={i}>1<GlossaryTerm term="ha" />당</span>;
         }
         if (part === "10a당") {
           return <span key={i}><GlossaryTerm term="10a" />당</span>;
@@ -529,6 +529,31 @@ function IncomeSection({
           </p>
         </div>
 
+        {/* 재배방식·품종별 수익 비교 */}
+        {income.varieties && income.varieties.length > 0 && (
+          <div className={s.varietyTable}>
+            <p className={s.varietyTitle}>
+              {income.varieties.some((v) => v.revenueRange)
+                ? "재배방식별 소득 비교"
+                : "주요 품종 특성"}
+            </p>
+            {income.varieties.map((v) => (
+              <div key={v.name} className={s.varietyRow}>
+                <div className={s.varietyNameWrap}>
+                  <span className={s.varietyDot} />
+                  <span className={s.varietyName}>{v.name}</span>
+                </div>
+                <div className={s.varietyRight}>
+                  {v.revenueRange && (
+                    <p className={s.varietyRevenue}><RevenueText text={v.revenueRange} /></p>
+                  )}
+                  {v.note && <p className={s.varietyNote}>{v.note}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* 수익 지표 카드 */}
         {hasIndicators && (
           <div className={s.incomeIndicators}>
@@ -582,6 +607,10 @@ function IncomeSection({
             <p className={s.costValue}><AutoGlossary text={income.laborNote} /></p>
           </div>
         </div>
+        <DataSource
+          source={income.source ?? "농촌진흥청 농업소득자료집 · KOSIS 국가통계포털"}
+          href="https://kosis.kr"
+        />
       </div>
     </section>
   );
