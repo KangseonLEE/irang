@@ -17,6 +17,8 @@ export const KOSIS_TABLE = {
   FACILITY_CROP_AREA: "DT_1ET0017",
   /** 농작물 생산조사 — 식량작물(미곡 제외), 채소, 특용작물 통합 */
   CROP_PRODUCTION: "DT_1ET0292",
+  /** 논벼 생산비 — 10a당 총수입·경영비·소득·순수익 */
+  RICE_COST: "DT_1EA1501",
 } as const;
 
 /** KOSIS API 응답 원본 아이템 */
@@ -36,6 +38,138 @@ export interface CropStatItem {
   production: number; // 생산량 (톤)
   year: number;
 }
+
+// ── 쌀 생산비(소득) 조회 ──
+
+/** 쌀(논벼) 10a당 소득 데이터 */
+export interface RiceIncomeData {
+  /** 10a당 총수입 (원) */
+  grossRevenue: number;
+  /** 10a당 경영비 (원) */
+  operatingCost: number;
+  /** 10a당 소득 = 총수입 − 경영비 (원) */
+  income: number;
+  /** 10a당 생산비 (원) — 경영비 + 자가노력비 등 */
+  productionCost: number;
+  /** 10a당 순수익 = 총수입 − 생산비 (원) */
+  netProfit: number;
+  /** 데이터 연도 (예: 2024) */
+  year: number;
+}
+
+/**
+ * KOSIS에서 쌀(논벼) 10a당 소득 데이터를 조회한다.
+ *
+ * 통계표: DT_1EA1501 (농축산물생산비조사 - 논벼)
+ * 발표: 매년 3월 (전년산 데이터)
+ *
+ * @returns 최신 연도의 소득 데이터, 조회 실패 시 null
+ */
+export async function fetchRiceIncome(): Promise<RiceIncomeData | null> {
+  const apiKey = process.env.KOSIS_API_KEY;
+  if (!apiKey) {
+    console.error("KOSIS_API_KEY is not set");
+    return null;
+  }
+
+  const currentYear = new Date().getFullYear();
+
+  // 생산비조사는 전년산 → 전년도부터 시도, 없으면 2년 전
+  for (const year of [currentYear - 1, currentYear - 2]) {
+    const data = await fetchRiceIncomeFromKOSIS(apiKey, year);
+    if (data) return data;
+  }
+
+  return null;
+}
+
+async function fetchRiceIncomeFromKOSIS(
+  apiKey: string,
+  year: number,
+): Promise<RiceIncomeData | null> {
+  const url = new URL(API_BASE);
+  url.searchParams.set("method", "getList");
+  url.searchParams.set("apiKey", apiKey);
+  url.searchParams.set("itmId", "ALL");
+  url.searchParams.set("objL1", "ALL");
+  url.searchParams.set("objL2", "");
+  url.searchParams.set("format", "json");
+  url.searchParams.set("jsonVD", "Y");
+  url.searchParams.set("prdSe", "Y");
+  url.searchParams.set("startPrdDe", String(year));
+  url.searchParams.set("endPrdDe", String(year));
+  url.searchParams.set("orgId", "101");
+  url.searchParams.set("tblId", KOSIS_TABLE.RICE_COST);
+
+  try {
+    const res = await fetch(url.toString(), {
+      next: { revalidate: 86400 * 7 }, // 7일 캐시 (연 1회 갱신)
+    });
+
+    if (!res.ok) return null;
+
+    const json = await res.json();
+    if (!Array.isArray(json) || json.length === 0) return null;
+
+    return parseRiceIncomeItems(json as KOSISRawItem[], year);
+  } catch (error) {
+    console.error(`Failed to fetch rice income (year=${year}):`, error);
+    return null;
+  }
+}
+
+/**
+ * 쌀 생산비조사 KOSIS 응답에서 10a당 주요 지표를 추출한다.
+ *
+ * ITM_NM 패턴 예시: "10a당 총수입", "10a당 경영비", "10a당 소득",
+ *                   "10a당 생산비(비용가)", "10a당 순수익"
+ */
+function parseRiceIncomeItems(
+  raw: KOSISRawItem[],
+  year: number,
+): RiceIncomeData | null {
+  let grossRevenue = 0;
+  let operatingCost = 0;
+  let income = 0;
+  let productionCost = 0;
+  let netProfit = 0;
+  let found = false;
+
+  for (const item of raw) {
+    const value = parseFloat(item.DT);
+    if (isNaN(value)) continue;
+
+    const name = item.ITM_NM;
+
+    if (name.includes("총수입") && name.includes("10a")) {
+      grossRevenue = value;
+      found = true;
+    } else if (name.includes("경영비") && name.includes("10a")) {
+      operatingCost = value;
+    } else if (name.includes("소득") && !name.includes("순수익") && name.includes("10a")) {
+      income = value;
+    } else if (name.includes("생산비") && name.includes("10a")) {
+      productionCost = value;
+    } else if (name.includes("순수익") && name.includes("10a")) {
+      netProfit = value;
+    }
+  }
+
+  if (!found) return null;
+
+  // 소득이 직접 제공되지 않으면 계산
+  if (income === 0 && grossRevenue > 0 && operatingCost > 0) {
+    income = grossRevenue - operatingCost;
+  }
+  // 순수익이 직접 제공되지 않으면 계산
+  if (netProfit === 0 && grossRevenue > 0 && productionCost > 0) {
+    netProfit = grossRevenue - productionCost;
+  }
+
+  return { grossRevenue, operatingCost, income, productionCost, netProfit, year };
+}
+
+// ── 작물 생산 통계 조회 ──
 
 /**
  * KOSIS 통계표에서 작물 통계 데이터를 조회한다.

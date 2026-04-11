@@ -1,0 +1,100 @@
+# 소득 데이터 연간 갱신 리마인더
+# - 3월 1일: 쌀 생산비조사 결과 발표 → 갱신 안내
+# - 10월 1일: 농산물소득자료집 발간 → 14개 작물 일괄 갱신 안내
+
+name: Data Refresh Reminder
+
+on:
+  schedule:
+    # 3월 1일 00:00 KST (2월 28일 15:00 UTC)
+    - cron: "0 15 28 2 *"
+    # 10월 1일 00:00 KST (9월 30일 15:00 UTC)
+    - cron: "0 15 30 9 *"
+  workflow_dispatch: # 수동 실행 지원
+
+jobs:
+  create-reminder:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Determine reminder type
+        id: type
+        run: |
+          MONTH=$(date -u +%m)
+          if [ "$MONTH" = "02" ] || [ "$MONTH" = "03" ]; then
+            echo "kind=rice" >> "$GITHUB_OUTPUT"
+            echo "title=📊 쌀 생산비조사 데이터 갱신 필요" >> "$GITHUB_OUTPUT"
+          else
+            echo "kind=annual" >> "$GITHUB_OUTPUT"
+            echo "title=📊 농산물소득자료집 연간 데이터 갱신 필요" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Issue — 쌀 생산비조사
+        if: steps.type.outputs.kind == 'rice'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const year = new Date().getFullYear();
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📊 쌀 생산비조사 ${year-1}년산 데이터 갱신`,
+              labels: ['data', 'maintenance'],
+              body: `## 쌀 생산비조사 연간 갱신
+
+            통계청이 매년 3월 말 **전년산 논벼(쌀) 생산비조사 결과**를 발표합니다.
+
+            ### 확인 사항
+            - [ ] [정책브리핑](https://www.korea.kr) 에서 "${year-1}년산 논벼(쌀) 생산비조사 결과" 보도자료 확인
+            - [ ] 10a당 **총수입**, **경영비**, **소득**(= 총수입 − 경영비) 수치 추출
+            - [ ] \`crops.ts\` → rice의 \`income.revenueRange\` 갱신
+            - [ ] \`income.source\` 연도 업데이트
+            - [ ] 검증 문서 업데이트 (\`이랑-데이터검증-공식통계비교.md\`)
+            - [ ] TypeScript + 빌드 확인 후 커밋·푸시
+
+            ### 참고
+            - KOSIS 통계표: \`DT_1EA1501\` (논벼 생산비)
+            - 소득 = 총수입 − 경영비 (소득자료집과 동일 기준)
+            - 전년 데이터: 10a당 소득 약 57만 원 (${year-1}년산)
+
+            > 🤖 이 Issue는 GitHub Actions에 의해 자동 생성되었습니다.`
+            });
+
+      - name: Create Issue — 소득자료집
+        if: steps.type.outputs.kind == 'annual'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const year = new Date().getFullYear();
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📊 농산물소득자료집 ${year}년도 데이터 갱신`,
+              labels: ['data', 'maintenance'],
+              body: `## 농산물소득자료집 연간 갱신 (14개 작물)
+
+            농촌진흥청이 매년 10월 **농산물소득자료집**을 발간합니다.
+
+            ### 갱신 대상 작물 (14개)
+            고구마, 감자, 옥수수, 배추, 상추, 고추, 사과, 배, 포도, 감귤, 딸기, 인삼, 참깨, 들깨
+
+            ### 작업 체크리스트
+            - [ ] [농사로](https://www.nongsaro.go.kr) 에서 최신 소득자료집 PDF 다운로드
+            - [ ] 14개 작물의 10a당 소득 수치 추출
+            - [ ] \`crops.ts\` → 각 작물의 \`income.revenueRange\` 값 갱신
+            - [ ] 재배방식별 varieties 데이터 갱신 (딸기 토경/수경, 포도 노지/시설 등)
+            - [ ] \`income.source\` 필드 연도 업데이트
+            - [ ] 검증 문서 업데이트 (\`이랑-데이터검증-공식통계비교.md\`)
+            - [ ] TypeScript + 빌드 확인 후 커밋·푸시
+
+            ### 추정치 작물 재확인
+            - [ ] 콩·마늘·양파가 올해 소득자료집에 새로 수록되었는지 확인
+            - [ ] 수록 시: 공식 데이터로 교체 + source 변경 (추정치 뱃지 자동 해제)
+
+            ### 참고
+            - 국가승인통계 제143002호
+            - 소득 = 총수입 − 경영비
+
+            > 🤖 이 Issue는 GitHub Actions에 의해 자동 생성되었습니다.`
+            });

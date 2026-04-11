@@ -37,7 +37,7 @@ import {
   type CultivationStep,
 } from "@/lib/data/crops";
 import { PROVINCES } from "@/lib/data/regions";
-import { fetchCropStats, type CropStatItem } from "@/lib/api/kosis";
+import { fetchCropStats, fetchRiceIncome, type CropStatItem } from "@/lib/api/kosis";
 import { PROGRAMS } from "@/lib/data/programs";
 import { GlossaryTerm } from "@/components/ui/term-tooltip";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
@@ -128,6 +128,21 @@ export default async function CropDetailPage({
         data.detail.kosisConfig.objL1Code
       ).catch(() => [] as CropStatItem[])
     : [];
+
+  // 쌀: KOSIS 생산비조사에서 최신 소득 데이터 자동 갱신
+  let incomeData = data.detail.income;
+  if (id === "rice") {
+    const riceIncome = await fetchRiceIncome().catch(() => null);
+    if (riceIncome && riceIncome.income > 0) {
+      const per10a = Math.round(riceIncome.income / 10000);
+      const per1ha = Math.round((riceIncome.income * 10) / 10000);
+      incomeData = {
+        ...incomeData,
+        revenueRange: `10a당 약 ${per10a}만 원 (3,000평 재배 시 연 약 ${per1ha.toLocaleString()}만 원)`,
+        source: `통계청 농축산물생산비조사 ${riceIncome.year}년산 (소득 = 총수입 − 경영비)`,
+      };
+    }
+  }
 
   const relatedPrograms = PROGRAMS.filter((p) =>
     p.relatedCrops.some((rc) => rc === data.name)
@@ -304,7 +319,7 @@ export default async function CropDetailPage({
           )}
 
           {/* 수익정보 */}
-          <IncomeSection income={detail.income} />
+          <IncomeSection income={incomeData} />
 
           {/* 인기 재배지역 */}
           <RegionSection
