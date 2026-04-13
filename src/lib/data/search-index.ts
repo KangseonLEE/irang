@@ -5,6 +5,8 @@
  */
 
 import { STATIONS } from "./stations";
+import { SIGUNGUS } from "./sigungus";
+import { getProvinceById } from "./regions";
 import { CROPS } from "./crops";
 import { PROGRAMS } from "./programs";
 import { EDUCATION_COURSES } from "./education";
@@ -54,6 +56,20 @@ const regionItems: SearchItem[] = STATIONS.map((s) => ({
   keywords: [s.province],
   icon: "\u{1F4CD}", // 📍
 }));
+
+const sigunguItems: SearchItem[] = SIGUNGUS.map((sg) => {
+  const province = getProvinceById(sg.sidoId);
+  const provinceName = province?.name ?? "";
+  return {
+    type: "region" as const,
+    id: `${sg.sidoId}-${sg.id}`,
+    title: sg.name,
+    subtitle: truncate(`${provinceName} · ${sg.description}`, 45),
+    href: `/regions/${sg.sidoId}/${sg.id}`,
+    keywords: [sg.shortName, provinceName, ...sg.mainCrops, ...sg.highlights],
+    icon: "\u{1F3E1}", // 🏡
+  };
+});
 
 const cropItems: SearchItem[] = CROPS.map((c) => ({
   type: "crop" as const,
@@ -180,6 +196,7 @@ const guideItems: SearchItem[] = [
 
 export const SEARCH_INDEX: SearchItem[] = [
   ...regionItems,
+  ...sigunguItems,
   ...cropItems,
   ...programItems,
   ...educationItems,
