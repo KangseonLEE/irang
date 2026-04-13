@@ -11,9 +11,11 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import { Clock, X, MessageSquarePlus, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Trash2 } from "lucide-react";
+import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchItems, type SearchItem } from "@/lib/data/search-index";
+import { searchItems, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
 import s from "./search-bar.module.css";
@@ -31,6 +33,8 @@ interface SearchBarProps {
   autoFocus?: boolean;
   /** 모바일에서 포커스 시 풀스크린 오버레이로 확장 (키보드 유지) */
   mobileExpand?: boolean;
+  /** 외부 오버레이 닫기 콜백 (SearchOverlay 연동용) */
+  onClose?: () => void;
 }
 
 export interface SearchBarHandle {
@@ -100,6 +104,15 @@ function removeRecent(query: string) {
   }
 }
 
+/** 최근 검색어 전체 삭제 */
+function clearAllRecent() {
+  try {
+    localStorage.removeItem(RECENT_KEY);
+  } catch {
+    /* noop */
+  }
+}
+
 /** search-bar 전용 하이라이팅 래퍼 */
 function highlight(text: string, query: string): React.ReactNode {
   return highlightMatch(text, query, s.highlight);
@@ -124,6 +137,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     size = "default",
     autoFocus = false,
     mobileExpand,
+    onClose: onCloseProp,
   },
   ref,
 ) {
@@ -179,7 +193,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     setFocusedIndex(-1);
     setRecentSearches(loadRecent());
     inputRef.current?.blur();
-  }, []);
+    onCloseProp?.();
+  }, [onCloseProp]);
 
   // 풀스크린 확장 시 Android 뒤로가기(하드웨어) / 브라우저 뒤로가기 지원
   // history에 sentinel state를 push하고, popstate로 닫기 처리
@@ -325,9 +340,10 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       setResults([]);
       setFocusedIndex(-1);
       setRecentSearches(loadRecent());
+      onCloseProp?.();
       router.push(href);
     },
-    [router],
+    [router, onCloseProp],
   );
 
   // ----- 최근 검색어 클릭 → 검색 실행 -----
@@ -341,6 +357,12 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     },
     [],
   );
+
+  // ----- 최근 검색어 전체 삭제 -----
+  const handleClearAllRecent = useCallback(() => {
+    clearAllRecent();
+    setRecentSearches([]);
+  }, []);
 
   // ----- 최근 검색어 삭제 -----
   const handleRemoveRecent = useCallback((e: React.MouseEvent, q: string) => {
@@ -374,10 +396,11 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
         } else {
           setIsOpen(false);
           inputRef.current?.blur();
+          onCloseProp?.();
         }
       }
     },
-    [allItems, focusedIndex, navigateTo, query, handleRecentClick, isExpanded, handleClose],
+    [allItems, focusedIndex, navigateTo, query, handleRecentClick, isExpanded, handleClose, onCloseProp],
   );
 
   // ----- Click outside -----
@@ -499,9 +522,21 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           {/* 최근 검색어 */}
           {showRecent && (
             <div className={s.dropdownSection}>
-              <div className={s.sectionLabel}>
-                <Clock size={12} className={s.sectionLabelIcon} />
-                최근 검색
+              <div className={s.sectionLabelRow}>
+                <div className={s.sectionLabel}>
+                  <Clock size={12} className={s.sectionLabelIcon} />
+                  최근 검색
+                </div>
+                {isExpanded && (
+                  <button
+                    type="button"
+                    className={s.clearAllBtn}
+                    onClick={handleClearAllRecent}
+                  >
+                    <Trash2 size={12} />
+                    전체삭제
+                  </button>
+                )}
               </div>
               {recentSearches.map((q, i) => {
                 const itemId = `recent-${i}`;
@@ -536,12 +571,49 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             </div>
           )}
 
-          {/* 확장 모드 빈 상태 — 최근 검색 없고 검색어도 없을 때 */}
-          {isExpanded && !showRecent && query.trim().length === 0 && (
-            <div className={s.expandedEmpty}>
-              <Search size={24} className={s.expandedEmptyIcon} />
-              <p className={s.expandedEmptyText}>검색어를 입력하세요</p>
-            </div>
+          {/* ── 확장 모드 검색 홈: 추천 검색어 + 바로 탐색 ── */}
+          {isExpanded && query.trim().length === 0 && (
+            <>
+              {/* 추천 검색어 태그 */}
+              <div className={s.expandedSection}>
+                <div className={s.sectionLabel}>추천 검색어</div>
+                <div className={s.tagGrid}>
+                  {POPULAR_TAGS.map((tag) => (
+                    <button
+                      key={tag.label}
+                      type="button"
+                      className={s.tagChip}
+                      onClick={() => handleRecentClick(tag.query)}
+                    >
+                      {tag.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 바로 탐색 */}
+              <div className={s.expandedSection}>
+                <div className={s.sectionLabel}>바로 탐색</div>
+                <div className={s.quickGrid}>
+                  <Link href="/regions" className={s.quickItem} onClick={handleClose}>
+                    <MapPin size={16} />
+                    <span>지역 비교</span>
+                  </Link>
+                  <Link href="/crops" className={s.quickItem} onClick={handleClose}>
+                    <Sprout size={16} />
+                    <span>작물 정보</span>
+                  </Link>
+                  <Link href="/programs" className={s.quickItem} onClick={handleClose}>
+                    <FileText size={16} />
+                    <span>지원사업</span>
+                  </Link>
+                  <Link href="/match" className={s.quickItem} onClick={handleClose}>
+                    <Search size={16} />
+                    <span>유형 진단</span>
+                  </Link>
+                </div>
+              </div>
+            </>
           )}
 
           {/* 검색 결과 없음 */}

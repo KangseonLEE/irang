@@ -8,6 +8,7 @@ import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { IrangSymbol } from "@/components/brand/irang-symbol";
 import { BookmarkList } from "@/components/bookmark/bookmark-list";
 import { useBookmarks } from "@/lib/hooks/use-bookmarks";
+import { useSearchOverlay } from "@/lib/hooks/use-search-overlay";
 import s from "./header.module.css";
 
 /* ── 네비게이션 구조 ── */
@@ -74,6 +75,7 @@ export function Header() {
   const [bookmarkOpen, setBookmarkOpen] = useState(false);
   /** 드롭다운 클릭 후 일시적으로 hover를 무시하기 위한 플래그 */
   const [navHidden, setNavHidden] = useState(false);
+  const { open: openSearch } = useSearchOverlay();
   const { count, mounted } = useBookmarks();
 
   // 페이지 이동 시 데스크탑 드롭다운 닫기
@@ -186,13 +188,14 @@ export function Header() {
 
           {/* Right Actions */}
           <div className={s.actions}>
-            <Link
-              href="/search"
+            <button
+              type="button"
               className={s.searchBtn}
               aria-label="통합검색"
+              onClick={openSearch}
             >
               <Search size={20} strokeWidth={1.75} />
-            </Link>
+            </button>
             <button
               type="button"
               className={s.bookmarkBtn}

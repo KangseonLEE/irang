@@ -1,0 +1,11 @@
+/* 전역 검색 오버레이 래퍼 — SearchBar의 containerExpanded가 실제 레이아웃 담당 */
+.overlay {
+  /* SearchBar가 isOpen + mobileExpand일 때 자체적으로 fixed 오버레이가 되므로
+     래퍼는 단순 포지셔닝 컨테이너 역할만 함 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-overlay, 100);
+}

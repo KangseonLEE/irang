@@ -439,22 +439,120 @@
   border-radius: 0;
 }
 
-.expandedEmpty {
+/* ── 확장 모드: 섹션 헤더 행 (레이블 + 전체삭제) ── */
+
+.sectionLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 16px;
+}
+
+.clearAllBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: var(--fs-caption, 12px);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.12s, background-color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.clearAllBtn:active {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+@media (hover: hover) {
+  .clearAllBtn:hover {
+    background: var(--muted);
+    color: var(--foreground);
+  }
+}
+
+/* ── 확장 모드: 검색 홈 섹션 (추천 검색어, 바로 탐색) ── */
+
+.expandedSection {
+  padding: 12px 0 4px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── 추천 검색어 태그 그리드 ── */
+
+.tagGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 16px 12px;
+}
+
+.tagChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: var(--fs-caption, 12px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.12s, border-color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.tagChip:active {
+  background: var(--muted);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+@media (hover: hover) {
+  .tagChip:hover {
+    background: var(--muted);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+}
+
+/* ── 바로 탐색 그리드 ── */
+
+.quickGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 8px 16px 12px;
+}
+
+.quickItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 48px 24px;
-  text-align: center;
+  gap: 6px;
+  padding: 14px 4px;
+  border-radius: 12px;
+  background: var(--muted);
+  color: var(--foreground);
+  text-decoration: none;
+  font-size: var(--fs-caption, 12px);
+  font-weight: 500;
+  transition: background-color 0.12s;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.expandedEmptyIcon {
-  color: var(--muted-foreground);
-  opacity: 0.4;
+.quickItem:active {
+  background: var(--border);
 }
 
-.expandedEmptyText {
-  color: var(--muted-foreground);
-  font-size: var(--fs-body-sm);
-  margin: 0;
+@media (hover: hover) {
+  .quickItem:hover {
+    background: var(--border);
+  }
 }

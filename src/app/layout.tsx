@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
+import { SearchOverlayProvider } from "@/components/search/search-overlay";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { WebSite, Organization } from "schema-dts";
 import "./globals.css";
@@ -125,10 +126,12 @@ export default function RootLayout({
         <GoogleAnalytics />
         <Analytics />
         <SpeedInsights />
-        <Header />
-        <main className={s.main}>{children}</main>
-        <Footer />
-        <MobileNav />
+        <SearchOverlayProvider>
+          <Header />
+          <main className={s.main}>{children}</main>
+          <Footer />
+          <MobileNav />
+        </SearchOverlayProvider>
       </body>
     </html>
   );
