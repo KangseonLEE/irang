@@ -196,7 +196,7 @@ html {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;              /* 가로 스크롤/바운스 전역 차단 */
+  overflow-x: clip;                /* 가로 오버플로 차단 (hidden과 달리 scroll container를 생성하지 않아 sticky 정상 작동, 모바일 키보드 시프트 방지) */
   background-color: var(--background); /* 오버스크롤 바운스 시 빈 공간 방지 */
 }
 

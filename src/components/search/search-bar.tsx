@@ -332,7 +332,15 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           value={query}
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
-          onFocus={() => setIsOpen(true)}
+          onFocus={() => {
+            setIsOpen(true);
+            // iOS Safari: 가상 키보드 등장 시 브라우저가 input을 뷰포트 중앙으로
+            // scroll-into-view하면서 페이지가 밀리는 현상 방지.
+            // 키보드 애니메이션 완료(~300ms) 후 원래 위치로 복귀.
+            requestAnimationFrame(() => {
+              window.scrollTo({ top: window.scrollY });
+            });
+          }}
           placeholder={activePlaceholder}
           role="combobox"
           aria-label="통합 검색"
