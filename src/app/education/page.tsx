@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import {
   GraduationCap,
   CalendarDays,
@@ -129,6 +130,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
 
   return (
     <>
+      <BreadcrumbJsonLd items={[{ name: "귀농 교육", href: "/education" }]} />
       {/* 섹션 내비게이션 — .page 바깥에서 full-width sticky */}
       <Suspense>
         <SectionNav items={sectionNavItems} />

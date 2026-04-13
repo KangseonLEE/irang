@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
+import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import {
   MapPin,
   Thermometer,
@@ -49,6 +50,7 @@ import { GlossaryTerm } from "@/components/ui/term-tooltip";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { DataSource } from "@/components/ui/data-source";
 import { Icon } from "@/components/ui/icon";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { AnchorTabNav } from "./anchor-tab-nav";
 import s from "./page.module.css";
 
@@ -192,6 +194,10 @@ export default async function CropDetailPage({
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "작물 정보", href: "/crops" },
+        { name: data.name, href: `/crops/${id}` },
+      ]} />
       {/* ── 브레드크럼 + 출처 ── */}
       <div className={s.topBar}>
         <nav className={s.breadcrumb} aria-label="현재 위치">
@@ -242,6 +248,11 @@ export default async function CropDetailPage({
               <h1 className={s.heroTitle}>{data.name}</h1>
             </div>
             <div className={s.heroActions}>
+              <KakaoShareButton
+                title={`${data.name} — 작물 정보 | 이랑`}
+                description={`${data.name}: ${data.description?.slice(0, 80) ?? data.category}`}
+                contentType="crop"
+              />
               <ShareButton
                 title={`${data.name} — 작물 정보 | 이랑`}
                 text={`${data.name}: ${data.description?.slice(0, 80) ?? data.category}`}

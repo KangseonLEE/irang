@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { FileText, MessageCircle, ArrowRight, Map } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { SectionNav } from "@/components/layout/section-nav";
 import {
@@ -95,6 +96,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
 
   return (
     <>
+      <BreadcrumbJsonLd items={[{ name: "지원사업 검색", href: "/programs" }]} />
       {/* 섹션 내비게이션 — .page 바깥에서 full-width sticky */}
       <Suspense>
         <SectionNav items={sectionNavItems} />

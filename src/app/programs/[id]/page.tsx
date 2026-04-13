@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
+import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import {
   ArrowLeft,
   ArrowRight,
@@ -66,6 +68,10 @@ export default async function ProgramDetailPage({
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "지원사업 검색", href: "/programs" },
+        { name: program.title, href: `/programs/${id}` },
+      ]} />
       {/* Breadcrumb / Back */}
       <Link href="/programs" className={s.backLink}>
         <ArrowLeft size={16} />
@@ -81,6 +87,11 @@ export default async function ProgramDetailPage({
         <div className={s.titleRow}>
           <h1 className={s.pageTitle}>{program.title}</h1>
           <div className={s.titleActions}>
+            <KakaoShareButton
+              title={`${program.title} | 이랑`}
+              description={`${program.title}: ${program.summary.slice(0, 80)}`}
+              contentType="program"
+            />
             <ShareButton
               title={`${program.title} | 이랑`}
               text={`${program.title}: ${program.summary.slice(0, 80)}`}

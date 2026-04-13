@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
+import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { formatDate } from "@/lib/format";
 import {
   ArrowLeft,
@@ -79,6 +81,10 @@ export default async function EducationDetailPage({
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "귀농 교육", href: "/education" },
+        { name: course.title, href: `/education/${id}` },
+      ]} />
       {/* Back link */}
       <Link href="/education" className={s.backLink}>
         <ArrowLeft size={16} />
@@ -96,6 +102,11 @@ export default async function EducationDetailPage({
         <div className={s.titleRow}>
           <h1 className={s.pageTitle}>{course.title}</h1>
           <div className={s.titleActions}>
+            <KakaoShareButton
+              title={`${course.title} | 이랑`}
+              description={`${course.title}: ${course.description.slice(0, 80)}`}
+              contentType="education"
+            />
             <ShareButton
               title={`${course.title} | 이랑`}
               text={`${course.title}: ${course.description.slice(0, 80)}`}

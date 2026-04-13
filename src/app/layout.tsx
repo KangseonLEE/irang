@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
+import { KakaoSdk } from "@/components/kakao/kakao-sdk";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { WebSite, Organization } from "schema-dts";
 import "./globals.css";
@@ -13,6 +14,9 @@ import s from "./layout.module.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://irang-wheat.vercel.app"),
+  verification: {
+    google: "KNFsOJ9PTv7qJXP15MITpq6YGN8cWV7Nk9ThKWBPGD0",
+  },
   title: {
     default: "이랑 — 귀농 정보 큐레이션 포탈",
     template: "%s | 이랑",
@@ -27,6 +31,13 @@ export const metadata: Metadata = {
       "귀농 예정자를 위한 지역 비교, 지원사업 검색, 작물 정보를 한곳에서.",
     type: "website",
     locale: "ko_KR",
+    siteName: "이랑",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "이랑 — 귀농 정보 큐레이션 포탈",
+    description:
+      "귀농 예정자를 위한 지역 비교, 지원사업 검색, 작물 정보를 한곳에서.",
   },
 };
 
@@ -108,6 +119,7 @@ export default function RootLayout({
       </head>
       <body className={s.body}>
         <ScrollToTop />
+        <KakaoSdk />
         <GoogleAnalytics />
         <Analytics />
         <SpeedInsights />

@@ -20,6 +20,7 @@ import { POPULATION_FALLBACK } from "@/lib/data/population";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { KoreaMap } from "@/components/map/korea-map";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -40,6 +41,7 @@ export default async function RegionsPage() {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "지역 탐색", href: "/regions" }]} />
       {/* 로드맵 단계 컨텍스트 */}
       <Suspense>
         <RoadmapBanner />

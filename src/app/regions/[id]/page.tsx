@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
+import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import {
   GitCompareArrows,
@@ -16,6 +17,7 @@ import { getSigungusBySidoId } from "@/lib/data/sigungus";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { RegionAsyncData } from "./region-async-data";
 import { RegionAsyncSkeleton } from "./region-async-skeleton";
 import s from "./page.module.css";
@@ -55,6 +57,10 @@ export default async function RegionDetailPage({ params }: PageProps) {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "지역 탐색", href: "/regions" },
+        { name: province.name, href: `/regions/${id}` },
+      ]} />
       {/* Back Link — 정적 */}
       <Link href="/regions" className={s.backLink}>
         ← 지역 목록으로
@@ -67,6 +73,11 @@ export default async function RegionDetailPage({ params }: PageProps) {
           <div className={s.heroTitleRow}>
             <h1 className={s.heroTitle}>{province.shortName}</h1>
             <div className={s.heroActions}>
+              <KakaoShareButton
+                title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
+                description={`${province.name} 귀농 정보: ${province.description}`}
+                contentType="region"
+              />
               <ShareButton
                 title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
                 text={`${province.name} 귀농 정보: ${province.description}`}

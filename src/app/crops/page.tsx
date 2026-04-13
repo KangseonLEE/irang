@@ -5,6 +5,7 @@ import { ArrowRight, Scale } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -65,6 +66,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "작물 정보", href: "/crops" }]} />
       {/* Page Header */}
       <PageHeader
         icon={<Sprout size={20} strokeWidth={1.75} />}

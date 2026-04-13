@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
+import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { formatDateRange } from "@/lib/format";
 import {
   ArrowLeft,
@@ -78,6 +80,10 @@ export default async function EventDetailPage({
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "체험행사", href: "/events" },
+        { name: event.title, href: `/events/${id}` },
+      ]} />
       {/* Back link */}
       <Link href="/events" className={s.backLink}>
         <Icon icon={ArrowLeft} size="md" />
@@ -95,6 +101,11 @@ export default async function EventDetailPage({
         <div className={s.titleRow}>
           <h1 className={s.pageTitle}>{event.title}</h1>
           <div className={s.titleActions}>
+            <KakaoShareButton
+              title={`${event.title} | 이랑`}
+              description={`${event.title}: ${event.description.slice(0, 80)}`}
+              contentType="event"
+            />
             <ShareButton
               title={`${event.title} | 이랑`}
               text={`${event.title}: ${event.description.slice(0, 80)}`}
