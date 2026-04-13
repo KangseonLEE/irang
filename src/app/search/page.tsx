@@ -38,7 +38,7 @@ function SearchPageFallback() {
   return (
     <div className={s.page}>
       <div className={s.searchWrap}>
-        <SearchGroup size="default" placeholder="지역, 작물, 지원사업 검색" />
+        <SearchGroup size="default" placeholder="지역, 작물, 지원사업 검색" autoFocus />
       </div>
       <div className={s.emptyQuery}>
         <Search size={40} className={s.emptyIcon} />
@@ -91,7 +91,7 @@ function SearchPageContent() {
     <div className={s.page}>
       {/* 검색바 */}
       <div className={s.searchWrap}>
-        <SearchGroup size="default" placeholder="지역, 작물, 지원사업 검색" />
+        <SearchGroup size="default" placeholder="지역, 작물, 지원사업 검색" autoFocus />
       </div>
 
       {/* 결과 헤더 */}

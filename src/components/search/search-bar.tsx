@@ -26,6 +26,8 @@ interface SearchBarProps {
   /** 모바일(< 640px)에서만 사용할 짧은 placeholder */
   mobilePlaceholder?: string;
   size?: "default" | "large";
+  /** 마운트 시 자동 포커스 (검색 페이지 진입 시 등) */
+  autoFocus?: boolean;
 }
 
 export interface SearchBarHandle {
@@ -112,6 +114,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     placeholder = "지역, 작물, 지원사업 검색...",
     mobilePlaceholder,
     size = "default",
+    autoFocus = false,
   },
   ref,
 ) {
@@ -145,6 +148,17 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setRecentSearches(loadRecent());
   }, []);
+
+  // autoFocus: 마운트 시 입력란에 포커스 + 드롭다운 오픈
+  useEffect(() => {
+    if (!autoFocus) return;
+    // requestAnimationFrame으로 브라우저 레이아웃 완료 후 포커스
+    const raf = requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      setIsOpen(true);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [autoFocus]);
 
   // ----- Imperative handle for SearchGroup -----
   useImperativeHandle(ref, () => ({

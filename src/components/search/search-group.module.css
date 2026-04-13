@@ -4,3 +4,26 @@
   gap: 16px;
   width: 100%;
 }
+
+/* SearchBar + 모바일 오버레이를 감싸는 wrapper */
+.searchBarWrap {
+  position: relative;
+}
+
+/* 모바일에서만 검색바 위에 표시되는 투명 링크 오버레이 */
+.mobileOverlay {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: pointer;
+  /* 시각적으로 보이지 않되 탭 영역 확보 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 데스크톱(640px 이상)에서는 오버레이 숨김 — 기존 인라인 검색 유지 */
+@media (min-width: 640px) {
+  .mobileOverlay {
+    display: none;
+  }
+}
