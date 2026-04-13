@@ -2,6 +2,7 @@
 
 import Script from "next/script";
 
+/** 카카오 JavaScript SDK CDN — 안정 버전 고정 */
 const KAKAO_SDK_URL =
   "https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js";
 
