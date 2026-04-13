@@ -150,23 +150,39 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   }, []);
 
   // autoFocus: 마운트 시 입력란에 포커스 + 드롭다운 오픈
-  // 모바일 브라우저별 타이밍 차이를 고려하여 여러 시점에 포커스 시도
+  // 모바일에서 히어로 검색바 탭 시 생성된 tmpInput(키보드 유지용)이
+  // 아직 DOM에 남아있을 수 있으므로, 실제 input으로 포커스 이전 후 정리.
   useEffect(() => {
     if (!autoFocus) return;
     let mounted = true;
+
     const tryFocus = () => {
       if (!mounted) return;
-      if (document.activeElement !== inputRef.current) {
-        inputRef.current?.focus({ preventScroll: true });
+      inputRef.current?.focus({ preventScroll: true });
+
+      // 실제 input이 포커스를 받았으면, 키보드 유지용 tmpInput 제거
+      if (document.activeElement === inputRef.current) {
+        const tmp = document.querySelector<HTMLInputElement>(
+          "[data-tmp-search-input]",
+        );
+        tmp?.remove();
       }
     };
-    // 즉시 + 100ms + 300ms 에 각각 시도 (브라우저별 렌더 타이밍 차이 대응)
+
+    // 즉시 + 50ms + 150ms + 400ms 에 각각 시도
+    // (콜드 로드 시 RSC 스트리밍 완료 타이밍 대응)
     tryFocus();
-    const t1 = setTimeout(tryFocus, 100);
-    const t2 = setTimeout(tryFocus, 300);
+    const t1 = setTimeout(tryFocus, 50);
+    const t2 = setTimeout(tryFocus, 150);
+    const t3 = setTimeout(tryFocus, 400);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(true);
-    return () => { mounted = false; clearTimeout(t1); clearTimeout(t2); };
+    return () => {
+      mounted = false;
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
   }, [autoFocus]);
 
   // ----- Imperative handle for SearchGroup -----

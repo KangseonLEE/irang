@@ -76,6 +76,8 @@ export default function SearchGroup({
       const tmpInput = document.createElement("input");
       tmpInput.setAttribute("type", "text");
       tmpInput.setAttribute("inputmode", "search");
+      // /search 페이지의 autoFocus가 이 요소를 찾아 정리할 수 있도록 마킹
+      tmpInput.setAttribute("data-tmp-search-input", "");
       tmpInput.style.position = "absolute";
       tmpInput.style.opacity = "0";
       tmpInput.style.height = "0";
@@ -92,13 +94,14 @@ export default function SearchGroup({
         window.location.href = mobileRedirect;
       }
 
-      // 네비게이션 완료 후 임시 input 정리 (500ms — 클라이언트 라우팅 충분)
+      // 안전망: /search 페이지가 로드되지 못하는 극단적 경우에만 동작하는 타이머.
+      // 정상 흐름에서는 /search 페이지의 autoFocus가 tmpInput을 직접 정리함.
       cleanupTimerRef.current = setTimeout(() => {
         tmpInputRef.current?.remove();
         tmpInputRef.current = null;
         redirectingRef.current = false;
         cleanupTimerRef.current = null;
-      }, 500);
+      }, 5000);
     },
     [mobileRedirect, router],
   );
