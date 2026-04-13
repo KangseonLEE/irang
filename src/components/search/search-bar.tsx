@@ -153,7 +153,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // 모바일 브라우저별 타이밍 차이를 고려하여 여러 시점에 포커스 시도
   useEffect(() => {
     if (!autoFocus) return;
+    let mounted = true;
     const tryFocus = () => {
+      if (!mounted) return;
       if (document.activeElement !== inputRef.current) {
         inputRef.current?.focus({ preventScroll: true });
       }
@@ -162,8 +164,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     tryFocus();
     const t1 = setTimeout(tryFocus, 100);
     const t2 = setTimeout(tryFocus, 300);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(true);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    return () => { mounted = false; clearTimeout(t1); clearTimeout(t2); };
   }, [autoFocus]);
 
   // ----- Imperative handle for SearchGroup -----

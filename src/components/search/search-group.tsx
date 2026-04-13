@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import SearchBar, { type SearchBarHandle } from "./search-bar";
@@ -31,6 +31,25 @@ export default function SearchGroup({
   const searchBarRef = useRef<SearchBarHandle>(null);
   const router = useRouter();
 
+  // temp input 연타 방지 + unmount 시 cleanup을 위한 ref들
+  const redirectingRef = useRef(false);
+  const tmpInputRef = useRef<HTMLInputElement | null>(null);
+  const cleanupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // unmount 시 잔류 tmpInput 및 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (tmpInputRef.current) {
+        tmpInputRef.current.remove();
+        tmpInputRef.current = null;
+      }
+      if (cleanupTimerRef.current) {
+        clearTimeout(cleanupTimerRef.current);
+        cleanupTimerRef.current = null;
+      }
+    };
+  }, []);
+
   const handleTagClick = useCallback((query: string) => {
     searchBarRef.current?.fillQuery(query);
   }, []);
@@ -45,7 +64,14 @@ export default function SearchGroup({
   const handleMobileSearchTap = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
-      if (!mobileRedirect) return;
+      if (!mobileRedirect || redirectingRef.current) return;
+      redirectingRef.current = true;
+
+      // 이전 tmpInput이 남아있으면 제거
+      if (tmpInputRef.current) {
+        tmpInputRef.current.remove();
+        tmpInputRef.current = null;
+      }
 
       const tmpInput = document.createElement("input");
       tmpInput.setAttribute("type", "text");
@@ -57,11 +83,22 @@ export default function SearchGroup({
       tmpInput.style.transform = "translateX(-9999px)";
       document.body.appendChild(tmpInput);
       tmpInput.focus();
+      tmpInputRef.current = tmpInput;
 
-      router.push(mobileRedirect);
+      try {
+        router.push(mobileRedirect);
+      } catch {
+        // router.push 실패 시 fallback
+        window.location.href = mobileRedirect;
+      }
 
-      // 네비게이션 완료 후 임시 input 정리
-      setTimeout(() => tmpInput.remove(), 2000);
+      // 네비게이션 완료 후 임시 input 정리 (500ms — 클라이언트 라우팅 충분)
+      cleanupTimerRef.current = setTimeout(() => {
+        tmpInputRef.current?.remove();
+        tmpInputRef.current = null;
+        redirectingRef.current = false;
+        cleanupTimerRef.current = null;
+      }, 500);
     },
     [mobileRedirect, router],
   );
@@ -83,6 +120,7 @@ export default function SearchGroup({
             onClick={handleMobileSearchTap}
             aria-label="검색 페이지로 이동"
             prefetch={true}
+            tabIndex={-1}
           />
         )}
       </div>
