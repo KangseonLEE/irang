@@ -172,7 +172,8 @@
   width: 100%;
   max-width: 580px;
   margin-bottom: 14px;
-  filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.25));
+  /* box-shadow은 filter와 달리 containing block을 생성하지 않아
+     자식의 position: fixed (모바일 풀스크린 검색)가 정상 동작 */
   position: relative;
   z-index: 5;
 }
