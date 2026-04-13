@@ -438,12 +438,12 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             setIsOpen(true);
             // iOS Safari: 가상 키보드 등장 시 브라우저가 input을 뷰포트 중앙으로
             // scroll-into-view하면서 페이지가 밀리는 현상 방지.
-            // 풀스크린 확장 모드에서는 불필요 (fixed 레이아웃).
-            if (!mobileExpand || !isMobile) {
-              requestAnimationFrame(() => {
-                window.scrollTo({ top: window.scrollY });
-              });
-            }
+            // mobileExpand 모드에서도 fixed 레이아웃 적용(React re-render) 전에
+            // 브라우저의 scrollIntoView가 먼저 실행되므로 항상 방지 필요.
+            const y = window.scrollY;
+            requestAnimationFrame(() => {
+              window.scrollTo({ top: y });
+            });
           }}
           placeholder={activePlaceholder}
           role="combobox"

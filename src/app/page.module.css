@@ -83,8 +83,8 @@
     ),
     url("/images/hero-farm.webp") center / cover no-repeat;
   overflow: visible;
-  position: relative;
-  z-index: 10;
+  /* position: relative + z-index 제거: stacking context가
+     검색 오버레이(fixed, z-50)를 z-10 레벨에 가두는 문제 해소 */
 }
 
 @media (min-width: 640px) {
