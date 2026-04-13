@@ -220,60 +220,97 @@ export const POPULAR_TAGS: SearchTag[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// Relevance scoring
+// ---------------------------------------------------------------------------
+
+/**
+ * 단일 검색어에 대한 개별 항목의 관련도 점수 산출.
+ *
+ * | 우선순위 | 매칭 유형            | 점수 |
+ * |---------|---------------------|------|
+ * | 1       | 제목 완전 일치        | 100  |
+ * | 2       | 제목이 검색어로 시작   | 80   |
+ * | 3       | 제목에 검색어 포함     | 60   |
+ * | 4       | 배지(카테고리) 일치    | 40   |
+ * | 5       | 키워드 완전 일치       | 35   |
+ * | 6       | 키워드 부분 일치       | 25   |
+ * | 7       | 부제목에 검색어 포함   | 15   |
+ */
+function scoreItem(item: SearchItem, term: string): number {
+  const t = item.title.toLowerCase();
+
+  if (t === term) return 100;
+  if (t.startsWith(term)) return 80;
+  if (t.includes(term)) return 60;
+  if (item.badge?.toLowerCase().includes(term)) return 40;
+  if (item.keywords.some((kw) => kw.toLowerCase() === term)) return 35;
+  if (item.keywords.some((kw) => kw.toLowerCase().includes(term))) return 25;
+  if (item.subtitle.toLowerCase().includes(term)) return 15;
+
+  return 0;
+}
+
+/** 복합 쿼리 (여러 단어)용 — 각 단어별 최고 점수 합산 + 매칭 단어 수 보너스 */
+function scoreItemMulti(item: SearchItem, terms: string[]): number {
+  let total = 0;
+  let matched = 0;
+  for (const term of terms) {
+    const s = scoreItem(item, term);
+    if (s > 0) {
+      total += s;
+      matched++;
+    }
+  }
+  // 여러 단어가 동시 매칭되면 보너스 (예: "전남 딸기" 둘 다 매칭 > 하나만)
+  return matched > 0 ? total + matched * 10 : 0;
+}
+
+// ---------------------------------------------------------------------------
 // Search function
 // ---------------------------------------------------------------------------
 
 /**
- * 통합 검색 (드롭다운용) — 최대 8개 반환, 타입별 최대 3개.
+ * 통합 검색 (드롭다운용) — 최대 10개 반환, 타입별 최대 3개.
+ * 관련도 순으로 섹션 순서가 동적 결정됨.
+ *   예: "사과" → 작물 섹션 먼저, "전남" → 지역 섹션 먼저
  */
 export function searchItems(query: string): SearchItem[] {
   const all = searchAll(query);
 
-  // 타입별로 분류
-  const byType: Record<SearchItem["type"], SearchItem[]> = {
-    region: [],
-    crop: [],
-    program: [],
-    education: [],
-    event: [],
-    guide: [],
-  };
+  // 결과 순서에서 섹션 순서 도출 (가장 관련도 높은 타입이 먼저)
+  const sectionOrder: SearchItem["type"][] = [];
+  const seen = new Set<SearchItem["type"]>();
+  for (const item of all) {
+    if (!seen.has(item.type)) {
+      seen.add(item.type);
+      sectionOrder.push(item.type);
+    }
+  }
 
+  // 타입별 최대 3개 수집
+  const byType: Record<SearchItem["type"], SearchItem[]> = {
+    region: [], crop: [], program: [], education: [], event: [], guide: [],
+  };
   for (const item of all) {
     if (byType[item.type].length < 3) {
       byType[item.type].push(item);
     }
   }
 
-  const results = [
-    ...byType.region,
-    ...byType.crop,
-    ...byType.program,
-    ...byType.education,
-    ...byType.event,
-    ...byType.guide,
-  ];
+  // 관련도 기반 섹션 순서로 결과 조합
+  const results: SearchItem[] = [];
+  for (const type of sectionOrder) {
+    results.push(...byType[type]);
+  }
 
   return results.slice(0, 10);
 }
 
 /**
- * 개별 항목이 단일 검색어(term)에 매칭되는지 확인
- */
-function matchesTerm(item: SearchItem, term: string): boolean {
-  if (item.title.toLowerCase().includes(term)) return true;
-  if (item.subtitle.toLowerCase().includes(term)) return true;
-  if (item.keywords.some((kw) => kw.toLowerCase().includes(term))) return true;
-  if (item.badge?.toLowerCase().includes(term)) return true;
-  return false;
-}
-
-/**
- * 통합 검색 (결과 페이지용) — 전체 매칭 결과 반환, 제한 없음.
+ * 통합 검색 (결과 페이지용) — 전체 매칭 결과, 관련도 내림차순 정렬.
  *
  * 복합 쿼리 지원:
- *   "전남 딸기" → "전남" OR "딸기" 로 분리하여 매칭
- *   더 많은 단어가 매칭되는 항목이 상위에 노출 (관련도 정렬)
+ *   "전남 딸기" → "전남" OR "딸기" 로 분리, 관련도 합산 정렬
  */
 export function searchAll(query: string): SearchItem[] {
   const q = query.trim().toLowerCase();
@@ -282,19 +319,19 @@ export function searchAll(query: string): SearchItem[] {
   const terms = q.split(/\s+/).filter(Boolean);
   if (terms.length === 0) return [];
 
-  // 단일 단어: 기존 동작과 동일 (정렬 없이 원본 순서 유지)
   if (terms.length === 1) {
-    return SEARCH_INDEX.filter((item) => matchesTerm(item, terms[0]));
+    const term = terms[0];
+    return SEARCH_INDEX
+      .map((item) => ({ item, score: scoreItem(item, term) }))
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(({ item }) => item);
   }
 
-  // 복합 쿼리: OR 매칭 + 매칭 단어 수 기준 관련도 정렬
-  const scored = SEARCH_INDEX
-    .map((item) => ({
-      item,
-      score: terms.filter((t) => matchesTerm(item, t)).length,
-    }))
-    .filter(({ score }) => score > 0);
-
-  scored.sort((a, b) => b.score - a.score);
-  return scored.map(({ item }) => item);
+  // 복합 쿼리: OR 매칭 + 관련도 합산 정렬
+  return SEARCH_INDEX
+    .map((item) => ({ item, score: scoreItemMulti(item, terms) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(({ item }) => item);
 }

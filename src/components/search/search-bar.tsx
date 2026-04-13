@@ -56,7 +56,8 @@ const SECTION_META: Record<
   guide: { label: "가이드·정보", icon: "\u{1F4D6}" },
 };
 
-const SECTION_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide"];
+/** 검색어 없을 때(최근 검색 등) 사용하는 기본 섹션 순서 */
+const DEFAULT_SECTION_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide"];
 
 /** SSR-safe useLayoutEffect — 서버에서는 useEffect 폴백 (SSR 경고 방지) */
 const useIsomorphicLayoutEffect =
@@ -236,18 +237,28 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     },
   }));
 
-  // ----- Group results by type -----
-  const grouped = useMemo(
-    () =>
-      SECTION_ORDER.reduce<
-        { type: SearchItem["type"]; items: SearchItem[] }[]
-      >((acc, type) => {
-        const items = results.filter((r) => r.type === type);
-        if (items.length > 0) acc.push({ type, items });
-        return acc;
-      }, []),
-    [results],
-  );
+  // ----- Group results by type (관련도 기반 동적 섹션 순서) -----
+  const grouped = useMemo(() => {
+    // 결과 순서에서 섹션 순서 도출 — 가장 관련도 높은 타입이 먼저
+    const seen = new Set<SearchItem["type"]>();
+    const order: SearchItem["type"][] = [];
+    for (const r of results) {
+      if (!seen.has(r.type)) {
+        seen.add(r.type);
+        order.push(r.type);
+      }
+    }
+    // 결과가 없으면 기본 순서 폴백
+    const sectionOrder = order.length > 0 ? order : DEFAULT_SECTION_ORDER;
+
+    return sectionOrder.reduce<
+      { type: SearchItem["type"]; items: SearchItem[] }[]
+    >((acc, type) => {
+      const items = results.filter((r) => r.type === type);
+      if (items.length > 0) acc.push({ type, items });
+      return acc;
+    }, []);
+  }, [results]);
 
   // 검색어가 비어있고 최근 검색이 있으면 최근 검색 표시
   const showRecent = query.trim().length === 0 && recentSearches.length > 0;

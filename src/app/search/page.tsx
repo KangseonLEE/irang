@@ -24,7 +24,8 @@ const TYPE_META: Record<
   guide: { label: "가이드·정보", icon: BookOpen },
 };
 
-const TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide"];
+/** 결과가 없을 때 폴백용 기본 순서 */
+const DEFAULT_TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide"];
 
 export default function SearchPage() {
   return (
@@ -55,14 +56,25 @@ function SearchPageContent() {
 
   const results = useMemo(() => searchAll(query), [query]);
 
-  const grouped = useMemo(
-    () =>
-      TYPE_ORDER.map((type) => ({
+  // 관련도 기반 동적 섹션 순서 — searchAll 결과 순서에서 도출
+  const grouped = useMemo(() => {
+    const seen = new Set<SearchItem["type"]>();
+    const order: SearchItem["type"][] = [];
+    for (const r of results) {
+      if (!seen.has(r.type)) {
+        seen.add(r.type);
+        order.push(r.type);
+      }
+    }
+    const sectionOrder = order.length > 0 ? order : DEFAULT_TYPE_ORDER;
+
+    return sectionOrder
+      .map((type) => ({
         type,
         items: results.filter((r) => r.type === type),
-      })).filter((g) => g.items.length > 0),
-    [results]
-  );
+      }))
+      .filter((g) => g.items.length > 0);
+  }, [results]);
 
   const totalCount = results.length;
 
