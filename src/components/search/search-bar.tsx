@@ -28,6 +28,8 @@ interface SearchBarProps {
   size?: "default" | "large";
   /** 마운트 시 자동 포커스 (검색 페이지 진입 시 등) */
   autoFocus?: boolean;
+  /** 모바일에서 input 포커스 시 해당 경로로 이동 (키보드 자연 오픈 유지) */
+  mobileRedirect?: string;
 }
 
 export interface SearchBarHandle {
@@ -115,10 +117,12 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     mobilePlaceholder,
     size = "default",
     autoFocus = false,
+    mobileRedirect,
   },
   ref,
 ) {
   const router = useRouter();
+  const redirectingRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -150,40 +154,27 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   }, []);
 
   // autoFocus: 마운트 시 입력란에 포커스 + 드롭다운 오픈
-  // 모바일에서 히어로 검색바 탭 시 생성된 tmpInput(키보드 유지용)이
-  // 아직 DOM에 남아있을 수 있으므로, 실제 input으로 포커스 이전 후 정리.
   useEffect(() => {
     if (!autoFocus) return;
     let mounted = true;
-
     const tryFocus = () => {
       if (!mounted) return;
       inputRef.current?.focus({ preventScroll: true });
-
-      // 실제 input이 포커스를 받았으면, 키보드 유지용 tmpInput 제거
-      if (document.activeElement === inputRef.current) {
-        const tmp = document.querySelector<HTMLInputElement>(
-          "[data-tmp-search-input]",
-        );
-        tmp?.remove();
-      }
     };
-
-    // 즉시 + 50ms + 150ms + 400ms 에 각각 시도
-    // (콜드 로드 시 RSC 스트리밍 완료 타이밍 대응)
     tryFocus();
-    const t1 = setTimeout(tryFocus, 50);
-    const t2 = setTimeout(tryFocus, 150);
-    const t3 = setTimeout(tryFocus, 400);
+    const t1 = setTimeout(tryFocus, 100);
+    const t2 = setTimeout(tryFocus, 300);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(true);
-    return () => {
-      mounted = false;
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
+    return () => { mounted = false; clearTimeout(t1); clearTimeout(t2); };
   }, [autoFocus]);
+
+  // mobileRedirect: /search 페이지 프리페치 (탭 시 즉시 이동 위해)
+  useEffect(() => {
+    if (mobileRedirect) {
+      router.prefetch(mobileRedirect);
+    }
+  }, [mobileRedirect, router]);
 
   // ----- Imperative handle for SearchGroup -----
   useImperativeHandle(ref, () => ({
@@ -379,10 +370,23 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => {
+            // 모바일 + mobileRedirect: 키보드가 자연스럽게 열린 상태에서
+            // /search 페이지로 이동. 유저 제스처(탭)로 실제 input이 포커스되므로
+            // 브라우저가 키보드를 정상적으로 표시함.
+            if (
+              mobileRedirect &&
+              !redirectingRef.current &&
+              window.matchMedia("(max-width: 639px)").matches
+            ) {
+              redirectingRef.current = true;
+              router.push(mobileRedirect);
+              // 이동 중 드롭다운이 잠깐 보이는 것 방지
+              return;
+            }
+
             setIsOpen(true);
             // iOS Safari: 가상 키보드 등장 시 브라우저가 input을 뷰포트 중앙으로
             // scroll-into-view하면서 페이지가 밀리는 현상 방지.
-            // 키보드 애니메이션 완료(~300ms) 후 원래 위치로 복귀.
             requestAnimationFrame(() => {
               window.scrollTo({ top: window.scrollY });
             });
