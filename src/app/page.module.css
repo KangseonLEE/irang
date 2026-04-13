@@ -510,14 +510,18 @@
   opacity: 1;
 }
 
-/* 모바일에서 왼쪽으로 밀리지 않게 보정 */
-@media (max-width: 400px) {
+/* 모바일: 오른쪽 정렬 — 뷰포트 오른쪽 잘림 방지 */
+@media (max-width: 639px) {
   .tooltip {
-    left: 0;
-    transform: translateX(0);
+    left: auto;
+    right: 0;
+    transform: none;
+    max-width: min(260px, calc(100vw - 48px));
   }
   .tooltip::after {
-    left: 40px;
+    left: auto;
+    right: 16px;
+    transform: none;
   }
 }
 
