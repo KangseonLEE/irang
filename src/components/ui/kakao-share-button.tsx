@@ -39,11 +39,13 @@ function loadKakaoSdk(): Promise<void> {
   if (sdkPromise) return sdkPromise;
 
   sdkPromise = new Promise((resolve, reject) => {
+    // 5초 타임아웃 — CSP 차단 등으로 onload/onerror가 안 올 때 방어
+    const timer = setTimeout(() => reject(new Error("Kakao SDK timeout")), 5000);
+    const done = () => { clearTimeout(timer); resolve(); };
+    const fail = (msg: string) => { clearTimeout(timer); reject(new Error(msg)); };
+
     // 이미 초기화 완료
-    if (window.Kakao?.isInitialized()) {
-      resolve();
-      return;
-    }
+    if (window.Kakao?.isInitialized()) { done(); return; }
 
     // 이미 스크립트가 있지만 초기화 안 된 경우
     const existing = document.querySelector(
@@ -51,18 +53,15 @@ function loadKakaoSdk(): Promise<void> {
     ) as HTMLScriptElement | null;
 
     if (existing) {
-      existing.addEventListener("load", () => {
-        if (window.Kakao && !window.Kakao.isInitialized()) {
-          window.Kakao.init(KAKAO_APP_KEY);
-        }
-        resolve();
-      });
-      // 이미 로드 완료된 경우
       if (window.Kakao) {
-        if (!window.Kakao.isInitialized()) {
-          window.Kakao.init(KAKAO_APP_KEY);
-        }
-        resolve();
+        if (!window.Kakao.isInitialized()) window.Kakao.init(KAKAO_APP_KEY);
+        done();
+      } else {
+        existing.addEventListener("load", () => {
+          if (window.Kakao && !window.Kakao.isInitialized()) window.Kakao.init(KAKAO_APP_KEY);
+          done();
+        });
+        existing.addEventListener("error", () => fail("Kakao SDK load failed"));
       }
       return;
     }
@@ -72,14 +71,15 @@ function loadKakaoSdk(): Promise<void> {
     script.src = KAKAO_SDK_URL;
     script.async = true;
     script.onload = () => {
-      if (window.Kakao && !window.Kakao.isInitialized()) {
-        window.Kakao.init(KAKAO_APP_KEY);
-      }
-      resolve();
+      if (window.Kakao && !window.Kakao.isInitialized()) window.Kakao.init(KAKAO_APP_KEY);
+      done();
     };
-    script.onerror = () => reject(new Error("Kakao SDK load failed"));
+    script.onerror = () => fail("Kakao SDK load failed");
     document.head.appendChild(script);
   });
+
+  // reject 시 다음 시도에서 재로드 가능하도록 리셋
+  sdkPromise.catch(() => { sdkPromise = null; });
 
   return sdkPromise;
 }

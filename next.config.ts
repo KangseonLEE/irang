@@ -30,11 +30,11 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com",
+              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com https://t1.kakaocdn.net",
               "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
               "img-src 'self' data: https: blob:",
               "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com",
-              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://sgisapi.kostat.go.kr https://apis.data.go.kr https://va.vercel-scripts.com",
+              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://sgisapi.kostat.go.kr https://apis.data.go.kr https://va.vercel-scripts.com https://kapi.kakao.com https://sharer.kakao.com",
               "frame-ancestors 'none'",
             ].join("; "),
           },
