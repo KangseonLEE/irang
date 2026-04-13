@@ -46,7 +46,6 @@ export function KakaoShareButton({
   useEffect(() => {
     // SDK 로드 타이밍이 불확실하므로 폴링으로 확인
     if (typeof window === "undefined") return;
-    if (!process.env.NEXT_PUBLIC_KAKAO_JS_KEY) return;
 
     // 이미 초기화된 경우
     if (window.Kakao?.isInitialized()) {
@@ -54,14 +53,14 @@ export function KakaoShareButton({
       return;
     }
 
-    // SDK 로드를 기다리는 인터벌 (최대 10초)
+    // SDK 로드를 기다리는 인터벌 (최대 15초)
     let elapsed = 0;
     const interval = setInterval(() => {
       elapsed += 300;
       if (window.Kakao?.isInitialized()) {
         setReady(true);
         clearInterval(interval);
-      } else if (elapsed >= 10_000) {
+      } else if (elapsed >= 15_000) {
         clearInterval(interval);
       }
     }, 300);
