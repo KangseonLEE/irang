@@ -97,8 +97,8 @@ export default function HomePage() {
         </h1>
 
         <p className={s.heroSubtitle}>
-          지역, 작물, 지원금까지 —<br />
-          공공데이터 기반으로 한곳에서.
+          지역 고르고, 작물 비교하고, 지원금 찾기까지 —<br />
+          여기서 다 됩니다.
         </p>
 
         <div className={s.heroSearchWrap}>
