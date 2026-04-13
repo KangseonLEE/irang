@@ -38,6 +38,39 @@
   }
 }
 
+/* --- autoFocus 어텐션 애니메이션 --- */
+
+@keyframes focusPopIn {
+  0% {
+    transform: scale(0.97);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.01);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes focusGlow {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.inputWrapAutoFocus {
+  animation: focusPopIn 0.4s ease-out, focusGlow 1.2s ease-in-out 0.4s;
+  border-color: var(--primary);
+}
+
 /* --- Icon & input --- */
 
 .searchIcon {

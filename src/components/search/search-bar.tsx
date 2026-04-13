@@ -150,14 +150,20 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   }, []);
 
   // autoFocus: 마운트 시 입력란에 포커스 + 드롭다운 오픈
+  // 모바일 브라우저별 타이밍 차이를 고려하여 여러 시점에 포커스 시도
   useEffect(() => {
     if (!autoFocus) return;
-    // requestAnimationFrame으로 브라우저 레이아웃 완료 후 포커스
-    const raf = requestAnimationFrame(() => {
-      inputRef.current?.focus();
-      setIsOpen(true);
-    });
-    return () => cancelAnimationFrame(raf);
+    const tryFocus = () => {
+      if (document.activeElement !== inputRef.current) {
+        inputRef.current?.focus({ preventScroll: true });
+      }
+    };
+    // 즉시 + 100ms + 300ms 에 각각 시도 (브라우저별 렌더 타이밍 차이 대응)
+    tryFocus();
+    const t1 = setTimeout(tryFocus, 100);
+    const t2 = setTimeout(tryFocus, 300);
+    setIsOpen(true);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [autoFocus]);
 
   // ----- Imperative handle for SearchGroup -----
@@ -329,7 +335,10 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       : undefined;
 
   // ----- Render -----
-  const wrapClass = size === "large" ? s.inputWrapLarge : s.inputWrap;
+  const wrapClass = [
+    size === "large" ? s.inputWrapLarge : s.inputWrap,
+    autoFocus ? s.inputWrapAutoFocus : "",
+  ].filter(Boolean).join(" ");
 
   return (
     <div className={s.container} ref={containerRef}>
@@ -343,6 +352,10 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           ref={inputRef}
           className={s.input}
           type="text"
+          inputMode="search"
+          enterKeyHint="search"
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus={autoFocus}
           value={query}
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
