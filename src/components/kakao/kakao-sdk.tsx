@@ -19,7 +19,7 @@ export function KakaoSdk() {
   return (
     <Script
       src={KAKAO_SDK_URL}
-      strategy="lazyOnload"
+      strategy="afterInteractive"
       onLoad={() => {
         if (
           typeof window !== "undefined" &&
