@@ -143,23 +143,33 @@ export function KakaoShareButton({
     <button
       onClick={handleShare}
       className={className}
+      style={{
+        background: "#FEE500",
+        borderRadius: "6px",
+        padding: size === "sm" ? "5px" : "6px",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        border: "none",
+        cursor: "pointer",
+      }}
       type="button"
       aria-label="카카오톡으로 공유"
     >
-      <KakaoIcon size={size === "sm" ? 14 : 16} />
-      {showLabel && <span>카카오톡</span>}
+      <KakaoIcon size={size === "sm" ? 16 : 18} />
+      {showLabel && <span style={{ color: "#191919", marginLeft: 4 }}>카카오톡</span>}
     </button>
   );
 }
 
-/** 카카오톡 말풍선 아이콘 (SVG) */
+/** 카카오톡 공식 아이콘 (노란 배경 + 검정 말풍선) */
 function KakaoIcon({ size = 16 }: { size?: number }) {
   return (
     <svg
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="currentColor"
+      fill="#191919"
       aria-hidden="true"
     >
       <path d="M12 3C6.48 3 2 6.58 2 10.9c0 2.78 1.86 5.22 4.66 6.62l-.96 3.56c-.08.3.26.54.52.36l4.2-2.78c.52.06 1.04.1 1.58.1 5.52 0 10-3.58 10-7.96S17.52 3 12 3z" />
