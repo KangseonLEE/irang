@@ -104,7 +104,7 @@ export default async function EducationDetailPage({
           <div className={s.titleActions}>
             <KakaoShareButton
               title={`${course.title} | 이랑`}
-              description={`${course.title}: ${course.description.slice(0, 80)}`}
+              description={`${course.description.slice(0, 100)}`}
               contentType="education"
             />
             <ShareButton

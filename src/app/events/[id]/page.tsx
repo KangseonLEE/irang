@@ -103,7 +103,7 @@ export default async function EventDetailPage({
           <div className={s.titleActions}>
             <KakaoShareButton
               title={`${event.title} | 이랑`}
-              description={`${event.title}: ${event.description.slice(0, 80)}`}
+              description={`${event.description.slice(0, 100)}`}
               contentType="event"
             />
             <ShareButton
