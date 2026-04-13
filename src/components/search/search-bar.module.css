@@ -352,18 +352,19 @@
 
 .containerExpanded {
   position: fixed;
-  /* 탑바 아래부터 시작 — stacking context 이슈 완전 해소 */
-  top: var(--h-header, 3.5rem);
+  /* 화면 전체를 덮는 풀스크린 오버레이 — 헤더·히어로 모두 가림 */
+  top: 0;
   left: 0;
   right: 0;
-  /* 하단 모바일 네비 위까지 (safe-area 포함) */
-  bottom: calc(var(--h-mobile-nav, 3.5rem) + env(safe-area-inset-bottom, 0px));
-  /* 헤더(z-header:50)와 같은 레벨 — 헤더를 가리지 않음 */
-  z-index: var(--z-header, 50);
+  bottom: 0;
+  /* 헤더(z-header:50)보다 위 — 헤더·모바일네비 모두 가림 */
+  z-index: var(--z-overlay, 100);
   background: var(--background);
   display: flex;
   flex-direction: column;
-  padding: 12px 16px 12px;
+  /* 상단: safe-area(노치) 확보, 하단: 키보드 위 여백 */
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px
+    calc(env(safe-area-inset-bottom, 0px) + 12px);
   animation: expandFadeIn 0.15s ease-out;
 }
 
