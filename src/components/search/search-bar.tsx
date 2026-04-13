@@ -4,6 +4,7 @@ import {
   forwardRef,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -56,6 +57,10 @@ const SECTION_META: Record<
 };
 
 const SECTION_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide"];
+
+/** SSR-safe useLayoutEffect — 서버에서는 useEffect 폴백 (SSR 경고 방지) */
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -135,7 +140,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // 모바일 반응형 감지 (placeholder 전환 + 풀스크린 확장 모두에 사용)
   const [isMobile, setIsMobile] = useState(false);
   const needsMobileDetect = !!(mobilePlaceholder || mobileExpand);
-  useEffect(() => {
+  // useLayoutEffect: 브라우저 페인트 전에 실행 → placeholder 깜빡임 방지
+  // (SSR에서는 useEffect 폴백으로 경고 없이 동작)
+  useIsomorphicLayoutEffect(() => {
     if (!needsMobileDetect) return;
     const mql = window.matchMedia("(max-width: 639px)");
     // eslint-disable-next-line react-hooks/set-state-in-effect

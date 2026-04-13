@@ -117,6 +117,8 @@ export function CostSection({
     return () => {
       observer.disconnect();
       if (rafId.current) cancelAnimationFrame(rafId.current);
+      // React 18 Strict Mode: 재마운트 시 애니메이션이 다시 트리거될 수 있도록 리셋
+      hasPlayed.current = false;
     };
   }, [animate]);
 
