@@ -90,15 +90,15 @@ export default function HomePage() {
 
       {/* ═══ 1. 히어로 — 검색 + 수치 Hook + 보조 CTA ═══ */}
       <section className={s.heroSection} aria-label="검색">
-        <span className={s.heroEyebrow}>연 1.2만명이 귀농을 준비합니다</span>
+        <span className={s.heroEyebrow}>매년 1.2만 명이 새로운 시작을 준비해요</span>
 
         <h1 className={s.heroTitle}>
           막막한 귀농, 비교하고 결정하세요
         </h1>
 
         <p className={s.heroSubtitle}>
-          지역 고르고, 작물 비교하고, 지원금 찾기까지 —<br />
-          여기서 다 됩니다.
+          지역 비교부터 지원금 찾기까지,<br />
+          필요한 건 다 모았어요.
         </p>
 
         <div className={s.heroSearchWrap}>
@@ -113,7 +113,7 @@ export default function HomePage() {
 
         <Link href="/match" className={s.heroSecondaryCta}>
           <IconWrap icon={Compass} size="sm" />
-          귀농 유형 먼저 진단해 보기
+          3분 만에 내 귀농 유형 알아보기
         </Link>
       </section>
 
