@@ -172,10 +172,9 @@
   width: 100%;
   max-width: 580px;
   margin-bottom: 14px;
-  /* box-shadow은 filter와 달리 containing block을 생성하지 않아
-     자식의 position: fixed (모바일 풀스크린 검색)가 정상 동작 */
   position: relative;
-  z-index: 5;
+  /* z-index 제거: stacking context를 만들면 자식의 position: fixed
+     오버레이가 헤더(z-index:50) 아래에 갇힘 */
 }
 
 @media (min-width: 640px) {
