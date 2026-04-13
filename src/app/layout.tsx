@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://irang-wheat.vercel.app"),
   verification: {
     google: "KNFsOJ9PTv7qJXP15MITpq6YGN8cWV7Nk9ThKWBPGD0",
+    other: {
+      "naver-site-verification": "bfc226356543e2447bdd158f95d61ffedb8e7bad",
+    },
   },
   title: {
     default: "이랑 — 귀농 정보 큐레이션 포탈",
