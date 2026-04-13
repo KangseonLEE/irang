@@ -12,8 +12,8 @@ interface SearchGroupProps {
   size?: "default" | "large";
   /** 인기 태그 숨김 (히어로 등 간결한 레이아웃용) */
   hideTags?: boolean;
-  /** 모바일에서 input 포커스 시 해당 경로로 이동 (인라인 검색 대신) */
-  mobileRedirect?: string;
+  /** 모바일에서 포커스 시 풀스크린 오버레이로 확장 (키보드 유지) */
+  mobileExpand?: boolean;
   /** SearchBar 자동 포커스 */
   autoFocus?: boolean;
 }
@@ -23,7 +23,7 @@ export default function SearchGroup({
   mobilePlaceholder,
   size = "default",
   hideTags = false,
-  mobileRedirect,
+  mobileExpand,
   autoFocus = false,
 }: SearchGroupProps) {
   const searchBarRef = useRef<SearchBarHandle>(null);
@@ -40,7 +40,7 @@ export default function SearchGroup({
         placeholder={placeholder}
         mobilePlaceholder={mobilePlaceholder}
         autoFocus={autoFocus}
-        mobileRedirect={mobileRedirect}
+        mobileExpand={mobileExpand}
       />
       {!hideTags && <SearchTags onTagClick={handleTagClick} />}
     </div>

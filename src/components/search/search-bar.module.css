@@ -341,3 +341,106 @@
     border-color: var(--primary, #1b6b5a);
   }
 }
+
+/* ── Mobile fullscreen expanded overlay ── */
+
+.containerExpanded {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--background);
+  display: flex;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px calc(env(safe-area-inset-bottom, 0px) + 12px);
+  animation: expandFadeIn 0.15s ease-out;
+}
+
+@keyframes expandFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .containerExpanded {
+    animation: none;
+  }
+}
+
+/* 풀스크린 오버레이에서의 입력 래퍼 — 기존 large 스타일 오버라이드 */
+.inputWrapExpanded {
+  border-radius: 12px;
+  min-height: 48px;
+  padding: 10px 12px;
+}
+
+.expandedBack {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: -4px 0 -4px -4px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.expandedBack:active {
+  background: var(--muted);
+}
+
+.expandedClear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.expandedClear:active {
+  background: var(--border);
+  color: var(--foreground);
+}
+
+.dropdownExpanded {
+  position: static;
+  margin-top: 8px;
+  max-height: none;
+  flex: 1;
+  overflow-y: auto;
+  box-shadow: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.expandedEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.expandedEmptyIcon {
+  color: var(--muted-foreground);
+  opacity: 0.4;
+}
+
+.expandedEmptyText {
+  color: var(--muted-foreground);
+  font-size: var(--fs-body-sm);
+  margin: 0;
+}

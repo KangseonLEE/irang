@@ -103,7 +103,7 @@ export default function HomePage() {
 
         <div className={s.heroSearchWrap}>
           <Suspense fallback={<div className={s.searchFallback} />}>
-            <SearchGroup size="large" placeholder="궁금한 지역이나 작물을 검색해보세요" mobilePlaceholder="지역, 작물, 지원사업 검색" hideTags mobileRedirect="/search" />
+            <SearchGroup size="large" placeholder="궁금한 지역이나 작물을 검색해보세요" mobilePlaceholder="지역, 작물, 지원사업 검색" hideTags mobileExpand />
           </Suspense>
         </div>
 

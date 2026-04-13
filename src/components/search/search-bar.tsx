@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import { Clock, X, MessageSquarePlus } from "lucide-react";
+import { Clock, X, MessageSquarePlus, ArrowLeft } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchItems, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
@@ -28,8 +28,8 @@ interface SearchBarProps {
   size?: "default" | "large";
   /** 마운트 시 자동 포커스 (검색 페이지 진입 시 등) */
   autoFocus?: boolean;
-  /** 모바일에서 input 포커스 시 해당 경로로 이동 (키보드 자연 오픈 유지) */
-  mobileRedirect?: string;
+  /** 모바일에서 포커스 시 풀스크린 오버레이로 확장 (키보드 유지) */
+  mobileExpand?: boolean;
 }
 
 export interface SearchBarHandle {
@@ -117,12 +117,11 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     mobilePlaceholder,
     size = "default",
     autoFocus = false,
-    mobileRedirect,
+    mobileExpand,
   },
   ref,
 ) {
   const router = useRouter();
-  const redirectingRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -133,19 +132,46 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
 
-  // 모바일 반응형 placeholder
+  // 모바일 반응형 감지 (placeholder 전환 + 풀스크린 확장 모두에 사용)
   const [isMobile, setIsMobile] = useState(false);
+  const needsMobileDetect = !!(mobilePlaceholder || mobileExpand);
   useEffect(() => {
-    if (!mobilePlaceholder) return;
+    if (!needsMobileDetect) return;
     const mql = window.matchMedia("(max-width: 639px)");
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobile(mql.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mql.addEventListener("change", handler);
     return () => mql.removeEventListener("change", handler);
-  }, [mobilePlaceholder]);
+  }, [needsMobileDetect]);
 
   const activePlaceholder = mobilePlaceholder && isMobile ? mobilePlaceholder : placeholder;
+
+  // ── 모바일 풀스크린 확장 ──
+  // 핵심 원리: 유저가 실제 input을 탭 → 키보드가 자연스럽게 열림 (user activation)
+  // → 페이지 이동 대신 같은 input을 유지한 채 컨테이너만 풀스크린으로 확장
+  // → DOM에서 input이 제거되지 않으므로 키보드가 닫히지 않음
+  const isExpanded = !!(mobileExpand && isMobile && isOpen);
+
+  // 풀스크린 확장 시 body 스크롤 잠금
+  useEffect(() => {
+    if (!isExpanded) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isExpanded]);
+
+  // 풀스크린 닫기
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    setQuery("");
+    setResults([]);
+    setFocusedIndex(-1);
+    setRecentSearches(loadRecent());
+    inputRef.current?.blur();
+  }, []);
 
   // 마운트 시 최근 검색어 로드
   useEffect(() => {
@@ -168,13 +194,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     setIsOpen(true);
     return () => { mounted = false; clearTimeout(t1); clearTimeout(t2); };
   }, [autoFocus]);
-
-  // mobileRedirect: /search 페이지 프리페치 (탭 시 즉시 이동 위해)
-  useEffect(() => {
-    if (mobileRedirect) {
-      router.prefetch(mobileRedirect);
-    }
-  }, [mobileRedirect, router]);
 
   // ----- Imperative handle for SearchGroup -----
   useImperativeHandle(ref, () => ({
@@ -310,11 +329,15 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           navigateTo(`/search?q=${encodeURIComponent(query.trim())}`, query);
         }
       } else if (e.key === "Escape") {
-        setIsOpen(false);
-        inputRef.current?.blur();
+        if (isExpanded) {
+          handleClose();
+        } else {
+          setIsOpen(false);
+          inputRef.current?.blur();
+        }
       }
     },
-    [allItems, focusedIndex, navigateTo, query, handleRecentClick],
+    [allItems, focusedIndex, navigateTo, query, handleRecentClick, isExpanded, handleClose],
   );
 
   // ----- Click outside -----
@@ -347,17 +370,37 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // ----- Render -----
   const wrapClass = [
     size === "large" ? s.inputWrapLarge : s.inputWrap,
-    autoFocus ? s.inputWrapAutoFocus : "",
+    autoFocus && !isExpanded ? s.inputWrapAutoFocus : "",
+    isExpanded ? s.inputWrapExpanded : "",
   ].filter(Boolean).join(" ");
 
+  const containerClass = `${s.container}${isExpanded ? ` ${s.containerExpanded}` : ""}`;
+
+  const showDropdown =
+    isExpanded ||
+    (isOpen && (showRecent || grouped.length > 0 || (query.trim().length > 0 && grouped.length === 0)));
+
+  const dropdownClass = `${s.dropdown}${isExpanded ? ` ${s.dropdownExpanded}` : ""}`;
+
   return (
-    <div className={s.container} ref={containerRef}>
+    <div className={containerClass} ref={containerRef}>
       <div className={wrapClass}>
-        <Search
-          size={size === "large" ? 22 : 18}
-          className={s.searchIcon}
-          aria-hidden="true"
-        />
+        {isExpanded ? (
+          <button
+            type="button"
+            className={s.expandedBack}
+            onClick={handleClose}
+            aria-label="검색 닫기"
+          >
+            <ArrowLeft size={18} />
+          </button>
+        ) : (
+          <Search
+            size={size === "large" ? 22 : 18}
+            className={s.searchIcon}
+            aria-hidden="true"
+          />
+        )}
         <input
           ref={inputRef}
           className={s.input}
@@ -370,26 +413,15 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => {
-            // 모바일 + mobileRedirect: 키보드가 자연스럽게 열린 상태에서
-            // /search 페이지로 이동. 유저 제스처(탭)로 실제 input이 포커스되므로
-            // 브라우저가 키보드를 정상적으로 표시함.
-            if (
-              mobileRedirect &&
-              !redirectingRef.current &&
-              window.matchMedia("(max-width: 639px)").matches
-            ) {
-              redirectingRef.current = true;
-              router.push(mobileRedirect);
-              // 이동 중 드롭다운이 잠깐 보이는 것 방지
-              return;
-            }
-
             setIsOpen(true);
             // iOS Safari: 가상 키보드 등장 시 브라우저가 input을 뷰포트 중앙으로
             // scroll-into-view하면서 페이지가 밀리는 현상 방지.
-            requestAnimationFrame(() => {
-              window.scrollTo({ top: window.scrollY });
-            });
+            // 풀스크린 확장 모드에서는 불필요 (fixed 레이아웃).
+            if (!mobileExpand || !isMobile) {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: window.scrollY });
+              });
+            }
           }}
           placeholder={activePlaceholder}
           role="combobox"
@@ -401,12 +433,26 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           aria-activedescendant={activeDescendant}
           autoComplete="off"
         />
+        {isExpanded && query.length > 0 && (
+          <button
+            type="button"
+            className={s.expandedClear}
+            onClick={() => {
+              setQuery("");
+              setResults([]);
+              inputRef.current?.focus();
+            }}
+            aria-label="검색어 지우기"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
-      {isOpen && (showRecent || grouped.length > 0 || (query.trim().length > 0 && grouped.length === 0)) && (
+      {showDropdown && (
         <div
           id="search-listbox"
-          className={s.dropdown}
+          className={dropdownClass}
           role="listbox"
           aria-label="검색 결과"
         >
@@ -450,7 +496,15 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             </div>
           )}
 
-          {/* 검색 결과 */}
+          {/* 확장 모드 빈 상태 — 최근 검색 없고 검색어도 없을 때 */}
+          {isExpanded && !showRecent && query.trim().length === 0 && (
+            <div className={s.expandedEmpty}>
+              <Search size={24} className={s.expandedEmptyIcon} />
+              <p className={s.expandedEmptyText}>검색어를 입력하세요</p>
+            </div>
+          )}
+
+          {/* 검색 결과 없음 */}
           {!showRecent && grouped.length === 0 && query.trim().length > 0 && (
             <div className={s.noResult}>
               <p className={s.noResultText}>
