@@ -352,12 +352,18 @@
 
 .containerExpanded {
   position: fixed;
-  inset: 0;
-  z-index: var(--z-modal, 200);
+  /* 탑바 아래부터 시작 — stacking context 이슈 완전 해소 */
+  top: var(--h-header, 3.5rem);
+  left: 0;
+  right: 0;
+  /* 하단 모바일 네비 위까지 (safe-area 포함) */
+  bottom: calc(var(--h-mobile-nav, 3.5rem) + env(safe-area-inset-bottom, 0px));
+  /* 헤더(z-header:50)와 같은 레벨 — 헤더를 가리지 않음 */
+  z-index: var(--z-header, 50);
   background: var(--background);
   display: flex;
   flex-direction: column;
-  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px calc(env(safe-area-inset-bottom, 0px) + 12px);
+  padding: 12px 16px 12px;
   animation: expandFadeIn 0.15s ease-out;
 }
 

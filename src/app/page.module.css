@@ -172,9 +172,9 @@
   width: 100%;
   max-width: 580px;
   margin-bottom: 14px;
-  position: relative;
-  /* z-index 제거: stacking context를 만들면 자식의 position: fixed
-     오버레이가 헤더(z-index:50) 아래에 갇힘 */
+  /* position / z-index / transform / filter / will-change 모두 제거:
+     stacking context를 만들면 자식의 position: fixed 오버레이가
+     부모 컨텍스트에 갇혀 헤더 아래에 가려짐 */
 }
 
 @media (min-width: 640px) {

@@ -173,6 +173,28 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     inputRef.current?.blur();
   }, []);
 
+  // 풀스크린 확장 시 Android 뒤로가기(하드웨어) / 브라우저 뒤로가기 지원
+  // history에 sentinel state를 push하고, popstate로 닫기 처리
+  useEffect(() => {
+    if (!isExpanded) return;
+    const sentinel = { __searchExpanded: true };
+    window.history.pushState(sentinel, "");
+    const onPopState = () => {
+      handleClose();
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      // 컴포넌트 언마운트나 isExpanded가 false로 바뀔 때 sentinel 제거
+      if (
+        window.history.state &&
+        (window.history.state as Record<string, unknown>).__searchExpanded
+      ) {
+        window.history.back();
+      }
+    };
+  }, [isExpanded, handleClose]);
+
   // 마운트 시 최근 검색어 로드
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
