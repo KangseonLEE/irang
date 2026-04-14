@@ -15,6 +15,19 @@ Sentry.init({
   // 환경 구분
   environment: process.env.NODE_ENV,
 
+  // Sentry SDK 내부 에러 및 노이즈 필터링
+  beforeSend(event) {
+    const frames = event.exception?.values?.[0]?.stacktrace?.frames;
+    if (frames?.some((f) => f.filename?.includes("sentry/scripts"))) {
+      return null; // Sentry 자체 스크립트 에러 무시
+    }
+    // 브라우저 확장 프로그램에서 발생하는 에러 무시
+    if (frames?.some((f) => f.filename?.startsWith("chrome-extension://"))) {
+      return null;
+    }
+    return event;
+  },
+
   // 에러 샘플링 비율 (1.0 = 100% — Free 플랜 5K 이벤트/월 기준)
   sampleRate: 1.0,
 
