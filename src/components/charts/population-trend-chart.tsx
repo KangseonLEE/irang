@@ -15,6 +15,21 @@ import {
 import type { YearlyPopulation } from "@/lib/data/stats";
 import s from "./chart-styles.module.css";
 
+/** Recharts가 content element에 주입하는 Tooltip props */
+interface ChartTooltipProps {
+  active?: boolean;
+  payload?: Array<{ color?: string; name?: string; value?: number }>;
+  label?: number;
+}
+
+/** Dot 컴포넌트에 Recharts가 전달하는 props */
+interface ChartDotProps {
+  cx?: number;
+  cy?: number;
+  payload?: YearlyPopulation;
+}
+
+
 /* ── 브랜드 색상 ── */
 const COLOR_PRIMARY = "#1B6B5A";
 const COLOR_SECONDARY = "#A8D9CC";
@@ -27,18 +42,16 @@ interface Props {
 }
 
 /* ── 커스텀 툴팁 ── */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
   if (!active || !payload?.length) return null;
-  const isSignificant = SIGNIFICANT_YEARS.has(label);
+  const isSignificant = SIGNIFICANT_YEARS.has(label ?? 0);
 
   return (
     <div className={s.tooltip}>
       <p className={s.tooltipLabel}>
         {label}년 {isSignificant ? "★" : ""}
       </p>
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      {payload.map((entry: any, i: number) => (
+      {payload.map((entry, i: number) => (
         <div className={s.tooltipRow} key={i}>
           <span
             className={s.tooltipDot}
@@ -53,10 +66,9 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 /* ── 귀촌 라인 커스텀 Dot (유의미 연도 강조) ── */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function RuralDot(props: any) {
+function RuralDot(props: ChartDotProps) {
   const { cx, cy, payload } = props;
-  if (!cx || !cy) return null;
+  if (!cx || !cy || !payload) return null;
   const isSig = SIGNIFICANT_YEARS.has(payload.year);
 
   return (
@@ -73,10 +85,9 @@ function RuralDot(props: any) {
 }
 
 /* ── 귀농 라인 커스텀 Dot ── */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function FarmingDot(props: any) {
+function FarmingDot(props: ChartDotProps) {
   const { cx, cy, payload } = props;
-  if (!cx || !cy) return null;
+  if (!cx || !cy || !payload) return null;
   const isSig = SIGNIFICANT_YEARS.has(payload.year);
 
   return (
@@ -96,10 +107,9 @@ export default function PopulationTrendChart({ data }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hoveredYear, setHoveredYear] = useState<number | null>(null);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleMouseMove = useCallback((state: any) => {
-    if (state?.activePayload?.[0]) {
-      setHoveredYear(state.activePayload[0].payload.year);
+  const handleMouseMove = useCallback((state: { activeLabel?: string | number }) => {
+    if (typeof state?.activeLabel === "number") {
+      setHoveredYear(state.activeLabel);
     }
   }, []);
 

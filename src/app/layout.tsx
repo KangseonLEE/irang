@@ -8,9 +8,13 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { SearchOverlayProvider } from "@/components/search/search-overlay";
 import { JsonLd } from "@/components/seo/json-ld";
+import { validateEnv } from "@/lib/env";
 import type { WebSite, Organization } from "schema-dts";
 import "./globals.css";
 import s from "./layout.module.css";
+
+// 서버 시작 시 환경변수 검증 (모듈 로드 시 1회 실행)
+validateEnv();
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://irang-wheat.vercel.app"),

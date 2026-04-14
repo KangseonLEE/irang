@@ -18,8 +18,32 @@ import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
 import { POPULATION_FALLBACK } from "@/lib/data/population";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
-import { KoreaMap } from "@/components/map/korea-map";
+import dynamic from "next/dynamic";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
+
+const KoreaMap = dynamic(
+  () =>
+    import("@/components/map/korea-map").then((mod) => ({
+      default: mod.KoreaMap,
+    })),
+  {
+    loading: () => (
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 640,
+          margin: "0 auto",
+          aspectRatio: "450 / 760",
+          background: "var(--muted, #f4f4f5)",
+          borderRadius: "var(--radius-lg, 12px)",
+          animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        }}
+        aria-label="지도 불러오는 중"
+        role="img"
+      />
+    ),
+  },
+);
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "./page.module.css";
 

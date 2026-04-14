@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -30,11 +31,11 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com https://t1.kakaocdn.net",
+              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com https://t1.kakaocdn.net https://*.sentry-cdn.com",
               "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
               "img-src 'self' data: https: blob:",
               "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com",
-              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://sgisapi.kostat.go.kr https://apis.data.go.kr https://va.vercel-scripts.com https://kapi.kakao.com https://sharer.kakao.com",
+              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://sgisapi.mods.go.kr https://apis.data.go.kr https://va.vercel-scripts.com https://kapi.kakao.com https://sharer.kakao.com https://*.ingest.sentry.io",
               "frame-ancestors 'none'",
             ].join("; "),
           },
@@ -44,4 +45,28 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Sentry 빌드 설정
+  // org/project는 환경변수 또는 .sentryclirc에서 읽음
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+
+  // 소스맵 업로드 (프로덕션 빌드 시)
+  silent: !process.env.CI,
+
+  // Vercel 배포 시 자동으로 릴리즈/커밋 연결
+  widenClientFileUpload: true,
+
+  // 빌드 후 소스맵 파일 삭제 (보안 — 클라이언트에 노출 방지)
+  sourcemaps: {
+    filesToDeleteAfterUpload: [".next/static/**/*.map"],
+  },
+
+  // 트리 셰이킹으로 번들 크기 최소화 (debug 로깅 제거)
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+  },
+
+  // SENTRY_AUTH_TOKEN이 없으면 소스맵 업로드 건너뜀
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+});

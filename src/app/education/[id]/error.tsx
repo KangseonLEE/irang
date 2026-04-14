@@ -1,9 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import Link from "next/link";
-import { AlertTriangle, RotateCcw, Home } from "lucide-react";
-import s from "../../error.module.css";
+import { PageError } from "@/components/error/page-error";
 
 export default function EducationDetailError({
   error,
@@ -12,27 +9,14 @@ export default function EducationDetailError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error("[EducationDetailError]", error);
-  }, [error]);
-
   return (
-    <div className={s.container}>
-      <AlertTriangle size={48} className={s.icon} />
-      <h2 className={s.title}>교육 정보를 불러올 수 없습니다</h2>
-      <p className={s.description}>
-        일시적인 오류일 수 있습니다. 다시 시도해 주세요.
-      </p>
-      <div className={s.actions}>
-        <button onClick={reset} className={s.retryButton}>
-          <RotateCcw size={16} />
-          다시 시도
-        </button>
-        <Link href="/education" className={s.secondaryButton}>
-          <Home size={16} />
-          교육 목록
-        </Link>
-      </div>
-    </div>
+    <PageError
+      error={error}
+      reset={reset}
+      title="교육 정보를 불러올 수 없습니다"
+      tag="EducationDetailError"
+      listHref="/education"
+      listLabel="교육 목록"
+    />
   );
 }

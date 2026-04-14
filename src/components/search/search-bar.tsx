@@ -518,6 +518,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           className={dropdownClass}
           role="listbox"
           aria-label="검색 결과"
+          aria-live="polite"
         >
           {/* 최근 검색어 */}
           {showRecent && (

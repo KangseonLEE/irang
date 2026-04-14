@@ -16,6 +16,21 @@ import {
 import type { YouthRatio } from "@/lib/data/stats";
 import s from "./chart-styles.module.css";
 
+/** Recharts Tooltip payload entry */
+interface TooltipEntry {
+  dataKey?: string;
+  value?: number;
+  color?: string;
+  name?: string;
+}
+
+/** Recharts가 content element에 주입하는 Tooltip props */
+interface ChartTooltipProps {
+  active?: boolean;
+  payload?: TooltipEntry[];
+  label?: number;
+}
+
 /* ── 브랜드 색상 ── */
 const COLOR_PRIMARY = "#1B6B5A";
 const COLOR_PRIMARY_MUTED = "rgba(27, 107, 90, 0.22)";
@@ -26,11 +41,9 @@ interface Props {
 }
 
 /* ── 커스텀 툴팁 ── */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
   if (!active || !payload?.length) return null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ratio = payload.find((p: any) => p.dataKey === "ratio");
+  const ratio = payload.find((p) => p.dataKey === "ratio");
 
   return (
     <div className={s.tooltip}>
@@ -45,8 +58,7 @@ function CustomTooltip({ active, payload, label }: any) {
           <span className={s.tooltipValue}>{ratio.value}%</span>
         </div>
       )}
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      {payload.find((p: any) => p.dataKey === "trendline") && (
+      {payload.find((p) => p.dataKey === "trendline") && (
         <div className={s.tooltipRow}>
           <span
             className={s.tooltipDot}
@@ -54,8 +66,7 @@ function CustomTooltip({ active, payload, label }: any) {
           />
           <span>추세선</span>
           <span className={s.tooltipValue}>
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {payload.find((p: any) => p.dataKey === "trendline")?.value?.toFixed(1)}%
+            {payload.find((p) => p.dataKey === "trendline")?.value?.toFixed(1)}%
           </span>
         </div>
       )}

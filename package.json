@@ -13,6 +13,7 @@
     "check-policy:ci": "npx tsx scripts/check-policy-sources.ts --ci --snapshot"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.48.0",
     "@supabase/supabase-js": "^2.101.1",
     "@svg-maps/south-korea": "^2.0.0",
     "@vercel/analytics": "^2.0.1",

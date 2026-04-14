@@ -40,6 +40,15 @@ export type { SupportProgram, ProgramFilters };
 export type { EducationCourse, EducationFilters };
 export type { FarmEvent, EventFilters };
 
+/**
+ * PostgREST 필터에 삽입되는 사용자 입력에서 특수문자를 제거한다.
+ * PostgREST 연산자/구분자로 해석될 수 있는 문자: , . ( ) " ' \
+ * 이를 제거하여 필터 인젝션을 방지한다.
+ */
+function sanitizeFilterInput(input: string): string {
+  return input.replace(/[,.()"'\\]/g, "");
+}
+
 type DataSource = "supabase" | "static" | "rda_api";
 
 interface LoadResult<T> {
@@ -134,8 +143,9 @@ export async function loadPrograms(
         query = query.neq("status", "마감");
       }
       if (filters?.query) {
+        const q = sanitizeFilterInput(filters.query);
         query = query.or(
-          `title.ilike.%${filters.query}%,summary.ilike.%${filters.query}%`
+          `title.ilike.%${q}%,summary.ilike.%${q}%`
         );
       }
 
@@ -203,8 +213,9 @@ export async function loadEducation(
         query = query.neq("status", "마감");
       }
       if (filters?.query) {
+        const q = sanitizeFilterInput(filters.query);
         query = query.or(
-          `title.ilike.%${filters.query}%,description.ilike.%${filters.query}%`
+          `title.ilike.%${q}%,description.ilike.%${q}%`
         );
       }
 
@@ -270,8 +281,9 @@ export async function loadEvents(
         query = query.neq("status", "마감");
       }
       if (filters?.query) {
+        const q = sanitizeFilterInput(filters.query);
         query = query.or(
-          `title.ilike.%${filters.query}%,description.ilike.%${filters.query}%`
+          `title.ilike.%${q}%,description.ilike.%${q}%`
         );
       }
 

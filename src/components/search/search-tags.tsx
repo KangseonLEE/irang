@@ -1,6 +1,6 @@
 "use client";
 
-import { POPULAR_TAGS } from "@/lib/data/search-index";
+import { POPULAR_TAGS } from "@/lib/data/search-tags";
 import s from "./search-tags.module.css";
 
 // ---------------------------------------------------------------------------

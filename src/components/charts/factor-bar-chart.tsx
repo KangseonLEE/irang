@@ -11,6 +11,12 @@ import {
   Cell,
 } from "recharts";
 import type { Factor } from "@/lib/data/stats";
+
+/** Recharts가 content element에 주입하는 Tooltip props */
+interface ChartTooltipProps {
+  active?: boolean;
+  payload?: Array<{ payload: Factor & { rank: number }; color?: string }>;
+}
 import s from "./chart-styles.module.css";
 
 interface Props {
@@ -27,8 +33,7 @@ const COLOR_NEGATIVE = "#DC2626";
 const COLOR_NEGATIVE_MUTED = "rgba(220, 38, 38, 0.18)";
 
 /* ── 커스텀 툴팁 ── */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function CustomTooltip({ active, payload }: any) {
+function CustomTooltip({ active, payload }: ChartTooltipProps) {
   if (!active || !payload?.length) return null;
   const { label, pct, rank } = payload[0].payload;
   return (

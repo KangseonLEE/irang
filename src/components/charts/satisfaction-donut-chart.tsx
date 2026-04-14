@@ -8,7 +8,14 @@ import {
   Cell,
   Tooltip,
 } from "recharts";
+import type { PieLabelRenderProps } from "recharts";
 import type { SatisfactionSegment } from "@/lib/data/stats";
+
+/** Recharts가 content element에 주입하는 Tooltip props */
+interface ChartTooltipProps {
+  active?: boolean;
+  payload?: Array<{ payload: SatisfactionSegment }>;
+}
 import s from "./chart-styles.module.css";
 
 /* ── 색상 매핑: 만족 계열은 진하게, 불만족 계열은 연하게 ── */
@@ -27,8 +34,7 @@ interface Props {
 }
 
 /* ── 커스텀 툴팁 ── */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function CustomTooltip({ active, payload }: any) {
+function CustomTooltip({ active, payload }: ChartTooltipProps) {
   if (!active || !payload?.length) return null;
   const { label, pct } = payload[0].payload;
   const isSig = SIGNIFICANT_LABELS.has(label);
@@ -73,12 +79,13 @@ export default function SatisfactionDonutChart({ data }: Props) {
               onMouseLeave={() => setHoveredIdx(null)}
               animationDuration={1000}
               animationEasing="ease-out"
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              label={({ cx, cy, midAngle, outerRadius: or, pct }: any) => {
+              label={(props: PieLabelRenderProps) => {
+                const { cx, cy, midAngle, outerRadius: or } = props;
+                const pct = (props as PieLabelRenderProps & { pct: number }).pct;
                 const RADIAN = Math.PI / 180;
-                const radius = or + 38;
-                const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                const radius = (or as number) + 38;
+                const x = (cx as number) + radius * Math.cos(-(midAngle ?? 0) * RADIAN);
+                const y = (cy as number) + radius * Math.sin(-(midAngle ?? 0) * RADIAN);
                 return (
                   <text
                     x={x}
