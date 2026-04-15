@@ -380,16 +380,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setFocusedIndex((i) => Math.max(i - 1, -1));
-      } else if (e.key === "Enter") {
-        e.preventDefault();
-        if (focusedIndex >= 0 && focusedIndex < allItems.length) {
-          const focused = allItems[focusedIndex];
-          if (focused.type === "recent") handleRecentClick(focused.query);
-          else navigateTo(focused.item.href, query);
-        } else if (query.trim().length > 0) {
-          // 드롭다운에서 선택하지 않으면 통합검색 결과 페이지로 이동
-          navigateTo(`/search?q=${encodeURIComponent(query.trim())}`, query);
-        }
       } else if (e.key === "Escape") {
         if (isExpanded) {
           handleClose();
@@ -399,8 +389,24 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           onCloseProp?.();
         }
       }
+      // Enter는 form onSubmit이 처리 — iOS 가상 키보드 Search 버튼과의 호환성 확보
     },
-    [allItems, focusedIndex, navigateTo, query, handleRecentClick, isExpanded, handleClose, onCloseProp],
+    [allItems.length, isExpanded, handleClose, onCloseProp],
+  );
+
+  // ----- Form submit: 드롭다운 선택 vs 통합검색 페이지 분기 -----
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (focusedIndex >= 0 && focusedIndex < allItems.length) {
+        const focused = allItems[focusedIndex];
+        if (focused.type === "recent") handleRecentClick(focused.query);
+        else navigateTo(focused.item.href, query);
+      } else if (query.trim().length > 0) {
+        navigateTo(`/search?q=${encodeURIComponent(query.trim())}`, query);
+      }
+    },
+    [allItems, focusedIndex, navigateTo, query, handleRecentClick],
   );
 
   // ----- Click outside -----
@@ -447,7 +453,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 
   return (
     <div className={containerClass} ref={containerRef}>
-      <div className={wrapClass}>
+      <form className={wrapClass} onSubmit={handleSubmit} role="search">
         {isExpanded ? (
           <button
             type="button"
@@ -466,8 +472,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
         )}
         <input
           ref={inputRef}
+          name="q"
           className={s.input}
-          type="text"
+          type="search"
           inputMode="search"
           enterKeyHint="search"
           // eslint-disable-next-line jsx-a11y/no-autofocus
@@ -510,7 +517,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             <X size={16} />
           </button>
         )}
-      </div>
+      </form>
 
       {showDropdown && (
         <div
