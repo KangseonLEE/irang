@@ -11,6 +11,8 @@ import {
   Monitor,
   Building2,
   Combine,
+  Heart,
+  ChevronRight,
 } from "lucide-react";
 import {
   filterEducationAsync,
@@ -151,6 +153,22 @@ export default async function EducationPage({ searchParams }: PageProps) {
         periodLabel={periodLabel}
         dataNote={`${dataYear}년 데이터만 제공되며, 연도 변경은 지원되지 않습니다.`}
       />
+
+      {/* 치유·사회적 농업 진입점 */}
+      <Link href="/education/therapy" className={s.therapyBanner}>
+        <span className={s.therapyBannerIcon} aria-hidden="true">
+          <Heart size={18} />
+        </span>
+        <span className={s.therapyBannerText}>
+          <span className={s.therapyBannerTitle}>
+            작물 생산 말고 다른 귀농이 궁금하다면
+          </span>
+          <span className={s.therapyBannerDesc}>
+            치유농업·사회적 농업 가이드로 이동해요
+          </span>
+        </span>
+        <ChevronRight size={18} className={s.therapyBannerArrow} aria-hidden="true" />
+      </Link>
 
       {/* Filter Bar */}
       <FilterBar>

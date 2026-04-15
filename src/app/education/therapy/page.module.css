@@ -1,0 +1,279 @@
+/* ═══════════════════════════════════════════
+   치유·사회적 농업 가이드 페이지
+   ═══════════════════════════════════════════ */
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── 트랙 카드 ── */
+.trackList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+@media (min-width: 768px) {
+  .track {
+    padding: 32px;
+    gap: 20px;
+  }
+}
+
+.trackHead {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trackTitle {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  line-height: var(--lh-snug);
+  color: var(--foreground);
+  margin: 0;
+}
+
+.trackSubtitle {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.definition {
+  font-size: var(--fs-body);
+  line-height: var(--lh-relaxed);
+  color: var(--foreground);
+  margin: 0;
+}
+
+/* ── 섹션 블록 (법적 근거 / 진입 경로 / 숫자) ── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sectionBody {
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+/* ── 진입 경로 순서 리스트 ── */
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--foreground);
+}
+
+.stepNum {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+/* ── Stats 그리드 ── */
+.stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+}
+
+.statValue {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: var(--fs-caption);
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.statSource {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+  margin-top: 2px;
+}
+
+/* ── 외부 링크 버튼 ── */
+.officialLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  padding: 10px 16px;
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+@media (hover: hover) {
+  .officialLink:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 50%, transparent);
+  }
+}
+
+.officialLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ── 교차 링크 카드 ── */
+.crossLinks {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .crossLinks {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.crossLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .crossLink:hover {
+    border-color: color-mix(in srgb, var(--foreground) 20%, transparent);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--foreground) 5%, transparent);
+  }
+}
+
+.crossLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.crossLinkText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.crossLinkTitle {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--foreground);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.crossLinkTitle svg {
+  color: var(--primary, #1b6b5a);
+}
+
+.crossLinkDesc {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+}
+
+.crossLinkArrow {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+}
+
+/* ── 하단 안내문 ── */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-relaxed);
+  color: var(--muted-foreground);
+  padding: 12px 14px;
+  background: var(--muted, #f9fafb);
+  border-radius: 10px;
+  margin: 0;
+}
+
+.notice svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}

@@ -25,6 +25,7 @@ import {
   ClipboardCheck,
   ChevronRight,
   Info,
+  Heart,
   type LucideIcon,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
@@ -86,6 +87,7 @@ const menuGroups: MenuGroup[] = [
       { href: "/guide/track-compare", label: "귀농·귀산촌 비교", desc: "추진체계를 한눈에 비교", icon: GitCompareArrows },
       { href: "/guide/shelter", label: "농촌체류형 쉼터", desc: "33㎡ 임시 주거 설치 가이드", icon: Home },
       { href: "/education", label: "교육 프로그램", desc: "온·오프라인 귀농 교육", icon: GraduationCap },
+      { href: "/education/therapy", label: "치유·사회적 농업", desc: "다른 귀농 모델 가이드", icon: Heart },
       { href: "/events", label: "체험·행사", desc: "현장 체험 & 박람회 일정", icon: CalendarDays },
     ],
   },
