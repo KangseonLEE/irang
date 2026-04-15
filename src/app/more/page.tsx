@@ -20,131 +20,67 @@ import {
   BarChart3,
   BookOpen,
   Compass,
+  ClipboardCheck,
   ArrowRight,
   Info,
   type LucideIcon,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
-import { Icon as IconWrap } from "@/components/ui/icon";
-import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page.module.css";
 
-/* ── 그룹 데이터 (header.tsx navGroups와 동기) ── */
+/* ── 그리드 아이템 데이터 ── */
 
-interface NavChild {
+interface GridItem {
   href: string;
   label: string;
-  desc: string;
   icon: LucideIcon;
+  color: string; // 아이콘 배경 색상
 }
 
-interface NavGroup {
+interface GridGroup {
   label: string;
-  children: NavChild[];
+  items: GridItem[];
 }
 
-const navGroups: NavGroup[] = [
+const gridGroups: GridGroup[] = [
   {
-    label: "지역",
-    children: [
-      {
-        href: "/regions",
-        label: "지역 탐색",
-        desc: "시·도별 기후·인구·작물 정보",
-        icon: MapPin,
-      },
-      {
-        href: "/regions/compare",
-        label: "지역 비교",
-        desc: "최대 3개 지역 비교 분석",
-        icon: GitCompareArrows,
-      },
+    label: "진단·추천",
+    items: [
+      { href: "/assess", label: "준비도 진단", icon: ClipboardCheck, color: "#1B6B5A" },
+      { href: "/match", label: "유형 매칭", icon: Compass, color: "#0E7490" },
     ],
   },
   {
-    label: "작물",
-    children: [
-      {
-        href: "/crops",
-        label: "작물 정보",
-        desc: "재배 난이도·수익성·적합 기후",
-        icon: Sprout,
-      },
-      {
-        href: "/crops/compare",
-        label: "작물 비교",
-        desc: "최대 3종 작물 비교",
-        icon: GitCompareArrows,
-      },
+    label: "지역·작물",
+    items: [
+      { href: "/regions", label: "지역 탐색", icon: MapPin, color: "#DC2626" },
+      { href: "/regions/compare", label: "지역 비교", icon: GitCompareArrows, color: "#7C3AED" },
+      { href: "/crops", label: "작물 정보", icon: Sprout, color: "#16A34A" },
+      { href: "/crops/compare", label: "작물 비교", icon: GitCompareArrows, color: "#059669" },
     ],
   },
   {
     label: "준비하기",
-    children: [
-      {
-        href: "/guide",
-        label: "귀농 로드맵",
-        desc: "5단계 귀농 준비 가이드",
-        icon: Map,
-      },
-      {
-        href: "/costs",
-        label: "비용 가이드",
-        desc: "연령·작물별 비용 분석 & 지원금",
-        icon: Wallet,
-      },
-      {
-        href: "/interviews",
-        label: "귀농인 이야기",
-        desc: "실제 귀농인 인터뷰",
-        icon: Users,
-      },
+    items: [
+      { href: "/guide", label: "귀농 로드맵", icon: Map, color: "#2563EB" },
+      { href: "/costs", label: "비용 가이드", icon: Wallet, color: "#D97706" },
+      { href: "/interviews", label: "귀농인 이야기", icon: Users, color: "#9333EA" },
     ],
   },
   {
     label: "지원·교육",
-    children: [
-      {
-        href: "/programs",
-        label: "지원사업",
-        desc: "귀농·귀촌 지원금 & 정책",
-        icon: FileText,
-      },
-      {
-        href: "/programs/roadmap",
-        label: "정부사업 가이드",
-        desc: "4대 사업 신청 절차 안내",
-        icon: Route,
-      },
-      {
-        href: "/education",
-        label: "교육 프로그램",
-        desc: "온·오프라인 귀농 교육",
-        icon: GraduationCap,
-      },
-      {
-        href: "/events",
-        label: "체험·행사",
-        desc: "현장 체험 & 박람회 일정",
-        icon: CalendarDays,
-      },
+    items: [
+      { href: "/programs", label: "지원사업", icon: FileText, color: "#0891B2" },
+      { href: "/programs/roadmap", label: "사업 가이드", icon: Route, color: "#4F46E5" },
+      { href: "/education", label: "교육 과정", icon: GraduationCap, color: "#EA580C" },
+      { href: "/events", label: "체험·행사", icon: CalendarDays, color: "#DB2777" },
     ],
   },
   {
     label: "자료",
-    children: [
-      {
-        href: "/stats/population",
-        label: "통계",
-        desc: "귀농 인구·청년·만족도 추이",
-        icon: BarChart3,
-      },
-      {
-        href: "/glossary",
-        label: "농업 용어집",
-        desc: "처음 만나는 농업 용어 해설",
-        icon: BookOpen,
-      },
+    items: [
+      { href: "/stats/population", label: "통계", icon: BarChart3, color: "#6366F1" },
+      { href: "/glossary", label: "용어집", icon: BookOpen, color: "#78716C" },
     ],
   },
 ];
@@ -152,45 +88,29 @@ const navGroups: NavGroup[] = [
 export default function MorePage() {
   return (
     <div className={s.page}>
-      <h1 className={s.title}>더보기</h1>
+      <h1 className={s.title}>전체 서비스</h1>
 
-      {/* 유형 진단 CTA */}
-      <Link href="/match" className={s.ctaBanner}>
-        <div className={s.ctaLeft}>
-          <IconWrap icon={Compass} size="xl" />
-          <div className={s.ctaText}>
-            <span className={s.ctaLabel}>귀농 준비 진단</span>
-            <span className={s.ctaDesc}>
-              3분이면 나의 귀농 준비 상태를 확인할 수 있어요
-            </span>
-          </div>
-        </div>
-        <IconWrap icon={ArrowRight} size="lg" className={s.ctaArrow} />
-      </Link>
-
-      {/* 5그룹 네비게이션 */}
-      <nav aria-label="전체 메뉴">
-        {navGroups.map((group) => (
+      {/* 그리드 네비게이션 */}
+      <nav aria-label="전체 메뉴" className={s.nav}>
+        {gridGroups.map((group) => (
           <section key={group.label} className={s.group}>
             <h2 className={s.groupLabel}>{group.label}</h2>
-            <div className={s.groupItems}>
-              {group.children.map((child) => {
-                const Icon = child.icon;
+            <div className={s.grid}>
+              {group.items.map((item) => {
+                const Icon = item.icon;
                 return (
                   <Link
-                    key={child.href}
-                    href={child.href}
-                    className={s.menuItem}
+                    key={item.href}
+                    href={item.href}
+                    className={s.gridItem}
                   >
-                    <div className={s.menuIcon}>
-                      <Icon size={22} strokeWidth={1.75} />
+                    <div
+                      className={s.gridIcon}
+                      style={{ background: item.color }}
+                    >
+                      <Icon size={22} strokeWidth={1.75} color="#fff" />
                     </div>
-                    <div className={s.menuText}>
-                      <span className={s.menuLabel}>{child.label}</span>
-                      <span className={s.menuDesc}>
-                        <AutoGlossary text={child.desc} />
-                      </span>
-                    </div>
+                    <span className={s.gridLabel}>{item.label}</span>
                   </Link>
                 );
               })}
@@ -199,9 +119,9 @@ export default function MorePage() {
         ))}
       </nav>
 
-      {/* 서비스 소개 — 하단 분리 */}
+      {/* 서비스 소개 */}
       <Link href="/about" className={s.aboutLink}>
-        <IconWrap icon={Info} size="md" />
+        <Info size={16} strokeWidth={1.75} />
         <span>서비스 소개</span>
       </Link>
     </div>

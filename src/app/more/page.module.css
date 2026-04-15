@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   더보기 페이지 (그룹형)
+   더보기 페이지 — 토스 스타일 그리드 메뉴
    ══════════════════════════════════════════ */
 .page {
   max-width: 640px;
@@ -7,7 +7,7 @@
   padding: 24px 16px 40px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .title {
@@ -16,141 +16,86 @@
   font-weight: 800;
   color: var(--foreground, #111827);
   letter-spacing: -0.02em;
+  padding: 0 4px;
 }
 
-/* ── 유형 진단 CTA ── */
-.ctaBanner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px;
-  margin-top: 4px;
-  margin-bottom: 8px;
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
-  text-decoration: none;
-  transition: background-color 0.15s ease;
-}
-
-@media (hover: hover) {
-  .ctaBanner:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
-  }
-}
-
-.ctaLeft {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--primary, #1b6b5a);
-  min-width: 0; /* flex 자식 텍스트 말줄임 허용 */
-}
-
-.ctaText {
+/* ── 네비게이션 ── */
+.nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.ctaLabel {
-  font-size: var(--fs-body, 15px);
-  font-weight: 700;
-  color: var(--primary, #1b6b5a);
-}
-
-.ctaDesc {
-  font-size: var(--fs-caption, 13px);
-  color: var(--muted-foreground, #6b7280);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.ctaArrow {
-  color: var(--primary, #1b6b5a);
-  flex-shrink: 0;
+  gap: 4px;
+  margin-top: 12px;
 }
 
 /* ── 그룹 ── */
 .group {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .groupLabel {
   margin: 0;
-  font-size: var(--fs-overline, 11px);
+  font-size: var(--fs-caption, 12px);
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--muted-foreground, #6b7280);
-  padding: 14px 14px 6px;
+  padding: 14px 8px 4px;
 }
 
-.groupItems {
+/* ── 그리드 (4열) ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 4px;
+  background: var(--card, #fff);
+  border-radius: 16px;
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+/* ── 그리드 아이템 ── */
+.gridItem {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
-
-/* ── 메뉴 아이템 ── */
-.menuItem {
-  display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px;
-  border-radius: 14px;
+  gap: 8px;
+  padding: 16px 4px 14px;
+  border-radius: 12px;
   text-decoration: none;
   transition: background-color 0.12s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (hover: hover) {
-  .menuItem:hover {
+  .gridItem:hover {
     background: var(--muted, #f9fafb);
   }
 }
 
-.menuItem:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: -2px;
+.gridItem:active {
+  background: var(--muted, #f3f4f6);
 }
 
-/* 아이콘 */
-.menuIcon {
+/* ── 아이콘 (색상 배경 + 흰 아이콘) ── */
+.gridIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  color: var(--muted-foreground, #6b7280);
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   flex-shrink: 0;
 }
 
-/* 텍스트 */
-.menuText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.menuLabel {
-  font-size: var(--fs-body, 15px);
+/* ── 라벨 ── */
+.gridLabel {
+  font-size: var(--fs-caption, 12px);
   font-weight: 600;
   color: var(--foreground, #111827);
-}
-
-.menuDesc {
-  font-size: var(--fs-caption, 13px);
-  color: var(--muted-foreground, #6b7280);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: center;
+  line-height: 1.3;
+  word-break: keep-all;
 }
 
 /* ── 서비스 소개 링크 ── */
@@ -171,5 +116,35 @@
 @media (hover: hover) {
   .aboutLink:hover {
     color: var(--foreground, #111827);
+  }
+}
+
+/* ═══ 반응형 ═══ */
+
+/* 작은 화면 (320px 이하) — 3열 */
+@media (max-width: 359px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 태블릿 이상 — 그리드 아이콘 크기 UP */
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 24px 60px;
+  }
+
+  .gridIcon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+  }
+
+  .gridItem {
+    padding: 20px 4px 16px;
+  }
+
+  .gridLabel {
+    font-size: var(--fs-body-sm, 13px);
   }
 }

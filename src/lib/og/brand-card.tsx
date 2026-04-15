@@ -161,159 +161,161 @@ export function assessScoreCard({
       style={{
         display: "flex",
         flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         width: "100%",
         height: "100%",
         background: "#F5F1EB",
         fontFamily: "Noto Sans KR",
         position: "relative",
-        padding: "56px 64px",
+        padding: "40px 56px",
       }}
     >
-      {/* 상단: 결과 타이틀 */}
+      {/* 중앙 컨텐츠 영역 */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "4px",
+          alignItems: "center",
+          width: "100%",
+          maxWidth: "1000px",
+          gap: "28px",
         }}
       >
+        {/* 이모지 + 타이틀 + 점수 */}
         <div
           style={{
             display: "flex",
-            fontSize: "16px",
-            fontWeight: 700,
-            color: "#1B6B5A",
-            letterSpacing: "0.5px",
-          }}
-        >
-          나의 귀농 준비도 진단 결과
-        </div>
-        <div
-          style={{
-            display: "flex",
+            flexDirection: "column",
             alignItems: "center",
-            gap: "16px",
-            marginTop: "4px",
+            gap: "6px",
           }}
         >
-          <div style={{ display: "flex", fontSize: "56px", lineHeight: "1" }}>
+          <div style={{ display: "flex", fontSize: "72px", lineHeight: "1" }}>
             {emoji}
           </div>
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              gap: "2px",
+              fontSize: "18px",
+              fontWeight: 700,
+              color: "#1B6B5A",
+              letterSpacing: "0.5px",
+              marginTop: "4px",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                fontSize: "40px",
-                fontWeight: 700,
-                color: "#0D2E27",
-                letterSpacing: "-1.5px",
-              }}
-            >
-              {tierTitle}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                fontSize: "18px",
-                fontWeight: 700,
-                color: "#5A6B5E",
-              }}
-            >
-              총점 {totalScore}점 / 40점
-            </div>
+            나의 귀농 준비도 진단 결과
           </div>
-        </div>
-      </div>
-
-      {/* 중단: 차원별 바 차트 */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-          marginTop: "32px",
-          flex: 1,
-        }}
-      >
-        {dimensions.map((dim) => (
           <div
-            key={dim.label}
             style={{
               display: "flex",
-              alignItems: "center",
-              gap: "12px",
+              fontSize: "48px",
+              fontWeight: 700,
+              color: "#0D2E27",
+              letterSpacing: "-2px",
             }}
           >
+            {tierTitle}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              fontSize: "20px",
+              fontWeight: 700,
+              color: "#5A6B5E",
+            }}
+          >
+            총점 {totalScore}점 / 40점
+          </div>
+        </div>
+
+        {/* 차원별 바 차트 */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "14px",
+            width: "100%",
+          }}
+        >
+          {dimensions.map((dim) => (
             <div
+              key={dim.label}
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "6px",
-                width: "140px",
-                fontSize: "15px",
-                fontWeight: 700,
-                color: "#0D2E27",
-                flexShrink: 0,
-              }}
-            >
-              <span style={{ fontSize: "16px" }}>{dim.icon}</span>
-              {dim.label}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flex: 1,
-                height: "14px",
-                borderRadius: "7px",
-                background: "rgba(0,0,0,0.06)",
-                overflow: "hidden",
+                gap: "14px",
               }}
             >
               <div
                 style={{
                   display: "flex",
-                  width: `${dim.percent}%`,
-                  height: "100%",
-                  borderRadius: "7px",
-                  background: dim.percent <= 37 ? "#f59e0b" : "#1B6B5A",
+                  alignItems: "center",
+                  gap: "8px",
+                  width: "160px",
+                  fontSize: "18px",
+                  fontWeight: 700,
+                  color: "#0D2E27",
+                  flexShrink: 0,
                 }}
-              />
+              >
+                <span style={{ fontSize: "20px" }}>{dim.icon}</span>
+                {dim.label}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flex: 1,
+                  height: "18px",
+                  borderRadius: "9px",
+                  background: "rgba(0,0,0,0.06)",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    width: `${dim.percent}%`,
+                    height: "100%",
+                    borderRadius: "9px",
+                    background: dim.percent <= 37 ? "#f59e0b" : "#1B6B5A",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  width: "50px",
+                  fontSize: "17px",
+                  fontWeight: 700,
+                  color: dim.percent <= 37 ? "#b45309" : "#1B6B5A",
+                  justifyContent: "flex-end",
+                }}
+              >
+                {dim.percent}%
+              </div>
             </div>
-            <div
-              style={{
-                display: "flex",
-                width: "42px",
-                fontSize: "14px",
-                fontWeight: 700,
-                color: dim.percent <= 37 ? "#b45309" : "#1B6B5A",
-                justifyContent: "flex-end",
-              }}
-            >
-              {dim.percent}%
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* 하단: 로고 */}
+      {/* 하단: 로고 (절대 위치) */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          position: "absolute",
+          bottom: "24px",
+          left: "56px",
+          right: "56px",
         }}
       >
-        {logoMark("md")}
+        {logoMark("sm")}
         <div
           style={{
             display: "flex",
-            fontSize: "16px",
+            fontSize: "14px",
             fontWeight: 700,
             color: "#8B8477",
           }}
