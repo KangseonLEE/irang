@@ -37,7 +37,7 @@ interface QuickItem {
 }
 
 const quickItems: QuickItem[] = [
-  { href: "/assess", label: "준비도 진단", icon: ClipboardCheck },
+  { href: "/guide", label: "귀농 로드맵", icon: Map },
   { href: "/match", label: "유형 매칭", icon: Compass },
   { href: "/regions", label: "지역 탐색", icon: MapPin },
   { href: "/programs", label: "지원사업", icon: FileText },
@@ -70,7 +70,7 @@ const menuGroups: MenuGroup[] = [
   {
     label: "준비하기",
     items: [
-      { href: "/guide", label: "귀농 로드맵", desc: "5단계 귀농 준비 가이드", icon: Map },
+      { href: "/assess", label: "준비도 진단", desc: "체크리스트로 확인하는 귀농 준비 상태", icon: ClipboardCheck },
       { href: "/costs", label: "비용 가이드", desc: "연령·작물별 비용 분석 & 지원금", icon: Wallet },
       { href: "/interviews", label: "귀농인 이야기", desc: "실제 귀농인 인터뷰", icon: Users },
     ],
