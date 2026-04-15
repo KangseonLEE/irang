@@ -112,7 +112,7 @@ export function MobileNav() {
           className={`${s.tab} ${isMoreActive ? s.active : ""}`}
         >
           <MoreHorizontal size={24} strokeWidth={isMoreActive ? 2.0 : 1.75} />
-          <span>더보기</span>
+          <span>전체</span>
         </Link>
       </div>
     </nav>

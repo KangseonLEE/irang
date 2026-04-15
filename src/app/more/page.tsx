@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "더보기",
+  title: "전체",
   description:
     "이랑의 모든 서비스를 한눈에 확인하세요. 지역탐색, 작물정보, 귀농 로드맵, 비용 가이드, 교육, 체험행사, 통계 등.",
 };

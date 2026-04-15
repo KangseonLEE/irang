@@ -82,12 +82,11 @@
 
 .groupLabel {
   margin: 0;
-  font-size: var(--fs-overline, 11px);
+  font-size: var(--fs-caption, 13px);
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: -0.01em;
   color: var(--muted-foreground, #6b7280);
-  padding: 14px 14px 6px;
+  padding: 16px 14px 6px;
 }
 
 .listItems {
