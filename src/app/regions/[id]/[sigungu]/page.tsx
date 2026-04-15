@@ -9,7 +9,9 @@ import {
   GraduationCap,
   Calendar,
   Building2,
+  LandPlot,
 } from "lucide-react";
+import { LandCheckBox } from "@/components/region/land-check-box";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS, getSigunguBySidoAndId } from "@/lib/data/sigungus";
@@ -246,6 +248,20 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         >
           전체 지원사업 보기 →
         </Link>
+      </section>
+
+      {/* ── 필지·임지 확인 (외부 포털 허브) ── */}
+      <section className={s.section} aria-label="필지·임지 확인">
+        <div className={s.sectionHeader}>
+          <Icon icon={LandPlot} size="lg" />
+          <div>
+            <h2 className={s.sectionTitle}>필지·임지 확인</h2>
+            <p className={s.sectionDesc}>
+              규제 상세는 공식 포털에서 바로 확인해 보세요.
+            </p>
+          </div>
+        </div>
+        <LandCheckBox />
       </section>
 
       {/* ── 귀농 교육 ── */}

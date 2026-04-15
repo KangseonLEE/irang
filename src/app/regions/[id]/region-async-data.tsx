@@ -16,9 +16,11 @@ import {
   GraduationCap,
   Calendar,
   MapPin,
+  LandPlot,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { RegionStats } from "./region-stats";
+import { LandCheckBox } from "@/components/region/land-check-box";
 import { DataSource } from "@/components/ui/data-source";
 import { ProvinceMap } from "@/components/map/province-map";
 import type { Province } from "@/lib/data/regions";
@@ -210,6 +212,20 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
           </Link>
         </section>
       )}
+
+      {/* 필지·임지 확인 — 외부 포털 허브 */}
+      <section className={s.section}>
+        <div className={s.sectionHeader}>
+          <Icon icon={LandPlot} size="lg" />
+          <div>
+            <h2 className={s.sectionTitle}>필지·임지 확인</h2>
+            <p className={s.sectionDesc}>
+              규제 상세는 공식 포털에서 바로 확인해 보세요.
+            </p>
+          </div>
+        </div>
+        <LandCheckBox />
+      </section>
 
       {/* 교육 과정 */}
       {matchedEducation.length > 0 && (
