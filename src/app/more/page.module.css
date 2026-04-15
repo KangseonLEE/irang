@@ -16,7 +16,7 @@
   font-weight: 800;
   color: var(--foreground, #111827);
   letter-spacing: -0.02em;
-  padding: 0 4px;
+  padding: 0 14px;
 }
 
 /* ═══ 퀵 메뉴 (상단 4개 개별 카드) ═══ */
@@ -25,6 +25,7 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
   margin-top: 8px;
+  padding: 0 8px;
 }
 
 .quickItem {
