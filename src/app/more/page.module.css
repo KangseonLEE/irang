@@ -19,11 +19,11 @@
   padding: 0 14px;
 }
 
-/* ═══ 퀵 메뉴 (상단 4개 개별 카드) ═══ */
+/* ═══ 퀵 메뉴 (상단 5개 개별 카드) ═══ */
 .quickGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
   margin-top: 8px;
   padding: 0 8px;
 }
@@ -33,7 +33,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 14px 2px 12px;
+  padding: 10px 2px 8px;
   border-radius: var(--radius-sm, 8px);
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
@@ -184,11 +184,11 @@
   }
 
   .quickGrid {
-    gap: 8px;
+    gap: 6px;
   }
 
   .quickItem {
-    padding: 18px 4px 14px;
+    padding: 14px 4px 12px;
   }
 
   .quickLabel {
