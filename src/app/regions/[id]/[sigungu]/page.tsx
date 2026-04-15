@@ -8,6 +8,7 @@ import {
   FileText,
   GraduationCap,
   Calendar,
+  Building2,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { PROVINCES } from "@/lib/data/regions";
@@ -15,6 +16,8 @@ import { SIGUNGUS, getSigunguBySidoAndId } from "@/lib/data/sigungus";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { getSigunguCenter } from "@/lib/data/centers";
+import { CenterCard } from "@/components/region/center-card";
 import { PROGRAMS } from "@/lib/data/programs";
 import { EDUCATION_COURSES } from "@/lib/data/education";
 import { EVENTS } from "@/lib/data/events";
@@ -71,6 +74,9 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
   const sigungu = getSigunguBySidoAndId(id, sigunguId);
   if (!sigungu) notFound();
+
+  // 시군구 귀농지원센터 (정적 — 상위 광역 폴백하지 않음)
+  const sigunguCenter = getSigunguCenter(sigungu.id);
 
   // 대표 작물 매칭 (정적 데이터 — API 불필요)
   const matchedCrops = CROPS.filter((crop) => {
@@ -178,6 +184,22 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           </div>
         )}
       </section>
+
+      {/* ── 이 지역 귀농지원센터 (정적) ── */}
+      {sigunguCenter && (
+        <section className={s.section} aria-label="이 지역 귀농지원센터">
+          <div className={s.sectionHeader}>
+            <Icon icon={Building2} size="lg" />
+            <div>
+              <h2 className={s.sectionTitle}>이 지역 귀농지원센터</h2>
+              <p className={s.sectionDesc}>
+                상담·교육·정착 지원은 여기서 시작해요.
+              </p>
+            </div>
+          </div>
+          <CenterCard center={sigunguCenter} />
+        </section>
+      )}
 
       {/* ── 관련 지원사업 ── */}
       <section className={s.section} aria-label="관련 지원사업">
