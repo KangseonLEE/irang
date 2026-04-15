@@ -2,6 +2,57 @@
 
 # 이랑 프로젝트 개발 규칙
 
+> 이 파일은 Claude가 세션마다 자동 로드하는 규칙이다.
+> **하네스 계층**: 에이전트·스킬·hook은 `.claude/` 하위에 분리. 이 파일(CLAUDE.md)은 기존 코드 컨벤션·디자인 원칙을 보존하고, 하네스 진입점만 §0에 추가.
+
+---
+
+## 0. 하네스 진입점 (2026-04-15 추가)
+
+### 0-1. 디스패치 테이블
+
+| 트리거 | 대상 | 비고 |
+|--------|------|------|
+| "이랑 작업", "코드 작업", "배포 준비", "개발 진행상황" | `chief-of-staff` 에이전트 | 회장 대리, 분배·종합 |
+| "페이지 만들어줘", "컴포넌트 추가", "UI 수정", "CSS 조정" | `frontend-engineer` 에이전트 | Next.js 16 + CSS Modules 구현 |
+| "API 연동", "데이터 갱신", "Supabase", "DB 스키마", "공공데이터" | `data-engineer` 에이전트 | 8 API · 폴백 · 마이그레이션 |
+| "QA 해줘", "배포 전 점검", "Lighthouse", "린트 체크" | `qa-reviewer` 에이전트 | 배포 전 게이트 |
+| "놓친 거 확인", "상시 점검", "stale 체크" | `reminder-watchman` 에이전트 | uncommit·타입·빌드·API 상시 |
+| "커밋 전 체크", "체크리스트 확인" | `.claude/skills/pre-commit-check/SKILL.md` | A~H 자동 검증 |
+| "정책 스냅샷", "지원사업 갱신" | `.claude/skills/policy-snapshot-sync/SKILL.md` | drift 감지 |
+| "API 확인", "환경변수 점검" | `.claude/skills/api-health-check/SKILL.md` | 8 API + env + Sentry |
+| "배포 전 점검", "deploy preflight" | `.claude/skills/deploy-preflight/SKILL.md` | 전수 게이트 |
+
+### 0-2. 회장 모드 (Chairman Mode)
+
+**David = 회장**. 중간 조율·분배·에스컬레이션 1차 대응은 **chief-of-staff가 자체 완결**. David에게 올라가는 건:
+
+1. **방향성 변경** — Phase 정의·스코프·기술 스택 근본 재정의
+2. **되돌릴 수 없는 결정** — 배포, 도메인 구매, 외부 API 계약, DB 마이그레이션 적용
+3. **파트 합의 불가** — CoS가 조율 실패 시 옵션 + 권고
+4. **완료 보고** — Sprint 종료·Phase 완료
+5. **위험 신호** — 빌드 실패 지속, 데이터 무결성 붕괴, 번아웃 패턴
+
+그 외 전부 CoS 선에서 완결. David에게 "어떻게 할까요?" 대신 "이렇게 처리했습니다" 또는 "A/B/C 중 B 추천, 결재 부탁드립니다"로 변환.
+
+**예외**: David가 명시적으로 특정 에이전트·작업을 직접 지시하면 CoS 경유 없이 진행.
+
+### 0-3. 세션 시작 자동 체크
+
+- `.reminder-flag.md` 존재 시 reminder-watchman 자동 호출 → 결과 출력 후 flag 삭제
+- Kill Criteria 날짜(4/17, 5/3) D-2부터 chief-of-staff가 자동 알림
+
+### 0-4. David_agit(기획 볼트) 연동
+
+- 기획 SSOT: `/Users/igangseon/David_agit/10.projects/이랑/` (19개 활성 + 21개 _archive, 허브 `이랑.md`)
+- 코드 변경이 기획에 영향 → chief-of-staff가 허브 Progress Log 갱신 제안
+- 기획 변경이 코드에 영향 → David_agit-CoS로부터 위임 요청 수신
+
+---
+
+## 기존 프로젝트 개발 규칙 (이하 원본 유지)
+
+
 ## 프로젝트 개요
 
 - **서비스명**: 이랑 (irang) — 귀농 정보 큐레이션 포탈
@@ -10,7 +61,7 @@
 - **기술 스택**: Next.js 16 (App Router) + TypeScript + CSS Modules + lucide-react
 - **배포**: Vercel (`irang-wheat.vercel.app`)
 - **코드 저장소**: `~/Workspace/irang/`
-- **볼트 문서**: `/Users/igangseon/David_agit/10.projects/이랑*.md`
+- **볼트 문서**: `/Users/igangseon/David_agit/10.projects/이랑/이랑-*.md` (19개 활성 + 21개 `_archive/`, 허브 노트 `이랑.md`)
 
 ### 프로젝트 구조
 
