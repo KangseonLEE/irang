@@ -1,0 +1,72 @@
+/* ==========================================================================
+   공용 버튼 스타일 — primary CTA·링크 버튼 공통 스타일
+   CSS Module · composes 패턴으로 재사용 (Next.js 16 + CSS Modules)
+   사용 예: composes: primary from "@/components/ui/button.module.css";
+   ========================================================================== */
+
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: 1;
+  border: none;
+  border-radius: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, opacity 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.base:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.base:active {
+  transform: scale(0.99);
+}
+
+/* Primary — 기본 CTA */
+.primary {
+  composes: base;
+  padding: 14px 24px;
+  color: var(--primary-foreground, #fff);
+  background: var(--primary, #1b6b5a);
+}
+
+@media (hover: hover) {
+  .primary:hover {
+    opacity: 0.92;
+  }
+}
+
+/* Primary Full — 가로 전체 폭 (페이지 내 네비/점프 CTA) */
+.primaryFull {
+  composes: primary;
+  width: 100%;
+}
+
+/* Subtle — 연한 배경 + primary 텍스트 (보조 네비게이션 CTA) */
+.subtle {
+  composes: base;
+  padding: 12px 20px;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+}
+
+@media (hover: hover) {
+  .subtle:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent);
+  }
+}
+
+.subtleFull {
+  composes: subtle;
+  width: 100%;
+}

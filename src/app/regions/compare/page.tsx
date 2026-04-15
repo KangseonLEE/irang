@@ -10,7 +10,7 @@ import { fetchPopulationData, type PopulationData } from "@/lib/api/sgis";
 import { fetchMedicalFacilities, type MedicalFacilityData } from "@/lib/api/hira";
 import { fetchSchoolCounts, type SchoolData } from "@/lib/api/education";
 import { fetchRegionPhotos, type UnsplashPhoto } from "@/lib/api/unsplash";
-import { STATIONS, DEFAULT_STATION_IDS } from "@/lib/data/stations";
+import { STATIONS } from "@/lib/data/stations";
 import { PROGRAMS } from "@/lib/data/programs";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { RegionSelector } from "./region-selector";
@@ -32,9 +32,10 @@ interface PageProps {
 
 export default async function RegionsPage({ searchParams }: PageProps) {
   const params = await searchParams;
+  // 첫 진입에는 자동 선택 없음 — 사용자가 직접 고르도록 빈 상태 노출
   const selectedIds = params.stations
-    ? params.stations.split(",").slice(0, 3)
-    : DEFAULT_STATION_IDS;
+    ? params.stations.split(",").filter(Boolean).slice(0, 3)
+    : [];
   const selectedCropId = params.crop ?? null;
 
   // 선택된 관측소 메타데이터 추출 (동기 — 즉시 완료)
@@ -46,15 +47,26 @@ export default async function RegionsPage({ searchParams }: PageProps) {
   const uniqueHiraCodes = [...new Set(selectedStations.map((st) => st.hiraSidoCd))];
   const uniqueEduCodes = [...new Set(selectedStations.map((st) => st.eduCode))];
 
+  // 선택이 없으면 API 호출 건너뛰고 빈 상태 렌더 (불필요한 fetch 방지)
+  const hasSelection = selectedIds.length > 0;
+
   // 5개 API를 병렬 호출 (순차→병렬: 로딩 시간 ~60-70% 단축)
   const [climateResult, populationResult, medicalResult, schoolResult, photoResult] =
-    await Promise.allSettled([
-      fetchMultipleClimateData(selectedIds),
-      fetchPopulationData(uniqueSgisCodes),
-      fetchMedicalFacilities(uniqueHiraCodes),
-      fetchSchoolCounts(uniqueEduCodes),
-      fetchRegionPhotos(selectedIds),
-    ]);
+    hasSelection
+      ? await Promise.allSettled([
+          fetchMultipleClimateData(selectedIds),
+          fetchPopulationData(uniqueSgisCodes),
+          fetchMedicalFacilities(uniqueHiraCodes),
+          fetchSchoolCounts(uniqueEduCodes),
+          fetchRegionPhotos(selectedIds),
+        ])
+      : [
+          { status: "fulfilled" as const, value: [] },
+          { status: "fulfilled" as const, value: [] },
+          { status: "fulfilled" as const, value: [] },
+          { status: "fulfilled" as const, value: [] },
+          { status: "fulfilled" as const, value: new Map() },
+        ];
 
   const climateData =
     climateResult.status === "fulfilled" ? climateResult.value : [];
@@ -333,7 +345,9 @@ export default async function RegionsPage({ searchParams }: PageProps) {
       ) : (
         <div className={s.emptyState}>
           <p className={s.emptyStateText}>
-            기상 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.
+            {hasSelection
+              ? "기상 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요."
+              : "비교할 지역을 위에서 선택해 보세요. 최대 3곳까지 고를 수 있어요."}
           </p>
         </div>
       )}

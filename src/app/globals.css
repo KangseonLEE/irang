@@ -42,6 +42,10 @@
   --error: #DC2626;
   --info: #2563EB;
 
+  /* "귀농 준비도" 전용 강조색 — 설문 단계/지표 색상 통일용 */
+  --readiness: #d97706;
+  --readiness-strong: #b45309;
+
   /* Warning (Amber) scale — 팁·우대·융자 경고 등 */
   --warning-light: #eab308;
   --warning-fg: #a16207;

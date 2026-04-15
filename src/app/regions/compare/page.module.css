@@ -66,28 +66,9 @@
   margin: 0;
 }
 
-/* ---- 작물 적합성 바로가기 ---- */
+/* ---- 작물 적합성 바로가기 (full-width 공용 subtle 버튼) ---- */
 .cropToolHint {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--primary, #1b6b5a);
-  text-decoration: none;
-  padding: 6px 14px;
-  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
-  border-radius: 20px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
-  align-self: flex-start;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-@media (hover: hover) {
-  .cropToolHint:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
-    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
-  }
+  composes: subtleFull from "@/components/ui/button.module.css";
 }
 
 /* ---- Selector Skeleton ---- */

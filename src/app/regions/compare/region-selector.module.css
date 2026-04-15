@@ -37,6 +37,87 @@
   flex-shrink: 0;
 }
 
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.clearAllBtn {
+  font-family: inherit;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  background: none;
+  border: none;
+  padding: 4px 2px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .clearAllBtn:hover {
+    color: var(--foreground);
+  }
+}
+
+.clearAllBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---- 선택 요약 (상단 칩 리스트) ---- */
+.selectedSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--primary, #1b6b5a) 25%, transparent);
+}
+
+.selectedChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 12px;
+  font-family: inherit;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary-foreground, #fff);
+  background: var(--primary, #1b6b5a);
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+@media (hover: hover) {
+  .selectedChip:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, black);
+  }
+}
+
+.selectedChip:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.emptyPrompt {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  background: var(--muted, #f9fafb);
+  border-radius: 12px;
+  text-align: center;
+}
+
 /* ---- 도별 그룹 흐름 (가로 배치, 줄바꿈) ---- */
 .groups {
   display: flex;
@@ -66,7 +147,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 14px;
+  min-height: 36px;
+  padding: 8px 14px;
+  font-family: inherit;
   font-size: var(--fs-body-sm);
   font-weight: 500;
   line-height: 1;
@@ -75,6 +158,13 @@
   cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+@media (min-width: 640px) {
+  .chip {
+    min-height: auto;
+    padding: 6px 14px;
+  }
 }
 
 .chip:focus-visible {

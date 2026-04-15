@@ -26,11 +26,14 @@ export function ViewToggle({ current }: ViewToggleProps) {
         params.set("view", mode);
       }
       const qs = params.toString();
+      const shouldToast = mode === "table" && window.innerWidth < 768;
       router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
 
-      // 모바일에서 테이블 뷰 전환 시 가로 모드 안내 토스트
-      if (mode === "table" && window.innerWidth < 768) {
-        setShowToast(true);
+      // UI 전환이 반영된 다음 프레임에 토스트 노출 — 카드→테이블 시각 전환 이후에 메시지가 보여요
+      if (shouldToast) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => setShowToast(true));
+        });
       }
     },
     [router, pathname, searchParams],
@@ -72,7 +75,7 @@ export function ViewToggle({ current }: ViewToggleProps) {
       {showToast && (
         <div className={s.toast} role="status" aria-live="polite">
           <Smartphone size={16} className={s.toastIcon} />
-          <span>가로 모드로 보면 더 편해요</span>
+          <span>가로로 스크롤하면 더 편해요</span>
         </div>
       )}
     </>
