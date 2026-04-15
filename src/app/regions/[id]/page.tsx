@@ -10,7 +10,10 @@ import {
   GitCompareArrows,
   ArrowRight,
   UserCheck,
+  Building2,
 } from "lucide-react";
+import { getSidoCenter } from "@/lib/data/centers";
+import { CenterCard } from "@/components/region/center-card";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { PROVINCES } from "@/lib/data/regions";
 import { getSigungusBySidoId } from "@/lib/data/sigungus";
@@ -54,6 +57,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
     return detail?.majorRegions?.includes(province.name);
   });
   const sigungus = getSigungusBySidoId(province.id);
+  const sidoCenter = getSidoCenter(province.id);
 
   return (
     <div className={s.page}>
@@ -148,6 +152,22 @@ export default async function RegionDetailPage({ params }: PageProps) {
                   </div>
                 ))}
               </div>
+            </section>
+          )}
+
+          {/* 이 지역 귀농지원센터 — 정적 */}
+          {sidoCenter && (
+            <section className={s.section}>
+              <div className={s.sectionHeader}>
+                <Icon icon={Building2} size="lg" />
+                <div>
+                  <h2 className={s.sectionTitle}>이 지역 귀농지원센터</h2>
+                  <p className={s.sectionDesc}>
+                    상담·교육·정착 지원은 여기서 시작해요.
+                  </p>
+                </div>
+              </div>
+              <CenterCard center={sidoCenter} />
             </section>
           )}
         </div>

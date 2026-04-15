@@ -1,0 +1,107 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  }
+}
+
+.sidoLabel {
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  letter-spacing: 0.04em;
+}
+
+.name {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+  line-height: var(--lh-snug);
+}
+
+.metaList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  line-height: var(--lh-normal);
+}
+
+.metaIcon {
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+.metaLink {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+@media (hover: hover) {
+  .metaLink:hover {
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.metaLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 10px 14px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary-foreground, #fff);
+  background: var(--primary, #1b6b5a);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    opacity: 0.9;
+  }
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.fallbackNote {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+  margin: 0;
+  line-height: var(--lh-normal);
+}

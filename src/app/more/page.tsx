@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 
 import {
   MapPin,
+  Building2,
   GitCompareArrows,
   Map,
   Wallet,
@@ -65,6 +66,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { href: "/regions", label: "지역 탐색", desc: "시·도별 기후·인구·작물 정보", icon: MapPin },
       { href: "/regions/compare", label: "지역 비교", desc: "최대 3개 지역 비교 분석", icon: GitCompareArrows },
+      { href: "/regions/centers", label: "지자체 센터", desc: "시·도 귀농귀촌지원센터 안내", icon: Building2 },
       { href: "/crops", label: "작물 정보", desc: "재배 난이도·수익성·적합 기후", icon: Sprout },
       { href: "/crops/compare", label: "작물 비교", desc: "최대 3종 작물 비교", icon: GitCompareArrows },
     ],
