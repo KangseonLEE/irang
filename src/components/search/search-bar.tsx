@@ -16,6 +16,7 @@ import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Trash2, Loade
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchItems, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
+import { POPULAR_KEYWORDS } from "./popular-keywords";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
 import s from "./search-bar.module.css";
@@ -645,6 +646,33 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                       {tag.label}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* 인기 검색어 */}
+              <div className={s.expandedSection}>
+                <div className={s.sectionLabel}>인기 검색어</div>
+                <div className={s.popularList}>
+                  {POPULAR_KEYWORDS.map((kw, i) => {
+                    const rank = i + 1;
+                    const isTop = rank <= 3;
+                    return (
+                      <button
+                        key={kw.label}
+                        type="button"
+                        className={s.popularItem}
+                        onClick={() => handleRecentClick(kw.label)}
+                      >
+                        <span
+                          className={`${s.popularRank}${isTop ? ` ${s.popularRankTop}` : ""}`}
+                          aria-hidden="true"
+                        >
+                          {rank}
+                        </span>
+                        <span className={s.popularLabel}>{kw.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
