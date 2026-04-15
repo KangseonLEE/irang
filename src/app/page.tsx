@@ -166,20 +166,22 @@ export default function HomePage() {
 
       {/* ═══ 5. 인터뷰 — 사회적 증거 ═══ */}
       <section className={s.interviewSection} aria-label="인터뷰">
-        <div className={s.sectionHeader}>
-          <h2 className={s.sectionTitle}>먼저 떠난 사람들</h2>
-          <p className={s.interviewSub}>
-            도시를 떠나 새로운 삶을 시작한 사람들의 진짜 이야기
-          </p>
+        <div className={s.interviewHeader}>
+          <div className={s.interviewHeading}>
+            <h2 className={s.sectionTitle}>먼저 떠난 사람들</h2>
+            <p className={s.interviewSub}>
+              도시를 떠나 새로운 삶을 시작한 사람들의 진짜 이야기
+            </p>
+          </div>
+          <Link href="/interviews" className={s.interviewHeaderLink}>
+            모두 보기 <IconWrap icon={ArrowRight} size="sm" />
+          </Link>
         </div>
         <InterviewCarousel items={interviews.slice(0, 6)} />
-        <Link href="/interviews" className={s.interviewViewAll}>
-          {interviews.length}명의 귀농인 이야기 더 보기 <IconWrap icon={ArrowRight} size="sm" />
-        </Link>
       </section>
 
       {/* ═══ 6. 유형 진단 티저 — 최종 전환 ═══ */}
-      <section className={s.matchTeaser} aria-label="귀농 준비 진단">
+      <section className={s.matchTeaser} aria-label="귀농 적합도 진단">
         <div className={s.matchTeaserBody}>
           <span className={s.matchTeaserOverline}>맞춤 귀농 진단</span>
           <h2 className={s.matchTeaserTitle}>

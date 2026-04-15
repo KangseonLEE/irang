@@ -548,6 +548,14 @@
   }
 }
 
+/* 데스크탑(1024px+): 가로 3열 그리드로 재배치 — 밀도 강화 */
+@media (min-width: 1024px) {
+  .costGrid {
+    flex-direction: row;
+    flex: 0.8;
+  }
+}
+
 .costGridItem {
   flex: 1;
   display: flex;
@@ -571,6 +579,20 @@
   }
   .costGridItem:last-child {
     border-bottom: none;
+  }
+}
+
+/* 데스크탑(1024px+): 세로 구분선 복귀 + 가운데 정렬 */
+@media (min-width: 1024px) {
+  .costGridItem {
+    padding: 18px 16px;
+    border-bottom: none;
+    border-right: 1px solid var(--border, #e5e7eb);
+    text-align: center;
+    justify-content: center;
+  }
+  .costGridItem:last-child {
+    border-right: none;
   }
 }
 
@@ -878,27 +900,53 @@
   .interviewSub { font-size: var(--fs-body-sm); }
 }
 
-.interviewViewAll {
+/* 인터뷰 헤더: 타이틀 + "모두 보기 →" 오른쪽 정렬 */
+.interviewHeading .sectionTitle {
+  margin: 0;
+}
+
+.interviewHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.interviewHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.interviewHeaderLink {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  align-self: flex-start;
-  font-size: var(--fs-body-sm);
+  gap: 4px;
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 13px;
   font-weight: 600;
   color: var(--primary, #1b6b5a);
   text-decoration: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
-  transition: background-color 0.15s;
+  padding: 6px 4px;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+
+@media (min-width: 640px) {
+  .interviewHeaderLink { font-size: var(--fs-body-sm); }
 }
 
 @media (hover: hover) {
-  .interviewViewAll:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
-    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+  .interviewHeaderLink:hover {
+    color: color-mix(in srgb, var(--primary, #1b6b5a) 80%, #000);
   }
+}
+
+.interviewHeaderLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
 }
 
 /* ══════════════════════════════════════════
@@ -1013,23 +1061,37 @@
 /* ── 유형 칩/해시태그 ── */
 .matchChips {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-wrap: nowrap;
+  gap: 4px;
   margin-top: 2px;
 }
 
 .matchChip {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  border-radius: 16px;
-  font-size: var(--fs-overline);
+  padding: 3px 7px;
+  border-radius: 14px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--primary, #1b6b5a);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 7%, #fff);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 16%, transparent);
   white-space: nowrap;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+}
+
+/* 480px+: 기존 크기 유지 */
+@media (min-width: 480px) {
+  .matchChips {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .matchChip {
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: var(--fs-overline);
+    letter-spacing: -0.01em;
+  }
 }
 
 @media (min-width: 640px) {

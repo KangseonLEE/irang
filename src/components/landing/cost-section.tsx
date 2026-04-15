@@ -8,9 +8,12 @@ import s from "@/app/page.module.css";
 
 // ─── 이징 함수 ───
 
-/** easeOutExpo — 빠르게 올라가다 끝에서 감속 */
-function easeOutExpo(t: number): number {
-  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+/**
+ * cubic-bezier(0.22, 1, 0.36, 1) — "easeOutQuint" 느낌
+ * 바 차트(CSS transition)와 숫자 카운트업이 동일 곡선을 사용하도록 수식화
+ */
+function easeOutQuint(t: number): number {
+  return 1 - Math.pow(1 - t, 5);
 }
 
 /** 천 단위 콤마 포맷 */
@@ -34,7 +37,7 @@ interface CountItem {
 // ─── Props ───
 
 interface CostSectionProps {
-  /** 애니메이션 지속 시간 (기본 2400ms) */
+  /** 애니메이션 지속 시간 (기본 900ms — 바 차트와 동일) */
   duration?: number;
   /** 바 차트 퍼센트 */
   barPercent: number;
@@ -48,7 +51,7 @@ interface CostSectionProps {
  * - 1회만 재생 (새로고침 전까지 유지)
  */
 export function CostSection({
-  duration = 2400,
+  duration = 900,
   barPercent,
   counts,
 }: CostSectionProps) {
@@ -72,7 +75,7 @@ export function CostSection({
     function tick(now: number) {
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
-      const eased = easeOutExpo(progress);
+      const eased = easeOutQuint(progress);
 
       // 모든 카운터를 같은 eased 값으로 업데이트
       setValues(
