@@ -31,6 +31,7 @@ const navGroups: NavGroup[] = [
     children: [
       { href: "/regions", label: "지역 탐색", desc: "시·도별 기후·인구·작물 정보" },
       { href: "/regions/compare", label: "지역 비교", desc: "최대 3개 지역 비교 분석" },
+      { href: "/regions/centers", label: "지자체 센터", desc: "시·도 귀농귀촌지원센터 안내" },
     ],
   },
   {
@@ -46,6 +47,8 @@ const navGroups: NavGroup[] = [
     basePaths: ["/guide", "/costs", "/interviews"],
     children: [
       { href: "/guide", label: "귀농 로드맵", desc: "5단계 귀농 준비 가이드" },
+      { href: "/guide/track-compare", label: "귀농·귀산촌 비교", desc: "추진체계를 한눈에 비교" },
+      { href: "/guide/shelter", label: "농촌체류형 쉼터", desc: "33㎡ 임시 주거 설치 가이드" },
       { href: "/costs", label: "비용 가이드", desc: "연령·작물별 비용 분석 & 지원금" },
       { href: "/interviews", label: "귀농인 이야기", desc: "실제 귀농인 인터뷰" },
     ],
@@ -57,15 +60,17 @@ const navGroups: NavGroup[] = [
       { href: "/programs", label: "지원사업", desc: "귀농·귀촌 지원금 & 정책" },
       { href: "/programs/roadmap", label: "정부사업 가이드", desc: "4대 사업 신청 절차 안내" },
       { href: "/education", label: "교육 프로그램", desc: "온·오프라인 귀농 교육" },
+      { href: "/education/therapy", label: "치유·사회적 농업", desc: "다른 귀농 모델 가이드" },
       { href: "/events", label: "체험·행사", desc: "현장 체험 & 박람회 일정" },
     ],
   },
   {
     label: "자료",
-    basePaths: ["/stats", "/glossary"],
+    basePaths: ["/stats", "/glossary", "/about"],
     children: [
       { href: "/stats/population", label: "통계", desc: "귀농 인구·청년·만족도 추이" },
       { href: "/glossary", label: "농업 용어집", desc: "처음 만나는 농업 용어 해설" },
+      { href: "/about", label: "서비스 소개", desc: "이랑은 이런 팀이 만들어요" },
     ],
   },
 ];
