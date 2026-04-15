@@ -145,6 +145,11 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 네비게이션 직후 popstate sentinel cleanup이 router.push(startTransition)와
+  // 경합하지 않도록 가드. router.push는 내부적으로 startTransition을 쓰기 때문에
+  // pushState가 지연될 수 있어, 그 사이 cleanup의 history.back()이 네비게이션을
+  // 취소시키는 현상이 있었음.
+  const isNavigatingRef = useRef(false);
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchItem[]>([]);
@@ -208,6 +213,10 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     window.addEventListener("popstate", onPopState);
     return () => {
       window.removeEventListener("popstate", onPopState);
+      // 네비게이션 중이면 sentinel 제거를 건너뛴다 — router.push의 pushState가
+      // startTransition으로 지연되어 아직 state가 바뀌지 않았을 수 있음.
+      // 이 때 history.back()을 호출하면 네비게이션이 취소됨.
+      if (isNavigatingRef.current) return;
       // 컴포넌트 언마운트나 isExpanded가 false로 바뀔 때 sentinel 제거
       if (
         window.history.state &&
@@ -335,6 +344,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
         saveRecent(searchQuery);
         analytics.search(searchQuery);
       }
+      isNavigatingRef.current = true;
       setIsOpen(false);
       setQuery("");
       setResults([]);
@@ -345,6 +355,14 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     },
     [router, onCloseProp],
   );
+
+  // ----- 확장 모드 "바로 탐색" Link 클릭 처리 -----
+  // Link의 router.push와 setIsOpen(false)로 인한 popstate sentinel cleanup이
+  // 경합하면 네비게이션이 취소되는 이슈가 있어, 플래그를 세워둔다.
+  const handleQuickNav = useCallback(() => {
+    isNavigatingRef.current = true;
+    handleClose();
+  }, [handleClose]);
 
   // ----- 최근 검색어 클릭 → 검색 실행 -----
   const handleRecentClick = useCallback(
@@ -603,19 +621,19 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
               <div className={s.expandedSection}>
                 <div className={s.sectionLabel}>바로 탐색</div>
                 <div className={s.quickGrid}>
-                  <Link href="/regions" className={s.quickItem} onClick={handleClose}>
+                  <Link href="/regions" className={s.quickItem} onClick={handleQuickNav}>
                     <MapPin size={16} />
                     <span>지역 비교</span>
                   </Link>
-                  <Link href="/crops" className={s.quickItem} onClick={handleClose}>
+                  <Link href="/crops" className={s.quickItem} onClick={handleQuickNav}>
                     <Sprout size={16} />
                     <span>작물 정보</span>
                   </Link>
-                  <Link href="/programs" className={s.quickItem} onClick={handleClose}>
+                  <Link href="/programs" className={s.quickItem} onClick={handleQuickNav}>
                     <FileText size={16} />
                     <span>지원사업</span>
                   </Link>
-                  <Link href="/match" className={s.quickItem} onClick={handleClose}>
+                  <Link href="/match" className={s.quickItem} onClick={handleQuickNav}>
                     <Search size={16} />
                     <span>유형 진단</span>
                   </Link>
