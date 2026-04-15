@@ -671,13 +671,26 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                   const itemId = `${item.type}-${item.id}`;
                   const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
                   return (
-                    <div
+                    <Link
                       key={itemId}
                       id={`search-item-${itemId}`}
+                      href={item.href}
+                      prefetch
                       className={`${s.resultItem} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`}
                       role="option"
                       aria-selected={focusedIndex === currentFlatIndex}
-                      onClick={() => navigateTo(item.href, query)}
+                      onClick={() => {
+                        isNavigatingRef.current = true;
+                        if (query.trim()) {
+                          saveRecent(query);
+                          analytics.search(query);
+                        }
+                        setIsOpen(false);
+                        setQuery("");
+                        setResults([]);
+                        setFocusedIndex(-1);
+                        onCloseProp?.();
+                      }}
                     >
                       <span className={s.resultItemIcon} aria-hidden="true">
                         {item.icon}
@@ -693,7 +706,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                       {item.badge && (
                         <span className={s.resultBadge}>{item.badge}</span>
                       )}
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
@@ -703,20 +716,25 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           {/* 전체 검색 결과 보기 링크 */}
           {grouped.length > 0 && query.trim().length > 0 && (
             <div className={s.dropdownFooter}>
-              <div
+              <Link
+                href={`/search?q=${encodeURIComponent(query.trim())}`}
                 className={s.viewAllLink}
                 role="option"
                 aria-selected={false}
-                onClick={() =>
-                  navigateTo(
-                    `/search?q=${encodeURIComponent(query.trim())}`,
-                    query
-                  )
-                }
+                onClick={() => {
+                  isNavigatingRef.current = true;
+                  saveRecent(query);
+                  analytics.search(query);
+                  setIsOpen(false);
+                  setQuery("");
+                  setResults([]);
+                  setFocusedIndex(-1);
+                  onCloseProp?.();
+                }}
               >
                 <Search size={14} />
                 &ldquo;{query}&rdquo; 전체 검색 결과 보기
-              </div>
+              </Link>
             </div>
           )}
         </div>
