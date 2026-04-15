@@ -35,17 +35,15 @@
   gap: 6px;
   padding: 10px 2px 8px;
   border-radius: var(--radius-sm, 8px);
-  border: 1px solid var(--border, #e5e7eb);
-  background: var(--card, #fff);
+  background: transparent;
   text-decoration: none;
-  transition: background-color 0.12s, border-color 0.12s;
+  transition: background-color 0.12s;
   -webkit-tap-highlight-color: transparent;
 }
 
 @media (hover: hover) {
   .quickItem:hover {
     background: var(--muted, #f9fafb);
-    border-color: var(--primary, #1b6b5a);
   }
 }
 
