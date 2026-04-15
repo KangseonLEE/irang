@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon as IconWrap } from "@/components/ui/icon";
-import SearchGroup from "@/components/search/search-group";
+import { HeroSearchTrigger } from "@/components/search/hero-search-trigger";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { TrendingSearchesSkeleton } from "@/components/landing/trending-searches";
 import { TrendingSearchesLoader } from "@/components/landing/trending-searches-loader";
@@ -102,9 +102,10 @@ export default function HomePage() {
         </p>
 
         <div className={s.heroSearchWrap}>
-          <Suspense fallback={<div className={s.searchFallback} />}>
-            <SearchGroup size="large" placeholder="궁금한 지역이나 작물을 검색해보세요" mobilePlaceholder="지역, 작물, 지원사업 검색" hideTags mobileExpand />
-          </Suspense>
+          <HeroSearchTrigger
+            placeholder="궁금한 지역이나 작물을 검색해보세요"
+            mobilePlaceholder="지역, 작물, 지원사업 검색"
+          />
         </div>
 
         <Suspense fallback={<TrendingSearchesSkeleton />}>

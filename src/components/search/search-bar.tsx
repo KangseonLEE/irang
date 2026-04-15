@@ -786,6 +786,21 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
               </Link>
             </div>
           )}
+
+          {/* 정보 추가 요청하기 — 검색어 있을 때 결과 유무와 무관하게 항상 노출 (fill 스타일) */}
+          {query.trim().length > 0 && grouped.length > 0 && (
+            <div className={s.requestFooter}>
+              <a
+                href="https://tally.so/r/9qv8lp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={s.requestLink}
+              >
+                <MessageSquarePlus size={14} />
+                찾는 정보가 없다면? 정보 추가 요청하기
+              </a>
+            </div>
+          )}
         </div>
       )}
     </div>

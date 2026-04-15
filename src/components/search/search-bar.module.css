@@ -362,21 +362,40 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--primary-foreground);
+  background: var(--primary, #1b6b5a);
   text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 25%, transparent);
-  transition: background-color 0.12s, border-color 0.12s;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--primary, #1b6b5a);
+  transition: background-color 0.12s, box-shadow 0.12s, transform 100ms ease;
 }
 
 @media (hover: hover) {
   .requestLink:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-    border-color: var(--primary, #1b6b5a);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 88%, #000);
+    box-shadow: 0 4px 12px rgba(27, 107, 90, 0.22);
   }
+}
+
+.requestLink:active {
+  transform: scale(0.97);
+}
+
+/* ── 드롭다운 푸터 내 "정보 추가 요청" 버튼 (검색어가 있을 때 항상 노출) ── */
+.requestFooter {
+  border-top: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.requestFooter .requestLink {
+  width: 100%;
+  justify-content: center;
 }
 
 /* ── Mobile fullscreen expanded overlay ── */
