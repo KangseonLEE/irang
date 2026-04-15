@@ -74,7 +74,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .join(" · ");
 
   const title = `${emoji} 나의 귀농 유형: ${label}`;
-  const description = `추천 지역: ${regions} — 이랑에서 귀농 준비 진단을 받아보세요!`;
+  const description = `추천 지역: ${regions} — 이랑에서 귀농 적합도 진단을 받아보세요!`;
 
   const shortUrl = `https://irang.info/r/${id}`;
 
@@ -261,7 +261,7 @@ export default async function AssessResultPage({ params }: PageProps) {
       {/* CTA: 나도 진단하기 */}
       <section className={s.shareCta}>
         <h2 className={s.shareCtaTitle}>
-          나도 귀농 준비 진단 받아보기
+          나도 귀농 적합도 진단 받아보기
         </h2>
         <p className={s.shareCtaDesc}>
           5가지 질문으로 나에게 맞는 귀농 지역과 작물을 추천받으세요

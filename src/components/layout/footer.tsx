@@ -13,7 +13,7 @@ const serviceLinks = [
   { href: "/crops", label: "작물 정보" },
   { href: "/interviews", label: "귀농인 이야기" },
   { href: "/about", label: "서비스 소개" },
-  { href: "/match", label: "귀농 준비 진단" },
+  { href: "/match", label: "귀농 적합도 진단" },
 ];
 
 const dataSources = [

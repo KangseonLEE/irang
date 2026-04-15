@@ -1,5 +1,5 @@
 /**
- * /assess/r/[data] — 귀농 준비도 진단 결과 공유 랜딩 페이지
+ * /assess/r/[data] — 귀농 적합도 진단 결과 공유 랜딩 페이지
  *
  * URL 경로에 인코딩된 결과 데이터를 디코딩하여 표시합니다.
  * - 데이터 포맷: {tierNum}-{totalScore}-{dim1}-{dim2}-{dim3}-{dim4}-{dim5}
@@ -70,7 +70,7 @@ export default async function AssessSharePage({ params }: PageProps) {
       {/* 히어로 — 결과 요약 */}
       <div className={s.hero}>
         <span className={s.emoji}>{tier.emoji}</span>
-        <span className={s.overline}>귀농 준비도 진단 결과</span>
+        <span className={s.overline}>귀농 적합도 진단 결과</span>
         <h1 className={s.title}>{tier.title}</h1>
         <span className={s.score}>총점 {totalScore}점 / 40점</span>
         <p className={s.summary}>{tier.summary}</p>
@@ -122,7 +122,7 @@ export default async function AssessSharePage({ params }: PageProps) {
 
       {/* CTA — 나도 진단 받아보기 */}
       <section className={s.cta}>
-        <h2 className={s.ctaTitle}>나도 귀농 준비도 진단 받아보기</h2>
+        <h2 className={s.ctaTitle}>나도 귀농 적합도 진단 받아보기</h2>
         <p className={s.ctaDesc}>
           10가지 질문으로 나의 귀농 준비 상태를 점검하고,
           부족한 영역별 보강 방법까지 알아보세요

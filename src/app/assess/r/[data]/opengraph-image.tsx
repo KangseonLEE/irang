@@ -14,7 +14,7 @@ import { DIMENSIONS } from "@/lib/data/assessment";
 
 export const size = OG_SIZE;
 export const contentType = "image/png";
-export const alt = "이랑 — 귀농 준비도 진단 결과";
+export const alt = "이랑 — 귀농 적합도 진단 결과";
 
 export default async function OGImage({
   params,

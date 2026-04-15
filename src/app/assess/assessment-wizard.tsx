@@ -400,7 +400,7 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
         </div>
 
         {/* 결과 출력/저장 CTA */}
-        <ResultSaveCta printTitle={`이랑 - 귀농 준비도 진단 결과 (${tier.title})`} />
+        <ResultSaveCta printTitle={`이랑 - 귀농 적합도 진단 결과 (${tier.title})`} />
 
         {/* CTA 버튼 */}
         <div className={s.resultActions}>

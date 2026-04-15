@@ -85,14 +85,14 @@ export async function getOGFontsWithBody(): Promise<FontData[]> {
 }
 
 /**
- * 준비도 진단 결과 OG용 한글 폰트
+ * 적합도 진단 결과 OG용 한글 폰트
  * 차원 라벨, 티어 이름, 점수 등 진단 결과에 필요한 글자 서브셋
  */
 let assessCache: FontData[] | null = null;
 
 const ASSESS_SUBSET = [
   // 고정 문구
-  "나의귀농준비도진단결과총점40",
+  "나의귀농적합도진단결과총점40",
   // 차원 라벨
   "동기마인드셋재정준비도가족생활환경경험역량적응력성향",
   // 티어 이름

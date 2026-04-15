@@ -68,7 +68,7 @@ export function ServiceGateway() {
         </div>
         <div className={s.infoBannerBody}>
           <ul className={s.infoBannerList}>
-            <li>나의 귀농 적합도와 부족한 부분을 분석해 드리는 준비도 진단이에요.</li>
+            <li>나의 귀농 적합도와 부족한 부분을 분석해 드리는 적합도 진단이에요.</li>
             <li>진단 결과를 바탕으로 맞춤 지역·작물 추천까지 이어져요.</li>
           </ul>
         </div>
@@ -122,7 +122,7 @@ export function ServiceGateway() {
       )}
 
       <div className={s.cards}>
-        {/* 귀농 준비도 진단 */}
+        {/* 귀농 적합도 진단 */}
         <button
           type="button"
           className={`${s.card} ${s.cardRecommended}`}
@@ -133,7 +133,7 @@ export function ServiceGateway() {
           </div>
           <div className={s.cardBody}>
             <div className={s.cardTitleRow}>
-              <h2 className={s.cardTitle}>귀농 준비도 진단</h2>
+              <h2 className={s.cardTitle}>귀농 적합도 진단</h2>
               <span className={s.badge}>추천</span>
             </div>
             <p className={s.cardDesc}>

@@ -11,10 +11,10 @@ import {
   MapPin,
   Building2,
   GitCompareArrows,
-  Map,
   Wallet,
   Users,
   FileText,
+  FileCheck,
   Route,
   Home,
   GraduationCap,
@@ -40,7 +40,7 @@ interface QuickItem {
 }
 
 const quickItems: QuickItem[] = [
-  { href: "/guide", label: "귀농로드맵", icon: Map },
+  { href: "/guide", label: "귀농로드맵", icon: Route },
   { href: "/match", label: "유형매칭", icon: Compass },
   { href: "/regions", label: "지역탐색", icon: MapPin },
   { href: "/costs", label: "비용가이드", icon: Wallet },
@@ -75,15 +75,16 @@ const menuGroups: MenuGroup[] = [
   {
     label: "준비하기",
     items: [
-      { href: "/assess", label: "준비도 진단", desc: "체크리스트로 확인하는 귀농 준비 상태", icon: ClipboardCheck },
+      { href: "/assess", label: "귀농 적합도 진단", desc: "10문항으로 확인하는 귀농 적합도", icon: ClipboardCheck },
       { href: "/interviews", label: "귀농인 이야기", desc: "실제 귀농인 인터뷰", icon: Users },
     ],
   },
   {
     label: "지원·교육",
     items: [
+      { href: "/guide", label: "귀농 로드맵", desc: "단계별 준비 절차 한눈에", icon: Route },
       { href: "/programs", label: "지원사업", desc: "귀농·귀촌 지원금 & 정책", icon: FileText },
-      { href: "/programs/roadmap", label: "정부사업 가이드", desc: "4대 사업 신청 절차 안내", icon: Route },
+      { href: "/programs/roadmap", label: "정부사업 가이드", desc: "4대 사업 신청 절차 안내", icon: FileCheck },
       { href: "/guide/track-compare", label: "귀농·귀산촌 비교", desc: "추진체계를 한눈에 비교", icon: GitCompareArrows },
       { href: "/guide/shelter", label: "농촌체류형 쉼터", desc: "33㎡ 임시 주거 설치 가이드", icon: Home },
       { href: "/education", label: "교육 프로그램", desc: "온·오프라인 귀농 교육", icon: GraduationCap },

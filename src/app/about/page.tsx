@@ -64,8 +64,8 @@ const steps = [
   {
     icon: MousePointerClick,
     step: "02",
-    title: "귀농 준비 진단",
-    description: "적합성 진단과 맞춤 질문으로 나에게 맞는 지역과 작물을 추천받아요.",
+    title: "귀농 적합도 진단",
+    description: "적합도 진단과 맞춤 질문으로 나에게 맞는 지역과 작물을 추천받아요.",
   },
   {
     icon: Target,
@@ -226,7 +226,7 @@ export default function AboutPage() {
             <AutoGlossary text="간단한 질문 5개에 답하면, 나의 상황과 선호에 맞는 귀농 지역과 작물을 추천해 드립니다." />
           </p>
           <Link href="/match" className={s.matchCtaButton}>
-            귀농 준비 진단 시작하기
+            귀농 적합도 진단 시작하기
             <IconWrap icon={ArrowRight} size="md" />
           </Link>
         </div>
