@@ -83,3 +83,34 @@ export async function getOGFontsWithBody(): Promise<FontData[]> {
   bodyCache = font ? [font] : [];
   return [...logo, ...bodyCache];
 }
+
+/**
+ * 준비도 진단 결과 OG용 한글 폰트
+ * 차원 라벨, 티어 이름, 점수 등 진단 결과에 필요한 글자 서브셋
+ */
+let assessCache: FontData[] | null = null;
+
+const ASSESS_SUBSET = [
+  // 고정 문구
+  "나의귀농준비도진단결과총점40",
+  // 차원 라벨
+  "동기마인드셋재정준비도가족생활환경경험역량적응력성향",
+  // 티어 이름
+  "씨앗을품은단계가능이자라나새싹든하게된모종랑일굴",
+  // 숫자 및 기호
+  "0123456789/%·점",
+  // 로고
+  "이랑",
+  // irang.info
+  "irang.info",
+].join("");
+
+export async function getOGFontsForAssess(): Promise<FontData[]> {
+  const logo = await getOGFonts();
+
+  if (assessCache) return [...logo, ...assessCache];
+
+  const font = await fetchGoogleFont("Noto+Sans+KR", 700, ASSESS_SUBSET);
+  assessCache = font ? [font] : [];
+  return [...logo, ...assessCache];
+}

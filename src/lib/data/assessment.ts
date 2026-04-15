@@ -423,6 +423,352 @@ export const RESULT_TIERS: ResultTier[] = [
   },
 ];
 
+/* ── 차원별 보강 가이드 ── */
+
+export type ScoreTier = "critical" | "weak";
+
+export interface ReinforcementAction {
+  title: string;
+  description: string;
+  link: string;           // 내부 경로 또는 외부 URL
+  linkLabel: string;
+  isExternal?: boolean;   // true면 외부 링크
+  priority: 1 | 2 | 3;   // 1=최우선
+  estimatedTime?: string; // 예: "1개월", "주말 1회"
+}
+
+export interface TierGuide {
+  tier: ScoreTier;
+  message: string;        // 한줄 요약 메시지
+  actions: ReinforcementAction[];
+}
+
+export interface DimensionGuide {
+  dimensionId: DimensionId;
+  guides: TierGuide[];
+}
+
+/**
+ * 차원별 보강 가이드 데이터
+ * - critical: 점수 ≤25% (2점, 매우 부족)
+ * - weak: 점수 26~50% (3~4점, 보강 필요)
+ */
+export const DIMENSION_GUIDES: DimensionGuide[] = [
+  /* ── 동기·마인드셋 ── */
+  {
+    dimensionId: "motivation",
+    guides: [
+      {
+        tier: "critical",
+        message: "귀농에 대한 현실적인 이해가 필요한 단계예요",
+        actions: [
+          {
+            title: "귀농 선배 인터뷰 읽어보기",
+            description: "실제 귀농인들의 생생한 경험담을 통해 귀농 생활의 현실을 파악해보세요.",
+            link: "/interviews",
+            linkLabel: "인터뷰 보러 가기",
+            priority: 1,
+            estimatedTime: "30분",
+          },
+          {
+            title: "귀농귀촌종합센터 온라인 교육 수강",
+            description: "농림축산식품부가 운영하는 무료 온라인 기초 교육으로 귀농의 전체 그림을 그려보세요.",
+            link: "/education",
+            linkLabel: "교육 과정 확인하기",
+            priority: 2,
+            estimatedTime: "2주",
+          },
+          {
+            title: "귀농 비용 현실 확인하기",
+            description: "토지, 주거, 농기계 등 실제 정착에 필요한 비용 구조를 미리 알아보세요.",
+            link: "/costs",
+            linkLabel: "비용 가이드 보기",
+            priority: 3,
+            estimatedTime: "20분",
+          },
+        ],
+      },
+      {
+        tier: "weak",
+        message: "귀농 동기를 더 구체적으로 다듬어볼 단계예요",
+        actions: [
+          {
+            title: "귀농 선배 인터뷰로 동기 점검",
+            description: "나와 비슷한 상황에서 귀농한 선배들의 이야기를 읽으며 동기를 구체화해보세요.",
+            link: "/interviews",
+            linkLabel: "인터뷰 보러 가기",
+            priority: 1,
+            estimatedTime: "30분",
+          },
+          {
+            title: "귀농 가이드로 전체 프로세스 파악",
+            description: "귀농 준비부터 정착까지의 단계별 가이드를 확인하며 나만의 계획을 세워보세요.",
+            link: "/guide",
+            linkLabel: "가이드 읽기",
+            priority: 2,
+            estimatedTime: "1시간",
+          },
+        ],
+      },
+    ],
+  },
+
+  /* ── 재정 준비도 ── */
+  {
+    dimensionId: "finance",
+    guides: [
+      {
+        tier: "critical",
+        message: "재정 계획이 귀농 성공의 가장 중요한 열쇠예요",
+        actions: [
+          {
+            title: "귀농 비용 구조 파악하기",
+            description: "토지·주거·농기계·생활비 등 항목별로 실제 필요 금액을 확인해보세요.",
+            link: "/costs",
+            linkLabel: "비용 가이드 보기",
+            priority: 1,
+            estimatedTime: "30분",
+          },
+          {
+            title: "귀농 지원사업 탐색하기",
+            description: "정부·지자체의 정착 지원금, 농지 임대, 저금리 융자 등 활용 가능한 지원을 찾아보세요.",
+            link: "/programs",
+            linkLabel: "지원사업 확인하기",
+            priority: 2,
+            estimatedTime: "1시간",
+          },
+          {
+            title: "초기 비용 낮은 작물부터 시작 고려",
+            description: "소규모 투자로 시작할 수 있는 작물을 알아보고, 초기 자금 부담을 줄여보세요.",
+            link: "/crops",
+            linkLabel: "작물 정보 보기",
+            priority: 3,
+            estimatedTime: "20분",
+          },
+        ],
+      },
+      {
+        tier: "weak",
+        message: "자금 계획을 좀 더 구체화하면 자신감이 생길 거예요",
+        actions: [
+          {
+            title: "지원사업으로 자금 보완하기",
+            description: "내 조건에 맞는 정부 지원사업을 확인하고, 자금 계획에 반영해보세요.",
+            link: "/programs",
+            linkLabel: "지원사업 확인하기",
+            priority: 1,
+            estimatedTime: "1시간",
+          },
+          {
+            title: "지역별 정착 비용 비교하기",
+            description: "지역에 따라 토지·주거 비용 차이가 커요. 예산에 맞는 지역을 찾아보세요.",
+            link: "/regions",
+            linkLabel: "지역 정보 보기",
+            priority: 2,
+            estimatedTime: "30분",
+          },
+        ],
+      },
+    ],
+  },
+
+  /* ── 가족·생활 환경 ── */
+  {
+    dimensionId: "family",
+    guides: [
+      {
+        tier: "critical",
+        message: "가족과의 충분한 대화가 정착 성공률을 크게 높여요",
+        actions: [
+          {
+            title: "귀농 선배 가족의 이야기 읽기",
+            description: "가족과 함께 귀농한 선배들의 경험담을 공유하며 대화의 실마리를 찾아보세요.",
+            link: "/interviews",
+            linkLabel: "인터뷰 보러 가기",
+            priority: 1,
+            estimatedTime: "30분",
+          },
+          {
+            title: "농촌 생활 인프라 확인하기",
+            description: "의료·교육·쇼핑 인프라가 잘 갖춰진 지역 정보를 미리 확인해보세요.",
+            link: "/regions",
+            linkLabel: "지역 정보 보기",
+            priority: 2,
+            estimatedTime: "30분",
+          },
+          {
+            title: "귀농귀촌 체험 프로그램 참여",
+            description: "가족과 함께 주말 농촌 체험에 참여하면 실제 생활을 미리 느껴볼 수 있어요.",
+            link: "/education",
+            linkLabel: "체험 프로그램 찾기",
+            priority: 3,
+            estimatedTime: "주말 1회",
+          },
+        ],
+      },
+      {
+        tier: "weak",
+        message: "가족 합의와 생활 환경 적응 계획을 구체화해보세요",
+        actions: [
+          {
+            title: "도시 근교 지역부터 탐색하기",
+            description: "생활 편의시설이 가까운 도시 근교 농촌 지역을 먼저 살펴보세요.",
+            link: "/regions",
+            linkLabel: "지역 정보 보기",
+            priority: 1,
+            estimatedTime: "30분",
+          },
+          {
+            title: "귀농 가이드로 준비 체크리스트 확인",
+            description: "가족 합의, 자녀 교육, 의료 접근성 등 생활 환경 체크포인트를 점검해보세요.",
+            link: "/guide",
+            linkLabel: "가이드 읽기",
+            priority: 2,
+            estimatedTime: "30분",
+          },
+        ],
+      },
+    ],
+  },
+
+  /* ── 경험·역량 ── */
+  {
+    dimensionId: "experience",
+    guides: [
+      {
+        tier: "critical",
+        message: "작은 경험부터 차근차근 쌓아가면 충분해요",
+        actions: [
+          {
+            title: "귀농 교육 과정 수강하기",
+            description: "귀농귀촌종합센터, 지역 농업기술센터의 실습 중심 교육으로 기초를 다져보세요.",
+            link: "/education",
+            linkLabel: "교육 과정 확인하기",
+            priority: 1,
+            estimatedTime: "1~3개월",
+          },
+          {
+            title: "키우기 쉬운 작물 정보 확인",
+            description: "초보자도 도전할 수 있는 난이도 낮은 작물부터 알아보세요.",
+            link: "/crops",
+            linkLabel: "작물 정보 보기",
+            priority: 2,
+            estimatedTime: "20분",
+          },
+          {
+            title: "귀농 선배에게 배우기",
+            description: "실제 영농 경험을 가진 선배들의 노하우와 시행착오를 미리 파악해보세요.",
+            link: "/interviews",
+            linkLabel: "인터뷰 보러 가기",
+            priority: 3,
+            estimatedTime: "30분",
+          },
+        ],
+      },
+      {
+        tier: "weak",
+        message: "실전 경험을 조금 더 쌓으면 자신감이 붙을 거예요",
+        actions: [
+          {
+            title: "관심 작물 심화 학습하기",
+            description: "재배 방법, 수익성, 난이도를 비교하며 나에게 맞는 작물을 골라보세요.",
+            link: "/crops",
+            linkLabel: "작물 정보 보기",
+            priority: 1,
+            estimatedTime: "30분",
+          },
+          {
+            title: "현장 교육·실습 과정 참여",
+            description: "이론뿐 아니라 실습이 포함된 교육 과정에 참여해 실전 감각을 키워보세요.",
+            link: "/education",
+            linkLabel: "교육 과정 확인하기",
+            priority: 2,
+            estimatedTime: "1~2개월",
+          },
+        ],
+      },
+    ],
+  },
+
+  /* ── 적응력·성향 ── */
+  {
+    dimensionId: "adaptability",
+    guides: [
+      {
+        tier: "critical",
+        message: "농촌 생활 적응력은 경험을 통해 충분히 기를 수 있어요",
+        actions: [
+          {
+            title: "농촌 체험·행사 참여하기",
+            description: "지역 축제, 마을 봉사활동 등에 참여하며 농촌 분위기를 먼저 경험해보세요.",
+            link: "/events",
+            linkLabel: "행사·이벤트 보기",
+            priority: 1,
+            estimatedTime: "주말 1회",
+          },
+          {
+            title: "귀농 선배의 적응기 읽기",
+            description: "도시에서 농촌으로 이주한 선배들이 어떻게 적응했는지 실제 사례를 확인해보세요.",
+            link: "/interviews",
+            linkLabel: "인터뷰 보러 가기",
+            priority: 2,
+            estimatedTime: "30분",
+          },
+          {
+            title: "도시 근교 지역 탐색하기",
+            description: "갑작스러운 환경 변화가 부담된다면, 도시 접근성이 좋은 지역부터 고려해보세요.",
+            link: "/regions",
+            linkLabel: "지역 정보 보기",
+            priority: 3,
+            estimatedTime: "20분",
+          },
+        ],
+      },
+      {
+        tier: "weak",
+        message: "농촌 커뮤니티와의 접점을 미리 만들어보세요",
+        actions: [
+          {
+            title: "관심 지역 직접 방문하기",
+            description: "후보 지역을 1~2곳 골라 직접 방문하고, 마을 분위기를 느껴보세요.",
+            link: "/regions",
+            linkLabel: "지역 정보 보기",
+            priority: 1,
+            estimatedTime: "주말 1회",
+          },
+          {
+            title: "귀농 커뮤니티·행사 참여",
+            description: "귀농 박람회나 설명회에 참석하면 비슷한 고민을 가진 동료를 만날 수 있어요.",
+            link: "/events",
+            linkLabel: "행사·이벤트 보기",
+            priority: 2,
+            estimatedTime: "반나절",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+/**
+ * 차원 점수에 따른 보강 가이드 조회
+ * @param dimensionId 차원 ID
+ * @param percent 0~100 점수 퍼센트
+ * @returns 해당 심각도의 가이드 or null (50% 초과면 보강 불필요)
+ */
+export function getDimensionGuide(
+  dimensionId: DimensionId,
+  percent: number,
+): TierGuide | null {
+  if (percent > 50) return null;
+
+  const guide = DIMENSION_GUIDES.find((g) => g.dimensionId === dimensionId);
+  if (!guide) return null;
+
+  const tier: ScoreTier = percent <= 25 ? "critical" : "weak";
+  return guide.guides.find((g) => g.tier === tier) ?? null;
+}
+
 /* ── 스코어링 함수 ── */
 
 export type Answers = Record<string, number>; // questionId → score

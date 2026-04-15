@@ -11,6 +11,9 @@ import {
   MessageSquareText,
   Share2,
   Check,
+  TrendingUp,
+  ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 import {
   QUESTIONS,
@@ -18,12 +21,14 @@ import {
   DEMOGRAPHIC_QUESTIONS,
   calculateResult,
   getDemographicHints,
+  getDimensionGuide,
   type Answers,
   type DemographicAnswers,
   type AssessmentResult,
   type ResultTier,
 } from "@/lib/data/assessment";
 import { analytics } from "@/lib/analytics";
+import { encodeAssessScore } from "@/lib/assess-share";
 import { ResultSaveCta } from "@/components/result/result-save-cta";
 import s from "./assessment-wizard.module.css";
 
@@ -143,33 +148,42 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
   }, []);
 
   const handleShare = useCallback(
-    async (tier?: ResultTier) => {
-      const url = window.location.origin + "/assess";
-      const shareTitle = "귀농 준비도 진단 - 이랑";
-      const shareText = tier
-        ? `나의 귀농 준비 단계는 "${tier.title}" ${tier.emoji}\n${tier.summary}`
-        : "나는 귀농에 얼마나 준비되어 있을까? 3분 준비도 진단으로 확인해보세요.";
-
-      // Web Share API (iOS/Android 네이티브 공유시트)
-      if (typeof navigator.share === "function") {
-        try {
-          await navigator.share({ title: shareTitle, text: shareText, url });
-          analytics.share("assessment", "native_share");
-          return;
-        } catch (err) {
-          // 사용자가 공유를 취소한 경우 (AbortError) → 무시
-          if (err instanceof Error && err.name === "AbortError") return;
-        }
+    async (tier?: ResultTier, assessResult?: AssessmentResult | null) => {
+      // 결과 데이터를 URL에 인코딩
+      let shareUrl: string;
+      if (tier && assessResult) {
+        const encoded = encodeAssessScore(
+          tier.id,
+          assessResult.totalScore,
+          assessResult.dimensions,
+        );
+        shareUrl = `${window.location.origin}/a/${encoded}`;
+      } else {
+        shareUrl = `${window.location.origin}/assess`;
       }
 
-      // Fallback: 클립보드 복사 (데스크톱)
+      // 토스 패턴: 텍스트 + 줄바꿈 + URL (카카오톡이 URL을 정확히 인식)
+      const shareText = tier
+        ? `나의 귀농 준비 단계는 "${tier.title}" ${tier.emoji}\n${shareUrl}`
+        : `나는 귀농에 얼마나 준비되어 있을까?\n${shareUrl}`;
+
       try {
-        await navigator.clipboard.writeText(url);
+        await navigator.clipboard.writeText(shareText);
         analytics.share("assessment", "clipboard");
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch {
-        /* noop */
+        // fallback: 구형 브라우저
+        const textArea = document.createElement("textarea");
+        textArea.value = shareText;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       }
     },
     []
@@ -261,12 +275,79 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
           </div>
         </div>
 
-        {/* 약한 차원 힌트 */}
-        {weakest.percent <= 50 && weakDim && (
-          <div className={s.weakDimHint}>
-            <strong>{weakDim.icon} {weakDim.label}</strong> 영역이 상대적으로 부족해요. 이 부분을 보강하면 귀농 성공 확률이 크게 높아집니다!
-          </div>
-        )}
+        {/* 보강 가이드 — 약한 차원(≤50%)에 대해 구체적 행동 안내 */}
+        {(() => {
+          const weakDims = [...dimensions]
+            .filter((d) => d.percent <= 50)
+            .sort((a, b) => a.percent - b.percent)
+            .slice(0, 3); // 최대 3개 차원
+
+          if (weakDims.length === 0) return null;
+
+          return (
+            <section className={s.reinforceSection}>
+              <h2 className={s.reinforceTitle}>
+                <TrendingUp size={18} />
+                이렇게 보강해보세요
+              </h2>
+              <p className={s.reinforceSubtitle}>
+                부족한 영역을 채우면 귀농 성공 확률이 크게 높아져요
+              </p>
+              <div className={s.reinforceCards}>
+                {weakDims.map((dim) => {
+                  const meta = DIMENSIONS.find((d) => d.id === dim.id);
+                  const guide = getDimensionGuide(dim.id, dim.percent);
+                  if (!meta || !guide) return null;
+
+                  return (
+                    <div key={dim.id} className={s.reinforceCard}>
+                      <div className={s.reinforceCardHeader}>
+                        <span className={s.reinforceCardIcon}>{meta.icon}</span>
+                        <div className={s.reinforceCardMeta}>
+                          <strong className={s.reinforceCardLabel}>{meta.label}</strong>
+                          <span className={s.reinforceCardScore}>{dim.percent}%</span>
+                        </div>
+                      </div>
+                      <p className={s.reinforceCardMessage}>{guide.message}</p>
+                      <ul className={s.reinforceActionList}>
+                        {guide.actions.map((action, i) => (
+                          <li key={i} className={s.reinforceAction}>
+                            <div className={s.reinforceActionBody}>
+                              <span className={s.reinforceActionPriority}>{i + 1}</span>
+                              <div>
+                                <strong className={s.reinforceActionTitle}>{action.title}</strong>
+                                <p className={s.reinforceActionDesc}>{action.description}</p>
+                                {action.estimatedTime && (
+                                  <span className={s.reinforceActionTime}>
+                                    ⏱ 예상 소요: {action.estimatedTime}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <Link
+                              href={action.link}
+                              className={s.reinforceActionLink}
+                              {...(action.isExternal
+                                ? { target: "_blank", rel: "noopener noreferrer" }
+                                : {})}
+                            >
+                              {action.linkLabel}
+                              {action.isExternal ? (
+                                <ExternalLink size={12} />
+                              ) : (
+                                <ChevronRight size={14} />
+                              )}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })()}
 
         {/* 상세 설명 */}
         <div className={s.card}>
@@ -337,7 +418,7 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
               다시 진단하기
             </button>
             <button
-              onClick={() => handleShare(tier)}
+              onClick={() => handleShare(tier, result)}
               className={s.shareBtn}
               type="button"
             >

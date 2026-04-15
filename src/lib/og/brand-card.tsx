@@ -141,6 +141,190 @@ export function brandCard(): ReactElement {
   );
 }
 
+/* ── 준비도 진단 결과 카드 ── */
+
+interface AssessScoreCardProps {
+  emoji: string;
+  tierTitle: string;
+  totalScore: number;
+  dimensions: { label: string; icon: string; percent: number }[];
+}
+
+export function assessScoreCard({
+  emoji,
+  tierTitle,
+  totalScore,
+  dimensions,
+}: AssessScoreCardProps): ReactElement {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+        background: "#F5F1EB",
+        fontFamily: "Noto Sans KR",
+        position: "relative",
+        padding: "56px 64px",
+      }}
+    >
+      {/* 상단: 결과 타이틀 */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "4px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            fontSize: "16px",
+            fontWeight: 700,
+            color: "#1B6B5A",
+            letterSpacing: "0.5px",
+          }}
+        >
+          나의 귀농 준비도 진단 결과
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "16px",
+            marginTop: "4px",
+          }}
+        >
+          <div style={{ display: "flex", fontSize: "56px", lineHeight: "1" }}>
+            {emoji}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "2px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                fontSize: "40px",
+                fontWeight: 700,
+                color: "#0D2E27",
+                letterSpacing: "-1.5px",
+              }}
+            >
+              {tierTitle}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                fontSize: "18px",
+                fontWeight: 700,
+                color: "#5A6B5E",
+              }}
+            >
+              총점 {totalScore}점 / 40점
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 중단: 차원별 바 차트 */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "12px",
+          marginTop: "32px",
+          flex: 1,
+        }}
+      >
+        {dimensions.map((dim) => (
+          <div
+            key={dim.label}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                width: "140px",
+                fontSize: "15px",
+                fontWeight: 700,
+                color: "#0D2E27",
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ fontSize: "16px" }}>{dim.icon}</span>
+              {dim.label}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flex: 1,
+                height: "14px",
+                borderRadius: "7px",
+                background: "rgba(0,0,0,0.06)",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  width: `${dim.percent}%`,
+                  height: "100%",
+                  borderRadius: "7px",
+                  background: dim.percent <= 37 ? "#f59e0b" : "#1B6B5A",
+                }}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                width: "42px",
+                fontSize: "14px",
+                fontWeight: 700,
+                color: dim.percent <= 37 ? "#b45309" : "#1B6B5A",
+                justifyContent: "flex-end",
+              }}
+            >
+              {dim.percent}%
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 하단: 로고 */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        {logoMark("md")}
+        <div
+          style={{
+            display: "flex",
+            fontSize: "16px",
+            fontWeight: 700,
+            color: "#8B8477",
+          }}
+        >
+          irang.info
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── 결과 페이지 전용 카드 ── */
 
 interface ResultCardProps {

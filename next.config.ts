@@ -3,10 +3,10 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  /* ── 단축 URL: /r/:id → /assess/result/:id ── */
+  /* ── 단축 URL 리라이트 ── */
   async rewrites() {
     return [
-      // OG 이미지 서브라우트도 함께 매핑
+      // 매칭 결과 단축 URL: /r/:id → /assess/result/:id
       {
         source: "/r/:id/opengraph-image",
         destination: "/assess/result/:id/opengraph-image",
@@ -14,6 +14,15 @@ const nextConfig: NextConfig = {
       {
         source: "/r/:id",
         destination: "/assess/result/:id?utm_source=share&utm_medium=shorturl",
+      },
+      // 진단 결과 단축 URL: /a/:data → /assess/r/:data
+      {
+        source: "/a/:data/opengraph-image",
+        destination: "/assess/r/:data/opengraph-image",
+      },
+      {
+        source: "/a/:data",
+        destination: "/assess/r/:data?utm_source=share&utm_medium=shorturl",
       },
     ];
   },
