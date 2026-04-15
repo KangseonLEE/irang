@@ -177,32 +177,44 @@ export function CostSection({
           </div>
         </div>
 
-        {/* 우측: 보조 수치 그리드 */}
-        <div className={s.costGrid}>
-          <div className={s.costGridItem}>
-            <p className={s.costGridLabel}>준비 기간</p>
-            <p className={s.costGridValue}>
-              <span className={s.costGridNum}>{values[1]}</span>
-              <span className={s.costGridUnit}>개월</span>
-            </p>
-            <p className={s.costGridSub}>탐색부터 정착까지</p>
+        {/* 우측: 보조 수치 그리드 + 데스크탑 전용 인라인 CTA */}
+        <div className={s.costGridColumn}>
+          <div className={s.costGrid}>
+            <div className={s.costGridItem}>
+              <p className={s.costGridLabel}>준비 기간</p>
+              <p className={s.costGridValue}>
+                <span className={s.costGridNum}>{values[1]}</span>
+                <span className={s.costGridUnit}>개월</span>
+              </p>
+              <p className={s.costGridSub}>탐색부터 정착까지</p>
+            </div>
+            <div className={s.costGridItem}>
+              <p className={s.costGridLabel}>농업창업자금</p>
+              <p className={s.costGridValue}>
+                <span className={s.costGridNum}>{values[2]}</span>
+                <span className={s.costGridUnit}>억 원</span>
+              </p>
+              <p className={s.costGridSub}>정부 융자 지원</p>
+            </div>
+            <div className={s.costGridItem}>
+              <p className={s.costGridLabel}>주택자금</p>
+              <p className={s.costGridValue}>
+                <span className={s.costGridNum}>{values[3]}</span>
+                <span className={s.costGridUnit}>만 원</span>
+              </p>
+              <p className={s.costGridSub}>정부 융자 지원</p>
+            </div>
           </div>
-          <div className={s.costGridItem}>
-            <p className={s.costGridLabel}>농업창업자금</p>
-            <p className={s.costGridValue}>
-              <span className={s.costGridNum}>{values[2]}</span>
-              <span className={s.costGridUnit}>억 원</span>
-            </p>
-            <p className={s.costGridSub}>정부 융자 지원</p>
-          </div>
-          <div className={s.costGridItem}>
-            <p className={s.costGridLabel}>주택자금</p>
-            <p className={s.costGridValue}>
-              <span className={s.costGridNum}>{values[3]}</span>
-              <span className={s.costGridUnit}>만 원</span>
-            </p>
-            <p className={s.costGridSub}>정부 융자 지원</p>
-          </div>
+
+          {/* 데스크탑 전용 인라인 CTA — 3카드와 하나의 덩어리로 묶임 */}
+          <Link
+            href="/costs"
+            className={s.costGridCta}
+            aria-label="내 예산으로 가능한지 비용 가이드에서 확인하기"
+          >
+            내 예산으로 가능할까? 확인해 보세요
+            <ArrowRight size={14} />
+          </Link>
         </div>
       </div>
 

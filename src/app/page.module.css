@@ -530,6 +530,20 @@
   }
 }
 
+/* ── 우측: 보조 수치 컬럼 (그리드 + 데스크탑 CTA 묶음) ── */
+.costGridColumn {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0;
+}
+
+@media (min-width: 768px) {
+  .costGridColumn {
+    flex: 0.8;
+  }
+}
+
 /* ── 우측: 보조 수치 3칸 ── */
 .costGrid {
   display: flex;
@@ -582,10 +596,10 @@
   }
 }
 
-/* 데스크탑(1024px+): 세로 구분선 복귀 + 가운데 정렬 */
+/* 데스크탑(1024px+): 세로 구분선 복귀 + 가운데 정렬 — 높이 축소 */
 @media (min-width: 1024px) {
   .costGridItem {
-    padding: 18px 16px;
+    padding: 14px 16px;
     border-bottom: none;
     border-right: 1px solid var(--border, #e5e7eb);
     text-align: center;
@@ -652,6 +666,52 @@
 
 @media (min-width: 768px) {
   .costGridSub { display: block; }
+}
+
+/* ── 데스크탑 전용 인라인 CTA (3카드 + CTA = 하나의 덩어리) ── */
+.costGridCta {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  /* 데스크탑에서 grid 하단 모서리를 평평하게 → CTA와 붙여 덩어리 형성 */
+  .costGridColumn .costGrid {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
+  }
+
+  .costGridCta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 16px;
+    border: 1px solid var(--primary, #1b6b5a);
+    border-top: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+    color: var(--primary, #1b6b5a);
+    font-size: var(--fs-body-sm);
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  }
+
+  .costGridCta:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ring),
+      0 0 0 4px color-mix(in srgb, var(--ring) 30%, transparent);
+  }
+}
+
+@media (min-width: 1024px) and (hover: hover) {
+  .costGridCta:hover {
+    background: var(--primary, #1b6b5a);
+    color: var(--primary-foreground);
+    box-shadow: 0 4px 12px rgba(27, 107, 90, 0.18);
+  }
 }
 
 /* ── 푸터: CTA + 출처 ── */
