@@ -232,6 +232,39 @@ ul, ol {
   outline-offset: 2px;
 }
 
+/* ── iOS 자동 확대 방지 ──
+   iOS Safari는 포커스된 input의 font-size가 16px 미만이면
+   화면을 자동으로 zoom-in한다. 모바일(< 640px)에서만 최소 16px을 강제하여
+   데스크톱의 기존 타이포그래피는 유지한다.
+   CSS Module의 클래스 선언이 element selector를 이기므로 !important로 통일. */
+@media (max-width: 639px) {
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  input[type="password"],
+  input:not([type]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* ── 모바일 헤딩 줄바꿈 유틸 ──
+   375px 뷰포트 기준으로 의미 단위 줄바꿈을 넣기 위한 공용 클래스.
+   모바일에서만 inline(= 줄바꿈 적용), 그 외에는 display: none으로 무력화. */
+.breakOnMobile {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .breakOnMobile {
+    display: inline;
+  }
+}
+
 /* ── Scrollbar Hide Utility ── */
 .scrollbar-none {
   -ms-overflow-style: none;

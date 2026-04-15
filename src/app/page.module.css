@@ -131,14 +131,19 @@
   color: var(--primary-foreground);
   margin: 0 auto 8px;
   max-width: 720px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* 모바일(≤ 480px)에서는 의미 단위 2줄로 분절 (breakOnMobile 사용) */
+  white-space: normal;
+  word-break: keep-all;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 @media (min-width: 480px) {
-  .heroTitle { font-size: 1.75rem; }
+  .heroTitle {
+    font-size: 1.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 @media (min-width: 640px) {

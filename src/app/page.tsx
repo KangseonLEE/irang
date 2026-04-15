@@ -93,7 +93,7 @@ export default function HomePage() {
         <span className={s.heroEyebrow}>매년 1.2만 명이 새로운 시작을 준비해요</span>
 
         <h1 className={s.heroTitle}>
-          막막한 귀농, 비교하고 결정하세요
+          막막한 귀농,<br className="breakOnMobile" /> 비교하고 결정하세요
         </h1>
 
         <p className={s.heroSubtitle}>
