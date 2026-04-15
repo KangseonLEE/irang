@@ -10,9 +10,9 @@ import {
   useRef,
   useState,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Trash2 } from "lucide-react";
+import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Trash2, Loader2 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchItems, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
@@ -142,6 +142,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   ref,
 ) {
   const router = useRouter();
+  const pathname = usePathname();
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -156,6 +157,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const [isOpen, setIsOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  // 네비게이션 중 오버레이를 유지하며 로딩 UI 노출
+  const [isNavigating, setIsNavigating] = useState(false);
+  const navStartPathRef = useRef<string | null>(null);
 
   // 모바일 반응형 감지 (placeholder 전환 + 풀스크린 확장 모두에 사용)
   const [isMobile, setIsMobile] = useState(false);
@@ -196,10 +200,32 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     setQuery("");
     setResults([]);
     setFocusedIndex(-1);
+    setIsNavigating(false);
     setRecentSearches(loadRecent());
     inputRef.current?.blur();
     onCloseProp?.();
   }, [onCloseProp]);
+
+  // 네비게이션 완료(pathname 변경) 시 오버레이 닫기
+  useEffect(() => {
+    if (!isNavigating) return;
+    if (navStartPathRef.current === null) return;
+    if (pathname !== navStartPathRef.current) {
+      handleClose();
+      navStartPathRef.current = null;
+    }
+  }, [pathname, isNavigating, handleClose]);
+
+  // 네비게이션 시작 헬퍼 — 오버레이를 즉시 닫지 않고 로딩 상태로 전환
+  // (onCloseProp는 pathname 변경 후 handleClose에서 호출 — 오버레이 언마운트로
+  // 로딩 UI가 사라지지 않도록 유지)
+  const beginNavigation = useCallback(() => {
+    isNavigatingRef.current = true;
+    navStartPathRef.current = pathname;
+    setIsNavigating(true);
+    // 키보드는 즉시 내림
+    inputRef.current?.blur();
+  }, [pathname]);
 
   // 풀스크린 확장 시 Android 뒤로가기(하드웨어) / 브라우저 뒤로가기 지원
   // history에 sentinel state를 push하고, popstate로 닫기 처리
@@ -337,32 +363,23 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     }, 200);
   }, []);
 
-  // ----- Navigate to result -----
+  // ----- Navigate to result (form submit 경로) -----
   const navigateTo = useCallback(
     (href: string, searchQuery?: string) => {
       if (searchQuery) {
         saveRecent(searchQuery);
         analytics.search(searchQuery);
       }
-      isNavigatingRef.current = true;
-      setIsOpen(false);
-      setQuery("");
-      setResults([]);
-      setFocusedIndex(-1);
-      setRecentSearches(loadRecent());
-      onCloseProp?.();
+      beginNavigation();
       router.push(href);
     },
-    [router, onCloseProp],
+    [router, beginNavigation],
   );
 
   // ----- 확장 모드 "바로 탐색" Link 클릭 처리 -----
-  // Link의 router.push와 setIsOpen(false)로 인한 popstate sentinel cleanup이
-  // 경합하면 네비게이션이 취소되는 이슈가 있어, 플래그를 세워둔다.
   const handleQuickNav = useCallback(() => {
-    isNavigatingRef.current = true;
-    handleClose();
-  }, [handleClose]);
+    beginNavigation();
+  }, [beginNavigation]);
 
   // ----- 최근 검색어 클릭 → 검색 실행 -----
   const handleRecentClick = useCallback(
@@ -464,6 +481,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const containerClass = `${s.container}${isExpanded ? ` ${s.containerExpanded}` : ""}`;
 
   const showDropdown =
+    isNavigating ||
     isExpanded ||
     (isOpen && (showRecent || grouped.length > 0 || (query.trim().length > 0 && grouped.length === 0)));
 
@@ -537,7 +555,20 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
         )}
       </form>
 
-      {showDropdown && (
+      {showDropdown && isNavigating && (
+        <div
+          className={dropdownClass}
+          role="status"
+          aria-live="polite"
+        >
+          <div className={s.navigatingWrap}>
+            <Loader2 size={28} className={s.navigatingSpinner} aria-hidden="true" />
+            <span className={s.navigatingText}>이동 중…</span>
+          </div>
+        </div>
+      )}
+
+      {showDropdown && !isNavigating && (
         <div
           id="search-listbox"
           className={dropdownClass}
@@ -680,16 +711,11 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                       role="option"
                       aria-selected={focusedIndex === currentFlatIndex}
                       onClick={() => {
-                        isNavigatingRef.current = true;
                         if (query.trim()) {
                           saveRecent(query);
                           analytics.search(query);
                         }
-                        setIsOpen(false);
-                        setQuery("");
-                        setResults([]);
-                        setFocusedIndex(-1);
-                        onCloseProp?.();
+                        beginNavigation();
                       }}
                     >
                       <span className={s.resultItemIcon} aria-hidden="true">
@@ -722,14 +748,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                 role="option"
                 aria-selected={false}
                 onClick={() => {
-                  isNavigatingRef.current = true;
                   saveRecent(query);
                   analytics.search(query);
-                  setIsOpen(false);
-                  setQuery("");
-                  setResults([]);
-                  setFocusedIndex(-1);
-                  onCloseProp?.();
+                  beginNavigation();
                 }}
               >
                 <Search size={14} />

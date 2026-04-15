@@ -132,6 +132,37 @@
   padding: 4px 0;
 }
 
+/* --- 네비게이션 중 로딩 UI --- */
+.navigatingWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 16px;
+  min-height: 200px;
+}
+
+.navigatingSpinner {
+  color: var(--primary, #1b6b5a);
+  animation: spinBar 0.9s linear infinite;
+}
+
+.navigatingText {
+  font-size: 14px;
+  color: var(--muted-foreground, #6b7280);
+  font-weight: 500;
+}
+
+@keyframes spinBar {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navigatingSpinner { animation: none; }
+}
+
 .dropdownSection + .dropdownSection {
   border-top: 1px solid var(--border);
 }
