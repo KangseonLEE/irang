@@ -74,6 +74,13 @@
   --earth-accent: #B05A3A;
   --primary-light: #4A9B7F;
   --primary-dark: #0F2E26;
+
+  /* Quick Menu Icon Palette — earthy/natural tones */
+  --icon-assess:  #1B6B5A;   /* Brand Primary */
+  --icon-match:   #3B7A57;   /* Forest Green */
+  --icon-region:  #6B7C3F;   /* Olive Green */
+  --icon-program: #A06B2D;   /* Amber Brown */
+
   --shadow-sm: 0 2px 4px rgba(0,0,0,0.06);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
   --shadow-lg: 0 8px 24px rgba(27,107,90,0.12);

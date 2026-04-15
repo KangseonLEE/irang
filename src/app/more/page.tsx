@@ -38,10 +38,10 @@ interface QuickItem {
 }
 
 const quickItems: QuickItem[] = [
-  { href: "/assess", label: "준비도 진단", icon: ClipboardCheck, color: "#1B6B5A" },
-  { href: "/match", label: "유형 매칭", icon: Compass, color: "#0E7490" },
-  { href: "/regions", label: "지역 탐색", icon: MapPin, color: "#DC2626" },
-  { href: "/programs", label: "지원사업", icon: FileText, color: "#0891B2" },
+  { href: "/assess", label: "준비도 진단", icon: ClipboardCheck, color: "var(--icon-assess, #1B6B5A)" },
+  { href: "/match", label: "유형 매칭", icon: Compass, color: "var(--icon-match, #3B7A57)" },
+  { href: "/regions", label: "지역 탐색", icon: MapPin, color: "var(--icon-region, #6B7C3F)" },
+  { href: "/programs", label: "지원사업", icon: FileText, color: "var(--icon-program, #A06B2D)" },
 ];
 
 /* ── 하단 리스트 메뉴 ── */
