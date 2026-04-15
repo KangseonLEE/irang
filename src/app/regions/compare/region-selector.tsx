@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import type { Station } from "@/lib/data/stations";
+import { trackFeedbackEvent } from "@/lib/feedback-session";
 import s from "./region-selector.module.css";
 
 const MAX_SELECTION = 3;
@@ -18,6 +19,13 @@ export function RegionSelector({ stations, selectedIds }: RegionSelectorProps) {
   const searchParams = useSearchParams();
   const [swapMessage, setSwapMessage] = useState("");
   const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 2개 이상 지역 선택 시 "비교 결과 확인" 이벤트로 집계
+  useEffect(() => {
+    if (selectedIds.length >= 2) {
+      trackFeedbackEvent("regions_compare_result");
+    }
+  }, [selectedIds.length]);
 
   const pushSelection = useCallback(
     (newIds: string[]) => {

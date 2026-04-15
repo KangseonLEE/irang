@@ -7,6 +7,7 @@ import { Loader2, FileText } from "lucide-react";
 import { loadMorePrograms } from "./actions";
 import { ProgramCard } from "./program-card";
 import type { SupportProgram, ProgramFilters } from "@/lib/data/programs";
+import { trackFeedbackEvent } from "@/lib/feedback-session";
 import { isNewProgram } from "./program-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
@@ -41,6 +42,20 @@ export function ProgramList({
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [isPending, startTransition] = useTransition();
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // 사용자가 실제로 필터를 적용했는지 여부 — 피드백 트리거 이벤트로 기록
+  useEffect(() => {
+    const hasMeaningfulFilter = Boolean(
+      filters.region ||
+        filters.age ||
+        filters.supportType ||
+        filters.status ||
+        (filters.query && filters.query.trim().length > 0)
+    );
+    if (hasMeaningfulFilter) {
+      trackFeedbackEvent("programs_filter");
+    }
+  }, [filters.region, filters.age, filters.supportType, filters.status, filters.query]);
 
   // 필터가 바뀌면 초기 상태로 리셋 (외부 props → 내부 state 동기화)
   /* eslint-disable react-hooks/set-state-in-effect -- props 변경 시 state 동기화 필수 */

@@ -15,6 +15,7 @@ import {
   getRecommendedPrograms,
 } from "@/lib/match-scoring";
 import { analytics } from "@/lib/analytics";
+import { trackFeedbackEvent } from "@/lib/feedback-session";
 import {
   generateResultId,
   saveAssessmentResult,
@@ -151,6 +152,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
     if (!showResult) return;
 
     analytics.matchComplete();
+    trackFeedbackEvent("match_result");
 
     // 결과 저장 (1회만 실행)
     if (saveStatus !== "idle") return;
