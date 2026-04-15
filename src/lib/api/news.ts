@@ -49,7 +49,7 @@ interface NaverNewsResponse {
 export interface NewsArticle {
   title: string;
   source: string;
-  date: string;   // "YYYY.MM" 형식
+  date: string;   // "YYYY.MM.DD" 형식
   url: string;
   /** 기사 본문 요약 (HTML 제거 후) */
   description?: string;
@@ -57,6 +57,8 @@ export interface NewsArticle {
   naverUrl?: string;
   /** OG 이미지 URL (선택) — Featured 카드 썸네일용 */
   thumbnail?: string;
+  /** 정렬용 타임스탬프 (ms) */
+  _ts?: number;
 }
 
 // ─── 유틸 ───
@@ -73,13 +75,20 @@ function stripHtml(html: string): string {
     .replace(/&apos;/g, "'");
 }
 
-/** RFC 2822 날짜 → "YYYY.MM" */
+/** RFC 2822 날짜 → "YYYY.MM.DD" */
 function formatDate(rfc2822: string): string {
   const d = new Date(rfc2822);
   if (isNaN(d.getTime())) return "";
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
-  return `${yyyy}.${mm}`;
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}.${mm}.${dd}`;
+}
+
+/** RFC 2822 날짜 → 밀리초 타임스탬프 (정렬용) */
+function toTimestamp(rfc2822: string): number {
+  const d = new Date(rfc2822);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
 }
 
 /** 네이버 뉴스 link에서 언론사명 추출 시도 — 불가능하면 "뉴스" 반환 */
@@ -274,7 +283,7 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
       const params = new URLSearchParams({
         query,
         display: String(DISPLAY_COUNT),
-        sort: "sim",
+        sort: "date",
       });
 
       const res = await fetch(`${API_URL}?${params}`, {
@@ -296,14 +305,17 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
 
       if (!data.items?.length) return null;
 
-      return data.items.map((item) => ({
-        title: stripHtml(item.title),
-        description: stripHtml(item.description),
-        source: extractSource(item.originallink),
-        date: formatDate(item.pubDate),
-        url: item.originallink || item.link,
-        naverUrl: item.link || undefined,
-      }));
+      return data.items
+        .map((item) => ({
+          title: stripHtml(item.title),
+          description: stripHtml(item.description),
+          source: extractSource(item.originallink),
+          date: formatDate(item.pubDate),
+          url: item.originallink || item.link,
+          naverUrl: item.link || undefined,
+          _ts: toTimestamp(item.pubDate),
+        }))
+        .sort((a, b) => b._ts - a._ts);
     } catch {
       if (attempt < MAX_RETRIES) continue;
       return null;

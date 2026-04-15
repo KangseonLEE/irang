@@ -91,6 +91,7 @@ export async function NewsTabsLoader() {
       naverUrl: n.naverUrl,
       thumbnail: n.thumbnail,
       category,
+      _ts: n._ts ?? 0,
     }));
 
   // 각 카테고리 독립적으로 중복 제거
@@ -105,7 +106,7 @@ export async function NewsTabsLoader() {
     ...eduItems,
     ...eventItems,
     ...programItems,
-  ];
+  ].sort((a, b) => (b._ts ?? 0) - (a._ts ?? 0));
 
   // ── OG 이미지: 동시 3개씩 병렬 추출 (너무 많으면 타임아웃) ──
 

@@ -20,6 +20,8 @@ export interface UnifiedNewsItem {
   thumbnail?: string;
   /** 탭 분류: news(전체 뉴스), education, event, program */
   category: "news" | "education" | "event" | "program";
+  /** 정렬용 타임스탬프 (ms) */
+  _ts?: number;
 }
 
 interface NewsTabsProps {
