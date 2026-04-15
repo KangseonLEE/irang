@@ -28,20 +28,19 @@ import {
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import s from "./page.module.css";
 
-/* ── 상단 퀵 메뉴 (처음 방문자에게 가장 중요한 4가지) ── */
+/* ── 상단 퀵 메뉴 (핵심 4가지) ── */
 
 interface QuickItem {
   href: string;
   label: string;
   icon: LucideIcon;
-  color: string;
 }
 
 const quickItems: QuickItem[] = [
-  { href: "/assess", label: "준비도 진단", icon: ClipboardCheck, color: "var(--icon-assess, #1B6B5A)" },
-  { href: "/match", label: "유형 매칭", icon: Compass, color: "var(--icon-match, #3B7A57)" },
-  { href: "/regions", label: "지역 탐색", icon: MapPin, color: "var(--icon-region, #6B7C3F)" },
-  { href: "/programs", label: "지원사업", icon: FileText, color: "var(--icon-program, #A06B2D)" },
+  { href: "/assess", label: "준비도 진단", icon: ClipboardCheck },
+  { href: "/match", label: "유형 매칭", icon: Compass },
+  { href: "/regions", label: "지역 탐색", icon: MapPin },
+  { href: "/programs", label: "지원사업", icon: FileText },
 ];
 
 /* ── 하단 리스트 메뉴 ── */
@@ -99,15 +98,13 @@ export default function MorePage() {
     <div className={s.page}>
       <h1 className={s.title}>전체 서비스</h1>
 
-      {/* 퀵 메뉴 — 4개 그리드 */}
+      {/* 퀵 메뉴 — 라인 아이콘 4개 그리드 */}
       <div className={s.quickGrid}>
         {quickItems.map((item) => {
           const Icon = item.icon;
           return (
             <Link key={item.href} href={item.href} className={s.quickItem}>
-              <div className={s.quickIcon} style={{ background: item.color }}>
-                <Icon size={22} strokeWidth={1.75} color="#fff" />
-              </div>
+              <Icon size={24} strokeWidth={1.75} className={s.quickIcon} />
               <span className={s.quickLabel}>{item.label}</span>
             </Link>
           );

@@ -54,12 +54,7 @@
 }
 
 .quickIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  color: var(--primary, #1b6b5a);
   flex-shrink: 0;
 }
 
@@ -190,9 +185,7 @@
   }
 
   .quickIcon {
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+    color: var(--primary, #1b6b5a);
   }
 
   .quickItem {
