@@ -189,8 +189,8 @@ function getSearchIndex(): SearchItem[] {
     {
       type: "guide",
       id: "match",
-      title: "귀농 유형 진단",
-      subtitle: "나에게 맞는 귀농 유형 · 지역 · 작물 추천",
+      title: "귀농 준비 진단",
+      subtitle: "나에게 맞는 귀농 지역 · 작물 추천",
       href: "/match",
       keywords: ["진단", "유형", "테스트", "추천", "맞춤", "적합", "나에게맞는", "어디", "뭐가좋을까"],
       icon: "\u{1F50D}", // 🔍

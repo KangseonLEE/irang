@@ -549,7 +549,7 @@ export default function CostsPage() {
             지원사업 찾아보기
           </Link>
           <Link href="/match?mode=assess" className={s.ctaSecondary}>
-            귀농 적합성 진단받기
+            귀농 준비도 진단받기
           </Link>
         </div>
       </section>

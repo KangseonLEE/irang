@@ -13,7 +13,7 @@ export default function MatchError({
     <PageError
       error={error}
       reset={reset}
-      title="매칭 서비스를 불러올 수 없습니다"
+      title="진단을 불러올 수 없습니다"
       tag="MatchError"
       listHref="/"
       listLabel="홈으로"

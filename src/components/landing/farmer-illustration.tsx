@@ -1,5 +1,5 @@
 /**
- * 귀농 유형 진단 CTA용 일러스트 — 모자 쓴 농부가 체크리스트를 들고 있는 모습
+ * 귀농 준비 진단 CTA용 일러스트 — 모자 쓴 농부가 체크리스트를 들고 있는 모습
  * 인라인 SVG로 외부 의존 없이 렌더링
  */
 export function FarmerIllustration({ className }: { className?: string }) {

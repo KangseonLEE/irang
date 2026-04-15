@@ -179,7 +179,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ 6. 유형 진단 티저 — 최종 전환 ═══ */}
-      <section className={s.matchTeaser} aria-label="귀농 유형 진단">
+      <section className={s.matchTeaser} aria-label="귀농 준비 진단">
         <div className={s.matchTeaserBody}>
           <span className={s.matchTeaserOverline}>맞춤 귀농 진단</span>
           <h2 className={s.matchTeaserTitle}>

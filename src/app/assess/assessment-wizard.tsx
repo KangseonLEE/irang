@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -42,6 +42,9 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
   const [answers, setAnswers] = useState<Answers>({});
   const [copied, setCopied] = useState(false);
 
+  // 빠른 연타 클릭 방어 — setTimeout 전환 중 추가 클릭 차단
+  const transitionRef = useRef(false);
+
   const totalDemoSteps = DEMOGRAPHIC_QUESTIONS.length;
   const totalSteps = QUESTIONS.length;
   const currentQuestion = QUESTIONS[step];
@@ -71,10 +74,14 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
   /* ── 인구통계 선택 핸들러 ── */
   const handleDemoSelect = useCallback(
     (value: string) => {
+      if (transitionRef.current) return;
+
       const qId = DEMOGRAPHIC_QUESTIONS[demoStep].id;
       setDemoAnswers((prev) => ({ ...prev, [qId]: value }));
 
+      transitionRef.current = true;
       setTimeout(() => {
+        transitionRef.current = false;
         if (demoStep < totalDemoSteps - 1) {
           setDemoStep((s) => s + 1);
         } else {
@@ -88,10 +95,14 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
   /* ── 진단 선택 핸들러 ── */
   const handleSelect = useCallback(
     (score: number) => {
+      if (transitionRef.current) return;
+
       const qId = currentQuestion.id;
       setAnswers((prev) => ({ ...prev, [qId]: score }));
 
+      transitionRef.current = true;
       setTimeout(() => {
+        transitionRef.current = false;
         if (step < totalSteps - 1) {
           setStep((s) => s + 1);
         } else {
@@ -121,21 +132,23 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
   }, [phase, step, demoStep, totalDemoSteps, onBack]);
 
   const handleReset = useCallback(() => {
+    transitionRef.current = false;
     setPhase("demographic");
     setDemoStep(0);
     setDemoAnswers({});
     setStep(0);
     setAnswers({});
     setCopied(false);
+    window.scrollTo(0, 0);
   }, []);
 
   const handleShare = useCallback(
     async (tier?: ResultTier) => {
       const url = window.location.origin + "/assess";
-      const shareTitle = "귀농 적합성 진단 - 이랑";
+      const shareTitle = "귀농 준비도 진단 - 이랑";
       const shareText = tier
         ? `나의 귀농 준비 단계는 "${tier.title}" ${tier.emoji}\n${tier.summary}`
-        : "나는 귀농에 얼마나 준비되어 있을까? 3분 자가진단으로 확인해보세요.";
+        : "나는 귀농에 얼마나 준비되어 있을까? 3분 준비도 진단으로 확인해보세요.";
 
       // Web Share API (iOS/Android 네이티브 공유시트)
       if (typeof navigator.share === "function") {
@@ -306,7 +319,7 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
         </div>
 
         {/* 결과 출력/저장 CTA */}
-        <ResultSaveCta printTitle={`이랑 - 귀농 적합성 진단 결과 (${tier.title})`} />
+        <ResultSaveCta printTitle={`이랑 - 귀농 준비도 진단 결과 (${tier.title})`} />
 
         {/* CTA 버튼 */}
         <div className={s.resultActions}>
@@ -335,6 +348,14 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
         </div>
       </div>
     );
+  }
+
+  // 방어: step/demoStep이 범위를 넘은 경우 graceful 처리
+  if (phase === "quiz" && !currentQuestion) {
+    setPhase("result");
+  }
+  if (phase === "demographic" && !DEMOGRAPHIC_QUESTIONS[demoStep]) {
+    setPhase("quiz");
   }
 
   /* ═══ 인구통계 질문 화면 ═══ */
@@ -391,7 +412,7 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
         <div className={s.navBar}>
           <button onClick={handleBack} className={s.navBtnBack} type="button">
             <ArrowLeft size={16} />
-            이전
+            {demoStep === 0 ? "처음으로" : "이전"}
           </button>
         </div>
       </div>

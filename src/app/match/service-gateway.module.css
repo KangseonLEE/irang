@@ -115,6 +115,134 @@
   color: var(--primary, #1b6b5a);
 }
 
+/* ── 이전 진단 결과 ── */
+.historySection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.historyTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.historyClear {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  font-family: inherit;
+}
+
+.historyClear:hover {
+  color: var(--destructive, #dc2626);
+  background: color-mix(in srgb, var(--destructive, #dc2626) 8%, transparent);
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg, 12px);
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .historyItem:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 2px 12px rgba(27, 107, 90, 0.08);
+  }
+}
+
+.historyEmoji {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 36px;
+  text-align: center;
+}
+
+.historyBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.historyTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.historyLabel {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.historyDate {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.historyRegions {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+}
+
+.historyArrow {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+  transition: color 0.15s;
+}
+
+.historyItem:hover .historyArrow {
+  color: var(--primary, #1b6b5a);
+}
+
+.historyHint {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  margin: 0;
+  text-align: center;
+  line-height: var(--lh-normal);
+}
+
 /* ── 카드 그리드 ── */
 .cards {
   display: flex;

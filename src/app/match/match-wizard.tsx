@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import {
@@ -15,6 +15,11 @@ import {
   getRecommendedPrograms,
 } from "@/lib/match-scoring";
 import { analytics } from "@/lib/analytics";
+import {
+  generateResultId,
+  saveAssessmentResult,
+} from "@/lib/assess-result";
+import { useAssessmentHistory } from "@/hooks/use-assessment-history";
 import { MatchResult } from "./match-result";
 import s from "./match-wizard.module.css";
 
@@ -30,6 +35,12 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
   const [answers, setAnswers] = useState<Answers>({});
   const [showResult, setShowResult] = useState(false);
   const [prefilled, setPrefilled] = useState<Set<string>>(new Set());
+  const [resultId, setResultId] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const { addResult } = useAssessmentHistory();
+
+  // 빠른 연타 클릭 방어 — setTimeout 전환 중 추가 클릭 차단
+  const transitionRef = useRef(false);
 
   // 매칭 시작 이벤트 (마운트 시 1회)
   useEffect(() => {
@@ -76,6 +87,9 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
 
   const handleSelect = useCallback(
     (optionId: string) => {
+      // 단일 선택 전환 중 연타 방어
+      if (!currentQuestion.multiple && transitionRef.current) return;
+
       const qId = currentQuestion.id;
       setAnswers((prev) => {
         const current = prev[qId] || [];
@@ -92,7 +106,9 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
 
       // 단일 선택: 자동으로 다음 단계
       if (!currentQuestion.multiple) {
+        transitionRef.current = true;
         setTimeout(() => {
+          transitionRef.current = false;
           if (step < totalSteps - 1) {
             setStep((s) => s + 1);
           } else {
@@ -123,17 +139,51 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
   }, [step, showResult, onBack]);
 
   const handleReset = useCallback(() => {
+    transitionRef.current = false;
     setStep(0);
     setAnswers({});
     setShowResult(false);
+    window.scrollTo(0, 0);
   }, []);
 
-  // 결과 화면 진입 시 완료 이벤트 전송
+  // 결과 화면 진입 시 완료 이벤트 + Supabase 저장 + localStorage 저장
   useEffect(() => {
-    if (showResult) {
-      analytics.matchComplete();
-    }
-  }, [showResult]);
+    if (!showResult) return;
+
+    analytics.matchComplete();
+
+    // 결과 저장 (1회만 실행)
+    if (saveStatus !== "idle") return;
+    setSaveStatus("saving");
+
+    const id = generateResultId();
+    setResultId(id);
+
+    const ft = classifyFarmType(answers);
+    const provinces = scoreProvinces(answers);
+    const crops = recommendCrops(answers, provinces);
+
+    // localStorage 히스토리 저장
+    addResult({
+      resultId: id,
+      farmTypeId: ft.id,
+      farmTypeLabel: ft.label,
+      topRegions: provinces.slice(0, 3).map((p) => p.province.shortName),
+    });
+
+    // Supabase 저장 (fire-and-forget, 실패해도 결과는 표시)
+    saveAssessmentResult({
+      id,
+      answers,
+      farm_type_id: ft.id,
+      top_regions: provinces.slice(0, 3).map((p) => p.province.id),
+      top_crops: crops.slice(0, 4).map((c) => c.crop.id),
+      recommended_programs: ft.programIds.slice(0, 5),
+      referrer: searchParams.get("utm_source"),
+    })
+      .then((res) => setSaveStatus(res.success ? "saved" : "error"))
+      .catch(() => setSaveStatus("error"));
+  }, [showResult]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 결과 계산
   const topProvinces = useMemo(
@@ -159,6 +209,11 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
 
   const selectedForCurrent = answers[currentQuestion?.id] || [];
 
+  // 방어: step이 범위를 넘은 경우 결과 화면으로 전환
+  if (!showResult && !currentQuestion) {
+    setShowResult(true);
+  }
+
   /* ── 결과 화면 ── */
   if (showResult && farmType) {
     return (
@@ -167,6 +222,8 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
         topProvinces={topProvinces}
         recommendedCrops={recommendedCrops}
         recommendedPrograms={recommendedPrograms}
+        resultId={resultId}
+        saveStatus={saveStatus}
         onReset={handleReset}
       />
     );
@@ -245,7 +302,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
           type="button"
         >
           <ArrowLeft size={16} />
-          이전
+          {step === 0 ? "처음으로" : "이전"}
         </button>
 
         {/* pre-fill된 단일 선택 질문: 건너뛰기 버튼 표시 */}

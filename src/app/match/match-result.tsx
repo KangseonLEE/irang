@@ -16,8 +16,9 @@ import {
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import type { SupportProgram } from "@/lib/data/programs";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
-import { ResultSaveCta } from "@/components/result/result-save-cta";
+import { ShareButtons } from "@/components/share/share-buttons";
 import type { FarmType } from "@/lib/data/match-questions";
+/* ResultSaveCta removed — replaced by ShareButtons in v2.0 */
 import type { ScoredProvince, RecommendedCrop } from "@/lib/match-scoring";
 import s from "./match-wizard.module.css";
 
@@ -26,6 +27,8 @@ interface MatchResultProps {
   topProvinces: ScoredProvince[];
   recommendedCrops: RecommendedCrop[];
   recommendedPrograms: SupportProgram[];
+  resultId: string | null;
+  saveStatus: "idle" | "saving" | "saved" | "error";
   onReset: () => void;
 }
 
@@ -34,6 +37,8 @@ export function MatchResult({
   topProvinces,
   recommendedCrops,
   recommendedPrograms,
+  resultId,
+  saveStatus,
   onReset,
 }: MatchResultProps) {
   return (
@@ -41,7 +46,7 @@ export function MatchResult({
       {/* 유형 카드 — 최상단 */}
       <div className={s.farmTypeCard}>
         <span className={s.farmTypeEmoji}>{farmType.emoji}</span>
-        <span className={s.farmTypeOverline}>당신의 귀농 유형</span>
+        <span className={s.farmTypeOverline}>나의 귀농 준비 결과</span>
         <h1 className={s.farmTypeLabel}>{farmType.label}</h1>
         <p className={s.farmTypeTagline}>{farmType.tagline}</p>
         <p className={s.farmTypeDesc}>{farmType.description}</p>
@@ -158,8 +163,15 @@ export function MatchResult({
         </section>
       )}
 
-      {/* 결과 출력/저장 CTA */}
-      <ResultSaveCta printTitle="이랑 - 맞춤 귀농지 추천 결과" />
+      {/* 공유 버튼 (Sprint 1: URL 복사) */}
+      {resultId && saveStatus === "saved" && (
+        <ShareButtons resultId={resultId} farmTypeLabel={farmType.label} />
+      )}
+      {saveStatus === "saving" && (
+        <p style={{ textAlign: "center", fontSize: "0.85rem", color: "#999", padding: "1rem 0" }}>
+          결과를 저장하고 있습니다...
+        </p>
+      )}
 
       {/* 액션 버튼 */}
       <div className={s.resultActions}>

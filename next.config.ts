@@ -3,6 +3,20 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  /* ── 단축 URL: /r/:id → /assess/result/:id ── */
+  async rewrites() {
+    return [
+      // OG 이미지 서브라우트도 함께 매핑
+      {
+        source: "/r/:id/opengraph-image",
+        destination: "/assess/result/:id/opengraph-image",
+      },
+      {
+        source: "/r/:id",
+        destination: "/assess/result/:id?utm_source=share&utm_medium=shorturl",
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

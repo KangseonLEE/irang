@@ -211,7 +211,7 @@ export function Header() {
               href="/match"
               className={s.ctaButton}
             >
-              귀농 유형 진단
+              귀농 준비 진단
               <ArrowRight size={14} strokeWidth={1.75} />
             </Link>
           </div>

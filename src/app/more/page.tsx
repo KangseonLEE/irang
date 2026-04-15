@@ -159,9 +159,9 @@ export default function MorePage() {
         <div className={s.ctaLeft}>
           <IconWrap icon={Compass} size="xl" />
           <div className={s.ctaText}>
-            <span className={s.ctaLabel}>귀농 유형 진단</span>
+            <span className={s.ctaLabel}>귀농 준비 진단</span>
             <span className={s.ctaDesc}>
-              3분이면 나에게 맞는 귀농 유형을 알 수 있어요
+              3분이면 나의 귀농 준비 상태를 확인할 수 있어요
             </span>
           </div>
         </div>
