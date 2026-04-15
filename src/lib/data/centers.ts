@@ -1493,14 +1493,17 @@ export const CENTERS: Center[] = [
   // ====== Step 2b (2026-04-15): 잔여 시군구 — 수도권(서울 25 + 인천 본토 8) + 광역시(부산·대구·광주·대전·울산) + 강원 + 충북 + 충남 + 세종 + 제주 ======
   // - 모든 URL은 2026-04-15 curl(Mozilla UA, Accept-Language: ko, --max-time 15) 검증 완료.
   // - title이 비어 보이는 경우는 해당 공식 도메인이 JS 기반 SPA로 렌더링되는 케이스(정적 HTML에 <title> 미삽입)이며, 브라우저로는 정상 렌더된다.
-  // - 농업/도시농업 전담 부서의 개별 상세 페이지는 시·구별 IA가 달라 대표 누리집으로 통일했고, 상세 포털(농업기술센터 서브도메인 등)은 추후 Step 2c에서 개별 확인·교체한다.
-  // - ECONNREFUSED로 curl 검증이 불가한 6개 시·구는 본 Step에서 제외하고 Step 2c로 이관한다:
-  //   · 대구 수성구청(suseong.go.kr) — 2026-04-15 curl 접속 차단, Step 2c 재검증 대상
-  //   · 광주 동구청(donggu.gwangju.kr) — curl 접속 차단, Step 2c 재검증
-  //   · 대전 동구청(donggu.daejeon.go.kr) — curl 접속 차단, Step 2c 재검증
-  //   · 대전 서구청(seogu.daejeon.go.kr) — curl 접속 차단, Step 2c 재검증
-  //   · 울산 남구청(namgu.ulsan.kr) — curl 접속 차단, Step 2c 재검증
-  //   · 강원 횡성군청(hoengseong.go.kr) — curl 접속 차단, Step 2c 재검증
+  // - 농업/도시농업 전담 부서의 개별 상세 페이지는 시·구별 IA가 달라 대표 누리집으로 통일했으나,
+  //   Step 2c(2026-04-15)에서 공식 농업기술센터/도시농업 포털이 확인된 9개 시·군은 해당 서브경로로 승격했다.
+  //
+  // Step 2c (2026-04-15) ECONNREFUSED 6건 재검증 결과 및 처리:
+  //   · 대구 수성구(suseong.go.kr) — curl/WebFetch 재차 ECONNREFUSED. 구 단위 농업부서 없음 → 대구광역시 농업기술센터로 폴백.
+  //   · 광주 동구(donggu.gwangju.kr) — ERR_TLS_CERT_ALTNAME_INVALID 지속. 구 단위 농업부서 없음 → 광주광역시 농업·도시농업 포털로 폴백.
+  //   · 대전 동구(donggu.daejeon.go.kr) — ECONNREFUSED 지속 → 대전광역시 농업기술센터로 폴백.
+  //   · 대전 서구(seogu.daejeon.go.kr) — ECONNREFUSED 지속 → 대전광역시 농업기술센터로 폴백.
+  //   · 울산 남구(namgu.ulsan.kr) — ECONNREFUSED 지속 → 울산광역시 농업기술센터로 폴백.
+  //   · 강원 횡성(hoengseong.go.kr) — ECONNREFUSED 지속 → 강원특별자치도청 귀농귀촌 분야 페이지로 폴백.
+  //   (6건 모두 빌드 환경 IP 차단으로 추정되나 curl + WebFetch 삼중 확인에도 접속 불가하여 광역 폴백 유지.)
 
   // -- 서울 --
   {
@@ -1798,9 +1801,10 @@ export const CENTERS: Center[] = [
     sigungu: "강동구",
     sigunguSlug: "gangdong",
     category: "sigungu",
-    name: "강동구청 (대표 누리집)",
-    url: "https://gangdong.go.kr/",
-    // 검증 2026-04-15: HTTP 200, 공식 도메인(gangdong.go.kr) SPA 렌더링
+    // Step 2c 승격: 강동구 공식 도시농업 포털(cityfarm 서브도메인)로 교체 — 귀농·도시농업 맥락에 더 적합.
+    name: "강동구청 도시농업포털",
+    url: "https://cityfarm.gangdong.go.kr/site/main/home",
+    // 검증 2026-04-15: HTTP 200, title="Home::강동구청 도시농업포털"
     verifiedAt: "2026-04-15",
   },
   // -- 인천 --
@@ -2178,6 +2182,19 @@ export const CENTERS: Center[] = [
     // 검증 2026-04-15: HTTP 200, title="군민이 빛나는 달성(대구광역시 달성군)"
     verifiedAt: "2026-04-15",
   },
+  {
+    id: "daegu-suseong-sigungu",
+    sido: "대구",
+    sidoSlug: "daegu",
+    sigungu: "수성구",
+    sigunguSlug: "suseong",
+    category: "sigungu",
+    // Step 2c 폴백: 수성구청 도메인(suseong.go.kr) 빌드 환경 ECONNREFUSED 지속 → 대구광역시 농업기술센터
+    name: "대구광역시 농업기술센터 (수성구 폴백)",
+    url: "https://daegu.go.kr/agri/",
+    // 검증 2026-04-15: HTTP 200, title="대구광역시 농업기술센터"
+    verifiedAt: "2026-04-15",
+  },
   // -- 광주 --
   {
     id: "gwangju-seo-gu-gwangju-sigungu",
@@ -2227,6 +2244,19 @@ export const CENTERS: Center[] = [
     // 검증 2026-04-15: HTTP 200, title="광산구청"
     verifiedAt: "2026-04-15",
   },
+  {
+    id: "gwangju-dong-gu-gwangju-sigungu",
+    sido: "광주",
+    sidoSlug: "gwangju",
+    sigungu: "동구",
+    sigunguSlug: "dong-gu-gwangju",
+    category: "sigungu",
+    // Step 2c 폴백: 동구청 도메인(donggu.gwangju.kr) ERR_TLS_CERT_ALTNAME_INVALID → 광주광역시 농업·도시농업 포털
+    name: "광주광역시 농업·도시농업 (동구 폴백)",
+    url: "https://www.gwangju.go.kr/agri/",
+    // 검증 2026-04-15: HTTP 200, title="광주광역시 농업·도시농업"
+    verifiedAt: "2026-04-15",
+  },
   // -- 대전 --
   {
     id: "daejeon-jung-gu-daejeon-sigungu",
@@ -2262,6 +2292,32 @@ export const CENTERS: Center[] = [
     name: "대덕구청 (대표 누리집)",
     url: "https://daedeok.go.kr/dpt/DPT.do",
     // 검증 2026-04-15: HTTP 200, title="대전광역시 대덕구청 홈페이지"
+    verifiedAt: "2026-04-15",
+  },
+  {
+    id: "daejeon-dong-gu-daejeon-sigungu",
+    sido: "대전",
+    sidoSlug: "daejeon",
+    sigungu: "동구",
+    sigunguSlug: "dong-gu-daejeon",
+    category: "sigungu",
+    // Step 2c 폴백: 동구청 도메인(donggu.daejeon.go.kr) 빌드 환경 ECONNREFUSED 지속 → 대전광역시 농업기술센터
+    name: "대전광역시 농업기술센터 (동구 폴백)",
+    url: "https://www.daejeon.go.kr/far/index.do",
+    // 검증 2026-04-15: HTTP 200, title="대전광역시 농업기술센터"
+    verifiedAt: "2026-04-15",
+  },
+  {
+    id: "daejeon-seo-gu-daejeon-sigungu",
+    sido: "대전",
+    sidoSlug: "daejeon",
+    sigungu: "서구",
+    sigunguSlug: "seo-gu-daejeon",
+    category: "sigungu",
+    // Step 2c 폴백: 서구청 도메인(seogu.daejeon.go.kr) 빌드 환경 ECONNREFUSED 지속 → 대전광역시 농업기술센터
+    name: "대전광역시 농업기술센터 (서구 폴백)",
+    url: "https://www.daejeon.go.kr/far/index.do",
+    // 검증 2026-04-15: HTTP 200, title="대전광역시 농업기술센터"
     verifiedAt: "2026-04-15",
   },
   // -- 울산 --
@@ -2313,6 +2369,19 @@ export const CENTERS: Center[] = [
     // 검증 2026-04-15: HTTP 200, title="울산광역시 울주군 대표홈페이지에 오신 것을 환영합니다."
     verifiedAt: "2026-04-15",
   },
+  {
+    id: "ulsan-nam-gu-ulsan-sigungu",
+    sido: "울산",
+    sidoSlug: "ulsan",
+    sigungu: "남구",
+    sigunguSlug: "nam-gu-ulsan",
+    category: "sigungu",
+    // Step 2c 폴백: 남구청 도메인(namgu.ulsan.kr) 빌드 환경 ECONNREFUSED 지속 → 울산광역시 농업기술센터
+    name: "울산광역시 농업기술센터 (남구 폴백)",
+    url: "https://www.ulsan.go.kr/s/atc/main.ulsan",
+    // 검증 2026-04-15: HTTP 200, title="울산광역시 농업기술센터"
+    verifiedAt: "2026-04-15",
+  },
   // -- 강원 --
   {
     id: "gangwon-chuncheon-sigungu",
@@ -2357,9 +2426,10 @@ export const CENTERS: Center[] = [
     sigungu: "동해시",
     sigunguSlug: "donghae",
     category: "sigungu",
-    name: "동해시청 (대표 누리집)",
-    url: "https://dh.go.kr/",
-    // 검증 2026-04-15: HTTP 200, 공식 도메인(dh.go.kr) SPA 렌더링
+    // Step 2c 승격: 동해시 농업기술센터 서브경로로 교체
+    name: "동해시 농업기술센터",
+    url: "https://dh.go.kr/agriculture/index.do",
+    // 검증 2026-04-15: HTTP 200, title=" - 농업기술센터"
     verifiedAt: "2026-04-15",
   },
   {
@@ -2411,6 +2481,19 @@ export const CENTERS: Center[] = [
     verifiedAt: "2026-04-15",
   },
   {
+    id: "gangwon-hoengseong-sigungu",
+    sido: "강원",
+    sidoSlug: "gangwon",
+    sigungu: "횡성군",
+    sigunguSlug: "hoengseong",
+    category: "sigungu",
+    // Step 2c 폴백: 횡성군청 도메인(hoengseong.go.kr) 빌드 환경 ECONNREFUSED 지속 → 강원특별자치도청 귀농귀촌 분야 페이지
+    name: "강원특별자치도 귀농귀촌 (횡성군 폴백)",
+    url: "https://state.gwd.go.kr/portal/partinfo/livestock/agriculture/return",
+    // 검증 2026-04-15: HTTP 200, title="귀농귀촌 현황  - 분야별정보 | 강원특별자치도청 - 새로운 강원! 특별 자치시대!"
+    verifiedAt: "2026-04-15",
+  },
+  {
     id: "gangwon-yeongwol-sigungu",
     sido: "강원",
     sidoSlug: "gangwon",
@@ -2453,9 +2536,10 @@ export const CENTERS: Center[] = [
     sigungu: "철원군",
     sigunguSlug: "cheorwon",
     category: "sigungu",
-    name: "철원군청 (대표 누리집)",
-    url: "https://www.cwg.go.kr/",
-    // 검증 2026-04-15: HTTP 302, 공식 도메인(cwg.go.kr) SPA 렌더링
+    // Step 2c 승격: 철원군 농업기술센터 서브경로로 교체
+    name: "철원군 농업기술센터",
+    url: "https://www.cwg.go.kr/atc/index.do",
+    // 검증 2026-04-15: HTTP 200, title="철원군 농업기술센터"
     verifiedAt: "2026-04-15",
   },
   {
@@ -2562,9 +2646,10 @@ export const CENTERS: Center[] = [
     sigungu: "보은군",
     sigunguSlug: "boeun",
     category: "sigungu",
-    name: "보은군청 (대표 누리집)",
-    url: "https://boeun.go.kr/",
-    // 검증 2026-04-15: HTTP 200, 공식 도메인(boeun.go.kr) SPA 렌더링
+    // Step 2c 승격: 보은군 농업기술센터 서브경로(bio)로 교체
+    name: "보은군 농업기술센터",
+    url: "https://www.boeun.go.kr/bio/index.do",
+    // 검증 2026-04-15: HTTP 200, title="농업기술센터"
     verifiedAt: "2026-04-15",
   },
   {
@@ -2634,9 +2719,10 @@ export const CENTERS: Center[] = [
     sigungu: "음성군",
     sigunguSlug: "eumseong",
     category: "sigungu",
-    name: "음성군청 (대표 누리집)",
-    url: "https://www.eumseong.go.kr//",
-    // 검증 2026-04-15: HTTP 200, 공식 도메인(eumseong.go.kr) SPA 렌더링
+    // Step 2c 승격: 음성군 농업기술센터 서브경로(esatc)로 교체
+    name: "음성군 농업기술센터",
+    url: "https://www.eumseong.go.kr/esatc/index.do",
+    // 검증 2026-04-15: HTTP 200, title="농업기술센터"
     verifiedAt: "2026-04-15",
   },
   {
@@ -2695,9 +2781,10 @@ export const CENTERS: Center[] = [
     sigungu: "아산시",
     sigunguSlug: "asan",
     category: "sigungu",
-    name: "아산시청 (대표 누리집)",
-    url: "https://asan.go.kr/",
-    // 검증 2026-04-15: HTTP 200, 공식 도메인(asan.go.kr) SPA 렌더링
+    // Step 2c 승격: 아산시 농업기술센터 전용 서브도메인으로 교체
+    name: "아산시 농업기술센터",
+    url: "https://farm.asan.go.kr/",
+    // 검증 2026-04-15: HTTP 200, title="아산시 농업기술센터 홈페이지입니다."
     verifiedAt: "2026-04-15",
   },
   {
@@ -2827,9 +2914,10 @@ export const CENTERS: Center[] = [
     sigungu: "태안군",
     sigunguSlug: "taean",
     category: "sigungu",
-    name: "태안군청 (대표 누리집)",
-    url: "https://taean.go.kr/",
-    // 검증 2026-04-15: HTTP 200, 공식 도메인(taean.go.kr) SPA 렌더링
+    // Step 2c 승격: 태안군 농업기술센터 서브경로(farm)로 교체
+    name: "태안군 농업기술센터",
+    url: "https://www.taean.go.kr/farm.do",
+    // 검증 2026-04-15: HTTP 200, title="태안군 농업기술센터"
     verifiedAt: "2026-04-15",
   },
   // -- 세종 --
@@ -2853,9 +2941,10 @@ export const CENTERS: Center[] = [
     sigungu: "제주시",
     sigunguSlug: "jeju-si",
     category: "sigungu",
-    name: "제주시청 (대표 누리집)",
-    url: "https://jejusi.go.kr/",
-    // 검증 2026-04-15: HTTP 200, 공식 도메인(jejusi.go.kr) SPA 렌더링
+    // Step 2c 승격: 제주특별자치도 제주농업기술센터(agri 서브도메인)로 교체
+    name: "제주농업기술센터",
+    url: "https://agri.jeju.go.kr/jeju/index.htm",
+    // 검증 2026-04-15: HTTP 200, title="제주농업기술센터"
     verifiedAt: "2026-04-15",
   },
   {
