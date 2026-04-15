@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Building2, ExternalLink } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
-import { CardGrid } from "@/components/ui/card-grid";
-import { CenterCard } from "@/components/region/center-card";
 import { CENTERS, getSigunguCentersBySido } from "@/lib/data/centers";
 import { PROVINCES } from "@/lib/data/regions";
+import { CentersSearch } from "./centers-search";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -15,11 +14,11 @@ export const metadata: Metadata = {
 
 export default function CentersHubPage() {
   const sidoCenters = CENTERS.filter((c) => c.category === "sido");
-  const sigunguCenters = CENTERS.filter((c) => c.category === "sigungu");
 
   // 광역별로 시·군 센터 그룹핑 (커버된 광역만 노출)
-  const coveredSidoGroups = PROVINCES.map((province) => ({
-    province,
+  const sigunguGroups = PROVINCES.map((province) => ({
+    id: province.id,
+    shortName: province.shortName,
     centers: getSigunguCentersBySido(province.id),
   })).filter((g) => g.centers.length > 0);
 
@@ -33,48 +32,10 @@ export default function CentersHubPage() {
         count={CENTERS.length}
       />
 
-      {/* ── 광역(시·도) 센터 ── */}
-      <section className={s.section} aria-label="광역 시·도 센터">
-        <div className={s.sectionHeader}>
-          <h2 className={s.sectionTitle}>광역 시·도 센터</h2>
-          <p className={s.sectionDesc}>
-            전국 {sidoCenters.length}개 광역 귀농귀촌지원센터예요.
-          </p>
-        </div>
-        <CardGrid>
-          {sidoCenters.map((center) => (
-            <CenterCard key={center.id} center={center} showSidoLabel />
-          ))}
-        </CardGrid>
-      </section>
-
-      {/* ── 시·군 센터 (광역별 그룹) ── */}
-      <section className={s.section} aria-label="시·군 센터">
-        <div className={s.sectionHeader}>
-          <h2 className={s.sectionTitle}>시·군 센터</h2>
-          <p className={s.sectionDesc}>
-            현재 {sigunguCenters.length}곳이 등록돼 있어요. 일부 지역은 아직 준비 중이에요.
-          </p>
-        </div>
-
-        <div className={s.groupList}>
-          {coveredSidoGroups.map(({ province, centers }) => (
-            <details key={province.id} className={s.group} open>
-              <summary className={s.groupSummary}>
-                <span className={s.groupName}>{province.shortName}</span>
-                <span className={s.groupCount}>{centers.length}곳</span>
-              </summary>
-              <div className={s.groupBody}>
-                <CardGrid>
-                  {centers.map((center) => (
-                    <CenterCard key={center.id} center={center} />
-                  ))}
-                </CardGrid>
-              </div>
-            </details>
-          ))}
-        </div>
-      </section>
+      <CentersSearch
+        sidoCenters={sidoCenters}
+        sigunguGroups={sigunguGroups}
+      />
 
       <aside className={s.notice}>
         <h2 className={s.noticeTitle}>아직 준비 중인 지역도 있어요</h2>

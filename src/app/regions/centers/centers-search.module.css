@@ -1,0 +1,235 @@
+/* ---- 검색 + 퀵점프 ---- */
+.searchWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.searchBox:focus-within {
+  border-color: var(--primary, #1b6b5a);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 40px 12px 42px;
+  font-size: var(--fs-body);
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  border-radius: 14px;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: var(--muted-foreground);
+}
+
+.clearButton {
+  position: absolute;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+@media (hover: hover) {
+  .clearButton:hover {
+    color: var(--foreground);
+    background: color-mix(in srgb, var(--foreground) 8%, transparent);
+  }
+}
+
+.clearButton:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ---- 퀵점프 ---- */
+.quickJump {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.quickChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 8px 14px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+@media (hover: hover) {
+  .quickChip:hover {
+    border-color: var(--primary, #1b6b5a);
+    color: var(--primary, #1b6b5a);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
+  }
+}
+
+.quickChip:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.quickChipCount {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+
+/* ---- 섹션 ---- */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sectionTitle {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.sectionDesc {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  line-height: var(--lh-normal);
+  margin: 0;
+}
+
+/* ---- 광역별 시·군 그룹 ---- */
+.groupList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.group {
+  background: var(--card, #ffffff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.groupSummary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--fs-body);
+  user-select: none;
+}
+
+.groupSummary::-webkit-details-marker {
+  display: none;
+}
+
+.groupChevron {
+  margin-left: 4px;
+  color: var(--muted-foreground);
+  transition: transform 0.2s;
+}
+
+.group[open] > .groupSummary .groupChevron {
+  transform: rotate(180deg);
+}
+
+@media (hover: hover) {
+  .groupSummary:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+  }
+}
+
+.groupSummary:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -2px;
+}
+
+.groupName {
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.groupCount {
+  margin-left: auto;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.groupBody {
+  padding: 16px;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+/* ---- 시·군 리스트 (compact CenterCard 전용) ---- */
+.compactList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .compactList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .compactList {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
