@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
+import { BookOpen, GitCompareArrows } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { RoadmapClient } from "./roadmap-client";
@@ -49,6 +49,10 @@ export default function ProgramRoadmapPage() {
           <Link href="/guide" className={s.ctaSecondary}>
             <BookOpen size={18} />
             귀농 5단계 가이드
+          </Link>
+          <Link href="/guide/track-compare" className={s.ctaSecondary}>
+            <GitCompareArrows size={18} />
+            귀농·귀산촌 비교
           </Link>
         </div>
       </section>
