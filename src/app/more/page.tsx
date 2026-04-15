@@ -38,10 +38,10 @@ interface QuickItem {
 }
 
 const quickItems: QuickItem[] = [
-  { href: "/guide", label: "귀농 로드맵", icon: Map },
-  { href: "/match", label: "유형 매칭", icon: Compass },
-  { href: "/regions", label: "지역 탐색", icon: MapPin },
-  { href: "/costs", label: "비용 가이드", icon: Wallet },
+  { href: "/guide", label: "귀농로드맵", icon: Map },
+  { href: "/match", label: "유형매칭", icon: Compass },
+  { href: "/regions", label: "지역탐색", icon: MapPin },
+  { href: "/costs", label: "비용가이드", icon: Wallet },
   { href: "/programs", label: "지원사업", icon: FileText },
 ];
 

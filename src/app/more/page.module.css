@@ -62,7 +62,15 @@
   color: var(--foreground, #111827);
   text-align: center;
   line-height: 1.3;
+  white-space: nowrap;
   word-break: keep-all;
+}
+
+@media (max-width: 379px) {
+  .quickLabel {
+    font-size: 11px;
+    letter-spacing: -0.02em;
+  }
 }
 
 /* ═══ 리스트 메뉴 (하단) ═══ */
