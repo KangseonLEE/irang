@@ -19,16 +19,27 @@
   padding: 0 4px;
 }
 
-/* ═══ 퀵 메뉴 (상단 4개 그리드) ═══ */
+/* ═══ 퀵 메뉴 (상단 4개 개별 카드) ═══ */
+.quickSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quickSectionLabel {
+  margin: 0;
+  font-size: var(--fs-overline, 11px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground, #6b7280);
+  padding: 14px 14px 6px;
+}
+
 .quickGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  padding: 8px;
-  margin-top: 8px;
-  background: var(--card, #fff);
-  border-radius: 16px;
-  border: 1px solid var(--border, #e5e7eb);
+  gap: 8px;
 }
 
 .quickItem {
@@ -36,21 +47,24 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 16px 4px 14px;
-  border-radius: 12px;
+  padding: 18px 4px 14px;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
   text-decoration: none;
-  transition: background-color 0.12s;
+  transition: background-color 0.12s, border-color 0.12s;
   -webkit-tap-highlight-color: transparent;
 }
 
 @media (hover: hover) {
   .quickItem:hover {
     background: var(--muted, #f9fafb);
+    border-color: var(--primary, #1b6b5a);
   }
 }
 
 .quickItem:active {
-  background: var(--muted, #f3f4f6);
+  background: var(--secondary, #f0f9f6);
 }
 
 .quickIcon {
@@ -184,8 +198,8 @@
     padding: 32px 24px 60px;
   }
 
-  .quickIcon {
-    color: var(--primary, #1b6b5a);
+  .quickGrid {
+    gap: 10px;
   }
 
   .quickItem {

@@ -98,18 +98,21 @@ export default function MorePage() {
     <div className={s.page}>
       <h1 className={s.title}>전체 서비스</h1>
 
-      {/* 퀵 메뉴 — 라인 아이콘 4개 그리드 */}
-      <div className={s.quickGrid}>
-        {quickItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link key={item.href} href={item.href} className={s.quickItem}>
-              <Icon size={24} strokeWidth={1.75} className={s.quickIcon} />
-              <span className={s.quickLabel}>{item.label}</span>
-            </Link>
-          );
-        })}
-      </div>
+      {/* 퀵 메뉴 — 개별 카드 4개 그리드 */}
+      <section className={s.quickSection}>
+        <h2 className={s.quickSectionLabel}>첫걸음</h2>
+        <div className={s.quickGrid}>
+          {quickItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href} className={s.quickItem}>
+                <Icon size={24} strokeWidth={1.75} className={s.quickIcon} />
+                <span className={s.quickLabel}>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
 
       {/* 리스트 메뉴 */}
       <nav aria-label="전체 메뉴" className={s.nav}>
