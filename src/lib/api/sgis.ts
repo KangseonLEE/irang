@@ -37,10 +37,7 @@ async function getAccessToken(): Promise<string | null> {
   const consumerKey = process.env.SGIS_KEY;
   const consumerSecret = process.env.SGIS_SECRET;
 
-  if (!consumerKey || !consumerSecret) {
-    console.error("SGIS_KEY or SGIS_SECRET is not set");
-    return null;
-  }
+  if (!consumerKey || !consumerSecret) return null;
 
   const url = new URL(AUTH_URL);
   url.searchParams.set("consumer_key", consumerKey);
@@ -67,8 +64,7 @@ async function getAccessToken(): Promise<string | null> {
     };
 
     return accessToken;
-  } catch (error) {
-    console.error("Failed to get SGIS access token:", error);
+  } catch {
     cachedToken = null;
     return null;
   }
@@ -141,8 +137,7 @@ async function fetchFromSGIS(
       householdCount: household,
       agingRate,
     };
-  } catch (error) {
-    console.error(`SGIS stats failed for region ${regionCode}:`, error);
+  } catch {
     return null;
   }
 }
@@ -226,11 +221,7 @@ export async function fetchSubRegionPopulations(
     }
 
     return map;
-  } catch (error) {
-    console.error(
-      `SGIS sub-region fetch failed for ${provinceSgisCode}:`,
-      error,
-    );
+  } catch {
     return {};
   }
 }

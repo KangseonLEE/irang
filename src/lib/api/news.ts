@@ -155,10 +155,7 @@ export async function fetchOgImage(url: string): Promise<string | undefined> {
     });
     clearTimeout(timer);
 
-    if (!res.ok) {
-      console.warn(`[og] HTTP ${res.status} — ${url}`);
-      return undefined;
-    }
+    if (!res.ok) return undefined;
 
     const text = await res.text();
     const head = text.slice(0, 25000);
@@ -171,11 +168,7 @@ export async function fetchOgImage(url: string): Promise<string | undefined> {
 
     for (const pattern of ogPatterns) {
       const m = head.match(pattern);
-      if (m?.[1]) {
-        const resolved = resolveImageUrl(m[1].trim(), url);
-        console.log(`[og] ✅ og:image — ${resolved.slice(0, 80)}...`);
-        return resolved;
-      }
+      if (m?.[1]) return resolveImageUrl(m[1].trim(), url);
     }
 
     // 2. twitter:image 폴백
@@ -187,27 +180,17 @@ export async function fetchOgImage(url: string): Promise<string | undefined> {
 
     for (const pattern of twitterPatterns) {
       const m = head.match(pattern);
-      if (m?.[1]) {
-        const resolved = resolveImageUrl(m[1].trim(), url);
-        console.log(`[og] ✅ twitter:image — ${resolved.slice(0, 80)}...`);
-        return resolved;
-      }
+      if (m?.[1]) return resolveImageUrl(m[1].trim(), url);
     }
 
     // 3. <link rel="image_src"> 폴백
     const linkMatch = head.match(
       /<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["']/i,
     );
-    if (linkMatch?.[1]) {
-      const resolved = resolveImageUrl(linkMatch[1].trim(), url);
-      console.log(`[og] ✅ image_src — ${resolved.slice(0, 80)}...`);
-      return resolved;
-    }
+    if (linkMatch?.[1]) return resolveImageUrl(linkMatch[1].trim(), url);
 
-    console.warn(`[og] ❌ OG 태그 없음 — ${url}`);
     return undefined;
-  } catch (err) {
-    console.warn(`[og] ❌ fetch 실패 — ${url}`, err instanceof Error ? err.message : err);
+  } catch {
     return undefined;
   }
 }
@@ -280,19 +263,13 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
   const clientId = process.env.NAVER_CLIENT_ID;
   const clientSecret = process.env.NAVER_CLIENT_SECRET;
 
-  if (!clientId || !clientSecret) {
-    console.warn("[news] NAVER_CLIENT_ID / NAVER_CLIENT_SECRET 미설정 → 폴백 사용");
-    return null;
-  }
+  if (!clientId || !clientSecret) return null;
 
   const MAX_RETRIES = 2;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      if (attempt > 0) {
-        console.log(`[news] "${query}" 재시도 ${attempt}/${MAX_RETRIES}`);
-        await sleep(500 * attempt);
-      }
+      if (attempt > 0) await sleep(500 * attempt);
 
       const params = new URLSearchParams({
         query,
@@ -311,19 +288,14 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
       });
 
       if (!res.ok) {
-        console.error(`[news] "${query}" API 에러: ${res.status}`);
         if (attempt < MAX_RETRIES) continue;
         return null;
       }
 
       const data: NaverNewsResponse = await res.json();
 
-      if (!data.items?.length) {
-        console.warn(`[news] "${query}" 검색 결과 0건`);
-        return null;
-      }
+      if (!data.items?.length) return null;
 
-      console.log(`[news] ✅ "${query}" → ${data.items.length}건`);
       return data.items.map((item) => ({
         title: stripHtml(item.title),
         description: stripHtml(item.description),
@@ -332,8 +304,7 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
         url: item.originallink || item.link,
         naverUrl: item.link || undefined,
       }));
-    } catch (err) {
-      console.error(`[news] "${query}" fetch 실패:`, err);
+    } catch {
       if (attempt < MAX_RETRIES) continue;
       return null;
     }

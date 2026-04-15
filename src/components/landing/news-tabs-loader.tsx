@@ -93,10 +93,6 @@ export async function NewsTabsLoader() {
       category,
     }));
 
-  console.log(
-    `[news-tabs] API 결과: news=${liveNews?.length ?? "null"}, edu=${eduNews?.length ?? "null"}, event=${eventNews?.length ?? "null"}, program=${programNews?.length ?? "null"}`,
-  );
-
   // 각 카테고리 독립적으로 중복 제거
   // 각 카테고리에 정적 폴백 데이터 제공 — API 실패 시에도 콘텐츠 보장
   const newsItems = dedupWithin(toItems(liveNews, trendNews, "news"));
@@ -112,10 +108,8 @@ export async function NewsTabsLoader() {
   ];
 
   // ── OG 이미지: 동시 3개씩 병렬 추출 (너무 많으면 타임아웃) ──
-  console.log(`[og] 총 ${unifiedNews.length}개 기사에서 OG 이미지 추출 시작`);
 
   const CONCURRENCY = 3;
-  let ogCount = 0;
 
   for (let i = 0; i < unifiedNews.length; i += CONCURRENCY) {
     const batch = unifiedNews.slice(i, i + CONCURRENCY);
@@ -131,12 +125,9 @@ export async function NewsTabsLoader() {
     results.forEach((result, j) => {
       if (result.status === "fulfilled" && result.value) {
         unifiedNews[i + j].thumbnail = result.value;
-        ogCount++;
       }
     });
   }
-
-  console.log(`[og] OG 이미지 추출 완료: ${ogCount}/${unifiedNews.length}개 성공`);
 
   return <NewsTabs items={unifiedNews} />;
 }

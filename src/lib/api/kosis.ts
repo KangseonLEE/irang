@@ -73,10 +73,7 @@ export interface RiceIncomeData {
  */
 export async function fetchRiceIncome(): Promise<RiceIncomeData | null> {
   const apiKey = process.env.KOSIS_API_KEY;
-  if (!apiKey) {
-    console.error("KOSIS_API_KEY is not set");
-    return null;
-  }
+  if (!apiKey) return null;
 
   const currentYear = new Date().getFullYear();
 
@@ -118,8 +115,7 @@ async function fetchRiceIncomeFromKOSIS(
     if (!Array.isArray(json) || json.length === 0) return null;
 
     return parseRiceIncomeItems(json as KOSISRawItem[], year);
-  } catch (error) {
-    console.error(`Failed to fetch rice income (year=${year}):`, error);
+  } catch {
     return null;
   }
 }
@@ -197,10 +193,7 @@ export async function fetchCropIncome(
   tblId: string,
 ): Promise<RiceIncomeData | null> {
   const apiKey = process.env.KOSIS_API_KEY;
-  if (!apiKey) {
-    console.error("KOSIS_API_KEY is not set");
-    return null;
-  }
+  if (!apiKey) return null;
 
   const currentYear = new Date().getFullYear();
 
@@ -243,11 +236,7 @@ async function fetchCropIncomeFromKOSIS(
     if (!Array.isArray(json) || json.length === 0) return null;
 
     return parseCropIncomeItems(json as KOSISRawItem[], year);
-  } catch (error) {
-    console.error(
-      `Failed to fetch crop income (tblId=${tblId}, year=${year}):`,
-      error,
-    );
+  } catch {
     return null;
   }
 }
@@ -320,10 +309,7 @@ export async function fetchCropStats(
   objL1Code?: string
 ): Promise<CropStatItem[]> {
   const apiKey = process.env.KOSIS_API_KEY;
-  if (!apiKey) {
-    console.error("KOSIS_API_KEY is not set");
-    return [];
-  }
+  if (!apiKey) return [];
 
   const currentYear = new Date().getFullYear();
 
@@ -369,15 +355,11 @@ async function fetchFromKOSIS(
     const json = await res.json();
 
     // KOSIS 는 에러 시에도 200을 반환하며 err 필드를 포함할 수 있다
-    if (!Array.isArray(json)) {
-      console.warn("KOSIS response is not an array:", JSON.stringify(json).slice(0, 200));
-      return [];
-    }
+    if (!Array.isArray(json)) return [];
 
     const raw: KOSISRawItem[] = json;
     return parseRawItems(raw);
-  } catch (error) {
-    console.error(`Failed to fetch KOSIS data (tblId=${tblId}, year=${year}):`, error);
+  } catch {
     return [];
   }
 }

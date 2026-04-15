@@ -140,10 +140,10 @@ export function validateEnv(): void {
     );
   }
 
-  // 선택 변수 누락 → 경고 (개발 편의를 위해 요약)
-  if (warnings.length > 0) {
+  // 선택 변수 누락 → 개발 환경에서만 경고
+  if (warnings.length > 0 && process.env.NODE_ENV === "development") {
     console.warn(
-      `[env] 선택 환경변수 ${warnings.length}개 미설정 (해당 기능이 비활성화됩니다):`,
+      `[env] 선택 환경변수 ${warnings.length}개 미설정:`,
       warnings.map((v) => v.name).join(", ")
     );
   }
