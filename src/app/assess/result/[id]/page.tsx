@@ -211,7 +211,7 @@ export default async function AssessResultPage({ params }: PageProps) {
 
       {/* 추천 지원사업 */}
       {programs.length > 0 && (
-        <section className={s.resultSection}>
+        <section className={`${s.resultSection} ${s.programSection}`}>
           <h2 className={s.resultSectionTitle}>
             <FileText size={18} />
             {farmType.label}에 맞는 지원사업

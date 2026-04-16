@@ -13,6 +13,7 @@ import {
   scoreProvinces,
   recommendCrops,
   getRecommendedPrograms,
+  type DimensionScores,
 } from "@/lib/match-scoring";
 import { analytics } from "@/lib/analytics";
 import { trackFeedbackEvent } from "@/lib/feedback-session";
@@ -38,6 +39,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
   const [prefilled, setPrefilled] = useState<Set<string>>(new Set());
   const [resultId, setResultId] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [dimScores, setDimScores] = useState<DimensionScores | undefined>();
   const { addResult } = useAssessmentHistory();
 
   // 빠른 연타 클릭 방어 — setTimeout 전환 중 추가 클릭 차단
@@ -77,6 +79,20 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
       setAnswers((prev) => ({ ...prev, ...newAnswers }));
       setPrefilled(newPrefilled);
       /* eslint-enable react-hooks/set-state-in-effect */
+    }
+
+    // 적합도 진단 차원 점수 파싱
+    const dims: DimensionScores = {};
+    const dimKeys = ["motivation", "finance", "family", "experience", "adaptability"] as const;
+    for (const key of dimKeys) {
+      const val = searchParams.get(key);
+      if (val != null) {
+        const n = Number(val);
+        if (!Number.isNaN(n) && n >= 0 && n <= 100) dims[key] = n;
+      }
+    }
+    if (Object.keys(dims).length > 0) {
+      setDimScores(dims); // eslint-disable-line react-hooks/set-state-in-effect
     }
   }, [searchParams]);
 
@@ -162,7 +178,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
     setResultId(id);
 
     const ft = classifyFarmType(answers);
-    const provinces = scoreProvinces(answers);
+    const provinces = scoreProvinces(answers, dimScores);
     const crops = recommendCrops(answers, provinces);
 
     // localStorage 히스토리 저장
@@ -189,8 +205,8 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
 
   // 결과 계산
   const topProvinces = useMemo(
-    () => (showResult ? scoreProvinces(answers) : []),
-    [showResult, answers]
+    () => (showResult ? scoreProvinces(answers, dimScores) : []),
+    [showResult, answers, dimScores]
   );
 
   const recommendedCrops = useMemo(

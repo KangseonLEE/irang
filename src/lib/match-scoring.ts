@@ -198,6 +198,32 @@ const LIFESTYLE_SCORES: Record<string, Record<string, number>> = {
   },
 };
 
+/** 작물 유형 → 주산지 가산 점수 */
+const CROP_REGION_SCORES: Record<string, Record<string, number>> = {
+  grain: {
+    chungnam: 8, jeonbuk: 8, jeonnam: 7, gyeongbuk: 7, chungbuk: 6,
+  },
+  vegetable: {
+    gyeonggi: 7, chungnam: 7, jeonnam: 7, gangwon: 6, gyeongbuk: 6,
+  },
+  fruit: {
+    jeonnam: 8, gyeongbuk: 8, gyeongnam: 7, jeju: 9, chungbuk: 6,
+  },
+  special: {
+    jeonnam: 8, gangwon: 7, jeju: 7, gyeongnam: 6, chungbuk: 6,
+  },
+};
+
+/** 경험 수준 → 귀농 지원 풍부 지역 가산 */
+const EXPERIENCE_REGION_SCORES: Record<string, Record<string, number>> = {
+  none: {
+    jeonnam: 6, jeonbuk: 6, chungnam: 5, gangwon: 5, gyeongnam: 4,
+  },
+  some: {
+    chungnam: 4, gyeongnam: 4, jeonbuk: 4, gyeongbuk: 3,
+  },
+};
+
 /** 답변 선택지 → 사용자 친화적 라벨 */
 const ANSWER_LABELS: Record<string, Record<string, string>> = {
   climate: {
@@ -218,13 +244,25 @@ const ANSWER_LABELS: Record<string, Record<string, string>> = {
   },
 };
 
+/** 적합도 진단 차원 점수 (0~100) — 선택적으로 전달 */
+export interface DimensionScores {
+  motivation?: number;
+  finance?: number;
+  family?: number;
+  experience?: number;
+  adaptability?: number;
+}
+
 export interface ScoredProvince {
   province: Province;
   score: number;
   matchReasons: string[];
 }
 
-export function scoreProvinces(answers: Answers): ScoredProvince[] {
+export function scoreProvinces(
+  answers: Answers,
+  dimensionScores?: DimensionScores,
+): ScoredProvince[] {
   const scores: Record<string, { score: number; reasons: Set<string> }> = {};
 
   // 초기화
@@ -278,6 +316,64 @@ export function scoreProvinces(answers: Answers): ScoredProvince[] {
           scores[pid].reasons.add(
             ANSWER_LABELS.lifestyle[ans] || ans
           );
+        }
+      }
+    }
+  }
+
+  // 작물 유형 → 주산지 가산
+  const cropTypeAnswers = answers["crop-type"] || [];
+  for (const ans of cropTypeAnswers) {
+    const map = CROP_REGION_SCORES[ans];
+    if (!map) continue;
+    for (const [pid, pts] of Object.entries(map)) {
+      if (scores[pid]) {
+        scores[pid].score += pts;
+        if (pts >= 8) {
+          const catLabel = CROP_TYPE_MAP[ans] ?? ans;
+          scores[pid].reasons.add(`${catLabel} 주산지`);
+        }
+      }
+    }
+  }
+
+  // 경험 수준 → 지원 풍부 지역 가산
+  const experienceAnswers = answers.experience || [];
+  const experience = experienceAnswers[0];
+  if (experience && EXPERIENCE_REGION_SCORES[experience]) {
+    const map = EXPERIENCE_REGION_SCORES[experience];
+    for (const [pid, pts] of Object.entries(map)) {
+      if (scores[pid]) {
+        scores[pid].score += pts;
+        if (experience === "none" && pts >= 5) {
+          scores[pid].reasons.add("귀농 지원 체계 우수");
+        }
+      }
+    }
+  }
+
+  // 적합도 진단 차원 점수 반영 (선택)
+  if (dimensionScores) {
+    // 재정 점수 낮으면 → 지원 혜택 풍부 지역 가산
+    if (dimensionScores.finance != null && dimensionScores.finance < 50) {
+      const supportRegions: Record<string, number> = {
+        jeonnam: 5, jeonbuk: 5, chungnam: 4, gangwon: 4, gyeongnam: 3,
+      };
+      for (const [pid, pts] of Object.entries(supportRegions)) {
+        if (scores[pid]) {
+          scores[pid].score += pts;
+          scores[pid].reasons.add("귀농 지원금 혜택 풍부");
+        }
+      }
+    }
+    // 적응력 낮으면 → 도시 근교 가산
+    if (dimensionScores.adaptability != null && dimensionScores.adaptability < 40) {
+      const nearCityRegions: Record<string, number> = {
+        gyeonggi: 4, seoul: 3, daejeon: 3, daegu: 3,
+      };
+      for (const [pid, pts] of Object.entries(nearCityRegions)) {
+        if (scores[pid]) {
+          scores[pid].score += pts;
         }
       }
     }

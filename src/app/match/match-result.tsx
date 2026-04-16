@@ -117,7 +117,7 @@ export function MatchResult({
 
       {/* 추천 지원사업 */}
       {recommendedPrograms.length > 0 && (
-        <section className={s.resultSection}>
+        <section className={`${s.resultSection} ${s.programSection}`}>
           <h2 className={s.resultSectionTitle}>
             <FileText size={18} />
             {farmType.label}에 맞는 지원사업
@@ -163,14 +163,12 @@ export function MatchResult({
         </section>
       )}
 
-      {/* 공유 버튼 (Sprint 1: URL 복사) */}
+      {/* 공유 버튼 */}
       {resultId && saveStatus === "saved" && (
         <ShareButtons resultId={resultId} farmTypeLabel={farmType.label} />
       )}
       {saveStatus === "saving" && (
-        <p style={{ textAlign: "center", fontSize: "0.85rem", color: "#999", padding: "1rem 0" }}>
-          결과를 저장하고 있습니다...
-        </p>
+        <p className={s.savingHint}>결과를 저장하고 있어요...</p>
       )}
 
       {/* 액션 버튼 */}

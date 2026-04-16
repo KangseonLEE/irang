@@ -289,6 +289,12 @@ ul, ol {
   50% { transform: translateX(4px); }
 }
 
+/* ── Print ── */
+@media print {
+  header, footer, nav { display: none !important; }
+  body { background: #fff; }
+}
+
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   *,

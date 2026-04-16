@@ -213,10 +213,11 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
     // 인구통계 기반 맞춤 지원 힌트
     const demoHints = getDemographicHints(demoAnswers);
 
-    // matchParams → URL (인구통계 정보도 전달)
+    // matchParams → URL (인구통계 + 차원 점수 전달)
     const demoParams = demoAnswers.ageGroup === "youth" ? "&ageGroup=youth" : "";
     const genderParam = demoAnswers.gender === "female" ? "&gender=female" : "";
-    const matchUrl = `/match?experience=${tier.matchParams.experience}&lifestyle=${tier.matchParams.lifestyle}${demoParams}${genderParam}`;
+    const dimParams = dimensions.map((d) => `${d.id}=${d.percent}`).join("&");
+    const matchUrl = `/match?experience=${tier.matchParams.experience}&lifestyle=${tier.matchParams.lifestyle}${demoParams}${genderParam}&${dimParams}`;
 
     return (
       <div className={s.resultPage}>
