@@ -6,6 +6,7 @@
  */
 
 import { getSupabase, isSupabaseConfigured, type EventRow } from "@/lib/supabase";
+import { deriveEventStatus } from "@/lib/program-status";
 
 export interface FarmEvent {
   id: string;
@@ -187,7 +188,9 @@ export const EVENTS: FarmEvent[] = [
 
 /** ID로 단일 행사 조회 — 정적 데이터만 (동기) */
 export function getEventById(id: string): FarmEvent | undefined {
-  return EVENTS.find((e) => e.id === id);
+  const e = EVENTS.find((e) => e.id === id);
+  if (!e) return undefined;
+  return { ...e, status: deriveEventStatus(e.applicationStart, e.applicationEnd, e.dateEnd) };
 }
 
 /** ID(slug)로 단일 행사 조회 — Supabase → 정적 폴백 (비동기) */
@@ -205,7 +208,7 @@ export async function getEventByIdAsync(
 
       if (!error && data) {
         const row = data as unknown as EventRow;
-        return {
+        const mapped: FarmEvent = {
           id: row.slug,
           title: row.title,
           region: row.region,
@@ -221,15 +224,16 @@ export async function getEventByIdAsync(
           capacity: row.capacity,
           target: row.target,
           url: row.url,
-          status: row.status as FarmEvent["status"],
+          status: deriveEventStatus(row.application_start ?? undefined, row.application_end ?? undefined, row.date_end),
         };
+        return mapped;
       }
     } catch {
       // Supabase 에러 → 정적 폴백
     }
   }
 
-  return EVENTS.find((e) => e.id === id);
+  return getEventById(id);
 }
 
 /** 현재 연월 문자열 (YYYY-MM) */
@@ -272,17 +276,19 @@ export function filterEvents(filters: EventFilters): FarmEvent[] {
     periodEnd = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
   }
 
-  return EVENTS.filter((event) => {
+  return EVENTS.map((e) => ({
+    ...e,
+    status: deriveEventStatus(e.applicationStart, e.applicationEnd, e.dateEnd),
+  })).filter((event) => {
     // 마감 제외 (기본 동작)
     if (!filters.includeClosed && event.status === "마감") {
       return false;
     }
 
-    // 조회 시점 필터 (includeClosed가 true이면 기간 필터 스킵)
-    if (!filters.includeClosed && periodStart && periodEnd) {
+    // 조회 시점 필터 — 마감 여부와 독립적으로 적용
+    if (periodStart && periodEnd) {
       const eventStart = event.date;
       const eventEnd = event.dateEnd ?? event.date;
-      // 겹치려면: eventStart <= periodEnd AND eventEnd >= periodStart
       if (eventStart > periodEnd || eventEnd < periodStart) {
         return false;
       }
@@ -358,7 +364,7 @@ export async function loadEvents(): Promise<{
           capacity: row.capacity,
           target: row.target,
           url: row.url,
-          status: row.status as FarmEvent["status"],
+          status: deriveEventStatus(row.application_start ?? undefined, row.application_end ?? undefined, row.date_end),
         }));
         return { events, source: "supabase" };
       }
@@ -367,7 +373,11 @@ export async function loadEvents(): Promise<{
     }
   }
 
-  return { events: EVENTS, source: "fallback" };
+  const events = EVENTS.map((e) => ({
+    ...e,
+    status: deriveEventStatus(e.applicationStart, e.applicationEnd, e.dateEnd),
+  }));
+  return { events, source: "fallback" };
 }
 
 /**
@@ -379,9 +389,10 @@ export async function filterEventsAsync(
   const { events: allEvents, source } = await loadEvents();
 
   const filtered = allEvents.filter((event) => {
-    // 기간 필터
+    // 마감 제외 (기본 동작)
     if (!filters.includeClosed && event.status === "마감") return false;
-    if (!filters.includeClosed && filters.period && /^\d{4}-\d{2}$/.test(filters.period)) {
+    // 조회 시점 필터 — 마감 여부와 독립적으로 적용
+    if (filters.period && /^\d{4}-\d{2}$/.test(filters.period)) {
       const [y, m] = filters.period.split("-").map(Number);
       const periodStart = `${y}-${String(m).padStart(2, "0")}-01`;
       const lastDay = new Date(y, m, 0).getDate();

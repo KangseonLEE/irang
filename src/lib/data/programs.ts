@@ -423,7 +423,7 @@ export async function getProgramByIdAsync(
   }
 
   // 2️⃣ 정적 폴백
-  return PROGRAMS.find((p) => p.id === id);
+  return getProgramById(id);
 }
 
 /** 조회 시점 옵션 생성 (프로그램 데이터의 연도 범위 기반) */

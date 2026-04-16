@@ -325,7 +325,7 @@
   font-weight: 800;
   color: var(--primary, #1b6b5a);
   line-height: 1.1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.05em;
 }
 
 @media (min-width: 768px) {
@@ -632,7 +632,7 @@
   font-weight: 800;
   color: var(--foreground, #111827);
   line-height: var(--lh-tight);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.04em;
   white-space: nowrap;
 }
 

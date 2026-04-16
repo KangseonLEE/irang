@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import Link from "next/link";
 import {
   MapPin,
-  GitCompareArrows,
   Landmark,
   FileText,
   Thermometer,
@@ -79,16 +78,66 @@ export default async function RegionsPage() {
         description="귀농을 고려 중인 지역을 선택해 기후, 인구, 추천 작물, 지원사업 정보를 확인하세요."
       />
 
-      {/* ── 메인 섹션: 모바일 1단 / 데스크톱 2단 ── */}
-      <section className={s.mainSection}>
-        {/* 타이틀 (2단 레이아웃 위, full-width) */}
-        <div className={s.mainHeader}>
-          <h2 className={s.mainTitle}>
-            지도에서 <span className={s.mainTitleAccent}>관심 지역</span>을 선택하세요
+      {/* ── Quick Stats ── */}
+      <section className={s.statsSection}>
+        <div className={s.statsGrid}>
+          <div className={s.statCard}>
+            <Icon icon={Landmark} size="lg" className={s.statIcon} />
+            <div className={s.statText}>
+              <span className={s.statValue}>{PROVINCES.length}개</span>
+              <span className={s.statLabel}>도·광역시</span>
+            </div>
+          </div>
+          <Link href="/crops" className={`${s.statCard} ${s.statCardLink}`}>
+            <Icon icon={Sprout} size="lg" className={s.statIcon} />
+            <div className={s.statText}>
+              <span className={s.statValue}>{CROPS.length}종</span>
+              <span className={s.statLabel}>추천 작물</span>
+            </div>
+          </Link>
+          <Link href="/programs" className={`${s.statCard} ${s.statCardLink}`}>
+            <Icon icon={FileText} size="lg" className={s.statIcon} />
+            <div className={s.statText}>
+              <span className={s.statValue}>{PROGRAMS.length}건</span>
+              <span className={s.statLabel}>지원사업</span>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* ── 지역별 확인 가능 정보 (4단 카드) ── */}
+      <section className={s.infoSection}>
+        <h2 className={s.infoSectionTitle}>지역별 확인 가능 정보</h2>
+        <div className={s.infoGrid}>
+          <div className={s.infoCard}>
+            <Icon icon={Thermometer} size="lg" className={s.infoIcon} />
+            <span className={s.infoCardTitle}>기후 데이터</span>
+            <span className={s.infoCardDesc}><AutoGlossary text="월별 기온·강수량·일조시간" /></span>
+          </div>
+          <div className={s.infoCard}>
+            <Icon icon={Users} size="lg" className={s.infoIcon} />
+            <span className={s.infoCardTitle}>인구·인프라</span>
+            <span className={s.infoCardDesc}><AutoGlossary text="인구 추이, 의료·교육 시설" /></span>
+          </div>
+          <Link href="/crops" className={`${s.infoCard} ${s.infoCardLink}`}>
+            <Icon icon={Sprout} size="lg" className={s.infoIcon} />
+            <span className={s.infoCardTitle}>추천 작물</span>
+            <span className={s.infoCardDesc}><AutoGlossary text="적합 작물, 예상 수익, 난이도" /></span>
+          </Link>
+          <Link href="/programs" className={`${s.infoCard} ${s.infoCardLink}`}>
+            <Icon icon={HeartHandshake} size="lg" className={s.infoIcon} />
+            <span className={s.infoCardTitle}>지원사업</span>
+            <span className={s.infoCardDesc}><AutoGlossary text="정착금, 농지 임대, 교육 프로그램" /></span>
+          </Link>
+        </div>
+      </section>
+
+      {/* ── 지도 섹션 ── */}
+      <section className={s.mapSection}>
+        <div className={s.mapHeader}>
+          <h2 className={s.mapTitle}>
+            지도에서 <span className={s.mapTitleAccent}>관심 지역</span>을 선택하세요
           </h2>
-          <p className={s.mainDesc}>
-            <AutoGlossary text="지역을 클릭하면 기후·인구·추천 작물·지원사업 등 상세 정보를 확인할 수 있습니다." />
-          </p>
           <div className={s.densityLegend}>
             <span className={s.densityLegendTitle}>인구밀도</span>
             <div className={s.densityLegendRow}>
@@ -98,86 +147,8 @@ export default async function RegionsPage() {
             </div>
           </div>
         </div>
-
-        {/* 2단 컨테이너 */}
-        <div className={s.mainGrid}>
-          {/* 왼쪽: 지도 */}
-          <div className={s.mapPane}>
-            <KoreaMap densityMap={provinceDensityMap} showLegend={false} />
-          </div>
-
-          {/* 오른쪽: 대시보드 패널 (모바일에서는 지도 아래) */}
-          <div className={s.dashPane}>
-            {/* Quick Stats */}
-            <div className={s.statsGrid}>
-              <div className={s.statCard}>
-                <Icon icon={Landmark} size="lg" className={s.statIcon} />
-                <div className={s.statText}>
-                  <span className={s.statValue}>{PROVINCES.length}개</span>
-                  <span className={s.statLabel}>도·광역시</span>
-                </div>
-              </div>
-              <div className={s.statCard}>
-                <Icon icon={Sprout} size="lg" className={s.statIcon} />
-                <div className={s.statText}>
-                  <span className={s.statValue}>{CROPS.length}종</span>
-                  <span className={s.statLabel}>추천 작물</span>
-                </div>
-              </div>
-              <div className={s.statCard}>
-                <Icon icon={FileText} size="lg" className={s.statIcon} />
-                <div className={s.statText}>
-                  <span className={s.statValue}>{PROGRAMS.length}건</span>
-                  <span className={s.statLabel}>지원사업</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 확인 가능 정보 */}
-            <div className={s.infoList}>
-              <h3 className={s.infoListTitle}>지역별 확인 가능 정보</h3>
-              <div className={s.infoItem}>
-                <Icon icon={Thermometer} size="lg" className={s.infoIcon} />
-                <div>
-                  <span className={s.infoItemTitle}>기후 데이터</span>
-                  <span className={s.infoItemDesc}><AutoGlossary text="월별 기온·강수량·일조시간" /></span>
-                </div>
-              </div>
-              <div className={s.infoItem}>
-                <Icon icon={Users} size="lg" className={s.infoIcon} />
-                <div>
-                  <span className={s.infoItemTitle}>인구·인프라</span>
-                  <span className={s.infoItemDesc}><AutoGlossary text="인구 추이, 의료·교육 시설" /></span>
-                </div>
-              </div>
-              <div className={s.infoItem}>
-                <Icon icon={Sprout} size="lg" className={s.infoIcon} />
-                <div>
-                  <span className={s.infoItemTitle}>추천 작물</span>
-                  <span className={s.infoItemDesc}><AutoGlossary text="적합 작물, 예상 수익, 난이도" /></span>
-                </div>
-              </div>
-              <div className={s.infoItem}>
-                <Icon icon={HeartHandshake} size="lg" className={s.infoIcon} />
-                <div>
-                  <span className={s.infoItemTitle}>지원사업</span>
-                  <span className={s.infoItemDesc}><AutoGlossary text="정착금, 농지 임대, 교육 프로그램" /></span>
-                </div>
-              </div>
-            </div>
-
-            {/* 비교 CTA */}
-            <Link href="/regions/compare" className={s.compareCta}>
-              <div className={s.compareCtaContent}>
-                <Icon icon={GitCompareArrows} size="lg" />
-                <div>
-                  <span className={s.compareCtaTitle}>지역 비교하기</span>
-                  <span className={s.compareCtaDesc}>최대 3개 지역을 한눈에 비교</span>
-                </div>
-              </div>
-              <span className={s.compareCtaArrow}>→</span>
-            </Link>
-          </div>
+        <div className={s.mapWrap}>
+          <KoreaMap densityMap={provinceDensityMap} showLegend={false} />
         </div>
       </section>
     </div>

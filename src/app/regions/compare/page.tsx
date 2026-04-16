@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin } from "lucide-react";
+import { MapPin, Lightbulb } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
@@ -18,6 +18,7 @@ import { CropSuitabilitySection } from "./crop-suitability-section";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { DesktopHint } from "@/components/ui/desktop-hint";
 import { DataSource } from "@/components/ui/data-source";
+import { SwipeHint } from "@/components/ui/swipe-hint";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -28,6 +29,43 @@ export const metadata: Metadata = {
 
 interface PageProps {
   searchParams: Promise<{ stations?: string; crop?: string }>;
+}
+
+function buildRegionSummary(
+  climateData: ClimateData[],
+  selectedStations: { stnId: string; province: string; sgisCode: string; hiraSidoCd: string; eduCode: string }[],
+  populationMap: Map<string, PopulationData>,
+): string {
+  if (climateData.length < 2) return "";
+
+  const parts: string[] = [];
+
+  // Compare temperatures
+  const sorted = [...climateData].sort((a, b) => a.avgTemp - b.avgTemp);
+  const coldest = sorted[0];
+  const warmest = sorted[sorted.length - 1];
+
+  if (warmest.avgTemp - coldest.avgTemp > 1) {
+    parts.push(
+      `따뜻한 기후를 선호한다면 ${warmest.stnName}(평균 ${warmest.avgTemp}℃)이 유리하고, 서늘한 환경을 원한다면 ${coldest.stnName}(평균 ${coldest.avgTemp}℃)이 적합해요.`,
+    );
+  } else {
+    parts.push(
+      `${climateData.map((d) => d.stnName).join(", ")} 모두 비슷한 기온대(평균 ${climateData[0].avgTemp}℃)예요.`,
+    );
+  }
+
+  // Compare precipitation if significant
+  const maxPrecip = Math.max(...climateData.map((d) => d.totalPrecipitation));
+  const minPrecip = Math.min(...climateData.map((d) => d.totalPrecipitation));
+  if (maxPrecip > 0 && (maxPrecip - minPrecip) / maxPrecip > 0.2) {
+    const wettest = climateData.reduce((a, b) =>
+      a.totalPrecipitation > b.totalPrecipitation ? a : b,
+    );
+    parts.push(`강수량은 ${wettest.stnName}이 가장 많아요.`);
+  }
+
+  return parts.join(" ");
 }
 
 export default async function RegionsPage({ searchParams }: PageProps) {
@@ -156,6 +194,19 @@ export default async function RegionsPage({ searchParams }: PageProps) {
             </div>
           </section>
 
+          {/* 한줄 요약 */}
+          {climateData.length >= 2 && (
+            <section aria-labelledby="onesummary-heading" className={s.oneSummaryCard}>
+              <h2 id="onesummary-heading" className={s.oneSummaryTitle}>
+                <Icon icon={Lightbulb} size="md" />
+                한줄 요약
+              </h2>
+              <p className={s.oneSummaryText}>
+                {buildRegionSummary(climateData, selectedStations, populationMap)}
+              </p>
+            </section>
+          )}
+
           {/* Detailed Comparison Table */}
           <section aria-labelledby="detail-heading">
             <div className={s.tableCard}>
@@ -167,6 +218,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
                   {year}년 {climateData[0]?.period} 기준 관측 데이터
                 </p>
               </div>
+              <SwipeHint />
               <div className={s.tableWrap}>
                 <table className={s.table}>
                   <caption className={s.srOnly}>

@@ -20,10 +20,12 @@ import {
   type CropDetailInfo,
   type ProsConsCategory,
 } from "@/lib/data/crops";
+import { PROVINCES } from "@/lib/data/regions";
 import { DataSource } from "@/components/ui/data-source";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { CropSelector } from "./crop-selector";
 import { DesktopHint } from "@/components/ui/desktop-hint";
+import { SwipeHint } from "@/components/ui/swipe-hint";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -32,7 +34,7 @@ export const metadata: Metadata = {
     "귀농 후보 작물의 난이도, 소득, 장단점을 나란히 비교해보세요.",
 };
 
-const DEFAULT_CROP_IDS = ["rice", "apple", "strawberry"];
+const DEFAULT_CROP_IDS: string[] = [];
 
 interface PageProps {
   searchParams: Promise<{ ids?: string }>;
@@ -56,6 +58,41 @@ const CAT_LABEL: Record<ProsConsCategory, string> = {
   생활: "생활",
   확장성: "확장",
 };
+
+const DIFFICULTY_RANK: Record<string, number> = { 쉬움: 1, 보통: 2, 어려움: 3 };
+
+function buildComparisonSummary(crops: CropWithDetail[]): string {
+  if (crops.length < 2) return "";
+
+  const sorted = [...crops].sort(
+    (a, b) => (DIFFICULTY_RANK[a.difficulty] ?? 2) - (DIFFICULTY_RANK[b.difficulty] ?? 2),
+  );
+  const easiest = sorted[0];
+  const hardest = sorted[sorted.length - 1];
+
+  const parts: string[] = [];
+
+  if (easiest.difficulty !== hardest.difficulty) {
+    parts.push(
+      `안정적인 입문을 원한다면 ${easiest.emoji} ${easiest.name}(${easiest.difficulty})이 적합하고, 높은 수익을 목표로 기술 투자가 가능하다면 ${hardest.emoji} ${hardest.name}(${hardest.difficulty})을 고려해 보세요.`,
+    );
+  } else {
+    parts.push(
+      `${crops.map((c) => `${c.emoji} ${c.name}`).join(", ")} 모두 ${easiest.difficulty} 난이도예요.`,
+    );
+  }
+
+  if (crops.length === 3) {
+    const mid = sorted[1];
+    if (mid.difficulty !== easiest.difficulty && mid.difficulty !== hardest.difficulty) {
+      parts.push(
+        `${mid.emoji} ${mid.name}은 난이도와 수익의 균형을 원하는 분에게 좋은 선택이에요.`,
+      );
+    }
+  }
+
+  return parts.join(" ");
+}
 
 export default async function CropComparePage({ searchParams }: PageProps) {
   const params = await searchParams;
@@ -116,6 +153,19 @@ export default async function CropComparePage({ searchParams }: PageProps) {
             </div>
           </section>
 
+          {/* 한줄 요약 */}
+          {crops.length >= 2 && (
+            <section aria-labelledby="onesummary-heading" className={s.oneSummaryCard}>
+              <h2 id="onesummary-heading" className={s.oneSummaryTitle}>
+                <Icon icon={Lightbulb} size="md" />
+                한줄 요약
+              </h2>
+              <p className={s.oneSummaryText}>
+                {buildComparisonSummary(crops)}
+              </p>
+            </section>
+          )}
+
           {/* Detail Comparison Table */}
           <section aria-labelledby="detail-heading">
             <div className={s.tableCard}>
@@ -124,6 +174,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
                   상세 비교
                 </h2>
               </div>
+              <SwipeHint />
               <div className={s.tableWrap}>
                 <table className={s.table}>
                   <caption className={s.srOnly}>
@@ -171,14 +222,17 @@ export default async function CropComparePage({ searchParams }: PageProps) {
                     <TextRow
                       label="기후"
                       values={crops.map((c) => c.detail.cultivation.climate)}
+                      glossary
                     />
                     <TextRow
                       label="토양"
                       values={crops.map((c) => c.detail.cultivation.soil)}
+                      glossary
                     />
                     <TextRow
                       label="수분"
                       values={crops.map((c) => c.detail.cultivation.water)}
+                      glossary
                     />
                     <TextRow
                       label="재식거리"
@@ -191,21 +245,18 @@ export default async function CropComparePage({ searchParams }: PageProps) {
                     <TextRow
                       label="주요 비용"
                       values={crops.map((c) => c.detail.income.costNote)}
+                      glossary
                     />
                     <TextRow
                       label="노동력"
                       values={crops.map((c) => c.detail.income.laborNote)}
+                      glossary
                     />
                     <SectionDividerRow
                       label="주요 산지"
                       colSpan={crops.length + 1}
                     />
-                    <TextRow
-                      label="지역"
-                      values={crops.map((c) =>
-                        c.detail.majorRegions.join(", "),
-                      )}
-                    />
+                    <RegionLinksRow crops={crops} />
                   </tbody>
                 </table>
               </div>
@@ -289,20 +340,38 @@ function TextRow({
   label,
   values,
   highlight = false,
+  glossary = false,
 }: {
   label: string;
   values: (string | null)[];
   highlight?: boolean;
+  glossary?: boolean;
 }) {
   return (
     <tr>
       <td className={s.tdLabel}>{label}</td>
       {values.map((v, i) => (
         <td key={i} className={highlight ? s.tdHighlight : s.tdValue}>
-          {v ?? "-"}
+          {v
+            ? glossary
+              ? <AutoGlossary text={v} />
+              : formatCellValue(v)
+            : "-"}
         </td>
       ))}
     </tr>
+  );
+}
+
+function formatCellValue(text: string) {
+  const parenIdx = text.indexOf(" (");
+  if (parenIdx === -1) return text;
+  return (
+    <>
+      {text.slice(0, parenIdx)}
+      <br />
+      <span className={s.tdSub}>{text.slice(parenIdx + 1)}</span>
+    </>
   );
 }
 
@@ -322,6 +391,41 @@ function SectionDividerRow({
   );
 }
 
+/** 지역명 → Province ID 룩업 맵 */
+const PROVINCE_ID_BY_NAME = new Map(
+  PROVINCES.map((p) => [p.name, p.id]),
+);
+
+function RegionLinksRow({ crops }: { crops: CropWithDetail[] }) {
+  return (
+    <tr>
+      <td className={s.tdLabel}>지역</td>
+      {crops.map((c, i) => (
+        <td key={i} className={s.tdValue}>
+          {c.detail.majorRegions.map((region, ri) => {
+            const provinceId = PROVINCE_ID_BY_NAME.get(region);
+            return (
+              <span key={ri}>
+                {ri > 0 && ", "}
+                {provinceId ? (
+                  <Link
+                    href={`/regions/${provinceId}`}
+                    className={s.regionLink}
+                  >
+                    {region}
+                  </Link>
+                ) : (
+                  region
+                )}
+              </span>
+            );
+          })}
+        </td>
+      ))}
+    </tr>
+  );
+}
+
 function ProsConsColumn({ crop }: { crop: CropWithDetail }) {
   const pc = crop.detail.prosCons;
   if (!pc) return null;
@@ -331,6 +435,14 @@ function ProsConsColumn({ crop }: { crop: CropWithDetail }) {
       <h3 className={s.prosConsColTitle}>
         <span>{crop.emoji}</span> {crop.name}
       </h3>
+
+      {/* 종합 (결론 먼저) */}
+      {pc.verdict && (
+        <div className={s.verdictCard}>
+          <Icon icon={Lightbulb} size="sm" />
+          <span className={s.verdictText}><AutoGlossary text={pc.verdict} /></span>
+        </div>
+      )}
 
       {/* 장점 */}
       <div className={s.prosGroup}>
@@ -361,14 +473,6 @@ function ProsConsColumn({ crop }: { crop: CropWithDetail }) {
           </div>
         ))}
       </div>
-
-      {/* 종합 */}
-      {pc.verdict && (
-        <div className={s.verdictCard}>
-          <Icon icon={Lightbulb} size="sm" />
-          <span className={s.verdictText}><AutoGlossary text={pc.verdict} /></span>
-        </div>
-      )}
     </div>
   );
 }

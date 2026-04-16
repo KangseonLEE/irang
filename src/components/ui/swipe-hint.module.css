@@ -1,0 +1,45 @@
+/* ==========================================================================
+   SwipeHint — 테이블 좌우 스크롤 안내
+   모바일 전용 (< 768px), 3초 또는 첫 스크롤 시 페이드아웃
+   ========================================================================== */
+
+.hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  background: var(--muted, #f9fafb);
+  border-radius: 8px;
+  margin: 0 12px;
+  opacity: 1;
+  transition: opacity 0.4s ease-out;
+  animation: nudge 1.5s ease-in-out 2;
+}
+
+.hintHidden {
+  composes: hint;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes nudge {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint { animation: none; }
+}
+
+/* 768px 이상에서는 항상 숨김 */
+@media (min-width: 768px) {
+  .hint,
+  .hintHidden {
+    display: none;
+  }
+}

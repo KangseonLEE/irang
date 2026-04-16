@@ -1,8 +1,7 @@
 /* ==========================================================================
    /regions — 지역 탐색 페이지
    CSS Module · 모바일 우선 반응형 (640 / 768 / 1024)
-   모바일: 1단 (지도 → 대시보드)
-   데스크톱: 2단 (지도 왼쪽 | 대시보드 오른쪽)
+   구조: Quick Stats → 확인 가능 정보 (4단 카드) → 지도
    ========================================================================== */
 
 .page {
@@ -15,175 +14,13 @@
 }
 
 /* ================================================================
-   메인 섹션 (지도 + 대시보드)
-   ================================================================ */
-.mainSection {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  background: var(--card, #fff);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
-  padding: 16px 12px;
-}
-
-@media (min-width: 640px) {
-  .mainSection {
-    padding: 24px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .mainSection {
-    padding: 28px;
-  }
-}
-
-/* ── 헤더 (타이틀 + 설명) ── */
-.mainHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  text-align: center;
-  padding-bottom: 8px;
-}
-
-@media (min-width: 1024px) {
-  .mainHeader {
-    text-align: left;
-    padding-bottom: 4px;
-  }
-}
-
-.mainTitle {
-  font-size: var(--fs-h4);
-  font-weight: 700;
-  color: var(--foreground);
-  margin: 0;
-}
-
-@media (min-width: 640px) {
-  .mainTitle {
-    font-size: var(--fs-h3);
-  }
-}
-
-.mainTitleAccent {
-  color: var(--primary, #1b6b5a);
-}
-
-.mainDesc {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  line-height: var(--lh-relaxed);
-  margin: 0;
-  display: none;
-}
-
-@media (min-width: 640px) {
-  .mainDesc {
-    display: block;
-  }
-}
-
-/* 인구밀도 범례 */
-.densityLegend {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-@media (min-width: 1024px) {
-  .densityLegend {
-    align-items: flex-start;
-  }
-}
-
-.densityLegendTitle {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--muted-foreground, #6b7280);
-}
-
-.densityLegendRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.densityLegendBar {
-  width: 100px;
-  height: 8px;
-  border-radius: 4px;
-  background: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--primary, #1b6b5a) 12%, white),
-    color-mix(in srgb, var(--primary, #1b6b5a) 65%, white)
-  );
-  border: 1px solid var(--border, #e5e7eb);
-}
-
-.densityLegendLabel {
-  font-size: 0.625rem;
-  color: var(--muted-foreground, #6b7280);
-  font-weight: 500;
-}
-
-/* ── 2단 그리드 ── */
-.mainGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-@media (min-width: 1024px) {
-  .mainGrid {
-    flex-direction: row;
-    gap: 28px;
-    align-items: flex-start;
-  }
-}
-
-/* ── 왼쪽: 지도 ── */
-.mapPane {
-  width: 100%;
-  flex-shrink: 0;
-  /* 모바일: 타이틀과 간격 확보 */
-  padding-top: 8px;
-}
-
-@media (min-width: 1024px) {
-  .mapPane {
-    flex: 1 1 55%;
-    max-width: 520px;
-    padding-top: 0;
-  }
-}
-
-/* ── 오른쪽: 대시보드 패널 ── */
-.dashPane {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-}
-
-@media (min-width: 1024px) {
-  .dashPane {
-    flex: 1 1 40%;
-    min-width: 280px;
-    gap: 20px;
-    /* 지도와 높이 맞춤 — sticky로 스크롤 시 고정 */
-    position: sticky;
-    top: 80px;
-  }
-}
-
-/* ================================================================
    Quick Stats (3열 그리드)
    ================================================================ */
+.statsSection {
+  display: flex;
+  flex-direction: column;
+}
+
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -195,7 +32,8 @@
   align-items: center;
   gap: 10px;
   padding: 12px;
-  background: var(--muted, #f9fafb);
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
   border-radius: 12px;
 }
 
@@ -230,42 +68,81 @@
   line-height: var(--lh-tight);
 }
 
-/* ================================================================
-   확인 가능 정보 리스트
-   ================================================================ */
-.infoList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.statCardLink {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
 }
 
-.infoListTitle {
-  font-size: var(--fs-body-sm);
+@media (hover: hover) {
+  .statCardLink:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 16px rgba(27, 107, 90, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+/* ================================================================
+   확인 가능 정보 — 4단 카드 그리드
+   ================================================================ */
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.infoSectionTitle {
+  font-size: var(--fs-h4);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--border, #e5e7eb);
 }
 
-.infoItem {
-  display: flex;
-  align-items: flex-start;
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  padding: 8px 0;
 }
 
-.infoItem + .infoItem {
-  border-top: 1px solid color-mix(in srgb, var(--border, #e5e7eb) 50%, transparent);
+@media (min-width: 768px) {
+  .infoGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+}
+
+.infoCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 12px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.infoCardLink {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+@media (hover: hover) {
+  .infoCardLink:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 12px rgba(27, 107, 90, 0.08);
+    transform: translateY(-1px);
+  }
 }
 
 .infoIcon {
   color: var(--primary, #1b6b5a);
   flex-shrink: 0;
-  margin-top: 1px;
 }
 
-.infoItemTitle {
+.infoCardTitle {
   display: block;
   font-size: var(--fs-body-sm);
   font-weight: 600;
@@ -273,65 +150,120 @@
   line-height: 1.3;
 }
 
-.infoItemDesc {
+.infoCardDesc {
   display: block;
   font-size: var(--fs-caption);
   color: var(--muted-foreground);
   line-height: var(--lh-snug);
-  margin-top: 2px;
 }
 
 /* ================================================================
-   비교 CTA (링크 카드)
+   지도 섹션
    ================================================================ */
-.compareCta {
+.mapSection {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 12px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
-  text-decoration: none;
-  color: inherit;
-  transition: background 0.15s;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  padding: 16px 12px;
 }
 
-@media (hover: hover) {
-  .compareCta:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+@media (min-width: 640px) {
+  .mapSection {
+    padding: 24px;
   }
 }
 
-.compareCtaContent {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--primary, #1b6b5a);
+@media (min-width: 1024px) {
+  .mapSection {
+    padding: 28px;
+  }
 }
 
-.compareCtaTitle {
-  display: block;
-  font-size: var(--fs-body-sm);
+.mapHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .mapHeader {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.mapTitle {
+  font-size: var(--fs-h4);
   font-weight: 700;
   color: var(--foreground);
-  line-height: 1.3;
+  margin: 0;
 }
 
-.compareCtaDesc {
-  display: block;
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-  line-height: 1.3;
-  margin-top: 1px;
+@media (min-width: 640px) {
+  .mapTitle {
+    font-size: var(--fs-h3);
+  }
 }
 
-.compareCtaArrow {
-  font-size: var(--fs-body);
-  font-weight: 600;
+.mapTitleAccent {
   color: var(--primary, #1b6b5a);
-  flex-shrink: 0;
+}
+
+.mapWrap {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* 인구밀도 범례 */
+.densityLegend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+@media (min-width: 1024px) {
+  .densityLegend {
+    align-items: flex-end;
+    margin-top: 0;
+  }
+}
+
+.densityLegendTitle {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.densityLegendRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.densityLegendBar {
+  width: 100px;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--primary, #1b6b5a) 12%, white),
+    color-mix(in srgb, var(--primary, #1b6b5a) 65%, white)
+  );
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.densityLegendLabel {
+  font-size: 0.625rem;
+  color: var(--muted-foreground, #6b7280);
+  font-weight: 500;
 }
 
 /* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */

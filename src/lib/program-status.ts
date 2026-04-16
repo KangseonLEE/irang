@@ -6,6 +6,7 @@
  */
 
 export type ProgramStatus = "모집중" | "모집예정" | "마감";
+export type EventStatus = "접수중" | "접수예정" | "마감";
 
 /** 신청기간 기반 상태 판별 (YYYY-MM-DD 문자열) */
 export function deriveStatus(
@@ -16,4 +17,18 @@ export function deriveStatus(
   if (today < applicationStart) return "모집예정";
   if (today > applicationEnd) return "마감";
   return "모집중";
+}
+
+/** 체험행사 신청기간 기반 상태 판별 */
+export function deriveEventStatus(
+  applicationStart?: string,
+  applicationEnd?: string,
+  dateEnd?: string | null,
+): EventStatus {
+  const today = new Date().toISOString().slice(0, 10);
+  const end = applicationEnd ?? dateEnd ?? null;
+  const start = applicationStart ?? null;
+  if (start && today < start) return "접수예정";
+  if (end && today > end) return "마감";
+  return "접수중";
 }

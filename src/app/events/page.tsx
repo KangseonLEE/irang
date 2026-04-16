@@ -88,7 +88,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
 
   const includeClosed = params.includeClosed === "1";
   const viewMode: ViewMode = params.view === "table" ? "table" : "card";
-  const period = params.period || getCurrentPeriod();
+  const period = params.period || undefined;
 
   const filters: EventFilters = {
     region: params.region,
@@ -112,7 +112,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
   );
 
   // 기준일 표시 텍스트 (sync 시각 기반 자동 생성, 폴백: 현재 연월)
-  const periodLabel = buildPeriodLabel(lastSyncAt, period);
+  const periodLabel = buildPeriodLabel(lastSyncAt, period || getCurrentPeriod());
   const dataYear = getDataYear(lastSyncAt);
 
   // 현재 필터 상태 (pill URL 빌드용)

@@ -215,6 +215,11 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   overflow-x: clip;                /* 가로 오버플로 차단 (hidden과 달리 scroll container를 생성하지 않아 sticky 정상 작동) */
+  word-break: keep-all;            /* 한국어 단어 단위 줄바꿈 — 문장 중간 끊김 방지 */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;              /* 제목 좌우 균등 줄바꿈 */
 }
 
 /* ── Links ── */
