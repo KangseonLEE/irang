@@ -40,6 +40,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ko_KR",
     siteName: "이랑",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "이랑 — 귀농 정보 큐레이션 포탈",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

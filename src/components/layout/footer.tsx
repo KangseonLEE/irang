@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MessageSquare } from "lucide-react";
+import { DisclaimerBadge } from "@/components/ui/disclaimer-badge";
 import s from "./footer.module.css";
 
 const FEEDBACK_URL =
@@ -94,6 +95,7 @@ export function Footer() {
           <div className={s.bottomRow}>
             <span>&copy; 2026 이랑. All rights reserved.</span>
             <div className={s.legalLinks}>
+              <DisclaimerBadge />
               <Link href="#" className={s.legalLink}>
                 개인정보처리방침
               </Link>
