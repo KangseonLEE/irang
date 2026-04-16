@@ -55,7 +55,7 @@ const sectionNavItems = [
 export const metadata: Metadata = {
   title: "귀농 교육",
   description:
-    "귀농에 필요한 교육 과정을 지역, 유형, 난이도별로 검색하세요. 온·오프라인 귀농 교육 정보를 한눈에 확인할 수 있습니다.",
+    "귀농 귀촌 교육 과정을 검색하세요. 온라인·오프라인 교육, 현장 실습, 멘토링 프로그램 일정과 신청 방법을 안내해요.",
 };
 
 interface PageProps {

@@ -14,9 +14,9 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농인 인터뷰 — 이랑",
+  title: "귀농인 인터뷰 — 실제 귀농 경험담",
   description:
-    "도시를 떠나 농촌에서 새 삶을 시작한 사람들의 생생한 이야기를 만나보세요.",
+    "실제 귀농에 성공한 분들의 이야기. 준비 과정, 실패와 극복, 정착 후 생활을 생생하게 들어보세요.",
 };
 
 export default function InterviewsPage() {

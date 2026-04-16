@@ -31,7 +31,7 @@ import shared from "../stats.module.css";
 export const metadata: Metadata = {
   title: "귀농 만족도 조사",
   description:
-    "귀농인의 70%가 만족한다고 답한 귀농 생활. 만족·불만족 요인을 상세히 분석해요.",
+    "귀농인의 생활 만족도, 소득 변화, 정착 성공 요인을 통계로 확인하세요.",
 };
 
 export default function SatisfactionPage() {

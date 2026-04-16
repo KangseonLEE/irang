@@ -23,9 +23,9 @@ import s from "./page.module.css";
 import shared from "../stats.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농·귀촌 인구 추이",
+  title: "귀농 인구 통계 — 연도별 귀농·귀촌 현황",
   description:
-    "2015~2024년 귀농·귀촌 인구 10년 추이 데이터. 귀농 인구와 귀촌 인구 변화를 한눈에 확인하세요.",
+    "연도별 귀농·귀촌 인구 추이, 지역별 귀농 인구 분포를 데이터로 확인하세요.",
 };
 
 export default function PopulationPage() {

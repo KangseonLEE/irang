@@ -7,7 +7,8 @@ import s from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "농업 용어집",
-  description: "귀농 준비에 필요한 농업 용어를 쉽게 알아보세요.",
+  description:
+    "귀농·귀촌에서 자주 쓰이는 농업 용어를 쉽게 정리했어요. ha, 10a, 적산온도 등 낯선 단어를 검색하세요.",
 };
 
 export default function GlossaryPage() {

@@ -31,7 +31,7 @@ import s from "./page.module.css";
 export const metadata: Metadata = {
   title: "작물 비교",
   description:
-    "귀농 후보 작물의 난이도, 소득, 장단점을 나란히 비교해보세요.",
+    "최대 3개 작물의 난이도, 소득, 재배 환경, 장단점을 나란히 비교하세요. 초보 귀농 추천 작물을 찾는 데 도움이 돼요.",
 };
 
 const DEFAULT_CROP_IDS: string[] = [];

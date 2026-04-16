@@ -94,8 +94,12 @@ export async function generateMetadata({
   const { id } = await params;
   const data = getCropWithDetail(id);
   return {
-    title: data ? `${data.name} - 작물 상세` : "작물 상세",
-    description: data?.description,
+    title: data
+      ? `${data.name} 재배 — 소득·난이도·재배환경·산지 정보`
+      : "작물 상세",
+    description: data
+      ? `${data.name} 재배 소득, 난이도, 기후·토양 조건, 주요 산지를 비교하고 귀농 작물을 선택하세요.`
+      : undefined,
   };
 }
 

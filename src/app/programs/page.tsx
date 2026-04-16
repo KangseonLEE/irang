@@ -36,9 +36,9 @@ const sectionNavItems = [
 ];
 
 export const metadata: Metadata = {
-  title: "지원사업 검색",
+  title: "귀농 지원사업 검색",
   description:
-    "나이, 지역, 희망 작물 조건에 맞는 귀농 지원사업을 검색하세요.",
+    "정착금, 주택 지원, 영농 자금 등 전국 귀농·귀촌 지원사업을 검색하고 자격 조건을 확인하세요.",
 };
 
 interface PageProps {

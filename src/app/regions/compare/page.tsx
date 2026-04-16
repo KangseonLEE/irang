@@ -24,7 +24,7 @@ import s from "./page.module.css";
 export const metadata: Metadata = {
   title: "지역 비교",
   description:
-    "귀농 후보 지역의 기후, 인구, 의료 인프라, 교육 환경을 한눈에 비교하세요.",
+    "귀농 후보 지역의 기후, 인구, 의료 인프라, 교육 환경을 데이터로 비교하세요.",
 };
 
 interface PageProps {

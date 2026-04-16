@@ -23,9 +23,9 @@ import s from "./page.module.css";
 import shared from "../stats.module.css";
 
 export const metadata: Metadata = {
-  title: "청년 귀농 트렌드",
+  title: "청년 귀농 현황 — 연령별·지역별 통계",
   description:
-    "2015~2024년 전체 귀농인 중 청년(40세 미만) 비율 추이와 귀농 사유 분석.",
+    "청년 귀농 비율, 지역별 청년 귀농 현황, 지원 정책을 데이터로 살펴보세요.",
 };
 
 export default function YouthPage() {

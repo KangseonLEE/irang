@@ -41,8 +41,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const province = PROVINCES.find((p) => p.id === id);
   if (!province) return { title: "지역 정보" };
   return {
-    title: `${province.shortName} — 지역 정보`,
-    description: province.description,
+    title: `${province.shortName} 귀농 — 지원사업·정착금·기후·작물 정보`,
+    description: `${province.shortName} 귀농 준비에 필요한 청년·40대·50대 맞춤 지원사업, 정착금, 기후 환경, 추천 작물을 한눈에 확인하세요.`,
   };
 }
 
