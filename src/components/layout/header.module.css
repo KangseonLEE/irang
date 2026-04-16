@@ -65,7 +65,7 @@
   white-space: nowrap;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 900px) {
   .logoSub { display: block; }
 }
 
@@ -108,12 +108,18 @@
   font-family: inherit;
   cursor: pointer;
   border-radius: 0.375rem;
-  padding: 0.375rem 0.875rem;
+  padding: 0.375rem 0.5rem;
   font-size: var(--fs-body-sm);
   line-height: 1.25rem;
   font-weight: 500;
   color: var(--muted-foreground);
   transition: color 150ms ease, background-color 150ms ease;
+}
+
+@media (min-width: 900px) {
+  .navLink {
+    padding: 0.375rem 0.875rem;
+  }
 }
 
 @media (hover: hover) {
@@ -365,7 +371,7 @@
   box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px color-mix(in srgb, var(--ring) 30%, transparent);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 900px) {
   .ctaButton { display: inline-flex; }
 }
 

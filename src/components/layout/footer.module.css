@@ -20,6 +20,12 @@
   padding: 1rem 1rem;
 }
 
+@media (min-width: 640px) {
+  .inner {
+    padding: 1.5rem 1.25rem;
+  }
+}
+
 @media (min-width: 768px) {
   .inner {
     padding: 3rem 1.5rem;

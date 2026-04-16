@@ -262,6 +262,28 @@
   }
 }
 
+/* ── 태블릿 터치 타겟 확대 ── */
+@media (min-width: 768px) {
+  .pill {
+    min-height: 34px;
+    padding: 7px 14px;
+  }
+
+  .toggle {
+    min-height: 34px;
+    padding: 7px 14px;
+  }
+
+  .searchInput {
+    height: 38px;
+  }
+
+  .numberInput {
+    width: 80px;
+    height: 34px;
+  }
+}
+
 /* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
 @media (min-width: 1024px) {
   .filterLabel {
