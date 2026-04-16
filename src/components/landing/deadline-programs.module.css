@@ -148,3 +148,44 @@
   color: var(--muted-foreground, #6b7280);
   flex-shrink: 0;
 }
+
+/* ── 반응형 ── */
+@media (min-width: 640px) {
+  .title { font-size: var(--fs-h3); }
+
+  .card { padding: 18px 24px; }
+
+  .cardTitle {
+    -webkit-line-clamp: 2;
+  }
+}
+
+@media (min-width: 768px) {
+  .list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .arrow { display: none; }
+}
+
+@media (min-width: 1024px) {
+  .list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .card {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .arrow { display: block; }
+}

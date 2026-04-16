@@ -172,3 +172,26 @@
   font-weight: 400;
   color: var(--muted-foreground, #6b7280);
 }
+
+/* ── 반응형 ── */
+@media (min-width: 640px) {
+  .title { font-size: var(--fs-h3); }
+
+  .card { padding: 24px; }
+
+  .stepsRow {
+    overflow-x: visible;
+  }
+}
+
+@media (min-width: 768px) {
+  .card { padding: 28px; }
+
+  .stepItem { padding: 10px 6px; }
+}
+
+@media (min-width: 1024px) {
+  .card { padding: 32px; }
+
+  .stepLabel { font-size: var(--fs-body-sm); }
+}

@@ -22,6 +22,13 @@
   }
 }
 
+@media (min-width: 768px) {
+  .page {
+    padding: 36px 28px 80px;
+    gap: 60px;
+  }
+}
+
 @media (min-width: 1024px) {
   .page {
     padding: 40px 32px 64px;
@@ -94,6 +101,13 @@
   }
 }
 
+@media (min-width: 768px) {
+  .heroSection {
+    padding: 72px 36px 52px;
+    border-radius: 32px;
+  }
+}
+
 @media (min-width: 1024px) {
   .heroSection {
     padding: 80px 40px 56px;
@@ -151,6 +165,10 @@
     font-size: 2.25rem;
     margin-bottom: 16px;
   }
+}
+
+@media (min-width: 768px) {
+  .heroTitle { font-size: 2.625rem; }
 }
 
 @media (min-width: 1024px) {
@@ -821,9 +839,15 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .serviceMapGrid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .serviceMapGrid {
     gap: 14px;
   }
 }
@@ -1262,6 +1286,20 @@
 @media (min-width: 640px) {
   .sectionTitle {
     font-size: var(--fs-h2);
+  }
+}
+
+@media (min-width: 768px) {
+  .sectionTitle {
+    margin-bottom: 24px;
+    letter-spacing: -0.025em;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sectionTitle {
+    margin-bottom: 28px;
+    letter-spacing: -0.03em;
   }
 }
 
