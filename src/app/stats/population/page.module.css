@@ -167,6 +167,12 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .dashGrid {
+    gap: 24px;
+  }
+}
+
 /* ── 카드 ── */
 .card {
   background: var(--card, #fff);
