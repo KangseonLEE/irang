@@ -88,7 +88,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     capacity: 45,
     applicationStart: "2026-04-06",
     applicationEnd: "2026-04-10",
-    status: "모집중",
+    status: "마감",
     level: "초급",
     url: "https://agro.seoul.go.kr/archives/55870",
   },
