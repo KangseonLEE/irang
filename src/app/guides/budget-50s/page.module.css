@@ -1,0 +1,439 @@
+/* ==========================================================================
+   /guides/budget-50s — 50대 귀농 자본 가이드
+   CSS Module · 모바일 우선 반응형 (640 / 768 / 1024)
+   ========================================================================== */
+
+.page {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 40px 24px 80px;
+    gap: 40px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 56px 32px 64px;
+  }
+}
+
+/* ── 히어로 ── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.overline {
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--primary, #1b6b5a);
+}
+
+.heroTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+  margin: 0;
+  word-break: keep-all;
+}
+
+@media (min-width: 640px) {
+  .heroTitle {
+    font-size: 2rem;
+  }
+}
+
+.heroDesc {
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.65;
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+  word-break: keep-all;
+}
+
+/* ── 공통 섹션 타이틀 ── */
+.sectionTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0 0 16px;
+}
+
+@media (min-width: 640px) {
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+}
+
+/* ── 비용 카드 ── */
+.costSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.costCards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.costCard {
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.costCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.costCardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+.costCardTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.costItems {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.costItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--muted, #f9fafb);
+}
+
+.costLabel {
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--foreground);
+  min-width: 80px;
+}
+
+.costValue {
+  font-size: var(--fs-body, 1rem);
+  font-weight: 800;
+  color: var(--primary, #1b6b5a);
+  white-space: nowrap;
+}
+
+.costNote {
+  font-size: var(--fs-caption, 0.75rem);
+  color: var(--muted-foreground, #6b7280);
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .costNote {
+    width: auto;
+  }
+}
+
+.costTip {
+  font-size: var(--fs-caption, 0.75rem);
+  line-height: 1.65;
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+  padding-top: 2px;
+  border-top: 1px solid var(--border, #e5e7eb);
+  word-break: keep-all;
+}
+
+/* ── 50대 특화 팁 ── */
+.tipsSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.cautionBox {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--warning-light, #eab308) 6%, var(--background, #fff));
+  border: 1px solid color-mix(in srgb, var(--warning-light, #eab308) 20%, var(--border, #e5e7eb));
+  margin-bottom: 16px;
+}
+
+.cautionText {
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.65;
+  color: var(--foreground);
+  margin: 0;
+  word-break: keep-all;
+  font-weight: 500;
+}
+
+.tipCards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .tipCards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.tipCard {
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tipCardTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.tipCardDesc {
+  font-size: var(--fs-caption, 0.75rem);
+  line-height: 1.65;
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+  word-break: keep-all;
+}
+
+/* ── 지원사업 ── */
+.supportSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.supportItems {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.supportItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--muted, #f9fafb);
+}
+
+.supportBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.supportBody strong {
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.supportBody span {
+  font-size: var(--fs-caption, 0.75rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.supportLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.supportLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .supportLink:hover {
+    opacity: 0.75;
+  }
+}
+
+/* ── CTA ── */
+.cta {
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--primary, #1b6b5a) 0%, #0f4035 100%);
+  padding: 32px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .cta {
+    padding: 40px 32px;
+  }
+}
+
+.ctaTitle {
+  font-size: var(--fs-h3, 1.25rem);
+  font-weight: 700;
+  color: var(--primary-foreground);
+  margin: 0;
+  word-break: keep-all;
+}
+
+.ctaDesc {
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 12px;
+  word-break: keep-all;
+}
+
+.ctaButtons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (min-width: 480px) {
+  .ctaButtons {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 28px;
+  font-size: var(--fs-body, 1rem);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: var(--card, #fff);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.ctaPrimary:focus-visible {
+  outline: 2px solid var(--card, #fff);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .ctaPrimary:hover {
+    opacity: 0.9;
+  }
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 24px;
+  font-size: var(--fs-body, 1rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+@media (hover: hover) {
+  .ctaSecondary:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+}
+
+/* ── 관련 가이드 ── */
+.related {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.relatedTitle {
+  font-size: var(--fs-body, 1rem);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.relatedLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.relatedLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.relatedLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .relatedLink:hover {
+    opacity: 0.75;
+  }
+}

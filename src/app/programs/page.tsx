@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import { FileText, MessageCircle, ArrowRight, Map } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { FAQPage } from "schema-dts";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { SectionNav } from "@/components/layout/section-nav";
 import {
@@ -96,6 +98,30 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
 
   return (
     <>
+      <JsonLd<FAQPage>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: "귀농 지원금 자격 조건은 무엇인가요?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "지자체마다 다르지만 일반적으로 농촌 지역 전입, 일정 기간 거주, 영농 계획서 제출이 기본 조건이에요. 청년(만 39세 이하)은 별도 우대 조건이 있어요.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "귀농 정착금은 얼마나 받을 수 있나요?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "지자체별로 월 50만~100만 원 수준의 정착 지원금을 최대 3년간 받을 수 있어요. 영농 정착 자금은 최대 3억 원까지 장기 저리 대출도 가능해요.",
+              },
+            },
+          ],
+        }}
+      />
       <BreadcrumbJsonLd items={[{ name: "지원사업 검색", href: "/programs" }]} />
       {/* 섹션 내비게이션 — .page 바깥에서 full-width sticky */}
       <Suspense>

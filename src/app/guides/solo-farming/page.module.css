@@ -1,0 +1,391 @@
+/* ==========================================================================
+   /guides/solo-farming — 1인 귀농 가이드
+   CSS Module · 모바일 우선 반응형 (640 / 768 / 1024)
+   ========================================================================== */
+
+.page {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 40px 24px 80px;
+    gap: 40px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 56px 32px 64px;
+  }
+}
+
+/* ── 히어로 ── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.overline {
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--primary, #1b6b5a);
+}
+
+.heroTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+  margin: 0;
+  word-break: keep-all;
+}
+
+@media (min-width: 640px) {
+  .heroTitle {
+    font-size: 2rem;
+  }
+}
+
+.heroDesc {
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.65;
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+  word-break: keep-all;
+}
+
+/* ── 공통 섹션 타이틀 ── */
+.sectionTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0 0 16px;
+}
+
+@media (min-width: 640px) {
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+}
+
+/* ── 현실 체크 ── */
+.realitySection {
+  display: flex;
+  flex-direction: column;
+}
+
+.realityCards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.realityCard {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+}
+
+.realityIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+.realityBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.realityCardTitle {
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.realityCardDesc {
+  font-size: var(--fs-caption, 0.75rem);
+  line-height: 1.65;
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+  word-break: keep-all;
+}
+
+/* ── 맞춤 전략 ── */
+.strategySection {
+  display: flex;
+  flex-direction: column;
+}
+
+.strategies {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.strategyCard {
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.strategyHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.strategyIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+.strategyTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.strategyItems {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.strategyItem {
+  display: flex;
+  gap: 8px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.65;
+  color: var(--foreground);
+  word-break: keep-all;
+}
+
+.checkIcon {
+  flex-shrink: 0;
+  color: var(--primary, #1b6b5a);
+  margin-top: 3px;
+}
+
+/* ── 요약 박스 ── */
+.summaryBox {
+  padding: 24px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--background, #fff));
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 15%, var(--border, #e5e7eb));
+}
+
+.summaryTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  margin: 0 0 16px;
+}
+
+.summaryItems {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+@media (min-width: 640px) {
+  .summaryItem {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 12px;
+  }
+}
+
+.summaryLabel {
+  font-size: var(--fs-caption, 0.75rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.summaryValue {
+  font-size: var(--fs-body-sm, 0.875rem);
+  color: var(--foreground);
+  word-break: keep-all;
+}
+
+/* ── CTA ── */
+.cta {
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--primary, #1b6b5a) 0%, #0f4035 100%);
+  padding: 32px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .cta {
+    padding: 40px 32px;
+  }
+}
+
+.ctaTitle {
+  font-size: var(--fs-h3, 1.25rem);
+  font-weight: 700;
+  color: var(--primary-foreground);
+  margin: 0;
+  word-break: keep-all;
+}
+
+.ctaDesc {
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 12px;
+  word-break: keep-all;
+}
+
+.ctaButtons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (min-width: 480px) {
+  .ctaButtons {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 28px;
+  font-size: var(--fs-body, 1rem);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: var(--card, #fff);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.ctaPrimary:focus-visible {
+  outline: 2px solid var(--card, #fff);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .ctaPrimary:hover {
+    opacity: 0.9;
+  }
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 24px;
+  font-size: var(--fs-body, 1rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+@media (hover: hover) {
+  .ctaSecondary:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+}
+
+/* ── 관련 가이드 ── */
+.related {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.relatedTitle {
+  font-size: var(--fs-body, 1rem);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.relatedLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.relatedLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.relatedLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .relatedLink:hover {
+    opacity: 0.75;
+  }
+}

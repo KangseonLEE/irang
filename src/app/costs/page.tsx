@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { FAQPage } from "schema-dts";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import {
   costSummary,
@@ -185,6 +187,38 @@ export default function CostsPage() {
 
   return (
     <div className={s.page}>
+      <JsonLd<FAQPage>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: "귀농 초기 투자금은 얼마나 필요한가요?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "농촌진흥청 자료 기준, 귀농 초기 투자금은 평균 약 2억~3억 원이에요. 농지 구입비, 주택 비용, 농기계·시설비가 주요 항목이에요.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "1인 귀농 최소 자본은 얼마인가요?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "임대 농지 + 소규모 시설 기준 약 3,000만~5,000만 원으로 시작할 수 있어요. 지자체 정착금과 영농 자금 지원을 활용하면 초기 부담을 줄일 수 있어요.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "귀농 후 연간 운영비는 얼마나 드나요?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "작물과 규모에 따라 다르지만, 소규모 밭작물 기준 연 1,000만~2,000만 원 수준이에요. 인건비, 자재비, 농약·비료비가 주요 항목이에요.",
+              },
+            },
+          ],
+        }}
+      />
       {/* ═══ 히어로 ═══ */}
       <section className={s.hero}>
         <span className={s.heroOverline}>Cost Guide</span>

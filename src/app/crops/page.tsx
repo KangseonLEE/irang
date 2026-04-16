@@ -6,6 +6,8 @@ import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { FAQPage } from "schema-dts";
 import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -66,6 +68,30 @@ export default async function CropsPage({ searchParams }: PageProps) {
 
   return (
     <div className={s.page}>
+      <JsonLd<FAQPage>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: "초보자에게 추천하는 귀농 작물은 무엇인가요?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "쌀, 고구마, 감자 등 밭작물이 난이도가 낮아 초보자에게 적합해요. 시설 투자가 적고 재배 기술이 비교적 간단해요.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "귀농 작물별 예상 소득은 어떻게 되나요?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "농촌진흥청 자료 기준, 딸기는 10a당 약 171만 원, 사과 약 114만 원, 쌀 약 57만 원 수준이에요. 작물별 상세 소득은 이랑에서 비교할 수 있어요.",
+              },
+            },
+          ],
+        }}
+      />
       <BreadcrumbJsonLd items={[{ name: "작물 정보", href: "/crops" }]} />
       {/* Page Header */}
       <PageHeader

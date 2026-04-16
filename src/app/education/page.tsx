@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { FAQPage } from "schema-dts";
 import {
   GraduationCap,
   CalendarDays,
@@ -132,6 +134,30 @@ export default async function EducationPage({ searchParams }: PageProps) {
 
   return (
     <>
+      <JsonLd<FAQPage>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: "귀농 교육은 어디서 받을 수 있나요?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "각 시·도 농업기술센터, 귀농귀촌종합센터, 농업대학 등에서 온·오프라인 교육을 제공해요. 대부분 무료이고, 수료 시 지원사업 가산점을 받을 수 있어요.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "귀농 교육 기간은 얼마나 걸리나요?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "단기 과정은 1~5일, 장기 과정은 3개월~1년까지 다양해요. 귀농 준비 단계에 맞는 과정을 선택하는 것이 중요해요.",
+              },
+            },
+          ],
+        }}
+      />
       <BreadcrumbJsonLd items={[{ name: "귀농 교육", href: "/education" }]} />
       {/* 섹션 내비게이션 — .page 바깥에서 full-width sticky */}
       <Suspense>
