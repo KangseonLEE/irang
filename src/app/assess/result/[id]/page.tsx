@@ -27,6 +27,7 @@ import { getSupabase } from "@/lib/supabase";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { ShareButtons } from "@/components/share/share-buttons";
 import { FeedbackEventTracker } from "@/components/feedback/feedback-event-tracker";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
 import s from "@/app/match/match-wizard.module.css";
 
 // ── 데이터 조회 ──
@@ -159,6 +160,8 @@ export default async function AssessResultPage({ params }: PageProps) {
           ))}
         </div>
       </div>
+
+      <ReferenceNotice text="추천 결과는 공공데이터 기반 참고 가이드예요. 최종 결정은 현지 방문과 전문가 상담을 권장해요." />
 
       {/* 추천 지역 */}
       <section className={s.resultSection}>

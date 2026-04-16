@@ -96,10 +96,10 @@ export function Footer() {
             <span>&copy; 2026 이랑. All rights reserved.</span>
             <div className={s.legalLinks}>
               <DisclaimerBadge />
-              <Link href="#" className={s.legalLink}>
-                개인정보처리방침
+              <Link href="/about/corrections" className={s.legalLink}>
+                정정 이력
               </Link>
-              <Link href="#" className={s.legalLink}>
+              <Link href="/terms" className={s.legalLink}>
                 이용약관
               </Link>
             </div>

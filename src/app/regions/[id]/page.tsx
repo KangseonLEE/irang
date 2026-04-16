@@ -21,6 +21,7 @@ import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { RegionAsyncData } from "./region-async-data";
 import { RegionAsyncSkeleton } from "./region-async-skeleton";
 import s from "./page.module.css";
@@ -109,6 +110,8 @@ export default async function RegionDetailPage({ params }: PageProps) {
           </div>
         </div>
       </header>
+
+      <ReferenceNotice />
 
       {/* ═══ API 의존 데이터 — 스트리밍 (Suspense) ═══
           사진 배너, 통계, 기후, 지원사업, 교육, 행사, 지도를 포함.

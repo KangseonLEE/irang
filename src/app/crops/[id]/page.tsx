@@ -50,6 +50,7 @@ import { GlossaryTerm } from "@/components/ui/term-tooltip";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { DataSource } from "@/components/ui/data-source";
 import { Icon } from "@/components/ui/icon";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { AnchorTabNav } from "./anchor-tab-nav";
 import s from "./page.module.css";
@@ -302,6 +303,8 @@ export default async function CropDetailPage({
           </div>
         </div>
       </section>
+
+      <ReferenceNotice text="작물 정보는 농촌진흥청·통계청 데이터를 가공한 참고 자료예요. 실제 재배 조건은 지역·품종에 따라 달라요." />
 
       {/* ── Sticky Anchor Tab ── */}
       <AnchorTabNav sections={anchorSections} />

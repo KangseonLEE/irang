@@ -17,6 +17,7 @@ import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import type { SupportProgram } from "@/lib/data/programs";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { ShareButtons } from "@/components/share/share-buttons";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
 import type { FarmType } from "@/lib/data/match-questions";
 /* ResultSaveCta removed — replaced by ShareButtons in v2.0 */
 import type { ScoredProvince, RecommendedCrop } from "@/lib/match-scoring";
@@ -56,6 +57,8 @@ export function MatchResult({
           ))}
         </div>
       </div>
+
+      <ReferenceNotice text="추천 결과는 공공데이터 기반 참고 가이드예요. 최종 결정은 현지 방문과 전문가 상담을 권장해요." />
 
       {/* 추천 지역 */}
       <section className={s.resultSection}>

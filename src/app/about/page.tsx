@@ -237,6 +237,11 @@ export default function AboutPage() {
         본 서비스의 정보는 참고용이며, 실제 지원사업 신청 시 해당 기관의 원문을
         반드시 확인하세요.
       </p>
+      <nav className={s.legalNav} aria-label="법적 고지">
+        <Link href="/about/disclaimer" className={s.legalNavLink}>면책고지</Link>
+        <Link href="/about/corrections" className={s.legalNavLink}>정정 이력</Link>
+        <Link href="/terms" className={s.legalNavLink}>이용약관</Link>
+      </nav>
     </div>
   );
 }

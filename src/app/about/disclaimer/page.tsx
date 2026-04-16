@@ -177,7 +177,12 @@ export default function DisclaimerPage() {
             데이터 오류나 개선 제안은 언제든 환영해요.
           </p>
           <p>
-            서비스 내 피드백 기능을 이용해 주세요.
+            서비스 내 피드백 기능을 이용하시거나,{" "}
+            <Link href="/about/corrections">정정 이력 페이지</Link>에서
+            지금까지의 수정 내역을 확인하실 수 있어요.
+          </p>
+          <p>
+            <Link href="/terms">이용약관</Link>도 함께 확인해 주세요.
           </p>
         </div>
       </section>

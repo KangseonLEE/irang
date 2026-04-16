@@ -514,3 +514,22 @@
   text-align: center;
   margin: 0;
 }
+
+.legalNav {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.legalNavLink {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .legalNavLink:hover {
+    color: var(--primary, #1b6b5a);
+    text-decoration: underline;
+  }
+}

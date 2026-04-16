@@ -140,6 +140,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.2,
     },
     {
+      url: `${BASE_URL}/about/corrections`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.2,
+    },
+    {
+      url: `${BASE_URL}/terms`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.2,
+    },
+    {
       url: `${BASE_URL}/guides`,
       lastModified: now,
       changeFrequency: "monthly",

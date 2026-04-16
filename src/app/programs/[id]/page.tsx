@@ -27,6 +27,7 @@ import { getCropByName } from "@/lib/data/crops";
 import { getStationByProvince } from "@/lib/data/stations";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { EligibilityCheck } from "@/components/programs/eligibility-check";
 import { ApplicationTimeline } from "@/components/programs/application-timeline";
 import s from "./page.module.css";
@@ -112,6 +113,8 @@ export default async function ProgramDetailPage({
         </div>
         <p className={s.pageSummary}><AutoGlossary text={program.summary} /></p>
       </div>
+
+      <ReferenceNotice text="지원사업 정보는 지자체 공고를 참고한 자료예요. 신청 전 해당 기관에서 최신 조건을 꼭 확인하세요." />
 
       <div className={s.contentGrid}>
         {/* Main Info */}

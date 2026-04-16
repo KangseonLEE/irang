@@ -19,6 +19,7 @@ import {
 import { PopulationTrendChart } from "@/components/charts/lazy";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import { DataSource } from "@/components/ui/data-source";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
 import s from "./page.module.css";
 import shared from "../stats.module.css";
 
@@ -83,6 +84,8 @@ export default function PopulationPage() {
           </div>
         </div>
       </header>
+
+      <ReferenceNotice text="통계 데이터는 통계청·농림축산식품부 공공데이터를 가공한 참고 자료예요." />
 
       {/* ── 메인 대시보드 그리드 ── */}
       <div className={s.dashGrid}>

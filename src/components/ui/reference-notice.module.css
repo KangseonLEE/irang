@@ -1,0 +1,43 @@
+/* ── 참고용 정보 안내 ── */
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.icon {
+  color: var(--muted-foreground, #6b7280);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.text {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+}
+
+.link {
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    text-decoration: underline;
+  }
+}
+
+@media print {
+  .notice {
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+  }
+}
