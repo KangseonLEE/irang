@@ -20,6 +20,8 @@ import { TrendingSearchesLoader } from "@/components/landing/trending-searches-l
 import { NewsTabsLoader } from "@/components/landing/news-tabs-loader";
 import { FarmerIllustration } from "@/components/landing/farmer-illustration";
 import { CostSection } from "@/components/landing/cost-section";
+import { DeadlinePrograms } from "@/components/landing/deadline-programs";
+import { MyProgress } from "@/components/landing/my-progress";
 import { interviews } from "@/lib/data/landing";
 import { CROPS } from "@/lib/data/crops";
 import s from "./page.module.css";
@@ -126,6 +128,9 @@ export default function HomePage() {
         ]}
       />
 
+      {/* ═══ 2-b. 나의 준비 현황 (재방문 사용자 전용) ═══ */}
+      <MyProgress />
+
       {/* ═══ 3. 서비스 맵 — 6개 서브페이지 허브 ═══ */}
       <section className={s.serviceMapSection} aria-label="서비스 안내">
         <div className={s.sectionHeader}>
@@ -154,6 +159,9 @@ export default function HomePage() {
           })}
         </div>
       </section>
+
+      {/* ═══ 3-b. 마감 임박 지원사업 ═══ */}
+      <DeadlinePrograms />
 
       {/* ═══ 4. 농촌 소식 — 뉴스 2단 레이아웃 ═══ */}
       <section className={s.newsSection} aria-label="농촌 소식">

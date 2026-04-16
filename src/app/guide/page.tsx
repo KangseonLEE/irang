@@ -18,6 +18,7 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { TimelineLink, AccordionScrollWrapper } from "./timeline-nav";
 import { ChecklistInteractive } from "./checklist-interactive";
 import { GuideTimeline } from "./guide-timeline";
+import { GuidePersonalize } from "./guide-personalize";
 import { interviews } from "@/lib/data/landing";
 import { GUIDE_STEP_SUMMARIES } from "@/lib/data/guide-steps";
 import { MessageSquareQuote } from "lucide-react";
@@ -292,6 +293,9 @@ export default function GuidePage() {
           </figcaption>
         </figure>
       </section>
+
+      {/* ═══ 개인화 배너 (진단 결과가 있는 재방문 사용자) ═══ */}
+      <GuidePersonalize />
 
       {/* ═══ 타임라인 요약 (진행률 시각화 포함) ═══ */}
       <GuideTimeline

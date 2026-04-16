@@ -978,3 +978,69 @@
   }
 
 }
+
+/* ═══ 개인화 배너 ═══ */
+.personalizeBanner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
+}
+
+.personalizeLeft {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.personalizeIcon {
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.personalizeText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.personalizeLabel {
+  font-size: var(--fs-body-sm);
+  color: var(--foreground, #111827);
+}
+
+.personalizeTip {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-normal);
+}
+
+.personalizeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (hover: hover) {
+  .personalizeLink:hover {
+    text-decoration: underline;
+  }
+}
+
+/* 강조 단계 하이라이트 */
+.stepEmphasized {
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+}

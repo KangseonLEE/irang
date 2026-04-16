@@ -1,0 +1,174 @@
+/* ── 나의 귀농 준비 현황 ── */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerIcon {
+  color: var(--primary, #1b6b5a);
+}
+
+.title {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  margin: 0;
+}
+
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .viewAll:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ── 카드 ── */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+/* 전체 진행률 */
+.overallRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.overallLabel {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+}
+
+.overallPercent {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+}
+
+.progressBar {
+  height: 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--primary, #1b6b5a);
+  transition: width 0.6s ease-out;
+  min-width: 0;
+}
+
+/* 5단계 */
+.stepsRow {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.stepItem {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 10px;
+  background: var(--muted, #f9fafb);
+}
+
+.stepIcon {
+  color: var(--muted-foreground, #6b7280);
+}
+
+.stepInProgress {
+  color: var(--primary, #1b6b5a);
+}
+
+.stepComplete {
+  color: #059669;
+}
+
+.stepLabel {
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.stepPercent {
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+}
+
+/* 진단 결과 */
+.assessRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.assessLabel {
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+}
+
+.assessValue {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+@media (hover: hover) {
+  .assessValue:hover {
+    text-decoration: underline;
+  }
+}
+
+.assessRegion {
+  font-weight: 400;
+  color: var(--muted-foreground, #6b7280);
+}

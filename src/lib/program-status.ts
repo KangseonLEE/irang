@@ -19,6 +19,14 @@ export function deriveStatus(
   return "모집중";
 }
 
+/** 마감까지 남은 일수 (음수면 이미 마감) */
+export function daysUntilDeadline(applicationEnd: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(applicationEnd + "T00:00:00");
+  return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
 /** 체험행사 신청기간 기반 상태 판별 */
 export function deriveEventStatus(
   applicationStart?: string,
