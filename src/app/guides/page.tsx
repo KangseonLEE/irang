@@ -5,6 +5,8 @@ import {
   ClipboardList,
   Wallet,
   User,
+  AlertTriangle,
+  Sprout,
   ArrowRight,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
@@ -16,7 +18,7 @@ import s from "./page.module.css";
 export const metadata: Metadata = {
   title: "귀농 가이드 모음 | 이랑",
   description:
-    "귀농 준비 순서, 50대 귀농 자본, 1인 귀농까지 — 상황별 귀농 가이드를 모았어요.",
+    "귀농 준비 순서, 50대 귀농 자본, 1인 귀농, 실패 사례, 초보 추천 작물까지 — 상황별 귀농 가이드를 모았어요.",
   keywords: [
     "귀농 가이드",
     "귀농 준비",
@@ -24,6 +26,8 @@ export const metadata: Metadata = {
     "50대 귀농",
     "1인 귀농",
     "귀농 절차",
+    "귀농 실패 사례",
+    "초보 귀농 추천 작물",
   ],
 };
 
@@ -49,6 +53,20 @@ const GUIDES = [
     desc: "혼자서도 가능한 귀농, 준비가 다를 뿐이에요.",
     keywords: ["1인 귀농", "혼자 귀농", "1인 귀농 가능"],
   },
+  {
+    href: "/guides/failure-cases",
+    icon: AlertTriangle,
+    title: "귀농 실패 사례",
+    desc: "실패 사례에서 배우는 귀농 준비의 핵심이에요.",
+    keywords: ["귀농 실패 사례", "귀농 실패 이유", "귀농 후회"],
+  },
+  {
+    href: "/guides/beginner-crops",
+    icon: Sprout,
+    title: "초보 추천 작물",
+    desc: "난이도 낮고 안정적인 작물로 시작하세요.",
+    keywords: ["초보 귀농 추천 작물", "귀농 초보 작물", "쉬운 작물"],
+  },
 ] as const;
 
 export default function GuidesPage() {
@@ -63,7 +81,7 @@ export default function GuidesPage() {
           "@type": "CollectionPage",
           name: "귀농 가이드 모음",
           description:
-            "귀농 준비 순서, 50대 귀농 자본, 1인 귀농까지 — 상황별 귀농 가이드 모음",
+            "귀농 준비 순서, 50대 귀농 자본, 1인 귀농, 실패 사례, 초보 추천 작물까지 — 상황별 귀농 가이드 모음",
           url: "https://irang-wheat.vercel.app/guides",
         }}
       />
