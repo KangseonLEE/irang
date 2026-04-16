@@ -94,13 +94,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const data = getCropWithDetail(id);
+  if (!data) return { title: "작물 상세" };
+  const regions = data.detail.majorRegions.slice(0, 3).join("·");
   return {
-    title: data
-      ? `${data.name} 재배 — 소득·난이도·재배환경·산지 정보`
-      : "작물 상세",
-    description: data
-      ? `${data.name} 재배 소득, 난이도, 기후·토양 조건, 주요 산지를 비교하고 귀농 작물을 선택하세요.`
-      : undefined,
+    title: `${data.name} 재배 — 소득·난이도·재배환경 | ${regions}`,
+    description: `${data.name} 재배 소득, 난이도, 기후·토양 조건을 확인하세요. 주요 산지: ${data.detail.majorRegions.join(", ")}. 귀농 작물 선택에 필요한 정보를 비교해 드려요.`,
   };
 }
 

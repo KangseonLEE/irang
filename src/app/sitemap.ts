@@ -5,6 +5,7 @@ import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
 import { EDUCATION_COURSES } from "@/lib/data/education";
 import { EVENTS } from "@/lib/data/events";
+import { interviews } from "@/lib/data/landing";
 
 const BASE_URL = "https://irang-wheat.vercel.app";
 
@@ -152,6 +153,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.2,
     },
     {
+      url: `${BASE_URL}/assess`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
       url: `${BASE_URL}/guides`,
       lastModified: now,
       changeFrequency: "monthly",
@@ -237,6 +244,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
+  // ── 동적 페이지: 인터뷰 상세 ──
+  const interviewPages: MetadataRoute.Sitemap = interviews.map((i) => ({
+    url: `${BASE_URL}/interviews/${i.id}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
   return [
     ...staticPages,
     ...regionPages,
@@ -245,5 +260,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...programPages,
     ...educationPages,
     ...eventPages,
+    ...interviewPages,
   ];
 }

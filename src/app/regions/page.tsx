@@ -47,9 +47,9 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "지역 탐색",
+  title: "귀농 지역 탐색 — 17개 시·도 기후·인프라·지원사업 비교",
   description:
-    "귀농 후보 지역을 탐색하고, 기후·작물·지원사업 정보를 확인하세요.",
+    "전국 17개 시·도의 기후, 인구, 의료·교육 인프라, 추천 작물, 귀농 지원사업을 비교하세요. 인구밀도 지도로 한눈에 파악할 수 있어요.",
 };
 
 export default async function RegionsPage() {

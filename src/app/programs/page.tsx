@@ -38,9 +38,9 @@ const sectionNavItems = [
 ];
 
 export const metadata: Metadata = {
-  title: "귀농 지원사업 검색",
+  title: "귀농 지원사업 — 정착금·주택·영농자금 검색",
   description:
-    "정착금, 주택 지원, 영농 자금 등 전국 귀농·귀촌 지원사업을 검색하고 자격 조건을 확인하세요.",
+    "전국 귀농·귀촌 지원사업을 지역별로 검색하세요. 정착금 최대 3억, 주택 지원, 영농 자금 등 자격 조건과 신청 방법을 비교해요.",
 };
 
 interface PageProps {

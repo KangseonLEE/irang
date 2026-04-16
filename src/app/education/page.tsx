@@ -55,9 +55,9 @@ const sectionNavItems = [
 ];
 
 export const metadata: Metadata = {
-  title: "귀농 교육",
+  title: "귀농 교육 — 온라인·현장 실습·멘토링 과정 검색",
   description:
-    "귀농 귀촌 교육 과정을 검색하세요. 온라인·오프라인 교육, 현장 실습, 멘토링 프로그램 일정과 신청 방법을 안내해요.",
+    "귀농 귀촌 교육 과정을 검색하세요. 100시간 필수 교육, 온라인·오프라인 실습, 멘토링 프로그램 일정과 신청 방법을 한눈에 비교해요.",
 };
 
 interface PageProps {
