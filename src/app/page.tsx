@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon as IconWrap } from "@/components/ui/icon";
-import { HeroSearchTrigger } from "@/components/search/hero-search-trigger";
+import HeroSearch from "@/components/search/hero-search";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { TrendingSearchesSkeleton } from "@/components/landing/trending-searches";
 import { TrendingSearchesLoader } from "@/components/landing/trending-searches-loader";
@@ -102,10 +102,7 @@ export default function HomePage() {
         </p>
 
         <div className={s.heroSearchWrap}>
-          <HeroSearchTrigger
-            placeholder="궁금한 지역이나 작물을 검색해보세요"
-            mobilePlaceholder="지역, 작물, 지원사업 검색"
-          />
+          <HeroSearch />
         </div>
 
         <Suspense fallback={<TrendingSearchesSkeleton />}>

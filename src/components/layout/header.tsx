@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Heart } from "lucide-react";
+import { X } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { IrangSymbol } from "@/components/brand/irang-symbol";
 import { BookmarkList } from "@/components/bookmark/bookmark-list";
 import { useBookmarks } from "@/lib/hooks/use-bookmarks";
 import { useSearchOverlay } from "@/lib/hooks/use-search-overlay";
+import SearchBar from "@/components/search/search-bar";
 import s from "./header.module.css";
 
 /* ── 네비게이션 구조 ── */
@@ -78,10 +80,49 @@ const navGroups: NavGroup[] = [
 export function Header() {
   const pathname = usePathname();
   const [bookmarkOpen, setBookmarkOpen] = useState(false);
+  const [gnbSearchOpen, setGnbSearchOpen] = useState(false);
   /** 드롭다운 클릭 후 일시적으로 hover를 무시하기 위한 플래그 */
   const [navHidden, setNavHidden] = useState(false);
-  const { open: openSearch } = useSearchOverlay();
   const { count, mounted } = useBookmarks();
+  const { open: openSearch } = useSearchOverlay();
+
+  const handleSearchClick = useCallback(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches) {
+      openSearch();
+    } else {
+      setGnbSearchOpen(true);
+    }
+  }, [openSearch]);
+
+  const closeGnbSearch = useCallback(() => setGnbSearchOpen(false), []);
+  const gnbSearchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setGnbSearchOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!gnbSearchOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeGnbSearch();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [gnbSearchOpen, closeGnbSearch]);
+
+  // 포커스가 검색 영역 밖으로 이동하면 닫기
+  useEffect(() => {
+    if (!gnbSearchOpen) return;
+    const el = gnbSearchRef.current;
+    if (!el) return;
+    const onFocusOut = (e: FocusEvent) => {
+      const related = e.relatedTarget as Node | null;
+      if (related && el.contains(related)) return;
+      closeGnbSearch();
+    };
+    el.addEventListener("focusout", onFocusOut);
+    return () => el.removeEventListener("focusout", onFocusOut);
+  }, [gnbSearchOpen, closeGnbSearch]);
 
   // 페이지 이동 시 데스크탑 드롭다운 닫기
   useEffect(() => {
@@ -139,68 +180,93 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Desktop Navigation — 드롭다운 GNB */}
-          <nav
-            className={`${s.nav}${navHidden ? ` ${s.navHidden}` : ""}`}
-            aria-label="주요 메뉴"
-          >
-            {navGroups.map((group) => {
-              const isGroupActive = group.basePaths.some(
-                (bp) => pathname === bp || pathname.startsWith(bp + "/"),
-              );
-              return (
-                <div key={group.label} className={s.navGroup}>
-                  <button
-                    type="button"
-                    className={`${s.navLink} ${isGroupActive ? s.active : ""}`}
-                    aria-haspopup="true"
-                    onMouseDown={(e) => e.preventDefault()}
-                  >
-                    {group.label}
-                  </button>
-                  <div className={s.dropdown}>
-                    {group.children.map((child) => {
-                      // 더 구체적인 sibling 경로가 매칭되면 짧은 경로는 비활성
-                      const hasMoreSpecificSibling = group.children.some(
-                        (other) =>
-                          other !== child &&
-                          other.href.length > child.href.length &&
-                          pathname.startsWith(other.href),
-                      );
-                      const isChildActive =
-                        pathname === child.href ||
-                        (!hasMoreSpecificSibling &&
-                          pathname.startsWith(child.href + "/"));
-                      return (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className={`${s.dropdownItem} ${isChildActive ? s.dropdownItemActive : ""}`}
-                          onClick={hideDropdowns}
-                        >
-                          <span className={s.dropdownLabel}>{child.label}</span>
-                          {child.desc && (
-                            <span className={s.dropdownDesc}>{child.desc}</span>
-                          )}
-                        </Link>
-                      );
-                    })}
+          {/* 검색 모드: nav 대신 검색바를 풀폭으로 표시 */}
+          {gnbSearchOpen ? (
+            <div className={s.gnbSearchBar} ref={gnbSearchRef}>
+              <SearchBar
+                size="default"
+                placeholder="궁금한 지역이나 작물을 검색해보세요"
+                mobilePlaceholder="지역, 작물, 지원사업 검색"
+                richMode
+                autoFocus
+                onClose={closeGnbSearch}
+              />
+              <button
+                type="button"
+                className={s.gnbSearchClose}
+                onClick={closeGnbSearch}
+                aria-label="검색 닫기"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          ) : (
+            /* Desktop Navigation — 드롭다운 GNB */
+            <nav
+              className={`${s.nav}${navHidden ? ` ${s.navHidden}` : ""}`}
+              aria-label="주요 메뉴"
+            >
+              {navGroups.map((group) => {
+                const isGroupActive = group.basePaths.some(
+                  (bp) => pathname === bp || pathname.startsWith(bp + "/"),
+                );
+                return (
+                  <div key={group.label} className={s.navGroup}>
+                    <button
+                      type="button"
+                      className={`${s.navLink} ${isGroupActive ? s.active : ""}`}
+                      aria-haspopup="true"
+                      onMouseDown={(e) => e.preventDefault()}
+                    >
+                      {group.label}
+                    </button>
+                    <div className={s.dropdown}>
+                      {group.children.map((child) => {
+                        const hasMoreSpecificSibling = group.children.some(
+                          (other) =>
+                            other !== child &&
+                            other.href.length > child.href.length &&
+                            pathname.startsWith(other.href),
+                        );
+                        const isChildActive =
+                          pathname === child.href ||
+                          (!hasMoreSpecificSibling &&
+                            pathname.startsWith(child.href + "/"));
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className={`${s.dropdownItem} ${isChildActive ? s.dropdownItemActive : ""}`}
+                            onClick={hideDropdowns}
+                          >
+                            <span className={s.dropdownLabel}>{child.label}</span>
+                            {child.desc && (
+                              <span className={s.dropdownDesc}>{child.desc}</span>
+                            )}
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </nav>
+                );
+              })}
+            </nav>
+          )}
 
           {/* Right Actions */}
           <div className={s.actions}>
-            <button
-              type="button"
-              className={s.searchBtn}
-              aria-label="통합검색"
-              onClick={openSearch}
-            >
-              <Search size={20} strokeWidth={1.75} />
-            </button>
+            <div className={s.searchWrap}>
+              <button
+                type="button"
+                className={`${s.searchBtn}${gnbSearchOpen ? ` ${s.searchBtnHidden}` : ""}`}
+                aria-label="통합검색"
+                aria-haspopup="dialog"
+                aria-expanded={gnbSearchOpen}
+                onClick={handleSearchClick}
+              >
+                <Search size={20} strokeWidth={1.75} />
+              </button>
+            </div>
             <button
               type="button"
               className={s.bookmarkBtn}

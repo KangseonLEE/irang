@@ -12,7 +12,7 @@ import {
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Trash2, Loader2 } from "lucide-react";
+import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Trash2, Loader2, Compass, GraduationCap } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchItems, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
@@ -34,6 +34,13 @@ interface SearchBarProps {
   autoFocus?: boolean;
   /** 모바일에서 포커스 시 풀스크린 오버레이로 확장 (키보드 유지) */
   mobileExpand?: boolean;
+  /** 디바이스 무관 — 포커스 시 항상 풀페이지로 확장 (히어로/헤더 상시 검색용) */
+  alwaysExpand?: boolean;
+  /**
+   * 검색어가 비어있을 때 추천/인기/바로탐색 섹션을 노출.
+   * 모바일 풀스크린 확장과 무관하게(데스크탑 오버레이에서도) 사용하기 위한 스위치.
+   */
+  richMode?: boolean;
   /** 외부 오버레이 닫기 콜백 (SearchOverlay 연동용) */
   onClose?: () => void;
 }
@@ -138,6 +145,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     size = "default",
     autoFocus = false,
     mobileExpand,
+    alwaysExpand = false,
+    richMode = false,
     onClose: onCloseProp,
   },
   ref,
@@ -183,7 +192,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // 핵심 원리: 유저가 실제 input을 탭 → 키보드가 자연스럽게 열림 (user activation)
   // → 페이지 이동 대신 같은 input을 유지한 채 컨테이너만 풀스크린으로 확장
   // → DOM에서 input이 제거되지 않으므로 키보드가 닫히지 않음
-  const isExpanded = !!(mobileExpand && isMobile && isOpen);
+  const isExpanded = !!(((mobileExpand && isMobile) || alwaysExpand) && isOpen);
+  /** 풀스크린 확장 또는 richMode일 때 추천/인기/바로탐색 노출 */
+  const showRich = isExpanded || richMode;
 
   // 풀스크린 확장 시 body 스크롤 잠금
   useEffect(() => {
@@ -484,7 +495,11 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const showDropdown =
     isNavigating ||
     isExpanded ||
-    (isOpen && (showRecent || grouped.length > 0 || (query.trim().length > 0 && grouped.length === 0)));
+    (isOpen &&
+      (richMode ||
+        showRecent ||
+        grouped.length > 0 ||
+        (query.trim().length > 0 && grouped.length === 0)));
 
   const dropdownClass = `${s.dropdown}${isExpanded ? ` ${s.dropdownExpanded}` : ""}`;
 
@@ -585,7 +600,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                   <Clock size={12} className={s.sectionLabelIcon} />
                   최근 검색
                 </div>
-                {isExpanded && (
+                {showRich && (
                   <button
                     type="button"
                     className={s.clearAllBtn}
@@ -629,8 +644,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             </div>
           )}
 
-          {/* ── 확장 모드 검색 홈: 추천 검색어 + 바로 탐색 ── */}
-          {isExpanded && query.trim().length === 0 && (
+          {/* ── 확장/리치 모드 검색 홈: 추천 검색어 + 바로 탐색 ── */}
+          {showRich && query.trim().length === 0 && (
             <>
               {/* 추천 검색어 태그 */}
               <div className={s.expandedSection}>
@@ -691,6 +706,14 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                   <Link href="/programs" className={s.quickItem} onClick={handleQuickNav}>
                     <FileText size={16} />
                     <span>지원사업</span>
+                  </Link>
+                  <Link href="/guide" className={s.quickItem} onClick={handleQuickNav}>
+                    <Compass size={16} />
+                    <span>귀농 로드맵</span>
+                  </Link>
+                  <Link href="/education" className={s.quickItem} onClick={handleQuickNav}>
+                    <GraduationCap size={16} />
+                    <span>교육·체험</span>
                   </Link>
                   <Link href="/match" className={s.quickItem} onClick={handleQuickNav}>
                     <Search size={16} />

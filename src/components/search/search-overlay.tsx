@@ -64,6 +64,7 @@ export function SearchOverlayProvider({
               placeholder="궁금한 지역이나 작물을 검색해보세요"
               mobilePlaceholder="지역, 작물, 지원사업 검색"
               mobileExpand
+              richMode
               autoFocus
               onClose={close}
             />
