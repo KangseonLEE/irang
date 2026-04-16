@@ -27,6 +27,8 @@ import { getCropByName } from "@/lib/data/crops";
 import { getStationByProvince } from "@/lib/data/stations";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
+import { EligibilityCheck } from "@/components/programs/eligibility-check";
+import { ApplicationTimeline } from "@/components/programs/application-timeline";
 import s from "./page.module.css";
 
 export async function generateMetadata({
@@ -281,6 +283,21 @@ export default async function ProgramDetailPage({
 
         {/* Sidebar */}
         <div className={s.sidebar}>
+          {/* Application Timeline */}
+          <ApplicationTimeline
+            applicationStart={program.applicationStart}
+            applicationEnd={program.applicationEnd}
+            status={program.status}
+          />
+
+          {/* Eligibility Self Check */}
+          <EligibilityCheck
+            programTitle={program.title}
+            ageMin={program.eligibilityAgeMin}
+            ageMax={program.eligibilityAgeMax}
+            eligibilityDetail={program.eligibilityDetail}
+          />
+
           {/* Related Crops */}
           {program.relatedCrops.length > 0 && (
             <div className={s.card}>

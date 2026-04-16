@@ -1,0 +1,145 @@
+/* ── 자격 셀프 체크 ── */
+
+.wrap {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .wrap { padding: 20px; }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  margin: 0;
+}
+
+.counter {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+}
+
+/* ── 프로그레스 바 ── */
+.progressBar {
+  height: 4px;
+  background: var(--muted, #f3f4f6);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--primary, #1b6b5a);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+/* ── 체크리스트 ── */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item {
+  margin: 0;
+}
+
+.checkBtn {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: var(--muted-foreground, #6b7280);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.checkBtn svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+@media (hover: hover) {
+  .checkBtn:hover {
+    background: var(--muted, #f9fafb);
+  }
+}
+
+.checkBtnChecked {
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
+}
+
+@media (hover: hover) {
+  .checkBtnChecked:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  }
+}
+
+.checkLabel {
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  line-height: var(--lh-normal);
+}
+
+/* ── 결과 ── */
+.resultPass {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  line-height: var(--lh-normal);
+}
+
+.resultPartial {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--warning-fg, #d97706) 8%, transparent);
+  color: var(--warning-fg, #a16207);
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  line-height: var(--lh-normal);
+}
+
+.resultPass svg,
+.resultPartial svg {
+  flex-shrink: 0;
+}
+
+/* ── 면책 ── */
+.disclaimer {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #9ca3af);
+  margin: 0;
+}

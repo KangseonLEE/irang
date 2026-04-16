@@ -1,0 +1,95 @@
+/* ── 신청 타임라인 ── */
+
+.wrap {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .wrap { padding: 20px; }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--foreground, #111827);
+}
+
+.headerLabel {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+}
+
+/* ── 날짜 ── */
+.dates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+}
+
+.dateSep {
+  color: var(--muted-foreground, #9ca3af);
+}
+
+/* ── 프로그레스 바 ── */
+.bar {
+  position: relative;
+  height: 6px;
+  background: var(--muted, #f3f4f6);
+  border-radius: 9999px;
+  overflow: visible;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+  min-width: 2px;
+}
+
+.barActive {
+  background: var(--primary, #1b6b5a);
+}
+
+.barUpcoming {
+  background: var(--warning-fg, #d97706);
+}
+
+.barClosed {
+  background: var(--muted-foreground, #9ca3af);
+}
+
+.barMarker {
+  position: absolute;
+  top: -3px;
+  width: 12px;
+  height: 12px;
+  background: var(--primary, #1b6b5a);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* ── 정보 텍스트 ── */
+.info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.info strong {
+  color: var(--primary, #1b6b5a);
+  font-weight: 700;
+}
