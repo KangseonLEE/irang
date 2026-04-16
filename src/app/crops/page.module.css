@@ -19,7 +19,7 @@
 
 @media (min-width: 1024px) {
   .page {
-    padding: 40px 24px;
+    padding: 40px 32px;
     gap: 24px;
   }
 }
