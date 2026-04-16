@@ -126,6 +126,9 @@
 }
 
 .sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: var(--fs-section-title);
   font-weight: 700;
   line-height: var(--lh-snug);
