@@ -1,0 +1,312 @@
+/* ══════════════════════════════════════════
+   청년농 사례 캐러셀 — YouTube 스타일
+   큰 썸네일(16:9) 위 + 제목·채널 아래
+   모바일 1장 → 태블릿 1장 → 데스크탑 2장
+   ══════════════════════════════════════════ */
+
+.section {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+  padding: 28px 24px 22px;
+}
+
+@media (min-width: 640px) {
+  .section { padding: 32px 32px 26px; }
+}
+
+/* ── 헤더 ── */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-body-lg, 1.0625rem);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  margin: 0;
+}
+
+.sectionDesc {
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+  margin: 4px 0 0;
+}
+
+.headerArrows {
+  display: none;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .headerArrows { display: flex; }
+}
+
+/* ── 캐러셀 스크롤 ── */
+
+.scrollArea {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  gap: 24px;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 6px 0;
+  margin: -6px 0;
+  cursor: grab;
+}
+
+.scrollArea::-webkit-scrollbar { display: none; }
+
+@media (min-width: 640px) {
+  .scrollArea { grid-auto-columns: 100%; }
+}
+
+@media (min-width: 768px) {
+  .scrollArea { grid-auto-columns: 42%; }
+}
+
+@media (min-width: 1280px) {
+  .scrollArea { grid-auto-columns: 38%; }
+}
+
+/* ── 카드 ── */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 14px;
+  transition: transform 0.25s cubic-bezier(.16, 1, .3, 1);
+}
+
+@media (hover: hover) {
+  .card:hover { transform: translateY(-3px); }
+  .card:hover .playButton {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .card:hover .thumbnailWrap::after {
+    opacity: 1;
+  }
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+/* ── 썸네일 (16:9, 라운드) ── */
+
+.thumbnailWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--muted, #f3f4f6);
+}
+
+/* 호버 시 딤 오버레이 */
+.thumbnailWrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.playButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.85);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s, background 0.2s;
+}
+
+/* 모바일: 항상 보임 */
+@media (hover: none) {
+  .playButton {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* ── 텍스트 영역 (유튜브 스타일) ── */
+
+.cardBody {
+  display: flex;
+  gap: 12px;
+  padding: 12px 4px 0;
+}
+
+/* 좌측 아바타 원형 (crop 태그) */
+.avatarSlot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 12%, transparent);
+  color: var(--primary, #1B6B5A);
+}
+
+/* 우측 텍스트 */
+.cardText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.title {
+  font-size: var(--fs-body, 0.9375rem);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+  line-height: 1.5;
+}
+
+.metaDot {
+  color: var(--border, #d1d5db);
+}
+
+/* ══════════════════════════════════════════
+   캐러셀 컨트롤
+   ══════════════════════════════════════════ */
+
+.arrow,
+.arrowMobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
+  color: var(--primary, #1B6B5A);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+}
+
+.arrow { width: 36px; aspect-ratio: 1 / 1; }
+.arrowMobile { width: 32px; aspect-ratio: 1 / 1; }
+
+@media (hover: hover) {
+  .arrow:not(:disabled):hover,
+  .arrowMobile:not(:disabled):hover {
+    background: var(--primary, #1B6B5A);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(27, 107, 90, 0.25);
+  }
+}
+
+.arrow:disabled,
+.arrowMobile:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+@media (min-width: 768px) {
+  .arrowMobile { display: none; }
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border, #d1d5db);
+  transition: background-color 0.2s, transform 0.2s;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  box-sizing: content-box;
+  position: relative;
+}
+
+.dot::before {
+  content: "";
+  position: absolute;
+  inset: -18px;
+}
+
+.dotActive {
+  background: var(--primary, #1B6B5A);
+  transform: scale(1.3);
+}
+
+/* ── 로드맵 인라인 변형 ── */
+
+.inline {
+  border: none;
+  border-radius: 0;
+  background: none;
+  padding: 0;
+}
+
+/* 인라인 모드: 좁은 컨테이너(960px)에서도 2.3장 보이도록 */
+.inline .scrollArea {
+  grid-auto-columns: 100%;
+}
+
+@media (min-width: 768px) {
+  .inline .scrollArea { grid-auto-columns: 42%; }
+}
