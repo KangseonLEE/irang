@@ -20,12 +20,21 @@ import { interviews } from "@/lib/data/landing";
 import { PROGRAMS } from "@/lib/data/programs";
 import s from "./page.module.css";
 
-/* ── 마퀴 키워드 ── */
-const marqueeItems = [
-  "전남 순천", "경북 상주", "충남 홍성", "강원 횡성",
-  "딸기", "블루베리", "샤인머스캣", "토마토", "감귤",
-  "귀농 교육", "지원사업", "스마트팜", "주말농장",
-  "전북 완주", "경남 하동", "충북 괴산", "제주",
+/* ── 마퀴 키워드 (2줄 엇갈림) ── */
+interface MarqueeChip { label: string; accent?: boolean }
+
+const marqueeRow1: MarqueeChip[] = [
+  { label: "전남 순천" }, { label: "딸기", accent: true }, { label: "경북 상주" },
+  { label: "귀농 교육" }, { label: "블루베리", accent: true }, { label: "충남 홍성" },
+  { label: "스마트팜" }, { label: "강원 횡성" }, { label: "감귤", accent: true },
+  { label: "주말농장" }, { label: "제주" }, { label: "토마토", accent: true },
+];
+
+const marqueeRow2: MarqueeChip[] = [
+  { label: "지원사업", accent: true }, { label: "전북 완주" }, { label: "샤인머스캣" },
+  { label: "경남 하동" }, { label: "귀농 체험", accent: true }, { label: "충북 괴산" },
+  { label: "고추" }, { label: "청년 귀농", accent: true }, { label: "전남 해남" },
+  { label: "인삼" }, { label: "농지은행", accent: true }, { label: "경기 여주" },
 ];
 
 /* ────────────────────────────────────────────
@@ -84,12 +93,19 @@ export default function HomePage() {
           </Suspense>
         </div>
 
-        {/* 마퀴 띠 */}
+        {/* 마퀴 띠 — 2줄 엇갈림 */}
         <div className={s.heroMarquee} aria-hidden="true">
           <div className={s.heroMarqueeTrack}>
-            {[...marqueeItems, ...marqueeItems].map((item, i) => (
-              <span key={i} className={s.heroMarqueeItem}>
-                {item}
+            {[...marqueeRow1, ...marqueeRow1].map((item, i) => (
+              <span key={i} className={`${s.heroMarqueeItem}${item.accent ? ` ${s.heroMarqueeAccent}` : ""}`}>
+                {item.label}
+              </span>
+            ))}
+          </div>
+          <div className={`${s.heroMarqueeTrack} ${s.heroMarqueeTrackReverse}`}>
+            {[...marqueeRow2, ...marqueeRow2].map((item, i) => (
+              <span key={i} className={`${s.heroMarqueeItem}${item.accent ? ` ${s.heroMarqueeAccent}` : ""}`}>
+                {item.label}
               </span>
             ))}
           </div>
