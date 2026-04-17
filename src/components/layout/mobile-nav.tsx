@@ -4,21 +4,21 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
 import {
-  Home,
-  MapPin,
-  FileText,
-  Compass,
-  MoreHorizontal,
+  House,
+  Map,
+  ScanSearch,
+  HandCoins,
+  LayoutGrid,
 } from "lucide-react";
 import s from "./mobile-nav.module.css";
 
 // ─── 하단 탭 (4개 + 더보기) ───
 
 const tabs = [
-  { href: "/", label: "홈", icon: Home },
-  { href: "/regions", label: "지역", icon: MapPin },
-  { href: "/match", label: "유형진단", icon: Compass },
-  { href: "/programs", label: "지원사업", icon: FileText },
+  { href: "/", label: "홈", icon: House },
+  { href: "/regions", label: "지역", icon: Map },
+  { href: "/match", label: "유형진단", icon: ScanSearch },
+  { href: "/programs", label: "지원사업", icon: HandCoins },
 ];
 
 // 더보기 페이지에서 활성 표시할 경로 목록
@@ -111,7 +111,7 @@ export function MobileNav() {
           href="/more"
           className={`${s.tab} ${isMoreActive ? s.active : ""}`}
         >
-          <MoreHorizontal size={24} strokeWidth={isMoreActive ? 2.0 : 1.75} />
+          <LayoutGrid size={24} strokeWidth={isMoreActive ? 2.0 : 1.75} />
           <span>전체</span>
         </Link>
       </div>

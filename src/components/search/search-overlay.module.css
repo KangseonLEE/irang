@@ -27,6 +27,22 @@
     width: 100%;
     max-width: 720px;
   }
+
+  /* 데스크탑 오버레이: 히어로 검색창과 동일한 pill 스타일 */
+  .overlayInner :global([class*="inputWrapLarge"]) {
+    border-radius: 100px;
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 20%, var(--border, #e5e7eb));
+    box-shadow:
+      0 4px 24px rgba(27, 107, 90, 0.08),
+      0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .overlayInner :global([class*="inputWrapLarge"]):focus-within {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow:
+      0 8px 32px rgba(27, 107, 90, 0.14),
+      0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
+  }
 }
 
 /* 모바일에서는 래퍼 div만 감싸고 내부 SearchBar가 풀스크린 역할 */

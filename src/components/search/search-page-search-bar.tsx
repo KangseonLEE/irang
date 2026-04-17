@@ -1,18 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchOverlay } from "@/lib/hooks/use-search-overlay";
 import SearchBar from "./search-bar";
 
 /**
- * 히어로 인라인 검색창.
- * - 데스크탑: 포커스 시 그 자리에 드롭다운이 펼쳐지며 추천/인기/바로탐색 노출 (richMode)
- * - 모바일(< 640px): 탭하면 GNB와 동일한 전역 SearchOverlay 풀레이아웃 호출
+ * /search 페이지 전용 검색창.
+ * - 모바일(< 640px): 탭하면 GNB·히어로와 동일한 전역 SearchOverlay 풀레이아웃 호출
+ * - 데스크탑: 인라인 검색 + 드롭다운
  */
-export default function HeroSearch() {
+export default function SearchPageSearchBar() {
   const { open: openOverlay } = useSearchOverlay();
   const [isMobile, setIsMobile] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 639px)");
@@ -27,23 +26,19 @@ export default function HeroSearch() {
   }, [isMobile, openOverlay]);
 
   return (
-    <div
-      ref={containerRef}
-      onPointerDown={isMobile ? handleMobileTap : undefined}
-    >
+    <div onPointerDown={isMobile ? handleMobileTap : undefined}>
       {isMobile ? (
-        /* 모바일: 장식용 검색창 — 탭하면 전역 오버레이 호출 */
         <SearchBar
-          size="large"
+          size="default"
           placeholder="지역, 작물, 지원사업 검색"
           readOnlyDisplay
         />
       ) : (
-        /* 데스크탑: 인라인 검색 + 드롭다운 */
         <SearchBar
-          size="large"
-          placeholder="궁금한 지역이나 작물을 검색해보세요"
+          size="default"
+          placeholder="지역, 작물, 지원사업 검색"
           richMode
+          autoFocus
         />
       )}
     </div>

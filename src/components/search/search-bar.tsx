@@ -15,7 +15,7 @@ import Link from "next/link";
 import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Trash2, Loader2, Compass, GraduationCap } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchItems, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
+import { searchItems, hasExactMatch, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { POPULAR_KEYWORDS } from "./popular-keywords";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
@@ -43,6 +43,8 @@ interface SearchBarProps {
   richMode?: boolean;
   /** 외부 오버레이 닫기 콜백 (SearchOverlay 연동용) */
   onClose?: () => void;
+  /** 읽기 전용 표시 모드 — 시각적으로만 렌더링하고 포커스/인터랙션 비활성화 */
+  readOnlyDisplay?: boolean;
 }
 
 export interface SearchBarHandle {
@@ -54,7 +56,7 @@ export interface SearchBarHandle {
 // ---------------------------------------------------------------------------
 
 const RECENT_KEY = "irang-recent-searches";
-const MAX_RECENT = 5;
+const MAX_RECENT = 10;
 
 const SECTION_META: Record<
   SearchItem["type"],
@@ -76,26 +78,44 @@ const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Helpers — 최근 검색어 (날짜 포함, 최대 10개)
 // ---------------------------------------------------------------------------
 
-/** localStorage에서 최근 검색어 불러오기 */
-function loadRecent(): string[] {
+interface RecentItem {
+  query: string;
+  date: string; // YYYY.MM.DD
+}
+
+/** 오늘 날짜를 YYYY.MM.DD 형식으로 */
+function todayStr(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}.${m}.${day}`;
+}
+
+/** localStorage에서 최근 검색어 불러오기 (구버전 string[] → 자동 마이그레이션) */
+function loadRecent(): RecentItem[] {
   try {
     const raw = localStorage.getItem(RECENT_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.slice(0, MAX_RECENT) : [];
+    if (!Array.isArray(parsed)) return [];
+    // 구버전(string[]) → 새 형식(RecentItem[]) 마이그레이션
+    return parsed.slice(0, MAX_RECENT).map((item: string | RecentItem) =>
+      typeof item === "string" ? { query: item, date: "" } : item,
+    );
   } catch {
     return [];
   }
 }
 
-/** 최근 검색어 저장 (중복 제거, 최대 5개) */
+/** 최근 검색어 저장 (중복 제거, 최대 10개, 날짜 포함) */
 function saveRecent(query: string) {
   try {
-    const prev = loadRecent().filter((q) => q !== query);
-    const next = [query, ...prev].slice(0, MAX_RECENT);
+    const prev = loadRecent().filter((r) => r.query !== query);
+    const next: RecentItem[] = [{ query, date: todayStr() }, ...prev].slice(0, MAX_RECENT);
     localStorage.setItem(RECENT_KEY, JSON.stringify(next));
   } catch {
     /* noop */
@@ -105,7 +125,7 @@ function saveRecent(query: string) {
 /** 최근 검색어 하나 삭제 */
 function removeRecent(query: string) {
   try {
-    const next = loadRecent().filter((q) => q !== query);
+    const next = loadRecent().filter((r) => r.query !== query);
     localStorage.setItem(RECENT_KEY, JSON.stringify(next));
   } catch {
     /* noop */
@@ -148,9 +168,29 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     alwaysExpand = false,
     richMode = false,
     onClose: onCloseProp,
+    readOnlyDisplay = false,
   },
   ref,
 ) {
+  // ── 읽기 전용 표시 모드: 시각적 껍데기만 렌더링 ──
+  if (readOnlyDisplay) {
+    const wrapCls = size === "large" ? s.inputWrapLarge : s.inputWrap;
+    return (
+      <div className={s.container}>
+        <div className={`${wrapCls} ${s.inputWrapReadOnly}`} style={{ pointerEvents: "none" }}>
+          <Search
+            size={size === "large" ? 22 : 18}
+            className={s.searchIcon}
+            aria-hidden="true"
+          />
+          <span style={{ color: "var(--muted-foreground)", fontSize: "inherit", lineHeight: "var(--lh-normal)" }}>
+            {placeholder}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   const router = useRouter();
   const pathname = usePathname();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -165,7 +205,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [recentSearches, setRecentSearches] = useState<RecentItem[]>([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   // 네비게이션 중 오버레이를 유지하며 로딩 UI 노출
   const [isNavigating, setIsNavigating] = useState(false);
@@ -328,10 +368,10 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // ----- Flatten all visible items for keyboard nav -----
   const allItems: FlatItem[] = useMemo(() => {
     if (showRecent) {
-      return recentSearches.map((q, i) => ({
+      return recentSearches.map((r, i) => ({
         type: "recent" as const,
         id: `recent-${i}`,
-        query: q,
+        query: r.query,
       }));
     }
     return grouped.flatMap((section) =>
@@ -405,8 +445,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     [],
   );
 
-  // ----- 최근 검색어 전체 삭제 -----
+  // ----- 최근 검색어 전체 삭제 (컨펌) -----
   const handleClearAllRecent = useCallback(() => {
+    if (!window.confirm("최근 검색어를 모두 삭제할까요?")) return;
     clearAllRecent();
     setRecentSearches([]);
   }, []);
@@ -597,43 +638,42 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             <div className={s.dropdownSection}>
               <div className={s.sectionLabelRow}>
                 <div className={s.sectionLabel}>
-                  <Clock size={12} className={s.sectionLabelIcon} />
                   최근 검색
                 </div>
-                {showRich && (
-                  <button
-                    type="button"
-                    className={s.clearAllBtn}
-                    onClick={handleClearAllRecent}
-                  >
-                    <Trash2 size={12} />
-                    전체삭제
-                  </button>
-                )}
+                <button
+                  type="button"
+                  className={s.clearAllBtn}
+                  onClick={handleClearAllRecent}
+                >
+                  전체삭제
+                </button>
               </div>
-              {recentSearches.map((q, i) => {
+              {recentSearches.map((r, i) => {
                 const itemId = `recent-${i}`;
                 const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
                 return (
                   <div
-                    key={`recent-${q}`}
+                    key={`recent-${r.query}`}
                     id={`search-item-${itemId}`}
-                    className={`${s.resultItem} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`}
+                    className={`${s.resultItem} ${s.resultItemCompact} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`}
                     role="option"
                     aria-selected={focusedIndex === currentFlatIndex}
-                    onClick={() => handleRecentClick(q)}
+                    onClick={() => handleRecentClick(r.query)}
                   >
                     <span className={s.recentIcon} aria-hidden="true">
                       <Clock size={14} />
                     </span>
                     <div className={s.resultItemContent}>
-                      <div className={s.resultItemTitle}>{q}</div>
+                      <div className={s.resultItemTitle}>{r.query}</div>
                     </div>
+                    {r.date && (
+                      <span className={s.recentDate}>{r.date}</span>
+                    )}
                     <button
                       type="button"
                       className={s.removeRecent}
-                      onClick={(e) => handleRemoveRecent(e, q)}
-                      aria-label={`"${q}" 최근 검색 삭제`}
+                      onClick={(e) => handleRemoveRecent(e, r.query)}
+                      aria-label={`"${r.query}" 최근 검색 삭제`}
                       tabIndex={-1}
                     >
                       <X size={14} />
@@ -644,36 +684,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             </div>
           )}
 
-          {/* ── 확장/리치 모드 검색 홈: 인기 검색어 + 바로 탐색 ── */}
+          {/* ── 확장/리치 모드 검색 홈: 바로 탐색 + 인기 검색어 ── */}
           {showRich && query.trim().length === 0 && (
             <>
-              {/* 인기 검색어 */}
-              <div className={s.expandedSection}>
-                <div className={s.sectionLabel}>인기 검색어</div>
-                <div className={s.popularList}>
-                  {POPULAR_KEYWORDS.map((kw, i) => {
-                    const rank = i + 1;
-                    const isTop = rank <= 3;
-                    return (
-                      <button
-                        key={kw.label}
-                        type="button"
-                        className={s.popularItem}
-                        onClick={() => handleRecentClick(kw.label)}
-                      >
-                        <span
-                          className={`${s.popularRank}${isTop ? ` ${s.popularRankTop}` : ""}`}
-                          aria-hidden="true"
-                        >
-                          {rank}
-                        </span>
-                        <span className={s.popularLabel}>{kw.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
               {/* 바로 탐색 */}
               <div className={s.expandedSection}>
                 <div className={s.sectionLabel}>바로 탐색</div>
@@ -702,6 +715,33 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                     <Search size={16} />
                     <span>유형 진단</span>
                   </Link>
+                </div>
+              </div>
+
+              {/* 인기 검색어 */}
+              <div className={s.expandedSection}>
+                <div className={s.sectionLabel}>인기 검색어</div>
+                <div className={s.popularList}>
+                  {POPULAR_KEYWORDS.map((kw, i) => {
+                    const rank = i + 1;
+                    const isTop = rank <= 3;
+                    return (
+                      <button
+                        key={kw.label}
+                        type="button"
+                        className={s.popularItem}
+                        onClick={() => handleRecentClick(kw.label)}
+                      >
+                        <span
+                          className={`${s.popularRank}${isTop ? ` ${s.popularRankTop}` : ""}`}
+                          aria-hidden="true"
+                        >
+                          {rank}
+                        </span>
+                        <span className={s.popularLabel}>{kw.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </>
@@ -773,6 +813,24 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             );
           })}
 
+          {/* 정확히 일치하는 항목 없음 안내 — 연관 결과는 있지만 exact match 없을 때 */}
+          {grouped.length > 0 && query.trim().length >= 2 && !hasExactMatch(query, results) && (
+            <div className={s.noExactMatch}>
+              <p className={s.noExactMatchText}>
+                &ldquo;{query}&rdquo;에 정확히 일치하는 항목이 없어요
+              </p>
+              <a
+                href={`https://tally.so/r/9qv8lp?keyword=${encodeURIComponent(query.trim())}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={s.noExactMatchBtn}
+              >
+                <MessageSquarePlus size={14} />
+                항목 추가 요청하기
+              </a>
+            </div>
+          )}
+
           {/* 전체 검색 결과 보기 링크 */}
           {grouped.length > 0 && query.trim().length > 0 && (
             <div className={s.dropdownFooter}>
@@ -790,21 +848,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                 <Search size={14} />
                 &ldquo;{query}&rdquo; 전체 검색 결과 보기
               </Link>
-            </div>
-          )}
-
-          {/* 정보 추가 요청하기 — 검색어 있을 때 결과 유무와 무관하게 항상 노출 (fill 스타일) */}
-          {query.trim().length > 0 && grouped.length > 0 && (
-            <div className={s.requestFooter}>
-              <a
-                href="https://tally.so/r/9qv8lp"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={s.requestLink}
-              >
-                <MessageSquarePlus size={14} />
-                찾는 정보가 없다면? 정보 추가 요청하기
-              </a>
             </div>
           )}
         </div>

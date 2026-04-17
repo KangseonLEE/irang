@@ -83,8 +83,34 @@ export function Header() {
   const [gnbSearchOpen, setGnbSearchOpen] = useState(false);
   /** 드롭다운 클릭 후 일시적으로 hover를 무시하기 위한 플래그 */
   const [navHidden, setNavHidden] = useState(false);
+  /** 스크롤 내리면 헤더 숨김, 올리면 표시 */
+  const [headerHidden, setHeaderHidden] = useState(false);
+  const lastScrollY = useRef(0);
   const { count, mounted } = useBookmarks();
   const { open: openSearch } = useSearchOverlay();
+
+  // 스크롤 방향 감지 — 내리면 숨김, 올리면 표시
+  useEffect(() => {
+    const THRESHOLD = 10; // 미세 스크롤 무시
+    const onScroll = () => {
+      const y = window.scrollY;
+      // 최상단 근처에서는 항상 표시
+      if (y < 56) {
+        setHeaderHidden(false);
+        lastScrollY.current = y;
+        return;
+      }
+      const delta = y - lastScrollY.current;
+      if (delta > THRESHOLD) {
+        setHeaderHidden(true);
+      } else if (delta < -THRESHOLD) {
+        setHeaderHidden(false);
+      }
+      lastScrollY.current = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleSearchClick = useCallback(() => {
     if (typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches) {
@@ -165,7 +191,7 @@ export function Header() {
 
   return (
     <>
-      <header className={s.header}>
+      <header className={`${s.header}${headerHidden ? ` ${s.headerHidden}` : ""}`}>
         <div className={s.inner}>
           {/* Logo — 심볼 + 워드마크 */}
           <Link

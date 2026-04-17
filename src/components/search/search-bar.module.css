@@ -111,6 +111,24 @@
   color: var(--muted-foreground);
 }
 
+/* 읽기 전용 표시 모드 — 중앙 정렬 */
+.inputWrapReadOnly {
+  justify-content: center;
+}
+
+/* 최근 검색 키워드 — 컴팩트 높이 */
+.resultItemCompact {
+  padding: 7px 16px;
+}
+
+/* 최근 검색 날짜 — X 버튼 왼쪽 */
+.recentDate {
+  font-size: var(--fs-overline, 0.6875rem);
+  color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 /* --- Dropdown --- */
 
 .dropdown {
@@ -389,18 +407,49 @@
   transform: scale(0.97);
 }
 
-/* ── 드롭다운 푸터 내 "정보 추가 요청" 버튼 (검색어가 있을 때 항상 노출) ── */
-.requestFooter {
-  border-top: 1px solid var(--border);
-  padding: 12px 16px;
+/* ── 정확히 일치하는 항목 없음 안내 배너 ── */
+.noExactMatch {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 4px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
 }
 
-.requestFooter .requestLink {
-  width: 100%;
-  justify-content: center;
+.noExactMatchText {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.noExactMatchBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  background: var(--card);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.12s, border-color 0.12s;
+}
+
+@media (hover: hover) {
+  .noExactMatchBtn:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+    border-color: var(--primary, #1b6b5a);
+  }
 }
 
 /* ── Mobile fullscreen expanded overlay ── */
@@ -443,12 +492,13 @@
   }
 }
 
-/* 풀스크린 오버레이에서의 입력 래퍼 — 기존 large 스타일 오버라이드 */
+/* 풀스크린 오버레이에서의 입력 래퍼 — 히어로 검색창과 동일한 pill 스타일 */
 .inputWrapExpanded {
-  border-radius: 12px;
+  border-radius: 100px;
   min-height: 48px;
-  padding: 10px 12px;
-  box-shadow: none;
+  padding: 10px 16px;
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 20%, var(--border, #e5e7eb));
+  box-shadow: 0 2px 12px rgba(27, 107, 90, 0.06);
   animation: expandInputPop 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 

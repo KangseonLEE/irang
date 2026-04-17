@@ -1,0 +1,64 @@
+/* 데스크탑 전용 플로팅 스크롤-투-탑 버튼 */
+.button {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: var(--z-header);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 90%, transparent);
+  backdrop-filter: blur(8px);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+  pointer-events: none;
+}
+
+/* 데스크탑에서만 표시 (768px+ — MobileNav가 없는 구간) */
+@media (min-width: 768px) {
+  .button {
+    display: flex;
+  }
+}
+
+.button.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (hover: hover) {
+  .button:hover {
+    background: var(--card);
+    color: var(--primary, #1b6b5a);
+    border-color: var(--primary, #1b6b5a);
+  }
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.button:active {
+  transform: translateY(0) scale(0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}

@@ -394,6 +394,16 @@ function scoreItemMulti(item: SearchItem, terms: string[]): number {
 // ---------------------------------------------------------------------------
 
 /**
+ * 검색 결과 중 제목이 쿼리와 정확히 일치하는 항목이 있는지 확인.
+ * (대소문자 무시, 양쪽 공백 제거)
+ */
+export function hasExactMatch(query: string, results: SearchItem[]): boolean {
+  const q = query.trim().toLowerCase();
+  if (q.length === 0) return false;
+  return results.some((r) => r.title.toLowerCase() === q);
+}
+
+/**
  * 통합 검색 (드롭다운용) — 최대 10개 반환, 타입별 최대 3개.
  * 관련도 순으로 섹션 순서가 동적 결정됨.
  *   예: "사과" → 작물 섹션 먼저, "전남" → 지역 섹션 먼저

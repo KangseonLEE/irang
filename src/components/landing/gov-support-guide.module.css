@@ -8,6 +8,22 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 640px) {
+  .section {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 /* ── 헤더 ── */
@@ -117,6 +133,29 @@
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
+  /* 모바일: 좌우 패딩으로 카드 잘림 방지 */
+  margin-left: -16px;
+  margin-right: -16px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 640px) {
+  .track {
+    margin-left: -24px;
+    margin-right: -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .track {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .track::-webkit-scrollbar { display: none; }
@@ -128,8 +167,8 @@
 
 .card {
   --card-color: var(--primary, #1b6b5a);
-  flex: 0 0 calc(45% - 8px);
-  height: 280px;
+  flex: 0 0 calc(72% - 8px);
+  height: 360px;
   perspective: 800px;
   text-decoration: none;
   color: inherit;
@@ -266,8 +305,8 @@
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   border-top: 4px solid var(--card-color);
-  padding: 24px 18px 20px;
-  gap: 14px;
+  padding: 20px 16px 16px;
+  gap: 10px;
 }
 
 @media (min-width: 640px) {
@@ -286,7 +325,7 @@
 /* ── 앞면 내부 (컬러 배경 위 흰색 텍스트) ── */
 .frontTitle {
   margin: 0;
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #fff;
 }
@@ -296,7 +335,7 @@
 }
 
 .frontSub {
-  font-size: 1.0625rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.85);
 }
@@ -307,11 +346,23 @@
 
 .frontDesc {
   margin: 4px 0 0;
-  font-size: var(--fs-body, 1rem);
+  font-size: var(--fs-body-sm, 0.875rem);
   font-weight: 500;
   color: rgba(255, 255, 255, 0.7);
-  line-height: 1.6;
+  line-height: 1.5;
   word-break: keep-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .frontDesc {
+    font-size: var(--fs-body, 1rem);
+    line-height: 1.6;
+    -webkit-line-clamp: unset;
+  }
 }
 
 .frontTags {
@@ -352,7 +403,7 @@
 }
 
 .backAmount {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 800;
   color: var(--card-color);
   letter-spacing: -0.02em;
@@ -373,11 +424,19 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 10px 12px;
-  border-radius: 12px;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--card-color) 6%, transparent);
   min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .backChip {
+    gap: 3px;
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
 }
 
 .backChipLabel {
@@ -389,11 +448,15 @@
 }
 
 .backChipValue {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--foreground, #111827);
   line-height: 1.4;
   word-break: keep-all;
+}
+
+@media (min-width: 640px) {
+  .backChipValue { font-size: 0.8125rem; }
 }
 
 /* 핵심 자격 */
@@ -422,25 +485,41 @@
 }
 
 .backReqItem {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--foreground, #111827);
-  line-height: 1.5;
+  line-height: 1.4;
   word-break: keep-all;
-  padding-left: 16px;
+  padding-left: 14px;
   position: relative;
+}
+
+@media (min-width: 640px) {
+  .backReqItem {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    padding-left: 16px;
+  }
 }
 
 .backReqItem::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 7px;
-  width: 6px;
-  height: 6px;
+  top: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--card-color);
   opacity: 0.4;
+}
+
+@media (min-width: 640px) {
+  .backReqItem::before {
+    top: 7px;
+    width: 6px;
+    height: 6px;
+  }
 }
 
 /* CTA 버튼 */
@@ -450,14 +529,21 @@
   justify-content: center;
   gap: 6px;
   margin-top: auto;
-  padding: 10px 20px;
+  padding: 8px 16px;
   border-radius: 100px;
   background: var(--card-color);
   color: #fff;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   align-self: flex-start;
   transition: opacity 0.15s;
+}
+
+@media (min-width: 640px) {
+  .backCta {
+    padding: 10px 20px;
+    font-size: 0.875rem;
+  }
 }
 
 @media (hover: hover) {

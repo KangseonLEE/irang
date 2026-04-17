@@ -6,10 +6,10 @@ import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, MessageSquarePlus } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchAll, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
+import { searchAll, hasExactMatch, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import { logSearch } from "@/lib/supabase";
-import SearchGroup from "@/components/search/search-group";
+import SearchPageSearchBar from "@/components/search/search-page-search-bar";
 import s from "./page.module.css";
 
 const TYPE_META: Record<
@@ -39,7 +39,7 @@ function SearchPageFallback() {
   return (
     <div className={s.page}>
       <div className={s.searchWrap}>
-        <SearchGroup size="default" placeholder="지역, 작물, 지원사업 검색" autoFocus />
+        <SearchPageSearchBar />
       </div>
       <div className={s.emptyQuery}>
         <Search size={40} className={s.emptyIcon} />
@@ -87,12 +87,16 @@ function SearchPageContent() {
     }
   }, [query, totalCount]);
 
-  // 최근 검색어 (localStorage)
+  // 최근 검색어 (localStorage — 날짜 포함 형식 호환)
   const recentSearches = useMemo(() => {
-    if (typeof window === "undefined") return [];
+    if (typeof window === "undefined") return [] as { query: string; date: string }[];
     try {
       const raw = localStorage.getItem("irang-recent-searches");
-      return raw ? (JSON.parse(raw) as string[]).slice(0, 5) : [];
+      if (!raw) return [];
+      const parsed = JSON.parse(raw) as Array<string | { query: string; date: string }>;
+      return parsed.slice(0, 10).map((item) =>
+        typeof item === "string" ? { query: item, date: "" } : item,
+      );
     } catch {
       return [];
     }
@@ -103,7 +107,7 @@ function SearchPageContent() {
     <div className={s.page}>
       {/* 검색바 */}
       <div className={s.searchWrap}>
-        <SearchGroup size="default" placeholder="지역, 작물, 지원사업 검색" autoFocus />
+        <SearchPageSearchBar />
       </div>
 
       {/* 결과 헤더 */}
@@ -154,14 +158,14 @@ function SearchPageContent() {
             <div className={s.recentSection}>
               <h2 className={s.recentTitle}>최근 검색어</h2>
               <div className={s.recentTags}>
-                {recentSearches.map((q) => (
+                {recentSearches.map((r) => (
                   <Link
-                    key={q}
-                    href={`/search?q=${encodeURIComponent(q)}`}
+                    key={r.query}
+                    href={`/search?q=${encodeURIComponent(r.query)}`}
                     className={s.recentTag}
                   >
                     <Search size={12} />
-                    {q}
+                    {r.query}
                   </Link>
                 ))}
               </div>
@@ -231,6 +235,29 @@ function SearchPageContent() {
               </section>
             );
           })}
+        </div>
+      )}
+
+      {/* 정확히 일치하는 항목 없음 안내 — 연관 결과는 있지만 exact match 없을 때 */}
+      {query && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(query, results) && (
+        <div className={s.noExactMatch}>
+          <div className={s.noExactMatchContent}>
+            <p className={s.noExactMatchText}>
+              &lsquo;{query}&rsquo;에 정확히 일치하는 항목이 없어요
+            </p>
+            <p className={s.noExactMatchHint}>
+              연관 결과를 표시하고 있어요. 원하는 정보가 없다면 추가를 요청해 주세요.
+            </p>
+          </div>
+          <a
+            href={`https://tally.so/r/9qv8lp?keyword=${encodeURIComponent(query.trim())}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={s.noExactMatchBtn}
+          >
+            <MessageSquarePlus size={16} />
+            항목 추가 요청
+          </a>
         </div>
       )}
 

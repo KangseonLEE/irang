@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { SearchOverlayProvider } from "@/components/search/search-overlay";
+import { ScrollToTopButton } from "@/components/layout/scroll-to-top-button";
 import { FeedbackTrigger } from "@/components/feedback/feedback-trigger";
 import { JsonLd } from "@/components/seo/json-ld";
 import { validateEnv } from "@/lib/env";
@@ -144,6 +145,7 @@ export default function RootLayout({
           <main className={s.main}>{children}</main>
           <Footer />
           <MobileNav />
+          <ScrollToTopButton />
           <FeedbackTrigger />
         </SearchOverlayProvider>
       </body>
