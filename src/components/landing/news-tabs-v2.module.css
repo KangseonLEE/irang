@@ -1,0 +1,380 @@
+/* ==========================================================================
+   NewsTabsV2 — Cinematic Slider (Full-bleed 매거진 커버)
+   한 기사씩 풀 너비, 하단 도트 내비게이션, 크로스페이드 전환
+   ========================================================================== */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── 탭 필 바 ── */
+.tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 7px 18px;
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  background: none;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 100px;
+  cursor: pointer;
+  transition:
+    background 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.tabActive {
+  background: var(--foreground, #111827);
+  color: #fff;
+  border-color: var(--foreground, #111827);
+}
+
+@media (hover: hover) {
+  .tab:not(.tabActive):hover {
+    border-color: var(--foreground, #111827);
+    color: var(--foreground, #111827);
+  }
+}
+
+/* ── 슬라이더 컨테이너 ── */
+.slider {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--muted, #f3f4f6);
+  border: 1px solid var(--border, #e5e7eb);
+  height: 320px;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@media (min-width: 640px) {
+  .slider { height: 280px; }
+}
+
+@media (min-width: 1024px) {
+  .slider { height: 320px; }
+}
+
+/* ── 슬라이드 (크로스페이드) ── */
+.slide {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--foreground, #111827);
+  width: 100%;
+  height: 320px;
+}
+
+@media (min-width: 640px) {
+  .slide {
+    flex-direction: row;
+    height: 280px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .slide { height: 320px; }
+}
+
+/* 슬라이드 업 + 페이드 전환 */
+.slideFadeOut {
+  animation: slideOut 150ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.slideFadeIn {
+  animation: slideIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 이미지 영역 ── */
+.slideVisual {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .slideVisual {
+    width: 50%;
+    height: 100%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .slideVisual { width: 55%; }
+}
+
+.slideImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.slideIllust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary, #1b6b5a) 10%, var(--muted, #f3f4f6)),
+    var(--muted, #f3f4f6)
+  );
+  color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+}
+
+.slideIllust span {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+}
+
+/* ── 텍스트 영역 ── */
+.slideBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 20px;
+  flex: 1;
+  justify-content: center;
+  overflow: hidden;
+  background: #fff;
+}
+
+@media (min-width: 640px) {
+  .slideBody { padding: 32px 28px; }
+}
+
+@media (min-width: 1024px) {
+  .slideBody { padding: 40px 36px; }
+}
+
+.slideBadge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
+}
+
+.slideTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  line-height: var(--lh-snug, 1.4);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: keep-all;
+}
+
+@media (min-width: 768px) {
+  .slideTitle { font-size: 1.25rem; }
+}
+
+@media (min-width: 1024px) {
+  .slideTitle { font-size: 1.375rem; }
+}
+
+@media (hover: hover) {
+  .slide:hover .slideTitle {
+    text-decoration: underline;
+    text-underline-position: under;
+  }
+}
+
+.slideDesc {
+  font-size: var(--fs-body-sm, 0.875rem);
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-normal, 1.5);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.slideMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground, #6b7280);
+  margin-top: auto;
+}
+
+/* ── 하단 썸네일 내비게이션 ── */
+.nav {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.nav::-webkit-scrollbar { display: none; }
+
+.navItem {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+  flex: 1;
+  transition:
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.navItemActive {
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+}
+
+@media (hover: hover) {
+  .navItem:not(.navItemActive):hover {
+    border-color: var(--muted-foreground, #6b7280);
+  }
+}
+
+/* 프로그레스 바 */
+.navProgress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--primary, #1b6b5a);
+  border-radius: 0 0 12px 12px;
+  transition: width 0.3s linear;
+}
+
+.navItem {
+  position: relative;
+  overflow: hidden;
+}
+
+.navThumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--muted, #f3f4f6);
+}
+
+.navThumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.navThumbFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--primary, #1b6b5a);
+  opacity: 0.3;
+}
+
+.navText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.navTitle {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  line-height: var(--lh-snug, 1.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+}
+
+.navItemActive .navTitle {
+  color: var(--primary, #1b6b5a);
+  font-weight: 700;
+}
+
+.navMeta {
+  font-size: 0.6875rem;
+  color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 모바일: 네비 세로 스택 */
+@media (max-width: 639px) {
+  .nav {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .navItem {
+    flex: unset;
+    width: 100%;
+  }
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  padding: 48px 0;
+  margin: 0;
+}
+
+/* ── 탭 전환 슬라이드 (전체 컨텐츠) ── */
+.contentSlideOutLeft  { animation: cSlideOL 200ms ease-in forwards; }
+.contentSlideInRight  { animation: cSlideIR 250ms ease-out forwards; }
+.contentSlideOutRight { animation: cSlideOR 200ms ease-in forwards; }
+.contentSlideInLeft   { animation: cSlideIL 250ms ease-out forwards; }
+
+@keyframes cSlideOL { from { opacity:1; transform:translateX(0) } to { opacity:0; transform:translateX(-40px) } }
+@keyframes cSlideIR { from { opacity:0; transform:translateX(40px) } to { opacity:1; transform:translateX(0) } }
+@keyframes cSlideOR { from { opacity:1; transform:translateX(0) } to { opacity:0; transform:translateX(40px) } }
+@keyframes cSlideIL { from { opacity:0; transform:translateX(-40px) } to { opacity:1; transform:translateX(0) } }

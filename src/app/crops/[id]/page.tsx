@@ -52,6 +52,8 @@ import { DataSource } from "@/components/ui/data-source";
 import { Icon } from "@/components/ui/icon";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { YouthCaseCards } from "@/components/youth-cases/youth-case-cards";
+import { fetchYouthCasesForCrop } from "@/lib/api/rda-youth";
 import { AnchorTabNav } from "./anchor-tab-nav";
 import s from "./page.module.css";
 
@@ -175,6 +177,9 @@ export default async function CropDetailPage({
     .map((rid) => CROPS.find((c) => c.id === rid))
     .filter((c): c is NonNullable<typeof c> => c != null);
 
+  // RDA 청년농 사례 (API 실패 시 빈 배열)
+  const youthCases = await fetchYouthCasesForCrop(id).catch(() => []);
+
   const { detail } = data;
 
   // 지원사업 목록으로 이동 시 작물명 + 주요 지역 자동 필터
@@ -192,6 +197,7 @@ export default async function CropDetailPage({
     ...(detail.cultivationSteps?.length ? [{ id: "grow-steps", label: "재배방법" }] : []),
     { id: "income", label: "수익정보" },
     { id: "region", label: "재배지역" },
+    ...(youthCases.length > 0 ? [{ id: "youth-cases", label: "청년농 사례" }] : []),
     { id: "tips", label: "귀농팁" },
   ];
 
@@ -361,6 +367,17 @@ export default async function CropDetailPage({
             majorRegions={detail.majorRegions}
             cropStats={cropStats}
           />
+
+          {/* 청년농 재배 사례 */}
+          {youthCases.length > 0 && (
+            <div id="youth-cases">
+              <YouthCaseCards
+                cases={youthCases}
+                title={`${data.name}를 재배하는 청년농`}
+                description="농촌진흥청 청년농부 사례에서 가져왔어요"
+              />
+            </div>
+          )}
 
           {/* 귀농 팁 */}
           <TipsSection tips={detail.tips} />

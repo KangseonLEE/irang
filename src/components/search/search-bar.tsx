@@ -644,26 +644,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             </div>
           )}
 
-          {/* ── 확장/리치 모드 검색 홈: 추천 검색어 + 바로 탐색 ── */}
+          {/* ── 확장/리치 모드 검색 홈: 인기 검색어 + 바로 탐색 ── */}
           {showRich && query.trim().length === 0 && (
             <>
-              {/* 추천 검색어 태그 */}
-              <div className={s.expandedSection}>
-                <div className={s.sectionLabel}>추천 검색어</div>
-                <div className={s.tagGrid}>
-                  {POPULAR_TAGS.map((tag) => (
-                    <button
-                      key={tag.label}
-                      type="button"
-                      className={s.tagChip}
-                      onClick={() => handleRecentClick(tag.query)}
-                    >
-                      {tag.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* 인기 검색어 */}
               <div className={s.expandedSection}>
                 <div className={s.sectionLabel}>인기 검색어</div>

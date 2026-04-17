@@ -10,9 +10,10 @@ import s from "./interview-carousel.module.css";
 
 interface InterviewCarouselProps {
   items: InterviewCard[];
+  variant?: "light" | "dark";
 }
 
-export function InterviewCarousel({ items }: InterviewCarouselProps) {
+export function InterviewCarousel({ items, variant = "light" }: InterviewCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(1);
@@ -71,7 +72,7 @@ export function InterviewCarousel({ items }: InterviewCarouselProps) {
   const canNext = activeIndex < maxIndex;
 
   return (
-    <div className={s.wrapper}>
+    <div className={`${s.wrapper} ${variant === "dark" ? s.wrapperDark : ""}`}>
       {/* 카드 스크롤 영역 */}
       <div ref={scrollRef} className={s.scrollArea}>
         {items.map((person) => (

@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { GOV_PROGRAMS, type GovProgramRoadmap } from "@/lib/data/gov-roadmap";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
+import { YouthCaseCards } from "@/components/youth-cases/youth-case-cards";
+import type { YouthCaseCard } from "@/lib/api/rda-youth";
 import s from "./page.module.css";
 
 /* ── 섹션 점프 내비 정의 ── */
@@ -28,24 +30,39 @@ const BASE_SECTIONS = [
   { id: "obligations", label: "유의사항" },
 ];
 
-/** 세부사업이 있는 프로그램은 "세부사업" 탭을 동적 추가 */
-function getSectionNav(program: GovProgramRoadmap) {
+/** 세부사업·청년사례 탭을 동적 추가 */
+function getSectionNav(program: GovProgramRoadmap, hasYouthCases = false) {
+  const nav = [...BASE_SECTIONS];
   if (program.subPrograms && program.subPrograms.length > 0) {
-    const nav = [...BASE_SECTIONS];
     // "유의사항" 앞에 "세부사업" 삽입
     nav.splice(3, 0, { id: "subprograms", label: "세부사업" });
-    return nav;
   }
-  return BASE_SECTIONS;
+  if (hasYouthCases) {
+    nav.push({ id: "youth-cases", label: "청년농 사례" });
+  }
+  return nav;
 }
 
 /* ==========================================================================
    RoadmapClient — 탭 전환 + 사업별 콘텐츠 렌더링
    ========================================================================== */
 
-export function RoadmapClient() {
+interface RoadmapClientProps {
+  youthCases?: YouthCaseCard[];
+}
+
+export function RoadmapClient({ youthCases = [] }: RoadmapClientProps) {
   const [activeId, setActiveId] = useState(GOV_PROGRAMS[0].id);
   const program = GOV_PROGRAMS.find((p) => p.id === activeId) ?? GOV_PROGRAMS[0];
+
+  /* URL 해시로 탭 초기 선택 (랜딩 카드 → #forest-village 등) */
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      const match = GOV_PROGRAMS.find((p) => p.id === hash);
+      if (match) setActiveId(match.id);
+    }
+  }, []);
 
   return (
     <>
@@ -71,15 +88,25 @@ export function RoadmapClient() {
       </div>
 
       {/* ── 사업 콘텐츠 ── */}
-      <ProgramContent key={program.id} program={program} />
+      <ProgramContent
+        key={program.id}
+        program={program}
+        youthCases={program.id === "youth-startup" ? youthCases : []}
+      />
     </>
   );
 }
 
 /* ── Sticky 섹션 점프 내비 ── */
-function SectionJumpNav({ program }: { program: GovProgramRoadmap }) {
+function SectionJumpNav({
+  program,
+  hasYouthCases = false,
+}: {
+  program: GovProgramRoadmap;
+  hasYouthCases?: boolean;
+}) {
   const [activeSection, setActiveSection] = useState("summary");
-  const sectionNav = getSectionNav(program);
+  const sectionNav = getSectionNav(program, hasYouthCases);
 
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
@@ -130,7 +157,13 @@ function SectionJumpNav({ program }: { program: GovProgramRoadmap }) {
 }
 
 /* ── 개별 사업 콘텐츠 ── */
-function ProgramContent({ program }: { program: GovProgramRoadmap }) {
+function ProgramContent({
+  program,
+  youthCases = [],
+}: {
+  program: GovProgramRoadmap;
+  youthCases?: YouthCaseCard[];
+}) {
   return (
     <div
       role="tabpanel"
@@ -139,7 +172,7 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
       className={s.tabPanel}
     >
       {/* 섹션 점프 내비 */}
-      <SectionJumpNav program={program} />
+      <SectionJumpNav program={program} hasYouthCases={youthCases.length > 0} />
 
       {/* 요약 */}
       <div id={`summary-${program.id}`} className={s.summaryCard}>
@@ -325,6 +358,18 @@ function ProgramContent({ program }: { program: GovProgramRoadmap }) {
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {/* 청년농 성공 사례 (청년창업농 탭 전용) */}
+      {youthCases.length > 0 && (
+        <section id={`youth-cases-${program.id}`} className={s.section}>
+          <YouthCaseCards
+            cases={youthCases}
+            title="청년농 성공 사례"
+            description="실제로 영농에 정착한 청년들의 이야기예요"
+            inline
+          />
         </section>
       )}
 

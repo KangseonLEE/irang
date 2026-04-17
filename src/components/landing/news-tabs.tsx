@@ -18,8 +18,8 @@ export interface UnifiedNewsItem {
   naverUrl?: string;
   /** OG 이미지 썸네일 URL (선택) */
   thumbnail?: string;
-  /** 탭 분류: news(전체 뉴스), education, event, program */
-  category: "news" | "education" | "event" | "program";
+  /** 탭 분류: news(전체 뉴스), education, event, program, policy */
+  category: "news" | "education" | "event" | "program" | "policy";
   /** 정렬용 타임스탬프 (ms) */
   _ts?: number;
 }
@@ -30,6 +30,7 @@ interface NewsTabsProps {
 
 const TABS = [
   { id: "all", label: "전체" },
+  { id: "policy", label: "정책" },
   { id: "education", label: "교육" },
   { id: "event", label: "행사" },
   { id: "program", label: "지원" },
@@ -65,10 +66,10 @@ export function NewsTabs({ items }: NewsTabsProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
-    if (activeTab === "all") return items.slice(0, 4);
+    if (activeTab === "all") return items.slice(0, 5);
     return items
       .filter((item) => item.category === activeTab)
-      .slice(0, 4);
+      .slice(0, 5);
   }, [activeTab, items]);
 
   // 탭 변경 시 Featured 인덱스 리셋
@@ -109,17 +110,39 @@ export function NewsTabs({ items }: NewsTabsProps) {
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
-  // 자동 전환
+  // 다음 탭으로 슬라이드 전환 (무한 루프용)
+  const advanceTab = useCallback(() => {
+    const tabIds = TABS.map((t) => t.id);
+    const curIdx = tabIds.indexOf(activeTab);
+    const nextIdx = (curIdx + 1) % tabIds.length;
+
+    setTabSlide("out-left");
+    setTimeout(() => {
+      setActiveTab(tabIds[nextIdx]);
+      setTabSlide("in-right");
+      setTimeout(() => {
+        setTabSlide("idle");
+      }, 250);
+    }, 200);
+  }, [activeTab]);
+
+  // 자동 전환 — 탭 내 뉴스를 다 돌면 다음 탭으로 이동 (무한 루프)
   useEffect(() => {
-    if (filtered.length <= 1 || isPaused) return;
+    if (isPaused || filtered.length === 0) return;
 
     const timer = setInterval(() => {
-      const next = (featuredIdx + 1) % filtered.length;
-      transitionTo(next);
+      const nextIdx = featuredIdx + 1;
+      if (nextIdx < filtered.length) {
+        // 같은 탭 내 다음 뉴스
+        transitionTo(nextIdx);
+      } else {
+        // 탭 내 마지막 → 다음 탭으로
+        advanceTab();
+      }
     }, ROTATE_INTERVAL);
 
     return () => clearInterval(timer);
-  }, [filtered.length, isPaused, featuredIdx, transitionTo]);
+  }, [filtered.length, isPaused, featuredIdx, transitionTo, advanceTab]);
 
   // ── 모바일 스와이프로 탭 전환 (슬라이드 애니메이션) ──
   const switchTab = useCallback(

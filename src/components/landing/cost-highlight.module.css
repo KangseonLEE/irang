@@ -1,0 +1,288 @@
+/* ══════════════════════════════════════════
+   비용 핵심 지표 — 히어로 카드 + 보조 라인 카드
+   좌: 텍스트 헤드라인 / 우: 1 히어로(2col) + 3 보조
+   ══════════════════════════════════════════ */
+
+.section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .section {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section { gap: 56px; }
+}
+
+/* ── 좌측 텍스트 ── */
+
+.textSide {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.overline {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  letter-spacing: 0.02em;
+  width: fit-content;
+}
+
+.headline {
+  margin: 0;
+  font-size: var(--fs-h3, 1.5rem);
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.04em;
+  color: var(--foreground, #111827);
+  word-break: keep-all;
+}
+
+.headline em {
+  font-style: normal;
+  color: var(--primary, #1B6B5A);
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+  text-decoration-color: color-mix(in srgb, var(--primary, #1B6B5A) 40%, transparent);
+}
+
+@media (min-width: 640px) {
+  .headline { font-size: var(--fs-h2, 1.75rem); }
+}
+
+.desc {
+  margin: 0;
+  font-size: var(--fs-body-sm, 0.9375rem);
+  line-height: 1.7;
+  color: var(--muted-foreground, #6b7280);
+  word-break: keep-all;
+  max-width: 420px;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: var(--fs-body-sm, 0.9375rem);
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary, #1B6B5A);
+  text-decoration: none;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 85%, #000);
+    box-shadow: 0 4px 16px rgba(27, 107, 90, 0.25);
+  }
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+.source {
+  font-size: var(--fs-overline, 0.6875rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 우측 카드 그리드 ── */
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 1024px) {
+  .cards { gap: 14px; }
+}
+
+/* ── 공통 카드 기본 ── */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  min-height: 150px;
+}
+
+@media (min-width: 640px) {
+  .card { padding: 22px; }
+}
+
+@media (min-width: 1024px) {
+  .card { padding: 24px; }
+}
+
+/* ── 히어로 카드 (첫 번째 = 투자금) ── */
+
+.cardHero {
+  grid-column: 1 / -1;
+  background: var(--primary, #1B6B5A);
+  border-color: var(--primary, #1B6B5A);
+  border-radius: 20px;
+  padding: 24px;
+  min-height: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .cardHero { padding: 28px; }
+}
+
+@media (min-width: 1024px) {
+  .cardHero { padding: 32px; }
+}
+
+.cardHero .cardLabel {
+  color: #fff;
+  font-size: var(--fs-body-sm, 0.9375rem);
+  font-weight: 700;
+}
+
+.cardHero .cardDesc {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: var(--fs-caption, 0.8125rem);
+}
+
+.cardHero .cardBottom {
+  margin-top: 0;
+  padding-top: 0;
+  flex-shrink: 0;
+}
+
+.cardHero .cardNum {
+  font-size: 2.75rem;
+  color: #fff;
+}
+
+.cardHero .cardUnit {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+@media (min-width: 640px) {
+  .cardHero .cardNum { font-size: 3.25rem; }
+}
+
+@media (min-width: 1024px) {
+  .cardHero .cardNum { font-size: 3.75rem; }
+}
+
+/* ── 보조 카드 (나머지 3장) ── */
+
+.cardSub {
+  min-height: 140px;
+}
+
+@media (min-width: 640px) {
+  .cardSub { min-height: 155px; }
+}
+
+@media (min-width: 1024px) {
+  .cardSub { min-height: 165px; }
+}
+
+/* 카드 내부 */
+.cardLabel {
+  font-size: var(--fs-body-sm, 0.9375rem);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.cardDesc {
+  font-size: var(--fs-caption, 0.8125rem);
+  line-height: 1.6;
+  color: var(--muted-foreground, #6b7280);
+  margin: 6px 0 0;
+  word-break: keep-all;
+}
+
+.cardBottom {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.cardNum {
+  font-size: 1.875rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 640px) {
+  .cardNum { font-size: 2.25rem; }
+}
+
+@media (min-width: 1024px) {
+  .cardNum { font-size: 2.5rem; }
+}
+
+.cardUnit {
+  font-size: var(--fs-body-sm, 0.9375rem);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.cardSubNote {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  margin-left: 6px;
+  align-self: baseline;
+}
+
+.cardSource {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--fs-overline, 0.6875rem);
+  color: var(--muted-foreground, #6b7280);
+  font-weight: 400;
+}
+
+/* ── 숫자 컬러 변형 (보조 카드용) ── */
+.numPrimary {
+  color: var(--primary, #1B6B5A);
+}
+
+.numAmber {
+  color: #B45309;
+}
+
+.numMuted {
+  color: var(--foreground, #111827);
+}

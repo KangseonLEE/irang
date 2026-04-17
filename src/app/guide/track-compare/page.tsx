@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GitCompareArrows, Info, ExternalLink } from "lucide-react";
+import { SubPageHero } from "@/components/ui/sub-page-hero";
 import {
   TRACKS,
   TRACK_FIELDS,
@@ -19,16 +20,13 @@ export const revalidate = 86400;
 export default function TrackComparePage() {
   return (
     <div className={s.page}>
-      <header className={s.intro}>
-        <span className={s.kicker}>
-          <GitCompareArrows size={14} strokeWidth={2} />
-          추진체계 비교
-        </span>
-        <h1 className={s.title}>귀농 · 귀산촌, 어떻게 다를까요?</h1>
-        <p className={s.subtitle}>
-          정착 단계의 창업자금·주택구입 지원을 기준으로 정리했어요.
-        </p>
-
+      <SubPageHero
+        variant="flat"
+        overline="추진체계 비교"
+        icon={GitCompareArrows}
+        title="귀농 · 귀산촌, 어떻게 다를까요?"
+        description="정착 단계의 창업자금·주택구입 지원을 기준으로 정리했어요."
+      >
         <div className={s.notice}>
           <Info size={16} className={s.noticeIcon} strokeWidth={2} />
           <span>
@@ -36,7 +34,7 @@ export default function TrackComparePage() {
             참고하세요.
           </span>
         </div>
-      </header>
+      </SubPageHero>
 
       {/* 모바일: Stacked Card */}
       <div className={s.cardList}>

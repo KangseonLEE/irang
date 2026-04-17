@@ -14,6 +14,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
+import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { TimelineLink, AccordionScrollWrapper } from "./timeline-nav";
 import { ChecklistInteractive } from "./checklist-interactive";
@@ -265,23 +266,25 @@ export default function GuidePage() {
   return (
     <div className={s.page}>
       {/* ═══ 히어로 ═══ */}
-      <section className={s.hero}>
-        <span className={s.heroOverline}>PROCESS GUIDE</span>
-        <h1 className={s.heroTitle}>
-          귀농, <span className={s.accent}>5단계</span>로 준비하세요
-        </h1>
-        <div className={s.heroDescGroup}>
-          <p className={s.heroDesc}>
-            정보 탐색부터 정착까지,
-            <br />
-            평균 18~27개월의 여정을 단계별로 안내해 드려요.
-          </p>
-          <p className={s.heroDesc}>
-            각 단계의 체크리스트에 진행 상황을 기록하며
-            <br />
-            놓치는 것 없이 체계적으로 준비할 수 있어요.
-          </p>
-        </div>
+      <SubPageHero
+        overline="PROCESS GUIDE"
+        title="귀농, 5단계로 준비하세요"
+        titleAccent="5단계"
+        description={
+          <>
+            <p>
+              정보 탐색부터 정착까지,
+              <br />
+              평균 18~27개월의 여정을 단계별로 안내해 드려요.
+            </p>
+            <p>
+              각 단계의 체크리스트에 진행 상황을 기록하며
+              <br />
+              놓치는 것 없이 체계적으로 준비할 수 있어요.
+            </p>
+          </>
+        }
+      >
         <figure className={s.heroCostGroup}>
           <span className={s.heroCostBadge}>
             총 예상 비용 약 6,350~6,500만 원
@@ -292,7 +295,7 @@ export default function GuidePage() {
             출처: 농림축산식품부 귀농인 실태조사 기준 평균
           </figcaption>
         </figure>
-      </section>
+      </SubPageHero>
 
       {/* ═══ 개인화 배너 (진단 결과가 있는 재방문 사용자) ═══ */}
       <GuidePersonalize />

@@ -12,6 +12,7 @@ import {
   ArrowRightLeft,
   ExternalLink,
 } from "lucide-react";
+import { SubPageHero } from "@/components/ui/sub-page-hero";
 import {
   SHELTER_SUMMARY,
   SHELTER_EFFECTIVE_DATE,
@@ -43,17 +44,17 @@ const RULE_ICONS: Record<string, typeof Home> = {
 export default function ShelterGuidePage() {
   return (
     <div className={s.page}>
-      <header className={s.intro}>
-        <span className={s.kicker}>
-          <Home size={14} strokeWidth={2} />
-          농촌체류형 쉼터
-        </span>
-        <h1 className={s.title}>농지에 집 대신 쉼터, 어떻게 설치할까요?</h1>
-        <p className={s.subtitle}>{SHELTER_SUMMARY}</p>
+      <SubPageHero
+        variant="flat"
+        overline="농촌체류형 쉼터"
+        icon={Home}
+        title="농지에 집 대신 쉼터, 어떻게 설치할까요?"
+        description={SHELTER_SUMMARY}
+      >
         <span className={s.effectiveBadge}>
           시행 {SHELTER_EFFECTIVE_DATE}
         </span>
-      </header>
+      </SubPageHero>
 
       {/* ── 미확정 안내 (최상단에 배치 — 사용자 인지 최우선) ── */}
       <aside className={s.unverified} aria-label="확인 필요 사항">

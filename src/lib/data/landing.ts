@@ -72,6 +72,7 @@ export interface TrendStat {
   value: string;
   label: string;
   sub: string;
+  desc: string;
   href: string;
 }
 
@@ -80,18 +81,21 @@ export const trendStats: TrendStat[] = [
     value: "1.2만",
     label: "2024 귀농 인구",
     sub: "귀촌 42.2만 포함 시 +5.7%",
+    desc: "매년 꾸준히 도시를 떠나 농촌에 정착하는 사람들이 늘고 있어요",
     href: "/stats/population",
   },
   {
     value: "13.1%",
     label: "청년 귀농 비율",
     sub: "역대 최고 기록",
+    desc: "2030 세대의 귀농이 빠르게 늘며 농촌의 평균 연령이 낮아지고 있어요",
     href: "/stats/youth",
   },
   {
     value: "70%",
     label: "귀농 만족도",
     sub: "도시 대비 생활비 25%↓",
+    desc: "귀농 후 삶의 질이 높아졌다고 응답한 비율이에요",
     href: "/stats/satisfaction",
   },
 ];
@@ -234,6 +238,34 @@ export const trendProgramNews: NewsItem[] = [
     source: "뉴스로",
     date: "2025.06",
     url: "https://www.newsro.kr/article243/1008700/",
+  },
+];
+
+/** 정부·정책 폴백 뉴스 — API 장애 시 표시 (실제 기사 URL, HTTP 200 검증 완료) */
+export const trendPolicyNews: NewsItem[] = [
+  {
+    title: "月15만원의 힘…농어촌 인구 반등 물꼬텄다",
+    source: "서울경제",
+    date: "2026.03",
+    url: "https://www.sedaily.com/article/20014738",
+  },
+  {
+    title: "농식품부, 귀농시 6219만원·귀촌시 4563만 원 필요",
+    source: "농수축산신문",
+    date: "2026.03",
+    url: "http://www.aflnews.co.kr/news/articleView.html?idxno=315465",
+  },
+  {
+    title: "농촌출신은 귀농, 도시출신은 귀촌",
+    source: "내일신문",
+    date: "2026.02",
+    url: "https://www.naeil.com/news/read/579260",
+  },
+  {
+    title: "송미령 농림축산식품부 장관, 전방위 농정 대응 강화",
+    source: "CBC뉴스",
+    date: "2026.04",
+    url: "https://www.cbci.co.kr/news/articleView.html?idxno=566385",
   },
 ];
 

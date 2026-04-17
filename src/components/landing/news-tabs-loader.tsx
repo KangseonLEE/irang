@@ -9,6 +9,7 @@ import {
   trendEduNews,
   trendEventNews,
   trendProgramNews,
+  trendPolicyNews,
 } from "@/lib/data/landing";
 import { NewsTabs, type UnifiedNewsItem } from "./news-tabs";
 
@@ -76,6 +77,8 @@ export async function NewsTabsLoader() {
   const eventNews = await fetchNewsByCategory("event");
   await sleep(1500);
   const programNews = await fetchNewsByCategory("program");
+  await sleep(1500);
+  const policyNews = await fetchNewsByCategory("policy");
 
   const toItems = (
     articles: NewsArticle[] | null,
@@ -100,12 +103,14 @@ export async function NewsTabsLoader() {
   const eduItems = dedupWithin(toItems(eduNews, trendEduNews, "education"));
   const eventItems = dedupWithin(toItems(eventNews, trendEventNews, "event"));
   const programItems = dedupWithin(toItems(programNews, trendProgramNews, "program"));
+  const policyItems = dedupWithin(toItems(policyNews, trendPolicyNews, "policy"));
 
   const unifiedNews: UnifiedNewsItem[] = [
     ...newsItems,
     ...eduItems,
     ...eventItems,
     ...programItems,
+    ...policyItems,
   ].sort((a, b) => (b._ts ?? 0) - (a._ts ?? 0));
 
   // ── OG 이미지: 동시 3개씩 병렬 추출 (너무 많으면 타임아웃) ──

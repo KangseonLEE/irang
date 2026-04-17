@@ -24,6 +24,7 @@ const CATEGORY_QUERIES: Record<string, string> = {
   education: "귀농 교육 농업 연수",
   event: "농촌 축제 체험 박람회",
   program: "귀농 지원사업 보조금 정착",
+  policy: "귀농 귀촌 정부 정책 발표",
 };
 
 // ─── 타입 ───
@@ -250,7 +251,7 @@ export async function fetchLatestNews(): Promise<NewsArticle[] | null> {
  * - program: 지원사업·보조금 관련 기사
  */
 export async function fetchNewsByCategory(
-  category: "education" | "event" | "program"
+  category: "education" | "event" | "program" | "policy"
 ): Promise<NewsArticle[] | null> {
   const query = CATEGORY_QUERIES[category];
   if (!query) return null;

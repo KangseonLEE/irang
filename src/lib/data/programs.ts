@@ -590,8 +590,8 @@ export function filterProgramsPaginated(
 
 /** RDA API 응답 → SupportProgram 변환 */
 function mapRdaPolicy(item: RdaPolicyItem): SupportProgram {
-  const region = mapAreaName(item.area1Nm);
-  const status = deriveStatus(item.applStDt, item.appEdDt);
+  const region = mapAreaName(item.area1Nm ?? "전국");
+  const status = deriveStatus(item.applStDt, item.applEdDt);
 
   return {
     id: `rda-${item.seq}`,
@@ -606,7 +606,7 @@ function mapRdaPolicy(item: RdaPolicyItem): SupportProgram {
     eligibilityAgeMax: 65,
     eligibilityDetail: item.eduTarget || "공고문 참조",
     applicationStart: item.applStDt,
-    applicationEnd: item.appEdDt,
+    applicationEnd: item.applEdDt,
     status,
     relatedCrops: [],
     sourceUrl: item.infoUrl || "",

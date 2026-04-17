@@ -1,0 +1,541 @@
+/* ══════════════════════════════════════════
+   귀농 길잡이 — 5장 플립 카드 그리드
+   앞면: 아이콘 + 제목 + 서브
+   뒷면: 배경 이미지 + 상세 설명
+   ══════════════════════════════════════════ */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── 헤더 ── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  letter-spacing: 0.02em;
+  width: fit-content;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  color: var(--foreground, #111827);
+  letter-spacing: -0.04em;
+  line-height: var(--lh-tight);
+}
+
+.title em {
+  font-style: normal;
+  color: var(--primary, #1b6b5a);
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+  text-decoration-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+}
+
+@media (min-width: 640px) {
+  .title { font-size: var(--fs-h2); }
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--fs-body-sm, 0.9375rem);
+  color: var(--muted-foreground, #6b7280);
+  word-break: keep-all;
+}
+
+.headerRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  padding: 6px 4px;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+
+@media (min-width: 640px) {
+  .viewAll { font-size: var(--fs-body-sm); }
+}
+
+@media (hover: hover) {
+  .viewAll:hover {
+    color: color-mix(in srgb, var(--primary, #1b6b5a) 80%, #000);
+  }
+}
+
+.viewAll:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ════════════════════════════════════════
+   카드 트랙 — 모바일 가로 스크롤 / 데스크탑 5열
+   ════════════════════════════════════════ */
+
+.track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+
+.track::-webkit-scrollbar { display: none; }
+
+/* ════════════════════════════════════════
+   플립 카드 구조
+   .card > .cardInner > .cardFront + .cardBack
+   ════════════════════════════════════════ */
+
+.card {
+  --card-color: var(--primary, #1b6b5a);
+  flex: 0 0 calc(45% - 8px);
+  height: 280px;
+  perspective: 800px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 640px) {
+  .card {
+    flex: 0 0 calc(42% - 8px);
+    height: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    flex: 0 0 calc(38% - 8px);
+    height: 360px;
+  }
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--card-color);
+  outline-offset: 2px;
+  border-radius: 20px;
+}
+
+.cardInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(.25, .8, .25, 1);
+  transform-style: preserve-3d;
+}
+
+/* 호버로 플립 (데스크탑) */
+@media (hover: hover) {
+  .card:hover .cardInner {
+    transform: rotateY(180deg);
+  }
+}
+
+/* 터치 디바이스: 클래스로 토글 */
+.cardFlipped .cardInner {
+  transform: rotateY(180deg);
+}
+
+/* ── 앞면 / 뒷면 공통 ── */
+.cardFront,
+.cardBack {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+/* ── 앞면: 컬러 배경 + 이미지 + 제목 ── */
+.cardFront {
+  gap: 10px;
+  padding: 22px 18px;
+  background: var(--card-color);
+  justify-content: flex-end;
+}
+
+@media (min-width: 1024px) {
+  .cardFront { padding: 26px 22px; }
+}
+
+.frontContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* 플립 힌트 아이콘 */
+.flipHint {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+@media (hover: hover) {
+  .card:hover .flipHint { opacity: 0; }
+}
+
+/* 앞면 배경 이미지 */
+.cardBg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.25;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 85%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 85%);
+}
+
+/* 앞면 어둡게 오버레이 — 이미지 위, 텍스트 아래 */
+.cardFront::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 뒷면: 흰 배경 + 구조화 요약 ── */
+.cardBack {
+  transform: rotateY(180deg);
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-top: 4px solid var(--card-color);
+  padding: 24px 18px 20px;
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .cardBack { padding: 32px 22px 22px; gap: 16px; }
+}
+
+@media (min-width: 1024px) {
+  .cardBack { padding: 36px 24px 24px; }
+}
+
+/* 상단 컬러 테두리 */
+.backAccent {
+  display: none;
+}
+
+/* ── 앞면 내부 (컬러 배경 위 흰색 텍스트) ── */
+.frontTitle {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+@media (min-width: 640px) {
+  .frontTitle { font-size: 2rem; }
+}
+
+.frontSub {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+@media (min-width: 640px) {
+  .frontSub { font-size: 1.125rem; }
+}
+
+.frontDesc {
+  margin: 4px 0 0;
+  font-size: var(--fs-body, 1rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.frontTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.frontTag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+
+/* ── 뒷면 내부 ── */
+
+/* 금액 히어로 블록 */
+.backAmountBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.backAmountLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.backAmount {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--card-color);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+@media (min-width: 640px) {
+  .backAmount { font-size: 1.375rem; }
+}
+
+/* 정보 칩 그리드 */
+.backChips {
+  display: flex;
+  gap: 8px;
+}
+
+.backChip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--card-color) 6%, transparent);
+  min-width: 0;
+}
+
+.backChipLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--card-color);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.backChipValue {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+/* 핵심 자격 */
+.backReqs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+
+.backReqLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
+  letter-spacing: 0.02em;
+}
+
+.backReqList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.backReqItem {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--foreground, #111827);
+  line-height: 1.5;
+  word-break: keep-all;
+  padding-left: 16px;
+  position: relative;
+}
+
+.backReqItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--card-color);
+  opacity: 0.4;
+}
+
+/* CTA 버튼 */
+.backCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: auto;
+  padding: 10px 20px;
+  border-radius: 100px;
+  background: var(--card-color);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  align-self: flex-start;
+  transition: opacity 0.15s;
+}
+
+@media (hover: hover) {
+  .backCta:hover { opacity: 0.9; }
+}
+
+/* ════════════════════════════════════════
+   모바일 컨트롤
+   ════════════════════════════════════════ */
+
+/* ════════════════════════════════════════
+   컨트롤: 화살표 + 페이지 번호 + 프로그레스 바
+   ════════════════════════════════════════ */
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.arrows {
+  display: flex;
+  gap: 6px;
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border, #d1d5db);
+  background: var(--card, #fff);
+  color: var(--muted-foreground, #6b7280);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+@media (hover: hover) {
+  .arrow:hover {
+    border-color: var(--primary, #1b6b5a);
+    color: var(--primary, #1b6b5a);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+  }
+}
+
+.arrow:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.pageNum {
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pageNum strong {
+  color: var(--foreground, #111827);
+  font-weight: 700;
+}
+
+.progressBar {
+  height: 3px;
+  border-radius: 100px;
+  background: var(--border, #e5e7eb);
+  overflow: hidden;
+  min-width: 60px;
+  max-width: 160px;
+  flex: 1;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 100px;
+  background: var(--primary, #1b6b5a);
+  transition: width 0.3s ease;
+}

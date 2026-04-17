@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BookOpen, GitCompareArrows } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { fetchYouthCasesForRoadmap } from "@/lib/api/rda-youth";
 import { RoadmapClient } from "./roadmap-client";
 import s from "./page.module.css";
 
@@ -10,15 +11,20 @@ import s from "./page.module.css";
 export const metadata: Metadata = {
   title: "정부사업 진입 가이드",
   description:
-    "귀농귀촌 지원사업, 청년창업농, 농지은행, 귀산촌 자금까지. 4대 핵심 정부사업의 자격 요건, 신청 절차, 필요 서류를 한눈에 확인하세요.",
+    "귀농귀촌 지원사업, 청년창업농, 농지은행, 귀산촌 자금, 스마트팜까지. 5대 핵심 정부사업의 자격 요건, 신청 절차, 필요 서류를 한눈에 확인하세요.",
   openGraph: {
     title: "정부사업 진입 가이드 | 이랑",
     description:
-      "4대 핵심 정부사업의 자격 요건, 신청 절차, 필요 서류를 한눈에 확인하세요.",
+      "5대 핵심 정부사업의 자격 요건, 신청 절차, 필요 서류를 한눈에 확인하세요.",
   },
 };
 
-export default function ProgramRoadmapPage() {
+/** 1시간마다 청년농 사례 데이터 재검증 */
+export const revalidate = 3600;
+
+export default async function ProgramRoadmapPage() {
+  const youthCases = await fetchYouthCasesForRoadmap(6).catch(() => []);
+
   return (
     <div className={s.page}>
       {/* ── 히어로 ── */}
@@ -28,12 +34,12 @@ export default function ProgramRoadmapPage() {
           정부사업, <span className={s.accent}>어떻게 신청</span>하나요?
         </h1>
         <p className={s.heroDesc}>
-          <AutoGlossary text="귀농·귀촌을 위한 4대 핵심 정부사업의 자격 요건부터 신청 절차, 필요 서류, 선정 후 의무사항까지 한곳에서 확인하세요." />
+          <AutoGlossary text="귀농·귀촌을 위한 5대 핵심 정부사업의 자격 요건부터 신청 절차, 필요 서류, 선정 후 의무사항까지 한곳에서 확인하세요." />
         </p>
       </section>
 
       {/* ── 인터랙티브 영역 (클라이언트) ── */}
-      <RoadmapClient />
+      <RoadmapClient youthCases={youthCases} />
 
       {/* ── CTA ── */}
       <section className={s.ctaSection}>

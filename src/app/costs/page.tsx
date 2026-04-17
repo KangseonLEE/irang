@@ -16,6 +16,7 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
+import { SubPageHero } from "@/components/ui/sub-page-hero";
 import {
   costSummary,
   costByAge,
@@ -168,7 +169,7 @@ const STRATEGIES: {
   },
   {
     title: "청년창업농 영농정착 지원",
-    desc: "만 18~39세 청년 창업농에게 월 최대 110만 원을 최대 3년간 지원합니다.",
+    desc: "만 18~39세 청년 창업농에게 월 최대 110만 원을 최대 3년간 지원해요.",
     saving: "최대 3,960만 원",
     href: "/programs/roadmap",
     type: "보조금",
@@ -220,17 +221,12 @@ export default function CostsPage() {
         }}
       />
       {/* ═══ 히어로 ═══ */}
-      <section className={s.hero}>
-        <span className={s.heroOverline}>Cost Guide</span>
-        <h1 className={s.heroTitle}>
-          귀농, <span className={s.heroAccent}>실제로 얼마</span>가 필요할까?
-        </h1>
-        <p className={s.heroDesc}>
-          평균 6,219만 원. 하지만 연령, 작물, 지역에 따라 달라집니다.
-          <br />
-          내 상황에 맞는 현실적 비용을 확인하세요.
-        </p>
-      </section>
+      <SubPageHero
+        overline="Cost Guide"
+        title="귀농, 실제로 얼마가 필요할까?"
+        titleAccent="실제로 얼마"
+        description="평균 6,219만 원. 하지만 연령, 작물, 지역에 따라 달라요. 내 상황에 맞는 현실적 비용을 확인하세요."
+      />
 
       {/* ═══ 비용 요약 스냅샷 ═══ */}
       <section className={s.snapshot} aria-label="비용 요약">
@@ -275,7 +271,7 @@ export default function CostsPage() {
           연령별 초기 투자 비용
         </h2>
         <p className={s.sectionDesc}>
-          <AutoGlossary text="40대의 투자금이 가장 높은 이유는 시설 투자(하우스, 스마트팜)에 적극적이기 때문입니다. 60대는 소규모 노지 재배를 선택하는 경우가 많아 투자금이 낮습니다." />
+          <AutoGlossary text="40대의 투자금이 가장 높은 이유는 시설 투자(하우스, 스마트팜)에 적극적이기 때문이에요. 60대는 소규모 노지 재배를 선택하는 경우가 많아 투자금이 낮아요." />
         </p>
         <div
           className={s.barChart}
@@ -307,7 +303,7 @@ export default function CostsPage() {
           작물별 초기 투자, 이렇게 다릅니다
         </h2>
         <p className={s.sectionDesc}>
-          <AutoGlossary text="평균 6,219만 원이라는 숫자는 작물에 따라 크게 달라집니다. 콩은 500만 원 미만으로도 시작할 수 있지만, 딸기 하우스는 1억 원 이상 투자가 필요합니다." />
+          <AutoGlossary text="평균 6,219만 원이라는 숫자는 작물에 따라 크게 달라요. 콩은 500만 원 미만으로도 시작할 수 있지만, 딸기 하우스는 1억 원 이상 투자가 필요해요." />
         </p>
 
         {/* ── 모바일: 가로 스크롤 카드 ── */}

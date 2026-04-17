@@ -23,16 +23,25 @@
 
 .inputWrapLarge {
   composes: inputWrap;
-  padding: 12px 20px;
+  padding: 14px 22px;
   font-size: var(--fs-body-sm);
-  min-height: 52px;
+  min-height: 54px;
 }
 
 @media (min-width: 640px) {
   .inputWrapLarge {
-    padding: 14px 24px;
+    padding: 16px 28px;
+    font-size: 1.0625rem;
+    min-height: 60px;
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .inputWrapLarge {
+    padding: 18px 32px;
     font-size: 1.125rem;
-    min-height: 56px;
+    min-height: 64px;
   }
 }
 
@@ -109,19 +118,18 @@
   top: 100%;
   left: 0;
   right: 0;
-  margin-top: 8px;
+  margin-top: 0;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  max-height: 60vh;
-  overflow-y: auto;
+  overflow: hidden;
   z-index: var(--z-overlay);
 }
 
 @media (min-width: 640px) {
   .dropdown {
-    max-height: 400px;
+    max-height: none;
   }
 }
 

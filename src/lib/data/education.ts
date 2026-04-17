@@ -364,8 +364,8 @@ export function filterEducation(filters: EducationFilters): EducationCourse[] {
 
 /** RDA API 응답 → EducationCourse 변환 */
 function mapRdaEdu(item: RdaEduItem): EducationCourse {
-  const region = mapAreaName(item.area1Nm);
-  const status = deriveStatus(item.applStDt, item.appEdDt);
+  const region = mapAreaName(item.area1Nm ?? "전국");
+  const status = deriveStatus(item.applStDt, item.applEdDt);
 
   // 교육 상태: 교육 신청기간 기준 (applStDt/appEdDt)
   let mappedStatus: EducationCourse["status"];
@@ -388,7 +388,7 @@ function mapRdaEdu(item: RdaEduItem): EducationCourse {
     description: stripHtml(item.contents).slice(0, 300),
     capacity: item.eduCnt ? parseInt(item.eduCnt, 10) || null : null,
     applicationStart: item.applStDt,
-    applicationEnd: item.appEdDt,
+    applicationEnd: item.applEdDt,
     status: mappedStatus,
     level: "초급",              // RDA API에 수준 필드 없음 → 기본값
     url: item.infoUrl || "",

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
+import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { interviews } from "@/lib/data/landing";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
@@ -23,16 +24,18 @@ export default function InterviewsPage() {
   return (
     <div className={s.page}>
       {/* ═══ 히어로 헤더 ═══ */}
-      <header className={s.hero}>
-        <p className={s.heroOverline}>귀농인 이야기</p>
-        <h1 className={s.heroTitle}>
-          <span className={s.heroTitleAccent}>귀농</span>으로 다시 시작한 사람들
-        </h1>
-        <p className={s.heroDesc}>
-          나이, 지역, 작물 모두 다르지만 한 가지 공통점이 있습니다.
-          <br />
-          &ldquo;후회하지 않는다&rdquo;는 것.
-        </p>
+      <SubPageHero
+        overline="귀농인 이야기"
+        title="귀농으로 다시 시작한 사람들"
+        titleAccent="귀농"
+        description={
+          <p>
+            나이, 지역, 작물 모두 다르지만 한 가지 공통점이 있어요.
+            <br />
+            &ldquo;후회하지 않는다&rdquo;는 것.
+          </p>
+        }
+      >
         <div className={s.heroStats}>
           <div className={s.heroStat}>
             <span className={s.heroStatValue}>{interviews.length}</span>
@@ -51,7 +54,7 @@ export default function InterviewsPage() {
             <span className={s.heroStatLabel}>연령대</span>
           </div>
         </div>
-      </header>
+      </SubPageHero>
 
       {/* ═══ 인터뷰 카드 그리드 ═══ */}
       <section className={s.grid}>

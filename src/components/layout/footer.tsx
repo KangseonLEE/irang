@@ -1,10 +1,6 @@
 import Link from "next/link";
-import { MessageSquare } from "lucide-react";
 import { DisclaimerBadge } from "@/components/ui/disclaimer-badge";
 import s from "./footer.module.css";
-
-const FEEDBACK_URL =
-  process.env.NEXT_PUBLIC_FEEDBACK_URL || "https://tally.so/r/7Rv4aR";
 
 const serviceLinks = [
   { href: "/regions", label: "지역 탐색" },
@@ -30,22 +26,6 @@ export function Footer() {
   return (
     <footer className={s.footer}>
       <div className={s.inner}>
-        {/* Feedback CTA — 푸터 최상단 */}
-        <div className={s.feedbackBar}>
-          <p className={s.feedbackText}>
-            이랑을 더 좋게 만들 수 있도록 의견을 들려주세요.
-          </p>
-          <a
-            href={FEEDBACK_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={s.feedbackButton}
-          >
-            <MessageSquare size={16} aria-hidden="true" />
-            설문 참여하기
-          </a>
-        </div>
-
         <div className={s.grid}>
           {/* Brand */}
           <div>
