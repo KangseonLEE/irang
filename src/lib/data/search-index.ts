@@ -1,6 +1,6 @@
 /**
  * 통합 검색 인덱스
- * - 지역(Station), 작물(Crop), 지원사업(Program) 데이터를 단일 검색 인덱스로 통합
+ * - 사이트 내 존재하는 모든 데이터를 단일 검색 인덱스로 통합
  * - 클라이언트 사이드 fuzzy-ish 검색 (debounce + prefix match)
  *
  * 번들 최적화:
@@ -16,13 +16,34 @@ import { CROPS } from "./crops";
 import { PROGRAMS } from "./programs";
 import { EDUCATION_COURSES } from "./education";
 import { EVENTS } from "./events";
+import { CENTERS } from "./centers";
+import { interviews } from "./landing";
+import { GLOSSARY_ENTRIES } from "./glossary";
+import { GOV_PROGRAMS } from "./gov-roadmap";
+import { THERAPY_TRACKS } from "./therapy";
+import { TRACKS } from "./track-compare";
+import { LAND_TYPES, ZONING_TYPES, EXTERNAL_LAND_SERVICES } from "./land";
+import { PLAN_STEPS } from "./plan";
+import { GUIDE_STEP_SUMMARIES } from "./guide-steps";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
+export type SearchItemType =
+  | "region"
+  | "crop"
+  | "program"
+  | "education"
+  | "event"
+  | "guide"
+  | "center"
+  | "interview"
+  | "glossary"
+  | "land";
+
 export interface SearchItem {
-  type: "region" | "crop" | "program" | "education" | "event" | "guide";
+  type: SearchItemType;
   id: string;
   title: string;
   subtitle: string;
@@ -30,6 +51,8 @@ export interface SearchItem {
   keywords: string[];
   icon: string;
   badge?: string;
+  /** true이면 외부 링크 — target="_blank" + 외부 링크 표시 */
+  external?: boolean;
 }
 
 // Re-export from search-tags for backward compatibility
@@ -54,6 +77,7 @@ let _searchIndex: SearchItem[] | null = null;
 function getSearchIndex(): SearchItem[] {
   if (_searchIndex) return _searchIndex;
 
+  // ── 지역 (기상 관측소) ──
   const regionItems: SearchItem[] = STATIONS.map((s) => ({
     type: "region" as const,
     id: s.stnId,
@@ -64,6 +88,7 @@ function getSearchIndex(): SearchItem[] {
     icon: "\u{1F4CD}", // 📍
   }));
 
+  // ── 지역 (시군구) ──
   const sigunguItems: SearchItem[] = SIGUNGUS.map((sg) => {
     const province = getProvinceById(sg.sidoId);
     const provinceName = province?.name ?? "";
@@ -78,6 +103,7 @@ function getSearchIndex(): SearchItem[] {
     };
   });
 
+  // ── 작물 ──
   const cropItems: SearchItem[] = CROPS.map((c) => ({
     type: "crop" as const,
     id: c.id,
@@ -89,6 +115,7 @@ function getSearchIndex(): SearchItem[] {
     badge: c.category,
   }));
 
+  // ── 지원사업 ──
   const programItems: SearchItem[] = PROGRAMS.map((p) => ({
     type: "program" as const,
     id: p.id,
@@ -100,6 +127,7 @@ function getSearchIndex(): SearchItem[] {
     badge: p.status,
   }));
 
+  // ── 교육 ──
   const educationItems: SearchItem[] = EDUCATION_COURSES.map((e) => ({
     type: "education" as const,
     id: e.id,
@@ -111,6 +139,7 @@ function getSearchIndex(): SearchItem[] {
     badge: e.status,
   }));
 
+  // ── 체험·행사 ──
   const eventItems: SearchItem[] = EVENTS.map((e) => ({
     type: "event" as const,
     id: e.id,
@@ -122,7 +151,204 @@ function getSearchIndex(): SearchItem[] {
     badge: e.status,
   }));
 
-  const guideItems: SearchItem[] = [
+  // ── 지자체 센터 ──
+  const centerItems: SearchItem[] = CENTERS.map((c) => ({
+    type: "center" as const,
+    id: c.id,
+    title: c.name,
+    subtitle: truncate(
+      [c.sido, c.sigungu, c.phone].filter(Boolean).join(" · "),
+      50,
+    ),
+    href: `/regions/centers?q=${encodeURIComponent(c.sigungu ?? c.sido)}`,
+    keywords: [
+      c.sido,
+      c.sigungu ?? "",
+      c.sidoSlug,
+      c.sigunguSlug ?? "",
+      "센터",
+      "귀농귀촌",
+      "상담",
+      c.phone ?? "",
+    ].filter(Boolean),
+    icon: "\u{1F3DB}\u{FE0F}", // 🏛️
+    badge: c.category === "sido" ? "광역" : "시·군",
+  }));
+
+  // ── 인터뷰 ──
+  const interviewItems: SearchItem[] = interviews.map((iv) => ({
+    type: "interview" as const,
+    id: iv.id,
+    title: `${iv.name} — ${iv.crop}`,
+    subtitle: truncate(iv.quote, 50),
+    href: `/interviews/${iv.id}`,
+    keywords: [
+      iv.name,
+      iv.region,
+      iv.crop,
+      iv.prevJob,
+      iv.currentJob,
+      "인터뷰",
+      "귀농인",
+      "이야기",
+    ],
+    icon: "\u{1F464}", // 👤
+  }));
+
+  // ── 용어집 ──
+  const glossaryCategoryKo: Record<string, string> = {
+    cultivation: "재배",
+    soil: "토양·비료",
+    pest: "병해충",
+    certification: "제도·인증",
+    economy: "경영",
+    unit: "단위",
+    settlement: "귀농귀촌",
+  };
+  const glossaryItems: SearchItem[] = GLOSSARY_ENTRIES.map((g) => ({
+    type: "glossary" as const,
+    id: g.slug,
+    title: g.term,
+    subtitle: truncate(g.shortDesc, 50),
+    href: `/glossary#${g.slug}`,
+    keywords: [
+      ...(g.aliases ?? []),
+      g.category,
+      ...(g.related ?? []),
+      "용어",
+      "뜻",
+    ],
+    icon: "\u{1F4D6}", // 📖
+    badge: glossaryCategoryKo[g.category] ?? g.category,
+  }));
+
+  // ── 정부사업 로드맵 (4대 사업) ──
+  const govProgramItems: SearchItem[] = GOV_PROGRAMS.map((gp) => ({
+    type: "guide" as const,
+    id: `gov-${gp.id}`,
+    title: gp.name,
+    subtitle: truncate(gp.summary, 50),
+    href: `/programs/roadmap#${gp.id}`,
+    keywords: [
+      gp.shortName,
+      gp.agency,
+      gp.supportType,
+      gp.targetAudience,
+      "정부사업",
+      "보조금",
+      "융자",
+      "신청",
+      "절차",
+    ],
+    icon: "\u{1F3DB}\u{FE0F}", // 🏛️
+  }));
+
+  // ── 치유·사회적 농업 ──
+  const therapyItems: SearchItem[] = THERAPY_TRACKS.map((t) => ({
+    type: "guide" as const,
+    id: `therapy-${t.id}`,
+    title: t.title,
+    subtitle: truncate(t.subtitle, 50),
+    href: `/education/therapy#${t.id}`,
+    keywords: ["치유", "사회적농업", "치유농업", "치유농장", "자격증"],
+    icon: "\u{2764}\u{FE0F}", // ❤️
+  }));
+
+  // ── 귀농·귀산촌 비교 트랙 ──
+  const trackItems: SearchItem[] = TRACKS.map((t) => ({
+    type: "guide" as const,
+    id: `track-${t.id}`,
+    title: t.name,
+    subtitle: truncate(`${t.shortName} · ${t.agency}`, 50),
+    href: "/guide/track-compare",
+    keywords: [
+      "귀농",
+      "귀산촌",
+      "비교",
+      "영농",
+      "임업",
+      t.agency,
+      t.shortName,
+    ],
+    icon: "\u{1F500}", // 🔀
+  }));
+
+  // ── 농지 유형 ──
+  const landItems: SearchItem[] = LAND_TYPES.map((l) => ({
+    type: "land" as const,
+    id: `land-${l.id}`,
+    title: l.name,
+    subtitle: truncate(l.description, 50),
+    href: `/guide#step-4`,
+    keywords: [
+      l.shortName,
+      l.farmingRelevance,
+      "농지",
+      "토지",
+      "지목",
+      "땅",
+    ],
+    icon: l.icon,
+  }));
+
+  // ── 용도지역 ──
+  const zoningItems: SearchItem[] = ZONING_TYPES.map((z) => ({
+    type: "land" as const,
+    id: `zoning-${z.id}`,
+    title: z.name,
+    subtitle: truncate(z.farmingDescription, 50),
+    href: `/guide#step-4`,
+    keywords: ["용도지역", "건축", "토지이용", "농지", z.buildingEase],
+    icon: "\u{1F3D7}\u{FE0F}", // 🏗️
+  }));
+
+  // ── 농지 관련 외부 서비스 ──
+  const landServiceItems: SearchItem[] = EXTERNAL_LAND_SERVICES.map((ls, i) => ({
+    type: "land" as const,
+    id: `land-svc-${i}`,
+    title: ls.name,
+    subtitle: truncate(ls.description, 50),
+    href: ls.url,
+    keywords: ["농지", "토지", "부동산", "매물"],
+    icon: ls.icon,
+    external: true,
+  }));
+
+  // ── 귀농 5단계 로드맵 (각 단계) ──
+  const guideStepItems: SearchItem[] = GUIDE_STEP_SUMMARIES.map((gs) => ({
+    type: "guide" as const,
+    id: `step-${gs.step}`,
+    title: `${gs.step}단계: ${gs.title}`,
+    subtitle: truncate(`${gs.period} · ${gs.cost.amount}`, 50),
+    href: `/guide#step-${gs.step}`,
+    keywords: [
+      gs.title,
+      "로드맵",
+      "단계",
+      "가이드",
+      "준비",
+    ],
+    icon: "\u{1F4CB}", // 📋
+  }));
+
+  // ── 실행 계획 (plan steps) ──
+  const planItems: SearchItem[] = PLAN_STEPS.map((ps) => ({
+    type: "guide" as const,
+    id: `plan-${ps.id}`,
+    title: `${ps.step}단계: ${ps.title}`,
+    subtitle: truncate(ps.description, 50),
+    href: `/guide#step-${Math.min(ps.step, 5)}`,
+    keywords: [
+      "실행계획",
+      "체크리스트",
+      ps.shortTitle,
+      ...ps.checklist.map((c) => c.label),
+    ].slice(0, 10),
+    icon: "\u{2705}", // ✅
+  }));
+
+  // ── 정적 가이드 페이지 ──
+  const staticGuideItems: SearchItem[] = [
     {
       type: "guide",
       id: "costs",
@@ -134,7 +360,7 @@ function getSearchIndex(): SearchItem[] {
     },
     {
       type: "guide",
-      id: "gov-roadmap",
+      id: "gov-roadmap-page",
       title: "정부사업 진입 가이드",
       subtitle: "4대 핵심 정부사업 신청 절차 안내",
       href: "/programs/roadmap",
@@ -179,7 +405,7 @@ function getSearchIndex(): SearchItem[] {
     },
     {
       type: "guide",
-      id: "glossary",
+      id: "glossary-page",
       title: "농업 용어집",
       subtitle: "처음 만나는 농업 용어 해설",
       href: "/glossary",
@@ -195,6 +421,124 @@ function getSearchIndex(): SearchItem[] {
       keywords: ["진단", "유형", "테스트", "추천", "맞춤", "적합", "나에게맞는", "어디", "뭐가좋을까"],
       icon: "\u{1F50D}", // 🔍
     },
+    {
+      type: "guide",
+      id: "assess",
+      title: "귀농 적합도 진단",
+      subtitle: "10문항으로 확인하는 나의 귀농 준비도",
+      href: "/assess",
+      keywords: ["적합도", "진단", "테스트", "준비도", "체크", "평가", "점수"],
+      icon: "\u{1F4DD}", // 📝
+    },
+    {
+      type: "guide",
+      id: "shelter",
+      title: "농촌체류형 쉼터",
+      subtitle: "33㎡ 임시 주거 설치 가이드",
+      href: "/guide/shelter",
+      keywords: ["쉼터", "체류형", "주거", "임시주거", "농막", "숙소", "집", "주택", "33"],
+      icon: "\u{1F3E0}", // 🏠
+    },
+    {
+      type: "guide",
+      id: "track-compare-page",
+      title: "귀농·귀산촌 비교",
+      subtitle: "영농 vs 임업 추진체계 비교",
+      href: "/guide/track-compare",
+      keywords: ["귀농", "귀산촌", "비교", "영농", "임업", "차이", "산림"],
+      icon: "\u{1F500}", // 🔀
+    },
+    {
+      type: "guide",
+      id: "centers-page",
+      title: "지자체 귀농지원센터",
+      subtitle: "전국 광역·시·군 센터 연락처 안내",
+      href: "/regions/centers",
+      keywords: ["센터", "지자체", "상담", "연락처", "전화", "귀농귀촌지원센터"],
+      icon: "\u{1F3DB}\u{FE0F}", // 🏛️
+    },
+    {
+      type: "guide",
+      id: "regions-compare",
+      title: "지역 비교",
+      subtitle: "최대 3개 지역 비교 분석",
+      href: "/regions/compare",
+      keywords: ["비교", "지역비교", "기후", "인구", "의료", "학교"],
+      icon: "\u{1F4CA}", // 📊
+    },
+    {
+      type: "guide",
+      id: "crops-compare",
+      title: "작물 비교",
+      subtitle: "최대 3종 작물 비교",
+      href: "/crops/compare",
+      keywords: ["비교", "작물비교", "수익", "난이도"],
+      icon: "\u{1F33F}", // 🌿
+    },
+    // ── 기획 기사형 가이드 (guides/*) ──
+    {
+      type: "guide",
+      id: "guides-preparation",
+      title: "귀농 준비 순서",
+      subtitle: "5단계 체크리스트로 정리하는 준비 순서",
+      href: "/guides/preparation",
+      keywords: ["준비", "순서", "체크리스트", "시작", "처음", "입문"],
+      icon: "\u{1F4CB}", // 📋
+    },
+    {
+      type: "guide",
+      id: "guides-beginner-crops",
+      title: "초보 추천 작물 TOP 5",
+      subtitle: "난이도 낮은 작물로 시작하기",
+      href: "/guides/beginner-crops",
+      keywords: ["초보", "추천", "작물", "쉬운", "입문", "난이도", "TOP5"],
+      icon: "\u{1F331}", // 🌱
+    },
+    {
+      type: "guide",
+      id: "guides-budget-50s",
+      title: "50대 귀농 자본 가이드",
+      subtitle: "현실적인 비용 설계와 절감 전략",
+      href: "/guides/budget-50s",
+      keywords: ["50대", "자본", "비용", "예산", "시니어", "은퇴", "노후"],
+      icon: "\u{1F4B0}", // 💰
+    },
+    {
+      type: "guide",
+      id: "guides-failure-cases",
+      title: "귀농 실패 사례",
+      subtitle: "실패에서 배우는 준비의 핵심",
+      href: "/guides/failure-cases",
+      keywords: ["실패", "사례", "주의", "실수", "함정", "위험", "후회"],
+      icon: "\u{26A0}\u{FE0F}", // ⚠️
+    },
+    {
+      type: "guide",
+      id: "guides-solo-farming",
+      title: "1인 귀농 가이드",
+      subtitle: "혼자서도 가능한 귀농 전략",
+      href: "/guides/solo-farming",
+      keywords: ["1인", "혼자", "솔로", "독립", "단독", "싱글"],
+      icon: "\u{1F464}", // 👤
+    },
+    {
+      type: "guide",
+      id: "education-therapy-page",
+      title: "치유·사회적 농업",
+      subtitle: "다른 귀농 모델 탐색",
+      href: "/education/therapy",
+      keywords: ["치유", "치유농업", "사회적농업", "치유농장", "자격증", "힐링"],
+      icon: "\u{2764}\u{FE0F}", // ❤️
+    },
+    {
+      type: "guide",
+      id: "interviews-page",
+      title: "귀농인 이야기",
+      subtitle: "실제 귀농인 인터뷰 모음",
+      href: "/interviews",
+      keywords: ["인터뷰", "이야기", "사례", "경험", "후기", "선배"],
+      icon: "\u{1F4AC}", // 💬
+    },
   ];
 
   _searchIndex = [
@@ -204,7 +548,18 @@ function getSearchIndex(): SearchItem[] {
     ...programItems,
     ...educationItems,
     ...eventItems,
-    ...guideItems,
+    ...centerItems,
+    ...interviewItems,
+    ...glossaryItems,
+    ...govProgramItems,
+    ...therapyItems,
+    ...trackItems,
+    ...landItems,
+    ...zoningItems,
+    ...landServiceItems,
+    ...guideStepItems,
+    ...planItems,
+    ...staticGuideItems,
   ];
 
   return _searchIndex;
@@ -277,10 +632,33 @@ const SYNONYMS: Record<string, string[]> = {
   "청년농": ["청년", "청년농업인"],
   "청년농업": ["청년", "청년농업인", "청년창업농"],
   "창업": ["청년창업농", "창업"],
-  "농지": ["농지", "농지은행", "토지"],
+  "농지": ["농지", "농지은행", "토지", "땅"],
   "귀촌": ["귀촌", "귀농"],
   "전원": ["귀촌", "전원생활"],
   "은퇴": ["귀촌", "전원생활", "시니어"],
+  "땅": ["농지", "토지", "땅", "지목"],
+  "집": ["주택", "주거", "쉼터", "농막"],
+  "주택": ["주택", "주거", "쉼터"],
+  "농막": ["농막", "쉼터", "체류형", "임시주거"],
+
+  // ── 센터/상담 ──
+  "상담": ["상담", "센터", "지원센터"],
+  "센터": ["센터", "귀농귀촌", "지원센터"],
+  "전화": ["전화", "연락처", "상담"],
+
+  // ── 인터뷰/후기 ──
+  "후기": ["인터뷰", "이야기", "후기", "경험"],
+  "경험": ["인터뷰", "이야기", "경험", "사례"],
+  "선배": ["인터뷰", "귀농인"],
+
+  // ── 용어 ──
+  "용어": ["용어", "뜻", "사전"],
+  "뜻": ["용어", "뜻", "의미"],
+
+  // ── 실패/위험 ──
+  "실패": ["실패", "주의", "위험", "사례"],
+  "후회": ["후회", "실패", "만족도"],
+  "주의": ["주의", "실패", "위험"],
 };
 
 /**
@@ -315,13 +693,17 @@ function removeKoreanSuffix(term: string): string {
 // ---------------------------------------------------------------------------
 
 /** 타입별 가중치 — 가이드/지역은 일반 검색에서 우선 노출 */
-const TYPE_WEIGHT: Record<SearchItem["type"], number> = {
+const TYPE_WEIGHT: Record<SearchItemType, number> = {
   guide: 1.2,
   region: 1.1,
   crop: 1.0,
   program: 1.0,
+  center: 1.0,
+  interview: 0.95,
   education: 0.95,
   event: 0.9,
+  glossary: 0.85,
+  land: 0.9,
 };
 
 /**
@@ -412,8 +794,8 @@ export function searchItems(query: string): SearchItem[] {
   const all = searchAll(query);
 
   // 결과 순서에서 섹션 순서 도출 (가장 관련도 높은 타입이 먼저)
-  const sectionOrder: SearchItem["type"][] = [];
-  const seen = new Set<SearchItem["type"]>();
+  const sectionOrder: SearchItemType[] = [];
+  const seen = new Set<SearchItemType>();
   for (const item of all) {
     if (!seen.has(item.type)) {
       seen.add(item.type);
@@ -422,22 +804,21 @@ export function searchItems(query: string): SearchItem[] {
   }
 
   // 타입별 최대 3개 수집
-  const byType: Record<SearchItem["type"], SearchItem[]> = {
-    region: [], crop: [], program: [], education: [], event: [], guide: [],
-  };
+  const byType: Partial<Record<SearchItemType, SearchItem[]>> = {};
   for (const item of all) {
-    if (byType[item.type].length < 3) {
-      byType[item.type].push(item);
+    const arr = byType[item.type] ??= [];
+    if (arr.length < 3) {
+      arr.push(item);
     }
   }
 
   // 관련도 기반 섹션 순서로 결과 조합
   const results: SearchItem[] = [];
   for (const type of sectionOrder) {
-    results.push(...byType[type]);
+    results.push(...(byType[type] ?? []));
   }
 
-  return results.slice(0, 10);
+  return results.slice(0, 12);
 }
 
 /**

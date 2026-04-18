@@ -1,14 +1,15 @@
 "use client";
 
 import {
+  useEffect,
   useMemo,
   useRef,
   useState,
   type ChangeEvent,
   type KeyboardEvent,
 } from "react";
+import { useSearchParams } from "next/navigation";
 import { ChevronDown, Search as SearchIcon, X } from "lucide-react";
-import { CardGrid } from "@/components/ui/card-grid";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CenterCard } from "@/components/region/center-card";
 import type { Center } from "@/lib/data/centers";
@@ -46,8 +47,22 @@ export function CentersSearch({
   sidoCenters,
   sigunguGroups,
 }: CentersSearchProps) {
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const groupRefs = useRef<Record<string, HTMLDetailsElement | null>>({});
+  const initialScrollDone = useRef(false);
+
+  // URL ?q= 파라미터로 진입 시 결과 영역으로 스크롤
+  useEffect(() => {
+    if (initialScrollDone.current) return;
+    const urlQuery = searchParams.get("q");
+    if (!urlQuery) return;
+    initialScrollDone.current = true;
+    requestAnimationFrame(() => {
+      const searchWrap = document.querySelector(`.${s.searchWrap}`);
+      searchWrap?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [searchParams]);
 
   const q = query.trim();
   const hasQuery = q.length > 0;
@@ -108,7 +123,7 @@ export function CentersSearch({
             value={query}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            placeholder="지역명으로 찾기 (예: 남양주, 전남, gyeonggi)"
+            placeholder="지역명으로 센터 찾기"
             className={s.searchInput}
             aria-label="지역명 검색"
           />
@@ -150,36 +165,41 @@ export function CentersSearch({
         />
       )}
 
-      {/* ── 광역(시·도) 센터 ── */}
+      {/* ── 광역(시·도) 센터 — 2열 featured ── */}
       {filteredSido.length > 0 && (
-        <section className={s.section} aria-label="광역 시·도 센터">
+        <section className={s.sidoSection} aria-label="광역 시·도 센터">
           <div className={s.sectionHeader}>
-            <h2 className={s.sectionTitle}>광역 시·도 센터</h2>
+            <div className={s.sectionTitleRow}>
+              <h2 className={s.sectionTitle}>광역 거점 센터</h2>
+              <span className={s.sectionCount}>{filteredSido.length}곳</span>
+            </div>
             <p className={s.sectionDesc}>
               {hasQuery
-                ? `검색 결과 ${filteredSido.length}곳이에요.`
-                : `전국 ${sidoCenters.length}개 광역 귀농귀촌지원센터예요.`}
+                ? "검색 결과예요."
+                : "시·도 단위 귀농귀촌지원센터예요. 전화로 바로 상담할 수 있어요."}
             </p>
           </div>
-          <CardGrid>
+          <div className={s.sidoGrid}>
             {filteredSido.map((center) => (
               <CenterCard key={center.id} center={center} showSidoLabel />
             ))}
-          </CardGrid>
+          </div>
         </section>
       )}
 
       {/* ── 시·군 센터 (광역별 그룹) ── */}
       {filteredGroups.length > 0 && (
-        <section className={s.section} aria-label="시·군 센터">
+        <section className={s.sigunguSection} aria-label="시·군 센터">
           <div className={s.sectionHeader}>
-            <h2 className={s.sectionTitle}>시·군 센터</h2>
+            <div className={s.sectionTitleRow}>
+              <h2 className={s.sectionTitle}>시·군 센터</h2>
+              <span className={s.sectionCount}>
+                {filteredGroups.reduce((n, g) => n + g.centers.length, 0)}곳
+              </span>
+            </div>
             <p className={s.sectionDesc}>
               {hasQuery
-                ? `검색 결과 ${filteredGroups.reduce(
-                    (n, g) => n + g.centers.length,
-                    0,
-                  )}곳이에요.`
+                ? "검색 결과예요."
                 : "광역을 열어 시·군 센터를 확인해 보세요."}
             </p>
           </div>

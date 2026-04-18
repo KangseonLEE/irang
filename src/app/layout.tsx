@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
+import { HashHighlight } from "@/components/layout/hash-highlight";
 import { SearchOverlayProvider } from "@/components/search/search-overlay";
 import { ScrollToTopButton } from "@/components/layout/scroll-to-top-button";
 import { FeedbackTrigger } from "@/components/feedback/feedback-trigger";
@@ -137,6 +138,7 @@ export default function RootLayout({
       </head>
       <body className={s.body}>
         <ScrollToTop />
+        <HashHighlight />
         <GoogleAnalytics />
         <Analytics />
         <SpeedInsights />

@@ -1,19 +1,71 @@
 .page {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 24px 16px 40px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 24px 48px;
+    gap: 32px;
+  }
+}
+
+/* ── stat strip ── */
+.statStrip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: -8px;
+}
+
+.statChip {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 6px 14px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+}
+
+.statNumber {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--primary, #1b6b5a);
+  font-variant-numeric: tabular-nums;
+}
+
+.statLabel {
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.statBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+/* ── notice ── */
 .notice {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 20px;
-  background: var(--muted, #f9fafb);
-  border: 1px dashed var(--border, #e5e7eb);
+  padding: 20px 24px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 3%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   border-radius: 16px;
 }
 
@@ -41,6 +93,7 @@
   color: var(--primary, #1b6b5a);
   text-decoration: none;
   align-self: flex-start;
+  transition: opacity 0.15s ease;
 }
 
 @media (hover: hover) {

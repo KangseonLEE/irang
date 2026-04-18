@@ -295,6 +295,27 @@ ul, ol {
   body { background: #fff; }
 }
 
+/* ── Hash-anchor target highlight ── */
+:target {
+  scroll-margin-top: 80px;
+}
+
+@keyframes hashHighlightFlash {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent);
+  }
+  15% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary, #1b6b5a) 25%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.hash-target-highlight {
+  animation: hashHighlightFlash 1.8s ease-out !important;
+}
+
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   *,

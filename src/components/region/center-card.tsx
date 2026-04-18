@@ -8,8 +8,8 @@ interface CenterCardProps {
   showSidoLabel?: boolean;
   /**
    * 표시 밀도
-   * - default: 카드형 (이름 + 연락처 리스트 + CTA 버튼). 단건 상세/대표 섹션용.
-   * - compact: 한 줄 리스트형 (이름 + 전화 + 외부링크). 리스트 밀집 영역용.
+   * - default: 전화번호 전면 배치 강조 카드. 시·도 거점 센터용.
+   * - compact: 테이블 행형 (이름 / 전화 pill / 홈페이지). 시·군 리스트용.
    */
   variant?: "default" | "compact";
 }
@@ -30,35 +30,37 @@ export function CenterCard({
   if (variant === "compact") {
     return (
       <article className={s.compactCard}>
-        <a
-          href={center.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={s.compactLink}
-          aria-label={`${center.name} 공식 홈페이지 새 창에서 열기`}
-        >
-          <div className={s.compactMain}>
-            <h3 className={s.compactName}>{center.name}</h3>
-            {center.address && (
-              <span className={s.compactAddress}>{center.address}</span>
-            )}
-          </div>
-          <ExternalLink
-            size={16}
-            aria-hidden="true"
-            className={s.compactExternal}
-          />
-        </a>
-        {center.phone && (
+        <div className={s.compactMain}>
+          <h3 className={s.compactName}>{center.name}</h3>
+          {center.address && (
+            <span className={s.compactAddress}>
+              <MapPin size={12} aria-hidden="true" />
+              {center.address}
+            </span>
+          )}
+        </div>
+
+        <div className={s.compactActions}>
+          {center.phone && (
+            <a
+              href={`tel:${center.phone.replace(/[^0-9]/g, "")}`}
+              className={s.compactPhone}
+              aria-label={`${center.name} 전화 걸기 ${center.phone}`}
+            >
+              <Phone size={13} aria-hidden="true" />
+              <span>{center.phone}</span>
+            </a>
+          )}
           <a
-            href={`tel:${center.phone.replace(/[^0-9]/g, "")}`}
-            className={s.compactPhone}
-            aria-label={`${center.name} 전화 걸기 ${center.phone}`}
+            href={center.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={s.compactWeb}
+            aria-label={`${center.name} 홈페이지 새 창`}
           >
-            <Phone size={14} aria-hidden="true" />
-            <span>{center.phone}</span>
+            <ExternalLink size={14} aria-hidden="true" />
           </a>
-        )}
+        </div>
       </article>
     );
   }
@@ -68,32 +70,40 @@ export function CenterCard({
       {showSidoLabel && <span className={s.sidoLabel}>{center.sido}</span>}
       <h3 className={s.name}>{center.name}</h3>
 
-      <ul className={s.metaList}>
-        {center.phone && (
-          <li className={s.metaItem}>
-            <Phone size={14} aria-hidden="true" className={s.metaIcon} />
-            <a href={`tel:${center.phone.replace(/[^0-9]/g, "")}`} className={s.metaLink}>
-              {center.phone}
-            </a>
-          </li>
-        )}
-        {center.address && (
-          <li className={s.metaItem}>
-            <MapPin size={14} aria-hidden="true" className={s.metaIcon} />
-            <span>{center.address}</span>
-          </li>
-        )}
-      </ul>
+      {center.phone && (
+        <div className={s.phoneBlock}>
+          <Phone size={16} aria-hidden="true" className={s.phoneIcon} />
+          <span className={s.phoneNumber}>{center.phone}</span>
+        </div>
+      )}
 
-      <a
-        href={center.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={s.cta}
-      >
-        공식 홈페이지 바로가기
-        <ExternalLink size={14} aria-hidden="true" />
-      </a>
+      {center.address && (
+        <p className={s.address}>
+          <MapPin size={13} aria-hidden="true" className={s.addressIcon} />
+          {center.address}
+        </p>
+      )}
+
+      <div className={s.cardActions}>
+        {center.phone && (
+          <a
+            href={`tel:${center.phone.replace(/[^0-9]/g, "")}`}
+            className={s.callCta}
+          >
+            <Phone size={14} aria-hidden="true" />
+            전화 상담
+          </a>
+        )}
+        <a
+          href={center.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={s.webCta}
+        >
+          홈페이지
+          <ExternalLink size={13} aria-hidden="true" />
+        </a>
+      </div>
 
       {fallback && (
         <p className={s.fallbackNote}>

@@ -42,7 +42,7 @@ export default function TherapyPage() {
 
         <div className={s.trackList}>
           {THERAPY_TRACKS.map((track) => (
-            <article key={track.id} className={s.track}>
+            <article key={track.id} id={track.id} className={s.track}>
               <header className={s.trackHead}>
                 <h2 className={s.trackTitle}>{track.title}</h2>
                 <p className={s.trackSubtitle}>{track.subtitle}</p>

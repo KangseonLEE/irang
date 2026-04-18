@@ -1,21 +1,50 @@
-/* ---- 검색 + 퀵점프 ---- */
+/* ═══════════════════════════════════════
+   CentersSearch — supanova full redesign
+   검색 sticky + 시도 featured + 시군구 아코디언
+   ═══════════════════════════════════════ */
+
+/* ── 검색 + 퀵점프 (sticky) ── */
 .searchWrap {
+  position: sticky;
+  top: 56px; /* header height */
+  z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  padding: 16px 0;
+  background: var(--background, #fff);
+}
+
+.searchWrap::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: -16px;
+  right: -16px;
+  height: 1px;
+  background: var(--border, #e5e7eb);
+  opacity: 0.6;
+}
+
+@media (min-width: 640px) {
+  .searchWrap::after {
+    left: -24px;
+    right: -24px;
+  }
 }
 
 .searchBox {
   position: relative;
   display: flex;
   align-items: center;
-  background: var(--card, #fff);
+  background: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 14px;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 }
 
 .searchBox:focus-within {
+  background: var(--card, #fff);
   border-color: var(--primary, #1b6b5a);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
 }
@@ -48,14 +77,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   color: var(--muted-foreground);
   background: transparent;
   border: none;
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 @media (hover: hover) {
@@ -70,12 +99,12 @@
   outline-offset: 2px;
 }
 
-/* ---- 퀵점프 ---- */
+/* ── 퀵점프 ── */
 .quickJump {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 2px;
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
 }
@@ -83,17 +112,17 @@
 .quickChip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex-shrink: 0;
-  padding: 8px 14px;
-  font-size: var(--fs-body-sm);
+  padding: 6px 12px;
+  font-size: var(--fs-caption);
   font-weight: 600;
-  color: var(--foreground);
-  background: var(--card, #fff);
+  color: var(--muted-foreground);
+  background: transparent;
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 999px;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
 
 @media (hover: hover) {
@@ -104,26 +133,29 @@
   }
 }
 
+.quickChip:active {
+  transform: scale(0.95);
+}
+
 .quickChip:focus-visible {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
 }
 
 .quickChipCount {
-  font-size: var(--fs-caption);
+  font-size: 0.6875rem;
   font-weight: 700;
   color: var(--primary, #1b6b5a);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
-  padding: 1px 8px;
+  padding: 1px 6px;
   border-radius: 999px;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ---- 섹션 ---- */
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+
+/* ═══════════════════════════════════════
+   공통 섹션 헤더
+   ═══════════════════════════════════════ */
 
 .sectionHeader {
   display: flex;
@@ -131,11 +163,34 @@
   gap: 4px;
 }
 
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .sectionTitle {
-  font-size: var(--fs-h3);
-  font-weight: 700;
+  font-size: 1.125rem;
+  font-weight: 800;
   color: var(--foreground);
   margin: 0;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 640px) {
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+}
+
+.sectionCount {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
 }
 
 .sectionDesc {
@@ -145,29 +200,81 @@
   margin: 0;
 }
 
-/* ---- 광역별 시·군 그룹 ---- */
+
+/* ═══════════════════════════════════════
+   시도 섹션 — 2열 featured 레이아웃
+   ═══════════════════════════════════════ */
+
+.sidoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px 0;
+}
+
+.sidoGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .sidoGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sidoGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+
+/* ═══════════════════════════════════════
+   시군구 섹션 — 아코디언 그룹
+   배경 톤 차별화로 시도와 시각 분리
+   ═══════════════════════════════════════ */
+
+.sigunguSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px 0 8px;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
 .groupList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .group {
   background: var(--card, #ffffff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.group[open] {
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
 }
 
 .groupSummary {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 16px 20px;
+  padding: 14px 18px;
   cursor: pointer;
   list-style: none;
   font-size: var(--fs-body);
   user-select: none;
+  transition: background 0.15s ease;
 }
 
 .groupSummary::-webkit-details-marker {
@@ -177,7 +284,7 @@
 .groupChevron {
   margin-left: 4px;
   color: var(--muted-foreground);
-  transition: transform 0.2s;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .group[open] > .groupSummary .groupChevron {
@@ -208,23 +315,50 @@
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   padding: 2px 10px;
   border-radius: 999px;
+  font-variant-numeric: tabular-nums;
 }
 
 .groupBody {
-  padding: 16px;
+  padding: 12px;
   border-top: 1px solid var(--border, #e5e7eb);
+  animation: groupBodyIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ---- 시·군 리스트 (compact CenterCard 전용) ---- */
+@keyframes groupBodyIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .groupBody {
+    animation: none;
+  }
+}
+
+@media (min-width: 640px) {
+  .groupBody {
+    padding: 16px;
+  }
+}
+
+/* ── 시·군 리스트 (compact CenterCard 행) ── */
 .compactList {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 @media (min-width: 640px) {
   .compactList {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 }
 

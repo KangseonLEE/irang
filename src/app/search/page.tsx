@@ -3,7 +3,7 @@
 import { Suspense, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, MessageSquarePlus } from "lucide-react";
+import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, MessageSquarePlus, Building2, Users, BookMarked, LandPlot, ExternalLink } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchAll, hasExactMatch, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
@@ -22,10 +22,14 @@ const TYPE_META: Record<
   education: { label: "교육", icon: GraduationCap },
   event: { label: "체험·행사", icon: CalendarDays },
   guide: { label: "가이드·정보", icon: BookOpen },
+  center: { label: "지자체 센터", icon: Building2 },
+  interview: { label: "귀농인 이야기", icon: Users },
+  glossary: { label: "용어", icon: BookMarked },
+  land: { label: "농지·토지", icon: LandPlot },
 };
 
 /** 결과가 없을 때 폴백용 기본 순서 */
-const DEFAULT_TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide"];
+const DEFAULT_TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide", "center", "interview", "glossary", "land"];
 
 export default function SearchPage() {
   return (
@@ -211,26 +215,50 @@ function SearchPageContent() {
                   <span className={s.sectionCount}>{group.items.length}</span>
                 </h2>
                 <div className={s.grid}>
-                  {group.items.map((item) => (
-                    <Link
-                      key={`${item.type}-${item.id}`}
-                      href={item.href}
-                      className={s.card}
-                    >
-                      <span className={s.cardIcon}>{item.icon}</span>
-                      <div className={s.cardContent}>
-                        <span className={s.cardTitle}>
-                          {highlightMatch(item.title, query, s.highlight)}
-                        </span>
-                        <span className={s.cardSubtitle}>
-                          {highlightMatch(item.subtitle, query, s.highlight)}
-                        </span>
-                      </div>
-                      {item.badge && (
-                        <span className={s.cardBadge}>{item.badge}</span>
-                      )}
-                    </Link>
-                  ))}
+                  {group.items.map((item) => {
+                    const inner = (
+                      <>
+                        <span className={s.cardIcon}>{item.icon}</span>
+                        <div className={s.cardContent}>
+                          <span className={s.cardTitle}>
+                            {highlightMatch(item.title, query, s.highlight)}
+                          </span>
+                          <span className={s.cardSubtitle}>
+                            {highlightMatch(item.subtitle, query, s.highlight)}
+                          </span>
+                        </div>
+                        {item.external && (
+                          <span className={s.externalBadge}>
+                            <ExternalLink size={12} aria-hidden="true" />
+                            외부
+                          </span>
+                        )}
+                        {item.badge && (
+                          <span className={s.cardBadge}>{item.badge}</span>
+                        )}
+                      </>
+                    );
+
+                    return item.external ? (
+                      <a
+                        key={`${item.type}-${item.id}`}
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={s.card}
+                      >
+                        {inner}
+                      </a>
+                    ) : (
+                      <Link
+                        key={`${item.type}-${item.id}`}
+                        href={item.href}
+                        className={s.card}
+                      >
+                        {inner}
+                      </Link>
+                    );
+                  })}
                 </div>
               </section>
             );

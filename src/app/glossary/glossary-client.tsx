@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import { ChevronDown, SearchX } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { Icon } from "@/components/ui/icon";
@@ -48,6 +49,7 @@ interface GlossaryClientProps {
 }
 
 export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps) {
+  const pathname = usePathname();
   const [query, setQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<GlossaryCategory | "all">("all");
   const [expandedSlug, setExpandedSlug] = useState<string | null>(null);
@@ -124,25 +126,36 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
     [],
   );
 
-  // ── URL 해시(#slug)로 직접 이동: 툴팁 "자세히" 링크 지원 ──
-  useEffect(() => {
-    const hash = window.location.hash.slice(1); // "#slug" → "slug"
-    if (!hash) return;
+  // ── URL 해시(#slug)로 직접 이동: 툴팁 "자세히" 링크 + 검색 결과 클릭 지원 ──
+  const navigateToHash = useCallback(() => {
+    const raw = window.location.hash.slice(1); // "#slug" → "slug"
+    if (!raw) return;
+    // 한글 해시는 브라우저가 percent-encode할 수 있으므로 디코딩
+    const hash = decodeURIComponent(raw);
 
     const target = entries.find((e) => e.slug === hash);
     if (!target) return;
 
     // 카테고리 필터가 걸려 있으면 해제 (해당 용어가 보이도록)
-    /* eslint-disable react-hooks/set-state-in-effect */
     setSelectedCategory("all");
     setQuery("");
-    /* eslint-enable react-hooks/set-state-in-effect */
 
     // DOM 업데이트 후 스크롤 + 확장
     requestAnimationFrame(() => {
       scrollToSlug(hash);
     });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [entries, scrollToSlug]);
+
+  // pathname 변경 시 (검색 결과에서 클릭하여 /glossary#slug로 진입)
+  useEffect(() => {
+    navigateToHash();
+  }, [pathname, navigateToHash]);
+
+  // 같은 페이지 내 해시 변경
+  useEffect(() => {
+    window.addEventListener("hashchange", navigateToHash);
+    return () => window.removeEventListener("hashchange", navigateToHash);
+  }, [navigateToHash]);
 
   const categories = Object.entries(categoryLabels) as [GlossaryCategory, string][];
 

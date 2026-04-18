@@ -287,6 +287,20 @@
   white-space: nowrap;
 }
 
+.externalTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, #3b82f6 10%, transparent);
+  color: #3b82f6;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 /* --- Highlight --- */
 
 .highlight {

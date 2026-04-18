@@ -427,6 +427,20 @@
   white-space: nowrap;
 }
 
+.externalBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, #3b82f6 10%, transparent);
+  color: #3b82f6;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 /* 정확히 일치 항목 없음 안내 배너 */
 .noExactMatch {
   display: flex;

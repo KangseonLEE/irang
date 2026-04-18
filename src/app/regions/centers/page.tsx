@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Building2, ExternalLink } from "lucide-react";
+import { Suspense } from "react";
+import { Building2, Clock, ExternalLink } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { CENTERS, getSigunguCentersBySido } from "@/lib/data/centers";
 import { PROVINCES } from "@/lib/data/regions";
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 
 export default function CentersHubPage() {
   const sidoCenters = CENTERS.filter((c) => c.category === "sido");
+  const sigunguCount = CENTERS.filter((c) => c.category === "sigungu").length;
 
   // 광역별로 시·군 센터 그룹핑 (커버된 광역만 노출)
   const sigunguGroups = PROVINCES.map((province) => ({
@@ -29,13 +31,30 @@ export default function CentersHubPage() {
         label="지자체 센터"
         title="귀농 상담은 지역 센터에서"
         description="전국 광역·시·군 귀농귀촌지원센터를 한 번에 연결해 드려요."
-        count={CENTERS.length}
       />
 
-      <CentersSearch
-        sidoCenters={sidoCenters}
-        sigunguGroups={sigunguGroups}
-      />
+      {/* ── stat strip ── */}
+      <div className={s.statStrip}>
+        <div className={s.statChip}>
+          <span className={s.statNumber}>{sidoCenters.length}</span>
+          <span className={s.statLabel}>광역 센터</span>
+        </div>
+        <div className={s.statChip}>
+          <span className={s.statNumber}>{sigunguCount}</span>
+          <span className={s.statLabel}>시·군 센터</span>
+        </div>
+        <div className={s.statBadge}>
+          <Clock size={12} aria-hidden="true" />
+          평일 09:00 ~ 18:00
+        </div>
+      </div>
+
+      <Suspense>
+        <CentersSearch
+          sidoCenters={sidoCenters}
+          sigunguGroups={sigunguGroups}
+        />
+      </Suspense>
 
       <aside className={s.notice}>
         <h2 className={s.noticeTitle}>아직 준비 중인 지역도 있어요</h2>

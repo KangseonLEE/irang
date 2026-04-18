@@ -220,6 +220,7 @@
   padding: 16px 20px;
   background: var(--card, #fff);
   cursor: pointer;
+  scroll-margin-top: 80px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 

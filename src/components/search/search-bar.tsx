@@ -12,7 +12,7 @@ import {
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Trash2, Loader2, Compass, GraduationCap } from "lucide-react";
+import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Trash2, Loader2, Compass, GraduationCap, ExternalLink } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchItems, hasExactMatch, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
@@ -68,6 +68,10 @@ const SECTION_META: Record<
   education: { label: "교육", icon: "\u{1F393}" },
   event: { label: "체험·행사", icon: "\u{1F389}" },
   guide: { label: "가이드·정보", icon: "\u{1F4D6}" },
+  center: { label: "지자체 센터", icon: "\u{1F3DB}\u{FE0F}" },
+  interview: { label: "귀농인 이야기", icon: "\u{1F464}" },
+  glossary: { label: "용어", icon: "\u{1F4D6}" },
+  land: { label: "농지·토지", icon: "\u{1F33E}" },
 };
 
 /** 검색어 없을 때(최근 검색 등) 사용하는 기본 섹션 순서 */
@@ -417,10 +421,15 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 
   // ----- Navigate to result (form submit 경로) -----
   const navigateTo = useCallback(
-    (href: string, searchQuery?: string) => {
+    (href: string, searchQuery?: string, external?: boolean) => {
       if (searchQuery) {
         saveRecent(searchQuery);
         analytics.search(searchQuery);
+      }
+      if (external) {
+        window.open(href, "_blank", "noopener,noreferrer");
+        setIsOpen(false);
+        return;
       }
       beginNavigation();
       router.push(href);
@@ -489,7 +498,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       if (focusedIndex >= 0 && focusedIndex < allItems.length) {
         const focused = allItems[focusedIndex];
         if (focused.type === "recent") handleRecentClick(focused.query);
-        else navigateTo(focused.item.href, query);
+        else navigateTo(focused.item.href, query, focused.item.external);
       } else if (query.trim().length > 0) {
         navigateTo(`/search?q=${encodeURIComponent(query.trim())}`, query);
       }
@@ -775,23 +784,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                 {section.items.map((item) => {
                   const itemId = `${item.type}-${item.id}`;
                   const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
-                  return (
-                    <Link
-                      key={itemId}
-                      id={`search-item-${itemId}`}
-                      href={item.href}
-                      prefetch
-                      className={`${s.resultItem} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`}
-                      role="option"
-                      aria-selected={focusedIndex === currentFlatIndex}
-                      onClick={() => {
-                        if (query.trim()) {
-                          saveRecent(query);
-                          analytics.search(query);
-                        }
-                        beginNavigation();
-                      }}
-                    >
+                  const itemClass = `${s.resultItem} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`;
+                  const inner = (
+                    <>
                       <span className={s.resultItemIcon} aria-hidden="true">
                         {item.icon}
                       </span>
@@ -803,9 +798,51 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                           {highlight(item.subtitle, query)}
                         </div>
                       </div>
+                      {item.external && (
+                        <span className={s.externalTag}>
+                          <ExternalLink size={10} aria-hidden="true" />
+                          외부
+                        </span>
+                      )}
                       {item.badge && (
                         <span className={s.resultBadge}>{item.badge}</span>
                       )}
+                    </>
+                  );
+                  const handleClick = () => {
+                    if (query.trim()) {
+                      saveRecent(query);
+                      analytics.search(query);
+                    }
+                    if (!item.external) beginNavigation();
+                  };
+
+                  return item.external ? (
+                    <a
+                      key={itemId}
+                      id={`search-item-${itemId}`}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={itemClass}
+                      role="option"
+                      aria-selected={focusedIndex === currentFlatIndex}
+                      onClick={handleClick}
+                    >
+                      {inner}
+                    </a>
+                  ) : (
+                    <Link
+                      key={itemId}
+                      id={`search-item-${itemId}`}
+                      href={item.href}
+                      prefetch
+                      className={itemClass}
+                      role="option"
+                      aria-selected={focusedIndex === currentFlatIndex}
+                      onClick={handleClick}
+                    >
+                      {inner}
                     </Link>
                   );
                 })}
