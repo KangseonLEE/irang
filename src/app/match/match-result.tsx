@@ -47,7 +47,7 @@ export function MatchResult({
       {/* 유형 카드 — 최상단 */}
       <div className={s.farmTypeCard}>
         <span className={s.farmTypeEmoji}>{farmType.emoji}</span>
-        <span className={s.farmTypeOverline}>나의 귀농 준비 결과</span>
+        <span className={s.farmTypeOverline}>나에게 맞는 국가지원 트랙</span>
         <h1 className={s.farmTypeLabel}>{farmType.label}</h1>
         <p className={s.farmTypeTagline}>{farmType.tagline}</p>
         <p className={s.farmTypeDesc}>{farmType.description}</p>

@@ -961,9 +961,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
-  padding-top: 80px;
-  padding-bottom: 80px;
+  gap: 24px;
+  padding-top: 48px;
+  padding-bottom: 48px;
   background: #edf5f3;
   overflow: hidden;
   position: relative;
@@ -995,7 +995,7 @@
 }
 
 @media (min-width: 640px) {
-  .bottomCta { padding-top: 100px; padding-bottom: 100px; gap: 48px; }
+  .bottomCta { padding-top: 100px; padding-bottom: 100px; gap: 40px; }
 }
 
 @media (min-width: 1024px) {
@@ -1017,7 +1017,7 @@
 .ctaTextBlock {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   text-align: center;
   position: relative;
   z-index: 1;
@@ -1053,7 +1053,7 @@
 
 .ctaQuestion {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.625rem;
   font-weight: 800;
   color: #0d2e27;
   letter-spacing: -0.04em;
@@ -1061,6 +1061,10 @@
 }
 
 @media (min-width: 640px) {
+  .ctaQuestion { font-size: 2rem; }
+}
+
+@media (min-width: 768px) {
   .ctaQuestion { font-size: 2.5rem; }
 }
 
@@ -1080,7 +1084,7 @@
 .ctaPaths {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   width: 100%;
   max-width: 480px;
   padding: 0 20px;
@@ -1106,9 +1110,9 @@
 .ctaPath {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 28px 24px;
-  border-radius: 20px;
+  gap: 12px;
+  padding: 20px 18px;
+  border-radius: 16px;
   background: #fff;
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   box-shadow:
@@ -1123,6 +1127,10 @@
 }
 
 @media (min-width: 640px) {
+  .ctaPath { padding: 28px 24px; gap: 20px; border-radius: 20px; }
+}
+
+@media (min-width: 768px) {
   .ctaPath { padding: 32px 28px; gap: 24px; }
 }
 
@@ -1169,7 +1177,7 @@
 }
 
 .ctaPathLabel {
-  font-size: 1.375rem;
+  font-size: 1.125rem;
   font-weight: 800;
   color: #0d2e27;
   letter-spacing: -0.03em;
@@ -1177,34 +1185,46 @@
 }
 
 @media (min-width: 640px) {
+  .ctaPathLabel { font-size: 1.375rem; }
+}
+
+@media (min-width: 768px) {
   .ctaPathLabel { font-size: 1.5rem; }
 }
 
 /* 카드 설명 */
 .ctaPathDesc {
-  font-size: var(--fs-body-sm, 0.9375rem);
+  font-size: var(--fs-caption, 0.8125rem);
   font-weight: 500;
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-normal);
   word-break: keep-all;
 }
 
+@media (min-width: 640px) {
+  .ctaPathDesc { font-size: var(--fs-body-sm, 0.9375rem); }
+}
+
 /* 자기장 CTA 필 버튼 */
 .ctaPathCta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   align-self: flex-start;
   margin-top: auto;
-  padding: 12px 22px 12px 24px;
+  padding: 10px 18px 10px 20px;
   border-radius: 100px;
   background: var(--primary, #1b6b5a);
   color: #fff;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   transition:
     transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+  .ctaPathCta { padding: 12px 22px 12px 24px; font-size: 0.875rem; gap: 8px; }
 }
 
 @media (hover: hover) {
@@ -1237,17 +1257,17 @@
   display: flex;
   width: 100%;
   text-decoration: none;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .ctaSurveyInner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  padding: 14px 18px;
-  border-radius: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
   border: 1px dashed color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
   transition:
@@ -1256,6 +1276,10 @@
 }
 
 @media (min-width: 640px) {
+  .ctaSurveyInner { padding: 14px 18px; border-radius: 14px; }
+}
+
+@media (min-width: 768px) {
   .ctaSurveyInner { padding: 16px 22px; border-radius: 16px; }
 }
 
@@ -1284,23 +1308,31 @@
 }
 
 .ctaSurveyLabel {
-  font-size: var(--fs-body-sm, 0.9375rem);
+  font-size: var(--fs-caption, 0.8125rem);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
 }
 
+@media (min-width: 640px) {
+  .ctaSurveyLabel { font-size: var(--fs-body-sm, 0.9375rem); }
+}
+
 .ctaSurveyDesc {
-  font-size: var(--fs-caption, 0.8125rem);
+  font-size: 0.6875rem;
   font-weight: 500;
   color: var(--muted-foreground, #6b7280);
+}
+
+@media (min-width: 640px) {
+  .ctaSurveyDesc { font-size: var(--fs-caption, 0.8125rem); }
 }
 
 .ctaSurveyArrow {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   flex-shrink: 0;
   color: var(--primary, #1b6b5a);

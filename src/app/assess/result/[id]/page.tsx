@@ -17,7 +17,7 @@ import {
   FileText,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
-import { FARM_TYPES, type FarmTypeId } from "@/lib/data/match-questions";
+import { FARM_TYPES, migrateFarmTypeId, type FarmTypeId } from "@/lib/data/match-questions";
 import { PROVINCES } from "@/lib/data/regions";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const farmType = FARM_TYPES.find(
-    (t) => t.id === (result.farm_type_id as FarmTypeId)
+    (t) => t.id === migrateFarmTypeId(result.farm_type_id as string)
   );
   const label = farmType?.label ?? "귀농 유형";
   const emoji = farmType?.emoji ?? "🌾";
@@ -118,7 +118,7 @@ export default async function AssessResultPage({ params }: PageProps) {
   if (!result) notFound();
 
   const farmType = FARM_TYPES.find(
-    (t) => t.id === (result.farm_type_id as FarmTypeId)
+    (t) => t.id === migrateFarmTypeId(result.farm_type_id as string)
   );
   if (!farmType) notFound();
 

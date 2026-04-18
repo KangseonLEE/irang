@@ -12,7 +12,7 @@ import { OG_SIZE } from "@/lib/og/constants";
 import { brandCard, resultCard } from "@/lib/og/brand-card";
 import { isValidResultId } from "@/lib/assess-result";
 import { getSupabase } from "@/lib/supabase";
-import { FARM_TYPES, type FarmTypeId } from "@/lib/data/match-questions";
+import { FARM_TYPES, migrateFarmTypeId, type FarmTypeId } from "@/lib/data/match-questions";
 import { PROVINCES } from "@/lib/data/regions";
 
 export const size = OG_SIZE;
@@ -44,7 +44,7 @@ export default async function OGImage({
   // ── 조회 성공 → 동적 resultCard ──
   if (data) {
     const farmType = FARM_TYPES.find(
-      (t) => t.id === (data!.farm_type_id as FarmTypeId)
+      (t) => t.id === migrateFarmTypeId(data!.farm_type_id as string)
     );
 
     if (farmType) {

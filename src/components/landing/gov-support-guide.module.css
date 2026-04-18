@@ -167,7 +167,7 @@
 
 .card {
   --card-color: var(--primary, #1b6b5a);
-  flex: 0 0 calc(72% - 8px);
+  flex: 0 0 calc(82% - 8px);
   height: 360px;
   perspective: 800px;
   text-decoration: none;

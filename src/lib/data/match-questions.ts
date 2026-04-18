@@ -21,6 +21,14 @@ import {
   Home,
   Users,
   Mountain,
+  Tractor,
+  Laptop,
+  TreePine,
+  Cpu,
+  Briefcase,
+  Factory,
+  Tent,
+  Warehouse,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 
@@ -183,15 +191,78 @@ export const QUESTIONS: Question[] = [
       },
     ],
   },
+  {
+    id: "income-goal",
+    title: "귀농 후 주된 소득원은 무엇이면 좋겠어요?",
+    subtitle: "소득 계획에 따라 추천 트랙이 달라집니다",
+    options: [
+      {
+        id: "farming",
+        label: "직접 농사",
+        icon: Tractor,
+        description: "농산물 재배·판매가 주 수입원",
+      },
+      {
+        id: "remote-work",
+        label: "기존 직업 유지",
+        icon: Laptop,
+        description: "원격근무·프리랜서로 소득 유지",
+      },
+      {
+        id: "forestry",
+        label: "임산물·산림 활동",
+        icon: TreePine,
+        description: "산나물, 약초, 산림 체험 등",
+      },
+      {
+        id: "smart-agri",
+        label: "스마트 농업",
+        icon: Cpu,
+        description: "ICT 기반 시설원예·첨단 농업",
+      },
+    ],
+  },
+  {
+    id: "settlement-type",
+    title: "가장 끌리는 정착 환경은?",
+    subtitle: "정착 유형에 따라 맞춤 지원사업이 달라져요",
+    options: [
+      {
+        id: "farmland",
+        label: "넓은 농경지",
+        icon: Wheat,
+        description: "논밭에서 본격적으로 농사짓기",
+      },
+      {
+        id: "town",
+        label: "읍·면 소도시",
+        icon: Briefcase,
+        description: "생활 편의시설 갖춘 농촌 마을",
+      },
+      {
+        id: "mountain",
+        label: "산간 마을",
+        icon: Tent,
+        description: "숲과 산이 가까운 조용한 산촌",
+      },
+      {
+        id: "smart-complex",
+        label: "스마트팜 단지",
+        icon: Warehouse,
+        description: "첨단 농업시설이 집적된 단지",
+      },
+    ],
+  },
 ];
 
 /* ── 귀농 유형 분류 ── */
 
 export type FarmTypeId =
-  | "weekend"
+  | "guinong"
+  | "guichon"
+  | "guisanchon"
   | "smartfarm"
-  | "rural-life"
-  | "young-entrepreneur";
+  | "cheongnyeon";
 
 export interface FarmType {
   id: FarmTypeId;
@@ -206,14 +277,34 @@ export interface FarmType {
 
 export const FARM_TYPES: FarmType[] = [
   {
-    id: "weekend",
-    label: "주말농부형",
-    emoji: "🌱",
-    tagline: "도시와 농촌의 균형을 찾는 당신",
+    id: "guinong",
+    label: "귀농형",
+    emoji: "🌾",
+    tagline: "농업을 본업으로, 새 삶을 시작하는 당신",
     description:
-      "평일에는 도시 생활을 유지하면서 주말에 텃밭이나 소규모 농장을 운영하는 스타일이에요. 도시 근교에서 시작하기에 적합하며, 초기 부담이 적습니다.",
-    traits: ["도시 근교 선호", "초보 친화", "소규모 시작"],
-    programIds: ["SP-001", "SP-011", "SP-014", "SP-008"],
+      "도시를 떠나 농촌에 정착하여 직접 농사를 짓고, 농산물 판매를 주된 소득으로 삼는 전통적인 귀농 경로예요. 농지 확보, 작물 선정, 영농 기술 습득이 핵심이며, 정부의 귀농 정착 지원금과 농지 임대 사업을 적극 활용할 수 있어요.",
+    traits: ["전업 농업", "농산물 판매", "농지 기반"],
+    programIds: ["SP-001", "SP-003", "SP-005", "SP-011", "SP-014"],
+  },
+  {
+    id: "guichon",
+    label: "귀촌형",
+    emoji: "🏡",
+    tagline: "농촌에서 살며 나만의 일을 이어가는 당신",
+    description:
+      "농촌 지역으로 이주하되 기존 직업(원격근무·프리랜서)을 유지하거나 농업 외 활동으로 생계를 꾸리는 유형이에요. 전원생활의 여유를 누리면서도 도시 소득을 유지할 수 있어, 초기 정착 부담이 상대적으로 적어요.",
+    traits: ["농촌 거주", "기존 직업 유지", "전원생활"],
+    programIds: ["SP-009", "SP-010", "SP-011", "SP-008", "SP-014"],
+  },
+  {
+    id: "guisanchon",
+    label: "귀산촌형",
+    emoji: "🏔️",
+    tagline: "산과 숲에서 새로운 가치를 찾는 당신",
+    description:
+      "산간 지역으로 이주하여 임산물 채취, 산림 체험 관광, 약초 재배 등 산림 자원을 활용한 생활을 꿈꾸는 유형이에요. 산촌 특화 지원사업과 산림청 프로그램을 통해 정착 비용을 줄일 수 있어요.",
+    traits: ["산촌 정착", "임산물·산림", "자연 밀착"],
+    programIds: ["SP-005", "SP-010", "SP-009", "SP-011", "SP-014"],
   },
   {
     id: "smartfarm",
@@ -221,31 +312,41 @@ export const FARM_TYPES: FarmType[] = [
     emoji: "📊",
     tagline: "기술로 농업의 미래를 열어가는 당신",
     description:
-      "ICT 기술과 데이터를 활용한 스마트 농업에 관심이 많은 스타일이에요. 생산성과 시장성을 중시하며, 체계적인 농업 경영을 지향합니다.",
-    traits: ["기술 기반", "시장 지향", "효율 중시"],
+      "ICT 기술과 데이터를 활용한 스마트 농업에 관심이 많은 유형이에요. 스마트팜 청년창업 보육센터, 혁신밸리 임대형 스마트팜 등 정부 인프라를 활용해 초기 시설 투자 부담을 크게 줄일 수 있어요.",
+    traits: ["ICT 기반", "시설원예", "데이터 농업"],
     programIds: ["SP-012", "SP-003", "SP-004", "SP-002", "SP-011"],
   },
   {
-    id: "rural-life",
-    label: "전원생활형",
-    emoji: "🏡",
-    tagline: "자연 속에서 새로운 삶을 꿈꾸는 당신",
-    description:
-      "맑은 공기와 여유로운 환경에서 자급자족하며 살고 싶은 스타일이에요. 농촌 공동체에 자연스럽게 녹아들어 풍요로운 전원생활을 즐길 수 있습니다.",
-    traits: ["자연환경 중시", "자급자족", "공동체 생활"],
-    programIds: ["SP-005", "SP-009", "SP-010", "SP-011"],
-  },
-  {
-    id: "young-entrepreneur",
-    label: "청년창농형",
+    id: "cheongnyeon",
+    label: "청년농형",
     emoji: "🚀",
-    tagline: "농업으로 새로운 가치를 창출하는 당신",
+    tagline: "청년의 에너지로 농업에 도전하는 당신",
     description:
-      "농업을 하나의 사업으로 바라보고, 적극적으로 경영 역량을 키워가는 스타일이에요. 정부 지원사업과 교육을 적극 활용하여 빠르게 정착할 수 있습니다.",
-    traits: ["사업 마인드", "적극적 성장", "지원사업 활용"],
-    programIds: ["SP-012", "SP-002", "SP-003", "SP-001", "SP-011"],
+      "만 39세 이하 청년이 농업을 창업으로 접근하는 유형이에요. 청년 귀농 정착지원금(월 최대 110만 원, 최장 3년), 청년 창업농 영농정착 지원, 스마트팜 청년창업 보육 등 청년 전용 지원사업이 풍부해요.",
+    traits: ["청년 전용 지원", "창업 마인드", "빠른 정착"],
+    programIds: ["SP-012", "SP-002", "SP-003", "SP-001", "SP-004"],
   },
 ];
+
+/* ── 구 ID → 신 ID 마이그레이션 매핑 (하위 호환) ── */
+
+const LEGACY_ID_MAP: Record<string, FarmTypeId> = {
+  weekend: "guichon",
+  "rural-life": "guinong",
+  "young-entrepreneur": "cheongnyeon",
+  // "smartfarm"은 동일하므로 매핑 불필요
+};
+
+/** 구 FarmTypeId를 신 FarmTypeId로 변환. 이미 신 ID면 그대로 반환. */
+export function migrateFarmTypeId(id: string): FarmTypeId {
+  if (FARM_TYPES.some((t) => t.id === id)) return id as FarmTypeId;
+  return LEGACY_ID_MAP[id] ?? "guinong";
+}
+
+/** 국가지원 트랙 분류용 질문 2개 (assessment-wizard에서도 재사용) */
+export const TRACK_QUESTIONS = QUESTIONS.filter(
+  (q) => q.id === "income-goal" || q.id === "settlement-type",
+);
 
 /* ── 공통 타입 ── */
 

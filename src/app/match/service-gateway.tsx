@@ -17,7 +17,7 @@ import {
 import { MatchWizard } from "./match-wizard";
 import { AssessmentWizard } from "../assess/assessment-wizard";
 import { useAssessmentHistory } from "@/hooks/use-assessment-history";
-import { FARM_TYPES } from "@/lib/data/match-questions";
+import { FARM_TYPES, migrateFarmTypeId } from "@/lib/data/match-questions";
 import s from "./service-gateway.module.css";
 
 type Mode = "select" | "match" | "assess";
@@ -93,7 +93,8 @@ export function ServiceGateway() {
           </div>
           <div className={s.historyList}>
             {history.map((item) => {
-              const ft = FARM_TYPES.find((t) => t.id === item.farmTypeId);
+              const migratedId = migrateFarmTypeId(item.farmTypeId);
+              const ft = FARM_TYPES.find((t) => t.id === migratedId);
               return (
                 <Link
                   key={item.resultId}
@@ -103,7 +104,7 @@ export function ServiceGateway() {
                   <span className={s.historyEmoji}>{ft?.emoji ?? "🌾"}</span>
                   <div className={s.historyBody}>
                     <div className={s.historyTopRow}>
-                      <span className={s.historyLabel}>{item.farmTypeLabel}</span>
+                      <span className={s.historyLabel}>{ft?.label ?? item.farmTypeLabel}</span>
                       <span className={s.historyDate}>{formatDate(item.savedAt)}</span>
                     </div>
                     <span className={s.historyRegions}>
@@ -128,6 +129,9 @@ export function ServiceGateway() {
           className={`${s.card} ${s.cardRecommended}`}
           onClick={() => setMode("assess")}
         >
+          <span className={s.cardHintBubble}>
+            어디서부터 시작할지 모르겠다면 여기부터!
+          </span>
           <div className={`${s.cardIcon} ${s.cardIconAssess}`}>
             <ClipboardCheck size={28} />
           </div>
@@ -137,20 +141,17 @@ export function ServiceGateway() {
               <span className={s.badge}>추천</span>
             </div>
             <p className={s.cardDesc}>
-              동기, 재정, 가족, 경험, 적응력 — 5가지 차원으로
+              5가지 차원 적합도 진단 + 국가지원 트랙 추천까지,
               나의 귀농 준비 상태를 객관적으로 점검해요.
-            </p>
-            <p className={s.cardHint}>
-              어디서부터 시작할지 모르겠다면 이 진단을 먼저 해보세요.
             </p>
             <div className={s.cardMeta}>
               <span className={s.cardMetaItem}>
                 <ListChecks size={14} />
-                10문항
+                14문항
               </span>
               <span className={s.cardMetaItem}>
                 <Clock size={14} />
-                약 3분
+                약 4분
               </span>
             </div>
           </div>
@@ -171,13 +172,13 @@ export function ServiceGateway() {
           <div className={s.cardBody}>
             <h2 className={s.cardTitle}>맞춤 지역·작물 추천</h2>
             <p className={s.cardDesc}>
-              기후, 생활환경, 관심 작물 등 5가지 질문에 답하면
+              기후, 생활환경, 관심 작물 등 7가지 질문에 답하면
               나에게 딱 맞는 귀농 지역과 작물을 추천해 드립니다.
             </p>
             <div className={s.cardMeta}>
               <span className={s.cardMetaItem}>
                 <ListChecks size={14} />
-                5문항
+                7문항
               </span>
               <span className={s.cardMetaItem}>
                 <Clock size={14} />

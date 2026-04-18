@@ -39,10 +39,11 @@ setInterval(() => {
 // ── 유효한 farm_type_id 목록 ──
 
 const VALID_FARM_TYPE_IDS: FarmTypeId[] = [
-  "weekend",
+  "guinong",
+  "guichon",
+  "guisanchon",
   "smartfarm",
-  "rural-life",
-  "young-entrepreneur",
+  "cheongnyeon",
 ];
 
 // ── POST 핸들러 ──

@@ -348,18 +348,7 @@
   word-break: keep-all;
 }
 
-.cardHint {
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  color: #d4730d;
-  margin: 2px 0 0;
-  padding: 5px 10px;
-  background: color-mix(in srgb, #d4730d 8%, transparent);
-  border-radius: 6px;
-  width: fit-content;
-  word-break: keep-all;
-  line-height: var(--lh-normal);
-}
+/* .cardHint — 말풍선(.cardHintBubble)으로 대체됨 */
 
 .cardMeta {
   display: flex;
@@ -395,16 +384,65 @@
   transform: translateX(2px);
 }
 
-/* ── 추천 카드 강조 ── */
+/* ── 추천 카드 (말풍선 위치용) ── */
 .cardRecommended {
-  border-color: var(--primary, #1b6b5a);
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 3%, var(--card, #fff));
+  position: relative;
 }
 
 @media (hover: hover) {
   .cardRecommended:hover {
-    border-color: var(--primary, #1b6b5a);
-    box-shadow: 0 8px 28px rgba(27, 107, 90, 0.16);
+    border-color: #d4730d;
+    box-shadow: 0 8px 28px rgba(212, 115, 13, 0.16);
+  }
+}
+
+.cardRecommended .cardArrow {
+  color: #d4730d;
+}
+
+/* ── 말풍선 힌트 ── */
+.cardHintBubble {
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: #fff;
+  background: #d4730d;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(212, 115, 13, 0.25);
+  z-index: 1;
+  animation: bubbleBounce 2s ease-in-out infinite;
+}
+
+.cardHintBubble::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  right: 24px;
+  width: 12px;
+  height: 12px;
+  background: #d4730d;
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+
+@keyframes bubbleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@media (max-width: 639px) {
+  .cardHintBubble {
+    right: 12px;
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .cardHintBubble::after {
+    right: 18px;
   }
 }
 

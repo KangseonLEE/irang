@@ -156,6 +156,31 @@
   color: #fff;
 }
 
+/* ── 마감 임박 빈 상태 ── */
+.emptyDeadline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 48px 20px;
+  border: 1px dashed var(--border, #e5e7eb);
+  border-radius: 16px;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.emptyDeadlineText {
+  margin: 0;
+  font-size: var(--fs-body, 1rem);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+}
+
+.emptyDeadlineSub {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+}
+
 /* ── 카드 캐러셀 (3단 고정) ── */
 .carousel {
   display: grid;

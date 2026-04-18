@@ -239,42 +239,84 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
 
             {/* 하단 썸네일 내비게이션 */}
             <div className={s.nav}>
-              {filtered.map((item, i) => (
-                <button
-                  key={`${item.category}-${i}`}
-                  type="button"
-                  className={`${s.navItem} ${i === featuredIdx ? s.navItemActive : ""}`}
-                  onClick={() => transitionTo(i)}
-                  onMouseEnter={() => {
-                    setIsPaused(true);
-                    transitionTo(i);
-                  }}
-                  onMouseLeave={() => setIsPaused(false)}
-                >
-                  <div className={s.navThumb}>
-                    {item.thumbnail && !brokenImgs.has(item.thumbnail) ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.thumbnail}
-                        alt=""
-                        className={s.navThumbImg}
-                        loading="lazy"
-                        onError={() => {
-                          setBrokenImgs((prev) => new Set(prev).add(item.thumbnail!));
-                        }}
-                      />
-                    ) : (
-                      <div className={s.navThumbFallback}>
-                        <Sprout size={16} />
-                      </div>
-                    )}
-                  </div>
-                  <div className={s.navText}>
-                    <span className={s.navTitle}>{item.title}</span>
-                    <span className={s.navMeta}>{item.source} · {item.date}</span>
-                  </div>
-                </button>
-              ))}
+              {filtered.map((item, i) => {
+                const isActive = i === featuredIdx;
+                return (
+                  <button
+                    key={`${item.category}-${i}`}
+                    type="button"
+                    className={`${s.navItem} ${isActive ? s.navItemActive : ""}`}
+                    onClick={() => transitionTo(i)}
+                    onMouseEnter={() => {
+                      setIsPaused(true);
+                      transitionTo(i);
+                    }}
+                    onMouseLeave={() => setIsPaused(false)}
+                  >
+                    <div className={s.navThumb}>
+                      {item.thumbnail && !brokenImgs.has(item.thumbnail) ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.thumbnail}
+                          alt=""
+                          className={s.navThumbImg}
+                          loading="lazy"
+                          onError={() => {
+                            setBrokenImgs((prev) => new Set(prev).add(item.thumbnail!));
+                          }}
+                        />
+                      ) : (
+                        <div className={s.navThumbFallback}>
+                          <Sprout size={16} />
+                        </div>
+                      )}
+                    </div>
+                    <div className={s.navText}>
+                      <span className={s.navTitle}>{item.title}</span>
+                      <span className={s.navMeta}>{item.source} · {item.date}</span>
+                    </div>
+
+                    {/* 모바일 확장 영역 — grid-row 아코디언 (CSS로 데스크탑 숨김) */}
+                    <div className={s.navExpandWrap}>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={s.navExpanded}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className={s.slideVisual}>
+                          {item.thumbnail && !brokenImgs.has(item.thumbnail) ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={item.thumbnail}
+                              alt=""
+                              className={s.slideImg}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className={s.slideIllust}>
+                              <Sprout size={28} />
+                              <span>농촌 소식</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className={s.slideBody}>
+                          <span className={s.slideBadge}>{item.source}</span>
+                          <span className={s.slideTitle}>{item.title}</span>
+                          {item.description && (
+                            <span className={s.slideDesc}>{item.description}</span>
+                          )}
+                          <span className={s.slideMeta}>
+                            {item.source} · {item.date}
+                            <ExternalLink size={12} />
+                          </span>
+                        </div>
+                      </a>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </>
         ) : (

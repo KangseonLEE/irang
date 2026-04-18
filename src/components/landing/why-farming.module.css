@@ -331,6 +331,13 @@
   }
 }
 
+.reasonsHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .reasonsTitle {
   margin: 0;
   font-size: var(--fs-body, 1rem);
@@ -338,8 +345,16 @@
   color: var(--foreground, #111827);
 }
 
+.surveyCount {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+}
+
 @media (min-width: 1024px) {
   .reasonsTitle { font-size: 1.125rem; }
+  .surveyCount { font-size: 0.8125rem; }
 }
 
 .reasonsList {

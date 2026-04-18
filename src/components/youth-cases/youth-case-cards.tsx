@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Users, Leaf, Play, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { useDragScroll } from "@/lib/hooks/use-drag-scroll";
 import type { YouthCaseCard } from "@/lib/api/rda-youth";
@@ -144,24 +144,19 @@ export function YouthCaseCards({
               </div>
             )}
 
-            {/* 유튜브 스타일 텍스트 영역 */}
+            {/* 텍스트 영역 */}
             <div className={s.cardBody}>
-              <div className={s.avatarSlot} aria-hidden="true">
-                <Leaf size={16} />
-              </div>
-              <div className={s.cardText}>
-                <p className={s.title}>{c.title}</p>
-                <div className={s.meta}>
-                  <span>{c.farmerName}</span>
-                  <span className={s.metaDot} aria-hidden="true">·</span>
-                  <span>{c.cropName}</span>
-                  {c.region && (
-                    <>
-                      <span className={s.metaDot} aria-hidden="true">·</span>
-                      <span>{c.region}</span>
-                    </>
-                  )}
-                </div>
+              <p className={s.title}>{c.title}</p>
+              <div className={s.meta}>
+                <span>{c.farmerName}</span>
+                <span className={s.metaDot} aria-hidden="true">·</span>
+                <span>{c.cropName}</span>
+                {c.region && (
+                  <>
+                    <span className={s.metaDot} aria-hidden="true">·</span>
+                    <span>{c.region}</span>
+                  </>
+                )}
               </div>
             </div>
           </a>

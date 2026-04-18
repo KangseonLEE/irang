@@ -105,6 +105,9 @@ export interface TrendReason {
   pct: number;
 }
 
+/** 귀농귀촌 실태조사 응답자 수 (2025 기준) */
+export const trendSurveyRespondents = "3,092명";
+
 export const trendReasons: TrendReason[] = [
   { label: "자연환경이 좋아서", pct: 30 },
   { label: "농업의 비전·발전 가능성", pct: 22 },

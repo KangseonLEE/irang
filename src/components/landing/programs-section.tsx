@@ -115,76 +115,82 @@ export function ProgramsSection({ activePrograms, deadlinePrograms }: Props) {
       </div>
 
       {/* 탭 */}
-      {hasDeadline && (
-        <div className={s.tabs} role="tablist">
-          <button
-            role="tab"
-            aria-selected={tab === "active"}
-            className={`${s.tab} ${tab === "active" ? s.tabActive : ""}`}
-            onClick={() => switchTab("active")}
-          >
-            진행·예정 공고
-          </button>
-          <button
-            role="tab"
-            aria-selected={tab === "deadline"}
-            className={`${s.tab} ${tab === "deadline" ? s.tabActive : ""}`}
-            onClick={() => switchTab("deadline")}
-          >
-            <Clock size={13} className={s.tabIcon} />
-            마감 임박
-            <span className={s.tabCount}>{deadlinePrograms.length}</span>
-          </button>
-        </div>
-      )}
+      <div className={s.tabs} role="tablist">
+        <button
+          role="tab"
+          aria-selected={tab === "active"}
+          className={`${s.tab} ${tab === "active" ? s.tabActive : ""}`}
+          onClick={() => switchTab("active")}
+        >
+          진행·예정 공고
+        </button>
+        <button
+          role="tab"
+          aria-selected={tab === "deadline"}
+          className={`${s.tab} ${tab === "deadline" ? s.tabActive : ""}`}
+          onClick={() => switchTab("deadline")}
+        >
+          <Clock size={13} className={s.tabIcon} />
+          마감 임박
+          {hasDeadline && <span className={s.tabCount}>{deadlinePrograms.length}</span>}
+        </button>
+      </div>
 
       {/* 캐러셀 */}
-      <div ref={scrollRef} className={carouselCls}>
-        {programs.map((p) => {
-          const isDeadline = tab === "deadline" && "daysLeft" in p;
-          const dl = isDeadline ? (p as SupportProgram & { daysLeft: number }) : null;
-          const isUpcoming = !isDeadline && "programStatus" in p && p.programStatus === "모집예정";
+      {programs.length > 0 ? (
+        <div ref={scrollRef} className={carouselCls}>
+          {programs.map((p) => {
+            const isDeadline = tab === "deadline" && "daysLeft" in p;
+            const dl = isDeadline ? (p as SupportProgram & { daysLeft: number }) : null;
+            const isUpcoming = !isDeadline && "programStatus" in p && p.programStatus === "모집예정";
 
-          return (
-            <Link
-              key={p.id}
-              href={`/programs/${p.id}`}
-              className={`${s.card} ${isDeadline ? s.cardDeadline : ""}`}
-            >
-              <div className={s.cardTopRow}>
-                <div className={s.cardTopLeft}>
-                  {isDeadline && dl ? (
-                    <span className={s.dday}>
-                      {dl.daysLeft === 0 ? "오늘 마감" : `D-${dl.daysLeft}`}
-                    </span>
-                  ) : isUpcoming ? (
-                    <span className={s.tagUpcoming}>모집예정</span>
-                  ) : (
-                    <span className={s.tag}>모집중</span>
-                  )}
-                  <span className={s.region}>{p.region}</span>
+            return (
+              <Link
+                key={p.id}
+                href={`/programs/${p.id}`}
+                className={`${s.card} ${isDeadline ? s.cardDeadline : ""}`}
+              >
+                <div className={s.cardTopRow}>
+                  <div className={s.cardTopLeft}>
+                    {isDeadline && dl ? (
+                      <span className={s.dday}>
+                        {dl.daysLeft === 0 ? "오늘 마감" : `D-${dl.daysLeft}`}
+                      </span>
+                    ) : isUpcoming ? (
+                      <span className={s.tagUpcoming}>모집예정</span>
+                    ) : (
+                      <span className={s.tag}>모집중</span>
+                    )}
+                    <span className={s.region}>{p.region}</span>
+                  </div>
+                  <span className={s.typeBadge}>{p.supportType}</span>
                 </div>
-                <span className={s.typeBadge}>{p.supportType}</span>
-              </div>
-              <h3 className={s.cardTitle}>{p.title}</h3>
-              {isDeadline ? (
-                <p className={s.cardDesc}>{p.summary}</p>
-              ) : (
-                <span className={s.amount}>{p.supportAmount}</span>
-              )}
-              <div className={s.cardMeta}>
-                <span className={s.metaItem}>
-                  신청 {p.applicationStart.slice(5).replace("-", ".")} ~ {p.applicationEnd.slice(5).replace("-", ".")}
-                </span>
-                <span className={s.metaItem}>
-                  연령 {p.eligibilityAgeMin}~{p.eligibilityAgeMax}세
-                </span>
-              </div>
-              <span className={s.org}>{p.organization}</span>
-            </Link>
-          );
-        })}
-      </div>
+                <h3 className={s.cardTitle}>{p.title}</h3>
+                {isDeadline ? (
+                  <p className={s.cardDesc}>{p.summary}</p>
+                ) : (
+                  <span className={s.amount}>{p.supportAmount}</span>
+                )}
+                <div className={s.cardMeta}>
+                  <span className={s.metaItem}>
+                    신청 {p.applicationStart.slice(5).replace("-", ".")} ~ {p.applicationEnd.slice(5).replace("-", ".")}
+                  </span>
+                  <span className={s.metaItem}>
+                    연령 {p.eligibilityAgeMin}~{p.eligibilityAgeMax}세
+                  </span>
+                </div>
+                <span className={s.org}>{p.organization}</span>
+              </Link>
+            );
+          })}
+        </div>
+      ) : (
+        <div className={s.emptyDeadline}>
+          <Clock size={20} />
+          <p className={s.emptyDeadlineText}>마감 임박한 사업이 아직 없어요</p>
+          <span className={s.emptyDeadlineSub}>마감 14일 전부터 여기에 표시돼요</span>
+        </div>
+      )}
     </section>
   );
 }

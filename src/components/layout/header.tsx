@@ -97,14 +97,17 @@ export function Header() {
       // 최상단 근처에서는 항상 표시
       if (y < 56) {
         setHeaderHidden(false);
+        delete document.documentElement.dataset.headerHidden;
         lastScrollY.current = y;
         return;
       }
       const delta = y - lastScrollY.current;
       if (delta > THRESHOLD) {
         setHeaderHidden(true);
+        document.documentElement.dataset.headerHidden = "";
       } else if (delta < -THRESHOLD) {
         setHeaderHidden(false);
+        delete document.documentElement.dataset.headerHidden;
       }
       lastScrollY.current = y;
     };

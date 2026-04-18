@@ -5,6 +5,7 @@ import { DataSource } from "@/components/ui/data-source";
 import {
   trendStats,
   trendReasons,
+  trendSurveyRespondents,
   cityVsRural,
 } from "@/lib/data/landing";
 import s from "./why-farming.module.css";
@@ -55,7 +56,10 @@ export function WhyFarming() {
 
         {/* 귀농 이유 바 차트 */}
         <div className={`${s.tile} ${s.tileReasons}`}>
-          <h3 className={s.reasonsTitle}>어떤 이유로 떠났을까?</h3>
+          <div className={s.reasonsHeader}>
+            <h3 className={s.reasonsTitle}>어떤 이유로 떠났을까?</h3>
+            <span className={s.surveyCount}>귀농인 {trendSurveyRespondents} 응답</span>
+          </div>
           <div className={s.reasonsList}>
             {trendReasons.map((reason, i) => (
               <div key={reason.label} className={s.reasonRow}>

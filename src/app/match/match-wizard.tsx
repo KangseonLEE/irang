@@ -40,6 +40,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
   const [resultId, setResultId] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [dimScores, setDimScores] = useState<DimensionScores | undefined>();
+  const [ageGroup, setAgeGroup] = useState<string | undefined>();
   const { addResult } = useAssessmentHistory();
 
   // 빠른 연타 클릭 방어 — setTimeout 전환 중 추가 클릭 차단
@@ -93,6 +94,12 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
     }
     if (Object.keys(dims).length > 0) {
       setDimScores(dims); // eslint-disable-line react-hooks/set-state-in-effect
+    }
+
+    // 연령대 파싱 (진단에서 전달)
+    const age = searchParams.get("ageGroup");
+    if (age) {
+      setAgeGroup(age); // eslint-disable-line react-hooks/set-state-in-effect
     }
   }, [searchParams]);
 
@@ -177,7 +184,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
     const id = generateResultId();
     setResultId(id);
 
-    const ft = classifyFarmType(answers);
+    const ft = classifyFarmType(answers, ageGroup);
     const provinces = scoreProvinces(answers, dimScores);
     const crops = recommendCrops(answers, provinces);
 
@@ -216,7 +223,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
 
   // 유형 분류
   const farmType = useMemo(
-    () => (showResult ? classifyFarmType(answers) : null),
+    () => (showResult ? classifyFarmType(answers, ageGroup) : null),
     [showResult, answers]
   );
 
@@ -271,6 +278,16 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
         </span>
       </div>
 
+      {/* 이전 버튼 — 진행바 바로 아래 */}
+      <button
+        onClick={handleBack}
+        className={s.navBtnBack}
+        type="button"
+      >
+        <ArrowLeft size={16} />
+        {step === 0 ? "처음으로" : "이전"}
+      </button>
+
       {/* 질문 */}
       <div className={s.questionWrap}>
         <h1 className={s.questionTitle}>{currentQuestion.title}</h1>
@@ -312,17 +329,8 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
         </div>
       </div>
 
-      {/* 네비게이션 */}
+      {/* 하단 네비게이션 (다음/건너뛰기) */}
       <div className={s.navBar}>
-        <button
-          onClick={handleBack}
-          className={s.navBtnBack}
-          type="button"
-        >
-          <ArrowLeft size={16} />
-          {step === 0 ? "처음으로" : "이전"}
-        </button>
-
         {/* pre-fill된 단일 선택 질문: 건너뛰기 버튼 표시 */}
         {!currentQuestion.multiple &&
           prefilled.has(currentQuestion.id) &&

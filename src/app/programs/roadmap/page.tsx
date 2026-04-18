@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BookOpen, GitCompareArrows } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { fetchYouthCasesForRoadmap } from "@/lib/api/rda-youth";
 import { RoadmapClient } from "./roadmap-client";
 import s from "./page.module.css";
@@ -28,15 +29,16 @@ export default async function ProgramRoadmapPage() {
   return (
     <div className={s.page}>
       {/* ── 히어로 ── */}
-      <section className={s.hero}>
-        <span className={s.heroOverline}>Gov Program Guide</span>
-        <h1 className={s.heroTitle}>
-          정부사업, <span className={s.accent}>어떻게 신청</span>하나요?
-        </h1>
-        <p className={s.heroDesc}>
-          <AutoGlossary text="귀농·귀촌을 위한 5대 핵심 정부사업의 자격 요건부터 신청 절차, 필요 서류, 선정 후 의무사항까지 한곳에서 확인하세요." />
-        </p>
-      </section>
+      <SubPageHero
+        overline="Gov Program Guide"
+        title="정부사업, 어떻게 신청하나요?"
+        titleAccent="어떻게 신청"
+        description={
+          <p>
+            <AutoGlossary text="귀농·귀촌을 위한 5대 핵심 정부사업의 자격 요건부터 신청 절차, 필요 서류, 선정 후 의무사항까지 한곳에서 확인하세요." />
+          </p>
+        }
+      />
 
       {/* ── 인터랙티브 영역 (클라이언트) ── */}
       <RoadmapClient youthCases={youthCases} />

@@ -7,8 +7,12 @@
 .section {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
-  padding: 28px 24px 22px;
+  border-radius: 16px;
+  padding: 20px 16px 18px;
+}
+
+@media (min-width: 480px) {
+  .section { border-radius: 20px; padding: 28px 24px 22px; }
 }
 
 @media (min-width: 640px) {
@@ -159,34 +163,13 @@
   }
 }
 
-/* ── 텍스트 영역 (유튜브 스타일) ── */
+/* ── 텍스트 영역 ── */
 
 .cardBody {
   display: flex;
-  gap: 12px;
-  padding: 12px 4px 0;
-}
-
-/* 좌측 아바타 원형 (crop 태그) */
-.avatarSlot {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 12%, transparent);
-  color: var(--primary, #1B6B5A);
-}
-
-/* 우측 텍스트 */
-.cardText {
-  display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  flex: 1;
+  gap: 4px;
+  padding: 10px 2px 0;
 }
 
 .title {

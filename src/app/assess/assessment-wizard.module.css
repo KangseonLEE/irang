@@ -169,6 +169,7 @@
 @media (min-width: 640px) {
   .questionTitle {
     font-size: var(--fs-h2);
+    text-wrap: pretty;
   }
 }
 
@@ -257,14 +258,15 @@
 .navBtnBack {
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
   gap: 4px;
-  padding: 10px 16px;
-  font-size: var(--fs-body-sm);
+  padding: 6px 12px;
+  font-size: var(--fs-caption);
   font-weight: 600;
   color: var(--muted-foreground);
   background: none;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
   font-family: inherit;
@@ -489,10 +491,10 @@
   word-break: keep-all;
 }
 
-/* ── CTA 버튼 영역 ── */
+/* ── CTA 버튼 영역 (2단 그리드) ── */
 .resultActions {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
@@ -517,27 +519,21 @@
   }
 }
 
-.resultSubActions {
-  display: flex;
-  gap: 10px;
-}
-
 .retryBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 12px 20px;
+  padding: 14px 20px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--muted-foreground);
   background: none;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
   font-family: inherit;
   transition: border-color 0.15s, color 0.15s;
-  flex: 1;
 }
 
 @media (hover: hover) {
@@ -547,40 +543,13 @@
   }
 }
 
-.shareBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px 20px;
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--muted-foreground);
-  background: none;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
-  flex: 1;
-}
-
-@media (hover: hover) {
-  .shareBtn:hover {
-    border-color: var(--foreground);
-    color: var(--foreground);
-  }
-}
-
-.shareBtn:active {
-  background: var(--muted, #f9fafb);
-}
-
 /* ── 보강 가이드 섹션 ── */
+/* ── 보강 가이드 ── */
+
 .reinforceSection {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .reinforceTitle {
@@ -594,70 +563,65 @@
 }
 
 .reinforceTitle svg {
-  color: #f59e0b;
-}
-
-.reinforceSubtitle {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  margin: 0;
-  word-break: keep-all;
+  color: var(--primary, #1b6b5a);
 }
 
 .reinforceCards {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 4px;
+  gap: 12px;
 }
 
 .reinforceCard {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  /* 좌측 악센트 보더 */
-  border-left: 4px solid #f59e0b;
-}
-
-.reinforceCardHeader {
-  display: flex;
-  align-items: center;
   gap: 10px;
 }
 
-.reinforceCardIcon {
-  font-size: 24px;
-  line-height: 1;
-}
-
-.reinforceCardMeta {
+.reinforceCardTop {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex: 1;
+}
+
+.reinforceCardIcon {
+  font-size: 20px;
+  line-height: 1;
 }
 
 .reinforceCardLabel {
-  font-size: var(--fs-body);
+  font-size: var(--fs-body-sm);
   font-weight: 700;
   color: var(--foreground);
+  flex: 1;
 }
 
 .reinforceCardScore {
   font-size: var(--fs-caption);
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  background: #fffbeb;
   color: #b45309;
 }
 
+.reinforceBarWrap {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--muted, #f3f4f6);
+  overflow: hidden;
+}
+
+.reinforceBarFill {
+  height: 100%;
+  border-radius: 2px;
+  background: #f59e0b;
+  transition: width 0.5s ease;
+}
+
 .reinforceCardMessage {
-  font-size: var(--fs-body-sm);
+  font-size: var(--fs-caption);
   line-height: var(--lh-normal);
   color: var(--muted-foreground);
   margin: 0;
@@ -667,84 +631,55 @@
 .reinforceActionList {
   list-style: none;
   padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.reinforceAction {
+  margin: 4px 0 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 14px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
 }
 
-.reinforceActionBody {
+.reinforceAction {
   display: flex;
   align-items: flex-start;
   gap: 10px;
 }
 
-.reinforceActionPriority {
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 7px;
-  background: #f59e0b;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
+.reinforceActionDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary, #1b6b5a);
   flex-shrink: 0;
-  margin-top: 1px;
+  margin-top: 7px;
 }
 
-.reinforceActionTitle {
+.reinforceActionContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.reinforceActionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-size: var(--fs-body-sm);
   font-weight: 700;
-  color: var(--foreground);
-  display: block;
-  margin-bottom: 2px;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+@media (hover: hover) {
+  .reinforceActionLink:hover {
+    opacity: 0.7;
+  }
 }
 
 .reinforceActionDesc {
   font-size: var(--fs-caption);
   line-height: var(--lh-normal);
   color: var(--muted-foreground);
-  margin: 0;
+  margin: 2px 0 0;
   word-break: keep-all;
-}
-
-.reinforceActionTime {
-  font-size: 11px;
-  color: var(--muted-foreground);
-  margin-top: 4px;
-  display: inline-block;
-}
-
-.reinforceActionLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  align-self: flex-end;
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--primary, #1b6b5a);
-  text-decoration: none;
-  padding: 4px 10px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  transition: background-color 0.15s;
-}
-
-@media (hover: hover) {
-  .reinforceActionLink:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
-  }
 }
 
 /* ═══ 인구통계 질문 ═══ */
@@ -755,15 +690,11 @@
   line-height: var(--lh-normal);
 }
 
-/* ═══ 맞춤 지원사업 카드 (결과 화면) ═══ */
-.demoHintsCard {
+/* ═══ 맞춤 지원사업 (결과 화면) ═══ */
+.demoHintsSection {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 20px;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
-  border: 1px solid #bbf7d0;
 }
 
 .demoHintsTitle {
@@ -773,33 +704,47 @@
   margin: 0;
 }
 
-.demoHintsList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.demoHintsCards {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.demoHintItem {
+.demoHintCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+}
+
+.demoHintIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.demoHintText {
   font-size: var(--fs-body-sm);
   color: var(--foreground, #111827);
   line-height: var(--lh-normal);
-  padding-left: 16px;
-  position: relative;
+  margin: 0;
   word-break: keep-all;
 }
 
-.demoHintItem::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  color: var(--primary, #1b6b5a);
-  font-weight: 700;
-}
-
 .demoHintsLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
@@ -809,6 +754,161 @@
 
 @media (hover: hover) {
   .demoHintsLink:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ═══════════════════════════════════════
+   트랙 질문 (국가지원 트랙 분류)
+   ═══════════════════════════════════════ */
+
+.trackOptionsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.trackOptionCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 12px;
+  border-radius: var(--radius-lg);
+  background: var(--card, #fff);
+  border: 2px solid var(--border, #e5e7eb);
+  cursor: pointer;
+  text-align: center;
+  font-family: inherit;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .trackOptionCard:hover {
+    border-color: var(--readiness, #d97706);
+    box-shadow: 0 4px 16px rgba(217, 119, 6, 0.1);
+  }
+}
+
+.trackOptionSelected {
+  border-color: var(--readiness, #d97706);
+  background: color-mix(in srgb, var(--readiness, #d97706) 6%, transparent);
+}
+
+.trackOptionIcon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--readiness, #d97706) 10%, transparent);
+  color: var(--readiness-strong, #b45309);
+}
+
+.trackOptionLabel {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.trackOptionDesc {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  line-height: var(--lh-snug);
+  word-break: keep-all;
+}
+
+/* ═══════════════════════════════════════
+   결과: 추천 국가지원 트랙 카드
+   ═══════════════════════════════════════ */
+
+.trackCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 20px;
+  border-radius: var(--radius-lg);
+  background: var(--card, #fff);
+  border: 2px solid color-mix(in srgb, var(--primary, #1b6b5a) 25%, transparent);
+  box-shadow: 0 4px 20px rgba(27, 107, 90, 0.08);
+}
+
+.trackCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.trackCardEmoji {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.trackCardOverline {
+  display: block;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  letter-spacing: 0.05em;
+}
+
+.trackCardLabel {
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  color: var(--foreground);
+  margin: 2px 0 0;
+}
+
+.trackCardTagline {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.trackCardDesc {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  margin: 0;
+  line-height: var(--lh-normal);
+  word-break: keep-all;
+}
+
+.trackCardTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.trackCardTrait {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+}
+
+.trackCardLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  margin-top: 4px;
+  align-self: flex-start;
+}
+
+@media (hover: hover) {
+  .trackCardLink:hover {
     text-decoration: underline;
   }
 }

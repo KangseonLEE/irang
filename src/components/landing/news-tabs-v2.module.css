@@ -352,18 +352,126 @@
   text-overflow: ellipsis;
 }
 
-/* 모바일: 네비 세로 스택 */
+/* 모바일 확장 래퍼: 데스크탑에서는 숨김 */
+.navExpandWrap {
+  display: none;
+}
+
+.navExpanded {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ════════════════════════════════════════
+   모바일: 슬라이더 숨기고 아코디언 전환
+   ════════════════════════════════════════ */
 @media (max-width: 639px) {
+  .slider {
+    display: none;
+  }
+
   .nav {
     flex-direction: column;
     gap: 8px;
     overflow-x: hidden;
+    margin-top: 0;
   }
+
   .navItem {
     flex: unset;
     width: 100%;
     box-sizing: border-box;
     max-width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 10px 14px;
+    transition:
+      border-color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+      box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+      opacity 0.35s ease,
+      padding 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+      border-radius 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  /* 접힌 카드: 가로 배치 */
+  .navItem:not(.navItemActive) {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.65;
+  }
+
+  .navItem:not(.navItemActive) .navExpandWrap {
+    display: none;
+  }
+
+  /* ── grid-row 아코디언 래퍼 ── */
+  .navExpandWrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .navExpanded {
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* 펼친 상태 */
+  .navItemActive {
+    padding: 0;
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+    border-radius: 16px;
+    overflow: hidden;
+    opacity: 1;
+  }
+
+  .navItemActive .navThumb,
+  .navItemActive .navText {
+    display: none;
+  }
+
+  .navItemActive .navExpandWrap {
+    grid-template-rows: 1fr;
+  }
+
+  /* 확장 내부 콘텐츠 페이드 */
+  .navItemActive .navExpanded .slideVisual {
+    height: 160px;
+    opacity: 0;
+    animation: fadeReveal 0.35s cubic-bezier(0.25, 1, 0.5, 1) 0.15s forwards;
+  }
+
+  .navItemActive .navExpanded .slideBody {
+    padding: 14px 16px;
+    gap: 6px;
+    opacity: 0;
+    transform: translateY(6px);
+    animation: slideUpReveal 0.4s cubic-bezier(0.25, 1, 0.5, 1) 0.2s forwards;
+  }
+
+  .navItemActive .navExpanded .slideTitle {
+    font-size: 1.0625rem;
+  }
+
+  .navItemActive .navExpanded .slideDesc {
+    -webkit-line-clamp: 3;
+  }
+}
+
+/* ── 아코디언 내부 콘텐츠 애니메이션 ── */
+@keyframes fadeReveal {
+  to { opacity: 1; }
+}
+
+@keyframes slideUpReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

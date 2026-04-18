@@ -74,6 +74,7 @@
 @media (min-width: 640px) {
   .questionTitle {
     font-size: var(--fs-h2);
+    text-wrap: pretty;
   }
 }
 
@@ -202,7 +203,7 @@
 /* ═══ 하단 네비게이션 ═══ */
 .navBar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: 12px;
   padding-top: 8px;
@@ -211,14 +212,15 @@
 .navBtnBack {
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
   gap: 4px;
-  padding: 10px 16px;
-  font-size: var(--fs-body-sm);
+  padding: 6px 12px;
+  font-size: var(--fs-caption);
   font-weight: 600;
   color: var(--muted-foreground);
   background: none;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
   font-family: inherit;

@@ -27,7 +27,6 @@ import {
   Maximize2,
   Clock,
   Zap,
-  Play,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import {
@@ -37,7 +36,6 @@ import {
   type CropDetailInfo,
   type ProsConsInfo,
   type CultivationStep,
-  type ExternalResource,
 } from "@/lib/data/crops";
 import { PROVINCES } from "@/lib/data/regions";
 import {
@@ -201,7 +199,6 @@ export default async function CropDetailPage({
     { id: "region", label: "재배지역" },
     ...(youthCases.length > 0 ? [{ id: "youth-cases", label: "청년농 사례" }] : []),
     { id: "tips", label: "귀농팁" },
-    ...(detail.externalResources?.length ? [{ id: "videos", label: "관련 영상" }] : []),
   ];
 
   return (
@@ -282,7 +279,6 @@ export default async function CropDetailPage({
               />
             </div>
           </div>
-          <p className={s.heroDesc}><AutoGlossary text={data.description} /></p>
 
           {/* Quick Stats — 요약 프로필 카드 */}
           <div className={s.quickStats}>
@@ -311,10 +307,14 @@ export default async function CropDetailPage({
         </div>
       </section>
 
-      <ReferenceNotice text="작물 정보는 농촌진흥청·통계청 데이터를 가공한 참고 자료예요. 실제 재배 조건은 지역·품종에 따라 달라요." />
+      <div className={s.referenceWrap}>
+        <ReferenceNotice text="작물 정보는 농촌진흥청·통계청 데이터를 가공한 참고 자료예요. 실제 재배 조건은 지역·품종에 따라 달라요." />
+      </div>
 
       {/* ── Sticky Anchor Tab ── */}
-      <AnchorTabNav sections={anchorSections} />
+      <div className={s.anchorTabWrap}>
+        <AnchorTabNav sections={anchorSections} />
+      </div>
 
       {/* ── 본문 ── */}
       <div className={s.mainGrid}>
@@ -384,11 +384,6 @@ export default async function CropDetailPage({
 
           {/* 귀농 팁 */}
           <TipsSection tips={detail.tips} />
-
-          {/* 관련 영상 */}
-          {detail.externalResources && detail.externalResources.length > 0 && (
-            <ExternalResourcesSection resources={detail.externalResources} />
-          )}
         </div>
 
         {/* 사이드바 */}
@@ -904,44 +899,6 @@ function TipsSection({ tips }: { tips: string[] }) {
   );
 }
 
-function ExternalResourcesSection({ resources }: { resources: ExternalResource[] }) {
-  return (
-    <section id="videos" className={s.section}>
-      <SectionHeader icon={<Icon icon={Play} size="lg" />} title="관련 영상" />
-      <div className={s.sectionBody}>
-        <div className={s.videoGrid}>
-          {resources.map((res, i) => (
-            <a
-              key={i}
-              href={res.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={s.videoCard}
-            >
-              {res.thumbnail && (
-                <div className={s.videoThumb}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={res.thumbnail}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    className={s.videoThumbImg}
-                  />
-                  <span className={s.videoPlayIcon} aria-hidden="true">
-                    <Play size={24} fill="white" stroke="white" />
-                  </span>
-                </div>
-              )}
-              <p className={s.videoTitle}>{res.title}</p>
-              {res.source && <span className={s.videoSource}>{res.source}</span>}
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function RelatedProgramsSection({
   relatedPrograms,

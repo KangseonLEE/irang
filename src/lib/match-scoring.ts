@@ -20,50 +20,75 @@ import {
    1. 귀농 유형 분류
    ══════════════════════════════════════════════ */
 
-/** 답변 조합으로 귀농 유형 점수 산출 */
-export function classifyFarmType(answers: Answers): FarmType {
+/** 답변 조합으로 귀농 유형(정부 트랙) 점수 산출 */
+export function classifyFarmType(
+  answers: Answers,
+  ageGroup?: string,
+): FarmType {
   const scores: Record<FarmTypeId, number> = {
-    weekend: 0,
+    guinong: 0,
+    guichon: 0,
+    guisanchon: 0,
     smartfarm: 0,
-    "rural-life": 0,
-    "young-entrepreneur": 0,
+    cheongnyeon: 0,
   };
 
   // 기후
   for (const ans of answers.climate || []) {
-    if (ans === "warm") { scores["rural-life"] += 2; scores.weekend += 1; }
-    if (ans === "four-season") { scores.smartfarm += 2; scores.weekend += 1; }
-    if (ans === "cool") { scores["rural-life"] += 2; }
+    if (ans === "warm") { scores.guinong += 2; scores.guichon += 1; }
+    if (ans === "four-season") { scores.smartfarm += 2; scores.guichon += 1; scores.guinong += 1; }
+    if (ans === "cool") { scores.guisanchon += 3; scores.guinong += 1; }
   }
 
   // 우선순위 (복수 선택)
   for (const ans of answers.priority || []) {
-    if (ans === "nature") { scores["rural-life"] += 3; }
-    if (ans === "access") { scores.weekend += 3; }
-    if (ans === "support") { scores["young-entrepreneur"] += 2; scores.smartfarm += 1; }
-    if (ans === "market") { scores.smartfarm += 3; scores["young-entrepreneur"] += 2; }
+    if (ans === "nature") { scores.guisanchon += 3; scores.guinong += 1; }
+    if (ans === "access") { scores.guichon += 3; scores.smartfarm += 1; }
+    if (ans === "support") { scores.cheongnyeon += 2; scores.guinong += 2; }
+    if (ans === "market") { scores.smartfarm += 3; scores.cheongnyeon += 2; }
   }
 
   // 작물 유형 (복수 선택)
   for (const ans of answers["crop-type"] || []) {
-    if (ans === "grain") { scores["rural-life"] += 2; }
-    if (ans === "vegetable") { scores.smartfarm += 2; scores.weekend += 1; }
-    if (ans === "fruit") { scores["rural-life"] += 1; scores.smartfarm += 1; }
-    if (ans === "special") { scores.smartfarm += 2; scores["young-entrepreneur"] += 1; }
+    if (ans === "grain") { scores.guinong += 3; }
+    if (ans === "vegetable") { scores.smartfarm += 2; scores.guinong += 1; }
+    if (ans === "fruit") { scores.guinong += 2; scores.smartfarm += 1; }
+    if (ans === "special") { scores.guisanchon += 2; scores.smartfarm += 1; }
   }
 
   // 생활환경
   for (const ans of answers.lifestyle || []) {
-    if (ans === "near-city") { scores.weekend += 4; }
-    if (ans === "moderate") { scores.smartfarm += 2; scores["young-entrepreneur"] += 2; }
-    if (ans === "rural") { scores["rural-life"] += 4; scores["young-entrepreneur"] += 1; }
+    if (ans === "near-city") { scores.guichon += 4; scores.smartfarm += 1; }
+    if (ans === "moderate") { scores.guinong += 2; scores.cheongnyeon += 2; }
+    if (ans === "rural") { scores.guinong += 3; scores.guisanchon += 2; }
   }
 
   // 경험
   for (const ans of answers.experience || []) {
-    if (ans === "none") { scores.weekend += 3; }
-    if (ans === "some") { scores.smartfarm += 2; scores["young-entrepreneur"] += 2; }
-    if (ans === "experienced") { scores["young-entrepreneur"] += 4; scores["rural-life"] += 1; }
+    if (ans === "none") { scores.guichon += 2; scores.cheongnyeon += 1; }
+    if (ans === "some") { scores.guinong += 2; scores.smartfarm += 1; }
+    if (ans === "experienced") { scores.guinong += 3; scores.cheongnyeon += 2; }
+  }
+
+  // ── 신규 질문: 주된 소득원 (핵심 분류 기준) ──
+  for (const ans of answers["income-goal"] || []) {
+    if (ans === "farming") { scores.guinong += 5; scores.cheongnyeon += 2; }
+    if (ans === "remote-work") { scores.guichon += 6; }
+    if (ans === "forestry") { scores.guisanchon += 6; }
+    if (ans === "smart-agri") { scores.smartfarm += 6; scores.cheongnyeon += 2; }
+  }
+
+  // ── 신규 질문: 정착 환경 ──
+  for (const ans of answers["settlement-type"] || []) {
+    if (ans === "farmland") { scores.guinong += 4; }
+    if (ans === "town") { scores.guichon += 4; }
+    if (ans === "mountain") { scores.guisanchon += 5; }
+    if (ans === "smart-complex") { scores.smartfarm += 5; }
+  }
+
+  // 연령 보정: 청년(≤39)이면 청년농 가산
+  if (ageGroup === "youth") {
+    scores.cheongnyeon += 6;
   }
 
   // 최고 점수 유형 반환

@@ -9,11 +9,11 @@ import {
   Lightbulb,
   BarChart3,
   MessageSquareText,
-  Share2,
   Check,
   TrendingUp,
   ChevronRight,
   ExternalLink,
+  MapPin,
 } from "lucide-react";
 import {
   QUESTIONS,
@@ -25,15 +25,19 @@ import {
   type Answers,
   type DemographicAnswers,
   type AssessmentResult,
-  type ResultTier,
 } from "@/lib/data/assessment";
+import {
+  TRACK_QUESTIONS,
+  FARM_TYPES,
+  type Answers as MatchAnswers,
+} from "@/lib/data/match-questions";
+import { classifyFarmType } from "@/lib/match-scoring";
 import { analytics } from "@/lib/analytics";
-import { encodeAssessScore } from "@/lib/assess-share";
 import { ResultSaveCta } from "@/components/result/result-save-cta";
 import s from "./assessment-wizard.module.css";
 
 /* ── 화면 상태 ── */
-type Phase = "demographic" | "quiz" | "result";
+type Phase = "demographic" | "quiz" | "track" | "result";
 
 interface AssessmentWizardProps {
   onBack?: () => void;
@@ -45,19 +49,27 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
   const [demoAnswers, setDemoAnswers] = useState<DemographicAnswers>({});
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
-  const [copied, setCopied] = useState(false);
+  const [trackStep, setTrackStep] = useState(0);
+  const [trackAnswers, setTrackAnswers] = useState<MatchAnswers>({});
 
   // 빠른 연타 클릭 방어 — setTimeout 전환 중 추가 클릭 차단
   const transitionRef = useRef(false);
 
   const totalDemoSteps = DEMOGRAPHIC_QUESTIONS.length;
   const totalSteps = QUESTIONS.length;
+  const totalTrackSteps = TRACK_QUESTIONS.length;
   const currentQuestion = QUESTIONS[step];
 
-  // 진행률: 인구통계(0~demoSteps) + 진단(demoSteps~total)
-  const totalAllSteps = totalDemoSteps + totalSteps;
+  // 진행률: 인구통계 + 진단 + 트랙 질문
+  const totalAllSteps = totalDemoSteps + totalSteps + totalTrackSteps;
   const currentAllStep =
-    phase === "demographic" ? demoStep + 1 : totalDemoSteps + step + 1;
+    phase === "demographic"
+      ? demoStep + 1
+      : phase === "quiz"
+        ? totalDemoSteps + step + 1
+        : phase === "track"
+          ? totalDemoSteps + totalSteps + trackStep + 1
+          : totalAllSteps;
   const progress = (currentAllStep / totalAllSteps) * 100;
 
   // 진입 시 분석 이벤트 전송
@@ -111,11 +123,32 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
         if (step < totalSteps - 1) {
           setStep((s) => s + 1);
         } else {
-          setPhase("result");
+          setPhase("track");
         }
       }, 400);
     },
     [currentQuestion, step, totalSteps]
+  );
+
+  /* ── 트랙 질문 선택 핸들러 ── */
+  const handleTrackSelect = useCallback(
+    (optionId: string) => {
+      if (transitionRef.current) return;
+
+      const qId = TRACK_QUESTIONS[trackStep].id;
+      setTrackAnswers((prev) => ({ ...prev, [qId]: [optionId] }));
+
+      transitionRef.current = true;
+      setTimeout(() => {
+        transitionRef.current = false;
+        if (trackStep < totalTrackSteps - 1) {
+          setTrackStep((s) => s + 1);
+        } else {
+          setPhase("result");
+        }
+      }, 400);
+    },
+    [trackStep, totalTrackSteps],
   );
 
   const handleBack = useCallback(() => {
@@ -133,8 +166,16 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
         setPhase("demographic");
         setDemoStep(totalDemoSteps - 1);
       }
+    } else if (phase === "track") {
+      if (trackStep > 0) {
+        setTrackStep((s) => s - 1);
+      } else {
+        // 트랙 첫 문항에서 뒤로 가면 진단 마지막 문항으로
+        setPhase("quiz");
+        setStep(totalSteps - 1);
+      }
     }
-  }, [phase, step, demoStep, totalDemoSteps, onBack]);
+  }, [phase, step, demoStep, trackStep, totalDemoSteps, totalSteps, onBack]);
 
   const handleReset = useCallback(() => {
     transitionRef.current = false;
@@ -143,51 +184,10 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
     setDemoAnswers({});
     setStep(0);
     setAnswers({});
-    setCopied(false);
+    setTrackStep(0);
+    setTrackAnswers({});
     window.scrollTo(0, 0);
   }, []);
-
-  const handleShare = useCallback(
-    async (tier?: ResultTier, assessResult?: AssessmentResult | null) => {
-      // 결과 데이터를 URL에 인코딩
-      let shareUrl: string;
-      if (tier && assessResult) {
-        const encoded = encodeAssessScore(
-          tier.id,
-          assessResult.totalScore,
-          assessResult.dimensions,
-        );
-        shareUrl = `${window.location.origin}/a/${encoded}`;
-      } else {
-        shareUrl = `${window.location.origin}/assess`;
-      }
-
-      // 토스 패턴: 텍스트 + 줄바꿈 + URL (카카오톡이 URL을 정확히 인식)
-      const shareText = tier
-        ? `나의 귀농 준비 단계는 "${tier.title}" ${tier.emoji}\n${shareUrl}`
-        : `나는 귀농에 얼마나 준비되어 있을까?\n${shareUrl}`;
-
-      try {
-        await navigator.clipboard.writeText(shareText);
-        analytics.share("assessment", "clipboard");
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch {
-        // fallback: 구형 브라우저
-        const textArea = document.createElement("textarea");
-        textArea.value = shareText;
-        textArea.style.position = "fixed";
-        textArea.style.left = "-9999px";
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }
-    },
-    []
-  );
 
   // 결과 계산 (결과 화면일 때만)
   const result = useMemo<AssessmentResult | null>(
@@ -202,6 +202,12 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
     }
   }, [result]);
 
+  // 추천 국가지원 트랙 계산
+  const farmType = useMemo(
+    () => (phase === "result" ? classifyFarmType(trackAnswers, demoAnswers.ageGroup) : null),
+    [phase, trackAnswers, demoAnswers.ageGroup],
+  );
+
   /* ═══ 결과 화면 ═══ */
   if (phase === "result" && result) {
     const { totalScore, tier, dimensions } = result;
@@ -214,7 +220,7 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
     const demoHints = getDemographicHints(demoAnswers);
 
     // matchParams → URL (인구통계 + 차원 점수 전달)
-    const demoParams = demoAnswers.ageGroup === "youth" ? "&ageGroup=youth" : "";
+    const demoParams = demoAnswers.ageGroup ? `&ageGroup=${demoAnswers.ageGroup}` : "";
     const genderParam = demoAnswers.gender === "female" ? "&gender=female" : "";
     const dimParams = dimensions.map((d) => `${d.id}=${d.percent}`).join("&");
     const matchUrl = `/match?experience=${tier.matchParams.experience}&lifestyle=${tier.matchParams.lifestyle}${demoParams}${genderParam}&${dimParams}`;
@@ -235,6 +241,25 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
             총점 {totalScore}점 / 40점
           </span>
           <p className={s.resultSummary}>{tier.summary}</p>
+        </div>
+
+        {/* 출력/공유 아이콘 */}
+        <ResultSaveCta
+          printTitle={`이랑 - 귀농 적합도 진단 결과 (${tier.title})`}
+          shareText={`나의 귀농 준비 단계는 "${tier.title}" ${tier.emoji}\n${typeof window !== "undefined" ? `${window.location.origin}/assess` : ""}`}
+        />
+
+        {/* 상세 분석 */}
+        <div className={s.card}>
+          <div className={s.cardHeader}>
+            <h2 className={s.cardTitle}>
+              <MessageSquareText size={18} />
+              상세 분석
+            </h2>
+          </div>
+          <div className={s.cardContent}>
+            <p className={s.resultDescription}>{tier.description}</p>
+          </div>
         </div>
 
         {/* 차원별 분석 */}
@@ -276,12 +301,36 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
           </div>
         </div>
 
+        {/* 추천 국가지원 트랙 */}
+        {farmType && (
+          <div className={s.trackCard}>
+            <div className={s.trackCardHeader}>
+              <span className={s.trackCardEmoji}>{farmType.emoji}</span>
+              <div>
+                <span className={s.trackCardOverline}>나에게 맞는 국가지원 트랙</span>
+                <h2 className={s.trackCardLabel}>{farmType.label}</h2>
+              </div>
+            </div>
+            <p className={s.trackCardTagline}>{farmType.tagline}</p>
+            <p className={s.trackCardDesc}>{farmType.description}</p>
+            <div className={s.trackCardTraits}>
+              {farmType.traits.map((t) => (
+                <span key={t} className={s.trackCardTrait}>#{t}</span>
+              ))}
+            </div>
+            <Link href="/programs" className={s.trackCardLink}>
+              관련 지원사업 확인하기
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        )}
+
         {/* 보강 가이드 — 약한 차원(≤50%)에 대해 구체적 행동 안내 */}
         {(() => {
           const weakDims = [...dimensions]
             .filter((d) => d.percent <= 50)
             .sort((a, b) => a.percent - b.percent)
-            .slice(0, 3); // 최대 3개 차원
+            .slice(0, 3);
 
           if (weakDims.length === 0) return null;
 
@@ -291,9 +340,6 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
                 <TrendingUp size={18} />
                 이렇게 보강해보세요
               </h2>
-              <p className={s.reinforceSubtitle}>
-                부족한 영역을 채우면 귀농 성공 확률이 크게 높아져요
-              </p>
               <div className={s.reinforceCards}>
                 {weakDims.map((dim) => {
                   const meta = DIMENSIONS.find((d) => d.id === dim.id);
@@ -302,43 +348,39 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
 
                   return (
                     <div key={dim.id} className={s.reinforceCard}>
-                      <div className={s.reinforceCardHeader}>
+                      <div className={s.reinforceCardTop}>
                         <span className={s.reinforceCardIcon}>{meta.icon}</span>
-                        <div className={s.reinforceCardMeta}>
-                          <strong className={s.reinforceCardLabel}>{meta.label}</strong>
-                          <span className={s.reinforceCardScore}>{dim.percent}%</span>
-                        </div>
+                        <strong className={s.reinforceCardLabel}>{meta.label}</strong>
+                        <span className={s.reinforceCardScore}>{dim.percent}%</span>
+                      </div>
+                      <div className={s.reinforceBarWrap}>
+                        <div
+                          className={s.reinforceBarFill}
+                          style={{ width: `${dim.percent}%` }}
+                        />
                       </div>
                       <p className={s.reinforceCardMessage}>{guide.message}</p>
                       <ul className={s.reinforceActionList}>
                         {guide.actions.map((action, i) => (
                           <li key={i} className={s.reinforceAction}>
-                            <div className={s.reinforceActionBody}>
-                              <span className={s.reinforceActionPriority}>{i + 1}</span>
-                              <div>
-                                <strong className={s.reinforceActionTitle}>{action.title}</strong>
-                                <p className={s.reinforceActionDesc}>{action.description}</p>
-                                {action.estimatedTime && (
-                                  <span className={s.reinforceActionTime}>
-                                    ⏱ 예상 소요: {action.estimatedTime}
-                                  </span>
+                            <span className={s.reinforceActionDot} />
+                            <div className={s.reinforceActionContent}>
+                              <Link
+                                href={action.link}
+                                className={s.reinforceActionLink}
+                                {...(action.isExternal
+                                  ? { target: "_blank", rel: "noopener noreferrer" }
+                                  : {})}
+                              >
+                                {action.title}
+                                {action.isExternal ? (
+                                  <ExternalLink size={11} />
+                                ) : (
+                                  <ChevronRight size={13} />
                                 )}
-                              </div>
+                              </Link>
+                              <p className={s.reinforceActionDesc}>{action.description}</p>
                             </div>
-                            <Link
-                              href={action.link}
-                              className={s.reinforceActionLink}
-                              {...(action.isExternal
-                                ? { target: "_blank", rel: "noopener noreferrer" }
-                                : {})}
-                            >
-                              {action.linkLabel}
-                              {action.isExternal ? (
-                                <ExternalLink size={12} />
-                              ) : (
-                                <ChevronRight size={14} />
-                              )}
-                            </Link>
                           </li>
                         ))}
                       </ul>
@@ -350,34 +392,25 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
           );
         })()}
 
-        {/* 상세 설명 */}
-        <div className={s.card}>
-          <div className={s.cardHeader}>
-            <h2 className={s.cardTitle}>
-              <MessageSquareText size={18} />
-              상세 분석
-            </h2>
-          </div>
-          <div className={s.cardContent}>
-            <p className={s.resultDescription}>{tier.description}</p>
-          </div>
-        </div>
-
         {/* 맞춤 지원 안내 (인구통계 기반) */}
         {demoHints.length > 0 && (
-          <div className={s.demoHintsCard}>
-            <h2 className={s.demoHintsTitle}>
-              🎯 나에게 맞는 지원사업
-            </h2>
-            <ul className={s.demoHintsList}>
+          <section className={s.demoHintsSection}>
+            <h2 className={s.demoHintsTitle}>나에게 맞는 지원사업</h2>
+            <div className={s.demoHintsCards}>
               {demoHints.map((hint, i) => (
-                <li key={i} className={s.demoHintItem}>{hint}</li>
+                <div key={i} className={s.demoHintCard}>
+                  <span className={s.demoHintIcon}>
+                    <Check size={14} />
+                  </span>
+                  <p className={s.demoHintText}>{hint}</p>
+                </div>
               ))}
-            </ul>
+            </div>
             <Link href="/programs" className={s.demoHintsLink}>
-              전체 지원사업 확인하기 →
+              전체 지원사업 보기
+              <ArrowRight size={14} />
             </Link>
-          </div>
+          </section>
         )}
 
         {/* 실행 팁 */}
@@ -400,33 +433,20 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
           </div>
         </div>
 
-        {/* 결과 출력/저장 CTA */}
-        <ResultSaveCta printTitle={`이랑 - 귀농 적합도 진단 결과 (${tier.title})`} />
-
-        {/* CTA 버튼 */}
+        {/* CTA 버튼 — 2단 */}
         <div className={s.resultActions}>
           <Link href={matchUrl} className={s.matchCta}>
-            나에게 맞는 지역 찾기
-            <ArrowRight size={18} />
+            <MapPin size={16} />
+            맞춤 지역 찾기
           </Link>
-          <div className={s.resultSubActions}>
-            <button
-              onClick={handleReset}
-              className={s.retryBtn}
-              type="button"
-            >
-              <RotateCcw size={16} />
-              다시 진단하기
-            </button>
-            <button
-              onClick={() => handleShare(tier, result)}
-              className={s.shareBtn}
-              type="button"
-            >
-              {copied ? <Check size={16} /> : <Share2 size={16} />}
-              {copied ? "링크 복사됨!" : "결과 공유"}
-            </button>
-          </div>
+          <button
+            onClick={handleReset}
+            className={s.retryBtn}
+            type="button"
+          >
+            <RotateCcw size={16} />
+            다시 진단하기
+          </button>
         </div>
       </div>
     );
@@ -434,10 +454,73 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
 
   // 방어: step/demoStep이 범위를 넘은 경우 graceful 처리
   if (phase === "quiz" && !currentQuestion) {
-    setPhase("result");
+    setPhase("track");
   }
   if (phase === "demographic" && !DEMOGRAPHIC_QUESTIONS[demoStep]) {
     setPhase("quiz");
+  }
+  if (phase === "track" && !TRACK_QUESTIONS[trackStep]) {
+    setPhase("result");
+  }
+
+  /* ═══ 트랙 질문 화면 (국가지원사업 분류) ═══ */
+  if (phase === "track") {
+    const currentTrack = TRACK_QUESTIONS[trackStep];
+    const selectedTrackId = trackAnswers[currentTrack?.id]?.[0];
+
+    return (
+      <div className={s.page}>
+        <div className={s.progressWrap}>
+          <div
+            className={s.progressBar}
+            role="progressbar"
+            aria-valuenow={currentAllStep}
+            aria-valuemin={1}
+            aria-valuemax={totalAllSteps}
+            aria-label="진행률"
+          >
+            <div className={s.progressFill} style={{ width: `${progress}%` }} />
+          </div>
+          <span className={s.progressLabel}>
+            {currentAllStep} / {totalAllSteps}
+          </span>
+        </div>
+
+        <button onClick={handleBack} className={s.navBtnBack} type="button">
+          <ArrowLeft size={16} />
+          이전
+        </button>
+
+        <div className={s.questionWrap}>
+          <span className={s.dimensionTag}>국가지원 트랙</span>
+          <h1 className={s.questionTitle}>{currentTrack.title}</h1>
+          <p className={s.demoSubtitle}>{currentTrack.subtitle}</p>
+
+          <div className={s.trackOptionsGrid}>
+            {currentTrack.options.map((opt) => {
+              const Icon = opt.icon;
+              const isSelected = selectedTrackId === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  className={`${s.trackOptionCard} ${isSelected ? s.trackOptionSelected : ""}`}
+                  onClick={() => handleTrackSelect(opt.id)}
+                  type="button"
+                >
+                  <div className={s.trackOptionIcon}>
+                    <Icon size={24} />
+                  </div>
+                  <span className={s.trackOptionLabel}>{opt.label}</span>
+                  {opt.description && (
+                    <span className={s.trackOptionDesc}>{opt.description}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   /* ═══ 인구통계 질문 화면 ═══ */
@@ -464,6 +547,11 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
           </span>
         </div>
 
+        <button onClick={handleBack} className={s.navBtnBack} type="button">
+          <ArrowLeft size={16} />
+          {demoStep === 0 ? "처음으로" : "이전"}
+        </button>
+
         <div className={s.questionWrap}>
           <span className={s.dimensionTag}>기본 정보</span>
           <h1 className={s.questionTitle}>{currentDemo.question}</h1>
@@ -489,13 +577,6 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
               );
             })}
           </div>
-        </div>
-
-        <div className={s.navBar}>
-          <button onClick={handleBack} className={s.navBtnBack} type="button">
-            <ArrowLeft size={16} />
-            {demoStep === 0 ? "처음으로" : "이전"}
-          </button>
         </div>
       </div>
     );
@@ -526,6 +607,16 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
         </span>
       </div>
 
+      {/* 이전 버튼 — 진행바 바로 아래 */}
+      <button
+        onClick={handleBack}
+        className={s.navBtnBack}
+        type="button"
+      >
+        <ArrowLeft size={16} />
+        이전
+      </button>
+
       {/* 질문 */}
       <div className={s.questionWrap}>
         <span className={s.dimensionTag}>
@@ -551,18 +642,6 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
             );
           })}
         </div>
-      </div>
-
-      {/* 네비게이션 */}
-      <div className={s.navBar}>
-        <button
-          onClick={handleBack}
-          className={s.navBtnBack}
-          type="button"
-        >
-          <ArrowLeft size={16} />
-          이전
-        </button>
       </div>
     </div>
   );

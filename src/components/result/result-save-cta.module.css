@@ -2,142 +2,40 @@
    ResultSaveCta — 결과 출력/저장 CTA + 회원가입 유도 모달
    ========================================================================== */
 
-/* ── CTA 버튼 그룹 ── */
+/* ── CTA 아이콘 버튼 그룹 ── */
 .ctaGroup {
   display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
-.printBtn,
-.saveBtn {
-  display: inline-flex;
+.iconBtn {
+  width: 40px;
+  height: 40px;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
+  justify-content: center;
   border-radius: 10px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: opacity 0.15s, border-color 0.15s, color 0.15s;
-}
-
-.printBtn {
-  color: var(--muted-foreground);
-  background: none;
   border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
 }
 
 @media (hover: hover) {
-  .printBtn:hover {
+  .iconBtn:hover {
     border-color: var(--foreground);
     color: var(--foreground);
   }
 }
 
-.saveBtn {
-  color: var(--primary-foreground);
-  background: var(--primary, #1b6b5a);
-  border: none;
-}
-
-@media (hover: hover) {
-  .saveBtn:hover {
-    opacity: 0.9;
-  }
+.iconBtnActive {
+  border-color: var(--primary, #1b6b5a);
+  color: var(--primary, #1b6b5a);
 }
 
 /* @media print: 인쇄 시 CTA 숨기기 */
 @media print {
   .ctaGroup { display: none; }
-}
-
-/* ── 회원가입 유도 모달 ── */
-.signupModal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 16px;
-  padding: 8px 0 0;
-}
-
-.signupIcon {
-  width: 64px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
-  color: var(--primary, #1b6b5a);
-}
-
-.signupDesc {
-  font-size: var(--fs-body-sm);
-  color: var(--foreground);
-  margin: 0;
-  line-height: var(--lh-normal);
-  word-break: keep-all;
-}
-
-.signupBenefits {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-  text-align: left;
-}
-
-.signupBenefits li {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  padding-left: 24px;
-  position: relative;
-  line-height: var(--lh-normal);
-}
-
-.signupBenefits li::before {
-  content: "✓";
-  position: absolute;
-  left: 4px;
-  color: var(--primary, #1b6b5a);
-  font-weight: 700;
-}
-
-.signupBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 28px;
-  font-size: var(--fs-body);
-  font-weight: 700;
-  color: var(--primary-foreground);
-  background: var(--primary, #1b6b5a);
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: opacity 0.15s;
-  width: 100%;
-  justify-content: center;
-}
-
-@media (hover: hover) {
-  .signupBtn:hover {
-    opacity: 0.9;
-  }
-}
-
-.signupHint {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-  margin: 0;
-  padding-top: 4px;
-  line-height: var(--lh-normal);
 }
