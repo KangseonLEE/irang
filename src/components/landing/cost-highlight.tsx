@@ -109,8 +109,8 @@ export function CostHighlight() {
           <div className={s.cardBottom}>
             <span className={`${s.cardNum} ${s.numPrimary}`}>{vals[1]}</span>
             <span className={s.cardUnit}>%</span>
-            <span className={s.cardSubNote}>약 5,261만원</span>
           </div>
+          <span className={s.cardSubNote}>약 5,261만원</span>
         </div>
 
         <div className={`${s.card} ${s.cardSub}`}>

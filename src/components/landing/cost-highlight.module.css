@@ -197,9 +197,10 @@
   .cardHero .cardNum { font-size: 3.75rem; }
 }
 
-/* ── 보조 카드 (나머지 3장) ── */
+/* ── 보조 카드 (나머지 4장) — 정확히 2열 50/50 ── */
 
 .cardSub {
+  grid-column: span 1;
   min-height: 140px;
 }
 
@@ -262,8 +263,7 @@
   font-size: var(--fs-caption, 0.8125rem);
   font-weight: 500;
   color: var(--muted-foreground, #6b7280);
-  margin-left: 6px;
-  align-self: baseline;
+  margin-top: 2px;
 }
 
 .cardSource {
