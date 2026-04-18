@@ -79,6 +79,18 @@ export function KoreaMap({ selectedProvinceId, onHover, densityMap, showLegend =
     return colors;
   }, [densityMap]);
 
+  // 배경이 진한 광역시 — 라벨을 흰색으로 표시
+  const darkLabelIds = useMemo(
+    () => new Set(["seoul", "busan", "daegu", "daejeon", "gwangju"]),
+    [],
+  );
+
+  // 면적이 작은 광역시 — 라벨 폰트 축소
+  const smallLabelIds = useMemo(
+    () => new Set(["seoul", "busan", "daegu"]),
+    [],
+  );
+
   const handleClick = useCallback(
     (svgId: string) => {
       const provinceId = SVG_TO_PROVINCE_ID[svgId];
@@ -198,12 +210,14 @@ export function KoreaMap({ selectedProvinceId, onHover, densityMap, showLegend =
           const pos = LABEL_POSITIONS[loc.svgId];
           if (!pos) return null;
           const isHighlighted = highlightedSvgIds.has(loc.svgId);
+          const isDark = darkLabelIds.has(loc.svgId);
+          const isSmall = smallLabelIds.has(loc.svgId);
           return (
             <text
               key={`label-${loc.svgId}`}
               x={pos.x}
               y={pos.y}
-              className={`${s.label} ${isHighlighted ? s.labelActive : ""}`}
+              className={`${s.label} ${isHighlighted ? s.labelActive : ""} ${!isHighlighted && isDark ? s.labelDark : ""} ${isSmall ? s.labelSmall : ""}`}
               pointerEvents="none"
             >
               {SVG_ID_LABELS[loc.svgId]}

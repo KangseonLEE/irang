@@ -62,6 +62,15 @@
   font-weight: 700;
 }
 
+.labelDark {
+  fill: #fff;
+  font-weight: 700;
+}
+
+.labelSmall {
+  font-size: 12px;
+}
+
 /* ── 밀도 범례 ── */
 .legend {
   display: flex;
