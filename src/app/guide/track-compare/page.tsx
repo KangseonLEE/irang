@@ -21,7 +21,6 @@ export default function TrackComparePage() {
   return (
     <div className={s.page}>
       <SubPageHero
-        variant="flat"
         overline="추진체계 비교"
         icon={GitCompareArrows}
         title="귀농 · 귀산촌, 어떻게 다를까요?"

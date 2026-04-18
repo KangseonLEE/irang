@@ -1,37 +1,12 @@
 /* ══════════════════════════════════════════
-   SubPageHero — 준비하기 하위 페이지 공통 히어로
-   variant: card (그래디언트 배경) / flat (배경 없음)
+   SubPageHero — Direction A: Editorial Baseline
+   타이포 중심, 배경/카드/보더 없음
+   overline 언더라인만으로 위계 완성
    ══════════════════════════════════════════ */
 
-/* ── card variant ── */
 .hero {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 28px 16px 24px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--primary, #1b6b5a) 6%, white), white);
-  border: 1px solid var(--border, #e5e7eb);
-}
-
-@media (min-width: 640px) {
-  .hero {
-    padding: 36px 28px 28px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .hero {
-    padding: 48px 32px 36px;
-  }
-}
-
-/* ── flat variant ── */
-.heroFlat {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 0 4px;
 }
 
 /* ── overline ── */
@@ -39,34 +14,29 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  width: fit-content;
   font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--primary, #1b6b5a);
-  margin-bottom: 4px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--primary, #1b6b5a);
+  margin-bottom: 14px;
+}
+
+@media (min-width: 640px) {
+  .overline { margin-bottom: 16px; }
 }
 
 /* ── title ── */
 .title {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: clamp(1.375rem, 3.5vw, 1.875rem);
   font-weight: 800;
   color: var(--foreground, #111827);
-  line-height: var(--lh-tight, 1.2);
-  letter-spacing: -0.02em;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
   word-break: keep-all;
-}
-
-@media (min-width: 640px) {
-  .title {
-    font-size: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .title {
-    font-size: 1.75rem;
-  }
 }
 
 /* ── accent ── */
@@ -79,18 +49,17 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin-top: 10px;
 }
 
 .desc p {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   color: var(--muted-foreground, #6b7280);
-  line-height: var(--lh-normal, 1.6);
+  line-height: 1.65;
   word-break: keep-all;
 }
 
 @media (min-width: 640px) {
-  .desc p {
-    font-size: 0.9375rem;
-  }
+  .desc { margin-top: 12px; }
 }

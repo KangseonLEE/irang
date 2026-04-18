@@ -270,26 +270,11 @@ export default function GuidePage() {
         overline="PROCESS GUIDE"
         title="귀농, 5단계로 준비하세요"
         titleAccent="5단계"
-        description={
-          <>
-            <p>
-              정보 탐색부터 정착까지,
-              <br />
-              평균 18~27개월의 여정을 단계별로 안내해 드려요.
-            </p>
-            <p>
-              각 단계의 체크리스트에 진행 상황을 기록하며
-              <br />
-              놓치는 것 없이 체계적으로 준비할 수 있어요.
-            </p>
-          </>
-        }
+        description="정보 탐색부터 정착까지, 평균 18~27개월의 여정을 단계별 체크리스트와 함께 안내해 드려요."
       >
         <figure className={s.heroCostGroup}>
           <span className={s.heroCostBadge}>
-            총 예상 비용 약 6,350~6,500만 원
-            <br />
-            지원사업 활용 시 절감 가능
+            총 예상 비용 약 6,350~6,500만 원 · 지원사업 활용 시 절감 가능
           </span>
           <figcaption className={s.heroCostSource}>
             출처: 농림축산식품부 귀농인 실태조사 기준 평균

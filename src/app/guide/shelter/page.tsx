@@ -45,7 +45,6 @@ export default function ShelterGuidePage() {
   return (
     <div className={s.page}>
       <SubPageHero
-        variant="flat"
         overline="농촌체류형 쉼터"
         icon={Home}
         title="농지에 집 대신 쉼터, 어떻게 설치할까요?"

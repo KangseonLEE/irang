@@ -8,6 +8,7 @@ interface SubPageHeroProps {
   title: string;
   titleAccent?: string;
   description: string | ReactNode;
+  /** @deprecated variant는 더 이상 사용하지 않음 (항상 flat) */
   variant?: "card" | "flat";
   children?: ReactNode;
 }
@@ -18,7 +19,6 @@ export function SubPageHero({
   title,
   titleAccent,
   description,
-  variant = "card",
   children,
 }: SubPageHeroProps) {
   const renderedTitle = titleAccent
@@ -26,7 +26,7 @@ export function SubPageHero({
     : title;
 
   return (
-    <header className={variant === "card" ? s.hero : s.heroFlat}>
+    <header className={s.hero}>
       <span className={s.overline}>
         {Icon && <Icon size={14} strokeWidth={2} aria-hidden="true" />}
         {overline}

@@ -182,7 +182,8 @@
 
 .timelineConnector {
   position: absolute;
-  top: 50px;
+  /* Step 라벨(16px) + gap(4px) + margin(6px) + 아이콘 반(26px) + padding-top(12px) */
+  top: 64px;
   right: -8px;
   width: 16px;
   height: 2px;
@@ -196,8 +197,9 @@
 }
 
 @media (min-width: 640px) {
+  /* Step 라벨(20px) + gap(6px) + margin(8px) + 아이콘 반(30px) + padding-top(16px) */
   .timelineConnector {
-    top: 60px;
+    top: 80px;
     right: -12px;
     width: 24px;
   }
