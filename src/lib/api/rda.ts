@@ -136,6 +136,7 @@ async function fetchRdaList<T>(
   try {
     const res = await fetch(url.toString(), {
       next: { revalidate: CACHE_TTL },
+      signal: AbortSignal.timeout(10_000),
     });
 
     if (!res.ok) {
