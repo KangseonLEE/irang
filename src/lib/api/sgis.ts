@@ -70,6 +70,25 @@ async function getAccessToken(): Promise<string | null> {
   }
 }
 
+// --- 구 분할 시 매핑 ---
+// SGIS는 구가 있는 시(성남시 등)의 시 통합코드를 인식하지 못한다.
+// 시 코드로 조회하면 "검색결과가 존재하지 않습니다" 에러 발생.
+// → 해당 시의 구 코드들을 명시적으로 매핑하여, 구별 데이터를 합산한다.
+const GU_CODES_MAP: Record<string, string[]> = {
+  "31010": ["31011", "31012", "31013", "31014"], // 수원시 (장안·권선·팔달·영통)
+  "31020": ["31021", "31022", "31023"],           // 성남시 (수정·중원·분당)
+  "31040": ["31041", "31042"],                    // 안양시 (만안·동안)
+  "31050": ["31051", "31052", "31053"],           // 부천시 (원미·소사·오정)
+  "31090": ["31091", "31092"],                    // 안산시 (상록·단원)
+  "31100": ["31101", "31103", "31104"],           // 고양시 (덕양·일산동·일산서)
+  "31190": ["31191", "31192", "31193"],           // 용인시 (처인·기흥·수지)
+  "33010": ["33041", "33042", "33043", "33044"],  // 청주시 (상당·서원·흥덕·청원)
+  "34010": ["34011", "34012"],                    // 천안시 (동남·서북)
+  "35010": ["35011", "35012"],                    // 전주시 (완산·덕진)
+  "37010": ["37011", "37012"],                    // 포항시 (남·북)
+  "38010": ["38111", "38112", "38113", "38114", "38115"], // 창원시 (의창·성산·마산합포·마산회원·진해)
+};
+
 // --- 인구통계 조회 ---
 
 interface SGISPopulationResult {
@@ -156,13 +175,89 @@ export async function fetchSigunguPopulationData(
   // SGIS 통계는 보통 1~2년 지연 — 현재 연도 - 2를 안전한 최신으로 사용
   const year = new Date().getFullYear() - 2;
   const accessToken = await getAccessToken();
+  if (!accessToken) return null;
 
-  if (accessToken) {
-    const result = await fetchFromSGIS(accessToken, sgisCode, year);
-    if (result) return result;
+  // 구 분할 시: 상위 시/도에서 low_search=1로 구 데이터를 받아 합산
+  const guCodes = GU_CODES_MAP[sgisCode];
+  if (guCodes) {
+    return fetchMultiGuPopulation(accessToken, sgisCode, guCodes, year);
   }
 
-  return null;
+  return fetchFromSGIS(accessToken, sgisCode, year);
+}
+
+/**
+ * 구 분할 시(성남시 등)의 인구를 구별 데이터 합산으로 조회한다.
+ * 상위 시/도 코드로 low_search=1 호출 → 해당 구 코드만 필터링 → 합산.
+ */
+async function fetchMultiGuPopulation(
+  accessToken: string,
+  cityCode: string,
+  guCodes: string[],
+  year: number,
+): Promise<PopulationData | null> {
+  const provinceCode = cityCode.substring(0, 2); // "31020" → "31"
+
+  const url = new URL(POPULATION_URL);
+  url.searchParams.set("accessToken", accessToken);
+  url.searchParams.set("adm_cd", provinceCode);
+  url.searchParams.set("year", String(year));
+  url.searchParams.set("low_search", "1");
+
+  try {
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const json = await res.json();
+    if (json.errCd !== 0 && json.errCd !== "0") {
+      throw new Error(`SGIS error: ${json.errMsg || json.errCd}`);
+    }
+
+    const results = json.result as SGISPopulationResult[] | undefined;
+    if (!results || !Array.isArray(results)) return null;
+
+    const guSet = new Set(guCodes);
+    const matched = results.filter((r) => guSet.has(r.adm_cd));
+    if (matched.length === 0) return null;
+
+    // 합산
+    let totalPop = 0;
+    let totalHousehold = 0;
+    let weightedOldage = 0;
+    let weightedJuv = 0;
+
+    for (const item of matched) {
+      const pop = parseInt(item.tot_ppltn, 10) || 0;
+      totalPop += pop;
+      totalHousehold += parseInt(item.tot_family, 10) || 0;
+
+      // 가중 평균 부양비 (인구 비례)
+      const oldageDep = parseFloat(item.oldage_suprt_per || "0");
+      const juvDep = parseFloat(item.juv_suprt_per || "0");
+      weightedOldage += oldageDep * pop;
+      weightedJuv += juvDep * pop;
+    }
+
+    const avgOldage = totalPop > 0 ? weightedOldage / totalPop : 0;
+    const avgJuv = totalPop > 0 ? weightedJuv / totalPop : 0;
+    const agingRate =
+      avgOldage + avgJuv > 0
+        ? Math.round((avgOldage / (100 + avgOldage + avgJuv)) * 1000) / 10
+        : 0;
+
+    // 시 이름 추출: "성남시 수정구" → "성남시"
+    const cityName = matched[0].adm_nm?.split(" ")[0] || "";
+
+    return {
+      regionCode: cityCode,
+      regionName: cityName,
+      population: totalPop,
+      householdCount: totalHousehold,
+      agingRate,
+    };
+  } catch {
+    return null;
+  }
 }
 
 /**

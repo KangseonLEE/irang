@@ -13,18 +13,22 @@ const API_BASE = "https://open.neis.go.kr/hub/schoolInfo";
 /** 교육청 코드 → 시도명 매핑 */
 const EDU_NAME_MAP: Record<string, string> = {
   B10: "서울특별시",
+  C10: "부산광역시",
+  D10: "대구광역시",
+  E10: "인천광역시",
+  F10: "광주광역시",
+  G10: "대전광역시",
+  H10: "울산광역시",
+  I10: "세종특별자치시",
   J10: "경기도",
-  R10: "강원도",
+  K10: "강원도",
   M10: "충청북도",
   N10: "충청남도",
   P10: "전라북도",
   Q10: "전라남도",
-  S10: "경상북도",
-  T10: "경상남도",
-  V10: "제주특별자치도",
-  G10: "대전광역시",
-  D10: "대구광역시",
-  F10: "광주광역시",
+  R10: "경상북도",
+  S10: "경상남도",
+  T10: "제주특별자치도",
 };
 
 export interface SchoolData {
@@ -92,8 +96,13 @@ async function fetchEduSchoolCount(
 }
 
 /**
- * 특정 교육청 + 소재지명으로 시군구 단위 학교 수를 조회한다.
- * LCTN_SC_NM 파라미터에 시군구명(예: "영주시")을 전달하여 필터링.
+ * 특정 교육청 + 시군구명으로 시군구 단위 학교 수를 조회한다.
+ *
+ * NEIS API의 LCTN_SC_NM 파라미터는 시도 수준만 지원하므로,
+ * 시도 전체 학교를 조회한 뒤 주소(ORG_RDNMA)에 시군구명이 포함된
+ * 학교만 카운트한다.
+ *
+ * 시 단위(예: "영주시")도 정확히 매칭한다.
  * API 실패 시 null을 반환.
  */
 async function fetchSigunguSchoolCount(
@@ -101,54 +110,55 @@ async function fetchSigunguSchoolCount(
   eduCode: string,
   sigunguName: string
 ): Promise<SchoolData | null> {
-  const url = new URL(API_BASE);
-  url.searchParams.set("KEY", apiKey);
-  url.searchParams.set("Type", "json");
-  url.searchParams.set("pIndex", "1");
-  url.searchParams.set("pSize", "1");
-  url.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
-  url.searchParams.set("LCTN_SC_NM", sigunguName);
+  // 1단계: 전체 학교 수 확인 (pSize=1)
+  const countUrl = new URL(API_BASE);
+  countUrl.searchParams.set("KEY", apiKey);
+  countUrl.searchParams.set("Type", "json");
+  countUrl.searchParams.set("pIndex", "1");
+  countUrl.searchParams.set("pSize", "1");
+  countUrl.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const countRes = await fetch(countUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+    if (!countRes.ok) throw new Error(`HTTP ${countRes.status}`);
 
-    const json = await res.json();
-
-    // NEIS 에러 응답 체크 — 데이터 없음 에러("INFO-200")도 여기서 처리
-    if (json.RESULT) {
-      // INFO-200 = 해당 조건에 맞는 데이터가 없음 → 0건
-      if (json.RESULT.CODE === "INFO-200") {
-        return {
-          eduCode,
-          sidoName: sigunguName,
-          totalCount: 0,
-        };
+    const countJson = await countRes.json();
+    if (countJson.RESULT) {
+      if (countJson.RESULT.CODE === "INFO-200") {
+        return { eduCode, sidoName: sigunguName, totalCount: 0 };
       }
-      throw new Error(
-        `NEIS error: ${json.RESULT.CODE} - ${json.RESULT.MESSAGE}`
-      );
+      throw new Error(`NEIS error: ${countJson.RESULT.CODE}`);
     }
 
-    const schoolInfo = json?.schoolInfo;
-    if (!schoolInfo || !Array.isArray(schoolInfo) || schoolInfo.length === 0) {
-      throw new Error("schoolInfo not found in response");
+    const totalAll = countJson?.schoolInfo?.[0]?.head?.[0]?.list_total_count ?? 0;
+    if (totalAll === 0) {
+      return { eduCode, sidoName: sigunguName, totalCount: 0 };
     }
 
-    const head = schoolInfo[0]?.head;
-    if (!head || !Array.isArray(head) || head.length === 0) {
-      throw new Error("head not found in schoolInfo");
-    }
+    // 2단계: 전체 학교 목록 받아서 주소 필터링
+    const fullUrl = new URL(API_BASE);
+    fullUrl.searchParams.set("KEY", apiKey);
+    fullUrl.searchParams.set("Type", "json");
+    fullUrl.searchParams.set("pIndex", "1");
+    fullUrl.searchParams.set("pSize", String(Math.min(totalAll, 1000)));
+    fullUrl.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
 
-    const totalCount = head[0]?.list_total_count;
-    if (totalCount == null) {
-      throw new Error("list_total_count not found in head");
-    }
+    const fullRes = await fetch(fullUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+    if (!fullRes.ok) throw new Error(`HTTP ${fullRes.status}`);
+
+    const fullJson = await fullRes.json();
+    if (fullJson.RESULT) throw new Error(`NEIS error: ${fullJson.RESULT.CODE}`);
+
+    const rows = fullJson?.schoolInfo?.[1]?.row ?? [];
+    const count = rows.filter(
+      (r: Record<string, string>) =>
+        (r.ORG_RDNMA || "").includes(sigunguName)
+    ).length;
 
     return {
       eduCode,
       sidoName: sigunguName,
-      totalCount: Number(totalCount),
+      totalCount: count,
     };
   } catch (error) {
     console.error(

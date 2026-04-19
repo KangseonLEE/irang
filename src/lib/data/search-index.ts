@@ -10,7 +10,8 @@
  */
 
 import { STATIONS } from "./stations";
-import { SIGUNGUS } from "./sigungus";
+import { SIGUNGUS, getSigunguById } from "./sigungus";
+import { GUS } from "./gus";
 import { getProvinceById } from "./regions";
 import { CROPS } from "./crops";
 import { PROGRAMS } from "./programs";
@@ -99,6 +100,23 @@ function getSearchIndex(): SearchItem[] {
       subtitle: truncate(`${provinceName} · ${sg.description}`, 45),
       href: `/regions/${sg.sidoId}/${sg.id}`,
       keywords: [sg.shortName, provinceName, ...sg.mainCrops, ...sg.highlights],
+      icon: "\u{1F3E1}", // 🏡
+    };
+  });
+
+  // ── 지역 (구) ──
+  const guItems: SearchItem[] = GUS.map((g) => {
+    const province = getProvinceById(g.sidoId);
+    const provinceName = province?.name ?? "";
+    const sigungu = getSigunguById(g.parentSigunguId);
+    const sigunguName = sigungu?.name ?? "";
+    return {
+      type: "region" as const,
+      id: `${g.sidoId}-${g.parentSigunguId}-${g.id}`,
+      title: `${sigunguName} ${g.name}`,
+      subtitle: truncate(`${provinceName} · ${g.description}`, 45),
+      href: `/regions/${g.sidoId}/${g.parentSigunguId}/${g.id}`,
+      keywords: [g.shortName, sigunguName, provinceName, ...g.mainCrops, ...g.highlights],
       icon: "\u{1F3E1}", // 🏡
     };
   });
@@ -546,6 +564,7 @@ function getSearchIndex(): SearchItem[] {
   _searchIndex = [
     ...regionItems,
     ...sigunguItems,
+    ...guItems,
     ...cropItems,
     ...programItems,
     ...educationItems,

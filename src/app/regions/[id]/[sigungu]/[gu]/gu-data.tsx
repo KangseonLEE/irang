@@ -1,19 +1,14 @@
 /**
- * 시군구 상세 페이지 — API 의존 데이터 섹션 (async Server Component)
+ * 구 상세 페이지 — API 의존 데이터 섹션 (async Server Component)
  *
- * 라우트 전환 시 loading.tsx(GlobalLoading)가 전체 페이지 로딩을 표시하고,
- * 이 컴포넌트의 API 호출이 완료된 뒤 전체 페이지가 한 번에 렌더됩니다.
- *
- * 최적화:
- * - Phase 1: 시군구 수준 API 3개 + 기후 1개 병렬 호출 (4개)
- * - Phase 2: 실패한 항목만 시/도 폴백 호출 (lazy fallback)
- * - 성공 시 총 4개, 전부 실패해도 최대 7개 (기존: 항상 7개)
- *
- * 렌더링은 SigunguStats 클라이언트 컴포넌트에 위임합니다.
+ * sigungu-data.tsx와 동일한 패턴.
+ * Phase 1: 구 수준 API 호출 (구 고유 sgisCode / hiraSgguCd 사용)
+ * Phase 2: 실패 시 시/도 폴백
  */
 
 import type { Province } from "@/lib/data/regions";
 import type { Sigungu } from "@/lib/data/sigungus";
+import type { GuDistrict } from "@/lib/data/gus";
 import {
   fetchSigunguPopulationData,
   fetchPopulationData,
@@ -28,39 +23,38 @@ import {
 } from "@/lib/api/education";
 import { fetchMultipleClimateData } from "@/lib/api/weather";
 import { fetchReturnFarmStats } from "@/lib/api/kosis";
-import { SigunguStats } from "./sigungu-stats";
+import { SigunguStats } from "../sigungu-stats";
 
-interface SigunguDataProps {
+interface GuDataProps {
   province: Province;
   sigungu: Sigungu;
+  gu: GuDistrict;
 }
 
-export async function SigunguData({ province, sigungu }: SigunguDataProps) {
-  const hiraSgguCd = sigungu.hiraSgguCd;
-
-  // ── Phase 1: 시군구 수준 + 기후 + 귀농귀촌 (5개 병렬) ──
-  const [sigunguPopResult, sigunguMedicalResult, sigunguSchoolResult, climateResult, returnFarmResult] =
+export async function GuData({ province, sigungu, gu }: GuDataProps) {
+  // -- Phase 1: 구 수준 API 호출 --
+  // 귀농·귀촌은 구 단위 데이터가 없으므로 상위 시군구(admCode) 기준 조회
+  const [guPopResult, guMedicalResult, guSchoolResult, climateResult, returnFarmResult] =
     await Promise.allSettled([
-      fetchSigunguPopulationData(sigungu.sgisCode),
-      hiraSgguCd
-        ? fetchSigunguMedicalFacilities(province.hiraSidoCd, hiraSgguCd)
-        : Promise.resolve(null),
-      fetchSigunguSchoolCounts(province.eduCode, sigungu.name),
+      fetchSigunguPopulationData(gu.sgisCode),
+      fetchSigunguMedicalFacilities(province.hiraSidoCd, gu.hiraSgguCd),
+      // NEIS는 구 이름으로 검색 (예: "장안구")
+      fetchSigunguSchoolCounts(province.eduCode, gu.name),
       fetchMultipleClimateData(province.stationIds),
       fetchReturnFarmStats(sigungu.admCode),
     ]);
 
-  const sigunguPop =
-    sigunguPopResult.status === "fulfilled" ? sigunguPopResult.value : null;
-  const sigunguMedical =
-    sigunguMedicalResult.status === "fulfilled" ? sigunguMedicalResult.value : null;
-  const sigunguSchool =
-    sigunguSchoolResult.status === "fulfilled" ? sigunguSchoolResult.value : null;
+  const guPop =
+    guPopResult.status === "fulfilled" ? guPopResult.value : null;
+  const guMedical =
+    guMedicalResult.status === "fulfilled" ? guMedicalResult.value : null;
+  const guSchool =
+    guSchoolResult.status === "fulfilled" ? guSchoolResult.value : null;
 
-  // ── Phase 2: 실패 항목만 시/도 폴백 (lazy fallback) ──
-  const needsPopFallback = !sigunguPop;
-  const needsMedicalFallback = !sigunguMedical;
-  const needsSchoolFallback = !sigunguSchool;
+  // -- Phase 2: 실패 시 시/도 폴백 --
+  const needsPopFallback = !guPop;
+  const needsMedicalFallback = !guMedical;
+  const needsSchoolFallback = !guSchool;
 
   let sidoPop = null;
   let sidoMedical = null;
@@ -99,15 +93,15 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
     }
   }
 
-  // ── 최종 데이터 ──
-  const population = sigunguPop ?? sidoPop;
-  const isPopulationFallback = !sigunguPop && !!sidoPop;
+  // -- 최종 데이터 --
+  const population = guPop ?? sidoPop;
+  const isPopulationFallback = !guPop && !!sidoPop;
 
-  const medical = sigunguMedical ?? sidoMedical;
-  const isMedicalFallback = !sigunguMedical && !!sidoMedical;
+  const medical = guMedical ?? sidoMedical;
+  const isMedicalFallback = !guMedical && !!sidoMedical;
 
-  const school = sigunguSchool ?? sidoSchool;
-  const isSchoolFallback = !sigunguSchool && !!sidoSchool;
+  const school = guSchool ?? sidoSchool;
+  const isSchoolFallback = !guSchool && !!sidoSchool;
 
   const climateData =
     climateResult.status === "fulfilled" ? climateResult.value : [];
@@ -116,7 +110,7 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
     climateData[0] ??
     null;
 
-  // 귀농·귀촌 데이터 (KOSIS)
+  // 귀농·귀촌 데이터 (KOSIS — 상위 시군구 기준)
   const returnFarmAll =
     returnFarmResult.status === "fulfilled" ? returnFarmResult.value : [];
   const returnFarm = returnFarmAll.length > 0 ? returnFarmAll[0] : null;
@@ -127,8 +121,8 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
     <SigunguStats
       provinceShortName={province.shortName}
       provinceName={province.name}
-      sigunguName={sigungu.name}
-      area={sigungu.area}
+      sigunguName={gu.name}
+      area={gu.area}
       population={population}
       isPopulationFallback={isPopulationFallback}
       medical={medical}
@@ -159,11 +153,11 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
           : null
       }
       hasFallback={hasFallback}
-      sgisCode={sigungu.sgisCode}
+      sgisCode={gu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}
-      hiraSgguCd={hiraSgguCd}
+      hiraSgguCd={gu.hiraSgguCd}
       eduCode={province.eduCode}
-      sigunguNameForNeis={sigungu.name}
+      sigunguNameForNeis={gu.name}
       admCode={sigungu.admCode}
     />
   );

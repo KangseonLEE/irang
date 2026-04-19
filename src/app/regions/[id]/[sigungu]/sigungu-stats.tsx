@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Ruler, Users, Building2, GraduationCap } from "lucide-react";
+import { Ruler, Users, Building2, GraduationCap, Sprout, Home } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { Modal } from "@/components/ui/modal";
 import { ClimateSection } from "@/components/stats/climate-section";
@@ -11,6 +11,7 @@ import { AreaModal } from "../modals/area-modal";
 import { PopulationModal } from "../modals/population-modal";
 import { MedicalModal } from "../modals/medical-modal";
 import { SchoolModal } from "../modals/school-modal";
+import { ReturnFarmModal } from "../modals/return-farm-modal";
 import s from "./page.module.css";
 
 // ── Props (서버 컴포넌트에서 전달) ──
@@ -32,6 +33,12 @@ export interface SigunguStatsProps {
   isMedicalFallback: boolean;
   school: { totalCount: number } | null;
   isSchoolFallback: boolean;
+  returnFarm: {
+    returnFarmPerson: number;
+    returnFarmHousehold: number;
+    returnRuralPerson: number;
+    year: number;
+  } | null;
   climate: ClimateInfo | null;
   hasFallback: boolean;
   // 모달 데이터 페칭용 코드
@@ -40,9 +47,11 @@ export interface SigunguStatsProps {
   hiraSgguCd: string;
   eduCode: string;
   sigunguNameForNeis: string;
+  /** KOSIS 행정코드 (귀농귀촌 추이 모달용) */
+  admCode?: string;
 }
 
-type ModalType = "area" | "population" | "medical" | "school" | null;
+type ModalType = "area" | "population" | "medical" | "school" | "returnFarm" | null;
 
 export function SigunguStats({
   provinceShortName,
@@ -55,6 +64,7 @@ export function SigunguStats({
   isMedicalFallback,
   school,
   isSchoolFallback,
+  returnFarm,
   climate,
   hasFallback,
   sgisCode,
@@ -62,6 +72,7 @@ export function SigunguStats({
   hiraSgguCd,
   eduCode,
   sigunguNameForNeis,
+  admCode,
 }: SigunguStatsProps) {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const closeModal = () => setActiveModal(null);
@@ -96,7 +107,7 @@ export function SigunguStats({
           >
             <Icon icon={Users} size="lg"  />
             <div className={s.statBody}>
-              <span className={s.statLabel}>인구</span>
+              <span className={s.statLabel}>실거주 인구</span>
               <span className={s.statValue}>{formatPopulation(population.population)}</span>
               <span className={s.statSub}>
                 고령화율 {population.agingRate}%
@@ -141,6 +152,46 @@ export function SigunguStats({
               <span className={s.statValue}>{school.totalCount.toLocaleString()}개</span>
               <span className={s.statSub}>
                 {isSchoolFallback ? `${provinceShortName} 기준 ·` : ""} 상세 보기 →
+              </span>
+            </div>
+          </button>
+        )}
+
+        {returnFarm && (
+          <button
+            type="button"
+            className={s.statCard}
+            onClick={() => setActiveModal("returnFarm")}
+            aria-haspopup="dialog"
+          >
+            <Icon icon={Sprout} size="lg" />
+            <div className={s.statBody}>
+              <span className={s.statLabel}>귀농</span>
+              <span className={s.statValue}>
+                {returnFarm.returnFarmPerson.toLocaleString()}명
+              </span>
+              <span className={s.statSub}>
+                {returnFarm.returnFarmHousehold.toLocaleString()}가구 · {returnFarm.year}년 기준
+              </span>
+            </div>
+          </button>
+        )}
+
+        {returnFarm && (
+          <button
+            type="button"
+            className={s.statCard}
+            onClick={() => setActiveModal("returnFarm")}
+            aria-haspopup="dialog"
+          >
+            <Icon icon={Home} size="lg" />
+            <div className={s.statBody}>
+              <span className={s.statLabel}>귀촌</span>
+              <span className={s.statValue}>
+                {returnFarm.returnRuralPerson.toLocaleString()}명
+              </span>
+              <span className={s.statSub}>
+                {returnFarm.year}년 기준 · 상세 보기 →
               </span>
             </div>
           </button>
@@ -198,6 +249,16 @@ export function SigunguStats({
           sigunguName={sigunguNameForNeis}
         />
       </Modal>
+
+      {returnFarm && admCode && (
+        <Modal open={activeModal === "returnFarm"} onClose={closeModal} title={`${sigunguName} 귀농·귀촌`}>
+          <ReturnFarmModal
+            returnFarm={returnFarm}
+            regionCode={admCode}
+            sigunguName={sigunguName}
+          />
+        </Modal>
+      )}
     </>
   );
 }

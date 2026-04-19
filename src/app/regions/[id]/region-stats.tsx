@@ -93,7 +93,7 @@ export function RegionStats({
           >
             <Icon icon={Users} size="lg"  />
             <div className={s.statBody}>
-              <span className={s.statLabel}>인구</span>
+              <span className={s.statLabel}>실거주 인구</span>
               <span className={s.statValue}>
                 {formatPopulation(population.population)}
               </span>

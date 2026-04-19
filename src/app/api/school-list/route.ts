@@ -61,16 +61,91 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const url = new URL(API_BASE);
-  url.searchParams.set("KEY", apiKey);
-  url.searchParams.set("Type", "json");
-  url.searchParams.set("pIndex", page);
-  url.searchParams.set("pSize", "30");
-  url.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
-  if (sigunguName) url.searchParams.set("LCTN_SC_NM", sigunguName);
-
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 } });
+    // NEIS LCTN_SC_NM은 시도 수준만 지원하므로,
+    // 시군구 필터링은 전체 조회 후 주소(ORG_RDNMA) 기반으로 수행
+    if (sigunguName) {
+      // 1단계: 전체 건수 확인
+      const countUrl = new URL(API_BASE);
+      countUrl.searchParams.set("KEY", apiKey);
+      countUrl.searchParams.set("Type", "json");
+      countUrl.searchParams.set("pIndex", "1");
+      countUrl.searchParams.set("pSize", "1");
+      countUrl.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
+
+      const countRes = await fetch(countUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+      if (!countRes.ok) throw new Error(`HTTP ${countRes.status}`);
+      const countJson = await countRes.json();
+
+      if (countJson.RESULT) {
+        if (countJson.RESULT.CODE === "INFO-200") {
+          return NextResponse.json({ items: [], totalCount: 0 });
+        }
+        throw new Error(`NEIS error: ${countJson.RESULT.CODE}`);
+      }
+
+      const totalAll = countJson?.schoolInfo?.[0]?.head?.[0]?.list_total_count ?? 0;
+
+      // 2단계: 전체 받아서 주소 필터링
+      const fullUrl = new URL(API_BASE);
+      fullUrl.searchParams.set("KEY", apiKey);
+      fullUrl.searchParams.set("Type", "json");
+      fullUrl.searchParams.set("pIndex", "1");
+      fullUrl.searchParams.set("pSize", String(Math.min(totalAll, 1000)));
+      fullUrl.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
+
+      const fullRes = await fetch(fullUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+      if (!fullRes.ok) throw new Error(`HTTP ${fullRes.status}`);
+      const fullJson = await fullRes.json();
+
+      if (fullJson.RESULT) {
+        if (fullJson.RESULT.CODE === "INFO-200") {
+          return NextResponse.json({ items: [], totalCount: 0 });
+        }
+        throw new Error(`NEIS error: ${fullJson.RESULT.CODE}`);
+      }
+
+      const allRows = fullJson?.schoolInfo?.[1]?.row ?? [];
+      const filtered = allRows.filter(
+        (item: Record<string, string>) =>
+          (item.ORG_RDNMA || "").includes(sigunguName)
+      );
+
+      // 페이지네이션 적용
+      const pageNum = parseInt(page, 10);
+      const pageSize = 30;
+      const start = (pageNum - 1) * pageSize;
+      const paged = filtered.slice(start, start + pageSize);
+
+      const items: SchoolItem[] = paged.map(
+        (item: Record<string, string>) => ({
+          name: item.SCHUL_NM || "",
+          type: item.SCHUL_KND_SC_NM || "",
+          address: item.ORG_RDNMA || item.ORG_RDNDA || "",
+          foundType: item.FOND_SC_NM || "",
+        })
+      );
+
+      return NextResponse.json(
+        { items, totalCount: filtered.length },
+        {
+          headers: {
+            "Cache-Control":
+              "public, s-maxage=86400, stale-while-revalidate=3600",
+          },
+        }
+      );
+    }
+
+    // 시군구 필터 없으면 시도 전체 조회
+    const url = new URL(API_BASE);
+    url.searchParams.set("KEY", apiKey);
+    url.searchParams.set("Type", "json");
+    url.searchParams.set("pIndex", page);
+    url.searchParams.set("pSize", "30");
+    url.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
+
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();

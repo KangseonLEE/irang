@@ -75,7 +75,7 @@ export const PROVINCES: Province[] = [
     stationIds: ["112"],
     representativeStationId: "112",
     sgisCode: "23",
-    hiraSidoCd: "230000",
+    hiraSidoCd: "220000",
     eduCode: "E10",
     unsplashQuery: "Incheon Songdo Central Park Korea",
     personas: [
@@ -128,7 +128,7 @@ export const PROVINCES: Province[] = [
     representativeStationId: "101",
     sgisCode: "32",
     hiraSidoCd: "320000",
-    eduCode: "R10",
+    eduCode: "K10",
     unsplashQuery: "Seoraksan mountain Korea autumn",
     personas: [
       {
@@ -371,7 +371,7 @@ export const PROVINCES: Province[] = [
     stationIds: ["143"],
     representativeStationId: "143",
     sgisCode: "22",
-    hiraSidoCd: "220000",
+    hiraSidoCd: "230000",
     eduCode: "D10",
     unsplashQuery: "Daegu 83 tower South Korea",
     personas: [
@@ -424,7 +424,7 @@ export const PROVINCES: Province[] = [
     representativeStationId: "272",
     sgisCode: "37",
     hiraSidoCd: "370000",
-    eduCode: "S10",
+    eduCode: "R10",
     unsplashQuery: "Bulguksa temple Gyeongju Korea",
     personas: [
       {
@@ -455,7 +455,7 @@ export const PROVINCES: Province[] = [
     representativeStationId: "192",
     sgisCode: "38",
     hiraSidoCd: "380000",
-    eduCode: "T10",
+    eduCode: "S10",
     unsplashQuery: "Hallyeohaesang Tongyeong cable car Korea coast",
     personas: [
       {
@@ -486,7 +486,7 @@ export const PROVINCES: Province[] = [
     representativeStationId: "184",
     sgisCode: "39",
     hiraSidoCd: "390000",
-    eduCode: "V10",
+    eduCode: "T10",
     unsplashQuery: "Seongsan Ilchulbong Jeju Korea",
     personas: [
       {

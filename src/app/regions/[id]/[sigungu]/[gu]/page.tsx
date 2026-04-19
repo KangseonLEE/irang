@@ -14,8 +14,8 @@ import {
 import { LandCheckBox } from "@/components/region/land-check-box";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { PROVINCES } from "@/lib/data/regions";
-import { SIGUNGUS, getSigunguBySidoAndId } from "@/lib/data/sigungus";
-import { hasGuDistricts } from "@/lib/data/gus";
+import { getSigunguBySidoAndId } from "@/lib/data/sigungus";
+import { getGuByIds, GUS } from "@/lib/data/gus";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
@@ -24,73 +24,67 @@ import { CenterCard } from "@/components/region/center-card";
 import { PROGRAMS } from "@/lib/data/programs";
 import { EDUCATION_COURSES } from "@/lib/data/education";
 import { EVENTS } from "@/lib/data/events";
-import { SigunguData } from "./sigungu-data";
-import { SigunguStatsSkeleton } from "./sigungu-stats-skeleton";
-import { DistrictMapSection } from "./district-map-section";
+import { GuData } from "./gu-data";
+import { SigunguStatsSkeleton } from "../sigungu-stats-skeleton";
 import { DataSource } from "@/components/ui/data-source";
-import s from "./page.module.css";
+import s from "../page.module.css";
 
 interface PageProps {
-  params: Promise<{ id: string; sigungu: string }>;
+  params: Promise<{ id: string; sigungu: string; gu: string }>;
 }
 
 export const dynamicParams = true;
 export const revalidate = 86400;
 
 export async function generateStaticParams() {
-  // 귀농인기 키워드 포함 항목 우선으로 상위 100개 사전 빌드
-  // 나머지 ~126개는 ISR on-demand (첫 방문 시 생성 → 24시간 캐시)
-  // ⚠ 전체 226개를 빌드하면 SGIS API rate limit에 걸릴 수 있어 100개로 제한
-  const popular = SIGUNGUS.filter((sg) =>
-    sg.highlights.includes("귀농인기")
-  );
-  const rest = SIGUNGUS.filter(
-    (sg) => !sg.highlights.includes("귀농인기")
-  );
-  const top100 = [...popular, ...rest].slice(0, 100);
-
-  return top100.map((sg) => ({
-    id: sg.sidoId,
-    sigungu: sg.id,
+  return GUS.map((g) => ({
+    id: g.sidoId,
+    sigungu: g.parentSigunguId,
+    gu: g.id,
   }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { id, sigungu: sigunguId } = await params;
-  const sigungu = getSigunguBySidoAndId(id, sigunguId);
-  if (!sigungu) return { title: "지역 정보 | 이랑" };
+  const { id, sigungu: sigunguId, gu: guId } = await params;
+  const gu = getGuByIds(id, sigunguId, guId);
+  if (!gu) return { title: "지역 정보 | 이랑" };
 
   const province = PROVINCES.find((p) => p.id === id);
+  const sigungu = getSigunguBySidoAndId(id, sigunguId);
   const sidoName = province?.shortName ?? "";
+  const sigunguName = sigungu?.name ?? "";
 
   return {
-    title: `${sigungu.name} 귀농 정보 | 이랑`,
-    description: `${sidoName} ${sigungu.name}의 귀농 정보 — ${sigungu.description}`,
+    title: `${sigunguName} ${gu.name} 귀농 정보 | 이랑`,
+    description: `${sidoName} ${sigunguName} ${gu.name}의 귀농 정보 — ${gu.description}`,
   };
 }
 
-export default async function SigunguDetailPage({ params }: PageProps) {
-  const { id, sigungu: sigunguId } = await params;
+export default async function GuDetailPage({ params }: PageProps) {
+  const { id, sigungu: sigunguId, gu: guId } = await params;
   const province = PROVINCES.find((p) => p.id === id);
   if (!province) notFound();
 
   const sigungu = getSigunguBySidoAndId(id, sigunguId);
   if (!sigungu) notFound();
 
-  // 시군구 귀농지원센터 (정적 — 상위 광역 폴백하지 않음)
+  const gu = getGuByIds(id, sigunguId, guId);
+  if (!gu) notFound();
+
+  // 시군구 귀농지원센터 (구가 아닌 상위 시 기준)
   const sigunguCenter = getSigunguCenter(sigungu.id);
 
-  // 대표 작물 매칭 (정적 데이터 — API 불필요)
+  // 대표 작물 매칭 (정적 데이터)
   const matchedCrops = CROPS.filter((crop) => {
     const detail = CROP_DETAILS.find((d) => d.id === crop.id);
     return (
-      sigungu.mainCrops.some(
+      gu.mainCrops.some(
         (mc) => crop.name === mc || crop.name.includes(mc)
       ) ||
       (detail?.majorRegions?.includes(province.name) &&
-        sigungu.mainCrops.some(
+        gu.mainCrops.some(
           (mc) =>
             detail.majorRegions?.some((r) => r.includes(mc)) ||
             crop.name.includes(mc)
@@ -100,7 +94,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
   const year = new Date().getFullYear();
 
-  // 지역 관련 지원사업 · 교육 · 행사 (시/도 + 전국, 마감 제외)
+  // 지역 관련 지원사업 / 교육 / 행사 (시/도 + 전국, 마감 제외)
   const regionPrograms = PROGRAMS.filter(
     (p) =>
       (p.region === province.name || p.region === "전국") &&
@@ -121,7 +115,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
   return (
     <div className={s.page}>
-      {/* ── 브레드크럼 (정적) ── */}
+      {/* -- 브레드크럼 -- */}
       <nav className={s.breadcrumb} aria-label="경로">
         <Link href="/regions" className={s.breadcrumbLink}>
           지역 탐색
@@ -131,18 +125,27 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           {province.shortName}
         </Link>
         <Icon icon={ChevronRight} size="sm" className={s.breadcrumbSep} />
-        <span className={s.breadcrumbCurrent} aria-current="page">
+        <Link
+          href={`/regions/${province.id}/${sigungu.id}`}
+          className={s.breadcrumbLink}
+        >
           {sigungu.name}
+        </Link>
+        <Icon icon={ChevronRight} size="sm" className={s.breadcrumbSep} />
+        <span className={s.breadcrumbCurrent} aria-current="page">
+          {gu.name}
         </span>
       </nav>
 
-      {/* ── Hero (정적) ── */}
+      {/* -- Hero -- */}
       <header className={s.hero}>
-        <span className={s.heroOverline}>{province.name}</span>
-        <h1 className={s.heroTitle}>{sigungu.name}</h1>
-        <p className={s.heroDesc}>{sigungu.description}</p>
+        <span className={s.heroOverline}>
+          {province.name} {sigungu.name}
+        </span>
+        <h1 className={s.heroTitle}>{gu.name}</h1>
+        <p className={s.heroDesc}>{gu.description}</p>
         <div className={s.heroTags}>
-          {sigungu.highlights.map((tag) => (
+          {gu.highlights.map((tag) => (
             <span key={tag} className={s.heroTag}>
               {tag}
             </span>
@@ -150,28 +153,19 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         </div>
       </header>
 
-      {/* ── API 데이터 섹션: 통계 + 기후 (스트리밍) ── */}
+      {/* -- API 데이터 섹션: 통계 + 기후 -- */}
       <Suspense fallback={<SigunguStatsSkeleton />}>
-        <SigunguData province={province} sigungu={sigungu} />
+        <GuData province={province} sigungu={sigungu} gu={gu} />
       </Suspense>
 
-      {/* ── 구 지도 (구 분할 시만 표시) ── */}
-      {hasGuDistricts(sigungu.id) && (
-        <DistrictMapSection
-          provinceId={province.id}
-          sigunguId={sigungu.id}
-          sigunguName={sigungu.name}
-        />
-      )}
-
-      {/* ── 대표 작물 (정적 매칭) ── */}
+      {/* -- 대표 작물 -- */}
       <section className={s.section} aria-label="대표 작물">
         <div className={s.sectionHeader}>
           <Icon icon={Sprout} size="lg" />
           <div>
             <h2 className={s.sectionTitle}>대표 작물</h2>
             <p className={s.sectionDesc}>
-              {sigungu.name}에서 주로 재배되는 작물이에요.
+              {gu.name}에서 주로 재배되는 작물이에요.
             </p>
           </div>
         </div>
@@ -189,7 +183,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           </div>
         ) : (
           <div className={s.mainCropsList}>
-            {sigungu.mainCrops.map((crop) => (
+            {gu.mainCrops.map((crop) => (
               <span key={crop} className={s.mainCropBadge}>
                 {crop}
               </span>
@@ -198,7 +192,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         )}
       </section>
 
-      {/* ── 이 지역 귀농지원센터 (정적) ── */}
+      {/* -- 이 지역 귀농지원센터 (상위 시 기준) -- */}
       {sigunguCenter && (
         <section className={s.section} aria-label="이 지역 귀농지원센터">
           <div className={s.sectionHeader}>
@@ -214,7 +208,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* ── 관련 지원사업 ── */}
+      {/* -- 관련 지원사업 -- */}
       <section className={s.section} aria-label="관련 지원사업">
         <div className={s.sectionHeader}>
           <Icon icon={FileText} size="lg" />
@@ -250,7 +244,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           </div>
         ) : (
           <p className={s.infoEmpty}>
-            현재 모집 중인 지원사업이 없습니다. 새로운 사업이 등록되면 업데이트됩니다.
+            현재 모집 중인 지원사업이 없어요. 새로운 사업이 등록되면 업데이트돼요.
           </p>
         )}
         <Link
@@ -261,7 +255,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         </Link>
       </section>
 
-      {/* ── 필지·임지 확인 (외부 포털 허브) ── */}
+      {/* -- 필지·임지 확인 -- */}
       <section className={s.section} aria-label="필지·임지 확인">
         <div className={s.sectionHeader}>
           <Icon icon={LandPlot} size="lg" />
@@ -275,7 +269,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         <LandCheckBox />
       </section>
 
-      {/* ── 귀농 교육 ── */}
+      {/* -- 귀농 교육 -- */}
       <section className={s.section} aria-label="귀농 교육">
         <div className={s.sectionHeader}>
           <Icon icon={GraduationCap} size="lg" />
@@ -310,7 +304,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           </div>
         ) : (
           <p className={s.infoEmpty}>
-            현재 모집 중인 교육과정이 없습니다. 새로운 과정이 개설되면 업데이트됩니다.
+            현재 모집 중인 교육과정이 없어요. 새로운 과정이 개설되면 업데이트돼요.
           </p>
         )}
         <Link
@@ -321,7 +315,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         </Link>
       </section>
 
-      {/* ── 체험·행사 ── */}
+      {/* -- 체험·행사 -- */}
       <section className={s.section} aria-label="체험·행사">
         <div className={s.sectionHeader}>
           <Icon icon={Calendar} size="lg" />
@@ -358,9 +352,9 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           </div>
         ) : (
           <p className={s.infoEmpty}>
-            현재 접수 중인 행사가 없습니다.
+            현재 접수 중인 행사가 없어요.
             <br />
-            새로운 행사가 등록되면 업데이트됩니다.
+            새로운 행사가 등록되면 업데이트돼요.
           </p>
         )}
         <Link
@@ -371,13 +365,16 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         </Link>
       </section>
 
-      {/* ── 돌아가기 링크 ── */}
-      <Link href={`/regions/${province.id}`} className={s.backLink}>
+      {/* -- 돌아가기 링크 -- */}
+      <Link
+        href={`/regions/${province.id}/${sigungu.id}`}
+        className={s.backLink}
+      >
         <Icon icon={ArrowLeft} size="md" />
-        {province.shortName} 상세로 돌아가기
+        {sigungu.name} 상세로 돌아가기
       </Link>
 
-      {/* ── 데이터 출처 ── */}
+      {/* -- 데이터 출처 -- */}
       <footer className={s.sourceNotice}>
         <DataSource source={`${year}년 기준 · 기상청 ASOS · SGIS 통계지리정보 · 건강보험심사평가원 · 교육부 NEIS`} />
       </footer>

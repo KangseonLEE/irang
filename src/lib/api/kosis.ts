@@ -9,6 +9,12 @@ const API_BASE =
 
 /** KOSIS 통계표 ID */
 export const KOSIS_TABLE = {
+  /** 시군구별·성별 귀농가구원 (귀농인수) */
+  RETURN_FARM_PERSON: "DT_1A02002",
+  /** 시군구별·가구원수별 귀농가구 (가구수) */
+  RETURN_FARM_HOUSEHOLD: "DT_1A02008",
+  /** 시군구별·성별 귀촌인 (귀촌인수) */
+  RETURN_RURAL_PERSON: "DT_1A02015",
   /** 시군별 논벼 생산량 (재배면적 ha, 생산량 톤) */
   RICE_PRODUCTION: "DT_1ET0034",
   /** 과수 재배 농가 및 면적 */
@@ -423,4 +429,310 @@ function extractCropName(itmName: string, tblName: string): string {
   if (match) return match[1];
 
   return itmName;
+}
+
+// ── 귀농·귀촌 시군구별 통계 조회 ──
+
+/** KOSIS 귀농/귀촌 응답 원본 아이템 (C1=지역, C2=성별/가구원수) */
+interface KOSISReturnFarmRawItem {
+  C1: string;      // 지역코드 (00=전국, 31=경기, 31070=평택 등)
+  C1_NM: string;   // 지역명
+  C2: string;      // 분류코드 (0=계, 1=남, 2=여 / 00=계, 01=1인 등)
+  C2_NM: string;   // 분류명
+  ITM_ID: string;  // 항목ID (T01, T02 등)
+  ITM_NM: string;  // 항목명
+  DT: string;      // 값
+  PRD_DE: string;  // 기간 (연도)
+}
+
+/** 시군구별 귀농·귀촌 데이터 */
+export interface ReturnFarmData {
+  /** KOSIS 지역코드 (5자리 시군구) */
+  regionCode: string;
+  /** 지역명 */
+  regionName: string;
+  /** 귀농인 수 (명) */
+  returnFarmPerson: number;
+  /** 귀농가구 수 (가구) */
+  returnFarmHousehold: number;
+  /** 귀촌인 수 (명) */
+  returnRuralPerson: number;
+  /** 데이터 연도 */
+  year: number;
+}
+
+/**
+ * KOSIS에서 시군구별 귀농·귀촌 통계를 조회한다.
+ *
+ * 3개 테이블 병렬 호출:
+ * - DT_1A02002: 귀농인 수 (itmId=T02, C2=0 계)
+ * - DT_1A02008: 귀농가구 수 (itmId=T01, C2=00 계)
+ * - DT_1A02015: 귀촌인 수 (itmId=T01, C2=0 계)
+ *
+ * @param regionCode 시군구 코드 (5자리, 없으면 전체 조회)
+ */
+export async function fetchReturnFarmStats(
+  regionCode?: string,
+): Promise<ReturnFarmData[]> {
+  const apiKey = process.env.KOSIS_API_KEY;
+  if (!apiKey) return [];
+
+  const currentYear = new Date().getFullYear();
+
+  // 귀농귀촌 통계는 보통 6월에 전년 데이터 공개 → 전년~2년전 시도
+  for (const year of [currentYear - 1, currentYear - 2, currentYear - 3]) {
+    const data = await fetchReturnFarmForYear(apiKey, year, regionCode);
+    if (data.length > 0) return data;
+  }
+
+  return [];
+}
+
+async function fetchReturnFarmForYear(
+  apiKey: string,
+  year: number,
+  regionCode?: string,
+): Promise<ReturnFarmData[]> {
+  const buildUrl = (tblId: string, objL2: string) => {
+    const url = new URL(API_BASE);
+    url.searchParams.set("method", "getList");
+    url.searchParams.set("apiKey", apiKey);
+    url.searchParams.set("itmId", "ALL");
+    url.searchParams.set("objL1", regionCode ?? "ALL");
+    url.searchParams.set("objL2", objL2);
+    url.searchParams.set("format", "json");
+    url.searchParams.set("jsonVD", "Y");
+    url.searchParams.set("prdSe", "Y");
+    url.searchParams.set("startPrdDe", String(year));
+    url.searchParams.set("endPrdDe", String(year));
+    url.searchParams.set("orgId", "101");
+    url.searchParams.set("tblId", tblId);
+    return url.toString();
+  };
+
+  try {
+    const [personRes, householdRes, ruralRes] = await Promise.allSettled([
+      fetch(buildUrl(KOSIS_TABLE.RETURN_FARM_PERSON, "0"), {
+        next: { revalidate: 86400 * 7 },
+        signal: AbortSignal.timeout(10_000),
+      }),
+      fetch(buildUrl(KOSIS_TABLE.RETURN_FARM_HOUSEHOLD, "00"), {
+        next: { revalidate: 86400 * 7 },
+        signal: AbortSignal.timeout(10_000),
+      }),
+      fetch(buildUrl(KOSIS_TABLE.RETURN_RURAL_PERSON, "0"), {
+        next: { revalidate: 86400 * 7 },
+        signal: AbortSignal.timeout(10_000),
+      }),
+    ]);
+
+    const parseJson = async (result: PromiseSettledResult<Response>) => {
+      if (result.status !== "fulfilled" || !result.value.ok) return [];
+      const json = await result.value.json();
+      return Array.isArray(json) ? (json as KOSISReturnFarmRawItem[]) : [];
+    };
+
+    const [personItems, householdItems, ruralItems] = await Promise.all([
+      parseJson(personRes),
+      parseJson(householdRes),
+      parseJson(ruralRes),
+    ]);
+
+    // 귀농인수가 없으면 해당 연도 데이터 없음
+    if (personItems.length === 0) return [];
+
+    return mergeReturnFarmData(personItems, householdItems, ruralItems, year);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * 3개 테이블 응답을 지역코드 기준으로 병합한다.
+ */
+function mergeReturnFarmData(
+  personItems: KOSISReturnFarmRawItem[],
+  householdItems: KOSISReturnFarmRawItem[],
+  ruralItems: KOSISReturnFarmRawItem[],
+  year: number,
+): ReturnFarmData[] {
+  const regionMap = new Map<string, ReturnFarmData>();
+
+  // 귀농인 수 (T02 = 귀농인수)
+  for (const item of personItems) {
+    if (item.ITM_ID !== "T02") continue;
+    const value = parseInt(item.DT, 10);
+    if (isNaN(value)) continue;
+
+    const existing = regionMap.get(item.C1);
+    if (existing) {
+      existing.returnFarmPerson = value;
+    } else {
+      regionMap.set(item.C1, {
+        regionCode: item.C1,
+        regionName: item.C1_NM,
+        returnFarmPerson: value,
+        returnFarmHousehold: 0,
+        returnRuralPerson: 0,
+        year,
+      });
+    }
+  }
+
+  // 귀농가구 수 (T01 = 가구수)
+  for (const item of householdItems) {
+    if (item.ITM_ID !== "T01") continue;
+    const value = parseInt(item.DT, 10);
+    if (isNaN(value)) continue;
+
+    const existing = regionMap.get(item.C1);
+    if (existing) {
+      existing.returnFarmHousehold = value;
+    }
+  }
+
+  // 귀촌인 수 (T01 = 귀촌인수)
+  for (const item of ruralItems) {
+    if (item.ITM_ID !== "T01") continue;
+    const value = parseInt(item.DT, 10);
+    if (isNaN(value)) continue;
+
+    const existing = regionMap.get(item.C1);
+    if (existing) {
+      existing.returnRuralPerson = value;
+    }
+  }
+
+  return Array.from(regionMap.values());
+}
+
+// ── 귀농·귀촌 연도별 추이 조회 (10년치 한 번에) ──
+
+/** 연도별 귀농·귀촌 추이 데이터 (단일 지역) */
+export interface ReturnFarmTrendItem {
+  year: number;
+  returnFarmPerson: number;
+  returnFarmHousehold: number;
+  returnRuralPerson: number;
+}
+
+/**
+ * KOSIS에서 특정 지역의 귀농·귀촌 연도별 추이를 조회한다.
+ * startPrdDe ~ endPrdDe 범위를 넓혀 한 번에 여러 연도를 가져온다.
+ *
+ * @param regionCode 시군구 코드 (5자리)
+ * @param years 조회할 연도 수 (기본 10)
+ */
+export async function fetchReturnFarmTrend(
+  regionCode: string,
+  years = 10,
+): Promise<ReturnFarmTrendItem[]> {
+  const apiKey = process.env.KOSIS_API_KEY;
+  if (!apiKey) return [];
+
+  const currentYear = new Date().getFullYear();
+  const endYear = currentYear - 1;
+  const startYear = endYear - years + 1;
+
+  const buildUrl = (tblId: string, objL2: string) => {
+    const url = new URL(API_BASE);
+    url.searchParams.set("method", "getList");
+    url.searchParams.set("apiKey", apiKey);
+    url.searchParams.set("itmId", "ALL");
+    url.searchParams.set("objL1", regionCode);
+    url.searchParams.set("objL2", objL2);
+    url.searchParams.set("format", "json");
+    url.searchParams.set("jsonVD", "Y");
+    url.searchParams.set("prdSe", "Y");
+    url.searchParams.set("startPrdDe", String(startYear));
+    url.searchParams.set("endPrdDe", String(endYear));
+    url.searchParams.set("orgId", "101");
+    url.searchParams.set("tblId", tblId);
+    return url.toString();
+  };
+
+  try {
+    const [personRes, householdRes, ruralRes] = await Promise.allSettled([
+      fetch(buildUrl(KOSIS_TABLE.RETURN_FARM_PERSON, "0"), {
+        next: { revalidate: 86400 * 7 },
+        signal: AbortSignal.timeout(10_000),
+      }),
+      fetch(buildUrl(KOSIS_TABLE.RETURN_FARM_HOUSEHOLD, "00"), {
+        next: { revalidate: 86400 * 7 },
+        signal: AbortSignal.timeout(10_000),
+      }),
+      fetch(buildUrl(KOSIS_TABLE.RETURN_RURAL_PERSON, "0"), {
+        next: { revalidate: 86400 * 7 },
+        signal: AbortSignal.timeout(10_000),
+      }),
+    ]);
+
+    const parseJson = async (result: PromiseSettledResult<Response>) => {
+      if (result.status !== "fulfilled" || !result.value.ok) return [];
+      const json = await result.value.json();
+      return Array.isArray(json) ? (json as KOSISReturnFarmRawItem[]) : [];
+    };
+
+    const [personItems, householdItems, ruralItems] = await Promise.all([
+      parseJson(personRes),
+      parseJson(householdRes),
+      parseJson(ruralRes),
+    ]);
+
+    if (personItems.length === 0) return [];
+
+    return mergeReturnFarmTrendData(personItems, householdItems, ruralItems);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * 다년도 3개 테이블 응답을 연도별로 병합한다.
+ */
+function mergeReturnFarmTrendData(
+  personItems: KOSISReturnFarmRawItem[],
+  householdItems: KOSISReturnFarmRawItem[],
+  ruralItems: KOSISReturnFarmRawItem[],
+): ReturnFarmTrendItem[] {
+  const yearMap = new Map<number, ReturnFarmTrendItem>();
+
+  for (const item of personItems) {
+    if (item.ITM_ID !== "T02") continue;
+    const value = parseInt(item.DT, 10);
+    if (isNaN(value)) continue;
+    const year = parseInt(item.PRD_DE, 10);
+
+    const existing = yearMap.get(year);
+    if (existing) {
+      existing.returnFarmPerson = value;
+    } else {
+      yearMap.set(year, {
+        year,
+        returnFarmPerson: value,
+        returnFarmHousehold: 0,
+        returnRuralPerson: 0,
+      });
+    }
+  }
+
+  for (const item of householdItems) {
+    if (item.ITM_ID !== "T01") continue;
+    const value = parseInt(item.DT, 10);
+    if (isNaN(value)) continue;
+    const year = parseInt(item.PRD_DE, 10);
+    const existing = yearMap.get(year);
+    if (existing) existing.returnFarmHousehold = value;
+  }
+
+  for (const item of ruralItems) {
+    if (item.ITM_ID !== "T01") continue;
+    const value = parseInt(item.DT, 10);
+    if (isNaN(value)) continue;
+    const year = parseInt(item.PRD_DE, 10);
+    const existing = yearMap.get(year);
+    if (existing) existing.returnRuralPerson = value;
+  }
+
+  return Array.from(yearMap.values()).sort((a, b) => a.year - b.year);
 }

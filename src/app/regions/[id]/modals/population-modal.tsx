@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { Info } from "lucide-react";
 import { DataSource } from "@/components/ui/data-source";
 import s from "./modals.module.css";
 
@@ -71,6 +72,14 @@ export function PopulationModal({
 
   return (
     <div className={s.modalContent}>
+      <div className={s.notice}>
+        <Info size={16} className={s.noticeIcon} aria-hidden="true" />
+        <p className={s.noticeText}>
+          실제 거주지 기반의 상주인구 기준이에요.
+          귀농 후 함께 생활할 이웃 수를 파악하려면 등록 주소가 아닌 상주인구가 더 정확해요.
+        </p>
+      </div>
+
       {/* 현재 통계 */}
       <div className={s.statGrid}>
         <div className={s.statItem}>
@@ -187,7 +196,7 @@ export function PopulationModal({
         </p>
       </div>
 
-      <DataSource source="SGIS 통계지리정보서비스" />
+      <DataSource source="SGIS 통계지리정보서비스 (상주인구 기준)" />
     </div>
   );
 }

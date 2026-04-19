@@ -3,11 +3,8 @@
  * - 지역 통계, 모달 등에서 공통으로 사용하는 포맷 함수
  */
 
-/** 인구수를 "N만명" 또는 "N명" 형식으로 포맷 */
+/** 인구수를 "123,456명" 형식으로 포맷 (정확한 숫자 표시) */
 export function formatPopulation(pop: number): string {
-  if (pop >= 10000) {
-    return `${Math.round(pop / 10000)}만명`;
-  }
   return `${pop.toLocaleString()}명`;
 }
 

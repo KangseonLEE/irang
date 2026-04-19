@@ -43,6 +43,28 @@
   line-height: var(--lh-normal);
 }
 
+/* ---- 안내 배너 ---- */
+.notice {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  border-radius: 10px;
+}
+
+.noticeIcon {
+  flex-shrink: 0;
+  color: var(--primary, #1b6b5a);
+  margin-top: 1px;
+}
+
+.noticeText {
+  font-size: var(--fs-overline);
+  color: var(--foreground);
+  margin: 0;
+  line-height: var(--lh-normal);
+}
+
 /* ---- 검색 ---- */
 .searchWrapper {
   position: relative;

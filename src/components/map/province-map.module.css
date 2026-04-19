@@ -64,6 +64,11 @@
   font-size: 14px;
 }
 
+/* 구 지도용 — 크롭된 viewBox에서 라벨 비율 조정 */
+.labelDistrict {
+  font-size: var(--district-label-size, 8px);
+}
+
 .labelActive {
   fill: var(--primary-foreground);
   font-weight: 700;
