@@ -636,7 +636,7 @@ export async function loadPrograms(): Promise<{
 
       if (!error && data && data.length > 0) {
         const rows = data as unknown as ProgramRow[];
-        const programs: SupportProgram[] = rows.map((row) => ({
+        const dbPrograms: SupportProgram[] = rows.map((row) => ({
           id: row.slug,
           title: row.title,
           summary: row.summary,
@@ -657,6 +657,12 @@ export async function loadPrograms(): Promise<{
           year: row.year,
           createdAt: row.created_at,
         }));
+        // 정적 데이터 중 Supabase에 없는 항목 병합
+        const dbIds = new Set(dbPrograms.map((p) => p.id));
+        const staticOnly = PROGRAMS
+          .filter((p) => !dbIds.has(p.id))
+          .map((p) => ({ ...p, status: deriveStatus(p.applicationStart, p.applicationEnd) }));
+        const programs = [...dbPrograms, ...staticOnly];
         return { programs, source: "supabase" };
       }
     } catch {
