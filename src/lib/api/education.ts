@@ -49,7 +49,7 @@ async function fetchEduSchoolCount(
   url.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 } });
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
@@ -110,7 +110,7 @@ async function fetchSigunguSchoolCount(
   url.searchParams.set("LCTN_SC_NM", sigunguName);
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 } });
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();

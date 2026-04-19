@@ -107,6 +107,7 @@ async function fetchRiceIncomeFromKOSIS(
   try {
     const res = await fetch(url.toString(), {
       next: { revalidate: 86400 * 7 }, // 7일 캐시 (연 1회 갱신)
+      signal: AbortSignal.timeout(10_000),
     });
 
     if (!res.ok) return null;
@@ -228,6 +229,7 @@ async function fetchCropIncomeFromKOSIS(
   try {
     const res = await fetch(url.toString(), {
       next: { revalidate: 86400 * 7 }, // 7일 캐시 (연 1회 갱신)
+      signal: AbortSignal.timeout(10_000),
     });
 
     if (!res.ok) return null;
@@ -346,6 +348,7 @@ async function fetchFromKOSIS(
   try {
     const res = await fetch(url.toString(), {
       next: { revalidate: 86400 }, // 24시간 캐시
+      signal: AbortSignal.timeout(10_000),
     });
 
     if (!res.ok) {

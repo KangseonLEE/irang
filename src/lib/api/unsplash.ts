@@ -44,6 +44,7 @@ export async function fetchUnsplashPhoto(
     const res = await fetch(url.toString(), {
       headers: { Authorization: `Client-ID ${accessKey}` },
       next: { revalidate: 604800 }, // 7일 캐시
+      signal: AbortSignal.timeout(10_000),
     });
 
     if (!res.ok) {

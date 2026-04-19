@@ -62,7 +62,7 @@ export async function fetchClimateData(stnId: string): Promise<ClimateData | nul
   url.searchParams.set("numOfRows", "366");
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 } }); // 24시간 캐시
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) }); // 24시간 캐시
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();

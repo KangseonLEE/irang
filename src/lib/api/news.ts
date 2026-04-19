@@ -295,6 +295,7 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
         // ISR(revalidate=3600)과 동일 주기로 Data Cache 갱신
         // — 실패 응답도 1시간 후 자동 만료되어 재시도
         next: { revalidate: NEWS_CACHE_TTL },
+        signal: AbortSignal.timeout(10_000),
       });
 
       if (!res.ok) {

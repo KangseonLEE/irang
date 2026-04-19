@@ -47,7 +47,7 @@ async function fetchSidoMedicalCount(
   url.searchParams.set("_type", "json");
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 } });
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
@@ -89,7 +89,7 @@ async function fetchSigunguMedicalCount(
   url.searchParams.set("_type", "json");
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 } });
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
