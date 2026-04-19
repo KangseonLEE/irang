@@ -146,6 +146,17 @@ export default async function EventsPage({ searchParams }: PageProps) {
 
       {/* ── Filter Bar ── */}
       <FilterBar>
+        <FilterActions
+          basePath="/events"
+          currentFilters={currentParams}
+          searchPlaceholder="행사명, 지역, 기관으로 검색..."
+          toggle={{
+            paramKey: "includeClosed",
+            label: "마감 포함",
+            isActive: includeClosed,
+          }}
+        />
+        <FilterDivider />
         <FilterRow>
           <FilterGroup
             label="유형"
@@ -166,17 +177,6 @@ export default async function EventsPage({ searchParams }: PageProps) {
             basePath="/events"
           />
         </FilterRow>
-        <FilterDivider />
-        <FilterActions
-          basePath="/events"
-          currentFilters={currentParams}
-          searchPlaceholder="행사명, 지역, 기관으로 검색..."
-          toggle={{
-            paramKey: "includeClosed",
-            label: "마감 포함",
-            isActive: includeClosed,
-          }}
-        />
       </FilterBar>
 
       <IncludeClosedHint

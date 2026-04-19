@@ -198,6 +198,17 @@ export default async function EducationPage({ searchParams }: PageProps) {
 
       {/* Filter Bar */}
       <FilterBar>
+        <FilterActions
+          basePath="/education"
+          currentFilters={currentFilters}
+          searchPlaceholder="교육명, 기관명 검색..."
+          toggle={{
+            paramKey: "includeClosed",
+            label: "마감 포함",
+            isActive: includeClosed,
+          }}
+        />
+        <FilterDivider />
         <FilterRow>
           <FilterGroup
             label="지역"
@@ -226,17 +237,6 @@ export default async function EducationPage({ searchParams }: PageProps) {
             basePath="/education"
           />
         </FilterRow>
-        <FilterDivider />
-        <FilterActions
-          basePath="/education"
-          currentFilters={currentFilters}
-          searchPlaceholder="교육명, 기관명 검색..."
-          toggle={{
-            paramKey: "includeClosed",
-            label: "마감 포함",
-            isActive: includeClosed,
-          }}
-        />
       </FilterBar>
 
       <IncludeClosedHint

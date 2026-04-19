@@ -505,14 +505,15 @@ export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
 
     // 조회 시점 필터: 모집기간과 선택 월이 겹치는지 확인
     // includeClosed가 true이면 기간 필터를 적용하지 않음 (마감된 과거 프로그램도 표시)
+    // 모집중·모집예정은 기간 필터와 무관하게 항상 표시
     if (!filters.includeClosed && periodStart && periodEnd) {
-      // 모집기간과 조회 월이 겹치려면:
-      // program.applicationStart <= periodEnd AND program.applicationEnd >= periodStart
-      if (
-        program.applicationStart > periodEnd ||
-        program.applicationEnd < periodStart
-      ) {
-        return false;
+      if (program.status !== "모집중" && program.status !== "모집예정") {
+        if (
+          program.applicationStart > periodEnd ||
+          program.applicationEnd < periodStart
+        ) {
+          return false;
+        }
       }
     }
 
@@ -705,12 +706,15 @@ export async function filterProgramsAsync(
     if (!filters.includeClosed && program.status === "마감") return false;
 
     // 조회 시점 필터 (includeClosed가 true이면 기간 필터 스킵)
+    // 모집중·모집예정은 기간 필터와 무관하게 항상 표시
     if (!filters.includeClosed && periodStart && periodEnd) {
-      if (
-        program.applicationStart > periodEnd ||
-        program.applicationEnd < periodStart
-      ) {
-        return false;
+      if (program.status !== "모집중" && program.status !== "모집예정") {
+        if (
+          program.applicationStart > periodEnd ||
+          program.applicationEnd < periodStart
+        ) {
+          return false;
+        }
       }
     }
     if (filters.query) {

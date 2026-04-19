@@ -213,6 +213,9 @@ function SearchPageContent() {
                   <Icon size={18} className={s.sectionIcon} />
                   {meta.label}
                   <span className={s.sectionCount}>{group.items.length}</span>
+                  {group.type === "program" && (
+                    <span className={s.sectionHint}>모집중·모집예정만</span>
+                  )}
                 </h2>
                 <div className={s.grid}>
                   {group.items.map((item) => {

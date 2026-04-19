@@ -145,7 +145,13 @@
 }
 
 .cardHeader {
-  padding: 24px 24px 0;
+  padding: 20px 16px 0;
+}
+
+@media (min-width: 640px) {
+  .cardHeader {
+    padding: 24px 24px 0;
+  }
 }
 
 .cardTitle {
@@ -160,13 +166,20 @@
 }
 
 .cardContent {
-  padding: 16px 24px 24px;
+  padding: 16px 16px 20px;
+}
+
+@media (min-width: 640px) {
+  .cardContent {
+    padding: 16px 24px 24px;
+  }
 }
 
 /* ── 테이블 ── */
 .table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .tableRow {
@@ -178,8 +191,8 @@
 }
 
 .tableLabelCell {
-  width: 100px;
-  padding: 14px 0;
+  width: 90px;
+  padding: 14px 8px 14px 0;
   vertical-align: top;
 }
 
@@ -194,6 +207,7 @@
   font-size: var(--fs-body-sm);
   color: var(--foreground, #111827);
   word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* 아이콘 + 라벨 */

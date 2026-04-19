@@ -115,17 +115,19 @@ function getSearchIndex(): SearchItem[] {
     badge: c.category,
   }));
 
-  // ── 지원사업 ──
-  const programItems: SearchItem[] = PROGRAMS.map((p) => ({
-    type: "program" as const,
-    id: p.id,
-    title: p.title,
-    subtitle: truncate(p.summary, 50),
-    href: `/programs/${p.id}`,
-    keywords: [p.region, p.supportType, ...p.relatedCrops],
-    icon: "\u{1F4CB}", // 📋
-    badge: p.status,
-  }));
+  // ── 지원사업 (모집중 + 모집예정만 — 마감 항목 제외) ──
+  const programItems: SearchItem[] = PROGRAMS
+    .filter((p) => p.status !== "마감")
+    .map((p) => ({
+      type: "program" as const,
+      id: p.id,
+      title: p.title,
+      subtitle: truncate(p.summary, 50),
+      href: `/programs/${p.id}`,
+      keywords: [p.region, p.supportType, ...p.relatedCrops],
+      icon: "\u{1F4CB}", // 📋
+      badge: p.status,
+    }));
 
   // ── 교육 ──
   const educationItems: SearchItem[] = EDUCATION_COURSES.map((e) => ({

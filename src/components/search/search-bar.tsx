@@ -257,6 +257,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     setResults([]);
     setFocusedIndex(-1);
     setIsNavigating(false);
+    isNavigatingRef.current = false;
     setRecentSearches(loadRecent());
     inputRef.current?.blur();
     onCloseProp?.();
@@ -308,6 +309,30 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       }
     };
   }, [isExpanded, handleClose]);
+
+  // bfcache 복원 시 네비게이팅 상태 리셋 — 뒤로가기 후 로딩 스피너 무한회전 방지
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted && isNavigatingRef.current) {
+        isNavigatingRef.current = false;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIsNavigating(false);
+      }
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
+  // sentinel이 history에 잔존하면 정리 — 뒤로가기 시 중복 sentinel 방지
+  useEffect(() => {
+    if (
+      !isExpanded &&
+      !isNavigating &&
+      window.history.state?.__searchExpanded
+    ) {
+      window.history.replaceState(null, "");
+    }
+  }, [isExpanded, isNavigating]);
 
   // 마운트 시 최근 검색어 로드
   useEffect(() => {

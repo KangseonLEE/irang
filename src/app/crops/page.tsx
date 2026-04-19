@@ -104,6 +104,12 @@ export default async function CropsPage({ searchParams }: PageProps) {
 
       {/* Filter Bar */}
       <FilterBar>
+        <FilterActions
+          basePath="/crops"
+          currentFilters={currentFilters}
+          searchPlaceholder="작물명, 설명으로 검색..."
+        />
+        <FilterDivider />
         <FilterRow>
           <FilterGroup
             label="카테고리"
@@ -124,12 +130,6 @@ export default async function CropsPage({ searchParams }: PageProps) {
             basePath="/crops"
           />
         </FilterRow>
-        <FilterDivider />
-        <FilterActions
-          basePath="/crops"
-          currentFilters={currentFilters}
-          searchPlaceholder="작물명, 설명으로 검색..."
-        />
       </FilterBar>
 
       {/* Crop Card Grid */}

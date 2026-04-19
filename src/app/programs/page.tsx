@@ -158,6 +158,17 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
 
       {/* Filter Bar */}
       <FilterBar>
+        <FilterActions
+          basePath="/programs"
+          currentFilters={currentFilters}
+          searchPlaceholder="지원사업명, 지역, 기관명으로 검색"
+          toggle={{
+            paramKey: "includeClosed",
+            label: "마감 포함",
+            isActive: includeClosed,
+          }}
+        />
+        <FilterDivider />
         <FilterRow>
           <FilterGroup
             label="지역"
@@ -188,17 +199,6 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             basePath="/programs"
           />
         </FilterRow>
-        <FilterDivider />
-        <FilterActions
-          basePath="/programs"
-          currentFilters={currentFilters}
-          searchPlaceholder="지원사업명, 지역, 기관명으로 검색"
-          toggle={{
-            paramKey: "includeClosed",
-            label: "마감 포함",
-            isActive: includeClosed,
-          }}
-        />
       </FilterBar>
 
       <IncludeClosedHint
