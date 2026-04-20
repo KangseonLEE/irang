@@ -25,45 +25,6 @@
   }
 }
 
-/* ── 히어로 ── */
-.hero {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.overline {
-  font-size: var(--fs-overline, 0.6875rem);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--primary, #1b6b5a);
-}
-
-.heroTitle {
-  font-size: 1.5rem;
-  font-weight: 800;
-  line-height: 1.35;
-  letter-spacing: -0.02em;
-  color: var(--foreground);
-  margin: 0;
-  word-break: keep-all;
-}
-
-@media (min-width: 640px) {
-  .heroTitle {
-    font-size: 2rem;
-  }
-}
-
-.heroDesc {
-  font-size: var(--fs-body-sm, 0.875rem);
-  line-height: 1.65;
-  color: var(--muted-foreground, #6b7280);
-  margin: 0;
-  word-break: keep-all;
-}
-
 /* ── 타임라인 ── */
 .timeline {
   display: flex;

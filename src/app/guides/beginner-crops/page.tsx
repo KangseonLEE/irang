@@ -8,6 +8,7 @@ import {
   Store,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -88,17 +89,11 @@ export default function BeginnerCropsGuidePage() {
       />
 
       {/* -- 히어로 -- */}
-      <header className={s.hero}>
-        <span className={s.overline}>BEGINNER CROPS</span>
-        <h1 className={s.heroTitle}>
-          처음 귀농한다면,
-          <br />
-          이 작물부터
-        </h1>
-        <p className={s.heroDesc}>
-          난이도 낮고 안정적인 작물로 시작하세요.
-        </p>
-      </header>
+      <SubPageHero
+        overline="BEGINNER CROPS"
+        title="처음 귀농한다면, 이 작물부터"
+        description="난이도 낮고 안정적인 작물로 시작하세요."
+      />
 
       {/* -- 추천 작물 TOP 5 -- */}
       <section className={s.cropsSection}>

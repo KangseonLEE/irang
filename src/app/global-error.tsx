@@ -61,7 +61,7 @@ export default function GlobalError({
               letterSpacing: "-0.025em",
             }}
           >
-            서비스에 문제가 발생했습니다
+            서비스에 문제가 발생했어요
           </h2>
           <p
             style={{
@@ -70,7 +70,7 @@ export default function GlobalError({
               color: "#71717a",
             }}
           >
-            일시적인 오류일 수 있습니다. 아래 버튼을 눌러 다시 시도해 주세요.
+            일시적인 오류일 수 있어요. 아래 버튼을 눌러 다시 시도해 주세요.
           </p>
           <button
             onClick={reset}

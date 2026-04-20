@@ -11,6 +11,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -103,17 +104,11 @@ export default function SoloFarmingGuidePage() {
       />
 
       {/* ── 히어로 ── */}
-      <header className={s.hero}>
-        <span className={s.overline}>SOLO FARMING GUIDE</span>
-        <h1 className={s.heroTitle}>
-          혼자서도
-          <br />
-          귀농할 수 있을까?
-        </h1>
-        <p className={s.heroDesc}>
-          1인 귀농, 가능하지만 준비가 달라요.
-        </p>
-      </header>
+      <SubPageHero
+        overline="SOLO FARMING GUIDE"
+        title="혼자서도 귀농할 수 있을까?"
+        description="1인 귀농, 가능하지만 준비가 달라요."
+      />
 
       {/* ── 현실 체크 ── */}
       <section className={s.realitySection}>

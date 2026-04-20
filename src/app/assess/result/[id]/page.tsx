@@ -242,7 +242,7 @@ export default async function AssessResultPage({ params }: PageProps) {
                   <p className={s.programCardDesc}>{prog.summary}</p>
                   {prog.status === "마감" && (
                     <p className={s.programClosedHint}>
-                      매년 유사 시기에 재공고되는 사업입니다
+                      매년 유사 시기에 재공고되는 사업이에요
                     </p>
                   )}
                   <div className={s.programCardMeta}>

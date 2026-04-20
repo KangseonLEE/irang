@@ -10,6 +10,7 @@ import {
   Banknote,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -103,17 +104,11 @@ export default function Budget50sGuidePage() {
       />
 
       {/* ── 히어로 ── */}
-      <header className={s.hero}>
-        <span className={s.overline}>BUDGET GUIDE · 50s</span>
-        <h1 className={s.heroTitle}>
-          50대 귀농, 자본은
-          <br />
-          얼마나 필요할까?
-        </h1>
-        <p className={s.heroDesc}>
-          은퇴 후 귀농을 고민 중이라면, 현실적인 비용부터 확인하세요.
-        </p>
-      </header>
+      <SubPageHero
+        overline="BUDGET GUIDE · 50s"
+        title="50대 귀농, 자본은 얼마나 필요할까?"
+        description="은퇴 후 귀농을 고민 중이라면, 현실적인 비용부터 확인하세요."
+      />
 
       {/* ── 비용 카드 ── */}
       <section className={s.costSection}>

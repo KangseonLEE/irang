@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -128,15 +129,11 @@ export default function FailureCasesGuidePage() {
       />
 
       {/* -- 히어로 -- */}
-      <header className={s.hero}>
-        <span className={s.overline}>FAILURE CASES</span>
-        <h1 className={s.heroTitle}>
-          귀농, 왜 실패할까?
-        </h1>
-        <p className={s.heroDesc}>
-          실패 사례에서 배우는 귀농 준비의 핵심이에요.
-        </p>
-      </header>
+      <SubPageHero
+        overline="FAILURE CASES"
+        title="귀농, 왜 실패할까?"
+        description="실패 사례에서 배우는 귀농 준비의 핵심이에요."
+      />
 
       {/* -- 실패 유형 카드 -- */}
       <section className={s.casesSection}>

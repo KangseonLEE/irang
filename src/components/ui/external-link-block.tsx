@@ -52,7 +52,7 @@ export function ExternalLinkBlock({
       <div className={s.block}>
         <div className={s.brokenNotice}>
           <AlertCircle size={16} aria-hidden="true" />
-          <span>원문 페이지가 현재 연결되지 않습니다.</span>
+          <span>원문 페이지가 현재 연결되지 않아요.</span>
         </div>
 
         <a
@@ -70,7 +70,7 @@ export function ExternalLinkBlock({
         </div>
 
         <p className={s.notice}>
-          원문 페이지가 변경되었거나 삭제되었습니다. 위 검색 링크를 통해 기관
+          원문 페이지가 변경되었거나 삭제되었어요. 위 검색 링크를 통해 기관
           사이트에서 직접 확인하시거나, 이랑에 저장된 내용을 참고하세요.
         </p>
       </div>
@@ -103,14 +103,14 @@ export function ExternalLinkBlock({
         </div>
 
         <p className={s.noticeCaution}>
-          이 링크는 최근 변경이 확인되었습니다. 페이지 내용이 다를 수 있으니
-          기관 홈페이지에서 직접 검색을 권장합니다.
+          이 링크는 최근 변경이 확인되었어요. 페이지 내용이 다를 수 있으니
+          기관 홈페이지에서 직접 검색을 권장해요.
         </p>
 
         {isGov && (
           <p className={s.desktopHint}>
             <Monitor size={14} aria-hidden="true" />
-            일부 정부·공공기관 사이트는 모바일 화면에 최적화되어 있지 않습니다. 원문 확인은 PC 환경을 권장합니다.
+            일부 정부·공공기관 사이트는 모바일 화면에 최적화되어 있지 않아요. 원문 확인은 PC 환경을 권장해요.
           </p>
         )}
       </div>
@@ -146,14 +146,14 @@ export function ExternalLinkBlock({
 
       <p className={s.notice}>
         {isGov
-          ? "정부·공공기관 원문 사이트로 연결됩니다. 모집 종료 후 원문이 삭제될 수 있으며, 이 경우 이랑에 저장된 내용을 참고하세요."
-          : "외부 사이트로 연결됩니다. 페이지가 변경되었을 수 있으며, 이 경우 이랑에 저장된 내용을 참고하세요."}
+          ? "정부·공공기관 원문 사이트로 연결돼요. 모집 종료 후 원문이 삭제될 수 있으며, 이 경우 이랑에 저장된 내용을 참고하세요."
+          : "외부 사이트로 연결돼요. 페이지가 변경되었을 수 있으며, 이 경우 이랑에 저장된 내용을 참고하세요."}
       </p>
 
       {isGov && (
         <p className={s.desktopHint}>
           <Monitor size={14} aria-hidden="true" />
-          일부 정부·공공기관 사이트는 모바일 화면에 최적화되어 있지 않습니다. 원문 확인은 PC 환경을 권장합니다.
+          일부 정부·공공기관 사이트는 모바일 화면에 최적화되어 있지 않아요. 원문 확인은 PC 환경을 권장해요.
         </p>
       )}
     </div>

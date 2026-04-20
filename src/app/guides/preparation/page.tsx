@@ -11,6 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -148,17 +149,11 @@ export default function PreparationGuidePage() {
       />
 
       {/* ── 히어로 ── */}
-      <header className={s.hero}>
-        <span className={s.overline}>PREPARATION GUIDE</span>
-        <h1 className={s.heroTitle}>
-          귀농, 어떤 순서로
-          <br />
-          준비하면 좋을까?
-        </h1>
-        <p className={s.heroDesc}>
-          막막한 귀농 준비, 단계별로 정리했어요.
-        </p>
-      </header>
+      <SubPageHero
+        overline="PREPARATION GUIDE"
+        title="귀농, 어떤 순서로 준비하면 좋을까?"
+        description="막막한 귀농 준비, 단계별로 정리했어요."
+      />
 
       {/* ── 타임라인 ── */}
       <section className={s.timeline}>

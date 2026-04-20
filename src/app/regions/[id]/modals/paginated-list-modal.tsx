@@ -70,7 +70,7 @@ export function PaginatedListModal<
   itemKey,
   filterMatchCount,
   dataSource,
-  dataSourceNote = "항목을 누르면 네이버 지도에서 확인할 수 있습니다",
+  dataSourceNote = "항목을 누르면 네이버 지도에서 확인할 수 있어요",
 }: PaginatedListModalProps<T>) {
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
@@ -207,11 +207,11 @@ export function PaginatedListModal<
           <div className={s.loadingBanner}>
             <div className={s.spinner} />
             <p className={s.loadingBannerTitle}>
-              {itemLabel} {totalCount.toLocaleString()}건을 불러오고 있습니다
+              {itemLabel} {totalCount.toLocaleString()}건을 불러오고 있어요
             </p>
             {totalCount > loadingThreshold && (
               <p className={s.loadingBannerDesc}>
-                데이터가 많아 조회에 시간이 걸릴 수 있습니다
+                데이터가 많아 조회에 시간이 걸릴 수 있어요
               </p>
             )}
           </div>
@@ -256,7 +256,7 @@ export function PaginatedListModal<
       {!isInitialLoad && (activeFilter || searchQuery) && (
         <p className={s.filterResult}>
           {filteredItems.length === 0
-            ? "조건에 맞는 결과가 없습니다"
+            ? "조건에 맞는 결과가 없어요"
             : `${filteredItems.length.toLocaleString()}건 표시 중`}
         </p>
       )}
@@ -294,7 +294,7 @@ export function PaginatedListModal<
       )}
 
       {error && (
-        <div className={s.loadingText}>데이터를 불러올 수 없습니다.</div>
+        <div className={s.loadingText}>데이터를 불러올 수 없어요.</div>
       )}
 
       {!loading && !error && hasMore && (

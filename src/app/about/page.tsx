@@ -118,7 +118,7 @@ export default function AboutPage() {
         </div>
         <span className={s.heroOverline}>About IRANG</span>
         <h1 className={s.heroTitle}>
-          귀농의 모든 것, <span className={s.heroAccent}>이랑</span>이 안내합니다
+          귀농의 모든 것, <span className={s.heroAccent}>이랑</span>이 안내해요
         </h1>
         <p className={s.heroDesc}>
           <AutoGlossary text="이랑은 귀농을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스예요." />
@@ -165,7 +165,7 @@ export default function AboutPage() {
       <section className={s.stepsSection}>
         <h2 className={s.sectionTitle}>이렇게 활용하세요</h2>
         <p className={s.sectionDesc}>
-          3단계로 귀농 계획을 구체화할 수 있습니다.
+          3단계로 귀농 계획을 구체화할 수 있어요.
         </p>
         <div className={s.stepsGrid}>
           {steps.map((step, i) => {
@@ -223,7 +223,7 @@ export default function AboutPage() {
             아직 어디서 시작할지 모르겠다면?
           </h2>
           <p className={s.matchCtaDesc}>
-            <AutoGlossary text="간단한 질문 5개에 답하면, 나의 상황과 선호에 맞는 귀농 지역과 작물을 추천해 드립니다." />
+            <AutoGlossary text="간단한 질문 5개에 답하면, 나의 상황과 선호에 맞는 귀농 지역과 작물을 추천해 드려요." />
           </p>
           <Link href="/match" className={s.matchCtaButton}>
             귀농 적합도 진단 시작하기

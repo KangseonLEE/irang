@@ -108,7 +108,7 @@ export function CostSection({ duration = 900, counts }: CostSectionProps) {
           이 중 {pct}%가{" "}
           <TermTooltip
             term="영농 준비비"
-            description="농지 구입·임대, 시설·장비, 종자·비료 등 영농을 시작하기 위해 필요한 초기 비용을 통칭합니다."
+            description="농지 구입·임대, 시설·장비, 종자·비료 등 영농을 시작하기 위해 필요한 초기 비용을 통칭해요."
           />로 사용돼요
         </span>
         <span className={s.costStackChip}>서울 전세 평균의 약 1/5 수준</span>

@@ -60,9 +60,9 @@ export function IncludeClosedHint({
       <div className={s.body}>
         <p className={s.text}>
           {resultCount === 0
-            ? `현재 모집 중인 ${itemLabel}이 없습니다.`
-            : `현재 모집 중인 ${itemLabel}이 ${resultCount}건뿐입니다.`}
-          {" "}마감된 항목도 함께 보면 지난 공고를 참고하거나 하반기 재공고를 미리 확인할 수 있습니다.
+            ? `현재 모집 중인 ${itemLabel}이 없어요.`
+            : `현재 모집 중인 ${itemLabel}이 ${resultCount}건뿐이에요.`}
+          {" "}마감된 항목도 함께 보면 지난 공고를 참고하거나 하반기 재공고를 미리 확인할 수 있어요.
         </p>
       </div>
       <Link href={href} className={s.action}>
