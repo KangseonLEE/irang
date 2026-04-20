@@ -1,0 +1,110 @@
+# ═══════════════════════════════════════════
+# 매주 데이터 신선도 자동 점검
+# - 매주 수요일 KST 오전 9시 (UTC 00:00) 자동 실행
+# - 지원사업·교육·체험행사 상태 불일치 감지
+# - 불일치 발견 시 GitHub Issue 자동 생성
+# - 수동 실행 가능 (Actions 탭 → Run workflow)
+# ═══════════════════════════════════════════
+
+name: "📅 데이터 신선도 점검"
+
+on:
+  schedule:
+    # 매주 수요일 KST 오전 9시 (UTC 00:00)
+    - cron: "0 0 * * 3"
+  workflow_dispatch: # 수동 실행 지원
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  check-freshness:
+    name: 데이터 신선도 점검
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: data-freshness 라벨 생성 (없으면)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "data-freshness" \
+            --description "데이터 신선도 자동 점검 이슈" \
+            --color "f9d0c4" \
+            2>/dev/null || true
+
+      - name: 데이터 신선도 점검 실행
+        id: freshness
+        run: |
+          # 스크립트 출력을 파일에 저장하고 동시에 화면에도 표시
+          npx tsx scripts/check-data-freshness.ts 2>&1 | tee /tmp/freshness-output.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+        continue-on-error: true
+
+      - name: 실제 exit code 재확인
+        id: check_exit
+        run: |
+          npx tsx scripts/check-data-freshness.ts > /dev/null 2>&1
+          echo "has_mismatch=$?" >> "$GITHUB_OUTPUT"
+        continue-on-error: true
+
+      - name: 열린 data-freshness 이슈 확인
+        id: existing_issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COUNT=$(gh issue list \
+            --label "data-freshness" \
+            --state open \
+            --json number \
+            --jq length)
+          echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
+
+      - name: GitHub Issue 생성 (불일치 있고 열린 이슈 없을 때)
+        if: steps.check_exit.outputs.has_mismatch == '1' && steps.existing_issue.outputs.count == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OUTPUT=$(cat /tmp/freshness-output.txt)
+          TODAY=$(date -u '+%Y-%m-%d')
+
+          gh issue create \
+            --title "📅 데이터 신선도 불일치 감지 (${TODAY})" \
+            --label "data-freshness" \
+            --body "## 데이터 신선도 점검 결과
+
+          \`check-data-freshness.ts\` 스크립트가 상태 불일치 또는 만료 임박 항목을 감지했어요.
+
+          ### 점검 출력
+
+          \`\`\`
+          ${OUTPUT}
+          \`\`\`
+
+          ### 조치 방법
+
+          - [ ] 위 출력에서 \`MISMATCH\` 항목 확인
+          - [ ] 해당 데이터의 \`status\` 필드를 날짜 기반 실제 상태로 수정
+          - [ ] 만료 임박(7일 이내) 항목 갱신 여부 판단
+          - [ ] \`npm run build\` 확인 후 커밋·푸시
+
+          ### 관련 파일
+
+          - \`src/lib/data/programs.ts\` (지원사업)
+          - \`src/lib/data/education.ts\` (교육)
+          - \`src/lib/data/events.ts\` (체험행사)
+
+          > 🤖 이 Issue는 GitHub Actions에 의해 자동 생성되었습니다."

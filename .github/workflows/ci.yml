@@ -3,6 +3,7 @@
 # - ESLint 린트
 # - TypeScript 타입 체크
 # - Next.js 빌드 검증
+# - 데이터 신선도 점검 (경고만, PR 블록 안 함)
 # ═══════════════════════════════════════════
 
 name: "CI"
@@ -54,3 +55,8 @@ jobs:
         env:
           # 빌드 시 외부 API 키 없이도 정적 폴백으로 성공해야 함
           NEXT_TELEMETRY_DISABLED: 1
+
+      - name: 데이터 신선도 점검 (경고만)
+        # 상태 불일치가 있어도 PR을 블록하지 않고 경고 로그만 출력
+        run: npx tsx scripts/check-data-freshness.ts
+        continue-on-error: true
