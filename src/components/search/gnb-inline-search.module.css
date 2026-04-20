@@ -50,7 +50,9 @@
   cursor: pointer;
   flex-shrink: 0;
 }
-.closeBtn:hover { background: var(--muted); color: var(--foreground); }
+@media (hover: hover) {
+  .closeBtn:hover { background: var(--muted); color: var(--foreground); }
+}
 .closeBtn:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;

@@ -73,9 +73,11 @@
   text-decoration: none;
 }
 
-.titleLink:hover {
-  text-decoration: underline;
-  color: var(--primary, #1b6b5a);
+@media (hover: hover) {
+  .titleLink:hover {
+    text-decoration: underline;
+    color: var(--primary, #1b6b5a);
+  }
 }
 
 .muted {

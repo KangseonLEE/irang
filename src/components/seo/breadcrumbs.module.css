@@ -31,9 +31,11 @@
   transition: color 0.15s;
 }
 
-.link:hover {
-  color: var(--color-primary, #1b6b5a);
-  text-decoration: underline;
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-primary, #1b6b5a);
+    text-decoration: underline;
+  }
 }
 
 .current {

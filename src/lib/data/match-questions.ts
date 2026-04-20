@@ -26,7 +26,6 @@ import {
   TreePine,
   Cpu,
   Briefcase,
-  Factory,
   Tent,
   Warehouse,
 } from "lucide-react";

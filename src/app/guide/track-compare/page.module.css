@@ -104,9 +104,11 @@
   text-decoration: none;
 }
 
-.sourceLink:hover {
-  color: var(--primary, #1b6b5a);
-  text-decoration: underline;
+@media (hover: hover) {
+  .sourceLink:hover {
+    color: var(--primary, #1b6b5a);
+    text-decoration: underline;
+  }
 }
 
 /* ═══ 데스크톱: 2열 테이블 ═══ */

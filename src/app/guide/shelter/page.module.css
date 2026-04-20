@@ -304,9 +304,11 @@
   padding: 2px 0;
 }
 
-.sourceListLink:hover {
-  color: var(--primary, #1b6b5a);
-  text-decoration: underline;
+@media (hover: hover) {
+  .sourceListLink:hover {
+    color: var(--primary, #1b6b5a);
+    text-decoration: underline;
+  }
 }
 
 .sourceMeta {

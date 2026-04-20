@@ -45,9 +45,11 @@
   font-weight: 600;
 }
 
-.pageActive:hover {
-  background: var(--primary, #1b6b5a);
-  color: var(--primary-foreground);
+@media (hover: hover) {
+  .pageActive:hover {
+    background: var(--primary, #1b6b5a);
+    color: var(--primary-foreground);
+  }
 }
 
 .dots {

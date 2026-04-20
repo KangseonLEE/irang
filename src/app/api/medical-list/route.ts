@@ -92,7 +92,10 @@ export async function GET(request: NextRequest) {
   url.searchParams.set("_type", "json");
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 } });
+    const res = await fetch(url.toString(), {
+      signal: AbortSignal.timeout(10_000),
+      next: { revalidate: 86400 },
+    });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();

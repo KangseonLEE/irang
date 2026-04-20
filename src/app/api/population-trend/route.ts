@@ -40,7 +40,9 @@ async function getAccessToken(): Promise<string | null> {
   url.searchParams.set("consumer_secret", consumerSecret);
 
   try {
-    const res = await fetch(url.toString());
+    const res = await fetch(url.toString(), {
+      signal: AbortSignal.timeout(10_000),
+    });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
     if (json.errCd !== 0 && json.errCd !== "0") throw new Error(json.errMsg);
@@ -62,7 +64,9 @@ async function fetchYearData(
   url.searchParams.set("year", String(year));
 
   try {
-    const res = await fetch(url.toString());
+    const res = await fetch(url.toString(), {
+      signal: AbortSignal.timeout(10_000),
+    });
     if (!res.ok) return null;
 
     const json = await res.json();

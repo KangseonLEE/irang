@@ -40,7 +40,7 @@ export const revalidate = 86400;
 export async function generateStaticParams() {
   // 귀농인기 키워드 포함 항목 우선으로 상위 100개 사전 빌드
   // 나머지 ~126개는 ISR on-demand (첫 방문 시 생성 → 24시간 캐시)
-  // ⚠ 전체 226개를 빌드하면 SGIS API rate limit에 걸릴 수 있어 100개로 제한
+  // ⚠ 전체 229개를 빌드하면 SGIS API rate limit에 걸릴 수 있어 100개로 제한
   const popular = SIGUNGUS.filter((sg) =>
     sg.highlights.includes("귀농인기")
   );

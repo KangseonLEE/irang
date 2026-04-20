@@ -284,4 +284,6 @@
   transition: opacity 0.15s;
 }
 
-.bottomCtaBtn:hover { opacity: 0.9; }
+@media (hover: hover) {
+  .bottomCtaBtn:hover { opacity: 0.9; }
+}

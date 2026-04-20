@@ -154,9 +154,11 @@
   font-family: inherit;
 }
 
-.historyClear:hover {
-  color: var(--destructive, #dc2626);
-  background: color-mix(in srgb, var(--destructive, #dc2626) 8%, transparent);
+@media (hover: hover) {
+  .historyClear:hover {
+    color: var(--destructive, #dc2626);
+    background: color-mix(in srgb, var(--destructive, #dc2626) 8%, transparent);
+  }
 }
 
 .historyList {
@@ -231,8 +233,10 @@
   transition: color 0.15s;
 }
 
-.historyItem:hover .historyArrow {
-  color: var(--primary, #1b6b5a);
+@media (hover: hover) {
+  .historyItem:hover .historyArrow {
+    color: var(--primary, #1b6b5a);
+  }
 }
 
 .historyHint {
@@ -379,9 +383,11 @@
   transition: color 0.15s, transform 0.15s;
 }
 
-.card:hover .cardArrow {
-  color: var(--primary, #1b6b5a);
-  transform: translateX(2px);
+@media (hover: hover) {
+  .card:hover .cardArrow {
+    color: var(--primary, #1b6b5a);
+    transform: translateX(2px);
+  }
 }
 
 /* ── 추천 카드 (말풍선 위치용) ── */

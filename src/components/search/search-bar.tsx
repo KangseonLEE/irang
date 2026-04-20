@@ -12,10 +12,10 @@ import {
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Trash2, Loader2, Compass, GraduationCap, ExternalLink } from "lucide-react";
+import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ExternalLink } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchItems, hasExactMatch, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
+import { searchItems, hasExactMatch, type SearchItem } from "@/lib/data/search-index";
 import { POPULAR_KEYWORDS } from "./popular-keywords";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
@@ -176,25 +176,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   },
   ref,
 ) {
-  // ── 읽기 전용 표시 모드: 시각적 껍데기만 렌더링 ──
-  if (readOnlyDisplay) {
-    const wrapCls = size === "large" ? s.inputWrapLarge : s.inputWrap;
-    return (
-      <div className={s.container}>
-        <div className={`${wrapCls} ${s.inputWrapReadOnly}`} style={{ pointerEvents: "none" }}>
-          <Search
-            size={size === "large" ? 22 : 18}
-            className={s.searchIcon}
-            aria-hidden="true"
-          />
-          <span style={{ color: "var(--muted-foreground)", fontSize: "inherit", lineHeight: "var(--lh-normal)" }}>
-            {placeholder}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   const router = useRouter();
   const pathname = usePathname();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -223,7 +204,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   useIsomorphicLayoutEffect(() => {
     if (!needsMobileDetect) return;
     const mql = window.matchMedia("(max-width: 639px)");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobile(mql.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mql.addEventListener("change", handler);
@@ -268,6 +248,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     if (!isNavigating) return;
     if (navStartPathRef.current === null) return;
     if (pathname !== navStartPathRef.current) {
+      // pathname 변경에 반응하여 오버레이 상태를 외부(URL)와 동기화
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       handleClose();
       navStartPathRef.current = null;
     }
@@ -315,7 +297,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     const onPageShow = (e: PageTransitionEvent) => {
       if (e.persisted && isNavigatingRef.current) {
         isNavigatingRef.current = false;
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsNavigating(false);
       }
     };
@@ -558,6 +539,25 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       ? `search-item-${allItems[focusedIndex].id}`
       : undefined;
 
+  // ── 읽기 전용 표시 모드: 시각적 껍데기만 렌더링 ──
+  if (readOnlyDisplay) {
+    const wrapCls = size === "large" ? s.inputWrapLarge : s.inputWrap;
+    return (
+      <div className={s.container}>
+        <div className={`${wrapCls} ${s.inputWrapReadOnly}`} style={{ pointerEvents: "none" }}>
+          <Search
+            size={size === "large" ? 22 : 18}
+            className={s.searchIcon}
+            aria-hidden="true"
+          />
+          <span style={{ color: "var(--muted-foreground)", fontSize: "inherit", lineHeight: "var(--lh-normal)" }}>
+            {placeholder}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   // ----- Render -----
   const wrapClass = [
     size === "large" ? s.inputWrapLarge : s.inputWrap,
@@ -604,7 +604,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           type="search"
           inputMode="search"
           enterKeyHint="search"
-          // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus={autoFocus}
           value={query}
           onChange={(e) => handleChange(e.target.value)}

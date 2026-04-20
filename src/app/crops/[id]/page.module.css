@@ -1435,7 +1435,12 @@
   transition: opacity 0.15s;
 }
 
-.videoCard:hover .videoPlayIcon,
+@media (hover: hover) {
+  .videoCard:hover .videoPlayIcon {
+    opacity: 1;
+  }
+}
+
 .videoCard:focus-visible .videoPlayIcon {
   opacity: 1;
 }

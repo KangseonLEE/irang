@@ -50,7 +50,9 @@
   margin-bottom: -12px; /* 히어로와의 gap 축소 */
 }
 
-.backLink:hover { color: var(--primary, #1b6b5a); }
+@media (hover: hover) {
+  .backLink:hover { color: var(--primary, #1b6b5a); }
+}
 
 /* 히어로 상단: 프로필 + 원문 기사 링크 */
 .heroTop {
@@ -78,9 +80,11 @@
   flex-shrink: 0;
 }
 
-.sourceLink:hover {
-  color: var(--primary, #1b6b5a);
-  border-color: var(--primary, #1b6b5a);
+@media (hover: hover) {
+  .sourceLink:hover {
+    color: var(--primary, #1b6b5a);
+    border-color: var(--primary, #1b6b5a);
+  }
 }
 
 /* 프로필 */
@@ -201,8 +205,10 @@
   transition: background-color 0.15s;
 }
 
-.heroInfoBadgeLink:hover {
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, var(--background, #fff));
+@media (hover: hover) {
+  .heroInfoBadgeLink:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, var(--background, #fff));
+  }
 }
 
 /* ═══ 본문: 이야기 ═══ */
@@ -379,9 +385,11 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.dataCard:hover {
-  border-color: var(--primary, #1b6b5a);
-  box-shadow: 0 4px 12px rgba(27, 107, 90, 0.08);
+@media (hover: hover) {
+  .dataCard:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 4px 12px rgba(27, 107, 90, 0.08);
+  }
 }
 
 .dataCardInfo {
@@ -409,8 +417,10 @@
   transition: color 0.15s;
 }
 
-.dataCard:hover .dataCardArrow {
-  color: var(--primary, #1b6b5a);
+@media (hover: hover) {
+  .dataCard:hover .dataCardArrow {
+    color: var(--primary, #1b6b5a);
+  }
 }
 
 /* ═══ 다른 인터뷰 ═══ */
@@ -461,9 +471,11 @@
   }
 }
 
-.relatedCard:hover {
-  border-color: var(--primary, #1b6b5a);
-  box-shadow: 0 4px 12px rgba(27, 107, 90, 0.08);
+@media (hover: hover) {
+  .relatedCard:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 4px 12px rgba(27, 107, 90, 0.08);
+  }
 }
 
 .relatedInfo {
@@ -504,7 +516,9 @@
   align-self: center;
 }
 
-.relatedAllLink:hover { text-decoration: underline; }
+@media (hover: hover) {
+  .relatedAllLink:hover { text-decoration: underline; }
+}
 
 /* ═══ CTA ═══ */
 .ctaBanner {
@@ -543,4 +557,6 @@
   transition: opacity 0.15s;
 }
 
-.ctaBtn:hover { opacity: 0.9; }
+@media (hover: hover) {
+  .ctaBtn:hover { opacity: 0.9; }
+}

@@ -9,7 +9,7 @@ import {
   Tag,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
-import { formatDate, formatDateRange } from "@/lib/format";
+import { formatDateRange } from "@/lib/format";
 import {
   filterEventsAsync,
   getCurrentPeriod,
