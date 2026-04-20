@@ -1,0 +1,240 @@
+/* ── 재배 캘린더 ── */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 가로 스크롤 래퍼 (모바일) */
+.scrollContainer {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  background: var(--card, #fff);
+}
+
+.scrollContainer:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* 그리드 레이아웃 */
+.grid {
+  display: grid;
+  grid-template-columns: 100px repeat(12, 1fr);
+  min-width: 600px;
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: 120px repeat(12, 1fr);
+  }
+}
+
+/* ── 헤더 행 ── */
+.headerRow {
+  display: contents;
+}
+
+.cropNameHeader {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  background: var(--muted, #f9fafb);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.monthHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 2px;
+  font-size: var(--fs-overline);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  background: var(--muted, #f9fafb);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.currentMonthHeader {
+  color: #e67e22;
+  font-weight: 700;
+  position: relative;
+}
+
+.currentMonthHeader::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-left: 2px dashed #e67e22;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ── 작물 행 ── */
+.cropRow {
+  display: contents;
+}
+
+.cropName {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  background: var(--card, #fff);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .cropName {
+    padding: 8px 12px;
+    gap: 6px;
+  }
+}
+
+.cropEmoji {
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.cropNameText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 월 셀 ── */
+.monthCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 1px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  min-height: 36px;
+}
+
+.currentMonthCell {
+  background: color-mix(in srgb, #e67e22 6%, transparent);
+  position: relative;
+}
+
+.currentMonthCell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-left: 2px dashed #e67e22;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ── 재배 바 ── */
+.bar {
+  width: 100%;
+  height: 20px;
+  border-radius: 0;
+  transition: opacity 0.15s;
+}
+
+.barStart {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.barEnd {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+/* 파종: 연한 초록 */
+.sowing {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+}
+
+/* 재배: 중간 초록 */
+.growing {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 55%, transparent);
+}
+
+/* 수확: 진한 초록 */
+.harvest {
+  background: var(--primary, #1b6b5a);
+}
+
+@media (hover: hover) {
+  .bar:hover {
+    opacity: 0.75;
+  }
+}
+
+/* ── 범례 ── */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0 4px;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.legendDot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legendSowing {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+}
+
+.legendGrowing {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 55%, transparent);
+}
+
+.legendHarvest {
+  background: var(--primary, #1b6b5a);
+}
+
+.legendCurrentLine {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-left: 2px dashed #e67e22;
+  flex-shrink: 0;
+}
+
+/* ── 마지막 행 border 제거 ── */
+.cropRow:last-of-type .cropName,
+.cropRow:last-of-type .monthCell {
+  border-bottom: none;
+}

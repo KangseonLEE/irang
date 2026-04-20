@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   ArrowRight,
   TrendingDown,
@@ -10,6 +11,7 @@ import {
   Banknote,
   PiggyBank,
   Home,
+  Calculator,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
@@ -26,6 +28,7 @@ import { GUIDE_STEP_SUMMARIES } from "@/lib/data/guide-steps";
 import { StepOverview } from "@/components/ui/step-overview";
 import { DataSource } from "@/components/ui/data-source";
 import { CROPS } from "@/lib/data/crops";
+import CostSimulator from "./cost-simulator";
 import s from "./page.module.css";
 
 /* ── SEO ── */
@@ -155,14 +158,14 @@ const STRATEGIES: {
 }[] = [
   {
     title: "정부 융자 활용",
-    desc: "농업창업자금 최대 3억 원을 연 2% 저금리로 융자받을 수 있습니다.",
+    desc: "농업창업자금 최대 3억 원을 연 2% 저금리로 융자받을 수 있어요.",
     saving: "최대 3억 원",
     href: "/programs/roadmap",
     type: "융자",
   },
   {
     title: "체류형 귀농 프로그램",
-    desc: "주거+농지+시설을 무상 제공받으며 수개월간 귀농을 체험할 수 있습니다.",
+    desc: "주거+농지+시설을 무상 제공받으며 수개월간 귀농을 체험할 수 있어요.",
     saving: "체류 기간 무상",
     href: "/programs?supportType=현물",
     type: "현물",
@@ -176,7 +179,7 @@ const STRATEGIES: {
   },
   {
     title: "소규모로 시작하기",
-    desc: "임대 농지 + 노지 재배로 시작하면 초기 투자를 크게 줄일 수 있습니다.",
+    desc: "임대 농지 + 노지 재배로 시작하면 초기 투자를 크게 줄일 수 있어요.",
     saving: "투자금 50%↓",
     href: "/crops",
   },
@@ -414,7 +417,7 @@ export default function CostsPage() {
         </h2>
         <p className={s.sectionDesc}>
           <AutoGlossary
-            text={`평균 ${costSummary.prepMonths}의 준비 기간 중, 비용의 대부분은 4단계(영농 시작)에 집중됩니다. 각 카드를 탭하면 해당 단계의 상세 가이드를 확인할 수 있어요.`}
+            text={`평균 ${costSummary.prepMonths}의 준비 기간 중, 비용의 대부분은 4단계(영농 시작)에 집중돼요. 각 카드를 탭하면 해당 단계의 상세 가이드를 확인할 수 있어요.`}
           />
         </p>
         <StepOverview steps={GUIDE_STEP_SUMMARIES} />
@@ -427,7 +430,7 @@ export default function CostsPage() {
           초기 투자 이후, 생활비는 줄어듭니다
         </h2>
         <p className={s.sectionDesc}>
-          <AutoGlossary text="귀농 후 월 생활비는 평균 25% 감소하고, 주거비는 80% 절감됩니다. 초기 투자가 부담되더라도 장기적으로 생활비 절감 효과가 있습니다." />
+          <AutoGlossary text="귀농 후 월 생활비는 평균 25% 감소하고, 주거비는 80% 절감돼요. 초기 투자가 부담되더라도 장기적으로 생활비 절감 효과가 있어요." />
         </p>
 
         <div className={s.compareCard}>
@@ -478,7 +481,7 @@ export default function CostsPage() {
           비용, 이렇게 줄일 수 있어요
         </h2>
         <p className={s.sectionDesc}>
-          <AutoGlossary text="정부 융자와 지원사업을 활용하면 초기 부담을 크게 줄일 수 있습니다." />
+          <AutoGlossary text="정부 융자와 지원사업을 활용하면 초기 부담을 크게 줄일 수 있어요." />
         </p>
         <div className={s.strategies}>
           {STRATEGIES.map((strategy, i) => (
@@ -517,7 +520,7 @@ export default function CostsPage() {
           정부 지원을 적용하면?
         </h2>
         <p className={s.sectionDesc}>
-          <AutoGlossary text="평균 6,219만 원의 초기 비용, 정부 지원사업을 활용하면 실질 자기자본 부담을 크게 줄일 수 있습니다." />
+          <AutoGlossary text="평균 6,219만 원의 초기 비용, 정부 지원사업을 활용하면 실질 자기자본 부담을 크게 줄일 수 있어요." />
         </p>
 
         <div className={s.simCard}>
@@ -556,7 +559,7 @@ export default function CostsPage() {
               </span>
               <span className={s.simAfterSub}>
                 * 청년창업농(만 18~39세)의 경우 보조금 + 융자 조합으로 더 낮출 수
-                있습니다
+                있어요
               </span>
             </div>
           </div>
@@ -567,11 +570,25 @@ export default function CostsPage() {
         </Link>
       </section>
 
+      {/* ═══ 인터랙티브 시뮬레이터 ═══ */}
+      <section className={s.section} aria-label="비용 시뮬레이터">
+        <h2 className={s.sectionTitle}>
+          <Calculator size={20} />
+          내 상황으로 계산해 보기
+        </h2>
+        <p className={s.sectionDesc}>
+          연령, 작물, 규모를 선택하면 예상 비용과 지원금 절감 효과를 바로 확인할 수 있어요.
+        </p>
+        <Suspense fallback={null}>
+          <CostSimulator />
+        </Suspense>
+      </section>
+
       {/* ═══ 하단 CTA ═══ */}
       <section className={s.ctaSection}>
         <h2 className={s.ctaTitle}>이제 내 상황에 맞게 찾아볼까요?</h2>
         <p className={s.ctaDesc}>
-          <AutoGlossary text="이랑이 제공하는 지원사업 검색과 맞춤 추천으로 나에게 딱 맞는 사업을 빠르게 찾을 수 있습니다." />
+          <AutoGlossary text="지원사업 검색과 맞춤 추천으로 나에게 딱 맞는 사업을 빠르게 찾을 수 있어요." />
         </p>
         <div className={s.ctaButtons}>
           <Link href="/programs" className={s.ctaPrimary}>

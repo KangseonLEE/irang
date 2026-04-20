@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { ArrowRight, Scale } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
@@ -18,7 +19,15 @@ import {
   FilterDivider,
   FilterActions,
 } from "@/components/filter/filter-bar";
+import { CalendarToggle } from "./calendar-toggle";
 import s from "./page.module.css";
+
+const FarmingCalendar = dynamic(
+  () =>
+    import("@/components/crops/farming-calendar").then(
+      (mod) => mod.FarmingCalendar
+    )
+);
 
 export const metadata: Metadata = {
   title: "작물 정보",
@@ -131,6 +140,18 @@ export default async function CropsPage({ searchParams }: PageProps) {
           />
         </FilterRow>
       </FilterBar>
+
+      {/* 재배 캘린더 */}
+      <CalendarToggle>
+        <FarmingCalendar
+          crops={filteredCrops.map((c) => ({
+            id: c.id,
+            name: c.name,
+            emoji: c.emoji,
+            growingSeason: c.growingSeason,
+          }))}
+        />
+      </CalendarToggle>
 
       {/* Crop Card Grid */}
       <div className={s.cropGrid}>
