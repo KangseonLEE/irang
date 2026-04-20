@@ -15,7 +15,7 @@ import Link from "next/link";
 import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ExternalLink } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchItems, hasExactMatch, type SearchItem } from "@/lib/data/search-index";
+import { searchItems, hasExactMatch, suggestQueries, type SearchItem } from "@/lib/data/search-index";
 import { POPULAR_KEYWORDS } from "./popular-keywords";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
@@ -155,6 +155,7 @@ function highlight(text: string, query: string): React.ReactNode {
 // ---------------------------------------------------------------------------
 
 type FlatItem =
+  | { type: "suggestion"; id: string; query: string }
   | { type: "recent"; id: string; query: string }
   | { type: "result"; id: string; item: SearchItem };
 
@@ -189,6 +190,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchItem[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<RecentItem[]>([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -235,6 +237,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     setIsOpen(false);
     setQuery("");
     setResults([]);
+    setSuggestions([]);
     setFocusedIndex(-1);
     setIsNavigating(false);
     isNavigatingRef.current = false;
@@ -384,14 +387,26 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
         query: r.query,
       }));
     }
-    return grouped.flatMap((section) =>
-      section.items.map((item) => ({
-        type: "result" as const,
-        id: `${item.type}-${item.id}`,
-        item,
-      })),
-    );
-  }, [showRecent, recentSearches, grouped]);
+    const items: FlatItem[] = [];
+    // 추천 검색어를 최상위에 배치
+    for (let i = 0; i < suggestions.length; i++) {
+      items.push({
+        type: "suggestion" as const,
+        id: `suggestion-${i}`,
+        query: suggestions[i],
+      });
+    }
+    for (const section of grouped) {
+      for (const item of section.items) {
+        items.push({
+          type: "result" as const,
+          id: `${item.type}-${item.id}`,
+          item,
+        });
+      }
+    }
+    return items;
+  }, [showRecent, recentSearches, grouped, suggestions]);
 
   // id → flat index 사전 매핑 (렌더 시 mutable counter 사용 방지)
   const flatIndexMap = useMemo(() => {
@@ -414,9 +429,13 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 
     if (value.trim().length === 0) {
       setResults([]);
+      setSuggestions([]);
       setIsOpen(true); // 빈 상태에서도 최근 검색어 표시
       return;
     }
+
+    // 자동완성은 즉시 (경량 연산)
+    setSuggestions(suggestQueries(value, 3));
 
     debounceRef.current = setTimeout(() => {
       const found = searchItems(value);
@@ -503,7 +522,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       e.preventDefault();
       if (focusedIndex >= 0 && focusedIndex < allItems.length) {
         const focused = allItems[focusedIndex];
-        if (focused.type === "recent") handleRecentClick(focused.query);
+        if (focused.type === "recent" || focused.type === "suggestion") handleRecentClick(focused.query);
         else navigateTo(focused.item.href, query, focused.item.external);
       } else if (query.trim().length > 0) {
         navigateTo(`/search?q=${encodeURIComponent(query.trim())}`, query);
@@ -573,6 +592,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     (isOpen &&
       (richMode ||
         showRecent ||
+        suggestions.length > 0 ||
         grouped.length > 0 ||
         (query.trim().length > 0 && grouped.length === 0)));
 
@@ -780,8 +800,38 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             </>
           )}
 
+          {/* 추천 검색어 (자동완성) */}
+          {suggestions.length > 0 && query.trim().length > 0 && (
+            <div className={s.dropdownSection}>
+              <div className={s.sectionLabel}>추천 검색어</div>
+              {suggestions.map((sq, i) => {
+                const itemId = `suggestion-${i}`;
+                const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
+                return (
+                  <div
+                    key={itemId}
+                    id={`search-item-${itemId}`}
+                    className={`${s.resultItem} ${s.resultItemCompact} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`}
+                    role="option"
+                    aria-selected={focusedIndex === currentFlatIndex}
+                    onClick={() => handleRecentClick(sq)}
+                  >
+                    <span className={s.suggestionIcon} aria-hidden="true">
+                      <Search size={14} />
+                    </span>
+                    <div className={s.resultItemContent}>
+                      <div className={s.resultItemTitle}>
+                        {highlight(sq, query)}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           {/* 검색 결과 없음 */}
-          {!showRecent && grouped.length === 0 && query.trim().length > 0 && (
+          {!showRecent && grouped.length === 0 && suggestions.length === 0 && query.trim().length > 0 && (
             <div className={s.noResult}>
               <p className={s.noResultText}>
                 &ldquo;{query}&rdquo;에 대한 검색 결과가 없습니다

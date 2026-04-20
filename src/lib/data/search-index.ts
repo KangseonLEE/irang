@@ -12,7 +12,7 @@
 import { STATIONS } from "./stations";
 import { SIGUNGUS, getSigunguById } from "./sigungus";
 import { GUS } from "./gus";
-import { getProvinceById } from "./regions";
+import { getProvinceById, PROVINCES } from "./regions";
 import { CROPS } from "./crops";
 import { PROGRAMS } from "./programs";
 import { EDUCATION_COURSES } from "./education";
@@ -867,9 +867,153 @@ export function searchAll(query: string): SearchItem[] {
   }
 
   // 복합 쿼리: OR 매칭 + 관련도 합산 정렬
-  return index
-    .map((item) => ({ item, score: scoreItemMulti(item, terms) }))
+  // 인텐트 감지 — region-crop 조합이면 합성 결과를 상위에 삽입
+  const intent = detectIntent(q);
+
+  const scored = index
+    .map((item) => {
+      let score = scoreItemMulti(item, terms);
+      // region-crop 인텐트 보너스: 해당 작물 아이템의 키워드에 지역이 포함되면 +50
+      if (intent.type === "region-crop" && score > 0) {
+        if (
+          item.type === "crop" &&
+          item.title === intent.crop
+        ) {
+          score += 50;
+        }
+        if (
+          item.type === "region" &&
+          (item.title.includes(intent.region) ||
+            item.keywords.some((kw) => kw.includes(intent.region)))
+        ) {
+          score += 30;
+        }
+      }
+      return { item, score };
+    })
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score)
     .map(({ item }) => item);
+
+  // region-crop 인텐트일 때 합성 결과 아이템을 최상위에 삽입
+  if (intent.type === "region-crop") {
+    const province = PROVINCES.find(
+      (p) => p.shortName === intent.region || p.name === intent.region,
+    );
+    const crop = CROPS.find((c) => c.name === intent.crop);
+    if (province && crop) {
+      const syntheticItem: SearchItem = {
+        type: "guide",
+        id: `cross-${province.id}-${crop.id}`,
+        title: `${intent.region}에서 ${intent.crop} 재배하기`,
+        subtitle: `${province.name} × ${crop.name} — 지역·작물 교차 탐색`,
+        href: `/regions/${province.id}`,
+        keywords: [intent.region, intent.crop],
+        icon: "\u{1F50D}", // 🔍
+      };
+      scored.unshift(syntheticItem);
+    }
+  }
+
+  return scored;
+}
+
+// ---------------------------------------------------------------------------
+// Query Suggestions (인기 쿼리 자동완성)
+// ---------------------------------------------------------------------------
+
+const QUERY_SUGGESTIONS = [
+  // 지역
+  "전남 귀농", "경북 귀농", "충남 귀농", "제주 귀농", "강원 귀농",
+  // 작물
+  "사과 재배", "딸기 재배", "포도 재배", "고추 재배", "블루베리 재배",
+  // 지원금
+  "귀농 지원금", "청년 농업", "창업 자금", "주택 지원", "영농 정착금",
+  // 교육
+  "귀농 교육", "스마트팜 교육", "온라인 교육", "체험 행사",
+  // 비용/절차
+  "귀농 비용", "귀농 절차", "농지 구입", "귀농 준비",
+  // 비교
+  "지역 비교", "작물 비교", "작물 소득",
+  // 생활
+  "의료기관", "학교", "귀촌", "귀산촌",
+  // 기타
+  "인터뷰", "성공 사례", "실패 사례",
+] as const;
+
+/**
+ * 입력 문자열에 매칭되는 인기 쿼리를 제안합니다.
+ * - 2글자 이상일 때만 동작
+ * - 시작 부분 매칭이 포함 매칭보다 우선
+ * - 최대 maxResults개 반환 (기본 5)
+ */
+export function suggestQueries(
+  partial: string,
+  maxResults = 5,
+): string[] {
+  const p = partial.trim().toLowerCase();
+  if (p.length < 2) return [];
+
+  const startsWith: string[] = [];
+  const includes: string[] = [];
+
+  for (const suggestion of QUERY_SUGGESTIONS) {
+    const lower = suggestion.toLowerCase();
+    if (lower.startsWith(p)) {
+      startsWith.push(suggestion);
+    } else if (lower.includes(p)) {
+      includes.push(suggestion);
+    }
+  }
+
+  return [...startsWith, ...includes].slice(0, maxResults);
+}
+
+// ---------------------------------------------------------------------------
+// Cross-Entity Intent Detection (교차 인텐트 감지)
+// ---------------------------------------------------------------------------
+
+export type SearchIntent =
+  | { type: "region-crop"; region: string; crop: string }
+  | { type: "general" };
+
+/**
+ * 쿼리에서 지역+작물 조합 인텐트를 감지합니다.
+ * 예: "전남 사과" → { type: "region-crop", region: "전남", crop: "사과" }
+ */
+export function detectIntent(query: string): SearchIntent {
+  const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (words.length < 2) return { type: "general" };
+
+  let detectedRegion: string | null = null;
+  let detectedCrop: string | null = null;
+
+  for (const word of words) {
+    // 지역 매칭: shortName 또는 name
+    if (!detectedRegion) {
+      const province = PROVINCES.find(
+        (p) =>
+          p.shortName.toLowerCase() === word ||
+          p.name.toLowerCase() === word,
+      );
+      if (province) {
+        detectedRegion = province.shortName;
+        continue;
+      }
+    }
+    // 작물 매칭
+    if (!detectedCrop) {
+      const crop = CROPS.find((c) => c.name.toLowerCase() === word);
+      if (crop) {
+        detectedCrop = crop.name;
+        continue;
+      }
+    }
+  }
+
+  if (detectedRegion && detectedCrop) {
+    return { type: "region-crop", region: detectedRegion, crop: detectedCrop };
+  }
+
+  return { type: "general" };
 }

@@ -310,6 +310,20 @@
   padding: 0 1px;
 }
 
+/* --- Suggestion icon --- */
+
+.suggestionIcon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
 /* --- Recent searches --- */
 
 .recentIcon {
