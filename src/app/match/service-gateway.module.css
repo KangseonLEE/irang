@@ -446,3 +446,68 @@
   }
 }
 
+/* ── 비용 계산 CTA ── */
+.costCta {
+  margin-top: 12px;
+}
+
+.costCtaCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--primary) 4%, white);
+  text-decoration: none;
+  color: var(--foreground);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .costCtaCard:hover {
+    border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 8%, transparent);
+  }
+}
+
+.costCtaCard:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.costCtaIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.costCtaBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.costCtaTitle {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.costCtaDesc {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  margin: 2px 0 0;
+}
+
+.costCtaArrow {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+

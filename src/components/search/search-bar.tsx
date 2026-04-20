@@ -165,7 +165,7 @@ type FlatItem =
 
 export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   {
-    placeholder = "지역, 작물, 지원사업 검색...",
+    placeholder = "지역, 작물, 교육, 비용 검색...",
     mobilePlaceholder,
     size = "default",
     autoFocus = false,

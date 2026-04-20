@@ -571,7 +571,7 @@ export default function CostsPage() {
       </section>
 
       {/* ═══ 인터랙티브 시뮬레이터 ═══ */}
-      <section className={s.section} aria-label="비용 시뮬레이터">
+      <section id="simulator" className={s.section} aria-label="비용 시뮬레이터">
         <h2 className={s.sectionTitle}>
           <Calculator size={20} />
           내 상황으로 계산해 보기

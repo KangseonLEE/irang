@@ -43,7 +43,7 @@ export function GnbSearchPopover({ open, onClose, anchorRef }: GnbSearchPopoverP
     <div className={s.popover} role="dialog" aria-label="통합 검색">
       <SearchBar
         size="default"
-        placeholder="지역, 작물, 지원사업 검색"
+        placeholder="지역, 작물, 교육, 비용 검색"
         autoFocus
         onClose={onClose}
       />

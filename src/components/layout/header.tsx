@@ -215,8 +215,8 @@ export function Header() {
             <div className={s.gnbSearchBar} ref={gnbSearchRef}>
               <SearchBar
                 size="default"
-                placeholder="궁금한 지역이나 작물을 검색해보세요"
-                mobilePlaceholder="지역, 작물, 지원사업 검색"
+                placeholder="궁금한 귀농 정보를 검색해보세요"
+                mobilePlaceholder="지역, 작물, 교육, 비용 검색"
                 richMode
                 autoFocus
                 onClose={closeGnbSearch}

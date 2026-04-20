@@ -15,6 +15,7 @@ import {
   MapPin,
   RotateCcw,
   FileText,
+  Calculator,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { FARM_TYPES, migrateFarmTypeId, type FarmTypeId } from "@/lib/data/match-questions";
@@ -276,6 +277,18 @@ export default async function AssessResultPage({ params }: PageProps) {
           <ArrowRight size={18} />
         </Link>
       </section>
+
+      {/* 비용 계산 바로가기 */}
+      <Link href="/costs#simulator" className={s.costCtaCard}>
+        <div className={s.costCtaIcon}>
+          <Calculator size={20} />
+        </div>
+        <div className={s.costCtaBody}>
+          <h3 className={s.costCtaTitle}>귀농 비용, 얼마나 들까?</h3>
+          <p className={s.costCtaDesc}>연령·작물·규모별 예상 비용을 바로 계산해 보세요</p>
+        </div>
+        <ArrowRight size={16} className={s.costCtaArrow} />
+      </Link>
 
       {/* 이랑 둘러보기 */}
       <div className={s.resultActions}>

@@ -31,13 +31,13 @@ export default function SearchPageSearchBar() {
       {isMobile ? (
         <SearchBar
           size="default"
-          placeholder="지역, 작물, 지원사업 검색"
+          placeholder="지역, 작물, 교육, 비용 검색"
           readOnlyDisplay
         />
       ) : (
         <SearchBar
           size="default"
-          placeholder="지역, 작물, 지원사업 검색"
+          placeholder="지역, 작물, 교육, 비용 검색"
           richMode
           autoFocus
         />

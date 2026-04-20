@@ -36,14 +36,14 @@ export default function HeroSearch() {
         /* 모바일: 장식용 검색창 — 탭하면 전역 오버레이 호출 */
         <SearchBar
           size="large"
-          placeholder="지역, 작물, 지원사업 검색"
+          placeholder="지역, 작물, 교육, 비용 검색"
           readOnlyDisplay
         />
       ) : (
         /* 데스크탑: 인라인 검색 + 드롭다운 */
         <SearchBar
           size="large"
-          placeholder="궁금한 지역이나 작물을 검색해보세요"
+          placeholder="궁금한 귀농 정보를 검색해보세요"
           richMode
         />
       )}

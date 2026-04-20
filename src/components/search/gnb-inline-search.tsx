@@ -43,7 +43,7 @@ export function GnbInlineSearch({ open, onClose, anchorRef }: GnbInlineSearchPro
       <div className={s.inner}>
         <SearchBar
           size="default"
-          placeholder="지역, 작물, 지원사업 검색"
+          placeholder="지역, 작물, 교육, 비용 검색"
           autoFocus
           richMode
           onClose={onClose}

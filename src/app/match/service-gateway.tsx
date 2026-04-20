@@ -13,6 +13,7 @@ import {
   Info,
   History,
   Trash2,
+  Calculator,
 } from "lucide-react";
 import { MatchWizard } from "./match-wizard";
 import { AssessmentWizard } from "../assess/assessment-wizard";
@@ -191,6 +192,20 @@ export function ServiceGateway() {
           </div>
         </button>
       </div>
+
+      {/* ── 비용 계산 바로가기 ── */}
+      <section className={s.costCta}>
+        <Link href="/costs#simulator" className={s.costCtaCard}>
+          <div className={s.costCtaIcon}>
+            <Calculator size={20} />
+          </div>
+          <div className={s.costCtaBody}>
+            <h3 className={s.costCtaTitle}>귀농 비용, 얼마나 들까?</h3>
+            <p className={s.costCtaDesc}>연령·작물·규모별 예상 비용을 바로 계산해 보세요</p>
+          </div>
+          <ArrowRight size={16} className={s.costCtaArrow} />
+        </Link>
+      </section>
     </div>
   );
 }
