@@ -262,7 +262,7 @@ export function NewsTabs({ items }: NewsTabsProps) {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={featured.thumbnail}
-                      alt=""
+                      alt={featured.title}
                       className={s.featuredImg}
                       loading="lazy"
                       onError={() => {

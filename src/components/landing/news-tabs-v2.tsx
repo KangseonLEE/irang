@@ -208,7 +208,7 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={featured.thumbnail}
-                        alt=""
+                        alt={featured.title}
                         className={s.slideImg}
                         loading="lazy"
                         onError={() => {
@@ -258,7 +258,7 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={item.thumbnail}
-                          alt=""
+                          alt={item.title}
                           className={s.navThumbImg}
                           loading="lazy"
                           onError={() => {
@@ -290,7 +290,7 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={item.thumbnail}
-                              alt=""
+                              alt={item.title}
                               className={s.slideImg}
                               loading="lazy"
                             />
