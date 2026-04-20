@@ -283,6 +283,25 @@
   }
 }
 
+/* ---- 차트 섹션 ---- */
+.chartSection {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  padding: 20px 16px 24px;
+}
+
+@media (min-width: 640px) {
+  .chartSection { padding: 24px; border-radius: 20px; }
+}
+
+.chartSectionTitle {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  margin: 0 0 16px;
+}
+
 /* ---- 비교 테이블 카드 ---- */
 .tableCard {
   background: var(--card, #fff);

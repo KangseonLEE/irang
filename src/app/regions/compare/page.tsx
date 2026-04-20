@@ -15,6 +15,7 @@ import { PROGRAMS } from "@/lib/data/programs";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { RegionSelector } from "./region-selector";
 import { CropSuitabilitySection } from "./crop-suitability-section";
+import { LazyClimateRadar, LazyPopulationBars } from "./charts-lazy";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { DesktopHint } from "@/components/ui/desktop-hint";
 import { DataSource } from "@/components/ui/data-source";
@@ -194,6 +195,27 @@ export default async function RegionsPage({ searchParams }: PageProps) {
             </div>
           </section>
 
+          {/* 기후 레이더 차트 */}
+          {climateData.length >= 2 && (
+            <section className={s.chartSection} aria-labelledby="climate-chart-heading">
+              <h2 id="climate-chart-heading" className={s.chartSectionTitle}>
+                기후 비교
+              </h2>
+              <LazyClimateRadar
+                data={climateData.map((d) => ({
+                    stationName: d.stnName,
+                    provinceName: STATIONS.find((s) => s.stnId === d.stnId)?.province ?? "",
+                    avgTemp: d.avgTemp,
+                    maxTemp: d.maxTemp,
+                    minTemp: d.minTemp,
+                    totalPrecipitation: d.totalPrecipitation,
+                    totalSunshine: d.totalSunshine,
+                    avgHumidity: d.avgHumidity,
+                  }))}
+              />
+            </section>
+          )}
+
           {/* 한줄 요약 */}
           {climateData.length >= 2 && (
             <section aria-labelledby="onesummary-heading" className={s.oneSummaryCard}>
@@ -204,6 +226,28 @@ export default async function RegionsPage({ searchParams }: PageProps) {
               <p className={s.oneSummaryText}>
                 {buildRegionSummary(climateData, selectedStations, populationMap)}
               </p>
+            </section>
+          )}
+
+          {/* 생활 인프라 바 차트 */}
+          {climateData.length >= 2 && (populationMap.size > 0 || medicalMap.size > 0 || schoolMap.size > 0) && (
+            <section className={s.chartSection} aria-labelledby="infra-chart-heading">
+              <h2 id="infra-chart-heading" className={s.chartSectionTitle}>
+                생활 인프라 비교
+              </h2>
+              <LazyPopulationBars
+                data={selectedStations.map((st) => {
+                  const pop = populationMap.get(st.sgisCode);
+                  const med = medicalMap.get(st.hiraSidoCd);
+                  const sch = schoolMap.get(st.eduCode);
+                  return {
+                    provinceName: st.province,
+                    population: pop?.population ?? null,
+                    medicalCount: med?.totalCount ?? null,
+                    schoolCount: sch?.totalCount ?? null,
+                  };
+                })}
+              />
             </section>
           )}
 

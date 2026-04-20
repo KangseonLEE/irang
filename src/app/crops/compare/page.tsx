@@ -24,6 +24,8 @@ import { PROVINCES } from "@/lib/data/regions";
 import { DataSource } from "@/components/ui/data-source";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { CropSelector } from "./crop-selector";
+import { CropRadar } from "./crop-radar";
+import { IncomeBars } from "./income-bars";
 import { DesktopHint } from "@/components/ui/desktop-hint";
 import { SwipeHint } from "@/components/ui/swipe-hint";
 import s from "./page.module.css";
@@ -60,6 +62,26 @@ const CAT_LABEL: Record<ProsConsCategory, string> = {
 };
 
 const DIFFICULTY_RANK: Record<string, number> = { 쉬움: 1, 보통: 2, 어려움: 3 };
+
+/** revenueRange 문자열에서 소득 숫자(만원) 추출 */
+function parseIncome(revenueRange: string): { min: number; max: number } {
+  // "10a당 약 57만 원" → 57
+  // "10a당 약 95~125만 원" → { min: 95, max: 125 }
+  // "10a당 약 548~705만 원 (노지~시설재배 기준)" → { min: 548, max: 705 }
+  const numbers = revenueRange.match(/[\d,]+(?:\.\d+)?/g);
+  if (!numbers || numbers.length === 0) return { min: 0, max: 0 };
+
+  const parsed = numbers.map((n) => parseFloat(n.replace(/,/g, "")));
+  // 10a당 앞의 "10"은 무시 — 보통 첫 숫자가 10이면 다음 숫자가 실제 소득
+  const values = parsed.filter((v) => v !== 10);
+
+  if (values.length === 0) return { min: 0, max: 0 };
+  if (values.length === 1) return { min: values[0], max: values[0] };
+
+  // 범위 표현: "95~125" → 두 수 추출. 큰 숫자(3000평 기준 등)는 제외
+  // 보통 첫 두 숫자가 범위
+  return { min: Math.min(values[0], values[1]), max: Math.max(values[0], values[1]) };
+}
 
 function buildComparisonSummary(crops: CropWithDetail[]): string {
   if (crops.length < 2) return "";
@@ -163,6 +185,40 @@ export default async function CropComparePage({ searchParams }: PageProps) {
               <p className={s.oneSummaryText}>
                 {buildComparisonSummary(crops)}
               </p>
+            </section>
+          )}
+
+          {/* 차트 — 2개 이상 선택 시 표시 */}
+          {crops.length >= 2 && crops.some((c) => c.detail.prosCons) && (
+            <section className={s.chartSection}>
+              <h3 className={s.chartSectionTitle}>종합 비교</h3>
+              <CropRadar
+                crops={crops
+                  .filter((c) => c.detail.prosCons)
+                  .map((c) => ({
+                    name: c.name,
+                    emoji: c.emoji,
+                    pros: c.detail.prosCons!.pros,
+                    cons: c.detail.prosCons!.cons,
+                  }))}
+              />
+            </section>
+          )}
+
+          {crops.length >= 2 && (
+            <section className={s.chartSection}>
+              <h3 className={s.chartSectionTitle}>예상 소득 비교</h3>
+              <IncomeBars
+                crops={crops.map((c) => {
+                  const { min, max } = parseIncome(c.detail.income.revenueRange);
+                  return {
+                    name: c.name,
+                    emoji: c.emoji,
+                    incomeMin: min,
+                    incomeMax: max,
+                  };
+                })}
+              />
             </section>
           )}
 
