@@ -60,6 +60,7 @@ export function RoadmapClient({ youthCases = [] }: RoadmapClientProps) {
     const hash = window.location.hash.slice(1);
     if (hash) {
       const match = GOV_PROGRAMS.find((p) => p.id === hash);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (match) setActiveId(match.id);
     }
   }, []);

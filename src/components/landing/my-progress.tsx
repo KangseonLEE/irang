@@ -50,12 +50,14 @@ export function MyProgress() {
       if (raw) {
         const arr = JSON.parse(raw);
         if (Array.isArray(arr) && arr.length > 0) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setAssessResult(arr[0]);
           hasAny = true;
         }
       }
     } catch { /* ignore */ }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (hasAny) setSteps(stepProgress);
   }, []);
 

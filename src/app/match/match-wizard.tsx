@@ -179,6 +179,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
 
     // 결과 저장 (1회만 실행)
     if (saveStatus !== "idle") return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSaveStatus("saving");
 
     const id = generateResultId();
@@ -224,7 +225,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
   // 유형 분류
   const farmType = useMemo(
     () => (showResult ? classifyFarmType(answers, ageGroup) : null),
-    [showResult, answers]
+    [showResult, answers, ageGroup]
   );
 
   const recommendedPrograms = useMemo(

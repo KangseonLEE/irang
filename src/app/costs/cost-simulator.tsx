@@ -135,6 +135,7 @@ function useCountUp(target: number, duration = 600): number {
       const value = Math.round(
         fromRef.current + (target - fromRef.current) * eased
       );
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrent(value);
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(animate);

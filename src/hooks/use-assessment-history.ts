@@ -48,6 +48,7 @@ export function useAssessmentHistory() {
 
   // 초기 로드
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHistory(readHistory());
   }, []);
 

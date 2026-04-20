@@ -148,6 +148,7 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
 
   // pathname 변경 시 (검색 결과에서 클릭하여 /glossary#slug로 진입)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     navigateToHash();
   }, [pathname, navigateToHash]);
 

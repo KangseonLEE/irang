@@ -127,6 +127,7 @@ export function Header() {
   const gnbSearchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setGnbSearchOpen(false);
   }, [pathname]);
 

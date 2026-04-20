@@ -51,6 +51,7 @@ export function GuidePersonalize() {
       const emphasis = TYPE_STEP_EMPHASIS[migratedId];
       if (!emphasis) return;
       const farmType = FARM_TYPES.find(t => t.id === migratedId);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setData({ label: farmType?.label ?? latest.farmTypeLabel, tip: emphasis.tip, steps: emphasis.steps });
     } catch { /* ignore */ }
   }, []);
