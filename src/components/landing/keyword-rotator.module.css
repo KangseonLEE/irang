@@ -15,16 +15,16 @@
 }
 
 .rotator {
-  display: inline-flex;
-  vertical-align: baseline;
+  display: inline;
 }
 
 /* 외부 래퍼: 너비 transition만 담당, overflow 제한 없음 */
 .sizer {
   display: inline-block;
   position: relative;
-  height: 1.3em; /* h1 line-height: 1.3 에 맞춤 */
-  vertical-align: top;
+  /* "준비," 텍스트와 동일 높이 확보 — 1em(글자) + line-height 여백 */
+  height: 1em;
+  vertical-align: baseline;
   transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -32,9 +32,12 @@
 .clipper {
   display: grid;
   position: absolute;
-  inset: 0;
-  /* 상하: -4px 여유로 descender/ascender 보호, 좌우: 무제한 */
-  clip-path: inset(-4px -1000px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: -0.15em; /* line-height 여백만큼 위로 확장 */
+  /* 상하 클리핑 영역: 글자 위아래 충분히, 좌우는 무제한 */
+  clip-path: inset(-0.5em -1000px);
 }
 
 .word {
@@ -42,6 +45,7 @@
   display: inline-block;
   color: var(--primary, #1b6b5a);
   white-space: nowrap;
+  line-height: inherit;
   will-change: transform, opacity;
 }
 
