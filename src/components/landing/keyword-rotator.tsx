@@ -19,21 +19,22 @@ const ANIM_MS = 650;
 export function KeywordRotator() {
   const [current, setCurrent] = useState(0);
   const [phase, setPhase] = useState<"idle" | "animating">("idle");
-  const [maxWidth, setMaxWidth] = useState<number>(0);
+  const [widths, setWidths] = useState<number[]>([]);
   const measureRef = useRef<HTMLSpanElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
   const nextIdx = (current + 1) % KEYWORDS.length;
 
+  // 각 키워드별 너비 측정
   const remeasure = useCallback(() => {
     const el = measureRef.current;
     if (!el) return;
-    let max = 0;
+    const measured: number[] = [];
     for (const kw of KEYWORDS) {
       el.textContent = kw;
-      max = Math.max(max, el.offsetWidth);
+      measured.push(el.offsetWidth);
     }
-    setMaxWidth(max);
+    setWidths(measured);
   }, []);
 
   // 마운트 + 리사이즈 시 재측정
@@ -61,12 +62,20 @@ export function KeywordRotator() {
     return () => clearInterval(timerRef.current);
   }, []);
 
+  // 애니메이션 중에는 다음 키워드 너비로, idle이면 현재 키워드 너비
+  const targetWidth =
+    widths.length > 0
+      ? phase === "animating"
+        ? widths[nextIdx]
+        : widths[current]
+      : undefined;
+
   return (
     <span className={s.rotator} aria-label={KEYWORDS.join(", ")}>
       <span ref={measureRef} className={s.measure} aria-hidden="true" />
       <span
         className={s.track}
-        style={maxWidth > 0 ? { width: maxWidth } : undefined}
+        style={targetWidth != null ? { width: targetWidth } : undefined}
       >
         <span className={`${s.word} ${phase === "animating" ? s.exit : ""}`}>
           {KEYWORDS[current]}
