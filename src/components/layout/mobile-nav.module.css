@@ -15,8 +15,12 @@
   /* iOS Safari: 배경을 세이프 에어리어까지 확장 */
   padding-bottom: env(safe-area-inset-bottom, 0px);
   /* GPU 합성 레이어로 승격 — 스크롤 시 깜빡임/갭 방지 */
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  will-change: transform;
+  /* iOS Safari 주소창 동적 리사이즈 시 리페인트 강제 */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* 브라우저 하단 툴바가 숨겨질 때 빈 공간을 배경색으로 채움
