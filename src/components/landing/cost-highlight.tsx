@@ -13,12 +13,13 @@ function easeOutQuint(t: number): number {
  * 비용 핵심 지표 하이라이트
  * 좌: 텍스트 헤드라인 + CTA / 우: 히어로 카드 1장 + 보조 라인 카드 3장
  */
+const TARGETS = [6219, 84.6, 24.5, 7500, 3] as const;
+
 export function CostHighlight() {
   const ref = useRef<HTMLDivElement>(null);
   const hasPlayed = useRef(false);
   const rafId = useRef(0);
 
-  const targets = [6219, 84.6, 24.5, 7500, 3];
   const [vals, setVals] = useState(["0", "0", "0", "0", "0"]);
 
   const animate = useCallback(() => {
@@ -31,11 +32,11 @@ export function CostHighlight() {
       const eased = easeOutQuint(progress);
 
       setVals([
-        Math.round(eased * targets[0]).toLocaleString(),
-        (eased * targets[1]).toFixed(1),
-        (eased * targets[2]).toFixed(1),
-        Math.round(eased * targets[3]).toLocaleString(),
-        Math.round(eased * targets[4]).toString(),
+        Math.round(eased * TARGETS[0]).toLocaleString(),
+        (eased * TARGETS[1]).toFixed(1),
+        (eased * TARGETS[2]).toFixed(1),
+        Math.round(eased * TARGETS[3]).toLocaleString(),
+        Math.round(eased * TARGETS[4]).toString(),
       ]);
 
       if (progress < 1) rafId.current = requestAnimationFrame(tick);

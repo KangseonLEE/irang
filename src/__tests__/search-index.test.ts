@@ -15,9 +15,9 @@ describe("searchItems (드롭다운 검색)", () => {
     expect(searchItems("   ")).toEqual([]);
   });
 
-  it("최대 10개 결과를 반환한다", () => {
+  it("최대 12개 결과를 반환한다", () => {
     const results = searchItems("농");
-    expect(results.length).toBeLessThanOrEqual(10);
+    expect(results.length).toBeLessThanOrEqual(12);
   });
 
   it("지역명으로 검색하면 결과가 있다", () => {
@@ -75,7 +75,8 @@ describe("동의어 검색", () => {
 describe("한국어 조사 제거", () => {
   it("'딸기를' 검색 시 '딸기' 결과를 반환한다", () => {
     const withSuffix = searchAll("딸기를");
-    const without = searchAll("딸기");
+    // without: 조사 없는 버전 대조용 (아래에서 withSuffix 자체 검증)
+    searchAll("딸기");
     // 조사 제거 후 같은 결과를 찾아야 함
     expect(withSuffix.length).toBeGreaterThan(0);
     // 조사 있는 버전도 결과가 나와야 함

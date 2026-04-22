@@ -57,7 +57,6 @@ export function MyProgress() {
       }
     } catch { /* ignore */ }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (hasAny) setSteps(stepProgress);
   }, []);
 

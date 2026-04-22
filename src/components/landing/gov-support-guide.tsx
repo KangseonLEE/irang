@@ -13,6 +13,7 @@ import {
   ChevronRight,
   FlipHorizontal2,
 } from "lucide-react";
+import Image from "next/image";
 import { useDragScroll } from "@/lib/hooks/use-drag-scroll";
 import s from "./gov-support-guide.module.css";
 
@@ -188,12 +189,13 @@ export function GovSupportGuide() {
             <div className={s.cardInner}>
               {/* 앞면: 컬러 배경 + 이미지 + 제목 + 설명 */}
               <div className={s.cardFront}>
-                <img
+                <Image
                   src={g.bg}
                   alt=""
                   aria-hidden="true"
                   className={s.cardBg}
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 640px) 90vw, 320px"
                 />
                 <span className={s.flipHint} aria-hidden="true">
                   <FlipHorizontal2 size={16} strokeWidth={1.8} />

@@ -28,7 +28,6 @@ import {
 } from "@/lib/data/assessment";
 import {
   TRACK_QUESTIONS,
-  FARM_TYPES,
   type Answers as MatchAnswers,
 } from "@/lib/data/match-questions";
 import { classifyFarmType } from "@/lib/match-scoring";
@@ -211,10 +210,6 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
   /* ═══ 결과 화면 ═══ */
   if (phase === "result" && result) {
     const { totalScore, tier, dimensions } = result;
-
-    // 가장 약한 차원 찾기
-    const weakest = [...dimensions].sort((a, b) => a.percent - b.percent)[0];
-    const weakDim = DIMENSIONS.find((d) => d.id === weakest.id);
 
     // 인구통계 기반 맞춤 지원 힌트
     const demoHints = getDemographicHints(demoAnswers);

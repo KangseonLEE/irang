@@ -12,7 +12,7 @@ import { OG_SIZE } from "@/lib/og/constants";
 import { brandCard, resultCard } from "@/lib/og/brand-card";
 import { isValidResultId } from "@/lib/assess-result";
 import { getSupabase } from "@/lib/supabase";
-import { FARM_TYPES, migrateFarmTypeId, type FarmTypeId } from "@/lib/data/match-questions";
+import { FARM_TYPES, migrateFarmTypeId } from "@/lib/data/match-questions";
 import { PROVINCES } from "@/lib/data/regions";
 
 export const size = OG_SIZE;

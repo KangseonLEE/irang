@@ -14,8 +14,8 @@ import {
 // ─── 질문 데이터 무결성 ───
 
 describe("QUESTIONS 데이터 무결성", () => {
-  it("5개 질문이 존재한다", () => {
-    expect(QUESTIONS).toHaveLength(5);
+  it("7개 질문이 존재한다", () => {
+    expect(QUESTIONS).toHaveLength(7);
   });
 
   it("모든 질문은 고유한 ID를 갖는다", () => {
@@ -48,21 +48,23 @@ describe("QUESTIONS 데이터 무결성", () => {
     }
   });
 
-  it("필수 질문 ID가 존재한다 (experience, climate, priority, lifestyle, crop-type)", () => {
+  it("필수 질문 ID가 존재한다", () => {
     const ids = QUESTIONS.map((q) => q.id);
     expect(ids).toContain("experience");
     expect(ids).toContain("climate");
     expect(ids).toContain("priority");
     expect(ids).toContain("lifestyle");
     expect(ids).toContain("crop-type");
+    expect(ids).toContain("income-goal");
+    expect(ids).toContain("settlement-type");
   });
 });
 
 // ─── FARM_TYPES 데이터 무결성 ───
 
 describe("FARM_TYPES 데이터 무결성", () => {
-  it("4가지 귀농 유형이 존재한다", () => {
-    expect(FARM_TYPES).toHaveLength(4);
+  it("5가지 귀농 유형이 존재한다", () => {
+    expect(FARM_TYPES).toHaveLength(5);
   });
 
   it("모든 유형은 고유한 ID를 갖는다", () => {

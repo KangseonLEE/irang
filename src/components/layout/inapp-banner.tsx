@@ -29,11 +29,9 @@ export function InAppBanner() {
 
   useEffect(() => {
     const detected = detectInAppBrowser();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInfo(detected);
     if (detected.isInApp) {
       const wasDismissed = sessionStorage.getItem(DISMISSED_KEY) === "1";
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDismissed(wasDismissed);
     }
   }, []);

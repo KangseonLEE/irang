@@ -14,7 +14,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BarChart3, RotateCcw } from "lucide-react";
 import { decodeAssessScore } from "@/lib/assess-share";
-import { DIMENSIONS, getDimensionGuide } from "@/lib/data/assessment";
+import { DIMENSIONS } from "@/lib/data/assessment";
 import s from "./share.module.css";
 
 // ── 타입 ──

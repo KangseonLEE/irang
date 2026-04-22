@@ -26,7 +26,9 @@ describe("validateEnv", () => {
     expect(() => validateEnv()).not.toThrow();
   });
 
-  it("선택 환경변수가 없으면 경고를 출력한다", () => {
+  it("선택 환경변수가 없으면 개발 환경에서 경고를 출력한다", () => {
+    // 개발 환경에서만 경고 출력
+    process.env.NODE_ENV = "development";
     // 선택 변수들을 모두 제거
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;
     delete process.env.UNSPLASH_ACCESS_KEY;
@@ -42,6 +44,7 @@ describe("validateEnv", () => {
   });
 
   it("빈 문자열도 미설정으로 간주한다", () => {
+    process.env.NODE_ENV = "development";
     process.env.NEXT_PUBLIC_SENTRY_DSN = "";
 
     validateEnv();

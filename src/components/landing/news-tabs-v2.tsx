@@ -54,9 +54,7 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
   }, [activeTab, items]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFeaturedIdx(0);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setFeaturedIdx(0); // eslint-disable-line react-hooks/set-state-in-effect -- 탭 전환 시 상태 리셋 의도
     setFadePhase("idle");
   }, [activeTab]);
 

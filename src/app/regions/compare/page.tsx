@@ -34,8 +34,6 @@ interface PageProps {
 
 function buildRegionSummary(
   climateData: ClimateData[],
-  selectedStations: { stnId: string; province: string; sgisCode: string; hiraSidoCd: string; eduCode: string }[],
-  populationMap: Map<string, PopulationData>,
 ): string {
   if (climateData.length < 2) return "";
 
@@ -224,7 +222,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
                 한줄 요약
               </h2>
               <p className={s.oneSummaryText}>
-                {buildRegionSummary(climateData, selectedStations, populationMap)}
+                {buildRegionSummary(climateData)}
               </p>
             </section>
           )}

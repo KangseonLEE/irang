@@ -18,7 +18,7 @@ import {
   Calculator,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
-import { FARM_TYPES, migrateFarmTypeId, type FarmTypeId } from "@/lib/data/match-questions";
+import { FARM_TYPES, migrateFarmTypeId } from "@/lib/data/match-questions";
 import { PROVINCES } from "@/lib/data/regions";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";

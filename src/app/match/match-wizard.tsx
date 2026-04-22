@@ -93,13 +93,13 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
       }
     }
     if (Object.keys(dims).length > 0) {
-      setDimScores(dims); // eslint-disable-line react-hooks/set-state-in-effect
+      setDimScores(dims);
     }
 
     // 연령대 파싱 (진단에서 전달)
     const age = searchParams.get("ageGroup");
     if (age) {
-      setAgeGroup(age); // eslint-disable-line react-hooks/set-state-in-effect
+      setAgeGroup(age);
     }
   }, [searchParams]);
 

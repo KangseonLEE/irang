@@ -46,24 +46,6 @@ interface CropOption {
   monthlyIncome: number; // 만원/월 (추정)
 }
 
-function parseMonthlyIncome(revenueRange: string): number {
-  // "10a당 약 57만 원 (3,000평 재배 시 연 약 571만 원)" 에서 연 소득 파싱
-  const annualMatch = revenueRange.match(/연\s*약?\s*([\d,]+)만/);
-  if (annualMatch) {
-    const annual = parseInt(annualMatch[1].replace(/,/g, ""), 10);
-    return Math.round(annual / 12);
-  }
-  // "10a당 약 1,259만 원" 패턴 (시설재배, 3000평 기준 환산)
-  const perTenAMatch = revenueRange.match(/10a당\s*약?\s*([\d,]+)만/);
-  if (perTenAMatch) {
-    const perTenA = parseInt(perTenAMatch[1].replace(/,/g, ""), 10);
-    // 3000평 = 약 9917㎡ = 약 99.17a → 10a 약 9.9배
-    const annual = Math.round(perTenA * 9.9);
-    return Math.round(annual / 12);
-  }
-  return 200; // 기본값
-}
-
 function buildCropOptions(): CropOption[] {
   // CROP_DETAILS의 income.revenueRange 필요 — 정적 import 대신 CROPS 기본 정보만 사용
   // 여기선 CROPS 기본 정보 + 추정 소득 사용
@@ -135,7 +117,6 @@ function useCountUp(target: number, duration = 600): number {
       const value = Math.round(
         fromRef.current + (target - fromRef.current) * eased
       );
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrent(value);
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(animate);
