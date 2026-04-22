@@ -21,8 +21,8 @@
 .track {
   display: inline-grid;
   position: relative;
-  overflow: hidden;
-  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow-x: visible;
+  overflow-y: clip;
 }
 
 .word {
