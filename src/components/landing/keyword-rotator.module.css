@@ -1,6 +1,7 @@
 /* ══════════════════════════════════════════
    KeywordRotator — 히어로 키워드 슬라이드업
    키워드별 너비 유동 전환 (당근마켓 패턴)
+   레이어 분리: sizer(너비) + clipper(상하 클리핑)
    ══════════════════════════════════════════ */
 
 /* 측정용 — 화면 밖에 숨김, 동일 폰트 스타일 상속 */
@@ -18,11 +19,21 @@
   vertical-align: baseline;
 }
 
-.track {
-  display: inline-grid;
+/* 외부 래퍼: 너비 transition만 담당, overflow 제한 없음 */
+.sizer {
+  display: inline-block;
   position: relative;
-  overflow-x: visible;
-  overflow-y: clip;
+  height: 1.2em;
+  transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 내부 래퍼: clip-path로 상하만 클리핑, 좌우는 무제한 */
+.clipper {
+  display: grid;
+  position: absolute;
+  inset: 0;
+  /* 상하: -4px 여유로 descender/ascender 보호, 좌우: 무제한 */
+  clip-path: inset(-4px -1000px);
 }
 
 .word {
@@ -30,7 +41,6 @@
   display: inline-block;
   color: var(--primary, #1b6b5a);
   white-space: nowrap;
-  /* 글자 잘림 방지 */
   will-change: transform, opacity;
 }
 
@@ -73,6 +83,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sizer {
+    transition: none;
+  }
   .exit,
   .enter {
     animation: none;

@@ -19,30 +19,28 @@ const ANIM_MS = 650;
 export function KeywordRotator() {
   const [current, setCurrent] = useState(0);
   const [phase, setPhase] = useState<"idle" | "animating">("idle");
-  const [maxWidth, setMaxWidth] = useState<number>(0);
+  const [widths, setWidths] = useState<number[]>([]);
   const measureRef = useRef<HTMLSpanElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
   const nextIdx = (current + 1) % KEYWORDS.length;
 
-  // 가장 긴 키워드 너비로 고정
+  // 각 키워드별 너비 개별 측정
   const remeasure = useCallback(() => {
     const el = measureRef.current;
     if (!el) return;
-    let max = 0;
-    for (const kw of KEYWORDS) {
+    const measured = KEYWORDS.map((kw) => {
       el.textContent = kw;
-      max = Math.max(max, el.offsetWidth);
-    }
-    setMaxWidth(max);
+      return el.offsetWidth;
+    });
+    setWidths(measured);
   }, []);
 
   // 마운트 + 리사이즈 시 재측정
   useEffect(() => {
     remeasure();
-    const onResize = () => remeasure();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    window.addEventListener("resize", remeasure);
+    return () => window.removeEventListener("resize", remeasure);
   }, [remeasure]);
 
   // 키워드 로테이션
@@ -62,21 +60,33 @@ export function KeywordRotator() {
     return () => clearInterval(timerRef.current);
   }, []);
 
+  // 애니메이팅 중 → 다음 키워드 너비, idle → 현재 키워드 너비
+  const targetWidth =
+    widths.length > 0
+      ? phase === "animating"
+        ? widths[nextIdx]
+        : widths[current]
+      : undefined;
+
   return (
     <span className={s.rotator} aria-label={KEYWORDS.join(", ")}>
       <span ref={measureRef} className={s.measure} aria-hidden="true" />
+      {/* sizer: 너비 transition 담당, overflow 제한 없음 */}
       <span
-        className={s.track}
-        style={maxWidth > 0 ? { width: maxWidth } : undefined}
+        className={s.sizer}
+        style={targetWidth != null ? { width: targetWidth } : undefined}
       >
-        <span className={`${s.word} ${phase === "animating" ? s.exit : ""}`}>
-          {KEYWORDS[current]}
-        </span>
-        <span
-          className={`${s.word} ${s.nextWord} ${phase === "animating" ? s.enter : ""}`}
-          aria-hidden="true"
-        >
-          {KEYWORDS[nextIdx]}
+        {/* clipper: clip-path로 상하만 클리핑, 좌우는 자유 */}
+        <span className={s.clipper}>
+          <span className={`${s.word} ${phase === "animating" ? s.exit : ""}`}>
+            {KEYWORDS[current]}
+          </span>
+          <span
+            className={`${s.word} ${s.nextWord} ${phase === "animating" ? s.enter : ""}`}
+            aria-hidden="true"
+          >
+            {KEYWORDS[nextIdx]}
+          </span>
         </span>
       </span>
     </span>
