@@ -98,6 +98,10 @@
   .heroTitle { animation: none; }
 }
 
+.heroTitleLine {
+  display: block;
+}
+
 /* ── 서브타이틀 ── */
 .heroSubtitle {
   font-size: clamp(0.875rem, 1.5vw, 1.125rem);

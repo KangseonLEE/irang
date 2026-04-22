@@ -78,8 +78,10 @@ export default function HomePage() {
       {/* ═══ 1. 히어로 ═══ */}
       <section className={s.heroSection} aria-label="검색">
         <h1 className={s.heroTitle}>
-          <KeywordRotator /> 준비,{" "}
-          어디서부터 시작할까요?
+          <span className={s.heroTitleLine}>
+            <KeywordRotator /> 준비,
+          </span>
+          <span className={s.heroTitleLine}>어디서부터 시작할까요?</span>
         </h1>
         <p className={s.heroSubtitle}>
           지역 비교부터 지원금 찾기까지, 필요한 건 다 모았어요.
