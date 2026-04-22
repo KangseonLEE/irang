@@ -24,7 +24,7 @@ interface KakaoShareButtonProps {
 }
 
 /** 기본 OG 이미지 — Next.js 동적 OG 이미지 엔드포인트 */
-const DEFAULT_OG_IMAGE = "https://irang-wheat.vercel.app/opengraph-image";
+const DEFAULT_OG_IMAGE = "https://irangfarm.com/opengraph-image";
 
 const KAKAO_SDK_URL =
   "https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js";

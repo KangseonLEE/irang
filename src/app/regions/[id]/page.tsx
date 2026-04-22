@@ -81,7 +81,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
               <KakaoShareButton
                 title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
                 description={`${province.name} 귀농 정보: ${province.description}`}
-                imageUrl={`https://irang-wheat.vercel.app/regions/${province.id}/opengraph-image`}
+                imageUrl={`https://irangfarm.com/regions/${province.id}/opengraph-image`}
                 contentType="region"
               />
               <ShareButton

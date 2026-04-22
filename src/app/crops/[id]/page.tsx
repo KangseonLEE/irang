@@ -260,7 +260,7 @@ export default async function CropDetailPage({
               <KakaoShareButton
                 title={`${data.name} — 작물 정보 | 이랑`}
                 description={`${data.name}: ${data.description?.slice(0, 80) ?? data.category}`}
-                imageUrl={`https://irang-wheat.vercel.app/crops/${data.id}.jpg`}
+                imageUrl={`https://irangfarm.com/crops/${data.id}.jpg`}
                 contentType="crop"
               />
               <ShareButton

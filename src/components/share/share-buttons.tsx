@@ -13,7 +13,7 @@ interface ShareButtonsProps {
 const KAKAO_SDK_URL =
   "https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js";
 const KAKAO_APP_KEY = "f300c0af75148eae0e05374466b1bf4c";
-const DEFAULT_OG_IMAGE = "https://irang-wheat.vercel.app/opengraph-image";
+const DEFAULT_OG_IMAGE = "https://irangfarm.com/opengraph-image";
 
 let sdkPromise: Promise<void> | null = null;
 

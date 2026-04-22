@@ -123,7 +123,7 @@ export default function FailureCasesGuidePage() {
           author: {
             "@type": "Organization",
             name: "이랑",
-            url: "https://irang-wheat.vercel.app",
+            url: "https://irangfarm.com",
           },
         }}
       />

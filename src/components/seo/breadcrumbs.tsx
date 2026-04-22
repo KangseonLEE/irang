@@ -5,7 +5,7 @@ import type { BreadcrumbList as BreadcrumbListSchema } from "schema-dts";
 import { Icon } from "@/components/ui/icon";
 import s from "./breadcrumbs.module.css";
 
-const BASE_URL = "https://irang-wheat.vercel.app";
+const BASE_URL = "https://irangfarm.com";
 
 export interface BreadcrumbItem {
   /** 표시 이름 */

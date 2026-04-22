@@ -59,7 +59,7 @@
 - **브랜드**: 밭고랑(농업 본질) + "함께 이랑" 중의적 의미
 - **타겟**: 귀농을 고려하는 3040 도시 직장인
 - **기술 스택**: Next.js 16 (App Router) + TypeScript + CSS Modules + lucide-react
-- **배포**: Vercel (`irang-wheat.vercel.app`)
+- **배포**: Vercel (`irangfarm.com`)
 - **코드 저장소**: `~/Workspace/irang/`
 - **볼트 문서**: `/Users/igangseon/David_agit/10.projects/이랑/이랑-*.md` (19개 활성 + 21개 `_archive/`, 허브 노트 `이랑.md`)
 

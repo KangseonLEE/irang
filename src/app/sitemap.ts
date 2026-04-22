@@ -7,7 +7,7 @@ import { EDUCATION_COURSES } from "@/lib/data/education";
 import { EVENTS } from "@/lib/data/events";
 import { interviews } from "@/lib/data/landing";
 
-const BASE_URL = "https://irang-wheat.vercel.app";
+const BASE_URL = "https://irangfarm.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

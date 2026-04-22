@@ -98,7 +98,7 @@ export default function Budget50sGuidePage() {
           author: {
             "@type": "Organization",
             name: "이랑",
-            url: "https://irang-wheat.vercel.app",
+            url: "https://irangfarm.com",
           },
         }}
       />

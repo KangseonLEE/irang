@@ -21,7 +21,7 @@ import s from "./layout.module.css";
 validateEnv();
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://irang-wheat.vercel.app"),
+  metadataBase: new URL("https://irangfarm.com"),
   verification: {
     google: "KNFsOJ9PTv7qJXP15MITpq6YGN8cWV7Nk9ThKWBPGD0",
     other: {
@@ -84,13 +84,13 @@ export default function RootLayout({
             "@type": "WebSite",
             name: "이랑",
             alternateName: "이랑 — 귀농 정보 큐레이션 포탈",
-            url: "https://irang-wheat.vercel.app",
+            url: "https://irangfarm.com",
             description:
               "귀농 예정자를 위한 지역 비교, 지원사업 검색, 작물 정보를 한곳에서.",
             potentialAction: {
               "@type": "SearchAction",
               target:
-                "https://irang-wheat.vercel.app/search?q={search_term_string}",
+                "https://irangfarm.com/search?q={search_term_string}",
               "query-input": "required name=search_term_string",
             },
           }}
@@ -100,8 +100,8 @@ export default function RootLayout({
             "@context": "https://schema.org",
             "@type": "Organization",
             name: "이랑",
-            url: "https://irang-wheat.vercel.app",
-            logo: "https://irang-wheat.vercel.app/icon.svg",
+            url: "https://irangfarm.com",
+            logo: "https://irangfarm.com/icon.svg",
             description:
               "귀농 예정자를 위한 지역 비교, 지원사업 검색, 작물 정보를 한곳에서 제공하는 큐레이션 포탈.",
             sameAs: [],

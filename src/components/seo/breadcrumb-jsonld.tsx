@@ -5,7 +5,7 @@ export interface BreadcrumbItem {
   href: string;
 }
 
-const BASE_URL = "https://irang-wheat.vercel.app";
+const BASE_URL = "https://irangfarm.com";
 
 /**
  * BreadcrumbList JSON-LD 구조화 데이터.

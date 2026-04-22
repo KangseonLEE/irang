@@ -82,7 +82,7 @@ export default function GuidesPage() {
           name: "귀농 가이드 모음",
           description:
             "귀농 준비 순서, 50대 귀농 자본, 1인 귀농, 실패 사례, 초보 추천 작물까지 — 상황별 귀농 가이드 모음",
-          url: "https://irang-wheat.vercel.app/guides",
+          url: "https://irangfarm.com/guides",
         }}
       />
 
