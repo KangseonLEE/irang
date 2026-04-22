@@ -1,77 +1,68 @@
 /* ══════════════════════════════════════════
    KeywordRotator — 히어로 키워드 슬라이드업
-   블록 레벨 한 줄 통째 교체 (당근마켓 패턴)
+   inline-block + overflow:hidden, 유동 너비
    ══════════════════════════════════════════ */
 
-/* 컨테이너: 한 줄 높이로 고정, 넘치는 건 숨김 */
-.block {
-  display: block;
-  position: relative;
-  overflow: hidden;
-  /* h1 line-height: 1.3 기준, 한 줄 높이 확보 */
-  height: 1.3em;
+.measure {
+  position: absolute;
+  visibility: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  font: inherit;
+  letter-spacing: inherit;
 }
 
-/* 각 줄 (현재 / 다음) */
-.line {
+.rotator {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  height: 1.3em; /* h1 line-height 와 동일 */
+  transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.word {
   display: block;
+  color: var(--primary, #1b6b5a);
   white-space: nowrap;
+  height: 1.3em;
+  line-height: 1.3;
   will-change: transform, opacity;
 }
 
-/* 다음 줄: 기본 상태에서 아래에 대기 */
-.nextLine {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  transform: translateY(100%);
-  opacity: 0;
-}
-
-.keyword {
-  color: var(--primary, #1b6b5a);
-}
-
-/* ── 현재 줄 위로 퇴장 ── */
+/* ── 현재 단어 위로 퇴장 ── */
 .exit {
   animation: exitUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* ── 다음 줄 아래서 진입 ── */
+/* ── 다음 단어 아래서 진입 (기본 위치: 컨테이너 밖 아래) ── */
 .enter {
   animation: enterUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes exitUp {
   from {
-    opacity: 1;
     transform: translateY(0);
   }
   to {
-    opacity: 0;
     transform: translateY(-100%);
   }
 }
 
 @keyframes enterUp {
   from {
-    opacity: 0;
-    transform: translateY(100%);
+    transform: translateY(0);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-100%);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .rotator {
+    transition: none;
+  }
   .exit,
   .enter {
     animation: none;
-  }
-  .nextLine {
-    transform: none;
-    opacity: 1;
   }
 }

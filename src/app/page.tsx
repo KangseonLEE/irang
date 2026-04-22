@@ -78,7 +78,9 @@ export default function HomePage() {
       {/* ═══ 1. 히어로 ═══ */}
       <section className={s.heroSection} aria-label="검색">
         <h1 className={s.heroTitle}>
-          <KeywordRotator />
+          <span className={s.heroTitleLine}>
+            <KeywordRotator /> 준비,
+          </span>
           <span className={s.heroTitleLine}>어디서부터 시작할까요?</span>
         </h1>
         <p className={s.heroSubtitle}>
