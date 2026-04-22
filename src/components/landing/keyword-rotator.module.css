@@ -1,0 +1,83 @@
+/* ══════════════════════════════════════════
+   KeywordRotator — 히어로 키워드 슬라이드업
+   최대 키워드 너비로 고정 → 리플로우/줄바꿈 없음
+   ══════════════════════════════════════════ */
+
+/* 측정용 — 화면 밖에 숨김, 동일 폰트 스타일 상속 */
+.measure {
+  position: absolute;
+  visibility: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.rotator {
+  display: inline-flex;
+  vertical-align: baseline;
+}
+
+.track {
+  display: inline-grid;
+  position: relative;
+  overflow: hidden;
+}
+
+.word {
+  grid-area: 1 / 1;
+  display: inline-block;
+  color: var(--primary, #1b6b5a);
+  white-space: nowrap;
+  /* 글자 잘림 방지 */
+  will-change: transform, opacity;
+}
+
+/* 다음 단어: 기본 상태에서 아래에 숨김 */
+.nextWord {
+  transform: translateY(120%);
+  opacity: 0;
+}
+
+/* ── 현재 단어 위로 퇴장 ── */
+.exit {
+  animation: exitUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ── 다음 단어 아래서 진입 ── */
+.enter {
+  animation: enterUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes exitUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-120%);
+  }
+}
+
+@keyframes enterUp {
+  from {
+    opacity: 0;
+    transform: translateY(120%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exit,
+  .enter {
+    animation: none;
+  }
+  .nextWord {
+    transform: none;
+    opacity: 1;
+  }
+}

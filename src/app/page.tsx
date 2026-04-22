@@ -9,6 +9,7 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import HeroSearch from "@/components/search/hero-search";
 import { TrendingSearchesSkeleton } from "@/components/landing/trending-searches";
 import { TrendingSearchesLoader } from "@/components/landing/trending-searches-loader";
+import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { WhyFarming } from "@/components/landing/why-farming";
 import { CostHighlight } from "@/components/landing/cost-highlight";
@@ -77,7 +78,8 @@ export default function HomePage() {
       {/* ═══ 1. 히어로 ═══ */}
       <section className={s.heroSection} aria-label="검색">
         <h1 className={s.heroTitle}>
-          귀농 준비, 어디서부터 시작할까요?
+          <KeywordRotator /> 준비,{" "}
+          어디서부터 시작할까요?
         </h1>
         <p className={s.heroSubtitle}>
           지역 비교부터 지원금 찾기까지, 필요한 건 다 모았어요.
