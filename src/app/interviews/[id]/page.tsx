@@ -19,6 +19,7 @@ import { CROPS } from "@/lib/data/crops";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "./page.module.css";
 
 function getInterviewById(id: string) {
@@ -42,11 +43,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const person = getInterviewById(id);
+  if (!person) return { title: "귀농 인터뷰 상세" };
+
+  const regionShort = person.region.split(" ")[0];
   return {
-    title: person
-      ? `${person.name}님의 귀농 이야기 — 이랑`
-      : "귀농 인터뷰 상세",
-    description: person?.story.slice(0, 160),
+    title: `${person.name}님의 귀농 이야기 — ${regionShort} ${person.crop}`,
+    description: `${regionShort}에서 ${person.crop}을(를) 재배하는 ${person.name}님의 귀농 경험담. ${person.story.slice(0, 120)}`,
+    keywords: [`${regionShort} 귀농`, `${person.crop} 재배`, "귀농 성공 사례", "귀농 인터뷰"],
   };
 }
 
@@ -70,6 +73,10 @@ export default async function InterviewDetailPage({
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "귀농인 이야기", href: "/interviews" },
+        { name: `${person.name}님의 이야기`, href: `/interviews/${id}` },
+      ]} />
       {/* ═══ 뒤로가기 ═══ */}
       <Link href="/interviews" className={s.backLink}>
         <Icon icon={ArrowLeft} size="md" />

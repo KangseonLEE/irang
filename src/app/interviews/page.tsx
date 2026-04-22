@@ -12,17 +12,20 @@ import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { interviews } from "@/lib/data/landing";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농인 인터뷰 — 실제 귀농 경험담",
+  title: "귀농 성공 사례 — 실제 귀농인 인터뷰",
   description:
-    "실제 귀농에 성공한 분들의 이야기. 준비 과정, 실패와 극복, 정착 후 생활을 생생하게 들어보세요.",
+    "30대·40대·50대 귀농에 성공한 분들의 이야기. 준비 과정, 초기 비용, 실패와 극복, 정착 후 생활을 생생하게 들어보세요.",
+  keywords: ["귀농 성공 사례", "귀농 인터뷰", "귀농 경험담", "귀농 후기", "귀농 실패 극복"],
 };
 
 export default function InterviewsPage() {
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "귀농인 이야기", href: "/interviews" }]} />
       {/* ═══ 히어로 헤더 ═══ */}
       <SubPageHero
         overline="귀농인 이야기"

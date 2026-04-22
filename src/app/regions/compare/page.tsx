@@ -13,6 +13,7 @@ import { fetchRegionPhotos, type UnsplashPhoto } from "@/lib/api/unsplash";
 import { STATIONS } from "@/lib/data/stations";
 import { PROGRAMS } from "@/lib/data/programs";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { RegionSelector } from "./region-selector";
 import { CropSuitabilitySection } from "./crop-suitability-section";
 import { LazyClimateRadar, LazyPopulationBars } from "./charts-lazy";
@@ -23,9 +24,10 @@ import { SwipeHint } from "@/components/ui/swipe-hint";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "지역 비교",
+  title: "귀농 지역 비교 — 기후·인프라·지원사업 데이터 비교",
   description:
-    "귀농 후보 지역의 기후, 인구, 의료 인프라, 교육 환경을 데이터로 비교하세요.",
+    "귀농 후보 지역 최대 3곳의 기후, 인구, 의료·교육 인프라, 지원사업을 나란히 비교하세요. 어디가 나에게 맞을지 데이터로 확인할 수 있어요.",
+  keywords: ["귀농 지역 비교", "귀농 지역 추천", "귀농 어디", "귀농 후보지"],
 };
 
 interface PageProps {
@@ -130,6 +132,10 @@ export default async function RegionsPage({ searchParams }: PageProps) {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "지역 탐색", href: "/regions" },
+        { name: "지역 비교", href: "/regions/compare" },
+      ]} />
       {/* 모바일 데스크톱 권장 안내 */}
       <DesktopHint message="지역 비교는 넓은 화면에서 더 잘 보여요" />
 

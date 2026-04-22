@@ -16,6 +16,7 @@ import {
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { TimelineLink, AccordionScrollWrapper } from "./timeline-nav";
 import { ChecklistInteractive } from "./checklist-interactive";
 import { GuideTimeline } from "./guide-timeline";
@@ -46,9 +47,10 @@ const STEP_INTERVIEW_FIELDS: Record<number, "motivation" | "challenge" | "advice
 };
 
 export const metadata: Metadata = {
-  title: "귀농 프로세스 가이드 | 5단계 로드맵",
+  title: "귀농 절차 5단계 — 준비부터 정착까지 로드맵",
   description:
-    "귀농 준비부터 정착까지, 5단계 프로세스를 체크리스트와 함께 안내해요. 각 단계별 소요 기간, 핵심 과업, 지원사업 정보를 확인하세요.",
+    "귀농 준비부터 정착까지, 5단계 프로세스를 체크리스트와 함께 안내해요. 각 단계별 소요 기간, 핵심 과업, 예상 비용, 지원사업 정보를 확인하세요.",
+  keywords: ["귀농 절차", "귀농 준비 순서", "귀농 로드맵", "귀농 단계", "귀농 방법", "귀농 준비 기간"],
 };
 
 // ─── 단계 데이터 ───
@@ -265,6 +267,7 @@ const STEPS: GuideStep[] = [
 export default function GuidePage() {
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "귀농 프로세스 가이드", href: "/guide" }]} />
       {/* ═══ 히어로 ═══ */}
       <SubPageHero
         overline="PROCESS GUIDE"

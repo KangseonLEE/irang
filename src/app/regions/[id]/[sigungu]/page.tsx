@@ -28,6 +28,7 @@ import { SigunguData } from "./sigungu-data";
 import { SigunguStatsSkeleton } from "./sigungu-stats-skeleton";
 import { DistrictMapSection } from "./district-map-section";
 import { DataSource } from "@/components/ui/data-source";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "./page.module.css";
 
 interface PageProps {
@@ -65,9 +66,11 @@ export async function generateMetadata({
   const province = PROVINCES.find((p) => p.id === id);
   const sidoName = province?.shortName ?? "";
 
+  const mainCropsLabel = sigungu.mainCrops.slice(0, 3).join("·");
   return {
-    title: `${sigungu.name} 귀농 정보 | 이랑`,
-    description: `${sidoName} ${sigungu.name}의 귀농 정보 — ${sigungu.description}`,
+    title: `${sidoName} ${sigungu.name} 귀농 — 지원사업·작물·인프라`,
+    description: `${sidoName} ${sigungu.name} 귀농 정보. 대표 작물: ${mainCropsLabel}. 인구, 의료·교육 인프라, 귀농 지원사업을 확인하세요. ${sigungu.description}`,
+    keywords: [`${sigungu.name} 귀농`, `${sidoName} 귀농`, `${sigungu.name} 지원사업`, ...sigungu.mainCrops.slice(0, 3)],
   };
 }
 
@@ -121,6 +124,11 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "지역 탐색", href: "/regions" },
+        { name: province.shortName, href: `/regions/${province.id}` },
+        { name: sigungu.name, href: `/regions/${province.id}/${sigungu.id}` },
+      ]} />
       {/* ── 브레드크럼 (정적) ── */}
       <nav className={s.breadcrumb} aria-label="경로">
         <Link href="/regions" className={s.breadcrumbLink}>

@@ -23,6 +23,7 @@ import {
 import { PROVINCES } from "@/lib/data/regions";
 import { DataSource } from "@/components/ui/data-source";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CropSelector } from "./crop-selector";
 import { CropRadar } from "./crop-radar";
 import { IncomeBars } from "./income-bars";
@@ -31,9 +32,10 @@ import { SwipeHint } from "@/components/ui/swipe-hint";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "작물 비교",
+  title: "귀농 작물 비교 — 소득·난이도·장단점 비교",
   description:
-    "최대 3개 작물의 난이도, 소득, 재배 환경, 장단점을 나란히 비교하세요. 초보 귀농 추천 작물을 찾는 데 도움이 돼요.",
+    "최대 3개 작물의 소득, 난이도, 재배 환경, 장단점을 나란히 비교하세요. 초보자 추천 작물부터 고소득 작물까지 선택에 도움이 돼요.",
+  keywords: ["작물 비교", "귀농 작물 비교", "작물 소득 비교", "귀농 작물 선택"],
 };
 
 const DEFAULT_CROP_IDS: string[] = [];
@@ -128,6 +130,10 @@ export default async function CropComparePage({ searchParams }: PageProps) {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "작물 정보", href: "/crops" },
+        { name: "작물 비교", href: "/crops/compare" },
+      ]} />
       {/* 모바일 데스크톱 권장 안내 */}
       <DesktopHint message="작물 비교는 넓은 화면에서 더 잘 보여요" />
 

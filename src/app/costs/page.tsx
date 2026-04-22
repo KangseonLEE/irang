@@ -16,6 +16,7 @@ import {
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { JsonLd } from "@/components/seo/json-ld";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import type { FAQPage } from "schema-dts";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
@@ -35,7 +36,8 @@ import s from "./page.module.css";
 export const metadata: Metadata = {
   title: "귀농 비용 가이드 — 초기 투자·운영비·생활비",
   description:
-    "귀농에 필요한 초기 투자금, 연간 운영비, 생활비를 항목별로 정리했어요. 50대·1인 귀농 자본 계획에 참고하세요.",
+    "귀농에 필요한 초기 투자금, 연간 운영비, 생활비를 항목별로 정리했어요. 30대·40대·50대·1인 귀농 자본 계획에 참고하세요.",
+  keywords: ["귀농 비용", "귀농 비용 얼마", "귀농 초기 투자", "귀농 자본", "50대 귀농 비용", "귀농 생활비"],
 };
 
 /* ── 작물별 투자 비교 데이터 (초기투자 기준 정렬) ── */
@@ -191,6 +193,7 @@ export default function CostsPage() {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "귀농 비용 가이드", href: "/costs" }]} />
       <JsonLd<FAQPage>
         data={{
           "@context": "https://schema.org",

@@ -28,6 +28,7 @@ import {
 } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -128,6 +129,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
 
   return (
     <>
+      <BreadcrumbJsonLd items={[{ name: "체험·행사", href: "/events" }]} />
       {/* 섹션 내비게이션 — .page 바깥에서 full-width sticky */}
       <Suspense>
         <SectionNav items={sectionNavItems} />

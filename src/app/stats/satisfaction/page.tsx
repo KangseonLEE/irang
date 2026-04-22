@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import {
   satisfactionSegments,
   satisfactionFactors,
@@ -29,9 +30,10 @@ import s from "./page.module.css";
 import shared from "../stats.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농 만족도 조사",
+  title: "귀농 만족도 조사 — 소득·생활·정착 만족 통계",
   description:
-    "귀농인의 생활 만족도, 소득 변화, 정착 성공 요인을 통계로 확인하세요.",
+    "귀농인의 생활 만족도, 소득 변화, 정착 성공 요인을 통계로 확인하세요. 귀농 후회 비율과 만족 요인 데이터를 비교할 수 있어요.",
+  keywords: ["귀농 만족도", "귀농 후회", "귀농 소득", "귀농 생활", "귀농 정착"],
 };
 
 export default function SatisfactionPage() {
@@ -41,6 +43,7 @@ export default function SatisfactionPage() {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "귀농 만족도 조사", href: "/stats/satisfaction" }]} />
       {/* 뒤로가기 */}
       <Link href="/" className={shared.backLink}>
         <Icon icon={ArrowLeft} size="md" />

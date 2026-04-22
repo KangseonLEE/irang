@@ -27,6 +27,7 @@ import { EVENTS } from "@/lib/data/events";
 import { GuData } from "./gu-data";
 import { SigunguStatsSkeleton } from "../sigungu-stats-skeleton";
 import { DataSource } from "@/components/ui/data-source";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "../page.module.css";
 
 interface PageProps {
@@ -57,8 +58,9 @@ export async function generateMetadata({
   const sigunguName = sigungu?.name ?? "";
 
   return {
-    title: `${sigunguName} ${gu.name} 귀농 정보 | 이랑`,
-    description: `${sidoName} ${sigunguName} ${gu.name}의 귀농 정보 — ${gu.description}`,
+    title: `${sigunguName} ${gu.name} 귀농 — 작물·인프라·지원사업`,
+    description: `${sidoName} ${sigunguName} ${gu.name} 귀농 정보. 인구, 의료·교육 인프라, 추천 작물, 지원사업을 확인하세요. ${gu.description}`,
+    keywords: [`${sigunguName} ${gu.name} 귀농`, `${sidoName} 귀농`, `${sigunguName} 귀농`],
   };
 }
 
@@ -115,6 +117,12 @@ export default async function GuDetailPage({ params }: PageProps) {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "지역 탐색", href: "/regions" },
+        { name: province.shortName, href: `/regions/${province.id}` },
+        { name: sigungu.name, href: `/regions/${province.id}/${sigungu.id}` },
+        { name: gu.name, href: `/regions/${province.id}/${sigungu.id}/${gu.id}` },
+      ]} />
       {/* -- 브레드크럼 -- */}
       <nav className={s.breadcrumb} aria-label="경로">
         <Link href="/regions" className={s.breadcrumbLink}>

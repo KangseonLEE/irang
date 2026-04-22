@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import {
   youthData,
   youthSummary,
@@ -23,9 +24,10 @@ import s from "./page.module.css";
 import shared from "../stats.module.css";
 
 export const metadata: Metadata = {
-  title: "청년 귀농 현황 — 연령별·지역별 통계",
+  title: "청년 귀농 현황 — 20·30대 연령별·지역별 통계",
   description:
-    "청년 귀농 비율, 지역별 청년 귀농 현황, 지원 정책을 데이터로 살펴보세요.",
+    "20대·30대 청년 귀농 비율, 지역별 청년 귀농 현황, 지원 정책을 데이터로 살펴보세요. 청년창업농 지원사업 정보도 확인할 수 있어요.",
+  keywords: ["청년 귀농", "30대 귀농", "20대 귀농", "청년창업농", "청년 귀농 지원"],
 };
 
 export default function YouthPage() {
@@ -35,6 +37,7 @@ export default function YouthPage() {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "청년 귀농 현황", href: "/stats/youth" }]} />
       {/* 뒤로가기 */}
       <Link href="/" className={shared.backLink}>
         <Icon icon={ArrowLeft} size="md" />

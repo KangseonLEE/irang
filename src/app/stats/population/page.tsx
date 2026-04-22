@@ -11,6 +11,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import {
   populationData,
   populationSummary,
@@ -26,7 +27,8 @@ import shared from "../stats.module.css";
 export const metadata: Metadata = {
   title: "귀농 인구 통계 — 연도별 귀농·귀촌 현황",
   description:
-    "연도별 귀농·귀촌 인구 추이, 지역별 귀농 인구 분포를 데이터로 확인하세요.",
+    "연도별 귀농·귀촌 인구 추이, 지역별 귀농 인구 분포를 데이터로 확인하세요. 귀농 귀촌 동향과 증감 추이를 차트로 비교할 수 있어요.",
+  keywords: ["귀농 인구", "귀농 통계", "귀촌 인구", "귀농 현황", "귀농 추이"],
 };
 
 export default function PopulationPage() {
@@ -38,6 +40,7 @@ export default function PopulationPage() {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "귀농 인구 통계", href: "/stats/population" }]} />
       {/* 뒤로가기 */}
       <Link href="/" className={shared.backLink}>
         <Icon icon={ArrowLeft} size="md" />

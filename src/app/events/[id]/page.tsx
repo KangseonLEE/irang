@@ -32,9 +32,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const event = await getEventByIdAsync(id);
+  if (!event) return { title: "행사 상세" };
+
   return {
-    title: event ? event.title : "행사 상세",
-    description: event?.description.slice(0, 160),
+    title: `${event.title} — ${event.type} | ${event.region}`,
+    description: `${event.region}에서 열리는 ${event.type} "${event.title}". ${event.description.slice(0, 120)}`,
+    keywords: [`${event.region} 귀농 체험`, `귀농 ${event.type}`, "귀농 행사", "농촌 체험"],
   };
 }
 

@@ -8,9 +8,10 @@ import { CentersSearch } from "./centers-search";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "지자체 귀농지원센터 | 이랑",
+  title: "귀농귀촌지원센터 전국 안내",
   description:
-    "광역 9개 시·도 + 전국 시·군 귀농귀촌지원센터 공식 안내를 한 곳에서.",
+    "광역 9개 시·도와 전국 시·군 귀농귀촌지원센터 연락처, 운영시간을 한곳에서 확인하세요. 귀농 상담 예약에 참고하세요.",
+  keywords: ["귀농지원센터", "귀농상담", "귀농귀촌지원센터", "귀농 문의"],
 };
 
 export default function CentersHubPage() {
