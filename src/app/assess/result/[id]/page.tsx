@@ -162,13 +162,13 @@ export default async function AssessResultPage({ params }: PageProps) {
         </div>
       </div>
 
-      <ReferenceNotice text="추천 결과는 공공데이터 기반 참고 가이드예요. 최종 결정은 현지 방문과 전문가 상담을 권장해요." />
+      <ReferenceNotice text="유형 분류와 추천 정보는 공공데이터 기반 참고 가이드예요. 최종 결정은 현지 방문과 전문가 상담을 권장해요." />
 
       {/* 추천 지역 */}
       <section className={s.resultSection}>
         <h2 className={s.resultSectionTitle}>
           <MapPin size={18} />
-          추천 지역 Top 3
+          {farmType.label}에 어울리는 지역
         </h2>
         <div className={s.resultCards}>
           {topRegions.map((r, i) => (
@@ -197,7 +197,7 @@ export default async function AssessResultPage({ params }: PageProps) {
         <section className={s.resultSection}>
           <h2 className={s.resultSectionTitle}>
             <Sprout size={18} />
-            추천 작물
+            {farmType.label}에 적합한 작물
           </h2>
           <div className={s.cropCards}>
             {topCrops.map((crop) => (

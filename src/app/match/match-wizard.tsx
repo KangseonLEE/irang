@@ -195,6 +195,8 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
       farmTypeId: ft.id,
       farmTypeLabel: ft.label,
       topRegions: provinces.slice(0, 3).map((p) => p.province.shortName),
+      topRegionIds: provinces.slice(0, 3).map((p) => p.province.id),
+      topCropIds: crops.slice(0, 4).map((c) => c.crop.id),
     });
 
     // Supabase 저장 (fire-and-forget, 실패해도 결과는 표시)

@@ -28,6 +28,16 @@ import {
   Briefcase,
   Tent,
   Warehouse,
+  Wallet,
+  PiggyBank,
+  Banknote,
+  TrendingUp,
+  Baby,
+  UserCheck,
+  HeartHandshake,
+  CalendarClock,
+  Timer,
+  Hourglass,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 
@@ -79,7 +89,7 @@ export const QUESTIONS: Question[] = [
   {
     id: "priority",
     title: "가장 중요하게 생각하는 것은?",
-    subtitle: "우선순위에 따라 추천 지역이 달라집니다",
+    subtitle: "우선순위에 따라 추천 지역이 달라져요",
     multiple: true,
     options: [
       {
@@ -168,7 +178,7 @@ export const QUESTIONS: Question[] = [
   {
     id: "experience",
     title: "농업 경험이 있으신가요?",
-    subtitle: "경험 수준에 따라 적합한 작물 난이도가 달라집니다",
+    subtitle: "경험 수준에 따라 적합한 작물 난이도가 달라져요",
     options: [
       {
         id: "none",
@@ -191,9 +201,96 @@ export const QUESTIONS: Question[] = [
     ],
   },
   {
+    id: "budget",
+    title: "초기 투자 예산은 어느 정도인가요?",
+    subtitle: "예산에 따라 적합한 영농 규모와 작물이 달라져요",
+    options: [
+      {
+        id: "under-30m",
+        label: "3천만 원 이하",
+        icon: Wallet,
+        description: "소규모 텃밭·시설 없이 시작",
+      },
+      {
+        id: "30m-100m",
+        label: "3천만~1억 원",
+        icon: PiggyBank,
+        description: "소규모 시설·농기계 기본 확보",
+      },
+      {
+        id: "100m-300m",
+        label: "1억~3억 원",
+        icon: Banknote,
+        description: "중규모 농지+시설 투자 가능",
+      },
+      {
+        id: "over-300m",
+        label: "3억 원 이상",
+        icon: TrendingUp,
+        description: "대규모 시설원예·스마트팜 투자",
+      },
+    ],
+  },
+  {
+    id: "household",
+    title: "함께 이주하는 가족 구성은?",
+    subtitle: "가족 상황에 따라 필요한 인프라가 달라져요",
+    options: [
+      {
+        id: "solo",
+        label: "혼자",
+        icon: UserCheck,
+        description: "1인 가구로 이주 계획",
+      },
+      {
+        id: "couple",
+        label: "부부",
+        icon: HeartHandshake,
+        description: "배우자와 함께 이주",
+      },
+      {
+        id: "family-kids",
+        label: "자녀 동반 가족",
+        icon: Baby,
+        description: "학교·돌봄 인프라가 중요",
+      },
+      {
+        id: "family-parents",
+        label: "부모님 동반",
+        icon: Users,
+        description: "의료·복지 접근성이 중요",
+      },
+    ],
+  },
+  {
+    id: "timeline",
+    title: "언제쯤 귀농을 시작할 계획인가요?",
+    subtitle: "시기에 따라 준비 전략이 달라져요",
+    options: [
+      {
+        id: "within-1y",
+        label: "1년 이내",
+        icon: Timer,
+        description: "당장 실행 가능한 계획이 필요",
+      },
+      {
+        id: "1-3y",
+        label: "1~3년 후",
+        icon: CalendarClock,
+        description: "교육과 체험을 병행하며 준비",
+      },
+      {
+        id: "over-3y",
+        label: "3년 이후",
+        icon: Hourglass,
+        description: "장기적으로 정보 수집 중",
+      },
+    ],
+  },
+  {
     id: "income-goal",
     title: "귀농 후 주된 소득원은 무엇이면 좋겠어요?",
-    subtitle: "소득 계획에 따라 추천 트랙이 달라집니다",
+    subtitle: "소득 계획에 따라 추천 트랙이 달라져요",
     options: [
       {
         id: "farming",

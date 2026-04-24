@@ -18,7 +18,9 @@ export interface AssessmentHistoryItem {
   resultId: string;
   farmTypeId: FarmTypeId;
   farmTypeLabel: string;
-  topRegions: string[];
+  topRegions: string[]; // shortName (display)
+  topRegionIds?: string[]; // province id (lookup)
+  topCropIds?: string[]; // crop id (lookup)
   savedAt: string; // ISO 8601
 }
 

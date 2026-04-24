@@ -70,7 +70,30 @@ export function classifyFarmType(
     if (ans === "experienced") { scores.guinong += 3; scores.cheongnyeon += 2; }
   }
 
-  // ── 신규 질문: 주된 소득원 (핵심 분류 기준) ──
+  // 예산
+  for (const ans of answers.budget || []) {
+    if (ans === "under-30m") { scores.guichon += 2; scores.guisanchon += 1; }
+    if (ans === "30m-100m") { scores.guinong += 2; scores.cheongnyeon += 1; }
+    if (ans === "100m-300m") { scores.guinong += 3; scores.smartfarm += 1; }
+    if (ans === "over-300m") { scores.smartfarm += 4; scores.guinong += 1; }
+  }
+
+  // 가족 구성
+  for (const ans of answers.household || []) {
+    if (ans === "solo") { scores.cheongnyeon += 2; scores.guisanchon += 1; }
+    if (ans === "couple") { scores.guinong += 2; scores.guichon += 1; }
+    if (ans === "family-kids") { scores.guichon += 3; scores.guinong += 1; }
+    if (ans === "family-parents") { scores.guichon += 2; scores.guinong += 1; }
+  }
+
+  // 타임라인
+  for (const ans of answers.timeline || []) {
+    if (ans === "within-1y") { scores.guinong += 2; scores.cheongnyeon += 1; }
+    if (ans === "1-3y") { scores.smartfarm += 1; scores.guinong += 1; }
+    if (ans === "over-3y") { scores.guichon += 2; }
+  }
+
+  // 주된 소득원 (핵심 분류 기준)
   for (const ans of answers["income-goal"] || []) {
     if (ans === "farming") { scores.guinong += 5; scores.cheongnyeon += 2; }
     if (ans === "remote-work") { scores.guichon += 6; }
@@ -372,6 +395,35 @@ export function scoreProvinces(
         scores[pid].score += pts;
         if (experience === "none" && pts >= 5) {
           scores[pid].reasons.add("귀농 지원 체계 우수");
+        }
+      }
+    }
+  }
+
+  // 가족 구성 → 지역 인프라 가산
+  const householdAnswers = answers.household || [];
+  for (const ans of householdAnswers) {
+    if (ans === "family-kids") {
+      // 교육 인프라 우수 지역 가산
+      const eduRegions: Record<string, number> = {
+        gyeonggi: 5, chungnam: 4, gyeongnam: 4, jeonbuk: 3, chungbuk: 3,
+      };
+      for (const [pid, pts] of Object.entries(eduRegions)) {
+        if (scores[pid]) {
+          scores[pid].score += pts;
+          if (pts >= 4) scores[pid].reasons.add("교육 인프라 우수");
+        }
+      }
+    }
+    if (ans === "family-parents") {
+      // 의료 인프라 우수 지역 가산
+      const medRegions: Record<string, number> = {
+        gyeonggi: 5, gyeongnam: 4, chungnam: 4, jeonnam: 3, gyeongbuk: 3,
+      };
+      for (const [pid, pts] of Object.entries(medRegions)) {
+        if (scores[pid]) {
+          scores[pid].score += pts;
+          if (pts >= 4) scores[pid].reasons.add("의료 접근성 양호");
         }
       }
     }

@@ -16,12 +16,14 @@ import {
   Calculator,
 } from "lucide-react";
 import { MatchWizard } from "./match-wizard";
+import { HistoryResult } from "./history-result";
 import { AssessmentWizard } from "../assess/assessment-wizard";
 import { useAssessmentHistory } from "@/hooks/use-assessment-history";
+import type { AssessmentHistoryItem } from "@/hooks/use-assessment-history";
 import { FARM_TYPES, migrateFarmTypeId } from "@/lib/data/match-questions";
 import s from "./service-gateway.module.css";
 
-type Mode = "select" | "match" | "assess";
+type Mode = "select" | "match" | "assess" | "history-result";
 
 /** 날짜를 "4월 15일" 형태로 포맷 */
 function formatDate(iso: string): string {
@@ -41,6 +43,7 @@ export function ServiceGateway() {
       : "select";
 
   const [mode, setMode] = useState<Mode>(initialMode);
+  const [viewingItem, setViewingItem] = useState<AssessmentHistoryItem | null>(null);
 
   // 모드 전환 시 스크롤을 최상단으로 이동
   // (pathname이 /match로 동일하므로 ScrollToTop이 감지하지 못함)
@@ -48,8 +51,24 @@ export function ServiceGateway() {
     window.scrollTo(0, 0);
   }, [mode]);
 
+  /** 히스토리 항목 클릭 — localStorage 데이터로 결과 인라인 표시 */
+  const handleHistoryClick = (item: AssessmentHistoryItem) => {
+    setViewingItem(item);
+    setMode("history-result");
+  };
+
   if (mode === "match") return <MatchWizard onBack={() => setMode("select")} />;
   if (mode === "assess") return <AssessmentWizard onBack={() => setMode("select")} />;
+  if (mode === "history-result" && viewingItem) {
+    return (
+      <HistoryResult
+        farmTypeId={viewingItem.farmTypeId}
+        regionIds={viewingItem.topRegionIds ?? []}
+        cropIds={viewingItem.topCropIds ?? []}
+        onBack={() => { setViewingItem(null); setMode("select"); }}
+      />
+    );
+  }
 
   /* ═══ 서비스 선택 화면 ═══ */
   return (
@@ -70,7 +89,7 @@ export function ServiceGateway() {
         <div className={s.infoBannerBody}>
           <ul className={s.infoBannerList}>
             <li>나의 귀농 적합도와 부족한 부분을 분석해 드리는 적합도 진단이에요.</li>
-            <li>진단 결과를 바탕으로 맞춤 지역·작물 추천까지 이어져요.</li>
+            <li>진단 결과를 바탕으로 나에게 맞는 귀농 유형과 지원 트랙을 안내해요.</li>
           </ul>
         </div>
       </aside>
@@ -97,9 +116,10 @@ export function ServiceGateway() {
               const migratedId = migrateFarmTypeId(item.farmTypeId);
               const ft = FARM_TYPES.find((t) => t.id === migratedId);
               return (
-                <Link
+                <button
                   key={item.resultId}
-                  href={`/assess/result/${item.resultId}`}
+                  type="button"
+                  onClick={() => handleHistoryClick(item)}
                   className={s.historyItem}
                 >
                   <span className={s.historyEmoji}>{ft?.emoji ?? "🌾"}</span>
@@ -113,7 +133,7 @@ export function ServiceGateway() {
                     </span>
                   </div>
                   <ChevronRight size={16} className={s.historyArrow} />
-                </Link>
+                </button>
               );
             })}
           </div>
@@ -161,7 +181,7 @@ export function ServiceGateway() {
           </div>
         </button>
 
-        {/* 맞춤 지역·작물 추천 */}
+        {/* 귀농 유형 진단 */}
         <button
           type="button"
           className={s.card}
@@ -171,19 +191,19 @@ export function ServiceGateway() {
             <MapPin size={28} />
           </div>
           <div className={s.cardBody}>
-            <h2 className={s.cardTitle}>맞춤 지역·작물 추천</h2>
+            <h2 className={s.cardTitle}>귀농 유형 진단</h2>
             <p className={s.cardDesc}>
-              기후, 생활환경, 관심 작물 등 7가지 질문에 답하면
-              나에게 딱 맞는 귀농 지역과 작물을 추천해 드립니다.
+              기후, 소득 계획, 생활 환경 등에 답하면
+              나에게 맞는 귀농 유형과 적합한 지역·작물을 알려드려요.
             </p>
             <div className={s.cardMeta}>
               <span className={s.cardMetaItem}>
                 <ListChecks size={14} />
-                7문항
+                10문항
               </span>
               <span className={s.cardMetaItem}>
                 <Clock size={14} />
-                약 2분
+                약 3분
               </span>
             </div>
           </div>

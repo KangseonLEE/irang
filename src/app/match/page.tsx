@@ -6,10 +6,10 @@ import type { FAQPage } from "schema-dts";
 import { ServiceGateway } from "./service-gateway";
 
 export const metadata: Metadata = {
-  title: "귀농 어디가 좋을까 — 맞춤 지역·작물 매칭",
+  title: "나에게 맞는 귀농 유형은? — 귀농 유형 진단",
   description:
-    "내 나이, 예산, 관심 작물에 맞는 귀농 지역을 찾아보세요. 데이터 기반 맞춤 추천으로 귀농 후보지를 비교할 수 있어요.",
-  keywords: ["귀농 지역 추천", "귀농 어디", "귀농 매칭", "귀농 적합도", "귀농 테스트"],
+    "귀농형, 귀촌형, 스마트팜형… 나에게 맞는 귀농 유형을 찾아보세요. 유형에 따라 적합한 지역, 작물, 지원사업까지 한눈에 확인할 수 있어요.",
+  keywords: ["귀농 유형", "귀농 진단", "귀농 테스트", "귀촌 귀산촌 차이", "귀농 적합도"],
 };
 
 export default function MatchPage() {
