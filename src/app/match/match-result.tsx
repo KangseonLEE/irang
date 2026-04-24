@@ -19,7 +19,7 @@ import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { ShareButtons } from "@/components/share/share-buttons";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import type { FarmType } from "@/lib/data/match-questions";
-/* ResultSaveCta removed — replaced by ShareButtons in v2.0 */
+import { PersonalizedRoadmap } from "@/components/match/personalized-roadmap";
 import type { ScoredProvince, RecommendedCrop } from "@/lib/match-scoring";
 import s from "./match-wizard.module.css";
 
@@ -167,6 +167,12 @@ export function MatchResult({
       )}
 
       {/* 공유 버튼 */}
+      {/* 맞춤 로드맵 */}
+      <PersonalizedRoadmap
+        farmTypeId={farmType.id}
+        farmTypeLabel={farmType.label}
+      />
+
       {resultId && saveStatus === "saved" && (
         <ShareButtons resultId={resultId} farmTypeLabel={farmType.label} />
       )}

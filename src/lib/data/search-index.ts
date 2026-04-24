@@ -26,6 +26,7 @@ import { TRACKS } from "./track-compare";
 import { LAND_TYPES, ZONING_TYPES, EXTERNAL_LAND_SERVICES } from "./land";
 import { PLAN_STEPS } from "./plan";
 import { GUIDE_STEP_SUMMARIES } from "./guide-steps";
+import { SEARCH_FAQS } from "./search-faq";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -855,15 +856,19 @@ export function searchAll(query: string): SearchItem[] {
   const terms = q.split(/\s+/).filter(Boolean);
   if (terms.length === 0) return [];
 
+  // FAQ 매칭 — 질문형 쿼리를 FAQ 패턴과 비교하여 상위에 삽입
+  const faqResults = matchFaqs(q);
+
   const index = getSearchIndex();
 
   if (terms.length === 1) {
     const term = terms[0];
-    return index
+    const results = index
       .map((item) => ({ item, score: scoreItem(item, term) }))
       .filter(({ score }) => score > 0)
       .sort((a, b) => b.score - a.score)
       .map(({ item }) => item);
+    return [...faqResults, ...results];
   }
 
   // 복합 쿼리: OR 매칭 + 관련도 합산 정렬
@@ -915,7 +920,7 @@ export function searchAll(query: string): SearchItem[] {
     }
   }
 
-  return scored;
+  return [...faqResults, ...scored];
 }
 
 // ---------------------------------------------------------------------------
@@ -1016,4 +1021,31 @@ export function detectIntent(query: string): SearchIntent {
   }
 
   return { type: "general" };
+}
+
+// ---------------------------------------------------------------------------
+// FAQ 매칭 — 자연어 질문형 쿼리 → 페이지 매핑
+// ---------------------------------------------------------------------------
+
+function matchFaqs(query: string): SearchItem[] {
+  const q = query.toLowerCase();
+  const results: SearchItem[] = [];
+
+  for (const faq of SEARCH_FAQS) {
+    const matched = faq.patterns.some((p) => q.includes(p.toLowerCase()))
+      || faq.keywords.some((kw) => q.includes(kw.toLowerCase()));
+    if (matched) {
+      results.push({
+        type: "guide",
+        id: `faq-${faq.href}`,
+        title: faq.title,
+        subtitle: faq.description,
+        href: faq.href,
+        keywords: faq.keywords,
+        icon: "\u{1F4A1}", // 💡
+      });
+    }
+  }
+
+  return results.slice(0, 3); // FAQ 결과는 최대 3개
 }

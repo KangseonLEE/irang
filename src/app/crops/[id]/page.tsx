@@ -54,6 +54,7 @@ import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { YouthCaseCards } from "@/components/youth-cases/youth-case-cards";
 import { fetchYouthCasesForCrop } from "@/lib/api/rda-youth";
+import { MonthlyTaskCalendar } from "@/components/crops/monthly-task-calendar";
 import { AnchorTabNav } from "./anchor-tab-nav";
 import s from "./page.module.css";
 
@@ -195,6 +196,7 @@ export default async function CropDetailPage({
     ...(detail.prosCons ? [{ id: "pros-cons", label: "장단점" }] : []),
     { id: "cultivation", label: "재배환경" },
     ...(detail.cultivationSteps?.length ? [{ id: "grow-steps", label: "재배방법" }] : []),
+    { id: "monthly-calendar", label: "월별작업" },
     { id: "income", label: "수익정보" },
     { id: "region", label: "재배지역" },
     ...(youthCases.length > 0 ? [{ id: "youth-cases", label: "청년농 사례" }] : []),
@@ -361,6 +363,9 @@ export default async function CropDetailPage({
           {detail.cultivationSteps && detail.cultivationSteps.length > 0 && (
             <GrowStepsSection steps={detail.cultivationSteps} />
           )}
+
+          {/* 월별 작업 캘린더 */}
+          <MonthlyTaskCalendar cropId={id} />
 
           {/* 수익정보 */}
           <IncomeSection income={incomeData} />
