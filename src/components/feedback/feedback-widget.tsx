@@ -5,56 +5,10 @@ import { usePathname } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { getSupabase } from "@/lib/supabase";
+import { getPageName } from "@/lib/page-names";
 import s from "./feedback-widget.module.css";
 
 type Rating = "good" | "neutral" | "bad";
-
-/** 경로를 읽기 좋은 페이지 이름으로 변환 */
-const PAGE_NAMES: Record<string, string> = {
-  "/": "메인",
-  "/regions": "지역 정보",
-  "/crops": "작물 정보",
-  "/education": "귀농 교육",
-  "/events": "체험 행사",
-  "/programs": "지원사업",
-  "/interviews": "귀농인 인터뷰",
-  "/stats/population": "인구 통계",
-  "/stats/satisfaction": "만족도 통계",
-  "/stats/youth": "청년 통계",
-  "/costs": "비용 가이드",
-  "/assess": "유형 진단",
-  "/match": "매칭",
-  "/search": "통합 검색",
-  "/glossary": "용어 사전",
-  "/more": "더보기",
-  "/guide": "가이드",
-};
-
-/** 영문 slug → 한글 이름 */
-const SLUG_NAMES: Record<string, string> = {
-  // 시도
-  seoul: "서울", incheon: "인천", gyeonggi: "경기", gangwon: "강원",
-  chungbuk: "충북", sejong: "세종", daejeon: "대전", chungnam: "충남",
-  jeonbuk: "전북", gwangju: "광주", jeonnam: "전남", busan: "부산",
-  daegu: "대구", ulsan: "울산", gyeongbuk: "경북", gyeongnam: "경남",
-  jeju: "제주",
-};
-
-function slugToKorean(slug: string): string {
-  return SLUG_NAMES[slug] ?? slug;
-}
-
-function getPageName(path: string): string {
-  if (PAGE_NAMES[path]) return PAGE_NAMES[path];
-  for (const [prefix, name] of Object.entries(PAGE_NAMES)) {
-    if (prefix !== "/" && path.startsWith(prefix + "/")) {
-      const segments = path.slice(prefix.length + 1).split("/");
-      const translated = segments.map(slugToKorean).join(" > ");
-      return `${name} > ${translated}`;
-    }
-  }
-  return path;
-}
 
 interface RatingOption {
   value: Rating;
