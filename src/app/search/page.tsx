@@ -9,6 +9,7 @@ import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchAll, hasExactMatch, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import { logSearch } from "@/lib/supabase";
+import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
 import s from "./page.module.css";
 
@@ -280,15 +281,12 @@ function SearchPageContent() {
               연관 결과를 표시하고 있어요. 원하는 정보가 없다면 추가를 요청해 주세요.
             </p>
           </div>
-          <a
-            href={`https://tally.so/r/9qv8lp?keyword=${encodeURIComponent(query.trim())}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <RequestButton
+            keyword={query.trim()}
+            pageName="통합 검색"
+            label="항목 추가 요청"
             className={s.noExactMatchBtn}
-          >
-            <MessageSquarePlus size={16} />
-            항목 추가 요청
-          </a>
+          />
         </div>
       )}
 
@@ -312,15 +310,12 @@ function SearchPageContent() {
               <FileText size={16} /> 지원사업
             </Link>
           </div>
-          <a
-            href="https://tally.so/r/9qv8lp"
-            target="_blank"
-            rel="noopener noreferrer"
+          <RequestButton
+            keyword={query.trim()}
+            pageName="통합 검색"
+            label="찾는 정보가 없나요? 정보 추가 요청하기"
             className={s.requestLink}
-          >
-            <MessageSquarePlus size={16} />
-            찾는 정보가 없나요? 정보 추가 요청하기
-          </a>
+          />
         </div>
       )}
 

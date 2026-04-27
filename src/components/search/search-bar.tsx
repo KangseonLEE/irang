@@ -19,6 +19,7 @@ import { searchItems, hasExactMatch, suggestQueries, type SearchItem } from "@/l
 import { POPULAR_KEYWORDS } from "./popular-keywords";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
+import { RequestButton } from "@/components/feedback/request-modal";
 import s from "./search-bar.module.css";
 
 // ---------------------------------------------------------------------------
@@ -836,15 +837,13 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
               <p className={s.noResultText}>
                 &ldquo;{query}&rdquo;에 대한 검색 결과가 없습니다
               </p>
-              <a
-                href="https://tally.so/r/9qv8lp"
-                target="_blank"
-                rel="noopener noreferrer"
+              <RequestButton
+                keyword={query.trim()}
+                pageName="통합 검색"
+                label="정보 추가 요청하기"
                 className={s.requestLink}
-              >
-                <MessageSquarePlus size={14} />
-                정보 추가 요청하기
-              </a>
+                iconSize={14}
+              />
             </div>
           )}
 
@@ -930,15 +929,13 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
               <p className={s.noExactMatchText}>
                 &ldquo;{query}&rdquo;에 정확히 일치하는 항목이 없어요
               </p>
-              <a
-                href={`https://tally.so/r/9qv8lp?keyword=${encodeURIComponent(query.trim())}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <RequestButton
+                keyword={query.trim()}
+                pageName="통합 검색"
+                label="항목 추가 요청하기"
                 className={s.noExactMatchBtn}
-              >
-                <MessageSquarePlus size={14} />
-                항목 추가 요청하기
-              </a>
+                iconSize={14}
+              />
             </div>
           )}
 

@@ -1255,6 +1255,11 @@
   width: 100%;
   text-decoration: none;
   margin-top: 2px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
 }
 
 .ctaSurveyInner {

@@ -19,6 +19,7 @@ import { GovSupportGuide } from "@/components/landing/gov-support-guide";
 import { NewsTabsV2Loader } from "@/components/landing/news-tabs-v2-loader";
 import { interviews } from "@/lib/data/landing";
 import { PROGRAMS } from "@/lib/data/programs";
+import { SurveyCta } from "./survey-cta";
 import s from "./page.module.css";
 
 /* ── 마퀴 키워드 (2줄 엇갈림) ── */
@@ -195,22 +196,7 @@ export default function HomePage() {
               </p>
 
               {/* 설문 — 타이틀 블록 안 */}
-              <a
-                href={process.env.NEXT_PUBLIC_FEEDBACK_URL || "https://tally.so/r/7Rv4aR"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={s.ctaSurvey}
-              >
-                <span className={s.ctaSurveyInner}>
-                  <span className={s.ctaSurveyText}>
-                    <span className={s.ctaSurveyLabel}>더 나은 이랑을 만들어 주세요</span>
-                    <span className={s.ctaSurveyDesc}>30초면 충분해요</span>
-                  </span>
-                  <span className={s.ctaSurveyArrow}>
-                    <ArrowRight size={14} />
-                  </span>
-                </span>
-              </a>
+              <SurveyCta />
             </div>
 
             {/* 우측 카드 그리드 */}
