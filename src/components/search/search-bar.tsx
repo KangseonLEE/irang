@@ -15,7 +15,8 @@ import Link from "next/link";
 import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ExternalLink } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchItems, hasExactMatch, suggestQueries, type SearchItem } from "@/lib/data/search-index";
+import { searchItems, hasExactMatch, suggestQueries, matchAnswerCard, type SearchItem, type AnswerCard as AnswerCardData } from "@/lib/data/search-index";
+import { AnswerCard } from "./answer-card";
 import { POPULAR_KEYWORDS } from "./popular-keywords";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
@@ -190,6 +191,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchItem[]>([]);
+  const [answerCard, setAnswerCard] = useState<AnswerCardData | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<RecentItem[]>([]);
@@ -346,6 +348,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       setQuery(q);
       const found = searchItems(q);
       setResults(found);
+      setAnswerCard(matchAnswerCard(q));
       setIsOpen(true);
       setFocusedIndex(-1);
       inputRef.current?.focus();
@@ -440,6 +443,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     debounceRef.current = setTimeout(() => {
       const found = searchItems(value);
       setResults(found);
+      setAnswerCard(matchAnswerCard(value));
       setIsOpen(true);
     }, 200);
   }, []);
@@ -473,6 +477,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       setQuery(recentQuery);
       const found = searchItems(recentQuery);
       setResults(found);
+      setAnswerCard(matchAnswerCard(recentQuery));
       setIsOpen(true);
       setFocusedIndex(-1);
     },
@@ -845,6 +850,12 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                 <MessageSquarePlus size={14} />
                 정보 추가 요청하기
               </a>
+            </div>
+          )}
+
+          {answerCard && (
+            <div className={s.dropdownSection}>
+              <AnswerCard data={answerCard} onNavigate={beginNavigation} />
             </div>
           )}
 

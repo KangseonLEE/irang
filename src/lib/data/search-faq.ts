@@ -9,6 +9,13 @@
  * - description: 카피라이팅 원칙 준수 (~세요/~예요 톤)
  */
 
+export interface FaqAction {
+  /** 버튼 라벨 */
+  label: string;
+  /** 이동할 경로 */
+  href: string;
+}
+
 export interface SearchFaq {
   /** 사용자가 입력할 수 있는 질문 패턴들 */
   patterns: string[];
@@ -20,6 +27,10 @@ export interface SearchFaq {
   description: string;
   /** 관련 키워드 (검색 매칭 보조) */
   keywords: string[];
+  /** 자연어 질문에 대한 대화형 응답 (선택) */
+  answer?: string;
+  /** 응답 아래 표시할 행동 유도 버튼 (선택) */
+  actions?: FaqAction[];
 }
 
 export const SEARCH_FAQS: SearchFaq[] = [
@@ -39,6 +50,13 @@ export const SEARCH_FAQS: SearchFaq[] = [
     description:
       "정보 탐색부터 정착까지, 5단계 체크리스트로 정리되어 있어요.",
     keywords: ["귀농", "시작", "준비", "절차", "로드맵", "단계", "처음"],
+    answer:
+      "귀농은 보통 5단계로 준비해요. ①정보 탐색 → ②교육 이수 → ③현장 체험 → ④농지·주거 확보 → ⑤정착 및 영농 시작. 먼저 귀농 교육을 받으면서 체험 행사에 참여해 보는 걸 추천해요.",
+    actions: [
+      { label: "5단계 로드맵 보기", href: "/guide" },
+      { label: "교육 과정 찾기", href: "/education" },
+      { label: "내 유형 진단하기", href: "/match" },
+    ],
   },
   {
     patterns: [
@@ -70,6 +88,13 @@ export const SEARCH_FAQS: SearchFaq[] = [
     description:
       "연령별, 작물별 초기 투자금과 절감 전략을 확인해 보세요.",
     keywords: ["비용", "돈", "자금", "투자금", "예산", "얼마", "초기비용"],
+    answer:
+      "귀농 초기 비용은 평균 2~3억 원 정도 들어요. 농지(임대 or 매입), 시설, 농기계, 생활비가 주요 항목이에요. 다만 정부 지원금을 활용하면 실제 자기 자본은 줄일 수 있어요.",
+    actions: [
+      { label: "비용 시뮬레이터", href: "/costs#simulator" },
+      { label: "지원사업 확인", href: "/programs" },
+      { label: "비용 절감 전략", href: "/costs" },
+    ],
   },
   {
     patterns: [
@@ -113,6 +138,13 @@ export const SEARCH_FAQS: SearchFaq[] = [
     description:
       "10문항으로 나에게 맞는 작물과 지역을 찾아 보세요.",
     keywords: ["작물", "추천", "적합", "진단", "맞는"],
+    answer:
+      "작물은 기후, 경험, 투자 가능 금액에 따라 달라져요. 초보라면 고추·감자·배추처럼 난이도 낮은 작물부터 시작하는 게 좋아요. 10문항 진단으로 나에게 맞는 작물을 찾아볼 수 있어요.",
+    actions: [
+      { label: "유형 진단 시작", href: "/match" },
+      { label: "작물 정보 비교", href: "/crops" },
+      { label: "초보 추천 작물", href: "/guides/beginner-crops" },
+    ],
   },
   {
     patterns: [
@@ -209,6 +241,13 @@ export const SEARCH_FAQS: SearchFaq[] = [
     description:
       "전국 시도별 기후, 인구, 의료, 교육 조건을 비교해 보세요.",
     keywords: ["지역", "어디", "추천", "적합", "선택"],
+    answer:
+      "귀농 지역은 기후, 작물 적합성, 지원 혜택, 생활 인프라를 종합해서 선택해야 해요. 전남·경북은 지원 혜택이 풍부하고, 경기·충남은 도시 접근성이 좋아요. 지역 비교 기능으로 최대 3곳을 나란히 비교해 보세요.",
+    actions: [
+      { label: "지역 비교하기", href: "/regions/compare" },
+      { label: "유형별 맞춤 지역", href: "/match" },
+      { label: "전국 지도 보기", href: "/regions" },
+    ],
   },
   {
     patterns: [
@@ -277,6 +316,13 @@ export const SEARCH_FAQS: SearchFaq[] = [
     description:
       "지역별, 유형별 귀농 지원사업을 한눈에 확인해 보세요.",
     keywords: ["지원금", "보조금", "지원사업", "혜택", "정부지원"],
+    answer:
+      "귀농 지원금은 크게 정착지원금, 영농정착금, 주택 수리비, 농지 임대 지원이 있어요. 청년(만 39세 이하)은 월 최대 110만 원까지 지원받을 수 있어요. 지역마다 혜택이 다르니 꼭 비교해 보세요.",
+    actions: [
+      { label: "지원사업 전체 보기", href: "/programs" },
+      { label: "신청 절차 안내", href: "/programs/roadmap" },
+      { label: "내 유형에 맞는 지원", href: "/match" },
+    ],
   },
   {
     patterns: [
@@ -333,6 +379,13 @@ export const SEARCH_FAQS: SearchFaq[] = [
     description:
       "온·오프라인 교육 과정을 지역별, 수준별로 찾아 보세요.",
     keywords: ["교육", "배우기", "과정", "프로그램", "학습"],
+    answer:
+      "귀농 교육은 농림축산식품부, 각 시·도 농업기술센터, 귀농귀촌지원센터에서 무료로 운영해요. 온라인 기초과정(40시간)부터 현장 실습까지 단계별로 들을 수 있어요.",
+    actions: [
+      { label: "교육 과정 검색", href: "/education" },
+      { label: "체험 행사 보기", href: "/events" },
+      { label: "지원센터 찾기", href: "/regions/centers" },
+    ],
   },
   {
     patterns: [
@@ -406,6 +459,13 @@ export const SEARCH_FAQS: SearchFaq[] = [
     description:
       "10년간 귀농·귀촌 인구 추이와 원인을 분석했어요.",
     keywords: ["인구", "통계", "추이", "현황", "몇명"],
+    answer:
+      "최근 연간 약 1.2만 명이 귀농하고 있어요. 2020년 이후 귀농 인구는 소폭 감소 추세지만, 30~40대 청년 귀농 비율은 오히려 증가하고 있어요.",
+    actions: [
+      { label: "인구 통계 보기", href: "/stats/population" },
+      { label: "청년 귀농 현황", href: "/stats/youth" },
+      { label: "만족도 통계", href: "/stats/satisfaction" },
+    ],
   },
   {
     patterns: [
@@ -437,6 +497,13 @@ export const SEARCH_FAQS: SearchFaq[] = [
     description:
       "농지 유형, 용도지역, 매물 탐색 방법을 정리했어요.",
     keywords: ["농지", "땅", "토지", "구입", "매물", "구매"],
+    answer:
+      "농지는 농지은행(임대)이나 공인중개사를 통해 구할 수 있어요. 처음엔 임대로 시작하는 게 안전해요. 농지원부 작성, 농업경영체 등록도 잊지 마세요.",
+    actions: [
+      { label: "농지 가이드 보기", href: "/guide#step-4" },
+      { label: "농지은행 안내", href: "/programs/roadmap" },
+      { label: "비용 계산해 보기", href: "/costs#simulator" },
+    ],
   },
   {
     patterns: [
@@ -469,6 +536,13 @@ export const SEARCH_FAQS: SearchFaq[] = [
     description:
       "실패에서 배우는 핵심 포인트를 정리했어요.",
     keywords: ["실패", "주의", "실수", "사례", "위험"],
+    answer:
+      "귀농 실패의 3대 원인은 ①준비 부족(현장 경험 없이 바로 시작), ②자금 과다 투입(처음부터 대규모), ③판로 미확보예요. 소규모로 시작하고, 최소 1년은 교육·체험을 먼저 해보는 게 중요해요.",
+    actions: [
+      { label: "실패 사례 읽기", href: "/guides/failure-cases" },
+      { label: "선배 경험담", href: "/interviews" },
+      { label: "귀농 교육 찾기", href: "/education" },
+    ],
   },
 
   // ──────────────────────────────────────────────────────────

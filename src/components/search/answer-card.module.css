@@ -1,0 +1,75 @@
+/* AnswerCard — 자연어 검색 답변 카드 */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  letter-spacing: 0.02em;
+}
+
+.headerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.answer {
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: var(--lh-relaxed, 1.7);
+  color: var(--foreground, #111827);
+  margin: 0;
+  word-break: keep-all;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  font-size: var(--fs-caption, 0.75rem);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: var(--card, #fff);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 25%, transparent);
+  border-radius: 9999px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+@media (hover: hover) {
+  .action:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+    border-color: var(--primary, #1b6b5a);
+  }
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}

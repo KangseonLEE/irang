@@ -26,7 +26,7 @@ import { TRACKS } from "./track-compare";
 import { LAND_TYPES, ZONING_TYPES, EXTERNAL_LAND_SERVICES } from "./land";
 import { PLAN_STEPS } from "./plan";
 import { GUIDE_STEP_SUMMARIES } from "./guide-steps";
-import { SEARCH_FAQS } from "./search-faq";
+import { SEARCH_FAQS, type FaqAction } from "./search-faq";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -1048,4 +1048,38 @@ function matchFaqs(query: string): SearchItem[] {
   }
 
   return results.slice(0, 3); // FAQ 결과는 최대 3개
+}
+
+// ---------------------------------------------------------------------------
+// 답변 카드 — 자연어 질문에 대한 대화형 응답
+// ---------------------------------------------------------------------------
+
+export interface AnswerCard {
+  answer: string;
+  actions: FaqAction[];
+  title: string;
+}
+
+/** 자연어 질문에 매칭되는 답변 카드를 반환. 없으면 null. */
+export function matchAnswerCard(query: string): AnswerCard | null {
+  if (!query || query.trim().length < 3) return null;
+
+  const q = query.toLowerCase();
+
+  for (const faq of SEARCH_FAQS) {
+    if (!faq.answer || !faq.actions) continue;
+
+    const matched = faq.patterns.some((p) => q.includes(p.toLowerCase()))
+      || faq.keywords.some((kw) => q.includes(kw.toLowerCase()));
+
+    if (matched) {
+      return {
+        answer: faq.answer,
+        actions: faq.actions,
+        title: faq.title,
+      };
+    }
+  }
+
+  return null;
 }
