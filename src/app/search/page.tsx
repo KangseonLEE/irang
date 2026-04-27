@@ -6,10 +6,9 @@ import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, MessageSquarePlus, Building2, Users, BookMarked, LandPlot, ExternalLink } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchAll, hasExactMatch, POPULAR_TAGS, matchAnswerCard, type SearchItem, type AnswerCard as AnswerCardData } from "@/lib/data/search-index";
+import { searchAll, hasExactMatch, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import { logSearch } from "@/lib/supabase";
-import { AnswerCard } from "@/components/search/answer-card";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
 import s from "./page.module.css";
 
@@ -60,7 +59,6 @@ function SearchPageContent() {
   const query = searchParams.get("q") ?? "";
 
   const results = useMemo(() => searchAll(query), [query]);
-  const answerCard = useMemo(() => matchAnswerCard(query), [query]);
 
   // 관련도 기반 동적 섹션 순서 — searchAll 결과 순서에서 도출
   const grouped = useMemo(() => {
@@ -200,13 +198,6 @@ function SearchPageContent() {
               </Link>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* AI 답변 카드 */}
-      {query && answerCard && (
-        <div className={s.sections}>
-          <AnswerCard data={answerCard} />
         </div>
       )}
 
