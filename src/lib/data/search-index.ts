@@ -9,6 +9,7 @@
  *   첫 검색 호출 시에만 데이터 참조 → 모듈 그래프는 유지하되 실행 비용 절감
  */
 
+import { getChosung, isChosungQuery, matchChosung } from "../chosung";
 import { STATIONS } from "./stations";
 import { SIGUNGUS, getSigunguById } from "./sigungus";
 import { GUS } from "./gus";
@@ -745,6 +746,12 @@ const TYPE_WEIGHT: Record<SearchItemType, number> = {
  * 타입 가중치: guide/region 타입에 약간의 부스트
  */
 function scoreItem(item: SearchItem, term: string): number {
+  // ── 초성 검색 분기 ──
+  if (isChosungQuery(term)) {
+    const score = scoreItemChosung(item, term);
+    return Math.round(score * (TYPE_WEIGHT[item.type] ?? 1.0));
+  }
+
   // 동의어 확장 + 형태소 처리
   const stemmed = removeKoreanSuffix(term);
   const expandedTerms = new Set([
@@ -761,6 +768,23 @@ function scoreItem(item: SearchItem, term: string): number {
 
   // 타입 가중치 적용
   return Math.round(bestScore * (TYPE_WEIGHT[item.type] ?? 1.0));
+}
+
+/**
+ * 초성 검색 전용 스코어링.
+ * 제목 초성 완전 일치 → 100, 시작 일치 → 80, 포함 → 60,
+ * 키워드 초성 매칭 → 35, 부제목 초성 매칭 → 15.
+ */
+function scoreItemChosung(item: SearchItem, chosungQuery: string): number {
+  const titleChosung = getChosung(item.title);
+
+  if (titleChosung === chosungQuery) return 100;
+  if (titleChosung.startsWith(chosungQuery)) return 80;
+  if (titleChosung.includes(chosungQuery)) return 60;
+  if (item.keywords.some((kw) => matchChosung(kw, chosungQuery))) return 35;
+  if (matchChosung(item.subtitle, chosungQuery)) return 15;
+
+  return 0;
 }
 
 /** 순수 매칭 점수 (가중치 없이) */

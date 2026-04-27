@@ -65,7 +65,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     target: "서울시민 (5년 이내 수강자 제외)",
     cost: "무료",
     description:
-      "전원생활 준비 및 성공사례, 채소·과수·화훼 기초영농기술, 농기계 안전사용법을 배우는 서울시 공식 귀촌 준비 교육 과정입니다. 기별 40명 선착순 모집.",
+      "전원생활 준비 및 성공사례, 채소·과수·화훼 기초영농기술, 농기계 안전사용법을 배우는 서울시 공식 귀촌 준비 교육 과정이에요. 기별 40명 선착순 모집.",
     capacity: 40,
     applicationStart: "2026-02-10",
     applicationEnd: "2026-04-17",
@@ -84,7 +84,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     target: "서울 거주자 (주민등록상)",
     cost: "무료",
     description:
-      "식물공장과 아쿠아포닉스, 디지털농업 동향 및 사례, 강남농협 현장견학, 스마트팜 원예작물 재배생리, 온실 구축 및 운영 기초가이드를 배우는 실용 교육입니다.",
+      "식물공장과 아쿠아포닉스, 디지털농업 동향 및 사례, 강남농협 현장견학, 스마트팜 원예작물 재배생리, 온실 구축 및 운영 기초가이드를 배우는 실용 교육이에요.",
     capacity: 45,
     applicationStart: "2026-04-06",
     applicationEnd: "2026-04-10",
@@ -103,7 +103,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     target: "화성시 귀농귀촌 희망 시민 및 직장인",
     cost: "무료",
     description:
-      "기초반은 매주 수·목 오후 4시간씩 총 15회, 주말반은 매주 토요일 7시간씩 총 5회로 직장인도 참여할 수 있는 귀농귀촌 교육입니다. 기초반 50명, 주말반 70명 모집.",
+      "기초반은 매주 수·목 오후 4시간씩 총 15회, 주말반은 매주 토요일 7시간씩 총 5회로 직장인도 참여할 수 있는 귀농귀촌 교육이에요. 기초반 50명, 주말반 70명 모집.",
     capacity: 120,
     applicationStart: "2026-02-02",
     applicationEnd: "2026-02-20",
@@ -122,7 +122,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     target: "서귀포시 귀농귀촌 희망자",
     cost: "무료",
     description:
-      "귀농귀촌 정책사업 안내, 귀농귀촌 성공사례 공유, 제주 농업 분야 이해를 중심으로 한 기본 교육입니다. 제주특별자치도농업기술원 미래농업육성관에서 진행됩니다.",
+      "귀농귀촌 정책사업 안내, 귀농귀촌 성공사례 공유, 제주 농업 분야 이해를 중심으로 한 기본 교육이에요. 제주특별자치도농업기술원 미래농업육성관에서 진행돼요.",
     capacity: 80,
     applicationStart: "2026-02-25",
     applicationEnd: "2026-02-27",
@@ -141,7 +141,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     target: "충남도내 청년농업인 또는 충남 전입 예정자 (만 18~44세)",
     cost: "무료 (현장실습 훈련비 월 최대 100만원 별도 지급)",
     description:
-      "스마트팜 기본역량 이론과정(1개월), 활용능력 실습과정(2개월), 현장실습교육(3개월)을 체계적으로 배우는 청년 대상 창업지원 교육입니다.",
+      "스마트팜 기본역량 이론과정(1개월), 활용능력 실습과정(2개월), 현장실습교육(3개월)을 체계적으로 배우는 청년 대상 창업지원 교육이에요.",
     capacity: 30,
     applicationStart: "2025-12-29",
     applicationEnd: "2026-01-02",
@@ -160,7 +160,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     target: "귀농귀촌 희망자 및 농업인 누구나",
     cost: "국비 70~90% 지원 (개인 부담 최소)",
     description:
-      "귀농귀촌 아카데미, 맞춤형교육, 농산업 창업교육, 청년귀촌장기교육 등 연간 391개 과정을 운영합니다. 농업교육포털(agriedu.net) 또는 그린대로에서 신청할 수 있습니다.",
+      "귀농귀촌 아카데미, 맞춤형교육, 농산업 창업교육, 청년귀촌장기교육 등 연간 391개 과정을 운영해요. 농업교육포털(agriedu.net) 또는 그린대로에서 신청할 수 있어요.",
     capacity: null,
     applicationStart: "2026-01-01",
     applicationEnd: "2026-12-31",
@@ -179,7 +179,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     target: "전북 귀농귀촌 관심자",
     cost: "문의 필요",
     description:
-      "무주군에 3개월간 체류하며 사과, 블루베리 등 지역 특화작목 영농체험을 하는 프로그램입니다. 지역 탐색, 주민 교류 등 귀농 전 농촌생활을 직접 체험할 수 있습니다.",
+      "무주군에 3개월간 체류하며 사과, 블루베리 등 지역 특화작목 영농체험을 하는 프로그램이에요. 지역 탐색, 주민 교류 등 귀농 전 농촌생활을 직접 체험할 수 있어요.",
     capacity: null,
     applicationStart: "2026-03-01",
     applicationEnd: "2026-04-03",
@@ -198,7 +198,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     target: "귀농 희망자 (영주 지역 체류 가능자)",
     cost: "입교비 소정 (확인 필요)",
     description:
-      "영주 소백산 인근 귀농드림타운에서 체류하며 농업을 학습하고 현장실습을 병행하는 체류형 교육 프로그램입니다. 현재 제11기 운영 중이며 5세대 추가 모집 중입니다.",
+      "영주 소백산 인근 귀농드림타운에서 체류하며 농업을 학습하고 현장실습을 병행하는 체류형 교육 프로그램이에요. 현재 제11기 운영 중이며 5세대 추가 모집 중이에요.",
     capacity: 5,
     applicationStart: "2026-01-01",
     applicationEnd: "2026-12-31",

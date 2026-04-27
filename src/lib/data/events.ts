@@ -64,7 +64,7 @@ export const EVENTS: FarmEvent[] = [
     location: "수원컨벤션센터",
     cost: "사전등록 시 무료",
     description:
-      "기업·기관 전시부스, 일반인 참관등록, 비즈니스 매칭, 특별 체험(그림대회, 생막걸리 만들기) 등이 진행되는 귀농귀촌·지역살리기 전문 박람회입니다.",
+      "기업·기관 전시부스, 일반인 참관등록, 비즈니스 매칭, 특별 체험(그림대회, 생막걸리 만들기) 등이 진행되는 귀농귀촌·지역살리기 전문 박람회이에요.",
     capacity: null,
     target: "귀농·귀촌 희망자, 농업 관련 기업·기관",
     url: "https://yfarmexpo.co.kr/fairDash.do",
@@ -83,7 +83,7 @@ export const EVENTS: FarmEvent[] = [
     location: "창원컨벤션센터(CECO) 제1,2전시장",
     cost: "무료 (사전등록)",
     description:
-      "120개사 400부스 규모의 스마트농업·귀농귀촌 박람회입니다. 스마트팜 기술 전시, 심포지엄·세미나가 진행되며 경남국제축산박람회(GILEX)가 동시 개최됩니다.",
+      "120개사 400부스 규모의 스마트농업·귀농귀촌 박람회이에요. 스마트팜 기술 전시, 심포지엄·세미나가 진행되며 경남국제축산박람회(GILEX)가 동시 개최돼요.",
     capacity: null,
     target: "스마트팜 도입 희망 농업인, 귀농 예정자, 농업 기업",
     url: "https://sfkorea.kr/",
@@ -102,7 +102,7 @@ export const EVENTS: FarmEvent[] = [
     location: "청주 OSCO (오스코)",
     cost: "무료 (사전등록 ~6/17)",
     description:
-      "AgTech 기획관, 도시농업관, 귀농귀촌 정보 등 농업·축산·귀농 분야 종합 박람회입니다. 바이어 및 참관객 무료 입장으로 사전등록 후 참여할 수 있습니다.",
+      "AgTech 기획관, 도시농업관, 귀농귀촌 정보 등 농업·축산·귀농 분야 종합 박람회이에요. 바이어 및 참관객 무료 입장으로 사전등록 후 참여할 수 있어요.",
     capacity: null,
     target: "귀농귀촌 희망자, 농업 기술 관심자",
     url: "https://kfarm.co.kr/",
@@ -119,7 +119,7 @@ export const EVENTS: FarmEvent[] = [
     location: "수원메쎄",
     cost: "무료 (참관객)",
     description:
-      "농업·축산·귀농귀촌 분야 종합 박람회로 수원메쎄에서 개최됩니다. 귀농 정보 상담, 농업 기술 전시, 지역 홍보 부스 등이 운영됩니다.",
+      "농업·축산·귀농귀촌 분야 종합 박람회로 수원메쎄에서 개최돼요. 귀농 정보 상담, 농업 기술 전시, 지역 홍보 부스 등이 운영돼요.",
     capacity: null,
     target: "귀농귀촌 희망자, 농업 관심 시민",
     url: "https://www.showala.com/ex/ex_detail.php?idx=3305",
@@ -138,7 +138,7 @@ export const EVENTS: FarmEvent[] = [
     location: "전라북도 무주군",
     cost: "문의 필요 (1551-6858)",
     description:
-      "무주군에 3개월간 체류하며 사과, 블루베리 등 지역 특화작목 영농체험을 하는 프로그램입니다. 지역 탐색, 주민 교류 등 귀농 전 농촌생활을 직접 체험할 수 있습니다.",
+      "무주군에 3개월간 체류하며 사과, 블루베리 등 지역 특화작목 영농체험을 하는 프로그램이에요. 지역 탐색, 주민 교류 등 귀농 전 농촌생활을 직접 체험할 수 있어요.",
     capacity: null,
     target: "전북 귀농귀촌 관심자",
     url: "https://www.mjjnews.net/news/article.html?no=55756",
@@ -157,7 +157,7 @@ export const EVENTS: FarmEvent[] = [
     location: "강원도 영월군 요선농촌체험휴양마을",
     cost: "체류 지원 (주거+영농실습)",
     description:
-      "영월군에 3개월간 체류하며 주요 작물 재배기술을 습득하고, 영농실습과 지역 주민 교류를 통해 귀농 적응력을 키우는 프로그램입니다. 5명 선발.",
+      "영월군에 3개월간 체류하며 주요 작물 재배기술을 습득하고, 영농실습과 지역 주민 교류를 통해 귀농 적응력을 키우는 프로그램이에요. 5명 선발.",
     capacity: 5,
     target: "귀농 희망자",
     url: "https://gecpo.org/552867",
@@ -176,7 +176,7 @@ export const EVENTS: FarmEvent[] = [
     location: "제주특별자치도농업기술원 미래농업육성관 대강당",
     cost: "무료",
     description:
-      "귀농귀촌 정책사업 안내, 귀농귀촌 성공사례 공유, 제주 농업 분야 이해를 중심으로 한 기본 교육 겸 설명회입니다. 80명 규모로 진행되었습니다.",
+      "귀농귀촌 정책사업 안내, 귀농귀촌 성공사례 공유, 제주 농업 분야 이해를 중심으로 한 기본 교육 겸 설명회이에요. 80명 규모로 진행됐어요.",
     capacity: 80,
     target: "서귀포시 귀농귀촌 희망자",
     url: "https://www.jejudomin.co.kr/news/articleView.html?idxno=317057",
