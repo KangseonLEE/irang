@@ -20,6 +20,7 @@ import {
   FilterActions,
 } from "@/components/filter/filter-bar";
 import { CalendarToggle } from "./calendar-toggle";
+import { CropRequestButton } from "./crop-request-button";
 import s from "./page.module.css";
 
 const FarmingCalendar = dynamic(
@@ -162,18 +163,21 @@ export default async function CropsPage({ searchParams }: PageProps) {
       </div>
 
       {filteredCrops.length === 0 && (
-        <EmptyState
-          icon={<Sprout size={32} strokeWidth={1.75} />}
-          message={
-            searchQuery
-              ? `'${searchQuery}' 검색 결과가 없습니다.`
-              : currentDifficulty !== "전체"
-                ? `'${currentCategory}' 카테고리의 '${currentDifficulty}' 난이도 작물이 없습니다.`
-                : `'${currentCategory}' 카테고리에 등록된 작물이 없습니다.`
-          }
-          linkHref="/crops"
-          linkText="전체 작물 보기"
-        />
+        <>
+          <EmptyState
+            icon={<Sprout size={32} strokeWidth={1.75} />}
+            message={
+              searchQuery
+                ? `'${searchQuery}' 검색 결과가 없어요`
+                : currentDifficulty !== "전체"
+                  ? `'${currentCategory}' 카테고리의 '${currentDifficulty}' 난이도 작물이 없어요`
+                  : `'${currentCategory}' 카테고리에 등록된 작물이 없어요`
+            }
+            linkHref="/crops"
+            linkText="전체 작물 보기"
+          />
+          {searchQuery && <CropRequestButton query={searchQuery} />}
+        </>
       )}
 
       {/* Cross-link CTAs */}
