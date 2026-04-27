@@ -30,13 +30,27 @@ const PAGE_NAMES: Record<string, string> = {
   "/guide": "가이드",
 };
 
+/** 영문 slug → 한글 이름 */
+const SLUG_NAMES: Record<string, string> = {
+  // 시도
+  seoul: "서울", incheon: "인천", gyeonggi: "경기", gangwon: "강원",
+  chungbuk: "충북", sejong: "세종", daejeon: "대전", chungnam: "충남",
+  jeonbuk: "전북", gwangju: "광주", jeonnam: "전남", busan: "부산",
+  daegu: "대구", ulsan: "울산", gyeongbuk: "경북", gyeongnam: "경남",
+  jeju: "제주",
+};
+
+function slugToKorean(slug: string): string {
+  return SLUG_NAMES[slug] ?? slug;
+}
+
 function getPageName(path: string): string {
   if (PAGE_NAMES[path]) return PAGE_NAMES[path];
-  // /regions/gyeonggi → "지역 정보 > gyeonggi"
   for (const [prefix, name] of Object.entries(PAGE_NAMES)) {
     if (prefix !== "/" && path.startsWith(prefix + "/")) {
-      const sub = path.slice(prefix.length + 1).split("/")[0];
-      return `${name} > ${sub}`;
+      const segments = path.slice(prefix.length + 1).split("/");
+      const translated = segments.map(slugToKorean).join(" > ");
+      return `${name} > ${translated}`;
     }
   }
   return path;
