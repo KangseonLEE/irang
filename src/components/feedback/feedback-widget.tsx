@@ -9,6 +9,39 @@ import s from "./feedback-widget.module.css";
 
 type Rating = "good" | "neutral" | "bad";
 
+/** 경로를 읽기 좋은 페이지 이름으로 변환 */
+const PAGE_NAMES: Record<string, string> = {
+  "/": "메인",
+  "/regions": "지역 정보",
+  "/crops": "작물 정보",
+  "/education": "귀농 교육",
+  "/events": "체험 행사",
+  "/programs": "지원사업",
+  "/interviews": "귀농인 인터뷰",
+  "/stats/population": "인구 통계",
+  "/stats/satisfaction": "만족도 통계",
+  "/stats/youth": "청년 통계",
+  "/costs": "비용 가이드",
+  "/assess": "유형 진단",
+  "/match": "매칭",
+  "/search": "통합 검색",
+  "/glossary": "용어 사전",
+  "/more": "더보기",
+  "/guide": "가이드",
+};
+
+function getPageName(path: string): string {
+  if (PAGE_NAMES[path]) return PAGE_NAMES[path];
+  // /regions/gyeonggi → "지역 정보 > gyeonggi"
+  for (const [prefix, name] of Object.entries(PAGE_NAMES)) {
+    if (prefix !== "/" && path.startsWith(prefix + "/")) {
+      const sub = path.slice(prefix.length + 1).split("/")[0];
+      return `${name} > ${sub}`;
+    }
+  }
+  return path;
+}
+
 interface RatingOption {
   value: Rating;
   emoji: string;
@@ -97,7 +130,7 @@ export function FeedbackWidget() {
     await saveFeedback({
       rating,
       message: message.trim(),
-      page: pathname ?? "/",
+      page: getPageName(pathname ?? "/"),
     });
 
     setSubmitting(false);
@@ -173,7 +206,7 @@ export function FeedbackWidget() {
               onChange={(e) => setMessage(e.target.value)}
             />
             <span className={s.pagePath}>
-              현재 페이지: {pathname ?? "/"}
+              현재 페이지: {getPageName(pathname ?? "/")}
             </span>
 
             {/* 제출 */}
