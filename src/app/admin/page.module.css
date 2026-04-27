@@ -1,0 +1,218 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground, #111);
+  margin: 0;
+}
+
+/* ── KPI 그리드 ── */
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.kpiCard {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--border, #e5e7eb);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.kpiAccent {
+  border-color: #fbbf24;
+  background: #fffbeb;
+}
+
+.kpiIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+.kpiAccent .kpiIcon {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.kpiValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground, #111);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.kpiLabel {
+  font-size: 0.8rem;
+  color: var(--muted-foreground, #666);
+  margin: 0;
+}
+
+/* ── 2열 레이아웃 ── */
+
+.twoCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.section {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--border, #e5e7eb);
+  padding: 1.25rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--foreground, #111);
+}
+
+.sectionLink {
+  font-size: 0.8rem;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.empty {
+  font-size: 0.85rem;
+  color: var(--muted-foreground, #999);
+  text-align: center;
+  padding: 2rem 0;
+  margin: 0;
+}
+
+/* ── 피드백 리스트 ── */
+
+.feedbackList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.feedbackItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.emoji {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.feedbackBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.feedbackMessage {
+  font-size: 0.85rem;
+  color: var(--foreground, #333);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feedbackMeta {
+  font-size: 0.75rem;
+  color: var(--muted-foreground, #999);
+  margin: 0.15rem 0 0;
+}
+
+/* ── 키워드 리스트 ── */
+
+.keywordList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.keywordItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  font-size: 0.85rem;
+}
+
+.rank {
+  width: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  font-size: 0.8rem;
+}
+
+.keyword {
+  flex: 1;
+  color: var(--foreground, #333);
+}
+
+.count {
+  color: var(--muted-foreground, #999);
+  font-size: 0.8rem;
+}
+
+/* ── 데스크탑 ── */
+
+@media (min-width: 768px) {
+  .kpiGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .twoCol {
+    flex-direction: row;
+  }
+
+  .twoCol .section {
+    flex: 1;
+  }
+}
+
+@media (hover: hover) {
+  .kpiCard:hover {
+    border-color: var(--primary, #1b6b5a);
+  }
+
+  .sectionLink:hover {
+    text-decoration: underline;
+  }
+}

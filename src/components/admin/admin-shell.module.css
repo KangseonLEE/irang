@@ -1,0 +1,170 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  background: #f8faf9;
+  /* 메인 사이트 크롬(Header/Footer/MobileNav)을 가리고 전체 화면 차지 */
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: auto;
+}
+
+/* ── 사이드바 ── */
+
+.sidebar {
+  display: none;
+  flex-direction: column;
+  width: 240px;
+  min-height: 100vh;
+  background: white;
+  border-right: 1px solid var(--border, #e5e7eb);
+  padding: 1.5rem 0;
+  position: sticky;
+  top: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  margin-bottom: 0.5rem;
+}
+
+.logoLink {
+  font-family: var(--font-logo);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+}
+
+.badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: white;
+  background: var(--primary, #1b6b5a);
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+}
+
+.nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 0.75rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted-foreground, #666);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navItem.active {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-weight: 600;
+}
+
+.logout {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0.75rem 0;
+  padding: 0.6rem 0.75rem;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  font-size: 0.85rem;
+  color: var(--muted-foreground, #666);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+/* ── 메인 콘텐츠 ── */
+
+.content {
+  flex: 1;
+  padding: 1.5rem;
+  padding-bottom: 5rem; /* 모바일 탭바 높이만큼 */
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* ── 하단 탭바 (모바일) ── */
+
+.bottomTabs {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: white;
+  border-top: 1px solid var(--border, #e5e7eb);
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.4rem 0.75rem;
+  color: var(--muted-foreground, #999);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.tabActive {
+  color: var(--primary, #1b6b5a);
+}
+
+.tabLabel {
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+/* ── 데스크탑 ── */
+
+@media (min-width: 768px) {
+  .sidebar {
+    display: flex;
+  }
+
+  .bottomTabs {
+    display: none;
+  }
+
+  .content {
+    padding: 2rem 2.5rem;
+    padding-bottom: 2rem;
+  }
+}
+
+@media (hover: hover) {
+  .navItem:hover:not(.active) {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+    color: var(--foreground, #111);
+  }
+
+  .logout:hover {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+}
