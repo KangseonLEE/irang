@@ -7,7 +7,6 @@ import { Loader2, FileText } from "lucide-react";
 import { loadMorePrograms } from "./actions";
 import { ProgramCard } from "./program-card";
 import type { SupportProgram, ProgramFilters } from "@/lib/data/programs";
-import { trackFeedbackEvent } from "@/lib/feedback-session";
 import { isNewProgram } from "./program-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
@@ -53,7 +52,7 @@ export function ProgramList({
         (filters.query && filters.query.trim().length > 0)
     );
     if (hasMeaningfulFilter) {
-      trackFeedbackEvent("programs_filter");
+      // 이벤트 트래킹 (향후 analytics로 대체 가능)
     }
   }, [filters.region, filters.age, filters.supportType, filters.status, filters.query]);
 

@@ -27,7 +27,6 @@ import { isValidResultId } from "@/lib/assess-result";
 import { getSupabase } from "@/lib/supabase";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { ShareButtons } from "@/components/share/share-buttons";
-import { FeedbackEventTracker } from "@/components/feedback/feedback-event-tracker";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import s from "@/app/match/match-wizard.module.css";
 
@@ -147,7 +146,6 @@ export default async function AssessResultPage({ params }: PageProps) {
 
   return (
     <div className={s.page}>
-      <FeedbackEventTracker event="assess_result" />
       {/* 유형 카드 — 최상단 */}
       <div className={s.farmTypeCard}>
         <span className={s.farmTypeEmoji}>{farmType.emoji}</span>

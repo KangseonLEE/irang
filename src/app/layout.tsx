@@ -9,7 +9,6 @@ import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { HashHighlight } from "@/components/layout/hash-highlight";
 import { SearchOverlayProvider } from "@/components/search/search-overlay";
 import { ScrollToTopButton } from "@/components/layout/scroll-to-top-button";
-import { FeedbackTrigger } from "@/components/feedback/feedback-trigger";
 import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 import { InAppBanner } from "@/components/layout/inapp-banner";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -174,7 +173,6 @@ export default function RootLayout({
           <MobileNav />
           <ScrollToTopButton />
           <FeedbackWidget />
-          <FeedbackTrigger />
           <InAppBanner />
         </SearchOverlayProvider>
       </body>

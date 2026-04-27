@@ -95,11 +95,6 @@ const PUBLIC_ENV_VARS: EnvVar[] = [
     description: "Google Analytics ID — 방문 분석에 필요",
   },
   {
-    name: "NEXT_PUBLIC_FEEDBACK_URL",
-    required: false,
-    description: "피드백 폼 URL — 기본값 사용 가능",
-  },
-  {
     name: "NEXT_PUBLIC_SENTRY_DSN",
     required: false,
     description: "Sentry DSN — 에러 모니터링에 필요 (비워두면 비활성화)",
