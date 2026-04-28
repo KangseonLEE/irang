@@ -22,6 +22,9 @@ validateEnv();
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://irangfarm.com"),
+  alternates: {
+    canonical: "/",
+  },
   verification: {
     google: "KNFsOJ9PTv7qJXP15MITpq6YGN8cWV7Nk9ThKWBPGD0",
     other: {
