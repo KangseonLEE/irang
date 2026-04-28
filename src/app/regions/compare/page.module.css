@@ -34,38 +34,6 @@
   .backLink:hover { color: var(--foreground); }
 }
 
-/* ---- 페이지 헤더 ---- */
-.pageHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.headerOverline {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--primary, #1b6b5a);
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.headerTitle {
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--foreground);
-  margin: 0;
-}
-
-.headerDesc {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  margin: 0;
-}
-
 /* ---- 작물 적합성 바로가기 (full-width 공용 subtle 버튼) ---- */
 .cropToolHint {
   composes: subtleFull from "@/components/ui/button.module.css";

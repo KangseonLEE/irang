@@ -33,38 +33,6 @@
   }
 }
 
-/* ── 페이지 헤더 ── */
-.pageHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.headerOverline {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--primary, #1b6b5a);
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.headerTitle {
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--foreground);
-  margin: 0;
-}
-
-.headerDesc {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  margin: 0;
-}
-
 /* ── 검색 바 ── */
 .searchBar {
   position: relative;

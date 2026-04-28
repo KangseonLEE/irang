@@ -5,6 +5,7 @@ import Image from "next/image";
 import { MapPin, Lightbulb } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
+import { PageHeader } from "@/components/ui/page-header";
 import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
 import { fetchPopulationData, type PopulationData } from "@/lib/api/sgis";
 import { fetchMedicalFacilities, type MedicalFacilityData } from "@/lib/api/hira";
@@ -150,16 +151,12 @@ export default async function RegionsPage({ searchParams }: PageProps) {
       </Link>
 
       {/* Page Header */}
-      <header className={s.pageHeader}>
-        <span className={s.headerOverline}>
-          <Icon icon={MapPin} size="md" />
-          Region Compare
-        </span>
-        <h1 className={s.headerTitle}>지역 비교</h1>
-        <p className={s.headerDesc}>
-          <AutoGlossary text={`${year}년 기상 관측 데이터 기반으로 지역별 기후를 비교해요.`} />
-        </p>
-      </header>
+      <PageHeader
+        icon={<Icon icon={MapPin} size="md" />}
+        label="Region Compare"
+        title="지역 비교"
+        description={`${year}년 기상 관측 데이터 기반으로 지역별 기후를 비교해요.`}
+      />
 
       {/* Region Selector */}
       <Suspense

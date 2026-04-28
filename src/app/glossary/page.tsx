@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BookOpen } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { PageHeader } from "@/components/ui/page-header";
 import { GLOSSARY_ENTRIES, CATEGORY_LABELS } from "@/lib/data/glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { GlossaryClient } from "./glossary-client";
@@ -17,16 +18,12 @@ export default function GlossaryPage() {
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[{ name: "농업 용어집", href: "/glossary" }]} />
-      <header className={s.pageHeader}>
-        <span className={s.headerOverline}>
-          <Icon icon={BookOpen} size="md" />
-          Glossary
-        </span>
-        <h1 className={s.headerTitle}>농업 용어집</h1>
-        <p className={s.headerDesc}>
-          처음 만나는 농업 용어, 쉽게 알아보세요.
-        </p>
-      </header>
+      <PageHeader
+        icon={<Icon icon={BookOpen} size="md" />}
+        label="Glossary"
+        title="농업 용어집"
+        description="처음 만나는 농업 용어, 쉽게 알아보세요."
+      />
       <GlossaryClient
         entries={GLOSSARY_ENTRIES}
         categoryLabels={CATEGORY_LABELS}

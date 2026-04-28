@@ -183,109 +183,6 @@
   line-height: var(--lh-normal);
 }
 
-/* ---- 복수 관측소 안내 ---- */
-.multiStationNote {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-  padding: 10px 14px;
-  background: var(--muted, #f9fafb);
-  border-radius: 10px;
-}
-
-.multiStationNote p {
-  margin: 0;
-}
-
-/* ---- 기후 정보 그리드 (항상 3단) ---- */
-.climateGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.climateCard {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 12px;
-  background: var(--muted, #f9fafb);
-  border-radius: 10px;
-  min-width: 0;
-}
-
-@media (min-width: 640px) {
-  .climateCard {
-    gap: 4px;
-    padding: 16px;
-    border-radius: 12px;
-  }
-}
-
-.climateCardIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  background: var(--secondary, #f0f9f6);
-  color: var(--primary, #1b6b5a);
-  margin-bottom: 2px;
-}
-
-@media (min-width: 640px) {
-  .climateCardIcon {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    margin-bottom: 4px;
-  }
-}
-
-.climateCardLabel {
-  font-size: var(--fs-overline);
-  color: var(--muted-foreground);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.climateCardValue {
-  font-size: var(--fs-body-sm);
-  font-weight: 700;
-  color: var(--foreground);
-}
-
-@media (min-width: 640px) {
-  .climateCardValue {
-    font-size: var(--fs-body);
-  }
-}
-
-.climateCardDetail {
-  font-size: var(--fs-overline);
-  color: var(--muted-foreground);
-}
-
-.climateCardTip {
-  display: block;
-  font-size: var(--fs-overline);
-  color: var(--primary, #1b6b5a);
-  margin-top: 4px;
-  padding-top: 4px;
-  border-top: 1px dashed var(--border, #e5e7eb);
-  line-height: var(--lh-normal);
-}
-
-.climateNote {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-  margin: 12px 0 0;
-  padding: 8px 12px;
-  background: var(--muted, #f9fafb);
-  border-radius: 8px;
-}
-
 /* ---- 메인 콘텐츠 그리드 ---- */
 .contentGrid {
   display: flex;
@@ -321,12 +218,6 @@
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 20px;
-}
-
-.sectionIcon {
-  color: var(--primary, #1b6b5a);
-  margin-top: 2px;
-  flex-shrink: 0;
 }
 
 .sectionTitle {
@@ -399,14 +290,6 @@
   }
 }
 
-.cropImage {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
 .cropName {
   display: block;
   font-size: var(--fs-body-sm);
@@ -418,12 +301,6 @@
   display: block;
   font-size: var(--fs-overline);
   color: var(--muted-foreground);
-}
-
-.cropArrow {
-  margin-left: auto;
-  color: var(--muted-foreground);
-  flex-shrink: 0;
 }
 
 /* ---- 지원사업 ---- */
@@ -586,74 +463,6 @@
 .eventTypeBadge[data-type="멘토링"] {
   background: #ede9fe;
   color: #6d28d9;
-}
-
-/* ---- 시/군/구 그리드 ---- */
-.sigunguGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-@media (min-width: 768px) {
-  .sigunguGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.sigunguCard {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 14px;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.15s, background 0.15s;
-  position: relative;
-}
-
-@media (hover: hover) {
-  .sigunguCard:hover {
-    border-color: var(--primary, #1b6b5a);
-    background: var(--secondary, #f0f9f6);
-  }
-}
-
-.sigunguName {
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.sigunguTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.sigunguTag {
-  font-size: var(--fs-overline);
-  font-weight: 500;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
-  color: var(--primary, #1b6b5a);
-  white-space: nowrap;
-}
-
-.sigunguCrops {
-  font-size: var(--fs-overline);
-  color: var(--muted-foreground);
-}
-
-.sigunguArrow {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  color: var(--muted-foreground);
-  flex-shrink: 0;
 }
 
 /* ---- 사이드바 ---- */

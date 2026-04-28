@@ -13,6 +13,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   CROPS,
   getCropWithDetail,
@@ -143,16 +144,12 @@ export default async function CropComparePage({ searchParams }: PageProps) {
       </Link>
 
       {/* Page Header */}
-      <header className={s.pageHeader}>
-        <span className={s.headerOverline}>
-          <Icon icon={Scale} size="md" />
-          Crop Compare
-        </span>
-        <h1 className={s.headerTitle}>작물 비교</h1>
-        <p className={s.headerDesc}>
-          최대 3개 작물의 난이도, 소득, 장단점을 나란히 비교해보세요.
-        </p>
-      </header>
+      <PageHeader
+        icon={<Icon icon={Scale} size="md" />}
+        label="Crop Compare"
+        title="작물 비교"
+        description="최대 3개 작물의 난이도, 소득, 장단점을 나란히 비교해보세요."
+      />
 
       {/* Crop Selector */}
       <Suspense

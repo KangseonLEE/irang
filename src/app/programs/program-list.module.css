@@ -35,27 +35,6 @@
   margin: 0;
 }
 
-/* ── Result Count ── */
-.resultCount {
-  margin-bottom: 16px;
-}
-
-.resultText {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  margin: 0;
-}
-
-.resultTotal {
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.resultShowing {
-  margin-left: 4px;
-  font-size: var(--fs-caption);
-}
-
 /* ── Loading Sentinel ── */
 .sentinel {
   display: flex;

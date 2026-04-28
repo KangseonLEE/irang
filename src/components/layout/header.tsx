@@ -140,6 +140,18 @@ export function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, [gnbSearchOpen, closeGnbSearch]);
 
+  // 뷰포트가 모바일로 줄어들면 GNB 검색 자동 닫기
+  useEffect(() => {
+    if (!gnbSearchOpen) return;
+    const mql = window.matchMedia("(max-width: 767px)");
+    if (mql.matches) { closeGnbSearch(); return; }
+    const handler = (e: MediaQueryListEvent) => {
+      if (e.matches) closeGnbSearch();
+    };
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [gnbSearchOpen, closeGnbSearch]);
+
   // 포커스가 검색 영역 밖으로 이동하면 닫기
   useEffect(() => {
     if (!gnbSearchOpen) return;
