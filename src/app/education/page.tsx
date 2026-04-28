@@ -261,7 +261,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
       {courses.length === 0 ? (
         <EmptyState
           icon={<GraduationCap size={32} />}
-          message={<>조건에 맞는 교육 과정이 없습니다.<br />검색 조건을 변경하거나 필터를 초기화해 보세요.</>}
+          message={<>조건에 맞는 교육 과정이 없어요.<br />검색 조건을 변경하거나 필터를 초기화해 보세요.</>}
         />
       ) : viewMode === "table" ? (
         <>

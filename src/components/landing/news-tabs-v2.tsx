@@ -320,7 +320,7 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
             </div>
           </>
         ) : (
-          <p className={s.empty}>해당 카테고리의 소식이 없습니다.</p>
+          <p className={s.empty}>해당 카테고리의 소식이 없어요.</p>
         )}
       </div>
     </div>

@@ -218,7 +218,7 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
       {filtered.length === 0 ? (
         <div className={s.emptyState}>
           <Icon icon={SearchX} size="2xl" className={s.emptyIcon} />
-          <p className={s.emptyTitle}>검색 결과가 없습니다</p>
+          <p className={s.emptyTitle}>검색 결과가 없어요</p>
           <p className={s.emptyDesc}>
             다른 검색어를 입력하거나 필터를 변경해 보세요.
           </p>

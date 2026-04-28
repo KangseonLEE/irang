@@ -203,7 +203,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
       {events.length === 0 ? (
         <EmptyState
           icon={<Calendar size={32} strokeWidth={1.75} />}
-          message={<>조건에 맞는 체험·행사가 없습니다.<br />필터를 변경하거나 마감 행사를 포함해 보세요.</>}
+          message={<>조건에 맞는 체험·행사가 없어요.<br />필터를 변경하거나 마감 행사를 포함해 보세요.</>}
           linkHref="/events"
           linkText="전체 행사 보기"
         />

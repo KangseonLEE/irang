@@ -945,7 +945,7 @@ function RelatedProgramsSection({
           </Link>
         </div>
       ) : (
-        <p className={s.emptyNote}>현재 등록된 관련 지원사업이 없습니다.</p>
+        <p className={s.emptyNote}>현재 등록된 관련 지원사업이 없어요.</p>
       )}
     </div>
   );

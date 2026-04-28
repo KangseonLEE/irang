@@ -93,7 +93,7 @@ export function BookmarkList({ open, onClose }: BookmarkListProps) {
           {count === 0 ? (
             <div className={s.empty}>
               <Heart size={40} color="#cbd5e1" />
-              <p>저장한 항목이 없습니다</p>
+              <p>저장한 항목이 없어요</p>
               <span>관심 있는 지역, 지원사업, 작물의 하트를 눌러 저장하세요</span>
             </div>
           ) : (
