@@ -10,24 +10,22 @@ import { interviews } from "@/lib/data/landing";
 const BASE_URL = "https://irangfarm.com";
 
 /**
- * sitemap index 생성 — 카테고리별 분할로 Google 크롤링 효율화
+ * sitemap 분할 — 카테고리별로 나눠 Google 크롤링 효율화
  *
- * Google은 sitemap index의 각 sitemap을 독립적으로 크롤링하므로,
- * 중요한 카테고리(핵심 페이지, 지역)가 먼저 색인될 가능성이 높아진다.
+ * Next.js 16: generateSitemaps()의 id는 Promise<string>으로 전달됨
  */
 export async function generateSitemaps() {
   return [
-    { id: "core" },      // 핵심 정적 페이지 + 가이드
-    { id: "regions" },   // 시도 + 시군구 (246건)
-    { id: "content" },   // 작물 + 프로그램 + 교육 + 행사 + 인터뷰
+    { id: "core" },
+    { id: "regions" },
+    { id: "content" },
   ];
 }
 
-export default function sitemap({
-  id,
-}: {
-  id: string;
-}): MetadataRoute.Sitemap {
+export default async function sitemap(props: {
+  id: Promise<string>;
+}): Promise<MetadataRoute.Sitemap> {
+  const id = await props.id;
   const now = new Date();
 
   switch (id) {
