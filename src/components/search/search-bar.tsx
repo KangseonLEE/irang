@@ -847,6 +847,22 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             </div>
           )}
 
+          {/* 정확히 일치하는 항목 없음 안내 — 결과 위에 배치 */}
+          {grouped.length > 0 && query.trim().length >= 2 && !hasExactMatch(query, results) && (
+            <div className={s.noExactMatch}>
+              <p className={s.noExactMatchText}>
+                &ldquo;{query}&rdquo;에 정확히 일치하는 항목이 없어요
+              </p>
+              <RequestButton
+                keyword={query.trim()}
+                pageName="통합 검색"
+                label="항목 추가 요청하기"
+                className={s.noExactMatchBtn}
+                iconSize={14}
+              />
+            </div>
+          )}
+
           {grouped.map((section) => {
             const meta = SECTION_META[section.type];
             return (
@@ -922,22 +938,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
               </div>
             );
           })}
-
-          {/* 정확히 일치하는 항목 없음 안내 — 연관 결과는 있지만 exact match 없을 때 */}
-          {grouped.length > 0 && query.trim().length >= 2 && !hasExactMatch(query, results) && (
-            <div className={s.noExactMatch}>
-              <p className={s.noExactMatchText}>
-                &ldquo;{query}&rdquo;에 정확히 일치하는 항목이 없어요
-              </p>
-              <RequestButton
-                keyword={query.trim()}
-                pageName="통합 검색"
-                label="항목 추가 요청하기"
-                className={s.noExactMatchBtn}
-                iconSize={14}
-              />
-            </div>
-          )}
 
           {/* 전체 검색 결과 보기 링크 */}
           {grouped.length > 0 && query.trim().length > 0 && (

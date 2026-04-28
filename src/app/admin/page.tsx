@@ -4,9 +4,9 @@
  * KPI 4종 + 최근 피드백 미리보기 + 최근 검색어
  */
 
-import { fetchAdminKpi } from "@/lib/admin/queries";
+import { fetchAdminKpi, fetchPendingRequestCount } from "@/lib/admin/queries";
 import { fetchFeedbackList, fetchTopKeywords } from "@/lib/admin/queries";
-import { MessageSquareText, Search, ClipboardCheck, AlertCircle } from "lucide-react";
+import { MessageSquareText, MessageSquarePlus, Search, ClipboardCheck, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import s from "./page.module.css";
 
@@ -19,13 +19,21 @@ const RATING_EMOJI: Record<string, string> = {
 };
 
 export default async function AdminOverviewPage() {
-  const [kpi, recentFeedback, topKeywords] = await Promise.all([
+  const [kpi, pendingRequests, recentFeedback, topKeywords] = await Promise.all([
     fetchAdminKpi(),
+    fetchPendingRequestCount(),
     fetchFeedbackList(1, 5),
     fetchTopKeywords(7, 10),
   ]);
 
   const kpiCards = [
+    {
+      label: "대기 중 요청",
+      value: pendingRequests,
+      icon: MessageSquarePlus,
+      href: "/admin/requests",
+      accent: pendingRequests > 0,
+    },
     {
       label: "오늘 피드백",
       value: kpi.todayFeedback,

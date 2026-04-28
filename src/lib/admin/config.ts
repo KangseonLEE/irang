@@ -10,6 +10,7 @@
 import {
   LayoutDashboard,
   MessageSquareText,
+  MessageSquarePlus,
   Search,
   ClipboardCheck,
   type LucideIcon,
@@ -24,6 +25,12 @@ export interface AdminSection {
 
 export const ADMIN_SECTIONS: AdminSection[] = [
   { key: "overview", label: "대시보드", icon: LayoutDashboard, href: "/admin" },
+  {
+    key: "requests",
+    label: "요청 관리",
+    icon: MessageSquarePlus,
+    href: "/admin/requests",
+  },
   {
     key: "feedback",
     label: "피드백",

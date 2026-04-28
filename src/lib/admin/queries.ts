@@ -8,6 +8,9 @@
 import { getSupabaseAdmin } from "@/lib/supabase";
 import type {
   QuickFeedbackRow,
+  RequestRow,
+  RequestKeywordCount,
+  RequestStatus,
   SearchLogRow,
   TopKeyword,
   DailySearchCount,
@@ -234,4 +237,116 @@ export async function fetchAssessmentList(
     .range((page - 1) * perPage, page * perPage - 1);
 
   return { data: (data as AssessmentRow[]) ?? [], total: count ?? 0 };
+}
+
+// ── 요청 관리 ──
+
+/** "[카테고리 요청: 키워드] 메시지" 형식에서 카테고리와 키워드를 파싱 */
+function parseRequestMessage(message: string): {
+  category: string;
+  keyword: string;
+} {
+  const match = message.match(/^\[(.+?)\s*요청(?::\s*(.+?))?\]/);
+  if (!match) return { category: "기타", keyword: "" };
+  return { category: match[1], keyword: match[2] ?? "" };
+}
+
+/** 요청 항목만 조회 (message에 "[요청" 포함된 것만) */
+export async function fetchRequestList(
+  page = 1,
+  perPage = 20,
+  statusFilter?: string,
+  categoryFilter?: string,
+): Promise<{ data: RequestRow[]; total: number }> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return { data: [], total: 0 };
+
+  let query = sb
+    .from("quick_feedback")
+    .select("*", { count: "exact" })
+    .like("message", "%요청%");
+
+  if (statusFilter && statusFilter !== "all") {
+    query = query.eq("status", statusFilter);
+  }
+
+  const { data, count } = await query
+    .order("created_at", { ascending: false })
+    .range((page - 1) * perPage, page * perPage - 1);
+
+  const rows = ((data as QuickFeedbackRow[]) ?? []).map((row) => {
+    const { category, keyword } = parseRequestMessage(row.message);
+    return { ...row, category, keyword } as RequestRow;
+  });
+
+  // 카테고리 필터 (클라이언트 사이드 — message 파싱 기반)
+  const filtered = categoryFilter && categoryFilter !== "all"
+    ? rows.filter((r) => r.category === categoryFilter)
+    : rows;
+
+  return {
+    data: filtered,
+    total: categoryFilter && categoryFilter !== "all"
+      ? filtered.length
+      : count ?? 0,
+  };
+}
+
+/** 요청 키워드 빈도 순 집계 */
+export async function fetchRequestKeywords(
+  limit = 20,
+): Promise<RequestKeywordCount[]> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return [];
+
+  const { data } = await sb
+    .from("quick_feedback")
+    .select("message")
+    .like("message", "%요청%");
+
+  if (!data) return [];
+
+  const counts = new Map<string, number>();
+  for (const row of data) {
+    const { keyword } = parseRequestMessage(
+      (row as { message: string }).message,
+    );
+    if (!keyword) continue;
+    counts.set(keyword, (counts.get(keyword) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([keyword, count]) => ({ keyword, count }));
+}
+
+/** 요청 건수 (대시보드 KPI용) */
+export async function fetchPendingRequestCount(): Promise<number> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return 0;
+
+  const { count } = await sb
+    .from("quick_feedback")
+    .select("id", { count: "exact", head: true })
+    .like("message", "%요청%")
+    .eq("status", "pending");
+
+  return count ?? 0;
+}
+
+/** 요청 상태 변경 */
+export async function updateRequestStatus(
+  id: number,
+  status: RequestStatus,
+): Promise<boolean> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return false;
+
+  const { error } = await sb
+    .from("quick_feedback")
+    .update({ status })
+    .eq("id", id);
+
+  return !error;
 }

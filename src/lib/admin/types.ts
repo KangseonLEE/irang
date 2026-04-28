@@ -9,7 +9,24 @@ export interface QuickFeedbackRow {
   rating: "good" | "neutral" | "bad";
   message: string;
   page: string;
+  status: "pending" | "done" | "rejected";
   created_at: string;
+}
+
+// ── 요청 관리 ──
+
+export type RequestStatus = "pending" | "done" | "rejected";
+
+export interface RequestRow extends QuickFeedbackRow {
+  /** 파싱된 카테고리 (정보/작물/지원사업/의견) */
+  category: string;
+  /** 파싱된 키워드 */
+  keyword: string;
+}
+
+export interface RequestKeywordCount {
+  keyword: string;
+  count: number;
 }
 
 // ── 검색 로그 ──

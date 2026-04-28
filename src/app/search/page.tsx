@@ -202,6 +202,26 @@ function SearchPageContent() {
         </div>
       )}
 
+      {/* 정확히 일치하는 항목 없음 안내 — 결과 위에 배치 */}
+      {query && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(query, results) && (
+        <div className={s.noExactMatch}>
+          <div className={s.noExactMatchContent}>
+            <p className={s.noExactMatchText}>
+              &lsquo;{query}&rsquo;에 정확히 일치하는 항목이 없어요
+            </p>
+            <p className={s.noExactMatchHint}>
+              연관 결과를 표시하고 있어요. 원하는 정보가 없다면 추가를 요청해 주세요.
+            </p>
+          </div>
+          <RequestButton
+            keyword={query.trim()}
+            pageName="통합 검색"
+            label="항목 추가 요청"
+            className={s.noExactMatchBtn}
+          />
+        </div>
+      )}
+
       {/* 결과 섹션 */}
       {query && grouped.length > 0 && (
         <div className={s.sections}>
@@ -267,26 +287,6 @@ function SearchPageContent() {
               </section>
             );
           })}
-        </div>
-      )}
-
-      {/* 정확히 일치하는 항목 없음 안내 — 연관 결과는 있지만 exact match 없을 때 */}
-      {query && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(query, results) && (
-        <div className={s.noExactMatch}>
-          <div className={s.noExactMatchContent}>
-            <p className={s.noExactMatchText}>
-              &lsquo;{query}&rsquo;에 정확히 일치하는 항목이 없어요
-            </p>
-            <p className={s.noExactMatchHint}>
-              연관 결과를 표시하고 있어요. 원하는 정보가 없다면 추가를 요청해 주세요.
-            </p>
-          </div>
-          <RequestButton
-            keyword={query.trim()}
-            pageName="통합 검색"
-            label="항목 추가 요청"
-            className={s.noExactMatchBtn}
-          />
         </div>
       )}
 
