@@ -138,7 +138,7 @@ export function ServiceGateway() {
             })}
           </div>
           <p className={s.historyHint}>
-            결과는 현재 브라우저에만 저장됩니다. 상단의 전체 삭제로 기록을 지울 수 있어요.
+            결과는 현재 브라우저에만 저장돼요. 상단의 전체 삭제로 기록을 지울 수 있어요.
           </p>
         </section>
       )}

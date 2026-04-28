@@ -209,7 +209,7 @@ export function SigunguStats({
 
       {hasFallback && (
         <p className={s.fallbackNotice}>
-          일부 데이터는 시군구 수준 제공이 불가하여 {provinceShortName} 기준으로 표시됩니다.
+          일부 데이터는 시군구 수준 제공이 불가하여 {provinceShortName} 기준으로 표시돼요.
         </p>
       )}
 

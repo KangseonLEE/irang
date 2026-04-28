@@ -258,7 +258,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           </div>
         ) : (
           <p className={s.infoEmpty}>
-            현재 모집 중인 지원사업이 없습니다. 새로운 사업이 등록되면 업데이트됩니다.
+            현재 모집 중인 지원사업이 없어요. 새로운 사업이 등록되면 업데이트할게요.
           </p>
         )}
         <Link
@@ -318,7 +318,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           </div>
         ) : (
           <p className={s.infoEmpty}>
-            현재 모집 중인 교육과정이 없습니다. 새로운 과정이 개설되면 업데이트됩니다.
+            현재 모집 중인 교육과정이 없어요. 새로운 과정이 개설되면 업데이트할게요.
           </p>
         )}
         <Link
@@ -366,9 +366,9 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           </div>
         ) : (
           <p className={s.infoEmpty}>
-            현재 접수 중인 행사가 없습니다.
+            현재 접수 중인 행사가 없어요.
             <br />
-            새로운 행사가 등록되면 업데이트됩니다.
+            새로운 행사가 등록되면 업데이트할게요.
           </p>
         )}
         <Link
