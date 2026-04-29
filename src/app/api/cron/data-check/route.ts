@@ -2,13 +2,18 @@ import { NextResponse } from "next/server";
 import { PROGRAMS } from "@/lib/data/programs";
 import { EDUCATION_COURSES } from "@/lib/data/education";
 import { EVENTS } from "@/lib/data/events";
-import { deriveStatus, deriveEventStatus } from "@/lib/program-status";
+import {
+  deriveStatus,
+  deriveEventStatus,
+  daysUntilDeadline,
+  ALWAYS_OPEN,
+} from "@/lib/program-status";
 
 /**
  * 데이터 신선도 Cron 점검 (매주 월요일 09:00 KST)
  *
- * - 지원사업/교육/행사의 상태 불일치 감지
  * - 7일 이내 만료 예정 항목 조기 경고
+ * - 현재 모집중 / 마감 현황 요약
  * - Vercel Cron에서 호출 (CRON_SECRET으로 인증)
  */
 export async function GET(request: Request) {
@@ -19,69 +24,60 @@ export async function GET(request: Request) {
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  const sevenDaysLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10);
 
-  // 지원사업 점검
-  const programIssues = PROGRAMS.map((p) => {
-    const derived = deriveStatus(p.applicationStart, p.applicationEnd);
+  // 지원사업 점검: 만료 임박 + 현재 상태 요약
+  const programItems = PROGRAMS.map((p) => {
+    const status = deriveStatus(p.applicationStart, p.applicationEnd);
+    const daysLeft = daysUntilDeadline(p.applicationEnd);
+    const isAlwaysOpen = p.applicationEnd === ALWAYS_OPEN;
     return {
       id: p.id,
       title: p.title,
-      hardcoded: p.status,
-      derived,
-      match: p.status === derived,
-      expiringSoon:
-        p.applicationEnd && p.applicationEnd <= sevenDaysLater && p.applicationEnd >= today,
+      status,
+      applicationEnd: isAlwaysOpen ? "상시" : p.applicationEnd,
+      daysLeft: isAlwaysOpen ? null : daysLeft,
+      expiringSoon: !isAlwaysOpen && daysLeft >= 0 && daysLeft <= 7,
     };
-  }).filter((p) => !p.match || p.expiringSoon);
+  });
+
+  const programExpiring = programItems.filter((p) => p.expiringSoon);
+  const programOpen = programItems.filter((p) => p.status === "모집중");
 
   // 교육 점검
-  const educationIssues = EDUCATION_COURSES.map((e) => {
-    const derived = deriveStatus(e.applicationStart ?? "", e.applicationEnd ?? "");
+  const educationItems = EDUCATION_COURSES.map((e) => {
+    const status = deriveStatus(e.applicationStart, e.applicationEnd);
+    const daysLeft = daysUntilDeadline(e.applicationEnd);
     return {
       id: e.id,
       title: e.title,
-      hardcoded: e.status,
-      derived,
-      match: e.status === derived,
+      status,
+      daysLeft: daysLeft === Infinity ? null : daysLeft,
+      expiringSoon: daysLeft !== Infinity && daysLeft >= 0 && daysLeft <= 7,
     };
-  }).filter((e) => !e.match);
+  });
 
   // 행사 점검
-  const eventIssues = EVENTS.map((e) => {
-    const derived = deriveEventStatus(e.applicationStart, e.applicationEnd, e.dateEnd);
-    return {
-      id: e.id,
-      title: e.title,
-      hardcoded: e.status,
-      derived,
-      match: e.status === derived,
-    };
-  }).filter((e) => !e.match);
-
-  const totalIssues =
-    programIssues.length + educationIssues.length + eventIssues.length;
+  const eventItems = EVENTS.map((e) => {
+    const status = deriveEventStatus(e.applicationStart, e.applicationEnd, e.dateEnd);
+    return { id: e.id, title: e.title, status };
+  });
 
   const report = {
     checkedAt: today,
-    totalIssues,
     programs: {
       total: PROGRAMS.length,
-      mismatches: programIssues.filter((p) => !p.match).length,
-      expiringSoon: programIssues.filter((p) => p.expiringSoon).length,
-      items: programIssues,
+      open: programOpen.length,
+      expiringSoon: programExpiring.length,
+      expiringItems: programExpiring,
     },
     education: {
       total: EDUCATION_COURSES.length,
-      mismatches: educationIssues.length,
-      items: educationIssues,
+      open: educationItems.filter((e) => e.status === "모집중").length,
+      expiringSoon: educationItems.filter((e) => e.expiringSoon).length,
     },
     events: {
       total: EVENTS.length,
-      mismatches: eventIssues.length,
-      items: eventIssues,
+      open: eventItems.filter((e) => e.status === "접수중").length,
     },
   };
 

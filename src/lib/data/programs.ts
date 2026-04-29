@@ -59,7 +59,8 @@ export const SUPPORT_TYPES = [
   "컨설팅",
 ] as const;
 
-export const PROGRAMS: SupportProgram[] = [
+/** 정적 원본 — status 없음. 외부에서는 PROGRAMS(status 주입됨)를 사용할 것 */
+const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
   {
     id: "SP-001",
     title: "귀농 농업창업 및 주택구입 지원사업",
@@ -77,7 +78,6 @@ export const PROGRAMS: SupportProgram[] = [
       "농촌지역 전입일로부터 만 6년 미경과 세대주. 영농 관련 교육 100시간 이상 이수.",
     applicationStart: "2026-01-12",
     applicationEnd: "2026-02-13",
-    status: "마감",
     relatedCrops: [],
     sourceUrl: "https://www.gunsan.go.kr/farm/m2435/view/8495763",
     year: 2026,
@@ -99,7 +99,6 @@ export const PROGRAMS: SupportProgram[] = [
       "만 18~39세. 총 영농경력 3년 이하. 신청 지자체 실거주 및 주민등록. 연간 약 2,000명 선발.",
     applicationStart: "2025-11-05",
     applicationEnd: "2025-12-11",
-    status: "마감",
     relatedCrops: [],
     sourceUrl: "https://agro.seoul.go.kr/archives/54938",
     year: 2026,
@@ -121,7 +120,6 @@ export const PROGRAMS: SupportProgram[] = [
       "충남도내 청년농업인 또는 충남 전입 예정자. 6개월 과정(이론+실습+현장).",
     applicationStart: "2025-12-29",
     applicationEnd: "2026-01-02",
-    status: "마감",
     relatedCrops: ["딸기", "토마토", "파프리카"],
     sourceUrl: "https://youth.chungnam.go.kr/web/main/bbs/cnyouth_notice/497",
     year: 2026,
@@ -143,7 +141,6 @@ export const PROGRAMS: SupportProgram[] = [
       "만 18~45세 미만 청년농업인. 전북 청년창업보육센터 수료(예정)자. 완주군 주민등록 이전 완료. 사업부지 확보.",
     applicationStart: "2025-09-01",
     applicationEnd: "2025-09-26",
-    status: "마감",
     relatedCrops: [],
     sourceUrl: "https://www.wanjuro.org/post/3168",
     year: 2026,
@@ -165,7 +162,6 @@ export const PROGRAMS: SupportProgram[] = [
       "만 65세 이하. 도시지역 1년 이상 거주 후 함평군 전입 6개월 이내 또는 이주 희망 예비귀농인.",
     applicationStart: "2026-01-10",
     applicationEnd: "2026-02-10",
-    status: "마감",
     relatedCrops: [],
     sourceUrl: "https://www.asiaa.co.kr/news/articleView.html?idxno=237422",
     year: 2026,
@@ -187,7 +183,6 @@ export const PROGRAMS: SupportProgram[] = [
       "귀농 희망자. 1년간 체류하며 영농 교육 참여.",
     applicationStart: "2026-01-15",
     applicationEnd: "2026-02-10",
-    status: "마감",
     relatedCrops: ["인삼", "약초"],
     sourceUrl: "http://www.daejeontoday.com/news/articleView.html?idxno=722515",
     year: 2026,
@@ -209,7 +204,6 @@ export const PROGRAMS: SupportProgram[] = [
       "귀농 희망자. 10개월간 체류하며 영농 이론 및 실습 교육.",
     applicationStart: "2026-01-10",
     applicationEnd: "2026-02-06",
-    status: "마감",
     relatedCrops: [],
     sourceUrl: "https://www.smartbizn.com/news/articleView.html?idxno=132387",
     year: 2026,
@@ -231,7 +225,6 @@ export const PROGRAMS: SupportProgram[] = [
       "최근 5년 이내 해당 지역 농촌으로 이주한 귀농귀촌인 또는 만 40세 미만 청장년. 교육기간 2026.6~10월.",
     applicationStart: "2026-04-01",
     applicationEnd: "2026-04-17",
-    status: "마감",
     relatedCrops: [],
     sourceUrl: "https://www.post24.kr/319532",
     year: 2026,
@@ -253,7 +246,6 @@ export const PROGRAMS: SupportProgram[] = [
       "귀농 희망자. 3개월간 영월군에 체류하며 주요 작물 재배기술 습득. 5명 선발.",
     applicationStart: "2026-03-01",
     applicationEnd: "2026-03-31",
-    status: "마감",
     relatedCrops: [],
     sourceUrl: "https://gecpo.org/552867",
     year: 2026,
@@ -275,7 +267,6 @@ export const PROGRAMS: SupportProgram[] = [
       "귀농귀촌 관심자. 3개월간 영암군에 체류하며 농업·관광·지역문화 체험.",
     applicationStart: "2026-03-11",
     applicationEnd: "2026-03-20",
-    status: "마감",
     relatedCrops: [],
     sourceUrl: "https://www.newsro.kr/article243/1142350/",
     year: 2026,
@@ -297,7 +288,6 @@ export const PROGRAMS: SupportProgram[] = [
       "만 18~39세 대한민국 국적. 전공 무관. 스마트팜 보육센터 기존 이수자 불가. 입문(2개월)→교육형실습(6개월)→경영형실습(12개월) 총 20개월 과정.",
     applicationStart: "2026-04-22",
     applicationEnd: "2026-05-29",
-    status: "모집중",
     relatedCrops: ["딸기", "토마토", "파프리카", "상추"],
     sourceUrl: "https://www.smartfarmkorea.net/edu/pnbsns/all.do?menuId=M01050701",
     year: 2026,
@@ -319,7 +309,6 @@ export const PROGRAMS: SupportProgram[] = [
       "후계농업경영인 선정 후 5년 이상 영농 종사자(2021년 이전 선정자). 금융기관 여신제한 대상자 불가. 전국 약 500명 선발.",
     applicationStart: "2026-03-23",
     applicationEnd: "2026-04-15",
-    status: "마감",
     relatedCrops: [],
     sourceUrl: "https://agro.seoul.go.kr/archives/55803",
     year: 2026,
@@ -341,7 +330,6 @@ export const PROGRAMS: SupportProgram[] = [
       "서울시 주민등록 거주자. 나이 제한 사실상 없음. 스마트팜 도입 또는 창업에 관심 있는 시민 대상.",
     applicationStart: "2026-04-06",
     applicationEnd: "2026-04-10",
-    status: "마감",
     relatedCrops: ["상추", "토마토"],
     sourceUrl: "https://agro.seoul.go.kr/archives/55870",
     year: 2026,
@@ -362,13 +350,18 @@ export const PROGRAMS: SupportProgram[] = [
     eligibilityDetail:
       "귀농귀촌 희망자 및 농촌 거주 1년 미만. 각 지역 농업기술센터 또는 그린대로에서 신청.",
     applicationStart: "2026-01-01",
-    applicationEnd: "2026-12-31",
-    status: "모집중",
+    applicationEnd: "9999-12-31",
     relatedCrops: [],
     sourceUrl: "https://www.rda.go.kr/young/content/content76.do",
     year: 2026,
   },
 ];
+
+/** 정적 데이터에 런타임 status를 주입한 배열 — 외부에서 사용하는 공식 export */
+export const PROGRAMS: SupportProgram[] = PROGRAMS_RAW.map((p) => ({
+  ...p,
+  status: deriveStatus(p.applicationStart, p.applicationEnd),
+}));
 
 // --- 헬퍼 함수 ---
 

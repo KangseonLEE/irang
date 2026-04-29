@@ -16,6 +16,7 @@ import { GUS } from "./gus";
 import { getProvinceById, PROVINCES } from "./regions";
 import { CROPS } from "./crops";
 import { PROGRAMS } from "./programs";
+import { deriveStatus } from "@/lib/program-status";
 import { EDUCATION_COURSES } from "./education";
 import { EVENTS } from "./events";
 import { CENTERS } from "./centers";
@@ -137,6 +138,7 @@ function getSearchIndex(): SearchItem[] {
 
   // ── 지원사업 (모집중 + 모집예정만 — 마감 항목 제외) ──
   const programItems: SearchItem[] = PROGRAMS
+    .map((p) => ({ ...p, status: deriveStatus(p.applicationStart, p.applicationEnd) }))
     .filter((p) => p.status !== "마감")
     .map((p) => ({
       type: "program" as const,

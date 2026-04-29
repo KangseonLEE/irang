@@ -8,19 +8,29 @@
 export type ProgramStatus = "모집중" | "모집예정" | "마감";
 export type EventStatus = "접수중" | "접수예정" | "마감";
 
+/** 상시모집 마커 — applicationEnd에 이 값이면 마감 없는 상시 프로그램 */
+export const ALWAYS_OPEN = "9999-12-31";
+
 /** 신청기간 기반 상태 판별 (YYYY-MM-DD 문자열) */
 export function deriveStatus(
-  applicationStart: string,
-  applicationEnd: string
+  applicationStart?: string | null,
+  applicationEnd?: string | null,
 ): ProgramStatus {
   const today = new Date().toISOString().slice(0, 10);
+  // 상시모집: applicationEnd가 없거나 ALWAYS_OPEN이면 마감 없음
+  if (!applicationEnd || applicationEnd === ALWAYS_OPEN) {
+    if (!applicationStart || today >= applicationStart) return "모집중";
+    return "모집예정";
+  }
+  if (!applicationStart) return today > applicationEnd ? "마감" : "모집중";
   if (today < applicationStart) return "모집예정";
   if (today > applicationEnd) return "마감";
   return "모집중";
 }
 
-/** 마감까지 남은 일수 (음수면 이미 마감) */
-export function daysUntilDeadline(applicationEnd: string): number {
+/** 마감까지 남은 일수 (음수면 이미 마감, 상시모집이면 Infinity) */
+export function daysUntilDeadline(applicationEnd?: string | null): number {
+  if (!applicationEnd || applicationEnd === ALWAYS_OPEN) return Infinity;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const end = new Date(applicationEnd + "T00:00:00");
