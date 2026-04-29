@@ -231,7 +231,7 @@ export const PROGRAMS: SupportProgram[] = [
       "최근 5년 이내 해당 지역 농촌으로 이주한 귀농귀촌인 또는 만 40세 미만 청장년. 교육기간 2026.6~10월.",
     applicationStart: "2026-04-01",
     applicationEnd: "2026-04-17",
-    status: "모집중",
+    status: "마감",
     relatedCrops: [],
     sourceUrl: "https://www.post24.kr/319532",
     year: 2026,
@@ -297,7 +297,7 @@ export const PROGRAMS: SupportProgram[] = [
       "만 18~39세 대한민국 국적. 전공 무관. 스마트팜 보육센터 기존 이수자 불가. 입문(2개월)→교육형실습(6개월)→경영형실습(12개월) 총 20개월 과정.",
     applicationStart: "2026-04-22",
     applicationEnd: "2026-05-29",
-    status: "모집예정",
+    status: "모집중",
     relatedCrops: ["딸기", "토마토", "파프리카", "상추"],
     sourceUrl: "https://www.smartfarmkorea.net/edu/pnbsns/all.do?menuId=M01050701",
     year: 2026,
@@ -429,8 +429,8 @@ export async function getProgramByIdAsync(
 /** 조회 시점 옵션 생성 (프로그램 데이터의 연도 범위 기반) */
 export function getPeriodOptions(): { value: string; label: string }[] {
   const options: { value: string; label: string }[] = [];
-  // 2026년 1~12월 (데이터가 모두 2026년이므로)
-  const year = 2026;
+  // 당해 연도 기준 1~12월
+  const year = new Date().getFullYear();
   for (let m = 1; m <= 12; m++) {
     const value = `${year}-${String(m).padStart(2, "0")}`;
     options.push({ value, label: `${year}년 ${m}월` });
