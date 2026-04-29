@@ -8,49 +8,48 @@ export default function InterviewDetailLoading() {
       {/* Back link */}
       <div className={s.backLink}>
         <Icon icon={ArrowLeft} size="md" />
-        <span>인터뷰 목록으로</span>
+        <span>귀농인 이야기</span>
       </div>
 
-      {/* Title + Profile */}
-      <div className={s.titleSection}>
+      {/* 히어로: 프로필 + 인용문 */}
+      <div className={s.hero}>
         <div className={s.profileRow}>
           <div className={s.skeletonAvatar} />
-          <div>
+          <div className={s.profileInfo}>
             <div className={s.skeletonName} />
             <div className={s.skeletonMeta} />
+            <div className={s.skeletonTags} />
           </div>
         </div>
-        <div className={s.skeletonTitle} />
+        <div className={s.skeletonQuote} />
+        <div className={s.badgeRow}>
+          <div className={s.skeletonBadge} />
+          <div className={s.skeletonBadge} />
+        </div>
       </div>
 
-      <div className={s.contentGrid}>
-        {/* Main content */}
-        <div className={s.mainContent}>
-          {/* Quote Card */}
-          <div className={s.card}>
-            <div className={s.skeletonBlock} />
-          </div>
+      {/* 이야기 */}
+      <div className={s.section}>
+        <div className={s.skeletonLabel} style={{ width: "5rem" }} />
+        <div className={s.skeletonBlockLg} />
+      </div>
 
-          {/* Story Card */}
-          <div className={s.card}>
-            <div className={s.skeletonLabel} style={{ width: "4rem", marginBottom: "1rem" }} />
-            <div className={s.skeletonBlockLg} />
-          </div>
-
-          {/* Tips Card */}
-          <div className={s.card}>
-            <div className={s.skeletonLabel} style={{ width: "4rem", marginBottom: "1rem" }} />
-            <div className={s.skeletonBlock} />
-          </div>
+      {/* 인사이트 2열 */}
+      <div className={s.insightGrid}>
+        <div className={s.card}>
+          <div className={s.skeletonLabel} style={{ width: "8rem" }} />
+          <div className={s.skeletonBlock} />
         </div>
-
-        {/* Sidebar */}
-        <div className={s.sidebar}>
-          <div className={s.card}>
-            <div className={s.skeletonLabel} style={{ width: "6rem", marginBottom: "1rem" }} />
-            <div className={s.skeletonButton} />
-          </div>
+        <div className={s.card}>
+          <div className={s.skeletonLabel} style={{ width: "7rem" }} />
+          <div className={s.skeletonBlock} />
         </div>
+      </div>
+
+      {/* 조언 */}
+      <div className={s.adviceCard}>
+        <div className={s.skeletonLabel} style={{ width: "10rem" }} />
+        <div className={s.skeletonBlock} />
       </div>
     </div>
   );

@@ -28,7 +28,8 @@ const DEFAULT_OG_IMAGE = "https://irangfarm.com/opengraph-image";
 
 const KAKAO_SDK_URL =
   "https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js";
-const KAKAO_APP_KEY = "f300c0af75148eae0e05374466b1bf4c";
+const KAKAO_APP_KEY =
+  process.env.NEXT_PUBLIC_KAKAO_JS_KEY ?? "f300c0af75148eae0e05374466b1bf4c";
 
 /**
  * SDK 로드 프로미스를 공유해서 여러 버튼이 있어도 1회만 로드.

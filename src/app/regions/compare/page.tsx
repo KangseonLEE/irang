@@ -21,6 +21,7 @@ import { LazyClimateRadar, LazyPopulationBars } from "./charts-lazy";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { DesktopHint } from "@/components/ui/desktop-hint";
 import { DataSource } from "@/components/ui/data-source";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { SwipeHint } from "@/components/ui/swipe-hint";
 import s from "./page.module.css";
 
@@ -29,6 +30,7 @@ export const metadata: Metadata = {
   description:
     "귀농 후보 지역 최대 3곳의 기후, 인구, 의료·교육 인프라, 지원사업을 나란히 비교하세요. 어디가 나에게 맞을지 데이터로 확인할 수 있어요.",
   keywords: ["귀농 지역 비교", "귀농 지역 추천", "귀농 어디", "귀농 후보지"],
+  alternates: { canonical: "/regions/compare" },
 };
 
 interface PageProps {
@@ -436,6 +438,8 @@ export default async function RegionsPage({ searchParams }: PageProps) {
           />
 
           {/* Data Source Notice */}
+          <ReferenceNotice text="비교 데이터는 기상청·통계청·심평원 공공데이터를 가공한 참고 자료예요." />
+
           <DataSource source="기상청 종관기상관측(ASOS) · 공공데이터포털 (data.go.kr) · 통계지리정보서비스(SGIS) · 건강보험심사평가원 · 교육부 NEIS · 공공누리 제1유형" />
 
         </>

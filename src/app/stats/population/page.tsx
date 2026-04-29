@@ -29,6 +29,7 @@ export const metadata: Metadata = {
   description:
     "연도별 귀농·귀촌 인구 추이, 지역별 귀농 인구 분포를 데이터로 확인하세요. 귀농 귀촌 동향과 증감 추이를 차트로 비교할 수 있어요.",
   keywords: ["귀농 인구", "귀농 통계", "귀촌 인구", "귀농 현황", "귀농 추이"],
+  alternates: { canonical: "/stats/population" },
 };
 
 export default function PopulationPage() {

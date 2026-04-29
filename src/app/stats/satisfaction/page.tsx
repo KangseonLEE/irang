@@ -26,6 +26,7 @@ import {
 } from "@/components/charts/lazy";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import { DataSource } from "@/components/ui/data-source";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
 import s from "./page.module.css";
 import shared from "../stats.module.css";
 
@@ -34,6 +35,7 @@ export const metadata: Metadata = {
   description:
     "귀농인의 생활 만족도, 소득 변화, 정착 성공 요인을 통계로 확인하세요. 귀농 후회 비율과 만족 요인 데이터를 비교할 수 있어요.",
   keywords: ["귀농 만족도", "귀농 후회", "귀농 소득", "귀농 생활", "귀농 정착"],
+  alternates: { canonical: "/stats/satisfaction" },
 };
 
 export default function SatisfactionPage() {
@@ -155,6 +157,8 @@ export default function SatisfactionPage() {
           <Icon icon={ArrowRight} size="sm" />
         </Link>
       </div>
+
+      <ReferenceNotice text="만족도 데이터는 농림축산식품부 실태조사를 가공한 참고 자료예요." />
 
       {/* ── 출처 ── */}
       <footer className={s.footer}>
