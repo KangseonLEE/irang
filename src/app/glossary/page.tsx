@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   description:
     "귀농·귀촌 준비 중 만나는 농업 용어를 쉽게 정리했어요. ha, 10a, 적산온도, 객토 등 107개 용어를 카테고리별로 검색할 수 있어요.",
   keywords: ["농업 용어", "귀농 용어", "ha 뜻", "10a 뜻", "적산온도", "농업 사전"],
+  alternates: { canonical: "/glossary" },
 };
 
 export default function GlossaryPage() {

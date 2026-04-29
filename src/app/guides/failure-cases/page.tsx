@@ -30,6 +30,7 @@ export const metadata: Metadata = {
     "귀농 실패",
     "귀농 주의사항",
   ],
+  alternates: { canonical: "/guides/failure-cases" },
 };
 
 interface FailureCase {

@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "이랑 전체 메뉴 — 귀농 정보 모아보기",
   description:
     "이랑의 모든 서비스를 한눈에 확인하세요. 지역탐색, 작물정보, 귀농 로드맵, 비용 가이드, 교육, 체험행사, 통계를 모았어요.",
+  alternates: { canonical: "/more" },
 };
 
 import {

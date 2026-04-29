@@ -16,6 +16,7 @@ export const metadata: Metadata = {
   title: "이용 안내 및 면책 고지",
   description:
     "이랑은 공공데이터 기반 귀농 정보 큐레이션 서비스예요. 데이터 출처, 정확성, 이용 시 유의사항을 안내해요.",
+  alternates: { canonical: "/about/disclaimer" },
 };
 
 const dataSources = [

@@ -18,6 +18,13 @@ export type { ClimateInfo };
 
 // ── Props 타입 (서버에서 전달) ──
 
+export interface ApiFailures {
+  population?: boolean;
+  medical?: boolean;
+  school?: boolean;
+  climate?: boolean;
+}
+
 export interface RegionStatsProps {
   provinceShortName: string;
   provinceName: string;
@@ -35,6 +42,7 @@ export interface RegionStatsProps {
   sgisCode: string;
   hiraSidoCd: string;
   eduCode: string;
+  apiFailures?: ApiFailures;
 }
 
 type ModalType = "area" | "population" | "medical" | "school" | null;
@@ -51,6 +59,7 @@ export function RegionStats({
   sgisCode,
   hiraSidoCd,
   eduCode,
+  apiFailures,
 }: RegionStatsProps) {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
@@ -84,7 +93,7 @@ export function RegionStats({
         </button>
 
         {/* 인구 */}
-        {population && (
+        {population ? (
           <button
             type="button"
             className={s.statCard}
@@ -102,10 +111,18 @@ export function RegionStats({
               </span>
             </div>
           </button>
-        )}
+        ) : apiFailures?.population ? (
+          <div className={s.statCard} aria-label="인구 데이터 불러오기 실패">
+            <Icon icon={Users} size="lg"  />
+            <div className={s.statBody}>
+              <span className={s.statLabel}>실거주 인구</span>
+              <span className={s.statUnavailable}>데이터를 불러올 수 없어요</span>
+            </div>
+          </div>
+        ) : null}
 
         {/* 의료기관 */}
-        {medical && (
+        {medical ? (
           <button
             type="button"
             className={s.statCard}
@@ -121,10 +138,18 @@ export function RegionStats({
               <span className={s.statSub}>상세 보기 →</span>
             </div>
           </button>
-        )}
+        ) : apiFailures?.medical ? (
+          <div className={s.statCard} aria-label="의료기관 데이터 불러오기 실패">
+            <Icon icon={Building2} size="lg"  />
+            <div className={s.statBody}>
+              <span className={s.statLabel}>의료기관</span>
+              <span className={s.statUnavailable}>데이터를 불러올 수 없어요</span>
+            </div>
+          </div>
+        ) : null}
 
         {/* 학교 */}
-        {school && (
+        {school ? (
           <button
             type="button"
             className={s.statCard}
@@ -140,11 +165,19 @@ export function RegionStats({
               <span className={s.statSub}>상세 보기 →</span>
             </div>
           </button>
-        )}
+        ) : apiFailures?.school ? (
+          <div className={s.statCard} aria-label="학교 데이터 불러오기 실패">
+            <Icon icon={GraduationCap} size="lg"  />
+            <div className={s.statBody}>
+              <span className={s.statLabel}>학교</span>
+              <span className={s.statUnavailable}>데이터를 불러올 수 없어요</span>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       {/* ── 기후 정보 (공용 컴포넌트) ── */}
-      {climate && (
+      {climate ? (
         <ClimateSection
           climate={climate}
           provinceShortName={provinceShortName}
@@ -154,7 +187,11 @@ export function RegionStats({
               : undefined
           }
         />
-      )}
+      ) : apiFailures?.climate ? (
+        <section className={s.section} aria-label="기후 정보 불러오기 실패">
+          <p className={s.apiUnavailable}>기후 데이터를 불러올 수 없어요. 잠시 후 다시 확인해 보세요.</p>
+        </section>
+      ) : null}
 
       {/* ── 모달 ── */}
       <Modal

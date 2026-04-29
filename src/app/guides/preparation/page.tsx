@@ -29,6 +29,7 @@ export const metadata: Metadata = {
     "귀농 단계",
     "귀농 방법",
   ],
+  alternates: { canonical: "/guides/preparation" },
 };
 
 interface Step {

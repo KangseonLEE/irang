@@ -45,11 +45,15 @@ export const populationData: YearlyPopulation[] = [
   { year: 2024, farming: 1.2, rural: 42.2 },
 ];
 
+const _latestPop = populationData[populationData.length - 1];
+const _prevPop = populationData[populationData.length - 2];
+const _popGrowth = (((_latestPop.farming + _latestPop.rural) / (_prevPop.farming + _prevPop.rural) - 1) * 100).toFixed(1);
+
 export const populationSummary = {
   title: "귀농·귀촌 인구 추이",
   description:
-    "귀농 인구는 연 1.2만 명 수준을 꾸준히 유지하고 있으며, 2020년 코로나19를 계기로 귀촌 인구가 급증해 2024년에는 42.2만 명을 기록했어요. 귀농과 귀촌을 합산하면 전년 대비 5.7% 증가한 수치로, 농촌 이주에 대한 관심이 지속적으로 높아지고 있음을 보여줍니다.",
-  source: "통계청 귀농귀촌인통계 (2024)",
+    `귀농 인구는 연 ${_latestPop.farming}만 명 수준을 꾸준히 유지하고 있으며, 2020년 코로나19를 계기로 귀촌 인구가 급증해 ${_latestPop.year}년에는 ${_latestPop.rural}만 명을 기록했어요. 귀농과 귀촌을 합산하면 전년 대비 ${_popGrowth}% 증가한 수치로, 농촌 이주에 대한 관심이 지속적으로 높아지고 있어요.`,
+  source: `통계청 귀농귀촌인통계 (${_latestPop.year})`,
 };
 
 /** 인구 추이 원인 분석 — 공식 보고서 기반 */
@@ -121,11 +125,14 @@ export const farmingReasons: Factor[] = [
   { label: "건강·여유로운 생활", pct: 8 },
 ];
 
+const _firstYouth = youthData[0];
+const _latestYouth = youthData[youthData.length - 1];
+
 export const youthSummary = {
   title: "청년 귀농 트렌드",
   description:
-    "전체 귀농인 중 40세 미만 청년 비율은 2015년 8.2%에서 2024년 13.1%로, 10년간 꾸준히 상승하며 역대 최고치를 기록했어요. 스마트팜, 6차 산업 등 기술 기반 농업의 확산과 정부의 청년 귀농 지원 강화가 주요 요인이에요. 도시의 높은 주거비·경쟁에 대한 피로감도 청년층의 농촌 이주를 촉진하고 있어요.",
-  source: "농림축산식품부 귀농귀촌 실태조사 (2024)",
+    `전체 귀농인 중 40세 미만 청년 비율은 ${_firstYouth.year}년 ${_firstYouth.ratio}%에서 ${_latestYouth.year}년 ${_latestYouth.ratio}%로, ${_latestYouth.year - _firstYouth.year}년간 꾸준히 상승하며 역대 최고치를 기록했어요. 스마트팜, 6차 산업 등 기술 기반 농업의 확산과 정부의 청년 귀농 지원 강화가 주요 요인이에요. 도시의 높은 주거비·경쟁에 대한 피로감도 청년층의 농촌 이주를 촉진하고 있어요.`,
+  source: `농림축산식품부 귀농귀촌 실태조사 (${_latestYouth.year})`,
 };
 
 export const youthCauses: CauseAnalysis[] = [
@@ -183,7 +190,7 @@ export const satisfactionSummary = {
   title: "귀농 만족도 조사",
   description:
     "귀농인의 70%가 현재 생활에 만족한다고 응답했으며, 자연환경과 여유로운 삶이 가장 큰 만족 요인으로 꼽혔어요. 반면 의료 접근성, 문화생활 부족, 소득 불안정이 주요 불만 요인이에요. 도시 대비 월 생활비가 25% 낮아 경제적 여유가 만족도에 기여하고 있어요.",
-  source: "농림축산식품부 귀농귀촌 실태조사 (2024)",
+  source: `농림축산식품부 귀농귀촌 실태조사 (${_latestPop.year})`,
 };
 
 export const satisfactionCauses: CauseAnalysis[] = [

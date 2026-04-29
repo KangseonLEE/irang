@@ -51,6 +51,7 @@ export const metadata: Metadata = {
   description:
     "귀농 준비부터 정착까지, 5단계 프로세스를 체크리스트와 함께 안내해요. 각 단계별 소요 기간, 핵심 과업, 예상 비용, 지원사업 정보를 확인하세요.",
   keywords: ["귀농 절차", "귀농 준비 순서", "귀농 로드맵", "귀농 단계", "귀농 방법", "귀농 준비 기간"],
+  alternates: { canonical: "/guide" },
 };
 
 // ─── 단계 데이터 ───

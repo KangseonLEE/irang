@@ -28,6 +28,7 @@ export const metadata: Metadata = {
     "귀농 비용",
     "은퇴 후 귀농",
   ],
+  alternates: { canonical: "/guides/budget-50s" },
 };
 
 const COST_CARDS = [

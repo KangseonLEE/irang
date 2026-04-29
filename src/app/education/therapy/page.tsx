@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   description:
     "작물 생산 말고도 선택지가 있어요. 치유농업과 사회적 농업, 두 귀농 모델의 정의·법적 근거·진입 경로를 정리했어요.",
   keywords: ["치유농업", "사회적 농업", "귀농 모델", "치유농업사", "사회적 농업가"],
+  alternates: { canonical: "/education/therapy" },
 };
 
 export default function TherapyPage() {

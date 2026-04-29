@@ -25,6 +25,7 @@ export const metadata: Metadata = {
   title: "이랑 서비스 소개 — 귀농 정보 큐레이션",
   description:
     "이랑은 귀농을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스예요. 지역 비교, 작물 수익, 지원사업, 비용 가이드를 한곳에서 확인하세요.",
+  alternates: { canonical: "/about" },
 };
 
 const features = [

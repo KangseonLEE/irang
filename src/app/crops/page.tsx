@@ -35,6 +35,7 @@ export const metadata: Metadata = {
   description:
     "딸기, 블루베리, 감귤 등 귀농 인기 작물의 수익성, 난이도, 기후 조건을 비교하세요. 초보자 추천 작물부터 고소득 작물까지 한눈에 확인할 수 있어요.",
   keywords: ["귀농 작물", "귀농 작물 추천", "작물 수익", "작물 재배", "귀농 초보 작물", "고소득 작물"],
+  alternates: { canonical: "/crops" },
 };
 
 interface PageProps {

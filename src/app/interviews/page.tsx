@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   description:
     "30대·40대·50대 귀농에 성공한 분들의 이야기. 준비 과정, 초기 비용, 실패와 극복, 정착 후 생활을 생생하게 들어보세요.",
   keywords: ["귀농 성공 사례", "귀농 인터뷰", "귀농 경험담", "귀농 후기", "귀농 실패 극복"],
+  alternates: { canonical: "/interviews" },
 };
 
 export default function InterviewsPage() {

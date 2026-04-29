@@ -29,6 +29,7 @@ export const metadata: Metadata = {
     "1인 귀농 작물",
     "혼자 농사",
   ],
+  alternates: { canonical: "/guides/solo-farming" },
 };
 
 const REALITY_CHECK = [

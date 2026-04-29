@@ -166,6 +166,12 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
         sgisCode={province.sgisCode}
         hiraSidoCd={province.hiraSidoCd}
         eduCode={province.eduCode}
+        apiFailures={{
+          population: populationResult.status === "rejected",
+          medical: medicalResult.status === "rejected",
+          school: schoolResult.status === "rejected",
+          climate: climateResult.status === "rejected",
+        }}
       />
 
       {/* 지원사업 */}

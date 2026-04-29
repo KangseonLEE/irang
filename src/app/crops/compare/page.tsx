@@ -37,6 +37,7 @@ export const metadata: Metadata = {
   description:
     "최대 3개 작물의 소득, 난이도, 재배 환경, 장단점을 나란히 비교하세요. 초보자 추천 작물부터 고소득 작물까지 선택에 도움이 돼요.",
   keywords: ["작물 비교", "귀농 작물 비교", "작물 소득 비교", "귀농 작물 선택"],
+  alternates: { canonical: "/crops/compare" },
 };
 
 const DEFAULT_CROP_IDS: string[] = [];

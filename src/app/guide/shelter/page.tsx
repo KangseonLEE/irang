@@ -28,6 +28,7 @@ export const metadata: Metadata = {
   title: "농촌체류형 쉼터 가이드 | 이랑",
   description:
     "농지에 33㎡ 이하 임시 주거를 설치할 수 있는 농촌체류형 쉼터 제도(2024-12-24 시행)를 공식 출처 기반으로 정리했어요.",
+  alternates: { canonical: "/guide/shelter" },
 };
 
 export const revalidate = 86400;

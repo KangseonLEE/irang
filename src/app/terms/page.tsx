@@ -6,6 +6,7 @@ import s from "../about/disclaimer/page.module.css";
 export const metadata: Metadata = {
   title: "이용약관 | 이랑",
   description: "이랑 서비스 이용약관. 정보의 참고성, 면책 사항, 데이터 출처에 대한 안내예요.",
+  alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {

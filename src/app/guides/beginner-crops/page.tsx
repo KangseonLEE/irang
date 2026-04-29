@@ -27,6 +27,7 @@ export const metadata: Metadata = {
     "귀농 작물 추천",
     "초보 농사 작물",
   ],
+  alternates: { canonical: "/guides/beginner-crops" },
 };
 
 /* -- 데이터에서 난이도 '쉬움' 작물 추출 (최대 5개) -- */

@@ -50,6 +50,7 @@ export const metadata: Metadata = {
   title: "귀농 지역 탐색 — 17개 시·도 기후·인프라·지원사업 비교",
   description:
     "전국 17개 시·도의 기후, 인구, 의료·교육 인프라, 추천 작물, 귀농 지원사업을 비교하세요. 인구밀도 지도로 한눈에 파악할 수 있어요.",
+  alternates: { canonical: "/regions" },
 };
 
 export default async function RegionsPage() {

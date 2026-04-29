@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   description:
     "귀농형, 귀촌형, 스마트팜형… 나에게 맞는 귀농 유형을 찾아보세요. 유형에 따라 적합한 지역, 작물, 지원사업까지 한눈에 확인할 수 있어요.",
   keywords: ["귀농 유형", "귀농 진단", "귀농 테스트", "귀촌 귀산촌 차이", "귀농 적합도"],
+  alternates: { canonical: "/match" },
 };
 
 export default function MatchPage() {

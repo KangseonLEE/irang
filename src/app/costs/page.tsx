@@ -28,6 +28,7 @@ import {
 import { GUIDE_STEP_SUMMARIES } from "@/lib/data/guide-steps";
 import { StepOverview } from "@/components/ui/step-overview";
 import { DataSource } from "@/components/ui/data-source";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { CROPS } from "@/lib/data/crops";
 import CostSimulator from "./cost-simulator";
 import s from "./page.module.css";
@@ -38,6 +39,7 @@ export const metadata: Metadata = {
   description:
     "귀농에 필요한 초기 투자금, 연간 운영비, 생활비를 항목별로 정리했어요. 30대·40대·50대·1인 귀농 자본 계획에 참고하세요.",
   keywords: ["귀농 비용", "귀농 비용 얼마", "귀농 초기 투자", "귀농 자본", "50대 귀농 비용", "귀농 생활비"],
+  alternates: { canonical: "/costs" },
 };
 
 /* ── 작물별 투자 비교 데이터 (초기투자 기준 정렬) ── */
@@ -586,6 +588,8 @@ export default function CostsPage() {
           <CostSimulator />
         </Suspense>
       </section>
+
+      <ReferenceNotice text="비용 데이터는 농림축산식품부 실태조사·농촌진흥청 자료를 가공한 참고 자료예요." />
 
       {/* ═══ 하단 CTA ═══ */}
       <section className={s.ctaSection}>
