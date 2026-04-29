@@ -35,7 +35,7 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
     ],
     stats: [
       {
-        label: "2025년 치유농업사 2급 합격자",
+        label: "치유농업사 2급 합격자",
         value: "301명",
         year: "2025",
         source: "농촌진흥청 2025-12-03 공고",
@@ -63,7 +63,7 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
     ],
     stats: [
       {
-        label: "사회적 농장 (2025 기준)",
+        label: "사회적 농장",
         value: "133개",
         year: "2025",
         source: "농림축산식품부 2025-12-30 활성화 계획",

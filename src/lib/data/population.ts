@@ -1,9 +1,12 @@
 /**
  * 시도별 인구 통계 Fallback 데이터
  * - SGIS API 장애 시 사용
- * - 출처: 통계청 주민등록인구현황 (2025년 기준)
+ * - 출처: 통계청 주민등록인구현황
  * - SGIS 지역코드(시도 단위) 기준
  */
+
+/** Fallback 데이터의 기준연도. 갱신 시 이 값과 아래 배열을 함께 업데이트 */
+export const POPULATION_DATA_YEAR = 2025;
 
 export interface PopulationFallback {
   sgisCode: string;
