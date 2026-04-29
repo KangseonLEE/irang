@@ -41,6 +41,7 @@ export async function generateMetadata({
     title: `${course.title} — ${course.type}·${course.level} 귀농 교육`,
     description: `${course.region}에서 진행하는 ${course.level} ${course.type} 교육 "${course.title}". ${course.description.slice(0, 120)}`,
     keywords: [`${course.region} 귀농 교육`, `귀농 ${course.type}`, "귀농 교육 과정", course.title],
+    alternates: { canonical: `/education/${id}` },
   };
 }
 

@@ -144,6 +144,7 @@ export function Header() {
   useEffect(() => {
     if (!gnbSearchOpen) return;
     const mql = window.matchMedia("(max-width: 767px)");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 뷰포트 변경 시 즉시 닫기 필요
     if (mql.matches) { closeGnbSearch(); return; }
     const handler = (e: MediaQueryListEvent) => {
       if (e.matches) closeGnbSearch();

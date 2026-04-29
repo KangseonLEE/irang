@@ -46,6 +46,7 @@ export async function generateMetadata({
     title: `${program.title} — ${regionLabel} 귀농 지원사업`,
     description: `${regionLabel} ${program.title}의 자격 조건, 지원 금액, 신청 방법을 확인하세요. ${program.summary?.slice(0, 100) ?? ""}`,
     keywords: [`${regionLabel} 귀농 지원사업`, "귀농 지원금", "귀농 정착금", program.title],
+    alternates: { canonical: `/programs/${id}` },
   };
 }
 

@@ -50,6 +50,7 @@ export async function generateMetadata({
     title: `${person.name}님의 귀농 이야기 — ${regionShort} ${person.crop}`,
     description: `${regionShort}에서 ${person.crop}을(를) 재배하는 ${person.name}님의 귀농 경험담. ${person.story.slice(0, 120)}`,
     keywords: [`${regionShort} 귀농`, `${person.crop} 재배`, "귀농 성공 사례", "귀농 인터뷰"],
+    alternates: { canonical: `/interviews/${id}` },
   };
 }
 

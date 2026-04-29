@@ -12,7 +12,7 @@ import {
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { Clock, X, MessageSquarePlus, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ExternalLink } from "lucide-react";
+import { Clock, X, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ExternalLink } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchItems, hasExactMatch, suggestQueries, type SearchItem } from "@/lib/data/search-index";

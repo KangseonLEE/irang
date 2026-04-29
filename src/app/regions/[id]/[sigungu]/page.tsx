@@ -71,6 +71,7 @@ export async function generateMetadata({
     title: `${sidoName} ${sigungu.name} 귀농 — 지원사업·작물·인프라`,
     description: `${sidoName} ${sigungu.name} 귀농 정보. 대표 작물: ${mainCropsLabel}. 인구, 의료·교육 인프라, 귀농 지원사업을 확인하세요. ${sigungu.description}`,
     keywords: [`${sigungu.name} 귀농`, `${sidoName} 귀농`, `${sigungu.name} 지원사업`, ...sigungu.mainCrops.slice(0, 3)],
+    alternates: { canonical: `/regions/${id}/${sigunguId}` },
   };
 }
 

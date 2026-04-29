@@ -6,17 +6,53 @@
  * 1. 기존 별점 피드백 (type 없음): rating(1-5), tags, comment
  * 2. 퀵 이모지 피드백 (type="quick"): rating(good|neutral|bad), message, page
  *
+ * - Rate Limiting: IP 기반 분당 10건
  * 현재: 입력 검증 후 200 OK 반환, 서버 로그로만 기록.
  * Supabase 연동 시 INSERT 추가 예정.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 
+// ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
+
+const rateLimit = new Map<string, { count: number; resetAt: number }>();
+const WINDOW_MS = 60_000; // 1분
+const MAX_REQUESTS = 10; // 분당 10건
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimit.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimit.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+    return false;
+  }
+  entry.count++;
+  return entry.count > MAX_REQUESTS;
+}
+
+// 오래된 항목 주기적 정리 (메모리 누수 방지)
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of rateLimit) {
+    if (now > val.resetAt) rateLimit.delete(key);
+  }
+}, 60_000);
+
 const MAX_COMMENT_LENGTH = 300;
 const MAX_TAGS = 10;
 const VALID_QUICK_RATINGS = new Set(["good", "neutral", "bad"]);
 
 export async function POST(request: NextRequest) {
+  // Rate Limit 체크
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429, headers: { "Retry-After": "60" } },
+    );
+  }
+
   let body: Record<string, unknown>;
 
   try {

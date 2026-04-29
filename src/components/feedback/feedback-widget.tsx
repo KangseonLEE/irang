@@ -71,9 +71,8 @@ export function FeedbackWidget() {
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- SSR hydration 우회 표준 패턴
+  useEffect(() => { setMounted(true); }, []);
 
   const resetForm = useCallback(() => {
     setRating(null);

@@ -102,6 +102,7 @@ export async function generateMetadata({
   return {
     title: `${data.name} 재배 — 소득·난이도·재배환경 | ${regions}`,
     description: `${data.name} 재배 소득, 난이도, 기후·토양 조건을 확인하세요. 주요 산지: ${data.detail.majorRegions.join(", ")}. 귀농 작물 선택에 필요한 정보를 비교해 드려요.`,
+    alternates: { canonical: `/crops/${id}` },
   };
 }
 

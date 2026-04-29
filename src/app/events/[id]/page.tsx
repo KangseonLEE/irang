@@ -23,6 +23,7 @@ import { getEventByIdAsync, EVENTS } from "@/lib/data/events";
 import type { FarmEvent } from "@/lib/data/events";
 import { Icon } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
 import s from "./page.module.css";
 
 export async function generateMetadata({
@@ -38,6 +39,7 @@ export async function generateMetadata({
     title: `${event.title} — ${event.type} | ${event.region}`,
     description: `${event.region}에서 열리는 ${event.type} "${event.title}". ${event.description.slice(0, 120)}`,
     keywords: [`${event.region} 귀농 체험`, `귀농 ${event.type}`, "귀농 행사", "농촌 체험"],
+    alternates: { canonical: `/events/${id}` },
   };
 }
 
@@ -254,6 +256,8 @@ export default async function EventDetailPage({
           )}
         </div>
       </div>
+
+      <ReferenceNotice text="행사 정보는 주최 기관 공고를 참고한 자료예요. 참가 전 해당 기관에서 최신 일정을 확인하세요." />
     </div>
   );
 }

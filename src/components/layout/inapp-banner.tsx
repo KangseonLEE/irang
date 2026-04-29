@@ -29,7 +29,7 @@ export function InAppBanner() {
 
   useEffect(() => {
     const detected = detectInAppBrowser();
-    setInfo(detected);
+    setInfo(detected); // eslint-disable-line react-hooks/set-state-in-effect -- 클라이언트 전용 감지
     if (detected.isInApp) {
       const wasDismissed = sessionStorage.getItem(DISMISSED_KEY) === "1";
       setDismissed(wasDismissed);
@@ -47,17 +47,24 @@ export function InAppBanner() {
     const currentUrl = location.href;
     const ua = navigator.userAgent;
 
+    // 카카오톡 인앱: kakaotalk:// 스킴으로 외부 브라우저 실행
+    if (/KAKAOTALK/i.test(ua)) {
+      window.location.assign(
+        "kakaotalk://web/openExternal?url=" + encodeURIComponent(currentUrl),
+      );
+      return;
+    }
+
     // Android: intent:// 스킴으로 Chrome 실행 시도
     if (/Android/i.test(ua)) {
       const intentUrl =
         `intent://${location.host}${location.pathname}${location.search}${location.hash}` +
         `#Intent;scheme=https;package=com.android.chrome;end`;
-      // eslint-disable-next-line react-hooks/immutability
-      location.href = intentUrl;
+      window.location.assign(intentUrl);
       return;
     }
 
-    // iOS: 클립보드 복사 + 안내
+    // 기타 iOS 인앱: 클립보드 복사 + 안내
     handleCopyUrl(currentUrl);
   };
 
@@ -79,19 +86,21 @@ export function InAppBanner() {
     }
   };
 
+  const isKakao = /KAKAOTALK/i.test(navigator.userAgent);
   const isAndroid = /Android/i.test(navigator.userAgent);
+  const canOpenExternal = isKakao || isAndroid;
 
   return (
     <div className={s.banner}>
       <div className={s.content}>
         <p className={s.message}>
           {info.appName} 앱에서 열렸어요.{" "}
-          {isAndroid
+          {canOpenExternal
             ? "외부 브라우저에서 더 편하게 이용할 수 있어요."
             : "주소를 복사해서 Safari에서 열어보세요."}
         </p>
         <div className={s.actions}>
-          {isAndroid ? (
+          {canOpenExternal ? (
             <button
               type="button"
               className={s.openBtn}
