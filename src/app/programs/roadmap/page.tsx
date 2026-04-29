@@ -6,6 +6,7 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { fetchYouthCasesForRoadmap } from "@/lib/api/rda-youth";
+import { GOV_PROGRAMS } from "@/lib/data/gov-roadmap";
 import { RoadmapClient } from "./roadmap-client";
 import s from "./page.module.css";
 
@@ -26,7 +27,15 @@ export const metadata: Metadata = {
 /** 1시간마다 청년농 사례 데이터 재검증 */
 export const revalidate = 3600;
 
-export default async function ProgramRoadmapPage() {
+interface PageProps {
+  searchParams: Promise<{ tab?: string }>;
+}
+
+export default async function ProgramRoadmapPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const activeTab = GOV_PROGRAMS.find((p) => p.id === params.tab)
+    ? params.tab!
+    : GOV_PROGRAMS[0].id;
   const youthCases = await fetchYouthCasesForRoadmap(6).catch(() => []);
 
   return (
@@ -48,7 +57,7 @@ export default async function ProgramRoadmapPage() {
       />
 
       {/* ── 인터랙티브 영역 (클라이언트) ── */}
-      <RoadmapClient youthCases={youthCases} />
+      <RoadmapClient activeTab={activeTab} youthCases={youthCases} />
 
       {/* ── CTA ── */}
       <section className={s.ctaSection}>

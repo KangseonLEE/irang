@@ -288,7 +288,7 @@ export const SEARCH_FAQS: SearchFaq[] = [
     href: "/programs/roadmap",
     title: "정부사업 진입 가이드",
     description:
-      "4대 핵심 정부사업의 자격 요건과 신청 절차를 정리했어요.",
+      "5대 핵심 정부사업의 자격 요건과 신청 절차를 정리했어요.",
     keywords: ["정부사업", "신청", "절차", "자격", "서류"],
   },
   {

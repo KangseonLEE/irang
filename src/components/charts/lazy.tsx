@@ -21,3 +21,13 @@ export const SatisfactionDonutChart = dynamic(
   () => import("./satisfaction-donut-chart"),
   { ssr: false }
 );
+
+export const MountainTrendChart = dynamic(
+  () => import("./mountain-trend-chart"),
+  { ssr: false }
+);
+
+export const SmartfarmTrendChart = dynamic(
+  () => import("./smartfarm-trend-chart"),
+  { ssr: false }
+);

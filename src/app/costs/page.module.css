@@ -4,7 +4,7 @@
    ══════════════════════════════════════════ */
 
 .page {
-  max-width: 960px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 20px 16px 80px;
   display: flex;
@@ -18,6 +18,15 @@
 
 @media (min-width: 1024px) {
   .page { padding: 40px 32px 64px; gap: 56px; }
+}
+
+/* ── 신뢰도 안내 ── */
+
+.confidenceNote {
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+  font-style: italic;
+  margin-top: -24px;
 }
 
 /* ═══ 비용 요약 스냅샷 ═══ */

@@ -1,12 +1,9 @@
-/* ==========================================================================
-   SectionNav — LNB 섹션 내 탭 네비게이션
-   CSS Module · 모바일 우선 반응형
-   ========================================================================== */
+/* SectionNav 동일 스타일 — 비용 유형 탭 (GNB 바로 아래) */
 
 .nav {
   position: sticky;
-  top: 3.5rem; /* 헤더 높이(56px) 아래 고정 */
-  z-index: calc(var(--z-header, 50) - 5); /* 헤더(50)보다 아래 */
+  top: 3.5rem;
+  z-index: calc(var(--z-header, 50) - 5);
   border-bottom: 1px solid var(--border, #e5e7eb);
   background: var(--background, #fff);
   overflow-x: auto;

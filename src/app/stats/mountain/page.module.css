@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   귀농 만족도 — 대시보드 레이아웃
+   귀산촌 트렌드 — 대시보드 레이아웃
    CSS Module · 모바일 우선 반응형
    ══════════════════════════════════════════ */
 
@@ -105,7 +105,6 @@
 .kpiItem:nth-child(n+3) { border-bottom: none; }
 .kpiItem:nth-child(3) { border-right: 1px solid var(--border, #e5e7eb); }
 
-/* divider는 모바일에서 숨기고, 태블릿+에서 세로 라인 */
 .kpiDivider { display: none; }
 
 @media (min-width: 640px) {
@@ -262,41 +261,4 @@
   gap: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--border, #e5e7eb);
-}
-
-.navLinks {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.navLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 10px;
-  background: var(--muted, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground, #111827);
-  text-decoration: none;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-@media (hover: hover) {
-  .navLink:hover {
-    border-color: var(--primary, #1b6b5a);
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, var(--background, #fff));
-    color: var(--primary, #1b6b5a);
-  }
-}
-
-.navLinkActive {
-  composes: navLink;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  border-color: var(--primary, #1b6b5a);
-  color: var(--primary, #1b6b5a);
-  pointer-events: none;
 }

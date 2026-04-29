@@ -22,6 +22,56 @@
   .section { gap: 56px; }
 }
 
+/* ── 유형 선택 pills ── */
+
+.typePills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.typePill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--muted, #f9fafb);
+  color: var(--muted-foreground, #6b7280);
+  font-size: var(--fs-body-sm, 0.9375rem);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.typePillActive {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  color: var(--primary, #1b6b5a);
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  font-weight: 700;
+}
+
+@media (hover: hover) {
+  .typePill:not(.typePillActive):hover {
+    background: var(--card, #fff);
+    border-color: color-mix(in srgb, var(--border, #e5e7eb) 80%, #000);
+  }
+}
+
+.typePill:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .typePill {
+    height: 38px;
+    padding: 0 16px;
+  }
+}
+
 /* ── 좌측 텍스트 ── */
 
 .textSide {
@@ -113,6 +163,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  transition: opacity 0.15s ease;
 }
 
 @media (min-width: 1024px) {
@@ -285,4 +336,18 @@
 
 .numMuted {
   color: var(--foreground, #111827);
+}
+
+/* ── Cross-fade transition ── */
+
+.cardsTransitioning {
+  opacity: 0;
+}
+
+/* ── 신뢰도 안내 ── */
+
+.confidenceNote {
+  font-size: var(--fs-overline, 0.6875rem);
+  color: var(--muted-foreground, #6b7280);
+  font-style: italic;
 }

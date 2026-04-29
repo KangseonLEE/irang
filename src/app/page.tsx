@@ -19,7 +19,7 @@ import { TrendingSearchesSkeleton } from "@/components/landing/trending-searches
 import { TrendingSearchesLoader } from "@/components/landing/trending-searches-loader";
 import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
-import { WhyFarming } from "@/components/landing/why-farming";
+import { TrendHighlight } from "@/components/landing/trend-highlight";
 import { CostHighlight } from "@/components/landing/cost-highlight";
 import { ProgramsSection } from "@/components/landing/programs-section";
 import { deriveStatus, daysUntilDeadline } from "@/lib/program-status";
@@ -148,9 +148,9 @@ export default function HomePage() {
         </div>
       </ScrollReveal>
 
-      {/* ═══ 3. 왜 귀농을 할까 ═══ */}
+      {/* ═══ 3. 귀농 트렌드 ═══ */}
       <ScrollReveal>
-        <WhyFarming />
+        <TrendHighlight />
       </ScrollReveal>
 
       {/* ═══ 4. 비용 핵심 지표 하이라이트 ═══ */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -44,62 +44,45 @@ function getSectionNav(program: GovProgramRoadmap, hasYouthCases = false) {
 }
 
 /* ==========================================================================
-   RoadmapClient — 탭 전환 + 사업별 콘텐츠 렌더링
+   프로그램 선택 탭 (히어로 아래, 콘텐츠 영역 내 sticky)
    ========================================================================== */
 
-interface RoadmapClientProps {
-  youthCases?: YouthCaseCard[];
-}
+function ProgramNav({ activeTab }: { activeTab: string }) {
+  const innerRef = useRef<HTMLDivElement>(null);
 
-export function RoadmapClient({ youthCases = [] }: RoadmapClientProps) {
-  const [activeId, setActiveId] = useState(GOV_PROGRAMS[0].id);
-  const program = GOV_PROGRAMS.find((p) => p.id === activeId) ?? GOV_PROGRAMS[0];
-
-  /* URL 해시로 탭 초기 선택 (랜딩 카드 → #forest-village 등) */
   useEffect(() => {
-    const hash = window.location.hash.slice(1);
-    if (hash) {
-      const match = GOV_PROGRAMS.find((p) => p.id === hash);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (match) setActiveId(match.id);
+    const inner = innerRef.current;
+    if (!inner) return;
+    const active = inner.querySelector<HTMLElement>('[aria-current="page"]');
+    if (active) {
+      active.scrollIntoView({ inline: "center", block: "nearest", behavior: "instant" });
     }
-  }, []);
+  }, [activeTab]);
 
   return (
-    <>
-      {/* ── 사업 탭 ── */}
-      <div className={s.tabs} role="tablist" aria-label="정부사업 선택">
-        {GOV_PROGRAMS.map((p) => {
-          const Icon = p.icon;
-          return (
-            <button
+    <nav className={s.programNav} aria-label="정부사업 선택">
+      <div ref={innerRef} className={s.programNavInner}>
+        {GOV_PROGRAMS.map((p) => (
+            <Link
               key={p.id}
-              id={`tab-${p.id}`}
-              role="tab"
-              aria-selected={p.id === activeId}
-              aria-controls={`panel-${p.id}`}
-              className={`${s.tab} ${p.id === activeId ? s.tabActive : ""}`}
-              onClick={() => setActiveId(p.id)}
+              href={`/programs/roadmap?tab=${p.id}`}
+              className={`${s.programTab} ${p.id === activeTab ? s.programTabActive : ""}`}
+              aria-current={p.id === activeTab ? "page" : undefined}
             >
-              <Icon size={16} />
               {p.shortName}
-            </button>
-          );
-        })}
+            </Link>
+          ))}
       </div>
-
-      {/* ── 사업 콘텐츠 ── */}
-      <ProgramContent
-        key={program.id}
-        program={program}
-        youthCases={program.id === "youth-startup" ? youthCases : []}
-      />
-    </>
+    </nav>
   );
 }
 
-/* ── Sticky 섹션 점프 내비 ── */
-function SectionJumpNav({
+/* ==========================================================================
+   섹션 사이드바 — 모바일: 가로 sticky | 데스크탑: 세로 sidebar sticky
+   IntersectionObserver로 현재 섹션 추적
+   ========================================================================== */
+
+function SectionSidebar({
   program,
   hasYouthCases = false,
 }: {
@@ -110,25 +93,37 @@ function SectionJumpNav({
   const sectionNav = getSectionNav(program, hasYouthCases);
 
   useEffect(() => {
-    const observers: IntersectionObserver[] = [];
     const sectionIds = sectionNav.map((n) => `${n.id}-${program.id}`);
+    const visibleSet = new Set<string>();
 
-    sectionIds.forEach((id, idx) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const observer = new IntersectionObserver(
-        ([entry]) => {
+    /* sticky 높이(GNB + 프로그램탭) 아래부터, 뷰포트 상단 35%만 감지 영역 */
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setActiveSection(sectionNav[idx].id);
+            visibleSet.add(entry.target.id);
+          } else {
+            visibleSet.delete(entry.target.id);
           }
-        },
-        { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
-      );
-      observer.observe(el);
-      observers.push(observer);
+        });
+
+        /* 현재 보이는 섹션 중 DOM 순서가 가장 빠른(= 가장 위) 것을 활성 */
+        for (let i = 0; i < sectionIds.length; i++) {
+          if (visibleSet.has(sectionIds[i])) {
+            setActiveSection(sectionNav[i].id);
+            return;
+          }
+        }
+      },
+      { rootMargin: "-112px 0px -65% 0px", threshold: 0 },
+    );
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
     });
 
-    return () => observers.forEach((o) => o.disconnect());
+    return () => observer.disconnect();
   }, [program.id, sectionNav]);
 
   const handleClick = useCallback(
@@ -142,18 +137,46 @@ function SectionJumpNav({
   );
 
   return (
-    <nav className={s.sectionNav} aria-label="섹션 바로가기">
+    <nav className={s.sidebar} aria-label="섹션 바로가기">
       {sectionNav.map((item) => (
         <button
           key={item.id}
           type="button"
-          className={`${s.sectionNavItem} ${activeSection === item.id ? s.sectionNavActive : ""}`}
+          className={`${s.sidebarItem} ${activeSection === item.id ? s.sidebarActive : ""}`}
           onClick={() => handleClick(item.id)}
         >
           {item.label}
         </button>
       ))}
     </nav>
+  );
+}
+
+/* ==========================================================================
+   RoadmapClient — 프로그램 탭 + 사이드바 + 콘텐츠 통합
+   ========================================================================== */
+
+interface RoadmapClientProps {
+  activeTab: string;
+  youthCases?: YouthCaseCard[];
+}
+
+export function RoadmapClient({ activeTab, youthCases = [] }: RoadmapClientProps) {
+  const program = GOV_PROGRAMS.find((p) => p.id === activeTab) ?? GOV_PROGRAMS[0];
+  const programYouthCases = program.id === "youth-startup" ? youthCases : [];
+
+  return (
+    <>
+      <ProgramNav activeTab={activeTab} />
+      <div className={s.contentLayout}>
+        <SectionSidebar program={program} hasYouthCases={programYouthCases.length > 0} />
+        <ProgramContent
+          key={program.id}
+          program={program}
+          youthCases={programYouthCases}
+        />
+      </div>
+    </>
   );
 }
 
@@ -170,11 +193,8 @@ function ProgramContent({
       role="tabpanel"
       id={`panel-${program.id}`}
       aria-labelledby={`tab-${program.id}`}
-      className={s.tabPanel}
+      className={s.contentMain}
     >
-      {/* 섹션 점프 내비 */}
-      <SectionJumpNav program={program} hasYouthCases={youthCases.length > 0} />
-
       {/* 요약 */}
       <div id={`summary-${program.id}`} className={s.summaryCard}>
         <div className={s.summaryTitleGroup}>

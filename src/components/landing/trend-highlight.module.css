@@ -1,5 +1,6 @@
 /* ══════════════════════════════════════════
-   왜 귀농을 할까 — 벤토 그리드
+   귀농 트렌드 — 벤토 그리드 + pill 탭 전환
+   히어로(좌) + 서브 2개(중) + 차트(우상) + 비교(우하)
    ══════════════════════════════════════════ */
 
 .section {
@@ -9,6 +10,7 @@
 }
 
 /* ── 헤더 ── */
+
 .header {
   display: flex;
   align-items: flex-start;
@@ -98,9 +100,66 @@
   outline-offset: 2px;
 }
 
+/* ── pill 탭 ── */
+
+.typePills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.typePill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--muted, #f9fafb);
+  color: var(--muted-foreground, #6b7280);
+  font-size: var(--fs-body-sm, 0.9375rem);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.2s cubic-bezier(.4, 0, .2, 1),
+    border-color 0.2s cubic-bezier(.4, 0, .2, 1),
+    color 0.2s cubic-bezier(.4, 0, .2, 1),
+    box-shadow 0.2s cubic-bezier(.4, 0, .2, 1),
+    transform 0.15s cubic-bezier(.4, 0, .2, 1);
+}
+
+.typePillActive {
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+  border-color: var(--primary, #1b6b5a);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(27, 107, 90, 0.3);
+}
+
+@media (hover: hover) {
+  .typePill:not(.typePillActive):hover {
+    background: var(--card, #fff);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+    color: var(--primary, #1b6b5a);
+    transform: translateY(-1px);
+  }
+}
+
+.typePill:active { transform: scale(0.96); }
+
+.typePill:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .typePill { height: 38px; padding: 0 16px; }
+}
+
 /* ════════════════════════════════════════
    벤토 그리드
-   모바일: 2열 / 데스크탑: 4열
+   모바일: 2열 / 데스크탑: 3열 2행
    ════════════════════════════════════════ */
 
 .bento {
@@ -111,32 +170,33 @@
 
 @media (min-width: 1024px) {
   .bento {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 1.1fr 1fr 1.5fr;
+    grid-template-rows: auto auto;
     gap: 14px;
   }
 }
 
 /* ── 타일 공통 ── */
-.tile {
+
+.bento > * {
   border-radius: 20px;
   border: 1px solid var(--border, #e5e7eb);
   overflow: hidden;
   position: relative;
 }
 
-/* ── 히어로 타일: 1.2만 ── */
+/* ── 히어로 타일 ── */
+
 .tileHero {
   grid-column: span 2;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 8px;
   padding: 28px 24px;
   background: var(--primary, #1b6b5a);
   border-color: transparent;
-  text-decoration: none;
   color: #fff;
-  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 @media (min-width: 1024px) {
@@ -147,18 +207,6 @@
   }
 }
 
-@media (hover: hover) {
-  .tileHero:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  }
-}
-
-.tileHero:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: -4px;
-}
-
 .heroValue {
   font-size: 3rem;
   font-weight: 800;
@@ -167,13 +215,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (min-width: 640px) {
-  .heroValue { font-size: 3.5rem; }
-}
-
-@media (min-width: 1024px) {
-  .heroValue { font-size: 4rem; }
-}
+@media (min-width: 640px) { .heroValue { font-size: 3.5rem; } }
+@media (min-width: 1024px) { .heroValue { font-size: 4rem; } }
 
 .heroLabel {
   font-size: var(--fs-body, 1rem);
@@ -181,9 +224,7 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
-@media (min-width: 1024px) {
-  .heroLabel { font-size: 1.125rem; }
-}
+@media (min-width: 1024px) { .heroLabel { font-size: 1.125rem; } }
 
 .heroSub {
   font-size: var(--fs-body-sm, 0.9375rem);
@@ -205,6 +246,7 @@
 }
 
 /* ── 보조 통계 타일 ── */
+
 .tileStat {
   display: flex;
   flex-direction: column;
@@ -213,25 +255,10 @@
   padding: 22px 18px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, var(--card, #fff));
   border-color: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 @media (min-width: 1024px) {
   .tileStat { padding: 28px 22px; }
-}
-
-@media (hover: hover) {
-  .tileStat:hover {
-    border-color: var(--primary, #1b6b5a);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  }
-}
-
-.tileStat:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
 }
 
 .subValue {
@@ -243,9 +270,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (min-width: 1024px) {
-  .subValue { font-size: 2.5rem; }
-}
+@media (min-width: 1024px) { .subValue { font-size: 2.5rem; } }
 
 .subLabel {
   font-size: var(--fs-caption, 0.8125rem);
@@ -253,9 +278,7 @@
   color: var(--foreground, #111827);
 }
 
-@media (min-width: 1024px) {
-  .subLabel { font-size: var(--fs-body-sm, 0.9375rem); }
-}
+@media (min-width: 1024px) { .subLabel { font-size: var(--fs-body-sm, 0.9375rem); } }
 
 .subSub {
   font-size: var(--fs-overline);
@@ -263,9 +286,7 @@
   color: var(--muted-foreground, #6b7280);
 }
 
-@media (min-width: 1024px) {
-  .subSub { font-size: var(--fs-caption, 0.8125rem); }
-}
+@media (min-width: 1024px) { .subSub { font-size: var(--fs-caption, 0.8125rem); } }
 
 .subDesc {
   margin: 4px 0 0;
@@ -277,41 +298,10 @@
   opacity: 0.75;
 }
 
-@media (min-width: 1024px) {
-  .subDesc { font-size: var(--fs-caption, 0.8125rem); }
-}
-
-/* 타일 화살표 */
-.tileArrow {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  display: flex;
-  opacity: 0.3;
-  transition: opacity 0.2s, transform 0.2s;
-}
-
-.tileHero .tileArrow { color: #fff; opacity: 0.5; }
-.tileStat .tileArrow { color: var(--primary, #1b6b5a); }
-
-@media (min-width: 1024px) {
-  .tileArrow {
-    opacity: 0;
-    transform: translateX(-4px);
-  }
-
-  .tileHero .tileArrow { opacity: 0; }
-}
-
-@media (hover: hover) {
-  .tileHero:hover .tileArrow,
-  .tileStat:hover .tileArrow {
-    opacity: 0.7;
-    transform: translateX(0);
-  }
-}
+@media (min-width: 1024px) { .subDesc { font-size: var(--fs-caption, 0.8125rem); } }
 
 /* ── 이유 바차트 타일 ── */
+
 .tileReasons {
   grid-column: span 2;
   padding: 22px 20px;
@@ -325,7 +315,7 @@
   .tileReasons {
     padding: 28px 24px;
     gap: 16px;
-    grid-column: 3 / 5;
+    grid-column: 3;
     grid-row: 1;
   }
 }
@@ -364,9 +354,7 @@
   justify-content: center;
 }
 
-@media (min-width: 1024px) {
-  .reasonsList { gap: 12px; }
-}
+@media (min-width: 1024px) { .reasonsList { gap: 12px; } }
 
 .reasonRow {
   display: flex;
@@ -401,14 +389,13 @@
   overflow: hidden;
 }
 
-@media (min-width: 1024px) {
-  .reasonBarBg { height: 14px; }
-}
+@media (min-width: 1024px) { .reasonBarBg { height: 14px; } }
 
 .reasonBar {
   height: 100%;
   border-radius: 100px;
-  transition: width 0.8s cubic-bezier(.16, 1, .3, 1);
+  width: var(--bar-w, 0%);
+  transition: width 0.7s cubic-bezier(.16, 1, .3, 1) 0.15s;
 }
 
 .reasonBar[data-rank="1"] { background: var(--primary, #1b6b5a); }
@@ -427,11 +414,10 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (min-width: 1024px) {
-  .reasonPct { font-size: var(--fs-body-sm, 0.9375rem); }
-}
+@media (min-width: 1024px) { .reasonPct { font-size: var(--fs-body-sm, 0.9375rem); } }
 
 /* ── 비교 타일 ── */
+
 .tileCompare {
   grid-column: span 2;
   padding: 22px 20px;
@@ -445,7 +431,7 @@
   .tileCompare {
     padding: 28px 24px;
     gap: 16px;
-    grid-column: 3 / 5;
+    grid-column: 3;
     grid-row: 2;
   }
 }
@@ -457,9 +443,7 @@
   color: var(--foreground, #111827);
 }
 
-@media (min-width: 1024px) {
-  .compareTitle { font-size: 1.125rem; }
-}
+@media (min-width: 1024px) { .compareTitle { font-size: 1.125rem; } }
 
 .compareList {
   display: grid;
@@ -478,9 +462,7 @@
   background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--muted, #f9fafb));
 }
 
-@media (min-width: 1024px) {
-  .compareItem { padding: 16px; }
-}
+@media (min-width: 1024px) { .compareItem { padding: 16px; } }
 
 .compareLabel {
   font-size: var(--fs-overline);
@@ -488,9 +470,7 @@
   color: var(--muted-foreground, #6b7280);
 }
 
-@media (min-width: 1024px) {
-  .compareLabel { font-size: var(--fs-caption, 0.8125rem); }
-}
+@media (min-width: 1024px) { .compareLabel { font-size: var(--fs-caption, 0.8125rem); } }
 
 .compareChange {
   font-size: 1.25rem;
@@ -499,9 +479,7 @@
   letter-spacing: -0.02em;
 }
 
-@media (min-width: 1024px) {
-  .compareChange { font-size: 1.5rem; }
-}
+@media (min-width: 1024px) { .compareChange { font-size: 1.5rem; } }
 
 .compareDetail {
   font-size: var(--fs-overline);
@@ -510,13 +488,140 @@
   word-break: keep-all;
 }
 
-@media (min-width: 1024px) {
-  .compareDetail { font-size: var(--fs-caption, 0.8125rem); }
+@media (min-width: 1024px) { .compareDetail { font-size: var(--fs-caption, 0.8125rem); } }
+
+/* ══════════════════════════════════════════
+   탭 전환 애니메이션
+   idle → out(300ms) → in(~700ms) → idle
+   각 타일이 다른 방향에서 등장
+   ══════════════════════════════════════════ */
+
+/* Phase OUT — 모든 타일 동시 shrink+fade */
+
+.phaseOut > * {
+  opacity: 0;
+  transform: scale(0.92);
+  transition:
+    opacity 0.22s cubic-bezier(.4, 0, 1, 1),
+    transform 0.28s cubic-bezier(.4, 0, 1, 1);
 }
 
-/* ════════════════════════════════════════
-   스태거드 스크롤 애니메이션
-   ════════════════════════════════════════ */
+/* Phase IN — 타일별 방향 다른 등장 */
+
+/* 히어로: 좌→우 슬라이드 */
+.phaseIn .tileHero {
+  animation: slideFromLeft 0.5s cubic-bezier(.16, 1, .3, 1) both;
+  animation-delay: 0ms;
+}
+
+/* 서브 통계 1: 아래→위 바운스 */
+.phaseIn .tileStat:nth-child(2) {
+  animation: slideFromBottom 0.45s cubic-bezier(.34, 1.56, .64, 1) both;
+  animation-delay: 80ms;
+}
+
+/* 서브 통계 2: 아래→위 바운스 (약간 더 늦게) */
+.phaseIn .tileStat:nth-child(3) {
+  animation: slideFromBottom 0.45s cubic-bezier(.34, 1.56, .64, 1) both;
+  animation-delay: 150ms;
+}
+
+/* 바 차트: 우→좌 슬라이드 */
+.phaseIn .tileReasons {
+  animation: slideFromRight 0.5s cubic-bezier(.16, 1, .3, 1) both;
+  animation-delay: 100ms;
+}
+
+/* 비교 타일: 아래→위 페이드 */
+.phaseIn .tileCompare {
+  animation: slideFromBottom 0.45s cubic-bezier(.16, 1, .3, 1) both;
+  animation-delay: 180ms;
+}
+
+/* 바 차트 바: 개별 stagger 성장 */
+.phaseIn .reasonRow {
+  animation: rowFadeIn 0.35s cubic-bezier(.16, 1, .3, 1) both;
+  animation-delay: calc(220ms + var(--row-idx, 0) * 60ms);
+}
+
+.phaseIn .reasonBar {
+  animation: barGrow 0.55s cubic-bezier(.16, 1, .3, 1) both;
+  animation-delay: calc(280ms + var(--row-idx, 0) * 60ms);
+}
+
+/* 비교 카드: 개별 stagger 팝업 */
+.phaseIn .compareItem {
+  animation: cardPop 0.35s cubic-bezier(.34, 1.56, .64, 1) both;
+  animation-delay: calc(280ms + var(--ci, 0) * 70ms);
+}
+
+/* ── 키프레임 ── */
+
+@keyframes slideFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes rowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes barGrow {
+  from { width: 0; }
+  to { width: var(--bar-w, 0%); }
+}
+
+@keyframes cardPop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ══════════════════════════════════════════
+   초기 스크롤 등장 애니메이션 (ScrollReveal 연동)
+   탭 전환 전(.interacted 없을 때)에만 적용
+   ══════════════════════════════════════════ */
+
 @keyframes fadeSlideUp {
   from {
     opacity: 0;
@@ -528,23 +633,53 @@
   }
 }
 
-.bento .tile {
+/* 첫 등장 전 숨김 (탭 전환 경험 없을 때만) */
+.bento:not(.interacted) > * {
   opacity: 0;
 }
 
-:global([data-visible]) .tile {
+:global([data-visible]) .bento:not(.interacted) > * {
   animation: fadeSlideUp 0.5s cubic-bezier(.16, 1, .3, 1) both;
 }
 
-:global([data-visible]) .tile:nth-child(1) { animation-delay: 0ms; }
-:global([data-visible]) .tile:nth-child(2) { animation-delay: 100ms; }
-:global([data-visible]) .tile:nth-child(3) { animation-delay: 200ms; }
-:global([data-visible]) .tile:nth-child(4) { animation-delay: 300ms; }
-:global([data-visible]) .tile:nth-child(5) { animation-delay: 400ms; }
+:global([data-visible]) .bento:not(.interacted) > *:nth-child(1) { animation-delay: 0ms; }
+:global([data-visible]) .bento:not(.interacted) > *:nth-child(2) { animation-delay: 80ms; }
+:global([data-visible]) .bento:not(.interacted) > *:nth-child(3) { animation-delay: 160ms; }
+:global([data-visible]) .bento:not(.interacted) > *:nth-child(4) { animation-delay: 240ms; }
+:global([data-visible]) .bento:not(.interacted) > *:nth-child(5) { animation-delay: 320ms; }
+
+/* 탭 전환 후에는 phase 애니메이션만 담당 — idle일 때 타일 보임 */
+.bento.interacted > * {
+  opacity: 1;
+}
+
+/* ── 접근성: 모션 감소 ── */
 
 @media (prefers-reduced-motion: reduce) {
-  .bento .tile {
+  .bento > * {
     opacity: 1;
-    animation: none;
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .phaseOut > * {
+    opacity: 0;
+    transform: none;
+    transition: opacity 0.15s !important;
+  }
+
+  .phaseIn > *,
+  .phaseIn .reasonRow,
+  .phaseIn .reasonBar,
+  .phaseIn .compareItem {
+    animation: none !important;
+    opacity: 1;
+  }
+
+  .reasonBar {
+    transition: none !important;
+    animation: none !important;
+    width: var(--bar-w, 0%) !important;
   }
 }

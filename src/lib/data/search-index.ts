@@ -246,13 +246,13 @@ function getSearchIndex(): SearchItem[] {
     badge: glossaryCategoryKo[g.category] ?? g.category,
   }));
 
-  // ── 정부사업 로드맵 (4대 사업) ──
+  // ── 정부사업 로드맵 (5대 사업) ──
   const govProgramItems: SearchItem[] = GOV_PROGRAMS.map((gp) => ({
     type: "guide" as const,
     id: `gov-${gp.id}`,
     title: gp.name,
     subtitle: truncate(gp.summary, 50),
-    href: `/programs/roadmap#${gp.id}`,
+    href: `/programs/roadmap?tab=${gp.id}`,
     keywords: [
       gp.shortName,
       gp.agency,
@@ -386,7 +386,7 @@ function getSearchIndex(): SearchItem[] {
       type: "guide",
       id: "gov-roadmap-page",
       title: "정부사업 진입 가이드",
-      subtitle: "4대 핵심 정부사업 신청 절차 안내",
+      subtitle: "5대 핵심 정부사업 신청 절차 안내",
       href: "/programs/roadmap",
       keywords: ["정부사업", "신청", "절차", "자격", "서류", "보조금", "융자", "청년창업농", "농지은행", "귀산촌", "로드맵"],
       icon: "\u{1F3DB}\u{FE0F}", // 🏛️

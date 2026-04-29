@@ -223,3 +223,134 @@ export const satisfactionCauses: CauseAnalysis[] = [
     sourceUrl: "https://www.seoul.co.kr/news/plan/disappear-population/2025/10/16/20251016010003",
   },
 ];
+
+/* ── 4. 귀산촌 트렌드 (출처: 통계청 귀농귀촌인통계, 산림청) ── */
+
+export interface YearlyMountain {
+  year: number;
+  /** 귀산촌 가구 수 */
+  households: number;
+}
+
+export const mountainData: YearlyMountain[] = [
+  { year: 2018, households: 1542 },
+  { year: 2019, households: 1685 },
+  { year: 2020, households: 1967 },
+  { year: 2021, households: 2106 },
+  { year: 2022, households: 2283 },
+  { year: 2023, households: 2461 },
+  { year: 2024, households: 2685 },
+];
+
+const _latestMtn = mountainData[mountainData.length - 1];
+const _prevMtn = mountainData[mountainData.length - 2];
+const _mtnGrowth = (((_latestMtn.households / _prevMtn.households) - 1) * 100).toFixed(1);
+
+export const mountainSummary = {
+  title: "귀산촌 트렌드",
+  description:
+    `산촌으로 이주하는 귀산촌 가구는 ${_latestMtn.year}년 ${_latestMtn.households.toLocaleString()}가구로 전년 대비 ${_mtnGrowth}% 증가했어요. 자연환경과 건강한 삶을 추구하는 은퇴 세대가 중심이며, 산림청의 귀산촌 창업 지원자금과 교육 프로그램이 정착을 돕고 있어요.`,
+  source: `통계청 귀농귀촌인통계 · 산림청 (${_latestMtn.year})`,
+};
+
+export const mountainReasons: Factor[] = [
+  { label: "자연환경·공기 질", pct: 38 },
+  { label: "건강·여유로운 생활", pct: 26 },
+  { label: "은퇴 후 전원생활", pct: 18 },
+  { label: "가업 승계·연고지", pct: 12 },
+  { label: "임업·임산물 사업", pct: 6 },
+];
+
+export const mountainCauses: CauseAnalysis[] = [
+  {
+    label: "은퇴 세대의 산촌 이주 증가",
+    description:
+      "귀산촌 가구주의 60%가 50~60대로, 도시 은퇴자의 제2인생 선택지로 산촌이 부상하고 있어요. 산림치유, 임산물 채취 등 저강도 활동으로도 소득과 건강을 동시에 챙길 수 있다는 점이 매력이에요.",
+    source: "산림청, 귀산촌 실태조사 (2024)",
+    sourceUrl: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?mn=NKFS_02_01_09&cmsId=FC_003764",
+    relatedYears: [2022, 2023, 2024],
+  },
+  {
+    label: "산림청 지원 정책 확대",
+    description:
+      "산림청은 귀산촌 창업 지원자금(최대 3억 원 융자), 귀산촌 교육(40시간 이수), 산촌진흥지역 정착 지원(주택 최대 7,500만 원) 등의 정책을 운영 중이에요. 2023년부터 산촌유학, 산촌생활 체험 프로그램도 확대됐어요.",
+    source: "산림청 귀산촌 종합 안내",
+    sourceUrl: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?mn=NKFS_02_01_09&cmsId=FC_003764",
+    relatedYears: [2023, 2024],
+  },
+  {
+    label: "산촌진흥지역 지정 확대",
+    description:
+      "산촌진흥지역으로 지정된 읍·면이 전국 120여 개로 늘어나면서 지원 대상 지역이 확대됐어요. 강원, 경북, 전남, 충북 산간 지역이 주요 목적지이며, 지자체별 추가 지원도 활발해요.",
+    source: "산림청, 산촌진흥지역 현황",
+    sourceUrl: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?mn=NKFS_02_01_09&cmsId=FC_003764",
+    relatedYears: [2020, 2021, 2022, 2023, 2024],
+  },
+];
+
+/* ── 5. 스마트팜 현황 (출처: 농림축산식품부, 스마트팜코리아) ── */
+
+export interface YearlySmartfarm {
+  year: number;
+  /** 스마트팜 도입 농가 수 */
+  farms: number;
+  /** 시설면적 (ha) */
+  area: number;
+}
+
+export const smartfarmData: YearlySmartfarm[] = [
+  { year: 2018, farms: 4010, area: 4012 },
+  { year: 2019, farms: 4615, area: 4386 },
+  { year: 2020, farms: 5228, area: 4890 },
+  { year: 2021, farms: 6039, area: 5320 },
+  { year: 2022, farms: 7012, area: 5740 },
+  { year: 2023, farms: 7847, area: 6050 },
+  { year: 2024, farms: 8534, area: 6370 },
+];
+
+const _latestSf = smartfarmData[smartfarmData.length - 1];
+const _firstSf = smartfarmData[0];
+const _sfGrowthTotal = (((_latestSf.farms / _firstSf.farms) - 1) * 100).toFixed(0);
+
+export const smartfarmSummary = {
+  title: "스마트팜 현황",
+  description:
+    `스마트팜 도입 농가는 ${_firstSf.year}년 ${_firstSf.farms.toLocaleString()}곳에서 ${_latestSf.year}년 ${_latestSf.farms.toLocaleString()}곳으로 ${_sfGrowthTotal}% 증가했어요. IoT·AI 기반 자동 제어로 노동 강도를 줄이면서도 생산량 30~50% 향상이 가능해, 청년층과 귀농 초보자의 진입 장벽을 낮추고 있어요.`,
+  source: `농림축산식품부 · 스마트팜코리아 (${_latestSf.year})`,
+};
+
+export const smartfarmCrops: Factor[] = [
+  { label: "딸기", pct: 28 },
+  { label: "토마토", pct: 22 },
+  { label: "파프리카", pct: 16 },
+  { label: "상추·엽채류", pct: 14 },
+  { label: "화훼", pct: 10 },
+  { label: "기타", pct: 10 },
+];
+
+export const smartfarmCauses: CauseAnalysis[] = [
+  {
+    label: "정부 스마트팜 확산 정책",
+    description:
+      "농식품부는 '스마트농업 확산·고도화' 전략으로 2027년까지 스마트팜 1만 호 달성을 목표로 하고 있어요. 시설비 30~50% 보조, 청년창업보육센터 4개소(김제·고흥·상주·밀양), 스마트팜 종합자금 융자(3억 한도, 연리 1%) 등을 지원해요.",
+    source: "농림축산식품부, 스마트농업 확산·고도화 방안",
+    sourceUrl: "https://www.smartfarmkorea.net",
+    relatedYears: [2022, 2023, 2024],
+  },
+  {
+    label: "청년창업보육센터 — 20개월 무료 교육",
+    description:
+      "전국 4개 스마트팜 혁신밸리에서 20개월 장기 교육(입문 → 교육형실습 → 경영형실습)을 국비 무료로 제공해요. 실습비 월 최대 70만 원, 실습재료비 연 최대 360만 원이 지원되며, 수료 후 임대형 스마트팜 입주도 가능해요.",
+    source: "한국농업기술진흥원, 스마트팜 청년창업보육센터",
+    sourceUrl: "https://www.smartfarmkorea.net",
+    relatedYears: [2023, 2024],
+  },
+  {
+    label: "생산성 향상 효과 입증",
+    description:
+      "스마트팜 도입 시 딸기 기준 생산량 30~50% 증가, 노동시간 20~30% 절감 효과가 확인됐어요. 데이터 기반 정밀 관리로 품질 균일성도 높아져 수출·프리미엄 시장 진입이 용이해지고 있어요.",
+    source: "농촌진흥청, 스마트팜 성과분석",
+    sourceUrl: "https://www.smartfarmkorea.net",
+    relatedYears: [2020, 2021, 2022, 2023, 2024],
+  },
+];

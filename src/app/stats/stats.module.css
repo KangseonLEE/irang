@@ -6,7 +6,7 @@
 
 /* ── 페이지 컨테이너 ── */
 .page {
-  max-width: 960px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 24px 16px 80px;
   display: flex;

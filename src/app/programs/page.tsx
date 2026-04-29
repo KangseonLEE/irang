@@ -143,7 +143,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         </div>
         <div className={s.guideBannerBody}>
           <span className={s.guideBannerTitle}>정부사업, 어떻게 신청하나요?</span>
-          <span className={s.guideBannerDesc}><AutoGlossary text="4대 핵심 사업의 자격 요건·신청 절차 안내" /></span>
+          <span className={s.guideBannerDesc}><AutoGlossary text="5대 핵심 사업의 자격 요건·신청 절차 안내" /></span>
         </div>
         <ArrowRight size={16} className={s.guideBannerArrow} />
       </Link>

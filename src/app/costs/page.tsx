@@ -21,9 +21,11 @@ import type { FAQPage } from "schema-dts";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
 import {
-  costSummary,
   costByAge,
   cityVsRural,
+  COST_TYPES,
+  COST_TYPE_PROFILES,
+  type CostTypeId,
 } from "@/lib/data/landing";
 import { GUIDE_STEP_SUMMARIES } from "@/lib/data/guide-steps";
 import { StepOverview } from "@/components/ui/step-overview";
@@ -189,9 +191,23 @@ const STRATEGIES: {
   },
 ];
 
+/* ── 유형 검증 ── */
+function isValidCostType(v: string | undefined): v is CostTypeId {
+  return !!v && COST_TYPES.some((t) => t.id === v);
+}
+
 /* ── Page ── */
-export default function CostsPage() {
+interface PageProps {
+  searchParams: Promise<{ type?: string }>;
+}
+
+export default async function CostsPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const activeType: CostTypeId = isValidCostType(params.type) ? params.type : "farming";
+  const profile = COST_TYPE_PROFILES[activeType];
+
   const maxAge = Math.max(...costByAge.map((d) => d.raw));
+  const showSection = (key: string) => profile.visibleSections.includes(key as typeof profile.visibleSections[number]);
 
   return (
     <div className={s.page}>
@@ -231,363 +247,372 @@ export default function CostsPage() {
       {/* ═══ 히어로 ═══ */}
       <SubPageHero
         overline="Cost Guide"
-        title="귀농, 실제로 얼마가 필요할까?"
+        title={`${profile.label}, 실제로 얼마가 필요할까?`}
         titleAccent="실제로 얼마"
-        description="평균 6,219만 원. 하지만 연령, 작물, 지역에 따라 달라요. 내 상황에 맞는 현실적 비용을 확인하세요."
+        description={profile.desc}
       />
+
+      {/* 신뢰도 안내 */}
+      {profile.confidenceNote && (
+        <p className={s.confidenceNote}>* {profile.confidenceNote}</p>
+      )}
 
       {/* ═══ 비용 요약 스냅샷 ═══ */}
       <section className={s.snapshot} aria-label="비용 요약">
         <div className={s.snapshotMain}>
-          <p className={s.snapshotLabel}>귀농 평균 총 비용</p>
+          <p className={s.snapshotLabel}>{profile.snapshot.totalLabel}</p>
           <p className={s.snapshotValue}>
-            6,219<span className={s.snapshotUnit}>만 원</span>
+            {profile.snapshot.totalValue}
+            <span className={s.snapshotUnit}>{profile.snapshot.totalUnit}</span>
           </p>
           <p className={s.snapshotSub}>
-            이 중 <strong>{costSummary.farmlandPct}</strong>가 영농 준비에 집중
+            <SnapshotSub text={profile.snapshot.totalSub} />
           </p>
         </div>
         <div className={s.snapshotGrid}>
-          <SnapshotCard
-            label="영농 준비 비용"
-            value={costSummary.farmlandAmount}
-            sub="농지·시설·장비"
-          />
-          <SnapshotCard
-            label="평균 준비 기간"
-            value={costSummary.prepMonths}
-            sub="탐색부터 정착까지"
-          />
-          <SnapshotCard
-            label="정부 창업자금"
-            value={costSummary.govLoanMax}
-            sub="저금리 융자 지원"
-          />
-          <SnapshotCard
-            label="주택자금 지원"
-            value={costSummary.housingMax}
-            sub="정부 융자 지원"
-          />
+          {profile.snapshot.items.map((item) => (
+            <SnapshotCard
+              key={item.label}
+              label={item.label}
+              value={item.value}
+              sub={item.sub}
+            />
+          ))}
         </div>
-        <DataSource source="농림축산식품부 2025 귀농귀촌 실태조사" />
+        <DataSource source={profile.source} />
       </section>
 
       {/* ═══ 연령별 초기 투자 비용 ═══ */}
-      <section className={s.section} aria-label="연령별 비용">
-        <h2 className={s.sectionTitle}>
-          <Users size={20} />
-          연령별 초기 투자 비용
-        </h2>
-        <p className={s.sectionDesc}>
-          <AutoGlossary text="40대의 투자금이 가장 높은 이유는 시설 투자(하우스, 스마트팜)에 적극적이기 때문이에요. 60대는 소규모 노지 재배를 선택하는 경우가 많아 투자금이 낮아요." />
-        </p>
-        <div
-          className={s.barChart}
-          role="img"
-          aria-label="연령별 초기 투자 비용 막대 그래프"
-        >
-          {costByAge.map((item) => (
-            <div key={item.age} className={s.barRow}>
-              <span className={s.barLabel}>{item.age}</span>
-              <div className={s.barTrack}>
-                <div
-                  className={s.barFill}
-                  style={{ width: `${(item.raw / maxAge) * 100}%` }}
-                />
-              </div>
-              <span className={s.barValue}>{item.amount}</span>
-            </div>
-          ))}
-        </div>
-        <Link href="/programs" className={s.inlineLink}>
-          내 나이에 맞는 지원사업 확인하기 <ArrowRight size={14} />
-        </Link>
-      </section>
-
-      {/* ═══ 작물별 초기 투자 비교 ═══ */}
-      <section className={s.section} aria-label="작물별 투자 비교">
-        <h2 className={s.sectionTitle}>
-          <Sprout size={20} />
-          작물별 초기 투자, 이렇게 다릅니다
-        </h2>
-        <p className={s.sectionDesc}>
-          <AutoGlossary text="평균 6,219만 원이라는 숫자는 작물에 따라 크게 달라요. 콩은 500만 원 미만으로도 시작할 수 있지만, 딸기 하우스는 1억 원 이상 투자가 필요해요." />
-        </p>
-
-        {/* ── 모바일: 가로 스크롤 카드 ── */}
-        <div className={s.cropCarousel} aria-label="작물별 투자 비용 카드">
-          {CROP_COSTS.map((crop) => (
-            <Link
-              key={crop.id}
-              href={`/crops/${crop.id}`}
-              className={s.cropCard}
-            >
-              <div className={s.cropCardTop}>
-                <Image
-                  src={`/crops/${crop.id}.jpg`}
-                  alt={crop.name}
-                  width={44}
-                  height={44}
-                  className={s.cropCardImg}
-                />
-                <span
-                  className={`${s.difficultyBadge} ${
-                    crop.difficulty === "쉬움"
-                      ? s.difficultyEasy
-                      : crop.difficulty === "보통"
-                        ? s.difficultyMedium
-                        : s.difficultyHard
-                  }`}
-                >
-                  {crop.difficulty}
-                </span>
-              </div>
-              <span className={s.cropCardName}>{crop.name}</span>
-              <span className={s.cropCardCost}>{crop.initialCost}</span>
-              <div className={s.cropCardMeta}>
-                <span>손익분기 {crop.breakEven}</span>
-                <span>{crop.labor}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* ── 데스크탑: 테이블 ── */}
-        <div className={s.cropTable} role="table" aria-label="작물별 투자 비용 비교표">
-          {/* 테이블 헤더 */}
-          <div className={`${s.cropRow} ${s.cropRowHeader}`} role="row">
-            <span className={s.cropCellHeader} role="columnheader">작물</span>
-            <span className={s.cropCellHeader} role="columnheader">초기 투자</span>
-            <span className={s.cropCellHeader} role="columnheader">연 운영비</span>
-            <span className={s.cropCellHeader} role="columnheader">손익분기</span>
-            <span className={s.cropCellHeader} role="columnheader">노동일</span>
-            <span className={s.cropCellHeader} role="columnheader">난이도</span>
-          </div>
-          {CROP_COSTS.map((crop) => (
-            <Link
-              key={crop.id}
-              href={`/crops/${crop.id}`}
-              className={`${s.cropRow} ${s.cropRowData}`}
-              role="row"
-            >
-              <span className={s.cropName} role="cell">
-                <Image
-                  src={`/crops/${crop.id}.jpg`}
-                  alt={crop.name}
-                  width={32}
-                  height={32}
-                  className={s.cropImg}
-                />
-                {crop.name}
-              </span>
-              <span className={s.cropCell} role="cell" data-label="초기 투자">
-                {crop.initialCost}
-              </span>
-              <span className={s.cropCell} role="cell" data-label="연 운영비">
-                {crop.annual}
-              </span>
-              <span className={s.cropCell} role="cell" data-label="손익분기">
-                {crop.breakEven}
-              </span>
-              <span className={s.cropCell} role="cell" data-label="노동일">
-                {crop.labor}
-              </span>
-              <span className={s.cropCell} role="cell" data-label="난이도">
-                <span
-                  className={`${s.difficultyBadge} ${
-                    crop.difficulty === "쉬움"
-                      ? s.difficultyEasy
-                      : crop.difficulty === "보통"
-                        ? s.difficultyMedium
-                        : s.difficultyHard
-                  }`}
-                >
-                  {crop.difficulty}
-                </span>
-              </span>
-            </Link>
-          ))}
-        </div>
-
-        <Link href="/crops" className={s.inlineLink}>
-          {CROPS.length}종 작물 전체 비교하기 <ArrowRight size={14} />
-        </Link>
-      </section>
-
-      {/* ═══ 단계별 비용 — 5단계 가이드 공용 컴포넌트 ═══ */}
-      <section className={s.section} aria-label="단계별 비용">
-        <h2 className={s.sectionTitle}>
-          <Calendar size={20} />
-          단계별 비용, 한눈에 보기
-        </h2>
-        <p className={s.sectionDesc}>
-          <AutoGlossary
-            text={`평균 ${costSummary.prepMonths}의 준비 기간 중, 비용의 대부분은 4단계(영농 시작)에 집중돼요. 각 카드를 탭하면 해당 단계의 상세 가이드를 확인할 수 있어요.`}
-          />
-        </p>
-        <StepOverview steps={GUIDE_STEP_SUMMARIES} />
-      </section>
-
-      {/* ═══ 도시 vs 귀농 생활비 ═══ */}
-      <section className={s.section} aria-label="도시 농촌 생활비 비교">
-        <h2 className={s.sectionTitle}>
-          <Home size={20} />
-          초기 투자 이후, 생활비는 줄어듭니다
-        </h2>
-        <p className={s.sectionDesc}>
-          <AutoGlossary text="귀농 후 월 생활비는 평균 25% 감소하고, 주거비는 80% 절감돼요. 초기 투자가 부담되더라도 장기적으로 생활비 절감 효과가 있어요." />
-        </p>
-
-        <div className={s.compareCard}>
-          {costCompareRows.map((row, i) => {
-            const sentimentClass =
-              row.sentiment === "caution"
-                ? s.compareCaution
-                : row.sentiment === "neutral"
-                  ? s.compareNeutral
-                  : s.comparePositive;
-            return (
-              <div
-                key={row.label}
-                className={`${s.compareRow} ${i === 0 ? s.compareRowFirst : ""}`}
-              >
-                <span className={s.compareLabel}>{row.label}</span>
-                <div className={s.compareValues}>
-                  <div className={s.compareCol}>
-                    <span className={s.compareColLabel}>도시</span>
-                    <span className={s.compareColValue}>{row.city}</span>
-                  </div>
-                  <span className={s.compareArrow}>→</span>
-                  <div className={s.compareCol}>
-                    <span className={s.compareColLabel}>농촌</span>
-                    <span className={`${s.compareColValue} ${s.compareColRural}`}>
-                      {row.rural}
-                    </span>
-                  </div>
-                  <span className={`${s.compareChange} ${sentimentClass}`}>
-                    {row.change}
-                  </span>
+      {showSection("age") && (
+        <section className={s.section} aria-label="연령별 비용">
+          <h2 className={s.sectionTitle}>
+            <Users size={20} />
+            연령별 초기 투자 비용
+          </h2>
+          <p className={s.sectionDesc}>
+            <AutoGlossary text="40대의 투자금이 가장 높은 이유는 시설 투자(하우스, 스마트팜)에 적극적이기 때문이에요. 60대는 소규모 노지 재배를 선택하는 경우가 많아 투자금이 낮아요." />
+          </p>
+          <div
+            className={s.barChart}
+            role="img"
+            aria-label="연령별 초기 투자 비용 막대 그래프"
+          >
+            {costByAge.map((item) => (
+              <div key={item.age} className={s.barRow}>
+                <span className={s.barLabel}>{item.age}</span>
+                <div className={s.barTrack}>
+                  <div
+                    className={s.barFill}
+                    style={{ width: `${(item.raw / maxAge) * 100}%` }}
+                  />
                 </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <p className={s.compareSummary}>
-          <PiggyBank size={16} />
-          월 생활비만 따져도 <strong>연간 약 792만 원</strong> 절감 효과
-        </p>
-      </section>
-
-      {/* ═══ 비용 절감 전략 ═══ */}
-      <section className={s.section} aria-label="비용 절감 전략">
-        <h2 className={s.sectionTitle}>
-          <TrendingDown size={20} />
-          비용, 이렇게 줄일 수 있어요
-        </h2>
-        <p className={s.sectionDesc}>
-          <AutoGlossary text="정부 융자와 지원사업을 활용하면 초기 부담을 크게 줄일 수 있어요." />
-        </p>
-        <div className={s.strategies}>
-          {STRATEGIES.map((strategy, i) => (
-            <Link key={i} href={strategy.href} className={s.strategyCard}>
-              <div className={s.strategyTop}>
-                <h3 className={s.strategyTitle}>{strategy.title}</h3>
-                {strategy.type && (
-                  <SupportTypeBadge type={strategy.type} />
-                )}
-              </div>
-              <p className={s.strategyDesc}>{strategy.desc}</p>
-              <div className={s.strategyBottom}>
-                <span className={s.strategySaving}>
-                  <Banknote size={14} />
-                  {strategy.saving}
-                </span>
-                <ArrowRight size={14} className={s.strategyArrow} />
-              </div>
-            </Link>
-          ))}
-        </div>
-        <div className={s.strategyLinks}>
-          <Link href="/programs/roadmap" className={s.inlineLink}>
-            정부사업 신청 가이드 보기 <ArrowRight size={14} />
-          </Link>
-          <Link href="/programs" className={s.inlineLink}>
-            지원사업 검색하기 <ArrowRight size={14} />
-          </Link>
-        </div>
-      </section>
-
-      {/* ═══ 지원금 적용 시뮬레이션 ═══ */}
-      <section className={s.section} aria-label="지원금 시뮬레이션">
-        <h2 className={s.sectionTitle}>
-          <PiggyBank size={20} />
-          정부 지원을 적용하면?
-        </h2>
-        <p className={s.sectionDesc}>
-          <AutoGlossary text="평균 6,219만 원의 초기 비용, 정부 지원사업을 활용하면 실질 자기자본 부담을 크게 줄일 수 있어요." />
-        </p>
-
-        <div className={s.simCard}>
-          {/* Before */}
-          <div className={s.simBefore}>
-            <span className={s.simLabel}>평균 초기 투자금</span>
-            <span className={s.simBeforeValue}>
-              6,219<span className={s.simBeforeUnit}>만 원</span>
-            </span>
-          </div>
-
-          {/* 지원 항목 */}
-          <div className={s.simItems}>
-            {SUPPORT_ITEMS.map((item, i) => (
-              <div key={i} className={s.simItem}>
-                <div className={s.simItemLeft}>
-                  <span className={s.simItemLabel}>{item.label}</span>
-                  <span className={s.simItemNote}>{item.note}</span>
-                </div>
-                <div className={s.simItemRight}>
-                  <SupportTypeBadge type={item.type} />
-                  <span className={s.simItemAmount}>{item.amount}</span>
-                </div>
+                <span className={s.barValue}>{item.amount}</span>
               </div>
             ))}
           </div>
+          <Link href="/programs" className={s.inlineLink}>
+            내 나이에 맞는 지원사업 확인하기 <ArrowRight size={14} />
+          </Link>
+        </section>
+      )}
 
-          {/* After */}
-          <div className={s.simAfter}>
-            <div className={s.simAfterContent}>
-              <span className={s.simAfterLabel}>
-                지원금 활용 시 실질 부담
-              </span>
-              <span className={s.simAfterValue}>
-                자기자본 2,000만 원대로 시작 가능
-              </span>
-              <span className={s.simAfterSub}>
-                * 청년창업농(만 18~39세)의 경우 보조금 + 융자 조합으로 더 낮출 수
-                있어요
+      {/* ═══ 작물별 초기 투자 비교 ═══ */}
+      {showSection("crop") && (
+        <section className={s.section} aria-label="작물별 투자 비교">
+          <h2 className={s.sectionTitle}>
+            <Sprout size={20} />
+            작물별 초기 투자, 이렇게 다릅니다
+          </h2>
+          <p className={s.sectionDesc}>
+            <AutoGlossary text="평균 투자금이라는 숫자는 작물에 따라 크게 달라요. 콩은 500만 원 미만으로도 시작할 수 있지만, 딸기 하우스는 1억 원 이상 투자가 필요해요." />
+          </p>
+
+          {/* ── 모바일: 가로 스크롤 카드 ── */}
+          <div className={s.cropCarousel} aria-label="작물별 투자 비용 카드">
+            {CROP_COSTS.map((crop) => (
+              <Link
+                key={crop.id}
+                href={`/crops/${crop.id}`}
+                className={s.cropCard}
+              >
+                <div className={s.cropCardTop}>
+                  <Image
+                    src={`/crops/${crop.id}.jpg`}
+                    alt={crop.name}
+                    width={44}
+                    height={44}
+                    className={s.cropCardImg}
+                  />
+                  <span
+                    className={`${s.difficultyBadge} ${
+                      crop.difficulty === "쉬움"
+                        ? s.difficultyEasy
+                        : crop.difficulty === "보통"
+                          ? s.difficultyMedium
+                          : s.difficultyHard
+                    }`}
+                  >
+                    {crop.difficulty}
+                  </span>
+                </div>
+                <span className={s.cropCardName}>{crop.name}</span>
+                <span className={s.cropCardCost}>{crop.initialCost}</span>
+                <div className={s.cropCardMeta}>
+                  <span>손익분기 {crop.breakEven}</span>
+                  <span>{crop.labor}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* ── 데스크탑: 테이블 ── */}
+          <div className={s.cropTable} role="table" aria-label="작물별 투자 비용 비교표">
+            {/* 테이블 헤더 */}
+            <div className={`${s.cropRow} ${s.cropRowHeader}`} role="row">
+              <span className={s.cropCellHeader} role="columnheader">작물</span>
+              <span className={s.cropCellHeader} role="columnheader">초기 투자</span>
+              <span className={s.cropCellHeader} role="columnheader">연 운영비</span>
+              <span className={s.cropCellHeader} role="columnheader">손익분기</span>
+              <span className={s.cropCellHeader} role="columnheader">노동일</span>
+              <span className={s.cropCellHeader} role="columnheader">난이도</span>
+            </div>
+            {CROP_COSTS.map((crop) => (
+              <Link
+                key={crop.id}
+                href={`/crops/${crop.id}`}
+                className={`${s.cropRow} ${s.cropRowData}`}
+                role="row"
+              >
+                <span className={s.cropName} role="cell">
+                  <Image
+                    src={`/crops/${crop.id}.jpg`}
+                    alt={crop.name}
+                    width={32}
+                    height={32}
+                    className={s.cropImg}
+                  />
+                  {crop.name}
+                </span>
+                <span className={s.cropCell} role="cell" data-label="초기 투자">
+                  {crop.initialCost}
+                </span>
+                <span className={s.cropCell} role="cell" data-label="연 운영비">
+                  {crop.annual}
+                </span>
+                <span className={s.cropCell} role="cell" data-label="손익분기">
+                  {crop.breakEven}
+                </span>
+                <span className={s.cropCell} role="cell" data-label="노동일">
+                  {crop.labor}
+                </span>
+                <span className={s.cropCell} role="cell" data-label="난이도">
+                  <span
+                    className={`${s.difficultyBadge} ${
+                      crop.difficulty === "쉬움"
+                        ? s.difficultyEasy
+                        : crop.difficulty === "보통"
+                          ? s.difficultyMedium
+                          : s.difficultyHard
+                    }`}
+                  >
+                    {crop.difficulty}
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          <Link href="/crops" className={s.inlineLink}>
+            {CROPS.length}종 작물 전체 비교하기 <ArrowRight size={14} />
+          </Link>
+        </section>
+      )}
+
+      {/* ═══ 단계별 비용 — 5단계 가이드 공용 컴포넌트 ═══ */}
+      {showSection("phase") && (
+        <section className={s.section} aria-label="단계별 비용">
+          <h2 className={s.sectionTitle}>
+            <Calendar size={20} />
+            단계별 비용, 한눈에 보기
+          </h2>
+          <p className={s.sectionDesc}>
+            <AutoGlossary
+              text="비용의 대부분은 4단계(영농 시작)에 집중돼요. 각 카드를 탭하면 해당 단계의 상세 가이드를 확인할 수 있어요."
+            />
+          </p>
+          <StepOverview steps={GUIDE_STEP_SUMMARIES} />
+        </section>
+      )}
+
+      {/* ═══ 도시 vs 귀농 생활비 ═══ */}
+      {showSection("compare") && (
+        <section className={s.section} aria-label="도시 농촌 생활비 비교">
+          <h2 className={s.sectionTitle}>
+            <Home size={20} />
+            초기 투자 이후, 생활비는 줄어듭니다
+          </h2>
+          <p className={s.sectionDesc}>
+            <AutoGlossary text="귀농 후 월 생활비는 평균 25% 감소하고, 주거비는 80% 절감돼요. 초기 투자가 부담되더라도 장기적으로 생활비 절감 효과가 있어요." />
+          </p>
+
+          <div className={s.compareCard}>
+            {costCompareRows.map((row, i) => {
+              const sentimentClass =
+                row.sentiment === "caution"
+                  ? s.compareCaution
+                  : row.sentiment === "neutral"
+                    ? s.compareNeutral
+                    : s.comparePositive;
+              return (
+                <div
+                  key={row.label}
+                  className={`${s.compareRow} ${i === 0 ? s.compareRowFirst : ""}`}
+                >
+                  <span className={s.compareLabel}>{row.label}</span>
+                  <div className={s.compareValues}>
+                    <div className={s.compareCol}>
+                      <span className={s.compareColLabel}>도시</span>
+                      <span className={s.compareColValue}>{row.city}</span>
+                    </div>
+                    <span className={s.compareArrow}>→</span>
+                    <div className={s.compareCol}>
+                      <span className={s.compareColLabel}>농촌</span>
+                      <span className={`${s.compareColValue} ${s.compareColRural}`}>
+                        {row.rural}
+                      </span>
+                    </div>
+                    <span className={`${s.compareChange} ${sentimentClass}`}>
+                      {row.change}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <p className={s.compareSummary}>
+            <PiggyBank size={16} />
+            월 생활비만 따져도 <strong>연간 약 792만 원</strong> 절감 효과
+          </p>
+        </section>
+      )}
+
+      {/* ═══ 비용 절감 전략 ═══ */}
+      {showSection("strategy") && (
+        <section className={s.section} aria-label="비용 절감 전략">
+          <h2 className={s.sectionTitle}>
+            <TrendingDown size={20} />
+            비용, 이렇게 줄일 수 있어요
+          </h2>
+          <p className={s.sectionDesc}>
+            <AutoGlossary text="정부 융자와 지원사업을 활용하면 초기 부담을 크게 줄일 수 있어요." />
+          </p>
+          <div className={s.strategies}>
+            {STRATEGIES.map((strategy, i) => (
+              <Link key={i} href={strategy.href} className={s.strategyCard}>
+                <div className={s.strategyTop}>
+                  <h3 className={s.strategyTitle}>{strategy.title}</h3>
+                  {strategy.type && (
+                    <SupportTypeBadge type={strategy.type} />
+                  )}
+                </div>
+                <p className={s.strategyDesc}>{strategy.desc}</p>
+                <div className={s.strategyBottom}>
+                  <span className={s.strategySaving}>
+                    <Banknote size={14} />
+                    {strategy.saving}
+                  </span>
+                  <ArrowRight size={14} className={s.strategyArrow} />
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className={s.strategyLinks}>
+            <Link href="/programs/roadmap" className={s.inlineLink}>
+              정부사업 신청 가이드 보기 <ArrowRight size={14} />
+            </Link>
+            <Link href="/programs" className={s.inlineLink}>
+              지원사업 검색하기 <ArrowRight size={14} />
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* ═══ 지원금 적용 시뮬레이션 ═══ */}
+      {showSection("support") && (
+        <section className={s.section} aria-label="지원금 시뮬레이션">
+          <h2 className={s.sectionTitle}>
+            <PiggyBank size={20} />
+            정부 지원을 적용하면?
+          </h2>
+          <p className={s.sectionDesc}>
+            <AutoGlossary text="평균 초기 비용, 정부 지원사업을 활용하면 실질 자기자본 부담을 크게 줄일 수 있어요." />
+          </p>
+
+          <div className={s.simCard}>
+            {/* Before */}
+            <div className={s.simBefore}>
+              <span className={s.simLabel}>평균 초기 투자금</span>
+              <span className={s.simBeforeValue}>
+                {profile.snapshot.totalValue}
+                <span className={s.simBeforeUnit}>{profile.snapshot.totalUnit}</span>
               </span>
             </div>
-          </div>
-        </div>
 
-        <Link href="/programs" className={s.inlineLink}>
-          내 조건에 맞는 지원사업 찾기 <ArrowRight size={14} />
-        </Link>
-      </section>
+            {/* 지원 항목 */}
+            <div className={s.simItems}>
+              {SUPPORT_ITEMS.map((item, i) => (
+                <div key={i} className={s.simItem}>
+                  <div className={s.simItemLeft}>
+                    <span className={s.simItemLabel}>{item.label}</span>
+                    <span className={s.simItemNote}>{item.note}</span>
+                  </div>
+                  <div className={s.simItemRight}>
+                    <SupportTypeBadge type={item.type} />
+                    <span className={s.simItemAmount}>{item.amount}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* After */}
+            <div className={s.simAfter}>
+              <div className={s.simAfterContent}>
+                <span className={s.simAfterLabel}>
+                  지원금 활용 시 실질 부담
+                </span>
+                <span className={s.simAfterValue}>
+                  자기자본 2,000만 원대로 시작 가능
+                </span>
+                <span className={s.simAfterSub}>
+                  * 청년창업농(만 18~39세)의 경우 보조금 + 융자 조합으로 더 낮출 수
+                  있어요
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <Link href="/programs" className={s.inlineLink}>
+            내 조건에 맞는 지원사업 찾기 <ArrowRight size={14} />
+          </Link>
+        </section>
+      )}
 
       {/* ═══ 인터랙티브 시뮬레이터 ═══ */}
-      <section id="simulator" className={s.section} aria-label="비용 시뮬레이터">
-        <h2 className={s.sectionTitle}>
-          <Calculator size={20} />
-          내 상황으로 계산해 보기
-        </h2>
-        <p className={s.sectionDesc}>
-          연령, 작물, 규모를 선택하면 예상 비용과 지원금 절감 효과를 바로 확인할 수 있어요.
-        </p>
-        <Suspense fallback={null}>
-          <CostSimulator />
-        </Suspense>
-      </section>
+      {showSection("simulator") && (
+        <section id="simulator" className={s.section} aria-label="비용 시뮬레이터">
+          <h2 className={s.sectionTitle}>
+            <Calculator size={20} />
+            내 상황으로 계산해 보기
+          </h2>
+          <p className={s.sectionDesc}>
+            연령, 작물, 규모를 선택하면 예상 비용과 지원금 절감 효과를 바로 확인할 수 있어요.
+          </p>
+          <Suspense fallback={null}>
+            <CostSimulator />
+          </Suspense>
+        </section>
+      )}
 
       <ReferenceNotice text="비용 데이터는 농림축산식품부 실태조사·농촌진흥청 자료를 가공한 참고 자료예요." />
 
@@ -612,6 +637,20 @@ export default function CostsPage() {
 }
 
 /* ── 서브 컴포넌트 ── */
+
+/** <strong> 태그가 포함된 totalSub 텍스트를 React 요소로 변환 */
+function SnapshotSub({ text }: { text: string }) {
+  const parts = text.split(/(<strong>.*?<\/strong>)/);
+  return (
+    <>
+      {parts.map((part, i) => {
+        const match = part.match(/^<strong>(.*)<\/strong>$/);
+        if (match) return <strong key={i}>{match[1]}</strong>;
+        return part;
+      })}
+    </>
+  );
+}
 
 function SnapshotCard({
   label,

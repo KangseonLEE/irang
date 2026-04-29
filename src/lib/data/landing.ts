@@ -66,55 +66,7 @@ export const dataSources: DataSourceItem[] = [
   },
 ];
 
-/* ── 귀농 트렌드 데이터 (출처: 통계청·농림축산식품부, 2024년 귀농귀촌인통계) ── */
-
-export interface TrendStat {
-  value: string;
-  label: string;
-  sub: string;
-  desc: string;
-  href: string;
-}
-
-export const trendStats: TrendStat[] = [
-  {
-    value: "1.2만",
-    label: "2024 귀농 인구",
-    sub: "귀촌 42.2만 포함 시 +5.7%",
-    desc: "매년 꾸준히 도시를 떠나 농촌에 정착하는 사람들이 늘고 있어요",
-    href: "/stats/population",
-  },
-  {
-    value: "13.1%",
-    label: "청년 귀농 비율",
-    sub: "역대 최고 기록",
-    desc: "2030 세대의 귀농이 빠르게 늘며 농촌의 평균 연령이 낮아지고 있어요",
-    href: "/stats/youth",
-  },
-  {
-    value: "70%",
-    label: "귀농 만족도",
-    sub: "도시 대비 생활비 25%↓",
-    desc: "귀농 후 삶의 질이 높아졌다고 응답한 비율이에요",
-    href: "/stats/satisfaction",
-  },
-];
-
-export interface TrendReason {
-  label: string;
-  pct: number;
-}
-
-/** 귀농귀촌 실태조사 응답자 수 (2025 기준) */
-export const trendSurveyRespondents = "3,092명";
-
-export const trendReasons: TrendReason[] = [
-  { label: "자연환경이 좋아서", pct: 30 },
-  { label: "농업의 비전·발전 가능성", pct: 22 },
-  { label: "가업승계", pct: 19 },
-  { label: "가족·친지 근처 거주", pct: 15 },
-  { label: "건강·여유로운 생활", pct: 8 },
-];
+/* ── (구) 귀농 트렌드 데이터: TREND_BENTO_PROFILES로 이전 완료 ── */
 
 /**
  * 뉴스 아이템 (폴백 전용 — 네이버 API 미설정/장애 시 표시)
@@ -366,6 +318,442 @@ export const hotPrograms = [
     tag: "체류형 귀농 체험",
   },
 ];
+
+/* ── 귀농 트렌드 벤토 데이터 ── */
+
+export type TrendTypeId = "farming" | "rural" | "youth" | "mountain" | "smartfarm";
+
+export const TREND_TYPES: { id: TrendTypeId; label: string }[] = [
+  { id: "farming", label: "귀농" },
+  { id: "rural", label: "귀촌" },
+  { id: "youth", label: "청년농" },
+  { id: "mountain", label: "귀산촌" },
+  { id: "smartfarm", label: "스마트팜" },
+];
+
+export interface TrendBentoStat {
+  value: string;
+  label: string;
+  sub: string;
+  desc: string;
+}
+
+export interface TrendBentoProfile {
+  id: TrendTypeId;
+  label: string;
+  title: string;
+  titleEm: string;
+  subtitle: string;
+  href: string;
+  source: string;
+  hero: { value: string; label: string; sub: string; desc: string };
+  stats: [TrendBentoStat, TrendBentoStat];
+  chart: { title: string; surveyLabel: string; items: { label: string; pct: number }[] };
+  compare: { title: string; items: { label: string; change: string; detail: string }[] };
+}
+
+export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
+  farming: {
+    id: "farming",
+    label: "귀농",
+    title: "왜 귀농을 할까?",
+    titleEm: "귀농",
+    subtitle: "매년 1.2만 명이 도시를 떠나 농촌을 선택하고 있어요",
+    href: "/stats/population",
+    source: "통계청 · 농림축산식품부 2025 귀농귀촌 실태조사",
+    hero: {
+      value: "1.2만",
+      label: "2024 귀농 인구",
+      sub: "귀촌 42.2만 포함 시 +5.7%",
+      desc: "매년 꾸준히 도시를 떠나 농촌에 정착하는 사람들이 늘고 있어요",
+    },
+    stats: [
+      { value: "13.1%", label: "청년 귀농 비율", sub: "역대 최고 기록", desc: "2030 세대의 귀농이 빠르게 늘며 농촌의 평균 연령이 낮아지고 있어요" },
+      { value: "70%", label: "귀농 만족도", sub: "도시 대비 생활비 25%↓", desc: "귀농 후 삶의 질이 높아졌다고 응답한 비율이에요" },
+    ],
+    chart: {
+      title: "어떤 이유로 떠났을까?",
+      surveyLabel: "귀농인 3,092명 응답",
+      items: [
+        { label: "자연환경이 좋아서", pct: 30 },
+        { label: "농업의 비전·발전 가능성", pct: 22 },
+        { label: "가업승계", pct: 19 },
+        { label: "가족·친지 근처 거주", pct: 15 },
+        { label: "건강·여유로운 생활", pct: 8 },
+      ],
+    },
+    compare: {
+      title: "농촌으로 가면 뭐가 달라질까?",
+      items: [
+        { label: "월 생활비", change: "-25.1%", detail: "239만 원 → 173만 원" },
+        { label: "주거비 (3.3㎡당)", change: "-80%", detail: "1,800만 원 → 350만 원" },
+        { label: "출퇴근", change: "-48분", detail: "평균 58분 → 차로 10분" },
+        { label: "생활 만족도", change: "+18%p", detail: "52% → 70%" },
+      ],
+    },
+  },
+  rural: {
+    id: "rural",
+    label: "귀촌",
+    title: "왜 귀촌을 할까?",
+    titleEm: "귀촌",
+    subtitle: "42.2만 명이 농업 없이도 농촌에서 새 삶을 시작했어요",
+    href: "/stats/population",
+    source: "통계청 2025 귀농귀촌인통계",
+    hero: {
+      value: "42.2만",
+      label: "2024 귀촌 인구",
+      sub: "역대 최대 · 전년 대비 +5.7%",
+      desc: "농업 없이 농촌에 정착하는 귀촌 인구가 역대 최대를 기록했어요",
+    },
+    stats: [
+      { value: "23.4%", label: "30대 비중", sub: "가장 많은 연령대", desc: "30대가 귀촌 인구 중 가장 높은 비율을 차지하고 있어요" },
+      { value: "42.7%", label: "수도권 출발", sub: "서울·경기·인천", desc: "수도권에서 출발하는 귀촌이 절반에 가까워요" },
+    ],
+    chart: {
+      title: "왜 농촌을 선택했을까?",
+      surveyLabel: "귀촌인 실태조사",
+      items: [
+        { label: "전원생활 선호", pct: 35 },
+        { label: "직장 이전·통근", pct: 22 },
+        { label: "가족과 동거", pct: 18 },
+        { label: "주거비 절감", pct: 15 },
+        { label: "건강·여가 활동", pct: 10 },
+      ],
+    },
+    compare: {
+      title: "귀촌하면 뭐가 달라질까?",
+      items: [
+        { label: "주거 면적", change: "2.2배", detail: "58㎡ → 130㎡ 단독주택" },
+        { label: "월 생활비", change: "-25.1%", detail: "239만 원 → 173만 원" },
+        { label: "미세먼지", change: "-29%", detail: "24㎍/㎥ → 17㎍/㎥" },
+        { label: "출퇴근", change: "-48분", detail: "평균 58분 → 차로 10분" },
+      ],
+    },
+  },
+  youth: {
+    id: "youth",
+    label: "청년농",
+    title: "청년, 왜 농업을 택할까?",
+    titleEm: "농업",
+    subtitle: "40세 미만 청년농 비율 13.1%로 역대 최고를 기록했어요",
+    href: "/stats/youth",
+    source: "농림축산식품부 2025 귀농귀촌 실태조사",
+    hero: {
+      value: "13.1%",
+      label: "청년농 비율",
+      sub: "40세 미만 · 역대 최고",
+      desc: "스마트팜과 6차 산업으로 청년 귀농이 빠르게 늘고 있어요",
+    },
+    stats: [
+      { value: "3,960만원", label: "영농정착지원금", sub: "월 110만원 × 3년", desc: "만 18~39세 청년 창업농에게 지급되는 정부 보조금이에요" },
+      { value: "33세", label: "평균 나이", sub: "2024년 기준", desc: "점점 더 젊은 세대가 농업을 선택하고 있어요" },
+    ],
+    chart: {
+      title: "청년이 농업을 택한 이유",
+      surveyLabel: "청년 귀농인 설문",
+      items: [
+        { label: "비전·발전 가능성", pct: 27 },
+        { label: "자연환경이 좋아서", pct: 22 },
+        { label: "자유로운 생활", pct: 19 },
+        { label: "가업승계", pct: 17 },
+        { label: "IT·스마트팜 관심", pct: 15 },
+      ],
+    },
+    compare: {
+      title: "청년농 지원, 얼마나 받을까?",
+      items: [
+        { label: "정착지원금", change: "월 110만원", detail: "보조금 · 최대 3년" },
+        { label: "창업자금", change: "최대 3억원", detail: "저금리 융자 지원" },
+        { label: "농지임차 보조", change: "연 300만원", detail: "임차료 50~80% 지원" },
+        { label: "교육비", change: "전액 무료", detail: "귀농 교육 100시간+" },
+      ],
+    },
+  },
+  mountain: {
+    id: "mountain",
+    label: "귀산촌",
+    title: "왜 산촌으로 떠날까?",
+    titleEm: "산촌",
+    subtitle: "산촌진흥지역으로 이주하는 가구가 꾸준히 늘고 있어요",
+    href: "/stats/mountain",
+    source: "통계청 · 산림청 귀산촌 동향",
+    hero: {
+      value: "2,685",
+      label: "2024 귀산촌 가구",
+      sub: "전년 대비 +9.1%",
+      desc: "자연환경과 건강한 삶을 찾아 산촌으로 이주하는 흐름이에요",
+    },
+    stats: [
+      { value: "74%", label: "7년간 증가율", sub: "2018 → 2024", desc: "2018년 1,542가구에서 7년 만에 74% 증가했어요" },
+      { value: "120+", label: "산촌진흥지역", sub: "전국 지정", desc: "산림청이 지정한 귀산촌 대상 지역이에요" },
+    ],
+    chart: {
+      title: "산촌으로 떠난 이유",
+      surveyLabel: "귀산촌 가구 조사",
+      items: [
+        { label: "자연환경·건강", pct: 38 },
+        { label: "전원생활 선호", pct: 25 },
+        { label: "가족 이유", pct: 15 },
+        { label: "경제적 이유", pct: 12 },
+        { label: "귀농 연계", pct: 10 },
+      ],
+    },
+    compare: {
+      title: "산촌 생활, 뭐가 달라질까?",
+      items: [
+        { label: "주거비", change: "-65%", detail: "도시 대비 크게 절감" },
+        { label: "공기질", change: "PM2.5 -35%", detail: "도시 대비 맑은 공기" },
+        { label: "주거 면적", change: "2배+", detail: "단독주택 130㎡ 이상" },
+        { label: "산림소득", change: "연 500만원+", detail: "임산물·체험 수익" },
+      ],
+    },
+  },
+  smartfarm: {
+    id: "smartfarm",
+    label: "스마트팜",
+    title: "스마트팜, 얼마나 늘었을까?",
+    titleEm: "스마트팜",
+    subtitle: "IoT·AI 기반 스마트팜이 빠르게 확산되고 있어요",
+    href: "/stats/smartfarm",
+    source: "농림축산식품부 · 스마트팜코리아",
+    hero: {
+      value: "8,534",
+      label: "2024 스마트팜 농가",
+      sub: "7년간 +113%",
+      desc: "IoT·AI 기반 정밀 농업이 전국으로 확산되고 있어요",
+    },
+    stats: [
+      { value: "6,370ha", label: "시설면적", sub: "전국 기준", desc: "스마트팜이 설치된 전체 시설면적이에요" },
+      { value: "1만호", label: "2027 목표", sub: "정부 확산 목표", desc: "정부가 추진 중인 스마트팜 확산 목표예요" },
+    ],
+    chart: {
+      title: "주요 재배 작물",
+      surveyLabel: "스마트팜 농가 기준",
+      items: [
+        { label: "딸기", pct: 25 },
+        { label: "토마토", pct: 20 },
+        { label: "파프리카", pct: 15 },
+        { label: "화훼류", pct: 12 },
+        { label: "엽채류", pct: 10 },
+      ],
+    },
+    compare: {
+      title: "스마트팜 도입 효과",
+      items: [
+        { label: "생산량", change: "30~50%↑", detail: "정밀 환경 제어" },
+        { label: "인건비", change: "-30%", detail: "자동화 효과" },
+        { label: "품질 균일도", change: "+40%", detail: "데이터 기반 관리" },
+        { label: "병충해", change: "-20%", detail: "조기 감지·대응" },
+      ],
+    },
+  },
+};
+
+/* ── 비용 유형별 데이터 ── */
+
+export type CostTypeId = "farming" | "village" | "youth" | "forestry" | "smartfarm";
+
+export const COST_TYPES: { id: CostTypeId; label: string }[] = [
+  { id: "farming", label: "귀농" },
+  { id: "village", label: "귀촌" },
+  { id: "youth", label: "청년농" },
+  { id: "forestry", label: "귀산촌" },
+  { id: "smartfarm", label: "스마트팜" },
+];
+
+export interface CostHighlightCard {
+  label: string;
+  desc: string;
+  value: number;
+  /** "integer" → toLocaleString, "decimal1" → toFixed(1), "plain" → toString */
+  format: "integer" | "decimal1" | "plain";
+  unit: string;
+  note?: string;
+  source?: string;
+  color: "primary" | "amber" | "muted";
+}
+
+export interface CostTypeProfile {
+  id: CostTypeId;
+  label: string;
+  headline: string;
+  em: string;
+  desc: string;
+  source: string;
+  confidence: "official" | "estimated" | "range-only";
+  confidenceNote?: string;
+  hero: CostHighlightCard;
+  cards: CostHighlightCard[];
+  /** /costs 페이지 요약 */
+  snapshot: {
+    totalLabel: string;
+    totalValue: string;
+    totalRaw: number;
+    totalUnit: string;
+    totalSub: string;
+    items: { label: string; value: string; sub: string }[];
+  };
+  /** 이 유형에서 표시할 섹션 목록 */
+  visibleSections: ("age" | "crop" | "phase" | "compare" | "strategy" | "support" | "simulator")[];
+}
+
+export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
+  farming: {
+    id: "farming",
+    label: "귀농",
+    headline: "귀농 정착까지,",
+    em: "얼마가 들까?",
+    desc: "평균 6,219만 원의 초기 비용 중 대부분은 영농 준비에 쓰여요. 정부 융자를 활용하면 부담을 크게 줄일 수 있어요.",
+    source: "농림축산식품부 2025 귀농귀촌 실태조사",
+    confidence: "official",
+    hero: { label: "평균 초기 투자금", desc: "농지·시설·장비·종자 등 영농 시작에 필요한 총비용이에요", value: 6219, format: "integer", unit: "만원", color: "primary" },
+    cards: [
+      { label: "영농 준비비 비중", desc: "초기 비용의 대부분이 농지 구입과 시설 투자에 집중돼요", value: 84.6, format: "decimal1", unit: "%", note: "약 5,261만원", color: "primary" },
+      { label: "평균 준비 기간", desc: "탐색부터 정착까지 평균 소요 기간이에요", value: 27.4, format: "decimal1", unit: "개월", color: "amber" },
+      { label: "정부 주택자금 융자", desc: "귀농인 주거 안정을 위한 정부 지원 한도예요", value: 7500, format: "integer", unit: "만원", source: "귀농귀촌 정착지원사업", color: "muted" },
+      { label: "농업창업자금 융자", desc: "영농 정착에 필요한 농지·시설·장비 구입 지원 한도예요", value: 3, format: "plain", unit: "억원", source: "농림축산식품부 융자사업", color: "primary" },
+    ],
+    snapshot: {
+      totalLabel: "귀농 평균 총 비용",
+      totalValue: "6,219",
+      totalRaw: 6219,
+      totalUnit: "만 원",
+      totalSub: "이 중 <strong>84.6%</strong>가 영농 준비에 집중",
+      items: [
+        { label: "영농 준비 비용", value: "5,260만 원", sub: "농지·시설·장비" },
+        { label: "평균 준비 기간", value: "27.4개월", sub: "탐색부터 정착까지" },
+        { label: "정부 창업자금", value: "최대 3억 원", sub: "저금리 융자 지원" },
+        { label: "주택자금 지원", value: "최대 7,500만 원", sub: "정부 융자 지원" },
+      ],
+    },
+    visibleSections: ["age", "crop", "phase", "compare", "strategy", "support", "simulator"],
+  },
+  village: {
+    id: "village",
+    label: "귀촌",
+    headline: "귀촌 정착까지,",
+    em: "비용이 달라요",
+    desc: "농업 없이 농촌에 정착하는 귀촌은 주거비가 비용의 대부분이에요. 임차로 시작하면 초기 부담을 크게 줄일 수 있어요.",
+    source: "귀농귀촌 실태조사 + KB부동산 시세 기반 추정",
+    confidence: "estimated",
+    confidenceNote: "귀촌 단독 공식 실태조사가 없어 주거 시세 기반 추정값이에요",
+    hero: { label: "임차 시작 기준 정착 비용", desc: "농업 없이 농촌에 정착할 때 필요한 주거·생활 비용이에요", value: 2800, format: "integer", unit: "만원", color: "primary" },
+    cards: [
+      { label: "주거비 비중", desc: "귀촌 비용의 대부분이 주택 임차나 구입에 집중돼요", value: 85, format: "decimal1", unit: "%", color: "primary" },
+      { label: "평균 준비 기간", desc: "주거지 탐색과 이주 준비에 걸리는 기간이에요", value: 14, format: "decimal1", unit: "개월", color: "amber" },
+      { label: "주택구입 융자", desc: "귀촌인 주거 안정을 위한 정부 융자 한도예요", value: 7500, format: "integer", unit: "만원", source: "귀농귀촌 정착지원사업", color: "muted" },
+      { label: "지자체 정착 지원금", desc: "시·군별로 귀촌인에게 정착금을 지급해요", value: 1000, format: "integer", unit: "만원", source: "지자체별 300~2,000만 원", color: "primary" },
+    ],
+    snapshot: {
+      totalLabel: "귀촌 정착 비용 (임차 기준)",
+      totalValue: "2,800",
+      totalRaw: 2800,
+      totalUnit: "만 원",
+      totalSub: "주택 구입 시 <strong>1억~1.5억 원</strong>으로 증가",
+      items: [
+        { label: "주거비 (임차)", value: "2,000만~8,000만 원", sub: "전세·월세 보증금" },
+        { label: "이사·정착비", value: "300만~700만 원", sub: "이사비·인테리어" },
+        { label: "주택구입 융자", value: "최대 7,500만 원", sub: "정부 융자 지원" },
+        { label: "정착 지원금", value: "300만~2,000만 원", sub: "지자체별 상이" },
+      ],
+    },
+    visibleSections: ["compare", "strategy", "simulator"],
+  },
+  youth: {
+    id: "youth",
+    label: "청년농",
+    headline: "청년 창업농으로,",
+    em: "얼마로 시작할 수 있을까?",
+    desc: "30대 이하 귀농인의 평균 투자금은 8,209만 원이에요. 영농정착지원금과 창업자금을 합치면 실질 부담을 크게 줄일 수 있어요.",
+    source: "농림축산식품부 2025 실태조사 + 청년창업농 시행지침",
+    confidence: "estimated",
+    confidenceNote: "실태조사 30대 이하 수치를 활용한 추정이에요",
+    hero: { label: "30대 이하 평균 투자금", desc: "청년 귀농인의 평균 초기 투자 비용이에요", value: 8209, format: "integer", unit: "만원", color: "primary" },
+    cards: [
+      { label: "영농 준비비 비중", desc: "농지·시설·장비 투자가 전체의 대부분을 차지해요", value: 80, format: "decimal1", unit: "%", color: "primary" },
+      { label: "평균 준비 기간", desc: "교육과 현장 실습을 거쳐 창업하는 기간이에요", value: 21, format: "decimal1", unit: "개월", color: "amber" },
+      { label: "영농정착지원금", desc: "만 18~39세 창업농에게 월 최대 110만 원을 3년 지원해요", value: 3960, format: "integer", unit: "만원", source: "보조금 · 농림축산식품부", color: "primary" },
+      { label: "농업창업자금 융자", desc: "영농에 필요한 농지·시설·장비 구입 지원 한도예요", value: 3, format: "plain", unit: "억원", source: "농림축산식품부 융자사업", color: "muted" },
+    ],
+    snapshot: {
+      totalLabel: "청년농 평균 총 비용",
+      totalValue: "8,209",
+      totalRaw: 8209,
+      totalUnit: "만 원",
+      totalSub: "영농정착지원금 <strong>최대 3,960만 원</strong> 별도 지원",
+      items: [
+        { label: "영농 준비 비용", value: "약 6,567만 원", sub: "농지·시설·장비" },
+        { label: "영농정착지원금", value: "최대 3,960만 원", sub: "보조금 (만 18~39세)" },
+        { label: "농업창업자금", value: "최대 3억 원", sub: "저금리 융자 지원" },
+        { label: "농지임차 지원", value: "연 최대 300만 원", sub: "임차료 50~80% 보조" },
+      ],
+    },
+    visibleSections: ["crop", "phase", "compare", "strategy", "support", "simulator"],
+  },
+  forestry: {
+    id: "forestry",
+    label: "귀산촌",
+    headline: "귀산촌 정착,",
+    em: "비용 구조가 달라요",
+    desc: "임야 확보와 임산물 시설에 투자가 집중돼요. 산림청이 별도 창업자금을 지원하며, 농림부와 지원 체계가 달라요.",
+    source: "산림청 귀산촌 지원사업 안내",
+    confidence: "range-only",
+    confidenceNote: "공식 실태조사가 없어 품목별 단가 기반 참고값이에요",
+    hero: { label: "평균 창업 비용 (추정)", desc: "임야·시설·종묘 등 귀산촌 창업에 필요한 예상 비용이에요", value: 5000, format: "integer", unit: "만원", color: "primary" },
+    cards: [
+      { label: "시설 투자비 비중", desc: "차광망·재배사 등 임산물 시설에 투자가 집중돼요", value: 60, format: "decimal1", unit: "%", color: "primary" },
+      { label: "평균 준비 기간", desc: "교육이수와 임야 확보에 귀농보다 시간이 더 걸려요", value: 30, format: "decimal1", unit: "개월", color: "amber" },
+      { label: "산림청 창업자금", desc: "임산물 생산·임야 매입·시설 투자 융자 한도예요", value: 3, format: "plain", unit: "억원", source: "산림청 귀산촌 지원사업", color: "muted" },
+      { label: "정착지원(주택)", desc: "귀산촌 정착에 필요한 주택 구입·신축 지원이에요", value: 7500, format: "integer", unit: "만원", source: "산림청 귀산촌 지원사업", color: "primary" },
+    ],
+    snapshot: {
+      totalLabel: "귀산촌 창업 비용 (추정)",
+      totalValue: "3,000~8,000",
+      totalRaw: 5000,
+      totalUnit: "만 원",
+      totalSub: "품목(표고·산양삼·밤 등)에 따라 <strong>편차가 커요</strong>",
+      items: [
+        { label: "임야·시설 투자", value: "2,000~5,000만 원", sub: "차광망·재배사·종묘" },
+        { label: "준비 기간", value: "24~36개월", sub: "교육이수 60~120시간" },
+        { label: "산림청 창업자금", value: "최대 3억 원", sub: "금리 2% 융자 지원" },
+        { label: "정착지원(주택)", value: "최대 7,500만 원", sub: "주택 구입·신축" },
+      ],
+    },
+    visibleSections: ["compare", "strategy"],
+  },
+  smartfarm: {
+    id: "smartfarm",
+    label: "스마트팜",
+    headline: "스마트팜 창업,",
+    em: "초기 투자가 달라요",
+    desc: "비닐하우스 ICT 기준 4,000만 원부터, 유리온실은 2억 원 이상이에요. 정부 시설 보조와 혁신밸리 프로그램을 활용할 수 있어요.",
+    source: "농진청 스마트팜 시설 단가 · 농식품부 혁신밸리 사업",
+    confidence: "range-only",
+    confidenceNote: "시설 유형(비닐하우스·유리온실)에 따라 편차가 커요",
+    hero: { label: "비닐하우스 ICT 기준", desc: "1,000㎡ 비닐하우스에 ICT 기초 장비를 갖추는 비용이에요", value: 4000, format: "integer", unit: "만원", color: "primary" },
+    cards: [
+      { label: "ICT·시설 비중", desc: "하우스 구조물과 환경 제어 장비에 비용이 집중돼요", value: 85, format: "decimal1", unit: "%", color: "primary" },
+      { label: "평균 준비 기간", desc: "혁신밸리 교육 포함, 창업까지 걸리는 기간이에요", value: 12, format: "decimal1", unit: "개월", color: "amber" },
+      { label: "정부 시설 보조", desc: "스마트팜 확산 사업으로 시설비의 일부를 보조받아요", value: 50, format: "plain", unit: "%", source: "농진청 스마트팜 확산사업", color: "primary" },
+      { label: "농업창업자금 융자", desc: "스마트팜 설비와 농지 확보를 위한 융자 한도예요", value: 3, format: "plain", unit: "억원", source: "농림축산식품부 융자사업", color: "muted" },
+    ],
+    snapshot: {
+      totalLabel: "스마트팜 초기 투자 (시설별)",
+      totalValue: "4,000~2억",
+      totalRaw: 4000,
+      totalUnit: "만 원+",
+      totalSub: "유리온실은 <strong>1억~2억 원</strong>, 식물공장은 <strong>5억 원+</strong>",
+      items: [
+        { label: "비닐하우스 + ICT", value: "3,000만~5,000만 원", sub: "1,000㎡ 기준" },
+        { label: "유리온실 + ICT", value: "1억~2억 원", sub: "1,000㎡ 기준" },
+        { label: "정부 시설 보조", value: "시설비 최대 50%", sub: "스마트팜 확산사업" },
+        { label: "혁신밸리 임대형", value: "보증금 1,000만~3,000만", sub: "청년 창업 지원" },
+      ],
+    },
+    visibleSections: ["crop", "compare", "strategy", "simulator"],
+  },
+};
 
 /* ── 귀농 비용 데이터 (출처: 2025 귀농귀촌 실태조사) ── */
 
