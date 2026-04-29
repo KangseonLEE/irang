@@ -242,10 +242,10 @@ export function getCurrentPeriod(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
-/** 조회 시점 옵션 생성 (2026년 1~12월) */
+/** 조회 시점 옵션 생성 (당해 연도 1~12월) */
 export function getPeriodOptions(): { value: string; label: string }[] {
   const options: { value: string; label: string }[] = [];
-  const year = 2026;
+  const year = new Date().getFullYear();
   for (let m = 1; m <= 12; m++) {
     const value = `${year}-${String(m).padStart(2, "0")}`;
     options.push({ value, label: `${year}년 ${m}월` });
