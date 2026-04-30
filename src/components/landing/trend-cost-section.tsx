@@ -93,7 +93,10 @@ function renderTitleWithEm(title: string, em: string) {
   );
 }
 
-/* ── 카테고리 셀렉터 (인라인 + 모바일 sticky 공용) ── */
+/* ── 카테고리 셀렉터 (인라인 + 모바일 sticky 공용) ──
+   indicator div를 JS로 동적 계산하던 패턴을 제거하고 .tabActive에 background를
+   직접 적용. flex: 1 1 0 균등 분배에서 sub-pixel 오차 없이 글자가 항상
+   활성 영역 정중앙에 위치. */
 
 interface CategorySelectorProps {
   activeIdx: number;
@@ -102,37 +105,11 @@ interface CategorySelectorProps {
 }
 
 function CategorySelector({ activeIdx, onChange, ariaLabel }: CategorySelectorProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const [indicatorStyle, setIndicatorStyle] = useState<React.CSSProperties>({});
-
-  const updateIndicator = useCallback((idx: number) => {
-    const tab = tabRefs.current[idx];
-    const container = containerRef.current;
-    if (!tab || !container) return;
-    const containerRect = container.getBoundingClientRect();
-    const tabRect = tab.getBoundingClientRect();
-    setIndicatorStyle({
-      transform: `translateX(${tabRect.left - containerRect.left - 4}px)`,
-      width: `${tabRect.width}px`,
-    });
-  }, []);
-
-  useEffect(() => { updateIndicator(activeIdx); }, [activeIdx, updateIndicator]);
-
-  useEffect(() => {
-    const onResize = () => updateIndicator(activeIdx);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [activeIdx, updateIndicator]);
-
   return (
-    <div className={s.selector} ref={containerRef} role="tablist" aria-label={ariaLabel}>
-      <div className={s.indicator} style={indicatorStyle} />
+    <div className={s.selector} role="tablist" aria-label={ariaLabel}>
       {CATEGORIES.map((c, i) => (
         <button
           key={c.id}
-          ref={(el) => { tabRefs.current[i] = el; }}
           role="tab"
           aria-selected={activeIdx === i}
           className={`${s.tab} ${activeIdx === i ? s.tabActive : ""}`}
