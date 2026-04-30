@@ -3,6 +3,8 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  /* ── dev 환경 외부 도메인 허용 (Cloudflare Tunnel 등) ── */
+  allowedDevOrigins: ["dev.irangfarm.com"],
   /* ── 단축 URL 리라이트 ── */
   async rewrites() {
     return [

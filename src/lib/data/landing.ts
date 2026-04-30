@@ -859,6 +859,20 @@ export const cityVsRural: CompareRow[] = [
     change: "+18%p",
     sentiment: "positive",
   },
+  {
+    label: "산림소득",
+    city: "—",
+    rural: "연 500만~1,500만 원",
+    change: "+α",
+    sentiment: "positive",
+  },
+  {
+    label: "시설농 매출",
+    city: "—",
+    rural: "1.5억~2억 원 (1,000㎡)",
+    change: "+α",
+    sentiment: "positive",
+  },
 ];
 
 /* ── 귀농인 인터뷰 카드 (공개 보도 기반, 실명) ── */

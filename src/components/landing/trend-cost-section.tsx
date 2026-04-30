@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
@@ -81,6 +82,70 @@ function formatCostValue(card: CostHighlightCard, raw: number): string {
   }
 }
 
+/* ── 타이틀에서 em 부분만 강조 렌더링 ── */
+function renderTitleWithEm(title: string, em: string) {
+  const idx = title.indexOf(em);
+  if (idx === -1) return title;
+  return (
+    <>
+      {title.slice(0, idx)}<em>{em}</em>{title.slice(idx + em.length)}
+    </>
+  );
+}
+
+/* ── 카테고리 셀렉터 (인라인 + 모바일 sticky 공용) ── */
+
+interface CategorySelectorProps {
+  activeIdx: number;
+  onChange: (idx: number) => void;
+  ariaLabel: string;
+}
+
+function CategorySelector({ activeIdx, onChange, ariaLabel }: CategorySelectorProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [indicatorStyle, setIndicatorStyle] = useState<React.CSSProperties>({});
+
+  const updateIndicator = useCallback((idx: number) => {
+    const tab = tabRefs.current[idx];
+    const container = containerRef.current;
+    if (!tab || !container) return;
+    const containerRect = container.getBoundingClientRect();
+    const tabRect = tab.getBoundingClientRect();
+    setIndicatorStyle({
+      transform: `translateX(${tabRect.left - containerRect.left - 4}px)`,
+      width: `${tabRect.width}px`,
+    });
+  }, []);
+
+  useEffect(() => { updateIndicator(activeIdx); }, [activeIdx, updateIndicator]);
+
+  useEffect(() => {
+    const onResize = () => updateIndicator(activeIdx);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [activeIdx, updateIndicator]);
+
+  return (
+    <div className={s.selector} ref={containerRef} role="tablist" aria-label={ariaLabel}>
+      <div className={s.indicator} style={indicatorStyle} />
+      {CATEGORIES.map((c, i) => (
+        <button
+          key={c.id}
+          ref={(el) => { tabRefs.current[i] = el; }}
+          role="tab"
+          aria-selected={activeIdx === i}
+          className={`${s.tab} ${activeIdx === i ? s.tabActive : ""}`}
+          onClick={() => onChange(i)}
+          type="button"
+        >
+          {c.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /**
  * 트렌드 + 비용 통합 섹션
  * 상단 underline tabs로 5개 카테고리 공유 전환
@@ -94,8 +159,60 @@ export function TrendCostSection() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const outTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const inTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const selectorRef = useRef<HTMLDivElement>(null);
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  /* ── 모바일 하단 sticky 가시성 ── */
+  const sectionRef = useRef<HTMLElement>(null);
+  const inlineSelectorRef = useRef<HTMLDivElement>(null);
+  const [showSticky, setShowSticky] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const computeSticky = () => {
+      const section = sectionRef.current;
+      const inline = inlineSelectorRef.current;
+      if (!section || !inline) return;
+
+      const vh = window.innerHeight;
+      const sectionRect = section.getBoundingClientRect();
+      const inlineRect = inline.getBoundingClientRect();
+
+      // 섹션이 뷰포트와 겹치는지
+      const sectionVisible = sectionRect.top < vh && sectionRect.bottom > 0;
+      // 인라인 셀렉터의 상단이 뷰포트 위에 있을 때만 sticky 노출
+      // (= 셀렉터가 시야에 들어오는 시점에 sticky 숨김)
+      const inlineScrolledAbove = inlineRect.top < 0;
+
+      setShowSticky(sectionVisible && inlineScrolledAbove);
+    };
+
+    computeSticky();
+    window.addEventListener("scroll", computeSticky, { passive: true });
+    window.addEventListener("resize", computeSticky);
+    return () => {
+      window.removeEventListener("scroll", computeSticky);
+      window.removeEventListener("resize", computeSticky);
+    };
+  }, []);
+
+  /* ── sticky selector 노출 시 글로벌 CSS 변수에 offset을 알려서
+        플로팅 피드백 버튼이 가려지지 않고 sticky 박스 바로 위에 위치하도록 함.
+        값: sticky 박스 높이(~56px) − fab과 nav 간 gap 차이 = 48px
+        (너무 크면 fab이 콘텐츠 가운데로 떠올라 부담스러움) ── */
+  useEffect(() => {
+    const root = document.documentElement;
+    if (showSticky) {
+      root.style.setProperty("--sticky-selector-offset", "48px");
+    } else {
+      root.style.removeProperty("--sticky-selector-offset");
+    }
+    return () => {
+      root.style.removeProperty("--sticky-selector-offset");
+    };
+  }, [showSticky]);
 
   const cat = CATEGORIES[renderedIdx];
   const trend = TREND_BENTO_PROFILES[cat.trendKey];
@@ -136,31 +253,6 @@ export function TrendCostSection() {
     }, 300);
   }, [activeIdx, phase, hasInteracted]);
 
-  /* ── 인디케이터 위치 계산 ── */
-  const [indicatorStyle, setIndicatorStyle] = useState<React.CSSProperties>({});
-
-  const updateIndicator = useCallback((idx: number) => {
-    const tab = tabRefs.current[idx];
-    const container = selectorRef.current;
-    if (!tab || !container) return;
-    const containerRect = container.getBoundingClientRect();
-    const tabRect = tab.getBoundingClientRect();
-    setIndicatorStyle({
-      transform: `translateX(${tabRect.left - containerRect.left - 4}px)`,
-      width: `${tabRect.width}px`,
-    });
-  }, []);
-
-  useEffect(() => {
-    updateIndicator(activeIdx);
-  }, [activeIdx, updateIndicator]);
-
-  useEffect(() => {
-    const onResize = () => updateIndicator(activeIdx);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [activeIdx, updateIndicator]);
-
   const bentoClass = [
     s.bento,
     phase === "out" ? s.phaseOut : phase === "in" ? s.phaseIn : "",
@@ -174,36 +266,21 @@ export function TrendCostSection() {
   ].filter(Boolean).join(" ");
 
   return (
-    <section className={s.section} aria-label="귀농 유형별 트렌드와 비용">
+    <section ref={sectionRef} className={s.section} aria-label="귀농 유형별 트렌드와 비용">
       {/* ── 통합 타이틀 ── */}
       <div className={s.sectionIntro}>
         <span className={s.sectionEyebrow}>#유형별 트렌드·비용</span>
         <h2 className={s.sectionTitle}>
-          어떤 <em>귀농</em>이 있을까?
+          귀농, <em>농사</em>가 다는 아니에요
         </h2>
         <p className={s.sectionSub}>
           유형을 선택하면 트렌드와 비용을 한눈에 비교할 수 있어요
         </p>
       </div>
 
-      {/* ── 세그먼트 컨트롤 ── */}
-      <div className={s.selectorWrap}>
-        <div className={s.selector} ref={selectorRef} role="tablist" aria-label="귀농 유형 선택">
-          <div className={s.indicator} style={indicatorStyle} />
-          {CATEGORIES.map((c, i) => (
-            <button
-              key={c.id}
-              ref={(el) => { tabRefs.current[i] = el; }}
-              role="tab"
-              aria-selected={activeIdx === i}
-              className={`${s.tab} ${activeIdx === i ? s.tabActive : ""}`}
-              onClick={() => handleChange(i)}
-              type="button"
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
+      {/* ── 세그먼트 컨트롤 (인라인) ── */}
+      <div className={s.selectorWrap} ref={inlineSelectorRef}>
+        <CategorySelector activeIdx={activeIdx} onChange={handleChange} ariaLabel="귀농 유형 선택" />
       </div>
 
       {/* ═══ 트렌드 블록 — 원래 헤더 유지 ═══ */}
@@ -212,7 +289,7 @@ export function TrendCostSection() {
           <div className={s.blockHeaderLeft}>
             <span className={s.eyebrow}>#귀농 트렌드</span>
             <h2 className={s.title}>
-              왜 <em>{trend.titleEm}</em>을 할까?
+              {renderTitleWithEm(trend.title, trend.titleEm)}
             </h2>
             <p className={s.subtitle}>{trend.subtitle}</p>
           </div>
@@ -333,6 +410,21 @@ export function TrendCostSection() {
           </div>
         </div>
       </div>
+
+      {/* ── 모바일 하단 sticky 세그먼트 (Portal — ScrollReveal transform 회피) ── */}
+      {mounted && createPortal(
+        <div
+          className={`${s.stickyBar} ${showSticky ? s.stickyVisible : ""}`}
+          aria-hidden={!showSticky}
+        >
+          <CategorySelector
+            activeIdx={activeIdx}
+            onChange={handleChange}
+            ariaLabel="귀농 유형 선택 (고정)"
+          />
+        </div>,
+        document.body,
+      )}
     </section>
   );
 }
