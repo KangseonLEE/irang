@@ -34,6 +34,12 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  /* 자유 드래그 → 탭 단위 스냅으로 제한. 한 번 드래그하면 가장 가까운
+     탭의 좌측에 정렬됨. mandatory로 강제, scroll-padding-inline으로
+     좌측 여백 보정. */
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 16px;
+  overscroll-behavior-x: contain;
   background: color-mix(in srgb, var(--background, #fff) 95%, transparent);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--border, #e5e7eb);
@@ -63,6 +69,9 @@
   border-bottom: 2px solid transparent;
   transition: color 150ms ease, border-color 150ms ease;
   margin-bottom: -1px;
+  /* 스냅 기준점: 탭의 시작이 컨테이너 시작에 정렬 */
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 @media (min-width: 640px) {
