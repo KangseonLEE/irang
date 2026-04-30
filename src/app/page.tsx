@@ -19,8 +19,7 @@ import { TrendingSearchesSkeleton } from "@/components/landing/trending-searches
 import { TrendingSearchesLoader } from "@/components/landing/trending-searches-loader";
 import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
-import { TrendHighlight } from "@/components/landing/trend-highlight";
-import { CostHighlight } from "@/components/landing/cost-highlight";
+import { TrendCostSection } from "@/components/landing/trend-cost-section";
 import { ProgramsSection } from "@/components/landing/programs-section";
 import { deriveStatus, daysUntilDeadline } from "@/lib/program-status";
 import { GovSupportGuide } from "@/components/landing/gov-support-guide";
@@ -148,14 +147,9 @@ export default function HomePage() {
         </div>
       </ScrollReveal>
 
-      {/* ═══ 3. 귀농 트렌드 ═══ */}
+      {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}
       <ScrollReveal>
-        <TrendHighlight />
-      </ScrollReveal>
-
-      {/* ═══ 4. 비용 핵심 지표 하이라이트 ═══ */}
-      <ScrollReveal>
-        <CostHighlight />
+        <TrendCostSection />
       </ScrollReveal>
 
       {/* ═══ 5. 귀농 길잡이 (연한 그린 배경) ═══ */}
