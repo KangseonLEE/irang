@@ -94,6 +94,8 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
+  /* 위 ReferenceNotice와 분리 — titleSection margin-bottom과 동일하게 균형 */
+  margin-top: 32px;
 }
 
 @media (min-width: 1024px) {
