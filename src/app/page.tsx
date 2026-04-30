@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 /** 홈페이지 ISR — 뉴스 데이터를 1시간마다 갱신 */
 export const revalidate = 3600;
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import HeroSearch from "@/components/search/hero-search";
@@ -121,6 +121,12 @@ export default function HomePage() {
               </span>
             ))}
           </div>
+        </div>
+
+        {/* 모바일 전용 스크롤 다운 indicator — hero 영역에서만 보이고
+            스크롤하면 hero와 함께 위로 올라가 자연스럽게 사라짐 */}
+        <div className={s.scrollIndicator} aria-hidden="true">
+          <ChevronDown size={20} strokeWidth={2.25} />
         </div>
       </section>
 

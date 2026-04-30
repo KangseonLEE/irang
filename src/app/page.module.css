@@ -47,6 +47,7 @@
   text-align: center;
   padding: 48px 20px 0;
   gap: 0;
+  position: relative;
 }
 
 @media (min-width: 640px) {
@@ -59,6 +60,45 @@
 
 @media (min-width: 1024px) {
   .heroSection { padding: 72px 40px 0; }
+}
+
+/* 모바일은 indicator 공간 확보 위해 padding-bottom 추가 */
+@media (max-width: 767px) {
+  .heroSection { padding-bottom: 64px; }
+}
+
+/* ── 스크롤 다운 indicator (모바일 전용, hero 내부 absolute) ── */
+.scrollIndicator {
+  display: none;
+  position: absolute;
+  bottom: 12px;
+  left: calc(50% - 18px);
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--background, #fff) 75%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
+  color: var(--primary, #1b6b5a);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  animation: scrollIndicatorBounce 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .scrollIndicator { display: flex; }
+}
+
+@keyframes scrollIndicatorBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.85; }
+  50% { transform: translateY(7px); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollIndicator { animation: none; }
 }
 
 /* ── 메인 타이틀 ── */
