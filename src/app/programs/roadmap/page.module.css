@@ -32,11 +32,10 @@
   top: var(--h-header, 3.5rem);
   z-index: 11;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  /* 자유 드래그 → 탭 단위 스냅으로 제한. 한 번 드래그하면 가장 가까운
-     탭의 좌측에 정렬됨. mandatory로 강제, scroll-padding-inline으로
-     좌측 여백 보정. */
+  /* iOS Safari의 -webkit-overflow-scrolling: touch (관성 스크롤)는
+     scroll-snap을 무력화시킴 → 손가락 속도가 임계치 이상이면 momentum이
+     snap을 무시하고 여러 탭을 건너뜀. 관성 끄기로 snap 즉시 발동. */
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 16px;
   overscroll-behavior-x: contain;
@@ -69,8 +68,9 @@
   border-bottom: 2px solid transparent;
   transition: color 150ms ease, border-color 150ms ease;
   margin-bottom: -1px;
-  /* 스냅 기준점: 탭의 시작이 컨테이너 시작에 정렬 */
-  scroll-snap-align: start;
+  /* 스냅 기준점: 탭의 가운데가 컨테이너 가운데에 정렬 (활성 탭 자동
+     scrollIntoView { inline: "center" }와 일치) */
+  scroll-snap-align: center;
   scroll-snap-stop: always;
 }
 
