@@ -47,7 +47,13 @@ function getSectionNav(program: GovProgramRoadmap, hasYouthCases = false) {
    프로그램 선택 탭 (히어로 아래, 콘텐츠 영역 내 sticky)
    ========================================================================== */
 
-function ProgramNav({ activeTab }: { activeTab: string }) {
+function ProgramNav({
+  activeTab,
+  onChange,
+}: {
+  activeTab: string;
+  onChange: (id: string) => void;
+}) {
   const innerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -63,15 +69,16 @@ function ProgramNav({ activeTab }: { activeTab: string }) {
     <nav className={s.programNav} aria-label="정부사업 선택">
       <div ref={innerRef} className={s.programNavInner}>
         {GOV_PROGRAMS.map((p) => (
-            <Link
-              key={p.id}
-              href={`/programs/roadmap?tab=${p.id}`}
-              className={`${s.programTab} ${p.id === activeTab ? s.programTabActive : ""}`}
-              aria-current={p.id === activeTab ? "page" : undefined}
-            >
-              {p.shortName}
-            </Link>
-          ))}
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => onChange(p.id)}
+            className={`${s.programTab} ${p.id === activeTab ? s.programTabActive : ""}`}
+            aria-current={p.id === activeTab ? "page" : undefined}
+          >
+            {p.shortName}
+          </button>
+        ))}
       </div>
     </nav>
   );
@@ -161,9 +168,25 @@ interface RoadmapClientProps {
   youthCases?: YouthCaseCard[];
 }
 
-export function RoadmapClient({ activeTab, youthCases = [] }: RoadmapClientProps) {
+export function RoadmapClient({
+  activeTab: initialTab,
+  youthCases = [],
+}: RoadmapClientProps) {
+  /* ── client-side 탭 state ──
+     이전 패턴: <Link> 클릭 → URL 변경 → page.tsx 전체 re-execute (RSC payload
+     fetch + hydration) → 매 탭 전환마다 수백 ms 지연.
+     변경: 탭은 client state로만 즉시 갱신, URL은 history.replaceState로
+     sync. youthCases는 첫 SSR 시점에 한 번만 fetch. */
+  const [activeTab, setActiveTab] = useState(initialTab);
   const program = GOV_PROGRAMS.find((p) => p.id === activeTab) ?? GOV_PROGRAMS[0];
   const programYouthCases = program.id === "youth-startup" ? youthCases : [];
+
+  const handleTabChange = useCallback((id: string) => {
+    setActiveTab(id);
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, "", `/programs/roadmap?tab=${id}`);
+    }
+  }, []);
 
   // 탭 변경 시 사업 타이틀(.summaryCard)이 sticky 탭 바로 아래에 보이도록
   // 자동 스크롤. 첫 마운트(URL 직접 진입)에는 스크롤 안 함.
@@ -184,7 +207,7 @@ export function RoadmapClient({ activeTab, youthCases = [] }: RoadmapClientProps
 
   return (
     <>
-      <ProgramNav activeTab={activeTab} />
+      <ProgramNav activeTab={activeTab} onChange={handleTabChange} />
       <div className={s.contentLayout}>
         <SectionSidebar program={program} hasYouthCases={programYouthCases.length > 0} />
         <ProgramContent
