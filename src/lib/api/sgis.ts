@@ -9,6 +9,7 @@
  */
 
 import { getPopulationFallback } from "@/lib/data/population";
+import { FETCH_TIMEOUT } from "./_build-phase";
 
 const AUTH_URL = "https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json";
 const POPULATION_URL = "https://sgisapi.mods.go.kr/OpenAPI3/stats/population.json";
@@ -45,7 +46,7 @@ async function getAccessToken(): Promise<string | null> {
 
   try {
     // revalidate: 3600 (1시간) — SGIS 토큰 유효기간(2시간)보다 짧게 설정
-    const res = await fetch(url.toString(), { next: { revalidate: 3600 }, signal: AbortSignal.timeout(10_000) });
+    const res = await fetch(url.toString(), { next: { revalidate: 3600 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
@@ -117,7 +118,7 @@ async function fetchFromSGIS(
   url.searchParams.set("year", String(year));
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
@@ -205,7 +206,7 @@ async function fetchMultiGuPopulation(
   url.searchParams.set("low_search", "1");
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
@@ -282,7 +283,7 @@ export async function fetchSubRegionPopulations(
   url.searchParams.set("low_search", "1"); // 하위 행정구역 일괄 조회
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();

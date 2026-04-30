@@ -11,9 +11,13 @@
  * @see https://developers.naver.com/docs/serviceapi/search/news/news.md
  */
 
+import { FETCH_TIMEOUT, IS_BUILD_PHASE } from "./_build-phase";
+
 const API_URL = "https://openapi.naver.com/v1/search/news.json";
 const NEWS_CACHE_TTL = 60 * 60;      // 1시간 — 페이지 ISR과 동일 주기
 const OG_CACHE_TTL = 60 * 60 * 24;   // 24시간 — OG 이미지는 자주 안 바뀜
+/** OG 이미지 fetch는 다양한 외부 사이트라 빌드 시 더 빠르게 폴백 */
+const OG_FETCH_TIMEOUT = IS_BUILD_PHASE ? 2_000 : 8_000;
 
 /** 검색 키워드 — 핵심 2어로 관련도 극대화 */
 const SEARCH_QUERY = "귀농 귀촌";
@@ -151,7 +155,7 @@ function extractSource(originallink: string): string {
 export async function fetchOgImage(url: string): Promise<string | undefined> {
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 8000);
+    const timer = setTimeout(() => controller.abort(), OG_FETCH_TIMEOUT);
 
     const res = await fetch(url, {
       signal: controller.signal,
@@ -295,7 +299,7 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
         // ISR(revalidate=3600)과 동일 주기로 Data Cache 갱신
         // — 실패 응답도 1시간 후 자동 만료되어 재시도
         next: { revalidate: NEWS_CACHE_TTL },
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
       });
 
       if (!res.ok) {

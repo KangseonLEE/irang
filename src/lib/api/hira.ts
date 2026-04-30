@@ -4,6 +4,8 @@
  * - 서버 컴포넌트에서만 호출 (API Key 보호)
  */
 
+import { FETCH_TIMEOUT } from "./_build-phase";
+
 const API_BASE =
   "https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList";
 
@@ -70,7 +72,7 @@ async function fetchSidoMedicalCount(
   url.searchParams.set("_type", "json");
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
@@ -112,7 +114,7 @@ async function fetchSigunguMedicalCount(
   url.searchParams.set("_type", "json");
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();

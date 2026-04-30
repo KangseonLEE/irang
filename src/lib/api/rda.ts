@@ -19,6 +19,8 @@
  *           -97(URL/필수값오류), -98(키유효하지않음)
  */
 
+import { FETCH_TIMEOUT } from "./_build-phase";
+
 const API_BASE = "https://www.rda.go.kr/young/api";
 const CACHE_TTL = 60 * 60 * 24; // 24시간
 
@@ -136,7 +138,7 @@ async function fetchRdaList<T>(
   try {
     const res = await fetch(url.toString(), {
       next: { revalidate: CACHE_TTL },
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
 
     if (!res.ok) {

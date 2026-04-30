@@ -92,7 +92,12 @@ function dedupKeepBest(items: UnifiedNewsItem[]): UnifiedNewsItem[] {
   return accepted;
 }
 
+/** 빌드 시점에는 sleep을 건너뛴다 — 5번 fetch 사이 6초 누적 → / 페이지
+ *  60초 빌드 초과 원인. 런타임에서는 네이버 rate limit 회피용으로 유지. */
+const IS_BUILD_PHASE = process.env.NEXT_PHASE === "phase-production-build";
+
 function sleep(ms: number) {
+  if (IS_BUILD_PHASE) return Promise.resolve();
   return new Promise((r) => setTimeout(r, ms));
 }
 

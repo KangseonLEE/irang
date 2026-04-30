@@ -4,6 +4,8 @@
  * - 서버 컴포넌트에서만 호출 (API Key 보호)
  */
 
+import { FETCH_TIMEOUT } from "./_build-phase";
+
 const API_BASE = "https://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList";
 
 interface ASOSItem {
@@ -62,7 +64,7 @@ export async function fetchClimateData(stnId: string): Promise<ClimateData | nul
   url.searchParams.set("numOfRows", "366");
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) }); // 24시간 캐시
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) }); // 24시간 캐시
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();

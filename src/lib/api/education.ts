@@ -8,6 +8,8 @@
  *   에러: { RESULT: { CODE: "...", MESSAGE: "..." } }
  */
 
+import { FETCH_TIMEOUT } from "./_build-phase";
+
 const API_BASE = "https://open.neis.go.kr/hub/schoolInfo";
 
 /** 교육청 코드 → 시도명 매핑 */
@@ -53,7 +55,7 @@ async function fetchEduSchoolCount(
   url.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
@@ -119,7 +121,7 @@ async function fetchSigunguSchoolCount(
   countUrl.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
 
   try {
-    const countRes = await fetch(countUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+    const countRes = await fetch(countUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     if (!countRes.ok) throw new Error(`HTTP ${countRes.status}`);
 
     const countJson = await countRes.json();
@@ -143,7 +145,7 @@ async function fetchSigunguSchoolCount(
     fullUrl.searchParams.set("pSize", String(Math.min(totalAll, 1000)));
     fullUrl.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
 
-    const fullRes = await fetch(fullUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
+    const fullRes = await fetch(fullUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     if (!fullRes.ok) throw new Error(`HTTP ${fullRes.status}`);
 
     const fullJson = await fullRes.json();

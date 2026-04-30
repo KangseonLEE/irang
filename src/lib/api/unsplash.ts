@@ -6,6 +6,8 @@
  * - API 실패 시 null 반환 (graceful degradation)
  */
 
+import { FETCH_TIMEOUT } from "./_build-phase";
+
 const UNSPLASH_API = "https://api.unsplash.com/search/photos";
 
 export interface UnsplashPhoto {
@@ -44,7 +46,7 @@ export async function fetchUnsplashPhoto(
     const res = await fetch(url.toString(), {
       headers: { Authorization: `Client-ID ${accessKey}` },
       next: { revalidate: 604800 }, // 7일 캐시
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
 
     if (!res.ok) {

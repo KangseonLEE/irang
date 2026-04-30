@@ -4,6 +4,8 @@
  * - 서버 컴포넌트에서만 호출 (API Key 보호)
  */
 
+import { FETCH_TIMEOUT } from "./_build-phase";
+
 const API_BASE =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do";
 
@@ -113,7 +115,7 @@ async function fetchRiceIncomeFromKOSIS(
   try {
     const res = await fetch(url.toString(), {
       next: { revalidate: 86400 * 7 }, // 7일 캐시 (연 1회 갱신)
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
 
     if (!res.ok) return null;
@@ -235,7 +237,7 @@ async function fetchCropIncomeFromKOSIS(
   try {
     const res = await fetch(url.toString(), {
       next: { revalidate: 86400 * 7 }, // 7일 캐시 (연 1회 갱신)
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
 
     if (!res.ok) return null;
@@ -354,7 +356,7 @@ async function fetchFromKOSIS(
   try {
     const res = await fetch(url.toString(), {
       next: { revalidate: 86400 }, // 24시간 캐시
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
 
     if (!res.ok) {
@@ -514,15 +516,15 @@ async function fetchReturnFarmForYear(
     const [personRes, householdRes, ruralRes] = await Promise.allSettled([
       fetch(buildUrl(KOSIS_TABLE.RETURN_FARM_PERSON, "0"), {
         next: { revalidate: 86400 * 7 },
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
       }),
       fetch(buildUrl(KOSIS_TABLE.RETURN_FARM_HOUSEHOLD, "00"), {
         next: { revalidate: 86400 * 7 },
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
       }),
       fetch(buildUrl(KOSIS_TABLE.RETURN_RURAL_PERSON, "0"), {
         next: { revalidate: 86400 * 7 },
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
       }),
     ]);
 
@@ -655,15 +657,15 @@ export async function fetchReturnFarmTrend(
     const [personRes, householdRes, ruralRes] = await Promise.allSettled([
       fetch(buildUrl(KOSIS_TABLE.RETURN_FARM_PERSON, "0"), {
         next: { revalidate: 86400 * 7 },
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
       }),
       fetch(buildUrl(KOSIS_TABLE.RETURN_FARM_HOUSEHOLD, "00"), {
         next: { revalidate: 86400 * 7 },
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
       }),
       fetch(buildUrl(KOSIS_TABLE.RETURN_RURAL_PERSON, "0"), {
         next: { revalidate: 86400 * 7 },
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
       }),
     ]);
 
