@@ -232,26 +232,28 @@ export function TrendCostSection() {
   );
 
   const handleChange = useCallback((idx: number) => {
-    if (idx === activeIdx || phase !== "idle") return;
-    setActiveIdx(idx);
-    setPhase("out");
-    setCountTrigger(false);
-    if (!hasInteracted) setHasInteracted(true);
+    // 같은 탭 클릭만 무시 — phase 가드는 제거해서 애니메이션 중에도 즉시 반응
+    if (idx === activeIdx) return;
 
+    // 진행 중이던 타이머 모두 취소
     if (outTimer.current) clearTimeout(outTimer.current);
     if (inTimer.current) clearTimeout(inTimer.current);
 
-    outTimer.current = setTimeout(() => {
-      setRenderedIdx(idx);
-      // 비용 카드 값 갱신
-      const nextCat = CATEGORIES[idx];
-      const nextCost = COST_TYPE_PROFILES[nextCat.costKey];
-      setCostVals([nextCost.hero, ...nextCost.cards].map((c) => formatCostValue(c, c.value)));
-      setPhase("in");
-      setTimeout(() => setCountTrigger(true), 120);
-      inTimer.current = setTimeout(() => setPhase("idle"), 700);
-    }, 300);
-  }, [activeIdx, phase, hasInteracted]);
+    // selector + 콘텐츠 즉시 갱신 (out 단계 생략 — 빠른 연속 클릭 대응)
+    setActiveIdx(idx);
+    setRenderedIdx(idx);
+    const nextCat = CATEGORIES[idx];
+    const nextCost = COST_TYPE_PROFILES[nextCat.costKey];
+    setCostVals([nextCost.hero, ...nextCost.cards].map((c) => formatCostValue(c, c.value)));
+
+    // 페이드 in + 카운트업 재시작
+    setCountTrigger(false);
+    setPhase("in");
+    if (!hasInteracted) setHasInteracted(true);
+
+    setTimeout(() => setCountTrigger(true), 50);
+    inTimer.current = setTimeout(() => setPhase("idle"), 350);
+  }, [activeIdx, hasInteracted]);
 
   const bentoClass = [
     s.bento,
