@@ -36,7 +36,11 @@ export default async function ProgramRoadmapPage({ searchParams }: PageProps) {
   const activeTab = GOV_PROGRAMS.find((p) => p.id === params.tab)
     ? params.tab!
     : GOV_PROGRAMS[0].id;
-  const youthCases = await fetchYouthCasesForRoadmap(6).catch(() => []);
+  // youthCases는 youth-startup 탭에서만 사용 → 그 외 탭은 fetch 자체 skip하여
+  // 탭 전환 속도 개선 (RDA 응답 시간만큼 매 탭 변경마다 지연되던 문제 차단)
+  const youthCases = activeTab === "youth-startup"
+    ? await fetchYouthCasesForRoadmap(6).catch(() => [])
+    : [];
 
   return (
     <div className={s.page}>

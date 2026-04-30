@@ -165,6 +165,23 @@ export function RoadmapClient({ activeTab, youthCases = [] }: RoadmapClientProps
   const program = GOV_PROGRAMS.find((p) => p.id === activeTab) ?? GOV_PROGRAMS[0];
   const programYouthCases = program.id === "youth-startup" ? youthCases : [];
 
+  // 탭 변경 시 사업 타이틀(.summaryCard)이 sticky 탭 바로 아래에 보이도록
+  // 자동 스크롤. 첫 마운트(URL 직접 진입)에는 스크롤 안 함.
+  const isFirstRenderRef = useRef(true);
+  useEffect(() => {
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      return;
+    }
+    const target = document.getElementById(`summary-${activeTab}`);
+    if (!target) return;
+    // sticky GNB(56px) + 프로그램 탭바(약 50px) + 여유 8px
+    const stickyOffset = 56 + 50 + 8;
+    const top =
+      target.getBoundingClientRect().top + window.scrollY - stickyOffset;
+    window.scrollTo({ top, behavior: "smooth" });
+  }, [activeTab]);
+
   return (
     <>
       <ProgramNav activeTab={activeTab} />
