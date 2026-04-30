@@ -25,8 +25,8 @@ export function ScrollIndicator() {
       className={`${s.indicator} ${hidden ? s.indicatorHidden : ""}`}
       aria-hidden="true"
     >
-      <ChevronDown size={18} strokeWidth={2.25} className={s.chevron1} />
-      <ChevronDown size={18} strokeWidth={2.25} className={s.chevron2} />
+      <ChevronDown size={24} strokeWidth={2.25} className={s.chevron1} />
+      <ChevronDown size={24} strokeWidth={2.25} className={s.chevron2} />
     </div>
   );
 }

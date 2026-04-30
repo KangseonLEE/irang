@@ -64,7 +64,7 @@
 
 /* 모바일은 ScrollIndicator 공간 확보 위해 padding-bottom 추가 */
 @media (max-width: 767px) {
-  .heroSection { padding-bottom: 56px; }
+  .heroSection { padding-bottom: 64px; }
 }
 
 /* ── 메인 타이틀 ── */
