@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 /** 홈페이지 ISR — 뉴스 데이터를 1시간마다 갱신 */
 export const revalidate = 3600;
 import Link from "next/link";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import HeroSearch from "@/components/search/hero-search";
@@ -20,6 +20,7 @@ import { TrendingSearchesLoader } from "@/components/landing/trending-searches-l
 import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
+import { ScrollIndicator } from "@/components/landing/scroll-indicator";
 import { ProgramsSection } from "@/components/landing/programs-section";
 import { deriveStatus, daysUntilDeadline } from "@/lib/program-status";
 import { GovSupportGuide } from "@/components/landing/gov-support-guide";
@@ -123,11 +124,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 모바일 전용 스크롤 다운 indicator — hero 영역에서만 보이고
-            스크롤하면 hero와 함께 위로 올라가 자연스럽게 사라짐 */}
-        <div className={s.scrollIndicator} aria-hidden="true">
-          <ChevronDown size={20} strokeWidth={2.25} />
-        </div>
+        {/* 모바일 전용 스크롤 다운 indicator — sequential 2 chevron + scroll fade */}
+        <ScrollIndicator />
       </section>
 
       {/* ═══ 2. 귀농한 사람들의 이야기 (다크 배경) ═══ */}

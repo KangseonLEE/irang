@@ -1,0 +1,71 @@
+/* ── 모바일 스크롤 다운 indicator (sequential 2 chevron) ── */
+
+.indicator {
+  display: none;
+  position: absolute;
+  bottom: 16px;
+  left: calc(50% - 14px);
+  width: 28px;
+  flex-direction: column;
+  align-items: center;
+  color: var(--primary, #1b6b5a);
+  opacity: 0.85;
+  transition: opacity 0.32s ease;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .indicator {
+    display: flex;
+  }
+}
+
+/* scroll 위치 기반 fade out (scrollY > 40) */
+.indicatorHidden {
+  opacity: 0;
+}
+
+/* 두 화살표를 살짝 겹쳐 위·아래에 배치 — 흘러내리는 trail 느낌 */
+.chevron1,
+.chevron2 {
+  animation: chevronFlow 1.6s ease-in-out infinite;
+  /* will-change로 컴포지팅 레이어 분리 */
+  will-change: transform, opacity;
+}
+
+.chevron2 {
+  margin-top: -10px;
+  animation-delay: 0.4s;
+}
+
+/* 위에서 시작 → 가운데 가장 진함 → 아래로 사라지며 페이드 */
+@keyframes chevronFlow {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  35% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  70% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator {
+    transition: none;
+  }
+  .chevron1,
+  .chevron2 {
+    animation: none;
+    opacity: 0.7;
+    transform: none;
+  }
+}
