@@ -8,7 +8,6 @@ import {
   Calendar,
   Users,
   Search,
-  Banknote,
   PiggyBank,
   Home,
   Calculator,
@@ -32,7 +31,17 @@ import { StepOverview } from "@/components/ui/step-overview";
 import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { CROPS } from "@/lib/data/crops";
+import {
+  CROP_COSTS_BY_TYPE,
+  STRATEGIES_BY_TYPE,
+  COMPARE_LABELS_BY_TYPE,
+  type CropCost,
+} from "@/lib/data/cost-by-type";
+import { getProgramById } from "@/lib/data/programs";
 import CostSimulator from "./cost-simulator";
+import CostStrategiesTabs, {
+  type StrategyWithStatus,
+} from "./cost-strategies-tabs";
 import s from "./page.module.css";
 
 /* ── SEO ── */
@@ -43,72 +52,6 @@ export const metadata: Metadata = {
   keywords: ["귀농 비용", "귀농 비용 얼마", "귀농 초기 투자", "귀농 자본", "50대 귀농 비용", "귀농 생활비"],
   alternates: { canonical: "/costs" },
 };
-
-/* ── 작물별 투자 비교 데이터 (초기투자 기준 정렬) ── */
-const CROP_COSTS: {
-  id: string;
-  name: string;
-  initialCost: string;
-  annual: string;
-  breakEven: string;
-  labor: string;
-  difficulty: string;
-}[] = [
-  {
-    id: "soybean",
-    name: "콩",
-    initialCost: "500만 원 미만",
-    annual: "200~300만 원",
-    breakEven: "1~2년",
-    labor: "연 30~50일",
-    difficulty: "쉬움",
-  },
-  {
-    id: "corn",
-    name: "옥수수",
-    initialCost: "500~1,000만 원",
-    annual: "200~400만 원",
-    breakEven: "1~2년",
-    labor: "연 30~50일",
-    difficulty: "쉬움",
-  },
-  {
-    id: "sweet-potato",
-    name: "고구마",
-    initialCost: "1,000~2,000만 원",
-    annual: "300~500만 원",
-    breakEven: "1~2년",
-    labor: "연 60~90일",
-    difficulty: "쉬움",
-  },
-  {
-    id: "chili-pepper",
-    name: "고추",
-    initialCost: "2,000~4,000만 원",
-    annual: "600~1,000만 원",
-    breakEven: "2~3년",
-    labor: "연 80~120일",
-    difficulty: "어려움",
-  },
-  {
-    id: "apple",
-    name: "사과",
-    initialCost: "3,000~6,000만 원",
-    annual: "1,000~1,500만 원",
-    breakEven: "5~7년",
-    labor: "연 150~200일",
-    difficulty: "어려움",
-  },
-  {
-    id: "strawberry",
-    name: "딸기",
-    initialCost: "5,000만~1억 원",
-    annual: "1,500~2,500만 원",
-    breakEven: "3~5년",
-    labor: "연 250일+",
-    difficulty: "어려움",
-  },
-];
 
 /* ── 지원금 시뮬레이션 데이터 ── */
 const SUPPORT_ITEMS: {
@@ -125,9 +68,9 @@ const SUPPORT_ITEMS: {
   },
   {
     label: "청년창업농 영농정착지원",
-    amount: "최대 3,960만 원",
+    amount: "최대 3,600만 원",
     type: "보조금",
-    note: "만 18~39세 · 월 최대 110만 원 × 최대 3년 (매년 감액)",
+    note: "만 18~39세 · 월 110·100·90만 원 × 3년 (매년 감액)",
   },
   {
     label: "주택구입 지원",
@@ -136,58 +79,10 @@ const SUPPORT_ITEMS: {
     note: "연 2% · 세대당 1회",
   },
   {
-    label: "귀농교육 수료 시 가산점",
-    amount: "우대 적용",
+    label: "귀농교육 100시간",
+    amount: "신청 필수",
     type: "교육",
-    note: "100시간 이상 교육 수료 시 융자 심사 가점",
-  },
-];
-
-/* ── 도시 vs 귀농 생활비 (비용 관련 항목만 필터) ── */
-const COST_COMPARE_LABELS = [
-  "월 생활비",
-  "주거비 (3.3㎡당)",
-  "5년차 소득",
-  "생활 만족도",
-];
-const costCompareRows = cityVsRural.filter((r) =>
-  COST_COMPARE_LABELS.includes(r.label),
-);
-
-/* ── 비용 절감 전략 데이터 ── */
-const STRATEGIES: {
-  title: string;
-  desc: string;
-  saving: string;
-  href: string;
-  type?: string;
-}[] = [
-  {
-    title: "정부 융자 활용",
-    desc: "농업창업자금 최대 3억 원을 연 2% 저금리로 융자받을 수 있어요.",
-    saving: "최대 3억 원",
-    href: "/programs/roadmap",
-    type: "융자",
-  },
-  {
-    title: "체류형 귀농 프로그램",
-    desc: "주거+농지+시설을 무상 제공받으며 수개월간 귀농을 체험할 수 있어요.",
-    saving: "체류 기간 무상",
-    href: "/programs?supportType=현물",
-    type: "현물",
-  },
-  {
-    title: "청년창업농 영농정착 지원",
-    desc: "만 18~39세 청년 창업농에게 월 최대 110만 원을 최대 3년간 지원해요.",
-    saving: "최대 3,960만 원",
-    href: "/programs/roadmap",
-    type: "보조금",
-  },
-  {
-    title: "소규모로 시작하기",
-    desc: "임대 농지 + 노지 재배로 시작하면 초기 투자를 크게 줄일 수 있어요.",
-    saving: "투자금 50%↓",
-    href: "/crops",
+    note: "농업창업자금 융자의 핵심 자격 요건이에요",
   },
 ];
 
@@ -208,6 +103,44 @@ export default async function CostsPage({ searchParams }: PageProps) {
 
   const maxAge = Math.max(...costByAge.map((d) => d.raw));
   const showSection = (key: string) => profile.visibleSections.includes(key as typeof profile.visibleSections[number]);
+
+  /* ── 카테고리별 데이터 분기 (cost-by-type.ts) ── */
+  const cropCosts = CROP_COSTS_BY_TYPE[activeType];
+  const strategies = STRATEGIES_BY_TYPE[activeType];
+  const compareLabels = COMPARE_LABELS_BY_TYPE[activeType];
+  const costCompareRows = cityVsRural.filter((r) =>
+    compareLabels.includes(r.label),
+  );
+
+  /* ── 마감/진행 분리 (탭 UI) ──
+     모든 카드에 현재 모집 status를 매핑한 뒤, "마감" 여부로 두 그룹 분리.
+     - active: 외부 링크·조언·모집중·모집예정·status 없음 (지금 활용 가능)
+     - closed: status="마감" (다음 회차 참고용) */
+  const strategiesWithStatus: StrategyWithStatus[] = strategies.map((strategy) => ({
+    strategy,
+    status: strategy.programId
+      ? (getProgramById(strategy.programId)?.status ?? null)
+      : null,
+  }));
+  const activeStrategies = strategiesWithStatus.filter(
+    ({ status }) => status !== "마감",
+  );
+  const closedStrategies = strategiesWithStatus.filter(
+    ({ status }) => status === "마감",
+  );
+
+  /* ── 카테고리별 작물 섹션 설명 문구 ── */
+  const cropSectionDesc: Record<CostTypeId, string> = {
+    farming:
+      "평균 투자금이라는 숫자는 작물에 따라 크게 달라요. 콩은 300만 원대로도 시작할 수 있지만, 사과는 6,000만 원 이상 투자가 필요해요.",
+    youth:
+      "청년농에 인기 있는 시설 작물이에요. 딸기·토마토 시설은 초기 투자가 크지만, 영농정착지원금과 청년 우대 융자로 부담을 줄일 수 있어요.",
+    village: "",
+    forestry:
+      "임산물은 손익분기까지 오래 걸리는 품목이 많아요. 표고·도라지는 3~4년이면 회수되지만, 산양삼·호두는 7년 이상이 필요해요.",
+    smartfarm:
+      "ICT 시설 단가는 작물과 시설 형태(비닐/유리/식물공장)에 따라 크게 달라요. 모두 1,000㎡(약 300평) 기준 참고값이에요.",
+  };
 
   return (
     <div className={s.page}>
@@ -324,44 +257,13 @@ export default async function CostsPage({ searchParams }: PageProps) {
             작물별 초기 투자, 이렇게 다릅니다
           </h2>
           <p className={s.sectionDesc}>
-            <AutoGlossary text="평균 투자금이라는 숫자는 작물에 따라 크게 달라요. 콩은 500만 원 미만으로도 시작할 수 있지만, 딸기 하우스는 1억 원 이상 투자가 필요해요." />
+            <AutoGlossary text={cropSectionDesc[activeType]} />
           </p>
 
           {/* ── 모바일: 가로 스크롤 카드 ── */}
           <div className={s.cropCarousel} aria-label="작물별 투자 비용 카드">
-            {CROP_COSTS.map((crop) => (
-              <Link
-                key={crop.id}
-                href={`/crops/${crop.id}`}
-                className={s.cropCard}
-              >
-                <div className={s.cropCardTop}>
-                  <Image
-                    src={`/crops/${crop.id}.jpg`}
-                    alt={crop.name}
-                    width={44}
-                    height={44}
-                    className={s.cropCardImg}
-                  />
-                  <span
-                    className={`${s.difficultyBadge} ${
-                      crop.difficulty === "쉬움"
-                        ? s.difficultyEasy
-                        : crop.difficulty === "보통"
-                          ? s.difficultyMedium
-                          : s.difficultyHard
-                    }`}
-                  >
-                    {crop.difficulty}
-                  </span>
-                </div>
-                <span className={s.cropCardName}>{crop.name}</span>
-                <span className={s.cropCardCost}>{crop.initialCost}</span>
-                <div className={s.cropCardMeta}>
-                  <span>손익분기 {crop.breakEven}</span>
-                  <span>{crop.labor}</span>
-                </div>
-              </Link>
+            {cropCosts.map((crop) => (
+              <CropCard key={crop.id} crop={crop} />
             ))}
           </div>
 
@@ -376,51 +278,18 @@ export default async function CostsPage({ searchParams }: PageProps) {
               <span className={s.cropCellHeader} role="columnheader">노동일</span>
               <span className={s.cropCellHeader} role="columnheader">난이도</span>
             </div>
-            {CROP_COSTS.map((crop) => (
-              <Link
-                key={crop.id}
-                href={`/crops/${crop.id}`}
-                className={`${s.cropRow} ${s.cropRowData}`}
-                role="row"
-              >
-                <span className={s.cropName} role="cell">
-                  <Image
-                    src={`/crops/${crop.id}.jpg`}
-                    alt={crop.name}
-                    width={32}
-                    height={32}
-                    className={s.cropImg}
-                  />
-                  {crop.name}
-                </span>
-                <span className={s.cropCell} role="cell" data-label="초기 투자">
-                  {crop.initialCost}
-                </span>
-                <span className={s.cropCell} role="cell" data-label="연 운영비">
-                  {crop.annual}
-                </span>
-                <span className={s.cropCell} role="cell" data-label="손익분기">
-                  {crop.breakEven}
-                </span>
-                <span className={s.cropCell} role="cell" data-label="노동일">
-                  {crop.labor}
-                </span>
-                <span className={s.cropCell} role="cell" data-label="난이도">
-                  <span
-                    className={`${s.difficultyBadge} ${
-                      crop.difficulty === "쉬움"
-                        ? s.difficultyEasy
-                        : crop.difficulty === "보통"
-                          ? s.difficultyMedium
-                          : s.difficultyHard
-                    }`}
-                  >
-                    {crop.difficulty}
-                  </span>
-                </span>
-              </Link>
+            {cropCosts.map((crop) => (
+              <CropRow key={crop.id} crop={crop} />
             ))}
           </div>
+
+          {/* 출처 표시 — 카테고리별 작물 데이터 */}
+          {cropCosts[0]?.source && (
+            <p className={s.cropSourceNote}>
+              출처 · {Array.from(new Set(cropCosts.map((c) => c.source))).join(" / ")}
+              {cropCosts.some((c) => c.isReference) && " · 일부 작물은 단가 기반 참고값이에요"}
+            </p>
+          )}
 
           <Link href="/crops" className={s.inlineLink}>
             {CROPS.length}종 작물 전체 비교하기 <ArrowRight size={14} />
@@ -507,26 +376,12 @@ export default async function CostsPage({ searchParams }: PageProps) {
           <p className={s.sectionDesc}>
             <AutoGlossary text="정부 융자와 지원사업을 활용하면 초기 부담을 크게 줄일 수 있어요." />
           </p>
-          <div className={s.strategies}>
-            {STRATEGIES.map((strategy, i) => (
-              <Link key={i} href={strategy.href} className={s.strategyCard}>
-                <div className={s.strategyTop}>
-                  <h3 className={s.strategyTitle}>{strategy.title}</h3>
-                  {strategy.type && (
-                    <SupportTypeBadge type={strategy.type} />
-                  )}
-                </div>
-                <p className={s.strategyDesc}>{strategy.desc}</p>
-                <div className={s.strategyBottom}>
-                  <span className={s.strategySaving}>
-                    <Banknote size={14} />
-                    {strategy.saving}
-                  </span>
-                  <ArrowRight size={14} className={s.strategyArrow} />
-                </div>
-              </Link>
-            ))}
-          </div>
+
+          <CostStrategiesTabs
+            active={activeStrategies}
+            closed={closedStrategies}
+          />
+
           <div className={s.strategyLinks}>
             <Link href="/programs/roadmap" className={s.inlineLink}>
               정부사업 신청 가이드 보기 <ArrowRight size={14} />
@@ -609,7 +464,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
             연령, 작물, 규모를 선택하면 예상 비용과 지원금 절감 효과를 바로 확인할 수 있어요.
           </p>
           <Suspense fallback={null}>
-            <CostSimulator />
+            <CostSimulator type={activeType} />
           </Suspense>
         </section>
       )}
@@ -666,6 +521,122 @@ function SnapshotCard({
       <span className={s.snapshotCardLabel}>{label}</span>
       <span className={s.snapshotCardValue}>{value}</span>
       <span className={s.snapshotCardSub}>{sub}</span>
+    </div>
+  );
+}
+
+/* ── 작물 카드 (모바일) — 작물 페이지 있으면 Link, 없으면 div ── */
+function CropCard({ crop }: { crop: CropCost }) {
+  const difficultyClass =
+    crop.difficulty === "쉬움"
+      ? s.difficultyEasy
+      : crop.difficulty === "보통"
+        ? s.difficultyMedium
+        : s.difficultyHard;
+
+  const inner = (
+    <>
+      <div className={s.cropCardTop}>
+        {crop.cropPageId ? (
+          <Image
+            src={`/crops/${crop.cropPageId}.jpg`}
+            alt={crop.name}
+            width={44}
+            height={44}
+            className={s.cropCardImg}
+          />
+        ) : (
+          <div className={s.cropCardImgFallback} aria-hidden="true">
+            {crop.name.slice(0, 1)}
+          </div>
+        )}
+        <span className={`${s.difficultyBadge} ${difficultyClass}`}>
+          {crop.difficulty}
+        </span>
+      </div>
+      <span className={s.cropCardName}>{crop.name}</span>
+      <span className={s.cropCardCost}>{crop.initialCost}</span>
+      <div className={s.cropCardMeta}>
+        <span>손익분기 {crop.breakEven}</span>
+        <span>{crop.labor}</span>
+        {crop.facilityType && (
+          <span className={s.cropCardFacility}>{crop.facilityType}</span>
+        )}
+      </div>
+    </>
+  );
+
+  if (crop.cropPageId) {
+    return (
+      <Link href={`/crops/${crop.cropPageId}`} className={s.cropCard}>
+        {inner}
+      </Link>
+    );
+  }
+  return <div className={s.cropCard}>{inner}</div>;
+}
+
+/* ── 작물 행 (데스크탑 테이블) ── */
+function CropRow({ crop }: { crop: CropCost }) {
+  const difficultyClass =
+    crop.difficulty === "쉬움"
+      ? s.difficultyEasy
+      : crop.difficulty === "보통"
+        ? s.difficultyMedium
+        : s.difficultyHard;
+
+  const inner = (
+    <>
+      <span className={s.cropName} role="cell">
+        {crop.cropPageId ? (
+          <Image
+            src={`/crops/${crop.cropPageId}.jpg`}
+            alt={crop.name}
+            width={32}
+            height={32}
+            className={s.cropImg}
+          />
+        ) : (
+          <div className={s.cropImgFallback} aria-hidden="true">
+            {crop.name.slice(0, 1)}
+          </div>
+        )}
+        {crop.name}
+      </span>
+      <span className={s.cropCell} role="cell" data-label="초기 투자">
+        {crop.initialCost}
+      </span>
+      <span className={s.cropCell} role="cell" data-label="연 운영비">
+        {crop.annual}
+      </span>
+      <span className={s.cropCell} role="cell" data-label="손익분기">
+        {crop.breakEven}
+      </span>
+      <span className={s.cropCell} role="cell" data-label="노동일">
+        {crop.labor}
+      </span>
+      <span className={s.cropCell} role="cell" data-label="난이도">
+        <span className={`${s.difficultyBadge} ${difficultyClass}`}>
+          {crop.difficulty}
+        </span>
+      </span>
+    </>
+  );
+
+  if (crop.cropPageId) {
+    return (
+      <Link
+        href={`/crops/${crop.cropPageId}`}
+        className={`${s.cropRow} ${s.cropRowData}`}
+        role="row"
+      >
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <div className={`${s.cropRow} ${s.cropRowData}`} role="row">
+      {inner}
     </div>
   );
 }

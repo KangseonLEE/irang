@@ -483,6 +483,56 @@
   color: #dc2626;
 }
 
+/* ── 작물 페이지가 없는 경우 이미지 대체 ── */
+.cropCardImgFallback {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--fs-body);
+  flex-shrink: 0;
+}
+
+.cropImgFallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--fs-caption);
+  flex-shrink: 0;
+}
+
+/* ── 시설 형태 칩 (모바일 카드) ── */
+.cropCardFacility {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-overline);
+  font-weight: 600;
+}
+
+/* ── 작물 데이터 출처 노트 ── */
+.cropSourceNote {
+  margin-top: 12px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  line-height: 1.5;
+}
+
 /* ═══ 도시 vs 귀농 생활비 비교 ═══ */
 .compareCard {
   display: flex;
@@ -838,10 +888,38 @@
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 @media (min-width: 1024px) {
   .strategyTitle { font-size: 1.0625rem; }
+}
+
+.externalBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--muted-foreground, #6b7280) 12%, transparent);
+  color: var(--muted-foreground, #6b7280);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.externalHost {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-overline, 0.6875rem);
+  color: var(--muted-foreground, #6b7280);
+  font-weight: 500;
+  font-feature-settings: "tnum";
 }
 
 .strategyDesc {
@@ -994,4 +1072,93 @@
   .inlineLink { font-size: var(--fs-body); }
   .compareLabel { font-size: var(--fs-body); }
   .simLabel { font-size: var(--fs-body); }
+}
+
+/* ═══ 비용 절감 전략 — 모집중/마감 탭 분리 ═══ */
+.strategyBadges {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.strategyTabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 16px;
+  background: var(--muted, #f3f4f6);
+  border-radius: 12px;
+}
+
+.strategyTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  min-height: 36px;
+}
+
+.strategyTabActive {
+  color: var(--foreground);
+  background: var(--card, #fff);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
+.strategyTabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--muted-foreground) 12%, transparent);
+  border-radius: 10px;
+}
+
+.strategyTabActive .strategyTabCount {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+@media (hover: hover) {
+  .strategyTab:hover:not(.strategyTabActive) {
+    color: var(--foreground);
+    background: color-mix(in srgb, var(--foreground) 4%, transparent);
+  }
+}
+
+.closedNotice {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--muted-foreground) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--muted-foreground) 12%, transparent);
+  border-radius: 10px;
+  line-height: 1.6;
+}
+
+@media (min-width: 1024px) {
+  .closedNotice { font-size: var(--fs-body); }
+}
+
+.strategyCardMuted {
+  opacity: 0.65;
+  filter: grayscale(0.2);
+}
+
+@media (hover: hover) {
+  .strategyCardMuted:hover { opacity: 0.9; }
 }

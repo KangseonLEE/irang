@@ -446,7 +446,7 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
       desc: "스마트팜과 6차 산업으로 청년 귀농이 빠르게 늘고 있어요",
     },
     stats: [
-      { value: "3,960만원", label: "영농정착지원금", sub: "월 110만원 × 3년", desc: "만 18~39세 청년 창업농에게 지급되는 정부 보조금이에요" },
+      { value: "3,600만원", label: "영농정착지원금", sub: "월 110·100·90만원 × 3년 (매년 감액)", desc: "만 18~39세 청년 창업농에게 지급되는 정부 보조금이에요" },
       { value: "33세", label: "평균 나이", sub: "2024년 기준", desc: "점점 더 젊은 세대가 농업을 선택하고 있어요" },
     ],
     chart: {
@@ -658,13 +658,13 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
         { label: "정착 지원금", value: "300만~2,000만 원", sub: "지자체별 상이" },
       ],
     },
-    visibleSections: ["compare", "strategy", "simulator"],
+    visibleSections: ["compare", "strategy"],
   },
   youth: {
     id: "youth",
     label: "청년농",
-    headline: "청년 창업농으로,",
-    em: "얼마로 시작할 수 있을까?",
+    headline: "청년농 창업,",
+    em: "얼마면 시작할까?",
     desc: "30대 이하 귀농인의 평균 투자금은 8,209만 원이에요. 영농정착지원금과 창업자금을 합치면 실질 부담을 크게 줄일 수 있어요.",
     source: "농림축산식품부 2025 실태조사 + 청년창업농 시행지침",
     confidence: "estimated",
@@ -673,7 +673,7 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     cards: [
       { label: "영농 준비비 비중", desc: "농지·시설·장비 투자가 전체의 대부분을 차지해요", value: 80, format: "decimal1", unit: "%", color: "primary" },
       { label: "평균 준비 기간", desc: "교육과 현장 실습을 거쳐 창업하는 기간이에요", value: 21, format: "decimal1", unit: "개월", color: "amber" },
-      { label: "영농정착지원금", desc: "만 18~39세 창업농에게 월 최대 110만 원을 3년 지원해요", value: 3960, format: "integer", unit: "만원", source: "보조금 · 농림축산식품부", color: "primary" },
+      { label: "영농정착지원금", desc: "만 18~39세 창업농에게 월 110·100·90만 원을 3년 지급해요 (매년 감액)", value: 3600, format: "integer", unit: "만원", source: "보조금 · 농림축산식품부", color: "primary" },
       { label: "농업창업자금 융자", desc: "영농에 필요한 농지·시설·장비 구입 지원 한도예요", value: 3, format: "plain", unit: "억원", source: "농림축산식품부 융자사업", color: "muted" },
     ],
     snapshot: {
@@ -681,10 +681,10 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
       totalValue: "8,209",
       totalRaw: 8209,
       totalUnit: "만 원",
-      totalSub: "영농정착지원금 <strong>최대 3,960만 원</strong> 별도 지원",
+      totalSub: "영농정착지원금 <strong>최대 3,600만 원</strong> 별도 지원",
       items: [
         { label: "영농 준비 비용", value: "약 6,567만 원", sub: "농지·시설·장비" },
-        { label: "영농정착지원금", value: "최대 3,960만 원", sub: "보조금 (만 18~39세)" },
+        { label: "영농정착지원금", value: "최대 3,600만 원", sub: "보조금 (만 18~39세)" },
         { label: "농업창업자금", value: "최대 3억 원", sub: "저금리 융자 지원" },
         { label: "농지임차 지원", value: "연 최대 300만 원", sub: "임차료 50~80% 보조" },
       ],
