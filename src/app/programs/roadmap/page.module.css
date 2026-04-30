@@ -39,6 +39,12 @@
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 16px;
   overscroll-behavior-x: contain;
+  /* 가로 드래그 자체 차단 — 세로 스크롤만 통과. 사용자 의도대로
+     "끌어서 자유롭게 막 움직이는" 동작 완전 봉쇄. 활성 탭은 클릭 시
+     useEffect의 scrollIntoView로 자동 가운데 정렬됨. */
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
   background: color-mix(in srgb, var(--background, #fff) 95%, transparent);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--border, #e5e7eb);
