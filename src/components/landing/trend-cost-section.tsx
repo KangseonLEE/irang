@@ -140,6 +140,8 @@ export function TrendCostSection() {
   /* ── 모바일 하단 sticky 가시성 ── */
   const sectionRef = useRef<HTMLElement>(null);
   const inlineSelectorRef = useRef<HTMLDivElement>(null);
+  /** 탭 변경 시 스크롤 앵커 (트렌드 블록의 #귀농 트렌드 eyebrow 시작점) */
+  const trendBlockRef = useRef<HTMLDivElement>(null);
   const [showSticky, setShowSticky] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -175,13 +177,13 @@ export function TrendCostSection() {
     };
   }, []);
 
-  /* ── 탭 변경 시 섹션 시작점으로 자동 스크롤 ──
+  /* ── 탭 변경 시 트렌드 블록("#귀농 트렌드" eyebrow 시작점)으로 자동 스크롤 ──
         사용자가 인라인/sticky 셀렉터를 눌러 카테고리를 바꾸면
-        해당 섹션 머리가 viewport 상단에 보이도록 부드럽게 이동.
+        새 카테고리의 트렌드 헤더가 viewport 상단에 보이도록 부드럽게 이동.
         hasInteracted=false인 첫 마운트에는 스크롤 안 함 (URL 직접 진입 보존). */
   useEffect(() => {
     if (!hasInteracted) return;
-    const target = sectionRef.current;
+    const target = trendBlockRef.current;
     if (!target) return;
     const stickyOffset = 56 + 8; // GNB(56) + 여유 8
     const top =
@@ -276,8 +278,8 @@ export function TrendCostSection() {
         <CategorySelector activeIdx={activeIdx} onChange={handleChange} ariaLabel="귀농 유형 선택" />
       </div>
 
-      {/* ═══ 트렌드 블록 — 원래 헤더 유지 ═══ */}
-      <div className={s.block}>
+      {/* ═══ 트렌드 블록 — 원래 헤더 유지 (탭 변경 스크롤 앵커) ═══ */}
+      <div ref={trendBlockRef} className={s.block}>
         <div className={s.blockHeader}>
           <div className={s.blockHeaderLeft}>
             <span className={s.eyebrow}>#귀농 트렌드</span>
