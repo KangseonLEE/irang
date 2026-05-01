@@ -109,12 +109,13 @@ export function DistrictMap({
   }, [gus, viewBox]);
 
   // viewBox 크기에 비례한 라벨 폰트 크기.
-  // 큰 도시(viewBox dim이 큰 케이스, 예: 성남시)에서 폰트가 path 폭을 벗어나는
-  // 문제 → 비율을 0.021 → 0.014로 줄이고 max 14로 캡.
-  // dim ~800 → ~11, dim ~1500 → 14(cap), dim ~150 → ~3 (min)
+  // 0.014 → 0.008로 더 공격적으로 축소 + max 9로 캡 + min 2.
+  // SVG가 viewBox에 fit-to-screen되어 화면에서 충분히 커 보이고, path 폭에
+  // 비해 글자가 30% 이내에서 안전하게 들어감.
+  // dim ~800 → 6.4, dim ~1500 → 9(cap), dim ~150 → 2 (min)
   const labelFontSize = useMemo(() => {
     const dim = Math.max(croppedViewBox.width, croppedViewBox.height);
-    return Math.max(3, Math.min(14, dim * 0.014));
+    return Math.max(2, Math.min(9, dim * 0.008));
   }, [croppedViewBox]);
 
   return (
