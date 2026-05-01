@@ -147,6 +147,43 @@ export function DistrictMap({
     return maxX - minX;
   }, []);
 
+  /**
+   * 구 path의 polygon centroid (면적 가중 무게중심) 계산.
+   * Shoelace formula 사용 — 비대칭 polygon에서도 시각적 가운데에 가까움.
+   * 데이터의 labelX/Y가 비어있거나 부정확한 경우 자동 fallback.
+   * 계산 실패(자기교차·복잡 path 등) 시 null 반환 → 호출측에서 데이터 fallback.
+   */
+  const getPathCentroid = useCallback(
+    (path: string): { x: number; y: number } | null => {
+      const numbers = path.match(/-?\d+(?:\.\d+)?/g);
+      if (!numbers) return null;
+      const pts: [number, number][] = [];
+      for (let i = 0; i < numbers.length - 1; i += 2) {
+        const x = parseFloat(numbers[i]);
+        const y = parseFloat(numbers[i + 1]);
+        if (!isNaN(x) && !isNaN(y)) pts.push([x, y]);
+      }
+      if (pts.length < 3) return null;
+      let area = 0, cx = 0, cy = 0;
+      const n = pts.length;
+      for (let i = 0; i < n; i++) {
+        const [x0, y0] = pts[i];
+        const [x1, y1] = pts[(i + 1) % n];
+        const cross = x0 * y1 - x1 * y0;
+        area += cross;
+        cx += (x0 + x1) * cross;
+        cy += (y0 + y1) * cross;
+      }
+      area *= 0.5;
+      if (Math.abs(area) < 1e-6) return null;
+      cx /= 6 * area;
+      cy /= 6 * area;
+      if (!isFinite(cx) || !isFinite(cy)) return null;
+      return { x: cx, y: cy };
+    },
+    [],
+  );
+
   /** 모바일 단일 fontSize (이전 동작 그대로) */
   const mobileLabelFontSize = useMemo(() => {
     const dim = Math.max(croppedViewBox.width, croppedViewBox.height);
@@ -206,11 +243,15 @@ export function DistrictMap({
           const fsVu = isDesktop
             ? getDesktopLabelFontSize(g.path, label.length)
             : mobileLabelFontSize;
+          // path 면적 중심(centroid) 자동 계산. 실패 시 데이터의 labelX/Y 폴백.
+          const centroid = getPathCentroid(g.path);
+          const labelX = centroid ? centroid.x : g.labelX;
+          const labelY = centroid ? centroid.y : g.labelY;
           return (
             <text
               key={`label-${g.guId}`}
-              x={g.labelX}
-              y={g.labelY}
+              x={labelX}
+              y={labelY}
               className={`${s.label} ${s.labelDistrict} ${isActive ? s.labelActive : ""}`}
               style={{ "--district-label-size": `${fsVu}px` } as React.CSSProperties}
             >
