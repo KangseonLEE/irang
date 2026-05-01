@@ -108,11 +108,12 @@ export function DistrictMap({
     };
   }, [gus, viewBox]);
 
-  // viewBox 크기에 비례한 라벨 폰트 크기.
-  // 모바일과 데스크탑을 분리해야 함 — 모바일은 SVG가 작아 viewBox 폰트도
-  // 작은 픽셀로 표시되므로 큰 비율(0.014) 유지가 적절.
-  // 데스크탑은 SVG가 커서 같은 viewBox 폰트가 큰 픽셀로 표시되므로 비율 축소(0.008).
+  /* ── 모바일/데스크탑 분기 + 컨테이너 픽셀 폭 추적 ──
+     모바일: 단일 비율 (0.014)로 충분 (사용자 "모바일은 건들지 마" 명시)
+     데스크탑: ux-design-architect 권고대로 path별 동적 fontSize 계산 */
   const [isDesktop, setIsDesktop] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(560);
+
   useEffect(() => {
     const check = () => setIsDesktop(window.innerWidth >= 768);
     check();
@@ -120,15 +121,50 @@ export function DistrictMap({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const labelFontSize = useMemo(() => {
-    const dim = Math.max(croppedViewBox.width, croppedViewBox.height);
-    if (isDesktop) {
-      // 데스크탑: 추가 축소 — dim ~800 → 3.2, dim ~1500 → 5 (cap)
-      return Math.max(1.5, Math.min(5, dim * 0.004));
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const update = () => setContainerWidth(el.offsetWidth || 560);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  /** 구 path의 viewBox 단위 width 측정 (좌표 파싱, getBBox 불필요) */
+  const getPathWidthVu = useCallback((path: string): number => {
+    const numbers = path.match(/-?\d+(?:\.\d+)?/g);
+    if (!numbers) return 0;
+    let minX = Infinity, maxX = -Infinity;
+    for (let i = 0; i < numbers.length - 1; i += 2) {
+      const x = parseFloat(numbers[i]);
+      if (!isNaN(x)) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+      }
     }
-    // 모바일: 이전 동작 유지 — dim ~800 → 11.2, dim ~150 → 3 (min)
+    if (!isFinite(minX)) return 0;
+    return maxX - minX;
+  }, []);
+
+  /** 모바일 단일 fontSize (이전 동작 그대로) */
+  const mobileLabelFontSize = useMemo(() => {
+    const dim = Math.max(croppedViewBox.width, croppedViewBox.height);
     return Math.max(3, Math.min(14, dim * 0.014));
-  }, [croppedViewBox, isDesktop]);
+  }, [croppedViewBox]);
+
+  /** 데스크탑: 각 구 path 폭 × 0.12 / charCount 비율로 화면 픽셀 9~13 사이 폰트 */
+  const getDesktopLabelFontSize = useCallback(
+    (path: string, charCount: number): number => {
+      const pathWidthVu = getPathWidthVu(path);
+      const scale = containerWidth / Math.max(croppedViewBox.width, 1);
+      const pathWidthPx = pathWidthVu * scale;
+      const safeCharCount = Math.max(1, charCount);
+      const fsPx = Math.max(9, Math.min(13, (pathWidthPx * 0.12) / safeCharCount));
+      return fsPx / Math.max(scale, 0.001); // viewBox 단위로 역산
+    },
+    [containerWidth, croppedViewBox.width, getPathWidthVu],
+  );
 
   return (
     <div className={s.mapContainer} ref={containerRef}>
@@ -167,13 +203,16 @@ export function DistrictMap({
           const isActive = hoveredId === g.guId;
           const guData = guDataMap.get(g.guId);
           const label = guData?.shortName ?? g.name.replace(/구$/, "");
+          const fsVu = isDesktop
+            ? getDesktopLabelFontSize(g.path, label.length)
+            : mobileLabelFontSize;
           return (
             <text
               key={`label-${g.guId}`}
               x={g.labelX}
               y={g.labelY}
               className={`${s.label} ${s.labelDistrict} ${isActive ? s.labelActive : ""}`}
-              style={{ "--district-label-size": `${labelFontSize}px` } as React.CSSProperties}
+              style={{ "--district-label-size": `${fsVu}px` } as React.CSSProperties}
             >
               {label}
             </text>
