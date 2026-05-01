@@ -10,6 +10,8 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { SIGUNGUS } from "@/lib/data/sigungus";
+import { GUS } from "@/lib/data/gus";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -176,10 +178,48 @@ export async function GET(request: NextRequest) {
     years.map((year) => fetchYearData(accessToken, sgisCode, year))
   );
 
-  const data: TrendItem[] = results
+  let data: TrendItem[] = results
     .map((r) => (r.status === "fulfilled" ? r.value : null))
     .filter((v): v is TrendItem => v !== null)
     .sort((a, b) => a.year - b.year);
+
+  // ── 일반시 fallback: SGIS는 구가 있는 시(예: 성남시 31020)에 시 단위
+  //   추이를 반환하지 않음. 빈 결과면 산하 구의 trend를 합산해 시 trend 생성.
+  if (data.length === 0) {
+    const parentSigungu = SIGUNGUS.find((s) => s.sgisCode === sgisCode);
+    const childGus = parentSigungu
+      ? GUS.filter((g) => g.parentSigunguId === parentSigungu.id)
+      : [];
+    if (childGus.length > 0) {
+      const childResults = await Promise.allSettled(
+        childGus.flatMap((gu) =>
+          years.map((year) => fetchYearData(accessToken, gu.sgisCode, year)),
+        ),
+      );
+      // year별로 그룹화 → 합산 (인구·세대 합, 고령화율은 인구 가중평균)
+      const yearMap = new Map<number, TrendItem[]>();
+      childResults.forEach((r) => {
+        if (r.status === "fulfilled" && r.value) {
+          const v = r.value;
+          if (!yearMap.has(v.year)) yearMap.set(v.year, []);
+          yearMap.get(v.year)!.push(v);
+        }
+      });
+      data = Array.from(yearMap.entries())
+        .map(([year, items]) => {
+          const population = items.reduce((s, i) => s + i.population, 0);
+          const householdCount = items.reduce((s, i) => s + i.householdCount, 0);
+          const agingRate = population > 0
+            ? Math.round(
+                (items.reduce((s, i) => s + i.agingRate * i.population, 0) /
+                  population) * 10,
+              ) / 10
+            : 0;
+          return { year, population, householdCount, agingRate };
+        })
+        .sort((a, b) => a.year - b.year);
+    }
+  }
 
   return NextResponse.json(
     { data },
