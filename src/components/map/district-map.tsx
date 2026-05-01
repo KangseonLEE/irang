@@ -123,8 +123,8 @@ export function DistrictMap({
   const labelFontSize = useMemo(() => {
     const dim = Math.max(croppedViewBox.width, croppedViewBox.height);
     if (isDesktop) {
-      // 데스크탑: dim ~800 → 6.4, dim ~1500 → 9 (cap)
-      return Math.max(2, Math.min(9, dim * 0.008));
+      // 데스크탑: 추가 축소 — dim ~800 → 3.2, dim ~1500 → 5 (cap)
+      return Math.max(1.5, Math.min(5, dim * 0.004));
     }
     // 모바일: 이전 동작 유지 — dim ~800 → 11.2, dim ~150 → 3 (min)
     return Math.max(3, Math.min(14, dim * 0.014));
