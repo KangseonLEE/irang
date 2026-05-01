@@ -161,9 +161,10 @@ export function TrendCostSection() {
 
       // 섹션이 뷰포트와 겹치는지
       const sectionVisible = sectionRect.top < vh && sectionRect.bottom > 0;
-      // 인라인 셀렉터의 상단이 뷰포트 위에 있을 때만 sticky 노출
-      // (= 셀렉터가 시야에 들어오는 시점에 sticky 숨김)
-      const inlineScrolledAbove = inlineRect.top < 0;
+      // 인라인 셀렉터의 하단이 GNB(56) 영역에 도달하면 sticky 등장.
+      // top < 0 기준은 너무 엄격해 trendBlock으로 scroll 후에도 sticky 미등장
+      // 케이스 발생. bottom 기준으로 변경해 사용자 직접 스크롤 시도 더 자연스럽게.
+      const inlineScrolledAbove = inlineRect.bottom < 64;
 
       setShowSticky(sectionVisible && inlineScrolledAbove);
     };
