@@ -175,6 +175,20 @@ export function TrendCostSection() {
     };
   }, []);
 
+  /* ── 탭 변경 시 섹션 시작점으로 자동 스크롤 ──
+        사용자가 인라인/sticky 셀렉터를 눌러 카테고리를 바꾸면
+        해당 섹션 머리가 viewport 상단에 보이도록 부드럽게 이동.
+        hasInteracted=false인 첫 마운트에는 스크롤 안 함 (URL 직접 진입 보존). */
+  useEffect(() => {
+    if (!hasInteracted) return;
+    const target = sectionRef.current;
+    if (!target) return;
+    const stickyOffset = 56 + 8; // GNB(56) + 여유 8
+    const top =
+      target.getBoundingClientRect().top + window.scrollY - stickyOffset;
+    window.scrollTo({ top, behavior: "smooth" });
+  }, [activeIdx, hasInteracted]);
+
   /* ── sticky selector 노출 시 글로벌 CSS 변수에 offset을 알려서
         플로팅 피드백 버튼이 가려지지 않고 sticky 박스 바로 위에 위치하도록 함.
         값: sticky 박스 높이(~56px) − fab과 nav 간 gap 차이 = 48px
