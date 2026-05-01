@@ -92,11 +92,14 @@ export function StatsClient({ initialTab }: StatsClientProps) {
   return (
     <>
       <StatsTabNav activeTab={activeTab} onChange={handleTabChange} />
-      {activeTab === "farming" && <FarmingStats />}
-      {activeTab === "village" && <VillageStats />}
-      {activeTab === "youth" && <YouthStats />}
-      {activeTab === "mountain" && <MountainStats />}
-      {activeTab === "smartfarm" && <SmartfarmStats />}
+      {/* key로 wrapper를 re-mount시켜 탭 변경 시 fade-in 애니메이션 재실행 */}
+      <div key={activeTab} className={s.contentWrap}>
+        {activeTab === "farming" && <FarmingStats />}
+        {activeTab === "village" && <VillageStats />}
+        {activeTab === "youth" && <YouthStats />}
+        {activeTab === "mountain" && <MountainStats />}
+        {activeTab === "smartfarm" && <SmartfarmStats />}
+      </div>
     </>
   );
 }

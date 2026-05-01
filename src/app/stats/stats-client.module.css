@@ -120,3 +120,28 @@
 .tabActive:active {
   background: var(--primary, #1b6b5a);
 }
+
+/* ── 콘텐츠 전환 fade-in 애니메이션 ──
+   탭 변경 시 wrapper가 key 변경으로 re-mount → 새 콘텐츠가 부드럽게
+   페이드인 + 살짝 위로 슬라이드. 이전 콘텐츠는 즉시 unmount (fade out 없음
+   — 빠른 반응 우선). */
+.contentWrap {
+  animation: statsContentFadeIn 0.32s cubic-bezier(.16, 1, .3, 1);
+}
+
+@keyframes statsContentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contentWrap {
+    animation: none;
+  }
+}
