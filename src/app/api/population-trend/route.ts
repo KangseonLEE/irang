@@ -58,7 +58,20 @@ function getLatestAvailableYear(): number {
   return new Date().getFullYear() - 2; // 2026 → 2024
 }
 
+/**
+ * SGIS access token 모듈 레벨 캐시.
+ * SGIS 토큰 유효시간은 보통 4시간 — 안전하게 1시간만 캐시.
+ * 매 요청마다 auth 호출하면 rate limit / 일시 장애에 취약.
+ */
+let cachedToken: { token: string; expiresAt: number } | null = null;
+const TOKEN_CACHE_MS = 60 * 60 * 1000; // 1시간
+
 async function getAccessToken(): Promise<string | null> {
+  // 캐시된 토큰이 유효하면 재사용
+  if (cachedToken && Date.now() < cachedToken.expiresAt) {
+    return cachedToken.token;
+  }
+
   const consumerKey = process.env.SGIS_KEY;
   const consumerSecret = process.env.SGIS_SECRET;
   if (!consumerKey || !consumerSecret) return null;
@@ -67,18 +80,28 @@ async function getAccessToken(): Promise<string | null> {
   url.searchParams.set("consumer_key", consumerKey);
   url.searchParams.set("consumer_secret", consumerSecret);
 
-  try {
-    const res = await fetch(url.toString(), {
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    if (json.errCd !== 0 && json.errCd !== "0") throw new Error(json.errMsg);
-    return json.result?.accessToken ?? null;
-  } catch (error) {
-    console.error("SGIS auth error:", error);
-    return null;
+  // 1회 retry로 일시 장애 방어
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(url.toString(), {
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      if (json.errCd !== 0 && json.errCd !== "0") throw new Error(json.errMsg);
+      const token = json.result?.accessToken ?? null;
+      if (token) {
+        cachedToken = { token, expiresAt: Date.now() + TOKEN_CACHE_MS };
+        return token;
+      }
+      throw new Error("No token in response");
+    } catch (error) {
+      console.error(`SGIS auth error (attempt ${attempt + 1}):`, error);
+      if (attempt === 1) return null;
+      await new Promise((r) => setTimeout(r, 300));
+    }
   }
+  return null;
 }
 
 async function fetchYearData(
