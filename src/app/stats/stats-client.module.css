@@ -4,10 +4,9 @@
    레이아웃·섹션 스타일은 stats-dashboard.module.css 사용
    ══════════════════════════════════════════ */
 
-/* ── 탭 바 (sticky 외부 wrapper) ──
-   랜딩 trend-cost-section의 selector 패턴을 그대로 적용:
-   둥근 알약 박스(muted 배경) + 5탭 균등 분배 + max-width 520px.
-   외부 wrapper만 sticky로 → 박스는 가운데 정렬되어 화면 따라 떠 있음. */
+/* ── 탭 바 (인라인) ──
+   랜딩 trend-cost-section의 selector 패턴을 그대로 적용.
+   데스크탑: 페이지 상단 sticky. 모바일: 일반 위치 + 하단 sticky bar 별도 노출. */
 .tabNav {
   position: sticky;
   top: var(--h-header, 3.5rem);
@@ -21,6 +20,16 @@
 }
 
 :global(html[data-header-hidden]) .tabNav { top: 0; }
+
+/* 모바일은 인라인 탭바 sticky 해제 — 대신 하단 sticky bar로 대체 */
+@media (max-width: 767px) {
+  .tabNav {
+    position: relative;
+    top: auto;
+    background: transparent;
+    backdrop-filter: none;
+  }
+}
 
 /* ── 둥근 알약 박스 (랜딩 .selector와 동일) ── */
 .tabNavInner {
@@ -140,4 +149,51 @@
   .contentWrap {
     animation: none;
   }
+}
+
+/* ══════════════════════════════════════════
+   모바일 하단 sticky bar
+   인라인 셀렉터가 viewport 위로 사라지면 노출
+   ══════════════════════════════════════════ */
+
+.stickyBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px) + 8px);
+  z-index: var(--z-overlay, 100);
+  display: none;
+  justify-content: center;
+  padding: 0;
+  pointer-events: none;
+  transform: translateY(calc(100% + 3.5rem + env(safe-area-inset-bottom, 0px) + 24px));
+  transition: transform 0.32s cubic-bezier(.16, 1, .3, 1);
+}
+
+@media (max-width: 767px) {
+  .stickyBar { display: flex; }
+}
+
+.stickyVisible {
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* sticky bar 안에 들어간 .tabNav는 fixed 컨테이너 내부의 일반 박스로 동작 */
+.stickyBar .tabNav {
+  position: relative;
+  top: auto;
+  z-index: 0;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  margin: 0 12px;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--border, #e5e7eb);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stickyBar { transition: none !important; }
 }
