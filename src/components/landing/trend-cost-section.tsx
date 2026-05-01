@@ -178,13 +178,16 @@ export function TrendCostSection() {
     };
   }, []);
 
-  /* ── 탭 변경 시 트렌드 블록("#귀농 트렌드" eyebrow 시작점)으로 자동 스크롤 ──
+  /* ── 탭 변경 시 트렌드 블록으로 자동 스크롤 (모바일 전용) ──
+        모바일은 sticky bar UX와 결합해 사용자가 카테고리 비교를 빠르게 할 수
+        있도록 스크롤. 데스크탑은 한 화면에 콘텐츠가 거의 보이므로 불필요.
         scrollOffset = 56px → trendBlock.top = 56, selectorWrap.bottom ≈ 48
         (임계 < 64 충족, sticky bar 확실히 등장).
-        trendBlock의 padding-top 32와 합쳐 콘텐츠는 GNB(56) 위로 32px 여유 두고 시작.
         hasInteracted=false 첫 마운트는 스크롤 X. */
   useEffect(() => {
     if (!hasInteracted) return;
+    if (typeof window === "undefined") return;
+    if (!window.matchMedia("(max-width: 767px)").matches) return;
     const target = trendBlockRef.current;
     if (!target) return;
     const scrollOffset = 56;
