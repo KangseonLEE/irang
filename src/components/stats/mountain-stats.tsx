@@ -32,7 +32,9 @@ export function MountainStats() {
     <section
       id="summary-mountain"
       className={s.dashboard}
-      aria-labelledby="tabpanel-mountain-title"
+      role="tabpanel"
+      tabIndex={0}
+      aria-labelledby="tab-mountain"
     >
       <header className={s.dashHeader}>
         <div className={s.dashHeaderText}>

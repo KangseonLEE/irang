@@ -30,7 +30,9 @@ export function YouthStats() {
     <section
       id="summary-youth"
       className={s.dashboard}
-      aria-labelledby="tabpanel-youth-title"
+      role="tabpanel"
+      tabIndex={0}
+      aria-labelledby="tab-youth"
     >
       <header className={s.dashHeader}>
         <div className={s.dashHeaderText}>

@@ -32,7 +32,9 @@ export function SmartfarmStats() {
     <section
       id="summary-smartfarm"
       className={s.dashboard}
-      aria-labelledby="tabpanel-smartfarm-title"
+      role="tabpanel"
+      tabIndex={0}
+      aria-labelledby="tab-smartfarm"
     >
       <header className={s.dashHeader}>
         <div className={s.dashHeaderText}>

@@ -64,12 +64,10 @@ function getCorePages(now: Date): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/regions/centers`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/crops/compare`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/programs/roadmap`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    /* canonical은 /stats 단일. 5탭(?tab=)은 동일 페이지의 변형이라
+       별도 등록 X (duplicate content 회피). 탭 콘텐츠는 prerendering으로
+       각 ?tab= 변형이 검색엔진에 그대로 노출됨. */
     { url: `${BASE_URL}/stats`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE_URL}/stats?tab=farming`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE_URL}/stats?tab=village`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE_URL}/stats?tab=youth`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE_URL}/stats?tab=mountain`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE_URL}/stats?tab=smartfarm`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE_URL}/glossary`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/search`, lastModified: now, changeFrequency: "weekly", priority: 0.4 },
     { url: `${BASE_URL}/about`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },

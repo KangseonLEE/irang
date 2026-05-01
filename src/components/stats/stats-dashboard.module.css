@@ -108,6 +108,8 @@
 .kpiItem:nth-child(2) { border-right: none; }
 .kpiItem:nth-child(n+3) { border-bottom: none; }
 .kpiItem:nth-child(3) { border-right: 1px solid var(--border, #e5e7eb); }
+/* 4번째 셀은 컨테이너 끝이라 명시적으로 끄기 (의도 명확화) */
+.kpiItem:nth-child(4) { border-right: none; }
 
 .kpiDivider { display: none; }
 

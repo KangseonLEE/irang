@@ -58,7 +58,9 @@ export function FarmingStats() {
     <section
       id="summary-farming"
       className={s.dashboard}
-      aria-labelledby="tabpanel-farming-title"
+      role="tabpanel"
+      tabIndex={0}
+      aria-labelledby="tab-farming"
     >
       {/* ── 헤더 + KPI ── */}
       <header className={s.dashHeader}>

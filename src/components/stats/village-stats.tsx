@@ -32,7 +32,9 @@ export function VillageStats() {
     <section
       id="summary-village"
       className={s.dashboard}
-      aria-labelledby="tabpanel-village-title"
+      role="tabpanel"
+      tabIndex={0}
+      aria-labelledby="tab-village"
     >
       <header className={s.dashHeader}>
         <div className={s.dashHeaderText}>
