@@ -179,15 +179,15 @@ export function TrendCostSection() {
   }, []);
 
   /* ── 탭 변경 시 트렌드 블록("#귀농 트렌드" eyebrow 시작점)으로 자동 스크롤 ──
-        scrollOffset = 24px (GNB 56 + 여유 8 = 64는 selectorWrap이 viewport에
-        살짝 남아 sticky bar 미등장 케이스 발생). 24로 줄이면 selectorWrap이
-        확실히 viewport 위로 빠지고, trendBlock의 padding-top 32와 합쳐 콘텐츠는
-        정확히 GNB 바로 아래에서 시작. hasInteracted=false 첫 마운트는 스크롤 X. */
+        scrollOffset = 56px → trendBlock.top = 56, selectorWrap.bottom ≈ 48
+        (임계 < 64 충족, sticky bar 확실히 등장).
+        trendBlock의 padding-top 32와 합쳐 콘텐츠는 GNB(56) 위로 32px 여유 두고 시작.
+        hasInteracted=false 첫 마운트는 스크롤 X. */
   useEffect(() => {
     if (!hasInteracted) return;
     const target = trendBlockRef.current;
     if (!target) return;
-    const scrollOffset = 24;
+    const scrollOffset = 56;
     const top =
       target.getBoundingClientRect().top + window.scrollY - scrollOffset;
     window.scrollTo({ top, behavior: "smooth" });
