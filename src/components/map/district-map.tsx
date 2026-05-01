@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { GuMapLocation } from "@/lib/data/district-maps";
 import { getGuByIds } from "@/lib/data/gus";
@@ -109,14 +109,26 @@ export function DistrictMap({
   }, [gus, viewBox]);
 
   // viewBox 크기에 비례한 라벨 폰트 크기.
-  // 0.014 → 0.008로 더 공격적으로 축소 + max 9로 캡 + min 2.
-  // SVG가 viewBox에 fit-to-screen되어 화면에서 충분히 커 보이고, path 폭에
-  // 비해 글자가 30% 이내에서 안전하게 들어감.
-  // dim ~800 → 6.4, dim ~1500 → 9(cap), dim ~150 → 2 (min)
+  // 모바일과 데스크탑을 분리해야 함 — 모바일은 SVG가 작아 viewBox 폰트도
+  // 작은 픽셀로 표시되므로 큰 비율(0.014) 유지가 적절.
+  // 데스크탑은 SVG가 커서 같은 viewBox 폰트가 큰 픽셀로 표시되므로 비율 축소(0.008).
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   const labelFontSize = useMemo(() => {
     const dim = Math.max(croppedViewBox.width, croppedViewBox.height);
-    return Math.max(2, Math.min(9, dim * 0.008));
-  }, [croppedViewBox]);
+    if (isDesktop) {
+      // 데스크탑: dim ~800 → 6.4, dim ~1500 → 9 (cap)
+      return Math.max(2, Math.min(9, dim * 0.008));
+    }
+    // 모바일: 이전 동작 유지 — dim ~800 → 11.2, dim ~150 → 3 (min)
+    return Math.max(3, Math.min(14, dim * 0.014));
+  }, [croppedViewBox, isDesktop]);
 
   return (
     <div className={s.mapContainer} ref={containerRef}>
