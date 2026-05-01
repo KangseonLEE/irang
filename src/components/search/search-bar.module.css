@@ -714,6 +714,12 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* 모바일은 /more 메뉴와 동일하게 background 없이 — 평소 transparent,
+   인터랙션 시에만 muted */
+@media (max-width: 767px) {
+  .quickItem { background: transparent; }
+}
+
 .quickItem:active {
   background: var(--border);
 }
