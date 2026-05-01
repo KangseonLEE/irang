@@ -179,16 +179,17 @@ export function TrendCostSection() {
   }, []);
 
   /* ── 탭 변경 시 트렌드 블록("#귀농 트렌드" eyebrow 시작점)으로 자동 스크롤 ──
-        사용자가 인라인/sticky 셀렉터를 눌러 카테고리를 바꾸면
-        새 카테고리의 트렌드 헤더가 viewport 상단에 보이도록 부드럽게 이동.
-        hasInteracted=false인 첫 마운트에는 스크롤 안 함 (URL 직접 진입 보존). */
+        scrollOffset = 24px (GNB 56 + 여유 8 = 64는 selectorWrap이 viewport에
+        살짝 남아 sticky bar 미등장 케이스 발생). 24로 줄이면 selectorWrap이
+        확실히 viewport 위로 빠지고, trendBlock의 padding-top 32와 합쳐 콘텐츠는
+        정확히 GNB 바로 아래에서 시작. hasInteracted=false 첫 마운트는 스크롤 X. */
   useEffect(() => {
     if (!hasInteracted) return;
     const target = trendBlockRef.current;
     if (!target) return;
-    const stickyOffset = 56 + 8; // GNB(56) + 여유 8
+    const scrollOffset = 24;
     const top =
-      target.getBoundingClientRect().top + window.scrollY - stickyOffset;
+      target.getBoundingClientRect().top + window.scrollY - scrollOffset;
     window.scrollTo({ top, behavior: "smooth" });
   }, [activeIdx, hasInteracted]);
 
