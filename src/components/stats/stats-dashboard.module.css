@@ -1,24 +1,27 @@
 /* ══════════════════════════════════════════
-   귀농 만족도 — 대시보드 레이아웃
+   통계 대시보드 공용 스타일
+   /stats 통합 페이지 5탭(귀농·귀촌·청년·귀산촌·스마트팜)에서 공유
    CSS Module · 모바일 우선 반응형
    ══════════════════════════════════════════ */
 
-/* ── 페이지 ── */
-.page {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 24px 16px 64px;
+/* ── 카테고리 컨테이너 (탭별 콘텐츠 wrapper) ── */
+.dashboard {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
 @media (min-width: 640px) {
-  .page { padding: 32px 24px 64px; gap: 24px; }
+  .dashboard { gap: 24px; }
 }
 
 @media (min-width: 1024px) {
-  .page { padding: 40px 32px 64px; gap: 28px; }
+  .dashboard { gap: 28px; }
+}
+
+/* 섹션 앵커 스크롤 오프셋 (GNB + 탭바 sticky) */
+.dashboard {
+  scroll-margin-top: 7rem;
 }
 
 /* ── 헤더 + KPI 블록 ── */
@@ -71,6 +74,7 @@
   color: var(--muted-foreground, #6b7280);
   margin: 0;
   line-height: var(--lh-normal);
+  word-break: keep-all;
 }
 
 /* ── KPI 4칸 ── */
@@ -105,7 +109,6 @@
 .kpiItem:nth-child(n+3) { border-bottom: none; }
 .kpiItem:nth-child(3) { border-right: 1px solid var(--border, #e5e7eb); }
 
-/* divider는 모바일에서 숨기고, 태블릿+에서 세로 라인 */
 .kpiDivider { display: none; }
 
 @media (min-width: 640px) {
@@ -168,6 +171,10 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .dashGrid { gap: 24px; }
+}
+
 /* ── 카드 ── */
 .card {
   background: var(--card, #fff);
@@ -199,7 +206,7 @@
   flex-shrink: 0;
 }
 
-/* ── 요인 세로 스택 ── */
+/* ── 요인 세로 스택 (그리드 우측) ── */
 .factorsStack {
   display: flex;
   flex-direction: column;
@@ -262,41 +269,4 @@
   gap: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--border, #e5e7eb);
-}
-
-.navLinks {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.navLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 10px;
-  background: var(--muted, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground, #111827);
-  text-decoration: none;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-@media (hover: hover) {
-  .navLink:hover {
-    border-color: var(--primary, #1b6b5a);
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, var(--background, #fff));
-    color: var(--primary, #1b6b5a);
-  }
-}
-
-.navLinkActive {
-  composes: navLink;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  border-color: var(--primary, #1b6b5a);
-  color: var(--primary, #1b6b5a);
-  pointer-events: none;
 }

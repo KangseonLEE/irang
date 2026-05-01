@@ -70,7 +70,7 @@ const navGroups: NavGroup[] = [
     label: "자료",
     basePaths: ["/stats", "/glossary", "/about"],
     children: [
-      { href: "/stats/population", label: "통계", desc: "귀농 인구·청년·만족도 추이" },
+      { href: "/stats", label: "통계", desc: "귀농 인구·청년·만족도 추이" },
       { href: "/glossary", label: "농업 용어집", desc: "처음 만나는 농업 용어 해설" },
       { href: "/about", label: "서비스 소개", desc: "이랑은 이런 팀이 만들어요" },
     ],

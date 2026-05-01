@@ -159,6 +159,13 @@
 }
 
 /* ── 차트 하단 인사이트 배지 ── */
+.insightBadgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 .insightBadge {
   display: inline-flex;
   align-items: center;

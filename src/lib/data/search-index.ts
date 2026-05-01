@@ -405,7 +405,7 @@ function getSearchIndex(): SearchItem[] {
       id: "stats-population",
       title: "귀농·귀촌 인구 통계",
       subtitle: "10년 추이 데이터 & 원인 분석",
-      href: "/stats/population",
+      href: "/stats?tab=farming",
       keywords: ["통계", "인구", "추이", "트렌드", "데이터", "현황", "몇명", "증가", "감소"],
       icon: "\u{1F4CA}", // 📊
     },
@@ -414,7 +414,7 @@ function getSearchIndex(): SearchItem[] {
       id: "stats-satisfaction",
       title: "귀농 만족도 통계",
       subtitle: "귀농인 생활 만족도 조사 결과",
-      href: "/stats/satisfaction",
+      href: "/stats?tab=farming",
       keywords: ["만족도", "만족", "통계", "조사", "생활", "후회"],
       icon: "\u{1F4CA}", // 📊
     },
@@ -423,7 +423,7 @@ function getSearchIndex(): SearchItem[] {
       id: "stats-youth",
       title: "청년 귀농 통계",
       subtitle: "청년층 귀농 현황 & 지원 정책",
-      href: "/stats/youth",
+      href: "/stats?tab=youth",
       keywords: ["청년", "청년귀농", "통계", "MZ", "20대", "30대"],
       icon: "\u{1F4CA}", // 📊
     },

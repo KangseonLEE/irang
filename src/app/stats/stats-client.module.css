@@ -1,0 +1,122 @@
+/* ══════════════════════════════════════════
+   /stats 통합 페이지 — 5탭 SPA 컨트롤
+   탭 디자인: primary 배경 + 흰 글자 (활성), font-weight 고정
+   레이아웃·섹션 스타일은 stats-dashboard.module.css 사용
+   ══════════════════════════════════════════ */
+
+/* ── 탭 바 (sticky, 가로 스냅) ── */
+.tabNav {
+  position: sticky;
+  top: var(--h-header, 3.5rem);
+  z-index: 11;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* iOS Safari 관성 스크롤 차단 → snap 즉시 발동 */
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 16px;
+  overscroll-behavior-x: contain;
+  /* 가로 슬라이드만 허용, 세로 드래그로 탭바 이탈 방지 */
+  touch-action: pan-x;
+  -webkit-user-select: none;
+  user-select: none;
+  background: color-mix(in srgb, var(--background, #fff) 95%, transparent);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:global(html[data-header-hidden]) .tabNav { top: 0; }
+
+.tabNav::-webkit-scrollbar { display: none; }
+
+.tabNavInner {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 8px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .tabNavInner { gap: 6px; padding: 10px 16px; }
+}
+
+@media (min-width: 1024px) {
+  .tabNavInner { padding: 12px 24px; }
+}
+
+/* ── 개별 탭 ── */
+.tab {
+  flex: 1 1 0;
+  min-width: 96px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  /* 활성/비활성 모두 동일 weight — 글자 width 변동 차단 */
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  white-space: nowrap;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 150ms ease, background-color 150ms ease;
+  /* 가로 스냅 정렬 */
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+@media (min-width: 640px) {
+  .tab { padding: 12px 16px; font-size: var(--fs-body, 0.9375rem); }
+}
+
+@media (min-width: 1024px) {
+  .tab { font-size: var(--fs-body, 1rem); }
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--foreground, #111827);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  }
+}
+
+/* user-agent default(회색 배경/그림자) 차단 */
+.tab:focus,
+.tab:active {
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+.tab:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--ring, #1b6b5a);
+}
+
+/* hover 시 배경이 잠시 깔리지만 :focus,:active 룰이 비활성 상태일 때
+   강제로 transparent로 만드는 부작용을 막기 위해 active 탭은 별도 우선순위 */
+.tabActive {
+  color: var(--primary-foreground, #fff);
+  background: var(--primary, #1b6b5a);
+}
+
+@media (hover: hover) {
+  .tabActive:hover {
+    color: var(--primary-foreground, #fff);
+    background: var(--primary, #1b6b5a);
+    opacity: 0.95;
+  }
+}
+
+.tabActive:focus,
+.tabActive:active {
+  background: var(--primary, #1b6b5a);
+}

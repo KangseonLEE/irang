@@ -5,6 +5,17 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   /* ── dev 환경 외부 도메인 허용 (Cloudflare Tunnel 등) ── */
   allowedDevOrigins: ["dev.irangfarm.com"],
+  /* ── 영구 리다이렉트 (308) ── */
+  async redirects() {
+    return [
+      // /stats sub 페이지 → 통합 페이지의 해당 탭으로 영구 이전
+      { source: "/stats/population", destination: "/stats?tab=farming", permanent: true },
+      { source: "/stats/satisfaction", destination: "/stats?tab=farming", permanent: true },
+      { source: "/stats/youth", destination: "/stats?tab=youth", permanent: true },
+      { source: "/stats/mountain", destination: "/stats?tab=mountain", permanent: true },
+      { source: "/stats/smartfarm", destination: "/stats?tab=smartfarm", permanent: true },
+    ];
+  },
   /* ── 단축 URL 리라이트 ── */
   async rewrites() {
     return [

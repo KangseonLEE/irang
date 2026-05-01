@@ -1,7 +1,5 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowRight,
   TrendingUp,
   MessageCircle,
@@ -10,7 +8,6 @@ import {
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
-import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import {
   youthData,
   youthSummary,
@@ -21,39 +18,29 @@ import { YouthTrendChart, FactorBarChart } from "@/components/charts/lazy";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
-import s from "./page.module.css";
-import shared from "../stats.module.css";
+import s from "./stats-dashboard.module.css";
+import tableStyles from "@/app/stats/stats.module.css";
 
-export const metadata: Metadata = {
-  title: "청년 귀농 현황 — 20·30대 연령별·지역별 통계",
-  description:
-    "20대·30대 청년 귀농 비율, 지역별 청년 귀농 현황, 지원 정책을 데이터로 살펴보세요. 청년창업농 지원사업 정보도 확인할 수 있어요.",
-  keywords: ["청년 귀농", "30대 귀농", "20대 귀농", "청년창업농", "청년 귀농 지원"],
-  alternates: { canonical: "/stats/youth" },
-};
-
-export default function YouthPage() {
+export function YouthStats() {
   const latest = youthData[youthData.length - 1];
   const first = youthData[0];
   const growthPp = (latest.ratio - first.ratio).toFixed(1);
 
   return (
-    <div className={s.page}>
-      <BreadcrumbJsonLd items={[{ name: "청년 귀농 현황", href: "/stats/youth" }]} />
-      {/* 뒤로가기 */}
-      <Link href="/" className={shared.backLink}>
-        <Icon icon={ArrowLeft} size="md" />
-        메인으로
-      </Link>
-
-      {/* ── 헤더 + KPI 한 블록 ── */}
+    <section
+      id="summary-youth"
+      className={s.dashboard}
+      aria-labelledby="tabpanel-youth-title"
+    >
       <header className={s.dashHeader}>
         <div className={s.dashHeaderText}>
           <span className={s.overline}>
             <Icon icon={Sprout} size="sm" />
             Youth Farming
           </span>
-          <h1 className={s.title}>{youthSummary.title}</h1>
+          <h2 className={s.title} id="tabpanel-youth-title">
+            {youthSummary.title}
+          </h2>
           <p className={s.desc}>
             전체 귀농인 중 40세 미만 청년 비율 10년 추이와 귀농 사유를 분석했어요.
           </p>
@@ -90,25 +77,22 @@ export default function YouthPage() {
         </div>
       </header>
 
-      {/* ── 메인 대시보드 그리드 ── */}
       <div className={s.dashGrid}>
-        {/* 좌: 청년 비율 추이 차트 */}
-        <section className={s.card} aria-labelledby="chart-youth-title">
-          <h2 className={s.cardTitle} id="chart-youth-title">
+        <section className={s.card} aria-labelledby="youth-chart-title">
+          <h3 className={s.cardTitle} id="youth-chart-title">
             <Icon icon={TrendingUp} size="lg" className={s.cardIcon} />
             청년 귀농 비율 추이
-          </h2>
+          </h3>
           <YouthTrendChart data={youthData} />
           <DataSource source={youthSummary.source} />
         </section>
 
-        {/* 우: 귀농 사유 + 테이블 세로 스택 */}
         <div className={s.factorsStack}>
-          <section className={s.card} aria-labelledby="reasons-title">
-            <h2 className={s.cardTitle} id="reasons-title">
+          <section className={s.card} aria-labelledby="youth-reasons-title">
+            <h3 className={s.cardTitle} id="youth-reasons-title">
               <Icon icon={Sprout} size="lg" className={s.cardIcon} />
               귀농 사유 Top 5
-            </h2>
+            </h3>
             <FactorBarChart
               data={farmingReasons}
               variant="positive"
@@ -117,13 +101,13 @@ export default function YouthPage() {
             <DataSource source={youthSummary.source} />
           </section>
 
-          <section className={s.card} aria-labelledby="table-youth-title">
-            <h2 className={s.cardTitle} id="table-youth-title">
+          <section className={s.card} aria-labelledby="youth-table-title">
+            <h3 className={s.cardTitle} id="youth-table-title">
               <Icon icon={TrendingUp} size="lg" className={s.cardIcon} />
               연도별 상세 데이터
-            </h2>
-            <div className={shared.tableWrap}>
-              <table className={shared.table}>
+            </h3>
+            <div className={tableStyles.tableWrap}>
+              <table className={tableStyles.table}>
                 <thead>
                   <tr>
                     <th scope="col">연도</th>
@@ -158,7 +142,6 @@ export default function YouthPage() {
         </div>
       </div>
 
-      {/* ── 원인 분석 ── */}
       <section className={s.card}>
         <CauseAnalysisSection
           title="왜 청년 귀농이 늘고 있을까?"
@@ -166,24 +149,20 @@ export default function YouthPage() {
         />
       </section>
 
-      {/* ── 요약 + 인터뷰 CTA ── */}
       <div className={s.bottomRow}>
-        <blockquote className={s.summary}>
-          {youthSummary.description}
-        </blockquote>
+        <blockquote className={s.summary}>{youthSummary.description}</blockquote>
         <Link href="/interviews" className={s.interviewCta}>
           <Icon icon={MessageCircle} size="md" />
-          <span>귀농인들의 생생한 이야기</span>
+          <span>청년 귀농인들의 이야기</span>
           <Icon icon={ArrowRight} size="sm" />
         </Link>
       </div>
 
       <ReferenceNotice text="청년 귀농 데이터는 통계청·농림축산식품부 공공데이터를 가공한 참고 자료예요." />
 
-      {/* ── 출처 ── */}
       <footer className={s.footer}>
         <DataSource source={youthSummary.source} />
       </footer>
-    </div>
+    </section>
   );
 }

@@ -96,7 +96,7 @@ const menuGroups: MenuGroup[] = [
   {
     label: "자료",
     items: [
-      { href: "/stats/population", label: "통계", desc: "귀농 인구·청년·만족도 추이", icon: BarChart3 },
+      { href: "/stats", label: "통계", desc: "귀농 인구·청년·만족도 추이", icon: BarChart3 },
       { href: "/glossary", label: "농업 용어집", desc: "처음 만나는 농업 용어 해설", icon: BookOpen },
     ],
   },

@@ -39,6 +39,13 @@ const SIGNIFICANT_YEARS = new Set([2020, 2024]);
 
 interface Props {
   data: YearlyPopulation[];
+  /**
+   * 표시 모드.
+   * - "all" (기본): 귀농 + 귀촌 동시 표시 (이중 Y축)
+   * - "farming": 귀농만 표시 (단일 Y축, 라인)
+   * - "rural": 귀촌만 표시 (단일 Y축, 영역)
+   */
+  mode?: "all" | "farming" | "rural";
 }
 
 /* ── 커스텀 툴팁 ── */
@@ -103,7 +110,7 @@ function FarmingDot(props: ChartDotProps) {
   );
 }
 
-export default function PopulationTrendChart({ data }: Props) {
+export default function PopulationTrendChart({ data, mode = "all" }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hoveredYear, setHoveredYear] = useState<number | null>(null);
 
@@ -116,6 +123,9 @@ export default function PopulationTrendChart({ data }: Props) {
   const handleMouseLeave = useCallback(() => {
     setHoveredYear(null);
   }, []);
+
+  const showFarming = mode === "all" || mode === "farming";
+  const showRural = mode === "all" || mode === "rural";
 
   return (
     <div>
@@ -147,32 +157,36 @@ export default function PopulationTrendChart({ data }: Props) {
               axisLine={{ stroke: "#e5e7eb" }}
             />
 
-            {/* 좌축: 귀촌 (큰 스케일) */}
-            <YAxis
-              yAxisId="rural"
-              orientation="left"
-              tick={{ fontSize: 11, fill: "#9ca3af" }}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v) => `${v}만`}
-              domain={[28, 48]}
-            />
+            {/* 좌축: 귀촌 (큰 스케일) — 단일 모드면 좌축만 사용 */}
+            {showRural && (
+              <YAxis
+                yAxisId="rural"
+                orientation="left"
+                tick={{ fontSize: 11, fill: "#9ca3af" }}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(v) => `${v}만`}
+                domain={[28, 48]}
+              />
+            )}
 
-            {/* 우축: 귀농 (작은 스케일) */}
-            <YAxis
-              yAxisId="farming"
-              orientation="right"
-              tick={{ fontSize: 11, fill: "#9ca3af" }}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v) => `${v}만`}
-              domain={[1.0, 1.45]}
-            />
+            {/* 우축: 귀농 (작은 스케일) — 단일 모드면 좌축으로 변경 */}
+            {showFarming && (
+              <YAxis
+                yAxisId="farming"
+                orientation={mode === "farming" ? "left" : "right"}
+                tick={{ fontSize: 11, fill: "#9ca3af" }}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(v) => `${v}만`}
+                domain={[1.0, 1.45]}
+              />
+            )}
 
-            {/* 2020년 참조선 (COVID) */}
+            {/* 2020년 참조선 (COVID) — 표시되는 첫 축에 부착 */}
             <ReferenceLine
               x={2020}
-              yAxisId="rural"
+              yAxisId={showRural ? "rural" : "farming"}
               stroke={COLOR_PRIMARY}
               strokeDasharray="4 4"
               strokeOpacity={0.3}
@@ -187,57 +201,77 @@ export default function PopulationTrendChart({ data }: Props) {
             <Tooltip content={<CustomTooltip />} />
 
             {/* 귀촌 — 영역 차트 (배경감) */}
-            <Area
-              yAxisId="rural"
-              type="monotone"
-              dataKey="rural"
-              name="귀촌 인구"
-              fill="url(#ruralGradient)"
-              stroke={COLOR_SECONDARY}
-              strokeWidth={2.5}
-              dot={<RuralDot />}
-              activeDot={{ r: 7, stroke: COLOR_SECONDARY, strokeWidth: 2.5, fill: "#fff" }}
-              animationDuration={1200}
-              animationEasing="ease-out"
-            />
+            {showRural && (
+              <Area
+                yAxisId="rural"
+                type="monotone"
+                dataKey="rural"
+                name="귀촌 인구"
+                fill="url(#ruralGradient)"
+                stroke={COLOR_SECONDARY}
+                strokeWidth={2.5}
+                dot={<RuralDot />}
+                activeDot={{ r: 7, stroke: COLOR_SECONDARY, strokeWidth: 2.5, fill: "#fff" }}
+                animationDuration={1200}
+                animationEasing="ease-out"
+              />
+            )}
 
             {/* 귀농 — 라인 차트 (뚜렷하게) */}
-            <Line
-              yAxisId="farming"
-              type="monotone"
-              dataKey="farming"
-              name="귀농 인구"
-              stroke={COLOR_PRIMARY}
-              strokeWidth={3}
-              dot={<FarmingDot />}
-              activeDot={{ r: 7, stroke: COLOR_PRIMARY, strokeWidth: 2.5, fill: "#fff" }}
-              animationDuration={1500}
-              animationEasing="ease-out"
-            />
+            {showFarming && (
+              <Line
+                yAxisId="farming"
+                type="monotone"
+                dataKey="farming"
+                name="귀농 인구"
+                stroke={COLOR_PRIMARY}
+                strokeWidth={3}
+                dot={<FarmingDot />}
+                activeDot={{ r: 7, stroke: COLOR_PRIMARY, strokeWidth: 2.5, fill: "#fff" }}
+                animationDuration={1500}
+                animationEasing="ease-out"
+              />
+            )}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
 
       {/* 범례 */}
       <div className={s.legend}>
-        <span className={s.legendItem}>
-          <span className={s.legendDot} style={{ background: COLOR_PRIMARY, borderRadius: "50%" }} />
-          귀농 인구 (우축)
-        </span>
-        <span className={s.legendItem}>
-          <span className={s.legendDot} style={{ background: COLOR_SECONDARY }} />
-          귀촌 인구 (좌축)
-        </span>
+        {showFarming && (
+          <span className={s.legendItem}>
+            <span className={s.legendDot} style={{ background: COLOR_PRIMARY, borderRadius: "50%" }} />
+            귀농 인구{mode === "all" ? " (우축)" : ""}
+          </span>
+        )}
+        {showRural && (
+          <span className={s.legendItem}>
+            <span className={s.legendDot} style={{ background: COLOR_SECONDARY }} />
+            귀촌 인구{mode === "all" ? " (좌축)" : ""}
+          </span>
+        )}
       </div>
 
       {/* 인사이트 배지 */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-        <span className={s.insightBadge}>
-          2020 코로나 이후 귀촌 급증 (+7.6%)
-        </span>
-        <span className={s.insightBadge}>
-          2024 역대 최대 42.2만 명
-        </span>
+      <div className={s.insightBadgeRow}>
+        {mode === "rural" && (
+          <>
+            <span className={s.insightBadge}>2020 코로나 이후 귀촌 급증 (+7.6%)</span>
+            <span className={s.insightBadge}>2024 역대 최대 42.2만 명</span>
+          </>
+        )}
+        {mode === "farming" && (
+          <>
+            <span className={s.insightBadge}>2024 귀농 인구 1.45만 가구</span>
+            <span className={s.insightBadge}>전년 대비 +1.4%</span>
+          </>
+        )}
+        {mode === "all" && (
+          <>
+            <span className={s.insightBadge}>2020 코로나 이후 귀촌 급증 (+7.6%)</span>
+            <span className={s.insightBadge}>2024 역대 최대 42.2만 명</span>
+          </>
+        )}
       </div>
     </div>
   );

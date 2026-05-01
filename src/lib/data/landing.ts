@@ -359,7 +359,7 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     title: "왜 귀농을 할까?",
     titleEm: "귀농",
     subtitle: "매년 1.2만 명이 도시를 떠나 농촌을 선택하고 있어요",
-    href: "/stats/population",
+    href: "/stats?tab=farming",
     source: "통계청 · 농림축산식품부 2025 귀농귀촌 실태조사",
     hero: {
       value: "1.2만",
@@ -398,7 +398,7 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     title: "왜 귀촌을 할까?",
     titleEm: "귀촌",
     subtitle: "42.2만 명이 농업 없이도 농촌에서 새 삶을 시작했어요",
-    href: "/stats/population",
+    href: "/stats?tab=village",
     source: "통계청 2025 귀농귀촌인통계",
     hero: {
       value: "42.2만",
@@ -437,7 +437,7 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     title: "청년, 왜 농업을 택할까?",
     titleEm: "농업",
     subtitle: "40세 미만 청년농 비율 13.1%로 역대 최고를 기록했어요",
-    href: "/stats/youth",
+    href: "/stats?tab=youth",
     source: "농림축산식품부 2025 귀농귀촌 실태조사",
     hero: {
       value: "13.1%",
@@ -476,7 +476,7 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     title: "왜 산촌으로 떠날까?",
     titleEm: "산촌",
     subtitle: "산촌진흥지역으로 이주하는 가구가 꾸준히 늘고 있어요",
-    href: "/stats/mountain",
+    href: "/stats?tab=mountain",
     source: "통계청 · 산림청 귀산촌 동향",
     hero: {
       value: "2,685",
@@ -515,7 +515,7 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     title: "스마트팜, 얼마나 늘었을까?",
     titleEm: "스마트팜",
     subtitle: "IoT·AI 기반 스마트팜이 빠르게 확산되고 있어요",
-    href: "/stats/smartfarm",
+    href: "/stats?tab=smartfarm",
     source: "농림축산식품부 · 스마트팜코리아",
     hero: {
       value: "8,534",

@@ -219,8 +219,8 @@ export const satisfactionCauses: CauseAnalysis[] = [
     label: "초기 3년 — 정착 성패의 분기점",
     description:
       "귀촌인의 최대 고민은 경제 문제이며, 초기 3년간 집중 관리가 필요해요. 농외소득이 200만원 이상 급감하면서 전체 소득을 끌어내리는 구조가 확인되었으며, 이 시기를 넘기면 만족도가 안정화되는 경향이 있어요.",
-    source: "서울신문, 귀촌인의 최대 고민은 경제",
-    sourceUrl: "https://www.seoul.co.kr/news/plan/disappear-population/2025/10/16/20251016010003",
+    source: "농림축산식품부, 2024 귀농·귀촌 실태조사 (소득·정착 분석)",
+    sourceUrl: "https://www.mafra.go.kr/bbs/home/792/569593/artclView.do",
   },
 ];
 
@@ -266,24 +266,24 @@ export const mountainCauses: CauseAnalysis[] = [
     label: "은퇴 세대의 산촌 이주 증가",
     description:
       "귀산촌 가구주의 60%가 50~60대로, 도시 은퇴자의 제2인생 선택지로 산촌이 부상하고 있어요. 산림치유, 임산물 채취 등 저강도 활동으로도 소득과 건강을 동시에 챙길 수 있다는 점이 매력이에요.",
-    source: "산림청, 귀산촌 실태조사 (2024)",
-    sourceUrl: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?mn=NKFS_02_01_09&cmsId=FC_003764",
+    source: "산림청 산림임업통계플랫폼 — 산촌·귀산촌 통계",
+    sourceUrl: "https://kfss.forest.go.kr/stat/",
     relatedYears: [2022, 2023, 2024],
   },
   {
     label: "산림청 지원 정책 확대",
     description:
       "산림청은 귀산촌 창업 지원자금(최대 3억 원 융자), 귀산촌 교육(40시간 이수), 산촌진흥지역 정착 지원(주택 최대 7,500만 원) 등의 정책을 운영 중이에요. 2023년부터 산촌유학, 산촌생활 체험 프로그램도 확대됐어요.",
-    source: "산림청 귀산촌 종합 안내",
-    sourceUrl: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?mn=NKFS_02_01_09&cmsId=FC_003764",
+    source: "산림청 귀산촌 길라잡이",
+    sourceUrl: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?cmsId=FC_000434&mn=AR02_06_02_02",
     relatedYears: [2023, 2024],
   },
   {
     label: "산촌진흥지역 지정 확대",
     description:
       "산촌진흥지역으로 지정된 읍·면이 전국 120여 개로 늘어나면서 지원 대상 지역이 확대됐어요. 강원, 경북, 전남, 충북 산간 지역이 주요 목적지이며, 지자체별 추가 지원도 활발해요.",
-    source: "산림청, 산촌진흥지역 현황",
-    sourceUrl: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?mn=NKFS_02_01_09&cmsId=FC_003764",
+    source: "산림청 산림임업통계플랫폼",
+    sourceUrl: "https://kfss.forest.go.kr/stat/",
     relatedYears: [2020, 2021, 2022, 2023, 2024],
   },
 ];

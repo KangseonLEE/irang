@@ -298,7 +298,7 @@ export const SEARCH_FAQS: SearchFaq[] = [
       "청년 농업인 혜택",
       "2030 귀농 지원",
     ],
-    href: "/stats/youth",
+    href: "/stats?tab=youth",
     title: "청년 귀농 통계",
     description:
       "청년층 귀농 현황과 지원 정책을 확인해 보세요.",
@@ -401,7 +401,7 @@ export const SEARCH_FAQS: SearchFaq[] = [
       "귀농 추이가 어떻게 돼?",
       "최근 귀농 현황",
     ],
-    href: "/stats/population",
+    href: "/stats?tab=farming",
     title: "귀농·귀촌 인구 통계",
     description:
       "10년간 귀농·귀촌 인구 추이와 원인을 분석했어요.",
@@ -414,7 +414,7 @@ export const SEARCH_FAQS: SearchFaq[] = [
       "귀농한 사람들 만족해?",
       "귀농 후회하는 사람 많아?",
     ],
-    href: "/stats/satisfaction",
+    href: "/stats?tab=farming",
     title: "귀농 만족도 통계",
     description:
       "귀농인 생활 만족도 조사 결과를 확인해 보세요.",

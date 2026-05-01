@@ -221,7 +221,7 @@ const STEPS: GuideStep[] = [
     links: [
       { label: "작물 난이도·수익 비교", href: "/crops" },
       { label: "지원사업 검색", href: "/programs" },
-      { label: "귀농 통계 보기", href: "/stats/population" },
+      { label: "귀농 통계 보기", href: "/stats?tab=farming" },
     ],
   },
   {
