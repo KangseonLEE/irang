@@ -14,7 +14,7 @@
 import { FETCH_TIMEOUT, IS_BUILD_PHASE } from "./_build-phase";
 
 const API_URL = "https://openapi.naver.com/v1/search/news.json";
-const NEWS_CACHE_TTL = 60 * 60;      // 1시간 — 페이지 ISR과 동일 주기
+const NEWS_CACHE_TTL = 60 * 60 * 24; // 24시간 — Vercel transfer 절감 (P0)
 const OG_CACHE_TTL = 60 * 60 * 24;   // 24시간 — OG 이미지는 자주 안 바뀜
 /** OG 이미지 fetch는 다양한 외부 사이트라 빌드 시 더 빠르게 폴백 */
 const OG_FETCH_TIMEOUT = IS_BUILD_PHASE ? 2_000 : 8_000;

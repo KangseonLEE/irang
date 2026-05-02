@@ -50,6 +50,14 @@ const nextConfig: NextConfig = {
         hostname: "img.youtube.com",
       },
     ],
+    /* ── Vercel data transfer 절감 (P0) ──
+       quality 기본 75 → 70: 시각 차이 거의 없이 transfer ~10% 감소.
+       deviceSizes 7개 → 4개: Vercel이 각 사이즈마다 변환 이미지를
+       생성·전송하므로 가짓수 줄이면 transfer + 빌드 시간 모두 감소. */
+    qualities: [70],
+    deviceSizes: [640, 828, 1200, 1920],
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 31_536_000, // 1년 — 정적 이미지 (작물 사진 등)
   },
   async headers() {
     return [
