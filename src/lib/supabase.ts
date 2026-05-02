@@ -50,14 +50,39 @@ export function getSupabaseAdmin(): SupabaseClient | null {
 // ── 검색 로그 ─���
 
 /**
+ * 자연어 형태의 검색어인지 휴리스틱 판정.
+ * 자연어는 키워드 통계로서 의미가 약하므로 수집에서 제외
+ * (David 원칙: "자연어 통합검색 안 함").
+ *
+ * 시그널 (하나라도 충족 시 자연어):
+ * - 물음표 포함 (?)
+ * - 의문/감정 단어 포함 (어떻/어느/왜/어디/언제/무엇/얼마/어떤/있나/되나/가능 등)
+ * - 길이 20자 초과
+ * - 공백 분리 단어 5개 이상
+ */
+function isNaturalLanguageQuery(query: string): boolean {
+  const t = query.trim();
+  if (/[?]/.test(t)) return true;
+  if (
+    /(어떻|어느|왜|어디|언제|무엇|얼마|어떤|있나|있어|되나|가능|뭐가|뭐예|뭐임)/.test(t)
+  )
+    return true;
+  if (t.length > 20) return true;
+  if (t.split(/\s+/).length >= 5) return true;
+  return false;
+}
+
+/**
  * 검색어를 search_logs 테이블에 기록 (서버 사이드 Route Handler 경유)
  * - /api/search-log POST → service_role key로 INSERT
  * - 빈 검색어, 2자 미만은 무시
+ * - 자연어 형태(의문문·문장)는 무시 — 키워드 통계만 수집
  * - fire-and-forget (에러 시 조용히 무시)
  */
 export function logSearch(query: string, resultCount: number): void {
   const trimmed = query.trim();
   if (trimmed.length < 2) return;
+  if (isNaturalLanguageQuery(trimmed)) return;
 
   fetch("/api/search-log", {
     method: "POST",

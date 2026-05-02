@@ -25,6 +25,23 @@ function daysAgo(n: number): string {
   return new Date(Date.now() - n * 86_400_000).toISOString();
 }
 
+/**
+ * 자연어 형태 검색어 — supabase.ts의 logSearch와 동일 정의.
+ * 신규 수집은 logSearch에서 차단하지만, 기존 누적 데이터에 자연어가 있을 수
+ * 있어 admin 집계 단계에서도 동일하게 제외해야 랜딩과 지표 일관.
+ */
+function isNaturalLanguageQuery(query: string): boolean {
+  const t = query.trim();
+  if (/[?]/.test(t)) return true;
+  if (
+    /(어떻|어느|왜|어디|언제|무엇|얼마|어떤|있나|있어|되나|가능|뭐가|뭐예|뭐임)/.test(t)
+  )
+    return true;
+  if (t.length > 20) return true;
+  if (t.split(/\s+/).length >= 5) return true;
+  return false;
+}
+
 function todayStart(): string {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
@@ -116,6 +133,8 @@ export async function fetchTopKeywords(
     const q = (row as { query: string }).query.toLowerCase().trim();
     // 2자 미만 검색어 제외 — 랜딩의 get_trending_searches RPC와 동일 필터
     if (q.length < 2) continue;
+    // 자연어 검색어 제외 (기존 누적 데이터 보정)
+    if (isNaturalLanguageQuery(q)) continue;
     counts.set(q, (counts.get(q) ?? 0) + 1);
   }
 
