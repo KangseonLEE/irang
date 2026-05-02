@@ -114,6 +114,8 @@ export async function fetchTopKeywords(
   const counts = new Map<string, number>();
   for (const row of data) {
     const q = (row as { query: string }).query.toLowerCase().trim();
+    // 2자 미만 검색어 제외 — 랜딩의 get_trending_searches RPC와 동일 필터
+    if (q.length < 2) continue;
     counts.set(q, (counts.get(q) ?? 0) + 1);
   }
 
