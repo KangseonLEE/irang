@@ -32,6 +32,9 @@ export default function robots(): MetadataRoute.Robots {
         // /a, /r: 진단/매칭 결과 단축 URL (사용자별, 공유 전용)
         // /assess/r, /assess/result: 진단·매칭 결과 페이지 (사용자별, OG 이미지 변환 비용 큼)
         // /search?q=...: 검색 결과 페이지 — query 조합 무한, 봇 무한 크롤 위험
+        // /{list}?...: list 페이지 필터 query 조합 차단 — list 자체는 허용, ?param=만 차단
+        //   (봇이 ?type=A&region=B 조합을 무한 시도해 매번 SSR 호출 → transfer 폭증)
+        //   /events, /programs, /education, /crops 자체는 sitemap에 등록되어 SEO 정상 노출
         disallow: [
           "/api/",
           "/admin/",
@@ -40,6 +43,10 @@ export default function robots(): MetadataRoute.Robots {
           "/assess/r/",
           "/assess/result/",
           "/search",
+          "/events?",
+          "/programs?",
+          "/education?",
+          "/crops?",
         ],
       },
       ...AI_TRAINING_CRAWLERS.map((bot) => ({

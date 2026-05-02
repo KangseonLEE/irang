@@ -89,6 +89,46 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      /* ── list 페이지 CDN cache (봇 트래픽 절감) ──
+         /events, /programs, /education, /crops는 searchParams 사용 → 자동 dynamic SSR.
+         Vercel CDN이 query string별로 1시간 cache → 동일 query 재호출 시 function 호출 X.
+         stale-while-revalidate=86400 → 1일 동안은 stale 응답 반환 후 백그라운드 갱신. */
+      {
+        source: "/events",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      {
+        source: "/programs",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      {
+        source: "/education",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      {
+        source: "/crops",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
     ];
   },
 };
