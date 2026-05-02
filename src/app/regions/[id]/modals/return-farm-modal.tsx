@@ -124,7 +124,8 @@ export function ReturnFarmModal({
           </div>
         ) : error || trendData.length === 0 ? (
           <div className={s.chartPlaceholder}>
-            추이 데이터를 불러올 수 없어요.
+            <p>KOSIS 통계 서비스가 일시 장애 상태예요.</p>
+            <p>잠시 후 다시 시도해 주세요.</p>
           </div>
         ) : (
           <div className={s.chartWrapper}>
