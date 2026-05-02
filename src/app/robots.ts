@@ -31,6 +31,7 @@ export default function robots(): MetadataRoute.Robots {
         // /admin: 인증 페이지 (어차피 redirect)
         // /a, /r: 진단/매칭 결과 단축 URL (사용자별, 공유 전용)
         // /assess/r, /assess/result: 진단·매칭 결과 페이지 (사용자별, OG 이미지 변환 비용 큼)
+        // /search?q=...: 검색 결과 페이지 — query 조합 무한, 봇 무한 크롤 위험
         disallow: [
           "/api/",
           "/admin/",
@@ -38,6 +39,7 @@ export default function robots(): MetadataRoute.Robots {
           "/r/",
           "/assess/r/",
           "/assess/result/",
+          "/search",
         ],
       },
       ...AI_TRAINING_CRAWLERS.map((bot) => ({

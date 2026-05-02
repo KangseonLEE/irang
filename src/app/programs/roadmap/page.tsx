@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   },
 };
 
-/** 1시간마다 청년농 사례 데이터 재검증 */
-export const revalidate = 3600;
+/** 24h마다 청년농 사례 데이터 재검증 (봇 트래픽 절감) */
+export const revalidate = 86400;
 
 interface PageProps {
   searchParams: Promise<{ tab?: string }>;

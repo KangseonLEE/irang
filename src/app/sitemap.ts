@@ -69,7 +69,7 @@ function getCorePages(now: Date): MetadataRoute.Sitemap {
        각 ?tab= 변형이 검색엔진에 그대로 노출됨. */
     { url: `${BASE_URL}/stats`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/glossary`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE_URL}/search`, lastModified: now, changeFrequency: "weekly", priority: 0.4 },
+    /* /search는 robots disallow (query 조합 무한 → 봇 무한 크롤 방지). sitemap 미등록. */
     { url: `${BASE_URL}/about`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE_URL}/about/disclaimer`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE_URL}/about/corrections`, lastModified: now, changeFrequency: "monthly", priority: 0.2 },

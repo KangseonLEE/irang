@@ -102,7 +102,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 // ── 페이지 컴포넌트 ──
 
-export const revalidate = 3600; // ISR: 1시간
+export const revalidate = 86400; // ISR: 24h — 봇 트래픽 절감
 
 /** 상태 우선순위 (모집중 > 모집예정 > 마감) */
 const STATUS_PRIORITY: Record<string, number> = {

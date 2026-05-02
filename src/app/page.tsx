@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-/** 홈페이지 ISR — 뉴스 데이터를 1시간마다 갱신 */
-export const revalidate = 3600;
+/** 홈페이지 ISR — 6h마다 갱신 (뉴스 갱신 주기 + 봇 트래픽 절감 균형) */
+export const revalidate = 21600;
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
