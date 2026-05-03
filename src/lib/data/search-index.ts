@@ -490,7 +490,15 @@ function getSearchIndex(): SearchItem[] {
       keywords: ["비교", "지역비교", "기후", "인구", "의료", "학교"],
       icon: "\u{1F4CA}", // 📊
     },
-    // 정착 점수 랭킹 — Phase 4·5 재설계 중 임시 검색 인덱스 제외
+    {
+      type: "guide",
+      id: "regions-ranking",
+      title: "차원별 점수 랭킹",
+      subtitle: "전국 시군구를 5가지 차원으로 비교",
+      href: "/regions/ranking",
+      keywords: ["랭킹", "차원별", "비교", "농가", "의료", "학교", "귀농", "인구"],
+      icon: "\u{1F3C6}", // 🏆
+    },
     {
       type: "guide",
       id: "crops-compare",
