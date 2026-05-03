@@ -21,11 +21,7 @@ import {
   POPULATION_TREND_SIGUNGU,
   type PopulationTrendPoint,
 } from "@/lib/data/population-trend";
-import {
-  getSettlementScore,
-  getSettlementScoresBySido,
-  getScorePercentile,
-} from "@/lib/data/settlement-score";
+import { getDimensionScores } from "@/lib/data/dimension-scores";
 import {
   fetchSigunguMedicalFacilities,
   fetchMedicalFacilities,
@@ -178,38 +174,8 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
     }
   }
 
-  // ── 정착 점수: 구 단위는 SETTLEMENT_SCORES에 없을 가능성 → null 허용 ──
-  const guSettlementScore = getSettlementScore(gu.sgisCode);
-  const guSettlementPercentile =
-    guSettlementScore !== null
-      ? getScorePercentile(guSettlementScore.totalScore)
-      : null;
-  const sidoScores = getSettlementScoresBySido(province.sgisCode);
-  const sidoAvgDimensions = (() => {
-    if (sidoScores.length === 0) return null;
-    const sum = { farm: 0, populationTrend: 0, youth: 0, density: 0 };
-    for (const s of sidoScores) {
-      sum.farm += s.dimensions.farm;
-      sum.populationTrend += s.dimensions.populationTrend;
-      sum.youth += s.dimensions.youth;
-      sum.density += s.dimensions.density;
-    }
-    const n = sidoScores.length;
-    return {
-      farm: Math.round(sum.farm / n),
-      populationTrend: Math.round(sum.populationTrend / n),
-      youth: Math.round(sum.youth / n),
-      density: Math.round(sum.density / n),
-    };
-  })();
-  const sidoAvgTotalScore =
-    sidoScores.length > 0
-      ? Math.round(
-          (sidoScores.reduce((a, b) => a + b.totalScore, 0) /
-            sidoScores.length) *
-            10,
-        ) / 10
-      : null;
+  // ── 차원별 5점수 (구 단위는 dimension-scores.ts에 없을 수 있음 → null 허용) ──
+  const guDimensionScores = getDimensionScores(gu.sgisCode);
 
   return (
     <SigunguStats
@@ -262,9 +228,7 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
       populationTrend={populationTrendData}
       populationTrendYears={[...POPULATION_TREND_YEARS]}
       populationChangePct={populationChangePct}
-      // Phase 4·5 재설계 중 — 단일 종합 점수 임시 비표시.
-      settlementScore={null
-      }
+      dimensionScores={guDimensionScores}
       sgisCode={gu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}
       hiraSgguCd={gu.hiraSgguCd}

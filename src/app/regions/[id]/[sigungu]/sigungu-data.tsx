@@ -26,11 +26,7 @@ import {
   POPULATION_TREND_SIGUNGU,
   type PopulationTrendPoint,
 } from "@/lib/data/population-trend";
-import {
-  getSettlementScore,
-  getSettlementScoresBySido,
-  getScorePercentile,
-} from "@/lib/data/settlement-score";
+import { getDimensionScores } from "@/lib/data/dimension-scores";
 import {
   fetchSigunguMedicalFacilities,
   fetchMedicalFacilities,
@@ -189,39 +185,8 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
     }
   }
 
-  // ── 정착 점수 (정적 모델 — Phase 3) ──
-  const settlementScore = getSettlementScore(sigungu.sgisCode);
-  const settlementPercentile =
-    settlementScore !== null
-      ? getScorePercentile(settlementScore.totalScore)
-      : null;
-  // 같은 시도 평균 차원 점수 (레이더 비교용)
-  const sidoScores = getSettlementScoresBySido(province.sgisCode);
-  const sidoAvgDimensions = (() => {
-    if (sidoScores.length === 0) return null;
-    const sum = { farm: 0, populationTrend: 0, youth: 0, density: 0 };
-    for (const s of sidoScores) {
-      sum.farm += s.dimensions.farm;
-      sum.populationTrend += s.dimensions.populationTrend;
-      sum.youth += s.dimensions.youth;
-      sum.density += s.dimensions.density;
-    }
-    const n = sidoScores.length;
-    return {
-      farm: Math.round(sum.farm / n),
-      populationTrend: Math.round(sum.populationTrend / n),
-      youth: Math.round(sum.youth / n),
-      density: Math.round(sum.density / n),
-    };
-  })();
-  const sidoAvgTotalScore =
-    sidoScores.length > 0
-      ? Math.round(
-          (sidoScores.reduce((a, b) => a + b.totalScore, 0) /
-            sidoScores.length) *
-            10,
-        ) / 10
-      : null;
+  // ── 차원별 5점수 (Phase 4 — 정적 분위 모델) ──
+  const dimensionScores = getDimensionScores(sigungu.sgisCode);
 
   return (
     <SigunguStats
@@ -274,10 +239,7 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
       populationTrend={populationTrendData}
       populationTrendYears={[...POPULATION_TREND_YEARS]}
       populationChangePct={populationChangePct}
-      // Phase 4·5 재설계 중 — 단일 종합 점수는 추정 가중치 의존성으로 임시 비표시.
-      // 차원별 점수(인구·농가·의료·학교·귀농비율)로 곧 전환.
-      settlementScore={null
-      }
+      dimensionScores={dimensionScores}
       sgisCode={sigungu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}
       hiraSgguCd={hiraSgguCd}

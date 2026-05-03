@@ -17,7 +17,6 @@ import { ClimateSection } from "@/components/stats/climate-section";
 import type { ClimateInfo } from "@/components/stats/climate-section";
 import {
   SigunguPopulationTrendChart,
-  SettlementRadarChart,
 } from "@/components/charts/lazy";
 import { formatPopulation, SEOUL_AREA_KM2 } from "@/lib/format";
 import { AreaModal } from "../modals/area-modal";
@@ -76,26 +75,21 @@ export interface SigunguStatsProps {
   populationTrendYears: number[];
   /** 인구 5년 변화율 (%, 양수=증가) */
   populationChangePct: number | null;
-  /** 정착 점수 (Phase 3 — 정적 모델) */
-  settlementScore: {
-    totalScore: number;
-    dimensions: {
-      farm: number;
-      populationTrend: number;
-      youth: number;
-      density: number;
-    };
-    /** 전국 백분위 (0~100, 100 = 1위) */
-    percentile: number | null;
-    /** 시도 평균 총점 (비교용) */
-    sidoAvgTotalScore: number | null;
-    /** 시도 평균 차원 점수 (레이더 비교용) */
-    sidoAvgDimensions: {
-      farm: number;
-      populationTrend: number;
-      youth: number;
-      density: number;
-    } | null;
+  /**
+   * 차원별 5점수 (Phase 4 — 정적 분위 모델).
+   * null = 도시 자치구 또는 데이터 부재 (UI에서 카드 hide).
+   */
+  dimensionScores: {
+    /** 인구 추세 점수 (0~100). 5년 변화율 선형 정규화 */
+    populationTrend: number | null;
+    /** 농가 활성도 분위 (1~100). 도시 자치구 null */
+    farmActivity: number | null;
+    /** 의료 인프라 분위 (1~100) */
+    medical: number | null;
+    /** 학교 인프라 분위 (1~100). 군위 null */
+    school: number | null;
+    /** 귀농 활성도 분위 (1~100). 도시 자치구 null */
+    returnFarm: number | null;
   } | null;
   // 모달 데이터 페칭용 코드
   sgisCode: string;
@@ -136,7 +130,7 @@ export function SigunguStats({
   populationTrend,
   populationTrendYears,
   populationChangePct,
-  settlementScore,
+  dimensionScores,
   sgisCode,
   hiraSidoCd,
   hiraSgguCd,
@@ -360,54 +354,60 @@ export function SigunguStats({
         </section>
       )}
 
-      {/* ── 정착 점수 (Phase 3 — 4차원 가중 평균) ── */}
-      {settlementScore && (
-        <section className={s.scoreSection} aria-label="정착 점수">
+      {/* ── 차원별 5점수 (Phase 4 — 전국 분위 정규화) ── */}
+      {dimensionScores && (
+        <section className={s.scoreSection} aria-label="차원별 점수">
           <div className={s.scoreHeader}>
             <div>
-              <h3 className={s.scoreSectionTitle}>정착 점수</h3>
+              <h3 className={s.scoreSectionTitle}>{sigunguName} 차원별 점수</h3>
               <p className={s.scoreSectionDesc}>
-                농가·인구·청년성·거주 적정성 4개 차원의 가중 평균이에요.
+                전국에서 어디쯤인지 5가지 차원으로 보여드려요.
               </p>
             </div>
-            <div className={s.scoreSummary}>
-              <span className={s.scoreSummaryValue}>
-                {settlementScore.totalScore.toFixed(1)}
-                <span className={s.scoreSummaryUnit}>점</span>
-              </span>
-              {settlementScore.percentile !== null && (
-                <span className={s.scoreSummaryRank}>
-                  전국 상위 {Math.max(1, 100 - settlementScore.percentile)}%
-                </span>
-              )}
-              {settlementScore.sidoAvgTotalScore !== null && (
-                <span className={s.scoreSummaryCompare}>
-                  {provinceShortName} 평균{" "}
-                  {settlementScore.sidoAvgTotalScore.toFixed(1)}점 대비{" "}
-                  {settlementScore.totalScore >=
-                  settlementScore.sidoAvgTotalScore
-                    ? "+"
-                    : ""}
-                  {(
-                    settlementScore.totalScore -
-                    settlementScore.sidoAvgTotalScore
-                  ).toFixed(1)}
-                  점
-                </span>
-              )}
-            </div>
           </div>
-          <SettlementRadarChart
-            dimensions={settlementScore.dimensions}
-            sidoAvgDimensions={settlementScore.sidoAvgDimensions ?? undefined}
-            sigunguName={sigunguName}
-            sidoShortName={provinceShortName}
-          />
-          <div className={s.scoreNote}>
-            <Link href="/regions/ranking" className={s.scoreLink}>
-              전국 랭킹에서 비교하기 →
+          <div className={s.dimensionGrid}>
+            {dimensionScores.populationTrend !== null && (
+              <DimensionCard
+                label="인구 추세"
+                score={dimensionScores.populationTrend}
+                kind="trend"
+                changePct={populationChangePct}
+              />
+            )}
+            {dimensionScores.farmActivity !== null && (
+              <DimensionCard
+                label="농가 활성도"
+                score={dimensionScores.farmActivity}
+                kind="percentile"
+              />
+            )}
+            {dimensionScores.medical !== null && (
+              <DimensionCard
+                label="의료 인프라"
+                score={dimensionScores.medical}
+                kind="percentile"
+              />
+            )}
+            {dimensionScores.school !== null && (
+              <DimensionCard
+                label="학교 인프라"
+                score={dimensionScores.school}
+                kind="percentile"
+              />
+            )}
+            {dimensionScores.returnFarm !== null && (
+              <DimensionCard
+                label="귀농 활성도"
+                score={dimensionScores.returnFarm}
+                kind="percentile"
+              />
+            )}
+          </div>
+          <p className={s.scoreFootnote}>
+            <Link href="/regions/ranking/methodology" className={s.scoreLink}>
+              점수는 어떻게 만들었나요? →
             </Link>
-          </div>
+          </p>
         </section>
       )}
 
@@ -489,5 +489,57 @@ export function SigunguStats({
         </Modal>
       )}
     </>
+  );
+}
+
+// ── 차원별 점수 카드 (Phase 4) ──
+
+interface DimensionCardProps {
+  label: string;
+  /** 0~100 점수 (분위 또는 절대값) */
+  score: number;
+  /** 'trend' = 인구 추세 (점수 + 변화율), 'percentile' = 전국 분위 */
+  kind: "trend" | "percentile";
+  /** kind='trend' 일 때 5년 변화율 (%, 양수=증가) */
+  changePct?: number | null;
+}
+
+function DimensionCard({ label, score, kind, changePct }: DimensionCardProps) {
+  // 분위 → 어르신 친화 카피
+  let summary: string;
+  if (kind === "trend") {
+    if (changePct === null || changePct === undefined) {
+      summary = `${score}점`;
+    } else if (changePct >= 1) {
+      summary = `회복 중 +${changePct.toFixed(1)}%`;
+    } else if (changePct <= -5) {
+      summary = `가속 감소 ${changePct.toFixed(1)}%`;
+    } else {
+      summary = `안정 ${changePct >= 0 ? "+" : ""}${changePct.toFixed(1)}%`;
+    }
+  } else {
+    // 분위 80↑ = 상위, 50~80 = 중상, 20~50 = 중하, 20↓ = 하위
+    const topPct = Math.max(1, 100 - score);
+    summary = `전국 상위 ${topPct}%`;
+  }
+
+  // 색상: 분위 또는 점수에 따라
+  const tone = score >= 70 ? "high" : score >= 40 ? "mid" : "low";
+
+  return (
+    <div className={s.dimensionCard} data-tone={tone}>
+      <span className={s.dimensionLabel}>{label}</span>
+      <div className={s.dimensionValueRow}>
+        <span className={s.dimensionValue}>{score}</span>
+        <span className={s.dimensionUnit}>점</span>
+      </div>
+      <div className={s.dimensionBar} aria-hidden="true">
+        <span
+          className={s.dimensionBarFill}
+          style={{ width: `${score}%` }}
+        />
+      </div>
+      <span className={s.dimensionSummary}>{summary}</span>
+    </div>
   );
 }
