@@ -490,15 +490,7 @@ function getSearchIndex(): SearchItem[] {
       keywords: ["비교", "지역비교", "기후", "인구", "의료", "학교"],
       icon: "\u{1F4CA}", // 📊
     },
-    {
-      type: "guide",
-      id: "regions-ranking",
-      title: "정착 점수 랭킹",
-      subtitle: "229개 시군구 귀농 정착 가능성 비교",
-      href: "/regions/ranking",
-      keywords: ["랭킹", "정착점수", "순위", "비교", "농가", "청년", "인구"],
-      icon: "\u{1F3C6}", // 🏆
-    },
+    // 정착 점수 랭킹 — Phase 4·5 재설계 중 임시 검색 인덱스 제외
     {
       type: "guide",
       id: "crops-compare",

@@ -274,16 +274,9 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
       populationTrend={populationTrendData}
       populationTrendYears={[...POPULATION_TREND_YEARS]}
       populationChangePct={populationChangePct}
-      settlementScore={
-        settlementScore
-          ? {
-              totalScore: settlementScore.totalScore,
-              dimensions: settlementScore.dimensions,
-              percentile: settlementPercentile,
-              sidoAvgTotalScore,
-              sidoAvgDimensions,
-            }
-          : null
+      // Phase 4·5 재설계 중 — 단일 종합 점수는 추정 가중치 의존성으로 임시 비표시.
+      // 차원별 점수(인구·농가·의료·학교·귀농비율)로 곧 전환.
+      settlementScore={null
       }
       sgisCode={sigungu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}

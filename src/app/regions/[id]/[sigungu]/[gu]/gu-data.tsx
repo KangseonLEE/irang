@@ -262,16 +262,8 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
       populationTrend={populationTrendData}
       populationTrendYears={[...POPULATION_TREND_YEARS]}
       populationChangePct={populationChangePct}
-      settlementScore={
-        guSettlementScore
-          ? {
-              totalScore: guSettlementScore.totalScore,
-              dimensions: guSettlementScore.dimensions,
-              percentile: guSettlementPercentile,
-              sidoAvgTotalScore,
-              sidoAvgDimensions,
-            }
-          : null
+      // Phase 4·5 재설계 중 — 단일 종합 점수 임시 비표시.
+      settlementScore={null
       }
       sgisCode={gu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}

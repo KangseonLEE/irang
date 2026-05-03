@@ -8,8 +8,6 @@ import {
   Thermometer,
   Users,
   HeartHandshake,
-  Trophy,
-  ArrowRight,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
@@ -155,23 +153,7 @@ export default async function RegionsPage() {
         </div>
       </section>
 
-      {/* ── 정착 점수 랭킹 진입 배너 ── */}
-      <Link href="/regions/ranking" className={s.rankingBanner}>
-        <div className={s.rankingBannerIcon} aria-hidden="true">
-          <Icon icon={Trophy} size="lg" />
-        </div>
-        <div className={s.rankingBannerText}>
-          <span className={s.rankingBannerTitle}>
-            어디가 정착하기 좋을까요?
-          </span>
-          <span className={s.rankingBannerDesc}>
-            229개 시군구의 농가·인구·청년성·거주 적정성 점수를 비교해 보세요.
-          </span>
-        </div>
-        <span className={s.rankingBannerCta} aria-hidden="true">
-          <Icon icon={ArrowRight} size="md" />
-        </span>
-      </Link>
+      {/* ── 정착 점수 랭킹 진입 배너 (Phase 4·5 재설계 중 임시 비표시) ── */}
     </div>
   );
 }

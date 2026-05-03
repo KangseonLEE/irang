@@ -62,7 +62,7 @@ function getCorePages(now: Date): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/guides/beginner-crops`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/regions/compare`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/regions/centers`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE_URL}/regions/ranking`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    // /regions/ranking 임시 비활성화 (Phase 4·5 재설계 중)
     { url: `${BASE_URL}/crops/compare`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/programs/roadmap`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     /* canonical은 /stats 단일. 5탭(?tab=)은 동일 페이지의 변형이라
