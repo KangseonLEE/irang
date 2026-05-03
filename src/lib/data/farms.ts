@@ -11,6 +11,11 @@
  * 이 정적 폴백만 사용한다. 시군구 단건 호출은 ISR on-demand에서만.
  */
 
+import {
+  INTEGRATED_CITY_GU_CODES,
+  INTEGRATED_CITY_NAMES,
+} from "./integrated-cities";
+
 export interface FarmStat {
   /** SGIS 코드 (시도 2자리 또는 시군구 5자리) */
   sgisCode: string;
@@ -1921,13 +1926,61 @@ const SIGUNGU_INDEX = new Map(FARM_FALLBACK_SIGUNGU.map((f) => [f.sgisCode, f]))
 /** 시도 sgisCode → FarmStat 빠른 조회 */
 const SIDO_INDEX = new Map(FARM_FALLBACK_SIDO.map((f) => [f.sgisCode, f]));
 
+/**
+ * 통합시(수원·성남·용인 등 12개) 농가 통계를 구 데이터 합산으로 산출.
+ * SGIS는 통합시 자체 sgisCode(31190 등)에 -100을 반환하므로,
+ * 폴백 데이터에도 통합시 자체 항목이 없다 → 구 항목들을 합산해 즉석 생성.
+ */
+function aggregateIntegratedCity(sgisCode: string): FarmStat | null {
+  const guCodes = INTEGRATED_CITY_GU_CODES[sgisCode];
+  if (!guCodes) return null;
+
+  let farmCount = 0;
+  let farmPopulation = 0;
+
+  for (const gu of guCodes) {
+    const stat = SIGUNGU_INDEX.get(gu);
+    if (!stat) continue;
+    farmCount += stat.farmCount;
+    farmPopulation += stat.farmPopulation;
+  }
+
+  if (farmCount === 0) return null;
+
+  return {
+    sgisCode,
+    name: INTEGRATED_CITY_NAMES[sgisCode] ?? "",
+    farmCount,
+    farmPopulation,
+    avgPopulation:
+      Math.round((farmPopulation / farmCount) * 10) / 10, // 소수점 1자리
+  };
+}
+
+/** 통합시 sgisCode → 합산 FarmStat 캐시 (모듈 로드 시 1회 계산) */
+const INTEGRATED_CITY_INDEX: Map<string, FarmStat> = new Map(
+  Object.keys(INTEGRATED_CITY_GU_CODES)
+    .map((code) => [code, aggregateIntegratedCity(code)] as const)
+    .filter((entry): entry is [string, FarmStat] => entry[1] !== null),
+);
+
 export function getFarmFallback(sgisCode: string): FarmStat | null {
-  return SIGUNGU_INDEX.get(sgisCode) ?? SIDO_INDEX.get(sgisCode) ?? null;
+  return (
+    SIGUNGU_INDEX.get(sgisCode) ??
+    INTEGRATED_CITY_INDEX.get(sgisCode) ??
+    SIDO_INDEX.get(sgisCode) ??
+    null
+  );
 }
 
 /** 특정 시도(2자리) 하위 시군구 농가 통계 일괄 조회 */
 export function getFarmsBySido(sidoSgisCode: string): FarmStat[] {
-  return FARM_FALLBACK_SIGUNGU.filter((f) =>
+  // 일반 시군구 + 통합시 합산본 모두 포함 (시도 페이지 카드/지도용)
+  const direct = FARM_FALLBACK_SIGUNGU.filter((f) =>
     f.sgisCode.startsWith(sidoSgisCode),
   );
+  const integrated = Array.from(INTEGRATED_CITY_INDEX.values()).filter((f) =>
+    f.sgisCode.startsWith(sidoSgisCode),
+  );
+  return [...direct, ...integrated];
 }
