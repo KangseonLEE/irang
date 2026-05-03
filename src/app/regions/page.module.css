@@ -335,3 +335,92 @@
 @media (min-width: 1024px) {
   .densityLegendTitle { font-size: 13px; }
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   정착 점수 랭킹 진입 배너 (Phase 3)
+   ──────────────────────────────────────────────────────────────── */
+.rankingBanner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 18px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 24%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary, #1B6B5A) 8%, var(--card, #fff)) 0%,
+    var(--card, #fff) 80%
+  );
+  text-decoration: none;
+  color: var(--foreground);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+@media (min-width: 640px) {
+  .rankingBanner {
+    padding: 22px 24px;
+    gap: 18px;
+  }
+}
+
+@media (hover: hover) {
+  .rankingBanner:hover {
+    border-color: var(--primary, #1B6B5A);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--primary, #1B6B5A) 14%, transparent);
+  }
+}
+
+.rankingBanner:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+.rankingBannerIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 14%, transparent);
+  color: var(--primary, #1B6B5A);
+  flex-shrink: 0;
+}
+
+.rankingBannerText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.rankingBannerTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+@media (min-width: 640px) {
+  .rankingBannerTitle {
+    font-size: 16px;
+  }
+}
+
+.rankingBannerDesc {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.rankingBannerCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--primary, #1B6B5A);
+  flex-shrink: 0;
+}

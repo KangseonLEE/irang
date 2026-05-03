@@ -22,6 +22,11 @@ import {
   type PopulationTrendPoint,
 } from "@/lib/data/population-trend";
 import {
+  getSettlementScore,
+  getSettlementScoresBySido,
+  getScorePercentile,
+} from "@/lib/data/settlement-score";
+import {
   fetchSigunguMedicalFacilities,
   fetchMedicalFacilities,
 } from "@/lib/api/hira";
@@ -173,6 +178,39 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
     }
   }
 
+  // ── 정착 점수: 구 단위는 SETTLEMENT_SCORES에 없을 가능성 → null 허용 ──
+  const guSettlementScore = getSettlementScore(gu.sgisCode);
+  const guSettlementPercentile =
+    guSettlementScore !== null
+      ? getScorePercentile(guSettlementScore.totalScore)
+      : null;
+  const sidoScores = getSettlementScoresBySido(province.sgisCode);
+  const sidoAvgDimensions = (() => {
+    if (sidoScores.length === 0) return null;
+    const sum = { farm: 0, populationTrend: 0, youth: 0, density: 0 };
+    for (const s of sidoScores) {
+      sum.farm += s.dimensions.farm;
+      sum.populationTrend += s.dimensions.populationTrend;
+      sum.youth += s.dimensions.youth;
+      sum.density += s.dimensions.density;
+    }
+    const n = sidoScores.length;
+    return {
+      farm: Math.round(sum.farm / n),
+      populationTrend: Math.round(sum.populationTrend / n),
+      youth: Math.round(sum.youth / n),
+      density: Math.round(sum.density / n),
+    };
+  })();
+  const sidoAvgTotalScore =
+    sidoScores.length > 0
+      ? Math.round(
+          (sidoScores.reduce((a, b) => a + b.totalScore, 0) /
+            sidoScores.length) *
+            10,
+        ) / 10
+      : null;
+
   return (
     <SigunguStats
       provinceShortName={province.shortName}
@@ -224,6 +262,17 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
       populationTrend={populationTrendData}
       populationTrendYears={[...POPULATION_TREND_YEARS]}
       populationChangePct={populationChangePct}
+      settlementScore={
+        guSettlementScore
+          ? {
+              totalScore: guSettlementScore.totalScore,
+              dimensions: guSettlementScore.dimensions,
+              percentile: guSettlementPercentile,
+              sidoAvgTotalScore,
+              sidoAvgDimensions,
+            }
+          : null
+      }
       sgisCode={gu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}
       hiraSgguCd={gu.hiraSgguCd}

@@ -1,0 +1,442 @@
+/* ==========================================================================
+   /regions/ranking — 시군구 정착 점수 랭킹
+   CSS Module · 모바일 우선 반응형 (640 / 768 / 1024)
+   ========================================================================== */
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 40px 32px;
+  }
+}
+
+/* ================================================================
+   요약 정보 카드 (모델 설명)
+   ================================================================ */
+.modelCard {
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 18%, transparent);
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .modelCard {
+    padding: 20px 22px;
+  }
+}
+
+.modelTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary, #1B6B5A);
+  margin: 0;
+}
+
+.modelDesc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.modelWeights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.modelWeightChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  color: var(--foreground);
+}
+
+.modelWeightPct {
+  font-weight: 700;
+  color: var(--primary, #1B6B5A);
+}
+
+/* ================================================================
+   필터 바 (시도)
+   ================================================================ */
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filterLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.filterPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill,
+.pillActive {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  color: var(--foreground);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+@media (hover: hover) {
+  .pill:hover {
+    border-color: color-mix(in srgb, var(--primary, #1B6B5A) 35%, transparent);
+    color: var(--primary, #1B6B5A);
+  }
+}
+
+.pill:focus-visible,
+.pillActive:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+.pillActive {
+  background: var(--primary, #1B6B5A);
+  border-color: var(--primary, #1B6B5A);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ================================================================
+   결과 헤더
+   ================================================================ */
+.resultsHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.resultsTitle {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.resultsCount {
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+/* ================================================================
+   상위 10 강조 섹션
+   ================================================================ */
+.topSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .topGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .topGrid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.topCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 14px 16px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary, #1B6B5A) 8%, var(--card, #fff)) 0%,
+    var(--card, #fff) 80%
+  );
+  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 25%, transparent);
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--foreground);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .topCard:hover {
+    border-color: var(--primary, #1B6B5A);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--primary, #1B6B5A) 15%, transparent);
+  }
+}
+
+.topCard:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+.topRank {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary, #1B6B5A);
+}
+
+.topMedal {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+}
+
+.topName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--foreground);
+  line-height: 1.3;
+}
+
+.topMeta {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+.topScore {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary, #1B6B5A);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-top: 4px;
+}
+
+.topScoreUnit {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+/* ================================================================
+   전체 랭킹 리스트 (테이블/카드 하이브리드)
+   ================================================================ */
+.listSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.listRow {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--foreground);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+@media (min-width: 768px) {
+  .listRow {
+    grid-template-columns: 40px 1fr 200px auto;
+    padding: 14px 18px;
+  }
+}
+
+@media (hover: hover) {
+  .listRow:hover {
+    border-color: color-mix(in srgb, var(--primary, #1B6B5A) 40%, transparent);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 3%, var(--card, #fff));
+  }
+}
+
+.listRow:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+.listRank {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-align: right;
+}
+
+.listMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.listName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.listSido {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.listMeta {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+/* 차원 미니 막대 (4개) */
+.dimBars {
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (min-width: 768px) {
+  .dimBars {
+    display: flex;
+  }
+}
+
+.dimBar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 32px;
+}
+
+.dimBarLabel {
+  font-size: 9px;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.dimBarTrack {
+  width: 100%;
+  height: 4px;
+  background: var(--muted, #f4f4f5);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.dimBarFill {
+  height: 100%;
+  background: var(--primary, #1B6B5A);
+  border-radius: 2px;
+  transition: width 0.3s ease-out;
+}
+
+/* 점수 배지 */
+.scoreBadge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.scoreValue {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.scoreUnit {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  margin-top: 2px;
+}
+
+.scoreHigh {
+  color: #059669;
+}
+
+.scoreMid {
+  color: var(--foreground);
+}
+
+.scoreLow {
+  color: #d97706;
+}
+
+/* ================================================================
+   빈 상태
+   ================================================================ */
+.empty {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--muted-foreground);
+  font-size: 14px;
+  border: 1px dashed var(--border, #e5e7eb);
+  border-radius: 16px;
+}
+
+/* ================================================================
+   하단 면책
+   ================================================================ */
+.disclaimer {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.6;
+  padding-top: 12px;
+  border-top: 1px solid var(--border, #e5e7eb);
+}

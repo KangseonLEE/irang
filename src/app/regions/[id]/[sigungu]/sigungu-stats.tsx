@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Ruler,
   Users,
@@ -14,7 +15,10 @@ import { Icon } from "@/components/ui/icon";
 import { Modal } from "@/components/ui/modal";
 import { ClimateSection } from "@/components/stats/climate-section";
 import type { ClimateInfo } from "@/components/stats/climate-section";
-import { SigunguPopulationTrendChart } from "@/components/charts/lazy";
+import {
+  SigunguPopulationTrendChart,
+  SettlementRadarChart,
+} from "@/components/charts/lazy";
 import { formatPopulation, SEOUL_AREA_KM2 } from "@/lib/format";
 import { AreaModal } from "../modals/area-modal";
 import { PopulationModal } from "../modals/population-modal";
@@ -72,6 +76,27 @@ export interface SigunguStatsProps {
   populationTrendYears: number[];
   /** 인구 5년 변화율 (%, 양수=증가) */
   populationChangePct: number | null;
+  /** 정착 점수 (Phase 3 — 정적 모델) */
+  settlementScore: {
+    totalScore: number;
+    dimensions: {
+      farm: number;
+      populationTrend: number;
+      youth: number;
+      density: number;
+    };
+    /** 전국 백분위 (0~100, 100 = 1위) */
+    percentile: number | null;
+    /** 시도 평균 총점 (비교용) */
+    sidoAvgTotalScore: number | null;
+    /** 시도 평균 차원 점수 (레이더 비교용) */
+    sidoAvgDimensions: {
+      farm: number;
+      populationTrend: number;
+      youth: number;
+      density: number;
+    } | null;
+  } | null;
   // 모달 데이터 페칭용 코드
   sgisCode: string;
   hiraSidoCd: string;
@@ -111,6 +136,7 @@ export function SigunguStats({
   populationTrend,
   populationTrendYears,
   populationChangePct,
+  settlementScore,
   sgisCode,
   hiraSidoCd,
   hiraSgguCd,
@@ -331,6 +357,57 @@ export function SigunguStats({
             sigunguName={sigunguName}
             showSidoCompare
           />
+        </section>
+      )}
+
+      {/* ── 정착 점수 (Phase 3 — 4차원 가중 평균) ── */}
+      {settlementScore && (
+        <section className={s.scoreSection} aria-label="정착 점수">
+          <div className={s.scoreHeader}>
+            <div>
+              <h3 className={s.scoreSectionTitle}>정착 점수</h3>
+              <p className={s.scoreSectionDesc}>
+                농가·인구·청년성·거주 적정성 4개 차원의 가중 평균이에요.
+              </p>
+            </div>
+            <div className={s.scoreSummary}>
+              <span className={s.scoreSummaryValue}>
+                {settlementScore.totalScore.toFixed(1)}
+                <span className={s.scoreSummaryUnit}>점</span>
+              </span>
+              {settlementScore.percentile !== null && (
+                <span className={s.scoreSummaryRank}>
+                  전국 상위 {Math.max(1, 100 - settlementScore.percentile)}%
+                </span>
+              )}
+              {settlementScore.sidoAvgTotalScore !== null && (
+                <span className={s.scoreSummaryCompare}>
+                  {provinceShortName} 평균{" "}
+                  {settlementScore.sidoAvgTotalScore.toFixed(1)}점 대비{" "}
+                  {settlementScore.totalScore >=
+                  settlementScore.sidoAvgTotalScore
+                    ? "+"
+                    : ""}
+                  {(
+                    settlementScore.totalScore -
+                    settlementScore.sidoAvgTotalScore
+                  ).toFixed(1)}
+                  점
+                </span>
+              )}
+            </div>
+          </div>
+          <SettlementRadarChart
+            dimensions={settlementScore.dimensions}
+            sidoAvgDimensions={settlementScore.sidoAvgDimensions ?? undefined}
+            sigunguName={sigunguName}
+            sidoShortName={provinceShortName}
+          />
+          <div className={s.scoreNote}>
+            <Link href="/regions/ranking" className={s.scoreLink}>
+              전국 랭킹에서 비교하기 →
+            </Link>
+          </div>
         </section>
       )}
 

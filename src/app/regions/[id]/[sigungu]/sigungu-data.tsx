@@ -27,6 +27,11 @@ import {
   type PopulationTrendPoint,
 } from "@/lib/data/population-trend";
 import {
+  getSettlementScore,
+  getSettlementScoresBySido,
+  getScorePercentile,
+} from "@/lib/data/settlement-score";
+import {
   fetchSigunguMedicalFacilities,
   fetchMedicalFacilities,
 } from "@/lib/api/hira";
@@ -184,6 +189,40 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
     }
   }
 
+  // ── 정착 점수 (정적 모델 — Phase 3) ──
+  const settlementScore = getSettlementScore(sigungu.sgisCode);
+  const settlementPercentile =
+    settlementScore !== null
+      ? getScorePercentile(settlementScore.totalScore)
+      : null;
+  // 같은 시도 평균 차원 점수 (레이더 비교용)
+  const sidoScores = getSettlementScoresBySido(province.sgisCode);
+  const sidoAvgDimensions = (() => {
+    if (sidoScores.length === 0) return null;
+    const sum = { farm: 0, populationTrend: 0, youth: 0, density: 0 };
+    for (const s of sidoScores) {
+      sum.farm += s.dimensions.farm;
+      sum.populationTrend += s.dimensions.populationTrend;
+      sum.youth += s.dimensions.youth;
+      sum.density += s.dimensions.density;
+    }
+    const n = sidoScores.length;
+    return {
+      farm: Math.round(sum.farm / n),
+      populationTrend: Math.round(sum.populationTrend / n),
+      youth: Math.round(sum.youth / n),
+      density: Math.round(sum.density / n),
+    };
+  })();
+  const sidoAvgTotalScore =
+    sidoScores.length > 0
+      ? Math.round(
+          (sidoScores.reduce((a, b) => a + b.totalScore, 0) /
+            sidoScores.length) *
+            10,
+        ) / 10
+      : null;
+
   return (
     <SigunguStats
       provinceShortName={province.shortName}
@@ -235,6 +274,17 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
       populationTrend={populationTrendData}
       populationTrendYears={[...POPULATION_TREND_YEARS]}
       populationChangePct={populationChangePct}
+      settlementScore={
+        settlementScore
+          ? {
+              totalScore: settlementScore.totalScore,
+              dimensions: settlementScore.dimensions,
+              percentile: settlementPercentile,
+              sidoAvgTotalScore,
+              sidoAvgDimensions,
+            }
+          : null
+      }
       sgisCode={sigungu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}
       hiraSgguCd={hiraSgguCd}

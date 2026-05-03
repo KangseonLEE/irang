@@ -492,6 +492,15 @@ function getSearchIndex(): SearchItem[] {
     },
     {
       type: "guide",
+      id: "regions-ranking",
+      title: "정착 점수 랭킹",
+      subtitle: "229개 시군구 귀농 정착 가능성 비교",
+      href: "/regions/ranking",
+      keywords: ["랭킹", "정착점수", "순위", "비교", "농가", "청년", "인구"],
+      icon: "\u{1F3C6}", // 🏆
+    },
+    {
+      type: "guide",
       id: "crops-compare",
       title: "작물 비교",
       subtitle: "최대 3종 작물 비교",
