@@ -78,13 +78,17 @@ export function CropRichCard({
   const barWidthPct =
     realPct !== null ? Math.max(8, realPct) : null;
 
-  // 캡션 — 1위 작물에는 다른 카피
+  // 캡션 — 1위 작물 vs 그 외. 차이값(만원)으로 표시해 % 추상 개념 회피.
+  const revenueDiff =
+    revenueValue !== null && revenueMax !== null
+      ? Math.max(0, revenueMax - revenueValue)
+      : null;
   const barCaption =
     realPct === null
       ? null
       : realPct === 100
-        ? "이 지역 작물 중 1위예요"
-        : `이 지역 작물 중 최고 대비 ${realPct}%`;
+        ? "이 지역에서 수익이 가장 높아요"
+        : `수익 1위보다 ${revenueDiff?.toLocaleString("ko-KR")}만원 적어요`;
 
   const labor = laborTone(laborIntensity);
   const diff = difficultyTone(difficulty);
