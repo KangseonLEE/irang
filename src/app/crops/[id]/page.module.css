@@ -309,17 +309,60 @@
   margin-top: 20px;
 }
 
-/* ── Sticky Anchor Tab (배민/컬리 패턴) ── */
-.anchorTabWrap {
+/* ── Sticky 작물 정보 Bar (Anchor Tab 위) ── */
+.stickyCropBar {
   position: sticky;
   top: var(--h-header, 3.5rem);
+  z-index: calc(var(--z-sticky) + 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  margin: 16px 0 0;
+  background: color-mix(in srgb, var(--background, #fff) 96%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:global(html[data-header-hidden]) .stickyCropBar {
+  top: 0;
+}
+
+.stickyCropImage {
+  border-radius: 6px;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.stickyCropName {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.stickyCropMeta {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Sticky Anchor Tab (배민/컬리 패턴) — stickyCropBar 아래 적층 ── */
+.anchorTabWrap {
+  position: sticky;
+  /* h-header(56px) + stickyCropBar 높이(약 56px = padding 8+8 + 32 + border 등) */
+  top: calc(var(--h-header, 3.5rem) + 56px);
   z-index: var(--z-sticky);
-  margin: 20px 0 24px;
+  margin: 12px 0 24px;
   transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :global(html[data-header-hidden]) .anchorTabWrap {
-  top: 0;
+  top: 56px;
 }
 
 /* 우측 페이드 힌트 — 스크롤 가능함을 시각적으로 표시 */
@@ -1564,6 +1607,15 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* 태블릿(768~1023px): 사이드바가 풀폭 stack이라 2단 그리드로 펼침 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .relatedCropList {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
 }
 
 .relatedCropCard {
