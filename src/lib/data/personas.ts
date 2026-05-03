@@ -10,7 +10,17 @@
  * 가중치 변경은 회장 결재 사항 (Phase 3 사고 방지).
  */
 
-import type { DimensionScores } from "./dimension-scores";
+/**
+ * 점수 계산은 sgisCode/name 없이 5차원 값만으로 가능 — 호환성 위해 별도 입력 타입.
+ * dimension-scores.ts 의 DimensionScores 도 이 형태에 호환됨 (구조적 타이핑).
+ */
+export interface DimensionScoresInput {
+  populationTrend: number | null;
+  farmActivity: number | null;
+  medical: number | null;
+  school: number | null;
+  returnFarm: number | null;
+}
 
 export type PersonaId =
   | "family"
@@ -126,7 +136,7 @@ export function getPersona(id: string): Persona | null {
  *   - 미만(노년 귀촌·귀촌 직장인) → 가용 차원만 가중 평균 (재정규화)
  */
 export function computePersonaScore(
-  scores: DimensionScores | null,
+  scores: DimensionScoresInput | null,
   persona: Persona,
 ): number | null {
   if (!scores) return null;
@@ -190,7 +200,7 @@ const DIMENSION_LABEL_MAP = {
 } as const;
 
 export function computePersonaScoreDetailed(
-  scores: DimensionScores | null,
+  scores: DimensionScoresInput | null,
   persona: Persona,
 ): PersonaScoreResult {
   if (!scores) {

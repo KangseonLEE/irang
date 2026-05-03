@@ -25,6 +25,7 @@ import { MedicalModal } from "../modals/medical-modal";
 import { SchoolModal } from "../modals/school-modal";
 import { ReturnFarmModal } from "../modals/return-farm-modal";
 import { FarmHouseholdModal } from "../modals/farm-household-modal";
+import { PersonaScorePicker } from "./persona-score-picker";
 import s from "./page.module.css";
 
 // ── Props (서버 컴포넌트에서 전달) ──
@@ -410,6 +411,13 @@ export function SigunguStats({
           </p>
         </section>
       )}
+
+      {/* ── 페르소나별 종합 점수 (Phase 5) ── */}
+      <PersonaScorePicker
+        dimensionScores={dimensionScores}
+        sigunguName={sigunguName}
+      />
+
 
       {/* ── 기후 정보 (공용 컴포넌트) ── */}
       {climate && (
