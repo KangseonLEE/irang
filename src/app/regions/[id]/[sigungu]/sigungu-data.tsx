@@ -21,6 +21,12 @@ import {
 } from "@/lib/api/sgis";
 import { getFarmFallback } from "@/lib/data/farms";
 import {
+  getPopulationTrend,
+  POPULATION_TREND_YEARS,
+  POPULATION_TREND_SIGUNGU,
+  type PopulationTrendPoint,
+} from "@/lib/data/population-trend";
+import {
   fetchSigunguMedicalFacilities,
   fetchMedicalFacilities,
 } from "@/lib/api/hira";
@@ -142,6 +148,42 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
     );
   }
 
+  // ── 인구 5년 추이 (정적 폴백 기반 — 빌드 안정성) ──
+  const sigunguTrend: PopulationTrendPoint[] = getPopulationTrend(sigungu.sgisCode);
+  // 시도 시군구 평균 = 같은 시도의 모든 시군구 평균 (연도별)
+  const sidoSigunguAvgByYear = (() => {
+    const map = new Map<number, { sum: number; count: number }>();
+    for (const p of POPULATION_TREND_SIGUNGU) {
+      if (!p.sgisCode.startsWith(province.sgisCode)) continue;
+      const t = map.get(p.year) ?? { sum: 0, count: 0 };
+      t.sum += p.population;
+      t.count += 1;
+      map.set(p.year, t);
+    }
+    const avgMap = new Map<number, number>();
+    for (const [year, { sum, count }] of map.entries()) {
+      avgMap.set(year, count > 0 ? Math.round(sum / count) : 0);
+    }
+    return avgMap;
+  })();
+
+  // 차트용 데이터 합성: 시군구 + 시도평균
+  const populationTrendData = sigunguTrend.map((p) => ({
+    year: p.year,
+    population: p.population,
+    sidoAvg: sidoSigunguAvgByYear.get(p.year) ?? undefined,
+  }));
+
+  // 5년 변화율 (트렌드 배지용)
+  let populationChangePct: number | null = null;
+  if (sigunguTrend.length >= 2) {
+    const earliest = sigunguTrend[0].population;
+    const latest = sigunguTrend[sigunguTrend.length - 1].population;
+    if (earliest > 0) {
+      populationChangePct = Math.round(((latest - earliest) / earliest) * 1000) / 10;
+    }
+  }
+
   return (
     <SigunguStats
       provinceShortName={province.shortName}
@@ -190,6 +232,9 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
       }
       sidoFarmAvgPopulation={sidoFarm?.avgPopulation ?? null}
       farmRatioVsSido={farmRatioVsSido}
+      populationTrend={populationTrendData}
+      populationTrendYears={[...POPULATION_TREND_YEARS]}
+      populationChangePct={populationChangePct}
       sgisCode={sigungu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}
       hiraSgguCd={hiraSgguCd}

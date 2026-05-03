@@ -16,6 +16,12 @@ import {
 } from "@/lib/api/sgis";
 import { getFarmFallback } from "@/lib/data/farms";
 import {
+  getPopulationTrend,
+  POPULATION_TREND_YEARS,
+  POPULATION_TREND_SIGUNGU,
+  type PopulationTrendPoint,
+} from "@/lib/data/population-trend";
+import {
   fetchSigunguMedicalFacilities,
   fetchMedicalFacilities,
 } from "@/lib/api/hira";
@@ -136,6 +142,37 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
     );
   }
 
+  // -- 인구 5년 추이 (정적 폴백 — 구 sgisCode 기준) --
+  const guTrend: PopulationTrendPoint[] = getPopulationTrend(gu.sgisCode);
+  const sidoSigunguAvgByYear = (() => {
+    const map = new Map<number, { sum: number; count: number }>();
+    for (const p of POPULATION_TREND_SIGUNGU) {
+      if (!p.sgisCode.startsWith(province.sgisCode)) continue;
+      const t = map.get(p.year) ?? { sum: 0, count: 0 };
+      t.sum += p.population;
+      t.count += 1;
+      map.set(p.year, t);
+    }
+    const avgMap = new Map<number, number>();
+    for (const [year, { sum, count }] of map.entries()) {
+      avgMap.set(year, count > 0 ? Math.round(sum / count) : 0);
+    }
+    return avgMap;
+  })();
+  const populationTrendData = guTrend.map((p) => ({
+    year: p.year,
+    population: p.population,
+    sidoAvg: sidoSigunguAvgByYear.get(p.year) ?? undefined,
+  }));
+  let populationChangePct: number | null = null;
+  if (guTrend.length >= 2) {
+    const earliest = guTrend[0].population;
+    const latest = guTrend[guTrend.length - 1].population;
+    if (earliest > 0) {
+      populationChangePct = Math.round(((latest - earliest) / earliest) * 1000) / 10;
+    }
+  }
+
   return (
     <SigunguStats
       provinceShortName={province.shortName}
@@ -184,6 +221,9 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
       }
       sidoFarmAvgPopulation={sidoFarm?.avgPopulation ?? null}
       farmRatioVsSido={farmRatioVsSido}
+      populationTrend={populationTrendData}
+      populationTrendYears={[...POPULATION_TREND_YEARS]}
+      populationChangePct={populationChangePct}
       sgisCode={gu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}
       hiraSgguCd={gu.hiraSgguCd}

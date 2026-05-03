@@ -14,6 +14,7 @@ import { Icon } from "@/components/ui/icon";
 import { Modal } from "@/components/ui/modal";
 import { ClimateSection } from "@/components/stats/climate-section";
 import type { ClimateInfo } from "@/components/stats/climate-section";
+import { SigunguPopulationTrendChart } from "@/components/charts/lazy";
 import { formatPopulation, SEOUL_AREA_KM2 } from "@/lib/format";
 import { AreaModal } from "../modals/area-modal";
 import { PopulationModal } from "../modals/population-modal";
@@ -61,6 +62,16 @@ export interface SigunguStatsProps {
   sidoFarmAvgPopulation: number | null;
   /** 시도 평균 대비 가구원수 차이(%, 양수=많음) */
   farmRatioVsSido: number | null;
+  /** 인구 5년 추이 (정적 폴백 — SGIS 인구통계) */
+  populationTrend: Array<{
+    year: number;
+    population: number;
+    sidoAvg?: number;
+  }>;
+  /** 인구 추이 연도 (예: [2018,2019,2020,2021,2022]) */
+  populationTrendYears: number[];
+  /** 인구 5년 변화율 (%, 양수=증가) */
+  populationChangePct: number | null;
   // 모달 데이터 페칭용 코드
   sgisCode: string;
   hiraSidoCd: string;
@@ -97,6 +108,9 @@ export function SigunguStats({
   farm,
   sidoFarmAvgPopulation,
   farmRatioVsSido,
+  populationTrend,
+  populationTrendYears,
+  populationChangePct,
   sgisCode,
   hiraSidoCd,
   hiraSgguCd,
@@ -109,6 +123,39 @@ export function SigunguStats({
 
   const seoulRatio = (area / SEOUL_AREA_KM2).toFixed(1);
   const density = population ? Math.round(population.population / area) : null;
+
+  // 트렌드 배지 분류 (5년 변화율 기준)
+  const trendBadge: {
+    label: string;
+    color: string;
+    bg: string;
+  } | null = (() => {
+    if (populationChangePct === null) return null;
+    const v = populationChangePct;
+    if (v >= 1) {
+      return {
+        label: `회복 중 +${v.toFixed(1)}%`,
+        color: "#059669",
+        bg: "color-mix(in srgb, #059669 12%, transparent)",
+      };
+    }
+    if (v <= -5) {
+      return {
+        label: `가속 감소 ${v.toFixed(1)}%`,
+        color: "#d97706",
+        bg: "color-mix(in srgb, #d97706 12%, transparent)",
+      };
+    }
+    return {
+      label: `안정 ${v >= 0 ? "+" : ""}${v.toFixed(1)}%`,
+      color: "var(--muted-foreground)",
+      bg: "var(--muted)",
+    };
+  })();
+
+  const hasTrendChart = populationTrend.length >= 2;
+  const trendYearStart = populationTrendYears[0];
+  const trendYearEnd = populationTrendYears[populationTrendYears.length - 1];
 
   return (
     <>
@@ -255,6 +302,37 @@ export function SigunguStats({
           </button>
         )}
       </section>
+
+      {/* ── 인구 5년 추이 ── */}
+      {hasTrendChart && (
+        <section className={s.trendSection} aria-label="인구 5년 추이">
+          <div className={s.trendHeader}>
+            <div>
+              <h3 className={s.trendTitle}>인구 5년 추이</h3>
+              <p className={s.trendDesc}>
+                {trendYearStart}년부터 {trendYearEnd}년까지 {sigunguName} 인구
+                변화예요.
+              </p>
+            </div>
+            {trendBadge && (
+              <span
+                className={s.trendBadge}
+                style={{
+                  color: trendBadge.color,
+                  background: trendBadge.bg,
+                }}
+              >
+                {trendBadge.label}
+              </span>
+            )}
+          </div>
+          <SigunguPopulationTrendChart
+            data={populationTrend}
+            sigunguName={sigunguName}
+            showSidoCompare
+          />
+        </section>
+      )}
 
       {/* ── 기후 정보 (공용 컴포넌트) ── */}
       {climate && (

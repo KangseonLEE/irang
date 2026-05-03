@@ -31,3 +31,8 @@ export const SmartfarmTrendChart = dynamic(
   () => import("./smartfarm-trend-chart"),
   { ssr: false }
 );
+
+export const SigunguPopulationTrendChart = dynamic(
+  () => import("./sigungu-population-trend-chart"),
+  { ssr: false }
+);

@@ -39,13 +39,13 @@ export const dynamicParams = true;
 export const revalidate = 86400;
 
 export async function generateStaticParams() {
-  // 귀농인기 키워드 포함 항목 우선으로 상위 30개만 사전 빌드.
-  // 나머지 ~199개는 ISR on-demand (첫 방문 시 생성 → 24시간 캐시).
+  // 귀농인기 키워드 포함 항목 우선으로 상위 20개만 사전 빌드.
+  // 나머지 ~209개는 ISR on-demand (첫 방문 시 생성 → 24시간 캐시).
   //
-  // ⚠ Phase 1 sprint(2026-05-03) 결정: SGIS 농가 추가로 시군구 페이지당
-  //   외부 API 호출이 6개(HIRA·NEIS·SGIS·SGIS-farm·기상청·KOSIS)로 늘어남.
-  //   100×6=600 호출이 빌드 시점에 폭증하면 rate limit에 일부 페이지가
-  //   fallback 데이터로 빌드되므로 30으로 축소
+  // ⚠ Phase 2 sprint(2026-05-03): SGIS 인구 추이는 정적 폴백을 사용해
+  //   빌드 시 호출이 늘지는 않지만, 시군구 페이지당 런타임 외부 API 호출이
+  //   6개(HIRA·NEIS·SGIS·SGIS-farm·기상청·KOSIS)에 달해 빌드 폭증을
+  //   피하기 위해 30 → 20으로 추가 축소.
   //   (feedback_static_params_rate_limit.md 참조).
   const popular = SIGUNGUS.filter((sg) =>
     sg.highlights.includes("귀농인기")
@@ -53,9 +53,9 @@ export async function generateStaticParams() {
   const rest = SIGUNGUS.filter(
     (sg) => !sg.highlights.includes("귀농인기")
   );
-  const top30 = [...popular, ...rest].slice(0, 30);
+  const top20 = [...popular, ...rest].slice(0, 20);
 
-  return top30.map((sg) => ({
+  return top20.map((sg) => ({
     id: sg.sidoId,
     sigungu: sg.id,
   }));

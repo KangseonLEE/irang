@@ -571,3 +571,77 @@ function fallbackSubRegionFarms(
   }
   return map;
 }
+
+// ──────────────────────────────────────────────────────────────────────────
+// 인구 추이 (5년치 시계열 — population.json 단건을 연도별로 호출)
+// ──────────────────────────────────────────────────────────────────────────
+
+/** 연도별 인구 데이터 한 점 */
+export interface PopulationYearPoint {
+  year: number;
+  population: number;
+  householdCount: number;
+  agingRate: number;
+}
+
+/**
+ * 특정 시군구(또는 시도)의 인구 시계열을 조회한다.
+ * - SGIS API: stats/population.json (year별 단건 호출, Promise.allSettled 병렬)
+ * - 빌드 단계: SGIS 호출 없이 정적 폴백만 사용 (Vercel 빌드 60s 한도 보호)
+ * - 런타임: 5개 연도 병렬 호출 후 실패 점은 제외
+ *
+ * @param sgisCode SGIS 코드 (시도 2자리 또는 시군구 5자리)
+ * @param years 조회 연도 배열 (예: [2018,2019,2020,2021,2022])
+ */
+export async function fetchPopulationTrend(
+  sgisCode: string,
+  years: number[],
+): Promise<PopulationYearPoint[]> {
+  // 빌드 단계: 정적 폴백만 — population-trend.ts 가 있으면 거기서 가져온다
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    return [];
+  }
+
+  const accessToken = await getAccessToken();
+  if (!accessToken) return [];
+
+  // 구 분할 시(성남시 등): 상위 시도에서 low_search=1로 받아 해당 구만 합산 — 연도별로 반복
+  const guCodes = GU_CODES_MAP[sgisCode];
+
+  const settled = await Promise.allSettled(
+    years.map(async (year) => {
+      if (guCodes) {
+        const data = await fetchMultiGuPopulation(
+          accessToken,
+          sgisCode,
+          guCodes,
+          year,
+        );
+        if (!data) return null;
+        return {
+          year,
+          population: data.population,
+          householdCount: data.householdCount,
+          agingRate: data.agingRate,
+        } satisfies PopulationYearPoint;
+      }
+
+      const data = await fetchFromSGIS(accessToken, sgisCode, year);
+      if (!data) return null;
+      return {
+        year,
+        population: data.population,
+        householdCount: data.householdCount,
+        agingRate: data.agingRate,
+      } satisfies PopulationYearPoint;
+    }),
+  );
+
+  const points: PopulationYearPoint[] = [];
+  for (const r of settled) {
+    if (r.status === "fulfilled" && r.value) points.push(r.value);
+  }
+  // 연도 오름차순 정렬
+  points.sort((a, b) => a.year - b.year);
+  return points;
+}
