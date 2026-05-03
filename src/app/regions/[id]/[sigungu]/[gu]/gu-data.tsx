@@ -12,7 +12,9 @@ import type { GuDistrict } from "@/lib/data/gus";
 import {
   fetchSigunguPopulationData,
   fetchPopulationData,
+  fetchFarmHousehold,
 } from "@/lib/api/sgis";
+import { getFarmFallback } from "@/lib/data/farms";
 import {
   fetchSigunguMedicalFacilities,
   fetchMedicalFacilities,
@@ -34,15 +36,22 @@ interface GuDataProps {
 export async function GuData({ province, sigungu, gu }: GuDataProps) {
   // -- Phase 1: 구 수준 API 호출 --
   // 귀농·귀촌은 구 단위 데이터가 없으므로 상위 시군구(admCode) 기준 조회
-  const [guPopResult, guMedicalResult, guSchoolResult, climateResult, returnFarmResult] =
-    await Promise.allSettled([
-      fetchSigunguPopulationData(gu.sgisCode),
-      fetchSigunguMedicalFacilities(province.hiraSidoCd, gu.hiraSgguCd),
-      // NEIS는 구 이름으로 검색 (예: "장안구")
-      fetchSigunguSchoolCounts(province.eduCode, gu.name),
-      fetchMultipleClimateData(province.stationIds),
-      fetchReturnFarmStats(sigungu.admCode),
-    ]);
+  const [
+    guPopResult,
+    guMedicalResult,
+    guSchoolResult,
+    climateResult,
+    returnFarmResult,
+    guFarmResult,
+  ] = await Promise.allSettled([
+    fetchSigunguPopulationData(gu.sgisCode),
+    fetchSigunguMedicalFacilities(province.hiraSidoCd, gu.hiraSgguCd),
+    // NEIS는 구 이름으로 검색 (예: "장안구")
+    fetchSigunguSchoolCounts(province.eduCode, gu.name),
+    fetchMultipleClimateData(province.stationIds),
+    fetchReturnFarmStats(sigungu.admCode),
+    fetchFarmHousehold(gu.sgisCode),
+  ]);
 
   const guPop =
     guPopResult.status === "fulfilled" ? guPopResult.value : null;
@@ -117,6 +126,16 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
 
   const hasFallback = isPopulationFallback || isMedicalFallback || isSchoolFallback;
 
+  // 농가 데이터 + 시도 평균 비교
+  const farm = guFarmResult.status === "fulfilled" ? guFarmResult.value : null;
+  const sidoFarm = getFarmFallback(province.sgisCode);
+  let farmRatioVsSido: number | null = null;
+  if (farm && sidoFarm && sidoFarm.avgPopulation > 0 && farm.avgPopulation > 0) {
+    farmRatioVsSido = Math.round(
+      ((farm.avgPopulation - sidoFarm.avgPopulation) / sidoFarm.avgPopulation) * 100,
+    );
+  }
+
   return (
     <SigunguStats
       provinceShortName={province.shortName}
@@ -153,6 +172,18 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
           : null
       }
       hasFallback={hasFallback}
+      farm={
+        farm
+          ? {
+              farmCount: farm.farmCount,
+              farmPopulation: farm.farmPopulation,
+              avgPopulation: farm.avgPopulation,
+              isFallback: !!farm.isFallback,
+            }
+          : null
+      }
+      sidoFarmAvgPopulation={sidoFarm?.avgPopulation ?? null}
+      farmRatioVsSido={farmRatioVsSido}
       sgisCode={gu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}
       hiraSgguCd={gu.hiraSgguCd}

@@ -483,3 +483,94 @@
 @media (min-width: 1024px) {
   .searchClear { font-size: 14px; }
 }
+
+/* ── 농가 모달 — 시도 평균 비교 박스 ── */
+.compareBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+}
+
+.compareHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.compareTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.compareDelta {
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.deltaUp {
+  color: #047857;
+  background: color-mix(in srgb, #047857 10%, transparent);
+}
+
+.deltaDown {
+  color: #b45309;
+  background: color-mix(in srgb, #b45309 10%, transparent);
+}
+
+.compareRow {
+  display: grid;
+  grid-template-columns: 96px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-body-sm);
+}
+
+.compareLabel {
+  color: var(--muted-foreground);
+  font-size: var(--fs-overline);
+}
+
+.compareTrack {
+  height: 8px;
+  background: var(--muted, #f1f5f4);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.compareBar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease-out;
+}
+
+.compareBarPrimary {
+  background: var(--primary, #1b6b5a);
+}
+
+.compareBarMuted {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+}
+
+.compareValue {
+  font-weight: 700;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+  .compareRow {
+    grid-template-columns: 80px 1fr auto;
+    gap: 8px;
+  }
+}

@@ -9,10 +9,23 @@
  */
 
 import { getPopulationFallback } from "@/lib/data/population";
+import {
+  getFarmFallback,
+  getFarmsBySido,
+  type FarmStat,
+} from "@/lib/data/farms";
 import { FETCH_TIMEOUT } from "./_build-phase";
 
 const AUTH_URL = "https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json";
 const POPULATION_URL = "https://sgisapi.mods.go.kr/OpenAPI3/stats/population.json";
+const FARM_URL = "https://sgisapi.mods.go.kr/OpenAPI3/stats/farmhousehold.json";
+
+/**
+ * SGIS 농림어업총조사 최신 기준연도.
+ * 5년 주기(2000/2005/2010/2015/2020). 다음 갱신은 2025 조사 발표(~2026 말).
+ * 새 연도가 추가되면 이 상수와 scripts/collect-farms.ts 의 YEAR 를 함께 변경.
+ */
+const FARM_YEAR = 2020;
 
 export interface PopulationData {
   regionCode: string;
@@ -380,4 +393,181 @@ export async function fetchPopulationData(
   }
 
   return results;
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 농가 통계 (SGIS farmhousehold.json — 농림어업총조사 5년 주기, 최신 2020)
+// ──────────────────────────────────────────────────────────────────────────
+
+/** 농가 단건/일괄 응답 데이터 */
+export interface FarmHouseholdData {
+  /** 행정코드 (SGIS, 시도 2자리 또는 시군구 5자리) */
+  regionCode: string;
+  /** 행정구역명 */
+  regionName: string;
+  /** 농가 수 (가구) */
+  farmCount: number;
+  /** 농가 인구 (명) */
+  farmPopulation: number;
+  /** 가구당 평균 농가 인구 */
+  avgPopulation: number;
+  /** 폴백 데이터 사용 여부 */
+  isFallback?: boolean;
+}
+
+interface SGISFarmResult {
+  adm_cd: string;
+  adm_nm: string;
+  farm_cnt: string;
+  population: string;
+  avg_population: string;
+}
+
+function farmStatToData(stat: FarmStat, isFallback = true): FarmHouseholdData {
+  return {
+    regionCode: stat.sgisCode,
+    regionName: stat.name,
+    farmCount: stat.farmCount,
+    farmPopulation: stat.farmPopulation,
+    avgPopulation: stat.avgPopulation,
+    isFallback,
+  };
+}
+
+/**
+ * 시군구 단건 농가 데이터.
+ * - 빌드 안정성을 위해 빌드 단계에서는 SGIS 호출 없이 정적 폴백만 사용.
+ * - ISR on-demand(런타임) 단계에서는 API 호출 후 실패 시 폴백.
+ *
+ * @param sgisCode SGIS 5자리 시군구 코드
+ * @param year 기본 2020 (5년 주기 농림어업총조사)
+ */
+export async function fetchFarmHousehold(
+  sgisCode: string,
+  year: number = FARM_YEAR,
+): Promise<FarmHouseholdData | null> {
+  // 빌드 단계: 정적 폴백만 사용 (Vercel 빌드 60s 한도 보호)
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    const fb = getFarmFallback(sgisCode);
+    return fb ? farmStatToData(fb, true) : null;
+  }
+
+  const accessToken = await getAccessToken();
+  if (!accessToken) {
+    const fb = getFarmFallback(sgisCode);
+    return fb ? farmStatToData(fb, true) : null;
+  }
+
+  const url = new URL(FARM_URL);
+  url.searchParams.set("accessToken", accessToken);
+  url.searchParams.set("year", String(year));
+  url.searchParams.set("adm_cd", sgisCode);
+
+  try {
+    const res = await fetch(url.toString(), {
+      next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const json = await res.json();
+    if (json.errCd !== 0 && json.errCd !== "0") {
+      throw new Error(`SGIS farm error: ${json.errMsg || json.errCd}`);
+    }
+
+    const result = json.result;
+    if (!result || (Array.isArray(result) && result.length === 0)) {
+      throw new Error("No result");
+    }
+
+    const item: SGISFarmResult = Array.isArray(result) ? result[0] : result;
+    return {
+      regionCode: item.adm_cd,
+      regionName: item.adm_nm || "",
+      farmCount: parseInt(item.farm_cnt, 10) || 0,
+      farmPopulation: parseInt(item.population, 10) || 0,
+      avgPopulation: parseFloat(item.avg_population) || 0,
+      isFallback: false,
+    };
+  } catch {
+    const fb = getFarmFallback(sgisCode);
+    return fb ? farmStatToData(fb, true) : null;
+  }
+}
+
+/**
+ * 시도 하위 시군구 농가 데이터 일괄 조회 (low_search=1).
+ * - 빌드 단계: 정적 폴백 사용.
+ * - 런타임: API 호출 → 실패 시 정적 폴백.
+ *
+ * @param provinceSgisCode SGIS 시도 2자리 코드
+ * @returns sigungu sgisCode → FarmHouseholdData 매핑
+ */
+export async function fetchSubRegionFarms(
+  provinceSgisCode: string,
+  year: number = FARM_YEAR,
+): Promise<Record<string, FarmHouseholdData>> {
+  // 빌드 단계: 정적 폴백만 — 한 번에 17개 시도가 빌드되면 SGIS 부하 큼
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    return fallbackSubRegionFarms(provinceSgisCode);
+  }
+
+  const accessToken = await getAccessToken();
+  if (!accessToken) return fallbackSubRegionFarms(provinceSgisCode);
+
+  const url = new URL(FARM_URL);
+  url.searchParams.set("accessToken", accessToken);
+  url.searchParams.set("year", String(year));
+  url.searchParams.set("adm_cd", provinceSgisCode);
+  url.searchParams.set("low_search", "1");
+
+  try {
+    const res = await fetch(url.toString(), {
+      next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const json = await res.json();
+    if (json.errCd !== 0 && json.errCd !== "0") {
+      throw new Error(`SGIS sub farm error: ${json.errMsg || json.errCd}`);
+    }
+
+    const results = json.result as SGISFarmResult[] | undefined;
+    if (!results || !Array.isArray(results)) {
+      return fallbackSubRegionFarms(provinceSgisCode);
+    }
+
+    const apiMap: Record<string, FarmHouseholdData> = {};
+    for (const item of results) {
+      apiMap[item.adm_cd] = {
+        regionCode: item.adm_cd,
+        regionName: item.adm_nm || "",
+        farmCount: parseInt(item.farm_cnt, 10) || 0,
+        farmPopulation: parseInt(item.population, 10) || 0,
+        avgPopulation: parseFloat(item.avg_population) || 0,
+        isFallback: false,
+      };
+    }
+
+    // CLAUDE.md 데이터 병합 원칙: API 응답에 없는 항목은 정적 폴백 보충
+    const fallbackMap = fallbackSubRegionFarms(provinceSgisCode);
+    for (const [code, data] of Object.entries(fallbackMap)) {
+      if (!apiMap[code]) apiMap[code] = data;
+    }
+
+    return apiMap;
+  } catch {
+    return fallbackSubRegionFarms(provinceSgisCode);
+  }
+}
+
+function fallbackSubRegionFarms(
+  provinceSgisCode: string,
+): Record<string, FarmHouseholdData> {
+  const map: Record<string, FarmHouseholdData> = {};
+  for (const stat of getFarmsBySido(provinceSgisCode)) {
+    map[stat.sgisCode] = farmStatToData(stat, true);
+  }
+  return map;
 }

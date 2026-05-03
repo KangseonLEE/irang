@@ -22,7 +22,7 @@ import { Icon } from "@/components/ui/icon";
 import { RegionStats } from "./region-stats";
 import { LandCheckBox } from "@/components/region/land-check-box";
 import { DataSource } from "@/components/ui/data-source";
-import { ProvinceMap } from "@/components/map/province-map";
+import { ProvinceMapWithToggle } from "@/components/map/province-map-with-toggle";
 import type { Province } from "@/lib/data/regions";
 import type { Sigungu } from "@/lib/data/sigungus";
 import { loadProvinceMap } from "@/lib/data/province-maps";
@@ -30,7 +30,11 @@ import { filterProgramsAsync } from "@/lib/data/programs";
 import { filterEducationAsync } from "@/lib/data/education";
 import { filterEvents } from "@/lib/data/events";
 import { fetchMultipleClimateData } from "@/lib/api/weather";
-import { fetchPopulationData, fetchSubRegionPopulations } from "@/lib/api/sgis";
+import {
+  fetchPopulationData,
+  fetchSubRegionPopulations,
+  fetchSubRegionFarms,
+} from "@/lib/api/sgis";
 import { fetchMedicalFacilities } from "@/lib/api/hira";
 import { fetchSchoolCounts } from "@/lib/api/education";
 import { fetchUnsplashPhoto } from "@/lib/api/unsplash";
@@ -44,7 +48,7 @@ interface RegionAsyncDataProps {
 export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataProps) {
   const stationIds = province.stationIds;
 
-  // 8개 비동기 작업 전부 병렬 호출
+  // 9개 비동기 작업 전부 병렬 호출
   const [
     climateResult,
     populationResult,
@@ -52,6 +56,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
     schoolResult,
     photoResult,
     subRegionPopResult,
+    subRegionFarmResult,
     programsResult,
     educationResult,
   ] = await Promise.allSettled([
@@ -61,6 +66,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
     fetchSchoolCounts([province.eduCode]),
     fetchUnsplashPhoto(province.unsplashQuery),
     fetchSubRegionPopulations(province.sgisCode),
+    fetchSubRegionFarms(province.sgisCode),
     filterProgramsAsync({ region: province.name, includeClosed: false }),
     filterEducationAsync({ region: province.name, includeClosed: false }),
   ]);
@@ -109,6 +115,17 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
     const pop = subRegionPop[sg.sgisCode];
     if (pop && sg.area > 0) {
       sigunguDensityMap[sg.id] = pop.population / sg.area;
+    }
+  }
+
+  // 시군구 농가밀도 (호/km²) — Phase 1 트랙 A
+  const subRegionFarm =
+    subRegionFarmResult.status === "fulfilled" ? subRegionFarmResult.value : {};
+  const sigunguFarmDensityMap: Record<string, number> = {};
+  for (const sg of sigungus) {
+    const f = subRegionFarm[sg.sgisCode];
+    if (f && sg.area > 0) {
+      sigunguFarmDensityMap[sg.id] = f.farmCount / sg.area;
     }
   }
 
@@ -333,11 +350,12 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
             </div>
           </div>
           {mapData && (
-            <ProvinceMap
+            <ProvinceMapWithToggle
               provinceId={province.id}
               sigungus={mapData.sigungus}
               viewBox={mapData.viewBox}
-              densityMap={sigunguDensityMap}
+              populationDensityMap={sigunguDensityMap}
+              farmDensityMap={sigunguFarmDensityMap}
             />
           )}
         </section>

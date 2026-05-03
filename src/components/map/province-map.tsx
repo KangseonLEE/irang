@@ -14,8 +14,14 @@ interface ProvinceMapProps {
   sigungus: SigunguMapLocation[];
   /** SVG viewBox (예: "0 0 800 666") */
   viewBox: string;
-  /** 시군구별 인구밀도 (명/km²) — sigunguId 키 */
+  /** 시군구별 밀도 값 — sigunguId 키 */
   densityMap?: Record<string, number>;
+  /** 범례·툴팁 라벨 (기본: "인구밀도") */
+  densityLabel?: string;
+  /** 단위 (기본: "명/km²") */
+  densityUnit?: string;
+  /** 값 포맷터 (기본: 정수 + 천 단위 콤마) */
+  densityFormat?: (value: number) => string;
 }
 
 /**
@@ -28,6 +34,9 @@ export function ProvinceMap({
   sigungus,
   viewBox,
   densityMap,
+  densityLabel = "인구밀도",
+  densityUnit = "명/km²",
+  densityFormat,
 }: ProvinceMapProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -162,7 +171,9 @@ export function ProvinceMap({
           <span className={s.legendLabel}>낮음</span>
           <div className={s.legendBar} />
           <span className={s.legendLabel}>높음</span>
-          <span className={s.legendCaption}>인구밀도 (명/km²)</span>
+          <span className={s.legendCaption}>
+            {densityLabel} ({densityUnit})
+          </span>
         </div>
       )}
 
@@ -176,7 +187,11 @@ export function ProvinceMap({
           <span className={s.tooltipDesc}>{hoveredSigungu.description}</span>
           {hoveredDensity !== null && (
             <span className={s.tooltipDensity}>
-              인구밀도 {Math.round(hoveredDensity).toLocaleString()}명/km²
+              {densityLabel}{" "}
+              {densityFormat
+                ? densityFormat(hoveredDensity)
+                : Math.round(hoveredDensity).toLocaleString()}
+              {densityUnit}
             </span>
           )}
           {hoveredSigungu.highlights.length > 0 && (

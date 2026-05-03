@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Ruler, Users, Building2, GraduationCap, Sprout, Home } from "lucide-react";
+import {
+  Ruler,
+  Users,
+  Building2,
+  GraduationCap,
+  Sprout,
+  Home,
+  Tractor,
+} from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { Modal } from "@/components/ui/modal";
 import { ClimateSection } from "@/components/stats/climate-section";
@@ -12,6 +20,7 @@ import { PopulationModal } from "../modals/population-modal";
 import { MedicalModal } from "../modals/medical-modal";
 import { SchoolModal } from "../modals/school-modal";
 import { ReturnFarmModal } from "../modals/return-farm-modal";
+import { FarmHouseholdModal } from "../modals/farm-household-modal";
 import s from "./page.module.css";
 
 // ── Props (서버 컴포넌트에서 전달) ──
@@ -41,6 +50,17 @@ export interface SigunguStatsProps {
   } | null;
   climate: ClimateInfo | null;
   hasFallback: boolean;
+  /** 농가 통계 (SGIS 농림어업총조사 2020) */
+  farm: {
+    farmCount: number;
+    farmPopulation: number;
+    avgPopulation: number;
+    isFallback: boolean;
+  } | null;
+  /** 같은 시도 평균 가구원수 (비교용) */
+  sidoFarmAvgPopulation: number | null;
+  /** 시도 평균 대비 가구원수 차이(%, 양수=많음) */
+  farmRatioVsSido: number | null;
   // 모달 데이터 페칭용 코드
   sgisCode: string;
   hiraSidoCd: string;
@@ -51,7 +71,14 @@ export interface SigunguStatsProps {
   admCode?: string;
 }
 
-type ModalType = "area" | "population" | "medical" | "school" | "returnFarm" | null;
+type ModalType =
+  | "area"
+  | "population"
+  | "medical"
+  | "school"
+  | "returnFarm"
+  | "farm"
+  | null;
 
 export function SigunguStats({
   provinceShortName,
@@ -67,6 +94,9 @@ export function SigunguStats({
   returnFarm,
   climate,
   hasFallback,
+  farm,
+  sidoFarmAvgPopulation,
+  farmRatioVsSido,
   sgisCode,
   hiraSidoCd,
   hiraSgguCd,
@@ -152,6 +182,34 @@ export function SigunguStats({
               <span className={s.statValue}>{school.totalCount.toLocaleString()}개</span>
               <span className={s.statSub}>
                 {isSchoolFallback ? `${provinceShortName} 기준 ·` : ""} 상세 보기 →
+              </span>
+            </div>
+          </button>
+        )}
+
+        {farm && (
+          <button
+            type="button"
+            className={s.statCard}
+            onClick={() => setActiveModal("farm")}
+            aria-haspopup="dialog"
+          >
+            <Icon icon={Tractor} size="lg" />
+            <div className={s.statBody}>
+              <span className={s.statLabel}>농가</span>
+              <span className={s.statValue}>
+                {farm.farmCount.toLocaleString()}호
+              </span>
+              <span className={s.statSub}>
+                가구당 {farm.avgPopulation.toFixed(1)}명
+                {farmRatioVsSido !== null && farmRatioVsSido !== 0 && (
+                  <>
+                    {" · "}
+                    {provinceShortName} 평균 대비{" "}
+                    {farmRatioVsSido > 0 ? "+" : ""}
+                    {farmRatioVsSido}%
+                  </>
+                )}
               </span>
             </div>
           </button>
@@ -256,6 +314,22 @@ export function SigunguStats({
             returnFarm={returnFarm}
             regionCode={admCode}
             sigunguName={sigunguName}
+          />
+        </Modal>
+      )}
+
+      {farm && (
+        <Modal
+          open={activeModal === "farm"}
+          onClose={closeModal}
+          title={`${sigunguName} 농가 통계`}
+        >
+          <FarmHouseholdModal
+            sigunguName={sigunguName}
+            provinceShortName={provinceShortName}
+            farm={farm}
+            sidoAvgPopulation={sidoFarmAvgPopulation}
+            ratioVsSido={farmRatioVsSido}
           />
         </Modal>
       )}

@@ -17,7 +17,9 @@ import type { Sigungu } from "@/lib/data/sigungus";
 import {
   fetchSigunguPopulationData,
   fetchPopulationData,
+  fetchFarmHousehold,
 } from "@/lib/api/sgis";
+import { getFarmFallback } from "@/lib/data/farms";
 import {
   fetchSigunguMedicalFacilities,
   fetchMedicalFacilities,
@@ -38,17 +40,24 @@ interface SigunguDataProps {
 export async function SigunguData({ province, sigungu }: SigunguDataProps) {
   const hiraSgguCd = sigungu.hiraSgguCd;
 
-  // ── Phase 1: 시군구 수준 + 기후 + 귀농귀촌 (5개 병렬) ──
-  const [sigunguPopResult, sigunguMedicalResult, sigunguSchoolResult, climateResult, returnFarmResult] =
-    await Promise.allSettled([
-      fetchSigunguPopulationData(sigungu.sgisCode),
-      hiraSgguCd
-        ? fetchSigunguMedicalFacilities(province.hiraSidoCd, hiraSgguCd)
-        : Promise.resolve(null),
-      fetchSigunguSchoolCounts(province.eduCode, sigungu.name),
-      fetchMultipleClimateData(province.stationIds),
-      fetchReturnFarmStats(sigungu.admCode),
-    ]);
+  // ── Phase 1: 시군구 수준 + 기후 + 귀농귀촌 + 농가 (6개 병렬) ──
+  const [
+    sigunguPopResult,
+    sigunguMedicalResult,
+    sigunguSchoolResult,
+    climateResult,
+    returnFarmResult,
+    farmResult,
+  ] = await Promise.allSettled([
+    fetchSigunguPopulationData(sigungu.sgisCode),
+    hiraSgguCd
+      ? fetchSigunguMedicalFacilities(province.hiraSidoCd, hiraSgguCd)
+      : Promise.resolve(null),
+    fetchSigunguSchoolCounts(province.eduCode, sigungu.name),
+    fetchMultipleClimateData(province.stationIds),
+    fetchReturnFarmStats(sigungu.admCode),
+    fetchFarmHousehold(sigungu.sgisCode),
+  ]);
 
   const sigunguPop =
     sigunguPopResult.status === "fulfilled" ? sigunguPopResult.value : null;
@@ -123,6 +132,16 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
 
   const hasFallback = isPopulationFallback || isMedicalFallback || isSchoolFallback;
 
+  // ── 농가 데이터 + 시도 평균 비교 (정적 폴백 기반) ──
+  const farm = farmResult.status === "fulfilled" ? farmResult.value : null;
+  const sidoFarm = getFarmFallback(province.sgisCode); // 시도 합산
+  let farmRatioVsSido: number | null = null;
+  if (farm && sidoFarm && sidoFarm.avgPopulation > 0 && farm.avgPopulation > 0) {
+    farmRatioVsSido = Math.round(
+      ((farm.avgPopulation - sidoFarm.avgPopulation) / sidoFarm.avgPopulation) * 100,
+    );
+  }
+
   return (
     <SigunguStats
       provinceShortName={province.shortName}
@@ -159,6 +178,18 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
           : null
       }
       hasFallback={hasFallback}
+      farm={
+        farm
+          ? {
+              farmCount: farm.farmCount,
+              farmPopulation: farm.farmPopulation,
+              avgPopulation: farm.avgPopulation,
+              isFallback: !!farm.isFallback,
+            }
+          : null
+      }
+      sidoFarmAvgPopulation={sidoFarm?.avgPopulation ?? null}
+      farmRatioVsSido={farmRatioVsSido}
       sgisCode={sigungu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}
       hiraSgguCd={hiraSgguCd}
