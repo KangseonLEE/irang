@@ -16,6 +16,7 @@ import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { PROVINCES } from "@/lib/data/regions";
 import { getSigunguBySidoAndId } from "@/lib/data/sigungus";
 import { getGuByIds, GUS } from "@/lib/data/gus";
+import { getEnrichedHighlights } from "@/lib/data/popular-tags";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
@@ -154,7 +155,7 @@ export default async function GuDetailPage({ params }: PageProps) {
         <h1 className={s.heroTitle}>{gu.name}</h1>
         <p className={s.heroDesc}>{gu.description}</p>
         <div className={s.heroTags}>
-          {gu.highlights.map((tag) => (
+          {getEnrichedHighlights(gu.sgisCode, gu.highlights).map((tag) => (
             <span key={tag} className={s.heroTag}>
               {tag}
             </span>

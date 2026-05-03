@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SigunguMapLocation } from "@/lib/data/province-maps";
 import { getSigunguBySidoAndId } from "@/lib/data/sigungus";
+import { getEnrichedHighlights } from "@/lib/data/popular-tags";
 import { getDensityColor, getDensityRange } from "@/lib/map-utils";
 import s from "./province-map.module.css";
 
@@ -194,15 +195,22 @@ export function ProvinceMap({
               {densityUnit}
             </span>
           )}
-          {hoveredSigungu.highlights.length > 0 && (
-            <div className={s.tooltipTags}>
-              {hoveredSigungu.highlights.slice(0, 3).map((tag) => (
-                <span key={tag} className={s.tooltipTag}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
+          {(() => {
+            const enriched = getEnrichedHighlights(
+              hoveredSigungu.sgisCode,
+              hoveredSigungu.highlights,
+            );
+            if (enriched.length === 0) return null;
+            return (
+              <div className={s.tooltipTags}>
+                {enriched.slice(0, 3).map((tag) => (
+                  <span key={tag} className={s.tooltipTag}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            );
+          })()}
           {hoveredSigungu.mainCrops.length > 0 && (
             <span className={s.tooltipCrops}>
               🌱 {hoveredSigungu.mainCrops.slice(0, 3).join(" · ")}

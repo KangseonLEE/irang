@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { GuMapLocation } from "@/lib/data/district-maps";
 import { getGuByIds } from "@/lib/data/gus";
+import { getEnrichedHighlights } from "@/lib/data/popular-tags";
 import s from "./province-map.module.css";
 
 interface DistrictMapProps {
@@ -268,15 +269,22 @@ export function DistrictMap({
         >
           <span className={s.tooltipName}>{hoveredGu.name}</span>
           <span className={s.tooltipDesc}>{hoveredGu.description}</span>
-          {hoveredGu.highlights.length > 0 && (
-            <div className={s.tooltipTags}>
-              {hoveredGu.highlights.slice(0, 3).map((tag) => (
-                <span key={tag} className={s.tooltipTag}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
+          {(() => {
+            const enriched = getEnrichedHighlights(
+              hoveredGu.sgisCode,
+              hoveredGu.highlights,
+            );
+            if (enriched.length === 0) return null;
+            return (
+              <div className={s.tooltipTags}>
+                {enriched.slice(0, 3).map((tag) => (
+                  <span key={tag} className={s.tooltipTag}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            );
+          })()}
           {hoveredGu.mainCrops.length > 0 && (
             <span className={s.tooltipCrops}>
               🌱 {hoveredGu.mainCrops.slice(0, 3).join(" · ")}
