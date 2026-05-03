@@ -12,6 +12,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { DataSource } from "@/components/ui/data-source";
 import { POPULAR_RETURN_FARM_CODES } from "@/lib/data/popular-tags";
 import { DIMENSION_SCORES } from "@/lib/data/dimension-scores";
+import { PERSONAS } from "@/lib/data/personas";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -164,17 +165,60 @@ export default function MethodologyPage() {
         </p>
       </section>
 
+      {/* 페르소나 가중치 */}
+      <section aria-label="페르소나 가중치">
+        <h2 className={s.sectionTitle}>페르소나 맞춤 점수는 어떻게 계산하나요?</h2>
+        <p className={s.principleText} style={{ marginBottom: "12px" }}>
+          ‘페르소나 맞춤’ 모드는 사람마다 중요하게 보는 차원이 다르다는 점을
+          반영해요. 5가지 차원에 페르소나별로 다른 가중치를 곱해서 종합 점수를
+          만들어요. 가중치 합은 100이에요.
+        </p>
+        <div className={s.dimList}>
+          {PERSONAS.map((p) => (
+            <article key={p.id} className={s.dimCard}>
+              <h3 className={s.dimLabel}>{p.label}</h3>
+              <p className={s.dimDesc}>
+                {p.audience} · {p.desc}
+              </p>
+              <dl className={s.dimMeta}>
+                <div>
+                  <dt>인구 추세</dt>
+                  <dd>{p.weights.populationTrend}%</dd>
+                </div>
+                <div>
+                  <dt>농가 활성도</dt>
+                  <dd>{p.weights.farmActivity}%</dd>
+                </div>
+                <div>
+                  <dt>의료 인프라</dt>
+                  <dd>{p.weights.medical}%</dd>
+                </div>
+                <div>
+                  <dt>학교 인프라</dt>
+                  <dd>{p.weights.school}%</dd>
+                </div>
+                <div>
+                  <dt>귀농 활성도</dt>
+                  <dd>{p.weights.returnFarm}%</dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+      </section>
+
       {/* 통계 요약 */}
       <section className={s.principleBox} aria-label="통계">
         <h2 className={s.principleTitle}>전체 통계</h2>
         <p className={s.principleText}>
           현재 <strong>{totalSigungu}개</strong> 시군구의 차원별 점수가 만들어져
-          있어요. 데이터가 갱신되면 자동으로 점수도 새로 계산돼요.
+          있고, <strong>{PERSONAS.length}개</strong> 페르소나로 가중 평균이 계산돼요.
+          데이터가 갱신되면 자동으로 점수도 새로 계산돼요.
         </p>
       </section>
 
       <p className={s.backLink}>
-        <Link href="/regions/ranking">← 차원별 점수 랭킹으로 돌아가기</Link>
+        <Link href="/regions/ranking">← 시군구 점수 비교로 돌아가기</Link>
       </p>
 
       <DataSource source="통계청 SGIS · 농림어업총조사 · 심평원 · 교육부 NEIS · KOSIS" />

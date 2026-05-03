@@ -1,5 +1,8 @@
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect */
+// SSR-safe mounted 패턴은 React Hydration 에러 회피용 표준 — CLAUDE.md 컨벤션.
+
 import { useEffect, useState } from "react";
 import {
   PERSONAS,
@@ -28,7 +31,7 @@ export function PersonaScorePicker({ dimensionScores, sigunguName }: Props) {
   const [selected, setSelected] = useState<PersonaId | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // SSR 안전: mounted 후에만 localStorage 사용
+  // SSR 안전: mounted 후에만 localStorage 사용 (CLAUDE.md 컨벤션)
   useEffect(() => {
     setMounted(true);
     try {
