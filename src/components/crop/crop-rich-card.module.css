@@ -176,6 +176,25 @@
   color: #b91c1c;
 }
 
+/* 비교 모드 — 1열 stack으로 변경, 비교 텍스트 줄바꿈 */
+.statStrip[data-comparison="true"] {
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.statStrip[data-comparison="true"] .statItem {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.statComparison {
+  margin-left: auto;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  text-align: right;
+}
+
 /* ---- 출처 ---- */
 .source {
   margin-top: 10px;

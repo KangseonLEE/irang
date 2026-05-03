@@ -33,10 +33,13 @@ import {
   getCropWithDetail,
   getAllCropIds,
   CROPS,
+  CROP_DETAILS,
   type CropDetailInfo,
   type ProsConsInfo,
   type CultivationStep,
 } from "@/lib/data/crops";
+import { CropRichCard } from "@/components/crop/crop-rich-card";
+import { convertToPyeongLabel } from "@/lib/format";
 import { PROVINCES } from "@/lib/data/regions";
 import {
   fetchCropStats,
@@ -180,9 +183,25 @@ export default async function CropDetailPage({
     p.relatedCrops.some((rc) => rc === data.name)
   ).slice(0, 3);
 
+  // 관련 작물 — CropRichCard 비교 모드용 정보 포함
+  const cropDetailById = new Map(CROP_DETAILS.map((d) => [d.id, d]));
+  const currentRevenue = convertToPyeongLabel(
+    data.detail.income?.revenueRange ?? "",
+  ).value;
   const relatedCrops = data.detail.relatedCropIds
-    .map((rid) => CROPS.find((c) => c.id === rid))
-    .filter((c): c is NonNullable<typeof c> => c != null);
+    .map((rid) => {
+      const c = CROPS.find((cr) => cr.id === rid);
+      const d = cropDetailById.get(rid);
+      if (!c) return null;
+      const conv = convertToPyeongLabel(d?.income?.revenueRange ?? "");
+      return {
+        crop: c,
+        detail: d,
+        revenueLabel: conv.label,
+        revenueValue: conv.value,
+      };
+    })
+    .filter((x): x is NonNullable<typeof x> => x != null);
 
   // RDA 청년농 사례 (API 실패 시 빈 배열)
   const youthCases = await fetchYouthCasesForCrop(id).catch(() => []);
@@ -463,7 +482,7 @@ export default async function CropDetailPage({
             </div>
           </div>
 
-          {/* 관련 작물 */}
+          {/* 관련 작물 — CropRichCard 비교 모드 (현재 작물 대비) */}
           {relatedCrops.length > 0 && (
             <div className={s.sideSection}>
               <h3 className={s.sideSectionHeader}>
@@ -471,26 +490,24 @@ export default async function CropDetailPage({
                 관련 작물
               </h3>
               <div className={s.relatedCropList}>
-                {relatedCrops.map((crop) => (
-                  <Link
+                {relatedCrops.map(({ crop, detail, revenueLabel, revenueValue }) => (
+                  <CropRichCard
                     key={crop.id}
+                    cropId={crop.id}
+                    name={crop.name}
                     href={`/crops/${crop.id}`}
-                    className={s.relatedCropCard}
-                  >
-                    <div className={s.relatedCropImageWrap}>
-                      <Image
-                        src={`/crops/${crop.id}.jpg`}
-                        alt={crop.name}
-                        fill
-                        sizes="60px"
-                        style={{ objectFit: "cover" }}
-                      />
-                    </div>
-                    <div>
-                      <p className={s.relatedCropName}>{crop.name}</p>
-                      <p className={s.relatedCropMeta}>{crop.category} · {crop.difficulty}</p>
-                    </div>
-                  </Link>
+                    meta={`${crop.growingSeason} 재배`}
+                    revenueLabel={revenueLabel}
+                    revenueValue={revenueValue}
+                    revenueMax={null}
+                    laborIntensity={detail?.income?.laborIntensity}
+                    difficulty={crop.difficulty}
+                    source={detail?.income?.source}
+                    comparisonName={data.name}
+                    comparisonRevenue={currentRevenue}
+                    comparisonLabor={data.detail.income?.laborIntensity}
+                    comparisonDifficulty={data.difficulty}
+                  />
                 ))}
               </div>
             </div>
