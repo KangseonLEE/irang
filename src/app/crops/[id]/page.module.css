@@ -309,26 +309,32 @@
   margin-top: 20px;
 }
 
-/* ── Sticky 작물 정보 Bar (Anchor Tab 위) ── */
-.stickyCropBar {
+/* ── Sticky 작물 헤더 (작물 정보 + 탭 통합) ── */
+.stickyHeader {
   position: sticky;
   top: var(--h-header, 3.5rem);
-  z-index: calc(var(--z-sticky) + 1);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  margin: 16px 0 0;
+  z-index: var(--z-sticky);
+  margin: 16px 0 24px;
   background: color-mix(in srgb, var(--background, #fff) 96%, transparent);
   border: 1px solid var(--border);
   border-radius: 12px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  overflow: hidden;
   transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-:global(html[data-header-hidden]) .stickyCropBar {
+:global(html[data-header-hidden]) .stickyHeader {
   top: 0;
+}
+
+/* 위 줄 — 작물 정보 */
+.stickyHeaderCrop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
 }
 
 .stickyCropImage {
@@ -351,36 +357,30 @@
   text-overflow: ellipsis;
 }
 
-/* ── Sticky Anchor Tab (배민/컬리 패턴) — stickyCropBar 아래 적층 ── */
-.anchorTabWrap {
-  position: sticky;
-  /* h-header(56px) + stickyCropBar 높이(약 56px = padding 8+8 + 32 + border 등) */
-  top: calc(var(--h-header, 3.5rem) + 56px);
-  z-index: var(--z-sticky);
-  margin: 12px 0 24px;
-  transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+/* 아래 줄 — 탭 (AnchorTabNav 가로 스크롤) */
+.stickyHeaderTabs {
+  position: relative;
 }
 
-:global(html[data-header-hidden]) .anchorTabWrap {
-  top: 56px;
-}
-
-/* 우측 페이드 힌트 — 스크롤 가능함을 시각적으로 표시 */
-.anchorTabWrap::after {
+/* 탭 우측 페이드 힌트 — 스크롤 가능함을 시각적으로 표시 */
+.stickyHeaderTabs::after {
   content: "";
   position: absolute;
   top: 0;
   right: 0;
-  bottom: 1px; /* border-bottom 위 */
+  bottom: 1px;
   width: 32px;
   background: linear-gradient(to right, transparent, var(--background, #fff));
   pointer-events: none;
   z-index: 1;
 }
 
-@media (min-width: 640px) {
-  .anchorTabWrap { margin: 20px 0 32px; }
+/* 기존 anchorTabWrap 호환 (다른 곳 참조 가능성) */
+.anchorTabWrap {
+  position: relative;
 }
+
+/* (anchorTabWrap::after fade는 stickyHeaderTabs::after로 이동됨) */
 
 @media (min-width: 1024px) {
   .anchorTabWrap { margin: 20px 0 32px; }

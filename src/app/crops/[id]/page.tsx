@@ -338,25 +338,28 @@ export default async function CropDetailPage({
         <ReferenceNotice text="작물 정보는 농촌진흥청·통계청 데이터를 가공한 참고 자료예요. 실제 재배 조건은 지역·품종에 따라 달라요." />
       </div>
 
-      {/* ── Sticky 작물 정보 Bar (모든 디바이스에서 스크롤 시 현재 작물 인지) ── */}
-      <div className={s.stickyCropBar} aria-label={`현재 보고 있는 작물: ${data.name}`}>
-        <Image
-          src={`/crops/${data.id}.jpg`}
-          alt=""
-          width={32}
-          height={32}
-          className={s.stickyCropImage}
-          aria-hidden="true"
-        />
-        <span className={s.stickyCropName}>{data.name}</span>
-        <span className={s.stickyCropMeta}>
-          {data.category} · 난이도 {data.difficulty}
-        </span>
-      </div>
-
-      {/* ── Sticky Anchor Tab ── */}
-      <div className={s.anchorTabWrap}>
-        <AnchorTabNav sections={anchorSections} />
+      {/* ── Sticky 작물 헤더 (작물 정보 + 탭 통합 컨테이너) ── */}
+      <div
+        className={s.stickyHeader}
+        aria-label={`현재 보고 있는 작물: ${data.name}`}
+      >
+        <div className={s.stickyHeaderCrop}>
+          <Image
+            src={`/crops/${data.id}.jpg`}
+            alt=""
+            width={28}
+            height={28}
+            className={s.stickyCropImage}
+            aria-hidden="true"
+          />
+          <span className={s.stickyCropName}>{data.name}</span>
+          <span className={s.stickyCropMeta}>
+            {data.category} · 난이도 {data.difficulty}
+          </span>
+        </div>
+        <div className={s.stickyHeaderTabs}>
+          <AnchorTabNav sections={anchorSections} />
+        </div>
       </div>
 
       {/* ── 본문 ── */}
