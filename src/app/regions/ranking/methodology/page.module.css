@@ -1,0 +1,158 @@
+/* /regions/ranking/methodology — 산식 공개 페이지 (Phase 4) */
+
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 40px 32px;
+  }
+}
+
+.principleBox {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--card, #fff));
+}
+
+.principleTitle {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.principleText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--foreground);
+}
+
+.principleText strong {
+  color: var(--primary, #1B6B5A);
+  font-weight: 700;
+}
+
+.principleList {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--foreground);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.sectionTitle {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.dimList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.dimCard {
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card, #fff);
+}
+
+.dimLabel {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary, #1B6B5A);
+}
+
+.dimDesc {
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--foreground);
+}
+
+.dimMeta {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.dimMeta > div {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 8px;
+  align-items: start;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.dimMeta dt {
+  margin: 0;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.dimMeta dd {
+  margin: 0;
+  color: var(--foreground);
+}
+
+.dimNote {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, transparent);
+  font-size: 13px;
+  color: var(--foreground);
+  line-height: 1.5;
+}
+
+.backLink {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+.backLink a {
+  color: var(--primary, #1B6B5A);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .backLink a:hover {
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: 639px) {
+  .dimCard {
+    padding: 16px;
+  }
+
+  .dimMeta > div {
+    grid-template-columns: 80px 1fr;
+    font-size: 12px;
+  }
+}
