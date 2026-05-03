@@ -1,8 +1,10 @@
-// /regions/ranking — 시군구 차원별 점수 랭킹 (Phase 4)
+// /regions/ranking — 시군구 차원별 / 페르소나 맞춤 점수 랭킹 (Phase 4·5)
 //
-// 5차원 중 1개를 선택하면 그 차원 점수 내림차순으로 시군구를 정렬.
-// 단일 종합 점수 X (Phase 3 폐기). 사용자가 차원을 직접 비교.
+// 두 가지 모드:
+//   - 차원별 (기본): 5차원 중 1개 선택 → 그 차원 점수 정렬
+//   - 페르소나 맞춤: 5개 페르소나 중 1개 선택 → 가중 합산 점수 정렬
 // 데이터: src/lib/data/dimension-scores.ts (정적 분위 점수)
+// 페르소나 가중치: src/lib/data/personas.ts
 
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -17,21 +19,27 @@ import {
   DIMENSION_IDS,
   type DimensionId,
 } from "@/lib/data/dimension-scores";
+import {
+  PERSONAS,
+  type PersonaId,
+  computePersonaScore,
+  getPersona,
+} from "@/lib/data/personas";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "시군구 차원별 점수 — 인구·농가·의료·학교·귀농 비교",
+  title: "시군구 점수 비교 — 차원별 / 페르소나 맞춤",
   description:
-    "전국 시군구를 5가지 차원으로 비교하세요. 인구 추세·농가 활성도·의료·학교·귀농 활성도를 각각 전국 분위로 보여드려요.",
+    "전국 시군구를 5가지 차원으로 비교하거나, 페르소나에 맞춘 종합 점수로 줄 세워 보세요.",
   alternates: { canonical: "/regions/ranking" },
 };
 
 export const revalidate = 86400;
 
 interface PageProps {
-  searchParams: Promise<{ dim?: string; sido?: string }>;
+  searchParams: Promise<{ dim?: string; sido?: string; persona?: string }>;
 }
 
 const SIGUNGU_INDEX = new Map(SIGUNGUS.map((sg) => [sg.sgisCode, sg]));
@@ -52,11 +60,21 @@ const DIMENSION_NOTES: Record<DimensionId, string | null> = {
   returnFarm: "도시 자치구는 귀농 통계가 따로 잡히지 않아 빠져 있어요.",
 };
 
-function buildHref(dim: DimensionId, sido?: string): string {
+function buildHref(opts: {
+  mode: "dimension" | "persona";
+  dim?: DimensionId;
+  persona?: PersonaId;
+  sido?: string;
+}): string {
   const params = new URLSearchParams();
-  params.set("dim", dim);
-  if (sido && sido !== "전체") params.set("sido", sido);
-  return `/regions/ranking?${params.toString()}`;
+  if (opts.mode === "persona" && opts.persona) {
+    params.set("persona", opts.persona);
+  } else if (opts.dim) {
+    params.set("dim", opts.dim);
+  }
+  if (opts.sido && opts.sido !== "전체") params.set("sido", opts.sido);
+  const qs = params.toString();
+  return qs ? `/regions/ranking?${qs}` : "/regions/ranking";
 }
 
 function getToneClass(score: number): string {
@@ -65,7 +83,7 @@ function getToneClass(score: number): string {
   return s.scoreLow;
 }
 
-function getSummaryText(dim: DimensionId, score: number): string {
+function getDimensionSummary(dim: DimensionId, score: number): string {
   if (dim === "populationTrend") {
     if (score >= 80) return "회복 중";
     if (score >= 50) return "안정";
@@ -75,8 +93,21 @@ function getSummaryText(dim: DimensionId, score: number): string {
   return `전국 상위 ${topPct}%`;
 }
 
+function getPersonaSummary(score: number): string {
+  if (score >= 70) return "잘 맞아요";
+  if (score >= 50) return "괜찮아요";
+  if (score >= 30) return "조금 약해요";
+  return "잘 안 맞아요";
+}
+
 export default async function RankingPage({ searchParams }: PageProps) {
   const sp = await searchParams;
+
+  // 모드 판정: persona param 있으면 페르소나 모드, 없으면 차원 모드
+  const personaParam = sp.persona ?? null;
+  const persona = personaParam ? getPersona(personaParam) : null;
+  const mode: "dimension" | "persona" = persona ? "persona" : "dimension";
+
   const dim = (DIMENSION_IDS as string[]).includes(sp.dim ?? "")
     ? (sp.dim as DimensionId)
     : "farmActivity";
@@ -89,54 +120,133 @@ export default async function RankingPage({ searchParams }: PageProps) {
     const province = PROVINCES.find((p) => p.id === sg.sidoId);
     if (!province) return null;
     if (sidoFilter && province.shortName !== sidoFilter) return null;
-    const value = score[dim];
+
+    const value =
+      mode === "persona" && persona
+        ? computePersonaScore(score, persona)
+        : score[dim];
     if (value === null) return null;
+
     return { score, sg, province, value };
   })
     .filter((x): x is NonNullable<typeof x> => x !== null)
     .sort((a, b) => b.value - a.value);
 
-  const note = DIMENSION_NOTES[dim];
+  const description =
+    mode === "persona" && persona
+      ? `‘${persona.label}’ 페르소나로 시군구 점수를 줄 세웠어요.`
+      : "5가지 차원 중 하나를 골라 전국 시군구를 비교해 보세요.";
 
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd
         items={[
           { name: "지역 탐색", href: "/regions" },
-          { name: "차원별 점수", href: "/regions/ranking" },
+          { name: "시군구 점수 비교", href: "/regions/ranking" },
         ]}
       />
 
       <PageHeader
         icon={<Icon icon={Trophy} size="lg" />}
         label="시군구 비교"
-        title="차원별 점수 랭킹"
-        description="5가지 차원 중 하나를 골라 전국 시군구를 비교해 보세요."
+        title="시군구 점수 비교"
+        description={description}
         count={ranked.length}
       />
 
-      {/* 차원 토글 */}
-      <div className={s.dimensionToggle} role="tablist" aria-label="차원 선택">
-        {DIMENSION_IDS.map((id) => (
-          <Link
-            key={id}
-            href={buildHref(id, sidoFilter ?? undefined)}
-            role="tab"
-            aria-selected={dim === id}
-            className={`${s.dimensionToggleBtn} ${dim === id ? s.dimensionToggleActive : ""}`}
-          >
-            {DIMENSION_LABELS[id]}
-          </Link>
-        ))}
+      {/* 모드 선택 */}
+      <div className={s.modeToggle} role="tablist" aria-label="비교 방식">
+        <Link
+          href={buildHref({ mode: "dimension", dim, sido: sidoFilter ?? undefined })}
+          role="tab"
+          aria-selected={mode === "dimension"}
+          className={`${s.modeBtn} ${mode === "dimension" ? s.modeBtnActive : ""}`}
+        >
+          차원별 보기
+        </Link>
+        <Link
+          href={buildHref({
+            mode: "persona",
+            persona: (persona?.id ?? "balanced") as PersonaId,
+            sido: sidoFilter ?? undefined,
+          })}
+          role="tab"
+          aria-selected={mode === "persona"}
+          className={`${s.modeBtn} ${mode === "persona" ? s.modeBtnActive : ""}`}
+        >
+          페르소나 맞춤
+        </Link>
       </div>
 
-      <p className={s.dimensionDesc}>{DIMENSION_DESCRIPTIONS[dim]}</p>
-      {note && <p className={s.dimensionNote}>{note}</p>}
+      {/* 차원 또는 페르소나 토글 */}
+      {mode === "dimension" ? (
+        <>
+          <div
+            className={s.dimensionToggle}
+            role="tablist"
+            aria-label="차원 선택"
+          >
+            {DIMENSION_IDS.map((id) => (
+              <Link
+                key={id}
+                href={buildHref({
+                  mode: "dimension",
+                  dim: id,
+                  sido: sidoFilter ?? undefined,
+                })}
+                role="tab"
+                aria-selected={dim === id}
+                className={`${s.dimensionToggleBtn} ${dim === id ? s.dimensionToggleActive : ""}`}
+              >
+                {DIMENSION_LABELS[id]}
+              </Link>
+            ))}
+          </div>
+          <p className={s.dimensionDesc}>{DIMENSION_DESCRIPTIONS[dim]}</p>
+          {DIMENSION_NOTES[dim] && (
+            <p className={s.dimensionNote}>{DIMENSION_NOTES[dim]}</p>
+          )}
+        </>
+      ) : (
+        <>
+          <div
+            className={s.dimensionToggle}
+            role="tablist"
+            aria-label="페르소나 선택"
+          >
+            {PERSONAS.map((p) => (
+              <Link
+                key={p.id}
+                href={buildHref({
+                  mode: "persona",
+                  persona: p.id,
+                  sido: sidoFilter ?? undefined,
+                })}
+                role="tab"
+                aria-selected={persona?.id === p.id}
+                className={`${s.dimensionToggleBtn} ${persona?.id === p.id ? s.dimensionToggleActive : ""}`}
+              >
+                {p.label}
+              </Link>
+            ))}
+          </div>
+          {persona && (
+            <p className={s.dimensionDesc}>
+              {persona.audience}을(를) 위한 페르소나예요. 5차원을 가중 평균해
+              하나의 점수로 만들어요.
+            </p>
+          )}
+        </>
+      )}
 
       {/* 시도 필터 */}
       <div className={s.sidoFilter} role="group" aria-label="시도 필터">
         <Link
-          href={buildHref(dim)}
+          href={buildHref({
+            mode,
+            dim: mode === "dimension" ? dim : undefined,
+            persona: mode === "persona" ? (persona?.id as PersonaId) : undefined,
+          })}
           className={`${s.sidoFilterBtn} ${!sidoFilter ? s.sidoFilterActive : ""}`}
         >
           전체
@@ -144,7 +254,12 @@ export default async function RankingPage({ searchParams }: PageProps) {
         {PROVINCES.map((p) => (
           <Link
             key={p.id}
-            href={buildHref(dim, p.shortName)}
+            href={buildHref({
+              mode,
+              dim: mode === "dimension" ? dim : undefined,
+              persona: mode === "persona" ? (persona?.id as PersonaId) : undefined,
+              sido: p.shortName,
+            })}
             className={`${s.sidoFilterBtn} ${sidoFilter === p.shortName ? s.sidoFilterActive : ""}`}
           >
             {p.shortName}
@@ -178,7 +293,9 @@ export default async function RankingPage({ searchParams }: PageProps) {
                     <span className={s.rankScoreUnit}>점</span>
                   </span>
                   <span className={s.rankSummary}>
-                    {getSummaryText(dim, item.value)}
+                    {mode === "persona"
+                      ? getPersonaSummary(item.value)
+                      : getDimensionSummary(dim, item.value)}
                   </span>
                 </div>
               </Link>
@@ -199,4 +316,3 @@ export default async function RankingPage({ searchParams }: PageProps) {
     </div>
   );
 }
-
