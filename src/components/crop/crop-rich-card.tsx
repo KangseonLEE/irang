@@ -68,11 +68,23 @@ export function CropRichCard({
   difficulty,
   source,
 }: CropRichCardProps) {
-  // 바 길이 — 동적 계산값이라 인라인 style 허용 (체크리스트 C 예외)
-  const barWidthPct =
+  // 실제 비율 (1~100) — 캡션·aria-label용
+  const realPct =
     revenueValue !== null && revenueMax && revenueMax > 0
-      ? Math.max(8, Math.min(100, Math.round((revenueValue / revenueMax) * 100)))
+      ? Math.max(1, Math.min(100, Math.round((revenueValue / revenueMax) * 100)))
       : null;
+
+  // 바 길이 — 시각 가독성 위해 최소 8% 보장 (인라인 style 허용 — 체크리스트 C 예외)
+  const barWidthPct =
+    realPct !== null ? Math.max(8, realPct) : null;
+
+  // 캡션 — 1위 작물에는 다른 카피
+  const barCaption =
+    realPct === null
+      ? null
+      : realPct === 100
+        ? "이 지역 작물 중 1위예요"
+        : `이 지역 작물 중 최고 대비 ${realPct}%`;
 
   const labor = laborTone(laborIntensity);
   const diff = difficultyTone(difficulty);
@@ -101,21 +113,21 @@ export function CropRichCard({
         {revenueValue !== null ? (
           <>
             <span className={s.revenueValue}>{revenueLabel}</span>
-            {barWidthPct !== null && (
-              <div
-                className={s.bar}
-                role="img"
-                aria-label={`${revenueLabel} (이 섹션 최대 대비 ${barWidthPct}%)`}
-              >
-                <span
-                  className={s.barFill}
-                  style={{ ["--bar-width" as string]: `${barWidthPct}%` }}
-                />
-              </div>
+            {barWidthPct !== null && barCaption !== null && (
+              <>
+                <div
+                  className={s.bar}
+                  role="img"
+                  aria-label={`${revenueLabel} — ${barCaption}`}
+                >
+                  <span
+                    className={s.barFill}
+                    style={{ ["--bar-width" as string]: `${barWidthPct}%` }}
+                  />
+                </div>
+                <span className={s.barCaption}>{barCaption}</span>
+              </>
             )}
-            <span className={s.barCaption}>
-              이 지역 추천 작물 중 상대 비교
-            </span>
           </>
         ) : (
           <span className={s.revenueRaw}>{revenueLabel}</span>
