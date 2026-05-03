@@ -253,10 +253,32 @@
 }
 
 /* ---- 추천 작물 ---- */
+.sectionHeaderBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.sectionHeaderCta {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: center;
+  transition: opacity 0.15s;
+}
+
+@media (hover: hover) {
+  .sectionHeaderCta:hover {
+    text-decoration: underline;
+  }
+}
+
 .cropGrid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
 @media (min-width: 640px) {
@@ -265,57 +287,68 @@
   }
 }
 
-.cropCardWrap {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.cropCompareLink {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
+.cropMoreLink {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
   text-decoration: none;
-  text-align: right;
-  padding: 0 4px;
-  transition: color 0.15s;
 }
 
 @media (hover: hover) {
-  .cropCompareLink:hover {
-    color: var(--primary, #1b6b5a);
+  .cropMoreLink:hover {
+    text-decoration: underline;
   }
 }
 
-.cropCard {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--border, #e5e7eb);
+/* ---- 도시(매칭 작물 0종) 친화 메시지 ---- */
+.urbanNotice {
+  padding: 16px 18px;
+  background: var(--muted, #f9fafb);
   border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.urbanNoticeText {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-normal);
+  color: var(--foreground);
+  word-break: keep-all;
+}
+
+.urbanNoticeList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.urbanNoticeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 999px;
   text-decoration: none;
-  color: inherit;
   transition: border-color 0.15s, background 0.15s;
 }
 
 @media (hover: hover) {
-  .cropCard:hover {
+  .urbanNoticeLink:hover {
     border-color: var(--primary, #1b6b5a);
     background: var(--secondary, #f0f9f6);
   }
-}
-
-.cropName {
-  display: block;
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.cropMeta {
-  display: block;
-  font-size: var(--fs-overline);
-  color: var(--muted-foreground);
 }
 
 /* ---- 지원사업 ---- */

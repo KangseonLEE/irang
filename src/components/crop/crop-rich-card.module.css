@@ -1,0 +1,186 @@
+/* ==========================================================================
+   CropRichCard — 작물 리치 카드
+   상단 헤더(이미지·이름·재배기) + 분리선 + 수익 영역(숫자+바) + 노동·난이도 + 출처
+   기본 1열, 부모 그리드에서 2열까지 확장.
+   ========================================================================== */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px 16px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  background: var(--card, #fff);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--primary, #1b6b5a);
+    background: var(--secondary, #f0f9f6);
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  }
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ---- 헤더: 이미지·이름·메타·화살표 ---- */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.image {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.headerBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.meta {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+}
+
+.arrow {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+@media (hover: hover) {
+  .card:hover .arrow {
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+/* ---- 분리선 ---- */
+.divider {
+  height: 1px;
+  background: var(--border, #e5e7eb);
+  margin: 12px 0;
+}
+
+/* ---- 수익 영역 ---- */
+.revenueBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.revenueLabel {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.revenueValue {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.01em;
+}
+
+.revenueRaw {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  overflow: hidden;
+}
+
+.barFill {
+  position: absolute;
+  inset: 0;
+  width: var(--bar-width, 0%);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 70%, transparent);
+  border-radius: inherit;
+  transition: width 0.3s ease-out;
+}
+
+.barCaption {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+}
+
+/* ---- 노동·난이도 strip (2칸 grid) ---- */
+.statStrip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--muted, #f9fafb);
+  border-radius: 8px;
+}
+
+.statItemLabel {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statItemValue {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.statItemValue.tonePositive {
+  color: #059669;
+}
+
+.statItemValue.toneNeutral {
+  color: #d97706;
+}
+
+.statItemValue.toneCaution {
+  color: #b91c1c;
+}
+
+/* ---- 출처 ---- */
+.source {
+  margin-top: 10px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  line-height: var(--lh-normal);
+  word-break: keep-all;
+}

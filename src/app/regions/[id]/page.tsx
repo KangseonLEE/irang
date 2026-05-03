@@ -19,7 +19,8 @@ import { PROVINCES } from "@/lib/data/regions";
 import { getSigungusBySidoId } from "@/lib/data/sigungus";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
-import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { CropRichCard } from "@/components/crop/crop-rich-card";
+import { convertToPyeongLabel } from "@/lib/format";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { RegionAsyncData } from "./region-async-data";
@@ -59,12 +60,27 @@ export default async function RegionDetailPage({ params }: PageProps) {
   if (!province) notFound();
 
   // 정적 데이터 — API 호출 없이 즉시 사용 가능
-  const matchedCrops = CROPS.filter((crop) => {
-    const detail = CROP_DETAILS.find((d) => d.id === crop.id);
-    return detail?.majorRegions?.includes(province.name);
-  });
   const sigungus = getSigungusBySidoId(province.id);
   const sidoCenter = getSidoCenter(province.id);
+
+  // 작물 + 상세 + 평수 환산값을 한 번에 계산 → 수익 내림차순 정렬
+  const allMatchedCrops = CROPS.flatMap((crop) => {
+    const detail = CROP_DETAILS.find((d) => d.id === crop.id);
+    if (!detail?.majorRegions?.includes(province.name)) return [];
+    const { value, label } = convertToPyeongLabel(detail.income.revenueRange);
+    return [{ crop, detail, revenueValue: value, revenueLabel: label }];
+  }).sort((a, b) => (b.revenueValue ?? 0) - (a.revenueValue ?? 0));
+
+  const topCrops = allMatchedCrops.slice(0, 6);
+  const remainingCount = allMatchedCrops.length - topCrops.length;
+  // 바 길이 정규화 기준 (이 섹션 내 최대 수익값)
+  const revenueMax = topCrops.reduce(
+    (max, c) => (c.revenueValue !== null ? Math.max(max, c.revenueValue) : max),
+    0
+  );
+
+  // 도시(매칭 작물 0종)일 때 친화 메시지용 근교 시군구 후보 (상위 3개)
+  const nearbyRuralSigungus = allMatchedCrops.length === 0 ? sigungus.slice(0, 3) : [];
 
   return (
     <div className={s.page}>
@@ -132,37 +148,73 @@ export default async function RegionDetailPage({ params }: PageProps) {
         {/* Left Column */}
         <div className={s.mainContent}>
           {/* 추천 작물 — 정적 데이터 */}
-          {matchedCrops.length > 0 && (
-            <section className={s.section}>
-              <div className={s.sectionHeader}>
-                <Icon icon={Sprout} size="lg" />
-                <div>
-                  <h2 className={s.sectionTitle}>추천 작물</h2>
-                  <p className={s.sectionDesc}>
-                    {province.shortName} 지역에서 재배하기 좋은 작물이에요.
-                  </p>
-                </div>
+          <section className={s.section}>
+            <div className={s.sectionHeader}>
+              <Icon icon={Sprout} size="lg" />
+              <div className={s.sectionHeaderBody}>
+                <h2 className={s.sectionTitle}>추천 작물</h2>
+                <p className={s.sectionDesc}>
+                  {province.shortName}에서 재배하기 좋은 작물이에요.
+                </p>
               </div>
-              <div className={s.cropGrid}>
-                {matchedCrops.map((crop) => (
-                  <div key={crop.id} className={s.cropCardWrap}>
-                    <CropLinkCard
+              {topCrops.length > 0 && (
+                <Link
+                  href={`/regions/compare?stations=${province.representativeStationId}`}
+                  className={s.sectionHeaderCta}
+                >
+                  지역별 작물 비교 →
+                </Link>
+              )}
+            </div>
+
+            {topCrops.length > 0 ? (
+              <>
+                <div className={s.cropGrid}>
+                  {topCrops.map(({ crop, detail, revenueValue, revenueLabel }) => (
+                    <CropRichCard
+                      key={crop.id}
                       cropId={crop.id}
                       name={crop.name}
                       href={`/crops/${crop.id}`}
-                      meta={`${crop.category} · 재배난이도: ${crop.difficulty}`}
+                      meta={`${crop.growingSeason} 재배`}
+                      revenueLabel={revenueLabel}
+                      revenueValue={revenueValue}
+                      revenueMax={revenueMax > 0 ? revenueMax : null}
+                      laborIntensity={detail.income.laborIntensity}
+                      difficulty={crop.difficulty}
+                      source={detail.income.source}
                     />
-                    <Link
-                      href={`/regions/compare?stations=${province.representativeStationId}&crop=${crop.id}`}
-                      className={s.cropCompareLink}
-                    >
-                      다른 지역과 비교 →
-                    </Link>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                {remainingCount > 0 && (
+                  <Link href="/crops" className={s.cropMoreLink}>
+                    {province.shortName}의 다른 작물 {remainingCount}개 더 보기 →
+                  </Link>
+                )}
+              </>
+            ) : (
+              <div className={s.urbanNotice}>
+                <p className={s.urbanNoticeText}>
+                  {province.shortName}은 도시 인프라 중심이라 매칭된 추천 작물이
+                  없어요. 근교 시군구도 둘러보세요.
+                </p>
+                {nearbyRuralSigungus.length > 0 && (
+                  <ul className={s.urbanNoticeList}>
+                    {nearbyRuralSigungus.map((sg) => (
+                      <li key={sg.id}>
+                        <Link
+                          href={`/regions/${province.id}/${sg.id}`}
+                          className={s.urbanNoticeLink}
+                        >
+                          {sg.name} →
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-            </section>
-          )}
+            )}
+          </section>
 
           {/* 이 지역 귀농지원센터 — 정적 */}
           {sidoCenter && (
