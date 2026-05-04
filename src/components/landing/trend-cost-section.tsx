@@ -57,7 +57,11 @@ function useCountUp(target: string, trigger: boolean, duration = 700) {
   useEffect(() => {
     if (!trigger) return;
     const parsed = parseNumeric(target);
-    if (!parsed) { setDisplay(target); return; }
+    if (!parsed) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDisplay(target);
+      return;
+    }
     const start = performance.now();
     const step = (now: number) => {
       const elapsed = now - start;
@@ -145,7 +149,10 @@ export function TrendCostSection() {
   const [showSticky, setShowSticky] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -218,7 +225,10 @@ export function TrendCostSection() {
   const maxPct = Math.max(...trend.chart.items.map((r) => r.pct));
 
   // 카운트업
-  useEffect(() => { setCountTrigger(true); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCountTrigger(true);
+  }, []);
   const heroDisplay = useCountUp(trend.hero.value, countTrigger, 800);
   const stat0Display = useCountUp(trend.stats[0].value, countTrigger, 600);
   const stat1Display = useCountUp(trend.stats[1].value, countTrigger, 650);
