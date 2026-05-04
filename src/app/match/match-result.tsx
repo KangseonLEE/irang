@@ -48,6 +48,19 @@ export function MatchResult({
 }: MatchResultProps) {
   const recommendedPersona = mapDemographicToPersona(ageGroup);
   const showPersonaCta = recommendedPersona.id !== "balanced";
+
+  // 페르소나의 가장 큰 가중치 2개 차원 추출 (사용자에게 어떤 점이 강조되는지 안내)
+  const PERSONA_DIM_LABELS: Record<string, string> = {
+    populationTrend: "인구 추세",
+    farmActivity: "농가 활성도",
+    medical: "의료 인프라",
+    school: "학교 인프라",
+    returnFarm: "귀농 활성도",
+  };
+  const topDims = Object.entries(recommendedPersona.weights)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 2)
+    .map(([k, v]) => `${PERSONA_DIM_LABELS[k]} ${v}%`);
   return (
     <div className={s.page}>
       {/* 유형 카드 — 최상단 */}
@@ -110,6 +123,7 @@ export function MatchResult({
         <Link
           href={`/regions/ranking?persona=${recommendedPersona.id}`}
           className={s.personaCard}
+          title={`${recommendedPersona.audience} · ${recommendedPersona.desc}`}
         >
           <div className={s.personaCardIcon} aria-hidden="true">
             <Users size={20} />
@@ -118,6 +132,9 @@ export function MatchResult({
             <span className={s.personaCardLabel}>당신과 어울리는 페르소나</span>
             <h3 className={s.personaCardTitle}>{recommendedPersona.label}</h3>
             <p className={s.personaCardDesc}>{recommendedPersona.desc}</p>
+            <p className={s.personaCardWeights}>
+              <strong>{topDims.join(" · ")}</strong> 우선 반영
+            </p>
           </div>
           <span className={s.personaCardCta}>
             시군구 추천 <ChevronRight size={16} />

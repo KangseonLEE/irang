@@ -78,6 +78,7 @@ export function PersonaScorePicker({ dimensionScores, sigunguName }: Props) {
             aria-checked={selected === p.id}
             className={`${s.pill} ${selected === p.id ? s.pillActive : ""}`}
             onClick={() => handleSelect(p.id)}
+            title={`${p.audience} · ${p.desc}\n인구 ${p.weights.populationTrend}% · 농가 ${p.weights.farmActivity}% · 의료 ${p.weights.medical}% · 학교 ${p.weights.school}% · 귀농 ${p.weights.returnFarm}%`}
           >
             {p.label}
           </button>

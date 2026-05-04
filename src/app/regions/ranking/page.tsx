@@ -225,6 +225,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
                 role="tab"
                 aria-selected={persona?.id === p.id}
                 className={`${s.dimensionToggleBtn} ${persona?.id === p.id ? s.dimensionToggleActive : ""}`}
+                title={`${p.audience} · ${p.desc}\n인구 ${p.weights.populationTrend}% · 농가 ${p.weights.farmActivity}% · 의료 ${p.weights.medical}% · 학교 ${p.weights.school}% · 귀농 ${p.weights.returnFarm}%`}
               >
                 {p.label}
               </Link>

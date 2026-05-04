@@ -474,6 +474,18 @@
   line-height: var(--lh-snug);
 }
 
+.personaCardWeights {
+  font-size: var(--fs-overline);
+  color: var(--primary);
+  margin: 4px 0 0;
+  line-height: var(--lh-snug);
+  letter-spacing: 0.01em;
+}
+
+.personaCardWeights strong {
+  font-weight: 700;
+}
+
 .personaCardCta {
   display: inline-flex;
   align-items: center;
