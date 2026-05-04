@@ -199,6 +199,34 @@ const DIMENSION_LABEL_MAP = {
   returnFarm: "귀농 활성도",
 } as const;
 
+/**
+ * 진단 demographic 답변(ageGroup) 기반 추천 페르소나 매핑.
+ *
+ * 매핑 로직 (단순 1차):
+ *   - youth (39세 이하)   → farmYouth  (청년 농업 본업 가정)
+ *   - 40s                  → family     (자녀 양육 가구 가정)
+ *   - 50s                  → commuter   (귀촌 직장인 가정)
+ *   - 60plus               → elderRural (노년 귀촌)
+ *   - 답변 없음/매칭 실패  → balanced   (5차원 균등)
+ *
+ * 한계: ageGroup만으로 가족 유무·직업 형태를 정확히 알 수 없음. 향후 track answers
+ * (가족 dimension 점수)와 결합해 더 정교한 매핑 가능 (Phase 6 후보).
+ */
+export function mapDemographicToPersona(ageGroup: string | undefined): Persona {
+  switch (ageGroup) {
+    case "youth":
+      return PERSONA_INDEX.get("farmYouth")!;
+    case "40s":
+      return PERSONA_INDEX.get("family")!;
+    case "50s":
+      return PERSONA_INDEX.get("commuter")!;
+    case "60plus":
+      return PERSONA_INDEX.get("elderRural")!;
+    default:
+      return PERSONA_INDEX.get("balanced")!;
+  }
+}
+
 export function computePersonaScoreDetailed(
   scores: DimensionScoresInput | null,
   persona: Persona,

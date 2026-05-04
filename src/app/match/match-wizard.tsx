@@ -250,6 +250,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
         recommendedPrograms={recommendedPrograms}
         resultId={resultId}
         saveStatus={saveStatus}
+        ageGroup={ageGroup}
         onReset={handleReset}
       />
     );

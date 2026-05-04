@@ -12,6 +12,7 @@ import {
   MapPin,
   RotateCcw,
   FileText,
+  Users,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import type { SupportProgram } from "@/lib/data/programs";
@@ -20,6 +21,7 @@ import { ShareButtons } from "@/components/share/share-buttons";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import type { FarmType } from "@/lib/data/match-questions";
 import { PersonalizedRoadmap } from "@/components/match/personalized-roadmap";
+import { mapDemographicToPersona } from "@/lib/data/personas";
 import type { ScoredProvince, RecommendedCrop } from "@/lib/match-scoring";
 import s from "./match-wizard.module.css";
 
@@ -30,6 +32,7 @@ interface MatchResultProps {
   recommendedPrograms: SupportProgram[];
   resultId: string | null;
   saveStatus: "idle" | "saving" | "saved" | "error";
+  ageGroup?: string;
   onReset: () => void;
 }
 
@@ -40,8 +43,11 @@ export function MatchResult({
   recommendedPrograms,
   resultId,
   saveStatus,
+  ageGroup,
   onReset,
 }: MatchResultProps) {
+  const recommendedPersona = mapDemographicToPersona(ageGroup);
+  const showPersonaCta = recommendedPersona.id !== "balanced";
   return (
     <div className={s.page}>
       {/* 유형 카드 — 최상단 */}
@@ -98,6 +104,26 @@ export function MatchResult({
           ))}
         </div>
       </section>
+
+      {/* 페르소나 추천 — 시군구 추천 deep link */}
+      {showPersonaCta && (
+        <Link
+          href={`/regions/ranking?persona=${recommendedPersona.id}`}
+          className={s.personaCard}
+        >
+          <div className={s.personaCardIcon} aria-hidden="true">
+            <Users size={20} />
+          </div>
+          <div className={s.personaCardBody}>
+            <span className={s.personaCardLabel}>당신과 어울리는 페르소나</span>
+            <h3 className={s.personaCardTitle}>{recommendedPersona.label}</h3>
+            <p className={s.personaCardDesc}>{recommendedPersona.desc}</p>
+          </div>
+          <span className={s.personaCardCta}>
+            시군구 추천 <ChevronRight size={16} />
+          </span>
+        </Link>
+      )}
 
       {/* 추천 작물 */}
       <section className={s.resultSection}>
