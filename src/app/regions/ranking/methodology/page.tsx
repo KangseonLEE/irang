@@ -4,6 +4,7 @@
 // 5차원 각각의 데이터 출처 + 정규화 방식 + 갱신 주기 + 누락 시군구를 명시.
 
 import type { Metadata } from "next";
+import { Fragment } from "react";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
@@ -173,6 +174,48 @@ export default function MethodologyPage() {
           반영해요. 5가지 차원에 페르소나별로 다른 가중치를 곱해서 종합 점수를
           만들어요. 가중치 합은 100이에요.
         </p>
+
+        {/* 가중치 매트릭스 — 한눈에 비교 (Phase 5 / C3) */}
+        <div
+          className={s.weightHeatmap}
+          role="table"
+          aria-label="페르소나별 차원 가중치 비교 매트릭스"
+        >
+          <div className={s.weightHeatmapCorner} aria-hidden="true" />
+          <div className={s.weightHeatmapHeader}>인구</div>
+          <div className={s.weightHeatmapHeader}>농가</div>
+          <div className={s.weightHeatmapHeader}>의료</div>
+          <div className={s.weightHeatmapHeader}>학교</div>
+          <div className={s.weightHeatmapHeader}>귀농</div>
+          {PERSONAS.map((p) => {
+            const cells: Array<[string, number]> = [
+              ["인구 추세", p.weights.populationTrend],
+              ["농가 활성도", p.weights.farmActivity],
+              ["의료 인프라", p.weights.medical],
+              ["학교 인프라", p.weights.school],
+              ["귀농 활성도", p.weights.returnFarm],
+            ];
+            return (
+              <Fragment key={p.id}>
+                <div className={s.weightHeatmapRowLabel}>{p.label}</div>
+                {cells.map(([label, v]) => (
+                  <div
+                    key={label}
+                    className={s.weightCell}
+                    style={{
+                      background: `color-mix(in srgb, var(--primary) ${Math.round(v * 1.8)}%, transparent)`,
+                      color: v >= 30 ? "#fff" : "var(--foreground)",
+                    }}
+                    aria-label={`${p.label} ${label} ${v}%`}
+                  >
+                    {v}
+                  </div>
+                ))}
+              </Fragment>
+            );
+          })}
+        </div>
+
         <div className={s.dimList}>
           {PERSONAS.map((p) => (
             <article key={p.id} className={s.dimCard}>
