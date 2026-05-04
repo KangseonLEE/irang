@@ -19,7 +19,8 @@ import { hasGuDistricts } from "@/lib/data/gus";
 import { getEnrichedHighlights } from "@/lib/data/popular-tags";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
-import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { CropRichCard } from "@/components/crop/crop-rich-card";
+import { convertToPyeongLabel } from "@/lib/format";
 import { getSigunguCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
 import { PROGRAMS } from "@/lib/data/programs";
@@ -92,21 +93,31 @@ export default async function SigunguDetailPage({ params }: PageProps) {
   // 시군구 귀농지원센터 (정적 — 상위 광역 폴백하지 않음)
   const sigunguCenter = getSigunguCenter(sigungu.id);
 
-  // 대표 작물 매칭 (정적 데이터 — API 불필요)
-  const matchedCrops = CROPS.filter((crop) => {
+  // 대표 작물 매칭 + 평수 환산 + 수익 정렬 (시도 페이지와 동일 패턴)
+  const allMatchedCrops = CROPS.flatMap((crop) => {
     const detail = CROP_DETAILS.find((d) => d.id === crop.id);
-    return (
+    if (!detail) return [];
+    const matched =
       sigungu.mainCrops.some(
-        (mc) => crop.name === mc || crop.name.includes(mc)
+        (mc) => crop.name === mc || crop.name.includes(mc),
       ) ||
-      (detail?.majorRegions?.includes(province.name) &&
+      (detail.majorRegions?.includes(province.name) &&
         sigungu.mainCrops.some(
           (mc) =>
             detail.majorRegions?.some((r) => r.includes(mc)) ||
-            crop.name.includes(mc)
-        ))
-    );
-  });
+            crop.name.includes(mc),
+        ));
+    if (!matched) return [];
+    const { value, label } = convertToPyeongLabel(detail.income.revenueRange);
+    return [{ crop, detail, revenueValue: value, revenueLabel: label }];
+  }).sort((a, b) => (b.revenueValue ?? 0) - (a.revenueValue ?? 0));
+
+  const topCrops = allMatchedCrops.slice(0, 6);
+  const remainingCount = allMatchedCrops.length - topCrops.length;
+  const cropRevenueMax = topCrops.reduce(
+    (max, c) => (c.revenueValue !== null ? Math.max(max, c.revenueValue) : max),
+    0,
+  );
 
   const year = new Date().getFullYear();
 
@@ -181,29 +192,51 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         />
       )}
 
-      {/* ── 대표 작물 (정적 매칭) ── */}
+      {/* ── 대표 작물 (시도 페이지와 동일한 CropRichCard 패턴) ── */}
       <section className={s.section} aria-label="대표 작물">
         <div className={s.sectionHeader}>
           <Icon icon={Sprout} size="lg" />
-          <div>
+          <div className={s.sectionHeaderBody}>
             <h2 className={s.sectionTitle}>대표 작물</h2>
             <p className={s.sectionDesc}>
               {sigungu.name}에서 주로 재배되는 작물이에요.
             </p>
           </div>
+          {topCrops.length > 0 && (
+            <Link
+              href={`/regions/compare?stations=${province.representativeStationId}`}
+              className={s.sectionHeaderCta}
+            >
+              지역별 작물 비교 →
+            </Link>
+          )}
         </div>
-        {matchedCrops.length > 0 ? (
-          <div className={s.cropGrid}>
-            {matchedCrops.map((crop) => (
-              <CropLinkCard
-                key={crop.id}
-                cropId={crop.id}
-                name={crop.name}
-                href={`/crops/${crop.id}`}
-                meta={`${crop.category} · 재배난이도: ${crop.difficulty}`}
-              />
-            ))}
-          </div>
+
+        {topCrops.length > 0 ? (
+          <>
+            <div className={s.cropGrid}>
+              {topCrops.map(({ crop, detail, revenueValue, revenueLabel }) => (
+                <CropRichCard
+                  key={crop.id}
+                  cropId={crop.id}
+                  name={crop.name}
+                  href={`/crops/${crop.id}`}
+                  meta={`${crop.growingSeason} 재배`}
+                  revenueLabel={revenueLabel}
+                  revenueValue={revenueValue}
+                  revenueMax={cropRevenueMax > 0 ? cropRevenueMax : null}
+                  laborIntensity={detail.income.laborIntensity}
+                  difficulty={crop.difficulty}
+                  source={detail.income.source}
+                />
+              ))}
+            </div>
+            {remainingCount > 0 && (
+              <Link href="/crops" className={s.cropMoreLink}>
+                {sigungu.name}의 다른 작물 {remainingCount}개 더 보기 →
+              </Link>
+            )}
+          </>
         ) : (
           <div className={s.mainCropsList}>
             {sigungu.mainCrops.map((crop) => (
