@@ -15,7 +15,36 @@ import {
   type FarmStat,
 } from "@/lib/data/farms";
 import { INTEGRATED_CITY_GU_CODES } from "@/lib/data/integrated-cities";
+import {
+  POPULATION_TREND_SIGUNGU,
+  POPULATION_TREND_YEARS,
+} from "@/lib/data/population-trend";
 import { FETCH_TIMEOUT } from "./_build-phase";
+
+/**
+ * 시군구 인구 정적 폴백 인덱스 (POPULATION_TREND 최신 연도 = 2022).
+ * SGIS 단건 호출이 -100 반환하는 통합시·일부 시군구를 위한 보호 장치.
+ * 시도 폴백되기 전에 우선 사용 — 시도 인구가 시군구로 잘못 표시되는 사고 방지.
+ */
+const _SIGUNGU_FALLBACK_YEAR =
+  POPULATION_TREND_YEARS[POPULATION_TREND_YEARS.length - 1];
+const SIGUNGU_POP_STATIC_INDEX = new Map(
+  POPULATION_TREND_SIGUNGU.filter(
+    (p) => p.year === _SIGUNGU_FALLBACK_YEAR,
+  ).map((p) => [p.sgisCode, p]),
+);
+
+function getSigunguStaticPop(sgisCode: string): PopulationData | null {
+  const trend = SIGUNGU_POP_STATIC_INDEX.get(sgisCode);
+  if (!trend) return null;
+  return {
+    regionCode: sgisCode,
+    regionName: trend.name,
+    population: trend.population,
+    householdCount: trend.householdCount,
+    agingRate: trend.agingRate,
+  };
+}
 
 const AUTH_URL = "https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json";
 const POPULATION_URL = "https://sgisapi.mods.go.kr/OpenAPI3/stats/population.json";
@@ -178,15 +207,20 @@ export async function fetchSigunguPopulationData(
   // SGIS 통계는 보통 1~2년 지연 — 현재 연도 - 2를 안전한 최신으로 사용
   const year = new Date().getFullYear() - 2;
   const accessToken = await getAccessToken();
-  if (!accessToken) return null;
+
+  // 토큰 발급 실패 → 정적 폴백 즉시 반환 (시도 폴백 안 거침)
+  if (!accessToken) return getSigunguStaticPop(sgisCode);
 
   // 구 분할 시: 상위 시/도에서 low_search=1로 구 데이터를 받아 합산
   const guCodes = GU_CODES_MAP[sgisCode];
   if (guCodes) {
-    return fetchMultiGuPopulation(accessToken, sgisCode, guCodes, year);
+    const result = await fetchMultiGuPopulation(accessToken, sgisCode, guCodes, year);
+    return result ?? getSigunguStaticPop(sgisCode);
   }
 
-  return fetchFromSGIS(accessToken, sgisCode, year);
+  // SGIS 단건 호출 실패 시 정적 폴백 (시도 폴백 안 거침 — 잘못된 인구 표시 방지)
+  const result = await fetchFromSGIS(accessToken, sgisCode, year);
+  return result ?? getSigunguStaticPop(sgisCode);
 }
 
 /**
