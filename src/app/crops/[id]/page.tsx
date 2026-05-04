@@ -307,7 +307,7 @@ export default async function CropDetailPage({
             </div>
           </div>
 
-          {/* Quick Stats — 요약 프로필 카드 */}
+          {/* Quick Stats — 요약 프로필 카드 (모바일에서 sticky 헤더 없으니 더 상세히) */}
           <div className={s.quickStats}>
             <div className={s.statCard}>
               <Icon icon={Gauge} size="lg" color="success" />
@@ -330,6 +330,33 @@ export default async function CropDetailPage({
                 <p className={s.statValue}><RevenueText text={parseRevenueRange(detail.income.revenueRange).main} /></p>
               </div>
             </div>
+            {detail.income.laborIntensity && (
+              <div className={s.statCard}>
+                <Icon icon={Zap} size="lg" color="warning" />
+                <div>
+                  <p className={s.statLabel}>노동 강도</p>
+                  <p className={s.statValue}>{detail.income.laborIntensity}</p>
+                </div>
+              </div>
+            )}
+            {detail.income.minScale && (
+              <div className={s.statCard}>
+                <Icon icon={Maximize2} size="lg" color="info" />
+                <div>
+                  <p className={s.statLabel}>권장 규모</p>
+                  <p className={s.statValue}>{detail.income.minScale}</p>
+                </div>
+              </div>
+            )}
+            {detail.income.annualWorkdays && (
+              <div className={s.statCard}>
+                <Icon icon={Clock} size="lg" color="success" />
+                <div>
+                  <p className={s.statLabel}>연 노동일수</p>
+                  <p className={s.statValue}>{detail.income.annualWorkdays}</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>

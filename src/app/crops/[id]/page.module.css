@@ -254,7 +254,7 @@
 /* Quick Stats — 요약 프로필 카드 (네이버 지식백과 패턴) */
 .quickStats {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
@@ -310,22 +310,31 @@
 }
 
 /* ── Sticky 작물 헤더 (작물 정보 + 탭 통합) ── */
+/* 모바일(<768px): 정적 배치 — 사용자 스크롤 시 hero 정보로 충분, sticky 부담 X */
 .stickyHeader {
-  position: sticky;
-  top: var(--h-header, 3.5rem);
-  z-index: var(--z-sticky);
+  position: static;
   margin: 16px 0 24px;
-  background: color-mix(in srgb, var(--background, #fff) 96%, transparent);
+  background: var(--card, #fff);
   border: 1px solid var(--border);
   border-radius: 12px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   overflow: hidden;
-  transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-:global(html[data-header-hidden]) .stickyHeader {
-  top: 0;
+/* 태블릿·데스크탑(768px+): sticky 활성화 */
+@media (min-width: 768px) {
+  .stickyHeader {
+    position: sticky;
+    top: var(--h-header, 3.5rem);
+    z-index: var(--z-sticky);
+    background: color-mix(in srgb, var(--background, #fff) 96%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  :global(html[data-header-hidden]) .stickyHeader {
+    top: 0;
+  }
 }
 
 /* 위 줄 — 작물 정보 */
@@ -1765,41 +1774,13 @@
   outline-offset: 2px;
 }
 
-/* ── 모바일 하단 바 ── */
+/* ── 모바일·태블릿 하단 바 — 모든 사이즈에서 fixed 해제, 푸터 위 자연 흐름 ── */
 .mobileBar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: calc(3.5rem + env(safe-area-inset-bottom));
-  z-index: 40;
+  position: static;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
-  background: color-mix(in srgb, var(--background, #fff) 96%, transparent);
-  border-top: 1px solid var(--border, #e5e7eb);
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-/* 태블릿(768~1023px): fixed 해제. 푸터 위에 자연 흐름으로 배치 */
-@media (min-width: 768px) {
-  .mobileBar {
-    position: static;
-    margin-top: 32px;
-    background: transparent;
-    border-top: none;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    bottom: auto;
-  }
+  margin-top: 32px;
 }
 
 @media (min-width: 1024px) {
