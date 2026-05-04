@@ -72,6 +72,38 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
     };
   }, [open]);
 
+  // iOS Safari URL bar 변동 대응 — visualViewport 기반 동적 max-height
+  // dvh가 일부 iOS 버전에서 정확하지 않은 문제를 우회
+  useEffect(() => {
+    if (!open) return;
+
+    const updateMaxHeight = () => {
+      const panel = panelRef.current;
+      if (!panel) return;
+      const vv = window.visualViewport;
+      const height = vv?.height ?? window.innerHeight;
+      const isMobile = window.matchMedia("(max-width: 639px)").matches;
+      const ratio = isMobile ? 0.9 : 0.8;
+      panel.style.maxHeight = `${Math.floor(height * ratio)}px`;
+    };
+
+    updateMaxHeight();
+
+    const vv = window.visualViewport;
+    vv?.addEventListener("resize", updateMaxHeight);
+    vv?.addEventListener("scroll", updateMaxHeight);
+    window.addEventListener("orientationchange", updateMaxHeight);
+
+    return () => {
+      vv?.removeEventListener("resize", updateMaxHeight);
+      vv?.removeEventListener("scroll", updateMaxHeight);
+      window.removeEventListener("orientationchange", updateMaxHeight);
+      if (panelRef.current) {
+        panelRef.current.style.maxHeight = "";
+      }
+    };
+  }, [open]);
+
   // 포커스 관리: 열릴 때 패널로, 닫힐 때 이전 요소로 복원
   useEffect(() => {
     if (!open) return;
