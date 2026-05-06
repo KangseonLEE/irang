@@ -14,6 +14,7 @@
  */
 
 import { NextResponse, type NextRequest } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 
 class SentryTestError extends Error {
   constructor(message: string) {
@@ -26,15 +27,28 @@ export async function GET(request: NextRequest) {
   const type = request.nextUrl.searchParams.get("type") || "api";
   const timestamp = new Date().toISOString();
 
+  // 명시적 캡처 — SDK 로드 여부 진단용
+  if (type === "explicit") {
+    const error = new SentryTestError(
+      `[Sentry test] explicit captureException at ${timestamp}`,
+    );
+    const eventId = Sentry.captureException(error);
+    await Sentry.flush(2000);
+    return NextResponse.json({
+      ok: true,
+      sentry_event_id: eventId,
+      note: "If sentry_event_id is non-empty string, SDK loaded. Check Sentry dashboard.",
+      timestamp,
+    });
+  }
+
   if (type === "server") {
-    // Server-side execution context — sentry.server.config.ts 캡처 대상
     throw new SentryTestError(
       `[Sentry test] server-side error fired at ${timestamp}`,
     );
   }
 
   if (type === "api") {
-    // Route Handler 자체에서 throw — sentry.server.config.ts 캡처 대상
     throw new SentryTestError(
       `[Sentry test] api route error fired at ${timestamp}`,
     );
@@ -42,7 +56,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     ok: true,
-    note: "Use ?type=server or ?type=api to trigger a test error",
+    note: "Use ?type=api|server|explicit",
     timestamp,
   });
 }
