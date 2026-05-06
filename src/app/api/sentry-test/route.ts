@@ -41,6 +41,55 @@ export async function GET(request: NextRequest) {
     const eventId = Sentry.captureException(error);
     const flushed = await Sentry.flush(5000);
 
+    // === 추가 진단: 동일 Vercel function에서 직접 Sentry endpoint POST ===
+    // 이게 작동하면 네트워크 egress OK → SDK transport 버그 확정.
+    // 이게 실패하면 Vercel egress 차단 → 인프라 이슈.
+    const dsnUrl = dsn ? new URL(dsn) : null;
+    const dsnKey = dsnUrl?.username || "";
+    const projectId = dsnUrl?.pathname.replace(/^\//, "") || "";
+    const ingestHost = dsnUrl?.host || "";
+
+    let directFetchResult: {
+      attempted: boolean;
+      status?: number;
+      body?: string;
+      error?: string;
+    } = { attempted: false };
+
+    if (dsnKey && projectId && ingestHost) {
+      try {
+        const directUrl = `https://${ingestHost}/api/${projectId}/store/?sentry_version=7&sentry_key=${dsnKey}&sentry_client=manual-fetch-from-vercel/1.0`;
+        const directResp = await fetch(directUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            timestamp: Math.floor(Date.now() / 1000),
+            platform: "javascript",
+            level: "error",
+            environment: "production",
+            transaction: "/api/sentry-test (direct fetch from Vercel fn)",
+            exception: {
+              values: [{
+                type: "DirectFetchTestError",
+                value: `Direct fetch from Vercel function at ${timestamp}`,
+                stacktrace: { frames: [{ filename: "vercel-fn.js", function: "directFetch", lineno: 1 }] },
+              }],
+            },
+          }),
+        });
+        directFetchResult = {
+          attempted: true,
+          status: directResp.status,
+          body: (await directResp.text()).slice(0, 200),
+        };
+      } catch (e) {
+        directFetchResult = {
+          attempted: true,
+          error: e instanceof Error ? e.message : String(e),
+        };
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       diagnostics: {
@@ -53,8 +102,10 @@ export async function GET(request: NextRequest) {
         next_runtime: process.env.NEXT_RUNTIME,
         sentry_event_id: eventId,
         flushed_successfully: flushed,
+        // === 핵심 진단 ===
+        direct_fetch: directFetchResult,
       },
-      note: "If flushed=true and dsn_host set, event SHOULD be in Sentry. If flushed=false, send failed.",
+      note: "direct_fetch.status=200 + flushed=true 인데 Sentry Stats만 0 → SDK transport 버그 확정",
       timestamp,
     });
   }
