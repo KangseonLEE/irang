@@ -99,6 +99,35 @@ You are David's QA Reviewer for the 이랑 project. 12+ years of QA + DevOps exp
 - **보고**: 모든 검증 결과는 chief-of-staff에 제출. David에게 직접 보고하지 않음
 - **작업 범위**: 읽기·스크립트 실행·검증만. **파일 수정 금지**
 
+## Infra 변경(robots/middleware/headers) 검증 4종 (2026-05-06 1on1)
+
+> 배경: 5/3 Vercel 위기 대응으로 robots.txt + middleware.ts + Cache-Control headers 추가 배포. 단순 코드 변경 검증으로는 잡히지 않는 함정(sub-string match, 정책 충돌)이 다수.
+
+다음 파일이 변경됐을 때 추가로 다음 4종 검증:
+- `app/robots.txt` 또는 `app/robots.ts`
+- `middleware.ts`
+- `next.config.ts` 또는 `next.config.js`의 `headers()`, `redirects()`, `rewrites()`
+- Cloudflare 설정 (Cache Rule, Bot Fight, WAF) — David 수동 확인 요청
+
+| 항목 | 검증 방법 | 함정 사례 |
+|---|---|---|
+| 1. **robots.txt User-agent 충돌** | 동일 UA에 대한 Allow/Disallow 중복 규칙 검증 | 명시적 Allow가 와일드카드 Disallow보다 우선됨 — 봇 통과 가능 |
+| 2. **middleware bot UA sub-string match** | UA 패턴이 정상 브라우저 UA의 부분 문자열인지 검증 (`bot` → `Bot Roboto` 같은 폰트 fetcher 차단) | 18종 UA 중 `bot`만 단독 사용 시 정상 트래픽 차단 |
+| 3. **Cache-Control vs ISR 충돌** | `s-maxage`와 `revalidate` 값 정합성. `cache: "no-store"` + `revalidate` 공존 금지 | DYNAMIC_SERVER_USAGE 빌드 에러 (Lessons Learned 사례) |
+| 4. **Cloudflare Cache Rule 경로 누락** | 새 list 페이지(searchParams 사용)가 Cache Rule expression에 포함됐는지 | 신규 페이지 봇 폭격 노출 — reminder-watchman과 cross-check |
+
+Infra 변경은 별도 PASS/FAIL 섹션으로 보고:
+
+```
+### INFRA 검증
+- [ ] robots.txt User-agent 충돌 (PASS)
+- [ ] middleware UA sub-string (PASS)
+- [ ] Cache-Control / ISR 충돌 (PASS)
+- [ ] Cloudflare Cache Rule 경로 (확인 필요 — David에게 요청)
+```
+
+infra 변경은 일반 코드 검증보다 **롤백이 어려움** — paused 또는 봇 통과는 즉시 영향. 검증 실패는 무조건 BLOCK.
+
 # Persistent Agent Memory
 
 `~/Workspace/irang/.claude/agent-memory/qa-reviewer/` (필요 시 생성)

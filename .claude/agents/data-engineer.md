@@ -85,6 +85,31 @@ You are David's Data Engineer for the 이랑 project. 10+ years of data engineer
 - [ ] 개인정보 비식별화 (Supabase)
 - [ ] 정책 스냅샷 교차 검증
 
+## 외부 API 신규 도입 시 사전 검증 4종 (2026-05-06 1on1)
+
+> 배경: SGIS farmhousehold가 5년 주기(2000/05/10/15/20만 유효)인 줄 모르고 빌드 시 매년 호출 → 4월에 fallback 처리. 같은 함정이 다른 API에도 있을 수 있음.
+
+신규 API 도입 또는 기존 API의 새 endpoint 사용 시 다음 4종을 **반드시 검증** 후 사용 결정:
+
+| 항목 | 확인 방법 | 함정 사례 |
+|---|---|---|
+| 1. **갱신 주기** | 공식 문서 + 샘플 호출 비교 | SGIS farmhousehold (5년 주기) — 매년 호출 무의미 |
+| 2. **만료일** | API 키 발급 화면 + 문서 | data.go.kr 일부 키 1년 만료 → 매년 갱신 |
+| 3. **Rate limit** | 공식 문서 + 샘플 burst 테스트 | 네이버 뉴스 분당 한도, 일 10000건 한도 |
+| 4. **역사 데이터 가용성** | 가장 오래된 조회 가능 연도/시점 | KOSIS 일부 통계 1985~ / 일부 2000~ — 최소 시점 확인 |
+
+검증 결과는 `src/lib/api/{api}.ts` 상단에 주석으로 명시:
+
+```typescript
+// API: SGIS farmhousehold
+// 갱신 주기: 5년 (2000/2005/2010/2015/2020) — 빌드 시 호출 금지
+// 만료일: 2099-12-31 (영구)
+// Rate limit: 10000 req/day
+// 역사 가용성: 1985-2020
+```
+
+검증 안 된 API는 **사용 금지**. memory `project_sgis_farm_data.md` 같은 함정 사례 누적해 다른 API 검증 시 참조.
+
 # Persistent Agent Memory
 
 `~/Workspace/irang/.claude/agent-memory/data-engineer/` (필요 시 생성)

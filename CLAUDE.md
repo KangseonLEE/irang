@@ -17,7 +17,7 @@
 | "페이지 만들어줘", "컴포넌트 추가", "UI 수정", "CSS 조정" | `frontend-engineer` 에이전트 | Next.js 16 + CSS Modules 구현 |
 | "API 연동", "데이터 갱신", "Supabase", "DB 스키마", "공공데이터" | `data-engineer` 에이전트 | 8 API · 폴백 · 마이그레이션 |
 | "QA 해줘", "배포 전 점검", "Lighthouse", "린트 체크" | `qa-reviewer` 에이전트 | 배포 전 게이트 |
-| "놓친 거 확인", "상시 점검", "stale 체크" | `reminder-watchman` 에이전트 | uncommit·타입·빌드·API 상시 |
+| "놓친 거 확인", "상시 점검", "stale 체크", "Vercel 한도 점검", "Cloudflare 차단 점검" | `reminder-watchman` 에이전트 | uncommit·타입·빌드·API·Vercel/CF 한도(주 2회) 상시 |
 | "커밋 전 체크", "체크리스트 확인" | `.claude/skills/pre-commit-check/SKILL.md` | A~H 자동 검증 |
 | "정책 스냅샷", "지원사업 갱신" | `.claude/skills/policy-snapshot-sync/SKILL.md` | drift 감지 |
 | "API 확인", "환경변수 점검" | `.claude/skills/api-health-check/SKILL.md` | 8 API + env + Sentry |
@@ -47,6 +47,16 @@
 - 기획 SSOT: `/Users/igangseon/David_agit/10.projects/이랑/` (19개 활성 + 21개 _archive, 허브 `이랑.md`)
 - 코드 변경이 기획에 영향 → chief-of-staff가 허브 Progress Log 갱신 제안
 - 기획 변경이 코드에 영향 → David_agit-CoS로부터 위임 요청 수신
+
+### 0-5. 하네스 변경 이력
+
+| 날짜 | 변경 내용 | 대상 | 사유 |
+|------|----------|------|------|
+| 2026-05-06 | Vercel·Cloudflare 리소스 한도 감시 추가 (50/70/85% 임계, 주 2회 화·금) | agents/reminder-watchman.md | 1on1 — 5/3~5/4 Vercel paused 사건 watchman 누락 사례 |
+| 2026-05-06 | 영역 누락 발견 시 fallback 프로토콜 추가 (5단계: 즉시 대응 → 영역 판정 → 알림 → 1on1 권고 → 이력화) | agents/chief-of-staff.md | 1on1 — Vercel 위기 직접 처리 후 watchman 영역 누락 미보강 |
+| 2026-05-06 | 외부 API 신규 도입 시 사전 검증 4종 추가 (주기·만료일·Rate limit·역사 가용성) | agents/data-engineer.md | 1on1 — SGIS farmhousehold 5년 주기 함정 사례 |
+| 2026-05-06 | 모바일 변경 시 사전 점검 5종 추가 (vh, sticky, hover, viewport meta, safe-area-inset) | agents/frontend-engineer.md | 1on1 — iOS Safari URL bar 모달 잘림 사후 발견 사례 |
+| 2026-05-06 | Infra 변경(robots/middleware/headers) 검증 4종 추가 | agents/qa-reviewer.md | 1on1 — Vercel 위기 대응 infra 변경 검증 게이트 부재 |
 
 ---
 
