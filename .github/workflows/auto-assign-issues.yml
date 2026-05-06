@@ -1,0 +1,44 @@
+name: Auto-assign new issues
+
+# 모든 새 이슈를 KangseonLEE에 자동 assign.
+# 목적: Sentry → GitHub 자동 생성 이슈가 assignee 없이 만들어져
+#       GitHub 모바일 앱 푸시 알림이 안 오는 문제 해결.
+#       "할당됨" 카테고리에 매칭되어 iPhone에 즉시 푸시.
+#
+# Sentry Free 플랜에서 "Sync Sentry Assignment to GitHub" 기능이
+# 잠겨있어 (Business 플랜 전용) 우회 — GitHub Actions로 동등한 효과.
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  auto-assign:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Assign to repo owner
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = context.issue.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // 이미 assignee가 있으면 skip (수동 생성 시 다른 assignee 보호)
+            const { data: issue } = await github.rest.issues.get({
+              owner, repo, issue_number: issueNumber,
+            });
+
+            if (issue.assignees && issue.assignees.length > 0) {
+              console.log(`Issue #${issueNumber} already has assignees, skipping.`);
+              return;
+            }
+
+            await github.rest.issues.addAssignees({
+              owner, repo, issue_number: issueNumber,
+              assignees: ['KangseonLEE'],
+            });
+
+            console.log(`Auto-assigned issue #${issueNumber} to KangseonLEE`);
