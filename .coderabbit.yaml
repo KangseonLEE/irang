@@ -1,0 +1,104 @@
+# CodeRabbit AI PR Review Configuration
+# https://docs.coderabbit.ai/getting-started/configure-coderabbit
+#
+# 이랑 프로젝트 컨텍스트:
+# - Solo 개발자 (David)
+# - Next.js 16 + TypeScript + CSS Modules + Vercel Hobby
+# - 직접 main push 위주 (PR 거의 안 씀) → push 기반 review도 활용
+# - 5/3-5/4 Vercel paused 위기 학습 → 인프라 변경 review 강화
+
+language: ko-KR
+
+reviews:
+  # PR + commit (push to main 포함) 모두 review
+  profile: chill  # chill | assertive — solo dev에 chill 적합 (사소한 nitpick 줄임)
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false  # 시 작성 비활성 (불필요)
+  review_status: true
+  collapse_walkthrough: true
+
+  # Path별 review 강도
+  path_filters:
+    - "!node_modules/**"
+    - "!.next/**"
+    - "!public/images/**"  # codex-image 결과물은 review 불필요
+    - "!*.lock"
+    - "!*.snap"
+
+  # 자동 review 트리거
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+    base_branches:
+      - main
+
+  # path별 추가 instructions
+  path_instructions:
+    - path: "middleware.ts"
+      instructions: |
+        Vercel paused 위기 (5/4) 회상 — middleware는 모든 요청 통과.
+        다음 사항 특별히 점검:
+        - 봇 UA 패턴 정규식이 정상 브라우저 UA와 sub-string match로 충돌 안 하는지
+        - NextResponse.redirect()는 308이고 cleaned URL이 무한 redirect 안 일으키는지
+        - 정적 자산 매처 제외 (이미지·폰트) 누락 없는지
+
+    - path: "src/app/**/*.tsx"
+      instructions: |
+        다음을 반드시 검토:
+        - .claude/rules/checklist.md A~H 8개 체크리스트 위반
+        - .claude/rules/copywriting.md 카피 톤 (~합니다 금지, ~이에요/~세요)
+        - 공통 컴포넌트 재사용 (PageHeader, FilterBar, StatusBadge 등)
+        - Server/Client 경계 정확성
+
+    - path: "src/lib/api/**/*.ts"
+      instructions: |
+        외부 API 호출 검토:
+        - signal: AbortSignal.timeout(10_000) 누락 없는지
+        - 폴백 데이터 .catch() 패턴 적용
+        - 당해년도 동적 조회 (new Date().getFullYear()), 하드코딩 금지
+
+    - path: "src/app/api/**/*.ts"
+      instructions: |
+        Route Handler 검토:
+        - Sentry.captureException 적용 (자동 instrumentation 미작동 우회)
+        - searchParams 사용 시 enum 검증 (lib/search-params/normalize.ts 활용)
+        - cron endpoint는 CRON_SECRET 검증
+
+    - path: "next.config.ts"
+      instructions: |
+        infra 변경 검토:
+        - Cache-Control headers는 dynamic SSR에선 무시됨 (memory 함정 참조)
+        - withSentryConfig 옵션 변경 시 release tracking 영향 확인
+
+    - path: ".github/workflows/**"
+      instructions: |
+        GitHub Actions 검토:
+        - permissions 명시
+        - secrets 노출 금지
+        - timeout 설정
+
+  # 무시할 commit (테스트, 진단 등)
+  tools:
+    languagetool:
+      enabled: false  # 한국어 grammar는 자동 패스
+    markdownlint:
+      enabled: true
+    biome:
+      enabled: true
+
+# 채팅 비활성 (불필요한 알림 줄이기)
+chat:
+  auto_reply: false
+
+# 지식 베이스 (이랑 컨벤션 명시)
+knowledge_base:
+  learnings:
+    scope: local
+
+  issues:
+    scope: local
+
+# 알림 — 푸시 채널과 통합
+early_access: false
