@@ -85,6 +85,41 @@
   }
 }
 
+/* 운영 정보 — 푸터 brand 영역 */
+.brandContact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-caption);
+  color: var(--footer-subtle);
+}
+
+@media (min-width: 768px) {
+  .brandContact {
+    margin-top: 16px;
+  }
+}
+
+.brandContactItem {
+  color: var(--footer-muted);
+}
+
+.brandContactLink {
+  color: var(--footer-subtle);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+@media (hover: hover) {
+  .brandContactLink:hover {
+    color: var(--footer-heading);
+    text-decoration: underline;
+  }
+}
+
 /* Section heading */
 .sectionTitle {
   font-size: var(--fs-caption);

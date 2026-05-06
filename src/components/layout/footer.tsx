@@ -27,13 +27,29 @@ export function Footer() {
     <footer className={s.footer}>
       <div className={s.inner}>
         <div className={s.grid}>
-          {/* Brand */}
+          {/* Brand + 운영 정보 */}
           <div>
             <h3 className={s.brandTitle}>이랑</h3>
             <p className={s.brandSlogan}>귀농을 꿈꾸는 모든 이들의 시작점</p>
-            <p className={s.brandEmail}>
-              contact@irang.app
-            </p>
+            <ul className={s.brandContact}>
+              <li className={s.brandContactItem}>대표 이강선</li>
+              <li>
+                <a
+                  href="mailto:loyal3270@gmail.com"
+                  className={s.brandContactLink}
+                >
+                  loyal3270@gmail.com
+                </a>
+              </li>
+              <li>
+                <a
+                  href="tel:010-2203-3396"
+                  className={s.brandContactLink}
+                >
+                  010-2203-3396
+                </a>
+              </li>
+            </ul>
           </div>
 
           {/* Service Links */}
