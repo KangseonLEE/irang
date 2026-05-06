@@ -40,6 +40,14 @@ import { fetchSchoolCounts } from "@/lib/api/education";
 import { fetchUnsplashPhoto } from "@/lib/api/unsplash";
 import s from "./page.module.css";
 
+/** codex-image로 생성된 로컬 일러스트가 있는 시도 ID (17개 모두 — 2026-05-06) */
+const LOCAL_ILLUSTRATIONS = new Set<string>([
+  "seoul", "incheon", "gyeonggi", "gangwon", "chungbuk",
+  "sejong", "daejeon", "chungnam", "jeonbuk", "gwangju",
+  "jeonnam", "busan", "daegu", "ulsan", "gyeongbuk",
+  "gyeongnam", "jeju",
+]);
+
 interface RegionAsyncDataProps {
   province: Province;
   sigungus: Sigungu[];
@@ -144,8 +152,19 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
 
   return (
     <>
-      {/* Hero Banner (API: Unsplash) */}
-      {photo && (
+      {/* Hero Banner — 로컬 일러스트(codex-image 생성) 우선, 없으면 Unsplash 폴백 */}
+      {LOCAL_ILLUSTRATIONS.has(province.id) ? (
+        <div className={s.heroBanner}>
+          <Image
+            src={`/images/regions/${province.id}.png`}
+            alt={`${province.name} 풍경 일러스트`}
+            fill
+            sizes="(max-width: 768px) 100vw, 1280px"
+            style={{ objectFit: "cover" }}
+            priority
+          />
+        </div>
+      ) : photo && (
         <div className={s.heroBanner}>
           <Image
             src={photo.url}
