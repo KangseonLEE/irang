@@ -13,9 +13,7 @@ import {
   Search,
   MousePointerClick,
   Target,
-  User,
   Mail,
-  Phone,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon as IconWrap } from "@/components/ui/icon";
@@ -241,17 +239,9 @@ export default function AboutPage() {
         <h2 className={s.sectionTitle}>운영 정보</h2>
         <p className={s.sectionDesc}>
           이랑은 개인이 운영하는 비영리 귀농 정보 큐레이션 서비스예요.
+          문의는 이메일로 보내주세요.
         </p>
         <div className={s.operatorGrid}>
-          <div className={s.operatorItem}>
-            <div className={s.operatorIcon}>
-              <User size={18} strokeWidth={1.75} />
-            </div>
-            <div className={s.operatorBody}>
-              <span className={s.operatorLabel}>대표자</span>
-              <span className={s.operatorValue}>이강선</span>
-            </div>
-          </div>
           <a href="mailto:loyal3270@gmail.com" className={s.operatorItem}>
             <div className={s.operatorIcon}>
               <Mail size={18} strokeWidth={1.75} />
@@ -259,15 +249,6 @@ export default function AboutPage() {
             <div className={s.operatorBody}>
               <span className={s.operatorLabel}>이메일</span>
               <span className={s.operatorValue}>loyal3270@gmail.com</span>
-            </div>
-          </a>
-          <a href="tel:010-2203-3396" className={s.operatorItem}>
-            <div className={s.operatorIcon}>
-              <Phone size={18} strokeWidth={1.75} />
-            </div>
-            <div className={s.operatorBody}>
-              <span className={s.operatorLabel}>연락처</span>
-              <span className={s.operatorValue}>010-2203-3396</span>
             </div>
           </a>
         </div>
