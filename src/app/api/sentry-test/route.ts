@@ -90,6 +90,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // DSN 디테일 파싱 — Vercel과 local 차이 확인용
+    const dsnDetails = dsnUrl ? {
+      protocol: dsnUrl.protocol,
+      host: dsnUrl.host,
+      pathname: dsnUrl.pathname,
+      username_first6: dsnUrl.username.slice(0, 6),
+      username_length: dsnUrl.username.length,
+      project_id_parsed: projectId,
+    } : null;
+
     return NextResponse.json({
       ok: true,
       diagnostics: {
@@ -104,6 +114,7 @@ export async function GET(request: NextRequest) {
         flushed_successfully: flushed,
         // === 핵심 진단 ===
         direct_fetch: directFetchResult,
+        dsn_details: dsnDetails,
       },
       note: "direct_fetch.status=200 + flushed=true 인데 Sentry Stats만 0 → SDK transport 버그 확정",
       timestamp,
