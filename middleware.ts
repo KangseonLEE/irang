@@ -2,17 +2,28 @@
  * Next.js Middleware
  *
  * 1) AI 학습 크롤러 강제 차단 (403) — robots.txt를 무시하는 봇 대응
- * 2) /admin/* 인증 가드 — admin_token 쿠키 검증
+ * 2) list 페이지(/events 등) searchParams 정규화 — 봇 abuse query 308 redirect
+ * 3) /admin/* 인증 가드 — admin_token 쿠키 검증
  *
  * matcher 확장으로 정적 자산을 제외한 모든 요청에 적용.
  * 봇 차단이 우선이므로 _next/static, 이미지, favicon 등은 매처에서 제외해
  * middleware 호출 비용을 최소화한다.
+ *
+ * 주의 (2026-05-06): Next.js 16의 Server Component `redirect()`는 HTTP 307이
+ * 아니라 meta refresh 태그만 삽입함 → 봇은 무시. 따라서 봇 abuse 차단은
+ * 반드시 middleware의 NextResponse.redirect()로 구현해야 효과 있음.
  */
 
 import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE_NAME, verifyToken } from "@/lib/admin/auth";
+import {
+  LIST_PAGE_NORMALIZE_OPTIONS,
+  normalizeSearchParams,
+} from "@/lib/search-params/normalize";
 
 const PUBLIC_ADMIN_PATHS = ["/admin/login", "/admin/api/auth"];
+
+const NORMALIZE_PATHS = new Set(Object.keys(LIST_PAGE_NORMALIZE_OPTIONS));
 
 /**
  * AI 학습 크롤러 user-agent 패턴.
@@ -60,7 +71,25 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  // 2) /admin/* 인증 가드
+  // 2) list 페이지 searchParams 정규화 — 알 수 없는 param/값은 cleaned URL로 308 redirect
+  // 봇이 random query (?xyz=abc) 보내면 cache pollution + Vercel Function 호출 폭증.
+  // canonical URL만 통과시켜 cache hit률↑, abuse 차단.
+  if (NORMALIZE_PATHS.has(pathname)) {
+    const options = LIST_PAGE_NORMALIZE_OPTIONS[pathname];
+    const { cleaned, changed } = normalizeSearchParams(
+      request.nextUrl.searchParams,
+      options,
+    );
+    if (changed) {
+      const url = request.nextUrl.clone();
+      url.search = cleaned.toString();
+      // 308 (permanent) — 봇이 다음에 같은 abuse URL 시도해도 즉시 cleaned로 매핑.
+      // 캐시도 308 응답을 invalidate 권한으로 길게 유지.
+      return NextResponse.redirect(url, 308);
+    }
+  }
+
+  // 3) /admin/* 인증 가드
   if (pathname.startsWith("/admin")) {
     if (PUBLIC_ADMIN_PATHS.some((p) => pathname.startsWith(p))) {
       return NextResponse.next();
