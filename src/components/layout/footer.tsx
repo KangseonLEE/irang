@@ -41,14 +41,6 @@ export function Footer() {
                   loyal3270@gmail.com
                 </a>
               </li>
-              <li>
-                <a
-                  href="tel:010-2203-3396"
-                  className={s.brandContactLink}
-                >
-                  010-2203-3396
-                </a>
-              </li>
             </ul>
           </div>
 
