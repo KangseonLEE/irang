@@ -32,12 +32,29 @@ export async function GET(request: NextRequest) {
     const error = new SentryTestError(
       `[Sentry test] explicit captureException at ${timestamp}`,
     );
+    const client = Sentry.getClient();
+    const clientOptions = client?.getOptions();
+    const dsn = clientOptions?.dsn;
+    const enabled = clientOptions?.enabled;
+    const env = clientOptions?.environment;
+
     const eventId = Sentry.captureException(error);
-    await Sentry.flush(2000);
+    const flushed = await Sentry.flush(5000);
+
     return NextResponse.json({
       ok: true,
-      sentry_event_id: eventId,
-      note: "If sentry_event_id is non-empty string, SDK loaded. Check Sentry dashboard.",
+      diagnostics: {
+        client_initialized: Boolean(client),
+        dsn_set: Boolean(dsn),
+        dsn_host: dsn ? new URL(dsn).host : null,
+        enabled,
+        environment: env,
+        node_env: process.env.NODE_ENV,
+        next_runtime: process.env.NEXT_RUNTIME,
+        sentry_event_id: eventId,
+        flushed_successfully: flushed,
+      },
+      note: "If flushed=true and dsn_host set, event SHOULD be in Sentry. If flushed=false, send failed.",
       timestamp,
     });
   }
