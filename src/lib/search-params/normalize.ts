@@ -154,5 +154,73 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       page: { min: 1, max: 100 },
     },
   },
-  // /programs, /education, /crops는 차후 추가 — 각 페이지의 실제 param 파악 후
+  "/programs": {
+    allowedKeys: ["region", "age", "supportType", "q", "includeClosed", "period", "view"],
+    enumValidators: {
+      region: [
+        "전국",
+        "서울특별시",
+        "경기도",
+        "강원도",
+        "충청북도",
+        "충청남도",
+        "전라북도",
+        "전라남도",
+        "경상북도",
+        "경상남도",
+        "제주특별자치도",
+      ],
+      supportType: ["보조금", "융자", "교육", "현물", "컨설팅"],
+      age: ["19~29세", "30~39세", "40~49세", "50~59세", "60~69세", "70~79세"],
+      view: ["table", "card"],
+      includeClosed: ["1"],
+    },
+    regexValidators: {
+      period: /^\d{4}-\d{2}(-\d{2})?$/,
+    },
+    maxLengths: {
+      q: 50,
+    },
+  },
+  "/education": {
+    allowedKeys: ["region", "type", "level", "q", "period", "includeClosed", "view", "page"],
+    enumValidators: {
+      region: [
+        "전국",
+        "서울특별시",
+        "경기도",
+        "강원도",
+        "충청북도",
+        "충청남도",
+        "전라북도",
+        "전라남도",
+        "경상북도",
+        "경상남도",
+        "제주특별자치도",
+      ],
+      type: ["온라인", "오프라인", "혼합"],
+      level: ["입문", "초급", "중급", "심화"],
+      view: ["table", "card"],
+      includeClosed: ["1"],
+    },
+    regexValidators: {
+      period: /^\d{4}-\d{2}(-\d{2})?$/,
+    },
+    maxLengths: {
+      q: 50,
+    },
+    numericRanges: {
+      page: { min: 1, max: 100 },
+    },
+  },
+  "/crops": {
+    allowedKeys: ["category", "difficulty", "q"],
+    enumValidators: {
+      category: ["전체", "식량", "채소", "과수", "특용"],
+      difficulty: ["전체", "쉬움", "보통", "어려움"],
+    },
+    maxLengths: {
+      q: 50,
+    },
+  },
 };
