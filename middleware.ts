@@ -74,14 +74,21 @@ export async function middleware(request: NextRequest) {
   // 2) list 페이지 searchParams 정규화 — 알 수 없는 param/값은 cleaned URL로 308 redirect
   // 봇이 random query (?xyz=abc) 보내면 cache pollution + Vercel Function 호출 폭증.
   // canonical URL만 통과시켜 cache hit률↑, abuse 차단.
-  if (NORMALIZE_PATHS.has(pathname)) {
-    const options = LIST_PAGE_NORMALIZE_OPTIONS[pathname];
+  // codex 권고 (5/7): trailing slash 정규화 — /programs/ 도 /programs와 동일 처리
+  const normalizedPath = pathname.length > 1 && pathname.endsWith("/")
+    ? pathname.slice(0, -1)
+    : pathname;
+  if (NORMALIZE_PATHS.has(normalizedPath)) {
+    const options = LIST_PAGE_NORMALIZE_OPTIONS[normalizedPath];
     const { cleaned, changed } = normalizeSearchParams(
       request.nextUrl.searchParams,
       options,
     );
-    if (changed) {
+    // pathname 자체가 trailing slash 포함이면 추가로 redirect (canonical 통일)
+    const pathChanged = normalizedPath !== pathname;
+    if (changed || pathChanged) {
       const url = request.nextUrl.clone();
+      url.pathname = normalizedPath;
       url.search = cleaned.toString();
       // 308 (permanent) — 봇이 다음에 같은 abuse URL 시도해도 즉시 cleaned로 매핑.
       // 캐시도 308 응답을 invalidate 권한으로 길게 유지.

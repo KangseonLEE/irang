@@ -145,7 +145,8 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       includeClosed: ["1"],
     },
     regexValidators: {
-      period: /^\d{4}-\d{2}(-\d{2})?$/,
+      // codex 권고 (5/7): YYYY-MM 만 허용 (앱 실제 사용 형식과 일치)
+      period: /^\d{4}-(0[1-9]|1[0-2])$/,
     },
     maxLengths: {
       q: 50,
@@ -155,7 +156,8 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     },
   },
   "/programs": {
-    allowedKeys: ["region", "age", "supportType", "q", "includeClosed", "period", "view"],
+    // codex 권고 (5/7): page 추가 (table view client-side pagination)
+    allowedKeys: ["region", "age", "supportType", "q", "includeClosed", "period", "view", "page"],
     enumValidators: {
       region: [
         "전국",
@@ -176,10 +178,13 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       includeClosed: ["1"],
     },
     regexValidators: {
-      period: /^\d{4}-\d{2}(-\d{2})?$/,
+      period: /^\d{4}-(0[1-9]|1[0-2])$/,
     },
     maxLengths: {
       q: 50,
+    },
+    numericRanges: {
+      page: { min: 1, max: 100 },
     },
   },
   "/education": {
@@ -204,7 +209,7 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       includeClosed: ["1"],
     },
     regexValidators: {
-      period: /^\d{4}-\d{2}(-\d{2})?$/,
+      period: /^\d{4}-(0[1-9]|1[0-2])$/,
     },
     maxLengths: {
       q: 50,
