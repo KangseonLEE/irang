@@ -1,7 +1,8 @@
 /**
  * 작물 이미지 경로 헬퍼
  *
- * 2026-05-07: codex-image로 생성한 일러스트 (PNG)가 있는 작물은 일러 우선.
+ * 2026-05-07: codex-image로 생성한 일러스트가 있는 작물은 일러 우선.
+ * 2026-05-08: PNG → WebP 변환 (20배 압축, 동일 품질).
  * 그 외는 기존 사진(JPG) fallback.
  *
  * 점진 확장: ILLUSTRATED_CROPS Set에 ID 추가하면 자동 적용.
@@ -52,12 +53,12 @@ const ILLUSTRATED_CROPS = new Set<string>([
 
 /**
  * 작물 ID로 이미지 경로 반환.
- * - 일러 있으면 `/crops/illustrations/{id}.png`
+ * - 일러 있으면 `/crops/illustrations/{id}.webp`
  * - 없으면 `/crops/{id}.jpg` (사진 fallback)
  */
 export function getCropImageSrc(cropId: string): string {
   if (ILLUSTRATED_CROPS.has(cropId)) {
-    return `/crops/illustrations/${cropId}.png`;
+    return `/crops/illustrations/${cropId}.webp`;
   }
   return `/crops/${cropId}.jpg`;
 }
