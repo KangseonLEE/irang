@@ -29,11 +29,29 @@
   border-radius: 20px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
+  overflow: hidden;
 }
 
 @media (min-width: 640px) {
   .hero {
     padding: 32px 28px 36px;
+  }
+}
+
+/* 히어로 상단 일러 배너 */
+.heroIllustration {
+  position: relative;
+  width: calc(100% + 40px);
+  margin: -24px -20px 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+}
+
+@media (min-width: 640px) {
+  .heroIllustration {
+    width: calc(100% + 56px);
+    margin: -32px -28px 0;
   }
 }
 
@@ -475,6 +493,24 @@
   .relatedCard:hover {
     border-color: var(--primary, #1b6b5a);
     box-shadow: 0 4px 12px rgba(27, 107, 90, 0.08);
+  }
+}
+
+/* 다른 인터뷰 카드 — 일러 thumbnail */
+.relatedAvatarWrap {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f7f1e3;
+}
+
+@media (min-width: 640px) {
+  .relatedAvatarWrap {
+    width: 56px;
+    height: 56px;
   }
 }
 

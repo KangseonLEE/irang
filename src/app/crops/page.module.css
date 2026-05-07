@@ -73,9 +73,10 @@
 /* 이미지 래퍼 — aspect-ratio로 높이 제어 */
 .cropCardImageWrap {
   position: relative;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   flex-shrink: 0;
+  background: #f7f1e3;
 }
 
 .cropCardImage {

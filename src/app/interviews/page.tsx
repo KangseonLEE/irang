@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -11,6 +12,7 @@ import { Icon } from "@/components/ui/icon";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { interviews } from "@/lib/data/landing";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
+import { getInterviewImageSrc } from "@/lib/interview-image";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "./page.module.css";
@@ -62,19 +64,35 @@ export default function InterviewsPage() {
 
       {/* ═══ 인터뷰 카드 그리드 ═══ */}
       <section className={s.grid}>
-        {interviews.map((person) => (
+        {interviews.map((person) => {
+          const illustration = getInterviewImageSrc(person.id);
+          return (
           <Link
             key={person.id}
             href={`/interviews/${person.id}`}
             className={s.card}
           >
+            {illustration && (
+              <div className={s.cardImageWrap}>
+                <Image
+                  src={illustration}
+                  alt={`${person.name}님의 농장 일러스트`}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                  className={s.cardImage}
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
+            )}
             {/* 프로필 */}
             <div className={s.cardHeader}>
-              <FarmerAvatar
-                name={person.name}
-                seed={person.id}
-                size="md"
-              />
+              {!illustration && (
+                <FarmerAvatar
+                  name={person.name}
+                  seed={person.id}
+                  size="md"
+                />
+              )}
               <div className={s.cardProfile}>
                 <span className={s.cardName}>{person.name}</span>
                 <span className={s.cardMeta}>
@@ -117,7 +135,8 @@ export default function InterviewsPage() {
               </span>
             </div>
           </Link>
-        ))}
+          );
+        })}
       </section>
 
       {/* ═══ 하단 CTA ═══ */}

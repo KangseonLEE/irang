@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -17,6 +18,7 @@ import { Icon } from "@/components/ui/icon";
 import { interviews } from "@/lib/data/landing";
 import { CROPS } from "@/lib/data/crops";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
+import { getInterviewImageSrc } from "@/lib/interview-image";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
@@ -71,6 +73,7 @@ export default async function InterviewDetailPage({
 
   // 다른 인터뷰: 셔플 후 최대 3개
   const otherInterviews = pickRandomOthers(id, 3);
+  const illustration = getInterviewImageSrc(person.id);
 
   return (
     <div className={s.page}>
@@ -86,9 +89,23 @@ export default async function InterviewDetailPage({
 
       {/* ═══ 히어로: 프로필 + 인용문 ═══ */}
       <section className={s.hero}>
+        {illustration && (
+          <div className={s.heroIllustration}>
+            <Image
+              src={illustration}
+              alt={`${person.name}님의 농장 일러스트`}
+              fill
+              priority
+              sizes="(max-width: 760px) 100vw, 760px"
+              style={{ objectFit: "cover" }}
+            />
+          </div>
+        )}
         <div className={s.heroTop}>
           <div className={s.heroProfile}>
-            <FarmerAvatar name={person.name} seed={person.id} size="lg" />
+            {!illustration && (
+              <FarmerAvatar name={person.name} seed={person.id} size="lg" />
+            )}
             <div className={s.heroInfo}>
               <h1 className={s.heroName}>{person.name}</h1>
               <p className={s.heroMeta}>{person.age} · {person.region}</p>
@@ -227,20 +244,35 @@ export default async function InterviewDetailPage({
         <section className={s.relatedSection}>
           <h2 className={s.relatedTitle}>다른 귀농인의 이야기도 들어보세요</h2>
           <div className={s.relatedGrid}>
-            {otherInterviews.map((p) => (
+            {otherInterviews.map((p) => {
+              const otherIllust = getInterviewImageSrc(p.id);
+              return (
               <Link
                 key={p.id}
                 href={`/interviews/${p.id}`}
                 className={s.relatedCard}
               >
-                <FarmerAvatar name={p.name} seed={p.id} size="sm" />
+                {otherIllust ? (
+                  <div className={s.relatedAvatarWrap}>
+                    <Image
+                      src={otherIllust}
+                      alt={`${p.name}님의 농장 일러스트`}
+                      fill
+                      sizes="56px"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </div>
+                ) : (
+                  <FarmerAvatar name={p.name} seed={p.id} size="sm" />
+                )}
                 <div className={s.relatedInfo}>
                   <span className={s.relatedName}>{p.name}</span>
                   <span className={s.relatedMeta}>{p.age} · {p.region}</span>
                   <span className={s.relatedCrop}>{p.crop}</span>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
           <Link href="/interviews" className={s.relatedAllLink}>
             전체 이야기 보기 &rarr;

@@ -80,20 +80,15 @@
 
 .heroImageWrap {
   position: relative;
-  height: 180px;
+  aspect-ratio: 8 / 3;
   overflow: hidden;
-}
-
-@media (min-width: 480px) {
-  .heroImageWrap { height: 240px; }
+  background: #f7f1e3;
 }
 
 @media (min-width: 640px) {
-  .heroImageWrap { height: 320px; }
-}
-
-@media (min-width: 1024px) {
-  .heroImageWrap { height: 360px; }
+  .heroImageWrap {
+    aspect-ratio: 16 / 5;
+  }
 }
 
 .heroOverlay {

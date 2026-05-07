@@ -364,7 +364,7 @@ function SummaryCard({ crop }: { crop: CropWithDetail }) {
           alt={crop.name}
           fill
           sizes="(max-width: 640px) 100vw, 33vw"
-          style={{ objectFit: "cover" }}
+          style={{ objectFit: "contain" }}
         />
         <div className={s.summaryOverlay} />
         <span className={s.summaryCategory}>{crop.category}</span>
