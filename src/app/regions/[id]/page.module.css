@@ -608,6 +608,77 @@
   }
 }
 
+/* ═══ 시군구 grid (SEO + navigation) ═══ */
+.sigunguGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+@media (min-width: 640px) {
+  .sigunguGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .sigunguGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.sigunguCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .sigunguCard:hover {
+    border-color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--foreground) 6%, transparent);
+  }
+}
+
+.sigunguName {
+  font-size: var(--fs-body, 16px);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.sigunguDesc {
+  font-size: var(--fs-caption, 13px);
+  color: var(--muted-foreground);
+  margin: 0;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.sigunguCrops {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.sigunguCrop {
+  font-size: var(--fs-caption-sm, 12px);
+  color: var(--primary);
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
 /* 출처 */
 .sourceNotice {
   font-size: var(--fs-overline);

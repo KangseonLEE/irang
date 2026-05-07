@@ -11,6 +11,7 @@ import {
   ArrowRight,
   UserCheck,
   Building2,
+  MapPin,
 } from "lucide-react";
 import { getSidoCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
@@ -229,6 +230,45 @@ export default async function RegionDetailPage({ params }: PageProps) {
                 </div>
               </div>
               <CenterCard center={sidoCenter} />
+            </section>
+          )}
+
+          {/* 시군구 목록 — 모든 시군구 link (SEO + 사용자 navigation) */}
+          {sigungus.length > 0 && (
+            <section className={s.section}>
+              <div className={s.sectionHeader}>
+                <Icon icon={MapPin} size="lg" />
+                <div className={s.sectionHeaderBody}>
+                  <h2 className={s.sectionTitle}>시군구별 정보</h2>
+                  <p className={s.sectionDesc}>
+                    {province.shortName}의 {sigungus.length}개 시군구 — 작물·기후·인프라
+                    상세를 확인하세요.
+                  </p>
+                </div>
+              </div>
+              <div className={s.sigunguGrid}>
+                {sigungus.map((sg) => (
+                  <Link
+                    key={sg.id}
+                    href={`/regions/${province.id}/${sg.id}`}
+                    className={s.sigunguCard}
+                  >
+                    <h3 className={s.sigunguName}>{sg.name}</h3>
+                    <p className={s.sigunguDesc}>
+                      <AutoGlossary text={sg.description} />
+                    </p>
+                    {sg.mainCrops.length > 0 && (
+                      <div className={s.sigunguCrops}>
+                        {sg.mainCrops.slice(0, 3).map((crop) => (
+                          <span key={crop} className={s.sigunguCrop}>
+                            {crop}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
             </section>
           )}
         </div>
