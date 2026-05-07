@@ -29,6 +29,8 @@ interface NormalizeOptions {
   regexValidators?: Record<string, RegExp>;
   /** key별 최대 길이 (초과 시 잘라냄) */
   maxLengths?: Record<string, number>;
+  /** key별 최소 길이 (미만 시 제거 — q 길이 1자 같은 abuse 차단) */
+  minLengths?: Record<string, number>;
   /** key별 숫자 범위 (벗어나면 제거) */
   numericRanges?: Record<string, { min: number; max: number }>;
 }
@@ -104,6 +106,12 @@ export function normalizeSearchParams(
       continue;
     }
 
+    // 최소 길이 검증 (q 1자 같은 abuse 차단)
+    if (options.minLengths?.[key] && value.length < options.minLengths[key]) {
+      changed = true;
+      continue;
+    }
+
     // 길이 제한
     if (options.maxLengths?.[key] && value.length > options.maxLengths[key]) {
       cleaned.set(key, value.slice(0, options.maxLengths[key]));
@@ -147,9 +155,16 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     regexValidators: {
       // codex 권고 (5/7): YYYY-MM 만 허용 (앱 실제 사용 형식과 일치)
       period: /^\d{4}-(0[1-9]|1[0-2])$/,
+      // codex 권고 (5/7) q abuse 방어: 한글·영숫자·공백만 (특수문자 차단)
+      q: /^[가-힣a-zA-Z0-9\s]+$/,
+    },
+    minLengths: {
+      // codex 권고 (5/7) q abuse 방어: 1자 검색 차단
+      q: 2,
     },
     maxLengths: {
-      q: 50,
+      // codex 권고 (5/7): 50 → 30 단축 (cache pollution 차단)
+      q: 30,
     },
     numericRanges: {
       page: { min: 1, max: 100 },
@@ -180,8 +195,13 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     regexValidators: {
       period: /^\d{4}-(0[1-9]|1[0-2])$/,
     },
+    minLengths: {
+      // codex 권고 (5/7) q abuse 방어: 1자 검색 차단
+      q: 2,
+    },
     maxLengths: {
-      q: 50,
+      // codex 권고 (5/7): 50 → 30 단축 (cache pollution 차단)
+      q: 30,
     },
     numericRanges: {
       page: { min: 1, max: 100 },
@@ -211,8 +231,13 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     regexValidators: {
       period: /^\d{4}-(0[1-9]|1[0-2])$/,
     },
+    minLengths: {
+      // codex 권고 (5/7) q abuse 방어: 1자 검색 차단
+      q: 2,
+    },
     maxLengths: {
-      q: 50,
+      // codex 권고 (5/7): 50 → 30 단축 (cache pollution 차단)
+      q: 30,
     },
     numericRanges: {
       page: { min: 1, max: 100 },
@@ -224,8 +249,15 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       category: ["전체", "식량", "채소", "과수", "특용"],
       difficulty: ["전체", "쉬움", "보통", "어려움"],
     },
+    regexValidators: {
+      // codex 권고 (5/7) q abuse 방어: 한글·영숫자·공백만
+      q: /^[가-힣a-zA-Z0-9\s]+$/,
+    },
+    minLengths: {
+      q: 2,
+    },
     maxLengths: {
-      q: 50,
+      q: 30,
     },
   },
 };
