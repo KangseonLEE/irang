@@ -62,13 +62,23 @@
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   margin-bottom: 0;
+  overflow: hidden;
 }
 
 @media (min-width: 480px) {
   .hero { border-radius: 20px; }
 }
 
-/* 이미지가 border-radius를 넘지 않도록 상단만 clip */
+/* 데스크탑: 2단 (이미지 좌 + 정보 우) */
+@media (min-width: 900px) {
+  .hero {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    align-items: stretch;
+  }
+}
+
+/* 모바일/태블릿: 이미지가 border-radius를 넘지 않도록 상단만 clip */
 .hero > :first-child {
   border-radius: 16px 16px 0 0;
   overflow: hidden;
@@ -78,16 +88,21 @@
   .hero > :first-child { border-radius: 20px 20px 0 0; }
 }
 
+@media (min-width: 900px) {
+  .hero > :first-child { border-radius: 0; }
+}
+
 .heroImageWrap {
   position: relative;
-  aspect-ratio: 8 / 3;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: #f7f1e3;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 900px) {
   .heroImageWrap {
-    aspect-ratio: 16 / 5;
+    aspect-ratio: auto;
+    min-height: 100%;
   }
 }
 
@@ -145,8 +160,9 @@
   .heroContent { padding: 32px 28px; }
 }
 
-@media (min-width: 1024px) {
-  .heroContent { padding: 36px 36px; }
+/* 데스크탑 2단: 우측 폭이 좁아 padding 컴팩트 */
+@media (min-width: 900px) {
+  .heroContent { padding: 28px 28px; gap: 18px; }
 }
 
 .heroTitleRow {
@@ -259,6 +275,11 @@
 
 @media (min-width: 640px) {
   .quickStats { gap: 12px; }
+}
+
+/* 데스크탑 2단 레이아웃에서는 우측 영역이 좁아 2열로 */
+@media (min-width: 900px) {
+  .quickStats { grid-template-columns: repeat(2, 1fr); }
 }
 
 .statCard {
