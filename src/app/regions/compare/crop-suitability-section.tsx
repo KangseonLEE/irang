@@ -5,6 +5,7 @@ import { MapPin } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
+import { getCropImageSrc } from "@/lib/crop-image";
 import type { ClimateData } from "@/lib/api/weather";
 import { STATIONS, type Station } from "@/lib/data/stations";
 import {
@@ -159,7 +160,7 @@ export function CropSuitabilitySection({
           {/* 선택 작물 요약 */}
           <div className={s.cropSummary}>
             <Image
-              src={`/crops/${crop.id}.jpg`}
+              src={getCropImageSrc(crop.id)}
               alt={crop.name}
               width={40}
               height={40}

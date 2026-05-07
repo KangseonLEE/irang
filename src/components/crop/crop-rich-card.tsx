@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { getCropImageSrc } from "@/lib/crop-image";
 import s from "./crop-rich-card.module.css";
 
 /* ==========================================================================
@@ -186,7 +187,7 @@ export function CropRichCard({
     <Link href={href} className={s.card}>
       <div className={s.header}>
         <Image
-          src={`/crops/${cropId}.jpg`}
+          src={getCropImageSrc(cropId)}
           alt={name}
           width={48}
           height={48}

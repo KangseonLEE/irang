@@ -13,6 +13,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { getCropImageSrc } from "@/lib/crop-image";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   CROPS,
@@ -359,7 +360,7 @@ function SummaryCard({ crop }: { crop: CropWithDetail }) {
     <Link href={`/crops/${crop.id}`} className={s.summaryCard}>
       <div className={s.summaryImageWrap}>
         <Image
-          src={`/crops/${crop.id}.jpg`}
+          src={getCropImageSrc(crop.id)}
           alt={crop.name}
           fill
           sizes="(max-width: 640px) 100vw, 33vw"

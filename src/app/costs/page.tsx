@@ -13,6 +13,7 @@ import {
   Calculator,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { getCropImageSrc } from "@/lib/crop-image";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { JsonLd } from "@/components/seo/json-ld";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
@@ -539,7 +540,7 @@ function CropCard({ crop }: { crop: CropCost }) {
       <div className={s.cropCardTop}>
         {crop.cropPageId ? (
           <Image
-            src={`/crops/${crop.cropPageId}.jpg`}
+            src={getCropImageSrc(crop.cropPageId)}
             alt={crop.name}
             width={44}
             height={44}
@@ -590,7 +591,7 @@ function CropRow({ crop }: { crop: CropCost }) {
       <span className={s.cropName} role="cell">
         {crop.cropPageId ? (
           <Image
-            src={`/crops/${crop.cropPageId}.jpg`}
+            src={getCropImageSrc(crop.cropPageId)}
             alt={crop.name}
             width={32}
             height={32}

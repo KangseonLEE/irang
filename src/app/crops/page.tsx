@@ -10,6 +10,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
 import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
+import { getCropImageSrc } from "@/lib/crop-image";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
@@ -216,7 +217,7 @@ function CropCard({
       {/* 이미지 영역 — aspect-ratio 기반 */}
       <div className={s.cropCardImageWrap}>
         <Image
-          src={`/crops/${crop.id}.jpg`}
+          src={getCropImageSrc(crop.id)}
           alt={`${crop.name} 작물 사진`}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

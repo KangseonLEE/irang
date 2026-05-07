@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
+import { getCropImageSrc, getCropImageAbsoluteUrl } from "@/lib/crop-image";
 import {
   MapPin,
   Thermometer,
@@ -250,7 +251,7 @@ export default async function CropDetailPage({
       <section className={s.hero}>
         <div className={s.heroImageWrap}>
           <Image
-            src={`/crops/${data.id}.jpg`}
+            src={getCropImageSrc(data.id)}
             alt={data.name}
             fill
             sizes="(max-width: 1024px) 100vw, 1280px"
@@ -287,7 +288,7 @@ export default async function CropDetailPage({
               <KakaoShareButton
                 title={`${data.name} — 작물 정보 | 이랑`}
                 description={`${data.name}: ${data.description?.slice(0, 80) ?? data.category}`}
-                imageUrl={`https://irangfarm.com/crops/${data.id}.jpg`}
+                imageUrl={getCropImageAbsoluteUrl(data.id)}
                 contentType="crop"
               />
               <ShareButton
@@ -372,7 +373,7 @@ export default async function CropDetailPage({
       >
         <div className={s.stickyHeaderCrop}>
           <Image
-            src={`/crops/${data.id}.jpg`}
+            src={getCropImageSrc(data.id)}
             alt=""
             width={28}
             height={28}
