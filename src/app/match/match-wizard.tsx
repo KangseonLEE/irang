@@ -206,6 +206,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
       top_crops: crops.slice(0, 4).map((c) => c.crop.id),
       recommended_programs: ft.programIds.slice(0, 5),
       referrer: searchParams.get("utm_source"),
+      age_group: ageGroup ?? null,
     })
       .then((res) => setSaveStatus(res.success ? "saved" : "error"))
       .catch(() => setSaveStatus("error"));

@@ -15,6 +15,7 @@ import Link from "next/link";
 import { ArrowRight, BarChart3, RotateCcw } from "lucide-react";
 import { decodeAssessScore } from "@/lib/assess-share";
 import { DIMENSIONS } from "@/lib/data/assessment";
+import { PersonaRecommendationSection } from "@/components/match/persona-recommendation-section";
 import s from "./share.module.css";
 
 // ── 타입 ──
@@ -63,7 +64,7 @@ export default async function AssessSharePage({ params }: PageProps) {
 
   if (!result) notFound();
 
-  const { tier, totalScore, dimensions } = result;
+  const { tier, totalScore, dimensions, ageGroup } = result;
 
   return (
     <div className={s.page}>
@@ -119,6 +120,9 @@ export default async function AssessSharePage({ params }: PageProps) {
           <p className={s.desc}>{tier.description}</p>
         </div>
       </div>
+
+      {/* 페르소나 추천 — v2 URL(8 tokens)만 노출. legacy 7 tokens 는 ageGroup=undefined → 미노출 */}
+      <PersonaRecommendationSection ageGroup={ageGroup} />
 
       {/* CTA — 나도 진단 받아보기 */}
       <section className={s.cta}>

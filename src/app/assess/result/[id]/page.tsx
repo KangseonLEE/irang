@@ -28,6 +28,7 @@ import { getSupabase } from "@/lib/supabase";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { ShareButtons } from "@/components/share/share-buttons";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
+import { PersonaRecommendationSection } from "@/components/match/persona-recommendation-section";
 import s from "@/app/match/match-wizard.module.css";
 
 // ── 데이터 조회 ──
@@ -189,6 +190,11 @@ export default async function AssessResultPage({ params }: PageProps) {
           ))}
         </div>
       </section>
+
+      {/* 페르소나 추천 — age_group 이 NULL 인 legacy 행은 자동 미노출 */}
+      <PersonaRecommendationSection
+        ageGroup={(result.age_group as string | null | undefined) ?? undefined}
+      />
 
       {/* 추천 작물 */}
       {topCrops.length > 0 && (

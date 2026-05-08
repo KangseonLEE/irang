@@ -31,6 +31,8 @@ export interface AssessmentResultPayload {
   top_crops: string[];
   recommended_programs: string[];
   referrer: string | null;
+  /** 위저드 demoAnswers.ageGroup — /assess/result/[id] 페르소나 추천에 사용 */
+  age_group?: string | null;
 }
 
 export interface AssessmentResultRow extends AssessmentResultPayload {

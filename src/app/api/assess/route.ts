@@ -46,6 +46,14 @@ const VALID_FARM_TYPE_IDS: FarmTypeId[] = [
   "cheongnyeon",
 ];
 
+// ── 유효한 age_group 값 (위저드 demoAnswers.ageGroup) ──
+const VALID_AGE_GROUPS = ["youth", "30s", "40s", "50s", "60plus"] as const;
+type AgeGroup = (typeof VALID_AGE_GROUPS)[number];
+
+function isValidAgeGroup(v: unknown): v is AgeGroup {
+  return typeof v === "string" && (VALID_AGE_GROUPS as readonly string[]).includes(v);
+}
+
 // ── POST 핸들러 ──
 
 export async function POST(req: NextRequest) {
@@ -111,6 +119,9 @@ export async function POST(req: NextRequest) {
   }
 
   // 5. INSERT
+  // age_group 은 선택값 — invalid 면 NULL 로 저장 (legacy 호환)
+  const ageGroupValue = isValidAgeGroup(body.age_group) ? body.age_group : null;
+
   const { error } = await sb.from("assessment_results").insert({
     id,
     answers,
@@ -120,6 +131,7 @@ export async function POST(req: NextRequest) {
     recommended_programs: body.recommended_programs ?? [],
     referrer: body.referrer ?? null,
     user_agent: req.headers.get("user-agent") ?? null,
+    age_group: ageGroupValue,
   });
 
   if (error) {
