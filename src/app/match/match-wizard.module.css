@@ -508,6 +508,110 @@
   }
 }
 
+/* ──────────────────────────────────────────────────────────────
+   페르소나 기반 추천 (Phase 6 D3)
+   ────────────────────────────────────────────────────────────── */
+.personaPicksSection {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+.personaPicksTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--fs-h5);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+}
+
+.personaPicksBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.personaPicksSubtitle {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.personaPicksGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 480px) {
+  .personaPicksGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.personaPicksProgramList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.personaPickProgram {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .personaPickProgram:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.personaPickProgramBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.personaPickProgramTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.personaPickProgramTitle {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.personaPickProgramMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+}
+
 /* ── 추천 작물 카드 ── */
 .cropCards {
   display: grid;

@@ -13,15 +13,21 @@ import {
   RotateCcw,
   FileText,
   Users,
+  Sparkles,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
-import type { SupportProgram } from "@/lib/data/programs";
+import { CROPS } from "@/lib/data/crops";
+import { PROGRAMS, type SupportProgram } from "@/lib/data/programs";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { ShareButtons } from "@/components/share/share-buttons";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import type { FarmType } from "@/lib/data/match-questions";
 import { PersonalizedRoadmap } from "@/components/match/personalized-roadmap";
 import { mapDemographicToPersona } from "@/lib/data/personas";
+import {
+  rankCropsForPersona,
+  rankProgramsForPersona,
+} from "@/lib/data/persona-fit";
 import type { ScoredProvince, RecommendedCrop } from "@/lib/match-scoring";
 import s from "./match-wizard.module.css";
 
@@ -61,6 +67,26 @@ export function MatchResult({
     .sort(([, a], [, b]) => b - a)
     .slice(0, 2)
     .map(([k, v]) => `${PERSONA_DIM_LABELS[k]} ${v}%`);
+
+  // 페르소나 기반 추천 작물·사업 (점수 4 이상만)
+  const personaCrops = showPersonaCta
+    ? rankCropsForPersona(CROPS, recommendedPersona.id)
+        .filter((r) => r.score >= 4)
+        .slice(0, 4)
+    : [];
+  const personaPrograms = showPersonaCta
+    ? rankProgramsForPersona(PROGRAMS, recommendedPersona.id)
+        .filter((r) => r.score >= 4)
+        // 모집중 우선
+        .sort((a, b) => {
+          const aOpen = a.program.status === "모집중" ? 1 : 0;
+          const bOpen = b.program.status === "모집중" ? 1 : 0;
+          if (aOpen !== bOpen) return bOpen - aOpen;
+          return b.score - a.score;
+        })
+        .slice(0, 4)
+    : [];
+
   return (
     <div className={s.page}>
       {/* 유형 카드 — 최상단 */}
@@ -140,6 +166,68 @@ export function MatchResult({
             시군구 추천 <ChevronRight size={16} />
           </span>
         </Link>
+      )}
+
+      {/* 페르소나 기반 추천 — 작물 + 사업 (balanced 제외) */}
+      {showPersonaCta && (personaCrops.length > 0 || personaPrograms.length > 0) && (
+        <section className={s.personaPicksSection}>
+          <h2 className={s.personaPicksTitle}>
+            <Sparkles size={16} />
+            {recommendedPersona.label}이 자주 선택하는
+          </h2>
+
+          {personaCrops.length > 0 && (
+            <div className={s.personaPicksBlock}>
+              <h3 className={s.personaPicksSubtitle}>추천 작물</h3>
+              <div className={s.personaPicksGrid}>
+                {personaCrops.map(({ crop }) => (
+                  <CropLinkCard
+                    key={crop.id}
+                    cropId={crop.id}
+                    name={crop.name}
+                    href={`/crops/${crop.id}`}
+                    meta={`${crop.category} · ${crop.difficulty}`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {personaPrograms.length > 0 && (
+            <div className={s.personaPicksBlock}>
+              <h3 className={s.personaPicksSubtitle}>추천 지원사업</h3>
+              <div className={s.personaPicksProgramList}>
+                {personaPrograms.map(({ program }) => (
+                  <Link
+                    key={program.id}
+                    href={`/programs/${program.id}`}
+                    className={s.personaPickProgram}
+                  >
+                    <div className={s.personaPickProgramBody}>
+                      <div className={s.personaPickProgramTop}>
+                        <h4 className={s.personaPickProgramTitle}>{program.title}</h4>
+                        <span
+                          className={
+                            program.status === "마감"
+                              ? s.programStatusClosed
+                              : s.programStatusOpen
+                          }
+                        >
+                          {program.status}
+                        </span>
+                      </div>
+                      <div className={s.personaPickProgramMeta}>
+                        <span className={s.programCardBadge}>{program.supportType}</span>
+                        <span className={s.programCardRegion}>{program.region}</span>
+                      </div>
+                    </div>
+                    <ChevronRight size={16} className={s.programCardArrow} />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
       )}
 
       {/* 추천 작물 */}
