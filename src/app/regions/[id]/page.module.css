@@ -142,7 +142,7 @@
 
 @media (hover: hover) {
   .statCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: var(--secondary, #f0f9f6);
   }
 }
@@ -346,7 +346,7 @@
 
 @media (hover: hover) {
   .urbanNoticeLink:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: var(--secondary, #f0f9f6);
   }
 }
@@ -373,7 +373,7 @@
 
 @media (hover: hover) {
   .programCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: var(--secondary, #f0f9f6);
   }
 }
@@ -439,7 +439,7 @@
 
 @media (hover: hover) {
   .eduCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: var(--secondary, #f0f9f6);
   }
 }
@@ -638,13 +638,12 @@
   border-radius: 16px;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 @media (hover: hover) {
   .sigunguCard:hover {
-    border-color: var(--primary);
-    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
     box-shadow: 0 2px 8px color-mix(in srgb, var(--foreground) 6%, transparent);
   }
 }

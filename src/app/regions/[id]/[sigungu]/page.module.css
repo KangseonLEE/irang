@@ -159,7 +159,7 @@
 
 @media (hover: hover) {
   .statCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     box-shadow: 0 2px 8px rgba(27, 107, 90, 0.08);
   }
 }
@@ -303,7 +303,7 @@
 
 @media (hover: hover) {
   .cropCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: var(--secondary, #f0f9f6);
   }
 }
@@ -358,7 +358,7 @@
 
 @media (hover: hover) {
   .programCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: var(--secondary, #f0f9f6);
   }
 }
@@ -424,7 +424,7 @@
 
 @media (hover: hover) {
   .eduCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: var(--secondary, #f0f9f6);
   }
 }

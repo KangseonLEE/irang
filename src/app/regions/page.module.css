@@ -117,7 +117,7 @@
 
 @media (hover: hover) {
   .statCardLink:hover {
-    border-color: var(--primary);
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   }
 }
@@ -183,7 +183,7 @@
 
 @media (hover: hover) {
   .infoCardLink:hover {
-    border-color: var(--primary);
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   }
 }
@@ -354,7 +354,7 @@
   );
   text-decoration: none;
   color: var(--foreground);
-  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 @media (min-width: 640px) {
@@ -366,8 +366,7 @@
 
 @media (hover: hover) {
   .rankingBanner:hover {
-    border-color: var(--primary, #1B6B5A);
-    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--primary, #1B6B5A) 45%, var(--border));
     box-shadow: 0 6px 16px color-mix(in srgb, var(--primary, #1B6B5A) 14%, transparent);
   }
 }

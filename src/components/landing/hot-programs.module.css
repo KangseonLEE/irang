@@ -138,7 +138,7 @@
 
 @media (hover: hover) {
   .card:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: color-mix(in srgb, var(--primary, #1b6b5a) 2%, var(--card, #fff));
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   }

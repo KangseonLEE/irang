@@ -202,13 +202,12 @@
   border-radius: 14px;
   text-decoration: none;
   color: var(--foreground);
-  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 @media (hover: hover) {
   .topCard:hover {
-    border-color: var(--primary, #1B6B5A);
-    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--primary, #1B6B5A) 50%, var(--border));
     box-shadow: 0 4px 12px color-mix(in srgb, var(--primary, #1B6B5A) 15%, transparent);
   }
 }

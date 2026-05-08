@@ -209,7 +209,7 @@
 
 @media (hover: hover) {
   .kpiCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
   }
 
   .sectionLink:hover {

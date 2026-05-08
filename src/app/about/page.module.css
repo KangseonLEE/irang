@@ -225,7 +225,7 @@
 
 @media (hover: hover) {
   .featureCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   }
 }
@@ -541,13 +541,12 @@
   border-radius: 12px;
   text-decoration: none;
   color: inherit;
-  transition: background 0.15s, transform 0.15s;
+  transition: background 0.15s;
 }
 
 @media (hover: hover) {
   a.operatorItem:hover {
-    background: color-mix(in srgb, var(--primary) 6%, transparent);
-    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
   }
 }
 

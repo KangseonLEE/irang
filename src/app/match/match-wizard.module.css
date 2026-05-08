@@ -343,7 +343,7 @@
 
 @media (hover: hover) {
   .resultCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   }
 }
@@ -426,7 +426,7 @@
 
 @media (hover: hover) {
   .personaCard:hover {
-    border-color: var(--primary);
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
     background: color-mix(in srgb, var(--primary) 8%, var(--card, #fff));
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   }
@@ -536,7 +536,7 @@
 
 @media (hover: hover) {
   .cropCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
   }
 }
 
@@ -734,7 +734,7 @@
 
 @media (hover: hover) {
   .programCard:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   }
 }

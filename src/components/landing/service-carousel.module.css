@@ -82,7 +82,7 @@
 
 @media (hover: hover) {
   .card:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     box-shadow: 0 12px 32px -8px rgba(27, 107, 90, 0.1);
   }
 }

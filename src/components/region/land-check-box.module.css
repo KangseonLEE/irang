@@ -38,7 +38,7 @@
 
 @media (hover: hover) {
   .card:hover {
-    border-color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     box-shadow: 0 2px 12px color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   }
 }
