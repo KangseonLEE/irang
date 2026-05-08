@@ -14,6 +14,12 @@ import { DataSource } from "@/components/ui/data-source";
 import { POPULAR_RETURN_FARM_CODES } from "@/lib/data/popular-tags";
 import { DIMENSION_SCORES } from "@/lib/data/dimension-scores";
 import { PERSONAS } from "@/lib/data/personas";
+import { CROPS } from "@/lib/data/crops";
+import { PROGRAMS } from "@/lib/data/programs";
+import {
+  rankCropsForPersona,
+  rankProgramsForPersona,
+} from "@/lib/data/persona-fit";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -250,12 +256,54 @@ export default function MethodologyPage() {
         </div>
       </section>
 
+      {/* Phase 6 — 페르소나 추천 매핑 산식 */}
+      <section className={s.principleBox} aria-label="페르소나 추천">
+        <h2 className={s.principleTitle}>페르소나는 작물·지원사업도 추천해요</h2>
+        <p className={s.principleText}>
+          시군구 점수뿐 아니라 작물·지원사업도 페르소나에 맞게 우선순위를 정해요.
+          <strong> 카테고리·난이도·연령 요건</strong>으로 1~5점을 자동 계산하고,
+          예외는 명시 보정으로 잡아요. 점수 4 이상만 추천에 노출돼요.
+        </p>
+        <div className={s.dimList}>
+          {PERSONAS.filter((p) => p.id !== "balanced").map((p) => {
+            const topCrops = rankCropsForPersona(CROPS, p.id)
+              .filter((r) => r.score === 5)
+              .slice(0, 3)
+              .map((r) => `${r.crop.emoji} ${r.crop.name}`);
+            const topPrograms = rankProgramsForPersona(PROGRAMS, p.id)
+              .filter((r) => r.score === 5)
+              .slice(0, 2)
+              .map((r) => r.program.title.replace(/\(.*?\)/g, "").trim());
+            return (
+              <article key={p.id} className={s.dimCard}>
+                <h3 className={s.dimLabel}>{p.label}</h3>
+                <p className={s.dimDesc}>{p.audience}</p>
+                <dl className={s.dimMeta}>
+                  <div>
+                    <dt>추천 작물 (5점)</dt>
+                    <dd>{topCrops.length > 0 ? topCrops.join(" · ") : "-"}</dd>
+                  </div>
+                  <div>
+                    <dt>추천 사업 (5점)</dt>
+                    <dd>
+                      {topPrograms.length > 0 ? topPrograms.join(" · ") : "-"}
+                    </dd>
+                  </div>
+                </dl>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
       {/* 통계 요약 */}
       <section className={s.principleBox} aria-label="통계">
         <h2 className={s.principleTitle}>전체 통계</h2>
         <p className={s.principleText}>
           현재 <strong>{totalSigungu}개</strong> 시군구의 차원별 점수가 만들어져
           있고, <strong>{PERSONAS.length}개</strong> 페르소나로 가중 평균이 계산돼요.
+          작물 <strong>{CROPS.length}종</strong>·지원사업{" "}
+          <strong>{PROGRAMS.length}건</strong>도 페르소나별로 매핑돼 있어요.
           데이터가 갱신되면 자동으로 점수도 새로 계산돼요.
         </p>
       </section>
