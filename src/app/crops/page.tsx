@@ -10,6 +10,8 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
 import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
+import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
+import { rankCropsForPersona } from "@/lib/data/persona-fit";
 import { getCropImageSrc } from "@/lib/crop-image";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -40,14 +42,31 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-  searchParams: Promise<{ category?: string; difficulty?: string; q?: string }>;
+  searchParams: Promise<{
+    category?: string;
+    difficulty?: string;
+    q?: string;
+    persona?: string;
+  }>;
 }
+
+const PERSONA_OPTIONS = ["family", "farmYouth", "elderRural", "commuter"] as const;
+const PERSONA_LABELS: Record<string, string> = {
+  family: "자녀 양육",
+  farmYouth: "농업 본업",
+  elderRural: "노년 귀촌",
+  commuter: "귀촌 직장인",
+};
 
 export default async function CropsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const currentCategory = (params.category ?? "전체") as CropCategory;
   const currentDifficulty = (params.difficulty ?? "전체") as CropDifficulty;
   const searchQuery = params.q?.trim() ?? "";
+  const currentPersona =
+    params.persona && PERSONA_INDEX.has(params.persona as PersonaId)
+      ? (params.persona as PersonaId)
+      : undefined;
 
   // 카테고리 필터링
   let filteredCrops =
@@ -72,11 +91,19 @@ export default async function CropsPage({ searchParams }: PageProps) {
     );
   }
 
+  // 페르소나 필터링: 점수 4+ 작물만 + 점수 내림차순 정렬
+  if (currentPersona) {
+    filteredCrops = rankCropsForPersona(filteredCrops, currentPersona)
+      .filter((r) => r.score >= 4)
+      .map((r) => r.crop);
+  }
+
   // 현재 활성 필터 (URL 빌딩용)
   const currentFilters: Record<string, string | undefined> = {
     category: params.category,
     difficulty: params.difficulty,
     q: params.q,
+    persona: params.persona,
   };
 
   return (
@@ -141,6 +168,17 @@ export default async function CropsPage({ searchParams }: PageProps) {
             currentValue={params.difficulty}
             currentFilters={currentFilters}
             basePath="/crops"
+          />
+        </FilterRow>
+        <FilterRow>
+          <FilterGroup
+            label="내 페르소나"
+            paramKey="persona"
+            options={PERSONA_OPTIONS}
+            currentValue={params.persona}
+            currentFilters={currentFilters}
+            basePath="/crops"
+            optionLabels={PERSONA_LABELS}
           />
         </FilterRow>
       </FilterBar>

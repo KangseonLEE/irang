@@ -55,6 +55,8 @@ interface FilterGroupProps {
   currentFilters: Record<string, string | undefined>;
   /** 페이지 base path (예: "/crops") */
   basePath: string;
+  /** 옵션 ID → 표시 라벨 매핑 (예: { family: "자녀 양육" }) — 영문 ID에 한글 라벨 표시용 */
+  optionLabels?: Record<string, string>;
 }
 
 /** 라벨 + pill 목록으로 구성된 단일 필터 그룹 */
@@ -65,6 +67,7 @@ export function FilterGroup({
   currentValue,
   currentFilters,
   basePath,
+  optionLabels,
 }: FilterGroupProps) {
   return (
     <div className={s.filterGroup}>
@@ -82,7 +85,7 @@ export function FilterGroup({
             href={buildFilterUrl(basePath, currentFilters, paramKey, opt)}
             className={currentValue === opt ? s.pillActive : s.pill}
           >
-            {opt}
+            {optionLabels?.[opt] ?? opt}
           </Link>
         ))}
       </div>

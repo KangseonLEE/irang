@@ -16,6 +16,8 @@ import {
   AGE_RANGES,
   type ProgramFilters,
 } from "@/lib/data/programs";
+import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
+import { rankProgramsForPersona } from "@/lib/data/persona-fit";
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import Link from "next/link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
@@ -54,8 +56,17 @@ interface PageProps {
     includeClosed?: string;
     period?: string;
     view?: string;
+    persona?: string;
   }>;
 }
+
+const PERSONA_OPTIONS = ["family", "farmYouth", "elderRural", "commuter"] as const;
+const PERSONA_LABELS: Record<string, string> = {
+  family: "자녀 양육",
+  farmYouth: "농업 본업",
+  elderRural: "노년 귀촌",
+  commuter: "귀촌 직장인",
+};
 
 export default async function ProgramsPage({ searchParams }: PageProps) {
   const params = await searchParams;
@@ -64,6 +75,10 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   const viewMode: ViewMode = params.view === "table" ? "table" : "card";
   // 기본값: 현재 연월
   const period = params.period || getCurrentPeriod();
+  const currentPersona =
+    params.persona && PERSONA_INDEX.has(params.persona as PersonaId)
+      ? (params.persona as PersonaId)
+      : undefined;
 
   const filters: ProgramFilters = {
     region: params.region,
@@ -75,10 +90,18 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   };
 
   // SSR: API → 폴백 자동 전환, 첫 페이지 데이터만 렌더
-  const [{ programs: allFiltered }, lastSyncAt] = await Promise.all([
+  const [{ programs: rawFiltered }, lastSyncAt] = await Promise.all([
     filterProgramsAsync(filters),
     loadSyncMeta("support_programs"),
   ]);
+
+  // 페르소나 필터링: 점수 4+ 사업만 + 점수 내림차순 정렬
+  const allFiltered = currentPersona
+    ? rankProgramsForPersona(rawFiltered, currentPersona)
+        .filter((r) => r.score >= 4)
+        .map((r) => r.program)
+    : rawFiltered;
+
   const total = allFiltered.length;
   const programs = allFiltered.slice(0, PAGE_SIZE);
   const hasMore = PAGE_SIZE < total;
@@ -96,6 +119,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     period: params.period,
     includeClosed: params.includeClosed,
     view: params.view,
+    persona: params.persona,
   };
 
   return (
@@ -199,6 +223,17 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             currentValue={params.age}
             currentFilters={currentFilters}
             basePath="/programs"
+          />
+        </FilterRow>
+        <FilterRow>
+          <FilterGroup
+            label="내 페르소나"
+            paramKey="persona"
+            options={PERSONA_OPTIONS}
+            currentValue={params.persona}
+            currentFilters={currentFilters}
+            basePath="/programs"
+            optionLabels={PERSONA_LABELS}
           />
         </FilterRow>
       </FilterBar>
