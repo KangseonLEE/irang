@@ -52,7 +52,7 @@
   text-decoration: none;
   scroll-snap-align: start;
   overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 /* 하단 보더 grow 애니메이션 */

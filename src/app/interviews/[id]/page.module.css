@@ -400,7 +400,7 @@
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 @media (hover: hover) {
@@ -476,7 +476,7 @@
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 @media (min-width: 480px) {

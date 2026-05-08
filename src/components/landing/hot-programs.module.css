@@ -120,7 +120,7 @@
   text-decoration: none;
   color: inherit;
   overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
 
 /* 하단 보더 grow 애니메이션 */

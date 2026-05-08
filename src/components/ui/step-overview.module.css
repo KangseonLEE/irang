@@ -45,7 +45,7 @@
   text-decoration: none;
   color: inherit;
   scroll-snap-align: start;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 @media (min-width: 768px) {

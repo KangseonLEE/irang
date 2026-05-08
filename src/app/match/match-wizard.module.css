@@ -122,7 +122,7 @@
   background: var(--card, #fff);
   border: 2px solid var(--border, #e5e7eb);
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
   -webkit-tap-highlight-color: transparent;
   /* reset button */
   font-family: inherit;
@@ -338,7 +338,7 @@
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 @media (hover: hover) {
@@ -421,7 +421,7 @@
   border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
 
 @media (hover: hover) {
@@ -531,7 +531,7 @@
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.2s;
+  transition: border-color 0.15s;
 }
 
 @media (hover: hover) {
@@ -729,7 +729,7 @@
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 @media (hover: hover) {

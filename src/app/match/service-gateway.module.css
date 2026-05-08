@@ -269,7 +269,7 @@
   background: var(--card, #fff);
   border: 2px solid var(--border, #e5e7eb);
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
   text-align: left;
   font-family: inherit;
   color: inherit;
