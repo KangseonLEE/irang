@@ -465,18 +465,29 @@ Phase A: 모바일 UX fix
 
 ## 빌드 & 배포
 
-- 빌드 명령: `npm run build`
+### 빌드 검증 SOP (반드시 준수)
+
+1. **`npm run build` 1회만 실행**. 마지막 출력 라인이 prerendered/SSG/Dynamic 마커이면 빌드 성공이다. 재실행 금지.
+2. **빌드 결과 파싱은 `tail -3`로 끝**. `grep error`, `tail -50` 등 추가 파싱은 빌드 실패가 명확할 때만.
+3. **runtime API timeout 경고는 빌드 에러 아님** (정적 폴백 정상 동작). 무시.
+
+### 배포 검증 SOP
+
+`git push` 후 한 번의 명령으로 배포 상태 확인:
+
+```bash
+DEP_ID=$(gh api repos/KangseonLEE/irang/deployments --jq '.[0].id'); \
+gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.state) | \(.description)"'
+```
+
+- **leading sleep 사용 금지** — harness가 차단함. 첫 호출이 `pending`이면 `until` 루프 또는 `run_in_background`로 우회.
+- 결과를 ✅/❌ 이모지와 함께 1줄로 보고하고 즉시 다음 단계로 이동.
+- **stuck 신호**: 빌드/배포 검증에 5분 초과 → 즉시 다음 단계로 진행하고 사용자에게 진행 상황만 보고.
+
+### 기타
+
 - SGIS API 관련 경고는 정상 (Dynamic route fallback)
 - 커밋 후 `git push origin main` → Vercel 자동 배포
-- **배포 상태 자동 확인**: `git push` 후 반드시 아래 명령으로 배포 완료를 확인하고 결과를 사용자에게 보고한다.
-  ```bash
-  # 1) 최신 배포 ID 조회
-  gh api repos/KangseonLEE/irang/deployments --jq '.[0].id'
-  # 2) 해당 배포의 상태 확인 (success / pending / failure)
-  gh api repos/KangseonLEE/irang/deployments/{id}/statuses --jq '.[0] | "\(.state) | \(.description)"'
-  ```
-  - `pending`이면 30초 후 재확인, 최대 3회 재시도
-  - 결과를 ✅/❌ 이모지와 함께 간결하게 보고
 - 커밋 메시지 접두사: `feat:`, `fix:`, `style:`, `copy:`, `redesign:`, `refactor:`
 
 ### Scripts
@@ -534,6 +545,16 @@ Phase A: 모바일 UX fix
 - **원인**: `loadPrograms()`가 Supabase 성공 시 정적 데이터를 완전 무시. SP-012는 Supabase에 없으므로 프로덕션에서 누락
 - **해결**: Supabase 결과에 정적 데이터 중 DB에 없는 항목(`dbIds`에 없는 ID)을 병합
 - **교훈**: 데이터 소스가 여럿(Supabase, API, 정적)일 때, 상위 소스가 성공하더라도 정적 데이터의 고유 항목은 병합해야 한다. "DB에 있으면 DB 우선, 없으면 정적 보충" 패턴.
+
+### 빌드/배포 검증 단계 머무름 (2026-05-08)
+
+- **증상**: 사용자가 답답해함. 한 번의 commit에 빌드 검증 + 배포 확인이 5분+ 소요
+- **원인**:
+  - `npm run build` 2회 실행 (runtime API timeout 메시지를 빌드 에러로 오해)
+  - `sleep 30 && gh api...` harness 차단됨 → 우회 시도
+  - 빌드 출력을 `tail -50`, `grep error`, `tail -10` 등 3회 파싱
+- **해결**: 빌드 검증 SOP를 위 "빌드 & 배포" 섹션에 명문화. 1회 실행 + tail -3 + 단일 배포 검증 명령
+- **교훈**: 빌드/배포 검증은 "성공 마커 1회 확인" 원칙. 의심되어 재실행하면 5분 낭비. 첫 결과 신뢰.
 
 ---
 
