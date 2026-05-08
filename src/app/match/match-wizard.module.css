@@ -411,6 +411,8 @@
 }
 
 /* ── 페르소나 추천 CTA 카드 ── */
+/* persona section: synced with assess/assessment-wizard.module.css
+   — extract to shared if 3rd usage appears */
 .personaCard {
   display: flex;
   align-items: center;

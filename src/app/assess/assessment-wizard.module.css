@@ -912,3 +912,247 @@
     text-decoration: underline;
   }
 }
+
+/* ==========================================================================
+   페르소나 추천 (Phase 6 고도화 B — /assess 결과 화면)
+   persona section: synced with match-wizard.module.css
+   — extract to shared if 3rd usage appears
+   ========================================================================== */
+.personaCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--primary) 4%, var(--card, #fff));
+  border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+@media (hover: hover) {
+  .personaCard:hover {
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+    background: color-mix(in srgb, var(--primary) 8%, var(--card, #fff));
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.personaCardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.personaCardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.personaCardLabel {
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  letter-spacing: 0.02em;
+}
+
+.personaCardTitle {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+  line-height: var(--lh-snug);
+}
+
+.personaCardDesc {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  margin: 0;
+  line-height: var(--lh-snug);
+}
+
+.personaCardWeights {
+  font-size: var(--fs-overline);
+  color: var(--primary);
+  margin: 4px 0 0;
+  line-height: var(--lh-snug);
+  letter-spacing: 0.01em;
+}
+
+.personaCardWeights strong {
+  font-weight: 700;
+}
+
+.personaCardCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 539px) {
+  .personaCard {
+    flex-wrap: wrap;
+  }
+  .personaCardCta {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 4px;
+  }
+}
+
+.personaPicksSection {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+.personaPicksTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--fs-h5);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+}
+
+.personaPicksBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.personaPicksSubtitle {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.personaPicksGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 480px) {
+  .personaPicksGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.personaPicksProgramList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.personaPickProgram {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .personaPickProgram:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.personaPickProgramBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.personaPickProgramTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.personaPickProgramTitle {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.personaPickProgramMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.programStatusOpen {
+  flex-shrink: 0;
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--success, #16a34a) 12%, transparent);
+  color: #16a34a;
+  white-space: nowrap;
+}
+
+.programStatusClosed {
+  flex-shrink: 0;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--muted-foreground, #6b7280) 10%, transparent);
+  color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+}
+
+.programCardBadge {
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+}
+
+.programCardRegion {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+}
+
+.programCardArrow {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}

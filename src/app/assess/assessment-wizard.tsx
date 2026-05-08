@@ -14,6 +14,8 @@ import {
   ChevronRight,
   ExternalLink,
   MapPin,
+  Users,
+  Sparkles,
 } from "lucide-react";
 import {
   QUESTIONS,
@@ -33,6 +35,14 @@ import {
 import { classifyFarmType } from "@/lib/match-scoring";
 import { analytics } from "@/lib/analytics";
 import { ResultSaveCta } from "@/components/result/result-save-cta";
+import { CROPS } from "@/lib/data/crops";
+import { PROGRAMS } from "@/lib/data/programs";
+import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { mapDemographicToPersona } from "@/lib/data/personas";
+import {
+  rankCropsForPersona,
+  rankProgramsForPersona,
+} from "@/lib/data/persona-fit";
 import s from "./assessment-wizard.module.css";
 
 /* ── 화면 상태 ── */
@@ -220,6 +230,39 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
     const dimParams = dimensions.map((d) => `${d.id}=${d.percent}`).join("&");
     const matchUrl = `/match?experience=${tier.matchParams.experience}&lifestyle=${tier.matchParams.lifestyle}${demoParams}${genderParam}&${dimParams}`;
 
+    // 페르소나 추천 (Phase 6 고도화 B) — match-result.tsx 패턴 차용
+    const recommendedPersona = mapDemographicToPersona(demoAnswers.ageGroup);
+    const showPersonaCta = recommendedPersona.id !== "balanced";
+
+    const PERSONA_DIM_LABELS: Record<string, string> = {
+      populationTrend: "인구 추세",
+      farmActivity: "농가 활성도",
+      medical: "의료 인프라",
+      school: "학교 인프라",
+      returnFarm: "귀농 활성도",
+    };
+    const topDims = Object.entries(recommendedPersona.weights)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 2)
+      .map(([k, v]) => `${PERSONA_DIM_LABELS[k]} ${v}%`);
+
+    const personaCrops = showPersonaCta
+      ? rankCropsForPersona(CROPS, recommendedPersona.id)
+          .filter((r) => r.score >= 4)
+          .slice(0, 4)
+      : [];
+    const personaPrograms = showPersonaCta
+      ? rankProgramsForPersona(PROGRAMS, recommendedPersona.id)
+          .filter((r) => r.score >= 4)
+          .sort((a, b) => {
+            const aOpen = a.program.status === "모집중" ? 1 : 0;
+            const bOpen = b.program.status === "모집중" ? 1 : 0;
+            if (aOpen !== bOpen) return bOpen - aOpen;
+            return b.score - a.score;
+          })
+          .slice(0, 4)
+      : [];
+
     return (
       <div className={s.resultPage}>
         {/* 히어로 */}
@@ -318,6 +361,92 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
               <ArrowRight size={14} />
             </Link>
           </div>
+        )}
+
+        {/* 페르소나 추천 — 시군구 추천 deep link */}
+        {showPersonaCta && (
+          <Link
+            href={`/regions/ranking?persona=${recommendedPersona.id}`}
+            className={s.personaCard}
+            title={`${recommendedPersona.audience} · ${recommendedPersona.desc}`}
+          >
+            <div className={s.personaCardIcon} aria-hidden="true">
+              <Users size={20} />
+            </div>
+            <div className={s.personaCardBody}>
+              <span className={s.personaCardLabel}>당신과 어울리는 페르소나</span>
+              <h3 className={s.personaCardTitle}>{recommendedPersona.label}</h3>
+              <p className={s.personaCardDesc}>{recommendedPersona.desc}</p>
+              <p className={s.personaCardWeights}>
+                <strong>{topDims.join(" · ")}</strong> 우선 반영
+              </p>
+            </div>
+            <span className={s.personaCardCta}>
+              시군구 추천 <ChevronRight size={16} />
+            </span>
+          </Link>
+        )}
+
+        {/* 페르소나 기반 추천 — 작물 + 사업 (balanced 제외) */}
+        {showPersonaCta && (personaCrops.length > 0 || personaPrograms.length > 0) && (
+          <section className={s.personaPicksSection}>
+            <h2 className={s.personaPicksTitle}>
+              <Sparkles size={16} />
+              {recommendedPersona.label}이 자주 선택하는
+            </h2>
+
+            {personaCrops.length > 0 && (
+              <div className={s.personaPicksBlock}>
+                <h3 className={s.personaPicksSubtitle}>추천 작물</h3>
+                <div className={s.personaPicksGrid}>
+                  {personaCrops.map(({ crop }) => (
+                    <CropLinkCard
+                      key={crop.id}
+                      cropId={crop.id}
+                      name={crop.name}
+                      href={`/crops/${crop.id}`}
+                      meta={`${crop.category} · ${crop.difficulty}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {personaPrograms.length > 0 && (
+              <div className={s.personaPicksBlock}>
+                <h3 className={s.personaPicksSubtitle}>추천 지원사업</h3>
+                <div className={s.personaPicksProgramList}>
+                  {personaPrograms.map(({ program }) => (
+                    <Link
+                      key={program.id}
+                      href={`/programs/${program.id}`}
+                      className={s.personaPickProgram}
+                    >
+                      <div className={s.personaPickProgramBody}>
+                        <div className={s.personaPickProgramTop}>
+                          <h4 className={s.personaPickProgramTitle}>{program.title}</h4>
+                          <span
+                            className={
+                              program.status === "마감"
+                                ? s.programStatusClosed
+                                : s.programStatusOpen
+                            }
+                          >
+                            {program.status}
+                          </span>
+                        </div>
+                        <div className={s.personaPickProgramMeta}>
+                          <span className={s.programCardBadge}>{program.supportType}</span>
+                          <span className={s.programCardRegion}>{program.region}</span>
+                        </div>
+                      </div>
+                      <ChevronRight size={16} className={s.programCardArrow} />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
         )}
 
         {/* 보강 가이드 — 약한 차원(≤50%)에 대해 구체적 행동 안내 */}
