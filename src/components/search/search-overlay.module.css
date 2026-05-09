@@ -8,6 +8,8 @@
   z-index: var(--z-overlay, 100);
   /* 모바일(< 640px): SearchBar의 containerExpanded가 풀스크린을 담당 → 래퍼는 투명 컨테이너만 */
   background: transparent;
+  /* 내부 스크롤이 끝나도 body로 propagate 안 되도록 (iOS Safari 안전망) */
+  overscroll-behavior: contain;
 }
 
 /* 데스크탑(>= 640px): 딤 배경 + 상단 중앙 정렬 카드 스타일 */

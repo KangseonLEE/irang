@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SearchOverlayContext } from "@/lib/hooks/use-search-overlay";
+import { useBodyScrollLock } from "@/lib/hooks/use-body-scroll-lock";
 import SearchBar from "./search-bar";
 import s from "./search-overlay.module.css";
 
@@ -24,15 +25,8 @@ export function SearchOverlayProvider({
 
   const ctx = useMemo(() => ({ open }), [open]);
 
-  // 오버레이 오픈 시 body 스크롤 잠금 (데스크탑). 모바일은 SearchBar 내부에서 이미 처리.
-  useEffect(() => {
-    if (!isOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [isOpen]);
+  // 오버레이 오픈 시 body 스크롤 잠금 — iOS Safari 호환(position: fixed 패턴).
+  useBodyScrollLock(isOpen);
 
   // ESC로 오버레이 닫기 (데스크탑에서도 안전하게)
   useEffect(() => {

@@ -500,6 +500,8 @@
   animation: expandFadeIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
   transform-origin: top center;
   will-change: transform, opacity;
+  /* 내부 스크롤이 끝나도 body로 propagate 안 되도록 (iOS Safari 안전망) */
+  overscroll-behavior: contain;
 }
 
 @keyframes expandFadeIn {

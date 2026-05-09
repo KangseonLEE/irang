@@ -20,6 +20,7 @@ import { POPULAR_KEYWORDS } from "./popular-keywords";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
 import { RequestButton } from "@/components/feedback/request-modal";
+import { useBodyScrollLock } from "@/lib/hooks/use-body-scroll-lock";
 import s from "./search-bar.module.css";
 
 // ---------------------------------------------------------------------------
@@ -223,15 +224,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   /** 풀스크린 확장 또는 richMode일 때 추천/인기/바로탐색 노출 */
   const showRich = isExpanded || richMode;
 
-  // 풀스크린 확장 시 body 스크롤 잠금
-  useEffect(() => {
-    if (!isExpanded) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [isExpanded]);
+  // 풀스크린 확장 시 body 스크롤 잠금 — iOS Safari 호환(position: fixed 패턴).
+  useBodyScrollLock(isExpanded);
 
   // 풀스크린 닫기
   const handleClose = useCallback(() => {
