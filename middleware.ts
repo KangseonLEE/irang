@@ -12,6 +12,10 @@
  * 주의 (2026-05-06): Next.js 16의 Server Component `redirect()`는 HTTP 307이
  * 아니라 meta refresh 태그만 삽입함 → 봇은 무시. 따라서 봇 abuse 차단은
  * 반드시 middleware의 NextResponse.redirect()로 구현해야 효과 있음.
+ *
+ * 주의 (2026-05-10): Cloudflare가 `Vary: rsc` 헤더를 무시해 RSC variant 응답이
+ * 일반 GET 응답으로 잘못 캐시되는 사고 발생(/programs 사례). RSC fetch에는
+ * Cache-Control: private, no-store 강제로 Cloudflare 캐시를 원천 차단.
  */
 
 import { NextResponse, type NextRequest } from "next/server";
@@ -96,7 +100,25 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 3) /admin/* 인증 가드
+  // 3) RSC variant 응답 캐시 차단 — Cloudflare가 vary: rsc를 무시해
+  // RSC payload(text/x-component)가 일반 HTML 응답으로 잘못 캐시되는 사고 방지.
+  // Next.js prefetch는 RSC 헤더 또는 Next-Router-Prefetch 헤더를 동반함.
+  const isRscRequest =
+    request.headers.get("rsc") === "1" ||
+    request.headers.get("RSC") === "1" ||
+    request.headers.has("next-router-prefetch") ||
+    request.headers.has("Next-Router-Prefetch") ||
+    request.headers.has("next-router-state-tree") ||
+    request.headers.has("Next-Router-State-Tree");
+  if (isRscRequest) {
+    const res = NextResponse.next();
+    // Cloudflare가 캐시하지 않도록 강제. 클라이언트(브라우저)도 캐시 안 함.
+    res.headers.set("Cache-Control", "private, no-store, max-age=0");
+    res.headers.set("CDN-Cache-Control", "no-store");
+    return res;
+  }
+
+  // 4) /admin/* 인증 가드
   if (pathname.startsWith("/admin")) {
     if (PUBLIC_ADMIN_PATHS.some((p) => pathname.startsWith(p))) {
       return NextResponse.next();
