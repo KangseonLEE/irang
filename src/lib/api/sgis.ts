@@ -307,10 +307,25 @@ async function fetchMultiGuPopulation(
 export async function fetchSubRegionPopulations(
   provinceSgisCode: string,
 ): Promise<Record<string, PopulationData>> {
+  // 정적 폴백 미리 준비 — SGIS 실패해도 시·군·구 밀도 지도가 항상 채워지도록.
+  // 5/10 추가: 경기 등 시·도 페이지에서 SGIS 응답 누락 시 지도가 회색이 되던 이슈.
+  const fallbackMap: Record<string, PopulationData> = {};
+  for (const [code, trend] of SIGUNGU_POP_STATIC_INDEX) {
+    if (code.startsWith(provinceSgisCode)) {
+      fallbackMap[code] = {
+        regionCode: code,
+        regionName: trend.name,
+        population: trend.population,
+        householdCount: trend.householdCount,
+        agingRate: trend.agingRate,
+      };
+    }
+  }
+
   // SGIS 통계는 보통 1~2년 지연 — 현재 연도 - 2를 안전한 최신으로 사용
   const year = new Date().getFullYear() - 2;
   const accessToken = await getAccessToken();
-  if (!accessToken) return {};
+  if (!accessToken) return fallbackMap;
 
   const url = new URL(POPULATION_URL);
   url.searchParams.set("accessToken", accessToken);
@@ -328,9 +343,10 @@ export async function fetchSubRegionPopulations(
     }
 
     const results = json.result;
-    if (!results || !Array.isArray(results)) return {};
+    if (!results || !Array.isArray(results)) return fallbackMap;
 
-    const map: Record<string, PopulationData> = {};
+    // SGIS 응답을 fallbackMap 위에 덮어씌움 — 최신 데이터 우선, 누락 항목은 폴백 유지
+    const map: Record<string, PopulationData> = { ...fallbackMap };
     for (const item of results as SGISPopulationResult[]) {
       const population = parseInt(item.tot_ppltn, 10) || 0;
       const household = parseInt(item.tot_family, 10) || 0;
@@ -354,7 +370,7 @@ export async function fetchSubRegionPopulations(
 
     return map;
   } catch {
-    return {};
+    return fallbackMap;
   }
 }
 
