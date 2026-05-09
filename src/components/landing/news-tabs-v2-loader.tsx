@@ -53,6 +53,40 @@ function isDuplicate(a: UnifiedNewsItem, b: UnifiedNewsItem): boolean {
   return isSimilar(a.title, b.title);
 }
 
+// ─── 마감/종료/Stale 필터 ───
+// 5/9 추가 — 교육·행사 카테고리에서 마감된 공고나 12개월+ 지난 항목 자동 숨김
+
+/**
+ * 시제 종결 동사형 패턴만 매칭 — false positive 최소화
+ * 예: "마감되었다"·"수료식 개최"는 차단, "마감 임박"·"신청 가능"은 통과
+ */
+const CLOSED_PATTERNS: RegExp[] = [
+  /마감(되|됐|했|되었)/,
+  /종료(되|됐|했|되었)/,
+  /수료식/,            // 수료식 = 이미 끝난 행사
+  /접수\s*(완료|종료|마감)/,
+  /신청\s*(완료|종료|마감)/,
+  /후기|현장을\s*가다/, // 박람회 사후 보도
+];
+
+function isClosedTitle(title: string): boolean {
+  return CLOSED_PATTERNS.some((p) => p.test(title));
+}
+
+/** education·event 카테고리에서 12개월+ 지난 항목은 모집 공고 마감으로 간주 */
+function isStaleByDate(date: string, category: UnifiedNewsItem["category"]): boolean {
+  if (category !== "education" && category !== "event") return false;
+  const m = date.match(/^(\d{4})\.(\d{1,2})/);
+  if (!m) return false;
+  const itemMs = Date.UTC(parseInt(m[1], 10), parseInt(m[2], 10) - 1);
+  const cutoffMs = Date.now() - 365 * 24 * 60 * 60 * 1000; // 12개월 전
+  return itemMs < cutoffMs;
+}
+
+function shouldHide(item: UnifiedNewsItem): boolean {
+  return isClosedTitle(item.title) || isStaleByDate(item.date, item.category);
+}
+
 /**
  * 썸네일 품질 점수 — 높을수록 좋은 이미지
  * URL에 저해상도 힌트(thumb, small, 120x 등)가 있으면 감점
@@ -177,7 +211,9 @@ export async function NewsTabsV2Loader() {
   await fetchAllOgMeta(allRaw);
 
   // 2) 이미지 확보된 상태에서 중복 제거 — 더 좋은 썸네일을 가진 기사 우선
+  // 3) 마감/종료/Stale 항목 제거 — 교육·행사 카테고리에서 outdated 모집 공고 차단
   const unifiedNews = dedupKeepBest(allRaw)
+    .filter((item) => !shouldHide(item))
     .sort((a, b) => (b._ts ?? 0) - (a._ts ?? 0));
 
   return <NewsTabsV2 items={unifiedNews} />;

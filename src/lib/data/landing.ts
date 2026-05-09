@@ -77,122 +77,171 @@ export interface NewsItem {
   source: string;
   date: string;
   url: string;
+  /**
+   * 짧은 요약(원문 OG description 인용 또는 자체 카피).
+   * 200자 이내. 빌드/네이버 API 빈 응답 대비 정적 폴백.
+   */
+  description?: string;
+  /** OG 이미지 URL. 깨지면 UI에서 Sprout 폴백 자동 적용. */
+  thumbnail?: string;
 }
 
 export const trendNews: NewsItem[] = [
   {
-    title: "월 110만원씩의 지원금…청년농 미래 비전 키운 '안전 소득망'",
-    source: "세계일보",
+    title: "[농업전망 2026] 청년·지역사회 잇고…공동체 힘으로 서비스 공백 메워야",
+    source: "농민신문",
+    date: "2026.01",
+    url: "https://www.nongmin.com/article/20260123500540",
+    description:
+      "한국농촌경제연구원에 따르면 2025년 기준 우리나라 고령화율은 21.2%다. 전형적인 농촌에 해당하는 읍·면 지역은 29.7%에 달한다. 청년농의 농촌 정착 가능성을 높이려면 도시·농촌 청년 간 비즈니스 협력을 설계해야 한다는 제언이 나왔다.",
+    thumbnail:
+      "https://www.nongmin.com/-/raw/srv-nongmin/data2/content/image/2026/01/23/.cache/512/20260123500602.jpg",
+  },
+  {
+    title: "귀농 자금 가구당 평균 6000만원…농지 구입·임차에 90% 이상 사용",
+    source: "농민신문",
+    date: "2026.02",
+    url: "https://www.nongmin.com/article/20260225500580",
+    description:
+      "2025년 귀농 가구가 들인 투자금은 평균 6219만원으로 전년(5464만원) 대비 13.8% 증가하며 처음으로 6000만원을 돌파했다. 농지 마련에 5260만원이 쓰여 가장 많은 비중을 차지했다.",
+    thumbnail:
+      "https://www.nongmin.com/-/raw/srv-nongmin/data2/content/image/2026/02/26/.cache/512/20260226500235.jpg",
+  },
+  {
+    title: "[농업전망 2026] 농지·농가인구 마지노선 무너졌다",
+    source: "농민신문",
+    date: "2026.01",
+    url: "https://www.nongmin.com/article/20260123500578",
+    description:
+      "농업기반 유지의 최소 기준선으로 여겨지던 ‘경지면적 150만㏊’와 ‘농가인구 200만명’이 모두 무너졌다. 2026년 농가인구는 194만4820명으로 전망되며 전년 대비 감소율(1.9%)이 가팔라지고 있다.",
+    thumbnail:
+      "https://www.nongmin.com/-/raw/srv-nongmin/data2/content/image/2026/01/23/.cache/512/20260123500609.jpg",
+  },
+  {
+    title: "[농림어업총조사] 농가인구 늘었지만…40세 미만 경영주 1.1%뿐",
+    source: "농민신문",
     date: "2026.04",
-    url: "https://v.daum.net/v/20260403060340434",
-  },
-  {
-    title: "\u201C70%가 만족한다\u201D…도시 떠나 농촌으로 간 결정적 이유 1위는?",
-    source: "경기일보",
-    date: "2026.02",
-    url: "https://www.kyeonggi.com/article/20260225580298",
-  },
-  {
-    title: "귀농인은 누구?…'50대 중반 남성 1인 가구'가 평균",
-    source: "연합뉴스",
-    date: "2026.02",
-    url: "https://v.daum.net/v/20260209063131293",
-  },
-  {
-    title: "충남 귀농 청년, 스마트팜으로 1년만에 1.5억원 벌어",
-    source: "아시아경제",
-    date: "2025.06",
-    url: "https://www.asiae.co.kr/article/2025061615310943792",
-  },
-  {
-    title: "농촌에 터 잡은 인구 3년 만에 늘었다…귀농 청년 비중 역대 최고",
-    source: "뉴시스",
-    date: "2025.06",
-    url: "https://www.newsis.com/view/NISX20250624_0003225143",
+    url: "https://www.nongmin.com/article/20260429500676",
+    description:
+      "2025년 농림어업총조사(잠정) 결과 농가인구가 5년 전보다 늘었으나, 40세 미만 청년 경영주 비중은 1.1%에 그쳤다. 고령인구는 크게 늘어 청년농 유입과 정착 지원이 절실한 상황이다.",
+    thumbnail:
+      "https://www.nongmin.com/-/raw/srv-nongmin/data2/content/image/2026/04/29/.cache/512/20260429500685.jpg",
   },
 ];
 
 /** 교육·연수 폴백 뉴스 — API 장애 시 표시 (실제 기사 URL, HTTP 200 검증 완료) */
 export const trendEduNews: NewsItem[] = [
   {
-    title: "2025년 스마트팜 실용교육 교육생 모집 공고",
+    title: "2026년 기초영농기술교육(종합반) 신청 안내",
     source: "서울농업기술센터",
-    date: "2025.04",
-    url: "https://agro.seoul.go.kr/archives/53250",
+    date: "2026.02",
+    url: "https://agro.seoul.go.kr/archives/55409",
+    description:
+      "예비 농업인을 위한 기초영농기술 종합반 30명을 모집해요. 작물 재배의 기본부터 토양·시비·병해충 관리까지 12주 과정 + 현장 실습으로 구성됩니다.",
   },
   {
-    title: "농식품부, 스마트농업 전문인력 교육기관 모집",
-    source: "정책브리핑",
-    date: "2025.03",
-    url: "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156639853",
+    title: "2026년 예비농업인 역량강화(멘토링·교육) 사업",
+    source: "서울농업기술센터",
+    date: "2026.02",
+    url: "https://agro.seoul.go.kr/archives/55500",
+    description:
+      "청년농업인 영농정착지원사업 선정자 중 비농업계 학교 출신 예비 농업인을 대상으로 한 멘토링·교육. 선도농가와 1:1 매칭으로 영농 노하우를 전수해요.",
   },
   {
-    title: "화순군, 2025 현장실습교육 연수 약정 체결",
-    source: "뉴스로",
-    date: "2025.03",
-    url: "https://www.newsro.kr/article243/800869/",
+    title: "2026년 전원생활교육(4기, 5기) 신청 공고",
+    source: "서울농업기술센터",
+    date: "2026.03",
+    url: "https://agro.seoul.go.kr/archives/56004",
+    description:
+      "도시 거주자가 농촌으로 이주하기 전 알아야 할 텃밭 가꾸기, 시골집 관리, 이웃과의 관계 등 전원생활 전반을 배우는 입문 과정이에요.",
   },
   {
-    title: "함양군, '2025년 귀농귀촌 전문교육' 수료식 개최",
-    source: "뉴스로",
-    date: "2025.05",
-    url: "https://www.newsro.kr/article243/970952/",
+    title: "2026년 제26기 동행매력 도시농업전문가 양성교육",
+    source: "서울농업기술센터",
+    date: "2026.04",
+    url: "https://agro.seoul.go.kr/archives/56228",
+    description:
+      "도시농업 분야 전문가로 활동하고 싶은 시민을 위한 양성 과정. 30명을 선발해 식물 재배·정원 설계·치유농업까지 종합 커리큘럼을 제공해요.",
   },
 ];
 
 /** 축제·체험 폴백 뉴스 — API 장애 시 표시 (실제 기사 URL, HTTP 200 검증 완료) */
 export const trendEventNews: NewsItem[] = [
   {
-    title: "'농업·농촌 혁신이 만드는 성장과 행복', 2025 대한민국 농업박람회 개최",
-    source: "정책브리핑",
-    date: "2025.09",
-    url: "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156711948",
+    title: "Y-FARM EXPO 2026 — AI시대, K-로컬의 내일을 만나다",
+    source: "와이팜엑스포",
+    date: "2026.04",
+    url: "https://www.yfarmexpo.co.kr/fairDash.do?hl=KOR",
+    description:
+      "2026년 4월 24~26일 경기도 수원컨벤션센터에서 열리는 귀농귀촌 지역살리기 박람회. 청년농업인 육성·귀농 지원 정책·창업 교육 프로그램을 한 자리에 모았어요.",
+    thumbnail:
+      "https://cdn2.micehub.com/home/2016/micehub/Files/20260225_151211_1844335168.png",
   },
   {
-    title: "세 명의 기자와 '2025 농업박람회' 현장을 가다",
-    source: "정책브리핑",
-    date: "2025.10",
-    url: "https://www.korea.kr/news/reporterView.do?newsId=148950726",
+    title: "[2026 와이팜 엑스포] ① 경기·강원·제주",
+    source: "연합뉴스",
+    date: "2026.04",
+    url: "https://v.daum.net/v/20260420070257270",
+    description:
+      "연합뉴스와 농협중앙회가 공동 주최하는 ‘와이팜 엑스포 2026’ 1편 — 경기·강원·제주 권역별 귀농귀촌 정책과 추천 정착지를 소개해요. 청년농 사례와 지자체 지원금이 함께 정리되어 있어요.",
+    thumbnail:
+      "https://img1.daumcdn.net/thumb/S1200x630/?fname=https://t1.daumcdn.net/news/202604/20/yonhap/20260420070258047veny.jpg",
   },
   {
-    title: "'Y-FARM EXPO 2025'에서 안성시 청년·귀농 정책 알린다!",
-    source: "뉴스로",
-    date: "2025.04",
-    url: "https://www.newsro.kr/article243/894544",
+    title: "2026 주요행사 연계 ‘서로장터’ 참여농가 모집",
+    source: "서울특별시",
+    date: "2026.03",
+    url: "https://news.seoul.go.kr/gov/archives/577750",
+    description:
+      "서울 도심에서 열리는 2026년 주요 행사와 연계해 직거래장터 ‘서로장터’를 운영합니다. 귀농인이 도시 소비자를 직접 만나 판로를 개척할 수 있는 기회예요.",
   },
   {
-    title: "부안군귀농귀촌센터, 2025 A FARM SHOW 창농·귀농 박람회 참가",
-    source: "내외일보",
-    date: "2025.08",
-    url: "https://www.naewoeilbo.com/news/articleView.html?idxno=2171314",
+    title: "곡성군, 귀농인 성공 정착 돕는 ‘귀농닥터 지원사업’ 협약식 개최",
+    source: "한국연합신문",
+    date: "2026.04",
+    url: "https://www.koreaunionnews.com/2100423",
+    description:
+      "곡성군이 농촌 전입 귀농인의 안정적 정착을 위한 ‘귀농닥터 지원사업’ 협약식을 개최했어요. 선도농가가 멘토로 매칭되어 영농기술과 지역 적응을 1:1로 돕습니다.",
+    thumbnail:
+      "http://tr.xza.kr/imgdata/tr_xza_kr/202604/20260403104202-27540.jpg",
   },
 ];
 
 /** 지원사업 폴백 뉴스 — API 장애 시 표시 (실제 기사 URL, HTTP 200 검증 완료) */
 export const trendProgramNews: NewsItem[] = [
   {
-    title: "2026년 청년농업인 영농정착지원사업 모집 개시",
+    title: "2026년 청년농업인 영농정착지원사업 1차 선발 공고",
+    source: "서울농업기술센터",
+    date: "2026.03",
+    url: "https://agro.seoul.go.kr/archives/54938",
+    description:
+      "만 18세 이상 40세 미만 청년농업인 2,000명을 1차 선발합니다. 최장 3년간 월 최대 110만원 정착지원금 + 후계농 자금·농지 임대 우선지원 등 연계 지원이 제공돼요.",
+  },
+  {
+    title: "영광군, 신규농업인 현장실습교육 연수생 모집",
+    source: "아시아에이",
+    date: "2026.01",
+    url: "https://www.asiaa.co.kr/news/articleView.html?idxno=236585",
+    description:
+      "영광군이 청년농업인과 귀농인의 농촌 정착을 돕기 위한 ‘2026년 신규농업인 현장실습교육’ 연수생과 선도농가를 모집해요. 1년간 영농 실습으로 안정적 정착 기반을 다질 수 있어요.",
+    thumbnail:
+      "https://cdn.asiaa.co.kr/news/photo/202601/236585_255728_2504.jpeg",
+  },
+  {
+    title: "2026 청년농업인 영농정착지원사업 시행지침",
     source: "농림축산식품부",
-    date: "2025.11",
-    url: "https://www.mafra.go.kr/home/5109/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGaG9tZSUyRjc5MiUyRjU3NTgxMCUyRmFydGNsVmlldy5kbyUzRg%3D%3D",
+    date: "2026.01",
+    url: "https://www.mafra.go.kr/home/5108/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGaG9tZSUyRjc5MSUyRjU3NTgxOSUyRmFydGNsVmlldy5kbyUzRnNyY2hDb2x1bW4lM0QlMjZwYXNzd29yZCUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnJvdyUzRDEwJTI2YmJzT3BlbldyZFNlcSUzRCUyNnNyY2hXcmQlM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNnJnc0JnbmRlU3RyJTNEJTI2YmJzQ2xTZXElM0QlMjZwYWdlJTNEMSUyNg%3D%3D",
+    description:
+      "농림축산식품부가 발표한 2026년도 청년농업인 영농정착지원사업 시행지침 전문. 신청 자격, 지원 항목, 선정 절차, 사후 관리 기준이 모두 정리되어 있어요.",
   },
   {
-    title: "귀농인 대상 농업창업·주택구입 자금 지원",
-    source: "정책브리핑",
-    date: "2024.07",
-    url: "https://www.korea.kr/news/policyNewsView.do?newsId=148931163",
-  },
-  {
-    title: "곡성군, 귀농인 성공 정착 돕는 '귀농닥터 지원사업' 협약식 개최",
-    source: "한국연합신문",
-    date: "2026.04",
-    url: "https://www.koreaunionnews.com/2100423",
-  },
-  {
-    title: "함평군, 귀농인 농업 창업 및 주택 구매 융자 지원 접수",
-    source: "뉴스로",
-    date: "2025.06",
-    url: "https://www.newsro.kr/article243/1008700/",
+    title: "농업창업·주택구입 자금 융자 지원 (3억 한도, 연 2.0%)",
+    source: "농림축산식품부",
+    date: "2026.02",
+    url: "https://www.mafra.go.kr/bbs/home/795/576799/artclView.do",
+    description:
+      "2026년 농림축산식품사업 시행지침서 기준, 귀농 농업창업 자금은 최대 3억원 한도 내 연 2.0% 저금리 융자, 5년 거치 10년 분할 상환 조건으로 제공돼요. 전입 5년 이내 신청해야 해요.",
   },
 ];
 
@@ -203,24 +252,38 @@ export const trendPolicyNews: NewsItem[] = [
     source: "서울경제",
     date: "2026.03",
     url: "https://www.sedaily.com/article/20014738",
+    description:
+      "전국 10개 인구 소멸 위기 농어촌 지역에 ‘농어촌 기본소득’이 처음 지급되면서 인구 반등과 지역경제 활성화의 신호가 나타나고 있어요. 69개 군 중 6개 군 24만 명이 지역화폐로 월 15만원을 받습니다.",
+    thumbnail:
+      "https://wimg.sedaily.com/news/cms/2026/03/03/news-p.v1.20260226.28525aca14674a58a42a61531172a434_R.jpg",
   },
   {
-    title: "농식품부, 귀농시 6219만원·귀촌시 4563만 원 필요",
+    title: "농식품부, 귀농시 6219만원·귀촌시 4563만원 필요",
     source: "농수축산신문",
     date: "2026.03",
     url: "http://www.aflnews.co.kr/news/articleView.html?idxno=315465",
+    description:
+      "귀농 시 평균 6219만원, 귀촌 시 4563만원의 투자가 필요한 것으로 조사됐어요. 젊은층의 귀농 투자액이 상대적으로 높았고, 농지 마련에 가장 많은 비용이 들어갔습니다.",
   },
   {
     title: "농촌출신은 귀농, 도시출신은 귀촌",
     source: "내일신문",
     date: "2026.02",
     url: "https://www.naeil.com/news/read/579260",
+    description:
+      "귀농·귀촌 6000가구 조사 결과 귀농은 ‘U자형(농촌→도시→농촌)’이 73.0%로 다수였고, 귀촌은 도시 출신 비중이 더 높은 것으로 나타났어요. 출신 배경이 정착 패턴을 가르는 흐름이에요.",
+    thumbnail:
+      "https://wimg.naeil.com/paper/2026/02/26/20260226_01100116000010_L01.jpg",
   },
   {
     title: "송미령 농림축산식품부 장관, 전방위 농정 대응 강화",
     source: "CBC뉴스",
     date: "2026.04",
     url: "https://www.cbci.co.kr/news/articleView.html?idxno=566385",
+    description:
+      "송미령 장관이 비료 원료 수급, 농산물 물가, 가축 방역 현장을 잇따라 점검하며 전방위 농정 대응에 나섰어요. 청년 영농정착지원·시설 현대화 등 핵심 정책의 연속 가동을 강조했습니다.",
+    thumbnail:
+      "https://www.cbci.co.kr/news/thumbnail/202604/566385_382997_613_v150.jpg",
   },
 ];
 
