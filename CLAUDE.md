@@ -57,6 +57,7 @@
 | 2026-05-06 | 외부 API 신규 도입 시 사전 검증 4종 추가 (주기·만료일·Rate limit·역사 가용성) | agents/data-engineer.md | 1on1 — SGIS farmhousehold 5년 주기 함정 사례 |
 | 2026-05-06 | 모바일 변경 시 사전 점검 5종 추가 (vh, sticky, hover, viewport meta, safe-area-inset) | agents/frontend-engineer.md | 1on1 — iOS Safari URL bar 모달 잘림 사후 발견 사례 |
 | 2026-05-06 | Infra 변경(robots/middleware/headers) 검증 4종 추가 | agents/qa-reviewer.md | 1on1 — Vercel 위기 대응 infra 변경 검증 게이트 부재 |
+| 2026-05-09 | 데이터 정정 이력 갱신 누락 점검 추가 (최근 7일 fix+data 파일 commit + /about/corrections 미갱신 시 🟡) | agents/reminder-watchman.md §9, skills/pre-commit-check STEP 8-2 | 5/9 인터뷰 본문 제거 commit 후 정정 이력 페이지 4월에서 멈춤 사례 |
 
 ---
 

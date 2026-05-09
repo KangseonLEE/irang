@@ -97,6 +97,29 @@ awk '/@media/{m=NR} /^\.[a-zA-Z]+ *{/ && m>0 && NR>m{print FILENAME":"m"->"NR}' 
 
 → 1건+ 발견 시 `🟡 WARN: 카피 톤 위반 {파일}:{라인} "{문구}"`
 
+### STEP 8-2: 데이터 정정 이력 갱신 누락 (2026-05-09 추가)
+
+> 배경: 5/9 인터뷰 본문 4종 제거 commit 후 `/about/corrections` 페이지가 4월에서 멈춰 있던 사례. 데이터 정정 commit엔 정정 이력 페이지도 함께 수정해야 신뢰성 페이지의 의미가 살아남.
+
+```bash
+# staged 변경 분석
+STAGED_DATA=$(git diff --cached --name-only | grep -c '^src/lib/data/' || echo 0)
+STAGED_CORRECTIONS=$(git diff --cached --name-only | grep -c 'src/app/about/corrections/' || echo 0)
+COMMIT_MSG_PREFIX=$(git diff --cached --name-only | head -1)  # heuristic
+
+# 정정 후보 판정 — 데이터 파일에 - 라인이 있으면 (단순 추가가 아닌 변경)
+DATA_HAS_DELETIONS=$(git diff --cached --numstat src/lib/data/ 2>/dev/null | awk '$2>0{print}' | wc -l)
+```
+
+판정:
+- `STAGED_DATA >= 1` && `DATA_HAS_DELETIONS >= 1` && `STAGED_CORRECTIONS == 0`
+  → `🟡 WARN: 데이터 파일 정정 가능성 — /about/corrections 갱신 권고. 단순 추가/typo면 무시.`
+- 위 조건 중 어느 것이라도 미충족 → 통과 (false positive 방지)
+
+추가 안내 (WARN 시):
+- "정정에 해당하면 `src/app/about/corrections/page.tsx`의 `CORRECTIONS` 배열에 항목 추가하세요"
+- "단순 추가·typo·구조 변경이면 무시하고 커밋해도 됩니다"
+
 ### STEP 9: 빌드·타입·린트
 
 **순차 실행** (실패 시 즉시 중단):

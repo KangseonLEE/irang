@@ -106,6 +106,40 @@ Vercel Hobby는 공식 Usage API 없음. 다음 순서로 점검:
 4. 임계 비교 후 ⚪/🟡/🔴 분류
 5. Cloudflare는 Dashboard → Security → Events에서 Last 24h 차단 카운트 확인 요청
 
+### 9. 데이터 정정 이력 갱신 누락 (2026-05-09 추가)
+
+> 배경: 5/9 인터뷰 본문 4종 제거 commit이 있었으나 `/about/corrections` 페이지가 4월 정정 내역에서 멈춰 있었음. 데이터 정정 commit이 있는데 정정 이력 페이지에 반영 안 되면 "이랑이 데이터 신뢰성을 어떻게 관리하는지" 보여주는 페이지 가치가 떨어짐.
+
+#### 9-1. 점검 대상 commit
+
+최근 7일 `git log --oneline` 중 다음 조건 중 하나라도 만족:
+
+- **commit 메시지 prefix가 `fix:` 또는 `fix(...)` + 변경 파일에 `src/lib/data/*` 포함**
+- **commit 메시지에 "정정", "오류", "수정", "보정" 등 키워드 + 데이터 파일 변경**
+- **데이터 파일 자체의 사용자 노출 항목(예: programs.ts의 sourceUrl·title·description) 변경**
+
+#### 9-2. 감지 로직
+
+```bash
+# 최근 7일 정정 후보 commit
+SINCE=$(date -v-7d '+%Y-%m-%d' 2>/dev/null || date -d '7 days ago' '+%Y-%m-%d')
+git log --since="$SINCE" --pretty=format:"%h %s" --name-only \
+  | awk '/^[a-f0-9]{7,} fix/{c=$1} c && /^src\/lib\/data\//{print c; c=""}' \
+  | sort -u
+
+# corrections 페이지 마지막 수정일
+LAST=$(git log -1 --pretty=format:"%cs" -- src/app/about/corrections/page.tsx)
+```
+
+→ 정정 후보 commit이 있는데 그 commit 이후 corrections 페이지가 수정 안 됐으면:
+**🟡 확인 필요**: "최근 7일 정정 후보 commit {N}건 — `/about/corrections` 갱신 권고"
+
+#### 9-3. False positive 방지
+
+- **typo·CSS·리팩터링 fix**는 데이터 정정 아님 → 변경 파일이 `src/lib/data/*` **외에만** 있으면 제외
+- **데이터 신규 추가**(append-only)는 정정 아님 → diff에 `+` 라인만 있고 `-` 라인 없으면 제외
+- chief-of-staff에 보고만 하고 자동 차단은 안 함 (David 판단 영역)
+
 ## Working Principles
 
 1. **침묵 기본값** — 정상이면 아무것도 보고 안 함
