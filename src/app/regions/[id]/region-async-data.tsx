@@ -9,7 +9,6 @@
  *   기후 · 인구 · 의료 · 학교 · 사진 · 시군구인구 · 프로그램 · 교육
  */
 
-import Image from "next/image";
 import Link from "next/link";
 import {
   FileText,
@@ -37,16 +36,7 @@ import {
 } from "@/lib/api/sgis";
 import { fetchMedicalFacilities } from "@/lib/api/hira";
 import { fetchSchoolCounts } from "@/lib/api/education";
-import { fetchUnsplashPhoto } from "@/lib/api/unsplash";
 import s from "./page.module.css";
-
-/** codex-image로 생성된 로컬 일러스트가 있는 시도 ID (17개 모두 — 2026-05-06) */
-const LOCAL_ILLUSTRATIONS = new Set<string>([
-  "seoul", "incheon", "gyeonggi", "gangwon", "chungbuk",
-  "sejong", "daejeon", "chungnam", "jeonbuk", "gwangju",
-  "jeonnam", "busan", "daegu", "ulsan", "gyeongbuk",
-  "gyeongnam", "jeju",
-]);
 
 interface RegionAsyncDataProps {
   province: Province;
@@ -62,7 +52,6 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
     populationResult,
     medicalResult,
     schoolResult,
-    photoResult,
     subRegionPopResult,
     subRegionFarmResult,
     programsResult,
@@ -72,7 +61,6 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
     fetchPopulationData([province.sgisCode]),
     fetchMedicalFacilities([province.hiraSidoCd]),
     fetchSchoolCounts([province.eduCode]),
-    fetchUnsplashPhoto(province.unsplashQuery),
     fetchSubRegionPopulations(province.sgisCode),
     fetchSubRegionFarms(province.sgisCode),
     filterProgramsAsync({ region: province.name, includeClosed: false }),
@@ -93,9 +81,6 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
     schoolResult.status === "fulfilled"
       ? schoolResult.value[0] ?? null
       : null;
-  const photo =
-    photoResult.status === "fulfilled" ? photoResult.value : null;
-
   const mainClimate =
     climateData.find((d) => d.stnId === province.representativeStationId) ??
     climateData[0] ??
@@ -152,30 +137,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
 
   return (
     <>
-      {/* Hero Banner — 로컬 일러스트(codex-image 생성) 우선, 없으면 Unsplash 폴백 */}
-      {LOCAL_ILLUSTRATIONS.has(province.id) ? (
-        <div className={s.heroBanner}>
-          <Image
-            src={`/images/regions/${province.id}.png`}
-            alt={`${province.name} 풍경 일러스트`}
-            fill
-            sizes="(max-width: 768px) 100vw, 1280px"
-            style={{ objectFit: "cover" }}
-            priority
-          />
-        </div>
-      ) : photo && (
-        <div className={s.heroBanner}>
-          <Image
-            src={photo.url}
-            alt={`${province.name} 풍경`}
-            fill
-            sizes="(max-width: 768px) 100vw, 1280px"
-            style={{ objectFit: "cover" }}
-            priority
-          />
-        </div>
-      )}
+      {/* Hero Banner는 page.tsx에서 정적으로 표시 (5/10 리팩터링) — Suspense 안에서 제거 */}
 
       {/* Stats + Climate */}
       <RegionStats

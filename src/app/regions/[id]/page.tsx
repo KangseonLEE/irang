@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
@@ -95,45 +96,58 @@ export default async function RegionDetailPage({ params }: PageProps) {
         ← 지역 목록으로
       </Link>
 
-      {/* Hero Info — 정적 (즉시 표시) */}
-      <header className={s.heroInfo}>
-        <div className={s.heroInfoMain}>
-          <span className={s.heroOverline}>{province.name}</span>
-          <div className={s.heroTitleRow}>
-            <h1 className={s.heroTitle}>{province.shortName}</h1>
-            <div className={s.heroActions}>
-              <KakaoShareButton
-                title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
-                description={`${province.name} 귀농 정보: ${province.description}`}
-                imageUrl={`https://irangfarm.com/regions/${province.id}/opengraph-image`}
-                contentType="region"
-              />
-              <ShareButton
-                title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
-                text={`${province.name} 귀농 정보: ${province.description}`}
-                contentType="region"
-                variant="ghost"
-                size="sm"
-                showLabel={false}
-              />
-              <BookmarkButton
-                id={province.id}
-                type="region"
-                title={province.name}
-                subtitle={province.description}
-              />
+      {/* Hero — 정적 이미지 + 텍스트 정보. 모바일에서 텍스트는 이미지 위 absolute. */}
+      <section className={s.hero}>
+        <div className={s.heroBanner}>
+          <Image
+            src={`/images/regions/${province.id}.png`}
+            alt={`${province.name} 풍경 일러스트`}
+            fill
+            sizes="(max-width: 768px) 100vw, 1280px"
+            style={{ objectFit: "cover" }}
+            priority
+          />
+        </div>
+
+        <header className={s.heroInfo}>
+          <div className={s.heroInfoMain}>
+            <span className={s.heroOverline}>{province.name}</span>
+            <div className={s.heroTitleRow}>
+              <h1 className={s.heroTitle}>{province.shortName}</h1>
+              <div className={s.heroActions}>
+                <KakaoShareButton
+                  title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
+                  description={`${province.name} 귀농 정보: ${province.description}`}
+                  imageUrl={`https://irangfarm.com/regions/${province.id}/opengraph-image`}
+                  contentType="region"
+                />
+                <ShareButton
+                  title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
+                  text={`${province.name} 귀농 정보: ${province.description}`}
+                  contentType="region"
+                  variant="ghost"
+                  size="sm"
+                  showLabel={false}
+                />
+                <BookmarkButton
+                  id={province.id}
+                  type="region"
+                  title={province.name}
+                  subtitle={province.description}
+                />
+              </div>
+            </div>
+            <p className={s.heroDesc}><AutoGlossary text={province.description} /></p>
+            <div className={s.heroTags}>
+              {province.highlights.map((tag) => (
+                <span key={tag} className={s.heroTag}>
+                  {tag}
+                </span>
+              ))}
             </div>
           </div>
-          <p className={s.heroDesc}><AutoGlossary text={province.description} /></p>
-          <div className={s.heroTags}>
-            {province.highlights.map((tag) => (
-              <span key={tag} className={s.heroTag}>
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      </header>
+        </header>
+      </section>
 
       <ReferenceNotice />
 

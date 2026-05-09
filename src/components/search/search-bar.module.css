@@ -152,7 +152,7 @@
 }
 
 .dropdownSection {
-  padding: 4px 0;
+  padding: 12px 0;
 }
 
 /* --- 네비게이션 중 로딩 UI --- */
@@ -642,8 +642,14 @@
 /* ── 확장 모드: 검색 홈 섹션 (추천 검색어, 바로 탐색) ── */
 
 .expandedSection {
-  padding: 12px 0 4px;
+  padding: 20px 0 12px;
   border-top: 1px solid var(--border);
+}
+
+/* 첫 번째 섹션은 상단 border·padding 제거 */
+.expandedSection:first-of-type {
+  padding-top: 8px;
+  border-top: none;
 }
 
 /* ── 추천 검색어 태그 그리드 ── */
@@ -798,11 +804,25 @@
   white-space: nowrap;
 }
 
-/* ── 귀농 단계별 가이드 칩 (5/10 추가) ── */
+/* ── 귀농 단계별 가이드 칩 (5/10 추가) — 가로 스크롤 ── */
 .guideStepsRow {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px 16px 8px;
+  margin: 0 -16px; /* 부모 padding 상쇄해 양 끝까지 스크롤 영역 확보 */
+  scroll-padding: 0 16px;
+}
+
+.guideStepsRow::-webkit-scrollbar {
+  display: none;
+}
+
+.guideStepsRow > * {
+  flex-shrink: 0;
 }
 
 .guideStepChip {
