@@ -225,8 +225,12 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
                   <div className={s.slideBody}>
                     <span className={s.slideBadge}>{featured.source}</span>
                     <span className={s.slideTitle}>{featured.title}</span>
-                    {featured.description && (
+                    {featured.description ? (
                       <span className={s.slideDesc}>{featured.description}</span>
+                    ) : (
+                      <span className={`${s.slideDesc} ${s.slideDescPlaceholder}`}>
+                        {featured.source} 원문에서 자세한 내용을 확인해 보세요.
+                      </span>
                     )}
                     <span className={s.slideMeta}>
                       {featured.source} · {featured.date}
@@ -304,8 +308,12 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
                         <div className={s.slideBody}>
                           <span className={s.slideBadge}>{item.source}</span>
                           <span className={s.slideTitle}>{item.title}</span>
-                          {item.description && (
+                          {item.description ? (
                             <span className={s.slideDesc}>{item.description}</span>
+                          ) : (
+                            <span className={`${s.slideDesc} ${s.slideDescPlaceholder}`}>
+                              {item.source} 원문에서 자세한 내용을 확인해 보세요.
+                            </span>
                           )}
                           <span className={s.slideMeta}>
                             {item.source} · {item.date}

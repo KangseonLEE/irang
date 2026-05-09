@@ -227,6 +227,12 @@
   .slideDesc { -webkit-line-clamp: 4; }
 }
 
+/* description이 비어 폴백 카피로 대체될 때 — 시각적으로 약간 흐리게 */
+.slideDescPlaceholder {
+  font-style: italic;
+  color: color-mix(in srgb, var(--muted-foreground, #6b7280) 80%, transparent);
+}
+
 .slideMeta {
   display: flex;
   align-items: center;

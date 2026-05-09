@@ -146,13 +146,49 @@ function extractSource(originallink: string): string {
 
 // ─── OG 이미지 추출 ───
 
+export interface OgMeta {
+  image?: string;
+  description?: string;
+}
+
+/** og:description / twitter:description / <meta name="description"> 패턴 */
+function extractDescription(head: string): string | undefined {
+  const patterns = [
+    /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:description["']/i,
+    /<meta[^>]+name=["']twitter:description["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:description["']/i,
+    /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']description["']/i,
+  ];
+  for (const pattern of patterns) {
+    const m = head.match(pattern);
+    if (m?.[1]) {
+      const cleaned = m[1]
+        .trim()
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&nbsp;/g, " ")
+        .replace(/\s+/g, " ");
+      // 너무 짧거나 placeholder성 텍스트 거름
+      if (cleaned.length >= 20 && !/^(error|404|not found)/i.test(cleaned)) {
+        return cleaned.length > 200 ? `${cleaned.slice(0, 200)}…` : cleaned;
+      }
+    }
+  }
+  return undefined;
+}
+
 /**
- * 기사 URL에서 Open Graph 이미지를 추출합니다.
+ * 기사 URL에서 OG 메타데이터(이미지 + 설명)를 추출합니다.
  * - 5초 타임아웃으로 느린 사이트 대응
- * - og:image → twitter:image → <link rel="image_src"> 순으로 폴백
- * - 실패 시 undefined 반환 (페이지 렌더링 블로킹 방지)
+ * - og:* → twitter:* → meta name 순으로 폴백
+ * - 실패 시 빈 객체 반환 (페이지 렌더링 블로킹 방지)
  */
-export async function fetchOgImage(url: string): Promise<string | undefined> {
+export async function fetchOgMeta(url: string): Promise<OgMeta> {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), OG_FETCH_TIMEOUT);
@@ -169,7 +205,7 @@ export async function fetchOgImage(url: string): Promise<string | undefined> {
     });
     clearTimeout(timer);
 
-    if (!res.ok) return undefined;
+    if (!res.ok) return {};
 
     const text = await res.text();
     const head = text.slice(0, 25000);
@@ -180,30 +216,53 @@ export async function fetchOgImage(url: string): Promise<string | undefined> {
       /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
     ];
 
+    let image: string | undefined;
     for (const pattern of ogPatterns) {
       const m = head.match(pattern);
-      if (m?.[1]) return resolveImageUrl(m[1].trim(), url);
+      if (m?.[1]) {
+        image = resolveImageUrl(m[1].trim(), url);
+        break;
+      }
     }
 
     // 2. twitter:image 폴백
-    const twitterPatterns = [
-      /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
-      /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
-      /<meta[^>]+property=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
-    ];
-
-    for (const pattern of twitterPatterns) {
-      const m = head.match(pattern);
-      if (m?.[1]) return resolveImageUrl(m[1].trim(), url);
+    if (!image) {
+      const twitterPatterns = [
+        /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+        /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
+        /<meta[^>]+property=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+      ];
+      for (const pattern of twitterPatterns) {
+        const m = head.match(pattern);
+        if (m?.[1]) {
+          image = resolveImageUrl(m[1].trim(), url);
+          break;
+        }
+      }
     }
 
     // 3. <link rel="image_src"> 폴백
-    const linkMatch = head.match(
-      /<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["']/i,
-    );
-    if (linkMatch?.[1]) return resolveImageUrl(linkMatch[1].trim(), url);
+    if (!image) {
+      const linkMatch = head.match(
+        /<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["']/i,
+      );
+      if (linkMatch?.[1]) {
+        image = resolveImageUrl(linkMatch[1].trim(), url);
+      }
+    }
 
-    return undefined;
+    return { image, description: extractDescription(head) };
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * @deprecated `fetchOgMeta`를 사용하세요. 이미지만 추출하는 thin wrapper로 유지.
+ */
+export async function fetchOgImage(url: string): Promise<string | undefined> {
+  try {
+    return (await fetchOgMeta(url)).image;
   } catch {
     return undefined;
   }

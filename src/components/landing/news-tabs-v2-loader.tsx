@@ -1,7 +1,7 @@
 import {
   fetchLatestNews,
   fetchNewsByCategory,
-  fetchOgImage,
+  fetchOgMeta,
   type NewsArticle,
 } from "@/lib/api/news";
 import {
@@ -103,22 +103,30 @@ function sleep(ms: number) {
 
 // ─── OG 이미지 일괄 페칭 ───
 
-async function fetchAllOgImages(items: UnifiedNewsItem[]): Promise<void> {
+async function fetchAllOgMeta(items: UnifiedNewsItem[]): Promise<void> {
   const CONCURRENCY = 3;
   for (let i = 0; i < items.length; i += CONCURRENCY) {
     const batch = items.slice(i, i + CONCURRENCY);
     const results = await Promise.allSettled(
       batch.map(async (item) => {
+        // 네이버 URL이 있으면 그쪽 OG가 더 정확(요약·고해상도) — 우선 시도
         if (item.naverUrl) {
-          const og = await fetchOgImage(item.naverUrl);
-          if (og) return og;
+          const meta = await fetchOgMeta(item.naverUrl);
+          if (meta.image || meta.description) return meta;
         }
-        return fetchOgImage(item.url);
+        return fetchOgMeta(item.url);
       }),
     );
     results.forEach((result, j) => {
-      if (result.status === "fulfilled" && result.value) {
-        items[i + j].thumbnail = result.value;
+      if (result.status !== "fulfilled") return;
+      const meta = result.value;
+      const target = items[i + j];
+      // 기존 데이터가 비어있을 때만 OG로 채움 (네이버 API description 우선)
+      if (meta.image && !target.thumbnail) {
+        target.thumbnail = meta.image;
+      }
+      if (meta.description && !target.description) {
+        target.description = meta.description;
       }
     });
   }
@@ -158,7 +166,7 @@ export async function NewsTabsV2Loader() {
   const programItems = toItems(programNews, trendProgramNews, "program");
   const policyItems = toItems(policyNews, trendPolicyNews, "policy");
 
-  // 1) 모든 아이템에 OG 이미지 먼저 페칭
+  // 1) 모든 아이템에 OG 메타(이미지+설명) 먼저 페칭 — 네이버 API에 description 누락 시 보강
   const allRaw = [
     ...newsItems,
     ...eduItems,
@@ -166,7 +174,7 @@ export async function NewsTabsV2Loader() {
     ...programItems,
     ...policyItems,
   ];
-  await fetchAllOgImages(allRaw);
+  await fetchAllOgMeta(allRaw);
 
   // 2) 이미지 확보된 상태에서 중복 제거 — 더 좋은 썸네일을 가진 기사 우선
   const unifiedNews = dedupKeepBest(allRaw)
