@@ -1,0 +1,81 @@
+/* ── 인터뷰 정정·삭제 요청 컨택 박스 ── */
+
+.notice {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--primary) 4%, white);
+  border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0 0 4px;
+  line-height: 1.4;
+}
+
+.desc {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.mailLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.formLink {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .mailLink:hover {
+    text-decoration: underline;
+  }
+  .formLink:hover {
+    color: var(--primary);
+  }
+}
+
+.mailLink:focus-visible,
+.formLink:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

@@ -15,6 +15,7 @@ import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import { getInterviewImageSrc } from "@/lib/interview-image";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { InterviewCorrectionNotice } from "@/components/interview/correction-notice";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -159,6 +160,9 @@ export default function InterviewsPage() {
           맞춤 귀농지 찾기 <Icon icon={ArrowRight} size="md" />
         </Link>
       </div>
+
+      {/* ═══ 정정·삭제 요청 안내 ═══ */}
+      <InterviewCorrectionNotice />
     </div>
   );
 }

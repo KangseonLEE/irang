@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Scale, Info, Database, Shield } from "lucide-react";
+import { ArrowLeft, Scale, Info, Database, Shield, Quote } from "lucide-react";
 import s from "../about/disclaimer/page.module.css";
 
 export const metadata: Metadata = {
@@ -87,8 +87,58 @@ export default function TermsPage() {
 
       <section className={s.section}>
         <div className={s.sectionHeader}>
+          <Quote size={18} />
+          <h2 className={s.sectionTitle}>제4조 (귀농인 인터뷰 인용 정책)</h2>
+        </div>
+        <div className={s.sectionBody}>
+          <p>
+            이랑은 농민신문·서울신문·KBC광주방송 등 공인 언론에 보도된
+            귀농인 인터뷰 일부를 큐레이션하여 소개해요. 인용 범위와 처리
+            방식은 다음과 같아요.
+          </p>
+          <ul className={s.sourceList}>
+            <li className={s.sourceItem}>
+              <span className={s.sourceName}>인용 범위</span>
+              <span>
+                실명·지역·작물·직업 등 사실 정보와 짧은 발언 인용(저작권법
+                제28조 공정이용 범위). 출처 매체명·게재일·원문 링크를 함께
+                표기해요.
+              </span>
+            </li>
+            <li className={s.sourceItem}>
+              <span className={s.sourceName}>본문 풀텍스트 게재</span>
+              <span>
+                본인이 명시적으로 동의해 주신 경우에만 상세 페이지에 본문을
+                게재해요. 동의 일자를 데이터에 기록하고, 미동의자의 카드를
+                누르면 원문 기사로 직접 이동해요.
+              </span>
+            </li>
+            <li className={s.sourceItem}>
+              <span className={s.sourceName}>정정·삭제 요청</span>
+              <span>
+                본인 정보가 잘못 표시됐거나 게재 중단을 원하시면{" "}
+                <a href="mailto:loyal3270@gmail.com" className={s.backLink} style={{ display: "inline" }}>
+                  loyal3270@gmail.com
+                </a>{" "}
+                또는{" "}
+                <Link href="/about/corrections" className={s.backLink} style={{ display: "inline" }}>
+                  정정 요청 폼
+                </Link>
+                으로 연락해 주세요. 영업일 3일 안에 처리해 드려요.
+              </span>
+            </li>
+          </ul>
+          <div className={s.highlight}>
+            원문 기사 저작권은 각 언론사에 있어요. 이랑은 큐레이션을 위한
+            인용을 제공할 뿐이며, 원문 전문 복제·재배포는 하지 않아요.
+          </div>
+        </div>
+      </section>
+
+      <section className={s.section}>
+        <div className={s.sectionHeader}>
           <Info size={18} />
-          <h2 className={s.sectionTitle}>제4조 (외부 링크)</h2>
+          <h2 className={s.sectionTitle}>제5조 (외부 링크)</h2>
         </div>
         <div className={s.sectionBody}>
           <p>
@@ -101,7 +151,7 @@ export default function TermsPage() {
       <section className={s.section}>
         <div className={s.sectionHeader}>
           <Info size={18} />
-          <h2 className={s.sectionTitle}>제5조 (약관 변경)</h2>
+          <h2 className={s.sectionTitle}>제6조 (약관 변경)</h2>
         </div>
         <div className={s.sectionBody}>
           <p>
@@ -109,7 +159,7 @@ export default function TermsPage() {
             통해 공지해요.
           </p>
           <p className={s.sourceNote}>
-            최종 수정일: 2026년 4월 16일
+            최종 수정일: 2026년 5월 9일
           </p>
         </div>
       </section>

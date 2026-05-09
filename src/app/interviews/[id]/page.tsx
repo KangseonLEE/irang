@@ -22,6 +22,7 @@ import { getInterviewImageSrc } from "@/lib/interview-image";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { InterviewCorrectionNotice } from "@/components/interview/correction-notice";
 import s from "./page.module.css";
 
 function getInterviewById(id: string) {
@@ -313,6 +314,9 @@ export default async function InterviewDetailPage({
           내 귀농지 찾기
         </Link>
       </div>
+
+      {/* ═══ 정정·삭제 요청 안내 ═══ */}
+      <InterviewCorrectionNotice />
     </div>
   );
 }

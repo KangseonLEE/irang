@@ -903,6 +903,14 @@ export interface InterviewCard {
   motivation?: string;
   challenge?: string;
   advice?: string;
+  /**
+   * 본문 풀 게재 동의를 받은 일자 (YYYY-MM-DD).
+   * 분쟁 시 동의 시점 증빙용. 동의 메일 등 원본 증거는 별도 안전 저장소에 보관.
+   * UI에는 노출하지 않음.
+   */
+  consentDate?: string;
+  /** 동의 채널 (예: "메일 회신", "직접 전화") — 감사용 메모 */
+  consentNote?: string;
   /** 지역 데이터 페이지 링크 */
   regionUrl: string;
   /** 작물 데이터 페이지 링크 (매칭되는 작물만) */
@@ -1033,6 +1041,8 @@ export const interviews: InterviewCard[] = [
     motivation: "대기업의 톱니바퀴 같은 삶에 회의감을 느꼈어요. 온전히 '내 것'이 될 수 있는 일, 주체적인 삶을 찾고 싶었어요.",
     challenge: "처음에 일본 신품종을 시도했다가 흰가루병에 취약해서 실패했어요. 품종 선택의 중요성을 뼈저리게 느꼈어요.",
     advice: "스마트팜이 농사를 대신 지어주진 않아요. 작물 지식과 스마트팜 이해를 바탕으로 자신만의 농법을 찾아야 해요. 무리한 시설 투자보다 감당할 수 있는 규모로 시작하세요.",
+    consentDate: "2026-05-09",
+    consentNote: "본인 메일 회신 — 게재 유지 동의 확인",
     regionUrl: "/regions/chungbuk/chungju",
     cropLinks: [{ name: "딸기", href: "/crops/strawberry" }],
   },
