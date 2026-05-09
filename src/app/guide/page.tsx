@@ -21,7 +21,7 @@ import { TimelineLink, AccordionScrollWrapper } from "./timeline-nav";
 import { ChecklistInteractive } from "./checklist-interactive";
 import { GuideTimeline } from "./guide-timeline";
 import { GuidePersonalize } from "./guide-personalize";
-import { interviews } from "@/lib/data/landing";
+import { interviews, hasFullStory } from "@/lib/data/landing";
 import { GUIDE_STEP_SUMMARIES } from "@/lib/data/guide-steps";
 import { MessageSquareQuote } from "lucide-react";
 import s from "./page.module.css";
@@ -38,13 +38,8 @@ const STEP_INTERVIEWS: Record<number, string[]> = {
   5: ["bae-dongju", "kang-namwook"],      // 정착·커뮤니티 관련
 };
 
-const STEP_INTERVIEW_FIELDS: Record<number, "motivation" | "challenge" | "advice"> = {
-  1: "motivation",
-  2: "advice",
-  3: "motivation",
-  4: "challenge",
-  5: "advice",
-};
+// 본문 4종(motivation/challenge/advice)은 본인 동의자만 보유.
+// 가이드 페이지는 모든 인터뷰에 공통으로 있는 quote(짧은 발언 인용 + 출처 명시)로 통일.
 
 export const metadata: Metadata = {
   title: "귀농 절차 5단계 — 준비부터 정착까지 로드맵",
@@ -396,20 +391,35 @@ export default function GuidePage() {
                     {STEP_INTERVIEWS[step.step].map((id) => {
                       const person = interviews.find((iv) => iv.id === id);
                       if (!person) return null;
-                      const field = STEP_INTERVIEW_FIELDS[step.step] ?? "advice";
-                      return (
+                      const isInternal = hasFullStory(person);
+                      const cardInner = (
+                        <>
+                          <p className={s.interviewQuote}>
+                            &ldquo;{person.quote}&rdquo;
+                          </p>
+                          <span className={s.interviewPerson}>
+                            {person.name} · {person.region} · {person.crop} · {person.sourceName}
+                          </span>
+                        </>
+                      );
+                      return isInternal ? (
                         <Link
                           key={id}
                           href={`/interviews/${id}`}
                           className={s.interviewCard}
                         >
-                          <p className={s.interviewQuote}>
-                            &ldquo;{person[field]}&rdquo;
-                          </p>
-                          <span className={s.interviewPerson}>
-                            {person.name} · {person.region} · {person.crop}
-                          </span>
+                          {cardInner}
                         </Link>
+                      ) : (
+                        <a
+                          key={id}
+                          href={person.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={s.interviewCard}
+                        >
+                          {cardInner}
+                        </a>
                       );
                     })}
                   </div>

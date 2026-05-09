@@ -5,7 +5,7 @@ import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
 import { EDUCATION_COURSES } from "@/lib/data/education";
 import { EVENTS } from "@/lib/data/events";
-import { interviews } from "@/lib/data/landing";
+import { interviews, hasFullStory } from "@/lib/data/landing";
 
 const BASE_URL = "https://irangfarm.com";
 
@@ -128,12 +128,15 @@ function getContentPages(now: Date): MetadataRoute.Sitemap {
     priority: 0.5,
   }));
 
-  const interviewPages: MetadataRoute.Sitemap = interviews.map((i) => ({
-    url: `${BASE_URL}/interviews/${i.id}`,
-    lastModified: now,
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
+  // 본문 동의자만 sitemap에 포함 (미동의자는 원문으로 redirect되므로 색인 의미 없음)
+  const interviewPages: MetadataRoute.Sitemap = interviews
+    .filter(hasFullStory)
+    .map((i) => ({
+      url: `${BASE_URL}/interviews/${i.id}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    }));
 
   return [...crops, ...programs, ...education, ...events, ...interviewPages];
 }

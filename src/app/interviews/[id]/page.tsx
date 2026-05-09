@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
-import { interviews } from "@/lib/data/landing";
+import { interviews, hasFullStory } from "@/lib/data/landing";
 import { CROPS } from "@/lib/data/crops";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import { getInterviewImageSrc } from "@/lib/interview-image";
@@ -47,17 +47,26 @@ export async function generateMetadata({
   const person = getInterviewById(id);
   if (!person) return { title: "귀농 인터뷰 상세" };
 
+  // 본문 미동의자: 메타데이터만 가볍게 (페이지에서 외부 redirect 처리)
+  if (!hasFullStory(person)) {
+    return {
+      title: `${person.name}님의 귀농 이야기 — ${person.sourceName}`,
+      robots: { index: false, follow: false },
+    };
+  }
+
   const regionShort = person.region.split(" ")[0];
   return {
     title: `${person.name}님의 귀농 이야기 — ${regionShort} ${person.crop}`,
     description: `${regionShort}에서 ${person.crop}을(를) 재배하는 ${person.name}님의 귀농 경험담. ${person.story.slice(0, 120)}`,
-    keywords: [`${regionShort} 귀농`, `${person.crop} 재배`, "귀농 성공 사례", "귀농 인터뷰"],
+    keywords: [`${regionShort} 귀농`, `${person.crop} 재배`, "귀농 인터뷰"],
     alternates: { canonical: `/interviews/${id}` },
   };
 }
 
 export function generateStaticParams() {
-  return interviews.map((i) => ({ id: i.id }));
+  // 본문 동의 받은 분만 정적 페이지로 빌드. 미동의자는 dynamic 처리 + redirect.
+  return interviews.filter(hasFullStory).map((i) => ({ id: i.id }));
 }
 
 interface InterviewDetailPageProps {
@@ -71,7 +80,12 @@ export default async function InterviewDetailPage({
   const person = getInterviewById(id);
   if (!person) return notFound();
 
-  // 다른 인터뷰: 셔플 후 최대 3개
+  // 본문 미동의자는 원문 기사로 308 redirect (이름·본문 비공개, 출처 직결)
+  if (!hasFullStory(person)) {
+    redirect(person.sourceUrl);
+  }
+
+  // 다른 인터뷰: 본문 동의자 중에서만 셔플
   const otherInterviews = pickRandomOthers(id, 3);
   const illustration = getInterviewImageSrc(person.id);
 
@@ -246,31 +260,43 @@ export default async function InterviewDetailPage({
           <div className={s.relatedGrid}>
             {otherInterviews.map((p) => {
               const otherIllust = getInterviewImageSrc(p.id);
-              return (
-              <Link
-                key={p.id}
-                href={`/interviews/${p.id}`}
-                className={s.relatedCard}
-              >
-                {otherIllust ? (
-                  <div className={s.relatedAvatarWrap}>
-                    <Image
-                      src={otherIllust}
-                      alt={`${p.name}님의 농장 일러스트`}
-                      fill
-                      sizes="56px"
-                      style={{ objectFit: "cover" }}
-                    />
+              const isInternal = hasFullStory(p);
+              const cardInner = (
+                <>
+                  {otherIllust ? (
+                    <div className={s.relatedAvatarWrap}>
+                      <Image
+                        src={otherIllust}
+                        alt={`${p.name}님의 농장 일러스트`}
+                        fill
+                        sizes="56px"
+                        style={{ objectFit: "cover" }}
+                      />
+                    </div>
+                  ) : (
+                    <FarmerAvatar name={p.name} seed={p.id} size="sm" />
+                  )}
+                  <div className={s.relatedInfo}>
+                    <span className={s.relatedName}>{p.name}</span>
+                    <span className={s.relatedMeta}>{p.age} · {p.region}</span>
+                    <span className={s.relatedCrop}>{p.crop} · {p.sourceName}</span>
                   </div>
-                ) : (
-                  <FarmerAvatar name={p.name} seed={p.id} size="sm" />
-                )}
-                <div className={s.relatedInfo}>
-                  <span className={s.relatedName}>{p.name}</span>
-                  <span className={s.relatedMeta}>{p.age} · {p.region}</span>
-                  <span className={s.relatedCrop}>{p.crop}</span>
-                </div>
-              </Link>
+                </>
+              );
+              return isInternal ? (
+                <Link key={p.id} href={`/interviews/${p.id}`} className={s.relatedCard}>
+                  {cardInner}
+                </Link>
+              ) : (
+                <a
+                  key={p.id}
+                  href={p.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={s.relatedCard}
+                >
+                  {cardInner}
+                </a>
               );
             })}
           </div>

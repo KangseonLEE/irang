@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import { useDragScroll } from "@/lib/hooks/use-drag-scroll";
-import type { InterviewCard } from "@/lib/data/landing";
+import { hasFullStory, type InterviewCard } from "@/lib/data/landing";
 import s from "./interview-carousel.module.css";
 
 interface InterviewCarouselProps {
@@ -75,42 +75,54 @@ export function InterviewCarousel({ items, variant = "light" }: InterviewCarouse
     <div className={`${s.wrapper} ${variant === "dark" ? s.wrapperDark : ""}`}>
       {/* 카드 스크롤 영역 */}
       <div ref={scrollRef} className={s.scrollArea}>
-        {items.map((person) => (
-          <Link
-            key={person.id}
-            href={`/interviews/${person.id}`}
-            className={s.card}
-          >
-            {/* 상단: 아바타 + 이야기 읽기 */}
-            <div className={s.cardTop}>
-              <FarmerAvatar name={person.name} seed={person.id} size="sm" />
-              <span className={s.readMore}>
-                이야기 읽기 <ArrowRight size={12} />
-              </span>
-            </div>
+        {items.map((person) => {
+          const isInternal = hasFullStory(person);
+          const cardInner = (
+            <>
+              <div className={s.cardTop}>
+                <FarmerAvatar name={person.name} seed={person.id} size="sm" />
+                <span className={s.readMore}>
+                  {isInternal ? "이야기 읽기" : "원문 보기"} <ArrowRight size={12} />
+                </span>
+              </div>
 
-            <div className={s.profile}>
-              <span className={s.name}>
-                {person.name} · {person.age}
-              </span>
-              <span className={s.meta}>
-                {person.prevJob} &rarr; {person.currentJob}
-              </span>
-            </div>
+              <div className={s.profile}>
+                <span className={s.name}>
+                  {person.name} · {person.age}
+                </span>
+                <span className={s.meta}>
+                  {person.prevJob} &rarr; {person.currentJob}
+                </span>
+              </div>
 
-            <p className={s.quote}>{person.quote}</p>
+              <p className={s.quote}>{person.quote}</p>
 
-            <div className={s.tags}>
-              <span className={s.tag}>{person.region}</span>
-              <span className={s.tag}>{person.crop}</span>
-            </div>
+              <div className={s.tags}>
+                <span className={s.tag}>{person.region}</span>
+                <span className={s.tag}>{person.crop}</span>
+              </div>
 
-            {/* 출처 */}
-            <div className={s.source}>
-              {person.sourceName} · {person.sourceDate}
-            </div>
-          </Link>
-        ))}
+              <div className={s.source}>
+                {person.sourceName} · {person.sourceDate}
+              </div>
+            </>
+          );
+          return isInternal ? (
+            <Link key={person.id} href={`/interviews/${person.id}`} className={s.card}>
+              {cardInner}
+            </Link>
+          ) : (
+            <a
+              key={person.id}
+              href={person.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={s.card}
+            >
+              {cardInner}
+            </a>
+          );
+        })}
       </div>
 
       {/* 캐러셀 컨트롤: 모바일 + 데스크탑 */}

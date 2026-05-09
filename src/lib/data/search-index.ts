@@ -20,7 +20,7 @@ import { deriveStatus } from "@/lib/program-status";
 import { EDUCATION_COURSES } from "./education";
 import { EVENTS } from "./events";
 import { CENTERS } from "./centers";
-import { interviews } from "./landing";
+import { interviews, hasFullStory } from "./landing";
 import { GLOSSARY_ENTRIES } from "./glossary";
 import { GOV_PROGRAMS } from "./gov-roadmap";
 import { THERAPY_TRACKS } from "./therapy";
@@ -200,24 +200,32 @@ function getSearchIndex(): SearchItem[] {
   }));
 
   // ── 인터뷰 ──
-  const interviewItems: SearchItem[] = interviews.map((iv) => ({
-    type: "interview" as const,
-    id: iv.id,
-    title: `${iv.name} — ${iv.crop}`,
-    subtitle: truncate(iv.quote, 50),
-    href: `/interviews/${iv.id}`,
-    keywords: [
-      iv.name,
-      iv.region,
-      iv.crop,
-      iv.prevJob,
-      iv.currentJob,
-      "인터뷰",
-      "귀농인",
-      "이야기",
-    ],
-    icon: "\u{1F464}", // 👤
-  }));
+  // 본문 동의자는 내부 상세 페이지, 미동의자는 원문 기사 외부 링크
+  const interviewItems: SearchItem[] = interviews.map((iv) => {
+    const isInternal = hasFullStory(iv);
+    return {
+      type: "interview" as const,
+      id: iv.id,
+      title: `${iv.name} — ${iv.crop}`,
+      subtitle: isInternal
+        ? truncate(iv.quote, 50)
+        : `${iv.sourceName} 원문 기사`,
+      href: isInternal ? `/interviews/${iv.id}` : iv.sourceUrl,
+      external: !isInternal,
+      keywords: [
+        iv.name,
+        iv.region,
+        iv.crop,
+        iv.prevJob,
+        iv.currentJob,
+        iv.sourceName,
+        "인터뷰",
+        "귀농인",
+        "이야기",
+      ],
+      icon: "\u{1F464}", // 👤
+    };
+  });
 
   // ── 용어집 ──
   const glossaryCategoryKo: Record<string, string> = {
