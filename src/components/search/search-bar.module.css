@@ -797,3 +797,99 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ── 귀농 단계별 가이드 칩 (5/10 추가) ── */
+.guideStepsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.guideStepChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  text-decoration: none;
+  color: var(--foreground, #111827);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+
+.guideStepNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.guideStepTitle {
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .guideStepChip:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, var(--border, #e5e7eb));
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+  }
+}
+
+.guideStepChip:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ── 자주 묻는 질문 리스트 (5/10 추가) ── */
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.faqItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--muted, #f9fafb) 60%, transparent);
+  border: 1px solid transparent;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.faqQ {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  line-height: 1.4;
+}
+
+.faqA {
+  font-size: 0.8rem;
+  color: var(--muted-foreground, #6b7280);
+  line-height: 1.5;
+}
+
+@media (hover: hover) {
+  .faqItem:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, var(--card, #fff));
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 18%, var(--border, #e5e7eb));
+  }
+}
+
+.faqItem:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}

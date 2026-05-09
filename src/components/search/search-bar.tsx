@@ -21,6 +21,12 @@ import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
 import { RequestButton } from "@/components/feedback/request-modal";
 import { useBodyScrollLock } from "@/lib/hooks/use-body-scroll-lock";
+import { PLAN_STEPS } from "@/lib/data/plan";
+import { SEARCH_FAQS } from "@/lib/data/search-faq";
+
+// 검색 홈에서 노출할 FAQ — 큐레이션된 5건 (자주 들어오는 질문 위주).
+// 답: 첫 5개 표준 FAQ — 5단계 로드맵·비용·적합도·생활비·작물 추천.
+const FEATURED_FAQ_INDICES = [0, 2, 4, 5, 6] as const;
 import s from "./search-bar.module.css";
 
 // ---------------------------------------------------------------------------
@@ -788,6 +794,46 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                         </span>
                         <span className={s.popularLabel}>{kw.label}</span>
                       </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 귀농 단계별 가이드 */}
+              <div className={s.expandedSection}>
+                <div className={s.sectionLabel}>단계별 가이드</div>
+                <div className={s.guideStepsRow}>
+                  {PLAN_STEPS.map((step) => (
+                    <Link
+                      key={step.id}
+                      href={`/guide#step${step.step}`}
+                      className={s.guideStepChip}
+                      onClick={handleQuickNav}
+                    >
+                      <span className={s.guideStepNum}>{step.step}</span>
+                      <span className={s.guideStepTitle}>{step.title}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* 자주 묻는 질문 — FEATURED 5건 */}
+              <div className={s.expandedSection}>
+                <div className={s.sectionLabel}>자주 묻는 질문</div>
+                <div className={s.faqList}>
+                  {FEATURED_FAQ_INDICES.map((idx) => {
+                    const faq = SEARCH_FAQS[idx];
+                    if (!faq) return null;
+                    return (
+                      <Link
+                        key={faq.href + idx}
+                        href={faq.href}
+                        className={s.faqItem}
+                        onClick={handleQuickNav}
+                      >
+                        <span className={s.faqQ}>{faq.patterns[0]}</span>
+                        <span className={s.faqA}>{faq.description}</span>
+                      </Link>
                     );
                   })}
                 </div>
