@@ -28,6 +28,7 @@ import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { RegionAsyncData } from "./region-async-data";
 import { RegionAsyncSkeleton } from "./region-async-skeleton";
 import { SigunguList } from "./sigungu-list";
+import { StickyRegionHeader } from "./sticky-region-header";
 import s from "./page.module.css";
 
 interface PageProps {
@@ -96,8 +97,15 @@ export default async function RegionDetailPage({ params }: PageProps) {
         ← 지역 목록으로
       </Link>
 
+      {/* 스크롤 시 노출되는 sticky 헤더 — 모바일 전용 (CSS에서 데스크탑 hide) */}
+      <StickyRegionHeader
+        overline={province.name}
+        shortName={province.shortName}
+        watchTargetId="region-hero"
+      />
+
       {/* Hero — 정적 이미지 + 텍스트 정보. 모바일에서 텍스트는 이미지 위 absolute. */}
-      <section className={s.hero}>
+      <section className={s.hero} id="region-hero">
         <div className={s.heroBanner}>
           <Image
             src={`/images/regions/${province.id}.png`}
