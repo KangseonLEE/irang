@@ -8,6 +8,54 @@ import { getEnrichedHighlights } from "@/lib/data/popular-tags";
 import { getDensityColor, getDensityRange } from "@/lib/map-utils";
 import s from "./province-map.module.css";
 
+/**
+ * 본토와 떨어진 도서 시군구 ID — 본토 viewBox에서 제외하고 별도 inset으로 표시.
+ * 본토만 viewBox에 잡혀 본토 시·군이 크게 보임.
+ * 5/10 추가: 경북 울릉도가 viewBox를 800까지 늘려 본토가 작게 보이는 이슈.
+ */
+const ISLAND_SIGUNGUS: Record<string, ReadonlySet<string>> = {
+  gyeongbuk: new Set(["ulleung"]),
+  // TODO: 다른 시·도 도서 점검 후 추가 (인천 옹진·강화, 충남 태안 도서 등)
+};
+
+/** SVG path "d" 문자열에서 모든 (x, y) 좌표 페어 추출 */
+function extractPathCoords(d: string): Array<{ x: number; y: number }> {
+  const numbers = d.match(/-?\d+(?:\.\d+)?/g);
+  if (!numbers) return [];
+  const coords: Array<{ x: number; y: number }> = [];
+  for (let i = 0; i + 1 < numbers.length; i += 2) {
+    const x = parseFloat(numbers[i]);
+    const y = parseFloat(numbers[i + 1]);
+    if (Number.isFinite(x) && Number.isFinite(y)) {
+      coords.push({ x, y });
+    }
+  }
+  return coords;
+}
+
+/** 시군구 path 모음의 bounding box 계산 */
+function computeBoundingBox(items: SigunguMapLocation[]): {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+} | null {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const item of items) {
+    for (const c of extractPathCoords(item.path)) {
+      if (c.x < minX) minX = c.x;
+      if (c.y < minY) minY = c.y;
+      if (c.x > maxX) maxX = c.x;
+      if (c.y > maxY) maxY = c.y;
+    }
+  }
+  if (!Number.isFinite(minX)) return null;
+  return { minX, minY, maxX, maxY };
+}
+
 interface ProvinceMapProps {
   /** 시/도 ID (예: "gangwon") — 라우팅 prefix */
   provinceId: string;
@@ -44,8 +92,30 @@ export function ProvinceMap({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
 
-  // 밀도 판단 (20개 이상이면 라벨 작게)
-  const isDense = sigungus.length >= 20;
+  // 본토와 도서 분리 — 도서는 SVG에서 빼고 별도 hint 칩으로 표시
+  const islandIds = ISLAND_SIGUNGUS[provinceId] ?? null;
+  const mainSigungus = useMemo(
+    () => (islandIds ? sigungus.filter((sg) => !islandIds.has(sg.sigunguId)) : sigungus),
+    [sigungus, islandIds],
+  );
+  const islandSigungus = useMemo(
+    () => (islandIds ? sigungus.filter((sg) => islandIds.has(sg.sigunguId)) : []),
+    [sigungus, islandIds],
+  );
+
+  // 본토 bounding box로 viewBox 동적 계산 — 본토 시·군이 크게 보임
+  const computedViewBox = useMemo(() => {
+    if (islandSigungus.length === 0) return viewBox;
+    const bb = computeBoundingBox(mainSigungus);
+    if (!bb) return viewBox;
+    const w = bb.maxX - bb.minX;
+    const h = bb.maxY - bb.minY;
+    const pad = Math.max(w, h) * 0.05; // 5% 패딩
+    return `${bb.minX - pad} ${bb.minY - pad} ${w + pad * 2} ${h + pad * 2}`;
+  }, [mainSigungus, islandSigungus, viewBox]);
+
+  // 밀도 판단 (20개 이상이면 라벨 작게) — 본토 기준
+  const isDense = mainSigungus.length >= 20;
 
   // 밀도 색상 계산 (sigunguId → fill color)
   const densityColors = useMemo(() => {
@@ -91,6 +161,7 @@ export function ProvinceMap({
   }, []);
 
   // 시군구 ID → 상세 데이터 매핑 (라벨 shortName + 호버 툴팁용)
+  // 도서 포함 — 호버 시 데이터 조회용
   const sigunguMap = useMemo(() => {
     const map = new Map<string, ReturnType<typeof getSigunguBySidoAndId>>();
     for (const sg of sigungus) {
@@ -112,13 +183,13 @@ export function ProvinceMap({
     <div className={s.mapContainer} ref={containerRef}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox={viewBox}
+        viewBox={computedViewBox}
         className={s.svg}
         role="img"
         aria-label="시군구 지도 — 인구밀도 기준 색상"
       >
-        {/* 시군구 paths */}
-        {sigungus.map((sg) => {
+        {/* 시군구 paths — 본토만. 도서는 별도 칩으로 표시 */}
+        {mainSigungus.map((sg) => {
           const isActive = hoveredId === sg.sigunguId;
           const densityFill = densityColors?.[sg.sigunguId];
           return (
@@ -148,8 +219,8 @@ export function ProvinceMap({
           );
         })}
 
-        {/* 라벨 */}
-        {sigungus.map((sg) => {
+        {/* 라벨 — 본토만 */}
+        {mainSigungus.map((sg) => {
           const isActive = hoveredId === sg.sigunguId;
           const sigunguData = sigunguMap.get(sg.sigunguId);
           const label = sigunguData?.shortName ?? sg.name.replace(/(시|군|구)$/, "");
@@ -165,6 +236,24 @@ export function ProvinceMap({
           );
         })}
       </svg>
+
+      {/* 도서 안내 칩 — 본토 viewBox에서 빠진 도서 시·군 (예: 울릉도) */}
+      {islandSigungus.length > 0 && (
+        <div className={s.islandsHint}>
+          <span className={s.islandsLabel}>이 지역의 섬:</span>
+          {islandSigungus.map((sg) => (
+            <button
+              key={sg.sigunguId}
+              type="button"
+              className={s.islandChip}
+              onClick={() => handleClick(sg.sigunguId)}
+              onMouseEnter={() => handleMouseEnter(sg.sigunguId)}
+            >
+              {sg.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* 밀도 범례 */}
       {densityMap && Object.keys(densityMap).length > 0 && (

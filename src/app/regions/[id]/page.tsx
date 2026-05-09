@@ -26,6 +26,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { RegionAsyncData } from "./region-async-data";
 import { RegionAsyncSkeleton } from "./region-async-skeleton";
+import { SigunguList } from "./sigungu-list";
 import s from "./page.module.css";
 
 interface PageProps {
@@ -246,29 +247,16 @@ export default async function RegionDetailPage({ params }: PageProps) {
                   </p>
                 </div>
               </div>
-              <div className={s.sigunguGrid}>
-                {sigungus.map((sg) => (
-                  <Link
-                    key={sg.id}
-                    href={`/regions/${province.id}/${sg.id}`}
-                    className={s.sigunguCard}
-                  >
-                    <h3 className={s.sigunguName}>{sg.name}</h3>
-                    <p className={s.sigunguDesc}>
-                      <AutoGlossary text={sg.description} />
-                    </p>
-                    {sg.mainCrops.length > 0 && (
-                      <div className={s.sigunguCrops}>
-                        {sg.mainCrops.slice(0, 3).map((crop) => (
-                          <span key={crop} className={s.sigunguCrop}>
-                            {crop}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </Link>
-                ))}
-              </div>
+              <SigunguList
+                provinceId={province.id}
+                sigungus={sigungus.map((sg) => ({
+                  id: sg.id,
+                  name: sg.name,
+                  shortName: sg.shortName,
+                  description: sg.description,
+                  mainCrops: sg.mainCrops,
+                }))}
+              />
             </section>
           )}
         </div>

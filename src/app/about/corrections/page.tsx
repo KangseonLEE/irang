@@ -25,6 +25,18 @@ interface CorrectionEntry {
 const CORRECTIONS: CorrectionEntry[] = [
   {
     date: "2026-05-10",
+    field: "지역 페이지 모바일 레이아웃 개선",
+    description:
+      "시·도 상세 페이지의 지도가 울릉도(경북) 등 본토에서 떨어진 도서 때문에 viewBox가 커져 본토가 작게 표시되던 문제를 보정했어요. 본토 좌표를 자동 계산해 viewBox를 좁히고, 도서 시·군은 별도 ‘이 지역의 섬’ 칩으로 안내합니다. 시·군·구 리스트도 검색(초성 매칭 포함) + 5건 단위 페이지네이션을 추가해 모바일 스크롤 부담을 줄였어요.",
+  },
+  {
+    date: "2026-05-10",
+    field: "/programs RSC payload 노출 사고 + 캐시 차단",
+    description:
+      "iOS Safari로 /programs 접속 시 RSC payload가 본문 텍스트로 노출되며 다운로드 다이얼로그가 발생하던 문제를 즉시 보정했어요. Cloudflare가 RSC variant 응답을 일반 GET 응답으로 잘못 캐시한 게 원인이라, middleware에서 RSC fetch에는 Cache-Control: private, no-store + CDN-Cache-Control: no-store를 강제 적용해 동일 사고 재발을 차단했어요.",
+  },
+  {
+    date: "2026-05-10",
     field: "지원사업 데이터 점검 + 비수기 안내 추가",
     description:
       "/programs 14개 지원사업 sourceUrl 전수 헬스체크(0 broken) + applicationStart/End 정확성 재확인을 마쳤어요. 5월 현재 활성 공고가 2건뿐인 건 1~3월·7~9월에 모집이 집중되는 자연스러운 사이클이라, 사용자 혼란이 없도록 /programs 상단에 모집 시즌 안내 박스를 추가했어요.",

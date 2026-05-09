@@ -214,3 +214,48 @@
     width: 100px;
   }
 }
+
+/* ── 도서 안내 칩 (5/10 추가) — 본토 viewBox에서 빠진 도서 시·군 ── */
+.islandsHint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 14%, var(--border, #e5e7eb));
+  font-size: var(--fs-caption, 0.8125rem);
+}
+
+.islandsLabel {
+  color: var(--muted-foreground, #6b7280);
+  font-weight: 500;
+}
+
+.islandChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--card, #fff);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 25%, var(--border, #e5e7eb));
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+@media (hover: hover) {
+  .islandChip:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, var(--card, #fff));
+    transform: translateY(-1px);
+  }
+}
+
+.islandChip:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
