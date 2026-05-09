@@ -24,6 +24,12 @@ interface CorrectionEntry {
 
 const CORRECTIONS: CorrectionEntry[] = [
   {
+    date: "2026-05-10",
+    field: "농촌 소식 — 모집 공고 신청 기간 검증 정비",
+    description:
+      "교육·행사·지원 카테고리에서 게재일이 최신이라도 신청 기간이 이미 끝난 모집 공고가 노출되던 문제를 보정했어요. 단발 모집 공고 대신 농업교육포털·종합지원센터·박람회 포털 등 상시 정보 페이지 위주로 재구성했고, 활성 모집은 신청 기간이 동적으로 검증되는 /education·/events·/programs 페이지에서 책임지도록 분리했어요.",
+  },
+  {
     date: "2026-05-09",
     field: "농촌 소식 데이터 2026 갱신 + 마감 공고 자동 숨김",
     description:
