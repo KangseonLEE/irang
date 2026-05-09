@@ -2,10 +2,12 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import { useDragScroll } from "@/lib/hooks/use-drag-scroll";
 import { hasFullStory, type InterviewCard } from "@/lib/data/landing";
+import { getInterviewImageSrc } from "@/lib/interview-image";
 import s from "./interview-carousel.module.css";
 
 interface InterviewCarouselProps {
@@ -77,10 +79,25 @@ export function InterviewCarousel({ items, variant = "light" }: InterviewCarouse
       <div ref={scrollRef} className={s.scrollArea}>
         {items.map((person) => {
           const isInternal = hasFullStory(person);
+          const illustration = getInterviewImageSrc(person.id);
           const cardInner = (
             <>
+              {illustration && (
+                <div className={s.cardImageWrap}>
+                  <Image
+                    src={illustration}
+                    alt={`${person.name}님의 농장 일러스트`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className={s.cardImage}
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              )}
               <div className={s.cardTop}>
-                <FarmerAvatar name={person.name} seed={person.id} size="sm" />
+                {!illustration && (
+                  <FarmerAvatar name={person.name} seed={person.id} size="sm" />
+                )}
                 <span className={s.readMore}>
                   {isInternal ? "이야기 읽기" : "원문 보기"} <ArrowRight size={12} />
                 </span>

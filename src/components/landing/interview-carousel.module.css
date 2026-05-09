@@ -95,11 +95,43 @@
   }
 }
 
+/* ── 카드 상단 일러 영역 (codex-image 생성, 농장 풍경) ── */
+.cardImageWrap {
+  position: relative;
+  width: calc(100% + 32px);
+  margin: -20px -16px 4px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+}
+
+@media (min-width: 768px) {
+  .cardImageWrap {
+    width: calc(100% + 40px);
+    margin: -24px -20px 4px;
+  }
+}
+
+.cardImage {
+  transition: transform 0.4s ease;
+}
+
+@media (hover: hover) {
+  .card:hover .cardImage {
+    transform: scale(1.04);
+  }
+}
+
 /* ── 카드 상단: 아바타 + 이야기 읽기 ── */
 .cardTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+/* 일러스트가 있을 때(FarmerAvatar 미사용) "이야기 읽기"를 우측 정렬 */
+.cardTop > .readMore:only-child {
+  margin-left: auto;
 }
 
 /* ── 프로필 ── */
