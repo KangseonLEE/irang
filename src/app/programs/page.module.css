@@ -110,6 +110,38 @@
 }
 
 /* ══════════════════════════════════════════
+   모집 시즌 안내 — 비수기에 활성 공고가 적은 이유 설명
+   ══════════════════════════════════════════ */
+.seasonNotice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 16px;
+  margin-top: 4px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, var(--card, #fff));
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, var(--border, #e5e7eb));
+}
+
+.seasonNoticeIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--primary, #1b6b5a);
+}
+
+.seasonNoticeText {
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: var(--lh-normal, 1.5);
+  color: var(--foreground, #111827);
+  margin: 0;
+}
+
+.seasonNoticeText strong {
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+}
+
+/* ══════════════════════════════════════════
    피드백 CTA 카드
    ══════════════════════════════════════════ */
 .feedbackCta {

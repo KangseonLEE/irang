@@ -25,6 +25,12 @@ interface CorrectionEntry {
 const CORRECTIONS: CorrectionEntry[] = [
   {
     date: "2026-05-10",
+    field: "지원사업 데이터 점검 + 비수기 안내 추가",
+    description:
+      "/programs 14개 지원사업 sourceUrl 전수 헬스체크(0 broken) + applicationStart/End 정확성 재확인을 마쳤어요. 5월 현재 활성 공고가 2건뿐인 건 1~3월·7~9월에 모집이 집중되는 자연스러운 사이클이라, 사용자 혼란이 없도록 /programs 상단에 모집 시즌 안내 박스를 추가했어요.",
+  },
+  {
+    date: "2026-05-10",
     field: "농촌 소식 — 모집 공고 신청 기간 검증 정비",
     description:
       "교육·행사·지원 카테고리에서 게재일이 최신이라도 신청 기간이 이미 끝난 모집 공고가 노출되던 문제를 보정했어요. 단발 모집 공고 대신 농업교육포털·종합지원센터·박람회 포털 등 상시 정보 페이지 위주로 재구성했고, 활성 모집은 신청 기간이 동적으로 검증되는 /education·/events·/programs 페이지에서 책임지도록 분리했어요.",

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { FileText, ArrowRight, Map } from "lucide-react";
+import { FileText, ArrowRight, Map, Info } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -181,6 +181,16 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         periodLabel={periodLabel}
         dataNote={`${dataYear}년 데이터만 제공되며, 연도 변경은 지원되지 않습니다.`}
       />
+
+      {/* 모집 시즌 안내 — 5월 같은 비수기에 활성 공고가 적은 이유 설명 */}
+      <div className={s.seasonNotice} role="note">
+        <Info size={16} aria-hidden="true" className={s.seasonNoticeIcon} />
+        <p className={s.seasonNoticeText}>
+          귀농 지원사업은 보통 <strong>1~3월(상반기) · 7~9월(하반기)</strong>에 모집을 집중해요.
+          그 외 시기에는 활성 공고가 적을 수 있어요. 지난 모집 사례까지 참고하려면 아래
+          <strong> 마감 포함</strong> 토글을 켜 보세요.
+        </p>
+      </div>
 
       {/* Filter Bar */}
       <FilterBar>
