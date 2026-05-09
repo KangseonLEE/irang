@@ -24,6 +24,12 @@ interface CorrectionEntry {
 
 const CORRECTIONS: CorrectionEntry[] = [
   {
+    date: "2026-05-09",
+    field: "귀농인 인터뷰 인용 정책 정비",
+    description:
+      "본인 명시 동의 없이 게재되어 있던 인터뷰 본문(이야기·동기·어려움·조언)을 일괄 제거하고, 미동의자의 카드는 원문 기사로 직접 이동하도록 변경했어요. 본인 정정·삭제 요청 채널을 페이지 하단에 명시하고 약관 제4조에 인용 정책을 명문화했어요.",
+  },
+  {
     date: "2026-04-16",
     field: "지원사업 상태 표시",
     description:
@@ -87,14 +93,20 @@ export default function CorrectionsPage() {
         </div>
         <div className={s.sectionBody}>
           <p>
-            잘못된 정보나 오래된 데이터를 발견하시면 알려주세요. 확인 후 빠르게
-            수정하겠습니다.
+            데이터 오류, 외부 링크 문제, 본인 정보 정정·삭제 요청까지 — 어떤 종류든
+            알려주시면 영업일 3일 안에 확인하고 처리해 드려요.
           </p>
           <div className={s.callout}>
             <div>
               <strong>피드백 보내기</strong>
-              <span>
-                페이지 하단의 피드백 버튼을 이용하시거나, 이메일로 알려주세요.
+              <a
+                href={`mailto:loyal3270@gmail.com?subject=${encodeURIComponent("[이랑] 데이터 정정 요청")}`}
+                className={s.calloutPhone}
+              >
+                loyal3270@gmail.com
+              </a>
+              <span style={{ display: "block", marginTop: 4 }}>
+                메일 제목과 본문에 어느 페이지의 어떤 데이터인지 적어주시면 빠르게 처리돼요.
               </span>
             </div>
           </div>
