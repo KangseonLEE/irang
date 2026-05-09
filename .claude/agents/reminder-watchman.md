@@ -106,6 +106,36 @@ Vercel Hobby는 공식 Usage API 없음. 다음 순서로 점검:
 4. 임계 비교 후 ⚪/🟡/🔴 분류
 5. Cloudflare는 Dashboard → Security → Events에서 Last 24h 차단 카운트 확인 요청
 
+### 10. 지원사업·박람회 모집 사이클 갱신 알림 (2026-05-10 추가)
+
+> 배경: 5/10 /programs 14개 SP-XXX 점검 결과 12건 마감, 활성 2건. 5월은 모집 비수기 — 1~3월·7~9월에 모집 집중. 비수기 동안 데이터 outdated 인상이 누적되지 않도록 사이클 시작 직전에 갱신 알림 필요.
+
+#### 10-1. 트리거 시점
+
+| 시기 | 알림 내용 |
+|---|---|
+| **매년 6/15** | 7~9월 하반기 모집 사이클 임박 → 새 SP 후보 검색 + trendProgramNews/trendEventNews 갱신 권장 |
+| **매년 12/15** | 1~3월 상반기 모집 사이클 임박 → 동일 |
+
+#### 10-2. 즉시 점검 항목 (위 시기와 무관)
+
+```bash
+# /programs 활성 SP 수 카운트 (deriveStatus 모집중·모집예정)
+# trendProgramNews/trendEventNews 마지막 수정일
+LAST=$(git log -1 --pretty=format:"%cs" -- src/lib/data/landing.ts src/lib/data/programs.ts)
+```
+
+판정:
+- **활성 SP 수 < 3건이고 비수기 외 시기**: 🟡 갱신 권장
+- **trendNews 5종 마지막 수정일이 90일+ 지남**: 🟡 점검 권고
+- **사이트 모집 시즌(1~3월·7~9월) 중인데 활성 SP 수 < 5건**: 🔴 즉시 갱신 필요
+
+#### 10-3. 갱신 시 필수 검증 (5/10 학습)
+
+- **publication date ≠ application period** — 게재일이 최신이라도 신청 기간 마감이면 박지 않음
+- 신규 SP 추가 시 본문에서 `applicationStart`·`applicationEnd` 명시적 추출
+- 정보형(시행지침·통합 안내)과 활성 모집을 혼동하지 말 것 (정보형은 trendNews 외 카테고리 부적절)
+
 ### 9. 데이터 정정 이력 갱신 누락 (2026-05-09 추가)
 
 > 배경: 5/9 인터뷰 본문 4종 제거 commit이 있었으나 `/about/corrections` 페이지가 4월 정정 내역에서 멈춰 있었음. 데이터 정정 commit이 있는데 정정 이력 페이지에 반영 안 되면 "이랑이 데이터 신뢰성을 어떻게 관리하는지" 보여주는 페이지 가치가 떨어짐.
