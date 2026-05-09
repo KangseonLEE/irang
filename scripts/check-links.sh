@@ -47,6 +47,20 @@ TIMEOUT=0
 RESULTS=""
 ISSUE_BODY=""
 
+# 브라우저 UA — 한국 뉴스/공공기관 사이트가 curl 기본 UA를 봇으로 차단하는 경우 대응
+# (CLAUDE.md "한국 뉴스 사이트 주의" 항목 참고)
+UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+# 단일 URL fetch — 한 번 시도, status code만 반환
+fetch_status() {
+  local url="$1"
+  curl -o /dev/null -s -w "%{http_code}" --max-time 20 -L \
+    -A "$UA" \
+    -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+    -H "Accept-Language: ko-KR,ko;q=0.9,en;q=0.8" \
+    "$url" 2>/dev/null || echo "000"
+}
+
 check_url() {
   local id="$1"
   local url="$2"
@@ -55,7 +69,13 @@ check_url() {
   TOTAL=$((TOTAL + 1))
 
   local code
-  code=$(curl -o /dev/null -s -w "%{http_code}" --max-time 15 -L "$url" 2>/dev/null || echo "000")
+  code=$(fetch_status "$url")
+
+  # 1차 실패(000/4xx/5xx) 시 1회 재시도 — 일시적 네트워크 흔들림 대응
+  if [ "$code" = "000" ] || { [ "$code" -ge 400 ] 2>/dev/null && [ "$code" -lt 600 ] 2>/dev/null; }; then
+    sleep 2
+    code=$(fetch_status "$url")
+  fi
 
   local domain
   domain=$(echo "$url" | sed 's|https\{0,1\}://\([^/]*\).*|\1|' | sed 's/^www\.//')
