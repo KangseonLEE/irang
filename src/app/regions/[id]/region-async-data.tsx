@@ -21,7 +21,7 @@ import { Icon } from "@/components/ui/icon";
 import { RegionStats } from "./region-stats";
 import { LandCheckBox } from "@/components/region/land-check-box";
 import { DataSource } from "@/components/ui/data-source";
-import { ProvinceMapWithToggle } from "@/components/map/province-map-with-toggle";
+import { SigunguExplorer } from "@/components/region/sigungu-explorer";
 import type { Province } from "@/lib/data/regions";
 import type { Sigungu } from "@/lib/data/sigungus";
 import { loadProvinceMap } from "@/lib/data/province-maps";
@@ -320,27 +320,31 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
         </section>
       )}
 
-      {/* 시/군/구 지도 */}
+      {/* 시·군·구 탐색 — 지도 ↔ 카드 토글 */}
       {sigungus.length > 0 && (
         <section className={s.section}>
           <div className={s.sectionHeader}>
             <Icon icon={MapPin} size="lg"  />
-            <div>
-              <h2 className={s.sectionTitle}>시/군/구 둘러보기</h2>
+            <div className={s.sectionHeaderBody}>
+              <h2 className={s.sectionTitle}>시·군·구 탐색</h2>
               <p className={s.sectionDesc}>
-                지도에서 시/군/구를 클릭하면 상세 페이지로 이동해요.
+                지도와 카드, 편한 방식으로 둘러보세요.
               </p>
             </div>
           </div>
-          {mapData && (
-            <ProvinceMapWithToggle
-              provinceId={province.id}
-              sigungus={mapData.sigungus}
-              viewBox={mapData.viewBox}
-              populationDensityMap={sigunguDensityMap}
-              farmDensityMap={sigunguFarmDensityMap}
-            />
-          )}
+          <SigunguExplorer
+            provinceId={province.id}
+            sigungus={sigungus.map((sg) => ({
+              id: sg.id,
+              name: sg.name,
+              shortName: sg.shortName,
+              description: sg.description,
+              mainCrops: sg.mainCrops,
+            }))}
+            mapData={mapData}
+            populationDensityMap={sigunguDensityMap}
+            farmDensityMap={sigunguFarmDensityMap}
+          />
         </section>
       )}
 

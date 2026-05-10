@@ -133,6 +133,60 @@
   color: var(--muted-foreground);
 }
 
+/* ---- 지역 적합도 배지 ---- */
+.fitBadge {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
+}
+
+.fitBadgeHigh {
+  background: color-mix(in srgb, #059669 8%, transparent);
+}
+
+.fitBadgeMid {
+  background: color-mix(in srgb, #d97706 8%, transparent);
+}
+
+.fitDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.fitBadgeHigh .fitDot {
+  background: #059669;
+}
+
+.fitBadgeMid .fitDot {
+  background: #d97706;
+}
+
+.fitLevel {
+  font-weight: 700;
+}
+
+.fitBadgeHigh .fitLevel {
+  color: #047857;
+}
+
+.fitBadgeMid .fitLevel {
+  color: #b45309;
+}
+
+.fitReason {
+  color: var(--muted-foreground);
+  word-break: keep-all;
+}
+
 /* ---- 노동·난이도 strip (2칸 grid) ---- */
 .statStrip {
   display: grid;

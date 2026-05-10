@@ -13,7 +13,6 @@ import {
   ArrowRight,
   UserCheck,
   Building2,
-  MapPin,
 } from "lucide-react";
 import { getSidoCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
@@ -28,8 +27,8 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { RegionAsyncData } from "./region-async-data";
 import { RegionAsyncSkeleton } from "./region-async-skeleton";
-import { SigunguList } from "./sigungu-list";
 import { StickyRegionHeader, type StickyChip } from "./sticky-region-header";
+import { getCropFit } from "@/lib/data/crop-fit";
 import {
   computePersonaScore,
   getPersona,
@@ -364,21 +363,26 @@ export default async function RegionDetailPage({ params }: PageProps) {
             {topCrops.length > 0 ? (
               <>
                 <div className={s.cropGrid}>
-                  {topCrops.map(({ crop, detail, revenueValue, revenueLabel }) => (
-                    <CropRichCard
-                      key={crop.id}
-                      cropId={crop.id}
-                      name={crop.name}
-                      href={`/crops/${crop.id}`}
-                      meta={`${crop.growingSeason} 재배`}
-                      revenueLabel={revenueLabel}
-                      revenueValue={revenueValue}
-                      revenueMax={revenueMax > 0 ? revenueMax : null}
-                      laborIntensity={detail.income.laborIntensity}
-                      difficulty={crop.difficulty}
-                      source={detail.income.source}
-                    />
-                  ))}
+                  {topCrops.map(({ crop, detail, revenueValue, revenueLabel }) => {
+                    const fit = getCropFit(province.shortName, crop.name, sigungus);
+                    return (
+                      <CropRichCard
+                        key={crop.id}
+                        cropId={crop.id}
+                        name={crop.name}
+                        href={`/crops/${crop.id}`}
+                        meta={`${crop.growingSeason} 재배`}
+                        revenueLabel={revenueLabel}
+                        revenueValue={revenueValue}
+                        revenueMax={revenueMax > 0 ? revenueMax : null}
+                        laborIntensity={detail.income.laborIntensity}
+                        difficulty={crop.difficulty}
+                        source={detail.income.source}
+                        fitLevel={fit.level}
+                        fitReason={fit.reason}
+                      />
+                    );
+                  })}
                 </div>
                 {remainingCount > 0 && (
                   <Link href="/crops" className={s.cropMoreLink}>
@@ -426,31 +430,6 @@ export default async function RegionDetailPage({ params }: PageProps) {
             </section>
           )}
 
-          {/* 시군구 목록 — 모든 시군구 link (SEO + 사용자 navigation) */}
-          {sigungus.length > 0 && (
-            <section className={s.section}>
-              <div className={s.sectionHeader}>
-                <Icon icon={MapPin} size="lg" />
-                <div className={s.sectionHeaderBody}>
-                  <h2 className={s.sectionTitle}>시군구별 정보</h2>
-                  <p className={s.sectionDesc}>
-                    {province.shortName}의 {sigungus.length}개 시군구 — 작물·기후·인프라
-                    상세를 확인하세요.
-                  </p>
-                </div>
-              </div>
-              <SigunguList
-                provinceId={province.id}
-                sigungus={sigungus.map((sg) => ({
-                  id: sg.id,
-                  name: sg.name,
-                  shortName: sg.shortName,
-                  description: sg.description,
-                  mainCrops: sg.mainCrops,
-                }))}
-              />
-            </section>
-          )}
         </div>
 
         {/* Right Sidebar — 정적 */}

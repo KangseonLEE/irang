@@ -14,6 +14,7 @@ import s from "./crop-rich-card.module.css";
 type Tone = "positive" | "neutral" | "caution";
 type LaborLevel = "낮음" | "보통" | "높음";
 type DifficultyLevel = "쉬움" | "보통" | "어려움";
+type FitLevel = "high" | "mid";
 
 interface CropRichCardProps {
   /** 작물 ID (이미지 경로 생성용: /crops/{id}.jpg) */
@@ -36,6 +37,10 @@ interface CropRichCardProps {
   difficulty?: DifficultyLevel;
   /** 수익 데이터 출처 */
   source?: string;
+  /** 지역 적합도 배지 (시도 상세 페이지의 "추천 작물"에서 활용) */
+  fitLevel?: FitLevel;
+  /** 적합도 1줄 근거 (예: "전남 산하 5곳에서 재배해요") */
+  fitReason?: string;
 
   // ─ 비교 모드 (선택, 작물 상세 페이지의 "관련 작물" 등) ─
   /**
@@ -124,6 +129,8 @@ export function CropRichCard({
   laborIntensity,
   difficulty,
   source,
+  fitLevel,
+  fitReason,
   comparisonName,
   comparisonRevenue,
   comparisonLabor,
@@ -227,6 +234,19 @@ export function CropRichCard({
           <span className={s.revenueRaw}>{revenueLabel}</span>
         )}
       </div>
+
+      {fitLevel && fitReason && (
+        <div
+          className={`${s.fitBadge} ${fitLevel === "high" ? s.fitBadgeHigh : s.fitBadgeMid}`}
+          aria-label={`지역 적합도 ${fitLevel === "high" ? "높음" : "중간"} — ${fitReason}`}
+        >
+          <span className={s.fitDot} aria-hidden="true" />
+          <span className={s.fitLevel}>
+            {fitLevel === "high" ? "적합도 높음" : "적합도 중간"}
+          </span>
+          <span className={s.fitReason}>{fitReason}</span>
+        </div>
+      )}
 
       {(laborIntensity || difficulty) && (
         <div
