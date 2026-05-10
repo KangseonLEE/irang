@@ -98,6 +98,48 @@
   }
 }
 
+/* compact 모드 — SigunguExplorer 데스크탑 split의 우측 패널(320~420px)에서 사용.
+   1열 강제 + 카드 패딩·gap 약간 축소. 모바일 단독 사용 시에는 .compact 미적용. */
+.compact .grid {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .compact .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .compact .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.compact .card {
+  padding: 14px 16px;
+  gap: 6px;
+}
+
+.compact .name {
+  font-size: 0.95rem;
+}
+
+.compact .desc {
+  font-size: 0.82rem;
+  -webkit-line-clamp: 2;
+}
+
+.compact .crops {
+  margin-top: 2px;
+}
+
+.compact .crop {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+}
+
 /* 카드 */
 .card {
   display: flex;

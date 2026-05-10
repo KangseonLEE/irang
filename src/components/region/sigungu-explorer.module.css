@@ -1,7 +1,7 @@
 /* ==========================================================================
    SigunguExplorer — 시·군·구 통합 탐색
-   상단 우측에 "지도 / 카드" view toggle (segmented control)
-   하단에 선택된 view 렌더링.
+   - 데스크탑(≥1024px): split view (좌 맵 + 우 카드 동시 노출), 토글 hide
+   - 모바일/태블릿(<1024px): 토글 + 단일 뷰 (data-view 기준)
    ========================================================================== */
 
 .wrap {
@@ -10,6 +10,7 @@
   gap: 16px;
 }
 
+/* ── 토글 (모바일/태블릿 전용) ───────────────────────────────────────────── */
 .viewToggle {
   align-self: flex-end;
   display: inline-flex;
@@ -65,5 +66,82 @@
     flex: 1;
     justify-content: center;
     padding: 8px 12px;
+  }
+}
+
+/* ── split 컨테이너 ──────────────────────────────────────────────────────── */
+/* 모바일/태블릿(<1024px) 기본: 단일 컬럼, data-view 기준 한 영역만 보임 */
+.split {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.split[data-view="map"] .cardPane {
+  display: none;
+}
+
+.split[data-view="card"] .mapPane {
+  display: none;
+}
+
+.mapPane,
+.cardPane {
+  min-width: 0;
+}
+
+/* ── 데스크탑(≥1024px): split layout, 토글 hide ─────────────────────────── */
+@media (min-width: 1024px) {
+  .viewToggle {
+    display: none;
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(340px, 380px);
+    gap: 28px;
+    align-items: start;
+  }
+
+  /* 데스크탑에서는 data-view 무관하게 두 영역 모두 노출 */
+  .split[data-view="map"] .cardPane,
+  .split[data-view="card"] .mapPane {
+    display: block;
+  }
+
+  .cardPane {
+    position: sticky;
+    top: 88px;
+    /* 헤더(약 64~80px) + 여유. 카드 영역이 맵보다 짧을 때 자연스럽게 정렬 */
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    /* 스크롤바 스타일 다듬기 */
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent) transparent;
+    /* 우측 페인 안쪽 여백 — 카드 그림자가 잘리지 않게 */
+    padding: 2px 4px 4px;
+    margin: -2px -4px -4px;
+  }
+
+  .cardPane::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .cardPane::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+    border-radius: 999px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .split {
+    grid-template-columns: minmax(0, 1.55fr) minmax(360px, 400px);
+    gap: 32px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .split {
+    grid-template-columns: minmax(0, 1.6fr) minmax(380px, 420px);
   }
 }

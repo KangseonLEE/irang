@@ -19,23 +19,29 @@ interface SigunguItem {
 interface SigunguListProps {
   provinceId: string;
   sigungus: SigunguItem[];
+  /**
+   * SigunguExplorer의 데스크탑 split 우측 패널처럼 좁은 폭에서 사용할 때 true.
+   * 카드 그리드를 항상 1열로 강제하여 320~420px 영역에 자연스럽게 들어가게 한다.
+   */
+  compact?: boolean;
 }
 
-const PAGE_SIZE_MOBILE = 5;
-const PAGE_SIZE_DESKTOP = 9;
+const PAGE_SIZE = 5;
 
 /**
  * 시군구 리스트 — 검색 + 페이지네이션 클라이언트 컴포넌트.
  * Server Component에서 sigungus 전체를 props로 받으므로 SEO·SSG는 그대로 유지.
  * 클라이언트 hydration 후 검색·페이지 전환 인터랙션 제공.
  */
-export function SigunguList({ provinceId, sigungus }: SigunguListProps) {
+export function SigunguList({ provinceId, sigungus, compact = false }: SigunguListProps) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
 
-  // 모바일/데스크탑 page size 통일 (가장 작은 값으로 — 모바일 5건)
-  // 데스크탑 그리드는 5건 한 페이지에 2~3열로 배치되어 자연스러움
-  const pageSize = PAGE_SIZE_MOBILE;
+  // 모바일/데스크탑/compact 모두 페이지 5건으로 통일.
+  // - 모바일 단독 사용: 5건 1열로 깔끔
+  // - 데스크탑 단독 사용 (구형): 5건 2~3열로 자연스러움
+  // - compact (split 우측 패널): 5건 1열로 한 화면에 들어감
+  const pageSize = PAGE_SIZE;
 
   const filtered = useMemo(() => {
     const q = query.trim();
@@ -56,7 +62,7 @@ export function SigunguList({ provinceId, sigungus }: SigunguListProps) {
   const visible = filtered.slice(startIdx, startIdx + pageSize);
 
   return (
-    <div className={s.wrap}>
+    <div className={`${s.wrap} ${compact ? s.compact : ""}`}>
       {/* 검색 바 */}
       <div className={s.searchBar}>
         <Icon icon={Search} size="sm" className={s.searchIcon} />
