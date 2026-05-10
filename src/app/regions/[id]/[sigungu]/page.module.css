@@ -66,6 +66,7 @@
 
 /* ---- 히어로 ---- */
 .hero {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -74,6 +75,51 @@
 @media (min-width: 640px) {
   .hero {
     gap: 8px;
+  }
+}
+
+/* ---- 히어로 상단 행 (텍스트 + 액션) ---- */
+.heroTopRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.heroTextBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+@media (min-width: 640px) {
+  .heroTextBlock {
+    gap: 4px;
+  }
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* 모바일 — hero 우측 상단 absolute */
+@media (max-width: 639px) {
+  .hero .heroActions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    gap: 6px;
+  }
+
+  .heroTopRow {
+    /* 액션이 absolute로 빠지므로 우측 여백 확보 (3 버튼 기준) */
+    padding-right: 132px;
   }
 }
 
@@ -98,6 +144,83 @@
   margin: 0;
   max-width: 480px;
   line-height: var(--lh-normal);
+}
+
+/* ---- Hero 정착 점수 배지 ---- */
+.heroScoreBadge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.heroScoreLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  letter-spacing: 0.02em;
+}
+
+.heroScoreValue {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--foreground);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.heroScoreUnit {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.heroScoreMeta {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  letter-spacing: -0.01em;
+}
+
+.heroScoreArrow {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  margin-left: 2px;
+}
+
+@media (min-width: 640px) {
+  .heroScoreLabel {
+    font-size: 0.75rem;
+  }
+  .heroScoreValue {
+    font-size: 1.25rem;
+  }
+  .heroScoreUnit,
+  .heroScoreMeta {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (hover: hover) {
+  a.heroScoreBadge:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, transparent);
+  }
+}
+
+a.heroScoreBadge:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
 }
 
 .heroTags {

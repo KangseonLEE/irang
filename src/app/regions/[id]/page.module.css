@@ -109,6 +109,70 @@
   line-height: var(--lh-normal);
 }
 
+/* ---- Hero 정착 점수 배지 (데스크탑+모바일 공통) ---- */
+.heroScoreBadge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.heroScoreLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  letter-spacing: 0.02em;
+}
+
+.heroScoreValue {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--foreground);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.heroScoreUnit {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.heroScoreMeta {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  letter-spacing: -0.01em;
+}
+
+.heroScoreArrow {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  margin-left: 2px;
+}
+
+@media (hover: hover) {
+  a.heroScoreBadge:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, transparent);
+  }
+}
+
+a.heroScoreBadge:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
 .heroTags {
   display: flex;
   flex-wrap: wrap;
@@ -184,6 +248,23 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* 액션과의 사이 가변 — flex-grow로 액션을 우측에 밀어붙임 */
+  flex: 1;
+  min-width: 0;
+}
+
+.stickyTitleBarActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* sticky bar 안의 액션 버튼은 압축 — 라벨 숨김, 아이콘만 */
+.stickyTitleBarActions > * {
+  /* 버튼 자체 크기 — kakao/share/bookmark 모두 작은 크기 변형 사용 */
+  flex-shrink: 0;
 }
 
 /* ---- sticky 안 추가 정보 칩 (가로 스크롤) ---- */
@@ -326,9 +407,36 @@ a.stickyChip:focus-visible {
     border: 1px solid rgba(255, 255, 255, 0.22);
   }
 
-  /* 공유·북마크 버튼 — 어두운 그라디언트 위에서 흰색 배경 칩으로 보강 */
+  /* 모바일 hero 점수 배지 — 어두운 그라디언트 위에서 흰색 배경으로 강조 */
+  .hero .heroScoreBadge {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .hero .heroScoreLabel {
+    color: var(--primary, #1b6b5a);
+  }
+
+  .hero .heroScoreValue,
+  .hero .heroScoreUnit {
+    color: var(--foreground);
+    text-shadow: none;
+  }
+
+  .hero .heroScoreMeta {
+    color: var(--muted-foreground);
+  }
+
+  /* 공유·북마크 버튼 — 모바일에서 hero 우측 상단 absolute 배치 */
   .hero .heroActions {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    right: calc(env(safe-area-inset-right, 0px) + 12px);
     z-index: 3;
+    gap: 6px;
   }
 
   .hero .heroActions > * {
@@ -336,6 +444,12 @@ a.stickyChip:focus-visible {
     border-radius: 999px;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
+  }
+
+  /* 모바일에서는 heroTitleRow 안의 액션 자리는 비움 — actions가 absolute로 빠지므로 제목이 풀폭으로 */
+  .hero .heroTitleRow {
+    width: 100%;
   }
 }
 

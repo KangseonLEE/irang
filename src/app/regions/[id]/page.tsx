@@ -184,6 +184,30 @@ export default async function RegionDetailPage({ params }: PageProps) {
         shortName={province.shortName}
         watchTargetId="region-hero"
         chips={stickyChips}
+        actions={
+          <>
+            <KakaoShareButton
+              title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
+              description={`${province.name} 귀농 정보: ${province.description}`}
+              imageUrl={`https://irangfarm.com/regions/${province.id}/opengraph-image`}
+              contentType="region"
+            />
+            <ShareButton
+              title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
+              text={`${province.name} 귀농 정보: ${province.description}`}
+              contentType="region"
+              variant="ghost"
+              size="sm"
+              showLabel={false}
+            />
+            <BookmarkButton
+              id={province.id}
+              type="region"
+              title={province.name}
+              subtitle={province.description}
+            />
+          </>
+        }
       />
 
       {/* Hero — 정적 이미지 + 텍스트 정보. 모바일에서 텍스트는 이미지 위 absolute. */}
@@ -228,6 +252,21 @@ export default async function RegionDetailPage({ params }: PageProps) {
               </div>
             </div>
             <p className={s.heroDesc}><AutoGlossary text={province.description} /></p>
+            {sidoSettlementScore !== null && (
+              <a
+                href="#settlement-score"
+                className={s.heroScoreBadge}
+                aria-label={`정착 점수 ${sidoSettlementScore}점 — 산정 근거 보기`}
+              >
+                <span className={s.heroScoreLabel}>정착 점수</span>
+                <span className={s.heroScoreValue}>{sidoSettlementScore}</span>
+                <span className={s.heroScoreUnit}>점</span>
+                <span className={s.heroScoreMeta}>
+                  · 산하 {sidoIncludedSigunguCount}곳 평균
+                </span>
+                <span className={s.heroScoreArrow} aria-hidden="true">→</span>
+              </a>
+            )}
             <div className={s.heroTags}>
               {province.highlights.map((tag) => (
                 <span key={tag} className={s.heroTag}>

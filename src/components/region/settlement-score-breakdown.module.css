@@ -24,6 +24,95 @@
   }
 }
 
+/* ---- 종합 점수 카드 (5차원 그리드 위) ---- */
+.overallCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--primary) 10%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border));
+  /* 톤 강도는 data-tone로 조정 */
+}
+
+[data-tone="high"].overallCard {
+  background: color-mix(in srgb, var(--primary) 14%, var(--card));
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+}
+
+[data-tone="low"].overallCard {
+  background: color-mix(in srgb, var(--primary) 6%, var(--card));
+  border-color: color-mix(in srgb, var(--primary) 20%, var(--border));
+}
+
+@media (min-width: 768px) {
+  .overallCard {
+    padding: 20px 24px;
+    border-radius: 16px;
+    gap: 6px;
+  }
+}
+
+.overallLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.overallScoreRow {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.overallScore {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--foreground);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 768px) {
+  .overallScore {
+    font-size: 3rem;
+  }
+}
+
+.overallScoreUnit {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-left: 2px;
+}
+
+.overallPersona {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  margin-left: 8px;
+  letter-spacing: -0.01em;
+}
+
+.overallInterp {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  margin: 2px 0 0;
+  word-break: keep-all;
+}
+
+@media (min-width: 768px) {
+  .overallInterp {
+    font-size: 0.9375rem;
+  }
+}
+
 /* ---- Header ---- */
 .header {
   display: flex;

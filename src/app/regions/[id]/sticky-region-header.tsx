@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import s from "./page.module.css";
 
 export interface StickyChip {
@@ -19,6 +19,8 @@ interface StickyRegionHeaderProps {
   watchTargetId: string;
   /** 추가 정보 칩 (정착 점수 / 추천 작물 수 등) — 가로 스크롤 + anchor 탭 */
   chips?: StickyChip[];
+  /** 우측 액션 영역 (공유·북마크 등). client 컴포넌트 ReactNode 전달 가능. */
+  actions?: ReactNode;
 }
 
 /**
@@ -38,6 +40,7 @@ export function StickyRegionHeader({
   shortName,
   watchTargetId,
   chips,
+  actions,
 }: StickyRegionHeaderProps) {
   const [visible, setVisible] = useState(false);
   const barRef = useRef<HTMLDivElement>(null);
@@ -76,6 +79,15 @@ export function StickyRegionHeader({
       <div className={s.stickyTitleBarTop}>
         <span className={s.stickyTitleBarOverline}>{overline}</span>
         <span className={s.stickyTitleBarName}>{shortName}</span>
+        {actions && (
+          <div
+            className={s.stickyTitleBarActions}
+            // sticky bar가 숨겨져 있을 때 안의 버튼이 tab 순서에 들어가지 않도록.
+            // actions 내부에서 disabled 필요 시 호출 측이 처리.
+          >
+            {actions}
+          </div>
+        )}
       </div>
       {hasChips && (
         <div

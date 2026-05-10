@@ -108,15 +108,47 @@ export function SettlementScoreBreakdown(props: Props) {
     (d) => dimensions[d.key] === null,
   ).map((d) => d.label);
 
+  // 종합 점수 톤 (배경 강도용)
+  const overallTone = scoreTone(score);
+
+  // 한 줄 해석 — 점수 구간 + 모드별 카피
+  const overallInterpretation =
+    score >= 67
+      ? props.mode === "sigungu"
+        ? `${props.regionName}은 정착 환경이 안정적인 편이에요`
+        : `${props.regionName} 산하는 평균적으로 안정적인 편이에요`
+      : score >= 34
+        ? props.mode === "sigungu"
+          ? `${props.regionName}은 차원별로 강·약이 갈려요`
+          : `${props.regionName} 산하는 시군구별 편차가 커요`
+        : props.mode === "sigungu"
+          ? `${props.regionName}은 정착 인프라가 부족한 편이에요`
+          : `${props.regionName} 산하는 정착 인프라가 약한 편이에요`;
+
   return (
     <section
       className={s.section}
       aria-labelledby={`${anchorId}-title`}
       id={anchorId}
     >
+      {/* 종합 점수 카드 — 5차원 그리드 위에 큰 숫자로 강조 */}
+      <div
+        className={s.overallCard}
+        data-tone={overallTone}
+        aria-label={`정착 점수 ${score}점, ${overallInterpretation}`}
+      >
+        <span className={s.overallLabel}>정착 점수</span>
+        <div className={s.overallScoreRow}>
+          <span className={s.overallScore}>{score}</span>
+          <span className={s.overallScoreUnit}>점</span>
+          <span className={s.overallPersona}>· 균등 가중</span>
+        </div>
+        <p className={s.overallInterp}>{overallInterpretation}</p>
+      </div>
+
       <header className={s.header}>
         <h2 className={s.title} id={`${anchorId}-title`}>
-          정착 점수 {score}점은 어떻게 나왔나요?
+          {score}점은 어떻게 나왔나요?
         </h2>
         <p className={s.desc}>
           {props.mode === "sigungu" ? (

@@ -13,6 +13,9 @@ import {
 } from "lucide-react";
 import { LandCheckBox } from "@/components/region/land-check-box";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { BookmarkButton } from "@/components/bookmark/bookmark-button";
+import { ShareButton } from "@/components/ui/share-button";
+import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS, getSigunguBySidoAndId } from "@/lib/data/sigungus";
 import { hasGuDistricts } from "@/lib/data/gus";
@@ -198,13 +201,74 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         shortName={sigungu.name}
         watchTargetId="sigungu-hero"
         chips={stickyChips}
+        actions={
+          <>
+            <KakaoShareButton
+              title={`${sigungu.name} — 귀농 지역 정보 | 이랑`}
+              description={`${province.shortName} ${sigungu.name} 귀농 정보: ${sigungu.description}`}
+              contentType="region"
+            />
+            <ShareButton
+              title={`${sigungu.name} — 귀농 지역 정보 | 이랑`}
+              text={`${province.shortName} ${sigungu.name} 귀농 정보: ${sigungu.description}`}
+              contentType="region"
+              variant="ghost"
+              size="sm"
+              showLabel={false}
+            />
+            <BookmarkButton
+              id={`${province.id}-${sigungu.id}`}
+              type="region"
+              title={`${province.shortName} ${sigungu.name}`}
+              subtitle={sigungu.description}
+            />
+          </>
+        }
       />
 
       {/* ── Hero (정적) ── */}
       <header className={s.hero} id="sigungu-hero">
-        <span className={s.heroOverline}>{province.name}</span>
-        <h1 className={s.heroTitle}>{sigungu.name}</h1>
+        <div className={s.heroTopRow}>
+          <div className={s.heroTextBlock}>
+            <span className={s.heroOverline}>{province.name}</span>
+            <h1 className={s.heroTitle}>{sigungu.name}</h1>
+          </div>
+          <div className={s.heroActions}>
+            <KakaoShareButton
+              title={`${sigungu.name} — 귀농 지역 정보 | 이랑`}
+              description={`${province.shortName} ${sigungu.name} 귀농 정보: ${sigungu.description}`}
+              contentType="region"
+            />
+            <ShareButton
+              title={`${sigungu.name} — 귀농 지역 정보 | 이랑`}
+              text={`${province.shortName} ${sigungu.name} 귀농 정보: ${sigungu.description}`}
+              contentType="region"
+              variant="ghost"
+              size="sm"
+              showLabel={false}
+            />
+            <BookmarkButton
+              id={`${province.id}-${sigungu.id}`}
+              type="region"
+              title={`${province.shortName} ${sigungu.name}`}
+              subtitle={sigungu.description}
+            />
+          </div>
+        </div>
         <p className={s.heroDesc}>{sigungu.description}</p>
+        {sigunguSettlementScore !== null && (
+          <a
+            href="#settlement-score"
+            className={s.heroScoreBadge}
+            aria-label={`정착 점수 ${sigunguSettlementScore}점 — 산정 근거 보기`}
+          >
+            <span className={s.heroScoreLabel}>정착 점수</span>
+            <span className={s.heroScoreValue}>{sigunguSettlementScore}</span>
+            <span className={s.heroScoreUnit}>점</span>
+            <span className={s.heroScoreMeta}>· 균등 가중</span>
+            <span className={s.heroScoreArrow} aria-hidden="true">→</span>
+          </a>
+        )}
         <div className={s.heroTags}>
           {getEnrichedHighlights(sigungu.sgisCode, sigungu.highlights).map(
             (tag) => (
