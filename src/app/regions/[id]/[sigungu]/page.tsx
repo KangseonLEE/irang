@@ -37,6 +37,7 @@ import {
 } from "../sticky-region-header";
 import { computePersonaScore, getPersona } from "@/lib/data/personas";
 import { getDimensionScores } from "@/lib/data/dimension-scores";
+import { SettlementScoreBreakdown } from "@/components/region/settlement-score-breakdown";
 import s from "./page.module.css";
 
 interface PageProps {
@@ -137,7 +138,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
   if (sigunguSettlementScore !== null) {
     stickyChips.push({
       label: `정착 점수 ${sigunguSettlementScore}`,
-      href: "#sigungu-stats",
+      href: "#settlement-score",
       tone: "primary",
     });
   }
@@ -219,6 +220,22 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       <Suspense fallback={<SigunguStatsSkeleton />}>
         <SigunguData province={province} sigungu={sigungu} />
       </Suspense>
+
+      {/* ── 정착 점수 산식 breakdown (sticky 칩의 anchor target) ── */}
+      {sigunguSettlementScore !== null && dimScores && (
+        <SettlementScoreBreakdown
+          mode="sigungu"
+          regionName={sigungu.name}
+          score={sigunguSettlementScore}
+          dimensions={{
+            populationTrend: dimScores.populationTrend,
+            farmActivity: dimScores.farmActivity,
+            medical: dimScores.medical,
+            school: dimScores.school,
+            returnFarm: dimScores.returnFarm,
+          }}
+        />
+      )}
 
       {/* ── 구 지도 (구 분할 시만 표시) ── */}
       {hasGuDistricts(sigungu.id) && (

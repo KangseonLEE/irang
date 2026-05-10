@@ -73,13 +73,6 @@ export function ActiveRegionsSection({ activeId }: ActiveRegionsSectionProps) {
       {/* anchor target — 탭 클릭 시 자기 자신으로 부드럽게 */}
       <span id="active-regions" className={s.anchorTarget} aria-hidden="true" />
 
-      {/* ── 현재 카테고리 설명 ── */}
-      <p className={s.currentDesc}>
-        <span className={s.currentDescLead}>{current.label}</span>
-        {" — "}
-        {current.desc}
-      </p>
-
       {/* ── Top 5 카드 그리드 ── */}
       <ol className={s.grid}>
         {current.regions.map((entry, idx) => (

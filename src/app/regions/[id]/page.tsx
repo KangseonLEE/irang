@@ -34,6 +34,7 @@ import {
   getPersona,
 } from "@/lib/data/personas";
 import { getDimensionScores } from "@/lib/data/dimension-scores";
+import { SettlementScoreBreakdown } from "@/components/region/settlement-score-breakdown";
 import s from "./page.module.css";
 
 interface PageProps {
@@ -104,13 +105,44 @@ export default async function RegionDetailPage({ params }: PageProps) {
     sidoScores.length > 0
       ? Math.round(sidoScores.reduce((a, b) => a + b, 0) / sidoScores.length)
       : null;
+  const sidoIncludedSigunguCount = sidoScores.length;
+
+  // 시도 차원별 평균 (산하 시군구 중 데이터 있는 것만 평균).
+  // breakdown 카드 표시용. 도시 자치구는 farm/returnFarm 부재가 흔하므로
+  // 그 차원만 별도 평균. school 부재(군위)도 마찬가지.
+  function avgDimension(
+    key:
+      | "populationTrend"
+      | "farmActivity"
+      | "medical"
+      | "school"
+      | "returnFarm",
+  ): number | null {
+    const values = sigungus
+      .map((sg) => getDimensionScores(sg.sgisCode))
+      .filter((v): v is NonNullable<typeof v> => v !== null)
+      .map((v) => v[key])
+      .filter((n): n is number => n !== null);
+    if (values.length === 0) return null;
+    return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+  }
+  const sidoDimensions =
+    sidoSettlementScore !== null
+      ? {
+          populationTrend: avgDimension("populationTrend"),
+          farmActivity: avgDimension("farmActivity"),
+          medical: avgDimension("medical"),
+          school: avgDimension("school"),
+          returnFarm: avgDimension("returnFarm"),
+        }
+      : null;
 
   // sticky 칩 구성. 페이지 anchor가 있으면 부드러운 스크롤로 연결.
   const stickyChips: StickyChip[] = [];
   if (sidoSettlementScore !== null) {
     stickyChips.push({
       label: `정착 점수 ${sidoSettlementScore}`,
-      href: "#region-stats",
+      href: "#settlement-score",
       tone: "primary",
     });
   }
@@ -202,6 +234,17 @@ export default async function RegionDetailPage({ params }: PageProps) {
       <Suspense fallback={<RegionAsyncSkeleton />}>
         <RegionAsyncData province={province} sigungus={sigungus} />
       </Suspense>
+
+      {/* ── 정착 점수 산식 breakdown (sticky 칩의 anchor target) ── */}
+      {sidoSettlementScore !== null && sidoDimensions && (
+        <SettlementScoreBreakdown
+          mode="sido"
+          regionName={province.shortName}
+          score={sidoSettlementScore}
+          dimensions={sidoDimensions}
+          includedSigunguCount={sidoIncludedSigunguCount}
+        />
+      )}
 
       {/* Main Content Grid — 정적 부분 */}
       <div className={s.contentGrid}>
