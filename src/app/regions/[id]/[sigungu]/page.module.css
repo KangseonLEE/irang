@@ -107,19 +107,92 @@
   flex-shrink: 0;
 }
 
-/* 모바일 — hero 우측 상단 absolute */
+/* 모바일 ⋯ 메뉴 — 기본은 숨김. 모바일 미디어쿼리에서 활성화. */
+.heroMobileMenu {
+  display: none;
+}
+
+/* 모바일 inline 정착 점수 — 기본은 숨김. 모바일 미디어쿼리에서 활성화. */
+.heroScoreInline {
+  display: none;
+}
+
+/* 모바일 — 데스크탑 inline 3버튼 숨김 + ⋯ 메뉴 노출 */
 @media (max-width: 639px) {
   .hero .heroActions {
+    display: none;
+  }
+
+  .hero .heroMobileMenu {
+    display: block;
     position: absolute;
     top: 0;
     right: 0;
     z-index: 2;
-    gap: 6px;
   }
 
   .heroTopRow {
-    /* 액션이 absolute로 빠지므로 우측 여백 확보 (3 버튼 기준) */
-    padding-right: 132px;
+    /* 단일 메뉴 버튼만 absolute → 우측 여백 축소 (40px + 여유) */
+    padding-right: 48px;
+  }
+
+  /* 모바일 — 기존 흰 pill 배지 숨김 (inline 큰 숫자로 대체) */
+  .hero .heroScoreBadge {
+    display: none;
+  }
+
+  /* 모바일 inline 정착 점수 — 큰 숫자.
+     '카드 나열 거부, 핵심 숫자+컨텍스트' 디자인 원칙 적용.
+     시군구는 hero 이미지 배너가 없으므로 흰 배경 + 어두운 텍스트. */
+  .hero .heroScoreInline {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    align-self: flex-start;
+    margin-top: 8px;
+    padding-top: 10px;
+    /* 설명과 점수 구분 — divider 1px */
+    border-top: 1px solid var(--border, #e5e7eb);
+    text-decoration: none;
+    color: var(--foreground, #111827);
+    min-height: 44px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .hero .heroScoreInlineLabel {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--primary, #1b6b5a);
+    letter-spacing: 0.02em;
+  }
+
+  .hero .heroScoreInlineValue {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--foreground, #111827);
+    letter-spacing: -0.025em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .hero .heroScoreInlineUnit {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--muted-foreground, #6b7280);
+    letter-spacing: -0.01em;
+  }
+
+  .hero .heroScoreInlineArrow {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary, #1b6b5a);
+    margin-left: auto;
+  }
+
+  .hero .heroScoreInline:focus-visible {
+    outline: 2px solid var(--primary, #1b6b5a);
+    outline-offset: 4px;
   }
 }
 

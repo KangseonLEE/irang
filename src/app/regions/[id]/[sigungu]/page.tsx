@@ -16,6 +16,7 @@ import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
+import { RegionShareMenu } from "@/components/region/region-share-menu";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS, getSigunguBySidoAndId } from "@/lib/data/sigungus";
 import { hasGuDistricts } from "@/lib/data/gus";
@@ -233,6 +234,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
             <span className={s.heroOverline}>{province.name}</span>
             <h1 className={s.heroTitle}>{sigungu.name}</h1>
           </div>
+          {/* 데스크탑 inline 3버튼 — 모바일에선 CSS로 숨김. 데스크탑 변경 없음. */}
           <div className={s.heroActions}>
             <KakaoShareButton
               title={`${sigungu.name} — 귀농 지역 정보 | 이랑`}
@@ -254,20 +256,51 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               subtitle={sigungu.description}
             />
           </div>
+          {/* 모바일 ⋯ 메뉴 — 데스크탑에선 CSS로 숨김. */}
+          <div className={s.heroMobileMenu}>
+            <RegionShareMenu
+              shareTitle={`${sigungu.name} — 귀농 지역 정보 | 이랑`}
+              shareDescription={`${province.shortName} ${sigungu.name} 귀농 정보: ${sigungu.description}`}
+              contentType="region"
+              triggerVariant="plain"
+              bookmark={{
+                id: `${province.id}-${sigungu.id}`,
+                type: "region",
+                title: `${province.shortName} ${sigungu.name}`,
+                subtitle: sigungu.description,
+              }}
+            />
+          </div>
         </div>
         <p className={s.heroDesc}>{sigungu.description}</p>
         {sigunguSettlementScore !== null && (
-          <a
-            href="#settlement-score"
-            className={s.heroScoreBadge}
-            aria-label={`정착 점수 ${sigunguSettlementScore}점 — 산정 근거 보기`}
-          >
-            <span className={s.heroScoreLabel}>정착 점수</span>
-            <span className={s.heroScoreValue}>{sigunguSettlementScore}</span>
-            <span className={s.heroScoreUnit}>점</span>
-            <span className={s.heroScoreMeta}>· 균등 가중</span>
-            <span className={s.heroScoreArrow} aria-hidden="true">→</span>
-          </a>
+          <>
+            {/* 모바일: inline 큰 숫자 */}
+            <a
+              href="#settlement-score"
+              className={s.heroScoreInline}
+              aria-label={`정착 점수 ${sigunguSettlementScore}점 — 산정 근거 보기`}
+            >
+              <span className={s.heroScoreInlineLabel}>정착 점수</span>
+              <span className={s.heroScoreInlineValue}>
+                {sigunguSettlementScore}
+              </span>
+              <span className={s.heroScoreInlineUnit}>/ 100</span>
+              <span className={s.heroScoreInlineArrow} aria-hidden="true">→</span>
+            </a>
+            {/* 데스크탑: 기존 pill 배지. 모바일에선 CSS로 숨김. */}
+            <a
+              href="#settlement-score"
+              className={s.heroScoreBadge}
+              aria-label={`정착 점수 ${sigunguSettlementScore}점 — 산정 근거 보기`}
+            >
+              <span className={s.heroScoreLabel}>정착 점수</span>
+              <span className={s.heroScoreValue}>{sigunguSettlementScore}</span>
+              <span className={s.heroScoreUnit}>점</span>
+              <span className={s.heroScoreMeta}>· 균등 가중</span>
+              <span className={s.heroScoreArrow} aria-hidden="true">→</span>
+            </a>
+          </>
         )}
         <div className={s.heroTags}>
           {getEnrichedHighlights(sigungu.sgisCode, sigungu.highlights).map(

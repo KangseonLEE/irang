@@ -6,6 +6,7 @@ import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
+import { RegionShareMenu } from "@/components/region/region-share-menu";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import {
   GitCompareArrows,
@@ -223,6 +224,23 @@ export default async function RegionDetailPage({ params }: PageProps) {
           />
         </div>
 
+        {/* 모바일 한정 ⋯ 메뉴 — 데스크탑에선 CSS로 숨김.
+            heroActions inline 3버튼은 데스크탑에서만 노출되며 변경 없음. */}
+        <div className={s.heroMobileMenu}>
+          <RegionShareMenu
+            shareTitle={`${province.shortName} — 귀농 지역 정보 | 이랑`}
+            shareDescription={`${province.name} 귀농 정보: ${province.description}`}
+            shareImageUrl={`https://irangfarm.com/regions/${province.id}/opengraph-image`}
+            contentType="region"
+            bookmark={{
+              id: province.id,
+              type: "region",
+              title: province.name,
+              subtitle: province.description,
+            }}
+          />
+        </div>
+
         <header className={s.heroInfo}>
           <div className={s.heroInfoMain}>
             <span className={s.heroOverline}>{province.name}</span>
@@ -253,19 +271,37 @@ export default async function RegionDetailPage({ params }: PageProps) {
             </div>
             <p className={s.heroDesc}><AutoGlossary text={province.description} /></p>
             {sidoSettlementScore !== null && (
-              <a
-                href="#settlement-score"
-                className={s.heroScoreBadge}
-                aria-label={`정착 점수 ${sidoSettlementScore}점 — 산정 근거 보기`}
-              >
-                <span className={s.heroScoreLabel}>정착 점수</span>
-                <span className={s.heroScoreValue}>{sidoSettlementScore}</span>
-                <span className={s.heroScoreUnit}>점</span>
-                <span className={s.heroScoreMeta}>
-                  · 산하 {sidoIncludedSigunguCount}곳 평균
-                </span>
-                <span className={s.heroScoreArrow} aria-hidden="true">→</span>
-              </a>
+              <>
+                {/* 모바일: inline 큰 숫자 (이미지 위 텍스트 영역 안). */}
+                <a
+                  href="#settlement-score"
+                  className={s.heroScoreInline}
+                  aria-label={`정착 점수 ${sidoSettlementScore}점 — 산정 근거 보기`}
+                >
+                  <span className={s.heroScoreInlineLabel}>정착 점수</span>
+                  <span className={s.heroScoreInlineValue}>
+                    {sidoSettlementScore}
+                  </span>
+                  <span className={s.heroScoreInlineUnit}>/ 100</span>
+                  <span className={s.heroScoreInlineArrow} aria-hidden="true">
+                    →
+                  </span>
+                </a>
+                {/* 데스크탑: 기존 흰 pill 배지 그대로. 모바일에선 CSS로 숨김. */}
+                <a
+                  href="#settlement-score"
+                  className={s.heroScoreBadge}
+                  aria-label={`정착 점수 ${sidoSettlementScore}점 — 산정 근거 보기`}
+                >
+                  <span className={s.heroScoreLabel}>정착 점수</span>
+                  <span className={s.heroScoreValue}>{sidoSettlementScore}</span>
+                  <span className={s.heroScoreUnit}>점</span>
+                  <span className={s.heroScoreMeta}>
+                    · 산하 {sidoIncludedSigunguCount}곳 평균
+                  </span>
+                  <span className={s.heroScoreArrow} aria-hidden="true">→</span>
+                </a>
+              </>
             )}
             <div className={s.heroTags}>
               {province.highlights.map((tag) => (

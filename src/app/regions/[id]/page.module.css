@@ -101,6 +101,16 @@
   flex-shrink: 0;
 }
 
+/* 모바일 ⋯ 메뉴 트리거 — 기본은 숨김. 모바일 미디어쿼리에서 활성화. */
+.heroMobileMenu {
+  display: none;
+}
+
+/* 모바일 inline 정착 점수 — 기본은 숨김. 모바일 미디어쿼리에서 활성화. */
+.heroScoreInline {
+  display: none;
+}
+
 .heroDesc {
   font-size: var(--fs-body-sm);
   color: var(--muted-foreground);
@@ -407,47 +417,84 @@ a.stickyChip:focus-visible {
     border: 1px solid rgba(255, 255, 255, 0.22);
   }
 
-  /* 모바일 hero 점수 배지 — 어두운 그라디언트 위에서 흰색 배경으로 강조 */
+  /* 모바일 — 기존 흰 pill 점수 배지 숨김 (inline 큰 숫자로 대체) */
   .hero .heroScoreBadge {
-    background: rgba(255, 255, 255, 0.94);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    display: none;
   }
 
-  .hero .heroScoreLabel {
-    color: var(--primary, #1b6b5a);
+  /* 모바일 inline 정착 점수 — 이미지 위 텍스트 영역 안에 큰 숫자로 노출.
+     '카드 나열 거부, 핵심 숫자+컨텍스트' 디자인 원칙 적용. */
+  .hero .heroScoreInline {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    align-self: flex-start;
+    margin-top: 6px;
+    padding-top: 10px;
+    /* 설명과 점수 구분 — divider 1px (white opacity 22%) */
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    text-decoration: none;
+    color: white;
+    /* 충분한 탭 영역 (44px+) */
+    min-height: 44px;
+    width: 100%;
+    max-width: 320px;
   }
 
-  .hero .heroScoreValue,
-  .hero .heroScoreUnit {
-    color: var(--foreground);
-    text-shadow: none;
+  .hero .heroScoreInlineLabel {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.88);
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   }
 
-  .hero .heroScoreMeta {
-    color: var(--muted-foreground);
+  .hero .heroScoreInlineValue {
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.025em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
 
-  /* 공유·북마크 버튼 — 모바일에서 hero 우측 상단 absolute 배치 */
+  .hero .heroScoreInlineUnit {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.78);
+    letter-spacing: -0.01em;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  }
+
+  .hero .heroScoreInlineArrow {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    margin-left: auto;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  }
+
+  .hero .heroScoreInline:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 4px;
+  }
+
+  /* 데스크탑용 inline 3버튼 그룹 — 모바일에선 숨김 (⋯ 메뉴로 대체) */
   .hero .heroActions {
+    display: none;
+  }
+
+  /* 모바일 ⋯ 메뉴 — hero 우측 상단 absolute */
+  .hero .heroMobileMenu {
+    display: block;
     position: absolute;
     top: calc(env(safe-area-inset-top, 0px) + 12px);
     right: calc(env(safe-area-inset-right, 0px) + 12px);
     z-index: 3;
-    gap: 6px;
   }
 
-  .hero .heroActions > * {
-    background: rgba(255, 255, 255, 0.92) !important;
-    border-radius: 999px;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
-  }
-
-  /* 모바일에서는 heroTitleRow 안의 액션 자리는 비움 — actions가 absolute로 빠지므로 제목이 풀폭으로 */
+  /* 모바일에서는 heroTitleRow 안의 액션 자리는 비움 — 제목이 풀폭으로 */
   .hero .heroTitleRow {
     width: 100%;
   }
