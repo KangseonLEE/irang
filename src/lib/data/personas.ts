@@ -107,7 +107,7 @@ export const PERSONAS: Persona[] = [
     id: "balanced",
     label: "기본 균등",
     desc: "5차원을 똑같이 보고 싶을 때",
-    audience: "페르소나 정하지 않음",
+    audience: "스타일 정하지 않음",
     weights: {
       populationTrend: 20,
       farmActivity: 20,

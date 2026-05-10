@@ -14,6 +14,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import type { DimensionEvidenceMap } from "@/lib/data/dimension-scores";
 import s from "./settlement-score-breakdown.module.css";
 
 export interface DimensionBreakdownInput {
@@ -37,6 +38,8 @@ interface SigunguProps extends BaseProps {
   mode: "sigungu";
   /** 시군구명 — 카피용 */
   regionName: string;
+  /** 차원별 raw 수치 + 해석 카피 (시군구만) */
+  evidence?: DimensionEvidenceMap | null;
 }
 
 interface SidoProps extends BaseProps {
@@ -124,8 +127,8 @@ export function SettlementScoreBreakdown(props: Props) {
           ) : (
             <>
               {props.regionName} 산하 시군구 {props.includedSigunguCount}곳의
-              평균이에요. 시군구마다 차이가 크니, 자세한 점수는 시군구 페이지에서
-              확인하세요.
+              평균이에요. 시군구마다 차이가 크니, 자세한 점수와 근거는 시군구
+              페이지에서 확인해 보세요.
             </>
           )}
         </p>
@@ -148,12 +151,20 @@ export function SettlementScoreBreakdown(props: Props) {
             );
           }
           const tone = scoreTone(value);
+          const ev =
+            props.mode === "sigungu" && props.evidence
+              ? props.evidence[d.key]
+              : null;
           return (
             <li
               key={d.key}
               className={s.dimCard}
               data-tone={tone}
-              aria-label={`${d.label} ${value}점`}
+              aria-label={
+                ev
+                  ? `${d.label} ${value}점, ${ev.interpretation}`
+                  : `${d.label} ${value}점`
+              }
             >
               <span className={s.dimLabel}>{d.label}</span>
               <div className={s.dimScoreRow}>
@@ -167,7 +178,14 @@ export function SettlementScoreBreakdown(props: Props) {
               >
                 <span className={s.dimBarFill} />
               </div>
-              <span className={s.dimHelper}>{d.helper}</span>
+              {ev ? (
+                <div className={s.dimEvidence}>
+                  <span className={s.dimRaw}>{ev.rawLabel}</span>
+                  <span className={s.dimInterp}>{ev.interpretation}</span>
+                </div>
+              ) : (
+                <span className={s.dimHelper}>{d.helper}</span>
+              )}
             </li>
           );
         })}

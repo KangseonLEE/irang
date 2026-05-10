@@ -234,6 +234,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
             school: dimScores.school,
             returnFarm: dimScores.returnFarm,
           }}
+          evidence={dimScores.evidence}
         />
       )}
 

@@ -61,15 +61,15 @@ export function PersonaScorePicker({ dimensionScores, sigunguName }: Props) {
     : null;
 
   return (
-    <section className={s.section} aria-label="페르소나별 점수">
+    <section className={s.section} aria-label="귀농 스타일별 점수">
       <div className={s.header}>
-        <h3 className={s.title}>어떤 귀농인이세요?</h3>
+        <h3 className={s.title}>어떤 귀농을 그리고 계세요?</h3>
         <p className={s.desc}>
-          페르소나를 고르면 {sigunguName}이 나에게 얼마나 맞는지 한 점수로 보여드려요.
+          스타일을 고르시면 {sigunguName}이 나에게 얼마나 맞는지 한 점수로 보여드려요.
         </p>
       </div>
 
-      <div className={s.pillRow} role="radiogroup" aria-label="페르소나 선택">
+      <div className={s.pillRow} role="radiogroup" aria-label="귀농 스타일 선택">
         {PERSONAS.map((p) => (
           <button
             key={p.id}
@@ -89,7 +89,7 @@ export function PersonaScorePicker({ dimensionScores, sigunguName }: Props) {
         <div className={s.result}>
           {detail.score === null ? (
             <p className={s.unavailable}>
-              ‘{persona.label}’ 페르소나는 이 지역에서 점수를 만들 수 없어요.
+              ‘{persona.label}’ 스타일은 이 지역에서 점수를 만들 수 없어요.
               {detail.missingLabels.length > 0 && (
                 <>
                   {" "}
@@ -124,7 +124,7 @@ export function PersonaScorePicker({ dimensionScores, sigunguName }: Props) {
 
       {!persona && mounted && (
         <p className={s.guide}>
-          위에서 페르소나를 골라 보세요. 선택은 다른 시군구에서도 기억돼요.
+          위에서 스타일을 골라 보세요. 선택은 다른 시군구에서도 기억돼요.
         </p>
       )}
     </section>

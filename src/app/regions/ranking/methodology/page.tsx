@@ -173,11 +173,11 @@ export default function MethodologyPage() {
       </section>
 
       {/* 페르소나 가중치 */}
-      <section aria-label="페르소나 가중치">
-        <h2 className={s.sectionTitle}>페르소나 맞춤 점수는 어떻게 계산하나요?</h2>
+      <section aria-label="귀농 스타일 가중치">
+        <h2 className={s.sectionTitle}>귀농 스타일 맞춤 점수는 어떻게 계산하나요?</h2>
         <p className={s.principleText} style={{ marginBottom: "12px" }}>
-          ‘페르소나 맞춤’ 모드는 사람마다 중요하게 보는 차원이 다르다는 점을
-          반영해요. 5가지 차원에 페르소나별로 다른 가중치를 곱해서 종합 점수를
+          ‘귀농 스타일 맞춤’ 모드는 사람마다 중요하게 보는 차원이 다르다는 점을
+          반영해요. 5가지 차원에 스타일별로 다른 가중치를 곱해서 종합 점수를
           만들어요. 가중치 합은 100이에요.
         </p>
 
@@ -185,7 +185,7 @@ export default function MethodologyPage() {
         <div
           className={s.weightHeatmap}
           role="table"
-          aria-label="페르소나별 차원 가중치 비교 매트릭스"
+          aria-label="귀농 스타일별 차원 가중치 비교 매트릭스"
         >
           <div className={s.weightHeatmapCorner} aria-hidden="true" />
           <div className={s.weightHeatmapHeader}>인구</div>
@@ -257,10 +257,10 @@ export default function MethodologyPage() {
       </section>
 
       {/* Phase 6 — 페르소나 추천 매핑 산식 */}
-      <section className={s.principleBox} aria-label="페르소나 추천">
-        <h2 className={s.principleTitle}>페르소나는 작물·지원사업도 추천해요</h2>
+      <section className={s.principleBox} aria-label="귀농 스타일 추천">
+        <h2 className={s.principleTitle}>귀농 스타일은 작물·지원사업도 추천해요</h2>
         <p className={s.principleText}>
-          시군구 점수뿐 아니라 작물·지원사업도 페르소나에 맞게 우선순위를 정해요.
+          시군구 점수뿐 아니라 작물·지원사업도 스타일에 맞게 우선순위를 정해요.
           <strong> 카테고리·난이도·연령 요건</strong>으로 1~5점을 자동 계산하고,
           예외는 명시 보정으로 잡아요. 점수 4 이상만 추천에 노출돼요.
         </p>
@@ -301,9 +301,9 @@ export default function MethodologyPage() {
         <h2 className={s.principleTitle}>전체 통계</h2>
         <p className={s.principleText}>
           현재 <strong>{totalSigungu}개</strong> 시군구의 차원별 점수가 만들어져
-          있고, <strong>{PERSONAS.length}개</strong> 페르소나로 가중 평균이 계산돼요.
+          있고, <strong>{PERSONAS.length}개</strong> 귀농 스타일로 가중 평균이 계산돼요.
           작물 <strong>{CROPS.length}종</strong>·지원사업{" "}
-          <strong>{PROGRAMS.length}건</strong>도 페르소나별로 매핑돼 있어요.
+          <strong>{PROGRAMS.length}건</strong>도 스타일별로 매핑돼 있어요.
           데이터가 갱신되면 자동으로 점수도 새로 계산돼요.
         </p>
       </section>

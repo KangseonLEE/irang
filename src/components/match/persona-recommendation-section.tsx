@@ -76,7 +76,7 @@ export function PersonaRecommendationSection({
           <Users size={20} />
         </div>
         <div className={s.personaCardBody}>
-          <span className={s.personaCardLabel}>당신과 어울리는 페르소나</span>
+          <span className={s.personaCardLabel}>당신과 어울리는 귀농 스타일</span>
           <h3 className={s.personaCardTitle}>{recommendedPersona.label}</h3>
           <p className={s.personaCardDesc}>{recommendedPersona.desc}</p>
           <p className={s.personaCardWeights}>

@@ -30,9 +30,9 @@ import { SIGUNGUS } from "@/lib/data/sigungus";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "시군구 점수 비교 — 차원별 / 페르소나 맞춤",
+  title: "시군구 점수 비교 — 차원별 / 귀농 스타일 맞춤",
   description:
-    "전국 시군구를 5가지 차원으로 비교하거나, 페르소나에 맞춘 종합 점수로 줄 세워 보세요.",
+    "전국 시군구를 5가지 차원으로 비교하거나, 내 귀농 스타일에 맞춘 종합 점수로 줄 세워 보세요.",
   alternates: { canonical: "/regions/ranking" },
 };
 
@@ -134,7 +134,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
 
   const description =
     mode === "persona" && persona
-      ? `‘${persona.label}’ 페르소나로 시군구 점수를 줄 세웠어요.`
+      ? `‘${persona.label}’ 스타일로 시군구 점수를 줄 세웠어요.`
       : "5가지 차원 중 하나를 골라 전국 시군구를 비교해 보세요.";
 
   return (
@@ -174,7 +174,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
           aria-selected={mode === "persona"}
           className={`${s.modeBtn} ${mode === "persona" ? s.modeBtnActive : ""}`}
         >
-          페르소나 맞춤
+          귀농 스타일 맞춤
         </Link>
       </div>
 
@@ -212,7 +212,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
           <div
             className={s.dimensionToggle}
             role="tablist"
-            aria-label="페르소나 선택"
+            aria-label="귀농 스타일 선택"
           >
             {PERSONAS.map((p) => (
               <Link
@@ -233,7 +233,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
           </div>
           {persona && (
             <p className={s.dimensionDesc}>
-              {persona.audience}을(를) 위한 페르소나예요. 5차원을 가중 평균해
+              {persona.audience}을(를) 위한 스타일이에요. 5차원을 가중 평균해
               하나의 점수로 만들어요.
             </p>
           )}

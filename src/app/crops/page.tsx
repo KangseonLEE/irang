@@ -172,7 +172,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
         </FilterRow>
         <FilterRow>
           <FilterGroup
-            label="내 페르소나"
+            label="내 귀농 스타일"
             paramKey="persona"
             options={PERSONA_OPTIONS}
             currentValue={params.persona}

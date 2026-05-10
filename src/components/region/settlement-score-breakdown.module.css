@@ -167,6 +167,38 @@
   line-height: 1.4;
 }
 
+/* ---- evidence (raw 수치 + 해석 한 줄) ---- */
+.dimEvidence {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.dimRaw {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+
+.dimInterp {
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+  .dimRaw {
+    font-size: 0.8125rem;
+  }
+  .dimInterp {
+    font-size: 0.75rem;
+  }
+}
+
 /* ---- 빈 상태 ---- */
 .dimCardEmpty {
   background: var(--muted);
