@@ -34,6 +34,7 @@ import {
   getPersona,
 } from "@/lib/data/personas";
 import { getDimensionScores } from "@/lib/data/dimension-scores";
+import { buildSidoEvidence } from "@/lib/data/sido-evidence";
 import { SettlementScoreBreakdown } from "@/components/region/settlement-score-breakdown";
 import s from "./page.module.css";
 
@@ -135,6 +136,19 @@ export default async function RegionDetailPage({ params }: PageProps) {
           school: avgDimension("school"),
           returnFarm: avgDimension("returnFarm"),
         }
+      : null;
+
+  // 시도 evidence — 산하 시군구 raw 평균 + 해석 + Top 시군구.
+  // sidoDimensions가 null이면 evidence도 무의미.
+  const sidoEvidence =
+    sidoDimensions !== null
+      ? buildSidoEvidence(
+          sigungus.map((sg) => ({
+            sgisCode: sg.sgisCode,
+            name: sg.name,
+            id: sg.id,
+          })),
+        )
       : null;
 
   // sticky 칩 구성. 페이지 anchor가 있으면 부드러운 스크롤로 연결.
@@ -240,9 +254,11 @@ export default async function RegionDetailPage({ params }: PageProps) {
         <SettlementScoreBreakdown
           mode="sido"
           regionName={province.shortName}
+          provinceId={province.id}
           score={sidoSettlementScore}
           dimensions={sidoDimensions}
           includedSigunguCount={sidoIncludedSigunguCount}
+          evidence={sidoEvidence}
         />
       )}
 

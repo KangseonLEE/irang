@@ -15,6 +15,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import type { DimensionEvidenceMap } from "@/lib/data/dimension-scores";
+import type { SidoDimensionEvidenceMap } from "@/lib/data/sido-evidence";
 import s from "./settlement-score-breakdown.module.css";
 
 export interface DimensionBreakdownInput {
@@ -46,8 +47,12 @@ interface SidoProps extends BaseProps {
   mode: "sido";
   /** 시도 짧은 이름 — 카피용 */
   regionName: string;
+  /** 시도 라우팅 id — Top 시군구 link href에 사용 */
+  provinceId: string;
   /** 점수 산정에 포함된 산하 시군구 수 */
   includedSigunguCount: number;
+  /** 산하 시군구 raw 수치 평균 + 해석 + Top 시군구 (시도만) */
+  evidence?: SidoDimensionEvidenceMap | null;
 }
 
 type Props = SigunguProps | SidoProps;
@@ -151,20 +156,24 @@ export function SettlementScoreBreakdown(props: Props) {
             );
           }
           const tone = scoreTone(value);
-          const ev =
+          const sigunguEv =
             props.mode === "sigungu" && props.evidence
               ? props.evidence[d.key]
               : null;
+          const sidoEv =
+            props.mode === "sido" && props.evidence
+              ? props.evidence[d.key]
+              : null;
+          const ev = sigunguEv ?? sidoEv;
+          const ariaLabel = ev
+            ? `${d.label} ${value}점, ${ev.interpretation}`
+            : `${d.label} ${value}점`;
           return (
             <li
               key={d.key}
               className={s.dimCard}
               data-tone={tone}
-              aria-label={
-                ev
-                  ? `${d.label} ${value}점, ${ev.interpretation}`
-                  : `${d.label} ${value}점`
-              }
+              aria-label={ariaLabel}
             >
               <span className={s.dimLabel}>{d.label}</span>
               <div className={s.dimScoreRow}>
@@ -182,6 +191,22 @@ export function SettlementScoreBreakdown(props: Props) {
                 <div className={s.dimEvidence}>
                   <span className={s.dimRaw}>{ev.rawLabel}</span>
                   <span className={s.dimInterp}>{ev.interpretation}</span>
+                  {sidoEv && sidoEv.topSigungus.length > 0 && (
+                    <ul className={s.dimTopList}>
+                      {sidoEv.topSigungus.map((sg) => (
+                        <li key={sg.id} className={s.dimTopItem}>
+                          <Link
+                            href={`/regions/${(props as SidoProps).provinceId}/${sg.id}`}
+                            className={s.dimTopChip}
+                            prefetch={false}
+                          >
+                            {sg.name}
+                            <span className={s.dimTopScore}>{sg.score}점</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               ) : (
                 <span className={s.dimHelper}>{d.helper}</span>
