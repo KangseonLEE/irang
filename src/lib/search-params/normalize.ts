@@ -260,4 +260,19 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       q: 30,
     },
   },
+  "/regions": {
+    // 활성 지역 카테고리 토글 (2026-05-10 추가) — 알 수 없는 값은 308로 cleaned
+    allowedKeys: ["active"],
+    enumValidators: {
+      active: [
+        "jeonin",
+        "gwichon",
+        "youthFarm",
+        "gwisanchon",
+        "smartFarm",
+        "healing",
+        "socialFarm",
+      ],
+    },
+  },
 };

@@ -47,6 +47,7 @@ export default function robots(): MetadataRoute.Robots {
           "/programs?",
           "/education?",
           "/crops?",
+          "/regions?",
         ],
       },
       ...AI_TRAINING_CRAWLERS.map((bot) => ({
