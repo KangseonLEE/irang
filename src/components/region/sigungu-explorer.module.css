@@ -1,7 +1,9 @@
 /* ==========================================================================
    SigunguExplorer — 시·군·구 통합 탐색
-   - 데스크탑(≥1024px): split view (좌 맵 + 우 카드 동시 노출), 토글 hide
-   - 모바일/태블릿(<1024px): 토글 + 단일 뷰 (data-view 기준)
+   - 데스크탑(≥1024px): split view (좌 맵 + 우 카드 동시 노출)
+     - 뷰 토글 hide / 밀도 토글은 맵 위에 노출
+   - 모바일/태블릿(<1024px): 컨트롤 row(뷰|밀도) + data-view 기준 단일 뷰
+     - 카드 뷰일 때 밀도 토글 hide (지도 없으니 의미 없음)
    ========================================================================== */
 
 .wrap {
@@ -10,9 +12,17 @@
   gap: 16px;
 }
 
-/* ── 토글 (모바일/태블릿 전용) ───────────────────────────────────────────── */
-.viewToggle {
-  align-self: flex-end;
+/* ── 컨트롤 row (모바일/태블릿 기본) ─────────────────────────────────────── */
+.controlRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* 토글 공통 */
+.toggle {
   display: inline-flex;
   padding: 4px;
   background: var(--muted, #f1f5f4);
@@ -33,6 +43,7 @@
   border-radius: 999px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
 }
 
 .toggleBtn:disabled {
@@ -57,15 +68,35 @@
   }
 }
 
+/* 카드 뷰 진입 시 밀도 토글 hide (모바일/태블릿 한정) */
+.densityHiddenOnMobile {
+  display: none;
+}
+
+/* ── 모바일 좁은 폭(<480px): 토글 폭·여백 압축 ──────────────────────────── */
 @media (max-width: 480px) {
-  .viewToggle {
-    align-self: stretch;
+  .controlRow {
+    gap: 6px;
+  }
+  .toggleBtn {
+    padding: 6px 10px;
+    gap: 4px;
+  }
+}
+
+/* iPhone SE급(<360px) — 매우 좁은 폭에서 두 토글이 한 줄 안 들어가면 wrap 후
+   각 토글이 전체 폭으로 펼쳐지게 한다. 보통 한 줄에 들어가지만 보호용. */
+@media (max-width: 359px) {
+  .controlRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .toggle {
     justify-content: center;
   }
   .toggleBtn {
     flex: 1;
     justify-content: center;
-    padding: 8px 12px;
   }
 }
 
@@ -90,10 +121,29 @@
   min-width: 0;
 }
 
-/* ── 데스크탑(≥1024px): split layout, 토글 hide ─────────────────────────── */
+/* ── 데스크탑(≥1024px): split layout, 뷰 토글 hide, 밀도 토글은 좌 맵 영역 위 ─ */
 @media (min-width: 1024px) {
+  /* 컨트롤 row를 split과 같은 grid로 정렬 — 좌측 맵 영역 위에 밀도 토글만 보이게 */
+  .controlRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(340px, 380px);
+    gap: 28px;
+    align-items: center;
+  }
+
+  /* 뷰 토글: 데스크탑에서는 split 자동 노출이라 hide */
   .viewToggle {
     display: none;
+  }
+
+  /* 밀도 토글: 좌 맵 영역(첫 번째 컬럼)에 위치, 카드 뷰여도 항상 노출 */
+  .densityToggle {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .densityToggle.densityHiddenOnMobile {
+    display: inline-flex;
   }
 
   .split {
@@ -134,6 +184,7 @@
 }
 
 @media (min-width: 1280px) {
+  .controlRow,
   .split {
     grid-template-columns: minmax(0, 1.55fr) minmax(360px, 400px);
     gap: 32px;
@@ -141,6 +192,7 @@
 }
 
 @media (min-width: 1536px) {
+  .controlRow,
   .split {
     grid-template-columns: minmax(0, 1.6fr) minmax(380px, 420px);
   }
