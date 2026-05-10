@@ -189,6 +189,7 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
   const dimensionScores = getDimensionScores(sigungu.sgisCode);
 
   return (
+    <div id="sigungu-stats">
     <SigunguStats
       provinceShortName={province.shortName}
       provinceName={province.name}
@@ -247,5 +248,6 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
       sigunguNameForNeis={sigungu.name}
       admCode={sigungu.admCode}
     />
+    </div>
   );
 }

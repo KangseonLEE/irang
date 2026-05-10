@@ -140,6 +140,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
       {/* Hero Banner는 page.tsx에서 정적으로 표시 (5/10 리팩터링) — Suspense 안에서 제거 */}
 
       {/* Stats + Climate */}
+      <div id="region-stats">
       <RegionStats
         provinceShortName={province.shortName}
         provinceName={province.name}
@@ -171,6 +172,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
           climate: climateResult.status === "rejected",
         }}
       />
+      </div>
 
       {/* 지원사업 */}
       {matchedPrograms.length > 0 && (
