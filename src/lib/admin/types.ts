@@ -70,3 +70,20 @@ export interface AdminKpi {
   weeklyAssessments: number;
   zeroResultCount: number;
 }
+
+// ── 랜딩 인기 검색어 데이터 소스 ──
+
+/**
+ * 랜딩 히어로 하단 "지금 많이 찾는 키워드" 영역의 데이터 소스 상태.
+ *
+ * - realDataCount: Supabase get_trending_searches RPC가 반환한 실데이터 키워드 수 (최근 7일)
+ * - threshold: 실데이터로 노출되기 위한 최소 키워드 수 (TrendingSearches 컴포넌트 정의)
+ * - isFallback: realDataCount < threshold 인 경우 true → landing.ts trendingSearches 정적 폴백 사용 중
+ * - fallbackCount: 정적 폴백 키워드 수 (참고용)
+ */
+export interface TrendingDataSourceStatus {
+  realDataCount: number;
+  threshold: number;
+  isFallback: boolean;
+  fallbackCount: number;
+}

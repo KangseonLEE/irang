@@ -22,6 +22,51 @@
   background: #fffbeb;
 }
 
+.sectionOk {
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, white);
+}
+
+/* ── 데이터 소스 상태 카드 ── */
+
+.statusRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.statusBadge {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--foreground, #111);
+}
+
+.statusDetail {
+  font-size: 0.85rem;
+  color: var(--muted-foreground, #555);
+}
+
+.statusDetail strong {
+  color: var(--foreground, #111);
+  font-weight: 700;
+}
+
+.statusHelp {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted-foreground, #777);
+  line-height: 1.5;
+}
+
+@media (min-width: 640px) {
+  .statusRow {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
+
 .sectionTitle {
   font-size: 1rem;
   font-weight: 600;

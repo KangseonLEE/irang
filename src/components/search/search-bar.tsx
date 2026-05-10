@@ -19,6 +19,7 @@ import { searchItems, hasExactMatch, suggestQueries, type SearchItem } from "@/l
 import { POPULAR_KEYWORDS } from "./popular-keywords";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
+import { logSearch } from "@/lib/supabase";
 import { RequestButton } from "@/components/feedback/request-modal";
 import { useBodyScrollLock } from "@/lib/hooks/use-body-scroll-lock";
 import { PLAN_STEPS } from "@/lib/data/plan";
@@ -342,6 +343,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   }, [autoFocus]);
 
   // ----- Imperative handle for SearchGroup -----
+  // SearchTags 등 외부 트리거로 쿼리를 채울 때 사용. 사용자가 명시적으로 키워드를
+  // 선택한 시점이므로 search_logs 적재.
   useImperativeHandle(ref, () => ({
     fillQuery(q: string) {
       setQuery(q);
@@ -350,6 +353,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       setIsOpen(true);
       setFocusedIndex(-1);
       inputRef.current?.focus();
+      logSearch(q, found.length);
     },
   }));
 
@@ -468,7 +472,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     beginNavigation();
   }, [beginNavigation]);
 
-  // ----- 최근 검색어 클릭 → 검색 실행 -----
+  // ----- 최근/인기/자동완성 검색어 클릭 → 검색 실행 -----
+  // 사용자가 명시적으로 키워드를 선택한 시점이므로 search_logs 적재
+  // (이후 결과 항목을 다시 클릭하면 그때 또 한 번 적재되지만, 두 의도는 별개의 액션이므로 허용)
   const handleRecentClick = useCallback(
     (recentQuery: string) => {
       setQuery(recentQuery);
@@ -476,6 +482,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       setResults(found);
       setIsOpen(true);
       setFocusedIndex(-1);
+      logSearch(recentQuery, found.length);
     },
     [],
   );
@@ -524,12 +531,18 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       if (focusedIndex >= 0 && focusedIndex < allItems.length) {
         const focused = allItems[focusedIndex];
         if (focused.type === "recent" || focused.type === "suggestion") handleRecentClick(focused.query);
-        else navigateTo(focused.item.href, query, focused.item.external);
+        else {
+          // 드롭다운 결과 항목 Enter 선택 — search_logs 적재
+          // (navigateTo로 /search 페이지를 거치지 않으므로 여기서 직접 호출)
+          if (query.trim().length > 0) logSearch(query, results.length);
+          navigateTo(focused.item.href, query, focused.item.external);
+        }
       } else if (query.trim().length > 0) {
+        // /search?q= 로 이동 — /search 페이지의 useEffect가 logSearch 호출 → 중복 방지 위해 여기서는 미호출
         navigateTo(`/search?q=${encodeURIComponent(query.trim())}`, query);
       }
     },
-    [allItems, focusedIndex, navigateTo, query, handleRecentClick],
+    [allItems, focusedIndex, navigateTo, query, results.length, handleRecentClick],
   );
 
   // ----- Click outside -----
@@ -942,6 +955,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                     if (query.trim()) {
                       saveRecent(query);
                       analytics.search(query);
+                      // search_logs 적재 — /search 페이지를 거치지 않으므로 헤더 드롭다운에서 직접 호출
+                      logSearch(query, results.length);
                     }
                     if (!item.external) beginNavigation();
                   };

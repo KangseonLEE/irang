@@ -8,16 +8,18 @@ import {
   fetchTopKeywords,
   fetchZeroResultQueries,
   fetchDailySearchCounts,
+  fetchTrendingDataSourceStatus,
 } from "@/lib/admin/queries";
 import s from "./page.module.css";
 
 export const revalidate = 300;
 
 export default async function AdminSearchPage() {
-  const [topKeywords, zeroResults, dailyCounts] = await Promise.all([
+  const [topKeywords, zeroResults, dailyCounts, trendingStatus] = await Promise.all([
     fetchTopKeywords(7, 20),
     fetchZeroResultQueries(7, 15),
     fetchDailySearchCounts(14),
+    fetchTrendingDataSourceStatus(),
   ]);
 
   const maxDaily = Math.max(...dailyCounts.map((d) => d.count), 1);
@@ -25,6 +27,28 @@ export default async function AdminSearchPage() {
   return (
     <div className={s.page}>
       <h1 className={s.heading}>검색 분석</h1>
+
+      {/* ── 랜딩 인기 검색어 데이터 소스 상태 ── */}
+      <section
+        className={`${s.section} ${trendingStatus.isFallback ? s.sectionWarn : s.sectionOk}`}
+      >
+        <h2 className={s.sectionTitle}>랜딩 인기 검색어 데이터 소스</h2>
+        <div className={s.statusRow}>
+          <div className={s.statusBadge}>
+            {trendingStatus.isFallback ? "🟡 정적 폴백 사용 중" : "✅ 실데이터 사용 중"}
+          </div>
+          <div className={s.statusDetail}>
+            최근 7일 실데이터{" "}
+            <strong>{trendingStatus.realDataCount}건</strong> · 노출 임계치{" "}
+            <strong>{trendingStatus.threshold}건</strong>
+          </div>
+        </div>
+        <p className={s.statusHelp}>
+          {trendingStatus.isFallback
+            ? `실데이터가 ${trendingStatus.threshold}건 미만이라 큐레이션 폴백 ${trendingStatus.fallbackCount}건이 노출되고 있어요. ${trendingStatus.threshold}건 이상부터 실데이터로 전환돼요.`
+            : `Supabase search_logs 기준 실데이터가 노출되고 있어요.`}
+        </p>
+      </section>
 
       {/* ── 일별 검색량 바 차트 ── */}
       <section className={s.section}>
