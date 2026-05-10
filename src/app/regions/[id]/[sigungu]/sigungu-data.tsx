@@ -38,6 +38,7 @@ import {
 import { fetchMultipleClimateData } from "@/lib/api/weather";
 import { fetchReturnFarmStats } from "@/lib/api/kosis";
 import { SigunguStats } from "./sigungu-stats";
+import s from "./page.module.css";
 
 interface SigunguDataProps {
   province: Province;
@@ -189,7 +190,7 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
   const dimensionScores = getDimensionScores(sigungu.sgisCode);
 
   return (
-    <div id="sigungu-stats">
+    <div id="sigungu-stats" className={s.statsAsyncWrapper}>
     <SigunguStats
       provinceShortName={province.shortName}
       provinceName={province.name}

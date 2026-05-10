@@ -453,6 +453,15 @@ a.stickyChip:focus-visible {
   }
 }
 
+/* ---- Stats + Climate 섹션 wrapper (anchor 겸 자녀 간격) ----
+   region-async-data.tsx의 #region-stats anchor div에 적용.
+   page.gap(16px)이 div 자녀에 전달되지 않으므로 동일한 flex+gap 부여. */
+.statsAsyncWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 /* ---- 스탯 그리드 (auto-fit: 빈 여백 없이 꽉 채움) ---- */
 .statsGrid {
   display: grid;

@@ -252,6 +252,15 @@ a.heroScoreBadge:focus-visible {
   }
 }
 
+/* ---- Stats + Climate 섹션 wrapper (anchor 겸 자녀 간격) ----
+   sigungu-data.tsx의 #sigungu-stats anchor div에 적용.
+   page.gap(20px)이 div 자녀에 전달되지 않으므로 동일한 flex+gap 부여. */
+.statsAsyncWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 /* ---- Stats Grid (시/도와 동일 패턴) ---- */
 .statsGrid {
   display: grid;
