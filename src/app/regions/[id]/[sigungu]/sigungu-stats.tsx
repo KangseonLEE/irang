@@ -526,9 +526,14 @@ function DimensionCard({ label, score, kind, changePct }: DimensionCardProps) {
       summary = `안정 ${changePct >= 0 ? "+" : ""}${changePct.toFixed(1)}%`;
     }
   } else {
-    // 분위 80↑ = 상위, 50~80 = 중상, 20~50 = 중하, 20↓ = 하위
-    const topPct = Math.max(1, 100 - score);
-    summary = `전국 상위 ${topPct}%`;
+    // 점수 50 이상은 평균 위 → "상위 N%", 50 미만은 평균 아래 → "하위 N%"로 솔직하게
+    if (score >= 50) {
+      const topPct = Math.max(1, 100 - score);
+      summary = `전국 상위 ${topPct}%`;
+    } else {
+      const bottomPct = Math.max(1, score);
+      summary = `전국 하위 ${bottomPct}%`;
+    }
   }
 
   // 색상: 분위 또는 점수에 따라

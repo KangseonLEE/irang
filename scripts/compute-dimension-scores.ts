@@ -181,14 +181,15 @@ function buildPercentileEvidence(opts: {
   if (opts.rawValue === null || opts.percentile === null) return null;
   // percentile = 차원 점수 자체 (1~100). 높을수록 잘하는 방향.
   // 점수 100 → 전국 1등, 점수 50 → 전국 중간, 점수 1 → 전국 꼴찌.
-  // "상위 N%"는 좋은 방향 위치 표시이므로 percentile이 50 이상일 때만 자연스럽다.
-  // percentile 50 미만은 "하위 N%"로 표기 — 사용자에게 솔직.
+  // 솔직 표기 원칙:
+  //   - percentile >= 50 → "전국 상위 N%" (N = 100 - percentile)
+  //   - percentile < 50  → "전국 하위 N%" (N = percentile)
+  // rankPercent 필드는 "상위 N%"가 자연스러운 경우(점수 50 이상)에만 채운다.
+  // 점수 50 미만에선 undefined로 두어, 외부에서 잘못된 "상위" 해석을 유도하지 않는다.
+  const isHigh = opts.percentile >= 50;
   const topPct = Math.max(1, 100 - opts.percentile);
   const bottomPct = Math.max(1, opts.percentile);
-  const rankCopy =
-    opts.percentile >= 50
-      ? `전국 상위 ${topPct}%`
-      : `전국 하위 ${bottomPct}%`;
+  const rankCopy = isHigh ? `전국 상위 ${topPct}%` : `전국 하위 ${bottomPct}%`;
   const tone =
     opts.percentile >= 67
       ? opts.highTone
@@ -203,7 +204,7 @@ function buildPercentileEvidence(opts: {
     rawValue: Number(opts.rawValue.toFixed(2)),
     rawUnit: opts.rawUnit,
     rawLabel: `${opts.rawLabelPrefix} ${rawDisplay}${opts.rawUnit}`,
-    rankPercent: topPct,
+    ...(isHigh ? { rankPercent: topPct } : {}),
     interpretation: `${tone} (${rankCopy})`,
   };
 }
@@ -336,7 +337,11 @@ export interface DimensionEvidence {
   rawUnit: string;
   /** UI 노출용 짧은 라벨 (예: "1만 명당 농가 4.2호") */
   rawLabel: string;
-  /** 전국 상위 N% (인구 추세는 null) */
+  /**
+   * 전국 상위 N% (점수 50 이상에서만 채움).
+   * 점수 50 미만 시군구는 "상위 표기"가 자연스럽지 않으므로 undefined.
+   * 인구 추세 차원은 분위 변환을 하지 않아 항상 undefined.
+   */
   rankPercent?: number;
   /** 한 줄 해석 카피 (UI 노출용) */
   interpretation: string;

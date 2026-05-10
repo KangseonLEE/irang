@@ -25,7 +25,11 @@ export interface DimensionEvidence {
   rawUnit: string;
   /** UI 노출용 짧은 라벨 (예: "1만 명당 농가 4.2호") */
   rawLabel: string;
-  /** 전국 상위 N% (인구 추세는 null) */
+  /**
+   * 전국 상위 N% (점수 50 이상에서만 채움).
+   * 점수 50 미만 시군구는 "상위 표기"가 자연스럽지 않으므로 undefined.
+   * 인구 추세 차원은 분위 변환을 하지 않아 항상 undefined.
+   */
   rankPercent?: number;
   /** 한 줄 해석 카피 (UI 노출용) */
   interpretation: string;
@@ -120,7 +124,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.55,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "rankPercent": 59,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 41%)"
       },
       "returnFarm": null
@@ -153,7 +156,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.69,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "rankPercent": 86,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 14%)"
       },
       "returnFarm": null
@@ -186,7 +188,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.42,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "rankPercent": 94,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 6%)"
       },
       "returnFarm": null
@@ -219,7 +220,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.33,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.3곳",
-        "rankPercent": 97,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 3%)"
       },
       "returnFarm": null
@@ -252,7 +252,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.43,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "rankPercent": 93,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 7%)"
       },
       "returnFarm": null
@@ -285,7 +284,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.27,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.3곳",
-        "rankPercent": 99,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 1%)"
       },
       "returnFarm": null
@@ -311,14 +309,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.93,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.9곳",
-        "rankPercent": 69,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 31%)"
       },
       "school": {
         "rawValue": 1.42,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "rankPercent": 94,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 6%)"
       },
       "returnFarm": null
@@ -351,7 +347,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.32,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.3곳",
-        "rankPercent": 97,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 3%)"
       },
       "returnFarm": null
@@ -377,14 +372,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.56,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.6곳",
-        "rankPercent": 73,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 27%)"
       },
       "school": {
         "rawValue": 1.48,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "rankPercent": 93,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 7%)"
       },
       "returnFarm": null
@@ -417,7 +410,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.99,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.0곳",
-        "rankPercent": 74,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 26%)"
       },
       "returnFarm": null
@@ -450,7 +442,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.5,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "rankPercent": 91,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 9%)"
       },
       "returnFarm": null
@@ -476,14 +467,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 14.23,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.2곳",
-        "rankPercent": 53,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 47%)"
       },
       "school": {
         "rawValue": 1.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "rankPercent": 96,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 4%)"
       },
       "returnFarm": null
@@ -516,7 +505,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.41,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "rankPercent": 96,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 4%)"
       },
       "returnFarm": null
@@ -549,7 +537,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.5,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "rankPercent": 91,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 9%)"
       },
       "returnFarm": null
@@ -582,7 +569,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.49,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "rankPercent": 92,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 8%)"
       },
       "returnFarm": null
@@ -615,7 +601,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.41,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "rankPercent": 95,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 5%)"
       },
       "returnFarm": null
@@ -648,7 +633,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.42,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "rankPercent": 95,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 5%)"
       },
       "returnFarm": null
@@ -681,7 +665,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.14,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.1곳",
-        "rankPercent": 99,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 1%)"
       },
       "returnFarm": null
@@ -714,7 +697,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.3곳",
-        "rankPercent": 96,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 4%)"
       },
       "returnFarm": null
@@ -740,14 +722,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 14.53,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.5곳",
-        "rankPercent": 51,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 49%)"
       },
       "school": {
         "rawValue": 1.17,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.2곳",
-        "rankPercent": 99,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 1%)"
       },
       "returnFarm": null
@@ -780,7 +760,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.49,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "rankPercent": 92,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 8%)"
       },
       "returnFarm": null
@@ -813,7 +792,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.68,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "rankPercent": 86,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 14%)"
       },
       "returnFarm": null
@@ -846,7 +824,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.51,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "rankPercent": 90,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 10%)"
       },
       "returnFarm": null
@@ -879,7 +856,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.43,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "rankPercent": 93,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 7%)"
       },
       "returnFarm": null
@@ -905,7 +881,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 9.96,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.0곳",
-        "rankPercent": 95,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 5%)"
       },
       "school": {
@@ -971,14 +946,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.67,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.7곳",
-        "rankPercent": 72,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 28%)"
       },
       "school": {
         "rawValue": 1.3,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.3곳",
-        "rankPercent": 98,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 2%)"
       },
       "returnFarm": null
@@ -1004,14 +977,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.96,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.0곳",
-        "rankPercent": 69,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 31%)"
       },
       "school": {
         "rawValue": 1.85,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "rankPercent": 78,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 22%)"
       },
       "returnFarm": null
@@ -1044,7 +1015,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.62,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.6곳",
-        "rankPercent": 88,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 12%)"
       },
       "returnFarm": null
@@ -1070,14 +1040,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.69,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.7곳",
-        "rankPercent": 60,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 40%)"
       },
       "school": {
         "rawValue": 1.77,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "rankPercent": 82,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 18%)"
       },
       "returnFarm": null
@@ -1103,14 +1071,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.19,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.2곳",
-        "rankPercent": 66,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 34%)"
       },
       "school": {
         "rawValue": 1.84,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "rankPercent": 79,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 21%)"
       },
       "returnFarm": null
@@ -1136,14 +1102,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 11.84,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.8곳",
-        "rankPercent": 80,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 20%)"
       },
       "school": {
         "rawValue": 1.82,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "rankPercent": 79,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 21%)"
       },
       "returnFarm": null
@@ -1175,7 +1139,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.95,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.9곳",
-        "rankPercent": 69,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 31%)"
       },
       "school": {
@@ -1213,14 +1176,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 586.17,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 586호",
-        "rankPercent": 66,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 34%)"
       },
       "medical": {
         "rawValue": 13.97,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.0곳",
-        "rankPercent": 56,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 44%)"
       },
       "school": {
@@ -1234,7 +1195,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 61,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 39%)"
       }
     }
@@ -1266,7 +1226,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.73,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "rankPercent": 83,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 17%)"
       },
       "returnFarm": null
@@ -1299,7 +1258,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.77,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "rankPercent": 82,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 18%)"
       },
       "returnFarm": null
@@ -1325,14 +1283,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.75,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.8곳",
-        "rankPercent": 58,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 42%)"
       },
       "school": {
         "rawValue": 1.63,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.6곳",
-        "rankPercent": 88,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 12%)"
       },
       "returnFarm": null
@@ -1365,7 +1321,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.63,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.6곳",
-        "rankPercent": 87,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 13%)"
       },
       "returnFarm": null
@@ -1391,14 +1346,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 14.48,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.5곳",
-        "rankPercent": 52,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 48%)"
       },
       "school": {
         "rawValue": 1.65,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "rankPercent": 87,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 13%)"
       },
       "returnFarm": null
@@ -1431,7 +1384,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.69,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "rankPercent": 85,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 15%)"
       },
       "returnFarm": null
@@ -1456,28 +1408,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 153.4,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 153호",
-        "rankPercent": 92,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 8%)"
       },
       "medical": {
         "rawValue": 11.86,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.9곳",
-        "rankPercent": 79,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 21%)"
       },
       "school": {
         "rawValue": 2.17,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.2곳",
-        "rankPercent": 69,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 31%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 92,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 8%)"
       }
     }
@@ -1502,14 +1450,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 9.88,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 9.9곳",
-        "rankPercent": 95,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 5%)"
       },
       "school": {
         "rawValue": 2.44,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.4곳",
-        "rankPercent": 61,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 39%)"
       },
       "returnFarm": null
@@ -1535,14 +1481,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 11.22,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.2곳",
-        "rankPercent": 87,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 13%)"
       },
       "school": {
         "rawValue": 1.52,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "rankPercent": 89,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 11%)"
       },
       "returnFarm": null
@@ -1568,14 +1512,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.36,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.4곳",
-        "rankPercent": 65,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 35%)"
       },
       "school": {
         "rawValue": 1.75,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "rankPercent": 82,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 18%)"
       },
       "returnFarm": null
@@ -1608,7 +1550,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.77,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "rankPercent": 81,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 19%)"
       },
       "returnFarm": null
@@ -1641,7 +1582,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.68,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "rankPercent": 86,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 14%)"
       },
       "returnFarm": null
@@ -1666,28 +1606,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 68.48,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 68.5호",
-        "rankPercent": 98,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 2%)"
       },
       "medical": {
         "rawValue": 11.64,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.6곳",
-        "rankPercent": 83,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 17%)"
       },
       "school": {
         "rawValue": 1.81,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "rankPercent": 81,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 19%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 97,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 3%)"
       }
     }
@@ -1712,14 +1648,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 10.88,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.9곳",
-        "rankPercent": 89,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 11%)"
       },
       "school": {
         "rawValue": 2.02,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.0곳",
-        "rankPercent": 73,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 27%)"
       },
       "returnFarm": null
@@ -1745,14 +1679,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 10.26,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.3곳",
-        "rankPercent": 94,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 6%)"
       },
       "school": {
         "rawValue": 1.74,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "rankPercent": 83,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 17%)"
       },
       "returnFarm": null
@@ -1778,14 +1710,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.7,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.7곳",
-        "rankPercent": 71,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 29%)"
       },
       "school": {
         "rawValue": 1.72,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "rankPercent": 84,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 16%)"
       },
       "returnFarm": null
@@ -1811,14 +1741,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 10.68,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.7곳",
-        "rankPercent": 91,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 9%)"
       },
       "school": {
         "rawValue": 1.91,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.9곳",
-        "rankPercent": 76,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 24%)"
       },
       "returnFarm": null
@@ -1844,14 +1772,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 14.47,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.5곳",
-        "rankPercent": 52,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 48%)"
       },
       "school": {
         "rawValue": 1.59,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.6곳",
-        "rankPercent": 89,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 11%)"
       },
       "returnFarm": null
@@ -1876,28 +1802,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 68.46,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 68.5호",
-        "rankPercent": 99,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 1%)"
       },
       "medical": {
         "rawValue": 12.05,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.1곳",
-        "rankPercent": 78,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 22%)"
       },
       "school": {
         "rawValue": 1.82,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "rankPercent": 80,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 20%)"
       },
       "returnFarm": {
         "rawValue": 0,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 99,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 1%)"
       }
     }
@@ -1921,28 +1843,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 133.57,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 134호",
-        "rankPercent": 93,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 7%)"
       },
       "medical": {
         "rawValue": 10.9,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.9곳",
-        "rankPercent": 88,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 12%)"
       },
       "school": {
         "rawValue": 2.36,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.4곳",
-        "rankPercent": 62,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 38%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 94,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 6%)"
       }
     }
@@ -1966,28 +1884,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 362.2,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 362호",
-        "rankPercent": 77,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 23%)"
       },
       "medical": {
         "rawValue": 11.75,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.8곳",
-        "rankPercent": 82,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 18%)"
       },
       "school": {
         "rawValue": 2.64,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "rankPercent": 56,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 44%)"
       },
       "returnFarm": {
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 78,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 22%)"
       }
     }
@@ -2011,28 +1925,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 380.74,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 381호",
-        "rankPercent": 75,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 25%)"
       },
       "medical": {
         "rawValue": 10.69,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.7곳",
-        "rankPercent": 90,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 10%)"
       },
       "school": {
         "rawValue": 2.83,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.8곳",
-        "rankPercent": 53,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 47%)"
       },
       "returnFarm": {
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 70,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 30%)"
       }
     }
@@ -2056,28 +1966,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 101.37,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 101호",
-        "rankPercent": 96,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 4%)"
       },
       "medical": {
         "rawValue": 11.28,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.3곳",
-        "rankPercent": 86,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 14%)"
       },
       "school": {
         "rawValue": 1.85,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.9곳",
-        "rankPercent": 78,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 22%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 93,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 7%)"
       }
     }
@@ -2101,28 +2007,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 111.6,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 112호",
-        "rankPercent": 95,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 5%)"
       },
       "medical": {
         "rawValue": 4.95,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 4.9곳",
-        "rankPercent": 99,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 1%)"
       },
       "school": {
         "rawValue": 2.11,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.1곳",
-        "rankPercent": 70,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 30%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 89,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 11%)"
       }
     }
@@ -2146,28 +2048,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 99.97,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 100.0호",
-        "rankPercent": 98,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 2%)"
       },
       "medical": {
         "rawValue": 9.24,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 9.2곳",
-        "rankPercent": 97,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 3%)"
       },
       "school": {
         "rawValue": 1.55,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.6곳",
-        "rankPercent": 89,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 11%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 95,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 5%)"
       }
     }
@@ -2191,14 +2089,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 153.71,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 154호",
-        "rankPercent": 92,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 8%)"
       },
       "medical": {
         "rawValue": 10.33,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.3곳",
-        "rankPercent": 93,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 7%)"
       },
       "school": {
@@ -2212,7 +2108,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 98,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 2%)"
       }
     }
@@ -2236,28 +2131,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 369.02,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 369호",
-        "rankPercent": 77,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 23%)"
       },
       "medical": {
         "rawValue": 9.72,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 9.7곳",
-        "rankPercent": 96,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 4%)"
       },
       "school": {
         "rawValue": 2.94,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.9곳",
-        "rankPercent": 51,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 49%)"
       },
       "returnFarm": {
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 73,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 27%)"
       }
     }
@@ -2281,14 +2172,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 604.23,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 604호",
-        "rankPercent": 64,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 36%)"
       },
       "medical": {
         "rawValue": 12.47,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.5곳",
-        "rankPercent": 74,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 26%)"
       },
       "school": {
@@ -2302,7 +2191,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 64,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 36%)"
       }
     }
@@ -2327,7 +2215,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.74,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.7곳",
-        "rankPercent": 71,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 29%)"
       },
       "school": {
@@ -2393,7 +2280,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.08,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.1곳",
-        "rankPercent": 67,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 33%)"
       },
       "school": {
@@ -2425,28 +2311,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 228.64,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 229호",
-        "rankPercent": 87,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 13%)"
       },
       "medical": {
         "rawValue": 13.1,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.1곳",
-        "rankPercent": 67,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 33%)"
       },
       "school": {
         "rawValue": 2.8,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.8곳",
-        "rankPercent": 53,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 47%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 89,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 11%)"
       }
     }
@@ -2470,28 +2352,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 246.95,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 247호",
-        "rankPercent": 85,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 15%)"
       },
       "medical": {
         "rawValue": 14.01,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.0곳",
-        "rankPercent": 55,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 45%)"
       },
       "school": {
         "rawValue": 2.74,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.7곳",
-        "rankPercent": 55,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 45%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 90,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 10%)"
       }
     }
@@ -2515,28 +2393,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 327.53,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 328호",
-        "rankPercent": 79,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 21%)"
       },
       "medical": {
         "rawValue": 12.69,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.7곳",
-        "rankPercent": 72,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 28%)"
       },
       "school": {
         "rawValue": 2.93,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.9곳",
-        "rankPercent": 52,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 48%)"
       },
       "returnFarm": {
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 83,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 17%)"
       }
     }
@@ -2561,7 +2435,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.22,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.2곳",
-        "rankPercent": 76,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 24%)"
       },
       "school": {
@@ -2594,7 +2467,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 11.25,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.2곳",
-        "rankPercent": 86,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 14%)"
       },
       "school": {
@@ -2634,7 +2506,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.6,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "rankPercent": 57,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 43%)"
       },
       "returnFarm": null
@@ -2659,14 +2530,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 618.15,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 618호",
-        "rankPercent": 63,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 37%)"
       },
       "medical": {
         "rawValue": 10.27,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.3곳",
-        "rankPercent": 93,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 7%)"
       },
       "school": {
@@ -2680,7 +2549,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 70,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 30%)"
       }
     }
@@ -2711,7 +2579,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.49,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.5곳",
-        "rankPercent": 62,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 38%)"
       },
       "school": {
@@ -2756,7 +2623,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 11.81,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.8곳",
-        "rankPercent": 80,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 20%)"
       },
       "school": {
@@ -2794,14 +2660,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 854.6,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 855호",
-        "rankPercent": 52,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 48%)"
       },
       "medical": {
         "rawValue": 10.66,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.7곳",
-        "rankPercent": 92,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 8%)"
       },
       "school": {
@@ -2884,14 +2748,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 805.9,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 806호",
-        "rankPercent": 56,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 44%)"
       },
       "medical": {
         "rawValue": 11.69,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.7곳",
-        "rankPercent": 83,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 17%)"
       },
       "school": {
@@ -2905,7 +2767,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 60,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 40%)"
       }
     }
@@ -2936,7 +2797,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.15,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.2곳",
-        "rankPercent": 77,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 23%)"
       },
       "school": {
@@ -2950,7 +2810,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.08,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 52,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 48%)"
       }
     }
@@ -2974,7 +2833,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 816.15,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 816호",
-        "rankPercent": 54,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 46%)"
       },
       "medical": {
@@ -3026,7 +2884,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 11.53,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.5곳",
-        "rankPercent": 85,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 15%)"
       },
       "school": {
@@ -3071,7 +2928,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 10.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.4곳",
-        "rankPercent": 93,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 7%)"
       },
       "school": {
@@ -3085,7 +2941,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 53,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 47%)"
       }
     }
@@ -3109,14 +2964,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 783.35,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 783호",
-        "rankPercent": 59,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 41%)"
       },
       "medical": {
         "rawValue": 11.8,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.8곳",
-        "rankPercent": 81,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 19%)"
       },
       "school": {
@@ -3130,7 +2983,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 62,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 38%)"
       }
     }
@@ -3161,7 +3013,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 9.79,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 9.8곳",
-        "rankPercent": 96,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 4%)"
       },
       "school": {
@@ -3175,7 +3026,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 56,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 44%)"
       }
     }
@@ -3199,28 +3049,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 186.1,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 186호",
-        "rankPercent": 89,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 11%)"
       },
       "medical": {
         "rawValue": 13.36,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.4곳",
-        "rankPercent": 64,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 36%)"
       },
       "school": {
         "rawValue": 2.36,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.4곳",
-        "rankPercent": 61,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 39%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 88,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 12%)"
       }
     }
@@ -3244,14 +3090,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 413.98,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 414호",
-        "rankPercent": 72,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 28%)"
       },
       "medical": {
         "rawValue": 12.79,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.8곳",
-        "rankPercent": 70,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 30%)"
       },
       "school": {
@@ -3265,7 +3109,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 74,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 26%)"
       }
     }
@@ -3289,7 +3132,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 489.36,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 489호",
-        "rankPercent": 68,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 32%)"
       },
       "medical": {
@@ -3310,7 +3152,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 73,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 27%)"
       }
     }
@@ -3457,21 +3298,18 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 392.82,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 393호",
-        "rankPercent": 73,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 27%)"
       },
       "medical": {
         "rawValue": 12.97,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.0곳",
-        "rankPercent": 68,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 32%)"
       },
       "school": {
         "rawValue": 2.65,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "rankPercent": 56,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 44%)"
       },
       "returnFarm": {
@@ -3502,14 +3340,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 385.52,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 386호",
-        "rankPercent": 73,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 27%)"
       },
       "medical": {
         "rawValue": 10.84,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.8곳",
-        "rankPercent": 90,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 10%)"
       },
       "school": {
@@ -3523,7 +3359,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 69,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 31%)"
       }
     }
@@ -3554,7 +3389,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 14.01,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.0곳",
-        "rankPercent": 55,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 45%)"
       },
       "school": {
@@ -3592,14 +3426,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 616.01,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 616호",
-        "rankPercent": 64,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 36%)"
       },
       "medical": {
         "rawValue": 12.48,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.5곳",
-        "rankPercent": 73,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 27%)"
       },
       "school": {
@@ -3613,7 +3445,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 63,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 37%)"
       }
     }
@@ -3682,28 +3513,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 187.22,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 187호",
-        "rankPercent": 89,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 11%)"
       },
       "medical": {
         "rawValue": 0,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 0.0곳",
-        "rankPercent": 99,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 1%)"
       },
       "school": {
         "rawValue": 2.85,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.8곳",
-        "rankPercent": 52,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 48%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 92,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 8%)"
       }
     }
@@ -3735,7 +3562,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.08,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.1곳",
-        "rankPercent": 71,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 29%)"
       },
       "returnFarm": null
@@ -3768,7 +3594,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.5,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.5곳",
-        "rankPercent": 60,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 40%)"
       },
       "returnFarm": null
@@ -3801,7 +3626,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.98,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.0곳",
-        "rankPercent": 75,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 25%)"
       },
       "returnFarm": null
@@ -3827,14 +3651,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.92,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.9곳",
-        "rankPercent": 57,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 43%)"
       },
       "school": {
         "rawValue": 2.27,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "rankPercent": 66,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 34%)"
       },
       "returnFarm": null
@@ -3860,14 +3682,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.48,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.5곳",
-        "rankPercent": 74,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 26%)"
       },
       "school": {
         "rawValue": 2.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "rankPercent": 63,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 37%)"
       },
       "returnFarm": null
@@ -3892,28 +3712,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 161.51,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 162호",
-        "rankPercent": 90,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 10%)"
       },
       "medical": {
         "rawValue": 12.43,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.4곳",
-        "rankPercent": 75,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 25%)"
       },
       "school": {
         "rawValue": 2.02,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.0곳",
-        "rankPercent": 72,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 28%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 95,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 5%)"
       }
     }
@@ -3958,7 +3774,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 54,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 46%)"
       }
     }
@@ -3982,7 +3797,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 807.37,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 807호",
-        "rankPercent": 55,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 45%)"
       },
       "medical": {
@@ -4003,7 +3817,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 52,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 48%)"
       }
     }
@@ -4027,28 +3840,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 243.59,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 244호",
-        "rankPercent": 86,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 14%)"
       },
       "medical": {
         "rawValue": 10.57,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.6곳",
-        "rankPercent": 92,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 8%)"
       },
       "school": {
         "rawValue": 2.56,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "rankPercent": 59,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 41%)"
       },
       "returnFarm": {
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 76,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 24%)"
       }
     }
@@ -4072,14 +3881,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 622.77,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 623호",
-        "rankPercent": 62,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 38%)"
       },
       "medical": {
         "rawValue": 11.75,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.7곳",
-        "rankPercent": 82,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 18%)"
       },
       "school": {
@@ -4093,7 +3900,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 65,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 35%)"
       }
     }
@@ -4117,7 +3923,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 845.69,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 846호",
-        "rankPercent": 52,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 48%)"
       },
       "medical": {
@@ -4138,7 +3943,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.08,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 51,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 49%)"
       }
     }
@@ -4162,28 +3966,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 120.94,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 121호",
-        "rankPercent": 94,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 6%)"
       },
       "medical": {
         "rawValue": 13.44,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.4곳",
-        "rankPercent": 63,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 37%)"
       },
       "school": {
         "rawValue": 2.59,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "rankPercent": 57,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 43%)"
       },
       "returnFarm": {
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 79,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 21%)"
       }
     }
@@ -4207,14 +4007,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 594.48,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 594호",
-        "rankPercent": 65,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 35%)"
       },
       "medical": {
         "rawValue": 11.74,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.7곳",
-        "rankPercent": 83,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 17%)"
       },
       "school": {
@@ -4228,7 +4026,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 66,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 34%)"
       }
     }
@@ -4427,7 +4224,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.75,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.8곳",
-        "rankPercent": 59,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 41%)"
       },
       "school": {
@@ -4441,7 +4237,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 58,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 42%)"
       }
     }
@@ -4472,7 +4267,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 14.42,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.4곳",
-        "rankPercent": 52,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 48%)"
       },
       "school": {
@@ -4517,7 +4311,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.86,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.9곳",
-        "rankPercent": 70,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 30%)"
       },
       "school": {
@@ -4563,7 +4356,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.33,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "rankPercent": 64,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 36%)"
       },
       "returnFarm": null
@@ -4588,14 +4380,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 249.93,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 250호",
-        "rankPercent": 84,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 16%)"
       },
       "medical": {
         "rawValue": 13.85,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.8곳",
-        "rankPercent": 58,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 42%)"
       },
       "school": {
@@ -4609,7 +4399,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 86,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 14%)"
       }
     }
@@ -4633,7 +4422,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 382.27,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 382호",
-        "rankPercent": 74,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 26%)"
       },
       "medical": {
@@ -4654,7 +4442,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 77,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 23%)"
       }
     }
@@ -4813,14 +4600,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 791.38,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 791호",
-        "rankPercent": 58,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 42%)"
       },
       "medical": {
         "rawValue": 13.93,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.9곳",
-        "rankPercent": 56,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 44%)"
       },
       "school": {
@@ -4834,7 +4619,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 55,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 45%)"
       }
     }
@@ -5181,7 +4965,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.16,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.2곳",
-        "rankPercent": 69,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 31%)"
       },
       "returnFarm": null
@@ -5214,7 +4997,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.92,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.9곳",
-        "rankPercent": 75,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 25%)"
       },
       "returnFarm": null
@@ -5247,7 +5029,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.8,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.8곳",
-        "rankPercent": 54,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 46%)"
       },
       "returnFarm": null
@@ -5280,7 +5061,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "rankPercent": 63,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 37%)"
       },
       "returnFarm": null
@@ -5306,14 +5086,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.38,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.4곳",
-        "rankPercent": 76,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 24%)"
       },
       "school": {
         "rawValue": 2.23,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.2곳",
-        "rankPercent": 67,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 33%)"
       },
       "returnFarm": null
@@ -5339,7 +5117,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.16,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.2곳",
-        "rankPercent": 66,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 34%)"
       },
       "school": {
@@ -5371,14 +5148,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 296.41,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 296호",
-        "rankPercent": 80,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 20%)"
       },
       "medical": {
         "rawValue": 13.65,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.6곳",
-        "rankPercent": 61,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 39%)"
       },
       "school": {
@@ -5392,7 +5167,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 83,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 17%)"
       }
     }
@@ -5416,28 +5190,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 436.22,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 436호",
-        "rankPercent": 71,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 29%)"
       },
       "medical": {
         "rawValue": 13.49,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.5곳",
-        "rankPercent": 62,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 38%)"
       },
       "school": {
         "rawValue": 3.01,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.0곳",
-        "rankPercent": 51,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 49%)"
       },
       "returnFarm": {
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 71,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 29%)"
       }
     }
@@ -5461,7 +5231,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 791.65,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 792호",
-        "rankPercent": 57,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 43%)"
       },
       "medical": {
@@ -5506,14 +5275,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 475.72,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 476호",
-        "rankPercent": 70,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 30%)"
       },
       "medical": {
         "rawValue": 10.9,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.9곳",
-        "rankPercent": 88,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 12%)"
       },
       "school": {
@@ -5527,7 +5294,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 75,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 25%)"
       }
     }
@@ -5963,7 +5729,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.68,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.7곳",
-        "rankPercent": 60,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 40%)"
       },
       "school": {
@@ -6001,14 +5766,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 789.14,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 789호",
-        "rankPercent": 58,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 42%)"
       },
       "medical": {
         "rawValue": 12.69,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.7곳",
-        "rankPercent": 72,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 28%)"
       },
       "school": {
@@ -6181,7 +5944,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 720.82,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 721호",
-        "rankPercent": 61,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 39%)"
       },
       "medical": {
@@ -6202,7 +5964,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 55,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 45%)"
       }
     }
@@ -6324,7 +6085,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.19,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.2곳",
-        "rankPercent": 68,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 32%)"
       },
       "returnFarm": null
@@ -6350,7 +6110,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.36,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.4곳",
-        "rankPercent": 65,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 35%)"
       },
       "school": {
@@ -6390,7 +6149,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.33,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "rankPercent": 64,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 36%)"
       },
       "returnFarm": null
@@ -6416,14 +6174,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.47,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.5곳",
-        "rankPercent": 75,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 25%)"
       },
       "school": {
         "rawValue": 2.55,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.5곳",
-        "rankPercent": 60,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 40%)"
       },
       "returnFarm": null
@@ -6456,7 +6212,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.88,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.9곳",
-        "rankPercent": 77,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 23%)"
       },
       "returnFarm": null
@@ -6489,7 +6244,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.95,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.9곳",
-        "rankPercent": 75,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 25%)"
       },
       "returnFarm": null
@@ -6522,7 +6276,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.05,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.1곳",
-        "rankPercent": 71,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 29%)"
       },
       "returnFarm": null
@@ -6548,14 +6301,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 14.08,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.1곳",
-        "rankPercent": 55,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 45%)"
       },
       "school": {
         "rawValue": 2,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.0곳",
-        "rankPercent": 74,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 26%)"
       },
       "returnFarm": null
@@ -6588,7 +6339,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.72,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "rankPercent": 84,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 16%)"
       },
       "returnFarm": null
@@ -6614,14 +6364,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 14.49,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.5곳",
-        "rankPercent": 51,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 49%)"
       },
       "school": {
         "rawValue": 1.91,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.9곳",
-        "rankPercent": 76,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 24%)"
       },
       "returnFarm": null
@@ -6654,7 +6402,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.33,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "rankPercent": 64,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 36%)"
       },
       "returnFarm": null
@@ -6680,7 +6427,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 8.84,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 8.8곳",
-        "rankPercent": 98,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 2%)"
       },
       "school": {
@@ -6720,7 +6466,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.5,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "rankPercent": 90,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 10%)"
       },
       "returnFarm": null
@@ -6753,7 +6498,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.29,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.3곳",
-        "rankPercent": 98,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 2%)"
       },
       "returnFarm": null
@@ -6779,14 +6523,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 11.98,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.0곳",
-        "rankPercent": 78,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 22%)"
       },
       "school": {
         "rawValue": 1.88,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.9곳",
-        "rankPercent": 77,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 23%)"
       },
       "returnFarm": null
@@ -6811,28 +6553,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 106.02,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 106호",
-        "rankPercent": 95,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 5%)"
       },
       "medical": {
         "rawValue": 11.98,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.0곳",
-        "rankPercent": 79,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 21%)"
       },
       "school": {
         "rawValue": 2.29,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "rankPercent": 65,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 35%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 91,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 9%)"
       }
     }
@@ -6864,7 +6602,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.58,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "rankPercent": 58,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 42%)"
       },
       "returnFarm": null
@@ -6897,7 +6634,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.71,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "rankPercent": 85,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 15%)"
       },
       "returnFarm": null
@@ -6963,7 +6699,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.24,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.2곳",
-        "rankPercent": 67,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 33%)"
       },
       "returnFarm": null
@@ -6989,14 +6724,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.7,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.7곳",
-        "rankPercent": 59,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 41%)"
       },
       "school": {
         "rawValue": 1.82,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "rankPercent": 80,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 20%)"
       },
       "returnFarm": null
@@ -7029,7 +6762,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.84,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "rankPercent": 79,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 21%)"
       },
       "returnFarm": null
@@ -7062,7 +6794,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.0곳",
-        "rankPercent": 73,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 27%)"
       },
       "returnFarm": null
@@ -7087,28 +6818,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 223.43,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 223호",
-        "rankPercent": 88,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 12%)"
       },
       "medical": {
         "rawValue": 10.67,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.7곳",
-        "rankPercent": 91,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 9%)"
       },
       "school": {
         "rawValue": 2.44,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.4곳",
-        "rankPercent": 61,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 39%)"
       },
       "returnFarm": {
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 80,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 20%)"
       }
     }
@@ -7133,14 +6860,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 11.53,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.5곳",
-        "rankPercent": 84,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 16%)"
       },
       "school": {
         "rawValue": 2.05,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.1곳",
-        "rankPercent": 72,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 28%)"
       },
       "returnFarm": null
@@ -7173,7 +6898,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.06,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.1곳",
-        "rankPercent": 71,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 29%)"
       },
       "returnFarm": null
@@ -7199,14 +6923,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 11.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.4곳",
-        "rankPercent": 86,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 14%)"
       },
       "school": {
         "rawValue": 2.27,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "rankPercent": 66,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 34%)"
       },
       "returnFarm": null
@@ -7232,14 +6954,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 8.86,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 8.9곳",
-        "rankPercent": 98,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 2%)"
       },
       "school": {
         "rawValue": 2.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.4곳",
-        "rankPercent": 62,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 38%)"
       },
       "returnFarm": null
@@ -7264,28 +6984,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 300.24,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 300호",
-        "rankPercent": 80,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 20%)"
       },
       "medical": {
         "rawValue": 9.34,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 9.3곳",
-        "rankPercent": 97,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 3%)"
       },
       "school": {
         "rawValue": 2.77,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.8곳",
-        "rankPercent": 54,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 46%)"
       },
       "returnFarm": {
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 77,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 23%)"
       }
     }
@@ -7309,28 +7025,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 281.87,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 282호",
-        "rankPercent": 81,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 19%)"
       },
       "medical": {
         "rawValue": 13.51,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.5곳",
-        "rankPercent": 62,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 38%)"
       },
       "school": {
         "rawValue": 2.76,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.8곳",
-        "rankPercent": 54,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 46%)"
       },
       "returnFarm": {
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 81,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 19%)"
       }
     }
@@ -7354,14 +7066,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 483.41,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 483호",
-        "rankPercent": 69,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 31%)"
       },
       "medical": {
         "rawValue": 11.78,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.8곳",
-        "rankPercent": 81,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 19%)"
       },
       "school": {
@@ -7375,7 +7085,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 68,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 32%)"
       }
     }
@@ -7406,7 +7115,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 11.47,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.5곳",
-        "rankPercent": 85,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 15%)"
       },
       "school": {
@@ -7420,7 +7128,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 57,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 43%)"
       }
     }
@@ -7444,7 +7151,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 774.75,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 775호",
-        "rankPercent": 60,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 40%)"
       },
       "medical": {
@@ -7465,7 +7171,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 58,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 42%)"
       }
     }
@@ -7489,28 +7194,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 256.37,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 256호",
-        "rankPercent": 83,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 17%)"
       },
       "medical": {
         "rawValue": 11.54,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.5곳",
-        "rankPercent": 84,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 16%)"
       },
       "school": {
         "rawValue": 2.57,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "rankPercent": 58,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 42%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 87,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 13%)"
       }
     }
@@ -7534,14 +7235,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 812.44,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 812호",
-        "rankPercent": 55,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 45%)"
       },
       "medical": {
         "rawValue": 14.18,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.2곳",
-        "rankPercent": 54,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 46%)"
       },
       "school": {
@@ -7714,28 +7413,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 254.14,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 254호",
-        "rankPercent": 83,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 17%)"
       },
       "medical": {
         "rawValue": 11.91,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.9곳",
-        "rankPercent": 79,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 21%)"
       },
       "school": {
         "rawValue": 2.1,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.1곳",
-        "rankPercent": 70,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 30%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 86,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 14%)"
       }
     }
@@ -7760,7 +7455,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 0.0곳",
-        "rankPercent": 99,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 1%)"
       },
       "school": null,
@@ -7883,7 +7577,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.7,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.7곳",
-        "rankPercent": 59,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 41%)"
       },
       "school": {
@@ -8101,14 +7794,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 446.86,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 447호",
-        "rankPercent": 70,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 30%)"
       },
       "medical": {
         "rawValue": 10.74,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.7곳",
-        "rankPercent": 90,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 10%)"
       },
       "school": {
@@ -8122,7 +7813,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 72,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 28%)"
       }
     }
@@ -8153,7 +7843,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.59,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.6곳",
-        "rankPercent": 61,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 39%)"
       },
       "school": {
@@ -8198,7 +7887,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.15,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.2곳",
-        "rankPercent": 76,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 24%)"
       },
       "school": {
@@ -8236,14 +7924,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 826.48,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 826호",
-        "rankPercent": 53,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 47%)"
       },
       "medical": {
         "rawValue": 14.14,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.1곳",
-        "rankPercent": 54,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 46%)"
       },
       "school": {
@@ -8257,7 +7943,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 61,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 39%)"
       }
     }
@@ -8281,14 +7966,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 564.67,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 565호",
-        "rankPercent": 67,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 33%)"
       },
       "medical": {
         "rawValue": 9.65,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 9.7곳",
-        "rankPercent": 97,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 3%)"
       },
       "school": {
@@ -8302,7 +7985,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 59,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 41%)"
       }
     }
@@ -8327,14 +8009,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.41,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.4곳",
-        "rankPercent": 64,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 36%)"
       },
       "school": {
         "rawValue": 2.29,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "rankPercent": 65,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 35%)"
       },
       "returnFarm": null
@@ -8359,28 +8039,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 376.05,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 376호",
-        "rankPercent": 76,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 24%)"
       },
       "medical": {
         "rawValue": 13.87,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.9곳",
-        "rankPercent": 57,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 43%)"
       },
       "school": {
         "rawValue": 2.71,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.7곳",
-        "rankPercent": 55,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 45%)"
       },
       "returnFarm": {
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 82,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 18%)"
       }
     }
@@ -8404,14 +8080,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 274.46,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 274호",
-        "rankPercent": 82,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 18%)"
       },
       "medical": {
         "rawValue": 13.25,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.3곳",
-        "rankPercent": 66,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 34%)"
       },
       "school": {
@@ -8425,7 +8099,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 80,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 20%)"
       }
     }
@@ -8449,14 +8122,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 529.04,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 529호",
-        "rankPercent": 67,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 33%)"
       },
       "medical": {
         "rawValue": 12.99,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.0곳",
-        "rankPercent": 68,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 32%)"
       },
       "school": {
@@ -8470,7 +8141,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 64,
         "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 36%)"
       }
     }
@@ -8494,28 +8164,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 157.73,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 158호",
-        "rankPercent": 91,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 9%)"
       },
       "medical": {
         "rawValue": 10.85,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.9곳",
-        "rankPercent": 89,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 11%)"
       },
       "school": {
         "rawValue": 2.19,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.2곳",
-        "rankPercent": 68,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 32%)"
       },
       "returnFarm": {
         "rawValue": 0,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 98,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 2%)"
       }
     }
@@ -8546,7 +8212,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.49,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.5곳",
-        "rankPercent": 63,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 37%)"
       },
       "school": {
@@ -8584,14 +8249,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 229.21,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 229호",
-        "rankPercent": 86,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 14%)"
       },
       "medical": {
         "rawValue": 10.06,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.1곳",
-        "rankPercent": 94,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 6%)"
       },
       "school": {
@@ -8605,7 +8268,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 84,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 16%)"
       }
     }
@@ -8629,28 +8291,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 100.04,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 100호",
-        "rankPercent": 97,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 3%)"
       },
       "medical": {
         "rawValue": 12.1,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.1곳",
-        "rankPercent": 77,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 23%)"
       },
       "school": {
         "rawValue": 2.21,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.2곳",
-        "rankPercent": 68,
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 32%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 96,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 4%)"
       }
     }
@@ -8719,14 +8377,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 866.06,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 866호",
-        "rankPercent": 51,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 49%)"
       },
       "medical": {
         "rawValue": 11.22,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.2곳",
-        "rankPercent": 87,
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 13%)"
       },
       "school": {
@@ -8740,7 +8396,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 67,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 33%)"
       }
     }
@@ -8816,7 +8471,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 14.29,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.3곳",
-        "rankPercent": 53,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 47%)"
       },
       "school": {
@@ -9124,7 +8778,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 359.05,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 359호",
-        "rankPercent": 78,
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 22%)"
       },
       "medical": {
@@ -9138,14 +8791,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.6,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "rankPercent": 57,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 43%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 85,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 15%)"
       }
     }
@@ -9169,7 +8820,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 694.78,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 695호",
-        "rankPercent": 61,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 39%)"
       },
       "medical": {
@@ -9190,7 +8840,6 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "rankPercent": 67,
         "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 33%)"
       }
     }

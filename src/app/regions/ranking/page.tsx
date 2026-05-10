@@ -89,8 +89,13 @@ function getDimensionSummary(dim: DimensionId, score: number): string {
     if (score >= 50) return "안정";
     return "감소 중";
   }
-  const topPct = Math.max(1, 100 - score);
-  return `전국 상위 ${topPct}%`;
+  // 점수 50 이상은 평균 위 → "상위 N%", 50 미만은 평균 아래 → "하위 N%"로 솔직하게
+  if (score >= 50) {
+    const topPct = Math.max(1, 100 - score);
+    return `전국 상위 ${topPct}%`;
+  }
+  const bottomPct = Math.max(1, score);
+  return `전국 하위 ${bottomPct}%`;
 }
 
 function getPersonaSummary(score: number): string {
