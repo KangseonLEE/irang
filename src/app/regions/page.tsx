@@ -44,6 +44,7 @@ const KoreaMap = dynamic(
   },
 );
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { ActiveRegionsSection } from "@/components/region/active-regions-section";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -53,7 +54,16 @@ export const metadata: Metadata = {
   alternates: { canonical: "/regions" },
 };
 
-export default async function RegionsPage() {
+/** ?active=... 검색 쿼리로 dynamic이 되었지만, 응답은 캐시 가능한 정적 데이터 기반이라
+ *  ISR 1시간 + SWR 1일로 봇 abuse 시에도 SSR 부하 최소화. */
+export const revalidate = 3600;
+
+interface RegionsPageProps {
+  searchParams: Promise<{ active?: string }>;
+}
+
+export default async function RegionsPage({ searchParams }: RegionsPageProps) {
+  const sp = await searchParams;
   // 시/도별 인구밀도 계산 (정적 fallback 데이터 사용 — API 호출 불필요)
   const provinceDensityMap: Record<string, number> = {};
   for (const prov of PROVINCES) {
@@ -152,6 +162,9 @@ export default async function RegionsPage() {
           <KoreaMap densityMap={provinceDensityMap} showLegend={false} />
         </div>
       </section>
+
+      {/* ── 활성 지역 큐레이션 (지도 직후) ── */}
+      <ActiveRegionsSection activeId={sp.active} />
 
       {/* ── 정착 점수 랭킹 진입 배너 (Phase 4·5 재설계 중 임시 비표시) ── */}
     </div>

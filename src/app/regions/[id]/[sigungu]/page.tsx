@@ -31,6 +31,12 @@ import { SigunguStatsSkeleton } from "./sigungu-stats-skeleton";
 import { DistrictMapSection } from "./district-map-section";
 import { DataSource } from "@/components/ui/data-source";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import {
+  StickyRegionHeader,
+  type StickyChip,
+} from "../sticky-region-header";
+import { computePersonaScore, getPersona } from "@/lib/data/personas";
+import { getDimensionScores } from "@/lib/data/dimension-scores";
 import s from "./page.module.css";
 
 interface PageProps {
@@ -119,6 +125,29 @@ export default async function SigunguDetailPage({ params }: PageProps) {
     0,
   );
 
+  // 시군구 정착 점수 (balanced 페르소나) — sticky 칩 표시용.
+  // 도시 자치구 등 데이터 부재 시 null → 칩 미표시.
+  const balancedPersona = getPersona("balanced")!;
+  const dimScores = getDimensionScores(sigungu.sgisCode);
+  const sigunguSettlementScore = dimScores
+    ? computePersonaScore(dimScores, balancedPersona)
+    : null;
+
+  const stickyChips: StickyChip[] = [];
+  if (sigunguSettlementScore !== null) {
+    stickyChips.push({
+      label: `정착 점수 ${sigunguSettlementScore}`,
+      href: "#sigungu-stats",
+      tone: "primary",
+    });
+  }
+  if (allMatchedCrops.length > 0) {
+    stickyChips.push({
+      label: `추천 작물 ${allMatchedCrops.length}종`,
+      href: "#sigungu-crops",
+    });
+  }
+
   const year = new Date().getFullYear();
 
   // 지역 관련 지원사업 · 교육 · 행사 (시/도 + 전국, 마감 제외)
@@ -162,8 +191,16 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         </span>
       </nav>
 
+      {/* 스크롤 시 노출되는 sticky 헤더 — 모바일 전용 */}
+      <StickyRegionHeader
+        overline={`${province.shortName} · ${province.name}`}
+        shortName={sigungu.name}
+        watchTargetId="sigungu-hero"
+        chips={stickyChips}
+      />
+
       {/* ── Hero (정적) ── */}
-      <header className={s.hero}>
+      <header className={s.hero} id="sigungu-hero">
         <span className={s.heroOverline}>{province.name}</span>
         <h1 className={s.heroTitle}>{sigungu.name}</h1>
         <p className={s.heroDesc}>{sigungu.description}</p>
@@ -193,7 +230,11 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       )}
 
       {/* ── 대표 작물 (시도 페이지와 동일한 CropRichCard 패턴) ── */}
-      <section className={s.section} aria-label="대표 작물">
+      <section
+        className={s.section}
+        aria-label="대표 작물"
+        id="sigungu-crops"
+      >
         <div className={s.sectionHeader}>
           <Icon icon={Sprout} size="lg" />
           <div className={s.sectionHeaderBody}>

@@ -28,7 +28,12 @@ import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { RegionAsyncData } from "./region-async-data";
 import { RegionAsyncSkeleton } from "./region-async-skeleton";
 import { SigunguList } from "./sigungu-list";
-import { StickyRegionHeader } from "./sticky-region-header";
+import { StickyRegionHeader, type StickyChip } from "./sticky-region-header";
+import {
+  computePersonaScore,
+  getPersona,
+} from "@/lib/data/personas";
+import { getDimensionScores } from "@/lib/data/dimension-scores";
 import s from "./page.module.css";
 
 interface PageProps {
@@ -86,6 +91,36 @@ export default async function RegionDetailPage({ params }: PageProps) {
   // 도시(매칭 작물 0종)일 때 친화 메시지용 근교 시군구 후보 (상위 3개)
   const nearbyRuralSigungus = allMatchedCrops.length === 0 ? sigungus.slice(0, 3) : [];
 
+  // 시도 단위 정착 점수 (balanced 페르소나, 산하 시군구 평균).
+  // 도시 자치구만 있으면 점수 null 가능 → 칩 자체 미표시.
+  const balancedPersona = getPersona("balanced")!;
+  const sidoScores = sigungus
+    .map((sg) => {
+      const scores = getDimensionScores(sg.sgisCode);
+      return scores ? computePersonaScore(scores, balancedPersona) : null;
+    })
+    .filter((v): v is number => v !== null);
+  const sidoSettlementScore =
+    sidoScores.length > 0
+      ? Math.round(sidoScores.reduce((a, b) => a + b, 0) / sidoScores.length)
+      : null;
+
+  // sticky 칩 구성. 페이지 anchor가 있으면 부드러운 스크롤로 연결.
+  const stickyChips: StickyChip[] = [];
+  if (sidoSettlementScore !== null) {
+    stickyChips.push({
+      label: `정착 점수 ${sidoSettlementScore}`,
+      href: "#region-stats",
+      tone: "primary",
+    });
+  }
+  if (allMatchedCrops.length > 0) {
+    stickyChips.push({
+      label: `추천 작물 ${allMatchedCrops.length}종`,
+      href: "#region-crops",
+    });
+  }
+
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[
@@ -102,6 +137,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
         overline={province.name}
         shortName={province.shortName}
         watchTargetId="region-hero"
+        chips={stickyChips}
       />
 
       {/* Hero — 정적 이미지 + 텍스트 정보. 모바일에서 텍스트는 이미지 위 absolute. */}
@@ -172,7 +208,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
         {/* Left Column */}
         <div className={s.mainContent}>
           {/* 추천 작물 — 정적 데이터 */}
-          <section className={s.section}>
+          <section className={s.section} id="region-crops">
             <div className={s.sectionHeader}>
               <Icon icon={Sprout} size="lg" />
               <div className={s.sectionHeaderBody}>

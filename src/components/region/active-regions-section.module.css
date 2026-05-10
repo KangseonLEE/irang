@@ -1,0 +1,329 @@
+/* ===============================================================
+   active-regions-section.module.css
+   /regions 페이지 지도 직후의 활성 지역 큐레이션 섹션.
+   모바일 우선 — 탭 가로 스크롤, 카드 1열 → 2열(640px+) → 2열 유지.
+   =============================================================== */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+@media (min-width: 768px) {
+  .section {
+    gap: 16px;
+    margin-top: 24px;
+  }
+}
+
+/* ---- 헤더 ---- */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--foreground);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 1.375rem;
+  }
+}
+
+.desc {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ---- 탭 (가로 스크롤) ----
+   모바일: 좌→우 가로 스크롤. iOS 관성 + scroll-snap.
+   페이지 자체에 가로 스크롤이 발생하지 않도록 자기 컨테이너 안에서만 흐른다.
+*/
+.tabRow {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  /* 좌우 fade 영역 확보 */
+  margin: 0 -16px;
+  padding: 4px 16px 6px;
+  scroll-snap-type: x proximity;
+}
+
+.tabRow::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .tabRow {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  background: var(--card);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  scroll-snap-align: start;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    background: var(--muted);
+    border-color: color-mix(in srgb, var(--border) 80%, var(--foreground) 10%);
+  }
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.tabActive {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+@media (hover: hover) {
+  .tabActive:hover {
+    background: color-mix(in srgb, var(--primary) 88%, #000 0%);
+    border-color: color-mix(in srgb, var(--primary) 88%, #000 0%);
+    color: #fff;
+  }
+}
+
+/* anchor target — sticky 헤더 가림 방지 */
+.anchorTarget {
+  display: block;
+  scroll-margin-top: 80px;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ---- 현재 카테고리 설명 ---- */
+.currentDesc {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.currentDescLead {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+/* ---- Top 5 카드 그리드 ---- */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: rank;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+
+.cardItem {
+  margin: 0;
+  padding: 0;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+  min-height: 84px;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: color-mix(in srgb, var(--primary) 35%, var(--border) 65%);
+    background: color-mix(in srgb, var(--primary) 3%, var(--card) 97%);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 4%, transparent);
+  }
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.rank {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.cardTitleRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cardSido {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.cardName {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardMetric {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary);
+  letter-spacing: -0.005em;
+}
+
+.cardNote {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  line-height: 1.45;
+  /* 2줄 클램프 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardChevron {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+}
+
+/* ---- 출처 ---- */
+.source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.sourceLabel {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--muted);
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.sourceLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--foreground);
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px dotted color-mix(in srgb, var(--foreground) 35%, transparent);
+}
+
+@media (hover: hover) {
+  .sourceLink:hover {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+}
+
+.sourceLink:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.sourceIcon {
+  color: var(--muted-foreground);
+}
+
+.sourceMeta {
+  color: var(--muted-foreground);
+}
