@@ -144,10 +144,16 @@ export async function middleware(request: NextRequest) {
     );
     // pathname 자체가 trailing slash 포함이면 추가로 redirect (canonical 통일)
     const pathChanged = normalizedPath !== pathname;
-    if (changed || pathChanged) {
+    // 2026-05-11 site-wide 308 무한 redirect 사고 fix:
+    // 빈 query에서도 normalize가 changed=true 반환하는 케이스가 있어 자기 자신으로 redirect 발생.
+    // 안전 가드: cleaned가 원본과 실제로 다를 때만 redirect (toString 비교).
+    const originalSearch = request.nextUrl.searchParams.toString();
+    const cleanedSearch = cleaned.toString();
+    const actuallyChanged = originalSearch !== cleanedSearch;
+    if (actuallyChanged || pathChanged) {
       const url = request.nextUrl.clone();
       url.pathname = normalizedPath;
-      url.search = cleaned.toString();
+      url.search = cleanedSearch;
       // 308 (permanent) — 봇이 다음에 같은 abuse URL 시도해도 즉시 cleaned로 매핑.
       // 캐시도 308 응답을 invalidate 권한으로 길게 유지.
       return NextResponse.redirect(url, 308);
