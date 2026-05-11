@@ -2,11 +2,18 @@ import Image from "next/image";
 import { Lightbulb } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
-import { fetchPopulationData, type PopulationData } from "@/lib/api/sgis";
-import { fetchMedicalFacilities, type MedicalFacilityData } from "@/lib/api/hira";
-import { fetchSchoolCounts, type SchoolData } from "@/lib/api/education";
-import { STATIONS, type Station } from "@/lib/data/stations";
-import { PROVINCES } from "@/lib/data/regions";
+import {
+  fetchPopulationData,
+  fetchSigunguPopulationData,
+} from "@/lib/api/sgis";
+import {
+  fetchMedicalFacilities,
+  fetchSigunguMedicalFacilities,
+} from "@/lib/api/hira";
+import {
+  fetchSchoolCounts,
+  fetchSigunguSchoolCounts,
+} from "@/lib/api/education";
 import { PROGRAMS } from "@/lib/data/programs";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { CropSuitabilitySection } from "./crop-suitability-section";
@@ -14,65 +21,54 @@ import { LazyClimateRadar, LazyPopulationBars } from "./charts-lazy";
 import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { SwipeHint } from "@/components/ui/swipe-hint";
+import type { RegionItem } from "./region-item";
 import s from "./page.module.css";
 
 /**
  * Streaming SSR — 4 API await + 데이터 의존 JSX 전체.
  *
- * 2026-05-11 분리: page.tsx에서 await Promise.allSettled([4 API])가 페이지 SSR
- * 전체를 5s까지 지연시키던 사고. 데이터 의존 JSX 전체를 async server component로
- * 분리해서 page.tsx는 header·selector를 즉시 렌더하고 차트·테이블은 Suspense로
- * streaming 채워지도록 변경.
- *
- * 사용자 체감 효과:
- * - 첫 페인트: <0.5s (header·selector만, API 응답 안 기다림)
- * - 차트·테이블: API 응답 도착 시 점진 렌더 (streaming)
- * - 최악 응답 5s → 첫 페인트 영향 0
+ * 2026-05-11 Phase C: 시군구 단위 선택 지원. RegionItem 객체로 시도 또는 시군구
+ * 분기 처리. 기상은 시도 대표 station 유지(시군구 ASOS 없음). 인구·의료·학교는
+ * 시군구 있으면 시군구 단위, 없으면 시도 단위 API.
  */
 
 interface CompareDataSectionProps {
-  selectedIds: string[];
-  selectedStations: Station[];
+  regions: RegionItem[];
   selectedCropId: string | null;
   year: number;
 }
 
+interface RegionInfraData {
+  region: RegionItem;
+  population: number | null;
+  householdCount: number | null;
+  agingRate: number | null;
+  medicalCount: number | null;
+  schoolCount: number | null;
+}
+
 export async function CompareDataSection({
-  selectedIds,
-  selectedStations,
+  regions,
   selectedCropId,
   year,
 }: CompareDataSectionProps) {
-  const uniqueSgisCodes = [...new Set(selectedStations.map((st) => st.sgisCode))];
-  const uniqueHiraCodes = [...new Set(selectedStations.map((st) => st.hiraSidoCd))];
-  const uniqueEduCodes = [...new Set(selectedStations.map((st) => st.eduCode))];
+  const stationIds = regions.map((r) => r.station.stnId);
 
-  // 4개 API 병렬 호출 (page.tsx에서 분리되어 Suspense streaming 가능)
-  const [climateResult, populationResult, medicalResult, schoolResult] =
-    await Promise.allSettled([
-      fetchMultipleClimateData(selectedIds),
-      fetchPopulationData(uniqueSgisCodes),
-      fetchMedicalFacilities(uniqueHiraCodes),
-      fetchSchoolCounts(uniqueEduCodes),
-    ]);
+  // ---- 기상 (시도 station 단위) ----
+  const climatePromise = fetchMultipleClimateData(stationIds);
+
+  // ---- 인프라 (시군구 있으면 시군구 단위, 없으면 시도 단위) ----
+  const infraPromise = fetchInfraForRegions(regions);
+
+  const [climateResult, infraResult] = await Promise.allSettled([
+    climatePromise,
+    infraPromise,
+  ]);
 
   const climateData =
     climateResult.status === "fulfilled" ? climateResult.value : [];
-
-  const populationMap: Map<string, PopulationData> = new Map();
-  if (populationResult.status === "fulfilled") {
-    for (const p of populationResult.value) populationMap.set(p.regionCode, p);
-  }
-
-  const medicalMap: Map<string, MedicalFacilityData> = new Map();
-  if (medicalResult.status === "fulfilled") {
-    for (const m of medicalResult.value) medicalMap.set(m.sidoCd, m);
-  }
-
-  const schoolMap: Map<string, SchoolData> = new Map();
-  if (schoolResult.status === "fulfilled") {
-    for (const sc of schoolResult.value) schoolMap.set(sc.eduCode, sc);
-  }
+  const infraData: RegionInfraData[] =
+    infraResult.status === "fulfilled" ? infraResult.value : [];
 
   // 기상 데이터 없으면 빈 상태
   if (climateData.length === 0) {
@@ -85,6 +81,11 @@ export async function CompareDataSection({
     );
   }
 
+  // Region별 climate 매핑 (station.stnId 기반)
+  const climateByStation = new Map(climateData.map((c) => [c.stnId, c]));
+  // infra 매핑 (region.id 기반)
+  const infraByRegion = new Map(infraData.map((i) => [i.region.id, i]));
+
   return (
     <>
       {/* Climate Summary Cards */}
@@ -93,40 +94,54 @@ export async function CompareDataSection({
           기후 요약
         </h2>
         <div className={s.climateGrid}>
-          {climateData.map((data) => (
-            <ClimateCard
-              key={data.stnId}
-              data={data}
-              provinceId={getProvinceIdByStation(data.stnId)}
-            />
-          ))}
+          {regions.map((region) => {
+            const climate = climateByStation.get(region.station.stnId);
+            if (!climate) return null;
+            return (
+              <ClimateCard
+                key={region.id}
+                region={region}
+                climate={climate}
+              />
+            );
+          })}
         </div>
       </section>
 
       {/* 기후 레이더 차트 */}
-      {climateData.length >= 2 && (
-        <section className={s.chartSection} aria-labelledby="climate-chart-heading">
+      {regions.length >= 2 && (
+        <section
+          className={s.chartSection}
+          aria-labelledby="climate-chart-heading"
+        >
           <h2 id="climate-chart-heading" className={s.chartSectionTitle}>
             기후 비교
           </h2>
           <LazyClimateRadar
-            data={climateData.map((d) => ({
-              stationName: d.stnName,
-              provinceName:
-                STATIONS.find((st) => st.stnId === d.stnId)?.province ?? "",
-              avgTemp: d.avgTemp,
-              maxTemp: d.maxTemp,
-              minTemp: d.minTemp,
-              totalPrecipitation: d.totalPrecipitation,
-              totalSunshine: d.totalSunshine,
-              avgHumidity: d.avgHumidity,
-            }))}
+            data={regions
+              .map((region) => {
+                const climate = climateByStation.get(region.station.stnId);
+                if (!climate) return null;
+                return {
+                  stationName: climate.stnName,
+                  provinceName: region.sigungu
+                    ? `${region.province.shortName} ${region.sigungu.shortName}`
+                    : region.province.shortName,
+                  avgTemp: climate.avgTemp,
+                  maxTemp: climate.maxTemp,
+                  minTemp: climate.minTemp,
+                  totalPrecipitation: climate.totalPrecipitation,
+                  totalSunshine: climate.totalSunshine,
+                  avgHumidity: climate.avgHumidity,
+                };
+              })
+              .filter((d): d is NonNullable<typeof d> => d !== null)}
           />
         </section>
       )}
 
       {/* 한줄 요약 */}
-      {climateData.length >= 2 && (
+      {regions.length >= 2 && (
         <section
           aria-labelledby="onesummary-heading"
           className={s.oneSummaryCard}
@@ -135,37 +150,34 @@ export async function CompareDataSection({
             <Icon icon={Lightbulb} size="md" />
             한줄 요약
           </h2>
-          <p className={s.oneSummaryText}>{buildRegionSummary(climateData)}</p>
+          <p className={s.oneSummaryText}>
+            {buildRegionSummary(regions, climateByStation)}
+          </p>
         </section>
       )}
 
-      {/* 생활 인프라 바 차트 */}
-      {climateData.length >= 2 &&
-        (populationMap.size > 0 ||
-          medicalMap.size > 0 ||
-          schoolMap.size > 0) && (
-          <section
-            className={s.chartSection}
-            aria-labelledby="infra-chart-heading"
-          >
-            <h2 id="infra-chart-heading" className={s.chartSectionTitle}>
-              생활 인프라 비교
-            </h2>
-            <LazyPopulationBars
-              data={selectedStations.map((st) => {
-                const pop = populationMap.get(st.sgisCode);
-                const med = medicalMap.get(st.hiraSidoCd);
-                const sch = schoolMap.get(st.eduCode);
-                return {
-                  provinceName: st.province,
-                  population: pop?.population ?? null,
-                  medicalCount: med?.totalCount ?? null,
-                  schoolCount: sch?.totalCount ?? null,
-                };
-              })}
-            />
-          </section>
-        )}
+      {/* 생활 인프라 차트 */}
+      {regions.length >= 2 && infraData.length > 0 && (
+        <section
+          className={s.chartSection}
+          aria-labelledby="infra-chart-heading"
+        >
+          <h2 id="infra-chart-heading" className={s.chartSectionTitle}>
+            생활 인프라 비교
+          </h2>
+          <LazyPopulationBars
+            data={regions.map((region) => {
+              const infra = infraByRegion.get(region.id);
+              return {
+                provinceName: region.label,
+                population: infra?.population ?? null,
+                medicalCount: infra?.medicalCount ?? null,
+                schoolCount: infra?.schoolCount ?? null,
+              };
+            })}
+          />
+        </section>
+      )}
 
       {/* Detailed Comparison Table */}
       <section aria-labelledby="detail-heading">
@@ -189,9 +201,9 @@ export async function CompareDataSection({
                   <th className={s.th} scope="col">
                     항목
                   </th>
-                  {climateData.map((d) => (
-                    <th key={d.stnId} className={s.th} scope="col">
-                      {d.stnName}
+                  {regions.map((r) => (
+                    <th key={r.id} className={s.th} scope="col">
+                      {r.sigungu ? r.sigungu.shortName : r.station.name}
                     </th>
                   ))}
                 </tr>
@@ -200,137 +212,135 @@ export async function CompareDataSection({
                 <ComparisonRow
                   label="평균기온"
                   unit="℃"
-                  values={climateData.map((d) => d.avgTemp)}
+                  values={regions.map(
+                    (r) => climateByStation.get(r.station.stnId)?.avgTemp ?? null,
+                  )}
                   highlight="none"
                 />
                 <ComparisonRow
                   label="최고기온"
                   unit="℃"
-                  values={climateData.map((d) => d.maxTemp)}
+                  values={regions.map(
+                    (r) => climateByStation.get(r.station.stnId)?.maxTemp ?? null,
+                  )}
                   highlight="max"
                 />
                 <ComparisonRow
                   label="최저기온"
                   unit="℃"
-                  values={climateData.map((d) => d.minTemp)}
+                  values={regions.map(
+                    (r) => climateByStation.get(r.station.stnId)?.minTemp ?? null,
+                  )}
                   highlight="min"
                 />
                 <ComparisonRow
                   label="누적 강수량"
                   unit="mm"
-                  values={climateData.map((d) => d.totalPrecipitation)}
+                  values={regions.map(
+                    (r) =>
+                      climateByStation.get(r.station.stnId)?.totalPrecipitation ??
+                      null,
+                  )}
                   highlight="none"
                 />
                 <ComparisonRow
                   label="누적 일조시간"
                   unit="hr"
-                  values={climateData.map((d) => d.totalSunshine)}
+                  values={regions.map(
+                    (r) =>
+                      climateByStation.get(r.station.stnId)?.totalSunshine ?? null,
+                  )}
                   highlight="max"
                 />
                 <ComparisonRow
                   label="평균 습도"
                   unit="%"
-                  values={climateData.map((d) => d.avgHumidity)}
+                  values={regions.map(
+                    (r) => climateByStation.get(r.station.stnId)?.avgHumidity ?? null,
+                  )}
                   highlight="none"
                 />
-                <ComparisonRow
-                  label="데이터 수"
-                  unit="일"
-                  values={climateData.map((d) => d.dataCount)}
-                  highlight="none"
-                />
-                {populationMap.size > 0 && (
+                {infraData.length > 0 && (
                   <>
                     <SectionDividerRow
                       label="인구 현황"
-                      colSpan={climateData.length + 1}
+                      colSpan={regions.length + 1}
                     />
                     <ComparisonRow
                       label="인구수"
                       unit="명"
-                      values={selectedStations.map((st) => {
-                        const p = populationMap.get(st.sgisCode);
-                        return p ? p.population : null;
-                      })}
+                      values={regions.map(
+                        (r) => infraByRegion.get(r.id)?.population ?? null,
+                      )}
                       highlight="max"
                     />
                     <ComparisonRow
                       label="가구수"
                       unit="가구"
-                      values={selectedStations.map((st) => {
-                        const p = populationMap.get(st.sgisCode);
-                        return p ? p.householdCount : null;
-                      })}
+                      values={regions.map(
+                        (r) => infraByRegion.get(r.id)?.householdCount ?? null,
+                      )}
                       highlight="max"
                     />
                     <ComparisonRow
                       label="고령화율"
                       unit="%"
-                      values={selectedStations.map((st) => {
-                        const p = populationMap.get(st.sgisCode);
-                        return p ? p.agingRate : null;
-                      })}
+                      values={regions.map(
+                        (r) => infraByRegion.get(r.id)?.agingRate ?? null,
+                      )}
                       highlight="none"
                     />
-                  </>
-                )}
-                {(medicalMap.size > 0 || schoolMap.size > 0) && (
-                  <>
                     <SectionDividerRow
                       label="생활 인프라"
-                      colSpan={climateData.length + 1}
+                      colSpan={regions.length + 1}
                     />
-                    {medicalMap.size > 0 && (
-                      <ComparisonRow
-                        label="의료기관 수"
-                        unit="개소"
-                        values={selectedStations.map((st) => {
-                          const m = medicalMap.get(st.hiraSidoCd);
-                          return m ? m.totalCount : null;
-                        })}
-                        highlight="max"
-                      />
-                    )}
-                    {schoolMap.size > 0 && (
-                      <ComparisonRow
-                        label="학교 수"
-                        unit="개교"
-                        values={selectedStations.map((st) => {
-                          const sc = schoolMap.get(st.eduCode);
-                          return sc ? sc.totalCount : null;
-                        })}
-                        highlight="max"
-                      />
-                    )}
+                    <ComparisonRow
+                      label="의료기관 수"
+                      unit="개소"
+                      values={regions.map(
+                        (r) => infraByRegion.get(r.id)?.medicalCount ?? null,
+                      )}
+                      highlight="max"
+                    />
+                    <ComparisonRow
+                      label="학교 수"
+                      unit="개교"
+                      values={regions.map(
+                        (r) => infraByRegion.get(r.id)?.schoolCount ?? null,
+                      )}
+                      highlight="max"
+                    />
                   </>
                 )}
                 <SectionDividerRow
                   label="귀농 지원"
-                  colSpan={climateData.length + 1}
+                  colSpan={regions.length + 1}
                 />
                 <ComparisonRow
                   label="지원사업 수"
                   unit="건"
-                  values={selectedStations.map((st) => {
-                    return PROGRAMS.filter(
-                      (p) =>
-                        p.linkStatus !== "broken" &&
-                        (p.region === "전국" || p.region === st.province),
-                    ).length;
-                  })}
+                  values={regions.map(
+                    (r) =>
+                      PROGRAMS.filter(
+                        (p) =>
+                          p.linkStatus !== "broken" &&
+                          (p.region === "전국" || p.region === r.province.name),
+                      ).length,
+                  )}
                   highlight="max"
                 />
                 <ComparisonRow
                   label="모집중 사업"
                   unit="건"
-                  values={selectedStations.map((st) => {
-                    return PROGRAMS.filter(
-                      (p) =>
-                        p.linkStatus !== "broken" &&
-                        p.status === "모집중" &&
-                        (p.region === "전국" || p.region === st.province),
-                    ).length;
-                  })}
+                  values={regions.map(
+                    (r) =>
+                      PROGRAMS.filter(
+                        (p) =>
+                          p.linkStatus !== "broken" &&
+                          p.status === "모집중" &&
+                          (p.region === "전국" || p.region === r.province.name),
+                      ).length,
+                  )}
                   highlight="max"
                 />
               </tbody>
@@ -342,81 +352,159 @@ export async function CompareDataSection({
       <CropSuitabilitySection
         cropId={selectedCropId}
         climateData={climateData}
-        selectedStations={selectedStations}
+        selectedStations={regions.map((r) => r.station)}
       />
 
-      <ReferenceNotice text="비교 데이터는 기상청·통계청·심평원 공공데이터를 가공한 참고 자료예요." />
+      <ReferenceNotice text="비교 데이터는 기상청·통계청·심평원 공공데이터를 가공한 참고 자료예요. 시·군·구 선택 시 인구·의료·학교는 해당 시·군·구 단위, 기상은 시·도 대표 관측소 데이터예요." />
 
       <DataSource source="기상청 종관기상관측(ASOS) · 공공데이터포털 (data.go.kr) · 통계지리정보서비스(SGIS) · 건강보험심사평가원 · 교육부 NEIS · 공공누리 제1유형" />
     </>
   );
 }
 
-function buildRegionSummary(climateData: ClimateData[]): string {
-  if (climateData.length < 2) return "";
+/**
+ * 각 region에 대해 적절한 인프라 API 호출.
+ * - sigungu 있으면 시군구 단위 (3개 API 병렬)
+ * - sigungu 없으면 시도 단위 (3개 API 병렬)
+ *
+ * 각 region마다 3 API 동시 호출 후 합산. region 간에도 병렬.
+ */
+async function fetchInfraForRegions(
+  regions: RegionItem[],
+): Promise<RegionInfraData[]> {
+  const promises = regions.map(async (region) => {
+    if (region.sigungu) {
+      // 시군구 단위 — 3 API 병렬 (각 API는 SigunguData | null 반환)
+      const [popResult, medResult, schResult] = await Promise.allSettled([
+        fetchSigunguPopulationData(region.sigungu.sgisCode),
+        fetchSigunguMedicalFacilities(
+          region.station.hiraSidoCd,
+          region.sigungu.hiraSgguCd,
+        ),
+        fetchSigunguSchoolCounts(region.station.eduCode, region.sigungu.name),
+      ]);
+
+      const pop = popResult.status === "fulfilled" ? popResult.value : null;
+      const med = medResult.status === "fulfilled" ? medResult.value : null;
+      const sch = schResult.status === "fulfilled" ? schResult.value : null;
+
+      return {
+        region,
+        population: pop?.population ?? null,
+        householdCount: pop?.householdCount ?? null,
+        agingRate: pop?.agingRate ?? null,
+        medicalCount: med?.totalCount ?? null,
+        schoolCount: sch?.totalCount ?? null,
+      };
+    } else {
+      // 시도 단위
+      const [popResult, medResult, schResult] = await Promise.allSettled([
+        fetchPopulationData([region.station.sgisCode]),
+        fetchMedicalFacilities([region.station.hiraSidoCd]),
+        fetchSchoolCounts([region.station.eduCode]),
+      ]);
+
+      const pop =
+        popResult.status === "fulfilled" ? popResult.value[0] ?? null : null;
+      const med =
+        medResult.status === "fulfilled" ? medResult.value[0] ?? null : null;
+      const sch =
+        schResult.status === "fulfilled" ? schResult.value[0] ?? null : null;
+
+      return {
+        region,
+        population: pop?.population ?? null,
+        householdCount: pop?.householdCount ?? null,
+        agingRate: pop?.agingRate ?? null,
+        medicalCount: med?.totalCount ?? null,
+        schoolCount: sch?.totalCount ?? null,
+      };
+    }
+  });
+
+  return Promise.all(promises);
+}
+
+function buildRegionSummary(
+  regions: RegionItem[],
+  climateByStation: Map<string, ClimateData>,
+): string {
+  if (regions.length < 2) return "";
+
   const parts: string[] = [];
-  const sorted = [...climateData].sort((a, b) => a.avgTemp - b.avgTemp);
+  const withClimate = regions
+    .map((r) => ({ region: r, climate: climateByStation.get(r.station.stnId) }))
+    .filter((e): e is { region: RegionItem; climate: ClimateData } => !!e.climate);
+
+  if (withClimate.length < 2) return "";
+
+  const sorted = [...withClimate].sort(
+    (a, b) => a.climate.avgTemp - b.climate.avgTemp,
+  );
   const coldest = sorted[0];
   const warmest = sorted[sorted.length - 1];
-  if (warmest.avgTemp - coldest.avgTemp > 1) {
+
+  if (warmest.climate.avgTemp - coldest.climate.avgTemp > 1) {
     parts.push(
-      `따뜻한 기후를 선호한다면 ${warmest.stnName}(평균 ${warmest.avgTemp}℃)이 유리하고, 서늘한 환경을 원한다면 ${coldest.stnName}(평균 ${coldest.avgTemp}℃)이 적합해요.`,
+      `따뜻한 기후를 선호한다면 ${warmest.region.label}(평균 ${warmest.climate.avgTemp}℃)이 유리하고, 서늘한 환경을 원한다면 ${coldest.region.label}(평균 ${coldest.climate.avgTemp}℃)이 적합해요.`,
     );
   } else {
     parts.push(
-      `${climateData.map((d) => d.stnName).join(", ")} 모두 비슷한 기온대(평균 ${climateData[0].avgTemp}℃)예요.`,
+      `${withClimate.map((e) => e.region.label).join(", ")} 모두 비슷한 기온대(평균 ${withClimate[0].climate.avgTemp}℃)예요.`,
     );
   }
-  const maxPrecip = Math.max(...climateData.map((d) => d.totalPrecipitation));
-  const minPrecip = Math.min(...climateData.map((d) => d.totalPrecipitation));
+
+  const precips = withClimate.map((e) => e.climate.totalPrecipitation);
+  const maxPrecip = Math.max(...precips);
+  const minPrecip = Math.min(...precips);
   if (maxPrecip > 0 && (maxPrecip - minPrecip) / maxPrecip > 0.2) {
-    const wettest = climateData.reduce((a, b) =>
-      a.totalPrecipitation > b.totalPrecipitation ? a : b,
+    const wettest = withClimate.reduce((a, b) =>
+      a.climate.totalPrecipitation > b.climate.totalPrecipitation ? a : b,
     );
-    parts.push(`강수량은 ${wettest.stnName}이 가장 많아요.`);
+    parts.push(`강수량은 ${wettest.region.label}이 가장 많아요.`);
   }
+
   return parts.join(" ");
 }
 
-function getProvinceIdByStation(stnId: string): string | null {
-  const province = PROVINCES.find((p) => p.stationIds.includes(stnId));
-  return province?.id ?? null;
-}
-
 function ClimateCard({
-  data,
-  provinceId,
+  region,
+  climate,
 }: {
-  data: ClimateData;
-  provinceId: string | null;
+  region: RegionItem;
+  climate: ClimateData;
 }) {
-  const station = STATIONS.find((st) => st.stnId === data.stnId);
   return (
     <article className={s.climateCard}>
-      {provinceId && (
-        <div className={s.cardImageWrap}>
-          <Image
-            src={`/images/regions/${provinceId}.png`}
-            alt={`${station?.province ?? data.stnName} 풍경 일러스트`}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            style={{ objectFit: "cover" }}
-          />
-        </div>
-      )}
+      <div className={s.cardImageWrap}>
+        <Image
+          src={`/images/regions/${region.province.id}.png`}
+          alt={`${region.province.name} 풍경 일러스트`}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          style={{ objectFit: "cover" }}
+        />
+      </div>
       <div className={s.cardBody}>
-        <span className={s.cardOverline}>{station?.province}</span>
-        <h3 className={s.cardTitle}>{data.stnName}</h3>
+        <span className={s.cardOverline}>
+          {region.province.name}
+          {region.sigungu && ` · ${region.sigungu.name}`}
+        </span>
+        <h3 className={s.cardTitle}>
+          {region.sigungu ? region.sigungu.shortName : climate.stnName}
+        </h3>
         <hr className={s.cardDivider} />
         <div className={s.cardDataList}>
-          <DataRow label="평균기온" value={`${data.avgTemp}℃`} />
-          <DataRow label="누적 강수" value={`${data.totalPrecipitation}mm`} />
-          <DataRow label="누적 일조" value={`${data.totalSunshine}hr`} />
-          <DataRow label="평균 습도" value={`${data.avgHumidity}%`} />
+          <DataRow label="평균기온" value={`${climate.avgTemp}℃`} />
+          <DataRow label="누적 강수" value={`${climate.totalPrecipitation}mm`} />
+          <DataRow label="누적 일조" value={`${climate.totalSunshine}hr`} />
+          <DataRow label="평균 습도" value={`${climate.avgHumidity}%`} />
         </div>
         <p className={s.cardDescription}>
-          {station?.description ? (
-            <AutoGlossary text={station.description} />
+          {region.sigungu?.description ? (
+            <AutoGlossary text={region.sigungu.description} />
+          ) : region.station.description ? (
+            <AutoGlossary text={region.station.description} />
           ) : null}
         </p>
       </div>

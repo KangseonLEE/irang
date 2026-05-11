@@ -12,38 +12,43 @@ import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { DesktopHint } from "@/components/ui/desktop-hint";
 import { CompareDataSection } from "./compare-data-section";
 import { CompareDataSkeleton } from "./compare-data-skeleton";
+import { parseRegions, serializeRegions } from "./region-item";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "귀농 지역 비교 — 기후·인프라·지원사업 데이터 비교",
   description:
-    "귀농 후보 지역 최대 3곳의 기후, 인구, 의료·교육 인프라, 지원사업을 나란히 비교하세요. 어디가 나에게 맞을지 데이터로 확인할 수 있어요.",
-  keywords: ["귀농 지역 비교", "귀농 지역 추천", "귀농 어디", "귀농 후보지"],
+    "귀농 후보 지역 최대 3곳의 기후, 인구, 의료·교육 인프라, 지원사업을 나란히 비교하세요. 시·도 단위 또는 시·군·구 단위까지 골라 데이터로 확인할 수 있어요.",
+  keywords: ["귀농 지역 비교", "귀농 지역 추천", "귀농 어디", "귀농 후보지", "시군구 비교"],
   alternates: { canonical: "/regions/compare" },
 };
 
 interface PageProps {
-  searchParams: Promise<{ stations?: string; crop?: string }>;
+  searchParams: Promise<{
+    regions?: string;
+    stations?: string;
+    crop?: string;
+  }>;
 }
 
 /**
- * 2026-05-11 Streaming SSR 적용:
- * - 4개 외부 API await을 CompareDataSection으로 분리
- * - page.tsx는 header·selector를 즉시 렌더 (cold start < 0.5s)
- * - 차트·테이블은 Suspense로 streaming 채워짐
- * - 최악 응답 5s에도 첫 페인트 영향 0
+ * 2026-05-11 Phase C: 시군구 선택 지원 + Streaming SSR.
+ * - URL `?regions=jeonnam:suncheon-si,seoul,...` (신규)
+ * - URL `?stations=108,119,259` (backward 호환)
+ * - 첫 페인트는 header·selector만 즉시
+ * - 데이터(4 API)는 Suspense streaming
  */
 export default async function RegionsPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const selectedIds = params.stations
-    ? params.stations.split(",").filter(Boolean).slice(0, 3)
-    : [];
+  const regions = parseRegions(params);
   const selectedCropId = params.crop ?? null;
-  const selectedStations = selectedIds
-    .map((id) => STATIONS.find((st) => st.stnId === id))
-    .filter((st): st is NonNullable<typeof st> => st != null);
-  const hasSelection = selectedIds.length > 0;
+  const hasSelection = regions.length > 0;
   const year = new Date().getFullYear();
+
+  // RegionSelector는 client component이며 region.id 배열로 전달
+  const selectedRegionIds = regions.map((r) => r.id);
+  // URL 정규화 (backward `?stations=`를 받았으면 `?regions=`로 안내될 수 있도록 client에 신규 형식 전달)
+  const canonicalParam = hasSelection ? serializeRegions(regions) : "";
 
   return (
     <div className={s.page}>
@@ -67,7 +72,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
         icon={<Icon icon={MapPin} size="md" />}
         label="Region Compare"
         title="지역 비교"
-        description={`${year}년 기상 관측 데이터 기반으로 지역별 기후를 비교해요.`}
+        description={`${year}년 기상 관측 데이터 기반으로 지역별 기후를 비교해요. 시·군·구까지 골라서 비교할 수 있어요.`}
       />
 
       <Suspense
@@ -79,7 +84,11 @@ export default async function RegionsPage({ searchParams }: PageProps) {
           />
         }
       >
-        <RegionSelector stations={STATIONS} selectedIds={selectedIds} />
+        <RegionSelector
+          stations={STATIONS}
+          selectedRegionIds={selectedRegionIds}
+          canonicalParam={canonicalParam}
+        />
       </Suspense>
 
       <a href="#suitability-heading" className={s.cropToolHint}>
@@ -90,8 +99,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
       {hasSelection ? (
         <Suspense fallback={<CompareDataSkeleton />}>
           <CompareDataSection
-            selectedIds={selectedIds}
-            selectedStations={selectedStations}
+            regions={regions}
             selectedCropId={selectedCropId}
             year={year}
           />
@@ -100,6 +108,8 @@ export default async function RegionsPage({ searchParams }: PageProps) {
         <div className={s.emptyState}>
           <p className={s.emptyStateText}>
             비교할 지역을 위에서 선택해 보세요. 최대 3곳까지 고를 수 있어요.
+            <br />
+            시·군·구까지 좁혀서 비교할 수도 있어요.
           </p>
         </div>
       )}

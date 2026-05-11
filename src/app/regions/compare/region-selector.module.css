@@ -196,6 +196,125 @@
   }
 }
 
+/* ---- 시·도 그리드 (2026-05-11 시군구 선택 Phase) ---- */
+.provinceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+}
+
+.provinceChip {
+  composes: chip;
+  background: var(--muted, #f9fafb);
+  color: var(--muted-foreground);
+}
+
+@media (hover: hover) {
+  .provinceChip:hover {
+    background: color-mix(in srgb, var(--muted, #f9fafb) 70%, transparent);
+  }
+}
+
+.provinceChipSelected {
+  composes: chip;
+  background: var(--primary, #1b6b5a);
+  color: var(--primary-foreground, #fff);
+}
+
+@media (hover: hover) {
+  .provinceChipSelected:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, black);
+  }
+}
+
+/* ---- 선택된 chip wrap (시도 chip + 시군구 dropdown) ---- */
+.selectedChipWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sigunguToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+@media (hover: hover) {
+  .sigunguToggle:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 60%, transparent);
+  }
+}
+
+.sigunguToggle:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ---- 시·군·구 dropdown ---- */
+.sigunguDropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  max-width: 280px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.sigunguOption {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  text-align: left;
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.12s;
+}
+
+@media (hover: hover) {
+  .sigunguOption:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  }
+}
+
+.sigunguOptionSelected {
+  composes: sigunguOption;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-weight: 600;
+}
+
+.sigunguOption:focus-visible,
+.sigunguOptionSelected:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -1px;
+}
+
 /* ---- 교체 피드백 메시지 ---- */
 .swapMessage {
   margin: 0 0 12px;
