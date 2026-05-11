@@ -285,3 +285,5 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     </>
   );
 }
+
+// 2026-05-11: Vercel ISR cache invalidate trigger commit
