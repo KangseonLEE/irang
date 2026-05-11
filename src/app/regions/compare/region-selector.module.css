@@ -1,9 +1,7 @@
 /* ==========================================================================
-   RegionSelector — 가로 컴팩트 레이아웃
-   CSS Module · var() 기반 디자인 토큰
+   RegionSelector — 슬롯 3개 + 통합 검색 UI (2026-05-12 Phase D)
    ========================================================================== */
 
-/* ---- 카드 컨테이너 ---- */
 .card {
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 20px;
@@ -11,30 +9,81 @@
   padding: 20px 24px;
 }
 
-/* ---- 헤더 (제목 + 카운터) ---- */
-.header {
-  display: flex;
+/* ---- 상단 검색 헤더 ---- */
+.searchHeader {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 16px;
 }
 
-.title {
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
+.searchWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  font-family: inherit;
+  font-size: var(--fs-body);
+  padding: 12px 36px 12px 42px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--muted, #f9fafb);
   color: var(--foreground);
-  margin: 0;
+  transition: border-color 0.15s, background-color 0.15s;
 }
 
-.titleHint {
+.searchInput::placeholder {
   color: var(--muted-foreground);
-  font-weight: 400;
 }
 
-.counter {
-  font-size: var(--fs-caption);
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary, #1b6b5a);
+  background: var(--card, #fff);
+}
+
+.searchInput:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.searchClearBtn {
+  position: absolute;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
   color: var(--muted-foreground);
-  flex-shrink: 0;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .searchClearBtn:hover {
+    background: var(--muted, #f9fafb);
+    color: var(--foreground);
+  }
+}
+
+.searchClearBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 1px;
 }
 
 .headerRight {
@@ -42,6 +91,33 @@
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+}
+
+.counter {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.loadingHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--primary, #1b6b5a);
+  padding: 4px 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border-radius: 9999px;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .clearAllBtn {
@@ -69,294 +145,319 @@
   border-radius: 4px;
 }
 
-/* ---- 선택 요약 (상단 칩 리스트) ---- */
-.selectedSummary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 14px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
-  border: 1px dashed color-mix(in srgb, var(--primary, #1b6b5a) 25%, transparent);
+.clearAllBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.selectedChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px 6px 12px;
-  font-family: inherit;
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--primary-foreground, #fff);
-  background: var(--primary, #1b6b5a);
-  border: none;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: background-color 0.15s;
-}
-
-@media (hover: hover) {
-  .selectedChip:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, black);
-  }
-}
-
-.selectedChip:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
-}
-
-.emptyPrompt {
-  margin: 0 0 14px;
-  padding: 12px 14px;
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  background: var(--muted, #f9fafb);
-  border-radius: 12px;
-  text-align: center;
-}
-
-/* ---- 도별 그룹 흐름 (가로 배치, 줄바꿈) ---- */
-.groups {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 20px;
-}
-
-/* ---- 개별 도 그룹 (inline-flex: 라벨 + 칩들) ---- */
-.group {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-/* 도별 라벨 — 타이포 전용 (배경 없이 위계만 잡음) */
-.groupLabel {
-  font-size: var(--fs-caption);
-  font-weight: 700;
-  color: var(--foreground);
-  flex-shrink: 0;
-  line-height: 1;
-}
-
-/* ---- 칩 버튼 ---- */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 36px;
-  padding: 8px 14px;
-  font-family: inherit;
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  line-height: 1;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-@media (min-width: 640px) {
-  .chip {
-    min-height: auto;
-    padding: 6px 14px;
-  }
-}
-
-.chip:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
-}
-
-.chipDefault {
-  composes: chip;
-  background: var(--muted, #f9fafb);
-  color: var(--muted-foreground);
-}
-
-@media (hover: hover) {
-  .chipDefault:hover {
-    background: color-mix(in srgb, var(--muted, #f9fafb) 70%, transparent);
-  }
-}
-
-.chipSelected {
-  composes: chip;
-  background: var(--primary, #1b6b5a);
-  color: var(--primary-foreground, #fff);
-}
-
-@media (hover: hover) {
-  .chipSelected:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, black);
-  }
-}
-
-/* ---- 로딩 표시 (chip 토글 시 navigation 진행 안내) ---- */
-.loadingHint {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-caption, 13px);
-  font-weight: 500;
-  color: var(--primary, #1b6b5a);
-  padding: 4px 10px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  border-radius: 9999px;
-}
-
-.spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* ---- 시·도 그리드 (2026-05-11 시군구 선택 Phase) ---- */
-.provinceGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 8px;
-}
-
-.provinceChip {
-  composes: chip;
-  background: var(--muted, #f9fafb);
-  color: var(--muted-foreground);
-}
-
-@media (hover: hover) {
-  .provinceChip:hover {
-    background: color-mix(in srgb, var(--muted, #f9fafb) 70%, transparent);
-  }
-}
-
-.provinceChipSelected {
-  composes: chip;
-  background: var(--primary, #1b6b5a);
-  color: var(--primary-foreground, #fff);
-}
-
-@media (hover: hover) {
-  .provinceChipSelected:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, black);
-  }
-}
-
-/* ---- 선택된 chip wrap (시도 chip + 시군구 dropdown) ---- */
-.selectedChipWrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-
-.sigunguToggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 4px;
-  width: 28px;
-  height: 28px;
-  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  color: var(--primary, #1b6b5a);
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s;
-}
-
-@media (hover: hover) {
-  .sigunguToggle:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
-    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 60%, transparent);
-  }
-}
-
-.sigunguToggle:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
-}
-
-/* ---- 시·군·구 dropdown ---- */
-.sigunguDropdown {
+/* ---- 검색 결과 dropdown ---- */
+.dropdown {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 0;
-  z-index: 100;
+  right: 0;
+  z-index: 50;
   display: flex;
   flex-direction: column;
-  min-width: 200px;
-  max-width: 280px;
   max-height: 360px;
   overflow-y: auto;
-  padding: 6px;
+  padding: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  animation: dropdownFadeIn 0.12s ease-out;
 }
 
-.sigunguOption {
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  font-family: inherit;
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  text-align: left;
-  color: var(--foreground);
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.12s;
-}
-
-@media (hover: hover) {
-  .sigunguOption:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
-  }
-}
-
-.sigunguOptionSelected {
-  composes: sigunguOption;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
-  color: var(--primary, #1b6b5a);
-  font-weight: 600;
-}
-
-.sigunguOption:focus-visible,
-.sigunguOptionSelected:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: -1px;
-}
-
-/* ---- 교체 피드백 메시지 ---- */
-.swapMessage {
-  margin: 0 0 12px;
-  padding: 8px 12px;
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  color: var(--primary, #1b6b5a);
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
-  border-radius: 12px;
-  animation: fadeIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
+@keyframes dropdownFadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .swapMessage { animation: none; }
+.dropdownHint {
+  padding: 8px 12px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  margin-bottom: 4px;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: var(--fs-body-sm);
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s;
+}
+
+.dropdownItemActive {
+  composes: dropdownItem;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+}
+
+.dropdownItemIcon {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.dropdownItemLabel {
+  font-weight: 500;
+  flex: 1;
+}
+
+.dropdownItemType {
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--muted-foreground);
+  padding: 2px 8px;
+  background: var(--muted, #f9fafb);
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.dropdownItemBadge {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  padding: 2px 8px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.dropdownItemBadgeSwap {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: #d97706;
+  padding: 2px 8px;
+  background: color-mix(in srgb, #d97706 12%, transparent);
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.dropdownEmpty {
+  padding: 16px 12px;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+/* ---- 슬롯 3개 ---- */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 639px) {
+  .slots {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* ---- 빈 슬롯 (placeholder) ---- */
+.slotEmpty {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 140px;
+  padding: 20px 16px;
+  font-family: inherit;
+  background: var(--muted, #f9fafb);
+  border: 2px dashed color-mix(in srgb, var(--primary, #1b6b5a) 25%, var(--border, #e5e7eb));
+  border-radius: 16px;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+@media (max-width: 639px) {
+  .slotEmpty {
+    min-height: 80px;
+    flex-direction: row;
+    gap: 12px;
+  }
+}
+
+@media (hover: hover) {
+  .slotEmpty:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--muted, #f9fafb));
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, transparent);
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.slotEmpty:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.slotEmpty:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slotEmptyText {
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+}
+
+.slotEmptyIndex {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  opacity: 0.6;
+}
+
+@media (max-width: 639px) {
+  .slotEmptyIndex {
+    position: static;
+    margin-left: auto;
+  }
+}
+
+/* ---- 채워진 슬롯 ---- */
+.slotFilled {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 140px;
+  padding: 20px 16px 16px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--primary, #1b6b5a) 6%, var(--card, #fff)) 0%,
+    var(--card, #fff) 100%
+  );
+  border: 1.5px solid color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+}
+
+@media (max-width: 639px) {
+  .slotFilled {
+    min-height: 80px;
+    flex-direction: row;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+}
+
+.slotPin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+  color: var(--primary, #1b6b5a);
+  margin-bottom: 4px;
+}
+
+@media (max-width: 639px) {
+  .slotPin {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+}
+
+.slotProvince {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground);
+  text-align: center;
+}
+
+.slotSigungu {
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: var(--primary, #1b6b5a);
+  text-align: center;
+}
+
+@media (max-width: 639px) {
+  .slotProvince,
+  .slotSigungu {
+    text-align: left;
+  }
+}
+
+.slotIndex {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--card, #fff);
+  background: var(--primary, #1b6b5a);
+  border-radius: 50%;
+}
+
+@media (max-width: 639px) {
+  .slotIndex {
+    position: static;
+    margin-left: auto;
+  }
+}
+
+.slotRemoveBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 50%;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s, border-color 0.12s;
+}
+
+@media (hover: hover) {
+  .slotRemoveBtn:hover {
+    background: color-mix(in srgb, #ef4444 8%, transparent);
+    border-color: color-mix(in srgb, #ef4444 40%, transparent);
+    color: #ef4444;
+  }
+}
+
+.slotRemoveBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 1px;
+}
+
+.slotRemoveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ---- 스크린리더 전용 ---- */
@@ -378,7 +479,7 @@
   border-radius: 20px;
   background: var(--card, #fff);
   padding: 20px 24px;
-  min-height: 80px;
+  min-height: 200px;
   animation: pulse 1.5s ease-in-out infinite;
 }
 
