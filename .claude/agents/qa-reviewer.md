@@ -128,6 +128,74 @@ Infra 변경은 별도 PASS/FAIL 섹션으로 보고:
 
 infra 변경은 일반 코드 검증보다 **롤백이 어려움** — paused 또는 봇 통과는 즉시 영향. 검증 실패는 무조건 BLOCK.
 
+## API endpoint 동작 검증 + 진입점 전수 (2026-05-11 1on1)
+
+> 배경: 5/10 검색 로깅 incident — `/search` 페이지에서만 `logSearch` 호출하고 헤더 SearchBar 드롭다운 직접 클릭은 미로깅. 4월부터 누적된 구조적 누락인데 어떤 sprint에서도 잡지 못함. 기존 검증 영역(타입·빌드·린트·Lighthouse·접근성·URL·정책·Sentry·infra)에 "데이터 흐름 end-to-end + 클라이언트 진입점 전수"가 빠져있었음.
+
+### 1. API endpoint 동작 검증 SOP
+
+| endpoint 유형 | 검증 방법 | 함정 사례 |
+|---|---|---|
+| **Write endpoint** (`/api/search-log`, `/api/feedback` 등) | 로컬 dev 환경(`npm run dev`)에서 동일 endpoint 호출 → 200 응답 + DB row 확인 → prod 영향 0 | 5/10 logSearch는 endpoint 자체는 작동했으나 호출되지 않음 |
+| **Read endpoint** (`/api/medical-list`, `/api/school-list` 등) | SSR/ISR 응답 → DOM 마커 grep으로 검증 | RSC binary chunk는 raw grep 안 잡힘 — `data-*` 속성 또는 className 마커로 우회 |
+| **배포 후 검증** | cache bypass 쿼리(`?cb=$RANDOM`)로 fresh 응답 확인 | Cloudflare cf-cache HIT 시 이전 빌드 응답 — 신규 변경 확인 불가 |
+
+검증 시점:
+- 새 API endpoint 추가 시 (배포 전)
+- 기존 endpoint 클라이언트 호출 변경 시 (배포 전)
+- 데이터 흐름이 새로 추가될 때 (write → DB → admin 노출 등)
+
+### 2. 클라이언트 진입점 전수 grep 검증
+
+write 트리거가 신규 추가되거나 변경될 때, **모든 진입점에서 호출되는지 grep으로 전수 점검**:
+
+| 트리거 | 검증 명령 |
+|---|---|
+| `logSearch` | `grep -rn "logSearch\\|search-log" src/` |
+| `submitFeedback` | `grep -rn "submitFeedback\\|feedback-log\\|/api/feedback" src/` |
+| `logAssessment` | `grep -rn "logAssessment\\|/api/assessment" src/` |
+
+점검 항목:
+- 헤더 검색·드롭다운·모달·풀스크린 오버레이 등 **모든 사용자 진입점에서 호출**되는지
+- 한 곳에서만 호출되고 다른 진입점 누락 = **FAIL**
+- 함수 정의 1곳 + 호출 N곳 매핑 → 호출 누락 발견 시 frontend-engineer에 위임
+
+`/search` 페이지 1곳에서만 `logSearch` 호출되던 5/10 사례 = 본 검증 추가의 직접 원인.
+
+### 3. 출력 포맷에 CoS 인수 라인 강제
+
+CoS 인수 체크리스트(`chief-of-staff.md` 5/11 1on1) #6, #7과 양방향 일치를 위해 출력 포맷에 다음 라인을 **매번 명시**:
+
+```
+## 🔍 QA 리포트 — {날짜}
+
+### PASS ✅
+- 빌드 / 타입 / lint / Lighthouse: 0 에러 + 점수 P{N}/A{N}/B{N}/S{N}
+- 체크리스트 A~H: 위반 0
+- 모바일 4단계 (360/390/430/768) + 데스크탑 회귀: 통과
+- (infra 변경 시) infra 4종 검증 (robots/middleware/cache/CF): 통과
+- (write endpoint 변경 시) API endpoint 동작 + 진입점 전수: 통과
+
+### WARN ⚠️
+- ...
+
+### FAIL ❌
+- ...
+
+### 배포 판정: BLOCK / CONDITIONAL / PASS
+```
+
+자유 형식 보고 금지. 위 라인이 누락되면 CoS가 인수 거부.
+
+### Watchman 분담 (별도 1on1 권고로 회장에 전달)
+
+배포 후 데이터 흐름 누적 모니터링은 reminder-watchman 영역으로 분담:
+- 주간 write endpoint 활성도: search_logs / quick_feedback / assessments 최근 7일 INSERT 추이
+- 기존 화·금 점검 사이클에 1항목 추가
+- 0건이면 🟡 / 0건 + 디플로이 변경 동반이면 🔴
+
+이 항목은 watchman 정의에 추가되어야 함 — 회장 watchman 1on1 시 진행 권고.
+
 # Persistent Agent Memory
 
 `~/Workspace/irang/.claude/agent-memory/qa-reviewer/` (필요 시 생성)

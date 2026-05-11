@@ -59,6 +59,10 @@
 | 2026-05-06 | Infra 변경(robots/middleware/headers) 검증 4종 추가 | agents/qa-reviewer.md | 1on1 — Vercel 위기 대응 infra 변경 검증 게이트 부재 |
 | 2026-05-09 | 데이터 정정 이력 갱신 누락 점검 추가 (최근 7일 fix+data 파일 commit + /about/corrections 미갱신 시 🟡) | agents/reminder-watchman.md §9, skills/pre-commit-check STEP 8-2 | 5/9 인터뷰 본문 제거 commit 후 정정 이력 페이지 4월에서 멈춤 사례 |
 | 2026-05-10 | 지원사업·박람회 모집 사이클 갱신 알림 추가 (6/15·12/15 + 활성 SP < 3건 시 🟡 / 모집 시즌 중 < 5건 시 🔴) | agents/reminder-watchman.md §10 | 5/10 /programs 14건 중 12건 마감 발견. 1~3월·7~9월 모집 집중 사이클 인식 |
+| 2026-05-11 | 진단·검증 가드 5종 추가 (read-only 우선·prefix+try/finally·로컬 dev default·scripts/_diag 표준 위치·CoS 보고 게이트 잔존 0건 라인 필수) | agents/data-engineer.md | 1on1 — 5/10 `진단테스트20260510` row cleanup 누락 후 admin 인기 검색어 1위 노출 사례 |
+| 2026-05-11 | 분야별 보고서 인수 체크리스트 8종 추가 (data 진단/API갱신/마이그레이션, frontend 모바일/모든변경, qa 배포/infra, watchman 이상보고) — 보고 수신 게이트로 작동 | agents/chief-of-staff.md | 1on1 — 5/10 진단 보고서 cleanup 검증 라인 부재를 CoS가 인지 못 하고 회장에 그대로 올린 사례. data-engineer 5종 가드와 양방향 일치 |
+| 2026-05-11 | API endpoint 동작 검증 + 클라이언트 진입점 전수 grep + 출력 포맷 CoS 인수 라인 강제 추가 | agents/qa-reviewer.md | 1on1 — 5/10 logSearch가 /search 1곳에서만 호출되던 구조적 누락을 qa가 어떤 sprint에서도 못 잡은 사례. 데이터 흐름 end-to-end 검증 + CoS 인수 양방향 일치 |
+| 2026-05-11 | §11 주간 write endpoint 활성도 모니터링 추가 (search_logs/quick_feedback/assessments 최근 7일 INSERT 0건 시 🟡, 배포 동반 시 🔴) — 화·금 사이클 1항목 추가 | agents/reminder-watchman.md | 1on1 — 5/10 search_logs 8일째 0건을 watch list에 "DB write 활성도" 부재로 발견 못 한 사례. qa↔watchman 자체 분담 결정으로 4중 차단망 완성 |
 
 ---
 

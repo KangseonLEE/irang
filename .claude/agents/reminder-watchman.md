@@ -170,6 +170,53 @@ LAST=$(git log -1 --pretty=format:"%cs" -- src/app/about/corrections/page.tsx)
 - **데이터 신규 추가**(append-only)는 정정 아님 → diff에 `+` 라인만 있고 `-` 라인 없으면 제외
 - chief-of-staff에 보고만 하고 자동 차단은 안 함 (David 판단 영역)
 
+### 11. 주간 write endpoint 활성도 모니터링 (2026-05-11 추가)
+
+> 배경: 5/10 검색 로깅 incident — `search_logs`가 5/2 이후 8일째 0건이었는데 watch list에 "DB write endpoint 활성도"가 없어 발견 못 함. 5/11 qa-reviewer 1on1에서 자체 분담 결정 (qa는 배포 전 클라이언트 진입점 전수 grep, watchman은 배포 후 주기 활성도). 본 항목 추가로 4중 차단망 마지막 한 겹 완성.
+
+#### 11-1. 점검 대상
+
+| 테이블 | 의미 | 감지 임계 |
+|---|---|---|
+| `search_logs` | 사용자 검색 활동 | 최근 7일 INSERT 0건 |
+| `quick_feedback` | 빠른 피드백 응답 | 동일 |
+| `assessments` | 유형 진단 응답 | 동일 |
+
+#### 11-2. 점검 주기 — 화·금 (기존 §8 Vercel·CF 점검과 동일 사이클)
+
+기존 화·금 점검에 1단계 추가:
+1. Vercel 5개 한도 (§8-1)
+2. Cloudflare 차단 약화 (§8-2)
+3. **write endpoint 활성도 (본 §11)** ← 신규
+
+#### 11-3. 판정
+
+| 등급 | 조건 | 액션 |
+|---|---|---|
+| 🟡 확인 필요 | 3개 테이블 중 1개라도 최근 7일 0건 | CoS 보고. 클라이언트 진입점 누락·트래픽 정체 의심 |
+| 🔴 즉시 액션 | 0건 + 최근 7일 내 관련 배포(searchBar·feedback·assessment 변경) 동반 | CoS 에스컬레이션. 회귀 가능성 — frontend-engineer에 진단 위임 |
+
+#### 11-4. 점검 방법 (read-only)
+
+data-engineer 5/11 1on1 #1 **"read-only 우선" 원칙 준수** — SELECT 쿼리만 사용, prod write 절대 안 함.
+
+```typescript
+// 의사 코드
+const tables = ['search_logs', 'quick_feedback', 'assessments'];
+const sevenDaysAgo = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+for (const t of tables) {
+  const { count } = await sb.from(t).select('*', { count: 'exact', head: true })
+    .gte('created_at', sevenDaysAgo);
+  // 0건이면 등급 판정
+}
+```
+
+#### 11-5. False positive 방지
+
+- **신규 배포 직후 24시간 이내**: 트래픽 아직 누적 안 됐을 수 있음 → 경고 보류
+- **점검 시점이 주말 직후 월요일 아침**: 주말 활동량 자연 감소 — 임계 완화 (3일+ 0건이면 알림)
+- **테스트 row 잔존**: data-engineer 5/11 1on1 #2 prefix(`__diag_%`)는 카운트에서 제외
+
 ## Working Principles
 
 1. **침묵 기본값** — 정상이면 아무것도 보고 안 함

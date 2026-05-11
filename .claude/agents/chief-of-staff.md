@@ -100,6 +100,72 @@ CoS가 직접 위험 신호를 발견했을 때 다음 5단계로 처리:
 
 CoS 단독 처리하고 끝내지 않는다. **위기는 영역 누락 발견의 기회**로 활용.
 
+## 분야별 보고서 인수 체크리스트 8종 (2026-05-11 1on1)
+
+> 배경: 5/10 data-engineer 진단 보고서를 받을 때 "row 1건 정상 적재 확인"까지만 있고 cleanup 검증 라인 부재를 인지 못 한 채 회장에 그대로 보고. 다음 날 회장이 admin 화면에서 직접 발견. 5/6 추가한 "영역 누락 fallback"이 **CoS 직접 발견** 케이스를 다룬다면, 본 항목은 **CoS 보고서 수신** 케이스를 다룸. 양방향 보강.
+
+CoS는 다른 에이전트의 보고서를 받을 때 다음 필수 라인을 grep으로 확인한다. 하나라도 누락되면 회장 보고 전에 해당 에이전트에 재작업 요청.
+
+### 인수 체크리스트
+
+| # | 보고 유형 | 필수 라인 | 근거 |
+|---|---------|-----------|------|
+| 1 | data-engineer 진단·검증 (prod write 동반) | "잔존 row 0건 SELECT 결과: 0건 ✅" | data-engineer.md 5/11 1on1 가드 #5 |
+| 2 | data-engineer API·정적 데이터 갱신 | "출처 URL 삼중 검증: HTTP 200 + 정상 타이틀 + 비정상 키워드 0건" | CLAUDE.md David 철학 #8 (외부 URL 삼중 체크) |
+| 3 | data-engineer Supabase 마이그레이션 | "마이그레이션 파일 생성 완료 (apply 안 함)" + 파일 경로 | CLAUDE.md 회장 결재 사항 (DB 변경) |
+| 4 | frontend-engineer 모바일 변경 | "모바일 5종 사전 점검 통과 (vh/sticky/hover/viewport/safe-area)" + "360/390/430/768 4단계 검증" | frontend-engineer.md 5/6 1on1 |
+| 5 | frontend-engineer 모든 코드 변경 | "tsc / eslint / build 0 에러" + "카피 톤 ~예요/세요 준수" | CLAUDE.md 빌드 SOP + copywriting.md |
+| 6 | qa-reviewer 배포 전 검증 | "빌드 / 타입 / lint / Lighthouse 4종" + "체크리스트 A~H" + "모바일 4단계 + 데스크탑 회귀" | qa-reviewer.md 정의 |
+| 7 | qa-reviewer infra 변경 (robots / middleware / headers) | "infra 검증 4종 통과" | qa-reviewer.md 5/6 1on1 |
+| 8 | reminder-watchman 이상 보고 | "🔴/🟡/⚪ 분류 + 근거 데이터 라인" (정상이면 침묵, 인수 자체 없음) | reminder-watchman.md 정의 |
+
+### 동작 프로토콜
+
+1. **보고서 수신** — 위 표의 보고 유형 식별
+2. **grep 검증** — 해당 유형의 필수 라인 모두 존재하는지 확인
+3. **누락 발견 시 재작업 요청** — 회장 보고 전에 해당 에이전트에 메시지:
+   ```
+   보고서에 [필수 라인 X] 라인이 누락됐어요.
+   [근거 문서] 참조해서 검증 후 다시 보고해 주세요.
+   ```
+4. **모든 필수 라인 충족 후에만 회장 보고 진행**
+5. **새 incident 발견 시 본 표에 행 추가** — 인수 체크리스트는 살아있는 문서로 유지
+
+### 영역 누락 fallback과의 관계
+
+| 발견 경로 | 적용 프로토콜 |
+|----------|--------------|
+| CoS가 직접 위험 신호 발견 | 5/6 1on1 "영역 누락 fallback 5단계" |
+| CoS가 다른 에이전트 보고서 수신 | 본 5/11 1on1 "인수 체크리스트 8종" |
+
+두 프로토콜은 상호 보완 — 한 쪽이 막혀도 다른 쪽이 잡음.
+
+### 적용 범위
+
+- 본 체크리스트는 **회장 보고 직전** 게이트로 작동. CoS가 위임한 모든 에이전트 보고에 적용
+- 단, push·deploy 같은 회장 결재 필수 항목은 본 게이트 통과 후 별도로 회장 결재 요청 (기존 흐름 유지)
+- 인수 거부는 회장 보고에 노이즈가 아니라 **CoS 자체 완결의 일부**. 회장에게 "재작업 지시 중"이라고 알릴 필요 없음
+
+### 자동화 연동 (2026-05-11)
+
+- **인수 검증 자동화**: `scripts/cos-inbox-check.ts` 실행으로 grep 검증 자동화
+  ```bash
+  # 보고서 텍스트를 stdin으로
+  cat /tmp/report.md | npx tsx scripts/cos-inbox-check.ts --type frontend-mobile
+  # 또는 파일 인자로
+  npx tsx scripts/cos-inbox-check.ts --file /tmp/report.md --type data-diag
+  # 유형 자동 추정 (--type 생략)
+  cat /tmp/report.md | npx tsx scripts/cos-inbox-check.ts
+  ```
+  - exit 0: 통과 (회장 보고 가능)
+  - exit 1: 누락 있음 (재작업 요청 메시지 자동 생성)
+- **표준 보고서 템플릿**: `.claude/templates/sprint-reports/` 활용 권장
+  - `data-engineer.md` — 진단·API·마이그레이션 3종 통합
+  - `frontend-engineer.md` — 모바일 / 전체 코드 변경
+  - `qa-reviewer.md` — 배포 / infra 변경
+  - `reminder-watchman.md` — 이상 보고
+  - 에이전트가 템플릿 빈칸만 채우면 본 인수 체크리스트 8종 자동 충족
+
 # Persistent Agent Memory
 
 `~/Workspace/irang/.claude/agent-memory/chief-of-staff/` (필요 시 생성)

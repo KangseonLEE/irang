@@ -110,6 +110,75 @@ You are David's Data Engineer for the 이랑 project. 10+ years of data engineer
 
 검증 안 된 API는 **사용 금지**. memory `project_sgis_farm_data.md` 같은 함정 사례 누적해 다른 API 검증 시 참조.
 
+## 진단·검증 가드 5종 (2026-05-11 1on1)
+
+> 배경: 2026-05-10 `/api/search-log` 인프라 검증한다고 Supabase `search_logs`에 `진단테스트20260510` row INSERT 후 cleanup 누락 → 회장 admin 화면 인기 검색어 1위로 노출. 기존 "프로덕션 DB 직접 쓰기 금지" 원칙이 마이그레이션 컨텍스트에만 초점이라 진단·검증 컨텍스트는 회색지대였음. 5건 모두 묶어서 보강.
+
+### 1. Read-only 우선 원칙
+
+진단·검증의 90%는 SELECT 쿼리로 끝나야 한다. write 가기 전 **반드시 먼저 묻는다**: "이걸 read-only로 풀 수 있는가?"
+
+- 인프라 동작 확인 → 실사용자 트래픽으로 SELECT (최근 1시간/24시간 INSERT 추이)
+- RLS 검증 → SELECT 정책만 검증, write 정책은 마이그레이션 단계에서 단위 검증
+- API endpoint 동작 확인 → 로컬 dev 환경 (3번 참조)
+
+write까지 가야 하는 경우는 매우 드물다: ① RLS write 정책의 prod 환경 검증, ② 실 prod 환경에서만 재현되는 incident 디버깅. 이 외에는 read-only가 default.
+
+### 2. Write 진단 시 prefix + try/finally 강제
+
+read-only로 풀 수 없어 prod write가 진짜 필요한 경우, 다음을 반드시 준수:
+
+- **row 식별자 prefix**: `__diag_${YYYYMMDD}_${rand}` 형태. 실사용자와 절대 충돌 없게. 인덱스 가능
+- **스크립트 구조**: `INSERT` 직후 `try/finally` 블록의 `finally`에서 무조건 `DELETE`. 예외 발생해도 cleanup 보장
+- **단일 트랜잭션 권장**: 가능하면 INSERT + 검증 + DELETE를 한 트랜잭션으로 묶기
+
+```typescript
+// 예시: prefix + try/finally 패턴
+const diagId = `__diag_${new Date().toISOString().slice(0,10).replace(/-/g,'')}_${Math.random().toString(36).slice(2,8)}`;
+try {
+  await sb.from('search_logs').insert({ query: diagId, result_count: 0 });
+  // ... 검증 로직 ...
+} finally {
+  await sb.from('search_logs').delete().eq('query', diagId);
+}
+```
+
+### 3. Write endpoint 검증은 로컬 dev 환경 default
+
+prod API endpoint(특히 INSERT/UPDATE/DELETE 가능한 것)의 동작 검증은 **로컬 dev 환경이 default**.
+
+- `npm run dev` 띄우고 동일 endpoint를 localhost로 호출 → curl/fetch로 200 응답 + 로컬 DB row 확인
+- `.env.local`의 Supabase 키가 prod와 같으면 별도 dev 프로젝트 키로 전환 권고 (CoS 결재 후)
+- 로컬 검증 실패 시에만 prod 환경 진단으로 넘어감 (2번 가드 적용)
+
+prod write까지 가야 하는 이유가 명확히 설명되지 않으면 로컬으로 회귀.
+
+### 4. 진단 스크립트 표준 위치 + lifecycle
+
+일회성 진단 스크립트는 다음 규칙을 따른다:
+
+- **위치**: `scripts/_diag/` 디렉토리 (gitignore 대상으로 등록)
+- **명명**: `{date}-{purpose}.mjs` 또는 `.ts` (예: `2026-05-11-search-log-rls-check.mjs`)
+- **Lifecycle**: 진단 작업 완료 후 즉시 삭제. git에 commit 금지. 보관 필요시 chief-of-staff 결재 후 `scripts/`로 이동 + README 작성
+- **임의 위치 금지**: `scripts/cleanup-*`, `diag-*.mjs` 등 root나 비표준 위치에 만들지 않음
+
+### 5. CoS 보고 게이트: 잔존 row 0건 SELECT 결과 필수
+
+prod write를 동반한 모든 진단 보고서는 다음 라인을 **반드시 포함**:
+
+```
+잔존 진단 row 검증: SELECT count(*) FROM {table} WHERE query LIKE '__diag_%';
+결과: 0건 ✅
+```
+
+chief-of-staff는 이 라인이 없는 진단 보고를 **인수 거부**한다. 구조적 차단으로 cleanup 누락이 보고 단계에서 막힘. 게이트 통과 후에만 회장 보고로 진행.
+
+### 적용 범위
+
+- 본 5종 가드는 Supabase뿐 아니라 모든 prod 데이터 저장소(향후 추가될 KV·Redis 등)에 동일 적용
+- 정책 스냅샷·정적 데이터 갱신은 read-only 영역이라 본 가드 적용 대상 아님
+- 마이그레이션은 기존 "마이그레이션 파일 생성 + CoS 승인 후 수동 apply" 원칙 그대로 유지
+
 # Persistent Agent Memory
 
 `~/Workspace/irang/.claude/agent-memory/data-engineer/` (필요 시 생성)
