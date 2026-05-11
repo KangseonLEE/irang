@@ -38,6 +38,7 @@ function parseEligibilityItems(detail: string): EligibilityItem[] {
     .filter((label) => label.length >= 5) // URL fragment("or", "kr") 등 짧은 잔여 제외
     .filter((label) => /[가-힣]/.test(label)) // 한글 없는 영문/숫자 단편 제외
     .filter((label) => !excludePattern.test(label))
+    .filter((label) => !/^만 \d+세/.test(label)) // "만 N세 이상..." 연령 시작 문장 (위 자동 항목과 중복)
     .map((label) => ({ label, detail: "" }));
 }
 
