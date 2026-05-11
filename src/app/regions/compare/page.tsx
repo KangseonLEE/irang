@@ -10,8 +10,8 @@ import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
 import { fetchPopulationData, type PopulationData } from "@/lib/api/sgis";
 import { fetchMedicalFacilities, type MedicalFacilityData } from "@/lib/api/hira";
 import { fetchSchoolCounts, type SchoolData } from "@/lib/api/education";
-import { fetchRegionPhotos, type UnsplashPhoto } from "@/lib/api/unsplash";
 import { STATIONS } from "@/lib/data/stations";
+import { PROVINCES } from "@/lib/data/regions";
 import { PROGRAMS } from "@/lib/data/programs";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
@@ -92,29 +92,24 @@ export default async function RegionsPage({ searchParams }: PageProps) {
   // 선택이 없으면 API 호출 건너뛰고 빈 상태 렌더 (불필요한 fetch 방지)
   const hasSelection = selectedIds.length > 0;
 
-  // 5개 API를 병렬 호출 (순차→병렬: 로딩 시간 ~60-70% 단축)
-  const [climateResult, populationResult, medicalResult, schoolResult, photoResult] =
+  // 4개 API를 병렬 호출 (2026-05-11 Unsplash 제거: hero 이미지를 시도 일러스트로 통일 → API 1개 감소)
+  const [climateResult, populationResult, medicalResult, schoolResult] =
     hasSelection
       ? await Promise.allSettled([
           fetchMultipleClimateData(selectedIds),
           fetchPopulationData(uniqueSgisCodes),
           fetchMedicalFacilities(uniqueHiraCodes),
           fetchSchoolCounts(uniqueEduCodes),
-          fetchRegionPhotos(selectedIds),
         ])
       : [
           { status: "fulfilled" as const, value: [] },
           { status: "fulfilled" as const, value: [] },
           { status: "fulfilled" as const, value: [] },
           { status: "fulfilled" as const, value: [] },
-          { status: "fulfilled" as const, value: new Map() },
         ];
 
   const climateData =
     climateResult.status === "fulfilled" ? climateResult.value : [];
-
-  const photoMap: Map<string, UnsplashPhoto> =
-    photoResult.status === "fulfilled" ? photoResult.value : new Map();
 
   const populationMap: Map<string, PopulationData> = new Map();
   if (populationResult.status === "fulfilled") {
@@ -192,7 +187,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
                 <ClimateCard
                   key={data.stnId}
                   data={data}
-                  photo={photoMap.get(data.stnId)}
+                  provinceId={getProvinceIdByStation(data.stnId)}
                 />
               ))}
             </div>
@@ -458,22 +453,31 @@ export default async function RegionsPage({ searchParams }: PageProps) {
 
 // --- 서브 컴포넌트 ---
 
+/**
+ * Station ID → Province ID 매핑.
+ * 2026-05-11 리뉴얼: 시도 hero 일러스트(/images/regions/{provinceId}.png)를 비교 카드에 통일 사용.
+ */
+function getProvinceIdByStation(stnId: string): string | null {
+  const province = PROVINCES.find((p) => p.stationIds.includes(stnId));
+  return province?.id ?? null;
+}
+
 function ClimateCard({
   data,
-  photo,
+  provinceId,
 }: {
   data: ClimateData;
-  photo?: UnsplashPhoto;
+  provinceId: string | null;
 }) {
   const station = STATIONS.find((st) => st.stnId === data.stnId);
 
   return (
     <article className={s.climateCard}>
-      {photo && (
+      {provinceId && (
         <div className={s.cardImageWrap}>
           <Image
-            src={photo.smallUrl}
-            alt={photo.alt}
+            src={`/images/regions/${provinceId}.png`}
+            alt={`${station?.province ?? data.stnName} 풍경 일러스트`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             style={{ objectFit: "cover" }}
