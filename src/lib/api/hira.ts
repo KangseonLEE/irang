@@ -9,6 +9,28 @@ import { FETCH_TIMEOUT } from "./_build-phase";
 const API_BASE =
   "https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList";
 
+// 2026-05-12: HIRA API 응답 시간 변동성 큼 (1~10s). 기본 5s timeout으로 누락 빈발.
+// 시도별 의료기관 호출은 12s + 실패 시 1회 retry 적용.
+const HIRA_FETCH_TIMEOUT = Math.max(FETCH_TIMEOUT, 12_000);
+
+async function fetchHiraJson(url: string): Promise<unknown> {
+  // 1회 retry — 첫 호출 timeout/network 실패 시 한 번 더 시도
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const res = await fetch(url, {
+        next: { revalidate: 86400 },
+        signal: AbortSignal.timeout(HIRA_FETCH_TIMEOUT),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      if (attempt === 1) throw err;
+      // retry — 짧은 backoff 없이 즉시 재시도 (API 측 transient 실패 가정)
+    }
+  }
+  throw new Error("unreachable");
+}
+
 /** 심평원 시도코드 → 시도명 매핑 */
 const SIDO_NAME_MAP: Record<string, string> = {
   "110000": "서울특별시",
@@ -72,10 +94,9 @@ async function fetchSidoMedicalCount(
   url.searchParams.set("_type", "json");
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const json = await res.json();
+    const json = (await fetchHiraJson(url.toString())) as {
+      response?: { body?: { totalCount?: number | string } };
+    };
     const totalCount = json?.response?.body?.totalCount;
 
     if (totalCount == null) {
@@ -114,10 +135,9 @@ async function fetchSigunguMedicalCount(
   url.searchParams.set("_type", "json");
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const json = await res.json();
+    const json = (await fetchHiraJson(url.toString())) as {
+      response?: { body?: { totalCount?: number | string } };
+    };
     const totalCount = json?.response?.body?.totalCount;
 
     if (totalCount == null) {
