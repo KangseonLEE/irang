@@ -6,9 +6,9 @@ import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { DesktopHint } from "@/components/ui/desktop-hint";
-import { CompareDataSection } from "../compare/compare-data-section";
-import { CompareDataSkeleton } from "../compare/compare-data-skeleton";
-import { parseRegions } from "../compare/region-item";
+import { CompareDataSection } from "../regions/compare/compare-data-section";
+import { CompareDataSkeleton } from "../regions/compare/compare-data-skeleton";
+import { parseRegions } from "../regions/compare/region-item";
 import { RegionSelectorV2 } from "./region-selector-v2";
 import { CompareTabs } from "./compare-tabs";
 import s from "./page.module.css";
@@ -16,7 +16,7 @@ import s from "./page.module.css";
 export const metadata: Metadata = {
   title: "[미리보기] 지역 비교 — 슬롯 + 탭 UI",
   description: "지역 비교 페이지 미리보기 (검색 + 시도 chip + 슬롯 + 탭).",
-  alternates: { canonical: "/regions/compare-preview" },
+  alternates: { canonical: "/compare-preview" },
   robots: { index: false, follow: false },
 };
 
@@ -41,7 +41,7 @@ export default async function ComparePreviewPage({ searchParams }: PageProps) {
       <BreadcrumbJsonLd
         items={[
           { name: "지역 탐색", href: "/regions" },
-          { name: "지역 비교 (미리보기)", href: "/regions/compare-preview" },
+          { name: "지역 비교 (미리보기)", href: "/compare-preview" },
         ]}
       />
       <DesktopHint message="지역 비교는 넓은 화면에서 더 잘 보여요" />

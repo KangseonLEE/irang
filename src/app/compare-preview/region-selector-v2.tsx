@@ -128,7 +128,7 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
       const qs = params.toString();
       setOptimisticIds(newIds);
       startTransition(() => {
-        router.push(qs ? `/regions/compare-preview?${qs}` : "/regions/compare-preview");
+        router.push(qs ? `/compare-preview?${qs}` : "/compare-preview");
       });
     },
     [searchParams, router],
