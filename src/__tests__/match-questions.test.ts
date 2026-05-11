@@ -14,8 +14,8 @@ import {
 // ─── 질문 데이터 무결성 ───
 
 describe("QUESTIONS 데이터 무결성", () => {
-  it("7개 질문이 존재한다", () => {
-    expect(QUESTIONS).toHaveLength(7);
+  it("10개 질문이 존재한다", () => {
+    expect(QUESTIONS).toHaveLength(10);
   });
 
   it("모든 질문은 고유한 ID를 갖는다", () => {
