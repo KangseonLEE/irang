@@ -111,7 +111,7 @@ CoS는 다른 에이전트의 보고서를 받을 때 다음 필수 라인을 gr
 | # | 보고 유형 | 필수 라인 | 근거 |
 |---|---------|-----------|------|
 | 1 | data-engineer 진단·검증 (prod write 동반) | "잔존 row 0건 SELECT 결과: 0건 ✅" | data-engineer.md 5/11 1on1 가드 #5 |
-| 2 | data-engineer API·정적 데이터 갱신 | "출처 URL 삼중 검증: HTTP 200 + 정상 타이틀 + 비정상 키워드 0건" | CLAUDE.md David 철학 #8 (외부 URL 삼중 체크) |
+| 2 | data-engineer API·정적 데이터 갱신 | "출처 URL 삼중 검증: HTTP 200 + 정상 타이틀 + 비정상 키워드 0건" + "본문 키워드 매칭 통과" + "기존 정적 데이터 중복 검색: DUPLICATE 0건" | CLAUDE.md David 철학 #8 + data-engineer 5/11 정적 큐레이션 가드 3종 (5/11 SP-019 ≡ SP-012 사고) |
 | 3 | data-engineer Supabase 마이그레이션 | "마이그레이션 파일 생성 완료 (apply 안 함)" + 파일 경로 | CLAUDE.md 회장 결재 사항 (DB 변경) |
 | 4 | frontend-engineer 모바일 변경 | "모바일 5종 사전 점검 통과 (vh/sticky/hover/viewport/safe-area)" + "360/390/430/768 4단계 검증" | frontend-engineer.md 5/6 1on1 |
 | 5 | frontend-engineer 모든 코드 변경 | "tsc / eslint / build 0 에러" + "카피 톤 ~예요/세요 준수" | CLAUDE.md 빌드 SOP + copywriting.md |
