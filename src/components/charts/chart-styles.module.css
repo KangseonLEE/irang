@@ -45,6 +45,23 @@
   padding-bottom: 4px;
 }
 
+/* ── 레이더 차트 안내 카피 (단위 다른 축 정규화 안내) ── */
+.radarHint {
+  font-size: var(--fs-caption, 13px);
+  color: var(--muted-foreground, #6b7280);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.radarHint strong {
+  color: var(--primary, #1b6b5a);
+  font-weight: 600;
+}
+
 /* ── 커스텀 툴팁 ── */
 .tooltip {
   background: rgba(17, 17, 17, 0.92);

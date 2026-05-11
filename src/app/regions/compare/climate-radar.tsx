@@ -121,12 +121,21 @@ export default function ClimateRadar({ data }: ClimateRadarProps) {
 
   return (
     <div className={cs.chartWrapper}>
-      <ResponsiveContainer width="100%" height={340}>
+      {/* 가독성 안내: 단위 다른 6축은 0~100 정규화 — 사용자 인지 보강 */}
+      <p className={cs.radarHint}>
+        각 축은 시도 간 <strong>상대 비교(0~100)</strong>예요. 마우스를 올리면 실제 수치(℃·mm·hr·%)를 볼 수 있어요.
+      </p>
+
+      <ResponsiveContainer width="100%" height={360}>
         <RadarChart data={chartData} cx="50%" cy="50%" outerRadius="70%">
           <PolarGrid stroke="var(--border, #e5e7eb)" />
           <PolarAngleAxis
             dataKey="axis"
             tick={{ fontSize: 12, fill: "var(--muted-foreground, #6b7280)" }}
+            tickFormatter={(label) => {
+              const axis = AXES.find((a) => a.label === label);
+              return axis ? `${label} (${axis.unit})` : label;
+            }}
           />
           <PolarRadiusAxis
             angle={90}
@@ -141,7 +150,7 @@ export default function ClimateRadar({ data }: ClimateRadarProps) {
               dataKey={`region_${i}`}
               stroke={COLORS[i]}
               fill={COLORS[i]}
-              fillOpacity={0.15}
+              fillOpacity={0.18}
               strokeWidth={2}
             />
           ))}
