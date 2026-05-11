@@ -1,0 +1,113 @@
+# ═══════════════════════════════════════════
+# Cloudflare cache auto-purge on Vercel deploy
+# - main branch push → Vercel 자동 배포
+# - 본 workflow가 Vercel deploy 성공 대기 → Cloudflare 전체 캐시 purge
+# - 회장 수동 purge 영구 0회 보장 (2026-05-11)
+# ═══════════════════════════════════════════
+#
+# 결재 필요 (push 후 1회):
+# 1) Cloudflare Dashboard → My Profile → API Tokens → Create Token
+#    - Custom token
+#    - Permissions: Zone → Cache Purge → Purge
+#    - Zone Resources: Include → Specific zone → irangfarm.com
+# 2) GitHub Secrets 등록 (Settings → Secrets and variables → Actions)
+#    - CF_API_TOKEN: 위 토큰
+#    - CF_ZONE_ID: Cloudflare → irangfarm.com → Overview 우측 Zone ID
+# ═══════════════════════════════════════════
+
+name: "Cloudflare cache purge"
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # 수동 트리거 허용 (긴급 purge 시)
+
+concurrency:
+  group: cf-purge-${{ github.ref }}
+  cancel-in-progress: false # purge는 직렬 처리 (race 방지)
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  purge:
+    name: Wait for Vercel deploy → Cloudflare purge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Wait for Vercel deployment to succeed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          # 최대 8분(480초) 동안 60초 간격으로 Vercel 배포 상태 폴링.
+          # Vercel은 GitHub Deployments API에 배포 상태를 등록하므로
+          # 우리 commit SHA에 해당하는 deployment의 statuses를 조회한다.
+          MAX_ATTEMPTS=8
+          for i in $(seq 1 $MAX_ATTEMPTS); do
+            echo "Attempt $i/$MAX_ATTEMPTS — looking for Vercel deployment for $SHA"
+
+            # 해당 SHA의 deployment id 조회 (없으면 빈 결과)
+            DEP_ID=$(gh api "repos/$REPO/deployments?sha=$SHA&per_page=1" --jq '.[0].id // empty' || echo "")
+
+            if [ -n "$DEP_ID" ]; then
+              STATE=$(gh api "repos/$REPO/deployments/$DEP_ID/statuses" --jq '.[0].state // empty' || echo "")
+              DESC=$(gh api "repos/$REPO/deployments/$DEP_ID/statuses" --jq '.[0].description // empty' || echo "")
+              echo "Deployment $DEP_ID state=$STATE — $DESC"
+
+              case "$STATE" in
+                success)
+                  echo "Vercel deploy succeeded. Proceeding to purge."
+                  exit 0
+                  ;;
+                failure|error)
+                  echo "Vercel deploy FAILED ($STATE). Skipping cache purge."
+                  exit 1
+                  ;;
+                *)
+                  # in_progress / pending / queued → 대기 후 재시도
+                  ;;
+              esac
+            else
+              echo "Deployment not yet registered for $SHA"
+            fi
+
+            if [ "$i" -lt "$MAX_ATTEMPTS" ]; then
+              echo "Sleeping 60s before next poll..."
+              sleep 60
+            fi
+          done
+
+          echo "Timed out waiting for Vercel deploy. Skipping purge."
+          exit 1
+
+      - name: Purge Cloudflare cache (purge_everything)
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+        run: |
+          if [ -z "$CF_API_TOKEN" ] || [ -z "$CF_ZONE_ID" ]; then
+            echo "CF_API_TOKEN or CF_ZONE_ID secret missing. Skipping."
+            echo "See .github/workflows/cf-purge.yml header for setup instructions."
+            exit 0
+          fi
+
+          RESPONSE=$(curl -sS -X POST \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}')
+
+          echo "Cloudflare response: $RESPONSE"
+
+          SUCCESS=$(echo "$RESPONSE" | jq -r '.success // false')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "Cloudflare purge FAILED."
+            echo "$RESPONSE" | jq -r '.errors // []'
+            exit 1
+          fi
+
+          echo "Cloudflare cache purged successfully."
