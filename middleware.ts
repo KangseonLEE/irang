@@ -154,9 +154,12 @@ export async function middleware(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = normalizedPath;
       url.search = cleanedSearch;
-      // 308 (permanent) — 봇이 다음에 같은 abuse URL 시도해도 즉시 cleaned로 매핑.
-      // 캐시도 308 응답을 invalidate 권한으로 길게 유지.
-      return NextResponse.redirect(url, 308);
+      const response = NextResponse.redirect(url, 308);
+      // 2026-05-11 site-wide 308 사고 fix:
+      // CF cache key가 path-only라 308 응답이 일반 GET에도 hit 되는 무한 redirect 사고.
+      // 봇 abuse query에 대한 308 응답은 CF에 절대 캐시하지 않도록 강제.
+      response.headers.set("Cache-Control", "private, no-store, max-age=0");
+      return response;
     }
   }
 
