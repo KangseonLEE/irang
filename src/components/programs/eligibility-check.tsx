@@ -35,7 +35,8 @@ function parseEligibilityItems(detail: string): EligibilityItem[] {
     /(신청|누리집|포털|콜센터|고객센터|선발|선정|팀별|구성|약 \d+명|연간 약|교육기간|체류하|과정 운영|공고 시 확정|발표 시 확정|예정 — 정확|월 과정|개월 과정|개월 간|개월간)/;
   return parts
     .map((part) => part.trim().replace(/\.$/, ""))
-    .filter((label) => label.length > 0)
+    .filter((label) => label.length >= 5) // URL fragment("or", "kr") 등 짧은 잔여 제외
+    .filter((label) => /[가-힣]/.test(label)) // 한글 없는 영문/숫자 단편 제외
     .filter((label) => !excludePattern.test(label))
     .map((label) => ({ label, detail: "" }));
 }
