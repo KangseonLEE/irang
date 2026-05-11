@@ -63,6 +63,8 @@
 | 2026-05-11 | 분야별 보고서 인수 체크리스트 8종 추가 (data 진단/API갱신/마이그레이션, frontend 모바일/모든변경, qa 배포/infra, watchman 이상보고) — 보고 수신 게이트로 작동 | agents/chief-of-staff.md | 1on1 — 5/10 진단 보고서 cleanup 검증 라인 부재를 CoS가 인지 못 하고 회장에 그대로 올린 사례. data-engineer 5종 가드와 양방향 일치 |
 | 2026-05-11 | API endpoint 동작 검증 + 클라이언트 진입점 전수 grep + 출력 포맷 CoS 인수 라인 강제 추가 | agents/qa-reviewer.md | 1on1 — 5/10 logSearch가 /search 1곳에서만 호출되던 구조적 누락을 qa가 어떤 sprint에서도 못 잡은 사례. 데이터 흐름 end-to-end 검증 + CoS 인수 양방향 일치 |
 | 2026-05-11 | §11 주간 write endpoint 활성도 모니터링 추가 (search_logs/quick_feedback/assessments 최근 7일 INSERT 0건 시 🟡, 배포 동반 시 🔴) — 화·금 사이클 1항목 추가 | agents/reminder-watchman.md | 1on1 — 5/10 search_logs 8일째 0건을 watch list에 "DB write 활성도" 부재로 발견 못 한 사례. qa↔watchman 자체 분담 결정으로 4중 차단망 완성 |
+| 2026-05-11 | 정적 데이터 큐레이션 가드 3종 추가 (본문 키워드 무결성 / 기존 정적 데이터 중복 검색 / 신청 일자 미명시 9999 페어) | agents/data-engineer.md | 1on1 — 5/11 SP-015~020 큐레이션 사이클에서 9건 함정 발견. 회장 무결성 검증 + 라이브 직접 발견. D2 외부 검증만 했고 내부 정합성·중복 검증 누락 |
+| 2026-05-11 | Lessons Learned 3건 추가 (dynamic SSR + revalidate 충돌 / middleware 308 CF cache hold / Supabase 정적 병합 5/10 재발) | CLAUDE.md §Lessons Learned | 5/11 sprint 사고 회고 — 메모리만으로 코드 보장 불가 입증, CLAUDE.md 명시 + 회귀 테스트 권고 |
 
 ---
 
@@ -561,6 +563,27 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
   - 빌드 출력을 `tail -50`, `grep error`, `tail -10` 등 3회 파싱
 - **해결**: 빌드 검증 SOP를 위 "빌드 & 배포" 섹션에 명문화. 1회 실행 + tail -3 + 단일 배포 검증 명령
 - **교훈**: 빌드/배포 검증은 "성공 마커 1회 확인" 원칙. 의심되어 재실행하면 5분 낭비. 첫 결과 신뢰.
+
+### dynamic SSR 페이지 + `export const revalidate` 충돌 (2026-05-11)
+
+- **증상**: `/programs`에 `export const revalidate = 300` 추가 → 빌드는 성공하지만 `.next/prerender-manifest.json`에 `/programs` **NOT FOUND** + 라이브에서 site-wide 308 무한 redirect
+- **원인**: `searchParams` 의존 페이지는 Next.js가 자동 dynamic SSR로 분류. ISR(`revalidate`)과 dynamic SSR이 충돌하면 빌드 산출물이 308 응답으로 생성됨 (Next.js 16 PPR 영향 가능)
+- **해결**: `export const revalidate` 제거. CDN cache는 `next.config.ts` headers의 `s-maxage`로만 조정
+- **교훈**: searchParams 사용 페이지(/programs, /events, /costs, /crops, /education, /regions, /stats, /interviews)에는 절대 `export const revalidate` 추가 금지. ISR 강화가 필요하면 next.config.ts headers 또는 Cloudflare Cache Rule만 사용.
+
+### Middleware 308 응답이 CF cache에 hold되어 site-wide 무한 redirect (2026-05-11)
+
+- **증상**: 봇이 `?cb=garbage` 요청 → middleware 308 → CF cache가 path-only key로 그 308 응답 캐시 → 일반 사용자 `/programs` 요청에도 CF HIT → 308 받아 redirect 따라감 → 또 CF HIT → 무한 루프 (영향: /events·/programs·/costs·/crops·/education·/regions·/stats 7개 페이지)
+- **원인**: middleware의 `NextResponse.redirect()`가 `Cache-Control` 헤더 없이 308 응답. CF가 그 308을 일반 응답처럼 cache. CF cache key가 path-only라 어떤 query라도 같은 cache hit.
+- **해결**: 모든 normalize 308 응답에 `Cache-Control: private, no-store, max-age=0` 강제 → CF가 `cf-cache-status: BYPASS`로 영구 안 캐시
+- **교훈**: redirect 응답은 절대 캐시되면 안 됨. middleware/Server Component에서 `NextResponse.redirect()` 호출 시 반드시 `response.headers.set("Cache-Control", "private, no-store, max-age=0")` 동반.
+
+### Supabase에 없는 정적 데이터 프로덕션 누락 (2026-05-10) — **2026-05-11 재발**
+
+- **증상 (재발)**: SP-019, SP-020을 정적 데이터 추가했는데 라이브 `/programs` 목록에서 누락
+- **원인**: `loadPrograms()`가 Supabase 성공 시 정적 데이터 무시 — 5/10 fix됐어야 했으나 어떤 시점에 patch가 빠짐
+- **해결**: 0708d92로 정적 병합 fix 재적용. CLAUDE.md 명시만으로 부족 → 회귀 테스트 필요
+- **교훈**: Lessons Learned 명시만으로는 코드 보장 안 됨. **critical-path 동작은 회귀 테스트 필수**. 다음 sprint 권고: `loadPrograms` Supabase 성공 + 정적 dedup 병합 회귀 테스트 작성.
 
 ---
 
