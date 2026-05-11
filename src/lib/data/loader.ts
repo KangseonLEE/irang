@@ -176,7 +176,17 @@ export async function loadPrograms(
           linkStatus: row.link_status as SupportProgram["linkStatus"],
           year: row.year,
         }));
-        return { data: programs, source: "supabase" };
+
+        // CLAUDE.md Lessons Learned (재발 방지, 2026-05-11):
+        // Supabase 성공 시에도 정적 데이터(PROGRAMS) 중 DB에 없는 항목 병합.
+        // 신규 추가 사업이 정적 데이터에만 있고 Supabase INSERT 안 됐을 때 누락 방지.
+        const dbIds = new Set(programs.map((p) => p.id));
+        const staticFiltered = filters
+          ? filterProgramsLocal(filters).filter((p) => !dbIds.has(p.id))
+          : PROGRAMS.filter((p) => !dbIds.has(p.id));
+        const merged = [...programs, ...staticFiltered];
+
+        return { data: merged, source: "supabase" };
       }
     } catch {
       // Supabase 에러 → 정적 폴백
