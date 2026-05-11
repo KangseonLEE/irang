@@ -47,6 +47,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/programs" },
 };
 
+/* ── ISR 5분 (2026-05-11 SP-015~020 누락 사고 fix) ──
+   기존: revalidate 미설정 + cf s-maxage=3600 + cf-cache key path-only
+   → 신규 데이터 push 후 cf 캐시가 최대 4시간 stale 응답 (SP-015~020 안 보임)
+   대응: page-level ISR 300s + next.config s-maxage 600s로 단축. 신규 push 시 10분 내 노출 보장.
+   봇 트래픽은 middleware 308 normalize로 cf-cache HIT 유지. */
+export const revalidate = 300;
+
 interface PageProps {
   searchParams: Promise<{
     region?: string;

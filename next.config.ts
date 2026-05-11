@@ -118,8 +118,11 @@ const nextConfig: NextConfig = {
         source: "/programs",
         headers: [
           {
+            // 2026-05-11 SP-015~020 stale 사고 대응: s-maxage 3600→600 단축.
+            // 신규 push 후 cf 캐시 최대 4시간 stale → 10분으로 축소.
+            // page.tsx의 revalidate=300과 합쳐 신규 데이터 10분 내 노출 보장.
             key: "Cache-Control",
-            value: "public, s-maxage=3600, stale-while-revalidate=86400",
+            value: "public, s-maxage=600, stale-while-revalidate=86400",
           },
         ],
       },
