@@ -3,8 +3,8 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
+  useEffect,
   useMemo,
-  useOptimistic,
   useRef,
   useState,
   useTransition,
@@ -47,12 +47,15 @@ export function RegionSelector({
   const [isPending, startTransition] = useTransition();
   const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // 2026-05-11: useOptimistic — chip 클릭 즉시 selected 표시.
-  // SSR 응답 (5s cold) 기다리지 않고 즉각 시각 피드백.
-  const [optimisticIds, setOptimisticIds] = useOptimistic<string[], string[]>(
-    selectedRegionIds,
-    (_, next) => next,
-  );
+  // 2026-05-12: useOptimistic → useState + useEffect 교체.
+  // useOptimistic은 router.push 호출 즉시 transition 종료 → optimistic state revert 됨.
+  // 두 번째 chip 빠르게 클릭 시 stale 상태 기반 동작으로 navigation 꼬이는 issue.
+  // useState로 local 유지 + selectedRegionIds prop 변경 시 sync.
+  const [optimisticIds, setOptimisticIds] = useState<string[]>(selectedRegionIds);
+
+  useEffect(() => {
+    setOptimisticIds(selectedRegionIds);
+  }, [selectedRegionIds]);
 
   const pushSelection = useCallback(
     (newIds: string[]) => {
@@ -64,13 +67,13 @@ export function RegionSelector({
         params.set("regions", newIds.join(","));
       }
       const qs = params.toString();
-      // startTransition 내부에서 optimistic + push 동시 실행 → 즉각 피드백
+      // local state 즉시 업데이트 (chip 시각 피드백) + transition으로 SSR pending 표시
+      setOptimisticIds(newIds);
       startTransition(() => {
-        setOptimisticIds(newIds);
         router.push(qs ? `/regions/compare?${qs}` : "/regions/compare");
       });
     },
-    [searchParams, router, setOptimisticIds],
+    [searchParams, router],
   );
 
   const toggleProvince = useCallback(
