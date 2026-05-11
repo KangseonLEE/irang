@@ -88,3 +88,26 @@ export function formatDateRange(start: string, end: string | null): string {
   }
   return `${formatDate(start)} ~ ${formatDate(end)}`;
 }
+
+/**
+ * 지원사업·체험행사 신청기간 표기 (9999-12-31 미정 처리)
+ *
+ * - 둘 다 9999-12-31 → "공고 발표 예정"
+ * - end만 9999-12-31 (상시) → "상시 모집"
+ * - start만 9999 (드문 케이스) → "~ {end}"
+ * - 정상 → formatDateRange
+ */
+const ALWAYS_OPEN_DATE = "9999-12-31";
+
+export function formatApplicationPeriod(
+  start: string | null | undefined,
+  end: string | null | undefined,
+): string {
+  const startUnknown = !start || start === ALWAYS_OPEN_DATE;
+  const endOpen = !end || end === ALWAYS_OPEN_DATE;
+
+  if (startUnknown && endOpen) return "공고 발표 예정";
+  if (endOpen && start) return "상시 모집";
+  if (startUnknown && end) return `~ ${formatDate(end)}`;
+  return formatDateRange(start as string, end as string);
+}

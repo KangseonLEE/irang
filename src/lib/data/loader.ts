@@ -184,7 +184,18 @@ export async function loadPrograms(
         const staticFiltered = filters
           ? filterProgramsLocal(filters).filter((p) => !dbIds.has(p.id))
           : PROGRAMS.filter((p) => !dbIds.has(p.id));
-        const merged = [...programs, ...staticFiltered];
+        // 일자 미정 사업(applicationStart/End 모두 9999-12-31) default hide.
+        // includeClosed=true 시 정보 카테고리로 표시. (2026-05-11 SP-020 사고)
+        const dateFilteredSupabase = filters?.includeClosed
+          ? programs
+          : programs.filter(
+              (p) =>
+                !(
+                  p.applicationStart === "9999-12-31" &&
+                  p.applicationEnd === "9999-12-31"
+                ),
+            );
+        const merged = [...dateFilteredSupabase, ...staticFiltered];
 
         return { data: merged, source: "supabase" };
       }

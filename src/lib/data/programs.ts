@@ -601,6 +601,17 @@ export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
       return false;
     }
 
+    // 일자 미정 사업 default hide (2026-05-11)
+    // applicationStart/End 모두 9999-12-31 = "공고 발표 예정"이라 사용자 가치 낮음.
+    // includeClosed=true 시 정보 카테고리로 표시.
+    if (
+      !filters.includeClosed &&
+      program.applicationStart === "9999-12-31" &&
+      program.applicationEnd === "9999-12-31"
+    ) {
+      return false;
+    }
+
     // 조회 시점 필터: 모집기간과 선택 월이 겹치는지 확인
     // includeClosed가 true이면 기간 필터를 적용하지 않음 (마감된 과거 프로그램도 표시)
     // 모집중·모집예정은 기간 필터와 무관하게 항상 표시

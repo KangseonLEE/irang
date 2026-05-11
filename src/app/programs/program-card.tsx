@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MapPin, Calendar } from "lucide-react";
 import type { SupportProgram } from "@/lib/data/programs";
-import { formatDate } from "@/lib/format";
+import { formatApplicationPeriod } from "@/lib/format";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import s from "./program-card.module.css";
@@ -65,8 +65,7 @@ export function ProgramCard({ program }: { program: SupportProgram }) {
           <div className={s.metaItem}>
             <Calendar size={13} />
             <span className={s.metaValue}>
-              {formatDate(program.applicationStart)} ~{" "}
-              {formatDate(program.applicationEnd)}
+              {formatApplicationPeriod(program.applicationStart, program.applicationEnd)}
             </span>
           </div>
         </div>

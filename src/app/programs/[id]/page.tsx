@@ -20,7 +20,7 @@ import {
   HelpCircle,
   ChevronDown,
 } from "lucide-react";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatApplicationPeriod } from "@/lib/format";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
@@ -178,7 +178,7 @@ export default async function ProgramDetailPage({
                 <InfoRow
                   icon={<Calendar size={16} />}
                   label="신청 기간"
-                  value={`${formatDate(program.applicationStart)} ~ ${formatDate(program.applicationEnd)}`}
+                  value={formatApplicationPeriod(program.applicationStart, program.applicationEnd)}
                 />
                 <InfoRow
                   icon={<Users size={16} />}
