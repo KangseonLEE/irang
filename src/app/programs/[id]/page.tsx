@@ -178,7 +178,15 @@ export default async function ProgramDetailPage({
                 <InfoRow
                   icon={<Calendar size={16} />}
                   label="신청 기간"
-                  value={formatApplicationPeriod(program.applicationStart, program.applicationEnd)}
+                  value={
+                    program.applicationEnd === "9999-12-31" &&
+                    program.applicationStart !== "9999-12-31"
+                      ? "상시 모집 — 원문 공고에서 마감일 확인"
+                      : program.applicationStart === "9999-12-31" &&
+                          program.applicationEnd === "9999-12-31"
+                        ? "공고 발표 예정 — 원문 페이지에서 확인"
+                        : formatApplicationPeriod(program.applicationStart, program.applicationEnd)
+                  }
                 />
                 <InfoRow
                   icon={<Users size={16} />}

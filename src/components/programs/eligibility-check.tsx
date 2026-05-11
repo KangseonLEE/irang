@@ -18,12 +18,26 @@ interface EligibilityCheckProps {
   items?: EligibilityItem[];
 }
 
+/**
+ * eligibilityDetail을 자격 체크 항목으로 파싱.
+ *
+ * 마침표로 split 후 다음 키워드 포함 문장은 제외 (자격이 아닌 정보):
+ * - 신청 방법: "신청", "누리집", "포털", "콜센터", "고객센터"
+ * - 선발·구성: "선발", "선정", "구성", "팀별", "약 N명", "연간 약"
+ * - 교육·체류 안내: "교육기간", "체류", "과정 운영", "월 ~월"
+ * - 마감·일자 미정: "공고 시 확정", "예정 — 정확", "발표 시 확정"
+ *
+ * 자격 키워드("만 N세", "이상", "이하", "거주", "전입", "수료", "대상") 우선.
+ */
 function parseEligibilityItems(detail: string): EligibilityItem[] {
   const parts = detail.split(/[.。]\s*/).filter(Boolean);
-  return parts.map((part) => {
-    const trimmed = part.trim().replace(/\.$/, "");
-    return { label: trimmed, detail: "" };
-  });
+  const excludePattern =
+    /(신청|누리집|포털|콜센터|고객센터|선발|선정|팀별|구성|약 \d+명|연간 약|교육기간|체류하|과정 운영|공고 시 확정|발표 시 확정|예정 — 정확|월 과정|개월 과정|개월 간|개월간)/;
+  return parts
+    .map((part) => part.trim().replace(/\.$/, ""))
+    .filter((label) => label.length > 0)
+    .filter((label) => !excludePattern.test(label))
+    .map((label) => ({ label, detail: "" }));
 }
 
 export function EligibilityCheck({
