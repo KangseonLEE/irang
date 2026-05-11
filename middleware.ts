@@ -163,15 +163,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 2-A) /regions/compare/v2 — 미리보기 라우트 CDN 캐시 금지 (시안 단계, SEO 무관)
-  if (pathname === "/regions/compare/v2" || pathname.startsWith("/regions/compare/v2/")) {
-    const res = NextResponse.next();
-    res.headers.set("Cache-Control", "private, no-store, max-age=0");
-    res.headers.set("CDN-Cache-Control", "no-store");
-    res.headers.set("Vercel-CDN-Cache-Control", "no-store");
-    return res;
-  }
-
   // 3) RSC variant 응답 캐시 차단 — Cloudflare가 vary: rsc를 무시해
   // RSC payload(text/x-component)가 일반 HTML 응답으로 잘못 캐시되는 사고 방지.
   // Next.js prefetch는 RSC 헤더 또는 Next-Router-Prefetch 헤더를 동반함.

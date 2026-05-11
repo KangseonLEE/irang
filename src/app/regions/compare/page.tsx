@@ -8,6 +8,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { STATIONS } from "@/lib/data/stations";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { RegionSelector } from "./region-selector";
+import { RegionCardsSelector } from "./region-cards-selector";
+import { CompareTabs } from "./compare-tabs";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { DesktopHint } from "@/components/ui/desktop-hint";
 import { CompareDataSection } from "./compare-data-section";
@@ -28,6 +30,7 @@ interface PageProps {
     regions?: string;
     stations?: string;
     crop?: string;
+    v2?: string;
   }>;
 }
 
@@ -44,6 +47,8 @@ export default async function RegionsPage({ searchParams }: PageProps) {
   const selectedCropId = params.crop ?? null;
   const hasSelection = regions.length > 0;
   const year = new Date().getFullYear();
+  // 2026-05-12 v2 prototype toggle — ?v2=1 (회장 시안 검토용)
+  const isV2 = params.v2 === "1";
 
   // RegionSelector는 client component이며 region.id 배열로 전달
   const selectedRegionIds = regions.map((r) => r.id);
@@ -84,26 +89,35 @@ export default async function RegionsPage({ searchParams }: PageProps) {
           />
         }
       >
-        <RegionSelector
-          stations={STATIONS}
-          selectedRegionIds={selectedRegionIds}
-          canonicalParam={canonicalParam}
-        />
+        {isV2 ? (
+          <RegionCardsSelector selectedRegionIds={selectedRegionIds} />
+        ) : (
+          <RegionSelector
+            stations={STATIONS}
+            selectedRegionIds={selectedRegionIds}
+            canonicalParam={canonicalParam}
+          />
+        )}
       </Suspense>
 
-      <a href="#suitability-heading" className={s.cropToolHint}>
-        <Icon icon={Sprout} size="sm" />
-        작물 적합성도 확인하기 ↓
-      </a>
+      {!isV2 && (
+        <a href="#suitability-heading" className={s.cropToolHint}>
+          <Icon icon={Sprout} size="sm" />
+          작물 적합성도 확인하기 ↓
+        </a>
+      )}
 
       {hasSelection ? (
-        <Suspense fallback={<CompareDataSkeleton />}>
-          <CompareDataSection
-            regions={regions}
-            selectedCropId={selectedCropId}
-            year={year}
-          />
-        </Suspense>
+        <>
+          {isV2 && <CompareTabs />}
+          <Suspense fallback={<CompareDataSkeleton />}>
+            <CompareDataSection
+              regions={regions}
+              selectedCropId={selectedCropId}
+              year={year}
+            />
+          </Suspense>
+        </>
       ) : (
         <div className={s.emptyState}>
           <p className={s.emptyStateText}>

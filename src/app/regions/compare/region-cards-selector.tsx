@@ -31,10 +31,9 @@ interface Props {
 }
 
 /**
- * 2026-05-12 v2 prototype:
- * - 상단 검색 input 하나 (시도+시군구 통합)
- * - 그 아래 3개 카드 그리드 — 빈 카드(+placeholder) / 채워진 카드(이미지+시도+시군구 select)
- * - 카드 자체가 selector + viewer 통합. 시도 chip grid 별도 노출 X.
+ * v2 prototype — `?v2=1` query 분기로 활성화.
+ * - 상단 검색 input 1개 (시도+시군구 통합)
+ * - 그 아래 3개 카드 그리드 — 카드 자체가 selector + viewer (이미지+select)
  */
 export function RegionCardsSelector({ selectedRegionIds }: Props) {
   const router = useRouter();
@@ -61,7 +60,6 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
     return map;
   }, []);
 
-  // 검색 인덱스 — 시도 17개 + 시군구 229개
   const searchIndex = useMemo<SearchResult[]>(() => {
     const items: SearchResult[] = [];
     for (const p of PROVINCES) {
@@ -90,30 +88,23 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
 
   const trimmedQuery = query.trim().replace(/\s/g, "");
   const filteredResults = useMemo<SearchResult[]>(() => {
-    if (!trimmedQuery) {
-      // 빈 검색어 — 시도 17개 우선 노출 (탐색용)
-      return searchIndex.filter((r) => r.type === "sido");
-    }
+    if (!trimmedQuery) return searchIndex.filter((r) => r.type === "sido");
     const lower = trimmedQuery.toLowerCase();
     return searchIndex
       .filter((r) => r.searchText.toLowerCase().includes(lower))
       .slice(0, 30);
   }, [searchIndex, trimmedQuery]);
 
-  // dropdown 외부 클릭 닫기
   useEffect(() => {
     if (!isFocused) return;
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (
-        !inputRef.current?.contains(target) &&
-        !dropdownRef.current?.contains(target)
-      ) {
+    const handler = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (!inputRef.current?.contains(t) && !dropdownRef.current?.contains(t)) {
         setIsFocused(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, [isFocused]);
 
   useEffect(() => setHighlightIdx(0), [trimmedQuery]);
@@ -122,6 +113,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
     (newIds: string[]) => {
       const params = new URLSearchParams(searchParams.toString());
       params.delete("stations");
+      params.set("v2", "1"); // v2 모드 유지
       if (newIds.length === 0) {
         params.delete("regions");
       } else {
@@ -130,7 +122,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
       const qs = params.toString();
       setOptimisticIds(newIds);
       startTransition(() => {
-        router.push(qs ? `/regions/compare/v2?${qs}` : "/regions/compare/v2");
+        router.push(`/regions/compare?${qs}`);
       });
     },
     [searchParams, router],
@@ -155,9 +147,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
   );
 
   const removeSlot = useCallback(
-    (id: string) => {
-      pushSelection(optimisticIds.filter((rid) => rid !== id));
-    },
+    (id: string) => pushSelection(optimisticIds.filter((rid) => rid !== id)),
     [optimisticIds, pushSelection],
   );
 
@@ -205,7 +195,6 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
   const reachedLimit = optimisticIds.length >= MAX_SELECTION;
   const showDropdown = isFocused;
 
-  // 카드 데이터
   const slots: (
     | {
         id: string;
@@ -237,7 +226,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
 
   return (
     <div className={s.wrap}>
-      {/* ---- 상단 검색 ---- */}
+      {/* 상단 검색 */}
       <div className={s.searchRow}>
         <div className={s.searchWrap}>
           <Search size={18} className={s.searchIcon} aria-hidden="true" />
@@ -281,9 +270,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
                     type="button"
                     role="option"
                     aria-selected={highlightIdx === idx}
-                    className={
-                      highlightIdx === idx ? s.dropdownItemActive : s.dropdownItem
-                    }
+                    className={highlightIdx === idx ? s.dropdownItemActive : s.dropdownItem}
                     onClick={() => {
                       addRegion(item.id);
                       setQuery("");
@@ -328,7 +315,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
         </div>
       </div>
 
-      {/* ---- 3개 카드 그리드 ---- */}
+      {/* 3개 카드 그리드 */}
       <div className={s.cards}>
         {slots.map((slot, i) => {
           if (!slot) {
