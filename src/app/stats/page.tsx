@@ -28,6 +28,9 @@ export const metadata: Metadata = {
   },
 };
 
+/** 1h ISR — 모든 통계는 정적 데이터(stats.ts) + 차트 컴포넌트. 봇 트래픽 절감 (2026-05-11) */
+export const revalidate = 3600;
+
 interface PageProps {
   searchParams: Promise<{ tab?: string }>;
 }

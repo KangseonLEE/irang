@@ -275,4 +275,36 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       ],
     },
   },
+  /* ── 2026-05-11 추가: B안 (Hobby 유지) cache pollution 차단 강화 ──
+     12h Vercel 데이터에서 cache 0%로 식별된 라우트 3종. 모두 ?tab=/?type= 의존
+     dynamic SSR이라 봇 random query 시 cache miss → Function 호출 폭증.
+     normalize 등록 → 알 수 없는 query 즉시 308 cleaned, cache pollution 차단. */
+  "/stats": {
+    // 5탭: farming, village, youth, mountain, smartfarm
+    allowedKeys: ["tab"],
+    enumValidators: {
+      tab: ["farming", "village", "youth", "mountain", "smartfarm"],
+    },
+  },
+  "/costs": {
+    // 5유형: farming, village, youth, forestry, smartfarm (CostTypeId)
+    allowedKeys: ["type"],
+    enumValidators: {
+      type: ["farming", "village", "youth", "forestry", "smartfarm"],
+    },
+  },
+  "/programs/roadmap": {
+    // 5대 정부사업 진입 가이드 탭 — gov-roadmap.ts의 GOV_PROGRAMS id와 동기화
+    // (return-farming/youth-startup/farmland-bank/forest-village/smart-farm)
+    allowedKeys: ["tab"],
+    enumValidators: {
+      tab: [
+        "return-farming",
+        "youth-startup",
+        "farmland-bank",
+        "forest-village",
+        "smart-farm",
+      ],
+    },
+  },
 };

@@ -92,6 +92,9 @@ function isValidCostType(v: string | undefined): v is CostTypeId {
   return !!v && COST_TYPES.some((t) => t.id === v);
 }
 
+/** 1h ISR — 비용 데이터는 cost-by-type.ts + landing.ts 정적 소스. 봇 트래픽 절감 (2026-05-11) */
+export const revalidate = 3600;
+
 /* ── Page ── */
 interface PageProps {
   searchParams: Promise<{ type?: string }>;

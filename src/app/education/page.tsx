@@ -61,6 +61,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/education" },
 };
 
+/** 1h ISR — 교육 과정은 Supabase + 정적 데이터 병합. next.config.ts headers와
+ *  중첩되어 Vercel function 호출까지 줄임. 봇 트래픽 절감 (2026-05-11) */
+export const revalidate = 3600;
+
 interface PageProps {
   searchParams: Promise<{
     region?: string;

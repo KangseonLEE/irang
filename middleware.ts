@@ -60,6 +60,48 @@ function isBlockedBot(ua: string): boolean {
   return BLOCKED_BOT_PATTERNS.some((re) => re.test(ua));
 }
 
+/**
+ * 봇 secret fishing path (2026-05-11 추가, B안 Hobby 유지 sprint).
+ *
+ * Cloudflare WAF가 1차 방어선이지만, middleware에서 한 번 더 차단해 Vercel
+ * Function 호출을 0으로 만든다 (defense in depth). 정상 사용자는 절대
+ * 이런 path를 요청하지 않으므로 false positive 위험 없음.
+ *
+ * 패턴은 일반적인 secret fishing/CMS abuse target. 매처가 정적 자산을 제외하므로
+ * 여기 들어오면 그냥 404 응답 후 종료.
+ */
+const FISHING_PATH_PATTERNS = [
+  /^\/\.env(?:\.|$)/i, // .env, .env.local, .env.production
+  /^\/\.git\//i, // .git/config 등
+  /^\/wp-admin\b/i,
+  /^\/wp-login\.php/i,
+  /^\/wp-config\.php/i,
+  /^\/wp-content\b/i,
+  /^\/wp-includes\b/i,
+  /^\/xmlrpc\.php/i,
+  /^\/phpmyadmin\b/i,
+  /^\/phpinfo\.php/i,
+  /^\/aws_credentials/i,
+  /^\/\.aws\//i,
+  /^\/\.ssh\//i,
+  /^\/cgi-bin\//i,
+  /^\/server-status\b/i,
+  /^\/server-info\b/i,
+  /^\/\.DS_Store$/i,
+  /^\/web\.config$/i,
+  /^\/credentials\.json$/i,
+];
+
+// .well-known/security.txt 는 정상 표준이므로 별도 화이트리스트
+const FISHING_PATH_WHITELIST = [
+  /^\/\.well-known\//i,
+];
+
+function isFishingPath(pathname: string): boolean {
+  if (FISHING_PATH_WHITELIST.some((re) => re.test(pathname))) return false;
+  return FISHING_PATH_PATTERNS.some((re) => re.test(pathname));
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const ua = request.headers.get("user-agent") || "";
@@ -71,6 +113,18 @@ export async function middleware(request: NextRequest) {
       headers: {
         "X-Robots-Tag": "noindex, nofollow",
         "Cache-Control": "no-store",
+      },
+    });
+  }
+
+  // 1-2) Secret fishing path 즉시 404 — Vercel Function 호출 차단 (2026-05-11)
+  // Cloudflare WAF 1차 방어선과 별개로 defense in depth.
+  if (isFishingPath(pathname)) {
+    return new NextResponse(null, {
+      status: 404,
+      headers: {
+        "X-Robots-Tag": "noindex, nofollow",
+        "Cache-Control": "public, max-age=86400, immutable",
       },
     });
   }
