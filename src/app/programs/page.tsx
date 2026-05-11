@@ -47,12 +47,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/programs" },
 };
 
-/* ── ISR 5분 (2026-05-11 SP-015~020 누락 사고 fix) ──
-   기존: revalidate 미설정 + cf s-maxage=3600 + cf-cache key path-only
-   → 신규 데이터 push 후 cf 캐시가 최대 4시간 stale 응답 (SP-015~020 안 보임)
-   대응: page-level ISR 300s + next.config s-maxage 600s로 단축. 신규 push 시 10분 내 노출 보장.
-   봇 트래픽은 middleware 308 normalize로 cf-cache HIT 유지. */
-export const revalidate = 300;
+/* ── /programs는 searchParams 의존 → 자동 dynamic SSR ──
+   2026-05-11 dcdf3d2: revalidate 300 추가 시도했다가 prerender NOT FOUND + 308 무한 redirect 발생.
+   ISR과 dynamic SSR 충돌로 빌드 산출물이 깨짐. revalidate 제거 + next.config.ts s-maxage 600만 유지.
+   신규 데이터 push 후 cf 캐시 stale 대응: Cloudflare 수동 purge 또는 자연 만료(10분). */
 
 interface PageProps {
   searchParams: Promise<{
