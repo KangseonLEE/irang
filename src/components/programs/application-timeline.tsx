@@ -21,11 +21,36 @@ function getDaysText(days: number): string {
   return `${days}일`;
 }
 
+const ALWAYS_OPEN = "9999-12-31";
+
 export function ApplicationTimeline({
   applicationStart,
   applicationEnd,
   status,
 }: ApplicationTimelineProps) {
+  // 9999-12-31 페어 = 상시 모집 또는 공고 발표 예정 — 일자·진행률·D-day 무의미
+  const startUnknown = !applicationStart || applicationStart === ALWAYS_OPEN;
+  const endOpen = !applicationEnd || applicationEnd === ALWAYS_OPEN;
+
+  // 상시 모집 또는 공고 발표 예정 (둘 다 9999 또는 end만 9999)
+  if (endOpen) {
+    const message = startUnknown
+      ? "공고 발표 예정 — 원문 페이지에서 확인하세요"
+      : "상시 모집 — 원문 공고에서 마감일 확인하세요";
+    return (
+      <div className={s.wrap}>
+        <div className={s.header}>
+          <Icon icon={Calendar} size="sm" />
+          <span className={s.headerLabel}>신청 기간</span>
+        </div>
+        <div className={s.info}>
+          <Icon icon={Clock} size="xs" />
+          <span>{message}</span>
+        </div>
+      </div>
+    );
+  }
+
   const now = new Date();
   now.setHours(0, 0, 0, 0);
   const start = new Date(applicationStart);

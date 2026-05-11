@@ -50,14 +50,6 @@ interface PageProps {
   }>;
 }
 
-const PERSONA_OPTIONS = ["family", "farmYouth", "elderRural", "commuter"] as const;
-const PERSONA_LABELS: Record<string, string> = {
-  family: "자녀 양육",
-  farmYouth: "농업 본업",
-  elderRural: "노년 귀촌",
-  commuter: "귀촌 직장인",
-};
-
 export default async function CropsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const currentCategory = (params.category ?? "전체") as CropCategory;
@@ -168,17 +160,6 @@ export default async function CropsPage({ searchParams }: PageProps) {
             currentValue={params.difficulty}
             currentFilters={currentFilters}
             basePath="/crops"
-          />
-        </FilterRow>
-        <FilterRow>
-          <FilterGroup
-            label="내 귀농 스타일"
-            paramKey="persona"
-            options={PERSONA_OPTIONS}
-            currentValue={params.persona}
-            currentFilters={currentFilters}
-            basePath="/crops"
-            optionLabels={PERSONA_LABELS}
           />
         </FilterRow>
       </FilterBar>
