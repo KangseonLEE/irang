@@ -41,9 +41,32 @@ export function PersonaRecommendationSection({
   ageGroup,
 }: PersonaRecommendationSectionProps) {
   const recommendedPersona = mapDemographicToPersona(ageGroup);
-  const showPersonaCta = recommendedPersona.id !== "balanced";
+  const isBalanced = recommendedPersona.id === "balanced";
 
-  if (!showPersonaCta) return null;
+  // balanced(연령 미응답·매칭 실패) → 안내 카드만 노출하고 picks는 생략
+  if (isBalanced) {
+    return (
+      <Link
+        href={`/regions/ranking?persona=balanced`}
+        className={s.personaCard}
+        title="5차원을 똑같이 보고 싶을 때 좋아요"
+      >
+        <div className={s.personaCardIcon} aria-hidden="true">
+          <Users size={20} />
+        </div>
+        <div className={s.personaCardBody}>
+          <span className={s.personaCardLabel}>당신과 어울리는 귀농 스타일</span>
+          <h3 className={s.personaCardTitle}>기본 균등</h3>
+          <p className={s.personaCardDesc}>
+            스타일을 정하지 않으셨네요. 5차원을 똑같이 보고 싶을 때 좋아요.
+          </p>
+        </div>
+        <span className={s.personaCardCta}>
+          시군구 추천 <ChevronRight size={16} />
+        </span>
+      </Link>
+    );
+  }
 
   const topDims = Object.entries(recommendedPersona.weights)
     .sort(([, a], [, b]) => b - a)
