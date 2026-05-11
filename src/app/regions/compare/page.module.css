@@ -49,6 +49,54 @@
   animation: pulse 1.5s ease-in-out infinite;
 }
 
+/* ---- Data Section Skeleton (Streaming SSR fallback) ---- */
+.dataSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.skeletonCardGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .skeletonCardGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.skeletonCard {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card, #fff);
+  min-height: 280px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@media (min-width: 640px) {
+  .skeletonCard { border-radius: 20px; }
+}
+
+.skeletonChart {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card, #fff);
+  min-height: 320px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonTable {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card, #fff);
+  min-height: 400px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
