@@ -222,8 +222,7 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-017": { commuter: 5, elderRural: 4, family: 4, farmYouth: 4 },
   // 농지은행 임대수탁 (가족·고령농 자본부담 완화 효과 큼)
   "SP-018": { family: 5, elderRural: 5, commuter: 4, farmYouth: 4 },
-  // 스마트팜 9기 (39세 이하 장기 창업교육)
-  "SP-019": { farmYouth: 5, family: 3, elderRural: 1, commuter: 2 },
+  // 2026-05-11: SP-019(스마트팜 9기)는 SP-012와 동일 사업이라 중복 제거. SP-012 항목 활용.
   // 청년농 영농정착 2차 (40세 미만 핵심)
   "SP-020": { farmYouth: 5, family: 3, elderRural: 1, commuter: 1 },
 };

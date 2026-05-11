@@ -440,27 +440,6 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     year: 2026,
   },
   {
-    id: "SP-019",
-    title: "스마트팜 청년창업 보육센터 9기 교육생 모집",
-    summary:
-      "전국 4개 스마트팜 혁신밸리에서 208명 선발. 입문이론 2개월 + 교육형 실습 6개월 + 경영형 실습 12개월의 20개월 장기 창업 교육.",
-    description:
-      "농림축산식품부가 운영하는 스마트팜 청년창업 보육 9기 교육생 모집이에요. 전국 4개 스마트팜 혁신밸리(전북 김제, 전남 고흥, 경북 상주, 경남 밀양)에서 총 208명을 선발해요. 입문이론 2개월, 교육형 실습 6개월, 경영형 실습 12개월로 구성된 20개월 장기 과정이에요. 수료 후에는 성적 우수자에게 스마트팜 혁신밸리 내 임대형 스마트팜 입주 기회가 제공돼 창업 초기 정착이 수월해요. 만 18세 이상 39세 이하 청년이 대상이고, 한국농업기술진흥원과 스마트팜코리아 누리집에서 공고와 신청서를 확인할 수 있어요.",
-    region: "전국",
-    organization: "농림축산식품부 / 한국농업기술진흥원",
-    supportType: "교육",
-    supportAmount: "20개월 장기 교육과정 (이론 2개월 + 실습 6개월 + 경영실습 12개월) + 수료자 임대 스마트팜 입주 기회",
-    eligibilityAgeMin: 18,
-    eligibilityAgeMax: 39,
-    eligibilityDetail:
-      "만 18세 이상 39세 이하 청년. 전국 4개 스마트팜 혁신밸리(김제·고흥·상주·밀양)에서 208명 선발.",
-    applicationStart: "2026-04-30",
-    applicationEnd: "2026-05-29",
-    relatedCrops: ["딸기", "토마토", "파프리카"],
-    sourceUrl: "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156758968",
-    year: 2026,
-  },
-  {
     id: "SP-020",
     title: "2026년 청년농업인 영농정착지원사업 2차 추가모집",
     summary:
