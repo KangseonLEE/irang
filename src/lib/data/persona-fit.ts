@@ -214,6 +214,18 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-011": { farmYouth: 4, family: 4, elderRural: 3, commuter: 3 },
   // 후계농 단계별 융자
   "SP-012": { family: 5, farmYouth: 5, elderRural: 2, commuter: 2 },
+  // 삼척 임대형 스마트팜 (40세 미만 청년)
+  "SP-015": { farmYouth: 5, family: 3, elderRural: 1, commuter: 1 },
+  // 영광 살아보기 (체류형, 도시민 대상)
+  "SP-016": { commuter: 5, elderRural: 5, family: 4, farmYouth: 3 },
+  // 그린대로 살아보기 hub (체류형, 모든 페르소나)
+  "SP-017": { commuter: 5, elderRural: 4, family: 4, farmYouth: 4 },
+  // 농지은행 임대수탁 (가족·고령농 자본부담 완화 효과 큼)
+  "SP-018": { family: 5, elderRural: 5, commuter: 4, farmYouth: 4 },
+  // 스마트팜 9기 (39세 이하 장기 창업교육)
+  "SP-019": { farmYouth: 5, family: 3, elderRural: 1, commuter: 2 },
+  // 청년농 영농정착 2차 (40세 미만 핵심)
+  "SP-020": { farmYouth: 5, family: 3, elderRural: 1, commuter: 1 },
 };
 
 export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
