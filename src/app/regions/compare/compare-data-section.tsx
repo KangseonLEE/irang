@@ -374,27 +374,39 @@ async function fetchInfraForRegions(
 ): Promise<RegionInfraData[]> {
   const promises = regions.map(async (region) => {
     if (region.sigungu) {
-      // 시군구 단위 — 3 API 병렬 (각 API는 SigunguData | null 반환)
-      const [popResult, medResult, schResult] = await Promise.allSettled([
-        fetchSigunguPopulationData(region.sigungu.sgisCode),
-        fetchSigunguMedicalFacilities(
-          region.station.hiraSidoCd,
-          region.sigungu.hiraSgguCd,
-        ),
-        fetchSigunguSchoolCounts(region.station.eduCode, region.sigungu.name),
-      ]);
+      // 시군구 단위 — 3 API 병렬 + 실패 시 시도 단위 폴백 (회장 발견: 일부 시군구 데이터 누락)
+      const [popResult, medResult, schResult, popFallback, medFallback, schFallback] =
+        await Promise.allSettled([
+          fetchSigunguPopulationData(region.sigungu.sgisCode),
+          fetchSigunguMedicalFacilities(
+            region.station.hiraSidoCd,
+            region.sigungu.hiraSgguCd,
+          ),
+          fetchSigunguSchoolCounts(region.station.eduCode, region.sigungu.name),
+          // 시도 단위 폴백 (시군구 fetch null 시 사용)
+          fetchPopulationData([region.station.sgisCode]),
+          fetchMedicalFacilities([region.station.hiraSidoCd]),
+          fetchSchoolCounts([region.station.eduCode]),
+        ]);
 
       const pop = popResult.status === "fulfilled" ? popResult.value : null;
       const med = medResult.status === "fulfilled" ? medResult.value : null;
       const sch = schResult.status === "fulfilled" ? schResult.value : null;
+      const popSido =
+        popFallback.status === "fulfilled" ? popFallback.value[0] ?? null : null;
+      const medSido =
+        medFallback.status === "fulfilled" ? medFallback.value[0] ?? null : null;
+      const schSido =
+        schFallback.status === "fulfilled" ? schFallback.value[0] ?? null : null;
 
       return {
         region,
-        population: pop?.population ?? null,
-        householdCount: pop?.householdCount ?? null,
-        agingRate: pop?.agingRate ?? null,
-        medicalCount: med?.totalCount ?? null,
-        schoolCount: sch?.totalCount ?? null,
+        // 시군구 우선, null이면 시도 폴백
+        population: pop?.population ?? popSido?.population ?? null,
+        householdCount: pop?.householdCount ?? popSido?.householdCount ?? null,
+        agingRate: pop?.agingRate ?? popSido?.agingRate ?? null,
+        medicalCount: med?.totalCount ?? medSido?.totalCount ?? null,
+        schoolCount: sch?.totalCount ?? schSido?.totalCount ?? null,
       };
     } else {
       // 시도 단위

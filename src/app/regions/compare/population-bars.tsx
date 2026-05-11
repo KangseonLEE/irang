@@ -117,7 +117,7 @@ function MetricBar({
             }
             cursor={{ fill: "var(--muted, #f4f4f5)", opacity: 0.4 }}
           />
-          <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={20}>
+          <Bar dataKey="value" name={category} radius={[0, 6, 6, 0]} barSize={20}>
             {chartData.map((entry) => (
               <Cell
                 key={entry.name}

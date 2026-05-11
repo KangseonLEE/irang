@@ -1,8 +1,14 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useRef, useState } from "react";
-import { X, MapPin, ChevronDown } from "lucide-react";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
+import { X, MapPin, ChevronDown, Loader2 } from "lucide-react";
 import type { Station } from "@/lib/data/stations";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
@@ -37,6 +43,7 @@ export function RegionSelector({
   const searchParams = useSearchParams();
   const [swapMessage, setSwapMessage] = useState("");
   const [openSigunguFor, setOpenSigunguFor] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pushSelection = useCallback(
@@ -49,7 +56,10 @@ export function RegionSelector({
         params.set("regions", newIds.join(","));
       }
       const qs = params.toString();
-      router.push(qs ? `/regions/compare?${qs}` : "/regions/compare");
+      // useTransition으로 navigation 동안 isPending=true → loading 표시
+      startTransition(() => {
+        router.push(qs ? `/regions/compare?${qs}` : "/regions/compare");
+      });
     },
     [searchParams, router],
   );
@@ -134,6 +144,12 @@ export function RegionSelector({
           <span className={s.titleHint}>(최대 {MAX_SELECTION}곳, 시·군·구까지)</span>
         </p>
         <div className={s.headerRight}>
+          {isPending && (
+            <span className={s.loadingHint} aria-live="polite">
+              <Loader2 size={14} className={s.spinner} aria-hidden="true" />
+              불러오는 중
+            </span>
+          )}
           <span className={s.counter} aria-live="polite">
             {selectedRegionIds.length}/{MAX_SELECTION} 선택됨
           </span>
@@ -142,6 +158,7 @@ export function RegionSelector({
               type="button"
               className={s.clearAllBtn}
               onClick={clearAll}
+              disabled={isPending}
             >
               모두 지우기
             </button>

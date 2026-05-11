@@ -75,7 +75,8 @@ function buildRegionItem(id: string): RegionItem | null {
     province,
     sigungu: null,
     station,
-    label: `${province.shortName} (${station.name} 관측소)`,
+    // 2026-05-11: 시도만 선택 시 station 이름 노출 제거 — 회장 발견 (강원=춘천 자동 특정 어색)
+    label: province.shortName,
   };
 }
 
@@ -90,7 +91,7 @@ function buildRegionItemFromStation(stnId: string): RegionItem | null {
     province,
     sigungu: null,
     station,
-    label: `${province.shortName} (${station.name} 관측소)`,
+    label: province.shortName,
   };
 }
 
