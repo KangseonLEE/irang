@@ -163,10 +163,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 2-A) /compare-preview — 미리보기 라우트는 CDN 캐시 금지
-  // 새 라우트 추가 직후 Vercel CDN이 이전 404 응답을 HIT 으로 반환하는 사고 방지.
-  // 시안 단계라 SEO 무관, 매번 fresh fetch 우선.
-  if (pathname === "/compare-preview" || pathname.startsWith("/compare-preview/")) {
+  // 2-A) /regions/compare/v2 — 미리보기 라우트 CDN 캐시 금지 (시안 단계, SEO 무관)
+  if (pathname === "/regions/compare/v2" || pathname.startsWith("/regions/compare/v2/")) {
     const res = NextResponse.next();
     res.headers.set("Cache-Control", "private, no-store, max-age=0");
     res.headers.set("CDN-Cache-Control", "no-store");

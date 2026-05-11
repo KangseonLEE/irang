@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import {
   useCallback,
   useEffect,
@@ -9,10 +10,10 @@ import {
   useState,
   useTransition,
 } from "react";
-import { X, Search, Plus, MapPin, Loader2, ChevronDown } from "lucide-react";
+import { Search, Plus, X, MapPin, ChevronDown, Loader2 } from "lucide-react";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
-import s from "./region-selector-v2.module.css";
+import s from "./region-cards-selector.module.css";
 
 const MAX_SELECTION = 3;
 
@@ -25,17 +26,17 @@ interface SearchResult {
   sigunguName?: string;
 }
 
-interface RegionSelectorV2Props {
+interface Props {
   selectedRegionIds: string[];
 }
 
 /**
- * 2026-05-12 Preview UI:
- * - 상단 검색 input + 17개 시·도 chip 그리드 병행
- * - 슬롯 3개 (가로 분할) — 빈 슬롯은 + placeholder, 채워진 슬롯은 시도 + 시군구 select
- * - 슬롯 안의 select로 시군구 정제. 시도 단위(전체)로 돌릴 수도 있음.
+ * 2026-05-12 v2 prototype:
+ * - 상단 검색 input 하나 (시도+시군구 통합)
+ * - 그 아래 3개 카드 그리드 — 빈 카드(+placeholder) / 채워진 카드(이미지+시도+시군구 select)
+ * - 카드 자체가 selector + viewer 통합. 시도 chip grid 별도 노출 X.
  */
-export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
+export function RegionCardsSelector({ selectedRegionIds }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -89,11 +90,14 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
 
   const trimmedQuery = query.trim().replace(/\s/g, "");
   const filteredResults = useMemo<SearchResult[]>(() => {
-    if (!trimmedQuery) return [];
+    if (!trimmedQuery) {
+      // 빈 검색어 — 시도 17개 우선 노출 (탐색용)
+      return searchIndex.filter((r) => r.type === "sido");
+    }
     const lower = trimmedQuery.toLowerCase();
     return searchIndex
       .filter((r) => r.searchText.toLowerCase().includes(lower))
-      .slice(0, 20);
+      .slice(0, 30);
   }, [searchIndex, trimmedQuery]);
 
   // dropdown 외부 클릭 닫기
@@ -112,9 +116,7 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isFocused]);
 
-  useEffect(() => {
-    setHighlightIdx(0);
-  }, [trimmedQuery]);
+  useEffect(() => setHighlightIdx(0), [trimmedQuery]);
 
   const pushSelection = useCallback(
     (newIds: string[]) => {
@@ -128,13 +130,12 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
       const qs = params.toString();
       setOptimisticIds(newIds);
       startTransition(() => {
-        router.push(qs ? `/compare-preview?${qs}` : "/compare-preview");
+        router.push(qs ? `/regions/compare/v2?${qs}` : "/regions/compare/v2");
       });
     },
     [searchParams, router],
   );
 
-  /** 시도 단위로 토글 (chip 그리드 + 검색 결과 공용) */
   const addRegion = useCallback(
     (id: string) => {
       const provinceId = id.split(":")[0];
@@ -142,8 +143,7 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
         (rid) => rid === provinceId || rid.startsWith(`${provinceId}:`),
       );
       if (existingIdx >= 0) {
-        // 이미 선택 → 입력값으로 swap (시군구 → 시도 등)
-        if (optimisticIds[existingIdx] === id) return; // 같은 것 무시
+        if (optimisticIds[existingIdx] === id) return;
         const newIds = [...optimisticIds];
         newIds[existingIdx] = id;
         pushSelection(newIds);
@@ -161,7 +161,6 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
     [optimisticIds, pushSelection],
   );
 
-  /** 슬롯 내 시군구 변경 — provinceId에 sigungu drilldown 또는 전체로 복귀 */
   const changeSlotSigungu = useCallback(
     (slotId: string, sigunguId: string | "") => {
       const provinceId = slotId.split(":")[0];
@@ -175,9 +174,7 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
     [optimisticIds, pushSelection],
   );
 
-  const clearAll = useCallback(() => {
-    pushSelection([]);
-  }, [pushSelection]);
+  const clearAll = useCallback(() => pushSelection([]), [pushSelection]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -206,14 +203,20 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
   );
 
   const reachedLimit = optimisticIds.length >= MAX_SELECTION;
-  const showDropdown = isFocused && filteredResults.length > 0;
+  const showDropdown = isFocused;
 
-  // 슬롯 데이터 — 3개 (selected display 또는 null placeholder)
-  const slots: ({ id: string; provinceId: string; provinceShortName: string; sigunguId: string | null; sigunguName?: string } | null)[] = [
-    null,
-    null,
-    null,
-  ];
+  // 카드 데이터
+  const slots: (
+    | {
+        id: string;
+        provinceId: string;
+        provinceName: string;
+        provinceShortName: string;
+        sigunguId: string | null;
+        sigunguName?: string;
+      }
+    | null
+  )[] = [null, null, null];
   optimisticIds.forEach((id, i) => {
     if (i >= MAX_SELECTION) return;
     const [provinceId, sigunguId] = id.split(":");
@@ -225,6 +228,7 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
     slots[i] = {
       id,
       provinceId,
+      provinceName: province.name,
       provinceShortName: province.shortName,
       sigunguId: sigunguId ?? null,
       sigunguName: sigungu?.name,
@@ -232,9 +236,9 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
   });
 
   return (
-    <div className={s.card} role="group" aria-label="비교할 지역 선택">
-      {/* ---- 검색 + 헤더 메타 ---- */}
-      <div className={s.topRow}>
+    <div className={s.wrap}>
+      {/* ---- 상단 검색 ---- */}
+      <div className={s.searchRow}>
         <div className={s.searchWrap}>
           <Search size={18} className={s.searchIcon} aria-hidden="true" />
           <input
@@ -244,7 +248,7 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onKeyDown={handleKeyDown}
-            placeholder="지역명으로 빠르게 찾기 (예: 순천시, 춘천)"
+            placeholder={reachedLimit ? "3곳 모두 선택했어요" : "지역명으로 빠르게 찾기 (예: 전남, 순천시, 춘천)"}
             className={s.searchInput}
             aria-label="지역 검색"
             aria-autocomplete="list"
@@ -266,6 +270,9 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
           )}
           {showDropdown && (
             <div ref={dropdownRef} className={s.dropdown} role="listbox">
+              {!trimmedQuery && (
+                <div className={s.dropdownHint}>시·도를 고르거나, 입력해서 시·군·구까지 찾아보세요</div>
+              )}
               {filteredResults.map((item, idx) => {
                 const isAlready = optimisticIds.includes(item.id);
                 return (
@@ -294,6 +301,9 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
                   </button>
                 );
               })}
+              {filteredResults.length === 0 && trimmedQuery && (
+                <div className={s.dropdownEmpty}>&ldquo;{query}&rdquo; 검색 결과 없음</div>
+              )}
             </div>
           )}
         </div>
@@ -304,9 +314,7 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
               불러오는 중
             </span>
           )}
-          <span className={s.counter}>
-            {optimisticIds.length}/{MAX_SELECTION}
-          </span>
+          <span className={s.counter}>{optimisticIds.length}/{MAX_SELECTION}</span>
           {optimisticIds.length > 0 && (
             <button
               type="button"
@@ -320,77 +328,64 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
         </div>
       </div>
 
-      {/* ---- 시·도 chip 그리드 (17개 — 큰 지역 빠른 선택용) ---- */}
-      <div className={s.sidoSection}>
-        <div className={s.sectionLabel}>큰 지역에서 빠르게 고르기</div>
-        <div className={s.sidoGrid}>
-          {PROVINCES.map((p) => {
-            const isSelected = optimisticIds.some(
-              (id) => id === p.id || id.startsWith(`${p.id}:`),
-            );
+      {/* ---- 3개 카드 그리드 ---- */}
+      <div className={s.cards}>
+        {slots.map((slot, i) => {
+          if (!slot) {
             return (
               <button
-                key={p.id}
+                key={`empty-${i}`}
                 type="button"
-                onClick={() => addRegion(p.id)}
-                className={isSelected ? s.sidoChipSelected : s.sidoChip}
-                aria-pressed={isSelected}
-                disabled={!isSelected && reachedLimit}
+                className={s.cardEmpty}
+                onClick={() => {
+                  inputRef.current?.focus();
+                  setIsFocused(true);
+                }}
+                aria-label={`${i + 1}번째 슬롯에 지역 추가`}
+                disabled={isPending}
               >
-                {p.shortName}
+                <span className={s.cardIndex}>{i + 1}</span>
+                <div className={s.cardEmptyIcon}>
+                  <Plus size={36} aria-hidden="true" />
+                </div>
+                <span className={s.cardEmptyText}>지역 추가</span>
+                <span className={s.cardEmptyHint}>위에서 검색해서 골라보세요</span>
               </button>
             );
-          })}
-        </div>
-      </div>
-
-      {/* ---- 슬롯 3개 ---- */}
-      <div className={s.slotsSection}>
-        <div className={s.sectionLabel}>비교 슬롯 (최대 3곳)</div>
-        <div className={s.slots}>
-          {slots.map((slot, i) => {
-            if (!slot) {
-              return (
-                <button
-                  key={`empty-${i}`}
-                  type="button"
-                  className={s.slotEmpty}
-                  onClick={() => {
-                    inputRef.current?.focus();
-                    setIsFocused(true);
-                  }}
-                  aria-label={`${i + 1}번째 슬롯에 지역 추가`}
-                  disabled={isPending}
-                >
-                  <div className={s.slotEmptyIcon}>
-                    <Plus size={28} aria-hidden="true" />
-                  </div>
-                  <span className={s.slotEmptyText}>지역 추가</span>
-                  <span className={s.slotIndexBadge}>{i + 1}</span>
-                </button>
-              );
-            }
-            const sigungus = sigungusByProvince.get(slot.provinceId) ?? [];
-            return (
-              <div key={slot.id} className={s.slotFilled}>
-                <span className={s.slotIndexBadge}>{i + 1}</span>
-                <button
-                  type="button"
-                  className={s.slotRemoveBtn}
-                  onClick={() => removeSlot(slot.id)}
-                  aria-label={`${slot.provinceShortName} 해제`}
-                  disabled={isPending}
-                >
-                  <X size={16} aria-hidden="true" />
-                </button>
-                <div className={s.slotPin}>
-                  <MapPin size={20} aria-hidden="true" />
+          }
+          const sigungus = sigungusByProvince.get(slot.provinceId) ?? [];
+          return (
+            <div key={slot.id} className={s.cardFilled}>
+              <span className={s.cardIndex}>{i + 1}</span>
+              <button
+                type="button"
+                className={s.cardRemoveBtn}
+                onClick={() => removeSlot(slot.id)}
+                aria-label={`${slot.provinceShortName} 해제`}
+                disabled={isPending}
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+              <div className={s.cardImageWrap}>
+                <Image
+                  src={`/images/regions/${slot.provinceId}.png`}
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className={s.cardImage}
+                  priority={i === 0}
+                />
+              </div>
+              <div className={s.cardBody}>
+                <div className={s.cardProvinceTop}>
+                  <MapPin size={14} aria-hidden="true" />
+                  <span>{slot.provinceName}</span>
                 </div>
-                <div className={s.slotProvince}>{slot.provinceShortName}</div>
+                <div className={s.cardProvinceMain}>{slot.provinceShortName}</div>
                 {sigungus.length > 0 && (
-                  <div className={s.slotSelectWrap}>
+                  <div className={s.cardSelectWrap}>
                     <select
-                      className={s.slotSelect}
+                      className={s.cardSelect}
                       value={slot.sigunguId ?? ""}
                       onChange={(e) => changeSlotSigungu(slot.id, e.target.value)}
                       aria-label={`${slot.provinceShortName} 시·군·구 선택`}
@@ -403,13 +398,13 @@ export function RegionSelectorV2({ selectedRegionIds }: RegionSelectorV2Props) {
                         </option>
                       ))}
                     </select>
-                    <ChevronDown size={14} className={s.slotSelectIcon} aria-hidden="true" />
+                    <ChevronDown size={14} className={s.cardSelectIcon} aria-hidden="true" />
                   </div>
                 )}
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

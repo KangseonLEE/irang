@@ -10,10 +10,6 @@ const TABS = [
   { id: "suitability-heading", label: "작물 적합성", icon: Sprout },
 ] as const;
 
-/**
- * 비교 데이터 섹션 위 sticky 탭 — 클릭 시 anchor scroll.
- * 페이지 스크롤 위치 따라 active 탭 시각화.
- */
 export function CompareTabs() {
   const [activeId, setActiveId] = useState<string>(TABS[0].id);
 
@@ -22,15 +18,10 @@ export function CompareTabs() {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-          }
+          if (entry.isIntersecting) setActiveId(entry.target.id);
         }
       },
-      {
-        rootMargin: "-120px 0px -60% 0px",
-        threshold: [0, 0.25],
-      },
+      { rootMargin: "-120px 0px -60% 0px", threshold: [0, 0.25] },
     );
     for (const tab of TABS) {
       const el = document.getElementById(tab.id);

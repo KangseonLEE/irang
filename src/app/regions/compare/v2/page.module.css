@@ -49,14 +49,12 @@
 }
 
 @media (hover: hover) {
-  .backLink:hover {
-    color: var(--foreground);
-  }
+  .backLink:hover { color: var(--foreground); }
 }
 
 .selectorSkeleton {
-  min-height: 320px;
-  border-radius: 20px;
+  min-height: 360px;
+  border-radius: 18px;
   background: var(--muted, #f9fafb);
   animation: pulse 1.5s ease-in-out infinite;
 }

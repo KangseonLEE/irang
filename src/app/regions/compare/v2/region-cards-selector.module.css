@@ -1,25 +1,23 @@
 /* ==========================================================================
-   RegionSelectorV2 — 검색 + 시도 chip + 슬롯 3개 (시군구 select 내장)
+   RegionCardsSelector — 검색 1개 + 카드 3개 통합 (v2 prototype)
    ========================================================================== */
 
-.card {
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
-  background: var(--card, #fff);
-  padding: 20px 24px;
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* ---- 상단 row: 검색 input + meta ---- */
-.topRow {
+/* ---- 상단 검색 row ---- */
+.searchRow {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 12px;
   align-items: center;
-  margin-bottom: 20px;
 }
 
 @media (max-width: 639px) {
-  .topRow {
+  .searchRow {
     grid-template-columns: 1fr;
   }
 }
@@ -41,12 +39,13 @@
   width: 100%;
   font-family: inherit;
   font-size: var(--fs-body);
-  padding: 12px 36px 12px 42px;
+  padding: 13px 36px 13px 44px;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
-  background: var(--muted, #f9fafb);
+  border-radius: 14px;
+  background: var(--card, #fff);
   color: var(--foreground);
-  transition: border-color 0.15s, background-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .searchInput::placeholder {
@@ -56,7 +55,7 @@
 .searchInput:focus {
   outline: none;
   border-color: var(--primary, #1b6b5a);
-  background: var(--card, #fff);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
 }
 
 .searchInput:disabled {
@@ -147,27 +146,41 @@
 /* ---- 검색 dropdown ---- */
 .dropdown {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
   z-index: 50;
   display: flex;
   flex-direction: column;
-  max-height: 340px;
+  max-height: 360px;
   overflow-y: auto;
-  padding: 6px;
+  padding: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
+  border-radius: 14px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  animation: fadeIn 0.12s ease-out;
 }
 
-.dropdownItem {
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dropdownHint {
+  padding: 8px 12px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  margin-bottom: 4px;
+}
+
+.dropdownItem,
+.dropdownItemActive {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 9px 12px;
+  padding: 10px 12px;
   font-family: inherit;
   font-size: var(--fs-body-sm);
   color: var(--foreground);
@@ -176,10 +189,10 @@
   border-radius: 8px;
   text-align: left;
   cursor: pointer;
+  transition: background-color 0.12s;
 }
 
 .dropdownItemActive {
-  composes: dropdownItem;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
 }
 
@@ -199,6 +212,7 @@
   padding: 2px 8px;
   background: var(--muted, #f9fafb);
   border-radius: 9999px;
+  flex-shrink: 0;
 }
 
 .dropdownItemBadge {
@@ -208,299 +222,214 @@
   padding: 2px 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   border-radius: 9999px;
+  flex-shrink: 0;
 }
 
-/* ---- 섹션 라벨 (공통) ---- */
-.sectionLabel {
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--muted-foreground);
-  margin-bottom: 10px;
-  letter-spacing: -0.01em;
-}
-
-/* ---- 시도 chip 그리드 (17개) ---- */
-.sidoSection {
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px dashed var(--border, #e5e7eb);
-}
-
-.sidoGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 8px;
-}
-
-.sidoChip,
-.sidoChipSelected {
-  font-family: inherit;
+.dropdownEmpty {
+  padding: 16px 12px;
   font-size: var(--fs-body-sm);
-  font-weight: 500;
-  padding: 8px 14px;
-  min-height: 36px;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 0.15s, color 0.15s;
-}
-
-.sidoChip {
-  background: var(--muted, #f9fafb);
   color: var(--muted-foreground);
+  text-align: center;
 }
 
-@media (hover: hover) {
-  .sidoChip:hover {
-    background: color-mix(in srgb, var(--muted, #f9fafb) 70%, transparent);
-    color: var(--foreground);
-  }
-}
-
-.sidoChipSelected {
-  background: var(--primary, #1b6b5a);
-  color: var(--primary-foreground, #fff);
-}
-
-@media (hover: hover) {
-  .sidoChipSelected:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, black);
-  }
-}
-
-.sidoChip:disabled,
-.sidoChipSelected:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.sidoChip:focus-visible,
-.sidoChipSelected:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
-}
-
-/* ---- 슬롯 3개 ---- */
-.slotsSection {
-  /* nothing extra */
-}
-
-.slots {
+/* ---- 3개 카드 그리드 ---- */
+.cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 14px;
 }
 
 @media (max-width: 768px) {
-  .slots {
+  .cards {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 10px;
   }
 }
 
-/* ---- 빈 슬롯 ---- */
-.slotEmpty {
+/* ---- 빈 카드 ---- */
+.cardEmpty {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 160px;
-  padding: 24px 16px;
+  gap: 10px;
+  min-height: 280px;
+  padding: 24px;
   font-family: inherit;
   background: var(--muted, #f9fafb);
   border: 2px dashed color-mix(in srgb, var(--primary, #1b6b5a) 22%, var(--border, #e5e7eb));
-  border-radius: 16px;
+  border-radius: 18px;
   color: var(--muted-foreground);
   cursor: pointer;
   transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
 @media (max-width: 768px) {
-  .slotEmpty {
-    min-height: 80px;
-    flex-direction: row;
-    gap: 14px;
+  .cardEmpty {
+    min-height: 120px;
   }
 }
 
 @media (hover: hover) {
-  .slotEmpty:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--muted, #f9fafb));
+  .cardEmpty:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, var(--muted, #f9fafb));
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, transparent);
     color: var(--primary, #1b6b5a);
   }
 }
 
-.slotEmpty:disabled {
+.cardEmpty:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.slotEmptyIcon {
+.cardEmptyIcon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
 }
 
-@media (max-width: 768px) {
-  .slotEmptyIcon {
-    width: 36px;
-    height: 36px;
-  }
+.cardEmptyText {
+  font-size: var(--fs-body);
+  font-weight: 600;
 }
 
-.slotEmptyText {
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
+.cardEmptyHint {
+  font-size: var(--fs-caption);
+  font-weight: 400;
+  color: var(--muted-foreground);
 }
 
-/* ---- 채워진 슬롯 ---- */
-.slotFilled {
+/* ---- 채워진 카드 ---- */
+.cardFilled {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  min-height: 160px;
-  padding: 24px 16px 16px;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--primary, #1b6b5a) 7%, var(--card, #fff)) 0%,
-    var(--card, #fff) 100%
-  );
-  border: 1.5px solid color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent);
-  border-radius: 16px;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  background: var(--card, #fff);
+  border: 1.5px solid color-mix(in srgb, var(--primary, #1b6b5a) 22%, transparent);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
 }
 
-@media (max-width: 768px) {
-  .slotFilled {
-    min-height: 80px;
-    flex-direction: row;
-    padding: 14px 14px 14px 40px;
-    align-items: center;
-    gap: 12px;
-  }
-}
-
-.slotIndexBadge {
+.cardIndex {
   position: absolute;
   top: 10px;
   left: 12px;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   font-size: var(--fs-caption);
   font-weight: 700;
   color: var(--card, #fff);
   background: var(--primary, #1b6b5a);
   border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-.slotRemoveBtn {
+.cardRemoveBtn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--card, #fff);
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 50%;
   color: var(--muted-foreground);
   cursor: pointer;
+  backdrop-filter: blur(4px);
 }
 
 @media (hover: hover) {
-  .slotRemoveBtn:hover {
-    background: color-mix(in srgb, #ef4444 8%, transparent);
+  .cardRemoveBtn:hover {
+    background: #fff;
     border-color: color-mix(in srgb, #ef4444 40%, transparent);
     color: #ef4444;
   }
 }
 
-.slotRemoveBtn:disabled {
+.cardRemoveBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.slotPin {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
-  color: var(--primary, #1b6b5a);
-}
-
-@media (max-width: 768px) {
-  .slotPin {
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
-  }
-}
-
-.slotProvince {
-  font-size: var(--fs-h4);
-  font-weight: 700;
-  color: var(--foreground);
-}
-
-/* ---- 슬롯 내 시군구 select ---- */
-.slotSelectWrap {
+.cardImageWrap {
   position: relative;
   width: 100%;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(180deg, #d1e7df 0%, #f3f4f6 100%);
+}
+
+.cardImage {
+  object-fit: cover;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px 16px;
+}
+
+.cardProvinceTop {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+}
+
+.cardProvinceMain {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--foreground);
+  letter-spacing: -0.02em;
+}
+
+.cardSelectWrap {
+  position: relative;
   margin-top: 4px;
 }
 
-@media (max-width: 768px) {
-  .slotSelectWrap {
-    flex: 1;
-    margin-top: 0;
-  }
-}
-
-.slotSelect {
+.cardSelect {
   width: 100%;
   font-family: inherit;
   font-size: var(--fs-body-sm);
-  padding: 8px 32px 8px 12px;
-  background: var(--card, #fff);
+  padding: 9px 32px 9px 12px;
+  background: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 10px;
   color: var(--foreground);
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  -moz-appearance: none;
 }
 
-.slotSelect:focus {
+.cardSelect:focus {
   outline: none;
   border-color: var(--primary, #1b6b5a);
 }
 
-.slotSelect:disabled {
+.cardSelect:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.slotSelectIcon {
+.cardSelectIcon {
   position: absolute;
   right: 10px;
   top: 50%;

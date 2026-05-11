@@ -6,17 +6,17 @@ import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { DesktopHint } from "@/components/ui/desktop-hint";
-import { CompareDataSection } from "../regions/compare/compare-data-section";
-import { CompareDataSkeleton } from "../regions/compare/compare-data-skeleton";
-import { parseRegions } from "../regions/compare/region-item";
-import { RegionSelectorV2 } from "./region-selector-v2";
+import { CompareDataSection } from "../compare-data-section";
+import { CompareDataSkeleton } from "../compare-data-skeleton";
+import { parseRegions } from "../region-item";
+import { RegionCardsSelector } from "./region-cards-selector";
 import { CompareTabs } from "./compare-tabs";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "[미리보기] 지역 비교 — 슬롯 + 탭 UI",
-  description: "지역 비교 페이지 미리보기 (검색 + 시도 chip + 슬롯 + 탭).",
-  alternates: { canonical: "/compare-preview" },
+  title: "[미리보기 v2] 지역 비교 — 카드 + 검색 + 탭",
+  description: "지역 비교 v2 시안 (검색 1개 + 카드 통합 + 탭).",
+  alternates: { canonical: "/regions/compare/v2" },
   robots: { index: false, follow: false },
 };
 
@@ -28,7 +28,7 @@ interface PageProps {
   }>;
 }
 
-export default async function ComparePreviewPage({ searchParams }: PageProps) {
+export default async function CompareV2Page({ searchParams }: PageProps) {
   const params = await searchParams;
   const regions = parseRegions(params);
   const selectedCropId = params.crop ?? null;
@@ -41,14 +41,17 @@ export default async function ComparePreviewPage({ searchParams }: PageProps) {
       <BreadcrumbJsonLd
         items={[
           { name: "지역 탐색", href: "/regions" },
-          { name: "지역 비교 (미리보기)", href: "/compare-preview" },
+          { name: "지역 비교 v2", href: "/regions/compare/v2" },
         ]}
       />
       <DesktopHint message="지역 비교는 넓은 화면에서 더 잘 보여요" />
 
       <div className={s.previewBanner}>
-        <span className={s.previewBadge}>미리보기</span>
-        <span>슬롯 + 검색 + 시도 chip + 탭 UI 시안이에요. 정식 페이지는 <Link href="/regions/compare" className={s.previewLink}>/regions/compare</Link>.</span>
+        <span className={s.previewBadge}>v2 미리보기</span>
+        <span>
+          검색 1개 + 카드 통합 + 탭 시안이에요. 정식 페이지는{" "}
+          <Link href="/regions/compare" className={s.previewLink}>/regions/compare</Link>.
+        </span>
       </div>
 
       <Link href="/regions" className={s.backLink}>
@@ -57,21 +60,15 @@ export default async function ComparePreviewPage({ searchParams }: PageProps) {
 
       <PageHeader
         icon={<Icon icon={MapPin} size="md" />}
-        label="Region Compare · Preview"
-        title="지역 비교 (미리보기)"
-        description={`${year}년 데이터로 지역 3곳을 나란히 비교해요. 큰 지역은 chip으로, 작은 시·군·구는 검색으로 찾으세요.`}
+        label="Region Compare · v2"
+        title="지역 비교 (v2)"
+        description={`${year}년 데이터로 지역 3곳을 카드로 비교해요. 위에서 검색하거나, 카드에서 시·군·구를 좁혀보세요.`}
       />
 
       <Suspense
-        fallback={
-          <div
-            className={s.selectorSkeleton}
-            aria-busy="true"
-            aria-label="지역 선택 로딩 중"
-          />
-        }
+        fallback={<div className={s.selectorSkeleton} aria-busy="true" />}
       >
-        <RegionSelectorV2 selectedRegionIds={selectedRegionIds} />
+        <RegionCardsSelector selectedRegionIds={selectedRegionIds} />
       </Suspense>
 
       {hasSelection ? (
@@ -88,7 +85,7 @@ export default async function ComparePreviewPage({ searchParams }: PageProps) {
       ) : (
         <div className={s.emptyState}>
           <p className={s.emptyStateText}>
-            위에서 비교할 지역을 골라 주세요. 검색 또는 시·도 칩에서 시작할 수 있어요.
+            위에서 지역을 검색하거나, 카드의 + 버튼을 눌러 추가해 보세요.
           </p>
         </div>
       )}
