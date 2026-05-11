@@ -1,0 +1,66 @@
+name: E2E critical paths
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "테스트할 baseURL (기본: https://irangfarm.com)"
+        required: false
+        default: "https://irangfarm.com"
+
+# 동일 ref에서 중복 실행 방지 (push가 연이어 들어오는 경우)
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Playwright (chromium desktop + mobile)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # workflow_dispatch input이 우선, 그 외에는 prod
+      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || 'https://irangfarm.com' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait for Vercel deploy to propagate (only on push/PR)
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        # Vercel 자동 배포(보통 60~120s) + CF purge workflow 완료 대기. 안전 마진 150s.
+        run: sleep 150
+
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Upload trace + screenshots (test-results)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results/
+          retention-days: 7
