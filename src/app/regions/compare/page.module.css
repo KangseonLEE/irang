@@ -49,6 +49,95 @@
   animation: pulse 1.5s ease-in-out infinite;
 }
 
+/* ---- 기후 비교 데스크탑 2단 grid (2026-05-11 회장 요청) ---- */
+.climateCompareGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 1024px) {
+  .climateCompareGrid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+}
+
+.climateInsightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---- 한눈에 보는 비교 카드 (insights) ---- */
+.insightsCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+}
+
+@media (min-width: 640px) {
+  .insightsCard { padding: 20px 22px; gap: 14px; }
+}
+
+.insightsTitle {
+  font-size: var(--fs-body, 15px);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.insightsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.insightItem {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  row-gap: 2px;
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+  border-radius: 10px;
+}
+
+.insightLabel {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: var(--fs-caption, 13px);
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.insightRegion {
+  grid-column: 1;
+  grid-row: 2;
+  font-size: var(--fs-body-sm, 14px);
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.insightValue {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-size: var(--fs-body-sm, 14px);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  white-space: nowrap;
+}
+
 /* ---- Data Section Skeleton (Streaming SSR fallback) ---- */
 .dataSkeleton {
   display: flex;

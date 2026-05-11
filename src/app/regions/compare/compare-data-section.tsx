@@ -108,52 +108,55 @@ export async function CompareDataSection({
         </div>
       </section>
 
-      {/* 기후 레이더 차트 */}
+      {/* 기후 비교 + 인사이트 (데스크탑 2단 grid) */}
       {regions.length >= 2 && (
-        <section
-          className={s.chartSection}
-          aria-labelledby="climate-chart-heading"
-        >
-          <h2 id="climate-chart-heading" className={s.chartSectionTitle}>
-            기후 비교
-          </h2>
-          <LazyClimateRadar
-            data={regions
-              .map((region) => {
-                const climate = climateByStation.get(region.station.stnId);
-                if (!climate) return null;
-                return {
-                  stationName: climate.stnName,
-                  provinceName: region.sigungu
-                    ? `${region.province.shortName} ${region.sigungu.shortName}`
-                    : region.province.shortName,
-                  avgTemp: climate.avgTemp,
-                  maxTemp: climate.maxTemp,
-                  minTemp: climate.minTemp,
-                  totalPrecipitation: climate.totalPrecipitation,
-                  totalSunshine: climate.totalSunshine,
-                  avgHumidity: climate.avgHumidity,
-                };
-              })
-              .filter((d): d is NonNullable<typeof d> => d !== null)}
-          />
-        </section>
-      )}
+        <div className={s.climateCompareGrid}>
+          <section
+            className={s.chartSection}
+            aria-labelledby="climate-chart-heading"
+          >
+            <h2 id="climate-chart-heading" className={s.chartSectionTitle}>
+              기후 비교
+            </h2>
+            <LazyClimateRadar
+              data={regions
+                .map((region) => {
+                  const climate = climateByStation.get(region.station.stnId);
+                  if (!climate) return null;
+                  return {
+                    stationName: climate.stnName,
+                    provinceName: region.sigungu
+                      ? `${region.province.shortName} ${region.sigungu.shortName}`
+                      : region.province.shortName,
+                    avgTemp: climate.avgTemp,
+                    maxTemp: climate.maxTemp,
+                    minTemp: climate.minTemp,
+                    totalPrecipitation: climate.totalPrecipitation,
+                    totalSunshine: climate.totalSunshine,
+                    avgHumidity: climate.avgHumidity,
+                  };
+                })
+                .filter((d): d is NonNullable<typeof d> => d !== null)}
+            />
+          </section>
 
-      {/* 한줄 요약 */}
-      {regions.length >= 2 && (
-        <section
-          aria-labelledby="onesummary-heading"
-          className={s.oneSummaryCard}
-        >
-          <h2 id="onesummary-heading" className={s.oneSummaryTitle}>
-            <Icon icon={Lightbulb} size="md" />
-            한줄 요약
-          </h2>
-          <p className={s.oneSummaryText}>
-            {buildRegionSummary(regions, climateByStation)}
-          </p>
-        </section>
+          {/* 우측 컬럼 — 한줄 요약 + 데이터 인사이트 카드 (데스크탑 2단의 오른쪽) */}
+          <div className={s.climateInsightCol}>
+            <section
+              aria-labelledby="onesummary-heading"
+              className={s.oneSummaryCard}
+            >
+              <h2 id="onesummary-heading" className={s.oneSummaryTitle}>
+                <Icon icon={Lightbulb} size="md" />
+                한줄 요약
+              </h2>
+              <p className={s.oneSummaryText}>
+                {buildRegionSummary(regions, climateByStation)}
+              </p>
+            </section>
+            <ClimateInsights regions={regions} climateByStation={climateByStation} />
+          </div>
+        </div>
       )}
 
       {/* 생활 인프라 차트 */}
@@ -435,6 +438,80 @@ async function fetchInfraForRegions(
   });
 
   return Promise.all(promises);
+}
+
+/**
+ * 기후 인사이트 카드 — 가장 따뜻한·서늘한·강수 많은·일조 좋은 지역 highlight.
+ * 2026-05-11 회장 요청: 기후 섹션 데스크탑 2단 우측에 추가 정보 제공.
+ */
+function ClimateInsights({
+  regions,
+  climateByStation,
+}: {
+  regions: RegionItem[];
+  climateByStation: Map<string, ClimateData>;
+}) {
+  const withClimate = regions
+    .map((r) => ({ region: r, climate: climateByStation.get(r.station.stnId) }))
+    .filter((e): e is { region: RegionItem; climate: ClimateData } => !!e.climate);
+
+  if (withClimate.length < 2) return null;
+
+  const warmest = withClimate.reduce((a, b) =>
+    a.climate.avgTemp > b.climate.avgTemp ? a : b,
+  );
+  const coolest = withClimate.reduce((a, b) =>
+    a.climate.avgTemp < b.climate.avgTemp ? a : b,
+  );
+  const wettest = withClimate.reduce((a, b) =>
+    a.climate.totalPrecipitation > b.climate.totalPrecipitation ? a : b,
+  );
+  const sunniest = withClimate.reduce((a, b) =>
+    a.climate.totalSunshine > b.climate.totalSunshine ? a : b,
+  );
+
+  const insights = [
+    {
+      label: "가장 따뜻한 곳",
+      region: warmest.region.label,
+      value: `평균 ${warmest.climate.avgTemp}℃`,
+    },
+    {
+      label: "가장 서늘한 곳",
+      region: coolest.region.label,
+      value: `평균 ${coolest.climate.avgTemp}℃`,
+    },
+    {
+      label: "강수량 많은 곳",
+      region: wettest.region.label,
+      value: `${wettest.climate.totalPrecipitation.toLocaleString()}mm`,
+    },
+    {
+      label: "일조 풍부한 곳",
+      region: sunniest.region.label,
+      value: `${sunniest.climate.totalSunshine.toLocaleString()}hr`,
+    },
+  ];
+
+  return (
+    <section
+      aria-labelledby="climate-insights-heading"
+      className={s.insightsCard}
+    >
+      <h3 id="climate-insights-heading" className={s.insightsTitle}>
+        한눈에 보는 비교
+      </h3>
+      <ul className={s.insightsList}>
+        {insights.map((item) => (
+          <li key={item.label} className={s.insightItem}>
+            <span className={s.insightLabel}>{item.label}</span>
+            <span className={s.insightRegion}>{item.region}</span>
+            <span className={s.insightValue}>{item.value}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
 function buildRegionSummary(
