@@ -14,6 +14,37 @@
   }
 }
 
+/* ── 메트릭별 분리 차트 (인구·의료·학교 등 스케일 다른 메트릭 그룹) ── */
+.metricGrid {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .metricGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
+.metricGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+}
+
+.metricGroupTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+  padding-bottom: 4px;
+}
+
 /* ── 커스텀 툴팁 ── */
 .tooltip {
   background: rgba(17, 17, 17, 0.92);
