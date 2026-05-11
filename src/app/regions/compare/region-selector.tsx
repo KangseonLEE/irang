@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useMemo,
+  useOptimistic,
   useRef,
   useState,
   useTransition,
@@ -46,6 +47,13 @@ export function RegionSelector({
   const [isPending, startTransition] = useTransition();
   const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // 2026-05-11: useOptimistic — chip 클릭 즉시 selected 표시.
+  // SSR 응답 (5s cold) 기다리지 않고 즉각 시각 피드백.
+  const [optimisticIds, setOptimisticIds] = useOptimistic<string[], string[]>(
+    selectedRegionIds,
+    (_, next) => next,
+  );
+
   const pushSelection = useCallback(
     (newIds: string[]) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -56,29 +64,30 @@ export function RegionSelector({
         params.set("regions", newIds.join(","));
       }
       const qs = params.toString();
-      // useTransition으로 navigation 동안 isPending=true → loading 표시
+      // startTransition 내부에서 optimistic + push 동시 실행 → 즉각 피드백
       startTransition(() => {
+        setOptimisticIds(newIds);
         router.push(qs ? `/regions/compare?${qs}` : "/regions/compare");
       });
     },
-    [searchParams, router],
+    [searchParams, router, setOptimisticIds],
   );
 
   const toggleProvince = useCallback(
     (provinceId: string) => {
-      // 현재 selectedRegionIds 중 이 provinceId로 시작하는 항목 (시도 or 시도:시군구)
-      const existingIdx = selectedRegionIds.findIndex(
+      // optimisticIds 기준 — chip 클릭 직후 연쇄 클릭도 즉각 반영
+      const existingIdx = optimisticIds.findIndex(
         (id) => id === provinceId || id.startsWith(`${provinceId}:`),
       );
 
       if (existingIdx >= 0) {
         // 이미 선택 — 해제
-        pushSelection(selectedRegionIds.filter((_, i) => i !== existingIdx));
+        pushSelection(optimisticIds.filter((_, i) => i !== existingIdx));
         setOpenSigunguFor(null);
         return;
       }
 
-      if (selectedRegionIds.length >= MAX_SELECTION) {
+      if (optimisticIds.length >= MAX_SELECTION) {
         if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
         setSwapMessage(
           `최대 ${MAX_SELECTION}곳까지 비교할 수 있어요. 먼저 하나를 해제해 주세요.`,
@@ -87,18 +96,18 @@ export function RegionSelector({
         return;
       }
 
-      pushSelection([...selectedRegionIds, provinceId]);
+      pushSelection([...optimisticIds, provinceId]);
     },
-    [selectedRegionIds, pushSelection],
+    [optimisticIds, pushSelection],
   );
 
   const selectSigungu = useCallback(
     (provinceId: string, sigunguId: string | null) => {
       const newId = sigunguId ? `${provinceId}:${sigunguId}` : provinceId;
-      const existingIdx = selectedRegionIds.findIndex(
+      const existingIdx = optimisticIds.findIndex(
         (id) => id === provinceId || id.startsWith(`${provinceId}:`),
       );
-      const newIds = [...selectedRegionIds];
+      const newIds = [...optimisticIds];
       if (existingIdx >= 0) {
         newIds[existingIdx] = newId;
       } else {
@@ -107,7 +116,7 @@ export function RegionSelector({
       pushSelection(newIds);
       setOpenSigunguFor(null);
     },
-    [selectedRegionIds, pushSelection],
+    [optimisticIds, pushSelection],
   );
 
   const clearAll = useCallback(() => {
@@ -126,8 +135,8 @@ export function RegionSelector({
     return map;
   }, []);
 
-  // 선택된 region 표시용 — provinceId + optional sigungu 메타
-  const selectedDisplays = selectedRegionIds.map((id) => {
+  // 선택된 region 표시용 — optimisticIds 기준 (즉각 반영)
+  const selectedDisplays = optimisticIds.map((id) => {
     const [provinceId, sigunguId] = id.split(":");
     const province = PROVINCES.find((p) => p.id === provinceId);
     const sigungu = sigunguId
@@ -151,9 +160,9 @@ export function RegionSelector({
             </span>
           )}
           <span className={s.counter} aria-live="polite">
-            {selectedRegionIds.length}/{MAX_SELECTION} 선택됨
+            {optimisticIds.length}/{MAX_SELECTION} 선택됨
           </span>
-          {selectedRegionIds.length > 0 && (
+          {optimisticIds.length > 0 && (
             <button
               type="button"
               className={s.clearAllBtn}
@@ -255,7 +264,7 @@ export function RegionSelector({
       {/* 시도 그리드 — 17개 시도 균등 */}
       <div className={s.provinceGrid}>
         {PROVINCES.map((province) => {
-          const isSelected = selectedRegionIds.some(
+          const isSelected = optimisticIds.some(
             (id) => id === province.id || id.startsWith(`${province.id}:`),
           );
           return (
