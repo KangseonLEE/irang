@@ -50,6 +50,14 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
     setOptimisticIds(selectedRegionIds);
   }, [selectedRegionIds]);
 
+  // 2026-05-12 race condition fix:
+  // 빠른 연속 클릭 시 React 다음 렌더 전에 두 번째 클릭이 와도 latestRef로 최신 상태 보장.
+  // useState만 쓰면 closure에 잡힌 stale optimisticIds 기반으로 동작 → 두 번째 클릭 누락.
+  const latestRef = useRef<string[]>(selectedRegionIds);
+  useEffect(() => {
+    latestRef.current = optimisticIds;
+  }, [optimisticIds]);
+
   const sigungusByProvince = useMemo(() => {
     const map = new Map<string, typeof SIGUNGUS>();
     for (const sg of SIGUNGUS) {
@@ -113,16 +121,18 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
     (newIds: string[]) => {
       const params = new URLSearchParams(searchParams.toString());
       params.delete("stations");
-      params.set("v2", "1"); // v2 모드 유지
+      params.delete("v2"); // 정식 라우트 promote — v2 query 정리
       if (newIds.length === 0) {
         params.delete("regions");
       } else {
         params.set("regions", newIds.join(","));
       }
       const qs = params.toString();
+      // race fix: ref 즉시 update + state도 set (다음 렌더용)
+      latestRef.current = newIds;
       setOptimisticIds(newIds);
       startTransition(() => {
-        router.push(`/regions/compare?${qs}`);
+        router.push(qs ? `/regions/compare?${qs}` : "/regions/compare");
       });
     },
     [searchParams, router],
@@ -130,38 +140,40 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
 
   const addRegion = useCallback(
     (id: string) => {
+      const current = latestRef.current; // 최신 상태 기반 (race 회피)
       const provinceId = id.split(":")[0];
-      const existingIdx = optimisticIds.findIndex(
+      const existingIdx = current.findIndex(
         (rid) => rid === provinceId || rid.startsWith(`${provinceId}:`),
       );
       if (existingIdx >= 0) {
-        if (optimisticIds[existingIdx] === id) return;
-        const newIds = [...optimisticIds];
+        if (current[existingIdx] === id) return;
+        const newIds = [...current];
         newIds[existingIdx] = id;
         pushSelection(newIds);
-      } else if (optimisticIds.length < MAX_SELECTION) {
-        pushSelection([...optimisticIds, id]);
+      } else if (current.length < MAX_SELECTION) {
+        pushSelection([...current, id]);
       }
     },
-    [optimisticIds, pushSelection],
+    [pushSelection],
   );
 
   const removeSlot = useCallback(
-    (id: string) => pushSelection(optimisticIds.filter((rid) => rid !== id)),
-    [optimisticIds, pushSelection],
+    (id: string) => pushSelection(latestRef.current.filter((rid) => rid !== id)),
+    [pushSelection],
   );
 
   const changeSlotSigungu = useCallback(
     (slotId: string, sigunguId: string | "") => {
+      const current = latestRef.current;
       const provinceId = slotId.split(":")[0];
       const newId = sigunguId ? `${provinceId}:${sigunguId}` : provinceId;
-      const idx = optimisticIds.indexOf(slotId);
+      const idx = current.indexOf(slotId);
       if (idx < 0) return;
-      const newIds = [...optimisticIds];
+      const newIds = [...current];
       newIds[idx] = newId;
       pushSelection(newIds);
     },
-    [optimisticIds, pushSelection],
+    [pushSelection],
   );
 
   const clearAll = useCallback(() => pushSelection([]), [pushSelection]);

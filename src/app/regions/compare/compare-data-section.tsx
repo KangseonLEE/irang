@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Lightbulb } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
@@ -573,15 +572,6 @@ function ClimateCard({
 }) {
   return (
     <article className={s.climateCard}>
-      <div className={s.cardImageWrap}>
-        <Image
-          src={`/images/regions/${region.province.id}.png`}
-          alt={`${region.province.name} 풍경 일러스트`}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          style={{ objectFit: "cover" }}
-        />
-      </div>
       <div className={s.cardBody}>
         <span className={s.cardOverline}>
           {region.province.name}

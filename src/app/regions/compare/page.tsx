@@ -2,19 +2,16 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
-import { STATIONS } from "@/lib/data/stations";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
-import { RegionSelector } from "./region-selector";
 import { RegionCardsSelector } from "./region-cards-selector";
 import { CompareTabs } from "./compare-tabs";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { DesktopHint } from "@/components/ui/desktop-hint";
 import { CompareDataSection } from "./compare-data-section";
 import { CompareDataSkeleton } from "./compare-data-skeleton";
-import { parseRegions, serializeRegions } from "./region-item";
+import { parseRegions } from "./region-item";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -30,12 +27,11 @@ interface PageProps {
     regions?: string;
     stations?: string;
     crop?: string;
-    v2?: string;
   }>;
 }
 
 /**
- * 2026-05-11 Phase C: 시군구 선택 지원 + Streaming SSR.
+ * 2026-05-12 정식 v2: 검색 1개 + 카드 selector + 탭.
  * - URL `?regions=jeonnam:suncheon-si,seoul,...` (신규)
  * - URL `?stations=108,119,259` (backward 호환)
  * - 첫 페인트는 header·selector만 즉시
@@ -47,13 +43,8 @@ export default async function RegionsPage({ searchParams }: PageProps) {
   const selectedCropId = params.crop ?? null;
   const hasSelection = regions.length > 0;
   const year = new Date().getFullYear();
-  // 2026-05-12 v2 prototype toggle — ?v2=1 (회장 시안 검토용)
-  const isV2 = params.v2 === "1";
 
-  // RegionSelector는 client component이며 region.id 배열로 전달
   const selectedRegionIds = regions.map((r) => r.id);
-  // URL 정규화 (backward `?stations=`를 받았으면 `?regions=`로 안내될 수 있도록 client에 신규 형식 전달)
-  const canonicalParam = hasSelection ? serializeRegions(regions) : "";
 
   return (
     <div className={s.page}>
@@ -89,27 +80,12 @@ export default async function RegionsPage({ searchParams }: PageProps) {
           />
         }
       >
-        {isV2 ? (
-          <RegionCardsSelector selectedRegionIds={selectedRegionIds} />
-        ) : (
-          <RegionSelector
-            stations={STATIONS}
-            selectedRegionIds={selectedRegionIds}
-            canonicalParam={canonicalParam}
-          />
-        )}
+        <RegionCardsSelector selectedRegionIds={selectedRegionIds} />
       </Suspense>
-
-      {!isV2 && (
-        <a href="#suitability-heading" className={s.cropToolHint}>
-          <Icon icon={Sprout} size="sm" />
-          작물 적합성도 확인하기 ↓
-        </a>
-      )}
 
       {hasSelection ? (
         <>
-          {isV2 && <CompareTabs />}
+          <CompareTabs />
           <Suspense fallback={<CompareDataSkeleton />}>
             <CompareDataSection
               regions={regions}
