@@ -1,0 +1,82 @@
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding: 32px 24px 96px;
+    gap: 28px;
+  }
+}
+
+.previewBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: color-mix(in srgb, #d97706 8%, transparent);
+  border: 1px solid color-mix(in srgb, #d97706 30%, transparent);
+  border-radius: 12px;
+  font-size: var(--fs-body-sm);
+  color: var(--foreground);
+}
+
+.previewBadge {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: #fff;
+  background: #d97706;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.previewLink {
+  color: var(--primary, #1b6b5a);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.backLink {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .backLink:hover {
+    color: var(--foreground);
+  }
+}
+
+.selectorSkeleton {
+  min-height: 320px;
+  border-radius: 20px;
+  background: var(--muted, #f9fafb);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.emptyState {
+  padding: 60px 20px;
+  text-align: center;
+  background: var(--muted, #f9fafb);
+  border-radius: 20px;
+  border: 1px dashed var(--border, #e5e7eb);
+}
+
+.emptyStateText {
+  font-size: var(--fs-body);
+  color: var(--muted-foreground);
+  margin: 0;
+  line-height: 1.6;
+}
