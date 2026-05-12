@@ -1,132 +1,263 @@
 /* ==========================================================================
-   CropSuitabilitySelector — 작물 적합성 검사용 작물 선택 칩
-   region-selector.module.css와 동일 패턴
+   CropSuitabilitySelector — 검색 dropdown 패턴
+   region-cards-selector 와 동일 UX (input + focus dropdown + chip)
    ========================================================================== */
 
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.title {
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  color: var(--foreground);
-  margin: 0;
-}
-
-.titleHint {
-  color: var(--muted-foreground);
-  font-weight: 400;
-}
-
-.counter {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-  flex-shrink: 0;
-}
-
-/* ---- 카테고리 그룹 (세로 행 + 가로 칩 흐름) ---- */
-.groups {
+.wrap {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.group {
-  display: grid;
-  grid-template-columns: 2.5rem 1fr; /* label 고정폭 + chips 자유 */
-  align-items: start;
-  gap: 0 8px;
+/* ---- 선택된 작물 chip ---- */
+.selectedChip {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  padding: 8px 8px 8px 14px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 24%, transparent);
+  border-radius: 999px;
+  max-width: 100%;
 }
 
-.groupLabel {
-  font-size: var(--fs-caption);
+.selectedEmoji {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.selectedName {
+  font-size: var(--fs-body-sm);
   font-weight: 700;
+  color: var(--primary, #1b6b5a);
+}
+
+.selectedMeta {
+  font-size: var(--fs-caption);
+  font-weight: 500;
   color: var(--muted-foreground);
-  flex-shrink: 0;
-  line-height: 30px; /* 첫 번째 칩 높이에 세로 정렬 */
-  /* Earthy Neutral Tint System — irang-project.md 기준 */
 }
 
-/* 카테고리별 라벨 색상 */
-.group:nth-child(1) .groupLabel { color: #6B6050; } /* 식량 */
-.group:nth-child(2) .groupLabel { color: #0F4035; } /* 채소 */
-.group:nth-child(3) .groupLabel { color: #685050; } /* 과수 */
-.group:nth-child(4) .groupLabel { color: #505465; } /* 특용 */
-
-.groupChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-/* ---- 칩 ---- */
-.chip {
+.selectedClearBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 6px 14px;
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  line-height: 1;
+  width: 24px;
+  height: 24px;
+  background: transparent;
   border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.chip:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
-}
-
-.chipDefault {
-  composes: chip;
-  background: var(--muted, #f9fafb);
+  border-radius: 50%;
   color: var(--muted-foreground);
-}
-
-.chipDefault:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s;
 }
 
 @media (hover: hover) {
-  .chipDefault:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, var(--muted, #f9fafb));
+  .selectedClearBtn:hover {
+    background: var(--card, #fff);
     color: var(--foreground);
   }
 }
 
-.chipSelected {
-  composes: chip;
-  background: var(--primary, #1b6b5a);
-  color: var(--primary-foreground, #fff);
+/* ---- 검색 input ---- */
+.searchWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.chipSelected:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 3px;
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  font-family: inherit;
+  font-size: var(--fs-body);
+  padding: 13px 36px 13px 44px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  background: var(--card, #fff);
+  color: var(--foreground);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.searchInput::placeholder {
+  color: var(--muted-foreground);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary, #1b6b5a);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+}
+
+.searchClearBtn {
+  position: absolute;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--muted-foreground);
+  cursor: pointer;
 }
 
 @media (hover: hover) {
-  .chipSelected:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, black);
+  .searchClearBtn:hover {
+    background: var(--muted, #f9fafb);
+    color: var(--foreground);
   }
 }
 
-.chipEmoji {
-  font-size: 0.875rem;
+/* ---- Dropdown ---- */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 10px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  animation: cropFadeIn 0.12s ease-out;
+}
+
+@keyframes cropFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 8px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+}
+
+.dropdownEmpty {
+  padding: 16px 12px;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+/* ---- 카테고리 그룹 ---- */
+.dropdownGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.dropdownGroup + .dropdownGroup {
+  border-top: 1px solid var(--border, #f3f4f6);
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.dropdownGroupLabel {
+  padding: 0 10px;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--muted-foreground);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.dropdownGroupItems {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+}
+
+@media (min-width: 480px) {
+  .dropdownGroupItems {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .dropdownGroupItems {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---- 작물 항목 ---- */
+.dropdownItem,
+.dropdownItemActive,
+.dropdownItemSelected {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: var(--fs-body-sm);
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--foreground);
+  transition: background-color 0.12s, border-color 0.12s;
+}
+
+.dropdownItemActive {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+}
+
+.dropdownItemSelected {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-weight: 700;
+}
+
+.dropdownItemEmoji {
+  font-size: 16px;
   line-height: 1;
+  flex-shrink: 0;
+}
+
+.dropdownItemName {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdownItemBadge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  background: var(--card, #fff);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  padding: 1px 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
 }
