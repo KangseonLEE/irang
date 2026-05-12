@@ -103,21 +103,15 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
 
   const handleSelect = useCallback(
     (cropId: string) => {
-      pushCrop(cropId);
+      // 이미 선택된 작물을 다시 클릭하면 해제 (toggle)
+      pushCrop(selectedId === cropId ? null : cropId);
       setQuery("");
       setIsFocused(false);
       setHighlightIdx(0);
       inputRef.current?.blur();
     },
-    [pushCrop],
+    [pushCrop, selectedId],
   );
-
-  const handleClear = useCallback(() => {
-    pushCrop(null);
-    setQuery("");
-    setHighlightIdx(0);
-    inputRef.current?.focus();
-  }, [pushCrop]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -144,26 +138,7 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
 
   return (
     <div className={s.wrap}>
-      {/* 선택된 작물 표시 */}
-      {selectedCrop && (
-        <div className={s.selectedChip} aria-live="polite">
-          <span className={s.selectedEmoji}>{selectedCrop.emoji}</span>
-          <span className={s.selectedName}>{selectedCrop.name}</span>
-          <span className={s.selectedMeta}>
-            {selectedCrop.category} · {selectedCrop.difficulty}
-          </span>
-          <button
-            type="button"
-            onClick={handleClear}
-            className={s.selectedClearBtn}
-            aria-label="선택한 작물 해제"
-          >
-            <X size={14} aria-hidden="true" />
-          </button>
-        </div>
-      )}
-
-      {/* 검색 input */}
+      {/* 검색 input — 선택된 작물 정보는 아래 cropSummary 카드에 노출 */}
       <div className={s.searchWrap}>
         <Sprout size={18} className={s.searchIcon} aria-hidden="true" />
         <input
