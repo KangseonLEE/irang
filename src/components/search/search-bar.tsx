@@ -812,19 +812,22 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                 </div>
               </div>
 
-              {/* 귀농 단계별 가이드 */}
+              {/* 귀농 단계별 가이드 — 카드 grid */}
               <div className={s.expandedSection}>
                 <div className={s.sectionLabel}>단계별 가이드</div>
-                <div className={s.guideStepsRow}>
+                <div className={s.guideStepsGrid}>
                   {PLAN_STEPS.map((step) => (
                     <Link
                       key={step.id}
                       href={`/guide#step${step.step}`}
-                      className={s.guideStepChip}
+                      className={s.guideStepCard}
                       onClick={handleQuickNav}
                     >
                       <span className={s.guideStepNum}>{step.step}</span>
-                      <span className={s.guideStepTitle}>{step.title}</span>
+                      <span className={s.guideStepBody}>
+                        <span className={s.guideStepTitle}>{step.title}</span>
+                        <span className={s.guideStepHint}>{step.timeline}</span>
+                      </span>
                     </Link>
                   ))}
                 </div>

@@ -141,13 +141,18 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  overflow: hidden;
+  /* 히어로 검색 dropdown 이 화면 절반 이상 차지하지 않도록 — 내부 스크롤 */
+  max-height: min(560px, 70vh);
+  overflow-y: auto;
+  overflow-x: hidden;
   z-index: var(--z-overlay);
+  /* 내부 스크롤바가 둥근 모서리를 깨지 않도록 */
+  scrollbar-gutter: stable;
 }
 
 @media (min-width: 640px) {
   .dropdown {
-    max-height: none;
+    max-height: min(640px, 75vh);
   }
 }
 
@@ -804,67 +809,79 @@
   white-space: nowrap;
 }
 
-/* ── 귀농 단계별 가이드 칩 (5/10 추가) — 가로 스크롤 ── */
-.guideStepsRow {
-  display: flex;
-  flex-wrap: nowrap;
+/* ── 귀농 단계별 가이드 (2026-05-13 redesign: chip → 카드 grid) ── */
+.guideStepsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
   padding: 4px 16px 8px;
-  margin: 0 -16px; /* 부모 padding 상쇄해 양 끝까지 스크롤 영역 확보 */
-  scroll-padding: 0 16px;
 }
 
-.guideStepsRow::-webkit-scrollbar {
-  display: none;
+@media (min-width: 640px) {
+  .guideStepsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
-.guideStepsRow > * {
-  flex-shrink: 0;
-}
-
-.guideStepChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px 8px 10px;
-  border-radius: 999px;
+.guideStepCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 12px;
+  border-radius: 12px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   text-decoration: none;
   color: var(--foreground, #111827);
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  min-width: 0;
 }
 
 .guideStepNum {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   color: var(--primary, #1b6b5a);
   font-size: 0.75rem;
   font-weight: 700;
+  margin-top: 1px;
+}
+
+.guideStepBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .guideStepTitle {
-  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  line-height: 1.35;
+  word-break: keep-all;
+}
+
+.guideStepHint {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
 }
 
 @media (hover: hover) {
-  .guideStepChip:hover {
+  .guideStepCard:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, var(--border, #e5e7eb));
     background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   }
 }
 
-.guideStepChip:focus-visible {
+.guideStepCard:focus-visible {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
 }
