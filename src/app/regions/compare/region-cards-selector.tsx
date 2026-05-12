@@ -122,7 +122,8 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
     return () => document.removeEventListener("mousedown", handler);
   }, [isFocused]);
 
-  useEffect(() => setHighlightIdx(0), [trimmedQuery]);
+  // query 변경 시 dropdown highlight 리셋은 onChange 핸들러에서 직접 처리
+  // (이전 useEffect+setState 패턴은 react-hooks/set-state-in-effect 규칙 위반)
 
   const pushSelection = useCallback(
     (newIds: string[]) => {
@@ -255,7 +256,10 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setHighlightIdx(0);
+            }}
             onFocus={() => setIsFocused(true)}
             onKeyDown={handleKeyDown}
             placeholder={reachedLimit ? "3곳 모두 골랐어요" : "지역명으로 검색해 보세요 (예: 전남, 순천시, 춘천)"}
