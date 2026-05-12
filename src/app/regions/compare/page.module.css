@@ -208,6 +208,19 @@
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
+/* ---- 기후 카드 — 데이터 일시 누락 placeholder ---- */
+.climateCardPlaceholder {
+  background: color-mix(in srgb, var(--muted, #f9fafb) 60%, transparent);
+  border-style: dashed;
+}
+
+.placeholderText {
+  margin: 8px 0 0;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  line-height: var(--lh-relaxed);
+}
+
 @media (min-width: 640px) {
   .climateCard { border-radius: 20px; }
 }

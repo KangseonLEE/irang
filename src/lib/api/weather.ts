@@ -8,6 +8,24 @@ import { FETCH_TIMEOUT } from "./_build-phase";
 
 const API_BASE = "https://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList";
 
+// 2026-05-12: ASOS API도 일시적 timeout/빈응답이 가끔 발생 (HIRA 패턴과 동일).
+// 누락 시 카드 자리가 통째 사라져 UX 깨짐 → 1회 retry로 transient 실패 회복.
+async function fetchAsosJson(url: string): Promise<unknown> {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const res = await fetch(url, {
+        next: { revalidate: 86400 },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      if (attempt === 1) throw err;
+    }
+  }
+  throw new Error("unreachable");
+}
+
 interface ASOSItem {
   stnId: string;
   stnNm: string;
@@ -64,11 +82,10 @@ export async function fetchClimateData(stnId: string): Promise<ClimateData | nul
   url.searchParams.set("numOfRows", "366");
 
   try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) }); // 24시간 캐시
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const json = await res.json();
-    const items: ASOSItem[] = json?.response?.body?.items?.item;
+    const json = (await fetchAsosJson(url.toString())) as {
+      response?: { body?: { items?: { item?: ASOSItem[] } } };
+    };
+    const items = json?.response?.body?.items?.item;
 
     if (!items || items.length === 0) return null;
 

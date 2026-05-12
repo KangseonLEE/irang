@@ -95,7 +95,9 @@ export async function CompareDataSection({
         <div className={s.climateGrid}>
           {regions.map((region) => {
             const climate = climateByStation.get(region.station.stnId);
-            if (!climate) return null;
+            if (!climate) {
+              return <ClimateCardPlaceholder key={region.id} region={region} />;
+            }
             return (
               <ClimateCard
                 key={region.id}
@@ -561,6 +563,28 @@ function buildRegionSummary(
   }
 
   return parts.join(" ");
+}
+
+function ClimateCardPlaceholder({ region }: { region: RegionItem }) {
+  return (
+    <article className={`${s.climateCard} ${s.climateCardPlaceholder}`}>
+      <div className={s.cardBody}>
+        <span className={s.cardOverline}>
+          {region.province.name}
+          {region.sigungu && ` · ${region.sigungu.name}`}
+        </span>
+        <h3 className={s.cardTitle}>
+          {region.sigungu ? region.sigungu.shortName : region.station.name}
+        </h3>
+        <hr className={s.cardDivider} />
+        <p className={s.placeholderText}>
+          기상 데이터를 일시적으로 불러오지 못했어요.
+          <br />
+          잠시 후 다시 시도해 주세요.
+        </p>
+      </div>
+    </article>
+  );
 }
 
 function ClimateCard({
