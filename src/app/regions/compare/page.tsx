@@ -68,7 +68,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
         icon={<Icon icon={MapPin} size="md" />}
         label="Region Compare"
         title="지역 비교"
-        description={`${year}년 기상 관측 데이터 기반으로 지역별 기후를 비교해요. 시·군·구까지 골라서 비교할 수 있어요.`}
+        description={`${year}년 기상 관측 데이터로 지역별 기후·인프라를 비교해요. 위에서 최대 3곳까지, 시·군·구 단위로 좁혀서 골라보세요.`}
       />
 
       <Suspense
@@ -83,7 +83,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
         <RegionCardsSelector selectedRegionIds={selectedRegionIds} />
       </Suspense>
 
-      {hasSelection ? (
+      {hasSelection && (
         <>
           <CompareTabs />
           <Suspense fallback={<CompareDataSkeleton />}>
@@ -94,14 +94,6 @@ export default async function RegionsPage({ searchParams }: PageProps) {
             />
           </Suspense>
         </>
-      ) : (
-        <div className={s.emptyState}>
-          <p className={s.emptyStateText}>
-            비교할 지역을 위에서 선택해 보세요. 최대 3곳까지 고를 수 있어요.
-            <br />
-            시·군·구까지 좁혀서 비교할 수도 있어요.
-          </p>
-        </div>
       )}
     </div>
   );

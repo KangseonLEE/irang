@@ -46,17 +46,24 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [optimisticIds, setOptimisticIds] = useState<string[]>(selectedRegionIds);
-  useEffect(() => {
-    setOptimisticIds(selectedRegionIds);
-  }, [selectedRegionIds]);
 
-  // 2026-05-12 race condition fix:
-  // 빠른 연속 클릭 시 React 다음 렌더 전에 두 번째 클릭이 와도 latestRef로 최신 상태 보장.
-  // useState만 쓰면 closure에 잡힌 stale optimisticIds 기반으로 동작 → 두 번째 클릭 누락.
+  // 2026-05-12 race fix v2:
+  // v1(latestRef만)로는 빠른 연속 클릭 시 "click 1의 stale server props가 click 2 이후 도착"하면서
+  // optimisticIds를 옛 값으로 리셋하는 사고가 남아 있었음. pendingTargetRef로 "마지막으로 push한 의도"를
+  // 기록하고, 그 값과 일치하는 server props가 올 때까지 동기화를 보류한다.
   const latestRef = useRef<string[]>(selectedRegionIds);
+  const pendingTargetRef = useRef<string | null>(null);
+
   useEffect(() => {
-    latestRef.current = optimisticIds;
-  }, [optimisticIds]);
+    const incomingKey = selectedRegionIds.join(",");
+    if (pendingTargetRef.current && pendingTargetRef.current !== incomingKey) {
+      // 더 오래된 server props가 추월해서 도착 — 무시
+      return;
+    }
+    pendingTargetRef.current = null;
+    setOptimisticIds(selectedRegionIds);
+    latestRef.current = selectedRegionIds;
+  }, [selectedRegionIds]);
 
   const sigungusByProvince = useMemo(() => {
     const map = new Map<string, typeof SIGUNGUS>();
@@ -128,8 +135,10 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
         params.set("regions", newIds.join(","));
       }
       const qs = params.toString();
-      // race fix: ref 즉시 update + state도 set (다음 렌더용)
+      // race fix v2: 의도한 최종 상태(newIds)를 pendingTargetRef로 기록.
+      // server props가 이 값과 일치할 때까지 effect의 reset이 보류된다.
       latestRef.current = newIds;
+      pendingTargetRef.current = newIds.join(",");
       setOptimisticIds(newIds);
       startTransition(() => {
         router.push(qs ? `/regions/compare?${qs}` : "/regions/compare");
@@ -249,7 +258,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onKeyDown={handleKeyDown}
-            placeholder={reachedLimit ? "3곳 모두 선택했어요" : "지역명으로 빠르게 찾기 (예: 전남, 순천시, 춘천)"}
+            placeholder={reachedLimit ? "3곳 모두 골랐어요" : "지역명으로 검색해 보세요 (예: 전남, 순천시, 춘천)"}
             className={s.searchInput}
             aria-label="지역 검색"
             aria-autocomplete="list"
@@ -348,7 +357,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
                   <Plus size={36} aria-hidden="true" />
                 </div>
                 <span className={s.cardEmptyText}>지역 추가</span>
-                <span className={s.cardEmptyHint}>위에서 검색해서 골라보세요</span>
+                <span className={s.cardEmptyHint}>검색하거나 카드를 눌러보세요</span>
               </button>
             );
           }

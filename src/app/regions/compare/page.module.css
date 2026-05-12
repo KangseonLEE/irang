@@ -34,11 +34,6 @@
   .backLink:hover { color: var(--foreground); }
 }
 
-/* ---- 작물 적합성 바로가기 (full-width 공용 subtle 버튼) ---- */
-.cropToolHint {
-  composes: subtleFull from "@/components/ui/button.module.css";
-}
-
 /* ---- Selector Skeleton ---- */
 .selectorSkeleton {
   border: 1px solid var(--border, #e5e7eb);
@@ -511,23 +506,6 @@
   font-size: var(--fs-body);
   font-weight: 700;
   color: var(--foreground, #111827);
-  margin: 0;
-}
-
-/* ---- 빈 상태 ---- */
-.emptyState {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  border-radius: 20px;
-  border: 2px dashed var(--border, #e5e7eb);
-  background: color-mix(in srgb, var(--muted, #f9fafb) 30%, transparent);
-}
-
-.emptyStateText {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
   margin: 0;
 }
 
