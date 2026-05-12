@@ -77,9 +77,13 @@ export function InterviewCarousel({ items, variant = "light" }: InterviewCarouse
     <div className={`${s.wrapper} ${variant === "dark" ? s.wrapperDark : ""}`}>
       {/* 카드 스크롤 영역 */}
       <div ref={scrollRef} className={s.scrollArea}>
-        {items.map((person) => {
+        {items.map((person, idx) => {
           const isInternal = hasFullStory(person);
           const illustration = getInterviewImageSrc(person.id);
+          // 첫 3개 카드 이미지는 priority 로 즉시 fetch — 모바일에서 인터뷰
+          // 섹션이 viewport 에 빨리 들어오는데 lazy 로 인해 늦게 나타나던
+          // 이슈(2026-05-13 회장 발견) 해결. 4번째부터는 lazy 유지.
+          const isPriority = idx < 3;
           const cardInner = (
             <>
               {illustration && (
@@ -91,6 +95,7 @@ export function InterviewCarousel({ items, variant = "light" }: InterviewCarouse
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className={s.cardImage}
                     style={{ objectFit: "cover" }}
+                    priority={isPriority}
                   />
                 </div>
               )}
