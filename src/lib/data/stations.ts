@@ -26,6 +26,8 @@ export const STATIONS: Station[] = [
   // 수도권
   { stnId: "108", name: "서울", province: "서울특별시", description: "수도권 기준점", sgisCode: "11", hiraSidoCd: "110000", eduCode: "B10" },
   { stnId: "119", name: "수원", province: "경기도", description: "경기 남부", sgisCode: "31", hiraSidoCd: "310000", eduCode: "J10" },
+  { stnId: "112", name: "인천", province: "인천광역시", description: "서해 연안 도시", sgisCode: "23", hiraSidoCd: "220000", eduCode: "E10" },
+  { stnId: "239", name: "세종", province: "세종특별자치시", description: "행정수도 도농복합", sgisCode: "29", hiraSidoCd: "290000", eduCode: "I10" },
 
   // 강원도
   { stnId: "101", name: "춘천", province: "강원도", description: "강원 내륙", sgisCode: "32", hiraSidoCd: "320000", eduCode: "R10" },
@@ -45,6 +47,8 @@ export const STATIONS: Station[] = [
 
   // 경상도
   { stnId: "143", name: "대구", province: "대구광역시", description: "경북 분지", sgisCode: "22", hiraSidoCd: "220000", eduCode: "D10" },
+  { stnId: "159", name: "부산", province: "부산광역시", description: "남부 항만 도시", sgisCode: "21", hiraSidoCd: "210000", eduCode: "C10" },
+  { stnId: "152", name: "울산", province: "울산광역시", description: "산업 도시 근교", sgisCode: "26", hiraSidoCd: "260000", eduCode: "H10" },
   { stnId: "192", name: "진주", province: "경상남도", description: "경남 내륙", sgisCode: "38", hiraSidoCd: "380000", eduCode: "T10" },
   { stnId: "289", name: "산청", province: "경상남도", description: "지리산 자락", sgisCode: "38", hiraSidoCd: "380000", eduCode: "T10" },
   { stnId: "271", name: "봉화", province: "경상북도", description: "경북 산간", sgisCode: "37", hiraSidoCd: "370000", eduCode: "S10" },
