@@ -1,3 +1,6 @@
+import { Users, Home, HeartPulse, GraduationCap, Wallet, TrendingDown } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import {
   fetchPopulationData,
   fetchSigunguPopulationData,
@@ -14,9 +17,9 @@ import { PROGRAMS } from "@/lib/data/programs";
 import { LazyPopulationBars } from "./charts-lazy";
 import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
-import { SwipeHint } from "@/components/ui/swipe-hint";
 import type { RegionItem } from "./region-item";
-import s from "./page.module.css";
+import s from "./climate-view.module.css";
+import shared from "./page.module.css";
 
 interface Props {
   regions: RegionItem[];
@@ -32,9 +35,10 @@ interface RegionInfraData {
 }
 
 /**
- * 생활 인프라 탭 — sgis + hira + education API + 정적 PROGRAMS.
- * region별 시군구 단위 우선 → null fallback 시 시도 단위.
- * 가장 느린 fetch 경로 — tab=infra 일 때만 호출.
+ * 생활 인프라 탭 — 토스 스타일 metric stat card.
+ * - 6 metric: 인구·가구·고령화·의료·학교·지원사업
+ * - 차트는 보조로 (기존 LazyPopulationBars)
+ * sgis + hira + education 호출이라 가장 무거움 — tab=infra 일 때만.
  */
 export async function InfraView({ regions }: Props) {
   const infraData = await fetchInfraForRegions(regions);
@@ -42,24 +46,33 @@ export async function InfraView({ regions }: Props) {
 
   if (infraData.length === 0) {
     return (
-      <div className={s.viewEmptyState}>
-        <p className={s.viewEmptyText}>
+      <div className={shared.viewEmptyState}>
+        <p className={shared.viewEmptyText}>
           인프라 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
       </div>
     );
   }
 
+  const metrics = buildInfraMetricRows(regions, infraByRegion);
+
   return (
     <>
-      {/* 인프라 차트 */}
+      {/* Hero Metric Cards */}
+      <div className={s.metricGrid}>
+        {metrics.map((m) => (
+          <MetricStatCard key={m.id} metric={m} />
+        ))}
+      </div>
+
+      {/* 보조 차트 (선택 region이 2개 이상일 때) */}
       {regions.length >= 2 && (
         <section
-          className={s.chartSection}
+          className={shared.chartSection}
           aria-labelledby="infra-chart-heading"
         >
-          <h2 id="infra-chart-heading" className={s.chartSectionTitle}>
-            생활 인프라 비교
+          <h2 id="infra-chart-heading" className={shared.chartSectionTitle}>
+            인구·의료·학교 한눈에
           </h2>
           <LazyPopulationBars
             data={regions.map((region) => {
@@ -75,126 +88,221 @@ export async function InfraView({ regions }: Props) {
         </section>
       )}
 
-      {/* 상세 비교 — 인프라 + 지원사업 */}
-      <section aria-labelledby="infra-detail-heading">
-        <div className={s.tableCard}>
-          <div className={s.tableCardHeader}>
-            <h2 id="infra-detail-heading" className={s.tableCardTitle}>
-              인프라 상세
-            </h2>
-            <p className={s.tableCardDesc}>
-              인구·의료·교육 인프라와 모집 중인 지원사업
-            </p>
-          </div>
-          <SwipeHint />
-          <div className={s.tableWrap}>
-            <table className={s.table}>
-              <caption className={s.srOnly}>
-                지역별 인프라·지원사업 상세 비교
-              </caption>
-              <thead>
-                <tr>
-                  <th className={s.th} scope="col">
-                    항목
-                  </th>
-                  {regions.map((r) => (
-                    <th key={r.id} className={s.th} scope="col">
-                      {r.sigungu ? r.sigungu.shortName : r.station.name}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <SectionDividerRow
-                  label="인구 현황"
-                  colSpan={regions.length + 1}
-                />
-                <ComparisonRow
-                  label="인구수"
-                  unit="명"
-                  values={regions.map(
-                    (r) => infraByRegion.get(r.id)?.population ?? null,
-                  )}
-                  highlight="max"
-                />
-                <ComparisonRow
-                  label="가구수"
-                  unit="가구"
-                  values={regions.map(
-                    (r) => infraByRegion.get(r.id)?.householdCount ?? null,
-                  )}
-                  highlight="max"
-                />
-                <ComparisonRow
-                  label="고령화율"
-                  unit="%"
-                  values={regions.map(
-                    (r) => infraByRegion.get(r.id)?.agingRate ?? null,
-                  )}
-                  highlight="none"
-                />
-                <SectionDividerRow
-                  label="생활 인프라"
-                  colSpan={regions.length + 1}
-                />
-                <ComparisonRow
-                  label="의료기관 수"
-                  unit="개소"
-                  values={regions.map(
-                    (r) => infraByRegion.get(r.id)?.medicalCount ?? null,
-                  )}
-                  highlight="max"
-                />
-                <ComparisonRow
-                  label="학교 수"
-                  unit="개교"
-                  values={regions.map(
-                    (r) => infraByRegion.get(r.id)?.schoolCount ?? null,
-                  )}
-                  highlight="max"
-                />
-                <SectionDividerRow
-                  label="귀농 지원"
-                  colSpan={regions.length + 1}
-                />
-                <ComparisonRow
-                  label="지원사업 수"
-                  unit="건"
-                  values={regions.map(
-                    (r) =>
-                      PROGRAMS.filter(
-                        (p) =>
-                          p.linkStatus !== "broken" &&
-                          (p.region === "전국" || p.region === r.province.name),
-                      ).length,
-                  )}
-                  highlight="max"
-                />
-                <ComparisonRow
-                  label="모집중 사업"
-                  unit="건"
-                  values={regions.map(
-                    (r) =>
-                      PROGRAMS.filter(
-                        (p) =>
-                          p.linkStatus !== "broken" &&
-                          p.status === "모집중" &&
-                          (p.region === "전국" || p.region === r.province.name),
-                      ).length,
-                  )}
-                  highlight="max"
-                />
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
       <ReferenceNotice text="시·군·구 선택 시 인구·의료·학교는 해당 시·군·구 단위 통계예요. 지원사업은 시·도 단위로 집계해요." />
       <DataSource source="통계지리정보서비스(SGIS) · 건강보험심사평가원 · 교육부 NEIS · 공공누리 제1유형" />
     </>
   );
 }
+
+// ============================================================================
+// Metric Stat Card (climate-view와 동일 컴포넌트 — 공유 가능하나 view 격리)
+// ============================================================================
+
+interface MetricRow {
+  id: string;
+  title: string;
+  unit: string;
+  icon: LucideIcon;
+  emphasis: "highest" | "lowest";
+  emphasisLabelHighest: string;
+  emphasisLabelLowest: string;
+  rows: { regionId: string; regionLabel: string; value: number | null }[];
+}
+
+function MetricStatCard({ metric }: { metric: MetricRow }) {
+  const validValues = metric.rows
+    .filter((r): r is { regionId: string; regionLabel: string; value: number } =>
+      r.value !== null,
+    );
+
+  if (validValues.length === 0) {
+    return (
+      <article className={s.metricCard}>
+        <header className={s.metricCardHeader}>
+          <span className={s.metricCardIcon}>
+            <Icon icon={metric.icon} size="sm" />
+          </span>
+          <h3 className={s.metricCardTitle}>{metric.title}</h3>
+          <span className={s.metricCardUnit}>{metric.unit}</span>
+        </header>
+        <p className={s.metricCardEmpty}>측정값을 불러오지 못했어요</p>
+      </article>
+    );
+  }
+
+  const maxVal = Math.max(...validValues.map((r) => r.value));
+  const minVal = Math.min(...validValues.map((r) => r.value));
+  const range = maxVal - minVal;
+  const barPercent = (v: number) =>
+    range === 0 ? 100 : 35 + ((v - minVal) / range) * 65;
+
+  const targetVal = metric.emphasis === "highest" ? maxVal : minVal;
+  const target = validValues.find((r) => r.value === targetVal);
+
+  return (
+    <article className={s.metricCard}>
+      <header className={s.metricCardHeader}>
+        <span className={s.metricCardIcon}>
+          <Icon icon={metric.icon} size="sm" />
+        </span>
+        <h3 className={s.metricCardTitle}>{metric.title}</h3>
+        <span className={s.metricCardUnit}>{metric.unit}</span>
+      </header>
+      <ul className={s.metricRowList}>
+        {metric.rows.map((r) => {
+          const isTarget = r.value !== null && r.value === targetVal;
+          return (
+            <li key={r.regionId} className={s.metricRow}>
+              <span className={s.metricRowLabel}>{r.regionLabel}</span>
+              <div
+                className={`${s.metricRowBarTrack} ${isTarget ? s.metricRowBarTrackTarget : ""}`}
+              >
+                {r.value !== null && (
+                  <div
+                    className={`${s.metricRowBar} ${isTarget ? s.metricRowBarTarget : ""}`}
+                    style={{ width: `${barPercent(r.value)}%` }}
+                    aria-hidden="true"
+                  />
+                )}
+                <span
+                  className={`${s.metricRowValue} ${isTarget ? s.metricRowValueTarget : ""}`}
+                >
+                  {r.value === null ? "—" : r.value.toLocaleString()}
+                  {r.value !== null && (
+                    <span className={s.metricRowUnit}>{metric.unit}</span>
+                  )}
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {target && validValues.length >= 2 && (
+        <footer className={s.metricCardFooter}>
+          <span className={s.metricCardFooterLabel}>
+            {metric.emphasis === "highest"
+              ? metric.emphasisLabelHighest
+              : metric.emphasisLabelLowest}
+          </span>
+          <span className={s.metricCardFooterRegion}>{target.regionLabel}</span>
+        </footer>
+      )}
+    </article>
+  );
+}
+
+function buildInfraMetricRows(
+  regions: RegionItem[],
+  infraByRegion: Map<string, RegionInfraData>,
+): MetricRow[] {
+  const labelOf = (r: RegionItem) =>
+    r.sigungu
+      ? `${r.province.shortName} ${r.sigungu.shortName}`
+      : r.province.shortName;
+
+  const make = (
+    id: string,
+    title: string,
+    unit: string,
+    icon: LucideIcon,
+    emphasis: "highest" | "lowest",
+    high: string,
+    low: string,
+    pick: (i: RegionInfraData) => number | null,
+  ): MetricRow => ({
+    id,
+    title,
+    unit,
+    icon,
+    emphasis,
+    emphasisLabelHighest: high,
+    emphasisLabelLowest: low,
+    rows: regions.map((r) => {
+      const infra = infraByRegion.get(r.id);
+      return {
+        regionId: r.id,
+        regionLabel: labelOf(r),
+        value: infra ? pick(infra) : null,
+      };
+    }),
+  });
+
+  return [
+    make(
+      "population",
+      "인구수",
+      "명",
+      Users,
+      "highest",
+      "가장 큰 지역",
+      "가장 작은 지역",
+      (i) => i.population,
+    ),
+    make(
+      "household",
+      "가구수",
+      "가구",
+      Home,
+      "highest",
+      "가구가 가장 많아요",
+      "가구가 가장 적어요",
+      (i) => i.householdCount,
+    ),
+    make(
+      "aging",
+      "고령화율",
+      "%",
+      TrendingDown,
+      "lowest",
+      "고령화 비율 높음",
+      "젊은 지역이에요",
+      (i) => i.agingRate,
+    ),
+    make(
+      "medical",
+      "의료기관 수",
+      "개소",
+      HeartPulse,
+      "highest",
+      "의료 인프라가 가장 풍부해요",
+      "의료 인프라 적어요",
+      (i) => i.medicalCount,
+    ),
+    make(
+      "school",
+      "학교 수",
+      "개교",
+      GraduationCap,
+      "highest",
+      "학교가 가장 많아요",
+      "학교가 가장 적어요",
+      (i) => i.schoolCount,
+    ),
+    {
+      id: "programs",
+      title: "모집 중 지원사업",
+      unit: "건",
+      icon: Wallet,
+      emphasis: "highest",
+      emphasisLabelHighest: "지원사업이 가장 많아요",
+      emphasisLabelLowest: "지원사업이 적어요",
+      rows: regions.map((r) => ({
+        regionId: r.id,
+        regionLabel: labelOf(r),
+        value: PROGRAMS.filter(
+          (p) =>
+            p.linkStatus !== "broken" &&
+            p.status === "모집중" &&
+            (p.region === "전국" || p.region === r.province.name),
+        ).length,
+      })),
+    },
+  ];
+}
+
+// ============================================================================
+// Data fetching (unchanged — sgis + hira + education, 시군구 우선)
+// ============================================================================
 
 async function fetchInfraForRegions(
   regions: RegionItem[],
@@ -270,61 +378,4 @@ async function fetchInfraForRegions(
   });
 
   return Promise.all(promises);
-}
-
-function SectionDividerRow({
-  label,
-  colSpan,
-}: {
-  label: string;
-  colSpan: number;
-}) {
-  return (
-    <tr className={s.dividerRow}>
-      <td colSpan={colSpan} className={s.dividerCell}>
-        {label}
-      </td>
-    </tr>
-  );
-}
-
-function ComparisonRow({
-  label,
-  unit,
-  values,
-  highlight,
-}: {
-  label: string;
-  unit: string;
-  values: (number | null)[];
-  highlight: "max" | "min" | "none";
-}) {
-  const numericValues = values.filter((v): v is number => v !== null);
-  const maxVal = numericValues.length > 0 ? Math.max(...numericValues) : 0;
-  const minVal = numericValues.length > 0 ? Math.min(...numericValues) : 0;
-  return (
-    <tr>
-      <td className={s.tdLabel}>{label}</td>
-      {values.map((val, i) => {
-        if (val === null) {
-          return (
-            <td key={i} className={s.tdValue}>
-              <span className={s.tdNoData}>—</span>
-            </td>
-          );
-        }
-        const isHighlighted =
-          (highlight === "max" && val === maxVal) ||
-          (highlight === "min" && val === minVal);
-        return (
-          <td key={i} className={s.tdValue}>
-            <span className={isHighlighted ? s.tdHighlight : undefined}>
-              {val.toLocaleString()}
-            </span>
-            <span className={s.tdUnit}>{unit}</span>
-          </td>
-        );
-      })}
-    </tr>
-  );
 }

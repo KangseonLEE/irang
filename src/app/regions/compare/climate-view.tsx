@@ -1,4 +1,5 @@
-import { Lightbulb } from "lucide-react";
+import { Lightbulb, Thermometer, CloudRain, Sun, Droplets } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { fetchMultipleClimateData, type ClimateData } from "@/lib/api/weather";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
@@ -7,7 +8,8 @@ import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { SwipeHint } from "@/components/ui/swipe-hint";
 import type { RegionItem } from "./region-item";
-import s from "./page.module.css";
+import s from "./climate-view.module.css";
+import shared from "./page.module.css";
 
 interface Props {
   regions: RegionItem[];
@@ -15,8 +17,10 @@ interface Props {
 }
 
 /**
- * 기후 탭 — weather API만 fetch.
- * 첫 페인트 시 infra/suitability 데이터 의존 제거. 3 API 호출만으로 화면 완성.
+ * 기후 탭 — 토스 스타일 통합 비교.
+ * - 상단: Region headline strip + 4 metric stat card
+ * - 가운데: Radar + 한줄 요약 + 인사이트
+ * - 하단: Region description + 정확한 수치 detail table
  */
 export async function ClimateView({ regions, year }: Props) {
   const stationIds = regions.map((r) => r.station.stnId);
@@ -24,8 +28,8 @@ export async function ClimateView({ regions, year }: Props) {
 
   if (climateData.length === 0) {
     return (
-      <div className={s.viewEmptyState}>
-        <p className={s.viewEmptyText}>
+      <div className={shared.viewEmptyState}>
+        <p className={shared.viewEmptyText}>
           기상 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
       </div>
@@ -34,35 +38,27 @@ export async function ClimateView({ regions, year }: Props) {
 
   const climateByStation = new Map(climateData.map((c) => [c.stnId, c]));
 
+  // metric별 region 값 추출 (placeholder region은 null)
+  const metrics = buildMetricRows(regions, climateByStation);
+
   return (
     <>
-      {/* Climate Summary Cards */}
-      <section aria-labelledby="climate-heading">
-        <h2 id="climate-heading" className={s.srOnly}>
-          기후 요약
-        </h2>
-        <div className={s.climateGrid}>
-          {regions.map((region) => {
-            const climate = climateByStation.get(region.station.stnId);
-            if (!climate) {
-              return <ClimateCardPlaceholder key={region.id} region={region} />;
-            }
-            return (
-              <ClimateCard key={region.id} region={region} climate={climate} />
-            );
-          })}
-        </div>
-      </section>
+      {/* Hero Metric Cards — 토스 스타일 */}
+      <div className={s.metricGrid}>
+        {metrics.map((m) => (
+          <MetricStatCard key={m.id} metric={m} />
+        ))}
+      </div>
 
-      {/* 기후 비교 + 인사이트 (데스크탑 2단 grid) */}
+      {/* 기후 비교 차트 + 인사이트 (데스크탑 2단) */}
       {regions.length >= 2 && (
-        <div className={s.climateCompareGrid}>
+        <div className={shared.climateCompareGrid}>
           <section
-            className={s.chartSection}
+            className={shared.chartSection}
             aria-labelledby="climate-chart-heading"
           >
-            <h2 id="climate-chart-heading" className={s.chartSectionTitle}>
-              기후 비교
+            <h2 id="climate-chart-heading" className={shared.chartSectionTitle}>
+              기후 종합 비교
             </h2>
             <LazyClimateRadar
               data={regions
@@ -86,49 +82,48 @@ export async function ClimateView({ regions, year }: Props) {
             />
           </section>
 
-          <div className={s.climateInsightCol}>
+          <div className={shared.climateInsightCol}>
             <section
               aria-labelledby="onesummary-heading"
-              className={s.oneSummaryCard}
+              className={shared.oneSummaryCard}
             >
-              <h2 id="onesummary-heading" className={s.oneSummaryTitle}>
+              <h2 id="onesummary-heading" className={shared.oneSummaryTitle}>
                 <Icon icon={Lightbulb} size="md" />
                 한줄 요약
               </h2>
-              <p className={s.oneSummaryText}>
+              <p className={shared.oneSummaryText}>
                 {buildRegionSummary(regions, climateByStation)}
               </p>
             </section>
-            <ClimateInsights
-              regions={regions}
-              climateByStation={climateByStation}
-            />
           </div>
         </div>
       )}
 
-      {/* 상세 비교 — 기후 항목만 */}
+      {/* Region 컨텍스트 — description (있는 경우만) */}
+      <RegionContextStrip regions={regions} />
+
+      {/* 상세 비교 — 더 정확한 수치 (최고/최저 기온 포함) */}
       <section aria-labelledby="climate-detail-heading">
-        <div className={s.tableCard}>
-          <div className={s.tableCardHeader}>
-            <h2 id="climate-detail-heading" className={s.tableCardTitle}>
-              기후 상세
+        <div className={shared.tableCard}>
+          <div className={shared.tableCardHeader}>
+            <h2 id="climate-detail-heading" className={shared.tableCardTitle}>
+              정확한 수치 비교
             </h2>
-            <p className={s.tableCardDesc}>
+            <p className={shared.tableCardDesc}>
               {year}년 {climateData[0]?.period} 기준 관측 데이터
             </p>
           </div>
           <SwipeHint />
-          <div className={s.tableWrap}>
-            <table className={s.table}>
-              <caption className={s.srOnly}>지역별 기후 상세 비교</caption>
+          <div className={shared.tableWrap}>
+            <table className={shared.table}>
+              <caption className={shared.srOnly}>지역별 기후 상세 비교</caption>
               <thead>
                 <tr>
-                  <th className={s.th} scope="col">
+                  <th className={shared.th} scope="col">
                     항목
                   </th>
                   {regions.map((r) => (
-                    <th key={r.id} className={s.th} scope="col">
+                    <th key={r.id} className={shared.th} scope="col">
                       {r.sigungu ? r.sigungu.shortName : r.station.name}
                     </th>
                   ))}
@@ -199,72 +194,217 @@ export async function ClimateView({ regions, year }: Props) {
   );
 }
 
-function ClimateCardPlaceholder({ region }: { region: RegionItem }) {
+// ============================================================================
+// Metric Stat Card — 토스 스타일 region 비교 막대
+// ============================================================================
+
+interface MetricRow {
+  id: string;
+  title: string;
+  unit: string;
+  icon: LucideIcon;
+  /** "highest"는 가장 큰 값을 강조, "lowest"는 가장 작은 값을 강조. */
+  emphasis: "highest" | "lowest";
+  emphasisLabelHighest: string; // e.g. "가장 따뜻해요"
+  emphasisLabelLowest: string; // e.g. "가장 서늘해요"
+  rows: { regionId: string; regionLabel: string; value: number | null }[];
+}
+
+function MetricStatCard({ metric }: { metric: MetricRow }) {
+  const validValues = metric.rows
+    .filter((r): r is { regionId: string; regionLabel: string; value: number } =>
+      r.value !== null,
+    );
+
+  if (validValues.length === 0) {
+    return (
+      <article className={s.metricCard}>
+        <header className={s.metricCardHeader}>
+          <span className={s.metricCardIcon}>
+            <Icon icon={metric.icon} size="sm" />
+          </span>
+          <h3 className={s.metricCardTitle}>{metric.title}</h3>
+          <span className={s.metricCardUnit}>{metric.unit}</span>
+        </header>
+        <p className={s.metricCardEmpty}>측정값을 불러오지 못했어요</p>
+      </article>
+    );
+  }
+
+  const maxVal = Math.max(...validValues.map((r) => r.value));
+  const minVal = Math.min(...validValues.map((r) => r.value));
+  const range = maxVal - minVal;
+  // 막대 시각화 — 막대 길이는 0~100%. range가 0이면 100% 통일.
+  const barPercent = (v: number) =>
+    range === 0 ? 100 : 35 + ((v - minVal) / range) * 65;
+
+  const targetVal = metric.emphasis === "highest" ? maxVal : minVal;
+  const target = validValues.find((r) => r.value === targetVal);
+
   return (
-    <article className={`${s.climateCard} ${s.climateCardPlaceholder}`}>
-      <div className={s.cardBody}>
-        <span className={s.cardOverline}>
-          {region.province.name}
-          {region.sigungu && ` · ${region.sigungu.name}`}
+    <article className={s.metricCard}>
+      <header className={s.metricCardHeader}>
+        <span className={s.metricCardIcon}>
+          <Icon icon={metric.icon} size="sm" />
         </span>
-        <h3 className={s.cardTitle}>
-          {region.sigungu ? region.sigungu.shortName : region.station.name}
-        </h3>
-        <hr className={s.cardDivider} />
-        <p className={s.placeholderText}>
-          기상 데이터를 일시적으로 불러오지 못했어요.
-          <br />
-          잠시 후 다시 시도해 주세요.
-        </p>
-      </div>
+        <h3 className={s.metricCardTitle}>{metric.title}</h3>
+        <span className={s.metricCardUnit}>{metric.unit}</span>
+      </header>
+      <ul className={s.metricRowList}>
+        {metric.rows.map((r) => {
+          const isTarget = r.value !== null && r.value === targetVal;
+          return (
+            <li key={r.regionId} className={s.metricRow}>
+              <span className={s.metricRowLabel}>{r.regionLabel}</span>
+              <div
+                className={`${s.metricRowBarTrack} ${isTarget ? s.metricRowBarTrackTarget : ""}`}
+              >
+                {r.value !== null && (
+                  <div
+                    className={`${s.metricRowBar} ${isTarget ? s.metricRowBarTarget : ""}`}
+                    style={{ width: `${barPercent(r.value)}%` }}
+                    aria-hidden="true"
+                  />
+                )}
+                <span
+                  className={`${s.metricRowValue} ${isTarget ? s.metricRowValueTarget : ""}`}
+                >
+                  {r.value === null ? "—" : r.value.toLocaleString()}
+                  {r.value !== null && (
+                    <span className={s.metricRowUnit}>{metric.unit}</span>
+                  )}
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {target && validValues.length >= 2 && (
+        <footer className={s.metricCardFooter}>
+          <span className={s.metricCardFooterLabel}>
+            {metric.emphasis === "highest"
+              ? metric.emphasisLabelHighest
+              : metric.emphasisLabelLowest}
+          </span>
+          <span className={s.metricCardFooterRegion}>{target.regionLabel}</span>
+        </footer>
+      )}
     </article>
   );
 }
 
-function ClimateCard({
-  region,
-  climate,
-}: {
-  region: RegionItem;
-  climate: ClimateData;
-}) {
+function buildMetricRows(
+  regions: RegionItem[],
+  climateByStation: Map<string, ClimateData>,
+): MetricRow[] {
+  const make = (
+    id: string,
+    title: string,
+    unit: string,
+    icon: LucideIcon,
+    emphasis: "highest" | "lowest",
+    high: string,
+    low: string,
+    pick: (c: ClimateData) => number,
+  ): MetricRow => ({
+    id,
+    title,
+    unit,
+    icon,
+    emphasis,
+    emphasisLabelHighest: high,
+    emphasisLabelLowest: low,
+    rows: regions.map((r) => {
+      const climate = climateByStation.get(r.station.stnId);
+      return {
+        regionId: r.id,
+        regionLabel: r.sigungu
+          ? `${r.province.shortName} ${r.sigungu.shortName}`
+          : r.province.shortName,
+        value: climate ? pick(climate) : null,
+      };
+    }),
+  });
+
+  return [
+    make(
+      "avgTemp",
+      "평균기온",
+      "℃",
+      Thermometer,
+      "highest",
+      "가장 따뜻해요",
+      "가장 서늘해요",
+      (c) => c.avgTemp,
+    ),
+    make(
+      "precip",
+      "누적 강수량",
+      "mm",
+      CloudRain,
+      "highest",
+      "비가 가장 많아요",
+      "비가 가장 적어요",
+      (c) => c.totalPrecipitation,
+    ),
+    make(
+      "sunshine",
+      "누적 일조시간",
+      "hr",
+      Sun,
+      "highest",
+      "햇볕이 가장 풍부해요",
+      "햇볕이 가장 적어요",
+      (c) => c.totalSunshine,
+    ),
+    make(
+      "humidity",
+      "평균 습도",
+      "%",
+      Droplets,
+      "highest",
+      "가장 습해요",
+      "가장 건조해요",
+      (c) => c.avgHumidity,
+    ),
+  ];
+}
+
+// ============================================================================
+// Region Description Strip — 카드 나열 대신 한 줄로 컨텍스트만
+// ============================================================================
+
+function RegionContextStrip({ regions }: { regions: RegionItem[] }) {
+  const items = regions
+    .map((r) => ({
+      region: r,
+      text: r.sigungu?.description ?? r.station.description ?? null,
+    }))
+    .filter((e): e is { region: RegionItem; text: string } => e.text !== null);
+
+  if (items.length === 0) return null;
+
   return (
-    <article className={s.climateCard}>
-      <div className={s.cardBody}>
-        <span className={s.cardOverline}>
-          {region.province.name}
-          {region.sigungu && ` · ${region.sigungu.name}`}
-        </span>
-        <h3 className={s.cardTitle}>
-          {region.sigungu ? region.sigungu.shortName : climate.stnName}
-        </h3>
-        <hr className={s.cardDivider} />
-        <div className={s.cardDataList}>
-          <DataRow label="평균기온" value={`${climate.avgTemp}℃`} />
-          <DataRow label="누적 강수" value={`${climate.totalPrecipitation}mm`} />
-          <DataRow label="누적 일조" value={`${climate.totalSunshine}hr`} />
-          <DataRow label="평균 습도" value={`${climate.avgHumidity}%`} />
+    <section className={s.contextStrip} aria-label="지역 컨텍스트">
+      {items.map(({ region, text }) => (
+        <div key={region.id} className={s.contextItem}>
+          <span className={s.contextLabel}>
+            {region.sigungu
+              ? `${region.province.shortName} ${region.sigungu.shortName}`
+              : region.province.shortName}
+          </span>
+          <p className={s.contextText}>
+            <AutoGlossary text={text} />
+          </p>
         </div>
-        <p className={s.cardDescription}>
-          {region.sigungu?.description ? (
-            <AutoGlossary text={region.sigungu.description} />
-          ) : region.station.description ? (
-            <AutoGlossary text={region.station.description} />
-          ) : null}
-        </p>
-      </div>
-    </article>
+      ))}
+    </section>
   );
 }
 
-function DataRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className={s.dataRow}>
-      <span className={s.dataRowLabel}>{label}</span>
-      <span className={s.dataRowValue}>{value}</span>
-    </div>
-  );
-}
+// ============================================================================
+// 정확한 수치 비교 테이블 (기존 패턴 유지)
+// ============================================================================
 
 function ComparisonRow({
   label,
@@ -282,12 +422,12 @@ function ComparisonRow({
   const minVal = numericValues.length > 0 ? Math.min(...numericValues) : 0;
   return (
     <tr>
-      <td className={s.tdLabel}>{label}</td>
+      <td className={shared.tdLabel}>{label}</td>
       {values.map((val, i) => {
         if (val === null) {
           return (
-            <td key={i} className={s.tdValue}>
-              <span className={s.tdNoData}>—</span>
+            <td key={i} className={shared.tdValue}>
+              <span className={shared.tdNoData}>—</span>
             </td>
           );
         }
@@ -295,87 +435,15 @@ function ComparisonRow({
           (highlight === "max" && val === maxVal) ||
           (highlight === "min" && val === minVal);
         return (
-          <td key={i} className={s.tdValue}>
-            <span className={isHighlighted ? s.tdHighlight : undefined}>
+          <td key={i} className={shared.tdValue}>
+            <span className={isHighlighted ? shared.tdHighlight : undefined}>
               {val.toLocaleString()}
             </span>
-            <span className={s.tdUnit}>{unit}</span>
+            <span className={shared.tdUnit}>{unit}</span>
           </td>
         );
       })}
     </tr>
-  );
-}
-
-function ClimateInsights({
-  regions,
-  climateByStation,
-}: {
-  regions: RegionItem[];
-  climateByStation: Map<string, ClimateData>;
-}) {
-  const withClimate = regions
-    .map((r) => ({ region: r, climate: climateByStation.get(r.station.stnId) }))
-    .filter(
-      (e): e is { region: RegionItem; climate: ClimateData } => !!e.climate,
-    );
-
-  if (withClimate.length < 2) return null;
-
-  const warmest = withClimate.reduce((a, b) =>
-    a.climate.avgTemp > b.climate.avgTemp ? a : b,
-  );
-  const coolest = withClimate.reduce((a, b) =>
-    a.climate.avgTemp < b.climate.avgTemp ? a : b,
-  );
-  const wettest = withClimate.reduce((a, b) =>
-    a.climate.totalPrecipitation > b.climate.totalPrecipitation ? a : b,
-  );
-  const sunniest = withClimate.reduce((a, b) =>
-    a.climate.totalSunshine > b.climate.totalSunshine ? a : b,
-  );
-
-  const insights = [
-    {
-      label: "가장 따뜻한 곳",
-      region: warmest.region.label,
-      value: `평균 ${warmest.climate.avgTemp}℃`,
-    },
-    {
-      label: "가장 서늘한 곳",
-      region: coolest.region.label,
-      value: `평균 ${coolest.climate.avgTemp}℃`,
-    },
-    {
-      label: "강수량 많은 곳",
-      region: wettest.region.label,
-      value: `${wettest.climate.totalPrecipitation.toLocaleString()}mm`,
-    },
-    {
-      label: "일조 풍부한 곳",
-      region: sunniest.region.label,
-      value: `${sunniest.climate.totalSunshine.toLocaleString()}hr`,
-    },
-  ];
-
-  return (
-    <section
-      aria-labelledby="climate-insights-heading"
-      className={s.insightsCard}
-    >
-      <h3 id="climate-insights-heading" className={s.insightsTitle}>
-        한눈에 보는 비교
-      </h3>
-      <ul className={s.insightsList}>
-        {insights.map((item) => (
-          <li key={item.label} className={s.insightItem}>
-            <span className={s.insightLabel}>{item.label}</span>
-            <span className={s.insightRegion}>{item.region}</span>
-            <span className={s.insightValue}>{item.value}</span>
-          </li>
-        ))}
-      </ul>
-    </section>
   );
 }
 
