@@ -6,11 +6,13 @@ import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { RegionCardsSelector } from "./region-cards-selector";
-import { CompareTabs } from "./compare-tabs";
+import { CompareTabs, TAB_IDS, type TabId } from "./compare-tabs";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { DesktopHint } from "@/components/ui/desktop-hint";
-import { CompareDataSection } from "./compare-data-section";
 import { CompareDataSkeleton } from "./compare-data-skeleton";
+import { ClimateView } from "./climate-view";
+import { InfraView } from "./infra-view";
+import { SuitabilityView } from "./suitability-view";
 import { parseRegions } from "./region-item";
 import s from "./page.module.css";
 
@@ -27,15 +29,20 @@ interface PageProps {
     regions?: string;
     stations?: string;
     crop?: string;
+    tab?: string;
   }>;
 }
 
+function isTabId(value: string | undefined): value is TabId {
+  return !!value && (TAB_IDS as readonly string[]).includes(value);
+}
+
 /**
- * 2026-05-12 정식 v2: 검색 1개 + 카드 selector + 탭.
- * - URL `?regions=jeonnam:suncheon-si,seoul,...` (신규)
- * - URL `?stations=108,119,259` (backward 호환)
- * - 첫 페인트는 header·selector만 즉시
- * - 데이터(4 API)는 Suspense streaming
+ * 2026-05-12 v3: URL `?tab=climate|infra|suitability` 기반 view switcher.
+ * - climate 탭(기본): weather API 3 호출만
+ * - infra 탭: sgis + hira + education 9~27 호출 (탭 클릭 시에만)
+ * - suitability 탭: weather + client selector
+ * 첫 페인트 시 미선택 탭 데이터는 fetch 안 함 → 속도 핵심 개선.
  */
 export default async function RegionsPage({ searchParams }: PageProps) {
   const params = await searchParams;
@@ -43,8 +50,18 @@ export default async function RegionsPage({ searchParams }: PageProps) {
   const selectedCropId = params.crop ?? null;
   const hasSelection = regions.length > 0;
   const year = new Date().getFullYear();
+  const tab: TabId = isTabId(params.tab) ? params.tab : "climate";
 
   const selectedRegionIds = regions.map((r) => r.id);
+
+  // 탭 전환 시 보존할 query string (regions + crop)
+  const baseParams = new URLSearchParams();
+  if (params.regions) baseParams.set("regions", params.regions);
+  else if (selectedRegionIds.length > 0) {
+    baseParams.set("regions", selectedRegionIds.join(","));
+  }
+  if (params.crop) baseParams.set("crop", params.crop);
+  const baseQuery = baseParams.toString();
 
   return (
     <div className={s.page}>
@@ -85,13 +102,18 @@ export default async function RegionsPage({ searchParams }: PageProps) {
 
       {hasSelection && (
         <>
-          <CompareTabs />
-          <Suspense fallback={<CompareDataSkeleton />}>
-            <CompareDataSection
-              regions={regions}
-              selectedCropId={selectedCropId}
-              year={year}
-            />
+          <CompareTabs activeTab={tab} baseQuery={baseQuery} />
+          <Suspense key={tab} fallback={<CompareDataSkeleton />}>
+            {tab === "climate" && (
+              <ClimateView regions={regions} year={year} />
+            )}
+            {tab === "infra" && <InfraView regions={regions} />}
+            {tab === "suitability" && (
+              <SuitabilityView
+                regions={regions}
+                selectedCropId={selectedCropId}
+              />
+            )}
           </Suspense>
         </>
       )}

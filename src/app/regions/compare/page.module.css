@@ -522,6 +522,26 @@
   margin: 0;
 }
 
+/* ---- View 단위 빈 상태 (탭별 데이터 fetch 실패) ---- */
+.viewEmptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  padding: 32px 24px;
+  border-radius: 20px;
+  border: 2px dashed var(--border, #e5e7eb);
+  background: color-mix(in srgb, var(--muted, #f9fafb) 30%, transparent);
+}
+
+.viewEmptyText {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  text-align: center;
+  line-height: var(--lh-relaxed);
+  margin: 0;
+}
+
 /* ---- 유틸 ---- */
 .srOnly {
   position: absolute;

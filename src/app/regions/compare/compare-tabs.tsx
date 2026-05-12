@@ -1,59 +1,48 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Thermometer, Stethoscope, Sprout } from "lucide-react";
 import s from "./compare-tabs.module.css";
 
-const TABS = [
-  { id: "climate-heading", label: "기후", icon: Thermometer },
-  { id: "infra-chart-heading", label: "생활 인프라", icon: Stethoscope },
-  { id: "suitability-heading", label: "작물 적합성", icon: Sprout },
-] as const;
+export const TAB_IDS = ["climate", "infra", "suitability"] as const;
+export type TabId = (typeof TAB_IDS)[number];
 
-export function CompareTabs() {
-  const [activeId, setActiveId] = useState<string>(TABS[0].id);
+const TABS: { id: TabId; label: string; icon: typeof Thermometer }[] = [
+  { id: "climate", label: "기후", icon: Thermometer },
+  { id: "infra", label: "생활 인프라", icon: Stethoscope },
+  { id: "suitability", label: "작물 적합성", icon: Sprout },
+];
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) setActiveId(entry.target.id);
-        }
-      },
-      { rootMargin: "-120px 0px -60% 0px", threshold: [0, 0.25] },
-    );
-    for (const tab of TABS) {
-      const el = document.getElementById(tab.id);
-      if (el) observer.observe(el);
-    }
-    return () => observer.disconnect();
-  }, []);
+interface Props {
+  activeTab: TabId;
+  baseQuery: string;
+}
 
-  const handleClick = (id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const offsetTop = el.getBoundingClientRect().top + window.scrollY - 80;
-    window.scrollTo({ top: offsetTop, behavior: "smooth" });
-  };
-
+/**
+ * 비교 탭 — URL `?tab=climate|infra|suitability` 기반 view switcher.
+ * Link 기반 server component (이전 IntersectionObserver scroll 방식 폐기).
+ * 활성 탭만 SSR fetch → 첫 페인트 속도 크게 향상.
+ */
+export function CompareTabs({ activeTab, baseQuery }: Props) {
   return (
     <div className={s.tabsWrap} role="tablist" aria-label="비교 항목 선택">
       {TABS.map((t) => {
         const Icon = t.icon;
-        const isActive = activeId === t.id;
+        const isActive = t.id === activeTab;
+        const params = new URLSearchParams(baseQuery);
+        params.set("tab", t.id);
+        const href = `/regions/compare?${params.toString()}`;
         return (
-          <button
+          <Link
             key={t.id}
-            type="button"
+            href={href}
+            scroll={false}
+            prefetch
             role="tab"
             aria-selected={isActive}
             className={isActive ? s.tabActive : s.tab}
-            onClick={() => handleClick(t.id)}
           >
             <Icon size={16} aria-hidden="true" />
             {t.label}
-          </button>
+          </Link>
         );
       })}
     </div>
