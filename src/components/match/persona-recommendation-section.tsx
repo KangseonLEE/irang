@@ -142,6 +142,12 @@ export function PersonaRecommendationSection({
                   );
                 })}
               </div>
+              <Link
+                href={`/crops?persona=${recommendedPersona.id}`}
+                className={s.personaPicksCta}
+              >
+                내 스타일 작물 더 보기 <ChevronRight size={14} />
+              </Link>
             </div>
           )}
 
@@ -189,6 +195,12 @@ export function PersonaRecommendationSection({
                   );
                 })}
               </div>
+              <Link
+                href={`/programs?persona=${recommendedPersona.id}`}
+                className={s.personaPicksCta}
+              >
+                내 스타일 지원사업 더 보기 <ChevronRight size={14} />
+              </Link>
             </div>
           )}
         </section>

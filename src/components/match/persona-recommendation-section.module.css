@@ -259,3 +259,35 @@
   color: var(--muted-foreground);
   flex-shrink: 0;
 }
+
+/* ── list 페이지 deep link CTA (2026-05-13 추가)
+   PersonaRecommendationSection 작물/사업 블록 하단에 노출되어
+   list 페이지 페르소나 모드(B3 D2 inline explain + B1 슬라이더) 진입 ─── */
+.personaPicksCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 6px 12px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, var(--card, #fff));
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+@media (hover: hover) {
+  .personaPicksCta:hover {
+    background: color-mix(in srgb, var(--primary) 14%, var(--card, #fff));
+    border-color: color-mix(in srgb, var(--primary) 50%, transparent);
+  }
+}
+
+.personaPicksCta:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
