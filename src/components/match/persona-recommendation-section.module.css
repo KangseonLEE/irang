@@ -148,10 +148,24 @@
   }
 }
 
+/* D4: 작물 카드 + explain row 컬럼 래퍼 (a 태그 nesting 방지) */
+.personaPickCropCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
 .personaPicksProgramList {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* D4: 사업 카드 + explain row 컬럼 래퍼 */
+.personaPickProgramCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .personaPickProgram {

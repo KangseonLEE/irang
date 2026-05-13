@@ -20,8 +20,11 @@ import { mapDemographicToPersona } from "@/lib/data/personas";
 import {
   rankCropsForPersona,
   rankProgramsForPersona,
+  getCropPersonaFitTrace,
+  getProgramPersonaFitTrace,
 } from "@/lib/data/persona-fit";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
 import s from "./persona-recommendation-section.module.css";
 
 interface PersonaRecommendationSectionProps {
@@ -123,15 +126,21 @@ export function PersonaRecommendationSection({
             <div className={s.personaPicksBlock}>
               <h3 className={s.personaPicksSubtitle}>추천 작물</h3>
               <div className={s.personaPicksGrid}>
-                {personaCrops.map(({ crop }) => (
-                  <CropLinkCard
-                    key={crop.id}
-                    cropId={crop.id}
-                    name={crop.name}
-                    href={`/crops/${crop.id}`}
-                    meta={`${crop.category} · ${crop.difficulty}`}
-                  />
-                ))}
+                {personaCrops.map(({ crop }) => {
+                  // D4: 카드 + explain row를 column wrapper로 묶음 (a 태그 nesting 방지, D2 패턴 동일)
+                  const trace = getCropPersonaFitTrace(crop, recommendedPersona.id);
+                  return (
+                    <article key={crop.id} className={s.personaPickCropCell}>
+                      <CropLinkCard
+                        cropId={crop.id}
+                        name={crop.name}
+                        href={`/crops/${crop.id}`}
+                        meta={`${crop.category} · ${crop.difficulty}`}
+                      />
+                      <PersonaScoreExplain trace={trace} subject="이 작물" />
+                    </article>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -140,39 +149,45 @@ export function PersonaRecommendationSection({
             <div className={s.personaPicksBlock}>
               <h3 className={s.personaPicksSubtitle}>추천 지원사업</h3>
               <div className={s.personaPicksProgramList}>
-                {personaPrograms.map(({ program }) => (
-                  <Link
-                    key={program.id}
-                    href={`/programs/${program.id}`}
-                    className={s.personaPickProgram}
-                  >
-                    <div className={s.personaPickProgramBody}>
-                      <div className={s.personaPickProgramTop}>
-                        <h4 className={s.personaPickProgramTitle}>
-                          {program.title}
-                        </h4>
-                        <span
-                          className={
-                            program.status === "마감"
-                              ? s.programStatusClosed
-                              : s.programStatusOpen
-                          }
-                        >
-                          {program.status}
-                        </span>
-                      </div>
-                      <div className={s.personaPickProgramMeta}>
-                        <span className={s.programCardBadge}>
-                          {program.supportType}
-                        </span>
-                        <span className={s.programCardRegion}>
-                          {program.region}
-                        </span>
-                      </div>
-                    </div>
-                    <ChevronRight size={16} className={s.programCardArrow} />
-                  </Link>
-                ))}
+                {personaPrograms.map(({ program }) => {
+                  // D4: 카드 + explain row를 column wrapper로 묶음 (a 태그 nesting 방지)
+                  const trace = getProgramPersonaFitTrace(program, recommendedPersona.id);
+                  return (
+                    <article key={program.id} className={s.personaPickProgramCell}>
+                      <Link
+                        href={`/programs/${program.id}`}
+                        className={s.personaPickProgram}
+                      >
+                        <div className={s.personaPickProgramBody}>
+                          <div className={s.personaPickProgramTop}>
+                            <h4 className={s.personaPickProgramTitle}>
+                              {program.title}
+                            </h4>
+                            <span
+                              className={
+                                program.status === "마감"
+                                  ? s.programStatusClosed
+                                  : s.programStatusOpen
+                              }
+                            >
+                              {program.status}
+                            </span>
+                          </div>
+                          <div className={s.personaPickProgramMeta}>
+                            <span className={s.programCardBadge}>
+                              {program.supportType}
+                            </span>
+                            <span className={s.programCardRegion}>
+                              {program.region}
+                            </span>
+                          </div>
+                        </div>
+                        <ChevronRight size={16} className={s.programCardArrow} />
+                      </Link>
+                      <PersonaScoreExplain trace={trace} subject="이 사업" />
+                    </article>
+                  );
+                })}
               </div>
             </div>
           )}
