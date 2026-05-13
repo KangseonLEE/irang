@@ -66,7 +66,7 @@ export const PERSONAS: Persona[] = [
   },
   {
     id: "farmYouth",
-    label: "농업 본업",
+    label: "청년 영농",
     desc: "농업을 본업으로 시작",
     audience: "35세 이하 + 농업 전업",
     weights: {
