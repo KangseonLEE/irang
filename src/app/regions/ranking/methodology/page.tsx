@@ -254,6 +254,31 @@ export default function MethodologyPage() {
             </article>
           ))}
         </div>
+
+        {/* Phase 6 B1 — 가중치 커스터마이징 안내 */}
+        <div className={s.customizeBox} aria-label="가중치 커스터마이징 안내">
+          <h3 className={s.customizeTitle}>‘내 기준’으로 가중치 바꾸기</h3>
+          <p className={s.customizeText}>
+            귀농 스타일 맞춤 모드 안에 슬라이더 5개가 있어요. 인구·농가·의료·학교·귀농
+            비중을 직접 끌어 옮기면 합계는 자동으로 100이 되고, 시군구 순위가 즉시
+            새로 줄을 서요. 학교가 가장 중요하다면 학교 슬라이더를 60% 근처까지
+            올리는 식이에요.
+          </p>
+          <ul className={s.customizeList}>
+            <li>
+              주소창의 <code>?w=20-15-15-35-15</code> 형식으로 가중치가 따라붙어요.
+              그 URL을 그대로 공유하면 상대도 같은 비중으로 같은 순위를 봐요.
+            </li>
+            <li>
+              한 번 조정한 비중은 자동으로 기억돼요. 다음에 같은 스타일로 다시 들어와도
+              마지막 조정값으로 복원돼요.
+            </li>
+            <li>
+              ‘기본값 복원’ 버튼을 누르면 스타일의 기본 가중치로 되돌아가고, URL에서도{" "}
+              <code>?w=</code> 가 사라져요.
+            </li>
+          </ul>
+        </div>
       </section>
 
       {/* Phase 6 — 페르소나 추천 매핑 산식 */}
