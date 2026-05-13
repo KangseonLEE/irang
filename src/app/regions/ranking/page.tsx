@@ -23,6 +23,7 @@ import {
   PERSONAS,
   type PersonaId,
   computePersonaScore,
+  getPersona,
 } from "@/lib/data/personas";
 import {
   resolvePersonaFromParams,
@@ -32,6 +33,7 @@ import {
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { RegionPersonaExplain } from "@/components/persona/region-persona-explain";
+import { WeightCustomizer } from "@/components/persona/weight-customizer";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -271,6 +273,18 @@ export default async function RankingPage({ searchParams }: PageProps) {
                 : `${persona.audience}을(를) 위한 스타일이에요. 5차원을 가중 평균해 하나의 점수로 만들어요.`}
             </p>
           )}
+          {persona && (() => {
+            // base persona (기본 가중치)는 원본에서 다시 찾아 reset 버튼이 커스텀 값으로
+            // 복원되는 버그 방지. persona.id는 buildCustomPersona가 보존한 base id.
+            const basePersonaOriginal = getPersona(persona.id) ?? persona;
+            return (
+              <WeightCustomizer
+                basePersona={basePersonaOriginal}
+                currentWeights={persona.weights}
+                isCustom={isCustom}
+              />
+            );
+          })()}
         </>
       )}
 
@@ -341,6 +355,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
                   scores={item.score}
                   persona={persona}
                   total={item.value}
+                  isCustom={isCustom}
                 />
               )}
             </li>

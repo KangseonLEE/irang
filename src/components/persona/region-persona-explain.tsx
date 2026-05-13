@@ -16,6 +16,11 @@ interface RegionPersonaExplainProps {
   persona: Persona;
   /** 시군구 총 점수 (이미 ranking page에서 계산된 값) */
   total: number;
+  /**
+   * Phase 6 B1 D2: 사용자가 직접 가중치 조정한 상태인지.
+   * balanced 페르소나여도 isCustom이면 기여도 노출(가중치가 더 이상 균등 아님).
+   */
+  isCustom?: boolean;
 }
 
 const DIMENSION_LABEL_MAP: Record<keyof DimensionScoresInput, string> = {
@@ -62,9 +67,11 @@ export function RegionPersonaExplain({
   scores,
   persona,
   total,
+  isCustom = false,
 }: RegionPersonaExplainProps) {
   // balanced: 5차원 균등이라 top contribution 차이가 작음 → 노출 생략
-  if (persona.id === "balanced") return null;
+  // 단, isCustom=true(직접 조정)이면 균등 아니므로 노출
+  if (persona.id === "balanced" && !isCustom) return null;
 
   const top = topContributions(scores, persona);
   if (top.length === 0) return null;

@@ -1,0 +1,230 @@
+/* WeightCustomizer — Phase 6 B1 D2
+   슬라이더 5개로 가중치 직접 조정. URL ↔ localStorage 동기화. */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 18px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 20px 22px;
+    gap: 16px;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.titleBox {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.sumPill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
+  color: var(--primary, #1B6B5A);
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sumPillUnit {
+  font-size: 10px;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--primary, #1B6B5A) 75%, transparent);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rowHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rowLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.rowValue {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary, #1B6B5A);
+  font-variant-numeric: tabular-nums;
+}
+
+.rowValueUnit {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  margin-left: 2px;
+}
+
+/* range input — track + thumb 커스텀 */
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--muted, #f4f4f5);
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 6px 0 2px;
+}
+
+.range:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 4px;
+}
+
+/* progress fill via gradient (value %) */
+.range {
+  background: linear-gradient(
+    to right,
+    var(--primary, #1B6B5A) 0%,
+    var(--primary, #1B6B5A) var(--fill, 0%),
+    var(--muted, #f4f4f5) var(--fill, 0%),
+    var(--muted, #f4f4f5) 100%
+  );
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--card, #fff);
+  border: 2px solid var(--primary, #1B6B5A);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: transform 0.12s ease-out;
+}
+
+.range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--card, #fff);
+  border: 2px solid var(--primary, #1B6B5A);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+@media (hover: hover) {
+  .range:hover::-webkit-slider-thumb {
+    transform: scale(1.1);
+  }
+}
+
+.range:active::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.resetBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.resetBtn:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .resetBtn:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--primary, #1B6B5A) 35%, transparent);
+    color: var(--primary, #1B6B5A);
+  }
+}
+
+.resetBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 639px) {
+  .header {
+    align-items: flex-start;
+  }
+
+  .rowLabel {
+    font-size: 12px;
+  }
+
+  .rowValue {
+    font-size: 12px;
+  }
+}
