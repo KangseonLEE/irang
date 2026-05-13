@@ -27,6 +27,7 @@ import {
 } from "@/lib/data/personas";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import { RegionPersonaExplain } from "@/components/persona/region-persona-explain";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -305,6 +306,13 @@ export default async function RankingPage({ searchParams }: PageProps) {
                   </span>
                 </div>
               </Link>
+              {mode === "persona" && persona && (
+                <RegionPersonaExplain
+                  scores={item.score}
+                  persona={persona}
+                  total={item.value}
+                />
+              )}
             </li>
           ))}
         </ol>

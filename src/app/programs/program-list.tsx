@@ -7,7 +7,10 @@ import { Loader2, FileText } from "lucide-react";
 import { loadMorePrograms } from "./actions";
 import { ProgramCard } from "./program-card";
 import type { SupportProgram, ProgramFilters } from "@/lib/data/programs";
+import type { PersonaId } from "@/lib/data/personas";
+import { getProgramPersonaFitTrace } from "@/lib/data/persona-fit";
 import { isNewProgram } from "./program-card";
+import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
 import { Pagination } from "@/components/ui/pagination";
@@ -25,6 +28,8 @@ interface ProgramListProps {
   viewMode?: ViewMode;
   /** 테이블 뷰용 전체 데이터 */
   allPrograms?: SupportProgram[];
+  /** Phase 6 B3 D2 — 페르소나 모드 시 explain row 노출용 */
+  currentPersona?: PersonaId;
 }
 
 export function ProgramList({
@@ -34,6 +39,7 @@ export function ProgramList({
   filters,
   viewMode = "card",
   allPrograms,
+  currentPersona,
 }: ProgramListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -168,9 +174,20 @@ export function ProgramList({
 
       {/* 3열 카드 그리드 */}
       <CardGrid>
-        {programs.map((program) => (
-          <ProgramCard key={program.id} program={program} />
-        ))}
+        {programs.map((program) => {
+          const trace = currentPersona
+            ? getProgramPersonaFitTrace(program, currentPersona)
+            : null;
+          if (trace) {
+            return (
+              <article key={program.id} className={s.programCellPersona}>
+                <ProgramCard program={program} />
+                <PersonaScoreExplain trace={trace} subject="이 사업" />
+              </article>
+            );
+          }
+          return <ProgramCard key={program.id} program={program} />;
+        })}
       </CardGrid>
 
       {/* 로딩 인디케이터 + 센티넬 */}

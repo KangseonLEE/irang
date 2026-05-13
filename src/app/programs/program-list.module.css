@@ -1,3 +1,11 @@
+/* Phase 6 B3 D2 — 페르소나 모드 cell wrapper (카드 + explain row column 묶음) */
+.programCellPersona {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
 /* ── Empty State ── */
 .empty {
   display: flex;

@@ -9,9 +9,10 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
-import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
+import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty, type CropInfo } from "@/lib/data/crops";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
-import { rankCropsForPersona } from "@/lib/data/persona-fit";
+import { rankCropsForPersona, getCropPersonaFitTrace, type FitTrace } from "@/lib/data/persona-fit";
+import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
 import { getCropImageSrc } from "@/lib/crop-image";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -89,6 +90,13 @@ export default async function CropsPage({ searchParams }: PageProps) {
       .filter((r) => r.score >= 4)
       .map((r) => r.crop);
   }
+
+  // Phase 6 B3 D2 — 페르소나 모드일 때만 카드별 trace 사전 계산
+  const cropTraces: Map<string, FitTrace> = currentPersona
+    ? new Map(
+        filteredCrops.map((c) => [c.id, getCropPersonaFitTrace(c, currentPersona)]),
+      )
+    : new Map();
 
   // 현재 활성 필터 (URL 빌딩용)
   const currentFilters: Record<string, string | undefined> = {
@@ -179,7 +187,11 @@ export default async function CropsPage({ searchParams }: PageProps) {
       {/* Crop Card Grid */}
       <div className={s.cropGrid}>
         {filteredCrops.map((crop) => (
-          <CropCard key={crop.id} crop={crop} />
+          <CropCard
+            key={crop.id}
+            crop={crop}
+            trace={cropTraces.get(crop.id)}
+          />
         ))}
       </div>
 
@@ -228,10 +240,12 @@ const DIFFICULTY_CLASS: Record<string, string> = {
 
 function CropCard({
   crop,
+  trace,
 }: {
-  crop: (typeof CROPS)[number];
+  crop: CropInfo;
+  trace?: FitTrace;
 }) {
-  return (
+  const cardLink = (
     <Link href={`/crops/${crop.id}`} className={s.cropCard}>
       {/* 이미지 영역 — aspect-ratio 기반 */}
       <div className={s.cropCardImageWrap}>
@@ -266,4 +280,16 @@ function CropCard({
       </div>
     </Link>
   );
+
+  // 페르소나 모드: 카드 + explain row를 column wrapper로 묶음 (a 태그 nesting 방지)
+  if (trace) {
+    return (
+      <article className={s.cropCellPersona}>
+        {cardLink}
+        <PersonaScoreExplain trace={trace} subject="이 작물" />
+      </article>
+    );
+  }
+
+  return cardLink;
 }

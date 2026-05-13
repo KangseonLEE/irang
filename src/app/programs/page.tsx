@@ -259,6 +259,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         filters={filters}
         viewMode={viewMode}
         allPrograms={viewMode === "table" ? allFiltered : undefined}
+        currentPersona={currentPersona}
       />
 
       {/* ═══ 피드백 CTA ═══ */}

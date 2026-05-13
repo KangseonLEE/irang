@@ -1,0 +1,106 @@
+/* PersonaScoreExplain — 카드 하단 inline 사유 row */
+
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 12%, transparent);
+  border-radius: 12px;
+  font-size: 0.8125rem;
+}
+
+.scoreBox {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.score {
+  display: inline-flex;
+  align-items: baseline;
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 0.9375rem;
+  line-height: 1;
+}
+
+.scoreMax {
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+.scoreLabel {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.reason {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--foreground);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+.reasonOverride {
+  background: color-mix(in srgb, var(--primary) 8%, var(--card));
+  border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
+  color: var(--primary);
+}
+
+.reasonAge {
+  background: color-mix(in srgb, #d97706 6%, var(--card));
+  border-color: color-mix(in srgb, #d97706 22%, var(--border));
+}
+
+.reasonDifficulty {
+  background: var(--muted);
+}
+
+.reasonCategory {
+  background: var(--card);
+}
+
+@media (max-width: 639px) {
+  .row {
+    padding: 8px 10px;
+    gap: 6px 8px;
+  }
+
+  .score {
+    font-size: 0.875rem;
+  }
+
+  .scoreLabel {
+    font-size: 0.6875rem;
+  }
+
+  .reason {
+    font-size: 0.6875rem;
+    padding: 2px 6px;
+  }
+}

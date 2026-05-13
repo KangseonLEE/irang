@@ -44,6 +44,18 @@
   }
 }
 
+/* Phase 6 B3 D2 — 페르소나 모드 cell wrapper (카드 + explain row column 묶음) */
+.cropCellPersona {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cropCellPersona > .cropCard {
+  flex: 1 1 auto;
+}
+
 /* ── 작물 카드 (리디자인: 밝은 이미지 + 정보 하단) ── */
 .cropCard {
   position: relative;
