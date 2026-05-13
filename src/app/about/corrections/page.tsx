@@ -25,6 +25,12 @@ interface CorrectionEntry {
 const CORRECTIONS: CorrectionEntry[] = [
   {
     date: "2026-05-13",
+    field: "추천 카드에 ‘왜 추천?’ 근거 펼침 추가 (Phase 6 B3)",
+    description:
+      "작물·지원사업 추천 카드에 점수가 어떻게 매겨졌는지 그 자리에서 바로 펼쳐 볼 수 있는 ‘왜 추천?’ 영역을 추가했어요. 카테고리·난이도·연령 요건 같은 기본 사유와 개별 항목 보정 사유까지 모두 노출돼요. 시군구 추천 카드에는 5차원 점수 막대를 inline으로 함께 보여드려요. 같은 산식이 /match·/crops·/programs·/regions/ranking 추천 자리에 일관되게 적용되도록 정비했고, 회귀 테스트 17건을 추가해 점수와 사유가 함께 흔들리지 않도록 묶었어요.",
+  },
+  {
+    date: "2026-05-13",
     field: "귀농 스타일 추천 매핑 정식 마감 (Phase 6 A안)",
     description:
       "진단 답변에서 도출한 귀농 스타일이 시군구뿐 아니라 작물·지원사업까지 자동 추천하도록 매핑을 마무리했어요. 작물 39종과 지원사업 19건에 카테고리·난이도·연령 요건 기반 1~5점 적합도와 예외 보정을 부여하고, 점수 4 이상만 추천 카드에 노출해요. /match·/crops·/programs·/regions/ranking/methodology 4곳에서 같은 산식이 쓰이고, 데이터가 흔들리면 즉시 알 수 있도록 회귀 테스트 51개를 추가했어요. 산식 근거는 /regions/ranking/methodology에서 자세히 확인할 수 있어요.",

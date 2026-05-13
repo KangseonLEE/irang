@@ -264,6 +264,11 @@ export default function MethodologyPage() {
           <strong> 카테고리·난이도·연령 요건</strong>으로 1~5점을 자동 계산하고,
           예외는 명시 보정으로 잡아요. 점수 4 이상만 추천에 노출돼요.
         </p>
+        <p className={s.principleText} style={{ marginTop: "12px" }}>
+          추천 카드의 <strong>‘왜 추천?’</strong>을 누르면 점수 산정에 쓰인 이유를
+          그 자리에서 바로 보여드려요. 카테고리·난이도·연령 같은 기본 요인과,
+          개별 작물·사업에 부여된 보정 사유까지 사용자에게 모두 공개해요.
+        </p>
         <div className={s.dimList}>
           {PERSONAS.filter((p) => p.id !== "balanced").map((p) => {
             const topCrops = rankCropsForPersona(CROPS, p.id)
