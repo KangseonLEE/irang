@@ -112,6 +112,118 @@ export function getCropPersonaFit(crop: CropInfo): PersonaFit {
   return { ...base, ...override };
 }
 
+/** 작물 override 사유 카피 (Phase 6 B3 D1) — 사용자 노출 톤(~예요/세요). */
+const CROP_OVERRIDE_REASONS: Record<string, string> = {
+  "shine-muscat": "고부가가치 시설 포도예요. 본업 농가에 잘 맞아요",
+  ginseng: "장기 재배(4~6년)라 본업 농가가 아니면 어려워요",
+  bellflower: "약용 특용작물이라 본업 농가에 어울려요",
+  shiitake: "버섯 재배는 본업 농가에 적합해요",
+  "oyster-mushroom": "버섯 재배는 본업 농가에 적합해요",
+  strawberry: "시설 딸기는 가족·본업 농가 모두에 인기 작물이에요",
+  blueberry: "관리 부담이 적어 가족·통근 농가에 어울려요",
+  cherry: "관리 부담이 적은 과수예요",
+  mango: "아열대 시설 작물이라 본업 농가에 한정돼요",
+  "perilla-leaf": "쉬운 채소라 가족·노년에 잘 맞아요",
+  lettuce: "쉬운 채소라 가족·노년에 잘 맞아요",
+  arugula: "쉬운 채소라 가족·노년에 잘 맞아요",
+  spinach: "쉬운 채소라 가족·노년에 잘 맞아요",
+  "green-onion": "노년 자가소비에 적합한 작물이에요",
+  apple: "관리 사이클이 정해진 과수라 통근 농가에 잘 맞아요",
+  pear: "관리 사이클이 정해진 과수라 통근 농가에 잘 맞아요",
+  citrus: "남부 지역 통근·본업 농가에 적합해요",
+  persimmon: "저관리 과수라 통근·노년에 어울려요",
+  plum: "저관리 과수예요",
+  peach: "저관리 과수예요",
+  rice: "면적 규모 농사라 통근 농가에는 어려워요",
+  "sweet-potato": "노년 자가소비·가족 식량에 적합해요",
+  potato: "노년 자가소비·가족 식량에 적합해요",
+};
+
+// ──────────────────────────────────────────────────────────────
+// Trace 함수 (Phase 6 B3 D1)
+// ──────────────────────────────────────────────────────────────
+
+/**
+ * 추천 점수 산출 근거 1건.
+ *
+ * UI 렌더링 단위로 그대로 칩/리스트에 노출 가능하도록 평탄화.
+ */
+export interface TraceReason {
+  /**
+   * 사유 분류 (UI 스타일 차별화 용도)
+   * - "category": 카테고리/지원유형 기반
+   * - "difficulty": 난이도 기반
+   * - "age": 연령 요건 기반
+   * - "override": 명시적 override
+   * - "balanced": balanced 페르소나 안내
+   */
+  kind: "category" | "difficulty" | "age" | "override" | "balanced";
+  /** UI 라벨 (사용자 노출 카피, ~예요/세요 톤) */
+  label: string;
+}
+
+export interface FitTrace {
+  /** 최종 점수 (override 적용 후) */
+  score: FitScore;
+  /** override 적용 전 default 점수 (UI 비교용) */
+  baseScore: FitScore;
+  /** 점수 산출 근거 (UI 칩 렌더) */
+  reasons: TraceReason[];
+}
+
+/**
+ * 작물 페르소나 fit 점수 산출 근거 trace.
+ *
+ * balanced 페르소나는 reasons에 안내 1건만 반환 (UI에서 explain 미노출 처리 가능).
+ */
+export function getCropPersonaFitTrace(
+  crop: CropInfo,
+  personaId: PersonaId,
+): FitTrace {
+  const base = calcCropDefaultFit(crop);
+  const override = CROP_FIT_OVERRIDES[crop.id] ?? {};
+  const baseScore = base[personaId];
+  const finalScore: FitScore = override[personaId] ?? baseScore;
+
+  // balanced: 모든 작물 동점 3 — explain 무의미
+  if (personaId === "balanced") {
+    return {
+      score: finalScore,
+      baseScore,
+      reasons: [
+        {
+          kind: "balanced",
+          label: "균등 페르소나라 작물별 차이를 매기지 않아요",
+        },
+      ],
+    };
+  }
+
+  const reasons: TraceReason[] = [];
+
+  // 1. 카테고리 사유
+  reasons.push({
+    kind: "category",
+    label: `${crop.category} 작물이에요`,
+  });
+
+  // 2. 난이도 사유
+  reasons.push({
+    kind: "difficulty",
+    label: `재배 난이도 ${crop.difficulty}이에요`,
+  });
+
+  // 3. override 사유 (override 적용된 경우만)
+  if (override[personaId] !== undefined) {
+    const reasonCopy = CROP_OVERRIDE_REASONS[crop.id];
+    if (reasonCopy) {
+      reasons.push({ kind: "override", label: reasonCopy });
+    }
+  }
+
+  return { score: finalScore, baseScore, reasons };
+}
+
 // ──────────────────────────────────────────────────────────────
 // 지원사업 페르소나 산식
 // ──────────────────────────────────────────────────────────────
@@ -231,6 +343,98 @@ export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
   const base = calcProgramDefaultFit(program);
   const override = PROGRAM_FIT_OVERRIDES[program.id] ?? {};
   return { ...base, ...override };
+}
+
+/** 사업 override 사유 카피 (Phase 6 B3 D1) — 사용자 노출 톤(~예요/세요). */
+const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
+  "SP-001": "후계농 융자(주택 포함)라 가족·본업 농가에 가장 맞아요",
+  "SP-002": "40세 이하 청년농 정착지원이라 본업 농가 전용이에요",
+  "SP-003": "충남 청년창업농 교육이라 청년 본업 농가에 맞아요",
+  "SP-004": "스마트팜 시설 사업이라 본업 농가 중심이에요",
+  "SP-005": "체류형 살아보기라 통근·노년 귀촌에 잘 맞아요",
+  "SP-006": "체류형 살아보기라 통근·노년 귀촌에 잘 맞아요",
+  "SP-007": "체류형 살아보기라 통근·노년 귀촌에 잘 맞아요",
+  "SP-008": "월 80만원 영농학습 지원이라 청년·가족에 적합해요",
+  "SP-009": "체험형 농촌 프로그램이라 통근·노년·가족 모두 무난해요",
+  "SP-010": "체류형 프로그램이라 통근·노년·가족 모두 무난해요",
+  "SP-011": "농기원 실습 교육이라 청년·가족 입문자에게 맞아요",
+  "SP-012": "후계농 단계별 융자라 가족·본업 농가에 강점이에요",
+  "SP-015": "40세 미만 청년 대상 스마트팜 임대형이에요",
+  "SP-016": "체류형 살아보기(도시민 대상)라 통근·노년에 어울려요",
+  "SP-017": "전국 체류 허브라 모든 페르소나에 폭넓게 맞아요",
+  "SP-018": "농지 임대수탁이라 자본 부담이 큰 가족·노년에 강점이에요",
+  "SP-020": "40세 미만 청년농 정착지원 2차 모집이에요",
+};
+
+/**
+ * 사업 페르소나 fit 점수 산출 근거 trace.
+ *
+ * balanced 페르소나는 reasons에 안내 1건만 반환.
+ */
+export function getProgramPersonaFitTrace(
+  program: SupportProgram,
+  personaId: PersonaId,
+): FitTrace {
+  const base = calcProgramDefaultFit(program);
+  const override = PROGRAM_FIT_OVERRIDES[program.id] ?? {};
+  const baseScore = base[personaId];
+  const finalScore: FitScore = override[personaId] ?? baseScore;
+
+  if (personaId === "balanced") {
+    return {
+      score: finalScore,
+      baseScore,
+      reasons: [
+        {
+          kind: "balanced",
+          label: "균등 페르소나라 사업별 차이를 매기지 않아요",
+        },
+      ],
+    };
+  }
+
+  const reasons: TraceReason[] = [];
+
+  // 1. 연령 요건 사유
+  const ageMin = program.eligibilityAgeMin;
+  const ageMax = program.eligibilityAgeMax;
+  if (ageMax > 0 && ageMax <= 40) {
+    reasons.push({
+      kind: "age",
+      label: `${ageMax}세 이하 청년 대상이에요`,
+    });
+  } else if (ageMax === 0) {
+    reasons.push({
+      kind: "age",
+      label: ageMin > 0 ? `${ageMin}세 이상 신청 가능해요` : "연령 제한이 없어요",
+    });
+  } else if (ageMax >= 60) {
+    reasons.push({
+      kind: "age",
+      label: `${ageMax}세 이하 신청 가능해요 (노년 친화)`,
+    });
+  } else {
+    reasons.push({
+      kind: "age",
+      label: `${ageMin}~${ageMax}세 대상이에요`,
+    });
+  }
+
+  // 2. 지원유형 사유
+  reasons.push({
+    kind: "category",
+    label: `${program.supportType} 지원이에요`,
+  });
+
+  // 3. override 사유 (override 적용된 경우만)
+  if (override[personaId] !== undefined) {
+    const reasonCopy = PROGRAM_OVERRIDE_REASONS[program.id];
+    if (reasonCopy) {
+      reasons.push({ kind: "override", label: reasonCopy });
+    }
+  }
+
+  return { score: finalScore, baseScore, reasons };
 }
 
 // ──────────────────────────────────────────────────────────────

@@ -25,6 +25,8 @@ import {
   rankProgramsForPersona,
   getCropPersonaFit,
   getProgramPersonaFit,
+  getCropPersonaFitTrace,
+  getProgramPersonaFitTrace,
 } from "@/lib/data/persona-fit";
 
 const PERSONA_IDS: PersonaId[] = [
@@ -234,6 +236,194 @@ describe("페르소나 enum 완전성", () => {
     for (const persona of PERSONAS) {
       expect(() => rankCropsForPersona(CROPS, persona.id)).not.toThrow();
       expect(() => rankProgramsForPersona(PROGRAMS, persona.id)).not.toThrow();
+    }
+  });
+});
+
+// ─── 9) Trace 함수 (Phase 6 B3 D1) ───
+describe("getCropPersonaFitTrace / getProgramPersonaFitTrace — explainability", () => {
+  // 9-1. 점수 일치성 — trace.score == 기존 getCropPersonaFit(crop)[personaId]
+  it("trace.score는 기존 fit 함수 결과와 일치한다 (작물)", () => {
+    for (const crop of CROPS) {
+      const fit = getCropPersonaFit(crop);
+      for (const id of PERSONA_IDS) {
+        const trace = getCropPersonaFitTrace(crop, id);
+        expect(trace.score).toBe(fit[id]);
+      }
+    }
+  });
+
+  it("trace.score는 기존 fit 함수 결과와 일치한다 (사업)", () => {
+    for (const program of PROGRAMS) {
+      const fit = getProgramPersonaFit(program);
+      for (const id of PERSONA_IDS) {
+        const trace = getProgramPersonaFitTrace(program, id);
+        expect(trace.score).toBe(fit[id]);
+      }
+    }
+  });
+
+  // 9-2. balanced 페르소나는 reasons에 안내 1건만
+  it("balanced 페르소나 작물 trace는 reasons에 balanced kind 1건만", () => {
+    for (const crop of CROPS) {
+      const trace = getCropPersonaFitTrace(crop, "balanced");
+      expect(trace.reasons.length).toBe(1);
+      expect(trace.reasons[0].kind).toBe("balanced");
+    }
+  });
+
+  it("balanced 페르소나 사업 trace는 reasons에 balanced kind 1건만", () => {
+    for (const program of PROGRAMS) {
+      const trace = getProgramPersonaFitTrace(program, "balanced");
+      expect(trace.reasons.length).toBe(1);
+      expect(trace.reasons[0].kind).toBe("balanced");
+    }
+  });
+
+  // 9-3. 비-balanced 페르소나는 reasons에 category·difficulty/age 최소 2건
+  it("비-balanced 작물 trace는 카테고리·난이도 사유 모두 포함", () => {
+    const sampleCrop = CROPS[0];
+    for (const id of PERSONA_IDS.filter((p) => p !== "balanced")) {
+      const trace = getCropPersonaFitTrace(sampleCrop, id);
+      const kinds = trace.reasons.map((r) => r.kind);
+      expect(kinds).toContain("category");
+      expect(kinds).toContain("difficulty");
+    }
+  });
+
+  it("비-balanced 사업 trace는 연령·지원유형 사유 모두 포함", () => {
+    const sampleProgram = PROGRAMS[0];
+    for (const id of PERSONA_IDS.filter((p) => p !== "balanced")) {
+      const trace = getProgramPersonaFitTrace(sampleProgram, id);
+      const kinds = trace.reasons.map((r) => r.kind);
+      expect(kinds).toContain("age");
+      expect(kinds).toContain("category");
+    }
+  });
+
+  // 9-4. override 적용된 작물·페르소나에는 override 사유 1건 포함
+  it("shine-muscat × farmYouth는 override 사유 1건 포함", () => {
+    const crop = CROPS.find((c) => c.id === "shine-muscat");
+    expect(crop).toBeDefined();
+    if (!crop) return;
+    const trace = getCropPersonaFitTrace(crop, "farmYouth");
+    const overrideReasons = trace.reasons.filter((r) => r.kind === "override");
+    expect(overrideReasons.length).toBe(1);
+    expect(overrideReasons[0].label).toMatch(/포도|본업/);
+  });
+
+  // 9-5. override 미적용 페르소나에는 override 사유 없음
+  it("override 없는 (작물·페르소나) 조합은 override 사유 0건", () => {
+    // 일반 작물 + 모든 페르소나에서 override 가 없을 수 있는지 sampling
+    const crop = CROPS.find((c) => !CROPS.some(() => false) && c.id === "shine-muscat");
+    if (!crop) return;
+    // shine-muscat 의 override 는 farmYouth/family/elderRural 3개. commuter 에는 override 없음
+    const trace = getCropPersonaFitTrace(crop, "commuter");
+    const overrideReasons = trace.reasons.filter((r) => r.kind === "override");
+    expect(overrideReasons.length).toBe(0);
+  });
+
+  // 9-6. SP-002 (40세 이하 청년농) × farmYouth는 청년 사유 + override 포함
+  it("SP-002 × farmYouth는 청년 연령 + override 사유 포함", () => {
+    const program = PROGRAMS.find((p) => p.id === "SP-002");
+    expect(program).toBeDefined();
+    if (!program) return;
+    const trace = getProgramPersonaFitTrace(program, "farmYouth");
+    const ageReason = trace.reasons.find((r) => r.kind === "age");
+    expect(ageReason?.label).toMatch(/청년/);
+    const overrideReasons = trace.reasons.filter((r) => r.kind === "override");
+    expect(overrideReasons.length).toBe(1);
+  });
+
+  // 9-7. baseScore vs score — override 적용 시 분리 확인
+  it("override 적용 시 baseScore와 score가 다를 수 있다", () => {
+    // shine-muscat × farmYouth: base 산식과 override가 다름
+    const crop = CROPS.find((c) => c.id === "shine-muscat");
+    if (!crop) return;
+    const trace = getCropPersonaFitTrace(crop, "farmYouth");
+    // override가 final score를 결정함
+    expect(trace.score).toBe(5);
+    expect(typeof trace.baseScore).toBe("number");
+    expect(trace.baseScore).toBeGreaterThanOrEqual(1);
+    expect(trace.baseScore).toBeLessThanOrEqual(5);
+  });
+
+  // 9-8. throw 없이 모든 (작물 × 페르소나) 동작
+  it("모든 (작물 × 페르소나) trace 호출이 throw 없이 동작", () => {
+    for (const crop of CROPS) {
+      for (const id of PERSONA_IDS) {
+        expect(() => getCropPersonaFitTrace(crop, id)).not.toThrow();
+      }
+    }
+  });
+
+  it("모든 (사업 × 페르소나) trace 호출이 throw 없이 동작", () => {
+    for (const program of PROGRAMS) {
+      for (const id of PERSONA_IDS) {
+        expect(() => getProgramPersonaFitTrace(program, id)).not.toThrow();
+      }
+    }
+  });
+
+  // 9-9. reasons label 톤 검증 — ~합니다/입니다 금지
+  it("trace reasons label에는 '~합니다/입니다' 톤이 없다 (작물)", () => {
+    const banned = /(합니다|입니다)(\.|$|\s)/;
+    for (const crop of CROPS.slice(0, 5)) {
+      for (const id of PERSONA_IDS) {
+        const trace = getCropPersonaFitTrace(crop, id);
+        for (const r of trace.reasons) {
+          expect(r.label).not.toMatch(banned);
+        }
+      }
+    }
+  });
+
+  it("trace reasons label에는 '~합니다/입니다' 톤이 없다 (사업)", () => {
+    const banned = /(합니다|입니다)(\.|$|\s)/;
+    for (const program of PROGRAMS.slice(0, 5)) {
+      for (const id of PERSONA_IDS) {
+        const trace = getProgramPersonaFitTrace(program, id);
+        for (const r of trace.reasons) {
+          expect(r.label).not.toMatch(banned);
+        }
+      }
+    }
+  });
+
+  // 9-10. reasons 최대 개수 — UI 칩 폭주 방지 (kind당 1건씩 → 최대 3개)
+  it("작물 trace reasons는 최대 3개 (UI 칩 폭주 방지)", () => {
+    for (const crop of CROPS) {
+      for (const id of PERSONA_IDS) {
+        const trace = getCropPersonaFitTrace(crop, id);
+        expect(trace.reasons.length).toBeLessThanOrEqual(3);
+      }
+    }
+  });
+
+  it("사업 trace reasons는 최대 3개 (UI 칩 폭주 방지)", () => {
+    for (const program of PROGRAMS) {
+      for (const id of PERSONA_IDS) {
+        const trace = getProgramPersonaFitTrace(program, id);
+        expect(trace.reasons.length).toBeLessThanOrEqual(3);
+      }
+    }
+  });
+
+  // 9-11. score 1~5 범위
+  it("모든 trace.score는 1~5 범위", () => {
+    for (const crop of CROPS) {
+      for (const id of PERSONA_IDS) {
+        const trace = getCropPersonaFitTrace(crop, id);
+        expect(trace.score).toBeGreaterThanOrEqual(1);
+        expect(trace.score).toBeLessThanOrEqual(5);
+      }
+    }
+    for (const program of PROGRAMS) {
+      for (const id of PERSONA_IDS) {
+        const trace = getProgramPersonaFitTrace(program, id);
+        expect(trace.score).toBeGreaterThanOrEqual(1);
+        expect(trace.score).toBeLessThanOrEqual(5);
+      }
     }
   });
 });
