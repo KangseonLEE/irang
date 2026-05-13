@@ -203,11 +203,18 @@ const DIMENSION_LABEL_MAP = {
  * 진단 demographic 답변(ageGroup) 기반 추천 페르소나 매핑.
  *
  * 매핑 로직 (단순 1차):
- *   - youth (39세 이하)   → farmYouth  (청년 농업 본업 가정)
+ *   - youth (39세 이하)   → farmYouth  (청년 농업 본업 가정, 청년 정책 대상)
+ *   - 30s                  → farmYouth  (만 39세 이하 청년 정책 대상 — youth와 동일 묶음)
  *   - 40s                  → family     (자녀 양육 가구 가정)
  *   - 50s                  → commuter   (귀촌 직장인 가정)
  *   - 60plus               → elderRural (노년 귀촌)
  *   - 답변 없음/매칭 실패  → balanced   (5차원 균등)
+ *
+ * 라이브 진단 wizard(DEMOGRAPHIC_QUESTIONS)는 youth(만 39세 이하) 단일 옵션만 노출.
+ * 30s 는 API validator(/api/assess) + 공유 URL 인코더(assess-share.ts)에서 허용되는
+ * 별도 코드. 외부 진입(공유 URL · API 직접 호출) 시 30s 가 들어와도 default balanced 로
+ * 떨어지지 않도록 farmYouth 로 묶는다. 만 39세 이하 청년 정책 대상이라는 점이 youth 와
+ * 동일하므로 의미 충돌 없음.
  *
  * 한계: ageGroup만으로 가족 유무·직업 형태를 정확히 알 수 없음. 향후 track answers
  * (가족 dimension 점수)와 결합해 더 정교한 매핑 가능 (Phase 6 후보).
@@ -215,6 +222,7 @@ const DIMENSION_LABEL_MAP = {
 export function mapDemographicToPersona(ageGroup: string | undefined): Persona {
   switch (ageGroup) {
     case "youth":
+    case "30s":
       return PERSONA_INDEX.get("farmYouth")!;
     case "40s":
       return PERSONA_INDEX.get("family")!;
