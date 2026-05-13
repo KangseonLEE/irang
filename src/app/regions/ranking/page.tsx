@@ -23,8 +23,12 @@ import {
   PERSONAS,
   type PersonaId,
   computePersonaScore,
-  getPersona,
 } from "@/lib/data/personas";
+import {
+  resolvePersonaFromParams,
+  serializeWeights,
+  WEIGHT_PARAM_KEY,
+} from "@/lib/persona-weights-custom";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { RegionPersonaExplain } from "@/components/persona/region-persona-explain";
@@ -40,7 +44,13 @@ export const metadata: Metadata = {
 export const revalidate = 86400;
 
 interface PageProps {
-  searchParams: Promise<{ dim?: string; sido?: string; persona?: string }>;
+  searchParams: Promise<{
+    dim?: string;
+    sido?: string;
+    persona?: string;
+    /** Phase 6 B1: 가중치 커스터마이징 — `?w=20-15-15-35-15` */
+    w?: string;
+  }>;
 }
 
 const SIGUNGU_INDEX = new Map(SIGUNGUS.map((sg) => [sg.sgisCode, sg]));
@@ -66,6 +76,8 @@ function buildHref(opts: {
   dim?: DimensionId;
   persona?: PersonaId;
   sido?: string;
+  /** Phase 6 B1: 가중치 커스터마이징 유지 — `?w=20-15-15-35-15` 형식 */
+  w?: string;
 }): string {
   const params = new URLSearchParams();
   if (opts.mode === "persona" && opts.persona) {
@@ -74,6 +86,9 @@ function buildHref(opts: {
     params.set("dim", opts.dim);
   }
   if (opts.sido && opts.sido !== "전체") params.set("sido", opts.sido);
+  if (opts.mode === "persona" && opts.w) {
+    params.set(WEIGHT_PARAM_KEY, opts.w);
+  }
   const qs = params.toString();
   return qs ? `/regions/ranking?${qs}` : "/regions/ranking";
 }
@@ -110,9 +125,16 @@ export default async function RankingPage({ searchParams }: PageProps) {
   const sp = await searchParams;
 
   // 모드 판정: persona param 있으면 페르소나 모드, 없으면 차원 모드
+  // Phase 6 B1: w=20-15-15-35-15 가중치 커스터마이징도 페르소나 모드로 진입
   const personaParam = sp.persona ?? null;
-  const persona = personaParam ? getPersona(personaParam) : null;
+  const resolved = resolvePersonaFromParams(personaParam, sp.w ?? null);
+  const persona = resolved?.persona ?? null;
+  const isCustom = resolved?.isCustom ?? false;
   const mode: "dimension" | "persona" = persona ? "persona" : "dimension";
+
+  // 커스텀 가중치 직렬화 — buildHref에 전달해 시도 필터·페르소나 전환 시 유지
+  const customWeightsParam =
+    isCustom && persona ? serializeWeights(persona.weights) : undefined;
 
   const dim = (DIMENSION_IDS as string[]).includes(sp.dim ?? "")
     ? (sp.dim as DimensionId)
@@ -140,7 +162,9 @@ export default async function RankingPage({ searchParams }: PageProps) {
 
   const description =
     mode === "persona" && persona
-      ? `‘${persona.label}’ 스타일로 시군구 점수를 줄 세웠어요.`
+      ? isCustom
+        ? `‘${persona.label}’ 스타일을 직접 조정한 가중치로 시군구를 줄 세웠어요.`
+        : `‘${persona.label}’ 스타일로 시군구 점수를 줄 세웠어요.`
       : "5가지 차원 중 하나를 골라 전국 시군구를 비교해 보세요.";
 
   return (
@@ -175,6 +199,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
             mode: "persona",
             persona: (persona?.id ?? "balanced") as PersonaId,
             sido: sidoFilter ?? undefined,
+            w: customWeightsParam,
           })}
           role="tab"
           aria-selected={mode === "persona"}
@@ -227,10 +252,12 @@ export default async function RankingPage({ searchParams }: PageProps) {
                   mode: "persona",
                   persona: p.id,
                   sido: sidoFilter ?? undefined,
+                  // 페르소나 전환 시 커스텀 가중치는 해제 (각 페르소나의 기본 가중치로)
+                  w: undefined,
                 })}
                 role="tab"
-                aria-selected={persona?.id === p.id}
-                className={`${s.dimensionToggleBtn} ${persona?.id === p.id ? s.dimensionToggleActive : ""}`}
+                aria-selected={persona?.id === p.id && !isCustom}
+                className={`${s.dimensionToggleBtn} ${persona?.id === p.id && !isCustom ? s.dimensionToggleActive : ""}`}
                 title={`${p.audience} · ${p.desc}\n인구 ${p.weights.populationTrend}% · 농가 ${p.weights.farmActivity}% · 의료 ${p.weights.medical}% · 학교 ${p.weights.school}% · 귀농 ${p.weights.returnFarm}%`}
               >
                 {p.label}
@@ -239,8 +266,9 @@ export default async function RankingPage({ searchParams }: PageProps) {
           </div>
           {persona && (
             <p className={s.dimensionDesc}>
-              {persona.audience}을(를) 위한 스타일이에요. 5차원을 가중 평균해
-              하나의 점수로 만들어요.
+              {isCustom
+                ? `직접 조정한 가중치예요. 인구 ${persona.weights.populationTrend}% · 농가 ${persona.weights.farmActivity}% · 의료 ${persona.weights.medical}% · 학교 ${persona.weights.school}% · 귀농 ${persona.weights.returnFarm}%`
+                : `${persona.audience}을(를) 위한 스타일이에요. 5차원을 가중 평균해 하나의 점수로 만들어요.`}
             </p>
           )}
         </>
@@ -253,6 +281,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
             mode,
             dim: mode === "dimension" ? dim : undefined,
             persona: mode === "persona" ? (persona?.id as PersonaId) : undefined,
+            w: customWeightsParam,
           })}
           className={`${s.sidoFilterBtn} ${!sidoFilter ? s.sidoFilterActive : ""}`}
         >
@@ -266,6 +295,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
               dim: mode === "dimension" ? dim : undefined,
               persona: mode === "persona" ? (persona?.id as PersonaId) : undefined,
               sido: p.shortName,
+              w: customWeightsParam,
             })}
             className={`${s.sidoFilterBtn} ${sidoFilter === p.shortName ? s.sidoFilterActive : ""}`}
           >

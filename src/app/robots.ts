@@ -48,6 +48,9 @@ export default function robots(): MetadataRoute.Robots {
           "/education?",
           "/crops?",
           "/regions?",
+          // Phase 6 B1: /regions/ranking?w=... 가중치 커스터마이징 — 봇이 조합 무한 시도 차단.
+          // canonical은 metadata.alternates에 strip된 /regions/ranking 유지.
+          "/regions/ranking?",
         ],
       },
       ...AI_TRAINING_CRAWLERS.map((bot) => ({
