@@ -24,6 +24,12 @@ interface CorrectionEntry {
 
 const CORRECTIONS: CorrectionEntry[] = [
   {
+    date: "2026-05-13",
+    field: "귀농 스타일 추천 매핑 정식 마감 (Phase 6 A안)",
+    description:
+      "진단 답변에서 도출한 귀농 스타일이 시군구뿐 아니라 작물·지원사업까지 자동 추천하도록 매핑을 마무리했어요. 작물 39종과 지원사업 19건에 카테고리·난이도·연령 요건 기반 1~5점 적합도와 예외 보정을 부여하고, 점수 4 이상만 추천 카드에 노출해요. /match·/crops·/programs·/regions/ranking/methodology 4곳에서 같은 산식이 쓰이고, 데이터가 흔들리면 즉시 알 수 있도록 회귀 테스트 51개를 추가했어요. 산식 근거는 /regions/ranking/methodology에서 자세히 확인할 수 있어요.",
+  },
+  {
     date: "2026-05-11",
     field: "Vercel Hobby 한도 대응 — 인프라 보강",
     description:
