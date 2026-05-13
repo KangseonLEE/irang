@@ -172,7 +172,8 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
   },
   "/programs": {
     // codex 권고 (5/7): page 추가 (table view client-side pagination)
-    allowedKeys: ["region", "age", "supportType", "q", "includeClosed", "period", "view", "page"],
+    // 2026-05-13: persona 추가 (Phase 6 B3 explain UI inline 진입 + /crops·/programs 페르소나 칩 sprint)
+    allowedKeys: ["region", "age", "supportType", "q", "includeClosed", "period", "view", "page", "persona"],
     enumValidators: {
       region: [
         "전국",
@@ -191,6 +192,7 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       age: ["19~29세", "30~39세", "40~49세", "50~59세", "60~69세", "70~79세"],
       view: ["table", "card"],
       includeClosed: ["1"],
+      persona: ["family", "farmYouth", "elderRural", "commuter", "balanced"],
     },
     regexValidators: {
       period: /^\d{4}-(0[1-9]|1[0-2])$/,
@@ -244,10 +246,12 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     },
   },
   "/crops": {
-    allowedKeys: ["category", "difficulty", "q"],
+    // 2026-05-13: persona 추가 (Phase 6 B3 explain UI inline + 페르소나 칩 sprint)
+    allowedKeys: ["category", "difficulty", "q", "persona"],
     enumValidators: {
       category: ["전체", "식량", "채소", "과수", "특용"],
       difficulty: ["전체", "쉬움", "보통", "어려움"],
+      persona: ["family", "farmYouth", "elderRural", "commuter", "balanced"],
     },
     regexValidators: {
       // codex 권고 (5/7) q abuse 방어: 한글·영숫자·공백만
