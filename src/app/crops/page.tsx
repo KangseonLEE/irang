@@ -10,7 +10,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
 import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty, type CropInfo } from "@/lib/data/crops";
-import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
+import { PERSONAS, PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import { rankCropsForPersona, getCropPersonaFitTrace, type FitTrace } from "@/lib/data/persona-fit";
 import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
 import { getCropImageSrc } from "@/lib/crop-image";
@@ -166,6 +166,17 @@ export default async function CropsPage({ searchParams }: PageProps) {
             paramKey="difficulty"
             options={CROP_DIFFICULTIES.filter((d) => d !== "전체")}
             currentValue={params.difficulty}
+            currentFilters={currentFilters}
+            basePath="/crops"
+          />
+        </FilterRow>
+        <FilterRow>
+          <FilterGroup
+            label="귀농 스타일"
+            paramKey="persona"
+            options={PERSONAS.map((p) => p.id)}
+            optionLabels={Object.fromEntries(PERSONAS.map((p) => [p.id, p.label]))}
+            currentValue={params.persona}
             currentFilters={currentFilters}
             basePath="/crops"
           />

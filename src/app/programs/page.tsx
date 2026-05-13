@@ -16,7 +16,7 @@ import {
   AGE_RANGES,
   type ProgramFilters,
 } from "@/lib/data/programs";
-import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
+import { PERSONAS, PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import { rankProgramsForPersona } from "@/lib/data/persona-fit";
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import Link from "next/link";
@@ -229,6 +229,17 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             paramKey="age"
             options={AGE_RANGES}
             currentValue={params.age}
+            currentFilters={currentFilters}
+            basePath="/programs"
+          />
+        </FilterRow>
+        <FilterRow>
+          <FilterGroup
+            label="귀농 스타일"
+            paramKey="persona"
+            options={PERSONAS.map((p) => p.id)}
+            optionLabels={Object.fromEntries(PERSONAS.map((p) => [p.id, p.label]))}
+            currentValue={params.persona}
             currentFilters={currentFilters}
             basePath="/programs"
           />
