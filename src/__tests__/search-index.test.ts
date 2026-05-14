@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { searchItems, searchAll } from "@/lib/data/search-index";
+import { searchItems, searchAll, getQuerySuggestions } from "@/lib/data/search-index";
 
 // ─── 기본 검색 동작 ───
 
@@ -148,5 +148,40 @@ describe("searchAll (전체 검색)", () => {
     for (const count of Object.values(typeCounts)) {
       expect(count).toBeLessThanOrEqual(3);
     }
+  });
+});
+
+// ─── getQuerySuggestions (Phase 1C 네이버 스타일 자동완성) ───
+
+describe("getQuerySuggestions (텍스트 자동완성)", () => {
+  it("빈 쿼리는 빈 배열을 반환한다", () => {
+    expect(getQuerySuggestions("")).toEqual([]);
+    expect(getQuerySuggestions("   ")).toEqual([]);
+  });
+
+  it("입력값 자체를 첫 후보로 포함한다 (네이버 패턴)", () => {
+    const sugg = getQuerySuggestions("귤");
+    expect(sugg[0]).toBe("귤");
+  });
+
+  it("최대 결과 수를 초과하지 않는다 (기본 8)", () => {
+    const sugg = getQuerySuggestions("농");
+    expect(sugg.length).toBeLessThanOrEqual(8);
+  });
+
+  it("결과는 중복 없는 텍스트 배열이다", () => {
+    const sugg = getQuerySuggestions("딸기");
+    const unique = new Set(sugg.map((s) => s.toLowerCase()));
+    expect(unique.size).toBe(sugg.length);
+    for (const item of sugg) {
+      expect(typeof item).toBe("string");
+      expect(item.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("시드 안내 매칭 시 풀네임을 포함한다 (예: 서생 → 울산 울주 서생면)", () => {
+    const sugg = getQuerySuggestions("서생");
+    const fullName = sugg.find((s) => s.includes("서생면"));
+    expect(fullName).toBeDefined();
   });
 });

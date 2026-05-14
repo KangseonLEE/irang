@@ -1040,6 +1040,67 @@ export function suggestQueries(
   return [...startsWith, ...includes].slice(0, maxResults);
 }
 
+/**
+ * 네이버 스타일 자동완성 — 텍스트만 반환하는 통합 함수.
+ *
+ * 동작:
+ *  - 입력값 자체를 첫 후보로 포함 (네이버 패턴 — Enter 시 입력값 그대로 검색)
+ *  - searchAll 결과의 title 추출 + suggestQueries(QUERY_SUGGESTIONS) 합쳐 dedup
+ *  - type별 균형 cap(기본 2건)으로 region 8개·crop 1개 같은 편향 차단
+ *  - 시드 안내 카드(sub-region-hint-*)는 풀네임("울산 울주 서생면") 그대로 포함
+ *
+ * @param query 사용자 입력
+ * @param maxResults 최대 결과 수 (기본 8)
+ * @param perTypeCap type당 최대 노출 (기본 2)
+ */
+export function getQuerySuggestions(
+  query: string,
+  maxResults = 8,
+  perTypeCap = 2,
+): string[] {
+  const q = query.trim();
+  if (q.length === 0) return [];
+
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const push = (text: string) => {
+    const t = text.trim();
+    if (t.length === 0) return;
+    const key = t.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(t);
+  };
+
+  // 1) 입력값 그대로 (네이버 패턴 — 최상단 첫 후보)
+  push(q);
+
+  // 2) searchAll 결과의 title — type별 cap 적용
+  if (q.length >= 1) {
+    const items = searchAll(q);
+    const typeCount = new Map<SearchItemType, number>();
+    for (const item of items) {
+      const cur = typeCount.get(item.type) ?? 0;
+      if (cur >= perTypeCap) continue;
+      // 시드 안내(sub-region-hint-*)는 풀네임이 title이므로 그대로 사용
+      push(item.title);
+      typeCount.set(item.type, cur + 1);
+      if (out.length >= maxResults) break;
+    }
+  }
+
+  // 3) QUERY_SUGGESTIONS 자동완성 (정적 인기 쿼리) — 남은 슬롯 채움
+  if (out.length < maxResults && q.length >= 2) {
+    const sugg = suggestQueries(q, maxResults);
+    for (const s of sugg) {
+      push(s);
+      if (out.length >= maxResults) break;
+    }
+  }
+
+  return out.slice(0, maxResults);
+}
+
 // ---------------------------------------------------------------------------
 // Cross-Entity Intent Detection (교차 인텐트 감지)
 // ---------------------------------------------------------------------------

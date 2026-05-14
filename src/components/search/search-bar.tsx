@@ -12,10 +12,11 @@ import {
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { Clock, X, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ExternalLink } from "lucide-react";
+import { Clock, X, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ArrowUpLeft } from "lucide-react";
+// ArrowUpLeft: 자동완성 우상단 화살표 (네이버 패턴 — 클릭 시 입력창 채움)
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchItems, hasExactMatch, suggestQueries, type SearchItem } from "@/lib/data/search-index";
+import { getQuerySuggestions, searchAll } from "@/lib/data/search-index";
 import { POPULAR_KEYWORDS } from "./popular-keywords";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
@@ -66,25 +67,6 @@ export interface SearchBarHandle {
 
 const RECENT_KEY = "irang-recent-searches";
 const MAX_RECENT = 10;
-
-const SECTION_META: Record<
-  SearchItem["type"],
-  { label: string; icon: string }
-> = {
-  region: { label: "지역", icon: "\u{1F4CD}" },
-  crop: { label: "작물", icon: "\u{1F331}" },
-  program: { label: "지원사업", icon: "\u{1F4CB}" },
-  education: { label: "교육", icon: "\u{1F393}" },
-  event: { label: "체험·행사", icon: "\u{1F389}" },
-  guide: { label: "가이드·정보", icon: "\u{1F4D6}" },
-  center: { label: "지자체 센터", icon: "\u{1F3DB}\u{FE0F}" },
-  interview: { label: "귀농인 이야기", icon: "\u{1F464}" },
-  glossary: { label: "용어", icon: "\u{1F4D6}" },
-  land: { label: "농지·토지", icon: "\u{1F33E}" },
-};
-
-/** 검색어 없을 때(최근 검색 등) 사용하는 기본 섹션 순서 */
-const DEFAULT_SECTION_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide"];
 
 /** SSR-safe useLayoutEffect — 서버에서는 useEffect 폴백 (SSR 경고 방지) */
 const useIsomorphicLayoutEffect =
@@ -162,11 +144,14 @@ function highlight(text: string, query: string): React.ReactNode {
 // ---------------------------------------------------------------------------
 // Flat item type for keyboard navigation
 // ---------------------------------------------------------------------------
+//
+// Phase 1C (2026-05-15): 네이버 스타일 텍스트 리스트로 단순화.
+// 입력 후 dropdown 본문은 string[] 자동완성만 노출 (풍부 카드 제거).
+// 풍부 카드는 /search 결과 페이지에서만 사용 (result-card.tsx).
 
 type FlatItem =
   | { type: "suggestion"; id: string; query: string }
-  | { type: "recent"; id: string; query: string }
-  | { type: "result"; id: string; item: SearchItem };
+  | { type: "recent"; id: string; query: string };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -199,7 +184,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const isNavigatingRef = useRef(false);
 
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchItem[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<RecentItem[]>([]);
@@ -239,7 +223,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const handleClose = useCallback(() => {
     setIsOpen(false);
     setQuery("");
-    setResults([]);
     setSuggestions([]);
     setFocusedIndex(-1);
     setIsNavigating(false);
@@ -381,37 +364,16 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   useImperativeHandle(ref, () => ({
     fillQuery(q: string) {
       setQuery(q);
-      const found = searchItems(q);
-      setResults(found);
+      const sugg = getQuerySuggestions(q);
+      setSuggestions(sugg);
+      // 결과 페이지 매칭 건수는 풍부 검색(searchAll) 기준으로 적재
+      const matched = searchAll(q).length;
       setIsOpen(true);
       setFocusedIndex(-1);
       inputRef.current?.focus();
-      logSearch(q, found.length);
+      logSearch(q, matched);
     },
   }));
-
-  // ----- Group results by type (관련도 기반 동적 섹션 순서) -----
-  const grouped = useMemo(() => {
-    // 결과 순서에서 섹션 순서 도출 — 가장 관련도 높은 타입이 먼저
-    const seen = new Set<SearchItem["type"]>();
-    const order: SearchItem["type"][] = [];
-    for (const r of results) {
-      if (!seen.has(r.type)) {
-        seen.add(r.type);
-        order.push(r.type);
-      }
-    }
-    // 결과가 없으면 기본 순서 폴백
-    const sectionOrder = order.length > 0 ? order : DEFAULT_SECTION_ORDER;
-
-    return sectionOrder.reduce<
-      { type: SearchItem["type"]; items: SearchItem[] }[]
-    >((acc, type) => {
-      const items = results.filter((r) => r.type === type);
-      if (items.length > 0) acc.push({ type, items });
-      return acc;
-    }, []);
-  }, [results]);
 
   // 검색어가 비어있고 최근 검색이 있으면 최근 검색 표시
   const showRecent = query.trim().length === 0 && recentSearches.length > 0;
@@ -425,26 +387,12 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
         query: r.query,
       }));
     }
-    const items: FlatItem[] = [];
-    // 추천 검색어를 최상위에 배치
-    for (let i = 0; i < suggestions.length; i++) {
-      items.push({
-        type: "suggestion" as const,
-        id: `suggestion-${i}`,
-        query: suggestions[i],
-      });
-    }
-    for (const section of grouped) {
-      for (const item of section.items) {
-        items.push({
-          type: "result" as const,
-          id: `${item.type}-${item.id}`,
-          item,
-        });
-      }
-    }
-    return items;
-  }, [showRecent, recentSearches, grouped, suggestions]);
+    return suggestions.map((sq, i) => ({
+      type: "suggestion" as const,
+      id: `suggestion-${i}`,
+      query: sq,
+    }));
+  }, [showRecent, recentSearches, suggestions]);
 
   // id → flat index 사전 매핑 (렌더 시 mutable counter 사용 방지)
   const flatIndexMap = useMemo(() => {
@@ -459,66 +407,58 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     setFocusedIndex(-1);
   }, [allItems.length]);
 
-  // ----- Debounced search -----
+  // ----- Debounced suggestions -----
+  // Phase 1C: dropdown은 네이버 스타일 텍스트 자동완성만 노출.
+  // 풍부 카드(섹션·서브타이틀·배지)는 /search?q= 결과 페이지에서만 사용.
   const handleChange = useCallback((value: string) => {
     setQuery(value);
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (value.trim().length === 0) {
-      setResults([]);
       setSuggestions([]);
-      setIsOpen(true); // 빈 상태에서도 최근 검색어 표시
+      setIsOpen(true); // 빈 상태에서도 최근 검색어/인기 검색어 노출
       return;
     }
 
-    // 자동완성은 즉시 (경량 연산)
-    setSuggestions(suggestQueries(value, 3));
-
     debounceRef.current = setTimeout(() => {
-      const found = searchItems(value);
-      setResults(found);
+      setSuggestions(getQuerySuggestions(value));
       setIsOpen(true);
-    }, 200);
+    }, 150);
   }, []);
 
-  // ----- Navigate to result (form submit 경로) -----
-  const navigateTo = useCallback(
-    (href: string, searchQuery?: string, external?: boolean) => {
-      if (searchQuery) {
-        saveRecent(searchQuery);
-        analytics.search(searchQuery);
-      }
-      if (external) {
-        window.open(href, "_blank", "noopener,noreferrer");
-        setIsOpen(false);
-        return;
-      }
+  // ----- Navigate to /search (자동완성·최근·인기 클릭 공통) -----
+  const navigateToSearch = useCallback(
+    (term: string) => {
+      const q = term.trim();
+      if (q.length === 0) return;
+      saveRecent(q);
+      analytics.search(q);
+      // 자동완성·최근·인기 클릭은 /search 페이지로 이동 → /search useEffect가 logSearch 1회 호출.
+      // (중복 적재 방지를 위해 여기서는 logSearch 미호출)
       beginNavigation();
-      router.push(href);
+      router.push(`/search?q=${encodeURIComponent(q)}`);
     },
     [router, beginNavigation],
+  );
+
+  // ----- 우상단 화살표 — 검색 실행하지 않고 입력창에 텍스트만 채움 (네이버 패턴) -----
+  const fillInputWithSuggestion = useCallback(
+    (e: React.MouseEvent, term: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setQuery(term);
+      setSuggestions(getQuerySuggestions(term));
+      setFocusedIndex(-1);
+      inputRef.current?.focus();
+    },
+    [],
   );
 
   // ----- 확장 모드 "바로 탐색" Link 클릭 처리 -----
   const handleQuickNav = useCallback(() => {
     beginNavigation();
   }, [beginNavigation]);
-
-  // ----- 최근/인기/자동완성 검색어 클릭 → 검색 실행 -----
-  // 사용자가 명시적으로 키워드를 선택한 시점이므로 search_logs 적재
-  // (이후 결과 항목을 다시 클릭하면 그때 또 한 번 적재되지만, 두 의도는 별개의 액션이므로 허용)
-  const handleRecentClick = useCallback(
-    (recentQuery: string) => {
-      setQuery(recentQuery);
-      const found = searchItems(recentQuery);
-      setResults(found);
-      setIsOpen(true);
-      setFocusedIndex(-1);
-      logSearch(recentQuery, found.length);
-    },
-    [],
-  );
 
   // ----- 최근 검색어 전체 삭제 (컨펌) -----
   const handleClearAllRecent = useCallback(() => {
@@ -557,25 +497,19 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     [allItems.length, isExpanded, handleClose, onCloseProp],
   );
 
-  // ----- Form submit: 드롭다운 선택 vs 통합검색 페이지 분기 -----
+  // ----- Form submit: 자동완성 선택 vs 통합검색 페이지 분기 -----
+  // Phase 1C: dropdown 본문은 텍스트 자동완성만 노출 → Enter는 항상 /search?q= 이동.
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
       if (focusedIndex >= 0 && focusedIndex < allItems.length) {
         const focused = allItems[focusedIndex];
-        if (focused.type === "recent" || focused.type === "suggestion") handleRecentClick(focused.query);
-        else {
-          // 드롭다운 결과 항목 Enter 선택 — search_logs 적재
-          // (navigateTo로 /search 페이지를 거치지 않으므로 여기서 직접 호출)
-          if (query.trim().length > 0) logSearch(query, results.length);
-          navigateTo(focused.item.href, query, focused.item.external);
-        }
+        navigateToSearch(focused.query);
       } else if (query.trim().length > 0) {
-        // /search?q= 로 이동 — /search 페이지의 useEffect가 logSearch 호출 → 중복 방지 위해 여기서는 미호출
-        navigateTo(`/search?q=${encodeURIComponent(query.trim())}`, query);
+        navigateToSearch(query);
       }
     },
-    [allItems, focusedIndex, navigateTo, query, results.length, handleRecentClick],
+    [allItems, focusedIndex, navigateToSearch, query],
   );
 
   // ----- Click outside -----
@@ -640,8 +574,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       (richMode ||
         showRecent ||
         suggestions.length > 0 ||
-        grouped.length > 0 ||
-        (query.trim().length > 0 && grouped.length === 0)));
+        query.trim().length > 0));
 
   const dropdownClass = `${s.dropdown}${isExpanded ? ` ${s.dropdownExpanded}` : ""}`;
 
@@ -702,7 +635,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             className={s.expandedClear}
             onClick={() => {
               setQuery("");
-              setResults([]);
+              setSuggestions([]);
               inputRef.current?.focus();
             }}
             aria-label="검색어 지우기"
@@ -759,7 +692,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                     className={`${s.resultItem} ${s.resultItemCompact} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`}
                     role="option"
                     aria-selected={focusedIndex === currentFlatIndex}
-                    onClick={() => handleRecentClick(r.query)}
+                    onClick={() => navigateToSearch(r.query)}
                   >
                     <span className={s.recentIcon} aria-hidden="true">
                       <Clock size={14} />
@@ -831,7 +764,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                         key={kw.label}
                         type="button"
                         className={s.popularItem}
-                        onClick={() => handleRecentClick(kw.label)}
+                        onClick={() => navigateToSearch(kw.label)}
                       >
                         <span
                           className={`${s.popularRank}${isTop ? ` ${s.popularRankTop}` : ""}`}
@@ -891,10 +824,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             </>
           )}
 
-          {/* 추천 검색어 (자동완성) */}
+          {/* 자동완성 텍스트 리스트 (네이버 스타일) */}
           {suggestions.length > 0 && query.trim().length > 0 && (
             <div className={s.dropdownSection}>
-              <div className={s.sectionLabel}>추천 검색어</div>
               {suggestions.map((sq, i) => {
                 const itemId = `suggestion-${i}`;
                 const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
@@ -902,30 +834,37 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                   <div
                     key={itemId}
                     id={`search-item-${itemId}`}
-                    className={`${s.resultItem} ${s.resultItemCompact} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`}
+                    className={`${s.suggestRow} ${focusedIndex === currentFlatIndex ? s.suggestRowFocused : ""}`}
                     role="option"
                     aria-selected={focusedIndex === currentFlatIndex}
-                    onClick={() => handleRecentClick(sq)}
+                    onClick={() => navigateToSearch(sq)}
                   >
-                    <span className={s.suggestionIcon} aria-hidden="true">
+                    <span className={s.suggestIcon} aria-hidden="true">
                       <Search size={14} />
                     </span>
-                    <div className={s.resultItemContent}>
-                      <div className={s.resultItemTitle}>
-                        {highlight(sq, query)}
-                      </div>
-                    </div>
+                    <span className={s.suggestText}>
+                      {highlight(sq, query)}
+                    </span>
+                    <button
+                      type="button"
+                      className={s.suggestFill}
+                      onClick={(e) => fillInputWithSuggestion(e, sq)}
+                      aria-label={`"${sq}" 입력창에 채우기`}
+                      tabIndex={-1}
+                    >
+                      <ArrowUpLeft size={16} aria-hidden="true" />
+                    </button>
                   </div>
                 );
               })}
             </div>
           )}
 
-          {/* 검색 결과 없음 */}
-          {!showRecent && grouped.length === 0 && suggestions.length === 0 && query.trim().length > 0 && (
+          {/* 자동완성 0건 안내 — 입력값이 시드/searchAll/QUERY_SUGGESTIONS 어디에도 매칭 안 됨 */}
+          {!showRecent && suggestions.length === 0 && query.trim().length > 0 && (
             <div className={s.noResult}>
               <p className={s.noResultText}>
-                &ldquo;{query}&rdquo;에 대한 검색 결과가 없습니다
+                &ldquo;{query}&rdquo;에 대한 검색어가 없어요
               </p>
               <RequestButton
                 keyword={query.trim()}
@@ -937,102 +876,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             </div>
           )}
 
-          {/* 정확히 일치하는 항목 없음 안내 — 결과 위에 배치 */}
-          {grouped.length > 0 && query.trim().length >= 2 && !hasExactMatch(query, results) && (
-            <div className={s.noExactMatch}>
-              <p className={s.noExactMatchText}>
-                &ldquo;{query}&rdquo;에 정확히 일치하는 항목이 없어요
-              </p>
-              <RequestButton
-                keyword={query.trim()}
-                pageName="통합 검색"
-                label="항목 추가 요청하기"
-                className={s.noExactMatchBtn}
-                iconSize={14}
-              />
-            </div>
-          )}
-
-          {grouped.map((section) => {
-            const meta = SECTION_META[section.type];
-            return (
-              <div key={section.type} className={s.dropdownSection}>
-                <div className={s.sectionLabel}>
-                  {meta.icon} {meta.label}
-                </div>
-                {section.items.map((item) => {
-                  const itemId = `${item.type}-${item.id}`;
-                  const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
-                  const itemClass = `${s.resultItem} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`;
-                  const inner = (
-                    <>
-                      <span className={s.resultItemIcon} aria-hidden="true">
-                        {item.icon}
-                      </span>
-                      <div className={s.resultItemContent}>
-                        <div className={s.resultItemTitle}>
-                          {highlight(item.title, query)}
-                        </div>
-                        <div className={s.resultItemSubtitle}>
-                          {highlight(item.subtitle, query)}
-                        </div>
-                      </div>
-                      {item.external && (
-                        <span className={s.externalTag}>
-                          <ExternalLink size={10} aria-hidden="true" />
-                          외부
-                        </span>
-                      )}
-                      {item.badge && (
-                        <span className={s.resultBadge}>{item.badge}</span>
-                      )}
-                    </>
-                  );
-                  const handleClick = () => {
-                    if (query.trim()) {
-                      saveRecent(query);
-                      analytics.search(query);
-                      // search_logs 적재 — /search 페이지를 거치지 않으므로 헤더 드롭다운에서 직접 호출
-                      logSearch(query, results.length);
-                    }
-                    if (!item.external) beginNavigation();
-                  };
-
-                  return item.external ? (
-                    <a
-                      key={itemId}
-                      id={`search-item-${itemId}`}
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={itemClass}
-                      role="option"
-                      aria-selected={focusedIndex === currentFlatIndex}
-                      onClick={handleClick}
-                    >
-                      {inner}
-                    </a>
-                  ) : (
-                    <Link
-                      key={itemId}
-                      id={`search-item-${itemId}`}
-                      href={item.href}
-                      prefetch
-                      className={itemClass}
-                      role="option"
-                      aria-selected={focusedIndex === currentFlatIndex}
-                      onClick={handleClick}
-                    >
-                      {inner}
-                    </Link>
-                  );
-                })}
-              </div>
-            );
-          })}
-
-          {/* 전체 검색 결과 보기 링크 */}
-          {grouped.length > 0 && query.trim().length > 0 && (
+          {/* 전체 검색 결과 보기 footer — 자동완성 있을 때만 노출 */}
+          {suggestions.length > 0 && query.trim().length > 0 && (
             <div className={s.dropdownFooter}>
               <Link
                 href={`/search?q=${encodeURIComponent(query.trim())}`}
