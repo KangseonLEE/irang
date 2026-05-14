@@ -55,9 +55,28 @@ const BLOCKED_BOT_PATTERNS = [
   /FacebookBot/i,
 ];
 
+/**
+ * Headless browser 자동화 도구 user-agent 패턴 (2026-05-14 추가).
+ *
+ * 배경: 5/14 GA에서 Cheyenne(미국 와이오밍 클라우드 데이터센터) 활성 사용자
+ * 64명/30분 발견. CF Bot Fight Mode + ASN 6개 Block 룰을 통과한 잔존 봇.
+ * CF Bot Fight는 JS challenge 기반이라 puppeteer/playwright의 headless
+ * Chromium은 JS 실행으로 통과함. UA 단에서 추가 차단해야 함.
+ *
+ * 정상 사용자는 절대 이런 UA를 사용하지 않으므로 false positive 0.
+ * SEO 영향 X (Googlebot 등 verified bot의 UA에는 포함 안 됨).
+ */
+const HEADLESS_BROWSER_PATTERNS = [
+  /HeadlessChrome/i,
+  /puppeteer/i,
+  /playwright/i,
+];
+
 function isBlockedBot(ua: string): boolean {
   if (!ua) return false;
-  return BLOCKED_BOT_PATTERNS.some((re) => re.test(ua));
+  if (BLOCKED_BOT_PATTERNS.some((re) => re.test(ua))) return true;
+  if (HEADLESS_BROWSER_PATTERNS.some((re) => re.test(ua))) return true;
+  return false;
 }
 
 /**
