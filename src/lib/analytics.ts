@@ -65,6 +65,25 @@ export const analytics = {
       value: stepNumber,
     }),
 
+  // -- Ranking wizard (/regions/ranking D2 2026-05-14) --
+  rankingWizardStart: () =>
+    trackEvent({ action: "ranking_wizard_start", category: "ranking" }),
+  rankingWizardStep: (mode: "persona" | "dimension") =>
+    trackEvent({
+      action: "ranking_wizard_step",
+      category: "ranking",
+      label: mode,
+    }),
+  rankingWizardComplete: (
+    mode: "persona" | "dimension",
+    selection: string,
+  ) =>
+    trackEvent({
+      action: "ranking_wizard_complete",
+      category: "ranking",
+      label: `${mode}:${selection}`,
+    }),
+
   // -- Navigation / Content views --
   regionView: (regionId: string) =>
     trackEvent({ action: "region_view", category: "content", label: regionId }),

@@ -387,3 +387,30 @@
     transform: translateY(0);
   }
 }
+
+/* ================================================================
+   접근성: prefers-reduced-motion (D3 2026-05-14)
+   애니메이션·transform 제거, opacity transition만 유지
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .wizard,
+  .modeGrid,
+  .optionGrid {
+    animation: none;
+  }
+
+  .modeCard,
+  .optionCard,
+  .modeArrow,
+  .progressDot,
+  .backBtn {
+    transition: none;
+  }
+
+  @media (hover: hover) {
+    .modeCard:hover,
+    .optionCard:hover:not(:disabled) {
+      transform: none;
+    }
+  }
+}

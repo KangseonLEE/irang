@@ -11,7 +11,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Users,
   Sprout,
@@ -30,6 +30,7 @@ import {
   DIMENSION_IDS,
   type DimensionId,
 } from "@/lib/data/dimension-scores";
+import { analytics } from "@/lib/analytics";
 import s from "./ranking-wizard-hero.module.css";
 
 type Step = "mode" | "detail";
@@ -59,7 +60,13 @@ export function RankingWizardHero() {
   const [isNavigating, setIsNavigating] = useState(false);
   const navigatingRef = useRef(false);
 
+  // GA: wizard hero 노출 시 1회 (D3 2026-05-14)
+  useEffect(() => {
+    analytics.rankingWizardStart();
+  }, []);
+
   const handleModeSelect = (m: Mode) => {
+    analytics.rankingWizardStep(m);
     setMode(m);
     setStep("detail");
   };
@@ -73,6 +80,7 @@ export function RankingWizardHero() {
     if (navigatingRef.current) return;
     navigatingRef.current = true;
     setIsNavigating(true);
+    analytics.rankingWizardComplete("persona", personaId);
     router.push(`/regions/ranking?persona=${personaId}`);
   };
 
@@ -80,6 +88,7 @@ export function RankingWizardHero() {
     if (navigatingRef.current) return;
     navigatingRef.current = true;
     setIsNavigating(true);
+    analytics.rankingWizardComplete("dimension", dim);
     router.push(`/regions/ranking?dim=${dim}`);
   };
 
