@@ -175,8 +175,8 @@ export default async function RankingPage({ searchParams }: PageProps) {
     mode === "persona" && persona
       ? isCustom
         ? `‘${persona.label}’ 스타일을 직접 조정한 가중치로 시군구를 줄 세웠어요.`
-        : `‘${persona.label}’ 스타일로 시군구 점수를 줄 세웠어요.`
-      : "5가지 차원 중 하나를 골라 전국 시군구를 비교해 보세요.";
+        : `내 귀농 스타일에 맞춘 종합 점수로 시군구를 줄 세워요.`
+      : "5차원 정착 점수로 시군구를 줄 세워요.";
 
   return (
     <div className={s.page}>
@@ -195,34 +195,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
         count={ranked.length}
       />
 
-      {/* 5차원 빠른 진입 카드 — 차원 모드일 때만 노출 */}
-      {mode === "dimension" && (
-        <section className={s.dimGrid} aria-label="5가지 차원 빠른 진입">
-          {DIMENSION_IDS.map((id) => {
-            const DimIcon = DIMENSION_ICONS[id];
-            const isActive = id === dim;
-            return (
-              <Link
-                key={id}
-                href={buildHref({ mode: "dimension", dim: id, sido: sidoFilter ?? undefined })}
-                className={`${s.dimCard} ${isActive ? s.dimCardActive : ""}`}
-                aria-current={isActive ? "page" : undefined}
-              >
-                <span className={s.dimCardIcon}>
-                  <Icon icon={DimIcon} size="md" />
-                </span>
-                <span className={s.dimCardBody}>
-                  <span className={s.dimCardLabel}>{DIMENSION_LABELS[id]}</span>
-                  <span className={s.dimCardDesc}>{DIMENSION_DESCRIPTIONS[id]}</span>
-                </span>
-                <Icon icon={ArrowRight} size="sm" className={s.dimCardArrow} />
-              </Link>
-            );
-          })}
-        </section>
-      )}
-
-      {/* 모드 선택 */}
+      {/* 모드 선택 — 사용자 첫 의사결정 (PageHeader 직후) */}
       <div className={s.modeToggle} role="tablist" aria-label="비교 방식">
         <Link
           href={buildHref({ mode: "dimension", dim, sido: sidoFilter ?? undefined })}
@@ -247,31 +220,34 @@ export default async function RankingPage({ searchParams }: PageProps) {
         </Link>
       </div>
 
-      {/* 차원 또는 페르소나 토글 */}
+      {/* 차원 모드: dimGrid 카드 5종이 곧 selector (중복 chip 제거) */}
       {mode === "dimension" ? (
         <>
-          <div
-            className={s.dimensionToggle}
-            role="tablist"
-            aria-label="차원 선택"
-          >
-            {DIMENSION_IDS.map((id) => (
-              <Link
-                key={id}
-                href={buildHref({
-                  mode: "dimension",
-                  dim: id,
-                  sido: sidoFilter ?? undefined,
-                })}
-                role="tab"
-                aria-selected={dim === id}
-                className={`${s.dimensionToggleBtn} ${dim === id ? s.dimensionToggleActive : ""}`}
-              >
-                {DIMENSION_LABELS[id]}
-              </Link>
-            ))}
-          </div>
-          <p className={s.dimensionDesc}>{DIMENSION_DESCRIPTIONS[dim]}</p>
+          <section className={s.dimGrid} role="tablist" aria-label="차원 선택">
+            {DIMENSION_IDS.map((id) => {
+              const DimIcon = DIMENSION_ICONS[id];
+              const isActive = id === dim;
+              return (
+                <Link
+                  key={id}
+                  href={buildHref({ mode: "dimension", dim: id, sido: sidoFilter ?? undefined })}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`${s.dimCard} ${isActive ? s.dimCardActive : ""}`}
+                >
+                  <span className={s.dimCardIcon}>
+                    <Icon icon={DimIcon} size="md" />
+                  </span>
+                  <span className={s.dimCardBody}>
+                    <span className={s.dimCardLabel}>{DIMENSION_LABELS[id]}</span>
+                    <span className={s.dimCardDesc}>{DIMENSION_DESCRIPTIONS[id]}</span>
+                  </span>
+                  <Icon icon={ArrowRight} size="sm" className={s.dimCardArrow} />
+                </Link>
+              );
+            })}
+          </section>
           {DIMENSION_NOTES[dim] && (
             <p className={s.dimensionNote}>{DIMENSION_NOTES[dim]}</p>
           )}

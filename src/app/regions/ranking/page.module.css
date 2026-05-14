@@ -498,8 +498,22 @@
 }
 
 .dimCardActive {
-  border-color: color-mix(in srgb, var(--primary, #1B6B5A) 60%, transparent);
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 5%, transparent);
+  border-color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 9%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary, #1B6B5A) 18%, transparent);
+}
+
+.dimCardActive .dimCardIcon {
+  background: var(--primary, #1B6B5A);
+  color: #fff;
+}
+
+.dimCardActive .dimCardLabel {
+  color: var(--primary, #1B6B5A);
+}
+
+.dimCardActive .dimCardArrow {
+  color: var(--primary, #1B6B5A);
 }
 
 .dimCardIcon {
