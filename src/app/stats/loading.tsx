@@ -5,7 +5,7 @@ export default function StatsLoading() {
     <div className={s.container}>
       {/* Header */}
       <div className={s.header}>
-        <h1 className={s.headerTitle}>귀농 통계</h1>
+        <h2 className={s.headerTitle}>귀농 통계</h2>
         <p className={s.headerDesc}>
           통계 데이터를 불러오고 있습니다...
         </p>

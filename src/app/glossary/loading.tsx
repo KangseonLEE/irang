@@ -10,7 +10,7 @@ export default function GlossaryLoading() {
           <BookOpen size={16} />
           Glossary
         </span>
-        <h1 className={s.title}>농업 용어집</h1>
+        <h2 className={s.title}>농업 용어집</h2>
         <p className={s.description}>
           용어 데이터를 불러오고 있습니다...
         </p>

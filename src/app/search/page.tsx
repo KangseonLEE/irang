@@ -48,7 +48,7 @@ function SearchPageFallback() {
       </div>
       <div className={s.emptyQuery}>
         <Search size={40} className={s.emptyIcon} />
-        <h1 className={s.emptyTitle}>통합 검색</h1>
+        <h2 className={s.emptyTitle}>통합 검색</h2>
         <p className={s.emptyDesc}>검색 결과를 불러오는 중이에요...</p>
       </div>
     </div>
@@ -128,7 +128,7 @@ function SearchPageContent() {
       ) : (
         <div className={s.emptyQuery}>
           <Search size={40} className={s.emptyIcon} />
-          <h1 className={s.emptyTitle}>통합 검색</h1>
+          <h2 className={s.emptyTitle}>통합 검색</h2>
           <p className={s.emptyDesc}>
             지역, 작물, 지원사업을 한번에 검색하세요.
           </p>

@@ -10,7 +10,7 @@ export default function ProgramsLoading() {
           <FileText size={20} />
           <span className={s.overlineText}>Programs</span>
         </div>
-        <h1 className={s.title}>지원사업 검색</h1>
+        <h2 className={s.title}>지원사업 검색</h2>
         <p className={s.description}>
           지원사업 정보를 불러오고 있습니다...
         </p>

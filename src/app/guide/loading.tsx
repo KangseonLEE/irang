@@ -6,7 +6,7 @@ export default function GuideLoading() {
       {/* Hero */}
       <div className={s.hero}>
         <span className={s.heroOverline}>PROCESS GUIDE</span>
-        <h1 className={s.heroTitle}>귀농 5단계 가이드</h1>
+        <h2 className={s.heroTitle}>귀농 5단계 가이드</h2>
         <p className={s.heroDesc}>
           가이드 데이터를 불러오고 있습니다...
         </p>

@@ -13,7 +13,7 @@ export default function CropsLoading() {
             Crop Info
           </span>
         </div>
-        <h1 className={s.title}>작물 정보</h1>
+        <h2 className={s.title}>작물 정보</h2>
         <p className={s.description}>
           작물 데이터를 불러오고 있습니다...
         </p>
