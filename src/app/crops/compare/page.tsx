@@ -29,7 +29,7 @@ import { PROVINCES } from "@/lib/data/regions";
 import { DataSource } from "@/components/ui/data-source";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
-import { CropSelector } from "./crop-selector";
+import { CropSelector, type CropSelectorItem } from "./crop-selector";
 import { CropRadar } from "./crop-radar";
 import { IncomeBars } from "./income-bars";
 import { CompareTabs, TAB_IDS, type TabId } from "./compare-tabs";
@@ -79,6 +79,18 @@ const CAT_LABEL: Record<ProsConsCategory, string> = {
 };
 
 const DIFFICULTY_RANK: Record<string, number> = { 쉬움: 1, 보통: 2, 어려움: 3 };
+
+/**
+ * selector 에 직렬화해서 보낼 작물 데이터 — emoji 같은 비표시 필드 제외.
+ * (RSC payload 에서 이모지가 노출되지 않도록 차단)
+ */
+const selectorCrops: CropSelectorItem[] = CROPS.map((c) => ({
+  id: c.id,
+  name: c.name,
+  category: c.category,
+  difficulty: c.difficulty,
+  description: c.description,
+}));
 
 function isTabId(value: string | undefined): value is TabId {
   return !!value && (TAB_IDS as readonly string[]).includes(value);
@@ -242,7 +254,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
           />
         }
       >
-        <CropSelector crops={CROPS} selectedIds={selectedIds} />
+        <CropSelector crops={selectorCrops} selectedIds={selectedIds} />
       </Suspense>
 
       {crops.length === 1 && (

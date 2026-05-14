@@ -17,8 +17,17 @@ import s from "./crop-selector.module.css";
 
 const MAX_SELECTION = 4;
 
+/**
+ * selector 에 필요한 최소 필드만 — emoji 같은 표시 외 필드는 props 직렬화에서 제외.
+ * (RSC payload 에 불필요한 데이터 노출 방지)
+ */
+export type CropSelectorItem = Pick<
+  CropInfo,
+  "id" | "name" | "category" | "difficulty" | "description"
+>;
+
 interface CropSelectorProps {
-  crops: CropInfo[];
+  crops: CropSelectorItem[];
   selectedIds: string[];
 }
 
@@ -80,7 +89,7 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
   }, []);
 
   const cropById = useMemo(() => {
-    const map = new Map<string, CropInfo>();
+    const map = new Map<string, CropSelectorItem>();
     for (const c of crops) map.set(c.id, c);
     return map;
   }, [crops]);
