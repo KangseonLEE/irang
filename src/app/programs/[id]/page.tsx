@@ -7,6 +7,8 @@ import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { GovernmentService } from "schema-dts";
 import {
   ArrowLeft,
   ArrowRight,
@@ -74,12 +76,68 @@ export default async function ProgramDetailPage({
 
   const guide = getProgramGuide(id);
 
+  // ── GovernmentService schema ──
+  // 9999-12-31 (미정 페어) 또는 잘못된 값은 schema에서 제외 (Google parser 오류 방지)
+  const isValidDate = (d: string) =>
+    /^\d{4}-\d{2}-\d{2}$/.test(d) && !d.startsWith("9999");
+  const validStart = isValidDate(program.applicationStart)
+    ? program.applicationStart
+    : undefined;
+  const validEnd = isValidDate(program.applicationEnd)
+    ? program.applicationEnd
+    : undefined;
+
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[
         { name: "지원사업 검색", href: "/programs" },
         { name: program.title, href: `/programs/${id}` },
       ]} />
+      <JsonLd<GovernmentService>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "GovernmentService",
+          name: program.title,
+          description: program.summary,
+          serviceType: program.supportType,
+          areaServed: { "@type": "AdministrativeArea", name: program.region },
+          provider: {
+            "@type": "GovernmentOrganization",
+            name: program.organization,
+          },
+          audience: {
+            "@type": "Audience",
+            audienceType: program.eligibilityDetail,
+            ...(program.eligibilityAgeMin
+              ? { suggestedMinAge: program.eligibilityAgeMin }
+              : {}),
+            ...(program.eligibilityAgeMax && program.eligibilityAgeMax < 99
+              ? { suggestedMaxAge: program.eligibilityAgeMax }
+              : {}),
+          },
+          ...(program.relatedCrops.length > 0
+            ? { keywords: program.relatedCrops.join(", ") }
+            : {}),
+          ...(program.sourceUrl ? { url: program.sourceUrl } : {}),
+          mainEntityOfPage: `https://irangfarm.com/programs/${program.id}`,
+          ...(validStart || validEnd
+            ? {
+                availableChannel: {
+                  "@type": "ServiceChannel",
+                  serviceUrl: program.sourceUrl,
+                  ...(validStart || validEnd
+                    ? {
+                        availableLanguage: "ko",
+                      }
+                    : {}),
+                },
+              }
+            : {}),
+          // 신청 기간을 별도 필드로 (Google ParseError 방지 위해 string)
+          ...(validStart ? { validFrom: validStart } : {}),
+          ...(validEnd ? { validThrough: validEnd } : {}),
+        }}
+      />
       {/* Breadcrumb / Back */}
       <Link href="/programs" className={s.backLink}>
         <ArrowLeft size={16} />

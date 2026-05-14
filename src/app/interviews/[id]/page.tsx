@@ -22,8 +22,21 @@ import { getInterviewImageSrc } from "@/lib/interview-image";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { Article } from "schema-dts";
 import { InterviewCorrectionNotice } from "@/components/interview/correction-notice";
 import s from "./page.module.css";
+
+/**
+ * sourceDate "YYYY.MM" or "YYYY-MM" → ISO 8601 datePublished.
+ * 일자 정보가 없으면 해당 월 1일로 추정.
+ */
+function toIsoDate(sourceDate: string): string | undefined {
+  const match = sourceDate.match(/^(\d{4})[.\-](\d{1,2})(?:[.\-](\d{1,2}))?/);
+  if (!match) return undefined;
+  const [, year, month, day = "01"] = match;
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
 
 function getInterviewById(id: string) {
   return interviews.find((i) => i.id === id) ?? null;
@@ -90,12 +103,59 @@ export default async function InterviewDetailPage({
   const otherInterviews = pickRandomOthers(id, 3);
   const illustration = getInterviewImageSrc(person.id);
 
+  const datePublished = toIsoDate(person.sourceDate);
+  const regionShort = person.region.split(" ")[0];
+  const articleDescription = `${regionShort}에서 ${person.crop}을(를) 재배하는 ${person.name}님의 귀농 경험담. ${person.story.slice(0, 140)}`;
+
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[
         { name: "귀농인 이야기", href: "/interviews" },
         { name: `${person.name}님의 이야기`, href: `/interviews/${id}` },
       ]} />
+      {/* ── Article schema (본문 동의자만 — 미동의자는 위에서 redirect 처리됨) ── */}
+      <JsonLd<Article>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: `${person.name}님의 귀농 이야기 — ${regionShort} ${person.crop}`,
+          description: articleDescription,
+          author: { "@type": "Person", name: person.name },
+          publisher: {
+            "@type": "Organization",
+            name: "이랑",
+            logo: {
+              "@type": "ImageObject",
+              url: "https://irangfarm.com/icon.svg",
+            },
+          },
+          inLanguage: "ko",
+          isBasedOn: person.sourceUrl,
+          citation: {
+            "@type": "CreativeWork",
+            name: person.sourceName,
+            url: person.sourceUrl,
+            ...(datePublished ? { datePublished } : {}),
+          },
+          ...(datePublished
+            ? { datePublished, dateModified: datePublished }
+            : {}),
+          mainEntityOfPage: `https://irangfarm.com/interviews/${id}`,
+          ...(illustration
+            ? { image: `https://irangfarm.com${illustration}` }
+            : {}),
+          keywords: [
+            "귀농",
+            person.crop,
+            regionShort,
+            person.currentJob,
+          ].join(", "),
+          about: [
+            { "@type": "Place", name: person.region },
+            { "@type": "Thing", name: person.crop },
+          ],
+        }}
+      />
       {/* ═══ 뒤로가기 ═══ */}
       <Link href="/interviews" className={s.backLink}>
         <Icon icon={ArrowLeft} size="md" />
