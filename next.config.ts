@@ -144,41 +144,6 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      /* ── 추가 list/detail 페이지 (2026-05-14 transfer 절감) ──
-         /costs·/regions·/stats: 1h s-maxage (정적 데이터 위주)
-         /regions/ranking·/programs/roadmap: 24h s-maxage (장수명 데이터)
-         page.tsx에 export const revalidate 적용 시 dynamic SSR 충돌 (5/11 lessons) →
-         CDN headers로만 ISR 효과 확보. */
-      {
-        source: "/costs",
-        headers: [
-          { key: "Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=86400" },
-        ],
-      },
-      {
-        source: "/regions",
-        headers: [
-          { key: "Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=86400" },
-        ],
-      },
-      {
-        source: "/stats",
-        headers: [
-          { key: "Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=86400" },
-        ],
-      },
-      {
-        source: "/regions/ranking",
-        headers: [
-          { key: "Cache-Control", value: "public, s-maxage=86400, stale-while-revalidate=86400" },
-        ],
-      },
-      {
-        source: "/programs/roadmap",
-        headers: [
-          { key: "Cache-Control", value: "public, s-maxage=86400, stale-while-revalidate=86400" },
-        ],
-      },
     ];
   },
 };
