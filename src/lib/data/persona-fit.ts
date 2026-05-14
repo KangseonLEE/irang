@@ -337,6 +337,19 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   // 2026-05-11: SP-019(스마트팜 9기)는 SP-012와 동일 사업이라 중복 제거. SP-012 항목 활용.
   // 청년농 영농정착 2차 (40세 미만 핵심)
   "SP-020": { farmYouth: 5, family: 3, elderRural: 1, commuter: 1 },
+  // 2026-05-14: 6/15 큐레이션 sprint 당김 (7월 모집 시즌 대비)
+  // 예산군 임대형 스마트팜 (40세 미만 청년)
+  "SP-021": { farmYouth: 5, family: 3, elderRural: 1, commuter: 1 },
+  // 청년농 R&D 아이디어 사업화 공모 (40세 이하 청년)
+  "SP-022": { farmYouth: 5, family: 2, elderRural: 1, commuter: 2 },
+  // 후계농업경영인 일반 선발 (만 18~49세, 가족·청년 핵심)
+  "SP-023": { family: 5, farmYouth: 5, elderRural: 2, commuter: 2 },
+  // 고성 귀농인의 집 (체류형, 가족·노년)
+  "SP-024": { family: 5, elderRural: 4, commuter: 4, farmYouth: 3 },
+  // 논산 귀농인의 집 (체류형, 가족·반귀농)
+  "SP-025": { family: 5, commuter: 4, elderRural: 4, farmYouth: 3 },
+  // 제주 신규농업인 현장실습 (1:1 매칭 교육, 청년·균형형)
+  "SP-026": { farmYouth: 5, family: 4, elderRural: 3, commuter: 3 },
 };
 
 export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
@@ -364,6 +377,12 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-017": "전국 체류 허브라 모든 페르소나에 폭넓게 맞아요",
   "SP-018": "농지 임대수탁이라 자본 부담이 큰 가족·노년에 강점이에요",
   "SP-020": "40세 미만 청년농 정착지원 2차 모집이에요",
+  "SP-021": "40세 미만 청년 대상 임대형 스마트팜 입주(예산)이에요",
+  "SP-022": "청년농 R&D 아이디어 사업화 공모라 본업 농가에 맞아요",
+  "SP-023": "만 49세 이하 후계농 융자(최대 5억원)라 가족·본업 농가 핵심이에요",
+  "SP-024": "체류형 귀농인의 집(고성)이라 가족·노년에 잘 맞아요",
+  "SP-025": "체류형 귀농인의 집(논산)이라 가족·반귀농에 잘 맞아요",
+  "SP-026": "1:1 매칭 현장실습이라 청년·입문 농가에 적합해요",
 };
 
 /**
