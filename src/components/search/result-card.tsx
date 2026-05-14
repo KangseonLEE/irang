@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -13,9 +12,10 @@ import { getSigunguById } from "@/lib/data/sigungus";
 import { getProvinceById } from "@/lib/data/regions";
 import { STATIONS } from "@/lib/data/stations";
 import { CENTERS } from "@/lib/data/centers";
-import { interviews, INTERVIEW_CATEGORY_LABEL, hasFullStory } from "@/lib/data/landing";
+import { interviews } from "@/lib/data/landing";
 import { glossaryMap, CATEGORY_LABELS } from "@/lib/data/glossary";
-import { getInterviewImageSrc } from "@/lib/interview-image";
+import { CropPageCard } from "@/components/crop/crop-page-card";
+import { InterviewRichCard } from "@/components/interview/interview-rich-card";
 
 import s from "./result-card.module.css";
 
@@ -194,24 +194,12 @@ function renderHintCard(item: SearchItem, query: string, highlightCls: string): 
   );
 }
 
-/** 작물 카드 — emoji + 작물명 + 카테고리 + 난이도 */
+/** 작물 카드 — /crops 페이지와 동일한 풍부 세로형 카드 (이미지 + 정보) */
 function renderCropCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
   const crop = CROPS.find((c) => c.id === item.id);
   if (!crop) return renderSimpleCard(item, query, highlightCls);
 
-  return wrapCard(
-    item,
-    s.cardRich,
-    <>
-      <span className={s.iconBox} aria-hidden="true">{crop.emoji}</span>
-      <span className={s.title}>{highlightMatch(crop.name, query, highlightCls)}</span>
-      <span className={s.subtitle}>{highlightMatch(item.subtitle, query, highlightCls)}</span>
-      <div className={s.metaRow}>
-        <span className={s.metaChip}>{crop.category}</span>
-        <span className={s.metaChipMuted}>난이도 {crop.difficulty}</span>
-      </div>
-    </>,
-  );
+  return <CropPageCard key={`${item.type}-${item.id}`} crop={crop} />;
 }
 
 /** 지역 카드 — 시도·시군구·구·관측소 분기 */
@@ -381,50 +369,12 @@ function renderEventCard(item: SearchItem, query: string, highlightCls: string):
   );
 }
 
-/** 인터뷰 카드 — 일러스트 + 이름·작목·지역·quote */
+/** 인터뷰 카드 — /interviews 페이지와 동일한 풍부 세로형 카드 (일러스트 + 정보) */
 function renderInterviewCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
   const iv = interviews.find((p) => p.id === item.id);
   if (!iv) return renderSimpleCard(item, query, highlightCls);
 
-  const illust = getInterviewImageSrc(iv.id);
-  const categoryLabel = iv.category ? INTERVIEW_CATEGORY_LABEL[iv.category] : null;
-  const isInternal = hasFullStory(iv);
-
-  return wrapCard(
-    item,
-    s.cardRich,
-    <>
-      {illust ? (
-        <span className={s.iconBoxThumb} aria-hidden="true">
-          <Image src={illust} alt="" width={44} height={44} />
-        </span>
-      ) : (
-        <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
-      )}
-      <span className={s.title}>
-        {highlightMatch(`${iv.name} (${iv.age})`, query, highlightCls)}
-      </span>
-      <span className={s.subtitle}>
-        <span className={s.metaQuote}>&ldquo;{highlightMatch(iv.quote, query, highlightCls)}&rdquo;</span>
-      </span>
-      <div className={s.metaRow}>
-        <span className={s.metaChipMuted}>{iv.region}</span>
-        <span className={s.metaSep}>·</span>
-        <span className={s.metaChip}>{iv.crop}</span>
-        {categoryLabel && (
-          <>
-            <span className={s.metaSep}>·</span>
-            <span className={s.metaItem}>{categoryLabel}</span>
-          </>
-        )}
-      </div>
-      {!isInternal && (
-        <span className={s.externalBadge}>
-          <ExternalLink size={12} aria-hidden="true" />외부
-        </span>
-      )}
-    </>,
-  );
+  return <InterviewRichCard key={`${item.type}-${item.id}`} person={iv} />;
 }
 
 /** 지자체 센터 카드 — sido/sigungu + 전화 + 카테고리(광역/시·군) */

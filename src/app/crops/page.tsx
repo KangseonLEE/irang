@@ -1,19 +1,16 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ArrowRight, Scale } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
-import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
-import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty, type CropInfo } from "@/lib/data/crops";
+import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import { rankCropsForPersona, getCropPersonaFitTrace, type FitTrace } from "@/lib/data/persona-fit";
-import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
-import { getCropImageSrc } from "@/lib/crop-image";
+import { CropPageCard } from "@/components/crop/crop-page-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
@@ -187,7 +184,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
       {/* Crop Card Grid */}
       <div className={s.cropGrid}>
         {filteredCrops.map((crop) => (
-          <CropCard
+          <CropPageCard
             key={crop.id}
             crop={crop}
             trace={cropTraces.get(crop.id)}
@@ -229,67 +226,3 @@ export default async function CropsPage({ searchParams }: PageProps) {
   );
 }
 
-// --- 서브 컴포넌트 ---
-
-// 난이도 → CSS class 매핑
-const DIFFICULTY_CLASS: Record<string, string> = {
-  쉬움: s.difficultyEasy,
-  보통: s.difficultyMedium,
-  어려움: s.difficultyHard,
-};
-
-function CropCard({
-  crop,
-  trace,
-}: {
-  crop: CropInfo;
-  trace?: FitTrace;
-}) {
-  const cardLink = (
-    <Link href={`/crops/${crop.id}`} className={s.cropCard}>
-      {/* 이미지 영역 — aspect-ratio 기반 */}
-      <div className={s.cropCardImageWrap}>
-        <Image
-          src={getCropImageSrc(crop.id)}
-          alt={`${crop.name} 작물 사진`}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className={s.cropCardImage}
-          style={{ objectFit: "cover" }}
-        />
-        <span className={s.cropCardCategory}>{crop.category}</span>
-      </div>
-
-      {/* 텍스트 정보 영역 */}
-      <div className={s.cropCardContent}>
-        {/* L1: 작물명 + 난이도 */}
-        <div className={s.cropCardNameRow}>
-          <h3 className={s.cropCardName}>{crop.name}</h3>
-          <span
-            className={`${s.difficultyBadge} ${DIFFICULTY_CLASS[crop.difficulty] ?? s.difficultyMedium}`}
-          >
-            난이도 · {crop.difficulty}
-          </span>
-        </div>
-
-        {/* L2: 재배시기 */}
-        <p className={s.cropCardSeason}>{crop.growingSeason}</p>
-
-        {/* L3: 설명 */}
-        <p className={s.cropCardDesc}><AutoGlossary text={crop.description} /></p>
-      </div>
-    </Link>
-  );
-
-  // 페르소나 모드: 카드 + explain row를 column wrapper로 묶음 (a 태그 nesting 방지)
-  if (trace) {
-    return (
-      <article className={s.cropCellPersona}>
-        {cardLink}
-        <PersonaScoreExplain trace={trace} subject="이 작물" />
-      </article>
-    );
-  }
-
-  return cardLink;
-}

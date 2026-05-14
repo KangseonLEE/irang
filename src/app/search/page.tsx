@@ -274,7 +274,13 @@ function SearchPageContent() {
                     <span className={s.sectionHint}>모집중·모집예정만</span>
                   )}
                 </h2>
-                <div className={s.grid}>
+                <div
+                  className={
+                    group.type === "crop" || group.type === "interview"
+                      ? s.gridRich
+                      : s.grid
+                  }
+                >
                   {visibleItems.map((item) => (
                     <ResultCard
                       key={`${item.type}-${item.id}`}

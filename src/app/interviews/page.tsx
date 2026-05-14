@@ -1,27 +1,17 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Briefcase,
-  Quote,
-  MapPin,
-} from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { ArrowRight, Quote } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
 import {
   interviews,
-  hasFullStory,
   INTERVIEW_CATEGORIES,
   INTERVIEW_CATEGORY_LABEL,
   type InterviewCategoryId,
 } from "@/lib/data/landing";
-import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
-import { getInterviewImageSrc } from "@/lib/interview-image";
-import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { InterviewCorrectionNotice } from "@/components/interview/correction-notice";
+import { InterviewRichCard } from "@/components/interview/interview-rich-card";
 import { FilterBar, FilterRow, FilterGroup } from "@/components/filter/filter-bar";
 import { EmptyState } from "@/components/ui/empty-state";
 import s from "./page.module.css";
@@ -124,96 +114,9 @@ export default async function InterviewsPage({ searchParams }: PageProps) {
             />
           </div>
         ) : (
-          visibleInterviews.map((person) => {
-            const illustration = getInterviewImageSrc(person.id);
-            const isInternal = hasFullStory(person);
-            const cardInner = (
-              <>
-                {illustration && (
-                  <div className={s.cardImageWrap}>
-                    <Image
-                      src={illustration}
-                      alt={`${person.name}님의 농장 일러스트`}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
-                      className={s.cardImage}
-                      style={{ objectFit: "cover" }}
-                    />
-                  </div>
-                )}
-                {/* 카테고리 chip (2026-05-14 D1) */}
-                <span className={s.cardCategoryChip}>
-                  {INTERVIEW_CATEGORY_LABEL[person.category]}
-                </span>
-                {/* 프로필 */}
-                <div className={s.cardHeader}>
-                  {!illustration && (
-                    <FarmerAvatar
-                      name={person.name}
-                      seed={person.id}
-                      size="md"
-                    />
-                  )}
-                  <div className={s.cardProfile}>
-                    <span className={s.cardName}>{person.name}</span>
-                    <span className={s.cardMeta}>
-                      <Icon icon={MapPin} size="xs" /> {person.region} · {person.age}
-                    </span>
-                  </div>
-                </div>
-
-                {/* 직업 변화 */}
-                <div className={s.cardTags}>
-                  <span className={s.cardTag}>
-                    <Icon icon={Briefcase} size="xs" />
-                    {person.prevJob}
-                  </span>
-                  <span className={s.cardTagArrow}>&rarr;</span>
-                  <span className={s.cardTag}>
-                    <Icon icon={Sprout} size="xs" />
-                    {person.currentJob}
-                  </span>
-                </div>
-
-                {/* 인용문 */}
-                <div className={s.cardQuoteWrap}>
-                  <Icon icon={Quote} size="md" className={s.cardQuoteIcon} />
-                  <p className={s.cardQuote}><AutoGlossary text={person.quote} /></p>
-                </div>
-
-                {/* 푸터 */}
-                <div className={s.cardFooter}>
-                  <div className={s.cardFooterBadges}>
-                    <span className={s.cardRegionBadge}>
-                      <Icon icon={MapPin} size="xs" /> {person.region}
-                    </span>
-                    <span className={s.cardCrop}>
-                      <Icon icon={Sprout} size="xs" /> {person.crop}
-                    </span>
-                  </div>
-                  <span className={s.cardCta}>
-                    {isInternal ? "이야기 읽기" : `${person.sourceName} 원문`}{" "}
-                    <Icon icon={ArrowRight} size="sm" />
-                  </span>
-                </div>
-              </>
-            );
-            return isInternal ? (
-              <Link key={person.id} href={`/interviews/${person.id}`} className={s.card}>
-                {cardInner}
-              </Link>
-            ) : (
-              <a
-                key={person.id}
-                href={person.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={s.card}
-              >
-                {cardInner}
-              </a>
-            );
-          })
+          visibleInterviews.map((person) => (
+            <InterviewRichCard key={person.id} person={person} />
+          ))
         )}
       </section>
 

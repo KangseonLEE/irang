@@ -355,11 +355,32 @@
   color: var(--muted-foreground);
 }
 
-/* 결과 카드 그리드 */
+/* 결과 카드 그리드 — 일반 type (한 줄 카드) */
 .grid {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* 풍부 카드 그리드 — 작물·인터뷰 (세로형 카드, /crops·/interviews 페이지와 동일) */
+.gridRich {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .gridRich {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .gridRich {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
 }
 
 .card {

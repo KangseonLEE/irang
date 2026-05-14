@@ -1,0 +1,208 @@
+/* ── CropPageCard — 작물 페이지·검색 결과 공통 풍부 카드 ── */
+
+/* Phase 6 B3 D2 — 페르소나 모드 cell wrapper (카드 + explain row column 묶음) */
+.cropCellPersona {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cropCellPersona > .cropCard {
+  flex: 1 1 auto;
+}
+
+/* ── 작물 카드 (밝은 이미지 + 정보 하단) ── */
+.cropCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .cropCard:hover {
+    border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    box-shadow: 0 4px 20px rgba(27, 107, 90, 0.08);
+  }
+}
+
+.cropCard:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* 이미지 래퍼 — aspect-ratio로 높이 제어 */
+.cropCardImageWrap {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f7f1e3;
+}
+
+.cropCardImage {
+  transition: transform 0.3s ease;
+}
+
+@media (hover: hover) {
+  .cropCard:hover .cropCardImage {
+    transform: scale(1.04);
+  }
+}
+
+/* 카테고리 pill — 이미지 위 좌하단, frosted glass */
+.cropCardCategory {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--primary-foreground);
+  background: rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  z-index: 2;
+}
+
+/* backdrop-filter 미지원 폴백 */
+@supports not (backdrop-filter: blur(1px)) {
+  .cropCardCategory {
+    background: rgba(0, 0, 0, 0.65);
+  }
+}
+
+/* ── 텍스트 정보 영역 ── */
+.cropCardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px 12px;
+}
+
+@media (min-width: 640px) {
+  .cropCardContent {
+    gap: 6px;
+    padding: 12px 14px 14px;
+  }
+}
+
+/* L1: 작물명 + 난이도 한 줄 */
+.cropCardNameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.cropCardName {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .cropCardName {
+    font-size: 16px;
+  }
+}
+
+/* 난이도 pill — color-coded */
+.difficultyBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .difficultyBadge {
+    font-size: 11px;
+    padding: 2px 10px;
+  }
+}
+
+.difficultyEasy {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.difficultyMedium {
+  background: #fef9c3;
+  color: var(--warning-fg, #a16207);
+}
+
+.difficultyHard {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* L2: 재배시기 */
+.cropCardSeason {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-snug);
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .cropCardSeason {
+    font-size: 13px;
+  }
+}
+
+/* L3: 설명 — 1줄 클램프 (모바일) / 2줄 (640px+) */
+.cropCardDesc {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--muted-foreground, #6b7280);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .cropCardDesc {
+    font-size: 13px;
+    -webkit-line-clamp: 2;
+  }
+}
+
+/* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
+@media (min-width: 1024px) {
+  .cropCardCategory {
+    font-size: 13px;
+  }
+
+  .cropCardSeason {
+    font-size: 14px;
+  }
+
+  .cropCardDesc {
+    font-size: var(--fs-body-sm);
+  }
+}
