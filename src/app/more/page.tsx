@@ -67,7 +67,7 @@ interface MenuGroup {
 
 const menuGroups: MenuGroup[] = [
   {
-    label: "탐색",
+    label: "지역·작물",
     items: [
       { href: "/regions", label: "지역 탐색", desc: "시·도별 기후·인구·작물 정보", icon: MapPin },
       { href: "/regions/compare", label: "지역 비교", desc: "최대 3개 지역 비교 분석", icon: GitCompareArrows },
@@ -79,7 +79,7 @@ const menuGroups: MenuGroup[] = [
     ],
   },
   {
-    label: "준비",
+    label: "가이드",
     items: [
       { href: "/guide", label: "귀농 로드맵", desc: "5단계 귀농 준비 가이드", icon: Route },
       { href: "/guides", label: "주제별 가이드", desc: "50대·1인·실패 사례 등 상황별", icon: BookOpen },
@@ -91,7 +91,7 @@ const menuGroups: MenuGroup[] = [
     ],
   },
   {
-    label: "실행",
+    label: "신청",
     items: [
       { href: "/programs", label: "지원사업", desc: "귀농·귀촌 지원금 & 정책", icon: FileText },
       { href: "/programs/roadmap", label: "정부사업 가이드", desc: "5대 사업 신청 절차 안내", icon: FileCheck },
@@ -101,7 +101,7 @@ const menuGroups: MenuGroup[] = [
     ],
   },
   {
-    label: "자료",
+    label: "자료실",
     items: [
       { href: "/stats", label: "통계", desc: "귀농 인구·청년·만족도 추이", icon: BarChart3 },
       { href: "/glossary", label: "농업 용어집", desc: "처음 만나는 농업 용어 해설", icon: BookOpen },
