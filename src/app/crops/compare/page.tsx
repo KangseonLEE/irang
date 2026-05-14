@@ -15,6 +15,7 @@ import {
   Clock,
   Activity,
   Leaf,
+  Info,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { getCropImageSrc } from "@/lib/crop-image";
@@ -216,7 +217,16 @@ export default async function CropComparePage({ searchParams }: PageProps) {
         <CropSelector crops={CROPS} selectedIds={selectedIds} />
       </Suspense>
 
-      {crops.length > 0 && (
+      {crops.length === 1 && (
+        <div className={s.minSelectionNotice} role="status" aria-live="polite">
+          <Icon icon={Info} size="md" />
+          <p className={s.minSelectionText}>
+            2개 이상 골라야 비교가 가능해요. 위에서 작물을 더 추가해 보세요.
+          </p>
+        </div>
+      )}
+
+      {crops.length >= 2 && (
         <>
           <CompareTabs activeTab={tab} baseQuery={baseQuery} />
 

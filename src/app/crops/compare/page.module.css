@@ -443,6 +443,30 @@
   margin: 0;
 }
 
+/* ---- 최소 선택 안내 (1개 선택 시) ---- */
+.minSelectionNotice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
+  border-radius: 16px;
+  color: var(--primary, #1b6b5a);
+}
+
+@media (min-width: 640px) {
+  .minSelectionNotice { padding: 16px 20px; gap: 12px; }
+}
+
+.minSelectionText {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground, #333);
+  line-height: var(--lh-relaxed);
+  margin: 0;
+}
+
 /* ---- 장단점 비교 그리드 ---- */
 .prosConsGrid {
   display: grid;

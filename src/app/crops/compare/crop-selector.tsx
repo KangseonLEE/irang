@@ -182,18 +182,15 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
   const removeCrop = useCallback(
     (cropId: string) => {
       const next = latestRef.current.filter((id) => id !== cropId);
-      // 작물은 최소 1개 유지 (기존 정책)
-      if (next.length === 0) return;
+      // 0개까지 비울 수 있음 (2026-05-14 정책 변경)
       pushSelection(next);
     },
     [pushSelection],
   );
 
   const clearAll = useCallback(() => {
-    const current = latestRef.current;
-    if (current.length <= 1) return;
-    // 첫 번째만 남김 (기존 정책 보존)
-    pushSelection([current[0]]);
+    if (latestRef.current.length === 0) return;
+    pushSelection([]);
   }, [pushSelection]);
 
   const handleKeyDown = useCallback(
@@ -361,7 +358,7 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
           <span className={s.counter}>
             {optimisticIds.length}/{MAX_SELECTION}
           </span>
-          {optimisticIds.length > 1 && (
+          {optimisticIds.length > 0 && (
             <button
               type="button"
               className={s.clearAllBtn}
@@ -390,7 +387,7 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
               className={s.cardRemoveBtn}
               onClick={() => removeCrop(crop.id)}
               aria-label={`${crop.name} 해제`}
-              disabled={isPending || selectedCrops.length <= 1}
+              disabled={isPending}
             >
               <X size={16} aria-hidden="true" />
             </button>
