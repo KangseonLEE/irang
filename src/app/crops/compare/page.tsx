@@ -11,6 +11,10 @@ import {
   Calendar,
   TrendingUp,
   MapPin,
+  Wallet,
+  Clock,
+  Activity,
+  Leaf,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { getCropImageSrc } from "@/lib/crop-image";
@@ -30,6 +34,14 @@ import { CropSelector } from "./crop-selector";
 import { CropRadar } from "./crop-radar";
 import { IncomeBars } from "./income-bars";
 import { CompareTabs, TAB_IDS, type TabId } from "./compare-tabs";
+import {
+  CropMetricCard,
+  CropBadgeMetricCard,
+  MetricGrid,
+  type BadgeTone,
+  type NumericRow,
+  type BadgeRow,
+} from "./metric-card";
 import { DesktopHint } from "@/components/ui/desktop-hint";
 import { SwipeHint } from "@/components/ui/swipe-hint";
 import s from "./page.module.css";
@@ -86,6 +98,39 @@ function parseIncome(revenueRange: string): { min: number; max: number } {
 
   return { min: Math.min(values[0], values[1]), max: Math.max(values[0], values[1]) };
 }
+
+/** annualWorkdays 문자열에서 일수 추출 (예: "약 60~80일 (이앙·수확기 집중)" → 70 평균) */
+function parseAnnualWorkdays(text: string | undefined): number | null {
+  if (!text) return null;
+  const numbers = text.match(/\d+/g);
+  if (!numbers || numbers.length === 0) return null;
+  const parsed = numbers.map((n) => parseInt(n, 10)).filter((n) => n >= 5 && n <= 365);
+  if (parsed.length === 0) return null;
+  if (parsed.length === 1) return parsed[0];
+  return Math.round((parsed[0] + parsed[1]) / 2);
+}
+
+/** difficulty → badge tone */
+const DIFFICULTY_TONE: Record<string, BadgeTone> = {
+  쉬움: "easy",
+  보통: "medium",
+  어려움: "hard",
+};
+
+/** laborIntensity → badge tone (낮을수록 좋음) */
+const LABOR_TONE: Record<string, BadgeTone> = {
+  낮음: "easy",
+  보통: "medium",
+  높음: "hard",
+};
+
+/** category → badge tone (시각 구분만, 우열 없음) */
+const CATEGORY_TONE: Record<string, BadgeTone> = {
+  식량: "primary",
+  채소: "easy",
+  과수: "medium",
+  특용: "neutral",
+};
 
 function buildComparisonSummary(crops: CropWithDetail[]): string {
   if (crops.length < 2) return "";
@@ -196,7 +241,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
 function SummaryView({ crops }: { crops: CropWithDetail[] }) {
   return (
     <>
-      {/* Summary Cards */}
+      {/* Summary Cards (visual identity) */}
       <section aria-labelledby="summary-heading">
         <h2 id="summary-heading" className={s.srOnly}>
           작물 요약
@@ -207,6 +252,9 @@ function SummaryView({ crops }: { crops: CropWithDetail[] }) {
           ))}
         </div>
       </section>
+
+      {/* Metric Stat Cards — 토스 스타일 핵심 수치 비교 */}
+      {crops.length >= 2 && <SummaryMetricGrid crops={crops} />}
 
       {/* 한줄 요약 */}
       {crops.length >= 2 && (
@@ -239,9 +287,105 @@ function SummaryView({ crops }: { crops: CropWithDetail[] }) {
   );
 }
 
+/**
+ * SummaryView 핵심 metric 비교 그리드.
+ * 4 metric: 예상 소득(높을수록 좋음) / 난이도 / 노동일수(적을수록 좋음) / 노동강도
+ */
+function SummaryMetricGrid({ crops }: { crops: CropWithDetail[] }) {
+  const incomeRows: NumericRow[] = crops.map((c) => {
+    const { min, max } = parseIncome(c.detail.income.revenueRange);
+    const center = max > 0 ? Math.round((min + max) / 2) : null;
+    return {
+      cropId: c.id,
+      cropName: c.name,
+      emoji: c.emoji,
+      value: center,
+      displayText:
+        min === max
+          ? max.toLocaleString()
+          : `${min.toLocaleString()}~${max.toLocaleString()}`,
+    };
+  });
+
+  const workdayRows: NumericRow[] = crops.map((c) => ({
+    cropId: c.id,
+    cropName: c.name,
+    emoji: c.emoji,
+    value: parseAnnualWorkdays(c.detail.income.annualWorkdays),
+  }));
+
+  const difficultyRows: BadgeRow[] = crops.map((c) => ({
+    cropId: c.id,
+    cropName: c.name,
+    emoji: c.emoji,
+    badge: c.difficulty,
+    tone: DIFFICULTY_TONE[c.difficulty] ?? "neutral",
+  }));
+
+  const laborRows: BadgeRow[] = crops.map((c) => ({
+    cropId: c.id,
+    cropName: c.name,
+    emoji: c.emoji,
+    badge: c.detail.income.laborIntensity ?? "—",
+    tone: c.detail.income.laborIntensity
+      ? (LABOR_TONE[c.detail.income.laborIntensity] ?? "neutral")
+      : "neutral",
+  }));
+
+  const easiest = crops.find(
+    (c) =>
+      DIFFICULTY_RANK[c.difficulty] ===
+      Math.min(...crops.map((cc) => DIFFICULTY_RANK[cc.difficulty] ?? 2)),
+  );
+
+  const lightestLaborRow = laborRows.find((r) => r.tone === "easy");
+
+  return (
+    <MetricGrid>
+      <CropMetricCard
+        title="예상 소득"
+        unit="만원/10a"
+        icon={Wallet}
+        emphasis="highest"
+        emphasisLabelHighest="가장 높아요"
+        emphasisLabelLowest="가장 낮아요"
+        rows={incomeRows}
+      />
+      <CropMetricCard
+        title="연간 노동일수"
+        unit="일"
+        icon={Clock}
+        emphasis="lowest"
+        emphasisLabelHighest="가장 많아요"
+        emphasisLabelLowest="가장 적어요"
+        rows={workdayRows}
+      />
+      <CropBadgeMetricCard
+        title="재배 난이도"
+        icon={Gauge}
+        rows={difficultyRows}
+        footerLabel={easiest ? `가장 쉬운 작물 · ${easiest.emoji} ${easiest.name}` : undefined}
+      />
+      <CropBadgeMetricCard
+        title="노동 강도"
+        icon={Activity}
+        rows={laborRows}
+        footerLabel={
+          lightestLaborRow
+            ? `노동 부담이 가장 적어요 · ${lightestLaborRow.emoji} ${lightestLaborRow.cropName}`
+            : undefined
+        }
+      />
+    </MetricGrid>
+  );
+}
+
 function EconomyView({ crops }: { crops: CropWithDetail[] }) {
   return (
     <>
+      {/* Metric Stat Cards — 노동·강도 핵심 비교 (소득 시각화는 IncomeBars 차트 참조) */}
+      {crops.length >= 2 && <EconomyMetricGrid crops={crops} />}
+
       {/* 예상 소득 차트 */}
       {crops.length >= 2 && (
         <section className={s.chartSection}>
@@ -313,10 +457,80 @@ function EconomyView({ crops }: { crops: CropWithDetail[] }) {
   );
 }
 
+/**
+ * EconomyView 핵심 metric 비교 그리드.
+ * 3 metric: 연간 노동일수 / 노동 강도 / 최소 권장 규모(비교 가능 시)
+ */
+function EconomyMetricGrid({ crops }: { crops: CropWithDetail[] }) {
+  const workdayRows: NumericRow[] = crops.map((c) => ({
+    cropId: c.id,
+    cropName: c.name,
+    emoji: c.emoji,
+    value: parseAnnualWorkdays(c.detail.income.annualWorkdays),
+  }));
+
+  const laborRows: BadgeRow[] = crops.map((c) => ({
+    cropId: c.id,
+    cropName: c.name,
+    emoji: c.emoji,
+    badge: c.detail.income.laborIntensity ?? "—",
+    tone: c.detail.income.laborIntensity
+      ? (LABOR_TONE[c.detail.income.laborIntensity] ?? "neutral")
+      : "neutral",
+  }));
+
+  const incomeRows: NumericRow[] = crops.map((c) => {
+    const { min, max } = parseIncome(c.detail.income.revenueRange);
+    const center = max > 0 ? Math.round((min + max) / 2) : null;
+    return {
+      cropId: c.id,
+      cropName: c.name,
+      emoji: c.emoji,
+      value: center,
+      displayText:
+        min === max
+          ? max.toLocaleString()
+          : `${min.toLocaleString()}~${max.toLocaleString()}`,
+    };
+  });
+
+  return (
+    <MetricGrid>
+      <CropMetricCard
+        title="예상 소득"
+        unit="만원/10a"
+        icon={Wallet}
+        emphasis="highest"
+        emphasisLabelHighest="가장 높아요"
+        emphasisLabelLowest="가장 낮아요"
+        rows={incomeRows}
+      />
+      <CropMetricCard
+        title="연간 노동일수"
+        unit="일"
+        icon={Clock}
+        emphasis="lowest"
+        emphasisLabelHighest="가장 많아요"
+        emphasisLabelLowest="가장 적어요"
+        rows={workdayRows}
+      />
+      <CropBadgeMetricCard
+        title="노동 강도"
+        icon={Activity}
+        rows={laborRows}
+      />
+    </MetricGrid>
+  );
+}
+
 function CultivationView({ crops }: { crops: CropWithDetail[] }) {
   return (
-    <section aria-labelledby="cultivation-heading">
-      <div className={s.tableCard}>
+    <>
+      {/* Metric Stat Cards — 재배 환경 핵심 비교 */}
+      {crops.length >= 2 && <CultivationMetricGrid crops={crops} />}
+
+      <section aria-labelledby="cultivation-heading">
+        <div className={s.tableCard}>
         <div className={s.tableCardHeader}>
           <h2 id="cultivation-heading" className={s.tableCardTitle}>
             재배 환경 상세
@@ -370,6 +584,57 @@ function CultivationView({ crops }: { crops: CropWithDetail[] }) {
         </div>
       </div>
     </section>
+    </>
+  );
+}
+
+/**
+ * CultivationView 핵심 metric 비교 그리드.
+ * 3 badge metric: 카테고리 / 난이도 / 재배 시기
+ */
+function CultivationMetricGrid({ crops }: { crops: CropWithDetail[] }) {
+  const categoryRows: BadgeRow[] = crops.map((c) => ({
+    cropId: c.id,
+    cropName: c.name,
+    emoji: c.emoji,
+    badge: c.category,
+    tone: CATEGORY_TONE[c.category] ?? "neutral",
+  }));
+
+  const difficultyRows: BadgeRow[] = crops.map((c) => ({
+    cropId: c.id,
+    cropName: c.name,
+    emoji: c.emoji,
+    badge: c.difficulty,
+    tone: DIFFICULTY_TONE[c.difficulty] ?? "neutral",
+  }));
+
+  const seasonRows: BadgeRow[] = crops.map((c) => ({
+    cropId: c.id,
+    cropName: c.name,
+    emoji: c.emoji,
+    badge: c.growingSeason,
+    tone: "neutral",
+  }));
+
+  return (
+    <MetricGrid>
+      <CropBadgeMetricCard
+        title="카테고리"
+        icon={Leaf}
+        rows={categoryRows}
+      />
+      <CropBadgeMetricCard
+        title="재배 난이도"
+        icon={Gauge}
+        rows={difficultyRows}
+      />
+      <CropBadgeMetricCard
+        title="재배 시기"
+        icon={Calendar}
+        rows={seasonRows}
+      />
+    </MetricGrid>
   );
 }
 
