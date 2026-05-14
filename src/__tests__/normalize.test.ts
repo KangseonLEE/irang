@@ -214,11 +214,83 @@ describe("LIST_PAGE_NORMALIZE_OPTIONS coverage", () => {
       "/stats",
       "/costs",
       "/programs/roadmap",
+      // 2026-05-14 추가 (5/14 페르소나 칩 사고 lessons)
+      "/regions/compare",
+      "/regions/ranking",
+      "/crops/compare",
     ];
     for (const p of expected) {
       expect(LIST_PAGE_NORMALIZE_OPTIONS[p]).toBeDefined();
       expect(LIST_PAGE_NORMALIZE_OPTIONS[p].allowedKeys.length).toBeGreaterThan(0);
     }
+  });
+
+  describe("/regions/compare — 정상 query 보존 + abuse strip", () => {
+    const opts = LIST_PAGE_NORMALIZE_OPTIONS["/regions/compare"];
+
+    it("정상 regions+tab 통과", () => {
+      const raw = new URLSearchParams("regions=jeonnam:suncheon-si,gangwon&tab=infra");
+      const { cleaned } = normalizeSearchParams(raw, opts);
+      expect(cleaned.get("regions")).toBe("jeonnam:suncheon-si,gangwon");
+      expect(cleaned.get("tab")).toBe("infra");
+    });
+
+    it("backward compat stations 숫자 CSV 통과", () => {
+      const raw = new URLSearchParams("stations=108,119,259");
+      const { cleaned } = normalizeSearchParams(raw, opts);
+      expect(cleaned.get("stations")).toBe("108,119,259");
+    });
+
+    it("abuse query strip + tab enum 위반 strip", () => {
+      const raw = new URLSearchParams("xyz=abc&tab=invalid&regions=seoul");
+      const { cleaned } = normalizeSearchParams(raw, opts);
+      expect(cleaned.has("xyz")).toBe(false);
+      expect(cleaned.has("tab")).toBe(false);
+      expect(cleaned.get("regions")).toBe("seoul");
+    });
+  });
+
+  describe("/regions/ranking — persona/dim/sido/w 보존", () => {
+    const opts = LIST_PAGE_NORMALIZE_OPTIONS["/regions/ranking"];
+
+    it("persona+sido+w 모두 통과 (5/14 페르소나 칩 사고 회귀)", () => {
+      const raw = new URLSearchParams("persona=family&sido=전남&w=20-15-15-35-15");
+      const { cleaned } = normalizeSearchParams(raw, opts);
+      expect(cleaned.get("persona")).toBe("family");
+      expect(cleaned.get("sido")).toBe("전남");
+      expect(cleaned.get("w")).toBe("20-15-15-35-15");
+    });
+
+    it("dim enum 통과", () => {
+      const raw = new URLSearchParams("dim=medical");
+      const { cleaned } = normalizeSearchParams(raw, opts);
+      expect(cleaned.get("dim")).toBe("medical");
+    });
+
+    it("잘못된 persona / 잘못된 w 형식 strip", () => {
+      const raw = new URLSearchParams("persona=hacker&w=abc");
+      const { cleaned } = normalizeSearchParams(raw, opts);
+      expect(cleaned.has("persona")).toBe(false);
+      expect(cleaned.has("w")).toBe(false);
+    });
+  });
+
+  describe("/crops/compare — ids/tab 보존", () => {
+    const opts = LIST_PAGE_NORMALIZE_OPTIONS["/crops/compare"];
+
+    it("정상 ids 4개 + tab 통과", () => {
+      const raw = new URLSearchParams("ids=apple,pear,grape,peach&tab=economy");
+      const { cleaned } = normalizeSearchParams(raw, opts);
+      expect(cleaned.get("ids")).toBe("apple,pear,grape,peach");
+      expect(cleaned.get("tab")).toBe("economy");
+    });
+
+    it("ids 영숫자·하이픈 외 문자 strip", () => {
+      const raw = new URLSearchParams("ids=apple,pe%20ar");
+      const { cleaned } = normalizeSearchParams(raw, opts);
+      // "apple,pe ar" 형식 → regex 위반 → strip
+      expect(cleaned.has("ids")).toBe(false);
+    });
   });
 
   it("각 옵션의 allowedKeys는 빈 query에서 cleaned도 빈 (redirect 안 됨)", () => {

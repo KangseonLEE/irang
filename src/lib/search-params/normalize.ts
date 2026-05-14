@@ -311,4 +311,60 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       ],
     },
   },
+  /* ── 2026-05-14 추가: 5/14 페르소나 칩 사고 패턴 재발 방지 ──
+     normalize 미등록 페이지는 봇 random query → cache pollution 위험 + 정상 query
+     누락 시 308 strip 사고 (5/14 lessons). selector·deep-link 페이지 3종 등록. */
+  "/regions/compare": {
+    // regions: "{provinceId}[:{sigunguId}]" CSV (최대 3개) — 라이브에서 다양 → regex 약화
+    // stations: backward compat 숫자 CSV (e.g., "108,119,259")
+    // crop: 작물 id (선택), tab: climate/infra/suitability
+    allowedKeys: ["regions", "stations", "crop", "tab"],
+    enumValidators: {
+      tab: ["climate", "infra", "suitability"],
+    },
+    regexValidators: {
+      // provinceId 또는 provinceId:sigunguId, CSV (최대 3개)
+      regions: /^[a-z-]+(?::[a-z0-9-]+)?(?:,[a-z-]+(?::[a-z0-9-]+)?){0,2}$/,
+      // station number CSV (최대 3개)
+      stations: /^\d{2,4}(?:,\d{2,4}){0,2}$/,
+      // 작물 id: 영숫자·하이픈
+      crop: /^[a-z0-9-]+$/,
+    },
+    maxLengths: {
+      regions: 80,
+      stations: 30,
+      crop: 30,
+    },
+  },
+  "/regions/ranking": {
+    // dim: 5차원 / sido: shortName / persona: 5종 / w: "20-15-15-35-15" 형식
+    allowedKeys: ["dim", "sido", "persona", "w"],
+    enumValidators: {
+      dim: ["populationTrend", "farmActivity", "medical", "school", "returnFarm"],
+      persona: ["family", "farmYouth", "elderRural", "commuter", "balanced"],
+      sido: [
+        "강원", "경기", "경남", "경북", "광주", "대구", "대전",
+        "부산", "서울", "세종", "울산", "인천", "전남", "전북",
+        "제주", "충남", "충북",
+      ],
+    },
+    regexValidators: {
+      // 5개 정수(0~100) 하이픈 구분 — 합이 100인지는 페이지 내 검증
+      w: /^(\d{1,3})-(\d{1,3})-(\d{1,3})-(\d{1,3})-(\d{1,3})$/,
+    },
+  },
+  "/crops/compare": {
+    // ids: 작물 id CSV (최대 4개) / tab: summary/economy/cultivation/prosCons
+    allowedKeys: ["ids", "tab"],
+    enumValidators: {
+      tab: ["summary", "economy", "cultivation", "prosCons"],
+    },
+    regexValidators: {
+      // 작물 id CSV (영숫자·하이픈, 최대 4개)
+      ids: /^[a-z0-9-]+(?:,[a-z0-9-]+){0,3}$/,
+    },
+    maxLengths: {
+      ids: 100,
+    },
+  },
 };
