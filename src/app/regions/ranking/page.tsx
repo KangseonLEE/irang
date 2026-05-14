@@ -8,7 +8,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Trophy } from "lucide-react";
+import { Trophy, Users, Sprout, HeartPulse, GraduationCap, Compass, ArrowRight } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
@@ -72,6 +72,14 @@ const DIMENSION_NOTES: Record<DimensionId, string | null> = {
   medical: null,
   school: "군위군은 학교 정보가 등록되어 있지 않아 빠져 있어요.",
   returnFarm: "도시 자치구는 귀농 통계가 따로 잡히지 않아 빠져 있어요.",
+};
+
+const DIMENSION_ICONS: Record<DimensionId, typeof Users> = {
+  populationTrend: Users,
+  farmActivity: Sprout,
+  medical: HeartPulse,
+  school: GraduationCap,
+  returnFarm: Compass,
 };
 
 function buildHref(opts: {
@@ -186,6 +194,33 @@ export default async function RankingPage({ searchParams }: PageProps) {
         description={description}
         count={ranked.length}
       />
+
+      {/* 5차원 빠른 진입 카드 — 차원 모드일 때만 노출 */}
+      {mode === "dimension" && (
+        <section className={s.dimGrid} aria-label="5가지 차원 빠른 진입">
+          {DIMENSION_IDS.map((id) => {
+            const DimIcon = DIMENSION_ICONS[id];
+            const isActive = id === dim;
+            return (
+              <Link
+                key={id}
+                href={buildHref({ mode: "dimension", dim: id, sido: sidoFilter ?? undefined })}
+                className={`${s.dimCard} ${isActive ? s.dimCardActive : ""}`}
+                aria-current={isActive ? "page" : undefined}
+              >
+                <span className={s.dimCardIcon}>
+                  <Icon icon={DimIcon} size="md" />
+                </span>
+                <span className={s.dimCardBody}>
+                  <span className={s.dimCardLabel}>{DIMENSION_LABELS[id]}</span>
+                  <span className={s.dimCardDesc}>{DIMENSION_DESCRIPTIONS[id]}</span>
+                </span>
+                <Icon icon={ArrowRight} size="sm" className={s.dimCardArrow} />
+              </Link>
+            );
+          })}
+        </section>
+      )}
 
       {/* 모드 선택 */}
       <div className={s.modeToggle} role="tablist" aria-label="비교 방식">

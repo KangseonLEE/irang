@@ -26,6 +26,7 @@ const morePaths = [
   "/more",
   "/assess",
   "/guide",
+  "/guides",
   "/costs",
   "/crops",
   "/education",

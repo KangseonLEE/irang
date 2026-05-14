@@ -8,6 +8,8 @@ import {
   Thermometer,
   Users,
   HeartHandshake,
+  Trophy,
+  ArrowRight,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
@@ -165,7 +167,21 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
       {/* ── 활성 지역 큐레이션 (지도 직후) ── */}
       <ActiveRegionsSection activeId={sp.active} />
 
-      {/* ── 정착 점수 랭킹 진입 배너 (Phase 4·5 재설계 중 임시 비표시) ── */}
+      {/* ── 시군구 점수 비교 cross-link 배너 ── */}
+      <Link href="/regions/ranking" className={s.rankingBanner}>
+        <div className={s.rankingBannerIcon}>
+          <Icon icon={Trophy} size="lg" />
+        </div>
+        <div className={s.rankingBannerText}>
+          <span className={s.rankingBannerTitle}>전국 시군구 줄세우기 →</span>
+          <span className={s.rankingBannerDesc}>
+            인구·농가·의료·학교·귀농 5차원으로 비교하거나, 내 귀농 스타일에 맞춰 종합 점수로 줄 세워 보세요.
+          </span>
+        </div>
+        <span className={s.rankingBannerCta}>
+          <Icon icon={ArrowRight} size="md" />
+        </span>
+      </Link>
     </div>
   );
 }

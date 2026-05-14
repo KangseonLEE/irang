@@ -33,6 +33,7 @@ const navGroups: NavGroup[] = [
     children: [
       { href: "/regions", label: "지역 탐색", desc: "시·도별 기후·인구·작물 정보" },
       { href: "/regions/compare", label: "지역 비교", desc: "최대 3개 지역 비교 분석" },
+      { href: "/regions/ranking", label: "시군구 점수 비교", desc: "5차원·귀농 스타일로 줄세우기" },
       { href: "/regions/centers", label: "지자체 센터", desc: "시·도 귀농귀촌지원센터 안내" },
     ],
   },
@@ -46,9 +47,10 @@ const navGroups: NavGroup[] = [
   },
   {
     label: "준비하기",
-    basePaths: ["/guide", "/costs", "/interviews"],
+    basePaths: ["/guide", "/guides", "/costs", "/interviews"],
     children: [
       { href: "/guide", label: "귀농 로드맵", desc: "5단계 귀농 준비 가이드" },
+      { href: "/guides", label: "주제별 가이드", desc: "50대·1인·실패 사례 등 상황별" },
       { href: "/guide/track-compare", label: "귀농·귀산촌 비교", desc: "추진체계를 한눈에 비교" },
       { href: "/guide/shelter", label: "농촌체류형 쉼터", desc: "33㎡ 임시 주거 설치 가이드" },
       { href: "/costs", label: "비용 가이드", desc: "연령·작물별 비용 분석 & 지원금" },

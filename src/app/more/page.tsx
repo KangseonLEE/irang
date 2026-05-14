@@ -27,6 +27,7 @@ import {
   ChevronRight,
   Info,
   Heart,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
@@ -69,6 +70,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { href: "/regions", label: "지역 탐색", desc: "시·도별 기후·인구·작물 정보", icon: MapPin },
       { href: "/regions/compare", label: "지역 비교", desc: "최대 3개 지역 비교 분석", icon: GitCompareArrows },
+      { href: "/regions/ranking", label: "시군구 점수 비교", desc: "5차원·귀농 스타일로 줄세우기", icon: Trophy },
       { href: "/regions/centers", label: "지자체 센터", desc: "시·도 귀농귀촌지원센터 안내", icon: Building2 },
       { href: "/crops", label: "작물 정보", desc: "재배 난이도·수익성·적합 기후", icon: Sprout },
       { href: "/crops/compare", label: "작물 비교", desc: "최대 3종 작물 비교", icon: GitCompareArrows },
@@ -78,6 +80,7 @@ const menuGroups: MenuGroup[] = [
     label: "준비하기",
     items: [
       { href: "/assess", label: "귀농 적합도 진단", desc: "10문항으로 확인하는 귀농 적합도", icon: ClipboardCheck },
+      { href: "/guides", label: "주제별 가이드", desc: "50대·1인·실패 사례 등 상황별", icon: BookOpen },
       { href: "/interviews", label: "귀농인 이야기", desc: "실제 귀농인 인터뷰", icon: Users },
     ],
   },
