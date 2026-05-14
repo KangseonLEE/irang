@@ -52,13 +52,23 @@ ISSUE_BODY=""
 UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 # 단일 URL fetch — 한 번 시도, status code만 반환
+# Note: curl이 부분 출력 + exit-non-zero를 동시에 낼 수 있어 결과 마지막 3자리만 사용
 fetch_status() {
   local url="$1"
-  curl -o /dev/null -s -w "%{http_code}" --max-time 20 -L \
+  local raw
+  raw=$(curl -o /dev/null -s -w "%{http_code}" --max-time 30 -L \
     -A "$UA" \
     -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
     -H "Accept-Language: ko-KR,ko;q=0.9,en;q=0.8" \
-    "$url" 2>/dev/null || echo "000"
+    -H "Connection: close" \
+    "$url" 2>/dev/null)
+  # 빈 값 또는 잘못된 출력 → "000"
+  if [ -z "$raw" ]; then
+    echo "000"
+  else
+    # 마지막 3자리만 추출 (curl 부분 출력 누적 대응)
+    echo "${raw: -3}"
+  fi
 }
 
 check_url() {
@@ -71,9 +81,14 @@ check_url() {
   local code
   code=$(fetch_status "$url")
 
-  # 1차 실패(000/4xx/5xx) 시 1회 재시도 — 일시적 네트워크 흔들림 대응
+  # 1차 실패(000/4xx/5xx) 시 2회까지 재시도 — 일시적 네트워크 흔들림 + GitHub runner IP 차단 대응
+  # 백오프: 3s → 8s (서버 rate limit·DDoS 보호 회피)
   if [ "$code" = "000" ] || { [ "$code" -ge 400 ] 2>/dev/null && [ "$code" -lt 600 ] 2>/dev/null; }; then
-    sleep 2
+    sleep 3
+    code=$(fetch_status "$url")
+  fi
+  if [ "$code" = "000" ] || { [ "$code" -ge 400 ] 2>/dev/null && [ "$code" -lt 600 ] 2>/dev/null; }; then
+    sleep 8
     code=$(fetch_status "$url")
   fi
 
