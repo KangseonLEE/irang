@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
-import { getSupabase } from "@/lib/supabase";
 import { getPageName } from "@/lib/page-names";
 import s from "./feedback-widget.module.css";
 
@@ -24,41 +23,28 @@ const RATING_OPTIONS: RatingOption[] = [
 
 const MAX_MESSAGE_LENGTH = 300;
 
-/** Supabase에 피드백 저장 (fire-and-forget) */
+/**
+ * /api/quick-feedback 으로 피드백 저장 (fire-and-forget).
+ * - service_role 경유 INSERT (search-log와 동일 패턴)
+ * - anon Supabase client는 RLS로 차단됨 (5/4 hardening)
+ */
 async function saveFeedback(data: {
   rating: Rating;
   message: string;
   page: string;
 }): Promise<void> {
   try {
-    const sb = getSupabase();
-    if (sb) {
-      await sb.from("quick_feedback").insert({
-        rating: data.rating,
-        message: data.message || null,
-        page: data.page,
-        created_at: new Date().toISOString(),
-      });
-      return;
-    }
-  } catch {
-    // Supabase 실패 시 API 폴백
-  }
-
-  // Supabase 미설정 또는 실패 시 API Route 폴백
-  try {
-    await fetch("/api/feedback", {
+    await fetch("/api/quick-feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: "quick",
         rating: data.rating,
         message: data.message,
         page: data.page,
       }),
     });
   } catch {
-    // fire-and-forget
+    // fire-and-forget — 네트워크 실패는 조용히 무시
   }
 }
 

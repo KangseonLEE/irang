@@ -3,7 +3,6 @@
 import { useState, useCallback } from "react";
 import { MessageSquarePlus } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
-import { getSupabase } from "@/lib/supabase";
 import s from "./request-modal.module.css";
 
 const MAX_MESSAGE_LENGTH = 200;
@@ -21,31 +20,19 @@ interface RequestModalProps {
   pageName: string;
 }
 
+/**
+ * /api/quick-feedback 으로 요청 저장 (fire-and-forget).
+ * - service_role 경유 INSERT (anon RLS 차단 우회)
+ */
 async function saveRequest(data: {
   message: string;
   page: string;
 }): Promise<void> {
   try {
-    const sb = getSupabase();
-    if (sb) {
-      await sb.from("quick_feedback").insert({
-        rating: "neutral",
-        message: data.message,
-        page: data.page,
-        created_at: new Date().toISOString(),
-      });
-      return;
-    }
-  } catch {
-    // Supabase 실패 시 API 폴백
-  }
-
-  try {
-    await fetch("/api/feedback", {
+    await fetch("/api/quick-feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: "quick",
         rating: "neutral",
         message: data.message,
         page: data.page,

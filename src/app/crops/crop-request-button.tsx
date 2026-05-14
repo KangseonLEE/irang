@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { MessageCircle } from "lucide-react";
-import { getSupabase } from "@/lib/supabase";
 import s from "./crop-request-button.module.css";
 
 interface CropRequestButtonProps {
@@ -17,27 +16,17 @@ export function CropRequestButton({ query }: CropRequestButtonProps) {
     if (sent || sending) return;
     setSending(true);
 
+    // /api/quick-feedback 으로 service_role 경유 INSERT (anon RLS 차단 우회)
     try {
-      const sb = getSupabase();
-      if (sb) {
-        await sb.from("quick_feedback").insert({
+      await fetch("/api/quick-feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           rating: "neutral",
           message: `[작물 요청] ${query}`,
           page: "작물 정보",
-          created_at: new Date().toISOString(),
-        });
-      } else {
-        await fetch("/api/feedback", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: "quick",
-            rating: "neutral",
-            message: `[작물 요청] ${query}`,
-            page: "/crops",
-          }),
-        });
-      }
+        }),
+      });
     } catch {
       // fire-and-forget
     }
