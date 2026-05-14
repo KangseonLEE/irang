@@ -35,6 +35,8 @@ import { SigunguStatsSkeleton } from "./sigungu-stats-skeleton";
 import { DistrictMapSection } from "./district-map-section";
 import { DataSource } from "@/components/ui/data-source";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { Place } from "schema-dts";
 import {
   StickyRegionHeader,
   type StickyChip,
@@ -181,6 +183,47 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         { name: province.shortName, href: `/regions/${province.id}` },
         { name: sigungu.name, href: `/regions/${province.id}/${sigungu.id}` },
       ]} />
+      {/* ── Place schema (시군구 기초행정구역) ── */}
+      <JsonLd<Place>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Place",
+          name: `${province.shortName} ${sigungu.name}`,
+          alternateName: sigungu.shortName ?? sigungu.name,
+          description: sigungu.description,
+          address: {
+            "@type": "PostalAddress",
+            addressCountry: "KR",
+            addressRegion: province.name,
+            addressLocality: sigungu.name,
+          },
+          containedInPlace: {
+            "@type": "Place",
+            name: province.name,
+            address: {
+              "@type": "PostalAddress",
+              addressCountry: "KR",
+              addressRegion: province.name,
+            },
+          },
+          ...(typeof sigungu.area === "number" && sigungu.area > 0
+            ? {
+                additionalProperty: {
+                  "@type": "PropertyValue",
+                  name: "면적",
+                  value: `${sigungu.area} km²`,
+                },
+              }
+            : {}),
+          mainEntityOfPage: `https://irangfarm.com/regions/${province.id}/${sigungu.id}`,
+          keywords: [
+            `${sigungu.name} 귀농`,
+            `${province.shortName} 귀농`,
+            ...sigungu.mainCrops.slice(0, 5),
+            ...sigungu.highlights.slice(0, 3),
+          ].join(", "),
+        }}
+      />
       {/* ── 브레드크럼 (정적) ── */}
       <nav className={s.breadcrumb} aria-label="경로">
         <Link href="/regions" className={s.breadcrumbLink}>

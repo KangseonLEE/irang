@@ -24,6 +24,8 @@ import { Icon } from "@/components/ui/icon";
 import { CropRichCard } from "@/components/crop/crop-rich-card";
 import { convertToPyeongLabel } from "@/lib/format";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { Place } from "schema-dts";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { RegionAsyncData } from "./region-async-data";
 import { RegionAsyncSkeleton } from "./region-async-skeleton";
@@ -173,6 +175,40 @@ export default async function RegionDetailPage({ params }: PageProps) {
         { name: "지역 탐색", href: "/regions" },
         { name: province.name, href: `/regions/${id}` },
       ]} />
+      {/* ── Place schema (시도 광역행정구역) ── */}
+      <JsonLd<Place>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Place",
+          name: province.name,
+          alternateName: province.shortName,
+          description: province.description,
+          address: {
+            "@type": "PostalAddress",
+            addressCountry: "KR",
+            addressRegion: province.name,
+          },
+          containedInPlace: {
+            "@type": "Country",
+            name: "Republic of Korea",
+          },
+          ...(province.area > 0
+            ? {
+                additionalProperty: {
+                  "@type": "PropertyValue",
+                  name: "면적",
+                  value: `${province.area} km²`,
+                },
+              }
+            : {}),
+          mainEntityOfPage: `https://irangfarm.com/regions/${province.id}`,
+          keywords: [
+            `${province.shortName} 귀농`,
+            `${province.shortName} 귀촌`,
+            ...province.highlights,
+          ].join(", "),
+        }}
+      />
       {/* Back Link — 정적 */}
       <Link href="/regions" className={s.backLink}>
         ← 지역 목록으로
