@@ -72,7 +72,7 @@ export async function fetchAdminKpi(): Promise<AdminKpi> {
       .select("id", { count: "exact", head: true })
       .gte("created_at", daysAgo(7)),
     sb
-      .from("assessments")
+      .from("assessment_results")
       .select("id", { count: "exact", head: true })
       .gte("created_at", daysAgo(7)),
     sb
@@ -250,7 +250,7 @@ export async function fetchTypeDistribution(
   if (!sb) return [];
 
   const { data } = await sb
-    .from("assessments")
+    .from("assessment_results")
     .select("result_type")
     .gte("created_at", daysAgo(days));
 
@@ -275,7 +275,7 @@ export async function fetchAssessmentList(
   if (!sb) return { data: [], total: 0 };
 
   const { data, count } = await sb
-    .from("assessments")
+    .from("assessment_results")
     .select("*", { count: "exact" })
     .order("created_at", { ascending: false })
     .range((page - 1) * perPage, page * perPage - 1);
