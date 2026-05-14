@@ -367,4 +367,14 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       ids: 100,
     },
   },
+  /* ── 2026-05-14 D1: 인터뷰 카테고리 필터 (6종 enum) ──
+     회장 결재 옵션 B — 외부 큐레이션 15건 (D2~D5) 대비 필터 인프라 선시동.
+     5/11 site-wide 308 lessons — enum validator 정확하지 않으면 정상 query strip.
+     5/14 페르소나 칩 사고 lessons — normalize 미등록 deep link는 normalize 후 효력 상실. */
+  "/interviews": {
+    allowedKeys: ["type"],
+    enumValidators: {
+      type: ["farming", "rural", "youth", "mountain", "smartfarm", "healing"],
+    },
+  },
 };

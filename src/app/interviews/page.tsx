@@ -10,23 +10,57 @@ import {
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
-import { interviews, hasFullStory } from "@/lib/data/landing";
+import {
+  interviews,
+  hasFullStory,
+  INTERVIEW_CATEGORIES,
+  INTERVIEW_CATEGORY_LABEL,
+  type InterviewCategoryId,
+} from "@/lib/data/landing";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import { getInterviewImageSrc } from "@/lib/interview-image";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { InterviewCorrectionNotice } from "@/components/interview/correction-notice";
+import { FilterBar, FilterRow, FilterGroup } from "@/components/filter/filter-bar";
+import { EmptyState } from "@/components/ui/empty-state";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "먼저 떠난 사람들 — 귀농인 인터뷰 큐레이션",
   description:
-    "농민신문·서울신문·KBC 등에 보도된 귀농인 이야기를 한 곳에 모았어요. 카드를 누르면 원문 기사로 이동해 직접 읽을 수 있어요.",
+    "귀농·귀촌·스마트팜·청년농 등 다양한 정착 이야기를 한 곳에 모았어요. 카드를 누르면 원문 기사로 이동해 직접 읽을 수 있어요.",
   keywords: ["귀농 인터뷰", "귀농인 이야기", "귀농 경험담", "농민신문 귀농", "귀농 사례 모음"],
   alternates: { canonical: "/interviews" },
 };
 
-export default function InterviewsPage() {
+const CATEGORY_IDS: readonly InterviewCategoryId[] = INTERVIEW_CATEGORIES.map((c) => c.id);
+const CATEGORY_ID_STRINGS: readonly string[] = CATEGORY_IDS;
+
+function isCategoryId(value: string | undefined): value is InterviewCategoryId {
+  return Boolean(value && CATEGORY_ID_STRINGS.includes(value));
+}
+
+interface PageProps {
+  searchParams: Promise<{ type?: string }>;
+}
+
+export default async function InterviewsPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const activeCategory: InterviewCategoryId | undefined = isCategoryId(params.type)
+    ? params.type
+    : undefined;
+
+  // 카테고리 필터링 — category 또는 tags에 매칭
+  const visibleInterviews = activeCategory
+    ? interviews.filter(
+        (p) =>
+          p.category === activeCategory || (p.tags?.includes(activeCategory) ?? false),
+      )
+    : interviews;
+
+  const currentFilters = { type: activeCategory };
+
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[{ name: "귀농인 이야기", href: "/interviews" }]} />
@@ -37,7 +71,7 @@ export default function InterviewsPage() {
         titleAccent="떠난"
         description={
           <p>
-            농민신문·서울신문·KBC 등에서 만난 귀농인 7명의 이야기예요.
+            귀농·귀촌·스마트팜·청년농 등 다양한 정착 이야기예요.
             <br />
             카드를 누르면 원문 기사로 이동해요.
           </p>
@@ -63,94 +97,124 @@ export default function InterviewsPage() {
         </div>
       </SubPageHero>
 
+      {/* ═══ 카테고리 필터 (2026-05-14 D1) ═══ */}
+      <FilterBar>
+        <FilterRow>
+          <FilterGroup
+            label="카테고리"
+            paramKey="type"
+            options={CATEGORY_ID_STRINGS}
+            optionLabels={INTERVIEW_CATEGORY_LABEL}
+            currentValue={activeCategory}
+            currentFilters={currentFilters}
+            basePath="/interviews"
+          />
+        </FilterRow>
+      </FilterBar>
+
       {/* ═══ 인터뷰 카드 그리드 ═══ */}
       <section className={s.grid}>
-        {interviews.map((person) => {
-          const illustration = getInterviewImageSrc(person.id);
-          const isInternal = hasFullStory(person);
-          const cardInner = (
-            <>
-              {illustration && (
-                <div className={s.cardImageWrap}>
-                  <Image
-                    src={illustration}
-                    alt={`${person.name}님의 농장 일러스트`}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
-                    className={s.cardImage}
-                    style={{ objectFit: "cover" }}
-                  />
-                </div>
-              )}
-              {/* 프로필 */}
-              <div className={s.cardHeader}>
-                {!illustration && (
-                  <FarmerAvatar
-                    name={person.name}
-                    seed={person.id}
-                    size="md"
-                  />
+        {visibleInterviews.length === 0 ? (
+          <div className={s.emptyWrap}>
+            <EmptyState
+              icon={<Icon icon={Quote} size="lg" />}
+              message="이 카테고리의 인터뷰는 준비 중이에요"
+              linkHref="/interviews"
+              linkText="전체 인터뷰 보기"
+            />
+          </div>
+        ) : (
+          visibleInterviews.map((person) => {
+            const illustration = getInterviewImageSrc(person.id);
+            const isInternal = hasFullStory(person);
+            const cardInner = (
+              <>
+                {illustration && (
+                  <div className={s.cardImageWrap}>
+                    <Image
+                      src={illustration}
+                      alt={`${person.name}님의 농장 일러스트`}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                      className={s.cardImage}
+                      style={{ objectFit: "cover" }}
+                    />
+                  </div>
                 )}
-                <div className={s.cardProfile}>
-                  <span className={s.cardName}>{person.name}</span>
-                  <span className={s.cardMeta}>
-                    <Icon icon={MapPin} size="xs" /> {person.region} · {person.age}
+                {/* 카테고리 chip (2026-05-14 D1) */}
+                <span className={s.cardCategoryChip}>
+                  {INTERVIEW_CATEGORY_LABEL[person.category]}
+                </span>
+                {/* 프로필 */}
+                <div className={s.cardHeader}>
+                  {!illustration && (
+                    <FarmerAvatar
+                      name={person.name}
+                      seed={person.id}
+                      size="md"
+                    />
+                  )}
+                  <div className={s.cardProfile}>
+                    <span className={s.cardName}>{person.name}</span>
+                    <span className={s.cardMeta}>
+                      <Icon icon={MapPin} size="xs" /> {person.region} · {person.age}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 직업 변화 */}
+                <div className={s.cardTags}>
+                  <span className={s.cardTag}>
+                    <Icon icon={Briefcase} size="xs" />
+                    {person.prevJob}
+                  </span>
+                  <span className={s.cardTagArrow}>&rarr;</span>
+                  <span className={s.cardTag}>
+                    <Icon icon={Sprout} size="xs" />
+                    {person.currentJob}
                   </span>
                 </div>
-              </div>
 
-              {/* 직업 변화 */}
-              <div className={s.cardTags}>
-                <span className={s.cardTag}>
-                  <Icon icon={Briefcase} size="xs" />
-                  {person.prevJob}
-                </span>
-                <span className={s.cardTagArrow}>&rarr;</span>
-                <span className={s.cardTag}>
-                  <Icon icon={Sprout} size="xs" />
-                  {person.currentJob}
-                </span>
-              </div>
+                {/* 인용문 */}
+                <div className={s.cardQuoteWrap}>
+                  <Icon icon={Quote} size="md" className={s.cardQuoteIcon} />
+                  <p className={s.cardQuote}><AutoGlossary text={person.quote} /></p>
+                </div>
 
-              {/* 인용문 */}
-              <div className={s.cardQuoteWrap}>
-                <Icon icon={Quote} size="md" className={s.cardQuoteIcon} />
-                <p className={s.cardQuote}><AutoGlossary text={person.quote} /></p>
-              </div>
-
-              {/* 푸터 */}
-              <div className={s.cardFooter}>
-                <div className={s.cardFooterBadges}>
-                  <span className={s.cardRegionBadge}>
-                    <Icon icon={MapPin} size="xs" /> {person.region}
-                  </span>
-                  <span className={s.cardCrop}>
-                    <Icon icon={Sprout} size="xs" /> {person.crop}
+                {/* 푸터 */}
+                <div className={s.cardFooter}>
+                  <div className={s.cardFooterBadges}>
+                    <span className={s.cardRegionBadge}>
+                      <Icon icon={MapPin} size="xs" /> {person.region}
+                    </span>
+                    <span className={s.cardCrop}>
+                      <Icon icon={Sprout} size="xs" /> {person.crop}
+                    </span>
+                  </div>
+                  <span className={s.cardCta}>
+                    {isInternal ? "이야기 읽기" : `${person.sourceName} 원문`}{" "}
+                    <Icon icon={ArrowRight} size="sm" />
                   </span>
                 </div>
-                <span className={s.cardCta}>
-                  {isInternal ? "이야기 읽기" : `${person.sourceName} 원문`}{" "}
-                  <Icon icon={ArrowRight} size="sm" />
-                </span>
-              </div>
-            </>
-          );
-          return isInternal ? (
-            <Link key={person.id} href={`/interviews/${person.id}`} className={s.card}>
-              {cardInner}
-            </Link>
-          ) : (
-            <a
-              key={person.id}
-              href={person.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={s.card}
-            >
-              {cardInner}
-            </a>
-          );
-        })}
+              </>
+            );
+            return isInternal ? (
+              <Link key={person.id} href={`/interviews/${person.id}`} className={s.card}>
+                {cardInner}
+              </Link>
+            ) : (
+              <a
+                key={person.id}
+                href={person.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={s.card}
+              >
+                {cardInner}
+              </a>
+            );
+          })
+        )}
       </section>
 
       {/* ═══ 하단 CTA ═══ */}

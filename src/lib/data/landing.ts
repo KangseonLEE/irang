@@ -373,6 +373,38 @@ export const TREND_TYPES: { id: TrendTypeId; label: string }[] = [
   { id: "smartfarm", label: "스마트팜" },
 ];
 
+/**
+ * 인터뷰 카테고리 ID — TrendTypeId 5종 + healing 1종.
+ *
+ * TrendTypeId와 분리한 이유: TREND_BENTO_PROFILES는 5탭(귀농·귀촌·청년농·귀산촌·스마트팜)
+ * bento 카드만 정의. healing 카테고리는 인터뷰 분류에만 사용하며
+ * 별도 통계 bento는 D6+ 큐레이션 후 필요 시 추가 결정.
+ *
+ * (2026-05-14 D1: 회장 결재 옵션 B — 외부 큐레이션 15건 확장 대비)
+ */
+export type InterviewCategoryId =
+  | "farming"
+  | "rural"
+  | "youth"
+  | "mountain"
+  | "smartfarm"
+  | "healing";
+
+export const INTERVIEW_CATEGORIES: { id: InterviewCategoryId; label: string }[] = [
+  { id: "farming", label: "귀농" },
+  { id: "rural", label: "귀촌" },
+  { id: "youth", label: "청년농" },
+  { id: "mountain", label: "귀산촌" },
+  { id: "smartfarm", label: "스마트팜" },
+  { id: "healing", label: "치유농업" },
+];
+
+export const INTERVIEW_CATEGORY_LABEL: Record<InterviewCategoryId, string> =
+  Object.fromEntries(INTERVIEW_CATEGORIES.map((c) => [c.id, c.label])) as Record<
+    InterviewCategoryId,
+    string
+  >;
+
 export interface TrendBentoStat {
   value: string;
   label: string;
@@ -933,6 +965,14 @@ export interface InterviewCard {
   region: string;
   crop: string;
   quote: string;
+  /**
+   * 인터뷰 카테고리 (대표 분류 1종 필수).
+   * 6종: farming · rural · youth · mountain · smartfarm · healing
+   * (2026-05-14 D1: 카테고리 필터 + ?type= deep link)
+   */
+  category: InterviewCategoryId;
+  /** 보조 태그 (다중 분류 선택). 검색·관련 인터뷰 추천용. */
+  tags?: InterviewCategoryId[];
   /** 원문 기사 URL */
   sourceUrl: string;
   sourceName: string;
@@ -982,6 +1022,8 @@ export const interviews: InterviewCard[] = [
     region: "전남 순천",
     crop: "딸기·콩·고구마",
     quote: "농사 짓는 일이 쉽지는 않지만, 도시 직업보다 훨씬 유망한 업종이에요.",
+    category: "youth",
+    tags: ["farming"],
     sourceUrl: "https://news.ikbc.co.kr/article/view/kbc202403290022",
     sourceName: "KBC광주방송",
     sourceDate: "2024.03",
@@ -1001,6 +1043,8 @@ export const interviews: InterviewCard[] = [
     region: "충남 공주",
     crop: "친환경 농산물 가공",
     quote: "연고 없는 곳에서 시작하는 청년들에게 가장 큰 장벽은 경험과 정보 부족이에요.",
+    category: "youth",
+    tags: ["farming"],
     sourceUrl: "https://www.seoul.co.kr/news/plan/youngman_area_future/2025/09/19/20250919008002",
     sourceName: "서울신문",
     sourceDate: "2025.09",
@@ -1016,6 +1060,8 @@ export const interviews: InterviewCard[] = [
     region: "전남 강진",
     crop: "딸기 (스마트팜·수출)",
     quote: "스마트팜 시설을 갖추니 걱정보다 덜 부지런해도 되더라고요.",
+    category: "smartfarm",
+    tags: ["farming"],
     sourceUrl: "https://www.farmnmarket.com/news/article.html?no=22960",
     sourceName: "팜앤마켓매거진",
     sourceDate: "2024.12",
@@ -1031,6 +1077,8 @@ export const interviews: InterviewCard[] = [
     region: "충남 당진",
     crop: "표고버섯·벼·채소",
     quote: "표고 수확할 때의 뿌듯함은 직장 다닐 때 느껴본 적 없는 감정이에요.",
+    category: "farming",
+    tags: ["mountain"],
     sourceUrl: "https://bravo.etoday.co.kr/view/atc_view/2723",
     sourceName: "브라보마이라이프",
     sourceDate: "2024",
@@ -1046,6 +1094,8 @@ export const interviews: InterviewCard[] = [
     region: "경기 여주",
     crop: "방울토마토 (스마트팜)",
     quote: "우리 의지대로 우리만의 일을 하고 싶었고, 그러려면 농사가 최선이라는 데 의견이 모아졌어요.",
+    category: "smartfarm",
+    tags: ["youth"],
     sourceUrl: "https://www.nongmin.com/article/20240105500453",
     sourceName: "농민신문",
     sourceDate: "2024.01",
@@ -1061,6 +1111,7 @@ export const interviews: InterviewCard[] = [
     region: "충남 천안",
     crop: "사과대추·딸기·가공식품",
     quote: "귀농으로 성공하려면 고3 수험생처럼 공부해야 해요.",
+    category: "farming",
     sourceUrl: "https://www.nongmin.com/article/20240207500761",
     sourceName: "농민신문",
     sourceDate: "2024.02",
@@ -1076,6 +1127,8 @@ export const interviews: InterviewCard[] = [
     region: "충북 충주",
     crop: "딸기 (스마트팜·설향)",
     quote: "거대한 회사의 톱니바퀴처럼 살아가는 삶에 깊은 회의감을 느꼈어요.",
+    category: "smartfarm",
+    tags: ["farming"],
     sourceUrl: "https://www.nongmin.com/article/20260304500386",
     sourceName: "농민신문",
     sourceDate: "2026.03",
