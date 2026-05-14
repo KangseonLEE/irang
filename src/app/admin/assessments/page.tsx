@@ -8,7 +8,7 @@ import Link from "next/link";
 import { fetchTypeDistribution, fetchAssessmentList } from "@/lib/admin/queries";
 import s from "./page.module.css";
 
-export const revalidate = 300;
+/** admin은 매 요청 fresh fetch가 의도. searchParams 의존이라 revalidate 추가 시 dynamic SSR 충돌 (2026-05-11 lessons). */
 
 // 유형별 컬러 매핑
 const TYPE_COLORS: Record<string, string> = {

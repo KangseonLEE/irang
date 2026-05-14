@@ -54,9 +54,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/regions" },
 };
 
-/** ?active=... 검색 쿼리로 dynamic이 되었지만, 응답은 캐시 가능한 정적 데이터 기반이라
- *  ISR 1시간 + SWR 1일로 봇 abuse 시에도 SSR 부하 최소화. */
-export const revalidate = 3600;
+/** 봇 트래픽 절감은 next.config.ts headers의 s-maxage로 처리.
+ *  searchParams 의존 페이지에 export const revalidate 추가 시 dynamic SSR과 충돌 (2026-05-11 lessons). */
 
 interface RegionsPageProps {
   searchParams: Promise<{ active?: string }>;

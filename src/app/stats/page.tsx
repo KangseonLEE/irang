@@ -28,8 +28,8 @@ export const metadata: Metadata = {
   },
 };
 
-/** 1h ISR — 모든 통계는 정적 데이터(stats.ts) + 차트 컴포넌트. 봇 트래픽 절감 (2026-05-11) */
-export const revalidate = 3600;
+/** 봇 트래픽 절감은 next.config.ts headers의 s-maxage로 처리.
+ *  searchParams 의존 페이지에 export const revalidate 추가 시 dynamic SSR과 충돌 (2026-05-11 lessons). */
 
 interface PageProps {
   searchParams: Promise<{ tab?: string }>;

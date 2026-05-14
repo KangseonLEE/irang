@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   },
 };
 
-/** 24h마다 청년농 사례 데이터 재검증 (봇 트래픽 절감) */
-export const revalidate = 86400;
+/** 봇 트래픽 절감은 next.config.ts headers의 s-maxage로 처리.
+ *  searchParams(tab) 의존 페이지에 revalidate 추가 시 dynamic SSR 충돌 (2026-05-11 lessons). */
 
 interface PageProps {
   searchParams: Promise<{ tab?: string }>;

@@ -92,8 +92,9 @@ function isValidCostType(v: string | undefined): v is CostTypeId {
   return !!v && COST_TYPES.some((t) => t.id === v);
 }
 
-/** 1h ISR — 비용 데이터는 cost-by-type.ts + landing.ts 정적 소스. 봇 트래픽 절감 (2026-05-11) */
-export const revalidate = 3600;
+/** 봇 트래픽 절감은 next.config.ts headers의 s-maxage로 처리.
+ *  searchParams 의존 페이지에 export const revalidate 추가 시 dynamic SSR과 충돌 →
+ *  prerender NOT FOUND + site-wide 308 무한 redirect 사고 (2026-05-11 lessons). */
 
 /* ── Page ── */
 interface PageProps {

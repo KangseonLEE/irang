@@ -10,7 +10,7 @@ import { fetchRequestList, fetchRequestKeywords } from "@/lib/admin/queries";
 import { StatusToggle } from "./status-toggle";
 import s from "./page.module.css";
 
-export const revalidate = 60;
+/** admin은 매 요청 fresh fetch가 의도. searchParams 의존이라 revalidate 추가 시 dynamic SSR 충돌 (2026-05-11 lessons). */
 
 const STATUS_OPTIONS = [
   { value: "all", label: "전체" },

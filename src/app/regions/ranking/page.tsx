@@ -43,7 +43,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/regions/ranking" },
 };
 
-export const revalidate = 86400;
+/** 봇 트래픽 절감은 next.config.ts headers의 s-maxage로 처리.
+ *  searchParams(persona·w 등) 의존 페이지에 revalidate 추가 시 dynamic SSR 충돌 (2026-05-11 lessons). */
 
 interface PageProps {
   searchParams: Promise<{
