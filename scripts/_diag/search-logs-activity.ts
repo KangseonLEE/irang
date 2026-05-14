@@ -109,7 +109,8 @@ async function main() {
   } else {
     console.log("최근 5건:");
     (qfLatest ?? []).forEach((r) => {
-      console.log(`  ${(r as any).created_at} | ${JSON.stringify(r)}`);
+      const row = r as { created_at?: string };
+      console.log(`  ${row.created_at} | ${JSON.stringify(r)}`);
     });
   }
 
