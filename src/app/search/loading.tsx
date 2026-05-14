@@ -12,7 +12,7 @@ export default function SearchLoading() {
       {/* Empty State */}
       <div className={s.emptyState}>
         <Search size={40} style={{ color: "var(--muted-foreground)", opacity: 0.4, margin: "0 auto 1rem" }} />
-        <h2 className={s.emptyTitle}>통합 검색</h2>
+        <h1 className={s.emptyTitle}>통합 검색</h1>
         <p className={s.emptyDesc}>
           검색 페이지를 준비하고 있습니다...
         </p>
