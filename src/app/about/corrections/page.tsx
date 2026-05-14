@@ -24,6 +24,12 @@ interface CorrectionEntry {
 
 const CORRECTIONS: CorrectionEntry[] = [
   {
+    date: "2026-05-14",
+    field: "작물 비교 페이지 v2 패턴 통일",
+    description:
+      "/crops/compare 화면을 /regions/compare와 같은 검색·카드 패턴으로 통일했어요. 상단 작물 셀렉터에 검색 input과 dropdown 카드 grid를 도입해 39개 작물을 카테고리별로 빠르게 찾고 한 번에 4개까지 비교할 수 있어요. 비교 영역은 요약·소득·재배·장단점 4개 탭으로 분리해 URL(`?tab=...`)로 공유 가능하고, 소득 카드는 단일 핵심 수치(평균 순소득 등)와 비교 인사이트가 함께 보이는 토스 스타일로 정리했어요. 모바일 640px 분기점에서 셀렉터와 페이지 레이아웃이 1px 어긋나 보이던 부분도 함께 보정했어요.",
+  },
+  {
     date: "2026-05-13",
     field: "진단 결과에 작물·지원사업 더 보기 버튼 추가",
     description:
