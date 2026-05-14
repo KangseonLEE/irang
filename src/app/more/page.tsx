@@ -28,6 +28,7 @@ import {
   Info,
   Heart,
   Trophy,
+  Search,
   type LucideIcon,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
@@ -66,7 +67,7 @@ interface MenuGroup {
 
 const menuGroups: MenuGroup[] = [
   {
-    label: "지역·작물",
+    label: "탐색",
     items: [
       { href: "/regions", label: "지역 탐색", desc: "시·도별 기후·인구·작물 정보", icon: MapPin },
       { href: "/regions/compare", label: "지역 비교", desc: "최대 3개 지역 비교 분석", icon: GitCompareArrows },
@@ -74,22 +75,23 @@ const menuGroups: MenuGroup[] = [
       { href: "/regions/centers", label: "지자체 센터", desc: "시·도 귀농귀촌지원센터 안내", icon: Building2 },
       { href: "/crops", label: "작물 정보", desc: "재배 난이도·수익성·적합 기후", icon: Sprout },
       { href: "/crops/compare", label: "작물 비교", desc: "최대 3종 작물 비교", icon: GitCompareArrows },
+      { href: "/search", label: "통합 검색", desc: "지역·작물·교육·사업 한 번에", icon: Search },
     ],
   },
   {
-    label: "준비하기",
+    label: "준비",
     items: [
       { href: "/guide", label: "귀농 로드맵", desc: "5단계 귀농 준비 가이드", icon: Route },
       { href: "/guides", label: "주제별 가이드", desc: "50대·1인·실패 사례 등 상황별", icon: BookOpen },
       { href: "/guide/track-compare", label: "귀농·귀산촌 비교", desc: "추진체계를 한눈에 비교", icon: GitCompareArrows },
       { href: "/guide/shelter", label: "농촌체류형 쉼터", desc: "33㎡ 임시 주거 설치 가이드", icon: Home },
       { href: "/costs", label: "비용 가이드", desc: "연령·작물별 비용 분석 & 지원금", icon: Wallet },
-      { href: "/assess", label: "귀농 적합도 진단", desc: "10문항으로 확인하는 귀농 적합도", icon: ClipboardCheck },
+      { href: "/assess", label: "귀농 적합도 진단", desc: "10문항으로 확인하는 적합도", icon: ClipboardCheck },
       { href: "/interviews", label: "귀농인 이야기", desc: "실제 귀농인 인터뷰", icon: Users },
     ],
   },
   {
-    label: "지원·교육",
+    label: "실행",
     items: [
       { href: "/programs", label: "지원사업", desc: "귀농·귀촌 지원금 & 정책", icon: FileText },
       { href: "/programs/roadmap", label: "정부사업 가이드", desc: "5대 사업 신청 절차 안내", icon: FileCheck },
@@ -103,6 +105,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { href: "/stats", label: "통계", desc: "귀농 인구·청년·만족도 추이", icon: BarChart3 },
       { href: "/glossary", label: "농업 용어집", desc: "처음 만나는 농업 용어 해설", icon: BookOpen },
+      { href: "/about", label: "서비스 소개", desc: "이랑은 이런 팀이 만들어요", icon: Info },
     ],
   },
 ];
@@ -152,11 +155,6 @@ export default function MorePage() {
         ))}
       </nav>
 
-      {/* 서비스 소개 */}
-      <Link href="/about" className={s.aboutLink}>
-        <Info size={16} strokeWidth={1.75} />
-        <span>서비스 소개</span>
-      </Link>
     </div>
   );
 }

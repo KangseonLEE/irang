@@ -32,6 +32,7 @@ const morePaths = [
   "/education",
   "/events",
   "/interviews",
+  "/search",
   "/stats",
   "/glossary",
   "/about",
