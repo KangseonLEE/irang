@@ -3,12 +3,14 @@
  *
  * 2026-05-07: codex-image로 생성한 농장 풍경 + 익명 silhouette 일러.
  * 2026-05-08: PNG → WebP 변환 (20배 압축, 동일 품질).
+ * 2026-05-15: D2 외부 큐레이션 7명 추가 (병렬 codex-image).
  * 실존 인물 초상화 회피, 작목·환경 중심 구성.
  *
  * 일러가 없는 인물은 null을 반환하고 호출자가 FarmerAvatar로 폴백한다.
  */
 
 const ILLUSTRATED_PERSONS = new Set<string>([
+  // 2026-05-07 첫 배치 (게재 동의자 + 초기 7명)
   "bae-dongju",
   "jo-sungsu",
   "kang-namwook",
@@ -16,6 +18,14 @@ const ILLUSTRATED_PERSONS = new Set<string>([
   "lee-gyuho",
   "lee-jonghyun",
   "yeom-sujeong",
+  // 2026-05-15 D2 외부 큐레이션 7명
+  "lee-geonhee",
+  "kim-hyeon",
+  "choi-hongjun",
+  "lee-jihoon",
+  "bae-munyeol",
+  "park-jaeyoung",
+  "jung-changgyun",
 ]);
 
 export function getInterviewImageSrc(personId: string): string | null {
