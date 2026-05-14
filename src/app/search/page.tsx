@@ -3,14 +3,14 @@
 import { Suspense, useMemo, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ChevronDown, ChevronUp } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchAll, hasExactMatch, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
-import { highlightMatch } from "@/lib/highlight-match";
 import { logSearch } from "@/lib/supabase";
 import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
+import { ResultCard } from "@/components/search/result-card";
 import s from "./page.module.css";
 
 const TYPE_META: Record<
@@ -275,50 +275,14 @@ function SearchPageContent() {
                   )}
                 </h2>
                 <div className={s.grid}>
-                  {visibleItems.map((item) => {
-                    const inner = (
-                      <>
-                        <span className={s.cardIcon}>{item.icon}</span>
-                        <div className={s.cardContent}>
-                          <span className={s.cardTitle}>
-                            {highlightMatch(item.title, query, s.highlight)}
-                          </span>
-                          <span className={s.cardSubtitle}>
-                            {highlightMatch(item.subtitle, query, s.highlight)}
-                          </span>
-                        </div>
-                        {item.external && (
-                          <span className={s.externalBadge}>
-                            <ExternalLink size={12} aria-hidden="true" />
-                            외부
-                          </span>
-                        )}
-                        {item.badge && (
-                          <span className={s.cardBadge}>{item.badge}</span>
-                        )}
-                      </>
-                    );
-
-                    return item.external ? (
-                      <a
-                        key={`${item.type}-${item.id}`}
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={s.card}
-                      >
-                        {inner}
-                      </a>
-                    ) : (
-                      <Link
-                        key={`${item.type}-${item.id}`}
-                        href={item.href}
-                        className={s.card}
-                      >
-                        {inner}
-                      </Link>
-                    );
-                  })}
+                  {visibleItems.map((item) => (
+                    <ResultCard
+                      key={`${item.type}-${item.id}`}
+                      item={item}
+                      query={query}
+                      highlightCls={s.highlight}
+                    />
+                  ))}
                 </div>
                 {overflow > 0 && (
                   <button

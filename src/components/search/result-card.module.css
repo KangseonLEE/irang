@@ -1,0 +1,246 @@
+/**
+ * 검색 결과 카드 — Phase 1B (type별 정보 차별화)
+ * 기본 단순 카드(.cardBase)는 search/page.module.css의 .card 와 동일한 외형을 유지.
+ * 풍부 카드(.cardRich)는 2줄 이상 정보를 노출하기 위해 padding·layout 확장.
+ */
+
+.cardBase {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+@media (hover: hover) {
+  .cardBase:hover {
+    border-color: var(--primary);
+    background: var(--muted);
+  }
+}
+
+.cardBase:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.cardRich {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 6px;
+  align-items: start;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .cardRich:hover {
+    border-color: var(--primary);
+    background: var(--muted);
+  }
+}
+
+.cardRich:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* 안내(시드 6종) 전용 — 일반 region 카드와 시각적 구분 + 최상단 강조 */
+.cardHint {
+  background: color-mix(in srgb, var(--primary) 5%, var(--card));
+  border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
+}
+
+@media (hover: hover) {
+  .cardHint:hover {
+    background: color-mix(in srgb, var(--primary) 8%, var(--card));
+    border-color: var(--primary);
+  }
+}
+
+.iconBox {
+  grid-row: 1 / span 2;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--muted);
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.iconBoxThumb {
+  grid-row: 1 / span 2;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--muted);
+  position: relative;
+}
+
+.iconBoxThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.title {
+  grid-column: 2;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: keep-all;
+}
+
+.subtitle {
+  grid-column: 2;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: keep-all;
+}
+
+.metaRow {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.metaSep {
+  color: var(--border);
+}
+
+.metaChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
+  font-weight: 500;
+  font-size: var(--fs-overline);
+  white-space: nowrap;
+}
+
+.metaChipMuted {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 9999px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-weight: 500;
+  font-size: var(--fs-overline);
+  white-space: nowrap;
+}
+
+.metaQuote {
+  font-style: italic;
+  color: var(--muted-foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: keep-all;
+}
+
+.badge {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: start;
+  font-size: var(--fs-overline);
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.badgeStatusOpen {
+  background: color-mix(in srgb, #059669 12%, transparent);
+  color: #059669;
+}
+
+.badgeStatusUpcoming {
+  background: color-mix(in srgb, #d97706 12%, transparent);
+  color: #d97706;
+}
+
+.badgeStatusClosed {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.badgeHint {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+}
+
+.badgeDeadline {
+  background: color-mix(in srgb, #dc2626 10%, transparent);
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.externalBadge {
+  grid-column: 3;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, #3b82f6 10%, transparent);
+  color: #3b82f6;
+  white-space: nowrap;
+}
+
+/* 모바일에서 metaRow가 너무 길어지면 줄바꿈 허용 */
+@media (max-width: 480px) {
+  .cardRich {
+    grid-template-columns: 40px 1fr auto;
+    column-gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .iconBox,
+  .iconBoxThumb {
+    width: 40px;
+    height: 40px;
+  }
+}
