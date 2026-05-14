@@ -34,6 +34,7 @@ import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { RegionPersonaExplain } from "@/components/persona/region-persona-explain";
 import { WeightCustomizer } from "@/components/persona/weight-customizer";
+import { RankingWizardHero } from "./ranking-wizard-hero";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -135,6 +136,11 @@ function getPersonaSummary(score: number): string {
 export default async function RankingPage({ searchParams }: PageProps) {
   const sp = await searchParams;
 
+  // empty state 판정 (D2): persona/dim/w/sido 모두 없으면 wizard hero 노출
+  // — 결과 UI는 숨기고 사용자가 모드·옵션을 wizard로 고르도록 유도
+  const hasAnyParam = Boolean(sp.persona || sp.dim || sp.w || sp.sido);
+  const showWizard = !hasAnyParam;
+
   // 모드 판정: persona param 있으면 페르소나 모드, 없으면 차원 모드
   // Phase 6 B1: w=20-15-15-35-15 가중치 커스터마이징도 페르소나 모드로 진입
   const personaParam = sp.persona ?? null;
@@ -171,11 +177,12 @@ export default async function RankingPage({ searchParams }: PageProps) {
     .filter((x): x is NonNullable<typeof x> => x !== null)
     .sort((a, b) => b.value - a.value);
 
-  const description =
-    mode === "persona" && persona
+  const description = showWizard
+    ? "당신에게 맞는 시군구를 찾아드릴게요."
+    : mode === "persona" && persona
       ? isCustom
         ? `‘${persona.label}’ 스타일을 직접 조정한 가중치로 시군구를 줄 세웠어요.`
-        : `내 귀농 스타일에 맞춘 종합 점수로 시군구를 줄 세워요.`
+        : `‘${persona.label}’ 스타일로 시군구를 줄 세웠어요.`
       : "5차원 정착 점수로 시군구를 줄 세워요.";
 
   return (
@@ -192,9 +199,23 @@ export default async function RankingPage({ searchParams }: PageProps) {
         label="시군구 비교"
         title="시군구 점수 비교"
         description={description}
-        count={ranked.length}
+        count={showWizard ? undefined : ranked.length}
       />
 
+      {showWizard ? (
+        <>
+          <RankingWizardHero />
+          <p className={s.methodologyLink}>
+            <Link href="/regions/ranking/methodology">
+              점수는 어떻게 만들었나요? →
+            </Link>
+          </p>
+          <DataSource
+            source={`기상청 ASOS · SGIS 인구 · 농림어업총조사 2020 · 심평원 의료기관 · NEIS 학교 · KOSIS 귀농통계 (총 ${DIMENSION_SCORES.length}개 시군구 기준)`}
+          />
+        </>
+      ) : (
+        <>
       {/* 모드 선택 — 사용자 첫 의사결정 (PageHeader 직후) */}
       <div className={s.modeToggle} role="tablist" aria-label="비교 방식">
         <Link
@@ -376,6 +397,10 @@ export default async function RankingPage({ searchParams }: PageProps) {
       )}
 
       <p className={s.methodologyLink}>
+        <Link href="/regions/ranking">처음부터 다시 →</Link>
+        {" "}
+        <span aria-hidden="true">·</span>
+        {" "}
         <Link href="/regions/ranking/methodology">
           점수는 어떻게 만들었나요? →
         </Link>
@@ -384,6 +409,8 @@ export default async function RankingPage({ searchParams }: PageProps) {
       <DataSource
         source={`기상청 ASOS · SGIS 인구 · 농림어업총조사 2020 · 심평원 의료기관 · NEIS 학교 · KOSIS 귀농통계 (총 ${DIMENSION_SCORES.length}개 시군구 기준)`}
       />
+        </>
+      )}
     </div>
   );
 }
