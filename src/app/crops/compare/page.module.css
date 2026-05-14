@@ -142,15 +142,6 @@
   }
 }
 
-.summaryEmoji {
-  font-size: 18px;
-  line-height: 1;
-}
-
-@media (min-width: 640px) {
-  .summaryEmoji { font-size: 22px; }
-}
-
 .summaryBadge {
   display: inline-flex;
   align-items: center;
@@ -185,22 +176,6 @@
   margin: 0;
 }
 
-.summaryStat {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--fs-body-sm);
-  font-weight: 700;
-  color: var(--primary, #1b6b5a);
-  margin: 0;
-}
-
-@media (min-width: 640px) {
-  .summaryStat {
-    gap: 5px;
-    font-size: var(--fs-body);
-  }
-}
 
 .summaryRegion {
   display: flex;
@@ -300,6 +275,23 @@
 
 @media (min-width: 640px) {
   .th:first-child { width: 110px; }
+}
+
+.thLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 한줄 요약·footer 등 텍스트 내 inline 작물 라벨 (thumbnail + name) */
+.cropInline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  vertical-align: middle;
+  font-weight: 700;
+  color: var(--foreground, #111827);
 }
 
 .tdLabel {

@@ -120,12 +120,6 @@
   text-overflow: ellipsis;
 }
 
-.metricRowEmoji {
-  font-size: 16px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
 /* ---- Bar Track + Value (numeric) ---- */
 .metricRowBarTrack {
   position: relative;

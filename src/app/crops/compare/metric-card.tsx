@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { CropImage } from "@/components/ui/crop-image";
 import s from "./metric-card.module.css";
 
 // ============================================================================
@@ -7,12 +8,10 @@ import s from "./metric-card.module.css";
 // ============================================================================
 
 export interface CropRowMeta {
-  /** 작물 식별자 (key) */
+  /** 작물 식별자 (key + thumbnail 소스) */
   cropId: string;
-  /** 작물 이름 (서브 라벨) */
+  /** 작물 이름 (서브 라벨 + thumbnail alt) */
   cropName: string;
-  /** 이모지 (라벨 prefix) */
-  emoji: string;
 }
 
 // ============================================================================
@@ -90,9 +89,7 @@ export function CropMetricCard({
           return (
             <li key={r.cropId} className={s.metricRow}>
               <span className={s.metricRowLabel}>
-                <span className={s.metricRowEmoji} aria-hidden="true">
-                  {r.emoji}
-                </span>
+                <CropImage cropId={r.cropId} cropName={r.cropName} size="inline" />
                 {r.cropName}
               </span>
               <div
@@ -128,7 +125,7 @@ export function CropMetricCard({
               : emphasisLabelLowest}
           </span>
           <span className={s.metricCardFooterCrop}>
-            <span aria-hidden="true">{target.emoji}</span>
+            <CropImage cropId={target.cropId} cropName={target.cropName} size="inline" />
             {target.cropName}
           </span>
         </footer>
@@ -169,8 +166,8 @@ interface CropBadgeMetricCardProps {
   title: string;
   icon: LucideIcon;
   rows: BadgeRow[];
-  /** 옵션: 카드 footer 한줄 인사이트 */
-  footerLabel?: string;
+  /** 옵션: 카드 footer 한줄 인사이트 (텍스트 + 작물 thumbnail 혼합 가능) */
+  footerLabel?: React.ReactNode;
 }
 
 export function CropBadgeMetricCard({
@@ -191,9 +188,7 @@ export function CropBadgeMetricCard({
         {rows.map((r) => (
           <li key={r.cropId} className={s.badgeRow}>
             <span className={s.badgeRowLabel}>
-              <span className={s.metricRowEmoji} aria-hidden="true">
-                {r.emoji}
-              </span>
+              <CropImage cropId={r.cropId} cropName={r.cropName} size="inline" />
               {r.cropName}
             </span>
             <span>

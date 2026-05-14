@@ -8,7 +8,6 @@ import {
   Lightbulb,
   Gauge,
   Calendar,
-  TrendingUp,
   MapPin,
   Wallet,
   Clock,
@@ -17,6 +16,7 @@ import {
   Info,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { CropImage } from "@/components/ui/crop-image";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   CROPS,
@@ -131,8 +131,20 @@ const CATEGORY_TONE: Record<string, BadgeTone> = {
   특용: "neutral",
 };
 
-function buildComparisonSummary(crops: CropWithDetail[]): string {
-  if (crops.length < 2) return "";
+/**
+ * 작물명 + thumbnail inline 조각 — 한줄 요약 안에서 사용.
+ */
+function CropInlineLabel({ crop }: { crop: CropWithDetail }) {
+  return (
+    <span className={s.cropInline}>
+      <CropImage cropId={crop.id} cropName={crop.name} size="inline" />
+      {crop.name}
+    </span>
+  );
+}
+
+function buildComparisonSummary(crops: CropWithDetail[]): React.ReactNode {
+  if (crops.length < 2) return null;
 
   const sorted = [...crops].sort(
     (a, b) => (DIFFICULTY_RANK[a.difficulty] ?? 2) - (DIFFICULTY_RANK[b.difficulty] ?? 2),
@@ -140,28 +152,46 @@ function buildComparisonSummary(crops: CropWithDetail[]): string {
   const easiest = sorted[0];
   const hardest = sorted[sorted.length - 1];
 
-  const parts: string[] = [];
+  const nodes: React.ReactNode[] = [];
 
   if (easiest.difficulty !== hardest.difficulty) {
-    parts.push(
-      `안정적인 입문을 원한다면 ${easiest.emoji} ${easiest.name}(${easiest.difficulty})이 적합하고, 높은 수익을 목표로 기술 투자가 가능하다면 ${hardest.emoji} ${hardest.name}(${hardest.difficulty})을 고려해 보세요.`,
+    nodes.push(
+      <span key="diff">
+        {"안정적인 입문을 원한다면 "}
+        <CropInlineLabel crop={easiest} />
+        {`(${easiest.difficulty})이 적합하고, 높은 수익을 목표로 기술 투자가 가능하다면 `}
+        <CropInlineLabel crop={hardest} />
+        {`(${hardest.difficulty})을 고려해 보세요.`}
+      </span>,
     );
   } else {
-    parts.push(
-      `${crops.map((c) => `${c.emoji} ${c.name}`).join(", ")} 모두 ${easiest.difficulty} 난이도예요.`,
+    nodes.push(
+      <span key="same">
+        {crops.map((c, i) => (
+          <span key={c.id}>
+            {i > 0 && ", "}
+            <CropInlineLabel crop={c} />
+          </span>
+        ))}
+        {` 모두 ${easiest.difficulty} 난이도예요.`}
+      </span>,
     );
   }
 
   if (crops.length === 3) {
     const mid = sorted[1];
     if (mid.difficulty !== easiest.difficulty && mid.difficulty !== hardest.difficulty) {
-      parts.push(
-        `${mid.emoji} ${mid.name}은 난이도와 수익의 균형을 원하는 분에게 좋은 선택이에요.`,
+      nodes.push(
+        <span key="mid">
+          {" "}
+          <CropInlineLabel crop={mid} />
+          {"은 난이도와 수익의 균형을 원하는 분에게 좋은 선택이에요."}
+        </span>,
       );
     }
   }
 
-  return parts.join(" ");
+  return <>{nodes}</>;
 }
 
 export default async function CropComparePage({ searchParams }: PageProps) {
@@ -283,8 +313,8 @@ function SummaryView({ crops }: { crops: CropWithDetail[] }) {
             crops={crops
               .filter((c) => c.detail.prosCons)
               .map((c) => ({
+                id: c.id,
                 name: c.name,
-                emoji: c.emoji,
                 pros: c.detail.prosCons!.pros,
                 cons: c.detail.prosCons!.cons,
               }))}
@@ -306,7 +336,6 @@ function SummaryMetricGrid({ crops }: { crops: CropWithDetail[] }) {
     return {
       cropId: c.id,
       cropName: c.name,
-      emoji: c.emoji,
       value: center,
       displayText:
         min === max
@@ -318,14 +347,12 @@ function SummaryMetricGrid({ crops }: { crops: CropWithDetail[] }) {
   const workdayRows: NumericRow[] = crops.map((c) => ({
     cropId: c.id,
     cropName: c.name,
-    emoji: c.emoji,
     value: parseAnnualWorkdays(c.detail.income.annualWorkdays),
   }));
 
   const difficultyRows: BadgeRow[] = crops.map((c) => ({
     cropId: c.id,
     cropName: c.name,
-    emoji: c.emoji,
     badge: c.difficulty,
     tone: DIFFICULTY_TONE[c.difficulty] ?? "neutral",
   }));
@@ -333,7 +360,6 @@ function SummaryMetricGrid({ crops }: { crops: CropWithDetail[] }) {
   const laborRows: BadgeRow[] = crops.map((c) => ({
     cropId: c.id,
     cropName: c.name,
-    emoji: c.emoji,
     badge: c.detail.income.laborIntensity ?? "—",
     tone: c.detail.income.laborIntensity
       ? (LABOR_TONE[c.detail.income.laborIntensity] ?? "neutral")
@@ -346,7 +372,9 @@ function SummaryMetricGrid({ crops }: { crops: CropWithDetail[] }) {
       Math.min(...crops.map((cc) => DIFFICULTY_RANK[cc.difficulty] ?? 2)),
   );
 
-  const lightestLaborRow = laborRows.find((r) => r.tone === "easy");
+  const lightestLaborCrop = laborRows
+    .map((r) => crops.find((c) => c.id === r.cropId))
+    .find((c, i) => c != null && laborRows[i].tone === "easy");
 
   return (
     <MetricGrid>
@@ -372,16 +400,26 @@ function SummaryMetricGrid({ crops }: { crops: CropWithDetail[] }) {
         title="재배 난이도"
         icon={Gauge}
         rows={difficultyRows}
-        footerLabel={easiest ? `가장 쉬운 작물 · ${easiest.emoji} ${easiest.name}` : undefined}
+        footerLabel={
+          easiest ? (
+            <>
+              {"가장 쉬운 작물 · "}
+              <CropInlineLabel crop={easiest} />
+            </>
+          ) : undefined
+        }
       />
       <CropBadgeMetricCard
         title="노동 강도"
         icon={Activity}
         rows={laborRows}
         footerLabel={
-          lightestLaborRow
-            ? `노동 부담이 가장 적어요 · ${lightestLaborRow.emoji} ${lightestLaborRow.cropName}`
-            : undefined
+          lightestLaborCrop ? (
+            <>
+              {"노동 부담이 가장 적어요 · "}
+              <CropInlineLabel crop={lightestLaborCrop} />
+            </>
+          ) : undefined
         }
       />
     </MetricGrid>
@@ -402,8 +440,8 @@ function EconomyView({ crops }: { crops: CropWithDetail[] }) {
             crops={crops.map((c) => {
               const { min, max } = parseIncome(c.detail.income.revenueRange);
               return {
+                id: c.id,
                 name: c.name,
-                emoji: c.emoji,
                 incomeMin: min,
                 incomeMax: max,
               };
@@ -428,7 +466,10 @@ function EconomyView({ crops }: { crops: CropWithDetail[] }) {
                   <th className={s.th} scope="col">항목</th>
                   {crops.map((c) => (
                     <th key={c.id} className={s.th} scope="col">
-                      {c.emoji} {c.name}
+                      <span className={s.thLabel}>
+                        <CropImage cropId={c.id} cropName={c.name} size="md" />
+                        {c.name}
+                      </span>
                     </th>
                   ))}
                 </tr>
@@ -473,14 +514,12 @@ function EconomyMetricGrid({ crops }: { crops: CropWithDetail[] }) {
   const workdayRows: NumericRow[] = crops.map((c) => ({
     cropId: c.id,
     cropName: c.name,
-    emoji: c.emoji,
     value: parseAnnualWorkdays(c.detail.income.annualWorkdays),
   }));
 
   const laborRows: BadgeRow[] = crops.map((c) => ({
     cropId: c.id,
     cropName: c.name,
-    emoji: c.emoji,
     badge: c.detail.income.laborIntensity ?? "—",
     tone: c.detail.income.laborIntensity
       ? (LABOR_TONE[c.detail.income.laborIntensity] ?? "neutral")
@@ -493,7 +532,6 @@ function EconomyMetricGrid({ crops }: { crops: CropWithDetail[] }) {
     return {
       cropId: c.id,
       cropName: c.name,
-      emoji: c.emoji,
       value: center,
       displayText:
         min === max
@@ -553,7 +591,10 @@ function CultivationView({ crops }: { crops: CropWithDetail[] }) {
                 <th className={s.th} scope="col">항목</th>
                 {crops.map((c) => (
                   <th key={c.id} className={s.th} scope="col">
-                    {c.emoji} {c.name}
+                    <span className={s.thLabel}>
+                      <CropImage cropId={c.id} cropName={c.name} size="md" />
+                      {c.name}
+                    </span>
                   </th>
                 ))}
               </tr>
@@ -604,7 +645,6 @@ function CultivationMetricGrid({ crops }: { crops: CropWithDetail[] }) {
   const categoryRows: BadgeRow[] = crops.map((c) => ({
     cropId: c.id,
     cropName: c.name,
-    emoji: c.emoji,
     badge: c.category,
     tone: CATEGORY_TONE[c.category] ?? "neutral",
   }));
@@ -612,7 +652,6 @@ function CultivationMetricGrid({ crops }: { crops: CropWithDetail[] }) {
   const difficultyRows: BadgeRow[] = crops.map((c) => ({
     cropId: c.id,
     cropName: c.name,
-    emoji: c.emoji,
     badge: c.difficulty,
     tone: DIFFICULTY_TONE[c.difficulty] ?? "neutral",
   }));
@@ -620,7 +659,6 @@ function CultivationMetricGrid({ crops }: { crops: CropWithDetail[] }) {
   const seasonRows: BadgeRow[] = crops.map((c) => ({
     cropId: c.id,
     cropName: c.name,
-    emoji: c.emoji,
     badge: c.growingSeason,
     tone: "neutral",
   }));
@@ -692,15 +730,11 @@ function SummaryCard({ crop }: { crop: CropWithDetail }) {
           </span>
         </div>
         <h3 className={s.summaryName}>
-          <span className={s.summaryEmoji}>{crop.emoji}</span>
+          <CropImage cropId={crop.id} cropName={crop.name} size="md" />
           {crop.name}
         </h3>
         <p className={s.summaryInfo}>
           <Icon icon={Calendar} size="xs" /> {crop.growingSeason}
-        </p>
-        <p className={s.summaryStat}>
-          <Icon icon={TrendingUp} size="xs" />
-          {crop.detail.income.revenueRange.split("(")[0].trim()}
         </p>
         <p className={s.summaryRegion}>
           <Icon icon={MapPin} size="xs" />
@@ -808,7 +842,8 @@ function ProsConsColumn({ crop }: { crop: CropWithDetail }) {
   return (
     <div className={s.prosConsCol}>
       <h3 className={s.prosConsColTitle}>
-        <span>{crop.emoji}</span> {crop.name}
+        <CropImage cropId={crop.id} cropName={crop.name} size="md" />
+        {crop.name}
       </h3>
 
       {/* 종합 (결론 먼저) */}

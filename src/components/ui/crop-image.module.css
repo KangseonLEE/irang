@@ -1,0 +1,22 @@
+/* CropImage — 작물 식별용 작은 thumbnail */
+
+.thumb {
+  display: inline-block;
+  flex-shrink: 0;
+  object-fit: cover;
+  vertical-align: middle;
+  background: var(--muted, #f3f4f6);
+  border-radius: 5px;
+}
+
+.thumbInline {
+  border-radius: 4px;
+}
+
+.thumbMd {
+  border-radius: 6px;
+}
+
+.thumbLg {
+  border-radius: 8px;
+}

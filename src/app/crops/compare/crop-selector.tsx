@@ -29,7 +29,6 @@ interface SearchResult {
   name: string;
   category: CropInfo["category"];
   difficulty: CropInfo["difficulty"];
-  emoji: string;
   searchText: string;
 }
 
@@ -92,7 +91,6 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
       name: c.name,
       category: c.category,
       difficulty: c.difficulty,
-      emoji: c.emoji,
       searchText: `${c.name}${c.description}${c.category}`.replace(/\s/g, ""),
     }));
   }, [crops]);
@@ -322,8 +320,14 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
                           onMouseEnter={() => setHighlightId(item.id)}
                           disabled={isAlready}
                         >
-                          <span className={s.dropdownCardEmoji} aria-hidden="true">
-                            {item.emoji}
+                          <span className={s.dropdownCardThumb}>
+                            <Image
+                              src={getCropImageSrc(item.id)}
+                              alt=""
+                              width={32}
+                              height={32}
+                              className={s.dropdownCardThumbImg}
+                            />
                           </span>
                           <span className={s.dropdownCardBody}>
                             <span className={s.dropdownCardName}>{item.name}</span>
@@ -406,12 +410,7 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
                 <Sprout size={14} aria-hidden="true" />
                 <span>{crop.category}</span>
               </div>
-              <div className={s.cardName}>
-                <span className={s.cardEmoji} aria-hidden="true">
-                  {crop.emoji}
-                </span>
-                {crop.name}
-              </div>
+              <div className={s.cardName}>{crop.name}</div>
               <div className={s.cardDifficulty}>난이도 {crop.difficulty}</div>
             </div>
           </div>

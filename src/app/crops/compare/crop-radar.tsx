@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "recharts";
 import type { ProsConsCategory } from "@/lib/data/crops";
+import { CropImage } from "@/components/ui/crop-image";
 import cs from "@/components/charts/chart-styles.module.css";
 
 const COLORS = ["#1b6b5a", "#e67e22", "#3498db"] as const;
@@ -26,8 +27,8 @@ const AXES: { key: ProsConsCategory; label: string }[] = [
 
 export interface CropRadarProps {
   crops: Array<{
+    id: string;
     name: string;
-    emoji: string;
     pros: Array<{ category: string }>;
     cons: Array<{ category: string }>;
   }>;
@@ -98,8 +99,8 @@ export function CropRadar({ crops }: CropRadarProps) {
             <Tooltip content={<CustomTooltip />} />
             {crops.map((crop, i) => (
               <Radar
-                key={crop.name}
-                name={`${crop.emoji} ${crop.name}`}
+                key={crop.id}
+                name={crop.name}
                 dataKey={crop.name}
                 stroke={COLORS[i]}
                 fill={COLORS[i]}
@@ -116,12 +117,13 @@ export function CropRadar({ crops }: CropRadarProps) {
       {/* 범례 */}
       <div className={cs.legend}>
         {crops.map((crop, i) => (
-          <span key={crop.name} className={cs.legendItem}>
+          <span key={crop.id} className={cs.legendItem}>
             <span
               className={cs.legendDot}
               style={{ background: COLORS[i], borderRadius: "50%" }}
             />
-            {crop.emoji} {crop.name}
+            <CropImage cropId={crop.id} cropName={crop.name} size="inline" />
+            {crop.name}
           </span>
         ))}
       </div>

@@ -13,14 +13,15 @@ import {
   ReferenceLine,
   type LabelProps,
 } from "recharts";
+import { CropImage } from "@/components/ui/crop-image";
 import cs from "@/components/charts/chart-styles.module.css";
 
 const COLORS = ["#1b6b5a", "#e67e22", "#3498db"] as const;
 
 export interface IncomeBarsProps {
   crops: Array<{
+    id: string;
     name: string;
-    emoji: string;
     incomeMin: number; // 만원 단위
     incomeMax: number;
   }>;
@@ -85,7 +86,7 @@ export function IncomeBars({ crops }: IncomeBarsProps) {
     return crops.map((crop, i) => {
       const isRange = crop.incomeMin !== crop.incomeMax;
       return {
-        label: `${crop.emoji} ${crop.name}`,
+        label: crop.name,
         base: isRange ? crop.incomeMin : crop.incomeMin,
         extra: isRange ? crop.incomeMax - crop.incomeMin : 0,
         total: crop.incomeMax,
@@ -106,7 +107,8 @@ export function IncomeBars({ crops }: IncomeBarsProps) {
   }, [crops]);
 
   return (
-    <div className={cs.chartWrapper}>
+    <div>
+      <div className={cs.chartWrapper}>
       <ResponsiveContainer width="100%" height={280}>
         <BarChart
           data={chartData}
@@ -174,6 +176,21 @@ export function IncomeBars({ crops }: IncomeBarsProps) {
           )}
         </BarChart>
       </ResponsiveContainer>
+      </div>
+
+      {/* 범례 — thumbnail 식별 */}
+      <div className={cs.legend}>
+        {crops.map((crop, i) => (
+          <span key={crop.id} className={cs.legendItem}>
+            <span
+              className={cs.legendDot}
+              style={{ background: COLORS[i], borderRadius: "50%" }}
+            />
+            <CropImage cropId={crop.id} cropName={crop.name} size="inline" />
+            {crop.name}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
