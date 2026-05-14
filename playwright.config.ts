@@ -29,8 +29,9 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: "retain-on-failure",
     // 봇 차단 회피 — Cloudflare/middleware UA 차단 패턴 회피
+    // CF Custom Rule "Allow irang E2E tests"가 토큰 "irang-e2e/1.0" 매칭으로 Skip 처리
     userAgent:
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 IrangE2E/1.0",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 irang-e2e/1.0",
     extraHTTPHeaders: {
       // E2E 식별용 헤더 — 운영 시 로그에서 식별 가능
       "x-irang-e2e": "playwright",
@@ -51,7 +52,7 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         viewport: { width: 390, height: 844 },
         userAgent:
-          "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1 IrangE2E/1.0",
+          "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1 irang-e2e/1.0",
         isMobile: false, // Chromium engine doesn't support touch-with-mobile-ua emulation reliably here
         hasTouch: true,
       },
