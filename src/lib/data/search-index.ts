@@ -899,9 +899,9 @@ export function searchAll(query: string): SearchItem[] {
   const terms = q.split(/\s+/).filter(Boolean);
   if (terms.length === 0) return [];
 
-  // 읍·면·동 안내 — 시드 매칭 시 최상단에 노출
-  const subRegionHint = matchSubRegionHint(q);
-  const hintPrefix = subRegionHint ? [subRegionHint] : [];
+  // 읍·면·동 안내 — 시드 매칭 시 최상단에 노출 (동음이의어는 다수 항목)
+  // 복합 쿼리("울산 서생")는 첫 단어로만 매칭 — 단일 단어 검색이 일반적
+  const hintPrefix = matchSubRegionHints(terms[0] ?? q);
 
   // FAQ 매칭 — 질문형 쿼리를 FAQ 패턴과 비교하여 상위에 삽입
   const faqResults = matchFaqs(q);
@@ -1077,59 +1077,71 @@ export function detectIntent(query: string): SearchIntent {
 // 인지도 높은 읍·면·동(서생면·우도면 등)도 검색한다. 매칭 시 안내 카드를
 // 최상단에 노출하고 상위 시·군·구 페이지로 유도.
 //
-// 새 항목 추가 절차: /search?q=<term> 결과 없는 검색어 모니터링 → 의미 있는
-// 읍·면·동은 본 맵에 시드 추가. CLAUDE.md §9 데이터 큐레이션 가드 준수.
+// 데이터 소스: 통계청 SGIS Open API stage.json
+//   - scripts/generate-sub-regions.ts 가 사전 수집한 정적 데이터 사용
+//   - 전국 3,559건 읍·면·동 자동 매핑
+//   - 6,161개 검색 키 (풀네임 + 접미사 제거 별칭) + 585개 동음이의어 처리
+//
+// 행정구역 통폐합 시 generate-sub-regions.ts 재실행으로 갱신.
 
-interface SubRegionHint {
-  /** 표시용 풀네임 (예: "서생면") */
-  fullName: string;
-  /** 상위 시·군·구 short name */
-  sigunguShortName: string;
-  /** 상위 시·군·구 페이지 href */
-  sigunguHref: string;
-  /** 상위 시·도 short name (안내 문구용) */
-  sidoShortName: string;
-}
+import { SUB_REGIONS } from "./sub-regions.generated";
 
-const SUB_REGION_HINTS: Record<string, SubRegionHint> = {
-  // 울산 울주군 서생면 (원전·해안·간절곶)
-  "서생": { fullName: "서생면", sigunguShortName: "울주", sigunguHref: "/regions/ulsan/ulju", sidoShortName: "울산" },
-  "서생면": { fullName: "서생면", sigunguShortName: "울주", sigunguHref: "/regions/ulsan/ulju", sidoShortName: "울산" },
-  // 전남 영광군 백수읍 (백수해안도로·홍농)
-  "백수": { fullName: "백수읍", sigunguShortName: "영광", sigunguHref: "/regions/jeonnam/yeonggwang", sidoShortName: "전남" },
-  "백수읍": { fullName: "백수읍", sigunguShortName: "영광", sigunguHref: "/regions/jeonnam/yeonggwang", sidoShortName: "전남" },
-  // 제주시 우도면 (소섬·관광지)
-  "우도": { fullName: "우도면", sigunguShortName: "제주시", sigunguHref: "/regions/jeju/jeju-si", sidoShortName: "제주" },
-  "우도면": { fullName: "우도면", sigunguShortName: "제주시", sigunguHref: "/regions/jeju/jeju-si", sidoShortName: "제주" },
-  // 전남 완도군 청산면 (청산도·슬로시티)
-  "청산도": { fullName: "청산면", sigunguShortName: "완도", sigunguHref: "/regions/jeonnam/wando", sidoShortName: "전남" },
-  "청산면": { fullName: "청산면", sigunguShortName: "완도", sigunguHref: "/regions/jeonnam/wando", sidoShortName: "전남" },
-  // 전남 완도군 보길면 (윤선도 유적)
-  "보길도": { fullName: "보길면", sigunguShortName: "완도", sigunguHref: "/regions/jeonnam/wando", sidoShortName: "전남" },
-  "보길면": { fullName: "보길면", sigunguShortName: "완도", sigunguHref: "/regions/jeonnam/wando", sidoShortName: "전남" },
-  // 제주시 화북동 (도심 인근)
-  "화북": { fullName: "화북동", sigunguShortName: "제주시", sigunguHref: "/regions/jeju/jeju-si", sidoShortName: "제주" },
+/**
+ * 수동 별칭 시드 — SGIS는 면(面) 이름으로 등록하지만 사용자는 섬(島) 이름으로 검색.
+ * 별칭 → SGIS 등록 키로 리다이렉트. 추가 항목은 자유롭게 등록 가능.
+ */
+const SUB_REGION_ALIASES: Record<string, string> = {
+  "청산도": "청산면",
+  "보길도": "보길면",
+  "흑산도": "흑산면",
+  "홍도": "흑산면", // 홍도는 흑산면 소속
+  "소록도": "도양읍", // 전남 고흥
+  "거제도": "거제시", // 거제도 자체는 시 단위
+  "남해도": "남해읍",
+  "진도": "진도읍",
+  "완도": "완도읍",
+  "강화도": "강화읍",
 };
 
 /**
- * 검색어가 읍·면·동 시드와 일치하면 안내 SearchItem을 반환.
+ * 검색어가 읍·면·동에 매칭되면 안내 SearchItem 배열을 반환.
+ * 동음이의어(예: "중앙동"이 여러 시·군·구에 존재)는 다수 항목 노출.
  * 검색 결과 최상단에 노출하여 사용자에게 데이터 제공 범위를 명확히 안내.
  */
-function matchSubRegionHint(query: string): SearchItem | null {
+function matchSubRegionHints(query: string): SearchItem[] {
   const q = query.trim().toLowerCase();
-  const hint = SUB_REGION_HINTS[q];
-  if (!hint) return null;
-  return {
-    type: "region",
-    id: `sub-region-hint-${q}`,
-    title: `${hint.sidoShortName} ${hint.sigunguShortName} ${hint.fullName}`,
-    subtitle: `읍·면·동 단위는 따로 제공하지 않아요. ${hint.sidoShortName} ${hint.sigunguShortName} 페이지에서 살펴보세요.`,
-    href: hint.sigunguHref,
-    keywords: [hint.fullName, hint.sigunguShortName, hint.sidoShortName],
-    icon: "\u{1F4CD}", // 📍
-    badge: "안내",
-  };
+  if (q.length < 2) return [];
+
+  // 별칭(섬 이름 등) → SGIS 등록 키로 정규화
+  const normalizedKey = SUB_REGION_ALIASES[q] ?? q;
+  const tuples = SUB_REGIONS[normalizedKey];
+  if (!tuples || tuples.length === 0) return [];
+
+  // 동음이의어 cap — 최대 5건만 노출 (혼란 방지)
+  // "중앙동" 처럼 31건+ 매칭되는 케이스 대응. 사용자가 시·도까지 함께 입력하면
+  // 검색 결과 페이지에서 좁혀짐.
+  const capped = tuples.slice(0, 5);
+
+  return capped.map((tuple, idx) => {
+    const [fullName, sigunguId, sidoId] = tuple;
+    const sigungu = getSigunguById(sigunguId);
+    const province = getProvinceById(sidoId);
+    const sigunguShortName = sigungu?.shortName ?? "";
+    const sidoShortName = province?.shortName ?? "";
+
+    return {
+      type: "region" as const,
+      id: `sub-region-hint-${q}-${idx}`,
+      title: `${sidoShortName} ${sigunguShortName} ${fullName}`,
+      subtitle: `읍·면·동 단위는 따로 제공하지 않아요. ${sidoShortName} ${sigunguShortName} 페이지에서 살펴보세요.`,
+      href: `/regions/${sidoId}/${sigunguId}`,
+      keywords: [fullName, sigunguShortName, sidoShortName],
+      icon: "\u{1F4CD}", // 📍
+      badge: "안내",
+    };
+  });
 }
+
 
 // ---------------------------------------------------------------------------
 // FAQ 매칭 — 자연어 질문형 쿼리 → 페이지 매핑
