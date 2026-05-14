@@ -358,13 +358,30 @@ export default async function RankingPage({ searchParams }: PageProps) {
         </div>
       ) : (
         <ol className={s.rankList}>
-          {ranked.map((item, idx) => (
+          {ranked.map((item, idx) => {
+            const medalLinkClass =
+              idx === 0
+                ? s.rankLinkGold
+                : idx === 1
+                  ? s.rankLinkSilver
+                  : idx === 2
+                    ? s.rankLinkBronze
+                    : "";
+            const medalNumberClass =
+              idx === 0
+                ? s.rankNumberGold
+                : idx === 1
+                  ? s.rankNumberSilver
+                  : idx === 2
+                    ? s.rankNumberBronze
+                    : "";
+            return (
             <li key={item.score.sgisCode} className={s.rankItem}>
               <Link
                 href={`/regions/${item.province.id}/${item.sg.id}`}
-                className={s.rankLink}
+                className={`${s.rankLink} ${medalLinkClass}`}
               >
-                <span className={s.rankNumber}>{idx + 1}</span>
+                <span className={`${s.rankNumber} ${medalNumberClass}`}>{idx + 1}</span>
                 <div className={s.rankBody}>
                   <span className={s.rankName}>{item.sg.name}</span>
                   <span className={s.rankSido}>{item.province.shortName}</span>
@@ -392,7 +409,8 @@ export default async function RankingPage({ searchParams }: PageProps) {
                 />
               )}
             </li>
-          ))}
+            );
+          })}
         </ol>
       )}
 

@@ -694,11 +694,42 @@
   }
 }
 
+/* 1~3위 미세 색상 차별 — 너무 화려하지 않게 */
+.rankLinkGold {
+  border-color: color-mix(in srgb, #FFB800 40%, var(--border));
+  background: color-mix(in srgb, #FFB800 5%, var(--card, #fff));
+}
+
+.rankLinkSilver {
+  border-color: color-mix(in srgb, #9CA3AF 40%, var(--border));
+  background: color-mix(in srgb, #9CA3AF 5%, var(--card, #fff));
+}
+
+.rankLinkBronze {
+  border-color: color-mix(in srgb, #CD7F32 40%, var(--border));
+  background: color-mix(in srgb, #CD7F32 5%, var(--card, #fff));
+}
+
 .rankNumber {
   font-size: 14px;
   font-weight: 700;
   color: var(--muted-foreground);
   text-align: center;
+}
+
+.rankNumberGold {
+  color: #B8860B;
+  font-weight: 800;
+}
+
+.rankNumberSilver {
+  color: #6B7280;
+  font-weight: 800;
+}
+
+.rankNumberBronze {
+  color: #A05A2C;
+  font-weight: 800;
 }
 
 .rankBody {
