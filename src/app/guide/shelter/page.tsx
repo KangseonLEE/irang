@@ -13,6 +13,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import {
   SHELTER_SUMMARY,
   SHELTER_EFFECTIVE_DATE,
@@ -45,6 +46,10 @@ const RULE_ICONS: Record<string, typeof Home> = {
 export default function ShelterGuidePage() {
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "귀농 로드맵", href: "/guide" },
+        { name: "농촌체류형 쉼터", href: "/guide/shelter" },
+      ]} />
       <SubPageHero
         overline="농촌체류형 쉼터"
         icon={Home}

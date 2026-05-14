@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GitCompareArrows, Info, ExternalLink } from "lucide-react";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import {
   TRACKS,
   TRACK_FIELDS,
@@ -21,6 +22,10 @@ export const revalidate = 86400;
 export default function TrackComparePage() {
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "귀농 로드맵", href: "/guide" },
+        { name: "추진체계 비교", href: "/guide/track-compare" },
+      ]} />
       <SubPageHero
         overline="추진체계 비교"
         icon={GitCompareArrows}

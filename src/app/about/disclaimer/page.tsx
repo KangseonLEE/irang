@@ -10,6 +10,7 @@ import {
   Shield,
 } from "lucide-react";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -53,6 +54,10 @@ const dataSources = [
 export default function DisclaimerPage() {
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "서비스 소개", href: "/about" },
+        { name: "면책 고지", href: "/about/disclaimer" },
+      ]} />
       <Link href="/" className={s.backLink}>
         <ArrowLeft size={16} aria-hidden="true" />
         홈으로 돌아가기

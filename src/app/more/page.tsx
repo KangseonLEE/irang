@@ -30,6 +30,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "./page.module.css";
 
 /* ── 상단 퀵 메뉴 (핵심 4가지) ── */
@@ -105,6 +106,7 @@ const menuGroups: MenuGroup[] = [
 export default function MorePage() {
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "전체 메뉴", href: "/more" }]} />
       <h1 className={s.title}>전체 서비스</h1>
 
       {/* 퀵 메뉴 — 개별 카드 4개 그리드 */}

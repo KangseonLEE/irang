@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Scale, Info, Database, Shield, Quote } from "lucide-react";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "../about/disclaimer/page.module.css";
 
 export const metadata: Metadata = {
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "이용약관", href: "/terms" }]} />
       <Link href="/about" className={s.backLink}>
         <ArrowLeft size={16} />
         소개 페이지로

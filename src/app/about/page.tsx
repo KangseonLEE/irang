@@ -20,6 +20,9 @@ import { Icon as IconWrap } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { IrangSymbol } from "@/components/brand/irang-symbol";
 import { CROPS } from "@/lib/data/crops";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { Organization } from "schema-dts";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -113,6 +116,38 @@ const dataSources = [
 export default function AboutPage() {
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "서비스 소개", href: "/about" }]} />
+      {/* ── E-E-A-T: Organization 구조화 데이터 (운영 정보·연락·데이터 출처) ── */}
+      <JsonLd<Organization>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "이랑",
+          alternateName: "이랑 — 귀농 정보 큐레이션 포탈",
+          url: "https://irangfarm.com/about",
+          logo: "https://irangfarm.com/icon.svg",
+          description:
+            "이랑은 귀농을 준비하는 분들을 위한 비영리 정보 큐레이션 서비스예요. 기상청·통계청(KOSIS·SGIS)·농촌진흥청·심평원·교육부 등 5개 공공기관 데이터를 기반으로 지역, 작물, 지원사업 정보를 한곳에서 비교할 수 있게 정리해요.",
+          email: "loyal3270@gmail.com",
+          contactPoint: {
+            "@type": "ContactPoint",
+            email: "loyal3270@gmail.com",
+            contactType: "customer service",
+            availableLanguage: ["Korean"],
+          },
+          areaServed: { "@type": "Country", name: "Republic of Korea" },
+          knowsAbout: [
+            "귀농",
+            "귀촌",
+            "귀산촌",
+            "청년농",
+            "스마트팜",
+            "치유농업",
+            "농업 지원사업",
+            "농촌 정착",
+          ],
+        }}
+      />
       {/* ═══ 히어로 ═══ */}
       <section className={s.hero}>
         <div className={s.heroSymbol}>
@@ -239,7 +274,7 @@ export default function AboutPage() {
         <h2 className={s.sectionTitle}>운영 정보</h2>
         <p className={s.sectionDesc}>
           이랑은 개인이 운영하는 비영리 귀농 정보 큐레이션 서비스예요.
-          문의는 이메일로 보내주세요.
+          데이터 정정·삭제 요청, 출처 검증 결과는 모두 공개로 관리해요.
         </p>
         <div className={s.operatorGrid}>
           <a href="mailto:loyal3270@gmail.com" className={s.operatorItem}>
@@ -251,6 +286,24 @@ export default function AboutPage() {
               <span className={s.operatorValue}>loyal3270@gmail.com</span>
             </div>
           </a>
+          <Link href="/about/corrections" className={s.operatorItem}>
+            <div className={s.operatorIcon}>
+              <FileText size={18} strokeWidth={1.75} />
+            </div>
+            <div className={s.operatorBody}>
+              <span className={s.operatorLabel}>정정 이력</span>
+              <span className={s.operatorValue}>최근 데이터 수정 내역 공개</span>
+            </div>
+          </Link>
+          <Link href="/about/disclaimer" className={s.operatorItem}>
+            <div className={s.operatorIcon}>
+              <Database size={18} strokeWidth={1.75} />
+            </div>
+            <div className={s.operatorBody}>
+              <span className={s.operatorLabel}>면책 고지·데이터 출처</span>
+              <span className={s.operatorValue}>7개 공공데이터 기관 명시</span>
+            </div>
+          </Link>
         </div>
       </section>
 

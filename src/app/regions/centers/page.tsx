@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Building2, Clock, ExternalLink } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CENTERS, getSigunguCentersBySido } from "@/lib/data/centers";
 import { PROVINCES } from "@/lib/data/regions";
 import { CentersSearch } from "./centers-search";
@@ -28,6 +29,10 @@ export default function CentersHubPage() {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "지역 탐색", href: "/regions" },
+        { name: "지자체 센터", href: "/regions/centers" },
+      ]} />
       <PageHeader
         icon={<Building2 size={18} aria-hidden="true" />}
         label="지자체 센터"

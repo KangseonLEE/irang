@@ -7,6 +7,7 @@ import {
   ArrowRight,
   MessageSquare,
 } from "lucide-react";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "../disclaimer/page.module.css";
 
 export const metadata: Metadata = {
@@ -190,6 +191,10 @@ const CORRECTIONS: CorrectionEntry[] = [
 export default function CorrectionsPage() {
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[
+        { name: "서비스 소개", href: "/about" },
+        { name: "정정 이력", href: "/about/corrections" },
+      ]} />
       <Link href="/about" className={s.backLink}>
         <ArrowLeft size={16} />
         소개 페이지로
