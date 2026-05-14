@@ -48,7 +48,7 @@ function SearchPageFallback() {
       </div>
       <div className={s.emptyQuery}>
         <Search size={40} className={s.emptyIcon} />
-        <h1 className={s.emptyTitle}>통합 검색</h1>
+        <p className={s.emptyTitle} role="status">통합 검색</p>
         <p className={s.emptyDesc}>검색 결과를 불러오는 중이에요...</p>
       </div>
     </div>
