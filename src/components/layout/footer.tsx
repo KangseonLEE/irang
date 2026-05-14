@@ -2,21 +2,21 @@ import Link from "next/link";
 import { DisclaimerBadge } from "@/components/ui/disclaimer-badge";
 import s from "./footer.module.css";
 
-// 헤더 4그룹 IA(탐색·준비·실행·자료)에 맞춰 핵심 진입점 노출
+// 헤더 4그룹 IA(지역·작물 / 가이드 / 신청 / 자료실)에 맞춰 핵심 진입점 노출
 const serviceLinks = [
-  // 탐색
+  // 지역·작물
   { href: "/regions", label: "지역 탐색" },
   { href: "/crops", label: "작물 정보" },
-  // 준비
+  // 가이드
   { href: "/guide", label: "귀농 로드맵" },
   { href: "/costs", label: "비용 가이드" },
   { href: "/match", label: "귀농 적합도 진단" },
   { href: "/interviews", label: "귀농인 이야기" },
-  // 실행
+  // 신청
   { href: "/programs", label: "지원사업" },
   { href: "/education", label: "귀농 교육" },
   { href: "/events", label: "체험·행사" },
-  // 자료
+  // 자료실
   { href: "/stats", label: "통계" },
   { href: "/about", label: "서비스 소개" },
 ];

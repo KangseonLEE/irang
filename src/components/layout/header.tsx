@@ -28,7 +28,7 @@ interface NavGroup {
 
 const navGroups: NavGroup[] = [
   {
-    label: "탐색",
+    label: "지역·작물",
     basePaths: ["/regions", "/crops", "/search"],
     children: [
       { href: "/regions", label: "지역 탐색", desc: "시·도별 기후·인구·작물 정보" },
@@ -41,7 +41,7 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "준비",
+    label: "가이드",
     basePaths: ["/guide", "/guides", "/costs", "/assess", "/interviews"],
     children: [
       { href: "/guide", label: "귀농 로드맵", desc: "5단계 귀농 준비 가이드" },
@@ -54,7 +54,7 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "실행",
+    label: "신청",
     basePaths: ["/programs", "/education", "/events"],
     children: [
       { href: "/programs", label: "지원사업", desc: "귀농·귀촌 지원금 & 정책" },
@@ -65,7 +65,7 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "자료",
+    label: "자료실",
     basePaths: ["/stats", "/glossary", "/about"],
     children: [
       { href: "/stats", label: "통계", desc: "귀농 인구·청년·만족도 추이" },
