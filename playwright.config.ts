@@ -40,7 +40,14 @@ export default defineConfig({
   projects: [
     {
       name: "chromium-desktop",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } },
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1280, height: 800 },
+        // devices["Desktop Chrome"] 의 default UA 가 spread 후 top-level use.userAgent 를
+        // override 하므로 project 안에서도 명시적으로 재선언해 irang-e2e/1.0 토큰 보존.
+        userAgent:
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 irang-e2e/1.0",
+      },
     },
     {
       // 회장 권고: 모바일 viewport 1개 추가. webkit 미설치 환경 호환을 위해
