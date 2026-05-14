@@ -1,9 +1,9 @@
 "use client";
 
-import { Suspense, useMemo, useEffect, useRef } from "react";
+import { Suspense, useMemo, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ExternalLink } from "lucide-react";
+import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchAll, hasExactMatch, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
@@ -31,6 +31,23 @@ const TYPE_META: Record<
 
 /** 결과가 없을 때 폴백용 기본 순서 */
 const DEFAULT_TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide", "center", "interview", "glossary", "land"];
+
+/**
+ * 섹션별 초기 노출 개수 — 이 값 초과 시 "더보기 N건" 버튼 표시.
+ * region·crop은 동음이의어/유사 작물이 많아 6개, 그 외는 4개. glossary·guide는 짧은 카드라 5개.
+ */
+const INITIAL_LIMIT: Record<SearchItem["type"], number> = {
+  region: 6,
+  crop: 6,
+  program: 4,
+  education: 4,
+  event: 4,
+  center: 4,
+  interview: 4,
+  glossary: 5,
+  guide: 5,
+  land: 4,
+};
 
 export default function SearchPage() {
   return (
@@ -82,6 +99,20 @@ function SearchPageContent() {
   }, [results]);
 
   const totalCount = results.length;
+
+  // 섹션별 펼침 상태 — query를 상태에 묶어 쿼리 변경 시 자동 초기화
+  // (React 공식 권장 패턴: state in render 비교로 useEffect 회피)
+  const [expandedState, setExpandedState] = useState<{ query: string; flags: Record<string, boolean> }>({
+    query,
+    flags: {},
+  });
+  const expanded = expandedState.query === query ? expandedState.flags : {};
+  const toggleExpanded = (type: string) => {
+    setExpandedState((prev) => {
+      const flags = prev.query === query ? prev.flags : {};
+      return { query, flags: { ...flags, [type]: !flags[type] } };
+    });
+  };
 
   // 검색어가 있을 때 로그 기록 (동일 검색어 중복 방지)
   const loggedRef = useRef("");
@@ -228,6 +259,11 @@ function SearchPageContent() {
           {grouped.map((group) => {
             const meta = TYPE_META[group.type];
             const Icon = meta.icon;
+            const limit = INITIAL_LIMIT[group.type] ?? 4;
+            const isExpanded = expanded[group.type] === true;
+            const overflow = group.items.length - limit;
+            const visibleItems = isExpanded ? group.items : group.items.slice(0, limit);
+
             return (
               <section key={group.type} className={s.section}>
                 <h2 className={s.sectionTitle}>
@@ -239,7 +275,7 @@ function SearchPageContent() {
                   )}
                 </h2>
                 <div className={s.grid}>
-                  {group.items.map((item) => {
+                  {visibleItems.map((item) => {
                     const inner = (
                       <>
                         <span className={s.cardIcon}>{item.icon}</span>
@@ -284,6 +320,26 @@ function SearchPageContent() {
                     );
                   })}
                 </div>
+                {overflow > 0 && (
+                  <button
+                    type="button"
+                    className={s.expandToggle}
+                    onClick={() => toggleExpanded(group.type)}
+                    aria-expanded={isExpanded}
+                  >
+                    {isExpanded ? (
+                      <>
+                        접기
+                        <ChevronUp size={14} aria-hidden="true" />
+                      </>
+                    ) : (
+                      <>
+                        더보기 {overflow}건
+                        <ChevronDown size={14} aria-hidden="true" />
+                      </>
+                    )}
+                  </button>
+                )}
               </section>
             );
           })}

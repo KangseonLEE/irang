@@ -800,21 +800,40 @@ function scoreItemChosung(item: SearchItem, chosungQuery: string): number {
   if (titleChosung === chosungQuery) return 100;
   if (titleChosung.startsWith(chosungQuery)) return 80;
   if (titleChosung.includes(chosungQuery)) return 60;
+  // 초성 검색의 keyword/subtitle 매칭은 광범위 false positive 위험. 보수적으로 유지.
   if (item.keywords.some((kw) => matchChosung(kw, chosungQuery))) return 35;
   if (matchChosung(item.subtitle, chosungQuery)) return 15;
 
   return 0;
 }
 
+/**
+ * 일반 단어(stopword) — keywords/subtitle 부분 매칭 시 노이즈 유발하는 흔한 용어.
+ * 이 단어들이 검색어로 들어오면:
+ *  - title 매칭(=, startsWith, includes)은 그대로 살림 (페이지 자체가 의미 있는 결과)
+ *  - badge·keywords 완전 일치도 살림 (정확 매칭은 의미 있음)
+ *  - keywords 부분 매칭(25) / subtitle 부분 매칭(15) 은 차단 (광범위 노이즈 제거)
+ *
+ * 검증: SIGUNGUS/CROPS 데이터 분석 결과 — 41~146건 등장
+ *   "지역" 41건, "농업" 146건, "도시" 114건, "재배" 48건, "귀농" 29건, "체험" 24건
+ */
+const GENERIC_TERMS = new Set([
+  "지역", "농업", "도시", "재배", "귀농", "체험",
+  "정보", "찾기", "맞춤", "농촌", "교육", "지원",
+]);
+
 /** 순수 매칭 점수 (가중치 없이) */
 function scoreItemRaw(item: SearchItem, term: string): number {
   const t = item.title.toLowerCase();
+  const isGeneric = GENERIC_TERMS.has(term);
 
   if (t === term) return 100;
   if (t.startsWith(term)) return 80;
   if (t.includes(term)) return 60;
   if (item.badge?.toLowerCase().includes(term)) return 40;
   if (item.keywords.some((kw) => kw.toLowerCase() === term)) return 35;
+  // GENERIC_TERMS는 keywords/subtitle 부분 매칭 차단 — 광범위 노이즈 제거
+  if (isGeneric) return 0;
   if (item.keywords.some((kw) => kw.toLowerCase().includes(term))) return 25;
   if (item.subtitle.toLowerCase().includes(term)) return 15;
 
