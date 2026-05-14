@@ -26,6 +26,12 @@ interface CorrectionEntry {
 const CORRECTIONS: CorrectionEntry[] = [
   {
     date: "2026-05-14",
+    field: "GSC 색인 일시 차단 정상화 — verified bot 화이트리스트 룰 추가",
+    description:
+      "5월 14일 새벽 2:30에 적용된 클라우드 데이터센터 봇 차단 룰이 구글 검색 색인 봇(Googlebot)도 함께 차단하던 문제를 약 12시간 만에 정상화했어요. Googlebot이 구글 클라우드(GCP) IP를 사용하는데, 차단 룰의 평가 순서가 ‘검증된 봇(verified bot)’ 체크보다 먼저 와서 막혀 있었어요. 검증된 봇(Googlebot·Bingbot·Slackbot·KakaoTalk 미리보기 등)을 모든 차단 룰보다 먼저 통과시키는 화이트리스트 룰을 최상단에 추가해 정상화했고, 사용자에게 보이는 화면 변화는 없지만 검색 색인 갱신이 다시 정상 진행돼요.",
+  },
+  {
+    date: "2026-05-14",
     field: "검색 노출 보강 — 페이지 종류 표지(schema) 강화",
     description:
       "구글·네이버 등 검색 엔진이 이랑의 각 페이지가 어떤 정보를 담고 있는지 더 정확히 인식하도록, 페이지 종류 표지(구조화 데이터 schema)를 8종으로 정리·확장했어요. 지원사업 26건은 ‘정부 서비스(GovernmentService)’, 시·도와 시·군·구 222곳은 ‘행정 구역(Place)’, 본인 동의를 받은 인터뷰는 ‘기사(Article)’, 가이드 5종은 ‘How-To/Article’로 표지를 달았어요. /about·/about/disclaimer·/about/corrections·/terms·/more·/guide/track-compare·/guide/shelter·/regions/centers 8개 안내 페이지에는 경로 표지(BreadcrumbList)를 추가하고, /about에는 운영 주체 표지(Organization)와 정정 이력·면책 고지로의 직접 연결을 보강했어요. 사용자에게 보이는 화면 변화는 /about 운영 정보 카드 두 줄(정정 이력·면책 고지) 추가뿐이지만, 검색 결과에서의 노출 형태가 점진적으로 풍부해질 거예요.",
