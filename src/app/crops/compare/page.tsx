@@ -291,19 +291,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
 function SummaryView({ crops }: { crops: CropWithDetail[] }) {
   return (
     <>
-      {/* Summary Cards (visual identity) */}
-      <section aria-labelledby="summary-heading">
-        <h2 id="summary-heading" className={s.srOnly}>
-          작물 요약
-        </h2>
-        <div className={s.summaryGrid}>
-          {crops.map((crop) => (
-            <SummaryCard key={crop.id} crop={crop} />
-          ))}
-        </div>
-      </section>
-
-      {/* Metric Stat Cards — 토스 스타일 핵심 수치 비교 */}
+      {/* Metric Stat Cards — 토스 스타일 핵심 수치 비교 (상단 selector에 카테고리·난이도·산지 정보 중복이라 SummaryCard 제거) */}
       {crops.length >= 2 && <SummaryMetricGrid crops={crops} />}
 
       {/* 한줄 요약 */}
@@ -728,34 +716,6 @@ function ProsConsView({ crops }: { crops: CropWithDetail[] }) {
 }
 
 // ─── Sub Components ───
-
-function SummaryCard({ crop }: { crop: CropWithDetail }) {
-  return (
-    <Link href={`/crops/${crop.id}`} className={s.summaryCard}>
-      <div className={s.summaryContent}>
-        <div className={s.summaryTopRow}>
-          <span className={s.summaryCategory}>{crop.category}</span>
-          <span
-            className={`${s.summaryBadge} ${DIFFICULTY_CLASS[crop.difficulty] ?? s.difficultyMedium}`}
-          >
-            <Icon icon={Gauge} size="xs" /> {crop.difficulty}
-          </span>
-        </div>
-        <h3 className={s.summaryName}>
-          <CropImage cropId={crop.id} cropName={crop.name} size="md" />
-          {crop.name}
-        </h3>
-        <p className={s.summaryInfo}>
-          <Icon icon={Calendar} size="xs" /> {crop.growingSeason}
-        </p>
-        <p className={s.summaryRegion}>
-          <Icon icon={MapPin} size="xs" />
-          {crop.detail.majorRegions.slice(0, 2).join(", ")}
-        </p>
-      </div>
-    </Link>
-  );
-}
 
 function TextRow({
   label,
