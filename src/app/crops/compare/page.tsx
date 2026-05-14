@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Scale,
   ThumbsUp,
@@ -18,7 +17,6 @@ import {
   Info,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
-import { getCropImageSrc } from "@/lib/crop-image";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   CROPS,
@@ -684,32 +682,22 @@ function ProsConsView({ crops }: { crops: CropWithDetail[] }) {
 function SummaryCard({ crop }: { crop: CropWithDetail }) {
   return (
     <Link href={`/crops/${crop.id}`} className={s.summaryCard}>
-      <div className={s.summaryImageWrap}>
-        <Image
-          src={getCropImageSrc(crop.id)}
-          alt={crop.name}
-          fill
-          sizes="(max-width: 640px) 100vw, 33vw"
-          style={{ objectFit: "contain" }}
-        />
-        <div className={s.summaryOverlay} />
-        <span className={s.summaryCategory}>{crop.category}</span>
-      </div>
       <div className={s.summaryContent}>
-        <h3 className={s.summaryName}>
-          <span className={s.summaryEmoji}>{crop.emoji}</span>
-          {crop.name}
-        </h3>
-        <div className={s.summaryMeta}>
+        <div className={s.summaryTopRow}>
+          <span className={s.summaryCategory}>{crop.category}</span>
           <span
             className={`${s.summaryBadge} ${DIFFICULTY_CLASS[crop.difficulty] ?? s.difficultyMedium}`}
           >
             <Icon icon={Gauge} size="xs" /> {crop.difficulty}
           </span>
-          <span className={s.summaryInfo}>
-            <Icon icon={Calendar} size="xs" /> {crop.growingSeason}
-          </span>
         </div>
+        <h3 className={s.summaryName}>
+          <span className={s.summaryEmoji}>{crop.emoji}</span>
+          {crop.name}
+        </h3>
+        <p className={s.summaryInfo}>
+          <Icon icon={Calendar} size="xs" /> {crop.growingSeason}
+        </p>
         <p className={s.summaryStat}>
           <Icon icon={TrendingUp} size="xs" />
           {crop.detail.income.revenueRange.split("(")[0].trim()}

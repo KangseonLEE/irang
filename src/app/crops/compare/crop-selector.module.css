@@ -338,8 +338,9 @@
   width: 100%;
   aspect-ratio: 16 / 11;
   background: linear-gradient(180deg, #d1e7df 0%, #f3f4f6 100%);
+  overflow: hidden;
 }
-.cardImage { object-fit: contain; }
+.cardImage { object-fit: cover; }
 
 .cardBody {
   display: flex;
