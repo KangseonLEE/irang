@@ -190,6 +190,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const pathname = usePathname();
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // 네비게이션 직후 popstate sentinel cleanup이 router.push(startTransition)와
   // 경합하지 않도록 가드. router.push는 내부적으로 startTransition을 쓰기 때문에
@@ -341,6 +342,38 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     setIsOpen(true);
     return () => { mounted = false; clearTimeout(t1); clearTimeout(t2); };
   }, [autoFocus]);
+
+  // ── 모바일 풀스크린 확장 시 dropdown 스크롤 → input.blur (키보드 자동 닫힘) ──
+  // 회장 요청 (2026-05-14): 검색 안 하고 스크롤만 내릴 때 키보드가 자연스럽게 닫혀야 함.
+  // - body는 useBodyScrollLock으로 잠겨있어 window scroll listener 무용 →
+  //   실제 스크롤 컨테이너인 dropdownRef에 listener 부착.
+  // - threshold 40px: 작은 스와이프나 iOS scroll-into-view false trigger 회피.
+  //   (iOS Safari의 가상 키보드 등장 시 dropdown 높이 변동으로 ~10~30px 자동 스크롤
+  //    발생할 수 있어 그보다 큰 값 필요)
+  // - 한 번 blur 후 listener 제거 → 사용자가 다시 input 탭하면 input의 onFocus가
+  //   일반 동작으로 키보드 다시 노출 (listener 재부착은 쿼리 입력으로 dropdown DOM
+  //   재마운트되면서 자연 처리되거나, 사용자가 다시 스크롤할 의도가 있을 때만).
+  // - isExpanded === true (모바일 풀스크린 활성)일 때만 동작 — 데스크탑은 영향 0.
+  useEffect(() => {
+    if (!isExpanded) return;
+    const dropdown = dropdownRef.current;
+    if (!dropdown) return;
+
+    const THRESHOLD_PX = 40;
+    const startScrollTop = dropdown.scrollTop;
+
+    const onScroll = () => {
+      if (Math.abs(dropdown.scrollTop - startScrollTop) >= THRESHOLD_PX) {
+        if (document.activeElement === inputRef.current) {
+          inputRef.current?.blur();
+        }
+        dropdown.removeEventListener("scroll", onScroll);
+      }
+    };
+
+    dropdown.addEventListener("scroll", onScroll, { passive: true });
+    return () => dropdown.removeEventListener("scroll", onScroll);
+  }, [isExpanded]);
 
   // ----- Imperative handle for SearchGroup -----
   // SearchTags 등 외부 트리거로 쿼리를 채울 때 사용. 사용자가 명시적으로 키워드를
@@ -694,6 +727,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 
       {showDropdown && !isNavigating && (
         <div
+          ref={dropdownRef}
           id="search-listbox"
           className={dropdownClass}
           role="listbox"
