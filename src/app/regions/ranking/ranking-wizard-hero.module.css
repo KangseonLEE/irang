@@ -1,6 +1,7 @@
 /* ==========================================================================
-   RankingWizardHero — /regions/ranking 진입 wizard (2026-05-14 D2)
-   2단계 wizard: 모드 선택 → 페르소나/차원 선택 → deep link 이동
+   RankingWizardHero — /regions/ranking 진입 wizard
+   D2 2026-05-14  — 2단계 (mode → detail)
+   Sprint 2 2026-05-16 — 3단계 (mode → detail → sido) + custom mode 통합
    모바일 우선 (360 / 390 / 430 / 768 / 1024)
    ========================================================================== */
 
@@ -109,7 +110,7 @@
 }
 
 /* ================================================================
-   Step 1 — 모드 카드 (큰 카드 2종)
+   Step 1 — 모드 카드 (Sprint 2: 3종 — persona / dimension / custom)
    ================================================================ */
 .modeGrid {
   display: grid;
@@ -121,8 +122,8 @@
 
 @media (min-width: 768px) {
   .modeGrid {
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
   }
 }
 
@@ -206,6 +207,20 @@
   font-size: 13px;
   color: var(--muted-foreground);
   line-height: 1.5;
+}
+
+/* Sprint 2 — 소요 시간 배지 (1분 / 30초 / 3분) */
+.modeTime {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary, #1B6B5A);
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
+  border-radius: 999px;
+  line-height: 1.4;
 }
 
 .modeArrow {
@@ -389,18 +404,105 @@
 }
 
 /* ================================================================
+   Step 3 (Sprint 2) — 시도 17개 chip grid + skipBtn
+   ================================================================ */
+.sidoGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+  animation: stepFadeIn 200ms ease-out both;
+}
+
+@media (min-width: 640px) {
+  .sidoGrid {
+    gap: 8px;
+  }
+}
+
+.sidoChip {
+  padding: 8px 14px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 999px;
+  background: var(--card, #fff);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 160ms, background 160ms, color 160ms, transform 160ms;
+}
+
+@media (min-width: 640px) {
+  .sidoChip {
+    padding: 9px 16px;
+    font-size: 14px;
+  }
+}
+
+.sidoChip:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+.sidoChip:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (hover: hover) {
+  .sidoChip:hover:not(:disabled) {
+    border-color: var(--primary, #1B6B5A);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, var(--card, #fff));
+    color: var(--primary, #1B6B5A);
+    transform: translateY(-1px);
+  }
+}
+
+/* Skip 버튼 (sido step의 "전체 보기로 결과 보기" — button 형태) */
+.skipBtn {
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0 0 1px;
+  border-bottom: 1px dashed color-mix(in srgb, var(--muted-foreground) 50%, transparent);
+}
+
+.skipBtn:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+.skipBtn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (hover: hover) {
+  .skipBtn:hover:not(:disabled) {
+    color: var(--primary, #1B6B5A);
+    border-bottom-color: var(--primary, #1B6B5A);
+  }
+}
+
+/* ================================================================
    접근성: prefers-reduced-motion (D3 2026-05-14)
    애니메이션·transform 제거, opacity transition만 유지
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
   .wizard,
   .modeGrid,
-  .optionGrid {
+  .optionGrid,
+  .sidoGrid {
     animation: none;
   }
 
   .modeCard,
   .optionCard,
+  .sidoChip,
   .modeArrow,
   .progressDot,
   .backBtn {
@@ -409,7 +511,8 @@
 
   @media (hover: hover) {
     .modeCard:hover,
-    .optionCard:hover:not(:disabled) {
+    .optionCard:hover:not(:disabled),
+    .sidoChip:hover:not(:disabled) {
       transform: none;
     }
   }

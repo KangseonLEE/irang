@@ -1,0 +1,155 @@
+/* ==========================================================================
+   ModeToggleChips — 결과 페이지 상단 mode 전환 chip (Sprint 2 2026-05-16)
+   - 현재 mode 표시 + 다른 mode chip + 다시 선택 버튼
+   - 기존 하단 restartCard 대체
+   ========================================================================== */
+
+.bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--card, #fff));
+  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 15%, transparent);
+  border-radius: 14px;
+}
+
+@media (min-width: 640px) {
+  .bar {
+    padding: 16px 20px;
+    gap: 12px;
+  }
+}
+
+/* 현재 mode + 선택값 표시 */
+.currentLine {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.currentLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  letter-spacing: 0.02em;
+}
+
+.currentValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+@media (min-width: 640px) {
+  .currentLabel {
+    font-size: 13px;
+  }
+
+  .currentValue {
+    font-size: 15px;
+  }
+}
+
+/* chip row */
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+@media (min-width: 640px) {
+  .chipRow {
+    gap: 8px;
+  }
+}
+
+.chip,
+.restart {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 999px;
+  background: var(--card, #fff);
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 160ms, background 160ms, color 160ms, transform 160ms;
+}
+
+@media (min-width: 640px) {
+  .chip,
+  .restart {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+}
+
+.chip:focus-visible,
+.restart:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+.chip:disabled:not(.chipActive),
+.restart:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (hover: hover) {
+  .chip:hover:not(:disabled),
+  .restart:hover:not(:disabled) {
+    border-color: var(--primary, #1B6B5A);
+    color: var(--primary, #1B6B5A);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 7%, var(--card, #fff));
+    transform: translateY(-1px);
+  }
+}
+
+.chipActive {
+  border-color: var(--primary, #1B6B5A);
+  background: var(--primary, #1B6B5A);
+  color: #fff;
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .chipActive:hover {
+    /* 활성 chip은 hover 효과 무력화 */
+    transform: none;
+    background: var(--primary, #1B6B5A);
+    color: #fff;
+  }
+}
+
+/* "다시 선택" 버튼은 살짝 dashed border로 행동성 차별 */
+.restart {
+  border-style: dashed;
+  margin-left: auto;
+}
+
+@media (max-width: 639px) {
+  .restart {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip,
+  .restart {
+    transition: none;
+  }
+
+  @media (hover: hover) {
+    .chip:hover:not(:disabled),
+    .restart:hover:not(:disabled) {
+      transform: none;
+    }
+  }
+}

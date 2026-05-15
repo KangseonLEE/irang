@@ -90,23 +90,39 @@ export const analytics = {
       label: mode,
     }),
 
-  // -- Ranking wizard (/regions/ranking D2 2026-05-14) --
+  // -- Ranking wizard (/regions/ranking D2 2026-05-14, Sprint 2 2026-05-16 확장) --
+  // Sprint 2: mode 3종(persona·dimension·custom) + sido step + 결과 상단 modeChip
   rankingWizardStart: () =>
     trackEvent({ action: "ranking_wizard_start", category: "ranking" }),
-  rankingWizardStep: (mode: "persona" | "dimension") =>
+  rankingWizardStep: (mode: "persona" | "dimension" | "custom") =>
     trackEvent({
       action: "ranking_wizard_step",
       category: "ranking",
       label: mode,
     }),
+  rankingWizardSido: (sido: string) =>
+    trackEvent({
+      action: "ranking_wizard_sido",
+      category: "ranking",
+      label: sido,
+    }),
   rankingWizardComplete: (
-    mode: "persona" | "dimension",
+    mode: "persona" | "dimension" | "custom",
     selection: string,
   ) =>
     trackEvent({
       action: "ranking_wizard_complete",
       category: "ranking",
       label: `${mode}:${selection}`,
+    }),
+  rankingModeChipClicked: (
+    from: "persona" | "dimension" | "custom",
+    to: "persona" | "dimension" | "custom" | "restart",
+  ) =>
+    trackEvent({
+      action: "ranking_mode_chip_clicked",
+      category: "ranking",
+      label: `${from}->${to}`,
     }),
 
   // -- Navigation / Content views --
