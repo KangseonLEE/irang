@@ -671,18 +671,52 @@
   }
 }
 
+/* 회장 결재 IA 재구성 (2026-05-15) — 순위는 카드 외부 (flex row),
+   chip·강약점은 카드 내부 통합 (.rankLink flex column).
+   현재: li(column) → Link(grid 36·1fr·auto) + metaRow + Explain 3블록 분리
+   변경: li(row) → rankBadge 외부 + Link(column: cardHeader + metaRow + Explain) */
 .rankItem {
   margin: 0;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* 카드 외부 순위 배지 — top 3 medal 색상 강조 (c935da5 패턴 직역)
+   4위 이하는 회색 muted-foreground. 모바일 28px, 데스크탑 36px. */
+.rankBadge {
+  flex-shrink: 0;
+  width: 36px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 14px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--muted-foreground);
+}
+
+.rankBadgeGold {
+  color: #B8860B;
+}
+
+.rankBadgeSilver {
+  color: #6B7280;
+}
+
+.rankBadgeBronze {
+  color: #A05A2C;
 }
 
 .rankLink {
-  display: grid;
-  grid-template-columns: 36px 1fr auto;
-  align-items: center;
-  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -690,6 +724,14 @@
   text-decoration: none;
   color: inherit;
   transition: border-color 160ms;
+}
+
+/* 카드 헤더: rankBody(name+sido) + rankScoreBox(score+summary) 좌우 배치 */
+.cardHeader {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
 }
 
 .rankLink:focus-visible {
@@ -717,28 +759,6 @@
 .rankLinkBronze {
   border-color: color-mix(in srgb, #CD7F32 40%, var(--border));
   background: color-mix(in srgb, #CD7F32 5%, var(--card, #fff));
-}
-
-.rankNumber {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--muted-foreground);
-  text-align: center;
-}
-
-.rankNumberGold {
-  color: #B8860B;
-  font-weight: 800;
-}
-
-.rankNumberSilver {
-  color: #6B7280;
-  font-weight: 800;
-}
-
-.rankNumberBronze {
-  color: #A05A2C;
-  font-weight: 800;
 }
 
 .rankBody {
@@ -807,7 +827,7 @@
   gap: 4px 6px;
   list-style: none;
   margin: 0;
-  padding: 0 2px;
+  padding: 0;
 }
 
 .metaChip {
@@ -976,9 +996,22 @@
 }
 
 @media (max-width: 639px) {
+  .rankItem {
+    gap: 8px;
+  }
+
+  .rankBadge {
+    width: 28px;
+    padding-top: 12px;
+    font-size: 20px;
+  }
+
   .rankLink {
     padding: 12px;
-    grid-template-columns: 28px 1fr auto;
+    gap: 8px;
+  }
+
+  .cardHeader {
     gap: 10px;
   }
 

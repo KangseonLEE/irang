@@ -7,6 +7,11 @@
 //   - persona 모드: evidence를 RegionPersonaExplain으로 위임 (강·약점 chip 옆 병기)
 //   - mode 무관: sg.mainCrops[0] chip ("주요 작물 · 사과")
 //
+// 회장 결재 IA 재구성 (2026-05-15) — 순위는 카드 외부, chip·강약점은 카드 내부.
+//   - 현재: rankNumber + Link(rankName/sido/score) | metaRow | RegionPersonaExplain 3블록 분리
+//   - 변경: rankBadge(외부) + Link(cardHeader + metaRow + RegionPersonaExplain 통합)
+//   - 1~3위 medal 색상은 rankBadge에 강조 (c935da5 패턴 직역)
+//
 // /regions/ranking 결과 리스트를 Client Component로 추출.
 // 초기 10건 노출 + "10건 더 보기" / 마지막 페이지 "N건 더 보기" / "접기" 토글.
 // 모바일·데스크탑 동일 동작.
@@ -132,13 +137,13 @@ export function RankResults({
                 : idx === 2
                   ? s.rankLinkBronze
                   : "";
-          const medalNumberClass =
+          const medalBadgeClass =
             idx === 0
-              ? s.rankNumberGold
+              ? s.rankBadgeGold
               : idx === 1
-                ? s.rankNumberSilver
+                ? s.rankBadgeSilver
                 : idx === 2
-                  ? s.rankNumberBronze
+                  ? s.rankBadgeBronze
                   : "";
           // 회장 결재 A 1+2순위 — 보조 정보 chip 2종 (rawLabel + mainCrops)
           // 1) dimension 모드: 현재 dim의 evidence.rawLabel (구체 수치)
@@ -158,68 +163,73 @@ export function RankResults({
           // D-7 chip은 활성 사업 chip의 부속이라 활성 사업 chip 있을 때만 함께 노출
           return (
             <li key={item.score.sgisCode} className={s.rankItem}>
+              <div
+                className={`${s.rankBadge} ${medalBadgeClass}`}
+                aria-label={`순위 ${idx + 1}`}
+              >
+                {idx + 1}
+              </div>
               <Link
                 href={`/regions/${item.province.id}/${item.sg.id}`}
                 className={`${s.rankLink} ${medalLinkClass}`}
               >
-                <span className={`${s.rankNumber} ${medalNumberClass}`}>
-                  {idx + 1}
-                </span>
-                <div className={s.rankBody}>
-                  <span className={s.rankName}>{item.sg.name}</span>
-                  <span className={s.rankSido}>{item.province.shortName}</span>
+                <div className={s.cardHeader}>
+                  <div className={s.rankBody}>
+                    <span className={s.rankName}>{item.sg.name}</span>
+                    <span className={s.rankSido}>{item.province.shortName}</span>
+                  </div>
+                  <div className={s.rankScoreBox}>
+                    <span className={`${s.rankScore} ${getToneClass(item.value)}`}>
+                      {item.value}
+                      <span className={s.rankScoreUnit}>점</span>
+                    </span>
+                    <span className={s.rankSummary}>
+                      {mode === "persona"
+                        ? getPersonaSummary(item.value)
+                        : getDimensionSummary(dim, item.value)}
+                    </span>
+                  </div>
                 </div>
-                <div className={s.rankScoreBox}>
-                  <span className={`${s.rankScore} ${getToneClass(item.value)}`}>
-                    {item.value}
-                    <span className={s.rankScoreUnit}>점</span>
-                  </span>
-                  <span className={s.rankSummary}>
-                    {mode === "persona"
-                      ? getPersonaSummary(item.value)
-                      : getDimensionSummary(dim, item.value)}
-                  </span>
-                </div>
+                {showMetaRow && (
+                  <ul className={s.metaRow} aria-label="시군구 보조 정보">
+                    {dimRawLabel && (
+                      <li className={s.metaChip}>{dimRawLabel}</li>
+                    )}
+                    {mainCrop && (
+                      <li className={`${s.metaChip} ${s.metaChipCrop}`}>
+                        주요 작물 · {mainCrop}
+                      </li>
+                    )}
+                    {populationDensity !== null && (
+                      <li
+                        className={`${s.metaChip} ${s.metaChipDensity}`}
+                        title="최신 연도 인구 ÷ 면적 (정적 데이터 기반)"
+                      >
+                        밀도 {populationDensity.toLocaleString("ko-KR")}명/㎢
+                      </li>
+                    )}
+                    {activeProgramsCount > 0 && (
+                      <li className={`${s.metaChip} ${s.metaChipPrograms}`}>
+                        활성 지원사업 {activeProgramsCount}건
+                      </li>
+                    )}
+                    {urgentDeadlineCount > 0 && (
+                      <li className={`${s.metaChip} ${s.metaChipUrgent}`}>
+                        D-7 마감 임박 {urgentDeadlineCount}건
+                      </li>
+                    )}
+                  </ul>
+                )}
+                {mode === "persona" && persona && (
+                  <RegionPersonaExplain
+                    scores={item.score}
+                    evidence={item.score.evidence}
+                    persona={persona}
+                    total={item.value}
+                    isCustom={isCustom}
+                  />
+                )}
               </Link>
-              {showMetaRow && (
-                <ul className={s.metaRow} aria-label="시군구 보조 정보">
-                  {dimRawLabel && (
-                    <li className={s.metaChip}>{dimRawLabel}</li>
-                  )}
-                  {mainCrop && (
-                    <li className={`${s.metaChip} ${s.metaChipCrop}`}>
-                      주요 작물 · {mainCrop}
-                    </li>
-                  )}
-                  {populationDensity !== null && (
-                    <li
-                      className={`${s.metaChip} ${s.metaChipDensity}`}
-                      title="최신 연도 인구 ÷ 면적 (정적 데이터 기반)"
-                    >
-                      밀도 {populationDensity.toLocaleString("ko-KR")}명/㎢
-                    </li>
-                  )}
-                  {activeProgramsCount > 0 && (
-                    <li className={`${s.metaChip} ${s.metaChipPrograms}`}>
-                      활성 지원사업 {activeProgramsCount}건
-                    </li>
-                  )}
-                  {urgentDeadlineCount > 0 && (
-                    <li className={`${s.metaChip} ${s.metaChipUrgent}`}>
-                      D-7 마감 임박 {urgentDeadlineCount}건
-                    </li>
-                  )}
-                </ul>
-              )}
-              {mode === "persona" && persona && (
-                <RegionPersonaExplain
-                  scores={item.score}
-                  evidence={item.score.evidence}
-                  persona={persona}
-                  total={item.value}
-                  isCustom={isCustom}
-                />
-              )}
             </li>
           );
         })}
