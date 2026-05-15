@@ -343,9 +343,17 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     if (!dropdown) return;
 
     const THRESHOLD_PX = 40;
-    const startScrollTop = dropdown.scrollTop;
+    // 5/16 회장 보고: 재open 시 dropdown DOM이 같은 인스턴스로 유지되어 이전
+    // scroll position 잔존. 부착 시점 capture 방식은 첫 진입만 정상 동작.
+    // 첫 scroll 이벤트 시점 capture로 변경 — 사용자가 어떤 scroll 위치에서 시작하든
+    // 항상 그 기준점에서 40px 이동 시 blur 트리거.
+    let startScrollTop: number | null = null;
 
     const onScroll = () => {
+      if (startScrollTop === null) {
+        startScrollTop = dropdown.scrollTop;
+        return;
+      }
       if (Math.abs(dropdown.scrollTop - startScrollTop) >= THRESHOLD_PX) {
         if (document.activeElement === inputRef.current) {
           inputRef.current?.blur();
