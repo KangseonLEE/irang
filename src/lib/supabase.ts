@@ -80,7 +80,10 @@ function isNaturalLanguageQuery(query: string): boolean {
  * - fire-and-forget (에러 시 조용히 무시)
  */
 export function logSearch(query: string, resultCount: number): void {
-  const trimmed = query.trim();
+  // trim + lowercase로 정규화. "IT"·"it"·"It"가 search_logs에 분리 적재되던 문제 차단.
+  // 한국어는 대소문자 없어 영향 없음. 영문만 적재 시 통합.
+  // 발견: Phase 0 baseline 2026-05-15 "IT 3건 + it 2건" 분리 사례.
+  const trimmed = query.trim().toLowerCase();
   if (trimmed.length < 2) return;
   if (isNaturalLanguageQuery(trimmed)) return;
 
