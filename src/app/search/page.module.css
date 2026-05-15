@@ -311,11 +311,26 @@
   gap: 24px;
 }
 
+/* Phase A-2 (2026-05-15) — 섹션 카드형 그룹핑 (네이버 스토어 #16 스타일):
+   각 섹션을 흰 배경 카드 컨테이너로 묶어 결과 그룹 시각적 분리.
+   내부 .grid 카드는 그대로 유지 (carved-out 안 함) — border가 두 번 겹쳐도
+   미세한 shadow + 충분한 padding으로 자연스럽게 분리됨. */
 .section {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding: 16px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   animation: sectionFadeIn 0.25s ease-out backwards;
+}
+
+@media (min-width: 640px) {
+  .section {
+    padding: 20px 18px;
+  }
 }
 
 .section:nth-child(1) { animation-delay: 0.03s; }
@@ -392,6 +407,7 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   text-decoration: none;
+  text-align: left;
   transition: border-color 0.15s, background-color 0.15s;
 }
 
@@ -434,6 +450,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: left;
 }
 
 .cardSubtitle {
@@ -442,6 +459,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: left;
 }
 
 .cardBadge {
