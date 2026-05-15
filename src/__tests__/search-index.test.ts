@@ -185,3 +185,57 @@ describe("getQuerySuggestions (텍스트 자동완성)", () => {
     expect(fullName).toBeDefined();
   });
 });
+
+// ─── Phase 2a — 의도형 FAQ 시드 (추천 의도 직역) ───
+
+describe("의도형 FAQ 시드 — 맞춤/추천 의도 매칭", () => {
+  it("'맞춤 지역 찾기' → /match FAQ 카드를 노출한다", () => {
+    const results = searchAll("맞춤 지역 찾기");
+    const faqCard = results.find(
+      (r) => r.id === "faq-/match" && r.title.includes("맞춤 지역")
+    );
+    expect(faqCard).toBeDefined();
+  });
+
+  it("'어디가 좋을까' → /match FAQ 카드를 노출한다", () => {
+    const results = searchAll("어디가 좋을까");
+    const faqCard = results.find(
+      (r) => r.id === "faq-/match" && r.title.includes("맞춤 지역")
+    );
+    expect(faqCard).toBeDefined();
+  });
+
+  it("'추천 작물' → /match FAQ 카드(맞춤 작물 추천)를 노출한다", () => {
+    const results = searchAll("추천 작물");
+    const faqCard = results.find(
+      (r) => r.id === "faq-/match" && r.title.includes("맞춤 작물")
+    );
+    expect(faqCard).toBeDefined();
+  });
+
+  it("'자기 점검' → /match FAQ 카드(내 상황 점검)를 노출한다", () => {
+    const results = searchAll("자기 점검");
+    const faqCard = results.find(
+      (r) => r.id === "faq-/match" && r.title.includes("내 상황 점검")
+    );
+    expect(faqCard).toBeDefined();
+  });
+
+  it("'추천해 줘' → /match FAQ 카드를 노출한다", () => {
+    const results = searchAll("추천해 줘");
+    const faqCard = results.find((r) => r.id === "faq-/match");
+    expect(faqCard).toBeDefined();
+  });
+
+  it("기존 SEARCH_FAQS 매칭은 영향받지 않는다 (회귀 차단)", () => {
+    // 비용 가이드
+    const costs = searchAll("귀농 비용 얼마나 들어");
+    expect(costs.some((r) => r.id === "faq-/costs")).toBe(true);
+    // 청년 통계
+    const youth = searchAll("청년 귀농 지원금");
+    expect(youth.some((r) => r.id === "faq-/stats?tab=youth")).toBe(true);
+    // 농지은행
+    const land = searchAll("농지은행이 뭐야");
+    expect(land.some((r) => r.id === "faq-/programs/roadmap")).toBe(true);
+  });
+});
