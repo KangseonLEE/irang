@@ -25,6 +25,7 @@ import {
 } from "@/lib/data/persona-fit";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
+import { RecommendationThumbs } from "./recommendation-thumbs";
 import s from "./persona-recommendation-section.module.css";
 
 interface PersonaRecommendationSectionProps {
@@ -138,6 +139,10 @@ export function PersonaRecommendationSection({
                         meta={`${crop.category} · ${crop.difficulty}`}
                       />
                       <PersonaScoreExplain trace={trace} subject="이 작물" />
+                      <RecommendationThumbs
+                        recommendationId={`crop:${crop.id}`}
+                        persona={recommendedPersona.id}
+                      />
                     </article>
                   );
                 })}
@@ -191,6 +196,10 @@ export function PersonaRecommendationSection({
                         <ChevronRight size={16} className={s.programCardArrow} />
                       </Link>
                       <PersonaScoreExplain trace={trace} subject="이 사업" />
+                      <RecommendationThumbs
+                        recommendationId={`program:${program.id}`}
+                        persona={recommendedPersona.id}
+                      />
                     </article>
                   );
                 })}
