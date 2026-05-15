@@ -788,6 +788,39 @@
   color: var(--muted-foreground);
 }
 
+/* Phase B Sprint 1 (2026-05-15) B-1 — 더보기/접기 토글
+   검색 페이지(.expandToggle) 패턴 직역 + 5/15 cddb55b 중앙 정렬 패턴. */
+.expandToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  align-self: center;
+  margin: 0 auto;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary, #1B6B5A);
+  background: var(--card);
+  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 22%, transparent);
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.12s, border-color 0.12s;
+}
+
+@media (hover: hover) {
+  .expandToggle:hover {
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 8%, transparent);
+    border-color: var(--primary, #1B6B5A);
+  }
+}
+
+.expandToggle:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
 .methodologyLink {
   margin: 0;
   text-align: right;

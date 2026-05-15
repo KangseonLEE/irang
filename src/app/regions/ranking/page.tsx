@@ -32,9 +32,9 @@ import {
 } from "@/lib/persona-weights-custom";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
-import { RegionPersonaExplain } from "@/components/persona/region-persona-explain";
 import { WeightCustomizer } from "@/components/persona/weight-customizer";
 import { RankingWizardHero } from "./ranking-wizard-hero";
+import { RankResults } from "./rank-results";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -105,33 +105,9 @@ function buildHref(opts: {
   return qs ? `/regions/ranking?${qs}` : "/regions/ranking";
 }
 
-function getToneClass(score: number): string {
-  if (score >= 70) return s.scoreHigh;
-  if (score >= 40) return s.scoreMid;
-  return s.scoreLow;
-}
-
-function getDimensionSummary(dim: DimensionId, score: number): string {
-  if (dim === "populationTrend") {
-    if (score >= 80) return "회복 중";
-    if (score >= 50) return "안정";
-    return "감소 중";
-  }
-  // 점수 50 이상은 평균 위 → "상위 N%", 50 미만은 평균 아래 → "하위 N%"로 솔직하게
-  if (score >= 50) {
-    const topPct = Math.max(1, 100 - score);
-    return `전국 상위 ${topPct}%`;
-  }
-  const bottomPct = Math.max(1, score);
-  return `전국 하위 ${bottomPct}%`;
-}
-
-function getPersonaSummary(score: number): string {
-  if (score >= 70) return "잘 맞아요";
-  if (score >= 50) return "괜찮아요";
-  if (score >= 30) return "조금 약해요";
-  return "잘 안 맞아요";
-}
+// getToneClass / getDimensionSummary / getPersonaSummary 함수는
+// Phase B Sprint 1 (2026-05-15)에 RankResults Client Component로 이동.
+// 결과 영역의 상호작용(더보기/접기)을 위해 client 분리.
 
 export default async function RankingPage({ searchParams }: PageProps) {
   const sp = await searchParams;
@@ -351,68 +327,16 @@ export default async function RankingPage({ searchParams }: PageProps) {
         ))}
       </div>
 
-      {/* 결과 */}
-      {ranked.length === 0 ? (
-        <div className={s.empty}>
-          <p>해당 조건에 맞는 시군구가 없어요.</p>
-        </div>
-      ) : (
-        <ol className={s.rankList}>
-          {ranked.map((item, idx) => {
-            const medalLinkClass =
-              idx === 0
-                ? s.rankLinkGold
-                : idx === 1
-                  ? s.rankLinkSilver
-                  : idx === 2
-                    ? s.rankLinkBronze
-                    : "";
-            const medalNumberClass =
-              idx === 0
-                ? s.rankNumberGold
-                : idx === 1
-                  ? s.rankNumberSilver
-                  : idx === 2
-                    ? s.rankNumberBronze
-                    : "";
-            return (
-            <li key={item.score.sgisCode} className={s.rankItem}>
-              <Link
-                href={`/regions/${item.province.id}/${item.sg.id}`}
-                className={`${s.rankLink} ${medalLinkClass}`}
-              >
-                <span className={`${s.rankNumber} ${medalNumberClass}`}>{idx + 1}</span>
-                <div className={s.rankBody}>
-                  <span className={s.rankName}>{item.sg.name}</span>
-                  <span className={s.rankSido}>{item.province.shortName}</span>
-                </div>
-                <div className={s.rankScoreBox}>
-                  <span
-                    className={`${s.rankScore} ${getToneClass(item.value)}`}
-                  >
-                    {item.value}
-                    <span className={s.rankScoreUnit}>점</span>
-                  </span>
-                  <span className={s.rankSummary}>
-                    {mode === "persona"
-                      ? getPersonaSummary(item.value)
-                      : getDimensionSummary(dim, item.value)}
-                  </span>
-                </div>
-              </Link>
-              {mode === "persona" && persona && (
-                <RegionPersonaExplain
-                  scores={item.score}
-                  persona={persona}
-                  total={item.value}
-                  isCustom={isCustom}
-                />
-              )}
-            </li>
-            );
-          })}
-        </ol>
-      )}
+      {/* 결과 — Phase B Sprint 1: RankResults Client Component (B-1 더보기 패턴) */}
+      <RankResults
+        ranked={ranked}
+        mode={mode}
+        dim={dim}
+        persona={persona}
+        isCustom={isCustom}
+        resetToken={`${mode}|${dim}|${persona?.id ?? ""}|${isCustom ? "c" : ""}|${sidoFilter ?? ""}|${customWeightsParam ?? ""}`}
+      />
+
 
       <p className={s.methodologyLink}>
         <Link href="/regions/ranking">처음부터 다시 →</Link>

@@ -1,9 +1,12 @@
-// Phase 6 B3 D2 prototype — 시군구 페르소나 점수 기여도 inline 설명 (Server Component)
+// Phase B Sprint 1 (2026-05-15) — 옵션 β 강점·약점 그룹화 (Server Component)
 //
-// 사용 시점: /regions/ranking 페르소나 모드 시 각 시군구 항목 하단에 노출.
-// 데이터: DimensionScores + Persona.weights → 5차원 중 가중 기여 top 2개 추출.
-// 디자인: prototype 수준 — 작물·사업과 동일한 칩 톤(persona-score-explain.module.css)
-// 재사용.
+// 사용 시점: /regions/ranking 페르소나 모드에서 각 시군구 항목 하단.
+// 데이터: DimensionScores + Persona.weights → 5차원을 강점/약점으로 분류.
+// 분류 기준 (ADR §4-4):
+//   - 점수 60 이상 = 강점 (최대 2개, 가중 기여 내림차순)
+//   - 점수 40 미만 = 약점 (최대 2개, 가중 기여 내림차순)
+//   - 그 사이 = 보통 (미노출)
+// 가중치(%)는 chip에서 제거 — persona description에서 이미 노출.
 
 import type {
   DimensionScoresInput,
@@ -18,7 +21,7 @@ interface RegionPersonaExplainProps {
   total: number;
   /**
    * Phase 6 B1 D2: 사용자가 직접 가중치 조정한 상태인지.
-   * balanced 페르소나여도 isCustom이면 기여도 노출(가중치가 더 이상 균등 아님).
+   * balanced 페르소나여도 isCustom이면 강·약점 노출 (가중치가 더 이상 균등 아님).
    */
   isCustom?: boolean;
 }
@@ -31,36 +34,47 @@ const DIMENSION_LABEL_MAP: Record<keyof DimensionScoresInput, string> = {
   returnFarm: "귀농",
 };
 
-/** 가중 기여(value * weight) top N 차원 추출 (가용 차원만, 내림차순). */
-function topContributions(
+const STRENGTH_THRESHOLD = 60;
+const WEAKNESS_THRESHOLD = 40;
+
+interface Entry {
+  key: keyof DimensionScoresInput;
+  value: number;
+  contribution: number;
+}
+
+/**
+ * 5차원을 강점·약점으로 분류.
+ * - 가용 차원(null 아님)만 대상
+ * - 가중치 0인 차원은 제외 (사용자에게 무의미)
+ * - 강점: 점수 ≥ 60, 가중 기여 내림차순 top 2
+ * - 약점: 점수 < 40, 가중 기여 내림차순 top 2 (낮은 점수일수록 더 약함이라 contribution 역순도 검토했으나,
+ *         "사용자 페르소나가 중시하는 차원의 약점이 더 중요" → 가중 기여 내림차순 유지)
+ */
+function splitStrengthsWeaknesses(
   scores: DimensionScoresInput,
   persona: Persona,
-  n = 2,
-): Array<{ key: keyof DimensionScoresInput; value: number; weight: number; contribution: number }> {
+): { strengths: Entry[]; weaknesses: Entry[] } {
   const w = persona.weights;
-  const entries: Array<{
-    key: keyof DimensionScoresInput;
-    value: number;
-    weight: number;
-    contribution: number;
-  }> = [];
+  const all: Entry[] = [];
   (Object.keys(scores) as Array<keyof DimensionScoresInput>).forEach((k) => {
     const v = scores[k];
     if (v === null) return;
     const weight = w[k as keyof typeof w];
     if (weight === 0) return;
-    entries.push({ key: k, value: v, weight, contribution: v * weight });
+    all.push({ key: k, value: v, contribution: v * weight });
   });
-  entries.sort((a, b) => b.contribution - a.contribution);
-  return entries.slice(0, n);
-}
 
-/** 0~100 점수 → 한국어 라벨 */
-function scoreToLabel(value: number): string {
-  if (value >= 70) return "강해요";
-  if (value >= 50) return "괜찮아요";
-  if (value >= 30) return "조금 약해요";
-  return "약해요";
+  const strengths = all
+    .filter((e) => e.value >= STRENGTH_THRESHOLD)
+    .sort((a, b) => b.contribution - a.contribution)
+    .slice(0, 2);
+  const weaknesses = all
+    .filter((e) => e.value < WEAKNESS_THRESHOLD)
+    .sort((a, b) => b.contribution - a.contribution)
+    .slice(0, 2);
+
+  return { strengths, weaknesses };
 }
 
 export function RegionPersonaExplain({
@@ -69,29 +83,52 @@ export function RegionPersonaExplain({
   total,
   isCustom = false,
 }: RegionPersonaExplainProps) {
-  // balanced: 5차원 균등이라 top contribution 차이가 작음 → 노출 생략
+  // balanced: 5차원 균등이라 강·약 차이가 작음 → 노출 생략
   // 단, isCustom=true(직접 조정)이면 균등 아니므로 노출
   if (persona.id === "balanced" && !isCustom) return null;
 
-  const top = topContributions(scores, persona);
-  if (top.length === 0) return null;
+  const { strengths, weaknesses } = splitStrengthsWeaknesses(scores, persona);
+  // 강·약점 모두 없으면 표시 정보 없음 — row 생략
+  if (strengths.length === 0 && weaknesses.length === 0) return null;
 
   return (
-    <div className={s.row} role="note" aria-label="이 시군구 추천 사유">
+    <div className={s.row} role="note" aria-label="이 시군구 강점과 약점">
       <div className={s.scoreBox}>
         <span className={s.score} aria-label={`종합 ${total}점`}>
           {total}
           <span className={s.scoreMax}>/100</span>
         </span>
-        <span className={s.scoreLabel}>가장 큰 기여</span>
+        <span className={s.scoreLabel}>종합 점수</span>
       </div>
-      <ul className={s.reasons}>
-        {top.map((t) => (
-          <li key={t.key} className={`${s.reason} ${s.reasonCategory}`}>
-            {DIMENSION_LABEL_MAP[t.key]} {scoreToLabel(t.value)} ({t.weight}%)
-          </li>
-        ))}
-      </ul>
+      <div className={s.groups}>
+        {strengths.length > 0 && (
+          <div className={s.group}>
+            <span className={s.groupLabel}>강점</span>
+            <ul className={s.reasons}>
+              {strengths.map((e) => (
+                <li key={e.key} className={`${s.reason} ${s.reasonStrength}`}>
+                  {DIMENSION_LABEL_MAP[e.key]}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {weaknesses.length > 0 && (
+          <div className={s.group}>
+            <span className={s.groupLabel}>약점</span>
+            <ul className={s.reasons}>
+              {weaknesses.map((e) => (
+                <li key={e.key} className={`${s.reason} ${s.reasonWeakness}`}>
+                  {DIMENSION_LABEL_MAP[e.key]}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
+// 내부 함수 테스트용 export (vitest 회귀)
+export { splitStrengthsWeaknesses, STRENGTH_THRESHOLD, WEAKNESS_THRESHOLD };
