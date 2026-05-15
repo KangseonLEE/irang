@@ -662,6 +662,15 @@
   gap: 8px;
 }
 
+/* Phase B Sprint 2 (2026-05-15) B-2 옵션 A — 데스크탑 2열 그리드.
+   chip 그룹화(Sprint 1) 완료 후 카드 폭이 절반이 되어도 줄바꿈 위험 0. */
+@media (min-width: 1024px) {
+  .rankList {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+
 .rankItem {
   margin: 0;
   display: flex;
