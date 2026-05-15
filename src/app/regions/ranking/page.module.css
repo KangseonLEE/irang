@@ -831,6 +831,27 @@
   color: var(--primary, #1B6B5A);
 }
 
+/* 회장 결재 2026-05-15 — 보강 chip 3종 색상 차별화
+   밀도: 회색 톤 (정보), 활성 사업: primary 5% (긍정), D-7 임박: 앰버 (강조) */
+.metaChipDensity {
+  background: var(--muted, #f5f5f5);
+  border-color: var(--border);
+  color: var(--muted-foreground);
+}
+
+.metaChipPrograms {
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 5%, var(--card, #fff));
+  border-color: color-mix(in srgb, var(--primary, #1B6B5A) 18%, var(--border));
+  color: var(--primary, #1B6B5A);
+}
+
+.metaChipUrgent {
+  background: color-mix(in srgb, #d97706 8%, var(--card, #fff));
+  border-color: color-mix(in srgb, #d97706 25%, var(--border));
+  color: #b45309;
+  font-weight: 600;
+}
+
 @media (max-width: 639px) {
   .metaChip {
     font-size: 11px;

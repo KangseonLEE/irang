@@ -19,6 +19,7 @@ import type { DimensionScores, DimensionId } from "@/lib/data/dimension-scores";
 import type { Persona } from "@/lib/data/personas";
 import type { Sigungu } from "@/lib/data/sigungus";
 import type { Province } from "@/lib/data/regions";
+import type { RegionStats } from "@/lib/data/region-stats";
 import s from "./page.module.css";
 
 /** 결과 1건 — page.tsx에서 prep된 형태와 동일 */
@@ -27,6 +28,8 @@ export interface RankItem {
   sg: Sigungu;
   province: Province;
   value: number;
+  /** 회장 결재 2026-05-15 — 카드 chip 3종 보조 통계 */
+  stats: RegionStats;
 }
 
 interface RankResultsProps {
@@ -137,14 +140,22 @@ export function RankResults({
                 : idx === 2
                   ? s.rankNumberBronze
                   : "";
-          // 회장 결재 A 1+2순위 — 보조 정보 chip 2종
+          // 회장 결재 A 1+2순위 — 보조 정보 chip 2종 (rawLabel + mainCrops)
           // 1) dimension 모드: 현재 dim의 evidence.rawLabel (구체 수치)
           //    persona 모드는 evidence를 RegionPersonaExplain에 위임하므로 여기선 생략
           // 2) mode 무관: mainCrops[0] ("주요 작물 · 사과")
           const dimRawLabel =
             mode === "dimension" ? item.score.evidence[dim]?.rawLabel : undefined;
           const mainCrop = item.sg.mainCrops[0] ?? null;
-          const showMetaRow = Boolean(dimRawLabel) || Boolean(mainCrop);
+          // 회장 결재 2026-05-15 — 보강 chip 3종 (밀도·활성 사업·D-7 임박)
+          const { populationDensity, activeProgramsCount, urgentDeadlineCount } =
+            item.stats;
+          const showMetaRow =
+            Boolean(dimRawLabel) ||
+            Boolean(mainCrop) ||
+            populationDensity !== null ||
+            activeProgramsCount > 0;
+          // D-7 chip은 활성 사업 chip의 부속이라 활성 사업 chip 있을 때만 함께 노출
           return (
             <li key={item.score.sgisCode} className={s.rankItem}>
               <Link
@@ -178,6 +189,24 @@ export function RankResults({
                   {mainCrop && (
                     <li className={`${s.metaChip} ${s.metaChipCrop}`}>
                       주요 작물 · {mainCrop}
+                    </li>
+                  )}
+                  {populationDensity !== null && (
+                    <li
+                      className={`${s.metaChip} ${s.metaChipDensity}`}
+                      title="최신 연도 인구 ÷ 면적 (정적 데이터 기반)"
+                    >
+                      밀도 {populationDensity.toLocaleString("ko-KR")}명/㎢
+                    </li>
+                  )}
+                  {activeProgramsCount > 0 && (
+                    <li className={`${s.metaChip} ${s.metaChipPrograms}`}>
+                      활성 지원사업 {activeProgramsCount}건
+                    </li>
+                  )}
+                  {urgentDeadlineCount > 0 && (
+                    <li className={`${s.metaChip} ${s.metaChipUrgent}`}>
+                      D-7 마감 임박 {urgentDeadlineCount}건
                     </li>
                   )}
                 </ul>

@@ -32,6 +32,7 @@ import {
 } from "@/lib/persona-weights-custom";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import { getRegionStats } from "@/lib/data/region-stats";
 import { WeightCustomizer } from "@/components/persona/weight-customizer";
 import { RankingWizardHero } from "./ranking-wizard-hero";
 import { RankResults } from "./rank-results";
@@ -148,7 +149,10 @@ export default async function RankingPage({ searchParams }: PageProps) {
         : score[dim];
     if (value === null) return null;
 
-    return { score, sg, province, value };
+    // 회장 결재 2026-05-15 — 시군구 카드 chip 3종 (밀도·활성 사업·D-7 임박)
+    const stats = getRegionStats(sg, province);
+
+    return { score, sg, province, value, stats };
   })
     .filter((x): x is NonNullable<typeof x> => x !== null)
     .sort((a, b) => b.value - a.value);
