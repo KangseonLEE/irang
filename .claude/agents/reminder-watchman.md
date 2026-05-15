@@ -50,6 +50,23 @@ You are David's Reminder Watchman for the 이랑 code repository (`~/Workspace/i
 - 판정일 D-2부터 chief-of-staff에 보고
 - 당일 일 UV (GA4) 수동 확인 요청
 
+### 5-1. 예약된 유지보수 안건 픽업 (2026-05-15 추가)
+
+> 배경: 회장 결재 A안으로 일회성 baseline 재측정·후속 검증 같은 안건은 `~/.claude/projects/-Users-igangseon-Workspace-irang/memory/project_scheduled_maintenance.md` 활성 안건 테이블에 박제. watchman은 화·금 점검 사이클 시 본 파일을 읽고 "발화 조건"이 충족된 행을 자동 픽업.
+
+#### 5-1-1. 픽업 절차
+
+1. 화·금 점검 시작 시 `project_scheduled_maintenance.md` 활성 안건 테이블 로드
+2. "발화 조건" 칼럼이 `YYYY-MM-DD` 명시형이면 오늘 날짜 ≥ 발화일 비교
+3. 충족 안건이 있으면 chief-of-staff에 인계 (담당 칼럼 지정 에이전트로 위임)
+4. 처리 완료 후 SSOT는 CoS가 갱신 (watchman 자체로 행 제거 금지)
+
+#### 5-1-2. 현재 등록된 일자 발화 안건
+
+- **2026-05-22 — Phase 0 search baseline 재측정** (담당 data-engineer)
+  - 액션: `scripts/_diag/search-baseline-2026-05-15.ts` 재실행 + 5/15 박제(`feedback_search_baseline_2026-05-15.md`) 대비 비교
+  - 측정 항목: 누적 검색 수·7일 0건율·평균 결과 건수·GENERIC_TERMS 0%·일평균
+
 ### 6. 의존성·보안
 
 - `npm audit` 주간 실행 권고
