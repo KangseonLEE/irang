@@ -407,21 +407,36 @@
    Step 3 (Sprint 2) — 시도 17개 chip grid + skipBtn
    ================================================================ */
 .sidoGrid {
-  display: flex;
-  flex-wrap: wrap;
+  /* 5/16 회장 모바일 점검: flex-wrap 무질서한 줄바꿈 거부 → grid 다단으로 정돈.
+     chip 폭이 균일해져 시각 무질서감 해소. */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
   margin-top: 4px;
   animation: stepFadeIn 200ms ease-out both;
 }
 
+@media (min-width: 480px) {
+  .sidoGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 @media (min-width: 640px) {
   .sidoGrid {
+    grid-template-columns: repeat(6, 1fr);
     gap: 8px;
   }
 }
 
+@media (min-width: 1024px) {
+  .sidoGrid {
+    grid-template-columns: repeat(9, 1fr);
+  }
+}
+
 .sidoChip {
-  padding: 8px 14px;
+  padding: 8px 10px;
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 999px;
   background: var(--card, #fff);
@@ -430,12 +445,14 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
   transition: border-color 160ms, background 160ms, color 160ms, transform 160ms;
 }
 
 @media (min-width: 640px) {
   .sidoChip {
-    padding: 9px 16px;
+    padding: 9px 12px;
     font-size: 14px;
   }
 }
