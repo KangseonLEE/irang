@@ -29,12 +29,16 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: "retain-on-failure",
     // 봇 차단 회피 — Cloudflare/middleware UA 차단 패턴 회피
-    // CF Custom Rule "Allow irang E2E tests"가 토큰 "irang-e2e/1.0" 매칭으로 Skip 처리
+    // CF Custom Rule "Allow irang E2E tests"가 토큰 "irang-e2e/1.0" + secret header
+    // 동시 매칭으로 Skip 처리. 5/16 발견: UA 단독 검증 시 봇 위장으로 82.82k 우회.
     userAgent:
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 irang-e2e/1.0",
     extraHTTPHeaders: {
       // E2E 식별용 헤더 — 운영 시 로그에서 식별 가능
       "x-irang-e2e": "playwright",
+      // E2E 검증 secret — CF Order 2 Skip 룰의 이중 검증용 (UA + Secret).
+      // 봇 UA 위장 차단. 환경변수 E2E_SECRET을 GitHub Secrets에 등록.
+      "x-irang-e2e-secret": process.env.E2E_SECRET ?? "",
     },
   },
   projects: [

@@ -25,6 +25,9 @@ jobs:
     env:
       # workflow_dispatch input이 우선, 그 외에는 prod
       PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || 'https://irangfarm.com' }}
+      # CF Order 2 Skip 룰의 이중 검증용 secret (UA + Secret).
+      # GitHub Secrets에 E2E_SECRET 등록 필수 (5/16 봇 UA 위장 대응).
+      E2E_SECRET: ${{ secrets.E2E_SECRET }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
