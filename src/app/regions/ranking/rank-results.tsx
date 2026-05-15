@@ -1,25 +1,21 @@
 "use client";
 
-// Phase B Sprint 1 (2026-05-15) B-1 옵션 1 — 검색 페이지 더보기 패턴 재사용
+// Phase B Sprint 1 (2026-05-15) B-1 옵션 1 — 검색 페이지 더보기 패턴 재사용.
 // 2026-05-15 보강 — 10건 단위 점진 확장(visibleCount 10 → 20 → 30 → …) + 접기.
 // 회장 결재 A 1+2순위 (2026-05-15) — evidence.rawLabel chip + mainCrops chip 보강.
-//   - dimension 모드: 현재 dim의 rawLabel chip 1개 (구체 수치)
-//   - persona 모드: evidence를 RegionPersonaExplain으로 위임 (강·약점 chip 옆 병기)
-//   - mode 무관: sg.mainCrops[0] chip ("주요 작물 · 사과")
-//
 // 회장 결재 IA 재구성 (2026-05-15) — 순위는 카드 외부, chip·강약점은 카드 내부.
-//   - 현재: rankNumber + Link(rankName/sido/score) | metaRow | RegionPersonaExplain 3블록 분리
-//   - 변경: rankBadge(외부) + Link(cardHeader + metaRow + RegionPersonaExplain 통합)
-//   - 1~3위 medal 색상은 rankBadge에 강조 (c935da5 패턴 직역)
 //
-// /regions/ranking 결과 리스트를 Client Component로 추출.
-// 초기 10건 노출 + "10건 더 보기" / 마지막 페이지 "N건 더 보기" / "접기" 토글.
-// 모바일·데스크탑 동일 동작.
+// 회장 결재 Sprint 1 Hybrid B+D (2026-05-16) — 카드 단순화 + 시군구 상세 modal.
+//   - Q1(chip 과다) + Q2(옵션 A: 리스트 카드 + modal) 직역.
+//   - 카드 chip: 1~2개로 축약 (mainCrops + D-7 마감 임박만 노출 — D-7은 있을 때만)
+//   - 카드 클릭 → modal open (Link onClick preventDefault). Link href 유지로 SEO 보존.
+//   - modal 내 5종 통합: rawLabel·mainCrops·밀도·활성·D-7 + 5차원 mini-bar + 강·약점 + CTA.
+//   - 강·약점 explain은 modal 안에서만 (카드 IA 단순화).
 
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { RegionPersonaExplain } from "@/components/persona/region-persona-explain";
+import { SigunguDetailModal } from "@/components/regions/sigungu-detail-modal";
 import type { DimensionScores, DimensionId } from "@/lib/data/dimension-scores";
 import type { Persona } from "@/lib/data/personas";
 import type { Sigungu } from "@/lib/data/sigungus";
@@ -86,8 +82,6 @@ export function RankResults({
   resetToken,
 }: RankResultsProps) {
   // 2026-05-15 보강 — visibleCount 패턴 (10 → 20 → 30 → …)
-  // resetToken을 state에 묶어 변경 시 자동으로 INITIAL_LIMIT_RANKING로 복원
-  // (React 공식 권장: state in render 비교로 useEffect 회피)
   const [visibleState, setVisibleState] = useState<{ token: string; count: number }>({
     token: resetToken,
     count: INITIAL_LIMIT_RANKING,
@@ -95,12 +89,14 @@ export function RankResults({
   const visibleCount =
     visibleState.token === resetToken ? visibleState.count : INITIAL_LIMIT_RANKING;
 
-  // 마지막 페이지 도달 = 전체 항목이 visibleCount 이하
+  // 회장 결재 Sprint 1 (2026-05-16) — 카드 클릭 → modal open state
+  // 선택된 항목의 sgisCode를 보관. null이면 modal 닫힘.
+  const [activeSgisCode, setActiveSgisCode] = useState<string | null>(null);
+
   const isFullyExpanded = visibleCount >= ranked.length;
   const isInitial = visibleCount <= INITIAL_LIMIT_RANKING;
   const visibleItems = ranked.slice(0, visibleCount);
 
-  // 다음 페이지 노출 건수 (남은 게 10건 미만이면 그 수만 노출)
   const remaining = Math.max(0, ranked.length - visibleCount);
   const nextStep = Math.min(PAGE_STEP, remaining);
 
@@ -116,6 +112,12 @@ export function RankResults({
   };
 
   const showToggle = ranked.length > INITIAL_LIMIT_RANKING;
+
+  // modal 데이터 — activeSgisCode로 ranked에서 찾기 + idx 보존 (순위)
+  const activeIndex = activeSgisCode
+    ? ranked.findIndex((r) => r.score.sgisCode === activeSgisCode)
+    : -1;
+  const activeItem = activeIndex >= 0 ? ranked[activeIndex] : null;
 
   if (ranked.length === 0) {
     return (
@@ -145,22 +147,15 @@ export function RankResults({
                 : idx === 2
                   ? s.rankBadgeBronze
                   : "";
-          // 회장 결재 A 1+2순위 — 보조 정보 chip 2종 (rawLabel + mainCrops)
-          // 1) dimension 모드: 현재 dim의 evidence.rawLabel (구체 수치)
-          //    persona 모드는 evidence를 RegionPersonaExplain에 위임하므로 여기선 생략
-          // 2) mode 무관: mainCrops[0] ("주요 작물 · 사과")
-          const dimRawLabel =
-            mode === "dimension" ? item.score.evidence[dim]?.rawLabel : undefined;
+
+          // 회장 결재 Sprint 1 (2026-05-16) — 카드 chip 1~2개로 축약.
+          // 1순위: mainCrops[0] (페르소나·차원 무관 일관성)
+          // 2순위: D-7 마감 임박 chip (있을 때만)
+          // 나머지(rawLabel·밀도·활성 chip 5종 통합·강약점)는 modal 안에서 노출.
           const mainCrop = item.sg.mainCrops[0] ?? null;
-          // 회장 결재 2026-05-15 — 보강 chip 3종 (밀도·활성 사업·D-7 임박)
-          const { populationDensity, activeProgramsCount, urgentDeadlineCount } =
-            item.stats;
-          const showMetaRow =
-            Boolean(dimRawLabel) ||
-            Boolean(mainCrop) ||
-            populationDensity !== null ||
-            activeProgramsCount > 0;
-          // D-7 chip은 활성 사업 chip의 부속이라 활성 사업 chip 있을 때만 함께 노출
+          const { urgentDeadlineCount } = item.stats;
+          const showMetaRow = Boolean(mainCrop) || urgentDeadlineCount > 0;
+
           return (
             <li key={item.score.sgisCode} className={s.rankItem}>
               <div
@@ -172,6 +167,14 @@ export function RankResults({
               <Link
                 href={`/regions/${item.province.id}/${item.sg.id}`}
                 className={`${s.rankLink} ${medalLinkClass}`}
+                onClick={(e) => {
+                  // 회장 결재 Sprint 1 (2026-05-16) — 카드 클릭 → modal open.
+                  // Link href는 SEO crawler 보존용. 중간 버튼/Ctrl 클릭은 기본 동작 허용.
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                  e.preventDefault();
+                  setActiveSgisCode(item.score.sgisCode);
+                }}
+                aria-label={`${idx + 1}위 ${item.sg.name} 상세 정보 열기`}
               >
                 <div className={s.cardHeader}>
                   <div className={s.rankBody}>
@@ -192,25 +195,9 @@ export function RankResults({
                 </div>
                 {showMetaRow && (
                   <ul className={s.metaRow} aria-label="시군구 보조 정보">
-                    {dimRawLabel && (
-                      <li className={s.metaChip}>{dimRawLabel}</li>
-                    )}
                     {mainCrop && (
                       <li className={`${s.metaChip} ${s.metaChipCrop}`}>
                         주요 작물 · {mainCrop}
-                      </li>
-                    )}
-                    {populationDensity !== null && (
-                      <li
-                        className={`${s.metaChip} ${s.metaChipDensity}`}
-                        title="최신 연도 인구 ÷ 면적 (정적 데이터 기반)"
-                      >
-                        밀도 {populationDensity.toLocaleString("ko-KR")}명/㎢
-                      </li>
-                    )}
-                    {activeProgramsCount > 0 && (
-                      <li className={`${s.metaChip} ${s.metaChipPrograms}`}>
-                        활성 지원사업 {activeProgramsCount}건
                       </li>
                     )}
                     {urgentDeadlineCount > 0 && (
@@ -219,15 +206,6 @@ export function RankResults({
                       </li>
                     )}
                   </ul>
-                )}
-                {mode === "persona" && persona && (
-                  <RegionPersonaExplain
-                    scores={item.score}
-                    evidence={item.score.evidence}
-                    persona={persona}
-                    total={item.value}
-                    isCustom={isCustom}
-                  />
                 )}
               </Link>
             </li>
@@ -259,6 +237,24 @@ export function RankResults({
             </button>
           )}
         </div>
+      )}
+
+      {/* 회장 결재 Sprint 1 (2026-05-16) — 시군구 상세 modal */}
+      {activeItem && (
+        <SigunguDetailModal
+          open={true}
+          onClose={() => setActiveSgisCode(null)}
+          score={activeItem.score}
+          sg={activeItem.sg}
+          province={activeItem.province}
+          value={activeItem.value}
+          stats={activeItem.stats}
+          mode={mode}
+          dim={dim}
+          persona={persona}
+          isCustom={isCustom}
+          rank={activeIndex + 1}
+        />
       )}
     </>
   );

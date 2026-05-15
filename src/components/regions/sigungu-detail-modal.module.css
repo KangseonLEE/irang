@@ -1,0 +1,295 @@
+/* 회장 결재 Sprint 1 (2026-05-16) — 시군구 상세 modal 전용 스타일.
+   modal Portal/ESC/포커스 트랩은 @/components/ui/modal에서 처리.
+   여기는 modal body 안 콘텐츠 layout만 정의. */
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── 1) 점수 헤더 ── */
+.scoreSection {
+  padding: 12px 0 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.scoreRow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.scoreValue {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.scoreHigh {
+  color: var(--primary, #1B6B5A);
+}
+
+.scoreMid {
+  color: var(--foreground);
+}
+
+.scoreLow {
+  color: var(--muted-foreground);
+}
+
+.scoreUnit {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  margin-left: 4px;
+}
+
+.scoreSummary {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.scoreCaption {
+  margin: 6px 0 12px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.scoreSido {
+  font-weight: 600;
+}
+
+/* ── 공통 section ── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.01em;
+}
+
+/* ── 2) 5차원 mini-bar ── */
+.miniBarList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.miniBarRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.miniBarLabelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.miniBarLabel {
+  font-size: 13px;
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.miniBarLabelHighlight {
+  font-weight: 700;
+  color: var(--primary, #1B6B5A);
+}
+
+.miniBarValue {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.miniBarTrack {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: var(--muted, #f5f5f5);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.miniBarFill {
+  height: 100%;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 55%, transparent);
+  border-radius: 999px;
+  transition: width 200ms ease-out;
+}
+
+.miniBarFillHighlight {
+  background: var(--primary, #1B6B5A);
+}
+
+.miniBarRaw {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+/* ── 4) chip 5종 통합 (key-value pair 리스트) ── */
+.chipList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card, #fff);
+  min-width: 0;
+}
+
+.chipUrgent {
+  background: color-mix(in srgb, #d97706 8%, var(--card, #fff));
+  border-color: color-mix(in srgb, #d97706 25%, var(--border));
+}
+
+.chipKey {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.chipUrgent .chipKey {
+  color: #b45309;
+}
+
+.chipValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--foreground);
+  word-break: keep-all;
+}
+
+.chipUrgent .chipValue {
+  color: #b45309;
+}
+
+/* ── 5) CTA ── */
+.ctaRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.ctaPrimary {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--primary, #1B6B5A);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 160ms;
+}
+
+.ctaPrimary:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .ctaPrimary:hover {
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 88%, #000);
+  }
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card, #fff);
+  color: var(--foreground);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms, border-color 160ms;
+}
+
+.ctaSecondary:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .ctaSecondary:hover {
+    background: var(--muted, #f5f5f5);
+    border-color: color-mix(in srgb, var(--foreground) 30%, var(--border));
+  }
+}
+
+/* ── 모바일 (≤639px) ── */
+@media (max-width: 639px) {
+  .scoreValue {
+    font-size: 30px;
+  }
+
+  .scoreUnit {
+    font-size: 14px;
+  }
+
+  .chipList {
+    grid-template-columns: 1fr;
+  }
+
+  .chip {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+  }
+
+  .chipKey {
+    font-size: 12px;
+  }
+
+  .chipValue {
+    font-size: 13px;
+  }
+
+  .ctaRow {
+    flex-direction: column-reverse;
+  }
+
+  .ctaPrimary,
+  .ctaSecondary {
+    width: 100%;
+  }
+}
