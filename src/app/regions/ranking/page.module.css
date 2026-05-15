@@ -798,7 +798,16 @@
 }
 
 /* Phase B Sprint 1 (2026-05-15) B-1 — 더보기/접기 토글
-   검색 페이지(.expandToggle) 패턴 직역 + 5/15 cddb55b 중앙 정렬 패턴. */
+   검색 페이지(.expandToggle) 패턴 직역 + 5/15 cddb55b 중앙 정렬 패턴.
+   2026-05-15 보강 — 10건 단위 점진 확장: 더보기·접기 두 버튼 동시 노출 가능. */
+.expandToggleRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 auto;
+}
+
 .expandToggle {
   display: inline-flex;
   align-items: center;
@@ -845,6 +854,62 @@
 @media (hover: hover) {
   .methodologyLink a:hover {
     text-decoration: underline;
+  }
+}
+
+/* 2026-05-15 — "처음부터 다시" 큰 CTA 카드 (옵션 α 직역).
+   결과 그리드 + methodology link 다음에 단독 노출. */
+.restartCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 25%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 5%, var(--card, #fff));
+  color: var(--foreground);
+  text-decoration: none;
+  transition: border-color 160ms, background 160ms, transform 160ms;
+}
+
+@media (hover: hover) {
+  .restartCard:hover {
+    border-color: var(--primary, #1B6B5A);
+    background: color-mix(in srgb, var(--primary, #1B6B5A) 9%, var(--card, #fff));
+    transform: translateY(-1px);
+  }
+}
+
+.restartCard:focus-visible {
+  outline: 2px solid var(--primary, #1B6B5A);
+  outline-offset: 2px;
+}
+
+.restartCardLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.restartCardCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary, #1B6B5A);
+  flex-shrink: 0;
+}
+
+@media (max-width: 639px) {
+  .restartCard {
+    padding: 14px 16px;
+    gap: 8px;
+  }
+
+  .restartCardLabel {
+    font-size: 13px;
   }
 }
 

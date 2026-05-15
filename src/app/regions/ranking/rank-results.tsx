@@ -1,10 +1,11 @@
 "use client";
 
 // Phase B Sprint 1 (2026-05-15) B-1 옵션 1 — 검색 페이지 더보기 패턴 재사용
+// 2026-05-15 보강 — 10건 단위 점진 확장(visibleCount 10 → 20 → 30 → …) + 접기.
 //
 // /regions/ranking 결과 리스트를 Client Component로 추출.
-// 초기 10건 노출 + "더보기 N건" 토글. 모바일·데스크탑 동일 동작.
-// 검색 페이지(`src/app/search/page.tsx`)의 expandedState + expandToggle 패턴 직역.
+// 초기 10건 노출 + "10건 더 보기" / 마지막 페이지 "N건 더 보기" / "접기" 토글.
+// 모바일·데스크탑 동일 동작.
 
 import { useState } from "react";
 import Link from "next/link";
@@ -35,6 +36,7 @@ interface RankResultsProps {
 }
 
 const INITIAL_LIMIT_RANKING = 10;
+const PAGE_STEP = 10;
 
 function getToneClass(score: number): string {
   if (score >= 70) return s.scoreHigh;
@@ -71,24 +73,37 @@ export function RankResults({
   isCustom,
   resetToken,
 }: RankResultsProps) {
-  // 검색 페이지 패턴 직역 — resetToken을 state에 묶어 변경 시 자동 초기화
+  // 2026-05-15 보강 — visibleCount 패턴 (10 → 20 → 30 → …)
+  // resetToken을 state에 묶어 변경 시 자동으로 INITIAL_LIMIT_RANKING로 복원
   // (React 공식 권장: state in render 비교로 useEffect 회피)
-  const [expandedState, setExpandedState] = useState<{ token: string; expanded: boolean }>({
+  const [visibleState, setVisibleState] = useState<{ token: string; count: number }>({
     token: resetToken,
-    expanded: false,
+    count: INITIAL_LIMIT_RANKING,
   });
-  const isExpanded =
-    expandedState.token === resetToken ? expandedState.expanded : false;
+  const visibleCount =
+    visibleState.token === resetToken ? visibleState.count : INITIAL_LIMIT_RANKING;
 
-  const overflow = Math.max(0, ranked.length - INITIAL_LIMIT_RANKING);
-  const visibleItems = isExpanded ? ranked : ranked.slice(0, INITIAL_LIMIT_RANKING);
+  // 마지막 페이지 도달 = 전체 항목이 visibleCount 이하
+  const isFullyExpanded = visibleCount >= ranked.length;
+  const isInitial = visibleCount <= INITIAL_LIMIT_RANKING;
+  const visibleItems = ranked.slice(0, visibleCount);
 
-  const toggleExpanded = () => {
-    setExpandedState((prev) => {
-      const current = prev.token === resetToken ? prev.expanded : false;
-      return { token: resetToken, expanded: !current };
+  // 다음 페이지 노출 건수 (남은 게 10건 미만이면 그 수만 노출)
+  const remaining = Math.max(0, ranked.length - visibleCount);
+  const nextStep = Math.min(PAGE_STEP, remaining);
+
+  const expandMore = () => {
+    setVisibleState((prev) => {
+      const current = prev.token === resetToken ? prev.count : INITIAL_LIMIT_RANKING;
+      return { token: resetToken, count: Math.min(ranked.length, current + PAGE_STEP) };
     });
   };
+
+  const collapse = () => {
+    setVisibleState({ token: resetToken, count: INITIAL_LIMIT_RANKING });
+  };
+
+  const showToggle = ranked.length > INITIAL_LIMIT_RANKING;
 
   if (ranked.length === 0) {
     return (
@@ -155,25 +170,31 @@ export function RankResults({
           );
         })}
       </ol>
-      {overflow > 0 && (
-        <button
-          type="button"
-          className={s.expandToggle}
-          onClick={toggleExpanded}
-          aria-expanded={isExpanded}
-        >
-          {isExpanded ? (
-            <>
+      {showToggle && (
+        <div className={s.expandToggleRow}>
+          {!isFullyExpanded && (
+            <button
+              type="button"
+              className={s.expandToggle}
+              onClick={expandMore}
+              aria-label={`${nextStep}건 더 보기`}
+            >
+              {nextStep}건 더 보기
+              <ChevronDown size={14} aria-hidden="true" />
+            </button>
+          )}
+          {!isInitial && (
+            <button
+              type="button"
+              className={s.expandToggle}
+              onClick={collapse}
+              aria-label="처음 10건만 보기"
+            >
               접기
               <ChevronUp size={14} aria-hidden="true" />
-            </>
-          ) : (
-            <>
-              더보기 {overflow}건
-              <ChevronDown size={14} aria-hidden="true" />
-            </>
+            </button>
           )}
-        </button>
+        </div>
       )}
     </>
   );

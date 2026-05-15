@@ -327,7 +327,8 @@ export default async function RankingPage({ searchParams }: PageProps) {
         ))}
       </div>
 
-      {/* 결과 — Phase B Sprint 1: RankResults Client Component (B-1 더보기 패턴) */}
+      {/* 결과 — Phase B Sprint 1: RankResults Client Component (B-1 더보기 패턴)
+          2026-05-15 보강 — 10건 단위 점진 확장 + 접기 */}
       <RankResults
         ranked={ranked}
         mode={mode}
@@ -337,16 +338,21 @@ export default async function RankingPage({ searchParams }: PageProps) {
         resetToken={`${mode}|${dim}|${persona?.id ?? ""}|${isCustom ? "c" : ""}|${sidoFilter ?? ""}|${customWeightsParam ?? ""}`}
       />
 
-
+      {/* methodology 안내 — 점수 의문 즉시 해소용으로 결과 직후 inline link */}
       <p className={s.methodologyLink}>
-        <Link href="/regions/ranking">처음부터 다시 →</Link>
-        {" "}
-        <span aria-hidden="true">·</span>
-        {" "}
         <Link href="/regions/ranking/methodology">
           점수는 어떻게 만들었나요? →
         </Link>
       </p>
+
+      {/* "처음부터 다시" — 결과를 다 본 후 재시작 의도. 분리된 큰 CTA로 위계 강조 */}
+      <Link href="/regions/ranking" className={s.restartCard}>
+        <span className={s.restartCardLabel}>다른 스타일로도 비교해 볼까요?</span>
+        <span className={s.restartCardCta}>
+          처음부터 다시
+          <ArrowRight size={16} aria-hidden="true" />
+        </span>
+      </Link>
 
       <DataSource
         source={`기상청 ASOS · SGIS 인구 · 농림어업총조사 2020 · 심평원 의료기관 · NEIS 학교 · KOSIS 귀농통계 (총 ${DIMENSION_SCORES.length}개 시군구 기준)`}
