@@ -283,6 +283,11 @@
   }
 }
 
+.card:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
 @media (min-width: 640px) {
   .card {
     padding: 28px 24px;
@@ -305,6 +310,12 @@
 .cardIconAssess {
   background: color-mix(in srgb, #e67e22 10%, transparent);
   color: #d4730d;
+}
+
+/* Phase 2c 2026-05-15 — 빠른 점검 카드용 별도 색 (primary 톤) */
+.cardIconQuick {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+  color: var(--primary, #1b6b5a);
 }
 
 /* ── 카드 본문 ── */
@@ -338,6 +349,21 @@
   line-height: var(--lh-snug);
   color: var(--primary-foreground);
   background: #d4730d;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Phase 2c 2026-05-15 — 빠른 점검 1분 배지 (primary 톤) */
+.badgeQuick {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  line-height: var(--lh-snug);
+  color: var(--primary-foreground);
+  background: var(--primary, #1b6b5a);
   border-radius: 6px;
   white-space: nowrap;
   flex-shrink: 0;
@@ -403,6 +429,31 @@
 
 .cardRecommended .cardArrow {
   color: #d4730d;
+}
+
+/* Phase 2c 2026-05-15 — 빠른 점검 카드 (말풍선 + primary 톤) */
+.cardQuick {
+  position: relative;
+}
+
+@media (hover: hover) {
+  .cardQuick:hover {
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 8px 28px color-mix(in srgb, var(--primary, #1b6b5a) 16%, transparent);
+  }
+}
+
+.cardQuick .cardArrow {
+  color: var(--primary, #1b6b5a);
+}
+
+.cardQuick .cardHintBubble {
+  background: var(--primary, #1b6b5a);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary, #1b6b5a) 25%, transparent);
+}
+
+.cardQuick .cardHintBubble::after {
+  background: var(--primary, #1b6b5a);
 }
 
 /* ── 말풍선 힌트 ── */

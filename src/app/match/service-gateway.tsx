@@ -16,14 +16,17 @@ import {
   Calculator,
 } from "lucide-react";
 import { MatchWizard } from "./match-wizard";
+import { QuickWizard } from "./quick-wizard";
 import { HistoryResult } from "./history-result";
 import { AssessmentWizard } from "../assess/assessment-wizard";
 import { useAssessmentHistory } from "@/hooks/use-assessment-history";
 import type { AssessmentHistoryItem } from "@/hooks/use-assessment-history";
 import { FARM_TYPES, migrateFarmTypeId } from "@/lib/data/match-questions";
+import { analytics } from "@/lib/analytics";
+import { Zap } from "lucide-react";
 import s from "./service-gateway.module.css";
 
-type Mode = "select" | "match" | "assess" | "history-result";
+type Mode = "select" | "quick" | "match" | "assess" | "history-result";
 
 /** 날짜를 "4월 15일" 형태로 포맷 */
 function formatDate(iso: string): string {
@@ -36,11 +39,18 @@ export function ServiceGateway() {
   const { history, hasHistory, clearHistory } = useAssessmentHistory();
 
   // URL 파라미터로 직접 진입 시 바로 해당 모드 진행
-  const initialMode: Mode = searchParams.get("mode") === "assess"
-    ? "assess"
-    : searchParams.has("experience") || searchParams.has("lifestyle")
-      ? "match"
-      : "select";
+  // Phase 2c (2026-05-15): mode=quick 추가
+  const modeParam = searchParams.get("mode");
+  const initialMode: Mode =
+    modeParam === "quick"
+      ? "quick"
+      : modeParam === "assess"
+        ? "assess"
+        : modeParam === "match"
+          ? "match"
+          : searchParams.has("experience") || searchParams.has("lifestyle")
+            ? "match"
+            : "select";
 
   const [mode, setMode] = useState<Mode>(initialMode);
   const [viewingItem, setViewingItem] = useState<AssessmentHistoryItem | null>(null);
@@ -57,6 +67,7 @@ export function ServiceGateway() {
     setMode("history-result");
   };
 
+  if (mode === "quick") return <QuickWizard onBack={() => setMode("select")} />;
   if (mode === "match") return <MatchWizard onBack={() => setMode("select")} />;
   if (mode === "assess") return <AssessmentWizard onBack={() => setMode("select")} />;
   if (mode === "history-result" && viewingItem) {
@@ -88,8 +99,8 @@ export function ServiceGateway() {
         </div>
         <div className={s.infoBannerBody}>
           <ul className={s.infoBannerList}>
-            <li>나의 귀농 적합도와 부족한 부분을 분석해 드리는 적합도 진단이에요.</li>
-            <li>진단 결과를 바탕으로 나에게 맞는 귀농 유형과 지원 트랙을 안내해요.</li>
+            <li>1분이면 끝나는 빠른 점검부터 14문항 정밀 진단까지 골라서 시작할 수 있어요.</li>
+            <li>어디서부터 봐야 할지 막막하다면 빠른 점검으로 윤곽부터 잡아 보세요.</li>
           </ul>
         </div>
       </aside>
@@ -144,22 +155,62 @@ export function ServiceGateway() {
       )}
 
       <div className={s.cards}>
-        {/* 귀농 적합도 진단 */}
+        {/* 빠른 점검 (Phase 2c 2026-05-15) */}
         <button
           type="button"
-          className={`${s.card} ${s.cardRecommended}`}
-          onClick={() => setMode("assess")}
+          className={`${s.card} ${s.cardQuick}`}
+          onClick={() => {
+            analytics.modeSelectClicked("quick");
+            setMode("quick");
+          }}
         >
           <span className={s.cardHintBubble}>
             어디서부터 시작할지 모르겠다면 여기부터!
           </span>
+          <div className={`${s.cardIcon} ${s.cardIconQuick}`}>
+            <Zap size={28} />
+          </div>
+          <div className={s.cardBody}>
+            <div className={s.cardTitleRow}>
+              <h2 className={s.cardTitle}>빠른 점검</h2>
+              <span className={s.badgeQuick}>1분</span>
+            </div>
+            <p className={s.cardDesc}>
+              4문항으로 내 귀농 윤곽을 빠르게 잡고
+              지역·작물·지원 사업을 한번에 추천 받아 보세요.
+            </p>
+            <div className={s.cardMeta}>
+              <span className={s.cardMetaItem}>
+                <ListChecks size={14} />
+                4문항
+              </span>
+              <span className={s.cardMetaItem}>
+                <Clock size={14} />
+                약 1분
+              </span>
+            </div>
+          </div>
+          <div className={s.cardArrow}>
+            <ArrowRight size={20} />
+          </div>
+        </button>
+
+        {/* 귀농 적합도 진단 */}
+        <button
+          type="button"
+          className={`${s.card} ${s.cardRecommended}`}
+          onClick={() => {
+            analytics.modeSelectClicked("assess");
+            setMode("assess");
+          }}
+        >
           <div className={`${s.cardIcon} ${s.cardIconAssess}`}>
             <ClipboardCheck size={28} />
           </div>
           <div className={s.cardBody}>
             <div className={s.cardTitleRow}>
               <h2 className={s.cardTitle}>귀농 적합도 진단</h2>
-              <span className={s.badge}>추천</span>
+              <span className={s.badge}>정밀</span>
             </div>
             <p className={s.cardDesc}>
               5가지 차원 적합도 진단 + 국가지원 트랙 추천까지,
@@ -185,7 +236,10 @@ export function ServiceGateway() {
         <button
           type="button"
           className={s.card}
-          onClick={() => setMode("match")}
+          onClick={() => {
+            analytics.modeSelectClicked("match");
+            setMode("match");
+          }}
         >
           <div className={s.cardIcon}>
             <MapPin size={28} />

@@ -65,6 +65,31 @@ export const analytics = {
       value: stepNumber,
     }),
 
+  // -- Quick check (Phase 2c 2026-05-15) --
+  quickCheckStart: () =>
+    trackEvent({ action: "quick_check_start", category: "quick_check" }),
+  quickCheckStepView: (stepNumber: number, questionId: string) =>
+    trackEvent({
+      action: "quick_check_step_view",
+      category: "quick_check",
+      label: questionId,
+      value: stepNumber,
+    }),
+  quickCheckComplete: (personaId: string) =>
+    trackEvent({
+      action: "quick_check_complete",
+      category: "quick_check",
+      label: personaId,
+    }),
+
+  // -- Mode select (Phase 2c gateway 카드 3장 클릭) --
+  modeSelectClicked: (mode: "quick" | "assess" | "match") =>
+    trackEvent({
+      action: "mode_select_clicked",
+      category: "quick_check",
+      label: mode,
+    }),
+
   // -- Ranking wizard (/regions/ranking D2 2026-05-14) --
   rankingWizardStart: () =>
     trackEvent({ action: "ranking_wizard_start", category: "ranking" }),
