@@ -121,6 +121,23 @@
   color: var(--muted-foreground);
 }
 
+/* 회장 결재 A 1순위 (2026-05-15) — 강·약점 chip에 rawLabel 병기
+   chip 라벨 위 + rawLabel 아래 stack 구조 (가로 폭 절약 + 줄바꿈 0).
+   라벨은 기존 색상 유지(강점 primary / 약점 muted), rawLabel은 항상 보조 회색. */
+.reasonWithRaw {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 4px 8px;
+  line-height: 1.25;
+}
+
+.reasonRawLabel {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
 @media (max-width: 639px) {
   .row {
     padding: 8px 10px;
@@ -138,6 +155,14 @@
   .reason {
     font-size: 0.6875rem;
     padding: 2px 6px;
+  }
+
+  .reasonWithRaw {
+    padding: 3px 6px;
+  }
+
+  .reasonRawLabel {
+    font-size: 0.625rem;
   }
 
   .groupLabel {

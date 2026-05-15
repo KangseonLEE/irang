@@ -1,4 +1,5 @@
 // Phase B Sprint 1 (2026-05-15) — 옵션 β 강점·약점 그룹화 (Server Component)
+// 회장 결재 A 1+2순위 (2026-05-15) — evidence.rawLabel 강·약점 chip 옆 병기.
 //
 // 사용 시점: /regions/ranking 페르소나 모드에서 각 시군구 항목 하단.
 // 데이터: DimensionScores + Persona.weights → 5차원을 강점/약점으로 분류.
@@ -8,6 +9,7 @@
 //   - 그 사이 = 보통 (미노출)
 // 가중치(%)는 chip에서 제거 — persona description에서 이미 노출.
 
+import type { DimensionEvidenceMap } from "@/lib/data/dimension-scores";
 import type {
   DimensionScoresInput,
   Persona,
@@ -16,6 +18,12 @@ import s from "./persona-score-explain.module.css";
 
 interface RegionPersonaExplainProps {
   scores: DimensionScoresInput;
+  /**
+   * 회장 결재 A 1순위 (2026-05-15) — 차원별 evidence (rawLabel 등).
+   * optional: 회귀 호환성 유지 (기존 callsite 영향 0).
+   * 전달 시 강점·약점 chip 라벨 아래에 작은 회색 보조 텍스트로 rawLabel 노출.
+   */
+  evidence?: DimensionEvidenceMap;
   persona: Persona;
   /** 시군구 총 점수 (이미 ranking page에서 계산된 값) */
   total: number;
@@ -79,6 +87,7 @@ function splitStrengthsWeaknesses(
 
 export function RegionPersonaExplain({
   scores,
+  evidence,
   persona,
   total,
   isCustom = false,
@@ -105,11 +114,20 @@ export function RegionPersonaExplain({
           <div className={s.group}>
             <span className={s.groupLabel}>강점</span>
             <ul className={s.reasons}>
-              {strengths.map((e) => (
-                <li key={e.key} className={`${s.reason} ${s.reasonStrength}`}>
-                  {DIMENSION_LABEL_MAP[e.key]}
-                </li>
-              ))}
+              {strengths.map((e) => {
+                const raw = evidence?.[e.key]?.rawLabel;
+                return (
+                  <li
+                    key={e.key}
+                    className={`${s.reason} ${s.reasonStrength} ${raw ? s.reasonWithRaw : ""}`}
+                  >
+                    <span>{DIMENSION_LABEL_MAP[e.key]}</span>
+                    {raw && (
+                      <span className={s.reasonRawLabel}>{raw}</span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
@@ -117,11 +135,20 @@ export function RegionPersonaExplain({
           <div className={s.group}>
             <span className={s.groupLabel}>약점</span>
             <ul className={s.reasons}>
-              {weaknesses.map((e) => (
-                <li key={e.key} className={`${s.reason} ${s.reasonWeakness}`}>
-                  {DIMENSION_LABEL_MAP[e.key]}
-                </li>
-              ))}
+              {weaknesses.map((e) => {
+                const raw = evidence?.[e.key]?.rawLabel;
+                return (
+                  <li
+                    key={e.key}
+                    className={`${s.reason} ${s.reasonWeakness} ${raw ? s.reasonWithRaw : ""}`}
+                  >
+                    <span>{DIMENSION_LABEL_MAP[e.key]}</span>
+                    {raw && (
+                      <span className={s.reasonRawLabel}>{raw}</span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}

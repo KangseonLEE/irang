@@ -797,6 +797,47 @@
   color: var(--muted-foreground);
 }
 
+/* 회장 결재 A 1+2순위 (2026-05-15) — 보조 정보 chip row
+   dimension 모드: 현재 dim의 evidence.rawLabel chip
+   mode 무관: mainCrops[0] chip ("주요 작물 · 사과")
+   시각 위계: 점수(최대) > 강·약점 chip(중간) > metaChip(보조, 가장 작음). */
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0 2px;
+}
+
+.metaChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: normal;
+  word-break: keep-all;
+  line-height: 1.4;
+}
+
+.metaChipCrop {
+  background: color-mix(in srgb, var(--primary, #1B6B5A) 5%, var(--card, #fff));
+  border-color: color-mix(in srgb, var(--primary, #1B6B5A) 18%, var(--border));
+  color: var(--primary, #1B6B5A);
+}
+
+@media (max-width: 639px) {
+  .metaChip {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+}
+
 /* Phase B Sprint 1 (2026-05-15) B-1 — 더보기/접기 토글
    검색 페이지(.expandToggle) 패턴 직역 + 5/15 cddb55b 중앙 정렬 패턴.
    2026-05-15 보강 — 10건 단위 점진 확장: 더보기·접기 두 버튼 동시 노출 가능. */

@@ -2,6 +2,10 @@
 
 // Phase B Sprint 1 (2026-05-15) B-1 옵션 1 — 검색 페이지 더보기 패턴 재사용
 // 2026-05-15 보강 — 10건 단위 점진 확장(visibleCount 10 → 20 → 30 → …) + 접기.
+// 회장 결재 A 1+2순위 (2026-05-15) — evidence.rawLabel chip + mainCrops chip 보강.
+//   - dimension 모드: 현재 dim의 rawLabel chip 1개 (구체 수치)
+//   - persona 모드: evidence를 RegionPersonaExplain으로 위임 (강·약점 chip 옆 병기)
+//   - mode 무관: sg.mainCrops[0] chip ("주요 작물 · 사과")
 //
 // /regions/ranking 결과 리스트를 Client Component로 추출.
 // 초기 10건 노출 + "10건 더 보기" / 마지막 페이지 "N건 더 보기" / "접기" 토글.
@@ -133,6 +137,14 @@ export function RankResults({
                 : idx === 2
                   ? s.rankNumberBronze
                   : "";
+          // 회장 결재 A 1+2순위 — 보조 정보 chip 2종
+          // 1) dimension 모드: 현재 dim의 evidence.rawLabel (구체 수치)
+          //    persona 모드는 evidence를 RegionPersonaExplain에 위임하므로 여기선 생략
+          // 2) mode 무관: mainCrops[0] ("주요 작물 · 사과")
+          const dimRawLabel =
+            mode === "dimension" ? item.score.evidence[dim]?.rawLabel : undefined;
+          const mainCrop = item.sg.mainCrops[0] ?? null;
+          const showMetaRow = Boolean(dimRawLabel) || Boolean(mainCrop);
           return (
             <li key={item.score.sgisCode} className={s.rankItem}>
               <Link
@@ -158,9 +170,22 @@ export function RankResults({
                   </span>
                 </div>
               </Link>
+              {showMetaRow && (
+                <ul className={s.metaRow} aria-label="시군구 보조 정보">
+                  {dimRawLabel && (
+                    <li className={s.metaChip}>{dimRawLabel}</li>
+                  )}
+                  {mainCrop && (
+                    <li className={`${s.metaChip} ${s.metaChipCrop}`}>
+                      주요 작물 · {mainCrop}
+                    </li>
+                  )}
+                </ul>
+              )}
               {mode === "persona" && persona && (
                 <RegionPersonaExplain
                   scores={item.score}
+                  evidence={item.score.evidence}
                   persona={persona}
                   total={item.value}
                   isCustom={isCustom}
