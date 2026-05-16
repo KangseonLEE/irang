@@ -11,6 +11,37 @@ export interface QuickFeedbackRow {
   page: string;
   status: "pending" | "done" | "rejected";
   created_at: string;
+  // 5/16 B4 D1: thumbs 컬럼 추가. 마이그 적용 전 row는 NULL.
+  thumbs?: "up" | "down" | null;
+  recommendation_id?: string | null;
+  persona?: string | null;
+}
+
+// ── B4: thumbs 시각화 ──
+
+export interface ThumbsStats {
+  /** 전체 누적 */
+  total: { up: number; down: number };
+  /** 최근 7일 */
+  week: { up: number; down: number };
+  /** 최근 30일 */
+  month: { up: number; down: number };
+}
+
+export interface ThumbsByPersona {
+  persona: string;
+  up: number;
+  down: number;
+  /** up / (up + down). 분모 0이면 null. */
+  ratio: number | null;
+}
+
+export interface TopThumbsRecommendation {
+  recommendation_id: string;
+  persona: string | null;
+  up: number;
+  down: number;
+  total: number;
 }
 
 // ── 요청 관리 ──

@@ -19,6 +19,9 @@ import type {
   TypeDistribution,
   AdminKpi,
   TrendingDataSourceStatus,
+  ThumbsStats,
+  ThumbsByPersona,
+  TopThumbsRecommendation,
 } from "./types";
 
 // ── 유틸 ──
@@ -111,6 +114,129 @@ export async function fetchFeedbackList(
     .range((page - 1) * perPage, page * perPage - 1);
 
   return { data: (data as QuickFeedbackRow[]) ?? [], total: count ?? 0 };
+}
+
+// ── B4: 추천 thumbs 시각화 ──
+
+/**
+ * thumbs 분포 요약 — 전체 / 7일 / 30일 × up/down.
+ *
+ * 마이그 미적용(thumbs 컬럼 부재) 또는 0건이면 모두 0 반환.
+ * head:true count 5종을 Promise.all로 병렬 실행.
+ */
+export async function fetchThumbsStats(): Promise<ThumbsStats> {
+  const empty: ThumbsStats = {
+    total: { up: 0, down: 0 },
+    week: { up: 0, down: 0 },
+    month: { up: 0, down: 0 },
+  };
+
+  const sb = getSupabaseAdmin();
+  if (!sb) return empty;
+
+  const week = daysAgo(7);
+  const month = daysAgo(30);
+
+  try {
+    const [tu, td, wu, wd, mu, md] = await Promise.all([
+      sb.from("quick_feedback").select("id", { count: "exact", head: true }).eq("thumbs", "up"),
+      sb.from("quick_feedback").select("id", { count: "exact", head: true }).eq("thumbs", "down"),
+      sb.from("quick_feedback").select("id", { count: "exact", head: true }).eq("thumbs", "up").gte("created_at", week),
+      sb.from("quick_feedback").select("id", { count: "exact", head: true }).eq("thumbs", "down").gte("created_at", week),
+      sb.from("quick_feedback").select("id", { count: "exact", head: true }).eq("thumbs", "up").gte("created_at", month),
+      sb.from("quick_feedback").select("id", { count: "exact", head: true }).eq("thumbs", "down").gte("created_at", month),
+    ]);
+
+    // 마이그 미적용 시 모든 응답이 error를 가짐 → 빈 stats 반환
+    if (tu.error || td.error) return empty;
+
+    return {
+      total: { up: tu.count ?? 0, down: td.count ?? 0 },
+      week: { up: wu.count ?? 0, down: wd.count ?? 0 },
+      month: { up: mu.count ?? 0, down: md.count ?? 0 },
+    };
+  } catch {
+    return empty;
+  }
+}
+
+/**
+ * 페르소나별 thumbs ratio (전체 누적).
+ *
+ * 5종 페르소나(family/farmYouth/elderRural/commuter/balanced) + (null/기타) 분리.
+ * up + down = 0인 페르소나는 제외하지만, ratio 계산 시 분모 0이면 null.
+ */
+export async function fetchThumbsByPersona(): Promise<ThumbsByPersona[]> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return [];
+
+  const { data, error } = await sb
+    .from("quick_feedback")
+    .select("persona, thumbs")
+    .not("thumbs", "is", null);
+
+  if (error || !data) return [];
+
+  const map = new Map<string, { up: number; down: number }>();
+  for (const row of data as Array<{ persona: string | null; thumbs: string | null }>) {
+    const key = row.persona ?? "(기타)";
+    const bucket = map.get(key) ?? { up: 0, down: 0 };
+    if (row.thumbs === "up") bucket.up += 1;
+    else if (row.thumbs === "down") bucket.down += 1;
+    map.set(key, bucket);
+  }
+
+  return [...map.entries()]
+    .map(([persona, { up, down }]) => ({
+      persona,
+      up,
+      down,
+      ratio: up + down === 0 ? null : up / (up + down),
+    }))
+    .sort((a, b) => b.up + b.down - (a.up + a.down));
+}
+
+/**
+ * 상위 thumbs 추천 — recommendation_id × persona 조합별 누적 thumbs total 내림차순.
+ *
+ * 학습 루프 design 시 reference. up이 많은 추천 = persona-fit이 잘 맞는 것,
+ * down이 많은 추천 = 가중치 보정 후보. 단계 C(가중치 보정 dry-run)에서 활용.
+ */
+export async function fetchTopThumbsRecommendations(
+  limit = 20,
+): Promise<TopThumbsRecommendation[]> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return [];
+
+  const { data, error } = await sb
+    .from("quick_feedback")
+    .select("recommendation_id, persona, thumbs")
+    .not("thumbs", "is", null)
+    .not("recommendation_id", "is", null);
+
+  if (error || !data) return [];
+
+  type Key = string; // `${recommendation_id}::${persona ?? "_"}`
+  const map = new Map<Key, { recommendation_id: string; persona: string | null; up: number; down: number }>();
+
+  for (const row of data as Array<{ recommendation_id: string | null; persona: string | null; thumbs: string | null }>) {
+    if (!row.recommendation_id) continue;
+    const key = `${row.recommendation_id}::${row.persona ?? "_"}`;
+    const bucket = map.get(key) ?? {
+      recommendation_id: row.recommendation_id,
+      persona: row.persona,
+      up: 0,
+      down: 0,
+    };
+    if (row.thumbs === "up") bucket.up += 1;
+    else if (row.thumbs === "down") bucket.down += 1;
+    map.set(key, bucket);
+  }
+
+  return [...map.values()]
+    .map((row) => ({ ...row, total: row.up + row.down }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, limit);
 }
 
 // ── 랜딩 인기 검색어 데이터 소스 ──
