@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import { fetchTypeDistribution, fetchAssessmentList } from "@/lib/admin/queries";
+import { migrateFarmTypeId } from "@/lib/data/match-questions";
 import s from "./page.module.css";
 
 /** admin은 매 요청 fresh fetch가 의도. searchParams 의존이라 revalidate 추가 시 dynamic SSR 충돌 (2026-05-11 lessons). */
@@ -27,13 +28,15 @@ const TYPE_LABEL: Record<string, string> = {
   cheongnyeon: "청년농형",
 };
 
+/** 구 ID(weekend 등)도 신 ID로 변환 후 컬러·라벨 매핑. */
 function getColor(id: string | null | undefined): string {
-  return id ? TYPE_COLORS[id] ?? "#6b7280" : "#6b7280";
+  if (!id) return "#6b7280";
+  return TYPE_COLORS[migrateFarmTypeId(id)] ?? "#6b7280";
 }
 
 function getLabel(id: string | null | undefined): string {
   if (!id) return "(미상)";
-  return TYPE_LABEL[id] ?? id;
+  return TYPE_LABEL[migrateFarmTypeId(id)] ?? id;
 }
 
 interface Props {

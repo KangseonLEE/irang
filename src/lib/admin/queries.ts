@@ -7,6 +7,7 @@
 
 import { getSupabaseAdmin, getTrendingSearches } from "@/lib/supabase";
 import { trendingSearches as fallbackTrending } from "@/lib/data/landing";
+import { migrateFarmTypeId } from "@/lib/data/match-questions";
 import type {
   QuickFeedbackRow,
   RequestRow,
@@ -382,11 +383,14 @@ export async function fetchTypeDistribution(
 
   if (!data) return [];
 
+  // 구 ID(weekend/rural-life/young-entrepreneur)와 신 ID가 DB에 섞여 있어
+  // migrateFarmTypeId로 신 ID 5종(guinong/guichon/...) 기준 합산.
   const counts = new Map<string, number>();
   for (const row of data) {
-    const t = (row as { farm_type_id: string }).farm_type_id;
-    if (!t) continue;
-    counts.set(t, (counts.get(t) ?? 0) + 1);
+    const raw = (row as { farm_type_id: string }).farm_type_id;
+    if (!raw) continue;
+    const normalized = migrateFarmTypeId(raw);
+    counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
   }
 
   return [...counts.entries()]
