@@ -52,18 +52,8 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
 
-      - name: Upload Playwright report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
-
-      - name: Upload trace + screenshots (test-results)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-test-results
-          path: test-results/
-          retention-days: 7
+      # 5/17 보안 사고 fix: Playwright trace.zip + report 에 x-irang-e2e-secret
+      # 헤더 평문 포함 + public repo artifact 다운로드 가능 → token 유출 → 봇 우회.
+      # CF Order 2 24h 9.89k events (정상 CI 100건 미만 대비 99배 이상).
+      # → trace artifact 업로드 영구 비활성화. debug 필요 시 회장이 workflow_dispatch
+      #   `dispatch_with_trace: true` input으로 일시적으로 활성화 (별도 PR 필요).
