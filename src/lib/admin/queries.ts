@@ -401,13 +401,20 @@ export async function fetchTypeDistribution(
 export async function fetchAssessmentList(
   page = 1,
   perPage = 20,
+  days?: number,
 ): Promise<{ data: AssessmentRow[]; total: number }> {
   const sb = getSupabaseAdmin();
   if (!sb) return { data: [], total: 0 };
 
-  const { data, count } = await sb
+  let q = sb
     .from("assessment_results")
-    .select("*", { count: "exact" })
+    .select("*", { count: "exact" });
+
+  if (days && days > 0) {
+    q = q.gte("created_at", daysAgo(days));
+  }
+
+  const { data, count } = await q
     .order("created_at", { ascending: false })
     .range((page - 1) * perPage, page * perPage - 1);
 

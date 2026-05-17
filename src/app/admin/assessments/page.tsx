@@ -1,7 +1,7 @@
 /**
  * 어드민 — 진단 결과 분석
  *
- * 유형 분포 + 최근 진단 목록
+ * 유형 분포 + 최근 진단 목록 + 기간 필터 (7/30/90일)
  */
 
 import Link from "next/link";
@@ -39,8 +39,16 @@ function getLabel(id: string | null | undefined): string {
   return TYPE_LABEL[migrateFarmTypeId(id)] ?? id;
 }
 
+const PERIOD_OPTIONS: Array<{ value: string; days: number; label: string }> = [
+  { value: "7", days: 7, label: "7일" },
+  { value: "30", days: 30, label: "30일" },
+  { value: "90", days: 90, label: "3개월" },
+];
+
+const DEFAULT_PERIOD = "30";
+
 interface Props {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; days?: string }>;
 }
 
 export default async function AdminAssessmentsPage({ searchParams }: Props) {
@@ -48,21 +56,51 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
   const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
   const perPage = 20;
 
+  const selectedPeriod =
+    PERIOD_OPTIONS.find((p) => p.value === params.days) ??
+    PERIOD_OPTIONS.find((p) => p.value === DEFAULT_PERIOD)!;
+  const days = selectedPeriod.days;
+
   const [distribution, { data: assessments, total }] = await Promise.all([
-    fetchTypeDistribution(30),
-    fetchAssessmentList(page, perPage),
+    fetchTypeDistribution(days),
+    fetchAssessmentList(page, perPage, days),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / perPage));
   const distTotal = distribution.reduce((sum, d) => sum + d.count, 0);
 
+  function urlWithParams(overrides: { page?: number; days?: string }): string {
+    const sp = new URLSearchParams();
+    const nextDays = overrides.days ?? selectedPeriod.value;
+    if (nextDays !== DEFAULT_PERIOD) sp.set("days", nextDays);
+    const nextPage = overrides.page ?? page;
+    if (nextPage > 1) sp.set("page", String(nextPage));
+    const qs = sp.toString();
+    return qs ? `/admin/assessments?${qs}` : "/admin/assessments";
+  }
+
   return (
     <div className={s.page}>
       <h1 className={s.heading}>진단 결과</h1>
 
+      {/* ── 기간 필터 ── */}
+      <div className={s.filters}>
+        {PERIOD_OPTIONS.map((opt) => (
+          <Link
+            key={opt.value}
+            href={urlWithParams({ days: opt.value, page: 1 })}
+            className={`${s.filterPill} ${
+              selectedPeriod.value === opt.value ? s.filterActive : ""
+            }`}
+          >
+            {opt.label}
+          </Link>
+        ))}
+      </div>
+
       {/* ── 유형 분포 ── */}
       <section className={s.section}>
-        <h2 className={s.sectionTitle}>유형 분포 (30일)</h2>
+        <h2 className={s.sectionTitle}>유형 분포 ({selectedPeriod.label})</h2>
         {distribution.length === 0 ? (
           <p className={s.empty}>진단 데이터가 없어요</p>
         ) : (
@@ -77,7 +115,7 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
                     width: `${(d.count / distTotal) * 100}%`,
                     background: getColor(d.type),
                   }}
-                  title={`${d.type}: ${d.count}건`}
+                  title={`${getLabel(d.type)}: ${d.count}건`}
                 />
               ))}
             </div>
@@ -110,16 +148,18 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
         ) : (
           <div className={s.table}>
             <div className={s.tableHeader}>
-              <span className={s.colDate}>날짜</span>
+              <span className={s.colDate}>일시</span>
               <span className={s.colType}>결과 유형</span>
               <span className={s.colAnswers}>응답 수</span>
             </div>
             {assessments.map((a) => (
               <div key={a.id} className={s.tableRow}>
                 <span className={s.colDate}>
-                  {new Date(a.created_at).toLocaleDateString("ko-KR", {
+                  {new Date(a.created_at).toLocaleString("ko-KR", {
                     month: "short",
                     day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
                   })}
                 </span>
                 <span className={s.colType}>
@@ -146,10 +186,7 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
       {totalPages > 1 && (
         <div className={s.pagination}>
           {page > 1 && (
-            <Link
-              href={`/admin/assessments?page=${page - 1}`}
-              className={s.pageLink}
-            >
+            <Link href={urlWithParams({ page: page - 1 })} className={s.pageLink}>
               이전
             </Link>
           )}
@@ -157,10 +194,7 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
             {page} / {totalPages}
           </span>
           {page < totalPages && (
-            <Link
-              href={`/admin/assessments?page=${page + 1}`}
-              className={s.pageLink}
-            >
+            <Link href={urlWithParams({ page: page + 1 })} className={s.pageLink}>
               다음
             </Link>
           )}

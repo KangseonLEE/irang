@@ -10,6 +10,40 @@
   margin: 0;
 }
 
+/* ── 기간 필터 ── */
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filterPill {
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted-foreground, #666);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.filterActive {
+  background: var(--primary, #1b6b5a);
+  color: white;
+  border-color: var(--primary, #1b6b5a);
+}
+
+@media (hover: hover) {
+  .filterPill:hover:not(.filterActive) {
+    border-color: var(--primary, #1b6b5a);
+    color: var(--primary, #1b6b5a);
+  }
+}
+
 .section {
   background: white;
   border: 1px solid var(--border, #e5e7eb);
@@ -109,10 +143,11 @@
 }
 
 .colDate {
-  width: 80px;
+  width: 120px;
   color: var(--muted-foreground, #666);
   font-size: 0.8rem;
   flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .colType {
