@@ -83,7 +83,8 @@ export interface DailySearchCount {
 
 export interface AssessmentRow {
   id: number;
-  result_type: string;
+  /** 실제 컬럼명. assessment_results.farm_type_id (예: "guinong"·"guichon"·"guisanchon"·"smartfarm"·"cheongnyeon") */
+  farm_type_id: string;
   answers: Record<string, string>;
   created_at: string;
 }

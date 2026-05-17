@@ -10,17 +10,30 @@ import s from "./page.module.css";
 
 /** admin은 매 요청 fresh fetch가 의도. searchParams 의존이라 revalidate 추가 시 dynamic SSR 충돌 (2026-05-11 lessons). */
 
-// 유형별 컬러 매핑
+// farm_type_id별 컬러 + 라벨 매핑 (src/lib/data/match-questions.ts FARM_TYPES 동기화)
 const TYPE_COLORS: Record<string, string> = {
-  실속형: "#1B6B5A",
-  도전형: "#2563eb",
-  안정형: "#d97706",
-  체험형: "#7c3aed",
-  귀촌형: "#059669",
+  guinong: "#1B6B5A",
+  guichon: "#2563eb",
+  guisanchon: "#7c3aed",
+  smartfarm: "#d97706",
+  cheongnyeon: "#059669",
 };
 
-function getColor(type: string): string {
-  return TYPE_COLORS[type] ?? "#6b7280";
+const TYPE_LABEL: Record<string, string> = {
+  guinong: "귀농형",
+  guichon: "귀촌형",
+  guisanchon: "귀산촌형",
+  smartfarm: "스마트팜형",
+  cheongnyeon: "청년농형",
+};
+
+function getColor(id: string | null | undefined): string {
+  return id ? TYPE_COLORS[id] ?? "#6b7280" : "#6b7280";
+}
+
+function getLabel(id: string | null | undefined): string {
+  if (!id) return "(미상)";
+  return TYPE_LABEL[id] ?? id;
 }
 
 interface Props {
@@ -73,7 +86,7 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
                     className={s.legendDot}
                     style={{ background: getColor(d.type) }}
                   />
-                  <span className={s.legendLabel}>{d.type}</span>
+                  <span className={s.legendLabel}>{getLabel(d.type)}</span>
                   <span className={s.legendCount}>
                     {d.count}건 ({Math.round((d.count / distTotal) * 100)}%)
                   </span>
@@ -110,11 +123,11 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
                   <span
                     className={s.typeBadge}
                     style={{
-                      background: `color-mix(in srgb, ${getColor(a.result_type)} 12%, transparent)`,
-                      color: getColor(a.result_type),
+                      background: `color-mix(in srgb, ${getColor(a.farm_type_id)} 12%, transparent)`,
+                      color: getColor(a.farm_type_id),
                     }}
                   >
-                    {a.result_type}
+                    {getLabel(a.farm_type_id)}
                   </span>
                 </span>
                 <span className={s.colAnswers}>

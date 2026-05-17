@@ -377,14 +377,15 @@ export async function fetchTypeDistribution(
 
   const { data } = await sb
     .from("assessment_results")
-    .select("result_type")
+    .select("farm_type_id")
     .gte("created_at", daysAgo(days));
 
   if (!data) return [];
 
   const counts = new Map<string, number>();
   for (const row of data) {
-    const t = (row as { result_type: string }).result_type;
+    const t = (row as { farm_type_id: string }).farm_type_id;
+    if (!t) continue;
     counts.set(t, (counts.get(t) ?? 0) + 1);
   }
 
