@@ -42,6 +42,10 @@ import {
 } from "@/lib/data/quick-check";
 import { getPersona } from "@/lib/data/personas";
 import { analytics } from "@/lib/analytics";
+import {
+  generateResultId,
+  saveAssessmentResult,
+} from "@/lib/assess-result";
 import s from "./match-wizard.module.css";
 import qs from "./quick-wizard.module.css";
 
@@ -112,11 +116,26 @@ export function QuickWizard({ onBack }: QuickWizardProps) {
     window.scrollTo(0, 0);
   }, []);
 
-  // 결과 도달 시 분석 이벤트
+  // 결과 도달 시 분석 이벤트 + Supabase 가벼운 row 적재 (2026-05-18 A안)
   useEffect(() => {
     if (!showResult) return;
     const persona = mapToPersona(answers);
     analytics.quickCheckComplete(persona);
+
+    // Quick wizard 적재 — source='quick'으로 정식 wizard와 구분.
+    // 마이그레이션 미적용 시 route가 202 fallback 반환, 라이브 silent fail X.
+    saveAssessmentResult({
+      id: generateResultId(),
+      answers: answers as Record<string, unknown>,
+      top_regions: [],
+      top_crops: [],
+      recommended_programs: [],
+      referrer: null,
+      source: "quick",
+      persona,
+    }).catch(() => {
+      // fire-and-forget — 학습 데이터 적재 실패해도 UX는 결과 화면 유지
+    });
   }, [showResult, answers]);
 
   /* ═══ 결과 화면 ═══ */

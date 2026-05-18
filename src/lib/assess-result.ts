@@ -25,14 +25,19 @@ export function isValidResultId(id: string): boolean {
 
 export interface AssessmentResultPayload {
   id: string;
-  answers: Answers;
-  farm_type_id: FarmTypeId;
+  answers: Answers | Record<string, unknown>;
+  /** Quick wizard 적재 시 farm_type_id는 선택 (persona가 대체) */
+  farm_type_id?: FarmTypeId;
   top_regions: string[];
   top_crops: string[];
   recommended_programs: string[];
   referrer: string | null;
   /** 위저드 demoAnswers.ageGroup — /assess/result/[id] 페르소나 추천에 사용 */
   age_group?: string | null;
+  /** 'full'=14문항 정식 / 'quick'=4문항 가벼운 점검 (2026-05-18 추가) */
+  source?: "full" | "quick";
+  /** Quick wizard가 매핑한 페르소나 ID (5종) */
+  persona?: string | null;
 }
 
 export interface AssessmentResultRow extends AssessmentResultPayload {
