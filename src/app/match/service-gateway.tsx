@@ -86,7 +86,7 @@ export function ServiceGateway() {
     <div className={s.page}>
       <div className={s.hero}>
         <span className={s.eyebrow}>나에게 맞는 귀농</span>
-        <h1 className={s.title}>나에게 맞는 귀농을 찾아보세요</h1>
+        <h1 className={s.title}>내 귀농을 찾아보세요</h1>
         <p className={s.desc}>
           목적에 맞는 서비스를 선택하세요.
         </p>

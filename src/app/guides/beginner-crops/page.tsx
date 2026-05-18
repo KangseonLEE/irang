@@ -227,7 +227,7 @@ export default function BeginnerCropsGuidePage() {
 
       {/* -- 관련 가이드 -- */}
       <nav className={s.related}>
-        <h3 className={s.relatedTitle}>관련 가이드</h3>
+        <h3 className={s.relatedTitle}>다음 가이드</h3>
         <div className={s.relatedLinks}>
           <Link href="/guides/failure-cases" className={s.relatedLink}>
             귀농 실패 사례 보기

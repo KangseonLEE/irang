@@ -85,7 +85,7 @@ const FAILURE_CASES: FailureCase[] = [
     detail:
       "열심히 키워서 수확했는데 팔 곳이 없으면 소득으로 이어지지 않아요. 도매시장에만 의존하면 가격 변동에 취약해요.",
     solution:
-      "직거래, 로컬푸드 매장, 체험농장 등 다양한 판로를 사전에 계획하세요. 6차 산업화(가공+체험+판매)도 좋은 전략이에요.",
+      "직거래, 로컬푸드 매장, 체험농장 등 여러 판로를 사전에 계획하세요. 6차 산업화(가공+체험+판매)도 좋은 전략이에요.",
   },
 ];
 
@@ -217,7 +217,7 @@ export default function FailureCasesGuidePage() {
 
       {/* -- 관련 가이드 -- */}
       <nav className={s.related}>
-        <h3 className={s.relatedTitle}>관련 가이드</h3>
+        <h3 className={s.relatedTitle}>다음 가이드</h3>
         <div className={s.relatedLinks}>
           <Link href="/guides/preparation" className={s.relatedLink}>
             귀농 준비 순서 보기

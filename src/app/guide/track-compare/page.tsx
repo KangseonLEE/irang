@@ -114,8 +114,8 @@ export default function TrackComparePage() {
         </table>
       </div>
 
-      <nav aria-label="관련 가이드" className={s.crossLinks}>
-        <h2 className={s.crossLinkTitle}>관련 가이드</h2>
+      <nav aria-label="다음 가이드" className={s.crossLinks}>
+        <h2 className={s.crossLinkTitle}>다음 가이드</h2>
         <div className={s.crossLinkRow}>
           <Link href="/programs/roadmap" className={s.crossLink}>
             정부사업 가이드

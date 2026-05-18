@@ -76,7 +76,7 @@ const steps = [
     icon: Target,
     step: "03",
     title: "의사결정",
-    description: "비교 데이터를 기반으로 귀농 계획을 구체화해요.",
+    description: "비교 데이터로 귀농 계획을 구체화해요.",
   },
 ];
 
@@ -127,7 +127,7 @@ export default function AboutPage() {
           url: "https://irangfarm.com/about",
           logo: "https://irangfarm.com/icon.svg",
           description:
-            "이랑은 귀농을 준비하는 분들을 위한 비영리 정보 큐레이션 서비스예요. 기상청·통계청(KOSIS·SGIS)·농촌진흥청·심평원·교육부 등 5개 공공기관 데이터를 기반으로 지역, 작물, 지원사업 정보를 한곳에서 비교할 수 있게 정리해요.",
+            "이랑은 귀농을 준비하는 분들을 위한 비영리 정보 큐레이션 서비스예요. 기상청·통계청(KOSIS·SGIS)·농촌진흥청·심평원·교육부 등 5개 공공기관 데이터로 지역, 작물, 지원사업 정보를 한곳에서 비교할 수 있게 정리해요.",
           email: "loyal3270@gmail.com",
           contactPoint: {
             "@type": "ContactPoint",
@@ -160,7 +160,7 @@ export default function AboutPage() {
         <p className={s.heroDesc}>
           <AutoGlossary text="이랑은 귀농을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스예요." />
           <br />
-          <AutoGlossary text="공공 데이터를 기반으로 지역, 작물, 지원사업 정보를 한곳에서 비교하고 의사결정을 도와드려요." />
+          <AutoGlossary text="공공 데이터로 지역, 작물, 지원사업 정보를 한곳에서 비교하고 의사결정을 도와드려요." />
         </p>
         <div className={s.heroCtas}>
           <Link href="/match" className={s.heroPrimaryBtn}>

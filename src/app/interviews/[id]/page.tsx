@@ -317,7 +317,7 @@ export default async function InterviewDetailPage({
       {/* ═══ 다른 인터뷰 (최대 3개) ═══ */}
       {otherInterviews.length > 0 && (
         <section className={s.relatedSection}>
-          <h2 className={s.relatedTitle}>다른 귀농인의 이야기도 들어보세요</h2>
+          <h2 className={s.relatedTitle}>다른 귀농인 이야기</h2>
           <div className={s.relatedGrid}>
             {otherInterviews.map((p) => {
               const otherIllust = getInterviewImageSrc(p.id);

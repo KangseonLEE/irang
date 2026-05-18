@@ -126,7 +126,7 @@ export default async function AssessSharePage({ params }: PageProps) {
 
       {/* CTA — 나도 진단 받아보기 */}
       <section className={s.cta}>
-        <h2 className={s.ctaTitle}>나도 귀농 적합도 진단 받아보기</h2>
+        <h2 className={s.ctaTitle}>나도 진단 받아보기</h2>
         <p className={s.ctaDesc}>
           10가지 질문으로 나의 귀농 준비 상태를 점검하고,
           부족한 영역별 보강 방법까지 알아보세요

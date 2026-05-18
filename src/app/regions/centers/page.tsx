@@ -64,7 +64,7 @@ export default function CentersHubPage() {
       </Suspense>
 
       <aside className={s.notice}>
-        <h2 className={s.noticeTitle}>아직 준비 중인 지역도 있어요</h2>
+        <h2 className={s.noticeTitle}>준비 중인 지역</h2>
         <p className={s.noticeDesc}>
           수도권 일부·강원·충북·충남·제주는 순차적으로 추가할 예정이에요.
           그동안은 농림축산식품부 귀농귀촌종합센터에서 전국 안내를 받을 수 있어요.

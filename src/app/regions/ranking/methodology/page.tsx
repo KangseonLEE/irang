@@ -111,7 +111,7 @@ export default function MethodologyPage() {
 
       {/* 원칙 */}
       <section className={s.principleBox} aria-label="점수 원칙">
-        <h2 className={s.principleTitle}>점수를 만들 때 지키는 원칙</h2>
+        <h2 className={s.principleTitle}>점수 산출 원칙</h2>
         <ul className={s.principleList}>
           <li>임의로 만든 추정값은 쓰지 않아요. 공공 통계가 있는 데이터만 점수로 바꿔요.</li>
           <li>
@@ -131,7 +131,7 @@ export default function MethodologyPage() {
 
       {/* 차원별 상세 */}
       <section aria-label="차원별 상세">
-        <h2 className={s.sectionTitle}>5가지 차원 자세히 보기</h2>
+        <h2 className={s.sectionTitle}>5가지 차원</h2>
         <div className={s.dimList}>
           {DIMENSIONS.map((d) => (
             <article key={d.label} className={s.dimCard}>
@@ -174,7 +174,7 @@ export default function MethodologyPage() {
 
       {/* 페르소나 가중치 */}
       <section aria-label="귀농 스타일 가중치">
-        <h2 className={s.sectionTitle}>귀농 스타일 맞춤 점수는 어떻게 계산하나요?</h2>
+        <h2 className={s.sectionTitle}>맞춤 점수 계산 방식</h2>
         <p className={s.principleText} style={{ marginBottom: "12px" }}>
           ‘귀농 스타일 맞춤’ 모드는 사람마다 중요하게 보는 차원이 다르다는 점을
           반영해요. 5가지 차원에 스타일별로 다른 가중치를 곱해서 종합 점수를

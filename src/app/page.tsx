@@ -4,7 +4,7 @@ import { Suspense } from "react";
 export const metadata: Metadata = {
   title: "이랑 — 귀농 정보 큐레이션 포탈",
   description:
-    "귀농 비용, 지원금, 추천 지역, 작물 수익까지 — 공공데이터 기반으로 한곳에서 비교하고 결정하세요.",
+    "귀농 비용, 지원금, 추천 지역, 작물 수익까지 — 공공데이터로 한곳에서 비교하고 결정하세요.",
   alternates: { canonical: "/" },
 };
 

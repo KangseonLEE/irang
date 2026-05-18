@@ -223,7 +223,7 @@ export default function Budget50sGuidePage() {
 
       {/* ── 관련 가이드 ── */}
       <nav className={s.related}>
-        <h3 className={s.relatedTitle}>관련 가이드</h3>
+        <h3 className={s.relatedTitle}>다음 가이드</h3>
         <div className={s.relatedLinks}>
           <Link href="/guides/preparation" className={s.relatedLink}>
             귀농 준비 순서 보기

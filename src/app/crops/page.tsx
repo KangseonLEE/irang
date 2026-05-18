@@ -218,7 +218,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
           <Icon icon={ArrowRight} size="sm" />
         </Link>
         <Link href="/programs" className={s.crossLink}>
-          관련 지원사업 찾기
+          추천 지원사업 찾기
           <Icon icon={ArrowRight} size="md" />
         </Link>
       </div>

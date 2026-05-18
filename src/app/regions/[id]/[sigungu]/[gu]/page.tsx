@@ -218,12 +218,12 @@ export default async function GuDetailPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* -- 관련 지원사업 -- */}
-      <section className={s.section} aria-label="관련 지원사업">
+      {/* -- 추천 지원사업 -- */}
+      <section className={s.section} aria-label="추천 지원사업">
         <div className={s.sectionHeader}>
           <Icon icon={FileText} size="lg" />
           <div>
-            <h2 className={s.sectionTitle}>관련 지원사업</h2>
+            <h2 className={s.sectionTitle}>추천 지원사업</h2>
             <p className={s.sectionDesc}>
               {province.shortName} 지역에서 신청 가능한 지원사업이에요.
             </p>

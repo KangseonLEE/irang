@@ -193,7 +193,7 @@ export function PopulationModal({
         <p className={s.insightText}>
           {population.agingRate >= 20
             ? `고령화율 ${population.agingRate}%로 젊은 귀농인에 대한 지역 환영도가 높고, 지원 정책이 활발한 편이에요.`
-            : `고령화율 ${population.agingRate}%로 비교적 젊은 인구 구성을 보이며, 다양한 연령층과 교류가 가능해요.`}
+            : `고령화율 ${population.agingRate}%로 비교적 젊은 인구 구성을 보이며, 여러 연령층과 교류가 가능해요.`}
         </p>
       </div>
 

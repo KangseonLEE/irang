@@ -517,7 +517,7 @@ export default async function CropDetailPage({
                 className={`${s.ctaButton} ${s.ctaOutline}`}
               >
                 <Icon icon={FileText} size="md" />
-                관련 지원사업 보기
+                추천 지원사업 보기
               </Link>
               <Link
                 href="/regions"
@@ -560,7 +560,7 @@ export default async function CropDetailPage({
             </div>
           )}
 
-          {/* 관련 지원사업 */}
+          {/* 추천 지원사업 */}
           <RelatedProgramsSection relatedPrograms={relatedPrograms} moreHref={programsHref} />
         </aside>
       </div>
@@ -991,7 +991,7 @@ function RelatedProgramsSection({
     <div className={s.sideSection}>
       <h3 className={s.sideSectionHeader}>
         <Icon icon={DollarSign} size="md" />
-        관련 지원사업
+        추천 지원사업
       </h3>
       {relatedPrograms.length > 0 ? (
         <div className={s.programList}>
@@ -1015,7 +1015,7 @@ function RelatedProgramsSection({
           </Link>
         </div>
       ) : (
-        <p className={s.emptyNote}>현재 등록된 관련 지원사업이 없어요.</p>
+        <p className={s.emptyNote}>현재 등록된 지원사업이 없어요.</p>
       )}
     </div>
   );

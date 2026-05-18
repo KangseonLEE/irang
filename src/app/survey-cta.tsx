@@ -17,7 +17,7 @@ export function SurveyCta() {
       >
         <span className={s.ctaSurveyInner}>
           <span className={s.ctaSurveyText}>
-            <span className={s.ctaSurveyLabel}>더 나은 이랑을 만들어 주세요</span>
+            <span className={s.ctaSurveyLabel}>의견 들려주세요</span>
             <span className={s.ctaSurveyDesc}>30초면 충분해요</span>
           </span>
           <span className={s.ctaSurveyArrow}>

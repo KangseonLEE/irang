@@ -205,7 +205,7 @@ export default function PreparationGuidePage() {
 
       {/* ── CTA ── */}
       <section className={s.cta}>
-        <h2 className={s.ctaTitle}>내 상황에 맞는 귀농지 찾기</h2>
+        <h2 className={s.ctaTitle}>맞춤 귀농지 찾기</h2>
         <p className={s.ctaDesc}>
           간단한 질문에 답하면, 맞춤 지역과 작물을 추천해 드려요.
         </p>
@@ -217,7 +217,7 @@ export default function PreparationGuidePage() {
 
       {/* ── 관련 가이드 ── */}
       <nav className={s.related}>
-        <h3 className={s.relatedTitle}>관련 가이드</h3>
+        <h3 className={s.relatedTitle}>다음 가이드</h3>
         <div className={s.relatedLinks}>
           <Link href="/guides/budget-50s" className={s.relatedLink}>
             50대 귀농 자본 알아보기

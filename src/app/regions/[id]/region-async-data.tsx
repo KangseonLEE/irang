@@ -180,7 +180,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
           <div className={s.sectionHeader}>
             <Icon icon={FileText} size="lg"  />
             <div>
-              <h2 className={s.sectionTitle}>관련 지원사업</h2>
+              <h2 className={s.sectionTitle}>추천 지원사업</h2>
               <p className={s.sectionDesc}>
                 {province.shortName} 지역에서 신청 가능한 지원사업이에요.
               </p>

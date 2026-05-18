@@ -478,7 +478,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
 
       {/* ═══ 하단 CTA ═══ */}
       <section className={s.ctaSection}>
-        <h2 className={s.ctaTitle}>이제 내 상황에 맞게 찾아볼까요?</h2>
+        <h2 className={s.ctaTitle}>내 상황으로 찾아볼까요?</h2>
         <p className={s.ctaDesc}>
           <AutoGlossary text="지원사업 검색과 맞춤 추천으로 나에게 딱 맞는 사업을 빠르게 찾을 수 있어요." />
         </p>

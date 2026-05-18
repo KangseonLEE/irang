@@ -8,7 +8,7 @@ import { ServiceGateway } from "./service-gateway";
 export const metadata: Metadata = {
   title: "나에게 맞는 귀농 — 1분 빠른 점검부터 14문항 정밀 진단까지",
   description:
-    "1분이면 끝나는 빠른 점검, 14문항 적합도 진단, 10문항 유형 진단. 나에게 맞는 지역·작물·지원 사업까지 데이터 기반으로 추천해 드려요.",
+    "1분이면 끝나는 빠른 점검, 14문항 적합도 진단, 10문항 유형 진단. 나에게 맞는 지역·작물·지원 사업까지 데이터로 추천해 드려요.",
   keywords: [
     "귀농 유형",
     "귀농 진단",

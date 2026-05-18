@@ -142,7 +142,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
         icon={<Calendar size={20} strokeWidth={1.75} />}
         label="Events"
         title="체험·행사"
-        description="귀농 일일체험, 팜스테이, 박람회, 설명회 등 다양한 체험과 행사를 찾아보세요."
+        description="귀농 일일체험, 팜스테이, 박람회, 설명회 등 여러 체험과 행사를 찾아보세요."
         periodLabel={periodLabel}
         dataNote={`${dataYear}년 데이터만 제공되며, 연도 변경은 지원되지 않습니다.`}
       />

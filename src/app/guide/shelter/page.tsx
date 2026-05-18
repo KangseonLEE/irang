@@ -28,7 +28,7 @@ import s from "./page.module.css";
 export const metadata: Metadata = {
   title: "농촌체류형 쉼터 가이드 | 이랑",
   description:
-    "농지에 33㎡ 이하 임시 주거를 설치할 수 있는 농촌체류형 쉼터 제도(2024-12-24 시행)를 공식 출처 기반으로 정리했어요.",
+    "농지에 33㎡ 이하 임시 주거를 설치할 수 있는 농촌체류형 쉼터 제도(2024-12-24 시행)를 공식 출처로 정리했어요.",
   alternates: { canonical: "/guide/shelter" },
 };
 
@@ -224,7 +224,7 @@ export default function ShelterGuidePage() {
         ))}
       </section>
 
-      <nav aria-label="관련 가이드" className={s.crossLinks}>
+      <nav aria-label="다음 가이드" className={s.crossLinks}>
         <Link href="/guide" className={s.crossLink}>
           귀농 5단계 로드맵
         </Link>

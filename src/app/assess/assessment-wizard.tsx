@@ -315,7 +315,7 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
               ))}
             </div>
             <Link href="/programs" className={s.trackCardLink}>
-              관련 지원사업 확인하기
+              추천 지원사업 확인하기
               <ArrowRight size={14} />
             </Link>
           </div>

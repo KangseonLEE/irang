@@ -101,7 +101,7 @@ export default function DisclaimerPage() {
         </div>
         <div className={s.sectionBody}>
           <p>
-            모든 데이터는 출처 기관의 공식 자료를 기반으로 해요.
+            모든 데이터는 출처 기관의 공식 자료에서 가져와요.
           </p>
           <p>
             데이터 갱신 시점에 따라 최신 정보와 차이가 있을 수 있어요.
