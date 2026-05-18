@@ -201,7 +201,7 @@
 .climateCard {
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   overflow: hidden;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
@@ -222,13 +222,13 @@
 }
 
 @media (min-width: 640px) {
-  .climateCard { border-radius: 20px; }
+  .climateCard { border-radius: var(--radius-xl, 20px); }
 }
 
 @media (hover: hover) {
   .climateCard:hover {
     border-color: color-mix(in srgb, var(--primary) 40%, transparent);
-    box-shadow: 0 4px 20px rgba(27, 107, 90, 0.08);
+    box-shadow: var(--shadow-md);
   }
 }
 

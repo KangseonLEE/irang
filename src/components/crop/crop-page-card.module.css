@@ -29,7 +29,7 @@
 @media (hover: hover) {
   .cropCard:hover {
     border-color: color-mix(in srgb, var(--primary) 40%, transparent);
-    box-shadow: 0 4px 20px rgba(27, 107, 90, 0.08);
+    box-shadow: var(--shadow-md);
   }
 }
 

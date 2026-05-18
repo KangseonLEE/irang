@@ -139,8 +139,8 @@
 
 @media (hover: hover) {
   .card:hover {
-    border-color: color-mix(in srgb, var(--foreground) 20%, transparent);
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--foreground) 5%, transparent);
+    border-color: var(--primary-tint-medium);
+    box-shadow: var(--shadow-sm);
   }
 }
 
@@ -166,7 +166,7 @@
   font-weight: 500;
   color: var(--muted-foreground);
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   background: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
 }
@@ -296,7 +296,7 @@
   color: var(--primary, #1b6b5a);
   text-decoration: none;
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   transition: background-color 0.15s;
 }
 

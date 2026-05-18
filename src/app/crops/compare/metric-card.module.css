@@ -26,7 +26,7 @@
   padding: 16px 18px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 18px;
+  border-radius: var(--radius-xl, 20px);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -40,7 +40,7 @@
 @media (hover: hover) {
   .metricCard:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 28%, var(--border, #e5e7eb));
-    box-shadow: 0 4px 16px rgba(27, 107, 90, 0.06);
+    box-shadow: var(--shadow-sm);
   }
 }
 

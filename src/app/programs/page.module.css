@@ -67,8 +67,8 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  border-radius: var(--icon-box-radius, 10px);
+  background: var(--primary-tint-soft);
   color: var(--primary, #1b6b5a);
   flex-shrink: 0;
 }

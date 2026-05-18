@@ -421,7 +421,7 @@
   align-self: center;
   font-size: 13px;
   font-weight: 600;
-  color: #8FCFB5;
+  color: var(--primary-on-dark, #8fcfb5);
   text-decoration: none;
   padding: 6px 4px;
   border-radius: 6px;
@@ -439,7 +439,7 @@
 }
 
 .interviewHeaderLink:focus-visible {
-  outline: 2px solid #8FCFB5;
+  outline: 2px solid var(--primary-on-dark, #8fcfb5);
   outline-offset: 2px;
 }
 
@@ -855,8 +855,8 @@
 
 .eyebrowDark {
   composes: eyebrow;
-  color: #8FCFB5;
-  background: color-mix(in srgb, #8FCFB5 12%, transparent);
+  color: var(--primary-on-dark, #8fcfb5);
+  background: color-mix(in srgb, var(--primary-on-dark, #8fcfb5) 12%, transparent);
   width: fit-content;
 }
 
@@ -872,11 +872,11 @@
 
 .sectionTitleDark em {
   font-style: normal;
-  color: #8FCFB5;
+  color: var(--primary-on-dark, #8fcfb5);
   text-decoration: underline;
   text-decoration-thickness: 3px;
   text-underline-offset: 6px;
-  text-decoration-color: color-mix(in srgb, #8FCFB5 40%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--primary-on-dark, #8fcfb5) 40%, transparent);
 }
 
 /* ── 풀와이드 배경 섹션 ── */
@@ -890,7 +890,7 @@
 /* ── 다크 배경 (인터뷰) ── */
 .darkBg {
   composes: fullWidth;
-  background: #1A3F35;
+  background: var(--surface-dark, #1a3f35);
   padding-top: 56px;
   padding-bottom: 56px;
 }
@@ -912,7 +912,7 @@
 /* ── 연한 그린 배경 (비용) ── */
 .lightGreenBg {
   composes: fullWidth;
-  background: #EDF5F3;
+  background: var(--surface-green-50, #edf5f3);
   padding-top: 56px;
   padding-bottom: 56px;
 }
@@ -971,7 +971,7 @@
   gap: 24px;
   padding-top: 48px;
   padding-bottom: 48px;
-  background: #edf5f3;
+  background: var(--surface-green-50, #edf5f3);
   overflow: hidden;
   position: relative;
 }

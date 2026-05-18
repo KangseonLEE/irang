@@ -27,7 +27,7 @@
 
 @media (hover: hover) {
   .link:hover .card {
-    border-color: color-mix(in srgb, var(--foreground) 20%, transparent);
+    border-color: var(--primary-tint-medium);
   }
 }
 

@@ -60,7 +60,7 @@
   font-weight: 500;
   color: var(--muted-foreground);
   padding: 3px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   background: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
 }
