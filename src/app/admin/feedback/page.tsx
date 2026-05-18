@@ -67,6 +67,19 @@ export default async function AdminFeedbackPage({ searchParams }: Props) {
     <div className={s.page}>
       <h1 className={s.heading}>피드백</h1>
 
+      {/* ── silent fail 안내 (4/13 ~ 5/13 RLS 차단 기간) ── */}
+      <aside className={s.silentFailNotice} role="note">
+        <span className={s.silentFailNoticeTitle}>
+          ℹ️ 2026-04-13 ~ 2026-05-13 한 달 적재 누락
+        </span>
+        <p className={s.silentFailNoticeBody}>
+          위젯이 anon 클라이언트로 직접 INSERT를 시도하면서 RLS에 silent fail
+          돼서 그 기간 사용자가 보낸 피드백은 어디에도 적재되지 않았어요.
+          5/16 commit 1e2d748에서 <code>/api/quick-feedback</code> service_role
+          Route로 우회 처리해 정상화했고, 이후 신규 row만 아래 카드에 잡혀요.
+        </p>
+      </aside>
+
       {/* ── B4: 추천 thumbs 분포 ── */}
       <section className={s.thumbsSection}>
         <div className={s.sectionHeader}>

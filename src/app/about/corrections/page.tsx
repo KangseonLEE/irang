@@ -25,6 +25,12 @@ interface CorrectionEntry {
 
 const CORRECTIONS: CorrectionEntry[] = [
   {
+    date: "2026-05-18",
+    field: "피드백 위젯 silent fail 종결 — 4/13~5/13 한 달간 적재 누락 안내",
+    description:
+      "4월 13일부터 5월 13일까지 한 달 동안 ‘의견 보내기’로 보내주신 피드백이 권한 설정 누락(데이터베이스 RLS 차단)으로 어디에도 적재되지 않았어요. 5월 16일에 서버 사이드 API Route(`/api/quick-feedback`)를 추가해 권한 우회를 정리했고, 이후로는 정상 적재되고 있어요. 그 기간에 의견을 보내주셨던 분께 죄송하다는 말씀을 드려요. 같은 의견 다시 한 번 부탁드려요.",
+  },
+  {
     date: "2026-05-16",
     field: "시군구 점수 비교 UX 재설계 마감 (Sprint 1 + Sprint 2)",
     description:

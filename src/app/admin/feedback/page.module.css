@@ -10,6 +10,30 @@
   margin: 0;
 }
 
+/* ── silent fail 안내 배지 (4/13 ~ 5/13 RLS 차단 기간) ── */
+
+.silentFailNotice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  background: color-mix(in srgb, #d97706 8%, white);
+  border: 1px solid color-mix(in srgb, #d97706 35%, transparent);
+  border-radius: 12px;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.silentFailNoticeTitle {
+  font-weight: 700;
+  color: #92400e;
+}
+
+.silentFailNoticeBody {
+  margin: 0;
+  color: #78350f;
+}
+
 /* ── B4: 추천 thumbs 시각화 ── */
 
 .thumbsSection,
