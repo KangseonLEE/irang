@@ -6,6 +6,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
+import { ListToolbar } from "@/components/ui/list-toolbar";
 import { SectionNav } from "@/components/layout/section-nav";
 import {
   filterProgramsAsync,
@@ -243,14 +244,11 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         itemLabel="지원사업"
       />
 
-      <div className={s.toolbar}>
-        <p className={s.resultText}>
-          검색 결과 <span className={s.resultTotal}>{total}</span>건
-        </p>
+      <ListToolbar count={total}>
         <Suspense>
           <ViewToggle current={viewMode} />
         </Suspense>
-      </div>
+      </ListToolbar>
 
       <ProgramList
         initialPrograms={programs}

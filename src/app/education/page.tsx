@@ -41,6 +41,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
+import { ListToolbar } from "@/components/ui/list-toolbar";
 import { SectionNav } from "@/components/layout/section-nav";
 import { Pagination } from "@/components/ui/pagination";
 import s from "./page.module.css";
@@ -252,14 +253,11 @@ export default async function EducationPage({ searchParams }: PageProps) {
       />
 
       {/* 보기 모드 토글 */}
-      <div className={s.toolbar}>
-        <p className={s.resultText}>
-          검색 결과 <span className={s.resultTotal}>{courses.length}</span>건
-        </p>
+      <ListToolbar count={courses.length}>
         <Suspense>
           <ViewToggle current={viewMode} />
         </Suspense>
-      </div>
+      </ListToolbar>
 
       {/* Course Grid / Table / Empty */}
       {courses.length === 0 ? (

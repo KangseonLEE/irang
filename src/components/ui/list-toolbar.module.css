@@ -1,0 +1,17 @@
+/* ListToolbar — 리스트 페이지 결과 수 + 우측 액션(슬롯) */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resultText {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.resultTotal {
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+}
