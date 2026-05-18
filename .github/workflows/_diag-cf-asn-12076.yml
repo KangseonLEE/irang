@@ -111,7 +111,7 @@ jobs:
           SINCE=$(date -u -d '-15 minutes' +%Y-%m-%dT%H:%M:%SZ)
           UNTIL=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           GQL=$(jq -n --arg zone "$CF_ZONE_ID" --arg since "$SINCE" --arg until "$UNTIL" '{
-            query: "query($zone:String!,$since:Time!,$until:Time!){viewer{zones(filter:{zoneTag:$zone}){firewallEventsAdaptiveGroups(limit:50,filter:{datetime_geq:$since,datetime_leq:$until,clientAsn:12076,action:\"block\"}){count}}}}",
+            query: "query($zone:String!,$since:Time!,$until:Time!){viewer{zones(filter:{zoneTag:$zone}){firewallEventsAdaptiveGroups(limit:50,filter:{datetime_geq:$since,datetime_leq:$until,clientAsn:\"12076\",action:\"block\"}){count}}}}",
             variables: {zone:$zone, since:$since, until:$until}
           }')
           EVENTS=$(curl -sS -X POST "https://api.cloudflare.com/client/v4/graphql" \
