@@ -164,6 +164,7 @@
     top: 88px;
     /* 헤더(약 64~80px) + 여유. 카드 영역이 맵보다 짧을 때 자연스럽게 정렬 */
     max-height: calc(100vh - 120px);
+    max-height: calc(100dvh - 120px);
     overflow-y: auto;
     /* 스크롤바 스타일 다듬기 */
     scrollbar-width: thin;

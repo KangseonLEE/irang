@@ -89,6 +89,9 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
 
     updateMaxHeight();
 
+    // ref capture: cleanup 시점에 panelRef.current가 다른 elem을 가리킬 수 있어
+    // effect 본문에서 capture 후 cleanup에서 사용 (React useEffect 표준 패턴)
+    const panel = panelRef.current;
     const vv = window.visualViewport;
     vv?.addEventListener("resize", updateMaxHeight);
     vv?.addEventListener("scroll", updateMaxHeight);
@@ -98,8 +101,8 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       vv?.removeEventListener("resize", updateMaxHeight);
       vv?.removeEventListener("scroll", updateMaxHeight);
       window.removeEventListener("orientationchange", updateMaxHeight);
-      if (panelRef.current) {
-        panelRef.current.style.maxHeight = "";
+      if (panel) {
+        panel.style.maxHeight = "";
       }
     };
   }, [open]);

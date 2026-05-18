@@ -100,8 +100,10 @@
   pointer-events: none;
 }
 
-.navGroup:hover::after {
-  pointer-events: auto;
+@media (hover: hover) {
+  .navGroup:hover::after {
+    pointer-events: auto;
+  }
 }
 
 .navLink {

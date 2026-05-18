@@ -157,9 +157,11 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
               : "작물 이름으로 찾아보세요 (예: 딸기, 사과, 인삼)"
           }
           className={s.searchInput}
+          role="combobox"
           aria-label="작물 검색"
           aria-autocomplete="list"
           aria-expanded={showDropdown}
+          aria-controls="crop-suitability-listbox"
         />
         {query && (
           <button
@@ -176,7 +178,7 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
         )}
 
         {showDropdown && (
-          <div ref={dropdownRef} className={s.dropdown} role="listbox">
+          <div ref={dropdownRef} id="crop-suitability-listbox" className={s.dropdown} role="listbox">
             {!trimmedQuery && (
               <div className={s.dropdownHint}>
                 <Search size={12} aria-hidden="true" />

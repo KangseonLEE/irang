@@ -264,9 +264,11 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
             onKeyDown={handleKeyDown}
             placeholder={reachedLimit ? "3곳 모두 골랐어요" : "지역명으로 검색해 보세요 (예: 전남, 순천시, 춘천)"}
             className={s.searchInput}
+            role="combobox"
             aria-label="지역 검색"
             aria-autocomplete="list"
             aria-expanded={showDropdown}
+            aria-controls="region-cards-listbox"
             disabled={reachedLimit}
           />
           {query && (
@@ -283,7 +285,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
             </button>
           )}
           {showDropdown && (
-            <div ref={dropdownRef} className={s.dropdown} role="listbox">
+            <div ref={dropdownRef} id="region-cards-listbox" className={s.dropdown} role="listbox">
               {!trimmedQuery && (
                 <div className={s.dropdownHint}>시·도를 고르거나, 입력해서 시·군·구까지 찾아보세요</div>
               )}
