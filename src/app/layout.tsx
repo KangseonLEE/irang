@@ -20,11 +20,17 @@ import s from "./layout.module.css";
 // 서버 시작 시 환경변수 검증 (모듈 로드 시 1회 실행)
 validateEnv();
 
+// dev.irangfarm.com (Cloudflare Tunnel) · Vercel preview · 로컬 등 prod 외 환경
+// — robots.ts disallow와 이중 안전망. 페이지마다 <meta name="robots" content="noindex">.
+// 2026-05-18 GSC 발견 fix.
+const IS_PUBLIC_PRODUCTION = process.env.VERCEL_ENV === "production";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://irangfarm.com"),
   alternates: {
     canonical: "/",
   },
+  ...(IS_PUBLIC_PRODUCTION ? {} : { robots: { index: false, follow: false } }),
   verification: {
     google: "KNFsOJ9PTv7qJXP15MITpq6YGN8cWV7Nk9ThKWBPGD0",
     other: {

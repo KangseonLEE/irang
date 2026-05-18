@@ -2,6 +2,11 @@ import type { MetadataRoute } from "next";
 
 const BASE_URL = "https://irangfarm.com";
 
+// dev.irangfarm.com (Cloudflare Tunnel) · Vercel preview · 로컬 등 prod 외 환경은
+// 외부 봇 색인 전체 차단. 2026-05-18 GSC 발견 — dev 서브도메인이 Googlebot에
+// 노출돼 prod URL이 dev 참조로 403 카테고리에 박힘. duplicate content + 보안 신호 leak 차단.
+const IS_PUBLIC_PRODUCTION = process.env.VERCEL_ENV === "production";
+
 // 학습용으로 우리 데이터를 긁어가는 크롤러 — Vercel data transfer만 소모하고 SEO에는 도움 안 됨.
 // Googlebot/Bingbot 같은 검색용 봇은 그대로 허용 (검색 노출에 필요).
 const AI_TRAINING_CRAWLERS = [
@@ -22,6 +27,12 @@ const AI_TRAINING_CRAWLERS = [
 ];
 
 export default function robots(): MetadataRoute.Robots {
+  if (!IS_PUBLIC_PRODUCTION) {
+    return {
+      rules: [{ userAgent: "*", disallow: "/" }],
+    };
+  }
+
   return {
     rules: [
       {
