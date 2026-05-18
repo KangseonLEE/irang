@@ -80,6 +80,47 @@ function isBlockedBot(ua: string): boolean {
 }
 
 /**
+ * Non-KR geo 차단 + verified bot whitelist (2026-05-18 추가, B안 회장 결재).
+ *
+ * 배경: CF Order 3 ASN Block 룰(A안)이 cache hit 응답에는 미적용(5/14 박제).
+ * 정적 페이지가 CF에 캐시되면 비 KR 봇이 통과 가능. middleware는 origin 단에서
+ * 작동하므로 cache hit 우회를 막을 수 있다(defense in depth).
+ *
+ * 화이트리스트 정책:
+ * - 한국 검색엔진 봇(Yeti/Daum)은 cf-ipcountry 무관 통과 — 해외 데이터센터 IP 사용 가능
+ * - 글로벌 verified 검색·소셜 봇은 모든 country 통과 — SEO/preview 영향 X
+ * - AhrefsBot/SemrushBot 등 SEO crawler는 화이트리스트 제외(차단 의도)
+ *
+ * 5/14 박제: GSC 12h 차단 사고 재발 방지. Googlebot/Bingbot UA는 반드시 통과.
+ */
+const VERIFIED_BOT_PATTERNS = [
+  // Google
+  /Googlebot/i,
+  /AdsBot-Google/i,
+  /Mediapartners-Google/i,
+  // Microsoft / Bing
+  /Bingbot/i,
+  /BingPreview/i,
+  // Social previews
+  /Twitterbot/i,
+  /facebookexternalhit/i,
+  /LinkedInBot/i,
+  /Slackbot/i,
+  // AI assistants (preview/citation용 — 학습 봇과 별개 GPTBot/ClaudeBot은 위에서 이미 차단됨)
+  /ChatGPT-User/i,
+  /PerplexityBot/i,
+  // Korean search engines (cf-ipcountry 무관 통과)
+  /Yeti/i,
+  /Daum/i,
+  /NaverBot/i,
+];
+
+function isVerifiedBot(ua: string): boolean {
+  if (!ua) return false;
+  return VERIFIED_BOT_PATTERNS.some((re) => re.test(ua));
+}
+
+/**
  * 봇 secret fishing path (2026-05-11 추가, B안 Hobby 유지 sprint).
  *
  * Cloudflare WAF가 1차 방어선이지만, middleware에서 한 번 더 차단해 Vercel
@@ -132,6 +173,26 @@ export async function middleware(request: NextRequest) {
       headers: {
         "X-Robots-Tag": "noindex, nofollow",
         "Cache-Control": "no-store",
+      },
+    });
+  }
+
+  // 1-1) Non-KR geo + non-verified bot 503 차단 (2026-05-18, B안 회장 결재).
+  // CF cache HIT 응답에는 WAF 룰이 미적용(5/14 박제) → middleware에서 cache 이전
+  // 단으로 한 번 더 차단. 한국 사용자(cf-ipcountry=KR)와 verified bot은 통과.
+  // cf-ipcountry 헤더는 Cloudflare가 모든 요청에 자동 주입. 누락 시(로컬 dev 등)
+  // 통과(undefined !== "KR" 조건이지만 verified bot whitelist에 의해 통과 시도).
+  //
+  // 5/11 박제 — middleware 응답 CF cache hold 사고 재발 방지: Cache-Control 헤더 필수.
+  // 5/14 박제 — verified bot 차단 사고 재발 방지: Googlebot 등 whitelist 통과 보장.
+  const country = request.headers.get("cf-ipcountry");
+  if (country && country !== "KR" && !isVerifiedBot(ua)) {
+    return new NextResponse(null, {
+      status: 503,
+      headers: {
+        "Cache-Control": "private, no-store, max-age=0",
+        "X-Robots-Tag": "noindex, nofollow",
+        "Retry-After": "3600",
       },
     });
   }
