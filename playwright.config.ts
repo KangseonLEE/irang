@@ -25,9 +25,15 @@ export default defineConfig({
     : [["list"], ["html", { open: "never" }]],
   use: {
     baseURL,
-    trace: "on-first-retry",
-    screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    // 5/17 보안 사고 fix 완성 (5/19): trace / screenshot / video 모두 영구 off.
+    // 이전 'on-first-retry' / 'only-on-failure' 설정은 retry·failure 시 secret 헤더
+    // (x-irang-e2e-secret)가 trace.zip + 스크린샷 메타에 평문 포함되어 GitHub
+    // public artifact로 노출 → CF Order 2 24h 9.89k 봇 우회 사고.
+    // 925725d는 workflow의 upload-artifact step만 제거했고 config layer는 잔존.
+    // debug 필요 시 로컬에서 PLAYWRIGHT_TRACE=on npx playwright test로 일시 활성화.
+    trace: "off",
+    screenshot: "off",
+    video: "off",
     // 봇 차단 회피 — Cloudflare/middleware UA 차단 패턴 회피
     // CF Custom Rule "Allow irang E2E tests"가 토큰 "irang-e2e/1.0" + secret header
     // 동시 매칭으로 Skip 처리. 5/16 발견: UA 단독 검증 시 봇 위장으로 82.82k 우회.
