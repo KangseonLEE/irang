@@ -11,8 +11,8 @@
 
 .green {
   composes: badge;
-  color: #059669;
-  background: color-mix(in srgb, #059669 12%, transparent);
+  color: var(--success, #059669);
+  background: color-mix(in srgb, var(--success, #059669) 12%, transparent);
 }
 
 .amber {
