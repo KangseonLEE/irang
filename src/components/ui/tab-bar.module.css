@@ -14,7 +14,9 @@
   scrollbar-width: none;
 }
 
-.tabsWrap::-webkit-scrollbar { display: none; }
+.tabsWrap::-webkit-scrollbar {
+  display: none;
+}
 
 .tab,
 .tabActive {
