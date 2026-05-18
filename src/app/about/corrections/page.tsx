@@ -9,6 +9,36 @@ import {
 } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "../disclaimer/page.module.css";
+import c from "./page.module.css";
+
+/** 모바일 페이지네이션 단위 — 데스크탑은 모든 entry 한 번에 노출 */
+const PER_PAGE_MOBILE = 10;
+
+type PeriodFilter = "week" | "month" | "all";
+
+const PERIOD_OPTIONS: { value: PeriodFilter; label: string; days: number | null }[] = [
+  { value: "all", label: "전체", days: null },
+  { value: "month", label: "최근 1달", days: 30 },
+  { value: "week", label: "최근 1주", days: 7 },
+];
+
+function isWithinDays(dateStr: string, days: number, today: Date): boolean {
+  const d = new Date(`${dateStr}T00:00:00+09:00`);
+  const cutoff = new Date(today.getTime() - days * 86400000);
+  return d.getTime() >= cutoff.getTime();
+}
+
+function buildHref(overrides: { period?: PeriodFilter; page?: number }): string {
+  const params = new URLSearchParams();
+  if (overrides.period && overrides.period !== "all") {
+    params.set("period", overrides.period);
+  }
+  if (overrides.page && overrides.page > 1) {
+    params.set("page", String(overrides.page));
+  }
+  const q = params.toString();
+  return `/about/corrections${q ? `?${q}` : ""}`;
+}
 
 export const metadata: Metadata = {
   title: "데이터 정정 이력 | 이랑",
@@ -230,7 +260,29 @@ const CORRECTIONS: CorrectionEntry[] = [
   },
 ];
 
-export default function CorrectionsPage() {
+interface Props {
+  searchParams: Promise<{ period?: string; page?: string }>;
+}
+
+export default async function CorrectionsPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const period: PeriodFilter =
+    params.period === "week" || params.period === "month"
+      ? params.period
+      : "all";
+
+  const today = new Date();
+  const filtered =
+    period === "all"
+      ? CORRECTIONS
+      : CORRECTIONS.filter((e) =>
+          isWithinDays(e.date, period === "week" ? 7 : 30, today),
+        );
+
+  const totalMobilePages = Math.max(1, Math.ceil(filtered.length / PER_PAGE_MOBILE));
+  const requestedPage = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
+  const mobilePage = Math.min(requestedPage, totalMobilePages);
+
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[
@@ -259,16 +311,66 @@ export default function CorrectionsPage() {
           <Calendar size={18} />
           <h2 className={s.sectionTitle}>최근 정정 내역</h2>
         </div>
-        <div className={s.sourceList}>
-          {CORRECTIONS.map((entry) => (
-            <div key={`${entry.date}-${entry.field}`} className={s.sourceItem}>
-              <span className={s.sourceName}>
-                {entry.date} · {entry.field}
-              </span>
-              <span className={s.sourceNote}>{entry.description}</span>
-            </div>
+
+        <div className={c.filterRow} role="group" aria-label="기간 필터">
+          {PERIOD_OPTIONS.map((opt) => (
+            <Link
+              key={opt.value}
+              href={buildHref({ period: opt.value, page: 1 })}
+              className={`${c.filterChip} ${period === opt.value ? c.filterChipActive : ""}`}
+              aria-current={period === opt.value ? "page" : undefined}
+              scroll={false}
+            >
+              {opt.label}
+            </Link>
           ))}
         </div>
+
+        <div className={s.sourceList}>
+          {filtered.length === 0 && (
+            <div className={c.empty}>해당 기간에 정정 내역이 없어요</div>
+          )}
+          {filtered.map((entry, i) => {
+            const entryMobilePage = Math.ceil((i + 1) / PER_PAGE_MOBILE);
+            const isCurrentMobilePage = entryMobilePage === mobilePage;
+            return (
+              <div
+                key={`${entry.date}-${entry.field}`}
+                className={`${s.sourceItem} ${c.entry}`}
+                data-mobile-current={isCurrentMobilePage || undefined}
+              >
+                <span className={s.sourceName}>
+                  {entry.date} · {entry.field}
+                </span>
+                <span className={s.sourceNote}>{entry.description}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {totalMobilePages > 1 && (
+          <nav className={c.pagination} aria-label="모바일 페이지 이동">
+            <Link
+              href={buildHref({ period, page: Math.max(1, mobilePage - 1) })}
+              className={`${c.pageBtn} ${mobilePage === 1 ? c.pageBtnDisabled : ""}`}
+              aria-disabled={mobilePage === 1}
+              scroll={false}
+            >
+              이전
+            </Link>
+            <span className={c.pageInfo}>
+              {mobilePage} / {totalMobilePages}
+            </span>
+            <Link
+              href={buildHref({ period, page: Math.min(totalMobilePages, mobilePage + 1) })}
+              className={`${c.pageBtn} ${mobilePage === totalMobilePages ? c.pageBtnDisabled : ""}`}
+              aria-disabled={mobilePage === totalMobilePages}
+              scroll={false}
+            >
+              다음
+            </Link>
+          </nav>
+        )}
       </section>
 
       <section className={s.section}>
