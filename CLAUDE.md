@@ -505,6 +505,7 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
 |------|---------|------|
 | `npm run check-links` | `scripts/check-links.sh` | 전체 외부 URL 유효성 검사 (HTTP 상태코드 + 타이틀) |
 | `npm run check-policy` | `scripts/check-policy-sources.ts` | 지원사업 출처 URL 검증 (스냅샷 비교 모드 포함) |
+| `npm run check-integrity` | `scripts/check-regions-stations-integrity.ts` | regions ↔ stations 양방향 sync (CI 자동, 5/12 세종/울산 누락 사고 재발 방지) |
 | — | `scripts/generate-province-maps.ts` | 시도별 SVG 지도 데이터 생성 |
 
 ---

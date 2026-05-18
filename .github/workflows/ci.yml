@@ -50,6 +50,11 @@ jobs:
       - name: TypeScript type-check
         run: npx tsc --noEmit
 
+      - name: "데이터 무결성 — regions ↔ stations 양방향 sync"
+        # 5/12 세종/울산 누락 재발 방지. province.representativeStationId 가
+        # STATIONS 에 없으면 buildRegionItem null → 모든 view 에서 region 삭제.
+        run: npx tsx scripts/check-regions-stations-integrity.ts
+
       - name: Next.js build
         run: npm run build
         env:
