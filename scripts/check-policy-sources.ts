@@ -80,13 +80,18 @@ function extractProgramMeta(): SourceInfo[] {
   return results;
 }
 
-/* ── URL 접근성 확인 ── */
+/* ── URL 접근성 확인 (timeout 25s + retry 1회) ── */
 async function checkUrl(
   url: string,
+  attempt = 1,
 ): Promise<{ ok: boolean; status: number; redirected: boolean; finalUrl: string; contentLength: number }> {
+  const MAX_ATTEMPTS = 2;
+  const TIMEOUT_MS = 25_000;
+  const RETRY_DELAY_MS = 2_000;
+
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15_000);
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     const res = await fetch(url, {
       method: "GET",
@@ -111,6 +116,10 @@ async function checkUrl(
       contentLength: text.length,
     };
   } catch {
+    if (attempt < MAX_ATTEMPTS) {
+      await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+      return checkUrl(url, attempt + 1);
+    }
     return {
       ok: false,
       status: 0,
