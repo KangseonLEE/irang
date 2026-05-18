@@ -79,7 +79,7 @@
   }
 }
 
-/* ── 로딩 스켈레톤 ── */
+/* ── 로딩 스켈레톤 — globals.css 의 irang-pulse 사용 ── */
 .skeleton {
   display: inline-flex;
   align-items: center;
@@ -87,12 +87,7 @@
   font-size: var(--fs-body-sm);
   font-weight: 500;
   color: var(--muted-foreground, #6b7280);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.4; }
+  animation: irang-pulse 1.5s ease-in-out infinite;
 }
 
 /* ── 데스크탑 스케일업 ── */

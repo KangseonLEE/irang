@@ -102,16 +102,11 @@
   gap: 12px;
 }
 
-/* ── Skeleton 애니메이션 ── */
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
+/* ── Skeleton 애니메이션 — globals.css 의 irang-pulse 사용 ── */
 .skeleton {
   background: var(--muted, #f3f4f6);
   border-radius: 6px;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: irang-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .skeletonAvatar {

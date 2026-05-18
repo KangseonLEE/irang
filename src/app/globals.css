@@ -308,6 +308,21 @@ ul, ol {
   50% { transform: translateX(4px); }
 }
 
+/* ── Skeleton Pulse Animation (공용) ──
+   loading.tsx · Suspense fallback · Skeleton 컴포넌트가 공유.
+   네임스페이스 prefix(irang-)로 다른 keyframes pulse(scale 변형)와 분리.
+   ────────────────────────────────────────────────────────────── */
+@keyframes irang-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.irang-skeleton {
+  background: var(--muted, #f9fafb);
+  border-radius: 6px;
+  animation: irang-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 /* ── Print ── */
 @media print {
   header, footer, nav { display: none !important; }

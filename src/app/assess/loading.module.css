@@ -24,17 +24,12 @@
   font-size: 0.875rem;
 }
 
-/* Skeleton Animation */
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
+/* Skeleton Animation — globals.css 의 irang-pulse 사용 */
 .spinner {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
   background: var(--muted, #f9fafb);
-  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: irang-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   margin-bottom: 1.5rem;
 }

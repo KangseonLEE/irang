@@ -41,7 +41,7 @@
   background: var(--card, #fff);
   padding: 20px 24px;
   min-height: 80px;
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: irang-pulse 1.5s ease-in-out infinite;
 }
 
 /* ---- 기후 비교 데스크탑 2단 grid (2026-05-11 회장 요청) ---- */
@@ -158,7 +158,7 @@
   border-radius: 12px;
   background: var(--card, #fff);
   min-height: 280px;
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: irang-pulse 1.5s ease-in-out infinite;
 }
 
 @media (min-width: 640px) {
@@ -170,7 +170,7 @@
   border-radius: 12px;
   background: var(--card, #fff);
   min-height: 320px;
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: irang-pulse 1.5s ease-in-out infinite;
 }
 
 .skeletonTable {
@@ -178,12 +178,7 @@
   border-radius: 12px;
   background: var(--card, #fff);
   min-height: 400px;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  animation: irang-pulse 1.5s ease-in-out infinite;
 }
 
 /* ---- 요약 카드 그리드 (선택 수에 따라 자동 조절) ---- */

@@ -40,12 +40,7 @@
   background: var(--card, #fff);
   padding: 20px 24px;
   min-height: 80px;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  animation: irang-pulse 1.5s ease-in-out infinite;
 }
 
 /* ---- 요약 카드 그리드 (선택 수에 따라 자동 조절) ---- */

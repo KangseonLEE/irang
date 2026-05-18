@@ -96,16 +96,11 @@
   justify-content: space-between;
 }
 
-/* Skeleton Animation */
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
+/* Skeleton Animation — globals.css 의 irang-pulse 사용 */
 .skeleton {
   background: var(--muted, #f9fafb);
   border-radius: 6px;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: irang-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .skeletonIcon {
