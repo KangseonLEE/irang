@@ -49,6 +49,11 @@
   border-radius: 4px;
 }
 
+/* 본문 텍스트 내 인라인 링크 변형 (terms 페이지 등) */
+.inlineLink {
+  display: inline;
+}
+
 /* ── 헤더 ── */
 .header {
   display: flex;

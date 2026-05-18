@@ -23,7 +23,6 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { SIGUNGUS } from "../src/lib/data/sigungus";
-import { POPULATION_FALLBACK } from "../src/lib/data/population";
 import {
   POPULATION_TREND_SIGUNGU,
   POPULATION_TREND_SIDO,
@@ -32,10 +31,7 @@ import {
   FARM_FALLBACK_SIGUNGU,
   FARM_FALLBACK_SIDO,
 } from "../src/lib/data/farms";
-import {
-  INTEGRATED_CITY_GU_CODES,
-  INTEGRATED_CITY_NAMES,
-} from "../src/lib/data/integrated-cities";
+import { INTEGRATED_CITY_GU_CODES } from "../src/lib/data/integrated-cities";
 import { PROVINCES } from "../src/lib/data/regions";
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -166,9 +162,6 @@ const farmSigunguIndex = new Map(
   FARM_FALLBACK_SIGUNGU.map((f) => [f.sgisCode, f]),
 );
 const farmSidoIndex = new Map(FARM_FALLBACK_SIDO.map((f) => [f.sgisCode, f]));
-const populationFallbackIndex = new Map(
-  POPULATION_FALLBACK.map((p) => [p.sgisCode, p]),
-);
 const provinceIndex = new Map(PROVINCES.map((p) => [p.sgisCode, p]));
 
 // ────────────────────────────────────────────────────────────────────────────

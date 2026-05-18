@@ -101,8 +101,7 @@ export default function TrackComparePage() {
                     href={t.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={s.sourceLink}
-                    style={{ margin: 0 }}
+                    className={`${s.sourceLink} ${s.sourceLinkInline}`}
                   >
                     바로가기
                     <ExternalLink size={12} strokeWidth={2} />

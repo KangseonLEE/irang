@@ -56,12 +56,6 @@ const since7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
 const since30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 const since14d = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
 
-interface SearchLogRow {
-  query: string;
-  result_count: number;
-  created_at: string;
-}
-
 /**
  * silent fail 3분류 진단 (5/14 박제 feedback_supabase_table_silent_fail.md 직역)
  *   (a) 테이블 미존재 → error.message 에 "does not exist" / "relation" 포함
@@ -95,16 +89,6 @@ function diagnoseSilentFail(
     return "empty";
   }
   return "ok";
-}
-
-async function fetchCount(filter: (q: ReturnType<typeof sb.from>) => unknown, label: string): Promise<number | null> {
-  const baseQuery = sb.from("search_logs").select("*", { count: "exact", head: true });
-  const result = await (filter(baseQuery as unknown as ReturnType<typeof sb.from>) as Promise<{
-    count: number | null;
-    error: { message: string } | null;
-  }>);
-  diagnoseSilentFail(label, result.error, result.count);
-  return result.count;
 }
 
 async function main() {

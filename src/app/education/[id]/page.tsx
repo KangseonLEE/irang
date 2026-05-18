@@ -216,7 +216,7 @@ export default async function EducationDetailPage({
 
           {/* 안내 */}
           <div className={s.card}>
-            <div className={s.cardContent} style={{ paddingTop: "24px" }}>
+            <div className={`${s.cardContent} ${s.cardContentSpacedTop}`}>
               <p className={s.missingInfoNotice}>
                 교육 과정에 대한 커리큘럼 등 상세 정보는 원문 페이지에서 확인해 주세요.
               </p>

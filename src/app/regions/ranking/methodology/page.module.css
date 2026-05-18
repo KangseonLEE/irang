@@ -47,6 +47,14 @@
   font-weight: 700;
 }
 
+.principleTextSpacedBelow {
+  margin-bottom: 12px;
+}
+
+.principleTextSpacedAbove {
+  margin-top: 12px;
+}
+
 .principleList {
   margin: 0;
   padding-left: 20px;

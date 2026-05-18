@@ -145,7 +145,7 @@ export default function PopulationBars({ data }: PopulationBarsProps) {
   // 메트릭별 데이터 추출 — null 제외
   const populationData = validData
     .filter((d) => d.population !== null)
-    .map((d, i) => ({
+    .map((d) => ({
       name: d.provinceName,
       value: d.population as number,
       color: COLORS[validData.findIndex((v) => v.provinceName === d.provinceName) % COLORS.length],

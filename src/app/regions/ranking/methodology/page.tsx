@@ -175,7 +175,7 @@ export default function MethodologyPage() {
       {/* 페르소나 가중치 */}
       <section aria-label="귀농 스타일 가중치">
         <h2 className={s.sectionTitle}>맞춤 점수 계산 방식</h2>
-        <p className={s.principleText} style={{ marginBottom: "12px" }}>
+        <p className={`${s.principleText} ${s.principleTextSpacedBelow}`}>
           ‘귀농 스타일 맞춤’ 모드는 사람마다 중요하게 보는 차원이 다르다는 점을
           반영해요. 5가지 차원에 스타일별로 다른 가중치를 곱해서 종합 점수를
           만들어요. 가중치 합은 100이에요.
@@ -289,7 +289,7 @@ export default function MethodologyPage() {
           <strong> 카테고리·난이도·연령 요건</strong>으로 1~5점을 자동 계산하고,
           예외는 명시 보정으로 잡아요. 점수 4 이상만 추천에 노출돼요.
         </p>
-        <p className={s.principleText} style={{ marginTop: "12px" }}>
+        <p className={`${s.principleText} ${s.principleTextSpacedAbove}`}>
           추천 카드의 <strong>‘왜 추천?’</strong>을 누르면 점수 산정에 쓰인 이유를
           그 자리에서 바로 보여드려요. 카테고리·난이도·연령 같은 기본 요인과,
           개별 작물·사업에 부여된 보정 사유까지 사용자에게 모두 공개해요.

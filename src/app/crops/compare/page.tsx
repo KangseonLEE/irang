@@ -8,7 +8,6 @@ import {
   Lightbulb,
   Gauge,
   Calendar,
-  MapPin,
   Wallet,
   Clock,
   Activity,
@@ -60,13 +59,6 @@ interface PageProps {
 }
 
 type CropWithDetail = CropInfo & { detail: CropDetailInfo };
-
-// 난이도 색상
-const DIFFICULTY_CLASS: Record<string, string> = {
-  쉬움: s.difficultyEasy,
-  보통: s.difficultyMedium,
-  어려움: s.difficultyHard,
-};
 
 // 카테고리 라벨 (약칭)
 const CAT_LABEL: Record<ProsConsCategory, string> = {

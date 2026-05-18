@@ -79,7 +79,7 @@ export default function TermsPage() {
           <p>
             데이터는 주기적으로 갱신하지만, 원본 데이터 변경과 이랑 반영 사이에
             시차가 있을 수 있어요. 데이터 오류를 발견하시면{" "}
-            <Link href="/about/corrections" className={s.backLink} style={{ display: "inline" }}>
+            <Link href="/about/corrections" className={`${s.backLink} ${s.inlineLink}`}>
               정정 요청
             </Link>
             을 보내주세요.
@@ -119,11 +119,11 @@ export default function TermsPage() {
               <span className={s.sourceName}>정정·삭제 요청</span>
               <span>
                 본인 정보가 잘못 표시됐거나 게재 중단을 원하시면{" "}
-                <a href="mailto:loyal3270@gmail.com" className={s.backLink} style={{ display: "inline" }}>
+                <a href="mailto:loyal3270@gmail.com" className={`${s.backLink} ${s.inlineLink}`}>
                   loyal3270@gmail.com
                 </a>{" "}
                 또는{" "}
-                <Link href="/about/corrections" className={s.backLink} style={{ display: "inline" }}>
+                <Link href="/about/corrections" className={`${s.backLink} ${s.inlineLink}`}>
                   정정 요청 폼
                 </Link>
                 으로 연락해 주세요. 영업일 3일 안에 처리해 드려요.

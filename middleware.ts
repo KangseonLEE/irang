@@ -157,7 +157,7 @@ export async function middleware(request: NextRequest) {
     : pathname;
   if (NORMALIZE_PATHS.has(normalizedPath)) {
     const options = LIST_PAGE_NORMALIZE_OPTIONS[normalizedPath];
-    const { cleaned, changed } = normalizeSearchParams(
+    const { cleaned } = normalizeSearchParams(
       request.nextUrl.searchParams,
       options,
     );

@@ -28,7 +28,6 @@ import { ReferenceNotice } from "@/components/ui/reference-notice";
 import type { RegionItem } from "./region-item";
 import s from "./suitability-view.module.css";
 import metric from "./climate-view.module.css";
-import shared from "./page.module.css";
 
 interface Props {
   regions: RegionItem[];

@@ -22,7 +22,7 @@ import {
   HelpCircle,
   ChevronDown,
 } from "lucide-react";
-import { formatDate, formatApplicationPeriod } from "@/lib/format";
+import { formatApplicationPeriod } from "@/lib/format";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";

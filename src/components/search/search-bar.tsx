@@ -238,7 +238,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     if (navStartPathRef.current === null) return;
     if (pathname !== navStartPathRef.current) {
       // pathname 변경에 반응하여 오버레이 상태를 외부(URL)와 동기화
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       handleClose();
       navStartPathRef.current = null;
     }
@@ -306,7 +305,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 
   // 마운트 시 최근 검색어 로드
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRecentSearches(loadRecent());
   }, []);
 
@@ -321,7 +319,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     tryFocus();
     const t1 = setTimeout(tryFocus, 100);
     const t2 = setTimeout(tryFocus, 300);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(true);
     return () => { mounted = false; clearTimeout(t1); clearTimeout(t2); };
   }, [autoFocus]);
@@ -411,7 +408,6 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 
   // Reset focusedIndex when results change
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFocusedIndex(-1);
   }, [allItems.length]);
 

@@ -104,6 +104,10 @@
   text-decoration: none;
 }
 
+.sourceLinkInline {
+  margin: 0;
+}
+
 @media (hover: hover) {
   .sourceLink:hover {
     color: var(--primary, #1b6b5a);
