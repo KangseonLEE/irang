@@ -453,7 +453,7 @@ export default function GuidePage() {
       <section className={s.ctaSection}>
         <h2 className={s.ctaTitle}>나에게 맞는 귀농 전략을 찾아보세요</h2>
         <p className={s.ctaDesc}>
-          간단한 질문에 답하면, 상황에 맞는 지역과 작물을 추천해 드립니다.
+          간단한 질문에 답하면, 상황에 맞는 지역과 작물을 추천해 드려요.
         </p>
         <div className={s.ctaButtons}>
           <Link href="/match" className={s.ctaPrimary}>

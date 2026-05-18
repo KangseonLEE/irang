@@ -67,7 +67,7 @@ export default async function ProgramRoadmapPage({ searchParams }: PageProps) {
       <section className={s.ctaSection}>
         <h2 className={s.ctaTitle}>나에게 맞는 사업을 찾아보세요</h2>
         <p className={s.ctaDesc}>
-          <AutoGlossary text="이랑이 제공하는 지원사업 검색과 맞춤 추천으로 나에게 딱 맞는 사업을 빠르게 찾을 수 있습니다." />
+          <AutoGlossary text="지원사업 검색과 맞춤 추천으로 나에게 딱 맞는 사업을 빠르게 찾아보세요." />
         </p>
         <div className={s.ctaButtons}>
           <Link href="/programs" className={s.ctaPrimary}>

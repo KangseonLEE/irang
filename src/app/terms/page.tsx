@@ -51,7 +51,7 @@ export default function TermsPage() {
         </div>
         <div className={s.sectionBody}>
           <p>
-            이랑이 제공하는 모든 정보는 공공데이터 및 제3자 출처를 가공한
+            이랑에서 보여드리는 모든 정보는 공공데이터 및 제3자 출처를 가공한
             <strong> 참고 자료</strong>예요.
           </p>
           <div className={s.highlight}>

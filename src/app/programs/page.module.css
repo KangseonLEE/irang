@@ -213,7 +213,8 @@
   gap: 6px;
   padding: 10px 20px;
   border: none;
-  border-radius: 10px;
+  /* button.module.css base 14px 표준 통일 (Phase A audit hotfix, 2026-05-18) */
+  border-radius: 14px;
   font: inherit;
   font-size: var(--fs-body-sm);
   font-weight: 600;
