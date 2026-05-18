@@ -79,9 +79,27 @@
   --primary-light: #4A9B7F;
   --primary-dark: #0F2E26;
 
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  --shadow-lg: 0 8px 24px rgba(27,107,90,0.12);
+  /* ── Surface (다크 섹션·라이트 그린 배경) ──
+     Phase A audit ux 권고 5 — 랜딩 다크 섹션 등 하드코딩 색상 토큰화 */
+  --surface-dark:      #1A3F35;   /* 다크 섹션 배경 (인터뷰 등) */
+  --primary-on-dark:   #8FCFB5;   /* 다크 배경 위 primary 텍스트·링크 */
+  --surface-green-50:  #EDF5F3;   /* 라이트 그린 배경 섹션 */
+
+  /* ── Shadow (Phase A audit 5/18 활성화, ux 권고 3) ──
+     기존 dead token → primary tint 기반 표준 shadow로 재정의.
+     카드 base는 shadow 없음. hover/active 시 sm·md, modal·overlay 시 lg. */
+  --shadow-sm: 0 2px 8px color-mix(in srgb, var(--primary) 8%, transparent);
+  --shadow-md: 0 4px 16px color-mix(in srgb, var(--primary) 10%, transparent);
+  --shadow-lg: 0 8px 32px color-mix(in srgb, var(--primary) 12%, transparent);
+
+  /* ── Primary Tint 4단계 (Phase A audit ux 권고 1) ──
+     color-mix 비율 20+종 혼용 → 4단계로 표준화.
+     subtle = 배경 구분 / soft = 아이콘 배경·pill 비활성 /
+     medium = border·hover / strong = focus ring·강한 구분 */
+  --primary-tint-subtle: color-mix(in srgb, var(--primary)  6%, transparent);
+  --primary-tint-soft:   color-mix(in srgb, var(--primary) 12%, transparent);
+  --primary-tint-medium: color-mix(in srgb, var(--primary) 25%, transparent);
+  --primary-tint-strong: color-mix(in srgb, var(--primary) 40%, transparent);
 
   /* ── Border-Radius Scale ──
      카드·배지·섹션 등 전역 모서리 반경 통일 */
@@ -134,14 +152,15 @@
      Mobile-first. Overridden at 768px and 1024px.
      Benchmark: 토스(15/20) · 당근(15/22) · 카카오(15/20) · 네이버 · 배민
      iPhone 13 mini(375px) 기준 최적화 */
-  --fs-h2:       24px;
-  --fs-h3:       20px;
-  --fs-h4:       18px;
-  --fs-body-lg:  17px;
-  --fs-body:     16px;
-  --fs-body-sm:  15px;
-  --fs-caption:  13px;
-  --fs-overline: 11px;
+  --fs-h2:         24px;
+  --fs-h3:         20px;
+  --fs-h4:         18px;
+  --fs-body-lg:    17px;
+  --fs-body:       16px;
+  --fs-body-sm:    15px;
+  --fs-caption:    13px;
+  --fs-caption-sm: 12px;   /* Phase A audit ux 권고 4 — 12px 직접 사용 10+파일 대응 */
+  --fs-overline:   11px;
 
   --lh-tight:    1.2;
   --lh-snug:     1.4;

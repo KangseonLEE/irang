@@ -70,3 +70,74 @@
   composes: subtle;
   width: 100%;
 }
+
+/* ── Phase A audit C2 — variant 확장 (ux 권고 2) ─────────────────────────── */
+
+/* Ghost — 외선·배경 없음, 텍스트 + hover 시 subtle 배경 */
+.ghost {
+  composes: base;
+  padding: 12px 18px;
+  color: var(--foreground);
+  background: transparent;
+}
+
+@media (hover: hover) {
+  .ghost:hover {
+    background: var(--primary-tint-subtle);
+  }
+}
+
+/* Outline — 외선 + 투명 배경 */
+.outline {
+  composes: base;
+  padding: 12px 20px;
+  color: var(--primary, #1b6b5a);
+  background: transparent;
+  border: 1px solid var(--primary-tint-medium);
+}
+
+@media (hover: hover) {
+  .outline:hover {
+    background: var(--primary-tint-subtle);
+    border-color: var(--primary-tint-strong);
+  }
+}
+
+/* Pill — primary CTA의 둥근 pill 변형 (랜딩·hero CTA) */
+.pill {
+  composes: primary;
+  border-radius: var(--radius-full, 100px);
+  padding: 14px 28px;
+}
+
+/* Danger — destructive 작업 (피드백 삭제 등) */
+.danger {
+  composes: base;
+  padding: 12px 20px;
+  color: #fff;
+  background: #DC2626;
+}
+
+@media (hover: hover) {
+  .danger:hover {
+    opacity: 0.92;
+  }
+}
+
+/* ── 사이즈 modifier (compose 와 함께 사용) ───────────────────────────────── */
+
+.sizeSm {
+  padding: 8px 16px;
+  font-size: var(--fs-body-sm, 15px);
+  border-radius: 12px;
+}
+
+.sizeLg {
+  padding: 16px 28px;
+  font-size: var(--fs-body-lg, 17px);
+}
+
+/* 사용 예:
+   <button className={`${s.primary} ${s.sizeSm}`}>...</button>
+   <button className={`${s.outline} ${s.sizeLg}`}>...</button>
+*/
