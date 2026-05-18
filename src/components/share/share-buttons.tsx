@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Link2, Check, Download } from "lucide-react";
 import { analytics } from "@/lib/analytics";
+import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import s from "./share-buttons.module.css";
 
 interface ShareButtonsProps {
@@ -61,8 +62,10 @@ function loadKakaoSdk(): Promise<void> {
 }
 
 export function ShareButtons({ resultId, farmTypeLabel }: ShareButtonsProps) {
-  const [copied, setCopied] = useState(false);
   const [kakaoReady, setKakaoReady] = useState(false);
+  const { copied, copy } = useCopyToClipboard({
+    onCopy: () => analytics.share("assess_result", "link"),
+  });
 
   useEffect(() => {
     loadKakaoSdk()
@@ -74,23 +77,9 @@ export function ShareButtons({ resultId, farmTypeLabel }: ShareButtonsProps) {
     ? `${window.location.origin}/r/${resultId}`
     : "";
 
-  const handleCopyLink = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-    } catch {
-      const ta = document.createElement("textarea");
-      ta.value = shareUrl;
-      ta.style.position = "fixed";
-      ta.style.left = "-9999px";
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    analytics.share("assess_result", "link");
-  }, [shareUrl]);
+  const handleCopyLink = useCallback(() => {
+    void copy(shareUrl);
+  }, [shareUrl, copy]);
 
   const handleKakaoShare = useCallback(() => {
     if (!window.Kakao?.isInitialized()) return;

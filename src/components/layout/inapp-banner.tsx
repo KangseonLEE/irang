@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ExternalLink, X, Copy, Check } from "lucide-react";
+import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import s from "./inapp-banner.module.css";
 
 interface InAppInfo {
@@ -25,7 +26,7 @@ const DISMISSED_KEY = "inapp-banner-dismissed";
 export function InAppBanner() {
   const [info, setInfo] = useState<InAppInfo>({ isInApp: false, appName: null });
   const [dismissed, setDismissed] = useState(true);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyToClipboard();
 
   useEffect(() => {
     const detected = detectInAppBrowser();
@@ -69,21 +70,7 @@ export function InAppBanner() {
   };
 
   const handleCopyUrl = async (url?: string) => {
-    try {
-      await navigator.clipboard.writeText(url ?? location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // clipboard API 미지원 시 fallback
-      const input = document.createElement("input");
-      input.value = url ?? location.href;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand("copy");
-      document.body.removeChild(input);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+    await copy(url ?? location.href);
   };
 
   const isKakao = /KAKAOTALK/i.test(navigator.userAgent);

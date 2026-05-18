@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { Share2, Check, Link2 } from "lucide-react";
 import { analytics } from "@/lib/analytics";
+import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import s from "./share-button.module.css";
 
 interface ShareButtonProps {
@@ -31,7 +32,7 @@ export function ShareButton({
   size = "md",
   showLabel = true,
 }: ShareButtonProps) {
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyToClipboard();
 
   const handleShare = useCallback(async () => {
     const shareUrl = url ?? window.location.href;
@@ -48,15 +49,9 @@ export function ShareButton({
     }
 
     // 2) 클립보드 폴백 (데스크톱)
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      analytics.share(contentType, "clipboard");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* noop */
-    }
-  }, [title, text, url, contentType]);
+    const ok = await copy(shareUrl);
+    if (ok) analytics.share(contentType, "clipboard");
+  }, [title, text, url, contentType, copy]);
 
   const className = [
     s.btn,
@@ -76,16 +71,11 @@ export function ShareButton({
 
 /** URL 복사 전용 버튼 (간소화 버전) */
 export function CopyLinkButton({ url }: { url?: string }) {
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyToClipboard();
 
-  const handleCopy = useCallback(async () => {
-    const copyUrl = url ?? window.location.href;
-    try {
-      await navigator.clipboard.writeText(copyUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch { /* noop */ }
-  }, [url]);
+  const handleCopy = useCallback(() => {
+    void copy(url ?? window.location.href);
+  }, [url, copy]);
 
   return (
     <button onClick={handleCopy} className={`${s.btn} ${s.variant_ghost} ${s.size_sm}`} type="button">

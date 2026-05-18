@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { Printer, Share2, Check } from "lucide-react";
 import { analytics } from "@/lib/analytics";
+import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import s from "./result-save-cta.module.css";
 
 interface ResultSaveCtaProps {
@@ -16,7 +17,9 @@ interface ResultSaveCtaProps {
  * 결과 화면 상단 — "인쇄" + "공유" 아이콘 버튼
  */
 export function ResultSaveCta({ printTitle, shareText }: ResultSaveCtaProps) {
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyToClipboard({
+    onCopy: () => analytics.share("assessment", "clipboard"),
+  });
 
   const handlePrint = useCallback(() => {
     if (printTitle) {
@@ -25,26 +28,9 @@ export function ResultSaveCta({ printTitle, shareText }: ResultSaveCtaProps) {
     window.print();
   }, [printTitle]);
 
-  const handleShare = useCallback(async () => {
-    const text = shareText || window.location.href;
-    try {
-      await navigator.clipboard.writeText(text);
-      analytics.share("assessment", "clipboard");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      textArea.style.position = "fixed";
-      textArea.style.left = "-9999px";
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  }, [shareText]);
+  const handleShare = useCallback(() => {
+    void copy(shareText || window.location.href);
+  }, [shareText, copy]);
 
   return (
     <div className={s.ctaGroup}>

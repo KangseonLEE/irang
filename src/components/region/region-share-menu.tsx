@@ -7,6 +7,7 @@ import {
   useBookmarks,
   type BookmarkType,
 } from "@/lib/hooks/use-bookmarks";
+import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import { analytics } from "@/lib/analytics";
 import s from "./region-share-menu.module.css";
 
@@ -122,9 +123,19 @@ export function RegionShareMenu({
 }: RegionShareMenuProps) {
   const [open, setOpen] = useState(false);
   const [kakaoReady, setKakaoReady] = useState(false);
-  const [copied, setCopied] = useState(false);
   const { isBookmarked, toggleBookmark, mounted } = useBookmarks();
   const active = mounted && isBookmarked(bookmark.id, bookmark.type);
+
+  // 시트 자동 닫기 타이밍(900ms)을 위해 hook timeout을 같은 값으로 설정
+  const close = useCallback(() => setOpen(false), []);
+  const { copied, copy } = useCopyToClipboard({
+    timeout: 900,
+    onCopy: () => {
+      analytics.share(contentType, "clipboard");
+      // 짧은 안내 후 시트 닫기
+      setTimeout(() => close(), 900);
+    },
+  });
 
   // 시트가 처음 열릴 때만 SDK 로드 (불필요한 초기 로드 회피).
   useEffect(() => {
@@ -135,8 +146,6 @@ export function RegionShareMenu({
         /* SDK 로드 실패 시 카카오 항목 disabled */
       });
   }, [open, kakaoReady]);
-
-  const close = useCallback(() => setOpen(false), []);
 
   const handleKakao = useCallback(() => {
     if (!window.Kakao?.isInitialized()) return;
@@ -174,18 +183,9 @@ export function RegionShareMenu({
     }
 
     // 폴백 — 클립보드 복사 (시트는 짧게 유지해 사용자에게 결과 인지 시간 부여)
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      analytics.share(contentType, "clipboard");
-      setTimeout(() => {
-        setCopied(false);
-        close();
-      }, 900);
-    } catch {
-      close();
-    }
-  }, [shareTitle, shareDescription, pageUrl, contentType, close]);
+    const ok = await copy(url);
+    if (!ok) close();
+  }, [shareTitle, shareDescription, pageUrl, contentType, copy, close]);
 
   const handleBookmark = useCallback(() => {
     toggleBookmark(bookmark);
