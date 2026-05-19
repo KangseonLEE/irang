@@ -181,6 +181,83 @@
   color: var(--muted-foreground, #6b7280);
 }
 
+/* ── 캐러셀 래퍼 (gradient fade + nav 버튼 anchor) ── */
+.carouselWrapper {
+  position: relative;
+}
+
+/* 좌/우 스크롤 가능 시그널 — 그라데이션 페이드 */
+.carouselWrapper::before,
+.carouselWrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 36px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 1;
+}
+
+.carouselWrapper::before {
+  left: 0;
+  background: linear-gradient(to right, var(--background, #fff) 0%, transparent 100%);
+}
+
+.carouselWrapper::after {
+  right: 0;
+  background: linear-gradient(to left, var(--background, #fff) 0%, transparent 100%);
+}
+
+.fadeLeft::before { opacity: 1; }
+.fadeRight::after { opacity: 1; }
+
+/* ── 화살표 버튼 (데스크탑·태블릿) ── */
+.navBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 100px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  color: var(--foreground, #111827);
+  cursor: pointer;
+  z-index: 2;
+  transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.navBtn:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.navPrev { left: -8px; }
+.navNext { right: -8px; }
+
+@media (min-width: 768px) {
+  .navBtn { display: inline-flex; }
+}
+
+@media (hover: hover) {
+  .navBtn:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.navBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
 /* ── 카드 캐러셀 (3단 고정) ── */
 .carousel {
   display: grid;
