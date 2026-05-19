@@ -32,6 +32,7 @@ import {
 } from "@/lib/data/match-questions";
 import { classifyFarmType } from "@/lib/match-scoring";
 import { analytics } from "@/lib/analytics";
+import { saveAssessmentResult, generateResultId } from "@/lib/assess-result";
 import { ResultSaveCta } from "@/components/result/result-save-cta";
 import { PersonaRecommendationSection } from "@/components/match/persona-recommendation-section";
 import s from "./assessment-wizard.module.css";
@@ -207,6 +208,45 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
     () => (phase === "result" ? classifyFarmType(trackAnswers, demoAnswers.ageGroup) : null),
     [phase, trackAnswers, demoAnswers.ageGroup],
   );
+
+  // ── Supabase 적재 (Sprint H D2 Fix-1, 2026-05-19) ──
+  // 14문항 정밀 wizard가 25일째 0건 black hole이었던 root cause = 이 호출 누락.
+  // match-wizard.tsx 패턴(source='full') 동일 적용. fire-and-forget — 실패해도 결과 화면 유지.
+  // 라이브 silent fail 방지: catch에서 console.warn으로 표면화 (5/14 supabase silent fail 박제 가드)
+  const savedRef = useRef(false);
+  useEffect(() => {
+    if (!result || !farmType || savedRef.current) return;
+    savedRef.current = true;
+
+    saveAssessmentResult({
+      id: generateResultId(),
+      answers: {
+        ...answers,
+        // 14문항 정밀 wizard 컨텍스트 — answers JSON에 보존
+        __assess_tier: result.tier.id,
+        __assess_total_score: result.totalScore,
+        __track_answers: trackAnswers,
+      },
+      farm_type_id: farmType.id,
+      top_regions: [],
+      top_crops: [],
+      recommended_programs: [],
+      referrer:
+        typeof document !== "undefined" && document.referrer
+          ? document.referrer
+          : null,
+      age_group: demoAnswers.ageGroup ?? null,
+      source: "full",
+    })
+      .then((res) => {
+        if (!res.success) {
+          console.warn("[assess] save failed:", res.error);
+        }
+      })
+      .catch((err) => {
+        console.warn("[assess] save exception:", err);
+      });
+  }, [result, farmType, answers, trackAnswers, demoAnswers.ageGroup]);
 
   /* ═══ 결과 화면 ═══ */
   if (phase === "result" && result) {
