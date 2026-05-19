@@ -336,6 +336,23 @@ export const DEMOGRAPHIC_QUESTIONS: DemographicQuestion[] = [
       { label: "선택하지 않음", value: "unspecified" },
     ],
   },
+  {
+    id: "winterPlan",
+    question:
+      "농사는 겨울에 할 일이 줄어드는 농한기가 있어요. 그 시간을 어떻게 활용하고 싶으세요?",
+    options: [
+      { label: "사실 겨울에 할 일이 없어진다는 게 걱정돼요", value: "concern" },
+      { label: "푹 쉬거나 개인 취미에 집중하고 싶어요", value: "rest" },
+      {
+        label: "겨울에도 시설재배나 작목 다각화로 수입을 유지하고 싶어요",
+        value: "diversify",
+      },
+      {
+        label: "농한기에 교육·멘토링·자격증 취득 등 역량을 쌓을 계획이에요",
+        value: "upskill",
+      },
+    ],
+  },
 ];
 
 /** 인구통계 기반 맞춤 지원 힌트 생성 */

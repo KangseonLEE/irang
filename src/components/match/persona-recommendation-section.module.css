@@ -102,22 +102,21 @@
   }
 }
 
-/* ── 페르소나 기반 추천 picks (작물 + 사업) ── */
+/* ── 페르소나 기반 추천 picks (작물 + 사업)
+   2026-05-19: 배경 침범 fix — 컨테이너 배경/border 제거, 각 블록을 흰 카드로 분리.
+   기존: 하나의 그린 배경이 작물 + 사업까지 모두 침범 → 회장 라이브 보고.
+   변경: 섹션 자체는 투명 + gap, 각 블록(.personaPicksBlock)이 카드 패턴 보유. */
 .personaPicksSection {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 18px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
-  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
-  border-radius: var(--radius-lg);
+  gap: 14px;
 }
 
 .personaPicksTitle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin: 0;
+  margin: 0 0 -4px;
   font-size: var(--fs-h5);
   font-weight: 700;
   color: var(--primary, #1b6b5a);
@@ -127,6 +126,10 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 16px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--radius-lg);
 }
 
 .personaPicksSubtitle {
