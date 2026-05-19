@@ -12,7 +12,7 @@
 #   3) Route irangfarm.com/* 등록
 #   4) GH Actions runner (US east) 에서 라이브 4종 시나리오 curl 검증
 #
-# Worker 정책 (cloudflare-workers/bot-detection/index.ts):
+# Worker 정책 (cloudflare-workers/bot-detection/index.js — TS는 CF API가 transpile 안 함):
 #   - AI 학습 봇 UA → 403 (cache HIT 무관)
 #   - HeadlessChrome/puppeteer/playwright UA → 403
 #   - cf-ipcountry !== KR + verified bot 아님 + e2e UA 아님 → 503
@@ -180,23 +180,22 @@ jobs:
       - name: Step 2 — Upload Worker script
         id: worker_upload
         run: |
-          # CF Workers API는 ESM module 형식이면 metadata.main_module 지정 필요.
-          # source 파일은 .js 또는 .ts 둘 다 가능 (CF가 esbuild로 transpile).
-          # 다만 안전을 위해 .ts를 .mjs로 inline transpile은 회피하고, content type을
-          # application/javascript+module 로 전송 후 main_module=index.ts 로 명시.
+          # CF Workers API는 .ts 자동 transpile X (5/19 D2 실 배포 함정 박제).
+          # interface/타입 어노테이션이 SyntaxError(10021) 유발.
+          # 따라서 순수 .js ESM 모듈 사용. 향후 esbuild 빌드 step은 별도 sprint.
 
           # metadata.json — multipart의 한 part로 전송
           cat > /tmp/metadata.json <<'EOF'
           {
-            "main_module": "index.ts",
+            "main_module": "index.js",
             "compatibility_date": "2026-05-19",
             "observability": { "enabled": true, "head_sampling_rate": 1.0 }
           }
           EOF
 
           if [ "$DRY_RUN" = "true" ]; then
-            echo "DRY_RUN: would PUT worker script (sizeof index.ts):"
-            wc -c cloudflare-workers/bot-detection/index.ts
+            echo "DRY_RUN: would PUT worker script (sizeof index.js):"
+            wc -c cloudflare-workers/bot-detection/index.js
             echo "metadata:"
             cat /tmp/metadata.json
           else
@@ -204,7 +203,7 @@ jobs:
               "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$WORKER_NAME" \
               -H "Authorization: Bearer $CF_API_TOKEN" \
               -F "metadata=@/tmp/metadata.json;type=application/json" \
-              -F "index.ts=@cloudflare-workers/bot-detection/index.ts;type=application/javascript+module")
+              -F "index.js=@cloudflare-workers/bot-detection/index.js;type=application/javascript+module")
 
             SUCCESS=$(echo "$UPLOAD_RESP" | jq -r '.success // false')
             if [ "$SUCCESS" != "true" ]; then
