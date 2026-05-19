@@ -185,8 +185,15 @@ export async function middleware(request: NextRequest) {
   //
   // 5/11 박제 — middleware 응답 CF cache hold 사고 재발 방지: Cache-Control 헤더 필수.
   // 5/14 박제 — verified bot 차단 사고 재발 방지: Googlebot 등 whitelist 통과 보장.
+  //
+  // 2026-05-19 추가 (Sprint B D2): E2E 테스트 UA whitelist.
+  // CF Order 2에서 GH Actions IP CIDR + irang-e2e/1.0 UA로 이중 검증 통과한 요청은
+  // middleware에서도 통과시켜야 e2e 실패 안 함. CF는 KR 외 GH Actions runner IP
+  // (대부분 미국 데이터센터)에서 호출되므로 cf-ipcountry !== KR에 걸려 503.
+  // CF가 이미 IP+UA 이중 검증으로 통과시킨 신호이므로 middleware도 동일 신뢰.
   const country = request.headers.get("cf-ipcountry");
-  if (country && country !== "KR" && !isVerifiedBot(ua)) {
+  const isE2eUa = ua.includes("irang-e2e/1.0");
+  if (country && country !== "KR" && !isVerifiedBot(ua) && !isE2eUa) {
     return new NextResponse(null, {
       status: 503,
       headers: {
