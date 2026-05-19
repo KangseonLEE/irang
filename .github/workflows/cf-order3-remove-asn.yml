@@ -167,30 +167,28 @@ jobs:
           fi
 
           # python으로 안전 처리 (sed 경계 함정 회피)
-          NEW_EXPRESSION=$(OLD="$OLD_EXPRESSION" ASN_RM="$ASN" python3 <<'PY'
-import os, re
-expr = os.environ["OLD"]
-asn = os.environ["ASN_RM"]
-
-# 집합 블록 찾기: `in {...}` 한 개 가정
-m = re.search(r"in\s*\{([^}]+)\}", expr)
-if not m:
-    raise SystemExit("::error::No `in {...}` block found in expression")
-
-inner = m.group(1)
-tokens = inner.split()
-if asn not in tokens:
-    raise SystemExit(f"::error::ASN {asn} not in tokens {tokens}")
-
-new_tokens = [t for t in tokens if t != asn]
-if not new_tokens:
-    raise SystemExit("::error::Removal would empty the set")
-
-new_inner = " ".join(new_tokens)
-new_expr = expr[:m.start()] + f"in {{{new_inner}}}" + expr[m.end():]
-print(new_expr)
-PY
-)
+          # heredoc indent 함정 회피 위해 외부 파일 작성 후 실행
+          cat > /tmp/remove_asn.py <<'PYEOF'
+          import os, re, sys
+          expr = os.environ["OLD"]
+          asn = os.environ["ASN_RM"]
+          m = re.search(r"in\s*\{([^}]+)\}", expr)
+          if not m:
+              sys.exit("::error::No `in {...}` block found in expression")
+          inner = m.group(1)
+          tokens = inner.split()
+          if asn not in tokens:
+              sys.exit(f"::error::ASN {asn} not in tokens {tokens}")
+          new_tokens = [t for t in tokens if t != asn]
+          if not new_tokens:
+              sys.exit("::error::Removal would empty the set")
+          new_inner = " ".join(new_tokens)
+          new_expr = expr[:m.start()] + f"in {{{new_inner}}}" + expr[m.end():]
+          print(new_expr)
+          PYEOF
+          # leading 10 spaces 제거 (YAML 들여쓰기로 인한)
+          sed -i 's/^          //' /tmp/remove_asn.py
+          NEW_EXPRESSION=$(OLD="$OLD_EXPRESSION" ASN_RM="$ASN" python3 /tmp/remove_asn.py)
 
           if [ -z "$NEW_EXPRESSION" ]; then
             echo "::error::Failed to build new expression"
