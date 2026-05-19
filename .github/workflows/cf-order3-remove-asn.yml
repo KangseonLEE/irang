@@ -1,0 +1,326 @@
+# ═══════════════════════════════════════════
+# CF Order 3 — Block cloud datacenter ASNs 에서 특정 ASN 제거
+# ═══════════════════════════════════════════
+#
+# 배경:
+#   5/14 박제 사고가 5/19 진짜 사용자 영향 형태로 재발.
+#   - CF Security Events: ko-KR Chrome/148.0 + Referer www.google.com 사용자가
+#     Google IPv6 prefix (AS15169)에서 /crops/arugula 요청 → Order 3 차단
+#   - 같은 룰이 Chrome Privacy Preserving Prefetch Proxy (66.249.x.x AS15169)도 차단
+#   - 영향: Google 검색 노출 결과 클릭이 차단됨 = 검색 손실 직접 발생
+#
+#   ASN 단위 차단의 구조적 한계:
+#   - AS15169 = Googlebot + Chrome users + Prefetch Proxy + Google Cloud 고객 (혼재)
+#   - AS8075  = Bingbot + Office365 + Azure (혼재)
+#   - AS16509 = AWS 고객 전체 (혼재)
+#   → 빅테크 ASN은 verified bot Skip + UA + Bot Score 조합으로 차단해야 함.
+#   → 순수 호스팅 ASN(Hetzner·DO·OVH 등)만 ASN 단위 차단 적합.
+#
+# 회장 결재 (5/19 11:00 KST): 옵션 A — AS15169 1개만 제거
+#   다른 ASN(예: 8075 Microsoft, 12076 Azure, 16509 AWS, 14061 DO, 14618 AWS) 유지.
+#   봇 차단 약화 우려는 Order 4 catch-all + Sprint B 새 expression + Bot Fight Mode로 보완.
+#
+# 동작:
+#   Step 1: http_request_firewall_custom entrypoint read
+#   Step 2: "Block cloud datacenter ASNs" 룰 식별 + 현재 expression backup
+#   Step 3: expression에서 15169 정확히 1개만 제거 (다른 ASN 유지)
+#   Step 4: PATCH → 200 OK 확인
+#   Step 5: 5s propagation 후 GET 재검증 (15169 미존재 + 다른 ASN 잔존)
+#   Step 6: 실패 시 rollback (옛 expression 복원)
+#
+# 트리거: workflow_dispatch only (1회용). 성공 후 본 파일 제거 예정.
+#
+# 권한 요구:
+#   - CF_API_TOKEN: Zone WAF Edit (5/19 D2 부여 완료)
+#   - CF_ZONE_ID: GH Secret 등록 완료
+#
+# 결재 라인:
+#   - dry_run=true 1회 → 회장 검토 → dry_run=false 실 실행
+# ═══════════════════════════════════════════
+
+name: "CF Order 3 — Remove AS15169 from cloud datacenter block"
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true면 read + diff preview만, PATCH skip"
+        required: false
+        default: "true"
+      asn_to_remove:
+        description: "제거할 ASN 번호 (default 15169 = Google)"
+        required: false
+        default: "15169"
+
+concurrency:
+  group: cf-order3-remove-asn
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  patch:
+    name: Remove ASN from Order 3 expression
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
+      ASN_TO_REMOVE: ${{ github.event.inputs.asn_to_remove || '15169' }}
+
+    steps:
+      - name: Preflight — env check
+        run: |
+          if [ -z "$CF_API_TOKEN" ] || [ -z "$CF_ZONE_ID" ]; then
+            echo "::error::CF_API_TOKEN / CF_ZONE_ID secret missing."
+            exit 1
+          fi
+          if ! echo "$ASN_TO_REMOVE" | grep -qE '^[0-9]+$'; then
+            echo "::error::ASN_TO_REMOVE must be numeric. got=$ASN_TO_REMOVE"
+            exit 1
+          fi
+          echo "DRY_RUN=$DRY_RUN"
+          echo "ASN_TO_REMOVE=$ASN_TO_REMOVE"
+
+      # ─────────────────────────────────────────────────
+      # Step 1·2: entrypoint read + rule 식별 + backup
+      # ─────────────────────────────────────────────────
+      - name: Step 1·2 — Read entrypoint and identify Order 3 rule
+        id: cf_read
+        run: |
+          RULESET=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/rulesets/phases/http_request_firewall_custom/entrypoint" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+
+          SUCCESS=$(echo "$RULESET" | jq -r '.success // false')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "::error::Could not fetch http_request_firewall_custom entrypoint"
+            echo "$RULESET" | jq -r '.errors // [] | tostring'
+            exit 1
+          fi
+
+          RULESET_ID=$(echo "$RULESET" | jq -r '.result.id')
+          # 룰 이름: "Block cloud datacenter ASNs" (5/14·5/19 박제)
+          # description 또는 5/19 events에서 보이는 이름 매칭
+          RULE_ID=$(echo "$RULESET" | jq -r '.result.rules[] | select(.description | test("Block cloud datacenter ASN"; "i")) | .id' | head -1)
+
+          if [ -z "$RULE_ID" ] || [ "$RULE_ID" = "null" ]; then
+            echo "::error::'Block cloud datacenter ASNs' rule not found in entrypoint"
+            echo "Available rules:"
+            echo "$RULESET" | jq -r '.result.rules[] | "\(.id) - \(.description)"'
+            exit 1
+          fi
+
+          # rollback용 옛 expression 보존
+          OLD_RULE=$(echo "$RULESET" | jq -c ".result.rules[] | select(.id==\"$RULE_ID\")")
+          echo "$OLD_RULE" | jq -c '{expression, action, description, action_parameters: (.action_parameters // {})}' > /tmp/old_rule.json
+          chmod 600 /tmp/old_rule.json
+
+          OLD_EXPRESSION=$(echo "$OLD_RULE" | jq -r '.expression')
+
+          # ASN 존재 확인
+          # expression 패턴 가정: (ip.geoip.asnum in {15169 8075 16509 ...}) 또는 유사
+          if ! echo "$OLD_EXPRESSION" | grep -qwE "$ASN_TO_REMOVE"; then
+            echo "::error::ASN $ASN_TO_REMOVE not found in current expression"
+            echo "Current expression: $OLD_EXPRESSION"
+            exit 1
+          fi
+
+          # 현재 ASN list 추출 (in {...} 형태 또는 == N 형태 모두 잡기 위해)
+          # jq로 안전하게 추출하기 어려우니 grep 기반
+          CURRENT_ASN_BLOCK=$(echo "$OLD_EXPRESSION" | grep -oE 'in \{[^}]+\}' | head -1 || echo "")
+          if [ -n "$CURRENT_ASN_BLOCK" ]; then
+            echo "Current ASN list block: $CURRENT_ASN_BLOCK"
+            CURRENT_ASNS=$(echo "$CURRENT_ASN_BLOCK" | grep -oE '[0-9]+' | tr '\n' ' ')
+            echo "Current ASNs: $CURRENT_ASNS"
+          fi
+
+          echo "ruleset_id=$RULESET_ID" >> $GITHUB_OUTPUT
+          echo "rule_id=$RULE_ID" >> $GITHUB_OUTPUT
+          echo "Old expression length: ${#OLD_EXPRESSION}"
+          echo "Old expression (full):"
+          echo "$OLD_EXPRESSION"
+
+      # ─────────────────────────────────────────────────
+      # Step 3: 새 expression 생성 (AS15169 제거)
+      # ─────────────────────────────────────────────────
+      - name: Step 3 — Build new expression (remove ASN)
+        id: build
+        run: |
+          OLD_EXPRESSION=$(jq -r '.expression' /tmp/old_rule.json)
+          ASN="$ASN_TO_REMOVE"
+
+          # 제거 시나리오 3종 처리:
+          # (a) `{... 15169 ...}` 중간      → ` 15169` 또는 `15169 ` 정확 매칭 후 1회 삭제
+          # (b) `{15169 ...}` 맨 앞         → `15169 ` 삭제
+          # (c) `{... 15169}` 맨 끝         → ` 15169` 삭제
+          # (d) `{15169}` 단일              → 룰 자체 의미 사라짐 → error
+          #
+          # set 표기 가정 (CF wirefilter): `in {a b c}` (공백 구분).
+
+          # 단일 ASN 케이스 차단
+          if echo "$OLD_EXPRESSION" | grep -qE "in \{$ASN\}"; then
+            echo "::error::ASN $ASN is the only ASN in the set. Removal would make rule meaningless."
+            exit 1
+          fi
+
+          # python으로 안전 처리 (sed 경계 함정 회피)
+          NEW_EXPRESSION=$(OLD="$OLD_EXPRESSION" ASN_RM="$ASN" python3 <<'PY'
+import os, re
+expr = os.environ["OLD"]
+asn = os.environ["ASN_RM"]
+
+# 집합 블록 찾기: `in {...}` 한 개 가정
+m = re.search(r"in\s*\{([^}]+)\}", expr)
+if not m:
+    raise SystemExit("::error::No `in {...}` block found in expression")
+
+inner = m.group(1)
+tokens = inner.split()
+if asn not in tokens:
+    raise SystemExit(f"::error::ASN {asn} not in tokens {tokens}")
+
+new_tokens = [t for t in tokens if t != asn]
+if not new_tokens:
+    raise SystemExit("::error::Removal would empty the set")
+
+new_inner = " ".join(new_tokens)
+new_expr = expr[:m.start()] + f"in {{{new_inner}}}" + expr[m.end():]
+print(new_expr)
+PY
+)
+
+          if [ -z "$NEW_EXPRESSION" ]; then
+            echo "::error::Failed to build new expression"
+            exit 1
+          fi
+
+          # sanity check: 중괄호·괄호 균형
+          OPEN_BRACE=$(echo "$NEW_EXPRESSION" | tr -cd '{' | wc -c)
+          CLOSE_BRACE=$(echo "$NEW_EXPRESSION" | tr -cd '}' | wc -c)
+          OPEN_PAREN=$(echo "$NEW_EXPRESSION" | tr -cd '(' | wc -c)
+          CLOSE_PAREN=$(echo "$NEW_EXPRESSION" | tr -cd ')' | wc -c)
+          if [ "$OPEN_BRACE" != "$CLOSE_BRACE" ] || [ "$OPEN_PAREN" != "$CLOSE_PAREN" ]; then
+            echo "::error::Brace/paren imbalance in new expression"
+            echo "New: $NEW_EXPRESSION"
+            exit 1
+          fi
+
+          # 진짜로 ASN 사라졌는지 word-boundary 매칭 (다른 ASN의 부분 매칭 회피)
+          if echo "$NEW_EXPRESSION" | grep -qwE "$ASN"; then
+            echo "::error::ASN $ASN still present after removal"
+            echo "New: $NEW_EXPRESSION"
+            exit 1
+          fi
+
+          echo "$NEW_EXPRESSION" > /tmp/new_expression.txt
+          chmod 600 /tmp/new_expression.txt
+          echo "New expression:"
+          echo "$NEW_EXPRESSION"
+          echo "Length: ${#NEW_EXPRESSION}"
+
+      # ─────────────────────────────────────────────────
+      # Step 4: PATCH
+      # ─────────────────────────────────────────────────
+      - name: Step 4 — PATCH new expression
+        id: cf_patch
+        if: env.DRY_RUN != 'true'
+        run: |
+          RULESET_ID="${{ steps.cf_read.outputs.ruleset_id }}"
+          RULE_ID="${{ steps.cf_read.outputs.rule_id }}"
+
+          NEW_EXPRESSION=$(cat /tmp/new_expression.txt)
+          OLD_ACTION=$(jq -r '.action' /tmp/old_rule.json)
+          OLD_DESC=$(jq -r '.description' /tmp/old_rule.json)
+          OLD_ACTION_PARAMS=$(jq -c '.action_parameters // {}' /tmp/old_rule.json)
+
+          BODY=$(jq -nc \
+            --arg expr "$NEW_EXPRESSION" \
+            --arg act "$OLD_ACTION" \
+            --arg desc "$OLD_DESC" \
+            --argjson params "$OLD_ACTION_PARAMS" \
+            '{expression: $expr, action: $act, description: $desc, action_parameters: $params}')
+
+          RESPONSE=$(curl -sS -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/rulesets/$RULESET_ID/rules/$RULE_ID" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "$BODY")
+
+          PATCH_SUCCESS=$(echo "$RESPONSE" | jq -r '.success // false')
+          if [ "$PATCH_SUCCESS" != "true" ]; then
+            echo "::error::CF PATCH failed"
+            echo "$RESPONSE" | jq -r '.errors // [] | tostring'
+            exit 1
+          fi
+
+          echo "CF PATCH success"
+
+      # ─────────────────────────────────────────────────
+      # Step 5: 재검증
+      # ─────────────────────────────────────────────────
+      - name: Step 5 — Verify ASN removed + others retained
+        if: env.DRY_RUN != 'true'
+        run: |
+          RULESET_ID="${{ steps.cf_read.outputs.ruleset_id }}"
+          RULE_ID="${{ steps.cf_read.outputs.rule_id }}"
+
+          # propagation 대기
+          sleep 5
+
+          RULESET=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/rulesets/$RULESET_ID" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+
+          LIVE_EXPRESSION=$(echo "$RULESET" | jq -r ".result.rules[] | select(.id==\"$RULE_ID\") | .expression")
+
+          if [ -z "$LIVE_EXPRESSION" ] || [ "$LIVE_EXPRESSION" = "null" ]; then
+            echo "::error::Could not read live expression"
+            exit 1
+          fi
+
+          echo "Live expression: $LIVE_EXPRESSION"
+
+          # 제거된 ASN 부재 확인 (word-boundary)
+          if echo "$LIVE_EXPRESSION" | grep -qwE "$ASN_TO_REMOVE"; then
+            echo "::error::ASN $ASN_TO_REMOVE still present in live expression"
+            exit 1
+          fi
+
+          # 다른 ASN 1개 이상 잔존 확인 (룰이 의미 있어야 함)
+          LIVE_ASN_BLOCK=$(echo "$LIVE_EXPRESSION" | grep -oE 'in \{[^}]+\}' | head -1 || echo "")
+          if [ -z "$LIVE_ASN_BLOCK" ]; then
+            echo "::error::No ASN set found in live expression"
+            exit 1
+          fi
+          LIVE_ASN_COUNT=$(echo "$LIVE_ASN_BLOCK" | grep -oE '[0-9]+' | wc -l | tr -d ' ')
+          if [ "$LIVE_ASN_COUNT" -lt 1 ]; then
+            echo "::error::ASN set became empty"
+            exit 1
+          fi
+
+          echo "Verification PASS: AS$ASN_TO_REMOVE removed, $LIVE_ASN_COUNT ASNs retained"
+
+      # ─────────────────────────────────────────────────
+      # Step 6: Rollback
+      # ─────────────────────────────────────────────────
+      - name: Step 6 — Rollback on failure
+        if: failure() && env.DRY_RUN != 'true' && steps.cf_patch.outcome == 'success'
+        run: |
+          echo "::warning::Failure after CF PATCH. Restoring old Order 3 expression."
+          RULESET_ID="${{ steps.cf_read.outputs.ruleset_id }}"
+          RULE_ID="${{ steps.cf_read.outputs.rule_id }}"
+
+          OLD_RULE=$(cat /tmp/old_rule.json)
+          curl -sS -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/rulesets/$RULESET_ID/rules/$RULE_ID" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "$OLD_RULE" | jq -r '.success // false'
+          echo "::warning::Rollback PATCH submitted."
+
+      - name: Cleanup tmp files
+        if: always()
+        run: rm -f /tmp/old_rule.json /tmp/new_expression.txt
