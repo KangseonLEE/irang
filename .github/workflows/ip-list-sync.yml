@@ -56,21 +56,21 @@ jobs:
             exit 1
           fi
 
-          # CF List items API 페이지네이션.
-          # cursors.after는 URL-encoded이므로 그대로 query에 사용. null/empty면 종료.
+          # CF List items API 페이지네이션 (per_page 미지정 = 25 기본, cursor 기반).
           : > cf-cidrs.txt
           CURSOR=""
           PAGE=0
           while : ; do
             PAGE=$((PAGE + 1))
-            URL="https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/${CF_LIST_ID}/items?per_page=1000"
-            if [ -n "$CURSOR" ]; then URL="${URL}&cursor=${CURSOR}"; fi
+            URL="https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/${CF_LIST_ID}/items"
+            if [ -n "$CURSOR" ]; then URL="${URL}?cursor=${CURSOR}"; fi
             RESP=$(curl -sS -H "Authorization: Bearer $CF_API_TOKEN" "$URL")
 
             SUCCESS=$(echo "$RESP" | jq -r '.success // false')
             if [ "$SUCCESS" != "true" ]; then
-              echo "CF List items fetch FAILED (page $PAGE). Errors:"
-              echo "$RESP" | jq -r '.errors // []'
+              echo "CF List items fetch FAILED (page $PAGE). Raw response:"
+              echo "$RESP" | head -c 2000
+              echo ""
               exit 1
             fi
 
@@ -78,14 +78,13 @@ jobs:
             echo "$RESP" | jq -r '.result[].ip' >> cf-cidrs.txt
             echo "page $PAGE: +$COUNT items"
 
-            # result.length가 per_page보다 작거나 cursor가 null/empty면 마지막 페이지
-            if [ "$COUNT" -lt 1000 ]; then break; fi
-            CURSOR=$(echo "$RESP" | jq -r '.result_info.cursors.after // empty')
-            if [ -z "$CURSOR" ] || [ "$CURSOR" = "null" ]; then break; fi
+            NEXT=$(echo "$RESP" | jq -r '.result_info.cursors.after // empty')
+            if [ -z "$NEXT" ] || [ "$NEXT" = "null" ]; then break; fi
+            CURSOR="$NEXT"
 
-            # 안전 가드: 무한 루프 방지 (5175 items / 1000 = 6 pages max + buffer)
-            if [ "$PAGE" -ge 20 ]; then
-              echo "Page limit 20 reached. Aborting."
+            # 안전 가드: 무한 루프 방지 (5175 / 25 = ~207 pages)
+            if [ "$PAGE" -ge 300 ]; then
+              echo "Page limit 300 reached. Aborting."
               exit 1
             fi
           done
