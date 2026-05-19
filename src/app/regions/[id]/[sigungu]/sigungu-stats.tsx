@@ -89,7 +89,7 @@ export interface SigunguStatsProps {
     medical: number | null;
     /** 학교 인프라 분위 (1~100). 군위 null */
     school: number | null;
-    /** 귀농 활성도 분위 (1~100). 도시 자치구 null */
+    /** 농촌 정착 활성도 분위 (1~100). 도시 자치구 null */
     returnFarm: number | null;
   } | null;
   // 모달 데이터 페칭용 코드
@@ -398,7 +398,7 @@ export function SigunguStats({
             )}
             {dimensionScores.returnFarm !== null && (
               <DimensionCard
-                label="귀농 활성도"
+                label="농촌 정착 활성도"
                 score={dimensionScores.returnFarm}
                 kind="percentile"
               />

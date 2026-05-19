@@ -17,10 +17,10 @@ import { parseRegions } from "./region-item";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농 지역 비교 — 기후·인프라·지원사업 데이터 비교",
+  title: "농촌 정착 지역 비교 — 기후·인프라·지원사업 데이터 비교",
   description:
     "귀농 후보 지역 최대 3곳의 기후, 인구, 의료·교육 인프라, 지원사업을 나란히 비교하세요. 시·도 단위 또는 시·군·구 단위까지 골라 데이터로 확인할 수 있어요.",
-  keywords: ["귀농 지역 비교", "귀농 지역 추천", "귀농 어디", "귀농 후보지", "시군구 비교"],
+  keywords: ["농촌 정착 지역 비교", "농촌 정착 지역 추천", "귀농 어디", "귀농 후보지", "시군구 비교"],
   alternates: { canonical: "/regions/compare" },
 };
 

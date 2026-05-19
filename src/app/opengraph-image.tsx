@@ -5,7 +5,7 @@ import { brandCard } from "@/lib/og/brand-card";
 
 export const size = OG_SIZE;
 export const contentType = "image/png";
-export const alt = "이랑 — 귀농 정보 큐레이션 포탈";
+export const alt = "이랑 — 농촌 정착 정보 큐레이션 포탈";
 
 export default async function OGImage() {
   const fonts = await getOGFonts();

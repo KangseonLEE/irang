@@ -10,7 +10,7 @@ export default function CostsLoading() {
           <Coins size={20} />
           <span className={s.overlineText}>Cost Guide</span>
         </div>
-        <h2 className={s.title}>귀농 비용 가이드</h2>
+        <h2 className={s.title}>정착 비용 가이드</h2>
         <p className={s.description}>
           비용 데이터를 불러오고 있습니다...
         </p>

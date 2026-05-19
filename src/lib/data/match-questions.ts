@@ -1,8 +1,8 @@
 /**
- * 맞춤 추천 위저드 — 질문 정의 + 귀농 유형 분류
+ * 맞춤 추천 위저드 — 질문 정의 + 정착 유형 분류
  *
  * match-wizard.tsx에서 분리한 순수 데이터 모듈.
- * UI 의존성 없이 질문 구조와 귀농 유형(FarmType)만 정의합니다.
+ * UI 의존성 없이 질문 구조와 정착 유형(FarmType)만 정의합니다.
  */
 
 import {
@@ -64,7 +64,7 @@ export const QUESTIONS: Question[] = [
   {
     id: "climate",
     title: "어떤 기후를 선호하시나요?",
-    subtitle: "귀농 후 생활할 지역의 기후 조건",
+    subtitle: "정착 후 생활할 지역의 기후 조건",
     options: [
       {
         id: "warm",
@@ -264,7 +264,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: "timeline",
-    title: "언제쯤 귀농을 시작할 계획인가요?",
+    title: "언제쯤 농촌 정착을 시작할 계획인가요?",
     subtitle: "시기에 따라 준비 전략이 달라져요",
     options: [
       {
@@ -289,7 +289,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: "income-goal",
-    title: "귀농 후 주된 소득원은 무엇이면 좋겠어요?",
+    title: "정착 후 주된 소득원은 무엇이면 좋겠어요?",
     subtitle: "소득 계획에 따라 추천 트랙이 달라져요",
     options: [
       {
@@ -351,7 +351,7 @@ export const QUESTIONS: Question[] = [
   },
 ];
 
-/* ── 귀농 유형 분류 ── */
+/* ── 정착 유형 분류 ── */
 
 export type FarmTypeId =
   | "guinong"
@@ -378,7 +378,7 @@ export const FARM_TYPES: FarmType[] = [
     emoji: "🌾",
     tagline: "농업을 본업으로, 새 삶을 시작하는 당신",
     description:
-      "도시를 떠나 농촌에 정착하여 직접 농사를 짓고, 농산물 판매를 주된 소득으로 삼는 전통적인 귀농 경로예요. 농지 확보, 작물 선정, 영농 기술 습득이 핵심이며, 정부의 귀농 정착 지원금과 농지 임대 사업을 적극 활용할 수 있어요.",
+      "도시를 떠나 농촌에 정착하여 직접 농사를 짓고, 농산물 판매를 주된 소득으로 삼는 전통적인 귀농 경로예요. 농지 확보, 작물 선정, 영농 기술 습득이 핵심이며, 정부의 농촌 정착 지원금과 농지 임대 사업을 적극 활용할 수 있어요.",
     traits: ["전업 농업", "농산물 판매", "농지 기반"],
     programIds: ["SP-001", "SP-003", "SP-005", "SP-011", "SP-014"],
   },

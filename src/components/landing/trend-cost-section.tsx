@@ -144,7 +144,7 @@ export function TrendCostSection() {
   /* ── 모바일 하단 sticky 가시성 ── */
   const sectionRef = useRef<HTMLElement>(null);
   const inlineSelectorRef = useRef<HTMLDivElement>(null);
-  /** 탭 변경 시 스크롤 앵커 (트렌드 블록의 #귀농 트렌드 eyebrow 시작점) */
+  /** 탭 변경 시 스크롤 앵커 (트렌드 블록의 #정착 트렌드 eyebrow 시작점) */
   const trendBlockRef = useRef<HTMLDivElement>(null);
   const [showSticky, setShowSticky] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -276,7 +276,7 @@ export function TrendCostSection() {
   ].filter(Boolean).join(" ");
 
   return (
-    <section ref={sectionRef} className={s.section} aria-label="귀농 유형별 트렌드와 비용">
+    <section ref={sectionRef} className={s.section} aria-label="정착 유형별 트렌드와 비용">
       {/* ── 통합 타이틀 ── */}
       <div className={s.sectionIntro}>
         <span className={s.sectionEyebrow}>#유형별 트렌드·비용</span>
@@ -290,14 +290,14 @@ export function TrendCostSection() {
 
       {/* ── 세그먼트 컨트롤 (인라인) ── */}
       <div className={s.selectorWrap} ref={inlineSelectorRef}>
-        <CategorySelector activeIdx={activeIdx} onChange={handleChange} ariaLabel="귀농 유형 선택" />
+        <CategorySelector activeIdx={activeIdx} onChange={handleChange} ariaLabel="정착 유형 선택" />
       </div>
 
       {/* ═══ 트렌드 블록 — 원래 헤더 유지 (탭 변경 스크롤 앵커) ═══ */}
       <div ref={trendBlockRef} className={s.block}>
         <div className={s.blockHeader}>
           <div className={s.blockHeaderLeft}>
-            <span className={s.eyebrow}>#귀농 트렌드</span>
+            <span className={s.eyebrow}>#정착 트렌드</span>
             <h2 className={s.title}>
               {renderTitleWithEm(trend.title, trend.titleEm)}
             </h2>
@@ -430,7 +430,7 @@ export function TrendCostSection() {
           <CategorySelector
             activeIdx={activeIdx}
             onChange={handleChange}
-            ariaLabel="귀농 유형 선택 (고정)"
+            ariaLabel="정착 유형 선택 (고정)"
           />
         </div>,
         document.body,

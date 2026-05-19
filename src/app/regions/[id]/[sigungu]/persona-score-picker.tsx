@@ -61,7 +61,7 @@ export function PersonaScorePicker({ dimensionScores, sigunguName }: Props) {
     : null;
 
   return (
-    <section className={s.section} aria-label="귀농 스타일별 점수">
+    <section className={s.section} aria-label="정착 스타일별 점수">
       <div className={s.header}>
         <h3 className={s.title}>어떤 귀농을 그리고 계세요?</h3>
         <p className={s.desc}>
@@ -69,7 +69,7 @@ export function PersonaScorePicker({ dimensionScores, sigunguName }: Props) {
         </p>
       </div>
 
-      <div className={s.pillRow} role="radiogroup" aria-label="귀농 스타일 선택">
+      <div className={s.pillRow} role="radiogroup" aria-label="정착 스타일 선택">
         {PERSONAS.map((p) => (
           <button
             key={p.id}

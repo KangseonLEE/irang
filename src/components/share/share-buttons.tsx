@@ -87,8 +87,8 @@ export function ShareButtons({ resultId, farmTypeLabel }: ShareButtonsProps) {
     window.Kakao.Share.sendDefault({
       objectType: "feed",
       content: {
-        title: `🌾 나의 귀농 유형: ${farmTypeLabel}`,
-        description: "이랑에서 귀농 적합도 진단을 받아보세요!",
+        title: `🌾 나의 정착 유형: ${farmTypeLabel}`,
+        description: "이랑에서 농촌 정착 적합도 진단을 받아보세요!",
         imageUrl: DEFAULT_OG_IMAGE,
         link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
       },

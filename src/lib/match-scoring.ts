@@ -17,10 +17,10 @@ import {
 } from "@/lib/data/match-questions";
 
 /* ══════════════════════════════════════════════
-   1. 귀농 유형 분류
+   1. 정착 유형 분류
    ══════════════════════════════════════════════ */
 
-/** 답변 조합으로 귀농 유형(정부 트랙) 점수 산출 */
+/** 답변 조합으로 정착 유형(정부 트랙) 점수 산출 */
 export function classifyFarmType(
   answers: Answers,
   ageGroup?: string,
@@ -262,7 +262,7 @@ const CROP_REGION_SCORES: Record<string, Record<string, number>> = {
   },
 };
 
-/** 경험 수준 → 귀농 지원 풍부 지역 가산 */
+/** 경험 수준 → 농촌 정착 지원 풍부 지역 가산 */
 const EXPERIENCE_REGION_SCORES: Record<string, Record<string, number>> = {
   none: {
     jeonnam: 6, jeonbuk: 6, chungnam: 5, gangwon: 5, gyeongnam: 4,
@@ -282,7 +282,7 @@ const ANSWER_LABELS: Record<string, Record<string, string>> = {
   priority: {
     nature: "자연환경 우선",
     access: "교통 접근성 우선",
-    support: "귀농 지원 혜택 우선",
+    support: "농촌 정착 지원 혜택 우선",
     market: "소비 시장 접근 우선",
   },
   lifestyle: {
@@ -394,7 +394,7 @@ export function scoreProvinces(
       if (scores[pid]) {
         scores[pid].score += pts;
         if (experience === "none" && pts >= 5) {
-          scores[pid].reasons.add("귀농 지원 체계 우수");
+          scores[pid].reasons.add("농촌 정착 지원 체계 우수");
         }
       }
     }
@@ -439,7 +439,7 @@ export function scoreProvinces(
       for (const [pid, pts] of Object.entries(supportRegions)) {
         if (scores[pid]) {
           scores[pid].score += pts;
-          scores[pid].reasons.add("귀농 지원금 혜택 풍부");
+          scores[pid].reasons.add("농촌 정착 지원금 혜택 풍부");
         }
       }
     }

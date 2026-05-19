@@ -63,7 +63,7 @@ describe("QUESTIONS 데이터 무결성", () => {
 // ─── FARM_TYPES 데이터 무결성 ───
 
 describe("FARM_TYPES 데이터 무결성", () => {
-  it("5가지 귀농 유형이 존재한다", () => {
+  it("5가지 정착 유형이 존재한다", () => {
     expect(FARM_TYPES).toHaveLength(5);
   });
 

@@ -85,8 +85,8 @@ export function ServiceGateway() {
   return (
     <div className={s.page}>
       <div className={s.hero}>
-        <span className={s.eyebrow}>나에게 맞는 귀농</span>
-        <h1 className={s.title}>내 귀농을 찾아보세요</h1>
+        <span className={s.eyebrow}>나에게 맞는 농촌 정착</span>
+        <h1 className={s.title}>내 정착 유형을 찾아보세요</h1>
         <p className={s.desc}>
           목적에 맞는 서비스를 선택하세요.
         </p>
@@ -176,7 +176,7 @@ export function ServiceGateway() {
               <span className={s.badgeQuick}>1분</span>
             </div>
             <p className={s.cardDesc}>
-              4문항으로 내 귀농 윤곽을 빠르게 잡고
+              4문항으로 정착 윤곽을 빠르게 잡고
               지역·작물·지원 사업을 한번에 추천 받아 보세요.
             </p>
             <div className={s.cardMeta}>
@@ -195,7 +195,7 @@ export function ServiceGateway() {
           </div>
         </button>
 
-        {/* 귀농 적합도 진단 */}
+        {/* 농촌 정착 적합도 진단 */}
         <button
           type="button"
           className={`${s.card} ${s.cardRecommended}`}
@@ -209,12 +209,12 @@ export function ServiceGateway() {
           </div>
           <div className={s.cardBody}>
             <div className={s.cardTitleRow}>
-              <h2 className={s.cardTitle}>귀농 적합도 진단</h2>
+              <h2 className={s.cardTitle}>농촌 정착 적합도 진단</h2>
               <span className={s.badge}>정밀</span>
             </div>
             <p className={s.cardDesc}>
               5가지 차원 적합도 진단 + 국가지원 트랙 추천까지,
-              나의 귀농 준비 상태를 객관적으로 점검해요.
+              나의 정착 준비 상태를 객관적으로 점검해요.
             </p>
             <div className={s.cardMeta}>
               <span className={s.cardMetaItem}>
@@ -232,7 +232,7 @@ export function ServiceGateway() {
           </div>
         </button>
 
-        {/* 귀농 유형 진단 */}
+        {/* 정착 유형 진단 */}
         <button
           type="button"
           className={s.card}
@@ -245,10 +245,10 @@ export function ServiceGateway() {
             <MapPin size={28} />
           </div>
           <div className={s.cardBody}>
-            <h2 className={s.cardTitle}>귀농 유형 진단</h2>
+            <h2 className={s.cardTitle}>정착 유형 진단</h2>
             <p className={s.cardDesc}>
               기후, 소득 계획, 생활 환경 등에 답하면
-              나에게 맞는 귀농 유형과 적합한 지역·작물을 알려드려요.
+              나에게 맞는 정착 유형과 적합한 지역·작물을 알려드려요.
             </p>
             <div className={s.cardMeta}>
               <span className={s.cardMetaItem}>
@@ -274,7 +274,7 @@ export function ServiceGateway() {
             <Calculator size={20} />
           </div>
           <div className={s.costCtaBody}>
-            <h3 className={s.costCtaTitle}>귀농 비용, 얼마나 들까?</h3>
+            <h3 className={s.costCtaTitle}>정착 비용, 얼마나 들까?</h3>
             <p className={s.costCtaDesc}>연령·작물·규모별 예상 비용을 바로 계산해 보세요</p>
           </div>
           <ArrowRight size={16} className={s.costCtaArrow} />

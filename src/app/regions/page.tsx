@@ -50,9 +50,9 @@ import { ActiveRegionsSection } from "@/components/region/active-regions-section
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농 지역 탐색 — 17개 시·도 기후·인프라·지원사업 비교",
+  title: "농촌 정착 지역 탐색 — 17개 시·도 기후·인프라·지원사업 비교",
   description:
-    "전국 17개 시·도의 기후, 인구, 의료·교육 인프라, 추천 작물, 귀농 지원사업을 비교하세요. 인구밀도 지도로 한눈에 파악할 수 있어요.",
+    "전국 17개 시·도의 기후, 인구, 의료·교육 인프라, 추천 작물, 농촌 정착 지원사업을 비교하세요. 인구밀도 지도로 한눈에 파악할 수 있어요.",
   alternates: { canonical: "/regions" },
 };
 
@@ -87,7 +87,7 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
         icon={<MapPin size={20} strokeWidth={1.75} />}
         label="Regions"
         title="지역 탐색"
-        description="귀농을 고려 중인 지역을 선택해 기후, 인구, 추천 작물, 지원사업 정보를 확인하세요."
+        description="농촌 정착을 고려 중인 지역을 선택해 기후, 인구, 추천 작물, 지원사업 정보를 확인하세요."
       />
 
       {/* ── Quick Stats ── */}
@@ -175,7 +175,7 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
         <div className={s.rankingBannerText}>
           <span className={s.rankingBannerTitle}>전국 시군구 줄세우기 →</span>
           <span className={s.rankingBannerDesc}>
-            인구·농가·의료·학교·귀농 5차원으로 비교하거나, 내 귀농 스타일에 맞춰 종합 점수로 줄 세워 보세요.
+            인구·농가·의료·학교·정착 5차원으로 비교하거나, 내 정착 스타일에 맞춰 종합 점수로 줄 세워 보세요.
           </span>
         </div>
         <span className={s.rankingBannerCta}>

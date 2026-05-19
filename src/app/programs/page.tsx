@@ -42,7 +42,7 @@ const sectionNavItems = [
 ];
 
 export const metadata: Metadata = {
-  title: "귀농 지원사업 — 정착금·주택·영농자금 검색",
+  title: "농촌 정착 지원사업 — 정착금·주택·영농자금 검색",
   description:
     "전국 귀농·귀촌 지원사업을 지역별로 검색하세요. 정착금 최대 3억, 주택 지원, 영농 자금 등 자격 조건과 신청 방법을 비교해요.",
   alternates: { canonical: "/programs" },
@@ -130,7 +130,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
           mainEntity: [
             {
               "@type": "Question",
-              name: "귀농 지원금 자격 조건은 무엇인가요?",
+              name: "농촌 정착 지원금 자격 조건은 무엇인가요?",
               acceptedAnswer: {
                 "@type": "Answer",
                 text: "지자체마다 다르지만 일반적으로 농촌 지역 전입, 일정 기간 거주, 영농 계획서 제출이 기본 조건이에요. 청년(만 39세 이하)은 별도 우대 조건이 있어요.",
@@ -138,7 +138,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             },
             {
               "@type": "Question",
-              name: "귀농 정착금은 얼마나 받을 수 있나요?",
+              name: "농촌 정착금은 얼마나 받을 수 있나요?",
               acceptedAnswer: {
                 "@type": "Answer",
                 text: "지자체별로 월 50만~100만 원 수준의 정착 지원금을 최대 3년간 받을 수 있어요. 영농 정착 자금은 최대 3억 원까지 장기 저리 대출도 가능해요.",
@@ -185,7 +185,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
       <div className={s.seasonNotice} role="note">
         <Info size={16} aria-hidden="true" className={s.seasonNoticeIcon} />
         <p className={s.seasonNoticeText}>
-          귀농 지원사업은 보통 <strong>1~3월(상반기) · 7~9월(하반기)</strong>에 모집을 집중해요.
+          농촌 정착 지원사업은 보통 <strong>1~3월(상반기) · 7~9월(하반기)</strong>에 모집을 집중해요.
           그 외 시기에는 활성 공고가 적을 수 있어요. 지난 모집 사례까지 참고하려면 아래
           <strong> 마감 포함</strong> 토글을 켜 보세요.
         </p>

@@ -19,14 +19,14 @@ import type { Article } from "schema-dts";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "1인 귀농 가이드 — 혼자서도 가능한 귀농 전략 | 이랑",
+  title: "1인 농촌 정착 가이드 — 혼자서도 가능한 귀농 전략 | 이랑",
   description:
-    "혼자서도 귀농할 수 있을까요? 1인 귀농에 적합한 작물, 필요 자본, 핵심 과제와 맞춤 전략을 정리했어요.",
+    "혼자서도 농촌으로 갈 수 있을까요? 1인 귀농에 적합한 작물, 필요 자본, 핵심 과제와 맞춤 전략을 정리했어요.",
   keywords: [
     "1인 귀농",
     "혼자 귀농",
-    "1인 귀농 가능",
-    "1인 귀농 작물",
+    "1인 농촌 정착 가능",
+    "1인 정착 작물",
     "혼자 농사",
   ],
   alternates: { canonical: "/guides/solo-farming" },
@@ -55,7 +55,7 @@ const STRATEGIES = [
     icon: Users,
     title: "공동체 활용",
     items: [
-      "지역 귀농인 모임에 적극 참여하세요. 정보 교류와 정서적 지지를 동시에 얻을 수 있어요.",
+      "지역 정착자 모임에 적극 참여하세요. 정보 교류와 정서적 지지를 동시에 얻을 수 있어요.",
       "농업법인이나 공동작업반에 가입하면 농번기 인력 교환이 가능해요.",
       "마을 이장, 부녀회 등 기존 커뮤니티에도 참여하세요. 농촌에서는 관계가 곧 인프라예요.",
     ],
@@ -85,7 +85,7 @@ export default function SoloFarmingGuidePage() {
     <article className={s.page}>
       <BreadcrumbJsonLd
         items={[
-          { name: "귀농 가이드", href: "/guides" },
+          { name: "농촌 정착 가이드", href: "/guides" },
           { name: "1인 귀농", href: "/guides/solo-farming" },
         ]}
       />
@@ -93,7 +93,7 @@ export default function SoloFarmingGuidePage() {
         data={{
           "@context": "https://schema.org",
           "@type": "Article",
-          headline: "혼자서도 귀농할 수 있을까?",
+          headline: "혼자서도 농촌으로 갈 수 있을까?",
           description:
             "1인 귀농, 가능하지만 준비가 다르다. 적합한 작물, 필요 자본, 맞춤 전략을 정리했어요.",
           author: {
@@ -107,7 +107,7 @@ export default function SoloFarmingGuidePage() {
       {/* ── 히어로 ── */}
       <SubPageHero
         overline="SOLO FARMING GUIDE"
-        title="혼자서도 귀농할 수 있을까?"
+        title="혼자서도 농촌으로 갈 수 있을까?"
         description="1인 귀농, 가능하지만 준비가 달라요."
       />
 
@@ -209,11 +209,11 @@ export default function SoloFarmingGuidePage() {
         <h3 className={s.relatedTitle}>다음 가이드</h3>
         <div className={s.relatedLinks}>
           <Link href="/guides/preparation" className={s.relatedLink}>
-            귀농 준비 순서 보기
+            정착 준비 순서 보기
             <Icon icon={ArrowRight} size="sm" />
           </Link>
           <Link href="/guides/budget-50s" className={s.relatedLink}>
-            50대 귀농 자본 알아보기
+            50대 정착 자본 알아보기
             <Icon icon={ArrowRight} size="sm" />
           </Link>
           <Link href="/guide" className={s.relatedLink}>

@@ -66,7 +66,7 @@ export const dataSources: DataSourceItem[] = [
   },
 ];
 
-/* ── (구) 귀농 트렌드 데이터: TREND_BENTO_PROFILES로 이전 완료 ── */
+/* ── (구) 정착 트렌드 데이터: TREND_BENTO_PROFILES로 이전 완료 ── */
 
 /**
  * 뉴스 아이템 (폴백 전용 — 네이버 API 미설정/장애 시 표시)
@@ -135,7 +135,7 @@ export const trendNews: NewsItem[] = [
 // 활성 모집 공고는 /education 페이지에서 신청 기간 기반으로 동적 처리.
 export const trendEduNews: NewsItem[] = [
   {
-    title: "농업교육포털 — 전국 농업·귀농 교육 통합 안내",
+    title: "농업교육포털 — 전국 농업·정착 교육 통합 안내",
     source: "농업교육포털",
     date: "상시",
     url: "https://agriedu.net/",
@@ -273,7 +273,7 @@ export const popularRegions = [
     name: "순천",
     provinceId: "jeonnam",
     climate: "연평균 13.5°C",
-    highlight: "귀농 정착금 최대 3천만 원",
+    highlight: "농촌 정착금 최대 3천만 원",
   },
   {
     name: "제주",
@@ -361,7 +361,7 @@ export const hotPrograms = [
   },
 ];
 
-/* ── 귀농 트렌드 벤토 데이터 ── */
+/* ── 정착 트렌드 벤토 데이터 ── */
 
 export type TrendTypeId = "farming" | "rural" | "youth" | "mountain" | "smartfarm";
 
@@ -437,17 +437,17 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     source: "통계청 · 농림축산식품부 2025 귀농귀촌 실태조사",
     hero: {
       value: "1.2만",
-      label: "2024 귀농 인구",
+      label: "2024 정착 인구",
       sub: "귀촌 42.2만 포함 시 +5.7%",
       desc: "매년 꾸준히 도시를 떠나 농촌에 정착하는 사람들이 늘고 있어요",
     },
     stats: [
-      { value: "13.1%", label: "청년 귀농 비율", sub: "역대 최고 기록", desc: "2030 세대의 귀농이 빠르게 늘며 농촌의 평균 연령이 낮아지고 있어요" },
-      { value: "70%", label: "귀농 만족도", sub: "도시 대비 생활비 25%↓", desc: "귀농 후 삶의 질이 높아졌다고 응답한 비율이에요" },
+      { value: "13.1%", label: "청년 정착 비율", sub: "역대 최고 기록", desc: "2030 세대의 귀농이 빠르게 늘며 농촌의 평균 연령이 낮아지고 있어요" },
+      { value: "70%", label: "정착 만족도", sub: "도시 대비 생활비 25%↓", desc: "정착 후 삶의 질이 높아졌다고 응답한 비율이에요" },
     ],
     chart: {
       title: "어떤 이유로 떠났을까?",
-      surveyLabel: "귀농인 3,092명 응답",
+      surveyLabel: "정착자 3,092명 응답",
       items: [
         { label: "자연환경이 좋아서", pct: 30 },
         { label: "농업의 비전·발전 가능성", pct: 22 },
@@ -525,7 +525,7 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     ],
     chart: {
       title: "청년이 농업을 택한 이유",
-      surveyLabel: "청년 귀농인 설문",
+      surveyLabel: "청년 정착자 설문",
       items: [
         { label: "비전·발전 가능성", pct: 27 },
         { label: "자연환경이 좋아서", pct: 22 },
@@ -540,7 +540,7 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
         { label: "정착지원금", change: "월 110만원", detail: "보조금 · 최대 3년" },
         { label: "창업자금", change: "최대 3억원", detail: "저금리 융자 지원" },
         { label: "농지임차 보조", change: "연 300만원", detail: "임차료 50~80% 지원" },
-        { label: "교육비", change: "전액 무료", detail: "귀농 교육 100시간+" },
+        { label: "교육비", change: "전액 무료", detail: "정착 교육 100시간+" },
       ],
     },
   },
@@ -676,7 +676,7 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
   farming: {
     id: "farming",
     label: "귀농",
-    headline: "귀농 정착까지,",
+    headline: "농촌 정착까지,",
     em: "얼마가 들까?",
     desc: "평균 6,219만 원의 초기 비용 중 대부분은 영농 준비에 쓰여요. 정부 융자를 활용하면 부담을 크게 줄일 수 있어요.",
     source: "농림축산식품부 2025 귀농귀촌 실태조사",
@@ -685,7 +685,7 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     cards: [
       { label: "영농 준비비 비중", desc: "초기 비용의 대부분이 농지 구입과 시설 투자에 집중돼요", value: 84.6, format: "decimal1", unit: "%", note: "약 5,261만원", color: "primary" },
       { label: "평균 준비 기간", desc: "탐색부터 정착까지 평균 소요 기간이에요", value: 27.4, format: "decimal1", unit: "개월", color: "amber" },
-      { label: "정부 주택자금 융자", desc: "귀농인 주거 안정을 위한 정부 지원 한도예요", value: 7500, format: "integer", unit: "만원", source: "귀농귀촌 정착지원사업", color: "muted" },
+      { label: "정부 주택자금 융자", desc: "정착자 주거 안정을 위한 정부 지원 한도예요", value: 7500, format: "integer", unit: "만원", source: "귀농귀촌 정착지원사업", color: "muted" },
       { label: "농업창업자금 융자", desc: "영농 정착에 필요한 농지·시설·장비 구입 지원 한도예요", value: 3, format: "plain", unit: "억원", source: "농림축산식품부 융자사업", color: "primary" },
     ],
     snapshot: {
@@ -739,11 +739,11 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     label: "청년농",
     headline: "청년농 창업,",
     em: "얼마면 시작할까?",
-    desc: "30대 이하 귀농인의 평균 투자금은 8,209만 원이에요. 영농정착지원금과 창업자금을 합치면 실질 부담을 크게 줄일 수 있어요.",
+    desc: "30대 이하 정착자의 평균 투자금은 8,209만 원이에요. 영농정착지원금과 창업자금을 합치면 실질 부담을 크게 줄일 수 있어요.",
     source: "농림축산식품부 2025 실태조사 + 청년창업농 시행지침",
     confidence: "estimated",
     confidenceNote: "실태조사 30대 이하 수치를 활용한 추정이에요",
-    hero: { label: "30대 이하 평균 투자금", desc: "청년 귀농인의 평균 초기 투자 비용이에요", value: 8209, format: "integer", unit: "만원", color: "primary" },
+    hero: { label: "30대 이하 평균 투자금", desc: "청년 정착자의 평균 초기 투자 비용이에요", value: 8209, format: "integer", unit: "만원", color: "primary" },
     cards: [
       { label: "영농 준비비 비중", desc: "농지·시설·장비 투자가 전체의 대부분을 차지해요", value: 80, format: "decimal1", unit: "%", color: "primary" },
       { label: "평균 준비 기간", desc: "교육과 현장 실습을 거쳐 창업하는 기간이에요", value: 21, format: "decimal1", unit: "개월", color: "amber" },
@@ -829,7 +829,7 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
   },
 };
 
-/* ── 귀농 비용 데이터 (출처: 2025 귀농귀촌 실태조사) ── */
+/* ── 정착 비용 데이터 (출처: 2025 귀농귀촌 실태조사) ── */
 
 export interface CostByAge {
   age: string;
@@ -949,7 +949,7 @@ export const cityVsRural: CompareRow[] = [
   },
 ];
 
-/* ── 귀농인 인터뷰 카드 (공개 보도 기반, 실명) ── */
+/* ── 정착 인터뷰 카드 (공개 보도 기반, 실명) ── */
 
 export interface CropLink {
   name: string;
@@ -1132,7 +1132,7 @@ export const interviews: InterviewCard[] = [
     sourceUrl: "https://www.nongmin.com/article/20260304500386",
     sourceName: "농민신문",
     sourceDate: "2026.03",
-    story: "KCC중앙연구소에서 자동차 페인트 색상을 개발하던 연구원이었어요. 2021년 귀농 후 충주시농업기술센터에서 6개월간 교육을 받고, 1,490㎡ 규모의 딸기 스마트팜을 운영하고 있어요.",
+    story: "KCC중앙연구소에서 자동차 페인트 색상을 개발하던 연구원이었어요. 2021년 정착 후 충주시농업기술센터에서 6개월간 교육을 받고, 1,490㎡ 규모의 딸기 스마트팜을 운영하고 있어요.",
     motivation: "대기업의 톱니바퀴 같은 삶에 회의감을 느꼈어요. 온전히 '내 것'이 될 수 있는 일, 주체적인 삶을 찾고 싶었어요.",
     challenge: "처음에 일본 신품종을 시도했다가 흰가루병에 취약해서 실패했어요. 품종 선택의 중요성을 뼈저리게 느꼈어요.",
     advice: "스마트팜이 농사를 대신 지어주진 않아요. 작물 지식과 스마트팜 이해를 바탕으로 자신만의 농법을 찾아야 해요. 무리한 시설 투자보다 감당할 수 있는 규모로 시작하세요.",
@@ -1219,7 +1219,7 @@ export const interviews: InterviewCard[] = [
     currentJob: "홍화농원 대표",
     region: "경북 칠곡",
     crop: "홍화 (약용작물)",
-    quote: "너무 큰 환상, 너무 큰 꿈을 갖고 귀농하면 안 돼요.",
+    quote: "너무 큰 환상, 너무 큰 꿈을 갖고 농촌 정착하면 안 돼요.",
     category: "farming",
     sourceUrl: "https://www.korea.kr/news/policyNewsView.do?newsId=148732769",
     sourceName: "대한민국 정책브리핑",
@@ -1370,7 +1370,7 @@ export const roadmapSteps: RoadmapStep[] = [
     step: 2,
     title: "교육 이수",
     period: "3~6개월",
-    desc: "귀농 교육 100시간 이상 이수",
+    desc: "정착 교육 100시간 이상 이수",
   },
   {
     step: 3,
@@ -1401,7 +1401,7 @@ export interface FaqItem {
 
 export const faqItems: FaqItem[] = [
   {
-    q: "몇 살까지 귀농할 수 있나요?",
+    q: "몇 살까지 농촌으로 갈 수 있나요?",
     a: "나이 제한은 없어요. 다만 지원사업별로 연령 조건이 다르고, 만 40세 이하 '청년 귀농' 지원이 가장 많아요. 60대 이후에도 충분히 시작할 수 있어요.",
   },
   {
@@ -1410,14 +1410,14 @@ export const faqItems: FaqItem[] = [
   },
   {
     q: "농사 경험이 전혀 없는데 괜찮을까요?",
-    a: "귀농 교육(100시간 이상)을 이수하면 지원사업 신청 시 가점을 받아요. 체류형 귀농으로 1~6개월 살아보면서 시작하는 것도 방법이에요.",
+    a: "정착 교육(100시간 이상)을 이수하면 지원사업 신청 시 가점을 받아요. 체류형 귀농으로 1~6개월 살아보면서 시작하는 것도 방법이에요.",
   },
   {
     q: "가족과 함께 가야 하나요?",
-    a: "아니요. 1인 가구 귀농도 꾸준히 늘고 있어요. 실태조사 기준 평균 귀농인 프로필은 '50대 중반 남성 1인 가구'이에요.",
+    a: "아니요. 1인 가구 귀농도 꾸준히 늘고 있어요. 실태조사 기준 평균 정착자 프로필은 '50대 중반 남성 1인 가구'이에요.",
   },
   {
-    q: "귀농하면 실제로 얼마나 버나요?",
+    q: "농촌 정착 시 실제로 얼마나 버나요?",
     a: "5년차 평균 가구소득 3,300만 원이에요. 첫해 2,534만 원에서 매년 늘어나고, 절반 이상이 농업 외 부수입(투잡)을 병행해요.",
   },
   {
@@ -1445,11 +1445,11 @@ export const trendingSearches: TrendingSearch[] = [
   { label: "충남 스마트팜", query: "충남 스마트팜" },
   { label: "강원 감자", query: "강원 감자" },
   { label: "제주 감귤", query: "제주 감귤" },
-  { label: "귀농 융자", query: "귀농 융자" },
+  { label: "정착 융자", query: "정착 융자" },
   { label: "청년농업인", query: "청년농업인" },
   { label: "체류형 귀농", query: "체류형" },
   { label: "귀농 멘토링", query: "멘토링" },
-  { label: "귀농 교육", query: "귀농 교육" },
+  { label: "정착 교육", query: "정착 교육" },
   { label: "박람회", query: "박람회" },
   { label: "살아보기", query: "살아보기" },
 ];

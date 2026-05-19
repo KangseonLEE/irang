@@ -2,7 +2,7 @@
  * 맞춤 추천 위저드 — 결과 화면
  *
  * match-wizard.tsx에서 분리한 결과 표시 컴포넌트.
- * 귀농 유형, 추천 지역, 추천 작물, 추천 지원사업을 보여줍니다.
+ * 정착 유형, 추천 지역, 추천 작물, 추천 지원사업을 보여줍니다.
  */
 
 import Link from "next/link";
@@ -50,7 +50,7 @@ export function MatchResult({
       {/* 유형 카드 — 최상단 */}
       <div className={s.farmTypeCard}>
         <span className={s.farmTypeEmoji}>{farmType.emoji}</span>
-        <span className={s.farmTypeOverline}>나의 귀농 유형</span>
+        <span className={s.farmTypeOverline}>나의 정착 유형</span>
         <h1 className={s.farmTypeLabel}>{farmType.label}</h1>
         <p className={s.farmTypeTagline}>{farmType.tagline}</p>
         <p className={s.farmTypeDesc}>{farmType.description}</p>

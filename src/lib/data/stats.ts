@@ -8,7 +8,7 @@
 
 export interface YearlyPopulation {
   year: number;
-  /** 귀농 인구 (만 명) */
+  /** 정착 인구 (만 명) */
   farming: number;
   /** 귀촌 인구 (만 명) */
   rural: number;
@@ -16,7 +16,7 @@ export interface YearlyPopulation {
 
 export interface YouthRatio {
   year: number;
-  /** 청년(40세 미만) 귀농 비율 (%) */
+  /** 청년(40세 미만) 정착 비율 (%) */
   ratio: number;
 }
 
@@ -52,7 +52,7 @@ const _popGrowth = (((_latestPop.farming + _latestPop.rural) / (_prevPop.farming
 export const populationSummary = {
   title: "귀농·귀촌 인구 추이",
   description:
-    `귀농 인구는 연 ${_latestPop.farming}만 명 수준을 꾸준히 유지하고 있으며, 2020년 코로나19를 계기로 귀촌 인구가 급증해 ${_latestPop.year}년에는 ${_latestPop.rural}만 명을 기록했어요. 귀농과 귀촌을 합산하면 전년 대비 ${_popGrowth}% 증가한 수치로, 농촌 이주에 대한 관심이 지속적으로 높아지고 있어요.`,
+    `정착 인구는 연 ${_latestPop.farming}만 명 수준을 꾸준히 유지하고 있으며, 2020년 코로나19를 계기로 귀촌 인구가 급증해 ${_latestPop.year}년에는 ${_latestPop.rural}만 명을 기록했어요. 귀농과 귀촌을 합산하면 전년 대비 ${_popGrowth}% 증가한 수치로, 농촌 이주에 대한 관심이 지속적으로 높아지고 있어요.`,
   source: `통계청 귀농귀촌인통계 (${_latestPop.year})`,
 };
 
@@ -101,7 +101,7 @@ export const populationCauses: CauseAnalysis[] = [
   },
 ];
 
-/* ── 2. 청년 귀농 트렌드 ── */
+/* ── 2. 청년 정착 트렌드 ── */
 
 export const youthData: YouthRatio[] = [
   { year: 2015, ratio: 8.2 },
@@ -116,7 +116,7 @@ export const youthData: YouthRatio[] = [
   { year: 2024, ratio: 13.1 },
 ];
 
-/** 귀농 사유 Top 5 (landing.ts trendReasons와 동일 출처이나 stats 전용) */
+/** 정착 사유 Top 5 (landing.ts trendReasons와 동일 출처이나 stats 전용) */
 export const farmingReasons: Factor[] = [
   { label: "자연환경이 좋아서", pct: 30 },
   { label: "농업의 비전·발전 가능성", pct: 22 },
@@ -129,9 +129,9 @@ const _firstYouth = youthData[0];
 const _latestYouth = youthData[youthData.length - 1];
 
 export const youthSummary = {
-  title: "청년 귀농 트렌드",
+  title: "청년 정착 트렌드",
   description:
-    `전체 귀농인 중 40세 미만 청년 비율은 ${_firstYouth.year}년 ${_firstYouth.ratio}%에서 ${_latestYouth.year}년 ${_latestYouth.ratio}%로, ${_latestYouth.year - _firstYouth.year}년간 꾸준히 상승하며 역대 최고치를 기록했어요. 스마트팜, 6차 산업 등 기술 기반 농업의 확산과 정부의 청년 귀농 지원 강화가 주요 요인이에요. 도시의 높은 주거비·경쟁에 대한 피로감도 청년층의 농촌 이주를 촉진하고 있어요.`,
+    `전체 정착자 중 40세 미만 청년 비율은 ${_firstYouth.year}년 ${_firstYouth.ratio}%에서 ${_latestYouth.year}년 ${_latestYouth.ratio}%로, ${_latestYouth.year - _firstYouth.year}년간 꾸준히 상승하며 역대 최고치를 기록했어요. 스마트팜, 6차 산업 등 기술 기반 농업의 확산과 정부의 청년 농촌 정착 지원 강화가 주요 요인이에요. 도시의 높은 주거비·경쟁에 대한 피로감도 청년층의 농촌 이주를 촉진하고 있어요.`,
   source: `농림축산식품부 귀농귀촌 실태조사 (${_latestYouth.year})`,
 };
 
@@ -145,7 +145,7 @@ export const youthCauses: CauseAnalysis[] = [
     relatedYears: [2020, 2021, 2022, 2023, 2024],
   },
   {
-    label: "정부 청년 귀농 지원 정책 강화",
+    label: "정부 청년 농촌 정착 지원 정책 강화",
     description:
       "2023년부터 「제1차 후계·청년농 육성 기본계획('23~'27)」이 추진 중이며, 2024년에는 지원 대상을 농촌 거주·관련 산업 청년으로 확대했어요. 청년창업 스마트팜 종합자금 30억 한도(연리 1%, 5년 거치), 교육비 무료, 임대형 스마트팜 우선 입주 등의 혜택이 제공돼요.",
     source: "농림축산식품부, 농업·농촌 청년정책 추진방향 (2024.08)",
@@ -153,16 +153,16 @@ export const youthCauses: CauseAnalysis[] = [
     relatedYears: [2023, 2024],
   },
   {
-    label: "'농업의 비전' — 청년 귀농 사유 7년 연속 최고",
+    label: "'농업의 비전' — 청년 정착 사유 7년 연속 최고",
     description:
-      "30대 이하 청년층이 '농업의 비전 및 발전 가능성'을 귀농 사유로 꼽은 비율이 27.3%로 7년 연속 최고치를 기록했어요. 6차 산업, 체험 농업, 로컬 브랜딩 등 새로운 농업 모델이 청년들에게 창업 기회로 인식되고 있어요.",
+      "30대 이하 청년층이 '농업의 비전 및 발전 가능성'을 정착 사유로 꼽은 비율이 27.3%로 7년 연속 최고치를 기록했어요. 6차 산업, 체험 농업, 로컬 브랜딩 등 새로운 농업 모델이 청년들에게 창업 기회로 인식되고 있어요.",
     source: "대한민국 정책브리핑, 청년층 귀농 이유 분석",
     sourceUrl: "https://www.korea.kr/news/policyNewsView.do?newsId=148940202",
     relatedYears: [2022, 2023, 2024],
   },
 ];
 
-/* ── 3. 귀농 만족도 조사 ── */
+/* ── 3. 정착 만족도 조사 ── */
 
 export const satisfactionSegments: SatisfactionSegment[] = [
   { label: "매우 만족", pct: 18 },
@@ -187,9 +187,9 @@ export const dissatisfactionFactors: Factor[] = [
 ];
 
 export const satisfactionSummary = {
-  title: "귀농 만족도 조사",
+  title: "정착 만족도 조사",
   description:
-    "귀농인의 70%가 현재 생활에 만족한다고 응답했으며, 자연환경과 여유로운 삶이 가장 큰 만족 요인으로 꼽혔어요. 반면 의료 접근성, 문화생활 부족, 소득 불안정이 주요 불만 요인이에요. 도시 대비 월 생활비가 25% 낮아 경제적 여유가 만족도에 기여하고 있어요.",
+    "정착자의 70%가 현재 생활에 만족한다고 응답했으며, 자연환경과 여유로운 삶이 가장 큰 만족 요인으로 꼽혔어요. 반면 의료 접근성, 문화생활 부족, 소득 불안정이 주요 불만 요인이에요. 도시 대비 월 생활비가 25% 낮아 경제적 여유가 만족도에 기여하고 있어요.",
   source: `농림축산식품부 귀농귀촌 실태조사 (${_latestPop.year})`,
 };
 
@@ -197,7 +197,7 @@ export const satisfactionCauses: CauseAnalysis[] = [
   {
     label: "자연환경 + 여유 — 만족도 핵심 드라이버",
     description:
-      "귀농 사유 1위가 '자연환경'(30.3%)이고 만족 요인 1위도 '자연환경'(45%)으로, 기대와 현실이 일치하는 유일한 영역이에요. 귀농·귀촌 10가구 중 7가구(71.9%)가 생활에 만족하며, 지역주민과의 관계가 좋다는 응답도 75.5%에 달해요.",
+      "정착 사유 1위가 '자연환경'(30.3%)이고 만족 요인 1위도 '자연환경'(45%)으로, 기대와 현실이 일치하는 유일한 영역이에요. 귀농·귀촌 10가구 중 7가구(71.9%)가 생활에 만족하며, 지역주민과의 관계가 좋다는 응답도 75.5%에 달해요.",
     source: "농림축산식품부, 2023 귀농·귀촌 실태조사",
     sourceUrl: "https://www.mafra.go.kr/bbs/home/792/569593/artclView.do",
   },
@@ -211,7 +211,7 @@ export const satisfactionCauses: CauseAnalysis[] = [
   {
     label: "의료 접근성 — 불만족 1위 요인의 구조적 원인",
     description:
-      "농촌 지역은 도시 대비 의료서비스 접근성, 이용 가능 범위, 응급의료 모두 낮은 수준이에요. 한국보건사회연구원 연구에 따르면 농촌 1인 가구 비율이 높아질수록 미충족 의료 수요가 증가하며, 이는 귀농인의 장기 정착을 저해하는 핵심 요인이에요.",
+      "농촌 지역은 도시 대비 의료서비스 접근성, 이용 가능 범위, 응급의료 모두 낮은 수준이에요. 한국보건사회연구원 연구에 따르면 농촌 1인 가구 비율이 높아질수록 미충족 의료 수요가 증가하며, 이는 정착자의 장기 안착을 저해하는 핵심 요인이에요.",
     source: "한국농촌경제연구원, 농촌·도시 건강실태 및 의료비용 효과 비교",
     sourceUrl: "https://repository.krei.re.kr/bitstream/2018.oak/24943/1/P257.pdf",
   },

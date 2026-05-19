@@ -6,7 +6,7 @@ import { PROVINCES } from "@/lib/data/regions";
 
 export const size = OG_SIZE;
 export const contentType = "image/png";
-export const alt = "이랑 — 지역 귀농 정보";
+export const alt = "이랑 — 지역 농촌 정착 정보";
 
 export default async function OGImage({
   params,

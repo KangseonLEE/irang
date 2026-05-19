@@ -44,7 +44,7 @@ export function YouthStats() {
             {youthSummary.title}
           </h2>
           <p className={s.desc}>
-            전체 귀농인 중 40세 미만 청년 비율 10년 추이와 귀농 사유를 분석했어요.
+            전체 정착자 중 40세 미만 청년 비율 10년 추이와 정착 사유를 분석했어요.
           </p>
         </div>
         <div className={s.kpiRow}>
@@ -83,7 +83,7 @@ export function YouthStats() {
         <section className={s.card} aria-labelledby="youth-chart-title">
           <h3 className={s.cardTitle} id="youth-chart-title">
             <Icon icon={TrendingUp} size="lg" className={s.cardIcon} />
-            청년 귀농 비율 추이
+            청년 정착 비율 추이
           </h3>
           <YouthTrendChart data={youthData} />
           <DataSource source={youthSummary.source} />
@@ -93,7 +93,7 @@ export function YouthStats() {
           <section className={s.card} aria-labelledby="youth-reasons-title">
             <h3 className={s.cardTitle} id="youth-reasons-title">
               <Icon icon={Sprout} size="lg" className={s.cardIcon} />
-              귀농 사유 Top 5
+              정착 사유 Top 5
             </h3>
             <FactorBarChart
               data={farmingReasons}
@@ -155,7 +155,7 @@ export function YouthStats() {
         <blockquote className={s.summary}>{youthSummary.description}</blockquote>
         <Link href="/interviews" className={s.interviewCta}>
           <Icon icon={MessageCircle} size="md" />
-          <span>청년 귀농인들의 이야기</span>
+          <span>청년 정착자들의 이야기</span>
           <Icon icon={ArrowRight} size="sm" />
         </Link>
       </div>

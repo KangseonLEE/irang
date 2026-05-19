@@ -26,9 +26,9 @@ import type { Organization } from "schema-dts";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "이랑 서비스 소개 — 귀농 정보 큐레이션",
+  title: "이랑 서비스 소개 — 농촌 정착 정보 큐레이션",
   description:
-    "이랑은 귀농을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스예요. 지역 비교, 작물 수익, 지원사업, 비용 가이드를 한곳에서 확인하세요.",
+    "이랑은 농촌 정착을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스예요. 지역 비교, 작물 수익, 지원사업, 비용 가이드를 한곳에서 확인하세요.",
   alternates: { canonical: "/about" },
 };
 
@@ -53,7 +53,7 @@ const features = [
     icon: FileText,
     title: "지원사업 검색",
     description:
-      "귀농 정착금, 교육 지원, 주택 보조 등 전국·지역별 귀농 지원사업을 검색하고 조건을 비교하세요.",
+      "농촌 정착금, 교육 지원, 주택 보조 등 전국·지역별 농촌 정착 지원사업을 검색하고 조건을 비교하세요.",
     href: "/programs",
     color: "blue" as const,
   },
@@ -69,7 +69,7 @@ const steps = [
   {
     icon: MousePointerClick,
     step: "02",
-    title: "귀농 적합도 진단",
+    title: "농촌 정착 적합도 진단",
     description: "적합도 진단과 맞춤 질문으로 나에게 맞는 지역과 작물을 추천받아요.",
   },
   {
@@ -123,11 +123,11 @@ export default function AboutPage() {
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "이랑",
-          alternateName: "이랑 — 귀농 정보 큐레이션 포탈",
+          alternateName: "이랑 — 농촌 정착 정보 큐레이션 포탈",
           url: "https://irangfarm.com/about",
           logo: "https://irangfarm.com/icon.svg",
           description:
-            "이랑은 귀농을 준비하는 분들을 위한 비영리 정보 큐레이션 서비스예요. 기상청·통계청(KOSIS·SGIS)·농촌진흥청·심평원·교육부 등 5개 공공기관 데이터로 지역, 작물, 지원사업 정보를 한곳에서 비교할 수 있게 정리해요.",
+            "이랑은 농촌 정착을 준비하는 분들을 위한 비영리 정보 큐레이션 서비스예요. 기상청·통계청(KOSIS·SGIS)·농촌진흥청·심평원·교육부 등 5개 공공기관 데이터로 지역, 작물, 지원사업 정보를 한곳에서 비교할 수 있게 정리해요.",
           email: "loyal3270@gmail.com",
           contactPoint: {
             "@type": "ContactPoint",
@@ -158,7 +158,7 @@ export default function AboutPage() {
           귀농의 모든 것, <span className={s.heroAccent}>이랑</span>이 안내해요
         </h1>
         <p className={s.heroDesc}>
-          <AutoGlossary text="이랑은 귀농을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스예요." />
+          <AutoGlossary text="이랑은 농촌 정착을 꿈꾸는 모든 분을 위한 정보 큐레이션 서비스예요." />
           <br />
           <AutoGlossary text="공공 데이터로 지역, 작물, 지원사업 정보를 한곳에서 비교하고 의사결정을 도와드려요." />
         </p>
@@ -260,10 +260,10 @@ export default function AboutPage() {
             아직 어디서 시작할지 모르겠다면?
           </h2>
           <p className={s.matchCtaDesc}>
-            <AutoGlossary text="간단한 질문 5개에 답하면, 나의 상황과 선호에 맞는 귀농 지역과 작물을 추천해 드려요." />
+            <AutoGlossary text="간단한 질문 5개에 답하면, 나의 상황과 선호에 맞는 농촌 정착 지역과 작물을 추천해 드려요." />
           </p>
           <Link href="/match" className={s.matchCtaButton}>
-            귀농 적합도 진단 시작하기
+            농촌 정착 적합도 진단 시작하기
             <IconWrap icon={ArrowRight} size="md" />
           </Link>
         </div>
@@ -273,7 +273,7 @@ export default function AboutPage() {
       <section className={s.operatorSection}>
         <h2 className={s.sectionTitle}>운영 정보</h2>
         <p className={s.sectionDesc}>
-          이랑은 개인이 운영하는 비영리 귀농 정보 큐레이션 서비스예요.
+          이랑은 개인이 운영하는 비영리 농촌 정착 정보 큐레이션 서비스예요.
           데이터 정정·삭제 요청, 출처 검증 결과는 모두 공개로 관리해요.
         </p>
         <div className={s.operatorGrid}>

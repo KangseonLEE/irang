@@ -17,14 +17,14 @@ import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "초보 귀농 추천 작물 — 난이도 낮은 작물 TOP 5 | 이랑",
+  title: "초보 정착 추천 작물 — 난이도 낮은 작물 TOP 5 | 이랑",
   description:
-    "처음 귀농한다면 난이도 낮고 안정적인 작물부터 시작하세요. 초보자에게 추천하는 작물 5가지와 선택 기준을 정리했어요.",
+    "처음 농촌으로 정착한다면 난이도 낮고 안정적인 작물부터 시작하세요. 초보자에게 추천하는 작물 5가지와 선택 기준을 정리했어요.",
   keywords: [
-    "초보 귀농 추천 작물",
-    "귀농 초보 작물",
+    "초보 정착 추천 작물",
+    "정착 초보 작물",
     "쉬운 작물",
-    "귀농 작물 추천",
+    "정착 작물 추천",
     "초보 농사 작물",
   ],
   alternates: { canonical: "/guides/beginner-crops" },
@@ -70,7 +70,7 @@ export default function BeginnerCropsGuidePage() {
     <article className={s.page}>
       <BreadcrumbJsonLd
         items={[
-          { name: "귀농 가이드", href: "/guides" },
+          { name: "농촌 정착 가이드", href: "/guides" },
           { name: "초보 추천 작물", href: "/guides/beginner-crops" },
         ]}
       />
@@ -78,7 +78,7 @@ export default function BeginnerCropsGuidePage() {
         data={{
           "@context": "https://schema.org",
           "@type": "Article",
-          headline: "처음 귀농한다면, 이 작물부터",
+          headline: "처음 농촌으로 정착한다면, 이 작물부터",
           description:
             "난이도 낮고 안정적인 작물로 시작하세요.",
           author: {
@@ -92,7 +92,7 @@ export default function BeginnerCropsGuidePage() {
       {/* -- 히어로 -- */}
       <SubPageHero
         overline="BEGINNER CROPS"
-        title="처음 귀농한다면, 이 작물부터"
+        title="처음 농촌으로 정착한다면, 이 작물부터"
         description="난이도 낮고 안정적인 작물로 시작하세요."
       />
 
@@ -230,15 +230,15 @@ export default function BeginnerCropsGuidePage() {
         <h3 className={s.relatedTitle}>다음 가이드</h3>
         <div className={s.relatedLinks}>
           <Link href="/guides/failure-cases" className={s.relatedLink}>
-            귀농 실패 사례 보기
+            정착 실패 사례 보기
             <Icon icon={ArrowRight} size="sm" />
           </Link>
           <Link href="/guides/preparation" className={s.relatedLink}>
-            귀농 준비 순서 보기
+            정착 준비 순서 보기
             <Icon icon={ArrowRight} size="sm" />
           </Link>
           <Link href="/guides/solo-farming" className={s.relatedLink}>
-            1인 귀농 가이드 보기
+            1인 농촌 정착 가이드 보기
             <Icon icon={ArrowRight} size="sm" />
           </Link>
         </div>

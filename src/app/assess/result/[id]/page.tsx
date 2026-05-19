@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const farmType = FARM_TYPES.find(
     (t) => t.id === migrateFarmTypeId(result.farm_type_id as string)
   );
-  const label = farmType?.label ?? "귀농 유형";
+  const label = farmType?.label ?? "정착 유형";
   const emoji = farmType?.emoji ?? "🌾";
   const regions = (result.top_regions as string[])
     .slice(0, 3)
@@ -76,8 +76,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     })
     .join(" · ");
 
-  const title = `${emoji} 나의 귀농 유형: ${label}`;
-  const description = `추천 지역: ${regions} — 이랑에서 귀농 적합도 진단을 받아보세요!`;
+  const title = `${emoji} 나의 정착 유형: ${label}`;
+  const description = `추천 지역: ${regions} — 이랑에서 농촌 정착 적합도 진단을 받아보세요!`;
 
   const shortUrl = `https://irang.info/r/${id}`;
 
@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       type: "website",
       url: shortUrl,
-      siteName: "이랑 — 귀농 정보 큐레이션",
+      siteName: "이랑 — 농촌 정착 정보 큐레이션",
     },
     twitter: {
       card: "summary_large_image",
@@ -150,7 +150,7 @@ export default async function AssessResultPage({ params }: PageProps) {
       {/* 유형 카드 — 최상단 */}
       <div className={s.farmTypeCard}>
         <span className={s.farmTypeEmoji}>{farmType.emoji}</span>
-        <span className={s.farmTypeOverline}>나의 귀농 준비 결과</span>
+        <span className={s.farmTypeOverline}>나의 정착 준비 결과</span>
         <h1 className={s.farmTypeLabel}>{farmType.label}</h1>
         <p className={s.farmTypeTagline}>{farmType.tagline}</p>
         <p className={s.farmTypeDesc}>{farmType.description}</p>
@@ -271,10 +271,10 @@ export default async function AssessResultPage({ params }: PageProps) {
       {/* CTA: 나도 진단하기 */}
       <section className={s.shareCta}>
         <h2 className={s.shareCtaTitle}>
-          나도 귀농 적합도 진단 받아보기
+          나도 농촌 정착 적합도 진단 받아보기
         </h2>
         <p className={s.shareCtaDesc}>
-          5가지 질문으로 나에게 맞는 귀농 지역과 작물을 추천받으세요
+          5가지 질문으로 나에게 맞는 농촌 정착 지역과 작물을 추천받으세요
         </p>
         <Link href="/match?utm_source=share&utm_medium=result" className={s.shareCtaBtn}>
           나도 진단하기
@@ -288,7 +288,7 @@ export default async function AssessResultPage({ params }: PageProps) {
           <Calculator size={20} />
         </div>
         <div className={s.costCtaBody}>
-          <h3 className={s.costCtaTitle}>귀농 비용, 얼마나 들까?</h3>
+          <h3 className={s.costCtaTitle}>정착 비용, 얼마나 들까?</h3>
           <p className={s.costCtaDesc}>연령·작물·규모별 예상 비용을 바로 계산해 보세요</p>
         </div>
         <ArrowRight size={16} className={s.costCtaArrow} />

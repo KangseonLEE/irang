@@ -54,7 +54,7 @@ export const dynamicParams = true;
 export const revalidate = 86400;
 
 export async function generateStaticParams() {
-  // 귀농인기 키워드 포함 항목 우선으로 상위 20개만 사전 빌드.
+  // 정착 인기 키워드 포함 항목 우선으로 상위 20개만 사전 빌드.
   // 나머지 ~209개는 ISR on-demand (첫 방문 시 생성 → 24시간 캐시).
   //
   // ⚠ Phase 2 sprint(2026-05-03): SGIS 인구 추이는 정적 폴백을 사용해
@@ -63,10 +63,10 @@ export async function generateStaticParams() {
   //   피하기 위해 30 → 20으로 추가 축소.
   //   (feedback_static_params_rate_limit.md 참조).
   const popular = SIGUNGUS.filter((sg) =>
-    sg.highlights.includes("귀농인기")
+    sg.highlights.includes("정착 인기")
   );
   const rest = SIGUNGUS.filter(
-    (sg) => !sg.highlights.includes("귀농인기")
+    (sg) => !sg.highlights.includes("정착 인기")
   );
   const top20 = [...popular, ...rest].slice(0, 20);
 
@@ -89,7 +89,7 @@ export async function generateMetadata({
   const mainCropsLabel = sigungu.mainCrops.slice(0, 3).join("·");
   return {
     title: `${sidoName} ${sigungu.name} 귀농 — 지원사업·작물·인프라`,
-    description: `${sidoName} ${sigungu.name} 귀농 정보. 대표 작물: ${mainCropsLabel}. 인구, 의료·교육 인프라, 귀농 지원사업을 확인하세요. ${sigungu.description}`,
+    description: `${sidoName} ${sigungu.name} 농촌 정착 정보. 대표 작물: ${mainCropsLabel}. 인구, 의료·교육 인프라, 농촌 정착 지원사업을 확인하세요. ${sigungu.description}`,
     keywords: [`${sigungu.name} 귀농`, `${sidoName} 귀농`, `${sigungu.name} 지원사업`, ...sigungu.mainCrops.slice(0, 3)],
     alternates: { canonical: `/regions/${id}/${sigunguId}` },
   };
@@ -248,13 +248,13 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         actions={
           <>
             <KakaoShareButton
-              title={`${sigungu.name} — 귀농 지역 정보 | 이랑`}
-              description={`${province.shortName} ${sigungu.name} 귀농 정보: ${sigungu.description}`}
+              title={`${sigungu.name} — 농촌 정착 지역 정보 | 이랑`}
+              description={`${province.shortName} ${sigungu.name} 농촌 정착 정보: ${sigungu.description}`}
               contentType="region"
             />
             <ShareButton
-              title={`${sigungu.name} — 귀농 지역 정보 | 이랑`}
-              text={`${province.shortName} ${sigungu.name} 귀농 정보: ${sigungu.description}`}
+              title={`${sigungu.name} — 농촌 정착 지역 정보 | 이랑`}
+              text={`${province.shortName} ${sigungu.name} 농촌 정착 정보: ${sigungu.description}`}
               contentType="region"
               variant="ghost"
               size="sm"
@@ -280,13 +280,13 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           {/* 데스크탑 inline 3버튼 — 모바일에선 CSS로 숨김. 데스크탑 변경 없음. */}
           <div className={s.heroActions}>
             <KakaoShareButton
-              title={`${sigungu.name} — 귀농 지역 정보 | 이랑`}
-              description={`${province.shortName} ${sigungu.name} 귀농 정보: ${sigungu.description}`}
+              title={`${sigungu.name} — 농촌 정착 지역 정보 | 이랑`}
+              description={`${province.shortName} ${sigungu.name} 농촌 정착 정보: ${sigungu.description}`}
               contentType="region"
             />
             <ShareButton
-              title={`${sigungu.name} — 귀농 지역 정보 | 이랑`}
-              text={`${province.shortName} ${sigungu.name} 귀농 정보: ${sigungu.description}`}
+              title={`${sigungu.name} — 농촌 정착 지역 정보 | 이랑`}
+              text={`${province.shortName} ${sigungu.name} 농촌 정착 정보: ${sigungu.description}`}
               contentType="region"
               variant="ghost"
               size="sm"
@@ -302,8 +302,8 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           {/* 모바일 ⋯ 메뉴 — 데스크탑에선 CSS로 숨김. */}
           <div className={s.heroMobileMenu}>
             <RegionShareMenu
-              shareTitle={`${sigungu.name} — 귀농 지역 정보 | 이랑`}
-              shareDescription={`${province.shortName} ${sigungu.name} 귀농 정보: ${sigungu.description}`}
+              shareTitle={`${sigungu.name} — 농촌 정착 지역 정보 | 이랑`}
+              shareDescription={`${province.shortName} ${sigungu.name} 농촌 정착 정보: ${sigungu.description}`}
               contentType="region"
               triggerVariant="plain"
               bookmark={{
@@ -524,12 +524,12 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         <LandCheckBox />
       </section>
 
-      {/* ── 귀농 교육 ── */}
-      <section className={s.section} aria-label="귀농 교육">
+      {/* ── 정착 교육 ── */}
+      <section className={s.section} aria-label="정착 교육">
         <div className={s.sectionHeader}>
           <Icon icon={GraduationCap} size="lg" />
           <div>
-            <h2 className={s.sectionTitle}>귀농 교육</h2>
+            <h2 className={s.sectionTitle}>정착 교육</h2>
             <p className={s.sectionDesc}>
               {province.shortName} 지역에서 수강 가능한 교육 과정이에요.
             </p>

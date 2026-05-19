@@ -81,7 +81,7 @@ const SRC_MAFRA_VALLEY = "농식품부 스마트팜 혁신밸리 사업 안내";
 const SRC_RDA_YOUTH = "농촌진흥청 표준소득자료집 + 청년창업농 인기품목 통계";
 
 export const CROP_COSTS_BY_TYPE: Record<CostTypeId, CropCost[]> = {
-  /* ── 귀농 일반 — 노지 밭작물 + 대표 과수 ── */
+  /* ── 정착 일반 — 노지 밭작물 + 대표 과수 ── */
   farming: [
     {
       id: "soybean",
@@ -387,7 +387,7 @@ export const CROP_COSTS_BY_TYPE: Record<CostTypeId, CropCost[]> = {
    ──────────────────────────────────────────────────────────────── */
 
 export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
-  /* ── 귀농 일반 ── */
+  /* ── 정착 일반 ── */
   farming: [
     {
       title: "농업창업자금 융자",

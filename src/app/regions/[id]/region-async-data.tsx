@@ -239,7 +239,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
           <div className={s.sectionHeader}>
             <Icon icon={GraduationCap} size="lg"  />
             <div>
-              <h2 className={s.sectionTitle}>귀농 교육</h2>
+              <h2 className={s.sectionTitle}>정착 교육</h2>
               <p className={s.sectionDesc}>
                 {province.shortName} 지역에서 수강 가능한 교육 과정이에요.
               </p>

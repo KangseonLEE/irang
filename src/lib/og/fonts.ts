@@ -1,7 +1,7 @@
 /** OG 이미지 전용 폰트 로딩 + 모듈 레벨 캐싱
  *
  * 1) 나눔명조 ExtraBold — 로고 워드마크 전용 ("이랑" 2글자 서브셋)
- * 2) Noto Sans KR — 한글 본문용 (귀농 유형명, 지역명 등 필요 글자 서브셋)
+ * 2) Noto Sans KR — 한글 본문용 (정착 유형명, 지역명 등 필요 글자 서브셋)
  */
 
 type FontData = {
@@ -62,10 +62,10 @@ export async function getOGFonts(): Promise<FontData[]> {
 /**
  * 결과 카드용 한글 폰트 — 로고 + 본문 (Noto Sans KR 700)
  *
- * 서브셋 범위: 귀농 유형명, 지역명, 고정 문구에 사용되는 글자만 포함
+ * 서브셋 범위: 정착 유형명, 지역명, 고정 문구에 사용되는 글자만 포함
  */
 const BODY_SUBSET = [
-  "나의귀농준비결과추천지역",             // 고정 문구
+  "나의farmRecommendRegion",             // 고정 문구
   "귀농형귀촌형귀산촌형스마트팜형청년농형",  // 유형명
   "서울인천경기강원충남북전대구부산울광주세종제주", // 지역 shortName
   "도시와의균형을찾는당신",               // 유형 tagline 일부
@@ -92,7 +92,7 @@ let assessCache: FontData[] | null = null;
 
 const ASSESS_SUBSET = [
   // 고정 문구
-  "나의귀농적합도진단결과총점40",
+  "나의farmFitTotalScore40",
   // 차원 라벨
   "동기마인드셋재정준비도가족생활환경경험역량적응력성향",
   // 티어 이름

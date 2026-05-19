@@ -24,7 +24,7 @@ const TYPE_META: Record<
   event: { label: "체험·행사", icon: CalendarDays },
   guide: { label: "가이드·정보", icon: BookOpen },
   center: { label: "지자체 센터", icon: Building2 },
-  interview: { label: "귀농인 이야기", icon: Users },
+  interview: { label: "정착 이야기", icon: Users },
   glossary: { label: "용어", icon: BookMarked },
   land: { label: "농지·토지", icon: LandPlot },
 };

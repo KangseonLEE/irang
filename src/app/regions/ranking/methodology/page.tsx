@@ -74,13 +74,13 @@ const DIMENSIONS = [
     cycle: "1년에 한 번 갱신",
   },
   {
-    label: "귀농 활성도",
-    desc: "그 지역에 귀농 인구가 얼마나 들어왔는지를 인구 대비로 보여드려요.",
+    label: "농촌 정착 활성도",
+    desc: "그 지역에 정착 인구가 얼마나 들어왔는지를 인구 대비로 보여드려요.",
     source: "통계청 KOSIS 귀농어·귀촌인 통계 (2024년)",
-    formula: "귀농 인구 수 / 그 지역 전체 인구 × 100 = 귀농 비율(%)",
+    formula: "정착 인구 수 / 그 지역 전체 인구 × 100 = 정착 비율(%)",
     normalize:
       "전국 시군구를 줄 세워서 위에서 몇 %인지를 1~100점으로 표시해요.",
-    note: "도시 자치구는 귀농 통계가 따로 잡히지 않아 빠져 있어요.",
+    note: "도시 자치구는 농촌 정착 통계가 따로 잡히지 않아 빠져 있어요.",
     cycle: "1년에 한 번 갱신",
   },
 ] as const;
@@ -161,22 +161,22 @@ export default function MethodologyPage() {
         </div>
       </section>
 
-      {/* 귀농인기 라벨 */}
-      <section className={s.principleBox} aria-label="귀농인기 라벨 기준">
-        <h2 className={s.principleTitle}>‘귀농인기’ 라벨은 어떻게 정해지나요?</h2>
+      {/* 정착 인기 라벨 */}
+      <section className={s.principleBox} aria-label="정착 인기 라벨 기준">
+        <h2 className={s.principleTitle}>‘정착 인기’ 라벨은 어떻게 정해지나요?</h2>
         <p className={s.principleText}>
           이전에는 손으로 표시한 라벨이었지만, 객관성을 높이기 위해{" "}
-          <strong>KOSIS 귀농 인구 비율 전국 상위 25%</strong>를 자동으로
-          ‘귀농인기’로 표시해요. 현재 기준 <strong>{popularCount}개</strong> 시군구가
+          <strong>KOSIS 농촌 정착 인구 비율 전국 상위 25%</strong>를 자동으로
+          ‘정착 인기’로 표시해요. 현재 기준 <strong>{popularCount}개</strong> 시군구가
           해당돼요.
         </p>
       </section>
 
       {/* 페르소나 가중치 */}
-      <section aria-label="귀농 스타일 가중치">
+      <section aria-label="정착 스타일 가중치">
         <h2 className={s.sectionTitle}>맞춤 점수 계산 방식</h2>
         <p className={`${s.principleText} ${s.principleTextSpacedBelow}`}>
-          ‘귀농 스타일 맞춤’ 모드는 사람마다 중요하게 보는 차원이 다르다는 점을
+          ‘정착 스타일 맞춤’ 모드는 사람마다 중요하게 보는 차원이 다르다는 점을
           반영해요. 5가지 차원에 스타일별로 다른 가중치를 곱해서 종합 점수를
           만들어요. 가중치 합은 100이에요.
         </p>
@@ -185,7 +185,7 @@ export default function MethodologyPage() {
         <div
           className={s.weightHeatmap}
           role="table"
-          aria-label="귀농 스타일별 차원 가중치 비교 매트릭스"
+          aria-label="정착 스타일별 차원 가중치 비교 매트릭스"
         >
           <div className={s.weightHeatmapCorner} aria-hidden="true" />
           <div className={s.weightHeatmapHeader}>인구</div>
@@ -199,7 +199,7 @@ export default function MethodologyPage() {
               ["농가 활성도", p.weights.farmActivity],
               ["의료 인프라", p.weights.medical],
               ["학교 인프라", p.weights.school],
-              ["귀농 활성도", p.weights.returnFarm],
+              ["농촌 정착 활성도", p.weights.returnFarm],
             ];
             return (
               <Fragment key={p.id}>
@@ -247,7 +247,7 @@ export default function MethodologyPage() {
                   <dd>{p.weights.school}%</dd>
                 </div>
                 <div>
-                  <dt>귀농 활성도</dt>
+                  <dt>농촌 정착 활성도</dt>
                   <dd>{p.weights.returnFarm}%</dd>
                 </div>
               </dl>
@@ -259,7 +259,7 @@ export default function MethodologyPage() {
         <div className={s.customizeBox} aria-label="가중치 커스터마이징 안내">
           <h3 className={s.customizeTitle}>‘내 기준’으로 가중치 바꾸기</h3>
           <p className={s.customizeText}>
-            귀농 스타일 맞춤 모드 안에 슬라이더 5개가 있어요. 인구·농가·의료·학교·귀농
+            정착 스타일 맞춤 모드 안에 슬라이더 5개가 있어요. 인구·농가·의료·학교·귀농
             비중을 직접 끌어 옮기면 합계는 자동으로 100이 되고, 시군구 순위가 즉시
             새로 줄을 서요. 학교가 가장 중요하다면 학교 슬라이더를 60% 근처까지
             올리는 식이에요.
@@ -282,8 +282,8 @@ export default function MethodologyPage() {
       </section>
 
       {/* Phase 6 — 페르소나 추천 매핑 산식 */}
-      <section className={s.principleBox} aria-label="귀농 스타일 추천">
-        <h2 className={s.principleTitle}>귀농 스타일은 작물·지원사업도 추천해요</h2>
+      <section className={s.principleBox} aria-label="정착 스타일 추천">
+        <h2 className={s.principleTitle}>정착 스타일은 작물·지원사업도 추천해요</h2>
         <p className={s.principleText}>
           시군구 점수뿐 아니라 작물·지원사업도 스타일에 맞게 우선순위를 정해요.
           <strong> 카테고리·난이도·연령 요건</strong>으로 1~5점을 자동 계산하고,
@@ -331,7 +331,7 @@ export default function MethodologyPage() {
         <h2 className={s.principleTitle}>전체 통계</h2>
         <p className={s.principleText}>
           현재 <strong>{totalSigungu}개</strong> 시군구의 차원별 점수가 만들어져
-          있고, <strong>{PERSONAS.length}개</strong> 귀농 스타일로 가중 평균이 계산돼요.
+          있고, <strong>{PERSONAS.length}개</strong> 정착 스타일로 가중 평균이 계산돼요.
           작물 <strong>{CROPS.length}종</strong>·지원사업{" "}
           <strong>{PROGRAMS.length}건</strong>도 스타일별로 매핑돼 있어요.
           데이터가 갱신되면 자동으로 점수도 새로 계산돼요.

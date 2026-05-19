@@ -37,7 +37,7 @@ import tableStyles from "@/app/stats/stats.module.css";
 
 /**
  * 귀농 탭 — 인구 추이 + 만족도 통합
- * 만족도는 귀농인을 대상으로 한 조사이므로 귀농 탭에 흡수.
+ * 만족도는 정착자를 대상으로 한 조사이므로 귀농 탭에 흡수.
  * 귀촌(rural)은 별도 village-stats에서 처리.
  */
 export function FarmingStats() {
@@ -70,16 +70,16 @@ export function FarmingStats() {
             Farming Trend
           </span>
           <h2 className={s.title} id="tabpanel-farming-title">
-            귀농 인구는 얼마나 늘고 있을까?
+            정착 인구는 얼마나 늘고 있을까?
           </h2>
           <p className={s.desc}>
-            2015~2024년 10년간 귀농 인구 변화와 귀농인의 생활 만족도를 한눈에 확인하세요.
+            2015~2024년 10년간 정착 인구 변화와 정착자의 생활 만족도를 한눈에 확인하세요.
           </p>
         </div>
         <div className={s.kpiRow}>
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>{popLatest.farming}만</span>
-            <span className={s.kpiLabel}>2024 귀농 인구</span>
+            <span className={s.kpiLabel}>2024 정착 인구</span>
           </div>
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
@@ -106,14 +106,14 @@ export function FarmingStats() {
         </div>
       </header>
 
-      <ReferenceNotice text="귀농 통계와 만족도는 통계청·농림축산식품부 공공데이터를 가공한 참고 자료예요." />
+      <ReferenceNotice text="농촌 정착 통계와 만족도는 통계청·농림축산식품부 공공데이터를 가공한 참고 자료예요." />
 
       {/* ── 인구 추이 + 연도별 표 ── */}
       <div className={s.dashGrid}>
         <section className={s.card} aria-labelledby="farming-chart-title">
           <h3 className={s.cardTitle} id="farming-chart-title">
             <Icon icon={TrendingUp} size="lg" className={s.cardIcon} />
-            귀농 인구 추이
+            정착 인구 추이
           </h3>
           <PopulationTrendChart data={populationData} mode="farming" />
           <DataSource source={populationSummary.source} />
@@ -204,7 +204,7 @@ export function FarmingStats() {
       {/* ── 원인 분석 (인구 + 만족도) ── */}
       <section className={s.card}>
         <CauseAnalysisSection
-          title="귀농 인구 변화의 배경"
+          title="정착 인구 변화의 배경"
           causes={populationCauses}
         />
       </section>
@@ -223,7 +223,7 @@ export function FarmingStats() {
         </blockquote>
         <Link href="/interviews" className={s.interviewCta}>
           <Icon icon={MessageCircle} size="md" />
-          <span>귀농인들의 생생한 이야기</span>
+          <span>정착자들의 생생한 이야기</span>
           <Icon icon={ArrowRight} size="sm" />
         </Link>
       </div>
@@ -245,7 +245,7 @@ function FarmingYearlyTable() {
         <thead>
           <tr>
             <th scope="col">연도</th>
-            <th scope="col">귀농 인구</th>
+            <th scope="col">정착 인구</th>
             <th scope="col">전년 대비</th>
           </tr>
         </thead>

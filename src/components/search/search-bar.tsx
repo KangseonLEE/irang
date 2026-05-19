@@ -743,7 +743,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                   </Link>
                   <Link href="/guide" className={s.quickItem} onClick={handleQuickNav}>
                     <Compass size={16} />
-                    <span>귀농 로드맵</span>
+                    <span>정착 로드맵</span>
                   </Link>
                   <Link href="/education" className={s.quickItem} onClick={handleQuickNav}>
                     <GraduationCap size={16} />
@@ -783,7 +783,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                 </div>
               </div>
 
-              {/* 귀농 단계별 가이드 — 카드 grid */}
+              {/* 농촌 정착 단계별 가이드 — 카드 grid */}
               <div className={s.expandedSection}>
                 <div className={s.sectionLabel}>단계별 가이드</div>
                 <div className={s.guideStepsGrid}>

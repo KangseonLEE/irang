@@ -32,10 +32,10 @@ const FarmingCalendar = dynamic(
 );
 
 export const metadata: Metadata = {
-  title: "귀농 작물 정보 — 수익·난이도·재배환경 비교",
+  title: "정착 작물 정보 — 수익·난이도·재배환경 비교",
   description:
     "딸기, 블루베리, 감귤 등 귀농 인기 작물의 수익성, 난이도, 기후 조건을 비교하세요. 초보자 추천 작물부터 고소득 작물까지 한눈에 확인할 수 있어요.",
-  keywords: ["귀농 작물", "귀농 작물 추천", "작물 수익", "작물 재배", "귀농 초보 작물", "고소득 작물"],
+  keywords: ["정착 작물", "정착 작물 추천", "작물 수익", "작물 재배", "정착 초보 작물", "고소득 작물"],
   alternates: { canonical: "/crops" },
 };
 
@@ -112,7 +112,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
           mainEntity: [
             {
               "@type": "Question",
-              name: "초보자에게 추천하는 귀농 작물은 무엇인가요?",
+              name: "초보자에게 추천하는 정착 작물은 무엇인가요?",
               acceptedAnswer: {
                 "@type": "Answer",
                 text: "쌀, 고구마, 감자 등 밭작물이 난이도가 낮아 초보자에게 적합해요. 시설 투자가 적고 재배 기술이 비교적 간단해요.",
@@ -120,7 +120,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
             },
             {
               "@type": "Question",
-              name: "귀농 작물별 예상 소득은 어떻게 되나요?",
+              name: "정착 작물별 예상 소득은 어떻게 되나요?",
               acceptedAnswer: {
                 "@type": "Answer",
                 text: "농촌진흥청 자료 기준, 딸기는 10a당 약 171만 원, 사과 약 114만 원, 쌀 약 57만 원 수준이에요. 작물별 상세 소득은 이랑에서 비교할 수 있어요.",

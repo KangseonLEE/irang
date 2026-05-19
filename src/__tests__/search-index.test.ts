@@ -229,10 +229,10 @@ describe("의도형 FAQ 시드 — 맞춤/추천 의도 매칭", () => {
 
   it("기존 SEARCH_FAQS 매칭은 영향받지 않는다 (회귀 차단)", () => {
     // 비용 가이드
-    const costs = searchAll("귀농 비용 얼마나 들어");
+    const costs = searchAll("정착 비용 얼마나 들어");
     expect(costs.some((r) => r.id === "faq-/costs")).toBe(true);
     // 청년 통계
-    const youth = searchAll("청년 귀농 지원금");
+    const youth = searchAll("청년 농촌 정착 지원금");
     expect(youth.some((r) => r.id === "faq-/stats?tab=youth")).toBe(true);
     // 농지은행
     const land = searchAll("농지은행이 뭐야");

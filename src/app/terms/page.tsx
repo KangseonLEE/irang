@@ -37,7 +37,7 @@ export default function TermsPage() {
         </div>
         <div className={s.sectionBody}>
           <p>
-            이랑은 귀농을 고려하는 분들을 위해 공공데이터를 가공·정리하여
+            이랑은 농촌 정착을 고려하는 분들을 위해 공공데이터를 가공·정리하여
             제공하는 정보 큐레이션 서비스예요. 정부·지자체의 공식 서비스가
             아니며, 별도의 회원가입 없이 이용할 수 있어요.
           </p>
@@ -56,7 +56,7 @@ export default function TermsPage() {
           </p>
           <div className={s.highlight}>
             이랑은 정보의 최신성·완결성·정확성을 보장하지 않아요. 지원사업
-            신청, 귀농지 선택 등 중요한 결정은 반드시 해당 기관이나 전문가에게
+            신청, 정착지 선택 등 중요한 결정은 반드시 해당 기관이나 전문가에게
             직접 확인해 주세요.
           </div>
           <p>
@@ -90,12 +90,12 @@ export default function TermsPage() {
       <section className={s.section}>
         <div className={s.sectionHeader}>
           <Quote size={18} />
-          <h2 className={s.sectionTitle}>제4조 (귀농인 인터뷰 인용 정책)</h2>
+          <h2 className={s.sectionTitle}>제4조 (정착 인터뷰 인용 정책)</h2>
         </div>
         <div className={s.sectionBody}>
           <p>
             이랑은 농민신문·서울신문·KBC광주방송 등 공인 언론에 보도된
-            귀농인 인터뷰 일부를 큐레이션하여 소개해요. 인용 범위와 처리
+            정착 인터뷰 일부를 큐레이션하여 소개해요. 인용 범위와 처리
             방식은 다음과 같아요.
           </p>
           <ul className={s.sourceList}>

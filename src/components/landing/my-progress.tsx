@@ -70,7 +70,7 @@ export function MyProgress() {
   const overallPercent = Math.round((totalDone / totalItems) * 100);
 
   return (
-    <section className={s.section} aria-label="나의 귀농 준비 현황">
+    <section className={s.section} aria-label="나의 정착 준비 현황">
       <div className={s.header}>
         <div className={s.headerLeft}>
           <Sparkles size={18} className={s.headerIcon} />

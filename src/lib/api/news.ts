@@ -25,9 +25,9 @@ const DISPLAY_COUNT = 10; // 중복 제거 후에도 충분한 기사 확보
 
 /** 카테고리별 검색 키워드 */
 const CATEGORY_QUERIES: Record<string, string> = {
-  education: "귀농 교육 농업 연수",
+  education: "정착 교육 농업 연수",
   event: "농촌 축제 체험 박람회",
-  program: "귀농 지원사업 보조금 정착",
+  program: "농촌 정착 지원사업 보조금 정착",
   policy: "귀농 귀촌 정부 정책 발표",
 };
 
@@ -309,7 +309,7 @@ export async function fetchLatestNews(): Promise<NewsArticle[] | null> {
 
 /**
  * 카테고리별 뉴스를 가져옵니다.
- * - education: 귀농 교육 관련 기사
+ * - education: 정착 교육 관련 기사
  * - event: 농촌 축제·체험 관련 기사
  * - program: 지원사업·보조금 관련 기사
  */

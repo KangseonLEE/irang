@@ -20,15 +20,15 @@ import type { Article } from "schema-dts";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농 실패 사례 — 실패에서 배우는 준비 핵심 | 이랑",
+  title: "정착 실패 사례 — 실패에서 배우는 준비 핵심 | 이랑",
   description:
-    "귀농 실패 사례 5가지와 대처법을 정리했어요. 준비 없는 귀농, 과도한 투자, 작물 선택 실패, 사회적 고립, 판로 미확보까지 — 같은 실수를 피하세요.",
+    "정착 실패 사례 5가지와 대처법을 정리했어요. 준비 없는 귀농, 과도한 투자, 작물 선택 실패, 사회적 고립, 판로 미확보까지 — 같은 실수를 피하세요.",
   keywords: [
-    "귀농 실패 사례",
-    "귀농 실패 이유",
-    "귀농 후회",
+    "정착 실패 사례",
+    "정착 실패 이유",
+    "정착 후회",
     "귀농 실패",
-    "귀농 주의사항",
+    "정착 주의사항",
   ],
   alternates: { canonical: "/guides/failure-cases" },
 };
@@ -76,7 +76,7 @@ const FAILURE_CASES: FailureCase[] = [
     detail:
       "문화 시설, 편의 시설 부족에 지역 커뮤니티 적응까지 — 가족 간 갈등으로 이어지는 경우도 많아요. 특히 배우자와 자녀의 적응이 중요해요.",
     solution:
-      "귀농인 모임에 참여하고, 지역 행사에 적극적으로 나가보세요. 정착 전 가족과 충분히 대화하는 것도 필수예요.",
+      "정착자 모임에 참여하고, 지역 행사에 적극적으로 나가보세요. 정착 전 가족과 충분히 대화하는 것도 필수예요.",
   },
   {
     icon: ShoppingCart,
@@ -90,7 +90,7 @@ const FAILURE_CASES: FailureCase[] = [
 ];
 
 const CHECKLIST = [
-  { text: "귀농 교육 100시간 이상 이수했나요?", href: "/education" },
+  { text: "정착 교육 100시간 이상 이수했나요?", href: "/education" },
   { text: "생활비 2년치를 별도로 확보했나요?", href: "/costs" },
   { text: "지역 기후에 맞는 작물을 확인했나요?", href: "/crops/compare" },
   { text: "가족과 충분히 대화하고 합의했나요?", href: null },
@@ -102,7 +102,7 @@ const CTA_LINKS = [
   { label: "체험 행사 일정", href: "/events" },
   { label: "작물 비교하기", href: "/crops/compare" },
   { label: "비용 가이드 보기", href: "/costs" },
-  { label: "귀농인 이야기 읽기", href: "/interviews" },
+  { label: "정착 이야기 읽기", href: "/interviews" },
 ];
 
 export default function FailureCasesGuidePage() {
@@ -110,8 +110,8 @@ export default function FailureCasesGuidePage() {
     <article className={s.page}>
       <BreadcrumbJsonLd
         items={[
-          { name: "귀농 가이드", href: "/guides" },
-          { name: "귀농 실패 사례", href: "/guides/failure-cases" },
+          { name: "농촌 정착 가이드", href: "/guides" },
+          { name: "정착 실패 사례", href: "/guides/failure-cases" },
         ]}
       />
       <JsonLd<Article>
@@ -120,7 +120,7 @@ export default function FailureCasesGuidePage() {
           "@type": "Article",
           headline: "귀농, 왜 실패할까?",
           description:
-            "실패 사례에서 배우는 귀농 준비의 핵심이에요.",
+            "실패 사례에서 배우는 정착 준비의 핵심이에요.",
           author: {
             "@type": "Organization",
             name: "이랑",
@@ -133,7 +133,7 @@ export default function FailureCasesGuidePage() {
       <SubPageHero
         overline="FAILURE CASES"
         title="귀농, 왜 실패할까?"
-        description="실패 사례에서 배우는 귀농 준비의 핵심이에요."
+        description="실패 사례에서 배우는 정착 준비의 핵심이에요."
       />
 
       {/* -- 실패 유형 카드 -- */}
@@ -220,7 +220,7 @@ export default function FailureCasesGuidePage() {
         <h3 className={s.relatedTitle}>다음 가이드</h3>
         <div className={s.relatedLinks}>
           <Link href="/guides/preparation" className={s.relatedLink}>
-            귀농 준비 순서 보기
+            정착 준비 순서 보기
             <Icon icon={ArrowRight} size="sm" />
           </Link>
           <Link href="/guides/beginner-crops" className={s.relatedLink}>
@@ -228,7 +228,7 @@ export default function FailureCasesGuidePage() {
             <Icon icon={ArrowRight} size="sm" />
           </Link>
           <Link href="/guides/budget-50s" className={s.relatedLink}>
-            50대 귀농 자본 알아보기
+            50대 정착 자본 알아보기
             <Icon icon={ArrowRight} size="sm" />
           </Link>
         </div>

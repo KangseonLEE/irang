@@ -16,7 +16,7 @@ import s from "./page.module.css";
 export const metadata: Metadata = {
   title: "이용 안내 및 면책 고지",
   description:
-    "이랑은 공공데이터 기반 귀농 정보 큐레이션 서비스예요. 데이터 출처, 정확성, 이용 시 유의사항을 안내해요.",
+    "이랑은 공공데이터 기반 농촌 정착 정보 큐레이션 서비스예요. 데이터 출처, 정확성, 이용 시 유의사항을 안내해요.",
   alternates: { canonical: "/about/disclaimer" },
 };
 
@@ -82,7 +82,7 @@ export default function DisclaimerPage() {
         </div>
         <div className={s.sectionBody}>
           <p>
-            <AutoGlossary text="이랑은 귀농을 준비하는 분들을 위한 정보 큐레이션 서비스예요." />
+            <AutoGlossary text="이랑은 농촌 정착을 준비하는 분들을 위한 정보 큐레이션 서비스예요." />
           </p>
           <p>
             <AutoGlossary text="공공데이터포털, 농촌진흥청, 통계청, 기상청 등 공공기관이 제공하는 데이터를 정리해서 보여드려요." />

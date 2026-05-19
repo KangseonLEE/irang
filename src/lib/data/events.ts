@@ -1,5 +1,5 @@
 /**
- * 귀농 체험·행사 데이터
+ * 농촌 정착 체험·행사 데이터
  * - 2026년 실제 검증 데이터 (공식 웹사이트·언론 보도 기반)
  * - Supabase DB 연동 시 폴백으로 사용
  * - 마지막 업데이트: 2026-04-06
@@ -85,7 +85,7 @@ export const EVENTS: FarmEvent[] = [
     description:
       "120개사 400부스 규모의 스마트농업·귀농귀촌 박람회이에요. 스마트팜 기술 전시, 심포지엄·세미나가 진행되며 경남국제축산박람회(GILEX)가 동시 개최돼요.",
     capacity: null,
-    target: "스마트팜 도입 희망 농업인, 귀농 예정자, 농업 기업",
+    target: "스마트팜 도입 희망 농업인, 농촌 정착 예정자, 농업 기업",
     url: "https://sfkorea.kr/",
     status: "접수중",
   },
@@ -119,7 +119,7 @@ export const EVENTS: FarmEvent[] = [
     location: "수원메쎄",
     cost: "무료 (참관객)",
     description:
-      "농업·축산·귀농귀촌 분야 종합 박람회로 수원메쎄에서 개최돼요. 귀농 정보 상담, 농업 기술 전시, 지역 홍보 부스 등이 운영돼요.",
+      "농업·축산·귀농귀촌 분야 종합 박람회로 수원메쎄에서 개최돼요. 농촌 정착 정보 상담, 농업 기술 전시, 지역 홍보 부스 등이 운영돼요.",
     capacity: null,
     target: "귀농귀촌 희망자, 농업 관심 시민",
     url: "https://www.showala.com/ex/ex_detail.php?idx=3305",
@@ -138,7 +138,7 @@ export const EVENTS: FarmEvent[] = [
     location: "전라북도 무주군",
     cost: "문의 필요 (1551-6858)",
     description:
-      "무주군에 3개월간 체류하며 사과, 블루베리 등 지역 특화작목 영농체험을 하는 프로그램이에요. 지역 탐색, 주민 교류 등 귀농 전 농촌생활을 직접 체험할 수 있어요.",
+      "무주군에 3개월간 체류하며 사과, 블루베리 등 지역 특화작목 영농체험을 하는 프로그램이에요. 지역 탐색, 주민 교류 등 정착 전 농촌 생활을 직접 체험할 수 있어요.",
     capacity: null,
     target: "전북 귀농귀촌 관심자",
     url: "https://www.mjjnews.net/news/article.html?no=55756",
@@ -159,7 +159,7 @@ export const EVENTS: FarmEvent[] = [
     description:
       "영월군에 3개월간 체류하며 주요 작물 재배기술을 습득하고, 영농실습과 지역 주민 교류를 통해 귀농 적응력을 키우는 프로그램이에요. 5명 선발.",
     capacity: 5,
-    target: "귀농 희망자",
+    target: "농촌 정착 희망자",
     url: "https://gecpo.org/552867",
     status: "마감",
   },

@@ -21,7 +21,7 @@ export interface LandType {
   description: string;
   /** 귀농 관련도 */
   farmingRelevance: "핵심" | "중요" | "부수";
-  /** 귀농 관점 설명 */
+  /** 정착 관점 설명 */
   farmingDescription: string;
   /** 아이콘 */
   icon: string;
@@ -201,7 +201,7 @@ export interface ZoningType {
   id: string;
   /** 용도지역 명칭 */
   name: string;
-  /** 귀농 관점 설명 */
+  /** 정착 관점 설명 */
   farmingDescription: string;
   /** 건축 가능 난이도 */
   buildingEase: "용이" | "조건부" | "제한" | "불가";
@@ -292,7 +292,7 @@ export const EXTERNAL_LAND_SERVICES: ExternalLandService[] = [
     name: "농지은행",
     url: "https://www.fbo.or.kr",
     description:
-      "한국농어촌공사에서 운영하는 농지 매매·임대차 중개 플랫폼. 귀농인을 위한 농지 매물 정보, 농지 임대·위탁경영 서비스를 제공하며, 농지연금 상담도 가능해요.",
+      "한국농어촌공사에서 운영하는 농지 매매·임대차 중개 플랫폼. 정착자를 위한 농지 매물 정보, 농지 임대·위탁경영 서비스를 제공하며, 농지연금 상담도 가능해요.",
     icon: "🌾",
   },
 ];

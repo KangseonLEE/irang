@@ -27,7 +27,7 @@ export function HotPrograms() {
           <span className={s.eyebrow}>#모집 중인 공고</span>
           <h2 className={s.title}>지금 신청할 수 있는 <em>지원사업</em></h2>
           <p className={s.subtitle}>
-            귀농을 준비하는 분들이 가장 많이 찾는 공고예요
+            농촌 정착을 준비하는 분들이 가장 많이 찾는 공고예요
           </p>
         </div>
         <Link href="/programs" className={s.viewAll}>

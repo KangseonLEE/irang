@@ -16,19 +16,19 @@ import type { CollectionPage } from "schema-dts";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농 가이드 모음 | 이랑",
+  title: "농촌 정착 가이드 모음 | 이랑",
   description:
-    "귀농 준비 순서, 50대 귀농 자본, 1인 귀농, 실패 사례, 초보 추천 작물까지 — 상황별 귀농 가이드를 모았어요.",
+    "정착 준비 순서, 50대 정착 자본, 1인 귀농, 실패 사례, 초보 추천 작물까지 — 상황별 농촌 정착 가이드를 모았어요.",
   alternates: { canonical: "/guides" },
   keywords: [
-    "귀농 가이드",
-    "귀농 준비",
-    "귀농 비용",
+    "농촌 정착 가이드",
+    "정착 준비",
+    "정착 비용",
     "50대 귀농",
     "1인 귀농",
-    "귀농 절차",
-    "귀농 실패 사례",
-    "초보 귀농 추천 작물",
+    "농촌 정착 절차",
+    "정착 실패 사례",
+    "초보 정착 추천 작물",
   ],
 };
 
@@ -36,37 +36,37 @@ const GUIDES = [
   {
     href: "/guides/preparation",
     icon: ClipboardList,
-    title: "귀농 준비 순서",
+    title: "정착 준비 순서",
     desc: "정보 수집부터 영농 시작까지, 5단계로 정리했어요.",
-    keywords: ["귀농 준비 순서", "귀농 절차", "귀농 준비 체크리스트"],
+    keywords: ["정착 준비 순서", "농촌 정착 절차", "정착 준비 체크리스트"],
   },
   {
     href: "/guides/budget-50s",
     icon: Wallet,
-    title: "50대 귀농 자본",
+    title: "50대 정착 자본",
     desc: "은퇴 후 귀농, 현실적인 비용과 전략을 알려드려요.",
-    keywords: ["50대 귀농 자본", "50대 귀농 비용", "50대 귀농 준비"],
+    keywords: ["50대 정착 자본", "50대 정착 비용", "50대 정착 준비"],
   },
   {
     href: "/guides/solo-farming",
     icon: User,
     title: "1인 귀농",
     desc: "혼자서도 가능한 귀농, 준비가 다를 뿐이에요.",
-    keywords: ["1인 귀농", "혼자 귀농", "1인 귀농 가능"],
+    keywords: ["1인 귀농", "혼자 귀농", "1인 농촌 정착 가능"],
   },
   {
     href: "/guides/failure-cases",
     icon: AlertTriangle,
-    title: "귀농 실패 사례",
-    desc: "실패 사례에서 배우는 귀농 준비의 핵심이에요.",
-    keywords: ["귀농 실패 사례", "귀농 실패 이유", "귀농 후회"],
+    title: "정착 실패 사례",
+    desc: "실패 사례에서 배우는 정착 준비의 핵심이에요.",
+    keywords: ["정착 실패 사례", "정착 실패 이유", "정착 후회"],
   },
   {
     href: "/guides/beginner-crops",
     icon: Sprout,
     title: "초보 추천 작물",
     desc: "난이도 낮고 안정적인 작물로 시작하세요.",
-    keywords: ["초보 귀농 추천 작물", "귀농 초보 작물", "쉬운 작물"],
+    keywords: ["초보 정착 추천 작물", "정착 초보 작물", "쉬운 작물"],
   },
 ] as const;
 
@@ -74,15 +74,15 @@ export default function GuidesPage() {
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd
-        items={[{ name: "귀농 가이드", href: "/guides" }]}
+        items={[{ name: "농촌 정착 가이드", href: "/guides" }]}
       />
       <JsonLd<CollectionPage>
         data={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "귀농 가이드 모음",
+          name: "농촌 정착 가이드 모음",
           description:
-            "귀농 준비 순서, 50대 귀농 자본, 1인 귀농, 실패 사례, 초보 추천 작물까지 — 상황별 귀농 가이드 모음",
+            "정착 준비 순서, 50대 정착 자본, 1인 귀농, 실패 사례, 초보 추천 작물까지 — 상황별 농촌 정착 가이드 모음",
           url: "https://irangfarm.com/guides",
         }}
       />
@@ -92,7 +92,7 @@ export default function GuidesPage() {
           <Icon icon={BookOpen} size="sm" />
           GUIDE
         </span>
-        <h1 className={s.title}>상황별 귀농 가이드</h1>
+        <h1 className={s.title}>상황별 농촌 정착 가이드</h1>
         <p className={s.desc}>
           귀농이 막막할 때, 내 상황에 맞는 가이드부터 읽어보세요.
         </p>

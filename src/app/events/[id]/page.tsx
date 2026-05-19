@@ -38,7 +38,7 @@ export async function generateMetadata({
   return {
     title: `${event.title} — ${event.type} | ${event.region}`,
     description: `${event.region}에서 열리는 ${event.type} "${event.title}". ${event.description.slice(0, 120)}`,
-    keywords: [`${event.region} 귀농 체험`, `귀농 ${event.type}`, "귀농 행사", "농촌 체험"],
+    keywords: [`${event.region} 농촌 정착 체험`, `귀농 ${event.type}`, "귀농 행사", "농촌 체험"],
     alternates: { canonical: `/events/${id}` },
   };
 }

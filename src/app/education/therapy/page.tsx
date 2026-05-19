@@ -30,7 +30,7 @@ export default function TherapyPage() {
     <>
       <BreadcrumbJsonLd
         items={[
-          { name: "귀농 교육", href: "/education" },
+          { name: "정착 교육", href: "/education" },
           { name: "치유·사회적 농업", href: "/education/therapy" },
         ]}
       />
@@ -117,7 +117,7 @@ export default function TherapyPage() {
             <div className={s.crossLinkText}>
               <span className={s.crossLinkTitle}>
                 <FileText size={14} aria-hidden="true" />
-                귀농 지원사업 보기
+                농촌 정착 지원사업 보기
               </span>
               <span className={s.crossLinkDesc}>
                 지원금·정책 한눈에 확인하세요
@@ -129,7 +129,7 @@ export default function TherapyPage() {
             <div className={s.crossLinkText}>
               <span className={s.crossLinkTitle}>
                 <GraduationCap size={14} aria-hidden="true" />
-                귀농 교육 과정 보기
+                정착 교육 과정 보기
               </span>
               <span className={s.crossLinkDesc}>
                 온·오프라인 교육을 지역별로 찾아보세요

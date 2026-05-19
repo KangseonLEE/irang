@@ -11,7 +11,7 @@ const API_BASE =
 
 /** KOSIS 통계표 ID */
 export const KOSIS_TABLE = {
-  /** 시군구별·성별 귀농가구원 (귀농인수) */
+  /** 시군구별·성별 귀농가구원 (정착자 수) */
   RETURN_FARM_PERSON: "DT_1A02002",
   /** 시군구별·가구원수별 귀농가구 (가구수) */
   RETURN_FARM_HOUSEHOLD: "DT_1A02008",
@@ -453,9 +453,9 @@ export interface ReturnFarmData {
   regionCode: string;
   /** 지역명 */
   regionName: string;
-  /** 귀농인 수 (명) */
+  /** 정착자 수 (명) */
   returnFarmPerson: number;
-  /** 귀농가구 수 (가구) */
+  /** 정착 가구 수 (가구) */
   returnFarmHousehold: number;
   /** 귀촌인 수 (명) */
   returnRuralPerson: number;
@@ -467,8 +467,8 @@ export interface ReturnFarmData {
  * KOSIS에서 시군구별 귀농·귀촌 통계를 조회한다.
  *
  * 3개 테이블 병렬 호출:
- * - DT_1A02002: 귀농인 수 (itmId=T02, C2=0 계)
- * - DT_1A02008: 귀농가구 수 (itmId=T01, C2=00 계)
+ * - DT_1A02002: 정착자 수 (itmId=T02, C2=0 계)
+ * - DT_1A02008: 정착 가구 수 (itmId=T01, C2=00 계)
  * - DT_1A02015: 귀촌인 수 (itmId=T01, C2=0 계)
  *
  * @param regionCode 시군구 코드 (5자리, 없으면 전체 조회)
@@ -540,7 +540,7 @@ async function fetchReturnFarmForYear(
       parseJson(ruralRes),
     ]);
 
-    // 귀농인수가 없으면 해당 연도 데이터 없음
+    // 정착자 수가 없으면 해당 연도 데이터 없음
     if (personItems.length === 0) return [];
 
     return mergeReturnFarmData(personItems, householdItems, ruralItems, year);
@@ -560,7 +560,7 @@ function mergeReturnFarmData(
 ): ReturnFarmData[] {
   const regionMap = new Map<string, ReturnFarmData>();
 
-  // 귀농인 수 (T02 = 귀농인수)
+  // 정착자 수 (T02 = 정착자 수)
   for (const item of personItems) {
     if (item.ITM_ID !== "T02") continue;
     const value = parseInt(item.DT, 10);
@@ -581,7 +581,7 @@ function mergeReturnFarmData(
     }
   }
 
-  // 귀농가구 수 (T01 = 가구수)
+  // 정착 가구 수 (T01 = 가구수)
   for (const item of householdItems) {
     if (item.ITM_ID !== "T01") continue;
     const value = parseInt(item.DT, 10);

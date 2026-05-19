@@ -11,14 +11,14 @@ import shared from "./stats.module.css";
 export const metadata: Metadata = {
   title: "귀농·귀촌 통계 — 인구·청년·귀산촌·스마트팜·만족도",
   description:
-    "연도별 귀농·귀촌 인구, 청년농 비율, 귀산촌 가구, 스마트팜 도입, 귀농 만족도까지 — 공공데이터 기반 통계를 한곳에서 확인하세요.",
+    "연도별 귀농·귀촌 인구, 청년농 비율, 귀산촌 가구, 스마트팜 도입, 정착 만족도까지 — 공공데이터 기반 통계를 한곳에서 확인하세요.",
   keywords: [
-    "귀농 통계",
+    "농촌 정착 통계",
     "귀촌 통계",
     "청년농 통계",
     "귀산촌 통계",
     "스마트팜 통계",
-    "귀농 만족도",
+    "정착 만족도",
   ],
   alternates: { canonical: "/stats" },
   openGraph: {

@@ -20,7 +20,7 @@ interface HeroSearchTriggerProps {
  * 진짜 input이 autoFocus 된다. 기존 `/search` 페이지 이동 동작은 오버레이 내에서 유지.
  */
 export function HeroSearchTrigger({
-  placeholder = "궁금한 귀농 정보를 검색해보세요",
+  placeholder = "궁금한 농촌 정착 정보를 검색해보세요",
   mobilePlaceholder = "지역, 작물, 교육, 비용 검색",
 }: HeroSearchTriggerProps) {
   const { open } = useSearchOverlay();

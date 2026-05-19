@@ -87,12 +87,12 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     icon: Sprout,
     summary:
       "도시에서 농촌으로 이주하여 농업에 종사하려는 분을 위한 포괄적 정착 지원 사업이에요. 창업자금 최대 3억 원(연 2%, 5년 거치 10년 상환)과 주택구입비 최대 7,500만 원을 융자 지원해요.",
-    targetAudience: "귀농인 · 재촌비농업인 · 귀농희망자 (만 65세 이하)",
+    targetAudience: "정착자 · 재촌비농업인 · 농촌 정착 희망자 (만 65세 이하)",
     supportAmount: "창업자금 최대 3억 원 + 주택자금 최대 7,500만 원 (융자)",
     supportType: "융자",
     eligibility: [
       {
-        label: "귀농 교육 이수",
+        label: "정착 교육 이수",
         detail: "농업교육기관 100시간 이상 이수 (온·오프라인 병행 가능)",
         required: true,
       },
@@ -134,9 +134,9 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     steps: [
       {
         order: 1,
-        title: "귀농 교육 이수",
+        title: "정착 교육 이수",
         description:
-          "농림수산식품교육문화정보원(농정원) 또는 각 시·도 농업기술원에서 운영하는 귀농 교육을 100시간 이상 이수해요.",
+          "농림수산식품교육문화정보원(농정원) 또는 각 시·도 농업기술원에서 운영하는 정착 교육을 100시간 이상 이수해요.",
         duration: "2~6개월",
         tips: [
           "온라인 교육은 최대 50시간까지 인정돼요",
@@ -181,7 +181,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         documents: [
           "사업 신청서 (지자체 양식)",
           "농업창업계획서 (작물, 규모, 투자 계획)",
-          "귀농 교육 이수 확인서 (100시간 이상)",
+          "정착 교육 이수 확인서 (100시간 이상)",
           "농업경영체 등록 확인서",
           "주민등록등본 (농촌 전입 확인)",
           "가족관계증명서",
@@ -209,7 +209,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     requiredDocuments: [
       "사업 신청서 (지자체 양식)",
       "농업창업계획서 (작물, 규모, 투자 계획)",
-      "귀농 교육 이수 확인서 (100시간 이상)",
+      "정착 교육 이수 확인서 (100시간 이상)",
       "농업경영체 등록 확인서",
       "주민등록등본 (농촌 전입 확인)",
       "가족관계증명서",
@@ -227,7 +227,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       "농촌 거주지 이탈(도시 전출) 시 지원금 반환",
     ],
     caution:
-      "귀농 교육 이수 없이는 신청 자격이 부여되지 않아요. 교육은 반드시 사전에 완료해야 하며, 일부 지자체는 해당 지역 교육만 인정하는 경우도 있으니 공고문을 꼼꼼히 확인하세요.",
+      "정착 교육 이수 없이는 신청 자격이 부여되지 않아요. 교육은 반드시 사전에 완료해야 하며, 일부 지자체는 해당 지역 교육만 인정하는 경우도 있으니 공고문을 꼼꼼히 확인하세요.",
     relatedLinks: [
       { label: "지역 비교하기", href: "/regions" },
       { label: "귀농 5단계 가이드", href: "/guide" },
@@ -451,8 +451,8 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     agency: "한국농어촌공사",
     icon: Landmark,
     summary:
-      "농지를 확보하기 어려운 귀농인과 청년 농업인에게 임대수탁, 선임대후매도, 매매 등의 서비스를 제공해요. 2026년부터 위탁 수수료가 전면 폐지되어 농업인 부담이 크게 줄었어요.",
-    targetAudience: "농업인, 귀농인, 청년 농업인, 농업법인",
+      "농지를 확보하기 어려운 정착자과 청년 농업인에게 임대수탁, 선임대후매도, 매매 등의 서비스를 제공해요. 2026년부터 위탁 수수료가 전면 폐지되어 농업인 부담이 크게 줄었어요.",
+    targetAudience: "농업인, 정착자, 청년 농업인, 농업법인",
     supportAmount: "임대 표준임차료 기준 · 매매 연리 1% (최장 30년)",
     supportType: "현물",
     eligibility: [
@@ -477,8 +477,8 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         required: false,
       },
       {
-        label: "귀농인 우대",
-        detail: "귀농 교육 이수 후 5년 이내 귀농인은 우선 배정",
+        label: "정착자 우대",
+        detail: "정착 교육 이수 후 5년 이내 정착자는 우선 배정",
         required: false,
       },
     ],
@@ -605,7 +605,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         conditions: [
           "부채·재해로 경영 곤란 농업인",
           "경영 회복 후 우선 매수권",
-          "귀농인·청년 농업인 우선 배정",
+          "정착자·청년 농업인 우선 배정",
         ],
       },
       {

@@ -47,7 +47,7 @@ export default function ShelterGuidePage() {
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[
-        { name: "귀농 로드맵", href: "/guide" },
+        { name: "정착 로드맵", href: "/guide" },
         { name: "농촌체류형 쉼터", href: "/guide/shelter" },
       ]} />
       <SubPageHero

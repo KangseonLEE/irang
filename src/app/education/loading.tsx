@@ -10,7 +10,7 @@ export default function EducationLoading() {
           <GraduationCap size={20} />
           <span className={s.overlineText}>Education</span>
         </div>
-        <h2 className={s.title}>귀농 교육</h2>
+        <h2 className={s.title}>정착 교육</h2>
         <p className={s.description}>
           교육 과정을 불러오고 있습니다...
         </p>

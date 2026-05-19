@@ -56,7 +56,7 @@ const sectionNavItems = [
 ];
 
 export const metadata: Metadata = {
-  title: "귀농 교육 — 온라인·현장 실습·멘토링 과정 검색",
+  title: "정착 교육 — 온라인·현장 실습·멘토링 과정 검색",
   description:
     "귀농 귀촌 교육 과정을 검색하세요. 100시간 필수 교육, 온라인·오프라인 실습, 멘토링 프로그램 일정과 신청 방법을 한눈에 비교해요.",
   alternates: { canonical: "/education" },
@@ -146,7 +146,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
           mainEntity: [
             {
               "@type": "Question",
-              name: "귀농 교육은 어디서 받을 수 있나요?",
+              name: "정착 교육은 어디서 받을 수 있나요?",
               acceptedAnswer: {
                 "@type": "Answer",
                 text: "각 시·도 농업기술센터, 귀농귀촌종합센터, 농업대학 등에서 온·오프라인 교육을 제공해요. 대부분 무료이고, 수료 시 지원사업 가산점을 받을 수 있어요.",
@@ -154,16 +154,16 @@ export default async function EducationPage({ searchParams }: PageProps) {
             },
             {
               "@type": "Question",
-              name: "귀농 교육 기간은 얼마나 걸리나요?",
+              name: "정착 교육 기간은 얼마나 걸리나요?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "단기 과정은 1~5일, 장기 과정은 3개월~1년까지 다양해요. 귀농 준비 단계에 맞는 과정을 선택하는 것이 중요해요.",
+                text: "단기 과정은 1~5일, 장기 과정은 3개월~1년까지 다양해요. 정착 준비 단계에 맞는 과정을 선택하는 것이 중요해요.",
               },
             },
           ],
         }}
       />
-      <BreadcrumbJsonLd items={[{ name: "귀농 교육", href: "/education" }]} />
+      <BreadcrumbJsonLd items={[{ name: "정착 교육", href: "/education" }]} />
       {/* 섹션 내비게이션 — .page 바깥에서 full-width sticky */}
       <Suspense>
         <SectionNav items={sectionNavItems} />
@@ -179,7 +179,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
       <PageHeader
         icon={<GraduationCap size={20} />}
         label="Education"
-        title="귀농 교육"
+        title="정착 교육"
         description="귀농에 필요한 교육 과정을 지역, 유형, 난이도별로 찾아보세요."
         periodLabel={periodLabel}
         dataNote={`${dataYear}년 데이터만 제공되며, 연도 변경은 지원되지 않습니다.`}

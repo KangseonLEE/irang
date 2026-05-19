@@ -57,11 +57,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!province) return { title: "지역 정보" };
   return {
     title: `${province.shortName} 귀농 — 지원사업·정착금·기후·작물 정보`,
-    description: `${province.shortName} 귀농 준비에 필요한 청년·40대·50대 맞춤 지원사업, 정착금, 기후 환경, 추천 작물을 한눈에 확인하세요.`,
+    description: `${province.shortName} 정착 준비에 필요한 청년·40대·50대 맞춤 지원사업, 정착금, 기후 환경, 추천 작물을 한눈에 확인하세요.`,
     alternates: { canonical: `/regions/${id}` },
     openGraph: {
-      title: `${province.shortName} 귀농 정보 | 이랑`,
-      description: `${province.shortName} 귀농 지원사업·기후·작물 정보를 한눈에 확인하세요.`,
+      title: `${province.shortName} 농촌 정착 정보 | 이랑`,
+      description: `${province.shortName} 농촌 정착 지원사업·기후·작물 정보를 한눈에 확인하세요.`,
       images: [{ url: `/regions/${id}/opengraph-image`, width: 1200, height: 630 }],
     },
   };
@@ -223,14 +223,14 @@ export default async function RegionDetailPage({ params }: PageProps) {
         actions={
           <>
             <KakaoShareButton
-              title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
-              description={`${province.name} 귀농 정보: ${province.description}`}
+              title={`${province.shortName} — 농촌 정착 지역 정보 | 이랑`}
+              description={`${province.name} 농촌 정착 정보: ${province.description}`}
               imageUrl={`https://irangfarm.com/regions/${province.id}/opengraph-image`}
               contentType="region"
             />
             <ShareButton
-              title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
-              text={`${province.name} 귀농 정보: ${province.description}`}
+              title={`${province.shortName} — 농촌 정착 지역 정보 | 이랑`}
+              text={`${province.name} 농촌 정착 정보: ${province.description}`}
               contentType="region"
               variant="ghost"
               size="sm"
@@ -263,8 +263,8 @@ export default async function RegionDetailPage({ params }: PageProps) {
             heroActions inline 3버튼은 데스크탑에서만 노출되며 변경 없음. */}
         <div className={s.heroMobileMenu}>
           <RegionShareMenu
-            shareTitle={`${province.shortName} — 귀농 지역 정보 | 이랑`}
-            shareDescription={`${province.name} 귀농 정보: ${province.description}`}
+            shareTitle={`${province.shortName} — 농촌 정착 지역 정보 | 이랑`}
+            shareDescription={`${province.name} 농촌 정착 정보: ${province.description}`}
             shareImageUrl={`https://irangfarm.com/regions/${province.id}/opengraph-image`}
             contentType="region"
             bookmark={{
@@ -283,14 +283,14 @@ export default async function RegionDetailPage({ params }: PageProps) {
               <h1 className={s.heroTitle}>{province.shortName}</h1>
               <div className={s.heroActions}>
                 <KakaoShareButton
-                  title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
-                  description={`${province.name} 귀농 정보: ${province.description}`}
+                  title={`${province.shortName} — 농촌 정착 지역 정보 | 이랑`}
+                  description={`${province.name} 농촌 정착 정보: ${province.description}`}
                   imageUrl={`https://irangfarm.com/regions/${province.id}/opengraph-image`}
                   contentType="region"
                 />
                 <ShareButton
-                  title={`${province.shortName} — 귀농 지역 정보 | 이랑`}
-                  text={`${province.name} 귀농 정보: ${province.description}`}
+                  title={`${province.shortName} — 농촌 정착 지역 정보 | 이랑`}
+                  text={`${province.name} 농촌 정착 정보: ${province.description}`}
                   contentType="region"
                   variant="ghost"
                   size="sm"

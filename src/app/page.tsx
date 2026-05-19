@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "이랑 — 귀농 정보 큐레이션 포탈",
+  title: "이랑 — 농촌 정착 정보 큐레이션 포탈",
   description:
-    "귀농 비용, 지원금, 추천 지역, 작물 수익까지 — 공공데이터로 한곳에서 비교하고 결정하세요.",
+    "농촌 정착 비용, 지원금, 추천 지역, 작물 수익까지 — 공공데이터로 한곳에서 비교하고 결정하세요.",
   alternates: { canonical: "/" },
 };
 
@@ -35,21 +35,21 @@ interface MarqueeChip { label: string; accent?: boolean }
 
 const marqueeRow1: MarqueeChip[] = [
   { label: "전남 순천" }, { label: "딸기", accent: true }, { label: "경북 상주" },
-  { label: "귀농 교육" }, { label: "블루베리", accent: true }, { label: "충남 홍성" },
+  { label: "정착 교육" }, { label: "블루베리", accent: true }, { label: "충남 홍성" },
   { label: "스마트팜" }, { label: "강원 횡성" }, { label: "감귤", accent: true },
   { label: "주말농장" }, { label: "제주" }, { label: "토마토", accent: true },
 ];
 
 const marqueeRow2: MarqueeChip[] = [
   { label: "지원사업", accent: true }, { label: "전북 완주" }, { label: "샤인머스캣" },
-  { label: "경남 하동" }, { label: "귀농 체험", accent: true }, { label: "충북 괴산" },
+  { label: "경남 하동" }, { label: "농촌 정착 체험", accent: true }, { label: "충북 괴산" },
   { label: "고추" }, { label: "청년 귀농", accent: true }, { label: "전남 해남" },
   { label: "인삼" }, { label: "농지은행", accent: true }, { label: "경기 여주" },
 ];
 
 /* ────────────────────────────────────────────
    Page — 섹션 순서 (withgo 레퍼런스 기반):
-   히어로(검색) → 인터뷰(사회적 증거) → 왜 귀농(동기)
+   히어로(검색) → 인터뷰(사회적 증거) → 왜 농촌 정착(동기)
    → 비용(현실) → 지원사업(행동) → 뉴스(시의성) → CTA
    ──────────────────────────────────────────── */
 
@@ -128,13 +128,13 @@ export default function HomePage() {
         <ScrollIndicator />
       </section>
 
-      {/* ═══ 2. 귀농한 사람들의 이야기 (다크 배경) ═══ */}
+      {/* ═══ 2. 농촌으로 간 사람들의 이야기 (다크 배경) ═══ */}
       <ScrollReveal>
         <div className={s.darkBg}>
           <section className={s.interviewSection} aria-label="인터뷰">
             <div className={s.interviewHeader}>
               <div className={s.interviewHeading}>
-                <span className={s.eyebrowDark}>#실제 귀농인</span>
+                <span className={s.eyebrowDark}>#실제 정착자</span>
                 <h2 className={`${s.interviewSectionTitle} ${s.sectionTitleDark}`}>
                   먼저 떠난 사람들의 <em>진짜 이야기</em>
                 </h2>
@@ -156,7 +156,7 @@ export default function HomePage() {
         <TrendCostSection />
       </ScrollReveal>
 
-      {/* ═══ 5. 귀농 길잡이 (연한 그린 배경) ═══ */}
+      {/* ═══ 5. 농촌 정착 길잡이 (연한 그린 배경) ═══ */}
       <ScrollReveal>
         <div className={s.lightGreenBg}>
           <GovSupportGuide />

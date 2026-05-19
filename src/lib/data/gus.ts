@@ -72,7 +72,7 @@ export const GUS: GuDistrict[] = [
   // ========================================================================
   // 용인시 (3구) — 경기도
   // ========================================================================
-  { id: "cheoin-gu", name: "처인구", shortName: "처인", parentSigunguId: "yongin", sidoId: "gyeonggi", sgisCode: "31191", hiraSgguCd: "312001", area: 466.28, description: "용인 남부, 대규모 농업지대·딸기 명산지", highlights: ["딸기", "대규모농업", "귀농인기"], mainCrops: ["딸기", "배", "쌀"] },
+  { id: "cheoin-gu", name: "처인구", shortName: "처인", parentSigunguId: "yongin", sidoId: "gyeonggi", sgisCode: "31191", hiraSgguCd: "312001", area: 466.28, description: "용인 남부, 대규모 농업지대·딸기 명산지", highlights: ["딸기", "대규모농업", "정착 인기"], mainCrops: ["딸기", "배", "쌀"] },
   { id: "giheung-gu", name: "기흥구", shortName: "기흥", parentSigunguId: "yongin", sidoId: "gyeonggi", sgisCode: "31192", hiraSgguCd: "312002", area: 81.92, description: "용인 중부, 산업단지 인근 도시농업", highlights: ["도시농업", "직거래"], mainCrops: ["상추", "딸기"] },
   { id: "suji-gu", name: "수지구", shortName: "수지", parentSigunguId: "yongin", sidoId: "gyeonggi", sgisCode: "31193", hiraSgguCd: "312003", area: 43.12, description: "용인 북부, 수지 신도시 근교 체험농장", highlights: ["체험농장", "근교농업"], mainCrops: ["상추", "토마토"] },
 
@@ -82,7 +82,7 @@ export const GUS: GuDistrict[] = [
   { id: "sangdang-gu", name: "상당구", shortName: "상당", parentSigunguId: "cheongju", sidoId: "chungbuk", sgisCode: "33041", hiraSgguCd: "330101", area: 276.07, description: "청주 동부, 상당산성 인근 친환경 농업지대", highlights: ["친환경", "산촌"], mainCrops: ["쌀", "고추", "사과"] },
   { id: "heungdeok-gu", name: "흥덕구", shortName: "흥덕", parentSigunguId: "cheongju", sidoId: "chungbuk", sgisCode: "33042", hiraSgguCd: "330102", area: 178.51, description: "청주 서부, 오송 바이오밸리 인접 농업 허브", highlights: ["근교농업", "바이오"], mainCrops: ["쌀", "딸기"] },
   { id: "cheongwon-gu", name: "청원구", shortName: "청원", parentSigunguId: "cheongju", sidoId: "chungbuk", sgisCode: "33043", hiraSgguCd: "330103", area: 253.87, description: "청주 북부, 청원 생명산업특구 대규모 농업", highlights: ["생명산업", "대규모농업"], mainCrops: ["쌀", "포도", "배추"] },
-  { id: "seowon-gu", name: "서원구", shortName: "서원", parentSigunguId: "cheongju", sidoId: "chungbuk", sgisCode: "33044", hiraSgguCd: "330104", area: 231.85, description: "청주 남부, 보은·옥천 접경 친환경 농촌", highlights: ["친환경", "귀농인기"], mainCrops: ["쌀", "고추"] },
+  { id: "seowon-gu", name: "서원구", shortName: "서원", parentSigunguId: "cheongju", sidoId: "chungbuk", sgisCode: "33044", hiraSgguCd: "330104", area: 231.85, description: "청주 남부, 보은·옥천 접경 친환경 농촌", highlights: ["친환경", "정착 인기"], mainCrops: ["쌀", "고추"] },
 
   // ========================================================================
   // 천안시 (2구) — 충청남도

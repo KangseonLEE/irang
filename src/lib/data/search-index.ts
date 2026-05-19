@@ -220,7 +220,7 @@ function getSearchIndex(): SearchItem[] {
         iv.currentJob,
         iv.sourceName,
         "인터뷰",
-        "귀농인",
+        "정착자",
         "이야기",
       ],
       icon: "\u{1F464}", // 👤
@@ -384,7 +384,7 @@ function getSearchIndex(): SearchItem[] {
     {
       type: "guide",
       id: "costs",
-      title: "귀농 비용 가이드",
+      title: "정착 비용 가이드",
       subtitle: "연령·작물별 초기 투자금 분석 & 지원금",
       href: "/costs",
       keywords: ["비용", "투자금", "자금", "돈", "얼마", "예산", "생활비", "주거비", "영농비", "절감", "시뮬레이션"],
@@ -420,8 +420,8 @@ function getSearchIndex(): SearchItem[] {
     {
       type: "guide",
       id: "stats-satisfaction",
-      title: "귀농 만족도 통계",
-      subtitle: "귀농인 생활 만족도 조사 결과",
+      title: "정착 만족도 통계",
+      subtitle: "정착자 생활 만족도 조사 결과",
       href: "/stats?tab=farming",
       keywords: ["만족도", "만족", "통계", "조사", "생활", "후회"],
       icon: "\u{1F4CA}", // 📊
@@ -429,7 +429,7 @@ function getSearchIndex(): SearchItem[] {
     {
       type: "guide",
       id: "stats-youth",
-      title: "청년 귀농 통계",
+      title: "청년 농촌 정착 통계",
       subtitle: "청년층 귀농 현황 & 지원 정책",
       href: "/stats?tab=youth",
       keywords: ["청년", "청년귀농", "통계", "MZ", "20대", "30대"],
@@ -447,8 +447,8 @@ function getSearchIndex(): SearchItem[] {
     {
       type: "guide",
       id: "match",
-      title: "귀농 적합도 진단",
-      subtitle: "나에게 맞는 귀농 지역 · 작물 추천",
+      title: "농촌 정착 적합도 진단",
+      subtitle: "나에게 맞는 농촌 정착 지역 · 작물 추천",
       href: "/match",
       keywords: ["진단", "유형", "테스트", "추천", "맞춤", "적합", "나에게맞는", "어디", "뭐가좋을까"],
       icon: "\u{1F50D}", // 🔍
@@ -456,8 +456,8 @@ function getSearchIndex(): SearchItem[] {
     {
       type: "guide",
       id: "assess",
-      title: "귀농 적합도 진단",
-      subtitle: "10문항으로 확인하는 나의 귀농 준비도",
+      title: "농촌 정착 적합도 진단",
+      subtitle: "10문항으로 확인하는 나의 정착 준비도",
       href: "/assess",
       keywords: ["적합도", "진단", "테스트", "준비도", "체크", "평가", "점수"],
       icon: "\u{1F4DD}", // 📝
@@ -520,7 +520,7 @@ function getSearchIndex(): SearchItem[] {
     {
       type: "guide",
       id: "guides-preparation",
-      title: "귀농 준비 순서",
+      title: "정착 준비 순서",
       subtitle: "5단계 체크리스트로 정리하는 준비 순서",
       href: "/guides/preparation",
       keywords: ["준비", "순서", "체크리스트", "시작", "처음", "입문"],
@@ -538,7 +538,7 @@ function getSearchIndex(): SearchItem[] {
     {
       type: "guide",
       id: "guides-budget-50s",
-      title: "50대 귀농 자본 가이드",
+      title: "50대 정착 자본 가이드",
       subtitle: "현실적인 비용 설계와 절감 전략",
       href: "/guides/budget-50s",
       keywords: ["50대", "자본", "비용", "예산", "시니어", "은퇴", "노후"],
@@ -547,7 +547,7 @@ function getSearchIndex(): SearchItem[] {
     {
       type: "guide",
       id: "guides-failure-cases",
-      title: "귀농 실패 사례",
+      title: "정착 실패 사례",
       subtitle: "실패에서 배우는 준비의 핵심",
       href: "/guides/failure-cases",
       keywords: ["실패", "사례", "주의", "실수", "함정", "위험", "후회"],
@@ -556,7 +556,7 @@ function getSearchIndex(): SearchItem[] {
     {
       type: "guide",
       id: "guides-solo-farming",
-      title: "1인 귀농 가이드",
+      title: "1인 농촌 정착 가이드",
       subtitle: "혼자서도 가능한 귀농 전략",
       href: "/guides/solo-farming",
       keywords: ["1인", "혼자", "솔로", "독립", "단독", "싱글"],
@@ -574,8 +574,8 @@ function getSearchIndex(): SearchItem[] {
     {
       type: "guide",
       id: "interviews-page",
-      title: "귀농인 이야기",
-      subtitle: "실제 귀농인 인터뷰 모음",
+      title: "정착 이야기",
+      subtitle: "실제 정착 인터뷰 모음",
       href: "/interviews",
       keywords: ["인터뷰", "이야기", "사례", "경험", "후기", "선배"],
       icon: "\u{1F4AC}", // 💬
@@ -691,7 +691,7 @@ const SYNONYMS: Record<string, string[]> = {
   // ── 인터뷰/후기 ──
   "후기": ["인터뷰", "이야기", "후기", "경험"],
   "경험": ["인터뷰", "이야기", "경험", "사례"],
-  "선배": ["인터뷰", "귀농인"],
+  "선배": ["인터뷰", "정착자"],
 
   // ── 용어 ──
   "용어": ["용어", "뜻", "사전"],
@@ -999,11 +999,11 @@ const QUERY_SUGGESTIONS = [
   // 작물
   "사과 재배", "딸기 재배", "포도 재배", "고추 재배", "블루베리 재배",
   // 지원금
-  "귀농 지원금", "청년 농업", "창업 자금", "주택 지원", "영농 정착금",
+  "농촌 정착 지원금", "청년 농업", "창업 자금", "주택 지원", "영농 정착금",
   // 교육
-  "귀농 교육", "스마트팜 교육", "온라인 교육", "체험 행사",
+  "정착 교육", "스마트팜 교육", "온라인 교육", "체험 행사",
   // 비용/절차
-  "귀농 비용", "귀농 절차", "농지 구입", "귀농 준비",
+  "정착 비용", "농촌 정착 절차", "농지 구입", "정착 준비",
   // 비교
   "지역 비교", "작물 비교", "작물 소득",
   // 생활

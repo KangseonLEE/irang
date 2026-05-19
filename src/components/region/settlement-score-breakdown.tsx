@@ -86,8 +86,8 @@ const DIMENSIONS: DimensionDef[] = [
   },
   {
     key: "returnFarm",
-    label: "귀농 활성도",
-    helper: "전체 인구 대비 귀농 비율",
+    label: "농촌 정착 활성도",
+    helper: "전체 인구 대비 정착 비율",
   },
 ];
 

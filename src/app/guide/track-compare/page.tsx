@@ -23,7 +23,7 @@ export default function TrackComparePage() {
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[
-        { name: "귀농 로드맵", href: "/guide" },
+        { name: "정착 로드맵", href: "/guide" },
         { name: "추진체계 비교", href: "/guide/track-compare" },
       ]} />
       <SubPageHero

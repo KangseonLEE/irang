@@ -177,7 +177,7 @@ const PERSONA_RESULT_MESSAGES: Record<PersonaId, QuickResultMessage> = {
     eyebrow: "추천 방향",
     title: "농업을 본업으로 시작하는 길이 잘 맞아요",
     description:
-      "농가 활동과 청년 귀농 지원이 풍부한 지역, 본업으로 도전할 만한 작물, 청년 창업 지원 사업을 우선 보여드릴게요.",
+      "농가 활동과 청년 농촌 정착 지원이 풍부한 지역, 본업으로 도전할 만한 작물, 청년 창업 지원 사업을 우선 보여드릴게요.",
   },
   family: {
     eyebrow: "추천 방향",

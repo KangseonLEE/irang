@@ -55,7 +55,7 @@ export function SearchOverlayProvider({
           <div className={s.overlayInner}>
             <SearchBar
               size="large"
-              placeholder="궁금한 귀농 정보를 검색해보세요"
+              placeholder="궁금한 농촌 정착 정보를 검색해보세요"
               mobilePlaceholder="지역, 작물, 교육, 비용 검색"
               mobileExpand
               richMode

@@ -81,7 +81,7 @@ export function HistoryResult({
       {/* 유형 카드 */}
       <div className={s.farmTypeCard}>
         <span className={s.farmTypeEmoji}>{farmType.emoji}</span>
-        <span className={s.farmTypeOverline}>나의 귀농 유형</span>
+        <span className={s.farmTypeOverline}>나의 정착 유형</span>
         <h1 className={s.farmTypeLabel}>{farmType.label}</h1>
         <p className={s.farmTypeTagline}>{farmType.tagline}</p>
         <p className={s.farmTypeDesc}>{farmType.description}</p>
@@ -207,7 +207,7 @@ export function HistoryResult({
           <Calculator size={20} />
         </div>
         <div className={s.costCtaBody}>
-          <h3 className={s.costCtaTitle}>귀농 비용, 얼마나 들까?</h3>
+          <h3 className={s.costCtaTitle}>정착 비용, 얼마나 들까?</h3>
           <p className={s.costCtaDesc}>
             연령·작물·규모별 예상 비용을 바로 계산해 보세요
           </p>

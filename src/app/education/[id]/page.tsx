@@ -38,9 +38,9 @@ export async function generateMetadata({
   if (!course) return { title: "교육 과정 상세" };
 
   return {
-    title: `${course.title} — ${course.type}·${course.level} 귀농 교육`,
+    title: `${course.title} — ${course.type}·${course.level} 정착 교육`,
     description: `${course.region}에서 진행하는 ${course.level} ${course.type} 교육 "${course.title}". ${course.description.slice(0, 120)}`,
-    keywords: [`${course.region} 귀농 교육`, `귀농 ${course.type}`, "귀농 교육 과정", course.title],
+    keywords: [`${course.region} 정착 교육`, `귀농 ${course.type}`, "정착 교육 과정", course.title],
     alternates: { canonical: `/education/${id}` },
   };
 }
@@ -86,7 +86,7 @@ export default async function EducationDetailPage({
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[
-        { name: "귀농 교육", href: "/education" },
+        { name: "정착 교육", href: "/education" },
         { name: course.title, href: `/education/${id}` },
       ]} />
       {/* Back link */}

@@ -31,7 +31,7 @@ export function RoadmapBanner() {
       <div className={s.left}>
         <Footprints size={14} className={s.icon} />
         <span className={s.label}>
-          귀농 로드맵 {step}단계
+          정착 로드맵 {step}단계
         </span>
         <span className={s.stepName}>
           {info.emoji} {info.title}

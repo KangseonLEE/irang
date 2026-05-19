@@ -17,10 +17,10 @@ import { EmptyState } from "@/components/ui/empty-state";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "먼저 떠난 사람들 — 귀농인 인터뷰 큐레이션",
+  title: "먼저 떠난 사람들 — 정착 인터뷰 큐레이션",
   description:
     "귀농·귀촌·스마트팜·청년농 등 여러 정착 이야기를 한 곳에 모았어요. 카드를 누르면 원문 기사로 이동해 직접 읽을 수 있어요.",
-  keywords: ["귀농 인터뷰", "귀농인 이야기", "귀농 경험담", "농민신문 귀농", "귀농 사례 모음"],
+  keywords: ["정착 인터뷰", "정착 이야기", "정착 경험담", "농민신문 귀농", "귀농 사례 모음"],
   alternates: { canonical: "/interviews" },
 };
 
@@ -53,7 +53,7 @@ export default async function InterviewsPage({ searchParams }: PageProps) {
 
   return (
     <div className={s.page}>
-      <BreadcrumbJsonLd items={[{ name: "귀농인 이야기", href: "/interviews" }]} />
+      <BreadcrumbJsonLd items={[{ name: "정착 이야기", href: "/interviews" }]} />
       {/* ═══ 히어로 헤더 ═══ */}
       <SubPageHero
         overline="언론에 소개된 이야기"
@@ -124,7 +124,7 @@ export default async function InterviewsPage({ searchParams }: PageProps) {
       <div className={s.bottomCta}>
         <p className={s.bottomCtaText}>나도 이런 삶을 시작해볼까?</p>
         <Link href="/match" className={s.bottomCtaBtn}>
-          맞춤 귀농지 찾기 <Icon icon={ArrowRight} size="md" />
+          맞춤 정착지 찾기 <Icon icon={ArrowRight} size="md" />
         </Link>
       </div>
 

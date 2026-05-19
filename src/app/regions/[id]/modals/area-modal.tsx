@@ -52,7 +52,7 @@ export function AreaModal({
 
       {density !== null && (
         <div className={s.insight}>
-          <h4 className={s.insightTitle}>귀농 관점</h4>
+          <h4 className={s.insightTitle}>정착 관점</h4>
           <p className={s.insightText}>
             {density < 200
               ? `${provinceShortName}은(는) 인구밀도가 전국 평균(${nationalDensity}명/km²)보다 낮아 여유로운 농촌 환경을 기대할 수 있습니다.`

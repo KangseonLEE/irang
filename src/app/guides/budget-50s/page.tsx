@@ -18,14 +18,14 @@ import type { Article } from "schema-dts";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "50대 귀농 자본 — 현실적인 비용 가이드 | 이랑",
+  title: "50대 정착 자본 — 현실적인 비용 가이드 | 이랑",
   description:
     "50대 귀농, 자본은 얼마나 필요할까요? 농지·주택, 시설·장비, 생활비까지 항목별 현실 비용과 50대 맞춤 전략을 정리했어요.",
   keywords: [
-    "50대 귀농 자본",
-    "50대 귀농 비용",
-    "50대 귀농 준비",
-    "귀농 비용",
+    "50대 정착 자본",
+    "50대 정착 비용",
+    "50대 정착 준비",
+    "정착 비용",
     "은퇴 후 귀농",
   ],
   alternates: { canonical: "/guides/budget-50s" },
@@ -57,7 +57,7 @@ const COST_CARDS = [
       { label: "2인 가구 기준", value: "월 150~250만 원", note: "식비, 교통, 공과금 포함" },
       { label: "초기 안정 자금", value: "3,600~6,000만 원", note: "2년치 생활비 별도 확보 권장" },
     ],
-    tip: "귀농 후 첫 수확까지 소득 공백이 발생해요. 채소류 3~6개월, 과수류는 3~5년이 걸리므로 생활비를 미리 확보하세요.",
+    tip: "정착 후 첫 수확까지 소득 공백이 발생해요. 채소류 3~6개월, 과수류는 3~5년이 걸리므로 생활비를 미리 확보하세요.",
   },
 ];
 
@@ -76,7 +76,7 @@ const TIPS_50S = [
   },
   {
     title: "지원사업 적극 활용",
-    desc: "귀농 정착금(최대 3억 원 융자), 영농 자금 대출, 주택 수리비 지원(최대 2,000만 원) 등을 놓치지 마세요.",
+    desc: "농촌 정착금(최대 3억 원 융자), 영농 자금 대출, 주택 수리비 지원(최대 2,000만 원) 등을 놓치지 마세요.",
   },
 ];
 
@@ -85,8 +85,8 @@ export default function Budget50sGuidePage() {
     <article className={s.page}>
       <BreadcrumbJsonLd
         items={[
-          { name: "귀농 가이드", href: "/guides" },
-          { name: "50대 귀농 자본", href: "/guides/budget-50s" },
+          { name: "농촌 정착 가이드", href: "/guides" },
+          { name: "50대 정착 자본", href: "/guides/budget-50s" },
         ]}
       />
       <JsonLd<Article>
@@ -95,7 +95,7 @@ export default function Budget50sGuidePage() {
           "@type": "Article",
           headline: "50대 귀농, 자본은 얼마나 필요할까?",
           description:
-            "은퇴 후 귀농을 고민 중이라면, 현실적인 비용부터 확인하세요.",
+            "은퇴 후 농촌 정착을 고민 중이라면, 현실적인 비용부터 확인하세요.",
           author: {
             "@type": "Organization",
             name: "이랑",
@@ -108,7 +108,7 @@ export default function Budget50sGuidePage() {
       <SubPageHero
         overline="BUDGET GUIDE · 50s"
         title="50대 귀농, 자본은 얼마나 필요할까?"
-        description="은퇴 후 귀농을 고민 중이라면, 현실적인 비용부터 확인하세요."
+        description="은퇴 후 농촌 정착을 고민 중이라면, 현실적인 비용부터 확인하세요."
       />
 
       {/* ── 비용 카드 ── */}
@@ -226,11 +226,11 @@ export default function Budget50sGuidePage() {
         <h3 className={s.relatedTitle}>다음 가이드</h3>
         <div className={s.relatedLinks}>
           <Link href="/guides/preparation" className={s.relatedLink}>
-            귀농 준비 순서 보기
+            정착 준비 순서 보기
             <Icon icon={ArrowRight} size="sm" />
           </Link>
           <Link href="/guides/solo-farming" className={s.relatedLink}>
-            1인 귀농 가이드 보기
+            1인 농촌 정착 가이드 보기
             <Icon icon={ArrowRight} size="sm" />
           </Link>
         </div>

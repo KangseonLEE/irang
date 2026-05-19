@@ -45,10 +45,10 @@ import { SwipeHint } from "@/components/ui/swipe-hint";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농 작물 비교 — 소득·난이도·장단점 비교",
+  title: "정착 작물 비교 — 소득·난이도·장단점 비교",
   description:
     "최대 4개 작물의 소득, 난이도, 재배 환경, 장단점을 나란히 비교하세요. 초보자 추천 작물부터 고소득 작물까지 선택에 도움이 돼요.",
-  keywords: ["작물 비교", "귀농 작물 비교", "작물 소득 비교", "귀농 작물 선택"],
+  keywords: ["작물 비교", "정착 작물 비교", "작물 소득 비교", "정착 작물 선택"],
   alternates: { canonical: "/crops/compare" },
 };
 

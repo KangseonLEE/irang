@@ -8,13 +8,13 @@ const serviceLinks = [
   { href: "/regions", label: "지역 탐색" },
   { href: "/crops", label: "작물 정보" },
   // 가이드
-  { href: "/guide", label: "귀농 로드맵" },
+  { href: "/guide", label: "정착 로드맵" },
   { href: "/costs", label: "비용 가이드" },
-  { href: "/match", label: "귀농 적합도 진단" },
-  { href: "/interviews", label: "귀농인 이야기" },
+  { href: "/match", label: "농촌 정착 적합도 진단" },
+  { href: "/interviews", label: "정착 이야기" },
   // 신청
   { href: "/programs", label: "지원사업" },
-  { href: "/education", label: "귀농 교육" },
+  { href: "/education", label: "정착 교육" },
   { href: "/events", label: "체험·행사" },
   // 자료실
   { href: "/stats", label: "통계" },
@@ -38,7 +38,7 @@ export function Footer() {
           {/* Brand + 문의 */}
           <div>
             <h3 className={s.brandTitle}>이랑</h3>
-            <p className={s.brandSlogan}>귀농을 꿈꾸는 모든 이들의 시작점</p>
+            <p className={s.brandSlogan}>농촌 정착을 꿈꾸는 모든 이들의 시작점</p>
             <ul className={s.brandContact}>
               <li>
                 <a

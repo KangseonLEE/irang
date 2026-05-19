@@ -25,7 +25,7 @@
 import { SIGUNGUS } from "./sigungus";
 
 export type ActiveCategoryId =
-  | "jeonin" // 귀농 (전업 귀농인)
+  | "jeonin" // 귀농 (전업 정착자)
   | "gwichon" // 귀촌
   | "youthFarm" // 청년농
   | "gwisanchon" // 귀산촌
@@ -119,7 +119,7 @@ const RAW: ActiveCategory[] = [
   {
     id: "jeonin",
     label: "귀농",
-    desc: "전업 귀농인이 많이 모이는 지역",
+    desc: "전업 정착자가 많이 모이는 지역",
     sourceLabel: "통계청 KOSIS 귀농어귀촌인통계 (2023)",
     sourceUrl:
       "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20631&conn_path=I3",

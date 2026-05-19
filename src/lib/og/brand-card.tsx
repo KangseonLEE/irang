@@ -204,7 +204,7 @@ export function assessScoreCard({
               marginTop: "4px",
             }}
           >
-            나의 귀농 적합도 진단 결과
+            나의 농촌 정착 적합도 진단 결과
           </div>
           <div
             style={{

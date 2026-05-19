@@ -1,7 +1,7 @@
 /**
  * match-scoring.ts 유닛 테스트
  *
- * 귀농 유형 분류, 지역 추천, 작물 추천 로직 검증
+ * 정착 유형 분류, 지역 추천, 작물 추천 로직 검증
  */
 
 import { describe, it, expect } from "vitest";

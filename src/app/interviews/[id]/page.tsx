@@ -59,21 +59,21 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const person = getInterviewById(id);
-  if (!person) return { title: "귀농 인터뷰 상세" };
+  if (!person) return { title: "정착 인터뷰 상세" };
 
   // 본문 미동의자: 메타데이터만 가볍게 (페이지에서 외부 redirect 처리)
   if (!hasFullStory(person)) {
     return {
-      title: `${person.name}님의 귀농 이야기 — ${person.sourceName}`,
+      title: `${person.name}님의 정착 이야기 — ${person.sourceName}`,
       robots: { index: false, follow: false },
     };
   }
 
   const regionShort = person.region.split(" ")[0];
   return {
-    title: `${person.name}님의 귀농 이야기 — ${regionShort} ${person.crop}`,
-    description: `${regionShort}에서 ${person.crop}을(를) 재배하는 ${person.name}님의 귀농 경험담. ${person.story.slice(0, 120)}`,
-    keywords: [`${regionShort} 귀농`, `${person.crop} 재배`, "귀농 인터뷰"],
+    title: `${person.name}님의 정착 이야기 — ${regionShort} ${person.crop}`,
+    description: `${regionShort}에서 ${person.crop}을(를) 재배하는 ${person.name}님의 정착 경험담. ${person.story.slice(0, 120)}`,
+    keywords: [`${regionShort} 귀농`, `${person.crop} 재배`, "정착 인터뷰"],
     alternates: { canonical: `/interviews/${id}` },
   };
 }
@@ -105,12 +105,12 @@ export default async function InterviewDetailPage({
 
   const datePublished = toIsoDate(person.sourceDate);
   const regionShort = person.region.split(" ")[0];
-  const articleDescription = `${regionShort}에서 ${person.crop}을(를) 재배하는 ${person.name}님의 귀농 경험담. ${person.story.slice(0, 140)}`;
+  const articleDescription = `${regionShort}에서 ${person.crop}을(를) 재배하는 ${person.name}님의 정착 경험담. ${person.story.slice(0, 140)}`;
 
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[
-        { name: "귀농인 이야기", href: "/interviews" },
+        { name: "정착 이야기", href: "/interviews" },
         { name: `${person.name}님의 이야기`, href: `/interviews/${id}` },
       ]} />
       {/* ── Article schema (본문 동의자만 — 미동의자는 위에서 redirect 처리됨) ── */}
@@ -118,7 +118,7 @@ export default async function InterviewDetailPage({
         data={{
           "@context": "https://schema.org",
           "@type": "Article",
-          headline: `${person.name}님의 귀농 이야기 — ${regionShort} ${person.crop}`,
+          headline: `${person.name}님의 정착 이야기 — ${regionShort} ${person.crop}`,
           description: articleDescription,
           author: { "@type": "Person", name: person.name },
           publisher: {
@@ -159,7 +159,7 @@ export default async function InterviewDetailPage({
       {/* ═══ 뒤로가기 ═══ */}
       <Link href="/interviews" className={s.backLink}>
         <Icon icon={ArrowLeft} size="md" />
-        귀농인 이야기
+        정착 이야기
       </Link>
 
       {/* ═══ 히어로: 프로필 + 인용문 ═══ */}
@@ -317,7 +317,7 @@ export default async function InterviewDetailPage({
       {/* ═══ 다른 인터뷰 (최대 3개) ═══ */}
       {otherInterviews.length > 0 && (
         <section className={s.relatedSection}>
-          <h2 className={s.relatedTitle}>다른 귀농인 이야기</h2>
+          <h2 className={s.relatedTitle}>다른 정착 이야기</h2>
           <div className={s.relatedGrid}>
             {otherInterviews.map((p) => {
               const otherIllust = getInterviewImageSrc(p.id);
@@ -369,9 +369,9 @@ export default async function InterviewDetailPage({
 
       {/* ═══ CTA ═══ */}
       <div className={s.ctaBanner}>
-        <p className={s.ctaText}>나도 귀농을 시작해볼까?</p>
+        <p className={s.ctaText}>나도 농촌 정착을 시작해볼까?</p>
         <Link href="/match" className={s.ctaBtn}>
-          내 귀농지 찾기
+          내 정착지 찾기
         </Link>
       </div>
 

@@ -8,7 +8,7 @@ export default function InterviewDetailLoading() {
       {/* Back link */}
       <div className={s.backLink}>
         <Icon icon={ArrowLeft} size="md" />
-        <span>귀농인 이야기</span>
+        <span>정착 이야기</span>
       </div>
 
       {/* 히어로: 프로필 + 인용문 */}

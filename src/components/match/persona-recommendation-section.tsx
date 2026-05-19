@@ -38,7 +38,7 @@ const PERSONA_DIM_LABELS: Record<string, string> = {
   farmActivity: "농가 활성도",
   medical: "의료 인프라",
   school: "학교 인프라",
-  returnFarm: "귀농 활성도",
+  returnFarm: "농촌 정착 활성도",
 };
 
 export function PersonaRecommendationSection({
@@ -59,7 +59,7 @@ export function PersonaRecommendationSection({
           <Users size={20} />
         </div>
         <div className={s.personaCardBody}>
-          <span className={s.personaCardLabel}>당신과 어울리는 귀농 스타일</span>
+          <span className={s.personaCardLabel}>당신과 어울리는 정착 스타일</span>
           <h3 className={s.personaCardTitle}>기본 균등</h3>
           <p className={s.personaCardDesc}>
             스타일을 정하지 않으셨네요. 5차원을 똑같이 보고 싶을 때 좋아요.
@@ -103,7 +103,7 @@ export function PersonaRecommendationSection({
           <Users size={20} />
         </div>
         <div className={s.personaCardBody}>
-          <span className={s.personaCardLabel}>당신과 어울리는 귀농 스타일</span>
+          <span className={s.personaCardLabel}>당신과 어울리는 정착 스타일</span>
           <h3 className={s.personaCardTitle}>{recommendedPersona.label}</h3>
           <p className={s.personaCardDesc}>{recommendedPersona.desc}</p>
           <p className={s.personaCardWeights}>

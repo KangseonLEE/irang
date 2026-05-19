@@ -1,5 +1,5 @@
 /**
- * 귀농 교육 과정 데이터
+ * 정착 교육 과정 데이터
  * - RDA API(eduList) 연동 + 정적 폴백 데이터
  * - RDA_API_KEY 미설정 또는 API 실패 시 샘플 데이터로 폴백
  */
@@ -179,7 +179,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     target: "전북 귀농귀촌 관심자",
     cost: "문의 필요",
     description:
-      "무주군에 3개월간 체류하며 사과, 블루베리 등 지역 특화작목 영농체험을 하는 프로그램이에요. 지역 탐색, 주민 교류 등 귀농 전 농촌생활을 직접 체험할 수 있어요.",
+      "무주군에 3개월간 체류하며 사과, 블루베리 등 지역 특화작목 영농체험을 하는 프로그램이에요. 지역 탐색, 주민 교류 등 정착 전 농촌 생활을 직접 체험할 수 있어요.",
     capacity: null,
     applicationStart: "2026-03-01",
     applicationEnd: "2026-04-03",
@@ -195,7 +195,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     type: "오프라인",
     duration: "수개월 (체류형)",
     schedule: "수시 접수 (제11기 운영 중)",
-    target: "귀농 희망자 (영주 지역 체류 가능자)",
+    target: "농촌 정착 희망자 (영주 지역 체류 가능자)",
     cost: "입교비 소정 (확인 필요)",
     description:
       "영주 소백산 인근 귀농드림타운에서 체류하며 농업을 학습하고 현장실습을 병행하는 체류형 교육 프로그램이에요. 현재 제11기 운영 중이며 5세대 추가 모집 중이에요.",

@@ -60,7 +60,7 @@ export async function generateMetadata({
 
   return {
     title: `${sigunguName} ${gu.name} 귀농 — 작물·인프라·지원사업`,
-    description: `${sidoName} ${sigunguName} ${gu.name} 귀농 정보. 인구, 의료·교육 인프라, 추천 작물, 지원사업을 확인하세요. ${gu.description}`,
+    description: `${sidoName} ${sigunguName} ${gu.name} 농촌 정착 정보. 인구, 의료·교육 인프라, 추천 작물, 지원사업을 확인하세요. ${gu.description}`,
     keywords: [`${sigunguName} ${gu.name} 귀농`, `${sidoName} 귀농`, `${sigunguName} 귀농`],
     alternates: { canonical: `/regions/${id}/${sigunguId}/${guId}` },
   };
@@ -279,12 +279,12 @@ export default async function GuDetailPage({ params }: PageProps) {
         <LandCheckBox />
       </section>
 
-      {/* -- 귀농 교육 -- */}
-      <section className={s.section} aria-label="귀농 교육">
+      {/* -- 정착 교육 -- */}
+      <section className={s.section} aria-label="정착 교육">
         <div className={s.sectionHeader}>
           <Icon icon={GraduationCap} size="lg" />
           <div>
-            <h2 className={s.sectionTitle}>귀농 교육</h2>
+            <h2 className={s.sectionTitle}>정착 교육</h2>
             <p className={s.sectionDesc}>
               {province.shortName} 지역에서 수강 가능한 교육 과정이에요.
             </p>

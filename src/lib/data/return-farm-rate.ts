@@ -1,5 +1,5 @@
 /**
- * 귀농 인구 비율 정적 폴백 데이터 (자동 생성)
+ * 농촌 정착 인구 비율 정적 폴백 데이터 (자동 생성)
  *
  * 생성 스크립트: scripts/collect-return-farm-rate.ts
  * 데이터 소스: KOSIS 통계청 귀농어·귀촌인 통계 (DT_1A02002)
@@ -10,8 +10,8 @@
  *
  * ⚠ 절대 수동 편집 금지. 갱신은 `npx tsx scripts/collect-return-farm-rate.ts`
  *
- * Phase 4 — 정착 점수 산출용 추가 차원 (귀농 활성도).
- * 비율 = (해당 지역 귀농인 수 / 해당 지역 전체 인구) × 100
+ * Phase 4 — 정착 점수 산출용 추가 차원 (농촌 정착 활성도).
+ * 비율 = (해당 지역 정착자 수 / 해당 지역 전체 인구) × 100
  *
  * ⚠ 코드 체계 주의:
  *   - KOSIS C1 코드 = 행안부 admCode (예: 전남 순천 = 46150)
@@ -27,15 +27,15 @@ export interface ReturnFarmRateStat {
   sgisCode: string;
   /** 시군구명 */
   name: string;
-  /** 귀농인 수 (명) */
+  /** 정착자 수 (명) */
   returnFarmCount: number;
-  /** 귀농 인구 비율 (%) */
+  /** 농촌 정착 인구 비율 (%) */
   returnFarmRate: number;
   /** 통계 연도 */
   year: number;
 }
 
-/** 시군구 귀농 인구 비율 (SGIS 5자리) */
+/** 시군구 농촌 정착 인구 비율 (SGIS 5자리) */
 export const RETURN_FARM_RATE_SIGUNGU: ReturnFarmRateStat[] = [
   {
     "sgisCode": "23510",
@@ -963,7 +963,7 @@ export const RETURN_FARM_RATE_SIGUNGU: ReturnFarmRateStat[] = [
   }
 ];
 
-/** 시도 합산 귀농 인구 비율 (SGIS 2자리) */
+/** 시도 합산 농촌 정착 인구 비율 (SGIS 2자리) */
 export const RETURN_FARM_RATE_SIDO: ReturnFarmRateStat[] = [
   {
     "sgisCode": "23",

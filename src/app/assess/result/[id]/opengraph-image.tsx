@@ -1,7 +1,7 @@
 /**
  * /assess/result/[id] — 동적 OG 이미지
  *
- * Supabase에서 결과를 조회해 귀농 유형·추천 지역을 포함한
+ * Supabase에서 결과를 조회해 정착 유형·추천 지역을 포함한
  * 커스텀 OG 카드를 생성합니다.
  * 조회 실패 시 기본 brandCard로 폴백합니다.
  */
@@ -17,7 +17,7 @@ import { PROVINCES } from "@/lib/data/regions";
 
 export const size = OG_SIZE;
 export const contentType = "image/png";
-export const alt = "이랑 — 귀농 적합도 진단 결과";
+export const alt = "이랑 — 농촌 정착 적합도 진단 결과";
 
 export default async function OGImage({
   params,

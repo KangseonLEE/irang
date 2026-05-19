@@ -233,7 +233,7 @@ export const CROPS: CropInfo[] = [
     growingSeason: "5월~10월",
     difficulty: "쉬움",
     description:
-      "병해충에 강하고 재배가 쉬워 초보 귀농인에게 추천. 저장성이 좋아 출하 시기를 조절할 수 있어요.",
+      "병해충에 강하고 재배가 쉬워 초보 정착자에게 추천. 저장성이 좋아 출하 시기를 조절할 수 있어요.",
     emoji: "🍠",
   },
   {
@@ -802,7 +802,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
-        { category: "재배난이도", text: "병해충에 강하고 재배가 쉬워 초보 귀농인도 도전 가능" },
+        { category: "재배난이도", text: "병해충에 강하고 재배가 쉬워 초보 정착자도 도전 가능" },
         { category: "안정성", text: "저장성이 좋아 출하 시기를 조절해 유리한 가격에 판매 가능" },
         { category: "시장성", text: "꿀고구마(호박고구마) 등 소비자 선호 품종의 직거래 수요가 높음" },
         { category: "확장성", text: "체험농장·말랭이 가공 등 6차산업 연계가 활발" },
@@ -2116,7 +2116,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
         { category: "수익성", text: "풍작 시 가격 폭락이 잦아 소득 변동이 커요" },
         { category: "안정성", text: "저장 시설 없으면 출하 시기 조절이 어려워요" },
       ],
-      verdict: "초보 귀농인이 시작하기 좋은 작물. 김장철 안정 수요가 있지만 가격 변동에 대비해 저장 시설 확보를 권장해요.",
+      verdict: "초보 정착 초기에 시작하기 좋은 작물. 김장철 안정 수요가 있지만 가격 변동에 대비해 저장 시설 확보를 권장해요.",
     },
     cultivationSteps: [
       { step: 1, title: "밭 준비·파종", period: "봄무: 3월, 가을무: 8월 하순", description: "깊이 30cm 이상 심경. 이랑 60cm 폭으로 만들고 줄뿌림 또는 점뿌림 후 얇게 복토" },

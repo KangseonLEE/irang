@@ -38,11 +38,11 @@ export const metadata: Metadata = {
     },
   },
   title: {
-    default: "이랑 — 귀농 정보 큐레이션 포탈",
+    default: "이랑 — 농촌 정착 정보 큐레이션 포탈",
     template: "%s | 이랑",
   },
   description:
-    "귀농 비용, 지원금, 추천 지역, 작물 수익까지 — 공공데이터로 한곳에서 비교하고 결정하세요.",
+    "농촌 정착 비용, 지원금, 추천 지역, 작물 수익까지 — 공공데이터로 한곳에서 비교하고 결정하세요.",
   keywords: [
     "귀농",
     "귀촌",
@@ -52,26 +52,26 @@ export const metadata: Metadata = {
     "치유농업",
     "사회적 농업",
     "농촌체류형 쉼터",
-    "귀농 비용",
-    "귀농 지원금",
-    "귀농 절차",
-    "귀농 준비",
-    "귀농 지역 추천",
-    "귀농 작물",
+    "정착 비용",
+    "농촌 정착 지원금",
+    "농촌 정착 절차",
+    "정착 준비",
+    "농촌 정착 지역 추천",
+    "정착 작물",
     "30대 귀농",
     "40대 귀농",
     "50대 귀농",
-    "귀농 교육",
-    "귀농 체험",
-    "귀농 성공 사례",
+    "정착 교육",
+    "농촌 정착 체험",
+    "정착 성공 사례",
     "농업",
     "지역비교",
   ],
   authors: [{ name: "이랑" }],
   openGraph: {
-    title: "이랑 — 귀농 정보 큐레이션 포탈",
+    title: "이랑 — 농촌 정착 정보 큐레이션 포탈",
     description:
-      "귀농 비용, 지원금, 추천 지역, 작물 수익까지 — 공공데이터로 한곳에서 비교하고 결정하세요.",
+      "농촌 정착 비용, 지원금, 추천 지역, 작물 수익까지 — 공공데이터로 한곳에서 비교하고 결정하세요.",
     type: "website",
     locale: "ko_KR",
     siteName: "이랑",
@@ -80,15 +80,15 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "이랑 — 귀농 정보 큐레이션 포탈",
+        alt: "이랑 — 농촌 정착 정보 큐레이션 포탈",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "이랑 — 귀농 정보 큐레이션 포탈",
+    title: "이랑 — 농촌 정착 정보 큐레이션 포탈",
     description:
-      "귀농 비용, 지원금, 추천 지역, 작물 수익까지 — 공공데이터로 한곳에서 비교하고 결정하세요.",
+      "농촌 정착 비용, 지원금, 추천 지역, 작물 수익까지 — 공공데이터로 한곳에서 비교하고 결정하세요.",
   },
 };
 
@@ -115,10 +115,10 @@ export default function RootLayout({
             "@context": "https://schema.org",
             "@type": "WebSite",
             name: "이랑",
-            alternateName: "이랑 — 귀농 정보 큐레이션 포탈",
+            alternateName: "이랑 — 농촌 정착 정보 큐레이션 포탈",
             url: "https://irangfarm.com",
             description:
-              "귀농 예정자를 위한 지역 비교, 지원사업 검색, 작물 정보를 한곳에서.",
+              "농촌 정착 예정자를 위한 지역 비교, 지원사업 검색, 작물 정보를 한곳에서.",
             potentialAction: {
               "@type": "SearchAction",
               target:
@@ -135,7 +135,7 @@ export default function RootLayout({
             url: "https://irangfarm.com",
             logo: "https://irangfarm.com/icon.svg",
             description:
-              "귀농 예정자를 위한 지역 비교, 지원사업 검색, 작물 정보를 한곳에서 제공하는 큐레이션 포탈.",
+              "농촌 정착 예정자를 위한 지역 비교, 지원사업 검색, 작물 정보를 한곳에서 제공하는 큐레이션 포탈.",
             sameAs: [],
           }}
         />

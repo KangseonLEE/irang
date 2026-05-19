@@ -59,7 +59,7 @@ const DIMENSION_DESCRIPTIONS: Record<DimensionId, string> = {
   farmActivity: "인구 1만 명당 농가 수",
   medical: "인구 1만 명당 의료기관 수",
   school: "인구 1만 명당 학교 수",
-  returnFarm: "전체 인구 대비 귀농 비율",
+  returnFarm: "전체 인구 대비 정착 비율",
 };
 
 export function RankingWizardHero() {
@@ -174,13 +174,13 @@ export function RankingWizardHero() {
               type="button"
               onClick={() => handleModeSelect("persona")}
               className={s.modeCard}
-              aria-label="귀농 스타일에 맞춰 비교하기"
+              aria-label="정착 스타일에 맞춰 비교하기"
             >
               <span className={s.modeIcon}>
                 <Icon icon={Target} size="lg" />
               </span>
               <span className={s.modeBody}>
-                <span className={s.modeLabel}>귀농 스타일 맞춤</span>
+                <span className={s.modeLabel}>정착 스타일 맞춤</span>
                 <span className={s.modeDesc}>
                   5차원을 가중 평균해 한 점수로 줄 세워요.
                 </span>

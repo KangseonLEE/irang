@@ -47,10 +47,10 @@ import s from "./page.module.css";
 
 /* ── SEO ── */
 export const metadata: Metadata = {
-  title: "귀농 비용 가이드 — 초기 투자·운영비·생활비",
+  title: "정착 비용 가이드 — 초기 투자·운영비·생활비",
   description:
-    "귀농에 필요한 초기 투자금, 연간 운영비, 생활비를 항목별로 정리했어요. 30대·40대·50대·1인 귀농 자본 계획에 참고하세요.",
-  keywords: ["귀농 비용", "귀농 비용 얼마", "귀농 초기 투자", "귀농 자본", "50대 귀농 비용", "귀농 생활비"],
+    "농촌 정착에 필요한 초기 투자금, 연간 운영비, 생활비를 항목별로 정리했어요. 30대·40대·50대·1인 정착 자본 계획에 참고하세요.",
+  keywords: ["정착 비용", "정착 비용 얼마", "귀농 초기 투자", "정착 자본", "50대 정착 비용", "귀농 생활비"],
   alternates: { canonical: "/costs" },
 };
 
@@ -80,7 +80,7 @@ const SUPPORT_ITEMS: {
     note: "연 2% · 세대당 1회",
   },
   {
-    label: "귀농교육 100시간",
+    label: "정착 교육 100시간",
     amount: "신청 필수",
     type: "교육",
     note: "농업창업자금 융자의 핵심 자격 요건이에요",
@@ -149,7 +149,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
 
   return (
     <div className={s.page}>
-      <BreadcrumbJsonLd items={[{ name: "귀농 비용 가이드", href: "/costs" }]} />
+      <BreadcrumbJsonLd items={[{ name: "정착 비용 가이드", href: "/costs" }]} />
       <JsonLd<FAQPage>
         data={{
           "@context": "https://schema.org",
@@ -157,15 +157,15 @@ export default async function CostsPage({ searchParams }: PageProps) {
           mainEntity: [
             {
               "@type": "Question",
-              name: "귀농 초기 투자금은 얼마나 필요한가요?",
+              name: "농촌 정착 초기 투자금은 얼마나 필요한가요?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "농촌진흥청 자료 기준, 귀농 초기 투자금은 평균 약 2억~3억 원이에요. 농지 구입비, 주택 비용, 농기계·시설비가 주요 항목이에요.",
+                text: "농촌진흥청 자료 기준, 농촌 정착 초기 투자금은 평균 약 2억~3억 원이에요. 농지 구입비, 주택 비용, 농기계·시설비가 주요 항목이에요.",
               },
             },
             {
               "@type": "Question",
-              name: "1인 귀농 최소 자본은 얼마인가요?",
+              name: "1인 정착 최소 자본은 얼마인가요?",
               acceptedAnswer: {
                 "@type": "Answer",
                 text: "임대 농지 + 소규모 시설 기준 약 3,000만~5,000만 원으로 시작할 수 있어요. 지자체 정착금과 영농 자금 지원을 활용하면 초기 부담을 줄일 수 있어요.",
@@ -173,7 +173,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
             },
             {
               "@type": "Question",
-              name: "귀농 후 연간 운영비는 얼마나 드나요?",
+              name: "정착 후 연간 운영비는 얼마나 드나요?",
               acceptedAnswer: {
                 "@type": "Answer",
                 text: "작물과 규모에 따라 다르지만, 소규모 밭작물 기준 연 1,000만~2,000만 원 수준이에요. 인건비, 자재비, 농약·비료비가 주요 항목이에요.",
@@ -318,7 +318,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
         </section>
       )}
 
-      {/* ═══ 도시 vs 귀농 생활비 ═══ */}
+      {/* ═══ 도시 vs 농촌 생활비 ═══ */}
       {showSection("compare") && (
         <section className={s.section} aria-label="도시 농촌 생활비 비교">
           <h2 className={s.sectionTitle}>
@@ -326,7 +326,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
             초기 투자 이후, 생활비는 줄어듭니다
           </h2>
           <p className={s.sectionDesc}>
-            <AutoGlossary text="귀농 후 월 생활비는 평균 25% 감소하고, 주거비는 80% 절감돼요. 초기 투자가 부담되더라도 장기적으로 생활비 절감 효과가 있어요." />
+            <AutoGlossary text="정착 후 월 생활비는 평균 25% 감소하고, 주거비는 80% 절감돼요. 초기 투자가 부담되더라도 장기적으로 생활비 절감 효과가 있어요." />
           </p>
 
           <div className={s.compareCard}>
@@ -488,7 +488,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
             지원사업 찾아보기
           </Link>
           <Link href="/match?mode=assess" className={s.ctaSecondary}>
-            귀농 적합도 진단 받기
+            농촌 정착 적합도 진단 받기
           </Link>
         </div>
       </section>

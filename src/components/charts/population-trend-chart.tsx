@@ -223,7 +223,7 @@ export default function PopulationTrendChart({ data, mode = "all" }: Props) {
                 yAxisId="farming"
                 type="monotone"
                 dataKey="farming"
-                name="귀농 인구"
+                name="정착 인구"
                 stroke={COLOR_PRIMARY}
                 strokeWidth={3}
                 dot={<FarmingDot />}
@@ -241,7 +241,7 @@ export default function PopulationTrendChart({ data, mode = "all" }: Props) {
         {showFarming && (
           <span className={s.legendItem}>
             <span className={s.legendDot} style={{ background: COLOR_PRIMARY, borderRadius: "50%" }} />
-            귀농 인구{mode === "all" ? " (우축)" : ""}
+            정착 인구{mode === "all" ? " (우축)" : ""}
           </span>
         )}
         {showRural && (
@@ -262,7 +262,7 @@ export default function PopulationTrendChart({ data, mode = "all" }: Props) {
         )}
         {mode === "farming" && (
           <>
-            <span className={s.insightBadge}>2024 귀농 인구 1.45만 가구</span>
+            <span className={s.insightBadge}>2024 정착 인구 1.45만 가구</span>
             <span className={s.insightBadge}>전년 대비 +1.4%</span>
           </>
         )}

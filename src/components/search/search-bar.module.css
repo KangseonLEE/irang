@@ -884,7 +884,7 @@
   white-space: nowrap;
 }
 
-/* ── 귀농 단계별 가이드 (2026-05-13 redesign: chip → 카드 grid) ── */
+/* ── 농촌 정착 단계별 가이드 (2026-05-13 redesign: chip → 카드 grid) ── */
 .guideStepsGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

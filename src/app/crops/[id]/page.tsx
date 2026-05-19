@@ -105,7 +105,7 @@ export async function generateMetadata({
   const regions = data.detail.majorRegions.slice(0, 3).join("·");
   return {
     title: `${data.name} 재배 — 소득·난이도·재배환경 | ${regions}`,
-    description: `${data.name} 재배 소득, 난이도, 기후·토양 조건을 확인하세요. 주요 산지: ${data.detail.majorRegions.join(", ")}. 귀농 작물 선택에 필요한 정보를 비교해 드려요.`,
+    description: `${data.name} 재배 소득, 난이도, 기후·토양 조건을 확인하세요. 주요 산지: ${data.detail.majorRegions.join(", ")}. 정착 작물 선택에 필요한 정보를 비교해 드려요.`,
     alternates: { canonical: `/crops/${id}` },
     openGraph: {
       title: `${data.name} 재배 정보 | 이랑`,
@@ -226,7 +226,7 @@ export default async function CropDetailPage({
     { id: "income", label: "수익정보" },
     { id: "region", label: "재배지역" },
     ...(youthCases.length > 0 ? [{ id: "youth-cases", label: "청년농 사례" }] : []),
-    { id: "tips", label: "귀농팁" },
+    { id: "tips", label: "정착 팁" },
   ];
 
   return (
@@ -459,7 +459,7 @@ export default async function CropDetailPage({
             </div>
           )}
 
-          {/* 귀농 팁 */}
+          {/* 정착 팁 */}
           <TipsSection tips={detail.tips} />
         </div>
 
@@ -959,7 +959,7 @@ function GrowStepsSection({ steps }: { steps: CultivationStep[] }) {
 function TipsSection({ tips }: { tips: string[] }) {
   return (
     <section id="tips" className={s.section}>
-      <SectionHeader icon={<Icon icon={Lightbulb} size="lg" />} title="귀농 팁" />
+      <SectionHeader icon={<Icon icon={Lightbulb} size="lg" />} title="정착 팁" />
       <div className={s.sectionBody}>
         <div className={s.tipsList}>
           {tips.map((tip, idx) => (

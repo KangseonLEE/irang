@@ -27,7 +27,7 @@ const GUIDES = [
     back: {
       amount: "창업 3억 + 주택 7,500만원",
       type: "융자 (연 2%, 5년 거치)",
-      reqs: ["귀농 교육 100시간 이수", "농촌 전입 + 경영체 등록", "영농 계획서 제출"],
+      reqs: ["정착 교육 100시간 이수", "농촌 전입 + 경영체 등록", "영농 계획서 제출"],
       period: "매년 1~3월 (지자체별 상이)",
     },
     href: "/programs/roadmap?tab=return-farming",
@@ -139,11 +139,11 @@ export function GovSupportGuide() {
   const progress = ((current + 1) / GUIDES.length) * 100;
 
   return (
-    <section className={s.section} aria-label="귀농 길잡이">
+    <section className={s.section} aria-label="농촌 정착 길잡이">
       {/* ── 헤더 ── */}
       <div className={s.header}>
         <div className={s.heading}>
-          <span className={s.eyebrow}>#귀농 길잡이</span>
+          <span className={s.eyebrow}>#농촌 정착 길잡이</span>
           <h2 className={s.title}>
             나에게 맞는 <em>길</em>은?
           </h2>

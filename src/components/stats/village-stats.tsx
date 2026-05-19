@@ -19,7 +19,7 @@ import tableStyles from "@/app/stats/stats.module.css";
 
 /**
  * 귀촌 탭 — 귀촌 인구 추이만 표시
- * 만족도는 귀농인 대상 조사이므로 귀촌 탭에서는 제외(데이터 신뢰성 부족).
+ * 만족도는 정착자 대상 조사이므로 귀촌 탭에서는 제외(데이터 신뢰성 부족).
  */
 export function VillageStats() {
   const latest = populationData[populationData.length - 1];

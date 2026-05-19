@@ -144,7 +144,7 @@ function sidoInterpretation(
       );
     case "returnFarm":
       return (
-        "산하 " + includedCount + "개 시군구 귀농 활성도가 " + rankCopy
+        "산하 " + includedCount + "개 시군구 농촌 정착 활성도가 " + rankCopy
       );
   }
 }

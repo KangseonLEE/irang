@@ -11,7 +11,7 @@
  * 2. farmActivity: 인구 1만명당 농가 수 전국 분위 (1~100). 도시 자치구 null
  * 3. medical: 인구 1만명당 의료기관 수 전국 분위 (1~100)
  * 4. school: 인구 1만명당 학교 수 전국 분위 (1~100). 군위 null
- * 5. returnFarm: 귀농 인구 비율 전국 분위 (1~100). 도시 자치구 null
+ * 5. returnFarm: 농촌 정착 인구 비율 전국 분위 (1~100). 도시 자치구 null
  *
  * 회장 결재 사항 (A'안):
  *   - 농가/의료/학교/귀농 전국 분위 통일 (어르신 친화 카피 일관)
@@ -56,7 +56,7 @@ export interface DimensionScores {
   medical: number | null;
   /** 학교 인프라 분위 (1~100). 군위 null */
   school: number | null;
-  /** 귀농 인구 비율 분위 (1~100). 도시 자치구 null */
+  /** 농촌 정착 인구 비율 분위 (1~100). 도시 자치구 null */
   returnFarm: number | null;
   /** 차원별 evidence (raw 수치 + 해석 카피) */
   evidence: DimensionEvidenceMap;
@@ -1153,7 +1153,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 42,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 42%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 42%)"
       }
     }
   },
@@ -1195,7 +1195,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 39%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 39%)"
       }
     }
   },
@@ -1426,7 +1426,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 8%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 8%)"
       }
     }
   },
@@ -1624,7 +1624,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 3%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 3%)"
       }
     }
   },
@@ -1820,7 +1820,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 1%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 1%)"
       }
     }
   },
@@ -1861,7 +1861,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 6%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 6%)"
       }
     }
   },
@@ -1902,7 +1902,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 22%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 22%)"
       }
     }
   },
@@ -1943,7 +1943,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 30%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 30%)"
       }
     }
   },
@@ -1984,7 +1984,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 7%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 7%)"
       }
     }
   },
@@ -2025,7 +2025,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 11%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 11%)"
       }
     }
   },
@@ -2066,7 +2066,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 5%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 5%)"
       }
     }
   },
@@ -2108,7 +2108,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 2%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 2%)"
       }
     }
   },
@@ -2149,7 +2149,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 27%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 27%)"
       }
     }
   },
@@ -2191,7 +2191,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 36%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 36%)"
       }
     }
   },
@@ -2329,7 +2329,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 11%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 11%)"
       }
     }
   },
@@ -2370,7 +2370,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 10%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 10%)"
       }
     }
   },
@@ -2411,7 +2411,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 17%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 17%)"
       }
     }
   },
@@ -2549,7 +2549,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 30%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 30%)"
       }
     }
   },
@@ -2593,7 +2593,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 33,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 33%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 33%)"
       }
     }
   },
@@ -2637,7 +2637,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 24,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 24%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 24%)"
       }
     }
   },
@@ -2680,7 +2680,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 31,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 31%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 31%)"
       }
     }
   },
@@ -2725,7 +2725,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 26,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 26%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 26%)"
       }
     }
   },
@@ -2767,7 +2767,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 40%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 40%)"
       }
     }
   },
@@ -2810,7 +2810,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.08,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 48%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 48%)"
       }
     }
   },
@@ -2854,7 +2854,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 33,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 33%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 33%)"
       }
     }
   },
@@ -2898,7 +2898,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 40,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 40%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 40%)"
       }
     }
   },
@@ -2941,7 +2941,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 47%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 47%)"
       }
     }
   },
@@ -2983,7 +2983,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 38%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 38%)"
       }
     }
   },
@@ -3026,7 +3026,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 44%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 44%)"
       }
     }
   },
@@ -3067,7 +3067,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 12%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 12%)"
       }
     }
   },
@@ -3109,7 +3109,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 26%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 26%)"
       }
     }
   },
@@ -3152,7 +3152,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 27%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 27%)"
       }
     }
   },
@@ -3230,7 +3230,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 35,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 35%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 35%)"
       }
     }
   },
@@ -3275,7 +3275,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 25,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 25%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 25%)"
       }
     }
   },
@@ -3317,7 +3317,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 23,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 23%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 23%)"
       }
     }
   },
@@ -3359,7 +3359,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 31%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 31%)"
       }
     }
   },
@@ -3403,7 +3403,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 13,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 13%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 13%)"
       }
     }
   },
@@ -3445,7 +3445,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 37%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 37%)"
       }
     }
   },
@@ -3490,7 +3490,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 14,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 14%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 14%)"
       }
     }
   },
@@ -3531,7 +3531,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 8%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 8%)"
       }
     }
   },
@@ -3730,7 +3730,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 5%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 5%)"
       }
     }
   },
@@ -3774,7 +3774,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 46%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 46%)"
       }
     }
   },
@@ -3817,7 +3817,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 48%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 48%)"
       }
     }
   },
@@ -3858,7 +3858,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 24%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 24%)"
       }
     }
   },
@@ -3900,7 +3900,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 35%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 35%)"
       }
     }
   },
@@ -3943,7 +3943,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.08,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 49%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 49%)"
       }
     }
   },
@@ -3984,7 +3984,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 21%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 21%)"
       }
     }
   },
@@ -4026,7 +4026,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 34%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 34%)"
       }
     }
   },
@@ -4071,7 +4071,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 38,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 38%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 38%)"
       }
     }
   },
@@ -4149,7 +4149,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 16,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 16%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 16%)"
       }
     }
   },
@@ -4194,7 +4194,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 8,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 8%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 8%)"
       }
     }
   },
@@ -4237,7 +4237,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 42%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 42%)"
       }
     }
   },
@@ -4281,7 +4281,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 43,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 43%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 43%)"
       }
     }
   },
@@ -4325,7 +4325,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 36,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 36%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 36%)"
       }
     }
   },
@@ -4399,7 +4399,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 14%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 14%)"
       }
     }
   },
@@ -4442,7 +4442,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 23%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 23%)"
       }
     }
   },
@@ -4487,7 +4487,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 48,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 48%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 48%)"
       }
     }
   },
@@ -4532,7 +4532,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 32,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 32%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 32%)"
       }
     }
   },
@@ -4577,7 +4577,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 39,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 39%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 39%)"
       }
     }
   },
@@ -4619,7 +4619,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 45%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 45%)"
       }
     }
   },
@@ -4664,7 +4664,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
         "rankPercent": 6,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 6%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 6%)"
       }
     }
   },
@@ -4709,7 +4709,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
         "rankPercent": 4,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 4%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 4%)"
       }
     }
   },
@@ -4754,7 +4754,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 11,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 11%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 11%)"
       }
     }
   },
@@ -4799,7 +4799,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 10,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 10%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 10%)"
       }
     }
   },
@@ -4844,7 +4844,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.4%",
         "rankPercent": 1,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 1%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 1%)"
       }
     }
   },
@@ -4889,7 +4889,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 22,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 22%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 22%)"
       }
     }
   },
@@ -4934,7 +4934,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 34,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 34%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 34%)"
       }
     }
   },
@@ -5167,7 +5167,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 17%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 17%)"
       }
     }
   },
@@ -5208,7 +5208,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 29%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 29%)"
       }
     }
   },
@@ -5252,7 +5252,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 48,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 48%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 48%)"
       }
     }
   },
@@ -5294,7 +5294,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 25%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 25%)"
       }
     }
   },
@@ -5339,7 +5339,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 23,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 23%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 23%)"
       }
     }
   },
@@ -5384,7 +5384,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
         "rankPercent": 1,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 1%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 1%)"
       }
     }
   },
@@ -5429,7 +5429,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 14,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 14%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 14%)"
       }
     }
   },
@@ -5474,7 +5474,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 17,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 17%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 17%)"
       }
     }
   },
@@ -5519,7 +5519,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
         "rankPercent": 5,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 5%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 5%)"
       }
     }
   },
@@ -5564,7 +5564,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 39,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 39%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 39%)"
       }
     }
   },
@@ -5609,7 +5609,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 30,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 30%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 30%)"
       }
     }
   },
@@ -5654,7 +5654,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 15,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 15%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 15%)"
       }
     }
   },
@@ -5699,7 +5699,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 17,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 17%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 17%)"
       }
     }
   },
@@ -5743,7 +5743,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 20,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 20%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 20%)"
       }
     }
   },
@@ -5786,7 +5786,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 47,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 47%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 47%)"
       }
     }
   },
@@ -5831,7 +5831,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
         "rankPercent": 3,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 3%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 3%)"
       }
     }
   },
@@ -5876,7 +5876,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 42,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 42%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 42%)"
       }
     }
   },
@@ -5921,7 +5921,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 19,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 19%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 19%)"
       }
     }
   },
@@ -5964,7 +5964,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 45%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 45%)"
       }
     }
   },
@@ -6009,7 +6009,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 46,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 46%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 46%)"
       }
     }
   },
@@ -6054,7 +6054,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
         "rankPercent": 2,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 2%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 2%)"
       }
     }
   },
@@ -6571,7 +6571,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 9%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 9%)"
       }
     }
   },
@@ -6836,7 +6836,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 20%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 20%)"
       }
     }
   },
@@ -7002,7 +7002,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 23%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 23%)"
       }
     }
   },
@@ -7043,7 +7043,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 19%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 19%)"
       }
     }
   },
@@ -7085,7 +7085,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 32%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 32%)"
       }
     }
   },
@@ -7128,7 +7128,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 43%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 43%)"
       }
     }
   },
@@ -7171,7 +7171,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 42%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 42%)"
       }
     }
   },
@@ -7212,7 +7212,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 13%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 13%)"
       }
     }
   },
@@ -7255,7 +7255,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 50,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 50%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 50%)"
       }
     }
   },
@@ -7300,7 +7300,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 30,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 30%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 30%)"
       }
     }
   },
@@ -7345,7 +7345,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 28,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 28%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 28%)"
       }
     }
   },
@@ -7390,7 +7390,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 45,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 45%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 45%)"
       }
     }
   },
@@ -7431,7 +7431,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 14%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 14%)"
       }
     }
   },
@@ -7502,7 +7502,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 11,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 11%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 11%)"
       }
     }
   },
@@ -7547,7 +7547,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
         "rankPercent": 2,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 2%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 2%)"
       }
     }
   },
@@ -7591,7 +7591,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 8,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 8%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 8%)"
       }
     }
   },
@@ -7636,7 +7636,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 27,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 27%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 27%)"
       }
     }
   },
@@ -7681,7 +7681,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
         "rankPercent": 5,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 5%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 5%)"
       }
     }
   },
@@ -7726,7 +7726,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 49,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 49%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 49%)"
       }
     }
   },
@@ -7771,7 +7771,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 20,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 20%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 20%)"
       }
     }
   },
@@ -7813,7 +7813,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 28%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 28%)"
       }
     }
   },
@@ -7857,7 +7857,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 27,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 27%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 27%)"
       }
     }
   },
@@ -7901,7 +7901,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 12,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 12%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 12%)"
       }
     }
   },
@@ -7943,7 +7943,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 39%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 39%)"
       }
     }
   },
@@ -7985,7 +7985,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 41%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 41%)"
       }
     }
   },
@@ -8057,7 +8057,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 18%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 18%)"
       }
     }
   },
@@ -8099,7 +8099,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 20%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 20%)"
       }
     }
   },
@@ -8141,7 +8141,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.05,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 하위 36%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 36%)"
       }
     }
   },
@@ -8182,7 +8182,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 2%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 2%)"
       }
     }
   },
@@ -8226,7 +8226,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 45,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 45%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 45%)"
       }
     }
   },
@@ -8268,7 +8268,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 16%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 16%)"
       }
     }
   },
@@ -8309,7 +8309,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 4%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 4%)"
       }
     }
   },
@@ -8354,7 +8354,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 41,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 41%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 41%)"
       }
     }
   },
@@ -8396,7 +8396,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 33%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 33%)"
       }
     }
   },
@@ -8441,7 +8441,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 37,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 37%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 37%)"
       }
     }
   },
@@ -8485,7 +8485,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 29,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 29%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 29%)"
       }
     }
   },
@@ -8530,7 +8530,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 44,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 44%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 44%)"
       }
     }
   },
@@ -8575,7 +8575,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 21,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 21%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 21%)"
       }
     }
   },
@@ -8620,7 +8620,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 7,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 7%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 7%)"
       }
     }
   },
@@ -8665,7 +8665,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 18,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 18%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 18%)"
       }
     }
   },
@@ -8710,7 +8710,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "rankPercent": 36,
-        "interpretation": "귀농 비율이 평균 수준이에요 (전국 상위 36%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 36%)"
       }
     }
   },
@@ -8755,7 +8755,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 9,
-        "interpretation": "귀농 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 9%)"
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 9%)"
       }
     }
   },
@@ -8797,7 +8797,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 15%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 15%)"
       }
     }
   },
@@ -8840,7 +8840,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "귀농 비율이 낮은 편이에요 (전국 하위 33%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 33%)"
       }
     }
   }
@@ -8861,7 +8861,7 @@ export const DIMENSION_LABELS = {
   farmActivity: "농가 활성도",
   medical: "의료 인프라",
   school: "학교 인프라",
-  returnFarm: "귀농 활성도",
+  returnFarm: "농촌 정착 활성도",
 } as const;
 
 export type DimensionId = keyof typeof DIMENSION_LABELS;

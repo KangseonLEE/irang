@@ -328,8 +328,8 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
 
         {/* 출력/공유 아이콘 */}
         <ResultSaveCta
-          printTitle={`이랑 - 귀농 적합도 진단 결과 (${tier.title})`}
-          shareText={`나의 귀농 준비 단계는 "${tier.title}" ${tier.emoji}\n${typeof window !== "undefined" ? `${window.location.origin}/assess` : ""}`}
+          printTitle={`이랑 - 농촌 정착 적합도 진단 결과 (${tier.title})`}
+          shareText={`나의 정착 준비 단계는 "${tier.title}" ${tier.emoji}\n${typeof window !== "undefined" ? `${window.location.origin}/assess` : ""}`}
         />
 
         {/* 상세 분석 */}

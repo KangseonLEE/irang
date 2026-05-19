@@ -49,9 +49,9 @@ function deriveCurrentMode(
 }
 
 export const metadata: Metadata = {
-  title: "시군구 점수 비교 — 차원별 / 귀농 스타일 맞춤",
+  title: "시군구 점수 비교 — 차원별 / 정착 스타일 맞춤",
   description:
-    "전국 시군구를 5가지 차원으로 비교하거나, 내 귀농 스타일에 맞춘 종합 점수로 줄 세워 보세요.",
+    "전국 시군구를 5가지 차원으로 비교하거나, 내 정착 스타일에 맞춘 종합 점수로 줄 세워 보세요.",
   alternates: { canonical: "/regions/ranking" },
 };
 
@@ -75,7 +75,7 @@ const DIMENSION_DESCRIPTIONS: Record<DimensionId, string> = {
   farmActivity: "인구 1만 명당 농가 수를 전국에서 비교해요. 도시 자치구는 빠져요.",
   medical: "인구 1만 명당 의료기관 수를 전국에서 비교해요.",
   school: "인구 1만 명당 학교 수를 전국에서 비교해요.",
-  returnFarm: "전체 인구 대비 귀농 인구 비율이 얼마나 높은지를 비교해요. 도시 자치구는 빠져요.",
+  returnFarm: "전체 인구 대비 농촌 정착 인구 비율이 얼마나 높은지를 비교해요. 도시 자치구는 빠져요.",
 };
 
 const DIMENSION_NOTES: Record<DimensionId, string | null> = {
@@ -83,7 +83,7 @@ const DIMENSION_NOTES: Record<DimensionId, string | null> = {
   farmActivity: "도시 자치구는 농가 통계가 따로 잡히지 않아 빠져 있어요.",
   medical: null,
   school: "군위군은 학교 정보가 등록되어 있지 않아 빠져 있어요.",
-  returnFarm: "도시 자치구는 귀농 통계가 따로 잡히지 않아 빠져 있어요.",
+  returnFarm: "도시 자치구는 농촌 정착 통계가 따로 잡히지 않아 빠져 있어요.",
 };
 
 const DIMENSION_ICONS: Record<DimensionId, typeof Users> = {
@@ -201,7 +201,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
             </Link>
           </p>
           <DataSource
-            source={`기상청 ASOS · SGIS 인구 · 농림어업총조사 2020 · 심평원 의료기관 · NEIS 학교 · KOSIS 귀농통계 (총 ${DIMENSION_SCORES.length}개 시군구 기준)`}
+            source={`기상청 ASOS · SGIS 인구 · 농림어업총조사 2020 · 심평원 의료기관 · NEIS 학교 · KOSIS 정착 통계 (총 ${DIMENSION_SCORES.length}개 시군구 기준)`}
           />
         </>
       ) : (
@@ -258,7 +258,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
           <div
             className={s.dimensionToggle}
             role="tablist"
-            aria-label="귀농 스타일 선택"
+            aria-label="정착 스타일 선택"
           >
             {PERSONAS.map((p) => (
               <Link
@@ -351,7 +351,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
       </p>
 
       <DataSource
-        source={`기상청 ASOS · SGIS 인구 · 농림어업총조사 2020 · 심평원 의료기관 · NEIS 학교 · KOSIS 귀농통계 (총 ${DIMENSION_SCORES.length}개 시군구 기준)`}
+        source={`기상청 ASOS · SGIS 인구 · 농림어업총조사 2020 · 심평원 의료기관 · NEIS 학교 · KOSIS 정착 통계 (총 ${DIMENSION_SCORES.length}개 시군구 기준)`}
       />
         </>
       )}
