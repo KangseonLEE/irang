@@ -71,7 +71,54 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
         : phase === "track"
           ? totalDemoSteps + totalSteps + trackStep + 1
           : totalAllSteps;
-  const progress = (currentAllStep / totalAllSteps) * 100;
+
+  // 영역(phase) 별 진행 상태 — 3구간 progress bar
+  const phaseLabel =
+    phase === "demographic"
+      ? "기본 정보"
+      : phase === "quiz"
+        ? "적합도 진단"
+        : "지원 트랙";
+  const phaseCurrent =
+    phase === "demographic"
+      ? demoStep + 1
+      : phase === "quiz"
+        ? step + 1
+        : trackStep + 1;
+  const phaseTotal =
+    phase === "demographic"
+      ? totalDemoSteps
+      : phase === "quiz"
+        ? totalSteps
+        : totalTrackSteps;
+
+  // 각 segment 내부 fill 비율 (0~100)
+  const demoFill =
+    phase === "demographic"
+      ? ((demoStep + 1) / totalDemoSteps) * 100
+      : 100;
+  const quizFill =
+    phase === "demographic"
+      ? 0
+      : phase === "quiz"
+        ? ((step + 1) / totalSteps) * 100
+        : 100;
+  const trackFill =
+    phase === "track"
+      ? ((trackStep + 1) / totalTrackSteps) * 100
+      : phase === "result"
+        ? 100
+        : 0;
+
+  // 각 segment 폭 (전체 단계 대비 비율)
+  const demoWidth = (totalDemoSteps / totalAllSteps) * 100;
+  const quizWidth = (totalSteps / totalAllSteps) * 100;
+  const trackWidth = (totalTrackSteps / totalAllSteps) * 100;
+
+  // active 상태 캐시 — phase narrowing 회피
+  const demoActive: boolean = phase === "demographic";
+  const quizActive: boolean = phase === "quiz";
+  const trackActive: boolean = phase === "track";
 
   // 진입 시 분석 이벤트 전송
   useEffect(() => {
@@ -516,12 +563,39 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
             aria-valuenow={currentAllStep}
             aria-valuemin={1}
             aria-valuemax={totalAllSteps}
+            aria-valuetext={`${phaseLabel} ${phaseCurrent} / ${phaseTotal}`}
             aria-label="진행률"
           >
-            <div className={s.progressFill} style={{ width: `${progress}%` }} />
+            <div
+              className={`${s.progressSegment} ${demoActive ? s.progressSegmentActive : ""}`}
+              style={{ width: `${demoWidth}%` }}
+            >
+              <div
+                className={s.progressFill}
+                style={{ width: `${demoFill}%` }}
+              />
+            </div>
+            <div
+              className={`${s.progressSegment} ${quizActive ? s.progressSegmentActive : ""}`}
+              style={{ width: `${quizWidth}%` }}
+            >
+              <div
+                className={s.progressFill}
+                style={{ width: `${quizFill}%` }}
+              />
+            </div>
+            <div
+              className={`${s.progressSegment} ${trackActive ? s.progressSegmentActive : ""}`}
+              style={{ width: `${trackWidth}%` }}
+            >
+              <div
+                className={s.progressFill}
+                style={{ width: `${trackFill}%` }}
+              />
+            </div>
           </div>
           <span className={s.progressLabel}>
-            {currentAllStep} / {totalAllSteps}
+            {phaseLabel} {phaseCurrent} / {phaseTotal}
           </span>
         </div>
 
@@ -576,13 +650,39 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
             aria-valuenow={currentAllStep}
             aria-valuemin={1}
             aria-valuemax={totalAllSteps}
-            aria-valuetext={`${totalAllSteps}단계 중 ${currentAllStep}단계`}
+            aria-valuetext={`${phaseLabel} ${phaseCurrent} / ${phaseTotal}`}
             aria-label="진행률"
           >
-            <div className={s.progressFill} style={{ width: `${progress}%` }} />
+            <div
+              className={`${s.progressSegment} ${demoActive ? s.progressSegmentActive : ""}`}
+              style={{ width: `${demoWidth}%` }}
+            >
+              <div
+                className={s.progressFill}
+                style={{ width: `${demoFill}%` }}
+              />
+            </div>
+            <div
+              className={`${s.progressSegment} ${quizActive ? s.progressSegmentActive : ""}`}
+              style={{ width: `${quizWidth}%` }}
+            >
+              <div
+                className={s.progressFill}
+                style={{ width: `${quizFill}%` }}
+              />
+            </div>
+            <div
+              className={`${s.progressSegment} ${trackActive ? s.progressSegmentActive : ""}`}
+              style={{ width: `${trackWidth}%` }}
+            >
+              <div
+                className={s.progressFill}
+                style={{ width: `${trackFill}%` }}
+              />
+            </div>
           </div>
           <span className={s.progressLabel}>
-            {currentAllStep} / {totalAllSteps}
+            {phaseLabel} {phaseCurrent} / {phaseTotal}
           </span>
         </div>
 
@@ -634,15 +734,39 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
           aria-valuenow={currentAllStep}
           aria-valuemin={1}
           aria-valuemax={totalAllSteps}
+          aria-valuetext={`${phaseLabel} ${phaseCurrent} / ${phaseTotal}`}
           aria-label="진행률"
         >
           <div
-            className={s.progressFill}
-            style={{ width: `${progress}%` }}
-          />
+            className={`${s.progressSegment} ${demoActive ? s.progressSegmentActive : ""}`}
+            style={{ width: `${demoWidth}%` }}
+          >
+            <div
+              className={s.progressFill}
+              style={{ width: `${demoFill}%` }}
+            />
+          </div>
+          <div
+            className={`${s.progressSegment} ${quizActive ? s.progressSegmentActive : ""}`}
+            style={{ width: `${quizWidth}%` }}
+          >
+            <div
+              className={s.progressFill}
+              style={{ width: `${quizFill}%` }}
+            />
+          </div>
+          <div
+            className={`${s.progressSegment} ${trackActive ? s.progressSegmentActive : ""}`}
+            style={{ width: `${trackWidth}%` }}
+          >
+            <div
+              className={s.progressFill}
+              style={{ width: `${trackFill}%` }}
+            />
+          </div>
         </div>
         <span className={s.progressLabel}>
-          {currentAllStep} / {totalAllSteps}
+          {phaseLabel} {phaseCurrent} / {phaseTotal}
         </span>
       </div>
 

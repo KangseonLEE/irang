@@ -109,11 +109,24 @@
 }
 
 .progressBar {
+  display: flex;
   flex: 1;
+  gap: 3px;
   height: 6px;
+  background: transparent;
+}
+
+.progressSegment {
+  position: relative;
+  height: 100%;
   border-radius: 3px;
   background: var(--muted, #f9fafb);
   overflow: hidden;
+  transition: background 0.2s ease;
+}
+
+.progressSegmentActive {
+  background: color-mix(in srgb, var(--readiness, #d97706) 18%, transparent);
 }
 
 .progressFill {

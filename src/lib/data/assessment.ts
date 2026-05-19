@@ -140,20 +140,21 @@ export const QUESTIONS: AssessmentQuestion[] = [
       "귀농 후 농외소득(부업, 프리랜서 등)에 대해 어떻게 생각하세요?",
     options: [
       {
-        label: "아직 귀농 후 생활에 대해 생각해본 적이 없어요",
+        label: "농사만으로도 충분히 살 수 있을 거라 생각해요",
         score: 1,
       },
       {
-        label: "필요하다는 건 알지만, 뭘 할 수 있을지 모르겠어요",
+        label: "필요할 것 같은데, 뭘 할 수 있을지 아직 막막해요",
         score: 2,
       },
       {
         label:
-          "현재 직업 경험을 살려 원격 근무나 부업을 할 수 있을 것 같아요",
+          "귀농 후에도 파트타임 근무나 자영업 등 병행할 계획이 있어요",
         score: 3,
       },
       {
-        label: "이미 농외소득원을 확보했거나 구체적인 계획이 있어요",
+        label:
+          "이미 농외소득원을 확보했거나 구체적인 계획과 수입 목표가 있어요",
         score: 4,
       },
     ],
@@ -240,22 +241,23 @@ export const QUESTIONS: AssessmentQuestion[] = [
     id: "q8",
     dimension: "experience",
     dimensionLabel: "경험·역량",
-    question: "귀농에 대해 얼마나 알아보셨나요?",
+    question: "귀농을 준비할 때 어디서 정보를 얻으셨나요?",
     options: [
       {
-        label: "아직 잘 몰라요, 이 테스트가 처음이에요!",
+        label: "아직 별로 찾아보지 않았어요, 지금이 시작이에요",
         score: 1,
       },
       {
-        label: "SNS나 유튜브에서 귀농 관련 콘텐츠를 본 적 있어요",
+        label: "SNS나 유튜브에서 귀농 브이로그·채널을 본 적 있어요",
         score: 2,
       },
       {
-        label: "귀농 관련 책·강의를 찾아봤거나 설명회에 참석해봤어요",
+        label: "귀농 관련 책을 읽거나, 설명회·박람회에 참석해봤어요",
         score: 3,
       },
       {
-        label: "정규 귀농 교육과정을 수료했거나 현지 멘토가 있어요",
+        label:
+          "귀농학교·농업기술센터 교육을 수료했거나, 현지 선배 농가에서 배웠어요",
         score: 4,
       },
     ],
@@ -267,16 +269,23 @@ export const QUESTIONS: AssessmentQuestion[] = [
     dimension: "adaptability",
     dimensionLabel: "적응력·성향",
     question:
-      "시골 마을 이장님이 '이번 주말 마을 공동작업 나오세요'라고 하면 어떤 기분이 드세요?",
+      "마을 단체 카톡방에 '이번 주 두렁 공동 청소 있어요'라는 메시지가 왔어요. 어떻게 반응할 것 같으세요?",
     options: [
-      { label: "낯선 사람들과 어울리는 게 부담스러워요", score: 1 },
-      { label: "좀 귀찮지만, 어쩔 수 없이 가겠죠", score: 2 },
       {
-        label: "새로운 이웃을 알아가는 기회라고 생각해요",
+        label: "솔직히 부담스러워요, 모르는 사람들과 어울리는 게 쉽지 않아요",
+        score: 1,
+      },
+      {
+        label: "좀 귀찮지만, 새로 이사 온 입장이니 가야겠죠",
+        score: 2,
+      },
+      {
+        label: "이웃들과 친해질 기회라고 생각하고 기꺼이 참여할 것 같아요",
         score: 3,
       },
       {
-        label: "당연히 가야죠! 마을 공동체에 참여하는 건 중요하니까요",
+        label:
+          "당연히 참여해야죠! 공동체가 잘 돌아가야 농사도 잘 된다고 생각해요",
         score: 4,
       },
     ],
@@ -286,7 +295,7 @@ export const QUESTIONS: AssessmentQuestion[] = [
     dimension: "adaptability",
     dimensionLabel: "적응력·성향",
     question:
-      "한여름 35도 날씨에 하루 6시간 이상 야외에서 일하는 상황, 어떻게 느끼세요?",
+      "농사일은 여름엔 새벽부터 땀 흘리고, 겨울엔 영하에서 하우스 점검을 해요. 이런 연중 육체노동, 솔직히 어떻게 느끼세요?",
     options: [
       { label: "체력에 전혀 자신이 없어요, 힘들 것 같아요", score: 1 },
       {
