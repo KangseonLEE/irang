@@ -1,0 +1,121 @@
+# ═══════════════════════════════════════════
+# GitHub Actions IP CIDR → Cloudflare List 자동 동기화
+# - GH Meta API의 actions[] CIDR을 주 1회 fetch
+# - CF List `github_actions_ips` (ID 6518747ca11345499ea4b10ba1515d46)와 diff
+# - 변동 시 add/delete API 호출로 동기화
+# - 미래 e2e CI 503 차단 (GH가 30일 전 공지하는 CIDR 변동 자동 흡수)
+# ═══════════════════════════════════════════
+#
+# Sprint B D2 (2026-05-19) 후속 — 자동 갱신 체계 확립.
+# Sprint B D2: Order 2 expression에서 secret literal 영구 제거 (ip.src in $github_actions_ips)
+#
+# Required secrets:
+# - CF_API_TOKEN: Account-scoped, Account → Account Filter Lists → Edit
+# - CF_ACCOUNT_ID: Cloudflare Account ID
+# ═══════════════════════════════════════════
+
+name: "GH Actions IP List sync"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 1" # 매주 월요일 09:00 KST (UTC 00:00)
+
+concurrency:
+  group: ip-list-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  CF_LIST_ID: "6518747ca11345499ea4b10ba1515d46"
+
+jobs:
+  sync:
+    name: Sync github_actions_ips CIDR
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Fetch GH Meta actions CIDR
+        id: gh-meta
+        run: |
+          curl -sS https://api.github.com/meta | jq -r '.actions[]' | grep -v ':' | sort -u > gh-cidrs.txt
+          echo "gh_count=$(wc -l < gh-cidrs.txt)" >> "$GITHUB_OUTPUT"
+          echo "GH Meta actions[] IPv4 count: $(wc -l < gh-cidrs.txt)"
+
+      - name: Fetch current CF List items
+        id: cf-list
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CF_API_TOKEN" ] || [ -z "$CF_ACCOUNT_ID" ]; then
+            echo "CF_API_TOKEN or CF_ACCOUNT_ID missing. Skipping."
+            exit 1
+          fi
+
+          # CF List items API는 페이지네이션. cursor 따라가며 전부 수집.
+          : > cf-cidrs.txt
+          CURSOR=""
+          while : ; do
+            URL="https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/${CF_LIST_ID}/items?per_page=1000"
+            if [ -n "$CURSOR" ]; then URL="${URL}&cursor=${CURSOR}"; fi
+            RESP=$(curl -sS -H "Authorization: Bearer $CF_API_TOKEN" "$URL")
+            echo "$RESP" | jq -r '.result[].ip' >> cf-cidrs.txt
+            CURSOR=$(echo "$RESP" | jq -r '.result_info.cursors.after // empty')
+            if [ -z "$CURSOR" ]; then break; fi
+          done
+          sort -u cf-cidrs.txt -o cf-cidrs.txt
+          echo "cf_count=$(wc -l < cf-cidrs.txt)" >> "$GITHUB_OUTPUT"
+          echo "CF List current items count: $(wc -l < cf-cidrs.txt)"
+
+      - name: Compute diff
+        id: diff
+        run: |
+          comm -23 gh-cidrs.txt cf-cidrs.txt > to-add.txt    # GH에만 있음 → 추가
+          comm -13 gh-cidrs.txt cf-cidrs.txt > to-remove.txt # CF에만 있음 → 삭제
+          ADD_COUNT=$(wc -l < to-add.txt)
+          REMOVE_COUNT=$(wc -l < to-remove.txt)
+          echo "add_count=$ADD_COUNT" >> "$GITHUB_OUTPUT"
+          echo "remove_count=$REMOVE_COUNT" >> "$GITHUB_OUTPUT"
+          echo "diff: +$ADD_COUNT / -$REMOVE_COUNT"
+
+      - name: Apply diff to CF List
+        if: steps.diff.outputs.add_count != '0' || steps.diff.outputs.remove_count != '0'
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          # CF API: PUT은 전체 교체. 변동 시 GH actions[] 전체로 replace.
+          # POST(append)/DELETE 개별 호출보다 atomic + race 안전.
+          PAYLOAD=$(jq -R -n -c '[inputs | select(length > 0) | {ip: ., comment: "GH Actions runner"}]' < gh-cidrs.txt)
+
+          RESP=$(curl -sS -X PUT \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/${CF_LIST_ID}/items" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "$PAYLOAD")
+
+          SUCCESS=$(echo "$RESP" | jq -r '.success // false')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "CF List update FAILED."
+            echo "$RESP" | jq -r '.errors // []'
+            exit 1
+          fi
+          echo "CF List updated: +${{ steps.diff.outputs.add_count }} / -${{ steps.diff.outputs.remove_count }}"
+
+      - name: Verify final count
+        if: steps.diff.outputs.add_count != '0' || steps.diff.outputs.remove_count != '0'
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          # CF List 비동기 propagation. 변동 후 즉시 fetch하면 stale 가능 → log만 남김.
+          echo "Update queued. Verification deferred to next scheduled run."
+          echo "Expected count: ${{ steps.gh-meta.outputs.gh_count }}"
+
+      - name: No-op summary
+        if: steps.diff.outputs.add_count == '0' && steps.diff.outputs.remove_count == '0'
+        run: echo "No diff. CF List already in sync with GH Meta actions[]."
