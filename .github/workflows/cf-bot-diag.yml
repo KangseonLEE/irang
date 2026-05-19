@@ -1,0 +1,134 @@
+# ═══════════════════════════════════════════
+# CF 봇 우회 긴급 진단 — Order 1~4 expression 전수 점검
+# ═══════════════════════════════════════════
+#
+# 배경 (2026-05-19 21:00+ KST):
+#   GA Realtime에서 San Jose 봇 30분 활성 55명 (27명 San Jose).
+#   오전 5/19에 AS15169·AS8075·AS16509 빅테크 ASN 모두 제거 후 빅테크 봇 재유입 가능성.
+#
+# 가능 root cause:
+#   1. Cache HIT bypass — Worker가 cache HIT 응답에 미적용
+#   2. Order 1 verified bot 위장 — Googlebot UA + 위장 reverse DNS
+#   3. Worker decide() 통과 — 알 수 없는 UA 패턴
+#   4. Order 3 ASN 제거 부작용 — AWS·MS·Google ASN 봇 재유입
+#
+# 동작 (read-only):
+#   Step 1: http_request_firewall_custom entrypoint read
+#   Step 2: 모든 룰 expression + action + description + enabled 전수 출력
+#   Step 3: Order 3 잔존 ASN list 명시
+#   Step 4: Verified bot Skip rule 존재 확인 (cf.client.bot)
+#   Step 5: KR 외 catch-all 존재 확인 (ip.geoip.country)
+#
+# 트리거: workflow_dispatch only (read-only 진단)
+# 권한: Zone WAF Read (read만 — Analytics 권한 별개)
+# ═══════════════════════════════════════════
+
+name: "CF Bot Diag — read all firewall custom rules"
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: cf-bot-diag
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  diag:
+    name: Read all custom firewall rules
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+
+    steps:
+      - name: Preflight — env check
+        run: |
+          if [ -z "$CF_API_TOKEN" ] || [ -z "$CF_ZONE_ID" ]; then
+            echo "::error::CF_API_TOKEN / CF_ZONE_ID secret missing."
+            exit 1
+          fi
+
+      - name: Read http_request_firewall_custom entrypoint
+        id: cf_read
+        run: |
+          RULESET=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/rulesets/phases/http_request_firewall_custom/entrypoint" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+
+          SUCCESS=$(echo "$RULESET" | jq -r '.success // false')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "::error::Could not fetch entrypoint"
+            echo "$RULESET" | jq -r '.errors // [] | tostring'
+            exit 1
+          fi
+
+          # 결과 mask 처리하면서 expression은 그대로 출력 (secret 아님)
+          echo "$RULESET" > /tmp/ruleset.json
+          chmod 600 /tmp/ruleset.json
+
+          RULE_COUNT=$(jq -r '.result.rules | length' /tmp/ruleset.json)
+          echo "Total custom rules: $RULE_COUNT"
+          echo "::group::All rules"
+          jq -r '.result.rules[] | "ORDER \(.id[0:8]) [enabled=\(.enabled)] action=\(.action) desc=\(.description // "(no desc)")\n  EXPR: \(.expression)\n"' /tmp/ruleset.json
+          echo "::endgroup::"
+
+      - name: Identify Order 1 — Verified Bot Skip
+        run: |
+          MATCH=$(jq -r '.result.rules[] | select(.expression | test("cf.client.bot"; "i")) | "  id=\(.id) action=\(.action) enabled=\(.enabled)\n  expr=\(.expression)"' /tmp/ruleset.json)
+          if [ -z "$MATCH" ]; then
+            echo "::warning::Verified bot Skip rule NOT FOUND (cf.client.bot)"
+          else
+            echo "Verified bot Skip rule:"
+            echo "$MATCH"
+          fi
+
+      - name: Identify Order 2 — E2E whitelist
+        run: |
+          MATCH=$(jq -r '.result.rules[] | select(.expression | test("irang-e2e|github_actions_ips"; "i")) | "  id=\(.id) action=\(.action) enabled=\(.enabled)\n  expr=\(.expression)"' /tmp/ruleset.json)
+          if [ -z "$MATCH" ]; then
+            echo "::warning::E2E Skip rule NOT FOUND"
+          else
+            echo "E2E Skip rule:"
+            echo "$MATCH"
+          fi
+
+      - name: Identify Order 3 — ASN block + list current ASNs
+        run: |
+          MATCH=$(jq -r '.result.rules[] | select(.expression | test("ip.geoip.asnum"; "i")) | "  id=\(.id) action=\(.action) enabled=\(.enabled)\n  expr=\(.expression)"' /tmp/ruleset.json)
+          if [ -z "$MATCH" ]; then
+            echo "::warning::ASN block rule NOT FOUND"
+          else
+            echo "ASN block rule:"
+            echo "$MATCH"
+            ASN_BLOCK=$(jq -r '.result.rules[] | select(.expression | test("ip.geoip.asnum"; "i")) | .expression' /tmp/ruleset.json | grep -oE 'in \{[^}]+\}' | head -1)
+            echo "Current ASN set: $ASN_BLOCK"
+            ASN_LIST=$(echo "$ASN_BLOCK" | grep -oE '[0-9]+' | tr '\n' ' ')
+            ASN_COUNT=$(echo "$ASN_LIST" | wc -w | tr -d ' ')
+            echo "ASN count: $ASN_COUNT"
+            echo "ASN list: $ASN_LIST"
+          fi
+
+      - name: Identify Order 4 — Country catch-all
+        run: |
+          MATCH=$(jq -r '.result.rules[] | select(.expression | test("ip.geoip.country"; "i")) | "  id=\(.id) action=\(.action) enabled=\(.enabled)\n  expr=\(.expression)"' /tmp/ruleset.json)
+          if [ -z "$MATCH" ]; then
+            echo "::warning::Country rule NOT FOUND"
+          else
+            echo "Country rule:"
+            echo "$MATCH"
+          fi
+
+      - name: Summary
+        run: |
+          echo "## 진단 요약"
+          TOTAL=$(jq -r '.result.rules | length' /tmp/ruleset.json)
+          ENABLED=$(jq -r '[.result.rules[] | select(.enabled==true)] | length' /tmp/ruleset.json)
+          echo "Total rules: $TOTAL"
+          echo "Enabled rules: $ENABLED"
+          echo ""
+          echo "Action breakdown:"
+          jq -r '.result.rules[] | .action' /tmp/ruleset.json | sort | uniq -c
