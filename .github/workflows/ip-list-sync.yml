@@ -63,6 +63,14 @@ jobs:
             URL="https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/${CF_LIST_ID}/items?per_page=1000"
             if [ -n "$CURSOR" ]; then URL="${URL}&cursor=${CURSOR}"; fi
             RESP=$(curl -sS -H "Authorization: Bearer $CF_API_TOKEN" "$URL")
+
+            SUCCESS=$(echo "$RESP" | jq -r '.success // false')
+            if [ "$SUCCESS" != "true" ]; then
+              echo "CF List items fetch FAILED. Errors:"
+              echo "$RESP" | jq -r '.errors // []'
+              exit 1
+            fi
+
             echo "$RESP" | jq -r '.result[].ip' >> cf-cidrs.txt
             CURSOR=$(echo "$RESP" | jq -r '.result_info.cursors.after // empty')
             if [ -z "$CURSOR" ]; then break; fi
