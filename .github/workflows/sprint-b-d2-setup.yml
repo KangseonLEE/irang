@@ -149,9 +149,9 @@ jobs:
         run: |
           LIST_ID="${{ steps.cf_list.outputs.list_id }}"
 
-          # CF Lists PUT으로 items 전량 교체 (atomic). 1000개 한도 있음 — chunk 처리.
-          # 단순화: PUT (전량 교체) 사용. CF API는 단일 PUT 요청에 최대 5000 items 허용.
-          # v4 count가 ~3500개 정도이므로 단일 PUT으로 충분.
+          # CF Lists items: List 자체는 최대 10000 items 지원 (Free 플랜).
+          # 단일 PUT 요청 한도는 CF 문서상 명시 없음 — chunk 1000으로 안전 처리.
+          # 전략: 첫 chunk는 PUT (전량 교체), 이후 chunk는 POST (append).
 
           # JSON 배열 생성: [{"ip": "1.2.3.0/24"}, ...]
           jq -R -s -c 'split("\n") | map(select(length > 0)) | map({ip: .})' /tmp/gh_actions_v4.txt > /tmp/list_items.json
@@ -159,45 +159,66 @@ jobs:
           ITEM_COUNT=$(jq 'length' /tmp/list_items.json)
           echo "Items to write: $ITEM_COUNT"
 
-          if [ "$ITEM_COUNT" -gt 5000 ]; then
-            echo "::error::Item count $ITEM_COUNT exceeds CF API limit 5000"
+          if [ "$ITEM_COUNT" -gt 10000 ]; then
+            echo "::error::Item count $ITEM_COUNT exceeds CF Free plan List limit 10000"
             exit 1
           fi
 
-          # PUT으로 전량 교체
-          RESPONSE=$(curl -sS -X PUT \
-            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/$LIST_ID/items" \
-            -H "Authorization: Bearer $CF_API_TOKEN" \
-            -H "Content-Type: application/json" \
-            --data @/tmp/list_items.json)
+          CHUNK_SIZE=1000
+          CHUNK_COUNT=$(( (ITEM_COUNT + CHUNK_SIZE - 1) / CHUNK_SIZE ))
+          echo "Splitting into $CHUNK_COUNT chunks of up to $CHUNK_SIZE items"
 
-          SUCCESS=$(echo "$RESPONSE" | jq -r '.success // false')
-          if [ "$SUCCESS" != "true" ]; then
-            echo "::error::List items PUT failed"
-            echo "$RESPONSE" | jq -r '.errors // [] | tostring'
-            exit 1
-          fi
-
-          # async operation — operation_id 받아서 poll
-          OP_ID=$(echo "$RESPONSE" | jq -r '.result.operation_id')
-          if [ -n "$OP_ID" ] && [ "$OP_ID" != "null" ]; then
-            echo "Operation ID: $OP_ID — polling for completion"
-            for i in $(seq 1 30); do
+          # poll helper: bulk operation status 대기
+          poll_op() {
+            local OP_ID="$1"
+            if [ -z "$OP_ID" ] || [ "$OP_ID" = "null" ]; then return 0; fi
+            for i in $(seq 1 60); do
               sleep 2
-              OP_STATUS=$(curl -sS \
+              local OP_STATUS=$(curl -sS \
                 "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/bulk_operations/$OP_ID" \
                 -H "Authorization: Bearer $CF_API_TOKEN" | jq -r '.result.status // "unknown"')
-              echo "  poll $i: $OP_STATUS"
-              if [ "$OP_STATUS" = "completed" ]; then
-                break
-              fi
+              if [ "$OP_STATUS" = "completed" ]; then return 0; fi
               if [ "$OP_STATUS" = "failed" ]; then
-                echo "::error::List items bulk operation failed"
-                exit 1
+                echo "::error::Bulk operation $OP_ID failed"
+                return 1
               fi
             done
-          fi
-          echo "List items updated: $ITEM_COUNT"
+            echo "::error::Bulk operation $OP_ID timed out"
+            return 1
+          }
+
+          for i in $(seq 0 $((CHUNK_COUNT - 1))); do
+            START=$((i * CHUNK_SIZE))
+            jq -c ".[$START:$((START + CHUNK_SIZE))]" /tmp/list_items.json > /tmp/chunk.json
+            CHUNK_LEN=$(jq 'length' /tmp/chunk.json)
+            echo "Chunk $((i+1))/$CHUNK_COUNT — items $START..$((START + CHUNK_LEN - 1)) ($CHUNK_LEN items)"
+
+            if [ "$i" = "0" ]; then
+              # 첫 chunk는 PUT으로 전량 교체 (기존 items clean wipe + 새로 시작)
+              METHOD="PUT"
+            else
+              # 이후 chunk는 POST로 append
+              METHOD="POST"
+            fi
+
+            RESPONSE=$(curl -sS -X $METHOD \
+              "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/$LIST_ID/items" \
+              -H "Authorization: Bearer $CF_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data @/tmp/chunk.json)
+
+            SUCCESS=$(echo "$RESPONSE" | jq -r '.success // false')
+            if [ "$SUCCESS" != "true" ]; then
+              echo "::error::Chunk $((i+1)) $METHOD failed"
+              echo "$RESPONSE" | jq -r '.errors // [] | tostring'
+              exit 1
+            fi
+
+            OP_ID=$(echo "$RESPONSE" | jq -r '.result.operation_id')
+            poll_op "$OP_ID" || exit 1
+          done
+
+          echo "List items updated: $ITEM_COUNT (in $CHUNK_COUNT chunks)"
 
       # ─────────────────────────────────────────────────
       # Step d: Order 2 expression PATCH
