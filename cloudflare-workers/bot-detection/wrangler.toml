@@ -1,0 +1,18 @@
+name = "irang-bot-detection"
+main = "index.ts"
+compatibility_date = "2026-05-19"
+
+# 트리거: irangfarm.com/* 모든 요청을 Worker가 처리
+# Route는 D2 결재 후 prod 등록. 아래는 reference.
+# route = { pattern = "irangfarm.com/*", zone_name = "irangfarm.com" }
+
+# Workers KV namespace — D2에서 prod 등록 후 id 채움
+# id 채우기 전 PoC 단계에서는 binding 자체를 dev에 한정.
+# [[kv_namespaces]]
+# binding = "BOT_DETECTION_CACHE"
+# id = "TBD-D2"             # prod (회장 결재 후)
+# preview_id = "TBD-D1"     # wrangler dev local
+
+[observability]
+enabled = true
+head_sampling_rate = 1.0

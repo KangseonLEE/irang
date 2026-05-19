@@ -48,6 +48,9 @@ yarn-error.log*
 .claude/settings.local.json
 .claude/agent-memory/
 
+# data-engineer diagnostic scripts (gate 4: lifecycle 즉시 삭제, git commit 금지)
+/scripts/_diag/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -1,0 +1,335 @@
+# ═══════════════════════════════════════════
+# Sprint D D2 — Bot Detection Worker prod 배포 + 라이브 검증
+# ═══════════════════════════════════════════
+#
+# 배경:
+#   Sprint D D1에서 cloudflare-workers/bot-detection/ PoC 작성 완료.
+#   회장 결재 4건 (middleware B안 + Worker route + KV namespace + 권한 3종).
+#
+# 목적:
+#   1) KV namespace 'BOT_DETECTION_CACHE' 생성 (D3 cache용 — D2는 binding 없이 동작 가능)
+#   2) Worker irang-bot-detection 배포 (wrangler 대신 CF API direct)
+#   3) Route irangfarm.com/* 등록
+#   4) GH Actions runner (US east) 에서 라이브 4종 시나리오 curl 검증
+#
+# Worker 정책 (cloudflare-workers/bot-detection/index.ts):
+#   - AI 학습 봇 UA → 403 (cache HIT 무관)
+#   - HeadlessChrome/puppeteer/playwright UA → 403
+#   - cf-ipcountry !== KR + verified bot 아님 + e2e UA 아님 → 503
+#   - 그 외 → fetch(request) (origin/edge cache 정상 흐름)
+#
+# 트리거: workflow_dispatch (1회용, 성공 후 결과 박제 + 본 파일 archive).
+#
+# 권한 요구 (회장 결재 완료):
+#   - CF_API_TOKEN: Workers Scripts Edit + Workers KV Storage Edit + Zone Workers Routes Edit
+#   - CF_ACCOUNT_ID / CF_ZONE_ID: GH Secret 등록 완료
+#
+# 결재 라인:
+#   - dry_run=true 1회 → 회장 검토 → dry_run=false 실 실행
+# ═══════════════════════════════════════════
+
+name: "Sprint D D2 deploy (one-shot)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true면 권한 확인 + 검증 시나리오 plan만, write/deploy skip"
+        required: false
+        default: "true"
+      skip_kv:
+        description: "true면 KV namespace 생성 건너뜀 (D3로 미루기). D2 핵심은 Worker 자체"
+        required: false
+        default: "true"
+
+concurrency:
+  group: sprint-d-d2-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Bot Detection Worker prod deploy + live verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
+      SKIP_KV: ${{ github.event.inputs.skip_kv || 'true' }}
+      WORKER_NAME: "irang-bot-detection"
+      ROUTE_PATTERN: "irangfarm.com/*"
+
+    steps:
+      - name: Preflight — env check
+        run: |
+          if [ -z "$CF_API_TOKEN" ] || [ -z "$CF_ZONE_ID" ] || [ -z "$CF_ACCOUNT_ID" ]; then
+            echo "::error::CF_API_TOKEN / CF_ZONE_ID / CF_ACCOUNT_ID secret missing."
+            exit 1
+          fi
+          echo "DRY_RUN=$DRY_RUN"
+          echo "SKIP_KV=$SKIP_KV"
+          echo "WORKER_NAME=$WORKER_NAME"
+          echo "ROUTE_PATTERN=$ROUTE_PATTERN"
+
+      - name: Checkout (Worker source)
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────────────────
+      # Step 0 — Permission probe (token 권한 누락 사전 탐지)
+      # 5/18·5/19 권한 누락 3회 재발 박제 (feedback_cf_permission_matrix_standardization)
+      # ─────────────────────────────────────────────────
+      - name: Step 0 — Probe CF token permissions
+        run: |
+          echo "=== Probe 1: Workers Scripts list (Workers Scripts:Read) ==="
+          PROBE1=$(curl -sS -w "\n%{http_code}" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+          P1_BODY=$(echo "$PROBE1" | head -n -1)
+          P1_CODE=$(echo "$PROBE1" | tail -n 1)
+          echo "HTTP $P1_CODE"
+          echo "$P1_BODY" | jq -r '.success, (.errors // [] | tostring)'
+
+          echo ""
+          echo "=== Probe 2: Workers Routes list (Zone Workers Routes:Read) ==="
+          PROBE2=$(curl -sS -w "\n%{http_code}" \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/workers/routes" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+          P2_BODY=$(echo "$PROBE2" | head -n -1)
+          P2_CODE=$(echo "$PROBE2" | tail -n 1)
+          echo "HTTP $P2_CODE"
+          echo "$P2_BODY" | jq -r '.success, (.errors // [] | tostring)'
+
+          echo ""
+          echo "=== Probe 3: KV namespaces list (Workers KV Storage:Read) ==="
+          PROBE3=$(curl -sS -w "\n%{http_code}" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/storage/kv/namespaces" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+          P3_BODY=$(echo "$PROBE3" | head -n -1)
+          P3_CODE=$(echo "$PROBE3" | tail -n 1)
+          echo "HTTP $P3_CODE"
+          echo "$P3_BODY" | jq -r '.success, (.errors // [] | tostring)'
+
+          # 종합 판정 — 누락 권한 식별
+          MISSING=""
+          if [ "$(echo "$P1_BODY" | jq -r '.success')" != "true" ]; then
+            MISSING="$MISSING Workers-Scripts"
+          fi
+          if [ "$(echo "$P2_BODY" | jq -r '.success')" != "true" ]; then
+            MISSING="$MISSING Zone-Workers-Routes"
+          fi
+          if [ "$SKIP_KV" != "true" ]; then
+            if [ "$(echo "$P3_BODY" | jq -r '.success')" != "true" ]; then
+              MISSING="$MISSING Workers-KV-Storage"
+            fi
+          fi
+
+          if [ -n "$MISSING" ]; then
+            echo "::error::Missing CF token permissions:$MISSING"
+            echo "회장 결재 의뢰 — 위 권한들을 CF API token에 추가 필요"
+            exit 1
+          fi
+
+          echo ""
+          echo "All required permissions OK"
+
+      # ─────────────────────────────────────────────────
+      # Step 1 — KV namespace 생성 (skip_kv=true 면 건너뜀)
+      # ─────────────────────────────────────────────────
+      - name: Step 1 — Create KV namespace (skippable)
+        id: kv
+        if: env.SKIP_KV != 'true'
+        run: |
+          # 기존 namespace 확인
+          NS_LIST=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/storage/kv/namespaces" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+          EXISTING_ID=$(echo "$NS_LIST" | jq -r '.result[]? | select(.title=="BOT_DETECTION_CACHE") | .id' | head -1)
+
+          if [ -n "$EXISTING_ID" ] && [ "$EXISTING_ID" != "null" ]; then
+            echo "ns_id=$EXISTING_ID" >> $GITHUB_OUTPUT
+            echo "Existing KV namespace: $EXISTING_ID"
+          else
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "ns_id=DRYRUN" >> $GITHUB_OUTPUT
+              echo "DRY_RUN: would create KV namespace BOT_DETECTION_CACHE"
+            else
+              CREATE_RESP=$(curl -sS -X POST \
+                "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/storage/kv/namespaces" \
+                -H "Authorization: Bearer $CF_API_TOKEN" \
+                -H "Content-Type: application/json" \
+                --data '{"title":"BOT_DETECTION_CACHE"}')
+              CREATED=$(echo "$CREATE_RESP" | jq -r '.success // false')
+              if [ "$CREATED" != "true" ]; then
+                echo "::error::Could not create KV namespace"
+                echo "$CREATE_RESP" | jq -r '.errors // [] | tostring'
+                exit 1
+              fi
+              NEW_ID=$(echo "$CREATE_RESP" | jq -r '.result.id')
+              echo "ns_id=$NEW_ID" >> $GITHUB_OUTPUT
+              echo "Created KV namespace: $NEW_ID"
+            fi
+          fi
+
+      # ─────────────────────────────────────────────────
+      # Step 2 — Worker script 업로드 (multipart: TS + metadata)
+      # ─────────────────────────────────────────────────
+      - name: Step 2 — Upload Worker script
+        id: worker_upload
+        run: |
+          # CF Workers API는 ESM module 형식이면 metadata.main_module 지정 필요.
+          # source 파일은 .js 또는 .ts 둘 다 가능 (CF가 esbuild로 transpile).
+          # 다만 안전을 위해 .ts를 .mjs로 inline transpile은 회피하고, content type을
+          # application/javascript+module 로 전송 후 main_module=index.ts 로 명시.
+
+          # metadata.json — multipart의 한 part로 전송
+          cat > /tmp/metadata.json <<'EOF'
+          {
+            "main_module": "index.ts",
+            "compatibility_date": "2026-05-19",
+            "observability": { "enabled": true, "head_sampling_rate": 1.0 }
+          }
+          EOF
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "DRY_RUN: would PUT worker script (sizeof index.ts):"
+            wc -c cloudflare-workers/bot-detection/index.ts
+            echo "metadata:"
+            cat /tmp/metadata.json
+          else
+            UPLOAD_RESP=$(curl -sS -X PUT \
+              "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$WORKER_NAME" \
+              -H "Authorization: Bearer $CF_API_TOKEN" \
+              -F "metadata=@/tmp/metadata.json;type=application/json" \
+              -F "index.ts=@cloudflare-workers/bot-detection/index.ts;type=application/javascript+module")
+
+            SUCCESS=$(echo "$UPLOAD_RESP" | jq -r '.success // false')
+            if [ "$SUCCESS" != "true" ]; then
+              echo "::error::Worker upload failed"
+              echo "$UPLOAD_RESP" | jq -r '.errors // [] | tostring'
+              exit 1
+            fi
+            echo "Worker uploaded: $WORKER_NAME"
+            echo "$UPLOAD_RESP" | jq -r '.result | {id: .id, etag: .etag, modified_on: .modified_on}'
+          fi
+
+      # ─────────────────────────────────────────────────
+      # Step 3 — Route 등록 irangfarm.com/*
+      # ─────────────────────────────────────────────────
+      - name: Step 3 — Attach Worker route
+        id: route
+        run: |
+          # 기존 route 확인 (idempotent)
+          ROUTES=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/workers/routes" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+          EXISTING_ROUTE_ID=$(echo "$ROUTES" | jq -r --arg p "$ROUTE_PATTERN" --arg w "$WORKER_NAME" \
+            '.result[]? | select(.pattern==$p and .script==$w) | .id' | head -1)
+
+          if [ -n "$EXISTING_ROUTE_ID" ] && [ "$EXISTING_ROUTE_ID" != "null" ]; then
+            echo "route_id=$EXISTING_ROUTE_ID" >> $GITHUB_OUTPUT
+            echo "Existing route: $EXISTING_ROUTE_ID ($ROUTE_PATTERN -> $WORKER_NAME)"
+          else
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "route_id=DRYRUN" >> $GITHUB_OUTPUT
+              echo "DRY_RUN: would create route $ROUTE_PATTERN -> $WORKER_NAME"
+            else
+              CREATE_RESP=$(curl -sS -X POST \
+                "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/workers/routes" \
+                -H "Authorization: Bearer $CF_API_TOKEN" \
+                -H "Content-Type: application/json" \
+                --data "{\"pattern\":\"$ROUTE_PATTERN\",\"script\":\"$WORKER_NAME\"}")
+              SUCCESS=$(echo "$CREATE_RESP" | jq -r '.success // false')
+              if [ "$SUCCESS" != "true" ]; then
+                echo "::error::Route creation failed"
+                echo "$CREATE_RESP" | jq -r '.errors // [] | tostring'
+                exit 1
+              fi
+              NEW_ID=$(echo "$CREATE_RESP" | jq -r '.result.id')
+              echo "route_id=$NEW_ID" >> $GITHUB_OUTPUT
+              echo "Created route: $NEW_ID"
+            fi
+          fi
+
+      # ─────────────────────────────────────────────────
+      # Step 4 — 라이브 검증 4종 (GH Actions runner = US east)
+      # 옵션 A: GH runner의 미국 IP로 cf-ipcountry US 시뮬레이션
+      # ─────────────────────────────────────────────────
+      - name: Step 4 — Live verify 4 scenarios
+        id: verify
+        run: |
+          BASE="https://irangfarm.com/"
+
+          # cache buster — 4 시나리오 각자 다른 query
+          TS=$(date +%s)
+
+          # GH runner 자체가 US east 데이터센터 → cf-ipcountry: US 자동
+          # CF가 IP 기반으로 ipcountry 결정하므로 별도 헤더 필요 없음
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "DRY_RUN: would curl 4 scenarios. Plan:"
+            echo "  1) UA=normal Chrome (US runner) → expect 503 (country!=KR + no verified bot)"
+            echo "     ※ DRY_RUN 결과 분석에 활용. prod에서는 실 사용자 KR이라 정상 200."
+            echo "  2) UA=HeadlessChrome → expect 403 (block-403)"
+            echo "  3) UA=Googlebot → expect 200 (verified bot allow)"
+            echo "  4) UA=Chrome + irang-e2e/1.0 → expect 200 (e2e allow)"
+            echo ""
+            echo "검증 후 expectation 대비 실측 status code 비교 — 다르면 ::error::"
+            exit 0
+          fi
+
+          # 시나리오 1: 일반 Chrome UA (US runner = country US, verified 아님, e2e 아님 → 503 예상)
+          S1=$(curl -sS -o /dev/null -w "%{http_code}" \
+            -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" \
+            "$BASE?d2v1=$TS")
+          echo "S1 (normal Chrome from US runner) -> HTTP $S1 (expect 503: country!=KR block)"
+
+          # 시나리오 2: HeadlessChrome (403 예상)
+          S2=$(curl -sS -o /dev/null -w "%{http_code}" \
+            -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/138.0.0.0 Safari/537.36" \
+            "$BASE?d2v2=$TS")
+          echo "S2 (HeadlessChrome) -> HTTP $S2 (expect 403: blocked-bot)"
+
+          # 시나리오 3: Googlebot (verified bot, 200 예상)
+          S3=$(curl -sS -o /dev/null -w "%{http_code}" \
+            -A "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" \
+            "$BASE?d2v3=$TS")
+          echo "S3 (Googlebot) -> HTTP $S3 (expect 200: verified bot allow)"
+
+          # 시나리오 4: e2e UA (Chrome + irang-e2e/1.0 → 200 예상)
+          S4=$(curl -sS -o /dev/null -w "%{http_code}" \
+            -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 irang-e2e/1.0" \
+            "$BASE?d2v4=$TS")
+          echo "S4 (Chrome + irang-e2e/1.0) -> HTTP $S4 (expect 200: e2e allow)"
+
+          # 검증 판정
+          FAIL=0
+          if [ "$S1" != "503" ]; then echo "::error::S1 expected 503, got $S1"; FAIL=1; fi
+          if [ "$S2" != "403" ]; then echo "::error::S2 expected 403, got $S2"; FAIL=1; fi
+          if [ "$S3" != "200" ]; then echo "::error::S3 expected 200, got $S3"; FAIL=1; fi
+          if [ "$S4" != "200" ]; then echo "::error::S4 expected 200, got $S4"; FAIL=1; fi
+          if [ $FAIL -ne 0 ]; then
+            echo "::error::Live verify failed. Worker behavior mismatch."
+            exit 1
+          fi
+          echo ""
+          echo "All 4 scenarios passed."
+
+      # ─────────────────────────────────────────────────
+      # Step 5 — 결과 요약
+      # ─────────────────────────────────────────────────
+      - name: Step 5 — Summary
+        if: always()
+        run: |
+          echo "=== Sprint D D2 deploy summary ==="
+          echo "DRY_RUN: $DRY_RUN"
+          echo "SKIP_KV: $SKIP_KV"
+          echo "Worker: $WORKER_NAME"
+          echo "Route: $ROUTE_PATTERN"
+          echo "KV ns_id: ${{ steps.kv.outputs.ns_id || 'skipped' }}"
+          echo "Route id: ${{ steps.route.outputs.route_id || 'n/a' }}"
+          echo ""
+          echo "다음: dry_run=true → 회장 검토 → dry_run=false 실 배포 → 본 workflow archive"
