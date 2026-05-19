@@ -111,13 +111,14 @@ jobs:
         run: |
           # CF API: PUT은 전체 교체. 변동 시 GH actions[] 전체로 replace.
           # POST(append)/DELETE 개별 호출보다 atomic + race 안전.
-          PAYLOAD=$(jq -R -n -c '[inputs | select(length > 0) | {ip: ., comment: "GH Actions runner"}]' < gh-cidrs.txt)
+          # 5175 items payload는 ARG_MAX 초과 → file 경유로 전달
+          jq -R -n -c '[inputs | select(length > 0) | {ip: ., comment: "GH Actions runner"}]' < gh-cidrs.txt > payload.json
 
           RESP=$(curl -sS -X PUT \
             "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/${CF_LIST_ID}/items" \
             -H "Authorization: Bearer $CF_API_TOKEN" \
             -H "Content-Type: application/json" \
-            --data "$PAYLOAD")
+            --data @payload.json)
 
           SUCCESS=$(echo "$RESP" | jq -r '.success // false')
           if [ "$SUCCESS" != "true" ]; then
