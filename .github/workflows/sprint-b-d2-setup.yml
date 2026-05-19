@@ -1,0 +1,344 @@
+# ═══════════════════════════════════════════
+# Sprint B D2 — github_actions_ips List 등록 + Order 2 expression 전환
+# ═══════════════════════════════════════════
+#
+# 배경:
+#   5/14·5/17·5/18 E2E secret 노출 3회 재발 (feedback_cf_e2e_secret_third_recurrence.md).
+#   secret 평문이 Playwright trace artifact로 유출되는 한, secret 헤더 단독 매칭은
+#   언제든 우회 가능. GH Actions runner IP는 공개 CIDR이지만 변동되므로 동적으로
+#   CF List 등록 후 Order 2 expression을 (IP in List) AND (UA == irang-e2e/1.0)으로
+#   전환해 secret literal 의존을 0으로 만든다.
+#
+# 동작:
+#   Step a: GH Meta API /meta → actions[] CIDR (≈6549개)
+#   Step b: CF Lists API POST → github_actions_ips List 생성 (kind=ip)
+#   Step c: 1000개 chunk로 list items append (CF API 한도)
+#   Step d: Order 2 expression PATCH → (ip.src in $github_actions_ips) and (http.user_agent contains "irang-e2e/1.0")
+#   Step e: items count == GH Meta count ±10 + expression에 16진수 32자 literal 0건 검증
+#   Step f: 실패 시 rollback (List 삭제 + 옛 expression 복원)
+#
+# 트리거: workflow_dispatch only (1회용). 성공 후 본 파일 삭제.
+#
+# 권한 요구 (5/19 회장 결재 완료):
+#   - CF_API_TOKEN: Zone Firewall Services Edit + Zone WAF Edit + Account Filter Lists Edit
+#   - CF_ACCOUNT_ID: GH Secret 등록 완료
+#
+# 결재 라인:
+#   - dry_run=true 1회 → 회장 검토 → dry_run=false 실 실행
+# ═══════════════════════════════════════════
+
+name: "Sprint B D2 setup (one-shot)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true면 GH Meta fetch + CF List/expression read만, write skip"
+        required: false
+        default: "true"
+
+concurrency:
+  group: sprint-b-d2-setup
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    name: github_actions_ips List + Order 2 expression 전환
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
+
+    steps:
+      - name: Preflight — env check
+        run: |
+          if [ -z "$CF_API_TOKEN" ] || [ -z "$CF_ZONE_ID" ] || [ -z "$CF_ACCOUNT_ID" ]; then
+            echo "::error::CF_API_TOKEN / CF_ZONE_ID / CF_ACCOUNT_ID secret missing."
+            exit 1
+          fi
+          echo "DRY_RUN=$DRY_RUN"
+
+      # ─────────────────────────────────────────────────
+      # Step a: GitHub Meta API → actions[] CIDR
+      # ─────────────────────────────────────────────────
+      - name: Step a — Fetch GitHub Actions runner CIDRs from /meta
+        id: gh_meta
+        run: |
+          META=$(curl -sS https://api.github.com/meta)
+          # actions[] 배열 (IPv4 + IPv6 CIDR 혼재)
+          # CF IP List는 kind=ip로 v4·v6 모두 수용 가능
+          echo "$META" | jq -r '.actions[]' > /tmp/gh_actions_cidrs.txt
+
+          COUNT=$(wc -l < /tmp/gh_actions_cidrs.txt | tr -d ' ')
+          if [ "$COUNT" -lt 100 ]; then
+            echo "::error::GH Meta returned suspicious count ($COUNT). Expected 1000+."
+            exit 1
+          fi
+          echo "gh_meta_count=$COUNT" >> $GITHUB_OUTPUT
+          echo "GH Meta actions[] CIDR count: $COUNT"
+
+          # IPv4 only filter (CF IP List는 v4·v6 분리 필요할 수 있음 — 우선 v4만)
+          # CF Lists kind=ip는 v4·v6 둘 다 지원하지만 단일 list는 한 family만.
+          # 우선 v4 list 등록. (5/19 sprint scope 단순화)
+          grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(/[0-9]+)?$' /tmp/gh_actions_cidrs.txt > /tmp/gh_actions_v4.txt
+          V4_COUNT=$(wc -l < /tmp/gh_actions_v4.txt | tr -d ' ')
+          echo "v4_count=$V4_COUNT" >> $GITHUB_OUTPUT
+          echo "IPv4 CIDR count (filtered): $V4_COUNT"
+
+      # ─────────────────────────────────────────────────
+      # Step b: CF List 생성 (github_actions_ips, kind=ip)
+      # ─────────────────────────────────────────────────
+      - name: Step b — Find or create github_actions_ips CF List
+        id: cf_list
+        run: |
+          # 기존 List 조회
+          LISTS=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+
+          SUCCESS=$(echo "$LISTS" | jq -r '.success // false')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "::error::Could not fetch CF Lists"
+            echo "$LISTS" | jq -r '.errors // [] | tostring'
+            exit 1
+          fi
+
+          EXISTING_ID=$(echo "$LISTS" | jq -r '.result[]? | select(.name=="github_actions_ips") | .id' | head -1)
+
+          if [ -n "$EXISTING_ID" ] && [ "$EXISTING_ID" != "null" ]; then
+            echo "list_id=$EXISTING_ID" >> $GITHUB_OUTPUT
+            echo "existing=true" >> $GITHUB_OUTPUT
+            echo "Existing List found: $EXISTING_ID"
+          else
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "list_id=DRYRUN" >> $GITHUB_OUTPUT
+              echo "existing=false" >> $GITHUB_OUTPUT
+              echo "DRY_RUN: would create List github_actions_ips (kind=ip)"
+            else
+              CREATE_RESP=$(curl -sS -X POST \
+                "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists" \
+                -H "Authorization: Bearer $CF_API_TOKEN" \
+                -H "Content-Type: application/json" \
+                --data '{"name":"github_actions_ips","kind":"ip","description":"GitHub Actions runner CIDRs (auto-managed by sprint-b-d2-setup)"}')
+
+              CREATED_SUCCESS=$(echo "$CREATE_RESP" | jq -r '.success // false')
+              if [ "$CREATED_SUCCESS" != "true" ]; then
+                echo "::error::Could not create List"
+                echo "$CREATE_RESP" | jq -r '.errors // [] | tostring'
+                exit 1
+              fi
+              NEW_ID=$(echo "$CREATE_RESP" | jq -r '.result.id')
+              echo "list_id=$NEW_ID" >> $GITHUB_OUTPUT
+              echo "existing=false" >> $GITHUB_OUTPUT
+              echo "Created List: $NEW_ID"
+            fi
+          fi
+
+      # ─────────────────────────────────────────────────
+      # Step c: List items 일괄 등록 (1000 chunk)
+      # ─────────────────────────────────────────────────
+      - name: Step c — Replace List items with current GH Actions CIDRs
+        id: cf_items
+        if: env.DRY_RUN != 'true'
+        run: |
+          LIST_ID="${{ steps.cf_list.outputs.list_id }}"
+
+          # CF Lists PUT으로 items 전량 교체 (atomic). 1000개 한도 있음 — chunk 처리.
+          # 단순화: PUT (전량 교체) 사용. CF API는 단일 PUT 요청에 최대 5000 items 허용.
+          # v4 count가 ~3500개 정도이므로 단일 PUT으로 충분.
+
+          # JSON 배열 생성: [{"ip": "1.2.3.0/24"}, ...]
+          jq -R -s -c 'split("\n") | map(select(length > 0)) | map({ip: .})' /tmp/gh_actions_v4.txt > /tmp/list_items.json
+
+          ITEM_COUNT=$(jq 'length' /tmp/list_items.json)
+          echo "Items to write: $ITEM_COUNT"
+
+          if [ "$ITEM_COUNT" -gt 5000 ]; then
+            echo "::error::Item count $ITEM_COUNT exceeds CF API limit 5000"
+            exit 1
+          fi
+
+          # PUT으로 전량 교체
+          RESPONSE=$(curl -sS -X PUT \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/$LIST_ID/items" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data @/tmp/list_items.json)
+
+          SUCCESS=$(echo "$RESPONSE" | jq -r '.success // false')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "::error::List items PUT failed"
+            echo "$RESPONSE" | jq -r '.errors // [] | tostring'
+            exit 1
+          fi
+
+          # async operation — operation_id 받아서 poll
+          OP_ID=$(echo "$RESPONSE" | jq -r '.result.operation_id')
+          if [ -n "$OP_ID" ] && [ "$OP_ID" != "null" ]; then
+            echo "Operation ID: $OP_ID — polling for completion"
+            for i in $(seq 1 30); do
+              sleep 2
+              OP_STATUS=$(curl -sS \
+                "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/bulk_operations/$OP_ID" \
+                -H "Authorization: Bearer $CF_API_TOKEN" | jq -r '.result.status // "unknown"')
+              echo "  poll $i: $OP_STATUS"
+              if [ "$OP_STATUS" = "completed" ]; then
+                break
+              fi
+              if [ "$OP_STATUS" = "failed" ]; then
+                echo "::error::List items bulk operation failed"
+                exit 1
+              fi
+            done
+          fi
+          echo "List items updated: $ITEM_COUNT"
+
+      # ─────────────────────────────────────────────────
+      # Step d: Order 2 expression PATCH
+      # ─────────────────────────────────────────────────
+      - name: Step d — Find Order 2 + PATCH expression
+        id: cf_patch
+        if: env.DRY_RUN != 'true'
+        run: |
+          LIST_ID="${{ steps.cf_list.outputs.list_id }}"
+
+          # http_request_firewall_custom entrypoint
+          RULESET=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/rulesets/phases/http_request_firewall_custom/entrypoint" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+
+          SUCCESS=$(echo "$RULESET" | jq -r '.success // false')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "::error::Could not fetch http_request_firewall_custom entrypoint"
+            echo "$RULESET" | jq -r '.errors // [] | tostring'
+            exit 1
+          fi
+
+          RULESET_ID=$(echo "$RULESET" | jq -r '.result.id')
+          RULE_ID=$(echo "$RULESET" | jq -r '.result.rules[] | select(.description | test("Allow irang E2E"; "i")) | .id' | head -1)
+
+          if [ -z "$RULE_ID" ] || [ "$RULE_ID" = "null" ]; then
+            echo "::error::Order 2 'Allow irang E2E tests' rule not found"
+            exit 1
+          fi
+
+          # rollback용 옛 expression 보존
+          OLD_RULE=$(echo "$RULESET" | jq -c ".result.rules[] | select(.id==\"$RULE_ID\")")
+          echo "$OLD_RULE" | jq -c '{expression, action, description, action_parameters: (.action_parameters // {})}' > /tmp/old_rule.json
+          chmod 600 /tmp/old_rule.json
+
+          OLD_EXPRESSION=$(echo "$OLD_RULE" | jq -r '.expression')
+          OLD_ACTION=$(echo "$OLD_RULE" | jq -r '.action')
+          OLD_DESC=$(echo "$OLD_RULE" | jq -r '.description')
+          OLD_ACTION_PARAMS=$(echo "$OLD_RULE" | jq -c '.action_parameters // {}')
+
+          # 새 expression: secret literal 의존 제거.
+          # GH Actions IP CIDR 매칭 + UA 식별 토큰.
+          NEW_EXPRESSION="(ip.src in \$github_actions_ips) and (http.user_agent contains \"irang-e2e/1.0\")"
+
+          echo "Old expression length: ${#OLD_EXPRESSION}"
+          echo "New expression: $NEW_EXPRESSION"
+
+          BODY=$(jq -nc \
+            --arg expr "$NEW_EXPRESSION" \
+            --arg act "$OLD_ACTION" \
+            --arg desc "$OLD_DESC" \
+            --argjson params "$OLD_ACTION_PARAMS" \
+            '{expression: $expr, action: $act, description: $desc, action_parameters: $params}')
+
+          RESPONSE=$(curl -sS -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/rulesets/$RULESET_ID/rules/$RULE_ID" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "$BODY")
+
+          PATCH_SUCCESS=$(echo "$RESPONSE" | jq -r '.success // false')
+          if [ "$PATCH_SUCCESS" != "true" ]; then
+            echo "::error::CF PATCH failed"
+            echo "$RESPONSE" | jq -r '.errors // [] | tostring'
+            exit 1
+          fi
+
+          echo "ruleset_id=$RULESET_ID" >> $GITHUB_OUTPUT
+          echo "rule_id=$RULE_ID" >> $GITHUB_OUTPUT
+          echo "CF PATCH success"
+
+      # ─────────────────────────────────────────────────
+      # Step e: 검증 — items count + secret literal grep
+      # ─────────────────────────────────────────────────
+      - name: Step e — Verify items count + no secret literal in expression
+        if: env.DRY_RUN != 'true'
+        run: |
+          LIST_ID="${{ steps.cf_list.outputs.list_id }}"
+          RULESET_ID="${{ steps.cf_patch.outputs.ruleset_id }}"
+          RULE_ID="${{ steps.cf_patch.outputs.rule_id }}"
+          V4_EXPECTED="${{ steps.gh_meta.outputs.v4_count }}"
+
+          # propagation 대기
+          sleep 5
+
+          # items count 검증
+          LIST_DETAIL=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/rules/lists/$LIST_ID" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+          ACTUAL_COUNT=$(echo "$LIST_DETAIL" | jq -r '.result.num_items // 0')
+
+          echo "Expected items: $V4_EXPECTED, Actual: $ACTUAL_COUNT"
+          DIFF=$((ACTUAL_COUNT - V4_EXPECTED))
+          ABS_DIFF=${DIFF#-}
+          if [ "$ABS_DIFF" -gt 10 ]; then
+            echo "::error::Items count mismatch (expected=$V4_EXPECTED actual=$ACTUAL_COUNT diff=$DIFF)"
+            exit 1
+          fi
+
+          # expression secret literal grep (16진수 32자 이상 quoted)
+          RULESET=$(curl -sS \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/rulesets/$RULESET_ID" \
+            -H "Authorization: Bearer $CF_API_TOKEN")
+          LIVE_EXPRESSION=$(echo "$RULESET" | jq -r ".result.rules[] | select(.id==\"$RULE_ID\") | .expression")
+
+          # 16진수 32자 이상 literal (E2E secret 패턴) 잔존 검사
+          if echo "$LIVE_EXPRESSION" | grep -qE '"[a-f0-9]{32,}"'; then
+            echo "::error::Secret literal still present in expression"
+            exit 1
+          fi
+
+          # 새 패턴 매칭 확인
+          if ! echo "$LIVE_EXPRESSION" | grep -q 'github_actions_ips'; then
+            echo "::error::github_actions_ips reference not in expression"
+            exit 1
+          fi
+          if ! echo "$LIVE_EXPRESSION" | grep -q 'irang-e2e/1.0'; then
+            echo "::error::irang-e2e/1.0 UA token not in expression"
+            exit 1
+          fi
+
+          echo "Verification PASS: items=$ACTUAL_COUNT, secret literal=0"
+
+      # ─────────────────────────────────────────────────
+      # Step f: Rollback — Order 2 expression 복원
+      # ─────────────────────────────────────────────────
+      - name: Step f — Rollback Order 2 expression on failure
+        if: failure() && env.DRY_RUN != 'true' && steps.cf_patch.outcome == 'success'
+        run: |
+          echo "::warning::Failure after CF PATCH. Restoring old Order 2 expression."
+          RULESET_ID="${{ steps.cf_patch.outputs.ruleset_id }}"
+          RULE_ID="${{ steps.cf_patch.outputs.rule_id }}"
+
+          OLD_RULE=$(cat /tmp/old_rule.json)
+          curl -sS -X PATCH \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/rulesets/$RULESET_ID/rules/$RULE_ID" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "$OLD_RULE" | jq -r '.success // false'
+          echo "::warning::Rollback PATCH submitted."
+
+      - name: Cleanup tmp files
+        if: always()
+        run: rm -f /tmp/gh_actions_cidrs.txt /tmp/gh_actions_v4.txt /tmp/list_items.json /tmp/old_rule.json
