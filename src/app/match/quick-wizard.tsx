@@ -49,6 +49,9 @@ import {
 import s from "./match-wizard.module.css";
 import qs from "./quick-wizard.module.css";
 
+// Sprint I (2026-05-20): 질문 화면은 qs.* (assessment-wizard 패턴 그린 변종) 사용.
+// 결과 화면은 기존 s.progressWrap/progressBar/progressFill 유지 (match-wizard 패턴).
+
 interface QuickWizardProps {
   onBack?: () => void;
 }
@@ -247,51 +250,61 @@ export function QuickWizard({ onBack }: QuickWizardProps) {
     );
   }
 
-  /* ═══ 질문 화면 ═══ */
+  /* ═══ 질문 화면 (Sprint I — assessment-wizard 패턴 그린 변종) ═══ */
   return (
-    <div className={s.page}>
-      <div className={s.progressWrap}>
-        <button
-          type="button"
-          onClick={handleBack}
-          className={s.backBtn}
-          aria-label={step === 0 ? "이전 화면으로" : "이전 단계로"}
+    <div className={qs.page}>
+      <div className={qs.progressWrap}>
+        <div
+          className={qs.progressBar}
+          role="progressbar"
+          aria-valuenow={step + 1}
+          aria-valuemin={1}
+          aria-valuemax={totalSteps}
+          aria-valuetext={`빠른 점검 ${step + 1} / ${totalSteps}`}
+          aria-label="진행률"
         >
-          <ArrowLeft size={18} />
-        </button>
-        <div className={s.progressBar}>
-          <div className={s.progressFill} style={{ width: `${progress}%` }} />
+          <div className={qs.progressFill} style={{ width: `${progress}%` }} />
         </div>
-        <span className={s.progressLabel}>
+        <span className={qs.progressLabel}>
           {step + 1} / {totalSteps}
         </span>
       </div>
 
-      <div className={s.questionWrap}>
-        <h1 className={s.questionTitle}>{currentQuestion.title}</h1>
-        <p className={s.questionSubtitle}>{currentQuestion.subtitle}</p>
+      <button
+        type="button"
+        onClick={handleBack}
+        className={qs.navBtnBack}
+        aria-label={step === 0 ? "이전 화면으로" : "이전 단계로"}
+      >
+        <ArrowLeft size={16} />
+        {step === 0 ? "처음으로" : "이전"}
+      </button>
 
-        <div className={s.optionsGrid}>
-          {currentQuestion.options.map((option) => {
-            const Icon = option.icon;
+      <div className={qs.questionWrap}>
+        <span className={qs.dimensionTag}>빠른 점검</span>
+        <h1 className={qs.questionTitle}>{currentQuestion.title}</h1>
+        <p className={qs.questionSubtitle}>{currentQuestion.subtitle}</p>
+
+        <div className={qs.optionsList}>
+          {currentQuestion.options.map((option, i) => {
             const selected = answers[currentQuestion.id] === option.id;
             return (
               <button
                 key={option.id}
                 type="button"
                 onClick={() => handleSelect(option.id)}
-                className={`${s.optionCard} ${selected ? s.optionSelected : ""}`}
+                className={`${qs.optionCard} ${selected ? qs.optionSelected : ""}`}
                 aria-pressed={selected}
               >
-                <div className={s.optionIcon}>
-                  <Icon size={22} />
-                </div>
-                <div className={s.optionBody}>
-                  <span className={s.optionLabel}>{option.label}</span>
+                <span className={qs.optionNumber}>
+                  {String.fromCharCode(65 + i)}
+                </span>
+                <span className={qs.optionBody}>
+                  <span className={qs.optionLabel}>{option.label}</span>
                   {option.description && (
-                    <span className={s.optionDesc}>{option.description}</span>
+                    <span className={qs.optionDesc}>{option.description}</span>
                   )}
-                </div>
+                </span>
               </button>
             );
           })}

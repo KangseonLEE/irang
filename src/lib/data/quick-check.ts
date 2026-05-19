@@ -69,7 +69,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
   {
     id: "ageGroup",
     title: "연령대를 알려주세요",
-    subtitle: "연령에 따라 어울리는 귀농 방향이 달라요",
+    subtitle: "연령에 따라 어울리는 정착 방향이 달라요",
     options: [
       { id: "youth", label: "20대~34세", icon: Sprout, description: "청년 영농 지원 대상" },
       { id: "30s", label: "35~39세", icon: Leaf },
@@ -91,7 +91,7 @@ export const QUICK_QUESTIONS: QuickQuestion[] = [
   {
     id: "farming",
     title: "농업 비중은 어느 정도일까요?",
-    subtitle: "귀농이냐 귀촌이냐의 갈림길이에요",
+    subtitle: "본격 영농이냐 시골 거주냐의 갈림길이에요",
     options: [
       { id: "main", label: "본업으로", icon: Tractor, description: "전업 농업·소득의 주요 원천" },
       { id: "side", label: "부업·취미", icon: Sprout, description: "주말농장·자급자족" },
@@ -181,7 +181,7 @@ const PERSONA_RESULT_MESSAGES: Record<PersonaId, QuickResultMessage> = {
   },
   family: {
     eyebrow: "추천 방향",
-    title: "자녀와 함께 정착하는 가족 귀농이에요",
+    title: "자녀와 함께 정착하는 가족 농촌살이가 잘 어울려요",
     description:
       "학교·의료 인프라가 좋은 지역, 가족 농장으로 키우기 좋은 작물, 가족 단위 지원 사업을 우선 보여드릴게요.",
   },

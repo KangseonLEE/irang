@@ -1,10 +1,232 @@
 /* ==========================================================================
    QuickWizard — 4문항 빠른 점검 위저드 (Phase 2c · 2026-05-15)
+   Sprint I (2026-05-20): assessment-wizard 패턴으로 UI 통일. 색상은 그린 유지.
    match-wizard.module.css 의 progress·옵션·question 패턴은 그대로 재사용.
-   본 모듈은 결과 화면 + 추천 deep link 카드 전용 스타일.
+   본 모듈은 결과 화면 + 추천 deep link 카드 + 질문 화면 그린 변종 스타일.
    ========================================================================== */
 
-/* ── progress bar back 버튼 ── */
+/* ═══ 질문 화면 (assessment-wizard 패턴 그린 변종) ═══ */
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: calc(100dvh - 64px);
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 40px 24px 80px;
+    gap: 32px;
+  }
+}
+
+/* ── 프로그레스 바 (그린 단일 막대 — 4문항 phase 단일이라 segment 분할 무의미) ── */
+.progressWrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progressBar {
+  flex: 1;
+  height: 6px;
+  background: var(--muted, #f9fafb);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--primary, #1b6b5a);
+  transition: width 0.35s ease;
+}
+
+.progressLabel {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+/* ── 이전 버튼 (텍스트) ── */
+.navBtnBack {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  background: none;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  font-family: inherit;
+}
+
+@media (hover: hover) {
+  .navBtnBack:hover {
+    border-color: var(--foreground);
+    color: var(--foreground);
+  }
+}
+
+.navBtnBack:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ── 질문 영역 ── */
+.questionWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+@media (min-width: 640px) {
+  .questionWrap { flex: initial; }
+}
+
+.dimensionTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  width: fit-content;
+}
+
+.questionTitle {
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  color: var(--foreground);
+  margin: 4px 0 0;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-height: var(--lh-snug);
+}
+
+@media (min-width: 640px) {
+  .questionTitle {
+    font-size: var(--fs-h2);
+    text-wrap: pretty;
+  }
+}
+
+.questionSubtitle {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  margin: 4px 0 0;
+  line-height: var(--lh-normal);
+  word-break: keep-all;
+}
+
+/* ── 옵션 리스트 (세로 1열 · A/B/C/D 동그라미 · 그린) ── */
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.optionCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--card, #fff);
+  border: 2px solid var(--border, #e5e7eb);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+}
+
+@media (hover: hover) {
+  .optionCard:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 50%, transparent);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.optionCard:active {
+  transform: scale(0.99);
+}
+
+.optionCard:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.optionSelected {
+  border-color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, var(--card, #fff));
+  box-shadow: 0 0 0 1px var(--primary, #1b6b5a);
+}
+
+.optionNumber {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--muted, #f9fafb);
+  color: var(--muted-foreground, #6b7280);
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.optionSelected .optionNumber {
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+}
+
+.optionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.optionLabel {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--foreground);
+  line-height: var(--lh-normal);
+  word-break: keep-all;
+}
+
+.optionDesc {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  line-height: var(--lh-snug);
+  word-break: keep-all;
+}
+
+/* ── 결과 화면 progress bar 이전 버튼 (기존 화살표 단독, 결과에서만 사용) ── */
 .backBtn {
   display: inline-flex;
   align-items: center;
