@@ -408,27 +408,46 @@
 .fundingItem {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px 16px;
-  background: var(--muted, #f9fafb);
-  border-left: 3px solid var(--primary, #1b6b5a);
-  border-radius: 8px;
+  gap: 8px;
+  padding: 16px 18px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+@media (hover: hover) {
+  .fundingItem:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  }
 }
 
 .fundingLabel {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 9%, transparent);
+  border-radius: 999px;
+  line-height: 1.4;
 }
 
 .fundingValue {
-  font-size: var(--fs-body);
+  font-size: var(--fs-h4);
   font-weight: 700;
-  color: var(--primary, #1b6b5a);
+  color: var(--foreground);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .fundingSource {
   font-size: var(--fs-overline);
   color: var(--muted-foreground);
+  line-height: var(--lh-relaxed);
 }
 
 /* ── 통계·지표 ── */
