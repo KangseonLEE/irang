@@ -308,6 +308,14 @@ ul, ol {
   50% { transform: translateX(4px); }
 }
 
+/* ── Spin Animation (공용) ──
+   loader/spinner 회전 — 4개 module.css 중복 제거 (Sprint S 2026-05-20).
+   5/18 a2148cf @keyframes pulse 통합 패턴 연장. */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* ── Skeleton Pulse Animation (공용) ──
    loading.tsx · Suspense fallback · Skeleton 컴포넌트가 공유.
    네임스페이스 prefix(irang-)로 다른 keyframes pulse(scale 변형)와 분리.

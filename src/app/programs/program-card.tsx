@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MapPin, Calendar } from "lucide-react";
 import type { SupportProgram } from "@/lib/data/programs";
 import { formatApplicationPeriod } from "@/lib/format";
-import { daysUntilDeadline, ALWAYS_OPEN } from "@/lib/program-status";
+import { daysUntilDeadline, ALWAYS_OPEN, isNewProgram } from "@/lib/program-status";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { DeadlineBadge } from "@/components/ui/deadline-badge";
@@ -16,18 +16,6 @@ const SUPPORT_TYPE_LABELS: Record<string, string> = {
   현물: "현물 지원",
   컨설팅: "컨설팅 지원",
 };
-
-/** createdAt 기준 14일 이내 + 마감되지 않은 프로그램만 "신규" */
-const NEW_THRESHOLD_DAYS = 14;
-
-export function isNewProgram(createdAt?: string, status?: string): boolean {
-  if (!createdAt) return false;
-  if (status === "마감") return false;
-  const created = new Date(createdAt);
-  const now = new Date();
-  const diffMs = now.getTime() - created.getTime();
-  return diffMs >= 0 && diffMs < NEW_THRESHOLD_DAYS * 24 * 60 * 60 * 1000;
-}
 
 /**
  * 카드 hierarchy — Sprint Q (2026-05-20)

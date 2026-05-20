@@ -45,6 +45,21 @@ export function daysUntilDeadline(applicationEnd?: string | null): number {
   return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
+/**
+ * createdAt 기준 14일 이내 + 마감되지 않은 프로그램만 "신규"로 판정.
+ * Sprint S (2026-05-20): program-card.tsx → lib로 이동 (컴포넌트 export 의존성 제거).
+ */
+const NEW_THRESHOLD_DAYS = 14;
+
+export function isNewProgram(createdAt?: string, status?: string): boolean {
+  if (!createdAt) return false;
+  if (status === "마감") return false;
+  const created = new Date(createdAt);
+  const now = new Date();
+  const diffMs = now.getTime() - created.getTime();
+  return diffMs >= 0 && diffMs < NEW_THRESHOLD_DAYS * 24 * 60 * 60 * 1000;
+}
+
 /** 체험행사 신청기간 기반 상태 판별 (KST) */
 export function deriveEventStatus(
   applicationStart?: string,

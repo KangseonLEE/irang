@@ -86,16 +86,6 @@
   gap: 8px;
 }
 
-.dday {
-  font-size: var(--fs-overline);
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--destructive, #dc2626) 10%, transparent);
-  color: var(--destructive, #dc2626);
-  white-space: nowrap;
-}
-
 .region {
   font-size: var(--fs-overline);
   color: var(--muted-foreground, #6b7280);

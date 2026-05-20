@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Clock, ChevronRight } from "lucide-react";
 import { PROGRAMS } from "@/lib/data/programs";
 import { deriveStatus, daysUntilDeadline } from "@/lib/program-status";
+import { DeadlineBadge } from "@/components/ui/deadline-badge";
 import s from "./deadline-programs.module.css";
 
 const DEADLINE_THRESHOLD_DAYS = 14;
@@ -39,9 +40,10 @@ export function DeadlinePrograms() {
           >
             <div className={s.cardBody}>
               <div className={s.cardTopRow}>
-                <span className={s.dday}>
-                  {p.daysLeft === 0 ? "오늘 마감" : `D-${p.daysLeft}`}
-                </span>
+                <DeadlineBadge
+                  applicationEnd={p.applicationEnd}
+                  status={p.status}
+                />
                 <span className={s.region}>{p.region}</span>
               </div>
               <h3 className={s.cardTitle}>{p.title}</h3>

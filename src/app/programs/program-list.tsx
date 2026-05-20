@@ -9,7 +9,7 @@ import { ProgramCard } from "./program-card";
 import type { SupportProgram, ProgramFilters } from "@/lib/data/programs";
 import type { PersonaId } from "@/lib/data/personas";
 import { getProgramPersonaFitTrace } from "@/lib/data/persona-fit";
-import { isNewProgram } from "./program-card";
+import { isNewProgram } from "@/lib/program-status";
 import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";

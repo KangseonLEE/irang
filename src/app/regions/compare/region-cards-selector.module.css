@@ -13,7 +13,6 @@
 .counter { font-size: var(--fs-caption); font-weight: 600; color: var(--muted-foreground); }
 .loadingHint { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-caption); font-weight: 500; color: var(--primary, #1b6b5a); padding: 4px 10px; background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent); border-radius: 9999px; }
 .spinner { animation: spin 1s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .clearAllBtn { font-family: inherit; font-size: var(--fs-caption); font-weight: 600; color: var(--muted-foreground); background: none; border: none; padding: 4px 2px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 @media (hover: hover) { .clearAllBtn:hover { color: var(--foreground); } }
 .clearAllBtn:disabled { opacity: 0.5; cursor: not-allowed; }

@@ -173,7 +173,8 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
   "/programs": {
     // codex 권고 (5/7): page 추가 (table view client-side pagination)
     // 2026-05-13: persona 추가 (Phase 6 B3 explain UI inline 진입 + /crops·/programs 페르소나 칩 sprint)
-    allowedKeys: ["region", "age", "supportType", "q", "includeClosed", "period", "view", "page", "persona"],
+    // 2026-05-20: category 추가 (Sprint P chip 5종 — 누락 시 308 strip으로 deep link 100% 무력화)
+    allowedKeys: ["region", "age", "supportType", "category", "q", "includeClosed", "period", "view", "page", "persona"],
     enumValidators: {
       region: [
         "전국",
@@ -190,6 +191,7 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       ],
       supportType: ["보조금", "융자", "교육", "현물", "컨설팅"],
       age: ["19~29세", "30~39세", "40~49세", "50~59세", "60~69세", "70~79세"],
+      category: ["settlement", "youth", "facility", "healing", "social"],
       view: ["table", "card"],
       includeClosed: ["1"],
       persona: ["family", "farmYouth", "elderRural", "commuter", "balanced"],
