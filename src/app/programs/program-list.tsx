@@ -13,6 +13,7 @@ import { isNewProgram } from "./program-card";
 import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
 import type { ViewMode } from "@/components/ui/view-toggle";
 import s from "./program-list.module.css";
@@ -100,17 +101,12 @@ export function ProgramList({
 
   if (programs.length === 0) {
     return (
-      <div className={s.empty}>
-        <div className={s.emptyInner}>
-          <FileText className={s.emptyIcon} />
-          <p className={s.emptyTitle}>
-            조건에 맞는 지원사업이 없습니다
-          </p>
-          <p className={s.emptyDesc}>
-            검색 조건을 변경하거나 필터를 초기화해 보세요.
-          </p>
-        </div>
-      </div>
+      <EmptyState
+        icon={<FileText size={32} />}
+        message="조건에 맞는 지원사업이 없어요. 검색 조건을 변경하거나 필터를 초기화해 보세요."
+        linkHref="/programs"
+        linkText="필터 초기화"
+      />
     );
   }
 
@@ -205,7 +201,7 @@ export function ProgramList({
       {/* 모두 로드됨 표시 */}
       {!hasMore && programs.length > 0 && (
         <p className={s.allLoaded}>
-          모든 지원사업을 표시했습니다
+          지원사업을 모두 확인했어요
         </p>
       )}
     </>

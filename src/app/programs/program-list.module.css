@@ -6,43 +6,6 @@
   min-width: 0;
 }
 
-/* ── Empty State ── */
-.empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  border: 2px dashed var(--border, #e5e7eb);
-  border-radius: 20px;
-  background: color-mix(in srgb, var(--muted, #f9fafb) 30%, transparent);
-}
-
-.emptyInner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  color: var(--muted-foreground);
-}
-
-.emptyIcon {
-  width: 48px;
-  height: 48px;
-  color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
-}
-
-.emptyTitle {
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  margin: 0;
-}
-
-.emptyDesc {
-  font-size: var(--fs-caption);
-  color: color-mix(in srgb, var(--muted-foreground) 70%, transparent);
-  margin: 0;
-}
-
 /* ── Loading Sentinel ── */
 .sentinel {
   display: flex;

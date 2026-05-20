@@ -1,0 +1,32 @@
+/* ── Deadline Badge (마감 D-N 시각화) ──
+   StatusBadge와 같은 사이즈/형태로 시각적 일관성 유지.
+   D-3 이내 빨강(urgent), D-4~D-7 앰버(warning), 상시(always)는 회녹색. */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--fs-overline, 11px);
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  line-height: var(--lh-tight);
+}
+
+.urgent {
+  composes: badge;
+  color: var(--error, #dc2626);
+  background: color-mix(in srgb, var(--error, #dc2626) 12%, transparent);
+}
+
+.warning {
+  composes: badge;
+  color: var(--warning, #d97706);
+  background: color-mix(in srgb, var(--warning, #d97706) 12%, transparent);
+}
+
+.always {
+  composes: badge;
+  color: var(--primary, #1b6b5a);
+  background: var(--primary-tint-soft);
+}

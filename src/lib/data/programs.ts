@@ -13,11 +13,16 @@ import {
 import { deriveStatus } from "@/lib/program-status";
 import { getSupabase, isSupabaseConfigured, type ProgramRow } from "@/lib/supabase";
 
-/** 카테고리 — Sprint P P2-e (2026-05-20)
- *  치유농업·사회적 농업 같은 영역 태그. 일반 사업은 미설정(undefined).
- *  필터 chip(?category=healing|social) + 정렬·통계용. supportType과 직교.
+/** 카테고리 — Sprint P P2-e (2026-05-20) + Sprint Q 확장 (2026-05-20)
+ *  성격 분류: 정착·창업 / 청년 / 시설·체류 / 치유농업 / 사회적 농업
+ *  필터 chip(?category=settlement|youth|facility|healing|social) + 정렬·통계용. supportType과 직교.
  */
-export type ProgramCategory = "healing" | "social";
+export type ProgramCategory =
+  | "settlement"
+  | "youth"
+  | "facility"
+  | "healing"
+  | "social";
 
 export interface SupportProgram {
   id: string;
@@ -46,10 +51,19 @@ export interface SupportProgram {
 }
 
 /** 카테고리 필터 옵션 — FilterGroup paramKey="category" */
-export const PROGRAM_CATEGORIES = ["healing", "social"] as const;
+export const PROGRAM_CATEGORIES = [
+  "settlement",
+  "youth",
+  "facility",
+  "healing",
+  "social",
+] as const;
 
 /** 카테고리 ID → 한글 라벨 매핑 (FilterGroup.optionLabels) */
 export const PROGRAM_CATEGORY_LABELS: Record<ProgramCategory, string> = {
+  settlement: "정착·창업",
+  youth: "청년 특화",
+  facility: "시설·체류",
   healing: "치유농업",
   social: "사회적 농업",
 };
@@ -98,6 +112,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.gunsan.go.kr/farm/m2435/view/8495763",
     year: 2026,
+    category: "settlement",
   },
   {
     id: "SP-002",
@@ -119,6 +134,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://agro.seoul.go.kr/archives/54938",
     year: 2026,
+    category: "youth",
   },
   {
     id: "SP-003",
@@ -140,6 +156,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: ["딸기", "토마토", "파프리카"],
     sourceUrl: "https://youth.chungnam.go.kr/web/main/bbs/cnyouth_notice/497",
     year: 2026,
+    category: "youth",
   },
   {
     id: "SP-004",
@@ -161,6 +178,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.wanjuro.org/post/3168",
     year: 2026,
+    category: "youth",
   },
   {
     id: "SP-005",
@@ -182,6 +200,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.asiaa.co.kr/news/articleView.html?idxno=237422",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-006",
@@ -203,6 +222,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: ["인삼", "약초"],
     sourceUrl: "http://www.daejeontoday.com/news/articleView.html?idxno=722515",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-007",
@@ -224,6 +244,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.smartbizn.com/news/articleView.html?idxno=132387",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-008",
@@ -245,6 +266,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.post24.kr/319532",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-009",
@@ -266,6 +288,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://gecpo.org/552867",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-010",
@@ -287,6 +310,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.newsro.kr/article243/1142350/",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-012",
@@ -308,6 +332,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: ["딸기", "토마토", "파프리카", "상추"],
     sourceUrl: "https://www.smartfarmkorea.net/edu/pnbsns/all.do?menuId=M01050701",
     year: 2026,
+    category: "youth",
   },
   {
     id: "SP-013",
@@ -329,6 +354,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://agro.seoul.go.kr/archives/55803",
     year: 2026,
+    category: "settlement",
   },
   {
     id: "SP-014",
@@ -350,6 +376,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: ["상추", "토마토"],
     sourceUrl: "https://agro.seoul.go.kr/archives/55870",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-011",
@@ -371,6 +398,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.rda.go.kr/young/content/content76.do",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-015",
@@ -392,6 +420,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: ["딸기", "오이", "토마토"],
     sourceUrl: "https://www.ajunews.com/view/20260424142857765",
     year: 2026,
+    category: "youth",
   },
   {
     id: "SP-016",
@@ -413,6 +442,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: ["벼", "보리"],
     sourceUrl: "https://www.koreaunionnews.com/2140922",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-017",
@@ -434,6 +464,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.greendaero.go.kr/svc/rfph/edc/live/front/program.do",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-018",
@@ -455,6 +486,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.fbo.or.kr/",
     year: 2026,
+    category: "settlement",
   },
   {
     id: "SP-020",
@@ -476,6 +508,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.nongmin.com/article/20251104500065",
     year: 2026,
+    category: "youth",
   },
   {
     id: "SP-021",
@@ -497,6 +530,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.dominilbo.com/news/articleView.html?idxno=245110",
     year: 2026,
+    category: "youth",
   },
   {
     id: "SP-022",
@@ -518,6 +552,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.rda.go.kr/young/custom/policy/view.do?sId=46438",
     year: 2026,
+    category: "youth",
   },
   {
     id: "SP-023",
@@ -539,6 +574,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://agro.seoul.go.kr/archives/55168",
     year: 2026,
+    category: "settlement",
   },
   {
     id: "SP-024",
@@ -560,6 +596,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.gnnnews.kr/168675",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-025",
@@ -581,6 +618,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.goodmorningcc.com/news/articleView.html?idxno=426265",
     year: 2026,
+    category: "facility",
   },
   {
     id: "SP-026",
@@ -602,6 +640,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.koreatimenews.com/news/article.html?no=1064324",
     year: 2026,
+    category: "facility",
   },
   // ─────────────────────────────────────────────────────────
   // Sprint K (2026-05-20) — 치유·사회적 농업 카탈로그 확장
