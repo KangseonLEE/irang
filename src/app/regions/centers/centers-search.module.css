@@ -4,9 +4,10 @@
    ═══════════════════════════════════════ */
 
 /* ── 검색 + 시·도 필터 (시·군 섹션 컨테이너 안 sticky — 섹션 벗어나면 자동 해제) ── */
+/* header 보임: top 56px (header 아래) / header 숨김: top 0 (화면 맨 위) — 동적 연동 */
 .searchWrap {
   position: sticky;
-  top: 56px; /* header height */
+  top: 56px; /* header height (default — header visible) */
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -14,6 +15,18 @@
   padding: 12px 0;
   background: var(--background, #fff);
   border-bottom: 1px solid var(--border, #e5e7eb);
+  transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* header가 hide-on-scroll로 감춰지면 sticky를 화면 최상단으로 끌어올림 */
+:global(html[data-header-hidden]) .searchWrap {
+  top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .searchWrap {
+    transition: none;
+  }
 }
 
 .searchBox {
@@ -267,10 +280,11 @@
   padding: 28px 0;
 }
 
+/* 광역 거점 9곳 — 모바일 2단(스크롤 부담 절반) → 태블릿 2단 → 데스크탑 3단 */
 .sidoGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
 @media (min-width: 640px) {
