@@ -23,12 +23,10 @@ import {
   BarChart3,
   BookOpen,
   Compass,
-  ClipboardCheck,
   ChevronRight,
   Info,
   Heart,
   Trophy,
-  Search,
   type LucideIcon,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
@@ -75,7 +73,6 @@ const menuGroups: MenuGroup[] = [
       { href: "/regions/centers", label: "지자체 센터", desc: "시·도 귀농귀촌지원센터 안내", icon: Building2 },
       { href: "/crops", label: "작물 정보", desc: "재배 난이도·수익성·적합 기후", icon: Sprout },
       { href: "/crops/compare", label: "작물 비교", desc: "최대 3종 작물 비교", icon: GitCompareArrows },
-      { href: "/search", label: "통합 검색", desc: "지역·작물·교육·사업 한 번에", icon: Search },
     ],
   },
   {
@@ -86,7 +83,6 @@ const menuGroups: MenuGroup[] = [
       { href: "/guide/track-compare", label: "귀농·귀산촌 비교", desc: "추진체계를 한눈에 비교", icon: GitCompareArrows },
       { href: "/guide/shelter", label: "농촌체류형 쉼터", desc: "33㎡ 임시 주거 설치 가이드", icon: Home },
       { href: "/costs", label: "비용 가이드", desc: "연령·작물별 비용 분석 & 지원금", icon: Wallet },
-      { href: "/assess", label: "농촌 정착 적합도 진단", desc: "10문항으로 확인하는 적합도", icon: ClipboardCheck },
       { href: "/interviews", label: "정착 이야기", desc: "실제 정착 인터뷰", icon: Users },
     ],
   },

@@ -15,6 +15,9 @@ import { CenterCard } from "@/components/region/center-card";
 import type { Center } from "@/lib/data/centers";
 import s from "./centers-search.module.css";
 
+/** 시·도 필터 sentinel — "전체" */
+const REGION_ALL = "__all__";
+
 interface SidoGroup {
   /** 광역 id (regions.ts Province.id와 동일) */
   id: string;
@@ -49,7 +52,7 @@ export function CentersSearch({
 }: CentersSearchProps) {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
-  const groupRefs = useRef<Record<string, HTMLDetailsElement | null>>({});
+  const [region, setRegion] = useState<string>(REGION_ALL);
   const initialScrollDone = useRef(false);
 
   // URL ?q= 파라미터로 진입 시 결과 영역으로 스크롤
@@ -66,21 +69,27 @@ export function CentersSearch({
 
   const q = query.trim();
   const hasQuery = q.length > 0;
+  const hasRegion = region !== REGION_ALL;
+  const matchesRegion = (id: string) => !hasRegion || id === region;
 
   const filteredSido = useMemo(
-    () => sidoCenters.filter((c) => matches(c, q)),
-    [sidoCenters, q],
+    () =>
+      sidoCenters.filter((c) => matches(c, q) && matchesRegion(c.sidoSlug)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sidoCenters, q, region],
   );
 
   const filteredGroups = useMemo(
     () =>
       sigunguGroups
+        .filter((g) => matchesRegion(g.id))
         .map((g) => ({
           ...g,
           centers: g.centers.filter((c) => matches(c, q)),
         }))
         .filter((g) => g.centers.length > 0),
-    [sigunguGroups, q],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sigunguGroups, q, region],
   );
 
   const totalMatches =
@@ -100,16 +109,9 @@ export function CentersSearch({
     }
   };
 
-  const jumpTo = (id: string) => {
-    const el = groupRefs.current[id];
-    if (!el) return;
-    el.open = true;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   return (
     <>
-      {/* ── 검색 + 퀵점프 ── */}
+      {/* ── 검색 + 시·도 필터 ── */}
       <div className={s.searchWrap}>
         <div className={s.searchBox}>
           <SearchIcon
@@ -139,23 +141,37 @@ export function CentersSearch({
           )}
         </div>
 
-        <nav
-          className={s.quickJump}
-          role="navigation"
-          aria-label="광역으로 바로 이동"
+        <div
+          className={s.filterChips}
+          role="group"
+          aria-label="시·도 필터"
         >
-          {sigunguGroups.map((g) => (
-            <button
-              key={g.id}
-              type="button"
-              onClick={() => jumpTo(g.id)}
-              className={s.quickChip}
-            >
-              <span>{g.shortName}</span>
-              <span className={s.quickChipCount}>{g.centers.length}</span>
-            </button>
-          ))}
-        </nav>
+          <button
+            type="button"
+            onClick={() => setRegion(REGION_ALL)}
+            className={s.filterChip}
+            aria-pressed={!hasRegion}
+            data-active={!hasRegion}
+          >
+            전체
+          </button>
+          {sigunguGroups.map((g) => {
+            const active = region === g.id;
+            return (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => setRegion(active ? REGION_ALL : g.id)}
+                className={s.filterChip}
+                aria-pressed={active}
+                data-active={active}
+              >
+                <span>{g.shortName}</span>
+                <span className={s.filterChipCount}>{g.centers.length}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {hasQuery && totalMatches === 0 && (
@@ -209,11 +225,8 @@ export function CentersSearch({
               <details
                 key={group.id}
                 id={`group-${group.id}`}
-                ref={(el) => {
-                  groupRefs.current[group.id] = el;
-                }}
                 className={s.group}
-                open={hasQuery}
+                open={hasQuery || hasRegion}
               >
                 <summary className={s.groupSummary}>
                   <span className={s.groupName}>{group.shortName}</span>

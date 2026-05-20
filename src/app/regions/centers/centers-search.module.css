@@ -99,20 +99,18 @@
   outline-offset: 2px;
 }
 
-/* ── 퀵점프 ── */
-.quickJump {
+/* ── 시·도 필터 chip ── */
+.filterChips {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  overflow-x: auto;
   padding-bottom: 2px;
-  scrollbar-width: thin;
-  -webkit-overflow-scrolling: touch;
 }
 
-.quickChip {
+.filterChip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   flex-shrink: 0;
   padding: 6px 12px;
   font-size: var(--fs-caption);
@@ -126,23 +124,34 @@
 }
 
 @media (hover: hover) {
-  .quickChip:hover {
+  .filterChip:hover {
     border-color: var(--primary, #1b6b5a);
     color: var(--primary, #1b6b5a);
     background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
   }
 }
 
-.quickChip:active {
+.filterChip:active {
   transform: scale(0.95);
 }
 
-.quickChip:focus-visible {
+.filterChip:focus-visible {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
 }
 
-.quickChipCount {
+.filterChip[data-active="true"] {
+  color: var(--primary-foreground, #fff);
+  background: var(--primary, #1b6b5a);
+  border-color: var(--primary, #1b6b5a);
+}
+
+.filterChip[data-active="true"] .filterChipCount {
+  color: var(--primary, #1b6b5a);
+  background: var(--primary-foreground, #fff);
+}
+
+.filterChipCount {
   font-size: 0.6875rem;
   font-weight: 700;
   color: var(--primary, #1b6b5a);
@@ -150,6 +159,7 @@
   padding: 1px 6px;
   border-radius: 999px;
   font-variant-numeric: tabular-nums;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 
@@ -274,6 +284,7 @@
   list-style: none;
   font-size: var(--fs-body);
   user-select: none;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
   transition: background 0.15s ease;
 }
 
@@ -356,14 +367,15 @@
 
 @media (min-width: 640px) {
   .compactList {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    /* 데스크탑 테이블 row 연속체: gap 제거, border-bottom으로 구분 */
+    gap: 0;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid var(--border, #e5e7eb);
   }
-}
 
-@media (min-width: 1024px) {
-  .compactList {
-    grid-template-columns: repeat(3, 1fr);
+  /* 마지막 행은 하단 border 제거 (외곽 border와 중복 방지) */
+  .compactList > *:last-child {
+    border-bottom: none;
   }
 }
