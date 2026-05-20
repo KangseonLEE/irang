@@ -169,6 +169,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
             currentValue={params.type}
             currentFilters={currentParams}
             basePath="/events"
+            collapsibleOnMobile
           />
         </FilterRow>
         <FilterRow>
@@ -179,6 +180,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
             currentValue={params.region}
             currentFilters={currentParams}
             basePath="/events"
+            collapsibleOnMobile
           />
         </FilterRow>
       </FilterBar>

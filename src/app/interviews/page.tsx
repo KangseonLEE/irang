@@ -98,6 +98,7 @@ export default async function InterviewsPage({ searchParams }: PageProps) {
             currentValue={activeCategory}
             currentFilters={currentFilters}
             basePath="/interviews"
+            collapsibleOnMobile
           />
         </FilterRow>
       </FilterBar>

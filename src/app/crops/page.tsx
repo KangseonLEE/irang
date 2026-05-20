@@ -155,6 +155,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
             currentValue={params.category}
             currentFilters={currentFilters}
             basePath="/crops"
+            collapsibleOnMobile
           />
         </FilterRow>
         <FilterRow>
@@ -165,6 +166,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
             currentValue={params.difficulty}
             currentFilters={currentFilters}
             basePath="/crops"
+            collapsibleOnMobile
           />
         </FilterRow>
       </FilterBar>

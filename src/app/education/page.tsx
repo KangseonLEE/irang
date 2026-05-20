@@ -222,6 +222,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
             currentValue={params.region}
             currentFilters={currentFilters}
             basePath="/education"
+            collapsibleOnMobile
           />
         </FilterRow>
         <FilterRow>
@@ -232,6 +233,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
             currentValue={params.type}
             currentFilters={currentFilters}
             basePath="/education"
+            collapsibleOnMobile
           />
           <FilterGroup
             label="난이도"
@@ -240,6 +242,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
             currentValue={params.level}
             currentFilters={currentFilters}
             basePath="/education"
+            collapsibleOnMobile
           />
         </FilterRow>
       </FilterBar>
