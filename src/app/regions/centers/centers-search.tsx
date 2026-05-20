@@ -133,93 +133,111 @@ export function CentersSearch({
         </section>
       )}
 
-      {/* ── 검색 + 시·도 필터 (시·군 섹션 진입 직전 sticky) ── */}
-      <div className={s.searchWrap}>
-        <div className={s.searchBox}>
-          <SearchIcon
-            size={18}
-            aria-hidden="true"
-            className={s.searchIcon}
-          />
-          <input
-            type="search"
-            inputMode="search"
-            value={query}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            placeholder="시·군 센터 이름으로 찾기"
-            className={s.searchInput}
-            aria-label="시·군 센터 검색"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={handleClear}
-              className={s.clearButton}
-              aria-label="검색어 지우기"
-            >
-              <X size={16} aria-hidden="true" />
-            </button>
-          )}
+      {/* ── 시·군 센터 (광역별 그룹) — sticky 검색·필터가 이 섹션 컨테이너 안에 한정 ── */}
+      <section className={s.sigunguSection} aria-label="시·군 센터">
+        <div className={s.sectionHeader}>
+          <div className={s.sectionTitleRow}>
+            <h2 className={s.sectionTitle}>시·군 센터</h2>
+            <span className={s.sectionCount}>
+              {filteredGroups.reduce((n, g) => n + g.centers.length, 0)}곳
+            </span>
+          </div>
+          <p className={s.sectionDesc}>
+            {hasQuery
+              ? "검색 결과예요."
+              : "광역을 열어 시·군 센터를 확인해 보세요."}
+          </p>
         </div>
 
-        <div
-          className={s.filterChips}
-          role="group"
-          aria-label="시·도 필터"
-        >
-          <button
-            type="button"
-            onClick={() => setRegion(REGION_ALL)}
-            className={s.filterChip}
-            aria-pressed={!hasRegion}
-            data-active={!hasRegion}
-          >
-            전체
-          </button>
-          {sigunguGroups.map((g) => {
-            const active = region === g.id;
-            return (
+        {/* sticky: 시·군 섹션 컨테이너 안에서만 sticky → 섹션 벗어나면 자동 해제 */}
+        <div className={s.searchWrap}>
+          <div className={s.searchBox}>
+            <SearchIcon
+              size={18}
+              aria-hidden="true"
+              className={s.searchIcon}
+            />
+            <input
+              type="search"
+              inputMode="search"
+              value={query}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              placeholder="시·군 센터 이름으로 찾기"
+              className={s.searchInput}
+              aria-label="시·군 센터 검색"
+            />
+            {query && (
               <button
-                key={g.id}
                 type="button"
-                onClick={() => setRegion(active ? REGION_ALL : g.id)}
-                className={s.filterChip}
-                aria-pressed={active}
-                data-active={active}
+                onClick={handleClear}
+                className={s.clearButton}
+                aria-label="검색어 지우기"
               >
-                <span>{g.shortName}</span>
-                <span className={s.filterChipCount}>{g.centers.length}</span>
+                <X size={16} aria-hidden="true" />
               </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {hasQuery && totalMatches === 0 && (
-        <EmptyState
-          icon={<SearchIcon size={20} aria-hidden="true" />}
-          message="찾는 지역이 아직 없어요. 다른 키워드로 시도해 보세요."
-        />
-      )}
-
-      {/* ── 시·군 센터 (광역별 그룹) ── */}
-      {filteredGroups.length > 0 && (
-        <section className={s.sigunguSection} aria-label="시·군 센터">
-          <div className={s.sectionHeader}>
-            <div className={s.sectionTitleRow}>
-              <h2 className={s.sectionTitle}>시·군 센터</h2>
-              <span className={s.sectionCount}>
-                {filteredGroups.reduce((n, g) => n + g.centers.length, 0)}곳
-              </span>
-            </div>
-            <p className={s.sectionDesc}>
-              {hasQuery
-                ? "검색 결과예요."
-                : "광역을 열어 시·군 센터를 확인해 보세요."}
-            </p>
+            )}
           </div>
 
+          {/* 모바일: <details> 드롭다운(기본 닫힘) / 데스크탑(≥640px): chip 항상 노출 */}
+          <details className={s.filterDetails}>
+            <summary className={s.filterSummary}>
+              <span className={s.filterSummaryLabel}>
+                지역 필터
+                <span className={s.filterSummarySelection}>
+                  {hasRegion
+                    ? sigunguGroups.find((g) => g.id === region)?.shortName ?? "전체"
+                    : "전체"}
+                </span>
+              </span>
+              <ChevronDown
+                size={14}
+                aria-hidden="true"
+                className={s.filterSummaryChevron}
+              />
+            </summary>
+            <div
+              className={s.filterChips}
+              role="group"
+              aria-label="시·도 필터"
+            >
+              <button
+                type="button"
+                onClick={() => setRegion(REGION_ALL)}
+                className={s.filterChip}
+                aria-pressed={!hasRegion}
+                data-active={!hasRegion}
+              >
+                전체
+              </button>
+              {sigunguGroups.map((g) => {
+                const active = region === g.id;
+                return (
+                  <button
+                    key={g.id}
+                    type="button"
+                    onClick={() => setRegion(active ? REGION_ALL : g.id)}
+                    className={s.filterChip}
+                    aria-pressed={active}
+                    data-active={active}
+                  >
+                    <span>{g.shortName}</span>
+                    <span className={s.filterChipCount}>{g.centers.length}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </details>
+        </div>
+
+        {hasQuery && totalMatches === 0 && (
+          <EmptyState
+            icon={<SearchIcon size={20} aria-hidden="true" />}
+            message="찾는 지역이 아직 없어요. 다른 키워드로 시도해 보세요."
+          />
+        )}
+
+        {filteredGroups.length > 0 && (
           <div className={s.groupList}>
             {filteredGroups.map((group) => (
               <details
@@ -251,8 +269,8 @@ export function CentersSearch({
               </details>
             ))}
           </div>
-        </section>
-      )}
+        )}
+      </section>
     </>
   );
 }

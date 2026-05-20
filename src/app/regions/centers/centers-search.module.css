@@ -3,36 +3,17 @@
    검색 sticky + 시도 featured + 시군구 아코디언
    ═══════════════════════════════════════ */
 
-/* ── 검색 + 시·도 필터 (sticky, 시·군 섹션 진입 직전) ── */
+/* ── 검색 + 시·도 필터 (시·군 섹션 컨테이너 안 sticky — 섹션 벗어나면 자동 해제) ── */
 .searchWrap {
   position: sticky;
   top: 56px; /* header height */
   z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 28px;
-  padding: 14px 0 12px;
+  gap: 8px;
+  padding: 12px 0;
   background: var(--background, #fff);
-  border-top: 1px solid var(--border, #e5e7eb);
-}
-
-.searchWrap::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: -16px;
-  right: -16px;
-  height: 1px;
-  background: var(--border, #e5e7eb);
-  opacity: 0.6;
-}
-
-@media (min-width: 640px) {
-  .searchWrap::after {
-    left: -24px;
-    right: -24px;
-  }
+  border-bottom: 1px solid var(--border, #e5e7eb);
 }
 
 .searchBox {
@@ -101,30 +82,72 @@
   outline-offset: 2px;
 }
 
-/* ── 시·도 필터 chip (가로 스크롤, 1줄 유지) ── */
+/* ── 시·도 필터 드롭다운 — 모바일 기본 닫힘, 데스크탑(≥640px)에서는 항상 노출 ── */
+.filterDetails {
+  display: block;
+}
+
+.filterSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.filterSummary::-webkit-details-marker {
+  display: none;
+}
+
+.filterSummary:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.filterSummaryLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filterSummarySelection {
+  color: var(--primary, #1b6b5a);
+  font-weight: 700;
+}
+
+.filterSummaryChevron {
+  color: var(--muted-foreground);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.filterDetails[open] .filterSummaryChevron {
+  transform: rotate(180deg);
+}
+
 .filterChips {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  padding-bottom: 4px;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
+  padding-top: 8px;
 }
 
-.filterChips::-webkit-scrollbar {
-  height: 4px;
-}
+/* 데스크탑(≥640px): 토글 summary 숨김, chip 항상 노출 */
+@media (min-width: 640px) {
+  .filterSummary {
+    display: none;
+  }
 
-.filterChips::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--muted-foreground) 30%, transparent);
-  border-radius: 999px;
-}
-
-@media (min-width: 1024px) {
   .filterChips {
-    flex-wrap: wrap;
-    overflow-x: visible;
+    padding-top: 0;
   }
 }
 
@@ -277,10 +300,26 @@
   padding: 20px 0 8px;
 }
 
+/* 광역별 아코디언 — 1열(모바일) → 2열(640px) → 3열(1024px) 반응형 그리드 */
 .groupList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+@media (min-width: 640px) {
+  .groupList {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .groupList {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
 }
 
 .group {
