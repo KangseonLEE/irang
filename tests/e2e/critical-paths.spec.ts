@@ -7,7 +7,7 @@
  * 새 사고 발견 시: 이 파일 또는 같은 디렉토리에 시나리오 추가 → push.
  */
 
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page } from "./fixtures";
 
 // ============================================================
 // 공용 상수
