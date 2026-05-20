@@ -24,6 +24,7 @@ import Link from "next/link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ProgramList } from "./program-list";
 import { ProgramRequestCta } from "./program-request-cta";
+import { QuickKeywords } from "./quick-keywords";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import {
   FilterBar,
@@ -236,24 +237,9 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         </FilterRow>
       </FilterBar>
 
-      {/* 빠른 키워드 — 데이터 타입 무변경, 검색 query deep link */}
-      <div className={s.quickKeywords} aria-label="빠른 키워드">
-        <span className={s.quickKeywordsLabel}>빠른 키워드</span>
-        <Link
-          href="/programs?q=치유농업"
-          className={s.quickKeywordChip}
-          prefetch={false}
-        >
-          치유농업
-        </Link>
-        <Link
-          href={`/programs?q=${encodeURIComponent("사회적 농업")}`}
-          className={s.quickKeywordChip}
-          prefetch={false}
-        >
-          사회적 농업
-        </Link>
-      </div>
+      {/* 빠른 키워드 — 데이터 타입 무변경, 검색 query deep link
+          Sprint N P2-f: chip 클릭 GA 이벤트 firing을 위해 Client Component로 분리 */}
+      <QuickKeywords />
 
       <IncludeClosedHint
         resultCount={total}

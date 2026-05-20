@@ -291,9 +291,17 @@ function CompareRow({
 
 function TrackDetail({ track }: { track: TherapyTrack }) {
   // 인터뷰 cross-link — healing 카테고리만 자동 매칭 (사회적 농업은 미수집)
+  // Sprint N P2-g: sourceDate 내림차순 정렬 + 최대 4건 노출
+  //   사유: 사용자 가치 = 최신성 (최근 보도가 trend·신뢰도 신호).
+  //   2025.11 소향미 → 2025.07 오금옥 → 2025.05 김성택 → 2024.07 김영숙 순.
+  //   .slice(0, 4)로 향후 확장 시 grid 깨짐 방지 (page CSS는 4건 기준 검증됨).
   const relatedInterviews =
     track.id === "healing"
-      ? interviews.filter((i) => i.category === "healing")
+      ? interviews
+          .filter((i) => i.category === "healing")
+          .slice()
+          .sort((a, b) => b.sourceDate.localeCompare(a.sourceDate))
+          .slice(0, 4)
       : [];
 
   return (
