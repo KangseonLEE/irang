@@ -531,24 +531,36 @@ function TrackDetail({ track }: { track: TherapyTrack }) {
         )}
       </section>
 
-      {/* 10. 체크리스트 */}
-      <section className={s.section}>
-        <div className={s.sectionHead}>
-          <CheckCircle2 size={18} aria-hidden="true" />
-          <h3 className={s.sectionTitle}>진입 전 체크리스트</h3>
+      {/* 10. 체크리스트 (accordion) */}
+      <details className={`${s.section} ${s.collapsibleSection}`}>
+        <summary className={s.collapsibleHead}>
+          <div className={s.sectionHead}>
+            <CheckCircle2 size={18} aria-hidden="true" />
+            <h3 className={s.sectionTitle}>진입 전 체크리스트</h3>
+          </div>
+          <span className={s.collapsibleMeta}>
+            {track.checklist.length}개 항목
+          </span>
+          <ChevronDown
+            size={16}
+            className={s.collapsibleChevron}
+            aria-hidden="true"
+          />
+        </summary>
+        <div className={s.collapsibleBody}>
+          <p className={s.sectionDesc}>
+            시작하기 전에 한 번 점검해 보세요.
+          </p>
+          <ul className={s.checklist}>
+            {track.checklist.map((item, idx) => (
+              <li key={idx} className={s.checklistItem}>
+                <CheckCircle2 size={14} className={s.checklistIcon} aria-hidden="true" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-        <p className={s.sectionDesc}>
-          시작하기 전에 한 번 점검해 보세요.
-        </p>
-        <ul className={s.checklist}>
-          {track.checklist.map((item, idx) => (
-            <li key={idx} className={s.checklistItem}>
-              <CheckCircle2 size={14} className={s.checklistIcon} aria-hidden="true" />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      </details>
 
       {/* 11. FAQ */}
       <section className={s.section}>
