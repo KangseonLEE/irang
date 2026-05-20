@@ -11,6 +11,8 @@ import {
   ChevronRight,
   Lightbulb,
   AlertTriangle,
+  Heart,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
@@ -448,6 +450,71 @@ export default function GuidePage() {
         );
       })}
       </AccordionScrollWrapper>
+
+      {/* ═══ 다른 정착 모델 (cross-link) ═══ */}
+      <section className={s.altModelsSection} aria-labelledby="alt-models-title">
+        <header className={s.altModelsHeader}>
+          <h2 id="alt-models-title" className={s.altModelsTitle}>
+            농촌 정착의 다른 길
+          </h2>
+          <p className={s.altModelsDesc}>
+            영농 외에도 농촌에서 가능한 모델이에요. 본인 상황에 맞는 길을 살펴보세요.
+          </p>
+        </header>
+
+        <div className={s.altModelsGrid}>
+          <Link href="/education/therapy?tab=healing" className={s.altModelCard}>
+            <span className={s.altModelChip}>
+              <Heart size={12} aria-hidden="true" />
+              치유농업
+            </span>
+            <h3 className={s.altModelHeading}>
+              농업으로 사람을 회복시키는 일이에요
+            </h3>
+            <p className={s.altModelLead}>
+              치유농업사 2급 자격으로 시작하는 새로운 농촌 직업이에요. 우수 시설은 17개소까지 늘어날 예정이에요.
+            </p>
+            <ul className={s.altModelPoints}>
+              <li>치유농업법 2021년 시행</li>
+              <li>복지기관·학교와 정기 계약 가능</li>
+              <li>창업 자금 협업형 500만원·융자 최대 3억원</li>
+            </ul>
+            <span className={s.altModelArrow}>
+              자세히 보기
+              <IconWrap icon={ArrowRight} size="sm" />
+            </span>
+          </Link>
+
+          <Link href="/education/therapy?tab=social" className={s.altModelCard}>
+            <span className={s.altModelChip}>
+              <Users size={12} aria-hidden="true" />
+              사회적 농업
+            </span>
+            <h3 className={s.altModelHeading}>
+              농업과 돌봄을 함께 하는 일이에요
+            </h3>
+            <p className={s.altModelLead}>
+              농업법인 형태로 취약계층 돌봄·교육·고용을 운영해요. 국비 70%로 부담이 낮아요.
+            </p>
+            <ul className={s.altModelPoints}>
+              <li>국비 70 + 지방비 30 매칭</li>
+              <li>장애·고령·다문화·저소득 대상 5종 사업</li>
+              <li>연 최대 9,000만원·14개 시·도 105 주체</li>
+            </ul>
+            <span className={s.altModelArrow}>
+              자세히 보기
+              <IconWrap icon={ArrowRight} size="sm" />
+            </span>
+          </Link>
+        </div>
+
+        <div className={s.altModelsFooter}>
+          <Link href="/programs" className={s.altModelsFooterLink}>
+            관련 지원사업 검색
+            <IconWrap icon={ArrowRight} size="sm" />
+          </Link>
+        </div>
+      </section>
 
       {/* ═══ CTA ═══ */}
       <section className={s.ctaSection}>
