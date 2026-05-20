@@ -108,13 +108,11 @@
 .compareRow {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 8px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border, #e5e7eb);
-}
-
-.compareRow:last-child {
-  border-bottom: none;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card, #fff);
 }
 
 @media (min-width: 768px) {
@@ -124,6 +122,8 @@
   .compareRow > div {
     padding: 14px 18px;
     border-bottom: 1px solid var(--border, #e5e7eb);
+    border-radius: 0;
+    background: transparent;
     font-size: var(--fs-body-sm);
     line-height: var(--lh-relaxed);
     color: var(--foreground);
@@ -135,9 +135,10 @@
 
 .compareLabel {
   font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--muted-foreground);
-  text-transform: none;
+  font-weight: 700;
+  color: var(--foreground);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
 }
 
 @media (min-width: 768px) {
@@ -145,6 +146,8 @@
     font-weight: 700;
     color: var(--foreground);
     background: var(--muted, #f9fafb);
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border, #e5e7eb);
   }
 }
 
@@ -152,6 +155,44 @@
   font-size: var(--fs-body-sm);
   line-height: var(--lh-relaxed);
   color: var(--foreground);
+}
+
+/* 모바일: 각 셀 상단에 모델 라벨 주입 (치유=green / 사회=orange) */
+.compareCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.compareCell::before {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 700;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.compareCell:nth-child(2)::before {
+  content: "치유농업";
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+}
+
+.compareCell:nth-child(3)::before {
+  content: "사회적 농업";
+  color: #b45309;
+  background: color-mix(in srgb, #d97706 12%, transparent);
+}
+
+@media (min-width: 768px) {
+  .compareCell {
+    display: block;
+  }
+  .compareCell::before {
+    display: none;
+  }
 }
 
 .compareCell strong {
@@ -647,7 +688,7 @@
   margin-top: 2px;
 }
 
-/* ── FAQ ── */
+/* ── FAQ (details/summary 아코디언) ── */
 .faqList {
   display: flex;
   flex-direction: column;
@@ -655,22 +696,34 @@
 }
 
 .faqItem {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px 18px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 10px;
+  transition: border-color 0.15s;
+  overflow: hidden;
+}
+
+.faqItem[open] {
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, var(--border, #e5e7eb));
 }
 
 .faqQ {
   display: flex;
   align-items: flex-start;
   gap: 8px;
+  padding: 16px 18px;
   font-size: var(--fs-body-sm);
   font-weight: 700;
   color: var(--foreground);
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.faqQ::-webkit-details-marker,
+.faqQ::marker {
+  display: none;
+  content: "";
 }
 
 .faqQ::before {
@@ -680,12 +733,42 @@
   flex-shrink: 0;
 }
 
+.faqQText {
+  flex: 1;
+  min-width: 0;
+  line-height: var(--lh-relaxed);
+}
+
+.faqChevron {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+  transition: transform 0.2s ease;
+  margin-top: 2px;
+}
+
+.faqItem[open] .faqChevron {
+  transform: rotate(180deg);
+  color: var(--primary, #1b6b5a);
+}
+
+@media (hover: hover) {
+  .faqQ:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+  }
+}
+
+.faqQ:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
 .faqA {
   font-size: var(--fs-body-sm);
   line-height: var(--lh-relaxed);
   color: var(--muted-foreground);
   margin: 0;
-  padding-left: 22px;
+  padding: 0 18px 16px 40px;
 }
 
 /* ── 인터뷰 cross-link ── */

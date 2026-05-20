@@ -7,6 +7,7 @@ import {
   BarChart3,
   ExternalLink,
   ChevronRight,
+  ChevronDown,
   Info,
   FileText,
   GraduationCap,
@@ -557,12 +558,23 @@ function TrackDetail({ track }: { track: TherapyTrack }) {
         </div>
         <div className={s.faqList}>
           {track.faq.map((item, idx) => (
-            <div key={idx} className={s.faqItem}>
-              <p className={s.faqQ}>{item.q}</p>
+            <details
+              key={idx}
+              className={s.faqItem}
+              open={idx === 0}
+            >
+              <summary className={s.faqQ}>
+                <span className={s.faqQText}>{item.q}</span>
+                <ChevronDown
+                  size={16}
+                  className={s.faqChevron}
+                  aria-hidden="true"
+                />
+              </summary>
               <p className={s.faqA}>
                 <AutoGlossary text={item.a} />
               </p>
-            </div>
+            </details>
           ))}
         </div>
       </section>

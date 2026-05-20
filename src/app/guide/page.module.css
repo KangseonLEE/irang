@@ -872,6 +872,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
+  align-items: stretch;
 }
 
 @media (min-width: 768px) {
@@ -892,6 +893,7 @@
   text-decoration: none;
   color: inherit;
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  height: 100%;
 }
 
 .altModelCard:focus-visible {
@@ -975,7 +977,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-top: 6px;
+  margin-top: auto;
+  padding-top: 6px;
   font-size: var(--fs-caption, 0.75rem);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
