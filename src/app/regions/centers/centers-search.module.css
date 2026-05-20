@@ -3,7 +3,7 @@
    검색 sticky + 시도 featured + 시군구 아코디언
    ═══════════════════════════════════════ */
 
-/* ── 검색 + 퀵점프 (sticky) ── */
+/* ── 검색 + 시·도 필터 (sticky, 시·군 섹션 진입 직전) ── */
 .searchWrap {
   position: sticky;
   top: 56px; /* header height */
@@ -11,8 +11,10 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 16px 0;
+  margin-top: 28px;
+  padding: 14px 0 12px;
   background: var(--background, #fff);
+  border-top: 1px solid var(--border, #e5e7eb);
 }
 
 .searchWrap::after {
@@ -99,12 +101,31 @@
   outline-offset: 2px;
 }
 
-/* ── 시·도 필터 chip ── */
+/* ── 시·도 필터 chip (가로 스크롤, 1줄 유지) ── */
 .filterChips {
   display: flex;
-  flex-wrap: wrap;
   gap: 6px;
-  padding-bottom: 2px;
+  padding-bottom: 4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+
+.filterChips::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filterChips::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted-foreground) 30%, transparent);
+  border-radius: 999px;
+}
+
+@media (min-width: 1024px) {
+  .filterChips {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
 }
 
 .filterChip {
@@ -120,6 +141,7 @@
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 999px;
   cursor: pointer;
+  scroll-snap-align: start;
   transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
 
@@ -252,8 +274,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 28px 0 8px;
-  border-top: 1px solid var(--border, #e5e7eb);
+  padding: 20px 0 8px;
 }
 
 .groupList {

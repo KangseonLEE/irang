@@ -111,7 +111,29 @@ export function CentersSearch({
 
   return (
     <>
-      {/* ── 검색 + 시·도 필터 ── */}
+      {/* ── 광역(시·도) 센터 — 2열 featured ── */}
+      {filteredSido.length > 0 && (
+        <section className={s.sidoSection} aria-label="광역 시·도 센터">
+          <div className={s.sectionHeader}>
+            <div className={s.sectionTitleRow}>
+              <h2 className={s.sectionTitle}>광역 거점 센터</h2>
+              <span className={s.sectionCount}>{filteredSido.length}곳</span>
+            </div>
+            <p className={s.sectionDesc}>
+              {hasQuery
+                ? "검색 결과예요."
+                : "시·도 단위 귀농귀촌지원센터예요. 전화로 바로 상담할 수 있어요."}
+            </p>
+          </div>
+          <div className={s.sidoGrid}>
+            {filteredSido.map((center) => (
+              <CenterCard key={center.id} center={center} showSidoLabel />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── 검색 + 시·도 필터 (시·군 섹션 진입 직전 sticky) ── */}
       <div className={s.searchWrap}>
         <div className={s.searchBox}>
           <SearchIcon
@@ -125,9 +147,9 @@ export function CentersSearch({
             value={query}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            placeholder="지역명으로 센터 찾기"
+            placeholder="시·군 센터 이름으로 찾기"
             className={s.searchInput}
-            aria-label="지역명 검색"
+            aria-label="시·군 센터 검색"
           />
           {query && (
             <button
@@ -179,28 +201,6 @@ export function CentersSearch({
           icon={<SearchIcon size={20} aria-hidden="true" />}
           message="찾는 지역이 아직 없어요. 다른 키워드로 시도해 보세요."
         />
-      )}
-
-      {/* ── 광역(시·도) 센터 — 2열 featured ── */}
-      {filteredSido.length > 0 && (
-        <section className={s.sidoSection} aria-label="광역 시·도 센터">
-          <div className={s.sectionHeader}>
-            <div className={s.sectionTitleRow}>
-              <h2 className={s.sectionTitle}>광역 거점 센터</h2>
-              <span className={s.sectionCount}>{filteredSido.length}곳</span>
-            </div>
-            <p className={s.sectionDesc}>
-              {hasQuery
-                ? "검색 결과예요."
-                : "시·도 단위 귀농귀촌지원센터예요. 전화로 바로 상담할 수 있어요."}
-            </p>
-          </div>
-          <div className={s.sidoGrid}>
-            {filteredSido.map((center) => (
-              <CenterCard key={center.id} center={center} showSidoLabel />
-            ))}
-          </div>
-        </section>
       )}
 
       {/* ── 시·군 센터 (광역별 그룹) ── */}
