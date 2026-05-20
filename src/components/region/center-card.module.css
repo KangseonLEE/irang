@@ -11,7 +11,7 @@
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 14px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 @media (min-width: 640px) {
@@ -29,12 +29,57 @@
   }
 }
 
+/* 홈페이지 안내만 가능한 카드 — 살짝 muted */
+.card[data-variant="infoOnly"] {
+  background: color-mix(in srgb, var(--muted-foreground) 3%, var(--card, #fff));
+  border-color: color-mix(in srgb, var(--muted-foreground) 12%, var(--border));
+}
+
+@media (hover: hover) {
+  .card[data-variant="infoOnly"]:hover {
+    border-color: color-mix(in srgb, var(--muted-foreground) 25%, var(--border));
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--muted-foreground) 6%, transparent);
+  }
+}
+
+/* ── 상단 메타 행 (sido label + status chip) ── */
+.cardTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .sidoLabel {
   font-size: var(--fs-overline);
   font-weight: 600;
   color: var(--primary, #1b6b5a);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+/* ── 상태 chip — 전화 상담 가능 / 홈페이지 안내 구분 ── */
+.statusChipCallable,
+.statusChipInfo {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.statusChipCallable {
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+}
+
+.statusChipInfo {
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--muted-foreground) 12%, transparent);
 }
 
 .name {

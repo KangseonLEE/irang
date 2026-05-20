@@ -65,9 +65,22 @@ export function CenterCard({
     );
   }
 
+  const hasPhone = Boolean(center.phone);
+
   return (
-    <article className={s.card}>
-      {showSidoLabel && <span className={s.sidoLabel}>{center.sido}</span>}
+    <article
+      className={s.card}
+      data-variant={hasPhone ? "callable" : "infoOnly"}
+    >
+      <div className={s.cardTopRow}>
+        {showSidoLabel && <span className={s.sidoLabel}>{center.sido}</span>}
+        <span
+          className={hasPhone ? s.statusChipCallable : s.statusChipInfo}
+          aria-label={hasPhone ? "전화 상담 가능" : "홈페이지 안내만 제공"}
+        >
+          {hasPhone ? "전화 상담 가능" : "홈페이지 안내"}
+        </span>
+      </div>
       <h3 className={s.name}>{center.name}</h3>
 
       {center.phone && (

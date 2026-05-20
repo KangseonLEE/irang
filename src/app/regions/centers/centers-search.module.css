@@ -280,24 +280,28 @@
   padding: 28px 0;
 }
 
-/* 광역 거점 9곳 — 모바일 2단(스크롤 부담 절반) → 태블릿 2단 → 데스크탑 3단 */
+/* 광역 거점 9곳 — 모바일 2단(스크롤 부담 절반) → 태블릿 2단 → 데스크탑 3단
+   row-gap > column-gap: 카드 사이 호흡 확보, 좌우는 컴팩트하게 */
 .sidoGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  column-gap: 10px;
+  row-gap: 16px;
 }
 
 @media (min-width: 640px) {
   .sidoGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    column-gap: 14px;
+    row-gap: 20px;
   }
 }
 
 @media (min-width: 1024px) {
   .sidoGrid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    column-gap: 16px;
+    row-gap: 22px;
   }
 }
 
