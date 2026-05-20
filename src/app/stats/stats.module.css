@@ -407,7 +407,7 @@
   padding: 20px 24px;
   border-radius: 12px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--background, #fff));
-  border-left: 4px solid var(--primary, #1b6b5a);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
   margin: 0;
 }
 

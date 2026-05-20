@@ -159,8 +159,6 @@
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-snug);
   margin: 0;
-  padding-left: 10px;
-  border-left: 2px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -351,7 +349,6 @@
 
 .wrapperDark .motivation {
   color: rgba(255, 255, 255, 0.55);
-  border-left-color: rgba(143, 207, 181, 0.4);
 }
 
 .wrapperDark .quote {

@@ -83,9 +83,9 @@
 
 .ruleQuote {
   margin: 4px 0 0;
-  padding: 8px 10px;
+  padding: 10px 12px;
   background: var(--muted, #f9fafb);
-  border-left: 3px solid var(--primary, #1b6b5a);
+  border-radius: 8px;
   font-size: 13px;
   color: var(--muted-foreground, #6b7280);
   line-height: 1.5;
