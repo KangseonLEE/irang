@@ -28,6 +28,26 @@
   display: none;
 }
 
+/* ── Mobile 2-column grid (FilterRow의 mobileColumns=2 opt-in) ──
+   chip 많은 페이지(/programs 4 chip 그룹)에서 모바일 2x2 그리드 가독성 확보.
+   FilterRow 자체가 grid container가 되고, collapsibleGroup이 cell.
+   640px+ 데스크탑은 기존 inline-flex 가로 스크롤 동일. */
+@media (max-width: 639px) {
+  .filterRowGrid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    overflow-x: visible;
+  }
+
+  /* 2열 그리드 안의 collapsibleGroup은 cell 폭 100%로 정렬 */
+  .filterRowGrid2 > .collapsibleGroup {
+    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
 /* ── Group (라벨 + pill 목록) ── */
 .filterGroup {
   display: flex;
@@ -224,7 +244,7 @@
 
 .searchIcon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   color: var(--muted-foreground, #6b7280);
   pointer-events: none;
   flex-shrink: 0;
@@ -232,8 +252,8 @@
 
 .searchInput {
   width: 100%;
-  height: 36px;
-  padding: 0 12px 0 36px;
+  height: 44px;
+  padding: 0 14px 0 40px;
   font-size: var(--fs-body-sm);
   color: var(--foreground);
   background-color: var(--muted, #f9fafb);
@@ -365,7 +385,7 @@
   }
 
   .searchInput {
-    height: 38px;
+    height: 46px;
   }
 
   .numberInput {

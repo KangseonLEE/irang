@@ -942,27 +942,38 @@ export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
       }
     }
 
+    // ─── 4 chip 그룹 복수 선택(CSV) 지원 (5/20 Sprint P) ───
+    // 단일값 / CSV 모두 처리. 같은 그룹 내 OR (선택 중 하나라도 매치), 다른 그룹 간 AND.
+
     if (filters.region && filters.region !== "전체") {
-      if (program.region !== "전국" && program.region !== filters.region) {
+      const regions = filters.region.split(",").map((s) => s.trim()).filter(Boolean);
+      // 프로그램 region이 "전국"이면 모든 선택 region에 매치
+      if (program.region !== "전국" && !regions.includes(program.region)) {
         return false;
       }
     }
 
     if (filters.age) {
-      const range = parseAgeRange(filters.age);
-      if (range && (range.min > program.eligibilityAgeMax || range.max < program.eligibilityAgeMin)) {
-        return false;
-      }
+      const ageList = filters.age.split(",").map((s) => s.trim()).filter(Boolean);
+      // 다중 연령대 중 하나라도 프로그램 자격 범위와 겹치면 통과
+      const anyMatch = ageList.some((ageStr) => {
+        const range = parseAgeRange(ageStr);
+        if (!range) return true; // 파싱 실패는 무시 (안전)
+        return !(range.min > program.eligibilityAgeMax || range.max < program.eligibilityAgeMin);
+      });
+      if (!anyMatch) return false;
     }
 
     if (filters.supportType && filters.supportType !== "전체") {
-      if (program.supportType !== filters.supportType) {
+      const types = filters.supportType.split(",").map((s) => s.trim()).filter(Boolean);
+      if (!types.includes(program.supportType)) {
         return false;
       }
     }
 
     if (filters.category && filters.category !== "전체") {
-      if (program.category !== filters.category) {
+      const cats = filters.category.split(",").map((s) => s.trim()).filter(Boolean);
+      if (!program.category || !cats.includes(program.category)) {
         return false;
       }
     }

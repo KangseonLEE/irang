@@ -24,6 +24,31 @@ export function buildFilterUrl(
   return qs ? `${basePath}?${qs}` : basePath;
 }
 
+/**
+ * 복수 선택 chip의 토글 URL 생성 — option을 현재 선택 집합에 toggle.
+ * - 선택 중인 옵션 클릭 → 제거
+ * - 선택 안 된 옵션 클릭 → 추가
+ * - 비어지면 key 자체 제거
+ * - 값 정렬은 enum options 순서 유지 (URL 안정성)
+ */
+function buildMultiToggleUrl(
+  basePath: string,
+  current: Record<string, string | undefined>,
+  key: string,
+  option: string,
+  allOptions: readonly string[],
+): string {
+  const currentRaw = current[key];
+  const set = new Set(
+    currentRaw ? currentRaw.split(",").filter(Boolean) : [],
+  );
+  if (set.has(option)) set.delete(option);
+  else set.add(option);
+  const ordered = allOptions.filter((o) => set.has(o));
+  const next = ordered.length > 0 ? ordered.join(",") : undefined;
+  return buildFilterUrl(basePath, current, key, next);
+}
+
 // ─── 레이아웃 컴포넌트 ───
 
 /** 필터 바 — 카드 형태의 외부 래퍼 */
@@ -31,9 +56,21 @@ export function FilterBar({ children }: { children: React.ReactNode }) {
   return <div className={s.filterBar}>{children}</div>;
 }
 
-/** 가로 스크롤 가능한 필터 그룹 행 */
-export function FilterRow({ children }: { children: React.ReactNode }) {
-  return <div className={s.filterRow}>{children}</div>;
+/**
+ * 가로 스크롤 가능한 필터 그룹 행.
+ * mobileColumns=2 prop으로 모바일(<640px) 2열 그리드 레이아웃 사용 (chip 많은 페이지 가독성↑).
+ * 기본(미지정 또는 1)은 기존 inline-flex 가로 스크롤.
+ */
+export function FilterRow({
+  children,
+  mobileColumns,
+}: {
+  children: React.ReactNode;
+  mobileColumns?: 1 | 2;
+}) {
+  const cls =
+    mobileColumns === 2 ? `${s.filterRow} ${s.filterRowGrid2}` : s.filterRow;
+  return <div className={cls}>{children}</div>;
 }
 
 /** 구분선 */
@@ -50,7 +87,7 @@ interface FilterGroupProps {
   paramKey: string;
   /** 선택 가능한 옵션 배열 ("전체" 제외) */
   options: readonly string[];
-  /** 현재 선택된 값 (undefined = 전체) */
+  /** 현재 선택된 값 (단일: string / 복수: comma-CSV, undefined = 전체) */
   currentValue: string | undefined;
   /** 전체 활성 필터 상태 (URL 빌딩용) */
   currentFilters: Record<string, string | undefined>;
@@ -60,6 +97,14 @@ interface FilterGroupProps {
   optionLabels?: Record<string, string>;
   /** 모바일 한정 드롭다운 토글로 표시 (chip 많은 페이지용). 640px+ 항상 펼침. 기본 false */
   collapsibleOnMobile?: boolean;
+  /**
+   * 복수 선택 모드. 기본 false (단일 선택).
+   * - currentValue: comma-CSV ("healing,social")
+   * - chip 클릭 → 해당 옵션 toggle (선택 ↔ 해제)
+   * - "전체" 클릭 → 전부 해제
+   * - 선택된 옵션 개수를 summary 라벨에 표시 (collapsibleOnMobile 동반 시)
+   */
+  multiple?: boolean;
 }
 
 /** 라벨 + pill 목록으로 구성된 단일 필터 그룹 */
@@ -72,20 +117,37 @@ export function FilterGroup({
   basePath,
   optionLabels,
   collapsibleOnMobile = false,
+  multiple = false,
 }: FilterGroupProps) {
+  // 복수 선택 모드: currentValue를 CSV로 파싱, 그 외엔 단일값
+  const selectedSet = multiple
+    ? new Set(currentValue ? currentValue.split(",").filter(Boolean) : [])
+    : null;
+
+  const isActive = (opt: string) =>
+    multiple ? selectedSet!.has(opt) : currentValue === opt;
+
+  const hrefFor = (opt: string) =>
+    multiple
+      ? buildMultiToggleUrl(basePath, currentFilters, paramKey, opt, options)
+      : buildFilterUrl(basePath, currentFilters, paramKey, opt);
+
+  const allCleared = multiple ? selectedSet!.size === 0 : !currentValue;
+
   const pills = (
     <>
       <Link
         href={buildFilterUrl(basePath, currentFilters, paramKey, undefined)}
-        className={!currentValue ? s.pillActive : s.pill}
+        className={allCleared ? s.pillActive : s.pill}
       >
         전체
       </Link>
       {options.map((opt) => (
         <Link
           key={opt}
-          href={buildFilterUrl(basePath, currentFilters, paramKey, opt)}
-          className={currentValue === opt ? s.pillActive : s.pill}
+          href={hrefFor(opt)}
+          className={isActive(opt) ? s.pillActive : s.pill}
+          aria-pressed={multiple ? isActive(opt) : undefined}
         >
           {optionLabels?.[opt] ?? opt}
         </Link>
@@ -94,9 +156,23 @@ export function FilterGroup({
   );
 
   if (collapsibleOnMobile) {
-    const activeLabel = currentValue
-      ? optionLabels?.[currentValue] ?? currentValue
-      : "전체";
+    // 요약 라벨: 단일은 옵션명, 복수는 첫 옵션 + "외 N" 또는 "N개 선택"
+    let activeLabel: string;
+    if (multiple) {
+      const selected = Array.from(selectedSet!);
+      if (selected.length === 0) {
+        activeLabel = "전체";
+      } else if (selected.length === 1) {
+        activeLabel = optionLabels?.[selected[0]] ?? selected[0];
+      } else {
+        const firstLabel = optionLabels?.[selected[0]] ?? selected[0];
+        activeLabel = `${firstLabel} 외 ${selected.length - 1}`;
+      }
+    } else {
+      activeLabel = currentValue
+        ? optionLabels?.[currentValue] ?? currentValue
+        : "전체";
+    }
     return (
       <details className={s.collapsibleGroup}>
         <summary className={s.collapsibleSummary}>

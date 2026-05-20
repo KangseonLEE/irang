@@ -82,11 +82,22 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
       ? (params.persona as PersonaId)
       : undefined;
 
-  // category 값 검증 — 알 수 없는 값은 무시
-  const validCategory =
-    params.category && (PROGRAM_CATEGORIES as readonly string[]).includes(params.category)
-      ? params.category
-      : undefined;
+  // category 값 검증 — CSV 입력 허용 (5/20 Sprint P 복수 선택). 유효한 값만 dedup CSV로 재조립.
+  // middleware normalize가 1차 차단하지만, dev mode·CF cache hit 우회 케이스 대비 page 단 가드 유지.
+  const validCategory = (() => {
+    if (!params.category) return undefined;
+    const set = new Set<string>();
+    const valid: string[] = [];
+    for (const p of params.category.split(",")) {
+      const t = p.trim();
+      if (!t || set.has(t)) continue;
+      if ((PROGRAM_CATEGORIES as readonly string[]).includes(t)) {
+        valid.push(t);
+        set.add(t);
+      }
+    }
+    return valid.length > 0 ? valid.join(",") : undefined;
+  })();
 
   const filters: ProgramFilters = {
     region: params.region,
@@ -215,7 +226,8 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
           }}
         />
         <FilterDivider />
-        <FilterRow>
+        {/* 4 chip 그룹 — 모바일 2x2 그리드, 데스크탑 한 줄 inline-flex */}
+        <FilterRow mobileColumns={2}>
           <FilterGroup
             label="지역"
             paramKey="region"
@@ -224,9 +236,8 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             currentFilters={currentFilters}
             basePath="/programs"
             collapsibleOnMobile
+            multiple
           />
-        </FilterRow>
-        <FilterRow>
           <FilterGroup
             label="지원 유형"
             paramKey="supportType"
@@ -235,9 +246,8 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             currentFilters={currentFilters}
             basePath="/programs"
             collapsibleOnMobile
+            multiple
           />
-        </FilterRow>
-        <FilterRow>
           <FilterGroup
             label="카테고리"
             paramKey="category"
@@ -247,9 +257,8 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             basePath="/programs"
             optionLabels={PROGRAM_CATEGORY_LABELS}
             collapsibleOnMobile
+            multiple
           />
-        </FilterRow>
-        <FilterRow>
           <FilterGroup
             label="연령대"
             paramKey="age"
@@ -258,6 +267,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             currentFilters={currentFilters}
             basePath="/programs"
             collapsibleOnMobile
+            multiple
           />
         </FilterRow>
       </FilterBar>

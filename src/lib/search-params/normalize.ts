@@ -25,6 +25,18 @@ interface NormalizeOptions {
   allowedKeys: readonly string[];
   /** key별 enum 검증 (값이 enum에 없으면 제거) */
   enumValidators?: Record<string, readonly string[]>;
+  /**
+   * key별 multi-value enum 검증 — CSV(쉼표 구분) 입력 허용.
+   * 5/20 Sprint P: /programs 복수 선택 chip 도입 (region·supportType·category·age).
+   * - 입력 "healing,social" → 각 값을 enum 검증 → 통과한 값만 dedup CSV로 재조립
+   * - 전부 통과 못 하면 key 제거 (308 strip)
+   * - 일부만 통과 시 통과한 값만 남김 (5/14 deep link strip 사고 lessons — 정상 값까지 죽이지 않음)
+   * - 최대 개수 초과 시 잘라냄 (CSV abuse 방어)
+   */
+  multiValueEnumValidators?: Record<
+    string,
+    { enum: readonly string[]; maxItems?: number }
+  >;
   /** key별 정규식 검증 (매치 안 되면 제거) */
   regexValidators?: Record<string, RegExp>;
   /** key별 최대 길이 (초과 시 잘라냄) */
@@ -74,6 +86,32 @@ export function normalizeSearchParams(
     // 중복 key (이미 처리됨)
     if (seen.has(key)) {
       changed = true;
+      continue;
+    }
+
+    // Multi-value enum 검증 — CSV 입력 허용 (5/20 Sprint P chip 복수 선택)
+    // 단일값과 CSV 모두 처리. 통과한 값만 dedup CSV로 재조립.
+    if (options.multiValueEnumValidators?.[key]) {
+      const spec = options.multiValueEnumValidators[key];
+      const parts = value.split(",");
+      const valid: string[] = [];
+      const seenValue = new Set<string>();
+      for (const p of parts) {
+        const trimmed = p.trim();
+        if (trimmed === "" || seenValue.has(trimmed)) continue;
+        if (!spec.enum.includes(trimmed)) continue;
+        valid.push(trimmed);
+        seenValue.add(trimmed);
+        if (spec.maxItems && valid.length >= spec.maxItems) break;
+      }
+      if (valid.length === 0) {
+        changed = true;
+        continue;
+      }
+      const reassembled = valid.join(",");
+      if (reassembled !== value) changed = true;
+      cleaned.set(key, reassembled);
+      seen.add(key);
       continue;
     }
 
@@ -174,24 +212,39 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     // codex 권고 (5/7): page 추가 (table view client-side pagination)
     // 2026-05-13: persona 추가 (Phase 6 B3 explain UI inline 진입 + /crops·/programs 페르소나 칩 sprint)
     // 2026-05-20: category 추가 (Sprint P chip 5종 — 누락 시 308 strip으로 deep link 100% 무력화)
+    // 2026-05-20: 4 chip(region·supportType·category·age) 복수 선택(CSV) 전환 — multiValueEnumValidators 사용
     allowedKeys: ["region", "age", "supportType", "category", "q", "includeClosed", "period", "view", "page", "persona"],
+    multiValueEnumValidators: {
+      region: {
+        enum: [
+          "전국",
+          "서울특별시",
+          "경기도",
+          "강원도",
+          "충청북도",
+          "충청남도",
+          "전라북도",
+          "전라남도",
+          "경상북도",
+          "경상남도",
+          "제주특별자치도",
+        ],
+        maxItems: 5,
+      },
+      supportType: {
+        enum: ["보조금", "융자", "교육", "현물", "컨설팅"],
+        maxItems: 5,
+      },
+      age: {
+        enum: ["19~29세", "30~39세", "40~49세", "50~59세", "60~69세", "70~79세"],
+        maxItems: 6,
+      },
+      category: {
+        enum: ["settlement", "youth", "facility", "healing", "social"],
+        maxItems: 5,
+      },
+    },
     enumValidators: {
-      region: [
-        "전국",
-        "서울특별시",
-        "경기도",
-        "강원도",
-        "충청북도",
-        "충청남도",
-        "전라북도",
-        "전라남도",
-        "경상북도",
-        "경상남도",
-        "제주특별자치도",
-      ],
-      supportType: ["보조금", "융자", "교육", "현물", "컨설팅"],
-      age: ["19~29세", "30~39세", "40~49세", "50~59세", "60~69세", "70~79세"],
-      category: ["settlement", "youth", "facility", "healing", "social"],
       view: ["table", "card"],
       includeClosed: ["1"],
       persona: ["family", "farmYouth", "elderRural", "commuter", "balanced"],
