@@ -472,11 +472,11 @@ export default function GuidePage() {
               농업으로 사람을 회복시키는 일이에요
             </h3>
             <p className={s.altModelLead}>
-              치유농업사 2급 자격으로 시작하는 새로운 농촌 직업이에요. 우수 시설은 17개소까지 늘어날 예정이에요.
+              치유농업사 2급 자격으로 시작하는 새로운 농촌 직업이에요. 농진청 우수 시설 13개소가 운영 중이에요.
             </p>
             <ul className={s.altModelPoints}>
               <li>치유농업법 2021년 시행</li>
-              <li>복지기관·학교와 정기 계약 가능</li>
+              <li>우수 시설 13개소 (2027년 17개소 목표)</li>
               <li>창업 자금 협업형 500만원·융자 최대 3억원</li>
             </ul>
             <span className={s.altModelArrow}>

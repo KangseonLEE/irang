@@ -20,6 +20,7 @@ import {
   Users,
   AlertTriangle,
   Quote,
+  Route,
 } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { PageHeader } from "@/components/ui/page-header";
@@ -107,6 +108,18 @@ export default async function TherapyPage({
 
         {/* 페이지 푸터 — 모든 탭 공통 */}
         <div className={s.crossLinks}>
+          <Link href="/guide" className={s.crossLink}>
+            <div className={s.crossLinkText}>
+              <span className={s.crossLinkTitle}>
+                <Route size={14} aria-hidden="true" />
+                농촌 정착 5단계 로드맵
+              </span>
+              <span className={s.crossLinkDesc}>
+                정보 탐색부터 정착까지 단계별로 안내해 드려요
+              </span>
+            </div>
+            <ChevronRight size={18} className={s.crossLinkArrow} aria-hidden="true" />
+          </Link>
           <Link href="/programs" className={s.crossLink}>
             <div className={s.crossLinkText}>
               <span className={s.crossLinkTitle}>
@@ -461,40 +474,61 @@ function TrackDetail({ track }: { track: TherapyTrack }) {
       </section>
 
       {/* 9. 관련 인터뷰 (cross-link 자동) */}
-      {relatedInterviews.length > 0 && (
-        <section className={s.section}>
-          <div className={s.sectionHead}>
-            <Quote size={18} aria-hidden="true" />
-            <h3 className={s.sectionTitle}>관련 인터뷰</h3>
-          </div>
-          <p className={s.sectionDesc}>
-            치유농업 카테고리로 등재된 정착자 이야기예요.
-          </p>
-          <div className={s.interviewListGrid}>
-            {relatedInterviews.map((p) => (
-              <Link
-                key={p.id}
-                href={`/interviews/${p.id}`}
-                className={s.interviewLink}
-              >
-                <div className={s.interviewLinkText}>
-                  <span className={s.interviewLinkName}>
-                    {p.name} · {p.region}
-                  </span>
-                  <span className={s.interviewLinkMeta}>
-                    {p.currentJob}
-                  </span>
-                </div>
-                <ChevronRight
-                  size={16}
-                  className={s.interviewLinkArrow}
-                  aria-hidden="true"
-                />
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+      <section className={s.section}>
+        <div className={s.sectionHead}>
+          <Quote size={18} aria-hidden="true" />
+          <h3 className={s.sectionTitle}>관련 인터뷰</h3>
+        </div>
+        {relatedInterviews.length > 0 ? (
+          <>
+            <p className={s.sectionDesc}>
+              치유농업 카테고리로 등재된 정착자 이야기예요.
+            </p>
+            <div className={s.interviewListGrid}>
+              {relatedInterviews.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/interviews/${p.id}`}
+                  className={s.interviewLink}
+                >
+                  <div className={s.interviewLinkText}>
+                    <span className={s.interviewLinkName}>
+                      {p.name} · {p.region}
+                    </span>
+                    <span className={s.interviewLinkMeta}>
+                      {p.currentJob}
+                    </span>
+                  </div>
+                  <ChevronRight
+                    size={16}
+                    className={s.interviewLinkArrow}
+                    aria-hidden="true"
+                  />
+                </Link>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <p className={s.sectionDesc}>
+              사회적 농업 정착자 이야기를 모집하고 있어요. 먼저 등재된 분들의 정착기를 살펴보세요.
+            </p>
+            <Link href="/interviews" className={s.interviewLink}>
+              <div className={s.interviewLinkText}>
+                <span className={s.interviewLinkName}>정착자 인터뷰 모음</span>
+                <span className={s.interviewLinkMeta}>
+                  본인 동의로 풀텍스트가 공개된 7명의 이야기예요
+                </span>
+              </div>
+              <ChevronRight
+                size={16}
+                className={s.interviewLinkArrow}
+                aria-hidden="true"
+              />
+            </Link>
+          </>
+        )}
+      </section>
 
       {/* 10. 체크리스트 */}
       <section className={s.section}>

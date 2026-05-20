@@ -236,6 +236,25 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         </FilterRow>
       </FilterBar>
 
+      {/* 빠른 키워드 — 데이터 타입 무변경, 검색 query deep link */}
+      <div className={s.quickKeywords} aria-label="빠른 키워드">
+        <span className={s.quickKeywordsLabel}>빠른 키워드</span>
+        <Link
+          href="/programs?q=치유농업"
+          className={s.quickKeywordChip}
+          prefetch={false}
+        >
+          치유농업
+        </Link>
+        <Link
+          href={`/programs?q=${encodeURIComponent("사회적 농업")}`}
+          className={s.quickKeywordChip}
+          prefetch={false}
+        >
+          사회적 농업
+        </Link>
+      </div>
+
       <IncludeClosedHint
         resultCount={total}
         includeClosed={includeClosed}
