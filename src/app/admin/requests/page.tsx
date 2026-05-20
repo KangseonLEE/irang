@@ -124,7 +124,8 @@ export default async function AdminRequestsPage({ searchParams }: Props) {
                     <span className={s.keywordBadge}>{req.keyword}</span>
                   )}
                   <span className={s.date}>
-                    {new Date(req.created_at).toLocaleDateString("ko-KR", {
+                    {new Date(req.created_at).toLocaleString("ko-KR", {
+                      timeZone: "Asia/Seoul",
                       month: "short",
                       day: "numeric",
                       hour: "2-digit",

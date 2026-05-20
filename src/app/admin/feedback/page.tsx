@@ -165,7 +165,8 @@ export default async function AdminFeedbackPage({ searchParams }: Props) {
                   </span>
                   <span className={s.ratingLabel}>{fb.rating}</span>
                   <span className={s.date}>
-                    {new Date(fb.created_at).toLocaleDateString("ko-KR", {
+                    {new Date(fb.created_at).toLocaleString("ko-KR", {
+                      timeZone: "Asia/Seoul",
                       month: "short",
                       day: "numeric",
                       hour: "2-digit",

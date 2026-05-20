@@ -156,6 +156,7 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
               <div key={a.id} className={s.tableRow}>
                 <span className={s.colDate}>
                   {new Date(a.created_at).toLocaleString("ko-KR", {
+                    timeZone: "Asia/Seoul",
                     month: "short",
                     day: "numeric",
                     hour: "2-digit",

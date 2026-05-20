@@ -110,7 +110,7 @@ export default async function AdminOverviewPage() {
                       {fb.message || "(메시지 없음)"}
                     </p>
                     <p className={s.feedbackMeta}>
-                      {fb.page} · {new Date(fb.created_at).toLocaleDateString("ko-KR")}
+                      {fb.page} · {new Date(fb.created_at).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })}
                     </p>
                   </div>
                 </li>
