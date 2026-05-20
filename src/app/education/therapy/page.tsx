@@ -32,6 +32,7 @@ import {
   type TherapyTrackId,
 } from "@/lib/data/therapy";
 import { interviews } from "@/lib/data/landing";
+import { ModelMiniQuiz } from "./model-mini-quiz";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -226,42 +227,12 @@ function OverviewTab() {
       <section className={s.section}>
         <div className={s.sectionHead}>
           <Sparkles size={18} aria-hidden="true" />
-          <h2 className={s.sectionTitle}>어떤 모델이 나에게 맞을까요?</h2>
+          <h2 className={s.sectionTitle}>어느 모델이 나에게?</h2>
         </div>
-
-        <div className={s.modelChoice}>
-          <Link href="/education/therapy?tab=healing" className={s.modelCard}>
-            <div className={s.modelCardHead}>
-              <h3 className={s.modelCardTitle}>치유농업이 맞아요</h3>
-              <ChevronRight size={20} className={s.modelCardArrow} aria-hidden="true" />
-            </div>
-            <p className={s.modelCardBody}>
-              자격증을 취득해서 전문성을 기반으로 농장을 운영하고 싶다면, 또는 농업과 사람의
-              회복을 결합하는 일에 끌린다면 치유농업이에요.
-            </p>
-            <div className={s.modelCardTags}>
-              <span className={s.modelCardTag}>자격증 필수</span>
-              <span className={s.modelCardTag}>개인 운영 가능</span>
-              <span className={s.modelCardTag}>건강 회복</span>
-            </div>
-          </Link>
-
-          <Link href="/education/therapy?tab=social" className={s.modelCard}>
-            <div className={s.modelCardHead}>
-              <h3 className={s.modelCardTitle}>사회적 농업이 맞아요</h3>
-              <ChevronRight size={20} className={s.modelCardArrow} aria-hidden="true" />
-            </div>
-            <p className={s.modelCardBody}>
-              복지·돌봄 영역에 관심이 있고 법인·조합 형태로 농장을 운영할 수 있다면, 또는 마을
-              공동체 사업과 결합하고 싶다면 사회적 농업이에요.
-            </p>
-            <div className={s.modelCardTags}>
-              <span className={s.modelCardTag}>법인 형태</span>
-              <span className={s.modelCardTag}>국비 70%</span>
-              <span className={s.modelCardTag}>돌봄·고용</span>
-            </div>
-          </Link>
-        </div>
+        <p className={s.sectionDesc}>
+          3가지 질문에 답해 보세요. 어울리는 모델 카드를 강조해 드릴게요.
+        </p>
+        <ModelMiniQuiz />
       </section>
     </div>
   );
