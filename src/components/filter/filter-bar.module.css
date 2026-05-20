@@ -95,6 +95,96 @@
   margin: 0;
 }
 
+/* ── Collapsible Group (모바일 한정 드롭다운 토글) ──
+   chip 많은 페이지(/programs 등)에서 모바일 스크롤 부담 완화.
+   640px+ summary 숨김 + chip 항상 노출 — 데스크탑 동일. */
+.collapsibleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  flex: 1 0 100%;
+  min-width: 0;
+}
+
+/* 모바일 한정: 펼친 상태에서 chip은 wrap (가로 스크롤 아닌 줄바꿈) */
+.collapsibleGroup[open] > .filterPills {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.collapsibleSummary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.collapsibleSummary::-webkit-details-marker {
+  display: none;
+}
+
+.collapsibleSummary:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.collapsibleLabel {
+  flex-shrink: 0;
+}
+
+.collapsibleSelection {
+  flex: 1;
+  min-width: 0;
+  color: var(--primary, #1b6b5a);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collapsibleChevron {
+  color: var(--muted-foreground);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.collapsibleGroup[open] .collapsibleChevron {
+  transform: rotate(180deg);
+}
+
+/* 데스크탑(≥640px): summary 숨김 + chip 항상 노출 (기존 FilterGroup 동일 동작)
+   <details>의 native 동작(닫힘 시 children 숨김) 무시하고 강제 표시 */
+@media (min-width: 640px) {
+  .collapsibleGroup {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    flex: 0 0 auto;
+  }
+
+  .collapsibleSummary {
+    display: none;
+  }
+
+  /* details > filterPills를 open 여부와 무관하게 강제 표시 */
+  .collapsibleGroup > .filterPills {
+    display: flex !important;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+}
+
 /* ── Actions (검색 + 보조 컨트롤) ── */
 .filterActions {
   display: flex;

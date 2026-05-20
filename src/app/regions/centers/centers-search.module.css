@@ -318,18 +318,29 @@
   padding: 20px 0 8px;
 }
 
-/* 광역별 아코디언 — 1열(모바일) → 2열(640px) → 3열(1024px) 반응형 그리드 */
+/* 광역별 아코디언 — 2열(모바일, 스크롤 부담 절반) → 2열(640px) → 3열(1024px) 반응형 그리드
+   모바일에서 펼친 광역은 grid-column: 1 / -1로 풀폭 차지 (내부 시·군 카드 너비 확보) */
 .groupList {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   align-items: start;
+}
+
+/* 모바일 한정: 펼친 아코디언은 풀폭 — 시·군 compact 카드 너비 충분히 확보 */
+.group[open] {
+  grid-column: 1 / -1;
 }
 
 @media (min-width: 640px) {
   .groupList {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+  }
+
+  /* 640px+: 펼친 아코디언도 1 column만 차지 (옆 열 유지) */
+  .group[open] {
+    grid-column: auto;
   }
 }
 

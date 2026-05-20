@@ -223,6 +223,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             currentValue={params.region}
             currentFilters={currentFilters}
             basePath="/programs"
+            collapsibleOnMobile
           />
         </FilterRow>
         <FilterRow>
@@ -233,6 +234,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             currentValue={params.supportType}
             currentFilters={currentFilters}
             basePath="/programs"
+            collapsibleOnMobile
           />
         </FilterRow>
         <FilterRow>
@@ -244,6 +246,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             currentFilters={currentFilters}
             basePath="/programs"
             optionLabels={PROGRAM_CATEGORY_LABELS}
+            collapsibleOnMobile
           />
         </FilterRow>
         <FilterRow>
@@ -254,6 +257,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             currentValue={params.age}
             currentFilters={currentFilters}
             basePath="/programs"
+            collapsibleOnMobile
           />
         </FilterRow>
       </FilterBar>

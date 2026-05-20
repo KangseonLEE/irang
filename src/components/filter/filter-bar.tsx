@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { Icon } from "@/components/ui/icon";
 import s from "./filter-bar.module.css";
@@ -57,6 +58,8 @@ interface FilterGroupProps {
   basePath: string;
   /** 옵션 ID → 표시 라벨 매핑 (예: { family: "자녀 양육" }) — 영문 ID에 한글 라벨 표시용 */
   optionLabels?: Record<string, string>;
+  /** 모바일 한정 드롭다운 토글로 표시 (chip 많은 페이지용). 640px+ 항상 펼침. 기본 false */
+  collapsibleOnMobile?: boolean;
 }
 
 /** 라벨 + pill 목록으로 구성된 단일 필터 그룹 */
@@ -68,27 +71,52 @@ export function FilterGroup({
   currentFilters,
   basePath,
   optionLabels,
+  collapsibleOnMobile = false,
 }: FilterGroupProps) {
+  const pills = (
+    <>
+      <Link
+        href={buildFilterUrl(basePath, currentFilters, paramKey, undefined)}
+        className={!currentValue ? s.pillActive : s.pill}
+      >
+        전체
+      </Link>
+      {options.map((opt) => (
+        <Link
+          key={opt}
+          href={buildFilterUrl(basePath, currentFilters, paramKey, opt)}
+          className={currentValue === opt ? s.pillActive : s.pill}
+        >
+          {optionLabels?.[opt] ?? opt}
+        </Link>
+      ))}
+    </>
+  );
+
+  if (collapsibleOnMobile) {
+    const activeLabel = currentValue
+      ? optionLabels?.[currentValue] ?? currentValue
+      : "전체";
+    return (
+      <details className={s.collapsibleGroup}>
+        <summary className={s.collapsibleSummary}>
+          <span className={s.collapsibleLabel}>{label}</span>
+          <span className={s.collapsibleSelection}>{activeLabel}</span>
+          <ChevronDown
+            size={14}
+            aria-hidden="true"
+            className={s.collapsibleChevron}
+          />
+        </summary>
+        <div className={s.filterPills}>{pills}</div>
+      </details>
+    );
+  }
+
   return (
     <div className={s.filterGroup}>
       <span className={s.filterLabel}>{label}</span>
-      <div className={s.filterPills}>
-        <Link
-          href={buildFilterUrl(basePath, currentFilters, paramKey, undefined)}
-          className={!currentValue ? s.pillActive : s.pill}
-        >
-          전체
-        </Link>
-        {options.map((opt) => (
-          <Link
-            key={opt}
-            href={buildFilterUrl(basePath, currentFilters, paramKey, opt)}
-            className={currentValue === opt ? s.pillActive : s.pill}
-          >
-            {optionLabels?.[opt] ?? opt}
-          </Link>
-        ))}
-      </div>
+      <div className={s.filterPills}>{pills}</div>
     </div>
   );
 }
