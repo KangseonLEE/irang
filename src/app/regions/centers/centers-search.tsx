@@ -122,7 +122,7 @@ export function CentersSearch({
             <p className={s.sectionDesc}>
               {hasQuery
                 ? "검색 결과예요."
-                : "시·도 단위 귀농귀촌지원센터예요. 전화로 바로 상담할 수 있어요."}
+                : "시·도 단위 귀농귀촌지원센터예요. 홈페이지에서 자세히 확인해 보세요."}
             </p>
           </div>
           <div className={s.sidoGrid}>

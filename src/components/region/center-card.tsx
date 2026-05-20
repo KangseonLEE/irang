@@ -8,16 +8,10 @@ interface CenterCardProps {
   showSidoLabel?: boolean;
   /**
    * 표시 밀도
-   * - default: 전화번호 전면 배치 강조 카드. 시·도 거점 센터용.
+   * - default: 홈페이지로 연결되는 단일 디자인 카드. 시·도 거점 센터용.
    * - compact: 테이블 행형 (이름 / 전화 pill / 홈페이지). 시·군 리스트용.
    */
   variant?: "default" | "compact";
-}
-
-/** 폴백(전용 도메인 부재) 케이스를 sidoSlug + name 단서로 판정 */
-function isFallback(center: Center): boolean {
-  const fallbackSlugs = ["chungbuk", "chungnam", "gangwon", "jeju"];
-  return fallbackSlugs.includes(center.sidoSlug);
 }
 
 export function CenterCard({
@@ -25,8 +19,6 @@ export function CenterCard({
   showSidoLabel = false,
   variant = "default",
 }: CenterCardProps) {
-  const fallback = isFallback(center);
-
   if (variant === "compact") {
     return (
       <article className={s.compactCard}>
@@ -65,30 +57,10 @@ export function CenterCard({
     );
   }
 
-  const hasPhone = Boolean(center.phone);
-
   return (
-    <article
-      className={s.card}
-      data-variant={hasPhone ? "callable" : "infoOnly"}
-    >
-      <div className={s.cardTopRow}>
-        {showSidoLabel && <span className={s.sidoLabel}>{center.sido}</span>}
-        <span
-          className={hasPhone ? s.statusChipCallable : s.statusChipInfo}
-          aria-label={hasPhone ? "전화 상담 가능" : "홈페이지 안내만 제공"}
-        >
-          {hasPhone ? "전화 상담 가능" : "홈페이지 안내"}
-        </span>
-      </div>
+    <article className={s.card}>
+      {showSidoLabel && <span className={s.sidoLabel}>{center.sido}</span>}
       <h3 className={s.name}>{center.name}</h3>
-
-      {center.phone && (
-        <div className={s.phoneBlock}>
-          <Phone size={16} aria-hidden="true" className={s.phoneIcon} />
-          <span className={s.phoneNumber}>{center.phone}</span>
-        </div>
-      )}
 
       {center.address && (
         <p className={s.address}>
@@ -97,32 +69,15 @@ export function CenterCard({
         </p>
       )}
 
-      <div className={s.cardActions}>
-        {center.phone && (
-          <a
-            href={`tel:${center.phone.replace(/[^0-9]/g, "")}`}
-            className={s.callCta}
-          >
-            <Phone size={14} aria-hidden="true" />
-            전화 상담
-          </a>
-        )}
-        <a
-          href={center.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={s.webCta}
-        >
-          홈페이지
-          <ExternalLink size={13} aria-hidden="true" />
-        </a>
-      </div>
-
-      {fallback && (
-        <p className={s.fallbackNote}>
-          ※ 전용 센터 도메인이 없어 도청·농업기술원 페이지로 연결돼요.
-        </p>
-      )}
+      <a
+        href={center.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={s.webCta}
+      >
+        홈페이지
+        <ExternalLink size={13} aria-hidden="true" />
+      </a>
     </article>
   );
 }
