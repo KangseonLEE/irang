@@ -15,6 +15,8 @@ import {
   REGIONS,
   SUPPORT_TYPES,
   AGE_RANGES,
+  PROGRAM_CATEGORIES,
+  PROGRAM_CATEGORY_LABELS,
   type ProgramFilters,
 } from "@/lib/data/programs";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
@@ -24,7 +26,6 @@ import Link from "next/link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ProgramList } from "./program-list";
 import { ProgramRequestCta } from "./program-request-cta";
-import { QuickKeywords } from "./quick-keywords";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import {
   FilterBar,
@@ -59,6 +60,7 @@ interface PageProps {
     region?: string;
     age?: string;
     supportType?: string;
+    category?: string;
     q?: string;
     includeClosed?: string;
     period?: string;
@@ -80,10 +82,17 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
       ? (params.persona as PersonaId)
       : undefined;
 
+  // category 값 검증 — 알 수 없는 값은 무시
+  const validCategory =
+    params.category && (PROGRAM_CATEGORIES as readonly string[]).includes(params.category)
+      ? params.category
+      : undefined;
+
   const filters: ProgramFilters = {
     region: params.region,
     age: params.age,
     supportType: params.supportType,
+    category: validCategory,
     query: params.q,
     includeClosed,
     period,
@@ -114,6 +123,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   const currentFilters: Record<string, string | undefined> = {
     region: params.region,
     supportType: params.supportType,
+    category: validCategory,
     q: params.q,
     age: params.age,
     period: params.period,
@@ -227,6 +237,17 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         </FilterRow>
         <FilterRow>
           <FilterGroup
+            label="카테고리"
+            paramKey="category"
+            options={PROGRAM_CATEGORIES}
+            currentValue={validCategory}
+            currentFilters={currentFilters}
+            basePath="/programs"
+            optionLabels={PROGRAM_CATEGORY_LABELS}
+          />
+        </FilterRow>
+        <FilterRow>
+          <FilterGroup
             label="연령대"
             paramKey="age"
             options={AGE_RANGES}
@@ -236,10 +257,6 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
           />
         </FilterRow>
       </FilterBar>
-
-      {/* 빠른 키워드 — 데이터 타입 무변경, 검색 query deep link
-          Sprint N P2-f: chip 클릭 GA 이벤트 firing을 위해 Client Component로 분리 */}
-      <QuickKeywords />
 
       <IncludeClosedHint
         resultCount={total}

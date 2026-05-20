@@ -122,56 +122,6 @@
 }
 
 /* ══════════════════════════════════════════
-   빠른 키워드 (chip) — 치유·사회적 농업 검색 deep link
-   ══════════════════════════════════════════ */
-.quickKeywords {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin: 4px 0 0;
-}
-
-.quickKeywordsLabel {
-  font-size: var(--fs-caption, 0.8125rem);
-  font-weight: 600;
-  color: var(--muted-foreground, #6b7280);
-  margin-right: 2px;
-}
-
-.quickKeywordChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  font-size: var(--fs-caption, 0.8125rem);
-  font-weight: 600;
-  color: var(--muted-foreground, #6b7280);
-  background: transparent;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 999px;
-  text-decoration: none;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.12s ease;
-}
-
-@media (hover: hover) {
-  .quickKeywordChip:hover {
-    border-color: var(--primary, #1b6b5a);
-    color: var(--primary, #1b6b5a);
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
-  }
-}
-
-.quickKeywordChip:active {
-  transform: scale(0.95);
-}
-
-.quickKeywordChip:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
-}
-
-/* ══════════════════════════════════════════
    피드백 CTA 카드
    ══════════════════════════════════════════ */
 .feedbackCta {

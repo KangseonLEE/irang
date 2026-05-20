@@ -13,6 +13,12 @@ import {
 import { deriveStatus } from "@/lib/program-status";
 import { getSupabase, isSupabaseConfigured, type ProgramRow } from "@/lib/supabase";
 
+/** 카테고리 — Sprint P P2-e (2026-05-20)
+ *  치유농업·사회적 농업 같은 영역 태그. 일반 사업은 미설정(undefined).
+ *  필터 chip(?category=healing|social) + 정렬·통계용. supportType과 직교.
+ */
+export type ProgramCategory = "healing" | "social";
+
 export interface SupportProgram {
   id: string;
   title: string;
@@ -35,7 +41,18 @@ export interface SupportProgram {
   year: number;
   /** DB 등록일 — "신규" 뱃지 판정에 사용 */
   createdAt?: string;
+  /** 카테고리 — 치유농업·사회적 농업 등 영역 태그 (optional) */
+  category?: ProgramCategory;
 }
+
+/** 카테고리 필터 옵션 — FilterGroup paramKey="category" */
+export const PROGRAM_CATEGORIES = ["healing", "social"] as const;
+
+/** 카테고리 ID → 한글 라벨 매핑 (FilterGroup.optionLabels) */
+export const PROGRAM_CATEGORY_LABELS: Record<ProgramCategory, string> = {
+  healing: "치유농업",
+  social: "사회적 농업",
+};
 
 export const REGIONS = [
   "전국",
@@ -611,6 +628,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://agro.seoul.go.kr/archives/55528",
     year: 2026,
+    category: "healing",
   },
   {
     id: "SP-028",
@@ -632,6 +650,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.agrohealing.go.kr/sf/crfrmr/testGuid/retrieveTestGuid.do",
     year: 2026,
+    category: "healing",
   },
   {
     id: "SP-029",
@@ -653,6 +672,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.agrohealing.go.kr/sf/crfrmSprtInst/crfrmCnter/retrieveCrfrmCnter.do",
     year: 2026,
+    category: "healing",
   },
   {
     id: "SP-030",
@@ -674,6 +694,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.nocutnews.co.kr/news/6441539",
     year: 2026,
+    category: "social",
   },
   {
     id: "SP-031",
@@ -695,6 +716,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl: "https://www.foodtoday.or.kr/news/article.html?no=200816",
     year: 2026,
+    category: "social",
   },
 ];
 
@@ -805,6 +827,8 @@ export interface ProgramFilters {
   includeClosed?: boolean;
   /** 조회 시점 "YYYY-MM" — 해당 월에 모집기간이 겹치는 사업만 표시 */
   period?: string;
+  /** 카테고리 — "healing" | "social" (Sprint P P2-e) */
+  category?: string;
 }
 
 /** 필터만 적용 (전체 반환) — 날짜 기반 상태 자동 산출 */
@@ -894,6 +918,12 @@ export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
 
     if (filters.supportType && filters.supportType !== "전체") {
       if (program.supportType !== filters.supportType) {
+        return false;
+      }
+    }
+
+    if (filters.category && filters.category !== "전체") {
+      if (program.category !== filters.category) {
         return false;
       }
     }
@@ -1090,6 +1120,9 @@ export async function filterProgramsAsync(
     }
     if (filters.supportType && filters.supportType !== "전체") {
       if (program.supportType !== filters.supportType) return false;
+    }
+    if (filters.category && filters.category !== "전체") {
+      if (program.category !== filters.category) return false;
     }
     if (filters.status && filters.status !== "전체") {
       if (program.status !== filters.status) return false;
