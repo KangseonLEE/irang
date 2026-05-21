@@ -10,12 +10,22 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  /**
+   * 본문(.body) 스타일 변형.
+   * - default: padding 20/24/24 (모바일 16/16/20) + overflow-y:auto — 일반 콘텐츠용
+   * - flush: padding 0 + overflow:hidden + display:flex column — 자식이 자체 스크롤·sticky 영역을 가질 때 (예: BottomSheetFilter)
+   *
+   * 5/21 박제 — BottomSheetFilter 옵션 17개 스크롤 미작동 fix.
+   * Modal body의 overflow-y:auto가 자식의 내부 스크롤 컨테이너와 충돌해 sticky CTA cutoff 발생.
+   * flush 모드는 padding을 child에 위임하고 overflow는 child가 직접 관리.
+   */
+  bodyVariant?: "default" | "flush";
 }
 
 const ANIMATION_DURATION = 150; // ms — overlayOut / panelOut duration
 const DRAG_DISMISS_THRESHOLD = 100; // px — 이 이상 아래로 드래그하면 닫기
 
-export function Modal({ open, onClose, title, children }: ModalProps) {
+export function Modal({ open, onClose, title, children, bodyVariant = "default" }: ModalProps) {
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -259,7 +269,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         </div>
 
         {/* 본문 */}
-        <div className={s.body}>{children}</div>
+        <div className={bodyVariant === "flush" ? s.bodyFlush : s.body}>{children}</div>
       </div>
     </div>,
     document.body

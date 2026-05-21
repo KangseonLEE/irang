@@ -127,6 +127,18 @@
   overscroll-behavior: contain;
 }
 
+/* ── Body (flush variant) ──
+   자식이 자체 스크롤 영역·sticky CTA를 가질 때 사용.
+   padding/overflow를 child에 위임. flex column으로 자식 height 100% 보장. */
+.bodyFlush {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
 /* ── Drag handle (desktop: hidden) ── */
 .dragHandle {
   display: none;

@@ -112,7 +112,7 @@ export function BottomSheetFilter({
   const tabCount = (tabId: string) => selections[tabId]?.length ?? 0;
 
   return (
-    <Modal open={open} onClose={onClose} title={title}>
+    <Modal open={open} onClose={onClose} title={title} bodyVariant="flush">
       <div className={s.sheet}>
         {/* 상단 탭 row (가로 스크롤) */}
         <div className={s.tabRow} role="tablist" aria-label="필터 분류">

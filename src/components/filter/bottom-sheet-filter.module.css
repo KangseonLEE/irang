@@ -8,18 +8,12 @@
 .sheet {
   display: flex;
   flex-direction: column;
-  /* Modal.body가 padding 16~24를 주는 것을 상쇄하기 위해 음수 margin으로
-     본문 패딩을 우리가 직접 관리한다. */
-  margin: -20px -24px -24px;
-  height: 100%;
+  /* Modal bodyVariant="flush"가 padding 0 + overflow:hidden + flex column을 제공.
+     음수 margin 우회 불필요 — 직접 flex child로서 스크롤·sticky 작동.
+     5/21 fix: 옵션 17개 스크롤 미작동 root cause = Modal.body의 overflow-y:auto와 충돌. */
+  flex: 1;
   min-height: 0;
-}
-
-@media (max-width: 639px) {
-  .sheet {
-    /* Modal mobile body padding은 16px (modal.module.css:169) */
-    margin: -16px -16px -20px;
-  }
+  width: 100%;
 }
 
 /* ── 탭 row (sticky top) ── */
@@ -27,7 +21,9 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 8px 16px 0;
+  /* 5/21 fix: 탭과 본문 chip 사이 여백 부족 (회장 라이브 발견)
+     기존 padding 8px 16px 0 → 위 12 / 아래 12px 보강. */
+  padding: 12px 16px;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -96,11 +92,12 @@
   line-height: 1;
 }
 
-/* ── 본문 — chip 그리드 (스크롤) ── */
+/* ── 본문 — chip 그리드 (스크롤) ──
+   5/21 fix: 위 padding 16 → 20px (탭과 본문 사이 호흡 보강) */
 .body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 20px 16px 16px;
   overscroll-behavior: contain;
   min-height: 0;
 }
