@@ -72,19 +72,33 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
     dragStartY.current = null;
     dragDeltaY.current = 0;
 
+    // 5/21 회장 라이브 발견: BottomSheet 내부 콘텐츠가 짧을 때 iOS Safari가
+    // 뒤 페이지를 스크롤하는 사고. body overflow:hidden만으로는 iOS overscroll 차단 X.
+    // body position fixed + scrollY 저장/복원 패턴으로 영구 차단.
+    const scrollY = window.scrollY;
     const scrollbarWidth =
       window.innerWidth - document.documentElement.clientWidth;
     const prevOverflow = document.body.style.overflow;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevWidth = document.body.style.width;
     const prevPaddingRight = document.body.style.paddingRight;
 
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
     if (scrollbarWidth > 0) {
       document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
 
     return () => {
       document.body.style.overflow = prevOverflow;
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.width = prevWidth;
       document.body.style.paddingRight = prevPaddingRight;
+      window.scrollTo(0, scrollY);
     };
   }, [open]);
 
