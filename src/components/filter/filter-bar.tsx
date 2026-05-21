@@ -222,9 +222,15 @@ interface FilterActionsProps {
     min?: number;
     max?: number;
   };
+  /**
+   * 검색창 row 우측 보조 컨트롤 슬롯 (초기화 직전).
+   * 5/22 회장 결재 — /crops 재배 캘린더 trigger 버튼 통합 패턴.
+   * 페이지 특수 인터랙션(예: 재배 캘린더 모달 trigger)을 추가할 때 사용.
+   */
+  extraAction?: React.ReactNode;
 }
 
-/** 검색 폼 + 선택적 숫자 입력 + 선택적 토글 + 초기화 링크 */
+/** 검색 폼 + 선택적 숫자 입력 + 선택적 토글 + 선택적 extraAction + 초기화 링크 */
 export function FilterActions({
   basePath,
   currentFilters,
@@ -232,6 +238,7 @@ export function FilterActions({
   searchParamKey = "q",
   toggle,
   numberInput,
+  extraAction,
 }: FilterActionsProps) {
   return (
     <div className={s.filterActions}>
@@ -289,6 +296,9 @@ export function FilterActions({
             {toggle.label}
           </Link>
         )}
+
+        {/* 페이지 특수 슬롯 (예: 재배 캘린더 trigger) */}
+        {extraAction}
 
         {/* 초기화 */}
         <Link href={basePath} className={s.resetLink}>

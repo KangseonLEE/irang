@@ -1,0 +1,56 @@
+/* ── 재배 캘린더 모달 ── */
+
+/* trigger — 검색창 row 안 작은 버튼 (resetLink/toggle 사이 크기) */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px 12px;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+@media (hover: hover) {
+  .trigger:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent);
+  }
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.triggerLabel {
+  font-weight: 600;
+}
+
+/* 태블릿 폰트 상향 (filter-bar 패턴) */
+@media (min-width: 768px) {
+  .trigger {
+    min-height: 34px;
+    padding: 7px 14px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .trigger {
+    font-size: var(--fs-body-sm);
+  }
+}
+
+/* 모달 내부 콘텐츠 — Modal body default padding 사용 (bodyVariant=default) */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

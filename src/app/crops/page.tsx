@@ -15,7 +15,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { CropsFilter } from "./crops-filter";
-import { CalendarToggle } from "./calendar-toggle";
+import { CalendarModal } from "./calendar-modal";
 import { CropRequestButton } from "./crop-request-button";
 import s from "./page.module.css";
 
@@ -158,22 +158,22 @@ export default async function CropsPage({ searchParams }: PageProps) {
               basePath="/crops"
               currentFilters={currentFilters}
               searchPlaceholder="작물명, 설명으로 검색..."
+              extraAction={
+                <CalendarModal>
+                  <FarmingCalendar
+                    crops={filteredCrops.map((c) => ({
+                      id: c.id,
+                      name: c.name,
+                      emoji: c.emoji,
+                      growingSeason: c.growingSeason,
+                    }))}
+                  />
+                </CalendarModal>
+              }
             />
           </FilterBar>
         }
       />
-
-      {/* 재배 캘린더 */}
-      <CalendarToggle>
-        <FarmingCalendar
-          crops={filteredCrops.map((c) => ({
-            id: c.id,
-            name: c.name,
-            emoji: c.emoji,
-            growingSeason: c.growingSeason,
-          }))}
-        />
-      </CalendarToggle>
 
       {/* Crop Card Grid */}
       <div className={s.cropGrid}>

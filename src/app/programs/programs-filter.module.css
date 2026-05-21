@@ -31,14 +31,19 @@
   margin-bottom: 12px;
 }
 
+/* 5/22 회장 라이브 결재 — dropdown row 시각 강화.
+   기존 border-top/bottom + padding 12px 0 → 시각 인지 약함.
+   배경 muted + padding 14px 16px + radius 14px로 명확한 카드 영역.
+   (좌측 border 0건 — 5/20 박제 가드 준수) */
 .dropdownRow {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 12px 0;
-  border-top: 1px solid var(--border, #e5e7eb);
-  border-bottom: 1px solid var(--border, #e5e7eb);
+  padding: 14px 16px;
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
 }
 
 .resetAllBtn {
