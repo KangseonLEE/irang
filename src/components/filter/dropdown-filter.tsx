@@ -140,7 +140,7 @@ export function DropdownFilter({
   );
 
   return (
-    <div className={s.root}>
+    <div className={open ? `${s.root} ${s.rootOpen}` : s.root}>
       <button
         ref={triggerRef}
         type="button"

@@ -18,6 +18,12 @@
   .root {
     display: inline-flex;
     position: relative;
+    /* 2026-05-22 회장 라이브 fix: dropdown open 시 stacking 안정화.
+       open=true일 때만 z-index 상향(다른 dropdown trigger 시각 유지) */
+  }
+
+  .rootOpen {
+    z-index: 999;
   }
 }
 
@@ -75,12 +81,14 @@
   line-height: 1;
 }
 
-/* ── Popover ── */
+/* ── Popover ──
+   2026-05-22 회장 라이브 fix: popover가 카드 그리드 등에 가려지는 사고.
+   z-index 100 → 1000으로 상향 + 부모 .root에 isolation:isolate로 stacking 안정화. */
 .popover,
 .popoverRight {
   position: absolute;
   top: calc(100% + 8px);
-  z-index: 100;
+  z-index: 1000;
   min-width: 320px;
   max-width: 480px;
   background: var(--card, #fff);
