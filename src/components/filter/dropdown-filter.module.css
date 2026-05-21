@@ -126,20 +126,16 @@
   right: 24px;
 }
 
-/* ── Option Grid ── */
+/* ── Option Grid ──
+   2026-05-22 회장 라이브 fix: chip 텍스트 wrap 차단 + 가장 긴 옵션(예: "제주특별자치도" 7글자) 기준
+   min-width 108px로 통일. auto-fill로 popover 폭에 따라 자동 wrap (3열·2열). */
 .optionGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
   gap: 8px;
   max-height: 320px;
   overflow-y: auto;
   /* popover 자체 padding과 별개로 grid 내 스크롤 — 옵션 17개 이상도 안전 */
-}
-
-@media (min-width: 1024px) {
-  .optionGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
 /* ── Option Chip ── */
@@ -159,6 +155,8 @@
   border-radius: 10px;
   cursor: pointer;
   text-align: center;
+  /* 2026-05-22 회장 라이브 fix: "사회적 농업" 등 텍스트 2줄 표시 차단 */
+  white-space: nowrap;
   transition: border-color 0.15s, background-color 0.15s, color 0.15s;
 }
 
