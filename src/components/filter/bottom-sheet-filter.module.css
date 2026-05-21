@@ -1,0 +1,235 @@
+/* ══════════════════════════════════════════
+   BottomSheetFilter — 네이버 플러스 스토어 패턴
+   상단 탭 row (sticky) / 본문 chip grid / 하단 CTA (sticky)
+   Modal 본체(panel)는 모바일 < 640px에서 바텀시트로 자동 전환됨.
+   5/20 박제: border-left 0건. 5/06 모바일 점검 5종 통과.
+   ══════════════════════════════════════════ */
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  /* Modal.body가 padding 16~24를 주는 것을 상쇄하기 위해 음수 margin으로
+     본문 패딩을 우리가 직접 관리한다. */
+  margin: -20px -24px -24px;
+  height: 100%;
+  min-height: 0;
+}
+
+@media (max-width: 639px) {
+  .sheet {
+    /* Modal mobile body padding은 16px (modal.module.css:169) */
+    margin: -16px -16px -20px;
+  }
+}
+
+/* ── 탭 row (sticky top) ── */
+.tabRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--card, #fff);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  flex-shrink: 0;
+}
+
+.tabRow::-webkit-scrollbar {
+  display: none;
+}
+
+.tab,
+.tabActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  font-size: var(--fs-body, 14px);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tabActive {
+  color: var(--primary, #1b6b5a);
+  border-bottom-color: var(--primary, #1b6b5a);
+  font-weight: 600;
+}
+
+.tab:focus-visible,
+.tabActive:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -4px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--foreground, #111827);
+  }
+}
+
+.tabBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary, #1b6b5a);
+  border-radius: 9999px;
+  line-height: 1;
+}
+
+/* ── 본문 — chip 그리드 (스크롤) ── */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
+
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (min-width: 480px) {
+  .optionGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ── Chip ── */
+.chip,
+.chipActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 12px;
+  font-size: var(--fs-body, 14px);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+
+.chipActive {
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent);
+  font-weight: 600;
+}
+
+.chip:focus-visible,
+.chipActive:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+    color: var(--foreground, #111827);
+  }
+}
+
+.chipCount {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  flex-shrink: 0;
+}
+
+.chipActive .chipCount {
+  color: color-mix(in srgb, var(--primary, #1b6b5a) 70%, var(--foreground, #111827));
+}
+
+/* ── 하단 CTA (sticky bottom) ── */
+.cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  /* env safe-area-inset-bottom는 Modal.panel 자체에서 처리되지만,
+     panel padding-bottom과 별개로 CTA 자체에도 minimum 보장 */
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  background: var(--card, #fff);
+  border-top: 1px solid var(--border, #e5e7eb);
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.resetBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 20px;
+  font-size: var(--fs-body, 14px);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.applyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 20px;
+  font-size: var(--fs-body, 14px);
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary, #1b6b5a);
+  border: 1px solid var(--primary, #1b6b5a);
+  border-radius: 12px;
+  cursor: pointer;
+  flex: 1;
+  transition: background 0.15s;
+}
+
+.resetBtn:focus-visible,
+.applyBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .resetBtn:hover {
+    background: var(--border, #e5e7eb);
+  }
+  .applyBtn:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, #000);
+  }
+}

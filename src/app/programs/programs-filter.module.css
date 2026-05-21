@@ -1,0 +1,26 @@
+/* ══════════════════════════════════════════
+   ProgramsFilter — 데스크탑/모바일 분기
+   ══════════════════════════════════════════ */
+
+/* 기본 (모바일 first): 데스크탑 숨김 / 모바일 노출 */
+.desktopOnly {
+  display: none;
+}
+
+.mobileOnly {
+  display: block;
+}
+
+.mobileActionsWrap {
+  display: block;
+  margin-bottom: 8px;
+}
+
+@media (min-width: 640px) {
+  .desktopOnly {
+    display: block;
+  }
+  .mobileOnly {
+    display: none;
+  }
+}

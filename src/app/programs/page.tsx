@@ -35,6 +35,7 @@ import {
   FilterActions,
 } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
+import { ProgramsFilter } from "./programs-filter";
 import s from "./page.module.css";
 
 const sectionNavItems = [
@@ -213,64 +214,111 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         </p>
       </div>
 
-      {/* Filter Bar */}
-      <FilterBar>
-        <FilterActions
-          basePath="/programs"
-          currentFilters={currentFilters}
-          searchPlaceholder="지원사업명, 지역, 기관명으로 검색"
-          toggle={{
-            paramKey: "includeClosed",
-            label: "마감 포함",
-            isActive: includeClosed,
-          }}
-        />
-        <FilterDivider />
-        {/* 4 chip 그룹 — 모바일 2x2 그리드, 데스크탑 한 줄 inline-flex */}
-        <FilterRow mobileColumns={2}>
-          <FilterGroup
-            label="지역"
-            paramKey="region"
-            options={REGIONS}
-            currentValue={params.region}
-            currentFilters={currentFilters}
-            basePath="/programs"
-            collapsibleOnMobile
-            multiple
-          />
-          <FilterGroup
-            label="지원 유형"
-            paramKey="supportType"
-            options={SUPPORT_TYPES}
-            currentValue={params.supportType}
-            currentFilters={currentFilters}
-            basePath="/programs"
-            collapsibleOnMobile
-            multiple
-          />
-          <FilterGroup
-            label="카테고리"
-            paramKey="category"
-            options={PROGRAM_CATEGORIES}
-            currentValue={validCategory}
-            currentFilters={currentFilters}
-            basePath="/programs"
-            optionLabels={PROGRAM_CATEGORY_LABELS}
-            collapsibleOnMobile
-            multiple
-          />
-          <FilterGroup
-            label="연령대"
-            paramKey="age"
-            options={AGE_RANGES}
-            currentValue={params.age}
-            currentFilters={currentFilters}
-            basePath="/programs"
-            collapsibleOnMobile
-            multiple
-          />
-        </FilterRow>
-      </FilterBar>
+      {/* Filter Bar — 데스크탑(>= 640) FilterBar + 모바일(< 640) BottomSheet */}
+      <ProgramsFilter
+        basePath="/programs"
+        currentFilters={currentFilters}
+        params={[
+          {
+            paramKey: "region",
+            label: "지역",
+            options: REGIONS,
+            currentValue: params.region,
+          },
+          {
+            paramKey: "supportType",
+            label: "지원 유형",
+            options: SUPPORT_TYPES,
+            currentValue: params.supportType,
+          },
+          {
+            paramKey: "category",
+            label: "카테고리",
+            options: PROGRAM_CATEGORIES,
+            optionLabels: PROGRAM_CATEGORY_LABELS,
+            currentValue: validCategory,
+          },
+          {
+            paramKey: "age",
+            label: "연령대",
+            options: AGE_RANGES,
+            currentValue: params.age,
+          },
+        ]}
+        mobileActions={
+          <FilterBar>
+            <FilterActions
+              basePath="/programs"
+              currentFilters={currentFilters}
+              searchPlaceholder="지원사업명, 지역, 기관명으로 검색"
+              toggle={{
+                paramKey: "includeClosed",
+                label: "마감 포함",
+                isActive: includeClosed,
+              }}
+            />
+          </FilterBar>
+        }
+        desktopFilter={
+          <FilterBar>
+            <FilterActions
+              basePath="/programs"
+              currentFilters={currentFilters}
+              searchPlaceholder="지원사업명, 지역, 기관명으로 검색"
+              toggle={{
+                paramKey: "includeClosed",
+                label: "마감 포함",
+                isActive: includeClosed,
+              }}
+            />
+            <FilterDivider />
+            {/* 4 chip 그룹 — 데스크탑 한 줄 inline-flex */}
+            <FilterRow mobileColumns={2}>
+              <FilterGroup
+                label="지역"
+                paramKey="region"
+                options={REGIONS}
+                currentValue={params.region}
+                currentFilters={currentFilters}
+                basePath="/programs"
+                collapsibleOnMobile
+                multiple
+              />
+              <FilterGroup
+                label="지원 유형"
+                paramKey="supportType"
+                options={SUPPORT_TYPES}
+                currentValue={params.supportType}
+                currentFilters={currentFilters}
+                basePath="/programs"
+                collapsibleOnMobile
+                multiple
+              />
+              <FilterGroup
+                label="카테고리"
+                paramKey="category"
+                options={PROGRAM_CATEGORIES}
+                currentValue={validCategory}
+                currentFilters={currentFilters}
+                basePath="/programs"
+                optionLabels={PROGRAM_CATEGORY_LABELS}
+                collapsibleOnMobile
+                multiple
+              />
+              <FilterGroup
+                label="연령대"
+                paramKey="age"
+                options={AGE_RANGES}
+                currentValue={params.age}
+                currentFilters={currentFilters}
+                basePath="/programs"
+                collapsibleOnMobile
+                multiple
+              />
+            </FilterRow>
+          </FilterBar>
+        }
+      />
 
       <IncludeClosedHint
         resultCount={total}
