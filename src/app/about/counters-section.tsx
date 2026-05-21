@@ -109,20 +109,22 @@ function CounterValue({
 
   useEffect(() => {
     if (target === 0) {
-      setValue(0);
+      // useState 초기값이 0이라 추가 setValue 호출 불필요
+      // (react-hooks/set-state-in-effect ESLint 가드 준수)
       return;
     }
     // prefers-reduced-motion: 즉시 최종값
+    // setValue를 rAF로 wrap — react-hooks/set-state-in-effect 가드 (cascading render 회피)
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mq.matches) {
-      setValue(target);
-      return;
+      const rafId = requestAnimationFrame(() => setValue(target));
+      return () => cancelAnimationFrame(rafId);
     }
 
     const el = ref.current;
     if (!el) {
-      setValue(target);
-      return;
+      const rafId = requestAnimationFrame(() => setValue(target));
+      return () => cancelAnimationFrame(rafId);
     }
 
     const startAnimation = () => {
