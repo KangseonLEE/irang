@@ -92,6 +92,14 @@
   padding: 10px 12px 12px;
 }
 
+/* 모바일 (< 640px) — 2열 그리드 compact (Sprint D2, 2026-05-21):
+   /search 2열 그리드 + /crops 한 화면 노출 수 확대 위해 padding 축소. */
+@media (max-width: 639px) {
+  .cropCardContent {
+    padding: 8px 10px 10px;
+  }
+}
+
 @media (min-width: 640px) {
   .cropCardContent {
     gap: 6px;
@@ -117,6 +125,12 @@
   text-overflow: ellipsis;
 }
 
+@media (max-width: 639px) {
+  .cropCardName {
+    font-size: 13px;
+  }
+}
+
 @media (min-width: 640px) {
   .cropCardName {
     font-size: 16px;
@@ -133,6 +147,12 @@
   border-radius: 9999px;
   flex-shrink: 0;
   white-space: nowrap;
+}
+
+@media (max-width: 639px) {
+  .difficultyBadge {
+    padding: 2px 6px;
+  }
 }
 
 @media (min-width: 640px) {
@@ -164,6 +184,13 @@
   color: var(--muted-foreground, #6b7280);
   line-height: var(--lh-snug);
   margin: 0;
+}
+
+/* 모바일 (< 640px) — 2열 그리드에서 세로 공간 절약 위해 재배시기 숨김 (Sprint D2). */
+@media (max-width: 639px) {
+  .cropCardSeason {
+    display: none;
+  }
 }
 
 @media (min-width: 640px) {

@@ -384,6 +384,15 @@
   gap: 16px;
 }
 
+/* 모바일 (< 640px) — 2열 compact 그리드 (Sprint D2, 2026-05-21):
+   1열 큰 카드 → 2열로 4~5장 한 화면에 노출. 검색 결과 비교 가독성 향상. */
+@media (max-width: 639px) {
+  .gridRich {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
 @media (min-width: 640px) {
   .gridRich {
     grid-template-columns: repeat(2, 1fr);

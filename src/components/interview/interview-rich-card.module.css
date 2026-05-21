@@ -216,3 +216,42 @@
   color: var(--primary, #1b6b5a);
   white-space: nowrap;
 }
+
+/* ══════════════════════════════════════════
+   모바일 (< 640px) — 2열 그리드 compact (Sprint D2, 2026-05-21)
+   /search 2열 + /interviews 한 화면 노출 수 확대 위해
+   - bleed 이미지 해제(width/margin) + 정사각형 aspect
+   - 메타·태그·인용문 hide
+   - footer 축소·border 제거
+   ══════════════════════════════════════════ */
+@media (max-width: 639px) {
+  .card {
+    padding: 0 0 12px;
+  }
+
+  .cardImageWrap {
+    width: 100%;
+    margin: 0;
+    aspect-ratio: 1 / 1;
+  }
+
+  .cardCategoryChip,
+  .cardMeta,
+  .cardTags,
+  .cardQuoteWrap {
+    display: none;
+  }
+
+  .cardName {
+    font-size: 13px;
+  }
+
+  .cardFooter {
+    padding: 8px 10px;
+    border-top: none;
+  }
+
+  .cardCta {
+    font-size: 11px;
+  }
+}
