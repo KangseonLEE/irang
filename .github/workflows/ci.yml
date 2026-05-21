@@ -55,6 +55,12 @@ jobs:
         # STATIONS 에 없으면 buildRegionItem null → 모든 view 에서 region 삭제.
         run: npx tsx scripts/check-regions-stations-integrity.ts
 
+      - name: "데이터 무결성 — cross-reference (PROVINCES.name SSOT)"
+        # 5/22 D1 진단 sprint 후 자동화. PROVINCES.name(구표기)·CROPS·SIGUNGUS
+        # 4종 cross-reference (작물·지원사업·인터뷰·페르소나) 차원에서 정합.
+        # 강원/전북 신·구표기 불일치 → 작물 추천 누락 등 재발 방지.
+        run: npx tsx scripts/check-cross-reference.ts
+
       - name: Next.js build
         run: npm run build
         env:

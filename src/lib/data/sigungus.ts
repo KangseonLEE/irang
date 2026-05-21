@@ -74,7 +74,7 @@ export const SIGUNGUS: Sigungu[] = [
   { id: "namdong", name: "남동구", shortName: "남동", sidoId: "incheon", admCode: "23060", sgisCode: "23050", hiraSgguCd: "220006", description: "소래습지 인근 친환경 농업 지대", highlights: ["친환경", "근교농업"], mainCrops: ["쌀", "배추"], area: 57.08 },
   { id: "bupyeong", name: "부평구", shortName: "부평", sidoId: "incheon", admCode: "23070", sgisCode: "23060", hiraSgguCd: "220003", description: "굴포천 일대 도시농업 활성화 지역", highlights: ["도시농업", "체험"], mainCrops: ["상추", "감자"], area: 31.98 },
   { id: "gyeyang", name: "계양구", shortName: "계양", sidoId: "incheon", admCode: "23080", sgisCode: "23070", hiraSgguCd: "220008", description: "계양산 자락 근교 농업 지대", highlights: ["근교농업", "친환경"], mainCrops: ["쌀", "배추"], area: 45.57 },
-  { id: "seo-gu-incheon", name: "서구", shortName: "서구", sidoId: "incheon", admCode: "23090", sgisCode: "23080", hiraSgguCd: "220005", description: "검단 신도시 인근 대규모 농업지대", highlights: ["대규모농업", "스마트팜"], mainCrops: ["쌀", "감자"], area: 113.41 },
+  { id: "seo-gu-incheon", name: "서구", shortName: "서구", sidoId: "incheon", admCode: "23090", sgisCode: "23080", hiraSgguCd: "220005", description: "검단 신도시 인근 대규모 농업지대", highlights: ["대규모농업", "근교농업"], mainCrops: ["쌀", "감자"], area: 113.41 },
   { id: "ganghwa", name: "강화군", shortName: "강화", sidoId: "incheon", admCode: "23310", sgisCode: "23510", hiraSgguCd: "220100", description: "인삼·순무 특산지, 섬 귀농의 최적지", highlights: ["인삼", "순무", "섬농업"], mainCrops: ["인삼", "순무", "쌀"], area: 411.25 },
   { id: "ongjin", name: "옹진군", shortName: "옹진", sidoId: "incheon", admCode: "23320", sgisCode: "23520", hiraSgguCd: "220200", description: "섬 특화 농수산업, 백령도·연평도 포함", highlights: ["섬농업", "수산업"], mainCrops: ["쌀", "고구마"], area: 164.67 },
 

@@ -126,6 +126,14 @@ supabase/                   # Supabase 마이그레이션
 - 연도를 하드코딩하지 않고 `new Date().getFullYear()`로 동적 산출한다.
 - 예시: 2026년에 실행하면 startDt=20260101, endDt=20261231
 
+### 행정구역명 SSOT (2026-05-22)
+
+- **PROVINCES.name (`src/lib/data/regions.ts`) = 행정구역명 SSOT**. 17개 시·도 명칭을 다른 데이터 파일에서 인용할 때 1byte도 다르면 안 된다.
+- **구표기 유지**: "강원도" / "전라북도" (신표기 "강원특별자치도" / "전북특별자치도" 사용 금지). 신표기로 검색·매칭 시 join key 불일치 → 작물 추천·지원사업 region 필터·인터뷰 region link 통째 누락.
+- **적용 대상**: `crops.ts`의 `CROP_DETAILS.majorRegions`, `programs.ts`의 `region`, `sigungus.ts`의 sido 참조, 인터뷰 정의 등 PROVINCES.name 인용처 전부.
+- **자동 검증**: CI에서 `npx tsx scripts/check-cross-reference.ts` 실행 → A-1 fail 시 build 차단.
+- **사고 사례**: 5/22 D1 진단 — 강원 6건·전북 2건 신표기로 작성 → 강원·전북 36개 시군구 페이지에서 무·토마토·대파·체리·표고·복분자·인삼·메밀 작물 추천 누락 (D2 정규화 완료).
+
 ## 환경변수 & 외부 API
 
 API 키는 `.env.local`에서 관리한다. Vercel 환경변수에도 동일하게 설정.
