@@ -145,6 +145,14 @@ export const analytics = {
       label: `${contentType}_${method}`,
     }),
 
+  // -- Bookmark crop (Phase E #12 2026-05-21, GA4 → 빌드 시 Reporting API → CropPageCard interestCount) --
+  bookmarkCrop: (cropId: string, action: "add" | "remove", sourcePage: string) =>
+    trackEvent({
+      action: "bookmark_crop",
+      category: "engagement",
+      label: `${cropId}:${action}:${sourcePage}`,
+    }),
+
   // -- External link --
   externalClick: (url: string) =>
     trackEvent({ action: "external_click", category: "outbound", label: url }),
