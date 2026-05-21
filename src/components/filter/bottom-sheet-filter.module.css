@@ -92,14 +92,39 @@
   line-height: 1;
 }
 
-/* ── 본문 — chip 그리드 (스크롤) ──
-   5/21 fix: 위 padding 16 → 20px (탭과 본문 사이 호흡 보강) */
+/* ── 본문 — 모든 그룹 세로 동시 노출 (앵커 패턴, 5/21 회장 결재) ──
+   탭은 각 section으로 smooth scroll시키는 앵커 역할.
+   overscroll-behavior: contain — iOS Safari 끝까지 스크롤 후 뒤 페이지 영향 차단. */
 .body {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 16px 16px;
+  padding: 0;
   overscroll-behavior: contain;
   min-height: 0;
+  position: relative; /* section.offsetTop의 기준 (nearest positioned ancestor) */
+}
+
+/* ── Section (각 필터 그룹) ──
+   탭 클릭 시 이 section으로 scrollTo. 본문 scroll 시 가장 가까운 section의 탭 active 갱신.
+   section 간 border-bottom으로 시각적 구분 (5/20 박제 border-left 금지, bottom은 허용). */
+.section {
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.section:last-of-type {
+  border-bottom: none;
+  /* CTA가 sticky로 덮으니 본문 끝 여유 padding 추가 — 마지막 section이 짧을 때
+     스크롤로 마지막 section을 본문 상단까지 올릴 수 있도록 함 */
+  padding-bottom: 80px;
+}
+
+.sectionHeading {
+  margin: 0 0 12px;
+  font-size: var(--fs-body, 14px);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  line-height: 1.3;
 }
 
 .optionGrid {

@@ -1,18 +1,24 @@
 "use client";
 
 /**
- * BottomSheetFilter — 모바일 필터 바텀시트 (네이버 플러스 스토어 패턴).
+ * BottomSheetFilter — 모바일 필터 바텀시트 (네이버 플러스 스토어 앵커 패턴).
  *
- * - 공용 Modal 재사용 (Portal·ESC·포커스 트랩·드래그 dismiss·dvh·safe-area-inset 전부 내장)
- * - 상단 가로 탭 row, 본문 chip 그리드, 하단 sticky CTA(초기화 + N건 결과 보기)
+ * 5/21 회장 결재 — 탭 switch → 앵커 패턴 전환:
+ *   - 변경 전: 탭 클릭 시 해당 그룹만 표시 (다른 그룹 숨김).
+ *   - 변경 후: 모든 4 그룹(지역·지원유형·카테고리·연령대)을 세로로 동시 노출.
+ *     탭은 각 section으로 smooth scroll시키는 앵커 역할.
+ *     본문 스크롤 시 화면 상단에 가장 가까운 section의 탭이 자동 active.
+ *
+ * - 공용 Modal 재사용 (Portal·ESC·포커스 트랩·드래그 dismiss·dvh·safe-area-inset 내장)
+ * - Modal overlay: rgba(0,0,0,0.4) dim + body overflow:hidden scroll lock (기존)
+ * - Modal panel mobile max-height: 95dvh (회장 OK — 더 큰 영역 환영)
  * - 옵션 선택은 local state — Apply 시점에만 부모 onApply 호출 → router.push.
- * - 결과 카운트는 부모에서 selections 변경마다 계산해 resultCount로 주입.
  *
  * 5/20 박제 border-left 0건. 5/06 모바일 사전 점검 5종 통과 (vh→dvh / sticky / hover wrap / viewport / safe-area).
  * 카피 톤: "초기화"·"N건 결과 보기" (copywriting.md UX 라이팅 §종결).
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { Modal } from "@/components/ui/modal";
 import s from "./bottom-sheet-filter.module.css";
 
@@ -73,6 +79,12 @@ export function BottomSheetFilter({
     defaultTabId ?? tabs[0]?.id ?? "",
   );
 
+  // 본문 scroll container + section refs (앵커 scroll 및 active 탭 동기화용)
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
+  // 탭 클릭으로 인한 programmatic scroll 중에는 scroll handler가 active 갱신 안 하도록 가드
+  const scrollingByClickRef = useRef(false);
+
   // open false → true 전환마다 부모 URL state로 재동기화.
   // React 19 공식 권장 "Adjusting state on prop change" 패턴 — prev prop을 state로 추적.
   // useEffect / useRef render 쓰기는 React 19 hook 룰 위반 (set-state-in-effect / refs).
@@ -81,11 +93,17 @@ export function BottomSheetFilter({
     setPrevOpen(open);
     if (open) {
       setSelections(initial);
-      if (defaultTabId) setActiveTabId(defaultTabId);
+      setActiveTabId(defaultTabId ?? tabs[0]?.id ?? "");
     }
   }
 
-  const activeTab = tabs.find((t) => t.id === activeTabId) ?? tabs[0];
+  // open 직후 body scrollTop = 0 (이전 열기에서 스크롤 위치 남았을 수 있음).
+  // scrollTo는 effect로 처리 — render 중 DOM 조작은 React 룰 위반.
+  useEffect(() => {
+    if (open && bodyRef.current) {
+      bodyRef.current.scrollTop = 0;
+    }
+  }, [open]);
 
   const toggleOption = (tabId: string, value: string) => {
     setSelections((prev) => {
@@ -108,13 +126,53 @@ export function BottomSheetFilter({
     onApply(selections);
   };
 
+  // 탭 클릭 → 해당 section으로 smooth scroll + active 즉시 갱신
+  const handleTabClick = useCallback((tabId: string) => {
+    const section = sectionRefs.current.get(tabId);
+    const body = bodyRef.current;
+    if (!section || !body) {
+      setActiveTabId(tabId);
+      return;
+    }
+    setActiveTabId(tabId);
+    scrollingByClickRef.current = true;
+    // section의 body 내 상대 offset = offsetTop (body가 nearest positioned ancestor)
+    const targetTop = section.offsetTop;
+    body.scrollTo({ top: targetTop, behavior: "smooth" });
+    // smooth scroll 종료 후(약 400ms) scroll handler 다시 활성
+    window.setTimeout(() => {
+      scrollingByClickRef.current = false;
+    }, 500);
+  }, []);
+
+  // 본문 scroll → 가장 가까운 section의 탭 active 자동 갱신.
+  // scroll position 기반(IntersectionObserver보다 단순·결정적 — section 4개라 부담 미미).
+  const handleBodyScroll = useCallback(() => {
+    if (scrollingByClickRef.current) return;
+    const body = bodyRef.current;
+    if (!body) return;
+    // 화면 상단 기준 + 작은 offset(24px) — section header가 막 들어오면 active로 본다
+    const threshold = body.scrollTop + 24;
+    let nextActive = tabs[0]?.id ?? "";
+    for (const t of tabs) {
+      const sec = sectionRefs.current.get(t.id);
+      if (!sec) continue;
+      if (sec.offsetTop <= threshold) {
+        nextActive = t.id;
+      } else {
+        break;
+      }
+    }
+    setActiveTabId((cur) => (cur === nextActive ? cur : nextActive));
+  }, [tabs]);
+
   // 탭별 선택 개수 (탭 row 배지)
   const tabCount = (tabId: string) => selections[tabId]?.length ?? 0;
 
   return (
-    <Modal open={open} onClose={onClose} title={title} bodyVariant="flush">
+    <Modal open={open} onClose={onClose} title={title} bodyVariant="flush" mobileHeight="tall">
       <div className={s.sheet}>
-        {/* 상단 탭 row (가로 스크롤) */}
+        {/* 상단 탭 row (sticky, 앵커 역할) */}
         <div className={s.tabRow} role="tablist" aria-label="필터 분류">
           {tabs.map((t) => {
             const active = t.id === activeTabId;
@@ -125,8 +183,9 @@ export function BottomSheetFilter({
                 type="button"
                 role="tab"
                 aria-selected={active}
+                aria-controls={`bsf-section-${t.id}`}
                 className={active ? s.tabActive : s.tab}
-                onClick={() => setActiveTabId(t.id)}
+                onClick={() => handleTabClick(t.id)}
               >
                 <span>{t.label}</span>
                 {cnt > 0 && <span className={s.tabBadge}>{cnt}</span>}
@@ -135,32 +194,47 @@ export function BottomSheetFilter({
           })}
         </div>
 
-        {/* 본문 — 현재 탭의 chip 옵션 그리드 */}
+        {/* 본문 — 모든 그룹 세로 동시 노출 (앵커 패턴) */}
         <div
+          ref={bodyRef}
           className={s.body}
-          role="tabpanel"
-          aria-label={`${activeTab?.label} 필터 옵션`}
+          onScroll={handleBodyScroll}
         >
-          <div className={s.optionGrid}>
-            {activeTab?.options.map((opt) => {
-              const selected =
-                selections[activeTab.id]?.includes(opt.value) ?? false;
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  aria-pressed={selected}
-                  className={selected ? s.chipActive : s.chip}
-                  onClick={() => toggleOption(activeTab.id, opt.value)}
-                >
-                  {opt.label}
-                  {typeof opt.count === "number" && (
-                    <span className={s.chipCount}>{opt.count}</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          {tabs.map((t) => (
+            <section
+              key={t.id}
+              id={`bsf-section-${t.id}`}
+              ref={(el) => {
+                if (el) sectionRefs.current.set(t.id, el);
+                else sectionRefs.current.delete(t.id);
+              }}
+              className={s.section}
+              aria-labelledby={`bsf-heading-${t.id}`}
+            >
+              <h3 id={`bsf-heading-${t.id}`} className={s.sectionHeading}>
+                {t.label}
+              </h3>
+              <div className={s.optionGrid}>
+                {t.options.map((opt) => {
+                  const selected = selections[t.id]?.includes(opt.value) ?? false;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      aria-pressed={selected}
+                      className={selected ? s.chipActive : s.chip}
+                      onClick={() => toggleOption(t.id, opt.value)}
+                    >
+                      {opt.label}
+                      {typeof opt.count === "number" && (
+                        <span className={s.chipCount}>{opt.count}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
         </div>
 
         {/* 하단 sticky CTA */}

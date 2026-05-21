@@ -20,12 +20,18 @@ interface ModalProps {
    * flush 모드는 padding을 child에 위임하고 overflow는 child가 직접 관리.
    */
   bodyVariant?: "default" | "flush";
+  /**
+   * 모바일(< 640px) max-height 확장. 기본 90dvh.
+   * "tall" → 95dvh (5/21 회장 결재 — BottomSheetFilter 앵커 패턴: 모든 그룹 동시 노출로 영역 증가).
+   * 다른 모달(PopulationModal·AreaModal 등 단순 콘텐츠)에 영향 주지 않도록 prop 분리.
+   */
+  mobileHeight?: "default" | "tall";
 }
 
 const ANIMATION_DURATION = 150; // ms — overlayOut / panelOut duration
 const DRAG_DISMISS_THRESHOLD = 100; // px — 이 이상 아래로 드래그하면 닫기
 
-export function Modal({ open, onClose, title, children, bodyVariant = "default" }: ModalProps) {
+export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default" }: ModalProps) {
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -93,7 +99,9 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default" 
       const vv = window.visualViewport;
       const height = vv?.height ?? window.innerHeight;
       const isMobile = window.matchMedia("(max-width: 639px)").matches;
-      const ratio = isMobile ? 0.9 : 0.8;
+      // 모바일: default 0.9 / tall 0.95 (BottomSheetFilter 앵커 패턴 — 더 큰 영역)
+      const mobileRatio = mobileHeight === "tall" ? 0.95 : 0.9;
+      const ratio = isMobile ? mobileRatio : 0.8;
       panel.style.maxHeight = `${Math.floor(height * ratio)}px`;
     };
 
@@ -115,7 +123,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default" 
         panel.style.maxHeight = "";
       }
     };
-  }, [open]);
+  }, [open, mobileHeight]);
 
   // 포커스 관리: 열릴 때 패널로, 닫힐 때 이전 요소로 복원
   useEffect(() => {
@@ -239,6 +247,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default" 
       <div
         ref={panelRef}
         className={s.panel}
+        data-mobile-height={mobileHeight}
         role="dialog"
         aria-modal="true"
         aria-label={title}
