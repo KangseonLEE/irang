@@ -27,13 +27,7 @@ import {
 } from "@/lib/data/education";
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
-import {
-  FilterBar,
-  FilterRow,
-  FilterGroup,
-  FilterDivider,
-  FilterActions,
-} from "@/components/filter/filter-bar";
+import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import { EducationFilter } from "./education-filter";
 import { PageHeader } from "@/components/ui/page-header";
@@ -238,52 +232,6 @@ export default async function EducationPage({ searchParams }: PageProps) {
                 isActive: includeClosed,
               }}
             />
-          </FilterBar>
-        }
-        desktopFilter={
-          <FilterBar>
-            <FilterActions
-              basePath="/education"
-              currentFilters={currentFilters}
-              searchPlaceholder="교육명, 기관명 검색..."
-              toggle={{
-                paramKey: "includeClosed",
-                label: "마감 포함",
-                isActive: includeClosed,
-              }}
-            />
-            <FilterDivider />
-            <FilterRow>
-              <FilterGroup
-                label="지역"
-                paramKey="region"
-                options={EDUCATION_REGIONS}
-                currentValue={params.region}
-                currentFilters={currentFilters}
-                basePath="/education"
-                collapsibleOnMobile
-              />
-            </FilterRow>
-            <FilterRow>
-              <FilterGroup
-                label="유형"
-                paramKey="type"
-                options={EDUCATION_TYPES}
-                currentValue={params.type}
-                currentFilters={currentFilters}
-                basePath="/education"
-                collapsibleOnMobile
-              />
-              <FilterGroup
-                label="난이도"
-                paramKey="level"
-                options={EDUCATION_LEVELS}
-                currentValue={params.level}
-                currentFilters={currentFilters}
-                basePath="/education"
-                collapsibleOnMobile
-              />
-            </FilterRow>
           </FilterBar>
         }
       />

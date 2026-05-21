@@ -1,0 +1,241 @@
+/* ══════════════════════════════════════════
+   DropdownFilter — 데스크탑 카테고리별 dropdown popover
+   - trigger 칩 클릭 → anchored popover 펼침 (한 번에 1개)
+   - 옵션 chip 그리드 + 하단 CTA [초기화] [적용]
+   - 모바일(< 640px) display:none (BottomSheetFilter가 담당)
+   5/20 박제: border-left 0건. 5/22 회장 결재 옵션 A.
+
+   CSS 선언 순서 (체크리스트 G): 모바일 기본 → 데스크탑 오버라이드
+   ══════════════════════════════════════════ */
+
+/* ── 기본(모바일): 데스크탑 컴포넌트는 모바일에서 노출 안 함 ── */
+.root {
+  display: none;
+}
+
+/* ── 데스크탑(>= 640px) 노출 ── */
+@media (min-width: 640px) {
+  .root {
+    display: inline-flex;
+    position: relative;
+  }
+}
+
+/* ── Trigger 칩 ── */
+.trigger,
+.triggerActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: var(--fs-body, 14px);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+
+.triggerActive {
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+  font-weight: 600;
+}
+
+.trigger:focus-visible,
+.triggerActive:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .trigger:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent);
+    color: var(--foreground, #111827);
+  }
+}
+
+.triggerBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary, #1b6b5a);
+  border-radius: 9999px;
+  line-height: 1;
+}
+
+/* ── Popover ── */
+.popover,
+.popoverRight {
+  position: absolute;
+  top: calc(100% + 8px);
+  z-index: 100;
+  min-width: 320px;
+  max-width: 480px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 12px color-mix(in srgb, #000 8%, transparent),
+    0 12px 32px color-mix(in srgb, #000 12%, transparent);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.popover {
+  left: 0;
+}
+
+.popoverRight {
+  right: 0;
+}
+
+/* 위쪽 화살표 (작은 삼각형) — clip-path 사용으로 border-left 회피 (5/20 박제 가드 0건) */
+.popover::before,
+.popoverRight::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  width: 14px;
+  height: 8px;
+  background: var(--card, #fff);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  /* 외곽 테두리는 popover의 border가 자연스럽게 이어지지 않으므로 drop-shadow로 대체 */
+  filter: drop-shadow(0 -1px 0 var(--border, #e5e7eb));
+  pointer-events: none;
+}
+
+.popover::before {
+  left: 24px;
+}
+
+.popoverRight::before {
+  right: 24px;
+}
+
+/* ── Option Grid ── */
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  /* popover 자체 padding과 별개로 grid 내 스크롤 — 옵션 17개 이상도 안전 */
+}
+
+@media (min-width: 1024px) {
+  .optionGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ── Option Chip ── */
+.chip,
+.chipActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: var(--fs-body, 14px);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+
+.chipActive {
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent);
+  font-weight: 600;
+}
+
+.chip:focus-visible,
+.chipActive:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+    color: var(--foreground, #111827);
+  }
+}
+
+/* ── CTA ── */
+.cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.resetBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  font-size: var(--fs-body, 14px);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.applyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  font-size: var(--fs-body, 14px);
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary, #1b6b5a);
+  border: 1px solid var(--primary, #1b6b5a);
+  border-radius: 10px;
+  cursor: pointer;
+  flex: 1;
+  transition: background 0.15s;
+}
+
+.resetBtn:focus-visible,
+.applyBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .resetBtn:hover {
+    background: var(--muted, #f9fafb);
+  }
+  .applyBtn:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 85%, #000);
+  }
+}

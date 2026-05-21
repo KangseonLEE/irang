@@ -1,5 +1,6 @@
 /* ══════════════════════════════════════════
-   ProgramsFilter — 데스크탑/모바일 분기
+   ProgramsFilter — 데스크탑(dropdown row)/모바일(BottomSheet) 분기
+   5/22 dropdown row 도입.
    ══════════════════════════════════════════ */
 
 /* 기본 (모바일 first): 데스크탑 숨김 / 모바일 노출 */
@@ -22,5 +23,50 @@
   }
   .mobileOnly {
     display: none;
+  }
+}
+
+/* ── 데스크탑 dropdown row ── */
+.desktopActions {
+  margin-bottom: 12px;
+}
+
+.dropdownRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border, #e5e7eb);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.resetAllBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 6px 12px;
+  margin-left: auto;
+  font-size: var(--fs-body, 14px);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.resetAllBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .resetAllBtn:hover {
+    color: var(--foreground, #111827);
+    background: var(--muted, #f9fafb);
   }
 }

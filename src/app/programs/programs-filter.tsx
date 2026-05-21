@@ -1,22 +1,22 @@
 "use client";
 
 /**
- * ProgramsFilter — /programs 필터 wrap (데스크탑 그대로 + 모바일만 BottomSheet 전환).
+ * ProgramsFilter — /programs 필터 wrap.
  *
- * - 데스크탑(>= 640px): 기존 FilterBar(+ FilterActions + FilterRow + FilterGroup × 4) 그대로 노출.
- *   → 서버 사이드 SEO 보존 + 키보드 네비 보존 + JS 없이도 동작.
- * - 모바일(< 640px): ActiveFilterChips(메인 화면 1줄 row) + BottomSheetFilter(탭 모달) 노출.
- *   → 첫 뷰 좌석 절약, 칩 직접 제거, 시트 일괄 적용.
+ * 5/22 회장 결재 — 데스크탑 광역 dropdown sprint (옵션 A 카테고리별 dropdown).
+ * - 데스크탑(>= 640px): mobileActions(검색+토글) + DropdownFilter 4개(지역·지원유형·카테고리·연령대) + 전체 초기화.
+ *   → 기존 FilterBar+FilterGroup 트리는 desktopFilter prop으로 전달받지만 fallback 용도. 우선 dropdown row 노출.
+ * - 모바일(< 640px): ActiveFilterChips(메인 화면 1줄 row) + BottomSheetFilter(앵커 모달).
  *
- * URL state(searchParams)는 서버가 source-of-truth. ProgramsFilter는 URL ↔ local selections 변환만 담당.
- * Apply 클릭 시 router.push로 다시 SSR 트리거 → 결과 카운트는 자연히 SSR로 갱신.
+ * URL state(searchParams)는 서버가 source-of-truth. wrap은 URL ↔ local selections 변환만 담당.
+ * Apply 클릭 시 router.push로 다시 SSR 트리거 → 결과 카운트 자연 갱신.
  *
- * 결과 카운트 실시간 갱신은 D2 범위 외(서버 의존 filterProgramsAsync는 client 호출 불가).
- * D2.5에서 client filter 캐시 또는 prefetch 방식 검토.
+ * 한 번에 1 dropdown만 open — openDropdownId state로 통제.
  */
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition, useMemo, type ReactNode } from "react";
+import { RotateCcw } from "lucide-react";
 import {
   BottomSheetFilter,
   type FilterTab,
@@ -26,6 +26,7 @@ import {
   ActiveFilterChips,
   type ActiveChip,
 } from "@/components/filter/active-filter-chips";
+import { DropdownFilter } from "@/components/filter/dropdown-filter";
 import s from "./programs-filter.module.css";
 
 export interface ProgramsFilterParam {
@@ -42,14 +43,14 @@ export interface ProgramsFilterParam {
 }
 
 interface ProgramsFilterProps {
-  /** 데스크탑 영역 — 기존 FilterBar 트리 그대로 children으로 전달 받음 (Server Component 출력 OK) */
-  desktopFilter: ReactNode;
   /**
-   * 모바일 영역 상단 — 검색 폼 + "마감 포함" 토글 등 (4 chip 그룹 외 액션은 BottomSheet 밖에 노출).
-   * 보통 FilterActions를 단독으로 넘긴다. 카드 wrap 없음.
+   * 데스크탑 fallback. 5/22 dropdown 도입 후 사용 안 함.
+   * 호출처 page.tsx 변경 최소화 위해 prop은 보존 — 향후 제거 후보.
    */
+  desktopFilter?: ReactNode;
+  /** 데스크탑·모바일 공용 actions — 검색 폼 + "마감 포함" 토글. dropdown row 위에 노출. */
   mobileActions?: ReactNode;
-  /** 모바일 BottomSheet에 띄울 필터 그룹들 (4종) */
+  /** 4종 필터 그룹 정의 */
   params: ProgramsFilterParam[];
   /** base path — 보통 "/programs" */
   basePath: string;
@@ -73,14 +74,14 @@ function buildUrl(
 }
 
 export function ProgramsFilter({
-  desktopFilter,
   mobileActions,
   params,
   basePath,
   currentFilters,
 }: ProgramsFilterProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   // ── 모바일: URL → BottomSheet tabs 변환 ──
@@ -105,7 +106,7 @@ export function ProgramsFilter({
     [params],
   );
 
-  // ── 활성 칩 (1줄 row에 표시될 개별 selected option들) ──
+  // ── 활성 칩 (모바일 1줄 row) ──
   const activeChips: ActiveChip[] = useMemo(() => {
     const chips: ActiveChip[] = [];
     for (const p of params) {
@@ -117,7 +118,6 @@ export function ProgramsFilter({
           id: `${p.paramKey}:${v}`,
           label,
           onRemove: () => {
-            // 해당 value만 CSV에서 제거 → 빈 배열이면 key 자체 제거
             const next = values.filter((x) => x !== v);
             const nextCsv = next.length > 0 ? next.join(",") : undefined;
             const url = buildUrl(basePath, currentFilters, {
@@ -131,24 +131,39 @@ export function ProgramsFilter({
     return chips;
   }, [params, basePath, currentFilters, router]);
 
-  const handleApply = (selections: Record<string, string[]>) => {
-    // tabs id == paramKey이므로 selections를 그대로 URL changes로 변환
+  const handleSheetApply = (selections: Record<string, string[]>) => {
     const changes: Record<string, string | undefined> = {};
     for (const p of params) {
       const sel = selections[p.paramKey] ?? [];
       changes[p.paramKey] = sel.length > 0 ? sel.join(",") : undefined;
     }
     const url = buildUrl(basePath, currentFilters, changes);
-    setOpen(false);
+    setSheetOpen(false);
     startTransition(() => router.push(url, { scroll: false }));
   };
 
-  const handleReset = () => {
-    // 4개 필터 paramKey만 제거. q / includeClosed / persona / view 등 다른 param은 보존.
+  const handleSheetReset = () => {
     const changes: Record<string, string | undefined> = {};
     for (const p of params) changes[p.paramKey] = undefined;
     const url = buildUrl(basePath, currentFilters, changes);
-    setOpen(false);
+    setSheetOpen(false);
+    startTransition(() => router.push(url, { scroll: false }));
+  };
+
+  // 데스크탑 dropdown 적용 — 해당 paramKey만 변경
+  const handleDropdownApply = (paramKey: string, values: string[]) => {
+    const csv = values.length > 0 ? values.join(",") : undefined;
+    const url = buildUrl(basePath, currentFilters, { [paramKey]: csv });
+    setOpenDropdownId(null);
+    startTransition(() => router.push(url, { scroll: false }));
+  };
+
+  // 데스크탑 전체 초기화 — 모든 paramKey 제거 (다른 param은 보존)
+  const handleResetAll = () => {
+    const changes: Record<string, string | undefined> = {};
+    for (const p of params) changes[p.paramKey] = undefined;
+    const url = buildUrl(basePath, currentFilters, changes);
+    setOpenDropdownId(null);
     startTransition(() => router.push(url, { scroll: false }));
   };
 
@@ -156,8 +171,51 @@ export function ProgramsFilter({
 
   return (
     <>
-      {/* 데스크탑 (>= 640px) — 기존 FilterBar 그대로 */}
-      <div className={s.desktopOnly}>{desktopFilter}</div>
+      {/* 데스크탑 (>= 640px) — actions + dropdown row */}
+      <div className={s.desktopOnly}>
+        {mobileActions && <div className={s.desktopActions}>{mobileActions}</div>}
+        <div className={s.dropdownRow} role="group" aria-label="필터 분류">
+          {params.map((p, idx) => {
+            const selectedValues = p.currentValue
+              ? p.currentValue.split(",").filter(Boolean)
+              : [];
+            const options = p.options.map((opt) => ({
+              value: opt,
+              label: p.optionLabels?.[opt] ?? opt,
+            }));
+            // 마지막 칩은 viewport 우측 끝 잘림 방지 위해 popover 우측 정렬
+            const alignRight = idx === params.length - 1;
+            return (
+              <DropdownFilter
+                key={p.paramKey}
+                label={p.label}
+                options={options}
+                selectedValues={selectedValues}
+                open={openDropdownId === p.paramKey}
+                onToggle={() =>
+                  setOpenDropdownId((prev) =>
+                    prev === p.paramKey ? null : p.paramKey,
+                  )
+                }
+                onClose={() => setOpenDropdownId(null)}
+                onApply={(values) => handleDropdownApply(p.paramKey, values)}
+                alignRight={alignRight}
+              />
+            );
+          })}
+          {filterCount > 0 && (
+            <button
+              type="button"
+              className={s.resetAllBtn}
+              onClick={handleResetAll}
+              aria-label="필터 전체 초기화"
+            >
+              <RotateCcw size={14} aria-hidden="true" />
+              <span>초기화</span>
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* 모바일 (< 640px) — 검색·토글 + Active row + BottomSheet */}
       <div className={s.mobileOnly}>
@@ -167,16 +225,15 @@ export function ProgramsFilter({
         <ActiveFilterChips
           activeChips={activeChips}
           filterCount={filterCount}
-          onOpenFilter={() => setOpen(true)}
+          onOpenFilter={() => setSheetOpen(true)}
         />
       </div>
       <BottomSheetFilter
-        open={open}
-        onClose={() => setOpen(false)}
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
         tabs={tabs}
-        onApply={handleApply}
-        onReset={handleReset}
-        /* resultCount: D2.5 추후 — client filter 캐시 도입 시 number 주입 */
+        onApply={handleSheetApply}
+        onReset={handleSheetReset}
         title="필터"
       />
     </>

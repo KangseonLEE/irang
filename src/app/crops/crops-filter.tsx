@@ -1,17 +1,19 @@
 "use client";
 
 /**
- * CropsFilter — /crops 필터 wrap (데스크탑 그대로 + 모바일만 BottomSheet 전환).
+ * CropsFilter — /crops 필터 wrap.
  *
- * D3 광역 sprint — /programs ProgramsFilter 동일 패턴 (2026-05-21).
- * 데스크탑(>= 640px)은 기존 FilterBar 그대로, 모바일(< 640px)은 ActiveFilterChips + BottomSheetFilter.
+ * 5/22 회장 결재 — 데스크탑 광역 dropdown sprint (옵션 A 카테고리별 dropdown).
+ * - 데스크탑(>= 640px): mobileActions + DropdownFilter row + 전체 초기화.
+ * - 모바일(< 640px): ActiveFilterChips + BottomSheetFilter.
  *
  * 탭: 카테고리(CROP_CATEGORIES) · 난이도(CROP_DIFFICULTIES) 2종.
- * "전체"는 BottomSheet 옵션에서 제외 — 무선택 = "전체".
+ * "전체"는 옵션에서 제외 — 무선택 = "전체".
  */
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition, useMemo, type ReactNode } from "react";
+import { RotateCcw } from "lucide-react";
 import {
   BottomSheetFilter,
   type FilterTab,
@@ -21,6 +23,7 @@ import {
   ActiveFilterChips,
   type ActiveChip,
 } from "@/components/filter/active-filter-chips";
+import { DropdownFilter } from "@/components/filter/dropdown-filter";
 import s from "./crops-filter.module.css";
 
 export interface CropsFilterParam {
@@ -32,7 +35,8 @@ export interface CropsFilterParam {
 }
 
 interface CropsFilterProps {
-  desktopFilter: ReactNode;
+  /** 데스크탑 fallback. 5/22 dropdown 도입 후 사용 안 함 (호환 위해 prop 보존) */
+  desktopFilter?: ReactNode;
   mobileActions?: ReactNode;
   params: CropsFilterParam[];
   basePath: string;
@@ -54,14 +58,14 @@ function buildUrl(
 }
 
 export function CropsFilter({
-  desktopFilter,
   mobileActions,
   params,
   basePath,
   currentFilters,
 }: CropsFilterProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   const tabs: FilterTab[] = useMemo(
@@ -109,22 +113,37 @@ export function CropsFilter({
     return chips;
   }, [params, basePath, currentFilters, router]);
 
-  const handleApply = (selections: Record<string, string[]>) => {
+  const handleSheetApply = (selections: Record<string, string[]>) => {
     const changes: Record<string, string | undefined> = {};
     for (const p of params) {
       const sel = selections[p.paramKey] ?? [];
       changes[p.paramKey] = sel.length > 0 ? sel.join(",") : undefined;
     }
     const url = buildUrl(basePath, currentFilters, changes);
-    setOpen(false);
+    setSheetOpen(false);
     startTransition(() => router.push(url, { scroll: false }));
   };
 
-  const handleReset = () => {
+  const handleSheetReset = () => {
     const changes: Record<string, string | undefined> = {};
     for (const p of params) changes[p.paramKey] = undefined;
     const url = buildUrl(basePath, currentFilters, changes);
-    setOpen(false);
+    setSheetOpen(false);
+    startTransition(() => router.push(url, { scroll: false }));
+  };
+
+  const handleDropdownApply = (paramKey: string, values: string[]) => {
+    const csv = values.length > 0 ? values.join(",") : undefined;
+    const url = buildUrl(basePath, currentFilters, { [paramKey]: csv });
+    setOpenDropdownId(null);
+    startTransition(() => router.push(url, { scroll: false }));
+  };
+
+  const handleResetAll = () => {
+    const changes: Record<string, string | undefined> = {};
+    for (const p of params) changes[p.paramKey] = undefined;
+    const url = buildUrl(basePath, currentFilters, changes);
+    setOpenDropdownId(null);
     startTransition(() => router.push(url, { scroll: false }));
   };
 
@@ -132,8 +151,50 @@ export function CropsFilter({
 
   return (
     <>
-      {/* 데스크탑 (>= 640px) — 기존 FilterBar 그대로 */}
-      <div className={s.desktopOnly}>{desktopFilter}</div>
+      {/* 데스크탑 (>= 640px) — actions + dropdown row */}
+      <div className={s.desktopOnly}>
+        {mobileActions && <div className={s.desktopActions}>{mobileActions}</div>}
+        <div className={s.dropdownRow} role="group" aria-label="필터 분류">
+          {params.map((p, idx) => {
+            const selectedValues = p.currentValue
+              ? p.currentValue.split(",").filter(Boolean)
+              : [];
+            const options = p.options.map((opt) => ({
+              value: opt,
+              label: p.optionLabels?.[opt] ?? opt,
+            }));
+            const alignRight = idx === params.length - 1;
+            return (
+              <DropdownFilter
+                key={p.paramKey}
+                label={p.label}
+                options={options}
+                selectedValues={selectedValues}
+                open={openDropdownId === p.paramKey}
+                onToggle={() =>
+                  setOpenDropdownId((prev) =>
+                    prev === p.paramKey ? null : p.paramKey,
+                  )
+                }
+                onClose={() => setOpenDropdownId(null)}
+                onApply={(values) => handleDropdownApply(p.paramKey, values)}
+                alignRight={alignRight}
+              />
+            );
+          })}
+          {filterCount > 0 && (
+            <button
+              type="button"
+              className={s.resetAllBtn}
+              onClick={handleResetAll}
+              aria-label="필터 전체 초기화"
+            >
+              <RotateCcw size={14} aria-hidden="true" />
+              <span>초기화</span>
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* 모바일 (< 640px) — 검색 + Active row + BottomSheet */}
       <div className={s.mobileOnly}>
@@ -143,15 +204,15 @@ export function CropsFilter({
         <ActiveFilterChips
           activeChips={activeChips}
           filterCount={filterCount}
-          onOpenFilter={() => setOpen(true)}
+          onOpenFilter={() => setSheetOpen(true)}
         />
       </div>
       <BottomSheetFilter
-        open={open}
-        onClose={() => setOpen(false)}
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
         tabs={tabs}
-        onApply={handleApply}
-        onReset={handleReset}
+        onApply={handleSheetApply}
+        onReset={handleSheetReset}
         title="필터"
       />
     </>

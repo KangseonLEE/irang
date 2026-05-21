@@ -27,13 +27,7 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ProgramList } from "./program-list";
 import { ProgramRequestCta } from "./program-request-cta";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
-import {
-  FilterBar,
-  FilterRow,
-  FilterGroup,
-  FilterDivider,
-  FilterActions,
-} from "@/components/filter/filter-bar";
+import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import { ProgramsFilter } from "./programs-filter";
 import s from "./page.module.css";
@@ -257,65 +251,6 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
                 isActive: includeClosed,
               }}
             />
-          </FilterBar>
-        }
-        desktopFilter={
-          <FilterBar>
-            <FilterActions
-              basePath="/programs"
-              currentFilters={currentFilters}
-              searchPlaceholder="지원사업명, 지역, 기관명으로 검색"
-              toggle={{
-                paramKey: "includeClosed",
-                label: "마감 포함",
-                isActive: includeClosed,
-              }}
-            />
-            <FilterDivider />
-            {/* 4 chip 그룹 — 데스크탑 한 줄 inline-flex */}
-            <FilterRow mobileColumns={2}>
-              <FilterGroup
-                label="지역"
-                paramKey="region"
-                options={REGIONS}
-                currentValue={params.region}
-                currentFilters={currentFilters}
-                basePath="/programs"
-                collapsibleOnMobile
-                multiple
-              />
-              <FilterGroup
-                label="지원 유형"
-                paramKey="supportType"
-                options={SUPPORT_TYPES}
-                currentValue={params.supportType}
-                currentFilters={currentFilters}
-                basePath="/programs"
-                collapsibleOnMobile
-                multiple
-              />
-              <FilterGroup
-                label="카테고리"
-                paramKey="category"
-                options={PROGRAM_CATEGORIES}
-                currentValue={validCategory}
-                currentFilters={currentFilters}
-                basePath="/programs"
-                optionLabels={PROGRAM_CATEGORY_LABELS}
-                collapsibleOnMobile
-                multiple
-              />
-              <FilterGroup
-                label="연령대"
-                paramKey="age"
-                options={AGE_RANGES}
-                currentValue={params.age}
-                currentFilters={currentFilters}
-                basePath="/programs"
-                collapsibleOnMobile
-                multiple
-              />
-            </FilterRow>
           </FilterBar>
         }
       />

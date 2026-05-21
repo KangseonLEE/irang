@@ -13,13 +13,7 @@ import { rankCropsForPersona, getCropPersonaFitTrace, type FitTrace } from "@/li
 import { CropPageCard } from "@/components/crop/crop-page-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
-import {
-  FilterBar,
-  FilterRow,
-  FilterGroup,
-  FilterDivider,
-  FilterActions,
-} from "@/components/filter/filter-bar";
+import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { CropsFilter } from "./crops-filter";
 import { CalendarToggle } from "./calendar-toggle";
 import { CropRequestButton } from "./crop-request-button";
@@ -165,38 +159,6 @@ export default async function CropsPage({ searchParams }: PageProps) {
               currentFilters={currentFilters}
               searchPlaceholder="작물명, 설명으로 검색..."
             />
-          </FilterBar>
-        }
-        desktopFilter={
-          <FilterBar>
-            <FilterActions
-              basePath="/crops"
-              currentFilters={currentFilters}
-              searchPlaceholder="작물명, 설명으로 검색..."
-            />
-            <FilterDivider />
-            <FilterRow>
-              <FilterGroup
-                label="카테고리"
-                paramKey="category"
-                options={CROP_CATEGORIES.filter((c) => c !== "전체")}
-                currentValue={params.category}
-                currentFilters={currentFilters}
-                basePath="/crops"
-                collapsibleOnMobile
-              />
-            </FilterRow>
-            <FilterRow>
-              <FilterGroup
-                label="난이도"
-                paramKey="difficulty"
-                options={CROP_DIFFICULTIES.filter((d) => d !== "전체")}
-                currentValue={params.difficulty}
-                currentFilters={currentFilters}
-                basePath="/crops"
-                collapsibleOnMobile
-              />
-            </FilterRow>
           </FilterBar>
         }
       />

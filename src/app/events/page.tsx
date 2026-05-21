@@ -19,13 +19,7 @@ import {
   type EventFilters,
 } from "@/lib/data/events";
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
-import {
-  FilterBar,
-  FilterRow,
-  FilterGroup,
-  FilterDivider,
-  FilterActions,
-} from "@/components/filter/filter-bar";
+import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import { EventsFilter } from "./events-filter";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
@@ -179,43 +173,6 @@ export default async function EventsPage({ searchParams }: PageProps) {
                 isActive: includeClosed,
               }}
             />
-          </FilterBar>
-        }
-        desktopFilter={
-          <FilterBar>
-            <FilterActions
-              basePath="/events"
-              currentFilters={currentParams}
-              searchPlaceholder="행사명, 지역, 기관으로 검색..."
-              toggle={{
-                paramKey: "includeClosed",
-                label: "마감 포함",
-                isActive: includeClosed,
-              }}
-            />
-            <FilterDivider />
-            <FilterRow>
-              <FilterGroup
-                label="유형"
-                paramKey="type"
-                options={EVENT_TYPES}
-                currentValue={params.type}
-                currentFilters={currentParams}
-                basePath="/events"
-                collapsibleOnMobile
-              />
-            </FilterRow>
-            <FilterRow>
-              <FilterGroup
-                label="지역"
-                paramKey="region"
-                options={EVENT_REGIONS}
-                currentValue={params.region}
-                currentFilters={currentParams}
-                basePath="/events"
-                collapsibleOnMobile
-              />
-            </FilterRow>
           </FilterBar>
         }
       />
