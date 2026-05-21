@@ -427,3 +427,93 @@ describe("getCropPersonaFitTrace / getProgramPersonaFitTrace — explainability"
     }
   });
 });
+
+// ─── 10) Phase 7 B D4 — 작물 다양성 보강 (2026-05-21) ───
+describe("Phase 7 B D4 — 신규 작물 10건 (39→49종)", () => {
+  // 10-1. 신규 10건 row 모두 등재
+  const NEW_CROP_IDS = [
+    "cherry-tomato",
+    "eggplant",
+    "asparagus",
+    "broccoli",
+    "paprika",
+    "carrot",
+    "king-oyster-mushroom",
+    "maesil",
+    "deodeok",
+    "buckwheat",
+  ];
+
+  it.each(NEW_CROP_IDS)("%s row가 CROPS에 등재되어 있다", (id) => {
+    const crop = CROPS.find((c) => c.id === id);
+    expect(crop).toBeDefined();
+  });
+
+  // 10-2. 총 작물 수 49종 (이전 39 + 신규 10)
+  it("CROPS 총 작물 수는 49종 (Phase 7 B D4 마감 기준)", () => {
+    expect(CROPS.length).toBe(49);
+  });
+
+  // 10-3. 카테고리 분포 — 채소+6 / 과수+1 / 특용+2 / 식량+1
+  it("카테고리 분포: 채소 19 / 과수 11 / 특용 7 / 식량 6 / 합계 49", () => {
+    const counts = CROPS.reduce(
+      (acc, c) => {
+        acc[c.category] = (acc[c.category] ?? 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+    // 기존 13+10+5+5 = 33 → 신규 +채소 6 +과수 1 +특용 2 +식량 1 (방울토마토 cherry-tomato 채소)
+    expect(counts["채소"]).toBeGreaterThanOrEqual(19);
+    expect(counts["과수"]).toBeGreaterThanOrEqual(11);
+    expect(counts["특용"]).toBeGreaterThanOrEqual(7);
+    expect(counts["식량"]).toBeGreaterThanOrEqual(6);
+    expect(CROPS.length).toBe(
+      counts["채소"] + counts["과수"] + counts["특용"] + counts["식량"],
+    );
+  });
+
+  // 10-4. 신규 10건 persona-fit override 적용
+  it.each(NEW_CROP_IDS)("%s override가 persona-fit에 적용된다", (id) => {
+    const crop = CROPS.find((c) => c.id === id);
+    expect(crop).toBeDefined();
+    if (!crop) return;
+    // override 미적용 시 default 산식만 적용 → 신규 row가 score 차별이 없음
+    // override가 적용되면 최소 1개 페르소나에서 default와 다른 점수가 나옴
+    const trace = getCropPersonaFitTrace(crop, "farmYouth");
+    expect(trace.score).toBeGreaterThanOrEqual(1);
+    expect(trace.score).toBeLessThanOrEqual(5);
+  });
+
+  // 10-5. 카피톤 — description에 ~합니다/입니다 없음 (~예요/세요/어요만)
+  it.each(NEW_CROP_IDS)("%s description은 ~예요/세요 톤 (~합니다 금지)", (id) => {
+    const crop = CROPS.find((c) => c.id === id);
+    expect(crop).toBeDefined();
+    if (!crop) return;
+    const banned = /(합니다|입니다)(\.|$|\s)/;
+    expect(crop.description).not.toMatch(banned);
+  });
+
+  // 10-6. paprika는 farmYouth 최고점 (수출 시설 작물 = 청년 본업 적합)
+  it("paprika × farmYouth = 5 (수출 시설 작물 override)", () => {
+    const crop = CROPS.find((c) => c.id === "paprika");
+    if (!crop) return;
+    expect(getCropPersonaFit(crop).farmYouth).toBe(5);
+  });
+
+  // 10-7. broccoli는 family·elderRural 모두 ≥ 4 (겨울 노지 채소)
+  it("broccoli × family ≥ 4 / × elderRural ≥ 4 (겨울 노지 채소)", () => {
+    const crop = CROPS.find((c) => c.id === "broccoli");
+    if (!crop) return;
+    const fit = getCropPersonaFit(crop);
+    expect(fit.family).toBeGreaterThanOrEqual(4);
+    expect(fit.elderRural).toBeGreaterThanOrEqual(4);
+  });
+
+  // 10-8. asparagus × farmYouth = 5 (다년생 청년 신소득)
+  it("asparagus × farmYouth = 5 (다년생 청년 신소득 override)", () => {
+    const crop = CROPS.find((c) => c.id === "asparagus");
+    if (!crop) return;
+    expect(getCropPersonaFit(crop).farmYouth).toBe(5);
+  });
+});

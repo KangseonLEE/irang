@@ -612,6 +612,111 @@ export const CROPS: CropInfo[] = [
       "식용·약용 겸용 작물로 2~3년근 이상 수확 시 소득이 높아요. 건조·가공 제품의 수요가 꾸준해요.",
     emoji: "💜",
   },
+
+  // Phase 7 B D4 — 작물 다양성 보강 (2026-05-21, 39→49종)
+  // 채소 6 (방울토마토·가지·아스파라거스·브로콜리·파프리카·당근) + 과수 1 (매실)
+  // + 특용 2 (새송이·더덕) + 식량 1 (메밀)
+  // 출처: RDA 농축산물생산비조사 2024 / 농사로 도감 / KOSIS·KATI 공개 통계
+  {
+    id: "cherry-tomato",
+    name: "방울토마토",
+    category: "채소",
+    growingSeason: "연중 (시설), 3월~10월 (노지)",
+    difficulty: "보통",
+    description:
+      "10a당 시설 소득이 약 1,764만 원으로 시설채소 중 상위권이에요. 직거래·프리미엄 시장 수요가 두텁고 통합검색에서도 가장 많이 찾는 채소 중 하나예요.",
+    emoji: "🍅",
+  },
+  {
+    id: "eggplant",
+    name: "가지",
+    category: "채소",
+    growingSeason: "4월~10월 (시설: 연중)",
+    difficulty: "보통",
+    description:
+      "시설 가지는 10a당 소득이 약 1,509만 원으로 시설채소 상위권에 들어요. 연속 수확 기간이 길어 노동 분산이 잘되는 편이에요.",
+    emoji: "🍆",
+  },
+  {
+    id: "asparagus",
+    name: "아스파라거스",
+    category: "채소",
+    growingSeason: "4월~6월 (수확), 다년생 (10~15년)",
+    difficulty: "보통",
+    description:
+      "한 번 심으면 10년 이상 수확하는 다년생 채소예요. 청년농 신소득 작목으로 주목받고 있고, 봄철 단가가 높은 프리미엄 채소예요.",
+    emoji: "🌱",
+  },
+  {
+    id: "broccoli",
+    name: "브로콜리",
+    category: "채소",
+    growingSeason: "9월~5월 (제주·남부 겨울 노지)",
+    difficulty: "쉬움",
+    description:
+      "제주가 전국 재배면적의 약 72%를 차지하는 겨울 채소예요. 김장철 이후 비수기에 출하해 시장 공백을 메우는 작목이에요.",
+    emoji: "🥦",
+  },
+  {
+    id: "paprika",
+    name: "파프리카",
+    category: "채소",
+    growingSeason: "연중 (시설)",
+    difficulty: "어려움",
+    description:
+      "일본 수출 비중이 높은 대표 수출 작물이에요. 시설·환경 제어 투자가 크지만 단가가 안정적이고 평당 소득이 높은 수경재배 작목이에요.",
+    emoji: "🫑",
+  },
+  {
+    id: "carrot",
+    name: "당근",
+    category: "채소",
+    growingSeason: "3월~7월 (봄), 7월~11월 (가을), 12월~5월 (제주)",
+    difficulty: "쉬움",
+    description:
+      "김장·국·반찬에 두루 쓰이는 기본 근채류예요. 제주·평창·태안이 주산지이며 사질양토에서 잘 자라요.",
+    emoji: "🥕",
+  },
+  {
+    id: "king-oyster-mushroom",
+    name: "새송이버섯",
+    category: "특용",
+    growingSeason: "연중 (시설재배)",
+    difficulty: "보통",
+    description:
+      "병재배(병 단위 시설) 방식이 표준화돼 연중 생산이 가능한 버섯이에요. 식감이 단단해 외식·급식 수요가 꾸준하고 표고·느타리와 구분되는 별도 작목이에요.",
+    emoji: "🍄",
+  },
+  {
+    id: "maesil",
+    name: "매실",
+    category: "과수",
+    growingSeason: "3월~6월 (수확)",
+    difficulty: "보통",
+    description:
+      "전남 광양·전북 순창이 대표 산지이며 청매실·황매실 가공품(매실청·매실주)으로 6차산업 연계가 활발해요. 자두(plum)와는 다른 별도 작목이에요.",
+    emoji: "🟢",
+  },
+  {
+    id: "deodeok",
+    name: "더덕",
+    category: "특용",
+    growingSeason: "4월~11월 (2~3년근 수확)",
+    difficulty: "보통",
+    description:
+      "산림 부산물형 약용·식용 작물이에요. 반음지 환경을 좋아해 산지·임야 활용에 적합하고 2~3년근부터 소득성이 본격화돼요.",
+    emoji: "🌿",
+  },
+  {
+    id: "buckwheat",
+    name: "메밀",
+    category: "식량",
+    growingSeason: "7월~10월 (가을 메밀), 5월~7월 (여름 메밀)",
+    difficulty: "쉬움",
+    description:
+      "강원 봉평이 대표 산지이며 짧은 생육 기간(70~80일)과 척박지 적응력이 강점이에요. 메밀국수·전통 식품 가공으로 부가가치를 높일 수 있어요.",
+    emoji: "🌾",
+  },
 ];
 
 // --- 작물 상세 데이터 ---

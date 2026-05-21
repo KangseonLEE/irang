@@ -104,6 +104,17 @@ const CROP_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   rice: { farmYouth: 4, elderRural: 3, commuter: 1 },
   "sweet-potato": { family: 4, elderRural: 5 },
   potato: { family: 4, elderRural: 5 },
+  // Phase 7 B D4 — 신규 10건 (2026-05-21)
+  "cherry-tomato": { family: 5, farmYouth: 5, elderRural: 2 },
+  eggplant: { farmYouth: 4, family: 4 },
+  asparagus: { farmYouth: 5, elderRural: 2, family: 3 },
+  broccoli: { family: 5, elderRural: 4 },
+  paprika: { farmYouth: 5, family: 2, elderRural: 1, commuter: 1 },
+  carrot: { family: 4, elderRural: 4 },
+  "king-oyster-mushroom": { farmYouth: 4, family: 3, commuter: 3 },
+  maesil: { commuter: 4, family: 4 },
+  deodeok: { farmYouth: 4, elderRural: 2 },
+  buckwheat: { elderRural: 4, family: 3, commuter: 2 },
 };
 
 export function getCropPersonaFit(crop: CropInfo): PersonaFit {
@@ -137,6 +148,17 @@ const CROP_OVERRIDE_REASONS: Record<string, string> = {
   rice: "면적 규모 농사라 통근 농가에는 어려워요",
   "sweet-potato": "노년 자가소비·가족 식량에 적합해요",
   potato: "노년 자가소비·가족 식량에 적합해요",
+  // Phase 7 B D4 — 신규 10건 (2026-05-21)
+  "cherry-tomato": "시설 방울토마토는 가족·본업 농가 모두에 인기 작목이에요",
+  eggplant: "시설 가지는 시설채소 상위권 소득이라 본업 농가에 어울려요",
+  asparagus: "다년생 신소득 작목이라 본업 농가에 잘 맞아요",
+  broccoli: "겨울 노지 채소라 가족·노년 농가에 어울려요",
+  paprika: "수출 시설 작물이라 본업 농가에 한정돼요",
+  carrot: "기본 근채류라 가족·노년 자가소비에 잘 맞아요",
+  "king-oyster-mushroom": "버섯 시설재배는 본업 농가에 적합해요",
+  maesil: "관리 사이클이 정해진 과수라 통근·가족 농가에 어울려요",
+  deodeok: "약용 특용작물이라 본업 농가에 어울려요",
+  buckwheat: "척박지에서도 잘 자라 노년 자가소비에 적합해요",
 };
 
 // ──────────────────────────────────────────────────────────────
