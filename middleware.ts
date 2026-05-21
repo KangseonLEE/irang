@@ -204,7 +204,38 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  // 1-2) Secret fishing path 즉시 404 — Vercel Function 호출 차단 (2026-05-11)
+  // 1-2) Dynamic [id] route non-ASCII slug 즉시 404 (2026-05-21 Sentry Issue #49)
+  // Next.js 16이 dynamic route 응답에 x-next-cache-tags 헤더를 자동 추가.
+  // 한글 slug가 cache-tag 값에 포함되면 ISO-8859-1 위반으로 TypeError throw → 500 응답.
+  // dynamicParams=false도 cache-tag 헤더 생성 이후 처리되므로 효과 없음.
+  // middleware origin 단에서 즉시 404 반환해 Next.js 도달 자체 차단.
+  const DYNAMIC_ID_ROUTES_RE = /^\/(crops|interviews|education|events|programs|regions)\//;
+  if (DYNAMIC_ID_ROUTES_RE.test(pathname)) {
+    let decodedPath = pathname;
+    try {
+      decodedPath = decodeURIComponent(pathname);
+    } catch {
+      // malformed URI — also reject
+      return new NextResponse(null, {
+        status: 404,
+        headers: {
+          "X-Robots-Tag": "noindex, nofollow",
+          "Cache-Control": "private, no-store, max-age=0",
+        },
+      });
+    }
+    if (/[^\x00-\x7F]/.test(decodedPath)) {
+      return new NextResponse(null, {
+        status: 404,
+        headers: {
+          "X-Robots-Tag": "noindex, nofollow",
+          "Cache-Control": "private, no-store, max-age=0",
+        },
+      });
+    }
+  }
+
+  // 1-3) Secret fishing path 즉시 404 — Vercel Function 호출 차단 (2026-05-11)
   // Cloudflare WAF 1차 방어선과 별개로 defense in depth.
   if (isFishingPath(pathname)) {
     return new NextResponse(null, {
