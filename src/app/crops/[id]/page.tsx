@@ -119,6 +119,12 @@ export function generateStaticParams() {
   return getAllCropIds().map((id) => ({ id }));
 }
 
+/**
+ * 미등록 ID는 즉시 404. 한글 slug 등이 x-next-cache-tags 헤더에 들어가
+ * TypeError로 500 응답이 발생하는 사고(Sentry Issue #49) 영구 차단.
+ */
+export const dynamicParams = false;
+
 /** KOSIS 작물 통계 API 데이터를 24h마다 재검증 (봇 트래픽 절감) */
 export const revalidate = 86400;
 
