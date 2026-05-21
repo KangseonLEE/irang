@@ -3,33 +3,44 @@
  *
  * 2026-05-07: codex-image로 생성한 일러스트가 있는 작물은 일러 우선.
  * 2026-05-08: PNG → WebP 변환 (20배 압축, 동일 품질).
- * 그 외는 기존 사진(JPG) fallback.
+ * 2026-05-21: D4 신규 10종 일러스트 등재 (Phase 7 B 콘텐츠 확장).
  *
+ * 작물 이미지는 반드시 일러스트 webp (메모리 박제 feedback_crop_image_illustration_rule_2026-05-21).
  * 점진 확장: ILLUSTRATED_CROPS Set에 ID 추가하면 자동 적용.
  */
 
-/** codex-image로 일러 생성 완료된 작물 ID (39종, 2026-05-07) */
+/** codex-image로 일러 생성 완료된 작물 ID (49종, 2026-05-21 D4 +10) */
 const ILLUSTRATED_CROPS = new Set<string>([
   "apple",
   "arugula",
+  "asparagus",
   "bellflower",
   "blueberry",
+  "broccoli",
+  "buckwheat",
+  "carrot",
   "cherry",
+  "cherry-tomato",
   "chili-pepper",
   "citrus",
   "corn",
   "cucumber",
+  "deodeok",
+  "eggplant",
   "garlic",
   "ginger",
   "ginseng",
   "grape",
   "green-onion",
+  "king-oyster-mushroom",
   "lettuce",
+  "maesil",
   "mango",
   "melon",
   "napa-cabbage",
   "onion",
   "oyster-mushroom",
+  "paprika",
   "peach",
   "pear",
   "perilla-leaf",
