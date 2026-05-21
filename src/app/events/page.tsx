@@ -21,7 +21,7 @@ import {
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
-import { EventsFilter } from "./events-filter";
+import { FilterShell } from "@/components/filter/filter-shell";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { PageHeader } from "@/components/ui/page-header";
@@ -144,7 +144,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
       />
 
       {/* ── Filter Bar — 데스크탑(>= 640) FilterBar + 모바일(< 640) BottomSheet ── */}
-      <EventsFilter
+      <FilterShell
         basePath="/events"
         currentFilters={currentParams}
         params={[

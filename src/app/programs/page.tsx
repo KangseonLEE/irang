@@ -32,7 +32,7 @@ import { ProgramRequestCta } from "./program-request-cta";
 import { ProgramSortControl } from "./program-sort-control";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
-import { ProgramsFilter } from "./programs-filter";
+import { FilterShell } from "@/components/filter/filter-shell";
 import s from "./page.module.css";
 
 /** 5/22 Sprint — status 필터 기본 선택 (마감 제외 = 기존 includeClosed=false 동작 보존). */
@@ -243,7 +243,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
 
       {/* Filter Bar — 데스크탑(>= 640) FilterBar + 모바일(< 640) BottomSheet */}
       {/* 5/22 Sprint — status 필터 일원화. includeClosed 토글·IncludeClosedHint 제거. */}
-      <ProgramsFilter
+      <FilterShell
         basePath="/programs"
         currentFilters={currentFilters}
         params={[

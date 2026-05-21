@@ -29,7 +29,7 @@ import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
-import { EducationFilter } from "./education-filter";
+import { FilterShell } from "@/components/filter/filter-shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -197,7 +197,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
       </Link>
 
       {/* Filter Bar — 데스크탑(>= 640) FilterBar + 모바일(< 640) BottomSheet */}
-      <EducationFilter
+      <FilterShell
         basePath="/education"
         currentFilters={currentFilters}
         params={[

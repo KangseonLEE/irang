@@ -1,8 +1,10 @@
 /* ══════════════════════════════════════════
-   EventsFilter — 데스크탑(dropdown row)/모바일(BottomSheet) 분기
-   5/22 dropdown row 도입 — programs-filter.module.css 동일 패턴
+   FilterShell — 데스크탑(dropdown row) / 모바일(BottomSheet) 분기 공용
+   5/22 회장 결재 — programs·education·events·crops 4 *-filter CSS 100% 동일 통합.
+   페이지별 specific 스타일 0건 — 단일 source of truth.
    ══════════════════════════════════════════ */
 
+/* 기본 (모바일 first): 데스크탑 숨김 / 모바일 노출 */
 .desktopOnly {
   display: none;
 }
@@ -31,7 +33,6 @@
 }
 
 /* 5/22 회장 라이브 결재 — dropdown row 시각 강화.
-   기존 border-top/bottom + padding 12px 0 → 시각 인지 약함.
    배경 muted + padding 14px 16px + radius 14px로 명확한 카드 영역.
    (좌측 border 0건 — 5/20 박제 가드 준수) */
 .dropdownRow {
@@ -60,7 +61,9 @@
   border-radius: 9999px;
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.15s, background-color 0.15s;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
 }
 
 .resetAllBtn:focus-visible {

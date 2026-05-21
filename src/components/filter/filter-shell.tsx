@@ -1,13 +1,18 @@
 "use client";
 
 /**
- * EducationFilter — /education 필터 wrap.
+ * FilterShell — 4 리스트형 페이지(programs·education·events·crops) 공용 필터 wrap.
  *
- * 5/22 회장 결재 — 데스크탑 광역 dropdown sprint (옵션 A 카테고리별 dropdown).
- * - 데스크탑(>= 640px): mobileActions + DropdownFilter row + 전체 초기화.
- * - 모바일(< 640px): ActiveFilterChips + BottomSheetFilter.
+ * 5/22 회장 결재 — programs/education/events/crops *-filter.tsx 4 파일 ~220줄/파일이
+ * 옵셔널 comment + Type 이름 외에 100% 동일 → 단일 컴포넌트로 통합.
  *
- * 탭: 지역(EDUCATION_REGIONS) · 유형(EDUCATION_TYPES) · 난이도(EDUCATION_LEVELS) 3종.
+ * - 데스크탑(>= 640px): mobileActions(검색·토글 등) + DropdownFilter row + 전체 초기화.
+ * - 모바일(< 640px): ActiveFilterChips(메인 1줄 row) + BottomSheetFilter(앵커 모달).
+ *
+ * URL state(searchParams)는 서버가 source-of-truth. wrap은 URL ↔ local selections 변환만 담당.
+ * Apply 클릭 시 router.push로 다시 SSR 트리거 → 결과 카운트 자연 갱신.
+ *
+ * 한 번에 1 dropdown만 open — openDropdownId state로 통제.
  */
 
 import { useRouter } from "next/navigation";
@@ -23,25 +28,33 @@ import {
   type ActiveChip,
 } from "@/components/filter/active-filter-chips";
 import { DropdownFilter } from "@/components/filter/dropdown-filter";
-import s from "./education-filter.module.css";
+import s from "./filter-shell.module.css";
 
-export interface EducationFilterParam {
+export interface FilterShellParam {
+  /** URL searchParam 키 (region·type·category·age 등) */
   paramKey: string;
+  /** 탭 라벨 (지역·유형·카테고리·연령대 등) */
   label: string;
+  /** 선택 가능한 option value 목록 */
   options: readonly string[];
+  /** value → 한글 라벨 매핑 (영문 ID 대응). 없으면 value 그대로 */
   optionLabels?: Record<string, string>;
+  /** 현재 URL의 값 (CSV) */
   currentValue: string | undefined;
 }
 
-interface EducationFilterProps {
-  /** 데스크탑 fallback. 5/22 dropdown 도입 후 사용 안 함 (호환 위해 prop 보존) */
-  desktopFilter?: ReactNode;
+interface FilterShellProps {
+  /** 데스크탑·모바일 공용 actions — 검색 폼 + 토글 등. dropdown row 위에 노출. */
   mobileActions?: ReactNode;
-  params: EducationFilterParam[];
+  /** N종 필터 그룹 정의 */
+  params: FilterShellParam[];
+  /** base path — 보통 "/programs", "/education" 등 */
   basePath: string;
+  /** 기존 활성 필터 전체 — Apply / Reset / 칩 제거 시 URL 빌딩에 사용 */
   currentFilters: Record<string, string | undefined>;
 }
 
+/** URL 빌더 — currentFilters에 changes를 덮어쓰고 빈 값은 제거. */
 function buildUrl(
   basePath: string,
   currentFilters: Record<string, string | undefined>,
@@ -56,17 +69,18 @@ function buildUrl(
   return qs ? `${basePath}?${qs}` : basePath;
 }
 
-export function EducationFilter({
+export function FilterShell({
   mobileActions,
   params,
   basePath,
   currentFilters,
-}: EducationFilterProps) {
+}: FilterShellProps) {
   const router = useRouter();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
+  // ── 모바일: URL → BottomSheet tabs 변환 ──
   const tabs: FilterTab[] = useMemo(
     () =>
       params.map((p) => {
@@ -88,6 +102,7 @@ export function EducationFilter({
     [params],
   );
 
+  // ── 활성 칩 (모바일 1줄 row) ──
   const activeChips: ActiveChip[] = useMemo(() => {
     const chips: ActiveChip[] = [];
     for (const p of params) {
@@ -131,6 +146,7 @@ export function EducationFilter({
     startTransition(() => router.push(url, { scroll: false }));
   };
 
+  // 데스크탑 dropdown 적용 — 해당 paramKey만 변경
   const handleDropdownApply = (paramKey: string, values: string[]) => {
     const csv = values.length > 0 ? values.join(",") : undefined;
     const url = buildUrl(basePath, currentFilters, { [paramKey]: csv });
@@ -138,6 +154,7 @@ export function EducationFilter({
     startTransition(() => router.push(url, { scroll: false }));
   };
 
+  // 데스크탑 전체 초기화 — 모든 paramKey 제거 (다른 param은 보존)
   const handleResetAll = () => {
     const changes: Record<string, string | undefined> = {};
     for (const p of params) changes[p.paramKey] = undefined;
@@ -162,6 +179,7 @@ export function EducationFilter({
               value: opt,
               label: p.optionLabels?.[opt] ?? opt,
             }));
+            // 마지막 칩은 viewport 우측 끝 잘림 방지 위해 popover 우측 정렬
             const alignRight = idx === params.length - 1;
             return (
               <DropdownFilter
@@ -195,7 +213,7 @@ export function EducationFilter({
         </div>
       </div>
 
-      {/* 모바일 (< 640px) — 검색·토글 + Active row + BottomSheet */}
+      {/* 모바일 (< 640px) — actions + Active row + BottomSheet */}
       <div className={s.mobileOnly}>
         {mobileActions && (
           <div className={s.mobileActionsWrap}>{mobileActions}</div>

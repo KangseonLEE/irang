@@ -14,7 +14,7 @@ import { CropPageCard } from "@/components/crop/crop-page-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
-import { CropsFilter } from "./crops-filter";
+import { FilterShell } from "@/components/filter/filter-shell";
 import { CalendarModal } from "./calendar-modal";
 import { CropRequestButton } from "./crop-request-button";
 import s from "./page.module.css";
@@ -135,7 +135,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
       />
 
       {/* Filter Bar — 데스크탑(>= 640) FilterBar + 모바일(< 640) BottomSheet */}
-      <CropsFilter
+      <FilterShell
         basePath="/crops"
         currentFilters={currentFilters}
         params={[
