@@ -315,21 +315,24 @@
    각 섹션을 흰 배경 카드 컨테이너로 묶어 결과 그룹 시각적 분리.
    내부 .grid 카드는 그대로 유지 (carved-out 안 함) — border가 두 번 겹쳐도
    미세한 shadow + 충분한 padding으로 자연스럽게 분리됨. */
+/* 2026-05-21 회장 결재: 카테고리 outer 카드 묶음 제거 (네이버 통합검색 스타일).
+   background·border·box-shadow 0 + 섹션 간 border-top 구분선만으로 분리. */
 .section {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 16px 14px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  padding: 0;
   animation: sectionFadeIn 0.25s ease-out backwards;
 }
 
+.section + .section {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+
 @media (min-width: 640px) {
-  .section {
-    padding: 20px 18px;
+  .section + .section {
+    padding-top: 24px;
   }
 }
 
