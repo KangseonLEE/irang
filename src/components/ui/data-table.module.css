@@ -111,6 +111,16 @@
     line-height: var(--lh-snug);
   }
 
+  /* 2026-05-21 회장 결재: 모바일에서 amount·muted 셀도 줄바꿈 허용.
+     긴 텍스트(예: 지원금 description)가 nowrap으로 화면 폭 초과해
+     옆 컬럼이 잘리고 amount만 강조된 듯 보이는 사고 영구 차단. */
+  .amount,
+  .muted {
+    white-space: normal;
+    word-break: keep-all;
+    line-height: var(--lh-snug);
+  }
+
   .hideOnMobile {
     display: none;
   }

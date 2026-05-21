@@ -276,9 +276,9 @@ export default async function EducationPage({ searchParams }: PageProps) {
                 <tr>
                   <th>상태</th>
                   <th>교육명</th>
-                  <th>지역</th>
-                  <th>유형</th>
-                  <th>난이도</th>
+                  <th className={dt.hideOnMobile}>지역</th>
+                  <th className={dt.hideOnMobile}>유형</th>
+                  <th className={dt.hideOnMobile}>난이도</th>
                   <th>비용</th>
                   <th className={dt.hideOnMobile}>기관</th>
                 </tr>
@@ -292,9 +292,9 @@ export default async function EducationPage({ searchParams }: PageProps) {
                         {c.title}
                       </Link>
                     </td>
-                    <td className={dt.muted}>{c.region}</td>
-                    <td className={dt.muted}>{c.type}</td>
-                    <td className={dt.muted}>{c.level}</td>
+                    <td className={`${dt.muted} ${dt.hideOnMobile}`}>{c.region}</td>
+                    <td className={`${dt.muted} ${dt.hideOnMobile}`}>{c.type}</td>
+                    <td className={`${dt.muted} ${dt.hideOnMobile}`}>{c.level}</td>
                     <td className={dt.amount}>{c.cost}</td>
                     <td className={`${dt.muted} ${dt.hideOnMobile}`}>{c.organization}</td>
                   </tr>

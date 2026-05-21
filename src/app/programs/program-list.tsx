@@ -128,8 +128,8 @@ export function ProgramList({
               <tr>
                 <th>상태</th>
                 <th>사업명</th>
-                <th>지역</th>
-                <th>유형</th>
+                <th className={dt.hideOnMobile}>지역</th>
+                <th className={dt.hideOnMobile}>유형</th>
                 <th>지원금</th>
                 <th className={dt.hideOnMobile}>담당기관</th>
               </tr>
@@ -150,8 +150,8 @@ export function ProgramList({
                       <span className={s.newTag}>신규</span>
                     )}
                   </td>
-                  <td className={dt.muted}>{p.region}</td>
-                  <td className={dt.muted}>{p.supportType}</td>
+                  <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.region}</td>
+                  <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.supportType}</td>
                   <td className={dt.amount}>{p.supportAmount}</td>
                   <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.organization}</td>
                 </tr>
