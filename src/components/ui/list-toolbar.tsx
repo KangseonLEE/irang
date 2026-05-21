@@ -28,7 +28,7 @@ export function ListToolbar({
         {label} <span className={s.resultTotal}>{count}</span>
         {unit}
       </p>
-      {children}
+      {children && <div className={s.actions}>{children}</div>}
     </div>
   );
 }

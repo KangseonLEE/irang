@@ -1,0 +1,153 @@
+/* ══════════════════════════════════════════
+   SortSelector — 리스트 페이지 정렬 selector
+   - trigger 칩 + anchored popover (단일 선택, 즉시 적용)
+   - DropdownFilter와 동일한 시각 톤 + clip-path arrow
+   - 5/20 박제: border-left 0건. 5/22 박제 clip-path 패턴 준수
+   ══════════════════════════════════════════ */
+
+/* ── Root ── */
+.root {
+  display: inline-flex;
+  position: relative;
+}
+
+.rootOpen {
+  z-index: 999;
+}
+
+/* ── Trigger 칩 ── */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: var(--fs-body, 14px);
+  font-weight: 500;
+  color: var(--foreground, #111827);
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+
+.triggerIcon {
+  color: var(--muted-foreground, #6b7280);
+  flex-shrink: 0;
+}
+
+.triggerLabel {
+  font-weight: 600;
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .trigger:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent);
+  }
+}
+
+/* ── Popover ── */
+.popover,
+.popoverRight {
+  position: absolute;
+  top: calc(100% + 8px);
+  z-index: 1000;
+  min-width: 200px;
+  max-width: 280px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  box-shadow:
+    0 4px 12px color-mix(in srgb, #000 8%, transparent),
+    0 12px 32px color-mix(in srgb, #000 12%, transparent);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.popover {
+  left: 0;
+}
+
+.popoverRight {
+  right: 0;
+}
+
+/* 위쪽 화살표 (작은 삼각형) — clip-path 사용으로 border-left 회피 (5/20 박제 가드 0건) */
+.popover::before,
+.popoverRight::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  width: 14px;
+  height: 8px;
+  background: var(--card, #fff);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  filter: drop-shadow(0 -1px 0 var(--border, #e5e7eb));
+  pointer-events: none;
+}
+
+.popover::before {
+  left: 24px;
+}
+
+.popoverRight::before {
+  right: 24px;
+}
+
+/* ── Option ── */
+.option,
+.optionActive {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 12px;
+  font-size: var(--fs-body, 14px);
+  font-weight: 500;
+  color: var(--foreground, #111827);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  transition: background-color 0.12s, color 0.12s;
+}
+
+.optionActive {
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  font-weight: 600;
+}
+
+.option:focus-visible,
+.optionActive:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) {
+  .option:hover {
+    background: var(--muted, #f9fafb);
+  }
+  .optionActive:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+  }
+}
+
+.optionCheck {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}

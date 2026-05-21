@@ -3,6 +3,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* 우측 슬롯 — 액션 여러 개를 가로 정렬 (정렬·뷰토글 등) */
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .resultText {

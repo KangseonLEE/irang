@@ -990,6 +990,61 @@ export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
   });
 }
 
+/** 정렬 키 — 5/22 회장 결재 옵션 A (마감 임박 + 최근 등록)
+ *  deadline: 모집중·모집예정 우선 + applicationEnd asc (임박 우선)
+ *  recent: createdAt desc (없으면 array index 폴백 — 정적 순서 유지)
+ *  인기순은 현 데이터 부재로 제외 (다음 sprint). */
+export type ProgramSortKey = "deadline" | "recent";
+
+export const PROGRAM_SORT_OPTIONS: readonly {
+  value: ProgramSortKey;
+  label: string;
+}[] = [
+  { value: "deadline", label: "마감 임박순" },
+  { value: "recent", label: "최근 등록순" },
+];
+
+export const DEFAULT_PROGRAM_SORT: ProgramSortKey = "deadline";
+
+/**
+ * 지원사업 정렬.
+ * - deadline: 마감(status="마감")은 후순위로 밀고, 그 안에서 applicationEnd asc (임박 우선).
+ *   동률 시 9999-12-31(일자 미정) 가장 뒤로.
+ * - recent: createdAt desc. 같은 날짜 또는 미설정 시 원본 배열 인덱스 보존 (안정 정렬).
+ */
+export function sortPrograms(
+  programs: SupportProgram[],
+  sort: ProgramSortKey,
+): SupportProgram[] {
+  if (sort === "recent") {
+    // 원본 인덱스 기억해 stable sort 보장 (Array.prototype.sort는 v8에서 stable이지만 명시적 보호)
+    const indexed = programs.map((p, i) => ({ p, i }));
+    indexed.sort((a, b) => {
+      const ad = a.p.createdAt ?? "";
+      const bd = b.p.createdAt ?? "";
+      if (ad === bd) return a.i - b.i;
+      // createdAt 없는 항목은 가장 뒤로
+      if (!ad) return 1;
+      if (!bd) return -1;
+      return bd.localeCompare(ad);
+    });
+    return indexed.map((x) => x.p);
+  }
+  // deadline (default)
+  const indexed = programs.map((p, i) => ({ p, i }));
+  indexed.sort((a, b) => {
+    const aClosed = a.p.status === "마감" ? 1 : 0;
+    const bClosed = b.p.status === "마감" ? 1 : 0;
+    if (aClosed !== bClosed) return aClosed - bClosed;
+    // 일자 미정(9999-12-31)은 뒤로
+    const ae = a.p.applicationEnd || "9999-12-31";
+    const be = b.p.applicationEnd || "9999-12-31";
+    if (ae === be) return a.i - b.i;
+    return ae.localeCompare(be);
+  });
+  return indexed.map((x) => x.p);
+}
+
 /** 페이지 크기 (3열 × 2행) */
 export const PAGE_SIZE = 6;
 

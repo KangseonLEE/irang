@@ -17,7 +17,10 @@ import {
   AGE_RANGES,
   PROGRAM_CATEGORIES,
   PROGRAM_CATEGORY_LABELS,
+  sortPrograms,
+  DEFAULT_PROGRAM_SORT,
   type ProgramFilters,
+  type ProgramSortKey,
 } from "@/lib/data/programs";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import { rankProgramsForPersona } from "@/lib/data/persona-fit";
@@ -26,6 +29,7 @@ import Link from "next/link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ProgramList } from "./program-list";
 import { ProgramRequestCta } from "./program-request-cta";
+import { ProgramSortControl } from "./program-sort-control";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { ProgramsFilter } from "./programs-filter";
@@ -66,6 +70,8 @@ interface PageProps {
     period?: string;
     view?: string;
     persona?: string;
+    /** 정렬 키 — 'deadline' | 'recent'. default 'deadline' (URL 미표시) */
+    sort?: string;
   }>;
 }
 
@@ -93,6 +99,10 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     params.persona && PERSONA_INDEX.has(params.persona as PersonaId)
       ? (params.persona as PersonaId)
       : undefined;
+
+  // 정렬 키 — default 'deadline'. 5/22 회장 결재 옵션 A.
+  const currentSort: ProgramSortKey =
+    params.sort === "recent" ? "recent" : DEFAULT_PROGRAM_SORT;
 
   // category 값 검증 — CSV 입력 허용 (5/20 Sprint P 복수 선택). 유효한 값만 dedup CSV로 재조립.
   // middleware normalize가 1차 차단하지만, dev mode·CF cache hit 우회 케이스 대비 page 단 가드 유지.
@@ -129,12 +139,13 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     loadSyncMeta("support_programs"),
   ]);
 
-  // 페르소나 필터링: 점수 4+ 사업만 + 점수 내림차순 정렬
+  // 페르소나 필터링: 점수 4+ 사업만 + 점수 내림차순 정렬 (페르소나 모드 시 sort param 무시)
+  // 일반 모드: sortPrograms 적용 (deadline | recent)
   const allFiltered = currentPersona
     ? rankProgramsForPersona(rawFiltered, currentPersona)
         .filter((r) => r.score >= 4)
         .map((r) => r.program)
-    : rawFiltered;
+    : sortPrograms(rawFiltered, currentSort);
 
   const total = allFiltered.length;
   const programs = allFiltered.slice(0, PAGE_SIZE);
@@ -158,6 +169,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     period: params.period,
     view: params.view,
     persona: params.persona,
+    sort: currentSort === DEFAULT_PROGRAM_SORT ? undefined : currentSort,
   };
 
   return (
@@ -279,6 +291,14 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
       />
 
       <ListToolbar count={total}>
+        {/* 페르소나 모드에선 점수순이 본질이라 sort selector 숨김. 일반 모드에서만 노출. */}
+        {!currentPersona && (
+          <ProgramSortControl
+            currentSort={currentSort}
+            currentFilters={currentFilters}
+            basePath="/programs"
+          />
+        )}
         <Suspense>
           <ViewToggle current={viewMode} />
         </Suspense>
