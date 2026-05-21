@@ -137,7 +137,11 @@ export async function loadPrograms(
         query = query.eq("support_type", filters.supportType);
       }
       if (filters?.status && filters.status !== "전체") {
-        query = query.eq("status", filters.status);
+        // 5/22 Sprint — status CSV 복수 선택 지원
+        const statuses = filters.status.split(",").map((s) => s.trim()).filter(Boolean);
+        if (statuses.length > 0) {
+          query = query.in("status", statuses);
+        }
       }
       if (!filters?.includeClosed) {
         query = query.neq("status", "마감");

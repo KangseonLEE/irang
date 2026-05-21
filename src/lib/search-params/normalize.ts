@@ -213,7 +213,10 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     // 2026-05-13: persona 추가 (Phase 6 B3 explain UI inline 진입 + /crops·/programs 페르소나 칩 sprint)
     // 2026-05-20: category 추가 (Sprint P chip 5종 — 누락 시 308 strip으로 deep link 100% 무력화)
     // 2026-05-20: 4 chip(region·supportType·category·age) 복수 선택(CSV) 전환 — multiValueEnumValidators 사용
-    allowedKeys: ["region", "age", "supportType", "category", "q", "includeClosed", "period", "view", "page", "persona"],
+    // 2026-05-22: status 추가 (Sprint — 모집 상태 필터 일원화, includeClosed deprecated)
+    //   - includeClosed는 backward compat 위해 allowedKeys에 잔존하나 page.tsx에서 무시.
+    //   - status에 "마감" 포함 시 마감 사업 자동 표시.
+    allowedKeys: ["region", "age", "supportType", "category", "status", "q", "includeClosed", "period", "view", "page", "persona"],
     multiValueEnumValidators: {
       region: {
         enum: [
@@ -242,6 +245,10 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       category: {
         enum: ["settlement", "youth", "facility", "healing", "social"],
         maxItems: 5,
+      },
+      status: {
+        enum: ["모집중", "모집예정", "마감"],
+        maxItems: 3,
       },
     },
     enumValidators: {

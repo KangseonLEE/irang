@@ -28,9 +28,12 @@ import { ProgramList } from "./program-list";
 import { ProgramRequestCta } from "./program-request-cta";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
-import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import { ProgramsFilter } from "./programs-filter";
 import s from "./page.module.css";
+
+/** 5/22 Sprint — status 필터 기본 선택 (마감 제외 = 기존 includeClosed=false 동작 보존). */
+const DEFAULT_STATUS_VALUES = ["모집중", "모집예정"] as const;
+const STATUS_OPTIONS = ["모집중", "모집예정", "마감"] as const;
 
 const sectionNavItems = [
   { href: "/programs", label: "지원사업" },
@@ -56,7 +59,9 @@ interface PageProps {
     age?: string;
     supportType?: string;
     category?: string;
+    status?: string;
     q?: string;
+    /** @deprecated 5/22 status 필터로 일원화. URL 들어와도 무시. */
     includeClosed?: string;
     period?: string;
     view?: string;
@@ -68,7 +73,19 @@ interface PageProps {
 export default async function ProgramsPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
-  const includeClosed = params.includeClosed === "1";
+  // 5/22 Sprint — status 필터로 일원화. includeClosed param은 deprecated (URL 들어와도 무시).
+  // status에 "마감" 포함 → 마감 사업 자동 표시 (filterPrograms 내부 includeClosed 분기 대체).
+  const rawStatuses = params.status
+    ? params.status.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const validStatuses = rawStatuses.filter((v): v is (typeof STATUS_OPTIONS)[number] =>
+    (STATUS_OPTIONS as readonly string[]).includes(v),
+  );
+  const statusValues =
+    validStatuses.length > 0 ? validStatuses : [...DEFAULT_STATUS_VALUES];
+  const includesClosed = statusValues.includes("마감");
+  const statusCsv = statusValues.join(",");
+
   const viewMode: ViewMode = params.view === "table" ? "table" : "card";
   // 기본값: 현재 연월
   const period = params.period || getCurrentPeriod();
@@ -99,8 +116,10 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     age: params.age,
     supportType: params.supportType,
     category: validCategory,
+    status: statusCsv,
     query: params.q,
-    includeClosed,
+    // status에 "마감" 포함 시 자동 활성화 — 마감 사업이 filter 단계에서 걸러지지 않도록.
+    includeClosed: includesClosed,
     period,
   };
 
@@ -126,14 +145,17 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   const dataYear = getDataYear(lastSyncAt);
 
   // 현재 활성 필터 (URL 빌딩용)
+  // 5/22 — includeClosed 제거. status param으로 일원화. UI 표시용 URL value는 default 적용분 포함.
+  const statusUrlValue =
+    validStatuses.length > 0 ? validStatuses.join(",") : undefined;
   const currentFilters: Record<string, string | undefined> = {
     region: params.region,
     supportType: params.supportType,
     category: validCategory,
+    status: statusUrlValue,
     q: params.q,
     age: params.age,
     period: params.period,
-    includeClosed: params.includeClosed,
     view: params.view,
     persona: params.persona,
   };
@@ -203,12 +225,12 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         <Info size={16} aria-hidden="true" className={s.seasonNoticeIcon} />
         <p className={s.seasonNoticeText}>
           농촌 정착 지원사업은 보통 <strong>1~3월(상반기) · 7~9월(하반기)</strong>에 모집을 집중해요.
-          그 외 시기에는 활성 공고가 적을 수 있어요. 지난 모집 사례까지 참고하려면 아래
-          <strong> 마감 포함</strong> 토글을 켜 보세요.
+          그 외 시기에는 활성 공고가 적을 수 있어요. 지난 모집 사례까지 참고하려면 <strong>모집 상태</strong>에서 <strong>마감</strong>을 추가하세요.
         </p>
       </div>
 
       {/* Filter Bar — 데스크탑(>= 640) FilterBar + 모바일(< 640) BottomSheet */}
+      {/* 5/22 Sprint — status 필터 일원화. includeClosed 토글·IncludeClosedHint 제거. */}
       <ProgramsFilter
         basePath="/programs"
         currentFilters={currentFilters}
@@ -238,6 +260,12 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
             options: AGE_RANGES,
             currentValue: params.age,
           },
+          {
+            paramKey: "status",
+            label: "모집 상태",
+            options: STATUS_OPTIONS,
+            currentValue: statusUrlValue,
+          },
         ]}
         mobileActions={
           <FilterBar>
@@ -245,22 +273,9 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
               basePath="/programs"
               currentFilters={currentFilters}
               searchPlaceholder="지원사업명, 지역, 기관명으로 검색"
-              toggle={{
-                paramKey: "includeClosed",
-                label: "마감 포함",
-                isActive: includeClosed,
-              }}
             />
           </FilterBar>
         }
-      />
-
-      <IncludeClosedHint
-        resultCount={total}
-        includeClosed={includeClosed}
-        basePath="/programs"
-        currentFilters={currentFilters}
-        itemLabel="지원사업"
       />
 
       <ListToolbar count={total}>

@@ -979,7 +979,9 @@ export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
     }
 
     if (filters.status && filters.status !== "전체") {
-      if (program.status !== filters.status) {
+      // 5/22 Sprint — status CSV 복수 선택 지원 ("모집중,모집예정")
+      const statuses = filters.status.split(",").map((s) => s.trim()).filter(Boolean);
+      if (statuses.length > 0 && !statuses.includes(program.status)) {
         return false;
       }
     }
@@ -1175,7 +1177,9 @@ export async function filterProgramsAsync(
       if (program.category !== filters.category) return false;
     }
     if (filters.status && filters.status !== "전체") {
-      if (program.status !== filters.status) return false;
+      // 5/22 Sprint — status CSV 복수 선택 지원
+      const statuses = filters.status.split(",").map((s) => s.trim()).filter(Boolean);
+      if (statuses.length > 0 && !statuses.includes(program.status)) return false;
     }
     return true;
   });
