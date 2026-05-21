@@ -20,6 +20,7 @@ import {
   FilterDivider,
   FilterActions,
 } from "@/components/filter/filter-bar";
+import { CropsFilter } from "./crops-filter";
 import { CalendarToggle } from "./calendar-toggle";
 import { CropRequestButton } from "./crop-request-button";
 import s from "./page.module.css";
@@ -139,37 +140,66 @@ export default async function CropsPage({ searchParams }: PageProps) {
         count={filteredCrops.length}
       />
 
-      {/* Filter Bar */}
-      <FilterBar>
-        <FilterActions
-          basePath="/crops"
-          currentFilters={currentFilters}
-          searchPlaceholder="작물명, 설명으로 검색..."
-        />
-        <FilterDivider />
-        <FilterRow>
-          <FilterGroup
-            label="카테고리"
-            paramKey="category"
-            options={CROP_CATEGORIES.filter((c) => c !== "전체")}
-            currentValue={params.category}
-            currentFilters={currentFilters}
-            basePath="/crops"
-            collapsibleOnMobile
-          />
-        </FilterRow>
-        <FilterRow>
-          <FilterGroup
-            label="난이도"
-            paramKey="difficulty"
-            options={CROP_DIFFICULTIES.filter((d) => d !== "전체")}
-            currentValue={params.difficulty}
-            currentFilters={currentFilters}
-            basePath="/crops"
-            collapsibleOnMobile
-          />
-        </FilterRow>
-      </FilterBar>
+      {/* Filter Bar — 데스크탑(>= 640) FilterBar + 모바일(< 640) BottomSheet */}
+      <CropsFilter
+        basePath="/crops"
+        currentFilters={currentFilters}
+        params={[
+          {
+            paramKey: "category",
+            label: "카테고리",
+            options: CROP_CATEGORIES.filter((c) => c !== "전체"),
+            currentValue: params.category,
+          },
+          {
+            paramKey: "difficulty",
+            label: "난이도",
+            options: CROP_DIFFICULTIES.filter((d) => d !== "전체"),
+            currentValue: params.difficulty,
+          },
+        ]}
+        mobileActions={
+          <FilterBar>
+            <FilterActions
+              basePath="/crops"
+              currentFilters={currentFilters}
+              searchPlaceholder="작물명, 설명으로 검색..."
+            />
+          </FilterBar>
+        }
+        desktopFilter={
+          <FilterBar>
+            <FilterActions
+              basePath="/crops"
+              currentFilters={currentFilters}
+              searchPlaceholder="작물명, 설명으로 검색..."
+            />
+            <FilterDivider />
+            <FilterRow>
+              <FilterGroup
+                label="카테고리"
+                paramKey="category"
+                options={CROP_CATEGORIES.filter((c) => c !== "전체")}
+                currentValue={params.category}
+                currentFilters={currentFilters}
+                basePath="/crops"
+                collapsibleOnMobile
+              />
+            </FilterRow>
+            <FilterRow>
+              <FilterGroup
+                label="난이도"
+                paramKey="difficulty"
+                options={CROP_DIFFICULTIES.filter((d) => d !== "전체")}
+                currentValue={params.difficulty}
+                currentFilters={currentFilters}
+                basePath="/crops"
+                collapsibleOnMobile
+              />
+            </FilterRow>
+          </FilterBar>
+        }
+      />
 
       {/* 재배 캘린더 */}
       <CalendarToggle>

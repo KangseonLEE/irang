@@ -27,6 +27,7 @@ import {
   FilterActions,
 } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
+import { EventsFilter } from "./events-filter";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { PageHeader } from "@/components/ui/page-header";
@@ -148,42 +149,76 @@ export default async function EventsPage({ searchParams }: PageProps) {
         dataNote={`${dataYear}년 데이터만 제공되며, 연도 변경은 지원되지 않습니다.`}
       />
 
-      {/* ── Filter Bar ── */}
-      <FilterBar>
-        <FilterActions
-          basePath="/events"
-          currentFilters={currentParams}
-          searchPlaceholder="행사명, 지역, 기관으로 검색..."
-          toggle={{
-            paramKey: "includeClosed",
-            label: "마감 포함",
-            isActive: includeClosed,
-          }}
-        />
-        <FilterDivider />
-        <FilterRow>
-          <FilterGroup
-            label="유형"
-            paramKey="type"
-            options={EVENT_TYPES}
-            currentValue={params.type}
-            currentFilters={currentParams}
-            basePath="/events"
-            collapsibleOnMobile
-          />
-        </FilterRow>
-        <FilterRow>
-          <FilterGroup
-            label="지역"
-            paramKey="region"
-            options={EVENT_REGIONS}
-            currentValue={params.region}
-            currentFilters={currentParams}
-            basePath="/events"
-            collapsibleOnMobile
-          />
-        </FilterRow>
-      </FilterBar>
+      {/* ── Filter Bar — 데스크탑(>= 640) FilterBar + 모바일(< 640) BottomSheet ── */}
+      <EventsFilter
+        basePath="/events"
+        currentFilters={currentParams}
+        params={[
+          {
+            paramKey: "type",
+            label: "유형",
+            options: EVENT_TYPES,
+            currentValue: params.type,
+          },
+          {
+            paramKey: "region",
+            label: "지역",
+            options: EVENT_REGIONS,
+            currentValue: params.region,
+          },
+        ]}
+        mobileActions={
+          <FilterBar>
+            <FilterActions
+              basePath="/events"
+              currentFilters={currentParams}
+              searchPlaceholder="행사명, 지역, 기관으로 검색..."
+              toggle={{
+                paramKey: "includeClosed",
+                label: "마감 포함",
+                isActive: includeClosed,
+              }}
+            />
+          </FilterBar>
+        }
+        desktopFilter={
+          <FilterBar>
+            <FilterActions
+              basePath="/events"
+              currentFilters={currentParams}
+              searchPlaceholder="행사명, 지역, 기관으로 검색..."
+              toggle={{
+                paramKey: "includeClosed",
+                label: "마감 포함",
+                isActive: includeClosed,
+              }}
+            />
+            <FilterDivider />
+            <FilterRow>
+              <FilterGroup
+                label="유형"
+                paramKey="type"
+                options={EVENT_TYPES}
+                currentValue={params.type}
+                currentFilters={currentParams}
+                basePath="/events"
+                collapsibleOnMobile
+              />
+            </FilterRow>
+            <FilterRow>
+              <FilterGroup
+                label="지역"
+                paramKey="region"
+                options={EVENT_REGIONS}
+                currentValue={params.region}
+                currentFilters={currentParams}
+                basePath="/events"
+                collapsibleOnMobile
+              />
+            </FilterRow>
+          </FilterBar>
+        }
+      />
 
       <IncludeClosedHint
         resultCount={events.length}
