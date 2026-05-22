@@ -185,7 +185,7 @@
   grid-row: 1;
   align-self: start;
   font-size: var(--fs-overline);
-  font-weight: 500;
+  font-weight: 600;
   padding: 2px 8px;
   border-radius: 9999px;
   background: var(--muted);
@@ -214,9 +214,12 @@
 }
 
 .badgeDeadline {
-  background: color-mix(in srgb, #dc2626 10%, transparent);
+  background: color-mix(in srgb, #dc2626 14%, transparent);
   color: #dc2626;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: var(--fs-caption);
+  padding: 2px 10px;
+  margin-left: auto;
 }
 
 .externalBadge {
