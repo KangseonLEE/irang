@@ -231,9 +231,20 @@
   background: color-mix(in srgb, #dc2626 14%, transparent);
   color: #dc2626;
   font-weight: 700;
-  font-size: var(--fs-caption);
-  padding: 2px 10px;
-  margin-left: auto;
+  font-size: var(--fs-overline);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+/* program 카드 우측 상단 코너 — D-N + status badge 가로 묶음 */
+.statusCorner {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .externalBadge {

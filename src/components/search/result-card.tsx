@@ -283,14 +283,13 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
         <span className={s.metaChipMuted}>{prog.region}</span>
         <span className={s.metaSep}>·</span>
         <span className={s.metaChip}>{prog.supportType}</span>
-        {deadline && (
-          <>
-            <span className={s.metaSep}>·</span>
-            <span className={s.badgeDeadline}>{deadline}</span>
-          </>
-        )}
       </div>
-      <span className={`${s.badge} ${statusClass}`}>{prog.status}</span>
+      <div className={s.statusCorner}>
+        {deadline && (
+          <span className={s.badgeDeadline}>{deadline}</span>
+        )}
+        <span className={`${s.badge} ${statusClass}`}>{prog.status}</span>
+      </div>
     </>,
   );
 }
