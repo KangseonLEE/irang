@@ -25,17 +25,21 @@ function getBigrams(title: string): Set<string> {
   return bigrams;
 }
 
-function isSimilar(titleA: string, titleB: string): boolean {
+function titleJaccard(titleA: string, titleB: string): number {
   const a = getBigrams(titleA);
   const b = getBigrams(titleB);
-  if (a.size === 0 || b.size === 0) return false;
+  if (a.size === 0 || b.size === 0) return 0;
 
   let intersection = 0;
   for (const g of a) {
     if (b.has(g)) intersection++;
   }
   const union = a.size + b.size - intersection;
-  return intersection / union >= 0.25;
+  return intersection / union;
+}
+
+function isSimilar(titleA: string, titleB: string): boolean {
+  return titleJaccard(titleA, titleB) >= 0.25;
 }
 
 /** URL 정규화 — 쿼리/해시 제거 후 도메인+경로만 비교 */
@@ -48,9 +52,25 @@ function normalizeUrl(url: string): string {
   }
 }
 
+/**
+ * 중복 판정 — 세 가지 신호 OR
+ * 1) URL normalize 동일 (확실한 같은 기사)
+ * 2) 타이틀 바이그램 ≥ 0.25 (서로 다른 발행처 재게재)
+ * 3) thumbnail 동일 + 타이틀 ≥ 0.10 (같은 보도자료를 다른 카테고리 search query로
+ *    fetch했을 때. 5/22 진단: 같은 기사가 교육·행사 두 카테고리 검색에 매칭되는
+ *    케이스 빈번. URL/타이틀이 미세하게 달라 dedup 통과 위험.)
+ */
 function isDuplicate(a: UnifiedNewsItem, b: UnifiedNewsItem): boolean {
   if (normalizeUrl(a.url) === normalizeUrl(b.url)) return true;
-  return isSimilar(a.title, b.title);
+  if (isSimilar(a.title, b.title)) return true;
+  if (
+    a.thumbnail &&
+    a.thumbnail === b.thumbnail &&
+    titleJaccard(a.title, b.title) >= 0.10
+  ) {
+    return true;
+  }
+  return false;
 }
 
 // ─── 마감/종료/Stale 필터 ───
