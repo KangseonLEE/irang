@@ -14,7 +14,7 @@ import { STATIONS } from "./stations";
 import { SIGUNGUS, getSigunguById } from "./sigungus";
 import { GUS } from "./gus";
 import { getProvinceById, PROVINCES } from "./regions";
-import { CROPS } from "./crops";
+import { CROPS, CROP_DETAILS } from "./crops";
 import { PROGRAMS } from "./programs";
 import { deriveStatus } from "@/lib/program-status";
 import { EDUCATION_COURSES } from "./education";
@@ -986,7 +986,74 @@ export function searchAll(query: string): SearchItem[] {
     }
   }
 
-  return [...hintPrefix, ...faqResults, ...scored];
+  // crop-{context} 인텐트일 때 /crops/[id]#anchor deep link 합성 아이템 최상위 삽입.
+  // hintPrefix 직후·faqResults 앞으로 prepend — 사용자가 찾는 정확한 섹션으로 바로 유도.
+  const cropContextPrefix: SearchItem[] = [];
+  if (
+    intent.type === "crop-region" ||
+    intent.type === "crop-cultivation" ||
+    intent.type === "crop-method" ||
+    intent.type === "crop-income" ||
+    intent.type === "crop-difficulty"
+  ) {
+    const crop = CROPS.find((c) => c.name === intent.crop);
+    if (crop) {
+      const anchor = CROP_CONTEXT_ANCHOR[intent.type];
+      const detail = CROP_DETAILS.find((d) => d.id === crop.id);
+
+      let title = "";
+      let subtitle = "";
+      const extraKeywords: string[] = [];
+
+      switch (intent.type) {
+        case "crop-region": {
+          title = `${crop.name} 주요 산지`;
+          const majorRegions = detail?.majorRegions?.slice(0, 3) ?? [];
+          subtitle = majorRegions.length
+            ? `${majorRegions.join("·")} — 주요 재배지로 알려져 있어요.`
+            : `${crop.name} 주요 재배지를 확인해 보세요.`;
+          extraKeywords.push("산지", "재배지", ...majorRegions);
+          break;
+        }
+        case "crop-cultivation": {
+          title = `${crop.name} 재배 조건`;
+          subtitle = `${crop.name} 기후·토양·재배 환경을 살펴보세요.`;
+          extraKeywords.push("재배환경", "기후", "토양");
+          break;
+        }
+        case "crop-method": {
+          title = `${crop.name} 재배 방법`;
+          subtitle = `${crop.name} 재배 단계·구조를 단계별로 확인해 보세요.`;
+          extraKeywords.push("재배법", "재배 단계", "구조");
+          break;
+        }
+        case "crop-income": {
+          title = `${crop.name} 수익·소득`;
+          subtitle = `${crop.name} 소득 범위와 수익성 정보예요.`;
+          extraKeywords.push("수익", "소득", "수익성");
+          break;
+        }
+        case "crop-difficulty": {
+          title = `${crop.name} 난이도·장단점`;
+          subtitle = `${crop.name} 재배 난이도와 장단점을 확인해 보세요.`;
+          extraKeywords.push("난이도", "장단점", "쉬운", "어려운");
+          break;
+        }
+      }
+
+      cropContextPrefix.push({
+        type: "guide",
+        id: `${intent.type}-${crop.id}`,
+        title,
+        subtitle,
+        href: `/crops/${crop.id}#${anchor}`,
+        keywords: [crop.name, ...extraKeywords],
+        icon: crop.emoji,
+      });
+    }
+  }
+
+  return [...hintPrefix, ...cropContextPrefix, ...faqResults, ...scored];
 }
 
 // ---------------------------------------------------------------------------
@@ -1105,16 +1172,55 @@ export function getQuerySuggestions(
 // Cross-Entity Intent Detection (교차 인텐트 감지)
 // ---------------------------------------------------------------------------
 
+export type CropContextType =
+  | "crop-region"
+  | "crop-cultivation"
+  | "crop-method"
+  | "crop-income"
+  | "crop-difficulty";
+
 export type SearchIntent =
   | { type: "region-crop"; region: string; crop: string }
+  | { type: CropContextType; crop: string }
   | { type: "general" };
 
 /**
- * 쿼리에서 지역+작물 조합 인텐트를 감지합니다.
- * 예: "전남 사과" → { type: "region-crop", region: "전남", crop: "사과" }
+ * 작물 + 컨텍스트 키워드 매핑.
+ * 사용자 검색어에 작물명 + 컨텍스트 키워드가 함께 등장하면 해당 의도로 분기.
+ * 예: "사과 재배지" → crop-region intent → /crops/apple#region deep link
+ */
+const CROP_CONTEXT_KEYWORDS: Record<CropContextType, string[]> = {
+  "crop-region": ["재배지", "산지", "주산지", "생산지", "주요 지역"],
+  "crop-cultivation": ["재배환경", "재배 조건", "기후", "토양", "환경"],
+  "crop-method": ["재배 방법", "재배법", "재배 단계", "구조", "키우는", "기르는"],
+  "crop-income": ["수익", "소득", "가격", "수익성"],
+  "crop-difficulty": ["난이도", "쉬운", "어려운", "초보"],
+};
+
+/** crop-context 분기에서 사용할 anchor id 매핑 (/crops/[id]#anchor) */
+const CROP_CONTEXT_ANCHOR: Record<CropContextType, string> = {
+  "crop-region": "region",
+  "crop-cultivation": "cultivation",
+  "crop-method": "grow-steps",
+  "crop-income": "income",
+  "crop-difficulty": "pros-cons",
+};
+
+/**
+ * 쿼리에서 지역+작물 조합 또는 작물+컨텍스트 인텐트를 감지합니다.
+ * 우선순위:
+ *   1. region + crop 동시 매칭 → region-crop
+ *   2. crop + context keyword 매칭 → crop-{context}
+ *   3. 그 외 → general
+ *
+ * 예시:
+ *   "전남 사과"  → { type: "region-crop", region: "전남", crop: "사과" }
+ *   "사과 재배지" → { type: "crop-region", crop: "사과" }
+ *   "딸기 수익"  → { type: "crop-income", crop: "딸기" }
  */
 export function detectIntent(query: string): SearchIntent {
-  const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const lowerQuery = query.trim().toLowerCase();
+  const words = lowerQuery.split(/\s+/).filter(Boolean);
   if (words.length < 2) return { type: "general" };
 
   let detectedRegion: string | null = null;
@@ -1145,6 +1251,26 @@ export function detectIntent(query: string): SearchIntent {
 
   if (detectedRegion && detectedCrop) {
     return { type: "region-crop", region: detectedRegion, crop: detectedCrop };
+  }
+
+  // ── 작물 + 컨텍스트 키워드 분기 ──
+  // 단어 분리 매칭 실패한 작물도 substring으로 한번 더 시도 (조사 결합 케이스 대응)
+  // e.g. "사과를" → words에 "사과를" 그대로 들어가지만 includes("사과")는 true
+  if (!detectedCrop) {
+    const cropMatch = CROPS.find((c) =>
+      lowerQuery.includes(c.name.toLowerCase()),
+    );
+    if (cropMatch) detectedCrop = cropMatch.name;
+  }
+
+  if (detectedCrop) {
+    for (const [contextType, keywords] of Object.entries(
+      CROP_CONTEXT_KEYWORDS,
+    ) as [CropContextType, string[]][]) {
+      if (keywords.some((kw) => lowerQuery.includes(kw.toLowerCase()))) {
+        return { type: contextType, crop: detectedCrop };
+      }
+    }
   }
 
   return { type: "general" };

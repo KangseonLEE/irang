@@ -5,7 +5,12 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { searchItems, searchAll, getQuerySuggestions } from "@/lib/data/search-index";
+import {
+  searchItems,
+  searchAll,
+  getQuerySuggestions,
+  detectIntent,
+} from "@/lib/data/search-index";
 
 // ─── 기본 검색 동작 ───
 
@@ -237,5 +242,130 @@ describe("의도형 FAQ 시드 — 맞춤/추천 의도 매칭", () => {
     // 농지은행
     const land = searchAll("농지은행이 뭐야");
     expect(land.some((r) => r.id === "faq-/programs/roadmap")).toBe(true);
+  });
+});
+
+// ─── Phase 7 D — 작물 + 컨텍스트 검색 강화 (5종 신규 intent) ───
+
+describe("작물 + 컨텍스트 의도 (detectIntent)", () => {
+  it("'사과 재배지' → crop-region intent", () => {
+    const intent = detectIntent("사과 재배지");
+    expect(intent.type).toBe("crop-region");
+    if (intent.type === "crop-region") {
+      expect(intent.crop).toBe("사과");
+    }
+  });
+
+  it("'딸기 수익' → crop-income intent", () => {
+    const intent = detectIntent("딸기 수익");
+    expect(intent.type).toBe("crop-income");
+    if (intent.type === "crop-income") {
+      expect(intent.crop).toBe("딸기");
+    }
+  });
+
+  it("'포도 재배법' → crop-method intent", () => {
+    const intent = detectIntent("포도 재배법");
+    expect(intent.type).toBe("crop-method");
+  });
+
+  it("'고추 난이도' → crop-difficulty intent", () => {
+    const intent = detectIntent("고추 난이도");
+    expect(intent.type).toBe("crop-difficulty");
+  });
+
+  it("'토마토 기후' → crop-cultivation intent", () => {
+    const intent = detectIntent("토마토 기후");
+    expect(intent.type).toBe("crop-cultivation");
+  });
+
+  it("'토마토'만 입력하면 general intent (단일 단어)", () => {
+    const intent = detectIntent("토마토");
+    expect(intent.type).toBe("general");
+  });
+
+  it("'경남 사과'는 region-crop intent (기존 동작 유지)", () => {
+    const intent = detectIntent("경남 사과");
+    expect(intent.type).toBe("region-crop");
+    if (intent.type === "region-crop") {
+      expect(intent.region).toBe("경남");
+      expect(intent.crop).toBe("사과");
+    }
+  });
+
+  it("region-crop이 crop-context보다 우선한다", () => {
+    // "전남 딸기 수익" → 지역+작물 동시 매칭이면 region-crop
+    const intent = detectIntent("전남 딸기 수익");
+    expect(intent.type).toBe("region-crop");
+  });
+});
+
+describe("작물 + 컨텍스트 syntheticItem 합성", () => {
+  it("'사과 재배지' 검색 → 상단에 '사과 주요 산지' 카드", () => {
+    const results = searchAll("사과 재배지");
+    const synthetic = results.find((r) => r.id === "crop-region-apple");
+    expect(synthetic).toBeDefined();
+    expect(synthetic?.title).toBe("사과 주요 산지");
+    expect(synthetic?.href).toBe("/crops/apple#region");
+    // 최상단 또는 hintPrefix/faq 직후 우선 노출 (앞쪽 5개 이내)
+    const idx = results.findIndex((r) => r.id === "crop-region-apple");
+    expect(idx).toBeGreaterThanOrEqual(0);
+    expect(idx).toBeLessThanOrEqual(5);
+  });
+
+  it("'딸기 수익' 검색 → '딸기 수익·소득' 카드", () => {
+    const results = searchAll("딸기 수익");
+    const synthetic = results.find((r) => r.id === "crop-income-strawberry");
+    expect(synthetic).toBeDefined();
+    expect(synthetic?.href).toBe("/crops/strawberry#income");
+  });
+
+  it("'포도 재배법' 검색 → '포도 재배 방법' 카드", () => {
+    const results = searchAll("포도 재배법");
+    const synthetic = results.find((r) => r.id === "crop-method-grape");
+    expect(synthetic).toBeDefined();
+    expect(synthetic?.href).toBe("/crops/grape#grow-steps");
+  });
+
+  it("'고추 난이도' 검색 → '고추 난이도·장단점' 카드", () => {
+    const results = searchAll("고추 난이도");
+    const synthetic = results.find(
+      (r) => r.id === "crop-difficulty-chili-pepper",
+    );
+    expect(synthetic).toBeDefined();
+    expect(synthetic?.href).toBe("/crops/chili-pepper#pros-cons");
+  });
+
+  it("'토마토 기후' 검색 → '토마토 재배 조건' 카드", () => {
+    const results = searchAll("토마토 기후");
+    const synthetic = results.find(
+      (r) => r.id === "crop-cultivation-tomato",
+    );
+    expect(synthetic).toBeDefined();
+    expect(synthetic?.href).toBe("/crops/tomato#cultivation");
+  });
+
+  it("'사과 재배지' subtitle에 majorRegions 데이터가 노출된다", () => {
+    const results = searchAll("사과 재배지");
+    const synthetic = results.find((r) => r.id === "crop-region-apple");
+    expect(synthetic?.subtitle).toMatch(/(경상북도|전라북도|충청북도)/);
+  });
+
+  it("'토마토' 단일 검색은 syntheticItem 없이 일반 결과만 노출", () => {
+    const results = searchAll("토마토");
+    const hasContextSynthetic = results.some((r) =>
+      r.id.startsWith("crop-region-tomato") ||
+      r.id.startsWith("crop-income-tomato") ||
+      r.id.startsWith("crop-method-tomato") ||
+      r.id.startsWith("crop-cultivation-tomato") ||
+      r.id.startsWith("crop-difficulty-tomato"),
+    );
+    expect(hasContextSynthetic).toBe(false);
+  });
+
+  it("'경남 사과' region-crop intent는 기존 cross 카드를 유지한다", () => {
+    const results = searchAll("경남 사과");
+    const cross = results.find((r) => r.id.startsWith("cross-"));
+    expect(cross).toBeDefined();
   });
 });
