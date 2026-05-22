@@ -606,6 +606,14 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
 - **해결**: SP-019 row + persona-fit override + Supabase row 모두 제거 (134ccd2). 영구 차단으로 `scripts/check-program-dup.ts` 자동화 + data-engineer 가드 #2 추가
 - **교훈**: **데이터 정합성은 양방향** — 누락 방향(Supabase 없는 정적 데이터)뿐 아니라 중복 방향(외부 신규 = 내부 기존)도 의심. 신규 정적 데이터 추가 시 `npx tsx scripts/check-program-dup.ts <title> <organization> [sourceUrl]` 자동 검증 필수. CI 통합 권고.
 
+### CROPS ↔ CROP_DETAILS 1:1 매핑 깨짐 (2026-05-22) — sprint 중간 산출물 미완
+
+- **증상**: 통합검색에서 방울토마토 카드 클릭 → `/crops/cherry-tomato` 404. eggplant·asparagus·broccoli·paprika·carrot·king-oyster-mushroom·maesil·deodeok·buckwheat 동일 (총 10건). 회장 라이브 직접 발견.
+- **잘못된 1차 진단**: "CROP_DETAILS 누락" → minimal fallback 페이지로 우회(d6fa20a). 회장이 "방울토마토 정보 존재하는데 왜 데이터 없다고 판단하는지 제대로 파악해라" 지적.
+- **올바른 root cause**: 2026-05-21 Phase 7 B D4 sprint(작물 다양성 보강 39→49종)에서 **CROPS 배열만 갱신하고 CROP_DETAILS는 그대로 둠**. CROPS 추가 시 description·emoji 같은 표시용 필드는 작성됐지만 detail 구조(cultivation/income/majorRegions/...) 미작성. **sprint 중간 산출물이 미완인 채 release**.
+- **해결**: data-engineer 위임으로 CROP_DETAILS 10건 정식 작성(c763631, +530 lines). RDA 농업소득자료집 2024 + KOSIS + KATI + 산림청 출처. 영구 차단으로 `scripts/check-cross-reference.ts` F-1 검증 추가 — `CROPS ↔ CROP_DETAILS` 1:1 매핑 깨지면 CI build fail.
+- **교훈**: **`A.length === B.length` 같은 단순 길이 검증만 있어도 9시간 사고는 차단됐을 것**. 양방향 1:1 매핑 관계의 데이터 셋(CROPS↔CROP_DETAILS, PROVINCES↔stations, interviews↔cropLinks 등)은 신규 추가 sprint마다 길이 + 양방향 id 매칭 검증을 CI에서 강제. 단순 fallback으로 우회 ≠ root cause fix — 회장 직접 지적이 없었다면 dead code 안전망으로 끝났을 사고.
+
 ---
 
 ## 차트 컴포넌트 가이드

@@ -238,6 +238,43 @@ grep -ni "주관 기관|sourceUrl 도메인" src/lib/data/programs.ts
 
 근거: 5/11 SP-020 추정 일자(2026-07-01~09-30) → 회장 무결성 검증으로 정정.
 
+## 정적 데이터 큐레이션 가드 #4 — 양방향 1:1 매핑 셋 동시 갱신 (2026-05-22 1on1)
+
+> 배경: 5/21 Phase 7 B D4 sprint에서 `CROPS` 39→49 보강 시 `CROP_DETAILS`는 그대로 유지. 결과 방울토마토 등 10건 `/crops/[id]` 404. 회장 라이브 발견 + "데이터 없다고 단정 말고 제대로 파악해라" 지적. sprint 중간 산출물 미완.
+
+신규 작물·지역·사업 등 **양방향 1:1 매핑 관계**의 데이터 셋을 갱신할 때 한쪽만 추가 금지. 다음 4쌍은 항상 동시 갱신:
+
+| 마스터 셋 | 1:1 매핑 셋 | 의미 |
+|---------|-----------|------|
+| `CROPS` (id) | `CROP_DETAILS` (id) | 작물 표시 정보 ↔ 재배·소득·산지 detail |
+| `PROVINCES` (id) | `STATIONS` (province) | 시도 ↔ 기상 관측소 |
+| `interviews` (cropLinks.href) | `CROPS` (id) | 인터뷰 작물 링크 ↔ 작물 페이지 |
+| `PROGRAMS` (relatedCrops) | `CROPS` (name) | 지원사업 관련작물 ↔ 작물 |
+
+### 작업 절차
+
+1. 마스터 셋 추가 직후 1:1 매핑 셋 동시 추가 (PR/commit 단위로 묶음)
+2. 추가 후 반드시 다음 명령 실행:
+
+```bash
+npx tsx scripts/check-cross-reference.ts
+```
+
+F-1 차원이 길이 + 양방향 id 매칭을 검증. 한쪽이라도 빠지면 build fail.
+
+### 금지 패턴
+
+- ❌ "다음 sprint에서 detail 채울게요" → 사용자 노출 후 사고 (회장 발견 위험)
+- ❌ minimal fallback 페이지로 404 우회 → root cause 미해결, dead code 누적
+- ❌ description·title만 있고 detail 비어있는 entry release
+
+### 근거
+
+- **2026-05-22**: cherry-tomato 등 10건 detail 누락 → 검색 클릭 404 → 회장 라이브 발견. `scripts/check-cross-reference.ts` F-1 차원 신설 + `CROPS.length === CROP_DETAILS.length` 검증 자동화로 영구 차단.
+- **2026-05-12**: 세종·울산 stations 누락 → `scripts/check-regions-stations-integrity.ts` 자동화 (별도 박제, MEMORY.md feedback_regions_stations_integrity 참조).
+
+본 가드는 두 사고를 일반화한 양방향 매핑 셋 통합 원칙.
+
 # Persistent Agent Memory
 
 `~/Workspace/irang/.claude/agent-memory/data-engineer/` (필요 시 생성)

@@ -250,6 +250,27 @@ function check(): CheckResult[] {
         : `깨진 link ${eCropFails.length}건: ${eCropFails.slice(0, 5).join(", ")}`,
   });
 
+  // ──────────────────────────────────────────────────────────
+  // F. CROPS ↔ CROP_DETAILS 1:1 매핑
+  // 5/22 회장 라이브 — 5/21 D4 sprint에서 CROPS 39→49 보강 시 CROP_DETAILS는
+  // 그대로 둬서 방울토마토 등 10건 /crops/[id] 404. 박제: 길이 + 양방향 id 매칭.
+  // ──────────────────────────────────────────────────────────
+  const detailIds = new Set(CROP_DETAILS.map((d) => d.id));
+  const cropsWithoutDetail = CROPS.filter((c) => !detailIds.has(c.id));
+  const orphanDetails = CROP_DETAILS.filter((d) => !cropIds.has(d.id));
+  const fMismatches: string[] = [
+    ...cropsWithoutDetail.map((c) => `CROPS.${c.id}(${c.name}) → CROP_DETAILS 없음`),
+    ...orphanDetails.map((d) => `CROP_DETAILS.${d.id} → CROPS 없음 (고아)`),
+  ];
+  results.push({
+    name: "F-1. CROPS ↔ CROP_DETAILS 1:1 매핑",
+    passed: fMismatches.length === 0,
+    detail:
+      fMismatches.length === 0
+        ? `CROPS ${CROPS.length} / CROP_DETAILS ${CROP_DETAILS.length} 완전 매칭`
+        : `미스매치 ${fMismatches.length}건: ${fMismatches.slice(0, 5).join(", ")}`,
+  });
+
   return results;
 }
 
