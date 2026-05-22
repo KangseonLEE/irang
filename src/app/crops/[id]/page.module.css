@@ -357,13 +357,21 @@
   }
 }
 
-/* 위 줄 — 작물 정보 */
+/* 위 줄 — 작물 정보 (모바일·태블릿에서만 노출) */
+/* 5/22 회장 결재 Fix 2: 데스크탑(1024px+)은 sidebar가 작물 메타를 이미 노출하므로
+   stickyHeaderCrop을 hide → 스크롤 시 탭만 sticky. 모바일·태블릿은 5/22 옵션 C 패턴 유지. */
 .stickyHeaderCrop {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 1024px) {
+  .stickyHeaderCrop {
+    display: none;
+  }
 }
 
 .stickyCropImage {
@@ -504,6 +512,11 @@
 
 @media (min-width: 480px) {
   .section { border-radius: 20px; }
+}
+
+/* 데스크탑(1024px+) — stickyHeaderCrop hide 후 sticky 영역(header 56 + tabs 52 ≈ 108)로 축소 */
+@media (min-width: 1024px) {
+  .section { scroll-margin-top: 124px; }
 }
 
 .sectionHeader {
@@ -1531,16 +1544,16 @@
 @media (min-width: 1024px) {
   .sidebar {
     position: sticky;
-    /* 2026-05-22 회장 라이브 fix: 기존 120px이 stickyHeader 누적 영역(144px+)에 가려 상단 잘림.
-       header 56 + stickyHeader 88 + 16px 여백 = 160px. */
-    top: 160px;
+    /* 2026-05-22 회장 결재 Fix 2: 데스크탑에서 stickyHeaderCrop hide → 탭만 sticky.
+       header 56 + tabs 52 + 16px 여백 = 124px. */
+    top: 124px;
     align-self: start;
     transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   :global(html[data-header-hidden]) .sidebar {
-    /* header hidden 시 stickyHeader(88px) + 16 여백 = 104px */
-    top: 104px;
+    /* header hidden 시 tabs 52 + 16 여백 = 68px */
+    top: 68px;
   }
 }
 
@@ -1559,11 +1572,28 @@
   .sideProfile { border-radius: 20px; padding: 24px 20px; }
 }
 
+/* 5/22 회장 결재 Fix 3: sidebar 헤더에 작물 일러스트 + 작물명 좌우 정렬 */
+.sideProfileHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.sideProfileImage {
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--muted, #f3f4f6);
+  object-fit: cover;
+}
+
 .sideProfileTitle {
   font-size: var(--fs-h4);
   font-weight: 700;
   color: var(--foreground, #111827);
   margin: 0;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .sideProfileList {

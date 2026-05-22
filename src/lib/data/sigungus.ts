@@ -357,3 +357,33 @@ export function getSigunguBySidoAndId(
 
 /** 전체 시/군/구 수 */
 export const SIGUNGU_COUNT = SIGUNGUS.length;
+
+/**
+ * 작물명으로 주요 산지 시/군/구 추출
+ *
+ * - `mainCrops`에 작물명이 포함된 시/군/구를 찾는다
+ * - `sortBySidoIds`가 주어지면 그 순서대로 시/도 우선 정렬 (CROP_DETAILS.majorRegions 활용)
+ * - 결과는 `shortName` 배열 (최대 `limit`개)
+ *
+ * @example
+ * getMajorSigungusForCrop("사과", ["gyeongbuk", "chungbuk"], 6)
+ * // ["예산", "영동", "괴산", "충주", "제천", "포천"]
+ */
+export function getMajorSigungusForCrop(
+  cropName: string,
+  sortBySidoIds: string[] = [],
+  limit = 6
+): string[] {
+  const matched = SIGUNGUS.filter((sg) => sg.mainCrops.includes(cropName));
+
+  if (sortBySidoIds.length > 0) {
+    const priority = new Map(sortBySidoIds.map((id, idx) => [id, idx]));
+    matched.sort((a, b) => {
+      const ap = priority.get(a.sidoId) ?? Number.MAX_SAFE_INTEGER;
+      const bp = priority.get(b.sidoId) ?? Number.MAX_SAFE_INTEGER;
+      return ap - bp;
+    });
+  }
+
+  return matched.slice(0, limit).map((sg) => sg.shortName);
+}

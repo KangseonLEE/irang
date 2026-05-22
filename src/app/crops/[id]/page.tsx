@@ -42,6 +42,7 @@ import {
 import { CropRichCard } from "@/components/crop/crop-rich-card";
 import { convertToPyeongLabel } from "@/lib/format";
 import { PROVINCES } from "@/lib/data/regions";
+import { getMajorSigungusForCrop } from "@/lib/data/sigungus";
 import {
   fetchCropStats,
   fetchRiceIncome,
@@ -222,6 +223,21 @@ export default async function CropDetailPage({
     programsParams.set("region", detail.majorRegions[0]);
   }
   const programsHref = `/programs?${programsParams.toString()}`;
+
+  // 주요 산지 시/군/구 — `detail.majorRegions` 시·도 우선순위로 상위 6개 추출
+  // 매칭 0건이면 시·도 라벨(예: "경상북도, 충청북도")을 폴백으로 표시
+  const majorSidoIds = detail.majorRegions
+    .map((rname) => PROVINCES.find((p) => p.name === rname)?.id)
+    .filter((id): id is string => Boolean(id));
+  const majorSigunguShortNames = getMajorSigungusForCrop(
+    data.name,
+    majorSidoIds,
+    6,
+  );
+  const hasSigunguMatch = majorSigunguShortNames.length > 0;
+  const majorRegionLabel = hasSigunguMatch
+    ? majorSigunguShortNames.join("·")
+    : detail.majorRegions.slice(0, 3).join(", ");
 
   const anchorSections = [
     { id: "overview", label: "개요" },
@@ -473,7 +489,17 @@ export default async function CropDetailPage({
         <aside className={s.sidebar}>
           {/* 사이드 프로필 카드 */}
           <div className={s.sideProfile}>
-            <h3 className={s.sideProfileTitle}>{data.name}</h3>
+            <div className={s.sideProfileHeader}>
+              <Image
+                src={getCropImageSrc(data.id)}
+                alt=""
+                width={72}
+                height={72}
+                className={s.sideProfileImage}
+                aria-hidden="true"
+              />
+              <h3 className={s.sideProfileTitle}>{data.name}</h3>
+            </div>
             <dl className={s.sideProfileList}>
               <div className={s.sideProfileRow}>
                 <dt>카테고리</dt>
@@ -507,7 +533,7 @@ export default async function CropDetailPage({
               )}
               <div className={s.sideProfileRow}>
                 <dt>주요 산지</dt>
-                <dd>{detail.majorRegions.slice(0, 3).join(", ")}</dd>
+                <dd>{majorRegionLabel}</dd>
               </div>
             </dl>
             <div className={s.sideCtas}>
