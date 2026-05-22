@@ -1018,15 +1018,24 @@ export function sortPrograms(
 ): SupportProgram[] {
   if (sort === "recent") {
     // 원본 인덱스 기억해 stable sort 보장 (Array.prototype.sort는 v8에서 stable이지만 명시적 보호)
+    // createdAt 없을 때 id desc fallback — 정적 데이터가 createdAt을 채우기 전이라도 동작.
+    // (5/22 회장 라이브 — 정적 PROGRAMS 30건 모두 createdAt 누락으로 recent 정렬 무동작 사고)
     const indexed = programs.map((p, i) => ({ p, i }));
     indexed.sort((a, b) => {
       const ad = a.p.createdAt ?? "";
       const bd = b.p.createdAt ?? "";
-      if (ad === bd) return a.i - b.i;
-      // createdAt 없는 항목은 가장 뒤로
-      if (!ad) return 1;
-      if (!bd) return -1;
-      return bd.localeCompare(ad);
+      if (ad && bd) {
+        if (ad === bd) return a.i - b.i;
+        return bd.localeCompare(ad);
+      }
+      // 한쪽만 createdAt 있으면 그 항목 우선 (DB 등록일 신뢰)
+      if (ad && !bd) return -1;
+      if (!ad && bd) return 1;
+      // 둘 다 없으면 id desc — SP-030 같이 큰 번호가 최근 큐레이션 (정적 데이터 관행)
+      const aid = a.p.id ?? "";
+      const bid = b.p.id ?? "";
+      if (aid === bid) return a.i - b.i;
+      return bid.localeCompare(aid);
     });
     return indexed.map((x) => x.p);
   }

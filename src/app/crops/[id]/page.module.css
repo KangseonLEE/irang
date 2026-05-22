@@ -1923,3 +1923,70 @@
     font-size: 13px;
   }
 }
+
+/* ── detail 미등록 작물용 minimal fallback (5/22 회장 라이브 발견) ── */
+
+.heroEmoji {
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.heroSubtitle {
+  font-size: var(--fs-body);
+  color: var(--muted-foreground);
+  margin: 4px 0 12px;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.fallbackNotice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 20px;
+  margin: 24px auto 0;
+  max-width: 520px;
+  background: var(--muted);
+  border-radius: 16px;
+  text-align: center;
+  color: var(--foreground);
+}
+
+.fallbackNotice p {
+  font-size: var(--fs-body-sm);
+  margin: 0;
+  word-break: keep-all;
+  line-height: 1.6;
+}
+
+.fallbackLinks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.fallbackLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  background: var(--card);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border-radius: 999px;
+  transition: background-color 0.12s, border-color 0.12s;
+}
+
+@media (hover: hover) {
+  .fallbackLink:hover {
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+    border-color: var(--primary);
+  }
+}

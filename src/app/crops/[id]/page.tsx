@@ -105,7 +105,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const data = getCropWithDetail(id);
-  if (!data) return { title: "작물 상세" };
+  if (!data) {
+    // detail 미등록 작물 — 기본 metadata로 fallback (CROPS 기본 정보만)
+    const cropOnly = CROPS.find((c) => c.id === id);
+    if (cropOnly) {
+      return {
+        title: `${cropOnly.name} 작물 정보 | 이랑`,
+        description: `${cropOnly.name} — ${cropOnly.description} 상세 정보는 준비 중이에요.`,
+        alternates: { canonical: `/crops/${id}` },
+      };
+    }
+    return { title: "작물 상세" };
+  }
   const regions = data.detail.majorRegions.slice(0, 3).join("·");
   return {
     title: `${data.name} 재배 — 소득·난이도·재배환경 | ${regions}`,
@@ -140,6 +151,43 @@ const DIFFICULTY_BADGE: Record<string, string> = {
   어려움: s.badgeHard,
 };
 
+// ── detail 미등록 작물용 minimal fallback ──
+
+function CropMinimalFallback({ crop }: { crop: typeof CROPS[number] }) {
+  return (
+    <div className={s.page}>
+      <div className={s.hero}>
+        <div className={s.heroEmoji} aria-hidden="true">{crop.emoji}</div>
+        <h1 className={s.heroTitle}>{crop.name}</h1>
+        <p className={s.heroSubtitle}>{crop.description}</p>
+        <div className={s.heroBadges}>
+          <span className={`${s.badge} ${s.badgeCategory}`}>{crop.category}</span>
+          <span className={`${s.badge} ${DIFFICULTY_BADGE[crop.difficulty] ?? ""}`}>
+            난이도 {crop.difficulty}
+          </span>
+        </div>
+      </div>
+
+      <section className={s.fallbackNotice}>
+        <Sprout size={20} aria-hidden="true" />
+        <p>
+          <strong>{crop.name}</strong> 상세 정보는 정리 중이에요.
+          <br />
+          소득·재배환경·주요 산지 데이터는 곧 추가될 예정입니다.
+        </p>
+        <div className={s.fallbackLinks}>
+          <Link href="/crops" className={s.fallbackLink}>
+            전체 작물 보기 <ArrowRight size={14} />
+          </Link>
+          <Link href="/crops/compare" className={s.fallbackLink}>
+            작물 비교 <ArrowRight size={14} />
+          </Link>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 // ── 페이지 컴포넌트 ──
 
 interface CropDetailPageProps {
@@ -153,7 +201,12 @@ export default async function CropDetailPage({
   const data = getCropWithDetail(id);
 
   if (!data) {
-    notFound();
+    // detail 미등록 작물 — CROPS 기본 정보만으로 minimal fallback 렌더 (404 회피).
+    // 5/22 회장 라이브 발견 — 방울토마토 등 10건이 CROP_DETAILS에 없어 검색 →
+    // 상세 클릭 시 404. 별도 sprint에서 detail 콘텐츠 채울 때까지 fallback 노출.
+    const cropOnly = CROPS.find((c) => c.id === id);
+    if (!cropOnly) notFound();
+    return <CropMinimalFallback crop={cropOnly} />;
   }
 
   const cropStats = data.detail.kosisConfig
