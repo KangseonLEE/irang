@@ -87,9 +87,11 @@ export default async function InterviewsPage({ searchParams }: PageProps) {
         </div>
       </SubPageHero>
 
-      {/* ═══ 카테고리 필터 (2026-05-14 D1) ═══ */}
+      {/* ═══ 카테고리 필터 (2026-05-22 모바일 UX 개선) ═══
+         1 그룹 + 옵션 7개(전체 + 6 카테고리) — 모바일에 한 번에 노출하는 게 탐색 효율.
+         5/22 박제 BottomSheetFilter 게이트 fail(1 그룹, 모바일에 들어감) → 직접 chip 노출. */}
       <FilterBar>
-        <FilterRow>
+        <FilterRow mobileWrap>
           <FilterGroup
             label="카테고리"
             paramKey="type"
@@ -98,7 +100,6 @@ export default async function InterviewsPage({ searchParams }: PageProps) {
             currentValue={activeCategory}
             currentFilters={currentFilters}
             basePath="/interviews"
-            collapsibleOnMobile
           />
         </FilterRow>
       </FilterBar>

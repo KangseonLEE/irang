@@ -58,19 +58,24 @@ export function FilterBar({ children }: { children: React.ReactNode }) {
 
 /**
  * 가로 스크롤 가능한 필터 그룹 행.
- * mobileColumns=2 prop으로 모바일(<640px) 2열 그리드 레이아웃 사용 (chip 많은 페이지 가독성↑).
- * 기본(미지정 또는 1)은 기존 inline-flex 가로 스크롤.
+ * - mobileColumns=2: 모바일(<640px) 2열 그리드 (chip 많은 페이지 collapsible cell 정렬).
+ * - mobileWrap: 모바일(<640px) chip 줄바꿈 (1 그룹 + 옵션 5~8개 페이지용 — /interviews).
+ *   가로 스크롤 대신 wrap → 모든 옵션 한 화면 인지. 5/22 회장 결재 BottomSheetFilter 부적합 페이지 대응.
+ * - 기본(미지정): inline-flex 가로 스크롤.
  */
 export function FilterRow({
   children,
   mobileColumns,
+  mobileWrap,
 }: {
   children: React.ReactNode;
   mobileColumns?: 1 | 2;
+  mobileWrap?: boolean;
 }) {
-  const cls =
-    mobileColumns === 2 ? `${s.filterRow} ${s.filterRowGrid2}` : s.filterRow;
-  return <div className={cls}>{children}</div>;
+  const classes = [s.filterRow];
+  if (mobileColumns === 2) classes.push(s.filterRowGrid2);
+  if (mobileWrap) classes.push(s.filterRowWrap);
+  return <div className={classes.join(" ")}>{children}</div>;
 }
 
 /** 구분선 */

@@ -48,6 +48,29 @@
   }
 }
 
+/* ── Mobile wrap (FilterRow의 mobileWrap opt-in) ──
+   1 그룹 + 옵션 5~8개 페이지용 (/interviews 6 + 전체).
+   2026-05-22 회장 결재 — 1 그룹은 BottomSheet 부적합·collapsibleOnMobile 인지 부족.
+   chip 줄바꿈 + label은 화면에 보이도록 wrap. 640px+ 기본 가로 스크롤 동일. */
+@media (max-width: 639px) {
+  .filterRowWrap {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    align-items: center;
+  }
+
+  .filterRowWrap > .filterGroup {
+    flex-wrap: wrap;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .filterRowWrap > .filterGroup > .filterPills {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
 /* ── Group (라벨 + pill 목록) ── */
 .filterGroup {
   display: flex;
