@@ -233,21 +233,21 @@ function SearchPageContent() {
         </div>
       )}
 
-      {/* 정확히 일치하는 항목 없음 안내 — 결과 위에 배치 */}
+      {/* 정확히 일치하는 항목 없음 안내 — 결과 위에 배치 (긍정 톤, 2026-05-22) */}
       {query && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(query, results) && (
         <div className={s.noExactMatch}>
           <div className={s.noExactMatchContent}>
             <p className={s.noExactMatchText}>
-              &lsquo;{query}&rsquo;에 정확히 일치하는 항목이 없어요
+              &lsquo;{query}&rsquo; 관련 검색 결과예요
             </p>
             <p className={s.noExactMatchHint}>
-              연관 결과를 표시하고 있어요. 원하는 정보가 없다면 추가를 요청해 주세요.
+              결과 중 더 필요한 정보가 있다면 정보 추가를 요청해 주세요.
             </p>
           </div>
           <RequestButton
             keyword={query.trim()}
             pageName="통합 검색"
-            label="항목 추가 요청"
+            label="정보 추가 요청하기"
             className={s.noExactMatchBtn}
           />
         </div>

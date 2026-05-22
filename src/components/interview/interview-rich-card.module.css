@@ -221,7 +221,8 @@
    모바일 (< 640px) — 2열 그리드 compact (Sprint D2, 2026-05-21)
    /search 2열 + /interviews 한 화면 노출 수 확대 위해
    - bleed 이미지 해제(width/margin) + 정사각형 aspect
-   - 메타·태그·인용문 hide
+   - 메타·태그·인용문·CTA hide (카드 자체가 Link라 CTA 텍스트 불필요)
+   - footer: 지역·작물 chip 세로 정렬로 좁은 폭에서 줄바꿈 깨짐 방지
    - footer 축소·border 제거
    ══════════════════════════════════════════ */
 @media (max-width: 639px) {
@@ -238,7 +239,8 @@
   .cardCategoryChip,
   .cardMeta,
   .cardTags,
-  .cardQuoteWrap {
+  .cardQuoteWrap,
+  .cardCta {
     display: none;
   }
 
@@ -251,7 +253,25 @@
     border-top: none;
   }
 
-  .cardCta {
+  /* 지역·작물 chip 세로 정렬 — 좁은 2열 카드에서 줄바꿈 시각 손상 방지 */
+  .cardFooterBadges {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .cardRegionBadge,
+  .cardCrop {
+    max-width: 100%;
     font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  /* 작물명이 길면 ellipsis 처리 (예: "사과대추·딸기", "젖소 낙농") */
+  .cardCrop {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
