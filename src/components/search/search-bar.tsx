@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Clock, X, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ArrowUpLeft } from "lucide-react";
 // ArrowUpLeft: 자동완성 우상단 화살표 (네이버 패턴 — 클릭 시 입력창 채움)
@@ -173,6 +173,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
 ) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // 같은 페이지 내 query 변경(/search?q=A → /search?q=B) 감지를 위해 search string 포함
+  const locationKey = `${pathname}?${searchParams.toString()}`;
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -182,6 +185,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // pushState가 지연될 수 있어, 그 사이 cleanup의 history.back()이 네비게이션을
   // 취소시키는 현상이 있었음.
   const isNavigatingRef = useRef(false);
+  // 안전망 timeout — navigation 5초 내 cleanup 안 되면 강제 해제
+  const navTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -227,32 +232,48 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     setFocusedIndex(-1);
     setIsNavigating(false);
     isNavigatingRef.current = false;
+    if (navTimeoutRef.current) {
+      clearTimeout(navTimeoutRef.current);
+      navTimeoutRef.current = null;
+    }
     setRecentSearches(loadRecent());
     inputRef.current?.blur();
     onCloseProp?.();
   }, [onCloseProp]);
 
-  // 네비게이션 완료(pathname 변경) 시 오버레이 닫기
+  // 네비게이션 완료(URL 변경) 시 오버레이 닫기.
+  // pathname만 비교하면 같은 페이지 내 query 변경(/search?q=A → /search?q=B)을
+  // 감지 못 해 isNavigating이 stuck. searchParams까지 포함한 locationKey 비교.
   useEffect(() => {
     if (!isNavigating) return;
     if (navStartPathRef.current === null) return;
-    if (pathname !== navStartPathRef.current) {
-      // pathname 변경에 반응하여 오버레이 상태를 외부(URL)와 동기화
+    if (locationKey !== navStartPathRef.current) {
+      // URL 변경에 반응하여 오버레이 상태를 외부(URL)와 동기화
       handleClose();
       navStartPathRef.current = null;
     }
-  }, [pathname, isNavigating, handleClose]);
+  }, [locationKey, isNavigating, handleClose]);
 
   // 네비게이션 시작 헬퍼 — 오버레이를 즉시 닫지 않고 로딩 상태로 전환
-  // (onCloseProp는 pathname 변경 후 handleClose에서 호출 — 오버레이 언마운트로
+  // (onCloseProp는 URL 변경 후 handleClose에서 호출 — 오버레이 언마운트로
   // 로딩 UI가 사라지지 않도록 유지)
   const beginNavigation = useCallback(() => {
     isNavigatingRef.current = true;
-    navStartPathRef.current = pathname;
+    navStartPathRef.current = locationKey;
     setIsNavigating(true);
     // 키보드는 즉시 내림
     inputRef.current?.blur();
-  }, [pathname]);
+    // 안전망: 5초 내 URL 변경 cleanup이 안 발생하면 강제 해제.
+    // router.push 실패/취소·동일 URL 재push·React transition pending 등 어떤 사유로든
+    // stuck되는 것을 방지.
+    if (navTimeoutRef.current) clearTimeout(navTimeoutRef.current);
+    navTimeoutRef.current = setTimeout(() => {
+      isNavigatingRef.current = false;
+      setIsNavigating(false);
+      navStartPathRef.current = null;
+      navTimeoutRef.current = null;
+    }, 5000);
+  }, [locationKey]);
 
   // 풀스크린 확장 시 Android 뒤로가기(하드웨어) / 브라우저 뒤로가기 지원
   // history에 sentinel state를 push하고, popstate로 닫기 처리
@@ -286,6 +307,11 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       if (e.persisted && isNavigatingRef.current) {
         isNavigatingRef.current = false;
         setIsNavigating(false);
+        navStartPathRef.current = null;
+        if (navTimeoutRef.current) {
+          clearTimeout(navTimeoutRef.current);
+          navTimeoutRef.current = null;
+        }
       }
     };
     window.addEventListener("pageshow", onPageShow);
@@ -517,6 +543,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   );
 
   // ----- Click outside -----
+  // 외부 클릭 시 dropdown + 네비게이션 로딩 overlay 모두 정리.
+  // (네비게이션 로딩이 stuck된 경우 사용자가 다른 영역 클릭으로 빠져나갈 수 있어야 함)
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
       if (
@@ -524,16 +552,26 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
         !containerRef.current.contains(e.target as Node)
       ) {
         setIsOpen(false);
+        if (isNavigatingRef.current) {
+          isNavigatingRef.current = false;
+          setIsNavigating(false);
+          navStartPathRef.current = null;
+          if (navTimeoutRef.current) {
+            clearTimeout(navTimeoutRef.current);
+            navTimeoutRef.current = null;
+          }
+        }
       }
     }
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  // ----- Cleanup debounce on unmount -----
+  // ----- Cleanup debounce + nav timeout on unmount -----
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (navTimeoutRef.current) clearTimeout(navTimeoutRef.current);
     };
   }, []);
 
