@@ -961,12 +961,27 @@ export function searchAll(query: string): SearchItem[] {
 
   if (terms.length === 1) {
     const term = terms[0];
+
+    // 단일 term이 작물명 정확 매치면 해당 crop 카드를 최상단으로 hoist.
+    // (5/22 회장 요청 — "사과"·"딸기" 등 작물명만 검색 시 FAQ guide가 1위로
+    // 박히던 동작 변경. matchFaqs가 keyword includes로 매칭되어 발생.)
+    const exactCrop = CROPS.find((c) => c.name.toLowerCase() === term);
+    const hoisted: SearchItem[] = [];
+    if (exactCrop) {
+      const cropItem = index.find(
+        (i) => i.type === "crop" && i.title === exactCrop.name,
+      );
+      if (cropItem) hoisted.push(cropItem);
+    }
+    const hoistedIds = new Set(hoisted.map((i) => i.id));
+
     const results = index
+      .filter((item) => !hoistedIds.has(item.id))
       .map((item) => ({ item, score: scoreItem(item, term) }))
       .filter(({ score }) => score > 0)
       .sort((a, b) => b.score - a.score)
       .map(({ item }) => item);
-    return [...hintPrefix, ...faqResults, ...results];
+    return [...hintPrefix, ...hoisted, ...faqResults, ...results];
   }
 
   // 복합 쿼리: OR 매칭 + 관련도 합산 정렬

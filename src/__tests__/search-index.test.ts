@@ -370,6 +370,50 @@ describe("작물 + 컨텍스트 syntheticItem 합성", () => {
   });
 });
 
+// ─── 작물명 정확 매치 시 crop 카드 최상단 hoist (5/22 회장 요청) ───
+
+describe("작물명 단일 검색 — crop 카드 최상단 hoist", () => {
+  it("'사과' 단일 검색 → 1위가 crop 타입 '사과'", () => {
+    const results = searchAll("사과");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0].type).toBe("crop");
+    expect(results[0].title).toBe("사과");
+  });
+
+  it("'딸기' 단일 검색 → 1위가 crop 타입 '딸기'", () => {
+    const results = searchAll("딸기");
+    expect(results[0].type).toBe("crop");
+    expect(results[0].title).toBe("딸기");
+  });
+
+  it("'포도' 단일 검색 → 1위가 crop 타입 '포도'", () => {
+    const results = searchAll("포도");
+    expect(results[0].type).toBe("crop");
+    expect(results[0].title).toBe("포도");
+  });
+
+  it("'감자' 단일 검색 → 1위가 crop 타입 '감자' (FAQ 매칭 없음, 변화 없음)", () => {
+    const results = searchAll("감자");
+    expect(results[0].type).toBe("crop");
+    expect(results[0].title).toBe("감자");
+  });
+
+  it("'사과 재배지' 복합 쿼리 → hoist 미적용, 기존 syntheticItem 우선 유지", () => {
+    const results = searchAll("사과 재배지");
+    const synthetic = results.find((r) => r.id === "crop-region-apple");
+    expect(synthetic).toBeDefined();
+  });
+
+  it("'서울' 비-작물 쿼리 → hoist 미적용 (작물 사전에만 한정)", () => {
+    const results = searchAll("서울");
+    // crop이 1위에 강제로 박히지 않음 (서울은 작물명 아님)
+    if (results.length > 0) {
+      expect(results[0].type).not.toBe("crop");
+    }
+  });
+});
+
+
 // ─── 작물명 prefix 자동 공백 (붙여쓰기 정규화) ───
 // 한국어 사용자는 "사과 재배지" / "사과재배지" 둘 다 자연스럽게 입력함.
 // 후자도 전자와 동등하거나 근사한 결과를 반환해야 함.
