@@ -413,6 +413,58 @@ describe("작물명 단일 검색 — crop 카드 최상단 hoist", () => {
   });
 });
 
+// ─── entity hoist 확장 — 시도·시군구·지원사업 (5/22 회장 결재 A안) ───
+
+describe("entity hoist 확장 — 지역·지원사업", () => {
+  it("'경남' (시도 shortName) → region 시도 카드 1위", () => {
+    const results = searchAll("경남");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0].type).toBe("region");
+    expect(results[0].id).toBe("province-gyeongnam");
+  });
+
+  it("'경상남도' (시도 풀네임) → 같은 시도 카드 1위", () => {
+    const results = searchAll("경상남도");
+    expect(results[0].type).toBe("region");
+    expect(results[0].id).toBe("province-gyeongnam");
+  });
+
+  it("'서울' → 시도 카드 1위 (시도 SearchItem 동적 생성)", () => {
+    const results = searchAll("서울");
+    expect(results[0].type).toBe("region");
+    expect(results[0].id).toBe("province-seoul");
+  });
+
+  it("'강원' → 시도 카드 1위 (구표기 유지)", () => {
+    const results = searchAll("강원");
+    expect(results[0].type).toBe("region");
+    expect(results[0].id).toBe("province-gangwon");
+  });
+
+  it("'전주시' (시군구 정확 매치) → region 1위는 region 타입", () => {
+    const results = searchAll("전주시");
+    expect(results[0].type).toBe("region");
+    expect(results[0].title).toBe("전주시");
+  });
+
+  it("'중구' (동음이의 시군구) → region 카드 다수 hoist (sub-region hint 다음)", () => {
+    const results = searchAll("중구");
+    // hintPrefix(안동 중구동)가 1위일 수 있으니 region 타입이 상위에 다수 있는지만 확인
+    const topRegions = results.slice(0, 8).filter((r) => r.type === "region");
+    expect(topRegions.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("정확 매치 없는 약칭(스마트팜)은 hoist 없이 기존 점수 산식 적용", () => {
+    const results = searchAll("스마트팜");
+    // hoist 안 됨 — guide·glossary 카드들이 정상 노출
+    expect(results.length).toBeGreaterThan(0);
+    // 강제로 1위가 region/crop으로 박히지 않음
+    expect(["guide", "glossary", "program", "crop", "education", "interview", "event", "land"]).toContain(
+      results[0].type,
+    );
+  });
+});
+
 
 // ─── 작물명 prefix 자동 공백 (붙여쓰기 정규화) ───
 // 한국어 사용자는 "사과 재배지" / "사과재배지" 둘 다 자연스럽게 입력함.

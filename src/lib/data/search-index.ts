@@ -747,6 +747,72 @@ const CROP_NAMES_BY_LENGTH_DESC: string[] = (() => {
   return Array.from(new Set(names)).sort((a, b) => b.length - a.length);
 })();
 
+/**
+ * 단일 term이 entity 정확명 매치 시 해당 카드를 hoist.
+ *
+ * 범위 (5/22 회장 결재 A안):
+ *   - 작물 (CROPS.name)
+ *   - 시도 (PROVINCES.shortName / PROVINCES.name) — 인덱스에 SearchItem 없어 동적 생성
+ *   - 시군구·구 (인덱스 region.title)
+ *   - 지원사업 (인덱스 program.title)
+ *
+ * 동음이의어("중구" 등)는 모두 hoist. seen Set으로 중복 제거.
+ */
+function findExactMatchHoists(
+  term: string,
+  index: SearchItem[],
+): SearchItem[] {
+  const out: SearchItem[] = [];
+  const seen = new Set<string>();
+  const push = (item: SearchItem) => {
+    if (!seen.has(item.id)) {
+      seen.add(item.id);
+      out.push(item);
+    }
+  };
+
+  // 시도 — shortName 또는 name 정확 매치. 동적 SearchItem 생성 (인덱스에 미포함).
+  for (const prov of PROVINCES) {
+    if (
+      prov.shortName.toLowerCase() === term ||
+      prov.name.toLowerCase() === term
+    ) {
+      push({
+        type: "region",
+        id: `province-${prov.id}`,
+        title: prov.shortName,
+        subtitle: `${prov.name} 종합 정보 — 시군구·기후·작물·정착 데이터`,
+        href: `/regions/${prov.id}`,
+        keywords: [prov.shortName, prov.name],
+        icon: "\u{1F4CD}", // 📍
+      });
+    }
+  }
+
+  // 작물 — CROPS.name 정확 매치
+  for (const item of index) {
+    if (item.type === "crop" && item.title.toLowerCase() === term) {
+      push(item);
+    }
+  }
+
+  // 시군구·구 — 인덱스 region.title 정확 매치 (동음이의 다수 가능)
+  for (const item of index) {
+    if (item.type === "region" && item.title.toLowerCase() === term) {
+      push(item);
+    }
+  }
+
+  // 지원사업 — 인덱스 program.title 정확 매치
+  for (const item of index) {
+    if (item.type === "program" && item.title.toLowerCase() === term) {
+      push(item);
+    }
+  }
+
+  return out;
+}
+
 function injectCropPrefixSpace(q: string): string {
   if (q.length < 2 || /\s/.test(q)) return q;
   for (const cropName of CROP_NAMES_BY_LENGTH_DESC) {
@@ -962,17 +1028,10 @@ export function searchAll(query: string): SearchItem[] {
   if (terms.length === 1) {
     const term = terms[0];
 
-    // 단일 term이 작물명 정확 매치면 해당 crop 카드를 최상단으로 hoist.
-    // (5/22 회장 요청 — "사과"·"딸기" 등 작물명만 검색 시 FAQ guide가 1위로
-    // 박히던 동작 변경. matchFaqs가 keyword includes로 매칭되어 발생.)
-    const exactCrop = CROPS.find((c) => c.name.toLowerCase() === term);
-    const hoisted: SearchItem[] = [];
-    if (exactCrop) {
-      const cropItem = index.find(
-        (i) => i.type === "crop" && i.title === exactCrop.name,
-      );
-      if (cropItem) hoisted.push(cropItem);
-    }
+    // 단일 term이 entity 정확명 매치 시 해당 카드를 최상단으로 hoist.
+    // (5/22 회장 요청 — FAQ guide 카드가 무관하게 1위로 박히던 동작 변경.
+    // 범위: 작물 + 시도 + 시군구 + 구 + 지원사업.)
+    const hoisted = findExactMatchHoists(term, index);
     const hoistedIds = new Set(hoisted.map((i) => i.id));
 
     const results = index
