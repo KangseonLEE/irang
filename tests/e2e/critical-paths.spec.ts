@@ -102,24 +102,17 @@ test.describe("2. /programs 필터 동작", () => {
     expect(count, "/programs 초기 카드 ≥ 1").toBeGreaterThanOrEqual(1);
   });
 
-  test("FilterGroup pill 링크에 query string 존재", async ({ page }) => {
+  test("DropdownFilter trigger 존재 (필터 동작 가능성)", async ({ page }) => {
     await gotoExpectHtml(page, "/programs");
-    // FilterGroup은 Link 기반 pill — query string("?…=…")을 가진 /programs 링크가 존재해야 함
-    // 클릭 후 navigation은 환경에 따라 race 가능하므로, URL에 query 포함된 anchor가 존재함을 검증
-    const queryLinks = page.locator('a[href^="/programs?"]');
-    const count = await queryLinks.count();
+    // 2026-05-22: FilterBar pill 링크(SSR Link 기반) → DropdownFilter(client state) 광역 전환.
+    // 더 이상 SSR HTML에 query string 링크 존재하지 않음 (5/22 commit 104fef3).
+    // DropdownFilter trigger 버튼 (aria-haspopup="dialog") 존재 검증으로 대체.
+    const filterTriggers = page.locator('button[aria-haspopup="dialog"]');
+    const count = await filterTriggers.count();
     expect(
       count,
-      "/programs에 query string을 가진 필터 링크 ≥ 1 (필터 동작 가능성)",
+      "/programs에 DropdownFilter trigger ≥ 1 (필터 동작 가능성)",
     ).toBeGreaterThanOrEqual(1);
-
-    // 그 중 1개는 실제 key=value 패턴이어야 함
-    const hrefs = await queryLinks.evaluateAll((els) =>
-      els.map((el) => (el as HTMLAnchorElement).getAttribute("href") ?? ""),
-    );
-    const hasParam = hrefs.some((h) => /\?[a-z]+=/i.test(h));
-    expect(hasParam, `필터 링크 href에 ?key=value 패턴 (수집: ${hrefs.slice(0, 3).join(", ")})`)
-      .toBe(true);
   });
 });
 
