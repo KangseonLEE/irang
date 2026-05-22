@@ -73,7 +73,6 @@ setInterval(() => {
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q")?.trim() ?? "";
-  const debug = url.searchParams.get("_debug") === "1";
 
   // 입력 길이 가드 — 너무 짧거나 길면 호출 의미 없음
   if (q.length < 2 || q.length > 50) {
@@ -96,10 +95,7 @@ export async function GET(request: NextRequest) {
   const clientId = process.env.NAVER_CLIENT_ID;
   const clientSecret = process.env.NAVER_CLIENT_SECRET;
   if (!clientId || !clientSecret) {
-    return NextResponse.json({
-      errata: "",
-      ...(debug ? { _debug: { reason: "no-credentials" } } : {}),
-    });
+    return NextResponse.json({ errata: "" });
   }
 
   try {
@@ -114,23 +110,13 @@ export async function GET(request: NextRequest) {
     });
 
     if (!res.ok) {
-      const body = debug ? await res.text().catch(() => "") : "";
-      return NextResponse.json({
-        errata: "",
-        ...(debug ? { _debug: { reason: "naver-not-ok", status: res.status, body: body.slice(0, 200) } } : {}),
-      });
+      // 429/500 등 일시 오류는 캐시하지 않음 (다음 호출 재시도)
+      return NextResponse.json({ errata: "" });
     }
 
-    const raw = await res.text();
-    let json: unknown = {};
-    try {
-      json = JSON.parse(raw);
-    } catch {
-      return NextResponse.json({
-        errata: "",
-        ...(debug ? { _debug: { reason: "parse-fail", raw: raw.slice(0, 200) } } : {}),
-      });
-    }
+    const json = (await res.json()) as
+      | { errata?: string }
+      | { result?: { item?: { errata?: string } } };
 
     // 네이버 응답 형식 둘 다 대응
     const errata =
@@ -140,14 +126,9 @@ export async function GET(request: NextRequest) {
       "";
 
     setCached(q, errata);
-    return NextResponse.json({
-      errata,
-      ...(debug ? { _debug: { reason: "ok", raw: raw.slice(0, 200) } } : {}),
-    });
-  } catch (err) {
-    return NextResponse.json({
-      errata: "",
-      ...(debug ? { _debug: { reason: "exception", message: String(err).slice(0, 200) } } : {}),
-    });
+    return NextResponse.json({ errata });
+  } catch {
+    // 타임아웃/네트워크 오류 — 빈 응답
+    return NextResponse.json({ errata: "" });
   }
 }
