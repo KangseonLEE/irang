@@ -517,6 +517,7 @@
   border: none;
   white-space: nowrap;
   flex-shrink: 0;
+  cursor: pointer;
   transition: background-color 0.12s, box-shadow 0.12s;
 }
 
@@ -597,6 +598,7 @@
   padding: 10px 18px;
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 25%, transparent);
+  cursor: pointer;
   transition: background-color 0.12s, border-color 0.12s;
 }
 
