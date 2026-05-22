@@ -147,28 +147,11 @@ function renderSimpleCard(item: SearchItem, query: string, highlightCls: string)
     s.cardBase,
     <>
       <span className={s.iconBox}>{item.icon}</span>
-      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
-        <span
-          style={{
-            fontSize: "var(--fs-body-sm)",
-            fontWeight: 600,
-            color: "var(--foreground)",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
+      <div className={s.simpleBody}>
+        <span className={s.simpleTitle}>
           {highlightMatch(item.title, query, highlightCls)}
         </span>
-        <span
-          style={{
-            fontSize: "var(--fs-caption)",
-            color: "var(--muted-foreground)",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
+        <span className={s.simpleSubtitle}>
           {highlightMatch(item.subtitle, query, highlightCls)}
         </span>
       </div>
