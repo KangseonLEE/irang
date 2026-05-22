@@ -972,3 +972,26 @@
 }
 
 /* 2026-05-16 Sprint 2 — Phase 5 modeToggle 제거 (상단 ModeToggleChips로 통합) */
+
+/* ================================================================
+   2026-05-22 (백로그 Top 2) — 모바일 WeightCustomizer 모달 분리
+   - 모바일·태블릿(< 1024px): 트리거 + Modal (단순화)
+   - 데스크탑(>= 1024px): 인라인 (기존 패턴 유지)
+   ================================================================ */
+.weightModalSlot {
+  display: flex;
+}
+
+.weightInlineSlot {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .weightModalSlot {
+    display: none;
+  }
+
+  .weightInlineSlot {
+    display: block;
+  }
+}

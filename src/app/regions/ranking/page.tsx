@@ -34,6 +34,7 @@ import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { getRegionStats } from "@/lib/data/region-stats";
 import { WeightCustomizer } from "@/components/persona/weight-customizer";
+import { WeightCustomizerModal } from "@/components/persona/weight-customizer-modal";
 import { RankingWizardHero } from "./ranking-wizard-hero";
 import { ModeToggleChips } from "./mode-toggle-chips";
 import { RankResults } from "./rank-results";
@@ -291,11 +292,25 @@ export default async function RankingPage({ searchParams }: PageProps) {
             // 복원되는 버그 방지. persona.id는 buildCustomPersona가 보존한 base id.
             const basePersonaOriginal = getPersona(persona.id) ?? persona;
             return (
-              <WeightCustomizer
-                basePersona={basePersonaOriginal}
-                currentWeights={persona.weights}
-                isCustom={isCustom}
-              />
+              <>
+                {/* 모바일·태블릿(< 1024px): 트리거 + Modal — 메인 흐름 단순화
+                    5/22 회장 결재 (백로그 Top 2). */}
+                <div className={s.weightModalSlot}>
+                  <WeightCustomizerModal
+                    basePersona={basePersonaOriginal}
+                    currentWeights={persona.weights}
+                    isCustom={isCustom}
+                  />
+                </div>
+                {/* 데스크탑(>= 1024px): 인라인 노출 유지 (기존 패턴) */}
+                <div className={s.weightInlineSlot}>
+                  <WeightCustomizer
+                    basePersona={basePersonaOriginal}
+                    currentWeights={persona.weights}
+                    isCustom={isCustom}
+                  />
+                </div>
+              </>
             );
           })()}
         </>

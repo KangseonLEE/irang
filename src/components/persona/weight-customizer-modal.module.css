@@ -1,0 +1,69 @@
+/* WeightCustomizerModal — 트리거 + 모달 래퍼.
+   5/22 백로그 Top 2 — 모바일 ranking UX 단순화.
+
+   trigger 패턴: /crops calendar-modal.tsx의 trigger 패턴 직역
+   (검색창 row 안 작은 버튼 — primary 8% 배경 + pill 형태)
+*/
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px 12px;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s, border-color 0.15s;
+  /* 모바일에서 페르소나 chip 줄 아래 자연 정렬 — align-self: flex-start */
+  align-self: flex-start;
+}
+
+@media (hover: hover) {
+  .trigger:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent);
+  }
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.triggerLabel {
+  font-weight: 600;
+}
+
+/* 사용자가 가중치를 조정 중일 때 시각 강조 — 솔리드 primary 배경 */
+.triggerActive {
+  background: var(--primary, #1b6b5a);
+  border-color: var(--primary, #1b6b5a);
+  color: #fff;
+}
+
+@media (hover: hover) {
+  .triggerActive:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 88%, #000);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 88%, #000);
+  }
+}
+
+/* 태블릿 폰트 상향 (filter-bar 패턴) */
+@media (min-width: 768px) {
+  .trigger {
+    min-height: 34px;
+    padding: 7px 14px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .trigger {
+    font-size: var(--fs-body-sm);
+  }
+}
