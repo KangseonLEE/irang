@@ -125,6 +125,20 @@
   text-align: left;
 }
 
+/* program 카드 — 지원금액 hero 라인 (subtitle 다음, metaRow 위) */
+.supportAmount {
+  grid-column: 2;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: keep-all;
+  text-align: left;
+}
+
 .metaRow {
   grid-column: 2;
   display: flex;

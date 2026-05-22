@@ -209,6 +209,7 @@ function renderRegionCard(item: SearchItem, query: string, highlightCls: string)
   if (looked.kind === "sigungu" || looked.kind === "gu") {
     const d = looked.data!;
     const crops = d.mainCrops?.slice(0, 2) ?? [];
+    const totalCrops = d.mainCrops?.length ?? 0;
     return wrapCard(
       item,
       s.cardRich,
@@ -224,6 +225,9 @@ function renderRegionCard(item: SearchItem, query: string, highlightCls: string)
               {crops.map((c) => (
                 <span key={c} className={s.metaChip}>{c}</span>
               ))}
+              {totalCrops > crops.length && (
+                <span className={s.metaItem}>+{totalCrops - crops.length}</span>
+              )}
             </>
           )}
         </div>
@@ -250,7 +254,7 @@ function renderRegionCard(item: SearchItem, query: string, highlightCls: string)
   return renderSimpleCard(item, query, highlightCls);
 }
 
-/** 지원사업 카드 — status + 마감일 D-N + 지역 + 지원유형 */
+/** 지원사업 카드 — status + 지원금액 hero + 지역 + 지원유형 + D-N */
 function renderProgramCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
   const prog = getProgramById(item.id);
   if (!prog) return renderSimpleCard(item, query, highlightCls);
@@ -262,6 +266,8 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
       : prog.status === "모집예정"
         ? s.badgeStatusUpcoming
         : s.badgeStatusClosed;
+  // supportAmount 텍스트가 너무 길면 1줄 truncate — CSS에서 line-clamp 처리.
+  const amount = prog.supportAmount?.trim();
 
   return wrapCard(
     item,
@@ -270,6 +276,9 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
       <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
       <span className={s.title}>{highlightMatch(prog.title, query, highlightCls)}</span>
       <span className={s.subtitle}>{highlightMatch(item.subtitle, query, highlightCls)}</span>
+      {amount && (
+        <span className={s.supportAmount}>{highlightMatch(amount, query, highlightCls)}</span>
+      )}
       <div className={s.metaRow}>
         <span className={s.metaChipMuted}>{prog.region}</span>
         <span className={s.metaSep}>·</span>
