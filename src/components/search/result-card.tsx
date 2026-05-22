@@ -294,7 +294,7 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
   );
 }
 
-/** 교육 카드 — organization + 기간 + 지역 + level */
+/** 교육 카드 — organization + 기간 + 지역 + level + 정원 */
 function renderEducationCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
   const edu = getEducationById(item.id);
   if (!edu) return renderSimpleCard(item, query, highlightCls);
@@ -331,13 +331,19 @@ function renderEducationCard(item: SearchItem, query: string, highlightCls: stri
         <span className={s.metaSep}>·</span>
         <span className={s.metaChip}>{edu.type}</span>
         <span className={s.metaChipMuted}>{edu.level}</span>
+        {edu.capacity != null && edu.capacity > 0 && (
+          <>
+            <span className={s.metaSep}>·</span>
+            <span className={s.metaItem}>정원 {edu.capacity}명</span>
+          </>
+        )}
       </div>
       <span className={`${s.badge} ${statusClass}`}>{edu.status}</span>
     </>,
   );
 }
 
-/** 체험·행사 카드 — 행사일 + 지역 + target */
+/** 체험·행사 카드 — 행사일 + 지역 + 장소 + target */
 function renderEventCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
   const ev = getEventById(item.id);
   if (!ev) return renderSimpleCard(item, query, highlightCls);
@@ -359,6 +365,12 @@ function renderEventCard(item: SearchItem, query: string, highlightCls: string):
       <span className={s.subtitle}>{highlightMatch(item.subtitle, query, highlightCls)}</span>
       <div className={s.metaRow}>
         <span className={s.metaChipMuted}>{ev.region}</span>
+        {ev.location && (
+          <>
+            <span className={s.metaSep}>·</span>
+            <span className={s.metaItem}>{ev.location}</span>
+          </>
+        )}
         {period && (
           <>
             <span className={s.metaSep}>·</span>
@@ -402,12 +414,19 @@ function renderCenterCard(item: SearchItem, query: string, highlightCls: string)
       <span className={s.subtitle}>{highlightMatch(where, query, highlightCls)}</span>
       <div className={s.metaRow}>
         <span className={s.metaChip}>{categoryLabel}</span>
-        {ctr.phone && (
+        {ctr.phone ? (
           <>
             <span className={s.metaSep}>·</span>
             <span className={s.metaItem}>{ctr.phone}</span>
           </>
-        )}
+        ) : ctr.address ? (
+          <>
+            <span className={s.metaSep}>·</span>
+            <span className={s.metaItem}>
+              {ctr.address.length > 28 ? `${ctr.address.slice(0, 28)}…` : ctr.address}
+            </span>
+          </>
+        ) : null}
       </div>
     </>,
   );
