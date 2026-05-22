@@ -369,3 +369,66 @@ describe("작물 + 컨텍스트 syntheticItem 합성", () => {
     expect(cross).toBeDefined();
   });
 });
+
+// ─── 작물명 prefix 자동 공백 (붙여쓰기 정규화) ───
+// 한국어 사용자는 "사과 재배지" / "사과재배지" 둘 다 자연스럽게 입력함.
+// 후자도 전자와 동등하거나 근사한 결과를 반환해야 함.
+
+describe("작물명 prefix 자동 공백 분리", () => {
+  it("'사과재배지'(붙여쓰기)는 '사과 재배지'와 동일한 crop-region intent로 분기한다", () => {
+    const intent = detectIntent("사과재배지");
+    expect(intent.type).toBe("crop-region");
+    if (intent.type === "crop-region") {
+      expect(intent.crop).toBe("사과");
+    }
+  });
+
+  it("'사과재배지' 검색 결과에 '사과 주요 산지' 합성 카드가 노출된다", () => {
+    const results = searchAll("사과재배지");
+    const synthetic = results.find((r) => r.id === "crop-region-apple");
+    expect(synthetic).toBeDefined();
+    expect(synthetic?.href).toBe("/crops/apple#region");
+  });
+
+  it("'딸기수익'(붙여쓰기)도 crop-income intent로 분기한다", () => {
+    const intent = detectIntent("딸기수익");
+    expect(intent.type).toBe("crop-income");
+    if (intent.type === "crop-income") {
+      expect(intent.crop).toBe("딸기");
+    }
+  });
+
+  it("'포도재배법'도 crop-method 합성 카드를 노출한다", () => {
+    const results = searchAll("포도재배법");
+    const synthetic = results.find((r) => r.id === "crop-method-grape");
+    expect(synthetic).toBeDefined();
+  });
+
+  it("붙여쓰기와 띄어쓰기 결과 건수가 근사한다 (±5건 이내)", () => {
+    const spaced = searchAll("사과 재배지");
+    const joined = searchAll("사과재배지");
+    // 띄어쓰기 결과보다 너무 적으면 fix 효과 부족
+    expect(joined.length).toBeGreaterThanOrEqual(spaced.length - 5);
+  });
+
+  it("'사과'(단일 작물명)은 분리되지 않고 그대로 처리된다", () => {
+    const intent = detectIntent("사과");
+    expect(intent.type).toBe("general");
+  });
+
+  it("'사과는'(작물명 + 조사)은 분리되지 않고 기존 형태소 처리에 위임된다", () => {
+    // 분리되면 "사과 는"이 되어 multi-term 경로로 빠짐 (점수 산식 변화)
+    // 조사만 남는 경우는 PARTICLE_ONLY 가드로 skip되어야 함
+    const results = searchAll("사과는");
+    expect(results.some((r) => r.title.includes("사과"))).toBe(true);
+  });
+
+  it("'방울토마토재배지'는 긴 작물명(방울토마토)이 우선 매칭된다", () => {
+    // greedy longest match: "토마토"(3자)보다 "방울토마토"(5자)가 우선
+    const intent = detectIntent("방울토마토재배지");
+    expect(intent.type).toBe("crop-region");
+    if (intent.type === "crop-region") {
+      expect(intent.crop).toBe("방울토마토");
+    }
+  });
+});

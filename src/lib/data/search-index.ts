@@ -731,6 +731,36 @@ function removeKoreanSuffix(term: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// 작물명 prefix 자동 공백 삽입 (Crop-name prefix splitter)
+// ---------------------------------------------------------------------------
+// 한국어 사용자는 "사과 재배지" / "사과재배지" 둘 다 자연스럽게 입력하지만
+// tokenization은 공백 기반이라 후자는 "사과재배지" 단일 토큰으로 매칭이 좁아짐.
+//   "사과 재배지" → 130건 (사과 OR 재배지)
+//   "사과재배지"  → 3건   (substring 매칭만)
+// CROPS 49종 prefix를 길이 내림차순 greedy로 검사하여 자동 분리.
+// 조사(는/을/를/의 등)만 남는 경우는 removeKoreanSuffix가 처리하도록 skip.
+
+const PARTICLE_ONLY = /^(?:은|는|이|가|을|를|에|의|로|으로|에서|도|만|부터|까지|랑|하고|와|과|이랑)$/;
+
+const CROP_NAMES_BY_LENGTH_DESC: string[] = (() => {
+  const names = CROPS.map((c) => c.name.toLowerCase());
+  return Array.from(new Set(names)).sort((a, b) => b.length - a.length);
+})();
+
+function injectCropPrefixSpace(q: string): string {
+  if (q.length < 2 || /\s/.test(q)) return q;
+  for (const cropName of CROP_NAMES_BY_LENGTH_DESC) {
+    if (q.length > cropName.length && q.startsWith(cropName)) {
+      const rest = q.slice(cropName.length);
+      // 조사 단독은 분리하지 않음 (예: "사과는" → removeKoreanSuffix가 처리)
+      if (PARTICLE_ONLY.test(rest)) return q;
+      return `${cropName} ${rest}`;
+    }
+  }
+  return q;
+}
+
+// ---------------------------------------------------------------------------
 // Relevance scoring
 // ---------------------------------------------------------------------------
 
@@ -912,8 +942,10 @@ export function searchItems(query: string): SearchItem[] {
  *   "전남 딸기" → "전남" OR "딸기" 로 분리, 관련도 합산 정렬
  */
 export function searchAll(query: string): SearchItem[] {
-  const q = query.trim().toLowerCase();
-  if (q.length === 0) return [];
+  const q0 = query.trim().toLowerCase();
+  if (q0.length === 0) return [];
+  // 작물명 prefix 자동 공백 — "사과재배지" → "사과 재배지"
+  const q = injectCropPrefixSpace(q0);
 
   const terms = q.split(/\s+/).filter(Boolean);
   if (terms.length === 0) return [];
@@ -1219,7 +1251,8 @@ const CROP_CONTEXT_ANCHOR: Record<CropContextType, string> = {
  *   "딸기 수익"  → { type: "crop-income", crop: "딸기" }
  */
 export function detectIntent(query: string): SearchIntent {
-  const lowerQuery = query.trim().toLowerCase();
+  // 작물명 prefix 자동 공백 — "사과재배지" → "사과 재배지" 로 정규화 후 분기
+  const lowerQuery = injectCropPrefixSpace(query.trim().toLowerCase());
   const words = lowerQuery.split(/\s+/).filter(Boolean);
   if (words.length < 2) return { type: "general" };
 
