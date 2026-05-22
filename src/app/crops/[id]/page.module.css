@@ -19,7 +19,11 @@
 }
 
 @media (min-width: 1024px) {
-  .page { padding: 40px 32px 48px; }
+  .page { padding: 40px 40px 48px; }
+}
+
+@media (min-width: 1280px) {
+  .page { padding: 40px 48px 56px; }
 }
 
 /* ── 상단 바: 브레드크럼 + 출처 ── */
@@ -326,30 +330,30 @@
 }
 
 /* ── Sticky 작물 헤더 (작물 정보 + 탭 통합) ── */
-/* 모바일(<768px): 정적 배치 — 사용자 스크롤 시 hero 정보로 충분, sticky 부담 X */
+/* 5/22 회장 결재 옵션 C: 모바일에서도 sticky 활성화. 핵심 지표(난이도·재배 시기)를
+   .stickyCropMeta 한 줄에 압축해 콘텐츠 가림 부담을 최소화한다. */
 .stickyHeader {
-  position: static;
+  position: sticky;
+  top: var(--h-header, 3.5rem);
+  z-index: var(--z-sticky);
   margin: 16px 0 24px;
-  background: var(--card, #fff);
+  background: color-mix(in srgb, var(--background, #fff) 96%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
+  transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 태블릿·데스크탑(768px+): sticky 활성화 */
+:global(html[data-header-hidden]) .stickyHeader {
+  top: 0;
+}
+
+/* 태블릿·데스크탑(768px+): 모바일과 동일 패턴 유지 — 배경만 살짝 다르게 */
 @media (min-width: 768px) {
   .stickyHeader {
-    position: sticky;
-    top: var(--h-header, 3.5rem);
-    z-index: var(--z-sticky);
-    background: color-mix(in srgb, var(--background, #fff) 96%, transparent);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  :global(html[data-header-hidden]) .stickyHeader {
-    top: 0;
+    border-radius: 12px;
   }
 }
 

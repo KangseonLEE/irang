@@ -314,7 +314,7 @@ export default async function CropDetailPage({
             </div>
           </div>
 
-          {/* Quick Stats — 요약 프로필 카드 (모바일에서 sticky 헤더 없으니 더 상세히) */}
+          {/* Quick Stats — 요약 프로필 카드 (모바일 sticky는 한 줄 압축, 여기는 3개 상세) */}
           <div className={s.quickStats}>
             <div className={s.statCard}>
               <Icon icon={Gauge} size="lg" color="success" />
@@ -388,7 +388,7 @@ export default async function CropDetailPage({
           />
           <span className={s.stickyCropName}>{data.name}</span>
           <span className={s.stickyCropMeta}>
-            {data.category} · 난이도 {data.difficulty}
+            난이도 {data.difficulty} · {data.growingSeason}
           </span>
         </div>
         <div className={s.stickyHeaderTabs}>
