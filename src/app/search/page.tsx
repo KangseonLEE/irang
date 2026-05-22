@@ -7,6 +7,7 @@ import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, Tre
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchAll, hasExactMatch, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
+import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
 import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
@@ -122,6 +123,63 @@ function SearchPageContent() {
       logSearch(query, totalCount);
     }
   }, [query, totalCount]);
+
+  // ── 오타 보정 — 0건일 때만 후보 추출 ──
+  // (a) 자모 레벤슈타인: 작물·지역 사전 기반, 클라이언트 즉시 계산
+  const typoCandidates = useMemo(() => {
+    if (!query || totalCount > 0) return [] as string[];
+    return findTypoCandidates(query.trim().toLowerCase());
+  }, [query, totalCount]);
+
+  // (b) 네이버 errata: 한/영 키 오타 변환, /api/search-errata 프록시 호출
+  // — 결과를 query와 한 쌍으로 묶어 stale 표시 방지
+  const [errataPair, setErrataPair] = useState<{ query: string; value: string }>({
+    query: "",
+    value: "",
+  });
+  useEffect(() => {
+    if (!query || totalCount > 0) return;
+    const q = query.trim();
+    if (q.length < 2 || q.length > 50) return;
+    const controller = new AbortController();
+    fetch(`/api/search-errata?q=${encodeURIComponent(q)}`, {
+      signal: controller.signal,
+    })
+      .then((r) => (r.ok ? r.json() : { errata: "" }))
+      .then((data: { errata?: string }) => {
+        if (controller.signal.aborted) return;
+        const errata = data?.errata?.trim() ?? "";
+        setErrataPair({
+          query: q,
+          value: errata && errata !== q ? errata : "",
+        });
+      })
+      .catch(() => {
+        // 네트워크 오류 — 무음
+      });
+    return () => controller.abort();
+  }, [query, totalCount]);
+
+  // 자모 + errata 합치고 중복 제거 (errata는 현재 query 매칭 시에만 사용)
+  const suggestions = useMemo(() => {
+    const merged: string[] = [];
+    const seen = new Set<string>();
+    for (const c of typoCandidates) {
+      if (!seen.has(c)) {
+        seen.add(c);
+        merged.push(c);
+      }
+    }
+    const errata =
+      errataPair.query === query.trim() && totalCount === 0
+        ? errataPair.value
+        : "";
+    if (errata && !seen.has(errata)) {
+      seen.add(errata);
+      merged.push(errata);
+    }
+    return merged.slice(0, 4);
+  }, [typoCandidates, errataPair, query, totalCount]);
 
   // 최근 검색어 (localStorage — 날짜 포함 형식 호환)
   const recentSearches = useMemo(() => {
@@ -320,11 +378,30 @@ function SearchPageContent() {
       {query && totalCount === 0 && (
         <div className={s.noResult}>
           <p className={s.noResultText}>
-            &lsquo;{query}&rsquo;에 대한 검색 결과가 없습니다.
+            &lsquo;{query}&rsquo;에 대한 검색 결과가 없어요.
           </p>
           <p className={s.noResultHint}>
             다른 키워드로 검색하거나, 아래 메뉴에서 직접 탐색해 보세요.
           </p>
+
+          {/* 오타 보정 제안 — 자모 후보 + 네이버 errata 합본 */}
+          {suggestions.length > 0 && (
+            <div className={s.suggestSection}>
+              <p className={s.suggestTitle}>혹시 이걸 찾으셨나요?</p>
+              <div className={s.suggestList}>
+                {suggestions.map((sug) => (
+                  <Link
+                    key={sug}
+                    href={`/search?q=${encodeURIComponent(sug)}`}
+                    className={s.suggestLink}
+                  >
+                    {sug}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className={s.noResultLinks}>
             <Link href="/regions" className={s.noResultLink}>
               <MapPin size={16} /> 지역 비교

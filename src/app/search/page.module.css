@@ -629,6 +629,56 @@
   transition: background-color 0.12s, border-color 0.12s;
 }
 
+/* 오타 보정 제안 — 결과 0건일 때 노출 */
+.suggestSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 20px 16px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.suggestTitle {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.suggestList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.suggestLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  background: var(--card, #fff);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  border-radius: 999px;
+  transition: background-color 0.12s, border-color 0.12s;
+}
+
+@media (hover: hover) {
+  .suggestLink:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+    border-color: var(--primary, #1b6b5a);
+  }
+}
+
 @media (hover: hover) {
   .requestLink:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
