@@ -331,7 +331,10 @@
 
 /* ── Sticky 작물 헤더 (작물 정보 + 탭 통합) ── */
 /* 5/22 회장 결재 옵션 C: 모바일에서도 sticky 활성화. 핵심 지표(난이도·재배 시기)를
-   .stickyCropMeta 한 줄에 압축해 콘텐츠 가림 부담을 최소화한다. */
+   .stickyCropMeta 한 줄에 압축해 콘텐츠 가림 부담을 최소화한다.
+   5/22 회장 라이브 재발견 fix: 데스크탑(≥1024px)에서는 sticky 자체 hide → 좌측 본문
+   영역이 sticky 덮개에 가려지는 침범 0. sidebar에 작물 메타가 이미 노출되며
+   AnchorTab은 본문 흐름 위에 일반 배치로 유지된다. */
 .stickyHeader {
   position: sticky;
   top: var(--h-header, 3.5rem);
@@ -354,6 +357,21 @@
 @media (min-width: 768px) {
   .stickyHeader {
     border-radius: 12px;
+  }
+}
+
+/* 데스크탑(≥1024px): sticky 해제 + 카드 chrome 제거 → AnchorTab만 일반 흐름에 배치.
+   본문 좌측이 sticky 덮개에 침범당하지 않는다. */
+@media (min-width: 1024px) {
+  .stickyHeader {
+    position: static;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    margin: 20px 0 32px;
   }
 }
 
@@ -422,6 +440,8 @@
 @media (min-width: 1024px) {
   .anchorTabWrap { margin: 20px 0 32px; }
   .anchorTabWrap::after { display: none; }
+  /* 데스크탑에서는 stickyHeader가 일반 흐름이라 가로 스크롤 fade hint 불필요 */
+  .stickyHeaderTabs::after { display: none; }
 }
 
 .anchorTab {
@@ -514,9 +534,9 @@
   .section { border-radius: 20px; }
 }
 
-/* 데스크탑(1024px+) — stickyHeaderCrop hide 후 sticky 영역(header 56 + tabs 52 ≈ 108)로 축소 */
+/* 데스크탑(1024px+) — 5/22 회장 재발견 fix: stickyHeader 자체 hide → 헤더(56)만 offset */
 @media (min-width: 1024px) {
-  .section { scroll-margin-top: 124px; }
+  .section { scroll-margin-top: 72px; }
 }
 
 .sectionHeader {
@@ -1251,6 +1271,35 @@
 /* 재배면적 차트 */
 .regionRanking {
   margin-bottom: 16px;
+}
+
+/* 시·군·구 단위 cross-link chip grid (5/22 회장 fix) — KOSIS 시·도 차트와 짝.
+   sidebar `주요 산지` 라벨과 본문 차트 사이 데이터 격차를 메운다. */
+.sigunguPicks {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.sigunguPickGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sigunguPickChip {
+  composes: regionPill;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+@media (hover: hover) {
+  .sigunguPickChip:hover {
+    background: var(--accent, #e6f2ef);
+    border-color: var(--primary, #1b6b5a);
+  }
 }
 
 .regionRankingTitle {

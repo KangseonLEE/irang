@@ -19,6 +19,7 @@ import { getGuByIds, GUS } from "@/lib/data/gus";
 import { getEnrichedHighlights } from "@/lib/data/popular-tags";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { CropLinkCard } from "@/components/crop/crop-link-card";
 import { getSigunguCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
@@ -244,11 +245,7 @@ export default async function GuDetailPage({ params }: PageProps) {
                     {prog.region === "전국" ? "전국" : province.shortName}
                   </span>
                 </div>
-                <span
-                  className={`${s.programStatus} ${prog.status === "모집중" ? s.statusActive : ""}`}
-                >
-                  {prog.status}
-                </span>
+                <StatusBadge status={prog.status} />
               </Link>
             ))}
           </div>
@@ -303,11 +300,7 @@ export default async function GuDetailPage({ params }: PageProps) {
                 <div className={s.eduCardBadges}>
                   <span className={s.eduTypeBadge}>{edu.type}</span>
                   <span className={s.eduLevelBadge}>{edu.level}</span>
-                  <span
-                    className={`${s.programStatus} ${edu.status === "모집중" ? s.statusActive : ""}`}
-                  >
-                    {edu.status}
-                  </span>
+                  <StatusBadge status={edu.status} />
                 </div>
               </Link>
             ))}
@@ -351,11 +344,7 @@ export default async function GuDetailPage({ params }: PageProps) {
                   <span className={s.eventTypeBadge} data-type={evt.type}>
                     {evt.type}
                   </span>
-                  <span
-                    className={`${s.programStatus} ${evt.status === "접수중" ? s.statusActive : ""}`}
-                  >
-                    {evt.status}
-                  </span>
+                  <StatusBadge status={evt.status} />
                 </div>
               </Link>
             ))}

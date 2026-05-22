@@ -18,6 +18,7 @@ import {
   LandPlot,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { RegionStats } from "./region-stats";
 import { LandCheckBox } from "@/components/region/land-check-box";
 import { DataSource } from "@/components/ui/data-source";
@@ -202,11 +203,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
                       : province.shortName}
                   </span>
                 </div>
-                <span
-                  className={`${s.programStatus} ${program.status === "모집중" ? s.statusActive : ""}`}
-                >
-                  {program.status}
-                </span>
+                <StatusBadge status={program.status} />
               </Link>
             ))}
           </div>
@@ -257,11 +254,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
                 <div className={s.eduCardBadges}>
                   <span className={s.eduTypeBadge}>{course.type}</span>
                   <span className={s.eduLevelBadge}>{course.level}</span>
-                  <span
-                    className={`${s.programStatus} ${course.status === "모집중" ? s.statusActive : ""}`}
-                  >
-                    {course.status}
-                  </span>
+                  <StatusBadge status={course.status} />
                 </div>
               </Link>
             ))}
@@ -302,11 +295,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
                   <span className={s.eventTypeBadge} data-type={event.type}>
                     {event.type}
                   </span>
-                  <span
-                    className={`${s.programStatus} ${event.status === "접수중" ? s.statusActive : ""}`}
-                  >
-                    {event.status}
-                  </span>
+                  <StatusBadge status={event.status} />
                 </div>
               </Link>
             ))}

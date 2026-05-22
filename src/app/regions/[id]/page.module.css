@@ -783,21 +783,7 @@ a.stickyChip:focus-visible {
   margin-top: 2px;
 }
 
-.programStatus {
-  font-size: var(--fs-overline);
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: var(--muted, #f9fafb);
-  color: var(--muted-foreground);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.statusActive {
-  background: var(--secondary, #f0f9f6);
-  color: var(--primary, #1b6b5a);
-}
+/* .programStatus / .statusActive 제거 (5/22 회장 fix) — StatusBadge 공용 컴포넌트로 통일 */
 
 .viewMore {
   display: inline-block;

@@ -111,3 +111,50 @@ export function formatApplicationPeriod(
   if (startUnknown && end) return `~ ${formatDate(end)}`;
   return formatDateRange(start as string, end as string);
 }
+
+/**
+ * 헥타르(ha)를 일반인 친화 평수로 환산해 보조 라벨로 반환.
+ *
+ * 환산 규칙:
+ *  - 1ha = 10,000m² ≈ 3,025평 (소수점 반올림)
+ *  - 1만 평 이상 → "N만 평" 단위 (예: 2,735ha → 약 827만 평)
+ *  - 1천 평 이상 → "N천 평" 단위 (예: 5ha → 약 1.5만 평)
+ *  - 100평 이상 → 그대로 (예: 0.5ha → 약 1,513평)
+ *  - 그 외 → null (표시 생략)
+ *
+ * @example
+ * formatHectaresWithPyeong(2735) // "2,735ha (약 827만 평)"
+ * formatHectaresWithPyeong(50)   // "50ha (약 15만 평)"
+ * formatHectaresWithPyeong(0.5)  // "0.5ha (약 1,513평)"
+ */
+const PYEONG_PER_HA = 3025;
+
+export function formatPyeongFromHa(ha: number): string | null {
+  if (!Number.isFinite(ha) || ha <= 0) return null;
+  const pyeong = Math.round(ha * PYEONG_PER_HA);
+  if (pyeong < 100) return null;
+  if (pyeong >= 10000) {
+    const manPyeong = Math.round(pyeong / 10000);
+    return `약 ${manPyeong.toLocaleString()}만 평`;
+  }
+  return `약 ${pyeong.toLocaleString()}평`;
+}
+
+/**
+ * 헥타르 값을 "2,735ha (약 827만 평)" 형식의 친화 라벨로 반환.
+ * 평수 환산이 의미 없는 경우(매우 작은 값)는 ha만 표시.
+ *
+ * @param ha 헥타르 값
+ * @param hectareDecimals ha 표시 시 소수점 자리수 (기본 0)
+ */
+export function formatHectaresWithPyeong(
+  ha: number,
+  hectareDecimals = 0,
+): string {
+  const haLabel = `${ha.toLocaleString(undefined, {
+    maximumFractionDigits: hectareDecimals,
+    minimumFractionDigits: 0,
+  })}ha`;
+  const pyeong = formatPyeongFromHa(ha);
+  return pyeong ? `${haLabel} (${pyeong})` : haLabel;
+}

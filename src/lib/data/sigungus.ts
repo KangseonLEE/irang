@@ -387,3 +387,37 @@ export function getMajorSigungusForCrop(
 
   return matched.slice(0, limit).map((sg) => sg.shortName);
 }
+
+/**
+ * 작물명으로 주요 산지 시·군·구 — 라우팅 정보 포함 버전.
+ *
+ * sidebar `getMajorSigungusForCrop`이 shortName 배열만 반환하는 데 비해,
+ * 본문에서 시·군·구로 cross-link하려면 `id` + `sidoId`도 필요해서 별도 helper로 분리.
+ *
+ * @example
+ * getMajorSigunguLinksForCrop("사과", ["gyeongbuk", "chungbuk"], 6)
+ * // [{ id: "yesan", sidoId: "chungnam", shortName: "예산", name: "예산군" }, ...]
+ */
+export function getMajorSigunguLinksForCrop(
+  cropName: string,
+  sortBySidoIds: string[] = [],
+  limit = 6,
+): Array<{ id: string; sidoId: string; shortName: string; name: string }> {
+  const matched = SIGUNGUS.filter((sg) => sg.mainCrops.includes(cropName));
+
+  if (sortBySidoIds.length > 0) {
+    const priority = new Map(sortBySidoIds.map((id, idx) => [id, idx]));
+    matched.sort((a, b) => {
+      const ap = priority.get(a.sidoId) ?? Number.MAX_SAFE_INTEGER;
+      const bp = priority.get(b.sidoId) ?? Number.MAX_SAFE_INTEGER;
+      return ap - bp;
+    });
+  }
+
+  return matched.slice(0, limit).map((sg) => ({
+    id: sg.id,
+    sidoId: sg.sidoId,
+    shortName: sg.shortName,
+    name: sg.name,
+  }));
+}

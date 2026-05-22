@@ -40,9 +40,12 @@ import {
   type CultivationStep,
 } from "@/lib/data/crops";
 import { CropRichCard } from "@/components/crop/crop-rich-card";
-import { convertToPyeongLabel } from "@/lib/format";
+import { convertToPyeongLabel, formatHectaresWithPyeong } from "@/lib/format";
 import { PROVINCES } from "@/lib/data/regions";
-import { getMajorSigungusForCrop } from "@/lib/data/sigungus";
+import {
+  getMajorSigungusForCrop,
+  getMajorSigunguLinksForCrop,
+} from "@/lib/data/sigungus";
 import {
   fetchCropStats,
   fetchRiceIncome,
@@ -468,6 +471,8 @@ export default async function CropDetailPage({
           <RegionSection
             majorRegions={detail.majorRegions}
             cropStats={cropStats}
+            cropName={data.name}
+            majorSidoIds={majorSidoIds}
           />
 
           {/* 청년농 재배 사례 */}
@@ -865,9 +870,13 @@ function ProsConsSection({ prosCons }: { prosCons: ProsConsInfo }) {
 function RegionSection({
   majorRegions,
   cropStats,
+  cropName,
+  majorSidoIds,
 }: {
   majorRegions: string[];
   cropStats: CropStatItem[];
+  cropName: string;
+  majorSidoIds: string[];
 }) {
   const top5 = cropStats
     .filter((st) => st.regionName !== "전국" && st.regionName !== "계" && st.cultivationArea > 0)
@@ -876,6 +885,10 @@ function RegionSection({
 
   const maxArea = top5.length > 0 ? top5[0].cultivationArea : 1;
   const kosisYear = top5.length > 0 ? top5[0].year : null;
+
+  // 시·군·구 단위 cross-link (5/22 회장 fix) — sidebar와 동일 helper.
+  // 본문은 차트(시·도 KOSIS 정량) + 시·군·구 chip row(정성)를 함께 노출.
+  const sigunguLinks = getMajorSigunguLinksForCrop(cropName, majorSidoIds, 8);
 
   return (
     <section id="region" className={s.section}>
@@ -889,11 +902,11 @@ function RegionSection({
       <div className={s.sectionBody}>
         {top5.length > 0 ? (
           <div className={s.regionRanking}>
-            <p className={s.regionRankingTitle}>재배면적 상위</p>
+            <p className={s.regionRankingTitle}>재배면적 상위 (시·도)</p>
             <div
               className={s.chartContainer}
               role="img"
-              aria-label={`재배면적: ${top5.map((st) => `${st.regionName} ${st.cultivationArea.toLocaleString()}ha`).join(", ")}`}
+              aria-label={`재배면적: ${top5.map((st) => `${st.regionName} ${formatHectaresWithPyeong(st.cultivationArea)}`).join(", ")}`}
             >
               {top5.map((stat, idx) => {
                 const pct = Math.round((stat.cultivationArea / maxArea) * 100);
@@ -912,7 +925,7 @@ function RegionSection({
                       />
                     </div>
                     <span className={s.chartValue}>
-                      {stat.cultivationArea.toLocaleString()}ha
+                      {formatHectaresWithPyeong(stat.cultivationArea)}
                     </span>
                   </>
                 );
@@ -950,6 +963,25 @@ function RegionSection({
                 <span key={r} className={s.regionPill}>{r}</span>
               );
             })}
+          </div>
+        )}
+
+        {/* 시·군·구 단위 주요 산지 (5/22 회장 fix) — sigungu.mainCrops 매핑 기반 cross-link */}
+        {sigunguLinks.length > 0 && (
+          <div className={s.sigunguPicks}>
+            <p className={s.regionRankingTitle}>주요 산지 (시·군·구)</p>
+            <div className={s.sigunguPickGrid}>
+              {sigunguLinks.map((sg) => (
+                <Link
+                  key={`${sg.sidoId}-${sg.id}`}
+                  href={`/regions/${sg.sidoId}/${sg.id}`}
+                  className={s.sigunguPickChip}
+                >
+                  <Icon icon={MapPin} size="xs" />
+                  {sg.shortName}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 

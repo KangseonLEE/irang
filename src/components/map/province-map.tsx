@@ -12,9 +12,11 @@ import s from "./province-map.module.css";
  * 본토와 떨어진 도서 시군구 ID — 본토 viewBox에서 제외하고 별도 inset으로 표시.
  * 본토만 viewBox에 잡혀 본토 시·군이 크게 보임.
  * 5/10 추가: 경북 울릉도가 viewBox를 800까지 늘려 본토가 작게 보이는 이슈.
+ * 5/22 추가: 전남 신안군이 다도해 1004개 섬으로 viewBox 좌측 광역 차지 → 본토 축소 (회장 라이브 발견).
  */
 const ISLAND_SIGUNGUS: Record<string, ReadonlySet<string>> = {
   gyeongbuk: new Set(["ulleung"]),
+  jeonnam: new Set(["sinan"]),
   // TODO: 다른 시·도 도서 점검 후 추가 (인천 옹진·강화, 충남 태안 도서 등)
 };
 
