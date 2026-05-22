@@ -12,10 +12,8 @@ import { getSigunguById } from "@/lib/data/sigungus";
 import { getProvinceById } from "@/lib/data/regions";
 import { STATIONS } from "@/lib/data/stations";
 import { CENTERS } from "@/lib/data/centers";
-import { interviews } from "@/lib/data/landing";
+import { interviews, INTERVIEW_CATEGORY_LABEL } from "@/lib/data/landing";
 import { glossaryMap, CATEGORY_LABELS } from "@/lib/data/glossary";
-import { CropPageCard } from "@/components/crop/crop-page-card";
-import { InterviewRichCard } from "@/components/interview/interview-rich-card";
 
 import s from "./result-card.module.css";
 
@@ -194,12 +192,24 @@ function renderHintCard(item: SearchItem, query: string, highlightCls: string): 
   );
 }
 
-/** 작물 카드 — /crops 페이지와 동일한 풍부 세로형 카드 (이미지 + 정보) */
+/** 작물 카드 — 가로형 요약 (emoji + name + description + category + difficulty) */
 function renderCropCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
   const crop = CROPS.find((c) => c.id === item.id);
   if (!crop) return renderSimpleCard(item, query, highlightCls);
 
-  return <CropPageCard key={`${item.type}-${item.id}`} crop={crop} />;
+  return wrapCard(
+    item,
+    s.cardRich,
+    <>
+      <span className={s.iconBox} aria-hidden="true">{crop.emoji}</span>
+      <span className={s.title}>{highlightMatch(crop.name, query, highlightCls)}</span>
+      <span className={s.subtitle}>{highlightMatch(crop.description, query, highlightCls)}</span>
+      <div className={s.metaRow}>
+        <span className={s.metaChip}>난이도 {crop.difficulty}</span>
+      </div>
+      <span className={s.badge}>{crop.category}</span>
+    </>,
+  );
 }
 
 /** 지역 카드 — 시도·시군구·구·관측소 분기 */
@@ -389,12 +399,38 @@ function renderEventCard(item: SearchItem, query: string, highlightCls: string):
   );
 }
 
-/** 인터뷰 카드 — /interviews 페이지와 동일한 풍부 세로형 카드 (일러스트 + 정보) */
+/** 인터뷰 카드 — 가로형 요약 (이름·지역 + quote + 작물 + 카테고리) */
 function renderInterviewCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
   const iv = interviews.find((p) => p.id === item.id);
   if (!iv) return renderSimpleCard(item, query, highlightCls);
 
-  return <InterviewRichCard key={`${item.type}-${item.id}`} person={iv} />;
+  const titleStr = `${iv.name} · ${iv.region}`;
+  const quoteStr = `“${iv.quote}”`;
+  const categoryLabel = INTERVIEW_CATEGORY_LABEL[iv.category];
+
+  return wrapCard(
+    item,
+    s.cardRich,
+    <>
+      <span className={s.iconBox} aria-hidden="true">{"\u{1F464}"}</span>
+      <span className={s.title}>{highlightMatch(titleStr, query, highlightCls)}</span>
+      <span className={s.subtitle}>{highlightMatch(quoteStr, query, highlightCls)}</span>
+      <div className={s.metaRow}>
+        {iv.crop && (
+          <>
+            <span className={s.metaChip}>{iv.crop}</span>
+          </>
+        )}
+        {iv.age && (
+          <>
+            <span className={s.metaSep}>·</span>
+            <span className={s.metaItem}>{iv.age}</span>
+          </>
+        )}
+      </div>
+      {categoryLabel && <span className={s.badge}>{categoryLabel}</span>}
+    </>,
+  );
 }
 
 /** 지자체 센터 카드 — sido/sigungu + 전화 + 카테고리(광역/시·군) */
