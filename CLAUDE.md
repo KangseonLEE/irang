@@ -606,6 +606,20 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
 - **해결**: SP-019 row + persona-fit override + Supabase row 모두 제거 (134ccd2). 영구 차단으로 `scripts/check-program-dup.ts` 자동화 + data-engineer 가드 #2 추가
 - **교훈**: **데이터 정합성은 양방향** — 누락 방향(Supabase 없는 정적 데이터)뿐 아니라 중복 방향(외부 신규 = 내부 기존)도 의심. 신규 정적 데이터 추가 시 `npx tsx scripts/check-program-dup.ts <title> <organization> [sourceUrl]` 자동 검증 필수. CI 통합 권고.
 
+### Vercel Sensitive 변환 시 환경변수 손상 가능 (2026-05-22)
+
+- **증상**: `/api/search-errata` 신규 endpoint 첫 호출에서 401 인증 실패 (네이버 errata `NID AUTH Result Invalid`). 같은 키가 `.env.local`로 로컬에서는 정상 작동.
+- **원인 (라이브 디버그 모드 진단)**:
+  · Vercel production `NAVER_CLIENT_ID` 끝에 `\n"` (newline + 쌍따옴표) 잘못 인코딩
+  · Vercel production `NAVER_CLIENT_SECRET` **빈 문자열** (`""`)
+  · 추정 시점: 2026-05-04 paused 사고 대응 중 sensitive 변환 단계에서 손상. 같은 키 쓰는 landing 뉴스 API는 정적 폴백으로 자동 전환되어 사고 미발견 — 22일+ 잠복.
+- **해결**: `vercel env rm` 후 `printf '%s' "$VAR" | vercel env add ... --sensitive` 로 정확히 재등록. cleanup commit(0b76868)으로 라이브 errata + landing 뉴스 동시 복구. landing HTML에서 naver/nongmin 도메인 시그너처 확인으로 라이브 데이터 노출 검증 완료.
+- **교훈**:
+  1. **Sensitive 변환 직후 즉시 라이브 검증 필수**. `vercel env pull` 로 마스킹 안 풀리니 라이브 API 한 번 호출해 200·정상 응답 확인.
+  2. **폴백 데이터가 사고를 가려준다** — 외부 API 실패 시 정적 폴백으로 graceful degradation하는 패턴은 안정성에 좋지만, 환경변수 사고 같은 silent fail을 가린다. 정기 점검(주 2회 화·금)에 `8개 외부 API 샘플 호출`을 추가 권고.
+  3. **CLI에서 env 추가 시 stdin 인코딩 주의** — `echo "$VAR" | vercel env add` 는 trailing newline 포함. `printf '%s' "$VAR" | ...` 로 명시.
+  4. 디버그가 필요할 때는 임시 `_debug=1` query param 모드 + commit→cleanup 사이클이 가장 빠른 라이브 진단법.
+
 ### CROPS ↔ CROP_DETAILS 1:1 매핑 깨짐 (2026-05-22) — sprint 중간 산출물 미완
 
 - **증상**: 통합검색에서 방울토마토 카드 클릭 → `/crops/cherry-tomato` 404. eggplant·asparagus·broccoli·paprika·carrot·king-oyster-mushroom·maesil·deodeok·buckwheat 동일 (총 10건). 회장 라이브 직접 발견.
