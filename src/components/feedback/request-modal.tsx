@@ -58,18 +58,22 @@ interface RequestModalProps {
 }
 
 /**
- * /api/quick-feedback 으로 요청 저장 (fire-and-forget).
+ * /api/quick-feedback 으로 요청 저장.
  * - service_role 경유 INSERT (anon RLS 차단 우회)
  * - request_kind / item_category 컬럼은 마이그레이션 적용 후 활성 (적용 전엔 서버에서 무시)
+ *
+ * 응답 검증 추가 (2026-05-25 회장 라이브 — quick_feedback 0건 silent fail 진단):
+ * fire-and-forget 제거. res.ok·body.ok 모두 검사하고 실패 시 호출자에게 알려
+ * 사용자에게 명시적 에러 노출. 5/19 H D2 assessments silent fail과 동일 패턴.
  */
 async function saveRequest(data: {
   message: string;
   page: string;
   requestKind: RequestKind | null;
   itemCategory: ItemCategoryValue | null;
-}): Promise<void> {
+}): Promise<{ ok: boolean; reason?: string }> {
   try {
-    await fetch("/api/quick-feedback", {
+    const res = await fetch("/api/quick-feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -80,8 +84,25 @@ async function saveRequest(data: {
         item_category: data.itemCategory,
       }),
     });
-  } catch {
-    // fire-and-forget
+    if (!res.ok) {
+      const reason = `HTTP ${res.status}`;
+      console.error("[saveRequest] non-2xx response:", reason);
+      return { ok: false, reason };
+    }
+    const body = (await res.json().catch(() => null)) as
+      | { ok?: boolean; skipped?: string; error?: string }
+      | null;
+    // 서버가 ok:true 명시한 경우만 성공 — skipped(no-supabase·migration-pending)는 silent fail로 간주
+    if (body && body.ok === true && !body.skipped) {
+      return { ok: true };
+    }
+    const reason = body?.skipped ?? body?.error ?? "unknown";
+    console.error("[saveRequest] server reported failure:", reason);
+    return { ok: false, reason };
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : "network-error";
+    console.error("[saveRequest] fetch threw:", reason);
+    return { ok: false, reason };
   }
 }
 
@@ -101,6 +122,7 @@ export function RequestModal({
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const resetForm = useCallback(() => {
     setKind("item");
@@ -108,6 +130,7 @@ export function RequestModal({
     setMessage("");
     setSubmitting(false);
     setSent(false);
+    setSubmitError(null);
   }, [inferred]);
 
   const handleClose = useCallback(() => {
@@ -119,6 +142,7 @@ export function RequestModal({
   const handleSubmit = useCallback(async () => {
     if (submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
 
     // 메시지 접두사 구성 — 기존 admin 키워드 분석 호환 유지
     const kindLabel = kind === "feature" ? "기능 요청" : `${category} 요청`;
@@ -127,7 +151,7 @@ export function RequestModal({
       ? `${prefix} ${message.trim()}`
       : prefix;
 
-    await saveRequest({
+    const result = await saveRequest({
       message: fullMessage,
       page: pageName,
       requestKind: kind,
@@ -135,9 +159,17 @@ export function RequestModal({
     });
 
     setSubmitting(false);
-    setSent(true);
 
-    window.setTimeout(handleClose, 2000);
+    if (result.ok) {
+      setSent(true);
+      window.setTimeout(handleClose, 2000);
+      return;
+    }
+
+    // 실패 — 사용자에게 명시적 알림. fire-and-forget silent fail 차단.
+    setSubmitError(
+      "요청을 전달하지 못했어요. 잠시 후 다시 시도해 주세요.",
+    );
   }, [
     submitting,
     keyword,
@@ -254,6 +286,12 @@ export function RequestModal({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
+
+          {submitError && (
+            <p className={s.errorMessage} role="alert">
+              {submitError}
+            </p>
+          )}
 
           <button
             type="button"

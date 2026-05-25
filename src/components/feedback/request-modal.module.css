@@ -132,6 +132,18 @@
   background: var(--card, #fff);
 }
 
+/* ── 실패 알림 (silent fail 차단, 2026-05-25) ── */
+.errorMessage {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  font-size: var(--fs-body-sm, 13px);
+  color: #b91c1c;
+  background: color-mix(in srgb, #b91c1c 8%, transparent);
+  border: 1px solid color-mix(in srgb, #b91c1c 25%, transparent);
+  border-radius: 10px;
+  word-break: keep-all;
+}
+
 /* ── 제출 버튼 ── */
 .submitBtn {
   display: flex;
