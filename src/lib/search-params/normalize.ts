@@ -216,7 +216,9 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     // 2026-05-22: status 추가 (Sprint — 모집 상태 필터 일원화, includeClosed deprecated)
     //   - includeClosed는 backward compat 위해 allowedKeys에 잔존하나 page.tsx에서 무시.
     //   - status에 "마감" 포함 시 마감 사업 자동 표시.
-    allowedKeys: ["region", "age", "supportType", "category", "status", "q", "includeClosed", "period", "view", "page", "persona"],
+    // 2026-05-25: sort 추가 (recent/deadline) — sortPrograms은 5/22 d6fa20a에서 fix됐지만
+    //   allowlist 누락으로 middleware가 308 strip해 정렬 실 적용 안 되던 사고 회장 라이브 발견.
+    allowedKeys: ["region", "age", "supportType", "category", "status", "q", "includeClosed", "period", "view", "page", "persona", "sort"],
     multiValueEnumValidators: {
       region: {
         enum: [
@@ -255,6 +257,7 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       view: ["table", "card"],
       includeClosed: ["1"],
       persona: ["family", "farmYouth", "elderRural", "commuter", "balanced"],
+      sort: ["deadline", "recent"],
     },
     regexValidators: {
       period: /^\d{4}-(0[1-9]|1[0-2])$/,
