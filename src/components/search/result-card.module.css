@@ -302,3 +302,16 @@
     height: 40px;
   }
 }
+
+/* 모바일 (< 640px) — 카드 padding·column-gap 축소로 좁은 viewport에서 정보 밀도 향상.
+   5/25 회장 라이브 — /search 모바일 카드 한 장씩 큼 → 2열 가로 배열(page.module.css)로 전환.
+   1열 유지 type(program·region·event·education·center)도 padding 축소는 가독성에 도움. */
+@media (max-width: 639px) {
+  .cardRich {
+    padding: 10px 12px;
+    column-gap: 8px;
+  }
+  .cardBase {
+    padding: 10px 12px;
+  }
+}

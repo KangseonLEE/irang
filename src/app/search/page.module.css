@@ -380,6 +380,20 @@
   gap: 8px;
 }
 
+/* 모바일 (< 640px) — 2열 가로 배열로 정보 밀도 향상 (5/21 회장 라이브 발견, 네이버 통합검색 참고) */
+@media (max-width: 639px) {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  /* 정보가 빽빽한 type(region·program·event·education·center)은 1열 유지 — 모바일 2열에서
+     badge·chip·D-N·supportAmount가 너무 좁아 wrap·잘림 발생. data-grid-fullwidth로 분기. */
+  .grid[data-grid-fullwidth="true"] {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 .card {
   display: flex;
