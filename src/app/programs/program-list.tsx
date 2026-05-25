@@ -165,26 +165,46 @@ export function ProgramList({
   }
 
   /* ── 카드 뷰 (기존) ── */
+  // sort 변경 시 wrapping div re-mount → 카드 stagger fade-in 트리거
+  // (5/25 회장 요청 — 정렬 변경 인터랙션 시각 피드백)
+  const sortKey = searchParams.get("sort") ?? "deadline";
+
   return (
     <>
 
-      {/* 3열 카드 그리드 */}
-      <CardGrid>
-        {programs.map((program) => {
-          const trace = currentPersona
-            ? getProgramPersonaFitTrace(program, currentPersona)
-            : null;
-          if (trace) {
+      {/* 3열 카드 그리드 — sort 변경 시 stagger fade-in */}
+      <div key={sortKey} className={s.gridAnim}>
+        <CardGrid>
+          {programs.map((program, i) => {
+            const trace = currentPersona
+              ? getProgramPersonaFitTrace(program, currentPersona)
+              : null;
+            // 첫 6개 카드만 stagger (180ms 총) — 더 많으면 어색
+            const animDelay = `${Math.min(i, 5) * 30}ms`;
+            if (trace) {
+              return (
+                <article
+                  key={program.id}
+                  className={`${s.programCellPersona} ${s.cardAnim}`}
+                  style={{ animationDelay: animDelay }}
+                >
+                  <ProgramCard program={program} />
+                  <PersonaScoreExplain trace={trace} subject="이 사업" />
+                </article>
+              );
+            }
             return (
-              <article key={program.id} className={s.programCellPersona}>
+              <div
+                key={program.id}
+                className={s.cardAnim}
+                style={{ animationDelay: animDelay }}
+              >
                 <ProgramCard program={program} />
-                <PersonaScoreExplain trace={trace} subject="이 사업" />
-              </article>
+              </div>
             );
-          }
-          return <ProgramCard key={program.id} program={program} />;
-        })}
-      </CardGrid>
+          })}
+        </CardGrid>
+      </div>
 
       {/* 로딩 인디케이터 + 센티넬 */}
       {hasMore && (
