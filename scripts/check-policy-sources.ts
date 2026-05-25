@@ -97,8 +97,10 @@ async function checkUrl(
       method: "GET",
       signal: controller.signal,
       headers: {
+        // 한국 정부 사이트(rda/mafra/korea.kr 등)는 봇 UA 차단 강함 — 일반 브라우저 UA 사용.
+        // (2026-05-25 issue #53 학습 — PolicyChecker/1.0 UA로 3건 TIMEOUT 후 Mozilla로 통일)
         "User-Agent":
-          "Mozilla/5.0 (compatible; PolicyChecker/1.0; +https://irang.kr)",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         Accept: "text/html,application/xhtml+xml",
       },
       redirect: "follow",
