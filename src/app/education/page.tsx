@@ -19,12 +19,16 @@ import {
 import {
   filterEducationAsync,
   getCurrentPeriod,
+  sortEducation,
   EDUCATION_REGIONS,
   EDUCATION_TYPES,
   EDUCATION_LEVELS,
+  DEFAULT_EDUCATION_SORT,
   type EducationCourse,
   type EducationFilters,
+  type EducationSortKey,
 } from "@/lib/data/education";
+import { EducationSortControl } from "./education-sort-control";
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
@@ -70,6 +74,7 @@ interface PageProps {
     includeClosed?: string;
     view?: string;
     page?: string;
+    sort?: string;
   }>;
 }
 
@@ -93,6 +98,8 @@ export default async function EducationPage({ searchParams }: PageProps) {
   const includeClosed = params.includeClosed === "1";
   const viewMode: ViewMode = params.view === "table" ? "table" : "card";
   const period = params.period || getCurrentPeriod();
+  const currentSort: EducationSortKey =
+    params.sort === "recent" ? "recent" : DEFAULT_EDUCATION_SORT;
 
   const filters: EducationFilters = {
     region: params.region,
@@ -103,10 +110,11 @@ export default async function EducationPage({ searchParams }: PageProps) {
     includeClosed,
   };
 
-  const [{ courses }, lastSyncAt] = await Promise.all([
+  const [{ courses: rawCourses }, lastSyncAt] = await Promise.all([
     filterEducationAsync(filters),
     loadSyncMeta("education_courses"),
   ]);
+  const courses = sortEducation(rawCourses, currentSort);
 
   // 테이블 페이지네이션
   const tablePage = Math.max(1, Number(params.page) || 1);
@@ -129,6 +137,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
     period: params.period,
     includeClosed: params.includeClosed,
     view: params.view,
+    sort: currentSort === DEFAULT_EDUCATION_SORT ? undefined : currentSort,
     page: params.page,
   };
 
@@ -244,8 +253,13 @@ export default async function EducationPage({ searchParams }: PageProps) {
         itemLabel="교육과정"
       />
 
-      {/* 보기 모드 토글 */}
+      {/* 보기 모드 토글 + 정렬 */}
       <ListToolbar count={courses.length}>
+        <EducationSortControl
+          currentSort={currentSort}
+          currentFilters={currentFilters}
+          basePath="/education"
+        />
         <Suspense>
           <ViewToggle current={viewMode} />
         </Suspense>
@@ -296,11 +310,19 @@ export default async function EducationPage({ searchParams }: PageProps) {
           </Suspense>
         </>
       ) : (
-        <CardGrid>
-          {courses.map((course) => (
-            <CourseCard key={course.id} course={course} />
-          ))}
-        </CardGrid>
+        <div key={currentSort} className={s.gridAnim}>
+          <CardGrid>
+            {courses.map((course, i) => (
+              <div
+                key={course.id}
+                className={s.cardAnim}
+                style={{ animationDelay: `${Math.min(i, 5) * 30}ms` }}
+              >
+                <CourseCard course={course} />
+              </div>
+            ))}
+          </CardGrid>
+        </div>
       )}
     </div>
     </>

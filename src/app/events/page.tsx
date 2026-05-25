@@ -13,11 +13,15 @@ import { formatDateRange } from "@/lib/format";
 import {
   filterEventsAsync,
   getCurrentPeriod,
+  sortEvents,
   EVENT_TYPES,
   EVENT_REGIONS,
+  DEFAULT_EVENT_SORT,
   type FarmEvent,
   type EventFilters,
+  type EventSortKey,
 } from "@/lib/data/events";
+import { EventSortControl } from "./event-sort-control";
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
@@ -59,6 +63,7 @@ interface PageProps {
     includeClosed?: string;
     view?: string;
     page?: string;
+    sort?: string;
   }>;
 }
 
@@ -87,6 +92,8 @@ export default async function EventsPage({ searchParams }: PageProps) {
   const includeClosed = params.includeClosed === "1";
   const viewMode: ViewMode = params.view === "table" ? "table" : "card";
   const period = params.period || undefined;
+  const currentSort: EventSortKey =
+    params.sort === "recent" ? "recent" : DEFAULT_EVENT_SORT;
 
   const filters: EventFilters = {
     region: params.region,
@@ -96,10 +103,11 @@ export default async function EventsPage({ searchParams }: PageProps) {
     includeClosed,
   };
 
-  const [{ events }, lastSyncAt] = await Promise.all([
+  const [{ events: rawEvents }, lastSyncAt] = await Promise.all([
     filterEventsAsync(filters),
     loadSyncMeta("farm_events"),
   ]);
+  const events = sortEvents(rawEvents, currentSort);
 
   // 테이블 페이지네이션
   const tablePage = Math.max(1, Number(params.page) || 1);
@@ -122,6 +130,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
     includeClosed: params.includeClosed,
     view: params.view,
     page: params.page,
+    sort: currentSort === DEFAULT_EVENT_SORT ? undefined : currentSort,
   };
 
   return (
@@ -185,8 +194,13 @@ export default async function EventsPage({ searchParams }: PageProps) {
         itemLabel="행사"
       />
 
-      {/* 보기 모드 토글 */}
+      {/* 보기 모드 토글 + 정렬 */}
       <ListToolbar count={events.length}>
+        <EventSortControl
+          currentSort={currentSort}
+          currentFilters={currentParams}
+          basePath="/events"
+        />
         <Suspense>
           <ViewToggle current={viewMode} />
         </Suspense>
@@ -239,11 +253,19 @@ export default async function EventsPage({ searchParams }: PageProps) {
           </Suspense>
         </>
       ) : (
-        <CardGrid>
-          {events.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
-        </CardGrid>
+        <div key={currentSort} className={s.gridAnim}>
+          <CardGrid>
+            {events.map((event, i) => (
+              <div
+                key={event.id}
+                className={s.cardAnim}
+                style={{ animationDelay: `${Math.min(i, 5) * 30}ms` }}
+              >
+                <EventCard event={event} />
+              </div>
+            ))}
+          </CardGrid>
+        </div>
       )}
     </div>
     </>

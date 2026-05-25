@@ -419,3 +419,51 @@ export async function filterEventsAsync(
 
   return { events: filtered, source };
 }
+
+// ─── 정렬 (5/25 회장 결재 — programs·education과 동일 패턴) ─────────────────
+
+/**
+ * 정렬 키:
+ *  deadline: status='마감'은 뒤로 + applicationEnd(또는 date) asc.
+ *            applicationEnd 없으면 date 사용. 9999-12-31(미정) 가장 뒤.
+ *  recent:   id desc (createdAt 부재).
+ */
+export type EventSortKey = "deadline" | "recent";
+
+export const EVENT_SORT_OPTIONS: readonly {
+  value: EventSortKey;
+  label: string;
+}[] = [
+  { value: "deadline", label: "마감 임박순" },
+  { value: "recent", label: "최근 등록순" },
+];
+
+export const DEFAULT_EVENT_SORT: EventSortKey = "deadline";
+
+export function sortEvents(
+  events: FarmEvent[],
+  sort: EventSortKey,
+): FarmEvent[] {
+  if (sort === "recent") {
+    const indexed = events.map((e, i) => ({ e, i }));
+    indexed.sort((a, b) => {
+      const aid = a.e.id ?? "";
+      const bid = b.e.id ?? "";
+      if (aid === bid) return a.i - b.i;
+      return bid.localeCompare(aid);
+    });
+    return indexed.map((x) => x.e);
+  }
+  // deadline (default) — applicationEnd 우선, 없으면 행사일(date)
+  const indexed = events.map((e, i) => ({ e, i }));
+  indexed.sort((a, b) => {
+    const aClosed = a.e.status === "마감" ? 1 : 0;
+    const bClosed = b.e.status === "마감" ? 1 : 0;
+    if (aClosed !== bClosed) return aClosed - bClosed;
+    const ae = a.e.applicationEnd || a.e.date || "9999-12-31";
+    const be = b.e.applicationEnd || b.e.date || "9999-12-31";
+    if (ae === be) return a.i - b.i;
+    return ae.localeCompare(be);
+  });
+  return indexed.map((x) => x.e);
+}

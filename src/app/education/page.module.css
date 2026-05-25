@@ -293,3 +293,22 @@
   outline-offset: 2px;
 }
 
+
+/* ── 정렬 변경 인터랙션 — stagger fade-in (5/25 회장 요청) ── */
+
+.gridAnim {
+  /* wrapping div는 layout 영향 0 */
+}
+
+.cardAnim {
+  animation: educationFadeInUp 0.32s ease-out backwards;
+}
+
+@keyframes educationFadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardAnim { animation: none; }
+}

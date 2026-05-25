@@ -511,3 +511,51 @@ export async function filterEducationAsync(
 
   return { courses: filtered, source };
 }
+
+// ─── 정렬 (5/25 회장 결재 — programs와 동일 패턴) ─────────────────────────────
+
+/**
+ * 정렬 키:
+ *  deadline: status='마감'은 뒤로 + applicationEnd asc. 9999-12-31(미정) 가장 뒤.
+ *  recent:   id desc (createdAt 부재). 후순위 i 안정 정렬.
+ */
+export type EducationSortKey = "deadline" | "recent";
+
+export const EDUCATION_SORT_OPTIONS: readonly {
+  value: EducationSortKey;
+  label: string;
+}[] = [
+  { value: "deadline", label: "마감 임박순" },
+  { value: "recent", label: "최근 등록순" },
+];
+
+export const DEFAULT_EDUCATION_SORT: EducationSortKey = "deadline";
+
+export function sortEducation(
+  courses: EducationCourse[],
+  sort: EducationSortKey,
+): EducationCourse[] {
+  if (sort === "recent") {
+    const indexed = courses.map((c, i) => ({ c, i }));
+    indexed.sort((a, b) => {
+      // createdAt 부재 — id desc fallback (ED-XXX 큰 번호가 최근 추가)
+      const aid = a.c.id ?? "";
+      const bid = b.c.id ?? "";
+      if (aid === bid) return a.i - b.i;
+      return bid.localeCompare(aid);
+    });
+    return indexed.map((x) => x.c);
+  }
+  // deadline (default)
+  const indexed = courses.map((c, i) => ({ c, i }));
+  indexed.sort((a, b) => {
+    const aClosed = a.c.status === "마감" ? 1 : 0;
+    const bClosed = b.c.status === "마감" ? 1 : 0;
+    if (aClosed !== bClosed) return aClosed - bClosed;
+    const ae = a.c.applicationEnd || "9999-12-31";
+    const be = b.c.applicationEnd || "9999-12-31";
+    if (ae === be) return a.i - b.i;
+    return ae.localeCompare(be);
+  });
+  return indexed.map((x) => x.c);
+}

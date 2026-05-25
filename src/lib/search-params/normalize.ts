@@ -171,7 +171,8 @@ export function normalizeSearchParams(
  */
 export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
   "/events": {
-    allowedKeys: ["type", "region", "q", "period", "includeClosed", "view", "page"],
+    // 2026-05-25: sort 추가 (deadline/recent) — /programs와 동일 패턴
+    allowedKeys: ["type", "region", "q", "period", "includeClosed", "view", "page", "sort"],
     enumValidators: {
       type: ["일일체험", "팜스테이", "박람회", "설명회", "멘토링", "축제"],
       region: [
@@ -189,6 +190,7 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       ],
       view: ["table", "card"],
       includeClosed: ["1"],
+      sort: ["deadline", "recent"],
     },
     regexValidators: {
       // codex 권고 (5/7): YYYY-MM 만 허용 (앱 실제 사용 형식과 일치)
@@ -275,7 +277,8 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     },
   },
   "/education": {
-    allowedKeys: ["region", "type", "level", "q", "period", "includeClosed", "view", "page"],
+    // 2026-05-25: sort 추가 (deadline/recent) — /programs·/events와 동일 패턴
+    allowedKeys: ["region", "type", "level", "q", "period", "includeClosed", "view", "page", "sort"],
     enumValidators: {
       region: [
         "전국",
@@ -294,6 +297,7 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       level: ["입문", "초급", "중급", "심화"],
       view: ["table", "card"],
       includeClosed: ["1"],
+      sort: ["deadline", "recent"],
     },
     regexValidators: {
       period: /^\d{4}-(0[1-9]|1[0-2])$/,
