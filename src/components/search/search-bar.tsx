@@ -356,14 +356,14 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // - threshold 40px: 작은 스와이프나 iOS scroll-into-view false trigger 회피.
   //   (iOS Safari의 가상 키보드 등장 시 dropdown 높이 변동으로 ~10~30px 자동 스크롤
   //    발생할 수 있어 그보다 큰 값 필요)
-  // - 한 번 blur 후 listener 제거 → 사용자가 다시 input 탭하면 input의 onFocus가
-  //   일반 동작으로 키보드 다시 노출 (listener 재부착은 쿼리 입력으로 dropdown DOM
-  //   재마운트되면서 자연 처리되거나, 사용자가 다시 스크롤할 의도가 있을 때만).
+  // - blur 후 listener 유지 + input focus 시 startScrollTop reset → 사용자가
+  //   재포커스해도 동일 동작 보장 (5/25 회장 라이브 발견 fix).
   // - isExpanded === true (모바일 풀스크린 활성)일 때만 동작 — 데스크탑은 영향 0.
   useEffect(() => {
     if (!isExpanded) return;
     const dropdown = dropdownRef.current;
-    if (!dropdown) return;
+    const input = inputRef.current;
+    if (!dropdown || !input) return;
 
     const THRESHOLD_PX = 40;
     // 5/16 회장 보고: 재open 시 dropdown DOM이 같은 인스턴스로 유지되어 이전
@@ -372,21 +372,34 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     // 항상 그 기준점에서 40px 이동 시 blur 트리거.
     let startScrollTop: number | null = null;
 
+    // 5/25 회장 라이브: 첫 진입 blur 후 사용자가 input 다시 탭하면 listener가 이미
+    // 제거되어 재스크롤 시 키패드가 안 사라짐. listener 제거 패턴 폐기 + focus 이벤트로
+    // 기준점만 reset.
+    const resetCapture = () => {
+      startScrollTop = null;
+    };
+
     const onScroll = () => {
       if (startScrollTop === null) {
         startScrollTop = dropdown.scrollTop;
         return;
       }
       if (Math.abs(dropdown.scrollTop - startScrollTop) >= THRESHOLD_PX) {
-        if (document.activeElement === inputRef.current) {
-          inputRef.current?.blur();
+        if (document.activeElement === input) {
+          input.blur();
         }
-        dropdown.removeEventListener("scroll", onScroll);
+        // listener 유지 — 다음 포커스+스크롤 사이클에서도 동작해야 함.
+        // 동일 스크롤 흐름에서 중복 blur 시도 방지를 위해 기준점만 reset.
+        startScrollTop = null;
       }
     };
 
     dropdown.addEventListener("scroll", onScroll, { passive: true });
-    return () => dropdown.removeEventListener("scroll", onScroll);
+    input.addEventListener("focus", resetCapture);
+    return () => {
+      dropdown.removeEventListener("scroll", onScroll);
+      input.removeEventListener("focus", resetCapture);
+    };
   }, [isExpanded]);
 
   // ----- Imperative handle for SearchGroup -----
