@@ -1453,3 +1453,50 @@ export const trendingSearches: TrendingSearch[] = [
   { label: "박람회", query: "박람회" },
   { label: "살아보기", query: "살아보기" },
 ];
+
+// ─── 인터뷰 정렬 (5/25 회장 결재) ──────────────────────────────────────────
+
+/**
+ * 정렬 키:
+ *  recent: sourceDate desc — 최신 인터뷰 우선 (default)
+ *  name:   이름 가나다순
+ */
+export type InterviewSortKey = "recent" | "name";
+
+export const INTERVIEW_SORT_OPTIONS: readonly {
+  value: InterviewSortKey;
+  label: string;
+}[] = [
+  { value: "recent", label: "최신순" },
+  { value: "name", label: "가나다순" },
+];
+
+export const DEFAULT_INTERVIEW_SORT: InterviewSortKey = "recent";
+
+const KO_COLLATOR_INTERVIEW = new Intl.Collator("ko-KR");
+
+export function sortInterviews(
+  list: InterviewCard[],
+  sort: InterviewSortKey,
+): InterviewCard[] {
+  if (sort === "name") {
+    const indexed = list.map((p, i) => ({ p, i }));
+    indexed.sort((a, b) => {
+      const cmp = KO_COLLATOR_INTERVIEW.compare(a.p.name, b.p.name);
+      if (cmp !== 0) return cmp;
+      return a.i - b.i;
+    });
+    return indexed.map((x) => x.p);
+  }
+  // recent (default) — sourceDate desc
+  const indexed = list.map((p, i) => ({ p, i }));
+  indexed.sort((a, b) => {
+    const ad = a.p.sourceDate ?? "";
+    const bd = b.p.sourceDate ?? "";
+    if (ad === bd) return a.i - b.i;
+    if (!ad) return 1;
+    if (!bd) return -1;
+    return bd.localeCompare(ad);
+  });
+  return indexed.map((x) => x.p);
+}

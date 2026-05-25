@@ -7,8 +7,12 @@ import {
   interviews,
   INTERVIEW_CATEGORIES,
   INTERVIEW_CATEGORY_LABEL,
+  sortInterviews,
+  DEFAULT_INTERVIEW_SORT,
   type InterviewCategoryId,
+  type InterviewSortKey,
 } from "@/lib/data/landing";
+import { InterviewSortControl } from "./interview-sort-control";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { InterviewCorrectionNotice } from "@/components/interview/correction-notice";
 import { InterviewRichCard } from "@/components/interview/interview-rich-card";
@@ -32,7 +36,7 @@ function isCategoryId(value: string | undefined): value is InterviewCategoryId {
 }
 
 interface PageProps {
-  searchParams: Promise<{ type?: string }>;
+  searchParams: Promise<{ type?: string; sort?: string }>;
 }
 
 export default async function InterviewsPage({ searchParams }: PageProps) {
@@ -40,16 +44,22 @@ export default async function InterviewsPage({ searchParams }: PageProps) {
   const activeCategory: InterviewCategoryId | undefined = isCategoryId(params.type)
     ? params.type
     : undefined;
+  const currentSort: InterviewSortKey =
+    params.sort === "name" ? "name" : DEFAULT_INTERVIEW_SORT;
 
   // 카테고리 필터링 — category 또는 tags에 매칭
-  const visibleInterviews = activeCategory
+  const filteredInterviews = activeCategory
     ? interviews.filter(
         (p) =>
           p.category === activeCategory || (p.tags?.includes(activeCategory) ?? false),
       )
     : interviews;
+  const visibleInterviews = sortInterviews(filteredInterviews, currentSort);
 
-  const currentFilters = { type: activeCategory };
+  const currentFilters: Record<string, string | undefined> = {
+    type: activeCategory,
+    sort: currentSort === DEFAULT_INTERVIEW_SORT ? undefined : currentSort,
+  };
 
   return (
     <div className={s.page}>
@@ -104,8 +114,19 @@ export default async function InterviewsPage({ searchParams }: PageProps) {
         </FilterRow>
       </FilterBar>
 
-      {/* ═══ 인터뷰 카드 그리드 ═══ */}
-      <section className={s.grid}>
+      {/* 정렬 (5/25 회장 결재 Sprint 2) */}
+      {visibleInterviews.length > 0 && (
+        <div className={s.sortRow}>
+          <InterviewSortControl
+            currentSort={currentSort}
+            currentFilters={currentFilters}
+            basePath="/interviews"
+          />
+        </div>
+      )}
+
+      {/* ═══ 인터뷰 카드 그리드 — 정렬 변경 시 stagger fade-in ═══ */}
+      <section key={currentSort} className={s.grid}>
         {visibleInterviews.length === 0 ? (
           <div className={s.emptyWrap}>
             <EmptyState
@@ -116,8 +137,14 @@ export default async function InterviewsPage({ searchParams }: PageProps) {
             />
           </div>
         ) : (
-          visibleInterviews.map((person) => (
-            <InterviewRichCard key={person.id} person={person} />
+          visibleInterviews.map((person, i) => (
+            <div
+              key={person.id}
+              className={s.cardAnim}
+              style={{ animationDelay: `${Math.min(i, 5) * 30}ms` }}
+            >
+              <InterviewRichCard person={person} />
+            </div>
           ))
         )}
       </section>

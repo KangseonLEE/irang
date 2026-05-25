@@ -7,7 +7,17 @@ import { Icon } from "@/components/ui/icon";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
-import { CROPS, CROP_CATEGORIES, CROP_DIFFICULTIES, type CropCategory, type CropDifficulty } from "@/lib/data/crops";
+import {
+  CROPS,
+  CROP_CATEGORIES,
+  CROP_DIFFICULTIES,
+  sortCrops,
+  DEFAULT_CROP_SORT,
+  type CropCategory,
+  type CropDifficulty,
+  type CropSortKey,
+} from "@/lib/data/crops";
+import { CropSortControl } from "./crop-sort-control";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import { rankCropsForPersona, getCropPersonaFitTrace, type FitTrace } from "@/lib/data/persona-fit";
 import { CropPageCard } from "@/components/crop/crop-page-card";
@@ -40,6 +50,7 @@ interface PageProps {
     difficulty?: string;
     q?: string;
     persona?: string;
+    sort?: string;
   }>;
 }
 
@@ -52,6 +63,8 @@ export default async function CropsPage({ searchParams }: PageProps) {
     params.persona && PERSONA_INDEX.has(params.persona as PersonaId)
       ? (params.persona as PersonaId)
       : undefined;
+  const currentSort: CropSortKey =
+    params.sort === "difficulty" ? "difficulty" : DEFAULT_CROP_SORT;
 
   // 카테고리 필터링
   let filteredCrops =
@@ -76,11 +89,14 @@ export default async function CropsPage({ searchParams }: PageProps) {
     );
   }
 
-  // 페르소나 필터링: 점수 4+ 작물만 + 점수 내림차순 정렬
+  // 페르소나 필터링: 점수 4+ 작물만 + 점수 내림차순 정렬 (페르소나 모드 시 sort param 무시)
+  // 일반 모드: sortCrops 적용 (name | difficulty)
   if (currentPersona) {
     filteredCrops = rankCropsForPersona(filteredCrops, currentPersona)
       .filter((r) => r.score >= 4)
       .map((r) => r.crop);
+  } else {
+    filteredCrops = sortCrops(filteredCrops, currentSort);
   }
 
   // Phase 6 B3 D2 — 페르소나 모드일 때만 카드별 trace 사전 계산
@@ -96,6 +112,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
     difficulty: params.difficulty,
     q: params.q,
     persona: params.persona,
+    sort: currentSort === DEFAULT_CROP_SORT ? undefined : currentSort,
   };
 
   return (
@@ -175,14 +192,27 @@ export default async function CropsPage({ searchParams }: PageProps) {
         }
       />
 
-      {/* Crop Card Grid */}
-      <div className={s.cropGrid}>
-        {filteredCrops.map((crop) => (
-          <CropPageCard
-            key={crop.id}
-            crop={crop}
-            trace={cropTraces.get(crop.id)}
+      {/* 정렬 — 페르소나 모드에선 점수순이 본질이라 selector 숨김 */}
+      {!currentPersona && filteredCrops.length > 0 && (
+        <div className={s.sortRow}>
+          <CropSortControl
+            currentSort={currentSort}
+            currentFilters={currentFilters}
+            basePath="/crops"
           />
+        </div>
+      )}
+
+      {/* Crop Card Grid — 정렬 변경 시 stagger fade-in */}
+      <div key={currentSort} className={s.cropGrid}>
+        {filteredCrops.map((crop, i) => (
+          <div
+            key={crop.id}
+            className={s.cardAnim}
+            style={{ animationDelay: `${Math.min(i, 5) * 30}ms` }}
+          >
+            <CropPageCard crop={crop} trace={cropTraces.get(crop.id)} />
+          </div>
         ))}
       </div>
 

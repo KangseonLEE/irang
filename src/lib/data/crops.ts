@@ -3788,3 +3788,57 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     },
   },
 ];
+
+// ─── 정렬 (5/25 회장 결재 — 카드 그리드 페이지 일관성) ──────────────────────
+
+/**
+ * 정렬 키:
+ *  name:       가나다순 (한국어 collator)
+ *  difficulty: 난이도순 (쉬움 → 보통 → 어려움)
+ */
+export type CropSortKey = "name" | "difficulty";
+
+export const CROP_SORT_OPTIONS: readonly {
+  value: CropSortKey;
+  label: string;
+}[] = [
+  { value: "name", label: "가나다순" },
+  { value: "difficulty", label: "난이도순" },
+];
+
+export const DEFAULT_CROP_SORT: CropSortKey = "name";
+
+const DIFFICULTY_RANK: Record<CropInfo["difficulty"], number> = {
+  쉬움: 1,
+  보통: 2,
+  어려움: 3,
+};
+
+const KO_COLLATOR = new Intl.Collator("ko-KR");
+
+export function sortCrops(
+  crops: CropInfo[],
+  sort: CropSortKey,
+): CropInfo[] {
+  if (sort === "difficulty") {
+    const indexed = crops.map((c, i) => ({ c, i }));
+    indexed.sort((a, b) => {
+      const ar = DIFFICULTY_RANK[a.c.difficulty] ?? 99;
+      const br = DIFFICULTY_RANK[b.c.difficulty] ?? 99;
+      if (ar !== br) return ar - br;
+      // 같은 난이도면 가나다순
+      const cmp = KO_COLLATOR.compare(a.c.name, b.c.name);
+      if (cmp !== 0) return cmp;
+      return a.i - b.i;
+    });
+    return indexed.map((x) => x.c);
+  }
+  // name (default)
+  const indexed = crops.map((c, i) => ({ c, i }));
+  indexed.sort((a, b) => {
+    const cmp = KO_COLLATOR.compare(a.c.name, b.c.name);
+    if (cmp !== 0) return cmp;
+    return a.i - b.i;
+  });
+  return indexed.map((x) => x.c);
+}

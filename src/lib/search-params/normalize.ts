@@ -316,11 +316,13 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
   },
   "/crops": {
     // 2026-05-13: persona 추가 (Phase 6 B3 explain UI inline + 페르소나 칩 sprint)
-    allowedKeys: ["category", "difficulty", "q", "persona"],
+    // 2026-05-25: sort 추가 (name/difficulty) — Sprint 2 페이지별 정렬 일관성
+    allowedKeys: ["category", "difficulty", "q", "persona", "sort"],
     enumValidators: {
       category: ["전체", "식량", "채소", "과수", "특용"],
       difficulty: ["전체", "쉬움", "보통", "어려움"],
       persona: ["family", "farmYouth", "elderRural", "commuter", "balanced"],
+      sort: ["name", "difficulty"],
     },
     regexValidators: {
       // codex 권고 (5/7) q abuse 방어: 한글·영숫자·공백만
@@ -441,9 +443,11 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
      5/11 site-wide 308 lessons — enum validator 정확하지 않으면 정상 query strip.
      5/14 페르소나 칩 사고 lessons — normalize 미등록 deep link는 normalize 후 효력 상실. */
   "/interviews": {
-    allowedKeys: ["type"],
+    // 2026-05-25: sort 추가 (recent/name) — Sprint 2 페이지별 정렬 일관성
+    allowedKeys: ["type", "sort"],
     enumValidators: {
       type: ["farming", "rural", "youth", "mountain", "smartfarm", "healing"],
+      sort: ["recent", "name"],
     },
   },
 };

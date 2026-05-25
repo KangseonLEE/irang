@@ -103,3 +103,24 @@
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ── 정렬 selector row (5/25 회장 결재 Sprint 2) ── */
+.sortRow {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 12px;
+}
+
+/* ── stagger fade-in (정렬 변경 인터랙션) ── */
+.cardAnim {
+  animation: cropFadeInUp 0.32s ease-out backwards;
+}
+
+@keyframes cropFadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardAnim { animation: none; }
+}
