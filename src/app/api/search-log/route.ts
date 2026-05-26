@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase";
+import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
 
 // ── 입력 검증 ──
 const MAX_QUERY_LENGTH = 200;
@@ -95,6 +95,14 @@ export async function POST(request: NextRequest) {
 
   // 자연어 형태는 통계로 의미 약함 — 조용히 성공 처리하고 INSERT 생략
   if (isNaturalLanguageQuery(trimmed)) {
+    await recordApiFallback({
+      endpoint: "/api/search-log",
+      statusCode: 200,
+      fallbackReason: "natural-language",
+      userAgent: request.headers.get("user-agent"),
+      page: null,
+      requestMeta: { query_length: trimmed.length },
+    });
     return NextResponse.json({ ok: true, skipped: "natural-language" });
   }
 
@@ -107,7 +115,15 @@ export async function POST(request: NextRequest) {
   const sb = getSupabaseAdmin();
   if (!sb) {
     // Supabase 미설정 → 조용히 성공 처리 (로그만 남김)
-    return NextResponse.json({ ok: true });
+    await recordApiFallback({
+      endpoint: "/api/search-log",
+      statusCode: 200,
+      fallbackReason: "no-supabase",
+      userAgent: request.headers.get("user-agent"),
+      page: null,
+      requestMeta: null,
+    });
+    return NextResponse.json({ ok: true, skipped: "no-supabase" });
   }
 
   const { error } = await sb

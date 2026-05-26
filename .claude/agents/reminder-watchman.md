@@ -246,6 +246,7 @@ for (const t of tables) {
 - `/api/quick-feedback` → `no-supabase`·`migration-pending`·`legacy-columns-only`
 - `/api/assess` (POST) → `not-configured`·`migration-pending`·`legacy-columns-only`
 - `/api/assess/[id]` (GET) → `not-configured`
+- `/api/search-log` (POST) → `natural-language`·`no-supabase` (5/26 X2-d 추가)
 
 #### 12-2. 등급 (fallback_reason별)
 
@@ -255,6 +256,7 @@ for (const t of tables) {
 | 🟡 확인 필요 | `migration-pending` | 24h > 0 | 마이그레이션 누락 — 5/26 사고 재발 신호. data-engineer 즉시 점검 |
 | 🟡 확인 필요 | `rate-limit` | 24h > 100 | 트래픽 폭주 또는 봇 차단 우회 의심. CF 룰 hit 카운트 동반 점검 |
 | ⚪ 참고 | `legacy-columns-only` | 24h > 0 | 옛 schema 클라이언트 호환 정상 동작 — 추세만 관찰 |
+| ⚪ 참고 | `natural-language` | 24h > 0 | 사용자 검색 패턴 측정용 정상 입력 거부 — 추세만 관찰 |
 
 #### 12-3. 점검 주기 — 화·금 (§8·§11과 동일 사이클)
 
@@ -276,6 +278,7 @@ const reasons = [
   { name: 'migration-pending', threshold: 0, grade: '🟡' },
   { name: 'rate-limit', threshold: 100, grade: '🟡' },
   { name: 'legacy-columns-only', threshold: 0, grade: '⚪' },
+  { name: 'natural-language', threshold: 0, grade: '⚪' },
 ];
 const dayAgo = new Date(Date.now() - 86400 * 1000).toISOString();
 for (const r of reasons) {
@@ -291,6 +294,7 @@ for (const r of reasons) {
 
 - **새 fallback_reason 추가 후 24시간 이내**: 베이스라인 미수립 → 경고 보류
 - **legacy-columns-only는 정상 동작 신호**: 5/15·5/16 마이그레이션 적용 전 옛 클라이언트가 rating만 보낸 케이스. 적재되더라도 알림 등급은 ⚪만
+- **natural-language는 정상 입력 거부 신호**: search-log가 자연어 휴리스틱으로 INSERT를 생략한 정상 동작. 사용자 검색 패턴 분포 측정용으로 적재. 추세만 관찰
 - **데이터 누적 7일 이내**: threshold 100 같은 절대 카운트 임계는 베이스라인 측정 후 조정. 초기에는 ⚪로만 보고
 
 ## Working Principles
