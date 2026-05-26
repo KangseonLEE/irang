@@ -1,5 +1,12 @@
 -- Phase 6 B4: 추천 카드 thumbs up/down 피드백 (2026-05-16)
 --
+-- mode-check-ok: 5/26 quick_feedback 33일 silent fail 사고 직접 원인. thumbs-only POST
+--   (rating=NULL/message=NULL/thumbs='up')가 기존 rating·message NOT NULL에 막혀
+--   23502 → /api/quick-feedback의 silent 202 fallback → 33일 INSERT 0건.
+--   5/26 20260526_quick_feedback_drop_notnull.sql로 해소.
+--   `npm run check-migration-not-null` (5/26 자동화)이 동일 패턴 재발을 build-time에 차단.
+--   상세: CLAUDE.md Lessons Learned (2026-05-26).
+--
 -- 회장 결재 4건 (2026-05-16):
 --   1) Sprint 0 자체 완결 + B4 D1 진입
 --   2) 옵션 A (thumbs up/down)

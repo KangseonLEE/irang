@@ -61,6 +61,14 @@ jobs:
         # 강원/전북 신·구표기 불일치 → 작물 추천 누락 등 재발 방지.
         run: npx tsx scripts/check-cross-reference.ts
 
+      - name: "마이그레이션 — 신규 컬럼 NOT NULL 점검"
+        # 5/26 quick_feedback 33일 silent fail 사고 영구 차단 (CLAUDE.md Lessons
+        # Learned 2026-05-26). 5/15·5/16 마이그레이션이 신규 컬럼(thumbs·request_kind)
+        # 추가 시 기존 rating·message NOT NULL DROP을 누락 → 23502 → silent 202 →
+        # 33일 INSERT 0건. 동반 조치 4종(DROP NOT NULL · CHECK 안전망 · SET DEFAULT
+        # · ack 코멘트) 중 1개 이상 강제. 5/15·5/16 grandfather 처리됨.
+        run: npx tsx scripts/check-migration-not-null.ts
+
       - name: Next.js build
         run: npm run build
         env:

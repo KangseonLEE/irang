@@ -1,6 +1,12 @@
 -- ═══════════════════════════════════════════════════════════════
 --  assessment_results — source + persona 컬럼 추가
 --
+-- mode-check-ok: 5/26 자동화 사후 검토 (check-migration-not-null). source `NOT NULL
+--   DEFAULT 'full'` — 기존 row는 DEFAULT로 통과. quick 모드 INSERT는 별도 코드 경로로
+--   farm_type_id를 합성해 채움(5/19 12944c8 Sprint H D2 Fix-1로 INSERT 재개 확인,
+--   feedback_assessment_silent_fail_2026-05-18.md). 추가 검토 가치 있는 안건 — 다음
+--   sprint에서 INSERT path 메타-측정 정합성 점검 권고. 현재 silent fail 미관측.
+--
 --  배경 (2026-05-18):
 --   - GA4 funnel 측정 결과 4/24 이후 24일째 INSERT 0건
 --   - frontend-engineer 진단: wizard 결함 아님, Quick Wizard 게이트웨이

@@ -3,6 +3,10 @@
 -- 목적: /assess/result/[id] 공유 랜딩 페이지에서 페르소나 추천 노출 가능하도록
 --       위저드 응답 ageGroup 을 DB 에 영속화한다.
 --
+-- mode-check-ok: 5/26 자동화 사후 검토 (check-migration-not-null). age_group nullable —
+--   기존 row(NULL) + 신규 INSERT(NULL 가능) 모두 통과. INSERT 신규 모드 미추가.
+--   silent fail 위험 없음.
+--
 -- ⚠️ APPLY 절차 (회장 결재 필요):
 --   1. supabase 콘솔 → SQL Editor → 이 파일 내용 복사 → 실행
 --   2. 또는: supabase db push --linked
