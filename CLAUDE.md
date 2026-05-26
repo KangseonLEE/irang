@@ -628,6 +628,18 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
 - **해결**: data-engineer 위임으로 CROP_DETAILS 10건 정식 작성(c763631, +530 lines). RDA 농업소득자료집 2024 + KOSIS + KATI + 산림청 출처. 영구 차단으로 `scripts/check-cross-reference.ts` F-1 검증 추가 — `CROPS ↔ CROP_DETAILS` 1:1 매핑 깨지면 CI build fail.
 - **교훈**: **`A.length === B.length` 같은 단순 길이 검증만 있어도 9시간 사고는 차단됐을 것**. 양방향 1:1 매핑 관계의 데이터 셋(CROPS↔CROP_DETAILS, PROVINCES↔stations, interviews↔cropLinks 등)은 신규 추가 sprint마다 길이 + 양방향 id 매칭 검증을 CI에서 강제. 단순 fallback으로 우회 ≠ root cause fix — 회장 직접 지적이 없었다면 dead code 안전망으로 끝났을 사고.
 
+### 신규 컬럼 추가 마이그레이션 시 기존 NOT NULL 제약 누락 (2026-05-26) — 33일 silent 202 잠복
+
+- **증상**: `quick_feedback` 테이블이 2026-04-13 이후 33일째 INSERT 0건. 같은 기간 `assessment_results` 10건·`search_logs` 38건은 정상 적재. 5/16 commit 7630b3b(D1 thumbs UI)·1e2d748(service_role Route) 이후도 0건. 5/18 박제 메모리에는 "Sprint 0 D0 silent fail 종결"로 기록.
+- **잘못된 1차 진단**: qa-reviewer가 클라이언트 funnel 가설(`RecommendationThumbs` 3중 조건 funnel) + 환경변수 손상 가설(5/22 NAVER 키 사건 동형) 유력하게 봄. 모두 빗나감.
+- **올바른 root cause**: 5/15 `request_kind`·5/16 `thumbs` 컬럼 추가 마이그레이션이 ADD COLUMN만 하고 기존 `rating`·`message` NOT NULL DROP 누락. thumbs-only POST(rating=null·message=null) → `23502 not-null violation` → `src/app/api/quick-feedback/route.ts:198`이 error.message에 "column" 포함 보고 `isMissingColumn=true`로 오판 → silent 202(`{"ok":true,"skipped":"migration-pending"}`) → 클라이언트가 성공으로 인지.
+- **해결**: 신규 마이그레이션 `supabase/migrations/20260526_quick_feedback_drop_notnull.sql` 작성 + 회장 Supabase Dashboard 수동 apply. `ALTER COLUMN rating/message DROP NOT NULL` + 안전망 CHECK `quick_feedback_mode_check (rating IS NOT NULL OR thumbs IS NOT NULL OR request_kind IS NOT NULL)` 추가. 라이브 thumbs POST → 200 + Supabase row 정상 적재 + cleanup 잔존 0건 ✅.
+- **교훈**:
+  1. **신규 모드(컬럼) 추가 마이그레이션 체크리스트**: "기존 NOT NULL 컬럼이 신규 모드에서 NULL이어도 되는가?" 항목 강제. 답이 Yes면 같은 마이그레이션에 `DROP NOT NULL` + CHECK 안전망 동반.
+  2. **silent fail 진단의 1차 분기점은 "다른 write endpoint 비교"**. `assessment_results`/`search_logs` 정상 적재 + `quick_feedback`만 0건이면 traffic 가설 즉시 기각·schema 가설 즉시 채택 가능했어야 했음. watchman §11 주간 write endpoint 활성도에 quick_feedback도 항상 함께 측정.
+  3. **API route fallback 분기(`isMissingColumn`·`migration-pending`)는 silent skip 위험**. fallback 응답 코드(202·503 등) 비율을 production 메트릭에 노출 + 일정 threshold 초과 시 watchman 🔴.
+  4. **박제 메모리가 사실 검증 없이 "종결" 표기되면 8일·30일 잠복 위험**. silent fail 종결 박제는 라이브 INSERT 추세 7일 이상 정상 확인 후에만 기록. "fix commit 머지" ≠ "라이브 정상 적재".
+
 ---
 
 ## 차트 컴포넌트 가이드
