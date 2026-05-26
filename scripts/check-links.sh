@@ -56,11 +56,15 @@ UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, l
 fetch_status() {
   local url="$1"
   local raw
+  # NOTE 2026-05-26: Connection: close 헤더가 일부 한국 정부 사이트
+  # (youth.chungnam.go.kr 등)에서 즉시 끊김(code=000)을 유발 — 헤더 제거.
+  # check-policy-sources.ts와 헤더 셋 통일.
   raw=$(curl -o /dev/null -s -w "%{http_code}" --max-time 30 -L \
     -A "$UA" \
     -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
     -H "Accept-Language: ko-KR,ko;q=0.9,en;q=0.8" \
-    -H "Connection: close" \
+    -H "Accept-Encoding: gzip, deflate, br" \
+    --compressed \
     "$url" 2>/dev/null)
   # 빈 값 또는 잘못된 출력 → "000"
   if [ -z "$raw" ]; then
