@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase";
+import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
 import { isValidResultId } from "@/lib/assess-result";
 import type { FarmTypeId } from "@/lib/data/match-questions";
 
@@ -147,6 +147,17 @@ export async function POST(req: NextRequest) {
   // 4. Supabase Admin 클라이언트 (service_role)
   const sb = getSupabaseAdmin();
   if (!sb) {
+    await recordApiFallback({
+      endpoint: "/api/assess",
+      statusCode: 503,
+      fallbackReason: "not-configured",
+      userAgent: req.headers.get("user-agent"),
+      page: typeof body.referrer === "string" ? body.referrer : null,
+      requestMeta: {
+        source,
+        persona: isValidPersona(body.persona) ? body.persona : null,
+      },
+    });
     return NextResponse.json(
       { error: "Database not configured" },
       { status: 503 }
@@ -199,6 +210,18 @@ export async function POST(req: NextRequest) {
       // Quick 적재는 farm_type_id 강제 placeholder — 마이그레이션 apply 후 정식 처리
       if (source === "quick") {
         // 마이그레이션 미적용 + Quick = 라이브 silent fail 방지 위해 202 반환
+        await recordApiFallback({
+          endpoint: "/api/assess",
+          statusCode: 202,
+          fallbackReason: "migration-pending",
+          userAgent: req.headers.get("user-agent"),
+          page: typeof body.referrer === "string" ? body.referrer : null,
+          requestMeta: {
+            source,
+            persona: personaValue,
+            missing_column_hint: error.message ?? null,
+          },
+        });
         return NextResponse.json(
           { ok: true, skipped: "migration-pending", id },
           { status: 202 },
@@ -220,6 +243,18 @@ export async function POST(req: NextRequest) {
         console.error("[assess] fallback insert failed:", fallbackError.message);
         return NextResponse.json({ error: "Save failed" }, { status: 500 });
       }
+      await recordApiFallback({
+        endpoint: "/api/assess",
+        statusCode: 200,
+        fallbackReason: "legacy-columns-only",
+        userAgent: req.headers.get("user-agent"),
+        page: typeof body.referrer === "string" ? body.referrer : null,
+        requestMeta: {
+          source,
+          persona: personaValue,
+          missing_column_hint: error.message ?? null,
+        },
+      });
       return NextResponse.json({ success: true, id, fallback: true });
     }
 

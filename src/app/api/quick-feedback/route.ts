@@ -20,7 +20,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase";
+import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
 
 // ── 입력 검증 상수 ──
 const MAX_MESSAGE_LENGTH = 300;
@@ -179,6 +179,18 @@ export async function POST(request: NextRequest) {
   if (!sb) {
     // Supabase 미설정 — 개발 환경 fallback (조용히 성공 처리)
     console.warn("[quick-feedback] Supabase admin not configured, skipping insert");
+    await recordApiFallback({
+      endpoint: "/api/quick-feedback",
+      statusCode: 200,
+      fallbackReason: "no-supabase",
+      userAgent: request.headers.get("user-agent"),
+      page: safePage,
+      requestMeta: {
+        thumbs: safeThumbs,
+        request_kind: safeRequestKind,
+        persona: safePersona,
+      },
+    });
     return NextResponse.json({ ok: true, skipped: "no-supabase" });
   }
 
@@ -221,6 +233,19 @@ export async function POST(request: NextRequest) {
         console.warn(
           "[quick-feedback] thumbs-only insert blocked by missing migration — apply 20260516_quick_feedback_thumbs.sql",
         );
+        await recordApiFallback({
+          endpoint: "/api/quick-feedback",
+          statusCode: 202,
+          fallbackReason: "migration-pending",
+          userAgent: request.headers.get("user-agent"),
+          page: safePage,
+          requestMeta: {
+            thumbs: safeThumbs,
+            request_kind: safeRequestKind,
+            persona: safePersona,
+            missing_column_hint: error.message ?? null,
+          },
+        });
         return NextResponse.json(
           { ok: true, skipped: "migration-pending" },
           { status: 202 },
@@ -242,6 +267,19 @@ export async function POST(request: NextRequest) {
           { status: 500 },
         );
       }
+      await recordApiFallback({
+        endpoint: "/api/quick-feedback",
+        statusCode: 200,
+        fallbackReason: "legacy-columns-only",
+        userAgent: request.headers.get("user-agent"),
+        page: safePage,
+        requestMeta: {
+          thumbs: safeThumbs,
+          request_kind: safeRequestKind,
+          persona: safePersona,
+          missing_column_hint: error.message ?? null,
+        },
+      });
       return NextResponse.json({ ok: true, fallback: true });
     }
 

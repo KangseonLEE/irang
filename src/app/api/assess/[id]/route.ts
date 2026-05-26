@@ -7,11 +7,11 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase, recordApiFallback } from "@/lib/supabase";
 import { isValidResultId } from "@/lib/assess-result";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
@@ -27,6 +27,14 @@ export async function GET(
   // 2. Supabase 조회 (anon — Public Read 정책)
   const sb = getSupabase();
   if (!sb) {
+    await recordApiFallback({
+      endpoint: "/api/assess/[id]",
+      statusCode: 503,
+      fallbackReason: "not-configured",
+      userAgent: req.headers.get("user-agent"),
+      page: null,
+      requestMeta: { id },
+    });
     return NextResponse.json(
       { error: "Database not configured" },
       { status: 503 }

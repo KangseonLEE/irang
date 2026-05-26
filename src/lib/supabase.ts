@@ -47,6 +47,63 @@ export function getSupabaseAdmin(): SupabaseClient | null {
   return _adminClient;
 }
 
+// ── API fallback 적재 (2026-05-26 silent 202 사고 영구 차단) ──
+
+/**
+ * API route fallback 응답을 `api_fallback_log` 테이블에 적재.
+ *
+ * 배경:
+ *  · 5/15·5/16 마이그레이션 누락 → thumbs-only POST가 silent 202 응답
+ *  · 33일 INSERT 0건 silent fail → 회장 라이브 발견
+ *  · CLAUDE.md Lessons Learned 교훈 #3 자동화
+ *
+ * 호출 규약:
+ *  · fallback 분기 진입 직전(또는 직후, return 전)에 await 호출
+ *  · best-effort — 적재 실패가 원래 응답에 영향 주지 않음
+ *  · service_role env 미설정 시 silent skip (개발 환경)
+ *  · 2초 timeout (Vercel function 종료 보장)
+ *
+ * 운영:
+ *  · watchman이 24h 비율 monitoring (50% 🟡 / 90% 🔴 threshold)
+ *  · admin 대시보드에서 endpoint·reason별 시계열 노출
+ */
+export async function recordApiFallback(params: {
+  endpoint: string;
+  statusCode: number;
+  fallbackReason: string;
+  userAgent?: string | null;
+  page?: string | null;
+  requestMeta?: Record<string, unknown> | null;
+}): Promise<void> {
+  try {
+    const sb = getSupabaseAdmin();
+    if (!sb) return; // env 미설정 시 무음 skip (개발 환경 의도)
+
+    // 2초 timeout으로 Vercel function 종료 보장
+    const insertPromise = sb.from("api_fallback_log").insert({
+      endpoint: params.endpoint,
+      status_code: params.statusCode,
+      fallback_reason: params.fallbackReason,
+      user_agent: params.userAgent ?? null,
+      page: params.page ?? null,
+      request_meta: params.requestMeta ?? null,
+    });
+
+    await Promise.race([
+      insertPromise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("recordApiFallback timeout")), 2000),
+      ),
+    ]);
+  } catch (err) {
+    // best-effort log — meta endpoint가 사고 가리지 않도록 무음 처리
+    console.error(
+      "[recordApiFallback] failed:",
+      err instanceof Error ? err.message : err,
+    );
+  }
+}
+
 // ── 검색 로그 ─���
 
 /**
