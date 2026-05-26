@@ -234,6 +234,65 @@ for (const t of tables) {
 - **점검 시점이 주말 직후 월요일 아침**: 주말 활동량 자연 감소 — 임계 완화 (3일+ 0건이면 알림)
 - **테스트 row 잔존**: data-engineer 5/11 1on1 #2 prefix(`__diag_%`)는 카운트에서 제외
 
+### 12. API route fallback 응답 비율 모니터링 (2026-05-26 추가)
+
+> 배경: 5/26 quick_feedback 33일 silent 202 사고. 5/15·5/16 마이그레이션 NOT NULL DROP 누락으로 thumbs-only POST가 silent 202(`migration-pending`) → 클라이언트 성공 인지 → 33일 잠복. CLAUDE.md Lessons Learned 교훈 #3 자동화. 회장 결재 X2 안건. `api_fallback_log` 테이블 + `recordApiFallback` 헬퍼 (commit c85ca98).
+
+#### 12-1. 점검 대상
+
+`api_fallback_log` 테이블 — fallback_reason별 24h 카운트.
+
+현재 적재 중인 fallback site (5/26 기준):
+- `/api/quick-feedback` → `no-supabase`·`migration-pending`·`legacy-columns-only`
+- `/api/assess` (POST) → `not-configured`·`migration-pending`·`legacy-columns-only`
+- `/api/assess/[id]` (GET) → `not-configured`
+
+#### 12-2. 등급 (fallback_reason별)
+
+| 등급 | reason | 임계 | 액션 |
+|---|---|---|---|
+| 🔴 즉시 액션 | `not-configured` · `no-supabase` | 24h > 0 | 환경변수 손상 의심 — CoS 에스컬레이션. 5/22 NAVER sensitive 손상 동형 패턴 |
+| 🟡 확인 필요 | `migration-pending` | 24h > 0 | 마이그레이션 누락 — 5/26 사고 재발 신호. data-engineer 즉시 점검 |
+| 🟡 확인 필요 | `rate-limit` | 24h > 100 | 트래픽 폭주 또는 봇 차단 우회 의심. CF 룰 hit 카운트 동반 점검 |
+| ⚪ 참고 | `legacy-columns-only` | 24h > 0 | 옛 schema 클라이언트 호환 정상 동작 — 추세만 관찰 |
+
+#### 12-3. 점검 주기 — 화·금 (§8·§11과 동일 사이클)
+
+기존 화·금 점검에 단계 추가:
+1. Vercel 5개 한도 (§8-1)
+2. Cloudflare 차단 약화 (§8-2)
+3. write endpoint 활성도 (§11)
+4. **API route fallback 응답 비율 (본 §12)** ← 신규
+
+#### 12-4. 점검 방법 (read-only)
+
+5/11 1on1 #1 "read-only 우선" 원칙 준수 — SELECT만.
+
+```typescript
+// 의사 코드
+const reasons = [
+  { name: 'not-configured', threshold: 0, grade: '🔴' },
+  { name: 'no-supabase', threshold: 0, grade: '🔴' },
+  { name: 'migration-pending', threshold: 0, grade: '🟡' },
+  { name: 'rate-limit', threshold: 100, grade: '🟡' },
+  { name: 'legacy-columns-only', threshold: 0, grade: '⚪' },
+];
+const dayAgo = new Date(Date.now() - 86400 * 1000).toISOString();
+for (const r of reasons) {
+  const { count } = await sb.from('api_fallback_log')
+    .select('*', { count: 'exact', head: true })
+    .eq('fallback_reason', r.name)
+    .gte('created_at', dayAgo);
+  // count > threshold이면 등급 보고
+}
+```
+
+#### 12-5. False positive 방지
+
+- **새 fallback_reason 추가 후 24시간 이내**: 베이스라인 미수립 → 경고 보류
+- **legacy-columns-only는 정상 동작 신호**: 5/15·5/16 마이그레이션 적용 전 옛 클라이언트가 rating만 보낸 케이스. 적재되더라도 알림 등급은 ⚪만
+- **데이터 누적 7일 이내**: threshold 100 같은 절대 카운트 임계는 베이스라인 측정 후 조정. 초기에는 ⚪로만 보고
+
 ## Working Principles
 
 1. **침묵 기본값** — 정상이면 아무것도 보고 안 함
