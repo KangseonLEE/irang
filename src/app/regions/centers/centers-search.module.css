@@ -403,56 +403,125 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── 시·군 chip wrap (5/27 A안 — 회장 결재) ──
-   시군 229건 중 phone 3건·address 거의 0건. 카드 grid 부적합 → inline-flex wrap chip.
-   한 줄에 5~8개 자동 배치, 시군명 길이에 따라 chip 폭 자연스럽게 가변. */
-.chipList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+/* ── 시·군 데이터 테이블 (5/27 회장 결재 — chip → table 전환) ── */
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-body-sm);
+  table-layout: auto;
 }
 
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 7px 12px;
+.dataTable thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--muted, #f9fafb);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.dataTable th {
+  padding: 10px 12px;
   font-size: var(--fs-caption);
-  font-weight: 500;
-  color: var(--foreground);
-  text-decoration: none;
-  background: var(--card, #fff);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 999px;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
-  word-break: keep-all;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.dataTable tbody tr {
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  transition: background 0.12s ease;
+}
+
+.dataTable tbody tr:last-child {
+  border-bottom: none;
 }
 
 @media (hover: hover) {
-  .chip:hover {
-    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
-    color: var(--primary, #1b6b5a);
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
+  .dataTable tbody tr:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
   }
 }
 
-.chip:focus-visible {
+.dataTable td {
+  padding: 12px;
+  color: var(--foreground);
+  vertical-align: middle;
+  word-break: keep-all;
+}
+
+/* 컬럼 폭 — 시·군은 짧음, 센터/기관이 가변 */
+.thSigungu, .tdSigungu {
+  width: 22%;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.thName, .tdName {
+  width: auto;
+}
+
+.thPhone, .tdPhone {
+  width: 28%;
+  font-variant-numeric: tabular-nums;
+}
+
+.thLink, .tdLink {
+  width: 40px;
+  text-align: right;
+}
+
+.phoneLink {
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .phoneLink:hover {
+    text-decoration: underline;
+  }
+}
+
+.phoneNone {
+  color: var(--muted-foreground);
+}
+
+.externalLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--muted-foreground);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+@media (hover: hover) {
+  .externalLink:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.externalLink:focus-visible {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
 }
 
-.chipName {
-  line-height: 1.3;
-}
+/* 모바일(<640px): 전화 컬럼 숨김 (시군 229건 중 phone 보유 3건뿐, 정보 가치 낮음) */
+@media (max-width: 639px) {
+  .thPhone, .tdPhone {
+    display: none;
+  }
 
-.chipIcon {
-  color: var(--muted-foreground);
-  flex-shrink: 0;
-  transition: color 0.15s ease;
-}
+  .dataTable th, .dataTable td {
+    padding: 10px 8px;
+  }
 
-@media (hover: hover) {
-  .chip:hover .chipIcon {
-    color: var(--primary, #1b6b5a);
+  .thSigungu, .tdSigungu {
+    width: 30%;
   }
 }

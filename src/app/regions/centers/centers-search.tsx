@@ -264,7 +264,7 @@ export function CentersSearch({
         )}
       </section>
 
-      {/* 광역별 시·군 chip 모달 (5/27 회장 결재 — 아코디언 펼침 제거) */}
+      {/* 광역별 시·군 데이터 테이블 모달 (5/27 회장 결재 — chip → table 전환) */}
       {(() => {
         const openGroup = filteredGroups.find((g) => g.id === openSidoId);
         if (!openGroup) return null;
@@ -274,25 +274,49 @@ export function CentersSearch({
             onClose={() => setOpenSidoId(null)}
             title={`${openGroup.shortName} 시·군 센터 ${openGroup.centers.length}곳`}
           >
-            <div className={s.chipList}>
-              {openGroup.centers.map((center) => (
-                <a
-                  key={center.id}
-                  href={center.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={s.chip}
-                  aria-label={`${center.name} 홈페이지 새 창`}
-                >
-                  <span className={s.chipName}>{center.name}</span>
-                  <ExternalLink
-                    size={12}
-                    aria-hidden="true"
-                    className={s.chipIcon}
-                  />
-                </a>
-              ))}
-            </div>
+            <table className={s.dataTable}>
+              <thead>
+                <tr>
+                  <th scope="col" className={s.thSigungu}>시·군</th>
+                  <th scope="col" className={s.thName}>센터/기관</th>
+                  <th scope="col" className={s.thPhone}>전화</th>
+                  <th scope="col" className={s.thLink}>
+                    <span className="sr-only">홈페이지</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {openGroup.centers.map((center) => (
+                  <tr key={center.id}>
+                    <td className={s.tdSigungu}>{center.sigungu ?? "—"}</td>
+                    <td className={s.tdName}>{center.name}</td>
+                    <td className={s.tdPhone}>
+                      {center.phone ? (
+                        <a
+                          href={`tel:${center.phone.replace(/[^0-9]/g, "")}`}
+                          className={s.phoneLink}
+                        >
+                          {center.phone}
+                        </a>
+                      ) : (
+                        <span className={s.phoneNone}>—</span>
+                      )}
+                    </td>
+                    <td className={s.tdLink}>
+                      <a
+                        href={center.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={s.externalLink}
+                        aria-label={`${center.name} 홈페이지 새 창`}
+                      >
+                        <ExternalLink size={14} aria-hidden="true" />
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </Modal>
         );
       })()}
