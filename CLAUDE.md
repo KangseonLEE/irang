@@ -628,6 +628,19 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
 - **해결**: data-engineer 위임으로 CROP_DETAILS 10건 정식 작성(c763631, +530 lines). RDA 농업소득자료집 2024 + KOSIS + KATI + 산림청 출처. 영구 차단으로 `scripts/check-cross-reference.ts` F-1 검증 추가 — `CROPS ↔ CROP_DETAILS` 1:1 매핑 깨지면 CI build fail.
 - **교훈**: **`A.length === B.length` 같은 단순 길이 검증만 있어도 9시간 사고는 차단됐을 것**. 양방향 1:1 매핑 관계의 데이터 셋(CROPS↔CROP_DETAILS, PROVINCES↔stations, interviews↔cropLinks 등)은 신규 추가 sprint마다 길이 + 양방향 id 매칭 검증을 CI에서 강제. 단순 fallback으로 우회 ≠ root cause fix — 회장 직접 지적이 없었다면 dead code 안전망으로 끝났을 사고.
 
+### Vercel preview alias SEO leak — 54일 잠복 (2026-05-27)
+
+- **증상**: Google 검색결과에 `https://irang-wheat.vercel.app`가 별도 결과로 노출됨. 사이트명 "Vercel" + 콘텐츠는 우리 거(duplicate content + brand leak). 회장 라이브 발견.
+- **root cause**: 4/4 deployment 시점에 Vercel이 자동 생성한 alias 5종(`irang-wheat.vercel.app`·`irang-kangseonlees-projects.vercel.app`·`irang-git-main-kangseonlees-projects.vercel.app`·`irang-kangseonlee-...vercel.app`·`irang-5eshegt1j-...vercel.app`). 54일 전 시점에 200 응답으로 색인됐고 이후 307 redirect 추가됐지만 GSC 색인 잔존.
+- **5/18 fix(be6fd66) 미적용 사유**: `VERCEL_ENV !== "production"`이면 robots disallow + meta noindex 분기. 그러나 `<project>.vercel.app`는 production deployment alias라 `VERCEL_ENV="production"`으로 응답 → robots/meta 차단 미적용.
+- **해결**: `vercel alias rm` 4종 실행(commit 무관, Vercel CLI 직접). 5번째 alias는 이미 제거 상태. 제거 후 4종 모두 404 응답 확인 + prod `irangfarm.com`·`www.irangfarm.com` 200 정상 유지. Google이 404 받으면 자연 색인 해제.
+- **B안 GSC URL 제거 도구 사용 불가**: `vercel.app` 도메인 소유권 없어 GSC property 검증 토큰 업로드 불가. A안(alias rm)만으로 자연 해소.
+- **교훈**:
+  1. **5/18 dev.irangfarm.com 사고는 dev 환경만 차단했고 Vercel 자동 alias는 production env로 응답해 차단 우회**. canonical host 강제는 `VERCEL_ENV` 분기로 부족 — `host` header 기반 redirect/noindex 추가 필요
+  2. **git push 시 Vercel이 자동 생성하는 alias(`<project>-git-<branch>-<team>.vercel.app`)는 재생성 위험**. push 후 `vercel alias ls`로 추가 alias 확인 + 즉시 제거 watchman 항목 권고
+  3. **Vercel alias rm은 prod 도메인(irangfarm.com·www.irangfarm.com)에 영향 없음** — 별도 alias라 안전. 그러나 deployment ID 자동 alias(`<project>-<hash>-<team>.vercel.app`)는 보존 필수
+  4. **검색결과 brand leak는 SEO penalty + UX 신뢰도 down**. 사용자가 검색결과에서 "Vercel" 사이트명 보면 우리 사이트로 인식 못 함. fix 우선순위 🟡 (즉시 fix하지 않으면 신뢰도 누적 손실)
+
 ### 신규 컬럼 추가 마이그레이션 시 기존 NOT NULL 제약 누락 (2026-05-26) — 33일 silent 202 잠복
 
 - **증상**: `quick_feedback` 테이블이 2026-04-13 이후 33일째 INSERT 0건. 같은 기간 `assessment_results` 10건·`search_logs` 38건은 정상 적재. 5/16 commit 7630b3b(D1 thumbs UI)·1e2d748(service_role Route) 이후도 0건. 5/18 박제 메모리에는 "Sprint 0 D0 silent fail 종결"로 기록.
