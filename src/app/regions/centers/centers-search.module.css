@@ -403,7 +403,69 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── 시·군 데이터 테이블 (5/27 회장 결재 — chip → table 전환) ── */
+/* ── 모달 검색 input ── */
+.modalSearchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.modalSearchBox:focus-within {
+  background: var(--card, #fff);
+  border-color: var(--primary, #1b6b5a);
+}
+
+.modalSearchIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.modalSearchInput {
+  width: 100%;
+  padding: 10px 36px 10px 36px;
+  font-size: var(--fs-body-sm);
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  outline: none;
+}
+
+.modalSearchInput::placeholder {
+  color: var(--muted-foreground);
+}
+
+.modalSearchClear {
+  position: absolute;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+@media (hover: hover) {
+  .modalSearchClear:hover {
+    color: var(--foreground);
+    background: color-mix(in srgb, var(--foreground) 8%, transparent);
+  }
+}
+
+/* ── 시·군 데이터 테이블 (3-컬럼: 시·군 / 센터/기관 / ↗) ── */
 .dataTable {
   width: 100%;
   border-collapse: collapse;
@@ -450,20 +512,16 @@
   word-break: keep-all;
 }
 
-/* 컬럼 폭 — 시·군은 짧음, 센터/기관이 가변 */
+/* 컬럼 폭 — 시·군 약간 강조, 센터/기관 가변, 외부 링크 40px */
 .thSigungu, .tdSigungu {
-  width: 22%;
+  width: 25%;
   font-weight: 600;
   color: var(--foreground);
+  white-space: nowrap;
 }
 
 .thName, .tdName {
   width: auto;
-}
-
-.thPhone, .tdPhone {
-  width: 28%;
-  font-variant-numeric: tabular-nums;
 }
 
 .thLink, .tdLink {
@@ -471,20 +529,10 @@
   text-align: right;
 }
 
-.phoneLink {
-  color: var(--primary, #1b6b5a);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-@media (hover: hover) {
-  .phoneLink:hover {
-    text-decoration: underline;
-  }
-}
-
-.phoneNone {
+.tdEmpty {
+  text-align: center !important;
   color: var(--muted-foreground);
+  padding: 28px 12px !important;
 }
 
 .externalLink {
@@ -511,17 +559,63 @@
   outline-offset: 2px;
 }
 
-/* 모바일(<640px): 전화 컬럼 숨김 (시군 229건 중 phone 보유 3건뿐, 정보 가치 낮음) */
+/* 모바일(<640px): padding 축소, 시·군 폭 비중 약간 ↑ */
 @media (max-width: 639px) {
-  .thPhone, .tdPhone {
-    display: none;
-  }
-
   .dataTable th, .dataTable td {
     padding: 10px 8px;
   }
 
   .thSigungu, .tdSigungu {
-    width: 30%;
+    width: 32%;
   }
+}
+
+/* ── 페이지네이션 (5/27 회장 결재 — 10건/페이지) ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 0 4px;
+}
+
+.paginationButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--muted-foreground);
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+@media (hover: hover) {
+  .paginationButton:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+    color: var(--primary, #1b6b5a);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
+  }
+}
+
+.paginationButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.paginationButton:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.paginationText {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+  min-width: 60px;
+  text-align: center;
 }

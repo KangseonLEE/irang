@@ -9,11 +9,20 @@ import {
   type KeyboardEvent,
 } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown, ChevronRight, ExternalLink, Search as SearchIcon, X } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Search as SearchIcon,
+  X,
+} from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Modal } from "@/components/ui/modal";
 import { CenterCard } from "@/components/region/center-card";
 import type { Center } from "@/lib/data/centers";
+
+const ITEMS_PER_PAGE = 10;
 import s from "./centers-search.module.css";
 
 /** 시·도 필터 sentinel — "전체" */
@@ -45,6 +54,146 @@ function matches(center: Center, q: string): boolean {
   ];
   const lower = q.toLowerCase();
   return fields.some((f) => f.toLowerCase().includes(lower));
+}
+
+/**
+ * 광역별 시·군 데이터 테이블 모달 — 검색·페이지네이션 내장.
+ * 5/27 회장 결재 — 10건/페이지, 시·군 검색, 전화 컬럼 제거 (3-컬럼).
+ */
+function CentersTableModal({
+  group,
+  onClose,
+}: {
+  group: SidoGroup;
+  onClose: () => void;
+}) {
+  const [modalQuery, setModalQuery] = useState("");
+  const [page, setPage] = useState(0);
+
+  const q = modalQuery.trim().toLowerCase();
+
+  const filtered = useMemo(() => {
+    if (!q) return group.centers;
+    return group.centers.filter((c) => {
+      const fields = [c.name, c.sigungu ?? "", c.sigunguSlug ?? ""];
+      return fields.some((f) => f.toLowerCase().includes(q));
+    });
+  }, [group.centers, q]);
+
+  // 검색어 변경 시 page 0으로 reset — setter 합쳐서 cascading render 방지
+  const handleQueryChange = (next: string) => {
+    setModalQuery(next);
+    setPage(0);
+  };
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(page, totalPages - 1);
+  const paginated = filtered.slice(
+    safePage * ITEMS_PER_PAGE,
+    (safePage + 1) * ITEMS_PER_PAGE,
+  );
+
+  return (
+    <Modal
+      open={true}
+      onClose={onClose}
+      title={`${group.shortName} 시·군 센터 ${group.centers.length}곳`}
+    >
+      {/* 모달 검색 input */}
+      <div className={s.modalSearchBox}>
+        <SearchIcon
+          size={16}
+          aria-hidden="true"
+          className={s.modalSearchIcon}
+        />
+        <input
+          type="search"
+          inputMode="search"
+          value={modalQuery}
+          onChange={(e) => handleQueryChange(e.target.value)}
+          placeholder="시·군 이름으로 찾기"
+          className={s.modalSearchInput}
+          aria-label="시·군 검색"
+        />
+        {modalQuery && (
+          <button
+            type="button"
+            onClick={() => handleQueryChange("")}
+            className={s.modalSearchClear}
+            aria-label="검색어 지우기"
+          >
+            <X size={14} aria-hidden="true" />
+          </button>
+        )}
+      </div>
+
+      <table className={s.dataTable}>
+        <thead>
+          <tr>
+            <th scope="col" className={s.thSigungu}>시·군</th>
+            <th scope="col" className={s.thName}>센터/기관</th>
+            <th scope="col" className={s.thLink}>
+              <span className="sr-only">홈페이지</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginated.length === 0 ? (
+            <tr>
+              <td colSpan={3} className={s.tdEmpty}>
+                검색 결과가 없어요.
+              </td>
+            </tr>
+          ) : (
+            paginated.map((center) => (
+              <tr key={center.id}>
+                <td className={s.tdSigungu}>{center.sigungu ?? "—"}</td>
+                <td className={s.tdName}>{center.name}</td>
+                <td className={s.tdLink}>
+                  <a
+                    href={center.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={s.externalLink}
+                    aria-label={`${center.name} 홈페이지 새 창`}
+                  >
+                    <ExternalLink size={14} aria-hidden="true" />
+                  </a>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+
+      {/* 페이지네이션 — 총 페이지 > 1일 때만 노출 */}
+      {totalPages > 1 && (
+        <div className={s.pagination}>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={safePage === 0}
+            className={s.paginationButton}
+            aria-label="이전 페이지"
+          >
+            <ChevronLeft size={16} aria-hidden="true" />
+          </button>
+          <span className={s.paginationText}>
+            {safePage + 1} / {totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={safePage === totalPages - 1}
+            className={s.paginationButton}
+            aria-label="다음 페이지"
+          >
+            <ChevronRight size={16} aria-hidden="true" />
+          </button>
+        </div>
+      )}
+    </Modal>
+  );
 }
 
 export function CentersSearch({
@@ -264,60 +413,15 @@ export function CentersSearch({
         )}
       </section>
 
-      {/* 광역별 시·군 데이터 테이블 모달 (5/27 회장 결재 — chip → table 전환) */}
+      {/* 광역별 시·군 데이터 테이블 모달 — 검색·페이지네이션 내장 */}
       {(() => {
         const openGroup = filteredGroups.find((g) => g.id === openSidoId);
         if (!openGroup) return null;
         return (
-          <Modal
-            open={true}
+          <CentersTableModal
+            group={openGroup}
             onClose={() => setOpenSidoId(null)}
-            title={`${openGroup.shortName} 시·군 센터 ${openGroup.centers.length}곳`}
-          >
-            <table className={s.dataTable}>
-              <thead>
-                <tr>
-                  <th scope="col" className={s.thSigungu}>시·군</th>
-                  <th scope="col" className={s.thName}>센터/기관</th>
-                  <th scope="col" className={s.thPhone}>전화</th>
-                  <th scope="col" className={s.thLink}>
-                    <span className="sr-only">홈페이지</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {openGroup.centers.map((center) => (
-                  <tr key={center.id}>
-                    <td className={s.tdSigungu}>{center.sigungu ?? "—"}</td>
-                    <td className={s.tdName}>{center.name}</td>
-                    <td className={s.tdPhone}>
-                      {center.phone ? (
-                        <a
-                          href={`tel:${center.phone.replace(/[^0-9]/g, "")}`}
-                          className={s.phoneLink}
-                        >
-                          {center.phone}
-                        </a>
-                      ) : (
-                        <span className={s.phoneNone}>—</span>
-                      )}
-                    </td>
-                    <td className={s.tdLink}>
-                      <a
-                        href={center.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={s.externalLink}
-                        aria-label={`${center.name} 홈페이지 새 창`}
-                      >
-                        <ExternalLink size={14} aria-hidden="true" />
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Modal>
+          />
         );
       })()}
     </>
