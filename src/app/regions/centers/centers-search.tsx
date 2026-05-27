@@ -9,7 +9,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown, Search as SearchIcon, X } from "lucide-react";
+import { ChevronDown, ExternalLink, Search as SearchIcon, X } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CenterCard } from "@/components/region/center-card";
 import type { Center } from "@/lib/data/centers";
@@ -256,13 +256,25 @@ export function CentersSearch({
                   />
                 </summary>
                 <div className={s.groupBody}>
-                  <div className={s.compactList}>
+                  {/* chip wrap — 시군 229건 중 phone 3건·address 거의 0건이라 단순 link list.
+                     카드 grid보다 chip wrap이 정보 밀도·UX 모두 우수 (5/27 회장 결재 A안). */}
+                  <div className={s.chipList}>
                     {group.centers.map((center) => (
-                      <CenterCard
+                      <a
                         key={center.id}
-                        center={center}
-                        variant="compact"
-                      />
+                        href={center.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={s.chip}
+                        aria-label={`${center.name} 홈페이지 새 창`}
+                      >
+                        <span className={s.chipName}>{center.name}</span>
+                        <ExternalLink
+                          size={12}
+                          aria-hidden="true"
+                          className={s.chipIcon}
+                        />
+                      </a>
                     ))}
                   </div>
                 </div>
