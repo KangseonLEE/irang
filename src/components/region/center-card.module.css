@@ -223,79 +223,54 @@
   outline-offset: 2px;
 }
 
-/* ── 데스크탑 (640px+): 테이블 row 레이아웃 ── */
+/* ── 데스크탑 (640px+): compact tile (다단 grid 셀) ──
+   시군 229건 중 phone 3건·address 거의 0건이라 4-컬럼 테이블 row 부적합.
+   다단 grid 안의 컴팩트 tile로 재설계: 이름 + 외부 링크 아이콘만 노출.
+   카드 폭이 작아도 ellipsis 발생 최소화. */
 @media (min-width: 640px) {
   .compactCard {
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) 160px minmax(0, 1fr) 40px;
+    flex-direction: row;
     align-items: center;
-    gap: 16px;
-    padding: 0 16px;
-    min-height: 52px;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border, #e5e7eb);
-    border-radius: 0;
-  }
-
-  /* zebra stripe (짝수 행) */
-  .compactCard:nth-child(even) {
-    background: color-mix(in srgb, var(--muted-foreground) 5%, transparent);
-  }
-
-  @media (hover: hover) {
-    .compactCard:hover {
-      background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
-      border-bottom-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
-    }
+    gap: 8px;
+    padding: 10px 12px;
+    min-height: 44px;
   }
 
   .compactMain {
     gap: 2px;
-    /* 이름만 첫 컬럼에 — 주소는 별도 컬럼으로 이동 */
-    flex-direction: row;
-    align-items: center;
   }
 
   .compactName {
     font-size: var(--fs-body-sm);
-    font-weight: 700;
-    white-space: nowrap;
+    font-weight: 600;
+    line-height: 1.35;
+    word-break: keep-all;
+    /* ellipsis는 매우 긴 이름 보호용 — 한국어 시군명 보통 2~6글자라 충분 폭이면 안 잘림 */
     overflow: hidden;
-    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
-  /* 주소 위치 재배치: 3번째 컬럼으로 grid-column 지정 */
   .compactAddress {
-    grid-column: 3;
-    grid-row: 1;
     font-size: var(--fs-caption);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-break: keep-all;
   }
 
-  /* compactActions: grid 셀이 아닌 contents로 풀어 자식을 직접 grid에 배치 */
   .compactActions {
-    display: contents;
+    flex-shrink: 0;
   }
 
   .compactPhone {
-    grid-column: 2;
-    grid-row: 1;
-    flex: 0 0 auto;
-    justify-self: start;
-    min-height: 36px;
-    padding: 8px 14px;
+    min-height: 32px;
+    padding: 6px 10px;
     font-size: var(--fs-caption);
     border-radius: 999px;
   }
 
   .compactWeb {
-    grid-column: 4;
-    grid-row: 1;
-    width: 40px;
-    min-height: 36px;
+    width: 32px;
+    min-height: 32px;
     background: transparent;
     border-radius: 8px;
   }

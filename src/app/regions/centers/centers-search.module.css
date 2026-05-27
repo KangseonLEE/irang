@@ -449,24 +449,35 @@
   }
 }
 
-/* ── 시·군 리스트 (compact CenterCard 행) ── */
+/* ── 시·군 리스트 ── */
+/* 모바일: 1단 column (스크롤 부담 절반) */
 .compactList {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 6px;
 }
 
+/* 640px+: 2단 grid — 시군 데이터 대부분이 이름+홈페이지 URL만 보유(229건 중 phone 3건만)
+   → 풀폭 1단 column은 정보 밀도 낭비. 다단 grid로 한 화면에 시군 6~12개 동시 노출. */
 @media (min-width: 640px) {
   .compactList {
-    /* 데스크탑 테이블 row 연속체: gap 제거, border-bottom으로 구분 */
-    gap: 0;
-    overflow: hidden;
-    border-radius: 10px;
-    border: 1px solid var(--border, #e5e7eb);
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
+}
 
-  /* 마지막 행은 하단 border 제거 (외곽 border와 중복 방지) */
-  .compactList > *:last-child {
-    border-bottom: none;
+/* 1024px+: 3단 grid */
+@media (min-width: 1024px) {
+  .compactList {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+}
+
+/* 1280px+: 4단 grid (풀폭 펼친 그룹 활용) */
+@media (min-width: 1280px) {
+  .compactList {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
   }
 }
