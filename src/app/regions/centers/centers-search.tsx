@@ -9,8 +9,9 @@ import {
   type KeyboardEvent,
 } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown, ExternalLink, Search as SearchIcon, X } from "lucide-react";
+import { ChevronDown, ChevronRight, ExternalLink, Search as SearchIcon, X } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Modal } from "@/components/ui/modal";
 import { CenterCard } from "@/components/region/center-card";
 import type { Center } from "@/lib/data/centers";
 import s from "./centers-search.module.css";
@@ -53,6 +54,8 @@ export function CentersSearch({
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [region, setRegion] = useState<string>(REGION_ALL);
+  /** 모달로 열린 광역 id. null이면 닫힘 — 사용자 명시 클릭으로만 변경. */
+  const [openSidoId, setOpenSidoId] = useState<string | null>(null);
   const initialScrollDone = useRef(false);
 
   // URL ?q= 파라미터로 진입 시 결과 영역으로 스크롤
@@ -240,49 +243,59 @@ export function CentersSearch({
         {filteredGroups.length > 0 && (
           <div className={s.groupList}>
             {filteredGroups.map((group) => (
-              <details
+              <button
                 key={group.id}
-                id={`group-${group.id}`}
-                className={s.group}
-                open={hasQuery || hasRegion}
+                type="button"
+                onClick={() => setOpenSidoId(group.id)}
+                className={s.groupButton}
+                aria-label={`${group.shortName} 시·군 센터 ${group.centers.length}곳 보기`}
+                aria-haspopup="dialog"
               >
-                <summary className={s.groupSummary}>
-                  <span className={s.groupName}>{group.shortName}</span>
-                  <span className={s.groupCount}>{group.centers.length}곳</span>
-                  <ChevronDown
-                    size={16}
-                    aria-hidden="true"
-                    className={s.groupChevron}
-                  />
-                </summary>
-                <div className={s.groupBody}>
-                  {/* chip wrap — 시군 229건 중 phone 3건·address 거의 0건이라 단순 link list.
-                     카드 grid보다 chip wrap이 정보 밀도·UX 모두 우수 (5/27 회장 결재 A안). */}
-                  <div className={s.chipList}>
-                    {group.centers.map((center) => (
-                      <a
-                        key={center.id}
-                        href={center.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={s.chip}
-                        aria-label={`${center.name} 홈페이지 새 창`}
-                      >
-                        <span className={s.chipName}>{center.name}</span>
-                        <ExternalLink
-                          size={12}
-                          aria-hidden="true"
-                          className={s.chipIcon}
-                        />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </details>
+                <span className={s.groupName}>{group.shortName}</span>
+                <span className={s.groupCount}>{group.centers.length}곳</span>
+                <ChevronRight
+                  size={16}
+                  aria-hidden="true"
+                  className={s.groupChevron}
+                />
+              </button>
             ))}
           </div>
         )}
       </section>
+
+      {/* 광역별 시·군 chip 모달 (5/27 회장 결재 — 아코디언 펼침 제거) */}
+      {(() => {
+        const openGroup = filteredGroups.find((g) => g.id === openSidoId);
+        if (!openGroup) return null;
+        return (
+          <Modal
+            open={true}
+            onClose={() => setOpenSidoId(null)}
+            title={`${openGroup.shortName} 시·군 센터 ${openGroup.centers.length}곳`}
+          >
+            <div className={s.chipList}>
+              {openGroup.centers.map((center) => (
+                <a
+                  key={center.id}
+                  href={center.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={s.chip}
+                  aria-label={`${center.name} 홈페이지 새 창`}
+                >
+                  <span className={s.chipName}>{center.name}</span>
+                  <ExternalLink
+                    size={12}
+                    aria-hidden="true"
+                    className={s.chipIcon}
+                  />
+                </a>
+              ))}
+            </div>
+          </Modal>
+        );
+      })()}
     </>
   );
 }
