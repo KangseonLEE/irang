@@ -4,11 +4,15 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-height: 0;
+  flex: 1;
 }
 
-/* 가로 스크롤 래퍼 (모바일) */
+/* 가로·세로 스크롤 래퍼 — 월 헤더 sticky의 스크롤 기준 컨테이너 */
 .scrollContainer {
-  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 16px;
@@ -41,8 +45,9 @@
 
 .cropNameHeader {
   position: sticky;
+  top: 0;
   left: 0;
-  z-index: 3;
+  z-index: 4;
   display: flex;
   align-items: center;
   padding: 8px 10px;
@@ -54,6 +59,9 @@
 }
 
 .monthHeader {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,6 +71,36 @@
   color: var(--muted-foreground, #6b7280);
   background: var(--muted, #f9fafb);
   border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+/* ── 카테고리 그룹 ── */
+.group {
+  display: contents;
+}
+
+.groupHeader {
+  grid-column: 1 / -1;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 10px 6px;
+  background: var(--card, #fff);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.groupTitle {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+}
+
+.groupCount {
+  font-size: var(--fs-overline);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
 }
 
 .currentMonthHeader {
@@ -233,8 +271,8 @@
   flex-shrink: 0;
 }
 
-/* ── 마지막 행 border 제거 ── */
-.cropRow:last-of-type .cropName,
-.cropRow:last-of-type .monthCell {
+/* ── 마지막 그룹의 마지막 행 border 제거 ── */
+.group:last-of-type .cropRow:last-of-type .cropName,
+.group:last-of-type .cropRow:last-of-type .monthCell {
   border-bottom: none;
 }

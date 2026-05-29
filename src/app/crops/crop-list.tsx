@@ -1,6 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import dt from "@/components/ui/data-table.module.css";
 import s from "./crop-list.module.css";
+import { getCropImageSrc } from "@/lib/crop-image";
 import type { CropDifficulty } from "@/lib/data/crops";
 
 /** 목록(table) 뷰 1행 데이터 — 서버에서 CROPS + CROP_DETAILS 조인 */
@@ -75,9 +77,13 @@ export function CropList({ rows }: CropListProps) {
                   href={`/crops/${c.id}`}
                   className={`${dt.titleLink} ${dt.rowLink} ${s.nameLink}`}
                 >
-                  <span className={s.emoji} aria-hidden="true">
-                    {c.emoji}
-                  </span>
+                  <Image
+                    src={getCropImageSrc(c.id)}
+                    alt={c.name}
+                    width={40}
+                    height={40}
+                    className={s.thumb}
+                  />
                   {c.name}
                 </Link>
               </td>

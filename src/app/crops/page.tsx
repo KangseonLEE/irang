@@ -203,6 +203,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
                       id: c.id,
                       name: c.name,
                       emoji: c.emoji,
+                      category: c.category,
                       growingSeason: c.growingSeason,
                     }))}
                   />

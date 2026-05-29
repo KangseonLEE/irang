@@ -5,16 +5,22 @@ import s from "./farming-calendar.module.css";
 
 // ── 타입 ──
 
+type CropCategory = "식량" | "채소" | "과수" | "특용";
+
 interface CropSeasonInput {
   id: string;
   name: string;
   emoji: string;
+  category: CropCategory;
   growingSeason: string;
 }
 
 export interface FarmingCalendarProps {
   crops: CropSeasonInput[];
 }
+
+/** 카테고리 표시 순서 (식량 → 채소 → 과수 → 특용) */
+const CATEGORY_ORDER: CropCategory[] = ["식량", "채소", "과수", "특용"];
 
 // ── 월 파싱 유틸 ──
 
@@ -137,22 +143,24 @@ function getBarType(
 
 export function FarmingCalendar({ crops }: FarmingCalendarProps) {
   const currentMonth = new Date().getMonth() + 1; // 1~12
-  const displayCrops = crops.slice(0, 10);
 
-  const parsedCrops = useMemo(
-    () =>
-      displayCrops.map((crop) => ({
-        ...crop,
-        ranges: parseGrowingSeason(crop.growingSeason),
-      })),
-    [displayCrops]
-  );
+  // 카테고리별 그룹핑 (전체 작물) + growingSeason 파싱. 그룹 내 정렬은 입력 순서 유지.
+  const groups = useMemo(() => {
+    const parsed = crops.map((crop) => ({
+      ...crop,
+      ranges: parseGrowingSeason(crop.growingSeason),
+    }));
+    return CATEGORY_ORDER.map((category) => ({
+      category,
+      crops: parsed.filter((c) => c.category === category),
+    })).filter((g) => g.crops.length > 0);
+  }, [crops]);
 
   return (
     <div className={s.wrapper}>
       <div className={s.scrollContainer} role="region" aria-label="재배 캘린더" tabIndex={0}>
         <div className={s.grid} role="table">
-          {/* 헤더 행 */}
+          {/* 헤더 행 (스크롤 시 상단 고정) */}
           <div className={s.headerRow} role="row">
             <div className={s.cropNameHeader} role="columnheader">
               작물
@@ -168,13 +176,17 @@ export function FarmingCalendar({ crops }: FarmingCalendarProps) {
             ))}
           </div>
 
-          {/* 작물 행들 */}
-          {parsedCrops.map((crop) => (
-            <CropRow
-              key={crop.id}
-              crop={crop}
-              currentMonth={currentMonth}
-            />
+          {/* 카테고리 그룹별 sub-header + 작물 행들 */}
+          {groups.map((group) => (
+            <div key={group.category} className={s.group} role="rowgroup">
+              <div className={s.groupHeader} role="row">
+                <span className={s.groupTitle}>{group.category}</span>
+                <span className={s.groupCount}>{group.crops.length}종</span>
+              </div>
+              {group.crops.map((crop) => (
+                <CropRow key={crop.id} crop={crop} currentMonth={currentMonth} />
+              ))}
+            </div>
           ))}
         </div>
       </div>

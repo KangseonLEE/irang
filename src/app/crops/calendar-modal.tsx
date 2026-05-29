@@ -39,6 +39,7 @@ export function CalendarModal({ children }: CalendarModalProps) {
         onClose={() => setOpen(false)}
         title="재배 캘린더"
         mobileHeight="tall"
+        bodyVariant="flush"
       >
         <div className={s.content}>{children}</div>
       </Modal>

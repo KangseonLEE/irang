@@ -48,9 +48,20 @@
   }
 }
 
-/* 모달 내부 콘텐츠 — Modal body default padding 사용 (bodyVariant=default) */
+/* 모달 내부 콘텐츠 — bodyVariant=flush. 캘린더가 자체 세로 스크롤 + 월 헤더 sticky.
+   flush body(padding 0·overflow hidden·flex column) 위에서 남은 높이를 채워
+   내부 .scrollContainer가 가로·세로 스크롤을 모두 담당한다. */
 .content {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 0;
+  padding: 16px;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .content {
+    padding: 24px;
+  }
 }
