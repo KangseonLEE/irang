@@ -224,15 +224,115 @@
   font-weight: 700;
 }
 
-/* ── 차트 툴팁 안 작물명 목록 (어두운 툴팁 배경 위) ── */
-.tipMembers {
-  margin: 8px 0 0;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  max-width: 240px;
-  font-size: 12px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.82);
+/* ── 차트 호버 툴팁 (토스풍 클린 카드 · crop 전용) ── */
+.tipCard {
+  max-width: 300px;
+  padding: 12px 14px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  box-shadow: var(
+    --shadow-md,
+    0 4px 16px color-mix(in srgb, var(--foreground, #111827) 10%, transparent)
+  );
+  animation: tipFadeIn 0.14s ease-out;
+}
+
+@keyframes tipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tipHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tipDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tipTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--foreground, #111827);
   word-break: keep-all;
-  overflow-wrap: anywhere;
+}
+
+.tipPill {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  white-space: nowrap;
+}
+
+.tipPillMuted {
+  background: var(--muted, #f3f4f6);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.tipDivider {
+  height: 1px;
+  margin: 8px 0;
+  background: var(--border, #e5e7eb);
+}
+
+.tipChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tipChip {
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--foreground, #111827);
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.tipChipMore {
+  background: var(--muted, #f3f4f6);
+  color: var(--muted-foreground, #6b7280);
+  font-weight: 600;
+}
+
+.tipIncomeRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+}
+
+.tipIncomeLabel {
+  font-size: 13px;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.tipIncomeValue {
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  white-space: nowrap;
 }

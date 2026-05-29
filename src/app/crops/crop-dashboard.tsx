@@ -107,21 +107,30 @@ function CountTooltip({ active, payload }: TipProps) {
   const shown = members?.slice(0, TIP_MEMBERS_MAX) ?? [];
   const rest = (members?.length ?? 0) - shown.length;
   return (
-    <div className={c.tooltip}>
-      <p className={c.tooltipLabel}>{label}</p>
-      <div className={c.tooltipRow}>
+    <div className={s.tipCard}>
+      <div className={s.tipHead}>
         <span
-          className={c.tooltipDot}
+          className={s.tipDot}
           style={{ background: payload[0].color || BRAND }}
+          aria-hidden="true"
         />
-        <span>작물 수</span>
-        <span className={c.tooltipValue}>{count}종</span>
+        <span className={s.tipTitle}>{label}</span>
+        <span className={s.tipPill}>{count}종</span>
       </div>
       {shown.length > 0 && (
-        <p className={s.tipMembers}>
-          {shown.join(" · ")}
-          {rest > 0 && ` 외 ${rest}개`}
-        </p>
+        <>
+          <div className={s.tipDivider} aria-hidden="true" />
+          <ul className={s.tipChips}>
+            {shown.map((m) => (
+              <li key={m} className={s.tipChip}>
+                {m}
+              </li>
+            ))}
+            {rest > 0 && (
+              <li className={`${s.tipChip} ${s.tipChipMore}`}>외 {rest}개</li>
+            )}
+          </ul>
+        </>
       )}
     </div>
   );
@@ -144,20 +153,23 @@ function IncomeTooltip({ active, payload }: IncomeTipProps) {
   if (!active || !payload?.length) return null;
   const { label, income10a, difficulty } = payload[0].payload;
   return (
-    <div className={c.tooltip}>
-      <p className={c.tooltipLabel}>{label}</p>
-      <div className={c.tooltipRow}>
+    <div className={s.tipCard}>
+      <div className={s.tipHead}>
         <span
-          className={c.tooltipDot}
+          className={s.tipDot}
           style={{ background: payload[0].color || BRAND }}
+          aria-hidden="true"
         />
-        <span>10a당 연소득</span>
-        <span className={c.tooltipValue}>약 {income10a.toLocaleString()}만 원</span>
+        <span className={s.tipTitle}>{label}</span>
+        <span className={`${s.tipPill} ${s.tipPillMuted}`}>{difficulty}</span>
       </div>
-      <div className={c.tooltipRow}>
-        <span>난이도</span>
-        <span className={c.tooltipValue}>{difficulty}</span>
-      </div>
+      <div className={s.tipDivider} aria-hidden="true" />
+      <p className={s.tipIncomeRow}>
+        <span className={s.tipIncomeLabel}>10a당 연소득</span>
+        <span className={s.tipIncomeValue}>
+          약 {income10a.toLocaleString()}만 원
+        </span>
+      </p>
     </div>
   );
 }
