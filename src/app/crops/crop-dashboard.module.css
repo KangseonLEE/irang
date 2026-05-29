@@ -149,6 +149,13 @@
   text-align: center;
 }
 
+.incomeNote {
+  margin: 12px 0 0;
+  font-size: var(--fs-caption-sm, 0.75rem);
+  line-height: 1.5;
+  color: var(--muted-foreground, #6b7280);
+}
+
 /* ── 클릭 가능한 카테고리 칩 ── */
 .chips {
   display: flex;

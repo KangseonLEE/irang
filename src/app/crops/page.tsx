@@ -32,7 +32,11 @@ import { CalendarModal } from "./calendar-modal";
 import { CropRequestButton } from "./crop-request-button";
 import { CropList } from "./crop-list";
 import { CropDashboard } from "./crop-dashboard";
-import { buildCropRows, buildCropFacts } from "./crop-aggregate";
+import {
+  buildCropRows,
+  buildCropFacts,
+  buildIncomeFacts,
+} from "./crop-aggregate";
 import s from "./page.module.css";
 
 const FarmingCalendar = dynamic(
@@ -129,6 +133,8 @@ export default async function CropsPage({ searchParams }: PageProps) {
 
   // 대시보드 차트 집계 — 전체 CROPS 기준 (필터 무관 전체 통계)
   const { facts: cropFacts, totalProvinceCount } = buildCropFacts();
+  // 10a당 연소득 비교 — 파싱 가능한 작물만 + 제외 목록(각주용)
+  const { incomeFacts, excludedNames } = buildIncomeFacts();
 
   return (
     <div className={s.page}>
@@ -262,7 +268,12 @@ export default async function CropsPage({ searchParams }: PageProps) {
       )}
 
       {/* 작물 데이터 대시보드 — 전체 작물 기준 5종 차트 + 인터랙티브 필터 */}
-      <CropDashboard facts={cropFacts} totalProvinceCount={totalProvinceCount} />
+      <CropDashboard
+        facts={cropFacts}
+        totalProvinceCount={totalProvinceCount}
+        incomeFacts={incomeFacts}
+        excludedIncomeNames={excludedNames}
+      />
 
       {/* Cross-link CTAs */}
       <div className={s.crossLinks}>

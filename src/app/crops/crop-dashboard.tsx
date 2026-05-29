@@ -11,6 +11,7 @@ import {
   Bar,
   XAxis,
   YAxis,
+  type RenderableText,
 } from "recharts";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import c from "@/components/charts/chart-styles.module.css";
@@ -28,11 +29,36 @@ export interface CropFact {
   months: number[];
 }
 
+/** 10a당 연소득 비교 차트용 사실 — 서버에서 직렬화 전달 (체크리스트 H) */
+export interface CropIncomeFact {
+  id: string;
+  name: string;
+  emoji: string;
+  category: "식량" | "채소" | "과수" | "특용";
+  difficulty: "쉬움" | "보통" | "어려움";
+  /** 10a(1,000㎡)당 연소득(만원) — revenueRange 선두 파싱값 */
+  income10a: number;
+}
+
 interface CropDashboardProps {
   facts: CropFact[];
   /** 다루는 주산지 도 수 (전체 기준, 하드코딩 금지) */
   totalProvinceCount: number;
+  /** 10a당 연소득 파싱 성공 작물 (임산물 등 기준 다른 작물 제외) */
+  incomeFacts: CropIncomeFact[];
+  /** 기준이 달라 수익 차트에서 제외한 작물명 (각주용) */
+  excludedIncomeNames: string[];
 }
+
+/** 수익 차트 상위 표시 종수 */
+const INCOME_TOP_N = 12;
+
+/** 난이도별 막대 색 — 고소득=고난이도 맥락을 색으로 표현 (David #2) */
+const DIFFICULTY_COLORS: Record<string, string> = {
+  쉬움: "#3EA088",
+  보통: "#1B6B5A",
+  어려움: "#D4A843",
+};
 
 const BRAND = "#1B6B5A";
 const BRAND_MUTED = "rgba(27, 107, 90, 0.22)";
@@ -78,7 +104,47 @@ function CountTooltip({ active, payload }: TipProps) {
   );
 }
 
-export function CropDashboard({ facts, totalProvinceCount }: CropDashboardProps) {
+/* ── 수익 차트 전용 툴팁 ── */
+interface IncomeTipProps {
+  active?: boolean;
+  payload?: Array<{
+    payload: {
+      label: string;
+      income10a: number;
+      difficulty: string;
+    };
+    color?: string;
+  }>;
+}
+
+function IncomeTooltip({ active, payload }: IncomeTipProps) {
+  if (!active || !payload?.length) return null;
+  const { label, income10a, difficulty } = payload[0].payload;
+  return (
+    <div className={c.tooltip}>
+      <p className={c.tooltipLabel}>{label}</p>
+      <div className={c.tooltipRow}>
+        <span
+          className={c.tooltipDot}
+          style={{ background: payload[0].color || BRAND }}
+        />
+        <span>10a당 연소득</span>
+        <span className={c.tooltipValue}>약 {income10a.toLocaleString()}만 원</span>
+      </div>
+      <div className={c.tooltipRow}>
+        <span>난이도</span>
+        <span className={c.tooltipValue}>{difficulty}</span>
+      </div>
+    </div>
+  );
+}
+
+export function CropDashboard({
+  facts,
+  totalProvinceCount,
+  incomeFacts,
+  excludedIncomeNames,
+}: CropDashboardProps) {
   // 인터랙티브: 카테고리 선택 시 나머지 차트 연동 필터 (null = 전체)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -153,6 +219,21 @@ export function CropDashboard({ facts, totalProvinceCount }: CropDashboardProps)
       parsedCount: parsed,
     };
   }, [scoped]);
+
+  // 10a당 연소득 Top N — 카테고리 필터 연동, 내림차순
+  const incomeData = useMemo(() => {
+    const filtered = selectedCategory
+      ? incomeFacts.filter((f) => f.category === selectedCategory)
+      : incomeFacts;
+    return [...filtered]
+      .sort((a, b) => b.income10a - a.income10a)
+      .slice(0, INCOME_TOP_N)
+      .map((f) => ({
+        label: `${f.emoji} ${f.name}`,
+        income10a: f.income10a,
+        difficulty: f.difficulty,
+      }));
+  }, [incomeFacts, selectedCategory]);
 
   // 요약 스탯
   const easyCount = useMemo(
@@ -448,6 +529,72 @@ export function CropDashboard({ facts, totalProvinceCount }: CropDashboardProps)
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+        </div>
+
+        {/* 7) 10a당 연소득 비교 — 난이도 색 + 1위 강조 */}
+        <div className={`${s.card} ${s.cardWide}`}>
+          <h3 className={s.cardTitle}>10a당 얼마 벌까</h3>
+          <p className={s.cardHint}>
+            10a(1,000㎡)당 연소득 상위 {INCOME_TOP_N}종이에요. 색은 난이도예요 —
+            보통은 진하게, 어려움은 노랗게 표시했어요.
+          </p>
+          {incomeData.length === 0 ? (
+            <p className={s.empty}>이 카테고리는 비교할 수익 데이터가 없어요.</p>
+          ) : (
+            <ResponsiveContainer
+              width="100%"
+              height={incomeData.length * 34 + 16}
+            >
+              <BarChart
+                data={incomeData}
+                layout="vertical"
+                margin={{ top: 0, right: 64, left: 0, bottom: 0 }}
+              >
+                <XAxis type="number" hide domain={[0, "auto"]} allowDecimals={false} />
+                <YAxis
+                  type="category"
+                  dataKey="label"
+                  tick={{ fontSize: 12, fill: "#374151", fontWeight: 600 }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={108}
+                />
+                <Tooltip
+                  content={<IncomeTooltip />}
+                  cursor={{ fill: "rgba(0,0,0,0.03)" }}
+                />
+                <Bar
+                  dataKey="income10a"
+                  radius={[0, 6, 6, 0]}
+                  barSize={18}
+                  animationDuration={800}
+                  animationEasing="ease-out"
+                  label={{
+                    position: "right",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    fill: "#374151",
+                    formatter: (v: RenderableText) =>
+                      `${Number(v).toLocaleString()}만`,
+                  }}
+                >
+                  {incomeData.map((entry, i) => (
+                    <Cell
+                      key={entry.label}
+                      fill={DIFFICULTY_COLORS[entry.difficulty] ?? BRAND}
+                      opacity={i === 0 ? 1 : 0.88}
+                      stroke={i === 0 ? BRAND : "none"}
+                      strokeWidth={i === 0 ? 1.5 : 0}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+          <p className={s.incomeNote}>
+            10a(1,000㎡) 기준 · 임산물 등 기준이 다른 {excludedIncomeNames.length}종은
+            제외 · 출처: 농촌진흥청 농업소득자료집 2024·통계청
+          </p>
         </div>
       </div>
 
