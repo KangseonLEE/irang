@@ -92,7 +92,7 @@ const FEATURES = [
   },
   {
     icon: Sprout,
-    title: "작물 정보",
+    title: "작물 목록",
     description: `${CROPS.length}종 작물의 수익·난이도·재배 환경을 내 지역과 맞춰 확인하세요.`,
     href: "/crops",
     color: "amber" as const,

@@ -1,0 +1,112 @@
+/* 작물 목록(table) 뷰 — data-table.module.css 위 작물 전용 보강 */
+
+.nameLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* ── 난이도·노동강도 태그 ── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.diffEasy {
+  color: #059669;
+  background: color-mix(in srgb, #059669 12%, transparent);
+}
+
+.diffMedium {
+  color: #d97706;
+  background: color-mix(in srgb, #d97706 12%, transparent);
+}
+
+.diffHard {
+  color: var(--muted-foreground, #6b7280);
+  background: color-mix(in srgb, var(--muted-foreground, #6b7280) 12%, transparent);
+}
+
+.laborLow {
+  color: #059669;
+  background: color-mix(in srgb, #059669 12%, transparent);
+}
+
+.laborMid {
+  color: #d97706;
+  background: color-mix(in srgb, #d97706 12%, transparent);
+}
+
+.laborHigh {
+  color: var(--muted-foreground, #6b7280);
+  background: color-mix(in srgb, var(--muted-foreground, #6b7280) 12%, transparent);
+}
+
+/* ── 모바일: 테이블 → stacked card (@media 격리, 데스크탑 무변경) ── */
+@media (max-width: 639px) {
+  .table {
+    border: none;
+  }
+
+  .table thead {
+    /* 헤더는 시각적으로 숨김 (data-label로 대체). a11y는 thead 마크업 유지 */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .table tbody tr {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 12px;
+    padding: 14px;
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    background: var(--card, #fff);
+  }
+
+  .table tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .table td {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    border: none;
+    min-width: 0;
+  }
+
+  /* 작물명 셀 = 카드 헤더(전폭) */
+  .table td[data-label="작물"] {
+    grid-column: 1 / -1;
+    font-size: var(--fs-body);
+    font-weight: 700;
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border, #f3f4f6);
+  }
+
+  /* 라벨 주입 — 작물명 제외 */
+  .table td:not([data-label="작물"])::before {
+    content: attr(data-label);
+    flex: 0 0 64px;
+    font-size: var(--fs-caption);
+    font-weight: 600;
+    color: var(--muted-foreground, #6b7280);
+  }
+}

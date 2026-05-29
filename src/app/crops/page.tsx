@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ArrowRight, Scale } from "lucide-react";
@@ -25,8 +26,13 @@ import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { FilterShell } from "@/components/filter/filter-shell";
+import { ListToolbar } from "@/components/ui/list-toolbar";
+import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { CalendarModal } from "./calendar-modal";
 import { CropRequestButton } from "./crop-request-button";
+import { CropList } from "./crop-list";
+import { CropDashboard } from "./crop-dashboard";
+import { buildCropRows, buildCropFacts } from "./crop-aggregate";
 import s from "./page.module.css";
 
 const FarmingCalendar = dynamic(
@@ -37,7 +43,7 @@ const FarmingCalendar = dynamic(
 );
 
 export const metadata: Metadata = {
-  title: "정착 작물 정보 — 수익·난이도·재배환경 비교",
+  title: "정착 작물 목록 — 수익·난이도·재배환경 비교",
   description:
     "딸기, 블루베리, 감귤 등 귀농 인기 작물의 수익성, 난이도, 기후 조건을 비교하세요. 초보자 추천 작물부터 고소득 작물까지 한눈에 확인할 수 있어요.",
   keywords: ["정착 작물", "정착 작물 추천", "작물 수익", "작물 재배", "정착 초보 작물", "고소득 작물"],
@@ -51,6 +57,7 @@ interface PageProps {
     q?: string;
     persona?: string;
     sort?: string;
+    view?: string;
   }>;
 }
 
@@ -65,6 +72,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
       : undefined;
   const currentSort: CropSortKey =
     params.sort === "difficulty" ? "difficulty" : DEFAULT_CROP_SORT;
+  const viewMode: ViewMode = params.view === "table" ? "table" : "card";
 
   // 카테고리 필터링
   let filteredCrops =
@@ -113,7 +121,14 @@ export default async function CropsPage({ searchParams }: PageProps) {
     q: params.q,
     persona: params.persona,
     sort: currentSort === DEFAULT_CROP_SORT ? undefined : currentSort,
+    view: params.view,
   };
+
+  // 목록(table) 뷰용 행 — CROPS + CROP_DETAILS 조인 (현재 필터/정렬 결과 반영)
+  const cropRows = viewMode === "table" ? buildCropRows(filteredCrops) : [];
+
+  // 대시보드 차트 집계 — 전체 CROPS 기준 (필터 무관 전체 통계)
+  const { facts: cropFacts, totalProvinceCount } = buildCropFacts();
 
   return (
     <div className={s.page}>
@@ -141,12 +156,12 @@ export default async function CropsPage({ searchParams }: PageProps) {
           ],
         }}
       />
-      <BreadcrumbJsonLd items={[{ name: "작물 정보", href: "/crops" }]} />
+      <BreadcrumbJsonLd items={[{ name: "작물 목록", href: "/crops" }]} />
       {/* Page Header */}
       <PageHeader
         icon={<Sprout size={20} strokeWidth={1.75} />}
-        label="Crop Info"
-        title="작물 정보"
+        label="Crop List"
+        title="작물 목록"
         description="주요 작물의 재배 환경, 예상 수익, 재배 난이도를 한눈에 비교하세요."
         count={filteredCrops.length}
       />
@@ -192,29 +207,41 @@ export default async function CropsPage({ searchParams }: PageProps) {
         }
       />
 
-      {/* 정렬 — 페르소나 모드에선 점수순이 본질이라 selector 숨김 */}
-      {!currentPersona && filteredCrops.length > 0 && (
-        <div className={s.sortRow}>
-          <CropSortControl
-            currentSort={currentSort}
-            currentFilters={currentFilters}
-            basePath="/crops"
-          />
-        </div>
+      {/* 결과 수 + 정렬 + 보기 토글 */}
+      {filteredCrops.length > 0 && (
+        <ListToolbar count={filteredCrops.length} unit="종" label="작물">
+          {/* 페르소나 모드에선 점수순이 본질이라 sort selector 숨김 */}
+          {!currentPersona && (
+            <CropSortControl
+              currentSort={currentSort}
+              currentFilters={currentFilters}
+              basePath="/crops"
+            />
+          )}
+          <Suspense>
+            <ViewToggle current={viewMode} />
+          </Suspense>
+        </ListToolbar>
       )}
 
-      {/* Crop Card Grid — 정렬 변경 시 stagger fade-in */}
-      <div key={currentSort} className={s.cropGrid}>
-        {filteredCrops.map((crop, i) => (
-          <div
-            key={crop.id}
-            className={s.cardAnim}
-            style={{ animationDelay: `${Math.min(i, 5) * 30}ms` }}
-          >
-            <CropPageCard crop={crop} trace={cropTraces.get(crop.id)} />
+      {/* 목록(table) 뷰 / 카드 그리드 */}
+      {filteredCrops.length > 0 &&
+        (viewMode === "table" ? (
+          <CropList rows={cropRows} />
+        ) : (
+          /* Crop Card Grid — 정렬 변경 시 stagger fade-in */
+          <div key={currentSort} className={s.cropGrid}>
+            {filteredCrops.map((crop, i) => (
+              <div
+                key={crop.id}
+                className={s.cardAnim}
+                style={{ animationDelay: `${Math.min(i, 5) * 30}ms` }}
+              >
+                <CropPageCard crop={crop} trace={cropTraces.get(crop.id)} />
+              </div>
+            ))}
           </div>
         ))}
-      </div>
 
       {filteredCrops.length === 0 && (
         <>
@@ -233,6 +260,9 @@ export default async function CropsPage({ searchParams }: PageProps) {
           {searchQuery && <CropRequestButton query={searchQuery} />}
         </>
       )}
+
+      {/* 작물 데이터 대시보드 — 전체 작물 기준 5종 차트 + 인터랙티브 필터 */}
+      <CropDashboard facts={cropFacts} totalProvinceCount={totalProvinceCount} />
 
       {/* Cross-link CTAs */}
       <div className={s.crossLinks}>

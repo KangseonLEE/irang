@@ -317,12 +317,14 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
   "/crops": {
     // 2026-05-13: persona 추가 (Phase 6 B3 explain UI inline + 페르소나 칩 sprint)
     // 2026-05-25: sort 추가 (name/difficulty) — Sprint 2 페이지별 정렬 일관성
-    allowedKeys: ["category", "difficulty", "q", "persona", "sort"],
+    // 2026-05-29: view 추가 (카드/목록 토글 — 누락 시 308 strip으로 table view 무력화)
+    allowedKeys: ["category", "difficulty", "q", "persona", "sort", "view"],
     enumValidators: {
       category: ["전체", "식량", "채소", "과수", "특용"],
       difficulty: ["전체", "쉬움", "보통", "어려움"],
       persona: ["family", "farmYouth", "elderRural", "commuter", "balanced"],
       sort: ["name", "difficulty"],
+      view: ["table", "card"],
     },
     regexValidators: {
       // codex 권고 (5/7) q abuse 방어: 한글·영숫자·공백만

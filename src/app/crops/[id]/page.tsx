@@ -310,7 +310,7 @@ export default async function CropDetailPage({
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[
-        { name: "작물 정보", href: "/crops" },
+        { name: "작물 목록", href: "/crops" },
         { name: data.name, href: `/crops/${id}` },
       ]} />
       {/* ── 브레드크럼 + 출처 ── */}

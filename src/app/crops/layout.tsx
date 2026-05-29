@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { SectionNav } from "@/components/layout/section-nav";
 
 const cropsNav = [
-  { href: "/crops", label: "작물 정보" },
+  { href: "/crops", label: "작물 목록" },
   { href: "/crops/compare", label: "작물 비교" },
 ];
 

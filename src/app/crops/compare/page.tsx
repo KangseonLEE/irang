@@ -217,7 +217,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
   return (
     <div className={s.page}>
       <BreadcrumbJsonLd items={[
-        { name: "작물 정보", href: "/crops" },
+        { name: "작물 목록", href: "/crops" },
         { name: "작물 비교", href: "/crops/compare" },
       ]} />
       {/* 모바일 데스크톱 권장 안내 */}

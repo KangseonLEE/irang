@@ -71,7 +71,7 @@ const menuGroups: MenuGroup[] = [
       { href: "/regions/compare", label: "지역 비교", desc: "최대 3개 지역 비교 분석", icon: GitCompareArrows },
       { href: "/regions/ranking", label: "시군구 점수 비교", desc: "5차원·정착 스타일로 줄세우기", icon: Trophy },
       { href: "/regions/centers", label: "지자체 센터", desc: "시·도 귀농귀촌지원센터 안내", icon: Building2 },
-      { href: "/crops", label: "작물 정보", desc: "재배 난이도·수익성·적합 기후", icon: Sprout },
+      { href: "/crops", label: "작물 목록", desc: "재배 난이도·수익성·적합 기후", icon: Sprout },
       { href: "/crops/compare", label: "작물 비교", desc: "최대 3종 작물 비교", icon: GitCompareArrows },
     ],
   },

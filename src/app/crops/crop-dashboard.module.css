@@ -1,0 +1,218 @@
+/* 작물 대시보드 섹션 */
+
+.section {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.head {
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: var(--fs-h3, 1.25rem);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  margin: 0 0 4px;
+}
+
+.subtitle {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+}
+
+/* ── 요약 스탯 스트립 ── */
+.statStrip {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 640px) {
+  .statStrip {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary, #1b6b5a);
+  line-height: 1.1;
+}
+
+.statLabel {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  font-weight: 600;
+}
+
+/* ── 필터 상태 바 ── */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.filterChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+}
+
+.filterReset {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+@media (hover: hover) {
+  .filterReset:hover {
+    color: var(--primary, #1b6b5a);
+    text-decoration: underline;
+  }
+}
+
+.filterReset:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ── 차트 그리드 ── */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+.card {
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+}
+
+/* 월별 재배 차트는 전폭 */
+.cardWide {
+  grid-column: 1 / -1;
+}
+
+.cardTitle {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  margin: 0 0 2px;
+}
+
+.cardHint {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0 0 14px;
+}
+
+.empty {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground, #6b7280);
+  padding: 24px 0;
+  text-align: center;
+}
+
+/* ── 클릭 가능한 카테고리 칩 ── */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground, #374151);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.chipActive {
+  border-color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    border-color: var(--primary, #1b6b5a);
+  }
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.chipDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.chipCount {
+  font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.chipActive .chipCount {
+  color: var(--primary, #1b6b5a);
+}
+
+/* ── 현재 범위 안내 ── */
+.scopeNote {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  margin: 16px 0 12px;
+}
+
+.scopeNote strong {
+  color: var(--primary, #1b6b5a);
+  font-weight: 700;
+}
