@@ -9,7 +9,7 @@
  * 점진 확장: ILLUSTRATED_CROPS Set에 ID 추가하면 자동 적용.
  */
 
-/** codex-image로 일러 생성 완료된 작물 ID (49종, 2026-05-21 D4 +10) */
+/** codex-image로 일러 생성 완료된 작물 ID (52종, 2026-05-29 임산물 +3: omija·chestnut·walnut) */
 const ILLUSTRATED_CROPS = new Set<string>([
   "apple",
   "arugula",
@@ -21,6 +21,7 @@ const ILLUSTRATED_CROPS = new Set<string>([
   "carrot",
   "cherry",
   "cherry-tomato",
+  "chestnut",
   "chili-pepper",
   "citrus",
   "corn",
@@ -38,6 +39,7 @@ const ILLUSTRATED_CROPS = new Set<string>([
   "mango",
   "melon",
   "napa-cabbage",
+  "omija",
   "onion",
   "oyster-mushroom",
   "paprika",
@@ -58,6 +60,7 @@ const ILLUSTRATED_CROPS = new Set<string>([
   "strawberry",
   "sweet-potato",
   "tomato",
+  "walnut",
   "watermelon",
   "zucchini",
 ]);

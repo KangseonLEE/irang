@@ -278,6 +278,7 @@ export const CROP_COSTS_BY_TYPE: Record<CostTypeId, CropCost[]> = {
     },
     {
       id: "chestnut",
+      cropPageId: "chestnut",
       name: "밤",
       initialCost: "1,500만~3,000만 원",
       annual: "400만~800만 원",
@@ -290,6 +291,7 @@ export const CROP_COSTS_BY_TYPE: Record<CostTypeId, CropCost[]> = {
     },
     {
       id: "omija",
+      cropPageId: "omija",
       name: "오미자",
       initialCost: "1,500만~3,500만 원",
       annual: "500만~900만 원",
@@ -302,6 +304,7 @@ export const CROP_COSTS_BY_TYPE: Record<CostTypeId, CropCost[]> = {
     },
     {
       id: "walnut",
+      cropPageId: "walnut",
       name: "호두",
       initialCost: "2,000만~4,000만 원",
       annual: "400만~800만 원",
