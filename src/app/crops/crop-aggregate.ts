@@ -146,6 +146,8 @@ export function buildCropFacts(): {
     provinces.forEach((p) => provinceSet.add(p));
     return {
       id: crop.id,
+      name: crop.name,
+      emoji: crop.emoji,
       category: crop.category,
       difficulty: crop.difficulty,
       laborIntensity: detail?.income.laborIntensity ?? null,

@@ -318,7 +318,8 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     // 2026-05-13: persona 추가 (Phase 6 B3 explain UI inline + 페르소나 칩 sprint)
     // 2026-05-25: sort 추가 (name/difficulty) — Sprint 2 페이지별 정렬 일관성
     // 2026-05-29: view 추가 (카드/목록 토글 — 누락 시 308 strip으로 table view 무력화)
-    allowedKeys: ["category", "difficulty", "q", "persona", "sort", "view"],
+    // 2026-05-30: page 추가 (카드/테이블 20개 페이지네이션 — 누락 시 ?page=2가 308 strip)
+    allowedKeys: ["category", "difficulty", "q", "persona", "sort", "view", "page"],
     enumValidators: {
       category: ["전체", "식량", "채소", "과수", "특용"],
       difficulty: ["전체", "쉬움", "보통", "어려움"],
@@ -335,6 +336,9 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     },
     maxLengths: {
       q: 30,
+    },
+    numericRanges: {
+      page: { min: 1, max: 100 },
     },
   },
   "/regions": {

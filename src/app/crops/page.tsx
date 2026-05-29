@@ -28,6 +28,7 @@ import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { FilterShell } from "@/components/filter/filter-shell";
 import { ListToolbar } from "@/components/ui/list-toolbar";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
+import { Pagination } from "@/components/ui/pagination";
 import { CalendarModal } from "./calendar-modal";
 import { CropRequestButton } from "./crop-request-button";
 import { CropList } from "./crop-list";
@@ -62,8 +63,12 @@ interface PageProps {
     persona?: string;
     sort?: string;
     view?: string;
+    page?: string;
   }>;
 }
+
+/** 한 페이지에 보여주는 작물 수 (카드·테이블 공통) */
+const PER_PAGE = 20;
 
 export default async function CropsPage({ searchParams }: PageProps) {
   const params = await searchParams;
@@ -111,14 +116,19 @@ export default async function CropsPage({ searchParams }: PageProps) {
     filteredCrops = sortCrops(filteredCrops, currentSort);
   }
 
-  // Phase 6 B3 D2 — 페르소나 모드일 때만 카드별 trace 사전 계산
+  // 페이지네이션 — 카드·테이블 공통 20개/페이지. 범위 밖 page는 clamp.
+  const totalPages = Math.max(1, Math.ceil(filteredCrops.length / PER_PAGE));
+  const page = Math.min(Math.max(1, Number(params.page) || 1), totalPages);
+  const pagedCrops = filteredCrops.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+  // Phase 6 B3 D2 — 페르소나 모드일 때만 카드별 trace 사전 계산 (현재 페이지만)
   const cropTraces: Map<string, FitTrace> = currentPersona
     ? new Map(
-        filteredCrops.map((c) => [c.id, getCropPersonaFitTrace(c, currentPersona)]),
+        pagedCrops.map((c) => [c.id, getCropPersonaFitTrace(c, currentPersona)]),
       )
     : new Map();
 
-  // 현재 활성 필터 (URL 빌딩용)
+  // 현재 활성 필터 (URL 빌딩용) — 필터/정렬 변경 시 page 리셋 (events·programs 준용: page 미포함)
   const currentFilters: Record<string, string | undefined> = {
     category: params.category,
     difficulty: params.difficulty,
@@ -128,8 +138,8 @@ export default async function CropsPage({ searchParams }: PageProps) {
     view: params.view,
   };
 
-  // 목록(table) 뷰용 행 — CROPS + CROP_DETAILS 조인 (현재 필터/정렬 결과 반영)
-  const cropRows = viewMode === "table" ? buildCropRows(filteredCrops) : [];
+  // 목록(table) 뷰용 행 — CROPS + CROP_DETAILS 조인 (현재 페이지 행만)
+  const cropRows = viewMode === "table" ? buildCropRows(pagedCrops) : [];
 
   // 대시보드 차트 집계 — 전체 CROPS 기준 (필터 무관 전체 통계)
   const { facts: cropFacts, totalProvinceCount } = buildCropFacts();
@@ -231,14 +241,14 @@ export default async function CropsPage({ searchParams }: PageProps) {
         </ListToolbar>
       )}
 
-      {/* 목록(table) 뷰 / 카드 그리드 */}
+      {/* 목록(table) 뷰 / 카드 그리드 — 페이지당 20개 */}
       {filteredCrops.length > 0 &&
         (viewMode === "table" ? (
           <CropList rows={cropRows} />
         ) : (
           /* Crop Card Grid — 정렬 변경 시 stagger fade-in */
-          <div key={currentSort} className={s.cropGrid}>
-            {filteredCrops.map((crop, i) => (
+          <div key={`${currentSort}-${page}`} className={s.cropGrid}>
+            {pagedCrops.map((crop, i) => (
               <div
                 key={crop.id}
                 className={s.cardAnim}
@@ -249,6 +259,13 @@ export default async function CropsPage({ searchParams }: PageProps) {
             ))}
           </div>
         ))}
+
+      {/* 페이지네이션 — 카드·테이블 공통 */}
+      {filteredCrops.length > 0 && totalPages > 1 && (
+        <Suspense>
+          <Pagination currentPage={page} totalPages={totalPages} />
+        </Suspense>
+      )}
 
       {filteredCrops.length === 0 && (
         <>

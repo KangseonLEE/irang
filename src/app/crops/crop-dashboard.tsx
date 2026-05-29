@@ -20,6 +20,10 @@ import s from "./crop-dashboard.module.css";
 /** 작물 1건의 차트 집계용 사실 — 서버에서 직렬화 전달 (체크리스트 H) */
 export interface CropFact {
   id: string;
+  /** 작물명 — 차트 버킷 호버 시 작물 목록 툴팁용 */
+  name: string;
+  /** 이모지 — 작물 목록 툴팁 표시용 (없을 수 있음) */
+  emoji?: string;
   category: "식량" | "채소" | "과수" | "특용";
   difficulty: "쉬움" | "보통" | "어려움";
   laborIntensity: "낮음" | "보통" | "높음" | null;
@@ -80,15 +84,28 @@ const MONTH_LABELS = [
   "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
 ];
 
+/** 작물 목록 툴팁 최대 표시 개수 (초과 시 "외 N개") */
+const TIP_MEMBERS_MAX = 12;
+
+/** 작물명 표시 헬퍼 — "🍅 토마토" 형식 (이모지 없으면 이름만) */
+function cropLabel(f: CropFact): string {
+  return f.emoji ? `${f.emoji} ${f.name}` : f.name;
+}
+
 /* ── Recharts 툴팁 props ── */
 interface TipProps {
   active?: boolean;
-  payload?: Array<{ payload: { label: string; count: number }; color?: string }>;
+  payload?: Array<{
+    payload: { label: string; count: number; members?: string[] };
+    color?: string;
+  }>;
 }
 
 function CountTooltip({ active, payload }: TipProps) {
   if (!active || !payload?.length) return null;
-  const { label, count } = payload[0].payload;
+  const { label, count, members } = payload[0].payload;
+  const shown = members?.slice(0, TIP_MEMBERS_MAX) ?? [];
+  const rest = (members?.length ?? 0) - shown.length;
   return (
     <div className={c.tooltip}>
       <p className={c.tooltipLabel}>{label}</p>
@@ -100,6 +117,12 @@ function CountTooltip({ active, payload }: TipProps) {
         <span>작물 수</span>
         <span className={c.tooltipValue}>{count}종</span>
       </div>
+      {shown.length > 0 && (
+        <p className={s.tipMembers}>
+          {shown.join(" · ")}
+          {rest > 0 && ` 외 ${rest}개`}
+        </p>
+      )}
     </div>
   );
 }
@@ -151,10 +174,14 @@ export function CropDashboard({
   // 카테고리 분포 (도넛은 항상 전체 기준 — 선택 컨트롤 역할)
   const categoryData = useMemo(
     () =>
-      CATEGORIES.map((cat) => ({
-        label: cat,
-        count: facts.filter((f) => f.category === cat).length,
-      })),
+      CATEGORIES.map((cat) => {
+        const members = facts.filter((f) => f.category === cat);
+        return {
+          label: cat,
+          count: members.length,
+          members: members.map(cropLabel),
+        };
+      }),
     [facts],
   );
 
@@ -170,51 +197,56 @@ export function CropDashboard({
   // 난이도 분포
   const difficultyData = useMemo(
     () =>
-      DIFFICULTIES.map((d) => ({
-        label: d,
-        count: scoped.filter((f) => f.difficulty === d).length,
-      })),
+      DIFFICULTIES.map((d) => {
+        const members = scoped.filter((f) => f.difficulty === d);
+        return { label: d, count: members.length, members: members.map(cropLabel) };
+      }),
     [scoped],
   );
 
   // 노동강도 분포 (미지정 별도 집계)
   const laborData = useMemo(() => {
-    const rows: Array<{ label: string; count: number }> = LABORS.map((l) => ({
-      label: l as string,
-      count: scoped.filter((f) => f.laborIntensity === l).length,
-    }));
-    const unknown = scoped.filter((f) => f.laborIntensity === null).length;
-    if (unknown > 0) rows.push({ label: "미지정", count: unknown });
+    const rows: Array<{ label: string; count: number; members: string[] }> =
+      LABORS.map((l) => {
+        const members = scoped.filter((f) => f.laborIntensity === l);
+        return { label: l as string, count: members.length, members: members.map(cropLabel) };
+      });
+    const unknown = scoped.filter((f) => f.laborIntensity === null);
+    if (unknown.length > 0)
+      rows.push({ label: "미지정", count: unknown.length, members: unknown.map(cropLabel) });
     return rows;
   }, [scoped]);
 
   // 지역별 작물 다양성 Top 8
   const regionData = useMemo(() => {
-    const map = new Map<string, number>();
+    const map = new Map<string, string[]>();
     for (const f of scoped) {
       for (const p of f.provinces) {
-        map.set(p, (map.get(p) ?? 0) + 1);
+        const arr = map.get(p) ?? [];
+        arr.push(cropLabel(f));
+        map.set(p, arr);
       }
     }
     return Array.from(map.entries())
-      .map(([label, count]) => ({ label, count }))
+      .map(([label, members]) => ({ label, count: members.length, members }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 8);
   }, [scoped]);
 
   // 재배 시기(월별) 분포 — 파싱 성공 작물만 집계
   const { monthData, parsedCount } = useMemo(() => {
-    const counts = new Array(12).fill(0);
+    const memberLists: string[][] = Array.from({ length: 12 }, () => []);
     let parsed = 0;
     for (const f of scoped) {
       if (f.months.length === 0) continue;
       parsed += 1;
-      for (const m of f.months) counts[m - 1] += 1;
+      for (const m of f.months) memberLists[m - 1].push(cropLabel(f));
     }
     return {
-      monthData: MONTH_LABELS.map((label, i) => ({
-        label: `${label}월`,
-        count: counts[i],
+      monthData: MONTH_LABELS.map((m, i) => ({
+        label: `${m}월`,
+        count: memberLists[i].length,
+        members: memberLists[i],
       })),
       parsedCount: parsed,
     };

@@ -223,3 +223,16 @@
   color: var(--primary, #1b6b5a);
   font-weight: 700;
 }
+
+/* ── 차트 툴팁 안 작물명 목록 (어두운 툴팁 배경 위) ── */
+.tipMembers {
+  margin: 8px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  max-width: 240px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.82);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
