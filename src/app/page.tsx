@@ -15,8 +15,7 @@ import { ArrowRight } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import HeroSearch from "@/components/search/hero-search";
-import { TrendingSearchesSkeleton } from "@/components/landing/trending-searches";
-import { TrendingSearchesLoader } from "@/components/landing/trending-searches-loader";
+import { TrendingSearches } from "@/components/landing/trending-searches";
 import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
@@ -101,9 +100,7 @@ export default function HomePage() {
         </div>
 
         <div className={s.heroTrending}>
-          <Suspense fallback={<TrendingSearchesSkeleton />}>
-            <TrendingSearchesLoader />
-          </Suspense>
+          <TrendingSearches />
         </div>
 
         {/* 마퀴 띠 — 2줄 엇갈림 */}
