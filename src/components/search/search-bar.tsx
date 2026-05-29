@@ -17,7 +17,7 @@ import { Clock, X, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap,
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { getQuerySuggestions, searchAll } from "@/lib/data/search-index";
-import { POPULAR_KEYWORDS } from "./popular-keywords";
+import { POPULAR_KEYWORDS } from "@/lib/data/popular-keywords";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
 import { logSearch } from "@/lib/supabase";

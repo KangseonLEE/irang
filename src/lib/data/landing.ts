@@ -3,6 +3,8 @@
    page.tsx 에서 분리 — Tailwind 의존 없음
    ──────────────────────────────────────────── */
 
+import { POPULAR_KEYWORDS } from "./popular-keywords";
+
 export type ColorKey = "brand" | "blue" | "green" | "amber" | "red";
 
 /* ── 데이터 출처 ── */
@@ -1434,25 +1436,17 @@ export interface TrendingSearch {
 }
 
 /**
- * 모든 키워드는 SEARCH_INDEX 실제 데이터와 매칭 검증 완료.
- * - 지역명: STATIONS province 키워드 부분매칭 (전남→전라남도 등)
- * - 작물명: CROPS name 정확매칭
- * - 사업유형: PROGRAMS supportType / title 부분매칭
+ * 히어로 "지금 많이 찾는 키워드는" 로테이션 정적 폴백.
+ *
+ * 검색 오버레이 "인기 검색어"와 싱크 유지를 위해 단일 SSOT(`POPULAR_KEYWORDS`)에서
+ * 파생한다 (2026-05-29 회장 결재 — 두 리스트 키워드 불일치 해소).
+ * query = label (POPULAR_KEYWORDS 라벨이 곧 검색 쿼리).
+ * 항목 추가/변경은 `src/lib/data/popular-keywords.ts`에서만 한다.
  */
-export const trendingSearches: TrendingSearch[] = [
-  { label: "전남 딸기", query: "전남 딸기" },
-  { label: "경북 사과", query: "경북 사과" },
-  { label: "충남 스마트팜", query: "충남 스마트팜" },
-  { label: "강원 감자", query: "강원 감자" },
-  { label: "제주 감귤", query: "제주 감귤" },
-  { label: "정착 융자", query: "정착 융자" },
-  { label: "청년농업인", query: "청년농업인" },
-  { label: "체류형 귀농", query: "체류형" },
-  { label: "귀농 멘토링", query: "멘토링" },
-  { label: "정착 교육", query: "정착 교육" },
-  { label: "박람회", query: "박람회" },
-  { label: "살아보기", query: "살아보기" },
-];
+export const trendingSearches: TrendingSearch[] = POPULAR_KEYWORDS.map((k) => ({
+  label: k.label,
+  query: k.label,
+}));
 
 // ─── 인터뷰 정렬 (5/25 회장 결재) ──────────────────────────────────────────
 
