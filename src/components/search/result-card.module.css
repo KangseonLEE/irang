@@ -319,4 +319,17 @@
   .cardBase {
     padding: 10px 12px;
   }
+  /* 6/1 회장 결재: 모바일 1열 통일로 카드 폭이 2배 확보됨. 인터뷰 quote·용어 설명·작물
+     description이 1줄 clamp에서 잘리던 여백을 2줄로 활용해 정보 손실 만회 (UX 권고). */
+  .subtitle {
+    -webkit-line-clamp: 2;
+  }
+  /* simpleSubtitle(land·guide)은 nowrap+ellipsis 구조라 line-clamp 미적용 → 2줄 박스로 전환 */
+  .simpleSubtitle {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: keep-all;
+  }
 }

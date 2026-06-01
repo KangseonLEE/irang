@@ -33,16 +33,6 @@ const TYPE_META: Record<
 /** 결과가 없을 때 폴백용 기본 순서 */
 const DEFAULT_TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "education", "event", "guide", "center", "interview", "glossary", "land"];
 
-/** 모바일에서 1열 유지할 type — badge·chip·D-N 등 정보가 빽빽해 2열 grid에서 잘리는 카드.
- * 5/25 회장 라이브 발견 sprint — 나머지 type은 모바일 2열로 가로 배열 (네이버 통합검색 참고). */
-const FULLWIDTH_GRID_TYPES = new Set<SearchItem["type"]>([
-  "program",
-  "region",
-  "event",
-  "education",
-  "center",
-]);
-
 /**
  * 섹션별 초기 노출 개수 — 이 값 초과 시 "더보기 N건" 버튼 표시.
  * region·crop은 동음이의어/유사 작물이 많아 6개, 그 외는 4개. glossary·guide는 짧은 카드라 5개.
@@ -342,12 +332,7 @@ function SearchPageContent() {
                     <span className={s.sectionHint}>모집중·모집예정만</span>
                   )}
                 </h2>
-                <div
-                  className={s.grid}
-                  data-grid-fullwidth={
-                    FULLWIDTH_GRID_TYPES.has(group.type) ? "true" : undefined
-                  }
-                >
+                <div className={s.grid}>
                   {visibleItems.map((item) => (
                     <ResultCard
                       key={`${item.type}-${item.id}`}
