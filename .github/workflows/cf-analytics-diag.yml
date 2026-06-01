@@ -1,0 +1,90 @@
+# ═══════════════════════════════════════════
+# CF Analytics 진단 — 최근 7일 국가별/봇별 요청 비율 + firewall block 카운트
+# ═══════════════════════════════════════════
+#
+# 배경 (2026-06-01):
+#   Vercel Fluid Active CPU 5/14 32m → 6/1 5h55m (11배). search_logs는 1.96배.
+#   봇 재유입(A) vs 실사용(B) vs 빌드(C) 규명. 본 workflow는 A를 측정.
+#
+# 측정 (read-only, GraphQL Analytics):
+#   1. httpRequestsAdaptiveGroups — 최근 7일 국가별 요청 수 (미국:한국 비율)
+#   2. firewallEventsAdaptiveGroups — Custom Rule block 카운트 (룰이 실제 막고 있나)
+#   3. cf-cache-status 분포 추정 (edge 요청 vs origin 도달)
+#
+# 권한: Zone → Analytics → Read 필요. 없으면 GraphQL이 에러 반환 → 토큰 스코프 판별됨.
+# 트리거: workflow_dispatch only
+# ═══════════════════════════════════════════
+
+name: "CF Analytics Diag — 7d country/bot/firewall"
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: cf-analytics-diag
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+    steps:
+      - name: Preflight
+        run: |
+          if [ -z "$CF_API_TOKEN" ] || [ -z "$CF_ZONE_ID" ]; then
+            echo "::error::CF secret missing"; exit 1
+          fi
+          echo "SINCE=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          echo "UNTIL=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
+      - name: Country breakdown (httpRequestsAdaptiveGroups)
+        run: |
+          Q=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" '{
+            query: "query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){httpRequestsAdaptiveGroups(limit:30,filter:{datetime_geq:$s,datetime_leq:$u},orderBy:[count_DESC]){count dimensions{clientCountryName}}}}}",
+            variables: {z:$z,s:$s,u:$u}
+          }')
+          R=$(curl -sS https://api.cloudflare.com/client/v4/graphql \
+            -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" --data "$Q")
+          echo "$R" | jq -e '.errors == null' >/dev/null 2>&1 || { echo "::warning::GraphQL country query error (token may lack Analytics:Read)"; echo "$R" | jq -r '.errors'; }
+          echo "## 최근 7일 국가별 요청 (top 30)"
+          echo "$R" | jq -r '.data.viewer.zones[0].httpRequestsAdaptiveGroups[]? | "\(.dimensions.clientCountryName)\t\(.count)"' || echo "(no data)"
+
+      - name: Bot class breakdown
+        run: |
+          Q=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" '{
+            query: "query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){httpRequestsAdaptiveGroups(limit:10,filter:{datetime_geq:$s,datetime_leq:$u},orderBy:[count_DESC]){count dimensions{botManagementScoreBucket}}}}}",
+            variables: {z:$z,s:$s,u:$u}
+          }')
+          R=$(curl -sS https://api.cloudflare.com/client/v4/graphql \
+            -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" --data "$Q")
+          echo "## 봇 스코어 분포 (1=확실봇 ~ 99=사람). Free 플랜은 미지원일 수 있음"
+          echo "$R" | jq -r '.data.viewer.zones[0].httpRequestsAdaptiveGroups[]? | "score=\(.dimensions.botManagementScoreBucket)\t\(.count)"' 2>/dev/null || echo "$R" | jq -r '.errors // "(no bot data — Free plan)"'
+
+      - name: Firewall block count (firewallEventsAdaptiveGroups)
+        run: |
+          Q=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" '{
+            query: "query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){firewallEventsAdaptiveGroups(limit:20,filter:{datetime_geq:$s,datetime_leq:$u},orderBy:[count_DESC]){count dimensions{action ruleId clientCountryName}}}}}",
+            variables: {z:$z,s:$s,u:$u}
+          }')
+          R=$(curl -sS https://api.cloudflare.com/client/v4/graphql \
+            -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" --data "$Q")
+          echo "## 최근 7일 firewall 이벤트 (action별/룰별/국가별) — Custom Rule이 실제 막고 있나"
+          echo "$R" | jq -e '.errors == null' >/dev/null 2>&1 || { echo "::warning::firewall query error"; echo "$R" | jq -r '.errors'; }
+          echo "$R" | jq -r '.data.viewer.zones[0].firewallEventsAdaptiveGroups[]? | "\(.dimensions.action)\t\(.dimensions.ruleId[0:8])\t\(.dimensions.clientCountryName)\t\(.count)"' || echo "(no data)"
+
+      - name: Cache status breakdown
+        run: |
+          Q=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" '{
+            query: "query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){httpRequestsAdaptiveGroups(limit:15,filter:{datetime_geq:$s,datetime_leq:$u},orderBy:[count_DESC]){count dimensions{cacheStatus}}}}}",
+            variables: {z:$z,s:$s,u:$u}
+          }')
+          R=$(curl -sS https://api.cloudflare.com/client/v4/graphql \
+            -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" --data "$Q")
+          echo "## cache 상태 분포 — HIT면 origin(Vercel) 미도달, DYNAMIC/MISS/BYPASS면 Vercel Function 호출 → CPU 소모"
+          echo "$R" | jq -r '.data.viewer.zones[0].httpRequestsAdaptiveGroups[]? | "\(.dimensions.cacheStatus)\t\(.count)"' || echo "$R" | jq -r '.errors // "(no data)"'
