@@ -747,6 +747,9 @@ const CROP_NAMES_BY_LENGTH_DESC: string[] = (() => {
   return Array.from(new Set(names)).sort((a, b) => b.length - a.length);
 })();
 
+/** 작물명 정확 매치 판별용 Set — prefix 자동 분리에서 정확 작물명은 제외 */
+const CROP_NAME_SET = new Set(CROP_NAMES_BY_LENGTH_DESC);
+
 /**
  * 단일 term이 entity 정확명 매치 시 해당 카드를 hoist.
  *
@@ -815,6 +818,10 @@ function findExactMatchHoists(
 
 function injectCropPrefixSpace(q: string): string {
   if (q.length < 2 || /\s/.test(q)) return q;
+  // q 자체가 정확한 작물명이면 분리 금지.
+  //   "감귤"은 작물 "감"(감)으로 시작하므로 분리 규칙에 걸리면 "감 귤"이 되어
+  //   단일어 정확 hoist 분기를 못 타고 복합 쿼리로 빠진다. (감귤 카드가 밀림)
+  if (CROP_NAME_SET.has(q)) return q;
   for (const cropName of CROP_NAMES_BY_LENGTH_DESC) {
     if (q.length > cropName.length && q.startsWith(cropName)) {
       const rest = q.slice(cropName.length);
@@ -1159,7 +1166,34 @@ export function searchAll(query: string): SearchItem[] {
     }
   }
 
-  return [...hintPrefix, ...cropContextPrefix, ...faqResults, ...scored];
+  // 첫 단어가 정확한 작물명이고 별도 context 인텐트(crop-region 등)가 없으면
+  // 해당 작물 카드를 최상단으로 hoist.
+  //   "감귤 작물", "사과 정보", "딸기 추천" 등 — 사용자가 작물을 먼저 입력한 건
+  //   그 작물 자체의 재배 정보를 원한다는 신호. FAQ 가이드 카드보다 우선.
+  //   (5/22 회장 결재한 단일어 findExactMatchHoists의 복합 쿼리 확장)
+  //   context 인텐트가 있으면 cropContextPrefix 딥링크가 더 정확하므로 중복 hoist 생략.
+  const leadingCropHoist: SearchItem[] = [];
+  if (cropContextPrefix.length === 0) {
+    const firstCrop = CROPS.find((c) => c.name.toLowerCase() === terms[0]);
+    if (firstCrop) {
+      const cropItem = index.find(
+        (it) => it.type === "crop" && it.id === firstCrop.id,
+      );
+      if (cropItem) leadingCropHoist.push(cropItem);
+    }
+  }
+  const leadingHoistIds = new Set(leadingCropHoist.map((i) => i.id));
+  const scoredOut = leadingHoistIds.size
+    ? scored.filter((it) => !leadingHoistIds.has(it.id))
+    : scored;
+
+  return [
+    ...hintPrefix,
+    ...leadingCropHoist,
+    ...cropContextPrefix,
+    ...faqResults,
+    ...scoredOut,
+  ];
 }
 
 // ---------------------------------------------------------------------------
