@@ -40,7 +40,8 @@ jobs:
           if [ -z "$CF_API_TOKEN" ] || [ -z "$CF_ZONE_ID" ]; then
             echo "::error::CF secret missing"; exit 1
           fi
-          echo "SINCE=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          # Free 플랜 httpRequestsAdaptiveGroups는 1d 범위 제한 → 최근 24h만 조회 (5/4·5/14도 24h CF 데이터로 봇 판정)
+          echo "SINCE=$(date -u -d '23 hours ago' +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
           echo "UNTIL=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
 
       - name: Country breakdown (httpRequestsAdaptiveGroups)
@@ -52,7 +53,7 @@ jobs:
           R=$(curl -sS https://api.cloudflare.com/client/v4/graphql \
             -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" --data "$Q")
           echo "$R" | jq -e '.errors == null' >/dev/null 2>&1 || { echo "::warning::GraphQL country query error (token may lack Analytics:Read)"; echo "$R" | jq -r '.errors'; }
-          echo "## 최근 7일 국가별 요청 (top 30)"
+          echo "## 최근 24h 국가별 요청 (top 30) — 미국:한국 비율이 봇 판정 핵심 (5/14 96:4였음)"
           echo "$R" | jq -r '.data.viewer.zones[0].httpRequestsAdaptiveGroups[]? | "\(.dimensions.clientCountryName)\t\(.count)"' || echo "(no data)"
 
       - name: Bot class breakdown
