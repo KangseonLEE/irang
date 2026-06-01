@@ -62,6 +62,9 @@ export default function robots(): MetadataRoute.Robots {
           // Phase 6 B1: /regions/ranking?w=... 가중치 커스터마이징 — 봇이 조합 무한 시도 차단.
           // canonical은 metadata.alternates에 strip된 /regions/ranking 유지.
           "/regions/ranking?",
+          // /regions/centers?q=... — 정적 페이지 + q는 클라이언트 필터라 ?q= 변형이 모두
+          // 동일 HTML. dup-content 색인 예방 (2026-06-01 dev 누출 GSC 점검 동반). canonical은 /regions/centers.
+          "/regions/centers?",
         ],
       },
       ...AI_TRAINING_CRAWLERS.map((bot) => ({
