@@ -41,6 +41,7 @@ jobs:
               repo: context.repo.repo,
               title: `📊 쌀 생산비조사 ${year-1}년산 데이터 갱신`,
               labels: ['data', 'maintenance'],
+              assignees: ['KangseonLEE'],
               body: `## 쌀 생산비조사 연간 갱신
 
             통계청이 매년 3월 말 **전년산 논벼(쌀) 생산비조사 결과**를 발표합니다.
@@ -72,6 +73,7 @@ jobs:
               repo: context.repo.repo,
               title: `📊 농산물소득자료집 ${year}년도 데이터 갱신`,
               labels: ['data', 'maintenance'],
+              assignees: ['KangseonLEE'],
               body: `## 농산물소득자료집 연간 갱신 (14개 작물)
 
             농촌진흥청이 매년 10월 **농산물소득자료집**을 발간합니다.

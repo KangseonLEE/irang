@@ -205,6 +205,7 @@ $(echo -e "$ISSUE_BODY")
         --title "$ISSUE_TITLE" \
         --body "$BODY" \
         --label "link-check" \
+        --assignee "KangseonLEE" \
         2>/dev/null && echo "✅ GitHub Issue가 생성되었습니다." || echo "⚠️  Issue 생성 실패 (label이 없거나 권한 부족)"
     fi
   else

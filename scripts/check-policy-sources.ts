@@ -373,7 +373,7 @@ function createGitHubIssue(
 
   try {
     execSync(
-      `gh issue create --title "${issueTitle}" --body "${body.replace(/"/g, '\\"')}" --label "policy-check"`,
+      `gh issue create --title "${issueTitle}" --body "${body.replace(/"/g, '\\"')}" --label "policy-check" --assignee "KangseonLEE"`,
       { encoding: "utf-8", stdio: "pipe" },
     );
     console.log("\n✅ GitHub Issue가 생성되었습니다.");

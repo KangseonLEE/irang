@@ -84,6 +84,7 @@ jobs:
           gh issue create \
             --title "📅 데이터 신선도 불일치 감지 (${TODAY})" \
             --label "data-freshness" \
+            --assignee "KangseonLEE" \
             --body "## 데이터 신선도 점검 결과
 
           \`check-data-freshness.ts\` 스크립트가 상태 불일치 또는 만료 임박 항목을 감지했어요.

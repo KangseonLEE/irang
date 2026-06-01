@@ -162,6 +162,7 @@ jobs:
           gh issue create \
             --title "🩺 외부 API 장애 감지 — ${FAIL_COUNT}개 실패 (${TODAY})" \
             --label "api-health" \
+            --assignee "KangseonLEE" \
             --body "## 외부 API 헬스체크 결과
 
           **${FAIL_COUNT}개** API가 500 오류 또는 타임아웃(10초)을 반환했어요.
