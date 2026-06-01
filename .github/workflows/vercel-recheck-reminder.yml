@@ -39,6 +39,7 @@ jobs:
               repo: context.repo.repo,
               title: '🟢 6/4 Vercel CPU 재측정 — 5/4 잔재 이탈 확인',
               labels: ['maintenance'],
+              assignees: ['KangseonLEE'],
               body: `## 6/4 Vercel CPU 재측정 리마인더
 
             6/1 진단에서 Vercel **Fluid Active CPU 5h55m / 4h(148%)** 로 측정됐으나, 이는 거의 전부 **5/4 paused 봇 폭격의 30일 rolling 잔재**로 확정됐습니다 (실 CPU는 12시간당 55초 = 한도의 19%로 건강). 6/3~6/4에 그 잔재가 30일 window에서 빠지면 측정치가 자연 급감할 것으로 예상했고, **6/5 courtesy 한도(기본 3배) 만료** 직전이라 6/4 재측정이 결정적입니다.
