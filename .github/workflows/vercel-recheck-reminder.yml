@@ -1,0 +1,64 @@
+# Vercel CPU 6/4 재측정 1회성 리마인더
+# - 6/1 진단: Fluid Active CPU 5h55m/4h(148%)는 거의 전부 5/4 paused 폭격의 30일 rolling 잔재.
+#   6/3~6/4 window 이탈로 자연 급감 예상. 6/5 courtesy 한도 만료 직전이라 6/4 재측정이 결정적.
+# - 알림 경로: 이 Issue 생성 → auto-assign-issues.yml이 KangseonLEE에 배정 → iPhone 푸시 (개인 GitHub).
+#   공용 Claude 계정 전역 알림 회피 목적으로 routine 대신 GitHub Issue 방식 채택 (2026-06-01 회장 결재).
+# - 1회용. 처리 후 이 파일 삭제. 연도 가드로 2027+ 6/4 재발 방지.
+
+name: Vercel CPU Recheck Reminder (6/4)
+
+on:
+  schedule:
+    - cron: "0 1 4 6 *" # 6/4 10:00 KST (01:00 UTC)
+  workflow_dispatch: # 수동 테스트 지원
+
+jobs:
+  create-reminder:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Year guard (2026 only)
+        id: guard
+        run: |
+          Y=$(date -u +%Y)
+          if [ "$Y" = "2026" ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=false (1회용 리마인더, $Y년은 skip)" >> "$GITHUB_OUTPUT"
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create reminder issue
+        if: steps.guard.outputs.go == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🟢 6/4 Vercel CPU 재측정 — 5/4 잔재 이탈 확인',
+              labels: ['maintenance'],
+              body: `## 6/4 Vercel CPU 재측정 리마인더
+
+            6/1 진단에서 Vercel **Fluid Active CPU 5h55m / 4h(148%)** 로 측정됐으나, 이는 거의 전부 **5/4 paused 봇 폭격의 30일 rolling 잔재**로 확정됐습니다 (실 CPU는 12시간당 55초 = 한도의 19%로 건강). 6/3~6/4에 그 잔재가 30일 window에서 빠지면 측정치가 자연 급감할 것으로 예상했고, **6/5 courtesy 한도(기본 3배) 만료** 직전이라 6/4 재측정이 결정적입니다.
+
+            ### 회장 캡처 1건 (로컬 Claude Code 세션에 전달)
+            - [ ] Vercel Dashboard → irang → **Usage(Last 30 Days)** 의 \`Fluid Active CPU\` 값
+            - [ ] Vercel Dashboard → irang → **Observability(Last 12 hours)** 의 \`Active CPU\` 값
+
+            ### 판정 분기
+            - **①** Fluid Active CPU 4h↓ + CF cache dynamic 감소 → **안건 종결, Pro 영구 불필요, $0 유지 확정**
+            - **②** 4h↓ 지만 CF cache dynamic 73%대 잔존 → **CF Cache Rule(HTML edge 캐시: list 7경로 + 랜딩 /) 적용 결재**
+            - **③** 예상 밖 4h 초과 잔존 → **Pro 요금제 재논의**
+
+            ### 추가 진단 (로컬 세션)
+            - [ ] \`gh workflow run cf-analytics-diag.yml\` 실행 → CF cache dynamic 비율 + 국가 비율(KR:US) 재측정
+            - 6/1 기준값: KR 84% : US 7.6%(봇 아님), cache dynamic 73%
+
+            ### 참고 (로컬 메모리)
+            - \`project_vercel_diag_2026-06-01.md\` (진단 전말)
+            - \`project_scheduled_maintenance.md\` "Vercel CPU 6/4 재측정" 안건
+
+            > 🤖 이 Issue는 GitHub Actions(1회용 리마인더)에 의해 자동 생성되었습니다. 처리 후 \`vercel-recheck-reminder.yml\` 삭제 예정.`
+            });
