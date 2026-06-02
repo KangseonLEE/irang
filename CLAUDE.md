@@ -653,6 +653,23 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
   3. **API route fallback 분기(`isMissingColumn`·`migration-pending`)는 silent skip 위험**. fallback 응답 코드(202·503 등) 비율을 production 메트릭에 노출 + 일정 threshold 초과 시 watchman 🔴.
   4. **박제 메모리가 사실 검증 없이 "종결" 표기되면 8일·30일 잠복 위험**. silent fail 종결 박제는 라이브 INSERT 추세 7일 이상 정상 확인 후에만 기록. "fix commit 머지" ≠ "라이브 정상 적재".
 
+### useSearchParams Suspense 누락 → 페이지 전체 SSR bailout → SEO 콘텐츠 누락 (2026-06-01)
+
+- **증상**: 네이버 색인이 sitemap 373 URL 중 19개(5%)에서 정체. SEO 권고(H1·Alt)는 이미 해결됐는데도 안 늘어남. 홈 `/` 라이브 HTML 110KB·**h1 0개**·히어로 헤드라인 SSR 누락. 사용자(JS 실행)는 정상이라 발견 지연.
+- **root cause**: 홈 히어로의 검색창 `SearchBar`(`useSearchParams` 사용) → `HeroSearch` → 이를 감싼 **Suspense 경계 부재**. Next.js에서 `useSearchParams`를 Suspense 없이 쓰면 `BAILOUT_TO_CLIENT_SIDE_RENDERING`이 **페이지 루트까지 전파**되어 히어로 h1·헤드라인 등 본문 전체가 SSR HTML에서 누락되고 RSC payload(script)에만 남음. JS 미실행 크롤러(네이버 Yeti)는 빈 껍데기만 봄 → 색인 불가.
+- **해결**: `<HeroSearch />`만 `<Suspense>`로 감싸 bailout을 검색창 자리에 격리 (commit `0be5c21`). 라이브 verify(Yeti UA): 110KB→195KB / h1 0→1개 / 헤드라인·subtitle·인터뷰 본문 SSR 노출 / BAILOUT 마커는 검색창 영역에만 잔존(정상 fallback).
+- **교훈**:
+  1. **`useSearchParams`·`usePathname`·`useSearchParams` 등 dynamic client hook은 반드시 그 컴포넌트만 `<Suspense>`로 감싼다.** 안 감싸면 bailout이 부모 트리 전체로 전파 → 페이지 본문 SSR 통째 누락.
+  2. **SEO 검증은 반드시 JS 미실행(crawler) UA로 라이브 HTML을 본다.** 브라우저(사용자)는 CSR로 정상 보여 문제를 가린다. `curl -A "Yeti/1.1" | grep "<h1"` + 본문 핵심 텍스트 SSR 노출 여부 + `BAILOUT_TO_CLIENT_SIDE_RENDERING` 마커 위치 점검.
+  3. **`<h1>` 0개 / SSR HTML 크기가 비교 페이지보다 현저히 작음 = bailout 신호.** searchParams를 쓰는 다른 페이지(검색바·필터가 히어로/상단에 있는 경우)도 동일 위험 — 점검 필요.
+
+### Vercel ISR 배포 검증 함정 — GitHub deployments API "success" ≠ 내 push 반영 (2026-06-01)
+
+- **증상**: push 직후 `gh api .../deployments` 최상단 status가 "success"로 떠 반영 완료로 오인. 실제로는 **직전 배포의 status**였고, 내 push의 새 빌드는 별개로 5~7분 Building 중. ISR HIT 페이지(`/`·`/guide`·`/sitemap`)는 새 빌드가 promote되기 전까지 **옛 버전 서빙**. CF는 이 페이지들을 DYNAMIC으로 처리하므로 cf-purge도 무효.
+- **교훈**:
+  1. **배포 검증은 `gh api deployments[0].sha`가 내 push 커밋과 일치하는지 먼저 확인** 후 그 deployment의 status를 polling. (이미 [[memory]] 박제된 "push 직후 deployments[0]은 직전 커밋일 수 있음"의 ISR 버전.)
+  2. **ISR 페이지 라이브 반영 확인은 `x-vercel-cache: PRERENDER` + `age: 0`(fresh) 헤더로**, 또는 `vercel ls --prod`로 새 빌드가 Ready/promoted인지 확인. 콘텐츠 변경이 라이브에 보일 때까지 새 빌드 promote가 선행.
+
 ---
 
 ## 차트 컴포넌트 가이드
