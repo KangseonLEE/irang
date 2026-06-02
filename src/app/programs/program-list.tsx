@@ -9,7 +9,7 @@ import { ProgramCard } from "./program-card";
 import type { SupportProgram, ProgramFilters } from "@/lib/data/programs";
 import type { PersonaId } from "@/lib/data/personas";
 import { getProgramPersonaFitTrace } from "@/lib/data/persona-fit";
-import { isNewProgram } from "@/lib/program-status";
+import { isNewProgram, isUnannounced, UNANNOUNCED_LABEL } from "@/lib/program-status";
 import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
@@ -141,7 +141,7 @@ export function ProgramList({
                   className={dt.clickableRow}
                   onClick={() => router.push(`/programs/${p.id}`)}
                 >
-                  <td><StatusBadge status={p.status} /></td>
+                  <td><StatusBadge status={isUnannounced(p.applicationStart, p.applicationEnd) ? UNANNOUNCED_LABEL : p.status} /></td>
                   <td className={dt.titleCell}>
                     <Link href={`/programs/${p.id}`} className={dt.titleLink}>
                       {p.title}

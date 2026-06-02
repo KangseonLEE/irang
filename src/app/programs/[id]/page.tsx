@@ -23,6 +23,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { formatApplicationPeriod } from "@/lib/format";
+import { isUnannounced, UNANNOUNCED_LABEL } from "@/lib/program-status";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
@@ -147,7 +148,7 @@ export default async function ProgramDetailPage({
       {/* Title + Status */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
-          <StatusBadge status={program.status} />
+          <StatusBadge status={isUnannounced(program.applicationStart, program.applicationEnd) ? UNANNOUNCED_LABEL : program.status} />
           <SupportTypeBadge type={program.supportType} prefix="지원 유형: " />
         </div>
         <div className={s.titleRow}>

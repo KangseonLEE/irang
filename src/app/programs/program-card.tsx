@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MapPin, Calendar } from "lucide-react";
 import type { SupportProgram } from "@/lib/data/programs";
 import { formatApplicationPeriod } from "@/lib/format";
-import { daysUntilDeadline, ALWAYS_OPEN, isNewProgram } from "@/lib/program-status";
+import { daysUntilDeadline, ALWAYS_OPEN, isNewProgram, isUnannounced, UNANNOUNCED_LABEL } from "@/lib/program-status";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { DeadlineBadge } from "@/components/ui/deadline-badge";
@@ -25,6 +25,10 @@ const SUPPORT_TYPE_LABELS: Record<string, string> = {
 export function ProgramCard({ program }: { program: SupportProgram }) {
   const isClosed = program.status === "마감";
   const isNew = isNewProgram(program.createdAt, program.status);
+  // 9999 페어(공고 미발표)는 deriveStatus가 "모집예정"으로 산출하지만 표기는 "공고 발표 예정"(format.ts SSOT)
+  const statusLabel = isUnannounced(program.applicationStart, program.applicationEnd)
+    ? UNANNOUNCED_LABEL
+    : program.status;
   const typeLabel =
     SUPPORT_TYPE_LABELS[program.supportType] ?? program.supportType;
 
@@ -54,7 +58,7 @@ export function ProgramCard({ program }: { program: SupportProgram }) {
               applicationEnd={program.applicationEnd}
               status={program.status}
             />
-            <StatusBadge status={program.status} />
+            <StatusBadge status={statusLabel} />
           </div>
         </div>
 

@@ -37,6 +37,34 @@ export function deriveStatus(
   return "모집중";
 }
 
+/**
+ * 신청 시작·종료가 모두 9999-12-31 = 공고 미발표(일자 미정) 페어.
+ * deriveStatus는 이 페어를 "모집예정"으로 산출하지만, 실제 의미는 "공고 발표 예정"
+ * (format.ts SSOT와 정합)이라 표시 계층·필터에서 별도 분기가 필요하다.
+ */
+export function isUnannounced(
+  applicationStart?: string | null,
+  applicationEnd?: string | null,
+): boolean {
+  return applicationStart === ALWAYS_OPEN && applicationEnd === ALWAYS_OPEN;
+}
+
+/** 공고 미발표(9999 페어) 표시 라벨 — format.ts "공고 발표 예정" SSOT와 일치 */
+export const UNANNOUNCED_LABEL = "공고 발표 예정";
+
+/**
+ * StatusBadge·목록 표기용 status 라벨.
+ * 9999 페어는 deriveStatus의 "모집예정" 대신 "공고 발표 예정"으로 표기한다.
+ * ProgramStatus 타입은 변경하지 않으며, 반환 타입만 string으로 확장한다.
+ */
+export function deriveStatusLabel(
+  applicationStart?: string | null,
+  applicationEnd?: string | null,
+): string {
+  if (isUnannounced(applicationStart, applicationEnd)) return UNANNOUNCED_LABEL;
+  return deriveStatus(applicationStart, applicationEnd);
+}
+
 /** 마감까지 남은 일수 (음수면 이미 마감, 상시모집이면 Infinity). KST 기준. */
 export function daysUntilDeadline(applicationEnd?: string | null): number {
   if (!applicationEnd || applicationEnd === ALWAYS_OPEN) return Infinity;

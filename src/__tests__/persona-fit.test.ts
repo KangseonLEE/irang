@@ -449,9 +449,11 @@ describe("Phase 7 B D4 — 신규 작물 10건 (39→49종)", () => {
     expect(crop).toBeDefined();
   });
 
-  // 10-2. 총 작물 수 49종 (이전 39 + 신규 10)
-  it("CROPS 총 작물 수는 49종 (Phase 7 B D4 마감 기준)", () => {
-    expect(CROPS.length).toBe(49);
+  // 10-2. 총 작물 수 49종 이상 (이전 39 + D4 신규 10 = 49가 하한선. 이후 sprint 추가분은 허용)
+  // 1:1 매핑·고아 0건의 엄밀 회귀는 scripts/check-cross-reference.ts F-1이 담당하므로
+  // 여기선 "D4 신규 10건이 빠지지 않았는가"의 하한선만 지킨다 (고정값은 추가 sprint마다 깨짐).
+  it("CROPS 총 작물 수는 49종 이상 (Phase 7 B D4 신규 10건 등재 하한)", () => {
+    expect(CROPS.length).toBeGreaterThanOrEqual(49);
   });
 
   // 10-3. 카테고리 분포 — 채소+6 / 과수+1 / 특용+2 / 식량+1
