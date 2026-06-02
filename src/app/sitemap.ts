@@ -10,6 +10,17 @@ import { interviews, hasFullStory } from "@/lib/data/landing";
 const BASE_URL = "https://irangfarm.com";
 
 /**
+ * lastmod 기준 시각 — 모듈 로드(빌드) 시점에 1회 고정.
+ *
+ * 기존엔 sitemap() 안에서 `new Date()`를 매 요청 평가해 lastmod가 항상 "지금"으로
+ * 찍혔다. 검색엔진이 "전 페이지가 매번 방금 변경됨"으로 받아 lastmod 신호를
+ * 무시·신뢰 저하시키는 문제가 있었다. 같은 배포(빌드) 내 모든 요청이 동일한
+ * 정적 timestamp를 반환하도록 모듈 스코프 상수로 고정한다.
+ * (다음 배포 시 새 빌드 시각으로 자연 갱신 — 실제 코드/데이터 변경 시점에 근접)
+ */
+const BUILD_TIME = new Date();
+
+/**
  * sitemap 분할 — 카테고리별로 나눠 Google 크롤링 효율화
  *
  * Next.js 16: generateSitemaps()의 id는 Promise<string>으로 전달됨
@@ -26,7 +37,7 @@ export default async function sitemap(props: {
   id: Promise<string>;
 }): Promise<MetadataRoute.Sitemap> {
   const id = await props.id;
-  const now = new Date();
+  const now = BUILD_TIME;
 
   switch (id) {
     case "core":

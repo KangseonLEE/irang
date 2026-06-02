@@ -21,7 +21,7 @@ import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
 import { ScrollIndicator } from "@/components/landing/scroll-indicator";
 import { ProgramsSection } from "@/components/landing/programs-section";
-import { deriveStatus, daysUntilDeadline } from "@/lib/program-status";
+import { deriveStatus, daysUntilDeadline, isUnannounced } from "@/lib/program-status";
 import { GovSupportGuide } from "@/components/landing/gov-support-guide";
 import { NewsTabsV2Loader } from "@/components/landing/news-tabs-v2-loader";
 import { interviews } from "@/lib/data/landing";
@@ -61,7 +61,8 @@ function getProgramsData() {
       ...p,
       programStatus: deriveStatus(p.applicationStart, p.applicationEnd),
     }))
-    .filter((p) => p.programStatus === "모집중" || p.programStatus === "모집예정")
+    // 9999 페어(공고 미발표)는 deriveStatus가 "모집예정"으로 산출하지만 실제론 미정 → 홈 추천에서 제외
+    .filter((p) => (p.programStatus === "모집중" || p.programStatus === "모집예정") && !isUnannounced(p.applicationStart, p.applicationEnd))
     .slice(0, 4);
 
   const deadlinePrograms = PROGRAMS
@@ -86,17 +87,31 @@ export default function HomePage() {
       {/* ═══ 1. 히어로 ═══ */}
       <section className={s.heroSection} aria-label="검색">
         <h1 className={s.heroTitle}>
-          <span className={s.heroTitleLine}>
+          {/* 검색엔진·스크린리더용 완전한 정적 문구 (SSR HTML에 항상 노출).
+              시각적 회전 키워드(KeywordRotator)는 client 렌더라 SSR 텍스트가
+              불완전해지므로, 페이지 주제를 담은 정적 h1 문장을 함께 제공한다. */}
+          <span className={s.srOnly}>
+            귀농·귀촌 준비, 어디서부터 시작할까요? 지역·작물·지원금 비교로 시작하세요.
+          </span>
+          <span className={s.heroTitleLine} aria-hidden="true">
             <KeywordRotator /> 준비,
           </span>
-          <span className={s.heroTitleLine}>어디서부터 시작할까요?</span>
+          <span className={s.heroTitleLine} aria-hidden="true">
+            어디서부터 시작할까요?
+          </span>
         </h1>
         <p className={s.heroSubtitle}>
           지역 비교부터 지원금 찾기까지, 필요한 건 다 모았어요.
         </p>
 
         <div className={s.heroSearchWrap}>
-          <HeroSearch />
+          {/* HeroSearch → SearchBar가 useSearchParams를 사용한다. Suspense 경계가
+              없으면 가장 가까운 경계(=페이지 루트)까지 client-side render로 bailout돼
+              히어로 h1·헤드라인이 SSR HTML에서 통째로 빠진다(검색엔진 색인 누락).
+              검색창만 경계로 감싸 bailout을 이 자리에 가두고, h1 등은 prerender 유지. */}
+          <Suspense fallback={<div className={s.heroSearchFallback} aria-hidden="true" />}>
+            <HeroSearch />
+          </Suspense>
         </div>
 
         <div className={s.heroTrending}>
