@@ -757,6 +757,28 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     year: 2026,
     category: "social",
   },
+  {
+    id: "SP-032",
+    title: "홍천군 귀농인의 집 입주자 모집 (서석면 풍암2리)",
+    summary:
+      "강원 홍천군이 서석면 풍암2리 단독주택 1동의 귀농인의 집 입주자를 6월 24일까지 모집. 65세 이하 도시민, 임대 1년(협의 시 3개월 연장).",
+    description:
+      "강원도 홍천군농업기술센터가 운영하는 귀농인의 집 입주자를 모집해요. 이번 대상은 서석면 풍암2리 단독주택 1동이에요. 농어촌 외 지역에 1년 이상 거주한 65세 이하 도시민이 신청할 수 있고, 신청은 6월 1일부터 24일까지 받아요. 임대 기간은 1년이고 협의에 따라 3개월 연장할 수 있어요. 귀농인의 집은 본격 귀농 전에 농촌 생활을 직접 경험하고 지역 주민과 교류하며 정착을 준비하는 임시 거주 시설이라, 가족 단위 정착이나 노년 귀촌을 준비하는 분께 잘 맞아요. 홍천군은 귀농인의 집 6개소를 운영하며 임시 주거·체험 인프라를 넓혀 가고 있어, 그동안 상대적으로 정보가 적었던 강원 권역 보강에도 도움이 돼요.",
+    region: "강원도",
+    organization: "홍천군농업기술센터",
+    supportType: "현물",
+    supportAmount: "임시 주거지 제공 (단독주택 1동, 임대 1년 + 협의 시 3개월 연장)",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 65,
+    eligibilityDetail:
+      "농어촌 외 지역 1년 이상 거주한 65세 이하 도시민. 서석면 풍암2리 단독주택 1동. 신청 마감 2026-06-24. 홍천군농업기술센터 신청.",
+    applicationStart: "2026-06-01",
+    applicationEnd: "2026-06-24",
+    relatedCrops: [],
+    sourceUrl: "https://www.webeconomy.co.kr/news/articleView.html?idxno=2188242",
+    year: 2026,
+    category: "facility",
+  },
 ];
 
 /** 정적 데이터에 런타임 status를 주입한 배열 — 외부에서 사용하는 공식 export */

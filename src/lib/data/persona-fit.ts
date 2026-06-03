@@ -372,6 +372,8 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-025": { family: 5, commuter: 4, elderRural: 4, farmYouth: 3 },
   // 제주 신규농업인 현장실습 (1:1 매칭 교육, 청년·균형형)
   "SP-026": { farmYouth: 5, family: 4, elderRural: 3, commuter: 3 },
+  // 홍천 귀농인의 집 (체류형, 가족·노년)
+  "SP-032": { family: 5, elderRural: 4, commuter: 4, farmYouth: 3 },
 };
 
 export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
@@ -405,6 +407,7 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-024": "체류형 귀농인의 집(고성)이라 가족·노년에 잘 맞아요",
   "SP-025": "체류형 귀농인의 집(논산)이라 가족·반귀농에 잘 맞아요",
   "SP-026": "1:1 매칭 현장실습이라 청년·입문 농가에 적합해요",
+  "SP-032": "체류형 귀농인의 집(홍천)이라 가족·노년에 잘 맞아요",
 };
 
 /**
