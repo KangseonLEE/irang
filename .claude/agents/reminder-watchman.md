@@ -297,6 +297,45 @@ for (const r of reasons) {
 - **natural-language는 정상 입력 거부 신호**: search-log가 자연어 휴리스틱으로 INSERT를 생략한 정상 동작. 사용자 검색 패턴 분포 측정용으로 적재. 추세만 관찰
 - **데이터 누적 7일 이내**: threshold 100 같은 절대 카운트 임계는 베이스라인 측정 후 조정. 초기에는 ⚪로만 보고
 
+### 13. 주요 페이지 SSR/prerender 무결성 (2026-06-03 추가)
+
+> 6/3 사고: 홈 `/`의 히어로 검색창(`useSearchParams`)이 Suspense 경계 없이 있어 페이지 전체가 CSR로 bailout → 히어로 h1·헤드라인이 SSR HTML에서 통째로 누락. 사용자(JS 실행)는 정상이라 발견이 지연됐고, 네이버 색인이 5%(19/373)에서 정체. crawler 전용 사각지대.
+
+#### 13-1. 점검 대상
+
+핵심 색인 페이지 — `/`(랜딩), `/regions`, `/crops`, `/programs`, `/costs`, `/education`, `/events`, `/interviews`, `/guide`
+
+#### 13-2. 점검 주기 — 화·금 (§8·§11·§12와 동일 사이클)
+
+#### 13-3. 판정 (crawler UA로 라이브 HTML 직접 검증)
+
+- 🔴 핵심 페이지 SSR HTML에 **`<h1>` 0개** (랜딩 포함, h1 1개 원칙 위반)
+- 🔴 SSR HTML 크기가 직전 측정 대비 **40%+ 급감** (본문 bailout 신호)
+- 🟡 `BAILOUT_TO_CLIENT_SIDE_RENDERING` 마커가 **히어로/본문 영역**에 위치 (검색창 등 격리된 Suspense fallback 자리는 정상 — 위치 구분 필수)
+- 🟡 본문 핵심 텍스트(헤드라인·제목)가 SSR HTML에 미노출 (RSC payload script에만 존재)
+
+#### 13-4. 점검 방법 (read-only, Yeti UA 필수)
+
+```bash
+YETI="Mozilla/5.0 (compatible; Yeti/1.1; +https://naver.me/spd)"
+for u in "" regions crops programs costs guide; do
+  HTML=$(curl -s -A "$YETI" "https://irangfarm.com/$u")
+  SIZE=$(echo "$HTML" | wc -c | tr -d ' ')
+  H1=$(echo "$HTML" | grep -o "<h1" | wc -l | tr -d ' ')
+  BAIL=$(echo "$HTML" | grep -c BAILOUT_TO_CLIENT_SIDE_RENDERING)
+  echo "/$u → ${SIZE}B / h1 ${H1}개 / bailout ${BAIL}"
+done
+```
+
+- **반드시 crawler UA(Yeti)로 검증** — 브라우저(사용자)는 CSR로 정상 보여 문제를 가린다.
+- 기준선: 홈 ~195KB·h1 1개 (6/3 fix 후). guide ~222KB·h1 1개.
+
+#### 13-5. False positive 방지
+
+- BAILOUT 마커 자체는 정상일 수 있음 — **위치(검색창 Suspense fallback vs 히어로 본문)** 구분 필수. 검색창 영역 격리는 의도된 정상.
+- 배포 직후 ISR 캐시 미반영(`x-vercel-cache: PRERENDER` + `age` 큰 값)일 수 있음 — 새 빌드 promote 확인 후 판정.
+- 참조: [[CLAUDE.md Lessons "useSearchParams Suspense 누락"]]
+
 ## Working Principles
 
 1. **침묵 기본값** — 정상이면 아무것도 보고 안 함

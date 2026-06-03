@@ -66,6 +66,7 @@
 | 2026-05-11 | 정적 데이터 큐레이션 가드 3종 추가 (본문 키워드 무결성 / 기존 정적 데이터 중복 검색 / 신청 일자 미명시 9999 페어) | agents/data-engineer.md | 1on1 — 5/11 SP-015~020 큐레이션 사이클에서 9건 함정 발견. 회장 무결성 검증 + 라이브 직접 발견. D2 외부 검증만 했고 내부 정합성·중복 검증 누락 |
 | 2026-05-11 | Lessons Learned 3건 추가 (dynamic SSR + revalidate 충돌 / middleware 308 CF cache hold / Supabase 정적 병합 5/10 재발) | CLAUDE.md §Lessons Learned | 5/11 sprint 사고 회고 — 메모리만으로 코드 보장 불가 입증, CLAUDE.md 명시 + 회귀 테스트 권고 |
 | 2026-05-11 | 정적 데이터 중복 추가 사고 Five Whys 분석 + Lessons Learned 추가 + CoS 인수 체크리스트 #2 강화 (본문 무결성 + 중복 검색 라인 추가) | CLAUDE.md §Lessons Learned, agents/chief-of-staff.md | 회장 추가 회고 — 5/10 lessons의 양방향 인식(누락↔중복) 부재가 5/11 재발의 본질. data·CoS 양쪽 가드 보강 |
+| 2026-06-03 | 주요 페이지 SSR/prerender 무결성 감시 §13 추가 (화·금, Yeti UA로 h1 0개·SSR 크기 급감·bailout 위치 점검) + Lessons 2건 추가 | agents/reminder-watchman.md §13, CLAUDE.md §Lessons Learned | 6/3 홈 useSearchParams Suspense 누락 → 페이지 전체 CSR bailout → 히어로 SSR 누락 → 네이버 색인 5% 정체 사고. crawler 전용 사각지대로 watchman 감시 부재였음 |
 
 ---
 
