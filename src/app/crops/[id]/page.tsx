@@ -16,11 +16,9 @@ import {
   Droplets,
   Ruler,
   FlaskConical,
-  Calendar,
   TrendingUp,
   FileText,
   ChevronRight,
-  Gauge,
   Scale,
   ThumbsUp,
   AlertTriangle,
@@ -63,6 +61,11 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { YouthCaseCards } from "@/components/youth-cases/youth-case-cards";
 import { fetchYouthCasesForCrop } from "@/lib/api/rda-youth";
 import { MonthlyTaskCalendar } from "@/components/crops/monthly-task-calendar";
+import {
+  CropAreaChart,
+  CropIncomeVarietiesChart,
+} from "@/components/crops/charts-lazy";
+import { canRenderVarietiesChart } from "@/components/crops/variety-income-utils";
 import { AnchorTabNav } from "./anchor-tab-nav";
 import s from "./page.module.css";
 
@@ -353,12 +356,6 @@ export default async function CropDetailPage({
                 <span className={`${s.badge} ${s.badgeCategory}`}>
                   {data.category}
                 </span>
-                <span
-                  className={`${s.badge} ${DIFFICULTY_BADGE[data.difficulty] ?? s.badgeNormal}`}
-                >
-                  <Icon icon={Gauge} size="xs" />
-                  난이도 · {data.difficulty}
-                </span>
               </div>
               <h1 className={s.heroTitle}>{data.name}</h1>
             </div>
@@ -386,56 +383,20 @@ export default async function CropDetailPage({
             </div>
           </div>
 
-          {/* Quick Stats — 요약 프로필 카드 (모바일 sticky는 한 줄 압축, 여기는 3개 상세) */}
+          {/* Quick Stats — 핵심 3종 인라인 스트립 (난이도·재배시기·예상수익). 선택 지표는 소득 정보 섹션에 노출 */}
           <div className={s.quickStats}>
-            <div className={s.statCard}>
-              <Icon icon={Gauge} size="lg" color="success" />
-              <div>
-                <p className={s.statLabel}>난이도</p>
-                <p className={s.statValue}>{data.difficulty}</p>
-              </div>
+            <div className={s.statItem}>
+              <p className={s.statLabel}>난이도</p>
+              <p className={s.statValue}>{data.difficulty}</p>
             </div>
-            <div className={s.statCard}>
-              <Icon icon={Calendar} size="lg" color="info" />
-              <div>
-                <p className={s.statLabel}>재배 시기</p>
-                <p className={s.statValue}>{data.growingSeason}</p>
-              </div>
+            <div className={s.statItem}>
+              <p className={s.statLabel}>재배 시기</p>
+              <p className={s.statValue}>{data.growingSeason}</p>
             </div>
-            <div className={s.statCard}>
-              <Icon icon={TrendingUp} size="lg" color="warning" />
-              <div>
-                <p className={s.statLabel}>예상 수익</p>
-                <p className={s.statValue}><RevenueText text={parseRevenueRange(detail.income.revenueRange).main} /></p>
-              </div>
+            <div className={s.statItem}>
+              <p className={s.statLabel}>예상 수익</p>
+              <p className={`${s.statValue} ${s.statValueRevenue}`}><RevenueText text={parseRevenueRange(detail.income.revenueRange).main} /></p>
             </div>
-            {detail.income.laborIntensity && (
-              <div className={s.statCard}>
-                <Icon icon={Zap} size="lg" color="warning" />
-                <div>
-                  <p className={s.statLabel}>노동 강도</p>
-                  <p className={s.statValue}>{detail.income.laborIntensity}</p>
-                </div>
-              </div>
-            )}
-            {detail.income.minScale && (
-              <div className={s.statCard}>
-                <Icon icon={Maximize2} size="lg" color="info" />
-                <div>
-                  <p className={s.statLabel}>권장 규모</p>
-                  <p className={s.statValue}>{detail.income.minScale}</p>
-                </div>
-              </div>
-            )}
-            {detail.income.annualWorkdays && (
-              <div className={s.statCard}>
-                <Icon icon={Clock} size="lg" color="success" />
-                <div>
-                  <p className={s.statLabel}>연 노동일수</p>
-                  <p className={s.statValue}>{detail.income.annualWorkdays}</p>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </section>
@@ -445,6 +406,7 @@ export default async function CropDetailPage({
       </div>
 
       {/* ── Sticky 작물 헤더 (작물 정보 + 탭 통합 컨테이너) ── */}
+      <div className={s.stickyWrap}>
       <div
         className={s.stickyHeader}
         aria-label={`현재 보고 있는 작물: ${data.name}`}
@@ -466,6 +428,7 @@ export default async function CropDetailPage({
         <div className={s.stickyHeaderTabs}>
           <AnchorTabNav sections={anchorSections} />
         </div>
+      </div>
       </div>
 
       {/* ── 본문 ── */}
@@ -687,7 +650,7 @@ function SectionHeader({
 }) {
   return (
     <h2 className={s.sectionHeader}>
-      {icon}
+      <span className={s.sectionHeaderIcon}>{icon}</span>
       {title}
     </h2>
   );
@@ -699,10 +662,10 @@ function CultivationSection({
   cultivation: CropDetailInfo["cultivation"];
 }) {
   const items = [
-    { icon: <Thermometer size={20} strokeWidth={1.75} />, cls: s.fIconClimate, label: "기후", value: cultivation.climate },
-    { icon: <Leaf size={20} strokeWidth={1.75} />, cls: s.fIconSoil, label: "토양", value: cultivation.soil },
-    { icon: <Droplets size={20} strokeWidth={1.75} />, cls: s.fIconWater, label: "수분", value: cultivation.water },
-    { icon: <Ruler size={20} strokeWidth={1.75} />, cls: s.fIconSpacing, label: "간격", value: cultivation.spacing },
+    { icon: <Thermometer size={20} strokeWidth={1.75} />, cls: s.fIconClimate, cardCls: s.fCardClimate, label: "기후", value: cultivation.climate },
+    { icon: <Leaf size={20} strokeWidth={1.75} />, cls: s.fIconSoil, cardCls: s.fCardSoil, label: "토양", value: cultivation.soil },
+    { icon: <Droplets size={20} strokeWidth={1.75} />, cls: s.fIconWater, cardCls: s.fCardWater, label: "수분", value: cultivation.water },
+    { icon: <Ruler size={20} strokeWidth={1.75} />, cls: s.fIconSpacing, cardCls: s.fCardSpacing, label: "간격", value: cultivation.spacing },
   ];
 
   return (
@@ -711,7 +674,7 @@ function CultivationSection({
       <div className={s.sectionBody}>
         <div className={s.featureGrid}>
           {items.map((item) => (
-            <div key={item.label} className={s.featureCard}>
+            <div key={item.label} className={`${s.featureCard} ${item.cardCls}`}>
               <span className={`${s.featureIcon} ${item.cls}`}>{item.icon}</span>
               <p className={s.featureLabel}>{item.label}</p>
               <p className={s.featureValue}><AutoGlossary text={item.value} /></p>
@@ -770,29 +733,38 @@ function IncomeSection({
           </p>
         </div>
 
-        {/* 재배방식·품종별 수익 비교 */}
-        {income.varieties && income.varieties.length > 0 && (
-          <div className={s.varietyTable}>
-            <p className={s.varietyTitle}>
-              {income.varieties.some((v) => v.revenueRange)
-                ? "재배방식별 소득 비교"
-                : "주요 품종 특성"}
-            </p>
-            {income.varieties.map((v) => (
-              <div key={v.name} className={s.varietyRow}>
-                <div className={s.varietyNameWrap}>
-                  <span className={s.varietyDot} />
-                  <span className={s.varietyName}>{v.name}</span>
-                </div>
-                <div className={s.varietyRight}>
-                  {v.revenueRange && (
-                    <p className={s.varietyRevenue}><RevenueText text={v.revenueRange} /></p>
-                  )}
-                  {v.note && <p className={s.varietyNote}>{v.note}</p>}
-                </div>
-              </div>
-            ))}
+        {/* 재배방식·품종별 수익 비교 — 2건+ 파싱 가능 시 차트, 아니면 텍스트 fallback */}
+        {canRenderVarietiesChart(income.varieties) ? (
+          <div className={s.varietyChartWrap}>
+            <p className={s.varietyTitle}>재배방식별 소득 비교</p>
+            <CropIncomeVarietiesChart varieties={income.varieties!} />
+            <p className={s.varietyChartNote}>단위: 10a당 소득(만 원)</p>
           </div>
+        ) : (
+          income.varieties &&
+          income.varieties.length > 0 && (
+            <div className={s.varietyTable}>
+              <p className={s.varietyTitle}>
+                {income.varieties.some((v) => v.revenueRange)
+                  ? "재배방식별 소득 비교"
+                  : "주요 품종 특성"}
+              </p>
+              {income.varieties.map((v) => (
+                <div key={v.name} className={s.varietyRow}>
+                  <div className={s.varietyNameWrap}>
+                    <span className={s.varietyDot} />
+                    <span className={s.varietyName}>{v.name}</span>
+                  </div>
+                  <div className={s.varietyRight}>
+                    {v.revenueRange && (
+                      <p className={s.varietyRevenue}><RevenueText text={v.revenueRange} /></p>
+                    )}
+                    {v.note && <p className={s.varietyNote}>{v.note}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
         )}
 
         {/* 수익 지표 카드 */}
@@ -936,7 +908,6 @@ function RegionSection({
     .sort((a, b) => b.cultivationArea - a.cultivationArea)
     .slice(0, 5);
 
-  const maxArea = top5.length > 0 ? top5[0].cultivationArea : 1;
   const kosisYear = top5.length > 0 ? top5[0].year : null;
 
   // 시·군·구 단위 cross-link (5/22 회장 fix) — sidebar와 동일 helper.
@@ -946,7 +917,7 @@ function RegionSection({
   return (
     <section id="region" className={s.section}>
       <div className={s.sectionHeader}>
-        <Icon icon={MapPin} size="lg" />
+        <span className={s.sectionHeaderIcon}><Icon icon={MapPin} size="lg" /></span>
         <span>인기 재배지역</span>
         {kosisYear && (
           <span className={s.kosisBadge}>{kosisYear}년 KOSIS</span>
@@ -957,43 +928,33 @@ function RegionSection({
           <div className={s.regionRanking}>
             <p className={s.regionRankingTitle}>재배면적 상위 (시·도)</p>
             <div
-              className={s.chartContainer}
               role="img"
               aria-label={`재배면적: ${top5.map((st) => `${st.regionName} ${formatHectaresWithPyeong(st.cultivationArea)}`).join(", ")}`}
             >
-              {top5.map((stat, idx) => {
-                const pct = Math.round((stat.cultivationArea / maxArea) * 100);
+              <CropAreaChart
+                data={top5.map((st) => ({
+                  regionName: st.regionName,
+                  cultivationArea: st.cultivationArea,
+                }))}
+              />
+            </div>
+            {/* 시·도 cross-link 칩 — 차트 위 지역 클릭 affordance 보존 (5/22 회장 fix) */}
+            <div className={s.regionChartLinks}>
+              {top5.map((stat) => {
                 const province = PROVINCES.find((p) => p.name === stat.regionName);
-                const inner = (
-                  <>
-                    <div className={s.chartMeta}>
-                      <span className={s.chartRank}>{idx + 1}</span>
-                      <span className={s.chartLabel}>{stat.regionName}</span>
-                    </div>
-                    <div className={s.chartBarWrap}>
-                      <div
-                        className={s.chartBar}
-                        style={{ width: `${pct}%` }}
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <span className={s.chartValue}>
-                      {formatHectaresWithPyeong(stat.cultivationArea)}
-                    </span>
-                  </>
-                );
                 return province ? (
                   <Link
                     key={stat.regionName}
                     href={`/regions/${province.id}`}
-                    className={s.chartRow}
+                    className={s.regionPillLink}
                   >
-                    {inner}
+                    <Icon icon={MapPin} size="xs" />
+                    {stat.regionName}
                   </Link>
                 ) : (
-                  <div key={stat.regionName} className={s.chartRow}>
-                    {inner}
-                  </div>
+                  <span key={stat.regionName} className={s.regionPill}>
+                    {stat.regionName}
+                  </span>
                 );
               })}
             </div>

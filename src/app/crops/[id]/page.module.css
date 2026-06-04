@@ -73,11 +73,11 @@
   .hero { border-radius: 20px; }
 }
 
-/* 데스크탑: 2단 (이미지 좌 + 정보 우) */
+/* 데스크탑: 2단 균등 (이미지 좌 + 정보 우) — 정보가 이미지보다 넓던 불균형 교정 */
 @media (min-width: 900px) {
   .hero {
     display: grid;
-    grid-template-columns: 5fr 7fr;
+    grid-template-columns: 1fr 1fr;
     align-items: stretch;
   }
 }
@@ -100,7 +100,7 @@
   position: relative;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: #f7f1e3;
+  background: #F0F7F4;
 }
 
 @media (min-width: 900px) {
@@ -113,7 +113,7 @@
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.5) 100%);
+  background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.25) 100%);
   z-index: 1;
 }
 
@@ -266,54 +266,41 @@
   .heroTitle { font-size: 42px; }
 }
 
-/* Quick Stats — 요약 프로필 카드 (네이버 지식백과 패턴) */
+/* Quick Stats — 핵심 3종 인라인 스트립 (구분선 분절, 카드 박스 폐기) */
+/* 모바일(<480): 가독성 확보 위해 세로 나열 */
 .quickStats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-@media (min-width: 480px) {
-  .quickStats { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+/* 항목을 한 줄씩 로우로 쌓음 — 라벨(좌) + 값(우). 박스 없이 구분선만 */
+.statItem {
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+/* 항목 사이 가로 구분선 */
+.statItem + .statItem {
+  border-top: 1px solid var(--border, #e5e7eb);
 }
 
 @media (min-width: 640px) {
-  .quickStats { gap: 12px; }
-}
-
-/* 데스크탑 2단 레이아웃에서는 우측 영역이 좁아 2열로 */
-@media (min-width: 900px) {
-  .quickStats { grid-template-columns: repeat(2, 1fr); }
-}
-
-.statCard {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px;
-  border-radius: var(--radius-lg);
-  background: var(--muted, #f9fafb);
-}
-
-@media (min-width: 640px) {
-  .statCard { padding: 16px 18px; }
-}
-
-.statIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  flex-shrink: 0;
+  .statItem { padding: 14px 0; }
 }
 
 .statLabel {
+  flex-shrink: 0;
   font-size: var(--fs-overline);
   font-weight: 600;
   color: var(--muted-foreground, #6b7280);
-  margin: 0 0 2px;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .statValue {
@@ -322,6 +309,14 @@
   color: var(--foreground, #111827);
   margin: 0;
   line-height: var(--lh-snug);
+  text-align: right;
+  overflow-wrap: break-word;
+}
+
+/* 수익 값도 다른 항목과 동일한 폰트·색 (회장 결재 6/4: 폰트 차별화 제거).
+   긴 텍스트 줄바꿈만 허용 */
+.statValueRevenue {
+  overflow-wrap: anywhere;
 }
 
 /* ── ReferenceNotice 래퍼 — hero 카드와 간격 ── */
@@ -335,22 +330,27 @@
    5/22 회장 라이브 재발견 fix: 데스크탑(≥1024px)에서는 sticky 자체 hide → 좌측 본문
    영역이 sticky 덮개에 가려지는 침범 0. sidebar에 작물 메타가 이미 노출되며
    AnchorTab은 본문 흐름 위에 일반 배치로 유지된다. */
-.stickyHeader {
+/* sticky wrapper — 떠있는 간격(padding-top)을 본문 배경으로 채워, 본문이 그 영역
+   뒤로 비쳐 지나가지 않게 한다 (6/4 회장 결재). wrapper가 sticky/top 담당, 카드는 chrome만. */
+.stickyWrap {
   position: sticky;
   top: var(--h-header, 3.5rem);
   z-index: var(--z-sticky);
-  margin: 16px 0 24px;
-  background: color-mix(in srgb, var(--background, #fff) 96%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
+  padding-top: 8px;
+  margin: 8px 0 24px;
+  background: var(--background, #fff);
   transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-:global(html[data-header-hidden]) .stickyHeader {
+:global(html[data-header-hidden]) .stickyWrap {
   top: 0;
+}
+
+.stickyHeader {
+  background: var(--card, #fff);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 /* 태블릿·데스크탑(768px+): 모바일과 동일 패턴 유지 — 배경만 살짝 다르게 */
@@ -363,15 +363,17 @@
 /* 데스크탑(≥1024px): sticky 해제 + 카드 chrome 제거 → AnchorTab만 일반 흐름에 배치.
    본문 좌측이 sticky 덮개에 침범당하지 않는다. */
 @media (min-width: 1024px) {
-  .stickyHeader {
+  .stickyWrap {
     position: static;
+    padding-top: 0;
+    margin: 20px 0 32px;
     background: transparent;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+  }
+  .stickyHeader {
+    background: transparent;
     border: none;
     border-radius: 0;
     overflow: visible;
-    margin: 20px 0 32px;
   }
 }
 
@@ -525,18 +527,18 @@
   min-width: 0;
   overflow-wrap: break-word;
   /* overflow: hidden 제거 — 용어 툴팁이 잘리지 않도록 */
-  /* 2026-05-22 회장 라이브 fix: stickyHeader(header 56px + crop info 36px + 탭 52px ≈ 144px)에
-     anchor scroll 시 상단 잘림. scroll-margin-top으로 offset 확보. */
-  scroll-margin-top: 160px;
+  /* 2026-05-22 fix + 6/4: stickyHeader(header 56 + crop 36 + 탭 52 + wrap 8 ≈ 152) +
+     숨쉴 여백 32 → 섹션이 sticky 바에 딱 붙지 않고 여백을 두고 스크롤된다. */
+  scroll-margin-top: 184px;
 }
 
 @media (min-width: 480px) {
   .section { border-radius: 20px; }
 }
 
-/* 데스크탑(1024px+) — 5/22 회장 재발견 fix: stickyHeader 자체 hide → 헤더(56)만 offset */
+/* 데스크탑(1024px+) — stickyHeader hide → 헤더(56) + 여백 40 */
 @media (min-width: 1024px) {
-  .section { scroll-margin-top: 72px; }
+  .section { scroll-margin-top: 96px; }
 }
 
 .sectionHeader {
@@ -692,6 +694,12 @@
 .fIconWater { background: #eff6ff; color: #2563eb; }
 .fIconSpacing { background: #f5f3ff; color: #7c3aed; }
 
+/* 카드 배경 tint — 아이콘 컬러 계열을 옅게 차별화 (David 철학 #2) */
+.fCardClimate { background: #fffaf4; }
+.fCardSoil { background: #f5fdf7; }
+.fCardWater { background: #f5f9ff; }
+.fCardSpacing { background: #faf8ff; }
+
 .featureLabel {
   font-size: var(--fs-caption);
   font-weight: 600;
@@ -825,6 +833,21 @@
   color: var(--muted-foreground, #6b7280);
   margin: 0 0 12px 0;
   letter-spacing: -0.01em;
+}
+
+/* 품종별 소득 차트 래퍼 */
+.varietyChartWrap {
+  background: var(--card, #ffffff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.varietyChartNote {
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground, #6b7280);
+  margin: 8px 0 0;
+  text-align: right;
 }
 
 .varietyRow {
@@ -1309,6 +1332,14 @@
   margin: 0 0 16px;
 }
 
+/* 차트 하단 시·도 cross-link 칩 행 */
+.regionChartLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 .chartContainer {
   display: flex;
   flex-direction: column;
@@ -1593,16 +1624,15 @@
 @media (min-width: 1024px) {
   .sidebar {
     position: sticky;
-    /* 2026-05-22 회장 결재 Fix 2: 데스크탑에서 stickyHeaderCrop hide → 탭만 sticky.
-       header 56 + tabs 52 + 16px 여백 = 124px. */
-    top: 124px;
+    /* 2026-05-22 Fix 2 + 6/4 간격 축소: 데스크탑 탭은 static(sticky 아님)이라
+       탭 공간 불필요 → header 56 + 12px 여백 = 68px로 상단 띄움 반감. */
+    top: 68px;
     align-self: start;
     transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   :global(html[data-header-hidden]) .sidebar {
-    /* header hidden 시 tabs 52 + 16 여백 = 68px */
-    top: 68px;
+    top: 16px;
   }
 }
 

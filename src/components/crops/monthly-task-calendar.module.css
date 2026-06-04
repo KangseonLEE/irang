@@ -126,8 +126,9 @@
 }
 
 .cardCurrent {
+  border-width: 2px;
   border-color: var(--primary, #1b6b5a);
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
 }
 
 .cardIdle {

@@ -58,9 +58,8 @@ export function AnchorTabNav({ sections }: AnchorTabNavProps) {
   const scrollToSection = useCallback((id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const offset = 120; // header + tab height
-    const top = el.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top, behavior: "smooth" });
+    // offset은 CSS scroll-margin-top(section)이 화면별로 담당 — sticky 높이 + 여백 일원화
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   return (

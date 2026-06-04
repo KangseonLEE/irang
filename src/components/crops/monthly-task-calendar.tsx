@@ -28,7 +28,7 @@ export function MonthlyTaskCalendar({ cropId }: MonthlyTaskCalendarProps) {
 
   return (
     <section id="monthly-calendar" className={s.section}>
-      <details className={s.details}>
+      <details className={s.details} open>
         <summary className={s.summary}>
           <h2 className={s.sectionHeader}>
             <Icon icon={Calendar} size="lg" />
