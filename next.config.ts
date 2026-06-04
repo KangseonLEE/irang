@@ -5,6 +5,14 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   /* ── dev 환경 외부 도메인 허용 (Cloudflare Tunnel 등) ── */
   allowedDevOrigins: ["dev.irangfarm.com"],
+  /* ── Server Actions origin 허용 (CF Access reverse proxy 뒤 dev에서 x-forwarded-host
+       불일치로 host 에러 발생 — Next.js 16 CSRF 검증. prod는 직접 접속이라 영향 없음.
+       allowedDevOrigins는 next dev 서버 CORS용으로 별개 — Server Actions는 이 설정이 필요) ── */
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["dev.irangfarm.com"],
+    },
+  },
   /* ── 영구 리다이렉트 (308) ── */
   async redirects() {
     return [
