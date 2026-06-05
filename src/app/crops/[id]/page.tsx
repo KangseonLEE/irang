@@ -58,6 +58,8 @@ import { DataSource } from "@/components/ui/data-source";
 import { Icon } from "@/components/ui/icon";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { Article } from "schema-dts";
 import { YouthCaseCards } from "@/components/youth-cases/youth-case-cards";
 import { fetchYouthCasesForCrop } from "@/lib/api/rda-youth";
 import { MonthlyTaskCalendar } from "@/components/crops/monthly-task-calendar";
@@ -316,6 +318,24 @@ export default async function CropDetailPage({
         { name: "작물 목록", href: "/crops" },
         { name: data.name, href: `/crops/${id}` },
       ]} />
+      <JsonLd<Article>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: `${data.name} 재배 정보 — 소득·난이도·재배환경`,
+          description: `${data.name} 재배 소득, 난이도, 기후·토양 조건을 확인하세요. 주요 산지: ${data.detail.majorRegions.join(", ")}.`,
+          image: getCropImageAbsoluteUrl(data.id),
+          author: { "@type": "Organization", name: "이랑" },
+          publisher: {
+            "@type": "Organization",
+            name: "이랑",
+            logo: { "@type": "ImageObject", url: "https://irangfarm.com/icon.svg" },
+          },
+          inLanguage: "ko",
+          mainEntityOfPage: `https://irangfarm.com/crops/${id}`,
+          keywords: [data.name, "귀농 작물", "재배 소득", ...data.detail.majorRegions],
+        }}
+      />
       {/* ── 브레드크럼 + 출처 ── */}
       <div className={s.topBar}>
         <nav className={s.breadcrumb} aria-label="현재 위치">

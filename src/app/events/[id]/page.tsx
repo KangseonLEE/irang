@@ -7,6 +7,8 @@ import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { Event } from "schema-dts";
 import { formatDateRange } from "@/lib/format";
 import {
   ArrowLeft,
@@ -89,6 +91,25 @@ export default async function EventDetailPage({
         { name: "체험행사", href: "/events" },
         { name: event.title, href: `/events/${id}` },
       ]} />
+      <JsonLd<Event>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Event",
+          name: event.title,
+          description: event.description,
+          startDate: event.date,
+          ...(event.dateEnd ? { endDate: event.dateEnd } : {}),
+          eventStatus: "https://schema.org/EventScheduled",
+          eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+          location: {
+            "@type": "Place",
+            name: event.location,
+            address: { "@type": "PostalAddress", addressRegion: event.region, addressCountry: "KR" },
+          },
+          inLanguage: "ko",
+          mainEntityOfPage: `https://irangfarm.com/events/${id}`,
+        }}
+      />
       {/* Back link */}
       <Link href="/events" className={s.backLink}>
         <Icon icon={ArrowLeft} size="md" />

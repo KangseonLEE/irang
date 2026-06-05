@@ -7,6 +7,8 @@ import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { Course } from "schema-dts";
 import { formatDate } from "@/lib/format";
 import {
   ArrowLeft,
@@ -89,6 +91,18 @@ export default async function EducationDetailPage({
         { name: "정착 교육", href: "/education" },
         { name: course.title, href: `/education/${id}` },
       ]} />
+      <JsonLd<Course>
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Course",
+          name: course.title,
+          description: course.description,
+          provider: { "@type": "Organization", name: "이랑" },
+          inLanguage: "ko",
+          about: `${course.region} ${course.type} ${course.level} 귀농 정착 교육`,
+          mainEntityOfPage: `https://irangfarm.com/education/${id}`,
+        }}
+      />
       {/* Back link */}
       <Link href="/education" className={s.backLink}>
         <ArrowLeft size={16} />
