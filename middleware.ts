@@ -96,6 +96,9 @@ function isBlockedBot(ua: string): boolean {
 const VERIFIED_BOT_PATTERNS = [
   // Google
   /Googlebot/i,
+  /Google-InspectionTool/i, // GSC URL 검사·실시간 테스트 도구 (2026-06-05 — 미국 IP라 Non-KR 503에 막혀 색인 실패한 사고)
+  /GoogleOther/i,
+  /Storebot-Google/i,
   /AdsBot-Google/i,
   /Mediapartners-Google/i,
   // Microsoft / Bing
