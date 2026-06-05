@@ -1,41 +1,21 @@
-/* MonthlyTaskCalendar — 월별 작업 캘린더 (collapsible) */
+/* CropYearTimeline — 연간 작업 흐름 (월별 intensity strip) */
 
 .section {
   margin-top: 32px;
 }
 
-.details {
+.card {
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 16px;
+  border-radius: 20px;
   background: var(--card, #fff);
-  overflow: hidden;
+  padding: 20px;
 }
 
-.summary {
+.head {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 16px 20px;
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
-  transition: background-color 150ms ease;
-}
-
-.summary::-webkit-details-marker {
-  display: none;
-}
-
-@media (hover: hover) {
-  .summary:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 3%, transparent);
-  }
-}
-
-.summary:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: -2px;
-  border-radius: 16px;
+  margin-bottom: 18px;
 }
 
 .sectionHeader {
@@ -60,142 +40,219 @@
   flex-shrink: 0;
 }
 
-.toggleIcon {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
+/* ── 셀 공통 ── */
+.cellWrap {
   position: relative;
-  transition: transform 200ms ease;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
-.toggleIcon::before,
-.toggleIcon::after {
-  content: "";
-  position: absolute;
-  background: var(--muted-foreground, #6b7280);
-  border-radius: 1px;
-}
-
-.toggleIcon::before {
-  top: 50%;
-  left: 4px;
-  width: 12px;
-  height: 2px;
-  transform: translateY(-50%);
-}
-
-.toggleIcon::after {
-  top: 4px;
-  left: 50%;
-  width: 2px;
-  height: 12px;
-  transform: translateX(-50%);
-  transition: transform 200ms ease, opacity 200ms ease;
-}
-
-.details[open] > .summary .toggleIcon::after {
-  transform: translateX(-50%) rotate(90deg);
-  opacity: 0;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  padding: 0 20px;
-}
-
-@media (min-width: 640px) {
-  .grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.card {
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid var(--border, #e5e7eb);
-  background: var(--card, #fff);
-  transition: border-color 150ms ease;
-}
-
-.cardCurrent {
-  border-width: 2px;
-  border-color: var(--primary, #1b6b5a);
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
-}
-
-.cardIdle {
-  opacity: 0.5;
-}
-
-.cardTop {
+.cell {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
+  justify-content: center;
+  width: 100%;
+  height: 44px;
+  border: 1px solid color-mix(in srgb, var(--border, #e5e7eb) 70%, transparent);
+  border-radius: 10px;
+  background: var(--card, #fff);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 120ms ease, filter 120ms ease;
 }
 
-.month {
-  font-size: var(--fs-body-sm, 0.8125rem);
+.cell:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .cell:hover {
+    filter: brightness(0.94) saturate(1.15);
+    transform: translateY(-1px);
+  }
+}
+
+.cellMonth {
+  font-size: 0.8125rem;
   font-weight: 700;
+  line-height: 1;
+}
+
+/* ── intensity 4단계 ── */
+.cellNone {
+  background: #f3f4f6;
+}
+
+.cellNone .cellMonth {
   color: var(--muted-foreground, #6b7280);
 }
 
-.monthCurrent {
+.cellLow {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 20%, white);
+}
+
+.cellLow .cellMonth {
   color: var(--primary, #1b6b5a);
 }
 
-.intensity {
+.cellMedium {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 50%, white);
+}
+
+.cellMedium .cellMonth {
+  color: #fff;
+}
+
+.cellHigh {
+  background: var(--primary, #1b6b5a);
+}
+
+.cellHigh .cellMonth {
+  color: #fff;
+}
+
+/* ── 현재월 강조 (ring + 위쪽 삼각형) ── */
+.cellCurrent {
+  border: 2px solid var(--primary, #1b6b5a);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
+}
+
+.pointer {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--primary, #1b6b5a);
+}
+
+/* ── 툴팁 ── */
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: max-content;
+  max-width: 200px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--foreground, #111827);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid var(--foreground, #111827);
+}
+
+.tooltipMonth {
   font-size: 0.6875rem;
   font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
+  opacity: 0.7;
 }
 
-.intensityHigh {
-  background: color-mix(in srgb, #ef4444 12%, transparent);
-  color: #dc2626;
+.tooltipTask {
+  font-size: 0.8125rem;
+  font-weight: 700;
 }
 
-.intensityMedium {
-  background: color-mix(in srgb, #f59e0b 12%, transparent);
-  color: #d97706;
+.tooltipDetail {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  opacity: 0.9;
 }
 
-.intensityLow {
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
-  color: var(--primary, #1b6b5a);
+/* ── 데스크탑 strip (12칸 1행) ── */
+.stripDesktop {
+  display: none;
 }
 
-.intensityNone {
-  background: transparent;
-  color: transparent;
+/* ── 모바일 strip (상/하반기 2행) ── */
+.stripMobile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.task {
-  font-size: 0.875rem;
+.halfRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.halfLabel {
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--foreground, #111827);
-  margin: 0 0 4px;
+  color: var(--muted-foreground, #6b7280);
 }
 
-.detail {
+.halfCells {
+  display: flex;
+  gap: 6px;
+}
+
+/* ── 범례 ── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.75rem;
   color: var(--muted-foreground, #6b7280);
-  line-height: 1.5;
-  margin: 0;
+}
+
+.legendSwatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid color-mix(in srgb, var(--border, #e5e7eb) 60%, transparent);
+  flex-shrink: 0;
 }
 
 .note {
-  margin: 12px 20px 20px;
+  margin: 14px 0 0;
   font-size: 0.75rem;
   color: var(--muted-foreground, #6b7280);
   text-align: center;
+}
+
+/* ── 데스크탑 전환 (768px+) ── */
+@media (min-width: 768px) {
+  .stripDesktop {
+    display: flex;
+    gap: 8px;
+  }
+
+  .stripMobile {
+    display: none;
+  }
+
+  .cell {
+    height: 52px;
+  }
 }
