@@ -671,6 +671,18 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
   1. **배포 검증은 `gh api deployments[0].sha`가 내 push 커밋과 일치하는지 먼저 확인** 후 그 deployment의 status를 polling. (이미 [[memory]] 박제된 "push 직후 deployments[0]은 직전 커밋일 수 있음"의 ISR 버전.)
   2. **ISR 페이지 라이브 반영 확인은 `x-vercel-cache: PRERENDER` + `age: 0`(fresh) 헤더로**, 또는 `vercel ls --prod`로 새 빌드가 Ready/promoted인지 확인. 콘텐츠 변경이 라이브에 보일 때까지 새 빌드 promote가 선행.
 
+### GSC "실시간 테스트(Google-InspectionTool)" 5xx ≠ 실제 색인 실패 (2026-06-05) — 1.5h 헛디버깅
+
+- **증상**: GSC URL 검사에서 `crops/grape`·`strawberry`가 "페이지 색인을 생성할 수 없음: 서버 오류(5xx)". 수동 "색인 생성 요청"도 "실시간 테스트 중 색인 문제 감지"로 거부됨.
+- **헛다리 1.5시간**: CF Bot Fight Mode OFF·Browser Integrity Check OFF·ASN 396982 제거·CF cache purge·middleware `Google-InspectionTool` verified 추가(commit 08fa26c) — **전부 5xx 안 풀림**. 일반 UA·Googlebot UA 라이브는 항상 200. Vercel Live 로그에 InspectionTool 요청 **아예 안 찍힘**(미도달).
+- **root cause = 오진단**: 5xx의 주체는 **GSC "실시간 테스트 도구"(Google-InspectionTool/1.0)** 뿐. CF Events엔 InspectionTool=Skip(통과)인데 Vercel origin엔 미도달 → CF↔Google 실시간 테스트 인프라 사이 문제. Hobby 플랜으론 그 레이어 제어 불가.
+- **결정적 구분**: GSC URL 검사의 **"실시간 테스트" 탭 ≠ "GOOGLE 색인" 탭**. **"GOOGLE 색인" 탭**(일반 Googlebot 마지막 크롤)을 보면 grape·strawberry 모두 **"URL이 Google에 등록되어 있음" ✅**. 즉 **실제 색인은 처음부터 정상**, 막힌 건 실시간 테스트 "도구"뿐.
+- **교훈**:
+  1. **GSC 5xx를 보면 먼저 "GOOGLE 색인" 탭으로 실제 색인 상태를 확인**한다. "실시간 테스트" 탭 5xx는 도구(InspectionTool) 인프라 이슈일 수 있고 실제 색인과 무관하다. 도구 5xx에 매달려 CF·middleware를 헤집지 말 것.
+  2. **수동 "색인 생성 요청"이 실시간 테스트를 거쳐 거부돼도, 일반 Googlebot의 자연 재크롤은 막히지 않는다** — 색인·JSON-LD 반영은 자연 크롤로 진행됨(며칠~2주).
+  3. **차단 진단 순서**: 라이브 일반/Googlebot UA 200 + Vercel 로그에 그 봇 요청 미존재 = origin 미도달 = 우리 코드(middleware) 아님. CF Events Action(Skip/Block) 확인이 1차 분기점.
+  4. middleware InspectionTool verified 추가(08fa26c)는 그 자체로 옳은 보강이라 유지. 단 이번 5xx의 해결책은 아니었음.
+
 ---
 
 ## 차트 컴포넌트 가이드
