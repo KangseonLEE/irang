@@ -62,6 +62,25 @@ const TYPE_CLASS: Record<FarmEvent["type"], string> = {
   축제: s.typeFestival,
 };
 
+// GSC 이벤트 구조화 데이터 권장 필드(offers) — cost·status에서 가격·재고 상태 매핑
+function buildOffer(event: FarmEvent): Event["offers"] {
+  const availability =
+    event.status === "마감"
+      ? "https://schema.org/SoldOut"
+      : event.status === "접수예정"
+        ? "https://schema.org/PreOrder"
+        : "https://schema.org/InStock";
+  const isFree = event.cost.includes("무료");
+  return {
+    "@type": "Offer",
+    url: event.url,
+    availability,
+    priceCurrency: "KRW",
+    ...(isFree ? { price: "0" } : {}),
+    ...(event.applicationStart ? { validFrom: event.applicationStart } : {}),
+  };
+}
+
 function getRelatedEvents(
   current: FarmEvent,
   limit: number = 3
@@ -106,6 +125,10 @@ export default async function EventDetailPage({
             name: event.location,
             address: { "@type": "PostalAddress", addressRegion: event.region, addressCountry: "KR" },
           },
+          image: ["https://irangfarm.com/opengraph-image"],
+          organizer: { "@type": "Organization", name: event.organization, url: event.url },
+          performer: { "@type": "Organization", name: event.organization },
+          offers: buildOffer(event),
           inLanguage: "ko",
           mainEntityOfPage: `https://irangfarm.com/events/${id}`,
         }}
