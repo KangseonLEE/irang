@@ -946,9 +946,18 @@
 /* ── 연한 그린 배경 (비용) ── */
 .lightGreenBg {
   composes: fullWidth;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
   background: var(--surface-green-50, #edf5f3);
   padding-top: 56px;
   padding-bottom: 56px;
+}
+
+@media (min-width: 1024px) {
+  .lightGreenBg {
+    gap: 64px;
+  }
 }
 
 @media (min-width: 640px) {

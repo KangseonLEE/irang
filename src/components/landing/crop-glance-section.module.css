@@ -1,6 +1,7 @@
 /* ══════════════════════════════════════════
-   홈 "작물 한눈에" 섹션 (P2-1)
-   ── 수익 TOP N 칩 + /crops 딥링크 CTA 2종
+   홈 "작물 한눈에" 섹션 (A안 · 수익 벤토 타일)
+   ── 1위 히어로 + 2·3위 + 4~6위 목록 + 딥링크 2종
+   ── 그린 배경(page.tsx .lightGreenBg) 위 흰 카드
    ══════════════════════════════════════════ */
 
 .section {
@@ -29,7 +30,7 @@
   gap: 6px;
   padding: 2px 8px;
   border-radius: 6px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   font-size: var(--fs-overline);
   font-weight: 700;
   color: var(--primary, #1b6b5a);
@@ -93,156 +94,353 @@
 
 @media (hover: hover) {
   .headerLink:hover {
-    color: var(--primary-dark, #145043);
+    color: var(--primary-dark, #0f2e26);
   }
 }
 
-/* ── 수익 TOP N 칩 ── */
-.chips {
-  list-style: none;
-  margin: 20px 0 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+/* ══ 벤토 그리드 ══
+   모바일: 1위 풀폭 → 2·3위 2열 → 4~6위 목록 (별도 레이아웃)
+   데스크탑: 1위 세로 2칸 + 2·3위 + 목록 */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.chip {
+@media (min-width: 1024px) {
+  .bento {
+    grid-template-columns: 1.2fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 14px;
+  }
+}
+
+/* 공통 타일 베이스 */
+.bento > * {
+  border-radius: 20px;
+  border: 1px solid var(--border, #e5e7eb);
+  overflow: hidden;
+  position: relative;
+  text-decoration: none;
+}
+
+/* ── 1위 히어로 타일 (수익 숫자가 주인공) ── */
+.tileHero {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px 22px;
+  background: var(--primary, #1b6b5a);
+  border-color: transparent;
+  color: #fff;
+}
+
+@media (min-width: 640px) {
+  .tileHero {
+    padding: 28px 26px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .tileHero {
+    grid-row: 1 / 3;
+    grid-column: 1;
+    justify-content: flex-end;
+    padding: 36px 30px;
+  }
+}
+
+.heroRank {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px 8px 10px;
+  width: fit-content;
+  padding: 3px 10px;
   border-radius: 999px;
-  border: 1px solid var(--border, #e5e7eb);
+  background: rgba(255, 255, 255, 0.18);
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.heroEmoji {
+  font-size: 32px;
+  line-height: 1;
+  margin-top: 8px;
+}
+
+.heroName {
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.heroValue {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: clamp(2.5rem, 9vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.heroUnit {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.heroNote {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+@media (min-width: 1024px) {
+  .heroEmoji {
+    font-size: 40px;
+  }
+  .heroName {
+    font-size: var(--fs-h2);
+  }
+}
+
+@media (hover: hover) {
+  .tileHero:hover {
+    background: var(--primary-dark, #0f2e26);
+  }
+}
+
+/* ── 2·3위 보조 타일 ── */
+.tileStat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 16px;
   background: var(--card, #fff);
-  text-decoration: none;
   transition:
     border-color 0.15s,
     box-shadow 0.15s,
     transform 0.15s;
 }
 
-.rank {
+@media (min-width: 1024px) {
+  .tileStat {
+    padding: 22px 20px;
+    justify-content: center;
+  }
+}
+
+.statRank {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   color: var(--primary, #1b6b5a);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  flex-shrink: 0;
 }
 
-.chipEmoji {
-  font-size: 16px;
+.statEmoji {
+  font-size: 22px;
   line-height: 1;
+  margin-top: 6px;
 }
 
-.chipName {
+.statName {
   font-size: var(--fs-body-sm);
   font-weight: 700;
   color: var(--foreground, #111827);
 }
 
-.chipIncome {
-  font-size: 12px;
-  font-weight: 600;
+.statValue {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  font-size: 1.5rem;
+  font-weight: 800;
   color: var(--primary, #1b6b5a);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 
-.chip:focus-visible {
+.statUnit {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
+}
+
+@media (min-width: 1024px) {
+  .statValue {
+    font-size: 1.75rem;
+  }
+}
+
+.tileStat:focus-visible {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
 }
 
 @media (hover: hover) {
-  .chip:hover {
+  .tileStat:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border, #e5e7eb));
     box-shadow: 0 2px 10px color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
     transform: translateY(-1px);
   }
 }
 
-/* ── CTA 2종 (딥링크) ── */
-.ctas {
+/* ── 4~6위 목록 타일 ── */
+.tileList {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 16px 8px;
+  background: var(--card, #fff);
+}
+
+@media (min-width: 1024px) {
+  .tileList {
+    grid-row: 1 / 3;
+    grid-column: 3;
+    justify-content: center;
+    padding: 22px 20px;
+  }
+}
+
+.listCaption {
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
+  letter-spacing: 0.02em;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 6px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+
+.listRank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--muted, #f3f4f6);
+  color: var(--muted-foreground, #6b7280);
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.listEmoji {
+  font-size: 17px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.listName {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+}
+
+.listValue {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  font-variant-numeric: tabular-nums;
+}
+
+.listItem:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .listItem:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 7%, transparent);
+  }
+}
+
+/* ── 딥링크 2종 ── */
+.links {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
-  margin-top: 24px;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 @media (min-width: 640px) {
-  .ctas {
+  .links {
     grid-template-columns: 1fr 1fr;
   }
 }
 
-.cta {
-  display: flex;
+.deepLink {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 18px;
-  border-radius: 16px;
+  gap: 8px;
+  padding: 13px 16px;
+  border-radius: 14px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground, #111827);
   text-decoration: none;
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
 }
 
-.ctaIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+.deepLink svg {
   color: var(--primary, #1b6b5a);
   flex-shrink: 0;
 }
 
-.ctaText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  flex: 1;
-}
-
-.ctaLabel {
-  font-size: var(--fs-body);
-  font-weight: 700;
-  color: var(--foreground, #111827);
-}
-
-.ctaDesc {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground, #6b7280);
-}
-
-.ctaArrow {
+.deepArrow {
+  margin-left: auto;
   color: var(--muted-foreground, #9ca3af);
-  flex-shrink: 0;
   transition: transform 0.15s;
 }
 
-.cta:focus-visible {
+.deepLink:focus-visible {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
 }
 
 @media (hover: hover) {
-  .cta:hover {
+  .deepLink:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border, #e5e7eb));
     box-shadow: 0 2px 12px color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   }
-  .cta:hover .ctaArrow {
+  .deepLink:hover .deepArrow {
     transform: translateX(3px);
     color: var(--primary, #1b6b5a);
   }

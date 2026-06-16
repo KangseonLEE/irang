@@ -169,17 +169,15 @@ export default function HomePage() {
         <TrendCostSection />
       </ScrollReveal>
 
-      {/* ═══ 4-2. 작물 한눈에 (수익 TOP N + /crops 딥링크) ═══ */}
-      <ScrollReveal>
-        <CropGlanceSection />
-      </ScrollReveal>
-
-      {/* ═══ 5. 농촌 정착 길잡이 (연한 그린 배경) ═══ */}
-      <ScrollReveal>
-        <div className={s.lightGreenBg}>
+      {/* ═══ 4-2 + 5. 작물 한눈에 + 농촌 정착 길잡이 (연한 그린 배경) ═══ */}
+      <div className={s.lightGreenBg}>
+        <ScrollReveal>
+          <CropGlanceSection />
+        </ScrollReveal>
+        <ScrollReveal>
           <GovSupportGuide />
-        </div>
-      </ScrollReveal>
+        </ScrollReveal>
+      </div>
 
       {/* ═══ 6. 지원사업 (추천 + 마감 임박 탭) ═══ */}
       <ScrollReveal>

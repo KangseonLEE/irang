@@ -81,6 +81,31 @@ function RenderLabel(props: LabelProps) {
   );
 }
 
+/** 평균선 라벨 — ReferenceLine이 viewBox를 주입한다.
+ *  우측 경계 안쪽(textAnchor=end)에 배치해 좁은 모바일 폭에서도 잘리지 않음. */
+interface AvgLabelProps {
+  avg: number;
+  viewBox?: { x?: number; y?: number; width?: number; height?: number };
+}
+
+function AvgLabel({ avg, viewBox }: AvgLabelProps) {
+  const x = Number(viewBox?.x ?? 0);
+  const y = Number(viewBox?.y ?? 0);
+  const width = Number(viewBox?.width ?? 0);
+  return (
+    <text
+      x={x + width - 4}
+      y={y - 5}
+      fill="var(--muted-foreground, #9ca3af)"
+      textAnchor="end"
+      fontSize={11}
+      fontWeight={600}
+    >
+      평균 {avg.toLocaleString()}만원
+    </text>
+  );
+}
+
 export function IncomeBars({ crops }: IncomeBarsProps) {
   const chartData = useMemo<ChartDatum[]>(() => {
     return crops.map((crop, i) => {
@@ -160,18 +185,14 @@ export function IncomeBars({ crops }: IncomeBarsProps) {
             <LabelList dataKey="total" content={RenderLabel} />
           </Bar>
 
-          {/* 평균선 */}
+          {/* 평균선 — 라벨을 선 위쪽·우측 안쪽에 배치(textAnchor=end)해
+              모바일(360~430px)에서 우측 경계 밖으로 잘리지 않게 한다. */}
           {avg > 0 && (
             <ReferenceLine
               y={avg}
               stroke="var(--muted-foreground, #9ca3af)"
               strokeDasharray="4 4"
-              label={{
-                value: `평균 ${avg}만원`,
-                position: "right",
-                fontSize: 11,
-                fill: "var(--muted-foreground, #9ca3af)",
-              }}
+              label={<AvgLabel avg={avg} />}
             />
           )}
         </BarChart>
