@@ -432,11 +432,9 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     },
   },
   "/crops/compare": {
-    // ids: 작물 id CSV (최대 4개) / tab: summary/economy/cultivation/prosCons
-    allowedKeys: ["ids", "tab"],
-    enumValidators: {
-      tab: ["summary", "economy", "cultivation", "prosCons"],
-    },
+    // 2026-06-16: B안 단일 스크롤 전환 — 탭 제거로 tab param 폐기. ids 만 보존.
+    // ids: 작물 id CSV (최대 4개)
+    allowedKeys: ["ids"],
     regexValidators: {
       // 작물 id CSV (영숫자·하이픈, 최대 4개)
       ids: /^[a-z0-9-]+(?:,[a-z0-9-]+){0,3}$/,

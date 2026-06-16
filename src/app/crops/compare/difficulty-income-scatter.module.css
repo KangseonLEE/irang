@@ -1,0 +1,17 @@
+/* ==========================================================================
+   난이도 × 소득 산점도 — 보조 안내 카피
+   ========================================================================== */
+
+.axisHint {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-relaxed);
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .axisHint {
+    margin-top: 12px;
+  }
+}

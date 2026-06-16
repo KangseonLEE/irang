@@ -381,6 +381,122 @@
   color: var(--muted-foreground);
 }
 
+/* ---- compact 칩 strip (선택 완료 시) ---- */
+.compactRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px 5px 6px;
+  background: var(--card, #fff);
+  border: 1.5px solid color-mix(in srgb, var(--primary, #1b6b5a) 22%, transparent);
+  border-radius: 9999px;
+}
+
+.chipImg {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.chipName {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground, #0d2e27);
+}
+
+.chipRemoveBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+@media (hover: hover) {
+  .chipRemoveBtn:hover { background: var(--muted, #f3f4f6); color: #ef4444; }
+}
+.chipRemoveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.chipRemoveBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 1px;
+}
+
+.editBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 7px 14px;
+  font-family: inherit;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 22%, transparent);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+@media (hover: hover) {
+  .editBtn:hover { background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent); }
+}
+.editBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.doneBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 9px 18px;
+  font-family: inherit;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary, #1b6b5a);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+@media (hover: hover) {
+  .doneBtn:hover { background: color-mix(in srgb, var(--primary, #1b6b5a) 88%, #000); }
+}
+.doneBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+.doneBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* ---- swap 메시지 ---- */
 .swapMessage {
   margin: 0;

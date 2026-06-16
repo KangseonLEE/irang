@@ -275,14 +275,21 @@ describe("LIST_PAGE_NORMALIZE_OPTIONS coverage", () => {
     });
   });
 
-  describe("/crops/compare — ids/tab 보존", () => {
+  describe("/crops/compare — ids 보존 (B안: tab 폐기)", () => {
     const opts = LIST_PAGE_NORMALIZE_OPTIONS["/crops/compare"];
 
-    it("정상 ids 4개 + tab 통과", () => {
-      const raw = new URLSearchParams("ids=apple,pear,grape,peach&tab=economy");
+    it("정상 ids 4개 통과", () => {
+      const raw = new URLSearchParams("ids=apple,pear,grape,peach");
       const { cleaned } = normalizeSearchParams(raw, opts);
       expect(cleaned.get("ids")).toBe("apple,pear,grape,peach");
-      expect(cleaned.get("tab")).toBe("economy");
+    });
+
+    it("폐기된 tab param strip (2026-06-16 단일 스크롤 전환)", () => {
+      const raw = new URLSearchParams("ids=rice,tomato&tab=economy");
+      const { cleaned } = normalizeSearchParams(raw, opts);
+      expect(cleaned.get("ids")).toBe("rice,tomato");
+      // tab 은 더 이상 allowedKeys 에 없음 → strip
+      expect(cleaned.has("tab")).toBe(false);
     });
 
     it("ids 영숫자·하이픈 외 문자 strip", () => {

@@ -10,7 +10,7 @@ import {
   useState,
   useTransition,
 } from "react";
-import { Search, Plus, X, Sprout, Loader2 } from "lucide-react";
+import { Search, Plus, X, Sprout, Loader2, Pencil, Check } from "lucide-react";
 import type { CropInfo } from "@/lib/data/crops";
 import { getCropImageSrc } from "@/lib/crop-image";
 import s from "./crop-selector.module.css";
@@ -63,6 +63,9 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
   const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [optimisticIds, setOptimisticIds] = useState<string[]>(selectedIds);
+  // compact 모드: 2개 이상 선택 완료 시 카드 4슬롯을 칩 strip 으로 접어 결과까지 스크롤 단축.
+  // 사용자가 "편집"을 누르면 펼침. 0~1개(미완)일 땐 항상 펼쳐 추가 유도.
+  const [editing, setEditing] = useState(false);
 
   // race fix v2 (regions/compare 패턴 이식):
   // 빠른 연속 클릭 시 stale server props로 optimistic 리셋 방지.
@@ -236,6 +239,9 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
     .map((id) => cropById.get(id))
     .filter((c): c is CropInfo => c != null);
 
+  // 2개 이상 선택 완료 + 편집 모드 아님 → compact 칩 strip
+  const collapsed = selectedCrops.length >= 2 && !editing;
+
   return (
     <div className={s.wrap} role="group" aria-label="비교할 작물 선택">
       {/* 상단 검색 + 메타 */}
@@ -390,7 +396,46 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
       </div>
       {swapMessage && <p className={s.swapMessage}>{swapMessage}</p>}
 
-      {/* 선택된 작물 카드 grid */}
+      {/* compact 칩 strip (2개 이상 선택 완료 시) */}
+      {collapsed && (
+        <div className={s.compactRow}>
+          <ul className={s.chips}>
+            {selectedCrops.map((crop) => (
+              <li key={crop.id} className={s.chip}>
+                <Image
+                  src={getCropImageSrc(crop.id)}
+                  alt=""
+                  width={22}
+                  height={22}
+                  className={s.chipImg}
+                />
+                <span className={s.chipName}>{crop.name}</span>
+                <button
+                  type="button"
+                  className={s.chipRemoveBtn}
+                  onClick={() => removeCrop(crop.id)}
+                  aria-label={`${crop.name} 해제`}
+                  disabled={isPending}
+                >
+                  <X size={13} aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            className={s.editBtn}
+            onClick={() => setEditing(true)}
+          >
+            <Pencil size={14} aria-hidden="true" />
+            편집
+          </button>
+        </div>
+      )}
+
+      {/* 선택된 작물 카드 grid (미완 또는 편집 모드) */}
+      {!collapsed && (
+        <>
       <div className={s.cards}>
         {selectedCrops.map((crop, i) => (
           <div key={crop.id} className={s.cardFilled}>
@@ -445,6 +490,21 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
           </button>
         )}
       </div>
+
+      {/* 편집 중 + 2개 이상 → 접기 버튼 */}
+      {editing && selectedCrops.length >= 2 && (
+        <button
+          type="button"
+          className={s.doneBtn}
+          onClick={() => setEditing(false)}
+          disabled={isPending}
+        >
+          <Check size={15} aria-hidden="true" />
+          편집 완료
+        </button>
+      )}
+        </>
+      )}
     </div>
   );
 }

@@ -1,19 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import {
-  Scale,
-  ThumbsUp,
-  AlertTriangle,
-  Lightbulb,
-  Gauge,
-  Calendar,
-  Wallet,
-  Clock,
-  Activity,
-  Leaf,
-  Info,
-} from "lucide-react";
+import { Scale, Lightbulb, TrendingUp, Info } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { CropImage } from "@/components/ui/crop-image";
 import { PageHeader } from "@/components/ui/page-header";
@@ -22,32 +10,22 @@ import {
   getCropWithDetail,
   type CropInfo,
   type CropDetailInfo,
-  type ProsConsCategory,
 } from "@/lib/data/crops";
-import { PROVINCES } from "@/lib/data/regions";
+import { parseIncome10a } from "@/app/crops/crop-aggregate";
 import { DataSource } from "@/components/ui/data-source";
-import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CropSelector, type CropSelectorItem } from "./crop-selector";
-import { CropRadar } from "./crop-radar";
 import { IncomeBars } from "./income-bars";
-import { CompareTabs, TAB_IDS, type TabId } from "./compare-tabs";
-import {
-  CropMetricCard,
-  CropBadgeMetricCard,
-  MetricGrid,
-  type BadgeTone,
-  type NumericRow,
-  type BadgeRow,
-} from "./metric-card";
+import { ScoreCards, type ScoreCardItem, type DifficultyTone } from "./score-card";
+import { DifficultyIncomeScatter } from "./difficulty-income-scatter";
+import { ProsConsAccordion, type ProsConsAccordionItem } from "./pros-cons-accordion";
 import { DesktopHint } from "@/components/ui/desktop-hint";
-import { SwipeHint } from "@/components/ui/swipe-hint";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "정착 작물 비교 — 소득·난이도·장단점 비교",
   description:
-    "최대 4개 작물의 소득, 난이도, 재배 환경, 장단점을 나란히 비교하세요. 초보자 추천 작물부터 고소득 작물까지 선택에 도움이 돼요.",
+    "최대 4개 작물의 소득, 난이도, 장단점을 한 화면에서 비교하세요. 난이도 × 소득 산점도로 쉽고 돈 되는 작물이 한눈에 보여요.",
   keywords: ["작물 비교", "정착 작물 비교", "작물 소득 비교", "정착 작물 선택"],
   alternates: { canonical: "/crops/compare" },
 };
@@ -55,22 +33,18 @@ export const metadata: Metadata = {
 const DEFAULT_CROP_IDS: string[] = [];
 
 interface PageProps {
-  searchParams: Promise<{ ids?: string; tab?: string }>;
+  searchParams: Promise<{ ids?: string }>;
 }
 
 type CropWithDetail = CropInfo & { detail: CropDetailInfo };
 
-// 카테고리 라벨 (약칭)
-const CAT_LABEL: Record<ProsConsCategory, string> = {
-  수익성: "수익성",
-  재배난이도: "재배",
-  시장성: "시장",
-  안정성: "안정",
-  생활: "생활",
-  확장성: "확장",
-};
-
 const DIFFICULTY_RANK: Record<string, number> = { 쉬움: 1, 보통: 2, 어려움: 3 };
+
+const DIFFICULTY_TONE: Record<string, DifficultyTone> = {
+  쉬움: "easy",
+  보통: "medium",
+  어려움: "hard",
+};
 
 /**
  * selector 에 직렬화해서 보낼 작물 데이터 — emoji 같은 비표시 필드 제외.
@@ -84,12 +58,8 @@ const selectorCrops: CropSelectorItem[] = CROPS.map((c) => ({
   description: c.description,
 }));
 
-function isTabId(value: string | undefined): value is TabId {
-  return !!value && (TAB_IDS as readonly string[]).includes(value);
-}
-
-/** revenueRange 문자열에서 소득 숫자(만원) 추출 */
-function parseIncome(revenueRange: string): { min: number; max: number } {
+/** revenueRange 문자열에서 소득 숫자(만원) 범위 추출 — 표기·차트용 */
+function parseIncomeRange(revenueRange: string): { min: number; max: number } {
   const numbers = revenueRange.match(/[\d,]+(?:\.\d+)?/g);
   if (!numbers || numbers.length === 0) return { min: 0, max: 0 };
 
@@ -113,30 +83,8 @@ function parseAnnualWorkdays(text: string | undefined): number | null {
   return Math.round((parsed[0] + parsed[1]) / 2);
 }
 
-/** difficulty → badge tone */
-const DIFFICULTY_TONE: Record<string, BadgeTone> = {
-  쉬움: "easy",
-  보통: "medium",
-  어려움: "hard",
-};
-
-/** laborIntensity → badge tone (낮을수록 좋음) */
-const LABOR_TONE: Record<string, BadgeTone> = {
-  낮음: "easy",
-  보통: "medium",
-  높음: "hard",
-};
-
-/** category → badge tone (시각 구분만, 우열 없음) */
-const CATEGORY_TONE: Record<string, BadgeTone> = {
-  식량: "primary",
-  채소: "easy",
-  과수: "medium",
-  특용: "neutral",
-};
-
 /**
- * 작물명 + thumbnail inline 조각 — 한줄 요약 안에서 사용.
+ * 작물명 + thumbnail inline 조각 — 요약 배너 안에서 사용.
  */
 function CropInlineLabel({ crop }: { crop: CropWithDetail }) {
   return (
@@ -203,16 +151,10 @@ export default async function CropComparePage({ searchParams }: PageProps) {
   const selectedIds = params.ids
     ? params.ids.split(",").slice(0, 4)
     : DEFAULT_CROP_IDS;
-  const tab: TabId = isTabId(params.tab) ? params.tab : "summary";
 
   const crops: CropWithDetail[] = selectedIds
     .map((id) => getCropWithDetail(id))
     .filter((c): c is NonNullable<typeof c> => c != null);
-
-  // 탭 전환 시 보존할 query (ids만)
-  const baseParams = new URLSearchParams();
-  if (params.ids) baseParams.set("ids", params.ids);
-  const baseQuery = baseParams.toString();
 
   return (
     <div className={s.page}>
@@ -233,7 +175,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
         icon={<Icon icon={Scale} size="md" />}
         label="Crop Compare"
         title="작물 비교"
-        description="최대 4개 작물의 난이도, 소득, 장단점을 나란히 비교해 보세요."
+        description="최대 4개 작물의 난이도, 소득, 장단점을 한 화면에서 비교해 보세요."
       />
 
       {/* Crop Selector */}
@@ -259,594 +201,150 @@ export default async function CropComparePage({ searchParams }: PageProps) {
       )}
 
       {crops.length >= 2 && (
-        <>
-          <CompareTabs activeTab={tab} baseQuery={baseQuery} />
-
-          {tab === "summary" && <SummaryView crops={crops} />}
-          {tab === "economy" && <EconomyView crops={crops} />}
-          {tab === "cultivation" && <CultivationView crops={crops} />}
-          {tab === "prosCons" && <ProsConsView crops={crops} />}
-
-          {/* 데이터 출처 — 모든 탭에 공통 */}
-          <DataSource
-            source="농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)"
-            note="소득 = 판매 수입 − 생산 경비 (인건비·자재비 등). 재배 환경, 기술 수준에 따라 달라질 수 있습니다."
-          />
-        </>
+        <CompareBody crops={crops} />
       )}
     </div>
   );
 }
 
-// ─── 탭별 View ───
+// ─── 단일 스크롤 비교 본문 ───
 
-function SummaryView({ crops }: { crops: CropWithDetail[] }) {
-  return (
-    <>
-      {/* Metric Stat Cards — 토스 스타일 핵심 수치 비교 (상단 selector에 카테고리·난이도·산지 정보 중복이라 SummaryCard 제거) */}
-      {crops.length >= 2 && <SummaryMetricGrid crops={crops} />}
+function CompareBody({ crops }: { crops: CropWithDetail[] }) {
+  // 스코어카드 best 강조 — 서버에서 미리 판정
+  const incomeCenters = crops.map((c) => {
+    const { min, max } = parseIncomeRange(c.detail.income.revenueRange);
+    return max > 0 ? Math.round((min + max) / 2) : null;
+  });
+  const validIncomes = incomeCenters.filter((v): v is number => v !== null);
+  const maxIncome = validIncomes.length ? Math.max(...validIncomes) : null;
 
-      {/* 한줄 요약 */}
-      {crops.length >= 2 && (
-        <section aria-labelledby="onesummary-heading" className={s.oneSummaryCard}>
-          <h2 id="onesummary-heading" className={s.oneSummaryTitle}>
-            <Icon icon={Lightbulb} size="md" />
-            한줄 요약
-          </h2>
-          <p className={s.oneSummaryText}>{buildComparisonSummary(crops)}</p>
-        </section>
-      )}
+  const workdays = crops.map((c) => parseAnnualWorkdays(c.detail.income.annualWorkdays));
+  const validWorkdays = workdays.filter((v): v is number => v !== null);
+  const minWorkday = validWorkdays.length ? Math.min(...validWorkdays) : null;
 
-      {/* radar — 2개 이상 + prosCons 있을 때 */}
-      {crops.length >= 2 && crops.some((c) => c.detail.prosCons) && (
-        <section className={s.chartSection}>
-          <h3 className={s.chartSectionTitle}>종합 비교</h3>
-          <CropRadar
-            crops={crops
-              .filter((c) => c.detail.prosCons)
-              .map((c) => ({
-                id: c.id,
-                name: c.name,
-                pros: c.detail.prosCons!.pros,
-                cons: c.detail.prosCons!.cons,
-              }))}
-          />
-        </section>
-      )}
-    </>
+  const minDifficultyRank = Math.min(
+    ...crops.map((c) => DIFFICULTY_RANK[c.difficulty] ?? 2),
   );
-}
+  // 가장 쉬운 작물이 1종일 때만 강조 (동률이면 모호하므로 강조 안 함)
+  const easiestCount = crops.filter(
+    (c) => (DIFFICULTY_RANK[c.difficulty] ?? 2) === minDifficultyRank,
+  ).length;
 
-/**
- * SummaryView 핵심 metric 비교 그리드.
- * 4 metric: 예상 소득(높을수록 좋음) / 난이도 / 노동일수(적을수록 좋음) / 노동강도
- */
-function SummaryMetricGrid({ crops }: { crops: CropWithDetail[] }) {
-  const incomeRows: NumericRow[] = crops.map((c) => {
-    const { min, max } = parseIncome(c.detail.income.revenueRange);
-    const center = max > 0 ? Math.round((min + max) / 2) : null;
-    return {
-      cropId: c.id,
-      cropName: c.name,
-      value: center,
-      displayText:
-        min === max
+  const scoreItems: ScoreCardItem[] = crops.map((c, i) => {
+    const { min, max } = parseIncomeRange(c.detail.income.revenueRange);
+    const incomeText =
+      max <= 0
+        ? null
+        : min === max
           ? max.toLocaleString()
-          : `${min.toLocaleString()}~${max.toLocaleString()}`,
+          : `${min.toLocaleString()}~${max.toLocaleString()}`;
+    return {
+      id: c.id,
+      name: c.name,
+      category: c.category,
+      incomeText,
+      incomeBest:
+        incomeCenters[i] !== null &&
+        maxIncome !== null &&
+        incomeCenters[i] === maxIncome &&
+        validIncomes.length >= 2,
+      workdaysText: workdays[i] !== null ? String(workdays[i]) : null,
+      workdaysBest:
+        workdays[i] !== null &&
+        minWorkday !== null &&
+        workdays[i] === minWorkday &&
+        validWorkdays.length >= 2,
+      difficulty: c.difficulty,
+      difficultyTone: DIFFICULTY_TONE[c.difficulty] ?? "neutral",
+      difficultyBest:
+        (DIFFICULTY_RANK[c.difficulty] ?? 2) === minDifficultyRank &&
+        easiestCount === 1,
+      laborIntensity: c.detail.income.laborIntensity ?? null,
+      tag: c.growingSeason,
     };
   });
 
-  const workdayRows: NumericRow[] = crops.map((c) => ({
-    cropId: c.id,
-    cropName: c.name,
-    value: parseAnnualWorkdays(c.detail.income.annualWorkdays),
-  }));
+  // 소득 차트 데이터
+  const incomeBarsData = crops.map((c) => {
+    const { min, max } = parseIncomeRange(c.detail.income.revenueRange);
+    return { id: c.id, name: c.name, incomeMin: min, incomeMax: max };
+  });
 
-  const difficultyRows: BadgeRow[] = crops.map((c) => ({
-    cropId: c.id,
-    cropName: c.name,
-    badge: c.difficulty,
-    tone: DIFFICULTY_TONE[c.difficulty] ?? "neutral",
-  }));
-
-  const laborRows: BadgeRow[] = crops.map((c) => ({
-    cropId: c.id,
-    cropName: c.name,
-    badge: c.detail.income.laborIntensity ?? "—",
-    tone: c.detail.income.laborIntensity
-      ? (LABOR_TONE[c.detail.income.laborIntensity] ?? "neutral")
-      : "neutral",
-  }));
-
-  const easiest = crops.find(
-    (c) =>
-      DIFFICULTY_RANK[c.difficulty] ===
-      Math.min(...crops.map((cc) => DIFFICULTY_RANK[cc.difficulty] ?? 2)),
+  // 산점도 데이터 — parseIncome10a 실값만, 파싱 불가 작물 제외
+  const scatterCrops = crops
+    .map((c) => {
+      const income10a = parseIncome10a(c.detail.income.revenueRange);
+      return income10a !== null
+        ? { id: c.id, name: c.name, difficulty: c.difficulty, income10a }
+        : null;
+    })
+    .filter((c): c is NonNullable<typeof c> => c !== null);
+  const scatterExcluded = crops.filter(
+    (c) => parseIncome10a(c.detail.income.revenueRange) === null,
   );
 
-  const lightestLaborCrop = laborRows
-    .map((r) => crops.find((c) => c.id === r.cropId))
-    .find((c, i) => c != null && laborRows[i].tone === "easy");
+  // 장단점 아코디언 데이터
+  const prosConsItems: ProsConsAccordionItem[] = crops
+    .filter((c) => c.detail.prosCons)
+    .map((c) => ({ id: c.id, name: c.name, prosCons: c.detail.prosCons! }));
 
-  return (
-    <MetricGrid>
-      <CropMetricCard
-        title="예상 소득"
-        unit="만원/10a"
-        icon={Wallet}
-        emphasis="highest"
-        emphasisLabelHighest="가장 높아요"
-        emphasisLabelLowest="가장 낮아요"
-        rows={incomeRows}
-      />
-      <CropMetricCard
-        title="연간 노동일수"
-        unit="일"
-        icon={Clock}
-        emphasis="lowest"
-        emphasisLabelHighest="가장 많아요"
-        emphasisLabelLowest="가장 적어요"
-        rows={workdayRows}
-      />
-      <CropBadgeMetricCard
-        title="재배 난이도"
-        icon={Gauge}
-        rows={difficultyRows}
-        footerLabel={
-          easiest ? (
-            <>
-              {"가장 쉬운 작물 · "}
-              <CropInlineLabel crop={easiest} />
-            </>
-          ) : undefined
-        }
-      />
-      <CropBadgeMetricCard
-        title="노동 강도"
-        icon={Activity}
-        rows={laborRows}
-        footerLabel={
-          lightestLaborCrop ? (
-            <>
-              {"노동 부담이 가장 적어요 · "}
-              <CropInlineLabel crop={lightestLaborCrop} />
-            </>
-          ) : undefined
-        }
-      />
-    </MetricGrid>
-  );
-}
-
-function EconomyView({ crops }: { crops: CropWithDetail[] }) {
   return (
     <>
-      {/* Metric Stat Cards — 노동·강도 핵심 비교 (소득 시각화는 IncomeBars 차트 참조) */}
-      {crops.length >= 2 && <EconomyMetricGrid crops={crops} />}
+      {/* 1. 스코어카드 나란히 */}
+      <ScoreCards items={scoreItems} />
 
-      {/* 예상 소득 차트 */}
-      {crops.length >= 2 && (
-        <section className={s.chartSection}>
-          <h3 className={s.chartSectionTitle}>예상 소득 비교</h3>
-          <IncomeBars
-            crops={crops.map((c) => {
-              const { min, max } = parseIncome(c.detail.income.revenueRange);
-              return {
-                id: c.id,
-                name: c.name,
-                incomeMin: min,
-                incomeMax: max,
-              };
-            })}
-          />
-        </section>
-      )}
-
-      <section aria-labelledby="economy-heading">
-        <div className={s.tableCard}>
-          <div className={s.tableCardHeader}>
-            <h2 id="economy-heading" className={s.tableCardTitle}>
-              수익·비용 상세
-            </h2>
-          </div>
-          <SwipeHint />
-          <div className={s.tableWrap}>
-            <table className={s.table}>
-              <caption className={s.srOnly}>작물별 소득·비용·노동력 비교</caption>
-              <thead>
-                <tr>
-                  <th className={s.th} scope="col">항목</th>
-                  {crops.map((c) => (
-                    <th key={c.id} className={s.th} scope="col">
-                      <span className={s.thLabel}>
-                        <CropImage cropId={c.id} cropName={c.name} size="md" />
-                        {c.name}
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <TextRow
-                  label="예상 소득"
-                  values={crops.map((c) => c.detail.income.revenueRange)}
-                  highlight
-                />
-                <TextRow
-                  label="출처"
-                  values={crops.map(
-                    (c) => c.detail.income.source ?? "농촌진흥청 농업소득자료집",
-                  )}
-                />
-                <SectionDividerRow label="비용·노동" colSpan={crops.length + 1} />
-                <TextRow
-                  label="주요 비용"
-                  values={crops.map((c) => c.detail.income.costNote)}
-                  glossary
-                />
-                <TextRow
-                  label="노동력"
-                  values={crops.map((c) => c.detail.income.laborNote)}
-                  glossary
-                />
-              </tbody>
-            </table>
-          </div>
-        </div>
+      {/* 2. 요약 배너 (결론 먼저) */}
+      <section aria-labelledby="onesummary-heading" className={s.oneSummaryCard}>
+        <h2 id="onesummary-heading" className={s.oneSummaryTitle}>
+          <Icon icon={Lightbulb} size="md" />
+          한줄 요약
+        </h2>
+        <p className={s.oneSummaryText}>{buildComparisonSummary(crops)}</p>
       </section>
-    </>
-  );
-}
 
-/**
- * EconomyView 핵심 metric 비교 그리드.
- * 3 metric: 연간 노동일수 / 노동 강도 / 최소 권장 규모(비교 가능 시)
- */
-function EconomyMetricGrid({ crops }: { crops: CropWithDetail[] }) {
-  const workdayRows: NumericRow[] = crops.map((c) => ({
-    cropId: c.id,
-    cropName: c.name,
-    value: parseAnnualWorkdays(c.detail.income.annualWorkdays),
-  }));
+      {/* 3. 소득 비교 (막대 + 평균선) */}
+      <section className={s.chartSection}>
+        <h3 className={s.chartSectionTitle}>예상 소득 비교</h3>
+        <IncomeBars crops={incomeBarsData} />
+      </section>
 
-  const laborRows: BadgeRow[] = crops.map((c) => ({
-    cropId: c.id,
-    cropName: c.name,
-    badge: c.detail.income.laborIntensity ?? "—",
-    tone: c.detail.income.laborIntensity
-      ? (LABOR_TONE[c.detail.income.laborIntensity] ?? "neutral")
-      : "neutral",
-  }));
+      {/* 4. 난이도 × 소득 산점도 (킬러 시각화) */}
+      {scatterCrops.length >= 2 && (
+        <section className={s.chartSection}>
+          <h3 className={s.chartSectionTitle}>
+            <Icon icon={TrendingUp} size="md" /> 난이도 × 소득
+          </h3>
+          <DifficultyIncomeScatter crops={scatterCrops} />
+          {scatterExcluded.length > 0 && (
+            <p className={s.scatterNote}>
+              {scatterExcluded.map((c) => c.name).join("·")}는 소득 기준이 달라
+              산점도에서 빠졌어요.
+            </p>
+          )}
+        </section>
+      )}
 
-  const incomeRows: NumericRow[] = crops.map((c) => {
-    const { min, max } = parseIncome(c.detail.income.revenueRange);
-    const center = max > 0 ? Math.round((min + max) / 2) : null;
-    return {
-      cropId: c.id,
-      cropName: c.name,
-      value: center,
-      displayText:
-        min === max
-          ? max.toLocaleString()
-          : `${min.toLocaleString()}~${max.toLocaleString()}`,
-    };
-  });
-
-  return (
-    <MetricGrid>
-      <CropMetricCard
-        title="예상 소득"
-        unit="만원/10a"
-        icon={Wallet}
-        emphasis="highest"
-        emphasisLabelHighest="가장 높아요"
-        emphasisLabelLowest="가장 낮아요"
-        rows={incomeRows}
-      />
-      <CropMetricCard
-        title="연간 노동일수"
-        unit="일"
-        icon={Clock}
-        emphasis="lowest"
-        emphasisLabelHighest="가장 많아요"
-        emphasisLabelLowest="가장 적어요"
-        rows={workdayRows}
-      />
-      <CropBadgeMetricCard
-        title="노동 강도"
-        icon={Activity}
-        rows={laborRows}
-      />
-    </MetricGrid>
-  );
-}
-
-function CultivationView({ crops }: { crops: CropWithDetail[] }) {
-  return (
-    <>
-      {/* Metric Stat Cards — 재배 환경 핵심 비교 */}
-      {crops.length >= 2 && <CultivationMetricGrid crops={crops} />}
-
-      <section aria-labelledby="cultivation-heading">
-        <div className={s.tableCard}>
-        <div className={s.tableCardHeader}>
-          <h2 id="cultivation-heading" className={s.tableCardTitle}>
-            재배 환경 상세
-          </h2>
-        </div>
-        <SwipeHint />
-        <div className={s.tableWrap}>
-          <table className={s.table}>
-            <caption className={s.srOnly}>작물별 재배환경·난이도·산지 비교</caption>
-            <thead>
-              <tr>
-                <th className={s.th} scope="col">항목</th>
-                {crops.map((c) => (
-                  <th key={c.id} className={s.th} scope="col">
-                    <span className={s.thLabel}>
-                      <CropImage cropId={c.id} cropName={c.name} size="md" />
-                      {c.name}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              <TextRow label="카테고리" values={crops.map((c) => c.category)} />
-              <TextRow label="난이도" values={crops.map((c) => c.difficulty)} />
-              <TextRow
-                label="재배 시기"
-                values={crops.map((c) => c.growingSeason)}
-              />
-              <SectionDividerRow label="재배환경" colSpan={crops.length + 1} />
-              <TextRow
-                label="기후"
-                values={crops.map((c) => c.detail.cultivation.climate)}
-                glossary
-              />
-              <TextRow
-                label="토양"
-                values={crops.map((c) => c.detail.cultivation.soil)}
-                glossary
-              />
-              <TextRow
-                label="수분"
-                values={crops.map((c) => c.detail.cultivation.water)}
-                glossary
-              />
-              <TextRow
-                label="재식거리"
-                values={crops.map((c) => c.detail.cultivation.spacing)}
-              />
-              <SectionDividerRow label="주요 산지" colSpan={crops.length + 1} />
-              <RegionLinksRow crops={crops} />
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-    </>
-  );
-}
-
-/**
- * CultivationView 핵심 metric 비교 그리드.
- * 3 badge metric: 카테고리 / 난이도 / 재배 시기
- */
-function CultivationMetricGrid({ crops }: { crops: CropWithDetail[] }) {
-  const categoryRows: BadgeRow[] = crops.map((c) => ({
-    cropId: c.id,
-    cropName: c.name,
-    badge: c.category,
-    tone: CATEGORY_TONE[c.category] ?? "neutral",
-  }));
-
-  const difficultyRows: BadgeRow[] = crops.map((c) => ({
-    cropId: c.id,
-    cropName: c.name,
-    badge: c.difficulty,
-    tone: DIFFICULTY_TONE[c.difficulty] ?? "neutral",
-  }));
-
-  const seasonRows: BadgeRow[] = crops.map((c) => ({
-    cropId: c.id,
-    cropName: c.name,
-    badge: c.growingSeason,
-    tone: "neutral",
-  }));
-
-  return (
-    <MetricGrid>
-      <CropBadgeMetricCard
-        title="카테고리"
-        icon={Leaf}
-        rows={categoryRows}
-      />
-      <CropBadgeMetricCard
-        title="재배 난이도"
-        icon={Gauge}
-        rows={difficultyRows}
-      />
-      <CropBadgeMetricCard
-        title="재배 시기"
-        icon={Calendar}
-        rows={seasonRows}
-      />
-    </MetricGrid>
-  );
-}
-
-function ProsConsView({ crops }: { crops: CropWithDetail[] }) {
-  if (!crops.some((c) => c.detail.prosCons)) {
-    return (
-      <section className={s.tableCard}>
-        <div className={s.tableCardHeader}>
+      {/* 5. 장단점 아코디언 */}
+      {prosConsItems.length > 0 ? (
+        <section aria-labelledby="proscons-heading" className={s.prosConsSection}>
+          <h3 id="proscons-heading" className={s.chartSectionTitle}>
+            <Icon icon={Scale} size="md" /> 장단점
+          </h3>
+          <ProsConsAccordion items={prosConsItems} />
+        </section>
+      ) : (
+        <section className={s.prosConsSection}>
           <p className={s.oneSummaryText}>
             선택한 작물의 장단점 자료가 아직 준비되지 않았어요.
           </p>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section aria-labelledby="proscons-heading">
-      <div className={s.tableCard}>
-        <div className={s.tableCardHeader}>
-          <h2 id="proscons-heading" className={s.tableCardTitle}>
-            <Icon icon={Scale} size="lg" /> 장단점 비교
-          </h2>
-        </div>
-        <div className={s.prosConsGrid}>
-          {crops.map((crop) => (
-            <ProsConsColumn key={crop.id} crop={crop} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── Sub Components ───
-
-function TextRow({
-  label,
-  values,
-  highlight = false,
-  glossary = false,
-}: {
-  label: string;
-  values: (string | null)[];
-  highlight?: boolean;
-  glossary?: boolean;
-}) {
-  return (
-    <tr>
-      <td className={s.tdLabel}>{label}</td>
-      {values.map((v, i) => (
-        <td key={i} className={highlight ? s.tdHighlight : s.tdValue}>
-          {v
-            ? glossary
-              ? <AutoGlossary text={v} />
-              : formatCellValue(v)
-            : "-"}
-        </td>
-      ))}
-    </tr>
-  );
-}
-
-function formatCellValue(text: string) {
-  const parenIdx = text.indexOf(" (");
-  if (parenIdx === -1) return text;
-  return (
-    <>
-      {text.slice(0, parenIdx)}
-      <br />
-      <span className={s.tdSub}>{text.slice(parenIdx + 1)}</span>
-    </>
-  );
-}
-
-function SectionDividerRow({
-  label,
-  colSpan,
-}: {
-  label: string;
-  colSpan: number;
-}) {
-  return (
-    <tr className={s.dividerRow}>
-      <td colSpan={colSpan} className={s.dividerCell}>
-        {label}
-      </td>
-    </tr>
-  );
-}
-
-/** 지역명 → Province ID 룩업 맵 */
-const PROVINCE_ID_BY_NAME = new Map(
-  PROVINCES.map((p) => [p.name, p.id]),
-);
-
-function RegionLinksRow({ crops }: { crops: CropWithDetail[] }) {
-  return (
-    <tr>
-      <td className={s.tdLabel}>지역</td>
-      {crops.map((c, i) => (
-        <td key={i} className={s.tdValue}>
-          {c.detail.majorRegions.map((region, ri) => {
-            const provinceId = PROVINCE_ID_BY_NAME.get(region);
-            return (
-              <span key={ri}>
-                {ri > 0 && ", "}
-                {provinceId ? (
-                  <Link
-                    href={`/regions/${provinceId}`}
-                    className={s.regionLink}
-                  >
-                    {region}
-                  </Link>
-                ) : (
-                  region
-                )}
-              </span>
-            );
-          })}
-        </td>
-      ))}
-    </tr>
-  );
-}
-
-function ProsConsColumn({ crop }: { crop: CropWithDetail }) {
-  const pc = crop.detail.prosCons;
-  if (!pc) return null;
-
-  return (
-    <div className={s.prosConsCol}>
-      <h3 className={s.prosConsColTitle}>
-        <CropImage cropId={crop.id} cropName={crop.name} size="md" />
-        {crop.name}
-      </h3>
-
-      {/* 종합 (결론 먼저) */}
-      {pc.verdict && (
-        <div className={s.verdictCard}>
-          <Icon icon={Lightbulb} size="sm" />
-          <span className={s.verdictText}><AutoGlossary text={pc.verdict} /></span>
-        </div>
+        </section>
       )}
 
-      {/* 장점 */}
-      <div className={s.prosGroup}>
-        <p className={s.prosGroupLabel}>
-          <Icon icon={ThumbsUp} size="xs" /> 장점
-        </p>
-        {pc.pros.map((item, idx) => (
-          <div key={idx} className={s.prosItem}>
-            <span className={s.prosBadge}>
-              {CAT_LABEL[item.category] ?? item.category}
-            </span>
-            <span className={s.prosConsText}><AutoGlossary text={item.text} /></span>
-          </div>
-        ))}
-      </div>
-
-      {/* 단점 */}
-      <div className={s.consGroup}>
-        <p className={s.consGroupLabel}>
-          <Icon icon={AlertTriangle} size="xs" /> 단점
-        </p>
-        {pc.cons.map((item, idx) => (
-          <div key={idx} className={s.consItem}>
-            <span className={s.consBadge}>
-              {CAT_LABEL[item.category] ?? item.category}
-            </span>
-            <span className={s.prosConsText}><AutoGlossary text={item.text} /></span>
-          </div>
-        ))}
-      </div>
-    </div>
+      {/* 데이터 출처 */}
+      <DataSource
+        source="농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)"
+        note="소득 = 판매 수입 − 생산 경비 (인건비·자재비 등). 재배 환경, 기술 수준에 따라 달라질 수 있어요."
+      />
+    </>
   );
 }

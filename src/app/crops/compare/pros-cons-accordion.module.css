@@ -1,0 +1,192 @@
+/* ==========================================================================
+   장단점 아코디언 — native <details>/<summary>
+   ========================================================================== */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  background: var(--card, #fff);
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .item {
+    border-radius: 18px;
+  }
+}
+
+/* ---- summary (헤더 / 토글) ---- */
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -2px;
+  border-radius: 16px;
+}
+
+@media (hover: hover) {
+  .summary:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
+  }
+}
+
+.summaryLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--foreground, #0d2e27);
+  min-width: 0;
+}
+
+.summaryMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.summaryCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+  color: var(--muted-foreground, #9ca3af);
+}
+
+.item[open] .chevron {
+  transform: rotate(180deg);
+}
+
+/* ---- 펼친 본문 ---- */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 16px 18px;
+  border-top: 1px solid var(--border, #f3f4f6);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prosGroupLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: #1a5c3a;
+  margin: 0;
+}
+
+.consGroupLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: #7a5e20;
+  margin: 0;
+}
+
+.prosItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f0faf4;
+  border: 1px solid #d4e8dc;
+}
+
+.consItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #faf8f0;
+  border: 1px solid #e8e0c8;
+}
+
+.prosBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #dceee3;
+  color: #1a5c3a;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.consBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #ede5d0;
+  color: #7a5e20;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.itemText {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
+  color: var(--foreground, #333);
+}
+
+/* ---- verdict (결론 먼저) ---- */
+.verdictCard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--muted, #f9fafb);
+  color: var(--primary, #1b6b5a);
+}
+
+.verdictText {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  line-height: var(--lh-normal);
+  color: var(--foreground, #333);
+}
