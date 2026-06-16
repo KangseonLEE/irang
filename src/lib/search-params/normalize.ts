@@ -319,12 +319,13 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     // 2026-05-25: sort 추가 (name/difficulty) — Sprint 2 페이지별 정렬 일관성
     // 2026-05-29: view 추가 (카드/목록 토글 — 누락 시 308 strip으로 table view 무력화)
     // 2026-05-30: page 추가 (카드/테이블 20개 페이지네이션 — 누락 시 ?page=2가 308 strip)
+    // 2026-06-16: sort income 추가 (실측 검색 의도 "수익순" — 누락 시 ?sort=income이 308 strip되어 P0 딥링크 무력화)
     allowedKeys: ["category", "difficulty", "q", "persona", "sort", "view", "page"],
     enumValidators: {
       category: ["전체", "식량", "채소", "과수", "특용"],
       difficulty: ["전체", "쉬움", "보통", "어려움"],
       persona: ["family", "farmYouth", "elderRural", "commuter", "balanced"],
-      sort: ["name", "difficulty"],
+      sort: ["name", "difficulty", "income"],
       view: ["table", "card"],
     },
     regexValidators: {
