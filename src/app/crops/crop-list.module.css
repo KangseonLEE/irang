@@ -56,6 +56,14 @@
   background: color-mix(in srgb, var(--muted-foreground, #6b7280) 12%, transparent);
 }
 
+/* ── 예상 수익(10a) ── */
+.income {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground, #111827);
+  white-space: nowrap;
+}
+
 /* ── 모바일: 테이블 → stacked card (@media 격리, 데스크탑 무변경) ── */
 @media (max-width: 639px) {
   .table {

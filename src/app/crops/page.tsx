@@ -80,7 +80,9 @@ export default async function CropsPage({ searchParams }: PageProps) {
       ? (params.persona as PersonaId)
       : undefined;
   const currentSort: CropSortKey =
-    params.sort === "difficulty" ? "difficulty" : DEFAULT_CROP_SORT;
+    params.sort === "difficulty" || params.sort === "income"
+      ? params.sort
+      : DEFAULT_CROP_SORT;
   const viewMode: ViewMode = params.view === "table" ? "table" : "card";
 
   // 카테고리 필터링

@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ResponsiveContainer,
   PieChart,
@@ -180,6 +182,8 @@ export function CropDashboard({
   incomeFacts,
   excludedIncomeNames,
 }: CropDashboardProps) {
+  const router = useRouter();
+
   // 인터랙티브: 카테고리 선택 시 나머지 차트 연동 필터 (null = 전체)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -273,6 +277,8 @@ export function CropDashboard({
       .sort((a, b) => b.income10a - a.income10a)
       .slice(0, INCOME_TOP_N)
       .map((f) => ({
+        id: f.id,
+        name: f.name,
         label: `${f.emoji} ${f.name}`,
         income10a: f.income10a,
         difficulty: f.difficulty,
@@ -629,12 +635,30 @@ export function CropDashboard({
                       opacity={i === 0 ? 1 : 0.88}
                       stroke={i === 0 ? BRAND : "none"}
                       strokeWidth={i === 0 ? 1.5 : 0}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => router.push(`/crops/${entry.id}`)}
                     />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}
+          {/* 막대 클릭 = 작물 상세 이동. 키보드·SR 사용자용 접근 가능한 링크 목록
+              (도넛 차트의 .chips 범례 패턴 준용 — Cell은 포커스 불가) */}
+          {incomeData.length > 0 && (
+            <p className={s.incomeHint}>막대나 작물명을 누르면 상세로 이동해요.</p>
+          )}
+          <div className={s.incomeLinks}>
+            {incomeData.map((entry) => (
+              <Link
+                key={entry.id}
+                href={`/crops/${entry.id}`}
+                className={s.incomeLink}
+              >
+                {entry.label}
+              </Link>
+            ))}
+          </div>
           <p className={s.incomeNote}>
             10a(1,000㎡) 기준 · 임산물 등 기준이 다른 {excludedIncomeNames.length}종은
             제외 · 출처: 농촌진흥청 농업소득자료집 2024·통계청

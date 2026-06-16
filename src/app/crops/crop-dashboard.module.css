@@ -156,6 +156,46 @@
   color: var(--muted-foreground, #6b7280);
 }
 
+/* ── 수익 차트 → 작물 상세 이동 안내 + 접근 가능한 링크 목록 ── */
+.incomeHint {
+  margin: 10px 0 0;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.incomeLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.incomeLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: 20px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--foreground, #374151);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+@media (hover: hover) {
+  .incomeLink:hover {
+    border-color: var(--primary, #1b6b5a);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  }
+}
+
+.incomeLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
 /* ── 클릭 가능한 카테고리 칩 ── */
 .chips {
   display: flex;

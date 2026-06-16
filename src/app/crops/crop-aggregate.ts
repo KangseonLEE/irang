@@ -124,6 +124,7 @@ export function buildCropRows(crops: CropInfo[]): CropRow[] {
       difficulty: crop.difficulty,
       growingSeason: crop.growingSeason,
       laborIntensity: detail?.income.laborIntensity ?? null,
+      income10a: detail ? parseIncome10a(detail.income.revenueRange) : null,
       majorRegions:
         detail && detail.majorRegions.length > 0
           ? detail.majorRegions.slice(0, 3).map(toShort).join(", ")

@@ -15,6 +15,8 @@ export interface CropRow {
   growingSeason: string;
   /** CROP_DETAILS.income.laborIntensity, 없으면 null */
   laborIntensity: "낮음" | "보통" | "높음" | null;
+  /** 10a당 연소득(만원) — parseIncome10a, 파싱 불가 시 null */
+  income10a: number | null;
   /** majorRegions 상위 2~3개 join, 없으면 "" */
   majorRegions: string;
 }
@@ -64,6 +66,7 @@ export function CropList({ rows }: CropListProps) {
             <th>작물</th>
             <th>카테고리</th>
             <th>난이도</th>
+            <th>예상 수익</th>
             <th>재배 시기</th>
             <th>노동강도</th>
             <th>주산지</th>
@@ -94,6 +97,15 @@ export function CropList({ rows }: CropListProps) {
                 <span className={`${s.tag} ${difficultyClass(c.difficulty)}`}>
                   {c.difficulty}
                 </span>
+              </td>
+              <td data-label="예상 수익">
+                {c.income10a !== null ? (
+                  <span className={s.income}>
+                    {c.income10a.toLocaleString()}만 원
+                  </span>
+                ) : (
+                  <span className={dt.muted}>—</span>
+                )}
               </td>
               <td className={dt.muted} data-label="재배 시기">
                 {c.growingSeason}

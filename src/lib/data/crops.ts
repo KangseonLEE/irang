@@ -3988,8 +3988,9 @@ export const CROP_DETAILS: CropDetailInfo[] = [
  * 정렬 키:
  *  name:       가나다순 (한국어 collator)
  *  difficulty: 난이도순 (쉬움 → 보통 → 어려움)
+ *  income:     수익순 (10a당 연소득 내림차순. 파싱 불가 작물은 후순위)
  */
-export type CropSortKey = "name" | "difficulty";
+export type CropSortKey = "name" | "difficulty" | "income";
 
 export const CROP_SORT_OPTIONS: readonly {
   value: CropSortKey;
@@ -3997,6 +3998,7 @@ export const CROP_SORT_OPTIONS: readonly {
 }[] = [
   { value: "name", label: "가나다순" },
   { value: "difficulty", label: "난이도순" },
+  { value: "income", label: "수익순" },
 ];
 
 export const DEFAULT_CROP_SORT: CropSortKey = "name";
@@ -4009,12 +4011,34 @@ const DIFFICULTY_RANK: Record<CropInfo["difficulty"], number> = {
 
 const KO_COLLATOR = new Intl.Collator("ko-KR");
 
+/**
+ * 10a당 연소득(만원)을 작물별로 파싱한 맵. 정렬 시 1회 계산해 재사용.
+ * revenueRange 선두 패턴이 아닌 작물(임산물 등 기준 상이)은 null → 후순위.
+ * crop-aggregate의 parseIncome10a와 동일 규칙(import 순환 회피 위해 로컬 정의).
+ */
+function parseCropIncome10a(revenueRange: string): number | null {
+  const m = revenueRange.match(
+    /^(10a|1ha)당\s*(?:시설\s*)?약\s*([\d,]+)\s*(?:~\s*([\d,]+))?\s*만\s*원/,
+  );
+  if (!m) return null;
+  const lo = Number(m[2].replace(/,/g, ""));
+  const hi = m[3] ? Number(m[3].replace(/,/g, "")) : lo;
+  if (!Number.isFinite(lo) || !Number.isFinite(hi)) return null;
+  let value = (lo + hi) / 2;
+  if (m[1] === "1ha") value /= 10;
+  return Math.round(value);
+}
+
+const detailIncomeById = new Map(
+  CROP_DETAILS.map((d) => [d.id, parseCropIncome10a(d.income.revenueRange)]),
+);
+
 export function sortCrops(
   crops: CropInfo[],
   sort: CropSortKey,
 ): CropInfo[] {
+  const indexed = crops.map((c, i) => ({ c, i }));
   if (sort === "difficulty") {
-    const indexed = crops.map((c, i) => ({ c, i }));
     indexed.sort((a, b) => {
       const ar = DIFFICULTY_RANK[a.c.difficulty] ?? 99;
       const br = DIFFICULTY_RANK[b.c.difficulty] ?? 99;
@@ -4026,8 +4050,25 @@ export function sortCrops(
     });
     return indexed.map((x) => x.c);
   }
+  if (sort === "income") {
+    indexed.sort((a, b) => {
+      const ai = detailIncomeById.get(a.c.id) ?? null;
+      const bi = detailIncomeById.get(b.c.id) ?? null;
+      // 파싱 불가(null)는 후순위로 밀어냄
+      if (ai === null && bi === null) {
+        const cmp = KO_COLLATOR.compare(a.c.name, b.c.name);
+        return cmp !== 0 ? cmp : a.i - b.i;
+      }
+      if (ai === null) return 1;
+      if (bi === null) return -1;
+      if (ai !== bi) return bi - ai; // 내림차순
+      // 같은 수익이면 가나다순
+      const cmp = KO_COLLATOR.compare(a.c.name, b.c.name);
+      return cmp !== 0 ? cmp : a.i - b.i;
+    });
+    return indexed.map((x) => x.c);
+  }
   // name (default)
-  const indexed = crops.map((c, i) => ({ c, i }));
   indexed.sort((a, b) => {
     const cmp = KO_COLLATOR.compare(a.c.name, b.c.name);
     if (cmp !== 0) return cmp;

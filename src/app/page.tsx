@@ -23,6 +23,7 @@ import { ScrollIndicator } from "@/components/landing/scroll-indicator";
 import { ProgramsSection } from "@/components/landing/programs-section";
 import { deriveStatus, daysUntilDeadline, isUnannounced } from "@/lib/program-status";
 import { GovSupportGuide } from "@/components/landing/gov-support-guide";
+import { CropGlanceSection } from "@/components/landing/crop-glance-section";
 import { NewsTabsV2Loader } from "@/components/landing/news-tabs-v2-loader";
 import { interviews } from "@/lib/data/landing";
 import { PROGRAMS } from "@/lib/data/programs";
@@ -166,6 +167,11 @@ export default function HomePage() {
       {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}
       <ScrollReveal>
         <TrendCostSection />
+      </ScrollReveal>
+
+      {/* ═══ 4-2. 작물 한눈에 (수익 TOP N + /crops 딥링크) ═══ */}
+      <ScrollReveal>
+        <CropGlanceSection />
       </ScrollReveal>
 
       {/* ═══ 5. 농촌 정착 길잡이 (연한 그린 배경) ═══ */}
