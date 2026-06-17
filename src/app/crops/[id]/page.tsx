@@ -356,7 +356,8 @@ export default async function CropDetailPage({
             alt={data.name}
             fill
             sizes="(max-width: 1024px) 100vw, 1280px"
-            style={{ objectFit: "cover" }}
+            className={s.heroImage}
+            style={{ objectFit: "contain" }}
             priority
           />
           <div className={s.heroOverlay} />

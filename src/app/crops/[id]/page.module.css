@@ -100,7 +100,13 @@
   position: relative;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: #F0F7F4;
+  background: var(--card, #fff);
+}
+
+/* 흰 배경 불투명 일러스트 — 박스도 흰색이라 edge 동화. padding 축소로 패널을 시원하게
+   채움(회장 결재: 흰색 통일 + 카드 채움, 2026-06). contain 유지라 작물 잘림 0. */
+.heroImage {
+  padding: 8px;
 }
 
 @media (min-width: 900px) {
@@ -110,11 +116,10 @@
   }
 }
 
+/* contain 전환으로 일러스트가 연민트 패널 안에 떠 있어, 하단 dark 그라데이션은
+   연민트 위 얼룩처럼 보임. heroPill이 자체 frosted 배경으로 대비를 확보하므로 제거. */
 .heroOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.25) 100%);
-  z-index: 1;
+  display: none;
 }
 
 .heroPills {

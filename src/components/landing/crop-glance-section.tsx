@@ -11,7 +11,7 @@
  */
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, TrendingUp, Sprout } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { parseIncome10a } from "@/app/crops/crop-aggregate";
 import { getCropImageSrc } from "@/lib/crop-image";
@@ -74,7 +74,7 @@ export function CropGlanceSection() {
           <h2 className={s.title}>
             돈 되는 작물, <em>한눈에</em>
           </h2>
-          <p className={s.sub}>10a당 연소득이 높은 작물부터 정리했어요</p>
+          <p className={s.sub}>연소득이 높은 작물부터 정리했어요</p>
         </div>
         <Link href="/crops" className={s.headerLink}>
           전체 작물 <ArrowRight size={16} aria-hidden="true" />
@@ -90,6 +90,9 @@ export function CropGlanceSection() {
             data-rank={i + 1}
           >
             <span className={s.rankCardImage}>
+              <span className={s.rankNumber} aria-hidden="true">
+                {i + 1}
+              </span>
               <Image
                 src={getCropImageSrc(crop.id)}
                 alt={crop.name}
@@ -102,12 +105,10 @@ export function CropGlanceSection() {
               />
             </span>
             <div className={s.rankCardBody}>
-              <span className={s.rankNumber} aria-hidden="true">
-                {i + 1}
-              </span>
               <span className={s.cropName}>{crop.name}</span>
               <span className={s.cropIncome}>{formatIncome(crop.income)}만원</span>
-              <span className={s.cropIncomeLabel}>10a당 연소득</span>
+              {/* 10a = 1,000㎡ ≈ 302.5평 → 직관성 위해 "약 300평"으로 표기 (이 섹션 한정). */}
+              <span className={s.cropIncomeLabel}>약 300평당 연소득</span>
               <span className={s.chipRow}>
                 <span className={`${s.chip} ${difficultyChipClass(crop.difficulty)}`}>
                   {crop.difficulty}
@@ -118,24 +119,17 @@ export function CropGlanceSection() {
           </Link>
         ))}
 
-        {/* 딥링크 2종 — 그리드 하단 풀폭 */}
+        {/* 딥링크 2종 — 그리드 하단 풀폭, 항상 가로 2열, 1줄 텍스트 */}
         <div className={s.links}>
           <Link href="/crops?sort=income" className={s.deepLink}>
-            <TrendingUp size={16} aria-hidden="true" />
-            <span className={s.deepLinkText}>
-              <span className={s.deepLinkTitle}>수익 높은 작물 보기</span>
-              <span className={s.deepLinkSub}>연소득순으로 한눈에</span>
-            </span>
+            <span className={s.deepLinkTitle}>수익 높은 작물</span>
             <ArrowRight size={15} className={s.deepArrow} aria-hidden="true" />
           </Link>
           <Link href="/crops?difficulty=쉬움" className={s.deepLink}>
-            <Sprout size={16} aria-hidden="true" />
-            <span className={s.deepLinkText}>
-              <span className={s.deepLinkTitle}>처음 해도 괜찮은 작물</span>
-              <span className={s.deepLinkSub}>난이도 쉬운 작물만</span>
-            </span>
+            <span className={s.deepLinkTitle}>초보 추천 작물</span>
             <ArrowRight size={15} className={s.deepArrow} aria-hidden="true" />
           </Link>
+          <p className={s.linksHint}>연소득순·난이도순으로 전체 작물을 둘러봐요</p>
         </div>
       </div>
     </section>

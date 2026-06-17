@@ -5,12 +5,13 @@
   flex-shrink: 0;
   object-fit: cover;
   vertical-align: middle;
-  background: var(--muted, #f3f4f6);
-  border-radius: 5px;
+  background: var(--card, #fff);
+  border-radius: 6px;
 }
 
+/* radius 통일 — 20~24px 이미지: 6px / 32~40px: 8px (ux 권고) */
 .thumbInline {
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .thumbMd {

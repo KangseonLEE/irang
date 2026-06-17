@@ -127,7 +127,9 @@
 /* ── 랭킹 카드 (좌 이미지 + 우 텍스트, 가로형) ── */
 .rankCard {
   display: flex;
-  align-items: stretch;
+  /* center: 이미지 박스가 카드 높이(텍스트 4줄)로 stretch되지 않게 — 정사각 유지 보장.
+     stretch면 .rankCardImage height가 카드 높이로 늘어나 세로 직사각이 됨. */
+  align-items: center;
   border-radius: 16px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
@@ -143,22 +145,31 @@
   outline-offset: 2px;
 }
 
+/* 정사각 고정 박스 — flex: 0 0 (가로 고정), align-self: stretch 방지(부모 align-items: center).
+   aspect-ratio: 1 로 height를 width에 묶어 카드 높이와 무관하게 항상 정사각.
+   일러스트(파프리카 등)가 캔버스 가장자리까지 그려진 경우 박스 edge에 닿아 잘려 보이므로,
+   여유 padding으로 일러스트를 박스 안쪽에 축소 배치 → 전 작물 일관된 여백. */
 .rankCardImage {
-  flex: 0 0 80px;
-  width: 80px;
-  height: 80px;
+  position: relative;
+  flex: 0 0 88px;
+  width: 88px;
+  aspect-ratio: 1;
+  align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  background: #f0f7f4;
+  /* 흰 배경 불투명 일러스트(alpha 없음) — 박스도 흰색이라 edge가 닿아도 완전 동화.
+     padding 최소화로 일러스트가 박스를 꽉 채움(회장 결재: 흰색 통일 + 카드 채움, 2026-06).
+     object-fit: contain 유지라 작물 형태 잘림 0 — 흰 여백만 박스 흰색에 녹음. */
+  padding: 2px;
+  background: var(--card, #fff);
 }
 
 @media (min-width: 768px) {
   .rankCardImage {
-    flex: 0 0 96px;
-    width: 96px;
-    height: 96px;
+    flex: 0 0 100px;
+    width: 100px;
+    padding: 3px;
   }
 }
 
@@ -179,11 +190,21 @@
   position: relative;
 }
 
+/* 순위 뱃지 — 이미지 좌상단 오버레이 (컬리 레퍼런스). 흰 pill 위 숫자. */
 .rankNumber {
   position: absolute;
-  top: 10px;
-  right: 12px;
-  font-size: 18px;
+  top: 4px;
+  left: 4px;
+  z-index: 1;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--card, #fff) 88%, transparent);
+  font-size: 13px;
   font-weight: 800;
   color: var(--muted-foreground, #6b7280);
   line-height: 1;
@@ -192,17 +213,21 @@
 
 @media (min-width: 768px) {
   .rankNumber {
-    font-size: 22px;
+    top: 6px;
+    left: 6px;
+    min-width: 22px;
+    height: 22px;
+    font-size: 14px;
   }
 }
 
-/* 1위만 순위 숫자 강조 (히어로 크기 강조 폐기 → 컬러만) */
+/* 1위만 순위 뱃지 강조 (히어로 크기 강조 폐기 → primary 채움) */
 .rankCard[data-rank="1"] .rankNumber {
-  color: var(--primary, #1b6b5a);
+  background: var(--primary, #1b6b5a);
+  color: #fff;
 }
 
 .cropName {
-  margin-right: 32px;
   font-size: 15px;
   font-weight: 700;
   color: var(--foreground, #111827);
@@ -286,26 +311,38 @@
   }
 }
 
-/* ── 딥링크 2종 (그리드 하단 풀폭) ── */
+/* ── 딥링크 2종 (그리드 하단 풀폭, 항상 가로 2열, 중앙정렬 1줄) ── */
 .links {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
   margin-top: 4px;
 }
 
 @media (min-width: 640px) {
   .links {
-    grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
+}
+
+/* ── 딥링크 아래 보조 설명 (작게, 중앙, muted) ── */
+.linksHint {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: var(--lh-normal);
+  color: var(--muted-foreground, #9ca3af);
 }
 
 .deepLink {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 12px 10px;
   border-radius: 14px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
@@ -315,32 +352,22 @@
     box-shadow 0.15s;
 }
 
-.deepLink svg {
-  color: var(--primary, #1b6b5a);
-  flex-shrink: 0;
-}
-
-.deepLinkText {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
+@media (min-width: 640px) {
+  .deepLink {
+    gap: 8px;
+    padding: 14px 16px;
+  }
 }
 
 .deepLinkTitle {
   font-size: var(--fs-body-sm);
   font-weight: 700;
   color: var(--foreground, #111827);
-}
-
-.deepLinkSub {
-  font-size: var(--fs-caption-sm, 12px);
-  font-weight: 500;
-  color: var(--muted-foreground, #9ca3af);
+  white-space: nowrap;
 }
 
 .deepArrow {
-  margin-left: auto;
+  flex-shrink: 0;
   color: var(--muted-foreground, #9ca3af);
   transition: transform 0.15s;
 }

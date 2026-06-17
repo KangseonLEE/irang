@@ -180,8 +180,8 @@
   flex-shrink: 0;
   width: 32px;
   height: 32px;
-  border-radius: 6px;
-  background: var(--muted, #f9fafb);
+  border-radius: 8px;
+  background: var(--card, #fff);
   overflow: hidden;
 }
 
@@ -345,7 +345,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 11;
-  background: linear-gradient(180deg, #d1e7df 0%, #f3f4f6 100%);
+  background: var(--card, #fff);
   overflow: hidden;
 }
 .cardImage { object-fit: cover; }
