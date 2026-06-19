@@ -6,13 +6,14 @@ import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ChevronDown, ChevronUp } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchAll, hasExactMatch, buildSearchAnswer, POPULAR_TAGS, type SearchItem, type SearchAnswer } from "@/lib/data/search-index";
+import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, POPULAR_TAGS, type SearchItem, type SearchAnswer } from "@/lib/data/search-index";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
 import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
 import { ResultCard } from "@/components/search/result-card";
 import { SearchAnswerCard } from "@/components/search/search-answer-card";
+import { CropKnowledgePanel } from "@/components/search/crop-knowledge-panel";
 import s from "./page.module.css";
 
 /** 답변 카드와 중복되는 synthetic guide 카드인지 판별 — 그룹 노출에서 제외 */
@@ -91,11 +92,18 @@ function SearchPageContent() {
   // 답변 카드 (Featured Snippet) — intent 감지 시 결과 위에 구조화된 답 노출
   const answer = useMemo(() => (query ? buildSearchAnswer(query) : null), [query]);
 
-  // 답변 카드가 있으면 중복 synthetic 카드를 그룹·집계에서 제외
+  // 지식 패널 (Knowledge Panel) — 답변 카드가 없을 때만(=bare 작물 엔티티)
+  const panel = useMemo(() => (query && !answer ? buildCropPanel(query) : null), [query, answer]);
+
+  // 연관 검색어 (Related Searches) — 결과 하단 탐색 확장
+  const relatedSearches = useMemo(() => (query ? buildRelatedSearches(query) : []), [query]);
+
+  // 답변/패널이 있으면 중복 카드를 그룹·집계에서 제외
   const displayResults = useMemo(() => {
-    if (!answer) return results;
-    return results.filter((r) => !isAnswerSynthetic(r.id, answer));
-  }, [results, answer]);
+    if (answer) return results.filter((r) => !isAnswerSynthetic(r.id, answer));
+    if (panel) return results.filter((r) => !(r.type === "crop" && r.id === panel.cropId));
+    return results;
+  }, [results, answer, panel]);
 
   // 관련도 기반 동적 섹션 순서 — searchAll 결과 순서에서 도출
   const grouped = useMemo(() => {
@@ -316,8 +324,15 @@ function SearchPageContent() {
         </div>
       )}
 
+      {/* 지식 패널 (Knowledge Panel) — 단일 작물 엔티티 검색 시 */}
+      {query && panel && (
+        <div className={s.answerWrap}>
+          <CropKnowledgePanel panel={panel} />
+        </div>
+      )}
+
       {/* 정확히 일치하는 항목 없음 안내 — 결과 위에 배치 (긍정 톤, 2026-05-22) */}
-      {query && !answer && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(query, results) && (
+      {query && !answer && !panel && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(query, results) && (
         <div className={s.noExactMatch}>
           <div className={s.noExactMatchContent}>
             <p className={s.noExactMatchText}>
@@ -438,6 +453,28 @@ function SearchPageContent() {
             label="찾는 정보가 없나요? 정보 추가 요청하기"
             className={s.requestLink}
           />
+        </div>
+      )}
+
+      {/* 연관 검색어 — 결과가 있을 때 하단에 탐색 확장 */}
+      {query && totalCount > 0 && relatedSearches.length > 0 && (
+        <div className={s.relatedSection}>
+          <h2 className={s.relatedTitle}>
+            <TrendingUp size={16} aria-hidden="true" />
+            함께 찾는 검색어
+          </h2>
+          <div className={s.relatedTags}>
+            {relatedSearches.map((rq) => (
+              <Link
+                key={rq}
+                href={`/search?q=${encodeURIComponent(rq)}`}
+                className={s.relatedTag}
+              >
+                <Search size={12} aria-hidden="true" />
+                {rq}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 

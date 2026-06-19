@@ -11,6 +11,8 @@ import {
   getQuerySuggestions,
   detectIntent,
   buildSearchAnswer,
+  buildCropPanel,
+  buildRelatedSearches,
 } from "@/lib/data/search-index";
 
 // ─── 기본 검색 동작 ───
@@ -609,5 +611,70 @@ describe("buildSearchAnswer (답변 카드 데이터)", () => {
   it("답변 카드 CTA href는 항상 유효한 내부 경로다", () => {
     const a = buildSearchAnswer("딸기 수익");
     expect(a?.primaryHref.startsWith("/crops/")).toBe(true);
+  });
+});
+
+// ─── 지식 패널 (Knowledge Panel) — buildCropPanel (P1, 6/19) ───
+describe("buildCropPanel (지식 패널 데이터)", () => {
+  it("'감귤'(단일 작물) → 패널 + facts + 주산지 + sitelinks + 관련작물", () => {
+    const p = buildCropPanel("감귤");
+    expect(p).not.toBeNull();
+    expect(p?.cropName).toBe("감귤");
+    expect(p?.facts.length).toBeGreaterThan(0);
+    expect(p?.regions.length).toBeGreaterThan(0);
+    expect(p?.sitelinks.length).toBeGreaterThan(0);
+    expect(p?.relatedCrops.length).toBeGreaterThan(0);
+  });
+
+  it("관련작물은 실제 CROPS id로 연결된다", () => {
+    const p = buildCropPanel("사과");
+    for (const rc of p?.relatedCrops ?? []) {
+      expect(rc.id).toBeTruthy();
+      expect(rc.name).toBeTruthy();
+    }
+  });
+
+  it("'감귤 소득'(intent 검색) → null (답변 카드가 처리, 상호배타)", () => {
+    expect(buildCropPanel("감귤 소득")).toBeNull();
+  });
+
+  it("'서울'(작물 아님) → null", () => {
+    expect(buildCropPanel("서울")).toBeNull();
+  });
+
+  it("패널 facts 값은 괄호 앞 핵심부만 노출돼 과도하게 길지 않다", () => {
+    const p = buildCropPanel("감귤");
+    const revenue = p?.facts.find((f) => f.label === "평균소득");
+    expect(revenue?.value).not.toContain("(");
+  });
+});
+
+// ─── 연관 검색어 (Related Searches) — buildRelatedSearches (P2, 6/19) ───
+describe("buildRelatedSearches (연관 검색어)", () => {
+  it("작물 검색 → context 확장 + 관련작물 연관어", () => {
+    const r = buildRelatedSearches("감귤");
+    expect(r).toContain("감귤 소득");
+    expect(r.length).toBeGreaterThan(0);
+  });
+
+  it("모든 연관어는 실제 결과를 반환한다 (dead 칩 차단)", () => {
+    for (const q of ["감귤", "딸기 소득", "융자"]) {
+      for (const rel of buildRelatedSearches(q)) {
+        expect(searchAll(rel).length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("연관어에 현재 검색어 자신은 포함되지 않는다", () => {
+    const r = buildRelatedSearches("감귤");
+    expect(r).not.toContain("감귤");
+  });
+
+  it("일반 검색 → 인기 키워드 기반 연관어", () => {
+    expect(buildRelatedSearches("융자").length).toBeGreaterThan(0);
+  });
+
+  it("최대 6개로 제한된다", () => {
+    expect(buildRelatedSearches("감귤").length).toBeLessThanOrEqual(6);
   });
 });

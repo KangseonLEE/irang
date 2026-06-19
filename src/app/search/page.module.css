@@ -316,6 +316,62 @@
   margin: 4px 0 20px;
 }
 
+/* 연관 검색어 — 결과 하단 탐색 확장 (좌측정렬) */
+.relatedSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+.relatedTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+}
+.relatedTitle > svg {
+  color: var(--primary);
+}
+.relatedTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.relatedTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 9999px;
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted-foreground);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+}
+.relatedTag > svg {
+  color: var(--muted-foreground);
+}
+.relatedTag:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .relatedTag:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 6%, transparent);
+  }
+}
+
 /* Phase A-2 (2026-05-15) — 섹션 카드형 그룹핑 (네이버 스토어 #16 스타일):
    각 섹션을 흰 배경 카드 컨테이너로 묶어 결과 그룹 시각적 분리.
    내부 .grid 카드는 그대로 유지 (carved-out 안 함) — border가 두 번 겹쳐도

@@ -60,7 +60,9 @@ export interface SearchItem {
 }
 
 // Re-export from search-tags for backward compatibility
-export { POPULAR_TAGS, type SearchTag } from "./search-tags";
+import { POPULAR_TAGS, type SearchTag } from "./search-tags";
+export { POPULAR_TAGS };
+export type { SearchTag };
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -1704,4 +1706,147 @@ export function buildSearchAnswer(query: string): SearchAnswer | null {
       };
     }
   }
+}
+
+
+// ---------------------------------------------------------------------------
+// 지식 패널 (Knowledge Panel) — 단일 작물 정확 검색 시 엔티티 요약을 결과 최상단에.
+// P1(6/19 회장 결재). 답변 카드(intent)와 상호배타 — bare 엔티티 검색 전용.
+// ---------------------------------------------------------------------------
+
+export interface CropPanelSitelink {
+  label: string;
+  href: string;
+}
+
+export interface CropPanelRelated {
+  id: string;
+  name: string;
+  emoji: string;
+}
+
+export interface CropPanel {
+  cropId: string;
+  cropName: string;
+  emoji: string;
+  category: string;
+  difficulty: string;
+  summary: string;
+  facts: SearchAnswerFact[];
+  regions: string[];
+  sitelinks: CropPanelSitelink[];
+  relatedCrops: CropPanelRelated[];
+}
+
+/** 긴 값에서 괄호 앞 핵심부만 추출 ("10a당 약 287만 원 (3,000평…)" → "10a당 약 287만 원") */
+function leadSegment(text: string | undefined): string | undefined {
+  if (!text) return undefined;
+  const cut = text.split(/\s*\(/)[0]?.trim();
+  return cut || text;
+}
+
+/**
+ * 단일 작물명 정확 검색 → 지식 패널 데이터. 복합어·작물 외 검색·intent 검색 시 null.
+ * 페이지는 답변 카드가 없을 때만(=bare 엔티티) 이 패널을 노출하고,
+ * 중복되는 작물 카드(cropId)를 그룹에서 제외한다.
+ */
+export function buildCropPanel(query: string): CropPanel | null {
+  const q = query.trim().toLowerCase();
+  if (!q || /\s/.test(q)) return null;
+
+  const crop = CROPS.find((c) => c.name.toLowerCase() === q);
+  if (!crop) return null;
+  const detail = CROP_DETAILS.find((d) => d.id === crop.id);
+
+  const facts: SearchAnswerFact[] = [];
+  const revenue = leadSegment(detail?.income?.revenueRange);
+  if (revenue) facts.push({ label: "평균소득", value: revenue });
+  if (detail?.investmentDetail?.breakEvenPeriod) {
+    facts.push({ label: "손익분기", value: leadSegment(detail.investmentDetail.breakEvenPeriod)! });
+  }
+  if (detail?.income?.minScale) {
+    facts.push({ label: "최소규모", value: detail.income.minScale });
+  }
+  const climate = leadSegment(detail?.cultivation?.climate);
+  if (climate) facts.push({ label: "재배환경", value: climate });
+
+  const sitelinks: CropPanelSitelink[] = [];
+  const base = `/crops/${crop.id}`;
+  if (detail?.income) sitelinks.push({ label: "소득", href: `${base}#income` });
+  if (detail?.majorRegions?.length) sitelinks.push({ label: "주산지", href: `${base}#region` });
+  if (detail?.cultivationSteps?.length) sitelinks.push({ label: "재배법", href: `${base}#grow-steps` });
+  if (detail?.prosCons) sitelinks.push({ label: "장단점", href: `${base}#pros-cons` });
+
+  const relatedCrops: CropPanelRelated[] = (detail?.relatedCropIds ?? [])
+    .map((rid) => CROPS.find((c) => c.id === rid))
+    .filter((c): c is (typeof CROPS)[number] => Boolean(c))
+    .slice(0, 4)
+    .map((c) => ({ id: c.id, name: c.name, emoji: c.emoji }));
+
+  return {
+    cropId: crop.id,
+    cropName: crop.name,
+    emoji: crop.emoji,
+    category: crop.category,
+    difficulty: crop.difficulty,
+    summary: crop.description,
+    facts,
+    regions: detail?.majorRegions?.slice(0, 4) ?? [],
+    sitelinks,
+    relatedCrops,
+  };
+}
+
+
+// ---------------------------------------------------------------------------
+// 연관 검색어 (Related Searches) — 결과 하단 "함께 찾는 검색어".
+// P2(6/19 회장 결재). 작물 엔티티/intent 시 context 확장 + 관련작물 + 지역,
+// 일반 검색 시 인기 키워드. 각 후보는 실제 결과를 반환하는지 검증해 dead 칩 차단.
+// ---------------------------------------------------------------------------
+
+export function buildRelatedSearches(query: string): string[] {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const candidates: string[] = [];
+  const intent = detectIntent(trimmed);
+
+  let cropName: string | null = null;
+  if (intent.type !== "general") {
+    cropName = intent.crop;
+  } else {
+    const exact = CROPS.find((c) => c.name.toLowerCase() === trimmed.toLowerCase());
+    if (exact) cropName = exact.name;
+  }
+
+  if (cropName) {
+    const crop = CROPS.find((c) => c.name === cropName);
+    const detail = crop ? CROP_DETAILS.find((d) => d.id === crop.id) : undefined;
+    // context 확장 — 다시 답변 카드로 이어지는 탐색 루프
+    candidates.push(`${cropName} 소득`, `${cropName} 재배지`, `${cropName} 난이도`);
+    // 관련작물 — 단독 검색 시 지식 패널로 연결
+    for (const rid of detail?.relatedCropIds ?? []) {
+      const rc = CROPS.find((c) => c.id === rid);
+      if (rc) candidates.push(rc.name);
+    }
+    // 주산지 + 귀농
+    const region = detail?.majorRegions?.[0];
+    if (region) {
+      const prov = PROVINCES.find((p) => p.name === region);
+      candidates.push(`${prov?.shortName ?? region} 귀농`);
+    }
+  } else {
+    for (const tag of POPULAR_TAGS) candidates.push(tag.query);
+  }
+
+  const out: string[] = [];
+  const seen = new Set<string>([trimmed.toLowerCase()]);
+  for (const cand of candidates) {
+    const key = cand.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    if (searchAll(cand).length > 0) out.push(cand); // dead 칩 차단
+    if (out.length >= 6) break;
+  }
+  return out;
 }
