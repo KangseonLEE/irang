@@ -528,3 +528,40 @@ describe("작물명 prefix 자동 공백 분리", () => {
     }
   });
 });
+
+// ─── 테마 접두어 prefix 자동 공백 분리 (6/19 회장 발견: "귀농교육" 0 교육) ───
+describe("테마 접두어 prefix 자동 공백 분리", () => {
+  it("'귀농교육'(붙여쓰기) 검색에 교육 강좌(education)가 노출된다", () => {
+    const results = searchAll("귀농교육");
+    const edu = results.filter((r) => r.type === "education");
+    expect(edu.length).toBeGreaterThan(0);
+  });
+
+  it("'귀농교육'과 '귀농 교육' 결과 건수가 동일하다 (정규화 일치)", () => {
+    const joined = searchAll("귀농교육");
+    const spaced = searchAll("귀농 교육");
+    expect(joined.length).toBe(spaced.length);
+  });
+
+  it("'귀촌교육'·'스마트팜교육'도 교육 강좌를 반환한다", () => {
+    expect(
+      searchAll("귀촌교육").some((r) => r.type === "education"),
+    ).toBe(true);
+    expect(
+      searchAll("스마트팜교육").some((r) => r.type === "education"),
+    ).toBe(true);
+  });
+
+  it("'귀농인'(rest 1자)은 분리되지 않는다 — 한 단어 보존", () => {
+    // "귀농 인"으로 오분리되면 안 됨 (rest.length < 2 가드)
+    const joined = searchAll("귀농인");
+    const spaced = searchAll("귀농 인");
+    // 분리됐다면 두 결과가 같아짐 → 달라야 정상(미분리)
+    expect(joined.length).not.toBe(spaced.length);
+  });
+
+  it("'귀농'(단일 테마어)은 분리되지 않고 그대로 검색된다", () => {
+    const results = searchAll("귀농");
+    expect(results.length).toBeGreaterThan(0);
+  });
+});

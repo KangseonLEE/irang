@@ -751,6 +751,16 @@ const CROP_NAMES_BY_LENGTH_DESC: string[] = (() => {
 const CROP_NAME_SET = new Set(CROP_NAMES_BY_LENGTH_DESC);
 
 /**
+ * 테마 접두어 — "귀농교육"처럼 붙여 쓴 복합어를 "귀농 교육"으로 분리해
+ * 복합 쿼리 OR 매칭을 타게 한다. (단일 토큰이면 교육 강좌 제목에 "귀농교육"
+ * 연속 문자열이 없어 0점 매칭되던 사고. 6/19 회장 발견)
+ * 길이 내림차순 — 긴 접두어 우선("스마트팜" before "귀농").
+ */
+const THEME_PREFIXES: string[] = ["스마트팜", "귀농", "귀촌", "농촌"].sort(
+  (a, b) => b.length - a.length,
+);
+
+/**
  * 단일 term이 entity 정확명 매치 시 해당 카드를 hoist.
  *
  * 범위 (5/22 회장 결재 A안):
@@ -828,6 +838,15 @@ function injectCropPrefixSpace(q: string): string {
       // 조사 단독은 분리하지 않음 (예: "사과는" → removeKoreanSuffix가 처리)
       if (PARTICLE_ONLY.test(rest)) return q;
       return `${cropName} ${rest}`;
+    }
+  }
+  // 테마 접두어 분리 — "귀농교육" → "귀농 교육". rest 2자 이상일 때만 분리해
+  // "귀농인"(rest "인")·"귀촌살이"처럼 한 단어인 케이스 오분리를 막는다.
+  for (const prefix of THEME_PREFIXES) {
+    if (q.length > prefix.length && q.startsWith(prefix)) {
+      const rest = q.slice(prefix.length);
+      if (rest.length < 2 || PARTICLE_ONLY.test(rest)) return q;
+      return `${prefix} ${rest}`;
     }
   }
   return q;
