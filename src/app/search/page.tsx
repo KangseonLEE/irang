@@ -6,13 +6,22 @@ import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ChevronDown, ChevronUp } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchAll, hasExactMatch, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
+import { searchAll, hasExactMatch, buildSearchAnswer, POPULAR_TAGS, type SearchItem, type SearchAnswer } from "@/lib/data/search-index";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
 import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
 import { ResultCard } from "@/components/search/result-card";
+import { SearchAnswerCard } from "@/components/search/search-answer-card";
 import s from "./page.module.css";
+
+/** 답변 카드와 중복되는 synthetic guide 카드인지 판별 — 그룹 노출에서 제외 */
+function isAnswerSynthetic(id: string, answer: SearchAnswer): boolean {
+  if (answer.kind === "region-crop") {
+    return id.startsWith("cross-") && id.endsWith(`-${answer.cropId}`);
+  }
+  return id === `${answer.kind}-${answer.cropId}`;
+}
 
 const TYPE_META: Record<
   SearchItem["type"],
@@ -79,11 +88,20 @@ function SearchPageContent() {
 
   const results = useMemo(() => searchAll(query), [query]);
 
+  // 답변 카드 (Featured Snippet) — intent 감지 시 결과 위에 구조화된 답 노출
+  const answer = useMemo(() => (query ? buildSearchAnswer(query) : null), [query]);
+
+  // 답변 카드가 있으면 중복 synthetic 카드를 그룹·집계에서 제외
+  const displayResults = useMemo(() => {
+    if (!answer) return results;
+    return results.filter((r) => !isAnswerSynthetic(r.id, answer));
+  }, [results, answer]);
+
   // 관련도 기반 동적 섹션 순서 — searchAll 결과 순서에서 도출
   const grouped = useMemo(() => {
     const seen = new Set<SearchItem["type"]>();
     const order: SearchItem["type"][] = [];
-    for (const r of results) {
+    for (const r of displayResults) {
       if (!seen.has(r.type)) {
         seen.add(r.type);
         order.push(r.type);
@@ -94,12 +112,12 @@ function SearchPageContent() {
     return sectionOrder
       .map((type) => ({
         type,
-        items: results.filter((r) => r.type === type),
+        items: displayResults.filter((r) => r.type === type),
       }))
       .filter((g) => g.items.length > 0);
-  }, [results]);
+  }, [displayResults]);
 
-  const totalCount = results.length;
+  const totalCount = displayResults.length;
 
   // 섹션별 펼침 상태 — query를 상태에 묶어 쿼리 변경 시 자동 초기화
   // (React 공식 권장 패턴: state in render 비교로 useEffect 회피)
@@ -291,8 +309,15 @@ function SearchPageContent() {
         </div>
       )}
 
+      {/* 답변 카드 (Featured Snippet) — intent 감지 시 결과 최상단 */}
+      {query && answer && (
+        <div className={s.answerWrap}>
+          <SearchAnswerCard answer={answer} />
+        </div>
+      )}
+
       {/* 정확히 일치하는 항목 없음 안내 — 결과 위에 배치 (긍정 톤, 2026-05-22) */}
-      {query && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(query, results) && (
+      {query && !answer && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(query, results) && (
         <div className={s.noExactMatch}>
           <div className={s.noExactMatchContent}>
             <p className={s.noExactMatchText}>

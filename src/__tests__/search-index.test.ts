@@ -10,6 +10,7 @@ import {
   searchAll,
   getQuerySuggestions,
   detectIntent,
+  buildSearchAnswer,
 } from "@/lib/data/search-index";
 
 // ─── 기본 검색 동작 ───
@@ -563,5 +564,50 @@ describe("테마 접두어 prefix 자동 공백 분리", () => {
   it("'귀농'(단일 테마어)은 분리되지 않고 그대로 검색된다", () => {
     const results = searchAll("귀농");
     expect(results.length).toBeGreaterThan(0);
+  });
+});
+
+// ─── 답변 카드 (Featured Snippet) — buildSearchAnswer (P0, 6/19) ───
+describe("buildSearchAnswer (답변 카드 데이터)", () => {
+  it("'감귤 소득' → crop-income 답변 + 소득 lead + 출처 + 소득비교 CTA", () => {
+    const a = buildSearchAnswer("감귤 소득");
+    expect(a).not.toBeNull();
+    expect(a?.kind).toBe("crop-income");
+    expect(a?.cropName).toBe("감귤");
+    expect(a?.lead).toBeTruthy(); // revenueRange
+    expect(a?.source).toBeTruthy();
+    expect(a?.secondaryHref).toBe("/crops?sort=income");
+  });
+
+  it("'사과 재배지' → crop-region 답변 + 주산지 목록", () => {
+    const a = buildSearchAnswer("사과 재배지");
+    expect(a?.kind).toBe("crop-region");
+    expect(a?.regions?.length).toBeGreaterThan(0);
+    expect(a?.primaryHref).toBe("/crops/apple#region");
+  });
+
+  it("'딸기 재배법' → crop-method 답변 + 단계 facts", () => {
+    const a = buildSearchAnswer("딸기 재배법");
+    expect(a?.kind).toBe("crop-method");
+    expect(a?.facts.length).toBeGreaterThan(0);
+  });
+
+  it("'전남 사과' → region-crop 답변", () => {
+    const a = buildSearchAnswer("전남 사과");
+    expect(a?.kind).toBe("region-crop");
+    expect(a?.cropName).toBe("사과");
+  });
+
+  it("'감귤'(단일 엔티티) → null (P0 범위 밖, P1 지식패널 영역)", () => {
+    expect(buildSearchAnswer("감귤")).toBeNull();
+  });
+
+  it("'서울'(작물 무관) → null", () => {
+    expect(buildSearchAnswer("서울")).toBeNull();
+  });
+
+  it("답변 카드 CTA href는 항상 유효한 내부 경로다", () => {
+    const a = buildSearchAnswer("딸기 수익");
+    expect(a?.primaryHref.startsWith("/crops/")).toBe(true);
   });
 });

@@ -1536,3 +1536,172 @@ function matchFaqs(query: string): SearchItem[] {
   return results.slice(0, 3); // FAQ 결과는 최대 3개
 }
 
+
+
+// ---------------------------------------------------------------------------
+// 답변 카드 (Featured Snippet) — intent 감지 시 결과 최상단에 구조화된 답을 직접 제공.
+// P0(6/19 회장 결재). 기존 synthetic link 카드를 "실제 데이터 값"으로 승격.
+// 신규 데이터 0 — CROP_DETAILS(income·majorRegions·cultivation·prosCons) 재활용.
+// ---------------------------------------------------------------------------
+
+export interface SearchAnswerFact {
+  label: string;
+  value: string;
+}
+
+export interface SearchAnswer {
+  kind: CropContextType | "region-crop";
+  cropId: string;
+  cropName: string;
+  emoji: string;
+  category: string;
+  difficulty: string;
+  /** 헤드라인 — "감귤 — 예상 소득" */
+  headline: string;
+  /** 큰 강조값 — revenueRange / 기후 / 난이도 등 (없을 수 있음) */
+  lead?: string;
+  /** 칩으로 노출할 보조 사실 */
+  facts: SearchAnswerFact[];
+  /** 주요 산지 (시도명) */
+  regions?: string[];
+  /** 출처 표기 (소득 등) */
+  source?: string;
+  primaryHref: string;
+  primaryLabel: string;
+  secondaryHref?: string;
+  secondaryLabel?: string;
+}
+
+/**
+ * intent 감지 → 답변 카드 데이터. general·작물 미해석 시 null.
+ * 페이지는 이 결과를 결과 섹션 위에 렌더하고, 동일 intent의 synthetic guide 카드는
+ * 그룹에서 제외한다 (`${kind}-${cropId}` / `cross-*` id로 식별).
+ */
+export function buildSearchAnswer(query: string): SearchAnswer | null {
+  const intent = detectIntent(query);
+  if (intent.type === "general") return null;
+
+  const crop = CROPS.find((c) => c.name === intent.crop);
+  if (!crop) return null;
+  const detail = CROP_DETAILS.find((d) => d.id === crop.id);
+
+  const base = {
+    cropId: crop.id,
+    cropName: crop.name,
+    emoji: crop.emoji,
+    category: crop.category,
+    difficulty: crop.difficulty,
+  };
+  const detailHref = (anchor: string) => `/crops/${crop.id}#${anchor}`;
+
+  switch (intent.type) {
+    case "crop-income": {
+      const inc = detail?.income;
+      const facts: SearchAnswerFact[] = [{ label: "난이도", value: crop.difficulty }];
+      if (inc?.laborIntensity) facts.push({ label: "노동강도", value: inc.laborIntensity });
+      if (inc?.minScale) facts.push({ label: "최소규모", value: inc.minScale });
+      return {
+        ...base,
+        kind: intent.type,
+        headline: `${crop.name} — 예상 소득`,
+        lead: inc?.revenueRange,
+        facts,
+        regions: detail?.majorRegions?.slice(0, 3),
+        source: inc?.source,
+        primaryHref: detailHref("income"),
+        primaryLabel: `${crop.name} 소득 상세`,
+        secondaryHref: "/crops?sort=income",
+        secondaryLabel: "소득 높은 작물 비교",
+      };
+    }
+    case "crop-region": {
+      const regions = detail?.majorRegions ?? [];
+      return {
+        ...base,
+        kind: intent.type,
+        headline: `${crop.name} — 주요 산지`,
+        lead: regions.length ? regions.slice(0, 4).join(" · ") : undefined,
+        facts: [
+          { label: "분류", value: crop.category },
+          { label: "난이도", value: crop.difficulty },
+        ],
+        regions: regions.slice(0, 4),
+        primaryHref: detailHref("region"),
+        primaryLabel: `${crop.name} 재배지 상세`,
+        secondaryHref: "/regions",
+        secondaryLabel: "지역별 비교",
+      };
+    }
+    case "crop-difficulty": {
+      const inc = detail?.income;
+      const facts: SearchAnswerFact[] = [];
+      if (inc?.laborIntensity) facts.push({ label: "노동강도", value: inc.laborIntensity });
+      if (inc?.annualWorkdays) facts.push({ label: "연 작업일", value: inc.annualWorkdays });
+      const firstCon = detail?.prosCons?.cons?.[0]?.text;
+      return {
+        ...base,
+        kind: intent.type,
+        headline: `${crop.name} — 재배 난이도`,
+        lead: `난이도 ${crop.difficulty}`,
+        facts,
+        source: firstCon ? `유의점: ${firstCon}` : undefined,
+        primaryHref: detailHref("pros-cons"),
+        primaryLabel: `${crop.name} 장단점 보기`,
+        secondaryHref: "/crops?difficulty=쉬움",
+        secondaryLabel: "쉬운 작물부터 보기",
+      };
+    }
+    case "crop-cultivation": {
+      const cul = detail?.cultivation;
+      const facts: SearchAnswerFact[] = [];
+      if (cul?.soil) facts.push({ label: "토양", value: cul.soil });
+      if (cul?.water) facts.push({ label: "물관리", value: cul.water });
+      return {
+        ...base,
+        kind: intent.type,
+        headline: `${crop.name} — 재배 조건`,
+        lead: cul?.climate,
+        facts,
+        primaryHref: detailHref("cultivation"),
+        primaryLabel: `${crop.name} 재배 환경 상세`,
+      };
+    }
+    case "crop-method": {
+      const steps = detail?.cultivationSteps ?? [];
+      const facts: SearchAnswerFact[] = steps.slice(0, 3).map((st) => ({
+        label: `${st.step}단계`,
+        value: st.title,
+      }));
+      return {
+        ...base,
+        kind: intent.type,
+        headline: `${crop.name} — 재배 단계`,
+        lead: steps.length ? `총 ${steps.length}단계로 재배해요.` : undefined,
+        facts,
+        primaryHref: detailHref("grow-steps"),
+        primaryLabel: `${crop.name} 재배법 상세`,
+      };
+    }
+    case "region-crop": {
+      const regions = detail?.majorRegions ?? [];
+      const inRegion = regions.some((r) => r.includes(intent.region) || intent.region.includes(r.slice(0, 2)));
+      return {
+        ...base,
+        kind: intent.type,
+        headline: `${intent.region} × ${crop.name}`,
+        lead: inRegion
+          ? `${intent.region}은(는) ${crop.name} 주요 산지예요.`
+          : `${crop.name} 재배 정보와 ${intent.region} 지역을 함께 살펴보세요.`,
+        facts: [
+          { label: "분류", value: crop.category },
+          { label: "난이도", value: crop.difficulty },
+        ],
+        regions: regions.slice(0, 3),
+        primaryHref: detailHref("region"),
+        primaryLabel: `${crop.name} 재배지`,
+        secondaryHref: "/regions",
+        secondaryLabel: `${intent.region} 지역 정보`,
+      };
+    }
+  }
+}
