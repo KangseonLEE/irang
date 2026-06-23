@@ -16,8 +16,8 @@ export const revalidate = 300;
 
 export default async function AdminSearchPage() {
   const [topKeywords, zeroResults, dailyCounts, trendingStatus] = await Promise.all([
-    fetchTopKeywords(7, 20),
-    fetchZeroResultQueries(7, 15),
+    fetchTopKeywords(14, 20),
+    fetchZeroResultQueries(14, 15),
     fetchDailySearchCounts(14),
     fetchTrendingDataSourceStatus(),
   ]);
@@ -76,7 +76,7 @@ export default async function AdminSearchPage() {
       <div className={s.twoCol}>
         {/* ── 인기 검색어 ── */}
         <section className={s.section}>
-          <h2 className={s.sectionTitle}>인기 검색어 (7일)</h2>
+          <h2 className={s.sectionTitle}>인기 검색어 (14일)</h2>
           {topKeywords.length === 0 ? (
             <p className={s.empty}>검색 데이터가 없어요</p>
           ) : (
@@ -94,7 +94,7 @@ export default async function AdminSearchPage() {
 
         {/* ── 결과 없는 검색어 ── */}
         <section className={`${s.section} ${zeroResults.length > 0 ? s.sectionWarn : ""}`}>
-          <h2 className={s.sectionTitle}>결과 없는 검색어 (7일)</h2>
+          <h2 className={s.sectionTitle}>결과 없는 검색어 (14일)</h2>
           {zeroResults.length === 0 ? (
             <p className={s.empty}>모든 검색어에 결과가 있어요</p>
           ) : (
