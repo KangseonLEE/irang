@@ -77,6 +77,8 @@ export interface TopKeyword {
 export interface DailySearchCount {
   date: string;
   count: number;
+  /** 그날 검색된 키워드 분해 (빈도 내림차순) — 차트 호버 툴팁용 */
+  keywords: { query: string; count: number }[];
 }
 
 // ── 진단 결과 ──

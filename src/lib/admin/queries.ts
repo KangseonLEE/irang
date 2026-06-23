@@ -329,15 +329,21 @@ export async function fetchDailySearchCounts(
 
   const { data } = await sb
     .from("search_logs")
-    .select("created_at")
+    .select("created_at, query")
     .gte("created_at", daysAgo(days));
 
   if (!data) return [];
 
-  const counts = new Map<string, number>();
+  // 날짜별 키워드 빈도 집계 (2자 미만 제외 — 인기 검색어와 동일 필터)
+  const byDate = new Map<string, Map<string, number>>();
   for (const row of data) {
-    const date = (row as { created_at: string }).created_at.slice(0, 10);
-    counts.set(date, (counts.get(date) ?? 0) + 1);
+    const r = row as { created_at: string; query: string };
+    const date = r.created_at.slice(0, 10);
+    const q = r.query.toLowerCase().trim();
+    if (q.length < 2) continue;
+    if (!byDate.has(date)) byDate.set(date, new Map());
+    const kwMap = byDate.get(date)!;
+    kwMap.set(q, (kwMap.get(q) ?? 0) + 1);
   }
 
   // 빈 날짜도 0으로 채우기
@@ -346,7 +352,14 @@ export async function fetchDailySearchCounts(
     const date = new Date(Date.now() - i * 86_400_000)
       .toISOString()
       .slice(0, 10);
-    result.push({ date, count: counts.get(date) ?? 0 });
+    const kwMap = byDate.get(date);
+    const keywords = kwMap
+      ? [...kwMap.entries()]
+          .sort((a, b) => b[1] - a[1])
+          .map(([query, count]) => ({ query, count }))
+      : [];
+    const count = keywords.reduce((sum, k) => sum + k.count, 0);
+    result.push({ date, count, keywords });
   }
 
   return result;

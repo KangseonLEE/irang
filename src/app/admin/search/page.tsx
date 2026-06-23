@@ -67,6 +67,26 @@ export default async function AdminSearchPage() {
                 <span className={s.barLabel}>
                   {d.date.slice(5).replace("-", "/")}
                 </span>
+                {d.keywords.length > 0 && (
+                  <div className={s.barTooltip} role="tooltip">
+                    <div className={s.barTooltipHead}>
+                      {d.date.slice(5).replace("-", "/")} · {d.count}건
+                    </div>
+                    <ul className={s.barTooltipList}>
+                      {d.keywords.slice(0, 8).map((k) => (
+                        <li key={k.query}>
+                          <span className={s.barTooltipKw}>{k.query}</span>
+                          <span className={s.barTooltipCount}>{k.count}회</span>
+                        </li>
+                      ))}
+                    </ul>
+                    {d.keywords.length > 8 && (
+                      <div className={s.barTooltipMore}>
+                        외 {d.keywords.length - 8}개
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
