@@ -47,12 +47,6 @@
 }
 
 /* ── 페이지 헤더 ── */
-.pageHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .headerOverline {
   display: inline-flex;
   align-items: center;
