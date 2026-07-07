@@ -293,7 +293,7 @@ const ANSWER_LABELS: Record<string, Record<string, string>> = {
 };
 
 /** 적합도 진단 차원 점수 (0~100) — 선택적으로 전달 */
-export interface DimensionScores {
+export interface MatchDimensionScores {
   motivation?: number;
   finance?: number;
   family?: number;
@@ -309,7 +309,7 @@ export interface ScoredProvince {
 
 export function scoreProvinces(
   answers: Answers,
-  dimensionScores?: DimensionScores,
+  dimensionScores?: MatchDimensionScores,
 ): ScoredProvince[] {
   const scores: Record<string, { score: number; reasons: Set<string> }> = {};
 

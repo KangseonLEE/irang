@@ -13,7 +13,7 @@ import {
   scoreProvinces,
   recommendCrops,
   getRecommendedPrograms,
-  type DimensionScores,
+  type MatchDimensionScores,
 } from "@/lib/match-scoring";
 import { analytics } from "@/lib/analytics";
 import {
@@ -38,7 +38,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
   const [prefilled, setPrefilled] = useState<Set<string>>(new Set());
   const [resultId, setResultId] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const [dimScores, setDimScores] = useState<DimensionScores | undefined>();
+  const [dimScores, setDimScores] = useState<MatchDimensionScores | undefined>();
   const [ageGroup, setAgeGroup] = useState<string | undefined>();
   const { addResult } = useAssessmentHistory();
 
@@ -82,7 +82,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
     }
 
     // 적합도 진단 차원 점수 파싱
-    const dims: DimensionScores = {};
+    const dims: MatchDimensionScores = {};
     const dimKeys = ["motivation", "finance", "family", "experience", "adaptability"] as const;
     for (const key of dimKeys) {
       const val = searchParams.get(key);
