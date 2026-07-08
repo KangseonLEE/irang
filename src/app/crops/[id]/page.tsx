@@ -178,7 +178,7 @@ function CropMinimalFallback({ crop }: { crop: typeof CROPS[number] }) {
         <p>
           <strong>{crop.name}</strong> 상세 정보는 정리 중이에요.
           <br />
-          소득·재배환경·주요 산지 데이터는 곧 추가될 예정입니다.
+          소득·재배환경·주요 산지 데이터는 곧 추가될 예정이에요.
         </p>
         <div className={s.fallbackLinks}>
           <Link href="/crops" className={s.fallbackLink}>
