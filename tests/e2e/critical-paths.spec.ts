@@ -96,7 +96,9 @@ test.describe("2. /programs 필터 동작", () => {
   test("초기 진입 시 카드 1개 이상 가시", async ({ page }) => {
     await gotoExpectHtml(page, "/programs");
     // 카드 grid 내부에 카드/링크가 1개 이상 — 빈 list 차단
-    const programLinks = page.locator('a[href^="/programs/SP-"]');
+    // 활성 큐레이션(SP-*)이 전부 마감이면 초기 화면이 crawl-* row만으로 채워질 수 있음 (7/9 확인)
+    // → 상세 링크 전체를 카드로 인정 (roadmap 제외)
+    const programLinks = page.locator('a[href^="/programs/"]:not([href^="/programs/roadmap"])');
     await expect(programLinks.first()).toBeVisible({ timeout: 10_000 });
     const count = await programLinks.count();
     expect(count, "/programs 초기 카드 ≥ 1").toBeGreaterThanOrEqual(1);
