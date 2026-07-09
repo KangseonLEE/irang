@@ -52,8 +52,8 @@ function CustomTooltip({ active, payload }: ChartTooltipProps) {
         <span>예상 소득</span>
         <span className={cs.tooltipValue}>
           {d.isRange
-            ? `${d.base}~${d.total}만원/10a`
-            : `${d.total}만원/10a`}
+            ? `${d.base}~${d.total}만 원/10a`
+            : `${d.total}만 원/10a`}
         </span>
       </div>
     </div>
@@ -76,7 +76,7 @@ function RenderLabel(props: LabelProps) {
       fontSize={12}
       fontWeight={700}
     >
-      {value.toLocaleString()}만원
+      {value.toLocaleString()}만 원
     </text>
   );
 }
@@ -101,7 +101,7 @@ function AvgLabel({ avg, viewBox }: AvgLabelProps) {
       fontSize={11}
       fontWeight={600}
     >
-      평균 {avg.toLocaleString()}만원
+      평균 {avg.toLocaleString()}만 원
     </text>
   );
 }

@@ -163,9 +163,9 @@ export function CropRichCard({
     const diff = revenueValue - comparisonRevenue;
     const refName = comparisonName!;
     if (diff > 0) {
-      barCaption = `${refName}보다 ${diff.toLocaleString("ko-KR")}만원 많아요`;
+      barCaption = `${refName}보다 ${diff.toLocaleString("ko-KR")}만 원 많아요`;
     } else if (diff < 0) {
-      barCaption = `${refName}보다 ${Math.abs(diff).toLocaleString("ko-KR")}만원 적어요`;
+      barCaption = `${refName}보다 ${Math.abs(diff).toLocaleString("ko-KR")}만 원 적어요`;
     } else {
       barCaption = `${refName}${와과(refName)} 비슷해요`;
     }
@@ -176,7 +176,7 @@ export function CropRichCard({
       revenueValue !== null && revenueMax !== null
         ? Math.max(0, revenueMax - revenueValue)
         : null;
-    barCaption = `수익 1위보다 ${revenueDiff?.toLocaleString("ko-KR")}만원 적어요`;
+    barCaption = `수익 1위보다 ${revenueDiff?.toLocaleString("ko-KR")}만 원 적어요`;
   }
 
   // 노동·난이도 비교 텍스트 (비교 모드일 때만)

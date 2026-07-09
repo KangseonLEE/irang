@@ -106,7 +106,7 @@ export function CropGlanceSection() {
             </span>
             <div className={s.rankCardBody}>
               <span className={s.cropName}>{crop.name}</span>
-              <span className={s.cropIncome}>{formatIncome(crop.income)}만원</span>
+              <span className={s.cropIncome}>{formatIncome(crop.income)}만 원</span>
               {/* 10a = 1,000㎡ ≈ 302.5평 → 직관성 위해 "약 300평"으로 표기 (이 섹션 한정). */}
               <span className={s.cropIncomeLabel}>약 300평당 연소득</span>
               <span className={s.chipRow}>

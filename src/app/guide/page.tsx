@@ -477,7 +477,7 @@ export default function GuidePage() {
             <ul className={s.altModelPoints}>
               <li>치유농업법 2021년 시행</li>
               <li>우수 시설 13개소 (2027년 17개소 목표)</li>
-              <li>창업 자금 협업형 500만원·융자 최대 3억원</li>
+              <li>창업 자금 협업형 500만 원·융자 최대 3억원</li>
             </ul>
             <span className={s.altModelArrow}>
               자세히 보기
@@ -499,7 +499,7 @@ export default function GuidePage() {
             <ul className={s.altModelPoints}>
               <li>국비 70 + 지방비 30 매칭</li>
               <li>장애·고령·다문화·저소득 대상 5종 사업</li>
-              <li>연 최대 9,000만원·14개 시·도 105 주체</li>
+              <li>연 최대 9,000만 원·14개 시·도 105 주체</li>
             </ul>
             <span className={s.altModelArrow}>
               자세히 보기

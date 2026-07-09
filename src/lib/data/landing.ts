@@ -100,12 +100,12 @@ export const trendNews: NewsItem[] = [
       "https://www.nongmin.com/-/raw/srv-nongmin/data2/content/image/2026/01/23/.cache/512/20260123500602.jpg",
   },
   {
-    title: "귀농 자금 가구당 평균 6000만원…농지 구입·임차에 90% 이상 사용",
+    title: "귀농 자금 가구당 평균 6000만 원…농지 구입·임차에 90% 이상 사용",
     source: "농민신문",
     date: "2026.02",
     url: "https://www.nongmin.com/article/20260225500580",
     description:
-      "2025년 귀농 가구가 들인 투자금은 평균 6219만원으로 전년(5464만원) 대비 13.8% 증가하며 처음으로 6000만원을 돌파했다. 농지 마련에 5260만원이 쓰여 가장 많은 비중을 차지했다.",
+      "2025년 귀농 가구가 들인 투자금은 평균 6219만 원으로 전년(5464만 원) 대비 13.8% 증가하며 처음으로 6000만 원을 돌파했다. 농지 마련에 5260만 원이 쓰여 가장 많은 비중을 차지했다.",
     thumbnail:
       "https://www.nongmin.com/-/raw/srv-nongmin/data2/content/image/2026/02/26/.cache/512/20260226500235.jpg",
   },
@@ -214,7 +214,7 @@ export const trendProgramNews: NewsItem[] = [
     date: "2026.02",
     url: "https://www.mafra.go.kr/bbs/home/795/576799/artclView.do",
     description:
-      "2026년 농림축산식품사업 시행지침서. 귀농 농업창업 자금은 최대 3억원 한도, 연 2.0% 저금리 융자, 5년 거치 10년 분할 상환 조건이에요. 주택구입자금은 7,500만원 한도로 별도 지원돼요.",
+      "2026년 농림축산식품사업 시행지침서. 귀농 농업창업 자금은 최대 3억원 한도, 연 2.0% 저금리 융자, 5년 거치 10년 분할 상환 조건이에요. 주택구입자금은 7,500만 원 한도로 별도 지원돼요.",
   },
   {
     title: "똑똑! 청년농부 — 청년농업인 종합 지원 정보",
@@ -229,22 +229,22 @@ export const trendProgramNews: NewsItem[] = [
 /** 정부·정책 폴백 뉴스 — API 장애 시 표시 (실제 기사 URL, HTTP 200 검증 완료) */
 export const trendPolicyNews: NewsItem[] = [
   {
-    title: "月15만원의 힘…농어촌 인구 반등 물꼬텄다",
+    title: "月15만 원의 힘…농어촌 인구 반등 물꼬텄다",
     source: "서울경제",
     date: "2026.03",
     url: "https://www.sedaily.com/article/20014738",
     description:
-      "전국 10개 인구 소멸 위기 농어촌 지역에 ‘농어촌 기본소득’이 처음 지급되면서 인구 반등과 지역경제 활성화의 신호가 나타나고 있어요. 69개 군 중 6개 군 24만 명이 지역화폐로 월 15만원을 받습니다.",
+      "전국 10개 인구 소멸 위기 농어촌 지역에 ‘농어촌 기본소득’이 처음 지급되면서 인구 반등과 지역경제 활성화의 신호가 나타나고 있어요. 69개 군 중 6개 군 24만 명이 지역화폐로 월 15만 원을 받습니다.",
     thumbnail:
       "https://wimg.sedaily.com/news/cms/2026/03/03/news-p.v1.20260226.28525aca14674a58a42a61531172a434_R.jpg",
   },
   {
-    title: "농식품부, 귀농시 6219만원·귀촌시 4563만원 필요",
+    title: "농식품부, 귀농시 6219만 원·귀촌시 4563만 원 필요",
     source: "농수축산신문",
     date: "2026.03",
     url: "http://www.aflnews.co.kr/news/articleView.html?idxno=315465",
     description:
-      "귀농 시 평균 6219만원, 귀촌 시 4563만원의 투자가 필요한 것으로 조사됐어요. 젊은층의 귀농 투자액이 상대적으로 높았고, 농지 마련에 가장 많은 비용이 들어갔습니다.",
+      "귀농 시 평균 6219만 원, 귀촌 시 4563만 원의 투자가 필요한 것으로 조사됐어요. 젊은층의 귀농 투자액이 상대적으로 높았고, 농지 마련에 가장 많은 비용이 들어갔습니다.",
   },
   {
     title: "농촌출신은 귀농, 도시출신은 귀촌",
@@ -334,7 +334,7 @@ export const hotPrograms = [
     title: "귀농 농업창업 및 주택구입 지원",
     region: "전국",
     type: "융자",
-    amount: "창업 최대 3억 / 주택 7,500만원",
+    amount: "창업 최대 3억 / 주택 7,500만 원",
     tag: "대표 정착지원",
   },
   {
@@ -342,7 +342,7 @@ export const hotPrograms = [
     title: "청년농업인 영농정착지원",
     region: "전국",
     type: "보조금",
-    amount: "월 최대 110만원 (3년간)",
+    amount: "월 최대 110만 원 (3년간)",
     tag: "만 39세 이하 청년",
   },
   {
@@ -522,7 +522,7 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
       desc: "스마트팜과 6차 산업으로 청년 귀농이 빠르게 늘고 있어요",
     },
     stats: [
-      { value: "3,600만원", label: "영농정착지원금", sub: "월 110·100·90만원 × 3년 (매년 감액)", desc: "만 18~39세 청년 창업농에게 지급되는 정부 보조금이에요" },
+      { value: "3,600만 원", label: "영농정착지원금", sub: "월 110·100·90만 원 × 3년 (매년 감액)", desc: "만 18~39세 청년 창업농에게 지급되는 정부 보조금이에요" },
       { value: "33세", label: "평균 나이", sub: "2024년 기준", desc: "점점 더 젊은 세대가 농업을 선택하고 있어요" },
     ],
     chart: {
@@ -539,9 +539,9 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     compare: {
       title: "청년농 지원, 얼마나 받을까?",
       items: [
-        { label: "정착지원금", change: "월 110만원", detail: "보조금 · 최대 3년" },
+        { label: "정착지원금", change: "월 110만 원", detail: "보조금 · 최대 3년" },
         { label: "창업자금", change: "최대 3억원", detail: "저금리 융자 지원" },
-        { label: "농지임차 보조", change: "연 300만원", detail: "임차료 50~80% 지원" },
+        { label: "농지임차 보조", change: "연 300만 원", detail: "임차료 50~80% 지원" },
         { label: "교육비", change: "전액 무료", detail: "정착 교육 100시간+" },
       ],
     },
@@ -581,7 +581,7 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
         { label: "주거비", change: "-65%", detail: "도시 대비 크게 절감" },
         { label: "공기질", change: "PM2.5 -35%", detail: "도시 대비 맑은 공기" },
         { label: "주거 면적", change: "2배+", detail: "단독주택 130㎡ 이상" },
-        { label: "산림소득", change: "연 500만원+", detail: "임산물·체험 수익" },
+        { label: "산림소득", change: "연 500만 원+", detail: "임산물·체험 수익" },
       ],
     },
   },
@@ -683,11 +683,11 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     desc: "평균 6,219만 원의 초기 비용 중 대부분은 영농 준비에 쓰여요. 정부 융자를 활용하면 부담을 크게 줄일 수 있어요.",
     source: "농림축산식품부 2025 귀농귀촌 실태조사",
     confidence: "official",
-    hero: { label: "평균 초기 투자금", desc: "농지·시설·장비·종자 등 영농 시작에 필요한 총비용이에요", value: 6219, format: "integer", unit: "만원", color: "primary" },
+    hero: { label: "평균 초기 투자금", desc: "농지·시설·장비·종자 등 영농 시작에 필요한 총비용이에요", value: 6219, format: "integer", unit: "만 원", color: "primary" },
     cards: [
-      { label: "영농 준비비 비중", desc: "초기 비용의 대부분이 농지 구입과 시설 투자에 집중돼요", value: 84.6, format: "decimal1", unit: "%", note: "약 5,261만원", color: "primary" },
+      { label: "영농 준비비 비중", desc: "초기 비용의 대부분이 농지 구입과 시설 투자에 집중돼요", value: 84.6, format: "decimal1", unit: "%", note: "약 5,261만 원", color: "primary" },
       { label: "평균 준비 기간", desc: "탐색부터 정착까지 평균 소요 기간이에요", value: 27.4, format: "decimal1", unit: "개월", color: "amber" },
-      { label: "정부 주택자금 융자", desc: "정착자 주거 안정을 위한 정부 지원 한도예요", value: 7500, format: "integer", unit: "만원", source: "귀농귀촌 정착지원사업", color: "muted" },
+      { label: "정부 주택자금 융자", desc: "정착자 주거 안정을 위한 정부 지원 한도예요", value: 7500, format: "integer", unit: "만 원", source: "귀농귀촌 정착지원사업", color: "muted" },
       { label: "농업창업자금 융자", desc: "영농 정착에 필요한 농지·시설·장비 구입 지원 한도예요", value: 3, format: "plain", unit: "억원", source: "농림축산식품부 융자사업", color: "primary" },
     ],
     snapshot: {
@@ -714,12 +714,12 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     source: "귀농귀촌 실태조사 + KB부동산 시세 기반 추정",
     confidence: "estimated",
     confidenceNote: "귀촌 단독 공식 실태조사가 없어 주거 시세 기반 추정값이에요",
-    hero: { label: "임차 시작 기준 정착 비용", desc: "농업 없이 농촌에 정착할 때 필요한 주거·생활 비용이에요", value: 2800, format: "integer", unit: "만원", color: "primary" },
+    hero: { label: "임차 시작 기준 정착 비용", desc: "농업 없이 농촌에 정착할 때 필요한 주거·생활 비용이에요", value: 2800, format: "integer", unit: "만 원", color: "primary" },
     cards: [
       { label: "주거비 비중", desc: "귀촌 비용의 대부분이 주택 임차나 구입에 집중돼요", value: 85, format: "decimal1", unit: "%", color: "primary" },
       { label: "평균 준비 기간", desc: "주거지 탐색과 이주 준비에 걸리는 기간이에요", value: 14, format: "decimal1", unit: "개월", color: "amber" },
-      { label: "주택구입 융자", desc: "귀촌인 주거 안정을 위한 정부 융자 한도예요", value: 7500, format: "integer", unit: "만원", source: "귀농귀촌 정착지원사업", color: "muted" },
-      { label: "지자체 정착 지원금", desc: "시·군별로 귀촌인에게 정착금을 지급해요", value: 1000, format: "integer", unit: "만원", source: "지자체별 300~2,000만 원", color: "primary" },
+      { label: "주택구입 융자", desc: "귀촌인 주거 안정을 위한 정부 융자 한도예요", value: 7500, format: "integer", unit: "만 원", source: "귀농귀촌 정착지원사업", color: "muted" },
+      { label: "지자체 정착 지원금", desc: "시·군별로 귀촌인에게 정착금을 지급해요", value: 1000, format: "integer", unit: "만 원", source: "지자체별 300~2,000만 원", color: "primary" },
     ],
     snapshot: {
       totalLabel: "귀촌 정착 비용 (임차 기준)",
@@ -745,11 +745,11 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     source: "농림축산식품부 2025 실태조사 + 청년창업농 시행지침",
     confidence: "estimated",
     confidenceNote: "실태조사 30대 이하 수치를 활용한 추정이에요",
-    hero: { label: "30대 이하 평균 투자금", desc: "청년 정착자의 평균 초기 투자 비용이에요", value: 8209, format: "integer", unit: "만원", color: "primary" },
+    hero: { label: "30대 이하 평균 투자금", desc: "청년 정착자의 평균 초기 투자 비용이에요", value: 8209, format: "integer", unit: "만 원", color: "primary" },
     cards: [
       { label: "영농 준비비 비중", desc: "농지·시설·장비 투자가 전체의 대부분을 차지해요", value: 80, format: "decimal1", unit: "%", color: "primary" },
       { label: "평균 준비 기간", desc: "교육과 현장 실습을 거쳐 창업하는 기간이에요", value: 21, format: "decimal1", unit: "개월", color: "amber" },
-      { label: "영농정착지원금", desc: "만 18~39세 창업농에게 월 110·100·90만 원을 3년 지급해요 (매년 감액)", value: 3600, format: "integer", unit: "만원", source: "보조금 · 농림축산식품부", color: "primary" },
+      { label: "영농정착지원금", desc: "만 18~39세 창업농에게 월 110·100·90만 원을 3년 지급해요 (매년 감액)", value: 3600, format: "integer", unit: "만 원", source: "보조금 · 농림축산식품부", color: "primary" },
       { label: "농업창업자금 융자", desc: "영농에 필요한 농지·시설·장비 구입 지원 한도예요", value: 3, format: "plain", unit: "억원", source: "농림축산식품부 융자사업", color: "muted" },
     ],
     snapshot: {
@@ -776,12 +776,12 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     source: "산림청 귀산촌 지원사업 안내",
     confidence: "range-only",
     confidenceNote: "공식 실태조사가 없어 품목별 단가 기반 참고값이에요",
-    hero: { label: "평균 창업 비용 (추정)", desc: "임야·시설·종묘 등 귀산촌 창업에 필요한 예상 비용이에요", value: 5000, format: "integer", unit: "만원", color: "primary" },
+    hero: { label: "평균 창업 비용 (추정)", desc: "임야·시설·종묘 등 귀산촌 창업에 필요한 예상 비용이에요", value: 5000, format: "integer", unit: "만 원", color: "primary" },
     cards: [
       { label: "시설 투자비 비중", desc: "차광망·재배사 등 임산물 시설에 투자가 집중돼요", value: 60, format: "decimal1", unit: "%", color: "primary" },
       { label: "평균 준비 기간", desc: "교육이수와 임야 확보에 귀농보다 시간이 더 걸려요", value: 30, format: "decimal1", unit: "개월", color: "amber" },
       { label: "산림청 창업자금", desc: "임산물 생산·임야 매입·시설 투자 융자 한도예요", value: 3, format: "plain", unit: "억원", source: "산림청 귀산촌 지원사업", color: "muted" },
-      { label: "정착지원(주택)", desc: "귀산촌 정착에 필요한 주택 구입·신축 지원이에요", value: 7500, format: "integer", unit: "만원", source: "산림청 귀산촌 지원사업", color: "primary" },
+      { label: "정착지원(주택)", desc: "귀산촌 정착에 필요한 주택 구입·신축 지원이에요", value: 7500, format: "integer", unit: "만 원", source: "산림청 귀산촌 지원사업", color: "primary" },
     ],
     snapshot: {
       totalLabel: "귀산촌 창업 비용 (추정)",
@@ -807,7 +807,7 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     source: "농진청 스마트팜 시설 단가 · 농식품부 혁신밸리 사업",
     confidence: "range-only",
     confidenceNote: "시설 유형(비닐하우스·유리온실)에 따라 편차가 커요",
-    hero: { label: "비닐하우스 ICT 기준", desc: "1,000㎡ 비닐하우스에 ICT 기초 장비를 갖추는 비용이에요", value: 4000, format: "integer", unit: "만원", color: "primary" },
+    hero: { label: "비닐하우스 ICT 기준", desc: "1,000㎡ 비닐하우스에 ICT 기초 장비를 갖추는 비용이에요", value: 4000, format: "integer", unit: "만 원", color: "primary" },
     cards: [
       { label: "ICT·시설 비중", desc: "하우스 구조물과 환경 제어 장비에 비용이 집중돼요", value: 85, format: "decimal1", unit: "%", color: "primary" },
       { label: "평균 준비 기간", desc: "혁신밸리 교육 포함, 창업까지 걸리는 기간이에요", value: 12, format: "decimal1", unit: "개월", color: "amber" },

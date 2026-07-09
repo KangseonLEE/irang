@@ -70,7 +70,7 @@ function CustomTooltip({ active, payload }: ChartTooltipProps) {
       <div className={cs.tooltipRow}>
         <span className={cs.tooltipDot} style={{ background: d.color }} />
         <span>예상 소득</span>
-        <span className={cs.tooltipValue}>{d.y.toLocaleString()}만원/10a</span>
+        <span className={cs.tooltipValue}>{d.y.toLocaleString()}만 원/10a</span>
       </div>
     </div>
   );
@@ -179,7 +179,7 @@ export function DifficultyIncomeScatter({ crops }: DifficultyIncomeScatterProps)
 
       {/* 축 안내 */}
       <p className={s.axisHint}>
-        가로축은 난이도, 세로축은 10a당 예상 소득(만원)이에요. 오른쪽 위일수록
+        가로축은 난이도, 세로축은 10a당 예상 소득(만 원)이에요. 오른쪽 위일수록
         어렵고 고수익, 왼쪽 위일수록 쉽고 고수익이에요.
       </p>
 

@@ -208,8 +208,8 @@ function OverviewTab() {
           />
           <CompareRow
             label="지원 규모"
-            healing="협업형 500만원 + 창업 3억원(융자)"
-            social="연 2,000~15,500만원 (사업 5종)"
+            healing="협업형 500만 원 + 창업 3억원(융자)"
+            social="연 2,000~15,500만 원 (사업 5종)"
           />
           <CompareRow
             label="주관 부처"

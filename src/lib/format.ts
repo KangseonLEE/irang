@@ -92,7 +92,7 @@ export function convertToPyeongLabel(revenueRange: string): {
   const formatted = per1000Pyeong.toLocaleString();
   return {
     value: per1000Pyeong,
-    label: `1,000평당 약 ${formatted}만원`,
+    label: `1,000평당 약 ${formatted}만 원`,
   };
 }
 

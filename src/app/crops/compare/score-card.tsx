@@ -68,7 +68,7 @@ export function ScoreCards({ items }: Props) {
                 </dt>
                 <dd className={s.metricValue}>
                   {item.incomeText ?? "—"}
-                  {item.incomeText && <span className={s.metricUnit}>만원/10a</span>}
+                  {item.incomeText && <span className={s.metricUnit}>만 원/10a</span>}
                   {item.incomeBest && <span className={s.bestBadge}>최고</span>}
                 </dd>
               </div>

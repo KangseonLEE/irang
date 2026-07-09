@@ -50,7 +50,7 @@ export const TRACKS: TrackData[] = [
       education: "최근 5년 내 8시간 ~ 250시간",
       businessPeriod: "전업 기준 5년",
       supportScope: "영농기반, 농식품 제조·가공 시설, 주택 구입(신축·증개축)",
-      supportAmount: "창업 3억 7,500만원 이내",
+      supportAmount: "창업 3억 7,500만 원 이내",
       loanTerms: "금리 2%, 5년 거치 10년 원금균등분할상환",
       applyTo: "주소지 관할 시·군청",
     },
