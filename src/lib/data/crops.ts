@@ -3,6 +3,8 @@
  * - 귀농 시 재배 가능한 대표 작물 위주로 선별
  */
 
+import { parseIncome10a } from "@/lib/format";
+
 export interface CropInfo {
   id: string;
   name: string;
@@ -4014,23 +4016,10 @@ const KO_COLLATOR = new Intl.Collator("ko-KR");
 /**
  * 10a당 연소득(만원)을 작물별로 파싱한 맵. 정렬 시 1회 계산해 재사용.
  * revenueRange 선두 패턴이 아닌 작물(임산물 등 기준 상이)은 null → 후순위.
- * crop-aggregate의 parseIncome10a와 동일 규칙(import 순환 회피 위해 로컬 정의).
+ * 파서는 @/lib/format의 parseIncome10a 단일 정의를 공유한다.
  */
-function parseCropIncome10a(revenueRange: string): number | null {
-  const m = revenueRange.match(
-    /^(10a|1ha)당\s*(?:시설\s*)?약\s*([\d,]+)\s*(?:~\s*([\d,]+))?\s*만\s*원/,
-  );
-  if (!m) return null;
-  const lo = Number(m[2].replace(/,/g, ""));
-  const hi = m[3] ? Number(m[3].replace(/,/g, "")) : lo;
-  if (!Number.isFinite(lo) || !Number.isFinite(hi)) return null;
-  let value = (lo + hi) / 2;
-  if (m[1] === "1ha") value /= 10;
-  return Math.round(value);
-}
-
 const detailIncomeById = new Map(
-  CROP_DETAILS.map((d) => [d.id, parseCropIncome10a(d.income.revenueRange)]),
+  CROP_DETAILS.map((d) => [d.id, parseIncome10a(d.income.revenueRange)]),
 );
 
 export function sortCrops(

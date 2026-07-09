@@ -12,6 +12,32 @@ export function formatPopulation(pop: number): string {
 export const SEOUL_AREA_KM2 = 605;
 
 /**
+ * revenueRange 선두 패턴에서 10a당 연소득(만원)을 파싱.
+ * - "10a당 약 N만 원" / "10a당 시설 약 N만 원" → N
+ * - "10a당 약 N~M만 원" → (N+M)/2
+ * - "1ha당 약 N(~M)만 원" → ÷10 정규화 후 동일 처리 (1ha = 10×10a)
+ * - 임야 1,000평 기준·연 N만 원 등 기준이 다른 표기는 매칭 안 됨 → null (차트 제외)
+ *
+ * ⚠️ 선두(^)만 매칭. "사과 대비 약 6배" 같은 후행 보조 설명은 영향 없음.
+ * ⚠️ "만\s*원" — "만원"/"만 원" 표기 모두 허용.
+ *
+ * crop-aggregate·crops(정렬)에서 공유하는 단일 정의. import 순환 회피를 위해
+ * crops.ts에 의존하지 않는 순수 모듈(format.ts)에 둔다.
+ */
+export function parseIncome10a(revenueRange: string): number | null {
+  const m = revenueRange.match(
+    /^(10a|1ha)당\s*(?:시설\s*)?약\s*([\d,]+)\s*(?:~\s*([\d,]+))?\s*만\s*원/,
+  );
+  if (!m) return null;
+  const lo = Number(m[2].replace(/,/g, ""));
+  const hi = m[3] ? Number(m[3].replace(/,/g, "")) : lo;
+  if (!Number.isFinite(lo) || !Number.isFinite(hi)) return null;
+  let value = (lo + hi) / 2;
+  if (m[1] === "1ha") value /= 10; // 1ha → 10a 환산
+  return Math.round(value);
+}
+
+/**
  * 작물 수익 문자열을 1,000평 환산 라벨로 변환.
  *
  * 입력 예시:

@@ -4,8 +4,11 @@
  */
 import { CROPS, CROP_DETAILS, type CropInfo } from "@/lib/data/crops";
 import { PROVINCES } from "@/lib/data/regions";
+import { parseIncome10a } from "@/lib/format";
 import type { CropRow } from "./crop-list";
 import type { CropFact, CropIncomeFact } from "./crop-dashboard";
+
+export { parseIncome10a };
 
 /** 행정구역 정식명 → 짧은 표기(전남·충남 등) 매핑. PROVINCES SSOT 기준. */
 const PROVINCE_SHORT = new Map(PROVINCES.map((p) => [p.name, p.shortName]));
@@ -86,28 +89,6 @@ export function parseGrowingMonths(season: string): number[] {
   }
 
   return Array.from(result).sort((a, b) => a - b);
-}
-
-/**
- * revenueRange 선두 패턴에서 10a당 연소득(만원)을 파싱.
- * - "10a당 약 N만 원" / "10a당 시설 약 N만 원" → N
- * - "10a당 약 N~M만 원" → (N+M)/2
- * - "1ha당 약 N(~M)만 원" → ÷10 정규화 후 동일 처리 (1ha = 10×10a)
- * - 임야 1,000평 기준·연 N만 원 등 기준이 다른 표기는 매칭 안 됨 → null (차트 제외)
- *
- * ⚠️ 선두(^)만 매칭. "사과 대비 약 6배" 같은 후행 보조 설명은 영향 없음.
- */
-export function parseIncome10a(revenueRange: string): number | null {
-  const m = revenueRange.match(
-    /^(10a|1ha)당\s*(?:시설\s*)?약\s*([\d,]+)\s*(?:~\s*([\d,]+))?\s*만\s*원/,
-  );
-  if (!m) return null;
-  const lo = Number(m[2].replace(/,/g, ""));
-  const hi = m[3] ? Number(m[3].replace(/,/g, "")) : lo;
-  if (!Number.isFinite(lo) || !Number.isFinite(hi)) return null;
-  let value = (lo + hi) / 2;
-  if (m[1] === "1ha") value /= 10; // 1ha → 10a 환산
-  return Math.round(value);
 }
 
 const detailById = new Map(CROP_DETAILS.map((d) => [d.id, d]));
