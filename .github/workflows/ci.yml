@@ -61,6 +61,14 @@ jobs:
         # 강원/전북 신·구표기 불일치 → 작물 추천 누락 등 재발 방지.
         run: npx tsx scripts/check-cross-reference.ts
 
+      - name: "데이터 무결성 — searchParams 화이트리스트 정합"
+        # list 페이지 새 searchParam 키(view·page·sort)나 sort enum 값을 추가하면서
+        # src/lib/search-params/normalize.ts 화이트리스트 갱신을 누락하면 middleware가
+        # 라이브에서 308 strip → deep link 무력화. 로컬 build·test는 통과하고 라이브에서만
+        # 발견되는 silent 사고 (5/29 view·5/30 page·6/16 sort=income 3회 재발). page.tsx
+        # searchParams 타입 + *_SORT_OPTIONS 상수를 소스 오브 트루스로 대조.
+        run: npx tsx scripts/check-searchparams-whitelist.ts
+
       - name: "마이그레이션 — 신규 컬럼 NOT NULL 점검"
         # 5/26 quick_feedback 33일 silent fail 사고 영구 차단 (CLAUDE.md Lessons
         # Learned 2026-05-26). 5/15·5/16 마이그레이션이 신규 컬럼(thumbs·request_kind)
