@@ -69,6 +69,13 @@ jobs:
         # searchParams 타입 + *_SORT_OPTIONS 상수를 소스 오브 트루스로 대조.
         run: npx tsx scripts/check-searchparams-whitelist.ts
 
+      - name: "데이터 무결성 — 지원사업 중복 점검"
+        # 5/11 SP-019 ≡ SP-012 중복 사고(회장 라이브 발견) 후 자동화된 셀프 점검을 CI 게이팅.
+        # DUPLICATE(허용쌍 제외) 발견 시 build 차단. KNOWN_DISTINCT_PAIRS 허용쌍은
+        # ALLOWLISTED skip 로그만 남기고 게이팅 제외 (SP-030↔031 = 농촌돌봄 별개 트랙,
+        # 7/7·7/9 검증 완료). SIMILAR는 STRICT=1에서만 실패 — 기본은 리포트만.
+        run: npx tsx scripts/check-program-dup.ts --all --ci
+
       - name: "마이그레이션 — 신규 컬럼 NOT NULL 점검"
         # 5/26 quick_feedback 33일 silent fail 사고 영구 차단 (CLAUDE.md Lessons
         # Learned 2026-05-26). 5/15·5/16 마이그레이션이 신규 컬럼(thumbs·request_kind)

@@ -5,7 +5,10 @@
  *   npx tsx scripts/check-program-dup.ts <title> <organization> [<sourceUrl>]
  *
  * 사용법 2) 전체 PROGRAMS 셀프 점검 — CI에서 회귀 차단:
- *   npx tsx scripts/check-program-dup.ts --all
+ *   npx tsx scripts/check-program-dup.ts --all        # 로컬
+ *   npx tsx scripts/check-program-dup.ts --all --ci   # CI 게이팅 (exit code)
+ *   → DUPLICATE(허용쌍 제외) 발견 시 exit 1. 허용쌍(KNOWN_DISTINCT_PAIRS)은
+ *     "ALLOWLISTED skip" 로그만 남기고 게이팅에서 제외.
  *
  * 판정:
  *   DUPLICATE — 같은 사업으로 강하게 의심됨 (id 추가 금지)
@@ -29,6 +32,30 @@
  */
 
 import { PROGRAMS, type SupportProgram } from "../src/lib/data/programs";
+
+// ─── 허용쌍 (allowlist) ───
+
+/**
+ * 실중복이 아닌 것으로 사람이 검증한 허용쌍.
+ * check가 DUPLICATE/SIMILAR로 플래그하지만 별개 사업으로 판정된 쌍을 등록한다.
+ * 여기 등록된 쌍은 게이팅(exit code)에서 제외하되 "allowlisted skip" 로그는 남긴다.
+ *
+ * - SP-030 ↔ SP-031: 같은 우산사업(농촌돌봄서비스활성화지원사업)이지만 별개 트랙.
+ *   · SP-030 = 농촌돌봄농장 23개소 공모
+ *   · SP-031 = 농촌주민생활돌봄공동체 27개소 공모
+ *   조직·모집대상·사업내용·선정규모가 상이한 독립 트랙. 7/7·7/9 두 차례 검증 완료
+ *   (회장 결재). title 67% + org✓ 매치로 DUPLICATE 플래그되나 실중복 아님.
+ */
+const KNOWN_DISTINCT_PAIRS: readonly (readonly [string, string])[] = [
+  ["SP-030", "SP-031"],
+];
+
+/** 두 id가 허용쌍인지 (순서 무관). */
+function isAllowlistedPair(idA: string, idB: string): boolean {
+  return KNOWN_DISTINCT_PAIRS.some(
+    ([x, y]) => (x === idA && y === idB) || (x === idB && y === idA),
+  );
+}
 
 // ─── 키워드 추출 ───
 
@@ -243,7 +270,7 @@ function runSingle(args: string[]): number {
   return 0;
 }
 
-function runAll(): number {
+function runAll(opts: { ci: boolean }): number {
   let dupCount = 0;
   let simCount = 0;
   const findings: Array<{
@@ -254,6 +281,7 @@ function runAll(): number {
     urlMatch: boolean;
     verdict: Verdict;
   }> = [];
+  const skipped: Array<{ a: SupportProgram; b: SupportProgram; verdict: Verdict }> = [];
 
   for (let i = 0; i < PROGRAMS.length; i++) {
     const a = PROGRAMS[i];
@@ -264,19 +292,31 @@ function runAll(): number {
       const urlMatch = urlOverlap(a.sourceUrl, b.sourceUrl);
       // 단일 검증 로직과 동일한 임계 적용
       const v = judge([{ row: b, titleScore: score, orgMatch, urlMatch }]);
-      if (v !== "OK") {
-        findings.push({ a, b, score, orgMatch, urlMatch, verdict: v });
-        if (v === "DUPLICATE") dupCount++;
-        else simCount++;
+      if (v === "OK") continue;
+      // 허용쌍은 게이팅·카운트에서 제외 (skip 로그만 남김)
+      if (isAllowlistedPair(a.id, b.id)) {
+        skipped.push({ a, b, verdict: v });
+        continue;
       }
+      findings.push({ a, b, score, orgMatch, urlMatch, verdict: v });
+      if (v === "DUPLICATE") dupCount++;
+      else simCount++;
     }
   }
 
   console.log("");
-  console.log("=== PROGRAMS 셀프 중복 점검 ===");
+  console.log(`=== PROGRAMS 셀프 중복 점검${opts.ci ? " (CI)" : ""} ===`);
   console.log(`총 row : ${PROGRAMS.length}`);
   console.log(`발견   : DUPLICATE ${dupCount} / SIMILAR ${simCount}`);
+  console.log(`allowlist skip : ${skipped.length}쌍`);
   console.log("");
+
+  for (const s of skipped) {
+    console.log(`[ALLOWLISTED skip] ${s.a.id} ↔ ${s.b.id} (원판정 ${s.verdict}) — 별개 사업 검증 완료`);
+    console.log(`  - ${s.a.id}: ${s.a.title}`);
+    console.log(`  - ${s.b.id}: ${s.b.title}`);
+  }
+  if (skipped.length > 0) console.log("");
 
   for (const f of findings) {
     const pct = Math.round(f.score * 100);
@@ -291,7 +331,7 @@ function runAll(): number {
   }
 
   if (findings.length === 0) {
-    console.log("중복 의심 없음.");
+    console.log("중복 의심 없음 (allowlist 제외).");
   }
   console.log("");
 
@@ -303,8 +343,9 @@ function runAll(): number {
 
 function main(): number {
   const args = process.argv.slice(2);
-  if (args[0] === "--all") return runAll();
-  return runSingle(args);
+  if (args.includes("--all")) return runAll({ ci: args.includes("--ci") });
+  // 단건 모드 — 플래그(--*) 제거 후 위치 인자만 전달
+  return runSingle(args.filter((a) => !a.startsWith("--")));
 }
 
 process.exit(main());
