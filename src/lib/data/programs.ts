@@ -12,6 +12,7 @@ import {
 } from "@/lib/api/rda";
 import { deriveStatus } from "@/lib/program-status";
 import { getSupabase, isSupabaseConfigured, type ProgramRow } from "@/lib/supabase";
+import { groupCrawlRows, type CrawlGroupInfo } from "@/lib/crawl-grouping";
 
 /** 카테고리 — Sprint P P2-e (2026-05-20) + Sprint Q 확장 (2026-05-20)
  *  성격 분류: 정착·창업 / 청년 / 시설·체류 / 치유농업 / 사회적 농업
@@ -48,6 +49,8 @@ export interface SupportProgram {
   createdAt?: string;
   /** 카테고리 — 치유농업·사회적 농업 등 영역 태그 (optional) */
   category?: ProgramCategory;
+  /** 크롤 row 동일 모사업 그룹핑 결과 — 대표 카드에만 부착 (crawl-grouping.ts) */
+  crawlGroup?: CrawlGroupInfo;
 }
 
 /** 카테고리 필터 옵션 — FilterGroup paramKey="category" */
@@ -1270,5 +1273,7 @@ export async function filterProgramsAsync(
     return true;
   });
 
-  return { programs: filtered, source };
+  // 크롤 row 동일 모사업 그룹핑 (대표 1건 + "외 N개 지역"). 정적·API row는 통과.
+  // 목록 조립 단계에서 적용해 SSR·loadMore·테이블 뷰가 동일하게 collapse된다.
+  return { programs: groupCrawlRows(filtered), source };
 }

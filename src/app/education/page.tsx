@@ -39,6 +39,7 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
+import { CrawlGroupNote } from "@/components/ui/crawl-group-note";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { ListToolbar } from "@/components/ui/list-toolbar";
 import { SectionNav } from "@/components/layout/section-nav";
@@ -294,6 +295,9 @@ export default async function EducationPage({ searchParams }: PageProps) {
                       <Link href={`/education/${c.id}`} className={`${dt.titleLink} ${dt.rowLink}`}>
                         {c.title}
                       </Link>
+                      {c.crawlGroup && (
+                        <span className={s.groupTag}>외 {c.crawlGroup.others.length}개 지역</span>
+                      )}
                     </td>
                     <td className={`${dt.muted} ${dt.hideOnMobile}`}>{c.region}</td>
                     <td className={`${dt.muted} ${dt.hideOnMobile}`}>{c.type}</td>
@@ -319,6 +323,9 @@ export default async function EducationPage({ searchParams }: PageProps) {
                 style={{ animationDelay: `${Math.min(i, 5) * 30}ms` }}
               >
                 <CourseCard course={course} />
+                {course.crawlGroup && (
+                  <CrawlGroupNote group={course.crawlGroup} basePath="/education" />
+                )}
               </div>
             ))}
           </CardGrid>

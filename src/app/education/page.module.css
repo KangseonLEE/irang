@@ -312,3 +312,15 @@
 @media (prefers-reduced-motion: reduce) {
   .cardAnim { animation: none; }
 }
+
+/* 크롤 그룹 대표 — 테이블 뷰 "외 N개 지역" 표기 */
+.groupTag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  vertical-align: middle;
+  white-space: nowrap;
+}

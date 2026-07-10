@@ -12,6 +12,7 @@ import {
 } from "@/lib/api/rda";
 import { deriveStatus } from "@/lib/program-status";
 import { getSupabase, isSupabaseConfigured, type EducationRow } from "@/lib/supabase";
+import { groupCrawlRows, type CrawlGroupInfo } from "@/lib/crawl-grouping";
 
 export interface EducationCourse {
   id: string;
@@ -32,6 +33,8 @@ export interface EducationCourse {
   url: string;
   /** 원문 링크 상태 — 헬스체크 결과 반영 */
   linkStatus?: "active" | "broken" | "unverified";
+  /** 크롤 row 동일 모사업 그룹핑 결과 — 대표 카드에만 부착 (crawl-grouping.ts) */
+  crawlGroup?: CrawlGroupInfo;
 }
 
 export const EDUCATION_REGIONS = [
@@ -509,7 +512,8 @@ export async function filterEducationAsync(
     return true;
   });
 
-  return { courses: filtered, source };
+  // 크롤 row 동일 모사업 그룹핑 (대표 1건 + "외 N개 지역"). 정적·API row는 통과.
+  return { courses: groupCrawlRows(filtered), source };
 }
 
 // ─── 정렬 (5/25 회장 결재 — programs와 동일 패턴) ─────────────────────────────

@@ -13,6 +13,7 @@ import { isNewProgram, isUnannounced, UNANNOUNCED_LABEL } from "@/lib/program-st
 import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
+import { CrawlGroupNote } from "@/components/ui/crawl-group-note";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
 import type { ViewMode } from "@/components/ui/view-toggle";
@@ -149,6 +150,9 @@ export function ProgramList({
                     {isNewProgram(p.createdAt, p.status) && (
                       <span className={s.newTag}>신규</span>
                     )}
+                    {p.crawlGroup && (
+                      <span className={s.groupTag}>외 {p.crawlGroup.others.length}개 지역</span>
+                    )}
                   </td>
                   <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.region}</td>
                   <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.supportType}</td>
@@ -189,6 +193,9 @@ export function ProgramList({
                   style={{ animationDelay: animDelay }}
                 >
                   <ProgramCard program={program} />
+                  {program.crawlGroup && (
+                    <CrawlGroupNote group={program.crawlGroup} basePath="/programs" />
+                  )}
                   <PersonaScoreExplain trace={trace} subject="이 사업" />
                 </article>
               );
@@ -200,6 +207,9 @@ export function ProgramList({
                 style={{ animationDelay: animDelay }}
               >
                 <ProgramCard program={program} />
+                {program.crawlGroup && (
+                  <CrawlGroupNote group={program.crawlGroup} basePath="/programs" />
+                )}
               </div>
             );
           })}
