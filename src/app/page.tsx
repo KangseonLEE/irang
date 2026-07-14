@@ -4,7 +4,7 @@ import { Suspense } from "react";
 export const metadata: Metadata = {
   title: "이랑 — 농촌 정착 정보 큐레이션 포탈",
   description:
-    "농촌 정착 비용, 지원금, 추천 지역, 작물 수익까지 — 공공데이터로 한곳에서 비교하고 결정하세요.",
+    "농촌 정착(귀농·귀촌)을 준비하는 사람을 위한 정보 큐레이션 서비스예요. 지역 비교, 작물 정보, 정착 비용, 지원사업까지 공공데이터로 한곳에서 확인하세요.",
   alternates: { canonical: "/" },
 };
 
