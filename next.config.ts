@@ -1,5 +1,13 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+/* ── 번들 실측 (ANALYZE=true npm run build) ──
+   대형 정적 데이터(CROPS·DIMENSION_SCORES 등)의 client chunk 유입을 수치로 확인.
+   기본(ANALYZE 미설정) 빌드에는 아무 영향 없음. */
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -156,7 +164,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withBundleAnalyzer(nextConfig), {
   // Sentry 빌드 설정
   // org/project는 환경변수 또는 .sentryclirc에서 읽음
   org: process.env.SENTRY_ORG,
