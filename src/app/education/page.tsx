@@ -271,6 +271,8 @@ export default async function EducationPage({ searchParams }: PageProps) {
         <EmptyState
           icon={<GraduationCap size={32} />}
           message={<>조건에 맞는 교육 과정이 없어요.<br />검색 조건을 변경하거나 필터를 초기화해 보세요.</>}
+          linkHref="/education"
+          linkText="전체 교육 보기"
         />
       ) : viewMode === "table" ? (
         <>
