@@ -683,6 +683,17 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
   3. **차단 진단 순서**: 라이브 일반/Googlebot UA 200 + Vercel 로그에 그 봇 요청 미존재 = origin 미도달 = 우리 코드(middleware) 아님. CF Events Action(Skip/Block) 확인이 1차 분기점.
   4. middleware InspectionTool verified 추가(08fa26c)는 그 자체로 옳은 보강이라 유지. 단 이번 5xx의 해결책은 아니었음.
 
+### CF KR 외 차단 룰이 Let's Encrypt 갱신까지 차단 → apex 인증서 만료 526 전면 다운 (2026-07-24)
+
+- **증상**: `irangfarm.com`(apex)이 CF 526(Invalid SSL certificate)으로 전면 다운. www는 정상 200. `vercel certs ls`에서 apex 인증서 엔트리 자체가 소멸 (www만 잔존). 회장 라이브 직접 발견.
+- **root cause**: 4/22 발급 apex 인증서(만료 7/21)의 자동 갱신 시점에, 5/14 배포한 CF Custom Rule Order 4(KR 외 catch-all Block)가 Let's Encrypt HTTP-01 검증 서버(해외발·verified bot 아님)를 차단 → 갱신 silent fail → 만료일까지 한 달 잠복 후 폭발. www는 룰 배포 전(5/6) 갱신이라 생존했으나 같은 경로로 8/4 만료 예정이었음.
+- **해결**: ① `vercel certs issue irangfarm.com --challenge-only`로 DNS-01 챌린지 TXT 획득 → CF DNS에 `_acme-challenge` TXT 수동 추가 → `vercel certs issue irangfarm.com` 재실행 → 90일 인증서 발급, 라이브 200 복구. ② 재발 방지로 CF Custom Rule **Order First**에 `starts_with(http.request.uri.path, "/.well-known/acme-challenge/")` → Skip(All remaining custom rules) 룰 추가. 해외 IP 실측 검증: ACME 경로 404(origin 도달=통과) + 일반 경로 403(봇 차단 유지) 동시 확인.
+- **교훈**:
+  1. **IP/국가 기반 광역 차단 룰은 인증서 갱신 같은 인프라 검증 트래픽까지 죽인다.** CF 차단 룰 추가/변경 시 ACME(`/.well-known/acme-challenge/`)·webhook 등 화이트리스트 필요 경로를 사전 점검 목록에 포함할 것.
+  2. **인증서 만료는 발급 +90일 시한폭탄 — silent fail 후 만료일에 폭발.** watchman 화·금 점검에 `vercel certs ls` 만료 D-14 체크 추가 (D-14 미만 + renew 실패 흔적 시 🔴).
+  3. **Skip 룰의 실질 검증은 다음 자동 갱신 성공.** 8/4 만료 www 인증서가 7/28~8/4 사이 자동 갱신되는지 확인해야 종결 (`vercel certs ls`).
+  4. 복구 절차 박제: 526 + apex cert 소멸 → `--challenge-only`로 TXT 획득 → CF DNS 추가 → issue 재실행 → `openssl s_client`로 새 notAfter 확인. TXT는 1회용이라 발급 후 삭제 가능.
+
 ---
 
 ## 차트 컴포넌트 가이드
