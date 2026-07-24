@@ -289,9 +289,9 @@ function main() {
           rawUnit: "%",
           rawLabelPrefix: "전체 인구 대비 귀농",
           percentile: returnFarm,
-          highTone: "귀농 비율이 높아 정착 사례가 많은 곳이에요",
-          midTone: "귀농 비율이 평균 수준이에요",
-          lowTone: "귀농 비율이 낮은 편이에요",
+          highTone: "정착 비율이 높아 정착 사례가 많은 곳이에요",
+          midTone: "정착 비율이 평균 수준이에요",
+          lowTone: "정착 비율이 낮은 편이에요",
         }),
       },
     };
@@ -323,7 +323,7 @@ function main() {
  * 2. farmActivity: 인구 1만명당 농가 수 전국 분위 (1~100). 도시 자치구 null
  * 3. medical: 인구 1만명당 의료기관 수 전국 분위 (1~100)
  * 4. school: 인구 1만명당 학교 수 전국 분위 (1~100). 군위 null
- * 5. returnFarm: 귀농 인구 비율 전국 분위 (1~100). 도시 자치구 null
+ * 5. returnFarm: 농촌 정착 인구 비율 전국 분위 (1~100). 도시 자치구 null
  *
  * 회장 결재 사항 (A'안):
  *   - 농가/의료/학교/귀농 전국 분위 통일 (어르신 친화 카피 일관)
@@ -368,7 +368,7 @@ export interface DimensionScores {
   medical: number | null;
   /** 학교 인프라 분위 (1~100). 군위 null */
   school: number | null;
-  /** 귀농 인구 비율 분위 (1~100). 도시 자치구 null */
+  /** 농촌 정착 인구 비율 분위 (1~100). 도시 자치구 null */
   returnFarm: number | null;
   /** 차원별 evidence (raw 수치 + 해석 카피) */
   evidence: DimensionEvidenceMap;
@@ -392,7 +392,7 @@ export const DIMENSION_LABELS = {
   farmActivity: "농가 활성도",
   medical: "의료 인프라",
   school: "학교 인프라",
-  returnFarm: "귀농 활성도",
+  returnFarm: "농촌 정착 활성도",
 } as const;
 
 export type DimensionId = keyof typeof DIMENSION_LABELS;
@@ -406,7 +406,11 @@ export const DIMENSION_IDS: DimensionId[] = [
 ];
 `;
 
-  const outPath = resolve(__dirname, "../src/lib/data/dimension-scores.ts");
+  // IRANG_COMPUTE_OUT: 재현성 게이트(check-compute-reproducibility.ts)가 커밋본을
+  // 덮어쓰지 않고 임시 파일로 출력받기 위한 override. 미설정 시 정규 경로에 기록.
+  const outPath =
+    process.env.IRANG_COMPUTE_OUT ??
+    resolve(__dirname, "../src/lib/data/dimension-scores.ts");
   writeFileSync(outPath, header);
   console.log(`[wrote] ${outPath}`);
 }

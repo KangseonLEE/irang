@@ -551,10 +551,11 @@ export function getScorePercentile(score: number): number {
 }
 `;
 
-const outputPath = join(
-  process.cwd(),
-  "src/lib/data/settlement-score.ts",
-);
+// IRANG_COMPUTE_OUT: 재현성 게이트(check-compute-reproducibility.ts)가 커밋본을
+// 덮어쓰지 않고 임시 파일로 출력받기 위한 override. 미설정 시 정규 경로에 기록.
+const outputPath =
+  process.env.IRANG_COMPUTE_OUT ??
+  join(process.cwd(), "src/lib/data/settlement-score.ts");
 writeFileSync(outputPath, fileHeader + dataLine, "utf8");
 
 console.log(`\n✅ 저장 완료: ${outputPath}`);
