@@ -69,6 +69,14 @@ jobs:
         # searchParams 타입 + *_SORT_OPTIONS 상수를 소스 오브 트루스로 대조.
         run: npx tsx scripts/check-searchparams-whitelist.ts
 
+      - name: "SEO 회귀 — useSearchParams Suspense bailout 정적 검사"
+        # 6/1 사고 재발 차단: 정적 렌더 서버 page가 useSearchParams-전파 컴포넌트를
+        # Suspense 없이 렌더하면 static generation 시 CSR bailout이 페이지 루트까지
+        # 전파 → 히어로 h1·본문이 SSR HTML에서 통째로 누락 → 크롤러 색인 불가.
+        # import 그래프 + JSX Suspense-깊이 파싱으로 탐지. 동적 페이지(searchParams
+        # 소비·force-dynamic)는 요청 시 서버 렌더되므로 무해로 면제.
+        run: npx tsx scripts/check-suspense-bailout.ts
+
       - name: "데이터 무결성 — 지원사업 중복 점검"
         # 5/11 SP-019 ≡ SP-012 중복 사고(회장 라이브 발견) 후 자동화된 셀프 점검을 CI 게이팅.
         # DUPLICATE(허용쌍 제외) 발견 시 build 차단. KNOWN_DISTINCT_PAIRS 허용쌍은

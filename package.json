@@ -17,6 +17,7 @@
     "check-integrity": "npx tsx scripts/check-regions-stations-integrity.ts",
     "check-cross-reference": "npx tsx scripts/check-cross-reference.ts",
     "check-searchparams": "npx tsx scripts/check-searchparams-whitelist.ts",
+    "check-suspense": "npx tsx scripts/check-suspense-bailout.ts",
     "check-migration-not-null": "npx tsx scripts/check-migration-not-null.ts",
     "test": "vitest run",
     "test:watch": "vitest",
