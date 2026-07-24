@@ -67,6 +67,7 @@
 | 2026-05-11 | Lessons Learned 3건 추가 (dynamic SSR + revalidate 충돌 / middleware 308 CF cache hold / Supabase 정적 병합 5/10 재발) | CLAUDE.md §Lessons Learned | 5/11 sprint 사고 회고 — 메모리만으로 코드 보장 불가 입증, CLAUDE.md 명시 + 회귀 테스트 권고 |
 | 2026-05-11 | 정적 데이터 중복 추가 사고 Five Whys 분석 + Lessons Learned 추가 + CoS 인수 체크리스트 #2 강화 (본문 무결성 + 중복 검색 라인 추가) | CLAUDE.md §Lessons Learned, agents/chief-of-staff.md | 회장 추가 회고 — 5/10 lessons의 양방향 인식(누락↔중복) 부재가 5/11 재발의 본질. data·CoS 양쪽 가드 보강 |
 | 2026-06-03 | 주요 페이지 SSR/prerender 무결성 감시 §13 추가 (화·금, Yeti UA로 h1 0개·SSR 크기 급감·bailout 위치 점검) + Lessons 2건 추가 | agents/reminder-watchman.md §13, CLAUDE.md §Lessons Learned | 6/3 홈 useSearchParams Suspense 누락 → 페이지 전체 CSR bailout → 히어로 SSR 누락 → 네이버 색인 5% 정체 사고. crawler 전용 사각지대로 watchman 감시 부재였음 |
+| 2026-07-24 | SSL/TLS 인증서 만료 감시 §14 추가 (화·금, `vercel certs ls`로 D-14 🟡 / D-7 🔴 / renew=no 승격 + ACME 챌린지 경로 통과 동반 점검) | agents/reminder-watchman.md §14 | 7/24 apex SSL 만료로 CF 526 전면 다운. CF의 KR 외 차단 룰이 ACME 갱신 챌린지까지 막아 자동 갱신 실패. 인프라 사각지대로 watchman 감시 부재였음 |
 
 ---
 

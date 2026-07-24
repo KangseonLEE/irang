@@ -336,6 +336,31 @@ done
 - 배포 직후 ISR 캐시 미반영(`x-vercel-cache: PRERENDER` + `age` 큰 값)일 수 있음 — 새 빌드 promote 확인 후 판정.
 - 참조: [[CLAUDE.md Lessons "useSearchParams Suspense 누락"]]
 
+### §14. SSL/TLS 인증서 만료 감시 (2026-07-24 추가)
+
+> 배경: 7/24 오전 apex(irangfarm.com) SSL 인증서 만료로 CF 526 전면 다운. CF의 KR 외 차단 룰이 ACME(Let's Encrypt) 갱신 챌린지까지 막아 자동 갱신 실패 → 만료 방치. crawler·인프라 사각지대로 watchman 감시 부재였음. DNS-01 수동 발급으로 복구(새 인증서 10/22까지) + ACME Skip 룰(Order First) 적용.
+
+#### 14-1. 점검 주기 — 화·금 (§8·§11·§12·§13과 동일 사이클)
+
+#### 14-2. 판정 (`vercel certs ls`로 만료 D-day 확인)
+
+- 🔴 apex/www 인증서 **만료 D-7 미만** (즉시 갱신·수동 발급 필요)
+- 🟡 apex/www 인증서 **만료 D-14 미만** (자동 갱신 여부 확인, `renew` 컬럼이 `no`이면 🔴 승격)
+- ⚪ D-14 이상 + `renew: yes` (정상)
+
+#### 14-3. 점검 방법 (read-only)
+
+```bash
+vercel certs ls
+# cns(도메인) · expiration(D-day) · renew(자동갱신 yes/no) 3종 확인
+```
+
+#### 14-4. False positive 방지
+
+- `renew: yes` + D-14 이상은 정상 — 자동 갱신이 만료 30일 전 시도됨. D-14 미만 🟡은 "자동 갱신이 실제 도는지" 확인 트리거이지 즉시 사고 아님.
+- **CF 차단 룰 변경 시 ACME 챌린지 경로(`/.well-known/acme-challenge/`) 통과 여부 동반 점검** — KR 외 차단이 갱신을 막은 7/24 재발 방지. ACME Skip 룰(Order First) 존재 확인.
+- 참조: [[CLAUDE.md Lessons "CF KR 차단 룰의 ACME 갱신 차단 → apex SSL 만료 526"]]
+
 ## Working Principles
 
 1. **침묵 기본값** — 정상이면 아무것도 보고 안 함
