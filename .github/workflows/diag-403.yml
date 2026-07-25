@@ -1,0 +1,29 @@
+# 임시 진단 워크플로 — e2e 간헐 403의 주체(CF vs Vercel vs origin) 판별용.
+# 7/25 core-journeys CI 403 진단 후 즉시 삭제 예정. (commit→cleanup 사이클)
+name: diag-403
+on: workflow_dispatch
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe with e2e UA+secret, dump status + response headers
+        env:
+          E2E_SECRET: ${{ secrets.E2E_SECRET }}
+        run: |
+          UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 irang-e2e/1.0"
+          for path in /regions/jeonnam /regions/jeonnam/mokpo /regions/jeonnam/suncheon /assess /programs; do
+            for i in 1 2 3 4 5; do
+              # 응답 헤더만 덤프. secret 값은 출력하지 않음.
+              out=$(curl -s -o /dev/null -D - \
+                -A "$UA" \
+                -H "x-irang-e2e: playwright" \
+                -H "x-irang-e2e-secret: $E2E_SECRET" \
+                "https://irangfarm.com$path" \
+                -w "STATUS:%{http_code}" --max-time 20)
+              code=$(echo "$out" | grep -o "STATUS:[0-9]*" | cut -d: -f2)
+              interesting=$(echo "$out" | grep -iE "^(server|cf-ray|cf-mitigated|cf-cache-status|x-vercel-id|x-vercel-error|x-matched-path|retry-after):" | tr '\n' ' ')
+              echo "[$path #$i] $code | $interesting"
+              sleep 1
+            done
+          done
