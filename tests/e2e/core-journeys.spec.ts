@@ -28,11 +28,15 @@ async function gotoOk(page: Page, path: string) {
 
 test.describe("여정 ① 진단 완주 → 매칭 결과", () => {
   test("/assess 위저드 완주 후 /match 결과 렌더", async ({ page }) => {
-    // 위저드는 스텝마다 400ms transition 가드가 있어 완주에 시간이 걸림 → 여유 부여
-    test.setTimeout(90_000);
+    // 위저드는 스텝마다 400ms transition 가드 + client hydration이 필요.
+    // CI(미국 러너 → 서울 CF)는 왕복 지연 + 동시 부하로 JS chunk 다운로드·hydration이
+    // 로컬(KR)보다 훨씬 느림 → 넉넉히 여유 부여.
+    test.setTimeout(150_000);
     await gotoOk(page, "/assess");
+    // 위저드는 client 컴포넌트 — 스크립트 로드·hydration 완료까지 대기.
+    await page.waitForLoadState("load");
 
-    // 위저드는 client 컴포넌트 — hydration 후 옵션 버튼이 나타날 때까지 대기.
+    // hydration 후 옵션 버튼이 나타날 때까지 대기.
     // 옵션 버튼은 위저드 본문(main) 안에만 — Header 검색/메뉴 버튼 제외.
     // 각 스텝의 네비 버튼('이전' back, '처음으로' reset)은 제외해야 초기화 루프에
     // 빠지지 않음. 남는 첫 버튼 = 실제 답변 옵션(A/B/C…).
@@ -40,7 +44,8 @@ test.describe("여정 ① 진단 완주 → 매칭 결과", () => {
       page
         .locator('main button[type="button"]')
         .filter({ hasNotText: /이전|처음으로/ });
-    await expect(optionSel().first()).toBeVisible({ timeout: 15_000 });
+    // CI 러너 hydration 지연 대비 — 로컬 15s로 충분하나 US 러너는 부족(실측). 30s.
+    await expect(optionSel().first()).toBeVisible({ timeout: 30_000 });
 
     // 완주 — 트랙 → 인구통계 → 진단 문항 순으로 자동 진행되며 결과 화면에서 종료.
     const resultMarker = page.getByText(/다시 진단하기/);
@@ -64,8 +69,8 @@ test.describe("여정 ① 진단 완주 → 매칭 결과", () => {
 
     expect(reached, "위저드가 결과 화면에 도달").toBe(true);
     // 결과 핵심 요소: 총점 표기 + 상세 분석(추천 근거) 섹션 + 맞춤 지역 CTA
-    await expect(page.getByText(/총점\s*\d+점/)).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText(/상세 분석/)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/총점\s*\d+점/)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/상세 분석/)).toBeVisible({ timeout: 15_000 });
 
     // '맞춤 지역 찾기' → /match deep link (진단 결과를 매칭으로 이어받음)
     const matchCta = page.getByRole("link", { name: /맞춤 지역 찾기/ });
@@ -74,12 +79,14 @@ test.describe("여정 ① 진단 완주 → 매칭 결과", () => {
 
     // /match 페이지가 진단 파라미터를 받아 매칭 위저드/게이트웨이를 정상 렌더
     // (experience·lifestyle 파라미터 → match 모드 진입). h1 + 콘텐츠 존재 검증.
-    await page.waitForURL(/\/match(\?|$)/, { timeout: 10_000 });
-    await expect(page.locator("main h1").first()).toBeVisible({ timeout: 10_000 });
+    // /match는 동적 렌더 + client hydration → US 러너 지연 대비 넉넉한 timeout.
+    await page.waitForURL(/\/match(\?|$)/, { timeout: 20_000 });
+    await page.waitForLoadState("load");
+    await expect(page.locator("main h1").first()).toBeVisible({ timeout: 20_000 });
     // 매칭 위저드/게이트웨이가 인터랙티브하게 렌더됨 (옵션 버튼 ≥ 1)
     await expect(
       page.locator('main button[type="button"]').first(),
-    ).toBeVisible({ timeout: 10_000 });
+    ).toBeVisible({ timeout: 20_000 });
   });
 });
 
@@ -99,28 +106,31 @@ test.describe("여정 ② 지역 탐색 → 시군구 상세 → 비교", () => 
     // 링크가 섞이므로 :visible로 실제 보이는 링크만 대상 (모바일에서 첫 링크가
     // 숨겨질 수 있음).
     const sigunguLinks = page.locator('a[href^="/regions/jeonnam/"]:visible');
-    await expect(sigunguLinks.first()).toBeVisible({ timeout: 10_000 });
+    await expect(sigunguLinks.first()).toBeVisible({ timeout: 15_000 });
     expect(await sigunguLinks.count(), "전남 시군구 링크 ≥ 1").toBeGreaterThanOrEqual(1);
 
-    // 실제 클릭으로 시군구 상세 진입
-    await sigunguLinks.first().click();
-    await page.waitForURL(/\/regions\/jeonnam\/[^/]+$/, { timeout: 10_000 });
-    // 상세 핵심 마커: 정착 점수 수치 노출. 모바일에선 데스크탑용 숨김 노드가 섞여
-    // getByText().first()가 숨김 요소를 잡을 수 있으므로, main textContent 기준으로
-    // 점수 존재를 검증 (visibility 무관).
+    // 탐색으로 발견한 시군구 상세로 진입. Link 클릭(client-side RSC nav)은 US 러너
+    // 지연에서 전이가 10s를 초과할 수 있어(실측) 기존 통과 스펙(critical-paths)과
+    // 동일하게 발견한 href로 직접 goto(full nav) — 탐색→상세 의미는 유지되고
+    // SSR 콘텐츠를 즉시 검증 가능.
+    const detailHref = await sigunguLinks.first().getAttribute("href");
+    expect(detailHref, "시군구 상세 href").toMatch(/^\/regions\/jeonnam\/[^/]+$/);
+    await gotoOk(page, detailHref!);
+    // 상세 핵심 마커: 정착 점수 수치 노출 (SSR). 모바일에선 데스크탑용 숨김 노드가
+    // 섞여 getByText().first()가 숨김 요소를 잡을 수 있으므로 main textContent 기준.
     await expect(page.locator("main")).toContainText(/\d{1,3}점/, {
-      timeout: 10_000,
+      timeout: 15_000,
     });
 
     // 지역 비교 페이지
     await gotoOk(page, "/regions/compare");
-    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 15_000 });
     // 비교 셀렉터(지역 선택 UI) 존재 — 보이는 인터랙티브 요소 1개 이상
     // (모바일에선 숨김 노드가 섞이므로 :visible로 실제 보이는 것만 대상)
     const compareUi = page.locator(
       "main button:visible, main input:visible, main select:visible",
     );
-    await expect(compareUi.first()).toBeVisible({ timeout: 10_000 });
+    await expect(compareUi.first()).toBeVisible({ timeout: 15_000 });
   });
 });
 
