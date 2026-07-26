@@ -69,6 +69,7 @@
 | 2026-06-03 | 주요 페이지 SSR/prerender 무결성 감시 §13 추가 (화·금, Yeti UA로 h1 0개·SSR 크기 급감·bailout 위치 점검) + Lessons 2건 추가 | agents/reminder-watchman.md §13, CLAUDE.md §Lessons Learned | 6/3 홈 useSearchParams Suspense 누락 → 페이지 전체 CSR bailout → 히어로 SSR 누락 → 네이버 색인 5% 정체 사고. crawler 전용 사각지대로 watchman 감시 부재였음 |
 | 2026-07-24 | 하네스 전수조사 정리 — supanova-* 스킬 5종 repo 제거 (5/1 `git add -A` 실수 커밋 잔재, Tailwind 전제로 CSS Modules 컨벤션 충돌·supanova-research는 SKILL.md 없는 broken) + 유저 레벨 에이전트 4종 `~/.claude/agents/_archive/` 이동 (automation-engineer·technical-writer 미사용, chief-of-staff·data-engineer 3월 구식 중복 — 프로젝트 버전과 혼선 위험) | .claude/skills/supanova-*, ~/.claude/agents/ | 7/24 회장 지시 하네스 에이전트 전수조사. 프로젝트 5 에이전트 + 활성 스킬 4종 + CoS 전문가 풀 11종은 전부 실사용 확인 유지 |
 | 2026-07-24 | SSL/TLS 인증서 만료 감시 §14 추가 (화·금, `vercel certs ls`로 D-14 🟡 / D-7 🔴 / renew=no 승격 + ACME 챌린지 경로 통과 동반 점검) | agents/reminder-watchman.md §14 | 7/24 apex SSL 만료로 CF 526 전면 다운. CF의 KR 외 차단 룰이 ACME 갱신 챌린지까지 막아 자동 갱신 실패. 인프라 사각지대로 watchman 감시 부재였음 |
+| 2026-07-27 | cron/스케줄 워크플로 실패 감시 §15 추가 (화·금, `gh run list --event=schedule`로 8종 점검 — 연속 2회 실패 🟡 / 3회+ 또는 sync-data 실패 🔴) | agents/reminder-watchman.md §15 | 7/27 3관점 검토 ⚪ — 스케줄 워크플로는 실패해도 무알림이라 stale 데이터·깨진 링크가 조용히 방치되는 사각지대. 실제 7/26 check-links schedule 실행 failure 발생 |
 
 ---
 

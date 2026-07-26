@@ -361,6 +361,50 @@ vercel certs ls
 - **CF 차단 룰 변경 시 ACME 챌린지 경로(`/.well-known/acme-challenge/`) 통과 여부 동반 점검** — KR 외 차단이 갱신을 막은 7/24 재발 방지. ACME Skip 룰(Order First) 존재 확인.
 - 참조: [[CLAUDE.md Lessons "CF KR 차단 룰의 ACME 갱신 차단 → apex SSL 만료 526"]]
 
+### §15. cron/스케줄 워크플로 실패 감시 (2026-07-27 추가)
+
+> 배경: 7/27 3관점 검토 ⚪ — cron 무알림 실패 감시 공백. GitHub Actions 스케줄 워크플로(sync-data·api-health·check-links 등 8종)는 실패해도 별도 알림이 없어 조용히 stale 데이터·깨진 링크·API 장애를 방치할 수 있다. push 트리거 CI와 달리 회장 화면 어디에도 뜨지 않는 사각지대(실제 7/26 check-links schedule 실행 failure 발생).
+
+#### 15-1. 점검 주기 — 화·금 (§8·§11·§12·§13·§14와 동일 사이클)
+
+#### 15-2. 대상 스케줄 워크플로 8종
+
+| 워크플로 | 스케줄(UTC) | 성격 |
+|---------|-------------|------|
+| `sync-data.yml` | 매일 21:00 (06:00 KST) | ★ 데이터 동기화 — 실패 시 즉시 🔴 |
+| `api-health.yml` | 매일 23:00 | 8 API 건강성 |
+| `check-links.yml` | 매일 00:00 | 외부 링크 헬스체크 |
+| `check-policy.yml` | 매주 월 00:00 | 정책 스냅샷 drift |
+| `data-freshness.yml` | 매주 수 00:00 | 데이터 신선도 |
+| `ip-list-sync.yml` | 매주 월 00:00 | CF IP 리스트 동기화 |
+| `data-refresh-reminder.yml` | 연 1회 (2/28) | 리마인더 |
+| `vercel-recheck-reminder.yml` | 연 1회 | 리마인더 |
+
+#### 15-3. 판정
+
+- 🔴 **`sync-data.yml` 최근 스케줄 실행이 `failure`** (1회라도) — 데이터 동기화 중단은 라이브 stale로 직결
+- 🔴 임의 워크플로 **연속 3회+ `failure`**
+- 🟡 임의 워크플로 **연속 2회 `failure`**
+- ⚪ 전 워크플로 최근 실행 `success` (정상 — 침묵)
+
+#### 15-4. 점검 방법 (read-only)
+
+```bash
+# 스케줄 트리거 실행만 필터(event=schedule), 워크플로별 최근 결과 3건
+for wf in sync-data api-health check-links check-policy data-freshness ip-list-sync; do
+  echo "=== $wf ==="
+  gh run list --workflow="$wf.yml" --event=schedule --limit 3 \
+    --json conclusion,createdAt --jq '.[] | "\(.conclusion)\t\(.createdAt)"'
+done
+```
+
+- 연속 실패 판정은 최신순 상위 N건 `conclusion`이 모두 `failure`인지로 확인. `success` 사이에 낀 단발 `failure`는 참고(⚪).
+
+#### 15-5. False positive 방지
+
+- `cancelled`·`skipped`는 실패 아님 (중복 push 취소 등). `conclusion=failure`만 집계.
+- 연 1회 리마인더(`data-refresh-reminder`·`vercel-recheck-reminder`)는 실행 이력이 드물어 "최근 실패"가 오래된 것일 수 있음 — `createdAt`이 최근(30일 내)일 때만 유효.
+
 ## Working Principles
 
 1. **침묵 기본값** — 정상이면 아무것도 보고 안 함
