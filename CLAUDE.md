@@ -696,6 +696,22 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
   3. **Skip 룰의 실질 검증은 다음 자동 갱신 성공.** 8/4 만료 www 인증서가 7/28~8/4 사이 자동 갱신되는지 확인해야 종결 (`vercel certs ls`).
   4. 복구 절차 박제: 526 + apex cert 소멸 → `--challenge-only`로 TXT 획득 → CF DNS 추가 → issue 재실행 → `openssl s_client`로 새 notAfter 확인. TXT는 1회용이라 발급 후 삭제 가능.
 
+### e2e 간헐 403 — 기록과 실제 인프라 불일치 3중 잠복 + Bot Fight Mode 정체 (2026-07-25~26)
+
+- **증상**: 신규 core-journeys e2e가 CI에서만 간헐 403/타임아웃 (라이브 KR은 200 정상). 기존 e2e도 7/9부터 간헐 실패 이력.
+- **3중 잠복 (전부 기록≠실제)**:
+  1. **CF E2E Skip 룰 실체 ≠ 기록**: 5/16 기록·middleware 주석은 "UA + Secret 이중 검증"인데, 실제 룰은 `(ip.src in $github_actions_ips) and (UA contains irang-e2e/1.0)` — **secret 조건이 아예 없었음**. GH Actions(Azure) IP 대역 rotate로 정적 IP 리스트가 부패하며 매칭 실패 증가.
+  2. **`E2E_SECRET`이 GitHub Secrets에 미등록**: Playwright는 secret 헤더를 보냈지만 값이 빈 문자열. CF가 검사 안 하니 2달+ 아무도 몰랐음.
+  3. **Bot Fight Mode ON**: 6/5 OFF 기록 후 재활성화된 상태. BFM은 custom rule보다 먼저 평가 + **Free 플랜에서 어떤 custom rule Skip으로도 우회 불가** → e2e는 Skip 룰이 아니라 Playwright의 챌린지 풀기로 연명 (curl 진단은 100% 403).
+- **진단 결정타**: CF GraphQL `firewallEventsAdaptive`의 `source` 필드 — `"source":"botFight","ruleId":"bot_fight_mode"`로 주체 확정. cf-mitigated: challenge 헤더만으로는 custom rule(Managed Challenge)과 구분 불가.
+- **해결**: ① CF 룰을 UA + 64자 secret 헤더 검증으로 교체(IP 리스트 제거) ② `E2E_SECRET` GH 등록(`--body "$(cat file)"` — trailing newline 함정 회피) ③ BFM OFF (회장 결재). 검증 매트릭스: e2eUA+secret=200(Vercel 도달) / e2eUA만=403 / 일반UA(US)=403 / AI크롤러=403 / KR사용자=200 / E2E CI GREEN.
+- **교훈**:
+  1. **인프라 사고 진단에서 기록(메모리·주석)은 가설이지 사실이 아니다.** 실제 룰 expression·secret 목록·토글 상태를 눈으로 확인(스크린샷·API)하기 전에 수정안을 내지 말 것. 이번에 기록만 믿은 1차 권고(CIDR 제거)는 회장의 "꼼꼼히 재체크" 지시가 없었다면 무효한 수정이 될 뻔했음.
+  2. **정적 IP 리스트(GH Actions CIDR 등)는 rotate 함정** — 위조 불가능한 secret 헤더 검증이 정답. IP 조건은 공격자도 GH Actions를 쓰면 무력.
+  3. **secret 도입·회전 시 발급처(CF)와 소비처(GH Secrets) 양쪽 등록을 즉시 검증** — 5/22 Vercel env 사고와 동형. "헤더를 보낸다" ≠ "검사된다".
+  4. **CF 403/challenge 진단 1순위는 Events의 `source` 필드** (GraphQL firewallEventsAdaptive, cf-purge용 CF_API_TOKEN으로 조회 가능). botFight면 custom rule 수정은 헛수고.
+  5. **BFM은 주력 방어가 아니다** — 5/4 폭격 때 못 막았고(custom rule 4종이 막음, 5/14 실측), headless 통과 + cache HIT 미적용 + Free에서 예외 불가로 e2e만 부순다. 현 방어망: CF custom rule(ASN·KR외·피싱) + middleware(AI크롤러 403·non-KR 503) 이중, 엣지 차단이라 Vercel 함수 호출 0.
+
 ---
 
 ## 차트 컴포넌트 가이드
