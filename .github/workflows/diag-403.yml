@@ -31,3 +31,14 @@ jobs:
           probe "B:e2eUA_noSecret" "$E2E_UA" ""
           probe "C:plainUA" "$PLAIN_UA" ""
           echo "secret-len: ${#E2E_SECRET}"
+      - name: CF Security Events 조회 시도 (token scope 허용 시)
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+        run: |
+          SINCE=$(date -u -d '30 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
+          Q=$(printf '{"query":"{ viewer { zones(filter: {zoneTag: \\"%s\\"}) { firewallEventsAdaptive(filter: {datetime_gt: \\"%s\\"}, limit: 15, orderBy: [datetime_DESC]) { datetime action source ruleId clientRequestPath clientCountryName } } } }"}' "$CF_ZONE_ID" "$SINCE")
+          curl -s https://api.cloudflare.com/client/v4/graphql \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "$Q" | head -c 3000
