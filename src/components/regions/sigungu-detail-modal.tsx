@@ -18,9 +18,9 @@ import { RegionPersonaExplain } from "@/components/persona/region-persona-explai
 import {
   DIMENSION_IDS,
   DIMENSION_LABELS,
-  type DimensionScores,
   type DimensionId,
-} from "@/lib/data/dimension-scores";
+} from "@/lib/data/dimension-meta";
+import type { DimensionScores } from "@/lib/data/dimension-scores";
 import type { Persona } from "@/lib/data/personas";
 import type { Sigungu } from "@/lib/data/sigungus";
 import type { Province } from "@/lib/data/regions";

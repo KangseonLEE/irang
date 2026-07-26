@@ -38,7 +38,7 @@ import {
   DIMENSION_LABELS,
   DIMENSION_IDS,
   type DimensionId,
-} from "@/lib/data/dimension-scores";
+} from "@/lib/data/dimension-meta";
 import { PROVINCES } from "@/lib/data/regions";
 import { analytics } from "@/lib/analytics";
 import s from "./ranking-wizard-hero.module.css";
