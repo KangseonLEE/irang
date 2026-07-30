@@ -26,7 +26,7 @@ export interface CropFact {
   name: string;
   /** 이모지 — 작물 목록 툴팁 표시용 (없을 수 있음) */
   emoji?: string;
-  category: "식량" | "채소" | "과수" | "특용";
+  category: "식량" | "채소" | "과수" | "특용" | "화훼";
   difficulty: "쉬움" | "보통" | "어려움";
   laborIntensity: "낮음" | "보통" | "높음" | null;
   /** majorRegions를 도 단위로 정규화한 배열 (중복 제거) */
@@ -40,7 +40,7 @@ export interface CropIncomeFact {
   id: string;
   name: string;
   emoji: string;
-  category: "식량" | "채소" | "과수" | "특용";
+  category: "식량" | "채소" | "과수" | "특용" | "화훼";
   difficulty: "쉬움" | "보통" | "어려움";
   /** 10a(1,000㎡)당 연소득(만원) — revenueRange 선두 파싱값 */
   income10a: number;
@@ -71,12 +71,13 @@ const BRAND_MUTED = "rgba(27, 107, 90, 0.22)";
 const AMBER = "#d97706";
 const GRAY = "#9ca3af";
 
-const CATEGORIES = ["식량", "채소", "과수", "특용"] as const;
+const CATEGORIES = ["식량", "채소", "과수", "특용", "화훼"] as const;
 const CATEGORY_COLORS: Record<string, string> = {
   식량: "#1B6B5A",
   채소: "#3EA088",
   과수: "#D4A843",
   특용: "#8B7355",
+  화훼: "#B56576",
 };
 
 const DIFFICULTIES = ["쉬움", "보통", "어려움"] as const;

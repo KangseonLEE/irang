@@ -11,7 +11,7 @@ interface Props {
   selectedId: string | null;
 }
 
-const CATEGORY_ORDER: CropInfo["category"][] = ["식량", "채소", "과수", "특용"];
+const CATEGORY_ORDER: CropInfo["category"][] = ["식량", "채소", "과수", "특용", "화훼"];
 
 /**
  * 작물 selector — region-cards-selector 와 동일한 검색 dropdown 패턴.

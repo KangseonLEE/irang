@@ -68,6 +68,13 @@ function calcCropDefaultFit(crop: CropInfo): PersonaFit {
       elderRural += -2;
       commuter += -2;
       break;
+    case "화훼":
+      // 시설 절화 중심 — 고부가가치·연중 관리·기술 집약. 본업 농가 우대
+      family += -1;
+      farmYouth += hard ? 2 : 1;
+      elderRural += -2;
+      commuter += -2;
+      break;
   }
 
   return {
@@ -159,6 +166,12 @@ const CROP_OVERRIDE_REASONS: Record<string, string> = {
   maesil: "관리 사이클이 정해진 과수라 통근·가족 농가에 어울려요",
   deodeok: "약용 특용작물이라 본업 농가에 어울려요",
   buckwheat: "척박지에서도 잘 자라 노년 자가소비에 적합해요",
+  // 화훼 3종 (2026-07-30) — 산식(화훼 case)만으로 점수가 충분해 CROP_FIT_OVERRIDES 미등재.
+  // 따라서 아래 카피는 현재 UI에 노출되지 않고(트레이스는 override 적용 시에만 읽음),
+  // 향후 화훼 override가 생기면 즉시 쓰이도록 미리 둔 값이에요.
+  rose: "연중 채화하는 시설 절화라 본업 농가에 어울려요",
+  chrysanthemum: "일장 조절 기술이 필요한 시설 절화라 본업 농가에 어울려요",
+  lily: "구근을 다루는 시설 절화라 본업 농가에 어울려요",
 };
 
 // ──────────────────────────────────────────────────────────────

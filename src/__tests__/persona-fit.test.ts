@@ -17,7 +17,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { CROPS } from "@/lib/data/crops";
+import { CROPS, CROP_CATEGORIES } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
 import { PERSONAS, type PersonaId } from "@/lib/data/personas";
 import {
@@ -457,7 +457,10 @@ describe("Phase 7 B D4 — 신규 작물 10건 (39→49종)", () => {
   });
 
   // 10-3. 카테고리 분포 — 채소+6 / 과수+1 / 특용+2 / 식량+1
-  it("카테고리 분포: 채소 19 / 과수 11 / 특용 7 / 식량 6 / 합계 49", () => {
+  // 2026-07-30: 화훼 카테고리 신설(장미·국화·백합 3종)로 하한선 1종 추가.
+  // 합계 검증은 "모든 작물이 CROP_CATEGORIES에 속하는가"(카테고리 오타 차단)로 일반화 —
+  // 카테고리를 새로 신설할 때마다 고정 합산식이 깨지던 문제를 없앰.
+  it("카테고리 분포: 채소 19 / 과수 11 / 특용 7 / 식량 6 / 화훼 3 하한 + 미지 카테고리 0건", () => {
     const counts = CROPS.reduce(
       (acc, c) => {
         acc[c.category] = (acc[c.category] ?? 0) + 1;
@@ -470,9 +473,17 @@ describe("Phase 7 B D4 — 신규 작물 10건 (39→49종)", () => {
     expect(counts["과수"]).toBeGreaterThanOrEqual(11);
     expect(counts["특용"]).toBeGreaterThanOrEqual(7);
     expect(counts["식량"]).toBeGreaterThanOrEqual(6);
-    expect(CROPS.length).toBe(
-      counts["채소"] + counts["과수"] + counts["특용"] + counts["식량"],
+    expect(counts["화훼"]).toBeGreaterThanOrEqual(3);
+
+    // 미지 카테고리(오타·union 누락) 0건 — 합계가 CROPS.length와 일치해야 함
+    const known = CROP_CATEGORIES.filter((c) => c !== "전체");
+    const unknown = Object.keys(counts).filter(
+      (k) => !known.includes(k as (typeof known)[number]),
     );
+    expect(unknown).toEqual([]);
+    expect(
+      known.reduce((sum, cat) => sum + (counts[cat] ?? 0), 0),
+    ).toBe(CROPS.length);
   });
 
   // 10-4. 신규 10건 persona-fit override 적용

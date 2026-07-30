@@ -31,7 +31,7 @@ interface CropSelectorProps {
   selectedIds: string[];
 }
 
-const CATEGORY_ORDER: CropInfo["category"][] = ["식량", "채소", "과수", "특용"];
+const CATEGORY_ORDER: CropInfo["category"][] = ["식량", "채소", "과수", "특용", "화훼"];
 
 interface SearchResult {
   id: string;

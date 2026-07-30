@@ -5,7 +5,7 @@ import s from "./farming-calendar.module.css";
 
 // ── 타입 ──
 
-type CropCategory = "식량" | "채소" | "과수" | "특용";
+type CropCategory = "식량" | "채소" | "과수" | "특용" | "화훼";
 
 interface CropSeasonInput {
   id: string;
@@ -19,8 +19,8 @@ export interface FarmingCalendarProps {
   crops: CropSeasonInput[];
 }
 
-/** 카테고리 표시 순서 (식량 → 채소 → 과수 → 특용) */
-const CATEGORY_ORDER: CropCategory[] = ["식량", "채소", "과수", "특용"];
+/** 카테고리 표시 순서 (식량 → 채소 → 과수 → 특용 → 화훼) */
+const CATEGORY_ORDER: CropCategory[] = ["식량", "채소", "과수", "특용", "화훼"];
 
 // ── 월 파싱 유틸 ──
 
