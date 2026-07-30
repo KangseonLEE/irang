@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, X, Sprout } from "lucide-react";
 import type { CropInfo } from "@/lib/data/crops";
+import { CROP_CATEGORY_NAMES } from "@/lib/data/crop-categories";
 import s from "./crop-suitability-selector.module.css";
 
 interface Props {
@@ -11,7 +12,7 @@ interface Props {
   selectedId: string | null;
 }
 
-const CATEGORY_ORDER: CropInfo["category"][] = ["식량", "채소", "과수", "특용", "화훼"];
+const CATEGORY_ORDER: readonly CropInfo["category"][] = CROP_CATEGORY_NAMES;
 
 /**
  * 작물 selector — region-cards-selector 와 동일한 검색 dropdown 패턴.

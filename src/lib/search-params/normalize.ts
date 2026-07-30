@@ -18,6 +18,10 @@
  * (David 수동 작업). 이 코드는 defense in depth + cache pollution 방지용.
  */
 
+// 의존성 0 경량 모듈만 import 허용 (middleware 번들). 카테고리 신설 시
+// normalize 누락 → 308 strip 재발(5/29·5/30·6/16) 차단을 위해 SSOT에서 파생.
+import { CROP_CATEGORY_NAMES } from "@/lib/data/crop-categories";
+
 export type RawSearchParams = URLSearchParams;
 
 interface NormalizeOptions {
@@ -320,10 +324,10 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     // 2026-05-29: view 추가 (카드/목록 토글 — 누락 시 308 strip으로 table view 무력화)
     // 2026-05-30: page 추가 (카드/테이블 20개 페이지네이션 — 누락 시 ?page=2가 308 strip)
     // 2026-06-16: sort income 추가 (실측 검색 의도 "수익순" — 누락 시 ?sort=income이 308 strip되어 P0 딥링크 무력화)
-    // 2026-07-30: category 화훼 추가 (요청 관리 "원예" 요청 기반 화훼 카테고리 신설 — 누락 시 ?category=화훼가 308 strip)
+    // 2026-07-30: category 화훼 추가 + SSOT 파생 전환 (카테고리 신설 시 자동 화이트리스트 — 수동 누락으로 인한 308 strip 재발 차단)
     allowedKeys: ["category", "difficulty", "q", "persona", "sort", "view", "page"],
     enumValidators: {
-      category: ["전체", "식량", "채소", "과수", "특용", "화훼"],
+      category: ["전체", ...CROP_CATEGORY_NAMES],
       difficulty: ["전체", "쉬움", "보통", "어려움"],
       persona: ["family", "farmYouth", "elderRural", "commuter", "balanced"],
       sort: ["name", "difficulty", "income"],

@@ -4,11 +4,12 @@
  */
 
 import { parseIncome10a } from "@/lib/format";
+import { CROP_CATEGORY_NAMES, type CropCategoryName } from "./crop-categories";
 
 export interface CropInfo {
   id: string;
   name: string;
-  category: "식량" | "채소" | "과수" | "특용" | "화훼";
+  category: CropCategoryName;
   growingSeason: string;
   difficulty: "쉬움" | "보통" | "어려움";
   description: string;
@@ -199,7 +200,7 @@ export function getCropByName(name: string): CropInfo | undefined {
   );
 }
 
-export const CROP_CATEGORIES = ["전체", "식량", "채소", "과수", "특용", "화훼"] as const;
+export const CROP_CATEGORIES = ["전체", ...CROP_CATEGORY_NAMES] as const;
 export type CropCategory = (typeof CROP_CATEGORIES)[number];
 
 export const CROP_DIFFICULTIES = ["전체", "쉬움", "보통", "어려움"] as const;

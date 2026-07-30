@@ -12,6 +12,7 @@ import {
 } from "react";
 import { Search, Plus, X, Sprout, Loader2, Pencil, Check } from "lucide-react";
 import type { CropInfo } from "@/lib/data/crops";
+import { CROP_CATEGORY_NAMES } from "@/lib/data/crop-categories";
 import { getCropImageSrc } from "@/lib/crop-image";
 import s from "./crop-selector.module.css";
 
@@ -31,7 +32,7 @@ interface CropSelectorProps {
   selectedIds: string[];
 }
 
-const CATEGORY_ORDER: CropInfo["category"][] = ["식량", "채소", "과수", "특용", "화훼"];
+const CATEGORY_ORDER: readonly CropInfo["category"][] = CROP_CATEGORY_NAMES;
 
 interface SearchResult {
   id: string;
