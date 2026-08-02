@@ -23,12 +23,13 @@ function buildRollKeyframes(itemCount: number): string {
 }
 
 /**
- * 히어로 하단 — 인기 검색어 세로 로테이션.
+ * 히어로 하단 — 추천 키워드 세로 로테이션.
  * 고정 라벨 + 키워드만 위로 슬라이드하며 자동 전환.
  * 클릭 시 /search?q= 로 이동.
  *
  * 키워드는 큐레이션 SSOT(`POPULAR_KEYWORDS` → landing.ts `trendingSearches`)로 고정한다.
  * 검색 오버레이 "인기 검색어"와 항상 동일 (2026-05-29 회장 결재 — 실데이터 경로 제거).
+ * 라벨은 큐레이션 실체에 맞춰 제안형 (2026-08-02 — "많이 찾는" 과장 표현 제거).
  *
  * ⚠ 검색 결과가 없는 키워드는 표시하지 않음 (사용자가 클릭해도 빈 결과가 나오므로)
  */
@@ -52,11 +53,11 @@ export function TrendingSearches() {
       {/* 아이템 수에 맞는 동적 키프레임 주입 */}
       <style>{rollCSS}</style>
 
-      <span className={s.label}>지금 많이 찾는 키워드는</span>
+      <span className={s.label}>시작하기 좋은 키워드는</span>
 
       <div
         className={s.roller}
-        aria-label="인기 검색어"
+        aria-label="추천 키워드"
       >
         <div
           className={s.track}
