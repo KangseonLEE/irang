@@ -153,35 +153,6 @@ export function logSearch(query: string, resultCount: number): void {
   });
 }
 
-/**
- * 최근 N일간 인기 검색어 조회 (서버 사이드 전용)
- * - get_trending_searches RPC 함수 호출
- * - service role key 필요
- */
-export async function getTrendingSearches(
-  daysBack = 7,
-  maxResults = 12
-): Promise<{ query: string; count: number }[]> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return [];
-
-  try {
-    const { data, error } = await sb.rpc("get_trending_searches", {
-      days_back: daysBack,
-      max_results: maxResults,
-    });
-
-    if (error || !data) return [];
-
-    return (data as { query: string; search_count: number }[]).map((row) => ({
-      query: row.query,
-      count: Number(row.search_count),
-    }));
-  } catch {
-    return [];
-  }
-}
-
 // ── DB Row 타입 (쿼리 결과 매핑용) ──
 
 export interface ProgramRow {

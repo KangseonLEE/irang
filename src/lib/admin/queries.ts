@@ -5,8 +5,7 @@
  * 모든 함수는 Supabase 미설정 시 빈 데이터 반환.
  */
 
-import { getSupabaseAdmin, getTrendingSearches } from "@/lib/supabase";
-import { trendingSearches as fallbackTrending } from "@/lib/data/landing";
+import { getSupabaseAdmin } from "@/lib/supabase";
 import { migrateFarmTypeId } from "@/lib/data/match-questions";
 import type {
   QuickFeedbackRow,
@@ -19,7 +18,6 @@ import type {
   AssessmentRow,
   TypeDistribution,
   AdminKpi,
-  TrendingDataSourceStatus,
   ThumbsStats,
   ThumbsByPersona,
   TopThumbsRecommendation,
@@ -238,27 +236,6 @@ export async function fetchTopThumbsRecommendations(
     .map((row) => ({ ...row, total: row.up + row.down }))
     .sort((a, b) => b.total - a.total)
     .slice(0, limit);
-}
-
-// ── 랜딩 인기 검색어 데이터 소스 ──
-
-/**
- * 랜딩 히어로 "지금 많이 찾는 키워드"가 실데이터를 쓰는지, 정적 폴백을 쓰는지 판정.
- *
- * 임계치(MIN_REAL_DATA = 5)는 src/components/landing/trending-searches.tsx 정의와 동일.
- * 임계치 변경 시 양쪽을 함께 갱신해야 한다.
- */
-export async function fetchTrendingDataSourceStatus(): Promise<TrendingDataSourceStatus> {
-  const MIN_REAL_DATA = 5;
-  const realData = await getTrendingSearches(7, 12);
-  const realDataCount = realData.length;
-
-  return {
-    realDataCount,
-    threshold: MIN_REAL_DATA,
-    isFallback: realDataCount < MIN_REAL_DATA,
-    fallbackCount: fallbackTrending.length,
-  };
 }
 
 // ── 검색 분석 ──
