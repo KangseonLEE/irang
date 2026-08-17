@@ -113,10 +113,6 @@
     padding: 16px 8px;
     gap: 6px;
   }
-
-  .timelineDotIcon {
-    margin-top: 8px;
-  }
 }
 
 .timelineDotIcon {
@@ -135,6 +131,7 @@
 
 @media (min-width: 640px) {
   .timelineDotIcon {
+    margin-top: 8px;
     width: 60px;
     height: 60px;
   }

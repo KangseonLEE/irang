@@ -36,10 +36,10 @@
   }
 }
 
+/* .emptyQuery·.section 은 이 블록보다 아래에 선언돼 오버라이드가 무효였음 (체크리스트 G).
+   globals.css 의 전역 prefers-reduced-motion 규칙(!important)이 이미 커버해요. */
 @media (prefers-reduced-motion: reduce) {
-  .page,
-  .emptyQuery,
-  .section {
+  .page {
     animation: none;
   }
 }
