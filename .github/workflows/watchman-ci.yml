@@ -1,0 +1,117 @@
+# ═══════════════════════════════════════════
+# watchman 상시 감시 — 세션 의존 항목의 CI 이관
+#
+# 배경 (2026-08-17 결재):
+#   7/24 apex SSL 사고 후 §14 인증서 감시를 reminder-watchman(화·금 세션 수동)에
+#   추가했지만, 8/4 www 인증서 갱신 실패가 세션 부재로 13일간 방치됐다.
+#   원인은 "감시 항목 부재"가 아니라 **실행 주체가 사람 세션이라 공백이 생긴 것**.
+#   따라서 세션 없이도 돌 수 있는 감시 항목을 전부 스케줄 워크플로로 승격한다.
+#
+# 이관 항목 (reminder-watchman.md 절 번호):
+#   §6  의존성 보안 (npm audit)          → check-repo-signals.ts
+#   §8-2 Cloudflare 차단 약화            → check-cf-firewall-activity.sh
+#   §9  데이터 정정 이력 갱신 누락        → check-repo-signals.ts
+#   §10 지원사업 모집 사이클             → check-repo-signals.ts
+#   §11 write endpoint 활성도            → check-write-activity.ts
+#   §12 API fallback 응답 비율           → check-write-activity.ts
+#   §13 주요 페이지 SSR/prerender 무결성 → check-ssr-integrity.sh
+#   §15 cron/스케줄 워크플로 실패        → check-schedule-health.sh
+#
+# 설계 원칙:
+#   - 각 검사는 이슈를 직접 만들지 않는다. `등급|항목|근거` 1행을 findings 파일에
+#     append하고, report.sh가 전부 모아 **하나의** 이슈로 발행한다.
+#   - 검사 step은 continue-on-error — 하나가 죽어도 나머지 검사는 끝까지 돈다.
+#     최종 성패는 report.sh가 결정한다(🔴만 fail).
+#   - 이 워크플로 자체의 실패는 §15가 다음 실행에서 잡는다(자기치유).
+# ═══════════════════════════════════════════
+
+name: "🛡️ watchman 상시 감시"
+
+on:
+  schedule:
+    # 매일 KST 오전 9시 20분 (UTC 00:20) — cert-expiry(00:10)와 10분 간격
+    - cron: "20 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: watchman-ci
+  cancel-in-progress: false
+
+jobs:
+  watchman:
+    name: 상시 감시 8종
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      # 모든 검사가 발견 사항을 여기에 append한다 (파일 부재 = 이상 0건)
+      WATCHMAN_FINDINGS: ${{ github.workspace }}/.watchman-findings.txt
+
+    steps:
+      # fetch-depth: 0 필수 — §9(정정 이력)·§10(파일 수정일)이 git 히스토리를 본다.
+      # shallow clone이면 두 검사가 skip으로 떨어져 감시가 조용히 죽는다.
+      - name: 저장소 체크아웃 (전체 히스토리)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: watchman 라벨 생성 (없으면)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "watchman" \
+            --description "watchman 상시 감시 자동 이슈" \
+            --color "5319e7" \
+            2>/dev/null || true
+
+      # ── 검사 8종 (findings 파일에 append, 실패해도 계속) ──
+
+      - name: "§13 주요 페이지 SSR/prerender 무결성 + sitemap + robots"
+        continue-on-error: true
+        env:
+          E2E_SECRET: ${{ secrets.E2E_SECRET }}
+        run: bash scripts/watchman/check-ssr-integrity.sh --ci
+
+      - name: "§11·§12 write endpoint 활성도 + API fallback 비율"
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npx tsx scripts/watchman/check-write-activity.ts --ci
+
+      - name: "§15 cron/스케줄 워크플로 실패 감시"
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/watchman/check-schedule-health.sh --ci
+
+      - name: "§8-2 Cloudflare 차단 약화 감지"
+        continue-on-error: true
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+        run: bash scripts/watchman/check-cf-firewall-activity.sh --ci
+
+      - name: "§6·§9·§10 의존성 + 정정 이력 + 모집 사이클"
+        continue-on-error: true
+        run: npx tsx scripts/watchman/check-repo-signals.ts --ci
+
+      # ── 취합·보고 (단일 이슈 발행, 🔴이면 fail) ──
+
+      - name: 감시 결과 취합 + 이슈 발행
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/watchman/report.sh --ci

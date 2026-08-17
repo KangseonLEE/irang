@@ -11,6 +11,7 @@
     "lint": "eslint",
     "check-links": "bash scripts/check-links.sh",
     "check-cert": "bash scripts/check-cert-expiry.sh",
+    "watchman": "WATCHMAN_FINDINGS=${WATCHMAN_FINDINGS:-/tmp/watchman-findings.txt} bash -c 'rm -f \"$WATCHMAN_FINDINGS\"; bash scripts/watchman/check-ssr-integrity.sh; npx tsx scripts/watchman/check-write-activity.ts; bash scripts/watchman/check-schedule-health.sh; bash scripts/watchman/check-cf-firewall-activity.sh; npx tsx scripts/watchman/check-repo-signals.ts; bash scripts/watchman/report.sh'",
     "check-policy": "npx tsx scripts/check-policy-sources.ts",
     "check-policy:snapshot": "npx tsx scripts/check-policy-sources.ts --snapshot",
     "check-policy:ci": "npx tsx scripts/check-policy-sources.ts --ci --snapshot",
