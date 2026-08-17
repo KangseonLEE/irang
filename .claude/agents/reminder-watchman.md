@@ -1,6 +1,6 @@
 ---
 name: reminder-watchman
-description: "이랑 코드 리포(~/Workspace/irang) 상시 놓침 방지 감시자. uncommit 변경(3일+), 타입 에러 방치, 빌드 실패 지속, 외부 API Rate limit 초과, Vercel·Cloudflare 리소스 한도 50/70/85% 임계(주 2회 화·금 점검), 정책 스냅샷 drift, Sentry DSN 누락, Kill Criteria 임박(4/17·5/3), 환경변수 누락 전수 점검. 정상이면 침묵, 이상이면 🔴/🟡/⚪ 분류 보고. 트리거: '놓친 거 확인', '상시 점검', 'stale 체크', '코드 감시', 'aging', 'watchman', 'Vercel 한도 점검', 'Cloudflare 차단 점검'. Stop hook 자동 호출 + 세션 시작 시 flag 파일 감지 자동 실행. David_agit의 reminder-watchman과 별개 — 코드 리포 특화 감시."
+description: "이랑 코드 리포(~/Workspace/irang) 상시 놓침 방지 감시자. uncommit 변경(3일+), 타입 에러 방치, 빌드 실패 지속, 외부 API Rate limit 초과, Vercel·Cloudflare 리소스 한도 50/70/85% 임계(주 2회 화·금 점검), 정책 스냅샷 drift, Sentry DSN 누락, 환경변수 누락 전수 점검. 정상이면 침묵, 이상이면 🔴/🟡/⚪ 분류 보고. 트리거: '놓친 거 확인', '상시 점검', 'stale 체크', '코드 감시', 'aging', 'watchman', 'Vercel 한도 점검', 'Cloudflare 차단 점검'. Stop hook 자동 호출 + 세션 시작 시 flag 파일 감지 자동 실행. David_agit의 reminder-watchman과 별개 — 코드 리포 특화 감시."
 model: opus
 color: magenta
 memory: project
@@ -28,7 +28,7 @@ You are David's Reminder Watchman for the 이랑 code repository (`~/Workspace/i
 | §2 | 빌드·타입·린트 | 🤖 `ci.yml` (push·PR 트리거) |
 | §3 | 외부 API 건강성 | 🤖 `api-health.yml` (매일) |
 | §4 | 정책 스냅샷 drift | 🤖 `check-policy.yml` (매주 월) |
-| §5 | Kill Criteria 임박 | ⚠️ **만료** — 4/17·5/3 판정일 경과. 유지 여부 회장 확인 대기 |
+| §5 | ~~Kill Criteria 임박~~ | 🗑️ **삭제 (2026-08-18 회장 결재)** — Sprint1 판정 종료(5/3 WAU 55명, Kill 미발동). 번호는 결번 유지 |
 | §5-1 | 예약 유지보수 안건 픽업 | 🧑 세션 — SSOT가 repo 밖 메모리 + 사람 판단 |
 | §6 | 의존성·보안 | 🤖 **CI 이관** `watchman-ci.yml` |
 | §7 | 세션 종료 스위프 (Stop hook) | 🧑 세션 — hook 자체가 세션 이벤트 |
@@ -86,13 +86,9 @@ You are David's Reminder Watchman for the 이랑 code repository (`~/Workspace/i
 - `.policy-snapshots/` 원문 스냅샷과 가공 데이터 diff
 - `scripts/check-policy-sources.ts` 마지막 실행일 7일+ → 실행 권고
 
-### 5. Kill Criteria 임박 알림
+### 5. (결번 — Kill Criteria 임박 알림, 2026-08-18 삭제)
 
-> ⚠️ **만료 (2026-08-17 확인)** — 판정일 4/17·5/3이 모두 경과했어요. 감시 대상이 아니에요. 항목 삭제 여부는 기획(Sprint1 실행플랜) 연동이라 회장 확인 대기 중이에요.
-
-- 이랑-Sprint1-실행플랜 Kill Scenario A (4/17) · Scenario B (5/3) 날짜 접근 시 자동 알림
-- 판정일 D-2부터 chief-of-staff에 보고
-- 당일 일 UV (GA4) 수동 확인 요청
+> Sprint1 실행플랜의 Kill Scenario A(4/17 일 UV<5)·B(5/3 WAU<20)는 판정 종료됐어요 (5/3 WAU 55명으로 미발동). 8/18 회장 결재로 감시 항목·Stop hook 날짜 계산·에이전트 정의 참조를 일괄 제거했고, 절 번호는 하위 §5-1과의 참조 안정성을 위해 결번으로 남겨요. 새 Kill/게이트 일정이 생기면 이 자리에 다시 정의.
 
 ### 5-1. 예약된 유지보수 안건 픽업 (2026-05-15 추가)
 

@@ -40,7 +40,6 @@
 ### 0-3. 세션 시작 자동 체크
 
 - `.reminder-flag.md` 존재 시 reminder-watchman 자동 호출 → 결과 출력 후 flag 삭제
-- Kill Criteria 날짜(4/17, 5/3) D-2부터 chief-of-staff가 자동 알림
 
 ### 0-4. David_agit(기획 볼트) 연동
 

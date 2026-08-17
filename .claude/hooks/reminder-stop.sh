@@ -56,25 +56,14 @@ else
   ENV_MISSING=5  # no .env.local at all
 fi
 
-# Kill Criteria date proximity (Sprint1: 4/17, 5/3)
-KILL_ALERT=""
-TODAY_DATE=$(date +%Y-%m-%d)
-for kill_date in "2026-04-17" "2026-05-03"; do
-  DAYS_TO=$(( ($(date -j -f %Y-%m-%d "$kill_date" +%s 2>/dev/null || date -d "$kill_date" +%s 2>/dev/null) - $(date +%s)) / 86400 ))
-  if [ "$DAYS_TO" -ge 0 ] && [ "$DAYS_TO" -le 2 ]; then
-    KILL_ALERT="$KILL_ALERT ($kill_date D-$DAYS_TO)"
-  fi
-done
+# (Kill Criteria 날짜 계산 블록은 2026-08-18 제거 — Sprint1 판정 종료. 함께 있던
+#  `$(( ... (-n "$VAR" ? 1 : 0) ))` 잘못된 산술식도 같이 사라짐.)
 
 # ── 3. Write flag only if notable ──────────────────────
 
 TOTAL=$((UNCOMMIT > 0 && OLDEST_UNCOMMIT_DAYS >= 3 ? 1 : 0))
 TOTAL=$((TOTAL + (UNPUSHED >= 5 ? 1 : 0)))
 TOTAL=$((TOTAL + (ENV_MISSING > 0 ? 1 : 0)))
-TOTAL=$((TOTAL + (-n "$KILL_ALERT" ? 1 : 0)))
-
-# Simpler totaling (above bash is broken due to -n)
-[ -n "$KILL_ALERT" ] && TOTAL=$((TOTAL + 1))
 
 if [ "$TOTAL" -eq 0 ]; then
   [ -f "$FLAG_FILE" ] && rm -f "$FLAG_FILE"
@@ -98,7 +87,6 @@ Stop hook이 세션 종료 시점에 아래 신호를 감지했습니다.
 - Uncommit 변경: **${UNCOMMIT}건** (untracked ${UNTRACKED}건 별도), 가장 오래: **D+${OLDEST_UNCOMMIT_DAYS}일**
 - Unpushed 커밋: **${UNPUSHED}건**
 - 환경변수 누락 (필수 5종 중): **${ENV_MISSING}건**
-- Kill Criteria 임박: ${KILL_ALERT:-없음}
 
 > 정확한 영업일·게이트 검증은 reminder-watchman 에이전트가 수행합니다.
 
