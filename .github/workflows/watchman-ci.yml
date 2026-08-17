@@ -59,10 +59,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Node 22 필수 — supabase-js가 native WebSocket을 요구해 20에서는
+      # §11·§12 검사가 스크립트 예외로 떨어진다 (8/17 첫 CI 실측에서 발견).
       - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "npm"
 
       - name: 의존성 설치

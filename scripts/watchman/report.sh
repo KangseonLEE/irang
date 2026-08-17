@@ -127,12 +127,23 @@ $(echo -e "$ISSUE_ROWS")
 
 > 🤖 이 Issue는 GitHub Actions(watchman-ci)에 의해 자동 생성되었어요."
 
-    gh issue create \
-      --title "${TITLE_PREFIX} — $(date -u '+%Y-%m-%d')" \
-      --body "$BODY" \
-      --label "watchman" \
-      --assignee "KangseonLEE" \
-      2>/dev/null && echo "✅ GitHub Issue를 만들었어요." || echo "⚠️  Issue 생성 실패 (label 없음 또는 권한 부족)"
+    # 에러를 삼키지 않는다 — 8/17 첫 실행에서 GitHub API 일시 장애로 생성 실패했는데
+    # 2>/dev/null 때문에 원인 진단이 불가했다. 실패 시 1회 재시도.
+    created=false
+    for attempt in 1 2; do
+      if ERR=$(gh issue create \
+        --title "${TITLE_PREFIX} — $(date -u '+%Y-%m-%d')" \
+        --body "$BODY" \
+        --label "watchman" \
+        --assignee "KangseonLEE" 2>&1); then
+        echo "✅ GitHub Issue를 만들었어요."
+        created=true
+        break
+      fi
+      echo "⚠️  Issue 생성 실패 (시도 ${attempt}/2): ${ERR}"
+      [ "$attempt" -eq 1 ] && sleep 20
+    done
+    [ "$created" = false ] && echo "⚠️  Issue 생성 최종 실패 — 워크플로 실패 상태가 대체 알림이에요."
   fi
 fi
 
