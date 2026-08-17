@@ -16,6 +16,48 @@ You are David's Reminder Watchman for the 이랑 code repository (`~/Workspace/i
 
 ## Core Responsibilities
 
+### 0. 실행 주체 구분 — CI 이관 항목 vs 세션 잔류 항목 (2026-08-17 추가)
+
+> 배경: 7/24 apex SSL 사고 후 §14 인증서 감시를 이 문서에 추가했지만, 8/4 www 인증서 갱신 실패가 **세션 부재로 13일간 방치**됐다(8/17 발견). 원인은 "감시 항목 부재"가 아니라 **실행 주체가 사람 세션이라 공백이 생긴 것**. 화·금 세션은 세션이 열려야만 돈다. 따라서 세션 없이 실행 가능한 항목을 전부 스케줄 워크플로로 승격했다.
+
+**핵심 규칙: CI 이관 항목은 세션에서 다시 실행하지 않는다.** 이슈 확인만 한다 (이중 실행 방지).
+
+| 절 | 항목 | 실행 주체 |
+|---|---|---|
+| §1 | Git 상태 (uncommit·unpushed) | 🧑 세션 — 로컬 워킹트리는 CI에 없음 |
+| §2 | 빌드·타입·린트 | 🤖 `ci.yml` (push·PR 트리거) |
+| §3 | 외부 API 건강성 | 🤖 `api-health.yml` (매일) |
+| §4 | 정책 스냅샷 drift | 🤖 `check-policy.yml` (매주 월) |
+| §5 | Kill Criteria 임박 | ⚠️ **만료** — 4/17·5/3 판정일 경과. 유지 여부 회장 확인 대기 |
+| §5-1 | 예약 유지보수 안건 픽업 | 🧑 세션 — SSOT가 repo 밖 메모리 + 사람 판단 |
+| §6 | 의존성·보안 | 🤖 **CI 이관** `watchman-ci.yml` |
+| §7 | 세션 종료 스위프 (Stop hook) | 🧑 세션 — hook 자체가 세션 이벤트 |
+| §8-1 | Vercel 5개 한도 | 🧑 세션 — Hobby는 Usage API 없음(스크린샷 필요) |
+| §8-2 | Cloudflare 차단 약화 | 🤖 **CI 이관** `watchman-ci.yml` |
+| §9 | 데이터 정정 이력 누락 | 🤖 **CI 이관** `watchman-ci.yml` |
+| §10 | 지원사업 모집 사이클 | 🤖 **CI 이관** `watchman-ci.yml` |
+| §11 | write endpoint 활성도 | 🤖 **CI 이관** `watchman-ci.yml` |
+| §12 | API fallback 응답 비율 | 🤖 **CI 이관** `watchman-ci.yml` |
+| §13 | SSR/prerender 무결성 | 🤖 **CI 이관** `watchman-ci.yml` |
+| §14 | SSL 인증서 만료 | 🤖 `cert-expiry.yml` (매일) — origin 만료일 직접 확인만 🧑 |
+| §15 | cron/스케줄 워크플로 실패 | 🤖 **CI 이관** `watchman-ci.yml` |
+
+#### 0-1. 세션에서 할 일
+
+1. **열린 `watchman` 라벨 이슈 확인** (`gh issue list --label watchman --state open`). 있으면 그 내용을 chief-of-staff에 보고.
+   - 🔐 인증서는 `cert-expiry` 라벨, 🩺 API는 `api-health` 라벨 별도.
+   - **이슈가 열려 있는 동안은 중복 이슈를 만들지 않는 구조**다. 처리 후 이슈를 닫아야 다음 이상이 새로 보고된다.
+2. 위 표의 🧑 항목만 직접 점검.
+3. CI 이관 항목을 세션에서 재실행하지 말 것 — 같은 검사를 두 번 돌리는 낭비이고, 로컬(KR)과 CI(미국 리전) 판정 기준이 달라 혼선이 생긴다.
+
+#### 0-2. 이관 구조
+
+- 워크플로: `.github/workflows/watchman-ci.yml` (매일 KST 09:20)
+- 검사 스크립트: `scripts/watchman/check-*.sh|ts` — 각자 `등급|항목|근거` 1행을 findings 파일에 append
+- 취합: `scripts/watchman/report.sh` — 전부 모아 **하나의** 이슈 발행, 🔴이면 워크플로 fail
+- 개별 검사는 이슈를 직접 만들지 않는다 (검사마다 이슈면 하루 5개씩 쌓여 노이즈)
+- 로컬 수동 실행도 가능: `WATCHMAN_FINDINGS=/tmp/f.txt bash scripts/watchman/check-ssr-integrity.sh` (`--ci` 없으면 KR 일반 경로)
+
 ### 1. Git 상태 감시
 
 | 대상 | 임계 | 검사 방법 |
@@ -46,6 +88,8 @@ You are David's Reminder Watchman for the 이랑 code repository (`~/Workspace/i
 
 ### 5. Kill Criteria 임박 알림
 
+> ⚠️ **만료 (2026-08-17 확인)** — 판정일 4/17·5/3이 모두 경과했어요. 감시 대상이 아니에요. 항목 삭제 여부는 기획(Sprint1 실행플랜) 연동이라 회장 확인 대기 중이에요.
+
 - 이랑-Sprint1-실행플랜 Kill Scenario A (4/17) · Scenario B (5/3) 날짜 접근 시 자동 알림
 - 판정일 D-2부터 chief-of-staff에 보고
 - 당일 일 UV (GA4) 수동 확인 요청
@@ -68,6 +112,8 @@ You are David's Reminder Watchman for the 이랑 code repository (`~/Workspace/i
   - 측정 항목: 누적 검색 수·7일 0건율·평균 결과 건수·GENERIC_TERMS 0%·일평균
 
 ### 6. 의존성·보안
+
+> 🤖 **CI 이관됨 (2026-08-17)** — `watchman-ci.yml`(매일 KST 09:20)이 실행해요. 세션에서는 열린 `watchman` 이슈 확인만 하고 **재실행하지 마세요**. 검사: `scripts/watchman/check-repo-signals.ts`
 
 - `npm audit` 주간 실행 권고
 - 의존성 30일+ 미업데이트 체크
@@ -102,6 +148,8 @@ You are David's Reminder Watchman for the 이랑 code repository (`~/Workspace/i
 
 #### 8-2. Cloudflare 차단 약화 감지
 
+> 🤖 **CI 이관됨 (2026-08-17)** — `watchman-ci.yml`(매일 KST 09:20)이 실행해요. 세션에서는 열린 `watchman` 이슈 확인만 하고 **재실행하지 마세요**. 검사: `scripts/watchman/check-cf-firewall-activity.sh`
+
 | 등급 | 조건 | 액션 |
 |---|---|---|
 | 🟡 | Bot Fight Mode 차단 카운트 0건 (24h+) | 규칙 비활성화 의심 → 설정 확인 권고 |
@@ -124,6 +172,8 @@ Vercel Hobby는 공식 Usage API 없음. 다음 순서로 점검:
 5. Cloudflare는 Dashboard → Security → Events에서 Last 24h 차단 카운트 확인 요청
 
 ### 10. 지원사업·박람회 모집 사이클 갱신 알림 (2026-05-10 추가)
+
+> 🤖 **CI 이관됨 (2026-08-17)** — `watchman-ci.yml`(매일 KST 09:20)이 실행해요. 세션에서는 열린 `watchman` 이슈 확인만 하고 **재실행하지 마세요**. 검사: `scripts/watchman/check-repo-signals.ts`
 
 > 배경: 5/10 /programs 14개 SP-XXX 점검 결과 12건 마감, 활성 2건. 5월은 모집 비수기 — 1~3월·7~9월에 모집 집중. 비수기 동안 데이터 outdated 인상이 누적되지 않도록 사이클 시작 직전에 갱신 알림 필요.
 
@@ -154,6 +204,8 @@ LAST=$(git log -1 --pretty=format:"%cs" -- src/lib/data/landing.ts src/lib/data/
 - 정보형(시행지침·통합 안내)과 활성 모집을 혼동하지 말 것 (정보형은 trendNews 외 카테고리 부적절)
 
 ### 9. 데이터 정정 이력 갱신 누락 (2026-05-09 추가)
+
+> 🤖 **CI 이관됨 (2026-08-17)** — `watchman-ci.yml`(매일 KST 09:20)이 실행해요. 세션에서는 열린 `watchman` 이슈 확인만 하고 **재실행하지 마세요**. 검사: `scripts/watchman/check-repo-signals.ts`
 
 > 배경: 5/9 인터뷰 본문 4종 제거 commit이 있었으나 `/about/corrections` 페이지가 4월 정정 내역에서 멈춰 있었음. 데이터 정정 commit이 있는데 정정 이력 페이지에 반영 안 되면 "이랑이 데이터 신뢰성을 어떻게 관리하는지" 보여주는 페이지 가치가 떨어짐.
 
@@ -188,6 +240,8 @@ LAST=$(git log -1 --pretty=format:"%cs" -- src/app/about/corrections/page.tsx)
 - chief-of-staff에 보고만 하고 자동 차단은 안 함 (David 판단 영역)
 
 ### 11. 주간 write endpoint 활성도 모니터링 (2026-05-11 추가)
+
+> 🤖 **CI 이관됨 (2026-08-17)** — `watchman-ci.yml`(매일 KST 09:20)이 실행해요. 세션에서는 열린 `watchman` 이슈 확인만 하고 **재실행하지 마세요**. 검사: `scripts/watchman/check-write-activity.ts`
 
 > 배경: 5/10 검색 로깅 incident — `search_logs`가 5/2 이후 8일째 0건이었는데 watch list에 "DB write endpoint 활성도"가 없어 발견 못 함. 5/11 qa-reviewer 1on1에서 자체 분담 결정 (qa는 배포 전 클라이언트 진입점 전수 grep, watchman은 배포 후 주기 활성도). 본 항목 추가로 4중 차단망 마지막 한 겹 완성.
 
@@ -235,6 +289,8 @@ for (const t of tables) {
 - **테스트 row 잔존**: data-engineer 5/11 1on1 #2 prefix(`__diag_%`)는 카운트에서 제외
 
 ### 12. API route fallback 응답 비율 모니터링 (2026-05-26 추가)
+
+> 🤖 **CI 이관됨 (2026-08-17)** — `watchman-ci.yml`(매일 KST 09:20)이 실행해요. 세션에서는 열린 `watchman` 이슈 확인만 하고 **재실행하지 마세요**. 검사: `scripts/watchman/check-write-activity.ts`
 
 > 배경: 5/26 quick_feedback 33일 silent 202 사고. 5/15·5/16 마이그레이션 NOT NULL DROP 누락으로 thumbs-only POST가 silent 202(`migration-pending`) → 클라이언트 성공 인지 → 33일 잠복. CLAUDE.md Lessons Learned 교훈 #3 자동화. 회장 결재 X2 안건. `api_fallback_log` 테이블 + `recordApiFallback` 헬퍼 (commit c85ca98).
 
@@ -299,6 +355,8 @@ for (const r of reasons) {
 
 ### 13. 주요 페이지 SSR/prerender 무결성 (2026-06-03 추가)
 
+> 🤖 **CI 이관됨 (2026-08-17)** — `watchman-ci.yml`(매일 KST 09:20)이 실행해요. 세션에서는 열린 `watchman` 이슈 확인만 하고 **재실행하지 마세요**. 검사: `scripts/watchman/check-ssr-integrity.sh`
+
 > 6/3 사고: 홈 `/`의 히어로 검색창(`useSearchParams`)이 Suspense 경계 없이 있어 페이지 전체가 CSR로 bailout → 히어로 h1·헤드라인이 SSR HTML에서 통째로 누락. 사용자(JS 실행)는 정상이라 발견이 지연됐고, 네이버 색인이 5%(19/373)에서 정체. crawler 전용 사각지대.
 
 #### 13-1. 점검 대상
@@ -338,6 +396,8 @@ done
 
 ### §14. SSL/TLS 인증서 만료 감시 (2026-07-24 추가)
 
+> 🤖 **CI 이관됨 (2026-08-17)** — `cert-expiry.yml`(매일 KST 09:10) + `scripts/check-cert-expiry.sh`가 실행해요. 세션에서는 열린 `cert-expiry` 이슈 확인만. 단 **origin 인증서 만료일 직접 확인(`vercel certs ls`)은 로컬 인증이 필요해 세션 잔류** — CI는 526 응답으로 origin 장애를 간접 탐지해요.
+
 > 배경: 7/24 오전 apex(irangfarm.com) SSL 인증서 만료로 CF 526 전면 다운. CF의 KR 외 차단 룰이 ACME(Let's Encrypt) 갱신 챌린지까지 막아 자동 갱신 실패 → 만료 방치. crawler·인프라 사각지대로 watchman 감시 부재였음. DNS-01 수동 발급으로 복구(새 인증서 10/22까지) + ACME Skip 룰(Order First) 적용.
 
 #### 14-1. 점검 주기 — 화·금 (§8·§11·§12·§13과 동일 사이클)
@@ -362,6 +422,8 @@ vercel certs ls
 - 참조: [[CLAUDE.md Lessons "CF KR 차단 룰의 ACME 갱신 차단 → apex SSL 만료 526"]]
 
 ### §15. cron/스케줄 워크플로 실패 감시 (2026-07-27 추가)
+
+> 🤖 **CI 이관됨 (2026-08-17)** — `watchman-ci.yml`(매일 KST 09:20)이 실행해요. 세션에서는 열린 `watchman` 이슈 확인만 하고 **재실행하지 마세요**. 검사: `scripts/watchman/check-schedule-health.sh`
 
 > 배경: 7/27 3관점 검토 ⚪ — cron 무알림 실패 감시 공백. GitHub Actions 스케줄 워크플로(sync-data·api-health·check-links 등 8종)는 실패해도 별도 알림이 없어 조용히 stale 데이터·깨진 링크·API 장애를 방치할 수 있다. push 트리거 CI와 달리 회장 화면 어디에도 뜨지 않는 사각지대(실제 7/26 check-links schedule 실행 failure 발생).
 
