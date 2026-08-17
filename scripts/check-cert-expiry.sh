@@ -87,6 +87,67 @@ for host in "${HOSTS[@]}"; do
   fi
 done
 
+# ── 5. Vercel origin 인증서 직접 조회 (VERCEL_TOKEN 있을 때만) ──
+# 위 1~4는 CF 엣지 인증서와 526 간접 신호뿐이다. 진짜 시한폭탄은 origin(Vercel)
+# 인증서인데, CF 프록시 뒤라 밖에서 안 보인다. 8/18 VERCEL_TOKEN 등록으로
+# `certs` API를 직접 조회해 만료 D-N과 autoRenew 상태를 본다.
+# 토큰 값은 curl 헤더 외 어디에도 출력하지 않는다.
+echo ""
+if [ -n "${VERCEL_TOKEN:-}" ]; then
+  echo "▸ Vercel origin 인증서 (API 직접 조회)"
+  team_id=$(curl -s --max-time 15 -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+    "https://api.vercel.com/v9/projects?limit=1" 2>/dev/null | jq -r '.projects[0].accountId // empty' 2>/dev/null)
+  certs_json=""
+  if [ -n "$team_id" ]; then
+    certs_json=$(curl -s --max-time 15 -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+      "https://api.vercel.com/v7/certs?teamId=${team_id}&limit=20" 2>/dev/null)
+  fi
+
+  if [ -z "$certs_json" ] || echo "$certs_json" | jq -e '.error' >/dev/null 2>&1; then
+    err_code=$(echo "$certs_json" | jq -r '.error.code // "no-response"' 2>/dev/null)
+    echo "  ⚠ Vercel certs API 조회 실패 (${err_code}) — 토큰 만료/스코프 확인 필요"
+    PROBLEMS="${PROBLEMS}\n  ⚠ Vercel origin 인증서 조회 실패 (${err_code}) — VERCEL_TOKEN 점검"
+    ISSUE_ROWS="${ISSUE_ROWS}| origin(Vercel) | API 조회 실패 | ${err_code} |\n"
+    WARN=$((WARN + 1))
+  else
+    origin_count=$(echo "$certs_json" | jq '.certs | length' 2>/dev/null || echo 0)
+    if [ "$origin_count" -eq 0 ]; then
+      # 8/17 www 사고 패턴: 만료된 인증서는 엔트리 자체가 소멸한다.
+      echo "  ✗ origin 인증서 엔트리 0개 — 만료 후 소멸 의심"
+      PROBLEMS="${PROBLEMS}\n  ✗ Vercel origin 인증서 0개 — 만료 소멸 의심 (8/17 www 사고 패턴)"
+      ISSUE_ROWS="${ISSUE_ROWS}| origin(Vercel) | **인증서 엔트리 0개** | 만료 소멸 의심 |\n"
+      CRIT=$((CRIT + 1))
+    fi
+    now_epoch=$(date +%s)
+    while IFS=$'\t' read -r cns exp_ms auto; do
+      [ -z "$cns" ] && continue
+      exp_epoch=$(( exp_ms / 1000 ))
+      d_left=$(( (exp_epoch - now_epoch) / 86400 ))
+      exp_date=$(date -u -d "@${exp_epoch}" +%Y-%m-%d 2>/dev/null || date -u -r "${exp_epoch}" +%Y-%m-%d 2>/dev/null)
+      if [ "$auto" != "true" ]; then
+        echo "  ✗ ${cns} | D-${d_left} (${exp_date}) | autoRenew=${auto} — 자동 갱신 꺼짐"
+        PROBLEMS="${PROBLEMS}\n  ✗ origin ${cns}: autoRenew=${auto} — 만료 D-${d_left}에 자동 갱신 안 됨"
+        ISSUE_ROWS="${ISSUE_ROWS}| origin \`${cns}\` | **autoRenew 꺼짐** D-${d_left} | ${exp_date} |\n"
+        CRIT=$((CRIT + 1))
+      elif [ "$d_left" -lt "$CRIT_DAYS" ]; then
+        echo "  ✗ ${cns} | D-${d_left} (${exp_date}) | 임계 ${CRIT_DAYS}일 미만"
+        PROBLEMS="${PROBLEMS}\n  ✗ origin ${cns}: 만료 D-${d_left} — 자동 갱신이 아직 안 됐음, 즉시 확인"
+        ISSUE_ROWS="${ISSUE_ROWS}| origin \`${cns}\` | 만료 D-${d_left} | ${exp_date} |\n"
+        CRIT=$((CRIT + 1))
+      elif [ "$d_left" -lt "$WARN_DAYS" ]; then
+        echo "  ⚠ ${cns} | D-${d_left} (${exp_date}) | 경고 ${WARN_DAYS}일 미만"
+        PROBLEMS="${PROBLEMS}\n  ⚠ origin ${cns}: 만료 D-${d_left} — 자동 갱신 진행 여부 관찰"
+        ISSUE_ROWS="${ISSUE_ROWS}| origin \`${cns}\` | 만료 D-${d_left} | ${exp_date} |\n"
+        WARN=$((WARN + 1))
+      else
+        echo "  ✓ ${cns} | D-${d_left} (${exp_date}) | autoRenew=${auto}"
+      fi
+    done < <(echo "$certs_json" | jq -r '.certs[] | [(.cns|join(",")), (.expiresAt|tostring), (.autoRenew|tostring)] | @tsv' 2>/dev/null)
+  fi
+else
+  echo "▸ Vercel origin 인증서 — VERCEL_TOKEN 없음, 526 간접 탐지만 수행"
+fi
+
 echo ""
 echo "───────────────────────────────────────────"
 echo "  대상 ${#HOSTS[@]}개 | 위험 ${CRIT} | 경고 ${WARN}"
