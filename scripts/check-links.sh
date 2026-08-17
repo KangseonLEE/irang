@@ -46,6 +46,8 @@ FAIL=0
 TIMEOUT=0
 RESULTS=""
 ISSUE_BODY=""
+TIMEOUT_RESULTS=""
+TIMEOUT_BODY=""
 
 # 브라우저 UA — 한국 뉴스/공공기관 사이트가 curl 기본 UA를 봇으로 차단하는 경우 대응
 # (CLAUDE.md "한국 뉴스 사이트 주의" 항목 참고)
@@ -55,11 +57,12 @@ UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, l
 # Note: curl이 부분 출력 + exit-non-zero를 동시에 낼 수 있어 결과 마지막 3자리만 사용
 fetch_status() {
   local url="$1"
+  local max_time="${2:-30}"
   local raw
   # NOTE 2026-05-26: Connection: close 헤더가 일부 한국 정부 사이트
   # (youth.chungnam.go.kr 등)에서 즉시 끊김(code=000)을 유발 — 헤더 제거.
   # check-policy-sources.ts와 헤더 셋 통일.
-  raw=$(curl -o /dev/null -s -w "%{http_code}" --max-time 30 -L \
+  raw=$(curl -o /dev/null -s -w "%{http_code}" --max-time "$max_time" -L \
     -A "$UA" \
     -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
     -H "Accept-Language: ko-KR,ko;q=0.9,en;q=0.8" \
@@ -91,9 +94,12 @@ check_url() {
     sleep 3
     code=$(fetch_status "$url")
   fi
+  # NOTE 2026-08-17: 마지막 재시도는 타임아웃을 60s로 완화.
+  # GitHub Actions 러너는 미국 리전이라 한국 정부 사이트(go.kr)가 30s를 넘기는 일이 잦다.
+  # 실측: 8/17 타임아웃 6건(gunsan·rda·agrohealing·gecpo)이 한국에서는 전부 200.
   if [ "$code" = "000" ] || { [ "$code" -ge 400 ] 2>/dev/null && [ "$code" -lt 600 ] 2>/dev/null; }; then
     sleep 8
-    code=$(fetch_status "$url")
+    code=$(fetch_status "$url" 60)
   fi
 
   local domain
@@ -105,8 +111,8 @@ check_url() {
   elif [ "$code" = "000" ]; then
     echo -e "  ${YELLOW}⏱${NC} TIMEOUT | ${source}/${id} | ${domain}"
     TIMEOUT=$((TIMEOUT + 1))
-    RESULTS="${RESULTS}\n  ⏱ TIMEOUT: ${source}/${id} — ${url}"
-    ISSUE_BODY="${ISSUE_BODY}| \`${source}/${id}\` | TIMEOUT | ${url} |\n"
+    TIMEOUT_RESULTS="${TIMEOUT_RESULTS}\n  ⏱ TIMEOUT: ${source}/${id} — ${url}"
+    TIMEOUT_BODY="${TIMEOUT_BODY}| \`${source}/${id}\` | TIMEOUT | ${url} |\n"
   else
     echo -e "  ${RED}✗${NC} ${code} | ${source}/${id} | ${domain}"
     FAIL=$((FAIL + 1))
@@ -155,7 +161,22 @@ echo "────────────────────────�
 echo -e "  총 ${TOTAL}개 | ${GREEN}정상 ${OK}${NC} | ${RED}실패 ${FAIL}${NC} | ${YELLOW}타임아웃 ${TIMEOUT}${NC}"
 echo "───────────────────────────────────────────"
 
-if [ $FAIL -gt 0 ] || [ $TIMEOUT -gt 0 ]; then
+# ── 타임아웃은 경고로만 처리 (exit code 영향 없음) ──
+# NOTE 2026-08-17: 타임아웃(000)은 "링크가 죽었다"가 아니라 "러너에서 도달 못 했다"이다.
+# GitHub Actions 러너(미국)에서 한국 정부 사이트가 상시 타임아웃 → 매일 이슈 생성 →
+# 경보 피로로 진짜 깨진 링크를 가리는 역효과. 실측 8/17: 타임아웃 6건 전부 한국에서 200.
+# 따라서 타임아웃은 warning 주석으로만 남기고, exit 1 / 이슈 생성은 실제 실패(4xx·5xx)에만 적용.
+if [ $TIMEOUT -gt 0 ]; then
+  echo ""
+  echo -e "${YELLOW}▸ 타임아웃 (경고 — 러너 리전 이슈 가능성, 실패로 집계 안 함):${NC}"
+  echo -e "$TIMEOUT_RESULTS"
+  if [ "$CI_MODE" = true ]; then
+    echo "::warning title=외부 링크 타임아웃 ${TIMEOUT}건::러너에서 도달 실패. 한국에서 직접 확인 필요할 수 있음."
+  fi
+  echo ""
+fi
+
+if [ $FAIL -gt 0 ]; then
   echo ""
   echo -e "${RED}▸ 문제 발견:${NC}"
   echo -e "$RESULTS"
@@ -214,6 +235,10 @@ $(echo -e "$ISSUE_BODY")
   fi
 
   exit 1
+elif [ $TIMEOUT -gt 0 ]; then
+  echo ""
+  echo -e "${GREEN}▸ 깨진 링크 없음${NC} (타임아웃 ${TIMEOUT}건은 경고로만 기록)"
+  exit 0
 else
   echo ""
   echo -e "${GREEN}▸ 모든 외부 링크가 정상입니다.${NC}"
