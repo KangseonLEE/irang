@@ -1,0 +1,49 @@
+# ═══════════════════════════════════════════
+# SSL 인증서 만료·도달성 감시
+#
+# 배경 (2026-07-24 apex 526 전면 다운 / 2026-08-17 www 526 13일 잠복):
+#   Vercel origin 인증서가 만료되면 Cloudflare가 526을 반환한다.
+#   이때 ACME HTTP-01 검증 트래픽도 같이 죽어 자동 갱신이 영구 불가해지는
+#   자기잠금(self-locking) 구조라, 만료 "전에" 잡지 못하면 수동 DNS-01
+#   복구 외에는 방법이 없다.
+#
+#   기존 감시는 reminder-watchman 세션(화·금 수동 실행) 의존이라
+#   세션이 없으면 아무도 보지 않았다 — www 만료가 13일간 방치된 원인.
+#   따라서 세션과 무관한 스케줄 워크플로로 승격한다.
+# ═══════════════════════════════════════════
+
+name: "🔐 SSL 인증서 만료 감시"
+
+on:
+  schedule:
+    # 매일 KST 오전 9시 10분 (UTC 00:10)
+    - cron: "10 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  cert-expiry:
+    name: 인증서 만료·도달성 점검
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: cert-expiry 라벨 생성 (없으면)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "cert-expiry" \
+            --description "SSL 인증서 만료 감시 자동 이슈" \
+            --color "b60205" \
+            2>/dev/null || true
+
+      - name: 인증서 점검
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/check-cert-expiry.sh --ci
