@@ -374,18 +374,6 @@ a.heroScoreBadge:focus-visible {
   flex-direction: column;
 }
 
-.statIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--secondary, #f0f9f6);
-  color: var(--primary, #1b6b5a);
-  flex-shrink: 0;
-}
-
 .statLabel {
   display: block;
   font-size: var(--fs-overline);
@@ -443,7 +431,6 @@ a.heroScoreBadge:focus-visible {
   margin: 2px 0 0;
 }
 
-
 /* ---- 추천 작물 (시도 페이지와 동일 패턴) ---- */
 .cropGrid {
   display: grid;
@@ -492,38 +479,6 @@ a.heroScoreBadge:focus-visible {
   .cropMoreLink:hover {
     text-decoration: underline;
   }
-}
-
-.cropCard {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-@media (hover: hover) {
-  .cropCard:hover {
-    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
-    background: var(--secondary, #f0f9f6);
-  }
-}
-
-.cropName {
-  display: block;
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.cropMeta {
-  display: block;
-  font-size: var(--fs-overline);
-  color: var(--muted-foreground);
 }
 
 .mainCropsList {
@@ -832,49 +787,6 @@ a.heroScoreBadge:focus-visible {
   line-height: var(--lh-normal);
 }
 
-.scoreSummary {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.scoreSummaryValue {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--primary, #1B6B5A);
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-.scoreSummaryUnit {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--muted-foreground);
-  margin-left: 2px;
-}
-
-.scoreSummaryRank {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--primary, #1B6B5A);
-  background: color-mix(in srgb, var(--primary, #1B6B5A) 10%, transparent);
-  padding: 3px 8px;
-  border-radius: 999px;
-}
-
-.scoreSummaryCompare {
-  font-size: 12px;
-  color: var(--muted-foreground);
-}
-
-.scoreNote {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 8px;
-}
-
 .scoreLink {
   font-size: 13px;
   color: var(--primary, #1B6B5A);
@@ -902,10 +814,6 @@ a.heroScoreBadge:focus-visible {
 
   .scoreSectionTitle {
     font-size: 15px;
-  }
-
-  .scoreSummaryValue {
-    font-size: 24px;
   }
 }
 

@@ -437,16 +437,7 @@
   z-index: 1;
 }
 
-/* 기존 anchorTabWrap 호환 (다른 곳 참조 가능성) */
-.anchorTabWrap {
-  position: relative;
-}
-
-/* (anchorTabWrap::after fade는 stickyHeaderTabs::after로 이동됨) */
-
 @media (min-width: 1024px) {
-  .anchorTabWrap { margin: 20px 0 32px; }
-  .anchorTabWrap::after { display: none; }
   /* 데스크탑에서는 stickyHeader가 일반 흐름이라 가로 스크롤 fade hint 불필요 */
   .stickyHeaderTabs::after { display: none; }
 }
@@ -773,12 +764,6 @@
   font-weight: 600;
   color: var(--foreground, #111827);
   margin: 0;
-}
-
-.revenueUnit {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground, #6b7280);
-  flex-shrink: 0;
 }
 
 .revenueAmount {
@@ -1289,13 +1274,6 @@
   }
 }
 
-.regionPillArea {
-  font-size: var(--fs-caption);
-  font-weight: 500;
-  color: var(--muted-foreground, #6b7280);
-  margin-left: 2px;
-}
-
 /* 재배면적 차트 */
 .regionRanking {
   margin-bottom: 16px;
@@ -1343,95 +1321,6 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
-}
-
-.chartContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.chartRow {
-  display: grid;
-  grid-template-columns: 80px 1fr auto;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
-  color: inherit;
-  border-radius: 8px;
-  padding: 2px 4px;
-  transition: background-color 0.15s;
-}
-
-@media (min-width: 480px) {
-  .chartRow { grid-template-columns: 100px 1fr auto; gap: 10px; }
-}
-
-@media (hover: hover) {
-  a.chartRow:hover {
-    background: var(--muted, #f9fafb);
-  }
-}
-
-@media (min-width: 640px) {
-  .chartRow { grid-template-columns: 120px 1fr auto; }
-}
-
-.chartMeta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.chartRank {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--primary, #1b6b5a);
-  color: var(--primary-foreground, #fff);
-  font-size: 11px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.chartRow:nth-child(n+4) .chartRank {
-  background: var(--muted, #e5e7eb);
-  color: var(--muted-foreground, #6b7280);
-}
-
-.chartLabel {
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground, #111827);
-  white-space: nowrap;
-}
-
-.chartBarWrap {
-  width: 100%;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--muted, #f9fafb);
-  overflow: hidden;
-}
-
-.chartBar {
-  height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, var(--primary, #1b6b5a), var(--brand-400, #3EA088));
-  transition: width 0.5s ease;
-}
-
-.chartValue {
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  color: var(--muted-foreground, #6b7280);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  min-width: 72px;
-  text-align: right;
 }
 
 .regionCta {
@@ -1482,59 +1371,6 @@
 }
 
 /* ── 관련 영상 (유튜브 스타일 캐러셀) ── */
-.videoCarousel {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scroll-padding-left: 0;
-  padding-bottom: 4px;
-
-  /* 스크롤바 숨기기 */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.videoCarousel::-webkit-scrollbar {
-  display: none;
-}
-
-.videoCard {
-  flex: 0 0 calc(66.6% - 8px);
-  min-width: 0;
-  scroll-snap-align: start;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-@media (min-width: 640px) {
-  .videoCard {
-    flex: 0 0 calc(50% - 8px);
-  }
-}
-
-@media (min-width: 1024px) {
-  .videoCarousel {
-    overflow-x: visible;
-    scroll-snap-type: none;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .videoCard {
-    flex: unset;
-    min-width: unset;
-  }
-}
-
-.videoCard:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
 
 .videoThumb {
   position: relative;
@@ -1592,31 +1428,6 @@
     height: 40px;
     background: rgba(0, 0, 0, 0.5);
   }
-}
-
-.videoMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 2px 2px 0;
-}
-
-.videoTitle {
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground, #111);
-  margin: 0;
-  line-height: var(--lh-snug);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: keep-all;
-}
-
-.videoSource {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground, #6b7280);
 }
 
 /* ── 사이드바 ── */
@@ -1767,45 +1578,6 @@
   }
 }
 
-.relatedCropCard {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px;
-  border-radius: 12px;
-  text-decoration: none;
-  color: inherit;
-  transition: background-color 0.15s;
-}
-
-@media (hover: hover) {
-  .relatedCropCard:hover {
-    background: var(--muted, #f9fafb);
-  }
-}
-
-.relatedCropImageWrap {
-  position: relative;
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.relatedCropName {
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground, #111827);
-  margin: 0;
-}
-
-.relatedCropMeta {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground, #6b7280);
-  margin: 2px 0 0;
-}
-
 /* 관련 지원사업 */
 .programList {
   display: flex;
@@ -1951,10 +1723,6 @@
 /* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
 @media (min-width: 1024px) {
   .heroPill {
-    font-size: 13px;
-  }
-
-  .chartRank {
     font-size: 13px;
   }
 }
