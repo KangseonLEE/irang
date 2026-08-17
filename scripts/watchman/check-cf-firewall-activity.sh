@@ -10,9 +10,10 @@
 #       없어서가 아니라 룰 자체가 비활성화됐다는 신호일 가능성이 높다
 #       (.claude/agents/reminder-watchman.md §8-2, 103~124행).
 #
-# 쿼리 재사용: .github/workflows/cf-analytics-diag.yml의
-#       firewallEventsAdaptiveGroups 호출 방식(GraphQL query 형태·인증 헤더)을
-#       그대로 따른다 — 바퀴 재발명 금지.
+# 데이터셋: firewallEventsAdaptive (raw). Groups 집계(firewallEventsAdaptiveGroups)는
+#       Free 플랜 zone에서 authz 거부된다 — cf-analytics-diag.yml도 6/5부터 같은
+#       에러를 warning으로만 내며 조용히 실패 중이었음 (8/18 확인). 같은 토큰으로
+#       raw 데이터셋은 7/26 e2e 403 진단 때 조회 성공이 검증됐다.
 # ═══════════════════════════════════════════
 
 set -uo pipefail
@@ -65,8 +66,10 @@ UNTIL=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 echo "▸ 최근 24h firewall 이벤트 (action별)"
 echo "  구간: ${SINCE} ~ ${UNTIL}"
 
+# raw 이벤트를 최대 500건 샘플링해 action별로 클라이언트 측 집계한다.
+# "룰이 살아있나"(≥1건) 판정에는 충분하고, 500건 도달 시 카운트는 하한선으로 표기.
 Q=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" '{
-  query: "query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){firewallEventsAdaptiveGroups(limit:20,filter:{datetime_geq:$s,datetime_leq:$u},orderBy:[count_DESC]){count dimensions{action}}}}}",
+  query: "query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){firewallEventsAdaptive(limit:500,filter:{datetime_geq:$s,datetime_leq:$u},orderBy:[datetime_DESC]){action}}}}",
   variables: {z:$z,s:$s,u:$u}
 }')
 
@@ -98,13 +101,17 @@ if [ "$has_errors" = "true" ]; then
   exit 0
 fi
 
-# action별 분포 출력 (참고용)
-echo "$RESP" | jq -r '.data.viewer.zones[0].firewallEventsAdaptiveGroups[]? | "  \(.dimensions.action)\t\(.count)건"' 2>/dev/null
+# action별 분포 출력 (참고용, 클라이언트 측 집계)
+echo "$RESP" | jq -r '[.data.viewer.zones[0].firewallEventsAdaptive[]?] | group_by(.action)[] | "  \(.[0].action)\t\(length)건"' 2>/dev/null
 
-TOTAL=$(echo "$RESP" | jq '[.data.viewer.zones[0].firewallEventsAdaptiveGroups[]?.count] | add // 0' 2>/dev/null)
+TOTAL=$(echo "$RESP" | jq '[.data.viewer.zones[0].firewallEventsAdaptive[]?] | length' 2>/dev/null)
 
 echo ""
-echo "  24h 총 firewall 이벤트(block/challenge 등) → ${TOTAL}건"
+if [ "$TOTAL" -ge 500 ]; then
+  echo "  24h 총 firewall 이벤트(block/challenge 등) → 500건+ (샘플 상한)"
+else
+  echo "  24h 총 firewall 이벤트(block/challenge 등) → ${TOTAL}건"
+fi
 
 if [ "$TOTAL" -eq 0 ]; then
   echo "  ⚠ 0건 — 차단 룰 비활성화 의심"
