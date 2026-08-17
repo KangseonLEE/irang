@@ -20,10 +20,10 @@ import {
 } from "@/components/charts/lazy";
 import { formatPopulation, SEOUL_AREA_KM2 } from "@/lib/format";
 import { AreaModal } from "../modals/area-modal";
-import { PopulationModal } from "../modals/population-modal";
 import { MedicalModal } from "../modals/medical-modal";
 import { SchoolModal } from "../modals/school-modal";
-import { ReturnFarmModal } from "../modals/return-farm-modal";
+// recharts 의존 모달은 지연 로드 — 초기 JS에서 recharts 제외 (../modals/lazy 주석 참조)
+import { PopulationModal, ReturnFarmModal } from "../modals/lazy";
 import { FarmHouseholdModal } from "../modals/farm-household-modal";
 import { PersonaScorePicker } from "./persona-score-picker";
 import s from "./page.module.css";
