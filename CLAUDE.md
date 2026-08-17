@@ -70,6 +70,8 @@
 | 2026-07-24 | 하네스 전수조사 정리 — supanova-* 스킬 5종 repo 제거 (5/1 `git add -A` 실수 커밋 잔재, Tailwind 전제로 CSS Modules 컨벤션 충돌·supanova-research는 SKILL.md 없는 broken) + 유저 레벨 에이전트 4종 `~/.claude/agents/_archive/` 이동 (automation-engineer·technical-writer 미사용, chief-of-staff·data-engineer 3월 구식 중복 — 프로젝트 버전과 혼선 위험) | .claude/skills/supanova-*, ~/.claude/agents/ | 7/24 회장 지시 하네스 에이전트 전수조사. 프로젝트 5 에이전트 + 활성 스킬 4종 + CoS 전문가 풀 11종은 전부 실사용 확인 유지 |
 | 2026-07-24 | SSL/TLS 인증서 만료 감시 §14 추가 (화·금, `vercel certs ls`로 D-14 🟡 / D-7 🔴 / renew=no 승격 + ACME 챌린지 경로 통과 동반 점검) | agents/reminder-watchman.md §14 | 7/24 apex SSL 만료로 CF 526 전면 다운. CF의 KR 외 차단 룰이 ACME 갱신 챌린지까지 막아 자동 갱신 실패. 인프라 사각지대로 watchman 감시 부재였음 |
 | 2026-07-27 | cron/스케줄 워크플로 실패 감시 §15 추가 (화·금, `gh run list --event=schedule`로 8종 점검 — 연속 2회 실패 🟡 / 3회+ 또는 sync-data 실패 🔴) | agents/reminder-watchman.md §15 | 7/27 3관점 검토 ⚪ — 스케줄 워크플로는 실패해도 무알림이라 stale 데이터·깨진 링크가 조용히 방치되는 사각지대. 실제 7/26 check-links schedule 실행 failure 발생 |
+| 2026-08-17 | **인증서 감시를 세션 의존 → 스케줄 워크플로로 승격** (`scripts/check-cert-expiry.sh` + `.github/workflows/cert-expiry.yml`, 매일 KST 09:10, 526 판정 + 엣지 D-21/D-10). §14는 보조 수단으로 유지 | scripts/, .github/workflows/, package.json | 8/17 전반 점검에서 www.irangfarm.com 526을 **13일 만에** 발견. §14(7/24 신설)는 화·금 watchman 세션 실행 의존인데 8/2 이후 세션이 없어 아무도 보지 않음. **감시 항목이 있어도 실행 주체가 사람이면 공백이 생긴다**는 것이 본질 — CI로 이관 |
+| 2026-08-17 | check-links 타임아웃을 실패에서 경고로 강등 + 마지막 재시도 30s→60s | scripts/check-links.sh | 8/17 점검 — US 러너에서 한국 정부 사이트(go.kr) 상시 타임아웃으로 스케줄 5회+ 반복 실패, GitHub Issue 75건 누적. 실측 결과 타임아웃 전건이 한국에서 HTTP 200(실패 0건). **경보 피로로 진짜 깨진 링크를 가리는 역효과**가 실제 위험이었음 |
 
 ---
 
@@ -696,6 +698,18 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
   2. **인증서 만료는 발급 +90일 시한폭탄 — silent fail 후 만료일에 폭발.** watchman 화·금 점검에 `vercel certs ls` 만료 D-14 체크 추가 (D-14 미만 + renew 실패 흔적 시 🔴).
   3. **Skip 룰의 실질 검증은 다음 자동 갱신 성공.** 8/4 만료 www 인증서가 7/28~8/4 사이 자동 갱신되는지 확인해야 종결 (`vercel certs ls`).
   4. 복구 절차 박제: 526 + apex cert 소멸 → `--challenge-only`로 TXT 획득 → CF DNS 추가 → issue 재실행 → `openssl s_client`로 새 notAfter 확인. TXT는 1회용이라 발급 후 삭제 가능.
+
+### 인증서 만료는 자기잠금(self-locking) — 한 번 놓치면 자동 복구가 영구 불가 (2026-08-17)
+
+- **증상**: 8/17 전반 점검에서 `www.irangfarm.com`이 **HTTP 526**. 8/4 만료 예정이던 www origin 인증서가 자동 갱신에 실패했고, **13일간 아무도 몰랐다**. apex는 정상 200. `vercel certs ls`에 www 엔트리 자체가 소멸(apex 1건만 잔존).
+- **root cause — 자기잠금 구조**: origin 인증서 만료 → CF가 HTTPS 요청에 526 → **ACME HTTP-01 검증 트래픽도 함께 526** → Let's Encrypt가 검증 불가 → 자동 갱신 영구 실패. 즉 **만료 전에 잡지 못하면 자동 복구 경로가 스스로 닫힌다.** 7/24에 추가한 CF ACME Skip 룰은 정상 작동 중이었음(HTTP :80의 `/.well-known/acme-challenge/`는 404 = origin 도달 확인, `X-Vercel-Acme-Ips` 헤더 응답). Skip 룰이 있어도 **TLS 계층에서 죽으면 무의미**.
+- **왜 13일간 안 보였나**: 7/24에 신설한 watchman §14(인증서 D-14 점검)는 **화·금 watchman 세션 실행에 의존**. 8/2 이후 세션이 없어 감시 항목이 존재해도 실행되지 않았다.
+- **해결**: `scripts/check-cert-expiry.sh` + `.github/workflows/cert-expiry.yml`(매일 KST 09:10)로 **세션과 무관한 CI 감시로 승격**. 526 판정을 1순위 신호로 삼음.
+- **교훈**:
+  1. **감시 항목을 정의하는 것과 감시가 실제로 돌아가는 것은 다른 문제다.** 실행 주체가 사람(세션)이면 공백이 생긴다. 만료·한도처럼 시한이 걸린 항목은 반드시 스케줄러(CI)에 올릴 것.
+  2. **526은 "사이트 느림"이 아니라 "origin 인증서 사망" 신호다.** CF 프록시 뒤에서는 `openssl s_client`로 CF 엣지 인증서만 보이므로 origin 만료를 밖에서 직접 볼 수 없다. **526 자체가 유일한 외부 관측 신호**이고, origin 만료일 확인은 `npx vercel certs ls`(인증 필요)뿐.
+  3. **apex가 멀쩡해도 서브도메인은 별개 인증서다.** 한쪽 복구 시 다른 쪽도 같은 만료 시한을 밟는지 반드시 함께 점검. 7/24에 apex만 수동 발급하고 www는 "자동 갱신되겠지"로 넘긴 것이 이번 사고의 직접 원인.
+  4. **구조적 대안**: www에 고유 콘텐츠가 없고 canonical이 apex라면(현재 코드에 `www.irangfarm` 참조 0건), CF Redirect Rule로 엣지에서 www→apex 301 처리하면 origin 인증서 의존 자체가 사라져 이 실패 모드가 영구 제거된다.
 
 ### e2e 간헐 403 — 기록과 실제 인프라 불일치 3중 잠복 + Bot Fight Mode 정체 (2026-07-25~26)
 
