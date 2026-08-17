@@ -386,24 +386,16 @@ export function getDimensionScores(
   return SCORE_INDEX.get(sgisCode) ?? null;
 }
 
-/** 차원별 라벨 (UI/methodology 공용) */
-export const DIMENSION_LABELS = {
-  populationTrend: "인구 추세",
-  farmActivity: "농가 활성도",
-  medical: "의료 인프라",
-  school: "학교 인프라",
-  returnFarm: "농촌 정착 활성도",
-} as const;
-
-export type DimensionId = keyof typeof DIMENSION_LABELS;
-
-export const DIMENSION_IDS: DimensionId[] = [
-  "populationTrend",
-  "farmActivity",
-  "medical",
-  "school",
-  "returnFarm",
-];
+/**
+ * 차원 라벨·ID·타입은 경량 모듈 dimension-meta.ts로 분리했다 (번들 다이어트 2026-07-27).
+ * 서버 코드가 dimension-scores.ts 한 곳에서 함께 import하던 경로를 보존하기 위해 re-export.
+ * ⚠️ client 컴포넌트는 이 re-export가 아니라 \`@/lib/data/dimension-meta\`에서 직접 import할 것.
+ */
+export {
+  DIMENSION_LABELS,
+  DIMENSION_IDS,
+  type DimensionId,
+} from "./dimension-meta";
 `;
 
   // IRANG_COMPUTE_OUT: 재현성 게이트(check-compute-reproducibility.ts)가 커밋본을
