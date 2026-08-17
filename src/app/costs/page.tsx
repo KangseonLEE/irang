@@ -259,7 +259,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
         <section className={s.section} aria-label="작물별 투자 비교">
           <h2 className={s.sectionTitle}>
             <Sprout size={20} />
-            작물별 초기 투자, 이렇게 다릅니다
+            작물별 초기 투자, 이렇게 달라요
           </h2>
           <p className={s.sectionDesc}>
             <AutoGlossary text={cropSectionDesc[activeType]} />
@@ -323,7 +323,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
         <section className={s.section} aria-label="도시 농촌 생활비 비교">
           <h2 className={s.sectionTitle}>
             <Home size={20} />
-            초기 투자 이후, 생활비는 줄어듭니다
+            초기 투자 이후, 생활비는 줄어요
           </h2>
           <p className={s.sectionDesc}>
             <AutoGlossary text="정착 후 월 생활비는 평균 25% 감소하고, 주거비는 80% 절감돼요. 초기 투자가 부담되더라도 장기적으로 생활비 절감 효과가 있어요." />

@@ -278,7 +278,7 @@ export default async function ProgramDetailPage({
           {!guide && (
             <section className={s.section}>
               <p className={s.missingInfoNotice}>
-                이 사업에 대한 상세 안내 정보가 아직 준비되지 않았습니다. 원문 페이지에서 자세한 내용을 확인해 주세요.
+                상세 안내는 아직 준비 중이에요. 원문 페이지에서 자세한 내용을 확인해 보세요.
               </p>
             </section>
           )}

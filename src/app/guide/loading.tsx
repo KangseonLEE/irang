@@ -8,7 +8,7 @@ export default function GuideLoading() {
         <span className={s.heroOverline}>PROCESS GUIDE</span>
         <h2 className={s.heroTitle}>귀농 5단계 가이드</h2>
         <p className={s.heroDesc}>
-          가이드 데이터를 불러오고 있습니다...
+          가이드 데이터를 불러오는 중이에요
         </p>
       </div>
 

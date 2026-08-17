@@ -13,7 +13,7 @@ export default function CropDetailError({
     <PageError
       error={error}
       reset={reset}
-      title="작물 상세 정보를 불러올 수 없습니다"
+      title="작물 상세 정보를 불러오지 못했어요"
       tag="CropDetailError"
       listHref="/crops"
       listLabel="작물 목록"

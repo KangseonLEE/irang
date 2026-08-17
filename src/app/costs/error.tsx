@@ -13,7 +13,7 @@ export default function CostsError({
     <PageError
       error={error}
       reset={reset}
-      title="비용 정보를 불러올 수 없습니다"
+      title="비용 정보를 불러오지 못했어요"
       tag="CostsError"
       listHref="/costs"
       listLabel="비용 목록"

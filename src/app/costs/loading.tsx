@@ -12,7 +12,7 @@ export default function CostsLoading() {
         </div>
         <h2 className={s.title}>정착 비용 가이드</h2>
         <p className={s.description}>
-          비용 데이터를 불러오고 있습니다...
+          비용 데이터를 불러오는 중이에요
         </p>
       </div>
 

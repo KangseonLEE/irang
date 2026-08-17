@@ -750,7 +750,7 @@ function IncomeSection({
             <p className={s.revenueSubNote}>{note}</p>
           )}
           <p className={s.revenueNote}>
-            소득 = 판매 수입 − 생산 경비 (인건비·자재비 등). 재배 환경, 기술 수준에 따라 달라질 수 있습니다.
+            소득 = 판매 수입 − 생산 경비 (인건비·자재비 등). 재배 환경, 기술 수준에 따라 달라질 수 있어요.
           </p>
         </div>
 

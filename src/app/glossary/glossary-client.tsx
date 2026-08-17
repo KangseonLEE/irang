@@ -303,7 +303,7 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
 
       {/* 결과 수 스크린리더 알림 */}
       <div aria-live="polite" className={s.srOnly}>
-        {filtered.length}개의 용어가 표시되고 있습니다.
+        용어 {filtered.length}개가 표시됐어요.
       </div>
     </>
   );

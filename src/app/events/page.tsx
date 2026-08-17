@@ -149,7 +149,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
         title="체험·행사"
         description="정착 일일체험, 팜스테이, 박람회, 설명회 등 여러 체험과 행사를 찾아보세요."
         periodLabel={periodLabel}
-        dataNote={`${dataYear}년 데이터만 제공되며, 연도 변경은 지원되지 않습니다.`}
+        dataNote={`${dataYear}년 데이터만 있어요. 연도는 바꿀 수 없어요.`}
       />
 
       {/* ── Filter Bar — 데스크탑(>= 640) FilterBar + 모바일(< 640) BottomSheet ── */}

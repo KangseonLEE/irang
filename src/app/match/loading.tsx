@@ -7,7 +7,7 @@ export default function MatchLoading() {
       <div className={s.header}>
         <h1 className={s.title}>맞춤 추천</h1>
         <p className={s.description}>
-          서비스를 준비하고 있습니다...
+          서비스를 준비하는 중이에요
         </p>
       </div>
 

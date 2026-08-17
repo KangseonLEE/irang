@@ -13,7 +13,7 @@ export default function GuideError({
     <PageError
       error={error}
       reset={reset}
-      title="가이드를 불러올 수 없습니다"
+      title="가이드를 불러오지 못했어요"
       tag="GuideError"
     />
   );

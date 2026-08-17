@@ -12,7 +12,7 @@ export default function GlossaryLoading() {
         </span>
         <h2 className={s.title}>농업 용어집</h2>
         <p className={s.description}>
-          용어 데이터를 불러오고 있습니다...
+          용어 데이터를 불러오는 중이에요
         </p>
       </div>
 

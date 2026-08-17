@@ -13,7 +13,7 @@ export default function StatsError({
     <PageError
       error={error}
       reset={reset}
-      title="통계를 불러올 수 없습니다"
+      title="통계를 불러오지 못했어요"
       tag="StatsError"
     />
   );

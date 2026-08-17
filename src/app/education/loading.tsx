@@ -12,7 +12,7 @@ export default function EducationLoading() {
         </div>
         <h2 className={s.title}>정착 교육</h2>
         <p className={s.description}>
-          교육 과정을 불러오고 있습니다...
+          교육 과정을 불러오는 중이에요
         </p>
       </div>
 

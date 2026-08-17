@@ -299,7 +299,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
         {/* pre-fill 안내 */}
         {prefilled.has(currentQuestion.id) && selectedForCurrent.length > 0 && (
           <p className={s.prefillHint}>
-            적합성 진단 결과를 바탕으로 미리 선택되었어요. 변경할 수도 있습니다.
+            적합성 진단 결과를 바탕으로 미리 선택되었어요. 바꿔도 돼요.
           </p>
         )}
 

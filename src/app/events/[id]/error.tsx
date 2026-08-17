@@ -13,7 +13,7 @@ export default function EventDetailError({
     <PageError
       error={error}
       reset={reset}
-      title="행사 정보를 불러올 수 없습니다"
+      title="행사 정보를 불러오지 못했어요"
       tag="EventDetailError"
       listHref="/events"
       listLabel="행사 목록"

@@ -234,7 +234,7 @@ export const trendPolicyNews: NewsItem[] = [
     date: "2026.03",
     url: "https://www.sedaily.com/article/20014738",
     description:
-      "전국 10개 인구 소멸 위기 농어촌 지역에 ‘농어촌 기본소득’이 처음 지급되면서 인구 반등과 지역경제 활성화의 신호가 나타나고 있어요. 69개 군 중 6개 군 24만 명이 지역화폐로 월 15만 원을 받습니다.",
+      "전국 10개 인구 소멸 위기 농어촌 지역에 ‘농어촌 기본소득’이 처음 지급되면서 인구 반등과 지역경제 활성화의 신호가 나타나고 있어요. 69개 군 중 6개 군 24만 명이 지역화폐로 월 15만 원을 받아요.",
     thumbnail:
       "https://wimg.sedaily.com/news/cms/2026/03/03/news-p.v1.20260226.28525aca14674a58a42a61531172a434_R.jpg",
   },
@@ -244,7 +244,7 @@ export const trendPolicyNews: NewsItem[] = [
     date: "2026.03",
     url: "http://www.aflnews.co.kr/news/articleView.html?idxno=315465",
     description:
-      "귀농 시 평균 6219만 원, 귀촌 시 4563만 원의 투자가 필요한 것으로 조사됐어요. 젊은층의 귀농 투자액이 상대적으로 높았고, 농지 마련에 가장 많은 비용이 들어갔습니다.",
+      "귀농 시 평균 6219만 원, 귀촌 시 4563만 원의 투자가 필요한 것으로 조사됐어요. 젊은층의 귀농 투자액이 상대적으로 높았고, 농지 마련에 가장 많은 비용이 들어갔어요.",
   },
   {
     title: "농촌출신은 귀농, 도시출신은 귀촌",
@@ -262,7 +262,7 @@ export const trendPolicyNews: NewsItem[] = [
     date: "2026.04",
     url: "https://www.cbci.co.kr/news/articleView.html?idxno=566385",
     description:
-      "송미령 장관이 비료 원료 수급, 농산물 물가, 가축 방역 현장을 잇따라 점검하며 전방위 농정 대응에 나섰어요. 청년 영농정착지원·시설 현대화 등 핵심 정책의 연속 가동을 강조했습니다.",
+      "송미령 장관이 비료 원료 수급, 농산물 물가, 가축 방역 현장을 잇따라 점검하며 전방위 농정 대응에 나섰어요. 청년 영농정착지원·시설 현대화 등 핵심 정책의 연속 가동을 강조했어요.",
     thumbnail:
       "https://www.cbci.co.kr/news/thumbnail/202604/566385_382997_613_v150.jpg",
   },

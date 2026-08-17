@@ -187,7 +187,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
         title="정착 교육"
         description="귀농에 필요한 교육 과정을 지역, 유형, 난이도별로 찾아보세요."
         periodLabel={periodLabel}
-        dataNote={`${dataYear}년 데이터만 제공되며, 연도 변경은 지원되지 않습니다.`}
+        dataNote={`${dataYear}년 데이터만 있어요. 연도는 바꿀 수 없어요.`}
       />
 
       {/* 치유·사회적 농업 진입점 */}

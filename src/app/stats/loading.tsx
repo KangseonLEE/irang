@@ -7,7 +7,7 @@ export default function StatsLoading() {
       <div className={s.header}>
         <h2 className={s.headerTitle}>농촌 정착 통계</h2>
         <p className={s.headerDesc}>
-          통계 데이터를 불러오고 있습니다...
+          통계 데이터를 불러오는 중이에요
         </p>
       </div>
 

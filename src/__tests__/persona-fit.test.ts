@@ -367,7 +367,7 @@ describe("getCropPersonaFitTrace / getProgramPersonaFitTrace — explainability"
 
   // 9-9. reasons label 톤 검증 — ~합니다/입니다 금지
   it("trace reasons label에는 '~합니다/입니다' 톤이 없다 (작물)", () => {
-    const banned = /(합니다|입니다)(\.|$|\s)/;
+    const banned = /니다(\.|$|\s)/;
     for (const crop of CROPS.slice(0, 5)) {
       for (const id of PERSONA_IDS) {
         const trace = getCropPersonaFitTrace(crop, id);
@@ -379,7 +379,7 @@ describe("getCropPersonaFitTrace / getProgramPersonaFitTrace — explainability"
   });
 
   it("trace reasons label에는 '~합니다/입니다' 톤이 없다 (사업)", () => {
-    const banned = /(합니다|입니다)(\.|$|\s)/;
+    const banned = /니다(\.|$|\s)/;
     for (const program of PROGRAMS.slice(0, 5)) {
       for (const id of PERSONA_IDS) {
         const trace = getProgramPersonaFitTrace(program, id);
@@ -503,7 +503,7 @@ describe("Phase 7 B D4 — 신규 작물 10건 (39→49종)", () => {
     const crop = CROPS.find((c) => c.id === id);
     expect(crop).toBeDefined();
     if (!crop) return;
-    const banned = /(합니다|입니다)(\.|$|\s)/;
+    const banned = /니다(\.|$|\s)/;
     expect(crop.description).not.toMatch(banned);
   });
 

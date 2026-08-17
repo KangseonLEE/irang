@@ -8,7 +8,7 @@ export default function InterviewsLoading() {
         <p className={s.heroOverline}>정착 이야기</p>
         <h2 className={s.heroTitle}>정착 인터뷰</h2>
         <p className={s.heroDesc}>
-          인터뷰 데이터를 불러오고 있습니다...
+          인터뷰 데이터를 불러오는 중이에요
         </p>
       </div>
 

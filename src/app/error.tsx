@@ -13,7 +13,7 @@ export default function RootError({
     <PageError
       error={error}
       reset={reset}
-      title="문제가 발생했습니다"
+      title="문제가 생겼어요"
       tag="RootError"
     />
   );

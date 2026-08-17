@@ -695,7 +695,7 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
           <span className={s.dimensionTag}>기본 정보</span>
           <h1 className={s.questionTitle}>{currentDemo.question}</h1>
           <p className={s.demoSubtitle}>
-            맞춤 지원사업 추천을 위해 사용되며, 진단 점수에는 반영되지 않습니다.
+            맞춤 지원사업 추천에만 쓰이고, 진단 점수에는 반영되지 않아요.
           </p>
 
           <div className={s.optionsList}>

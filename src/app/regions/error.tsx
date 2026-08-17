@@ -13,7 +13,7 @@ export default function RegionsError({
     <PageError
       error={error}
       reset={reset}
-      title="지역 정보를 불러올 수 없습니다"
+      title="지역 정보를 불러오지 못했어요"
       tag="RegionsError"
       listHref="/regions"
       listLabel="지역 비교"

@@ -8,10 +8,10 @@ export default function NotFound() {
     <div className={s.container}>
       <span className={s.code}>404</span>
       <h2 className={s.title}>
-        페이지를 찾을 수 없습니다
+        페이지를 찾지 못했어요
       </h2>
       <p className={s.description}>
-        요청하신 페이지가 존재하지 않거나 이동되었습니다.
+        주소가 바뀌었거나 사라진 페이지예요.
       </p>
       <div className={s.actions}>
         <Link href="/" className={s.primaryButton}>

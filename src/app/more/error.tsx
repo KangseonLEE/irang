@@ -13,7 +13,7 @@ export default function MoreError({
     <PageError
       error={error}
       reset={reset}
-      title="페이지를 불러올 수 없습니다"
+      title="페이지를 불러오지 못했어요"
       tag="MoreError"
     />
   );

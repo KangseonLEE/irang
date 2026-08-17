@@ -115,8 +115,8 @@ describe("Quick Check — 4문항 페르소나 매핑", () => {
         expect(msg.title).toBeTruthy();
         expect(msg.description).toBeTruthy();
         // 카피 톤 검증 — "~합니다" 금지
-        expect(msg.title).not.toMatch(/합니다|입니다/);
-        expect(msg.description).not.toMatch(/합니다|입니다/);
+        expect(msg.title).not.toMatch(/니다/);
+        expect(msg.description).not.toMatch(/니다/);
       }
     });
 
@@ -156,11 +156,11 @@ describe("Quick Check — 4문항 페르소나 매핑", () => {
 
     it("질문 카피 톤 — ~합니다/입니다 금지", () => {
       for (const q of QUICK_QUESTIONS) {
-        expect(q.title).not.toMatch(/합니다|입니다/);
-        expect(q.subtitle).not.toMatch(/합니다|입니다/);
+        expect(q.title).not.toMatch(/니다/);
+        expect(q.subtitle).not.toMatch(/니다/);
         for (const o of q.options) {
           if (o.description) {
-            expect(o.description).not.toMatch(/합니다|입니다/);
+            expect(o.description).not.toMatch(/니다/);
           }
         }
       }

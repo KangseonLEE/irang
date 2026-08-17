@@ -38,7 +38,7 @@ export function PageError({
       <Icon icon={AlertTriangle} size="2xl" className={s.icon} />
       <h2 className={s.title}>{title}</h2>
       <p className={s.description}>
-        일시적인 오류일 수 있습니다. 다시 시도해 주세요.
+        잠시 후 다시 시도해 보세요.
       </p>
       {listHref && listLabel ? (
         <div className={s.actions}>

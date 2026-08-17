@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const result = decodeAssessScore(data);
 
   if (!result) {
-    return { title: "결과를 찾을 수 없습니다 | 이랑" };
+    return { title: "결과를 찾지 못했어요 | 이랑" };
   }
 
   const { tier, totalScore } = result;

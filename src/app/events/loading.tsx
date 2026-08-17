@@ -13,7 +13,7 @@ export default function EventsLoading() {
         </div>
         <h2 className={s.title}>체험·행사</h2>
         <p className={s.description}>
-          체험·행사 정보를 불러오고 있습니다...
+          체험·행사 정보를 불러오는 중이에요
         </p>
       </div>
 

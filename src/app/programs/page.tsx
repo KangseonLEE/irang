@@ -229,7 +229,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         title="지원사업 검색"
         description="나이, 지역, 희망 작물에 맞는 귀농 · 귀촌 지원사업을 찾아보세요."
         periodLabel={periodLabel}
-        dataNote={`${dataYear}년 데이터만 제공되며, 연도 변경은 지원되지 않습니다.`}
+        dataNote={`${dataYear}년 데이터만 있어요. 연도는 바꿀 수 없어요.`}
       />
 
       {/* 모집 시즌 안내 — 5월 같은 비수기에 활성 공고가 적은 이유 설명 */}

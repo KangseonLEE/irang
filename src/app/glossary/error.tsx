@@ -13,7 +13,7 @@ export default function GlossaryError({
     <PageError
       error={error}
       reset={reset}
-      title="용어 정보를 불러올 수 없습니다"
+      title="용어 정보를 불러오지 못했어요"
       tag="GlossaryError"
       listHref="/glossary"
       listLabel="용어 목록"

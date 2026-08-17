@@ -15,7 +15,7 @@ export default function CropsLoading() {
         </div>
         <h2 className={s.title}>작물 목록</h2>
         <p className={s.description}>
-          작물 데이터를 불러오고 있습니다...
+          작물 데이터를 불러오는 중이에요
         </p>
       </div>
 

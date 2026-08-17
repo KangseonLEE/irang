@@ -55,10 +55,10 @@ export function AreaModal({
           <h4 className={s.insightTitle}>정착 관점</h4>
           <p className={s.insightText}>
             {density < 200
-              ? `${provinceShortName}은(는) 인구밀도가 전국 평균(${nationalDensity}명/km²)보다 낮아 여유로운 농촌 환경을 기대할 수 있습니다.`
+              ? `${provinceShortName}은(는) 인구밀도가 전국 평균(${nationalDensity}명/km²)보다 낮아 여유로운 농촌 환경을 기대할 수 있어요.`
               : density < 500
-                ? `${provinceShortName}은(는) 인구밀도가 적당한 편으로, 도시 인프라와 농촌 환경을 함께 누릴 수 있습니다.`
-                : `${provinceShortName}은(는) 인구밀도가 높은 편이지만, 외곽 지역에서 귀농 기회를 찾을 수 있습니다.`}
+                ? `${provinceShortName}은(는) 인구밀도가 적당한 편으로, 도시 인프라와 농촌 환경을 함께 누릴 수 있어요.`
+                : `${provinceShortName}은(는) 인구밀도가 높은 편이지만, 외곽 지역에서 귀농 기회를 찾을 수 있어요.`}
           </p>
         </div>
       )}

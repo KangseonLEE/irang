@@ -13,7 +13,7 @@ export default function InterviewsError({
     <PageError
       error={error}
       reset={reset}
-      title="인터뷰를 불러올 수 없습니다"
+      title="인터뷰를 불러오지 못했어요"
       tag="InterviewsError"
     />
   );

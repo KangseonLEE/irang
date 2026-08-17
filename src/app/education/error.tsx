@@ -13,7 +13,7 @@ export default function EducationError({
     <PageError
       error={error}
       reset={reset}
-      title="교육 정보를 불러올 수 없습니다"
+      title="교육 정보를 불러오지 못했어요"
       tag="EducationError"
       listHref="/education"
       listLabel="교육 목록"

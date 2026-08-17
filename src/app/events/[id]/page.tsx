@@ -250,7 +250,7 @@ export default async function EventDetailPage({
             <div className={s.card}>
               <div className={`${s.cardContent} ${s.cardContentSpacedTop}`}>
                 <p className={s.missingInfoNotice}>
-                  접수 기간 정보가 아직 제공되지 않습니다. 원문 페이지에서 확인해 주세요.
+                  접수 기간은 아직 공개되지 않았어요. 원문 페이지에서 확인해 보세요.
                 </p>
               </div>
             </div>

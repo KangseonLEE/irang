@@ -13,7 +13,7 @@ export default function ProgramsError({
     <PageError
       error={error}
       reset={reset}
-      title="지원사업 정보를 불러올 수 없습니다"
+      title="지원사업 정보를 불러오지 못했어요"
       tag="ProgramsError"
       listHref="/programs"
       listLabel="지원사업 목록"
