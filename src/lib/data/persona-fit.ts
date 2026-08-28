@@ -387,6 +387,17 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-026": { farmYouth: 5, family: 4, elderRural: 3, commuter: 3 },
   // 홍천 귀농인의 집 (체류형, 가족·노년)
   "SP-032": { family: 5, elderRural: 4, commuter: 4, farmYouth: 3 },
+  // 2026-08-29: 하반기 모집 시즌 큐레이션 — 비청년 지자체 공고 보강
+  // 하동 귀농인의 집 5가구 (체류형, 연령 무제한, 가족·노년)
+  "SP-033": { family: 5, elderRural: 4, commuter: 4, farmYouth: 3 },
+  // 하동 귀농귀촌 사관학교 40시간 입문 교육 (지역 미정 도시민도 신청 가능)
+  "SP-034": { family: 4, farmYouth: 4, elderRural: 4, commuter: 4 },
+  // 공주 귀농귀촌인 주택수리비 (전입 1년 이내 실거주 세대, 만 20~65세)
+  "SP-035": { family: 5, elderRural: 4, commuter: 4, farmYouth: 4 },
+  // 청도 임시거주공간 임대료 (전입 3년 이내 세대주, 만 65세 이하, 교육 이수 필수)
+  "SP-036": { family: 5, elderRural: 4, commuter: 4, farmYouth: 4 },
+  // 구미 귀농인 정착지원 5차 (가족 부부이상 동반 전입 + 실제 영농 종사)
+  "SP-037": { family: 5, farmYouth: 5, elderRural: 3, commuter: 2 },
 };
 
 export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
@@ -421,6 +432,11 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-025": "체류형 귀농인의 집(논산)이라 가족·반귀농에 잘 맞아요",
   "SP-026": "1:1 매칭 현장실습이라 청년·입문 농가에 적합해요",
   "SP-032": "체류형 귀농인의 집(홍천)이라 가족·노년에 잘 맞아요",
+  "SP-033": "체류형 귀농인의 집(하동)이라 가족·노년에 잘 맞아요",
+  "SP-034": "지역을 안 정한 도시민도 듣는 입문 교육이라 두루 맞아요",
+  "SP-035": "전입 초기 주택 수리비라 실거주 정착 가구에 실속 있어요",
+  "SP-036": "전입 3년 이내 세대의 월세 지원이라 정착 초기에 실속 있어요",
+  "SP-037": "가족이 함께 전입해 실제 영농하는 세대 대상이에요",
 };
 
 /**
