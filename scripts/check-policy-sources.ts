@@ -2,6 +2,8 @@
 /* ==========================================================================
    정책 데이터 검증 스크립트
    - 공식 출처 URL 접근성 확인 (링크 깨짐 감지)
+   - 본문 검증 (8/29 추가): 응답 크기 하한 · 소프트 404/파킹 키워드 · 출처별 mustContain 키워드
+     → HTTP 200이어도 메인·게시판·리다이렉트 스텁·소프트 404면 "내용 실패"로 집계
    - lastVerified 경과일 기반 갱신 필요 사업 표시
    - 출처별 스냅샷 저장 → 다음 실행 시 변경 감지
 
@@ -32,7 +34,7 @@ interface SourceInfo {
   programId: string;
   programName: string;
   lastVerified: string | null;
-  source: { label: string; url: string; covers: string[] };
+  source: { label: string; url: string; covers: string[]; mustContain: string[] };
 }
 
 /* ── 데이터 파싱 (정규식으로 sources/lastVerified 추출) ── */
@@ -60,19 +62,31 @@ function extractProgramMeta(): SourceInfo[] {
 
     const sourcesBlock = sourcesMatch[1];
 
-    // 개별 source 객체 추출
-    const sourceRegex =
-      /\{\s*label:\s*"([^"]+)",\s*url:\s*"([^"]+)",\s*covers:\s*\[([^\]]+)\]/g;
+    // 개별 source 객체 추출 — 객체 단위로 자른 뒤 필드별 파싱 (mustContain은 선택)
+    const objectRegex = /\{([^{}]*)\}/g;
     let match;
-    while ((match = sourceRegex.exec(sourcesBlock)) !== null) {
-      const covers = match[3]
-        .split(",")
-        .map((s) => s.trim().replace(/"/g, ""));
+    while ((match = objectRegex.exec(sourcesBlock)) !== null) {
+      const body = match[1];
+      const label = body.match(/label:\s*"([^"]+)"/)?.[1];
+      const url = body.match(/url:\s*"([^"]+)"/)?.[1];
+      const coversRaw = body.match(/covers:\s*\[([^\]]*)\]/)?.[1];
+      if (!label || !url || coversRaw === undefined) continue;
+      const parseList = (raw: string) =>
+        raw
+          .split(",")
+          .map((s) => s.trim().replace(/^"|"$/g, ""))
+          .filter(Boolean);
+      const mustRaw = body.match(/mustContain:\s*\[([^\]]*)\]/)?.[1];
       results.push({
         programId,
         programName,
         lastVerified,
-        source: { label: match[1], url: match[2], covers },
+        source: {
+          label,
+          url,
+          covers: parseList(coversRaw),
+          mustContain: mustRaw ? parseList(mustRaw) : [],
+        },
       });
     }
   }
@@ -84,7 +98,14 @@ function extractProgramMeta(): SourceInfo[] {
 async function checkUrl(
   url: string,
   attempt = 1,
-): Promise<{ ok: boolean; status: number; redirected: boolean; finalUrl: string; contentLength: number }> {
+): Promise<{
+  ok: boolean;
+  status: number;
+  redirected: boolean;
+  finalUrl: string;
+  contentLength: number;
+  text: string;
+}> {
   const MAX_ATTEMPTS = 2;
   const TIMEOUT_MS = 25_000;
   const RETRY_DELAY_MS = 2_000;
@@ -116,6 +137,7 @@ async function checkUrl(
       redirected: res.redirected,
       finalUrl: res.url,
       contentLength: text.length,
+      text,
     };
   } catch {
     if (attempt < MAX_ATTEMPTS) {
@@ -128,8 +150,57 @@ async function checkUrl(
       redirected: false,
       finalUrl: url,
       contentLength: 0,
+      text: "",
     };
   }
+}
+
+/* ── 본문 검증 (8/29 추가) ──
+   HTTP 200이어도 내용이 없는 페이지를 걸러낸다. 8/29 실측에서 4건이 ✅로 통과했다:
+   epis.or.kr(55바이트 JS 리다이렉트 스텁) · greendaero rfphStep.do(본문 "페이지가 존재하지 않습니다")
+   · mafra 5108(6,601건 롤링 게시판 목록) · smartfarmkorea.net(포털 메인). CLAUDE.md §8 삼중 검증 원칙. */
+const MIN_RAW_BYTES = 5_000; // EPIS 스텁(55B) 즉시 검출
+const MIN_TEXT_CHARS = 300; // 태그 제거 후 가시 텍스트 하한
+/** <title> 전체에 적용 — CLAUDE.md §8 비정상 타이틀 키워드 */
+const BAD_TITLE_PATTERNS = [
+  /찾을 수 없/, /not found/i, /\b404\b/, /존재하지/, /서비스를 찾/, /접근할 수 없/, /접근이 제한/,
+  /점검 중/, /maintenance/i, /GoDaddy/i, /for sale/i, /Sedo/, /Afternic/i, /파킹/, /판매 중/,
+];
+/** 본문에는 강한 문구만 — "오류"·"차단" 같은 단어는 정상 페이지 내비게이션에도 흔하다 */
+const BAD_BODY_PATTERNS = [
+  /페이지가 존재하지 않/, /페이지를 찾을 수 없/, /서비스를 찾을 수 없/, /요청하신 페이지/,
+  /접근이 제한/, /점검 중입니다/, /page not found/i, /this domain is for sale/i,
+];
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractTitle(html: string): string {
+  return html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]?.replace(/\s+/g, " ").trim() ?? "";
+}
+
+/** 통과면 null, 실패면 사유 문자열 */
+function analyzeBody(html: string, rawBytes: number, mustContain: string[]): string | null {
+  if (rawBytes < MIN_RAW_BYTES) return `본문 없음 (${rawBytes}B < ${MIN_RAW_BYTES}B — 리다이렉트 스텁·빈 페이지)`;
+  const title = extractTitle(html);
+  const text = stripHtml(html);
+  const badTitle = BAD_TITLE_PATTERNS.find((re) => re.test(title));
+  if (badTitle) return `비정상 타이틀 "${title.slice(0, 40)}" (${badTitle.source})`;
+  const badBody = BAD_BODY_PATTERNS.find((re) => re.test(text));
+  if (badBody) return `소프트 404 (본문 "${badBody.source}")`;
+  if (text.length < MIN_TEXT_CHARS) return `가시 텍스트 부족 (${text.length}자 < ${MIN_TEXT_CHARS}자)`;
+  const compact = text.replace(/\s/g, "");
+  const missing = mustContain.filter((kw) => !compact.includes(kw.replace(/\s/g, "")));
+  if (missing.length > 0) return `필수 키워드 누락: ${missing.join(", ")}`;
+  return null;
 }
 
 /* ── 스냅샷 저장/비교 ── */
@@ -154,7 +225,8 @@ function loadSnapshot(filePath: string): string | null {
 function daysSince(dateStr: string): number {
   const then = new Date(dateStr);
   const now = new Date();
-  return Math.floor((now.getTime() - then.getTime()) / (1000 * 60 * 60 * 24));
+  // KST 자정~09시에 UTC 기준 "오늘"이 어제라 -1이 나오는 함정(5/15 memory) — 0으로 클램프
+  return Math.max(0, Math.floor((now.getTime() - then.getTime()) / (1000 * 60 * 60 * 24)));
 }
 
 /* ── 메인 ── */
@@ -183,7 +255,7 @@ async function main() {
   let failCount = 0;
   let timeoutCount = 0;
   let staleCount = 0;
-  const failedItems: { programName: string; label: string; url: string; status: number }[] = [];
+  const failedItems: { programName: string; label: string; url: string; status: number; reason: string }[] = [];
   // status 0 = 타임아웃·네트워크 단절. US 러너에서 한국 정부 사이트(go.kr)는 상시 타임아웃이라
   // (8/29 실측: 8건 TIMEOUT 전건 한국에서 200·2초 이내) 실패가 아니라 경고로만 다룬다.
   // 8/17 check-links 동일 학습 — 경보 피로가 진짜 깨진 링크를 가린다.
@@ -214,12 +286,27 @@ async function main() {
       process.stdout.write(`│  ${i + 1}. ${source.label} ... `);
 
       const result = await checkUrl(source.url);
+      const contentIssue = result.ok
+        ? analyzeBody(result.text, result.contentLength, source.mustContain)
+        : null;
 
-      if (result.ok) {
+      if (result.ok && contentIssue) {
+        // HTTP 200이지만 내용이 근거를 못 뒷받침 — 실패로 집계 (8/29 본문 검증)
+        failCount++;
+        failedItems.push({
+          programName,
+          label: source.label,
+          url: source.url,
+          status: result.status,
+          reason: contentIssue,
+        });
+        console.log(`❌ ${result.status} 내용 실패 — ${contentIssue}`);
+      } else if (result.ok) {
         okCount++;
         const sizeKb = (result.contentLength / 1024).toFixed(1);
+        const kwNote = source.mustContain.length > 0 ? ` · 키워드 ${source.mustContain.length}/${source.mustContain.length}` : "";
         console.log(
-          `✅ ${result.status} (${sizeKb}KB)${result.redirected ? ` → ${result.finalUrl.substring(0, 60)}...` : ""}`,
+          `✅ ${result.status} (${sizeKb}KB)${kwNote}${result.redirected ? ` → ${result.finalUrl.substring(0, 60)}...` : ""}`,
         );
 
         // 스냅샷 모드: 콘텐츠 길이 저장 (전체 HTML은 너무 크므로 해시 대용)
@@ -262,6 +349,7 @@ async function main() {
           label: source.label,
           url: source.url,
           status: result.status,
+          reason: `HTTP ${result.status}`,
         });
         console.log(`❌ ${result.status} — 접근 불가!`);
       }
@@ -285,10 +373,9 @@ async function main() {
   console.log("══════════════════════════════════════════════════════════");
 
   if (failCount > 0) {
-    console.log(
-      "\n💡 접근 실패 출처는 URL이 변경되었거나 서버 점검 중일 수 있습니다.",
-    );
-    console.log("   gov-roadmap.ts의 sources 배열에서 해당 URL을 업데이트하세요.");
+    console.log("\n💡 실패 출처는 URL 변경·서버 점검, 또는 HTTP 200이어도 메인/게시판/소프트 404일 수 있습니다.");
+    console.log("   gov-roadmap.ts의 sources 배열에서 고정 상세 URL로 교체하고 mustContain 키워드를 넣으세요.");
+    for (const f of failedItems) console.log(`   - ${f.programName} / ${f.label}: ${f.reason}`);
   }
 
   if (staleCount > 0) {
@@ -323,7 +410,7 @@ async function main() {
 
 /* ── CI 모드: GitHub Issue 자동 생성 ── */
 function createGitHubIssue(
-  failed: { programName: string; label: string; url: string; status: number }[],
+  failed: { programName: string; label: string; url: string; status: number; reason: string }[],
   timeouts: { programName: string; label: string; url: string }[],
   stale: { programName: string; programId: string; lastVerified: string | null; days: number }[],
   stats: {
@@ -367,11 +454,11 @@ function createGitHubIssue(
   body += `**결과:** 총 ${stats.totalSources}건 중 성공 ${stats.okCount}건, 실패 ${stats.failCount}건, 타임아웃 ${stats.timeoutCount}건(경고), 갱신 필요 ${stats.staleCount}건\n\n`;
 
   if (failed.length > 0) {
-    body += `### ❌ 접근 실패 출처\n\n`;
-    body += `| 사업명 | 출처 | 상태 | URL |\n`;
+    body += `### ❌ 실패 출처 (HTTP 오류 또는 내용 검증 실패)\n\n`;
+    body += `| 사업명 | 출처 | 사유 | URL |\n`;
     body += `|--------|------|------|-----|\n`;
     for (const f of failed) {
-      body += `| ${f.programName} | ${f.label} | ${f.status || "TIMEOUT"} | ${f.url} |\n`;
+      body += `| ${f.programName} | ${f.label} | ${f.reason} | ${f.url} |\n`;
     }
     body += `\n`;
   }
@@ -397,7 +484,7 @@ function createGitHubIssue(
   }
 
   body += `### 조치 방법\n\n`;
-  body += `1. **접근 실패**: \`src/lib/data/gov-roadmap.ts\`의 \`sources\` 배열에서 해당 URL을 확인·업데이트\n`;
+  body += `1. **실패 출처**: \`src/lib/data/gov-roadmap.ts\`의 \`sources\` 배열에서 고정 상세 URL로 교체 + \`mustContain\` 키워드 등록 (메인·게시판·소프트 404는 HTTP 200이어도 실패)\n`;
   body += `2. **갱신 필요**: 공식 출처 방문 후 데이터 확인 → \`lastVerified\`를 오늘 날짜로 갱신\n`;
   body += `3. 일시적 장애인 경우 다음 주기에 자동 재검사됩니다\n`;
   body += `4. 처리 후 **이 이슈를 닫아 주세요** — 열려 있는 동안은 새 이슈를 만들지 않아요\n`;
