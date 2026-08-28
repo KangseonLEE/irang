@@ -93,12 +93,12 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     eligibility: [
       {
         label: "정착 교육 이수",
-        detail: "농업교육기관 100시간 이상 이수 (온·오프라인 병행 가능)",
+        detail: "농업교육 8시간 이상 이수 — 100시간 미만이면 심사 최저 등급(D)이라 100시간 이상 권장",
         required: true,
       },
       {
         label: "농촌 전입",
-        detail: "농촌 지역 주민등록 전입 완료 (5년 이내)",
+        detail: "농촌 지역 주민등록 전입 완료 (만 6년 이내)",
         required: true,
       },
       {
@@ -136,7 +136,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         order: 1,
         title: "정착 교육 이수",
         description:
-          "농림수산식품교육문화정보원(농정원) 또는 각 시·도 농업기술원에서 운영하는 정착 교육을 100시간 이상 이수해요.",
+          "농림수산식품교육문화정보원(농정원) 또는 각 시·도 농업기술원에서 운영하는 정착 교육을 이수해요. 자격 요건은 8시간 이상이지만, 100시간 미만이면 심사에서 최저 등급(D)을 받아 사실상 100시간 이상이 필요해요.",
         duration: "2~6개월",
         tips: [
           "온라인 교육은 최대 50시간까지 인정돼요",
@@ -181,7 +181,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         documents: [
           "사업 신청서 (지자체 양식)",
           "농업창업계획서 (작물, 규모, 투자 계획)",
-          "정착 교육 이수 확인서 (100시간 이상)",
+          "정착 교육 이수 확인서 (8시간 이상 · 100시간 이상 권장)",
           "농업경영체 등록 확인서",
           "주민등록등본 (농촌 전입 확인)",
           "가족관계증명서",
@@ -209,7 +209,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     requiredDocuments: [
       "사업 신청서 (지자체 양식)",
       "농업창업계획서 (작물, 규모, 투자 계획)",
-      "정착 교육 이수 확인서 (100시간 이상)",
+      "정착 교육 이수 확인서 (8시간 이상 · 100시간 이상 권장)",
       "농업경영체 등록 확인서",
       "주민등록등본 (농촌 전입 확인)",
       "가족관계증명서",
@@ -227,7 +227,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       "농촌 거주지 이탈(도시 전출) 시 지원금 반환",
     ],
     caution:
-      "정착 교육 이수 없이는 신청 자격이 부여되지 않아요. 교육은 반드시 사전에 완료해야 하며, 일부 지자체는 해당 지역 교육만 인정하는 경우도 있으니 공고문을 꼼꼼히 확인하세요.",
+      "교육은 최소 8시간만 이수해도 신청할 수 있지만, 100시간 미만이면 심사에서 최저 등급(D)을 받아 사실상 100시간이 기준이에요. 교육은 반드시 사전에 완료해야 하며, 일부 지자체는 해당 지역 교육만 인정하는 경우도 있으니 공고문을 꼼꼼히 확인하세요.",
     relatedLinks: [
       { label: "지역 비교하기", href: "/regions" },
       { label: "귀농 5단계 가이드", href: "/guide" },
@@ -491,7 +491,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         order: 1,
         title: "농지은행 포털 회원가입",
         description:
-          "한국농어촌공사 농지은행 포털(farmbank.kr)에 회원가입하고, 희망 지역·면적·작물 조건을 설정해요.",
+          "한국농어촌공사 농지은행 통합포털(fbo.or.kr)에 회원가입하고, 희망 지역·면적·작물 조건을 설정해요.",
         duration: "당일",
         tips: [
           "농지 알림 서비스를 등록하면 신규 농지 등록 시 알림을 받을 수 있어요",
@@ -626,11 +626,6 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         covers: ["subPrograms", "supportAmount", "eligibility"],
       },
       {
-        label: "농지은행 임대사업 총정리",
-        url: "https://youyounews.co.kr/%EB%86%8D%EC%A7%80%EC%9D%80%ED%96%89-%EC%9E%84%EB%8C%80%EC%82%AC%EC%97%85-%EC%B4%9D%EC%A0%95%EB%A6%AC/",
-        covers: ["subPrograms", "obligations"],
-      },
-      {
         label: "정책브리핑 — 농지은행 제도 개선",
         url: "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156681808",
         covers: ["subPrograms", "supportAmount"],
@@ -651,7 +646,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     summary:
       "산촌 지역으로 이주하여 산림 자원을 활용한 창업을 하려는 분에게 창업 자금과 주거 지원을 제공해요. 임산물 재배, 산촌 체험, 목재 가공 등이 대상이에요.",
     targetAudience: "산촌 이주 후 산림 자원 활용 창업 희망자",
-    supportAmount: "최대 5억 원 (융자, 이자율 2% 이내)",
+    supportAmount: "창업자금 세대당 최대 3억 원 + 주택구입 세대당 최대 7,500만 원 (융자, 연 2%, 5년 거치 10년 분할 상환)",
     supportType: "융자",
     eligibility: [
       {
@@ -661,7 +656,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       },
       {
         label: "귀산촌 교육 이수",
-        detail: "산림청 인정 귀산촌 교육 40시간 이상 이수",
+        detail: "귀산촌·귀농귀촌 등 인정 교육 5년 이내 60시간 이상 이수",
         required: true,
       },
       {
@@ -681,15 +676,15 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       },
     ],
     applicationPeriod: {
-      typical: "매년 2~4월",
-      frequency: "연 1회",
+      typical: "상반기 2~3월 · 하반기 6~7월",
+      frequency: "연 2회",
     },
     steps: [
       {
         order: 1,
         title: "귀산촌 교육 이수",
         description:
-          "산림청 또는 한국임업진흥원이 인정하는 귀산촌 교육을 40시간 이상 이수해요.",
+          "산림청·농림축산식품부(농정원 포함)·농촌진흥청·지자체가 인정하는 귀산촌·귀농귀촌 교육을 5년 이내 60시간 이상 이수해요.",
         duration: "1~3개월",
         tips: [
           "한국임업진흥원 산림일자리발전소에서 교육 정보 확인",
@@ -717,7 +712,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         duration: "공고 후 3~4주",
         documents: [
           "지원 신청서 (소정 양식)",
-          "귀산촌 교육 이수 확인서 (40시간 이상)",
+          "귀산촌 교육 이수 확인서 (60시간 이상)",
           "창업 사업 계획서 (산림 자원 활용)",
           "임업경영체 등록 확인서 (또는 등록 예정 확인서)",
           "주민등록등본 (산촌진흥지역 전입 확인)",
@@ -746,13 +741,13 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         tips: [
           "자금 용도: 시설비, 운영비, 장비 구입 등",
           "용도 외 사용 적발 시 즉시 회수 및 제재",
-          "거치 기간(2년) 후 3년간 분할 상환이 일반적이에요",
+          "5년 거치 후 10년간 분할 상환이에요 (연리 2%)",
         ],
       },
     ],
     requiredDocuments: [
       "지원 신청서 (소정 양식)",
-      "귀산촌 교육 이수 확인서 (40시간 이상)",
+      "귀산촌 교육 이수 확인서 (60시간 이상)",
       "창업 사업 계획서 (산림 자원 활용)",
       "임업경영체 등록 확인서 (또는 등록 예정 확인서)",
       "주민등록등본 (산촌진흥지역 전입 확인)",
@@ -765,7 +760,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       "창업 자금은 계획서 상 용도에만 사용",
       "연 1회 이상 경영 실적 보고",
       "한국임업진흥원 정기 점검 수용",
-      "거치 기간(2년) 후 융자금 분할 상환",
+      "5년 거치 후 10년간 융자금 분할 상환",
       "사업 중단 시 잔여 융자금 즉시 상환",
     ],
     caution:
@@ -796,7 +791,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         covers: ["supportAmount", "obligations"],
       },
     ],
-    lastVerified: "2026-04-08",
+    lastVerified: "2026-08-29",
   },
 
   /* ═══════════════════════════════════════════
