@@ -277,15 +277,25 @@ function checkCorrectionHistory(history: HistoryState): void {
   console.log(`  ${CORRECTIONS_PAGE} 마지막 수정: ${correctionsDate}`);
   console.log("");
 
+  // 반영 판정: ① 후보 commit 이후에 정정 이력 페이지가 수정됐거나(>=: 같은 초 커밋 허용)
+  //           ② 후보 commit 자체가 정정 이력 페이지를 함께 수정한 경우 (8/29 오탐 #117 —
+  //           데이터 정정 + /about/corrections 등재를 한 커밋에 묶는 것이 이 리포의 표준 패턴인데
+  //           엄격 초과(>) 비교라 "미반영"으로 판정했다)
+  const isReflected = (c: CorrectionCandidate): boolean => {
+    if (correctionsCt >= c.ct) return true;
+    const touched = git(["show", "--name-only", "--pretty=format:", c.sha, "--", CORRECTIONS_PAGE]);
+    return (touched ?? "").trim().length > 0;
+  };
+
   for (const c of candidates) {
-    const reflected = correctionsCt > c.ct;
+    const reflected = isReflected(c);
     const mark = reflected ? "✓" : "⚠";
     console.log(`  ${mark} ${c.sha.slice(0, 7)} ${c.date} ${c.subject}`);
     console.log(`     데이터 파일 ${c.dataFiles.length}개 · 삭제 ${c.deletions}줄`);
   }
   if (candidates.length > 0) console.log("");
 
-  const unreflected = candidates.filter((c) => correctionsCt <= c.ct);
+  const unreflected = candidates.filter((c) => !isReflected(c));
   if (unreflected.length > 0) {
     const shas = unreflected.map((c) => c.sha.slice(0, 7)).join("·");
     addFinding(
