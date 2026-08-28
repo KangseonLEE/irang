@@ -181,8 +181,13 @@ async function main() {
   let totalSources = 0;
   let okCount = 0;
   let failCount = 0;
+  let timeoutCount = 0;
   let staleCount = 0;
   const failedItems: { programName: string; label: string; url: string; status: number }[] = [];
+  // status 0 = 타임아웃·네트워크 단절. US 러너에서 한국 정부 사이트(go.kr)는 상시 타임아웃이라
+  // (8/29 실측: 8건 TIMEOUT 전건 한국에서 200·2초 이내) 실패가 아니라 경고로만 다룬다.
+  // 8/17 check-links 동일 학습 — 경보 피로가 진짜 깨진 링크를 가린다.
+  const timeoutItems: { programName: string; label: string; url: string }[] = [];
   const staleItems: { programName: string; programId: string; lastVerified: string | null; days: number }[] = [];
 
   for (const [programId, items] of grouped) {
@@ -246,6 +251,10 @@ async function main() {
 
           saveSnapshot(snapshotPath, snapshotData);
         }
+      } else if (result.status === 0) {
+        timeoutCount++;
+        timeoutItems.push({ programName, label: source.label, url: source.url });
+        console.log("⚠️ TIMEOUT — 러너 지역 차단 가능(경고, 실패 아님)");
       } else {
         failCount++;
         failedItems.push({
@@ -254,9 +263,7 @@ async function main() {
           url: source.url,
           status: result.status,
         });
-        console.log(
-          `❌ ${result.status || "TIMEOUT"} — 접근 불가!`,
-        );
+        console.log(`❌ ${result.status} — 접근 불가!`);
       }
 
       // 커버 필드 표시
@@ -273,6 +280,7 @@ async function main() {
   console.log(`  총 출처:       ${totalSources}건`);
   console.log(`  접근 성공:     ${okCount}건 ✅`);
   console.log(`  접근 실패:     ${failCount}건 ${failCount > 0 ? "❌" : ""}`);
+  console.log(`  타임아웃:      ${timeoutCount}건 ${timeoutCount > 0 ? "⚠️ (경고 — 러너 지역 차단 가능, 한국에서 재확인)" : ""}`);
   console.log(`  갱신 필요:     ${staleCount}건 (${staleDays}일 기준) ${staleCount > 0 ? "⚠️" : ""}`);
   console.log("══════════════════════════════════════════════════════════");
 
@@ -297,25 +305,35 @@ async function main() {
   }
 
   /* ── CI 모드: GitHub Issue 자동 생성 ── */
+  // 타임아웃만으로는 이슈를 만들지 않는다 (경고). HTTP 실패·갱신 필요가 있을 때만.
   if (ciMode && (failCount > 0 || staleCount > 0)) {
-    createGitHubIssue(failedItems, staleItems, {
+    createGitHubIssue(failedItems, timeoutItems, staleItems, {
       totalSources,
       okCount,
       failCount,
+      timeoutCount,
       staleCount,
       staleDays,
     });
   }
 
-  // 종료 코드: 실패가 있으면 1
+  // 종료 코드: HTTP 실패가 있으면 1 (타임아웃은 exit 0)
   process.exit(failCount > 0 ? 1 : 0);
 }
 
 /* ── CI 모드: GitHub Issue 자동 생성 ── */
 function createGitHubIssue(
   failed: { programName: string; label: string; url: string; status: number }[],
+  timeouts: { programName: string; label: string; url: string }[],
   stale: { programName: string; programId: string; lastVerified: string | null; days: number }[],
-  stats: { totalSources: number; okCount: number; failCount: number; staleCount: number; staleDays: number },
+  stats: {
+    totalSources: number;
+    okCount: number;
+    failCount: number;
+    timeoutCount: number;
+    staleCount: number;
+    staleDays: number;
+  },
 ): void {
   try {
     execSync("which gh", { stdio: "ignore" });
@@ -327,14 +345,16 @@ function createGitHubIssue(
   const today = new Date().toISOString().slice(0, 10);
   const issueTitle = `📋 정책 데이터 검증 실패 — ${today}`;
 
-  // 같은 날짜 이슈가 이미 있는지 확인
+  // 열린 policy-check 이슈가 있으면 새로 만들지 않는다 — 미해결 상태에서 매주 1건씩 쌓이던
+  // 것을 막는다 (6/1~8/24 11건 누적 후 8/29 정리. watchman report.sh와 동일 패턴).
   try {
-    const existing = execSync(
-      `gh issue list --label "policy-check" --state open --json title --jq '.[].title'`,
+    const openCount = execSync(
+      `gh issue list --label "policy-check" --state open --json number --jq 'length'`,
       { encoding: "utf-8" },
-    );
-    if (existing.includes(today)) {
-      console.log("\nℹ️  오늘자 이슈가 이미 존재합니다. 새 이슈를 생성하지 않습니다.");
+    ).trim();
+    if (openCount !== "0") {
+      console.log(`\nℹ️  열린 policy-check 이슈가 이미 ${openCount}건 있습니다. 새 이슈를 생성하지 않습니다.`);
+      console.log("    (처리 후 이슈를 닫으면 다음 주기에 새로 보고합니다)");
       return;
     }
   } catch {
@@ -344,7 +364,7 @@ function createGitHubIssue(
   // Issue body 구성
   let body = `## 정책 데이터 검증 결과\n\n`;
   body += `**검사일시:** ${today}\n`;
-  body += `**결과:** 총 ${stats.totalSources}건 중 성공 ${stats.okCount}건, 실패 ${stats.failCount}건, 갱신 필요 ${stats.staleCount}건\n\n`;
+  body += `**결과:** 총 ${stats.totalSources}건 중 성공 ${stats.okCount}건, 실패 ${stats.failCount}건, 타임아웃 ${stats.timeoutCount}건(경고), 갱신 필요 ${stats.staleCount}건\n\n`;
 
   if (failed.length > 0) {
     body += `### ❌ 접근 실패 출처\n\n`;
@@ -352,6 +372,16 @@ function createGitHubIssue(
     body += `|--------|------|------|-----|\n`;
     for (const f of failed) {
       body += `| ${f.programName} | ${f.label} | ${f.status || "TIMEOUT"} | ${f.url} |\n`;
+    }
+    body += `\n`;
+  }
+
+  if (timeouts.length > 0) {
+    body += `### ⏱️ 타임아웃 (참고 — 실패로 집계하지 않음)\n\n`;
+    body += `US 러너에서 한국 정부 사이트(go.kr)는 상시 타임아웃이 나요. 한국에서 \`curl -sL -A "Mozilla/5.0"\`로 재확인해 주세요.\n\n`;
+    body += `| 사업명 | 출처 | URL |\n|--------|------|-----|\n`;
+    for (const t of timeouts) {
+      body += `| ${t.programName} | ${t.label} | ${t.url} |\n`;
     }
     body += `\n`;
   }
@@ -370,6 +400,7 @@ function createGitHubIssue(
   body += `1. **접근 실패**: \`src/lib/data/gov-roadmap.ts\`의 \`sources\` 배열에서 해당 URL을 확인·업데이트\n`;
   body += `2. **갱신 필요**: 공식 출처 방문 후 데이터 확인 → \`lastVerified\`를 오늘 날짜로 갱신\n`;
   body += `3. 일시적 장애인 경우 다음 주기에 자동 재검사됩니다\n`;
+  body += `4. 처리 후 **이 이슈를 닫아 주세요** — 열려 있는 동안은 새 이슈를 만들지 않아요\n`;
 
   try {
     execSync(

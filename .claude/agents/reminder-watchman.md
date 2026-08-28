@@ -243,11 +243,13 @@ LAST=$(git log -1 --pretty=format:"%cs" -- src/app/about/corrections/page.tsx)
 
 #### 11-1. 점검 대상
 
-| 테이블 | 의미 | 감지 임계 |
-|---|---|---|
-| `search_logs` | 사용자 검색 활동 | 최근 7일 INSERT 0건 |
-| `quick_feedback` | 빠른 피드백 응답 | 동일 |
-| `assessments` | 유형 진단 응답 | 동일 |
+| 테이블 | 의미 | 0건 판정 창 | 0건 등급 |
+|---|---|---|---|
+| `search_logs` | 사용자 검색 활동 | 최근 7일 | 🟡 |
+| `quick_feedback` | 빠른 피드백 응답 | 최근 30일 | ⚪ (참고, 이슈 미발행) |
+| `assessment_results` | 유형 진단 응답 | 최근 7일 | 🟡 |
+
+> **8/29 임계 조정**: quick_feedback는 8/29 기준 테이블 전체 1건(7/26)인 저트래픽 기능이라 7일 창으로는 8/17~28 매일 🟡가 뜨는 만성 경보였다. 카운트만으로는 정상/이상을 가를 수 없어 ⚪로 내리고, silent fail 감시는 §12 fallback log(`migration-pending`·`no-supabase` 등)가 담당한다. 세 테이블 모두 **배포 동반 시 🔴 승격**은 동일하게 적용. (테이블명 `assessments`→`assessment_results` 오기재 정정)
 
 #### 11-2. 점검 주기 — 화·금 (기존 §8 Vercel·CF 점검과 동일 사이클)
 
@@ -260,8 +262,11 @@ LAST=$(git log -1 --pretty=format:"%cs" -- src/app/about/corrections/page.tsx)
 
 | 등급 | 조건 | 액션 |
 |---|---|---|
-| 🟡 확인 필요 | 3개 테이블 중 1개라도 최근 7일 0건 | CoS 보고. 클라이언트 진입점 누락·트래픽 정체 의심 |
-| 🔴 즉시 액션 | 0건 + 최근 7일 내 관련 배포(searchBar·feedback·assessment 변경) 동반 | CoS 에스컬레이션. 회귀 가능성 — frontend-engineer에 진단 위임 |
+| ⚪ 참고 | `quick_feedback` 최근 30일 0건, 배포 동반 없음 | 추세 관찰만. 이슈 미발행 |
+| 🟡 확인 필요 | `search_logs`·`assessment_results` 최근 7일 0건, 배포 동반 없음 | CoS 보고. 클라이언트 진입점 누락·트래픽 정체 의심 |
+| 🔴 즉시 액션 | 최근 7일 0건 + 최근 7일 내 관련 경로 commit 동반 (CI가 `git log --since=7.days -- <relatedPaths>`로 직접 판정, fetch-depth 0) | CoS 에스컬레이션. 회귀 가능성 — frontend-engineer에 진단 위임 |
+
+관련 경로(`relatedPaths`)는 `scripts/watchman/check-write-activity.ts`의 `WRITE_TABLES`가 SSOT — search-log route·search-bar / quick-feedback route·feedback 위젯·recommendation-thumbs·crop-request-button / assess route·/assess 페이지·assess-result.
 
 #### 11-4. 점검 방법 (read-only)
 
