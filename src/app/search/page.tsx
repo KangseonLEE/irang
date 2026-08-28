@@ -6,7 +6,7 @@ import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ChevronDown, ChevronUp } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, POPULAR_TAGS, type SearchItem, type SearchAnswer } from "@/lib/data/search-index";
+import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
 import { RequestButton } from "@/components/feedback/request-modal";
@@ -17,13 +17,6 @@ import { CropKnowledgePanel } from "@/components/search/crop-knowledge-panel";
 import s from "./page.module.css";
 
 /** 답변 카드와 중복되는 synthetic guide 카드인지 판별 — 그룹 노출에서 제외 */
-function isAnswerSynthetic(id: string, answer: SearchAnswer): boolean {
-  if (answer.kind === "region-crop") {
-    return id.startsWith("cross-") && id.endsWith(`-${answer.cropId}`);
-  }
-  return id === `${answer.kind}-${answer.cropId}`;
-}
-
 const TYPE_META: Record<
   SearchItem["type"],
   { label: string; icon: typeof MapPin }
@@ -98,12 +91,12 @@ function SearchPageContent() {
   // 연관 검색어 (Related Searches) — 결과 하단 탐색 확장
   const relatedSearches = useMemo(() => (query ? buildRelatedSearches(query) : []), [query]);
 
-  // 답변/패널이 있으면 중복 카드를 그룹·집계에서 제외
-  const displayResults = useMemo(() => {
-    if (answer) return results.filter((r) => !isAnswerSynthetic(r.id, answer));
-    if (panel) return results.filter((r) => !(r.type === "crop" && r.id === panel.cropId));
-    return results;
-  }, [results, answer, panel]);
+  // 답변/패널이 있으면 중복 카드를 목록에서 제외 — 단 히트 수에는 그 카드들을 포함
+  // ("참깨"처럼 작물 카드 1건뿐인 검색이 패널에 흡수돼 "총 0건·결과 없음"으로 보이던 8/29 사고)
+  const { displayResults, hitCount } = useMemo(
+    () => resolveSearchDisplay(results, answer, panel),
+    [results, answer, panel],
+  );
 
   // 관련도 기반 동적 섹션 순서 — searchAll 결과 순서에서 도출
   const grouped = useMemo(() => {
@@ -125,7 +118,8 @@ function SearchPageContent() {
       .filter((g) => g.items.length > 0);
   }, [displayResults]);
 
-  const totalCount = displayResults.length;
+  // 헤더 건수·빈 상태·오타 보정·검색 로그 전부 이 값을 기준으로 — 목록 길이(displayResults)가 아님
+  const totalCount = hitCount;
 
   // 섹션별 펼침 상태 — query를 상태에 묶어 쿼리 변경 시 자동 초기화
   // (React 공식 권장 패턴: state in render 비교로 useEffect 회피)

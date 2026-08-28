@@ -1804,6 +1804,41 @@ export function buildCropPanel(query: string): CropPanel | null {
 // 일반 검색 시 인기 키워드. 각 후보는 실제 결과를 반환하는지 검증해 dead 칩 차단.
 // ---------------------------------------------------------------------------
 
+/**
+ * 답변 카드가 대신 보여주는 합성 항목인지 (`cross-*-{crop}` / `{kind}-{crop}`).
+ * 목록에서 같은 내용이 두 번 보이지 않도록 제외할 때 쓴다.
+ */
+export function isAnswerSynthetic(id: string, answer: SearchAnswer): boolean {
+  if (answer.kind === "region-crop") {
+    return id.startsWith("cross-") && id.endsWith(`-${answer.cropId}`);
+  }
+  return id === `${answer.kind}-${answer.cropId}`;
+}
+
+/**
+ * 검색 결과 표시 해석 — 답변 카드·지식 패널이 이미 보여주는 항목은 목록에서 빼되,
+ * **히트 수에는 그 카드들을 포함**한다.
+ *
+ * 8/29 사고: "참깨"·"들깨"처럼 교차 참조(인터뷰·지역·용어)가 없는 작물은 `searchAll`이
+ * 작물 카드 1건만 돌려주고, 지식 패널이 그 카드를 흡수하면 목록이 0건이 된다.
+ * 그 0을 히트 수로 쓰면 패널 바로 아래 "총 0건 · 검색 결과가 없어요"가 뜨고
+ * search_logs에도 0건 검색으로 적재된다(admin 결과 없는 검색어 KPI 오염).
+ */
+export function resolveSearchDisplay(
+  results: SearchItem[],
+  answer: SearchAnswer | null,
+  panel: CropPanel | null,
+): { displayResults: SearchItem[]; hitCount: number } {
+  let displayResults = results;
+  if (answer) {
+    displayResults = results.filter((r) => !isAnswerSynthetic(r.id, answer));
+  } else if (panel) {
+    displayResults = results.filter((r) => !(r.type === "crop" && r.id === panel.cropId));
+  }
+  const heroCount = (answer ? 1 : 0) + (panel ? 1 : 0);
+  return { displayResults, hitCount: displayResults.length + heroCount };
+}
+
 export function buildRelatedSearches(query: string): string[] {
   const trimmed = query.trim();
   if (!trimmed) return [];

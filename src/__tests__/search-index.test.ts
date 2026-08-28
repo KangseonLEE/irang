@@ -12,6 +12,7 @@ import {
   detectIntent,
   buildSearchAnswer,
   buildCropPanel,
+  resolveSearchDisplay,
   buildRelatedSearches,
 } from "@/lib/data/search-index";
 
@@ -676,5 +677,36 @@ describe("buildRelatedSearches (연관 검색어)", () => {
 
   it("최대 6개로 제한된다", () => {
     expect(buildRelatedSearches("감귤").length).toBeLessThanOrEqual(6);
+  });
+});
+
+describe("resolveSearchDisplay — 답변카드·지식패널 흡수 시 히트 수 (8/29 참깨 사고)", () => {
+  it("교차 참조 없는 작물(참깨·들깨)은 목록 0건이어도 히트 수는 패널 포함 1건", () => {
+    for (const q of ["참깨", "들깨"]) {
+      const results = searchAll(q);
+      const answer = buildSearchAnswer(q);
+      const panel = answer ? null : buildCropPanel(q);
+      expect(panel, `${q} 패널`).not.toBeNull();
+      const { displayResults, hitCount } = resolveSearchDisplay(results, answer, panel);
+      expect(displayResults.filter((r) => r.type === "crop" && r.id === panel!.cropId)).toHaveLength(0);
+      expect(hitCount, `${q} 히트 수`).toBeGreaterThan(0);
+    }
+  });
+
+  it("패널·답변이 없으면 히트 수 = 목록 길이", () => {
+    const results = searchAll("귀농 교육");
+    const { displayResults, hitCount } = resolveSearchDisplay(results, null, null);
+    expect(hitCount).toBe(displayResults.length);
+    expect(hitCount).toBe(results.length);
+  });
+
+  it("패널이 흡수한 작물 카드 1건만큼 목록이 줄고 히트 수는 유지", () => {
+    const q = "사과";
+    const results = searchAll(q);
+    const panel = buildCropPanel(q);
+    expect(panel).not.toBeNull();
+    const { displayResults, hitCount } = resolveSearchDisplay(results, null, panel);
+    expect(displayResults.length).toBe(results.length - 1);
+    expect(hitCount).toBe(results.length);
   });
 });
