@@ -2,21 +2,34 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Clock, CalendarRange } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { useDragScroll } from "@/lib/hooks/use-drag-scroll";
 import type { SupportProgram } from "@/lib/data/programs";
-import type { ProgramStatus } from "@/lib/program-status";
+import { ALWAYS_OPEN, type ProgramStatus } from "@/lib/program-status";
+import { formatAgeRange } from "@/lib/format";
 import s from "./programs-section.module.css";
 
-type Tab = "active" | "deadline";
+type Tab = "active" | "deadline" | "ongoing";
+
+type ActiveProgram = SupportProgram & { programStatus: ProgramStatus };
 
 interface Props {
-  activePrograms: (SupportProgram & { programStatus: ProgramStatus })[];
+  activePrograms: ActiveProgram[];
   deadlinePrograms: (SupportProgram & { daysLeft: number })[];
+  /** 상시·연중 모집 (마감 없음 또는 접수 150일 이상) — 8/30 탭 분리 */
+  ongoingPrograms: ActiveProgram[];
 }
 
-export function ProgramsSection({ activePrograms, deadlinePrograms }: Props) {
+/** 카드 하단 "신청 …" 표기 — 상시 건은 날짜 대신 상시 문구 (9999-12-31이 "12.31"로 새는 것 방지) */
+function periodLabel(start: string, end: string): string {
+  const mmdd = (d: string) => d.slice(5).replace("-", ".");
+  // 예산 소진형(공주·청도)과 연중 서비스형(귀농닥터·살아보기)이 섞여 있어 마감 사유는 붙이지 않는다 — 각 카드 summary가 설명
+  if (end === ALWAYS_OPEN) return `${mmdd(start)}부터 상시 모집`;
+  return `${mmdd(start)} ~ ${mmdd(end)}`;
+}
+
+export function ProgramsSection({ activePrograms, deadlinePrograms, ongoingPrograms }: Props) {
   const [tab, setTab] = useState<Tab>("active");
   const [animating, setAnimating] = useState(false);
   const [canPrev, setCanPrev] = useState(false);
@@ -24,7 +37,8 @@ export function ProgramsSection({ activePrograms, deadlinePrograms }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const hasDeadline = deadlinePrograms.length > 0;
-  const programs = tab === "active" ? activePrograms : deadlinePrograms;
+  const hasOngoing = ongoingPrograms.length > 0;
+  const programs = tab === "active" ? activePrograms : tab === "deadline" ? deadlinePrograms : ongoingPrograms;
   const needsCarousel = programs.length > 3;
 
   useDragScroll(scrollRef);
@@ -60,7 +74,7 @@ export function ProgramsSection({ activePrograms, deadlinePrograms }: Props) {
     el.scrollBy({ left: dir * step, behavior: "smooth" });
   }, []);
 
-  if (activePrograms.length === 0 && deadlinePrograms.length === 0) return null;
+  if (activePrograms.length === 0 && deadlinePrograms.length === 0 && ongoingPrograms.length === 0) return null;
 
   const switchTab = (next: Tab) => {
     if (next === tab) return;
@@ -108,7 +122,7 @@ export function ProgramsSection({ activePrograms, deadlinePrograms }: Props) {
           className={`${s.tab} ${tab === "active" ? s.tabActive : ""}`}
           onClick={() => switchTab("active")}
         >
-          진행·예정 공고
+          진행·예정
         </button>
         <button
           role="tab"
@@ -120,6 +134,16 @@ export function ProgramsSection({ activePrograms, deadlinePrograms }: Props) {
           마감 임박
           {hasDeadline && <span className={s.tabCount}>{deadlinePrograms.length}</span>}
         </button>
+        <button
+          role="tab"
+          aria-selected={tab === "ongoing"}
+          className={`${s.tab} ${tab === "ongoing" ? s.tabActive : ""}`}
+          onClick={() => switchTab("ongoing")}
+        >
+          <CalendarRange size={13} className={s.tabIcon} />
+          상시·연중
+          {hasOngoing && <span className={s.tabCount}>{ongoingPrograms.length}</span>}
+        </button>
       </div>
 
       {/* 캐러셀 */}
@@ -130,6 +154,7 @@ export function ProgramsSection({ activePrograms, deadlinePrograms }: Props) {
               const isDeadline = tab === "deadline" && "daysLeft" in p;
               const dl = isDeadline ? (p as SupportProgram & { daysLeft: number }) : null;
               const isUpcoming = !isDeadline && "programStatus" in p && p.programStatus === "모집예정";
+              const isOngoing = tab === "ongoing";
 
               return (
                 <Link
@@ -145,6 +170,8 @@ export function ProgramsSection({ activePrograms, deadlinePrograms }: Props) {
                         </span>
                       ) : isUpcoming ? (
                         <span className={s.tagUpcoming}>모집예정</span>
+                      ) : isOngoing ? (
+                        <span className={s.tag}>{p.applicationEnd === ALWAYS_OPEN ? "상시 모집" : "연중 모집"}</span>
                       ) : (
                         <span className={s.tag}>모집중</span>
                       )}
@@ -160,10 +187,10 @@ export function ProgramsSection({ activePrograms, deadlinePrograms }: Props) {
                   )}
                   <div className={s.cardMeta}>
                     <span className={s.metaItem}>
-                      신청 {p.applicationStart.slice(5).replace("-", ".")} ~ {p.applicationEnd.slice(5).replace("-", ".")}
+                      신청 {periodLabel(p.applicationStart, p.applicationEnd)}
                     </span>
                     <span className={s.metaItem}>
-                      연령 {p.eligibilityAgeMin}~{p.eligibilityAgeMax}세
+                      {formatAgeRange(p.eligibilityAgeMin, p.eligibilityAgeMax)}
                     </span>
                   </div>
                   <span className={s.org}>{p.organization}</span>
@@ -197,9 +224,13 @@ export function ProgramsSection({ activePrograms, deadlinePrograms }: Props) {
         </div>
       ) : (
         <div className={s.emptyDeadline}>
-          <Clock size={20} />
-          <p className={s.emptyDeadlineText}>마감 임박한 사업이 아직 없어요</p>
-          <span className={s.emptyDeadlineSub}>마감 14일 전부터 여기에 표시돼요</span>
+          {tab === "ongoing" ? <CalendarRange size={20} /> : <Clock size={20} />}
+          <p className={s.emptyDeadlineText}>
+            {tab === "ongoing" ? "상시 모집 중인 사업이 아직 없어요" : "마감 임박한 사업이 아직 없어요"}
+          </p>
+          <span className={s.emptyDeadlineSub}>
+            {tab === "ongoing" ? "마감 없이 연중 받는 공고가 여기에 모여요" : "마감 14일 전부터 여기에 표시돼요"}
+          </span>
         </div>
       )}
     </section>

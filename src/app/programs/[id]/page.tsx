@@ -22,7 +22,7 @@ import {
   HelpCircle,
   ChevronDown,
 } from "lucide-react";
-import { formatApplicationPeriod } from "@/lib/format";
+import { formatApplicationPeriod, formatAgeRange } from "@/lib/format";
 import { isUnannounced, UNANNOUNCED_LABEL } from "@/lib/program-status";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
@@ -250,7 +250,7 @@ export default async function ProgramDetailPage({
                 <InfoRow
                   icon={<Users size={16} />}
                   label="대상 연령"
-                  value={`만 ${program.eligibilityAgeMin}세 ~ ${program.eligibilityAgeMax}세`}
+                  value={formatAgeRange(program.eligibilityAgeMin, program.eligibilityAgeMax)}
                 />
               </tbody>
             </table>

@@ -122,6 +122,24 @@
   box-shadow: 0 1px 3px rgba(27, 107, 90, 0.25);
 }
 
+/* 모바일: 탭 3개(진행·예정 / 마감 임박 / 상시·연중)가 375px에서 382px로 넘치던 것(8/30 실측) →
+   패딩·간격 축소 + 넘칠 때만 가로 스크롤(스크롤바 숨김). 데스크탑 기본값은 건드리지 않는다. */
+@media (max-width: 479px) {
+  .tabs {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .tab {
+    padding: 6px 10px;
+    gap: 4px;
+  }
+}
+
 @media (hover: hover) {
   .tab:not(.tabActive):hover {
     color: var(--foreground, #111827);

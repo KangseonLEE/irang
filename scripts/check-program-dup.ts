@@ -45,9 +45,25 @@ import { PROGRAMS, type SupportProgram } from "../src/lib/data/programs";
  *   · SP-031 = 농촌주민생활돌봄공동체 27개소 공모
  *   조직·모집대상·사업내용·선정규모가 상이한 독립 트랙. 7/7·7/9 두 차례 검증 완료
  *   (회장 결재). title 67% + org✓ 매치로 DUPLICATE 플래그되나 실중복 아님.
+ * - SP-040 ↔ SP-041: 옥천군 귀농인의 집 **15호(안내면 동대리, 38.85㎡·연 180만)** ↔ **11호(안남면
+ *   화학리, 52.14㎡·연 240만, 5차 재공고)**. 같은 시군·같은 주관(농촌활력과 귀농귀촌팀)·같은 게시판이라
+ *   title 43%+org✓+url✓로 DUPLICATE 플래그되나 대상지·면적·임대료·접수기간(8/27~9/23 vs 8/19~9/18)이
+ *   전부 다른 별개 공고. 8/29~30 원 공고 본문+첨부 검증(회장 결재 8/30 "자체 처리").
+ * - SP-042 ↔ SP-043: 장수군 **계남면 임시거주시설(원룸 37.9㎡·연 143.7만)** ↔ **청년주택 모람(장수읍
+ *   두산리, 50㎡+텃밭·연 175.4만, 40세 미만 우대)**. 같은 날 같은 부서가 낸 2차 모집 2건(공고 850·849호).
+ *   title 67%+org✓+url✓ 플래그되나 시설·위치·임대료·우대 조건이 다른 별개 공고. 동일 검증.
+ * - SP-044 ↔ SP-045: 괴산군 **「귀농귀촌 희망둥지 만들기」(청안면 광장로 634, 월 25만)** ↔ **「농촌빈집 활용
+ *   주거지원」(소수면 옥현리 383, 월 30만)**. 사업 자체가 다른 두 제도인데 같은 날(7/14) 같은 팀이 같은
+ *   게시판에 재공고해 title 43%+org✓+url✓ 플래그. 접수기간만 동일(모집완료 시까지), 대상지·임대료·첨부 상이.
+ *
+ * ※ 8/30 시군 지명 가드(localityDistinct)는 "다른 시군"만 걸러준다. 같은 시군 안의 서로 다른 대상지는
+ *   여기 허용쌍으로만 열 수 있다 — 등록 시 대상지·면적·임대료·접수기간 4종이 다르다는 근거를 반드시 남길 것.
  */
 const KNOWN_DISTINCT_PAIRS: readonly (readonly [string, string])[] = [
   ["SP-030", "SP-031"],
+  ["SP-040", "SP-041"],
+  ["SP-042", "SP-043"],
+  ["SP-044", "SP-045"],
 ];
 
 /** 두 id가 허용쌍인지 (순서 무관). */
@@ -166,6 +182,36 @@ function urlOverlap(a: string | undefined, b: string | undefined): boolean {
   }
 }
 
+/**
+ * 시·군 지명 추출 (8/29 추가).
+ * "OO군 귀농인의 집 입주자 모집"처럼 사업 **유형명**이 제목의 대부분이라 시군만 다른 별개 공고끼리
+ * title 60%+·org("농업기술센터") 매치로 DUPLICATE가 떴다(의성↔고성·논산·홍천 8/29 사례).
+ * 제목·주관에서 "하동군"·"옥천군"·"공주시" 같은 지명을 뽑아 서로 다른 시군이면 DUPLICATE 후보에서 뺀다.
+ * 지명 stem(접미사 제거)으로 비교 — "하동군" ≡ "하동". 광역(도·특별시)은 시군이 아니라 제외.
+ */
+const LOCALITY_SUFFIX = /(특별자치시|특별자치도|특별시|광역시|시|군|구)$/;
+const LOCALITY_GENERIC = new Set(["시군", "지자체", "전국", "도시", "농촌", "산촌", "읍면", "각시군"]);
+function extractLocalities(text: string): Set<string> {
+  const out = new Set<string>();
+  for (const raw of text.split(/[\s()\[\]「」·,、/]+/)) {
+    const tok = raw.trim();
+    if (!/^[가-힣]{2,7}(시|군|구)$/.test(tok)) continue;
+    if (LOCALITY_GENERIC.has(tok)) continue;
+    if (/(특별시|광역시|특별자치)/.test(tok)) continue; // 광역 단위는 시군 판정에서 제외
+    const stem = tok.replace(LOCALITY_SUFFIX, "");
+    if (stem.length >= 2) out.add(stem);
+  }
+  return out;
+}
+/** 양쪽 모두 시군 지명이 있고 하나도 겹치지 않으면 true (= 다른 지자체의 동종 사업) */
+function localityDistinct(a: string, b: string): boolean {
+  const la = extractLocalities(a);
+  const lb = extractLocalities(b);
+  if (la.size === 0 || lb.size === 0) return false;
+  for (const x of la) if (lb.has(x)) return false;
+  return true;
+}
+
 // ─── 판정 ───
 
 interface Suspect {
@@ -173,12 +219,15 @@ interface Suspect {
   titleScore: number;
   orgMatch: boolean;
   urlMatch: boolean;
+  /** 서로 다른 시군의 동종 사업 — DUPLICATE 대신 SIMILAR까지만 */
+  localityDistinct: boolean;
 }
 
 type Verdict = "DUPLICATE" | "SIMILAR" | "OK";
 
 function judge(suspects: Suspect[]): Verdict {
   for (const s of suspects) {
+    if (s.localityDistinct) continue; // 다른 시군 동종 사업은 DUPLICATE 불가 (아래 SIMILAR로만)
     if (s.titleScore >= 0.6 && s.orgMatch) return "DUPLICATE";
     if (s.titleScore >= 0.6 && s.urlMatch) return "DUPLICATE";
     if (s.orgMatch && s.urlMatch && s.titleScore >= 0.3) return "DUPLICATE";
@@ -204,7 +253,8 @@ function findSuspects(
     const orgMatch = orgOverlap(organization, row.organization);
     const urlMatch = urlOverlap(sourceUrl, row.sourceUrl);
     if (score >= 0.3 || (orgMatch && urlMatch)) {
-      result.push({ row, titleScore: score, orgMatch, urlMatch });
+      const distinct = localityDistinct(`${title} ${organization}`, `${row.title} ${row.organization}`);
+      result.push({ row, titleScore: score, orgMatch, urlMatch, localityDistinct: distinct });
     }
   }
   result.sort((a, b) => b.titleScore - a.titleScore);
@@ -235,7 +285,8 @@ function printSingleResult(
         `title ${pct}%`,
         s.orgMatch ? "org✓" : "org✗",
         s.urlMatch ? "url✓" : "url✗",
-      ].join(" | ");
+        s.localityDistinct ? "다른 시군" : "",
+      ].filter(Boolean).join(" | ");
       console.log(`  - [${s.row.id}] ${s.row.title}`);
       console.log(`      ${flags}`);
       console.log(`      org: ${s.row.organization}`);
@@ -291,7 +342,8 @@ function runAll(opts: { ci: boolean }): number {
       const orgMatch = orgOverlap(a.organization, b.organization);
       const urlMatch = urlOverlap(a.sourceUrl, b.sourceUrl);
       // 단일 검증 로직과 동일한 임계 적용
-      const v = judge([{ row: b, titleScore: score, orgMatch, urlMatch }]);
+      const distinct = localityDistinct(`${a.title} ${a.organization}`, `${b.title} ${b.organization}`);
+      const v = judge([{ row: b, titleScore: score, orgMatch, urlMatch, localityDistinct: distinct }]);
       if (v === "OK") continue;
       // 허용쌍은 게이팅·카운트에서 제외 (skip 로그만 남김)
       if (isAllowlistedPair(a.id, b.id)) {

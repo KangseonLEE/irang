@@ -124,18 +124,21 @@ check_url() {
 # ── 지원사업 URL 추출 및 체크 ──
 echo -e "${CYAN}▸ 지원사업 (programs)${NC}"
 
-# id와 sourceUrl을 쌍으로 추출
-while IFS= read -r line; do
-  if echo "$line" | grep -q 'id:'; then
-    current_id=$(echo "$line" | sed 's/.*id: "\([^"]*\)".*/\1/')
+# id와 sourceUrl을 쌍으로 추출 — 엔트리(`id: "SP-…"`) 단위로 잘라 그 안에서 sourceUrl을 찾는다.
+# 8/29 이전엔 `sourceUrl: "http…"`가 **한 줄**에 있을 때만 잡혀서, 긴 URL을 줄바꿈해 쓰면 그 항목이
+# 조용히 검사에서 빠졌다(SP-033~037 큐레이션 중 실제 발생). 엔트리 단위 파싱은 줄바꿈과 무관하다.
+while IFS=$'\t' read -r current_id url; do
+  if [ -n "$current_id" ] && [ -n "$url" ]; then
+    check_url "$current_id" "$url" "programs"
   fi
-  if echo "$line" | grep -q 'sourceUrl:.*http'; then
-    url=$(echo "$line" | sed 's/.*sourceUrl: "\([^"]*\)".*/\1/')
-    if [ -n "$url" ] && [ "$url" != "" ]; then
-      check_url "$current_id" "$url" "programs"
-    fi
-  fi
-done < "$PROGRAMS_FILE"
+done < <(perl -0777 -ne '
+  for my $chunk (split /(?=\bid:\s*"SP-)/, $_) {
+    next unless $chunk =~ /\bid:\s*"(SP-[^"]+)"/;
+    my $id = $1;
+    next unless $chunk =~ /sourceUrl:\s*"([^"]+)"/;
+    print "$id\t$1\n";
+  }
+' "$PROGRAMS_FILE")
 
 echo ""
 

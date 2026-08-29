@@ -125,6 +125,21 @@ export function formatDateRange(start: string, end: string | null): string {
  */
 const ALWAYS_OPEN_DATE = "9999-12-31";
 
+/**
+ * 대상 연령 표기. 데이터 관례상 상한 없음 = 99 (programs.ts 9건, 8/30 기준) — "19~99세"로 새지 않게.
+ * - min·max 모두 실값 → "만 18~39세"
+ * - max 없음/99 → "만 19세 이상"
+ * - min 없음 → "만 65세 이하" / 둘 다 없음 → "연령 제한 없음"
+ */
+export function formatAgeRange(min?: number | null, max?: number | null): string {
+  const hasMin = typeof min === "number" && min > 0;
+  const hasMax = typeof max === "number" && max > 0 && max < 99;
+  if (hasMin && hasMax) return `만 ${min}~${max}세`;
+  if (hasMin) return `만 ${min}세 이상`;
+  if (hasMax) return `만 ${max}세 이하`;
+  return "연령 제한 없음";
+}
+
 export function formatApplicationPeriod(
   start: string | null | undefined,
   end: string | null | undefined,

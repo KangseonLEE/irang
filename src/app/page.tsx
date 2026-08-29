@@ -21,7 +21,7 @@ import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
 import { ScrollIndicator } from "@/components/landing/scroll-indicator";
 import { ProgramsSection } from "@/components/landing/programs-section";
-import { deriveStatus, daysUntilDeadline, isUnannounced } from "@/lib/program-status";
+import { deriveStatus, daysUntilDeadline, isUnannounced, ALWAYS_OPEN } from "@/lib/program-status";
 import { GovSupportGuide } from "@/components/landing/gov-support-guide";
 import { CropGlanceSection } from "@/components/landing/crop-glance-section";
 import { NewsTabsV2Loader } from "@/components/landing/news-tabs-v2-loader";
@@ -55,16 +55,40 @@ const marqueeRow2: MarqueeChip[] = [
 
 /* ── 지원사업 데이터 준비 (서버 사이드) ── */
 const DEADLINE_THRESHOLD_DAYS = 14;
+/**
+ * "상시·연중" 판정 창 (8/30 회장 지시 — 랜딩 지원사업 탭 분리).
+ * 마감이 없거나(ALWAYS_OPEN: 예산 소진 시까지·모집완료 시까지) 신청 기간이 150일 이상이면
+ * 마감 임박·기간 한정 공고와 성격이 달라 별도 탭으로 보여준다 (예: 1/1~12/31 연중 사업).
+ */
+const LONG_RUNNING_MIN_DAYS = 150;
+const MS_PER_DAY = 86_400_000;
+
+function isLongRunning(applicationStart: string, applicationEnd: string): boolean {
+  if (applicationEnd === ALWAYS_OPEN) return applicationStart !== ALWAYS_OPEN; // 9999 페어(미발표)는 제외
+  const span = (new Date(applicationEnd).getTime() - new Date(applicationStart).getTime()) / MS_PER_DAY;
+  return Number.isFinite(span) && span >= LONG_RUNNING_MIN_DAYS;
+}
 
 function getProgramsData() {
-  const activePrograms = PROGRAMS
-    .map((p) => ({
-      ...p,
-      programStatus: deriveStatus(p.applicationStart, p.applicationEnd),
-    }))
-    // 9999 페어(공고 미발표)는 deriveStatus가 "모집예정"으로 산출하지만 실제론 미정 → 홈 추천에서 제외
-    .filter((p) => (p.programStatus === "모집중" || p.programStatus === "모집예정") && !isUnannounced(p.applicationStart, p.applicationEnd))
-    .slice(0, 4);
+  const base = PROGRAMS.map((p) => ({
+    ...p,
+    programStatus: deriveStatus(p.applicationStart, p.applicationEnd),
+  }));
+  // 9999 페어(공고 미발표)는 deriveStatus가 "모집예정"으로 산출하지만 실제론 미정 → 홈 추천에서 제외
+  const announced = base.filter((p) => !isUnannounced(p.applicationStart, p.applicationEnd));
+
+  // 상시·연중 탭 — 모집중 + 장기 접수. 최근 공고 순
+  const ongoingPrograms = announced
+    .filter((p) => p.programStatus === "모집중" && isLongRunning(p.applicationStart, p.applicationEnd))
+    .sort((a, b) => b.applicationStart.localeCompare(a.applicationStart))
+    .slice(0, 6);
+
+  // 진행·예정 탭 — 기간 한정 공고만(상시 건은 위 탭으로). 모집중 먼저, 마감 가까운 순
+  const statusRank = (s: string) => (s === "모집중" ? 0 : 1);
+  const activePrograms = announced
+    .filter((p) => (p.programStatus === "모집중" || p.programStatus === "모집예정") && !isLongRunning(p.applicationStart, p.applicationEnd))
+    .sort((a, b) => statusRank(a.programStatus) - statusRank(b.programStatus) || a.applicationEnd.localeCompare(b.applicationEnd))
+    .slice(0, 6);
 
   const deadlinePrograms = PROGRAMS
     .map((p) => ({
@@ -76,11 +100,11 @@ function getProgramsData() {
     .sort((a, b) => a.daysLeft - b.daysLeft)
     .slice(0, 4);
 
-  return { activePrograms, deadlinePrograms };
+  return { activePrograms, deadlinePrograms, ongoingPrograms };
 }
 
 export default function HomePage() {
-  const { activePrograms, deadlinePrograms } = getProgramsData();
+  const { activePrograms, deadlinePrograms, ongoingPrograms } = getProgramsData();
 
   return (
     <div className={s.page}>
@@ -179,11 +203,12 @@ export default function HomePage() {
         </ScrollReveal>
       </div>
 
-      {/* ═══ 6. 지원사업 (추천 + 마감 임박 탭) ═══ */}
+      {/* ═══ 6. 지원사업 (진행·예정 + 마감 임박 + 상시·연중 탭) ═══ */}
       <ScrollReveal>
         <ProgramsSection
           activePrograms={activePrograms}
           deadlinePrograms={deadlinePrograms}
+          ongoingPrograms={ongoingPrograms}
         />
       </ScrollReveal>
 

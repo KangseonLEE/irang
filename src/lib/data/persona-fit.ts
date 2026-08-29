@@ -398,6 +398,23 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-036": { family: 5, elderRural: 4, commuter: 4, farmYouth: 4 },
   // 구미 귀농인 정착지원 5차 (가족 부부이상 동반 전입 + 실제 영농 종사)
   "SP-037": { family: 5, farmYouth: 5, elderRural: 3, commuter: 2 },
+  // 2026-08-30: 하반기 모집 시즌 큐레이션 2차 — 경북 지자체 공고 보강
+  // 고령 귀농인 정착지원금 (가족 동반 전입 + 실제 영농 + 교육 이수 필수)
+  "SP-038": { family: 5, farmYouth: 4, elderRural: 3, commuter: 2 },
+  // 의성 귀농인의 집 5개소 (체류형, 만 65세 이하 + 무직·무사업자 요건)
+  "SP-039": { family: 5, commuter: 4, elderRural: 4, farmYouth: 4 },
+  // 옥천 귀농인의 집 15호 (체류형, 19세 이상 연령 상한 없음, 가족·노년)
+  "SP-040": { family: 5, elderRural: 4, commuter: 4, farmYouth: 3 },
+  // 옥천 귀농인의 집 11호 (체류형, 방 2칸이라 가족 단위에 여유)
+  "SP-041": { family: 5, elderRural: 4, commuter: 4, farmYouth: 3 },
+  // 장수 계남면 임시거주시설 (원룸 1세대, 연령 제한 없음, 단신·부부 체류형)
+  "SP-042": { commuter: 5, elderRural: 4, family: 4, farmYouth: 4 },
+  // 장수 청년주택 모람 (텃밭 딸린 단독주택, 40세 미만 우대 + 농군사관학교·스마트팜 트랙)
+  "SP-043": { farmYouth: 5, family: 4, commuter: 4, elderRural: 3 },
+  // 괴산 희망둥지 청안면 (단독주택 월 25만·2~3년, 연령 제한 없는 장기 체류형)
+  "SP-044": { family: 5, elderRural: 5, commuter: 4, farmYouth: 3 },
+  // 괴산 농촌빈집 소수면 (단독주택 월 30만·2~3년, 연령 제한 없는 장기 체류형)
+  "SP-045": { family: 5, elderRural: 5, commuter: 4, farmYouth: 3 },
 };
 
 export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
@@ -437,6 +454,14 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-035": "전입 초기 주택 수리비라 실거주 정착 가구에 실속 있어요",
   "SP-036": "전입 3년 이내 세대의 월세 지원이라 정착 초기에 실속 있어요",
   "SP-037": "가족이 함께 전입해 실제 영농하는 세대 대상이에요",
+  "SP-038": "가족이 함께 전입해 실제 영농하는 세대 대상이에요",
+  "SP-039": "무직·무사업자 요건이라 전업 전환을 준비하는 분께 맞아요",
+  "SP-040": "체류형 귀농인의 집(옥천 15호)이라 가족·노년에 잘 맞아요",
+  "SP-041": "방 2칸 귀농인의 집(옥천 11호)이라 가족 단위에 여유 있어요",
+  "SP-042": "원룸 1세대 체류시설이라 혼자·부부가 살아보기에 맞아요",
+  "SP-043": "텃밭 딸린 청년주택이라 40세 미만 청년에 특히 맞아요",
+  "SP-044": "월 25만 원에 2~3년 사는 단독주택이라 천천히 정착하기 좋아요",
+  "SP-045": "고친 빈집을 2~3년 빌려 살 수 있어 정착 초기에 실속 있어요",
 };
 
 /**
