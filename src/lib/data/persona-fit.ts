@@ -415,6 +415,15 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-044": { family: 5, elderRural: 5, commuter: 4, farmYouth: 3 },
   // 괴산 농촌빈집 소수면 (단독주택 월 30만·2~3년, 연령 제한 없는 장기 체류형)
   "SP-045": { family: 5, elderRural: 5, commuter: 4, farmYouth: 3 },
+  // 2026-08-30: 하반기 모집 시즌 큐레이션 3차 — 안동·진안 잔여 후보
+  // 안동 주택수리비 추가신청 (가족 부부이상 동반 전입 5년 이내 + 만 65세 이하 자가주택)
+  "SP-046": { family: 5, elderRural: 4, commuter: 4, farmYouth: 4 },
+  // 안동 농가주택 설계비 (신축 설계 단계라 자금·계획을 갖춘 가족 정착 세대)
+  "SP-047": { family: 5, farmYouth: 4, elderRural: 4, commuter: 3 },
+  // 진안 고향에서 살아보기 (출향민·가족 한정 2주 체류형, 연령 제한 없음)
+  "SP-048": { elderRural: 5, family: 5, commuter: 4, farmYouth: 3 },
+  // 진안 슬기로운 진안생활 (이미 전입한 신규 주민 대상 정책 안내·1:1 상담)
+  "SP-049": { family: 4, elderRural: 4, farmYouth: 4, commuter: 4 },
 };
 
 export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
@@ -462,6 +471,10 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-043": "텃밭 딸린 청년주택이라 40세 미만 청년에 특히 맞아요",
   "SP-044": "월 25만 원에 2~3년 사는 단독주택이라 천천히 정착하기 좋아요",
   "SP-045": "고친 빈집을 2~3년 빌려 살 수 있어 정착 초기에 실속 있어요",
+  "SP-046": "전입 5년 이내 자가주택 수리비라 가족 정착 세대에 실속 있어요",
+  "SP-047": "농가주택을 새로 지을 때 설계비를 전액 대 줘요",
+  "SP-048": "진안 출향민과 가족만 참여하는 2주 살아보기예요",
+  "SP-049": "이미 진안에 전입한 신규 주민을 위한 무료 정책 상담이에요",
 };
 
 /**
