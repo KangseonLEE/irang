@@ -501,7 +501,8 @@ export function getProgramPersonaFitTrace(
       kind: "age",
       label: `${ageMax}세 이하 청년 대상이에요`,
     });
-  } else if (ageMax === 0) {
+  } else if (ageMax === 0 || ageMax >= 99) {
+    // 99 = 상한 없음 관례(8/30, formatAgeRange와 동일) — "99세 이하 (노년 친화)"로 새지 않게
     reasons.push({
       kind: "age",
       label: ageMin > 0 ? `${ageMin}세 이상 신청 가능해요` : "연령 제한이 없어요",

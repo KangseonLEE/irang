@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { CheckCircle2, Circle, AlertTriangle } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { formatAgeRange } from "@/lib/format";
 import s from "./eligibility-check.module.css";
 
 interface EligibilityItem {
@@ -52,7 +53,7 @@ export function EligibilityCheck({
   const items = externalItems ?? parseEligibilityItems(eligibilityDetail);
 
   const allItems: EligibilityItem[] = [
-    { label: `만 ${ageMin}세 ~ ${ageMax}세`, detail: "연령 조건" },
+    { label: formatAgeRange(ageMin, ageMax), detail: "연령 조건" },
     ...items,
   ];
 
