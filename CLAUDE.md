@@ -238,8 +238,8 @@ API 키는 `.env.local`에서 관리한다. Vercel 환경변수에도 동일하�
 #### Modal (`@/components/ui/modal`)
 
 - 공용 모달 컴포넌트 (Portal 렌더링, ESC 닫기, 포커스 트랩, 스크롤 잠금)
-- Props: `open`, `onClose`, `title`, `children`
-- z-index: 200, max-width: 640px, max-height: 80vh
+- Props: `open`, `onClose`, `title`, `children`, `bodyVariant?`(flush), `mobileHeight?`(tall), `size?`("wide" → max-width min(1040px, 96vw), 8/30 재배 캘린더 12열용)
+- z-index: 200, max-width: 640px(기본), max-height: 80vh
 - **모달이 필요하면 반드시 이 컴포넌트 사용. 페이지별 모달 재구현 금지**
 
 #### SelectCombobox (`@/components/ui/select-combobox`)

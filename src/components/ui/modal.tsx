@@ -26,12 +26,17 @@ interface ModalProps {
    * 다른 모달(PopulationModal·AreaModal 등 단순 콘텐츠)에 영향 주지 않도록 prop 분리.
    */
   mobileHeight?: "default" | "tall";
+  /**
+   * 패널 폭. "wide" → max-width 1040px(뷰포트 96vw 상한). 재배 캘린더처럼 12열 표를 가로 스크롤 없이
+   * 보여줘야 하는 콘텐츠용 (8/30 회장: 캘린더가 12월까지 안 보임). 기본 640px.
+   */
+  size?: "default" | "wide";
 }
 
 const ANIMATION_DURATION = 150; // ms — overlayOut / panelOut duration
 const DRAG_DISMISS_THRESHOLD = 100; // px — 이 이상 아래로 드래그하면 닫기
 
-export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default" }: ModalProps) {
+export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default" }: ModalProps) {
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -260,7 +265,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
     >
       <div
         ref={panelRef}
-        className={s.panel}
+        className={`${s.panel} ${size === "wide" ? s.panelWide : ""}`}
         data-mobile-height={mobileHeight}
         role="dialog"
         aria-modal="true"

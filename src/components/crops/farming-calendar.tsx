@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Search, X } from "lucide-react";
 import {
   CROP_CATEGORY_NAMES,
   type CropCategoryName,
@@ -148,20 +149,50 @@ function getBarType(
 export function FarmingCalendar({ crops }: FarmingCalendarProps) {
   const currentMonth = new Date().getMonth() + 1; // 1~12
 
-  // 카테고리별 그룹핑 (전체 작물) + growingSeason 파싱. 그룹 내 정렬은 입력 순서 유지.
+  // 작물 검색 (8/30 회장): 55종을 스크롤로 훑지 않고 이름으로 바로 찾기. 공백·대소문자 무시.
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.replace(/\s/g, "").toLowerCase();
+
+  // 카테고리별 그룹핑 (검색 필터 적용) + growingSeason 파싱. 그룹 내 정렬은 입력 순서 유지.
   const groups = useMemo(() => {
-    const parsed = crops.map((crop) => ({
-      ...crop,
-      ranges: parseGrowingSeason(crop.growingSeason),
-    }));
+    const parsed = crops
+      .filter((crop) => !normalizedQuery || crop.name.replace(/\s/g, "").toLowerCase().includes(normalizedQuery))
+      .map((crop) => ({
+        ...crop,
+        ranges: parseGrowingSeason(crop.growingSeason),
+      }));
     return CATEGORY_ORDER.map((category) => ({
       category,
       crops: parsed.filter((c) => c.category === category),
     })).filter((g) => g.crops.length > 0);
-  }, [crops]);
+  }, [crops, normalizedQuery]);
+  const matchCount = groups.reduce((n, g) => n + g.crops.length, 0);
 
   return (
     <div className={s.wrapper}>
+      <div className={s.searchRow}>
+        <label className={s.searchBox}>
+          <Search size={16} className={s.searchIcon} aria-hidden="true" />
+          <input
+            type="text"
+            className={s.searchInput}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="작물 이름으로 찾기 (예: 사과, 고추)"
+            aria-label="캘린더 작물 검색"
+            autoComplete="off"
+          />
+          {query && (
+            <button type="button" className={s.searchClear} onClick={() => setQuery("")} aria-label="검색어 지우기">
+              <X size={14} aria-hidden="true" />
+            </button>
+          )}
+        </label>
+        <span className={s.searchCount} aria-live="polite">
+          {normalizedQuery ? `${matchCount}종` : `${crops.length}종`}
+        </span>
+      </div>
+      {matchCount === 0 && <p className={s.searchEmpty}>&ldquo;{query}&rdquo; 작물이 없어요</p>}
       <div className={s.scrollContainer} role="region" aria-label="재배 캘린더" tabIndex={0}>
         <div className={s.grid} role="table">
           {/* 헤더 행 (스크롤 시 상단 고정) */}

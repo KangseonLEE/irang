@@ -276,3 +276,77 @@
 .group:last-of-type .cropRow:last-of-type .monthCell {
   border-bottom: none;
 }
+
+/* ── 작물 검색 (8/30) ── */
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+}
+.searchBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 40px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card, #fff);
+}
+.searchBox:focus-within {
+  border-color: var(--primary, #1b6b5a);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
+}
+.searchIcon {
+  color: var(--muted-foreground, #6b7280);
+  flex-shrink: 0;
+}
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-size: var(--fs-body-sm);
+  color: var(--foreground);
+  outline: none;
+}
+.searchInput::placeholder {
+  color: var(--muted-foreground, #6b7280);
+}
+.searchClear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--muted, #f3f4f6);
+  color: var(--muted-foreground, #6b7280);
+  cursor: pointer;
+}
+.searchClear:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .searchClear:hover {
+    color: var(--foreground);
+  }
+}
+.searchCount {
+  flex-shrink: 0;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+}
+.searchEmpty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground, #6b7280);
+}
+@media (min-width: 640px) {
+  .searchRow { padding: 0 20px; }
+}

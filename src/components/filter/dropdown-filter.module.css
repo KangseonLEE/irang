@@ -89,8 +89,8 @@
   position: absolute;
   top: calc(100% + 8px);
   z-index: 1000;
-  min-width: 320px;
-  max-width: 480px;
+  min-width: min(320px, calc(100vw - 16px));
+  max-width: min(480px, calc(100vw - 16px));
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 16px;

@@ -21,7 +21,7 @@
  * 5/20 박제 border-left 0건. 5/06 모바일 5종 점검은 데스크탑 한정이라 N/A.
  */
 
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useCallback, useMemo } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import s from "./dropdown-filter.module.css";
 
@@ -64,6 +64,20 @@ export function DropdownFilter({
 }: DropdownFilterProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+
+  // 8/30 회장 리포트: 태블릿에서 alignRight 팝오버(right:0, 최대 480px)가 칩보다 넓어 뷰포트 왼쪽으로 잘림.
+  // 열릴 때 실제 rect를 재고 뷰포트 안(양쪽 8px)으로 밀어 넣는다. 인라인 style은 계산값(translateX)만.
+  useLayoutEffect(() => {
+    const el = popoverRef.current;
+    if (!open || !el) return;
+    el.style.transform = "";
+    const rect = el.getBoundingClientRect();
+    const margin = 8;
+    let shift = 0;
+    if (rect.left < margin) shift = margin - rect.left;
+    else if (rect.right > window.innerWidth - margin) shift = window.innerWidth - margin - rect.right;
+    if (shift !== 0) el.style.transform = `translateX(${Math.round(shift)}px)`;
+  }, [open]);
 
   // local selection — open 시 props로 동기화. React 19 권장 "Adjusting state on prop change" 패턴.
   const [localValues, setLocalValues] = useState<string[]>(selectedValues);

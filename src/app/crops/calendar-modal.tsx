@@ -40,6 +40,7 @@ export function CalendarModal({ children }: CalendarModalProps) {
         title="재배 캘린더"
         mobileHeight="tall"
         bodyVariant="flush"
+        size="wide"
       >
         <div className={s.content}>{children}</div>
       </Modal>
