@@ -44,7 +44,11 @@ function secretMatches(given: string | null, expected: string): boolean {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     if (request.method !== "GET") return json(405, { error: "GET only" });
-    if (!env.PROXY_SECRET || !env.DATA_GO_KR_API_KEY) return json(500, { error: "worker secrets not configured" });
+    if (!env.PROXY_SECRET || !env.DATA_GO_KR_API_KEY) {
+      // 어떤 시크릿이 비었는지 이름만 노출 (값 없음) — 바인딩 진단용
+      const missing = ["PROXY_SECRET", "DATA_GO_KR_API_KEY"].filter((k) => !(env as unknown as Record<string, unknown>)[k]);
+      return json(500, { error: "worker secrets not configured", missing, bound: Object.keys(env as unknown as object) });
+    }
     if (!secretMatches(request.headers.get("x-irang-proxy-secret"), env.PROXY_SECRET)) {
       return json(401, { error: "unauthorized" });
     }
