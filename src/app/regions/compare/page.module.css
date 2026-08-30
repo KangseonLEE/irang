@@ -324,3 +324,8 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* 지역 변경 로딩 오버레이의 기준 박스 (compare-loading-overlay.tsx, 8/30) */
+.contentWrap {
+  position: relative;
+}

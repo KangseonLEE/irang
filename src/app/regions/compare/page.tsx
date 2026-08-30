@@ -11,6 +11,7 @@ import { TAB_IDS, type TabId } from "./compare-tab-ids";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { DesktopHint } from "@/components/ui/desktop-hint";
 import { CompareDataSkeleton } from "./compare-data-skeleton";
+import { CompareLoadingOverlay } from "./compare-loading-overlay";
 import { ClimateView } from "./climate-view";
 import { InfraView } from "./infra-view";
 import { SuitabilityView } from "./suitability-view";
@@ -106,6 +107,8 @@ export default async function RegionsPage({ searchParams }: PageProps) {
           <CompareTabs activeTab={tab} baseQuery={baseQuery} />
           {/* 모바일 탭 클릭 시 스크롤 목적지 (compare-tabs.tsx) — 작물 적합성은 여기 바로 아래가 작물 검색창 */}
           <div id="compare-content" />
+          <div className={s.contentWrap}>
+            <CompareLoadingOverlay />
           <Suspense key={tab} fallback={<CompareDataSkeleton />}>
             {tab === "climate" && (
               <ClimateView regions={regions} year={year} />
@@ -118,6 +121,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
               />
             )}
           </Suspense>
+          </div>
         </>
       )}
     </div>

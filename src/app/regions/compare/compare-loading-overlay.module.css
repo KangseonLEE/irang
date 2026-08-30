@@ -1,0 +1,50 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--background, #fff) 55%, transparent);
+  backdrop-filter: blur(1px);
+  animation: overlayIn 0.15s ease-out 0.2s both;
+  pointer-events: none;
+}
+
+.box {
+  position: sticky;
+  /* 헤더·SectionNav·탭바 아래, 뷰포트 상단 1/3 지점 — 스크롤이 어디든 보이게 */
+  top: calc(var(--sticky-top, 3.5rem) + var(--sticky-extra, 0px) + 96px);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding: 12px 18px;
+  border-radius: 9999px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+  color: var(--foreground);
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+}
+
+.spinner {
+  color: var(--primary, #1b6b5a);
+  animation: spin 0.9s linear infinite;
+}
+
+.text {
+  white-space: nowrap;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay { animation: none; }
+  .spinner { animation: none; }
+}

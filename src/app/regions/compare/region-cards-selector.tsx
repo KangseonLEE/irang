@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition, Fragm
 import { Search, Plus, X, MapPin, Loader2 } from "lucide-react";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import { setComparePending } from "./compare-pending-store";
 import {
   SelectCombobox,
   type SelectComboboxOption,
@@ -45,6 +46,11 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  // 콘텐츠 영역 로딩 오버레이(compare-loading-overlay.tsx)에 pending 공유 (8/30)
+  useEffect(() => {
+    setComparePending(isPending);
+    return () => setComparePending(false);
+  }, [isPending]);
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [highlightIdx, setHighlightIdx] = useState(0);
