@@ -9,6 +9,15 @@ import {
 } from "@/lib/data/crop-categories";
 import { getCropWithDetail } from "@/lib/data/crops";
 import { PROVINCES } from "@/lib/data/regions";
+import {
+  buildMonthMap,
+  deriveCalendarRanges,
+  summarizeSeason,
+  PHASE_LABEL,
+  PHASE_SHORT_LABEL,
+  type CalendarStep,
+  type MonthRange,
+} from "@/lib/crops/calendar-ranges";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { analytics } from "@/lib/analytics";
 import s from "./farming-calendar.module.css";
@@ -32,14 +41,6 @@ export interface FarmingCalendarProps {
 /** 카테고리 표시 순서 — SSOT 배열 순서 그대로 사용 */
 const CATEGORY_ORDER: readonly CropCategory[] = CROP_CATEGORY_NAMES;
 
-// ── 월 파싱 유틸 ──
-
-interface MonthRange {
-  start: number;
-  end: number;
-  label: string; // "파종", "수확", "재배" 등
-}
-
 const MONTH_LABELS = [
   "1월",
   "2월",
@@ -55,100 +56,6 @@ const MONTH_LABELS = [
   "12월",
 ];
 
-/**
- * growingSeason 문자열을 월 범위 배열로 파싱
- *
- * 지원 패턴:
- *  - "4월~10월"           → [{start:4, end:10, label:"재배"}]
- *  - "3~5월·9~11월"       → [{start:3, end:5}, {start:9, end:11}]
- *  - "10월~이듬해 7월"    → [{start:10, end:12}, {start:1, end:7}] (연도 걸침)
- *  - "연중"               → [{start:1, end:12}]
- *  - "(시설: 연중)" 등 괄호 부분은 무시
- */
-function parseGrowingSeason(raw: string): MonthRange[] {
-  // 괄호 안 내용 제거
-  const cleaned = raw.replace(/\([^)]*\)/g, "").trim();
-
-  if (cleaned === "연중" || cleaned === "") {
-    return [{ start: 1, end: 12, label: "재배" }];
-  }
-
-  const ranges: MonthRange[] = [];
-
-  // "·" 또는 ","로 분리된 구간들
-  const segments = cleaned.split(/[·,]/).map((seg) => seg.trim());
-
-  for (const seg of segments) {
-    if (!seg) continue;
-
-    // "이듬해" 패턴 (연도 걸침)
-    const crossYearMatch = seg.match(
-      /(\d{1,2})월?\s*~\s*이듬해\s*(\d{1,2})월?/
-    );
-    if (crossYearMatch) {
-      const startMonth = parseInt(crossYearMatch[1], 10);
-      const endMonth = parseInt(crossYearMatch[2], 10);
-      // 올해 부분
-      ranges.push({ start: startMonth, end: 12, label: extractLabel(seg) });
-      // 이듬해 부분
-      ranges.push({ start: 1, end: endMonth, label: extractLabel(seg) });
-      continue;
-    }
-
-    // 일반 범위: "3월~10월", "3~5월", "9월~6월" (역순이면 연도 걸침)
-    const rangeMatch = seg.match(/(\d{1,2})월?\s*~\s*(\d{1,2})월?/);
-    if (rangeMatch) {
-      const startMonth = parseInt(rangeMatch[1], 10);
-      const endMonth = parseInt(rangeMatch[2], 10);
-
-      if (startMonth <= endMonth) {
-        ranges.push({ start: startMonth, end: endMonth, label: extractLabel(seg) });
-      } else {
-        // 9월~6월 같은 경우 (가을 시작 → 이듬해 초여름)
-        ranges.push({ start: startMonth, end: 12, label: extractLabel(seg) });
-        ranges.push({ start: 1, end: endMonth, label: extractLabel(seg) });
-      }
-      continue;
-    }
-
-    // 단일 월: "3월"
-    const singleMatch = seg.match(/(\d{1,2})월/);
-    if (singleMatch) {
-      const month = parseInt(singleMatch[1], 10);
-      ranges.push({ start: month, end: month, label: extractLabel(seg) });
-    }
-  }
-
-  return ranges;
-}
-
-/** 세그먼트에서 "파종", "수확" 등 라벨 추출 */
-function extractLabel(seg: string): string {
-  if (seg.includes("파종")) return "파종";
-  if (seg.includes("수확")) return "수확";
-  return "재배";
-}
-
-/** 월이 범위에 포함되는지 확인 */
-function isMonthInRange(month: number, range: MonthRange): boolean {
-  return month >= range.start && month <= range.end;
-}
-
-/** 월에 해당하는 바의 종류 결정 */
-function getBarType(
-  month: number,
-  ranges: MonthRange[]
-): "sowing" | "growing" | "harvest" | null {
-  for (const range of ranges) {
-    if (isMonthInRange(month, range)) {
-      if (range.label === "파종") return "sowing";
-      if (range.label === "수확") return "harvest";
-      return "growing";
-    }
-  }
-  return null;
-}
-
 // ── 컴포넌트 ──
 
 export function FarmingCalendar({ crops }: FarmingCalendarProps) {
@@ -158,14 +65,23 @@ export function FarmingCalendar({ crops }: FarmingCalendarProps) {
   const [query, setQuery] = useState("");
   const normalizedQuery = query.replace(/\s/g, "").toLowerCase();
 
-  // 카테고리별 그룹핑 (검색 필터 적용) + growingSeason 파싱. 그룹 내 정렬은 입력 순서 유지.
+  // 카테고리별 그룹핑 (검색 필터 적용) + 재배 단계 기반 구간 도출.
+  // 그룹 내 정렬은 입력 순서 유지.
   const groups = useMemo(() => {
     const parsed = crops
-      .filter((crop) => !normalizedQuery || crop.name.replace(/\s/g, "").toLowerCase().includes(normalizedQuery))
-      .map((crop) => ({
-        ...crop,
-        ranges: parseGrowingSeason(crop.growingSeason),
-      }));
+      .filter(
+        (crop) =>
+          !normalizedQuery ||
+          crop.name.replace(/\s/g, "").toLowerCase().includes(normalizedQuery)
+      )
+      .map((crop) => {
+        const steps = getCropWithDetail(crop.id)?.detail.cultivationSteps;
+        const ranges = deriveCalendarRanges({
+          growingSeason: crop.growingSeason,
+          cultivationSteps: steps,
+        });
+        return { ...crop, steps, ranges, months: buildMonthMap(ranges) };
+      });
     return CATEGORY_ORDER.map((category) => ({
       category,
       crops: parsed.filter((c) => c.category === category),
@@ -256,15 +172,15 @@ export function FarmingCalendar({ crops }: FarmingCalendarProps) {
       <div className={s.legend} aria-hidden="true">
         <span className={s.legendItem}>
           <span className={`${s.legendDot} ${s.legendSowing}`} />
-          파종
+          {PHASE_LABEL.sowing}
         </span>
         <span className={s.legendItem}>
           <span className={`${s.legendDot} ${s.legendGrowing}`} />
-          재배
+          {PHASE_LABEL.growing}
         </span>
         <span className={s.legendItem}>
           <span className={`${s.legendDot} ${s.legendHarvest}`} />
-          수확
+          {PHASE_LABEL.harvest}
         </span>
         <span className={s.legendItem}>
           <span className={s.legendCurrentLine} />
@@ -275,7 +191,12 @@ export function FarmingCalendar({ crops }: FarmingCalendarProps) {
   );
 }
 
-type CalendarCrop = CropSeasonInput & { ranges: MonthRange[] };
+type CalendarCrop = CropSeasonInput & {
+  steps?: CalendarStep[];
+  ranges: MonthRange[];
+  /** index 1~12 — 같은 구간은 같은 객체를 가리킨다 */
+  months: (MonthRange | null)[];
+};
 
 function CropRow({
   crop,
@@ -314,14 +235,15 @@ function CropRow({
       </div>
       {Array.from({ length: 12 }, (_, i) => {
         const month = i + 1;
-        const barType = getBarType(month, crop.ranges);
+        const range = crop.months[month];
         const isCurrentMonth = month === currentMonth;
 
-        // 연속 바를 위한 좌우 연결 판별
-        const prevType = month > 1 ? getBarType(month - 1, crop.ranges) : null;
-        const nextType = month < 12 ? getBarType(month + 1, crop.ranges) : null;
-        const isStart = barType !== null && prevType !== barType;
-        const isEnd = barType !== null && nextType !== barType;
+        // 연속 바를 위한 좌우 연결 판별 — 같은 구간이면 이어 붙인다
+        const prevPhase = month > 1 ? crop.months[month - 1]?.phase : undefined;
+        const nextPhase = month < 12 ? crop.months[month + 1]?.phase : undefined;
+        const isStart = !!range && prevPhase !== range.phase;
+        const isEnd = !!range && nextPhase !== range.phase;
+        const shortLabel = range ? PHASE_SHORT_LABEL[range.phase] : undefined;
 
         return (
           <div
@@ -331,11 +253,19 @@ function CropRow({
             // 바 영역을 눌러도 펼쳐지도록 — 키보드·AT 진입점은 작물명 셀의 버튼이 담당
             onClick={() => onToggle(crop.id)}
           >
-            {barType && (
+            {range && (
               <div
-                className={`${s.bar} ${s[barType]} ${isStart ? s.barStart : ""} ${isEnd ? s.barEnd : ""}`}
-                title={`${crop.name} - ${month}월 (${barType === "sowing" ? "파종" : barType === "harvest" ? "수확" : "재배"})`}
-              />
+                className={`${s.bar} ${s[range.phase]} ${isStart ? s.barStart : ""} ${isEnd ? s.barEnd : ""}`}
+                title={`${crop.name} ${month}월 · ${PHASE_LABEL[range.phase]}${
+                  range.derived ? ` (${range.sourceText} 기준)` : ""
+                }`}
+              >
+                {isStart && shortLabel && (
+                  <span className={s.barLabel} aria-hidden="true">
+                    {shortLabel}
+                  </span>
+                )}
+              </div>
             )}
           </div>
         );
@@ -354,37 +284,6 @@ const DIFFICULTY_CLASS: Record<string, string> = {
   어려움: s.difficultyHard,
 };
 
-/** 파싱된 월 범위를 "4월 파종 → 5~9월 재배 → 10월 수확" 한 줄로 */
-function formatSeasonSentence(ranges: MonthRange[], fallback: string): string {
-  if (ranges.length === 0) return fallback;
-
-  const parts: string[] = [];
-  for (let i = 0; i < ranges.length; i++) {
-    const range = ranges[i];
-    const next = ranges[i + 1];
-
-    // 연도 걸침으로 쪼개진 두 구간(…~12월 + 1월~…)은 한 문장으로 되묶는다
-    if (
-      next &&
-      range.end === 12 &&
-      range.start !== 1 &&
-      next.start === 1 &&
-      next.label === range.label
-    ) {
-      parts.push(`${range.start}월~이듬해 ${next.end}월 ${range.label}`);
-      i++;
-      continue;
-    }
-
-    const span =
-      range.start === range.end
-        ? `${range.start}월`
-        : `${range.start}~${range.end}월`;
-    parts.push(`${span} ${range.label}`);
-  }
-  return parts.join(" → ");
-}
-
 function CropDetailPanel({
   crop,
   panelId,
@@ -396,6 +295,7 @@ function CropDetailPanel({
   const detailed = getCropWithDetail(crop.id);
   const income = detailed?.detail.income;
   const majorRegions = detailed?.detail.majorRegions ?? [];
+  const steps = crop.steps ?? [];
 
   return (
     <div className={s.detailRow} role="row">
@@ -408,7 +308,7 @@ function CropDetailPanel({
         >
           <div className={s.detailCol}>
             <p className={s.detailSeason}>
-              {formatSeasonSentence(crop.ranges, crop.growingSeason)}
+              {summarizeSeason(crop.ranges) || crop.growingSeason}
             </p>
 
             {detailed && (
@@ -468,18 +368,35 @@ function CropDetailPanel({
                 </div>
               </div>
             )}
+          </div>
 
-            <div className={s.detailLinks}>
-              <Link href={`/crops/${crop.id}`} className={s.detailLink}>
-                작물 상세 보기 →
-              </Link>
-              <Link
-                href={`/regions/compare?tab=suitability&crop=${crop.id}`}
-                className={s.detailLinkSub}
-              >
-                지역 비교에서 적합성 보기
-              </Link>
+          {steps.length > 0 && (
+            <div className={s.stepsBlock}>
+              <span className={s.detailLabel}>재배 단계</span>
+              <ol className={s.stepList}>
+                {steps.map((step) => (
+                  <li key={step.step} className={s.stepItem}>
+                    <span className={s.stepNum} aria-hidden="true">
+                      {step.step}
+                    </span>
+                    <span className={s.stepTitle}>{step.title}</span>
+                    <span className={s.stepPeriod}>{step.period}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
+          )}
+
+          <div className={s.detailActions}>
+            <Link href={`/crops/${crop.id}`} className={s.actionPrimary}>
+              작물 상세 보기
+            </Link>
+            <Link
+              href={`/regions/compare?tab=suitability&crop=${crop.id}`}
+              className={s.actionSecondary}
+            >
+              지역 비교에서 적합성 보기
+            </Link>
           </div>
         </div>
       </div>

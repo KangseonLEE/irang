@@ -188,11 +188,17 @@
   pointer-events: none;
 }
 
-/* ── 재배 바 ── */
+/* ── 재배 바 ──
+   8/30: 파종·재배·수확을 명도가 아니라 색상(hue)으로 나눈다.
+   같은 초록의 3단계는 옆으로 붙어 있어도 구분이 안 됐다. */
 .bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 20px;
   border-radius: 0;
+  overflow: hidden;
   transition: opacity 0.15s;
 }
 
@@ -206,19 +212,35 @@
   border-bottom-right-radius: 4px;
 }
 
-/* 파종: 연한 초록 */
+/* 파종·정식: 파랑 (물주기·씨앗) */
 .sowing {
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  background: #4a90c2;
 }
 
-/* 재배: 중간 초록 */
+/* 재배·관리: 브랜드 초록 */
 .growing {
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 55%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 45%, transparent);
 }
 
-/* 수확: 진한 초록 */
+/* 수확: 시스템 앰버 (StatusBadge와 동일 계열) */
 .harvest {
-  background: var(--primary, #1b6b5a);
+  background: #d97706;
+}
+
+/* 구간 첫 셀 안의 짧은 라벨 — 데스크탑에서만, 색만으로 읽지 않게 */
+.barLabel {
+  display: none;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  color: rgba(0, 0, 0, 0.72);
+}
+
+@media (min-width: 768px) {
+  .barLabel {
+    display: block;
+  }
 }
 
 @media (hover: hover) {
@@ -253,15 +275,15 @@
 }
 
 .legendSowing {
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
+  background: #4a90c2;
 }
 
 .legendGrowing {
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 55%, transparent);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 45%, transparent);
 }
 
 .legendHarvest {
-  background: var(--primary, #1b6b5a);
+  background: #d97706;
 }
 
 .legendCurrentLine {
@@ -563,40 +585,85 @@
   }
 }
 
-/* ── 패널 링크 ── */
-.detailLinks {
+/* ── 재배 단계 ── */
+.stepsBlock {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.stepList {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stepItem {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--muted, #f9fafb);
+}
+
+.stepNum {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-}
-
-.detailLink,
-.detailLinkSub {
-  font-size: var(--fs-caption);
-  text-decoration: none;
-}
-
-.detailLink {
+  justify-content: center;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+  font-size: var(--fs-overline);
   font-weight: 700;
   color: var(--primary, #1b6b5a);
 }
 
-.detailLinkSub {
+.stepTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+}
+
+.stepPeriod {
+  flex-shrink: 0;
+  font-size: var(--fs-overline);
   color: var(--muted-foreground, #6b7280);
 }
 
-.detailLink:focus-visible,
-.detailLinkSub:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
-  border-radius: 4px;
+/* ── 패널 액션 버튼 ── */
+.detailActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-@media (hover: hover) {
-  .detailLink:hover,
-  .detailLinkSub:hover {
-    text-decoration: underline;
+.actionPrimary {
+  composes: actionPrimary from "../ui/action-button.module.css";
+  flex: 1;
+}
+
+.actionSecondary {
+  composes: actionSecondary from "../ui/action-button.module.css";
+  flex: 1;
+}
+
+/* 모바일: 캘린더 그리드가 600px 고정 폭이라 패널이 화면 밖으로 밀린다.
+   보이는 폭으로 줄이고 왼쪽에 붙여 가로 스크롤 없이 읽히게 한다. */
+@media (max-width: 639px) {
+  .detailPanel {
+    position: sticky;
+    left: 0;
+    /* 스크롤 컨테이너 여백(36px) + .detailCell 좌우 padding(16px) */
+    max-width: calc(100vw - 52px);
   }
 }
 
@@ -610,12 +677,27 @@
   }
 }
 
-/* 데스크탑: 2단 (시기·난이도·소득 | 지역·링크) */
+/* 데스크탑: 위 2단(시기·난이도·소득 | 주요 재배지), 아래 전폭(재배 단계 → 버튼) */
 @media (min-width: 768px) {
   .detailPanel {
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     gap: 12px 24px;
     padding: 16px;
+  }
+
+  .stepsBlock,
+  .detailActions {
+    grid-column: 1 / -1;
+  }
+
+  .stepList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 12px;
+  }
+
+  .detailActions {
+    flex-direction: row;
+    padding-top: 4px;
   }
 }
 
