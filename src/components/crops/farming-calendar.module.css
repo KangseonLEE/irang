@@ -27,14 +27,15 @@
 /* 그리드 레이아웃 */
 .grid {
   display: grid;
-  grid-template-columns: 100px repeat(12, 1fr);
+  /* 8/30: 작물명 셀에 확장 chevron이 들어가며 112px로 확장 — 이름 잘림을 chevron 도입 전 수준으로 유지 */
+  grid-template-columns: 112px repeat(12, 1fr);
   min-width: 600px;
   position: relative;
 }
 
 @media (min-width: 640px) {
   .grid {
-    grid-template-columns: 120px repeat(12, 1fr);
+    grid-template-columns: 136px repeat(12, 1fr);
   }
 }
 
@@ -349,4 +350,286 @@
 }
 @media (min-width: 640px) {
   .searchRow { padding: 0 20px; }
+}
+
+/* ── 행 확장 아코디언 (8/30) ── */
+
+/* 작물명 셀 전체를 채우는 토글 버튼 — 셀 padding은 .cropName이 이미 담당 */
+.rowToggle {
+  display: flex;
+  align-items: center;
+  gap: inherit;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* .cropName이 overflow: hidden이라 바깥 offset은 잘린다 */
+.rowToggle:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.rowChevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--muted-foreground, #6b7280);
+  transition: transform 0.16s ease;
+}
+
+.rowChevronOpen {
+  transform: rotate(180deg);
+}
+
+.monthCell {
+  cursor: pointer;
+}
+
+/* 열린 행 강조 — sticky 셀이라 불투명 색이어야 뒤 내용이 비치지 않는다 */
+.cropRowOpen .cropName,
+.cropRowOpen .monthCell {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, var(--card, #fff));
+}
+
+.cropRowOpen .cropNameText {
+  color: var(--primary, #1b6b5a);
+}
+
+@media (hover: hover) {
+  .cropRow:hover .cropName,
+  .cropRow:hover .monthCell {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, var(--card, #fff));
+  }
+
+  .cropRowOpen:hover .cropName,
+  .cropRowOpen:hover .monthCell {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, var(--card, #fff));
+  }
+}
+
+/* ── 확장 패널 ── */
+.detailRow {
+  display: contents;
+}
+
+.detailCell {
+  grid-column: 1 / -1;
+  padding: 8px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--card, #fff));
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.detailPanel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card, #fff);
+  animation: panelIn 0.16s ease-out;
+}
+
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.detailCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.detailSeason {
+  margin: 0;
+  max-width: 42ch;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+}
+
+.detailDesc {
+  margin: 0;
+  max-width: 42ch;
+  font-size: var(--fs-caption);
+  line-height: 1.55;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.detailFacts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+}
+
+.detailFact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.detailLabel {
+  flex-shrink: 0;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.detailValue {
+  margin: 0;
+  max-width: 42ch;
+  font-size: var(--fs-caption);
+  color: var(--foreground, #111827);
+}
+
+/* 난이도 배지 — 작물 카드의 배지 시스템을 그대로 재사용 (색·크기 SSOT 1곳 유지) */
+.difficultyBadge {
+  composes: difficultyBadge from "../crop/crop-page-card.module.css";
+}
+
+.difficultyEasy {
+  composes: difficultyEasy from "../crop/crop-page-card.module.css";
+}
+
+.difficultyMedium {
+  composes: difficultyMedium from "../crop/crop-page-card.module.css";
+}
+
+.difficultyHard {
+  composes: difficultyHard from "../crop/crop-page-card.module.css";
+}
+
+/* ── 주요 재배지 칩 ── */
+.detailRegions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.regionChips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.regionChip,
+.regionChipPlain {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: var(--muted, #f3f4f6);
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.regionChip {
+  color: var(--primary, #1b6b5a);
+}
+
+.regionChipPlain {
+  color: var(--muted-foreground, #6b7280);
+}
+
+.regionChip:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .regionChip:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+  }
+}
+
+/* ── 패널 링크 ── */
+.detailLinks {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.detailLink,
+.detailLinkSub {
+  font-size: var(--fs-caption);
+  text-decoration: none;
+}
+
+.detailLink {
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+}
+
+.detailLinkSub {
+  color: var(--muted-foreground, #6b7280);
+}
+
+.detailLink:focus-visible,
+.detailLinkSub:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) {
+  .detailLink:hover,
+  .detailLinkSub:hover {
+    text-decoration: underline;
+  }
+}
+
+/* 모바일: 칩은 가로 스크롤 한 줄 */
+@media (max-width: 639px) {
+  .regionChips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+}
+
+/* 데스크탑: 2단 (시기·난이도·소득 | 지역·링크) */
+@media (min-width: 768px) {
+  .detailPanel {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 12px 24px;
+    padding: 16px;
+  }
+}
+
+/* 마지막 그룹의 마지막 행이 펼쳐졌을 때는 패널이 마지막 줄 */
+.group:last-of-type .detailRow:last-of-type .detailCell {
+  border-bottom: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detailPanel {
+    animation: none;
+  }
+
+  .rowChevron {
+    transition: none;
+  }
 }

@@ -170,6 +170,10 @@ export const analytics = {
   programsTabSwitch: (tab: string) =>
     trackEvent({ action: "programs_tab_switch", category: "landing", label: tab }),
 
+  // -- 재배 캘린더 행 확장 (2026-08-30) — 어떤 작물을 펼쳐 보는지 = 인기 작물 신호 --
+  calendarRowExpand: (cropId: string) =>
+    trackEvent({ action: "calendar_row_expand", category: "crops", label: cropId }),
+
   // -- CTA clicks --
   ctaClick: (ctaName: string) =>
     trackEvent({

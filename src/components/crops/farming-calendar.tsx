@@ -1,11 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, Search, X } from "lucide-react";
 import {
   CROP_CATEGORY_NAMES,
   type CropCategoryName,
 } from "@/lib/data/crop-categories";
+import { getCropWithDetail } from "@/lib/data/crops";
+import { PROVINCES } from "@/lib/data/regions";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { analytics } from "@/lib/analytics";
 import s from "./farming-calendar.module.css";
 
 // ── 타입 ──
@@ -168,6 +173,21 @@ export function FarmingCalendar({ crops }: FarmingCalendarProps) {
   }, [crops, normalizedQuery]);
   const matchCount = groups.reduce((n, g) => n + g.crops.length, 0);
 
+  // 행 확장 (8/30 회장): 한 번에 하나만. 검색으로 목록에서 사라지면 자동으로 닫힘 상태가 되도록
+  // state를 되돌리지 않고 렌더 시점에 파생값으로 판정한다 (prop→state sync 불필요).
+  const [openedId, setOpenedId] = useState<string | null>(null);
+  const expandedId =
+    openedId && groups.some((g) => g.crops.some((c) => c.id === openedId))
+      ? openedId
+      : null;
+
+  const toggleRow = (cropId: string) => {
+    const next = expandedId === cropId ? null : cropId;
+    // 열릴 때만 집계 — 닫기는 신호로 치지 않는다
+    if (next) analytics.calendarRowExpand(next);
+    setOpenedId(next);
+  };
+
   return (
     <div className={s.wrapper}>
       <div className={s.searchRow}>
@@ -219,7 +239,13 @@ export function FarmingCalendar({ crops }: FarmingCalendarProps) {
                 <span className={s.groupCount}>{group.crops.length}종</span>
               </div>
               {group.crops.map((crop) => (
-                <CropRow key={crop.id} crop={crop} currentMonth={currentMonth} />
+                <CropRow
+                  key={crop.id}
+                  crop={crop}
+                  currentMonth={currentMonth}
+                  expanded={expandedId === crop.id}
+                  onToggle={toggleRow}
+                />
               ))}
             </div>
           ))}
@@ -249,20 +275,42 @@ export function FarmingCalendar({ crops }: FarmingCalendarProps) {
   );
 }
 
+type CalendarCrop = CropSeasonInput & { ranges: MonthRange[] };
+
 function CropRow({
   crop,
   currentMonth,
+  expanded,
+  onToggle,
 }: {
-  crop: CropSeasonInput & { ranges: MonthRange[] };
+  crop: CalendarCrop;
   currentMonth: number;
+  expanded: boolean;
+  onToggle: (cropId: string) => void;
 }) {
+  const panelId = `calendar-detail-${crop.id}`;
+
   return (
-    <div className={s.cropRow} role="row">
+    <>
+    <div className={`${s.cropRow} ${expanded ? s.cropRowOpen : ""}`} role="row">
       <div className={s.cropName} role="rowheader">
-        <span className={s.cropEmoji} aria-hidden="true">
-          {crop.emoji}
-        </span>
-        <span className={s.cropNameText}>{crop.name}</span>
+        <button
+          type="button"
+          className={s.rowToggle}
+          onClick={() => onToggle(crop.id)}
+          aria-expanded={expanded}
+          aria-controls={panelId}
+        >
+          <span className={s.cropEmoji} aria-hidden="true">
+            {crop.emoji}
+          </span>
+          <span className={s.cropNameText}>{crop.name}</span>
+          <ChevronDown
+            size={14}
+            className={`${s.rowChevron} ${expanded ? s.rowChevronOpen : ""}`}
+            aria-hidden="true"
+          />
+        </button>
       </div>
       {Array.from({ length: 12 }, (_, i) => {
         const month = i + 1;
@@ -280,6 +328,8 @@ function CropRow({
             key={i}
             className={`${s.monthCell} ${isCurrentMonth ? s.currentMonthCell : ""}`}
             role="cell"
+            // 바 영역을 눌러도 펼쳐지도록 — 키보드·AT 진입점은 작물명 셀의 버튼이 담당
+            onClick={() => onToggle(crop.id)}
           >
             {barType && (
               <div
@@ -290,6 +340,149 @@ function CropRow({
           </div>
         );
       })}
+    </div>
+    {expanded && <CropDetailPanel crop={crop} panelId={panelId} />}
+    </>
+  );
+}
+
+// ── 확장 패널 ──
+
+const DIFFICULTY_CLASS: Record<string, string> = {
+  쉬움: s.difficultyEasy,
+  보통: s.difficultyMedium,
+  어려움: s.difficultyHard,
+};
+
+/** 파싱된 월 범위를 "4월 파종 → 5~9월 재배 → 10월 수확" 한 줄로 */
+function formatSeasonSentence(ranges: MonthRange[], fallback: string): string {
+  if (ranges.length === 0) return fallback;
+
+  const parts: string[] = [];
+  for (let i = 0; i < ranges.length; i++) {
+    const range = ranges[i];
+    const next = ranges[i + 1];
+
+    // 연도 걸침으로 쪼개진 두 구간(…~12월 + 1월~…)은 한 문장으로 되묶는다
+    if (
+      next &&
+      range.end === 12 &&
+      range.start !== 1 &&
+      next.start === 1 &&
+      next.label === range.label
+    ) {
+      parts.push(`${range.start}월~이듬해 ${next.end}월 ${range.label}`);
+      i++;
+      continue;
+    }
+
+    const span =
+      range.start === range.end
+        ? `${range.start}월`
+        : `${range.start}~${range.end}월`;
+    parts.push(`${span} ${range.label}`);
+  }
+  return parts.join(" → ");
+}
+
+function CropDetailPanel({
+  crop,
+  panelId,
+}: {
+  crop: CalendarCrop;
+  panelId: string;
+}) {
+  // 상세는 정적 데이터에서 조회 — 캘린더 props에는 시기 정보만 들어온다
+  const detailed = getCropWithDetail(crop.id);
+  const income = detailed?.detail.income;
+  const majorRegions = detailed?.detail.majorRegions ?? [];
+
+  return (
+    <div className={s.detailRow} role="row">
+      <div className={s.detailCell} role="cell">
+        <div
+          className={s.detailPanel}
+          id={panelId}
+          role="region"
+          aria-label={`${crop.name} 상세`}
+        >
+          <div className={s.detailCol}>
+            <p className={s.detailSeason}>
+              {formatSeasonSentence(crop.ranges, crop.growingSeason)}
+            </p>
+
+            {detailed && (
+              <>
+                <span
+                  className={`${s.difficultyBadge} ${
+                    DIFFICULTY_CLASS[detailed.difficulty] ?? s.difficultyMedium
+                  }`}
+                >
+                  난이도 · {detailed.difficulty}
+                </span>
+                <p className={s.detailDesc}>
+                  <AutoGlossary text={detailed.description} maxHighlights={2} />
+                </p>
+              </>
+            )}
+
+            {income && (
+              <dl className={s.detailFacts}>
+                <div className={s.detailFact}>
+                  <dt className={s.detailLabel}>예상 소득</dt>
+                  <dd className={s.detailValue}>{income.revenueRange}</dd>
+                </div>
+                {income.minScale && (
+                  <div className={s.detailFact}>
+                    <dt className={s.detailLabel}>최소 규모</dt>
+                    <dd className={s.detailValue}>{income.minScale}</dd>
+                  </div>
+                )}
+              </dl>
+            )}
+          </div>
+
+          <div className={s.detailCol}>
+            {majorRegions.length > 0 && (
+              <div className={s.detailRegions}>
+                <span className={s.detailLabel}>주요 재배지</span>
+                <div className={s.regionChips}>
+                  {majorRegions.map((regionName) => {
+                    const province = PROVINCES.find(
+                      (p) => p.name === regionName
+                    );
+                    return province ? (
+                      <Link
+                        key={regionName}
+                        href={`/regions/${province.id}`}
+                        className={s.regionChip}
+                      >
+                        {province.shortName}
+                      </Link>
+                    ) : (
+                      <span key={regionName} className={s.regionChipPlain}>
+                        {regionName}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className={s.detailLinks}>
+              <Link href={`/crops/${crop.id}`} className={s.detailLink}>
+                작물 상세 보기 →
+              </Link>
+              <Link
+                href={`/regions/compare?tab=suitability&crop=${crop.id}`}
+                className={s.detailLinkSub}
+              >
+                지역 비교에서 적합성 보기
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

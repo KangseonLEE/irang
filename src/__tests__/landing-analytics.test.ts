@@ -24,6 +24,11 @@ describe("landing analytics 이벤트 계약", () => {
     expect(gtag).toHaveBeenNthCalledWith(3, "event", "programs_tab_switch", expect.objectContaining({ event_category: "landing", event_label: "ongoing" }));
   });
 
+  it("calendar_row_expand — 작물 id 라벨 (8/30 캘린더 행 확장)", () => {
+    analytics.calendarRowExpand("apple");
+    expect(gtag).toHaveBeenLastCalledWith("event", "calendar_row_expand", expect.objectContaining({ event_category: "crops", event_label: "apple" }));
+  });
+
   it("gtag 부재(SSR·GA 미로드)면 조용히 no-op", () => {
     delete (globalThis as unknown as { window?: unknown }).window;
     expect(() => analytics.landingSectionView("hero")).not.toThrow();
