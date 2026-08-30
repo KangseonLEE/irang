@@ -67,6 +67,10 @@ export async function fetchClimateData(stnId: string): Promise<ClimateData | nul
     console.error("DATA_GO_KR_API_KEY is not set");
     return null;
   }
+  // 8/30 임시 진단(값 노출 없음): 재등록한 키가 깨끗한지 — 길이·문자 구성·앞뒤 공백/개행 여부만 기록
+  console.error(
+    `[weather] key diag len=${apiKey.length} alnum=${/^[A-Za-z0-9]+$/.test(apiKey)} trimmedLen=${apiKey.trim().length}`,
+  );
 
   const year = new Date().getFullYear();
   const today = new Date();
