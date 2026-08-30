@@ -17,6 +17,7 @@ import {
   PHASE_SHORT_LABEL,
   type CalendarStep,
   type MonthRange,
+  describeCurrentPhase,
 } from "@/lib/crops/calendar-ranges";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { analytics } from "@/lib/analytics";
@@ -271,7 +272,9 @@ function CropRow({
         );
       })}
     </div>
-    {expanded && <CropDetailPanel crop={crop} panelId={panelId} />}
+    {expanded && (
+      <CropDetailPanel crop={crop} panelId={panelId} currentMonth={currentMonth} />
+    )}
     </>
   );
 }
@@ -287,15 +290,23 @@ const DIFFICULTY_CLASS: Record<string, string> = {
 function CropDetailPanel({
   crop,
   panelId,
+  currentMonth,
 }: {
   crop: CalendarCrop;
   panelId: string;
+  currentMonth: number;
 }) {
   // 상세는 정적 데이터에서 조회 — 캘린더 props에는 시기 정보만 들어온다
   const detailed = getCropWithDetail(crop.id);
   const income = detailed?.detail.income;
   const majorRegions = detailed?.detail.majorRegions ?? [];
   const steps = crop.steps ?? [];
+  const now = describeCurrentPhase(crop.ranges, currentMonth);
+  const nowText = now.current
+    ? `지금 ${currentMonth}월 · ${PHASE_LABEL[now.current.phase]} 중${now.current.derived ? " (추정)" : ""}`
+    : now.next
+      ? `${currentMonth}월은 쉬는 달 · 다음 ${PHASE_LABEL[now.next.range.phase]} ${now.next.month}월`
+      : null;
 
   return (
     <div className={s.detailRow} role="row">
@@ -310,6 +321,12 @@ function CropDetailPanel({
             <p className={s.detailSeason}>
               {summarizeSeason(crop.ranges) || crop.growingSeason}
             </p>
+            {nowText && (
+              <span className={`${s.nowBadge} ${now.current ? "" : s.nowBadgeIdle}`}>
+                <span className={s.nowBadgeDot} aria-hidden="true" />
+                {nowText}
+              </span>
+            )}
 
             {detailed && (
               <>

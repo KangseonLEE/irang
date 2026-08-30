@@ -413,3 +413,26 @@ export function summarizeSeason(ranges: MonthRange[]): string {
   if (parts.length > 0) return parts.join(" → ");
   return phaseText(ranges, "growing");
 }
+
+/** 특정 월의 현재 시기 + 없으면 다음 시기 (패널 "지금 N월 · 수확 중" 배지용) */
+export interface CurrentPhaseInfo {
+  /** 이번 달에 해당하는 구간 (없으면 null = 쉬는 달) */
+  current: MonthRange | null;
+  /** 이번 달에 구간이 없을 때, 다음으로 시작하는 구간과 그 월 */
+  next: { month: number; range: MonthRange } | null;
+}
+
+export function describeCurrentPhase(
+  ranges: MonthRange[],
+  month: number
+): CurrentPhaseInfo {
+  const map = buildMonthMap(ranges);
+  const current = map[month] ?? null;
+  if (current) return { current, next: null };
+  for (let step = 1; step <= 12; step++) {
+    const m = ((month - 1 + step) % 12) + 1;
+    const range = map[m];
+    if (range) return { current: null, next: { month: m, range } };
+  }
+  return { current: null, next: null };
+}

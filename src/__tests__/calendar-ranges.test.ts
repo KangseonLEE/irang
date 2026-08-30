@@ -8,6 +8,7 @@ import {
   summarizeSeason,
   type CalendarPhase,
   type MonthRange,
+  describeCurrentPhase,
 } from "@/lib/crops/calendar-ranges";
 import { CROPS, getCropWithDetail } from "@/lib/data/crops";
 
@@ -216,5 +217,19 @@ describe("전수 sanity — 55종", () => {
     const ranges = deriveCalendarRanges({ growingSeason: crop.growingSeason, cultivationSteps: crop.detail.cultivationSteps });
     expect(ranges).toContainEqual(expect.objectContaining({ phase: "sowing", start: 4, end: 5 }));
     expect(ranges).toContainEqual(expect.objectContaining({ phase: "harvest", start: 10, end: 10 }));
+  });
+
+  it("describeCurrentPhase — 쌀 8월은 재배·관리, 11월은 쉬는 달 + 다음 시기(이듬해 3월 재배·관리)", () => {
+    const crop = getCropWithDetail("rice")!;
+    const ranges = deriveCalendarRanges({ growingSeason: crop.growingSeason, cultivationSteps: crop.detail.cultivationSteps });
+    expect(describeCurrentPhase(ranges, 8).current?.phase).toBe("growing");
+    expect(describeCurrentPhase(ranges, 9).current?.phase).toBe("harvest");
+    const idle = describeCurrentPhase(ranges, 11);
+    expect(idle.current).toBeNull();
+    expect(idle.next?.month).toBe(3);
+  });
+
+  it("describeCurrentPhase — 구간이 전혀 없으면 current·next 모두 null", () => {
+    expect(describeCurrentPhase([], 5)).toEqual({ current: null, next: null });
   });
 });
