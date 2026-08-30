@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { SectionNav } from "@/components/layout/section-nav";
+import sl from "@/components/layout/section-layout.module.css";
 
 const regionsNav = [
   { href: "/regions", label: "지역 탐색" },
@@ -22,7 +23,7 @@ export default function RegionsLayout({
   return (
     <>
       {showNav && <SectionNav items={regionsNav} />}
-      {children}
+      {showNav ? <div className={sl.underSectionNav}>{children}</div> : children}
     </>
   );
 }

@@ -1,0 +1,4 @@
+/* SectionNav 아래 콘텐츠 — sticky 요소(TabBar 등)가 SectionNav 높이만큼 더 내려앉도록 (8/30) */
+.underSectionNav {
+  --sticky-extra: var(--h-section-nav, 44px);
+}

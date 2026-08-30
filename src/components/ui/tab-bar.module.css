@@ -1,7 +1,10 @@
 .tabsWrap {
   position: sticky;
-  top: 60px;
+  /* 헤더(--sticky-top) + SectionNav 아래면 --sticky-extra(레이아웃이 설정) + 4px 여백.
+     8/30: 60px 고정이라 헤더가 스크롤 업으로 돌아올 때 탭바가 SectionNav 뒤에 가려졌음 */
+  top: calc(var(--sticky-top, 3.5rem) + var(--sticky-extra, 0px) + 4px);
   z-index: 20;
+  transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   gap: 6px;
   padding: 8px;

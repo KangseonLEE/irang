@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { SectionNav } from "@/components/layout/section-nav";
+import sl from "@/components/layout/section-layout.module.css";
 
 const cropsNav = [
   { href: "/crops", label: "작물 목록" },
@@ -22,7 +23,7 @@ export default function CropsLayout({
   return (
     <>
       {showNav && <SectionNav items={cropsNav} />}
-      {children}
+      {showNav ? <div className={sl.underSectionNav}>{children}</div> : children}
     </>
   );
 }

@@ -29,7 +29,7 @@
 /* ═══ 프로그램 선택 탭 (히어로 아래, sticky) ═══ */
 .programNav {
   position: sticky;
-  top: var(--h-header, 3.5rem);
+  top: var(--sticky-top, 3.5rem); /* 헤더 연동 (8/30) */
   z-index: 11;
   overflow-x: auto;
   scrollbar-width: none;
@@ -167,7 +167,7 @@
     flex-direction: column;
     overflow-x: visible;
     position: sticky;
-    top: calc(var(--h-header, 3.5rem) + 52px);
+    top: calc(var(--sticky-top, 3.5rem) + 52px);
     height: fit-content;
     border-bottom: none;
     background: transparent;

@@ -7,7 +7,7 @@
 /* header 보임: top 56px (header 아래) / header 숨김: top 0 (화면 맨 위) — 동적 연동 */
 .searchWrap {
   position: sticky;
-  top: 56px; /* header height (default — header visible) */
+  top: var(--sticky-top, 3.5rem); /* 헤더 연동 (8/30) */
   z-index: 10;
   display: flex;
   flex-direction: column;

@@ -177,6 +177,7 @@ API 키는 `.env.local`에서 관리한다. Vercel 환경변수에도 동일하�
 - hover 스타일은 `@media (hover: hover)` 래핑 필수
 - `focus-visible` outline 필수 (키보드 접근성)
 - 컬러 믹싱: `color-mix(in srgb, var(--primary) N%, transparent)` 패턴 사용
+- **sticky 오프셋**: `position: sticky` 요소의 `top`은 `var(--sticky-top)`(헤더 보임 56px / 숨김 0, `html[data-header-hidden]` 연동) 기준으로만. SectionNav 아래 콘텐츠는 레이아웃이 `--sticky-extra`(= `--h-section-nav` 44px)를 얹으므로 `calc(var(--sticky-top) + var(--sticky-extra, 0px) + 여백)`. `top: 56px`/`60px` 하드코딩 금지 — 8/30 헤더가 스크롤 업으로 돌아올 때 탭바가 가려진 사고
 - **한국어 줄바꿈**: `word-break: keep-all` 글로벌 적용 (globals.css). 문장 중간 끊김 방지. 개별 컴포넌트에서 `word-break: break-all` 사용 금지.
 - **제목 줄바꿈**: h1~h6에 `text-wrap: balance` 글로벌 적용. 좌우 균등 줄바꿈.
 

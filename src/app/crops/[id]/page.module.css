@@ -339,7 +339,7 @@
    뒤로 비쳐 지나가지 않게 한다 (6/4 회장 결재). wrapper가 sticky/top 담당, 카드는 chrome만. */
 .stickyWrap {
   position: sticky;
-  top: var(--h-header, 3.5rem);
+  top: var(--sticky-top, 3.5rem); /* 헤더 연동 (8/30) */
   z-index: var(--z-sticky);
   padding-top: 8px;
   margin: 8px 0 24px;
@@ -1442,7 +1442,7 @@
     position: sticky;
     /* 2026-05-22 Fix 2 + 6/4 간격 축소: 데스크탑 탭은 static(sticky 아님)이라
        탭 공간 불필요 → header 56 + 12px 여백 = 68px로 상단 띄움 반감. */
-    top: 68px;
+    top: calc(var(--sticky-top, 3.5rem) + 12px); /* 헤더 연동 (8/30) */
     align-self: start;
     transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
