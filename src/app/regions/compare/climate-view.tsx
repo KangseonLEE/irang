@@ -30,7 +30,7 @@ export async function ClimateView({ regions, year }: Props) {
     return (
       <div className={shared.viewEmptyState}>
         <p className={shared.viewEmptyText}>
-          기상 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+          기상청 데이터 연결을 정비하고 있어요. 지금은 기후 비교를 보여드리지 못해요.
         </p>
       </div>
     );

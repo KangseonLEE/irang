@@ -48,7 +48,7 @@ export async function InfraView({ regions }: Props) {
     return (
       <div className={shared.viewEmptyState}>
         <p className={shared.viewEmptyText}>
-          인프라 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+          의료기관 데이터 연결을 정비하고 있어요. 지금은 인프라 비교를 보여드리지 못해요.
         </p>
       </div>
     );
