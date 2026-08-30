@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
 import type { CropInfo } from "@/lib/data/crops";
 import type { FitTrace } from "@/lib/data/persona-fit";
@@ -12,12 +13,6 @@ import s from "./crop-page-card.module.css";
    상단 정사각 이미지(카테고리 칩) + 하단 텍스트(이름·난이도·재배시기·설명)
    /crops 페이지 그리드와 /search 결과의 작물 섹션에서 공유.
    ========================================================================== */
-
-const DIFFICULTY_CLASS: Record<string, string> = {
-  쉬움: s.difficultyEasy,
-  보통: s.difficultyMedium,
-  어려움: s.difficultyHard,
-};
 
 interface CropPageCardProps {
   crop: CropInfo;
@@ -45,11 +40,7 @@ export function CropPageCard({ crop, trace, autoGlossary = true }: CropPageCardP
       <div className={s.cropCardContent}>
         <div className={s.cropCardNameRow}>
           <h3 className={s.cropCardName}>{crop.name}</h3>
-          <span
-            className={`${s.difficultyBadge} ${DIFFICULTY_CLASS[crop.difficulty] ?? s.difficultyMedium}`}
-          >
-            난이도 · {crop.difficulty}
-          </span>
+          <DifficultyBadge level={crop.difficulty} prefix />
         </div>
 
         <p className={s.cropCardSeason}>{crop.growingSeason}</p>

@@ -1,0 +1,55 @@
+/* ══════════════════════════════════════════
+   DifficultyBadge — 난이도 배지 디자인 토큰 (SSOT)
+   작물 카드 · 재배 캘린더 · 비용 비교 표가 공유.
+   색 정의는 이 파일에만 둔다 — 페이지별 재정의 금지.
+   ══════════════════════════════════════════ */
+
+/* ── 공통 ── */
+.base {
+  display: inline-flex;
+  font-weight: 600;
+}
+
+/* ── md: pill (작물 카드 · 재배 캘린더 확장 패널) ── */
+.md {
+  composes: base;
+  align-items: center;
+  padding: 2px 6px;
+  font-size: 10px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .md {
+    padding: 2px 10px;
+    font-size: 11px;
+  }
+}
+
+/* ── sm: 컴팩트 태그 (비용 비교 표 · 카드) ── */
+.sm {
+  composes: base;
+  padding: 2px 8px;
+  font-size: var(--fs-overline);
+  border-radius: 4px;
+}
+
+/* ══════════════════════════════════════════
+   난이도별 컬러 토큰
+   ══════════════════════════════════════════ */
+.easy {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.medium {
+  background: #fef9c3;
+  color: var(--warning-fg, #a16207);
+}
+
+.hard {
+  background: #fee2e2;
+  color: #b91c1c;
+}

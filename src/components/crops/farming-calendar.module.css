@@ -552,22 +552,7 @@
   color: var(--foreground, #111827);
 }
 
-/* 난이도 배지 — 작물 카드의 배지 시스템을 그대로 재사용 (색·크기 SSOT 1곳 유지) */
-.difficultyBadge {
-  composes: difficultyBadge from "../crop/crop-page-card.module.css";
-}
-
-.difficultyEasy {
-  composes: difficultyEasy from "../crop/crop-page-card.module.css";
-}
-
-.difficultyMedium {
-  composes: difficultyMedium from "../crop/crop-page-card.module.css";
-}
-
-.difficultyHard {
-  composes: difficultyHard from "../crop/crop-page-card.module.css";
-}
+/* 난이도 배지 → @/components/ui/difficulty-badge (색·크기 SSOT) */
 
 /* ── 주요 재배지 칩 ── */
 .detailRegions {

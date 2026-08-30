@@ -19,6 +19,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import type { FAQPage } from "schema-dts";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
+import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
 import {
   costByAge,
@@ -532,13 +533,6 @@ function SnapshotCard({
 
 /* ── 작물 카드 (모바일) — 작물 페이지 있으면 Link, 없으면 div ── */
 function CropCard({ crop }: { crop: CropCost }) {
-  const difficultyClass =
-    crop.difficulty === "쉬움"
-      ? s.difficultyEasy
-      : crop.difficulty === "보통"
-        ? s.difficultyMedium
-        : s.difficultyHard;
-
   const inner = (
     <>
       <div className={s.cropCardTop}>
@@ -555,9 +549,7 @@ function CropCard({ crop }: { crop: CropCost }) {
             {crop.name.slice(0, 1)}
           </div>
         )}
-        <span className={`${s.difficultyBadge} ${difficultyClass}`}>
-          {crop.difficulty}
-        </span>
+        <DifficultyBadge level={crop.difficulty} size="sm" />
       </div>
       <span className={s.cropCardName}>{crop.name}</span>
       <span className={s.cropCardCost}>{crop.initialCost}</span>
@@ -583,13 +575,6 @@ function CropCard({ crop }: { crop: CropCost }) {
 
 /* ── 작물 행 (데스크탑 테이블) ── */
 function CropRow({ crop }: { crop: CropCost }) {
-  const difficultyClass =
-    crop.difficulty === "쉬움"
-      ? s.difficultyEasy
-      : crop.difficulty === "보통"
-        ? s.difficultyMedium
-        : s.difficultyHard;
-
   const inner = (
     <>
       <span className={s.cropName} role="cell">
@@ -621,9 +606,7 @@ function CropRow({ crop }: { crop: CropCost }) {
         {crop.labor}
       </span>
       <span className={s.cropCell} role="cell" data-label="난이도">
-        <span className={`${s.difficultyBadge} ${difficultyClass}`}>
-          {crop.difficulty}
-        </span>
+        <DifficultyBadge level={crop.difficulty} size="sm" />
       </span>
     </>
   );

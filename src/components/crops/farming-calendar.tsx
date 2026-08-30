@@ -20,6 +20,7 @@ import {
   describeCurrentPhase,
 } from "@/lib/crops/calendar-ranges";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 import { analytics } from "@/lib/analytics";
 import s from "./farming-calendar.module.css";
 
@@ -281,12 +282,6 @@ function CropRow({
 
 // ── 확장 패널 ──
 
-const DIFFICULTY_CLASS: Record<string, string> = {
-  쉬움: s.difficultyEasy,
-  보통: s.difficultyMedium,
-  어려움: s.difficultyHard,
-};
-
 function CropDetailPanel({
   crop,
   panelId,
@@ -330,13 +325,7 @@ function CropDetailPanel({
 
             {detailed && (
               <>
-                <span
-                  className={`${s.difficultyBadge} ${
-                    DIFFICULTY_CLASS[detailed.difficulty] ?? s.difficultyMedium
-                  }`}
-                >
-                  난이도 · {detailed.difficulty}
-                </span>
+                <DifficultyBadge level={detailed.difficulty} prefix />
                 <p className={s.detailDesc}>
                   <AutoGlossary text={detailed.description} maxHighlights={2} />
                 </p>

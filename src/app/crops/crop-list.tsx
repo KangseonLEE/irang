@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import dt from "@/components/ui/data-table.module.css";
 import s from "./crop-list.module.css";
+import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 import { getCropImageSrc } from "@/lib/crop-image";
 import type { CropDifficulty } from "@/lib/data/crops";
 
@@ -21,19 +22,6 @@ export interface CropRow {
   majorRegions: string;
 }
 
-/** 난이도별 배지 색 클래스 — 쉬움(초록)·보통(앰버)·어려움(회색) */
-function difficultyClass(difficulty: CropDifficulty): string {
-  switch (difficulty) {
-    case "쉬움":
-      return s.diffEasy;
-    case "보통":
-      return s.diffMedium;
-    case "어려움":
-      return s.diffHard;
-    default:
-      return s.diffMedium;
-  }
-}
 
 /** 노동강도별 색 클래스 — 낮음(초록)·보통(앰버)·높음(회색) */
 function laborClass(intensity: CropRow["laborIntensity"]): string {
@@ -94,9 +82,7 @@ export function CropList({ rows }: CropListProps) {
                 {c.category}
               </td>
               <td data-label="난이도">
-                <span className={`${s.tag} ${difficultyClass(c.difficulty)}`}>
-                  {c.difficulty}
-                </span>
+                <DifficultyBadge level={c.difficulty} size="sm" />
               </td>
               <td data-label="예상 수익">
                 {c.income10a !== null ? (

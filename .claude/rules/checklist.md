@@ -9,6 +9,7 @@
 | 페이지 헤더 (아이콘+라벨+h1+설명+건수) | `@/components/ui/page-header` |
 | 필터 바 (pill 필터, 검색, 토글) | `@/components/filter/filter-bar` |
 | 상태 배지 (모집중/마감 등) | `@/components/ui/status-badge` |
+| 난이도 배지 (쉬움/보통/어려움) | `@/components/ui/difficulty-badge` |
 | 빈 상태 UI (dashed border + 안내문) | `@/components/ui/empty-state` |
 | 반응형 카드 그리드 (1→2→3열) | `@/components/ui/card-grid` |
 | 전문 용어 툴팁 (ha, 10a 등) | `@/components/ui/term-tooltip` |
