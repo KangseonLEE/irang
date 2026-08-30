@@ -2,20 +2,26 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
-import { Search, Plus, X, MapPin, ChevronDown, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition, Fragment } from "react";
+import { Search, Plus, X, MapPin, Loader2 } from "lucide-react";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import {
+  SelectCombobox,
+  type SelectComboboxOption,
+} from "@/components/ui/select-combobox";
 import s from "./region-cards-selector.module.css";
 
 const MAX_SELECTION = 3;
+
+/** 시군구 id → 약칭 (검색어가 "충주"처럼 약칭일 때도 잡히도록) */
+const SIGUNGU_SHORT_BY_ID = new Map(SIGUNGUS.map((sg) => [sg.id, sg.shortName]));
+
+/** SelectCombobox matchKeys — 매 렌더 새 함수가 되지 않게 모듈 스코프에 고정 */
+function sigunguMatchKeys(opt: SelectComboboxOption) {
+  const short = SIGUNGU_SHORT_BY_ID.get(opt.value);
+  return short ? [short] : [];
+}
 
 interface SearchResult {
   id: string;
@@ -65,11 +71,13 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
     latestRef.current = selectedRegionIds;
   }, [selectedRegionIds]);
 
-  const sigungusByProvince = useMemo(() => {
-    const map = new Map<string, typeof SIGUNGUS>();
+  const sigunguOptionsByProvince = useMemo(() => {
+    const map = new Map<string, SelectComboboxOption[]>();
     for (const sg of SIGUNGUS) {
-      const arr = map.get(sg.sidoId) ?? [];
-      arr.push(sg);
+      const arr = map.get(sg.sidoId) ?? [
+        { value: "", label: "전체 (시·도 단위)" },
+      ];
+      arr.push({ value: sg.id, label: sg.name });
       map.set(sg.sidoId, arr);
     }
     return map;
@@ -102,13 +110,34 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
   }, []);
 
   const trimmedQuery = query.trim().replace(/\s/g, "");
+
+  /**
+   * 항목의 선택 상태 (8/30 회장 버그 리포트: 충북=영동군 + 세종 선택 시 세종만 '선택됨').
+   * 시·도 항목은 그 시·도 전체(`chungbuk`)뿐 아니라 시·군·구까지 좁힌 선택(`chungbuk:yeongdong`)도 선택으로 본다.
+   * 시·군·구 항목은 정확히 그 시·군·구가 골라졌을 때만.
+   */
+  const selectionOf = useCallback(
+    (item: SearchResult): { selected: boolean; detail?: string } => {
+      if (item.type === "sigungu") return { selected: optimisticIds.includes(item.id) };
+      if (optimisticIds.includes(item.id)) return { selected: true };
+      const narrowed = optimisticIds.find((id) => id.startsWith(`${item.id}:`));
+      if (!narrowed) return { selected: false };
+      const sg = SIGUNGUS.find((x) => `${x.sidoId}:${x.id}` === narrowed);
+      return { selected: true, detail: sg?.name };
+    },
+    [optimisticIds],
+  );
+
   const filteredResults = useMemo<SearchResult[]>(() => {
-    if (!trimmedQuery) return searchIndex.filter((r) => r.type === "sido");
-    const lower = trimmedQuery.toLowerCase();
-    return searchIndex
-      .filter((r) => r.searchText.toLowerCase().includes(lower))
-      .slice(0, 30);
-  }, [searchIndex, trimmedQuery]);
+    const base = !trimmedQuery
+      ? searchIndex.filter((r) => r.type === "sido")
+      : searchIndex.filter((r) => r.searchText.toLowerCase().includes(trimmedQuery.toLowerCase())).slice(0, 30);
+    // 선택된 항목을 위로 (상대 순서 유지) — 키보드 highlightIdx는 이 배열 인덱스라 렌더와 항상 일치
+    const picked = base.filter((r) => selectionOf(r).selected);
+    const rest = base.filter((r) => !selectionOf(r).selected);
+    return [...picked, ...rest];
+  }, [searchIndex, trimmedQuery, selectionOf]);
+  const selectedCount = useMemo(() => filteredResults.filter((r) => selectionOf(r).selected).length, [filteredResults, selectionOf]);
 
   useEffect(() => {
     if (!isFocused) return;
@@ -291,10 +320,19 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
                 <div className={s.dropdownHint}>시·도를 고르거나, 입력해서 시·군·구까지 찾아보세요</div>
               )}
               {filteredResults.map((item, idx) => {
-                const isAlready = optimisticIds.includes(item.id);
+                const { selected: isAlready, detail } = selectionOf(item);
+                const groupHeader =
+                  selectedCount > 0 && idx === 0
+                    ? `선택된 지역 ${selectedCount}곳`
+                    : selectedCount > 0 && idx === selectedCount
+                      ? "다른 지역"
+                      : null;
                 return (
+                  <Fragment key={item.id}>
+                  {groupHeader && (
+                    <div className={s.dropdownGroup} role="presentation">{groupHeader}</div>
+                  )}
                   <button
-                    key={item.id}
                     type="button"
                     role="option"
                     aria-selected={highlightIdx === idx}
@@ -312,8 +350,11 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
                     <span className={s.dropdownItemType}>
                       {item.type === "sido" ? "시·도" : "시·군·구"}
                     </span>
-                    {isAlready && <span className={s.dropdownItemBadge}>선택됨</span>}
+                    {isAlready && (
+                      <span className={s.dropdownItemBadge}>{detail ? `선택됨 · ${detail}` : "선택됨"}</span>
+                    )}
                   </button>
+                  </Fragment>
                 );
               })}
               {filteredResults.length === 0 && trimmedQuery && (
@@ -368,7 +409,8 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
               </button>
             );
           }
-          const sigungus = sigungusByProvince.get(slot.provinceId) ?? [];
+          const sigunguOptions =
+            sigunguOptionsByProvince.get(slot.provinceId) ?? [];
           return (
             <div key={slot.id} className={s.cardFilled}>
               <span className={s.cardIndex}>{i + 1}</span>
@@ -397,23 +439,17 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
                   <span>{slot.provinceName}</span>
                 </div>
                 <div className={s.cardProvinceMain}>{slot.provinceShortName}</div>
-                {sigungus.length > 0 && (
+                {sigunguOptions.length > 1 && (
                   <div className={s.cardSelectWrap}>
-                    <select
-                      className={s.cardSelect}
+                    <SelectCombobox
+                      size="sm"
                       value={slot.sigunguId ?? ""}
-                      onChange={(e) => changeSlotSigungu(slot.id, e.target.value)}
-                      aria-label={`${slot.provinceShortName} 시·군·구 선택`}
+                      onChange={(next) => changeSlotSigungu(slot.id, next)}
+                      options={sigunguOptions}
+                      matchKeys={sigunguMatchKeys}
+                      ariaLabel={`${slot.provinceShortName} 시·군·구 선택`}
                       disabled={isPending}
-                    >
-                      <option value="">전체 (시·도 단위)</option>
-                      {sigungus.map((sg) => (
-                        <option key={sg.id} value={sg.id}>
-                          {sg.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className={s.cardSelectIcon} aria-hidden="true" />
+                    />
                   </div>
                 )}
               </div>

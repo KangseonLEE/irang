@@ -1,0 +1,230 @@
+/* ── 트리거 ── */
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  font: inherit;
+  font-weight: 500;
+  text-align: left;
+  color: var(--foreground);
+  background: var(--muted, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--radius-md, 12px);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.trigger[data-size="sm"] {
+  padding: 9px 12px;
+  min-height: 40px;
+  font-size: var(--fs-body-sm);
+  border-radius: var(--radius-sm, 8px);
+}
+
+.trigger[data-size="md"] {
+  padding: 10px 14px;
+  min-height: 44px;
+  font-size: var(--fs-body-sm);
+}
+
+.trigger[data-open] {
+  border-color: var(--primary, #1b6b5a);
+  background: var(--card, #fff);
+}
+
+.trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .trigger:not(:disabled):hover {
+    border-color: var(--primary-tint-strong, #1b6b5a66);
+  }
+}
+
+.triggerValue,
+.triggerPlaceholder {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.triggerPlaceholder {
+  color: var(--muted-foreground, #6b7280);
+  font-weight: 400;
+}
+
+.triggerIcon {
+  flex-shrink: 0;
+  color: var(--muted-foreground, #6b7280);
+  transition: transform 0.15s ease;
+  pointer-events: none;
+}
+
+.trigger[data-open] .triggerIcon {
+  transform: rotate(180deg);
+}
+
+@media (min-width: 1024px) {
+  .trigger[data-size="md"] {
+    font-size: var(--fs-body);
+  }
+}
+
+/* ── 드롭다운 패널 (document.body 포털) ──
+   top·left·width는 트리거 좌표 기준으로 JS가 계산해 주입한다. */
+.panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 300; /* Modal(200)보다 위 */
+  display: flex;
+  flex-direction: column;
+  max-height: min(340px, 60dvh);
+  padding: 6px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--radius-md, 12px);
+  box-shadow: var(--shadow-lg, 0 8px 32px rgba(27, 107, 90, 0.12));
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.panel[data-ready="true"] {
+  opacity: 1;
+}
+
+/* ── 검색 ── */
+.searchRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-bottom: 6px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  color: var(--muted-foreground, #6b7280);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 9px 12px 9px 34px;
+  font: inherit;
+  font-size: var(--fs-body-sm);
+  color: var(--foreground);
+  background: var(--muted, #f9fafb);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.searchInput::placeholder {
+  color: var(--muted-foreground, #6b7280);
+}
+
+.searchInput:focus-visible {
+  outline: none;
+  border-color: var(--primary, #1b6b5a);
+  background: var(--card, #fff);
+}
+
+/* ── 목록 ── */
+.list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.list:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.groupLabel {
+  padding: 8px 10px 4px;
+  font-size: var(--fs-caption, 12px);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  font: inherit;
+  font-size: var(--fs-body-sm);
+  text-align: left;
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
+}
+
+.option[data-active] {
+  background: var(--primary-tint-subtle, #1b6b5a0f);
+}
+
+.option[aria-selected="true"] {
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+}
+
+.option[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) {
+  .option:not([aria-disabled="true"]):hover {
+    background: var(--primary-tint-subtle, #1b6b5a0f);
+  }
+}
+
+.optionLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+.optionHint {
+  flex-shrink: 0;
+  font-size: var(--fs-caption, 12px);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.optionCheck {
+  flex-shrink: 0;
+  color: var(--primary, #1b6b5a);
+}
+
+.noResult {
+  margin: 0;
+  padding: 16px 10px;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground, #6b7280);
+  text-align: center;
+}

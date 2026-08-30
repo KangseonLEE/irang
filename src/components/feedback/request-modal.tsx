@@ -3,6 +3,10 @@
 import { useState, useCallback, useMemo } from "react";
 import { MessageSquarePlus } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
+import {
+  SelectCombobox,
+  type SelectComboboxOption,
+} from "@/components/ui/select-combobox";
 import s from "./request-modal.module.css";
 
 const MAX_MESSAGE_LENGTH = 200;
@@ -18,6 +22,11 @@ const ITEM_CATEGORIES = [
   { value: "interview", label: "인터뷰" },
   { value: "etc", label: "기타" },
 ] as const;
+
+/** SelectCombobox용 옵션 (라벨이 2~4자로 짧아 검색창은 끈다) */
+const ITEM_CATEGORY_OPTIONS: SelectComboboxOption[] = ITEM_CATEGORIES.map(
+  (opt) => ({ value: opt.value, label: opt.label }),
+);
 
 type ItemCategoryValue = (typeof ITEM_CATEGORIES)[number]["value"];
 type RequestKind = "item" | "feature";
@@ -251,24 +260,19 @@ export function RequestModal({
           {/* ── 2단계 (item일 때만): 카테고리 select ── */}
           {kind === "item" && (
             <div className={s.field}>
-              <label htmlFor="request-item-category" className={s.fieldLabel}>
+              <label id="request-item-category" className={s.fieldLabel}>
                 어떤 항목이에요?
               </label>
-              <select
-                id="request-item-category"
-                className={s.select}
+              <SelectCombobox
                 value={itemCategory}
-                onChange={(e) =>
-                  setItemCategory(e.target.value as ItemCategoryValue | "")
+                onChange={(next) =>
+                  setItemCategory(next as ItemCategoryValue | "")
                 }
-              >
-                <option value="">선택해 주세요</option>
-                {ITEM_CATEGORIES.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+                options={ITEM_CATEGORY_OPTIONS}
+                placeholder="선택해 주세요"
+                labelledBy="request-item-category"
+                searchable={false}
+              />
             </div>
           )}
 

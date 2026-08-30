@@ -84,27 +84,6 @@
   color: var(--foreground, #111827);
 }
 
-.select {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid var(--border, #e5e7eb);
-  background: var(--muted, #f9fafb);
-  color: var(--foreground, #111827);
-  font: inherit;
-  font-size: var(--fs-body, 14px);
-  border-radius: 12px;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease;
-}
-
-.select:focus {
-  outline: none;
-  border-color: var(--primary, #1b6b5a);
-  background: var(--card, #fff);
-}
-
 /* ── 텍스트 입력 ── */
 .textarea {
   width: 100%;

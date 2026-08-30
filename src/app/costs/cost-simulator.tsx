@@ -3,6 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { PiggyBank } from "lucide-react";
 import { CROPS } from "@/lib/data/crops";
+import {
+  SelectCombobox,
+  type SelectComboboxOption,
+} from "@/components/ui/select-combobox";
 import type { CostTypeId } from "@/lib/data/landing";
 import s from "./cost-simulator.module.css";
 
@@ -234,6 +238,24 @@ const CROP_OPTIONS_BY_TYPE: Record<
   smartfarm: SMARTFARM_CROP_OPTIONS,
 };
 
+/** SelectCombobox용 옵션 — 타입별로 고정이라 모듈 로드 시 1회만 만든다 */
+const CROP_SELECT_OPTIONS_BY_TYPE: Record<
+  Exclude<CostTypeId, "village">,
+  SelectComboboxOption[]
+> = {
+  farming: toSelectOptions(CROP_OPTIONS_BY_TYPE.farming),
+  youth: toSelectOptions(CROP_OPTIONS_BY_TYPE.youth),
+  forestry: toSelectOptions(CROP_OPTIONS_BY_TYPE.forestry),
+  smartfarm: toSelectOptions(CROP_OPTIONS_BY_TYPE.smartfarm),
+};
+
+function toSelectOptions(list: CropOption[]): SelectComboboxOption[] {
+  return list.map((crop) => ({
+    value: crop.id,
+    label: `${crop.emoji} ${crop.name}`,
+  }));
+}
+
 /* ────────────────────────────────────────────────────────────────
    카운트업 훅
    ──────────────────────────────────────────────────────────────── */
@@ -287,6 +309,7 @@ export default function CostSimulator({ type = "farming" }: Props) {
   const scaleOptions = SCALE_OPTIONS_BY_TYPE[safeType];
   const scaleFactors = SCALE_FACTOR_BY_TYPE[safeType];
   const cropOptions = CROP_OPTIONS_BY_TYPE[safeType];
+  const cropSelectOptions = CROP_SELECT_OPTIONS_BY_TYPE[safeType];
   const extraSupport = EXTRA_SUPPORT_BY_TYPE[safeType];
 
   const [age, setAge] = useState<AgeGroup>(safeType === "youth" ? "30대" : "40대");
@@ -356,25 +379,20 @@ export default function CostSimulator({ type = "farming" }: Props) {
         </div>
 
         <div className={s.inputGroup}>
-          <label className={s.inputLabel} htmlFor="crop-select">
+          <label className={s.inputLabel} id="crop-select-label">
             {safeType === "smartfarm"
               ? "재배 작물"
               : safeType === "forestry"
                 ? "임산물 선택"
                 : "작물 선택"}
           </label>
-          <select
-            id="crop-select"
-            className={s.select}
+          <SelectCombobox
+            className={s.cropSelect}
             value={cropId}
-            onChange={(e) => setCropId(e.target.value)}
-          >
-            {cropOptions.map((crop) => (
-              <option key={crop.id} value={crop.id}>
-                {crop.emoji} {crop.name}
-              </option>
-            ))}
-          </select>
+            onChange={setCropId}
+            options={cropSelectOptions}
+            labelledBy="crop-select-label"
+          />
         </div>
 
         <div className={s.inputGroup}>

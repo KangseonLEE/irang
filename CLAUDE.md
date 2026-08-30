@@ -241,6 +241,13 @@ API 키는 `.env.local`에서 관리한다. Vercel 환경변수에도 동일하�
 - z-index: 200, max-width: 640px, max-height: 80vh
 - **모달이 필요하면 반드시 이 컴포넌트 사용. 페이지별 모달 재구현 금지**
 
+#### SelectCombobox (`@/components/ui/select-combobox`)
+
+- 검색형 셀렉트 공통 컴포넌트 (2026-08-30). native `<select>` 사용 금지 — OS 기본 팝업이 떠 브랜드와 어긋나고 검색 불가.
+- Props: `value`, `onChange`, `options[{ value, label, hint?, group?, disabled? }]`, `ariaLabel`, `placeholder?`, `searchable?: boolean | "auto"`(기본 auto = 옵션 ≥ 8), `size?: "sm" | "md"`, `matchKeys?`(검색 대상 추가 문자열)
+- 항상 `document.body` 포털(카드 overflow·Modal z-index 200 위 300) + 트리거 좌표 기준 fixed 배치·플립·뷰포트 clamp. 키보드 ↑↓ Enter Esc Home/End, `role=combobox/listbox/option`, 모바일(hover:none)은 자동 포커스 안 함.
+- 사용처: 지역 비교 시·군·구, 비용 시뮬레이터 작물, 요청 모달 카테고리. **새 선택 UI는 반드시 이 컴포넌트.**
+
 #### formatPopulation / SEOUL_AREA_KM2 (`@/lib/format`)
 
 - `formatPopulation(pop)`: 인구수 → "123,456명" 정확한 숫자 포맷
