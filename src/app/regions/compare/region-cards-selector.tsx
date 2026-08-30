@@ -142,7 +142,8 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
       pendingTargetRef.current = newIds.join(",");
       setOptimisticIds(newIds);
       startTransition(() => {
-        router.push(qs ? `/regions/compare?${qs}` : "/regions/compare");
+        // scroll:false — 지역을 바꿔도 현재 스크롤 유지 (8/30 회장: 아래로 내려서 바꾸면 맨 위로 튐)
+        router.push(qs ? `/regions/compare?${qs}` : "/regions/compare", { scroll: false });
       });
     },
     [searchParams, router],

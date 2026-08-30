@@ -396,7 +396,7 @@ function SuggestionStrip({
           const newStations = [...currentStnIds, sg.stnId].slice(-3);
           const compareUrl = `/regions/compare?stations=${newStations.join(",")}&crop=${cropId}&tab=suitability`;
           return (
-            <Link key={sg.stnId} href={compareUrl} className={s.suggestionChip}>
+            <Link key={sg.stnId} href={compareUrl} className={s.suggestionChip} scroll={false}>
               {sg.name}
               <span className={s.suggestionChipArrow}>+비교</span>
             </Link>
