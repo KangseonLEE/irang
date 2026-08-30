@@ -17,7 +17,13 @@ async function fetchAsosJson(url: string): Promise<unknown> {
         next: { revalidate: 86400 },
         signal: AbortSignal.timeout(FETCH_TIMEOUT),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        // 8/30 라이브 진단: Vercel(icn1)에서 HTTP 400이 지속 — 키 오류(SERVICE KEY…)인지 WAF 차단인지
+        // 응답 본문 앞부분을 로그로 남긴다(키 값은 URL에만 있고 본문엔 없음). 원인 확정 후 제거.
+        const snippet = (await res.text().catch(() => "")).replace(/\s+/g, " ").slice(0, 300);
+        console.error(`[weather] HTTP ${res.status} from ASOS — body: ${snippet}`);
+        throw new Error(`HTTP ${res.status}`);
+      }
       return await res.json();
     } catch (err) {
       if (attempt === 1) throw err;
