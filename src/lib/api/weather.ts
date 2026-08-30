@@ -16,9 +16,8 @@ async function fetchAsosJson(url: string): Promise<unknown> {
       const res = await fetch(url, {
         next: { revalidate: 86400 },
         signal: AbortSignal.timeout(FETCH_TIMEOUT),
-        // 8/30: Vercel(icn1, AWS)에서 동일 URL이 400 INVALID_REQUEST_PARAMETER(code 10) — 로컬은 200.
-        // data.go.kr 게이트웨이가 클라우드 IP + 기본 UA(undici)를 파라미터 오류로 위장 차단하는 것으로 판단.
-        // 정부 사이트 봇 UA 차단은 5/25 check-policy(#53)에서도 확인 → 브라우저 UA·Accept 명시.
+        // 8/30: 브라우저 UA·Accept 명시(정부 사이트 봇 UA 차단 대비, 5/25 #53). 단 data.go.kr의 AWS 대역
+        // 차단(400 code 10)은 UA로 풀리지 않음이 실측됨 — 헤더는 무해하므로 유지.
         headers: {
           "User-Agent":
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
@@ -26,10 +25,9 @@ async function fetchAsosJson(url: string): Promise<unknown> {
         },
       });
       if (!res.ok) {
-        // 8/30 라이브 진단: Vercel(icn1)에서 HTTP 400이 지속 — 키 오류(SERVICE KEY…)인지 WAF 차단인지
-        // 응답 본문 앞부분을 로그로 남긴다(키 값은 URL에만 있고 본문엔 없음). 원인 확정 후 제거.
-        const snippet = (await res.text().catch(() => "")).replace(/\s+/g, " ").slice(0, 300);
-        console.error(`[weather] HTTP ${res.status} from ASOS — body: ${snippet}`);
+        // 8/30 확정: Vercel(AWS icn1·hnd1)에서 동일 URL·동일 키가 HTTP 400 INVALID_REQUEST_PARAMETER(code 10).
+        // 로컬(KR 가정망)은 200, 진짜 파라미터 오류는 200+resultCode 02, 잘못된 키는 403 code 30 → data.go.kr
+        // 게이트웨이의 클라우드 대역 차단(위장). 미국 러너는 403/타임아웃. 우회 인프라(API허브·프록시) 결재 대기.
         throw new Error(`HTTP ${res.status}`);
       }
       return await res.json();
@@ -75,10 +73,6 @@ export async function fetchClimateData(stnId: string): Promise<ClimateData | nul
     console.error("DATA_GO_KR_API_KEY is not set");
     return null;
   }
-  // 8/30 임시 진단(값 노출 없음): 재등록한 키가 깨끗한지 — 길이·문자 구성·앞뒤 공백/개행 여부만 기록
-  console.error(
-    `[weather] key diag len=${apiKey.length} alnum=${/^[A-Za-z0-9]+$/.test(apiKey)} trimmedLen=${apiKey.trim().length}`,
-  );
 
   const year = new Date().getFullYear();
   const today = new Date();
@@ -99,8 +93,6 @@ export async function fetchClimateData(stnId: string): Promise<ClimateData | nul
   url.searchParams.set("dataType", "JSON");
   url.searchParams.set("numOfRows", "366");
 
-  // 8/30 임시 진단: 실제 전송 URL(키 마스킹) — 로컬과 파라미터 대조
-  console.error(`[weather] url=${url.toString().replace(apiKey, "***")}`);
   try {
     const json = (await fetchAsosJson(url.toString())) as {
       response?: { body?: { items?: { item?: ASOSItem[] } } };
