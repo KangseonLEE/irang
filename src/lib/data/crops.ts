@@ -2517,7 +2517,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       { step: 1, title: "파종·육묘", period: "봄파: 2~3월, 가을파: 8~9월", description: "128공 트레이 또는 직파. 육묘 60~70일 후 본잎 3~4매 시 정식" },
       { step: 2, title: "정식·초기 관리", period: "봄파: 4~5월, 가을파: 10~11월", description: "홈 깊이 15cm에 5~7cm 간격 정식. 활착 후 중경·제초" },
       { step: 3, title: "북주기(배토)", period: "정식 후 1개월 간격 3~4회", description: "연백부 길이 확보를 위해 흙을 덮어주는 작업. 상품성을 결정하는 핵심 단계" },
-      { step: 4, title: "수확·출하", period: "정식 후 4~6개월", description: "연백부 20~25cm 이상일 때 수확. 다듬기 후 단 묶음 또는 벌크 출하" },
+      { step: 4, title: "수확·출하", period: "정식 후 4~6개월 (봄파: 10~12월, 가을파: 4~5월)", description: "연백부 20~25cm 이상일 때 수확. 다듬기 후 단 묶음 또는 벌크 출하" },
     ],
     investmentDetail: {
       initialCost: "10a당 약 100~200만 원 (종자·비료·기본 농기구)",
@@ -2677,7 +2677,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       { step: 1, title: "육묘·정식", period: "시설: 2~3월, 노지: 5월", description: "접목묘 사용 필수. 본잎 5~6매 시 정식. 지온 18℃ 이상 확보" },
       { step: 2, title: "정지·유인", period: "정식 후 2~3주", description: "덩굴 2~3줄기로 유인. 15마디 전후 착과 목표. 곁순 정리" },
       { step: 3, title: "인공수분·착과 관리", period: "정식 후 40~50일", description: "2번 암꽃에 인공수분. 착과 확인 후 1주당 1~2과 남기고 적과. 착과일 기록 필수" },
-      { step: 4, title: "수확", period: "착과 후 40~45일 (대과 기준)", description: "과경 건조·꼭지 고사·배꼽 들어감 확인 후 수확. 탄력·음향 검사 병행" },
+      { step: 4, title: "수확", period: "착과 후 40~45일 (대과 기준, 시설: 5~6월, 노지: 7~8월)", description: "과경 건조·꼭지 고사·배꼽 들어감 확인 후 수확. 탄력·음향 검사 병행" },
     ],
     investmentDetail: {
       initialCost: "시설(하우스·보온재) 10a당 2,000~3,500만 원",
@@ -2999,10 +2999,10 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       verdict: "참외는 수입 경쟁 없는 안정적 시장이 강점. 시설 투자와 기술 습득이 전제되면 고소득이 가능해요.",
     },
     cultivationSteps: [
-      { step: 1, title: "육묘·정식", period: "1~2월 (촉성재배)", description: "접목묘 사용 권장. 본잎 4~5매 시 정식. 지온 18℃ 이상 확보. 터널 이중 피복" },
+      { step: 1, title: "육묘·정식", period: "1~2월 (촉성·반촉성재배)", description: "접목묘 사용 권장. 본잎 4~5매 시 정식. 지온 18℃ 이상 확보. 터널 이중 피복" },
       { step: 2, title: "정지·유인", period: "정식 후 2~3주", description: "어미덩굴 5마디 적심 → 아들덩굴 4줄 유인. 손자덩굴에 착과" },
       { step: 3, title: "인공수분·착과", period: "정식 후 40~50일", description: "오전 9시 이전 수분. 손자덩굴 2~3마디 암꽃에 착과. 1줄기당 3~5과 남김" },
-      { step: 4, title: "수확", period: "착과 후 30~35일", description: "과피 황색 착색·향기로 수확 적기 판단. 아침 수확 후 선별·등급 포장 출하" },
+      { step: 4, title: "수확", period: "착과 후 30~35일 (촉성: 3~5월, 반촉성: 5~6월)", description: "과피 황색 착색·향기로 수확 적기 판단. 아침 수확 후 선별·등급 포장 출하" },
     ],
     investmentDetail: {
       initialCost: "시설(하우스·보온재·관수) 10a당 3,000~5,000만 원",
