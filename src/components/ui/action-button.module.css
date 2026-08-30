@@ -1,9 +1,13 @@
 /* ──────────────────────────────────────────────
-   패널·모달 하단 액션 버튼 (8/30)
+   패널·모달·페이지 하단 액션 버튼 SSOT (8/30 신설 · 8/31 확장)
 
    같은 모양의 CTA 버튼이 페이지마다 따로 정의돼 있어(ctaPrimary 9곳)
-   컴포넌트가 쓸 SSOT를 여기에 둔다. 새 패널·모달 액션은 이 클래스를
+   컴포넌트가 쓸 SSOT를 여기에 둔다. 새 패널·모달·CTA 액션은 이 클래스를
    composes 로 가져다 쓴다.
+
+   두 계열이 있다:
+   · actionPrimary / actionSecondary — 밝은 표면(카드·모달·사이드바) 위
+   · actionPrimaryOnDark / actionSecondaryOnDark — 딥그린 CTA 밴드 위(반전)
    ────────────────────────────────────────────── */
 
 .actionButton {
@@ -11,7 +15,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 11px 16px;
+  padding: 12px 16px;
   border-radius: 12px;
   font-size: var(--fs-caption);
   font-weight: 600;
@@ -48,5 +52,48 @@
   .actionSecondary:hover {
     background: var(--muted, #f5f5f5);
     border-color: color-mix(in srgb, var(--foreground, #111827) 30%, var(--border, #e5e7eb));
+  }
+}
+
+/* ── 딥그린 CTA 밴드 위 반전 버튼 ──
+   /guide · /costs · /programs/roadmap · /guides/* 하단 CTA 섹션 공용.
+   밴드 배경이 primary 계열이라 primary/secondary 색이 반전된다.
+
+   ⚠️ composes 는 2단계까지만 해석된다(Turbopack). 중간 단계(.actionOnDark)를
+   두면 .actionButton 이 유실되므로 두 변형 모두 .actionButton 을 직접 compose 한다. */
+
+.actionPrimaryOnDark {
+  composes: actionButton;
+  padding: 12px 28px;
+  min-height: 44px;
+  font-size: var(--fs-body, 1rem);
+  border: 1px solid transparent;
+  background: var(--card, #fff);
+  color: var(--primary, #1b6b5a);
+  transition: opacity 150ms;
+}
+
+.actionSecondaryOnDark {
+  composes: actionButton;
+  padding: 12px 24px;
+  min-height: 44px;
+  font-size: var(--fs-body, 1rem);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.actionPrimaryOnDark:focus-visible,
+.actionSecondaryOnDark:focus-visible {
+  outline-color: var(--card, #fff);
+}
+
+@media (hover: hover) {
+  .actionPrimaryOnDark:hover {
+    opacity: 0.9;
+  }
+
+  .actionSecondaryOnDark:hover {
+    background: rgba(255, 255, 255, 0.18);
   }
 }

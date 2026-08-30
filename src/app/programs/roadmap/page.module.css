@@ -1118,46 +1118,10 @@
 }
 
 .ctaPrimary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 24px;
-  font-size: var(--fs-body-sm, 0.875rem);
-  font-weight: 600;
-  color: var(--primary, #1b6b5a);
-  background: var(--card);
-  border-radius: 10px;
-  text-decoration: none;
-  transition: opacity 0.15s;
-}
-
-@media (min-width: 640px) {
-  .ctaPrimary { padding: 12px 28px; font-size: var(--fs-body, 1rem); }
-}
-
-@media (hover: hover) {
-  .ctaPrimary:hover { opacity: 0.9; }
+  composes: actionPrimaryOnDark from "../../../components/ui/action-button.module.css";
 }
 
 .ctaSecondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  font-size: var(--fs-body-sm, 0.875rem);
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  text-decoration: none;
-  transition: background 0.15s;
+  composes: actionSecondaryOnDark from "../../../components/ui/action-button.module.css";
 }
 
-@media (min-width: 640px) {
-  .ctaSecondary { padding: 12px 24px; font-size: var(--fs-body, 1rem); }
-}
-
-@media (hover: hover) {
-  .ctaSecondary:hover { background: rgba(255, 255, 255, 0.18); }
-}
