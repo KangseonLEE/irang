@@ -5,12 +5,13 @@
  */
 
 import { FETCH_TIMEOUT } from "./_build-phase";
+import { buildDataGoKrRequest } from "./_datagokr";
 
-const API_BASE = "https://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList";
+const ASOS_PATH = "1360000/AsosDalyInfoService/getWthrDataList";
 
 // 2026-05-12: ASOS API도 일시적 timeout/빈응답이 가끔 발생 (HIRA 패턴과 동일).
 // 누락 시 카드 자리가 통째 사라져 UX 깨짐 → 1회 retry로 transient 실패 회복.
-async function fetchAsosJson(url: string): Promise<unknown> {
+async function fetchAsosJson(url: string, extraHeaders: Record<string, string> = {}): Promise<unknown> {
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       const res = await fetch(url, {
@@ -22,6 +23,7 @@ async function fetchAsosJson(url: string): Promise<unknown> {
           "User-Agent":
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
           Accept: "application/json,text/plain,*/*",
+          ...extraHeaders,
         },
       });
       if (!res.ok) {
@@ -68,11 +70,6 @@ export interface ClimateData {
  * 특정 관측소의 당해년도 기상 데이터를 조회하여 평균/합계로 집계
  */
 export async function fetchClimateData(stnId: string): Promise<ClimateData | null> {
-  const apiKey = process.env.DATA_GO_KR_API_KEY;
-  if (!apiKey) {
-    console.error("DATA_GO_KR_API_KEY is not set");
-    return null;
-  }
 
   const year = new Date().getFullYear();
   const today = new Date();
@@ -83,18 +80,23 @@ export async function fetchClimateData(stnId: string): Promise<ClimateData | nul
   const startDt = `${year}0101`;
   const endDt = `${year}${String(yesterday.getMonth() + 1).padStart(2, "0")}${String(yesterday.getDate()).padStart(2, "0")}`;
 
-  const url = new URL(API_BASE);
-  url.searchParams.set("serviceKey", apiKey);
-  url.searchParams.set("dataCd", "ASOS");
-  url.searchParams.set("dateCd", "DAY");
-  url.searchParams.set("startDt", startDt);
-  url.searchParams.set("endDt", endDt);
-  url.searchParams.set("stnIds", stnId);
-  url.searchParams.set("dataType", "JSON");
-  url.searchParams.set("numOfRows", "366");
+  // 프록시(DATA_GO_KR_PROXY_URL) 또는 직접 호출 — _datagokr.ts 참조
+  const req = buildDataGoKrRequest(ASOS_PATH, {
+    dataCd: "ASOS",
+    dateCd: "DAY",
+    startDt,
+    endDt,
+    stnIds: stnId,
+    dataType: "JSON",
+    numOfRows: "366",
+  });
+  if (!req) {
+    console.error("DATA_GO_KR_API_KEY(or PROXY) is not set");
+    return null;
+  }
 
   try {
-    const json = (await fetchAsosJson(url.toString())) as {
+    const json = (await fetchAsosJson(req.url, req.headers)) as {
       response?: { body?: { items?: { item?: ASOSItem[] } } };
     };
     const items = json?.response?.body?.items?.item;

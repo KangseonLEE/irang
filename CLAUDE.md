@@ -153,6 +153,7 @@ API 키는 `.env.local`에서 관리한다. Vercel 환경변수에도 동일하�
 | 환경변수 | 용도 | API 파일 | 폴백 |
 |---------|------|----------|------|
 | `DATA_GO_KR_API_KEY` | data.go.kr 공통 (기상청·심평원·교육부) | `weather.ts`, `hira.ts`, `education.ts` | 정적 데이터 |
+| `DATA_GO_KR_PROXY_URL` / `DATA_GO_KR_PROXY_SECRET` | data.go.kr 프록시(CF Worker `workers/datagokr-proxy`, 8/30) — 있으면 기상청·심평원 호출을 Worker로 우회. 로컬은 미설정(직접 호출) | `_datagokr.ts` | 미설정 시 직접 호출 |
 | `KOSIS_API_KEY` | 통계청 KOSIS (인구·귀농 통계) | `kosis.ts` | `POPULATION_FALLBACK` |
 | `NAVER_CLIENT_ID` / `SECRET` | 네이버 뉴스 검색 | `news.ts` | `landing.ts` 정적 뉴스 |
 | `NEIS_API_KEY` | 교육부 NEIS (학교 목록) | Route Handler | 빈 리스트 |

@@ -1,0 +1,13 @@
+# irang — data.go.kr 프록시 Worker (2026-08-30, 회장 결재 B안)
+#
+# 배경: apis.data.go.kr 게이트웨이가 클라우드(AWS) 대역을 "INVALID_REQUEST_PARAMETER"(HTTP 400, code 10)로
+# 위장 차단 → Vercel(icn1·hnd1)에서 기상청·심평원 API 호출 불가. Cloudflare 엣지에서 대신 호출해 전달한다.
+#
+# 배포: cd workers/datagokr-proxy && npx wrangler deploy
+# 시크릿: npx wrangler secret put DATA_GO_KR_API_KEY / npx wrangler secret put PROXY_SECRET
+# 주소: workers.dev 서브도메인 사용 — 우리 존(irangfarm.com)의 WAF 룰(AWS ASN 차단·KR 외 차단)이
+#       Vercel(AWS 서울) → Worker 호출을 막지 않도록 존 밖에 둔다.
+name = "irang-datagokr-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-08-01"
+workers_dev = true

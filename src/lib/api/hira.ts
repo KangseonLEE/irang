@@ -5,21 +5,23 @@
  */
 
 import { FETCH_TIMEOUT } from "./_build-phase";
+import { buildDataGoKrRequest, isDataGoKrProxied } from "./_datagokr";
 
-const API_BASE =
-  "https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList";
+// 8/30: data.go.kr가 AWS 대역을 400(code 10)으로 위장 차단 → 프록시 스위치(_datagokr.ts)
+const HIRA_PATH = "B551182/hospInfoServicev2/getHospBasisList";
 
 // 2026-05-12: HIRA API 응답 시간 변동성 큼 (1~10s). 기본 5s timeout으로 누락 빈발.
 // 시도별 의료기관 호출은 12s + 실패 시 1회 retry 적용.
 const HIRA_FETCH_TIMEOUT = Math.max(FETCH_TIMEOUT, 12_000);
 
-async function fetchHiraJson(url: string): Promise<unknown> {
+async function fetchHiraJson(url: string, extraHeaders: Record<string, string> = {}): Promise<unknown> {
   // 1회 retry — 첫 호출 timeout/network 실패 시 한 번 더 시도
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       const res = await fetch(url, {
         next: { revalidate: 86400 },
         signal: AbortSignal.timeout(HIRA_FETCH_TIMEOUT),
+        headers: extraHeaders,
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.json();
@@ -82,19 +84,13 @@ export interface MedicalFacilityData {
  * numOfRows=1 로 호출하여 totalCount만 추출한다.
  */
 async function fetchSidoMedicalCount(
-  apiKey: string,
   sidoCd: string
 ): Promise<MedicalFacilityData | null> {
-  const url = new URL(API_BASE);
-  // serviceKey는 이미 인코딩된 상태로 전달해야 하므로 searchParams가 아닌 직접 붙이기
-  url.searchParams.set("serviceKey", apiKey);
-  url.searchParams.set("sidoCd", sidoCd);
-  url.searchParams.set("pageNo", "1");
-  url.searchParams.set("numOfRows", "1");
-  url.searchParams.set("_type", "json");
+  const req = buildDataGoKrRequest(HIRA_PATH, { sidoCd, pageNo: "1", numOfRows: "1", _type: "json" });
+  if (!req) return null;
 
   try {
-    const json = (await fetchHiraJson(url.toString())) as {
+    const json = (await fetchHiraJson(req.url, req.headers)) as {
       response?: { body?: { totalCount?: number | string } };
     };
     const totalCount = json?.response?.body?.totalCount;
@@ -122,20 +118,14 @@ async function fetchSidoMedicalCount(
  * sidoCd + sgguCd 조합으로 시군구 수준 필터링.
  */
 async function fetchSigunguMedicalCount(
-  apiKey: string,
   sidoCd: string,
   sgguCd: string
 ): Promise<MedicalFacilityData | null> {
-  const url = new URL(API_BASE);
-  url.searchParams.set("serviceKey", apiKey);
-  url.searchParams.set("sidoCd", sidoCd);
-  url.searchParams.set("sgguCd", sgguCd);
-  url.searchParams.set("pageNo", "1");
-  url.searchParams.set("numOfRows", "1");
-  url.searchParams.set("_type", "json");
+  const req = buildDataGoKrRequest(HIRA_PATH, { sidoCd, sgguCd, pageNo: "1", numOfRows: "1", _type: "json" });
+  if (!req) return null;
 
   try {
-    const json = (await fetchHiraJson(url.toString())) as {
+    const json = (await fetchHiraJson(req.url, req.headers)) as {
       response?: { body?: { totalCount?: number | string } };
     };
     const totalCount = json?.response?.body?.totalCount;
@@ -167,8 +157,7 @@ export async function fetchSigunguMedicalFacilities(
   sidoCd: string,
   sgguCd: string
 ): Promise<MedicalFacilityData | null> {
-  const apiKey = process.env.DATA_GO_KR_API_KEY;
-  if (!apiKey) {
+  if (!isDataGoKrProxied() && !process.env.DATA_GO_KR_API_KEY) {
     console.error("DATA_GO_KR_API_KEY is not set");
     return null;
   }
@@ -177,7 +166,7 @@ export async function fetchSigunguMedicalFacilities(
   const guCodes = GU_HIRA_CODES_MAP[sgguCd];
   if (guCodes) {
     const results = await Promise.allSettled(
-      guCodes.map((guCd) => fetchSigunguMedicalCount(apiKey, sidoCd, guCd))
+      guCodes.map((guCd) => fetchSigunguMedicalCount(sidoCd, guCd))
     );
 
     let total = 0;
@@ -198,7 +187,7 @@ export async function fetchSigunguMedicalFacilities(
     };
   }
 
-  return fetchSigunguMedicalCount(apiKey, sidoCd, sgguCd);
+  return fetchSigunguMedicalCount(sidoCd, sgguCd);
 }
 
 /**
@@ -208,8 +197,7 @@ export async function fetchSigunguMedicalFacilities(
 export async function fetchMedicalFacilities(
   sidoCodes: string[]
 ): Promise<MedicalFacilityData[]> {
-  const apiKey = process.env.DATA_GO_KR_API_KEY;
-  if (!apiKey) {
+  if (!isDataGoKrProxied() && !process.env.DATA_GO_KR_API_KEY) {
     console.error("DATA_GO_KR_API_KEY is not set");
     return [];
   }
@@ -218,7 +206,7 @@ export async function fetchMedicalFacilities(
   const uniqueCodes = [...new Set(sidoCodes)];
 
   const results = await Promise.allSettled(
-    uniqueCodes.map((code) => fetchSidoMedicalCount(apiKey, code))
+    uniqueCodes.map((code) => fetchSidoMedicalCount(code))
   );
 
   return results
