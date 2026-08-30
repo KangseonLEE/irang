@@ -91,6 +91,8 @@ export async function fetchClimateData(stnId: string): Promise<ClimateData | nul
   url.searchParams.set("dataType", "JSON");
   url.searchParams.set("numOfRows", "366");
 
+  // 8/30 임시 진단: 실제 전송 URL(키 마스킹) — 로컬과 파라미터 대조
+  console.error(`[weather] url=${url.toString().replace(apiKey, "***")}`);
   try {
     const json = (await fetchAsosJson(url.toString())) as {
       response?: { body?: { items?: { item?: ASOSItem[] } } };
