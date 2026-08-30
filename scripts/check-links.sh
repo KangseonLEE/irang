@@ -78,6 +78,20 @@ fetch_status() {
   fi
 }
 
+# ── 지역 차단 호스트 (2026-08-30) ──
+# GitHub Actions 러너(미국)에서는 4xx/5xx가 나지만 한국에서는 200인 것이 **같은 날 실측으로 확인된** 호스트만.
+# 이 목록의 호스트는 실패(FAIL)가 아니라 GEO 경고로 집계한다 — 8/30 #118 오탐(goryeong 404·fbo 502, KR 200).
+# 추가 규칙: 한국에서 curl 200 + 본문 키워드 확인 후에만 등록. 추측 등록 금지.
+GEO_WARN_HOSTS="goryeong.go.kr fbo.or.kr goesan.go.kr"
+
+is_geo_host() {
+  local d="$1"
+  for h in $GEO_WARN_HOSTS; do
+    [ "$d" = "$h" ] && return 0
+  done
+  return 1
+}
+
 check_url() {
   local id="$1"
   local url="$2"
@@ -113,6 +127,12 @@ check_url() {
     TIMEOUT=$((TIMEOUT + 1))
     TIMEOUT_RESULTS="${TIMEOUT_RESULTS}\n  ⏱ TIMEOUT: ${source}/${id} — ${url}"
     TIMEOUT_BODY="${TIMEOUT_BODY}| \`${source}/${id}\` | TIMEOUT | ${url} |\n"
+  elif is_geo_host "$domain"; then
+    # 지역 차단 호스트의 4xx/5xx — 경고 집계(타임아웃과 같은 취급). 한국에서 재확인 필요 표시.
+    echo -e "  ${YELLOW}⚠${NC} ${code} GEO | ${source}/${id} | ${domain} (러너 지역 차단 가능 — 한국에서 재확인)"
+    TIMEOUT=$((TIMEOUT + 1))
+    TIMEOUT_RESULTS="${TIMEOUT_RESULTS}\n  ⚠ ${code} GEO: ${source}/${id} — ${url}"
+    TIMEOUT_BODY="${TIMEOUT_BODY}| \`${source}/${id}\` | ${code} (지역 차단 의심) | ${url} |\n"
   else
     echo -e "  ${RED}✗${NC} ${code} | ${source}/${id} | ${domain}"
     FAIL=$((FAIL + 1))
@@ -145,17 +165,20 @@ echo ""
 # ── 교육 URL 추출 및 체크 ──
 echo -e "${CYAN}▸ 교육 (education)${NC}"
 
-while IFS= read -r line; do
-  if echo "$line" | grep -q 'id:'; then
-    current_id=$(echo "$line" | sed 's/.*id: "\([^"]*\)".*/\1/')
+# programs와 동일한 엔트리 단위 파싱 (8/30) — `url:` 줄바꿈·중첩 객체(`sourceUrl`·`applyUrl` 등)에 흔들리지 않게
+# 엔트리의 첫 `url: "http…"`만 검사 대상으로 잡는다.
+while IFS=$'\t' read -r current_id url; do
+  if [ -n "$current_id" ] && [ -n "$url" ]; then
+    check_url "$current_id" "$url" "education"
   fi
-  if echo "$line" | grep -q 'url:.*http'; then
-    url=$(echo "$line" | sed 's/.*url: "\([^"]*\)".*/\1/')
-    if [ -n "$url" ] && [ "$url" != "" ]; then
-      check_url "$current_id" "$url" "education"
-    fi
-  fi
-done < "$EDUCATION_FILE"
+done < <(perl -0777 -ne '
+  for my $chunk (split /(?=\bid:\s*"ED-)/, $_) {
+    next unless $chunk =~ /\bid:\s*"(ED-[^"]+)"/;
+    my $id = $1;
+    next unless $chunk =~ /\burl:\s*"(https?:[^"]+)"/;
+    print "$id\t$1\n";
+  }
+' "$EDUCATION_FILE")
 
 echo ""
 
