@@ -58,7 +58,7 @@ const SIDO_NAME_MAP: Record<string, string> = {
  * HIRA는 구별로 sgguCd가 다르므로 시 전체 의료기관 수를 얻으려면
  * 각 구의 totalCount를 합산해야 한다.
  */
-const GU_HIRA_CODES_MAP: Record<string, string[]> = {
+export const GU_HIRA_CODES_MAP: Record<string, string[]> = {
   "310604": ["310601", "310602", "310603", "310604"], // 수원시 (권선·장안·팔달·영통)
   "310403": ["310401", "310402", "310403"],           // 성남시 (수정·중원·분당)
   "310702": ["310701", "310702"],                     // 안양시 (만안·동안)

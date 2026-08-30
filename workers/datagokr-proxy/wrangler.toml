@@ -11,3 +11,12 @@ name = "irang-datagokr-proxy"
 main = "src/index.ts"
 compatibility_date = "2026-08-01"
 workers_dev = true
+
+# KV 전역 캐시 (8/30): 엣지 Cache API는 PoP별이라 첫 사용자마다 콜드. HIRA는 콜드 7~13초라 KV로 전역 공유.
+[[kv_namespaces]]
+binding = "DATAGOKR_CACHE"
+id = "97e7b7bface74869b253335fa319fbe8"
+
+# 매일 예열: hira-warm-list.json(앱이 실제 호출하는 sidoCd/sgguCd 조합)을 40건씩 순환 (Free 플랜 서브요청 50/호출 상한)
+[triggers]
+crons = ["*/5 20-21 * * *"]
