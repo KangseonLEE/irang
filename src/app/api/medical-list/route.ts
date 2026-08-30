@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { buildDataGoKrRequest } from "@/lib/api/_datagokr";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -44,8 +45,8 @@ interface MedicalItem {
   tel: string; // 전화번호
 }
 
-const API_BASE =
-  "https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList";
+// 8/30: data.go.kr가 AWS 대역을 400(code 10)으로 위장 차단 → 프록시 스위치(_datagokr.ts) 경유
+const HIRA_PATH = "B551182/hospInfoServicev2/getHospBasisList";
 
 /** 의료기관 종별 우선순위 (큰 병원 → 작은 의원) */
 const TYPE_PRIORITY: Record<string, number> = {
@@ -111,26 +112,21 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const apiKey = process.env.DATA_GO_KR_API_KEY;
-  if (!apiKey) {
+  const params: Record<string, string> = { sidoCd, pageNo: page, numOfRows: "30", _type: "json" };
+  if (sgguCd) params.sgguCd = sgguCd;
+  const req = buildDataGoKrRequest(HIRA_PATH, params);
+  if (!req) {
     return NextResponse.json(
       { error: "API key not configured" },
       { status: 500 }
     );
   }
 
-  const url = new URL(API_BASE);
-  url.searchParams.set("serviceKey", apiKey);
-  url.searchParams.set("sidoCd", sidoCd);
-  if (sgguCd) url.searchParams.set("sgguCd", sgguCd);
-  url.searchParams.set("pageNo", page);
-  url.searchParams.set("numOfRows", "30");
-  url.searchParams.set("_type", "json");
-
   try {
-    const res = await fetch(url.toString(), {
+    const res = await fetch(req.url, {
       signal: AbortSignal.timeout(10_000),
       next: { revalidate: 86400 },
+      headers: req.headers,
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
