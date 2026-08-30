@@ -152,7 +152,7 @@ export function GovSupportGuide() {
           </p>
         </div>
         <div className={s.headerRight}>
-          <Link href="/programs" className={s.viewAll}>
+          <Link href="/programs" className={s.viewAll} data-track="guide:view_all">
             전체 보기 <ArrowRight size={14} />
           </Link>
           <div className={s.controls}>
@@ -177,6 +177,7 @@ export function GovSupportGuide() {
           <Link
             key={g.title}
             href={g.href}
+            data-track={`guide:${g.href}`}
             className={`${s.card} ${flipped === i ? s.cardFlipped : ""}`}
             style={{ "--card-color": g.color } as React.CSSProperties}
             onClick={(e) => {

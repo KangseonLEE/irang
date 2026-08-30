@@ -303,7 +303,7 @@ export function TrendCostSection() {
             </h2>
             <p className={s.subtitle}>{trend.subtitle}</p>
           </div>
-          <Link href={trend.href} className={s.moreLink}>
+          <Link href={trend.href} className={s.moreLink} data-track="trend:more">
             자세히 보기 <IconWrap icon={ArrowRight} size="sm" />
           </Link>
         </div>
@@ -377,7 +377,7 @@ export function TrendCostSection() {
               {cost.headline} <em>{cost.em}</em>
             </h3>
             <p className={s.costDesc}>{cost.desc}</p>
-            <Link href={`/costs?type=${cost.id}`} className={s.costCta}>
+            <Link href={`/costs?type=${cost.id}`} className={s.costCta} data-track={`cost:${cost.id}`}>
               비용 가이드 보기 <ArrowRight size={15} />
             </Link>
             <span className={s.costSource}>출처: {cost.source}</span>

@@ -157,6 +157,19 @@ export const analytics = {
   externalClick: (url: string) =>
     trackEvent({ action: "external_click", category: "outbound", label: url }),
 
+  // -- Landing IA 계측 (2026-08-30, 회장 지시 "사용자 패턴 분석 후 랜딩 구조 변경") --
+  // 하루 1~2건 규모의 검색·진단 로그로는 정보 구조를 판단할 수 없어, 섹션 단위 노출·클릭을 GA4에 쌓는다.
+  // 4~8주 뒤 GA4 탐색(Explorations)에서 landing_section_view 도달률 → landing_cta_click 전환으로 순서 재편 근거를 만든다.
+  /** 랜딩 섹션이 뷰포트 50% 이상 노출됐을 때 1회 (ScrollReveal trackId) */
+  landingSectionView: (sectionId: string) =>
+    trackEvent({ action: "landing_section_view", category: "landing", label: sectionId }),
+  /** 랜딩 내 [data-track="section:target"] 클릭 (LandingClickTracker 위임) */
+  landingCtaClick: (track: string) =>
+    trackEvent({ action: "landing_cta_click", category: "landing", label: track }),
+  /** 랜딩 지원사업 탭 전환 (active | deadline | ongoing) */
+  programsTabSwitch: (tab: string) =>
+    trackEvent({ action: "programs_tab_switch", category: "landing", label: tab }),
+
   // -- CTA clicks --
   ctaClick: (ctaName: string) =>
     trackEvent({

@@ -13,6 +13,7 @@ export function SurveyCta() {
       <button
         type="button"
         className={s.ctaSurvey}
+        data-track="bottom_cta:survey"
         onClick={() => setOpen(true)}
       >
         <span className={s.ctaSurveyInner}>

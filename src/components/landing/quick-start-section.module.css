@@ -1,0 +1,240 @@
+/* ══════════════════════════════════════════
+   홈 "바로 시작" 섹션 (8/30 가설 B')
+   ── 모바일: 세로 스택 (진단 카드 → 지역 진입)
+      데스크탑(≥1024px): 2단 (좌 진단 카드 / 우 지역 진입)
+   ── 좌측은 카드 1장(radius 20px), 우측은 pill 칩 클러스터
+   ── 장식(도트·원형·잎·세로선) 없음. 타이포·여백으로만 구성
+   ── 선언순: 기본(모바일) → @media (min-width: …) (체크리스트 G)
+   ══════════════════════════════════════════ */
+
+.section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .section { gap: 32px; }
+}
+
+@media (min-width: 1024px) {
+  .section {
+    grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+    gap: 48px;
+  }
+}
+
+/* ══ 좌 — 진단 카드 ══ */
+.assessCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 24px 20px;
+  border-radius: 20px;
+  background: var(--card, #fff);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  box-shadow:
+    0 1px 2px rgba(27, 107, 90, 0.04),
+    0 8px 32px rgba(27, 107, 90, 0.05);
+}
+
+@media (min-width: 640px) {
+  .assessCard { padding: 32px 28px; gap: 12px; }
+}
+
+@media (min-width: 1024px) {
+  .assessCard { padding: 36px 32px; }
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  letter-spacing: 0.02em;
+  width: fit-content;
+}
+
+.assessTitle {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  color: var(--foreground, #111827);
+  letter-spacing: -0.04em;
+  line-height: var(--lh-tight);
+}
+
+@media (min-width: 640px) {
+  .assessTitle { font-size: var(--fs-h2); }
+}
+
+.assessDesc {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-normal);
+}
+
+.assessCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 12px 20px;
+  border-radius: 20px;
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .assessCta { margin-top: 8px; padding: 14px 24px; font-size: var(--fs-body); }
+}
+
+@media (hover: hover) {
+  .assessCta:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 88%, #000);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.assessCta:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 3px;
+}
+
+/* ══ 우 — 지역 진입 ══ */
+.regionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.regionLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--fs-h4);
+  font-weight: 800;
+  color: var(--foreground, #111827);
+  letter-spacing: -0.03em;
+  line-height: var(--lh-tight);
+}
+
+@media (min-width: 640px) {
+  .regionLabel { font-size: var(--fs-h3); }
+}
+
+.regionLabelIcon {
+  color: var(--primary, #1b6b5a);
+}
+
+.regionDesc {
+  margin: 0;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-normal);
+}
+
+/* ── 시·도 pill 칩 클러스터 ── */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+@media (min-width: 640px) {
+  .chips { gap: 10px; }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .chip { padding: 9px 16px; font-size: var(--fs-body-sm); }
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    border-color: var(--primary, #1b6b5a);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ── 보조 링크 (비교 · 순위) ── */
+.subLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 14px;
+}
+
+@media (min-width: 640px) {
+  .subLinks { margin-top: 18px; }
+}
+
+.subLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 2px;
+  border-radius: 6px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+@media (min-width: 640px) {
+  .subLink { font-size: var(--fs-body-sm); }
+}
+
+@media (hover: hover) {
+  .subLink:hover {
+    color: color-mix(in srgb, var(--primary, #1b6b5a) 80%, #000);
+  }
+}
+
+.subLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}

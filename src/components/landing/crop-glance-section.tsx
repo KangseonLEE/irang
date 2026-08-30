@@ -76,7 +76,7 @@ export function CropGlanceSection() {
           </h2>
           <p className={s.sub}>연소득이 높은 작물부터 정리했어요</p>
         </div>
-        <Link href="/crops" className={s.headerLink}>
+        <Link href="/crops" className={s.headerLink} data-track="crops:view_all">
           전체 작물 <ArrowRight size={16} aria-hidden="true" />
         </Link>
       </div>
@@ -86,6 +86,7 @@ export function CropGlanceSection() {
           <Link
             key={crop.id}
             href={`/crops/${crop.id}`}
+            data-track="crops:card"
             className={s.rankCard}
             data-rank={i + 1}
           >
@@ -121,11 +122,11 @@ export function CropGlanceSection() {
 
         {/* 딥링크 2종 — 그리드 하단 풀폭, 항상 가로 2열, 1줄 텍스트 */}
         <div className={s.links}>
-          <Link href="/crops?sort=income" className={s.deepLink}>
+          <Link href="/crops?sort=income" className={s.deepLink} data-track="crops:deep_income">
             <span className={s.deepLinkTitle}>수익 높은 작물</span>
             <ArrowRight size={15} className={s.deepArrow} aria-hidden="true" />
           </Link>
-          <Link href="/crops?difficulty=쉬움" className={s.deepLink}>
+          <Link href="/crops?difficulty=쉬움" className={s.deepLink} data-track="crops:deep_easy">
             <span className={s.deepLinkTitle}>초보 추천 작물</span>
             <ArrowRight size={15} className={s.deepArrow} aria-hidden="true" />
           </Link>

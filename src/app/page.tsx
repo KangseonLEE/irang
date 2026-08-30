@@ -18,6 +18,8 @@ import HeroSearch from "@/components/search/hero-search";
 import { TrendingSearches } from "@/components/landing/trending-searches";
 import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
+import { QuickStartSection } from "@/components/landing/quick-start-section";
+import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
 import { ScrollIndicator } from "@/components/landing/scroll-indicator";
 import { ProgramsSection } from "@/components/landing/programs-section";
@@ -108,6 +110,8 @@ export default function HomePage() {
 
   return (
     <div className={s.page}>
+      {/* 랜딩 IA 계측 (8/30): [data-track] 클릭 위임 + ScrollReveal trackId 섹션 노출 → GA4 */}
+      <LandingClickTracker />
 
       {/* ═══ 1. 히어로 ═══ */}
       <section className={s.heroSection} aria-label="검색">
@@ -166,7 +170,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ 2. 농촌으로 간 사람들의 이야기 (다크 배경) ═══ */}
-      <ScrollReveal>
+      <ScrollReveal trackId="interviews">
         <div className={s.darkBg}>
           <section className={s.interviewSection} aria-label="인터뷰">
             <div className={s.interviewHeader}>
@@ -179,7 +183,7 @@ export default function HomePage() {
                   도시를 떠나 새로운 삶을 시작한 사람들이에요
                 </p>
               </div>
-              <Link href="/interviews" className={s.interviewHeaderLink}>
+              <Link href="/interviews" className={s.interviewHeaderLink} data-track="interviews:view_all">
                 모두 보기 <IconWrap icon={ArrowRight} size="sm" />
               </Link>
             </div>
@@ -188,23 +192,28 @@ export default function HomePage() {
         </div>
       </ScrollReveal>
 
+      {/* ═══ 2-2. 바로 시작 — 진단 CTA + 지역 진입 (8/30 가설 B') ═══ */}
+      <ScrollReveal trackId="quickstart">
+        <QuickStartSection />
+      </ScrollReveal>
+
       {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}
-      <ScrollReveal>
+      <ScrollReveal trackId="trend_cost">
         <TrendCostSection />
       </ScrollReveal>
 
       {/* ═══ 4-2 + 5. 작물 한눈에 + 농촌 정착 길잡이 (연한 그린 배경) ═══ */}
       <div className={s.lightGreenBg}>
-        <ScrollReveal>
+        <ScrollReveal trackId="crops">
           <CropGlanceSection />
         </ScrollReveal>
-        <ScrollReveal>
+        <ScrollReveal trackId="guide">
           <GovSupportGuide />
         </ScrollReveal>
       </div>
 
       {/* ═══ 6. 지원사업 (진행·예정 + 마감 임박 + 상시·연중 탭) ═══ */}
-      <ScrollReveal>
+      <ScrollReveal trackId="programs">
         <ProgramsSection
           activePrograms={activePrograms}
           deadlinePrograms={deadlinePrograms}
@@ -214,7 +223,7 @@ export default function HomePage() {
 
       {/* ═══ 6+7. 뉴스 → CTA (여백 없이 연결) ═══ */}
       <div className={s.bottomGroup}>
-        <ScrollReveal>
+        <ScrollReveal trackId="news">
           <div className={s.mutedBg}>
             <section className={s.newsSection} aria-label="농촌 소식">
               <div className={s.sectionHeader}>
@@ -230,7 +239,7 @@ export default function HomePage() {
           </div>
         </ScrollReveal>
 
-        <ScrollReveal>
+        <ScrollReveal trackId="bottom_cta">
           <section className={s.bottomCta} aria-label="다음 단계 선택">
             {/* 좌측 텍스트 블록 */}
             <div className={s.ctaTextBlock}>
@@ -248,7 +257,7 @@ export default function HomePage() {
 
             {/* 우측 카드 그리드 */}
             <div className={s.ctaPaths}>
-              <Link href="/guide" className={s.ctaPath}>
+              <Link href="/guide" className={s.ctaPath} data-track="bottom_cta:guide">
                 <span className={s.ctaPathNumber}>01</span>
                 <span className={s.ctaPathLabel}>정보 탐색</span>
                 <span className={s.ctaPathDesc}>
@@ -261,7 +270,7 @@ export default function HomePage() {
                   </span>
                 </span>
               </Link>
-              <Link href="/match" className={s.ctaPath}>
+              <Link href="/match" className={s.ctaPath} data-track="bottom_cta:match">
                 <span className={s.ctaPathNumber}>02</span>
                 <span className={s.ctaPathLabel}>적합도 진단</span>
                 <span className={s.ctaPathDesc}>

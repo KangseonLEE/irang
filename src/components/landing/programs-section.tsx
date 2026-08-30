@@ -8,6 +8,7 @@ import { useDragScroll } from "@/lib/hooks/use-drag-scroll";
 import type { SupportProgram } from "@/lib/data/programs";
 import { ALWAYS_OPEN, type ProgramStatus } from "@/lib/program-status";
 import { formatAgeRange } from "@/lib/format";
+import { analytics } from "@/lib/analytics";
 import s from "./programs-section.module.css";
 
 type Tab = "active" | "deadline" | "ongoing";
@@ -78,6 +79,7 @@ export function ProgramsSection({ activePrograms, deadlinePrograms, ongoingProgr
 
   const switchTab = (next: Tab) => {
     if (next === tab) return;
+    analytics.programsTabSwitch(next);
     setAnimating(true);
     requestAnimationFrame(() => {
       setTimeout(() => {
@@ -109,7 +111,7 @@ export function ProgramsSection({ activePrograms, deadlinePrograms, ongoingProgr
             지금 신청할 수 있는 <em>지원사업</em>
           </h2>
         </div>
-        <Link href="/programs" className={s.viewAll}>
+        <Link href="/programs" className={s.viewAll} data-track="programs:view_all">
           전체 보기 <IconWrap icon={ArrowRight} size="sm" />
         </Link>
       </div>
@@ -160,6 +162,7 @@ export function ProgramsSection({ activePrograms, deadlinePrograms, ongoingProgr
                 <Link
                   key={p.id}
                   href={`/programs/${p.id}`}
+                  data-track={`programs:card:${tab}`}
                   className={`${s.card} ${isDeadline ? s.cardDeadline : ""}`}
                 >
                   <div className={s.cardTopRow}>
