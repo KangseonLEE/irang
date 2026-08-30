@@ -16,6 +16,14 @@ async function fetchAsosJson(url: string): Promise<unknown> {
       const res = await fetch(url, {
         next: { revalidate: 86400 },
         signal: AbortSignal.timeout(FETCH_TIMEOUT),
+        // 8/30: Vercel(icn1, AWS)에서 동일 URL이 400 INVALID_REQUEST_PARAMETER(code 10) — 로컬은 200.
+        // data.go.kr 게이트웨이가 클라우드 IP + 기본 UA(undici)를 파라미터 오류로 위장 차단하는 것으로 판단.
+        // 정부 사이트 봇 UA 차단은 5/25 check-policy(#53)에서도 확인 → 브라우저 UA·Accept 명시.
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+          Accept: "application/json,text/plain,*/*",
+        },
       });
       if (!res.ok) {
         // 8/30 라이브 진단: Vercel(icn1)에서 HTTP 400이 지속 — 키 오류(SERVICE KEY…)인지 WAF 차단인지
