@@ -102,6 +102,12 @@ check_url() {
   local code
   code=$(fetch_status "$url")
 
+  # 지역 차단 호스트가 4xx/5xx면 재시도해도 같은 결과 — 최대 ~2분 낭비를 막는다 (8/30, 15분 job timeout 원인 일부)
+  local domain_early
+  domain_early=$(echo "$url" | sed 's|https\{0,1\}://\([^/]*\).*|\1|' | sed 's/^www\.//')
+  if [ "$code" != "000" ] && is_geo_host "$domain_early" && [ "$code" -ge 400 ] 2>/dev/null; then
+    :
+  else
   # 1차 실패(000/4xx/5xx) 시 2회까지 재시도 — 일시적 네트워크 흔들림 + GitHub runner IP 차단 대응
   # 백오프: 3s → 8s (서버 rate limit·DDoS 보호 회피)
   if [ "$code" = "000" ] || { [ "$code" -ge 400 ] 2>/dev/null && [ "$code" -lt 600 ] 2>/dev/null; }; then
@@ -114,6 +120,7 @@ check_url() {
   if [ "$code" = "000" ] || { [ "$code" -ge 400 ] 2>/dev/null && [ "$code" -lt 600 ] 2>/dev/null; }; then
     sleep 8
     code=$(fetch_status "$url" 60)
+  fi
   fi
 
   local domain

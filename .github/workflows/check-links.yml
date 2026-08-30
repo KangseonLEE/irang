@@ -21,7 +21,8 @@ jobs:
   check-links:
     name: 외부 URL 헬스체크
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # 8/30: 56개 URL × 최대 3회 재시도(30s+30s+60s)가 US 러너에서 15분을 넘겨 8/29·8/30 cancelled → 30분
+    timeout-minutes: 30
 
     steps:
       - name: 저장소 체크아웃
