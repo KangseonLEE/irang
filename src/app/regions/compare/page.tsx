@@ -6,7 +6,8 @@ import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { RegionCardsSelector } from "./region-cards-selector";
-import { CompareTabs, TAB_IDS, type TabId } from "./compare-tabs";
+import { CompareTabs } from "./compare-tabs";
+import { TAB_IDS, type TabId } from "./compare-tab-ids";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { DesktopHint } from "@/components/ui/desktop-hint";
 import { CompareDataSkeleton } from "./compare-data-skeleton";
@@ -103,6 +104,8 @@ export default async function RegionsPage({ searchParams }: PageProps) {
       {hasSelection && (
         <>
           <CompareTabs activeTab={tab} baseQuery={baseQuery} />
+          {/* 모바일 탭 클릭 시 스크롤 목적지 (compare-tabs.tsx) — 작물 적합성은 여기 바로 아래가 작물 검색창 */}
+          <div id="compare-content" />
           <Suspense key={tab} fallback={<CompareDataSkeleton />}>
             {tab === "climate" && (
               <ClimateView regions={regions} year={year} />

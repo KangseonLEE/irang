@@ -60,3 +60,20 @@
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
 }
+
+/* 모바일 (8/30): 탭 3개("기후 / 생활 인프라 / 작물 적합성") 내용 폭 353px이 360·375 뷰포트 컨테이너(326·341)를
+   넘겨 세 번째 탭 오른쪽이 잘렸음. 패딩·간격을 줄이고 탭을 균등 분할해 항상 컨테이너 안에 맞춘다. */
+@media (max-width: 479px) {
+  .tabsWrap {
+    gap: 4px;
+    padding: 6px;
+  }
+  .tab,
+  .tabActive {
+    flex: 1 1 0;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 6px;
+    font-size: var(--fs-caption);
+  }
+}
