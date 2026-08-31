@@ -219,6 +219,12 @@ function SearchPageContent() {
 
   return (
     <div className={s.page}>
+      {/* 뒤로가기 */}
+      <Link href="/" className={s.backLink}>
+        <ArrowLeft size={16} />
+        홈으로 돌아가기
+      </Link>
+
       {/* 검색바 */}
       <div className={s.searchWrap}>
         <SearchPageSearchBar />
@@ -471,12 +477,6 @@ function SearchPageContent() {
           </div>
         </div>
       )}
-
-      {/* 뒤로가기 */}
-      <Link href="/" className={s.backLink}>
-        <ArrowLeft size={16} />
-        홈으로 돌아가기
-      </Link>
     </div>
   );
 }
