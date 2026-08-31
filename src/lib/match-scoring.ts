@@ -20,7 +20,18 @@ import {
    1. 정착 유형 분류
    ══════════════════════════════════════════════ */
 
-/** 답변 조합으로 정착 유형(정부 트랙) 점수 산출 */
+/**
+ * 답변 조합으로 정착 유형(정부 트랙) 점수 산출
+ *
+ * 가중치 재조정 (2026-08-31 회장 결재):
+ * 기존 매트릭스는 guinong이 36개 선택지 중 24개에서 잔점수(+1~2)를 받아
+ * 균등 랜덤 시뮬레이션에서 60%가 귀농형으로 수렴했고, cheongnyeon은
+ * youth 가산 +6으로도 farming 답변의 guinong +5 누적을 못 넘어 10,000회 중
+ * 1회만 도달. 재조정 원칙:
+ *  · guinong 가점은 "농업을 업으로 삼는 신호"(작물·농지·소득원·경험)에만 부여
+ *  · 기후·가족 구성 등 유형과 무관한 문항의 guinong 동반 가산 제거
+ *  · youth 가산 +6 → +8, 저예산·1~3년 준비 등 청년 전형 답변에 가산 보강
+ */
 export function classifyFarmType(
   answers: Answers,
   ageGroup?: string,
@@ -35,16 +46,16 @@ export function classifyFarmType(
 
   // 기후
   for (const ans of answers.climate || []) {
-    if (ans === "warm") { scores.guinong += 2; scores.guichon += 1; }
-    if (ans === "four-season") { scores.smartfarm += 2; scores.guichon += 1; scores.guinong += 1; }
-    if (ans === "cool") { scores.guisanchon += 3; scores.guinong += 1; }
+    if (ans === "warm") { scores.guinong += 1; scores.guichon += 1; }
+    if (ans === "four-season") { scores.smartfarm += 1; scores.guichon += 1; }
+    if (ans === "cool") { scores.guisanchon += 3; }
   }
 
   // 우선순위 (복수 선택)
   for (const ans of answers.priority || []) {
-    if (ans === "nature") { scores.guisanchon += 3; scores.guinong += 1; }
+    if (ans === "nature") { scores.guisanchon += 3; scores.guichon += 1; }
     if (ans === "access") { scores.guichon += 3; scores.smartfarm += 1; }
-    if (ans === "support") { scores.cheongnyeon += 2; scores.guinong += 2; }
+    if (ans === "support") { scores.cheongnyeon += 3; scores.guinong += 2; }
     if (ans === "market") { scores.smartfarm += 3; scores.cheongnyeon += 2; }
   }
 
@@ -59,21 +70,21 @@ export function classifyFarmType(
   // 생활환경
   for (const ans of answers.lifestyle || []) {
     if (ans === "near-city") { scores.guichon += 4; scores.smartfarm += 1; }
-    if (ans === "moderate") { scores.guinong += 2; scores.cheongnyeon += 2; }
-    if (ans === "rural") { scores.guinong += 3; scores.guisanchon += 2; }
+    if (ans === "moderate") { scores.cheongnyeon += 2; scores.guinong += 1; scores.guichon += 1; }
+    if (ans === "rural") { scores.guinong += 2; scores.guisanchon += 2; }
   }
 
   // 경험
   for (const ans of answers.experience || []) {
     if (ans === "none") { scores.guichon += 2; scores.cheongnyeon += 1; }
-    if (ans === "some") { scores.guinong += 2; scores.smartfarm += 1; }
+    if (ans === "some") { scores.guinong += 1; scores.smartfarm += 1; }
     if (ans === "experienced") { scores.guinong += 3; scores.cheongnyeon += 2; }
   }
 
   // 예산
   for (const ans of answers.budget || []) {
-    if (ans === "under-30m") { scores.guichon += 2; scores.guisanchon += 1; }
-    if (ans === "30m-100m") { scores.guinong += 2; scores.cheongnyeon += 1; }
+    if (ans === "under-30m") { scores.guichon += 2; scores.guisanchon += 1; scores.cheongnyeon += 1; }
+    if (ans === "30m-100m") { scores.cheongnyeon += 2; scores.guinong += 1; }
     if (ans === "100m-300m") { scores.guinong += 3; scores.smartfarm += 1; }
     if (ans === "over-300m") { scores.smartfarm += 4; scores.guinong += 1; }
   }
@@ -81,15 +92,15 @@ export function classifyFarmType(
   // 가족 구성
   for (const ans of answers.household || []) {
     if (ans === "solo") { scores.cheongnyeon += 2; scores.guisanchon += 1; }
-    if (ans === "couple") { scores.guinong += 2; scores.guichon += 1; }
-    if (ans === "family-kids") { scores.guichon += 3; scores.guinong += 1; }
-    if (ans === "family-parents") { scores.guichon += 2; scores.guinong += 1; }
+    if (ans === "couple") { scores.guinong += 1; scores.guichon += 1; }
+    if (ans === "family-kids") { scores.guichon += 3; }
+    if (ans === "family-parents") { scores.guichon += 2; }
   }
 
   // 타임라인
   for (const ans of answers.timeline || []) {
     if (ans === "within-1y") { scores.guinong += 2; scores.cheongnyeon += 1; }
-    if (ans === "1-3y") { scores.smartfarm += 1; scores.guinong += 1; }
+    if (ans === "1-3y") { scores.smartfarm += 1; scores.cheongnyeon += 1; }
     if (ans === "over-3y") { scores.guichon += 2; }
   }
 
@@ -101,17 +112,17 @@ export function classifyFarmType(
     if (ans === "smart-agri") { scores.smartfarm += 6; scores.cheongnyeon += 2; }
   }
 
-  // ── 신규 질문: 정착 환경 ──
+  // 정착 환경 (핵심 분류 기준)
   for (const ans of answers["settlement-type"] || []) {
-    if (ans === "farmland") { scores.guinong += 4; }
+    if (ans === "farmland") { scores.guinong += 4; scores.cheongnyeon += 1; }
     if (ans === "town") { scores.guichon += 4; }
     if (ans === "mountain") { scores.guisanchon += 5; }
-    if (ans === "smart-complex") { scores.smartfarm += 5; }
+    if (ans === "smart-complex") { scores.smartfarm += 5; scores.cheongnyeon += 1; }
   }
 
   // 연령 보정: 청년(≤39)이면 청년농 가산
   if (ageGroup === "youth") {
-    scores.cheongnyeon += 6;
+    scores.cheongnyeon += 8;
   }
 
   // 최고 점수 유형 반환

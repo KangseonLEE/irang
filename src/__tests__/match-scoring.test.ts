@@ -65,6 +65,85 @@ describe("classifyFarmType", () => {
     expect(["cheongnyeon", "guinong", "smartfarm"]).toContain(result.id);
   });
 
+  // ── 아키타입 회귀 (2026-08-31 가중치 재조정) ──
+  // 10문항 전체를 성향대로 답했을 때 기대 유형이 나와야 한다.
+  // 재조정 배경: 구 매트릭스는 균등 랜덤 60%가 귀농형, 청년농형은 사실상 도달 불가.
+
+  const FULL_ARCHETYPES: {
+    name: string;
+    answers: Answers;
+    ageGroup?: string;
+    expected: string;
+  }[] = [
+    {
+      name: "전업 귀농",
+      answers: {
+        climate: ["warm"], priority: ["support"], "crop-type": ["grain"],
+        lifestyle: ["rural"], experience: ["experienced"], budget: ["100m-300m"],
+        household: ["couple"], timeline: ["within-1y"],
+        "income-goal": ["farming"], "settlement-type": ["farmland"],
+      },
+      expected: "guinong",
+    },
+    {
+      name: "원격근무 귀촌",
+      answers: {
+        climate: ["four-season"], priority: ["access"], "crop-type": ["vegetable"],
+        lifestyle: ["near-city"], experience: ["none"], budget: ["under-30m"],
+        household: ["family-kids"], timeline: ["over-3y"],
+        "income-goal": ["remote-work"], "settlement-type": ["town"],
+      },
+      expected: "guichon",
+    },
+    {
+      name: "귀산촌",
+      answers: {
+        climate: ["cool"], priority: ["nature"], "crop-type": ["special"],
+        lifestyle: ["rural"], experience: ["some"], budget: ["under-30m"],
+        household: ["solo"], timeline: ["1-3y"],
+        "income-goal": ["forestry"], "settlement-type": ["mountain"],
+      },
+      expected: "guisanchon",
+    },
+    {
+      name: "스마트팜",
+      answers: {
+        climate: ["four-season"], priority: ["market"], "crop-type": ["vegetable"],
+        lifestyle: ["near-city"], experience: ["some"], budget: ["over-300m"],
+        household: ["solo"], timeline: ["1-3y"],
+        "income-goal": ["smart-agri"], "settlement-type": ["smart-complex"],
+      },
+      expected: "smartfarm",
+    },
+    {
+      name: "청년 창업농 (youth 보정)",
+      answers: {
+        climate: ["warm"], priority: ["support"], "crop-type": ["vegetable"],
+        lifestyle: ["moderate"], experience: ["none"], budget: ["30m-100m"],
+        household: ["solo"], timeline: ["within-1y"],
+        "income-goal": ["farming"], "settlement-type": ["farmland"],
+      },
+      ageGroup: "youth",
+      expected: "cheongnyeon",
+    },
+  ];
+
+  for (const { name, answers, ageGroup, expected } of FULL_ARCHETYPES) {
+    it(`아키타입 [${name}] → ${expected}`, () => {
+      expect(classifyFarmType(answers, ageGroup).id).toBe(expected);
+    });
+  }
+
+  it("청년이라도 스마트팜 강신호면 스마트팜형을 유지한다", () => {
+    const smartfarmAnswers = FULL_ARCHETYPES[3].answers;
+    expect(classifyFarmType(smartfarmAnswers, "youth").id).toBe("smartfarm");
+  });
+
+  it("같은 답변도 비청년이면 청년농형이 아니다", () => {
+    const youthAnswers = FULL_ARCHETYPES[4].answers;
+    expect(classifyFarmType(youthAnswers, "50s").id).not.toBe("cheongnyeon");
+  });
+
   it("빈 답변에도 오류 없이 기본 유형을 반환한다", () => {
     const answers: Answers = {
       experience: [],

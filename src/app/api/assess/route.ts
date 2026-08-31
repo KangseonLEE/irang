@@ -79,6 +79,15 @@ function isValidPersona(v: unknown): v is Persona {
 // ── POST 핸들러 ──
 
 export async function POST(req: NextRequest) {
+  // 0. E2E 테스트 적재 차단 (2026-08-31)
+  // core-journeys e2e가 /assess 위저드를 완주하며 매 push마다 결과를 실 DB에
+  // 적재해 통계를 오염 (7/24~8/31 사이 106건, 전부 첫 옵션 선택 → 귀농형).
+  // e2e는 UA 토큰(irang-e2e) + 식별 헤더(x-irang-e2e)를 항상 보냄 — 저장만 skip.
+  const ua = req.headers.get("user-agent") ?? "";
+  if (req.headers.get("x-irang-e2e") || ua.includes("irang-e2e")) {
+    return NextResponse.json({ success: true, skipped: "e2e" });
+  }
+
   // 1. Rate Limit 체크
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
