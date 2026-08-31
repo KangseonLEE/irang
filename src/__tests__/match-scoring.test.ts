@@ -144,6 +144,11 @@ describe("classifyFarmType", () => {
     expect(classifyFarmType(youthAnswers, "50s").id).not.toBe("cheongnyeon");
   });
 
+  it("연령 미응답이면 청년농형 후보에서 제외된다 (청년 전용 트랙 게이트)", () => {
+    const youthAnswers = FULL_ARCHETYPES[4].answers;
+    expect(classifyFarmType(youthAnswers).id).not.toBe("cheongnyeon");
+  });
+
   it("빈 답변에도 오류 없이 기본 유형을 반환한다", () => {
     const answers: Answers = {
       experience: [],

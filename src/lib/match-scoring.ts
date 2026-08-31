@@ -120,9 +120,13 @@ export function classifyFarmType(
     if (ans === "smart-complex") { scores.smartfarm += 5; scores.cheongnyeon += 1; }
   }
 
-  // 연령 보정: 청년(≤39)이면 청년농 가산
+  // 연령 보정: 청년(≤39)이면 청년농 가산.
+  // 청년농형은 만 39세 이하 전용 트랙(청년 정착지원금 등) — 연령이 청년으로
+  // 확인되지 않으면(비청년·미응답) 후보에서 제외해 신청 불가 사업 추천을 막는다.
   if (ageGroup === "youth") {
     scores.cheongnyeon += 8;
+  } else {
+    scores.cheongnyeon = -1;
   }
 
   // 최고 점수 유형 반환
