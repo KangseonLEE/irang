@@ -80,7 +80,7 @@ export default async function UpdateReleasePage({ params }: Props) {
                 <h2 className={u.itemTitle}>{item.title}</h2>
               </div>
               <p className={u.itemSummary}>{item.summary}</p>
-              {item.media && <UpdateMedia title={item.title} media={item.media} />}
+              <UpdateMedia title={item.title} media={item.media} />
               {item.href && (
                 <Link href={item.href} className={u.itemLink}>
                   바로 보기

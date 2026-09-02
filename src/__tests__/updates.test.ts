@@ -84,3 +84,17 @@ describe("RELEASE_GROUPS 파생 (목록·상세 페이지)", async () => {
     for (const r of RELEASE_GROUPS) expect(releaseTitle(r).trim().length, r.date).toBeGreaterThan(0);
   });
 });
+
+describe("이전/이후 이미지 (회장 9/2: 항목마다 항상 두 장)", async () => {
+  const fs = await import("node:fs");
+  it("모든 항목에 before·after 가 있고 파일이 public/updates 에 실제로 존재한다", () => {
+    for (const item of UPDATES) {
+      expect(item.media, item.id).toBeDefined();
+      for (const src of [item.media.before, item.media.after]) {
+        expect(src, item.id).toMatch(/^\/updates\/[a-z0-9-]+\.webp$/);
+        expect(fs.existsSync(`public${src}`), `${item.id}: ${src}`).toBe(true);
+      }
+      expect(item.media.caption.trim().length, item.id).toBeGreaterThan(0);
+    }
+  });
+});

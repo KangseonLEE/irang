@@ -26,8 +26,8 @@ export function UpdateMedia({ title, media }: Props) {
   const dim = DIM[media.frame];
   const sizes = media.frame === "desktop" ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 30vw, 45vw";
   const shots = [
-    ...(media.before ? [{ label: "이전", src: media.before, alt: `${title} — 이전 화면`, after: false }] : []),
-    { label: media.before ? "이후" : "지금", src: media.after, alt: `${title} — ${media.before ? "이후" : "현재"} 화면`, after: true },
+    { label: "이전", src: media.before, alt: `${title} — 이전 화면`, after: false },
+    { label: "이후", src: media.after, alt: `${title} — 이후 화면`, after: true },
   ];
 
   return (

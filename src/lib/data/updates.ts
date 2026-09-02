@@ -28,11 +28,12 @@ export interface UpdateItem {
   href?: string;
   tag: UpdateTag;
   /**
-   * 이전/이후 화면 (선택). 파일은 `public/updates/`, 이전 화면은 해당 커밋 직전을 worktree 로 띄워 캡처.
+   * 이전/이후 화면 — 모든 항목 필수, 항상 두 장(회장 9/2 "항상 이전·이후 비교"). 파일은 `public/updates/`,
+   * 이전 화면은 해당 커밋 직전을 worktree 로 띄워 캡처(`next dev --webpack`, Playwright bypassCSP).
    * frame: mobile = 390×640 @2x(780×1280) · desktop = 1280×800 @1.5x(1920×1200)
    */
-  media?: {
-    before?: string;
+  media: {
+    before: string;
     after: string;
     frame: "mobile" | "desktop";
     /** 두 화면의 차이를 한 문장으로 (스크린리더·캡션 공용) */
@@ -86,9 +87,10 @@ export const UPDATES: UpdateItem[] = [
     href: "/regions/gyeongbuk/yeongju",
     tag: "기능",
     media: {
+      before: "/updates/community-notes-before.webp",
       after: "/updates/community-notes-after.webp",
       frame: "mobile",
-      caption: "시·군·구 상세 페이지 하단에 추가된 한 줄 의견 영역",
+      caption: "이전엔 행사 카드에서 페이지가 끝났고, 지금은 그 아래에 한 줄 의견을 남기는 자리가 있어요",
     },
   },
   {
@@ -129,6 +131,12 @@ export const UPDATES: UpdateItem[] = [
     summary:
       "화살표로 검색 결과를 내리다 보면 선택한 항목이 목록 밖으로 사라질 때가 있었죠. 이제 고른 항목을 따라 목록이 함께 움직이고, 맨 위로 돌아오면 안내 문구까지 다시 보여요.",
     tag: "개선",
+    media: {
+      before: "/updates/search-keyboard-before.webp",
+      after: "/updates/search-keyboard-after.webp",
+      frame: "desktop",
+      caption: "화살표를 스무 번 눌렀을 때 — 이전엔 목록이 맨 위에 멈춰 있었고, 지금은 고른 항목(서울 강서구)을 따라 내려와요",
+    },
   },
   {
     id: "20260902-compare-spacing",
@@ -153,6 +161,12 @@ export const UPDATES: UpdateItem[] = [
       "어떻게 답해도 '귀농형'이 나오기 쉬웠던 점수 계산을 다시 맞췄어요. 청년농·반귀농처럼 다른 유형도 답변에 맞게 제대로 나와요. 그동안 자동 점검이 만든 가짜 응답이 통계에 섞여 있던 것도 함께 걷어냈어요.",
     href: "/assess",
     tag: "수정",
+    media: {
+      before: "/updates/assess-bias-before.webp",
+      after: "/updates/assess-bias-after.webp",
+      frame: "mobile",
+      caption: "같은 답변(만 39세 이하·지원 혜택·1년 이내 등)으로 이전엔 귀농형, 지금은 청년농형이 나와요",
+    },
   },
   {
     id: "20260830-crop-calendar",
@@ -162,6 +176,12 @@ export const UPDATES: UpdateItem[] = [
       "작물마다 한 덩어리로만 보이던 재배 시기를 파종·정식, 재배·관리, 수확 세 구간으로 나눠 보여드려요. 진한 정도로 구간을 구분하고, 행을 누르면 난이도·소득·주요 재배지와 '지금 8월 · 수확 중' 같은 현재 시기 안내가 함께 펼쳐져요.",
     href: "/crops",
     tag: "기능",
+    media: {
+      before: "/updates/crop-calendar-before.webp",
+      after: "/updates/crop-calendar-after.webp",
+      frame: "desktop",
+      caption: "이전엔 작물마다 한 덩어리 막대였고, 지금은 파종·재배·수확이 진하기로 나뉘어요",
+    },
   },
   {
     id: "20260830-programs-always",
@@ -171,6 +191,12 @@ export const UPDATES: UpdateItem[] = [
       "마감이 없거나 일 년 내내 받는 사업이 기간 한정 공고와 섞여 있어서 '상시·연중' 탭을 따로 만들었어요. 진행·예정 탭에는 마감이 정해진 공고만 마감 가까운 순으로 보여요.",
     href: "/programs",
     tag: "개선",
+    media: {
+      before: "/updates/programs-always-before.webp",
+      after: "/updates/programs-always-after.webp",
+      frame: "desktop",
+      caption: "이전엔 진행·예정 / 마감 임박 두 탭이었고, 지금은 상시·연중 탭이 따로 있어요",
+    },
   },
   {
     id: "20260830-compare-speed",
@@ -180,6 +206,12 @@ export const UPDATES: UpdateItem[] = [
       "의료·학교 정보를 부를 때마다 15~29초씩 기다려야 했는데, 자료를 미리 받아 두는 방식으로 바꿔 1초 남짓이면 열려요. 기상청·심평원 자료를 불러오지 못하던 문제도 함께 풀렸어요.",
     href: "/regions/compare",
     tag: "개선",
+    media: {
+      before: "/updates/compare-speed-before.webp",
+      after: "/updates/compare-speed-after.webp",
+      frame: "desktop",
+      caption: "이전엔 의료기관 수를 불러오지 못하거나 15초 넘게 기다려야 했고, 지금은 1초 남짓이면 표가 채워져요",
+    },
   },
   {
     id: "20260830-compare-loading",
@@ -189,6 +221,12 @@ export const UPDATES: UpdateItem[] = [
       "비교할 지역을 바꿀 때 화면이 멈춘 것처럼 보이지 않도록 불러오는 중 표시를 넣었어요. 지역을 바꿔도 보던 위치가 그대로 유지돼서 다시 스크롤을 내릴 일이 없어요.",
     href: "/regions/compare",
     tag: "개선",
+    media: {
+      before: "/updates/compare-loading-before.webp",
+      after: "/updates/compare-loading-after.webp",
+      frame: "desktop",
+      caption: "시·군·구를 바꾼 직후 — 이전엔 화면이 그대로여서 멈춘 것처럼 보였고, 지금은 '불러오는 중' 표시가 떠요",
+    },
   },
   {
     id: "20260830-select-search",
@@ -197,6 +235,12 @@ export const UPDATES: UpdateItem[] = [
     summary:
       "시·군·구, 작물, 요청 종류를 고르는 자리에 뜨던 휴대폰 기본 팝업을 이랑 화면에 맞는 선택 창으로 바꿨어요. 글자를 적어 바로 찾을 수 있고 키보드로도 고를 수 있어요.",
     tag: "개선",
+    media: {
+      before: "/updates/select-search-before.webp",
+      after: "/updates/select-search-after.webp",
+      frame: "mobile",
+      caption: "이전엔 휴대폰 기본 선택 상자였고, 지금은 검색창이 달린 이랑 스타일 목록이 열려요",
+    },
   },
   {
     id: "20260830-programs-added",
@@ -206,6 +250,12 @@ export const UPDATES: UpdateItem[] = [
       "안동·진안·옥천·장수·의성·고령·괴산의 귀농인의 집, 주택수리비, 정착지원금 공고를 원문에서 신청 기간을 직접 확인해 등록했어요. 연령 상한이 없는 사업이 '19~99세'처럼 보이던 표기도 '만 19세 이상'으로 바로잡았어요.",
     href: "/programs",
     tag: "데이터",
+    media: {
+      before: "/updates/programs-added-before.webp",
+      after: "/updates/programs-added-after.webp",
+      frame: "mobile",
+      caption: "마감 포함 전체 검색 결과가 36건에서 48건으로 늘었어요",
+    },
   },
   {
     id: "20260829-gov-guide",
@@ -215,6 +265,12 @@ export const UPDATES: UpdateItem[] = [
       "청년창업농·귀산촌·농지은행·스마트팜·귀농 종합 지원 다섯 사업의 자격·한도·신청처를 부처 원문과 하나씩 대조해 고쳤어요. 근거를 찾지 못한 숫자는 지웠고, 끊긴 출처 링크는 공식 페이지로 바꿨어요.",
     href: "/programs/roadmap",
     tag: "데이터",
+    media: {
+      before: "/updates/gov-guide-before.webp",
+      after: "/updates/gov-guide-after.webp",
+      frame: "desktop",
+      caption: "청년창업농 자격 요건 — '가구 소득 130%'가 건강보험료 기준으로, '교육 100시간'이 우대 항목으로 바뀌었어요",
+    },
   },
 ];
 
