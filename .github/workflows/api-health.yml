@@ -131,7 +131,7 @@ jobs:
 
           # ── 7. 네이버 검색 API ──────────────────────────────────────
           check_api "네이버" \
-            "https://openapi.naver.com/v1/search/news.json?query=귀농&display=1" \
+            "https://openapi.naver.com/v1/search/news.json?query=%EA%B7%80%EB%86%8D&display=1" \
             "X-Naver-Client-Id: ${NAVER_CLIENT_ID:-MISSING}" \
             "X-Naver-Client-Secret: ${NAVER_CLIENT_SECRET:-MISSING}"
 
