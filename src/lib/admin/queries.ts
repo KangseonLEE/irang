@@ -6,6 +6,7 @@
  */
 
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { searchAll } from "@/lib/data/search-index";
 import { migrateFarmTypeId } from "@/lib/data/match-questions";
 import type {
   QuickFeedbackRow,
@@ -21,6 +22,8 @@ import type {
   ThumbsStats,
   ThumbsByPersona,
   TopThumbsRecommendation,
+  ZeroResultReport,
+  ZeroResultKeyword,
 } from "./types";
 
 // ── 유틸 ──
@@ -79,16 +82,22 @@ export async function fetchAdminKpi(): Promise<AdminKpi> {
       .gte("created_at", daysAgo(7)),
     sb
       .from("search_logs")
-      .select("id", { count: "exact", head: true })
+      .select("query")
       .eq("result_count", 0)
       .gte("created_at", daysAgo(7)),
   ]);
+
+  // 로그 시점 0건이어도 이후 데이터 보강(예: 참깨·들깨 작물 추가)으로 지금은 결과가 있을 수 있다 —
+  // 현재 인덱스로 재검색해 "지금도 0건"인 검색 횟수만 KPI 로 센다 (2026-09-02 회장 리포트)
+  const stillZero = ((zr.data ?? []) as { query: string }[]).filter(
+    (row) => searchAll(row.query).length === 0,
+  ).length;
 
   return {
     todayFeedback: fb.count ?? 0,
     weeklySearches: sl.count ?? 0,
     weeklyAssessments: as.count ?? 0,
-    zeroResultCount: zr.count ?? 0,
+    zeroResultCount: stillZero,
   };
 }
 
@@ -271,12 +280,18 @@ export async function fetchTopKeywords(
     .map(([query, count]) => ({ query, count }));
 }
 
+/**
+ * 결과 없는 검색어 — 로그(result_count=0)를 집계한 뒤 현재 검색 인덱스로 재검색해
+ * 지금도 0건인 것(unresolved)과 데이터 보강으로 해결된 것(resolved)을 나눈다.
+ * 로그는 검색 시점의 스냅샷이라 작물·용어가 추가돼도 스스로 갱신되지 않기 때문 (2026-09-02).
+ */
 export async function fetchZeroResultQueries(
   days = 7,
   limit = 20,
-): Promise<TopKeyword[]> {
+): Promise<ZeroResultReport> {
+  const empty: ZeroResultReport = { unresolved: [], resolved: [] };
   const sb = getSupabaseAdmin();
-  if (!sb) return [];
+  if (!sb) return empty;
 
   const { data } = await sb
     .from("search_logs")
@@ -284,7 +299,7 @@ export async function fetchZeroResultQueries(
     .eq("result_count", 0)
     .gte("created_at", daysAgo(days));
 
-  if (!data) return [];
+  if (!data) return empty;
 
   const counts = new Map<string, number>();
   for (const row of data) {
@@ -292,10 +307,14 @@ export async function fetchZeroResultQueries(
     counts.set(q, (counts.get(q) ?? 0) + 1);
   }
 
-  return [...counts.entries()]
+  const all: ZeroResultKeyword[] = [...counts.entries()]
     .sort((a, b) => b[1] - a[1])
-    .slice(0, limit)
-    .map(([query, count]) => ({ query, count }));
+    .map(([query, count]) => ({ query, count, nowCount: searchAll(query).length }));
+
+  return {
+    unresolved: all.filter((k) => k.nowCount === 0).slice(0, limit),
+    resolved: all.filter((k) => k.nowCount > 0).slice(0, limit),
+  };
 }
 
 export async function fetchDailySearchCounts(

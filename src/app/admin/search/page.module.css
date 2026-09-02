@@ -218,3 +218,11 @@
     height: 180px;
   }
 }
+
+/* 로그 시점 0건이었지만 현재 인덱스에서 결과가 있는 검색어 안내 (9/2) */
+.resolvedNote {
+  margin: 12px 0 0;
+  font-size: var(--fs-caption, 12px);
+  color: var(--muted-foreground);
+  line-height: var(--lh-normal, 1.5);
+}

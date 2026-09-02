@@ -89,14 +89,14 @@ export default async function AdminSearchPage() {
           )}
         </section>
 
-        {/* ── 결과 없는 검색어 ── */}
-        <section className={`${s.section} ${zeroResults.length > 0 ? s.sectionWarn : ""}`}>
+        {/* ── 결과 없는 검색어 — 현재 인덱스로 재검색해 지금도 0건인 것만 경고 (9/2) ── */}
+        <section className={`${s.section} ${zeroResults.unresolved.length > 0 ? s.sectionWarn : ""}`}>
           <h2 className={s.sectionTitle}>결과 없는 검색어 (14일)</h2>
-          {zeroResults.length === 0 ? (
-            <p className={s.empty}>모든 검색어에 결과가 있어요</p>
+          {zeroResults.unresolved.length === 0 ? (
+            <p className={s.empty}>지금은 모든 검색어에 결과가 있어요</p>
           ) : (
             <ol className={s.kwList}>
-              {zeroResults.map((kw, i) => (
+              {zeroResults.unresolved.map((kw, i) => (
                 <li key={kw.query} className={s.kwItem}>
                   <span className={s.rank}>{i + 1}</span>
                   <span className={s.kwText}>{kw.query}</span>
@@ -104,6 +104,14 @@ export default async function AdminSearchPage() {
                 </li>
               ))}
             </ol>
+          )}
+          {zeroResults.resolved.length > 0 && (
+            <p className={s.resolvedNote}>
+              데이터 보강으로 해결됨:{" "}
+              {zeroResults.resolved
+                .map((kw) => `${kw.query} (${kw.count}회 → 현재 ${kw.nowCount}건)`)
+                .join(" · ")}
+            </p>
           )}
         </section>
       </div>
