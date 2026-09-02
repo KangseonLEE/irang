@@ -114,6 +114,10 @@ export default function HomePage() {
       {/* 랜딩 IA 계측 (8/30): [data-track] 클릭 위임 + ScrollReveal trackId 섹션 노출 → GA4 */}
       <LandingClickTracker />
 
+      {/* 히어로 위 띠배너 — 최근 업데이트 한 줄 알림 (9/2: 히어로 아래에 두면 모바일 첫 화면에 안 들어와 이동).
+          서버에서 기본 표시하고 이미 본 사용자만 마운트 후 감춘다 → 첫 방문자는 레이아웃 이동 없음 */}
+      <UpdatesBanner />
+
       {/* ═══ 1. 히어로 ═══ */}
       <section className={s.heroSection} aria-label="검색">
         <h1 className={s.heroTitle}>
@@ -169,9 +173,6 @@ export default function HomePage() {
         {/* 모바일 전용 스크롤 다운 indicator — sequential 2 chevron + scroll fade */}
         <ScrollIndicator />
       </section>
-
-      {/* 히어로 직후 — 최근 업데이트 한 줄 알림 (이미 본 소식이면 렌더 안 됨) */}
-      <UpdatesBanner />
 
       {/* ═══ 2. 농촌으로 간 사람들의 이야기 (다크 배경) ═══ */}
       <ScrollReveal trackId="interviews">

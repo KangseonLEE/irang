@@ -8,8 +8,9 @@
   align-items: center;
   gap: 8px;
   width: min(100%, 720px);
-  margin: 0 auto 24px;
-  padding: 10px 12px;
+  /* 히어로 위 띠배너: .page gap(64px) 앞뒤를 줄여 헤더 바로 아래에 촘촘히, 히어로 상단 패딩(48px)과 겹치지 않게 */
+  margin: 0 auto -40px;
+  padding: 8px 12px;
   border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
   border-radius: 16px;
   background: color-mix(in srgb, var(--primary) 6%, var(--card));

@@ -23,18 +23,20 @@ const latest = UPDATES[0];
  *   일반 landmark(aside + aria-label)로 노출한다.
  */
 export function UpdatesBanner() {
-  const [visible, setVisible] = useState(false);
+  // 서버·첫 클라이언트 렌더는 "표시" — 첫 방문자에게 레이아웃 이동 없이 첫 화면에 들어온다(히어로 위 배치).
+  // 이미 본 사용자만 마운트 후 감춘다(한 프레임 깜빡임은 재방문자 한정).
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     let seen: string | null = null;
     try {
       seen = window.localStorage.getItem(STORAGE_KEY);
     } catch {
-      // 저장소 접근 차단 — 못 본 것으로 간주
+      // 저장소 접근 차단 — 못 본 것으로 간주(표시 유지)
     }
-    if (seen !== LATEST_UPDATE_ID) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- 클라이언트 전용 저장소 확인 후 노출 (SSR 안전)
-      setVisible(true);
+    if (seen === LATEST_UPDATE_ID) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 클라이언트 전용 저장소 확인 후 숨김 (SSR 안전)
+      setVisible(false);
     }
   }, []);
 

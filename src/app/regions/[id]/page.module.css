@@ -236,6 +236,14 @@ a.heroScoreBadge:focus-visible {
   pointer-events: auto;
 }
 
+/* 글로벌 헤더가 보이는 동안(최상단·위로 스크롤 복귀)은 요약 바를 물린다 — 둘 다 top:0 고정이라 그대로 두면
+   헤더 57px 와 겹쳐 서로를 가렸음(9/2 전수조사). 헤더가 숨은 뒤(아래로 스크롤)에만 요약 바가 그 자리를 이어받는다. */
+html:not([data-header-hidden]) .stickyTitleBarVisible {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
 .stickyTitleBarTop {
   display: flex;
   align-items: center;
