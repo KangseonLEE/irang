@@ -99,14 +99,36 @@
   }
 }
 
-/* 좁은 화면: 배지 / 제목 / CTA("어떤 내용이 바뀌었는지 확인해 보세요") 를 세 줄로 — 회장 9/2 요청으로 CTA 유지 */
-@media (max-width: 479px) {
-  .title,
-  .more {
-    flex-basis: 100%;
+/* 모바일(<768): 한 줄 — 배지 · 제목(말줄임) · → (회장 9/2 "쭉 한 줄"). CTA 문구는 768px 이상에서만 */
+@media (max-width: 767px) {
+  .link {
+    flex-wrap: nowrap;
   }
 
-  .more {
-    font-size: var(--fs-caption, 0.8125rem);
+  .title {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .moreText {
+    display: none;
+  }
+}
+
+/* 제목 2벌: 모바일은 short, 768px 이상은 전체 */
+.titleFull {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .titleShort {
+    display: none;
+  }
+
+  .titleFull {
+    display: inline;
   }
 }

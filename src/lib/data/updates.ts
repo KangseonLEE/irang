@@ -20,6 +20,8 @@ export interface UpdateItem {
   date: string;
   /** 사용자 언어의 짧은 제목 */
   title: string;
+  /** 랜딩 배너(모바일 한 줄)용 더 짧은 제목 — 없으면 title 을 말줄임 */
+  short?: string;
   /** 무엇이 좋아졌는지 1~2문장 */
   summary: string;
   /** 바로 확인할 수 있는 화면 경로 */
@@ -78,6 +80,7 @@ export const UPDATES: UpdateItem[] = [
     id: "20260902-community-notes",
     date: "2026-09-02",
     title: "지역·작물·지원사업에 한 줄 의견을 남길 수 있어요",
+    short: "한 줄 의견을 남길 수 있어요",
     summary:
       "이 지역 겨울은 어떤지, 이 작물은 손이 많이 가는지 먼저 살아 본 분에게 묻고 싶을 때가 있죠. 이제 상세 페이지 맨 아래에서 로그인 없이 한 줄 의견을 남기고, 다른 분 의견에 공감을 누를 수 있어요. 광고나 연락처가 담긴 글은 검토 단계에서 걸러져 게시되지 않아요.",
     href: "/regions/gyeongbuk/yeongju",
@@ -92,6 +95,7 @@ export const UPDATES: UpdateItem[] = [
     id: "20260902-region-search",
     date: "2026-09-02",
     title: "지역 탐색에 검색창이 생겼어요",
+    short: "지역 검색창이 생겼어요",
     summary:
       "지도를 눌러 시·도부터 좁혀 들어가는 게 번거로울 때가 있죠. 이제 검색창에 '순천'이나 '홍천'을 적으면 바로 그 시·군·구로 갈 수 있고, 시·도를 고르면 시·군·구 목록이 옆에 펼쳐져 이름이 헷갈릴 때도 눈으로 찾을 수 있어요.",
     href: "/regions",

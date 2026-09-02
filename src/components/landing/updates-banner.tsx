@@ -81,9 +81,12 @@ export function UpdatesBanner() {
           <Sparkles size={14} aria-hidden="true" />
           새로워졌어요
         </span>
-        <span className={s.title}>{latest.title}</span>
+        <span className={s.title}>
+          <span className={s.titleShort}>{latest.short ?? latest.title}</span>
+          <span className={s.titleFull}>{latest.title}</span>
+        </span>
         <span className={s.more}>
-          어떤 내용이 바뀌었는지 확인해 보세요
+          <span className={s.moreText}>어떤 내용이 바뀌었는지 확인해 보세요</span>
           <ArrowRight size={14} aria-hidden="true" />
         </span>
       </Link>
