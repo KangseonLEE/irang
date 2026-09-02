@@ -20,8 +20,17 @@ export function useActiveOptionScroll(
 ) {
   useEffect(() => {
     if (!open) return;
-    listRef.current
-      ?.querySelector<HTMLElement>('[role="option"][aria-selected="true"]')
-      ?.scrollIntoView({ block: "nearest" });
+    const list = listRef.current;
+    const active = list?.querySelector<HTMLElement>(
+      '[role="option"][aria-selected="true"]',
+    );
+    if (!list || !active) return;
+    // 첫 옵션이면 컨테이너 최상단으로 — 옵션 위의 힌트·그룹 라벨까지 노출
+    // (nearest는 옵션 자체만 보여줘 상단 안내 문구가 잘린 채 남는다, 9/2 회장 리포트)
+    if (list.querySelector<HTMLElement>('[role="option"]') === active) {
+      list.scrollTop = 0;
+      return;
+    }
+    active.scrollIntoView({ block: "nearest" });
   }, [listRef, activeIndex, open]);
 }

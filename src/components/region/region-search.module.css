@@ -105,6 +105,71 @@
   margin-bottom: 4px;
 }
 
+/* ── 시·도 → 시·군·구 2단 트리 (2026-09-02) ── */
+.treePanes {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.8fr) 1.2fr;
+  gap: 4px;
+  min-height: 0;
+}
+
+.pane {
+  overflow-y: auto;
+  max-height: 312px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pane:first-child {
+  border-right: 1px solid var(--border, #e5e7eb);
+  padding-right: 4px;
+}
+
+.treeItem,
+.treeItemActive {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  font-family: inherit;
+  font-size: var(--fs-body-sm);
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s;
+  flex-shrink: 0;
+}
+
+.treeItemActive {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-weight: 600;
+}
+
+.treeItemLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+.treeItemChevron {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.treeItemActive .treeItemChevron {
+  color: var(--primary, #1b6b5a);
+}
+
+.treeItemAll {
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+}
+
 .dropdownItem,
 .dropdownItemActive {
   display: flex;
