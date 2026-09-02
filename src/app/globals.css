@@ -382,6 +382,13 @@ ul, ol {
   }
 }
 
+/* 모바일(<768): 헤더가 sticky 가 아니라 콘텐츠와 함께 스크롤되므로 하위 sticky(TabBar 등)는 맨 위에 붙는다 (9/2) */
+@media (max-width: 767px) {
+  :root {
+    --sticky-top: 0px;
+  }
+}
+
 /* 헤더 숨김(header.tsx가 html[data-header-hidden] 토글) → sticky 요소는 맨 위로 */
 html[data-header-hidden] {
   --sticky-top: 0px;
