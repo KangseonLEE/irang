@@ -91,10 +91,31 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
         description="농촌 정착을 고려 중인 지역을 선택해 기후, 인구, 추천 작물, 지원사업 정보를 확인하세요."
       />
 
-      {/* ── 지역 검색 (지도 대신 시·군·구까지 바로 이동, 2026-09-02) ── */}
-      <section className={s.searchSection} aria-label="지역 검색">
-        <RegionSearch />
+      {/* ── 관심 지역 찾기: 검색 + 지도 통합 (2026-09-02 회장 결재 — 찾기 섹션 승격) ── */}
+      <section className={s.mapSection}>
+        <div className={s.mapHeader}>
+          <h2 className={s.mapTitle}>
+            <span className={s.mapTitleAccent}>관심 지역</span>을 찾아보세요
+          </h2>
+        </div>
+        <div className={s.searchRow}>
+          <RegionSearch />
+        </div>
+        <div className={s.mapWrap}>
+          <div className={s.densityLegend}>
+            <span className={s.densityLegendTitle}>인구밀도</span>
+            <div className={s.densityLegendRow}>
+              <span className={s.densityLegendLabel}>낮음</span>
+              <div className={s.densityLegendBar} />
+              <span className={s.densityLegendLabel}>높음</span>
+            </div>
+          </div>
+          <KoreaMap densityMap={provinceDensityMap} showLegend={false} />
+        </div>
       </section>
+
+      {/* ── 활성 지역 큐레이션 (지도 직후) ── */}
+      <ActiveRegionsSection activeId={sp.active} />
 
       {/* ── Quick Stats ── */}
       <section className={s.statsSection}>
@@ -149,29 +170,6 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
           </Link>
         </div>
       </section>
-
-      {/* ── 지도 섹션 ── */}
-      <section className={s.mapSection}>
-        <div className={s.mapHeader}>
-          <h2 className={s.mapTitle}>
-            지도에서 <span className={s.mapTitleAccent}>관심 지역</span>을 선택하세요
-          </h2>
-          <div className={s.densityLegend}>
-            <span className={s.densityLegendTitle}>인구밀도</span>
-            <div className={s.densityLegendRow}>
-              <span className={s.densityLegendLabel}>낮음</span>
-              <div className={s.densityLegendBar} />
-              <span className={s.densityLegendLabel}>높음</span>
-            </div>
-          </div>
-        </div>
-        <div className={s.mapWrap}>
-          <KoreaMap densityMap={provinceDensityMap} showLegend={false} />
-        </div>
-      </section>
-
-      {/* ── 활성 지역 큐레이션 (지도 직후) ── */}
-      <ActiveRegionsSection activeId={sp.active} />
 
       {/* ── 시군구 점수 비교 cross-link 배너 ── */}
       <Link href="/regions/ranking" className={s.rankingBanner}>
