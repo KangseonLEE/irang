@@ -277,7 +277,7 @@
 
 .arrow:disabled {
   opacity: 0.3;
-  cursor: default;
+  cursor: not-allowed;
 }
 
 /* 데스크탑 화살표 사이즈 업 */

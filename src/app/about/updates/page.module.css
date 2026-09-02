@@ -296,7 +296,7 @@
   background: none;
   font: inherit;
   text-align: left;
-  cursor: zoom-in;
+  cursor: pointer;
 }
 
 .shot:focus-visible {

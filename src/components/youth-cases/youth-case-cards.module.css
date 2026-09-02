@@ -235,7 +235,7 @@
 .arrow:disabled,
 .arrowMobile:disabled {
   opacity: 0.3;
-  cursor: default;
+  cursor: not-allowed;
 }
 
 .controls {

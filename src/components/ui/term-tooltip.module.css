@@ -14,7 +14,7 @@
 
 .term {
   border-bottom: 1px dashed var(--muted-foreground, #6b7280);
-  cursor: help;
+  cursor: pointer;
   color: inherit;
 }
 

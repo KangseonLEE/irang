@@ -116,7 +116,6 @@
   border-color: var(--primary, #1B6B5A);
   background: var(--primary, #1B6B5A);
   color: #fff;
-  cursor: default;
 }
 
 @media (hover: hover) {
