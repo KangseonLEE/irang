@@ -3,18 +3,18 @@ import { Suspense } from "react";
 import Link from "next/link";
 import {
   MapPin,
-  Landmark,
-  FileText,
   Thermometer,
   Users,
   HeartHandshake,
   Trophy,
   ArrowRight,
+  ArrowUpRight,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
 import { PROVINCES } from "@/lib/data/regions";
+import { SIGUNGUS } from "@/lib/data/sigungus";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
 import { POPULATION_FALLBACK } from "@/lib/data/population";
@@ -123,38 +123,17 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
         <ActiveRegionsSection activeId={sp.active} />
       </div>
 
-      {/* ── 우측 컬럼: 통계 + 정보 + 랭킹 배너 ── */}
+      {/* ── 우측 컬럼: 확인 가능 정보(통계 흡수) + 랭킹 배너 ── */}
       <aside className={s.findAside} aria-label="지역 데이터 요약">
-      {/* ── Quick Stats ── */}
-      <section className={s.statsSection}>
-        <div className={s.statsGrid}>
-          <div className={s.statCard}>
-            <Icon icon={Landmark} size="lg" className={s.statIcon} />
-            <div className={s.statText}>
-              <span className={s.statValue}>{PROVINCES.length}개</span>
-              <span className={s.statLabel}>도·광역시</span>
-            </div>
-          </div>
-          <Link href="/crops" className={`${s.statCard} ${s.statCardLink}`}>
-            <Icon icon={Sprout} size="lg" className={s.statIcon} />
-            <div className={s.statText}>
-              <span className={s.statValue}>{CROPS.length}종</span>
-              <span className={s.statLabel}>추천 작물</span>
-            </div>
-          </Link>
-          <Link href="/programs" className={`${s.statCard} ${s.statCardLink}`}>
-            <Icon icon={FileText} size="lg" className={s.statIcon} />
-            <div className={s.statText}>
-              <span className={s.statValue}>{PROGRAMS.length}건</span>
-              <span className={s.statLabel}>지원사업</span>
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      {/* ── 지역별 확인 가능 정보 (4단 카드) ── */}
+      {/* ── 지역별 확인 가능 정보 (2026-09-02 통계 칩 통합 — 55종·48건 배지 흡수,
+           링크 카드는 ↗ 아이콘으로 이동 가능 표시) ── */}
       <section className={s.infoSection}>
-        <h2 className={s.infoSectionTitle}>지역별 확인 가능 정보</h2>
+        <div className={s.infoSectionHeader}>
+          <h2 className={s.infoSectionTitle}>지역별 확인 가능 정보</h2>
+          <span className={s.infoSectionCaption}>
+            시·도 {PROVINCES.length}곳 · 시·군·구 {SIGUNGUS.length}곳
+          </span>
+        </div>
         <div className={s.infoGrid}>
           <div className={s.infoCard}>
             <Icon icon={Thermometer} size="lg" className={s.infoIcon} />
@@ -167,13 +146,17 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
             <span className={s.infoCardDesc}><AutoGlossary text="인구 추이, 의료·교육 시설" /></span>
           </div>
           <Link href="/crops" className={`${s.infoCard} ${s.infoCardLink}`}>
+            <ArrowUpRight size={16} className={s.infoCardArrow} aria-hidden="true" />
             <Icon icon={Sprout} size="lg" className={s.infoIcon} />
             <span className={s.infoCardTitle}>추천 작물</span>
+            <span className={s.infoCardCount}>{CROPS.length}종</span>
             <span className={s.infoCardDesc}><AutoGlossary text="적합 작물, 예상 수익, 난이도" /></span>
           </Link>
           <Link href="/programs" className={`${s.infoCard} ${s.infoCardLink}`}>
+            <ArrowUpRight size={16} className={s.infoCardArrow} aria-hidden="true" />
             <Icon icon={HeartHandshake} size="lg" className={s.infoIcon} />
             <span className={s.infoCardTitle}>지원사업</span>
+            <span className={s.infoCardCount}>{PROGRAMS.length}건</span>
             <span className={s.infoCardDesc}><AutoGlossary text="정착금, 농지 임대, 교육 프로그램" /></span>
           </Link>
         </div>

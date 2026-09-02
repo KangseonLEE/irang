@@ -1,7 +1,7 @@
 /* ==========================================================================
    /regions — 지역 탐색 페이지
    CSS Module · 모바일 우선 반응형 (640 / 768 / 1024)
-   구조: Quick Stats → 확인 가능 정보 (4단 카드) → 지도
+   구조: 찾기(검색+지도) → 활성 지역 → 확인 가능 정보 → 랭킹 배너
    ========================================================================== */
 
 .page {
@@ -27,8 +27,8 @@
 
 /* ================================================================
    찾기 2단 레이아웃 (2026-09-02)
-   모바일: 기존 순서 그대로 1열 (찾기 → 활성 지역 → 통계·정보·배너)
-   데스크탑 1024+: 좌 찾기 / 우 통계·정보·배너, 활성 지역은 아래 전폭
+   모바일: 기존 순서 그대로 1열 (찾기 → 활성 지역 → 정보·배너)
+   데스크탑 1024+: 좌 찾기 / 우 정보·배너 + 활성 지역이 우측 하단 채움
    ================================================================ */
 .findLayout {
   display: grid;
@@ -79,110 +79,18 @@
   }
 }
 
-/* ================================================================
-   Quick Stats (3열 그리드)
-   ================================================================ */
-.statsSection {
-  display: flex;
-  flex-direction: column;
-}
-
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-@media (min-width: 480px) {
-  .statsGrid {
-    gap: 10px;
-  }
-}
-
-.statCard {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 8px;
-  background: var(--card, #fff);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
-}
-
-@media (min-width: 480px) {
-  .statCard {
-    gap: 10px;
-    padding: 12px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .statCard {
-    padding: 14px;
-  }
-}
-
-.statIcon {
-  color: var(--primary, #1b6b5a);
-  flex-shrink: 0;
-  display: none;
-}
-
-@media (min-width: 480px) {
-  .statIcon {
-    display: block;
-  }
-}
-
-.statText {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  gap: 1px;
-}
-
-@media (min-width: 480px) {
-  .statText {
-    align-items: flex-start;
-    width: auto;
-  }
-}
-
-.statValue {
-  font-size: var(--fs-body);
-  font-weight: 800;
-  color: var(--foreground);
-  line-height: var(--lh-tight);
-}
-
-.statLabel {
-  font-size: var(--fs-overline, 0.6875rem);
-  color: var(--muted-foreground);
-  font-weight: 500;
-  line-height: var(--lh-tight);
-}
-
-.statCardLink {
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-@media (hover: hover) {
-  .statCardLink:hover {
-    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  }
-}
-
-/* ================================================================
-   확인 가능 정보 — 4단 카드 그리드
-   ================================================================ */
 .infoSection {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.infoSectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .infoSectionTitle {
@@ -190,6 +98,11 @@
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
+}
+
+.infoSectionCaption {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
 }
 
 .infoGrid {
@@ -209,6 +122,7 @@
 }
 
 .infoCard {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -239,6 +153,43 @@
   .infoCardLink:hover {
     border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .infoCardLink:hover .infoCardArrow {
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+/* 이동 가능 표시 화살표 — 모바일 컴팩트 카드에서는 숨김 */
+.infoCardArrow {
+  display: none;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: var(--muted-foreground);
+  transition: color 0.15s;
+}
+
+@media (min-width: 640px) {
+  .infoCardArrow {
+    display: block;
+  }
+}
+
+/* 통계 칩에서 흡수한 건수 배지 (55종·48건) */
+.infoCardCount {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .infoCardCount {
+    display: inline-flex;
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    color: var(--primary, #1b6b5a);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+    border-radius: 9999px;
+    padding: 1px 9px;
   }
 }
 
