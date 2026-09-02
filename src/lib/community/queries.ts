@@ -8,7 +8,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase";
 import type { AdminNote, NoteStatus, NoteTargetType, PublicNote } from "./types";
 import type { FilterFlag } from "./filter";
-import type { ModerationVerdict } from "./moderation";
 
 type Result<T> =
   | { ok: true; data: T }
@@ -97,7 +96,7 @@ export async function insertNote(input: {
   status: NoteStatus;
   rejectReason: string | null;
   filterFlags: FilterFlag[];
-  llmVerdict: ModerationVerdict | null;
+  llmVerdict: AdminNote["llmVerdict"];
   ipHash: string;
   userAgent: string | null;
   isE2e: boolean;

@@ -5,7 +5,8 @@
  * POST { targetType, targetId, body, nickname?, honeypot?, composeMs?, targetLabel? }
  *      → 사전 승인제: 필터 통과 시 pending(관리자 승인 후 노출), 필터 걸리면 rejected 로 적재
  *
- * 방어 층: e2e 분리 → rate limit(인메모리 + 24h DB 카운트) → 룰 필터 → LLM 분류 → 승인 큐
+ * 방어 층: e2e 분리 → rate limit(인메모리 + 24h DB 카운트) → 룰 필터 → 관리자 승인 큐 → 신고
+ * (LLM 분류 층은 9/2 회장 결정으로 미채택 — API 키 미발급. llm_verdict 컬럼은 3단계 대비 nullable 유지)
  * 테이블 미적용(migration-pending) 은 503 으로 명시 — 성공으로 포장하지 않는다(5/26 교훈).
  */
 
@@ -20,7 +21,6 @@ import {
   NOTE_MIN_LENGTH,
   runRuleFilter,
 } from "@/lib/community/filter";
-import { classifyNote, shouldAutoReject } from "@/lib/community/moderation";
 import { countRecentByIp, insertNote, listApprovedNotes } from "@/lib/community/queries";
 
 const ENDPOINT = "/api/community/notes";
@@ -56,7 +56,6 @@ interface PostBody {
   nickname?: unknown;
   honeypot?: unknown;
   composeMs?: unknown;
-  targetLabel?: unknown;
 }
 
 export async function POST(req: NextRequest) {
@@ -98,8 +97,6 @@ export async function POST(req: NextRequest) {
   const nickname = nicknameRaw ? nicknameRaw.slice(0, NICKNAME_MAX_LENGTH) : null;
   const honeypot = typeof json.honeypot === "string" ? json.honeypot : null;
   const composeMs = typeof json.composeMs === "number" ? json.composeMs : null;
-  const targetLabel =
-    typeof json.targetLabel === "string" ? json.targetLabel.slice(0, 60) : `${targetType}:${targetId}`;
 
   // 24h 영속 카운트 (인메모리 limiter 는 인스턴스 교체 시 초기화)
   if ((await countRecentByIp(ipHash)) >= DAILY_MAX) {
@@ -109,20 +106,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 2층 룰 필터
+  // 2층 룰 필터 — 통과 글은 pending(관리자 승인 후 노출), 걸린 글은 rejected 로 적재(복구 가능)
   const filter = runRuleFilter({ body, honeypot, composeMs });
-  let status: "pending" | "rejected" = filter.reject ? "rejected" : "pending";
-  let rejectReason: string | null = filter.reject ? `rule:${filter.flags.join(",")}` : null;
-
-  // 3층 LLM 분류 — 룰 통과 글만. 미설정·실패 시 null → 승인 큐로
-  let verdict = null;
-  if (!filter.reject) {
-    verdict = await classifyNote({ body, targetLabel });
-    if (shouldAutoReject(verdict)) {
-      status = "rejected";
-      rejectReason = `llm:${verdict!.label}`;
-    }
-  }
+  const status: "pending" | "rejected" = filter.reject ? "rejected" : "pending";
+  const rejectReason: string | null = filter.reject ? `rule:${filter.flags.join(",")}` : null;
 
   const inserted = await insertNote({
     targetType,
@@ -132,7 +119,7 @@ export async function POST(req: NextRequest) {
     status,
     rejectReason,
     filterFlags: filter.flags,
-    llmVerdict: verdict,
+    llmVerdict: null,
     ipHash,
     userAgent: ua,
     isE2e: false,

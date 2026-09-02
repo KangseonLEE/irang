@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { runRuleFilter, MIN_COMPOSE_MS } from "@/lib/community/filter";
-import { shouldAutoReject } from "@/lib/community/moderation";
 import { isValidTargetId, isNoteTargetType } from "@/lib/community/types";
 
 describe("community rule filter", () => {
@@ -48,17 +47,6 @@ describe("community rule filter", () => {
   it("길이 범위를 벗어나면 걸린다", () => {
     expect(runRuleFilter({ body: "좋아요" }).flags).toContain("too_short");
     expect(runRuleFilter({ body: "가".repeat(301) }).flags).toContain("too_long");
-  });
-});
-
-describe("LLM verdict → auto reject", () => {
-  it("높은 확신의 광고·욕설만 자동 반려", () => {
-    expect(shouldAutoReject({ label: "ad", confidence: 0.9, reason: "", model: "m" })).toBe(true);
-    expect(shouldAutoReject({ label: "abuse", confidence: 0.85, reason: "", model: "m" })).toBe(true);
-    expect(shouldAutoReject({ label: "ad", confidence: 0.6, reason: "", model: "m" })).toBe(false);
-    expect(shouldAutoReject({ label: "off_topic", confidence: 0.99, reason: "", model: "m" })).toBe(false);
-    expect(shouldAutoReject({ label: "ok", confidence: 1, reason: "", model: "m" })).toBe(false);
-    expect(shouldAutoReject(null)).toBe(false);
   });
 });
 

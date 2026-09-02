@@ -15,7 +15,7 @@ import s from "./community-notes.module.css";
 interface Props {
   targetType: NoteTargetType;
   targetId: string;
-  /** LLM 분류·제목용 표시 이름 (예: "경북 영주시", "사과", "청년농업인 영농정착지원") */
+  /** 부제 표시용 이름 (예: "경북 영주시", "사과", "청년농업인 영농정착지원") */
   targetLabel: string;
 }
 
@@ -93,7 +93,6 @@ export function CommunityNotes({ targetType, targetId, targetLabel }: Props) {
           nickname: nickname.trim() || undefined,
           honeypot,
           composeMs,
-          targetLabel,
         }),
       });
       const json = (await res.json().catch(() => null)) as
@@ -117,7 +116,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel }: Props) {
     } catch {
       setSubmit({ kind: "error", message: "네트워크 오류가 있어요. 잠시 후 다시 시도해 주세요" });
     }
-  }, [submit.kind, body, nickname, honeypot, targetType, targetId, targetLabel]);
+  }, [submit.kind, body, nickname, honeypot, targetType, targetId]);
 
   const handleLike = useCallback(
     async (id: number) => {
