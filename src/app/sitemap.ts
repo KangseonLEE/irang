@@ -6,6 +6,7 @@ import { PROGRAMS } from "@/lib/data/programs";
 import { EDUCATION_COURSES } from "@/lib/data/education";
 import { EVENTS } from "@/lib/data/events";
 import { interviews, hasFullStory } from "@/lib/data/landing";
+import { RELEASE_GROUPS } from "@/lib/data/updates";
 
 const BASE_URL = "https://irangfarm.com";
 
@@ -87,6 +88,12 @@ function getCorePages(now: Date): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/about/disclaimer`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE_URL}/about/corrections`, lastModified: now, changeFrequency: "monthly", priority: 0.2 },
     { url: `${BASE_URL}/about/updates`, lastModified: now, changeFrequency: "weekly", priority: 0.3 },
+    ...RELEASE_GROUPS.map((r) => ({
+      url: `${BASE_URL}/about/updates/${r.date}`,
+      lastModified: new Date(`${r.date}T00:00:00+09:00`),
+      changeFrequency: "monthly" as const,
+      priority: 0.2,
+    })),
     { url: `${BASE_URL}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
 }

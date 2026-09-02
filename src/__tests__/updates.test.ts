@@ -64,3 +64,23 @@ describe("UPDATES 데이터 계약", () => {
     }
   });
 });
+
+describe("RELEASE_GROUPS 파생 (목록·상세 페이지)", async () => {
+  const { RELEASE_GROUPS, RELEASES, getRelease, releaseTitle } = await import("@/lib/data/updates");
+
+  it("모든 UPDATES 항목이 정확히 한 그룹에 속하고 날짜가 유일하다", () => {
+    const dates = RELEASE_GROUPS.map((r) => r.date);
+    expect(new Set(dates).size).toBe(dates.length);
+    expect(RELEASE_GROUPS.reduce((n, r) => n + r.items.length, 0)).toBe(UPDATES.length);
+  });
+
+  it("RELEASES 머리말 날짜는 전부 UPDATES 에 항목이 있다 (고아 머리말 금지)", () => {
+    for (const date of Object.keys(RELEASES)) {
+      expect(getRelease(date), date).toBeDefined();
+    }
+  });
+
+  it("행 제목은 비어 있지 않다", () => {
+    for (const r of RELEASE_GROUPS) expect(releaseTitle(r).trim().length, r.date).toBeGreaterThan(0);
+  });
+});

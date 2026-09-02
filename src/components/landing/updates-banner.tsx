@@ -72,7 +72,7 @@ export function UpdatesBanner() {
   return (
     <aside className={s.banner} aria-label="업데이트 소식">
       <Link
-        href="/about/updates"
+        href={`/about/updates/${latest.date}`}
         className={s.link}
         onClick={handleClick}
         data-track="updates_banner:about_updates"

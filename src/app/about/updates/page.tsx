@@ -1,58 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { UpdateMedia } from "./update-media";
-import { ArrowLeft, ArrowRight, Sparkles, ChevronDown } from "lucide-react";
+import { ArrowLeft, Sparkles, ChevronDown, ChevronRight, Bell } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { PageHeader } from "@/components/ui/page-header";
 import { LEGACY_UPDATES } from "@/lib/data/corrections";
-import { RELEASES, RELEASE_SIGNOFF, UPDATES, type UpdateItem, type UpdateTag } from "@/lib/data/updates";
+import { RELEASE_GROUPS, formatReleaseDate, releaseTitle } from "@/lib/data/updates";
 import d from "../disclaimer/page.module.css";
 import c from "../corrections/page.module.css";
 import u from "./page.module.css";
+import { TAG_CLASS } from "./tag-class";
 
 export const metadata: Metadata = {
-  title: "이렇게 개선됐어요 — 업데이트 소식 | 이랑",
+  title: "업데이트 소식 — 이렇게 개선됐어요",
   description:
     "이랑이 최근에 무엇을 고치고 무엇을 더했는지 확인하세요. 새 기능과 개선 내역을 날짜순으로 정리했어요.",
   alternates: { canonical: "/about/updates" },
 };
 
-/** 태그별 pill 색 변형 — 정의는 page.module.css 한 곳 */
-const TAG_CLASS: Record<UpdateTag, string> = {
-  기능: u.tagFeature,
-  개선: u.tagImprove,
-  수정: u.tagFix,
-  데이터: u.tagData,
-};
-
-interface UpdateGroup {
-  date: string;
-  items: UpdateItem[];
-}
-
-/** 이미 최신순으로 정렬된 UPDATES를 날짜별로 묶는다 (순서 유지) */
-function groupByDate(items: UpdateItem[]): UpdateGroup[] {
-  const groups: UpdateGroup[] = [];
-  for (const item of items) {
-    const last = groups[groups.length - 1];
-    if (last && last.date === item.date) {
-      last.items.push(item);
-    } else {
-      groups.push({ date: item.date, items: [item] });
-    }
-  }
-  return groups;
-}
-
-/** "2026-09-02" → "2026년 9월 2일" (Date 파싱 없이 문자열만 — 시간대 함정 회피) */
-function formatDateLabel(date: string): string {
-  const [y, m, day] = date.split("-");
-  return `${y}년 ${Number(m)}월 ${Number(day)}일`;
+/** 행 하단 태그 요약 — 같은 태그는 한 번만, UPDATES 순서 유지 */
+function uniqueTags(tags: string[]): string[] {
+  return tags.filter((t, i) => tags.indexOf(t) === i);
 }
 
 export default function UpdatesPage() {
-  const groups = groupByDate(UPDATES);
-
   return (
     <div className={d.page}>
       <BreadcrumbJsonLd
@@ -84,47 +54,39 @@ export default function UpdatesPage() {
         label="업데이트 소식"
         title="이렇게 개선됐어요"
         description="새로 생기고 좋아진 것들을 모았어요. 잘못 안내한 정보를 바로잡은 기록은 정정 이력에서 따로 볼 수 있어요."
-        count={UPDATES.length}
+        count={RELEASE_GROUPS.length}
       />
 
+      <section className={d.section}>
+        <div className={d.sectionHeader}>
+          <Bell size={18} />
+          <h2 className={d.sectionTitle}>업데이트 목록</h2>
+        </div>
 
-      <ol className={u.timeline}>
-        {groups.map((group) => (
-          <li key={group.date} className={u.group}>
-            <div className={u.groupHead}>
-              <h2 className={u.dateLabel}>
-                <time dateTime={group.date}>{formatDateLabel(group.date)}</time>
-                {RELEASES[group.date] && (
-                  <span className={u.tagline}>{RELEASES[group.date].tagline}</span>
-                )}
-              </h2>
-              {RELEASES[group.date] && <p className={u.intro}>{RELEASES[group.date].intro}</p>}
-            </div>
-            <ul className={u.items}>
-              {group.items.map((item) => (
-                <li key={item.id} className={u.item}>
-                  <div className={u.itemHead}>
-                    <span className={`${u.tag} ${TAG_CLASS[item.tag]}`}>
-                      {item.tag}
-                    </span>
-                    <h3 className={u.itemTitle}>{item.title}</h3>
-                  </div>
-                  <p className={u.itemSummary}>{item.summary}</p>
-                  {item.media && <UpdateMedia title={item.title} media={item.media} />}
-                  {item.href && (
-                    <Link href={item.href} className={u.itemLink}>
-                      바로 보기
-                      <ArrowRight size={14} aria-hidden="true" />
-                    </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ol>
-
-      <p className={u.signoff}>{RELEASE_SIGNOFF}</p>
+        <ol className={u.list}>
+          {RELEASE_GROUPS.map((release) => (
+            <li key={release.date} className={u.row}>
+              <Link href={`/about/updates/${release.date}`} className={u.rowLink}>
+                <span className={u.rowMain}>
+                  <time className={u.rowDate} dateTime={release.date}>
+                    {formatReleaseDate(release.date)}
+                  </time>
+                  <span className={u.rowTitle}>{releaseTitle(release)}</span>
+                  <span className={u.rowMeta}>
+                    <span className={u.rowCount}>{release.items.length}건</span>
+                    {uniqueTags(release.items.map((i) => i.tag)).map((tag) => (
+                      <span key={tag} className={`${u.tag} ${u.tagSm} ${TAG_CLASS[tag as keyof typeof TAG_CLASS]}`}>
+                        {tag}
+                      </span>
+                    ))}
+                  </span>
+                </span>
+                <ChevronRight size={18} className={u.rowChevron} aria-hidden="true" />
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       {LEGACY_UPDATES.length > 0 && (
         <details className={u.legacy}>

@@ -223,3 +223,38 @@ export const UPDATES: UpdateItem[] = [
  * (localStorage `irang:lastSeenUpdate` 와 비교)
  */
 export const LATEST_UPDATE_ID: string = UPDATES[0].id;
+
+/* ── 날짜 단위 공지(release) 파생 — /about/updates 목록 행 + /about/updates/[date] 상세 (9/2 회장: 목록 → 클릭 시 페이지 이동) ── */
+
+export interface Release {
+  /** `YYYY-MM-DD` — 상세 URL 세그먼트 */
+  date: string;
+  note?: ReleaseNote;
+  /** 그날의 항목들 (UPDATES 순서 유지) */
+  items: UpdateItem[];
+}
+
+/** 이미 최신순인 UPDATES를 날짜별로 묶는다 (순서 유지) */
+export const RELEASE_GROUPS: Release[] = UPDATES.reduce<Release[]>((groups, item) => {
+  const last = groups[groups.length - 1];
+  if (last && last.date === item.date) last.items.push(item);
+  else groups.push({ date: item.date, note: RELEASES[item.date], items: [item] });
+  return groups;
+}, []);
+
+export function getRelease(date: string): Release | undefined {
+  return RELEASE_GROUPS.find((r) => r.date === date);
+}
+
+/** 목록 행 제목 — 머리말 태그라인, 없으면 첫 항목 제목 (+ 외 N건) */
+export function releaseTitle(release: Release): string {
+  if (release.note) return release.note.tagline;
+  const [first, ...rest] = release.items;
+  return rest.length > 0 ? `${first.title} 외 ${rest.length}건` : first.title;
+}
+
+/** "2026-09-02" → "2026년 9월 2일" (Date 파싱 없이 문자열만 — 시간대 함정 회피) */
+export function formatReleaseDate(date: string): string {
+  const [y, m, day] = date.split("-");
+  return `${y}년 ${Number(m)}월 ${Number(day)}일`;
+}
