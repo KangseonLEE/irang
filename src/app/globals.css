@@ -234,6 +234,13 @@ html {
   background-color: var(--background); /* 오버스크롤 바운스 시 빈 공간 방지 */
 }
 
+/* 포커스·scrollIntoView 시 고정 하단 탭바(56px + safe-area)에 입력창이 가리지 않도록 (9/2) */
+@media (max-width: 767px) {
+  html {
+    scroll-padding-bottom: calc(var(--h-mobile-nav) + env(safe-area-inset-bottom, 0px) + 16px);
+  }
+}
+
 body {
   margin: 0;
   background-color: var(--background);

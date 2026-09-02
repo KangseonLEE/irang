@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { Header } from "@/components/layout/header";
+import { KeyboardFocusGuard } from "@/components/layout/keyboard-focus-guard";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
@@ -172,6 +173,7 @@ export default function RootLayout({
       <body className={s.body}>
         <ScrollToTop />
         <HashHighlight />
+        <KeyboardFocusGuard />
         <GoogleAnalytics />
         <Analytics />
         <SpeedInsights />

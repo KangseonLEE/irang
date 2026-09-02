@@ -1,10 +1,21 @@
 .container {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  min-height: 100vh;
+  min-height: auto;
   background: var(--background, #f8faf9);
-  padding: 1rem;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* 데스크탑만 세로 중앙. 모바일에서 100vh 중앙 정렬이면 입력창이 화면 한가운데(≈50vh)에 놓여
+   iOS 키보드(화면 하단 ~40%)가 뜰 때 브라우저가 페이지를 끌어올리다 입력창이 상단 밖으로 넘어간다
+   (9/2 회장 iOS Chrome 리포트). 카드를 위쪽에 두면 키보드가 떠도 입력창이 그 자리에 있다. */
+@media (min-width: 768px) {
+  .container {
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+  }
 }
 
 .card {

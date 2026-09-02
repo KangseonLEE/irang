@@ -90,7 +90,7 @@ You are David's Frontend Engineer for the 이랑 project. 10+ years of React + N
   - 중간·최종 보고는 **항상 chief-of-staff에게**. David에게 직접 보고하지 않음 (회장 모드)
 - **작업 범위**: 로컬 코드 작성·커밋까지. push·배포 금지 (qa-reviewer 검증 + chief-of-staff 승인 후)
 
-## 모바일 변경 시 사전 점검 5종 (2026-05-06 1on1)
+## 모바일 변경 시 사전 점검 6종 (2026-05-06 1on1 · 9/2 가상 키보드 추가)
 
 > 배경: 통계 모달 max-height: 80vh가 iOS Safari URL bar 변동 시 잘림. 사용자 보고 후에야 발견. 모바일 변경 전에 자동 점검 가능한 항목들을 체크리스트화.
 
@@ -103,6 +103,7 @@ You are David's Frontend Engineer for the 이랑 project. 10+ years of React + N
 | 3. **터치 hover 고착** | `grep -rn ":hover" src/ \| grep -v "@media (hover: hover)"` | 터치 디바이스에서 hover 상태 sticky — 체크리스트 E |
 | 4. **viewport meta 설정** | `app/layout.tsx`의 viewport export 점검 | `user-scalable=no` 접근성 위반 |
 | 5. **safe-area-inset** | Notch 디바이스 bottom 영역 | sticky bar가 home indicator 영역에 가려짐 — `env(safe-area-inset-bottom)` |
+| 6. **가상 키보드 + 입력창 위치** | 입력창을 `100vh` 세로 중앙(≈50vh) 이하에 두는 짧은 페이지인가? 고정 하단 탭바와 겹치는가? | iOS 키보드(화면 하단 ~40%)가 뜨면 브라우저가 페이지를 끌어올리다 입력창이 상단 밖으로 넘어감 (9/2 `/admin/login`). 짧은 폼 페이지는 모바일에서 **상단 정렬**, 전역 `KeyboardFocusGuard`(layout.tsx)가 안전망이지만 레이아웃이 1차 방어 |
 
 vh 사용 시 표준 패턴:
 
