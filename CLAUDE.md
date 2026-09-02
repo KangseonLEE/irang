@@ -40,7 +40,7 @@
 ### 0-3. 세션 시작 자동 체크
 
 - `.reminder-flag.md` 존재 시 reminder-watchman 자동 호출 → 결과 출력 후 flag 삭제
-- **열린 자동 감시 이슈 확인** (2026-08-29 추가): `gh issue list --state open` — 자동 이슈 라벨 6종(watchman·policy-check·cert-expiry·link-check·api-health·data-freshness). CI 취합기(`report.sh`·`check-policy-sources.ts`)는 **열린 이슈가 있으면 새 이슈를 만들지 않으므로**, 해소된 이슈를 닫지 않으면 이후 finding이 로그에만 남는다(8/17 #115가 11일간 그랬음). 해소 확인 → 닫기 → 남은 항목만 보고
+- **열린 자동 감시 이슈 확인** (2026-08-29 추가): `gh issue list --state open` — 자동 이슈 라벨 7종(watchman·policy-check·cert-expiry·link-check·api-health·data-freshness·community-pending). CI 취합기(`report.sh`·`check-policy-sources.ts`)는 **열린 이슈가 있으면 새 이슈를 만들지 않으므로**, 해소된 이슈를 닫지 않으면 이후 finding이 로그에만 남는다(8/17 #115가 11일간 그랬음). 해소 확인 → 닫기 → 남은 항목만 보고
 
 ### 0-4. David_agit(기획 볼트) 연동
 

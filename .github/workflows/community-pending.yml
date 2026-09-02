@@ -1,0 +1,138 @@
+# ═══════════════════════════════════════════════════════════════
+#  커뮤니티 승인 대기 알림 (2026-09-02)
+#
+#  회장 질문 "승인 필요한 댓글이 들어오면 나한테 알림 줄 수 있나?" → 기존 알림 체인
+#  (GitHub Issue → assignee → iPhone GitHub 앱 푸시)에 연결. 새 토큰·외부 서비스 없음.
+#
+#  동작 (30분 주기 + 수동):
+#   - Supabase REST(service role)로 community_notes status=pending(e2e 제외) 조회
+#   - pending > 0
+#       · 열린 `community-pending` 이슈 없음 → 이슈 생성 + assignee(푸시 1회)
+#       · 있음 → 이슈 본문의 id 목록과 비교, 새 id 있으면 코멘트(푸시), 없으면 무동작
+#   - pending = 0 이고 열린 이슈 있음 → "모두 처리됨" 코멘트 후 자동 종료
+#
+#  왜 폴링인가: Supabase Database Webhook → GitHub 실시간 연결은 GitHub PAT를 Supabase에
+#  저장해야 한다(토큰 발급 필요). 회장 결정(9/2, 외부 키 미발급)에 따라 GitHub 내장 토큰만 사용.
+#  지연 최대 30분은 현 트래픽(월 수 건 예상)에서 충분.
+# ═══════════════════════════════════════════════════════════════
+
+name: "💬 커뮤니티 승인 대기 알림"
+
+on:
+  schedule:
+    # 30분마다 (UTC 기준 = KST 동일 간격). GitHub cron은 수 분 지연될 수 있음
+    - cron: "5,35 * * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: community-pending
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: pending 조회 + 이슈 갱신
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      LABEL: community-pending
+      ASSIGNEE: KangseonLEE
+      ADMIN_URL: https://irangfarm.com/admin/community
+    steps:
+      - name: 라벨 생성 (없으면)
+        run: |
+          gh label create "$LABEL" --color "1B6B5A" \
+            --description "커뮤니티 한 줄 의견 승인 대기 — /admin/community" \
+            --force >/dev/null 2>&1 || true
+
+      - name: pending 조회 (Supabase REST, service role)
+        id: q
+        run: |
+          set -u
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 시크릿 누락"; exit 1
+          fi
+          # 최대 50건, 오래된 것부터 — 승인 순서 안내용
+          RESP=$(curl -s --max-time 20 \
+            -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+            "$SUPABASE_URL/rest/v1/community_notes?status=eq.pending&is_e2e=eq.false&select=id,target_type,target_id,body,nickname,created_at&order=created_at.asc&limit=50" || echo "")
+          if ! echo "$RESP" | jq -e 'type == "array"' >/dev/null 2>&1; then
+            echo "::error::Supabase 응답 비정상: $(echo "$RESP" | head -c 200)"; exit 1
+          fi
+          COUNT=$(echo "$RESP" | jq 'length')
+          echo "pending=$COUNT"
+          echo "$RESP" > pending.json
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          # 현재 pending id 집합 (정렬, 공백 구분)
+          echo "ids=$(echo "$RESP" | jq -r '[.[].id] | sort | join(" ")')" >> "$GITHUB_OUTPUT"
+
+      - name: 이슈 생성·갱신·종료
+        run: |
+          set -u
+          COUNT="${{ steps.q.outputs.count }}"
+          IDS="${{ steps.q.outputs.ids }}"
+          TYPE_KO() { case "$1" in region) echo "지역";; crop) echo "작물";; program) echo "지원사업";; *) echo "$1";; esac; }
+
+          # 목록 렌더 — 본문은 80자로 잘라 미리보기만 (전문은 admin에서)
+          render_list() {
+            jq -r '.[] | "- **#\(.id)** [\(.target_type)/\(.target_id)] \(if .nickname then "`\(.nickname)`" else "익명" end) · \(.created_at[0:16] | sub("T"; " "))Z\n  > \(.body | .[0:80] | gsub("\n"; " "))\(if (.body | length) > 80 then "…" else "" end)"' pending.json
+          }
+
+          OPEN_NUM=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty' 2>/dev/null || true)
+
+          if [ "$COUNT" -eq 0 ]; then
+            if [ -n "$OPEN_NUM" ]; then
+              gh issue comment "$OPEN_NUM" --body "✅ 승인 대기 의견이 모두 처리됐어요 (자동 확인 $(date -u +%Y-%m-%dT%H:%MZ)). 이슈를 닫아요."
+              gh issue close "$OPEN_NUM"
+              echo "closed #$OPEN_NUM"
+            else
+              echo "pending 0건 · 열린 이슈 없음 — 무동작"
+            fi
+            exit 0
+          fi
+
+          LIST=$(render_list)
+          BODY=$(cat <<EOF
+## 커뮤니티 한 줄 의견 — 승인 대기 ${COUNT}건
+
+👉 **[/admin/community 에서 승인·반려]($ADMIN_URL)**
+
+${LIST}
+
+---
+<sub>pending-ids: ${IDS}</sub>
+<sub>🤖 30분 주기 자동 점검(community-pending.yml). 대기 건이 0이 되면 이 이슈는 자동으로 닫혀요. 룰 필터에 걸린 글(rejected)은 알리지 않아요 — admin 반려 탭에서 확인.</sub>
+EOF
+)
+
+          if [ -z "$OPEN_NUM" ]; then
+            gh issue create \
+              --title "💬 커뮤니티 승인 대기 ${COUNT}건 — $(TZ=Asia/Seoul date +%m/%d)" \
+              --body "$BODY" \
+              --label "$LABEL" \
+              --assignee "$ASSIGNEE"
+            echo "created"
+            exit 0
+          fi
+
+          # 열린 이슈 있음 — 본문의 id 집합과 비교해 새 건만 코멘트(푸시), 본문은 최신으로 갱신
+          PREV_IDS=$(gh issue view "$OPEN_NUM" --json body --jq '.body' | sed -n 's/.*pending-ids: \([0-9 ]*\)<\/sub>.*/\1/p' | head -1)
+          NEW_IDS=$(comm -13 <(tr ' ' '\n' <<< "$PREV_IDS" | grep -v '^$' | sort) <(tr ' ' '\n' <<< "$IDS" | grep -v '^$' | sort) | tr '\n' ' ' | sed 's/ $//')
+          gh issue edit "$OPEN_NUM" --title "💬 커뮤니티 승인 대기 ${COUNT}건 — $(TZ=Asia/Seoul date +%m/%d)" --body "$BODY" >/dev/null
+          if [ -n "$NEW_IDS" ]; then
+            NEW_LIST=$(jq -r --arg ids " $NEW_IDS " '.[] | select(($ids | contains(" \(.id) "))) | "- **#\(.id)** [\(.target_type)/\(.target_id)] \(if .nickname then "`\(.nickname)`" else "익명" end)\n  > \(.body | .[0:80] | gsub("\n"; " "))"' pending.json)
+            gh issue comment "$OPEN_NUM" --body "🆕 새 승인 대기 의견이 들어왔어요 → [$ADMIN_URL]($ADMIN_URL)
+
+${NEW_LIST}"
+            echo "commented new: $NEW_IDS"
+          else
+            echo "변화 없음 (pending ${COUNT}건 유지)"
+          fi
