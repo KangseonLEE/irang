@@ -79,8 +79,6 @@ jobs:
           set -u
           COUNT="${{ steps.q.outputs.count }}"
           IDS="${{ steps.q.outputs.ids }}"
-          TYPE_KO() { case "$1" in region) echo "지역";; crop) echo "작물";; program) echo "지원사업";; *) echo "$1";; esac; }
-
           # 목록 렌더 — 본문은 80자로 잘라 미리보기만 (전문은 admin에서)
           render_list() {
             jq -r '.[] | "- **#\(.id)** [\(.target_type)/\(.target_id)] \(if .nickname then "`\(.nickname)`" else "익명" end) · \(.created_at[0:16] | sub("T"; " "))Z\n  > \(.body | .[0:80] | gsub("\n"; " "))\(if (.body | length) > 80 then "…" else "" end)"' pending.json
@@ -100,18 +98,16 @@ jobs:
           fi
 
           LIST=$(render_list)
-          BODY=$(cat <<EOF
-## 커뮤니티 한 줄 의견 — 승인 대기 ${COUNT}건
-
-👉 **[/admin/community 에서 승인·반려]($ADMIN_URL)**
-
-${LIST}
-
----
-<sub>pending-ids: ${IDS}</sub>
-<sub>🤖 30분 주기 자동 점검(community-pending.yml). 대기 건이 0이 되면 이 이슈는 자동으로 닫혀요. 룰 필터에 걸린 글(rejected)은 알리지 않아요 — admin 반려 탭에서 확인.</sub>
-EOF
-)
+          BODY=$(printf '%s\n' \
+            "## 커뮤니티 한 줄 의견 — 승인 대기 ${COUNT}건" \
+            "" \
+            "👉 **[/admin/community 에서 승인·반려]($ADMIN_URL)**" \
+            "" \
+            "$LIST" \
+            "" \
+            "---" \
+            "<sub>pending-ids: ${IDS}</sub>" \
+            "<sub>🤖 30분 주기 자동 점검(community-pending.yml). 대기 건이 0이 되면 이 이슈는 자동으로 닫혀요. 룰 필터에 걸린 글(rejected)은 알리지 않아요 — admin 반려 탭에서 확인.</sub>")
 
           if [ -z "$OPEN_NUM" ]; then
             gh issue create \
@@ -129,9 +125,7 @@ EOF
           gh issue edit "$OPEN_NUM" --title "💬 커뮤니티 승인 대기 ${COUNT}건 — $(TZ=Asia/Seoul date +%m/%d)" --body "$BODY" >/dev/null
           if [ -n "$NEW_IDS" ]; then
             NEW_LIST=$(jq -r --arg ids " $NEW_IDS " '.[] | select(($ids | contains(" \(.id) "))) | "- **#\(.id)** [\(.target_type)/\(.target_id)] \(if .nickname then "`\(.nickname)`" else "익명" end)\n  > \(.body | .[0:80] | gsub("\n"; " "))"' pending.json)
-            gh issue comment "$OPEN_NUM" --body "🆕 새 승인 대기 의견이 들어왔어요 → [$ADMIN_URL]($ADMIN_URL)
-
-${NEW_LIST}"
+            gh issue comment "$OPEN_NUM" --body "$(printf '%s\n' "🆕 새 승인 대기 의견이 들어왔어요 → [$ADMIN_URL]($ADMIN_URL)" "" "$NEW_LIST")"
             echo "commented new: $NEW_IDS"
           else
             echo "변화 없음 (pending ${COUNT}건 유지)"
