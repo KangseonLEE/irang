@@ -21,7 +21,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className={s.shell}>
+    <div className={s.shell} data-admin-shell="">
       {/* ── 사이드바 (데스크탑) ── */}
       <aside className={s.sidebar}>
         <div className={s.logo}>

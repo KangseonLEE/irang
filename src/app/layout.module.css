@@ -14,6 +14,11 @@
   padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
 }
 
+/* /admin: PublicChrome 이 MobileNav 를 비노출하고 AdminShell 이 자체 하단 탭 여백을 갖는다 (9/2) */
+.body:has([data-admin-shell]) {
+  padding-bottom: 0;
+}
+
 @media (min-width: 768px) {
   .body {
     padding-bottom: 0;

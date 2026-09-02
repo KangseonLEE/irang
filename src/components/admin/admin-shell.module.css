@@ -1,12 +1,11 @@
 .shell {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
   background: #f8faf9;
-  /* 메인 사이트 크롬(Header/Footer/MobileNav)을 가리고 전체 화면 차지 */
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  overflow: auto;
+  /* 9/2: 공용 크롬(Header/Footer/MobileNav)은 layout.tsx PublicChrome 이 /admin 에서 비노출하므로
+     예전의 `position: fixed; inset: 0; overflow: auto` 덮개는 제거. iOS 에서 inset:0 고정 컨테이너는
+     주소창/툴바 아래까지 높이를 잡아 스크롤 바닥이 화면 밖에 놓였다(끝까지 스크롤 불가·하단 탭에 가림). */
 }
 
 /* ── 사이드바 ── */
@@ -97,10 +96,18 @@
 
 .content {
   flex: 1;
+  min-width: 0;
   padding: 1.5rem;
-  padding-bottom: 5rem; /* 모바일 탭바 높이만큼 */
+  /* 모바일 하단 탭(60px) + 홈 인디케이터 safe-area + 여유 — 마지막 카드가 탭 뒤에 깔리지 않게 */
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 1.5rem);
   max-width: 1200px;
   width: 100%;
+}
+
+@media (min-width: 768px) {
+  .content {
+    padding-bottom: 1.5rem;
+  }
 }
 
 /* ── 하단 탭바 (모바일) ── */
