@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, ExternalLink } from "lucide-react";
 import { ADMIN_SECTIONS } from "@/lib/admin/config";
 import s from "./admin-shell.module.css";
 
@@ -25,7 +25,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       {/* ── 사이드바 (데스크탑) ── */}
       <aside className={s.sidebar}>
         <div className={s.logo}>
-          <Link href="/" className={s.logoLink}>
+          <Link href="/" className={s.logoLink} target="_blank" rel="noopener">
             이랑
           </Link>
           <span className={s.badge}>Admin</span>
@@ -56,6 +56,29 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <span>로그아웃</span>
         </button>
       </aside>
+
+      {/* ── 상단바 (모바일) — 사이드바가 숨는 폭에서 사이트 이동·로그아웃 진입점 (9/2 회장 요청) ── */}
+      <header className={s.topBar}>
+        <div className={s.topBarBrand}>
+          <span className={s.topBarTitle}>이랑</span>
+          <span className={s.badge}>Admin</span>
+        </div>
+        <div className={s.topBarActions}>
+          <Link
+            href="/"
+            className={s.topBarLink}
+            target="_blank"
+            rel="noopener"
+            aria-label="이랑 사이트 새 탭에서 열기"
+          >
+            사이트
+            <ExternalLink size={14} aria-hidden="true" />
+          </Link>
+          <button type="button" onClick={handleLogout} className={s.topBarLogout} aria-label="로그아웃">
+            <LogOut size={16} aria-hidden="true" />
+          </button>
+        </div>
+      </header>
 
       {/* ── 메인 콘텐츠 ── */}
       <main className={s.content}>{children}</main>

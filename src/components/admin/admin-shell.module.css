@@ -1,5 +1,6 @@
 .shell {
   display: flex;
+  flex-direction: column;          /* 모바일: 상단바 → 콘텐츠 세로 배치 */
   min-height: 100vh;
   min-height: 100dvh;
   background: #f8faf9;
@@ -110,6 +111,74 @@
   }
 }
 
+/* ── 상단바 (모바일) — 768px 이상은 사이드바가 같은 역할 ── */
+
+.topBar {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 3.25rem;
+  padding: 0 1rem;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: white;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.topBarBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topBarTitle {
+  font-family: var(--font-logo, inherit);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--primary, #1b6b5a);
+}
+
+.topBarActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topBarLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  border-radius: 9999px;
+  text-decoration: none;
+}
+
+.topBarLogout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted-foreground, #666);
+  cursor: pointer;
+}
+
+.topBarLink:focus-visible,
+.topBarLogout:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
 /* ── 하단 탭바 (모바일) ── */
 
 .bottomTabs {
@@ -150,10 +219,15 @@
 /* ── 데스크탑 ── */
 
 @media (min-width: 768px) {
+  .shell {
+    flex-direction: row;           /* 데스크탑: 사이드바 | 콘텐츠 */
+  }
+
   .sidebar {
     display: flex;
   }
 
+  .topBar,
   .bottomTabs {
     display: none;
   }
@@ -168,6 +242,15 @@
   .navItem:hover:not(.active) {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
     color: var(--foreground, #111);
+  }
+
+  .topBarLink:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+  }
+
+  .topBarLogout:hover {
+    background: #fef2f2;
+    color: #dc2626;
   }
 
   .logout:hover {
