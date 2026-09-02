@@ -85,14 +85,6 @@ export default async function CorrectionsPage({ searchParams }: Props) {
         소개 페이지로
       </Link>
 
-      <PageHeader
-        icon={<FileEdit size={14} aria-hidden="true" />}
-        label="정정 이력"
-        title="바로잡은 기록이에요"
-        description="화면에 표시한 정보가 틀렸거나 원문이 바뀌어 바로잡은 기록이에요. 새 기능·개선 소식은 업데이트 소식에서 볼 수 있어요."
-        count={CORRECTIONS.length}
-      />
-
       <nav className={c.filterRow} aria-label="기록 종류">
         <Link href="/about/updates" className={c.filterChip}>
           업데이트 소식
@@ -105,9 +97,15 @@ export default async function CorrectionsPage({ searchParams }: Props) {
           정정 이력
         </Link>
       </nav>
-      <p className={c.kindNote}>
-        <strong>업데이트 소식</strong>은 새 기능·개선·데이터 추가, <strong>정정 이력</strong>은 표시한 정보가 틀렸거나 바뀌어 바로잡은 기록이에요.
-      </p>
+
+      <PageHeader
+        icon={<FileEdit size={14} aria-hidden="true" />}
+        label="정정 이력"
+        title="바로잡은 기록이에요"
+        description="화면에 표시한 정보가 틀렸거나 원문이 바뀌어 바로잡은 기록이에요. 새 기능·개선 소식은 업데이트 소식에서 볼 수 있어요."
+        count={CORRECTIONS.length}
+      />
+
 
       <section className={s.section}>
         <div className={s.sectionHeader}>

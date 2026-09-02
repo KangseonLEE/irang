@@ -66,14 +66,6 @@ export default function UpdatesPage() {
         소개 페이지로
       </Link>
 
-      <PageHeader
-        icon={<Sparkles size={14} aria-hidden="true" />}
-        label="업데이트 소식"
-        title="이렇게 개선됐어요"
-        description="새로 생기고 좋아진 것들을 모았어요. 잘못 안내한 정보를 바로잡은 기록은 정정 이력에서 따로 볼 수 있어요."
-        count={UPDATES.length}
-      />
-
       <nav className={c.filterRow} aria-label="기록 종류">
         <Link
           href="/about/updates"
@@ -86,9 +78,15 @@ export default function UpdatesPage() {
           정정 이력
         </Link>
       </nav>
-      <p className={c.kindNote}>
-        <strong>업데이트 소식</strong>은 새 기능·개선·데이터 추가, <strong>정정 이력</strong>은 표시한 정보가 틀렸거나 바뀌어 바로잡은 기록이에요.
-      </p>
+
+      <PageHeader
+        icon={<Sparkles size={14} aria-hidden="true" />}
+        label="업데이트 소식"
+        title="이렇게 개선됐어요"
+        description="새로 생기고 좋아진 것들을 모았어요. 잘못 안내한 정보를 바로잡은 기록은 정정 이력에서 따로 볼 수 있어요."
+        count={UPDATES.length}
+      />
+
 
       <ol className={u.timeline}>
         {groups.map((group) => (
