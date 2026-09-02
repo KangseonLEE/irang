@@ -47,6 +47,7 @@ const KoreaMap = dynamic(
 );
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { ActiveRegionsSection } from "@/components/region/active-regions-section";
+import { RegionSearch } from "@/components/region/region-search";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -89,6 +90,11 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
         title="지역 탐색"
         description="농촌 정착을 고려 중인 지역을 선택해 기후, 인구, 추천 작물, 지원사업 정보를 확인하세요."
       />
+
+      {/* ── 지역 검색 (지도 대신 시·군·구까지 바로 이동, 2026-09-02) ── */}
+      <section className={s.searchSection} aria-label="지역 검색">
+        <RegionSearch />
+      </section>
 
       {/* ── Quick Stats ── */}
       <section className={s.statsSection}>
