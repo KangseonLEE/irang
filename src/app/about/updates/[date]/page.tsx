@@ -19,6 +19,9 @@ interface Props {
   params: Promise<{ date: string }>;
 }
 
+/** 날짜 목록은 빌드 시 고정 — 모르는 날짜는 진짜 404 (동적 fallback 시 not-found 본문이 200으로 나가는 소프트 404 방지) */
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return RELEASE_GROUPS.map((r) => ({ date: r.date }));
 }
