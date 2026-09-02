@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { Header } from "@/components/layout/header";
 import { KeyboardFocusGuard } from "@/components/layout/keyboard-focus-guard";
+import { PublicChrome } from "@/components/layout/public-chrome";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
@@ -178,13 +179,18 @@ export default function RootLayout({
         <Analytics />
         <SpeedInsights />
         <SearchOverlayProvider>
-          <Header />
+          {/* /admin/* 은 AdminShell 이 크롬을 담당 — 공용 헤더·푸터·탭바·위젯 비노출 (9/2) */}
+          <PublicChrome>
+            <Header />
+          </PublicChrome>
           <main className={s.main}>{children}</main>
-          <Footer />
-          <MobileNav />
-          <ScrollToTopButton />
-          <FeedbackWidget />
-          <InAppBanner />
+          <PublicChrome>
+            <Footer />
+            <MobileNav />
+            <ScrollToTopButton />
+            <FeedbackWidget />
+            <InAppBanner />
+          </PublicChrome>
         </SearchOverlayProvider>
       </body>
     </html>
