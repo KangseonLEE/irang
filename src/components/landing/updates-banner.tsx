@@ -79,7 +79,7 @@ export function UpdatesBanner() {
       >
         <span className={s.badge}>
           <Sparkles size={14} aria-hidden="true" />
-          새로워졌어요
+          NEW
         </span>
         <span className={s.title}>
           <span className={s.titleShort}>{latest.short ?? latest.title}</span>
