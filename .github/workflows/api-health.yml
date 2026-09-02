@@ -61,18 +61,29 @@ jobs:
             START=$(date +%s%3N)
             # 8/30: 타임아웃 시 curl이 "000"을 출력하고 실패 종료하는데 `|| echo "000"`이 뒤에 또 붙어
             # "000000"이 되어 ✅로 채점되던 버그(기상청 8/17~8/30 타임아웃이 전부 ✅). 앞 3자리만 취한다.
+            # 9/2: `|| true` 필수 — GH Actions run 은 bash -e 라서 curl 타임아웃(exit 28) 시 대입이 실패로
+            #      처리돼 스크립트 전체가 결과 한 줄 없이 중단됐음(9/2 dispatch 실측). 출력은 curl 의 "000" 그대로.
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
               --max-time "$TIMEOUT" \
               ${extra_headers:+-H "$extra_headers"} \
-              "$url" 2>/dev/null)
+              "$url" 2>/dev/null || true)
             HTTP_CODE="${HTTP_CODE:0:3}"
             [ -z "$HTTP_CODE" ] && HTTP_CODE="000"
             END=$(date +%s%3N)
             ELAPSED=$(( END - START ))
 
             if [ "$HTTP_CODE" = "000" ]; then
-              STATUS="⏱️ 타임아웃"
-              FAIL_COUNT=$((FAIL_COUNT + 1))
+              case "$url" in
+                *apis.data.go.kr*)
+                  # data.go.kr 는 US 러너 대역을 차단·지연시킨다(8/16~). 프로덕션은 CF Worker 프록시 경유라
+                  # 이 직접 호출은 실사용 경로가 아님 → 경고만 (check-links 8/17·check-policy 8/29 강등 선례)
+                  STATUS="⚠️ 타임아웃(US 러너·data.go.kr 지역 이슈, 라이브는 Worker 경유)"
+                  ;;
+                *)
+                  STATUS="⏱️ 타임아웃"
+                  FAIL_COUNT=$((FAIL_COUNT + 1))
+                  ;;
+              esac
             elif [ "$HTTP_CODE" -ge 500 ] 2>/dev/null; then
               STATUS="❌ ${HTTP_CODE}"
               FAIL_COUNT=$((FAIL_COUNT + 1))
