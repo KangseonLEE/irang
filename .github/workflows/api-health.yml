@@ -46,7 +46,9 @@ jobs:
           NEIS_API_KEY:        ${{ secrets.NEIS_API_KEY }}
           RDA_API_KEY:         ${{ secrets.RDA_API_KEY }}
           NAVER_CLIENT_ID:     ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
           SUPABASE_URL:        ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ANON_KEY:   ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         run: |
           TIMEOUT=10
           FAIL_COUNT=0
@@ -57,6 +59,7 @@ jobs:
             local name="$1"
             local url="$2"
             local extra_headers="$3"
+            local extra_headers2="$4"
 
             START=$(date +%s%3N)
             # 8/30: 타임아웃 시 curl이 "000"을 출력하고 실패 종료하는데 `|| echo "000"`이 뒤에 또 붙어
@@ -66,6 +69,7 @@ jobs:
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
               --max-time "$TIMEOUT" \
               ${extra_headers:+-H "$extra_headers"} \
+              ${extra_headers2:+-H "$extra_headers2"} \
               "$url" 2>/dev/null || true)
             HTTP_CODE="${HTTP_CODE:0:3}"
             [ -z "$HTTP_CODE" ] && HTTP_CODE="000"
@@ -128,12 +132,14 @@ jobs:
           # ── 7. 네이버 검색 API ──────────────────────────────────────
           check_api "네이버" \
             "https://openapi.naver.com/v1/search/news.json?query=귀농&display=1" \
-            "X-Naver-Client-Id: ${NAVER_CLIENT_ID:-MISSING}"
+            "X-Naver-Client-Id: ${NAVER_CLIENT_ID:-MISSING}" \
+            "X-Naver-Client-Secret: ${NAVER_CLIENT_SECRET:-MISSING}"
 
           # ── 8. Supabase ─────────────────────────────────────────────
           if [ -n "$SUPABASE_URL" ]; then
             check_api "Supabase" \
-              "${SUPABASE_URL}/rest/v1/"
+              "${SUPABASE_URL}/rest/v1/support_programs?select=id&limit=1" \
+              "apikey: ${SUPABASE_ANON_KEY:-MISSING}"
           else
             RESULT_TABLE="${RESULT_TABLE}| Supabase | — | ⚠️ URL 없음 | — | SUPABASE_URL 미설정 |\n"
             echo "[⚠️] Supabase — URL 미설정"
