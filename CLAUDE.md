@@ -85,6 +85,9 @@
 | 2026-08-31 | 캘린더 색 3종(파랑/앰버) → 브랜드 그린 밀도 3단계(22/45/88%) + 패널 현재 시기 배지(`describeCurrentPhase`) | src/components/crops/farming-calendar.*, src/lib/crops/calendar-ranges.ts | 회장 8/31 "색상이 너무 달라 톤앤매너 안 맞음, 밀도로 구분". **구분이 필요해도 브랜드 팔레트 밖 hue는 쓰지 않는다** — 밀도 + 텍스트 라벨 조합이 기본 (27db3e9) |
 | 2026-08-31 | **백로그 3건 일괄** — ① CTA 버튼 7파일 → `ui/action-button`(on-dark 변형 신설, TSX 0 변경) ② `DifficultyBadge` 공용 추출(4곳 → 1곳, 표 뷰 회색 팔레트 흡수) ③ 수박·참외·대파 수확 월 병기(농사로 작업력 3건 실측). 함정 박제: **Turbopack CSS Modules `composes`는 2단계까지만** — 3단 체인이면 base 클래스가 조용히 유실(빌드·테스트 전부 통과). CSS 리팩토링은 전/후 computed style diff 실측이 유일한 게이트 | src/components/ui/action-button.module.css·difficulty-badge.*, 페이지 모듈 7, src/lib/data/crops.ts | 회장 8/31 "다음 거 그냥 다 진행". 3 sub-agent 병렬(파일 경계 명시) — dev 서버 `pkill -f "next dev"` 광역 종료가 타 에이전트 서버를 죽인 사례: **포트 지정 종료 필수** (1870588) |
 | 2026-08-31 | **진단 DB e2e 오염 차단 + 유형 분류 가중치 재조정** — ① 회장 "결과가 대부분 귀농형" 점검 지시 → `assessment_results` 146건 중 **106건(73%)이 core-journeys e2e 적재**(7/24 도입 이후 매 push, 매 스텝 첫 옵션 클릭 → 전부 귀농형). `/api/assess`에 `irang-e2e` UA·헤더 skip 추가 + 라이브 skip 실측 후 106건 삭제(잔존 0, 사람 40건) ② 계산식 자체도 편향: guinong이 36개 선택지 중 24개에서 잔점수 → 균등 랜덤 60% 귀농형, 청년농형은 youth +6으로도 1/10,000 도달. guinong 동반 가산 제거·youth +8 재조정 → 랜덤 35%/청년 아키타입 정상 도출, 아키타입 5종 회귀 테스트 (53bcac5) | src/app/api/assess/route.ts, src/lib/match-scoring.ts, src/__tests__/match-scoring.test.ts | **e2e가 실 DB에 쓰는 여정(POST 동반 완주)은 도입 시점에 적재 차단을 함께 설계**해야 한다 — 7/24 e2e 신설 때 누락돼 5주간 통계 3배 오염. 진단·통계 이상 보고는 "봇/테스트 적재 분리"가 1차 분기점(UA 토큰이 식별자). IP는 스키마에 없어 동일 IP 판정 불가 — rate limit용으로만 사용 |
+| 2026-09-02 | **지역 탐색 개편 4건** — ① `RegionSearch`(components/region) 검색창: 시·도 17 + 시·군·구 229 인덱스, 빈 입력은 좌 시·도/우 시·군·구 **2단 트리**(탭·hover = 펼침, 이동은 우측 "OO 전체 보기"로 통일 — hover 없는 터치와 데스크탑 동작 일치), 입력 시 평면 검색 ② `/regions` 찾기 섹션 승격 + **2단 레이아웃**(1024+: 좌 검색+지도 560px / 우 정보 카드·활성 지역, `grid-template-areas`로 모바일 순서 격리, 활성 지역 grid는 `@container` 1열 전환) ③ 통계 칩을 정보 카드 배지(55종·48건)로 흡수 + 링크 카드 ↗ 아이콘 ④ `useActiveOptionScroll` 공용 훅 — 키보드 하이라이트 스크롤 추종(4곳 누락), 첫 옵션은 scrollTop 0으로 상단 힌트까지 노출 | src/components/region/region-search.*, src/app/regions/page.*, src/lib/hooks/use-active-option-scroll.ts, active-regions-section.module.css | 회장 9/2 연속 지시. **모드 토글(검색/지도)은 같은 목적의 두 진입점에 선택을 강요해 비추천 → 한 구역에 겹쳐 두는 통합안 결재.** 좌우 높이 균형은 카드 stretch가 아니라 콘텐츠 밀도(활성 지역 이동)로 맞춘다. 뷰포트 기준 미디어쿼리 컴포넌트를 절반 컬럼에 넣을 땐 container query |
+| 2026-09-02 | **업데이트 안내 + 커뮤니티 1단계** — ① `/about/updates`(사용자 언어 큐레이션 12건, `src/lib/data/updates.ts`) + 랜딩 `UpdatesBanner`(localStorage 1회, 모달 금지) ② 커뮤니티 "한 줄 의견": 지역·작물·지원사업 상세 하단 `CommunityNotes`, **사전 승인제**(pending → admin `/admin/community` 승인 후 노출), 5층 필터(허니팟·2초 / 룰: URL·전화·메신저ID·금지어(농업 맥락어 제외)·반복·비한글 / LLM `@anthropic-ai/sdk` claude-opus-5 effort low, ad·abuse ≥0.8 자동 반려, 키 없으면 skip / 승인 큐 / 신고 3건 자동 hidden), ip_hash만 저장, e2e 적재 분리, 테이블 미적용은 503 명시(GET은 fallback 로그 제외), 약관 제6조 운영 원칙. **마이그레이션 `20260902_community_notes.sql` 회장 수동 apply + `ANTHROPIC_API_KEY` Vercel 등록 필요** | src/lib/community/*, src/app/api/community/*, src/components/community/*, src/app/admin/community/*, supabase/migrations/20260902_community_notes.sql, src/app/terms/page.tsx | 회장 9/2 결재. 자유 게시판은 현 트래픽(검색 5건/일)에서 유령 게시판 위험 → 사전 승인 한 줄 의견으로 수요 검증 후 2단계(외부 커뮤니티 연결)·3단계(회원제) 판단. **DB 없이도 UI·API 계약은 route mock + curl로 전수 검증 가능** — 마이그레이션 apply 뒤 라이브 재검증만 남김 |
+| 2026-09-02 | **전체 환경·코드 품질 감사 후속** — ① watchman §11 🔴 회귀 판정에 "배포 직전 7일 활동 > 0" 전제(#119·#120 이틀 연속 오탐) + §15 watchman-ci 자기 참조 skip ② 데드 코드 20파일·landing.ts 죽은 export 7종·loader.ts 중복 로더 삭제, **`loadPrograms.test.ts`가 죽은 loader.ts를 import해 5/11 병합 회귀 가드가 실경로를 보호하지 못하던 것** 교정 ③ og/fonts.ts 타임아웃, api-health.yml 샘플 URL 3종 실경로화(HIRA 400 통과 오류), Unsplash 전면 제거(7 API), 미사용 dep 제거·dotenv 명시, semver 패치 갱신(next 16.3.4) | scripts/watchman/*, src/lib/data/loader.ts, src/__tests__/loadPrograms.test.ts, .github/workflows/api-health.yml, package.json | 회장 "전체 리팩토링 및 환경 점검". 2 sub-agent read-only 병렬 감사 → CoS가 근거 확인 후 실행. **회귀 테스트는 실제 호출 경로를 import해야 가드다** — 동명 함수가 두 모듈에 있으면 테스트가 죽은 쪽을 볼 수 있다(knip이 잡음). 저트래픽 테이블의 "배포 동반 0건" 규칙은 배포 전 활동 전제 없이는 상시 오탐. 미결: `CRON_SECRET`(dead cron) 결정, 정적 데이터 4파일(scripts 참조) 정리, 브랜치 `feat/crop-ranking-redesign` 미push 커밋 |
 
 ---
 
@@ -259,6 +262,21 @@ API 키는 `.env.local`에서 관리한다. Vercel 환경변수에도 동일하�
 - Props: `value`, `onChange`, `options[{ value, label, hint?, group?, disabled? }]`, `ariaLabel`, `placeholder?`, `searchable?: boolean | "auto"`(기본 auto = 옵션 ≥ 8), `size?: "sm" | "md"`, `matchKeys?`(검색 대상 추가 문자열)
 - 항상 `document.body` 포털(카드 overflow·Modal z-index 200 위 300) + 트리거 좌표 기준 fixed 배치·플립·뷰포트 clamp. 키보드 ↑↓ Enter Esc Home/End, `role=combobox/listbox/option`, 모바일(hover:none)은 자동 포커스 안 함.
 - 사용처: 지역 비교 시·군·구, 비용 시뮬레이터 작물, 요청 모달 카테고리. **새 선택 UI는 반드시 이 컴포넌트.**
+
+#### RegionSearch (`@/components/region/region-search`)
+
+- 지역 탐색 검색창 (2026-09-02). 빈 입력 = 좌 시·도 / 우 시·군·구 2단 트리(탭·hover 펼침, 이동은 "OO 전체 보기"·시·군·구 항목), 입력 시 시·도+시·군·구 평면 검색 → `/regions/{시도}[/{시군구}]` push.
+- 키보드 ↑↓ · →/← 패널 전환 · Enter · Esc. `useSearchParams` 미사용. 지역 선택이 필요한 다른 화면에서 재사용(다중 선택은 compare의 `RegionCardsSelector`).
+
+#### CommunityNotes (`@/components/community/community-notes`)
+
+- 커뮤니티 1단계 "한 줄 의견" + 공감 (2026-09-02). Props: `targetType`("region"|"crop"|"program"), `targetId`(시군구는 `"시도/시군구"`), `targetLabel`(표시·LLM 분류용).
+- 승인된 글만 노출(사전 승인제). GET 503(테이블 미적용·Supabase 미설정)이면 섹션을 렌더하지 않음. 사용자 생성 텍스트라 AutoGlossary 미적용.
+- 서버: `src/lib/community/{filter,moderation,queries,types,ip-hash}.ts`, API `/api/community/notes[/id/like|report]`, admin `/admin/community`.
+
+#### useActiveOptionScroll (`@/lib/hooks/use-active-option-scroll`)
+
+- 키보드로 listbox 하이라이트를 옮길 때 `[role="option"][aria-selected="true"]`를 스크롤 시야 안으로(첫 옵션은 컨테이너 최상단 → 힌트 노출). 커스텀 드롭다운에 키보드 내비를 넣으면 반드시 함께 쓴다 (SelectCombobox는 자체 구현).
 
 #### formatPopulation / SEOUL_AREA_KM2 (`@/lib/format`)
 
