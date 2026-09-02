@@ -15,7 +15,8 @@ import c from "./page.module.css";
 import { CORRECTIONS, excerpt } from "@/lib/data/corrections";
 
 /** 모바일 페이지네이션 단위 — 데스크탑은 모든 entry 한 번에 노출 */
-const PER_PAGE_MOBILE = 10;
+/** 한 페이지 10건 — 모든 화면 공통 (9/2 회장: 데스크탑도 페이지네이션) */
+const PER_PAGE = 10;
 
 type PeriodFilter = "week" | "month" | "all";
 
@@ -70,9 +71,10 @@ export default async function CorrectionsPage({ searchParams }: Props) {
           isWithinDays(e.date, period === "week" ? 7 : 30, today),
         );
 
-  const totalMobilePages = Math.max(1, Math.ceil(filtered.length / PER_PAGE_MOBILE));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const requestedPage = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
-  const mobilePage = Math.min(requestedPage, totalMobilePages);
+  const page = Math.min(requestedPage, totalPages);
+  const pageEntries = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   return (
     <div className={s.page}>
@@ -131,14 +133,11 @@ export default async function CorrectionsPage({ searchParams }: Props) {
           {filtered.length === 0 && (
             <div className={c.empty}>해당 기간에 정정 내역이 없어요</div>
           )}
-          {filtered.map((entry, i) => {
-            const entryMobilePage = Math.ceil((i + 1) / PER_PAGE_MOBILE);
-            const isCurrentMobilePage = entryMobilePage === mobilePage;
+          {pageEntries.map((entry) => {
             return (
               <details
                 key={`${entry.date}-${entry.field}`}
                 className={c.entry}
-                data-mobile-current={isCurrentMobilePage || undefined}
               >
                 <summary className={c.entrySummary}>
                   <span className={c.entryMeta}>
@@ -156,23 +155,23 @@ export default async function CorrectionsPage({ searchParams }: Props) {
           })}
         </div>
 
-        {totalMobilePages > 1 && (
-          <nav className={c.pagination} aria-label="모바일 페이지 이동">
+        {totalPages > 1 && (
+          <nav className={c.pagination} aria-label="페이지 이동">
             <Link
-              href={buildHref({ period, page: Math.max(1, mobilePage - 1) })}
-              className={`${c.pageBtn} ${mobilePage === 1 ? c.pageBtnDisabled : ""}`}
-              aria-disabled={mobilePage === 1}
+              href={buildHref({ period, page: Math.max(1, page - 1) })}
+              className={`${c.pageBtn} ${page === 1 ? c.pageBtnDisabled : ""}`}
+              aria-disabled={page === 1}
               scroll={false}
             >
               이전
             </Link>
             <span className={c.pageInfo}>
-              {mobilePage} / {totalMobilePages}
+              {page} / {totalPages}
             </span>
             <Link
-              href={buildHref({ period, page: Math.min(totalMobilePages, mobilePage + 1) })}
-              className={`${c.pageBtn} ${mobilePage === totalMobilePages ? c.pageBtnDisabled : ""}`}
-              aria-disabled={mobilePage === totalMobilePages}
+              href={buildHref({ period, page: Math.min(totalPages, page + 1) })}
+              className={`${c.pageBtn} ${page === totalPages ? c.pageBtnDisabled : ""}`}
+              aria-disabled={page === totalPages}
               scroll={false}
             >
               다음
