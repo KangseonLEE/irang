@@ -1,11 +1,11 @@
 /**
  * compute 스크립트 재현성 검증 게이트
  *
- * 배경: `src/lib/data/dimension-scores.ts`·`settlement-score.ts`는 각각
- *   `scripts/compute-dimension-scores.ts`·`compute-settlement-score.ts`가
+ * 배경: `src/lib/data/dimension-scores.ts`는 `scripts/compute-dimension-scores.ts`가
  *   정적 데이터(population-trend·farms·medical·school·return-farm·sigungus 등)만
- *   입력으로 계산해 생성하는 산출물이다. 두 스크립트 모두 외부 API·Date.now·
- *   Math.random·process.env를 데이터 계산에 쓰지 않으므로 완전 결정적이다.
+ *   입력으로 계산해 생성하는 산출물이다. 외부 API·Date.now·Math.random·process.env를
+ *   데이터 계산에 쓰지 않으므로 완전 결정적이다.
+ *   (settlement-score.ts·compute-settlement-score.ts는 importer 0으로 2026-09-02 삭제)
  *
  *   위험: 생성 파일을 손으로 편집하거나(예: 2026-05-19 "귀농"→"농촌 정착" site-wide
  *   sed가 생성 파일에도 적용됨), 입력 데이터만 갱신하고 재계산을 누락하면
@@ -42,11 +42,6 @@ const TARGETS: Target[] = [
     label: "dimension-scores",
     script: "scripts/compute-dimension-scores.ts",
     committed: "src/lib/data/dimension-scores.ts",
-  },
-  {
-    label: "settlement-score",
-    script: "scripts/compute-settlement-score.ts",
-    committed: "src/lib/data/settlement-score.ts",
   },
 ];
 

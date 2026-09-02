@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: 저장소 체크아웃
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: api-health 라벨 생성 (없으면)
         env:

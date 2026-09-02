@@ -55,14 +55,14 @@ jobs:
       # fetch-depth: 0 필수 — §9(정정 이력)·§10(파일 수정일)이 git 히스토리를 본다.
       # shallow clone이면 두 검사가 skip으로 떨어져 감시가 조용히 죽는다.
       - name: 저장소 체크아웃 (전체 히스토리)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       # Node 22 필수 — supabase-js가 native WebSocket을 요구해 20에서는
       # §11·§12 검사가 스크립트 예외로 떨어진다 (8/17 첫 CI 실측에서 발견).
       - name: Node.js 설정
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: "npm"

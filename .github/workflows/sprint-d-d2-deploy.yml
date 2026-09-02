@@ -76,7 +76,7 @@ jobs:
           echo "ROUTE_PATTERN=$ROUTE_PATTERN"
 
       - name: Checkout (Worker source)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # ─────────────────────────────────────────────────
       # Step 0 — Permission probe (token 권한 누락 사전 탐지)
