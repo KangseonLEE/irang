@@ -19,6 +19,7 @@ import { TrendingSearches } from "@/components/landing/trending-searches";
 import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { QuickStartSection } from "@/components/landing/quick-start-section";
+import { UpdatesBanner } from "@/components/landing/updates-banner";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
 import { ScrollIndicator } from "@/components/landing/scroll-indicator";
@@ -168,6 +169,9 @@ export default function HomePage() {
         {/* 모바일 전용 스크롤 다운 indicator — sequential 2 chevron + scroll fade */}
         <ScrollIndicator />
       </section>
+
+      {/* 히어로 직후 — 최근 업데이트 한 줄 알림 (이미 본 소식이면 렌더 안 됨) */}
+      <UpdatesBanner />
 
       {/* ═══ 2. 농촌으로 간 사람들의 이야기 (다크 배경) ═══ */}
       <ScrollReveal trackId="interviews">

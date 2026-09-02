@@ -1,0 +1,110 @@
+/* ==========================================================================
+   랜딩 히어로 아래 업데이트 배너 — 한 줄 알림
+   모바일 우선: 375~390px에서 제목이 잘리지 않도록 링크 내부를 wrap 허용
+   ========================================================================== */
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(100%, 720px);
+  margin: 0 auto 24px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--primary) 6%, var(--card));
+}
+
+.link {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--foreground);
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: 2px;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--primary);
+  transition: gap 150ms ease;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted-foreground, #6b7280);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .link:hover .more {
+    gap: 6px;
+  }
+
+  .close:hover {
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
+    color: var(--foreground);
+  }
+}
+
+/* 좁은 화면: '자세히'는 접고 배지+제목만 (제목 잘림 방지) */
+@media (max-width: 479px) {
+  .more {
+    display: none;
+  }
+
+  .title {
+    flex-basis: 100%;
+  }
+}

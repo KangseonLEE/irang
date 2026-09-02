@@ -1,0 +1,175 @@
+/* ==========================================================================
+   /about/updates — 업데이트 소식 타임라인
+   컨테이너(.page)·뒤로가기(.backLink)는 ../disclaimer/page.module.css,
+   상단 탭 칩은 ../corrections/page.module.css 를 그대로 재사용한다.
+   여기에는 이 화면에만 있는 타임라인·태그 pill 만 정의.
+   ========================================================================== */
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dateLabel {
+  margin: 0;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.itemHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.itemTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.01em;
+}
+
+.itemSummary {
+  margin: 0;
+  font-size: var(--fs-body-sm, 0.875rem);
+  line-height: 1.65;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.itemLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  transition: gap 150ms ease;
+}
+
+@media (hover: hover) {
+  .itemLink:hover {
+    gap: 8px;
+  }
+}
+
+.itemLink:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ── 태그 pill ── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.tagFeature {
+  color: #1b6b5a;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.tagImprove {
+  color: #0369a1;
+  background: color-mix(in srgb, #0369a1 10%, transparent);
+}
+
+.tagFix {
+  color: #b45309;
+  background: color-mix(in srgb, #b45309 10%, transparent);
+}
+
+.tagData {
+  color: var(--muted-foreground, #6b7280);
+  background: var(--muted, #f3f4f6);
+}
+
+/* ── 하단 안내 ── */
+.footNote {
+  margin: 0;
+  font-size: var(--fs-body-sm, 0.875rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.footNoteLink {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .footNoteLink:hover {
+    text-decoration: underline;
+  }
+}
+
+.footNoteLink:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── 640px 이상: 날짜 라벨을 항목 왼쪽 열로 ── */
+@media (min-width: 768px) {
+  .group {
+    flex-direction: row;
+    gap: 24px;
+  }
+
+  .dateLabel {
+    flex: none;
+    width: 120px;
+    padding-top: 18px;
+  }
+
+  .items {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .item {
+    padding: 18px 20px;
+  }
+}

@@ -86,6 +86,7 @@ function getCorePages(now: Date): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/about`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE_URL}/about/disclaimer`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE_URL}/about/corrections`, lastModified: now, changeFrequency: "monthly", priority: 0.2 },
+    { url: `${BASE_URL}/about/updates`, lastModified: now, changeFrequency: "weekly", priority: 0.3 },
     { url: `${BASE_URL}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
 }

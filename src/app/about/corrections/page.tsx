@@ -432,6 +432,19 @@ export default async function CorrectionsPage({ searchParams }: Props) {
         </p>
       </header>
 
+      <nav className={c.filterRow} aria-label="기록 종류">
+        <Link href="/about/updates" className={c.filterChip}>
+          업데이트 소식
+        </Link>
+        <Link
+          href="/about/corrections"
+          className={`${c.filterChip} ${c.filterChipActive}`}
+          aria-current="page"
+        >
+          정정 이력
+        </Link>
+      </nav>
+
       <section className={s.section}>
         <div className={s.sectionHeader}>
           <Calendar size={18} />
