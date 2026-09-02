@@ -34,6 +34,8 @@ async function fetchGoogleFont(
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko",
         },
+        // OG 라우트 런타임 외부 호출 — 타임아웃 없으면 Google Fonts 지연 시 함수 한도까지 대기
+        signal: AbortSignal.timeout(10_000),
       }
     );
 
@@ -41,7 +43,7 @@ async function fetchGoogleFont(
     const url = extractFontUrl(css);
     if (!url) return null;
 
-    const fontRes = await fetch(url);
+    const fontRes = await fetch(url, { signal: AbortSignal.timeout(10_000) });
     const data = await fontRes.arrayBuffer();
 
     return { name: family.replace(/\+/g, " "), data, weight, style: "normal" };

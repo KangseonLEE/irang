@@ -166,7 +166,6 @@ API 키는 `.env.local`에서 관리한다. Vercel 환경변수에도 동일하�
 | `NEIS_API_KEY` | 교육부 NEIS (학교 목록) | Route Handler | 빈 리스트 |
 | `RDA_API_KEY` | 농진청 (작물 상세) | `rda.ts` | `crops.ts` 정적 |
 | `SGIS_KEY` / `SECRET` | 통계청 SGIS (인구 밀도) | `sgis.ts` | `population.ts` 정적 |
-| `UNSPLASH_ACCESS_KEY` | Unsplash (지역 이미지) | `unsplash.ts` | 기본 이미지 |
 | `NEXT_PUBLIC_SUPABASE_URL` / `ANON_KEY` | Supabase (북마크·진단) | `supabase.ts` | 로컬 스토리지 |
 
 ---

@@ -46,7 +46,6 @@ jobs:
           NEIS_API_KEY:        ${{ secrets.NEIS_API_KEY }}
           RDA_API_KEY:         ${{ secrets.RDA_API_KEY }}
           NAVER_CLIENT_ID:     ${{ secrets.NAVER_CLIENT_ID }}
-          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
           SUPABASE_URL:        ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
         run: |
           TIMEOUT=10
@@ -100,30 +99,27 @@ jobs:
 
           # ── 3. KOSIS (통계청) ───────────────────────────────────────
           check_api "KOSIS" \
-            "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=${KOSIS_API_KEY:-MISSING}&itmId=T10+&objL1=ALL&objL2=&objL3=&objL4=&objL5=&objL6=&objL7=&objL8=&format=json&jsonVD=Y&userStatsId=prhee01%2FKOSIS_COMMON%2FdefaultLayout&stt_id=101&stt_subject_id=&listId=101_DT_1BPA002&startPrdDe=2023&endPrdDe=2023"
+            "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=${KOSIS_API_KEY:-MISSING}&itmId=ALL&objL1=ALL&objL2=&format=json&jsonVD=Y&prdSe=Y&startPrdDe=2023&endPrdDe=2023&orgId=101&tblId=DT_1EA1501"
 
-          # ── 4. HIRA (심평원) — data.go.kr 공통 키 사용 ──────────────
+          # ── 4. HIRA (심평원) — 앱 실사용 경로(hira.ts HIRA_PATH)와 동일. 9/2: 이전 MdlrtHospInfoService는
+          #      400을 "서버 생존"으로 통과시켜 실경로 11s 지연·타임아웃을 못 봤음 ────────────
           check_api "HIRA" \
-            "https://apis.data.go.kr/B551182/MdlrtHospInfoService/getMdlrtHospList?serviceKey=${DATA_GO_KR_API_KEY:-MISSING}&pageNo=1&numOfRows=1&clCd=11"
+            "https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList?serviceKey=${DATA_GO_KR_API_KEY:-MISSING}&sidoCd=110000&pageNo=1&numOfRows=1&_type=json"
 
           # ── 5. NEIS (교육부) ────────────────────────────────────────
           check_api "NEIS" \
             "https://open.neis.go.kr/hub/schulInfo?KEY=${NEIS_API_KEY:-MISSING}&Type=json&pIndex=1&pSize=1&SCHUL_KND_SC_NM=초등학교"
 
-          # ── 6. RDA (농진청 농사로) ──────────────────────────────────
+          # ── 6. RDA (농진청 청년농 API) — 앱 실사용 경로(rda.ts policyList). typeDv=json 필수(없으면 code -97) ──
           check_api "RDA" \
-            "https://api.nongsaro.go.kr/service/cropPrductCd/cropPrductCdList?apiKey=${RDA_API_KEY:-MISSING}&numOfRows=1&pageNo=1"
+            "https://www.rda.go.kr/young/api/policyList?serviceKey=${RDA_API_KEY:-MISSING}&typeDv=json&rowCnt=1&cp=1"
 
           # ── 7. 네이버 검색 API ──────────────────────────────────────
           check_api "네이버" \
             "https://openapi.naver.com/v1/search/news.json?query=귀농&display=1" \
             "X-Naver-Client-Id: ${NAVER_CLIENT_ID:-MISSING}"
 
-          # ── 8. Unsplash ─────────────────────────────────────────────
-          check_api "Unsplash" \
-            "https://api.unsplash.com/photos/random?query=farm&client_id=${UNSPLASH_ACCESS_KEY:-MISSING}"
-
-          # ── 9. Supabase ─────────────────────────────────────────────
+          # ── 8. Supabase ─────────────────────────────────────────────
           if [ -n "$SUPABASE_URL" ]; then
             check_api "Supabase" \
               "${SUPABASE_URL}/rest/v1/"

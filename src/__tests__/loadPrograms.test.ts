@@ -1,9 +1,12 @@
 /**
- * loadPrograms 회귀 테스트 (2026-05-11)
+ * loadPrograms 회귀 테스트 (2026-05-11 · 2026-09-02 대상 교정)
  *
  * 배경: 2026-05-11 사고 — Supabase 성공 시 정적 데이터(PROGRAMS)의 신규
- * 추가 사업이 프로덕션에서 누락. loader.ts에 dbIds 기반 병합 패치 적용했으나,
- * 코드 layer 회귀 테스트로 영구 차단한다.
+ * 추가 사업이 프로덕션에서 누락. dbIds 기반 병합 패치를 코드 layer 회귀 테스트로 영구 차단한다.
+ *
+ * 9/2 감사: 이 테스트가 프로덕션 호출 0건인 `lib/data/loader.ts::loadPrograms`(중복 구현)를
+ * import 하고 있어 실제 경로(`lib/data/programs.ts::loadPrograms` → `filterProgramsAsync` → /programs)
+ * 를 보호하지 못했다. 대상을 실제 경로로 교정하고 loader.ts 쪽 중복 구현은 삭제.
  *
  * 검증 목표 (CLAUDE.md "데이터 소스 병합 원칙"):
  *  1) Supabase 성공 + 정적 데이터에만 있는 ID → 결과에 포함되어야 한다
@@ -32,9 +35,14 @@ vi.mock("@/lib/supabase", async () => {
   };
 });
 
+// RDA API(2단계 소스)는 항상 실패시켜 Supabase → 정적 fallback 경로만 검증
+vi.mock("@/lib/api/rda", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/api/rda")>("@/lib/api/rda");
+  return { ...actual, fetchPolicies: vi.fn().mockResolvedValue(null) };
+});
+
 import { getSupabase } from "@/lib/supabase";
-import { loadPrograms } from "@/lib/data/loader";
-import { PROGRAMS } from "@/lib/data/programs";
+import { loadPrograms, filterProgramsAsync, PROGRAMS } from "@/lib/data/programs";
 
 /**
  * Supabase chainable query builder mock 생성기.
@@ -118,7 +126,7 @@ describe("loadPrograms — Supabase + static data merge", () => {
     const result = await loadPrograms();
     expect(result.source).toBe("supabase");
 
-    const ids = result.data.map((p) => p.id);
+    const ids = result.programs.map((p) => p.id);
     // Supabase row 포함
     expect(ids).toContain("SP-001");
     // 정적 데이터에만 있는 신규 ID도 반드시 포함되어야 한다
@@ -127,7 +135,7 @@ describe("loadPrograms — Supabase + static data merge", () => {
     expect(staticOnlyId).toBeDefined();
     expect(ids).toContain(staticOnlyId);
     // 데이터 갯수: 정적 전체 ≥ Supabase 단일 row 시
-    expect(result.data.length).toBeGreaterThanOrEqual(PROGRAMS.length);
+    expect(result.programs.length).toBeGreaterThanOrEqual(PROGRAMS.length);
   });
 
   it("Supabase와 정적 양쪽에 같은 ID가 있으면 Supabase 우선, dedup된다", async () => {
@@ -146,7 +154,7 @@ describe("loadPrograms — Supabase + static data merge", () => {
     );
 
     const result = await loadPrograms();
-    const matching = result.data.filter((p) => p.id === targetId);
+    const matching = result.programs.filter((p) => p.id === targetId);
     // 중복 없이 1건만 존재
     expect(matching.length).toBe(1);
     // 그 1건은 Supabase 값이어야 함 (정적 title이 아님)
@@ -167,9 +175,9 @@ describe("loadPrograms — Supabase + static data merge", () => {
     );
 
     const result = await loadPrograms();
-    expect(result.source).toBe("static");
+    expect(result.source).toBe("fallback");
     // 마감 제외 기본 동작이 적용된 정적 데이터
-    expect(result.data.length).toBeGreaterThan(0);
+    expect(result.programs.length).toBeGreaterThan(0);
   });
 
   it("Supabase가 throw하면 정적 fallback으로 전환", async () => {
@@ -183,7 +191,7 @@ describe("loadPrograms — Supabase + static data merge", () => {
     );
 
     const result = await loadPrograms();
-    expect(result.source).toBe("static");
+    expect(result.source).toBe("fallback");
   });
 
   it("filters.region 적용 시, 병합된 정적 부분도 같은 region 필터를 만족한다", async () => {
@@ -197,20 +205,15 @@ describe("loadPrograms — Supabase + static data merge", () => {
       mockClient as unknown as ReturnType<typeof getSupabase>,
     );
 
-    const result = await loadPrograms({ region: "경기도" });
+    const result = await filterProgramsAsync({ region: "경기도" });
     // 결과의 모든 row는 region이 "경기도" 또는 "전국"
-    for (const p of result.data) {
+    for (const p of result.programs) {
       expect(["경기도", "전국"]).toContain(p.region);
     }
   });
 
   it("명시적 filters 전달 시(includeClosed=false), 정적 병합분에 마감 항목 없음", async () => {
-    // 주의: filters를 인자 없이(`loadPrograms()`) 호출하면 loader는
-    // 정적 fallback 분에 PROGRAMS를 그대로 사용(filterPrograms를 거치지 않음)하므로
-    // 날짜 기반 status 재계산이 안 됨 → 결과에 신청기간 끝난 row가 섞일 수 있음.
-    // (loader.ts L185 참조 — 별도 fix 검토 사안)
-    //
-    // 본 테스트는 일반 페이지 호출 패턴(filters 명시)에서 마감 제외가 정상 작동하는지 보증.
+    // 일반 페이지 호출 패턴(filterProgramsAsync)에서 정적 병합분의 마감 제외가 작동하는지 보증.
     const sbRow = mockRow("SP-001");
     const mockClient = {
       from: vi.fn().mockReturnValue(
@@ -221,9 +224,9 @@ describe("loadPrograms — Supabase + static data merge", () => {
       mockClient as unknown as ReturnType<typeof getSupabase>,
     );
 
-    const result = await loadPrograms({ includeClosed: false });
-    // 정적 fallback 부분이 filterPrograms를 거치면서 status="마감" 제외됨
-    const closed = result.data.filter((p) => p.status === "마감");
+    const result = await filterProgramsAsync({ includeClosed: false });
+    // 정적 병합분도 날짜 기반 status 재계산 후 "마감" 제외됨
+    const closed = result.programs.filter((p) => p.status === "마감");
     expect(closed.length).toBe(0);
   });
 
@@ -238,8 +241,9 @@ describe("loadPrograms — Supabase + static data merge", () => {
       mockClient as unknown as ReturnType<typeof getSupabase>,
     );
 
-    const result = await loadPrograms({ includeClosed: true });
-    // 마감 포함 시 정적 row 중 신청기간 끝난 사업도 결과에 포함
-    expect(result.data.length).toBeGreaterThanOrEqual(PROGRAMS.length);
+    const result = await filterProgramsAsync({ includeClosed: true });
+    // 마감 포함 시 정적 row 중 신청기간 끝난 사업도 결과에 포함 (broken 링크 항목만 숨김)
+    const visibleStatic = PROGRAMS.filter((p) => p.linkStatus !== "broken").length;
+    expect(result.programs.length).toBeGreaterThanOrEqual(visibleStatic);
   });
 });

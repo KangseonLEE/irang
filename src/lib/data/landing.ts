@@ -270,99 +270,6 @@ export const trendPolicyNews: NewsItem[] = [
 
 /* ── 벤토 미리보기 데이터 ── */
 
-export const popularRegions = [
-  {
-    name: "순천",
-    provinceId: "jeonnam",
-    climate: "연평균 13.5°C",
-    highlight: "농촌 정착금 최대 3천만 원",
-  },
-  {
-    name: "제주",
-    provinceId: "jeju",
-    climate: "연평균 16.2°C",
-    highlight: "감귤·아열대 작물 특화",
-  },
-  {
-    name: "영주",
-    provinceId: "gyeongbuk",
-    climate: "연평균 11.3°C",
-    highlight: "사과·인삼 전국 최고 품질",
-  },
-  {
-    name: "수원",
-    provinceId: "gyeonggi",
-    climate: "연평균 12.8°C",
-    highlight: "수도권 직거래 최적 입지",
-  },
-];
-
-export const popularCrops = [
-  {
-    id: "strawberry",
-    name: "딸기",
-    badge: "과수",
-    difficulty: "보통",
-    season: "11월~5월",
-  },
-  {
-    id: "chili-pepper",
-    name: "고추",
-    badge: "채소",
-    difficulty: "보통",
-    season: "3월~10월",
-  },
-  {
-    id: "apple",
-    name: "사과",
-    badge: "과수",
-    difficulty: "어려움",
-    season: "3월~11월",
-  },
-  {
-    id: "rice",
-    name: "쌀",
-    badge: "식량",
-    difficulty: "쉬움",
-    season: "4월~10월",
-  },
-];
-
-export const hotPrograms = [
-  {
-    id: "SP-001",
-    title: "귀농 농업창업 및 주택구입 지원",
-    region: "전국",
-    type: "융자",
-    amount: "창업 최대 3억 / 주택 7,500만 원",
-    tag: "대표 정착지원",
-  },
-  {
-    id: "SP-002",
-    title: "청년농업인 영농정착지원",
-    region: "전국",
-    type: "보조금",
-    amount: "월 최대 110만 원 (3년간)",
-    tag: "만 39세 이하 청년",
-  },
-  {
-    id: "SP-011",
-    title: "귀농닥터 멘토링",
-    region: "전국",
-    type: "컨설팅",
-    amount: "무료 1:1 현장 컨설팅",
-    tag: "상시 모집 · 초보 추천",
-  },
-  {
-    id: "SP-005",
-    title: "함평 체류형 귀농 지원센터",
-    region: "전남 함평",
-    type: "현물",
-    amount: "주거+농지+시설 제공",
-    tag: "체류형 귀농 체험",
-  },
-];
-
 /* ── 정착 트렌드 벤토 데이터 ── */
 
 export type TrendTypeId = "farming" | "rural" | "youth" | "mountain" | "smartfarm";
@@ -839,15 +746,6 @@ export interface CostByAge {
   raw: number; // 만원 단위 — 차트 비율 계산용
 }
 
-export const costSummary = {
-  totalAvg: "6,219만 원",
-  farmlandPct: "84.6%",
-  farmlandAmount: "5,260만 원",
-  prepMonths: "27.4개월",
-  govLoanMax: "최대 3억 원",
-  housingMax: "최대 7,500만 원",
-};
-
 export const costByAge: CostByAge[] = [
   { age: "30대 이하", amount: "8,209만 원", raw: 8209 },
   { age: "40대", amount: "9,547만 원", raw: 9547 },
@@ -856,23 +754,6 @@ export const costByAge: CostByAge[] = [
 ];
 
 /* ── 준비 단계별 비용 집중도 (로드맵 연계) ── */
-
-export interface CostPhase {
-  steps: string;       // 로드맵 단계 번호 (예: "1·2")
-  label: string;       // 단계 이름
-  period: string;      // 소요 기간 (roadmapSteps와 일치)
-  amount: string;      // 표시용 금액 / 태그
-  raw: number;         // 비율 계산용 (만 원 단위, 0이면 소규모)
-  desc: string;        // 비용 항목 설명
-  peak?: boolean;      // 비용 집중 하이라이트
-}
-
-export const costByPhase: CostPhase[] = [
-  { steps: "1·2", label: "탐색·교육", period: "1~6개월", amount: "소규모", raw: 0, desc: "교육비, 교통·체류비" },
-  { steps: "3", label: "현장 답사", period: "6~12개월", amount: "소규모", raw: 0, desc: "답사 교통비, 임시 체류비" },
-  { steps: "4", label: "영농 준비", period: "12~18개월", amount: "~5,260만 원", raw: 5260, desc: "농지, 농기계, 시설 투자", peak: true },
-  { steps: "5", label: "정착", period: "18~27개월", amount: "~960만 원", raw: 960, desc: "주택 마련, 초기 생활 안정" },
-];
 
 /* ── 도시 vs 농촌 비교 데이터 ── */
 
@@ -1354,79 +1235,7 @@ export const interviews: InterviewCard[] = [
 
 /* ── 귀농 5단계 로드맵 ── */
 
-export interface RoadmapStep {
-  step: number;
-  title: string;
-  period: string;
-  desc: string;
-}
-
-export const roadmapSteps: RoadmapStep[] = [
-  {
-    step: 1,
-    title: "정보 탐색",
-    period: "1~3개월",
-    desc: "귀농 결심, 지역·작물 탐색",
-  },
-  {
-    step: 2,
-    title: "교육 이수",
-    period: "3~6개월",
-    desc: "정착 교육 100시간 이상 이수",
-  },
-  {
-    step: 3,
-    title: "지역 선정",
-    period: "6~12개월",
-    desc: "체류형 귀농, 현장 답사",
-  },
-  {
-    step: 4,
-    title: "영농 시작",
-    period: "12~18개월",
-    desc: "농지 확보, 작물 결정, 창업",
-  },
-  {
-    step: 5,
-    title: "정착",
-    period: "18~27개월",
-    desc: "주거 안정, 지역 커뮤니티 합류",
-  },
-];
-
 /* ── 자주 묻는 질문 (FAQ) ── */
-
-export interface FaqItem {
-  q: string;
-  a: string;
-}
-
-export const faqItems: FaqItem[] = [
-  {
-    q: "몇 살까지 농촌으로 갈 수 있나요?",
-    a: "나이 제한은 없어요. 다만 지원사업별로 연령 조건이 다르고, 만 40세 이하 '청년 귀농' 지원이 가장 많아요. 60대 이후에도 충분히 시작할 수 있어요.",
-  },
-  {
-    q: "자금이 없어도 시작할 수 있나요?",
-    a: "네. 농업창업자금 최대 3억 원(연 1.5~2% 저금리 융자), 주택자금 최대 7,500만 원까지 정부 지원을 받을 수 있어요.",
-  },
-  {
-    q: "농사 경험이 전혀 없는데 괜찮을까요?",
-    a: "정착 교육(100시간 이상)을 이수하면 지원사업 신청 시 가점을 받아요. 체류형 귀농으로 1~6개월 살아보면서 시작하는 것도 방법이에요.",
-  },
-  {
-    q: "가족과 함께 가야 하나요?",
-    a: "아니요. 1인 가구 귀농도 꾸준히 늘고 있어요. 실태조사 기준 평균 정착자 프로필은 '50대 중반 남성 1인 가구'이에요.",
-  },
-  {
-    q: "농촌 정착 시 실제로 얼마나 버나요?",
-    a: "5년차 평균 가구소득 3,300만 원이에요. 첫해 2,534만 원에서 매년 늘어나고, 절반 이상이 농업 외 부수입(투잡)을 병행해요.",
-  },
-  {
-    q: "실패하면 어떻게 되나요?",
-    a: "귀농 5년 이내 이탈률은 약 20%이에요. 리스크를 줄이려면 체류형 귀농(1~6개월 살아보기)부터 시작하는 걸 추천해요.",
-  },
-];
 
 /* ── 인기 검색어 (히어로 슬라이더) ── */
 

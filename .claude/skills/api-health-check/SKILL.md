@@ -1,6 +1,6 @@
 ---
 name: api-health-check
-description: "8개 외부 API(기상청·SGIS·KOSIS·NEIS·HIRA·RDA·네이버·Unsplash) 연동 건강성 + 환경변수 존재 + 폴백 작동·Supabase 연결·Sentry DSN 통합 점검. 트리거: 'API 확인', 'API 건강성', '환경변수 점검', 'api 상태', 'api-health-check', '외부 API 작동하나'. 각 API 1건씩 샘플 호출 + 응답 시간·상태 기록. data-engineer가 주기 실행."
+description: "7개 외부 API(기상청·SGIS·KOSIS·NEIS·HIRA·RDA·네이버) 연동 건강성 + 환경변수 존재 + 폴백 작동·Supabase 연결·Sentry DSN 통합 점검. 트리거: 'API 확인', 'API 건강성', '환경변수 점검', 'api 상태', 'api-health-check', '외부 API 작동하나'. 각 API 1건씩 샘플 호출 + 응답 시간·상태 기록. data-engineer가 주기 실행."
 ---
 
 # API Health Check — 외부 API 건강성 점검
@@ -32,10 +32,9 @@ grep -o '^[A-Z_]*' .env.local | sort -u
 6. `RDA_API_KEY`
 7. `SGIS_KEY`
 8. `SGIS_SECRET`
-9. `UNSPLASH_ACCESS_KEY`
-10. `NEXT_PUBLIC_SUPABASE_URL`
-11. `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-12. `NEXT_PUBLIC_SENTRY_DSN`
+9. `NEXT_PUBLIC_SUPABASE_URL`
+10. `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+11. `NEXT_PUBLIC_SENTRY_DSN`
 13. `SENTRY_AUTH_TOKEN` (선택, 소스맵 업로드용)
 
 누락 시 `🔴 FAIL`. **이 중 Sentry DSN은 critical-reviewer 04-15 지적 재확인 대상**.
@@ -51,7 +50,6 @@ grep -o '^[A-Z_]*' .env.local | sort -u
 | HIRA | 의료기관 1건 | 200 + JSON |
 | RDA | 작물 상세 1건 | 200 + JSON |
 | 네이버 뉴스 | "귀농" 검색 | 200 + JSON |
-| Unsplash | "farm" 이미지 1건 | 200 + JSON |
 | Supabase | 테이블 존재 확인 | 200 + 배열 |
 
 **실행 방법**: `src/lib/api/*.ts`의 실제 연동 함수를 `scripts/health-check.ts`(없으면 신규 생성 제안) 통해 호출.

@@ -31,7 +31,6 @@ describe("validateEnv", () => {
     (process.env as Record<string, string | undefined>).NODE_ENV = "development";
     // 선택 변수들을 모두 제거
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;
-    delete process.env.UNSPLASH_ACCESS_KEY;
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 

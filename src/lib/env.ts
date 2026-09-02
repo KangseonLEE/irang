@@ -27,11 +27,6 @@ const SERVER_ENV_VARS: EnvVar[] = [
   },
   // 외부 API 키
   {
-    name: "UNSPLASH_ACCESS_KEY",
-    required: false,
-    description: "Unsplash API 키 — 지역 이미지 조회에 필요",
-  },
-  {
     name: "KOSIS_API_KEY",
     required: false,
     description: "KOSIS 통계 API 키 — 통계 데이터 조회에 필요",
