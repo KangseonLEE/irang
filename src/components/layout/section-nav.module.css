@@ -15,12 +15,14 @@
   transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 모바일: 아래로 스크롤해 헤더가 숨으면 섹션 탭도 함께 위로 빠진다 (9/2 회장 리포트 — iOS Chrome 은
-   주소창·하단 툴바가 화면을 이미 많이 쓰는데 우리 sticky 스택 101px 가 상단을 상시 점유해 콘텐츠가 가려짐).
-   위로 스크롤하면 header.tsx 가 data-header-hidden 을 지우면서 헤더·탭이 함께 돌아온다. */
+/* 모바일: 섹션 탭은 sticky 해제 — 콘텐츠와 함께 스크롤 (9/2 회장 스크린샷).
+   헤더(57) + 탭(44) 두 겹 sticky 는 위로 스크롤해 헤더가 돌아오는 순간 상단 101px 를 덮어, iOS Chrome 처럼
+   주소창이 펴지며 "최상단"처럼 보이는 위치(scrollY≈100)에서 페이지 제목 블록이 통째로 가려졌다.
+   모바일은 하단 탭바가 주 내비이므로 섹션 탭은 페이지 상단에서만 쓰고, sticky 는 헤더 하나만 둔다. */
 @media (max-width: 767px) {
-  html[data-header-hidden] .nav {
-    transform: translateY(-100%);
+  .nav {
+    position: static;
+    transition: none;
   }
 }
 

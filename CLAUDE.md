@@ -187,7 +187,7 @@ API 키는 `.env.local`에서 관리한다. Vercel 환경변수에도 동일하�
 - hover 스타일은 `@media (hover: hover)` 래핑 필수
 - `focus-visible` outline 필수 (키보드 접근성)
 - 컬러 믹싱: `color-mix(in srgb, var(--primary) N%, transparent)` 패턴 사용
-- **sticky 오프셋**: `position: sticky` 요소의 `top`은 `var(--sticky-top)`(헤더 보임 56px / 숨김 0, `html[data-header-hidden]` 연동) 기준으로만. **모바일(<768)에서는 헤더가 숨을 때 SectionNav 도 함께 `translateY(-100%)` 로 빠지고 `--sticky-extra` 가 0** 이 된다(9/2 — iOS Chrome 은 주소창·하단 툴바가 화면을 이미 많이 써서 우리 스택 101px 상시 점유가 콘텐츠를 가렸음). 포커스·앵커 스크롤용 `scroll-margin-top` 은 `--sticky-top` 이 아니라 **`--h-header` 상수** 기준 — 위로 스크롤되는 순간 헤더가 다시 나타나 스택이 커진다. SectionNav 아래 콘텐츠는 레이아웃이 `--sticky-extra`(= `--h-section-nav` 44px)를 얹으므로 `calc(var(--sticky-top) + var(--sticky-extra, 0px) + 여백)`. `top: 56px`/`60px` 하드코딩 금지 — 8/30 헤더가 스크롤 업으로 돌아올 때 탭바가 가려진 사고
+- **sticky 오프셋**: `position: sticky` 요소의 `top`은 `var(--sticky-top)`(헤더 보임 56px / 숨김 0, `html[data-header-hidden]` 연동) 기준으로만. **모바일(<768)은 SectionNav 가 sticky 가 아니고(`position: static`, `--sticky-extra` 0) 헤더는 아래로 스크롤 시 숨고 최상단(y<56)에서만 다시 표시**된다(9/2 회장 iOS Chrome 스크린샷 — 위로 올릴 때 주소창이 펴져 최상단처럼 보이는 y≈100 지점에서 헤더 57 + 탭 44 sticky 스택이 페이지 제목 블록을 통째로 덮었음. 데스크탑은 sticky 탭 + 스크롤 업 헤더 복귀 유지). 포커스·앵커 스크롤용 `scroll-margin-top` 은 `--sticky-top` 이 아니라 **`--h-header` 상수** 기준 — 위로 스크롤되는 순간 헤더가 다시 나타나 스택이 커진다. SectionNav 아래 콘텐츠는 레이아웃이 `--sticky-extra`(= `--h-section-nav` 44px)를 얹으므로 `calc(var(--sticky-top) + var(--sticky-extra, 0px) + 여백)`. `top: 56px`/`60px` 하드코딩 금지 — 8/30 헤더가 스크롤 업으로 돌아올 때 탭바가 가려진 사고
 - **한국어 줄바꿈**: `word-break: keep-all` 글로벌 적용 (globals.css). 문장 중간 끊김 방지. 개별 컴포넌트에서 `word-break: break-all` 사용 금지.
 - **제목 줄바꿈**: h1~h6에 `text-wrap: balance` 글로벌 적용. 좌우 균등 줄바꿈.
 

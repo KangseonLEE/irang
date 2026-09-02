@@ -102,8 +102,13 @@ export function Header() {
         setHeaderHidden(true);
         document.documentElement.dataset.headerHidden = "";
       } else if (delta < -THRESHOLD) {
-        setHeaderHidden(false);
-        delete document.documentElement.dataset.headerHidden;
+        // 모바일(<768)은 위로 스크롤해도 중간에서 되살리지 않고 최상단(y<56)에서만 표시 — 9/2 회장 스크린샷:
+        // iOS Chrome 은 위로 올릴 때 주소창이 펴져 "최상단"처럼 보이는 y≈100 지점에서 sticky 헤더가 콘텐츠
+        // 위에 얹혀 페이지 제목을 덮었다. 모바일은 하단 탭바가 주 내비라 헤더 상시 접근 필요가 낮다.
+        if (window.matchMedia("(min-width: 768px)").matches) {
+          setHeaderHidden(false);
+          delete document.documentElement.dataset.headerHidden;
+        }
       }
       lastScrollY.current = y;
     };
