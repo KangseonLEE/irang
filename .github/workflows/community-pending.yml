@@ -124,7 +124,7 @@ jobs:
           NEW_IDS=$(comm -13 <(tr ' ' '\n' <<< "$PREV_IDS" | grep -v '^$' | sort) <(tr ' ' '\n' <<< "$IDS" | grep -v '^$' | sort) | tr '\n' ' ' | sed 's/ $//')
           gh issue edit "$OPEN_NUM" --title "💬 커뮤니티 승인 대기 ${COUNT}건 — $(TZ=Asia/Seoul date +%m/%d)" --body "$BODY" >/dev/null
           if [ -n "$NEW_IDS" ]; then
-            NEW_LIST=$(jq -r --arg ids " $NEW_IDS " '.[] | select(($ids | contains(" \(.id) "))) | "- **#\(.id)** [\(.target_type)/\(.target_id)] \(if .nickname then "`\(.nickname)`" else "익명" end)\n  > \(.body | .[0:80] | gsub("\n"; " "))"' pending.json)
+            NEW_LIST=$(jq -r --arg ids " $NEW_IDS " '.[] | .id as $id | select($ids | contains(" \($id) ")) | "- **#\($id)** [\(.target_type)/\(.target_id)] \(if .nickname then "`\(.nickname)`" else "익명" end)\n  > \(.body | .[0:80] | gsub("\n"; " "))"' pending.json)
             gh issue comment "$OPEN_NUM" --body "$(printf '%s\n' "🆕 새 승인 대기 의견이 들어왔어요 → [$ADMIN_URL]($ADMIN_URL)" "" "$NEW_LIST")"
             echo "commented new: $NEW_IDS"
           else
