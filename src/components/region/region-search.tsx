@@ -13,16 +13,15 @@ import { Search, MapPin, X, Loader2, ChevronRight } from "lucide-react";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { useActiveOptionScroll } from "@/lib/hooks/use-active-option-scroll";
+import {
+  normalizeRegionQuery,
+  searchRegions,
+  type RegionSearchEntry,
+} from "@/lib/region-search-index";
 import s from "./region-search.module.css";
 
-interface SearchResult {
-  /** 이동 경로 (예: "/regions/gyeongbuk/yeongju") */
-  href: string;
-  type: "sido" | "sigungu";
-  label: string;
-  /** 공백 제거·소문자 매칭용 (compare 셀렉터와 동일 패턴) */
-  searchText: string;
-}
+/** 이 컴포넌트가 다루는 항목 — 공용 인덱스 엔트리에서 이동에 필요한 필드만 */
+type SearchResult = Pick<RegionSearchEntry, "href" | "type" | "label">;
 
 /**
  * 지역 탐색 검색창 — 지도 대신 검색으로 시·군·구까지 바로 이동 (2026-09-02 회장 지시).
@@ -46,43 +45,13 @@ export function RegionSearch() {
   const sidoListRef = useRef<HTMLDivElement>(null);
   const sigunguListRef = useRef<HTMLDivElement>(null);
 
-  const searchIndex = useMemo<SearchResult[]>(() => {
-    const items: SearchResult[] = [];
-    for (const p of PROVINCES) {
-      items.push({
-        href: `/regions/${p.id}`,
-        type: "sido",
-        label: p.shortName,
-        searchText: `${p.name}${p.shortName}`.replace(/\s/g, ""),
-      });
-    }
-    for (const sg of SIGUNGUS) {
-      const province = PROVINCES.find((p) => p.id === sg.sidoId);
-      if (!province) continue;
-      items.push({
-        href: `/regions/${sg.sidoId}/${sg.id}`,
-        type: "sigungu",
-        label: `${province.shortName} ${sg.name}`,
-        searchText: `${province.name}${province.shortName}${sg.name}${sg.shortName}`.replace(
-          /\s/g,
-          "",
-        ),
-      });
-    }
-    return items;
-  }, []);
-
-  const trimmedQuery = query.trim().replace(/\s/g, "");
+  const trimmedQuery = normalizeRegionQuery(query);
   const isTree = trimmedQuery.length === 0;
 
-  const filteredResults = useMemo<SearchResult[]>(() => {
-    if (!trimmedQuery) return [];
-    return searchIndex
-      .filter((r) =>
-        r.searchText.toLowerCase().includes(trimmedQuery.toLowerCase()),
-      )
-      .slice(0, 30);
-  }, [searchIndex, trimmedQuery]);
+  const filteredResults = useMemo<SearchResult[]>(
+    () => searchRegions(trimmedQuery),
+    [trimmedQuery],
+  );
 
   /** 트리 우측 패널: 선택 시·도 전체 보기 + 시·군·구 목록 */
   const subItems = useMemo<SearchResult[]>(() => {
@@ -93,7 +62,6 @@ export function RegionSearch() {
         href: `/regions/${p.id}`,
         type: "sido",
         label: `${p.shortName} 전체 보기`,
-        searchText: "",
       },
     ];
     for (const sg of SIGUNGUS) {
@@ -102,7 +70,6 @@ export function RegionSearch() {
         href: `/regions/${p.id}/${sg.id}`,
         type: "sigungu",
         label: sg.name,
-        searchText: "",
       });
     }
     return items;
@@ -198,12 +165,7 @@ export function RegionSearch() {
         if (pane === "sido") {
           const p = PROVINCES[sidoIdx];
           if (p)
-            goTo({
-              href: `/regions/${p.id}`,
-              type: "sido",
-              label: p.shortName,
-              searchText: "",
-            });
+            goTo({ href: `/regions/${p.id}`, type: "sido", label: p.shortName });
         } else {
           const target = subItems[sigunguIdx];
           if (target) goTo(target);

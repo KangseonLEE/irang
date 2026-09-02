@@ -7,6 +7,12 @@ import { Search, Plus, X, MapPin, Loader2 } from "lucide-react";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { useActiveOptionScroll } from "@/lib/hooks/use-active-option-scroll";
+import {
+  REGION_SEARCH_INDEX,
+  normalizeRegionQuery,
+  searchRegions,
+  type RegionSearchEntry,
+} from "@/lib/region-search-index";
 import { setComparePending } from "./compare-pending-store";
 import {
   SelectCombobox,
@@ -25,14 +31,8 @@ function sigunguMatchKeys(opt: SelectComboboxOption) {
   return short ? [short] : [];
 }
 
-interface SearchResult {
-  id: string;
-  type: "sido" | "sigungu";
-  label: string;
-  searchText: string;
-  provinceShortName: string;
-  sigunguName?: string;
-}
+/** 공용 인덱스 엔트리 (src/lib/region-search-index) — 이 컴포넌트는 id·label·type·sigunguName 사용 */
+type SearchResult = RegionSearchEntry;
 
 interface Props {
   selectedRegionIds: string[];
@@ -90,33 +90,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
     return map;
   }, []);
 
-  const searchIndex = useMemo<SearchResult[]>(() => {
-    const items: SearchResult[] = [];
-    for (const p of PROVINCES) {
-      items.push({
-        id: p.id,
-        type: "sido",
-        label: p.shortName,
-        searchText: `${p.name}${p.shortName}`.replace(/\s/g, ""),
-        provinceShortName: p.shortName,
-      });
-    }
-    for (const sg of SIGUNGUS) {
-      const province = PROVINCES.find((p) => p.id === sg.sidoId);
-      if (!province) continue;
-      items.push({
-        id: `${sg.sidoId}:${sg.id}`,
-        type: "sigungu",
-        label: `${province.shortName} ${sg.name}`,
-        searchText: `${province.name}${province.shortName}${sg.name}${sg.shortName}`.replace(/\s/g, ""),
-        provinceShortName: province.shortName,
-        sigunguName: sg.name,
-      });
-    }
-    return items;
-  }, []);
-
-  const trimmedQuery = query.trim().replace(/\s/g, "");
+  const trimmedQuery = normalizeRegionQuery(query);
 
   /**
    * 항목의 선택 상태 (8/30 회장 버그 리포트: 충북=영동군 + 세종 선택 시 세종만 '선택됨').
@@ -137,13 +111,13 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
 
   const filteredResults = useMemo<SearchResult[]>(() => {
     const base = !trimmedQuery
-      ? searchIndex.filter((r) => r.type === "sido")
-      : searchIndex.filter((r) => r.searchText.toLowerCase().includes(trimmedQuery.toLowerCase())).slice(0, 30);
+      ? REGION_SEARCH_INDEX.filter((r) => r.type === "sido")
+      : searchRegions(trimmedQuery);
     // 선택된 항목을 위로 (상대 순서 유지) — 키보드 highlightIdx는 이 배열 인덱스라 렌더와 항상 일치
     const picked = base.filter((r) => selectionOf(r).selected);
     const rest = base.filter((r) => !selectionOf(r).selected);
     return [...picked, ...rest];
-  }, [searchIndex, trimmedQuery, selectionOf]);
+  }, [trimmedQuery, selectionOf]);
   const selectedCount = useMemo(() => filteredResults.filter((r) => selectionOf(r).selected).length, [filteredResults, selectionOf]);
 
   useEffect(() => {
