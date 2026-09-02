@@ -1,11 +1,5 @@
 {
   "regions": [
     "icn1"
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/data-check",
-      "schedule": "0 0 * * 1"
-    }
   ]
 }
