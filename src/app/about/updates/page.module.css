@@ -151,22 +151,19 @@
   border-radius: 4px;
 }
 
-/* ── 640px 이상: 날짜 라벨을 항목 왼쪽 열로 ── */
+/* ── 768px 이상: 공지 한 열 유지(카카오 공지 구조 — 날짜·태그라인 → 인사말 → 항목). 카드 여백만 넓힘 ── */
 @media (min-width: 768px) {
   .group {
-    flex-direction: row;
-    gap: 24px;
+    gap: 14px;
   }
 
-  .dateLabel {
-    flex: none;
-    width: 120px;
-    padding-top: 18px;
+  .groupHead {
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border, #e5e7eb);
   }
 
-  .items {
-    flex: 1;
-    min-width: 0;
+  .tagline {
+    font-size: var(--fs-h3, 1.35rem);
   }
 
   .item {
@@ -176,6 +173,8 @@
 
 /* ── 이전/이후 화면 (9/2) ── */
 .media {
+  width: 100%;
+  align-self: stretch;
   margin: 14px 0 4px;
 }
 
@@ -203,6 +202,77 @@
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: zoom-in;
+}
+
+.shot:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+
+.shotFrame {
+  position: relative;
+  display: block;
+}
+
+.shotZoom {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--foreground) 65%, transparent);
+  color: #fff;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+
+@media (hover: hover) {
+  .shot:hover .shotImg {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
+  }
+
+  .shot:hover .shotZoom {
+    opacity: 1;
+  }
+}
+
+/* 비교 모달 — 이전/이후 나란히 (모바일 프레임은 좁아도 2열, 데스크탑 프레임은 640px 미만 1열) */
+.compare {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 639px) {
+  .compareDesktop {
+    grid-template-columns: 1fr;
+  }
+}
+
+.compareCol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.compareImg {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card, #fff);
 }
 
 .shotLabel {
@@ -233,4 +303,129 @@
   font-size: var(--fs-caption, 12px);
   color: var(--muted-foreground);
   line-height: var(--lh-normal, 1.5);
+}
+
+/* ── 공지 머리말 (카카오 공지 구조: 태그라인 → 인사말) ── */
+.groupHead {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tagline {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-h4, 1.125rem);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.intro {
+  margin: 0;
+  font-size: var(--fs-body-sm, 0.875rem);
+  color: var(--muted-foreground);
+  line-height: var(--lh-relaxed, 1.7);
+}
+
+.signoff {
+  margin: 8px 0 0;
+  text-align: right;
+  font-size: var(--fs-body-sm, 0.875rem);
+  color: var(--muted-foreground);
+}
+
+/* ── 이전 변경 기록 (UPDATES 도입 전 기능·개선, corrections.ts kind:update) ── */
+.legacy {
+  margin-top: 8px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  background: var(--card, #fff);
+}
+
+.legacySummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  font-weight: 600;
+  color: var(--foreground);
+  cursor: pointer;
+  list-style: none;
+}
+
+.legacySummary::-webkit-details-marker {
+  display: none;
+}
+
+.legacySummary:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 16px;
+}
+
+.legacyChevron {
+  color: var(--muted-foreground);
+  transition: transform 0.2s ease;
+}
+
+.legacy[open] .legacyChevron {
+  transform: rotate(180deg);
+}
+
+.legacyNote {
+  margin: 0;
+  padding: 0 16px 8px;
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground);
+}
+
+.legacyList {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px 8px;
+}
+
+.legacyEntry {
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.legacyEntrySummary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 10px 8px;
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--fs-body-sm, 0.875rem);
+}
+
+.legacyEntrySummary::-webkit-details-marker {
+  display: none;
+}
+
+.legacyEntrySummary:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.legacyDate {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  font-variant-numeric: tabular-nums;
+}
+
+.legacyTitle {
+  color: var(--foreground);
+}
+
+.legacyBody {
+  margin: 0;
+  padding: 0 8px 12px;
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground);
+  line-height: var(--lh-relaxed, 1.7);
 }

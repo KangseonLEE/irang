@@ -205,3 +205,16 @@
     margin-top: 24px;
   }
 }
+
+/* 두 기록의 성격 안내 (9/2) */
+.kindNote {
+  margin: -6px 0 0;
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground);
+  line-height: var(--lh-normal, 1.5);
+}
+
+.kindNote strong {
+  color: var(--foreground);
+  font-weight: 600;
+}

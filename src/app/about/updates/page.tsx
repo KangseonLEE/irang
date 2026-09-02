@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
+import { UpdateMedia } from "./update-media";
+import { ArrowLeft, ArrowRight, Sparkles, ChevronDown } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { PageHeader } from "@/components/ui/page-header";
-import { UPDATES, type UpdateItem, type UpdateTag } from "@/lib/data/updates";
+import { LEGACY_UPDATES } from "@/lib/data/corrections";
+import { RELEASES, RELEASE_SIGNOFF, UPDATES, type UpdateItem, type UpdateTag } from "@/lib/data/updates";
 import d from "../disclaimer/page.module.css";
 import c from "../corrections/page.module.css";
 import u from "./page.module.css";
@@ -69,7 +70,7 @@ export default function UpdatesPage() {
         icon={<Sparkles size={14} aria-hidden="true" />}
         label="업데이트 소식"
         title="이렇게 개선됐어요"
-        description="새로 생긴 기능과 손본 화면을 날짜순으로 모았어요."
+        description="새로 생기고 좋아진 것들을 모았어요. 잘못 안내한 정보를 바로잡은 기록은 정정 이력에서 따로 볼 수 있어요."
         count={UPDATES.length}
       />
 
@@ -85,13 +86,22 @@ export default function UpdatesPage() {
           정정 이력
         </Link>
       </nav>
+      <p className={c.kindNote}>
+        <strong>업데이트 소식</strong>은 새 기능·개선·데이터 추가, <strong>정정 이력</strong>은 표시한 정보가 틀렸거나 바뀌어 바로잡은 기록이에요.
+      </p>
 
       <ol className={u.timeline}>
         {groups.map((group) => (
           <li key={group.date} className={u.group}>
-            <h2 className={u.dateLabel}>
-              <time dateTime={group.date}>{formatDateLabel(group.date)}</time>
-            </h2>
+            <div className={u.groupHead}>
+              <h2 className={u.dateLabel}>
+                <time dateTime={group.date}>{formatDateLabel(group.date)}</time>
+                {RELEASES[group.date] && (
+                  <span className={u.tagline}>{RELEASES[group.date].tagline}</span>
+                )}
+              </h2>
+              {RELEASES[group.date] && <p className={u.intro}>{RELEASES[group.date].intro}</p>}
+            </div>
             <ul className={u.items}>
               {group.items.map((item) => (
                 <li key={item.id} className={u.item}>
@@ -102,37 +112,7 @@ export default function UpdatesPage() {
                     <h3 className={u.itemTitle}>{item.title}</h3>
                   </div>
                   <p className={u.itemSummary}>{item.summary}</p>
-                  {item.media && (
-                    <figure className={`${u.media} ${item.media.frame === "desktop" ? u.mediaDesktop : u.mediaMobile}`}>
-                      <div className={u.mediaGrid}>
-                        {item.media.before && (
-                          <div className={u.shot}>
-                            <span className={u.shotLabel}>이전</span>
-                            <Image
-                              src={item.media.before}
-                              alt={`${item.title} — 이전 화면`}
-                              width={item.media.frame === "desktop" ? 1920 : 780}
-                              height={item.media.frame === "desktop" ? 1200 : 1280}
-                              sizes={item.media.frame === "desktop" ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 30vw, 45vw"}
-                              className={u.shotImg}
-                            />
-                          </div>
-                        )}
-                        <div className={u.shot}>
-                          <span className={`${u.shotLabel} ${u.shotLabelAfter}`}>{item.media.before ? "이후" : "지금"}</span>
-                          <Image
-                            src={item.media.after}
-                            alt={`${item.title} — ${item.media.before ? "이후" : "현재"} 화면`}
-                            width={item.media.frame === "desktop" ? 1920 : 780}
-                            height={item.media.frame === "desktop" ? 1200 : 1280}
-                            sizes={item.media.frame === "desktop" ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 30vw, 45vw"}
-                            className={u.shotImg}
-                          />
-                        </div>
-                      </div>
-                      <figcaption className={u.mediaCaption}>{item.media.caption}</figcaption>
-                    </figure>
-                  )}
+                  {item.media && <UpdateMedia title={item.title} media={item.media} />}
                   {item.href && (
                     <Link href={item.href} className={u.itemLink}>
                       바로 보기
@@ -145,6 +125,31 @@ export default function UpdatesPage() {
           </li>
         ))}
       </ol>
+
+      <p className={u.signoff}>{RELEASE_SIGNOFF}</p>
+
+      {LEGACY_UPDATES.length > 0 && (
+        <details className={u.legacy}>
+          <summary className={u.legacySummary}>
+            이전 변경 기록 ({LEGACY_UPDATES.length}건 · 2026년 4~6월)
+            <ChevronDown size={16} className={u.legacyChevron} aria-hidden="true" />
+          </summary>
+          <p className={u.legacyNote}>업데이트 소식을 따로 적기 전의 기능·개선 기록이에요. 당시 작업 메모라 표현이 딱딱할 수 있어요.</p>
+          <ul className={u.legacyList}>
+            {LEGACY_UPDATES.map((e) => (
+              <li key={`${e.date}-${e.field}`} className={u.legacyItem}>
+                <details className={u.legacyEntry}>
+                  <summary className={u.legacyEntrySummary}>
+                    <time className={u.legacyDate} dateTime={e.date}>{e.date}</time>
+                    <span className={u.legacyTitle}>{e.field}</span>
+                  </summary>
+                  <p className={u.legacyBody}>{e.description}</p>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
 
       <p className={u.footNote}>
         데이터를 잘못 안내했던 기록은{" "}
