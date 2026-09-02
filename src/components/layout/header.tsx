@@ -88,16 +88,26 @@ export function Header() {
   // 스크롤 방향 감지 — 내리면 숨김, 올리면 표시
   useEffect(() => {
     const THRESHOLD = 10; // 미세 스크롤 무시
-    const onScroll = () => {
-      // 모바일(<768)은 헤더가 sticky 가 아니라(header.module.css) 숨김/표시 로직 자체를 쓰지 않는다 (9/2)
-      if (!window.matchMedia("(min-width: 768px)").matches) {
-        if (document.documentElement.dataset.headerHidden !== undefined) {
-          setHeaderHidden(false);
-          delete document.documentElement.dataset.headerHidden;
+    // 스냅-투-탑 (모바일, 9/2 회장 iOS Chrome 리포트): 위로 스크롤하면 브라우저 주소창이 펴지면서 그 높이(≈100px)만큼
+    // 스크롤을 흡수해 "최상단처럼 보이지만 헤더+탭 높이만큼 남은" 지점에 멈춘다. 그 지점에선 sticky 바가 제목을 덮거나
+    // (바가 없으면) 바가 안 보인다. 위로 향한 스크롤이 스택 높이 근처에서 멈추면 0 으로 붙여 바와 제목을 모두 보인다.
+    const SNAP_ZONE = 120; // 헤더 56 + SectionNav 44 + 여유
+    let snapTimer: number | null = null;
+    let scrollingUp = false;
+    const scheduleSnap = () => {
+      if (snapTimer) window.clearTimeout(snapTimer);
+      snapTimer = window.setTimeout(() => {
+        const y = window.scrollY;
+        if (scrollingUp && y > 0 && y < SNAP_ZONE && !window.matchMedia("(min-width: 768px)").matches) {
+          window.scrollTo({ top: 0, behavior: "smooth" });
         }
-        return;
-      }
+      }, 160);
+    };
+
+    const onScroll = () => {
       const y = window.scrollY;
+      scrollingUp = y < lastScrollY.current;
+      scheduleSnap();
       // 최상단 근처에서는 항상 표시
       if (y < 56) {
         setHeaderHidden(false);
@@ -116,7 +126,10 @@ export function Header() {
       lastScrollY.current = y;
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (snapTimer) window.clearTimeout(snapTimer);
+    };
   }, []);
 
   const handleSearchClick = useCallback(() => {

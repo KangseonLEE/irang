@@ -3,9 +3,9 @@
   --sticky-extra: var(--h-section-nav, 44px);
 }
 
-/* 모바일은 SectionNav 가 sticky 가 아니므로(section-nav.module.css) 하위 sticky 오프셋도 0 (9/2) */
+/* 모바일에서 헤더·섹션 탭이 함께 숨은 동안은 하위 sticky(TabBar 등)도 맨 위로 (9/2) */
 @media (max-width: 767px) {
-  .underSectionNav {
+  html[data-header-hidden] .underSectionNav {
     --sticky-extra: 0px;
   }
 }

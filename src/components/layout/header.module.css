@@ -12,20 +12,6 @@
   transform: translateY(-100%);
 }
 
-/* 모바일(<768): 헤더는 sticky 가 아니다 — 콘텐츠와 함께 스크롤 (9/2 회장 리포트).
-   sticky 헤더 + 흐름 속 SectionNav 조합은 최상단 근처(y 0~56)에서 되살아난 헤더가 바로 아래 탭을 덮었다.
-   모바일은 하단 탭바가 유일한 고정 내비. 스크롤 방향 숨김도 모바일엔 적용하지 않는다(header.tsx). */
-@media (max-width: 767px) {
-  .header {
-    position: static;
-    transition: none;
-  }
-
-  .headerHidden {
-    transform: none;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .header {
     transition: none;
