@@ -173,3 +173,64 @@
     padding: 18px 20px;
   }
 }
+
+/* ── 이전/이후 화면 (9/2) ── */
+.media {
+  margin: 14px 0 4px;
+}
+
+.mediaGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+/* 모바일 프레임(세로)은 좁은 화면에서도 나란히 두 장 */
+.mediaMobile .mediaGrid {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 240px));
+  max-width: 560px;
+}
+
+/* 데스크탑 프레임(가로)은 좁은 화면에선 세로로, 768px+ 에서 나란히 */
+@media (min-width: 768px) {
+  .mediaDesktop .mediaGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.shot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.shotLabel {
+  align-self: flex-start;
+  padding: 2px 9px;
+  font-size: var(--fs-caption, 12px);
+  font-weight: 700;
+  color: var(--muted-foreground);
+  background: var(--muted, #f4f4f5);
+  border-radius: 9999px;
+}
+
+.shotLabelAfter {
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+}
+
+.shotImg {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card, #fff);
+}
+
+.mediaCaption {
+  margin: 8px 0 0;
+  font-size: var(--fs-caption, 12px);
+  color: var(--muted-foreground);
+  line-height: var(--lh-normal, 1.5);
+}

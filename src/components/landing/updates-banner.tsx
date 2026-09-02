@@ -83,7 +83,7 @@ export function UpdatesBanner() {
         </span>
         <span className={s.title}>{latest.title}</span>
         <span className={s.more}>
-          자세히
+          어떤 내용이 바뀌었는지 확인해 보세요
           <ArrowRight size={14} aria-hidden="true" />
         </span>
       </Link>

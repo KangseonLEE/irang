@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { PageHeader } from "@/components/ui/page-header";
@@ -101,6 +102,37 @@ export default function UpdatesPage() {
                     <h3 className={u.itemTitle}>{item.title}</h3>
                   </div>
                   <p className={u.itemSummary}>{item.summary}</p>
+                  {item.media && (
+                    <figure className={`${u.media} ${item.media.frame === "desktop" ? u.mediaDesktop : u.mediaMobile}`}>
+                      <div className={u.mediaGrid}>
+                        {item.media.before && (
+                          <div className={u.shot}>
+                            <span className={u.shotLabel}>이전</span>
+                            <Image
+                              src={item.media.before}
+                              alt={`${item.title} — 이전 화면`}
+                              width={item.media.frame === "desktop" ? 1920 : 780}
+                              height={item.media.frame === "desktop" ? 1200 : 1280}
+                              sizes={item.media.frame === "desktop" ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 30vw, 45vw"}
+                              className={u.shotImg}
+                            />
+                          </div>
+                        )}
+                        <div className={u.shot}>
+                          <span className={`${u.shotLabel} ${u.shotLabelAfter}`}>{item.media.before ? "이후" : "지금"}</span>
+                          <Image
+                            src={item.media.after}
+                            alt={`${item.title} — ${item.media.before ? "이후" : "현재"} 화면`}
+                            width={item.media.frame === "desktop" ? 1920 : 780}
+                            height={item.media.frame === "desktop" ? 1200 : 1280}
+                            sizes={item.media.frame === "desktop" ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 30vw, 45vw"}
+                            className={u.shotImg}
+                          />
+                        </div>
+                      </div>
+                      <figcaption className={u.mediaCaption}>{item.media.caption}</figcaption>
+                    </figure>
+                  )}
                   {item.href && (
                     <Link href={item.href} className={u.itemLink}>
                       바로 보기

@@ -25,9 +25,34 @@ export interface UpdateItem {
   /** 바로 확인할 수 있는 화면 경로 */
   href?: string;
   tag: UpdateTag;
+  /**
+   * 이전/이후 화면 (선택). 파일은 `public/updates/`, 이전 화면은 해당 커밋 직전을 worktree 로 띄워 캡처.
+   * frame: mobile = 390×640 @2x(780×1280) · desktop = 1280×800 @1.5x(1920×1200)
+   */
+  media?: {
+    before?: string;
+    after: string;
+    frame: "mobile" | "desktop";
+    /** 두 화면의 차이를 한 문장으로 (스크린리더·캡션 공용) */
+    caption: string;
+  };
 }
 
 export const UPDATES: UpdateItem[] = [
+  {
+    id: "20260902-community-notes",
+    date: "2026-09-02",
+    title: "지역·작물·지원사업에 한 줄 의견을 남길 수 있어요",
+    summary:
+      "상세 페이지 맨 아래에 '한 줄 의견' 칸이 생겼어요. 로그인 없이 겪은 이야기나 궁금한 점을 남기면 검토를 거쳐 게시되고, 다른 분 의견에 공감을 누를 수도 있어요. 광고·연락처가 담긴 글은 게시되지 않아요.",
+    href: "/regions/gyeongbuk/yeongju",
+    tag: "기능",
+    media: {
+      after: "/updates/community-notes-after.webp",
+      frame: "mobile",
+      caption: "시·군·구 상세 페이지 하단에 추가된 한 줄 의견 영역",
+    },
+  },
   {
     id: "20260902-region-search",
     date: "2026-09-02",
@@ -36,6 +61,12 @@ export const UPDATES: UpdateItem[] = [
       "지도를 눌러 시·도부터 좁혀 들어가지 않아도, 검색창에 '순천'이나 '홍천'을 적으면 바로 그 시·군·구로 갈 수 있어요. 시·도를 고르면 아래에 시·군·구가 펼쳐지는 2단 목록이라 이름이 헷갈릴 때도 눈으로 찾을 수 있어요.",
     href: "/regions",
     tag: "기능",
+    media: {
+      before: "/updates/region-search-before.webp",
+      after: "/updates/region-search-after.webp",
+      frame: "mobile",
+      caption: "이전엔 통계 칩과 안내 카드 아래로 내려가야 지도가 보였고, 지금은 검색창이 첫 화면에 있어요",
+    },
   },
   {
     id: "20260902-region-layout",
@@ -45,6 +76,12 @@ export const UPDATES: UpdateItem[] = [
       "검색과 지도를 하나의 카드로 묶어 화면 맨 위로 올리고, 오른쪽에 통계·정보·활성 지역을 모았어요. 흩어져 있던 숫자 칩도 카드 안으로 들어와서 지역을 고르는 흐름이 끊기지 않아요.",
     href: "/regions",
     tag: "개선",
+    media: {
+      before: "/updates/region-layout-before.webp",
+      after: "/updates/region-layout-after.webp",
+      frame: "desktop",
+      caption: "넓은 화면에서 지도 옆 빈 공간에 정보 카드와 활성 지역을 배치했어요",
+    },
   },
   {
     id: "20260902-search-keyboard",
@@ -62,6 +99,12 @@ export const UPDATES: UpdateItem[] = [
       "지역 비교의 탭을 눌렀을 때 섹션끼리 딱 붙어 답답하게 보이던 부분을 원래 간격으로 복원했어요.",
     href: "/regions/compare",
     tag: "수정",
+    media: {
+      before: "/updates/compare-spacing-before.webp",
+      after: "/updates/compare-spacing-after.webp",
+      frame: "desktop",
+      caption: "붙어 있던 차트·요약·수치 표 사이에 원래 간격이 돌아왔어요",
+    },
   },
   {
     id: "20260831-assess-bias",
