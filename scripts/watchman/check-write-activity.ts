@@ -131,8 +131,10 @@ async function countRows(
   table: string,
   sinceIso: string,
   like?: { column: string; pattern: string },
+  untilIso?: string,
 ): Promise<CountResult> {
   let q = sb.from(table).select("*", { count: "exact", head: true }).gte("created_at", sinceIso);
+  if (untilIso) q = q.lt("created_at", untilIso);
   if (like) q = q.like(like.column, like.pattern);
 
   const { count, error } = await q;
@@ -182,6 +184,8 @@ interface TableOutcome {
   effectiveShort: number | null;
   /** 최근 7일 관련 경로 commit. null이면 git 판정 불가 */
   deploys: string[] | null;
+  /** 배포 직전 7일(8~14일 전) 실측 카운트. null이면 조회 실패(판정 불가) */
+  beforeDeploy: number | null;
   error?: string;
 }
 
@@ -203,6 +207,25 @@ async function countEffective(
   const diag = await countRows(sb, table, sinceIso, { column: diagColumn, pattern: "__diag_%" });
   const diagCount = diag.ok ? diag.count : 0;
   return { ok: true, effective: Math.max(0, total.count - diagCount), diag: diagCount };
+}
+
+/**
+ * "배포 직전" 창(now−2·days ~ now−days) 실측 카운트 — 🔴 회귀 판정의 전제.
+ * 배포 이전에도 0건이었다면 배포가 적재를 끊은 게 아니라 원래 정체다(9/2 #119·#120 오탐 교훈).
+ * 조회 실패는 null — 판정 불가로 보고 🔴 승격하지 않는다.
+ */
+async function countBeforeDeployWindow(
+  sb: SupabaseClient,
+  table: string,
+  diagColumn: string,
+  days: number,
+): Promise<number | null> {
+  const untilIso = new Date(Date.now() - days * 86_400_000).toISOString();
+  const sinceIso = new Date(Date.now() - 2 * days * 86_400_000).toISOString();
+  const total = await countRows(sb, table, sinceIso, undefined, untilIso);
+  if (!total.ok) return null;
+  const diag = await countRows(sb, table, sinceIso, { column: diagColumn, pattern: "__diag_%" }, untilIso);
+  return Math.max(0, total.count - (diag.ok ? diag.count : 0));
 }
 
 /**
@@ -245,6 +268,7 @@ async function checkWriteActivity(sb: SupabaseClient): Promise<void> {
         effective: null,
         effectiveShort: null,
         deploys: null,
+        beforeDeploy: null,
         error: long.reason,
       });
       continue;
@@ -273,11 +297,21 @@ async function checkWriteActivity(sb: SupabaseClient): Promise<void> {
     } else {
       console.log(`  ✓ ${table.padEnd(20)} | ${windowLabel} ${long.effective}건 — ${label}${diagSuffix}`);
     }
+    // 배포 동반이면 "배포 직전엔 살아 있었나"까지 본다 — 원래 0건이던 테이블은 회귀가 아니다
+    let beforeDeploy: number | null = null;
     if (deploys && deploys.length > 0) {
+      beforeDeploy = await countBeforeDeployWindow(sb, table, diagColumn, DEPLOY_WINDOW_DAYS);
+      const beforeNote =
+        beforeDeploy === null
+          ? "배포 직전 창 조회 실패"
+          : beforeDeploy === 0
+            ? "배포 직전 7일도 0건 → 기존 정체(회귀 아님)"
+            : `배포 직전 7일 ${beforeDeploy}건 → 배포 후 끊김 의심`;
       console.log(`      ↳ 최근 ${DEPLOY_WINDOW_DAYS}일 관련 배포 ${deploys.length}건: ${deploys.slice(0, 3).join(" / ")}`);
+      console.log(`      ↳ ${beforeNote}`);
     }
 
-    outcomes.push({ table, windowDays, zeroGrade, effective: long.effective, effectiveShort, deploys });
+    outcomes.push({ table, windowDays, zeroGrade, effective: long.effective, effectiveShort, deploys, beforeDeploy });
   }
 
   console.log("");
@@ -293,9 +327,15 @@ async function checkWriteActivity(sb: SupabaseClient): Promise<void> {
     addFinding("🟡", "§11 write 활성도", errored.map((o) => `${o.table} ${o.error}`).join(" · ") + alivePart);
   }
 
-  // §11-3 🔴: 최근 7일 0건 + 최근 7일 내 관련 경로 배포 동반 → 회귀 가능성
+  // §11-3 🔴: 최근 7일 0건 + 최근 7일 내 관련 경로 배포 동반 + **배포 직전 7일엔 적재가 있었음** → 회귀 가능성
+  //   (9/2 보정) 배포 직전에도 0건이면 저트래픽 정체이므로 zeroGrade 로 내려보낸다 — #119·#120 오탐 차단
   const regressed = outcomes.filter(
-    (o) => o.effectiveShort === 0 && o.deploys !== null && o.deploys.length > 0,
+    (o) =>
+      o.effectiveShort === 0 &&
+      o.deploys !== null &&
+      o.deploys.length > 0 &&
+      o.beforeDeploy !== null &&
+      o.beforeDeploy > 0,
   );
   if (regressed.length > 0) {
     const detail = regressed

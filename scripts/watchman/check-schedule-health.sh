@@ -116,6 +116,18 @@ for wf in "${WORKFLOWS[@]}"; do
   summary=$(printf '%s ' "${filtered[@]%%|*}")
   echo "  ${label} | 최근 3건: ${summary}"
 
+  # ── watchman-ci 자기 참조 보정 (9/2) ──
+  # watchman-ci는 🔴 finding이 있으면 설계상 exit 1(failure)이다. 열린 watchman 이슈가 있으면
+  # 그 failure는 이미 이슈로 표면화된 신호이므로 §15가 다시 🟡/🔴로 증폭하지 않는다.
+  # 열린 이슈가 없는데 failure면 이슈 발행조차 못 한 크래시 → 자기치유 목적대로 계속 판정.
+  if [ "$wf" = "watchman-ci" ] && [ "$latest_conclusion" = "failure" ]; then
+    open_watchman=$(gh issue list --label watchman --state open --limit 1 --json number --jq 'length' 2>/dev/null || echo 0)
+    if [ "${open_watchman:-0}" -gt 0 ]; then
+      echo "  ⚪ ${label} | failure는 🔴 finding 설계 동작(열린 watchman 이슈 존재) — 자기 참조 skip"
+      continue
+    fi
+  fi
+
   # ── sync-data: 최근(30일 이내) 실행 중 failure 1건이라도 있으면 즉시 🔴 ──
   if [ "$wf" = "$IMMEDIATE_CRIT_WORKFLOW" ]; then
     has_failure=false
