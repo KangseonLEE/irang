@@ -6,6 +6,7 @@ import {
   Calendar,
   ArrowRight,
   MessageSquare,
+  ChevronDown,
 } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "../disclaimer/page.module.css";
@@ -51,6 +52,18 @@ interface CorrectionEntry {
   date: string;
   field: string;
   description: string;
+}
+
+/**
+ * 접힌 상태에 보여줄 한 줄 요약 — 본문 첫 문장(~90자). 회장 9/2: 날짜 › 제목 › 간단한 내용, 누르면 전문.
+ * 첫 문장이 너무 길면 80자에서 어절 경계로 끊고 말줄임.
+ */
+function excerpt(description: string): string {
+  const firstSentence = description.match(/^.*?(?:요\.|다\.|\.)(?=\s|$)/)?.[0] ?? description;
+  if (firstSentence.length <= 90) return firstSentence;
+  const cut = description.slice(0, 80);
+  const atSpace = cut.lastIndexOf(" ");
+  return `${cut.slice(0, atSpace > 40 ? atSpace : 80)}…`;
 }
 
 const CORRECTIONS: CorrectionEntry[] = [
@@ -473,16 +486,23 @@ export default async function CorrectionsPage({ searchParams }: Props) {
             const entryMobilePage = Math.ceil((i + 1) / PER_PAGE_MOBILE);
             const isCurrentMobilePage = entryMobilePage === mobilePage;
             return (
-              <div
+              <details
                 key={`${entry.date}-${entry.field}`}
-                className={`${s.sourceItem} ${c.entry}`}
+                className={c.entry}
                 data-mobile-current={isCurrentMobilePage || undefined}
               >
-                <span className={s.sourceName}>
-                  {entry.date} · {entry.field}
-                </span>
-                <span className={s.sourceNote}>{entry.description}</span>
-              </div>
+                <summary className={c.entrySummary}>
+                  <span className={c.entryMeta}>
+                    <time className={c.entryDate} dateTime={entry.date}>
+                      {entry.date}
+                    </time>
+                    <span className={c.entryTitle}>{entry.field}</span>
+                  </span>
+                  <span className={c.entryExcerpt}>{excerpt(entry.description)}</span>
+                  <ChevronDown size={16} className={c.entryChevron} aria-hidden="true" />
+                </summary>
+                <p className={c.entryBody}>{entry.description}</p>
+              </details>
             );
           })}
         </div>
