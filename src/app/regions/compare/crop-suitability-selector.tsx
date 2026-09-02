@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, X, Sprout } from "lucide-react";
 import type { CropInfo } from "@/lib/data/crops";
 import { CROP_CATEGORY_NAMES } from "@/lib/data/crop-categories";
+import { useActiveOptionScroll } from "@/lib/hooks/use-active-option-scroll";
 import s from "./crop-suitability-selector.module.css";
 
 interface Props {
@@ -136,6 +137,8 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
   );
 
   const showDropdown = isFocused;
+
+  useActiveOptionScroll(dropdownRef, highlightIdx, showDropdown);
 
   return (
     <div className={s.wrap}>

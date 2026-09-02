@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition, Fragm
 import { Search, Plus, X, MapPin, Loader2 } from "lucide-react";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import { useActiveOptionScroll } from "@/lib/hooks/use-active-option-scroll";
 import { setComparePending } from "./compare-pending-store";
 import {
   SelectCombobox,
@@ -252,6 +253,8 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
 
   const reachedLimit = optimisticIds.length >= MAX_SELECTION;
   const showDropdown = isFocused;
+
+  useActiveOptionScroll(dropdownRef, highlightIdx, showDropdown);
 
   const slots: (
     | {

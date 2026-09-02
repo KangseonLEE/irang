@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { Search, MapPin, X, Loader2 } from "lucide-react";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import { useActiveOptionScroll } from "@/lib/hooks/use-active-option-scroll";
 import s from "./region-search.module.css";
 
 interface SearchResult {
@@ -76,6 +77,8 @@ export function RegionSearch() {
 
   const showDropdown =
     isFocused && (filteredResults.length > 0 || trimmedQuery.length > 0);
+
+  useActiveOptionScroll(dropdownRef, highlightIdx, showDropdown);
 
   useEffect(() => {
     if (!isFocused) return;

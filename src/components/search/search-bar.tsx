@@ -23,6 +23,7 @@ import { analytics } from "@/lib/analytics";
 import { logSearch } from "@/lib/supabase";
 import { RequestButton } from "@/components/feedback/request-modal";
 import { useBodyScrollLock } from "@/lib/hooks/use-body-scroll-lock";
+import { useActiveOptionScroll } from "@/lib/hooks/use-active-option-scroll";
 import { PLAN_STEPS } from "@/lib/data/plan";
 import { SEARCH_FAQS } from "@/lib/data/search-faq";
 
@@ -593,6 +594,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     focusedIndex >= 0 && focusedIndex < allItems.length
       ? `search-item-${allItems[focusedIndex].id}`
       : undefined;
+
+  // 키보드 하이라이트를 드롭다운 스크롤 시야 안으로 (readOnly 얼리 리턴보다 위 — hooks 규칙)
+  useActiveOptionScroll(dropdownRef, focusedIndex, focusedIndex >= 0);
 
   // ── 읽기 전용 표시 모드: 시각적 껍데기만 렌더링 ──
   if (readOnlyDisplay) {
