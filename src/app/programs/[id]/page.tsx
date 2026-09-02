@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
+import { CommunityNotes } from "@/components/community/community-notes";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -430,6 +431,9 @@ export default async function ProgramDetailPage({
               />
             </div>
           </div>
+
+          {/* 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) */}
+          <CommunityNotes targetType="program" targetId={program.id} targetLabel={program.title} />
         </div>
       </div>
     </div>

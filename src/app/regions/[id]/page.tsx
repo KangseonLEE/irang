@@ -24,6 +24,7 @@ import { Icon } from "@/components/ui/icon";
 import { CropRichCard } from "@/components/crop/crop-rich-card";
 import { convertToPyeongLabel } from "@/lib/format";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { CommunityNotes } from "@/components/community/community-notes";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Place } from "schema-dts";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
@@ -466,6 +467,12 @@ export default async function RegionDetailPage({ params }: PageProps) {
             </section>
           )}
 
+          {/* 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) */}
+          <CommunityNotes
+            targetType="region"
+            targetId={province.id}
+            targetLabel={province.name}
+          />
         </div>
 
         {/* Right Sidebar — 정적 */}

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Scale, Info, Database, Shield, Quote } from "lucide-react";
+import { ArrowLeft, Scale, Info, Database, Shield, Quote, MessageSquareText } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "../about/disclaimer/page.module.css";
 
@@ -150,10 +150,36 @@ export default function TermsPage() {
         </div>
       </section>
 
+      <section className={s.section} id="community">
+        <div className={s.sectionHeader}>
+          <MessageSquareText size={18} />
+          <h2 className={s.sectionTitle}>제6조 (한 줄 의견 운영 원칙)</h2>
+        </div>
+        <div className={s.sectionBody}>
+          <p>
+            지역·작물·지원사업 페이지의 &ldquo;한 줄 의견&rdquo;은 로그인 없이 남길 수
+            있고, 남긴 글은 검토를 거쳐 게시돼요. 다음에 해당하는 글은 게시하지 않거나
+            게시 후에도 숨길 수 있어요.
+          </p>
+          <ul className={s.list}>
+            <li>광고·홍보·영업 목적의 글, 연락처·링크·메신저 아이디가 포함된 글</li>
+            <li>욕설·비하·혐오 표현, 타인의 개인정보나 사생활을 드러내는 글</li>
+            <li>귀농·농촌 정착과 무관한 글, 같은 내용의 반복 게시</li>
+            <li>다른 이용자의 신고가 3건 이상 쌓인 글(검토 전까지 자동으로 숨겨요)</li>
+          </ul>
+          <p>
+            자동 필터와 AI 분류를 거친 뒤 사람이 최종 확인해요. 잘못 걸러진 글은 검토
+            과정에서 복구돼요. 작성자 식별을 위해 IP 주소는 원문이 아닌 암호화된
+            해시값으로만 보관하며, 같은 IP의 공감·신고 중복 방지와 과다 제출 제한에만
+            써요. 닉네임은 선택 사항이고 입력한 그대로 공개돼요.
+          </p>
+        </div>
+      </section>
+
       <section className={s.section}>
         <div className={s.sectionHeader}>
           <Info size={18} />
-          <h2 className={s.sectionTitle}>제6조 (약관 변경)</h2>
+          <h2 className={s.sectionTitle}>제7조 (약관 변경)</h2>
         </div>
         <div className={s.sectionBody}>
           <p>
@@ -161,7 +187,7 @@ export default function TermsPage() {
             통해 공지해요.
           </p>
           <p className={s.sourceNote}>
-            최종 수정일: 2026년 5월 9일
+            최종 수정일: 2026년 9월 2일
           </p>
         </div>
       </section>

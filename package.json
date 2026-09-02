@@ -31,6 +31,7 @@
     "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.123.0",
     "@sentry/nextjs": "^10.48.0",
     "@supabase/supabase-js": "^2.101.1",
     "@svg-maps/south-korea": "^2.0.0",

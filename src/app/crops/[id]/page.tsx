@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
+import { CommunityNotes } from "@/components/community/community-notes";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { getCropImageSrc, getCropImageAbsoluteUrl } from "@/lib/crop-image";
@@ -525,6 +526,9 @@ export default async function CropDetailPage({
 
           {/* 정착 팁 */}
           <TipsSection tips={detail.tips} />
+
+          {/* 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) */}
+          <CommunityNotes targetType="crop" targetId={id} targetLabel={data.name} />
         </div>
 
         {/* 사이드바 */}

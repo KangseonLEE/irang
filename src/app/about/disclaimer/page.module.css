@@ -140,6 +140,15 @@
   }
 }
 
+/* 본문 항목 목록 (약관 제6조 운영 원칙 등) */
+.list {
+  margin: 0;
+  padding-left: 1.25em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 /* ── 강조 문장 ── */
 .highlight {
   padding: 10px 14px;

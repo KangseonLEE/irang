@@ -13,6 +13,7 @@ import {
   MessageSquarePlus,
   Search,
   ClipboardCheck,
+  MessagesSquare,
   type LucideIcon,
 } from "lucide-react";
 
@@ -43,5 +44,11 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     label: "진단 결과",
     icon: ClipboardCheck,
     href: "/admin/assessments",
+  },
+  {
+    key: "community",
+    label: "커뮤니티",
+    icon: MessagesSquare,
+    href: "/admin/community",
   },
 ];

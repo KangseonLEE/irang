@@ -1,0 +1,98 @@
+/* 어드민 커뮤니티 승인 큐 — 카드·필터는 ../requests/page.module.css 재사용, 여기는 신호·액션만 */
+
+.nickname {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 12px;
+}
+
+.signalRule,
+.signalOk,
+.signalWarn,
+.signalMuted {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: var(--fs-caption);
+  border-radius: 9999px;
+  background: var(--muted, #f4f4f5);
+  color: var(--muted-foreground);
+}
+
+.signalRule {
+  color: #b45309;
+  background: color-mix(in srgb, #d97706 12%, transparent);
+}
+
+.signalOk {
+  color: #047857;
+  background: color-mix(in srgb, #059669 12%, transparent);
+}
+
+.signalWarn {
+  color: #b91c1c;
+  background: color-mix(in srgb, #dc2626 10%, transparent);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.actionBtn {
+  padding: 6px 12px;
+  font: inherit;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.actionBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.actionBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.action_approved {
+  border-color: var(--primary, #1b6b5a);
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+}
+
+.action_rejected {
+  border-color: color-mix(in srgb, #dc2626 40%, transparent);
+  color: #b91c1c;
+}
+
+@media (hover: hover) {
+  .actionBtn:not(:disabled):hover {
+    background: var(--muted, #f4f4f5);
+  }
+
+  .action_approved:not(:disabled):hover {
+    background: var(--primary-dark, #0f2e26);
+  }
+}
+
+.actionError {
+  font-size: var(--fs-caption);
+  color: #b91c1c;
+}

@@ -36,6 +36,7 @@ import { SigunguStatsSkeleton } from "./sigungu-stats-skeleton";
 import { DistrictMapSection } from "./district-map-section";
 import { DataSource } from "@/components/ui/data-source";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { CommunityNotes } from "@/components/community/community-notes";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Place } from "schema-dts";
 import {
@@ -608,6 +609,13 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           전체 행사 보기 →
         </Link>
       </section>
+
+      {/* ── 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) ── */}
+      <CommunityNotes
+        targetType="region"
+        targetId={`${province.id}/${sigungu.id}`}
+        targetLabel={`${province.shortName} ${sigungu.name}`}
+      />
 
       {/* ── 돌아가기 링크 ── */}
       <Link href={`/regions/${province.id}`} className={s.backLink}>
