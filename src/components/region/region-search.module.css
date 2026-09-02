@@ -20,6 +20,10 @@
 }
 
 .searchInput {
+  /* 포커스·scrollIntoView 로 끌어올려질 때 헤더+섹션 탭 아래에 안착 (9/2 회장 리포트 — iOS 가 포커스된
+     입력을 뷰포트 맨 위로 올려 바 뒤에 숨김). --sticky-top(숨김 시 0) 대신 --h-header 상수를 쓰는 이유:
+     입력을 향해 위로 스크롤되는 순간 헤더가 다시 나타나 스택이 56px 커지기 때문 */
+  scroll-margin-top: calc(var(--h-header, 3.5rem) + var(--sticky-extra, 0px) + 12px);
   width: 100%;
   font-family: inherit;
   font-size: var(--fs-body);

@@ -40,7 +40,12 @@ export function KeyboardFocusGuard() {
     const ensureVisible = (el: HTMLElement) => {
       if (document.activeElement !== el) return;
       const rect = el.getBoundingClientRect();
-      const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sticky-top")) || 56;
+      // 헤더는 --sticky-top(스크롤 다운 시 0) 이 아니라 실높이 --h-header 로 — 위로 스크롤하면 다시 나타난다.
+      // --sticky-extra(SectionNav 높이)는 섹션 레이아웃 스코프 변수라 요소의 computed style 에서 읽는다
+      const elStyle = getComputedStyle(el);
+      const headerH =
+        (parseFloat(elStyle.getPropertyValue("--h-header")) || 56) +
+        (parseFloat(elStyle.getPropertyValue("--sticky-extra")) || 0);
       const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--h-mobile-nav")) || 56;
       // visualViewport 기준 보이는 구간 — offsetTop 은 레이아웃 뷰포트 대비 시각 뷰포트의 위치
       const top = vv.offsetTop + headerH;

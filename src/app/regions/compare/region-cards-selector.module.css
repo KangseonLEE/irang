@@ -51,3 +51,6 @@
 .cardProvinceTop { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-caption); color: var(--muted-foreground); }
 .cardProvinceMain { font-size: 22px; font-weight: 800; color: var(--foreground); letter-spacing: -0.02em; }
 .cardSelectWrap { margin-top: 4px; }
+
+/* 포커스 스크롤 시 헤더+섹션 탭 아래 안착 — --sticky-top(숨김 시 0) 대신 --h-header 상수 (9/2, region-search 와 동일) */
+.searchInput { scroll-margin-top: calc(var(--h-header, 3.5rem) + var(--sticky-extra, 0px) + 12px); }

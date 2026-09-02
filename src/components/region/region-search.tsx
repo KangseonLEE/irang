@@ -199,7 +199,7 @@ export function RegionSearch() {
         }}
         onFocus={() => setIsFocused(true)}
         onKeyDown={handleKeyDown}
-        placeholder="지역명으로 바로 찾기 (예: 강원, 영주시, 순천)"
+        placeholder="지역명 검색 (예: 영주, 강원)"
         className={s.searchInput}
         role="combobox"
         aria-label="지역 검색"
