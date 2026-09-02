@@ -325,7 +325,12 @@
   border: 0;
 }
 
-/* 지역 변경 로딩 오버레이의 기준 박스 (compare-loading-overlay.tsx, 8/30) */
+/* 지역 변경 로딩 오버레이의 기준 박스 (compare-loading-overlay.tsx, 8/30)
+   탭 콘텐츠 섹션들이 이 래퍼 안으로 들어오면서 .page의 column gap을 못 받으므로
+   같은 스택을 재구성 — gap: inherit로 .page의 브레이크포인트별 값(16/20/24px)을 따라간다 */
 .contentWrap {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
 }
