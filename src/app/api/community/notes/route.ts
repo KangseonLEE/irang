@@ -39,14 +39,8 @@ export async function GET(req: NextRequest) {
 
   const result = await listApprovedNotes(type, id);
   if (!result.ok) {
-    if (result.reason !== "db-error") {
-      await recordApiFallback({
-        endpoint: ENDPOINT,
-        statusCode: 503,
-        fallbackReason: result.reason,
-        userAgent: req.headers.get("user-agent"),
-      });
-    }
+    // 읽기 경로는 fallback 로그를 남기지 않는다 — 상세 페이지뷰마다 호출돼 마이그레이션 적용 전
+    // api_fallback_log가 페이지뷰 수만큼 쌓여 watchman §12를 덮는다. 미적용 신호는 POST 로그·admin 큐가 담당.
     return NextResponse.json(
       { ok: false, reason: result.reason },
       { status: 503, headers: NO_STORE },
