@@ -12,7 +12,16 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 모바일: 아래로 스크롤해 헤더가 숨으면 섹션 탭도 함께 위로 빠진다 (9/2 회장 리포트 — iOS Chrome 은
+   주소창·하단 툴바가 화면을 이미 많이 쓰는데 우리 sticky 스택 101px 가 상단을 상시 점유해 콘텐츠가 가려짐).
+   위로 스크롤하면 header.tsx 가 data-header-hidden 을 지우면서 헤더·탭이 함께 돌아온다. */
+@media (max-width: 767px) {
+  html[data-header-hidden] .nav {
+    transform: translateY(-100%);
+  }
 }
 
 

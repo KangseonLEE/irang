@@ -2,3 +2,10 @@
 .underSectionNav {
   --sticky-extra: var(--h-section-nav, 44px);
 }
+
+/* 모바일에서 헤더·섹션 탭이 함께 숨은 동안은 하위 sticky(TabBar 등)도 맨 위로 (9/2) */
+@media (max-width: 767px) {
+  html[data-header-hidden] .underSectionNav {
+    --sticky-extra: 0px;
+  }
+}
