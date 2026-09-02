@@ -116,14 +116,32 @@ for wf in "${WORKFLOWS[@]}"; do
   summary=$(printf '%s ' "${filtered[@]%%|*}")
   echo "  ${label} | 최근 3건: ${summary}"
 
-  # ── watchman-ci 자기 참조 보정 (9/2) ──
-  # watchman-ci는 🔴 finding이 있으면 설계상 exit 1(failure)이다. 열린 watchman 이슈가 있으면
-  # 그 failure는 이미 이슈로 표면화된 신호이므로 §15가 다시 🟡/🔴로 증폭하지 않는다.
-  # 열린 이슈가 없는데 failure면 이슈 발행조차 못 한 크래시 → 자기치유 목적대로 계속 판정.
-  if [ "$wf" = "watchman-ci" ] && [ "$latest_conclusion" = "failure" ]; then
-    open_watchman=$(gh issue list --label watchman --state open --limit 1 --json number --jq 'length' 2>/dev/null || echo 0)
-    if [ "${open_watchman:-0}" -gt 0 ]; then
-      echo "  ⚪ ${label} | failure는 🔴 finding 설계 동작(열린 watchman 이슈 존재) — 자기 참조 skip"
+  # ── watchman-ci 자기 참조 보정 (9/2, 9/3 재보강) ──
+  # watchman-ci는 🔴 finding이 있으면 설계상 exit 1(failure)이다. 그 failure가 이슈로 표면화됐다면
+  # (실행 직후 30분 안에 watchman 이슈가 생성됨 — 열린/닫힌 상태 무관) 이미 처리된 신호이므로
+  # §15가 다시 증폭하지 않는다. 9/2 1차 보정은 "열린 이슈"만 봐서, 오탐 이슈를 닫는 순간
+  # 직전 failure 3건이 그대로 🔴가 되고 → 다시 failure → 다시 이슈…의 자기 영속 루프가 생겼다(#122).
+  # 이슈조차 없는 failure(워크플로 setup 크래시 등)만 자기치유 목적대로 계속 판정.
+  if [ "$wf" = "watchman-ci" ]; then
+    issue_epochs=$(gh issue list --label watchman --state all --limit 30 --json createdAt --jq '.[].createdAt' 2>/dev/null \
+      | while read -r c; do date -d "$c" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$c" +%s 2>/dev/null; done)
+    rewritten=()
+    for entry in "${filtered[@]}"; do
+      conclusion="${entry%%|*}"; created="${entry#*|}"
+      if [ "$conclusion" = "failure" ]; then
+        run_epoch=$(date -d "$created" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$created" +%s 2>/dev/null || echo 0)
+        for ie in $issue_epochs; do
+          if [ "$ie" -ge "$run_epoch" ] && [ $((ie - run_epoch)) -le 1800 ]; then
+            conclusion="designed"; break
+          fi
+        done
+      fi
+      rewritten+=("${conclusion}|${created}")
+    done
+    filtered=("${rewritten[@]}")
+    latest_conclusion="${filtered[0]%%|*}"
+    if [ "$latest_conclusion" = "designed" ]; then
+      echo "  ⚪ ${label} | failure는 🔴 finding 설계 동작(직후 watchman 이슈 발행 확인) — 자기 참조 skip"
       continue
     fi
   fi
