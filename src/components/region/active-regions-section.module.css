@@ -160,6 +160,14 @@
   }
 }
 
+/* /regions 찾기 2단 레이아웃 우측 컬럼 등 좁은 컨테이너에서는 1열 유지 (2026-09-02).
+   상위에 container-type: inline-size 컨테이너가 없으면 무시된다. */
+@container (max-width: 680px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .cardItem {
   margin: 0;
   padding: 0;

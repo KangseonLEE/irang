@@ -91,7 +91,11 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
         description="농촌 정착을 고려 중인 지역을 선택해 기후, 인구, 추천 작물, 지원사업 정보를 확인하세요."
       />
 
-      {/* ── 관심 지역 찾기: 검색 + 지도 통합 (2026-09-02 회장 결재 — 찾기 섹션 승격) ── */}
+      {/* ── 찾기 2단 레이아웃 (2026-09-02 회장 지시)
+           데스크탑: 좌 찾기(검색+지도) / 우 통계·정보·랭킹 배너 — "지도 옆 빈 공간 밀도 확보" 원칙.
+           모바일: 기존 순서(찾기 → 활성 지역 → 통계 → 정보 → 배너) 그대로 격리 ── */}
+      <div className={s.findLayout}>
+      {/* ── 관심 지역 찾기: 검색 + 지도 통합 ── */}
       <section className={s.mapSection}>
         <div className={s.mapHeader}>
           <h2 className={s.mapTitle}>
@@ -114,9 +118,13 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
         </div>
       </section>
 
-      {/* ── 활성 지역 큐레이션 (지도 직후) ── */}
-      <ActiveRegionsSection activeId={sp.active} />
+      {/* ── 활성 지역 큐레이션 (지도 직후 · 데스크탑은 2단 아래 전폭) ── */}
+      <div className={s.findActive}>
+        <ActiveRegionsSection activeId={sp.active} />
+      </div>
 
+      {/* ── 우측 컬럼: 통계 + 정보 + 랭킹 배너 ── */}
+      <aside className={s.findAside} aria-label="지역 데이터 요약">
       {/* ── Quick Stats ── */}
       <section className={s.statsSection}>
         <div className={s.statsGrid}>
@@ -170,6 +178,9 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
           </Link>
         </div>
       </section>
+
+      </aside>
+      </div>
 
       {/* ── 시군구 점수 비교 cross-link 배너 ── */}
       <Link href="/regions/ranking" className={s.rankingBanner}>
