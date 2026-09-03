@@ -12,10 +12,11 @@ import s from "./page.module.css";
 
 export const revalidate = 300; // 5분 ISR
 
-const RATING_EMOJI: Record<string, string> = {
-  good: "😊",
-  neutral: "😐",
-  bad: "😞",
+/** 평가 표기 — 이모지 대신 한글 라벨 (9/3 회장 지시) */
+const RATING_LABEL: Record<string, string> = {
+  good: "좋아요",
+  neutral: "보통",
+  bad: "아쉬워요",
 };
 
 export default async function AdminOverviewPage() {
@@ -102,8 +103,8 @@ export default async function AdminOverviewPage() {
             <ul className={s.feedbackList}>
               {recentFeedback.data.map((fb) => (
                 <li key={fb.id} className={s.feedbackItem}>
-                  <span className={s.emoji}>
-                    {RATING_EMOJI[fb.rating] ?? "❓"}
+                  <span className={`${s.ratingBadge} ${s[`rating_${fb.rating}`] ?? ""}`}>
+                    {RATING_LABEL[fb.rating] ?? "미분류"}
                   </span>
                   <div className={s.feedbackBody}>
                     <p className={s.feedbackMessage}>

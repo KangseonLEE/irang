@@ -16,17 +16,18 @@ import s from "./page.module.css";
 
 /** admin은 매 요청 fresh fetch가 의도. searchParams 의존이라 revalidate 추가 시 dynamic SSR 충돌 (2026-05-11 lessons). */
 
-const RATING_EMOJI: Record<string, string> = {
-  good: "😊",
-  neutral: "😐",
-  bad: "😞",
+/** 평가 표기 — 이모지 대신 한글 라벨 + 색 배지 (9/3 회장 지시: 어드민에서 불필요한 이모지 제거) */
+const RATING_LABEL: Record<string, string> = {
+  good: "좋아요",
+  neutral: "보통",
+  bad: "아쉬워요",
 };
 
 const FILTER_OPTIONS = [
   { value: "all", label: "전체" },
-  { value: "good", label: "😊 좋아요" },
-  { value: "neutral", label: "😐 보통" },
-  { value: "bad", label: "😞 아쉬워요" },
+  { value: "good", label: "좋아요" },
+  { value: "neutral", label: "보통" },
+  { value: "bad", label: "아쉬워요" },
 ];
 
 const PERSONA_LABEL: Record<string, string> = {
@@ -73,7 +74,7 @@ export default async function AdminFeedbackPage({ searchParams }: Props) {
           <h2 className={s.sectionTitle}>추천 thumbs 분포</h2>
           {overallRatio !== null && (
             <span className={s.overallRatio}>
-              👍 {(overallRatio * 100).toFixed(0)}% / 👎 {(100 - overallRatio * 100).toFixed(0)}%
+              도움돼요 {(overallRatio * 100).toFixed(0)}% / 아쉬워요 {(100 - overallRatio * 100).toFixed(0)}%
             </span>
           )}
         </div>
@@ -111,8 +112,8 @@ export default async function AdminFeedbackPage({ searchParams }: Props) {
                       <span className={s.topPersona}>
                         {row.persona ? PERSONA_LABEL[row.persona] ?? row.persona : "—"}
                       </span>
-                      <span className={s.topThumbsUp}>👍 {row.up}</span>
-                      <span className={s.topThumbsDown}>👎 {row.down}</span>
+                      <span className={s.topThumbsUp}>도움 {row.up}</span>
+                      <span className={s.topThumbsDown}>아쉬움 {row.down}</span>
                     </li>
                   ))}
                 </ul>
@@ -147,10 +148,9 @@ export default async function AdminFeedbackPage({ searchParams }: Props) {
             {feedbacks.map((fb) => (
               <div key={fb.id} className={s.card}>
                 <div className={s.cardTop}>
-                  <span className={s.emoji}>
-                    {RATING_EMOJI[fb.rating] ?? "❓"}
+                  <span className={`${s.ratingBadge} ${s[`rating_${fb.rating}`] ?? ""}`}>
+                    {RATING_LABEL[fb.rating] ?? "미분류"}
                   </span>
-                  <span className={s.ratingLabel}>{fb.rating}</span>
                   <span className={s.date}>
                     {new Date(fb.created_at).toLocaleString("ko-KR", {
                       timeZone: "Asia/Seoul",
@@ -205,8 +205,8 @@ function ThumbsCard({ label, up, down }: { label: string; up: number; down: numb
     <div className={s.thumbsCard}>
       <p className={s.thumbsCardLabel}>{label}</p>
       <div className={s.thumbsCardRow}>
-        <span className={s.thumbsCardUp}>👍 {up}</span>
-        <span className={s.thumbsCardDown}>👎 {down}</span>
+        <span className={s.thumbsCardUp}>도움 {up}</span>
+        <span className={s.thumbsCardDown}>아쉬움 {down}</span>
       </div>
       {ratio !== null && (
         <p className={s.thumbsCardRatio}>긍정 {(ratio * 100).toFixed(0)}%</p>
@@ -241,7 +241,7 @@ function PersonaRow({
         />
       </div>
       <span className={s.personaCounts}>
-        👍 {up} / 👎 {down} <span className={s.personaPct}>({upPct.toFixed(0)}%)</span>
+        도움 {up} / 아쉬움 {down} <span className={s.personaPct}>({upPct.toFixed(0)}%)</span>
       </span>
       <span className={s.personaSum}>n={sum}</span>
     </li>

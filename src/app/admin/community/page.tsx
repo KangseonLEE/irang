@@ -22,10 +22,10 @@ import c from "./page.module.css";
 
 const STATUS_LABELS: Record<NoteStatus | "all", string> = {
   all: "전체",
-  pending: "⏳ 대기",
-  approved: "✅ 게시",
-  rejected: "❌ 반려",
-  hidden: "🙈 숨김",
+  pending: "대기",
+  approved: "게시",
+  rejected: "반려",
+  hidden: "숨김",
 };
 
 interface Props {

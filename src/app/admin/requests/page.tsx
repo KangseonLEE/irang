@@ -14,9 +14,9 @@ import s from "./page.module.css";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "전체" },
-  { value: "pending", label: "⏳ 대기" },
-  { value: "done", label: "✅ 완료" },
-  { value: "rejected", label: "❌ 반려" },
+  { value: "pending", label: "대기" },
+  { value: "done", label: "완료" },
+  { value: "rejected", label: "반려" },
 ];
 
 const CATEGORY_OPTIONS = [

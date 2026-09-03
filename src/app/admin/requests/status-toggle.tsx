@@ -6,9 +6,9 @@ import type { RequestStatus } from "@/lib/admin/types";
 import s from "./page.module.css";
 
 const STATUS_LABELS: Record<RequestStatus, string> = {
-  pending: "⏳ 대기",
-  done: "✅ 완료",
-  rejected: "❌ 반려",
+  pending: "대기",
+  done: "완료",
+  rejected: "반려",
 };
 
 const STATUS_CYCLE: RequestStatus[] = ["pending", "done", "rejected"];
