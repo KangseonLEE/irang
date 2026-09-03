@@ -125,18 +125,6 @@ export const analytics = {
       label: `${from}->${to}`,
     }),
 
-  // -- Navigation / Content views --
-  regionView: (regionId: string) =>
-    trackEvent({ action: "region_view", category: "content", label: regionId }),
-  cropView: (cropId: string) =>
-    trackEvent({ action: "crop_view", category: "content", label: cropId }),
-  programView: (programId: string) =>
-    trackEvent({
-      action: "program_view",
-      category: "content",
-      label: programId,
-    }),
-
   // -- Share --
   share: (contentType: string, method: string) =>
     trackEvent({
@@ -153,9 +141,10 @@ export const analytics = {
       label: `${cropId}:${action}:${sourcePage}`,
     }),
 
-  // -- External link --
-  externalClick: (url: string) =>
-    trackEvent({ action: "external_click", category: "outbound", label: url }),
+  // -- External link (OutboundClickTracker 가 사이트 전역 a[href^=http] 외부 이동을 위임 수집, 2026-09-03) --
+  // 상세 조회(region/crop/program_view)·cta_click 헬퍼는 호출처 0으로 9/3 삭제 — 조회는 page_view 가 대신한다.
+  externalClick: (hostAndPath: string) =>
+    trackEvent({ action: "external_click", category: "outbound", label: hostAndPath }),
 
   // -- Landing IA 계측 (2026-08-30, 회장 지시 "사용자 패턴 분석 후 랜딩 구조 변경") --
   // 하루 1~2건 규모의 검색·진단 로그로는 정보 구조를 판단할 수 없어, 섹션 단위 노출·클릭을 GA4에 쌓는다.
@@ -173,12 +162,4 @@ export const analytics = {
   // -- 재배 캘린더 행 확장 (2026-08-30) — 어떤 작물을 펼쳐 보는지 = 인기 작물 신호 --
   calendarRowExpand: (cropId: string) =>
     trackEvent({ action: "calendar_row_expand", category: "crops", label: cropId }),
-
-  // -- CTA clicks --
-  ctaClick: (ctaName: string) =>
-    trackEvent({
-      action: "cta_click",
-      category: "conversion",
-      label: ctaName,
-    }),
 };

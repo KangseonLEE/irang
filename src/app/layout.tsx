@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { Header } from "@/components/layout/header";
 import { KeyboardFocusGuard } from "@/components/layout/keyboard-focus-guard";
+import { OutboundClickTracker } from "@/components/analytics/outbound-click-tracker";
 import { PublicChrome } from "@/components/layout/public-chrome";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -175,6 +176,7 @@ export default function RootLayout({
         <ScrollToTop />
         <HashHighlight />
         <KeyboardFocusGuard />
+        <OutboundClickTracker />
         <GoogleAnalytics />
         <Analytics />
         <SpeedInsights />
