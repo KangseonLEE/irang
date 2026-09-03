@@ -258,3 +258,155 @@
     color: #dc2626;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   처리 대기 알림 — 종 아이콘 + 사이드바·하단탭 배지 (2026-09-03 회장 지시)
+   ══════════════════════════════════════════════════════════════ */
+
+.bellWrap {
+  position: relative;
+  margin-left: auto;
+}
+
+.bell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted-foreground, #6b7280);
+}
+
+@media (hover: hover) {
+  .bell:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+    color: var(--foreground, #111);
+  }
+}
+
+.bell:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* 종 위 카운트 — 0건이면 아예 렌더하지 않는다(상시 빨간 점 금지) */
+.bellCount {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+}
+
+.bellPanel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 120;
+  min-width: 232px;
+  padding: 6px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.bellEmpty {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.bellList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bellItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  color: var(--foreground, #111);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .bellItem:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 7%, transparent);
+  }
+}
+
+.bellItemCount {
+  flex: none;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 9px;
+  background: color-mix(in srgb, #dc2626 12%, transparent);
+  color: #b91c1c;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* 사이드바 항목 오른쪽 카운트 */
+.navCount {
+  margin-left: auto;
+  min-width: 19px;
+  padding: 1px 6px;
+  border-radius: 9px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* 하단 탭 아이콘 위 배지 */
+.tabIconWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.tabCount {
+  position: absolute;
+  top: -5px;
+  left: 11px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* 데스크탑: 사이드바 종 패널이 네비 항목을 덮지 않게 콘텐츠 쪽(오른쪽)으로 편다 */
+@media (min-width: 768px) {
+  .sidebar .bellPanel {
+    left: 0;
+    right: auto;
+  }
+}
