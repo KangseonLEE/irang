@@ -7,7 +7,13 @@
 
 import Link from "next/link";
 import { listNotesForAdmin } from "@/lib/community/queries";
+import {
+  TARGET_TYPE_LABELS,
+  resolveTargetHref,
+  resolveTargetLabel,
+} from "@/lib/community/target-label";
 import { NOTE_STATUSES, isNoteStatus, type NoteStatus } from "@/lib/community/types";
+import { loadPrograms } from "@/lib/data/programs";
 import { NoteActions } from "./note-actions";
 import s from "../requests/page.module.css";
 import c from "./page.module.css";
@@ -22,8 +28,6 @@ const STATUS_LABELS: Record<NoteStatus | "all", string> = {
   hidden: "🙈 숨김",
 };
 
-const TARGET_LABELS = { region: "지역", crop: "작물", program: "지원사업" } as const;
-
 interface Props {
   searchParams: Promise<{ status?: string }>;
 }
@@ -37,6 +41,15 @@ export default async function AdminCommunityPage({ searchParams }: Props) {
       : "pending";
 
   const result = await listNotesForAdmin(statusFilter);
+
+  // 지원사업 제목은 정적+DB 병합 목록에서 (target-label 모듈은 CI 실행용이라 supabase 의존 금지)
+  const needsPrograms =
+    result.ok && result.data.some((n) => n.targetType === "program");
+  const programTitles = new Map<string, string>();
+  if (needsPrograms) {
+    const { programs } = await loadPrograms();
+    for (const p of programs) programTitles.set(p.id, p.title);
+  }
 
   return (
     <div className={s.page}>
@@ -74,9 +87,17 @@ export default async function AdminCommunityPage({ searchParams }: Props) {
           {result.data.map((note) => (
             <div key={note.id} className={s.card}>
               <div className={s.cardTop}>
-                <span className={s.categoryBadge}>{TARGET_LABELS[note.targetType]}</span>
-                <span className={s.keywordBadge}>{note.targetId}</span>
-                {note.nickname && <span className={c.nickname}>{note.nickname}</span>}
+                <span className={s.categoryBadge}>{TARGET_TYPE_LABELS[note.targetType]}</span>
+                <Link
+                  href={resolveTargetHref(note.targetType, note.targetId)}
+                  className={s.keywordBadge}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={note.targetId}
+                >
+                  {resolveTargetLabel(note.targetType, note.targetId, programTitles)}
+                </Link>
+                <span className={c.nickname}>{note.nickname ?? "익명"}</span>
                 <span className={s.date}>
                   {new Date(note.createdAt).toLocaleString("ko-KR", {
                     timeZone: "Asia/Seoul",
