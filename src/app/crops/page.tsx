@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ArrowRight, Scale } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -21,7 +21,7 @@ import {
 import { CropSortControl } from "./crop-sort-control";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import { rankCropsForPersona, getCropPersonaFitTrace, type FitTrace } from "@/lib/data/persona-fit";
-import { CropPageCard } from "@/components/crop/crop-page-card";
+import { CropPageCard } from "@/components/crops/crop-page-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";

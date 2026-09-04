@@ -29,7 +29,7 @@
 - lint (eslint): 통과 ✅
 - Lighthouse (Performance/Accessibility/Best Practices/SEO): 점수 기재
 
-### 체크리스트 A~H
+### 체크리스트 A~I
 
 - A 공통 컴포넌트 재사용: 통과 ✅
 - B CSS 복붙 없음: 통과 ✅
@@ -40,7 +40,7 @@
 - G CSS 선언 순서: 통과 ✅
 - H Server↔Client 경계: 통과 ✅
 
-**체크리스트 A~H 통과** ✅
+**체크리스트 A~I 통과** ✅
 
 ### 모바일 4단계 + 데스크탑 회귀
 

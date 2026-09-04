@@ -12,7 +12,7 @@ import {
   LandPlot,
 } from "lucide-react";
 import { LandCheckBox } from "@/components/region/land-check-box";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { PROVINCES } from "@/lib/data/regions";
 import { getSigunguBySidoAndId } from "@/lib/data/sigungus";
 import { getGuByIds, GUS } from "@/lib/data/gus";
@@ -20,7 +20,7 @@ import { getEnrichedHighlights } from "@/lib/data/popular-tags";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { getSigunguCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
 import { PROGRAMS } from "@/lib/data/programs";

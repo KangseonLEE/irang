@@ -6,7 +6,7 @@ import {
   ProvinceMapWithToggle,
   type DensityMode,
 } from "@/components/map/province-map-with-toggle";
-import { SigunguList } from "@/app/regions/[id]/sigungu-list";
+import { SigunguList } from "./sigungu-list";
 import type { SigunguMapLocation } from "@/lib/data/province-maps";
 import s from "./sigungu-explorer.module.css";
 

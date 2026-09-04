@@ -12,7 +12,7 @@ import {
   LandPlot,
 } from "lucide-react";
 import { LandCheckBox } from "@/components/region/land-check-box";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
@@ -24,7 +24,7 @@ import { getEnrichedHighlights } from "@/lib/data/popular-tags";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { CropRichCard } from "@/components/crop/crop-rich-card";
+import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { convertToPyeongLabel } from "@/lib/format";
 import { getSigunguCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";

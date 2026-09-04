@@ -16,12 +16,12 @@ import {
 } from "lucide-react";
 import { getSidoCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { PROVINCES } from "@/lib/data/regions";
 import { getSigungusBySidoId } from "@/lib/data/sigungus";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
-import { CropRichCard } from "@/components/crop/crop-rich-card";
+import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { convertToPyeongLabel } from "@/lib/format";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CommunityNotes } from "@/components/community/community-notes";

@@ -10,7 +10,7 @@ import {
   Monitor,
   type LucideIcon,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 
 /* ── 타입 ── */
 

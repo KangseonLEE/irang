@@ -13,9 +13,9 @@ import {
   RotateCcw,
   FileText,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { type SupportProgram } from "@/lib/data/programs";
-import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { ShareButtons } from "@/components/share/share-buttons";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import type { FarmType } from "@/lib/data/match-questions";

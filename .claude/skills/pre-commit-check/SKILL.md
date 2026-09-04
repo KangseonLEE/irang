@@ -1,12 +1,12 @@
 ---
 name: pre-commit-check
-description: "커밋 직전 자동 실행되는 체크리스트 A~H + 카피 톤 + 빌드·타입·린트 통합 점검. .claude/rules/checklist.md의 8개 체크리스트를 자동 검증하고 위반 사항을 발견. 트리거: '커밋 전 체크', 'pre-commit', '커밋 전 확인', '코드 점검', '체크리스트 확인', 'checklist', '커밋해도 되나'. 수동 호출 또는 frontend-engineer가 작업 완료 시 자체 호출. 위반 발견 시 🔴/🟡/⚪ 분류."
+description: "커밋 직전 자동 실행되는 체크리스트 A~I + 카피 톤 + 빌드·타입·린트 통합 점검. .claude/rules/checklist.md의 9개 체크리스트를 자동 검증하고 위반 사항을 발견. 트리거: '커밋 전 체크', 'pre-commit', '커밋 전 확인', '코드 점검', '체크리스트 확인', 'checklist', '커밋해도 되나'. 수동 호출 또는 frontend-engineer가 작업 완료 시 자체 호출. 위반 발견 시 🔴/🟡/⚪ 분류."
 ---
 
 # Pre-Commit Check — 커밋 직전 통합 점검
 
 ## 목적
-`.claude/rules/checklist.md`의 8종 체크리스트(A~H) + 카피 톤 + 빌드·타입·린트를 커밋 전 자동 점검. 위반 발견 시 커밋 차단·수정 유도.
+`.claude/rules/checklist.md`의 9종 체크리스트(A~I) + 카피 톤 + 빌드·타입·린트를 커밋 전 자동 점검. 위반 발견 시 커밋 차단·수정 유도.
 
 ## 트리거
 - 자연어: "커밋 전 체크", "체크리스트 확인"

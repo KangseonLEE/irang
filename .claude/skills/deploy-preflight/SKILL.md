@@ -37,7 +37,7 @@ npm test
 - 테스트 실패 → `🔴 FAIL`
 - 커버리지 출력 (현재 0이지만 점진 개선 추적)
 
-### STEP 3: 체크리스트 A~H 전수 (pre-commit-check 위임)
+### STEP 3: 체크리스트 A~I 전수 (pre-commit-check 위임)
 
 `pre-commit-check` 스킬 호출. 결과 요약만 수집.
 
@@ -121,7 +121,7 @@ bash scripts/check-links.sh
 |---|--------|------|------|
 | 1 | 빌드·타입·린트 | ✅ PASS | |
 | 2 | 테스트 | ⚠️ WARN | 커버리지 0 |
-| 3 | 체크리스트 A~H | ✅ PASS | |
+| 3 | 체크리스트 A~I | ✅ PASS | |
 | 4 | API Health | ✅ PASS | |
 | 5 | 정책 스냅샷 | ✅ PASS | |
 | 6 | SEO·메타 | ✅ PASS | |

@@ -29,7 +29,7 @@ import {
   Trophy,
   type LucideIcon,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "./page.module.css";
 

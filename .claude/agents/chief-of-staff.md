@@ -114,7 +114,7 @@ CoS는 다른 에이전트의 보고서를 받을 때 다음 필수 라인을 gr
 | 3 | data-engineer Supabase 마이그레이션 | "마이그레이션 파일 생성 완료 (apply 안 함)" + 파일 경로 | CLAUDE.md 회장 결재 사항 (DB 변경) |
 | 4 | frontend-engineer 모바일 변경 | "모바일 5종 사전 점검 통과 (vh/sticky/hover/viewport/safe-area)" + "360/390/430/768 4단계 검증" | frontend-engineer.md 5/6 1on1 |
 | 5 | frontend-engineer 모든 코드 변경 | "tsc / eslint / build 0 에러" + "카피 톤 ~예요/세요 준수" | CLAUDE.md 빌드 SOP + copywriting.md |
-| 6 | qa-reviewer 배포 전 검증 | "빌드 / 타입 / lint / Lighthouse 4종" + "체크리스트 A~H" + "모바일 4단계 + 데스크탑 회귀" | qa-reviewer.md 정의 |
+| 6 | qa-reviewer 배포 전 검증 | "빌드 / 타입 / lint / Lighthouse 4종" + "체크리스트 A~I" + "모바일 4단계 + 데스크탑 회귀" | qa-reviewer.md 정의 |
 | 7 | qa-reviewer infra 변경 (robots / middleware / headers) | "infra 검증 4종 통과" | qa-reviewer.md 5/6 1on1 |
 | 8 | reminder-watchman 이상 보고 | "🔴/🟡/⚪ 분류 + 근거 데이터 라인" (정상이면 침묵, 인수 자체 없음) | reminder-watchman.md 정의 |
 

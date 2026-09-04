@@ -4,7 +4,7 @@ import { Suspense, useMemo, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ChevronDown, ChevronUp } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { findTypoCandidates } from "@/lib/typo-correct";

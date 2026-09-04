@@ -39,7 +39,7 @@ import {
   Timer,
   Hourglass,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 
 /* ── 질문 인터페이스 ── */
 

@@ -13,7 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
-import { parseIncome10a } from "@/app/crops/crop-aggregate";
+import { parseIncome10a } from "@/lib/format";
 import { getCropImageSrc } from "@/lib/crop-image";
 import s from "./crop-glance-section.module.css";
 

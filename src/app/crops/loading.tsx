@@ -1,4 +1,4 @@
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import s from "./loading.module.css";
 

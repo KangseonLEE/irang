@@ -18,7 +18,7 @@
 | "API 연동", "데이터 갱신", "Supabase", "DB 스키마", "공공데이터" | `data-engineer` 에이전트 | 8 API · 폴백 · 마이그레이션 |
 | "QA 해줘", "배포 전 점검", "Lighthouse", "린트 체크" | `qa-reviewer` 에이전트 | 배포 전 게이트 |
 | "놓친 거 확인", "상시 점검", "stale 체크", "Vercel 한도 점검", "Cloudflare 차단 점검" | `reminder-watchman` 에이전트 | uncommit·타입·빌드·API·Vercel/CF 한도(주 2회) 상시 |
-| "커밋 전 체크", "체크리스트 확인" | `.claude/skills/pre-commit-check/SKILL.md` | A~H 자동 검증 |
+| "커밋 전 체크", "체크리스트 확인" | `.claude/skills/pre-commit-check/SKILL.md` | A~I 자동 검증 |
 | "정책 스냅샷", "지원사업 갱신" | `.claude/skills/policy-snapshot-sync/SKILL.md` | drift 감지 |
 | "API 확인", "환경변수 점검" | `.claude/skills/api-health-check/SKILL.md` | 8 API + env + Sentry |
 | "배포 전 점검", "deploy preflight" | `.claude/skills/deploy-preflight/SKILL.md` | 전수 게이트 |
@@ -93,6 +93,7 @@
 | 2026-09-02 | **모바일 가상 키보드 안전망** — ① `/admin/login` 카드 모바일 상단 정렬(100vh 중앙 → 입력창 ≈30vh) ② 전역 `KeyboardFocusGuard`(layout.tsx): 터치 기기에서 입력 포커스 후 키보드 안정(350ms/visualViewport resize) 시 입력창이 헤더~하단 탭바 사이에 없으면 `scrollIntoView(center)` — 이미 보이면 무개입, `role=search`·fixed 컨테이너 제외 ③ 모바일 `html { scroll-padding-bottom: 탭바+safe-area+16px }` | src/app/admin/login/page.module.css, src/components/layout/keyboard-focus-guard.tsx, src/app/globals.css, agents/frontend-engineer.md #6 | 회장 9/2 iOS Chrome 스크린샷 — 키보드가 뜨자 입력창이 화면 밖으로. **입력창을 100vh 세로 중앙에 두는 짧은 페이지는 iOS 키보드(하단 ~40%)에 반드시 밀린다** — 레이아웃이 1차 방어, 가드는 안전망. Playwright는 키보드를 못 흉내 내므로 `focus({preventScroll:true})`로 가드 로직만 실측 |
 | 2026-09-02 | **업데이트 소식·정정 이력 정리 + 전역 포인터** — ① 정정 이력 10건 페이지네이션 전 화면(모바일 CSS 숨김 트릭 → 실제 slice) + 행 간격 18px ② 업데이트 소식 목록(날짜·태그라인·건수·태그 행) → `/about/updates/[date]` 상세(카카오 공지 구조, 문서형 — 카드 박스 없이 여백 36~48px, 이전/다음 소식 내비, `dynamicParams=false`), 랜딩 배너는 최신 상세 직결, `RELEASE_GROUPS·getRelease·releaseTitle` 파생 + 계약 테스트 ③ **`UpdateItem.media`·`before` 필수화** — 13건 전부 이전/이후 실캡처(이전 = 해당 커밋 직전 워크트리 `next dev --webpack` + Playwright `bypassCSP`), 파일 실존 테스트 ④ `globals.css` 전역 `cursor: pointer`(a[href]·button·summary·label[for]·select·role button/option/tab·체크/라디오/파일/range) + disabled `not-allowed`, 10 라우트 computed cursor 전수 실측 | src/app/about/updates/**, src/app/about/corrections/*, src/lib/data/updates.ts, src/app/globals.css, public/updates/*.webp | 회장 9/2 연속 지시. **워크트리 캡처 함정 3종**: webpack CSS Modules는 순수 `:global(#id)` 선택자를 거부(Turbopack 허용) → 로컬 클래스 접두 패치 / 앱 CSP에 `unsafe-eval`이 없어 webpack dev 번들이 하이드레이션 실패(클릭 무반응, 콘솔 에러 없음) → Playwright `bypassCSP: true` / Next 개발 오버레이 `<nextjs-portal>`이 캡처에 찍힘 → 스크린샷 전 제거. **`rm -rf scripts/_diag` 광역 삭제 사고** — 진단 임시 파일은 `_`-prefix 파일만 지운다(디렉토리에 추적 파일 10종 상존, `git checkout` 즉시 복구) |
 | 2026-09-03 | **§15 watchman-ci 자기 참조 루프 재보강** — 9/2 1차 보정("열린 이슈 있으면 skip")은 오탐 이슈(#119·#120)를 닫는 순간 직전 failure 3건이 🔴 → exit 1 → 새 이슈(#122) → 다음 날 또 failure…의 **자기 영속 루프**를 만들었다. 실행 직후 30분 내 watchman 이슈 생성(열림/닫힘 무관)이면 설계 동작 `designed`로 치환, 이슈 없는 failure(크래시)만 계속 판정. dispatch 실측 ✅ | scripts/watchman/check-schedule-health.sh | 세션 마무리 점검에서 발견. **감시 규칙이 자기 출력을 입력으로 삼으면 상태(열림/닫힘)에 따라 진동한다** — 자기 참조 판정은 "그 실패가 이미 표면화됐는가"라는 사실(이슈 생성 시각)에 묶어야 한다. 소프트 404 일괄 정리는 회장 지시로 백로그 |
+| 2026-09-04 | **레이어 경계 lint + 배치 규칙 명문화 (카카오페이 FSD 글 검토 후 부분 차용)** — ① `eslint.config.mjs`에 `no-restricted-imports` 3블록(components→app / lib·hooks·types→UI / components/ui→도메인) error ② 역참조 9건 정리: `app/stats/stats.module.css`→`components/stats/stats-shared.module.css`(6 import), landing `parseIncome10a`는 `lib/format` 직접 import, `app/regions/[id]/sigungu-list`→`components/region`, `components/ui/irang-sprout`→`lib/icons/irang-sprout`(22 import) ③ 단·복수 병존 디렉토리 통합 `components/crop`→`crops`, `components/regions`→`region` ④ CLAUDE.md "코드 배치 규칙" 신설 + checklist I. FSD 전면 전환은 비채택 | eslint.config.mjs, src/components/{crops,region,stats}, src/lib/icons, CLAUDE.md, .claude/rules/checklist.md | 회장 "FSD 반영할만한지 체크 → 괜찮으면 적용". 카카오페이 글 자체가 "구조에 문제 없으면 바꾸지 말라"·2인+ 팀 전제. 이랑은 의존 방향이 대체로 건강(ui→도메인 0건)하되 **문서 규칙만 있고 lint 게이트가 없어 역참조 9건이 조용히 쌓였고**, `crop`/`crops`·`region`/`regions` 병존이 에이전트마다 배치를 다르게 판단하게 만들었다. FSD의 실질 가치는 레이어 이름이 아니라 **"어디까지 재사용되는가"를 lint 로 강제하는 것** — 그것만 가져옴 |
 
 ---
 
@@ -199,6 +200,24 @@ API 키는 `.env.local`에서 관리한다. Vercel 환경변수에도 동일하�
 - SSR 안전: 클라이언트 컴포넌트에서 `useState` + `useEffect` 패턴으로 `mounted` 플래그 사용 (localStorage 등)
 - 아이콘: lucide-react 전용. 크기는 `size` prop 사용 (14~20px 범위).
 - 장식 요소에는 `aria-hidden="true"` + `pointer-events: none` 필수.
+
+### 코드 배치 규칙 — 레이어 경계 (2026-09-04, FSD 단방향 의존 차용)
+
+```
+app (라우트·page·layout)  →  components (도메인 UI · ui 공용)  →  lib · hooks · types
+```
+
+- **의존은 위 화살표 방향으로만.** 역방향 import 는 `eslint.config.mjs` `no-restricted-imports` 가 error 로 차단 (components→app, lib/hooks/types→components·app, components/ui→components/<domain>).
+- **"어디까지 재사용되는가"로 위치를 정한다** (카카오페이 FSD 사례의 bottom-up 기준):
+  | 재사용 범위 | 위치 |
+  |---|---|
+  | 한 라우트에서만 | `src/app/<route>/` 에 colocate (Next 관례) |
+  | 2개 이상 라우트 | `src/components/<도메인>/` — 도메인 디렉토리는 **복수형 단일 이름**(`crops`·`region`·`stats`…). `crop`/`crops` 같은 단·복수 병존 금지 |
+  | 도메인 무관 UI | `src/components/ui/` |
+  | UI 무관 로직·데이터·아이콘 | `src/lib/` (`lib/data`·`lib/api`·`lib/icons`…) |
+- 라우트 밑 파일이 다른 라우트나 `components/` 에서 import 되기 시작하면 **그 순간 `components/` 또는 `lib/` 로 승격**한다. 승격 없이 `@/app/...` 을 import 하면 lint 가 막는다.
+- `lib/data` 는 아이콘 컴포넌트 참조를 가질 수 있지만(lucide 와 동형) `components/` 에서 가져오면 안 된다 — 브랜드 아이콘은 `lib/icons/`.
+- FSD 전면 전환(pages/widgets/features/entities 레이어)은 **비채택** — 1인+에이전트 팀·Next App Router `pages` 충돌·521파일 이동 비용 대비 효익 없음. 위 3계층 + lint 게이트가 실질 가치의 대부분.
 
 ### 공통 컴포넌트 (반드시 재사용)
 
@@ -496,7 +515,7 @@ API 키는 `.env.local`에서 관리한다. Vercel 환경변수에도 동일하�
 
 ### 9. 반복 문제 방지 — 코드 작성 전 체크리스트
 
-> 상세 체크리스트(A~H)는 `.claude/rules/checklist.md` 참조
+> 상세 체크리스트(A~I)는 `.claude/rules/checklist.md` 참조
 
 **핵심 3줄 요약**: 공통 컴포넌트 재사용 필수. 인라인 스타일·CSS 복붙 금지. Server↔Client 경계 준수.
 

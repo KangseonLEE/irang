@@ -10,7 +10,7 @@ import {
   ArrowRight,
   ArrowUpRight,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
 import { PROVINCES } from "@/lib/data/regions";

@@ -17,7 +17,7 @@ import {
   FileText,
   Calculator,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { FARM_TYPES, migrateFarmTypeId } from "@/lib/data/match-questions";
 import { PROVINCES } from "@/lib/data/regions";
 import { CROPS } from "@/lib/data/crops";
@@ -25,7 +25,7 @@ import { PROGRAMS } from "@/lib/data/programs";
 import { deriveStatus } from "@/lib/program-status";
 import { isValidResultId } from "@/lib/assess-result";
 import { getSupabase } from "@/lib/supabase";
-import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { ShareButtons } from "@/components/share/share-buttons";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { PersonaRecommendationSection } from "@/components/match/persona-recommendation-section";

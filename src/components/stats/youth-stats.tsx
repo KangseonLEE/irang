@@ -6,7 +6,7 @@ import {
   Users,
   Award,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import {
   youthData,
@@ -19,7 +19,7 @@ import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import s from "./stats-dashboard.module.css";
-import tableStyles from "@/app/stats/stats.module.css";
+import tableStyles from "./stats-shared.module.css";
 
 export function YouthStats() {
   const latest = youthData[youthData.length - 1];

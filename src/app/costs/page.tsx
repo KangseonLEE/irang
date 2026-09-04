@@ -12,7 +12,7 @@ import {
   Home,
   Calculator,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { getCropImageSrc } from "@/lib/crop-image";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { JsonLd } from "@/components/seo/json-ld";

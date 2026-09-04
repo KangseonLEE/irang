@@ -23,7 +23,7 @@ import {
   getCropPersonaFitTrace,
   getProgramPersonaFitTrace,
 } from "@/lib/data/persona-fit";
-import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
 import { RecommendationThumbs } from "./recommendation-thumbs";
 import s from "./persona-recommendation-section.module.css";

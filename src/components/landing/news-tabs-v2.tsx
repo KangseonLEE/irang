@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { ExternalLink } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import type { UnifiedNewsItem } from "./news-tabs";
 import s from "./news-tabs-v2.module.css";
 

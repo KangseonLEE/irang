@@ -14,14 +14,14 @@ import {
   FileText,
   Calculator,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { FARM_TYPES, migrateFarmTypeId } from "@/lib/data/match-questions";
 import type { FarmTypeId } from "@/lib/data/match-questions";
 import { PROVINCES } from "@/lib/data/regions";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
 import { deriveStatus } from "@/lib/program-status";
-import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { PersonalizedRoadmap } from "@/components/match/personalized-roadmap";
 import s from "./match-wizard.module.css";

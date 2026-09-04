@@ -33,7 +33,7 @@ import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import s from "./stats-dashboard.module.css";
-import tableStyles from "@/app/stats/stats.module.css";
+import tableStyles from "./stats-shared.module.css";
 
 /**
  * 귀농 탭 — 인구 추이 + 만족도 통합

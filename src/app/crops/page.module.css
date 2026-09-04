@@ -45,7 +45,7 @@
 }
 
 /* 카드 외형 + 페르소나 cell wrapper는 CropPageCard 컴포넌트 모듈로 이관
-   (src/components/crop/crop-page-card.module.css) */
+   (src/components/crops/crop-page-card.module.css) */
 
 /* 하단 링크 */
 .crossLinks {

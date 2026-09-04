@@ -14,7 +14,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Clock, X, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ArrowUpLeft } from "lucide-react";
 // ArrowUpLeft: 자동완성 우상단 화살표 (네이버 패턴 — 클릭 시 입력창 채움)
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { getQuerySuggestions, searchAll } from "@/lib/data/search-index";
 import { POPULAR_KEYWORDS } from "@/lib/data/popular-keywords";

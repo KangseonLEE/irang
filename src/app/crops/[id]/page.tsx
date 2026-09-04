@@ -28,7 +28,7 @@ import {
   Clock,
   Zap,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import {
   getCropWithDetail,
   getAllCropIds,
@@ -38,7 +38,7 @@ import {
   type ProsConsInfo,
   type CultivationStep,
 } from "@/lib/data/crops";
-import { CropRichCard } from "@/components/crop/crop-rich-card";
+import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { convertToPyeongLabel, formatHectaresWithPyeong } from "@/lib/format";
 import { PROVINCES } from "@/lib/data/regions";
 import {

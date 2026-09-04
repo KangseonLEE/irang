@@ -75,3 +75,11 @@
 - Client Component의 children은 ReactNode만 가능.
 - 인터랙티브 섹션은 자체 완결 Client Component로 리팩터링.
 - rAF로 직접 제어하는 CSS 속성에는 CSS transition 사용 금지 (충돌).
+
+## 체크리스트 I: "import 방향이 레이어 경계를 지키는가?"
+
+- 의존은 `app → components → lib·hooks·types` 한 방향. `components/**` 에서 `@/app/...`, `lib/**` 에서 `@/components/...` import 금지 (lint error).
+- `components/ui/**` 는 `components/<domain>/**` 을 참조하지 않는다.
+- 라우트 밑(`src/app/<route>/`) 파일을 다른 곳에서 쓰게 되면 `components/<도메인>/` 또는 `lib/` 로 먼저 옮긴다.
+- 도메인 디렉토리 이름은 하나만(`crops`·`region`). 새 디렉토리를 만들기 전 단·복수 변형이 이미 있는지 `ls src/components` 로 확인.
+- 상세: CLAUDE.md "코드 배치 규칙 — 레이어 경계".

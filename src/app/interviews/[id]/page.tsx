@@ -13,13 +13,13 @@ import {
   AlertTriangle,
   MessageCircle,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { interviews, hasFullStory } from "@/lib/data/landing";
 import { CROPS } from "@/lib/data/crops";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import { getInterviewImageSrc } from "@/lib/interview-image";
-import { CropLinkCard } from "@/components/crop/crop-link-card";
+import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";

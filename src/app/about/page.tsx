@@ -22,7 +22,7 @@ import {
   HeartHandshake,
   BookOpenText,
 } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { IrangSymbol } from "@/components/brand/irang-symbol";

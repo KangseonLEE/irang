@@ -15,7 +15,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { SigunguDetailModal } from "@/components/regions/sigungu-detail-modal";
+import { SigunguDetailModal } from "@/components/region/sigungu-detail-modal";
 import type { DimensionScores, DimensionId } from "@/lib/data/dimension-scores";
 import type { Persona } from "@/lib/data/personas";
 import type { Sigungu } from "@/lib/data/sigungus";

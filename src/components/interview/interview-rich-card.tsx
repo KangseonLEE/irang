@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Briefcase, Quote, MapPin } from "lucide-react";
-import { IrangSprout as Sprout } from "@/components/ui/irang-sprout";
+import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";

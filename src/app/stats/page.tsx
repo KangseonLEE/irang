@@ -6,7 +6,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { StatsClient } from "./stats-client";
 import { STATS_TABS, type StatsTabId } from "./stats-tabs";
-import shared from "./stats.module.css";
+import shared from "@/components/stats/stats-shared.module.css";
 
 export const metadata: Metadata = {
   title: "귀농·귀촌 통계 — 인구·청년·귀산촌·스마트팜·만족도",
