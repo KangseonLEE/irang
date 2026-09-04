@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, ExternalLink, Bell } from "lucide-react";
 import { ADMIN_SECTIONS } from "@/lib/admin/config";
+import { INTERNAL_TRAFFIC_FLAG } from "@/lib/analytics-gate";
 import type { AdminNotifications } from "@/lib/admin/notifications";
 import s from "./admin-shell.module.css";
 
@@ -17,6 +18,19 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const isLogin = pathname === "/admin/login";
+
+  // ── 운영자 브라우저 GA 제외 (9/4) ──
+  // /admin 에 들어온 브라우저는 운영자 것이므로 플래그를 심어 이후 모든 페이지에서
+  // gtag.js 로드를 막는다(analytics-gate). 현재 페이지 로드에는 ga-disable 로 즉시 적용.
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(INTERNAL_TRAFFIC_FLAG, "1");
+      const id = process.env.NEXT_PUBLIC_GA_ID;
+      if (id) (window as unknown as Record<string, unknown>)[`ga-disable-${id}`] = true;
+    } catch {
+      // 스토리지 차단 환경 — 다음 방문에 다시 시도
+    }
+  }, []);
 
   // ── 처리 대기 알림 (9/3 회장 지시) ──
   // 화면 이동마다 + 60초마다 재조회 → 승인·반려 직후 배지가 바로 줄어든다.
