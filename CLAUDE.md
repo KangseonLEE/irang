@@ -95,6 +95,7 @@
 | 2026-09-03 | **§15 watchman-ci 자기 참조 루프 재보강** — 9/2 1차 보정("열린 이슈 있으면 skip")은 오탐 이슈(#119·#120)를 닫는 순간 직전 failure 3건이 🔴 → exit 1 → 새 이슈(#122) → 다음 날 또 failure…의 **자기 영속 루프**를 만들었다. 실행 직후 30분 내 watchman 이슈 생성(열림/닫힘 무관)이면 설계 동작 `designed`로 치환, 이슈 없는 failure(크래시)만 계속 판정. dispatch 실측 ✅ | scripts/watchman/check-schedule-health.sh | 세션 마무리 점검에서 발견. **감시 규칙이 자기 출력을 입력으로 삼으면 상태(열림/닫힘)에 따라 진동한다** — 자기 참조 판정은 "그 실패가 이미 표면화됐는가"라는 사실(이슈 생성 시각)에 묶어야 한다. 소프트 404 일괄 정리는 회장 지시로 백로그 |
 | 2026-09-04 | **레이어 경계 lint + 배치 규칙 명문화 (카카오페이 FSD 글 검토 후 부분 차용)** — ① `eslint.config.mjs`에 `no-restricted-imports` 3블록(components→app / lib·hooks·types→UI / components/ui→도메인) error ② 역참조 9건 정리: `app/stats/stats.module.css`→`components/stats/stats-shared.module.css`(6 import), landing `parseIncome10a`는 `lib/format` 직접 import, `app/regions/[id]/sigungu-list`→`components/region`, `components/ui/irang-sprout`→`lib/icons/irang-sprout`(22 import) ③ 단·복수 병존 디렉토리 통합 `components/crop`→`crops`, `components/regions`→`region` ④ CLAUDE.md "코드 배치 규칙" 신설 + checklist I. FSD 전면 전환은 비채택 | eslint.config.mjs, src/components/{crops,region,stats}, src/lib/icons, CLAUDE.md, .claude/rules/checklist.md | 회장 "FSD 반영할만한지 체크 → 괜찮으면 적용". 카카오페이 글 자체가 "구조에 문제 없으면 바꾸지 말라"·2인+ 팀 전제. 이랑은 의존 방향이 대체로 건강(ui→도메인 0건)하되 **문서 규칙만 있고 lint 게이트가 없어 역참조 9건이 조용히 쌓였고**, `crop`/`crops`·`region`/`regions` 병존이 에이전트마다 배치를 다르게 판단하게 만들었다. FSD의 실질 가치는 레이어 이름이 아니라 **"어디까지 재사용되는가"를 lint 로 강제하는 것** — 그것만 가져옴 |
 | 2026-09-04 | **GA4 내부·테스트 트래픽 제외 게이트** — ① `GoogleAnalytics`는 `NODE_ENV === "production"`에서만 렌더(로컬 dev·CF 터널 dev 집계 차단) ② `src/lib/analytics-gate.ts` `irangGaGate(window, id)`를 **toString으로 인라인**해 브라우저에서 UA `irang-e2e`·localStorage `irang-internal=1`이면 gtag.js 로드 자체를 생략 + `ga-disable-<ID>` 설정 ③ `AdminShell` 마운트 시 플래그 자동 설정(운영자 브라우저는 /admin 한 번 열면 이후 전 페이지 제외, IP 무관) ④ 단위 테스트 8건(toString→재평가 자기 완결성 포함). 로컬 prod 서버 4시나리오 Playwright 실측(일반 GTM 2건 / e2e·플래그·admin 후 0건). **세션 규칙**: 라이브에 Playwright 실측을 돌릴 때는 `context.addInitScript(() => localStorage.setItem("irang-internal","1"))`를 반드시 넣는다(curl은 JS 미실행이라 무관) | src/lib/analytics-gate.ts, src/components/analytics/google-analytics.tsx, src/components/admin/admin-shell.tsx, src/__tests__/analytics-gate.test.ts | 회장 "GA에 너·내 접속이 집계되니?" → 실측: e2e는 fixture가 비콘 차단 중이었지만 **회장 브라우저·세션 Playwright 실측·로컬 dev 접속은 전부 집계**(GA 컴포넌트에 환경 분기·opt-out 0). 검색 5건/일 규모에선 이 잡음이 실제 신호와 같은 자릿수라 8/30 랜딩 IA 계측 판독을 흐린다. toString 인라인 함수는 모듈 참조가 조용히 ReferenceError로 죽으므로 재평가 테스트가 필수 게이트. GA4 관리자 내부 트래픽 IP 필터는 회장 측 병행 권고(소급 없음) |
+| 2026-09-04 | **백로그 5건 일괄 (회장 "알아서 다 처리")** — ① 교육↔체험 이중 등재 정리: evt-007(서귀포 설명회)·ED-007(무주 살아보기) 삭제, 각 프로그램을 성격에 맞는 한 목록에만 두고 `check-cross-reference.ts` **G-1**(EDUCATION_COURSES.url ∩ EVENTS.url = ∅) 신설. Supabase에 해당 행 없음 확인 ② 서귀포 하반기 귀농 창업·주택구입 지원사업: 접수 6/12~7/3 종료 → 미등재, SP-001(국비 동일 사업)의 "각 시군 농업기술센터·매년 초 접수" 안내가 시군별 실태와 달라 정정 + `supabase/migrations/20260904_sp001_copy_fix.sql`(DB 우선 병합이라 **회장 apply 필요**) ③ 소프트 404: 7 라우트는 이미 `notFound()`+noindex였고 200의 원인은 `loading.tsx` Suspense 스트리밍(헤더 선발송) — `generateMetadata`도 notFound로 통일(빈 제목 제거) + `/regions/[id]`만 `dynamicParams=false`(17 시·도 전집합)로 진짜 404. 시·군·구 하위(on-demand ISR 230건)·programs/education/events(DB 전용 행)는 상태코드 전환 불가로 확정 ④ 드롭다운 CSS 4중 복제 → `ui/dropdown.module.css` 공용 1벌(composes 1단), 64요소×2뷰포트 computed style diff 0 ⑤ knip 도입(`knip.json`, `npm run knip` 0건): 파일 2·심볼 60여 건 삭제, export 68건 해제, SIDO 계층 생성 데이터 −354줄(생성기 템플릿 동기), 미사용 dep 0 ⑥ Vercel CLI 53→59 | scripts/check-cross-reference.ts, src/lib/data/{events,education,programs,corrections}.ts, src/app/regions/[id]/page.tsx 외 6 page, src/components/ui/dropdown.module.css + 4 CSS, knip.json, 71 파일 | 4 sub-agent 병렬(조사 전용 1 + 파일 경계 명시 3). **`.next` 충돌 방지로 sub-agent 빌드 금지·CoS 1회 빌드**, dev 서버는 Next 16이 repo당 1개만 허용해(`Another next dev server is already running`) 두 번째 에이전트는 기존 서버로 실측. 프로덕션 DB write는 auto-mode 분류기가 차단 → 마이그레이션 파일 경로가 정석. **소프트 404의 진범은 `notFound()` 누락이 아니라 스트리밍**: loading.tsx가 있는 트리에서 상태코드를 바꾸려면 라우터 단계(`dynamicParams=false`)나 middleware에서 끊어야 한다 |
 
 ---
 
@@ -298,6 +299,13 @@ app (라우트·page·layout)  →  components (도메인 UI · ui 공용)  → 
 - 커뮤니티 1단계 "한 줄 의견" + 공감 (2026-09-02). Props: `targetType`("region"|"crop"|"program"), `targetId`(시군구는 `"시도/시군구"`), `targetLabel`(표시·LLM 분류용).
 - 승인된 글만 노출(사전 승인제). GET 503(테이블 미적용·Supabase 미설정)이면 섹션을 렌더하지 않음. 사용자 생성 텍스트라 AutoGlossary 미적용.
 - 서버: `src/lib/community/{filter,queries,types,ip-hash}.ts`, API `/api/community/notes[/id/like|report]`, admin `/admin/community`.
+
+#### 드롭다운 공용 스타일 (`@/components/ui/dropdown.module.css`)
+
+- 검색형 드롭다운의 시각 언어 SSOT (2026-09-04). 클래스: `searchWrap`·`searchIcon`·`searchInput`·`searchClearBtn`·`panel`·`hint`·`item`·`itemActive`·`itemIcon`·`itemLabel`·`itemType`·`empty`.
+- 사용처: RegionSearch, `/regions/compare` 지역 카드·작물 적합도 셀렉터, `/crops/compare` 작물 셀렉터. 각 모듈은 `composes: item from "…/ui/dropdown.module.css"` **1단만** 쓰고(Turbopack composes 2단 한계), 크기(max-height·padding·gap)·`scroll-margin-top` 같은 페이지 맥락 값만 로컬에 둔다.
+- 공용 파일 안에서는 서로 compose 하지 않는다. `SelectCombobox`(포털·토큰 체계)와 헤더 `SearchBar`(히어로 확장 모드)는 별개 체계라 통합 대상이 아니다.
+- **새 드롭다운 UI는 이 파일을 compose 한다.** 패널·옵션 행·빈 상태를 페이지 CSS에 다시 쓰지 않는다.
 
 #### useActiveOptionScroll (`@/lib/hooks/use-active-option-scroll`)
 
@@ -591,6 +599,7 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
 | `npm run check-links` | `scripts/check-links.sh` | 전체 외부 URL 유효성 검사 (HTTP 상태코드 + 타이틀) |
 | `npm run check-policy` | `scripts/check-policy-sources.ts` | 지원사업 출처 URL 검증 (스냅샷 비교 모드 포함) |
 | `npm run check-integrity` | `scripts/check-regions-stations-integrity.ts` | regions ↔ stations 양방향 sync (CI 자동, 5/12 세종/울산 누락 사고 재발 방지) |
+| `npm run knip` | `knip.json` | 미사용 파일·export·타입 검출 (2026-09-04 도입, 기준 0건 유지). scripts·province/district-maps·테스트는 entry, workers·supabase functions·루트 일회성 mjs는 ignore |
 | — | `scripts/generate-province-maps.ts` | 시도별 SVG 지도 데이터 생성 |
 
 ---
@@ -799,6 +808,13 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
   5. **BFM은 주력 방어가 아니다** — 5/4 폭격 때 못 막았고(custom rule 4종이 막음, 5/14 실측), headless 통과 + cache HIT 미적용 + Free에서 예외 불가로 e2e만 부순다. 현 방어망: CF custom rule(ASN·KR외·피싱) + middleware(AI크롤러 403·non-KR 503) 이중, 엣지 차단이라 Vercel 함수 호출 0.
 
 ---
+
+### `notFound()`가 200을 돌려주는 이유 — loading.tsx Suspense 스트리밍 (2026-09-04)
+
+- **증상**: `/regions/nowhere`·`/programs/NOPE` 등 7개 상세 라우트가 없는 slug에 HTTP 200 + not-found UI(소프트 404). 페이지 코드는 전부 `notFound()`를 정상 호출 중이었고 `<meta name="robots" content="noindex">`도 붙어 있었다.
+- **원인**: 라우트 트리 위에 `loading.tsx`(루트 `src/app/loading.tsx` 포함)가 있으면 Suspense fallback이 렌더되는 순간 헤더가 200으로 나가고 본문이 스트리밍된다. 그 뒤 `notFound()`는 UI만 바꾸고 상태코드는 못 바꾼다. A/B 실측: 경로 위 loading.tsx를 **전부** 제거해야만 404가 됐다.
+- **해결**: 정적 id 전집합인 `/regions/[id]`는 `dynamicParams = false`로 라우터 단계에서 404. `generateMetadata`의 미존재 분기도 `notFound()`로 통일해 "지원사업 상세 | 이랑" 같은 빈 제목 제거. 시·군·구 하위(on-demand ISR, 빌드 시 230건 API 호출 회피)와 programs/education/events(Supabase 전용 행 존재)는 상태코드 전환 불가로 확정 — noindex가 있어 SEO 영향은 없음.
+- **교훈**: 소프트 404 진단의 1차 분기점은 "`notFound()`를 부르나"가 아니라 **"경로 위에 loading.tsx가 있나"**. 진짜 404가 필요하면 `dynamicParams=false`(전집합 정적일 때) 또는 middleware 사전 판정(정적 id set)만 답이고, loading.tsx 제거는 전역 UX 희생이라 비추천.
 
 ## 차트 컴포넌트 가이드
 
