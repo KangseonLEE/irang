@@ -172,25 +172,6 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     url: "https://agriedu.net/",
   },
   {
-    id: "ED-007",
-    title: "무주군 전북에서 살아보기 (영농체험형)",
-    region: "전라북도",
-    organization: "무주군 / 그린대로 플랫폼",
-    type: "오프라인",
-    duration: "3개월 (1기) / 2개월 (2기)",
-    schedule: "1기 2026.4~6월 / 2기 2026.8.25~10.24",
-    target: "전북 귀농귀촌 관심자",
-    cost: "문의 필요",
-    description:
-      "무주군에 3개월간 체류하며 사과, 블루베리 등 지역 특화작목 영농체험을 하는 프로그램이에요. 지역 탐색, 주민 교류 등 정착 전 농촌 생활을 직접 체험할 수 있어요.",
-    capacity: null,
-    applicationStart: "2026-03-01",
-    applicationEnd: "2026-04-03",
-    status: "마감",
-    level: "입문",
-    url: "https://www.mjjnews.net/news/article.html?no=55756",
-  },
-  {
     id: "ED-008",
     title: "영주 소백산귀농드림타운 체류형 농업창업교육",
     region: "경상북도",
@@ -269,16 +250,6 @@ export function getCurrentPeriod(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
-/** 조회 시점 옵션 생성 (당해 연도 1~12월) */
-export function getPeriodOptions(): { value: string; label: string }[] {
-  const options: { value: string; label: string }[] = [];
-  const year = new Date().getFullYear();
-  for (let m = 1; m <= 12; m++) {
-    const value = `${year}-${String(m).padStart(2, "0")}`;
-    options.push({ value, label: `${year}년 ${m}월` });
-  }
-  return options;
-}
 
 /** 필터 조건 */
 export interface EducationFilters {
@@ -291,78 +262,6 @@ export interface EducationFilters {
   includeClosed?: boolean;
 }
 
-/** 필터 조건에 맞는 교육 과정 목록 반환 */
-export function filterEducation(filters: EducationFilters): EducationCourse[] {
-  // 조회 시점 기간 계산
-  let periodStart: string | null = null;
-  let periodEnd: string | null = null;
-  if (filters.period && /^\d{4}-\d{2}$/.test(filters.period)) {
-    const [y, m] = filters.period.split("-").map(Number);
-    periodStart = `${y}-${String(m).padStart(2, "0")}-01`;
-    const lastDay = new Date(y, m, 0).getDate();
-    periodEnd = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
-  }
-
-  return EDUCATION_COURSES.filter((course) => {
-    // 원문 링크 깨진 항목은 목록에서 숨김
-    if (course.linkStatus === "broken") {
-      return false;
-    }
-
-    // 마감 제외 (기본 동작: includeClosed가 true가 아니면 마감 숨김)
-    const courseStatus = deriveStatus(course.applicationStart, course.applicationEnd);
-    if (!filters.includeClosed && courseStatus === "마감") {
-      return false;
-    }
-
-    // 조회 시점 필터 (includeClosed가 true이면 기간 필터 스킵)
-    if (!filters.includeClosed && periodStart && periodEnd) {
-      if (
-        course.applicationStart > periodEnd ||
-        course.applicationEnd < periodStart
-      ) {
-        return false;
-      }
-    }
-
-    // 텍스트 검색 (제목, 설명, 지역, 기관, 대상)
-    if (filters.query) {
-      const q = filters.query.toLowerCase();
-      const searchable = [
-        course.title,
-        course.description,
-        course.region,
-        course.organization,
-        course.target,
-      ]
-        .join(" ")
-        .toLowerCase();
-      if (!searchable.includes(q)) {
-        return false;
-      }
-    }
-
-    if (filters.region && filters.region !== "전체") {
-      if (course.region !== "전국" && course.region !== filters.region) {
-        return false;
-      }
-    }
-
-    if (filters.type && filters.type !== "전체") {
-      if (course.type !== filters.type) {
-        return false;
-      }
-    }
-
-    if (filters.level && filters.level !== "전체") {
-      if (course.level !== filters.level) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-}
 
 // ─── RDA API 연동 레이어 ───
 
@@ -403,7 +302,7 @@ function mapRdaEdu(item: RdaEduItem): EducationCourse {
  * RDA API에서 교육 데이터를 가져오고,
  * 실패 시 정적 샘플 데이터로 폴백
  */
-export async function loadEducation(): Promise<{
+async function loadEducation(): Promise<{
   courses: EducationCourse[];
   source: "supabase" | "api" | "fallback";
 }> {

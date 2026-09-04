@@ -133,8 +133,9 @@ export const EVENTS: FarmEvent[] = [
     type: "일일체험",
     date: "2026-04-01",
     dateEnd: "2026-06-30",
-    applicationStart: "2026-02-01",
-    applicationEnd: "2026-03-15",
+    // 원문(무진장뉴스 55756, 2026-03-30 게재)은 마감 "4월 3일까지"만 명시 — 시작일은 게재일로 둔다
+    applicationStart: "2026-03-30",
+    applicationEnd: "2026-04-03",
     location: "전라북도 무주군",
     cost: "문의 필요 (1551-6858)",
     description:
@@ -161,25 +162,6 @@ export const EVENTS: FarmEvent[] = [
     capacity: 5,
     target: "농촌 정착 희망자",
     url: "https://gecpo.org/552867",
-    status: "마감",
-  },
-  {
-    id: "evt-007",
-    title: "서귀포시 귀농귀촌 기본교육 설명회",
-    region: "제주특별자치도",
-    organization: "서귀포시 마을활력과 / 제주특별자치도농업기술원",
-    type: "설명회",
-    date: "2026-03-10",
-    dateEnd: "2026-03-13",
-    applicationStart: "2026-02-25",
-    applicationEnd: "2026-02-27",
-    location: "제주특별자치도농업기술원 미래농업육성관 대강당",
-    cost: "무료",
-    description:
-      "귀농귀촌 정책사업 안내, 귀농귀촌 성공사례 공유, 제주 농업 분야 이해를 중심으로 한 기본 교육 겸 설명회이에요. 80명 규모로 진행됐어요.",
-    capacity: 80,
-    target: "서귀포시 귀농귀촌 희망자",
-    url: "https://www.jejudomin.co.kr/news/articleView.html?idxno=317057",
     status: "마감",
   },
 ];
@@ -242,16 +224,6 @@ export function getCurrentPeriod(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
-/** 조회 시점 옵션 생성 (당해 연도 1~12월) */
-export function getPeriodOptions(): { value: string; label: string }[] {
-  const options: { value: string; label: string }[] = [];
-  const year = new Date().getFullYear();
-  for (let m = 1; m <= 12; m++) {
-    const value = `${year}-${String(m).padStart(2, "0")}`;
-    options.push({ value, label: `${year}년 ${m}월` });
-  }
-  return options;
-}
 
 /** 필터 조건 */
 export interface EventFilters {
@@ -334,7 +306,7 @@ export function filterEvents(filters: EventFilters): FarmEvent[] {
 /**
  * 행사 데이터 로더 (Supabase 우선 → 정적 폴백)
  */
-export async function loadEvents(): Promise<{
+async function loadEvents(): Promise<{
   events: FarmEvent[];
   source: "supabase" | "fallback";
 }> {

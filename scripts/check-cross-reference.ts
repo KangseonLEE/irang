@@ -20,6 +20,8 @@
    E. 인터뷰 ↔ 지역·작물
       E-1. interviews.regionUrl → PROVINCES.id · SIGUNGUS.id 존재
       E-2. interviews.cropLinks.href → CROPS.id 존재
+   G. 교육 ↔ 체험 행사 이중 등재
+      G-1. EDUCATION_COURSES.url ∩ EVENTS.url = ∅ (9/4 서귀포·무주 이중 등재 사고)
 
    exit code: 모든 필수 통과 0 / 하나라도 fail 1
    ========================================================================== */
@@ -31,6 +33,8 @@ import { CROPS, CROP_DETAILS } from "../src/lib/data/crops";
 import { PROVINCES } from "../src/lib/data/regions";
 import { SIGUNGUS } from "../src/lib/data/sigungus";
 import { interviews } from "../src/lib/data/landing";
+import { EDUCATION_COURSES } from "../src/lib/data/education";
+import { EVENTS } from "../src/lib/data/events";
 
 interface CheckResult {
   name: string;
@@ -269,6 +273,28 @@ function check(): CheckResult[] {
       fMismatches.length === 0
         ? `CROPS ${CROPS.length} / CROP_DETAILS ${CROP_DETAILS.length} 완전 매칭`
         : `미스매치 ${fMismatches.length}건: ${fMismatches.slice(0, 5).join(", ")}`,
+  });
+
+  // ──────────────────────────────────────────────────────────
+  // G-1. 교육 ↔ 체험 행사 이중 등재 (같은 출처 URL)
+  // 9/4 미니 재스캔 — 서귀포 기본교육(ED-004↔evt-007)·무주 살아보기(ED-007↔evt-005)가
+  // 양쪽에 있어 한쪽만 갱신하면 즉시 불일치(evt-007 신청기간 오류가 실제 사례).
+  // 같은 프로그램은 성격에 맞는 한 목록에만 둔다.
+  // ──────────────────────────────────────────────────────────
+  const normalizeUrl = (u: string) => u.trim().replace(/\/+$/, "").toLowerCase();
+  const eventUrls = new Map(EVENTS.map((e) => [normalizeUrl(e.url), e.id]));
+  const gDups: string[] = [];
+  for (const course of EDUCATION_COURSES) {
+    const hit = eventUrls.get(normalizeUrl(course.url));
+    if (hit) gDups.push(`${course.id} ↔ ${hit} (${course.url})`);
+  }
+  results.push({
+    name: "G-1. EDUCATION_COURSES.url ∩ EVENTS.url = ∅ (이중 등재)",
+    passed: gDups.length === 0,
+    detail:
+      gDups.length === 0
+        ? `education ${EDUCATION_COURSES.length} / events ${EVENTS.length} — 공유 출처 0건`
+        : `이중 등재 ${gDups.length}건: ${gDups.join(", ")}`,
   });
 
   return results;

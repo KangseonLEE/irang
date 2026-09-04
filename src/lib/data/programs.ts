@@ -101,15 +101,15 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "정착자의 농업창업자금과 농촌주택 구입자금을 저금리 융자로 지원하는 농식품부 대표 정착사업.",
     description:
-      "농업창업자금 최대 3억원, 주택구입자금 최대 7,500만 원을 연 2% 이내 저금리로 융자받을 수 있어요. 농촌 전입 후 6년 이내 세대주로서 영농교육 100시간 이상 이수가 필요하며, 각 시군 농업기술센터를 통해 매년 초 접수해요. 귀농 초기 정착비용 부담을 크게 줄여주는 대표적인 정부 지원사업이에요.",
+      "농업창업자금 최대 3억원, 주택구입자금 최대 7,500만 원을 연 2% 이내 저금리로 융자받을 수 있어요. 농촌 전입 후 6년 이내 세대주로서 영농교육 100시간 이상 이수가 필요해요. 신청은 시군의 귀농귀촌 담당 부서(농업기술센터나 시청 부서)에서 받고, 접수 시기는 시군마다 달라 상·하반기 두 번 받는 곳도 있어요. 귀농 초기 정착비용 부담을 크게 줄여주는 대표적인 정부 지원사업이에요.",
     region: "전국",
-    organization: "농림축산식품부 / 각 시군 농업기술센터",
+    organization: "농림축산식품부 / 각 시군 귀농귀촌 담당 부서",
     supportType: "융자",
     supportAmount: "농업창업 최대 3억원 / 주택구입 최대 7,500만 원 (5년 거치 10년 상환)",
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
-      "농촌지역 전입일로부터 만 6년 미경과 세대주. 영농 관련 교육 100시간 이상 이수.",
+      "농촌지역 전입일로부터 만 6년 미경과 세대주. 영농 관련 교육 100시간 이상 이수. 접수 기간은 시군별로 달라요(예: 군산 1/12~2/13, 서귀포 상반기 1/14~2/11·하반기 6/12~7/3) — 우리 시군 일정은 담당 부서에 확인하세요.",
     applicationStart: "2026-01-12",
     applicationEnd: "2026-02-13",
     relatedCrops: [],
@@ -1229,17 +1229,6 @@ export async function getProgramByIdAsync(
   return getProgramById(id);
 }
 
-/** 조회 시점 옵션 생성 (프로그램 데이터의 연도 범위 기반) */
-export function getPeriodOptions(): { value: string; label: string }[] {
-  const options: { value: string; label: string }[] = [];
-  // 당해 연도 기준 1~12월
-  const year = new Date().getFullYear();
-  for (let m = 1; m <= 12; m++) {
-    const value = `${year}-${String(m).padStart(2, "0")}`;
-    options.push({ value, label: `${year}년 ${m}월` });
-  }
-  return options;
-}
 
 /** 현재 연월 문자열 (YYYY-MM) */
 export function getCurrentPeriod(): string {
@@ -1278,125 +1267,6 @@ export interface ProgramFilters {
   category?: string;
 }
 
-/** 필터만 적용 (전체 반환) — 날짜 기반 상태 자동 산출 */
-export function filterPrograms(filters: ProgramFilters): SupportProgram[] {
-  // 조회 시점 기간 계산
-  let periodStart: string | null = null;
-  let periodEnd: string | null = null;
-  if (filters.period && /^\d{4}-\d{2}$/.test(filters.period)) {
-    const [y, m] = filters.period.split("-").map(Number);
-    periodStart = `${y}-${String(m).padStart(2, "0")}-01`;
-    // 해당 월의 마지막 날
-    const lastDay = new Date(y, m, 0).getDate();
-    periodEnd = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
-  }
-
-  // 날짜 기반으로 상태를 재계산한 프로그램 목록
-  const livePrograms = PROGRAMS.map((p) => ({
-    ...p,
-    status: deriveStatus(p.applicationStart, p.applicationEnd),
-  }));
-
-  return livePrograms.filter((program) => {
-    // 원문 링크 깨진 항목은 목록에서 숨김
-    if (program.linkStatus === "broken") {
-      return false;
-    }
-
-    // 마감 제외 (기본 동작: includeClosed가 true가 아니면 마감 숨김)
-    if (!filters.includeClosed && program.status === "마감") {
-      return false;
-    }
-
-    // 일자 미정 사업 default hide (2026-05-11)
-    // applicationStart/End 모두 9999-12-31 = "공고 발표 예정"이라 사용자 가치 낮음.
-    // includeClosed=true 시 정보 카테고리로 표시.
-    if (
-      !filters.includeClosed &&
-      program.applicationStart === "9999-12-31" &&
-      program.applicationEnd === "9999-12-31"
-    ) {
-      return false;
-    }
-
-    // 조회 시점 필터: 모집기간과 선택 월이 겹치는지 확인
-    // includeClosed가 true이면 기간 필터를 적용하지 않음 (마감된 과거 프로그램도 표시)
-    // 모집중·모집예정은 기간 필터와 무관하게 항상 표시
-    if (!filters.includeClosed && periodStart && periodEnd) {
-      if (program.status !== "모집중" && program.status !== "모집예정") {
-        if (
-          program.applicationStart > periodEnd ||
-          program.applicationEnd < periodStart
-        ) {
-          return false;
-        }
-      }
-    }
-
-    // 텍스트 검색 (제목, 요약, 지역, 기관, 관련 작물)
-    if (filters.query) {
-      const q = filters.query.toLowerCase();
-      const searchable = [
-        program.title,
-        program.summary,
-        program.region,
-        program.organization,
-        ...program.relatedCrops,
-      ]
-        .join(" ")
-        .toLowerCase();
-      if (!searchable.includes(q)) {
-        return false;
-      }
-    }
-
-    // ─── 4 chip 그룹 복수 선택(CSV) 지원 (5/20 Sprint P) ───
-    // 단일값 / CSV 모두 처리. 같은 그룹 내 OR (선택 중 하나라도 매치), 다른 그룹 간 AND.
-
-    if (filters.region && filters.region !== "전체") {
-      const regions = filters.region.split(",").map((s) => s.trim()).filter(Boolean);
-      // 프로그램 region이 "전국"이면 모든 선택 region에 매치
-      if (program.region !== "전국" && !regions.includes(program.region)) {
-        return false;
-      }
-    }
-
-    if (filters.age) {
-      const ageList = filters.age.split(",").map((s) => s.trim()).filter(Boolean);
-      // 다중 연령대 중 하나라도 프로그램 자격 범위와 겹치면 통과
-      const anyMatch = ageList.some((ageStr) => {
-        const range = parseAgeRange(ageStr);
-        if (!range) return true; // 파싱 실패는 무시 (안전)
-        return !(range.min > program.eligibilityAgeMax || range.max < program.eligibilityAgeMin);
-      });
-      if (!anyMatch) return false;
-    }
-
-    if (filters.supportType && filters.supportType !== "전체") {
-      const types = filters.supportType.split(",").map((s) => s.trim()).filter(Boolean);
-      if (!types.includes(program.supportType)) {
-        return false;
-      }
-    }
-
-    if (filters.category && filters.category !== "전체") {
-      const cats = filters.category.split(",").map((s) => s.trim()).filter(Boolean);
-      if (!program.category || !cats.includes(program.category)) {
-        return false;
-      }
-    }
-
-    if (filters.status && filters.status !== "전체") {
-      // 5/22 Sprint — status CSV 복수 선택 지원 ("모집중,모집예정")
-      const statuses = filters.status.split(",").map((s) => s.trim()).filter(Boolean);
-      if (statuses.length > 0 && !statuses.includes(program.status)) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-}
 
 /** 정렬 키 — 5/22 회장 결재 옵션 A (마감 임박 + 최근 등록)
  *  deadline: 모집중·모집예정 우선 + applicationEnd asc (임박 우선)
@@ -1471,20 +1341,6 @@ export interface PaginatedResult {
   hasMore: boolean;
 }
 
-/** 필터 + 페이지네이션 (offset 기반) */
-export function filterProgramsPaginated(
-  filters: ProgramFilters,
-  offset: number = 0,
-  limit: number = PAGE_SIZE
-): PaginatedResult {
-  const all = filterPrograms(filters);
-  const programs = all.slice(offset, offset + limit);
-  return {
-    programs,
-    total: all.length,
-    hasMore: offset + limit < all.length,
-  };
-}
 
 // ─── RDA API 연동 레이어 ───
 
