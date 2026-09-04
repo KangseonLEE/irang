@@ -171,8 +171,8 @@ export const EVENTS: FarmEvent[] = [
     type: "설명회",
     date: "2026-03-10",
     dateEnd: "2026-03-13",
-    applicationStart: "2026-02-10",
-    applicationEnd: "2026-03-07",
+    applicationStart: "2026-02-25",
+    applicationEnd: "2026-02-27",
     location: "제주특별자치도농업기술원 미래농업육성관 대강당",
     cost: "무료",
     description:
