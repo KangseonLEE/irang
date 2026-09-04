@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import s from "./section-nav.module.css";
 
-export interface SectionNavItem {
+interface SectionNavItem {
   href: string;
   label: string;
 }

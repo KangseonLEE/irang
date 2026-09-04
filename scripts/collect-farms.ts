@@ -169,7 +169,7 @@ export interface FarmStat {
 export const FARM_FALLBACK_SIGUNGU: FarmStat[] = ${JSON.stringify(all, null, 2)};
 
 /** 시도 합산 농가 통계 (SGIS 2자리) */
-export const FARM_FALLBACK_SIDO: FarmStat[] = ${JSON.stringify(sidoArr, null, 2)};
+const FARM_FALLBACK_SIDO: FarmStat[] = ${JSON.stringify(sidoArr, null, 2)};
 
 /** 시군구 sgisCode → FarmStat 빠른 조회 */
 const SIGUNGU_INDEX = new Map(FARM_FALLBACK_SIGUNGU.map((f) => [f.sgisCode, f]));

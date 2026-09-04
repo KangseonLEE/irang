@@ -80,7 +80,7 @@ export interface RdaYouthItem {
 
 // ─── 페이징 ───
 
-export interface RdaPaging {
+interface RdaPaging {
   currentPage: number;
   totalCount: number;
   lastPage: number;
@@ -216,21 +216,6 @@ export async function fetchPolicies(
   return result?.list ?? null;
 }
 
-/** 지원사업 목록 + 페이징 정보 함께 반환 */
-export async function fetchPoliciesWithPaging(
-  options: FetchPoliciesOptions = {}
-): Promise<{ list: RdaPolicyItem[]; paging: RdaPaging } | null> {
-  const params: Record<string, string> = {};
-  if (options.keyword) params.search_keyword = options.keyword;
-  if (options.areaCode) params.search_area1 = options.areaCode;
-  if (options.startDate) params.sd = options.startDate;
-  if (options.endDate) params.ed = options.endDate;
-  if (options.page) params.cp = String(options.page);
-  if (options.pageSize) params.rowCnt = String(options.pageSize);
-
-  return fetchRdaList<RdaPolicyItem>("policyList", params, "policy");
-}
-
 // ─── 교육 API ───
 
 export interface FetchEduOptions {
@@ -348,10 +333,3 @@ export function stripHtml(html: string): string {
     .replace(/\s+/g, " ")
     .trim();
 }
-
-/**
- * 신청기간 기반 상태 판별
- * — 실제 로직은 공용 유틸(@/lib/program-status)로 이동.
- *   기존 import 호환을 위해 re-export 유지.
- */
-export { deriveStatus } from "@/lib/program-status";

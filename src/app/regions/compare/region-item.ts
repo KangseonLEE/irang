@@ -94,12 +94,3 @@ function buildRegionItemFromStation(stnId: string): RegionItem | null {
     label: province.shortName,
   };
 }
-
-/** RegionItem 배열 → URL 파라미터 ("seoul,jeonnam:suncheon-si") */
-export function serializeRegions(items: RegionItem[]): string {
-  return items
-    .map((r) =>
-      r.sigungu ? `${r.province.id}:${r.sigungu.id}` : r.province.id,
-    )
-    .join(",");
-}

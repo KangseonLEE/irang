@@ -4,7 +4,7 @@
    정착 단계(창업·주택구입)까지 포함된 정책 요약
    ========================================================================== */
 
-export type TrackId = "farming" | "forestry";
+type TrackId = "farming" | "forestry";
 
 export interface TrackRow {
   field:

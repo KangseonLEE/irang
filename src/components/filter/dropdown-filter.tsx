@@ -25,7 +25,7 @@ import { useEffect, useLayoutEffect, useRef, useState, useCallback, useMemo } fr
 import { ChevronDown, ChevronUp } from "lucide-react";
 import s from "./dropdown-filter.module.css";
 
-export interface DropdownFilterOption {
+interface DropdownFilterOption {
   value: string;
   label: string;
 }

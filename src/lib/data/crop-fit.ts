@@ -19,7 +19,7 @@
 import type { Sigungu } from "./sigungus";
 import { getCropByName } from "./crops";
 
-export type CropFitLevel = "high" | "mid";
+type CropFitLevel = "high" | "mid";
 
 export interface CropFit {
   level: CropFitLevel;

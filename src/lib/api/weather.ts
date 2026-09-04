@@ -69,7 +69,7 @@ export interface ClimateData {
 /**
  * 특정 관측소의 당해년도 기상 데이터를 조회하여 평균/합계로 집계
  */
-export async function fetchClimateData(stnId: string): Promise<ClimateData | null> {
+async function fetchClimateData(stnId: string): Promise<ClimateData | null> {
 
   const year = new Date().getFullYear();
   const today = new Date();

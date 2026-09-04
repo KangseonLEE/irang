@@ -1798,7 +1798,7 @@ export const FARM_FALLBACK_SIGUNGU: FarmStat[] = [
 ];
 
 /** 시도 합산 농가 통계 (SGIS 2자리) */
-export const FARM_FALLBACK_SIDO: FarmStat[] = [
+const FARM_FALLBACK_SIDO: FarmStat[] = [
   {
     "sgisCode": "11",
     "name": "서울",

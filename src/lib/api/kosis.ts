@@ -10,7 +10,7 @@ const API_BASE =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do";
 
 /** KOSIS 통계표 ID */
-export const KOSIS_TABLE = {
+const KOSIS_TABLE = {
   /** 시군구별·성별 귀농가구원 (정착자 수) */
   RETURN_FARM_PERSON: "DT_1A02002",
   /** 시군구별·가구원수별 귀농가구 (가구수) */

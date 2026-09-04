@@ -10,7 +10,6 @@
  *   returnFarmRate = (귀농인 수 / 전체 인구) × 100
  *   - 시군구 인구: src/lib/data/population-trend.ts 의 POPULATION_TREND_SIGUNGU 최신 연도(2022)
  *     (POPULATION_FALLBACK은 시도 단위만 보유 — 시군구는 trend 데이터 사용)
- *   - 시도 합산: 시도 = sum(시군구 귀농인수) / sum(시군구 인구) × 100
  *
  * 코드 매핑 주의 — 회장 메모(SGIS 코드 체계 vs 행안부 코드):
  *   - KOSIS C1 코드 = 행안부 admCode (예: 전남 순천 = 46150)
@@ -39,10 +38,8 @@ import { resolve } from "node:path";
 config({ path: resolve(__dirname, "../.env.local") });
 
 import { SIGUNGUS } from "../src/lib/data/sigungus";
-import { PROVINCES } from "../src/lib/data/regions";
 import { fetchReturnFarmStats } from "../src/lib/api/kosis";
 import { POPULATION_TREND_SIGUNGU, POPULATION_TREND_YEARS } from "../src/lib/data/population-trend";
-import { POPULATION_FALLBACK } from "../src/lib/data/population";
 
 interface ReturnFarmRate {
   /** SGIS 시군구 코드 (5자리) */
@@ -126,51 +123,6 @@ async function main() {
     );
   }
 
-  // 5) 시도 합산 — sum(시군구 귀농인) / sum(시군구 인구) × 100
-  //    시도 자체 KOSIS 코드(2자리) 응답이 있으면 우선 사용, 없으면 합산
-  interface SidoAcc {
-    sgisCode: string;
-    name: string;
-    returnFarmCount: number;
-    population: number;
-  }
-  const sidoAcc = new Map<string, SidoAcc>();
-  for (const p of PROVINCES) {
-    sidoAcc.set(p.sgisCode, {
-      sgisCode: p.sgisCode,
-      name: p.shortName,
-      returnFarmCount: 0,
-      population: 0,
-    });
-  }
-  for (const item of successList) {
-    const sidoCode = item.sgisCode.slice(0, 2);
-    const acc = sidoAcc.get(sidoCode);
-    if (!acc) continue;
-    acc.returnFarmCount += item.returnFarmCount;
-    const pop = populationMap.get(item.sgisCode) ?? 0;
-    acc.population += pop;
-  }
-  // 시도 인구가 시군구 합계보다 정확하다 — POPULATION_FALLBACK 보강
-  const sidoFallbackMap = new Map(
-    POPULATION_FALLBACK.map((p) => [p.sgisCode, p.population]),
-  );
-  const sidoArr: ReturnFarmRate[] = [];
-  for (const acc of sidoAcc.values()) {
-    if (acc.returnFarmCount === 0) continue;
-    // 시도 인구는 POPULATION_FALLBACK 우선 사용 (가장 최신·정확)
-    const sidoPopulation = sidoFallbackMap.get(acc.sgisCode) ?? acc.population;
-    if (sidoPopulation <= 0) continue;
-    const rate = (acc.returnFarmCount / sidoPopulation) * 100;
-    sidoArr.push({
-      sgisCode: acc.sgisCode,
-      name: acc.name,
-      returnFarmCount: acc.returnFarmCount,
-      returnFarmRate: Number(rate.toFixed(4)),
-      year: dataYear,
-    });
-  }
-
   // ─────────────────────────────────────────────────────────────────
   // 직렬화
   // ─────────────────────────────────────────────────────────────────
@@ -186,7 +138,6 @@ async function main() {
  * 생성 스크립트: scripts/collect-return-farm-rate.ts
  * 데이터 소스: KOSIS 통계청 귀농어·귀촌인 통계 (DT_1A02002)
  * 인구 베이스: src/lib/data/population-trend.ts (${trendLatestYear}년)
- * 시도 인구: src/lib/data/population.ts POPULATION_FALLBACK
  * 통계 연도: ${dataYear}
  * 마지막 수집: ${new Date().toISOString().slice(0, 10)}
  *
@@ -222,22 +173,6 @@ export const RETURN_FARM_RATE_SIGUNGU: ReturnFarmRateStat[] = ${JSON.stringify(
     null,
     2,
   )};
-
-/** 시도 합산 귀농 인구 비율 (SGIS 2자리) */
-export const RETURN_FARM_RATE_SIDO: ReturnFarmRateStat[] = ${JSON.stringify(
-    sidoArr,
-    null,
-    2,
-  )};
-
-const SIGUNGU_INDEX = new Map(
-  RETURN_FARM_RATE_SIGUNGU.map((r) => [r.sgisCode, r]),
-);
-const SIDO_INDEX = new Map(RETURN_FARM_RATE_SIDO.map((r) => [r.sgisCode, r]));
-
-export function getReturnFarmRateFallback(sgisCode: string): ReturnFarmRateStat | null {
-  return SIGUNGU_INDEX.get(sgisCode) ?? SIDO_INDEX.get(sgisCode) ?? null;
-}
 `;
 
   writeFileSync(filePath, body, "utf-8");

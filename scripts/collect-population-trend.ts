@@ -290,7 +290,7 @@ export const POPULATION_TREND_YEARS = ${JSON.stringify(YEARS)} as const;
 export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = ${JSON.stringify(all, null, 2)};
 
 /** 시도 인구 시계열 (SGIS 2자리 × 연도, 시군구 합산) */
-export const POPULATION_TREND_SIDO: PopulationTrendPoint[] = ${JSON.stringify(sidoArr, null, 2)};
+const POPULATION_TREND_SIDO: PopulationTrendPoint[] = ${JSON.stringify(sidoArr, null, 2)};
 
 /**
  * 특정 SGIS 코드의 연도별 시계열을 반환한다.

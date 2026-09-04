@@ -26,7 +26,6 @@
  */
 
 import {
-  type DimensionScoresInput,
   type Persona,
   type PersonaId,
   type PersonaWeights,
@@ -234,4 +233,4 @@ export function resolvePersonaFromParams(
  * 회귀 안전을 위해 별도 시그니처를 만들지 않고, 호출자가 buildCustomPersona로 만든
  * Persona를 그대로 computePersonaScore에 넘기면 된다. 이 함수는 보일러플레이트 감소용.
  */
-export type { DimensionScoresInput, Persona, PersonaWeights };
+export type { Persona, PersonaWeights };

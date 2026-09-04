@@ -14,12 +14,9 @@ import { MedicalModal } from "./modals/medical-modal";
 import { SchoolModal } from "./modals/school-modal";
 import s from "./page.module.css";
 
-// re-export for sigungu-stats etc.
-export type { ClimateInfo };
-
 // ── Props 타입 (서버에서 전달) ──
 
-export interface ApiFailures {
+interface ApiFailures {
   population?: boolean;
   medical?: boolean;
   school?: boolean;

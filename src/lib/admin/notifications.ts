@@ -14,7 +14,7 @@
 
 import { getSupabaseAdmin } from "@/lib/supabase";
 
-export interface AdminNotificationItem {
+interface AdminNotificationItem {
   /** ADMIN_SECTIONS.key 와 동일 — 사이드바·탭 배지 매칭 키 */
   key: string;
   label: string;

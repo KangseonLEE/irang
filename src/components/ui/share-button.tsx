@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { Share2, Check, Link2 } from "lucide-react";
+import { Share2, Check } from "lucide-react";
 import { analytics } from "@/lib/analytics";
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import s from "./share-button.module.css";
@@ -65,22 +65,6 @@ export function ShareButton({
       {showLabel && (
         <span>{copied ? "링크 복사됨!" : "공유"}</span>
       )}
-    </button>
-  );
-}
-
-/** URL 복사 전용 버튼 (간소화 버전) */
-export function CopyLinkButton({ url }: { url?: string }) {
-  const { copied, copy } = useCopyToClipboard();
-
-  const handleCopy = useCallback(() => {
-    void copy(url ?? window.location.href);
-  }, [url, copy]);
-
-  return (
-    <button onClick={handleCopy} className={`${s.btn} ${s.variant_ghost} ${s.size_sm}`} type="button">
-      {copied ? <Check size={14} /> : <Link2 size={14} />}
-      <span>{copied ? "복사됨" : "링크 복사"}</span>
     </button>
   );
 }

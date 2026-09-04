@@ -28,7 +28,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "knip": "knip --no-progress"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.48.0",
@@ -56,6 +57,7 @@
     "eslint": "^9",
     "eslint-config-next": "^16.3.4",
     "jsdom": "^29.0.2",
+    "knip": "^6.34.0",
     "schema-dts": "^2.0.0",
     "typescript": "^5",
     "vitest": "^4.1.4"

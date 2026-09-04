@@ -30,7 +30,7 @@ import {
 import { DropdownFilter } from "@/components/filter/dropdown-filter";
 import s from "./filter-shell.module.css";
 
-export interface FilterShellParam {
+interface FilterShellParam {
   /** URL searchParam 키 (region·type·category·age 등) */
   paramKey: string;
   /** 탭 라벨 (지역·유형·카테고리·연령대 등) */

@@ -257,17 +257,6 @@ export async function fetchOgMeta(url: string): Promise<OgMeta> {
   }
 }
 
-/**
- * @deprecated `fetchOgMeta`를 사용하세요. 이미지만 추출하는 thin wrapper로 유지.
- */
-export async function fetchOgImage(url: string): Promise<string | undefined> {
-  try {
-    return (await fetchOgMeta(url)).image;
-  } catch {
-    return undefined;
-  }
-}
-
 /** HTML 엔티티 디코딩 (og:image URL에 &#x3D; 등이 포함되는 경우) */
 function decodeHtmlEntities(str: string): string {
   return str

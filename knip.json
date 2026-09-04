@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "scripts/**/*.{ts,mts}",
+    "src/lib/data/province-maps/*.ts",
+    "src/lib/data/district-maps/*.ts",
+    "src/__tests__/**/*.{ts,tsx}",
+    "tests/**/*.ts"
+  ],
+  "ignore": [
+    "workers/**",
+    "cloudflare-workers/**",
+    "supabase/**",
+    "add-external-resources.mjs",
+    "add-investment-and-details.mjs",
+    "apply-all-crop-changes.mjs"
+  ],
+  "ignoreBinaries": ["cloudflared"]
+}

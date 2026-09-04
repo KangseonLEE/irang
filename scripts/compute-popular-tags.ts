@@ -55,7 +55,7 @@ ${codes.map((c) => `  "${c}",`).join("\n")}
 ]);
 
 /** 귀농인기 시군구인지 여부 (sgisCode 기준) */
-export function isPopularReturnFarm(sgisCode: string): boolean {
+function isPopularReturnFarm(sgisCode: string): boolean {
   return POPULAR_RETURN_FARM_CODES.has(sgisCode);
 }
 

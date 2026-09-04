@@ -40,7 +40,7 @@ import type { PersonaId } from "@/lib/data/personas";
 
 /* ── 질문 인터페이스 (match-questions 호환) ── */
 
-export interface QuickOption {
+interface QuickOption {
   id: string;
   label: string;
   icon: React.ComponentType<{ size?: number }>;

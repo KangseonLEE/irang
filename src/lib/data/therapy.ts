@@ -10,7 +10,7 @@
 
 export type TherapyTrackId = "healing" | "social";
 
-export interface TherapyStat {
+interface TherapyStat {
   label: string;
   value: string;
   year: string;
@@ -18,7 +18,7 @@ export interface TherapyStat {
 }
 
 /** 인증·자격 정보 */
-export interface TherapyCertification {
+interface TherapyCertification {
   hasCertification: boolean;
   /** 자격 보유 시 — 자격명·등급·법정 여부 등 */
   summary: string;
@@ -29,7 +29,7 @@ export interface TherapyCertification {
 }
 
 /** 수익 모델 */
-export interface TherapyRevenue {
+interface TherapyRevenue {
   /** 핵심 진입 경로·자금 흐름 정성 요약 */
   summary: string;
   /** 정부 지원 자금 — 키-값 리스트 */
@@ -39,7 +39,7 @@ export interface TherapyRevenue {
 }
 
 /** 시장 현황 */
-export interface TherapyMarket {
+interface TherapyMarket {
   /** 키 지표 1~5개 */
   indicators: TherapyStat[];
   /** 정성적 시장 흐름 한두 줄 */
@@ -48,7 +48,7 @@ export interface TherapyMarket {
 }
 
 /** 우수 사례 */
-export interface TherapyCase {
+interface TherapyCase {
   name: string;
   location: string;
   /** 대상군·프로그램·인증 등 한 줄 요약 */
@@ -59,7 +59,7 @@ export interface TherapyCase {
 }
 
 /** FAQ */
-export interface TherapyFAQ {
+interface TherapyFAQ {
   q: string;
   a: string;
 }

@@ -15,7 +15,6 @@
 
 import type {
   DimensionEvidence,
-  DimensionEvidenceMap,
   DimensionScores,
 } from "./dimension-scores";
 import { getDimensionScores } from "./dimension-scores";
@@ -29,14 +28,14 @@ interface SigunguRef {
   id: string;
 }
 
-export interface TopSigungu {
+interface TopSigungu {
   id: string;
   name: string;
   /** 0~100 차원 점수 */
   score: number;
 }
 
-export interface SidoDimensionEvidence extends DimensionEvidence {
+interface SidoDimensionEvidence extends DimensionEvidence {
   /** 평균에 포함된 산하 시군구 수 */
   includedCount: number;
   /** 차원 점수 상위 1~2 시군구 (점수 내림차순). 데이터 가용 시군구만. */
@@ -212,6 +211,3 @@ export function buildSidoEvidence(
     returnFarm: buildOne(sigungus, "returnFarm"),
   };
 }
-
-// 시군구 evidence와의 호환을 위한 dimension-scores re-export.
-export type { DimensionEvidenceMap };

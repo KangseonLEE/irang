@@ -19,7 +19,7 @@ export interface CropInfo {
 // --- 작물 상세 정보 ---
 
 /** 재배 환경 상세 */
-export interface CultivationDetail {
+interface CultivationDetail {
   climate: string;
   soil: string;
   water: string;
@@ -38,7 +38,7 @@ export interface VarietyIncome {
 }
 
 /** 수익 정보 */
-export interface IncomeInfo {
+interface IncomeInfo {
   revenueRange: string;
   costNote: string;
   laborNote: string;
@@ -67,7 +67,7 @@ export interface CultivationStep {
 }
 
 /** KOSIS 연동 설정 — API 데이터 매핑용 */
-export interface KosisConfig {
+interface KosisConfig {
   tblId: string;
   objL1Code?: string;
 }
@@ -82,7 +82,7 @@ export type ProsConsCategory =
   | "확장성";
 
 /** 장단점 항목 */
-export interface ProsConsItem {
+interface ProsConsItem {
   category: ProsConsCategory;
   text: string;
 }
@@ -96,7 +96,7 @@ export interface ProsConsInfo {
 
 
 /** 투자·노력 상세 — "이 수익을 얻으려면 얼마나 필요한가" */
-export interface InvestmentDetail {
+interface InvestmentDetail {
   /** 초기 투자 비용 (시설·묘목·장비 등) */
   initialCost: string;
   /** 연간 운영 비용 (난방·인건비·자재 등) */
@@ -110,7 +110,7 @@ export interface InvestmentDetail {
 }
 
 /** 외부 콘텐츠 (유튜브·블로그 큐레이션) */
-export interface ExternalResource {
+interface ExternalResource {
   type: "youtube" | "blog";
   title: string;
   url: string;

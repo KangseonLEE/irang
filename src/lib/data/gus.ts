@@ -116,11 +116,6 @@ export const GUS: GuDistrict[] = [
 // 유틸리티 함수
 // ---------------------------------------------------------------------------
 
-/** parentSigunguId로 해당 시의 모든 구를 조회 */
-export function getGusByParent(parentSigunguId: string): GuDistrict[] {
-  return GUS.filter((g) => g.parentSigunguId === parentSigunguId);
-}
-
 /** sidoId + parentSigunguId + guId로 특정 구를 조회 */
 export function getGuByIds(
   sidoId: string,
@@ -133,7 +128,7 @@ export function getGuByIds(
 }
 
 /** 구가 있는 시군구 ID 집합 */
-export const CITIES_WITH_GU = new Set(GUS.map((g) => g.parentSigunguId));
+const CITIES_WITH_GU = new Set(GUS.map((g) => g.parentSigunguId));
 
 /** 특정 시군구가 구 분할 시인지 확인 */
 export function hasGuDistricts(sigunguId: string): boolean {

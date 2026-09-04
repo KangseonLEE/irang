@@ -41,8 +41,3 @@ export function getInterviewImageSrc(personId: string): string | null {
   }
   return null;
 }
-
-export function getInterviewImageAbsoluteUrl(personId: string): string | null {
-  const src = getInterviewImageSrc(personId);
-  return src ? `https://irangfarm.com${src}` : null;
-}

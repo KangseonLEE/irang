@@ -33,7 +33,7 @@ export type ActiveCategoryId =
   | "healing" // 치유농업
   | "socialFarm"; // 사회적 농업
 
-export interface ActiveRegionEntry {
+interface ActiveRegionEntry {
   /** sigungus.ts의 id와 일치 (deep link용) */
   sigunguId: string;
   /** 시도 ID (deep link 경로 구성용) */

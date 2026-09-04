@@ -183,7 +183,7 @@ const CROP_OVERRIDE_REASONS: Record<string, string> = {
  *
  * UI 렌더링 단위로 그대로 칩/리스트에 노출 가능하도록 평탄화.
  */
-export interface TraceReason {
+interface TraceReason {
   /**
    * 사유 분류 (UI 스타일 차별화 용도)
    * - "category": 카테고리/지원유형 기반

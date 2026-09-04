@@ -22,8 +22,6 @@
 // normalize 누락 → 308 strip 재발(5/29·5/30·6/16) 차단을 위해 SSOT에서 파생.
 import { CROP_CATEGORY_NAMES } from "@/lib/data/crop-categories";
 
-export type RawSearchParams = URLSearchParams;
-
 interface NormalizeOptions {
   /** 허용된 param key 목록 (이 목록 외엔 제거) */
   allowedKeys: readonly string[];

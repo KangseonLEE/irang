@@ -6,7 +6,10 @@ import s from "./filter-bar.module.css";
 
 // ─── 유틸리티 ───
 
-/** 현재 활성 필터를 유지하면서 특정 필터만 변경하는 URL 생성 */
+/**
+ * 현재 활성 필터를 유지하면서 특정 필터만 변경하는 URL 생성
+ * @public CLAUDE.md 「FilterBar」에 문서화된 공개 헬퍼 — 외부 사용처가 없어도 유지 (2026-09-04 knip)
+ */
 export function buildFilterUrl(
   basePath: string,
   current: Record<string, string | undefined>,
@@ -78,7 +81,10 @@ export function FilterRow({
   return <div className={classes.join(" ")}>{children}</div>;
 }
 
-/** 구분선 */
+/**
+ * 구분선
+ * @public CLAUDE.md 「FilterBar」 구성 요소로 문서화된 공개 컴포넌트 — 외부 사용처가 없어도 유지 (2026-09-04 knip)
+ */
 export function FilterDivider() {
   return <hr className={s.filterDivider} />;
 }

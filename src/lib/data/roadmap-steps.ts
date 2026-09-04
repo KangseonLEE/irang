@@ -6,7 +6,7 @@
  */
 import type { FarmTypeId } from "./match-questions";
 
-export interface RoadmapStep {
+interface RoadmapStep {
   step: number;
   title: string;
   description: string;
@@ -23,7 +23,7 @@ export interface FarmTypeRoadmap {
   steps: RoadmapStep[];
 }
 
-export const ROADMAPS: FarmTypeRoadmap[] = [
+const ROADMAPS: FarmTypeRoadmap[] = [
   {
     farmTypeId: "guinong",
     totalDuration: "12~18개월",

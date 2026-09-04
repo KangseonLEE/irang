@@ -4,7 +4,7 @@
  * - 지역 상세 페이지 + 목록 페이지에서 사용
  */
 
-export interface RegionPersona {
+interface RegionPersona {
   title: string; // "자연 속 조용한 삶을 원하는 분"
   description: string;
 }
@@ -511,9 +511,4 @@ export const PROVINCES: Province[] = [
 /** slug로 도 찾기 */
 export function getProvinceById(id: string): Province | undefined {
   return PROVINCES.find((p) => p.id === id);
-}
-
-/** province 정식 명칭으로 도 찾기 */
-export function getProvinceByName(name: string): Province | undefined {
-  return PROVINCES.find((p) => p.name === name);
 }

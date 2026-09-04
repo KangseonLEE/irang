@@ -208,17 +208,6 @@ export async function listNotesForAdmin(
   return { ok: true, data: (data as unknown as NoteRow[]).map(toAdmin) };
 }
 
-export async function countPendingNotes(): Promise<number> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return 0;
-  const { count } = await sb
-    .from("community_notes")
-    .select("id", { count: "exact", head: true })
-    .eq("status", "pending")
-    .eq("is_e2e", false);
-  return count ?? 0;
-}
-
 export async function updateNoteStatus(
   id: number,
   status: NoteStatus,

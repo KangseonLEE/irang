@@ -18,7 +18,7 @@ import type { DimensionEvidenceMap } from "@/lib/data/dimension-scores";
 import type { SidoDimensionEvidenceMap } from "@/lib/data/sido-evidence";
 import s from "./settlement-score-breakdown.module.css";
 
-export interface DimensionBreakdownInput {
+interface DimensionBreakdownInput {
   populationTrend: number | null;
   farmActivity: number | null;
   medical: number | null;

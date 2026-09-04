@@ -58,7 +58,7 @@ interface SearchBarProps {
   readOnlyDisplay?: boolean;
 }
 
-export interface SearchBarHandle {
+interface SearchBarHandle {
   fillQuery: (q: string) => void;
 }
 

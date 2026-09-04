@@ -18,7 +18,6 @@ import {
   ACTIVE_CATEGORIES,
   DEFAULT_ACTIVE_CATEGORY,
   getActiveCategory,
-  type ActiveCategoryId,
 } from "@/lib/data/active-regions";
 import { Icon } from "@/components/ui/icon";
 import s from "./active-regions-section.module.css";
@@ -114,6 +113,3 @@ export function ActiveRegionsSection({ activeId }: ActiveRegionsSectionProps) {
     </section>
   );
 }
-
-// 외부에서 활성 카테고리 ID 타입 재export
-export type { ActiveCategoryId };

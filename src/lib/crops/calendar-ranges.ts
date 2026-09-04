@@ -206,7 +206,7 @@ function deriveFromAnchor(anchor: Span, offset: RelativeOffset): Span[] {
  * `growingSeason` 한 줄을 재배 구간으로 파싱 (폴백 겸 기본 바탕).
  * 괄호 안 부연("(시설)", "(2~3년근 수확)")은 떼고 읽는다.
  */
-export function parseGrowingSeason(raw: string): MonthRange[] {
+function parseGrowingSeason(raw: string): MonthRange[] {
   const cleaned = raw.replace(/\([^)]*\)/g, "").trim();
   if (!cleaned || cleaned === "연중") {
     return [{ start: 1, end: 12, phase: "growing" }];

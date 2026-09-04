@@ -31,7 +31,7 @@ const COLORS = ["#1b6b5a", "#e67e22", "#3498db", "#9b59b6"] as const;
 const DIFFICULTY_X: Record<string, number> = { 쉬움: 1, 보통: 2, 어려움: 3 };
 const X_LABEL: Record<number, string> = { 1: "쉬움", 2: "보통", 3: "어려움" };
 
-export interface ScatterCrop {
+interface ScatterCrop {
   id: string;
   name: string;
   difficulty: string;

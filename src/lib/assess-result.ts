@@ -40,10 +40,6 @@ export interface AssessmentResultPayload {
   persona?: string | null;
 }
 
-export interface AssessmentResultRow extends AssessmentResultPayload {
-  created_at: string;
-}
-
 // ── 결과 저장 (클라이언트 → API Route 경유) ──
 
 export async function saveAssessmentResult(
@@ -72,28 +68,5 @@ export async function saveAssessmentResult(
     return { success: true, id: payload.id };
   } catch {
     return { success: false, id: payload.id, error: "network_error" };
-  }
-}
-
-// ── 결과 조회 (서버/클라이언트 공용) ──
-
-export async function fetchAssessmentResult(
-  id: string,
-  baseUrl?: string
-): Promise<AssessmentResultRow | null> {
-  if (!isValidResultId(id)) return null;
-
-  try {
-    const url = baseUrl
-      ? `${baseUrl}/api/assess/${id}`
-      : `/api/assess/${id}`;
-
-    const res = await fetch(url, { next: { revalidate: 3600 } });
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    return data as AssessmentResultRow;
-  } catch {
-    return null;
   }
 }

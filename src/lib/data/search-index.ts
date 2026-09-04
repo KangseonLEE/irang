@@ -34,7 +34,7 @@ import { SEARCH_FAQS } from "./search-faq";
 // Types
 // ---------------------------------------------------------------------------
 
-export type SearchItemType =
+type SearchItemType =
   | "region"
   | "crop"
   | "program"
@@ -60,9 +60,8 @@ export interface SearchItem {
 }
 
 // Re-export from search-tags for backward compatibility
-import { POPULAR_TAGS, type SearchTag } from "./search-tags";
+import { POPULAR_TAGS } from "./search-tags";
 export { POPULAR_TAGS };
-export type { SearchTag };
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -1246,7 +1245,7 @@ const QUERY_SUGGESTIONS = [
  * - 시작 부분 매칭이 포함 매칭보다 우선
  * - 최대 maxResults개 반환 (기본 5)
  */
-export function suggestQueries(
+function suggestQueries(
   partial: string,
   maxResults = 5,
 ): string[] {
@@ -1333,7 +1332,7 @@ export function getQuerySuggestions(
 // Cross-Entity Intent Detection (교차 인텐트 감지)
 // ---------------------------------------------------------------------------
 
-export type CropContextType =
+type CropContextType =
   | "crop-region"
   | "crop-cultivation"
   | "crop-method"
@@ -1546,7 +1545,7 @@ function matchFaqs(query: string): SearchItem[] {
 // 신규 데이터 0 — CROP_DETAILS(income·majorRegions·cultivation·prosCons) 재활용.
 // ---------------------------------------------------------------------------
 
-export interface SearchAnswerFact {
+interface SearchAnswerFact {
   label: string;
   value: string;
 }
@@ -1714,12 +1713,12 @@ export function buildSearchAnswer(query: string): SearchAnswer | null {
 // P1(6/19 회장 결재). 답변 카드(intent)와 상호배타 — bare 엔티티 검색 전용.
 // ---------------------------------------------------------------------------
 
-export interface CropPanelSitelink {
+interface CropPanelSitelink {
   label: string;
   href: string;
 }
 
-export interface CropPanelRelated {
+interface CropPanelRelated {
   id: string;
   name: string;
   emoji: string;
@@ -1808,7 +1807,7 @@ export function buildCropPanel(query: string): CropPanel | null {
  * 답변 카드가 대신 보여주는 합성 항목인지 (`cross-*-{crop}` / `{kind}-{crop}`).
  * 목록에서 같은 내용이 두 번 보이지 않도록 제외할 때 쓴다.
  */
-export function isAnswerSynthetic(id: string, answer: SearchAnswer): boolean {
+function isAnswerSynthetic(id: string, answer: SearchAnswer): boolean {
   if (answer.kind === "region-crop") {
     return id.startsWith("cross-") && id.endsWith(`-${answer.cropId}`);
   }

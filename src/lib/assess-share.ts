@@ -43,50 +43,12 @@ const AGE_GROUP_BY_CODE: Record<number, string | undefined> = {
   5: "60plus",
 };
 
-const AGE_GROUP_TO_CODE: Record<string, number> = {
-  youth: 1,
-  "30s": 2,
-  "40s": 3,
-  "50s": 4,
-  "60plus": 5,
-};
-
 export interface DecodedAssessScore {
   tier: ResultTier;
   totalScore: number;
   dimensions: DimensionScore[];
   /** v2 포맷에서만 존재. legacy 7 토큰 URL 은 undefined */
   ageGroup?: string;
-}
-
-/* ── 인코딩 ── */
-
-/**
- * 진단 결과를 URL-safe 문자열로 인코딩.
- * ageGroup 전달 시 v2 포맷 (8 tokens), 미전달 시 v1 포맷 (7 tokens).
- */
-export function encodeAssessScore(
-  tierId: string,
-  totalScore: number,
-  dimensions: DimensionScore[],
-  ageGroup?: string,
-): string {
-  const tierIdx = TIER_IDS.indexOf(tierId as (typeof TIER_IDS)[number]) + 1;
-  if (tierIdx === 0) throw new Error(`Invalid tier: ${tierId}`);
-
-  const dimPercents = DIMENSIONS.map((d) => {
-    const found = dimensions.find((dim) => dim.id === d.id);
-    return found?.percent ?? 0;
-  });
-
-  const baseParts = [tierIdx, totalScore, ...dimPercents];
-
-  if (ageGroup === undefined) {
-    return baseParts.join("-");
-  }
-
-  const ageCode = AGE_GROUP_TO_CODE[ageGroup] ?? 0;
-  return [...baseParts, ageCode].join("-");
 }
 
 /* ── 디코딩 ── */
@@ -127,11 +89,4 @@ export function decodeAssessScore(data: string): DecodedAssessScore | null {
   const ageGroup = ageCodeRaw !== undefined ? AGE_GROUP_BY_CODE[ageCodeRaw] : undefined;
 
   return { tier, totalScore, dimensions, ageGroup };
-}
-
-/**
- * data 문자열이 유효한 인코딩 포맷인지 검증
- */
-export function isValidAssessShareData(data: string): boolean {
-  return decodeAssessScore(data) !== null;
 }

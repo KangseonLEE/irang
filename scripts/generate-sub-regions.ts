@@ -318,15 +318,6 @@ async function main() {
 export type SubRegionTuple = readonly [string, string, string];
 
 export const SUB_REGIONS: Record<string, readonly SubRegionTuple[]> = ${JSON.stringify(out)};
-
-export const SUB_REGIONS_META = {
-  generatedAt: ${JSON.stringify(new Date().toISOString())},
-  rowCount: ${records.length},
-  compactRowCount: ${compactRowCount},
-  keyCount: ${hintMap.size},
-  duplicateKeyCount: ${dupCount},
-  source: "통계청 SGIS Open API stage.json",
-} as const;
 `;
 
   const outPath = resolve(__dirname, "../src/lib/data/sub-regions.generated.ts");

@@ -36,8 +36,3 @@ export const SigunguPopulationTrendChart = dynamic(
   () => import("./sigungu-population-trend-chart"),
   { ssr: false }
 );
-
-export const SettlementRadarChart = dynamic(
-  () => import("./settlement-radar-chart"),
-  { ssr: false }
-);

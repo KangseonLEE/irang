@@ -10,14 +10,6 @@ const COLOR: Record<string, string> = {
   혼합: s.mixed,
 };
 
-/**
- * 지원 유형 컬러 클래스만 필요할 때 사용.
- * 커스텀 레이아웃에서 색상만 입히고 싶은 경우 유용합니다.
- */
-export function getSupportTypeColorClass(type: string): string {
-  return COLOR[type] ?? s.fallback;
-}
-
 /* ── Props ── */
 interface SupportTypeBadgeProps {
   /** 지원 유형 값 (보조금 | 융자 | 교육 | 현물 | 컨설팅 | 혼합) */

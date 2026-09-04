@@ -5,69 +5,6 @@
 
 import { POPULAR_KEYWORDS } from "./popular-keywords";
 
-export type ColorKey = "brand" | "blue" | "green" | "amber" | "red";
-
-/* ── 데이터 출처 ── */
-
-export interface DataSourceItem {
-  iconKey: "cloudSun" | "barChart" | "trendingUp" | "hospital" | "graduationCap";
-  colorKey: ColorKey;
-  tagLabel: string;
-  name: string;
-  code: string;
-  description: string;
-  /** 내부 링크 — 해당 데이터가 활용되는 서비스 페이지 */
-  link: string;
-}
-
-export const dataSources: DataSourceItem[] = [
-  {
-    iconKey: "cloudSun",
-    colorKey: "amber",
-    tagLabel: "기후",
-    name: "기상청",
-    code: "KMA",
-    description: "ASOS 종관기상 관측 데이터",
-    link: "/regions",
-  },
-  {
-    iconKey: "barChart",
-    colorKey: "blue",
-    tagLabel: "인구·통계",
-    name: "통계청 SGIS",
-    code: "SGIS",
-    description: "지역별 인구·고령화 데이터",
-    link: "/regions",
-  },
-  {
-    iconKey: "trendingUp",
-    colorKey: "green",
-    tagLabel: "농업 통계",
-    name: "통계청 KOSIS",
-    code: "KOSIS",
-    description: "농업 생산량·재배면적 통계",
-    link: "/crops",
-  },
-  {
-    iconKey: "hospital",
-    colorKey: "red",
-    tagLabel: "의료",
-    name: "심평원",
-    code: "HIRA",
-    description: "지역별 의료기관 분포",
-    link: "/regions",
-  },
-  {
-    iconKey: "graduationCap",
-    colorKey: "brand",
-    tagLabel: "교육",
-    name: "교육부",
-    code: "NEIS",
-    description: "지역별 학교 수 데이터",
-    link: "/regions",
-  },
-];
-
 /* ── (구) 정착 트렌드 데이터: TREND_BENTO_PROFILES로 이전 완료 ── */
 
 /**
@@ -274,14 +211,6 @@ export const trendPolicyNews: NewsItem[] = [
 
 export type TrendTypeId = "farming" | "rural" | "youth" | "mountain" | "smartfarm";
 
-export const TREND_TYPES: { id: TrendTypeId; label: string }[] = [
-  { id: "farming", label: "귀농" },
-  { id: "rural", label: "귀촌" },
-  { id: "youth", label: "청년농" },
-  { id: "mountain", label: "귀산촌" },
-  { id: "smartfarm", label: "스마트팜" },
-];
-
 /**
  * 인터뷰 카테고리 ID — TrendTypeId 5종 + healing 1종.
  *
@@ -314,7 +243,7 @@ export const INTERVIEW_CATEGORY_LABEL: Record<InterviewCategoryId, string> =
     string
   >;
 
-export interface TrendBentoStat {
+interface TrendBentoStat {
   value: string;
   label: string;
   sub: string;
@@ -834,7 +763,7 @@ export const cityVsRural: CompareRow[] = [
 
 /* ── 정착 인터뷰 카드 (공개 보도 기반, 실명) ── */
 
-export interface CropLink {
+interface CropLink {
   name: string;
   href: string;
 }

@@ -30,8 +30,6 @@ import s from "./page.module.css";
 
 // ── Props (서버 컴포넌트에서 전달) ──
 
-export type { ClimateInfo };
-
 export interface SigunguStatsProps {
   provinceShortName: string;
   provinceName: string;

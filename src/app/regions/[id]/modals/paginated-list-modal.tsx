@@ -47,7 +47,7 @@ export interface PaginatedListModalProps<T> {
 }
 
 /** 네이버 지도 검색 URL */
-export function naverMapUrl(name: string) {
+function naverMapUrl(name: string) {
   return `https://map.naver.com/v5/search/${encodeURIComponent(name)}`;
 }
 

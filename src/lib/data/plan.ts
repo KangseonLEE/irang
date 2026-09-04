@@ -6,7 +6,7 @@
 
 /* ── 체크리스트 항목 ── */
 
-export interface PlanCheckItem {
+interface PlanCheckItem {
   /** 고유 ID (예: "step1-item1") */
   id: string;
   /** 체크리스트 항목명 */
@@ -387,86 +387,5 @@ export const PLAN_STEPS: PlanStep[] = [
           "미갱신 시 농업인 자격 확인이 어려워 지원사업 수급에 불이익이 생길 수 있어요.",
       },
     ],
-  },
-];
-
-/* ── 전체 기간 ── */
-
-/** 정착 준비 전체 예상 기간 */
-export const PLAN_TOTAL_DURATION = "약 2~3년";
-
-/* ── 유틸리티 함수 ── */
-
-/** 단계 ID로 PlanStep 조회 */
-export function getPlanStepById(id: string): PlanStep | undefined {
-  return PLAN_STEPS.find((s) => s.id === id);
-}
-
-/** 단계 번호(1~6)로 PlanStep 조회 */
-export function getPlanStepByNumber(step: number): PlanStep | undefined {
-  return PLAN_STEPS.find((s) => s.step === step);
-}
-
-/** 전체 체크리스트 항목 수 */
-export function getTotalChecklistCount(): number {
-  return PLAN_STEPS.reduce((sum, s) => sum + s.checklist.length, 0);
-}
-
-/** 이랑 내부 링크가 있는 체크리스트 항목만 추출 */
-export function getItemsWithIrangLink(): (PlanCheckItem & { stepId: string })[] {
-  return PLAN_STEPS.flatMap((s) =>
-    s.checklist
-      .filter((item) => item.irangLink)
-      .map((item) => ({ ...item, stepId: s.id }))
-  );
-}
-
-/* ── 핵심 법률·제도 ── */
-
-/** 귀농 관련 핵심 법률/제도 */
-export interface KeyRegulation {
-  /** 법률/제도 명칭 */
-  name: string;
-  /** 설명 */
-  description: string;
-  /** 관련 단계 번호 (1~6) */
-  relevantSteps: number[];
-}
-
-export const KEY_REGULATIONS: KeyRegulation[] = [
-  {
-    name: "농지법",
-    description:
-      "농지의 소유·이용·보전에 관한 핵심 법률이에요. " +
-      "농지취득자격증명 발급, 농업진흥지역 행위 제한, 농지전용 허가 등 농지 취득과 이용의 모든 단계에 적용돼요.",
-    relevantSteps: [2, 4],
-  },
-  {
-    name: "농업경영체 육성 및 지원에 관한 법률",
-    description:
-      "농업경영체 등록 근거 법률이에요. " +
-      "직불금, 정책자금, 재해보험 등 정부 지원사업을 수급하려면 농업경영체 등록이 필수이며, 이 법이 그 기반을 제공해요.",
-    relevantSteps: [4, 5],
-  },
-  {
-    name: "귀농어·귀촌 활성화 및 지원에 관한 법률",
-    description:
-      "정착자·귀촌인의 법적 정의와 지원 근거를 규정한 법률이에요. " +
-      "정착 교육, 정착 지원금, 귀농인의집 등 각종 지원사업의 법적 토대가 돼요.",
-    relevantSteps: [1, 2, 3, 5],
-  },
-  {
-    name: "농어촌정비법",
-    description:
-      "농어촌 생활환경 정비 및 농어촌 마을 개발에 관한 법률이에요. " +
-      "귀농인의집 조성·운영 근거, 농어촌 도로·용수 시설 정비 등 정주 여건과 관련돼요.",
-    relevantSteps: [4, 6],
-  },
-  {
-    name: "산지관리법",
-    description:
-      "산지(임야)의 전용·보전에 관한 법률이에요. " +
-      "임야를 농지로 전용하거나 산지에 농업용 시설을 설치할 때 산지전용허가 절차와 복구비 예치 등이 적용돼요.",
-    relevantSteps: [4],
   },
 ];

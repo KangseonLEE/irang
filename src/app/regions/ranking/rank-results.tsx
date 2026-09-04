@@ -24,7 +24,7 @@ import type { RegionStats } from "@/lib/data/region-stats";
 import s from "./page.module.css";
 
 /** 결과 1건 — page.tsx에서 prep된 형태와 동일 */
-export interface RankItem {
+interface RankItem {
   score: DimensionScores;
   sg: Sigungu;
   province: Province;

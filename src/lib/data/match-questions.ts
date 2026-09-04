@@ -43,7 +43,7 @@ import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 
 /* ── 질문 인터페이스 ── */
 
-export interface Option {
+interface Option {
   id: string;
   label: string;
   icon: React.ComponentType<{ size?: number }>;

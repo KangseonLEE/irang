@@ -14,13 +14,13 @@ import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 
 /* ── 타입 ── */
 
-export interface EligibilityItem {
+interface EligibilityItem {
   label: string;
   detail: string;
   required: boolean; // true면 필수, false면 우대
 }
 
-export interface StepInfo {
+interface StepInfo {
   order: number;
   title: string;
   description: string;
@@ -29,7 +29,7 @@ export interface StepInfo {
   tips?: string[];
 }
 
-export interface SubProgram {
+interface SubProgram {
   name: string;
   target: string;
   support: string;
@@ -37,7 +37,7 @@ export interface SubProgram {
 }
 
 /** 공식 출처 정보 — 정책 데이터 검증용 */
-export interface PolicySource {
+interface PolicySource {
   /** 출처 이름 (예: "찾기쉬운 생활법령") */
   label: string;
   /** 크롤링/확인 대상 URL */
@@ -1058,8 +1058,3 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     lastVerified: "2026-08-29",
   },
 ];
-
-/** ID로 프로그램 데이터 조회 */
-export function findGovProgram(id: string): GovProgramRoadmap | undefined {
-  return GOV_PROGRAMS.find((p) => p.id === id);
-}

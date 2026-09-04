@@ -10595,7 +10595,7 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
 ];
 
 /** 시도 인구 시계열 (SGIS 2자리 × 연도, 시군구 합산) */
-export const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
+const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
   {
     "sgisCode": "11",
     "name": "서울",

@@ -27,7 +27,7 @@ const MONTH_RE = /(\d{1,2})\s*월/g;
  * - "연중 (...)" → 1~12
  * - 파싱 불가 → 빈 배열 (호출부에서 제외)
  */
-export function parseGrowingMonths(season: string): number[] {
+function parseGrowingMonths(season: string): number[] {
   if (!season) return [];
 
   // 괄호 안 보조 설명(시설: 연중 등)은 제거 — 핵심 노지 시기만 집계

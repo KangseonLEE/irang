@@ -62,13 +62,6 @@ export interface RequestKeywordCount {
 
 // ── 검색 로그 ──
 
-export interface SearchLogRow {
-  id: number;
-  query: string;
-  result_count: number;
-  created_at: string;
-}
-
 /** 결과 없는 검색어 — 로그 시점 0건이었던 검색어를 현재 인덱스로 재검색한 결과 포함 (2026-09-02) */
 export interface ZeroResultKeyword extends TopKeyword {
   /** 현재 검색 인덱스 결과 수. > 0 이면 데이터 보강으로 해결된 것 */

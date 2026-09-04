@@ -13,7 +13,6 @@ import type {
   RequestRow,
   RequestKeywordCount,
   RequestStatus,
-  SearchLogRow,
   TopKeyword,
   DailySearchCount,
   AssessmentRow,
@@ -359,22 +358,6 @@ export async function fetchDailySearchCounts(
   }
 
   return result;
-}
-
-export async function fetchSearchLogs(
-  page = 1,
-  perPage = 50,
-): Promise<{ data: SearchLogRow[]; total: number }> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return { data: [], total: 0 };
-
-  const { data, count } = await sb
-    .from("search_logs")
-    .select("*", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range((page - 1) * perPage, page * perPage - 1);
-
-  return { data: (data as SearchLogRow[]) ?? [], total: count ?? 0 };
 }
 
 // ── 진단 결과 ──

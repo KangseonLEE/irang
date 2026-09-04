@@ -212,18 +212,6 @@ async function main() {
     console.log(`[failed] ${failList.length}개: ${failList.join(", ")}`);
   }
 
-  // 시도 합산
-  const sidoTotals = new Map<string, { sgisCode: string; name: string; totalCount: number }>();
-  for (const p of PROVINCES) {
-    sidoTotals.set(p.sgisCode, { sgisCode: p.sgisCode, name: p.shortName, totalCount: 0 });
-  }
-  for (const item of successList) {
-    const sidoCode = item.sgisCode.slice(0, 2);
-    const t = sidoTotals.get(sidoCode);
-    if (t) t.totalCount += item.totalCount;
-  }
-  const sidoArr = Array.from(sidoTotals.values()).filter((t) => t.totalCount > 0);
-
   // ─────────────────────────────────────────────────────────────────
   // 직렬화
   // ─────────────────────────────────────────────────────────────────
@@ -259,22 +247,6 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = ${JSON.stringify(
     null,
     2,
   )};
-
-/** 시도 합산 의료기관 수 (SGIS 2자리) */
-export const MEDICAL_FALLBACK_SIDO: MedicalFacilityStat[] = ${JSON.stringify(
-    sidoArr,
-    null,
-    2,
-  )};
-
-const SIGUNGU_INDEX = new Map(
-  MEDICAL_FALLBACK_SIGUNGU.map((m) => [m.sgisCode, m]),
-);
-const SIDO_INDEX = new Map(MEDICAL_FALLBACK_SIDO.map((m) => [m.sgisCode, m]));
-
-export function getMedicalFallback(sgisCode: string): MedicalFacilityStat | null {
-  return SIGUNGU_INDEX.get(sgisCode) ?? SIDO_INDEX.get(sgisCode) ?? null;
-}
 `;
 
   writeFileSync(filePath, body, "utf-8");

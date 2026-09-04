@@ -19,7 +19,7 @@ import { SIGUNGUS } from "@/lib/data/sigungus";
 type RowStatus = "모집중" | "모집예정" | "마감";
 
 /** 그룹 대표 카드에 부착되는 나머지 지역 멤버 (다른 지역 공고 접근용) */
-export interface CrawlGroupMember {
+interface CrawlGroupMember {
   id: string;
   region: string;
   status: RowStatus;

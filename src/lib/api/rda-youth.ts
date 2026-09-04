@@ -69,7 +69,7 @@ const CROP_MATCHERS: CropMatcher[] = CROPS.map((crop) => ({
  * RDA bbsInfo04 텍스트에서 작물 ID를 매칭
  * "딸기 체험농장" → "strawberry", "멜론, 딸기" → ["melon", "strawberry"]
  */
-export function matchCropIds(cropText: string): string[] {
+function matchCropIds(cropText: string): string[] {
   if (!cropText) return [];
   const normalized = cropText.toLowerCase().trim();
   const matched: string[] = [];

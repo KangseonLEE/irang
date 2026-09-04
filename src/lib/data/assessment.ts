@@ -12,7 +12,7 @@ export type DimensionId =
   | "experience"
   | "adaptability";
 
-export interface AssessmentOption {
+interface AssessmentOption {
   label: string;
   score: 1 | 2 | 3 | 4;
 }
@@ -27,7 +27,7 @@ export interface AssessmentQuestion {
 
 /* ── 인구통계 질문 (점수 무관, 맞춤 지원 추천용) ── */
 
-export interface DemographicOption {
+interface DemographicOption {
   label: string;
   value: string;
 }
@@ -451,9 +451,9 @@ export const RESULT_TIERS: ResultTier[] = [
 
 /* ── 차원별 보강 가이드 ── */
 
-export type ScoreTier = "critical" | "weak";
+type ScoreTier = "critical" | "weak";
 
-export interface ReinforcementAction {
+interface ReinforcementAction {
   title: string;
   description: string;
   link: string;           // 내부 경로 또는 외부 URL
@@ -469,7 +469,7 @@ export interface TierGuide {
   actions: ReinforcementAction[];
 }
 
-export interface DimensionGuide {
+interface DimensionGuide {
   dimensionId: DimensionId;
   guides: TierGuide[];
 }
@@ -479,7 +479,7 @@ export interface DimensionGuide {
  * - critical: 점수 ≤25% (2점, 매우 부족)
  * - weak: 점수 26~50% (3~4점, 보강 필요)
  */
-export const DIMENSION_GUIDES: DimensionGuide[] = [
+const DIMENSION_GUIDES: DimensionGuide[] = [
   /* ── 동기·마인드셋 ── */
   {
     dimensionId: "motivation",

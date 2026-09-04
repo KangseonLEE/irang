@@ -298,33 +298,6 @@ async function main() {
     console.log(`[zero or missing] ${failList.length}건: ${failList.slice(0, 20).join(", ")}${failList.length > 20 ? " …" : ""}`);
   }
 
-  // 시도 합산
-  const sidoTotals = new Map<
-    string,
-    { sgisCode: string; name: string; totalCount: number; elementary: number; middle: number; high: number }
-  >();
-  for (const p of PROVINCES) {
-    sidoTotals.set(p.sgisCode, {
-      sgisCode: p.sgisCode,
-      name: p.shortName,
-      totalCount: 0,
-      elementary: 0,
-      middle: 0,
-      high: 0,
-    });
-  }
-  for (const item of successList) {
-    const sidoCode = item.sgisCode.slice(0, 2);
-    const t = sidoTotals.get(sidoCode);
-    if (t) {
-      t.totalCount += item.totalCount;
-      t.elementary += item.elementary;
-      t.middle += item.middle;
-      t.high += item.high;
-    }
-  }
-  const sidoArr = Array.from(sidoTotals.values()).filter((t) => t.totalCount > 0);
-
   // ─────────────────────────────────────────────────────────────────
   // 직렬화
   // ─────────────────────────────────────────────────────────────────
@@ -375,22 +348,6 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = ${JSON.stringify(
     null,
     2,
   )};
-
-/** 시도 합산 학교 수 (SGIS 2자리) */
-export const SCHOOL_FALLBACK_SIDO: SchoolCountStat[] = ${JSON.stringify(
-    sidoArr,
-    null,
-    2,
-  )};
-
-const SIGUNGU_INDEX = new Map(
-  SCHOOL_FALLBACK_SIGUNGU.map((s) => [s.sgisCode, s]),
-);
-const SIDO_INDEX = new Map(SCHOOL_FALLBACK_SIDO.map((s) => [s.sgisCode, s]));
-
-export function getSchoolFallback(sgisCode: string): SchoolCountStat | null {
-  return SIGUNGU_INDEX.get(sgisCode) ?? SIDO_INDEX.get(sgisCode) ?? null;
-}
 `;
 
   writeFileSync(filePath, body, "utf-8");

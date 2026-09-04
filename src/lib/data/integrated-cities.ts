@@ -6,7 +6,7 @@
  * → 해당 시의 구 코드들을 명시적으로 매핑하여, 구별 데이터를 합산한다.
  *
  * 사용처:
- * - src/lib/api/sgis.ts: fetchSigunguPopulation, fetchPopulationTrend (인구 합산)
+ * - src/lib/api/sgis.ts: fetchSigunguPopulation (인구 합산)
  * - src/lib/data/farms.ts: getFarmFallback (농가 통계 합산)
  */
 export const INTEGRATED_CITY_GU_CODES: Record<string, string[]> = {

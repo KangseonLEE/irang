@@ -14,7 +14,7 @@ import { formatHectaresWithPyeong, formatPyeongFromHa } from "@/lib/format";
 import s from "@/components/charts/chart-styles.module.css";
 
 /** RegionSection이 넘기는 시·도 재배면적 항목 (CropStatItem에서 필요한 필드만) */
-export interface CropAreaDatum {
+interface CropAreaDatum {
   regionName: string;
   cultivationArea: number; // ha
 }

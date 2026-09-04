@@ -355,9 +355,6 @@ export function getSigunguBySidoAndId(
   return SIGUNGUS.find((sg) => sg.sidoId === sidoId && sg.id === sigunguId);
 }
 
-/** 전체 시/군/구 수 */
-export const SIGUNGU_COUNT = SIGUNGUS.length;
-
 /**
  * 작물명으로 주요 산지 시/군/구 추출
  *

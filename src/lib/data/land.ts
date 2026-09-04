@@ -121,79 +121,6 @@ export const LAND_TYPES: LandType[] = [
   },
 ];
 
-/** 지목 ID로 LandType 조회 */
-export function getLandTypeById(id: string): LandType | undefined {
-  return LAND_TYPES.find((lt) => lt.id === id);
-}
-
-/** 전체 지목 ID 목록 (정적 생성용) */
-export function getAllLandTypeIds(): string[] {
-  return LAND_TYPES.map((lt) => lt.id);
-}
-
-/** 귀농 관련도 필터 상수 */
-export const LAND_FARMING_RELEVANCES = ["전체", "핵심", "중요", "부수"] as const;
-export type LandFarmingRelevance = (typeof LAND_FARMING_RELEVANCES)[number];
-
-/* ── 2. 농지 취득 자격증명 발급 절차 ── */
-
-export interface AcquisitionStep {
-  /** 단계 번호 */
-  step: number;
-  /** 단계 제목 */
-  title: string;
-  /** 상세 설명 */
-  description: string;
-  /** 소요 기간 */
-  duration: string;
-  /** 실무 팁 */
-  tip?: string;
-}
-
-/** 농지취득자격증명 발급 절차 (농지법 제8조) */
-export const ACQUISITION_STEPS: AcquisitionStep[] = [
-  {
-    step: 1,
-    title: "농업경영계획서 작성",
-    description:
-      "취득하려는 농지에서 어떤 작물을 어떤 방식으로 재배할 것인지 구체적인 농업경영계획서를 작성해요. 재배 작물, 노동력 확보 방안, 농기계 보유·임차 계획 등을 포함해야 해요.",
-    duration: "신청인 준비 기간에 따라 상이",
-    tip: "계획서 내용이 취득 농지의 지목·면적·위치와 부합해야 해요. 실현 가능성이 낮은 계획은 반려 사유가 돼요.",
-  },
-  {
-    step: 2,
-    title: "읍/면/동 주민센터 신청",
-    description:
-      "농지 소재지 관할 읍·면·동 주민센터에 농지취득자격증명 발급 신청서와 농업경영계획서를 제출해요. 신분증, 토지 관련 서류(등기부등본, 토지대장 등)를 함께 지참해요.",
-    duration: "접수 당일",
-    tip: "농지 소재지와 거주지가 다를 수 있으므로, 반드시 '농지 소재지' 관할 주민센터에 신청해야 해요.",
-  },
-  {
-    step: 3,
-    title: "농지위원회 심의",
-    description:
-      "읍·면·동장이 농업경영계획의 타당성을 검토하고 농지위원회의 확인을 거쳐요. 자격 요건, 경영계획의 실현 가능성, 통작거리(농지와 거주지 간 거리) 등을 심사해요.",
-    duration: "4영업일 이내",
-    tip: "통작거리 제한은 2023년 농지법 개정으로 강화됐어요. 농지 소재지에서 직선거리 30km 또는 시·군 내 거주 요건을 확인하세요.",
-  },
-  {
-    step: 4,
-    title: "적합 판정 시 증명 발급",
-    description:
-      "심의 결과 적합 판정을 받으면 농지취득자격증명이 발급돼요. 부적합 판정 시 사유를 통보받으며, 보완 후 재신청이 가능해요.",
-    duration: "심의 완료 후 즉시",
-    tip: "부적합 판정에 대해서는 이의신청이 가능해요. 판정 사유를 확인하고 보완 후 재신청하세요.",
-  },
-  {
-    step: 5,
-    title: "소유권 이전 등기",
-    description:
-      "발급받은 농지취득자격증명을 첨부하여 관할 등기소에서 소유권 이전 등기를 완료해요. 증명 발급일로부터 2년 이내에 등기해야 하며, 기한 경과 시 증명이 실효돼요.",
-    duration: "발급일로부터 2년 이내",
-    tip: "매매계약 전 증명을 먼저 발급받는 것이 안전해요. 증명 없이 계약 후 발급이 거부되면 계약 이행이 불가능해질 수 있어요.",
-  },
-];
-
 /* ── 3. 용도지역 안내 ── */
 
 export interface ZoningType {
@@ -238,21 +165,6 @@ export const ZONING_TYPES: ZoningType[] = [
   },
 ];
 
-/** 용도지역 ID로 조회 */
-export function getZoningTypeById(id: string): ZoningType | undefined {
-  return ZONING_TYPES.find((z) => z.id === id);
-}
-
-/** 건축 난이도 필터 상수 */
-export const BUILDING_EASE_LEVELS = [
-  "전체",
-  "용이",
-  "조건부",
-  "제한",
-  "불가",
-] as const;
-export type BuildingEaseLevel = (typeof BUILDING_EASE_LEVELS)[number];
-
 /* ── 4. 유용 외부 링크 ── */
 
 export interface ExternalLandService {
@@ -294,38 +206,5 @@ export const EXTERNAL_LAND_SERVICES: ExternalLandService[] = [
     description:
       "한국농어촌공사에서 운영하는 농지 매매·임대차 중개 플랫폼. 정착자를 위한 농지 매물 정보, 농지 임대·위탁경영 서비스를 제공하며, 농지연금 상담도 가능해요.",
     icon: "🌾",
-  },
-];
-
-/* ── 5. 농지 취득 자격 요건 (농지법 제6조) ── */
-
-export interface FarmerQualification {
-  /** 자격 유형 */
-  type: string;
-  /** 취득 조건 */
-  condition: string;
-  /** 면적 제한 등 */
-  limit?: string;
-}
-
-/** 농지법 제6조 기반 농지 소유 자격 요건 */
-export const FARMER_QUALIFICATIONS: FarmerQualification[] = [
-  {
-    type: "농업인",
-    condition:
-      "자기의 농업경영에 이용하거나 이용할 자로서, 농업경영계획서를 제출하고 농지취득자격증명을 발급받아야 해요. 통작거리 요건(농지 소재지 시·군 또는 직선거리 30km 이내 거주)을 충족해야 해요.",
-    limit: "소유 상한 없음 (자경 전제)",
-  },
-  {
-    type: "농업법인",
-    condition:
-      "농업회사법인 또는 영농조합법인으로서, 업무집행권을 가진 자의 1/3 이상이 농업인이어야 해요. 법인 명의로 농지를 취득하며, 법인 설립 시 농업 관련 사업목적이 정관에 명시되어야 해요.",
-    limit: "농업회사법인: 소유 상한 없음 / 영농조합법인: 소유 상한 없음 (농업경영 목적)",
-  },
-  {
-    type: "주말·체험영농",
-    condition:
-      "주말·여가 활동으로 농작물을 경작하거나 다년생 식물을 재배하는 경우. 세대원 전체 합산 면적 기준으로 제한되며, 농지취득자격증명 발급이 필요해요.",
-    limit: "세대원 합산 총 1,000m2(약 302평) 이하",
   },
 ];

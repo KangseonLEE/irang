@@ -6,8 +6,6 @@ import s from "./difficulty-badge.module.css";
    색·크기 정의는 difficulty-badge.module.css 한 곳에만 둔다.
    ========================================================================== */
 
-export type DifficultyLevel = "쉬움" | "보통" | "어려움";
-
 const COLOR: Record<string, string> = {
   쉬움: s.easy,
   보통: s.medium,

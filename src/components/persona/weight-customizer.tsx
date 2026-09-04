@@ -26,7 +26,6 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { RotateCcw } from "lucide-react";
 import {
   type Persona,
-  type PersonaId,
   type PersonaWeights,
 } from "@/lib/data/personas";
 import {
@@ -313,5 +312,3 @@ export function WeightCustomizer({
     </section>
   );
 }
-
-export type { PersonaId };
