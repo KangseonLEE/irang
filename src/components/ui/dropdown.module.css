@@ -1,0 +1,187 @@
+/* ==========================================================================
+   공용 드롭다운 레이어 (2026-09-04)
+
+   검색 input + 패널 + 옵션 행 + 힌트 + 빈 상태의 공통 시각 언어.
+   region-search / regions·compare 지역 카드 셀렉터 / 작물 적합도 셀렉터 /
+   crops·compare 작물 셀렉터 4곳이 같은 블록을 복제하고 있어 여기로 모았다.
+
+   사용법: 각 모듈에서 `composes: panel from "…/ui/dropdown.module.css";`
+   - composes 는 1단만 쓴다(로컬 → 이 파일). 이 파일 안에서는 서로 compose 하지
+     않는다 — Turbopack CSS Modules 는 2단계를 넘기면 base 가 조용히 유실된다.
+   - 여러 개가 필요하면 `composes: item itemActive from "…";` 처럼 나열.
+   - 크기(max-height·padding·gap)와 페이지 맥락(scroll-margin-top)은 각 모듈이
+     로컬로 덮는다. 여기엔 넣지 않는다.
+
+   포털 기반 SelectCombobox(ui/select-combobox.module.css)와 통합검색
+   SearchBar(search/search-bar.module.css)는 배치·토큰 체계가 달라 제외.
+   ========================================================================== */
+
+/* ── 검색 필드 ── */
+
+.searchWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  font-family: inherit;
+  font-size: var(--fs-body);
+  padding: 13px 36px 13px 44px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  background: var(--card, #fff);
+  color: var(--foreground);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.searchInput::placeholder {
+  color: var(--muted-foreground);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary, #1b6b5a);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+}
+
+.searchInput:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.searchClearBtn {
+  position: absolute;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.searchClearBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .searchClearBtn:hover {
+    background: var(--muted, #f9fafb);
+    color: var(--foreground);
+  }
+}
+
+/* ── 패널 ──
+   max-height·padding·gap 은 쓰는 쪽에서 정한다. */
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  animation: dropdownFadeIn 0.12s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
+
+/* ── 힌트 ── */
+.hint {
+  padding: 8px 12px;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  margin-bottom: 4px;
+}
+
+/* ── 옵션 행 ── */
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: var(--fs-body-sm);
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s;
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -2px;
+}
+
+/* 키보드 하이라이트 */
+.itemActive {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+}
+
+.itemIcon {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.itemLabel {
+  font-weight: 500;
+  flex: 1;
+}
+
+.itemType {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  padding: 2px 8px;
+  background: var(--muted, #f9fafb);
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+/* ── 빈 상태 ── */
+.empty {
+  padding: 16px 12px;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  text-align: center;
+}

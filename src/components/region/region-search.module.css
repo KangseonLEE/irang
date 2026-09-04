@@ -1,71 +1,29 @@
 /* ==========================================================================
    RegionSearch — 지역 탐색 검색창 (시·도 + 시·군·구 바로 이동)
-   /regions/compare 셀렉터 검색과 동일한 시각 언어 (2026-09-02)
+   패널·옵션·힌트·빈 상태는 공용 ui/dropdown.module.css 를 compose 한다 (2026-09-04)
    ========================================================================== */
 
 .searchWrap {
-  position: relative;
-  display: flex;
-  align-items: center;
+  composes: searchWrap from "../ui/dropdown.module.css";
   max-width: 640px;
   margin: 0 auto;
   width: 100%;
 }
 
 .searchIcon {
-  position: absolute;
-  left: 14px;
-  color: var(--muted-foreground);
-  pointer-events: none;
+  composes: searchIcon from "../ui/dropdown.module.css";
 }
 
 .searchInput {
+  composes: searchInput from "../ui/dropdown.module.css";
   /* 포커스·scrollIntoView 로 끌어올려질 때 헤더+섹션 탭 아래에 안착 (9/2 회장 리포트 — iOS 가 포커스된
      입력을 뷰포트 맨 위로 올려 바 뒤에 숨김). --sticky-top(숨김 시 0) 대신 --h-header 상수를 쓰는 이유:
      입력을 향해 위로 스크롤되는 순간 헤더가 다시 나타나 스택이 56px 커지기 때문 */
   scroll-margin-top: calc(var(--h-header, 3.5rem) + var(--sticky-extra, 0px) + 12px);
-  width: 100%;
-  font-family: inherit;
-  font-size: var(--fs-body);
-  padding: 13px 36px 13px 44px;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 14px;
-  background: var(--card, #fff);
-  color: var(--foreground);
-  transition: border-color 0.15s, box-shadow 0.15s;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-}
-
-.searchInput::placeholder {
-  color: var(--muted-foreground);
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: var(--primary, #1b6b5a);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
 }
 
 .searchClearBtn {
-  position: absolute;
-  right: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  background: transparent;
-  border: none;
-  border-radius: 50%;
-  color: var(--muted-foreground);
-  cursor: pointer;
-}
-
-@media (hover: hover) {
-  .searchClearBtn:hover {
-    background: var(--muted, #f9fafb);
-    color: var(--foreground);
-  }
+  composes: searchClearBtn from "../ui/dropdown.module.css";
 }
 
 .spinner {
@@ -76,37 +34,19 @@
 }
 
 @keyframes region-search-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
+  composes: panel from "../ui/dropdown.module.css";
   max-height: 360px;
-  overflow-y: auto;
   padding: 8px;
-  background: var(--card, #fff);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 14px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-  animation: region-search-fade 0.12s ease-out;
-}
-
-@keyframes region-search-fade {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .dropdownHint {
-  padding: 8px 12px;
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-  margin-bottom: 4px;
+  composes: hint from "../ui/dropdown.module.css";
 }
 
 /* ── 시·도 → 시·군·구 2단 트리 (2026-09-02) ── */
@@ -129,28 +69,23 @@
   padding-right: 4px;
 }
 
+.treeItem {
+  composes: item from "../ui/dropdown.module.css";
+}
+
+.treeItemActive {
+  composes: item itemActive from "../ui/dropdown.module.css";
+}
+
 .treeItem,
 .treeItemActive {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
   gap: 8px;
-  width: 100%;
   padding: 9px 12px;
-  font-family: inherit;
-  font-size: var(--fs-body-sm);
-  color: var(--foreground);
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.12s;
   flex-shrink: 0;
 }
 
 .treeItemActive {
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   color: var(--primary, #1b6b5a);
   font-weight: 600;
 }
@@ -174,50 +109,26 @@
   color: var(--primary, #1b6b5a);
 }
 
-.dropdownItem,
-.dropdownItemActive {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 10px 12px;
-  font-family: inherit;
-  font-size: var(--fs-body-sm);
-  color: var(--foreground);
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.12s;
+.dropdownItem {
+  composes: item from "../ui/dropdown.module.css";
 }
 
 .dropdownItemActive {
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  composes: item itemActive from "../ui/dropdown.module.css";
 }
 
 .dropdownItemIcon {
-  color: var(--muted-foreground);
-  flex-shrink: 0;
+  composes: itemIcon from "../ui/dropdown.module.css";
 }
 
 .dropdownItemLabel {
-  font-weight: 500;
-  flex: 1;
+  composes: itemLabel from "../ui/dropdown.module.css";
 }
 
 .dropdownItemType {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-  padding: 2px 8px;
-  background: var(--muted, #f9fafb);
-  border-radius: 9999px;
-  flex-shrink: 0;
+  composes: itemType from "../ui/dropdown.module.css";
 }
 
 .dropdownEmpty {
-  padding: 16px 12px;
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  text-align: center;
+  composes: empty from "../ui/dropdown.module.css";
 }
