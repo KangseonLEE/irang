@@ -37,7 +37,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const course = await getEducationByIdAsync(id);
-  if (!course) return { title: "교육 과정 상세" };
+  if (!course) notFound();
 
   return {
     title: `${course.title} — ${course.type}·${course.level} 정착 교육`,

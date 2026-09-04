@@ -49,13 +49,20 @@ export async function generateStaticParams() {
   return PROVINCES.map((p) => ({ id: p.id }));
 }
 
+/**
+ * 시·도 id 는 PROVINCES 17건이 전집합 — 목록 밖 slug 는 라우터 단계에서 404.
+ * notFound() 만으로는 loading.tsx Suspense 스트리밍 때문에 헤더가 먼저 나가 200 이 굳는다(9/4 실측).
+ * 시·군·구/구 하위 라우트는 on-demand ISR 이라(빌드 시 230건 API 호출 회피) 이 옵션을 켤 수 없음.
+ */
+export const dynamicParams = false;
+
 /** 기후·인구·의료 등 외부 API 데이터를 24h마다 재검증 (봇 트래픽 절감) */
 export const revalidate = 86400;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const province = PROVINCES.find((p) => p.id === id);
-  if (!province) return { title: "지역 정보" };
+  if (!province) notFound();
   return {
     title: `${province.shortName} 귀농 — 지원사업·정착금·기후·작물 정보`,
     description: `${province.shortName} 정착 준비에 필요한 청년·40대·50대 맞춤 지원사업, 정착금, 기후 환경, 추천 작물을 한눈에 확인하세요.`,

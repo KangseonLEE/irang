@@ -59,7 +59,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const person = getInterviewById(id);
-  if (!person) return { title: "정착 인터뷰 상세" };
+  if (!person) notFound();
 
   // 본문 미동의자: 메타데이터만 가볍게 (페이지에서 외부 redirect 처리)
   if (!hasFullStory(person)) {

@@ -35,7 +35,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const event = await getEventByIdAsync(id);
-  if (!event) return { title: "행사 상세" };
+  if (!event) notFound();
 
   return {
     title: `${event.title} — ${event.type} | ${event.region}`,

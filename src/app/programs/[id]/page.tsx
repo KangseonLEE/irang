@@ -43,7 +43,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const program = await getProgramByIdAsync(id);
-  if (!program) return { title: "지원사업 상세" };
+  if (!program) notFound();
 
   const regionLabel = program.region ?? "";
   return {

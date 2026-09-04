@@ -83,7 +83,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { id, sigungu: sigunguId } = await params;
   const sigungu = getSigunguBySidoAndId(id, sigunguId);
-  if (!sigungu) return { title: "지역 정보 | 이랑" };
+  if (!sigungu) notFound();
 
   const province = PROVINCES.find((p) => p.id === id);
   const sidoName = province?.shortName ?? "";
