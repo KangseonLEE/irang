@@ -41,7 +41,8 @@ const REPO_ROOT = resolve(__dirname, "../..");
 const CORRECTION_WINDOW_DAYS = 7;
 
 /** §9 정정 이력 페이지 (git 경로) */
-const CORRECTIONS_PAGE = "src/app/about/corrections/page.tsx";
+// 9/2 정정 이력 데이터가 page.tsx → lib/data/corrections.ts 로 분리됨. 갱신 여부는 데이터 파일로 판정 (9/4 #125 오탐 수정)
+const CORRECTIONS_PAGE = "src/lib/data/corrections.ts";
 
 /** §9·§10 데이터 디렉토리 prefix */
 const DATA_DIR = "src/lib/data/";
