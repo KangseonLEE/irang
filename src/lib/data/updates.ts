@@ -53,6 +53,11 @@ export interface ReleaseNote {
 }
 
 export const RELEASES: Record<string, ReleaseNote> = {
+  "2026-09-06": {
+    tagline: "메뉴는 여정 순서대로, 지역은 이름으로 바로 🧭",
+    intro:
+      "메뉴에서 원하는 걸 어디서 찾아야 할지 한 번 더 생각하게 될 때가 있죠. 이번엔 메뉴를 준비하는 순서대로 다시 묶고, 홈에서 시·군·구를 이름으로 바로 찾을 수 있게 했어요.",
+  },
   "2026-09-02": {
     tagline: "지역 찾기는 가볍게, 의견은 자유롭게 🔍",
     intro:
@@ -77,6 +82,38 @@ export const RELEASES: Record<string, ReleaseNote> = {
 export const RELEASE_SIGNOFF = "이랑 팀 드림";
 
 export const UPDATES: UpdateItem[] = [
+  {
+    id: "20260906-gnb-journey",
+    date: "2026-09-06",
+    title: "메뉴를 준비 순서대로 다시 묶었어요",
+    short: "메뉴가 준비 순서대로 바뀌었어요",
+    summary:
+      "지역·작물 / 가이드 / 신청 / 자료실로 나뉘어 있던 메뉴를 탐색 → 비교·진단 → 준비 → 신청 → 참고자료, 이렇게 실제로 준비하는 순서대로 다시 묶었어요. 유형 진단도 메뉴에서 바로 갈 수 있고, 모바일 아래 탭의 '전체' 화면도 같은 순서로 맞췄어요. 메뉴는 키보드로도 열고 닫을 수 있어요.",
+    href: "/more",
+    tag: "개선",
+    media: {
+      before: "/updates/gnb-journey-before.webp",
+      after: "/updates/gnb-journey-after.webp",
+      frame: "desktop",
+      caption: "이전엔 '가이드' 아래에 로드맵·비용·인터뷰가 섞여 있었고, 지금은 '비교·진단'처럼 하려는 일 순서로 메뉴가 열려요",
+    },
+  },
+  {
+    id: "20260906-quickstart-region",
+    date: "2026-09-06",
+    title: "홈에서 시·군·구를 이름으로 바로 찾아요",
+    short: "홈에서 시·군·구 이름 검색",
+    summary:
+      "홈의 '바로 시작하기'에 시·도 17개 버튼만 있어서 원하는 군까지 가려면 두 번 더 눌러야 했죠. 이제 '가평'처럼 이름을 적으면 그 시·군·구로 바로 가고, 자녀·청년농·통근·은퇴 같은 내 조건으로 지역 순위를 볼 수도 있어요. 시·도 바로가기는 아래에 작게 남겼어요.",
+    href: "/",
+    tag: "기능",
+    media: {
+      before: "/updates/quickstart-region-before.webp",
+      after: "/updates/quickstart-region-after.webp",
+      frame: "desktop",
+      caption: "이전엔 시·도 버튼 17개가 전부였고, 지금은 시·군·구 검색창과 내 조건 버튼이 먼저 보여요",
+    },
+  },
   {
     id: "20260902-community-notes",
     date: "2026-09-02",
