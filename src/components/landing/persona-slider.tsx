@@ -34,6 +34,7 @@ export function PersonaSlider({ items }: { items: readonly PersonaCard[] }) {
   const [active, setActive] = useState(0);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
+  const [scrollable, setScrollable] = useState(true);
 
   useDragScroll(scrollRef);
 
@@ -45,6 +46,7 @@ export function PersonaSlider({ items }: { items: readonly PersonaCard[] }) {
     setActive(Math.min(Math.round(el.scrollLeft / step), items.length - 1));
     setCanPrev(el.scrollLeft > 4);
     setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    setScrollable(el.scrollWidth > el.clientWidth + 4);
   }, [items.length]);
 
   useEffect(() => {
@@ -90,7 +92,7 @@ export function PersonaSlider({ items }: { items: readonly PersonaCard[] }) {
                 alt=""
                 width={320}
                 height={320}
-                sizes="(min-width: 768px) 200px, 62vw"
+                sizes="(min-width: 1024px) 25vw, (min-width: 768px) 200px, 62vw"
                 className={s.image}
               />
             </span>
@@ -106,7 +108,7 @@ export function PersonaSlider({ items }: { items: readonly PersonaCard[] }) {
         ))}
       </div>
 
-      <div className={s.controls}>
+      <div className={scrollable ? s.controls : `${s.controls} ${s.controlsHidden}`}>
         <button
           type="button"
           className={s.arrow}

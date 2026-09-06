@@ -21,8 +21,18 @@
 @media (min-width: 1024px) {
   .section {
     grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
-    gap: 48px;
+    grid-template-areas:
+      "assess region"
+      "persona persona"
+      "province province";
+    gap: 28px 48px;
+    align-items: center; /* 1행: 진단 카드 ↔ 검색 블록 세로 중앙 (9/6 회장 스크린샷 — 카드 아래 공백) */
   }
+
+  .assessCard { grid-area: assess; }
+  .regionBlock { grid-area: region; }
+  .personaBlock { grid-area: persona; }
+  .provinceBlock { grid-area: province; }
 }
 
 /* ══ 좌 — 진단 카드 ══ */
@@ -121,6 +131,11 @@
    모바일이 1순위다. 기본 선언 = 모바일(≤767) — 검색창 풀폭, 페르소나 2×2,
    시·도는 가로 스크롤이 아니라 wrap 되는 작은 텍스트 링크. 터치 타겟 44px 확보.
    ≥768 부터 밀도를 올린다(체크리스트 G: 기본 → @media 오버라이드). */
+.personaBlock,
+.provinceBlock {
+  min-width: 0;
+}
+
 .regionBlock {
   min-width: 0; /* 그리드/플렉스 자식 기본 min-width:auto → 슬라이드 트랙이 부모를 넓히는 것 방지 (9/6) */
   display: flex;
@@ -168,16 +183,13 @@
 
 /* ── 소제목 (조건별 순위 / 시·도) ── */
 .groupLabel {
-  margin: 14px 0 0;
+  margin: 0;
   font-size: var(--fs-caption);
   font-weight: 700;
   color: var(--foreground, #111827);
   letter-spacing: -0.01em;
 }
 
-@media (min-width: 640px) {
-  .groupLabel { margin-top: 18px; }
-}
 
 /* ── 시·도 바로가기 (작은 텍스트 링크 행) ── */
 .provinceRow {
@@ -185,11 +197,11 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0 2px;
-  margin: 14px 0 0;
+  margin: 0;
 }
 
 @media (min-width: 640px) {
-  .provinceRow { margin-top: 18px; gap: 0 4px; }
+  .provinceRow { gap: 0 4px; }
 }
 
 .provinceRowLabel {

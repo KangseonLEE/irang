@@ -26,7 +26,7 @@ const PLACEHOLDER = "시·군·구 이름으로 찾기 (예: 가평)";
 
 function SearchPlaceholder() {
   return (
-    <div className={s.placeholderWrap} aria-hidden="true">
+    <div className={`${s.placeholderWrap} ${s.fullWidth}`} aria-hidden="true">
       <Search size={18} className={s.placeholderIcon} />
       <input
         type="text"
@@ -58,6 +58,7 @@ export function LandingRegionSearch() {
   return (
     <RegionSearch
       placeholder={PLACEHOLDER}
+      className={s.fullWidth}
       onNavigate={(href) => analytics.landingCtaClick(`quickstart:search:${href}`)}
     />
   );

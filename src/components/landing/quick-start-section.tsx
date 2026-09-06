@@ -91,10 +91,16 @@ export function QuickStartSection() {
         <div className={s.searchSlot}>
           <LandingRegionSearch />
         </div>
+      </div>
 
+      {/* ── 전폭: 조건별 순위 카드 슬라이드 (데스크탑에서 두 열에 걸침) ── */}
+      <div className={s.personaBlock}>
         <p className={s.groupLabel}>내 조건으로 순위 보기</p>
         <PersonaSlider items={PERSONAS} />
+      </div>
 
+      {/* ── 전폭: 시·도 바로가기 + 보조 링크 ── */}
+      <div className={s.provinceBlock}>
         <p className={s.provinceRow}>
           <span className={s.provinceRowLabel}>시·도 바로가기</span>
           {PROVINCES.map((province) => (

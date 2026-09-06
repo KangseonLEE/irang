@@ -40,11 +40,13 @@ interface RegionSearchProps {
   onNavigate?: (href: string) => void;
   /** 입력창 안내 문구 (기본: 지역명 검색 예시) */
   placeholder?: string;
+  /** 루트 래퍼에 덧붙일 클래스 — 랜딩처럼 폭·정렬을 바꿀 때 (9/6) */
+  className?: string;
 }
 
 const DEFAULT_PLACEHOLDER = "지역명 검색 (예: 영주, 강원)";
 
-export function RegionSearch({ onNavigate, placeholder }: RegionSearchProps = {}) {
+export function RegionSearch({ onNavigate, placeholder, className}: RegionSearchProps = {}) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -201,7 +203,7 @@ export function RegionSearch({ onNavigate, placeholder }: RegionSearchProps = {}
   );
 
   return (
-    <div className={s.searchWrap}>
+    <div className={className ? `${s.searchWrap} ${className}` : s.searchWrap}>
       <Search size={18} className={s.searchIcon} aria-hidden="true" />
       <input
         ref={inputRef}
