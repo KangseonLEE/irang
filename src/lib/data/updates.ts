@@ -53,6 +53,11 @@ export interface ReleaseNote {
 }
 
 export const RELEASES: Record<string, ReleaseNote> = {
+  "2026-09-07": {
+    tagline: "가고 싶은 곳, 검색창 바로 아래에서 🧭",
+    intro:
+      "홈에 들어와서 뭘 먼저 눌러야 할지 잠깐 멈칫한 적 있죠. 자주 가는 여덟 곳을 검색창 바로 아래에 아이콘으로 놓았어요.",
+  },
   "2026-09-06": {
     tagline: "메뉴는 여정 순서대로, 지역은 이름으로 바로 🧭",
     intro:
@@ -83,6 +88,22 @@ export const RELEASE_SIGNOFF = "이랑 팀 드림";
 
 export const UPDATES: UpdateItem[] = [
   {
+    id: "20260907-hero-quick-menu",
+    date: "2026-09-07",
+    title: "홈 검색창 아래에 바로 가기 아이콘이 생겼어요",
+    short: "홈에 바로 가기 아이콘 8개",
+    summary:
+      "지역 탐색·작물 정보·지역 비교·유형 진단·내 조건 순위·비용 가이드·지원사업·정착 로드맵, 여덟 가지로 가는 아이콘을 검색창 바로 아래에 두었어요. 준비하는 순서대로 늘어놓아 어디부터 볼지 고민이 줄고, 모바일에서는 옆으로 넘겨 볼 수 있어요. 대신 인터뷰 아래에 있던 '바로 시작하기' 묶음(진단 카드·시·군·구 검색·조건 카드)은 뺐어요. 검색창에 '가평'처럼 시·군·구 이름을 적으면 이미 그 지역으로 바로 가거든요.",
+    href: "/",
+    tag: "개선",
+    media: {
+      before: "/updates/hero-quick-before.webp",
+      after: "/updates/hero-quick-after.webp",
+      frame: "desktop",
+      caption: "이전엔 검색창과 인기 키워드까지였고, 지금은 그 아래 여덟 개 바로 가기 아이콘이 한 줄로 보여요",
+    },
+  },
+  {
     id: "20260906-gnb-journey",
     date: "2026-09-06",
     title: "메뉴를 준비 순서대로 다시 묶었어요",
@@ -96,22 +117,6 @@ export const UPDATES: UpdateItem[] = [
       after: "/updates/gnb-journey-after.webp",
       frame: "desktop",
       caption: "이전엔 '가이드' 아래에 로드맵·비용·인터뷰가 섞여 있었고, 지금은 '비교·진단'처럼 하려는 일 순서로 메뉴가 열려요",
-    },
-  },
-  {
-    id: "20260906-quickstart-region",
-    date: "2026-09-06",
-    title: "홈에서 시·군·구를 이름으로 바로 찾아요",
-    short: "홈에서 시·군·구 이름 검색",
-    summary:
-      "홈의 '바로 시작하기'에 시·도 17개 버튼만 있어서 원하는 군까지 가려면 두 번 더 눌러야 했죠. 이제 '가평'처럼 이름을 적으면 그 시·군·구로 바로 가요. 자녀·청년농·통근·은퇴 같은 내 조건은 일러스트 카드로 넘겨 보며 고르면 그 조건에 맞는 지역 순위로 이어져요. 시·도 바로가기는 아래에 작게 남겼어요.",
-    href: "/",
-    tag: "기능",
-    media: {
-      before: "/updates/quickstart-region-before.webp",
-      after: "/updates/quickstart-region-after.webp",
-      frame: "desktop",
-      caption: "이전엔 시·도 버튼 17개가 전부였고, 지금은 시·군·구 검색창과 내 조건 일러스트 카드가 먼저 보여요",
     },
   },
   {

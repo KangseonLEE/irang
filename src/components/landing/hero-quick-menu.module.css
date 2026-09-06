@@ -1,0 +1,112 @@
+/* HeroQuickMenu — 기본(모바일) → @media 오버라이드 (체크리스트 G). 다크모드 없음, 장식 요소 없음 */
+
+.root {
+  width: 100%;
+  max-width: 760px;
+  min-width: 0;
+}
+
+/* 모바일: 가로 스냅 스크롤. 히어로 padding(20px) 밖까지 카드가 흐르도록 좌우 음수 마진 */
+.track {
+  display: flex;
+  gap: 6px;
+  margin: 0 -20px;
+  padding: 4px 14px 6px;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 14px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  flex: 0 0 auto;
+  width: 76px;
+  scroll-snap-align: start;
+}
+
+.link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 2px 4px;
+  border-radius: 14px;
+  color: var(--foreground, #111827);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 9%, #fff);
+  color: var(--primary, #1b6b5a);
+  box-shadow:
+    0 1px 2px rgba(27, 107, 90, 0.06),
+    0 4px 14px rgba(27, 107, 90, 0.08);
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.label {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+
+@media (hover: hover) {
+  .link:hover .tile {
+    background: var(--primary, #1b6b5a);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(27, 107, 90, 0.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+}
+
+/* 데스크탑(1024+): 한 줄 8개, 중앙 정렬, 스크롤 없음. 768~1023 은 폭이 모자라 모바일처럼 스크롤 유지 */
+@media (min-width: 1024px) {
+  .track {
+    justify-content: center;
+    gap: 10px;
+    margin: 0;
+    padding: 6px 0 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .item {
+    width: 84px;
+  }
+
+  .tile {
+    width: 58px;
+    height: 58px;
+  }
+}

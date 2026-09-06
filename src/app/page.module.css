@@ -226,6 +226,23 @@
   .heroTrending { animation: none; }
 }
 
+/* 아이콘 퀵메뉴 래퍼 — 검색·키워드 다음 순서로 페이드업 (9/7) */
+.heroQuick {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+  animation: heroFadeUp 0.7s cubic-bezier(.16, 1, .3, 1) 1.5s both;
+}
+
+@media (min-width: 768px) {
+  .heroQuick { margin-top: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroQuick { animation: none; }
+}
+
 /* ── 마퀴 띠 (2줄 엇갈림) ── */
 .heroMarquee {
   width: 100%;

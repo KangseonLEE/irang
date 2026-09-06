@@ -18,7 +18,7 @@ import HeroSearch from "@/components/search/hero-search";
 import { TrendingSearches } from "@/components/landing/trending-searches";
 import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
-import { QuickStartSection } from "@/components/landing/quick-start-section";
+import { HeroQuickMenu } from "@/components/landing/hero-quick-menu";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
@@ -152,6 +152,11 @@ export default function HomePage() {
           <TrendingSearches />
         </div>
 
+        {/* 아이콘 퀵메뉴 8종 — GNB 여정 순 (9/7 회장 결재: 바로 시작하기 섹션 대체) */}
+        <div className={s.heroQuick}>
+          <HeroQuickMenu />
+        </div>
+
         {/* 마퀴 띠 — 2줄 엇갈림 */}
         <div className={s.heroMarquee} aria-hidden="true">
           <div className={s.heroMarqueeTrack}>
@@ -195,11 +200,6 @@ export default function HomePage() {
             <InterviewCarousel items={interviews.slice(0, 6)} variant="dark" />
           </section>
         </div>
-      </ScrollReveal>
-
-      {/* ═══ 2-2. 바로 시작 — 진단 CTA + 지역 진입 (8/30 가설 B') ═══ */}
-      <ScrollReveal trackId="quickstart">
-        <QuickStartSection />
       </ScrollReveal>
 
       {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}
