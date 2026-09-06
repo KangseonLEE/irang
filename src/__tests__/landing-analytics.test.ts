@@ -24,6 +24,13 @@ describe("landing analytics 이벤트 계약", () => {
     expect(gtag).toHaveBeenNthCalledWith(3, "event", "programs_tab_switch", expect.objectContaining({ event_category: "landing", event_label: "ongoing" }));
   });
 
+  it("quickstart 라벨 계약 — 페르소나 순위·지역 검색 (9/6 우측 개편)", () => {
+    analytics.landingCtaClick("quickstart:persona:farmYouth");
+    analytics.landingCtaClick("quickstart:search:/regions/gyeonggi/gapyeong");
+    expect(gtag).toHaveBeenNthCalledWith(1, "event", "landing_cta_click", expect.objectContaining({ event_category: "landing", event_label: "quickstart:persona:farmYouth" }));
+    expect(gtag).toHaveBeenNthCalledWith(2, "event", "landing_cta_click", expect.objectContaining({ event_category: "landing", event_label: "quickstart:search:/regions/gyeonggi/gapyeong" }));
+  });
+
   it("calendar_row_expand — 작물 id 라벨 (8/30 캘린더 행 확장)", () => {
     analytics.calendarRowExpand("apple");
     expect(gtag).toHaveBeenLastCalledWith("event", "calendar_row_expand", expect.objectContaining({ event_category: "crops", event_label: "apple" }));

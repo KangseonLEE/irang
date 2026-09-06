@@ -132,3 +132,16 @@
 .dropdownEmpty {
   composes: empty from "../ui/dropdown.module.css";
 }
+
+/* 모바일은 하단 고정 탭바(--h-mobile-nav 56px + safe-area)가 있어 360px 패널이 페이지 중간에서
+   열리면 마지막 줄이 탭바 뒤로 들어간다 (9/6 랜딩 임베드 375px 실측: 8~24px 침범).
+   패널·패인을 같은 비율로 낮춰 탭바 위에 얹히지 않게 한다. */
+@media (max-width: 767px) {
+  .dropdown {
+    max-height: 300px;
+  }
+
+  .pane {
+    max-height: 252px;
+  }
+}

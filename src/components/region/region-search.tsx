@@ -30,8 +30,21 @@ type SearchResult = Pick<RegionSearchEntry, "href" | "type" | "label">;
  *   키보드: ↑↓ 이동 · →/← 패널 전환 · Enter 이동(시·도 패널에선 시·도 페이지).
  * - 입력 시: 시·도 + 시·군·구 평면 검색 (compare 셀렉터와 동일 매칭)
  * useSearchParams 미사용 — Suspense bailout 없음 (2026-06-01 lessons).
+ *
+ * 랜딩 임베드(2026-09-06)를 위해 선택 prop 2개만 열어 둔다. 기본 동작은 그대로다.
+ * - onNavigate: router.push 직전에 부르는 훅(계측용). 이동을 막지 않는다.
+ * - placeholder: 입력창 안내 문구. 페이지마다 찾는 대상이 달라서.
  */
-export function RegionSearch() {
+interface RegionSearchProps {
+  /** 이동 직전 호출 — 계측 등 부수효과 전용(이동은 그대로 진행) */
+  onNavigate?: (href: string) => void;
+  /** 입력창 안내 문구 (기본: 지역명 검색 예시) */
+  placeholder?: string;
+}
+
+const DEFAULT_PLACEHOLDER = "지역명 검색 (예: 영주, 강원)";
+
+export function RegionSearch({ onNavigate, placeholder }: RegionSearchProps = {}) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -102,11 +115,12 @@ export function RegionSearch() {
       setQuery(item.label);
       setIsFocused(false);
       inputRef.current?.blur();
+      onNavigate?.(item.href);
       startTransition(() => {
         router.push(item.href);
       });
     },
-    [router],
+    [router, onNavigate],
   );
 
   const expandSido = useCallback((idx: number) => {
@@ -199,7 +213,7 @@ export function RegionSearch() {
         }}
         onFocus={() => setIsFocused(true)}
         onKeyDown={handleKeyDown}
-        placeholder="지역명 검색 (예: 영주, 강원)"
+        placeholder={placeholder ?? DEFAULT_PLACEHOLDER}
         className={s.searchInput}
         role="combobox"
         aria-label="지역 검색"

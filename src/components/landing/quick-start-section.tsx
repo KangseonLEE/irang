@@ -2,23 +2,36 @@
  * 홈 "바로 시작" 섹션 — Server Component (클라이언트 훅 없음).
  * 8/30 가설 B' — 진단 CTA를 랜딩 중단으로 끌어올리고(기존엔 최하단 CTA 뿐),
  * 검색 의도 1위인 "지역" 진입점을 히어로 칩 외에 하나 더 만든다.
+ * 9/6 개편 — 우측을 검색창 중심으로. 시·도 17곳만으로는 시·군·구 229곳에 못 닿아서
+ * 검색을 맨 위에 두고, 조건으로 고르고 싶은 사람에게 페르소나 순위 4개를 붙였다.
  *
- * ⚠️ SSR-safe: "use client" 없음 → 진단 CTA·시·도 링크가 SSR HTML에 항상 포함된다.
+ * ⚠️ SSR-safe: "use client" 없음 → 진단 CTA·페르소나·시·도 링크가 SSR HTML에 항상 포함된다.
+ *    검색창만 Client 래퍼(LandingRegionSearch)로 지연 로드 — 링크는 하나도 JS에 의존하지 않는다.
  * ⚠️ 구성은 전부 <Link> — 상태·이벤트 핸들러 없음(체크리스트 D).
- * ⚠️ 시·도 개수는 PROVINCES.length에서 산출 (수치 하드코딩 금지).
+ * ⚠️ 시·도/시·군·구 개수는 배열 length에서 산출 (수치 하드코딩 금지).
  * ⚠️ 선언순: 기본(모바일) → @media (min-width: …) 오버라이드 (체크리스트 G).
- * ⚠️ GA 계측: data-track 속성으로 진단/지역/비교/순위 클릭 구분.
+ * ⚠️ GA 계측: data-track 속성으로 진단/검색/페르소나/지역/비교 클릭 구분.
  */
 import Link from "next/link";
 import { ArrowRight, Compass, MapPin } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { PROVINCES } from "@/lib/data/regions";
+import { SIGUNGUS } from "@/lib/data/sigungus";
+import { LandingRegionSearch } from "./landing-region-search";
 import s from "./quick-start-section.module.css";
 
-/** 지역 칩 하단 보조 링크 — 비교·순위 딥링크 */
+/** 조건별 지역 순위 딥링크 — persona 5종은 normalize 화이트리스트에 등록돼 있다 */
+const PERSONAS = [
+  { id: "family", label: "자녀 있어요" },
+  { id: "farmYouth", label: "청년농으로 시작" },
+  { id: "commuter", label: "도시 통근" },
+  { id: "elderRural", label: "은퇴 후 한적하게" },
+] as const;
+
+/** 지역 블록 하단 보조 링크 */
 const SUB_LINKS = [
   { href: "/regions/compare", label: "지역 비교", track: "quickstart:compare" },
-  { href: "/regions/ranking", label: "나에게 맞는 지역 순위", track: "quickstart:ranking" },
+  { href: "/regions", label: "전체 지역 보기", track: "quickstart:regions" },
 ] as const;
 
 export function QuickStartSection() {
@@ -39,22 +52,46 @@ export function QuickStartSection() {
       <div className={s.regionBlock}>
         <h2 className={s.regionLabel}>
           <Icon icon={MapPin} size="md" className={s.regionLabelIcon} />
-          지역부터 볼래요
+          어디부터 볼까요?
         </h2>
-        <p className={s.regionDesc}>시·도 {PROVINCES.length}곳 중에 골라보세요</p>
-        <div className={s.chips}>
+        <p className={s.regionDesc}>
+          시·군·구 {SIGUNGUS.length}곳, 이름으로 바로 찾아요
+        </p>
+
+        <div className={s.searchSlot}>
+          <LandingRegionSearch />
+        </div>
+
+        <p className={s.groupLabel}>내 조건으로 순위 보기</p>
+        <div className={s.personas}>
+          {PERSONAS.map((persona) => (
+            <Link
+              key={persona.id}
+              href={`/regions/ranking?persona=${persona.id}`}
+              className={s.persona}
+              data-track={`quickstart:persona:${persona.id}`}
+              prefetch={false}
+            >
+              {persona.label}
+            </Link>
+          ))}
+        </div>
+
+        <p className={s.provinceRow}>
+          <span className={s.provinceRowLabel}>시·도 바로가기</span>
           {PROVINCES.map((province) => (
             <Link
               key={province.id}
               href={`/regions/${province.id}`}
-              className={s.chip}
+              className={s.provinceLink}
               data-track={`quickstart:region:${province.id}`}
               prefetch={false}
             >
               {province.shortName}
             </Link>
           ))}
-        </div>
+        </p>
+
         <div className={s.subLinks}>
           {SUB_LINKS.map((link) => (
             <Link

@@ -1,0 +1,21 @@
+/* ══════════════════════════════════════════
+   랜딩 지역 검색창 로딩 자리 (2026-09-06)
+   실제 RegionSearch 가 붙기 전까지 같은 크기를 차지한다 — 교체 시 높이 변화 0.
+   시각 정의는 공용 ui/dropdown.module.css 하나뿐 (composes 1단).
+   ══════════════════════════════════════════ */
+
+.placeholderWrap {
+  composes: searchWrap from "../ui/dropdown.module.css";
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.placeholderIcon {
+  composes: searchIcon from "../ui/dropdown.module.css";
+}
+
+.placeholderInput {
+  composes: searchInput from "../ui/dropdown.module.css";
+  cursor: default;
+}
