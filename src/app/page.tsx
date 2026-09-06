@@ -33,23 +33,6 @@ import { PROGRAMS } from "@/lib/data/programs";
 import { SurveyCta } from "./survey-cta";
 import s from "./page.module.css";
 
-/* ── 마퀴 키워드 (2줄 엇갈림) ── */
-interface MarqueeChip { label: string; accent?: boolean }
-
-const marqueeRow1: MarqueeChip[] = [
-  { label: "전남 순천" }, { label: "딸기", accent: true }, { label: "경북 상주" },
-  { label: "정착 교육" }, { label: "블루베리", accent: true }, { label: "충남 홍성" },
-  { label: "스마트팜" }, { label: "강원 횡성" }, { label: "감귤", accent: true },
-  { label: "주말농장" }, { label: "제주" }, { label: "토마토", accent: true },
-];
-
-const marqueeRow2: MarqueeChip[] = [
-  { label: "지원사업", accent: true }, { label: "전북 완주" }, { label: "샤인머스캣" },
-  { label: "경남 하동" }, { label: "농촌 정착 체험", accent: true }, { label: "충북 괴산" },
-  { label: "고추" }, { label: "청년 귀농", accent: true }, { label: "전남 해남" },
-  { label: "인삼" }, { label: "농지은행", accent: true }, { label: "경기 여주" },
-];
-
 /* ────────────────────────────────────────────
    Page — 섹션 순서 (withgo 레퍼런스 기반):
    히어로(검색) → 인터뷰(사회적 증거) → 왜 농촌 정착(동기)
@@ -155,24 +138,6 @@ export default function HomePage() {
         {/* 아이콘 퀵메뉴 8종 — GNB 여정 순 (9/7 회장 결재: 바로 시작하기 섹션 대체) */}
         <div className={s.heroQuick}>
           <HeroQuickMenu />
-        </div>
-
-        {/* 마퀴 띠 — 2줄 엇갈림 */}
-        <div className={s.heroMarquee} aria-hidden="true">
-          <div className={s.heroMarqueeTrack}>
-            {[...marqueeRow1, ...marqueeRow1].map((item, i) => (
-              <span key={i} className={`${s.heroMarqueeItem}${item.accent ? ` ${s.heroMarqueeAccent}` : ""}`}>
-                {item.label}
-              </span>
-            ))}
-          </div>
-          <div className={`${s.heroMarqueeTrack} ${s.heroMarqueeTrackReverse}`}>
-            {[...marqueeRow2, ...marqueeRow2].map((item, i) => (
-              <span key={i} className={`${s.heroMarqueeItem}${item.accent ? ` ${s.heroMarqueeAccent}` : ""}`}>
-                {item.label}
-              </span>
-            ))}
-          </div>
         </div>
 
         {/* 모바일 전용 스크롤 다운 indicator — sequential 2 chevron + scroll fade */}
