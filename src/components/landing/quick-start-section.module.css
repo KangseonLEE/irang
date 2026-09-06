@@ -122,6 +122,7 @@
    시·도는 가로 스크롤이 아니라 wrap 되는 작은 텍스트 링크. 터치 타겟 44px 확보.
    ≥768 부터 밀도를 올린다(체크리스트 G: 기본 → @media 오버라이드). */
 .regionBlock {
+  min-width: 0; /* 그리드/플렉스 자식 기본 min-width:auto → 슬라이드 트랙이 부모를 넓히는 것 방지 (9/6) */
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -176,40 +177,6 @@
 
 @media (min-width: 640px) {
   .groupLabel { margin-top: 18px; }
-}
-
-/* ── 페르소나 순위 버튼 (모바일 2×2) ── */
-.personas {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 8px;
-}
-
-@media (min-width: 768px) {
-  .personas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-}
-
-.persona {
-  /* 2단 초과 composes 체인은 Turbopack 에서 base 가 유실된다 → 둘 다 직접 나열 */
-  composes: actionButton actionSecondary from "../ui/action-button.module.css";
-  min-height: 44px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-@media (min-width: 768px) {
-  .persona {
-    min-height: 38px;
-    padding: 8px 14px;
-    border-radius: 20px;
-  }
 }
 
 /* ── 시·도 바로가기 (작은 텍스트 링크 행) ── */

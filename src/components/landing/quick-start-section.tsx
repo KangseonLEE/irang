@@ -18,14 +18,44 @@ import { Icon } from "@/components/ui/icon";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { LandingRegionSearch } from "./landing-region-search";
+import { PersonaSlider, type PersonaCard } from "./persona-slider";
 import s from "./quick-start-section.module.css";
 
-/** 조건별 지역 순위 딥링크 — persona 5종은 normalize 화이트리스트에 등록돼 있다 */
-const PERSONAS = [
-  { id: "family", label: "자녀 있어요" },
-  { id: "farmYouth", label: "청년농으로 시작" },
-  { id: "commuter", label: "도시 통근" },
-  { id: "elderRural", label: "은퇴 후 한적하게" },
+/**
+ * 조건별 지역 순위 카드 — persona 5종은 normalize 화이트리스트에 등록돼 있다.
+ * hint 는 src/lib/data/personas.ts 가중치(가장 큰 축)를 사용자 언어로 옮긴 것: family school 35 /
+ * farmYouth farmActivity 40·returnFarm 30 / commuter populationTrend 35·medical 25 / elderRural medical 40.
+ * 일러스트: public/landing/personas/{id}.webp (codex 수채화, 흰 배경 — 작물 일러스트 규칙과 동일)
+ */
+const PERSONAS: readonly PersonaCard[] = [
+  {
+    id: "family",
+    label: "자녀 있어요",
+    hint: "학교·병원이 가까운 곳부터 보여요",
+    image: "/landing/personas/family.webp",
+    alt: "텃밭에서 아이와 함께 방울토마토를 따는 젊은 부부",
+  },
+  {
+    id: "farmYouth",
+    label: "청년농으로 시작",
+    hint: "영농이 활발하고 정착 흐름이 좋은 곳",
+    image: "/landing/personas/farm-youth.webp",
+    alt: "온실 앞에서 모종 트레이를 든 청년 농부",
+  },
+  {
+    id: "commuter",
+    label: "도시 통근",
+    hint: "인구 흐름과 생활 인프라가 탄탄한 곳",
+    image: "/landing/personas/commuter.webp",
+    alt: "시골 간이역에서 출근 준비 중인 직장인",
+  },
+  {
+    id: "elderRural",
+    label: "은퇴 후 한적하게",
+    hint: "의료가 가깝고 조용한 마을 우선",
+    image: "/landing/personas/elder-rural.webp",
+    alt: "정원에 물을 주는 은퇴한 부부",
+  },
 ] as const;
 
 /** 지역 블록 하단 보조 링크 */
@@ -63,19 +93,7 @@ export function QuickStartSection() {
         </div>
 
         <p className={s.groupLabel}>내 조건으로 순위 보기</p>
-        <div className={s.personas}>
-          {PERSONAS.map((persona) => (
-            <Link
-              key={persona.id}
-              href={`/regions/ranking?persona=${persona.id}`}
-              className={s.persona}
-              data-track={`quickstart:persona:${persona.id}`}
-              prefetch={false}
-            >
-              {persona.label}
-            </Link>
-          ))}
-        </div>
+        <PersonaSlider items={PERSONAS} />
 
         <p className={s.provinceRow}>
           <span className={s.provinceRowLabel}>시·도 바로가기</span>
