@@ -25,15 +25,42 @@ import {
   Compass,
   ChevronRight,
   Info,
-  Heart,
   Trophy,
+  Heart,
   type LucideIcon,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { NAV_GROUPS } from "@/lib/data/navigation";
 import s from "./page.module.css";
 
-/* ── 상단 퀵 메뉴 (핵심 4가지) ── */
+/**
+ * 메뉴 SSOT(`@/lib/data/navigation`)의 iconName 문자열 → 실제 아이콘 컴포넌트.
+ * 매핑을 이 파일에 두는 이유: lib 은 UI 를 참조할 수 없고(레이어 경계),
+ * 헤더 번들에 아이콘 20여 개가 딸려 들어가는 것도 막아야 하기 때문.
+ */
+const ICONS: Record<string, LucideIcon> = {
+  MapPin,
+  Building2,
+  GitCompareArrows,
+  Wallet,
+  Users,
+  FileText,
+  FileCheck,
+  Route,
+  Home,
+  GraduationCap,
+  CalendarDays,
+  BarChart3,
+  BookOpen,
+  Compass,
+  Info,
+  Trophy,
+  Heart,
+  Sprout,
+};
+
+/* ── 상단 퀵 메뉴 (여정 순 5가지) ── */
 
 interface QuickItem {
   href: string;
@@ -42,69 +69,16 @@ interface QuickItem {
 }
 
 const quickItems: QuickItem[] = [
-  { href: "/guide", label: "귀농로드맵", icon: Route },
-  { href: "/match", label: "유형매칭", icon: Compass },
   { href: "/regions", label: "지역탐색", icon: MapPin },
+  { href: "/match", label: "유형진단", icon: Compass },
+  { href: "/guide", label: "정착로드맵", icon: Route },
   { href: "/costs", label: "비용가이드", icon: Wallet },
   { href: "/programs", label: "지원사업", icon: FileText },
 ];
 
-/* ── 하단 리스트 메뉴 ── */
+/* ── 하단 리스트 메뉴 — 헤더 GNB 와 같은 SSOT ── */
 
-interface MenuItem {
-  href: string;
-  label: string;
-  desc: string;
-  icon: LucideIcon;
-}
-
-interface MenuGroup {
-  label: string;
-  items: MenuItem[];
-}
-
-const menuGroups: MenuGroup[] = [
-  {
-    label: "지역·작물",
-    items: [
-      { href: "/regions", label: "지역 탐색", desc: "시·도별 기후·인구·작물 정보", icon: MapPin },
-      { href: "/regions/compare", label: "지역 비교", desc: "최대 3개 지역 비교 분석", icon: GitCompareArrows },
-      { href: "/regions/ranking", label: "시군구 점수 비교", desc: "5차원·정착 스타일로 줄세우기", icon: Trophy },
-      { href: "/regions/centers", label: "지자체 센터", desc: "시·도 귀농귀촌지원센터 안내", icon: Building2 },
-      { href: "/crops", label: "작물 목록", desc: "재배 난이도·수익성·적합 기후", icon: Sprout },
-      { href: "/crops/compare", label: "작물 비교", desc: "최대 3종 작물 비교", icon: GitCompareArrows },
-    ],
-  },
-  {
-    label: "가이드",
-    items: [
-      { href: "/guide", label: "정착 로드맵", desc: "5단계 정착 준비 가이드", icon: Route },
-      { href: "/guides", label: "주제별 가이드", desc: "50대·1인·실패 사례 등 상황별", icon: BookOpen },
-      { href: "/guide/track-compare", label: "귀농·귀산촌 비교", desc: "추진체계를 한눈에 비교", icon: GitCompareArrows },
-      { href: "/guide/shelter", label: "농촌체류형 쉼터", desc: "33㎡ 임시 주거 설치 가이드", icon: Home },
-      { href: "/costs", label: "비용 가이드", desc: "연령·작물별 비용 분석 & 지원금", icon: Wallet },
-      { href: "/interviews", label: "정착 이야기", desc: "실제 정착 인터뷰", icon: Users },
-    ],
-  },
-  {
-    label: "신청",
-    items: [
-      { href: "/programs", label: "지원사업", desc: "귀농·귀촌 지원금 & 정책", icon: FileText },
-      { href: "/programs/roadmap", label: "정부사업 가이드", desc: "5대 사업 신청 절차 안내", icon: FileCheck },
-      { href: "/education", label: "교육 프로그램", desc: "온·오프라인 정착 교육", icon: GraduationCap },
-      { href: "/education/therapy", label: "치유·사회적 농업", desc: "다른 농촌 정착 모델 가이드", icon: Heart },
-      { href: "/events", label: "체험·행사", desc: "현장 체험 & 박람회 일정", icon: CalendarDays },
-    ],
-  },
-  {
-    label: "자료실",
-    items: [
-      { href: "/stats", label: "통계", desc: "정착 인구·청년·만족도 추이", icon: BarChart3 },
-      { href: "/glossary", label: "농업 용어집", desc: "처음 만나는 농업 용어 해설", icon: BookOpen },
-      { href: "/about", label: "서비스 소개", desc: "이랑은 이런 팀이 만들어요", icon: Info },
-    ],
-  },
-];
+const menuGroups = NAV_GROUPS;
 
 export default function MorePage() {
   return (
@@ -128,11 +102,11 @@ export default function MorePage() {
       {/* 리스트 메뉴 */}
       <nav aria-label="전체 메뉴" className={s.nav}>
         {menuGroups.map((group) => (
-          <section key={group.label} className={s.group}>
+          <section key={group.id} className={s.group}>
             <h2 className={s.groupLabel}>{group.label}</h2>
             <div className={s.listItems}>
               {group.items.map((item) => {
-                const Icon = item.icon;
+                const Icon = ICONS[item.iconName] ?? Info;
                 return (
                   <Link key={item.href} href={item.href} className={s.listItem}>
                     <div className={s.listIcon}>

@@ -119,6 +119,7 @@
   line-height: 1.25rem;
   font-weight: 500;
   color: var(--muted-foreground);
+  white-space: nowrap;
   transition: color 150ms ease, background-color 150ms ease;
 }
 
@@ -164,7 +165,8 @@
 }
 
 .navGroup:hover .dropdown,
-.navGroup:focus-within .dropdown {
+.navGroup:focus-within .dropdown,
+.dropdownOpen {
   display: flex;
 }
 

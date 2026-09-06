@@ -11,67 +11,12 @@ import { BookmarkList } from "@/components/bookmark/bookmark-list";
 import { useBookmarks } from "@/lib/hooks/use-bookmarks";
 import { useSearchOverlay } from "@/lib/hooks/use-search-overlay";
 import SearchBar from "@/components/search/search-bar";
+import {
+  NAV_GROUPS,
+  isNavItemActive,
+  resolveActiveGroupId,
+} from "@/lib/data/navigation";
 import s from "./header.module.css";
-
-/* ── 네비게이션 구조 ── */
-interface NavChild {
-  href: string;
-  label: string;
-  desc?: string;
-}
-
-interface NavGroup {
-  label: string;
-  basePaths: string[];
-  children: NavChild[];
-}
-
-const navGroups: NavGroup[] = [
-  {
-    label: "지역·작물",
-    basePaths: ["/regions", "/crops"],
-    children: [
-      { href: "/regions", label: "지역 탐색", desc: "시·도별 기후·인구·작물 정보" },
-      { href: "/regions/compare", label: "지역 비교", desc: "최대 3개 지역 비교 분석" },
-      { href: "/regions/ranking", label: "시군구 점수 비교", desc: "5차원·정착 스타일로 줄세우기" },
-      { href: "/regions/centers", label: "지자체 센터", desc: "시·도 귀농귀촌지원센터 안내" },
-      { href: "/crops", label: "작물 정보", desc: "재배 난이도·수익성·적합 기후" },
-      { href: "/crops/compare", label: "작물 비교", desc: "최대 3종 작물 비교" },
-    ],
-  },
-  {
-    label: "가이드",
-    basePaths: ["/guide", "/guides", "/costs", "/interviews"],
-    children: [
-      { href: "/guide", label: "정착 로드맵", desc: "5단계 정착 준비 가이드" },
-      { href: "/guides", label: "주제별 가이드", desc: "50대·1인·실패 사례 등 상황별" },
-      { href: "/guide/track-compare", label: "귀농·귀산촌 비교", desc: "추진체계를 한눈에 비교" },
-      { href: "/guide/shelter", label: "농촌체류형 쉼터", desc: "33㎡ 임시 주거 설치 가이드" },
-      { href: "/costs", label: "비용 가이드", desc: "연령·작물별 비용 분석 & 지원금" },
-      { href: "/interviews", label: "정착 이야기", desc: "실제 정착 인터뷰" },
-    ],
-  },
-  {
-    label: "신청",
-    basePaths: ["/programs", "/education", "/events"],
-    children: [
-      { href: "/programs", label: "지원사업", desc: "귀농·귀촌 지원금 & 정책" },
-      { href: "/programs/roadmap", label: "정부사업 가이드", desc: "5대 사업 신청 절차 안내" },
-      { href: "/education", label: "교육 프로그램", desc: "온·오프라인 정착 교육" },
-      { href: "/education/therapy", label: "치유·사회적 농업", desc: "다른 농촌 정착 모델 가이드" },
-      { href: "/events", label: "체험·행사", desc: "현장 체험 & 박람회 일정" },
-    ],
-  },
-  {
-    label: "자료실",
-    basePaths: ["/stats", "/glossary", "/about"],
-    children: [
-      { href: "/stats", label: "통계", desc: "정착 인구·청년·만족도 추이" },
-      { href: "/glossary", label: "농업 용어집", desc: "처음 만나는 농업 용어 해설" },
-      { href: "/about", label: "서비스 소개", desc: "이랑은 이런 팀이 만들어요" },
-    ],
-  },
-];
 
 export function Header() {
   const pathname = usePathname();
@@ -79,6 +24,11 @@ export function Header() {
   const [gnbSearchOpen, setGnbSearchOpen] = useState(false);
   /** 드롭다운 클릭 후 일시적으로 hover를 무시하기 위한 플래그 */
   const [navHidden, setNavHidden] = useState(false);
+  /** 클릭·키보드로 명시적으로 연 그룹 (hover 열림은 CSS가 담당) */
+  const [openGroupId, setOpenGroupId] = useState<string | null>(null);
+  const navRef = useRef<HTMLElement>(null);
+  /** 겹치는 basePath 중 가장 긴 것 하나만 활성 — 두 그룹 동시 활성 방지 */
+  const activeGroupId = resolveActiveGroupId(pathname);
   /** 스크롤 내리면 헤더 숨김, 올리면 표시 */
   const [headerHidden, setHeaderHidden] = useState(false);
   const lastScrollY = useRef(0);
@@ -188,40 +138,63 @@ export function Header() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setNavHidden(true);
+    setOpenGroupId(null);
 
     // :focus-within 해제 → 드롭다운 CSS 비활성화
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
 
-    // 마우스가 nav 영역을 벗어나면 hover 다시 활성화
-    const navEl = document.querySelector(`nav[aria-label="주요 메뉴"]`);
-    const reset = () => setNavHidden(false);
-
-    if (navEl) {
-      navEl.addEventListener("mouseleave", reset, { once: true });
-    }
-
     // 터치 디바이스 fallback — mouseleave 미발생 시 자동 해제
-    const t = setTimeout(() => {
-      setNavHidden(false);
-      navEl?.removeEventListener("mouseleave", reset);
-    }, 400);
-
-    return () => {
-      clearTimeout(t);
-      navEl?.removeEventListener("mouseleave", reset);
-    };
+    // (마우스 이탈 해제는 nav 의 onMouseLeave 가 담당)
+    const t = setTimeout(() => setNavHidden(false), 400);
+    return () => clearTimeout(t);
   }, [pathname]);
 
   // 드롭다운 아이템 클릭 후 즉시 숨기기 (pathname 변경 전 선제 처리)
   const hideDropdowns = useCallback(() => {
     setNavHidden(true);
+    setOpenGroupId(null);
     // :focus-within 해제
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
   }, []);
+
+  /** 그룹 버튼 토글 — 열려 있으면 닫고(hover 열림도 navHidden 으로 함께 억제) 아니면 연다 */
+  const toggleGroup = useCallback((groupId: string) => {
+    setOpenGroupId((prev) => {
+      const next = prev === groupId ? null : groupId;
+      setNavHidden(next === null);
+      return next;
+    });
+  }, []);
+
+  // Esc — 열린 드롭다운 닫기 + 포커스 해제
+  useEffect(() => {
+    if (!openGroupId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setOpenGroupId(null);
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openGroupId]);
+
+  // 바깥 클릭 — 열린 드롭다운 닫기
+  useEffect(() => {
+    if (!openGroupId) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const el = navRef.current;
+      if (el && e.target instanceof Node && el.contains(e.target)) return;
+      setOpenGroupId(null);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [openGroupId]);
 
   return (
     <>
@@ -265,44 +238,44 @@ export function Header() {
             <nav
               className={`${s.nav}${navHidden ? ` ${s.navHidden}` : ""}`}
               aria-label="주요 메뉴"
+              ref={navRef}
+              onMouseLeave={() => setNavHidden(false)}
+              onBlur={(e) => {
+                // 포커스가 nav 밖으로 나가면 열린 드롭다운 정리
+                if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+                setOpenGroupId(null);
+              }}
             >
-              {navGroups.map((group) => {
-                const isGroupActive = group.basePaths.some(
-                  (bp) => pathname === bp || pathname.startsWith(bp + "/"),
-                );
+              {NAV_GROUPS.map((group) => {
+                const isGroupActive = activeGroupId === group.id;
+                const isOpen = openGroupId === group.id;
                 return (
-                  <div key={group.label} className={s.navGroup}>
+                  <div key={group.id} className={s.navGroup}>
                     <button
                       type="button"
                       className={`${s.navLink} ${isGroupActive ? s.active : ""}`}
                       aria-haspopup="true"
+                      aria-expanded={isOpen}
                       onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => toggleGroup(group.id)}
+                      onFocus={() => setOpenGroupId(group.id)}
                     >
                       {group.label}
                     </button>
-                    <div className={s.dropdown}>
-                      {group.children.map((child) => {
-                        const hasMoreSpecificSibling = group.children.some(
-                          (other) =>
-                            other !== child &&
-                            other.href.length > child.href.length &&
-                            pathname.startsWith(other.href),
-                        );
-                        const isChildActive =
-                          pathname === child.href ||
-                          (!hasMoreSpecificSibling &&
-                            pathname.startsWith(child.href + "/"));
+                    <div
+                      className={`${s.dropdown}${isOpen ? ` ${s.dropdownOpen}` : ""}`}
+                    >
+                      {group.items.map((item) => {
+                        const isItemActive = isNavItemActive(pathname, item.href);
                         return (
                           <Link
-                            key={child.href}
-                            href={child.href}
-                            className={`${s.dropdownItem} ${isChildActive ? s.dropdownItemActive : ""}`}
+                            key={item.href}
+                            href={item.href}
+                            className={`${s.dropdownItem} ${isItemActive ? s.dropdownItemActive : ""}`}
                             onClick={hideDropdowns}
                           >
-                            <span className={s.dropdownLabel}>{child.label}</span>
-                            {child.desc && (
-                              <span className={s.dropdownDesc}>{child.desc}</span>
-                            )}
+                            <span className={s.dropdownLabel}>{item.label}</span>
+                            <span className={s.dropdownDesc}>{item.desc}</span>
                           </Link>
                         );
                       })}

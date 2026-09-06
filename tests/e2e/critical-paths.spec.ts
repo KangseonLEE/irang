@@ -245,3 +245,39 @@ test.describe("7. 빈 화면 차단 (body text ≥ 500자)", () => {
     });
   }
 });
+
+// ============================================================
+// 8. GNB 5그룹 여정형 재편 (2026-09-06)
+// ============================================================
+
+test.describe("8. 전역 네비게이션 구성", () => {
+  test("데스크탑 1280 — 헤더 그룹 버튼 5개 + 라벨 순서", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await gotoExpectHtml(page, "/");
+    const groupButtons = page.locator('nav[aria-label="주요 메뉴"] > div > button');
+    await expect(groupButtons.first()).toBeVisible({ timeout: 10_000 });
+    expect(await groupButtons.count(), "헤더 그룹 버튼 수").toBe(5);
+    expect(await groupButtons.allInnerTexts()).toEqual([
+      "탐색",
+      "비교·진단",
+      "준비",
+      "신청",
+      "참고자료",
+    ]);
+  });
+
+  test("375 — 하단 탭 5개", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await gotoExpectHtml(page, "/");
+    const tabs = page.locator('nav[aria-label="하단 탭 메뉴"] a');
+    await expect(tabs.first()).toBeVisible({ timeout: 10_000 });
+    expect(await tabs.count(), "하단 탭 수").toBe(5);
+    expect(await tabs.allInnerTexts()).toEqual([
+      "홈",
+      "지역",
+      "유형진단",
+      "지원사업",
+      "전체",
+    ]);
+  });
+});

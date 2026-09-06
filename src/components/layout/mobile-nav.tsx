@@ -10,6 +10,7 @@ import {
   HandCoins,
   LayoutGrid,
 } from "lucide-react";
+import { deriveMorePaths } from "@/lib/data/navigation";
 import s from "./mobile-nav.module.css";
 
 // ─── 하단 탭 (4개 + 더보기) ───
@@ -21,22 +22,8 @@ const tabs = [
   { href: "/programs", label: "지원사업", icon: HandCoins },
 ];
 
-// 더보기 페이지에서 활성 표시할 경로 목록
-const morePaths = [
-  "/more",
-  "/assess",
-  "/guide",
-  "/guides",
-  "/costs",
-  "/crops",
-  "/education",
-  "/events",
-  "/interviews",
-  "/search",
-  "/stats",
-  "/glossary",
-  "/about",
-];
+// 더보기 페이지에서 활성 표시할 경로 목록 — 메뉴 SSOT 에서 탭 4개를 제외해 파생
+const morePaths = deriveMorePaths(tabs.map((tab) => tab.href));
 
 // 재탭 시 스크롤 투 탑 → 새로고침 지원 경로 (리스트/피드형 페이지)
 const scrollableRoots = ["/", "/regions", "/programs"];
@@ -86,7 +73,7 @@ export function MobileNav() {
   );
 
   return (
-    <nav className={s.nav} aria-label="주요 메뉴">
+    <nav className={s.nav} aria-label="하단 탭 메뉴">
       <div className={s.inner}>
         {tabs.map((tab) => {
           const isActive =

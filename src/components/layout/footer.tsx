@@ -1,25 +1,30 @@
 import Link from "next/link";
 import { DisclaimerBadge } from "@/components/ui/disclaimer-badge";
+import { NAV_ITEMS } from "@/lib/data/navigation";
 import s from "./footer.module.css";
 
-// 헤더 4그룹 IA(지역·작물 / 가이드 / 신청 / 자료실)에 맞춰 핵심 진입점 노출
-const serviceLinks = [
-  // 지역·작물
-  { href: "/regions", label: "지역 탐색" },
-  { href: "/crops", label: "작물 정보" },
-  // 가이드
-  { href: "/guide", label: "정착 로드맵" },
-  { href: "/costs", label: "비용 가이드" },
-  { href: "/match", label: "농촌 정착 적합도 진단" },
-  { href: "/interviews", label: "정착 이야기" },
-  // 신청
-  { href: "/programs", label: "지원사업" },
-  { href: "/education", label: "정착 교육" },
-  { href: "/events", label: "체험·행사" },
-  // 자료실
-  { href: "/stats", label: "통계" },
-  { href: "/about", label: "서비스 소개" },
+/** 메뉴 SSOT 라벨 — 푸터가 독자 라벨을 들고 있다가 드리프트하는 것 방지 */
+const NAV_LABELS = new Map(NAV_ITEMS.map((item) => [item.href, item.label]));
+
+// 핵심 진입점 11개 — 노출 구성·순서는 기존 그대로 두고 라벨만 SSOT 에서 가져온다.
+const serviceHrefs = [
+  "/regions",
+  "/crops",
+  "/guide",
+  "/costs",
+  "/match",
+  "/interviews",
+  "/programs",
+  "/education",
+  "/events",
+  "/stats",
+  "/about",
 ];
+
+const serviceLinks = serviceHrefs.map((href) => ({
+  href,
+  label: NAV_LABELS.get(href) ?? href,
+}));
 
 const dataSources = [
   "기상청 ASOS",
