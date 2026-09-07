@@ -165,7 +165,7 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
       </aside>
       </div>
 
-      {/* ── 시군구 점수 비교 cross-link 배너 ── */}
+      {/* ── 맞춤 시군구 찾기 cross-link 배너 ── */}
       <Link href="/regions/ranking" className={s.rankingBanner}>
         <div className={s.rankingBannerIcon}>
           <Icon icon={Trophy} size="lg" />

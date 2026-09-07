@@ -50,7 +50,7 @@ function deriveCurrentMode(
 }
 
 export const metadata: Metadata = {
-  title: "시군구 점수 비교 — 차원별 / 정착 스타일 맞춤",
+  title: "맞춤 시군구 찾기 — 조건별 시·군·구 순위",
   description:
     "전국 시군구를 5가지 차원으로 비교하거나, 내 정착 스타일에 맞춘 종합 점수로 줄 세워 보세요.",
   alternates: { canonical: "/regions/ranking" },
@@ -181,14 +181,14 @@ export default async function RankingPage({ searchParams }: PageProps) {
       <BreadcrumbJsonLd
         items={[
           { name: "지역 탐색", href: "/regions" },
-          { name: "시군구 점수 비교", href: "/regions/ranking" },
+          { name: "맞춤 시군구 찾기", href: "/regions/ranking" },
         ]}
       />
 
       <PageHeader
         icon={<Icon icon={Trophy} size="lg" />}
         label="시군구 비교"
-        title="시군구 점수 비교"
+        title="맞춤 시군구 찾기"
         description={description}
         count={showWizard ? undefined : ranked.length}
       />

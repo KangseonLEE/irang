@@ -55,7 +55,7 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
     items: [
       { href: "/regions/compare", label: "지역 비교", desc: "최대 3개 지역 비교 분석", iconName: "GitCompareArrows" },
-      { href: "/regions/ranking", label: "시군구 순위", desc: "5차원·정착 스타일로 줄세우기", iconName: "Trophy" },
+      { href: "/regions/ranking", label: "맞춤 시군구 찾기", desc: "내 조건에 맞는 시·군·구 순위", iconName: "Trophy" },
       { href: "/crops/compare", label: "작물 비교", desc: "최대 3종 작물 비교", iconName: "GitCompareArrows" },
       { href: "/guide/track-compare", label: "귀농·귀산촌 비교", desc: "추진체계를 한눈에 비교", iconName: "GitCompareArrows" },
       { href: "/match", label: "유형 진단", desc: "5분 진단으로 내 정착 유형 확인", iconName: "Compass" },

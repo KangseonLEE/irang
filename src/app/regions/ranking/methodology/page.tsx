@@ -339,7 +339,7 @@ export default function MethodologyPage() {
       </section>
 
       <p className={s.backLink}>
-        <Link href="/regions/ranking">← 시군구 점수 비교로 돌아가기</Link>
+        <Link href="/regions/ranking">← 맞춤 시군구 찾기로 돌아가기</Link>
       </p>
 
       <DataSource source="통계청 SGIS · 농림어업총조사 · 심평원 · 교육부 NEIS · KOSIS" />

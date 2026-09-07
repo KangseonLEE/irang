@@ -92,6 +92,7 @@
 }
 
 .label {
+  min-height: calc(1.25em * 2); /* 2줄 라벨("맞춤 시군구 찾기")과 1줄 라벨의 행 높이를 맞춘다 (9/7) */
   font-size: var(--fs-caption, 0.8125rem);
   font-weight: 600;
   line-height: 1.25;
