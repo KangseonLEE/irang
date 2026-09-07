@@ -17,18 +17,18 @@ describe("landing analytics 이벤트 계약", () => {
 
   it("landing_section_view / landing_cta_click / programs_tab_switch", () => {
     analytics.landingSectionView("programs");
-    analytics.landingCtaClick("hero_quick:assess");
+    analytics.landingCtaClick("quick_link:assess");
     analytics.programsTabSwitch("ongoing");
     expect(gtag).toHaveBeenNthCalledWith(1, "event", "landing_section_view", expect.objectContaining({ event_category: "landing", event_label: "programs" }));
-    expect(gtag).toHaveBeenNthCalledWith(2, "event", "landing_cta_click", expect.objectContaining({ event_category: "landing", event_label: "hero_quick:assess" }));
+    expect(gtag).toHaveBeenNthCalledWith(2, "event", "landing_cta_click", expect.objectContaining({ event_category: "landing", event_label: "quick_link:assess" }));
     expect(gtag).toHaveBeenNthCalledWith(3, "event", "programs_tab_switch", expect.objectContaining({ event_category: "landing", event_label: "ongoing" }));
   });
 
-  it("hero_quick 라벨 계약 — 히어로 아이콘 퀵메뉴 8종 (9/7)", () => {
-    analytics.landingCtaClick("hero_quick:regions");
-    analytics.landingCtaClick("hero_quick:ranking");
-    expect(gtag).toHaveBeenNthCalledWith(1, "event", "landing_cta_click", expect.objectContaining({ event_category: "landing", event_label: "hero_quick:regions" }));
-    expect(gtag).toHaveBeenNthCalledWith(2, "event", "landing_cta_click", expect.objectContaining({ event_category: "landing", event_label: "hero_quick:ranking" }));
+  it("quick_link 라벨 계약 — 자주 찾는 서비스 아이콘 8종 (9/7)", () => {
+    analytics.landingCtaClick("quick_link:regions");
+    analytics.landingCtaClick("quick_link:ranking");
+    expect(gtag).toHaveBeenNthCalledWith(1, "event", "landing_cta_click", expect.objectContaining({ event_category: "landing", event_label: "quick_link:regions" }));
+    expect(gtag).toHaveBeenNthCalledWith(2, "event", "landing_cta_click", expect.objectContaining({ event_category: "landing", event_label: "quick_link:ranking" }));
   });
 
   it("calendar_row_expand — 작물 id 라벨 (8/30 캘린더 행 확장)", () => {

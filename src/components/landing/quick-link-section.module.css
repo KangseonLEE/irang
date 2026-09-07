@@ -1,0 +1,180 @@
+/* QuickLinkSection — 기본(모바일) → @media 오버라이드 (체크리스트 G). 다크모드 없음, 장식 요소 없음 */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: -24px; /* .page gap 64 → 히어로와 40 (9/7 회장 "히어로 너무 넓다") */
+  padding: 22px 18px 18px;
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, #fff);
+  min-width: 0;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--primary, #1b6b5a);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-h3, 1.25rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--foreground, #111827);
+}
+
+.desc {
+  margin: 0;
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* 모바일: 4개 × 2줄 그리드 — 한 화면에 8개 전부 (9/7 회장 지시) */
+.track {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px 4px;
+  margin: 0;
+  padding: 2px 0 0;
+  list-style: none;
+}
+
+.item {
+  min-width: 0;
+}
+
+.link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 2px;
+  border-radius: 14px;
+  color: var(--foreground, #111827);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: #fff;
+  color: var(--primary, #1b6b5a);
+  box-shadow:
+    0 1px 2px rgba(27, 107, 90, 0.05),
+    0 6px 16px rgba(27, 107, 90, 0.08);
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.label {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+
+@media (hover: hover) {
+  .link:hover .tile {
+    background: var(--primary, #1b6b5a);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(27, 107, 90, 0.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+}
+
+@media (min-width: 640px) {
+  .section {
+    padding: 26px 24px 22px;
+  }
+}
+
+/* 태블릿: 8개 한 줄 */
+@media (min-width: 768px) {
+  .track {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .item {
+    flex: 0 0 auto;
+    width: 80px;
+  }
+}
+
+/* 데스크탑: 좌 제목 블록 · 우 아이콘 행 */
+@media (min-width: 1024px) {
+  .section {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    align-items: center;
+    gap: 32px;
+    margin-top: -64px; /* .page gap 120 → 히어로와 56 */
+    padding: 30px 40px;
+  }
+
+  .intro {
+    gap: 6px;
+  }
+
+  .title {
+    font-size: var(--fs-h2, 1.5rem);
+  }
+
+  .track {
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  .item {
+    width: 72px; /* 1024: 트랙 ≈ 620px → 8 × 72 + 28 */
+  }
+
+  .tile {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .track {
+    gap: 6px;
+  }
+
+  .item {
+    width: 92px;
+  }
+}

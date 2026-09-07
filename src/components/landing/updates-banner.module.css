@@ -9,7 +9,7 @@
   gap: 8px;
   width: min(100%, 720px);
   /* 히어로 위 띠배너: .page gap(64px) 앞뒤를 줄여 헤더 바로 아래에 촘촘히, 히어로 상단 패딩(48px)과 겹치지 않게 */
-  margin: 0 auto -40px;
+  margin: 0 auto -52px; /* .page gap(64) 을 12 로 — 9/7 배너↔타이틀 간격 축소. 데스크탑은 아래 -72 */
   padding: 8px 12px;
   border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
   border-radius: 16px;
@@ -132,4 +132,9 @@
   .titleFull {
     display: inline;
   }
+}
+
+/* 9/7 회장 "배너와 타이틀 간격 축소": 데스크탑 .page gap 120 → 배너-히어로 48 */
+@media (min-width: 1024px) {
+  .banner { margin-bottom: -72px; }
 }

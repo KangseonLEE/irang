@@ -18,7 +18,7 @@ import HeroSearch from "@/components/search/hero-search";
 import { TrendingSearches } from "@/components/landing/trending-searches";
 import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
-import { HeroQuickMenu } from "@/components/landing/hero-quick-menu";
+import { QuickLinkSection } from "@/components/landing/quick-link-section";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
@@ -135,14 +135,14 @@ export default function HomePage() {
           <TrendingSearches />
         </div>
 
-        {/* 아이콘 퀵메뉴 8종 — GNB 여정 순 (9/7 회장 결재: 바로 시작하기 섹션 대체) */}
-        <div className={s.heroQuick}>
-          <HeroQuickMenu />
-        </div>
-
         {/* 모바일 전용 스크롤 다운 indicator — sequential 2 chevron + scroll fade */}
         <ScrollIndicator />
       </section>
+
+      {/* ═══ 1-2. 자주 찾는 서비스 — 아이콘 8종, GNB 여정 순 (9/7 회장 결재: 히어로 밖 별도 섹션) ═══ */}
+      <ScrollReveal trackId="quick_link">
+        <QuickLinkSection />
+      </ScrollReveal>
 
       {/* ═══ 2. 농촌으로 간 사람들의 이야기 (다크 배경) ═══ */}
       <ScrollReveal trackId="interviews">
