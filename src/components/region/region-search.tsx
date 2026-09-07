@@ -18,6 +18,7 @@ import {
   searchRegions,
   type RegionSearchEntry,
 } from "@/lib/region-search-index";
+import { isComposingEvent } from "@/lib/ime";
 import s from "./region-search.module.css";
 
 /** 이 컴포넌트가 다루는 항목 — 공용 인덱스 엔트리에서 이동에 필요한 필드만 */
@@ -148,6 +149,7 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
           e.preventDefault();
           setHighlightIdx((idx) => Math.max(idx - 1, 0));
         } else if (e.key === "Enter") {
+          if (isComposingEvent(e)) return; // 한글 조합 확정 Enter 무시 (9/7)
           e.preventDefault();
           const target = filteredResults[highlightIdx];
           if (target) goTo(target);
@@ -177,6 +179,7 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
         e.preventDefault();
         setPane("sido");
       } else if (e.key === "Enter") {
+          if (isComposingEvent(e)) return; // 한글 조합 확정 Enter 무시 (9/7)
         e.preventDefault();
         if (pane === "sido") {
           const p = PROVINCES[sidoIdx];

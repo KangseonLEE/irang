@@ -30,6 +30,7 @@ import { SEARCH_FAQS } from "@/lib/data/search-faq";
 // 검색 홈에서 노출할 FAQ — 큐레이션된 5건 (자주 들어오는 질문 위주).
 // 답: 첫 5개 표준 FAQ — 5단계 로드맵·비용·적합도·생활비·작물 추천.
 const FEATURED_FAQ_INDICES = [0, 2, 4, 5, 6] as const;
+import { isComposingEvent } from "@/lib/ime";
 import s from "./search-bar.module.css";
 
 // ---------------------------------------------------------------------------
@@ -521,6 +522,11 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // ----- Keyboard: ArrowDown / ArrowUp / Enter / Escape -----
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && isComposingEvent(e)) {
+        // 한글 조합 확정 Enter 가 form submit 으로 새지 않게 — 부분 검색어("배")로 /search 이동하던 결함 (9/7)
+        e.preventDefault();
+        return;
+      }
       if (e.key === "ArrowDown") {
         e.preventDefault();
         setFocusedIndex((i) => Math.min(i + 1, allItems.length - 1));

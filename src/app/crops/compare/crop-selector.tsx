@@ -14,6 +14,7 @@ import { Search, Plus, X, Sprout, Loader2, Pencil, Check } from "lucide-react";
 import type { CropInfo } from "@/lib/data/crops";
 import { CROP_CATEGORY_NAMES } from "@/lib/data/crop-categories";
 import { getCropImageSrc } from "@/lib/crop-image";
+import { isComposingEvent, pickOnEnter, rankByName } from "@/lib/ime";
 import s from "./crop-selector.module.css";
 
 const MAX_SELECTION = 4;
@@ -109,10 +110,10 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
   }, [crops]);
 
   const trimmedQuery = query.trim().replace(/\s/g, "");
+  // 이름 우선 랭킹(9/7): 부분 입력에서 설명문만 맞는 항목이 앞에 오지 않게
   const filteredResults = useMemo<SearchResult[]>(() => {
     if (!trimmedQuery) return searchIndex;
-    const lower = trimmedQuery.toLowerCase();
-    return searchIndex.filter((r) => r.searchText.toLowerCase().includes(lower));
+    return rankByName(searchIndex, trimmedQuery, (r) => r.name, (r) => `${r.category}${r.searchText}`).map((r) => r.item);
   }, [searchIndex, trimmedQuery]);
 
   const groupedResults = useMemo(() => {
@@ -217,8 +218,12 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
         const prev = filteredResults[Math.max(idx - 1, 0)];
         if (prev) setHighlightId(prev.id);
       } else if (e.key === "Enter") {
+        if (isComposingEvent(e)) return; // 한글 조합 확정 Enter 무시 (9/7)
         e.preventDefault();
-        const target = filteredResults[idx >= 0 ? idx : 0];
+        const target = pickOnEnter(
+          rankByName(filteredResults, trimmedQuery, (r) => r.name, (r) => `${r.category}${r.searchText}`),
+          filteredResults[idx >= 0 ? idx : 0],
+        );
         if (target) {
           addCrop(target.id);
           setQuery("");
@@ -230,7 +235,7 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
         inputRef.current?.blur();
       }
     },
-    [isFocused, filteredResults, highlightId, addCrop],
+    [isFocused, filteredResults, highlightId, addCrop, trimmedQuery],
   );
 
   const reachedLimit = optimisticIds.length >= MAX_SELECTION;

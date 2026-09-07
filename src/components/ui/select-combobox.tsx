@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown, Search } from "lucide-react";
+import { isComposingEvent } from "@/lib/ime";
 import s from "./select-combobox.module.css";
 
 export interface SelectComboboxOption {
@@ -263,6 +264,7 @@ export function SelectCombobox({
           moveActive(filtered.length - 1);
           break;
         case "Enter": {
+          if (isComposingEvent(e)) return; // 한글 조합 확정 Enter 무시 (9/7)
           e.preventDefault();
           const opt = filtered[safeActive];
           if (opt) selectOption(opt);

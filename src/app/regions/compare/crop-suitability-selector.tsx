@@ -6,6 +6,7 @@ import { Search, X, Sprout } from "lucide-react";
 import type { CropInfo } from "@/lib/data/crops";
 import { CROP_CATEGORY_NAMES } from "@/lib/data/crop-categories";
 import { useActiveOptionScroll } from "@/lib/hooks/use-active-option-scroll";
+import { isComposingEvent, pickOnEnter, rankByName } from "@/lib/ime";
 import s from "./crop-suitability-selector.module.css";
 
 interface Props {
@@ -36,28 +37,16 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
     [crops, selectedId],
   );
 
-  // ---- 검색 인덱스 ----
-  interface SearchResult {
-    crop: CropInfo;
-    searchText: string;
-  }
-  const searchIndex = useMemo<SearchResult[]>(
-    () =>
-      crops.map((c) => ({
-        crop: c,
-        searchText: `${c.name}${c.category}${c.description}`.replace(/\s/g, "").toLowerCase(),
-      })),
-    [crops],
-  );
-
   const trimmedQuery = query.trim().replace(/\s/g, "").toLowerCase();
+  // 이름 우선 랭킹(9/7): "배" 같은 부분 입력에서 설명문("재배")만 맞는 30건이 앞에 오지 않게
+  const ranked = useMemo(
+    () => rankByName(crops, trimmedQuery, (c) => c.name, (c) => `${c.category}${c.description}`),
+    [crops, trimmedQuery],
+  );
   const filtered = useMemo<CropInfo[]>(() => {
     if (!trimmedQuery) return crops;
-    return searchIndex
-      .filter((r) => r.searchText.includes(trimmedQuery))
-      .map((r) => r.crop)
-      .slice(0, 40);
-  }, [crops, searchIndex, trimmedQuery]);
+    return ranked.map((r) => r.item).slice(0, 40);
+  }, [crops, ranked, trimmedQuery]);
 
   // 카테고리별 그룹핑 (dropdown 안에서)
   const grouped = useMemo(() => {
@@ -72,13 +61,15 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
 
   // dropdown 안에서 flat 순회 가능한 순서 (키보드 navigation용)
   const flatOrder = useMemo<CropInfo[]>(() => {
+    // 검색어가 있으면 랭킹 순(이름 일치 먼저) 그대로 — 카테고리 순으로 다시 섞으면 첫 항목이 '쌀'이 된다 (9/7)
+    if (trimmedQuery) return filtered;
     const order: CropInfo[] = [];
     for (const cat of CATEGORY_ORDER) {
       const arr = grouped.get(cat);
       if (arr) order.push(...arr);
     }
     return order;
-  }, [grouped]);
+  }, [grouped, filtered, trimmedQuery]);
 
   // 외부 클릭 시 dropdown 닫기
   useEffect(() => {
@@ -125,15 +116,20 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
         e.preventDefault();
         setHighlightIdx((idx) => Math.max(idx - 1, 0));
       } else if (e.key === "Enter") {
+        // 한글 조합 중 Enter(조합 확정)는 무시 — 부분 문자열로 엉뚱한 작물이 확정되던 사고(9/7 배추→고구마)
+        if (isComposingEvent(e)) return;
         e.preventDefault();
-        const target = flatOrder[highlightIdx];
+        const target = pickOnEnter(
+          ranked.filter((r) => flatOrder.some((c) => c.id === r.item.id)),
+          flatOrder[highlightIdx],
+        );
         if (target) handleSelect(target.id);
       } else if (e.key === "Escape") {
         setIsFocused(false);
         inputRef.current?.blur();
       }
     },
-    [isFocused, flatOrder, highlightIdx, handleSelect],
+    [isFocused, flatOrder, highlightIdx, handleSelect, ranked],
   );
 
   const showDropdown = isFocused;
@@ -196,8 +192,8 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
               </div>
             )}
 
-            {CATEGORY_ORDER.map((category) => {
-              const items = grouped.get(category);
+            {(trimmedQuery ? ["검색 결과" as const] : CATEGORY_ORDER).map((category) => {
+              const items = trimmedQuery ? flatOrder : grouped.get(category as CropInfo["category"]);
               if (!items || items.length === 0) return null;
               return (
                 <div key={category} className={s.dropdownGroup}>
