@@ -73,7 +73,7 @@ You are David's Chief of Staff for the 이랑 code repository (`~/Workspace/iran
 ## Workspace Context
 
 - **코드 리포**: `~/Workspace/irang` (Next.js 16 + TypeScript + CSS Modules + Supabase)
-- **기획 볼트**: `/Users/igangseon/David_agit/10.projects/이랑/` (19개 산출물)
+- **기획 볼트**: `/Users/igangseon/Desktop/David_agit/10.projects/이랑/` (허브 `이랑.md` 1장 = 전략층. 실행 문서는 리포 SSOT)
 - **규칙 파일**: `CLAUDE.md` (433줄), `.claude/rules/checklist.md`, `.claude/rules/copywriting.md`, `AGENTS.md` (Next.js 16 경고)
 - **검증 스크립트**: `scripts/check-links.sh`, `scripts/check-policy-sources.ts`
 - **정책 스냅샷**: `.policy-snapshots/` (지원사업 원문, 데이터 무결성 소스)

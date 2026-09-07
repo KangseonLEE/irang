@@ -42,10 +42,15 @@
 - `.reminder-flag.md` 존재 시 reminder-watchman 자동 호출 → 결과 출력 후 flag 삭제
 - **열린 자동 감시 이슈 확인** (2026-08-29 추가): `gh issue list --state open` — 자동 이슈 라벨 7종(watchman·policy-check·cert-expiry·link-check·api-health·data-freshness·community-pending). CI 취합기(`report.sh`·`check-policy-sources.ts`)는 **열린 이슈가 있으면 새 이슈를 만들지 않으므로**, 해소된 이슈를 닫지 않으면 이후 finding이 로그에만 남는다(8/17 #115가 11일간 그랬음). 해소 확인 → 닫기 → 남은 항목만 보고
 
-### 0-4. David_agit(기획 볼트) 연동
+### 0-4. David_agit(기획 볼트) 연동 — 역할 분리 (2026-09-07 개정)
 
-- 기획 SSOT: `/Users/igangseon/David_agit/10.projects/이랑/` (19개 활성 + 21개 _archive, 허브 `이랑.md`)
-- 코드 변경이 기획에 영향 → chief-of-staff가 허브 Progress Log 갱신 제안
+| 층 | 위치 | 담는 것 | 갱신 주체 |
+|---|---|---|---|
+| **전략층** | `/Users/igangseon/Desktop/David_agit/10.projects/이랑/` (허브 `이랑.md` + PRD·리서치·데이터소스·블로그초안 5개) | Phase 정의·Go/No-Go·Key Decisions·월 단위 Progress·리스크 | 볼트 CoS (월 1회 또는 Phase 전환 시) |
+| **실행층** | 이 리포 (`CLAUDE.md` 하네스 이력·`docs/`·`worklog/`·`.policy-snapshots/`) | 스프린트·ADR·데이터 정정·Lessons·QA | 리포 CoS (매 세션) |
+
+- 볼트의 실행 문서 25건은 `_archive/`로 이관 (2026-09-07). 리포에서 볼트 실행 문서를 참조하지 말 것 — 리포가 SSOT
+- **Phase 전환·Kill/Go 판단·성격 재정의**(토이→운영 등)가 발생하면 리포 CoS가 볼트 허브 `이랑.md` **§현황 스냅샷·§Key Decisions** 갱신을 제안. 그 외 코드 변경은 볼트에 반영하지 않음
 - 기획 변경이 코드에 영향 → David_agit-CoS로부터 위임 요청 수신
 
 ### 0-5. 하네스 변경 이력
@@ -109,6 +114,7 @@
 | 2026-09-07 | **띠 데스크탑 세로 중앙 2차 수정** — 1차(제목 중심=타일 중심)는 맞았지만 **아이콘 묶음 전체가 띠 안에서 위로 치우침**(위 39 / 한 줄 라벨 아래 55px): 2줄 라벨 예약(36px)이 모든 링크 박스를 키워 띠가 그 박스를 중앙에 놓은 결과. 예약 제거, 데스크탑 `.link { height: 90px }`(타일 64+8+라벨 18) 고정 + `overflow: visible`로 둘째 줄만 아래 여백으로 흘림, `.intro { padding-bottom: 26px }`. 실측 위 38 / 아래 37, 타일 중심=제목 중심, 8개 타일 상단 동일 | src/components/landing/quick-link-section.module.css | "중앙"은 **회장이 보는 묶음(타일+라벨)의 중심**이지 레이아웃 박스의 중심이 아니다 — 예약 공간이 있으면 박스 중심과 시각 중심이 갈라진다. 실측에 `blockCenter vs bandCenter`·`bottomPad(1줄 기준)` 추가 |
 | 2026-09-07 | **띠 3·4차: 제목은 띠 중심, 타일 크기 통일** — ③ 제목 블록 보정 여백(26px) 제거 → 그리드 `align-items:center`로 띠 중심(715/715/715) ④ 회장 스크린샷: "맞춤 시군구 찾기" 타일만 작음 — 고정 높이 링크 박스 안에서 2줄 라벨이 타일을 flex-shrink로 눌렀음. 타일 `flex: 0 0 auto`, 라벨 `white-space: nowrap`, 타일 라벨을 짧은 표기 **"맞춤 시군구"**(정식 명칭 "맞춤 시군구 찾기"는 GNB·페이지 유지), 1024~1279 라벨 12px·item 76·gap 0. 6폭 실측 tileSizes 1종·라벨 1줄·clipped 0 | src/components/landing/quick-link-section.* | 고정 높이 flex 컬럼에서 자식이 커지면 **다른 자식이 줄어든다** — 절대 크기 요소엔 `flex-shrink: 0`. 실측에 `tileSizes`(Set 크기 1)·`labelLines`·`clippedLabels` 추가 |
 | 2026-09-07 | **자주 찾는 서비스 = 공공포털 문법으로 재정의(B2)** — 회장 "너무 못생겼다, Pinterest·gdweb 참고" → 토스·당근 계열 시안 3종(A 그라데이션 히어로+pill / B 소프트 카드 / C 분할 히어로+일러스트) 제시 → 회장 "당근·토스 말고 **공공기관** 봐라, 추천안 보류" → 복지로·고용24·태안·그린대로·홈택스·서울·경기·농사로 8곳 Playwright 캡처 → 보드 2장 + 패턴 4종(검색이 주인공 / 자주 찾는 서비스는 검색 바로 아래 **연한 바탕 띠** / 흰 원·둥근사각 타일 64~90px + 컬러 아이콘 + 그림자 / 모바일 4×2 제목 가운데) → 이랑 톤 시안 B2 → 결재. 구현: primary 원색 띠 폐기 → `linear-gradient(#f3f8f6, #eef5f1)`, 타일 64(모바일·1024)/72(1280+) 흰 둥근사각 + 그림자, 라벨 14px, 데스크탑 좌 제목 블록(26px 딥그린)·우 8개 110px, 모바일 제목 가운데·행 간격 18. 6폭 실측 타일 1종·라벨 1줄·중심 일치 | src/components/landing/quick-link-section.module.css, scratchpad refs/*(캡처) | **레퍼런스는 회장의 준거 집단으로** — 같은 "퀵링크"라도 토스 문법과 공공 문법은 결이 다르고, 이랑의 준거는 공공 포털. 취향 판단은 실제 사이트 캡처 보드 + 우리 DOM에 CSS만 입힌 시안을 **같이** 보내면 한 라운드에 끝난다. 정부24는 헤드리스 차단 |
+| 2026-09-07 | **볼트↔리포 역할 분리 + 경로 단절 복구** — 볼트 경로 `/Users/igangseon/David_agit` → `~/Desktop/David_agit` 오기 3곳 수정(CLAUDE.md 2·CoS 1). 4개월간 리포 에이전트가 볼트를 갱신할 수 없던 원인. 볼트 이랑 실행 문서 25건 `_archive/` 이관, 허브 `이랑.md` 전략층으로 재작성(현황 스냅샷 2026-09-07·Phase 통일). README Phase 정의를 실제와 일치(Phase 2 진단v2+SEO ✅ → Phase 3 커뮤니티 1단계 🔄) | CLAUDE.md §0-4, README.md, .claude/agents/chief-of-staff.md | **SSOT 3개(볼트 허브·README·리포 CLAUDE.md)의 Phase 정의가 전부 달랐다.** 문서가 두 곳이면 실제 작업 동선에 있는 쪽만 산다 — 전략/실행 층으로 갈라 각자 한 곳만 갱신 |
 
 ---
 
@@ -123,7 +129,7 @@
 - **기술 스택**: Next.js 16 (App Router) + TypeScript + CSS Modules + lucide-react
 - **배포**: Vercel (`irangfarm.com`)
 - **코드 저장소**: `~/Workspace/irang/`
-- **볼트 문서**: `/Users/igangseon/David_agit/10.projects/이랑/이랑-*.md` (19개 활성 + 21개 `_archive/`, 허브 노트 `이랑.md`)
+- **볼트 문서**: `/Users/igangseon/Desktop/David_agit/10.projects/이랑/` — 허브 `이랑.md`(전략층: Phase 판단·Go/No-Go·회고)만 활성. 실행 문서(스프린트·ADR·QA·데이터)는 이 리포가 SSOT
 
 ### 프로젝트 구조
 
