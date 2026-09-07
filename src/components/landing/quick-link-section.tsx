@@ -44,6 +44,7 @@ export const QUICK_LINK_ITEMS: readonly QuickItem[] = [
 export function QuickLinkSection() {
   return (
     <section className={s.section} aria-labelledby="quick-link-title">
+      <div className={s.inner}>
       <div className={s.intro}>
         <p className={s.eyebrow}>QUICK LINK</p>
         <h2 id="quick-link-title" className={s.title}>
@@ -69,6 +70,7 @@ export function QuickLinkSection() {
           </li>
         ))}
       </ul>
+      </div>
     </section>
   );
 }

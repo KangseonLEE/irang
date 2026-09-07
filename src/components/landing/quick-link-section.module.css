@@ -1,14 +1,25 @@
 /* QuickLinkSection — 기본(모바일) → @media 오버라이드 (체크리스트 G). 다크모드 없음, 장식 요소 없음 */
 
+/* 풀블리드 primary 띠 — .page(max-width 1280, 좌우 padding) 밖으로 뷰포트 폭까지 확장.
+   page.module.css .fullWidth 와 같은 기법(html overflow-x: clip 이 스크롤바 폭 초과분을 가림) */
 .section {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin-top: -24px; /* .page gap 64 → 히어로와 40 (9/7 회장 "히어로 너무 넓다") */
-  padding: 22px 18px 18px;
-  border-radius: 24px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, #fff);
+  margin: -24px calc(-50vw + 50%) 0; /* 위 -24: .page gap 64 → 히어로와 40 */
+  padding: 26px calc(50vw - 50%) 24px;
+  background: var(--primary, #1b6b5a);
+  color: #fff;
   min-width: 0;
+}
+
+/* 안쪽 콘텐츠는 페이지 컨테이너와 같은 좌우 정렬 */
+.intro,
+.track {
+  width: 100%;
+  max-width: calc(1280px - 64px);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .intro {
@@ -22,7 +33,7 @@
   font-size: var(--fs-overline, 0.6875rem);
   font-weight: 800;
   letter-spacing: 0.08em;
-  color: var(--primary, #1b6b5a);
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .title {
@@ -30,13 +41,13 @@
   font-size: var(--fs-h3, 1.25rem);
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--foreground, #111827);
+  color: #fff;
 }
 
 .desc {
   margin: 0;
   font-size: var(--fs-caption, 0.8125rem);
-  color: var(--muted-foreground, #6b7280);
+  color: rgba(255, 255, 255, 0.78);
 }
 
 /* 모바일: 4개 × 2줄 그리드 — 한 화면에 8개 전부 (9/7 회장 지시) */
@@ -62,13 +73,13 @@
   min-height: 44px;
   padding: 4px 2px;
   border-radius: 14px;
-  color: var(--foreground, #111827);
+  color: #fff;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .link:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
+  outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
@@ -81,14 +92,10 @@
   border-radius: 18px;
   background: #fff;
   color: var(--primary, #1b6b5a);
-  box-shadow:
-    0 1px 2px rgba(27, 107, 90, 0.05),
-    0 6px 16px rgba(27, 107, 90, 0.08);
   transition:
     background 0.18s ease,
     color 0.18s ease,
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
+    transform 0.18s ease;
 }
 
 .label {
@@ -102,10 +109,9 @@
 
 @media (hover: hover) {
   .link:hover .tile {
-    background: var(--primary, #1b6b5a);
+    background: var(--primary-dark, #0d2e27);
     color: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 10px 22px rgba(27, 107, 90, 0.22);
   }
 }
 
@@ -117,7 +123,8 @@
 
 @media (min-width: 640px) {
   .section {
-    padding: 26px 24px 22px;
+    padding-top: 30px;
+    padding-bottom: 28px;
   }
 }
 
@@ -135,15 +142,28 @@
   }
 }
 
-/* 데스크탑: 좌 제목 블록 · 우 아이콘 행 */
+/* 데스크탑: 띠 안에서 좌 제목 블록 · 우 아이콘 행 (안쪽 그리드는 .inner 가 담당) */
 @media (min-width: 1024px) {
   .section {
+    margin-top: -64px; /* .page gap 120 → 히어로와 56 */
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+
+  .inner {
     display: grid;
     grid-template-columns: 220px minmax(0, 1fr);
     align-items: center;
     gap: 32px;
-    margin-top: -64px; /* .page gap 120 → 히어로와 56 */
-    padding: 30px 40px;
+    width: 100%;
+    max-width: calc(1280px - 64px);
+    margin: 0 auto;
+  }
+
+  .intro,
+  .track {
+    max-width: none;
+    margin: 0;
   }
 
   .intro {

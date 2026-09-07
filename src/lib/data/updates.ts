@@ -100,7 +100,7 @@ export const UPDATES: UpdateItem[] = [
       before: "/updates/quick-link-before.webp",
       after: "/updates/quick-link-after.webp",
       frame: "desktop",
-      caption: "이전엔 검색창 아래로 키워드 띠가 흘렀고, 지금은 '자주 찾는 서비스' 묶음에 아이콘 여덟 개가 한 줄로 보여요",
+      caption: "이전엔 검색창 아래로 키워드 띠가 흘렀고, 지금은 초록 띠 '자주 찾는 서비스'에 아이콘 여덟 개가 한 줄로 보여요",
     },
   },
   {
