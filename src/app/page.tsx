@@ -147,27 +147,13 @@ export default function HomePage() {
         <QuickLinkSection />
       </ScrollReveal>
 
-      {/* ═══ 2. 농촌으로 간 사람들의 이야기 (다크 배경) ═══ */}
-      <ScrollReveal trackId="interviews">
-        <div className={s.darkBg}>
-          <section className={s.interviewSection} aria-label="인터뷰">
-            <div className={s.interviewHeader}>
-              <div className={s.interviewHeading}>
-                <span className={s.eyebrowDark}>#실제 정착자</span>
-                <h2 className={`${s.interviewSectionTitle} ${s.sectionTitleDark}`}>
-                  먼저 떠난 사람들의 <em>진짜 이야기</em>
-                </h2>
-                <p className={s.interviewSub}>
-                  도시를 떠나 새로운 삶을 시작한 사람들이에요
-                </p>
-              </div>
-              <Link href="/interviews" className={s.interviewHeaderLink} data-track="interviews:view_all">
-                모두 보기 <IconWrap icon={ArrowRight} size="sm" />
-              </Link>
-            </div>
-            <InterviewCarousel items={interviews.slice(0, 6)} variant="dark" />
-          </section>
-        </div>
+      {/* ═══ 2. 지원사업 (진행·예정 + 마감 임박 + 상시·연중 탭) — 9/7 회장: 인터뷰와 순서 교체 ═══ */}
+      <ScrollReveal trackId="programs">
+        <ProgramsSection
+          activePrograms={activePrograms}
+          deadlinePrograms={deadlinePrograms}
+          ongoingPrograms={ongoingPrograms}
+        />
       </ScrollReveal>
 
       {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}
@@ -188,13 +174,27 @@ export default function HomePage() {
         </ScrollReveal>
       </div>
 
-      {/* ═══ 6. 지원사업 (진행·예정 + 마감 임박 + 상시·연중 탭) ═══ */}
-      <ScrollReveal trackId="programs">
-        <ProgramsSection
-          activePrograms={activePrograms}
-          deadlinePrograms={deadlinePrograms}
-          ongoingPrograms={ongoingPrograms}
-        />
+      {/* ═══ 6. 농촌으로 간 사람들의 이야기 (다크 배경) — 9/7 회장: 지원사업 아래로 ═══ */}
+      <ScrollReveal trackId="interviews">
+        <div className={s.darkBg}>
+          <section className={s.interviewSection} aria-label="인터뷰">
+            <div className={s.interviewHeader}>
+              <div className={s.interviewHeading}>
+                <span className={s.eyebrowDark}>#실제 정착자</span>
+                <h2 className={`${s.interviewSectionTitle} ${s.sectionTitleDark}`}>
+                  먼저 떠난 사람들의 <em>진짜 이야기</em>
+                </h2>
+                <p className={s.interviewSub}>
+                  도시를 떠나 새로운 삶을 시작한 사람들이에요
+                </p>
+              </div>
+              <Link href="/interviews" className={s.interviewHeaderLink} data-track="interviews:view_all">
+                모두 보기 <IconWrap icon={ArrowRight} size="sm" />
+              </Link>
+            </div>
+            <InterviewCarousel items={interviews.slice(0, 6)} variant="dark" />
+          </section>
+        </div>
       </ScrollReveal>
 
       {/* ═══ 6+7. 뉴스 → CTA (여백 없이 연결) ═══ */}

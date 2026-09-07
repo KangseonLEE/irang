@@ -17,7 +17,7 @@ import { parseIncome10a } from "@/lib/format";
 import { getCropImageSrc } from "@/lib/crop-image";
 import s from "./crop-glance-section.module.css";
 
-const TOP_N = 6;
+const TOP_N = 3; // 9/7 회장: 6 → 3, 나머지는 /crops 로 (헤더 "전체 작물" + 하단 딥링크 유지)
 /** 카드 이미지는 96px 고정 박스 — 1x/2x만 필요해 sizes를 96px로 고정. */
 const IMG_SIZES = "96px";
 
