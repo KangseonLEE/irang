@@ -22,7 +22,6 @@ import { QuickLinkSection } from "@/components/landing/quick-link-section";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
-import { ScrollIndicator } from "@/components/landing/scroll-indicator";
 import { ProgramsSection } from "@/components/landing/programs-section";
 import { deriveStatus, daysUntilDeadline, isUnannounced, ALWAYS_OPEN } from "@/lib/program-status";
 import { GovSupportGuide } from "@/components/landing/gov-support-guide";
@@ -134,9 +133,6 @@ export default function HomePage() {
         <div className={s.heroTrending}>
           <TrendingSearches />
         </div>
-
-        {/* 모바일 전용 스크롤 다운 indicator — sequential 2 chevron + scroll fade */}
-        <ScrollIndicator />
       </section>
 
       {/* ═══ 1-2. 자주 찾는 서비스 — 아이콘 8종, GNB 여정 순 (9/7 회장 결재: 히어로 밖 별도 섹션) ═══ */}

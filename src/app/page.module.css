@@ -67,9 +67,9 @@
   .heroSection { padding-bottom: 24px; }
 }
 
-/* 모바일은 ScrollIndicator 공간 확보 위해 padding-bottom 추가 */
+/* 모바일 하단 여백 — 스크롤 화살표 제거(9/7) 후 키워드 행 아래 */
 @media (max-width: 767px) {
-  .heroSection { padding-bottom: 40px; }
+  .heroSection { padding-bottom: 28px; }
 }
 
 /* ── 메인 타이틀 ── */
