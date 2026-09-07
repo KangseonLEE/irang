@@ -92,6 +92,7 @@
 
 .tile {
   display: flex;
+  flex: 0 0 auto; /* 라벨이 길어져도 타일은 절대 줄지 않는다 (9/7 회장: 타일 크기 통일) */
   align-items: center;
   justify-content: center;
   width: 60px;
@@ -106,6 +107,7 @@
 }
 
 .label {
+  white-space: nowrap; /* 라벨은 항상 한 줄 — 긴 이름은 짧은 표기(예: "맞춤 시군구")로 */
   font-size: var(--fs-caption, 0.8125rem);
   font-weight: 600;
   line-height: 1.25;
@@ -195,11 +197,15 @@
 
   .track {
     justify-content: space-between;
-    gap: 4px;
+    gap: 0;
   }
 
   .item {
-    width: 72px; /* 1024: 트랙 ≈ 620px → 8 × 72 + 28 */
+    width: 76px; /* 1024: 트랙 ≈ 620px → 8 × 76 = 608 */
+  }
+
+  .label {
+    font-size: 0.75rem; /* 1024~1279: "맞춤 시군구" 6자가 76px 안에 한 줄 */
   }
 
   .tile {
@@ -216,5 +222,9 @@
 
   .item {
     width: 92px;
+  }
+
+  .label {
+    font-size: var(--fs-caption, 0.8125rem);
   }
 }

@@ -35,7 +35,7 @@ export const QUICK_LINK_ITEMS: readonly QuickItem[] = [
   { id: "crops", href: "/crops", label: "작물 정보", icon: IrangSprout },
   { id: "compare", href: "/regions/compare", label: "지역 비교", icon: GitCompareArrows },
   { id: "assess", href: "/match", label: "유형 진단", icon: ScanSearch },
-  { id: "ranking", href: "/regions/ranking", label: "맞춤 시군구 찾기", icon: ListOrdered },
+  { id: "ranking", href: "/regions/ranking", label: "맞춤 시군구", icon: ListOrdered },
   { id: "costs", href: "/costs", label: "비용 가이드", icon: Calculator },
   { id: "programs", href: "/programs", label: "지원사업", icon: HandCoins },
   { id: "guide", href: "/guide", label: "정착 로드맵", icon: Signpost },
