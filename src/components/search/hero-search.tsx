@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchOverlay } from "@/lib/hooks/use-search-overlay";
+import { useTapGesture } from "@/lib/hooks/use-tap-gesture";
 import SearchBar from "./search-bar";
 
 /**
@@ -23,14 +24,16 @@ export default function HeroSearch() {
     return () => mql.removeEventListener("change", handler);
   }, []);
 
-  const handleMobileTap = useCallback(() => {
-    if (isMobile) openOverlay();
-  }, [isMobile, openOverlay]);
+  // 탭(눌렀다 뗌)만 오버레이 — 검색창을 잡고 스크롤하는 제스처는 무시 (9/7 회장 리포트)
+  const tapHandlers = useTapGesture(openOverlay, isMobile);
 
   return (
     <div
       ref={containerRef}
-      onPointerDown={isMobile ? handleMobileTap : undefined}
+      {...tapHandlers}
+      role={isMobile ? "button" : undefined}
+      tabIndex={isMobile ? 0 : undefined}
+      aria-label={isMobile ? "통합 검색 열기" : undefined}
     >
       {isMobile ? (
         /* 모바일: 장식용 검색창 — 탭하면 전역 오버레이 호출 */
