@@ -6,9 +6,10 @@
   display: flex;
   flex-direction: column;
   margin: -44px calc(-50vw + 50%) 0; /* 위 -44: .page gap 64 → 히어로와 20 (흰 여백 최소화) */
-  padding: 26px calc(50vw - 50%) 24px;
-  background: var(--primary, #1b6b5a);
-  color: #fff;
+  padding: 30px calc(50vw - 50%) 30px;
+  /* 공공포털 문법(복지로·태안·고용24): 연한 바탕 띠 + 흰 타일. primary 원색 띠는 9/7 회장 "못생김" 판정으로 폐기 */
+  background: linear-gradient(180deg, #f3f8f6 0%, #eef5f1 100%);
+  color: var(--foreground, #111827);
   min-width: 0;
 }
 
@@ -32,15 +33,17 @@
 .intro {
   display: flex;
   flex-direction: column;
+  align-items: center; /* 모바일: 제목 블록 가운데 (태안·고용24 모바일 패턴) */
   gap: 4px;
+  text-align: center;
 }
 
 .eyebrow {
   margin: 0;
   font-size: var(--fs-overline, 0.6875rem);
   font-weight: 800;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.72);
+  letter-spacing: 0.12em;
+  color: var(--primary, #1b6b5a);
 }
 
 .title {
@@ -48,20 +51,20 @@
   font-size: var(--fs-h3, 1.25rem);
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #fff;
+  color: var(--primary-dark, #0d2e27);
 }
 
 .desc {
   margin: 0;
   font-size: var(--fs-caption, 0.8125rem);
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--muted-foreground, #6b7280);
 }
 
 /* 모바일: 4개 × 2줄 그리드 — 한 화면에 8개 전부 (9/7 회장 지시) */
 .track {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px 4px; /* 행 간격 6 (9/7 회장: 아이콘끼리 상하 간격 축소) */
+  gap: 18px 8px; /* 4×2 그리드 (태안 모바일 패턴) */
   margin: 0;
   padding: 2px 0 0;
   list-style: none;
@@ -75,18 +78,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
   min-height: 44px;
   padding: 4px 2px;
   border-radius: 14px;
-  color: #fff;
+  color: var(--foreground, #111827);
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .link:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
 }
 
@@ -95,20 +98,24 @@
   flex: 0 0 auto; /* 라벨이 길어져도 타일은 절대 줄지 않는다 (9/7 회장: 타일 크기 통일) */
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
-  border-radius: 18px;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
   background: #fff;
   color: var(--primary, #1b6b5a);
+  box-shadow:
+    0 2px 4px rgba(27, 107, 90, 0.06),
+    0 10px 24px rgba(27, 107, 90, 0.1);
   transition:
     background 0.18s ease,
     color 0.18s ease,
-    transform 0.18s ease;
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .label {
   white-space: nowrap; /* 라벨은 항상 한 줄 — 긴 이름은 짧은 표기(예: "맞춤 시군구")로 */
-  font-size: var(--fs-caption, 0.8125rem);
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.25;
   text-align: center;
@@ -117,9 +124,10 @@
 
 @media (hover: hover) {
   .link:hover .tile {
-    background: var(--primary-dark, #0d2e27);
+    background: var(--primary, #1b6b5a);
     color: #fff;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px rgba(27, 107, 90, 0.22);
   }
 }
 
@@ -131,8 +139,8 @@
 
 @media (min-width: 640px) {
   .section {
-    padding-top: 30px;
-    padding-bottom: 28px;
+    padding-top: 34px;
+    padding-bottom: 34px;
   }
 }
 
@@ -181,18 +189,18 @@
   /* 링크 박스를 "타일 64 + 8 + 라벨 1줄 18 = 90px"로 고정 — 8개가 같은 박스라 띠 정중앙에 정확히 놓이고,
      2줄 라벨("맞춤 시군구 찾기")의 둘째 줄만 박스 밖 아래 여백(30px)으로 흘러내린다(9/7 회장 "중앙 안 맞음" 2차) */
   .link {
-    height: 90px;
     padding-top: 0;
     padding-bottom: 0;
-    overflow: visible;
   }
 
   .intro {
-    gap: 6px; /* 제목 블록은 띠(행 90px) 중심에 — 타일 중심이 아니라 띠 기준 (9/7 회장 3차) */
+    align-items: flex-start;
+    gap: 6px; /* 제목 블록은 띠 행 중심에 (9/7 회장 3차) */
+    text-align: left;
   }
 
   .title {
-    font-size: var(--fs-h2, 1.5rem);
+    font-size: 1.625rem;
   }
 
   .track {
@@ -211,8 +219,8 @@
   .tile {
     width: 64px;
     height: 64px;
-    border-radius: 20px;
   }
+
 }
 
 @media (min-width: 1280px) {
@@ -221,10 +229,16 @@
   }
 
   .item {
-    width: 92px;
+    width: 110px;
+  }
+
+  .tile {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
   }
 
   .label {
-    font-size: var(--fs-caption, 0.8125rem);
+    font-size: 0.875rem;
   }
 }
