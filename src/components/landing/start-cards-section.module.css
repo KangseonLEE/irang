@@ -1,0 +1,48 @@
+/* StartCardsSection — 섹션 머리말. 기본(모바일) → @media 오버라이드 (체크리스트 G) */
+
+.section {
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, #fff);
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 700;
+}
+
+.title {
+  margin: 4px 0 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--primary-dark, #0d2e27);
+}
+
+.desc {
+  margin: 0;
+  font-size: var(--fs-body-sm, 0.9375rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+@media (min-width: 768px) {
+  .head {
+    margin-bottom: 28px;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+}

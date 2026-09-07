@@ -24,7 +24,7 @@ import { LandingClickTracker } from "@/components/analytics/landing-click-tracke
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
 import { ProgramsSection } from "@/components/landing/programs-section";
 import { deriveStatus, daysUntilDeadline, isUnannounced, ALWAYS_OPEN } from "@/lib/program-status";
-import { GovSupportGuide } from "@/components/landing/gov-support-guide";
+import { StartCardsSection } from "@/components/landing/start-cards-section";
 import { CropGlanceSection } from "@/components/landing/crop-glance-section";
 import { NewsTabsV2Loader } from "@/components/landing/news-tabs-v2-loader";
 import { interviews } from "@/lib/data/landing";
@@ -85,11 +85,18 @@ function getProgramsData() {
     .sort((a, b) => a.daysLeft - b.daysLeft)
     .slice(0, 4);
 
-  return { activePrograms, deadlinePrograms, ongoingPrograms };
+  // 시작 카드(9/7) — 지금 신청 가능(모집중, 공고 미발표 제외) / 7일 내 마감
+  const openProgramCount = announced.filter((p) => p.programStatus === "모집중").length;
+  const dueSoonProgramCount = announced.filter((p) => {
+    const d = daysUntilDeadline(p.applicationEnd);
+    return p.programStatus === "모집중" && d >= 0 && d <= 7;
+  }).length;
+
+  return { activePrograms, deadlinePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount };
 }
 
 export default function HomePage() {
-  const { activePrograms, deadlinePrograms, ongoingPrograms } = getProgramsData();
+  const { activePrograms, deadlinePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount } = getProgramsData();
 
   return (
     <div className={s.page}>
@@ -168,13 +175,16 @@ export default function HomePage() {
         <TrendCostSection />
       </ScrollReveal>
 
-      {/* ═══ 4-2 + 5. 작물 한눈에 + 농촌 정착 길잡이 (연한 그린 배경) ═══ */}
+      {/* ═══ 4-2 + 5. 작물 한눈에 + 이랑에서 할 수 있는 것 3카드 (연한 그린 배경) ═══ */}
       <div className={s.lightGreenBg}>
         <ScrollReveal trackId="crops">
           <CropGlanceSection />
         </ScrollReveal>
-        <ScrollReveal trackId="guide">
-          <GovSupportGuide />
+        <ScrollReveal trackId="start_cards">
+          <StartCardsSection
+            openProgramCount={openProgramCount}
+            dueSoonProgramCount={dueSoonProgramCount}
+          />
         </ScrollReveal>
       </div>
 
