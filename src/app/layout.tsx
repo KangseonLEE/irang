@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Suspense } from "react";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { Header } from "@/components/layout/header";
@@ -180,9 +179,7 @@ export default function RootLayout({
         <KeyboardFocusGuard />
         <OutboundClickTracker />
         <GoogleAnalytics />
-        <Suspense fallback={null}>
-          <PageViewTracker />
-        </Suspense>
+        <PageViewTracker />
         <Analytics />
         <SpeedInsights />
         <SearchOverlayProvider>
