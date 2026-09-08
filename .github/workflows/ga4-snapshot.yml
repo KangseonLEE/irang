@@ -1,0 +1,39 @@
+# GA4 스냅샷 (2026-09-08) — M7 판정 기준선용 핵심 지표를 월 1회(+수동) 뽑아 이슈로 발행.
+# 시크릿: GA4_PROPERTY_ID(숫자), GA4_SA_JSON(서비스 계정 JSON, 속성 뷰어). 라벨 ga4-snapshot.
+name: GA4 snapshot
+
+on:
+  schedule:
+    - cron: "30 0 1 * *" # 매월 1일 KST 09:30
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "조회 창(일)"
+        default: "28"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Run report
+        id: report
+        env:
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GA4_SA_JSON: ${{ secrets.GA4_SA_JSON }}
+          GA4_DAYS: ${{ github.event.inputs.days || '28' }}
+        run: node scripts/watchman/ga4-snapshot.mjs > snapshot.md
+      - name: Open issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create ga4-snapshot --color 1B6B5A --description "GA4 M7 기준선 스냅샷" 2>/dev/null || true
+          gh issue create --title "GA4 스냅샷 $(date -u +%Y-%m-%d)" --label ga4-snapshot --assignee KangseonLEE --body-file snapshot.md
