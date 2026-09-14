@@ -6,7 +6,7 @@ import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ChevronDown, ChevronUp } from "lucide-react";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
+import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHints, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
 import { RequestButton } from "@/components/feedback/request-modal";
@@ -200,6 +200,12 @@ function SearchPageContent() {
     }
     return merged.slice(0, 4);
   }, [typoCandidates, errataPair, query, totalCount]);
+
+  // 결과 0건 안내 힌트 — 아직 작물이 없는 검색어를 가까운 실재 작물로 (2026-09-14)
+  const noResultHints = useMemo(
+    () => (query && totalCount === 0 ? getNoResultHints(query) : []),
+    [query, totalCount],
+  );
 
   // 최근 검색어 (localStorage — 날짜 포함 형식 호환)
   const recentSearches = useMemo(() => {
@@ -430,6 +436,24 @@ function SearchPageContent() {
                     className={s.suggestLink}
                   >
                     {sug}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 아직 작물이 없는 검색어 — 가까운 실재 작물 안내 (힌트) */}
+          {noResultHints.length > 0 && (
+            <div className={s.suggestSection}>
+              <p className={s.suggestTitle}>이런 작물은 어때요?</p>
+              <div className={s.suggestList}>
+                {noResultHints.map((h) => (
+                  <Link
+                    key={h}
+                    href={`/search?q=${encodeURIComponent(h)}`}
+                    className={s.suggestLink}
+                  >
+                    {h}
                   </Link>
                 ))}
               </div>

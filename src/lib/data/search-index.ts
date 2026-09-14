@@ -1220,6 +1220,27 @@ export function searchAll(query: string): SearchItem[] {
 // Query Suggestions (인기 쿼리 자동완성)
 // ---------------------------------------------------------------------------
 
+/**
+ * 결과 없음 힌트 (2026-09-14) — 아직 정식 작물이 아니라 검색이 0건인 키워드를,
+ * 가장 가까운 **실재 작물**로 안내한다. 정식 작물 추가(일러스트·상세·교차검증) 대신 힌트만.
+ * 근거: 검색 로그상 고사리·산마늘·명이나물이 월 1회씩 0건. value 는 반드시 결과가 나오는 작물명.
+ * (산마늘 = 명이나물 동의어. 셋 다 임산물 계열이라 더덕·도라지로 안내)
+ */
+const NO_RESULT_HINTS: { keys: string[]; suggest: string[] }[] = [
+  { keys: ["고사리"], suggest: ["더덕", "도라지"] },
+  { keys: ["산마늘", "명이나물", "명이"], suggest: ["더덕", "도라지"] },
+];
+
+/** 결과 0건 검색어에 대해 안내할 실재 작물명을 돌려준다(없으면 빈 배열). */
+export function getNoResultHints(query: string): string[] {
+  const q = query.trim().toLowerCase().replace(/\s/g, "");
+  if (q.length < 2) return [];
+  for (const { keys, suggest } of NO_RESULT_HINTS) {
+    if (keys.some((k) => q === k || q.includes(k))) return suggest;
+  }
+  return [];
+}
+
 const QUERY_SUGGESTIONS = [
   // 지역
   "전남 귀농", "경북 귀농", "충남 귀농", "제주 귀농", "강원 귀농",
