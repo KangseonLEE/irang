@@ -39,7 +39,6 @@ import s from "./page.module.css";
    ──────────────────────────────────────────── */
 
 /* ── 지원사업 데이터 준비 (서버 사이드) ── */
-const DEADLINE_THRESHOLD_DAYS = 14;
 /**
  * "상시·연중" 판정 창 (8/30 회장 지시 — 랜딩 지원사업 탭 분리).
  * 마감이 없거나(ALWAYS_OPEN: 예산 소진 시까지·모집완료 시까지) 신청 기간이 150일 이상이면
@@ -70,20 +69,12 @@ function getProgramsData() {
 
   // 진행·예정 탭 — 기간 한정 공고만(상시 건은 위 탭으로). 모집중 먼저, 마감 가까운 순
   const statusRank = (s: string) => (s === "모집중" ? 0 : 1);
+  // 진행·예정 카드에 마감 임박(D-N) 배지를 인라인 표시 — 별도 "마감 임박" 탭이 같은 건을 중복 노출하던 문제 해소(9/14)
   const activePrograms = announced
     .filter((p) => (p.programStatus === "모집중" || p.programStatus === "모집예정") && !isLongRunning(p.applicationStart, p.applicationEnd))
+    .map((p) => ({ ...p, daysLeft: daysUntilDeadline(p.applicationEnd) }))
     .sort((a, b) => statusRank(a.programStatus) - statusRank(b.programStatus) || a.applicationEnd.localeCompare(b.applicationEnd))
     .slice(0, 6);
-
-  const deadlinePrograms = PROGRAMS
-    .map((p) => ({
-      ...p,
-      status: deriveStatus(p.applicationStart, p.applicationEnd),
-      daysLeft: daysUntilDeadline(p.applicationEnd),
-    }))
-    .filter((p) => p.status === "모집중" && p.daysLeft >= 0 && p.daysLeft <= DEADLINE_THRESHOLD_DAYS)
-    .sort((a, b) => a.daysLeft - b.daysLeft)
-    .slice(0, 4);
 
   // 시작 카드(9/7) — 지금 신청 가능(모집중, 공고 미발표 제외) / 7일 내 마감
   const openProgramCount = announced.filter((p) => p.programStatus === "모집중").length;
@@ -92,11 +83,11 @@ function getProgramsData() {
     return p.programStatus === "모집중" && d >= 0 && d <= 7;
   }).length;
 
-  return { activePrograms, deadlinePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount };
+  return { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount };
 }
 
 export default function HomePage() {
-  const { activePrograms, deadlinePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount } = getProgramsData();
+  const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount } = getProgramsData();
 
   return (
     <div className={s.page}>
@@ -151,7 +142,6 @@ export default function HomePage() {
       <ScrollReveal trackId="programs">
         <ProgramsSection
           activePrograms={activePrograms}
-          deadlinePrograms={deadlinePrograms}
           ongoingPrograms={ongoingPrograms}
         />
       </ScrollReveal>

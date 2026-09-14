@@ -11,13 +11,15 @@ import { formatAgeRange } from "@/lib/format";
 import { analytics } from "@/lib/analytics";
 import s from "./programs-section.module.css";
 
-type Tab = "active" | "deadline" | "ongoing";
+type Tab = "active" | "ongoing";
+
+/** 모집중이면서 마감이 이 일수 이내면 카드에 D-N 배지 (기존 "마감 임박" 탭 대체, 9/14) */
+const URGENT_DAYS = 14;
 
 type ActiveProgram = SupportProgram & { programStatus: ProgramStatus };
 
 interface Props {
   activePrograms: ActiveProgram[];
-  deadlinePrograms: (SupportProgram & { daysLeft: number })[];
   /** 상시·연중 모집 (마감 없음 또는 접수 150일 이상) — 8/30 탭 분리 */
   ongoingPrograms: ActiveProgram[];
 }
@@ -30,16 +32,15 @@ function periodLabel(start: string, end: string): string {
   return `${mmdd(start)} ~ ${mmdd(end)}`;
 }
 
-export function ProgramsSection({ activePrograms, deadlinePrograms, ongoingPrograms }: Props) {
+export function ProgramsSection({ activePrograms, ongoingPrograms }: Props) {
   const [tab, setTab] = useState<Tab>("active");
   const [animating, setAnimating] = useState(false);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const hasDeadline = deadlinePrograms.length > 0;
   const hasOngoing = ongoingPrograms.length > 0;
-  const programs = tab === "active" ? activePrograms : tab === "deadline" ? deadlinePrograms : ongoingPrograms;
+  const programs = tab === "active" ? activePrograms : ongoingPrograms;
   const needsCarousel = programs.length > 3;
 
   useDragScroll(scrollRef);
@@ -75,7 +76,7 @@ export function ProgramsSection({ activePrograms, deadlinePrograms, ongoingProgr
     el.scrollBy({ left: dir * step, behavior: "smooth" });
   }, []);
 
-  if (activePrograms.length === 0 && deadlinePrograms.length === 0 && ongoingPrograms.length === 0) return null;
+  if (activePrograms.length === 0 && ongoingPrograms.length === 0) return null;
 
   const switchTab = (next: Tab) => {
     if (next === tab) return;
@@ -128,16 +129,6 @@ export function ProgramsSection({ activePrograms, deadlinePrograms, ongoingProgr
         </button>
         <button
           role="tab"
-          aria-selected={tab === "deadline"}
-          className={`${s.tab} ${tab === "deadline" ? s.tabActive : ""}`}
-          onClick={() => switchTab("deadline")}
-        >
-          <Clock size={13} className={s.tabIcon} />
-          마감 임박
-          {hasDeadline && <span className={s.tabCount}>{deadlinePrograms.length}</span>}
-        </button>
-        <button
-          role="tab"
           aria-selected={tab === "ongoing"}
           className={`${s.tab} ${tab === "ongoing" ? s.tabActive : ""}`}
           onClick={() => switchTab("ongoing")}
@@ -153,23 +144,24 @@ export function ProgramsSection({ activePrograms, deadlinePrograms, ongoingProgr
         <div className={wrapperCls}>
           <div ref={scrollRef} className={carouselCls}>
             {programs.map((p) => {
-              const isDeadline = tab === "deadline" && "daysLeft" in p;
-              const dl = isDeadline ? (p as SupportProgram & { daysLeft: number }) : null;
-              const isUpcoming = !isDeadline && "programStatus" in p && p.programStatus === "모집예정";
+              const isUpcoming = "programStatus" in p && p.programStatus === "모집예정";
               const isOngoing = tab === "ongoing";
+              // 모집중 + 마감 임박이면 D-N 배지 (탭 무관, 진행·예정 카드에서도 표시)
+              const daysLeft = "daysLeft" in p ? (p as { daysLeft: number }).daysLeft : -1;
+              const isUrgent = !isUpcoming && !isOngoing && daysLeft >= 0 && daysLeft <= URGENT_DAYS;
 
               return (
                 <Link
                   key={p.id}
                   href={`/programs/${p.id}`}
                   data-track={`programs:card:${tab}`}
-                  className={`${s.card} ${isDeadline ? s.cardDeadline : ""}`}
+                  className={`${s.card} ${isUrgent ? s.cardDeadline : ""}`}
                 >
                   <div className={s.cardTopRow}>
                     <div className={s.cardTopLeft}>
-                      {isDeadline && dl ? (
+                      {isUrgent ? (
                         <span className={s.dday}>
-                          {dl.daysLeft === 0 ? "오늘 마감" : `D-${dl.daysLeft}`}
+                          {daysLeft === 0 ? "오늘 마감" : `D-${daysLeft}`}
                         </span>
                       ) : isUpcoming ? (
                         <span className={s.tagUpcoming}>모집예정</span>
@@ -183,11 +175,7 @@ export function ProgramsSection({ activePrograms, deadlinePrograms, ongoingProgr
                     <span className={s.typeBadge}>{p.supportType}</span>
                   </div>
                   <h3 className={s.cardTitle}>{p.title}</h3>
-                  {isDeadline ? (
-                    <p className={s.cardDesc}>{p.summary}</p>
-                  ) : (
-                    <span className={s.amount}>{p.supportAmount}</span>
-                  )}
+                  <span className={s.amount}>{p.supportAmount}</span>
                   <div className={s.cardMeta}>
                     <span className={s.metaItem}>
                       신청 {periodLabel(p.applicationStart, p.applicationEnd)}
@@ -229,10 +217,10 @@ export function ProgramsSection({ activePrograms, deadlinePrograms, ongoingProgr
         <div className={s.emptyDeadline}>
           {tab === "ongoing" ? <CalendarRange size={20} /> : <Clock size={20} />}
           <p className={s.emptyDeadlineText}>
-            {tab === "ongoing" ? "상시 모집 중인 사업이 아직 없어요" : "마감 임박한 사업이 아직 없어요"}
+            {tab === "ongoing" ? "상시 모집 중인 사업이 아직 없어요" : "진행 중인 사업이 아직 없어요"}
           </p>
           <span className={s.emptyDeadlineSub}>
-            {tab === "ongoing" ? "마감 없이 연중 받는 공고가 여기에 모여요" : "마감 14일 전부터 여기에 표시돼요"}
+            {tab === "ongoing" ? "마감 없이 연중 받는 공고가 여기에 모여요" : "새 공고가 열리면 여기에 표시돼요"}
           </span>
         </div>
       )}
