@@ -31,6 +31,8 @@ export function Header() {
   const activeGroupId = resolveActiveGroupId(pathname);
   /** 스크롤 내리면 헤더 숨김, 올리면 표시 */
   const [headerHidden, setHeaderHidden] = useState(false);
+  // 랜딩: 히어로 검색이 보이는 동안 헤더 검색 트리거 숨김 → 지나면 노출 (9/14)
+  const [showHeaderSearch, setShowHeaderSearch] = useState(false);
   const lastScrollY = useRef(0);
   const { count, mounted } = useBookmarks();
   const { open: openSearch } = useSearchOverlay();
@@ -96,6 +98,19 @@ export function Header() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setGnbSearchOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (pathname !== "/") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShowHeaderSearch(true);
+      return;
+    }
+    // 랜딩: 히어로 검색이 뷰포트를 벗어나면(≈400px) 헤더 검색 트리거 노출
+    const onScroll = () => setShowHeaderSearch(window.scrollY > 400);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, [pathname]);
 
   useEffect(() => {
@@ -288,18 +303,20 @@ export function Header() {
 
           {/* Right Actions */}
           <div className={s.actions}>
-            <div className={s.searchWrap}>
-              <button
-                type="button"
-                className={`${s.searchBtn}${gnbSearchOpen ? ` ${s.searchBtnHidden}` : ""}`}
-                aria-label="통합검색"
-                aria-haspopup="dialog"
-                aria-expanded={gnbSearchOpen}
-                onClick={handleSearchClick}
-              >
-                <Search size={20} strokeWidth={1.75} />
-              </button>
-            </div>
+            {showHeaderSearch && (
+              <div className={s.searchWrap}>
+                <button
+                  type="button"
+                  className={`${s.searchBtn}${gnbSearchOpen ? ` ${s.searchBtnHidden}` : ""}`}
+                  aria-label="통합검색"
+                  aria-haspopup="dialog"
+                  aria-expanded={gnbSearchOpen}
+                  onClick={handleSearchClick}
+                >
+                  <Search size={20} strokeWidth={1.75} />
+                </button>
+              </div>
+            )}
             <button
               type="button"
               className={s.bookmarkBtn}

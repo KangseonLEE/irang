@@ -656,11 +656,13 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             <ArrowLeft size={18} />
           </button>
         ) : (
-          <Search
-            size={size === "large" ? 22 : 18}
-            className={s.searchIcon}
-            aria-hidden="true"
-          />
+          <button type="submit" className={s.searchSubmitBtn} aria-label="검색">
+            <Search
+              size={size === "large" ? 22 : 18}
+              className={s.searchIcon}
+              aria-hidden="true"
+            />
+          </button>
         )}
         <input
           ref={inputRef}

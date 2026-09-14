@@ -90,6 +90,31 @@
   flex-shrink: 0;
 }
 
+/* 돋보기 = 검색 제출 버튼 (2026-09-14) — 클릭으로도 검색 실행 */
+.searchSubmitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.searchSubmitBtn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+@media (hover: hover) {
+  .searchSubmitBtn:hover .searchIcon {
+    color: var(--primary);
+  }
+}
+
 .input {
   flex: 1;
   border: none;
