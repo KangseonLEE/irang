@@ -421,7 +421,7 @@ function SearchPageContent() {
             &lsquo;{query}&rsquo;에 대한 검색 결과가 없어요.
           </p>
           <p className={s.noResultHint}>
-            다른 키워드로 검색하거나, 아래 메뉴에서 직접 탐색해 보세요.
+            철자가 맞는지 확인하거나, 더 짧은 키워드로 검색해 보세요.
           </p>
 
           {/* 오타 보정 제안 — 자모 후보 + 네이버 errata 합본 */}
@@ -466,17 +466,6 @@ function SearchPageContent() {
             </div>
           )}
 
-          <div className={s.noResultLinks}>
-            <Link href="/regions" className={s.noResultLink}>
-              <MapPin size={16} /> 지역 비교
-            </Link>
-            <Link href="/crops" className={s.noResultLink}>
-              <Sprout size={16} /> 작물 정보
-            </Link>
-            <Link href="/programs" className={s.noResultLink}>
-              <FileText size={16} /> 지원사업
-            </Link>
-          </div>
         </div>
       )}
 
