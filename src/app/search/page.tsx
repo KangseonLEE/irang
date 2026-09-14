@@ -421,7 +421,8 @@ function SearchPageContent() {
             &lsquo;{query}&rsquo;에 대한 검색 결과가 없어요.
           </p>
           <p className={s.noResultHint}>
-            철자가 맞는지 확인하거나, 더 짧은 키워드로 검색해 보세요.
+            <span className={s.tipClause}>철자가 맞는지 확인하거나,</span>{" "}
+            <span className={s.tipClause}>더 짧은 키워드로 검색해 보세요.</span>
           </p>
 
           {/* 오타 보정 제안 — 자모 후보 + 네이버 errata 합본 */}
@@ -442,12 +443,17 @@ function SearchPageContent() {
             </div>
           )}
 
-          <RequestButton
-            keyword={query.trim()}
-            pageName="통합 검색"
-            label="찾는 정보가 없나요? 정보 추가 요청하기"
-            className={s.requestLink}
-          />
+          <div className={s.requestBlock}>
+            <p className={s.requestDesc}>
+              찾는 정보가 없다면 요청해 주세요. 담당자가 확인 후 추가해 드려요.
+            </p>
+            <RequestButton
+              keyword={query.trim()}
+              pageName="통합 검색"
+              label="정보 추가 요청하기"
+              className={s.requestLink}
+            />
+          </div>
 
           {/* 아직 작물이 없는 검색어 — 가까운 실재 작물을 카드로 안내 (힌트, 요청 버튼 아래) */}
           {noResultHintItems.length > 0 && (
