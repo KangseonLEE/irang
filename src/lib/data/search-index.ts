@@ -1232,13 +1232,34 @@ const NO_RESULT_HINTS: { keys: string[]; suggest: string[] }[] = [
 ];
 
 /** 결과 0건 검색어에 대해 안내할 실재 작물명을 돌려준다(없으면 빈 배열). */
-export function getNoResultHints(query: string): string[] {
+function getNoResultHints(query: string): string[] {
   const q = query.trim().toLowerCase().replace(/\s/g, "");
   if (q.length < 2) return [];
   for (const { keys, suggest } of NO_RESULT_HINTS) {
     if (keys.some((k) => q === k || q.includes(k))) return suggest;
   }
   return [];
+}
+
+/** 힌트 작물명을 검색 결과 카드용 SearchItem(type crop)으로 해석한다(존재하는 작물만). */
+export function getNoResultHintItems(query: string): SearchItem[] {
+  const names = getNoResultHints(query);
+  const items: SearchItem[] = [];
+  for (const name of names) {
+    const c = CROPS.find((crop) => crop.name === name);
+    if (!c) continue;
+    items.push({
+      type: "crop",
+      id: c.id,
+      title: c.name,
+      subtitle: truncate(c.description, 50),
+      href: `/crops/${c.id}`,
+      keywords: [c.category, c.difficulty],
+      icon: c.emoji,
+      badge: c.category,
+    });
+  }
+  return items;
 }
 
 const QUERY_SUGGESTIONS = [

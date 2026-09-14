@@ -6,7 +6,7 @@ import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ChevronDown, ChevronUp } from "lucide-react";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHints, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
+import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
 import { RequestButton } from "@/components/feedback/request-modal";
@@ -202,8 +202,8 @@ function SearchPageContent() {
   }, [typoCandidates, errataPair, query, totalCount]);
 
   // 결과 0건 안내 힌트 — 아직 작물이 없는 검색어를 가까운 실재 작물로 (2026-09-14)
-  const noResultHints = useMemo(
-    () => (query && totalCount === 0 ? getNoResultHints(query) : []),
+  const noResultHintItems = useMemo(
+    () => (query && totalCount === 0 ? getNoResultHintItems(query) : []),
     [query, totalCount],
   );
 
@@ -442,23 +442,29 @@ function SearchPageContent() {
             </div>
           )}
 
-          {/* 아직 작물이 없는 검색어 — 가까운 실재 작물 안내 (힌트) */}
-          {noResultHints.length > 0 && (
-            <div className={s.suggestSection}>
+          {/* 아직 작물이 없는 검색어 — 가까운 실재 작물을 카드로 안내 (힌트) */}
+          {noResultHintItems.length > 0 && (
+            <div className={s.hintSection}>
               <p className={s.suggestTitle}>이런 작물은 어때요?</p>
-              <div className={s.suggestList}>
-                {noResultHints.map((h) => (
-                  <Link
-                    key={h}
-                    href={`/search?q=${encodeURIComponent(h)}`}
-                    className={s.suggestLink}
-                  >
-                    {h}
-                  </Link>
+              <div className={s.grid}>
+                {noResultHintItems.map((item) => (
+                  <ResultCard
+                    key={`${item.type}-${item.id}`}
+                    item={item}
+                    query={query}
+                    highlightCls={s.highlight}
+                  />
                 ))}
               </div>
             </div>
           )}
+
+          <RequestButton
+            keyword={query.trim()}
+            pageName="통합 검색"
+            label="찾는 정보가 없나요? 정보 추가 요청하기"
+            className={s.requestLink}
+          />
 
           <div className={s.noResultLinks}>
             <Link href="/regions" className={s.noResultLink}>
@@ -471,12 +477,6 @@ function SearchPageContent() {
               <FileText size={16} /> 지원사업
             </Link>
           </div>
-          <RequestButton
-            keyword={query.trim()}
-            pageName="통합 검색"
-            label="찾는 정보가 없나요? 정보 추가 요청하기"
-            className={s.requestLink}
-          />
         </div>
       )}
 

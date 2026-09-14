@@ -682,6 +682,21 @@
   max-width: 480px;
 }
 
+/* 결과 없음 힌트 — 가까운 실재 작물을 결과 카드로 안내 (2026-09-14) */
+.hintSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  width: 100%;
+  max-width: 480px;
+  text-align: left;
+}
+
+.hintSection .suggestTitle {
+  text-align: center;
+}
+
 .suggestTitle {
   font-size: var(--fs-body-sm);
   font-weight: 600;
