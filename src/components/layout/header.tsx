@@ -101,16 +101,9 @@ export function Header() {
   }, [pathname]);
 
   useEffect(() => {
-    if (pathname !== "/") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setShowHeaderSearch(true);
-      return;
-    }
-    // 랜딩: 히어로 검색이 뷰포트를 벗어나면(≈400px) 헤더 검색 트리거 노출
-    const onScroll = () => setShowHeaderSearch(window.scrollY > 400);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    // 랜딩("/")은 히어로 검색이 기본이라 헤더 검색 트리거를 항상 숨김. 그 외 페이지는 노출 (9/14)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setShowHeaderSearch(pathname !== "/");
   }, [pathname]);
 
   useEffect(() => {
