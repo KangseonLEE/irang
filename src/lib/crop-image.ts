@@ -73,6 +73,11 @@ const ILLUSTRATED_CROPS = new Set<string>([
  * - 일러 있으면 `/crops/illustrations/{id}.webp`
  * - 없으면 `/crops/{id}.jpg` (사진 fallback)
  */
+/** 일러스트(webp)가 있는 작물인지 — 카드에서 이모지 대신 이미지 노출 판정용. */
+export function hasCropIllustration(cropId: string): boolean {
+  return ILLUSTRATED_CROPS.has(cropId);
+}
+
 export function getCropImageSrc(cropId: string): string {
   if (ILLUSTRATED_CROPS.has(cropId)) {
     return `/crops/illustrations/${cropId}.webp`;

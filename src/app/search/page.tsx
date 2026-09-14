@@ -442,7 +442,14 @@ function SearchPageContent() {
             </div>
           )}
 
-          {/* 아직 작물이 없는 검색어 — 가까운 실재 작물을 카드로 안내 (힌트) */}
+          <RequestButton
+            keyword={query.trim()}
+            pageName="통합 검색"
+            label="찾는 정보가 없나요? 정보 추가 요청하기"
+            className={s.requestLink}
+          />
+
+          {/* 아직 작물이 없는 검색어 — 가까운 실재 작물을 카드로 안내 (힌트, 요청 버튼 아래) */}
           {noResultHintItems.length > 0 && (
             <div className={s.hintSection}>
               <p className={s.suggestTitle}>이런 작물은 어때요?</p>
@@ -458,13 +465,6 @@ function SearchPageContent() {
               </div>
             </div>
           )}
-
-          <RequestButton
-            keyword={query.trim()}
-            pageName="통합 검색"
-            label="찾는 정보가 없나요? 정보 추가 요청하기"
-            className={s.requestLink}
-          />
 
           <div className={s.noResultLinks}>
             <Link href="/regions" className={s.noResultLink}>

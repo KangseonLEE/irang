@@ -1,10 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 import type { ReactNode } from "react";
 
 import type { SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 import { CROPS } from "@/lib/data/crops";
+import { getCropImageSrc, hasCropIllustration } from "@/lib/crop-image";
 import { getProgramById } from "@/lib/data/programs";
 import { getEducationById } from "@/lib/data/education";
 import { getEventById } from "@/lib/data/events";
@@ -184,7 +186,13 @@ function renderCropCard(item: SearchItem, query: string, highlightCls: string): 
     item,
     s.cardRich,
     <>
-      <span className={s.iconBox} aria-hidden="true">{crop.emoji}</span>
+      {hasCropIllustration(crop.id) ? (
+        <span className={s.iconBoxThumb} aria-hidden="true">
+          <Image src={getCropImageSrc(crop.id)} alt="" width={44} height={44} />
+        </span>
+      ) : (
+        <span className={s.iconBox} aria-hidden="true">{crop.emoji}</span>
+      )}
       <span className={s.title}>{highlightMatch(crop.name, query, highlightCls)}</span>
       <span className={s.subtitle}>{highlightMatch(crop.description, query, highlightCls)}</span>
       <div className={s.metaRow}>
