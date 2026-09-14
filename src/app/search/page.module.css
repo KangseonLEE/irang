@@ -674,6 +674,13 @@
   max-width: 340px;
 }
 
+/* 데스크탑은 폭이 넉넉하니 한 줄로 */
+@media (min-width: 768px) {
+  .requestDesc {
+    max-width: none;
+  }
+}
+
 .requestLink {
   display: inline-flex;
   align-items: center;
