@@ -75,7 +75,16 @@
 .resultHeader {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+}
+
+/* 데스크탑: 건수를 제목 우측에 (모바일은 아래에 여유 간격) */
+@media (min-width: 768px) {
+  .resultHeader {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 12px;
+  }
 }
 
 .resultTitle {

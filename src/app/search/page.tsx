@@ -444,15 +444,15 @@ function SearchPageContent() {
           )}
 
           <div className={s.requestBlock}>
-            <p className={s.requestDesc}>
-              찾는 정보가 없다면 요청해 주세요. 담당자가 확인 후 추가해 드려요.
-            </p>
             <RequestButton
               keyword={query.trim()}
               pageName="통합 검색"
               label="정보 추가 요청하기"
               className={s.requestLink}
             />
+            <p className={s.requestDesc}>
+              찾는 정보가 없다면 요청해 주세요. 담당자가 확인 후 추가해 드려요.
+            </p>
           </div>
 
           {/* 아직 작물이 없는 검색어 — 가까운 실재 작물을 카드로 안내 (힌트, 요청 버튼 아래) */}
