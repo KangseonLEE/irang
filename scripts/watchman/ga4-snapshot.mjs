@@ -53,7 +53,16 @@ async function report(body) {
   }));
 }
 
-const [totals, nvr, events, pages] = await Promise.all([
+// 검색 일별 추이 — DB search_logs 적재량과 대조해 "적재 끊김"과 "사용자가 안 쓴다"를 가른다 (9/16).
+// 9/8 이후 search_logs 0건이 어느 쪽인지 28일 합계만으로는 판정할 수 없었다.
+const searchDailyReq = {
+  dimensions: [{ name: "date" }],
+  metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
+  dimensionFilter: { filter: { fieldName: "eventName", stringFilter: { value: "search" } } },
+  orderBys: [{ dimension: { dimensionName: "date" } }],
+};
+
+const [totals, nvr, events, pages, searchDaily] = await Promise.all([
   report({ metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "newUsers" }] }),
   report({ dimensions: [{ name: "newVsReturning" }], metrics: [{ name: "activeUsers" }] }),
   report({
@@ -64,8 +73,9 @@ const [totals, nvr, events, pages] = await Promise.all([
   report({
     dimensions: [{ name: "pagePath" }],
     metrics: [{ name: "screenPageViews" }, { name: "totalUsers" }],
-    dimensionFilter: { filter: { fieldName: "pagePath", inListFilter: { values: ["/", "/assess", "/match", "/regions/ranking", "/regions/compare", "/programs"] } } },
+    dimensionFilter: { filter: { fieldName: "pagePath", inListFilter: { values: ["/", "/assess", "/match", "/regions/ranking", "/regions/compare", "/programs", "/search"] } } },
   }),
+  report(searchDailyReq),
 ]);
 
 const active = totals[0]?.m[0] ?? 0;
@@ -97,7 +107,9 @@ const md = `## GA4 스냅샷 — 최근 ${DAYS}일 (어제까지)
 | 검색 실행 (search) | ${ev.search?.count ?? 0}건 / ${ev.search?.users ?? 0}명 | DB search_logs 적재량과 대조 |
 | 세션 / 신규 | ${totals[0]?.m[1] ?? 0} / ${totals[0]?.m[2] ?? 0} | |
 
-주요 페이지 조회(사용자): ${["/", "/assess", "/match", "/regions/ranking", "/regions/compare", "/programs"].map((p) => `\`${p}\` ${pg[p]?.users ?? 0}`).join(" · ")}
+주요 페이지 조회(사용자): ${["/", "/assess", "/match", "/regions/ranking", "/regions/compare", "/programs", "/search"].map((p) => `\`${p}\` ${pg[p]?.users ?? 0}`).join(" · ")}
+
+검색 일별(최근 14일, 건·명): ${searchDaily.slice(-14).map((r) => `${r.d[0].slice(4, 6)}/${r.d[0].slice(6, 8)} ${r.m[0]}·${r.m[1]}`).join(" | ") || "없음"}
 
 **판정(기계 계산, 참고용)**: ${verdict}
 
