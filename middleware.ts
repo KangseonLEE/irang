@@ -24,6 +24,7 @@ import {
   LIST_PAGE_NORMALIZE_OPTIONS,
   normalizeSearchParams,
 } from "@/lib/search-params/normalize";
+import { INTERNAL_TRAFFIC_COOKIE } from "@/lib/internal-traffic";
 
 const PUBLIC_ADMIN_PATHS = ["/admin/login", "/admin/api/auth"];
 
@@ -248,6 +249,34 @@ export async function middleware(request: NextRequest) {
         "Cache-Control": "public, max-age=86400, immutable",
       },
     });
+  }
+
+  // 1-4) 내부 트래픽 표식 토글 — `?internal=1` / `?internal=0` (2026-09-16)
+  //
+  // 운영자 기기를 검색어·피드백 집계에서 빼는 표식. /admin 을 열면 AdminShell 이
+  // 자동으로 심지만(markInternalBrowser), 폰처럼 /admin 에 안 들어가는 기기는
+  // 링크 한 번으로 표시할 수 있어야 한다.
+  //
+  // ⚠️ 반드시 normalize(2단계)보다 먼저 처리한다 — `internal` 은 화이트리스트 밖이라
+  // 그냥 두면 308 strip 으로 값이 사라진다(6/16 deep link 함정과 동형).
+  // httpOnly 를 쓰지 않는 이유: GA 게이트(analytics-gate)가 브라우저에서 같은 쿠키를 읽는다.
+  // 308(영구) 대신 307 — 브라우저·CDN 이 이 redirect 를 기억하면 안 된다.
+  const internalToggle = request.nextUrl.searchParams.get("internal");
+  if (internalToggle === "1" || internalToggle === "0") {
+    const url = request.nextUrl.clone();
+    url.searchParams.delete("internal");
+    const response = NextResponse.redirect(url, 307);
+    response.cookies.set({
+      name: INTERNAL_TRAFFIC_COOKIE,
+      value: "1",
+      path: "/",
+      sameSite: "lax",
+      secure: request.nextUrl.protocol === "https:",
+      maxAge: internalToggle === "1" ? 365 * 24 * 60 * 60 : 0,
+    });
+    // 5/11 박제 — redirect 응답이 CF 에 캐시되면 일반 사용자까지 따라간다.
+    response.headers.set("Cache-Control", "private, no-store, max-age=0");
+    return response;
   }
 
   // 2) list 페이지 searchParams 정규화 — 알 수 없는 param/값은 cleaned URL로 308 redirect

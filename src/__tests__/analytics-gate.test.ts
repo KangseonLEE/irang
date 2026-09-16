@@ -5,7 +5,11 @@ const ID = "G-TEST123";
 const NORMAL_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 
-function fakeWindow(opts: { ua?: string; storage?: Record<string, string> | "throw" }): GateWindow {
+function fakeWindow(opts: {
+  ua?: string;
+  storage?: Record<string, string> | "throw";
+  cookie?: string;
+}): GateWindow {
   const storage = opts.storage;
   return {
     navigator: { userAgent: opts.ua ?? NORMAL_UA },
@@ -15,6 +19,7 @@ function fakeWindow(opts: { ua?: string; storage?: Record<string, string> | "thr
         return storage?.[key] ?? null;
       },
     },
+    document: { cookie: opts.cookie ?? "" },
   };
 }
 
@@ -35,6 +40,16 @@ describe("irangGaGate — GA 로드 게이트", () => {
     const w = fakeWindow({ storage: { [INTERNAL_TRAFFIC_FLAG]: "1" } });
     expect(irangGaGate(w, ID)).toBe(false);
     expect(w[`ga-disable-${ID}`]).toBe(true);
+  });
+
+  it("운영자 쿠키(irang-internal=1)면 차단 — ?internal=1 토글로만 표시한 기기", () => {
+    const w = fakeWindow({ cookie: "foo=bar; irang-internal=1; baz=1" });
+    expect(irangGaGate(w, ID)).toBe(false);
+    expect(w[`ga-disable-${ID}`]).toBe(true);
+  });
+
+  it("쿠키 값이 1이 아니면 허용", () => {
+    expect(irangGaGate(fakeWindow({ cookie: "irang-internal=0" }), ID)).toBe(true);
   });
 
   it("플래그 값이 1이 아니면 허용", () => {

@@ -4,6 +4,7 @@
  * 내부·테스트 트래픽이 GA에 집계되지 않게 gtag.js 로드 자체를 막는다.
  *   - UA에 `irang-e2e` 토큰 → e2e (fixture의 비콘 차단에 더한 2중 안전망)
  *   - localStorage `irang-internal` = "1" → 운영자 브라우저 (/admin 방문 시 자동 설정)
+ *   - 쿠키 `irang-internal=1` → `?internal=1` 토글로 표시한 기기 (9/16, DB 적재 게이트와 공유)
  *   - 프로덕션 외 환경(로컬 dev·CF 터널 dev)은 GoogleAnalytics 컴포넌트가 렌더 자체를 생략
  *
  * ⚠️ `irangGaGate`는 `Function.prototype.toString()`으로 문자열화되어 인라인 <script>에
@@ -17,6 +18,8 @@ export const INTERNAL_TRAFFIC_FLAG = "irang-internal";
 export interface GateWindow {
   navigator?: { userAgent?: string };
   localStorage?: { getItem(key: string): string | null };
+  /** `irang-internal` 쿠키 — middleware `?internal=1` 토글로도 심긴다 (9/16) */
+  document?: { cookie?: string };
   [key: string]: unknown;
 }
 
@@ -31,6 +34,13 @@ export function irangGaGate(w: GateWindow, id: string): boolean {
     if (ua.indexOf("irang-e2e") !== -1) {
       reason = "e2e";
     } else if (w.localStorage && w.localStorage.getItem("irang-internal") === "1") {
+      reason = "internal";
+    } else if (
+      w.document &&
+      typeof w.document.cookie === "string" &&
+      w.document.cookie.indexOf("irang-internal=1") !== -1
+    ) {
+      // /admin 을 안 거치고 `?internal=1` 로만 표시한 기기 — 쿠키가 유일한 표식
       reason = "internal";
     }
   } catch {

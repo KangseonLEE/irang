@@ -66,6 +66,9 @@ interface RequestModalProps {
   pageName: string;
 }
 
+/** 서버가 의도적으로 적재를 건너뛴 경우 — 사용자에겐 성공으로 보여야 한다 (lib/internal-traffic) */
+const INTENTIONAL_SKIPS = new Set(["e2e", "internal", "dev"]);
+
 /**
  * /api/quick-feedback 으로 요청 저장.
  * - service_role 경유 INSERT (anon RLS 차단 우회)
@@ -101,8 +104,10 @@ async function saveRequest(data: {
     const body = (await res.json().catch(() => null)) as
       | { ok?: boolean; skipped?: string; error?: string }
       | null;
-    // 서버가 ok:true 명시한 경우만 성공 — skipped(no-supabase·migration-pending)는 silent fail로 간주
-    if (body && body.ok === true && !body.skipped) {
+    // 서버가 ok:true 명시한 경우만 성공 — skipped(no-supabase·migration-pending)는 silent fail로 간주.
+    // 단 내부·테스트 트래픽 skip(9/16)은 의도된 차단이라 실패로 취급하지 않는다 —
+    // 운영자 브라우저에서 요청을 눌렀을 때 헛된 오류 메시지가 뜨지 않게.
+    if (body && body.ok === true && (!body.skipped || INTENTIONAL_SKIPS.has(body.skipped))) {
       return { ok: true };
     }
     const reason = body?.skipped ?? body?.error ?? "unknown";

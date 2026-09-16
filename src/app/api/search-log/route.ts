@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
+import { internalSkipReason } from "@/lib/internal-traffic";
 
 // ── 입력 검증 ──
 const MAX_QUERY_LENGTH = 200;
@@ -51,6 +52,14 @@ function isRateLimited(ip: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  // 0. 내부·테스트 트래픽 적재 차단 (2026-09-16)
+  // 운영자 테스트 검색이 admin 인기 검색어·결과 없는 검색어 집계를 오염시킨다
+  // (9/14 세션 48건이 30일 집계 1위). e2e·운영자 브라우저·로컬 dev 는 저장만 skip.
+  const skip = internalSkipReason(request);
+  if (skip) {
+    return NextResponse.json({ ok: true, skipped: skip });
+  }
+
   // IP 추출 (Vercel 환경: x-forwarded-for)
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??

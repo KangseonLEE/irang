@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
 import { isValidResultId } from "@/lib/assess-result";
+import { isE2eRequest } from "@/lib/internal-traffic";
 import type { FarmTypeId } from "@/lib/data/match-questions";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
@@ -82,9 +83,12 @@ export async function POST(req: NextRequest) {
   // 0. E2E 테스트 적재 차단 (2026-08-31)
   // core-journeys e2e가 /assess 위저드를 완주하며 매 push마다 결과를 실 DB에
   // 적재해 통계를 오염 (7/24~8/31 사이 106건, 전부 첫 옵션 선택 → 귀농형).
-  // e2e는 UA 토큰(irang-e2e) + 식별 헤더(x-irang-e2e)를 항상 보냄 — 저장만 skip.
-  const ua = req.headers.get("user-agent") ?? "";
-  if (req.headers.get("x-irang-e2e") || ua.includes("irang-e2e")) {
+  // 판정은 `lib/internal-traffic` SSOT (9/16).
+  //
+  // ⚠️ 운영자 쿠키·로컬 dev 는 일부러 막지 않는다 — /assess/result/[id] 재열람이
+  // 이 row 를 읽으므로 저장을 건너뛰면 회장이 재방문 흐름을 테스트할 수 없다.
+  // M7 진단 완료율은 GA4(운영자 브라우저 제외됨)로 재므로 DB 쪽 오염 영향도 낮다.
+  if (isE2eRequest(req)) {
     return NextResponse.json({ success: true, skipped: "e2e" });
   }
 

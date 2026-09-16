@@ -21,6 +21,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
+import { internalSkipReason } from "@/lib/internal-traffic";
 
 // ── 입력 검증 상수 ──
 const MAX_MESSAGE_LENGTH = 300;
@@ -68,6 +69,12 @@ function isRateLimited(ip: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  // 내부·테스트 트래픽 적재 차단 (2026-09-16) — search-log 와 동일 게이트
+  const skip = internalSkipReason(request);
+  if (skip) {
+    return NextResponse.json({ ok: true, skipped: skip });
+  }
+
   // IP 추출
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??

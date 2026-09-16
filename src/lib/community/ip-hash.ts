@@ -15,8 +15,9 @@ export function clientIp(req: NextRequest): string {
   return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
 }
 
-/** e2e 적재 분리 — /api/assess 와 동일 식별자 (8/31 진단 DB 오염 교훈) */
-export function isE2eRequest(req: NextRequest): boolean {
-  const ua = req.headers.get("user-agent") ?? "";
-  return ua.includes("irang-e2e") || req.headers.get("x-irang-e2e") !== null;
-}
+/**
+ * e2e 적재 분리 — /api/assess 와 동일 식별자 (8/31 진단 DB 오염 교훈).
+ * 판정은 `lib/internal-traffic` 하나로 모았다 (9/16). 커뮤니티 작성은 운영자·로컬 dev 를
+ * 막지 않는다 — 승인 큐로 어차피 걸러지고, 로컬에서 작성 흐름을 검증해야 하기 때문.
+ */
+export { isE2eRequest } from "@/lib/internal-traffic";
