@@ -9,6 +9,7 @@ function fakeWindow(opts: {
   ua?: string;
   storage?: Record<string, string> | "throw";
   cookie?: string;
+  pathname?: string;
 }): GateWindow {
   const storage = opts.storage;
   return {
@@ -20,6 +21,7 @@ function fakeWindow(opts: {
       },
     },
     document: { cookie: opts.cookie ?? "" },
+    location: { pathname: opts.pathname ?? "/" },
   };
 }
 
@@ -50,6 +52,17 @@ describe("irangGaGate — GA 로드 게이트", () => {
 
   it("쿠키 값이 1이 아니면 허용", () => {
     expect(irangGaGate(fakeWindow({ cookie: "irang-internal=0" }), ID)).toBe(true);
+  });
+
+  it("/admin 경로는 플래그가 없어도 차단 — 첫 로드 집계 누수 차단", () => {
+    const w = fakeWindow({ pathname: "/admin/login" });
+    expect(irangGaGate(w, ID)).toBe(false);
+    expect(w[`ga-disable-${ID}`]).toBe(true);
+  });
+
+  it("/administration 처럼 접두만 같은 일반 경로는 허용하지 않는다(접두 일치 규칙 확인)", () => {
+    // 실제 라우트에 없지만 규칙이 접두 일치임을 명시 — 오탐 시 여기서 드러난다
+    expect(irangGaGate(fakeWindow({ pathname: "/administration" }), ID)).toBe(false);
   });
 
   it("플래그 값이 1이 아니면 허용", () => {

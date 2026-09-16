@@ -3,6 +3,7 @@
  *
  * 내부·테스트 트래픽이 GA에 집계되지 않게 gtag.js 로드 자체를 막는다.
  *   - UA에 `irang-e2e` 토큰 → e2e (fixture의 비콘 차단에 더한 2중 안전망)
+ *   - `/admin` 경로 → 운영자 화면 자체 (플래그가 심기기 전 첫 로드도 제외, 9/16)
  *   - localStorage `irang-internal` = "1" → 운영자 브라우저 (/admin 방문 시 자동 설정)
  *   - 쿠키 `irang-internal=1` → `?internal=1` 토글로 표시한 기기 (9/16, DB 적재 게이트와 공유)
  *   - 프로덕션 외 환경(로컬 dev·CF 터널 dev)은 GoogleAnalytics 컴포넌트가 렌더 자체를 생략
@@ -17,6 +18,8 @@ export const INTERNAL_TRAFFIC_FLAG = "irang-internal";
 
 export interface GateWindow {
   navigator?: { userAgent?: string };
+  /** `/admin` 경로는 첫 로드부터 집계 제외 (9/16) */
+  location?: { pathname?: string };
   localStorage?: { getItem(key: string): string | null };
   /** `irang-internal` 쿠키 — middleware `?internal=1` 토글로도 심긴다 (9/16) */
   document?: { cookie?: string };
@@ -33,6 +36,11 @@ export function irangGaGate(w: GateWindow, id: string): boolean {
     const ua = (w.navigator && w.navigator.userAgent) || "";
     if (ua.indexOf("irang-e2e") !== -1) {
       reason = "e2e";
+    } else if (w.location && (w.location.pathname || "").indexOf("/admin") === 0) {
+      // /admin 첫 방문은 AdminShell 의 플래그 설정보다 gtag config 가 먼저 나가 page_view 가
+      // 집계된다. 실제로 9/16 GA4 유입 페이지 9위가 `/admin/login`(11세션·10명)이었다 —
+      // 운영자 세션이 활성 사용자에 섞여 M7 지표를 부풀린다. 경로로 먼저 끊는다.
+      reason = "admin";
     } else if (w.localStorage && w.localStorage.getItem("irang-internal") === "1") {
       reason = "internal";
     } else if (
