@@ -84,7 +84,7 @@ for wf in "${WORKFLOWS[@]}"; do
   # 실행 이력이 없으면 gh가 에러/빈 배열을 반환 — 둘 다 "신설 직후"로 보고
   # 🔴 내지 않는다 (§15-5).
   raw=$(gh run list --workflow="${wf}.yml" --event=schedule --limit 3 \
-    --json conclusion,createdAt --jq '.[] | "\(.conclusion)\t\(.createdAt)"' 2>/dev/null)
+    --json conclusion,createdAt,databaseId --jq '.[] | "\(.conclusion)\t\(.createdAt)\t\(.databaseId)"' 2>/dev/null)
 
   if [ -z "$raw" ]; then
     echo "  ⚪ ${label} | 실행 이력 없음 (신설 직후 또는 워크플로 미존재) — 판정 skip"
@@ -94,7 +94,7 @@ for wf in "${WORKFLOWS[@]}"; do
   # createdAt 30일 이내인 건만 유효 처리 + conclusion=failure/success만 시퀀스에 포함
   # (cancelled·skipped는 실패로 집계하지 않음 — §15-5)
   filtered=()
-  while IFS=$'\t' read -r conclusion created_at; do
+  while IFS=$'\t' read -r conclusion created_at run_id; do
     [ -z "$conclusion" ] && continue
     epoch=$(date -d "$created_at" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$created_at" +%s 2>/dev/null || echo 0)
     age_days=$(( (NOW_EPOCH - epoch) / 86400 ))
@@ -102,7 +102,7 @@ for wf in "${WORKFLOWS[@]}"; do
       continue
     fi
     if [ "$conclusion" = "failure" ] || [ "$conclusion" = "success" ]; then
-      filtered+=("${conclusion}|${created_at}")
+      filtered+=("${conclusion}|${created_at}|${run_id}")
     fi
   done <<< "$raw"
 
@@ -112,48 +112,43 @@ for wf in "${WORKFLOWS[@]}"; do
   fi
 
   latest_conclusion="${filtered[0]%%|*}"
-  latest_date="${filtered[0]#*|}"
+  latest_rest="${filtered[0]#*|}"
+  latest_date="${latest_rest%%|*}"
   summary=$(printf '%s ' "${filtered[@]%%|*}")
   echo "  ${label} | 최근 3건: ${summary}"
 
-  # ── watchman-ci 자기 참조 보정 (9/2, 9/3 재보강) ──
-  # watchman-ci는 🔴 finding이 있으면 설계상 exit 1(failure)이다. 그 failure가 이슈로 표면화됐다면
-  # (실행 직후 30분 안에 watchman 이슈가 생성됨 — 열린/닫힌 상태 무관) 이미 처리된 신호이므로
-  # §15가 다시 증폭하지 않는다. 9/2 1차 보정은 "열린 이슈"만 봐서, 오탐 이슈를 닫는 순간
-  # 직전 failure 3건이 그대로 🔴가 되고 → 다시 failure → 다시 이슈…의 자기 영속 루프가 생겼다(#122).
-  # 이슈조차 없는 failure(워크플로 setup 크래시 등)만 자기치유 목적대로 계속 판정.
+  # ── watchman-ci 자기 참조 보정 (9/2 → 9/3 → 9/16 3차) ──
+  #
+  # watchman-ci 는 🔴 finding 이 있으면 **설계상** 마지막 "취합 + 이슈 발행" 스텝에서 exit 1 한다.
+  # 이 정상 동작을 §15 가 다시 "워크플로 실패"로 증폭하면 안 된다.
+  #
+  # 앞선 두 번의 보정은 모두 **이슈의 존재/시각**에 판정을 묶었다가 진동했다:
+  #   9/2 "열린 이슈가 있으면 skip"  → 이슈를 닫는 순간 직전 failure 가 🔴 → 새 이슈 → … 자기 영속 루프(#122)
+  #   9/3 "직후 30분 내 이슈 생성"    → 열린 이슈가 있어 발행이 생략된 기간의 failure 를 크래시로 오판(9/16 실측)
+  #
+  # 이슈는 다른 규칙(열린 이슈면 발행 생략)에 좌우되는 부산물이라 판정 기준이 될 수 없다.
+  # **실행 자체의 사실**에 묶는다 — 설계된 실패는 마지막 취합 스텝 하나만 failure 이고
+  # 앞선 검사 스텝은 전부 success 다. setup·의존성·검사 스크립트 크래시는 더 앞 스텝에서 죽으므로
+  # 그대로 판정 대상으로 남는다.
   if [ "$wf" = "watchman-ci" ]; then
-    issue_epochs=$(gh issue list --label watchman --state all --limit 30 --json createdAt --jq '.[].createdAt' 2>/dev/null \
-      | while read -r c; do date -d "$c" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$c" +%s 2>/dev/null; done)
-
-    # 9/16 3차 보정 — 열린 이슈가 있으면 report.sh 는 **새 이슈를 만들지 않는다**.
-    # 그래서 "직후 이슈 생성" 만 보면 그 기간의 failure 가 전부 크래시로 오판된다
-    # (9/16 실측: #129 가 열려 있어 당일 failure 가 🟡 "연속 failure 2회" 로 잡힘).
-    # 열린 watchman 이슈가 있다는 것 자체가 "이미 표면화됐고 사람 처리 대기 중" 이라는 뜻이므로
-    # 그 동안의 failure 는 설계 동작으로 본다. 이슈를 닫으면 크래시 감지가 다시 살아난다.
-    open_watchman=$(gh issue list --label watchman --state open --limit 1 --json number --jq 'length' 2>/dev/null || echo 0)
-
     rewritten=()
     for entry in "${filtered[@]}"; do
-      conclusion="${entry%%|*}"; created="${entry#*|}"
-      if [ "$conclusion" = "failure" ]; then
-        if [ "${open_watchman:-0}" != "0" ]; then
+      conclusion="${entry%%|*}"
+      rest="${entry#*|}"; created="${rest%%|*}"; rid="${rest#*|}"
+      if [ "$conclusion" = "failure" ] && [ -n "$rid" ]; then
+        failed_steps=$(gh run view "$rid" --json jobs \
+          --jq '[.jobs[].steps[] | select(.conclusion=="failure") | .name] | join("¦")' 2>/dev/null)
+        # 실패 스텝이 취합 스텝 하나뿐이면 설계 동작
+        if [ -n "$failed_steps" ] && [[ "$failed_steps" != *"¦"* ]] && [[ "$failed_steps" == *"취합"* ]]; then
           conclusion="designed"
-        else
-          run_epoch=$(date -d "$created" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$created" +%s 2>/dev/null || echo 0)
-          for ie in $issue_epochs; do
-            if [ "$ie" -ge "$run_epoch" ] && [ $((ie - run_epoch)) -le 1800 ]; then
-              conclusion="designed"; break
-            fi
-          done
         fi
       fi
-      rewritten+=("${conclusion}|${created}")
+      rewritten+=("${conclusion}|${created}|${rid}")
     done
     filtered=("${rewritten[@]}")
     latest_conclusion="${filtered[0]%%|*}"
     if [ "$latest_conclusion" = "designed" ]; then
-      echo "  ⚪ ${label} | failure는 🔴 finding 설계 동작(이슈 발행 또는 열린 이슈 대기 중) — 자기 참조 skip"
+      echo "  ⚪ ${label} | failure는 🔴 finding 설계 동작(취합 스텝만 실패) — 자기 참조 skip"
       continue
     fi
   fi
