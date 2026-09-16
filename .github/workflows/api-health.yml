@@ -147,12 +147,10 @@ jobs:
 
           # ── 결과 저장 ───────────────────────────────────────────────
           echo "fail_count=${FAIL_COUNT}" >> "$GITHUB_OUTPUT"
-          # 개행 문자를 포함한 테이블을 GITHUB_OUTPUT에 저장 (multiline)
-          {
-            echo 'result_table<<EOF'
-            printf "%b" "$RESULT_TABLE"
-            echo 'EOF'
-          } >> "$GITHUB_OUTPUT"
+          # 9/16: 표를 파일로 저장하고 이슈 본문은 --body-file 로 넘긴다.
+          # 표를 steps 출력으로 받아 쉘 문자열 안에 끼워 넣으면 표 안의 백틱(URL)이
+          # 명령 치환으로 먹혀 엔드포인트 칸이 통째로 사라진다(#128 실례).
+          printf "%b" "$RESULT_TABLE" > "${GITHUB_WORKSPACE}/api-health-table.md"
 
           echo ""
           echo "── 요약: 총 실패 ${FAIL_COUNT}건 (500 오류 + 타임아웃) ──"
@@ -162,12 +160,36 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          COUNT=$(gh issue list \
+          NUMBERS=$(gh issue list \
             --label "api-health" \
             --state open \
             --json number \
-            --jq length)
+            --jq '[.[].number] | join(" ")')
+          COUNT=$(echo "$NUMBERS" | wc -w | tr -d ' ')
           echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
+          echo "numbers=${NUMBERS}" >> "$GITHUB_OUTPUT"
+
+      # 실패가 0건으로 돌아왔는데 이슈가 열려 있으면 자동으로 닫는다 (9/16 신설).
+      #
+      # 열린 이슈는 신규 발행을 막는 게이트라, 일시 장애로 열린 이슈를 사람이 닫지 않으면
+      # 그 뒤 진짜 장애가 조용히 묻힌다(8/29 watchman #115가 11일간 그랬음).
+      # 9/14 SGIS·KOSIS·RDA 타임아웃도 다음 날부터 전부 정상이었는데 이슈만 이틀 남아 있었다.
+      # community-pending.yml 의 "0건이면 자동 종료"와 같은 패턴.
+      - name: 실패 0건이면 열린 이슈 자동 종료
+        if: steps.health.outputs.fail_count == '0' && steps.existing_issue.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TODAY=$(date -u '+%Y-%m-%d')
+          {
+            printf '%s\n\n' "${TODAY} 헬스체크에서 실패 0건 — 일시 장애로 판단해 자동 종료해요."
+            cat "${GITHUB_WORKSPACE}/api-health-table.md"
+            printf '\n%s\n' "> 🤖 api-health 워크플로가 자동으로 닫았어요. 다시 실패하면 새 이슈가 열려요."
+          } > close-comment.md
+          for N in ${{ steps.existing_issue.outputs.numbers }}; do
+            gh issue comment "$N" --body-file close-comment.md
+            gh issue close "$N"
+          done
 
       - name: GitHub Issue 생성 (실패 2개 이상 + 열린 이슈 없을 때)
         if: steps.health.outputs.fail_count >= 2 && steps.existing_issue.outputs.count == '0'
@@ -177,28 +199,27 @@ jobs:
           FAIL_COUNT="${{ steps.health.outputs.fail_count }}"
           TODAY=$(date -u '+%Y-%m-%d')
 
+          # 본문은 파일로 조립한다 — 표의 백틱이 쉘 명령 치환에 먹히지 않게 (9/16)
+          {
+            printf '%s\n\n' "## 외부 API 헬스체크 결과"
+            printf '%s\n\n' "**${FAIL_COUNT}개** API가 500 오류 또는 타임아웃(10초)을 반환했어요."
+            printf '%s\n\n' "### 점검 결과"
+            cat "${GITHUB_WORKSPACE}/api-health-table.md"
+            printf '\n%s\n\n' "### 조치 방법"
+            printf '%s\n' \
+              "- [ ] 위 테이블에서 ❌/⏱️ 항목 확인" \
+              "- [ ] 해당 API 공급자 공지사항·상태 페이지 확인" \
+              "- [ ] 일시 장애라면 다음 날 자동 재확인 (실패 0건이면 이 이슈는 자동으로 닫혀요)" \
+              "- [ ] 지속 장애라면 폴백 데이터 최신화 검토"
+            printf '\n%s\n\n' "### 관련 파일"
+            printf '%s\n' \
+              "- \`src/lib/api/\` (각 API 연동 모듈)" \
+              "- \`src/lib/data/\` (정적 폴백 데이터)"
+            printf '\n%s\n' "> 🤖 이 Issue는 GitHub Actions에 의해 자동 생성되었습니다."
+          } > issue-body.md
+
           gh issue create \
             --title "🩺 외부 API 장애 감지 — ${FAIL_COUNT}개 실패 (${TODAY})" \
             --label "api-health" \
             --assignee "KangseonLEE" \
-            --body "## 외부 API 헬스체크 결과
-
-          **${FAIL_COUNT}개** API가 500 오류 또는 타임아웃(10초)을 반환했어요.
-
-          ### 점검 결과
-
-          ${{ steps.health.outputs.result_table }}
-
-          ### 조치 방법
-
-          - [ ] 위 테이블에서 ❌/⏱️ 항목 확인
-          - [ ] 해당 API 공급자 공지사항·상태 페이지 확인
-          - [ ] 일시 장애라면 다음 날 자동 재확인
-          - [ ] 지속 장애라면 폴백 데이터 최신화 검토
-
-          ### 관련 파일
-
-          - \`src/lib/api/\` (각 API 연동 모듈)
-          - \`src/lib/data/\` (정적 폴백 데이터)
-
-          > 🤖 이 Issue는 GitHub Actions에 의해 자동 생성되었습니다."
+            --body-file issue-body.md

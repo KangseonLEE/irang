@@ -125,40 +125,64 @@ for wf in "${WORKFLOWS[@]}"; do
   if [ "$wf" = "watchman-ci" ]; then
     issue_epochs=$(gh issue list --label watchman --state all --limit 30 --json createdAt --jq '.[].createdAt' 2>/dev/null \
       | while read -r c; do date -d "$c" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$c" +%s 2>/dev/null; done)
+
+    # 9/16 3차 보정 — 열린 이슈가 있으면 report.sh 는 **새 이슈를 만들지 않는다**.
+    # 그래서 "직후 이슈 생성" 만 보면 그 기간의 failure 가 전부 크래시로 오판된다
+    # (9/16 실측: #129 가 열려 있어 당일 failure 가 🟡 "연속 failure 2회" 로 잡힘).
+    # 열린 watchman 이슈가 있다는 것 자체가 "이미 표면화됐고 사람 처리 대기 중" 이라는 뜻이므로
+    # 그 동안의 failure 는 설계 동작으로 본다. 이슈를 닫으면 크래시 감지가 다시 살아난다.
+    open_watchman=$(gh issue list --label watchman --state open --limit 1 --json number --jq 'length' 2>/dev/null || echo 0)
+
     rewritten=()
     for entry in "${filtered[@]}"; do
       conclusion="${entry%%|*}"; created="${entry#*|}"
       if [ "$conclusion" = "failure" ]; then
-        run_epoch=$(date -d "$created" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$created" +%s 2>/dev/null || echo 0)
-        for ie in $issue_epochs; do
-          if [ "$ie" -ge "$run_epoch" ] && [ $((ie - run_epoch)) -le 1800 ]; then
-            conclusion="designed"; break
-          fi
-        done
+        if [ "${open_watchman:-0}" != "0" ]; then
+          conclusion="designed"
+        else
+          run_epoch=$(date -d "$created" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$created" +%s 2>/dev/null || echo 0)
+          for ie in $issue_epochs; do
+            if [ "$ie" -ge "$run_epoch" ] && [ $((ie - run_epoch)) -le 1800 ]; then
+              conclusion="designed"; break
+            fi
+          done
+        fi
       fi
       rewritten+=("${conclusion}|${created}")
     done
     filtered=("${rewritten[@]}")
     latest_conclusion="${filtered[0]%%|*}"
     if [ "$latest_conclusion" = "designed" ]; then
-      echo "  ⚪ ${label} | failure는 🔴 finding 설계 동작(직후 watchman 이슈 발행 확인) — 자기 참조 skip"
+      echo "  ⚪ ${label} | failure는 🔴 finding 설계 동작(이슈 발행 또는 열린 이슈 대기 중) — 자기 참조 skip"
       continue
     fi
   fi
 
-  # ── sync-data: 최근(30일 이내) 실행 중 failure 1건이라도 있으면 즉시 🔴 ──
+  # ── sync-data: 최신 실행이 failure면 즉시 🔴 (9/16 보정) ──
+  #
+  # 이전 규칙은 "최근 3건 중 failure 1건이라도" 였다. 하루 1회 cron 이라 일시 실패
+  # 1회가 **3일간 🔴** 을 만들고, 그 사이 이슈가 열려 있으면 다른 finding 이 전부
+  # 묻힌다(8/29 박제). 9/13 Gateway Timeout 1회가 9/14·9/15 성공 뒤에도 🔴 로 남아
+  # "최근 스케줄 실행 failure" 라는 사실과 다른 문구를 냈던 것이 실례.
+  #
+  # 판정은 **최신 실행**으로. 복구되면 조용해지고 계속 실패면 계속 🔴 — 감시 목적은 그대로다.
+  # 성공/실패를 오가는 플래핑(최근 3건 중 2건+ failure)만 🟡 로 남겨 추세를 놓치지 않는다.
   if [ "$wf" = "$IMMEDIATE_CRIT_WORKFLOW" ]; then
-    has_failure=false
+    if [ "$latest_conclusion" = "failure" ]; then
+      echo "  ✗ ${label} | 최신 실행 failure (${latest_date}) — 즉시 위험"
+      report "🔴" "§15 스케줄 워크플로" "${label} 최신 스케줄 실행 failure (${latest_date}) — 데이터 동기화 중단, 라이브 stale 직결"
+      continue
+    fi
+
+    fail_total=0
     for entry in "${filtered[@]}"; do
-      if [ "${entry%%|*}" = "failure" ]; then
-        has_failure=true
-        fail_date="${entry#*|}"
-        break
-      fi
+      [ "${entry%%|*}" = "failure" ] && fail_total=$((fail_total + 1))
     done
-    if [ "$has_failure" = true ]; then
-      echo "  ✗ ${label} | failure 발견 (${fail_date}) — 즉시 위험"
-      report "🔴" "§15 스케줄 워크플로" "${label} 최근 스케줄 실행 failure (${fail_date}) — 데이터 동기화 중단 의심, 라이브 stale 직결"
+    if [ "$fail_total" -ge 2 ]; then
+      echo "  ⚠ ${label} | 최신은 성공이나 최근 3건 중 ${fail_total}건 failure — 플래핑"
+      report "🟡" "§15 스케줄 워크플로" "${label} 최신 실행은 성공이나 최근 3건 중 ${fail_total}건 failure — 간헐 실패 추세 확인 필요"
+    else
+      echo "  ✓ ${label} | 최신 실행 성공 (${latest_date})"
     fi
     continue
   fi
