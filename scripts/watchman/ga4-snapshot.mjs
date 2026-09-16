@@ -84,7 +84,7 @@ const [totals, nvr, events, pages, searchDaily, landings, channels] = await Prom
   report({
     dimensions: [{ name: "eventName" }],
     metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
-    dimensionFilter: { filter: { fieldName: "eventName", inListFilter: { values: ["assess_start", "assess_complete", "match_start", "match_complete", "external_click", "landing_cta_click", "search"] } } },
+    dimensionFilter: { filter: { fieldName: "eventName", inListFilter: { values: ["assess_start", "assess_complete", "match_start", "match_complete", "external_click", "landing_cta_click", "search", "mode_select_clicked"] } } },
   }),
   report({
     dimensions: [{ name: "pagePath" }],
@@ -101,7 +101,12 @@ const returning = nvr.find((r) => r.d[0] === "returning")?.m[0] ?? 0;
 const ev = Object.fromEntries(events.map((r) => [r.d[0], { count: r.m[0], users: r.m[1] }]));
 const pg = Object.fromEntries(pages.map((r) => [r.d[0], { views: r.m[0], users: r.m[1] }]));
 const pct = (a, b) => (b ? `${((a / b) * 100).toFixed(1)}%` : "—");
-const assessReach = pg["/assess"]?.users ?? 0;
+// 진단 도달 분모 = `/match` (2026-09-16 교정).
+// `/assess` 는 redirect("/match?mode=assess") 한 줄짜리 페이지라 아무도 머물지 않는다 →
+// page_view 가 **구조적으로 항상 0**. 9/8 에 PageViewTracker 를 넣으며 "이제 도달을 잰다"고
+// 했지만 잘못된 URL 을 보고 있었고, M7 퍼널의 분모가 통째로 비어 있었다.
+// 실제 진단 UI 는 /match 의 ServiceGateway 가 ?mode=quick|assess|match 로 분기해 띄운다.
+const assessReach = pg["/match"]?.users ?? 0;
 const assessStart = ev.assess_start?.users ?? 0;
 const assessDone = ev.assess_complete?.users ?? 0;
 
@@ -117,11 +122,12 @@ const md = `## GA4 스냅샷 — 최근 ${DAYS}일 (어제까지)
 | 활성 사용자 | ${active} | Go ≥ 600 / 유입 우선 < 300 |
 | 재방문 사용자 | ${returning} (${pct(returning, active)}) | Go ≥ 10% |
 | 진단 완료 사용자 (assess_complete) | ${assessDone} (${pct(assessDone, active)} of 활성) | Go ≥ 5% |
-| 진단 도달 (/assess page_view 사용자) | ${assessReach} | 도달→시작 ${pct(assessStart, assessReach)} |
+| 진단 도달 (/match page_view 사용자) | ${assessReach} (${pct(assessReach, active)} of 활성) | 도달→시작 ${pct(assessStart, assessReach)} |
 | 진단 시작 (assess_start) | ${assessStart} | 시작→완료 ${pct(assessDone, assessStart)} |
 | 매칭 시작 → 완료 | ${ev.match_start?.users ?? 0} → ${ev.match_complete?.users ?? 0} | |
 | external_click | ${ev.external_click?.count ?? 0}건 / ${ev.external_click?.users ?? 0}명 | 목적지는 event_label 측정기준 |
 | 랜딩 CTA 클릭 | ${ev.landing_cta_click?.count ?? 0}건 | |
+| 진단 모드 선택 (mode_select_clicked) | ${ev.mode_select_clicked?.count ?? 0}건 / ${ev.mode_select_clicked?.users ?? 0}명 | 어느 모드를 고르는지는 event_label |
 | 검색 실행 (search) | ${ev.search?.count ?? 0}건 / ${ev.search?.users ?? 0}명 | DB search_logs 적재량과 대조 |
 | 세션 / 신규 | ${totals[0]?.m[1] ?? 0} / ${totals[0]?.m[2] ?? 0} | |
 
@@ -138,7 +144,7 @@ ${landings.slice(0, 15).map((r) => `- ${r.d[0]} — ${r.m[0]}세션 / ${r.m[1]}�
 
 **판정(기계 계산, 참고용)**: ${verdict}
 
-> /assess 도달은 9/8 배포(SPA page_view 보강) 이후 수집분부터 유효. 그 전 창에서는 0에 가깝게 나온다.
+> 진단 도달 분모는 /match 예요 — /assess 는 /match?mode=assess 로 넘기는 리다이렉트 전용 페이지라 page_view 가 항상 0이에요(9/16 교정). SPA 경로 이동 page_view 는 9/8 배포부터 수집돼요.
 `;
 console.log(md);
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
