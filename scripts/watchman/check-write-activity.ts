@@ -341,7 +341,16 @@ async function checkWriteActivity(sb: SupabaseClient): Promise<void> {
     const detail = regressed
       .map((o) => `${o.table} 최근 ${DEPLOY_WINDOW_DAYS}일 0건 + 관련 배포 ${o.deploys!.length}건(${o.deploys![0]})`)
       .join(" · ");
-    addFinding("🔴", "§11 write 활성도", `${detail}${alivePart} — 배포 후 적재 중단, 회귀 의심(frontend-engineer 진단)`);
+    // 9/16: "회귀 의심"으로 단정하지 않는다. 같은 증상(0건 + 관련 배포)이 저트래픽에서도 나온다 —
+    // 실제로 9/8 이후 search_logs 0건은 GA search 이벤트도 같은 날부터 0이라 적재 끊김이 아니라
+    // 사용자 활동 부재였다. 두 가설을 병기하고 가르는 방법까지 적어 오진을 막는다.
+    addFinding(
+      "🔴",
+      "§11 write 활성도",
+      `${detail}${alivePart} — 적재 중단(회귀) 또는 사용자 활동 부재. ` +
+        `가르는 법: ① GA4 스냅샷의 "검색 일별" 등 같은 기간 이벤트가 0이면 활동 부재 ` +
+        `② 라이브에 실제 1건을 넣어 적재되는지 확인(넣은 row는 __diag_ 접두로 두면 집계에서 빠짐)`,
+    );
   }
 
   // §11-3: 판정 창(테이블별) 안에서 0건, 배포 동반은 없음 → 테이블별 zeroGrade로 보고
