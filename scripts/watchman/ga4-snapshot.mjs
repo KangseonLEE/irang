@@ -69,7 +69,7 @@ const landingReq = {
   dimensions: [{ name: "landingPagePlusQueryString" }],
   metrics: [{ name: "sessions" }, { name: "activeUsers" }],
   orderBys: [{ metric: { metricName: "sessions" }, desc: true }],
-  limit: 12,
+  limit: 30,
 };
 const channelReq = {
   dimensions: [{ name: "sessionDefaultChannelGroup" }],
@@ -132,7 +132,9 @@ const md = `## GA4 스냅샷 — 최근 ${DAYS}일 (어제까지)
 유입 채널(세션): ${channels.map((r) => `${r.d[0]} ${r.m[0]}`).join(" · ") || "없음"}
 
 유입 상위 페이지(세션·사용자):
-${landings.map((r) => `- ${r.d[0]} — ${r.m[0]}세션 / ${r.m[1]}명`).join("\n") || "- 없음"}
+${landings.slice(0, 15).map((r) => `- ${r.d[0]} — ${r.m[0]}세션 / ${r.m[1]}명`).join("\n") || "- 없음"}
+
+유입 페이지 구성(세션): 랜딩 ${landings.find((r) => r.d[0] === "/")?.m[0] ?? 0} · 목록 ${landings.filter((r) => ["/crops", "/regions", "/programs", "/education", "/events", "/interviews", "/costs"].includes(r.d[0])).reduce((a, r) => a + r.m[0], 0)} · 상세 ${landings.filter((r) => /^\/(crops|regions|programs|education|events|interviews|guides)\/.+/.test(r.d[0])).reduce((a, r) => a + r.m[0], 0)} · 기타·미집계 ${landings.filter((r) => r.d[0] === "(not set)").reduce((a, r) => a + r.m[0], 0)} / 상위 30 합계 ${landings.reduce((a, r) => a + r.m[0], 0)} (전체 ${totals[0]?.m[1] ?? 0})
 
 **판정(기계 계산, 참고용)**: ${verdict}
 
