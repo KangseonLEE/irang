@@ -62,7 +62,23 @@ const searchDailyReq = {
   orderBys: [{ dimension: { dimensionName: "date" } }],
 };
 
-const [totals, nvr, events, pages, searchDaily] = await Promise.all([
+// 유입 구조 — 세션이 "어느 페이지로 들어오는지"와 "어디서 오는지" (9/16).
+// 활성 622명인데 랜딩 `/` 조회가 62명이라, 대부분이 검색엔진에서 상세 페이지로 직접
+// 들어온다는 가설이 섰다. 사실이면 전환 작업 대상은 랜딩이 아니라 상세 페이지다.
+const landingReq = {
+  dimensions: [{ name: "landingPagePlusQueryString" }],
+  metrics: [{ name: "sessions" }, { name: "activeUsers" }],
+  orderBys: [{ metric: { metricName: "sessions" }, desc: true }],
+  limit: 12,
+};
+const channelReq = {
+  dimensions: [{ name: "sessionDefaultChannelGroup" }],
+  metrics: [{ name: "sessions" }],
+  orderBys: [{ metric: { metricName: "sessions" }, desc: true }],
+  limit: 8,
+};
+
+const [totals, nvr, events, pages, searchDaily, landings, channels] = await Promise.all([
   report({ metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "newUsers" }] }),
   report({ dimensions: [{ name: "newVsReturning" }], metrics: [{ name: "activeUsers" }] }),
   report({
@@ -76,6 +92,8 @@ const [totals, nvr, events, pages, searchDaily] = await Promise.all([
     dimensionFilter: { filter: { fieldName: "pagePath", inListFilter: { values: ["/", "/assess", "/match", "/regions/ranking", "/regions/compare", "/programs", "/search"] } } },
   }),
   report(searchDailyReq),
+  report(landingReq),
+  report(channelReq),
 ]);
 
 const active = totals[0]?.m[0] ?? 0;
@@ -110,6 +128,11 @@ const md = `## GA4 스냅샷 — 최근 ${DAYS}일 (어제까지)
 주요 페이지 조회(사용자): ${["/", "/assess", "/match", "/regions/ranking", "/regions/compare", "/programs", "/search"].map((p) => `\`${p}\` ${pg[p]?.users ?? 0}`).join(" · ")}
 
 검색 일별(최근 14일, 건·명): ${searchDaily.slice(-14).map((r) => `${r.d[0].slice(4, 6)}/${r.d[0].slice(6, 8)} ${r.m[0]}·${r.m[1]}`).join(" | ") || "없음"}
+
+유입 채널(세션): ${channels.map((r) => `${r.d[0]} ${r.m[0]}`).join(" · ") || "없음"}
+
+유입 상위 페이지(세션·사용자):
+${landings.map((r) => `- ${r.d[0]} — ${r.m[0]}세션 / ${r.m[1]}명`).join("\n") || "- 없음"}
 
 **판정(기계 계산, 참고용)**: ${verdict}
 
