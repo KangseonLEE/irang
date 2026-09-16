@@ -100,6 +100,12 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: https: blob:",
               "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com",
               "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://sgisapi.mods.go.kr https://apis.data.go.kr https://va.vercel-scripts.com https://kapi.kakao.com https://sharer.kakao.com https://*.ingest.sentry.io",
+              // 2026-09-16 보안 점검 — XSS 성공 시 피해를 줄이는 두 줄.
+              // object-src: 플러그인·<embed> 기반 실행 경로 차단
+              // base-uri: <base> 태그 주입으로 상대경로 스크립트를 외부로 돌리는 공격 차단
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
               "frame-ancestors 'none'",
             ].join("; "),
           },

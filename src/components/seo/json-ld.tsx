@@ -21,6 +21,23 @@ import type { Thing, WithContext } from "schema-dts";
  * />
  * ```
  */
+/**
+ * JSON-LD 직렬화 — `<script>` 문맥 탈출 문자를 유니코드 이스케이프한다 (2026-09-16 보안 점검).
+ *
+ * `JSON.stringify` 결과를 그대로 script 안에 넣으면, 데이터에 `</script>` 가 섞이는 순간
+ * 태그가 닫히고 뒤가 HTML 로 해석된다. 현재 JSON-LD 입력은 큐레이션된 정적·DB 데이터라
+ * 실제 주입 경로는 없지만, 앞으로 사용자 생성 문자열(커뮤니티·검색어)이 한 번이라도
+ * 섞이면 즉시 XSS 가 된다 — 입력을 믿는 대신 출력에서 끊는다.
+ *
+ * `<`·`>`·`&` 를 이스케이프해도 JSON 파서는 동일한 문자열로 복원한다.
+ */
+export function serializeJsonLd(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
+}
+
 export function JsonLd<T extends Thing = Thing>({
   data,
 }: {
@@ -30,7 +47,7 @@ export function JsonLd<T extends Thing = Thing>({
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(data),
+        __html: serializeJsonLd(data),
       }}
     />
   );

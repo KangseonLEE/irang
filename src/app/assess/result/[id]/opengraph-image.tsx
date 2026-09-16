@@ -11,7 +11,7 @@ import { getOGFontsWithBody, getOGFonts } from "@/lib/og/fonts";
 import { OG_SIZE } from "@/lib/og/constants";
 import { brandCard, resultCard } from "@/lib/og/brand-card";
 import { isValidResultId } from "@/lib/assess-result";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase";
 import { FARM_TYPES, migrateFarmTypeId } from "@/lib/data/match-questions";
 import { PROVINCES } from "@/lib/data/regions";
 
@@ -30,7 +30,8 @@ export default async function OGImage({
   let data: Record<string, unknown> | null = null;
 
   if (isValidResultId(id)) {
-    const sb = getSupabase();
+    // service_role — anon 전체 공개 정책 제거에 맞춘 서버 조회 (2026-09-16 보안 점검)
+    const sb = getSupabaseAdmin();
     if (sb) {
       const { data: row } = await sb
         .from("assessment_results")

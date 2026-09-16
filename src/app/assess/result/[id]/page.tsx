@@ -24,7 +24,7 @@ import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
 import { deriveStatus } from "@/lib/program-status";
 import { isValidResultId } from "@/lib/assess-result";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { ShareButtons } from "@/components/share/share-buttons";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
@@ -36,7 +36,8 @@ import s from "@/app/match/match-wizard.module.css";
 async function getResult(id: string) {
   if (!isValidResultId(id)) return null;
 
-  const sb = getSupabase();
+  // service_role — anon 전체 공개 정책 제거에 맞춘 서버 조회 (2026-09-16 보안 점검)
+  const sb = getSupabaseAdmin();
   if (!sb) return null;
 
   const { data, error } = await sb

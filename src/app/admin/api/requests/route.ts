@@ -5,12 +5,16 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/admin/require-admin";
 import { updateRequestStatus } from "@/lib/admin/queries";
 import type { RequestStatus } from "@/lib/admin/types";
 
 const VALID_STATUSES: RequestStatus[] = ["pending", "done", "rejected"];
 
 export async function PATCH(request: NextRequest) {
+  const denied = await requireAdmin(request);
+  if (denied) return denied;
+
   let body: { id?: number; status?: string };
   try {
     body = await request.json();

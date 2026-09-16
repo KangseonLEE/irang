@@ -5,10 +5,14 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/admin/require-admin";
 import { isNoteStatus } from "@/lib/community/types";
 import { updateNoteStatus } from "@/lib/community/queries";
 
 export async function PATCH(request: NextRequest) {
+  const denied = await requireAdmin(request);
+  if (denied) return denied;
+
   let body: { id?: unknown; status?: unknown; reason?: unknown };
   try {
     body = await request.json();
