@@ -94,6 +94,7 @@ const md = `## GA4 스냅샷 — 최근 ${DAYS}일 (어제까지)
 | 매칭 시작 → 완료 | ${ev.match_start?.users ?? 0} → ${ev.match_complete?.users ?? 0} | |
 | external_click | ${ev.external_click?.count ?? 0}건 / ${ev.external_click?.users ?? 0}명 | 목적지는 event_label 측정기준 |
 | 랜딩 CTA 클릭 | ${ev.landing_cta_click?.count ?? 0}건 | |
+| 검색 실행 (search) | ${ev.search?.count ?? 0}건 / ${ev.search?.users ?? 0}명 | DB `search_logs` 적재량과 대조 |
 | 세션 / 신규 | ${totals[0]?.m[1] ?? 0} / ${totals[0]?.m[2] ?? 0} | |
 
 주요 페이지 조회(사용자): ${["/", "/assess", "/match", "/regions/ranking", "/regions/compare", "/programs"].map((p) => `\`${p}\` ${pg[p]?.users ?? 0}`).join(" · ")}
