@@ -1,0 +1,88 @@
+/* ══════════════════════════════════════════
+   PersonaCta — 진단 진입 컨텍스트 배너
+   RoadmapBanner 와 같은 시각 언어(한 줄 배너)를 쓴다.
+   ══════════════════════════════════════════ */
+
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e8f5f1 0%, #f0faf7 100%);
+  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
+  font-size: var(--fs-body-sm);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.icon {
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+.label {
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  white-space: nowrap;
+}
+
+.text {
+  font-weight: 500;
+  color: var(--foreground, #111827);
+  min-width: 0;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  white-space: nowrap;
+  /* 터치 타깃 44px 확보 — 시각 높이는 유지하고 터치 영역만 넓힌다 */
+  min-height: 34px;
+  position: relative;
+}
+
+.cta::after {
+  content: "";
+  position: absolute;
+  inset: -5px -4px;
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    background: #0d2e27;
+  }
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (max-width: 639px) {
+  .banner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cta {
+    align-self: stretch;
+    justify-content: center;
+  }
+}

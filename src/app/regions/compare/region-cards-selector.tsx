@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { analytics } from "@/lib/analytics";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition, Fragment } from "react";
 import { Search, Plus, X, MapPin, Loader2 } from "lucide-react";
@@ -146,6 +147,15 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
         params.set("regions", newIds.join(","));
       }
       const qs = params.toString();
+      // 비교 관여도 계측 (9/16) — 지역 변경은 전부 이 함수를 지나므로 여기 한 곳이면 된다.
+      // /regions/compare 는 28일 60명으로 진단(22명)의 3배인데 계측이 0이라
+      // 60명이 무엇을 하고 나가는지 알 수 없었다.
+      const before = latestRef.current.length;
+      analytics.compareRegionChange(
+        newIds.length > before ? "add" : newIds.length < before ? "remove" : "change",
+        newIds.length,
+      );
+
       // race fix v2: 의도한 최종 상태(newIds)를 pendingTargetRef로 기록.
       // server props가 이 값과 일치할 때까지 effect의 reset이 보류된다.
       latestRef.current = newIds;

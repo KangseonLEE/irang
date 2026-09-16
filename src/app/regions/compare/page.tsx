@@ -104,7 +104,7 @@ export default async function RegionsPage({ searchParams }: PageProps) {
 
       {hasSelection && (
         <>
-          <CompareTabs activeTab={tab} baseQuery={baseQuery} />
+          <CompareTabs activeTab={tab} baseQuery={baseQuery} regionCount={regions.length} />
           {/* 모바일 탭 클릭 시 스크롤 목적지 (compare-tabs.tsx) — 작물 적합성은 여기 바로 아래가 작물 검색창 */}
           <div id="compare-content" />
           <div className={s.contentWrap}>

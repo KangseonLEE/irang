@@ -25,6 +25,7 @@ import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { convertToPyeongLabel } from "@/lib/format";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CommunityNotes } from "@/components/community/community-notes";
+import { PersonaCta } from "@/components/persona/persona-cta";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Place } from "schema-dts";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
@@ -475,6 +476,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
           )}
 
           {/* 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) */}
+          <PersonaCta from="region_detail" copy="이 지역이 내 조건에 맞을까요?" />
           <CommunityNotes
             targetType="region"
             targetId={province.id}

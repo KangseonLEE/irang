@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { CommunityNotes } from "@/components/community/community-notes";
+import { PersonaCta } from "@/components/persona/persona-cta";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -433,6 +434,7 @@ export default async function ProgramDetailPage({
           </div>
 
           {/* 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) */}
+          <PersonaCta from="program_detail" copy="내가 받을 수 있는 지원은 뭘까요?" />
           <CommunityNotes targetType="program" targetId={program.id} targetLabel={program.title} />
         </div>
       </div>

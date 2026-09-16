@@ -37,6 +37,7 @@ import { DistrictMapSection } from "./district-map-section";
 import { DataSource } from "@/components/ui/data-source";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CommunityNotes } from "@/components/community/community-notes";
+import { PersonaCta } from "@/components/persona/persona-cta";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Place } from "schema-dts";
 import {
@@ -611,6 +612,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       </section>
 
       {/* ── 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) ── */}
+      <PersonaCta from="sigungu_detail" copy="이 지역이 내 조건에 맞을까요?" />
       <CommunityNotes
         targetType="region"
         targetId={`${province.id}/${sigungu.id}`}

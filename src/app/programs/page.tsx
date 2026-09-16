@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { FileText, ArrowRight, Map, Info } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { PersonaCta } from "@/components/persona/persona-cta";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
@@ -208,6 +209,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
       {/* 로드맵 단계 컨텍스트 */}
       <Suspense>
         <RoadmapBanner />
+        <PersonaCta persona={currentPersona} from="programs_list" />
       </Suspense>
 
       {/* 정부사업 진입 가이드 배너 */}

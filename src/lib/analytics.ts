@@ -160,6 +160,21 @@ export const analytics = {
     trackEvent({ action: "programs_tab_switch", category: "landing", label: tab }),
 
   // -- 재배 캘린더 행 확장 (2026-08-30) — 어떤 작물을 펼쳐 보는지 = 인기 작물 신호 --
+  // -- 진단 진입 (2026-09-16) --
+  // 목록·상세 지면에서 /match 로 보내는 CTA. label 로 어느 지면이 도달을 만드는지 가른다.
+  // 배경: 활성 622명 중 /match 도달 22명(3.5%)이 유일한 병목이고, 랜딩은 유입의 9.4%뿐이라
+  // 랜딩 CTA만으로는 도달을 못 올린다. 지면별 기여를 재야 되돌릴지 넓힐지 판단할 수 있다.
+  assessEntryClick: (from: string) =>
+    trackEvent({ action: "assess_entry_click", category: "conversion", label: from }),
+
+  // -- 지역 비교 (2026-09-16) --
+  // /regions/compare 는 28일 60명으로 진단(22명)의 3배인데 계측이 0이었다.
+  // M7 기준 재검토(진단 완료율 → 비교 완주율) 논의에 필요한 최소 신호.
+  compareView: (tab: string, regionCount: number) =>
+    trackEvent({ action: "compare_view", category: "compare", label: tab, value: regionCount }),
+  compareRegionChange: (kind: "add" | "remove" | "change", regionCount: number) =>
+    trackEvent({ action: "compare_region_change", category: "compare", label: kind, value: regionCount }),
+
   calendarRowExpand: (cropId: string) =>
     trackEvent({ action: "calendar_row_expand", category: "crops", label: cropId }),
 };

@@ -13,6 +13,7 @@ import {
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
+import { PersonaCta } from "@/components/persona/persona-cta";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { CROPS } from "@/lib/data/crops";
@@ -81,6 +82,7 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
       {/* 로드맵 단계 컨텍스트 */}
       <Suspense>
         <RoadmapBanner />
+        <PersonaCta from="regions_list" copy="내 조건에 맞는 시·군·구를 찾아볼까요?" />
       </Suspense>
 
       {/* Page Header */}

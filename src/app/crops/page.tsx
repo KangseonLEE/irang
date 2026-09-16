@@ -23,6 +23,7 @@ import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import { rankCropsForPersona, getCropPersonaFitTrace, type FitTrace } from "@/lib/data/persona-fit";
 import { CropPageCard } from "@/components/crops/crop-page-card";
 import { PageHeader } from "@/components/ui/page-header";
+import { PersonaCta } from "@/components/persona/persona-cta";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { FilterShell } from "@/components/filter/filter-shell";
@@ -183,6 +184,8 @@ export default async function CropsPage({ searchParams }: PageProps) {
         description="주요 작물의 재배 환경, 예상 수익, 재배 난이도를 한눈에 비교하세요."
         count={filteredCrops.length}
       />
+
+      <PersonaCta persona={currentPersona} from="crops_list" />
 
       {/* Filter Bar — 데스크탑(>= 640) FilterBar + 모바일(< 640) BottomSheet */}
       <FilterShell

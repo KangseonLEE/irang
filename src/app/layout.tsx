@@ -6,6 +6,7 @@ import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { Header } from "@/components/layout/header";
 import { KeyboardFocusGuard } from "@/components/layout/keyboard-focus-guard";
 import { OutboundClickTracker } from "@/components/analytics/outbound-click-tracker";
+import { AssessEntryTracker } from "@/components/analytics/assess-entry-tracker";
 import { PublicChrome } from "@/components/layout/public-chrome";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -178,6 +179,7 @@ export default function RootLayout({
         <HashHighlight />
         <KeyboardFocusGuard />
         <OutboundClickTracker />
+        <AssessEntryTracker />
         <GoogleAnalytics />
         <PageViewTracker />
         <Analytics />

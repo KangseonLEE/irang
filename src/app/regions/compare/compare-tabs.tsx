@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { analytics } from "@/lib/analytics";
 import { Thermometer, Stethoscope, Sprout } from "lucide-react";
 import { TabBar, type TabItem } from "@/components/ui/tab-bar";
 
@@ -15,6 +16,8 @@ const TABS: ReadonlyArray<TabItem<TabId>> = [
 interface Props {
   activeTab: TabId;
   baseQuery: string;
+  /** 현재 선택된 지역 수 — compare_view 의 value */
+  regionCount?: number;
 }
 
 const MOBILE_QUERY = "(max-width: 767px)";
@@ -30,8 +33,18 @@ const GAP_BELOW_TABS = 8;
  * TabBar Link는 scroll={false}라 라우터가 맨 위로 튀지 않고, 여기서만 정밀 이동한다.
  * "사용자가 탭을 눌렀을 때"만 이동하고(뒤로가기·직접 진입은 제외) 데스크탑은 그대로 둔다.
  */
-export function CompareTabs({ activeTab, baseQuery }: Props) {
+export function CompareTabs({ activeTab, baseQuery, regionCount = 0 }: Props) {
   const clickedRef = useRef(false);
+
+  // 비교 조회 계측 (9/16) — 어떤 탭을 몇 개 지역으로 보는지. 같은 (탭, 지역수) 조합은 1회만.
+  // 이 컴포넌트는 비교 화면에 항상 떠 있고 activeTab 을 이미 알고 있어 추가 상태가 필요 없다.
+  const lastViewRef = useRef("");
+  useEffect(() => {
+    const key = `${activeTab}|${regionCount}`;
+    if (lastViewRef.current === key) return;
+    lastViewRef.current = key;
+    analytics.compareView(activeTab, regionCount);
+  }, [activeTab, regionCount]);
 
   // 탭 링크 클릭 감지 — TabBar를 div로 감싸면 sticky 컨테이닝 블록이 그 div가 되어 고정이 풀린다(8/30 실측)
   // → DOM 래퍼 없이 document 캡처 리스너로 "탭바 안 <a> 클릭"만 표시해 둔다.
