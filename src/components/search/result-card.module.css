@@ -21,7 +21,7 @@
 }
 
 @media (hover: hover) {
-  .cardBase:hover {
+.cardBase:hover {
     border-color: var(--primary);
     background: var(--muted);
   }
@@ -77,7 +77,7 @@
 }
 
 @media (hover: hover) {
-  .cardRich:hover {
+.cardRich:hover {
     border-color: var(--primary);
     background: var(--muted);
   }
@@ -95,7 +95,7 @@
 }
 
 @media (hover: hover) {
-  .cardHint:hover {
+.cardHint:hover {
     background: color-mix(in srgb, var(--primary) 8%, var(--card));
     border-color: var(--primary);
   }
@@ -213,16 +213,6 @@
   font-weight: 500;
   font-size: var(--fs-overline);
   white-space: nowrap;
-}
-
-.metaQuote {
-  font-style: italic;
-  color: var(--muted-foreground);
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: keep-all;
 }
 
 .badge {

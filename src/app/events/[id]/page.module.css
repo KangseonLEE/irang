@@ -8,13 +8,13 @@
 }
 
 @media (min-width: 640px) {
-  .page {
+.page {
     padding: 24px 24px;
   }
 }
 
 @media (min-width: 1024px) {
-  .page {
+.page {
     padding: 40px 32px;
   }
 }
@@ -35,7 +35,7 @@
 }
 
 @media (hover: hover) {
-  .backLink:hover {
+.backLink:hover {
     color: var(--foreground, #111827);
     background: var(--muted, #f9fafb);
   }
@@ -129,7 +129,7 @@
 }
 
 @media (min-width: 1024px) {
-  .contentGrid {
+.contentGrid {
     grid-template-columns: 2fr 1fr;
   }
 }
@@ -198,7 +198,7 @@
 }
 
 @media (min-width: 640px) {
-  .tableLabelCell {
+.tableLabelCell {
     width: 140px;
   }
 }
@@ -233,37 +233,6 @@
   color: var(--muted-foreground, #6b7280);
 }
 
-/* ── CTA 버튼 ── */
-.ctaButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  justify-content: center;
-  padding: 12px 20px;
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  border-radius: 8px;
-  background: var(--primary, #1b6b5a);
-  color: var(--primary-foreground, #fff);
-  text-decoration: none;
-  transition: background-color 0.15s;
-  border: none;
-  cursor: pointer;
-}
-
-@media (hover: hover) {
-  .ctaButton:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 90%, black);
-  }
-}
-
-.ctaNote {
-  margin-top: 8px;
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground, #6b7280);
-}
-
 /* ── 관련 행사 ── */
 .relatedList {
   list-style: none;
@@ -280,7 +249,7 @@
 }
 
 @media (hover: hover) {
-  .relatedItem:hover {
+.relatedItem:hover {
     background: var(--secondary, #f0f9f6);
   }
 }

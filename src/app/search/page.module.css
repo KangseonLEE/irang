@@ -23,14 +23,14 @@
 }
 
 @media (min-width: 640px) {
-  .page {
+.page {
     padding: 32px 24px 80px;
     gap: 24px;
   }
 }
 
 @media (min-width: 768px) {
-  .page {
+.page {
     /* 데스크탑: MobileNav 없으므로 하단 패딩 축소 */
     padding-bottom: 32px;
   }
@@ -184,7 +184,7 @@
 }
 
 @media (hover: hover) {
-  .popularTag:hover {
+.popularTag:hover {
     border-color: var(--primary);
     color: var(--primary);
     background: color-mix(in srgb, var(--primary) 8%, transparent);
@@ -236,7 +236,7 @@
 }
 
 @media (hover: hover) {
-  .recentTag:hover {
+.recentTag:hover {
     color: var(--foreground);
     background: color-mix(in srgb, var(--muted-foreground) 12%, transparent);
   }
@@ -270,7 +270,7 @@
 }
 
 @media (min-width: 480px) {
-  .quickLinksGrid {
+.quickLinksGrid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
@@ -296,7 +296,7 @@
 }
 
 @media (hover: hover) {
-  .quickLink:hover {
+.quickLink:hover {
     border-color: var(--primary);
     background: var(--muted);
   }
@@ -374,7 +374,7 @@
   outline-offset: 2px;
 }
 @media (hover: hover) {
-  .relatedTag:hover {
+.relatedTag:hover {
     border-color: var(--primary);
     color: var(--primary);
     background: color-mix(in srgb, var(--primary) 6%, transparent);
@@ -401,7 +401,7 @@
 }
 
 @media (min-width: 640px) {
-  .section + .section {
+.section + .section {
     padding-top: 24px;
   }
 }
@@ -470,7 +470,7 @@
 }
 
 @media (hover: hover) {
-  .card:hover {
+.card:hover {
     border-color: var(--primary);
     background: var(--muted);
   }
@@ -479,70 +479,6 @@
 .card:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
-}
-
-.cardIcon {
-  font-size: 1.25rem;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: var(--muted);
-  flex-shrink: 0;
-}
-
-.cardContent {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.cardTitle {
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: left;
-}
-
-.cardSubtitle {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: left;
-}
-
-.cardBadge {
-  font-size: var(--fs-overline);
-  font-weight: 500;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  background: var(--muted);
-  color: var(--muted-foreground);
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.externalBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: var(--fs-overline);
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  background: color-mix(in srgb, #3b82f6 10%, transparent);
-  color: #3b82f6;
-  flex-shrink: 0;
-  white-space: nowrap;
 }
 
 /* 정확히 일치 항목 없음 안내 배너 */
@@ -597,14 +533,14 @@
 }
 
 @media (hover: hover) {
-  .noExactMatchBtn:hover {
+.noExactMatchBtn:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 88%, #000);
     box-shadow: 0 4px 12px rgba(27, 107, 90, 0.2);
   }
 }
 
 @media (max-width: 639px) {
-  .noExactMatch {
+.noExactMatch {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
@@ -642,29 +578,6 @@
 .tipClause {
   display: inline-block;
   white-space: nowrap;
-}
-
-.noResultLinks {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.noResultLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  color: var(--primary);
-  text-decoration: none;
-}
-
-@media (hover: hover) {
-  .noResultLink:hover {
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
 }
 
 .requestLink {
@@ -746,14 +659,14 @@
 }
 
 @media (hover: hover) {
-  .suggestLink:hover {
+.suggestLink:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
     border-color: var(--primary, #1b6b5a);
   }
 }
 
 @media (hover: hover) {
-  .requestLink:hover {
+.requestLink:hover {
     background: var(--primary-dark, #0d2e27);
   }
 }
@@ -770,7 +683,7 @@
 }
 
 @media (hover: hover) {
-  .backLink:hover {
+.backLink:hover {
     color: var(--foreground);
   }
 }
@@ -806,7 +719,7 @@
 }
 
 @media (hover: hover) {
-  .expandToggle:hover {
+.expandToggle:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
     color: color-mix(in srgb, var(--primary, #1b6b5a) 88%, #000);
   }

@@ -14,7 +14,7 @@
 }
 
 @media (min-width: 640px) {
-  .page {
+.page {
     padding: 40px 24px 80px;
     gap: 32px;
   }
@@ -58,7 +58,7 @@
 }
 
 @media (min-width: 640px) {
-  .questionWrap { flex: initial; }
+.questionWrap { flex: initial; }
 }
 
 .questionTitle {
@@ -72,7 +72,7 @@
 }
 
 @media (min-width: 640px) {
-  .questionTitle {
+.questionTitle {
     font-size: var(--fs-h2);
     text-wrap: pretty;
   }
@@ -104,7 +104,7 @@
 }
 
 @media (min-width: 480px) {
-  .optionsGrid {
+.optionsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -132,7 +132,7 @@
 }
 
 @media (hover: hover) {
-  .optionCard:hover {
+.optionCard:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 50%, transparent);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   }
@@ -227,7 +227,7 @@
 }
 
 @media (hover: hover) {
-  .navBtnBack:hover:not(:disabled) {
+.navBtnBack:hover:not(:disabled) {
     border-color: var(--foreground);
     color: var(--foreground);
   }
@@ -256,7 +256,7 @@
 }
 
 @media (hover: hover) {
-  .navBtnNext:hover:not(:disabled) {
+.navBtnNext:hover:not(:disabled) {
     opacity: 0.9;
   }
 }
@@ -264,24 +264,6 @@
 .navBtnNext:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-/* ═══════════════════════════════════════
-   결과 화면
-   ═══════════════════════════════════════ */
-
-.resultTitle {
-  font-size: var(--fs-h2);
-  font-weight: 800;
-  color: var(--foreground);
-  margin: 0;
-  word-break: keep-all;
-}
-
-.resultDesc {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  margin: 0;
 }
 
 /* ── 결과 섹션 ── */
@@ -326,7 +308,7 @@
 }
 
 @media (hover: hover) {
-  .resultCard:hover {
+.resultCard:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   }
@@ -402,7 +384,7 @@
 }
 
 @media (min-width: 480px) {
-  .cropCards {
+.cropCards {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -433,7 +415,7 @@
 }
 
 @media (hover: hover) {
-  .resetBtn:hover {
+.resetBtn:hover {
     border-color: var(--foreground);
     color: var(--foreground);
   }
@@ -454,7 +436,7 @@
 }
 
 @media (hover: hover) {
-  .exploreBtn:hover {
+.exploreBtn:hover {
     opacity: 0.9;
   }
 }
@@ -502,7 +484,7 @@
 }
 
 @media (min-width: 640px) {
-  .farmTypeLabel {
+.farmTypeLabel {
     font-size: 2rem;
   }
 }
@@ -564,7 +546,7 @@
 }
 
 @media (hover: hover) {
-  .programCard:hover {
+.programCard:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   }
@@ -676,7 +658,7 @@
 }
 
 @media (hover: hover) {
-  .programViewAll:hover {
+.programViewAll:hover {
     text-decoration: underline;
   }
 }
@@ -725,7 +707,7 @@
 }
 
 @media (hover: hover) {
-  .shareCtaBtn:hover {
+.shareCtaBtn:hover {
     opacity: 0.9;
   }
 }
@@ -754,7 +736,7 @@
 }
 
 @media (hover: hover) {
-  .costCtaCard:hover {
+.costCtaCard:hover {
     border-color: color-mix(in srgb, var(--primary) 30%, transparent);
     box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 8%, transparent);
   }

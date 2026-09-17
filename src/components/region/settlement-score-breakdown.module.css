@@ -17,7 +17,7 @@
 }
 
 @media (min-width: 768px) {
-  .section {
+.section {
     padding: 24px 24px;
     gap: 18px;
     border-radius: 20px;
@@ -47,7 +47,7 @@
 }
 
 @media (min-width: 768px) {
-  .overallCard {
+.overallCard {
     padding: 20px 24px;
     border-radius: 16px;
     gap: 6px;
@@ -79,7 +79,7 @@
 }
 
 @media (min-width: 768px) {
-  .overallScore {
+.overallScore {
     font-size: 3rem;
   }
 }
@@ -108,16 +108,9 @@
 }
 
 @media (min-width: 768px) {
-  .overallInterp {
+.overallInterp {
     font-size: 0.9375rem;
   }
-}
-
-/* ---- Header ---- */
-.header {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 
 .title {
@@ -130,7 +123,7 @@
 }
 
 @media (min-width: 768px) {
-  .title {
+.title {
     font-size: 1.25rem;
   }
 }
@@ -153,14 +146,14 @@
 }
 
 @media (min-width: 640px) {
-  .dimGrid {
+.dimGrid {
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
   }
 }
 
 @media (min-width: 1024px) {
-  .dimGrid {
+.dimGrid {
     grid-template-columns: repeat(5, 1fr);
     gap: 12px;
   }
@@ -178,7 +171,7 @@
 }
 
 @media (min-width: 768px) {
-  .dimCard {
+.dimCard {
     padding: 14px 14px;
     border-radius: 14px;
   }
@@ -208,7 +201,7 @@
 }
 
 @media (min-width: 768px) {
-  .dimScore {
+.dimScore {
     font-size: 1.75rem;
   }
 }
@@ -280,7 +273,7 @@
 }
 
 @media (min-width: 768px) {
-  .dimRaw {
+.dimRaw {
     font-size: 0.8125rem;
   }
   .dimInterp {
@@ -338,7 +331,7 @@
 }
 
 @media (min-width: 768px) {
-  .dimTopChip {
+.dimTopChip {
     font-size: 0.75rem;
     padding: 4px 10px;
   }
@@ -348,7 +341,7 @@
 }
 
 @media (hover: hover) {
-  .dimTopChip:hover {
+.dimTopChip:hover {
     background: color-mix(in srgb, var(--primary) 14%, var(--card));
     border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
   }
@@ -375,7 +368,7 @@
 }
 
 @media (min-width: 768px) {
-  .dimEmpty {
+.dimEmpty {
     padding-block: 12px;
   }
 }
@@ -389,7 +382,7 @@
 }
 
 @media (min-width: 768px) {
-  .footer {
+.footer {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -424,7 +417,7 @@
 }
 
 @media (hover: hover) {
-  .methodologyLink:hover {
+.methodologyLink:hover {
     color: color-mix(in srgb, var(--primary) 80%, #000 0%);
     border-bottom-color: var(--primary);
   }
@@ -483,7 +476,7 @@
 }
 
 @media (hover: hover) {
-  .breakdownToggle:hover .title,
+.breakdownToggle:hover .title,
   .breakdownToggle:hover .breakdownChevron {
     color: var(--primary, #1b6b5a);
   }

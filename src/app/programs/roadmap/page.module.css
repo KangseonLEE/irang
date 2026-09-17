@@ -13,15 +13,15 @@
 }
 
 @media (min-width: 640px) {
-  .page { padding: 28px 24px 80px; gap: 18px; }
+.page { padding: 28px 24px 80px; gap: 18px; }
 }
 
 @media (min-width: 768px) {
-  .page { padding-bottom: 32px; }
+.page { padding-bottom: 32px; }
 }
 
 @media (min-width: 1024px) {
-  .page { padding: 40px 32px 56px; gap: 20px; }
+.page { padding: 40px 32px 56px; gap: 20px; }
 }
 
 /* ═══ 히어로: SubPageHero 공통 컴포넌트 사용 ═══ */
@@ -89,15 +89,15 @@
 }
 
 @media (min-width: 640px) {
-  .programTab { padding: 12px 16px; }
+.programTab { padding: 12px 16px; }
 }
 
 @media (min-width: 1024px) {
-  .programTab { font-size: var(--fs-body, 1rem); }
+.programTab { font-size: var(--fs-body, 1rem); }
 }
 
 @media (hover: hover) {
-  .programTab:hover { color: var(--foreground, #111827); }
+.programTab:hover { color: var(--foreground, #111827); }
 }
 
 /* 모든 state(:focus, :active)에서 user-agent default(회색 배경/그림자) 차단.
@@ -129,7 +129,7 @@
 }
 
 @media (min-width: 1280px) {
-  .contentLayout {
+.contentLayout {
     display: grid;
     grid-template-columns: 140px 1fr;
     gap: 24px;
@@ -147,11 +147,11 @@
 }
 
 @media (min-width: 640px) {
-  .contentMain { gap: 18px; }
+.contentMain { gap: 18px; }
 }
 
 @media (min-width: 1024px) {
-  .contentMain { gap: 20px; }
+.contentMain { gap: 20px; }
 }
 
 /* ═══ 섹션 사이드바 ═══ */
@@ -162,7 +162,7 @@
 }
 
 @media (min-width: 1280px) {
-  .sidebar {
+.sidebar {
     display: flex;
     flex-direction: column;
     overflow-x: visible;
@@ -198,7 +198,7 @@
 }
 
 @media (min-width: 1280px) {
-  .sidebarItem {
+.sidebarItem {
     font-size: var(--fs-body-sm, 0.9375rem);
     padding: 8px 14px 8px 12px;
     border-bottom: none;
@@ -222,7 +222,7 @@
 }
 
 @media (hover: hover) {
-  .sidebarItem:hover { color: var(--foreground); }
+.sidebarItem:hover { color: var(--foreground); }
 
   @media (min-width: 1280px) {
     .sidebarItem:hover {
@@ -242,7 +242,7 @@
 }
 
 @media (min-width: 1280px) {
-  .sidebarActive {
+.sidebarActive {
     color: var(--primary, #1b6b5a);
     border-bottom-color: transparent;
     font-weight: 700;
@@ -262,7 +262,7 @@
 }
 
 @media (min-width: 1280px) {
-  .summaryCard,
+.summaryCard,
   .section {
     scroll-margin-top: 7rem;
   }
@@ -278,11 +278,11 @@
 }
 
 @media (min-width: 640px) {
-  .summaryCard { padding-bottom: 24px; gap: 14px; }
+.summaryCard { padding-bottom: 24px; gap: 14px; }
 }
 
 @media (min-width: 1024px) {
-  .summaryCard { padding-bottom: 28px; gap: 16px; }
+.summaryCard { padding-bottom: 28px; gap: 16px; }
 }
 
 .summaryTitleGroup {
@@ -302,11 +302,11 @@
 }
 
 @media (min-width: 640px) {
-  .summaryName { font-size: 1.5rem; }
+.summaryName { font-size: 1.5rem; }
 }
 
 @media (min-width: 1024px) {
-  .summaryName { font-size: 1.625rem; }
+.summaryName { font-size: 1.625rem; }
 }
 
 .summaryAgency {
@@ -367,11 +367,11 @@
 }
 
 @media (min-width: 640px) {
-  .section { padding-bottom: 24px; }
+.section { padding-bottom: 24px; }
 }
 
 @media (min-width: 1024px) {
-  .section { padding-bottom: 28px; }
+.section { padding-bottom: 28px; }
 }
 
 .sectionTitle {
@@ -385,11 +385,11 @@
 }
 
 @media (min-width: 640px) {
-  .sectionTitle { font-size: 1.05rem; }
+.sectionTitle { font-size: 1.05rem; }
 }
 
 @media (min-width: 1024px) {
-  .sectionTitle { font-size: 1.1rem; }
+.sectionTitle { font-size: 1.1rem; }
 }
 
 .sectionTitle > svg {
@@ -405,7 +405,7 @@
 }
 
 @media (min-width: 1024px) {
-  .eligibilityList {
+.eligibilityList {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
   }
@@ -421,7 +421,7 @@
 }
 
 @media (min-width: 640px) {
-  .eligibilityItem { padding: 12px 16px; }
+.eligibilityItem { padding: 12px 16px; }
 }
 
 .eligibilityBadge {
@@ -494,7 +494,7 @@
 .stepItem:last-child { padding-bottom: 0; }
 
 @media (min-width: 1024px) {
-  .stepItem { gap: 16px; padding-bottom: 24px; }
+.stepItem { gap: 16px; padding-bottom: 24px; }
 }
 
 /* 연결선 */
@@ -524,7 +524,7 @@
 }
 
 @media (min-width: 1024px) {
-  .stepItem:not(:last-child)::after { left: 17px; top: 36px; }
+.stepItem:not(:last-child)::after { left: 17px; top: 36px; }
   .stepNumber { width: 36px; height: 36px; font-size: var(--fs-body-sm, 0.875rem); }
 }
 
@@ -578,7 +578,7 @@
 }
 
 @media (min-width: 640px) {
-  .stepTips { padding: 10px 12px; }
+.stepTips { padding: 10px 12px; }
 }
 
 .stepTip {
@@ -639,7 +639,7 @@
 }
 
 @media (hover: hover) {
-  .stepTipsSummary:hover {
+.stepTipsSummary:hover {
     background: color-mix(in srgb, var(--warning-light, #eab308) 15%, transparent);
   }
 }
@@ -650,7 +650,7 @@
 }
 
 @media (min-width: 1024px) {
-  .stepTipsSummary { font-size: var(--fs-caption, 0.8125rem); }
+.stepTipsSummary { font-size: var(--fs-caption, 0.8125rem); }
 }
 
 /* 서류 접기/펼치기 */
@@ -693,7 +693,7 @@
 }
 
 @media (hover: hover) {
-  .stepDocsSummary:hover {
+.stepDocsSummary:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   }
 }
@@ -712,7 +712,7 @@
 }
 
 @keyframes docsReveal {
-  from { opacity: 0; transform: translateY(-4px); }
+from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -753,50 +753,16 @@
 }
 
 @media (min-width: 1024px) {
-  .stepsPortalLink { font-size: var(--fs-body-sm, 0.9375rem); }
+.stepsPortalLink { font-size: var(--fs-body-sm, 0.9375rem); }
 }
 
 @media (hover: hover) {
-  .stepsPortalLink:hover { opacity: 0.85; }
+.stepsPortalLink:hover { opacity: 0.85; }
 }
 
 .stepsPortalLink:focus-visible {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
-}
-
-/* ═══ 필요 서류 ═══ */
-.docsList {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: var(--muted, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-}
-
-@media (min-width: 640px) {
-  .docsList { padding: 16px 20px; gap: 5px; }
-}
-
-.docItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: var(--foreground);
-}
-
-@media (min-width: 1024px) {
-  .docItem { font-size: var(--fs-body-sm, 0.875rem); line-height: var(--lh-snug); }
-}
-
-.docItem > svg {
-  flex-shrink: 0;
-  color: var(--primary, #1b6b5a);
-  margin-top: 3px;
 }
 
 /* ═══ 핵심 의무사항 미리보기 ═══ */
@@ -811,7 +777,7 @@
 }
 
 @media (min-width: 640px) {
-  .obligationsPreview { padding: 16px 20px; }
+.obligationsPreview { padding: 16px 20px; }
 }
 
 .obligationsPreviewTitle {
@@ -825,7 +791,7 @@
 }
 
 @media (min-width: 1024px) {
-  .obligationsPreviewTitle { font-size: var(--fs-body, 1rem); }
+.obligationsPreviewTitle { font-size: var(--fs-body, 1rem); }
 }
 
 .obligationsPreviewTitle > svg {
@@ -849,7 +815,7 @@
 }
 
 @media (min-width: 1024px) {
-  .obligationsPreviewList > li { font-size: var(--fs-body, 1rem); line-height: var(--lh-normal); }
+.obligationsPreviewList > li { font-size: var(--fs-body, 1rem); line-height: var(--lh-normal); }
 }
 
 /* ═══ 의무사항 ═══ */
@@ -864,7 +830,7 @@
 }
 
 @media (min-width: 640px) {
-  .obligationsList { padding: 16px 20px; gap: 5px; }
+.obligationsList { padding: 16px 20px; gap: 5px; }
 }
 
 .obligationItem {
@@ -879,7 +845,7 @@
 }
 
 @media (min-width: 1024px) {
-  .obligationItem { font-size: var(--fs-body-sm, 0.875rem); line-height: var(--lh-snug); }
+.obligationItem { font-size: var(--fs-body-sm, 0.875rem); line-height: var(--lh-snug); }
 }
 
 .obligationItem > svg {
@@ -899,7 +865,7 @@
 }
 
 @media (min-width: 640px) {
-  .cautionCard { padding: 14px 18px; }
+.cautionCard { padding: 14px 18px; }
 }
 
 .cautionCard > svg {
@@ -925,7 +891,7 @@
 }
 
 @media (min-width: 1024px) {
-  .subProgramsGrid {
+.subProgramsGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 12px;
@@ -940,7 +906,7 @@
 }
 
 @media (min-width: 640px) {
-  .subProgramCard { padding: 16px 20px; }
+.subProgramCard { padding: 16px 20px; }
 }
 
 .subProgramName {
@@ -1005,7 +971,7 @@
 }
 
 @media (hover: hover) {
-  .relatedLink:hover {
+.relatedLink:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   }
 }
@@ -1017,7 +983,7 @@
 }
 
 @media (hover: hover) {
-  .externalLink:hover {
+.externalLink:hover {
     background: var(--card, #fff);
     border-color: var(--muted-foreground, #6b7280);
   }
@@ -1032,10 +998,7 @@
    · 주요 레이블 (title, label):    1.0625rem (17px)
    ───────────────────────────────────────────────── */
 @media (min-width: 1024px) {
-  /* 히어로 */
-  .heroDesc { font-size: 1.0625rem; line-height: 1.65; }
-
-  /* 요약 */
+/* 요약 */
   .summaryAgency { font-size: var(--fs-body, 1rem); }
   .summaryDesc { font-size: 1.0625rem; line-height: 1.7; }
   .metaBadge { font-size: var(--fs-body-sm, 0.9375rem); }
@@ -1052,9 +1015,6 @@
   .stepTip { font-size: var(--fs-body-sm, 0.9375rem); line-height: var(--lh-normal); }
   .stepDocsSummary { font-size: var(--fs-body-sm, 0.9375rem); }
   .stepDocTag { font-size: var(--fs-body-sm, 0.9375rem); }
-
-  /* 필요 서류 · 의무사항 */
-  .docItem { font-size: 1.0625rem; line-height: var(--lh-normal); }
   .obligationItem { font-size: 1.0625rem; line-height: var(--lh-normal); }
 
   /* 주의사항 */
@@ -1079,11 +1039,11 @@
 }
 
 @media (min-width: 640px) {
-  .ctaSection { padding: 36px 32px; }
+.ctaSection { padding: 36px 32px; }
 }
 
 @media (min-width: 1024px) {
-  .ctaSection { padding: 44px 40px; }
+.ctaSection { padding: 44px 40px; }
 }
 
 .ctaTitle {
@@ -1095,7 +1055,7 @@
 }
 
 @media (min-width: 640px) {
-  .ctaTitle { font-size: var(--fs-h3, 1.25rem); }
+.ctaTitle { font-size: var(--fs-h3, 1.25rem); }
 }
 
 .ctaDesc {
@@ -1114,7 +1074,7 @@
 }
 
 @media (min-width: 480px) {
-  .ctaButtons { flex-direction: row; justify-content: center; }
+.ctaButtons { flex-direction: row; justify-content: center; }
 }
 
 .ctaPrimary {

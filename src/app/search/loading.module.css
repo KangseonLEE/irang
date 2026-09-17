@@ -54,14 +54,6 @@
   border-radius: 12px;
 }
 
-.skeletonIcon {
-  composes: skeleton;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  margin: 0 auto 1rem;
-}
-
 .skeletonLink {
   composes: skeleton;
   height: 2.75rem;

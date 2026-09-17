@@ -120,7 +120,7 @@
 }
 
 @media (hover: hover) {
-  .searchClear:hover {
+.searchClear:hover {
     color: var(--foreground, #111827);
     background: var(--border, #e5e7eb);
   }
@@ -150,7 +150,7 @@
 }
 
 @media (hover: hover) {
-  .filterChip:hover {
+.filterChip:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
     color: var(--primary, #1b6b5a);
   }
@@ -181,13 +181,6 @@
   margin: 0;
 }
 
-/* ---- 배지 그룹 (레거시, 유형 요약용) ---- */
-.badgeGroup {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
 .badge {
   font-size: var(--fs-overline);
   font-weight: 600;
@@ -208,14 +201,6 @@
   border-radius: 12px;
 }
 
-.listItem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border, #e5e7eb);
-}
-
 .listItem:last-child,
 .listItemLink:last-child {
   border-bottom: none;
@@ -234,7 +219,7 @@
 }
 
 @media (hover: hover) {
-  .listItemLink:hover {
+.listItemLink:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
   }
 
@@ -423,7 +408,7 @@
 .skeletonLine:nth-child(2) { width: 85%; height: 10px; }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
+0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
@@ -470,14 +455,14 @@
 }
 
 @media (hover: hover) {
-  .loadMoreBtn:hover {
+.loadMoreBtn:hover {
     background: var(--secondary, #f0f9f6);
   }
 }
 
 /* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
 @media (min-width: 1024px) {
-  .searchClear { font-size: 14px; }
+.searchClear { font-size: 14px; }
 }
 
 /* ── 농가 모달 — 시도 평균 비교 박스 ── */
@@ -565,7 +550,7 @@
 }
 
 @media (max-width: 480px) {
-  .compareRow {
+.compareRow {
     grid-template-columns: 80px 1fr auto;
     gap: 8px;
   }

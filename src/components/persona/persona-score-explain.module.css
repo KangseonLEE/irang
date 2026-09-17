@@ -66,25 +66,6 @@
   word-break: keep-all;
 }
 
-.reasonOverride {
-  background: color-mix(in srgb, var(--primary) 8%, var(--card));
-  border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
-  color: var(--primary);
-}
-
-.reasonAge {
-  background: color-mix(in srgb, #d97706 6%, var(--card));
-  border-color: color-mix(in srgb, #d97706 22%, var(--border));
-}
-
-.reasonDifficulty {
-  background: var(--muted);
-}
-
-.reasonCategory {
-  background: var(--card);
-}
-
 /* Phase B Sprint 1 옵션 β: 강점·약점 그룹화 */
 .groups {
   display: flex;
@@ -139,7 +120,7 @@
 }
 
 @media (max-width: 639px) {
-  .row {
+.row {
     padding: 8px 10px;
     gap: 6px 8px;
   }

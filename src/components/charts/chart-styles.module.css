@@ -9,7 +9,7 @@
 }
 
 @media (min-width: 640px) {
-  .chartWrapper {
+.chartWrapper {
     min-height: 320px;
   }
 }
@@ -21,7 +21,7 @@
 }
 
 @media (min-width: 768px) {
-  .metricGrid {
+.metricGrid {
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
   }
@@ -128,27 +128,6 @@
   flex-shrink: 0;
 }
 
-/* ── 도넛 차트 중앙 텍스트 ── */
-.donutCenter {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.donutCenterValue {
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--primary, #1b6b5a);
-  line-height: 1;
-}
-
-.donutCenterLabel {
-  font-size: var(--fs-caption, 13px);
-  color: var(--muted-foreground, #6b7280);
-  font-weight: 600;
-}
-
 /* ── 인터랙티브 범례 (도넛) ── */
 .donutLegend {
   display: flex;
@@ -169,7 +148,7 @@
 }
 
 @media (hover: hover) {
-  .donutLegendItem:hover {
+.donutLegendItem:hover {
     background: var(--muted, #f9fafb);
     border-color: var(--border, #e5e7eb);
   }
@@ -199,11 +178,6 @@
   font-size: var(--fs-body-sm, 14px);
   font-weight: 700;
   color: var(--foreground, #111827);
-}
-
-/* ── 유의미 데이터 강조 포인트 ── */
-.significantDot {
-  filter: drop-shadow(0 0 6px rgba(27, 107, 90, 0.4));
 }
 
 /* ── 차트 하단 인사이트 배지 ── */

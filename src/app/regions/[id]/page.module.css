@@ -21,7 +21,7 @@
 }
 
 @media (hover: hover) {
-  .backLink:hover {
+.backLink:hover {
     color: var(--foreground);
   }
 }
@@ -44,7 +44,7 @@
 }
 
 @media (min-width: 768px) {
-  .heroBanner {
+.heroBanner {
     height: 280px;
   }
 }
@@ -89,7 +89,7 @@
 }
 
 @media (min-width: 768px) {
-  .heroTitle {
+.heroTitle {
     font-size: 2.5rem;
   }
 }
@@ -172,7 +172,7 @@
 }
 
 @media (hover: hover) {
-  a.heroScoreBadge:hover {
+a.heroScoreBadge:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, transparent);
   }
@@ -332,7 +332,7 @@ html:not([data-header-hidden]) .stickyTitleBarVisible {
 }
 
 @media (hover: hover) {
-  a.stickyChip:hover {
+a.stickyChip:hover {
     background: color-mix(in srgb, var(--muted, #f4f4f5) 95%, transparent);
     border-color: color-mix(in srgb, var(--border, #d1d5db) 80%, transparent);
   }
@@ -348,7 +348,7 @@ a.stickyChip:focus-visible {
 }
 
 @media (min-width: 768px) {
-  .stickyTitleBar {
+.stickyTitleBar {
     display: none;
   }
 }
@@ -540,22 +540,10 @@ a.stickyChip:focus-visible {
 }
 
 @media (hover: hover) {
-  .statCard:hover {
+.statCard:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: var(--secondary, #f0f9f6);
   }
-}
-
-.statIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--secondary, #f0f9f6);
-  color: var(--primary, #1b6b5a);
-  flex-shrink: 0;
 }
 
 .statBody {
@@ -605,7 +593,7 @@ a.stickyChip:focus-visible {
 }
 
 @media (min-width: 1024px) {
-  .contentGrid {
+.contentGrid {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 16px;
@@ -669,7 +657,7 @@ a.stickyChip:focus-visible {
 }
 
 @media (hover: hover) {
-  .sectionHeaderCta:hover {
+.sectionHeaderCta:hover {
     text-decoration: underline;
   }
 }
@@ -681,7 +669,7 @@ a.stickyChip:focus-visible {
 }
 
 @media (min-width: 640px) {
-  .cropGrid {
+.cropGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -696,7 +684,7 @@ a.stickyChip:focus-visible {
 }
 
 @media (hover: hover) {
-  .cropMoreLink:hover {
+.cropMoreLink:hover {
     text-decoration: underline;
   }
 }
@@ -744,7 +732,7 @@ a.stickyChip:focus-visible {
 }
 
 @media (hover: hover) {
-  .urbanNoticeLink:hover {
+.urbanNoticeLink:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: var(--secondary, #f0f9f6);
   }
@@ -771,7 +759,7 @@ a.stickyChip:focus-visible {
 }
 
 @media (hover: hover) {
-  .programCard:hover {
+.programCard:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: var(--secondary, #f0f9f6);
   }
@@ -803,7 +791,7 @@ a.stickyChip:focus-visible {
 }
 
 @media (hover: hover) {
-  .viewMore:hover {
+.viewMore:hover {
     text-decoration: underline;
   }
 }
@@ -823,14 +811,14 @@ a.stickyChip:focus-visible {
 }
 
 @media (hover: hover) {
-  .eduCard:hover {
+.eduCard:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: var(--secondary, #f0f9f6);
   }
 }
 
 @media (max-width: 639px) {
-  .eduCard {
+.eduCard {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
@@ -906,7 +894,7 @@ a.stickyChip:focus-visible {
 }
 
 @media (min-width: 1024px) {
-  .sidebar {
+.sidebar {
     position: sticky;
     top: calc(var(--sticky-top, 3.5rem) + 24px); /* 헤더 연동 (8/30) */
   }
@@ -988,48 +976,8 @@ a.stickyChip:focus-visible {
 }
 
 @media (hover: hover) {
-  .compareCta:hover {
+.compareCta:hover {
     opacity: 0.9;
-  }
-}
-
-/* ═══ 시군구 grid (SEO + navigation) ═══ */
-.sigunguGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-@media (min-width: 640px) {
-  .sigunguGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .sigunguGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.sigunguCard {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-@media (hover: hover) {
-  .sigunguCard:hover {
-    border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--foreground) 6%, transparent);
   }
 }
 
@@ -1038,29 +986,6 @@ a.stickyChip:focus-visible {
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
-}
-
-.sigunguDesc {
-  font-size: var(--fs-caption, 13px);
-  color: var(--muted-foreground);
-  margin: 0;
-  line-height: 1.5;
-  word-break: keep-all;
-}
-
-.sigunguCrops {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.sigunguCrop {
-  font-size: var(--fs-caption-sm, 12px);
-  color: var(--primary);
-  padding: 3px 8px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--primary) 8%, transparent);
 }
 
 /* 출처 */

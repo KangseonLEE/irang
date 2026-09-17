@@ -56,7 +56,7 @@
 }
 
 @media (min-width: 640px) {
-  .title { font-size: var(--fs-h2); }
+.title { font-size: var(--fs-h2); }
 }
 
 .viewAll {
@@ -75,11 +75,11 @@
 }
 
 @media (min-width: 640px) {
-  .viewAll { font-size: var(--fs-body-sm); }
+.viewAll { font-size: var(--fs-body-sm); }
 }
 
 @media (hover: hover) {
-  .viewAll:hover {
+.viewAll:hover {
     color: color-mix(in srgb, var(--primary, #1b6b5a) 80%, #000);
   }
 }
@@ -141,7 +141,7 @@
 }
 
 @media (hover: hover) {
-  .tab:not(.tabActive):hover {
+.tab:not(.tabActive):hover {
     color: var(--foreground, #111827);
   }
 }
@@ -260,11 +260,11 @@
 .navNext { right: -8px; }
 
 @media (min-width: 768px) {
-  .navBtn { display: inline-flex; }
+.navBtn { display: inline-flex; }
 }
 
 @media (hover: hover) {
-  .navBtn:hover {
+.navBtn:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     color: var(--primary, #1b6b5a);
@@ -295,11 +295,11 @@
 .carousel::-webkit-scrollbar { display: none; }
 
 @media (min-width: 640px) {
-  .carousel { grid-template-columns: repeat(2, 1fr); }
+.carousel { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (min-width: 1024px) {
-  .carousel { grid-template-columns: repeat(3, 1fr); }
+.carousel { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* 4개 이상 — 캐러셀 모드 전환 */
@@ -310,11 +310,11 @@
 }
 
 @media (min-width: 640px) {
-  .carouselScroll { grid-auto-columns: 46%; }
+.carouselScroll { grid-auto-columns: 46%; }
 }
 
 @media (min-width: 1024px) {
-  .carouselScroll { grid-auto-columns: calc((100% - 24px) / 3); }
+.carouselScroll { grid-auto-columns: calc((100% - 24px) / 3); }
 }
 
 .carouselFadeIn {
@@ -367,7 +367,7 @@
 }
 
 @media (hover: hover) {
-  .card:hover {
+.card:hover {
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, var(--border));
     background: color-mix(in srgb, var(--primary, #1b6b5a) 2%, var(--card, #fff));
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -480,17 +480,6 @@
   color: var(--primary, #1b6b5a);
 }
 
-.cardDesc {
-  margin: 0;
-  font-size: var(--fs-caption);
-  line-height: var(--lh-normal);
-  color: var(--muted-foreground, #6b7280);
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
 .cardMeta {
   display: flex;
   flex-wrap: wrap;
@@ -512,5 +501,5 @@
 }
 
 @media (min-width: 768px) {
-  .card { padding: 22px; }
+.card { padding: 22px; }
 }

@@ -9,13 +9,13 @@
 }
 
 @media (min-width: 640px) {
-  .container {
+.container {
     padding: 24px 24px;
   }
 }
 
 @media (min-width: 1024px) {
-  .container {
+.container {
     padding: 40px 32px;
   }
 }
@@ -47,7 +47,7 @@
 }
 
 @media (min-width: 1024px) {
-  .contentGrid {
+.contentGrid {
     grid-template-columns: 2fr 1fr;
   }
 }
@@ -70,10 +70,6 @@
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   padding: 1.5rem;
-}
-
-.cardTitle {
-  margin-bottom: 1rem;
 }
 
 /* Skeleton Animation — globals.css 의 irang-pulse 사용 */

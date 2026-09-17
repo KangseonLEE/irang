@@ -42,7 +42,7 @@
 }
 
 @media (hover: hover) {
-  .quickItem:hover {
+.quickItem:hover {
     background: var(--muted, #f9fafb);
   }
 }
@@ -67,7 +67,7 @@
 }
 
 @media (max-width: 379px) {
-  .quickLabel {
+.quickLabel {
     font-size: 11px;
     letter-spacing: -0.02em;
   }
@@ -114,7 +114,7 @@
 }
 
 @media (hover: hover) {
-  .listItem:hover {
+.listItem:hover {
     background: var(--muted, #f9fafb);
   }
 }
@@ -159,27 +159,6 @@
 .listArrow {
   color: var(--muted-foreground, #9ca3af);
   flex-shrink: 0;
-}
-
-/* ── 서비스 소개 링크 ── */
-.aboutLink {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  margin-top: 8px;
-  border-top: 1px solid var(--border, #e5e7eb);
-  font-size: var(--fs-caption, 13px);
-  font-weight: 500;
-  color: var(--muted-foreground, #6b7280);
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-
-@media (hover: hover) {
-  .aboutLink:hover {
-    color: var(--foreground, #111827);
-  }
 }
 
 /* ═══ 반응형 ═══ */
