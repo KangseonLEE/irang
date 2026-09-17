@@ -69,4 +69,3 @@ export async function recordAndCheckLoginAttempt(ip: string): Promise<ThrottleRe
     : { limited: false, reason: "ok" };
 }
 
-export const LOGIN_THROTTLE = { WINDOW_MS, MAX_ATTEMPTS } as const;

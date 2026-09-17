@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { CommunityNotes } from "@/components/community/community-notes";
+import { CropLinkCard } from "@/components/crops/crop-link-card";
+import { SidebarTabs } from "./sidebar-tabs";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
@@ -39,8 +41,7 @@ import {
   type ProsConsInfo,
   type CultivationStep,
 } from "@/lib/data/crops";
-import { CropRichCard } from "@/components/crops/crop-rich-card";
-import { convertToPyeongLabel, formatHectaresWithPyeong } from "@/lib/format";
+import { convertToPyeongLabel, formatHectaresWithPyeong, withJosa } from "@/lib/format";
 import { PROVINCES } from "@/lib/data/regions";
 import {
   getMajorSigungusForCrop,
@@ -254,11 +255,9 @@ export default async function CropDetailPage({
     p.relatedCrops.some((rc) => rc === data.name)
   ).slice(0, 3);
 
-  // 관련 작물 — CropRichCard 비교 모드용 정보 포함
+  // 관련 작물 — 사이드 탭의 압축 목록용 (수익 라벨 한 줄).
+  // 비교 상세(노동·난이도 대비)는 /crops/compare 가 담당한다 (9/17).
   const cropDetailById = new Map(CROP_DETAILS.map((d) => [d.id, d]));
-  const currentRevenue = convertToPyeongLabel(
-    data.detail.income?.revenueRange ?? "",
-  ).value;
   const relatedCrops = data.detail.relatedCropIds
     .map((rid) => {
       const c = CROPS.find((cr) => cr.id === rid);
@@ -612,36 +611,57 @@ export default async function CropDetailPage({
             </div>
           </div>
 
-          {/* 관련 작물 — CropRichCard 비교 모드 (현재 작물 대비) */}
-          {relatedCrops.length > 0 && (
-            <div className={s.sideSection}>
-              <h3 className={s.sideSectionHeader}>
-                <Icon icon={Leaf} size="md" />
-                관련 작물
-              </h3>
-              <div className={s.relatedCropList}>
-                {relatedCrops.map(({ crop, detail, revenueLabel, revenueValue }) => (
-                  <CropRichCard
-                    key={crop.id}
-                    cropId={crop.id}
-                    name={crop.name}
-                    href={`/crops/${crop.id}`}
-                    meta={`${crop.growingSeason} 재배`}
-                    revenueLabel={revenueLabel}
-                    revenueValue={revenueValue}
-                    revenueMax={null}
-                    laborIntensity={detail?.income?.laborIntensity}
-                    difficulty={crop.difficulty}
-                    source={detail?.income?.source}
-                    comparisonName={data.name}
-                    comparisonRevenue={currentRevenue}
-                    comparisonLabor={data.detail.income?.laborIntensity}
-                    comparisonDifficulty={data.difficulty}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+          {/* 사이드 탭 — 관련 작물 · 의견 (2026-09-17)
+              관련 작물이 카드당 337px(총 1,083px)로 사이드바의 62%를 먹고 있었고,
+              sticky 가 걸려 있어도 뷰포트를 넘겨 작동하지 않았다. 비교 상세는
+              /crops/compare 가 하는 일이라 여기선 목록 밀도로 충분하다. */}
+          <SidebarTabs
+            tabs={[
+              ...(relatedCrops.length > 0
+                ? [
+                    {
+                      id: "related",
+                      label: "관련 작물",
+                      content: (
+                        <>
+                          <div className={s.sideTabList2}>
+                            {relatedCrops.map(({ crop, revenueLabel }) => (
+                              <CropLinkCard
+                                key={crop.id}
+                                cropId={crop.id}
+                                name={crop.name}
+                                href={`/crops/${crop.id}`}
+                                meta={revenueLabel}
+                              />
+                            ))}
+                          </div>
+                          <Link href={`/crops/compare?crops=${id}`} className={s.sideTabMore}>
+                            수익·난이도 자세히 비교하기
+                            <Icon icon={ArrowRight} size="sm" />
+                          </Link>
+                        </>
+                      ),
+                    },
+                  ]
+                : []),
+              {
+                id: "notes",
+                label: "의견",
+                content: (
+                  <div className={s.sideTabNotes}>
+                    <p className={s.sideTabNotesText}>
+                      {withJosa(data.name, "을")} 길러 봤거나 알아보는 중이라면 한 줄 남겨 주세요.
+                      검토 후 이 페이지에 게시돼요.
+                    </p>
+                    <a href="#community-notes" className={s.sideTabMore} data-community-jump="crop_side">
+                      의견 남기기
+                      <Icon icon={ArrowRight} size="sm" />
+                    </a>
+                  </div>
+                ),
+              },
+            ]}
+          />
 
           {/* 추천 지원사업 */}
           <RelatedProgramsSection relatedPrograms={relatedPrograms} moreHref={programsHref} />

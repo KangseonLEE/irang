@@ -199,3 +199,44 @@ export function formatHectaresWithPyeong(
   const pyeong = formatPyeongFromHa(ha);
   return pyeong ? `${haLabel} (${pyeong})` : haLabel;
 }
+
+// ── 한글 조사 ────────────────────────────────────────────────
+
+/** 짝을 이루는 조사 — [받침 있을 때, 받침 없을 때] */
+const JOSA_PAIRS: Record<string, readonly [string, string]> = {
+  을: ["을", "를"],
+  를: ["을", "를"],
+  이: ["이", "가"],
+  가: ["이", "가"],
+  은: ["은", "는"],
+  는: ["은", "는"],
+  과: ["과", "와"],
+  와: ["과", "와"],
+};
+
+/** 마지막 글자에 받침이 있는가 (한글 음절이 아니면 false) */
+function hasFinalConsonant(word: string): boolean {
+  const ch = word.trim().at(-1);
+  if (!ch) return false;
+  const code = ch.charCodeAt(0);
+  if (code < 0xac00 || code > 0xd7a3) return false;
+  return (code - 0xac00) % 28 !== 0;
+}
+
+/**
+ * 이름 뒤에 올바른 조사를 붙인다 (2026-09-17).
+ *
+ * 작물·지역 이름을 문구에 끼워 넣을 때 "감을(를)" 같은 표기가 나오지 않게 한다 —
+ * 카피 규칙상 소리 내어 읽어 자연스러워야 한다.
+ * 한글 음절로 끝나지 않으면(영문·숫자) 받침 없는 쪽을 쓴다.
+ *
+ * @example
+ * withJosa("감", "을")   // "감을"
+ * withJosa("사과", "을") // "사과를"
+ * withJosa("배", "이")   // "배가"
+ */
+export function withJosa(word: string, josa: keyof typeof JOSA_PAIRS | string): string {
+  const pair = JOSA_PAIRS[josa];
+  if (!pair) return `${word}${josa}`;
+  return `${word}${hasFinalConsonant(word) ? pair[0] : pair[1]}`;
+}

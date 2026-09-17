@@ -1764,3 +1764,101 @@
     border-color: var(--primary);
   }
 }
+
+/* ══════════════════════════════════════════
+   사이드 탭 패널 (2026-09-17)
+   관련 작물이 카드당 337px(총 1,083px)로 사이드바의 62%를 먹었고, sticky 가
+   걸려 있어도 높이가 뷰포트를 넘어 작동하지 않았다. 탭으로 묶어 높이를 접는다.
+   ══════════════════════════════════════════ */
+
+.sideTabs {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  background: var(--card, #fff);
+  overflow: hidden;
+}
+
+.sideTabList {
+  display: flex;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.sideTabItem {
+  flex: 1;
+  padding: 13px 10px;
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sideTabItem[data-active="true"] {
+  color: var(--primary, #1b6b5a);
+  font-weight: 700;
+  border-bottom-color: var(--primary, #1b6b5a);
+}
+
+@media (hover: hover) {
+  .sideTabItem:hover {
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.sideTabItem:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -2px;
+}
+
+.sideTabPanel {
+  padding: 14px;
+}
+
+/* 관련 작물 압축 목록 */
+.sideTabList2 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sideTabMore {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 7%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .sideTabMore:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 13%, transparent);
+  }
+}
+
+.sideTabMore:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.sideTabNotes {
+  display: flex;
+  flex-direction: column;
+}
+
+.sideTabNotesText {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  line-height: 1.6;
+  color: var(--muted-foreground, #6b7280);
+}
