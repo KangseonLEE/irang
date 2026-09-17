@@ -1083,3 +1083,13 @@ a.stickyChip:focus-visible {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* 4번째 이후 작물 — 압축 목록 (2026-09-17).
+   같은 근거 카드를 6장 쌓으면 모바일에서 이 섹션만 2,432px 가 된다.
+   상위 3개는 적합도·수익 비교를 유지하고, 나머지는 이름·수익 한 줄로 민다. */
+.cropCompactList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}

@@ -12,7 +12,7 @@
  */
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import type { DimensionEvidenceMap } from "@/lib/data/dimension-scores";
 import type { SidoDimensionEvidenceMap } from "@/lib/data/sido-evidence";
@@ -146,10 +146,18 @@ export function SettlementScoreBreakdown(props: Props) {
         <p className={s.overallInterp}>{overallInterpretation}</p>
       </div>
 
-      <header className={s.header}>
-        <h2 className={s.title} id={`${anchorId}-title`}>
-          {score}점은 어떻게 나왔나요?
-        </h2>
+      {/* 산식 설명은 기본으로 접는다 (2026-09-17).
+          모바일에서 이 블록만 시·도 1,087px · 시군구 788px 였다. 종합 점수(위 카드)는
+          늘 보여야 하지만 "어떻게 나왔나요"는 성격상 필요할 때 펼치는 설명이고,
+          제목이 이미 질문형이라 여는 흐름과도 맞는다.
+          native <details> — JS 없이 동작하고 SSR 에 내용이 그대로 남아 색인에 영향 없다. */}
+      <details className={s.breakdown}>
+        <summary className={s.breakdownToggle}>
+          <h2 className={s.title} id={`${anchorId}-title`}>
+            {score}점은 어떻게 나왔나요?
+          </h2>
+          <Icon icon={ChevronDown} size="md" className={s.breakdownChevron} />
+        </summary>
         <p className={s.desc}>
           {props.mode === "sigungu" ? (
             <>
@@ -169,7 +177,6 @@ export function SettlementScoreBreakdown(props: Props) {
             </>
           )}
         </p>
-      </header>
 
       <ol className={s.dimGrid}>
         {DIMENSIONS.map((d) => {
@@ -262,6 +269,7 @@ export function SettlementScoreBreakdown(props: Props) {
           <Icon icon={ArrowRight} size="sm" className={s.methodologyIcon} />
         </Link>
       </div>
+      </details>
     </section>
   );
 }

@@ -22,6 +22,7 @@ import { getSigungusBySidoId } from "@/lib/data/sigungus";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { CropRichCard } from "@/components/crops/crop-rich-card";
+import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { convertToPyeongLabel } from "@/lib/format";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CommunityNotes } from "@/components/community/community-notes";
@@ -96,6 +97,11 @@ export default async function RegionDetailPage({ params }: PageProps) {
 
   const topCrops = allMatchedCrops.slice(0, 6);
   const remainingCount = allMatchedCrops.length - topCrops.length;
+  // 상위 3개만 근거 카드(적합도·수익 비교), 나머지는 압축 목록 (2026-09-17).
+  // 같은 카드 6장이면 모바일에서 이 섹션만 2,432px — 화면 3개 분량이다.
+  // 작물 추천은 이 페이지의 핵심 가치라 상위 3개는 밀도를 유지한다.
+  const featuredCrops = topCrops.slice(0, 3);
+  const compactCrops = topCrops.slice(3);
   // 바 길이 정규화 기준 (이 섹션 내 최대 수익값)
   const revenueMax = topCrops.reduce(
     (max, c) => (c.revenueValue !== null ? Math.max(max, c.revenueValue) : max),
@@ -412,7 +418,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
             {topCrops.length > 0 ? (
               <>
                 <div className={s.cropGrid}>
-                  {topCrops.map(({ crop, detail, revenueValue, revenueLabel }) => {
+                  {featuredCrops.map(({ crop, detail, revenueValue, revenueLabel }) => {
                     const fit = getCropFit(province.shortName, crop.name, sigungus);
                     return (
                       <CropRichCard
@@ -433,6 +439,19 @@ export default async function RegionDetailPage({ params }: PageProps) {
                     );
                   })}
                 </div>
+                {compactCrops.length > 0 && (
+                  <div className={s.cropCompactList}>
+                    {compactCrops.map(({ crop, revenueLabel }) => (
+                      <CropLinkCard
+                        key={crop.id}
+                        cropId={crop.id}
+                        name={crop.name}
+                        href={`/crops/${crop.id}`}
+                        meta={revenueLabel}
+                      />
+                    ))}
+                  </div>
+                )}
                 {remainingCount > 0 && (
                   <Link href="/crops" className={s.cropMoreLink}>
                     {province.shortName}의 다른 작물 {remainingCount}개 더 보기 →

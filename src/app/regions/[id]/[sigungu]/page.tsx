@@ -25,6 +25,7 @@ import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CropRichCard } from "@/components/crops/crop-rich-card";
+import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { convertToPyeongLabel } from "@/lib/format";
 import { getSigunguCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
@@ -131,6 +132,9 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
   const topCrops = allMatchedCrops.slice(0, 6);
   const remainingCount = allMatchedCrops.length - topCrops.length;
+  // 상위 3개만 근거 카드, 나머지는 압축 목록 — 시도 페이지와 동일 (2026-09-17)
+  const featuredCrops = topCrops.slice(0, 3);
+  const compactCrops = topCrops.slice(3);
   const cropRevenueMax = topCrops.reduce(
     (max, c) => (c.revenueValue !== null ? Math.max(max, c.revenueValue) : max),
     0,
@@ -421,7 +425,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         {topCrops.length > 0 ? (
           <>
             <div className={s.cropGrid}>
-              {topCrops.map(({ crop, detail, revenueValue, revenueLabel }) => (
+              {featuredCrops.map(({ crop, detail, revenueValue, revenueLabel }) => (
                 <CropRichCard
                   key={crop.id}
                   cropId={crop.id}
@@ -437,6 +441,19 @@ export default async function SigunguDetailPage({ params }: PageProps) {
                 />
               ))}
             </div>
+            {compactCrops.length > 0 && (
+              <div className={s.cropCompactList}>
+                {compactCrops.map(({ crop, revenueLabel }) => (
+                  <CropLinkCard
+                    key={crop.id}
+                    cropId={crop.id}
+                    name={crop.name}
+                    href={`/crops/${crop.id}`}
+                    meta={revenueLabel}
+                  />
+                ))}
+              </div>
+            )}
             {remainingCount > 0 && (
               <Link href="/crops" className={s.cropMoreLink}>
                 {sigungu.name}의 다른 작물 {remainingCount}개 더 보기 →

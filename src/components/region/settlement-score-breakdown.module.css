@@ -439,3 +439,52 @@
 .methodologyIcon {
   color: inherit;
 }
+
+/* ══════════════════════════════════════════
+   산식 설명 아코디언 (2026-09-17)
+   모바일에서 이 블록만 시·도 1,087px · 시군구 788px 였다.
+   종합 점수 카드는 항상 보이고, "어떻게 나왔나요"만 접는다.
+   ══════════════════════════════════════════ */
+
+.breakdown {
+  margin-top: 4px;
+}
+
+.breakdownToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 0;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safari 기본 삼각형 제거 */
+.breakdownToggle::-webkit-details-marker {
+  display: none;
+}
+
+.breakdownToggle:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.breakdownChevron {
+  flex-shrink: 0;
+  color: var(--muted-foreground, #6b7280);
+  transition: transform 0.18s ease;
+}
+
+.breakdown[open] .breakdownChevron {
+  transform: rotate(180deg);
+}
+
+@media (hover: hover) {
+  .breakdownToggle:hover .title,
+  .breakdownToggle:hover .breakdownChevron {
+    color: var(--primary, #1b6b5a);
+  }
+}
