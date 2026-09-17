@@ -20,9 +20,13 @@ export interface SidebarTab {
  * 숨은 탭의 내부 링크(관련 작물·의견)가 SSR HTML 에서 사라진다 — 유입의 61%가
  * Organic Search 라 내부 링크 손실은 이 사이트에서 가장 비싼 실수다.
  */
-/** 패널 내부 공용 클래스 — 페이지가 압축 목록·더보기·안내문에 같은 스타일을 쓴다 */
-export const sidebarTabStyles = s;
-
+/*
+ * ⚠️ 패널 내부 공용 클래스(sideTabCropList·sideTabMore·sideTabNotes…)는 이 파일에서
+ * re-export 하지 않는다. "use client" 모듈의 비컴포넌트 export 를 서버 컴포넌트가 import 하면
+ * 클라이언트 참조 프록시가 와서 `st.sideTabMore` 가 undefined 로 풀린다 — 9/17 라이브에서
+ * 사이드바 링크 3종·카드 간격이 전부 무스타일로 렌더된 원인. 페이지는 CSS 모듈을 직접 import 한다:
+ *   import st from "@/components/ui/sidebar-tabs.module.css";
+ */
 export function SidebarTabs({ tabs }: { tabs: SidebarTab[] }) {
   const [active, setActive] = useState(tabs[0]?.id ?? "");
   const baseId = useId();
