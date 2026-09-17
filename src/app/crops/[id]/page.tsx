@@ -624,7 +624,7 @@ export default async function CropDetailPage({
                       label: "관련 작물",
                       content: (
                         <>
-                          <div className={s.sideTabList2}>
+                          <div className={s.sideTabCropList}>
                             {relatedCrops.map(({ crop, revenueLabel }) => (
                               <CropLinkCard
                                 key={crop.id}
