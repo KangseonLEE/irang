@@ -13,6 +13,22 @@ interface ExternalLinkBlockProps {
   title?: string;
 }
 
+/**
+ * 안전한 외부 URL만 통과 (2026-09-17 보안 점검).
+ *
+ * href 는 큐레이션 데이터(정적 + Supabase)에서 오지만, `javascript:`·`data:` 가 한 번
+ * 섞이면 React 19 는 렌더 중 **예외를 던져 페이지 전체가 죽는다**(경고가 아니라 차단).
+ * 즉 여기서는 XSS 보다 가용성이 먼저 걸린다 — 허용 프로토콜 밖이면 링크를 렌더하지 않는다.
+ */
+function safeHttpUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" || u.protocol === "http:" ? u.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 /** URL에서 도메인 추출 */
 function extractDomain(url: string): string {
   try {
@@ -44,9 +60,13 @@ export function ExternalLinkBlock({
 }: ExternalLinkBlockProps) {
   const domain = extractDomain(href);
   const isGov = isGovDomain(domain);
+  const safeHref = safeHttpUrl(href);
+
+  // ── 프로토콜이 http(s)가 아니면 깨진 링크와 같이 취급 (검색 폴백) ──
+  const effectiveStatus = safeHref === null ? "broken" : linkStatus;
 
   // ── 링크가 깨진 경우 ──
-  if (linkStatus === "broken") {
+  if (effectiveStatus === "broken") {
     const searchUrl = buildSearchFallback(domain, title);
     return (
       <div className={s.block}>
@@ -82,7 +102,7 @@ export function ExternalLinkBlock({
     return (
       <div className={s.block}>
         <a
-          href={href}
+          href={safeHref ?? href}
           target="_blank"
           rel="noopener noreferrer"
           className={s.buttonCaution}
@@ -121,7 +141,7 @@ export function ExternalLinkBlock({
   return (
     <div className={s.block}>
       <a
-        href={href}
+        href={safeHref ?? href}
         target="_blank"
         rel="noopener noreferrer"
         className={s.button}

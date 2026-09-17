@@ -1,0 +1,42 @@
+/* ══════════════════════════════════════════
+   CommunityJumpLink — 상단에서 의견란으로 보내는 한 줄
+   ══════════════════════════════════════════ */
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  color: var(--muted-foreground, #6b7280);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  /* 터치 타깃 44px — 시각 높이는 유지하고 영역만 넓힌다 */
+  position: relative;
+  min-height: 32px;
+}
+
+.link::after {
+  content: "";
+  position: absolute;
+  inset: -6px -4px;
+}
+
+.icon {
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    border-color: var(--primary, #1b6b5a);
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}

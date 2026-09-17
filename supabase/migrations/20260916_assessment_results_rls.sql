@@ -29,3 +29,28 @@ CREATE POLICY "assessment_results_service_all" ON assessment_results
 -- 적용 후 검증 (anon 키로):
 --   curl "$URL/rest/v1/assessment_results?select=id&limit=1" -H "apikey: $ANON" → []
 --   라이브 공유 링크 /assess/result/<id> 정상 표시
+
+-- ────────────────────────────────────────────────────────────────
+-- 관리자 로그인 시도 기록 (2026-09-16 보안 점검, 9/17 보강)
+--
+-- 인메모리 레이트리밋은 서버리스에서 인스턴스마다 카운터가 따로라 실효가 없다
+-- (라이브 실측: 연속 8회 시도 전부 401, 429 미발생). 공유 비밀번호 하나짜리
+-- 인증이라 무제한 대입이 그대로 가능했다 → 인스턴스와 무관한 영속 카운터로 바꾼다.
+--
+-- 원 IP 는 저장하지 않는다 — 커뮤니티와 동일하게 sha256(ip+salt) 앞 32자만.
+CREATE TABLE IF NOT EXISTS admin_login_attempts (
+  id          bigserial PRIMARY KEY,
+  ip_hash     text        NOT NULL,
+  attempted_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS admin_login_attempts_ip_time
+  ON admin_login_attempts (ip_hash, attempted_at DESC);
+
+ALTER TABLE admin_login_attempts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "admin_login_attempts_service_all" ON admin_login_attempts;
+CREATE POLICY "admin_login_attempts_service_all" ON admin_login_attempts
+  FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+-- 오래된 기록 정리는 조회 시 함께 지운다(코드에서 처리) — 별도 cron 불필요.

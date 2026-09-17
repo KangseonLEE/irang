@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { CommunityNotes } from "@/components/community/community-notes";
+import { CommunityJumpLink } from "@/components/community/community-jump-link";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
@@ -146,6 +147,8 @@ export default async function ProgramDetailPage({
         <ArrowLeft size={16} />
         지원사업 목록
       </Link>
+
+      <CommunityJumpLink from="program_detail" />
 
       {/* Title + Status */}
       <div className={s.titleSection}>

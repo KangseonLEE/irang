@@ -167,6 +167,15 @@ export const analytics = {
   assessEntryClick: (from: string) =>
     trackEvent({ action: "assess_entry_click", category: "conversion", label: from }),
 
+  // -- 커뮤니티 의견 (2026-09-17) --
+  // 작성 UI 는 이미 항상 떠 있는데 45일간 1건뿐이었다. 실측해 보니 의견란이
+  // 모바일에서 화면 7~9개 아래(문서 69~85% 지점)라 도달 자체가 거의 없다.
+  // "안 쓴다"와 "못 본다"를 가르려면 노출과 진입을 따로 세야 한다.
+  communityView: (targetType: string) =>
+    trackEvent({ action: "community_view", category: "community", label: targetType }),
+  communityJumpClick: (from: string) =>
+    trackEvent({ action: "community_jump_click", category: "community", label: from }),
+
   // -- 지역 비교 (2026-09-16) --
   // /regions/compare 는 28일 60명으로 진단(22명)의 3배인데 계측이 0이었다.
   // M7 기준 재검토(진단 완료율 → 비교 완주율) 논의에 필요한 최소 신호.

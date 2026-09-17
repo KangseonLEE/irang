@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { MessageSquareText, ThumbsUp, Loader2 } from "lucide-react";
-import { trackEvent } from "@/lib/analytics";
+import { analytics, trackEvent } from "@/lib/analytics";
 import {
   NICKNAME_MAX_LENGTH,
   NOTE_MAX_LENGTH,
@@ -53,6 +53,27 @@ export function CommunityNotes({ targetType, targetId, targetLabel }: Props) {
   const [liked, setLiked] = useState<Set<number>>(() => new Set());
   const [reported, setReported] = useState<Set<number>>(() => new Set());
   const composeStartRef = useRef<number | null>(null);
+
+  // 노출 계측 (9/17) — 의견란이 화면에 실제로 들어온 첫 순간 1회.
+  // 작성 0건이 "안 쓴다"인지 "못 본다"인지는 노출과 작성을 따로 세야만 갈린다.
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const viewedRef = useRef(false);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || viewedRef.current || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting) && !viewedRef.current) {
+          viewedRef.current = true;
+          analytics.communityView(targetType);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.3 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [targetType]);
 
   useEffect(() => {
     let cancelled = false;
@@ -166,7 +187,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel }: Props) {
     body.trim().length <= NOTE_MAX_LENGTH;
 
   return (
-    <section className={s.section} aria-labelledby="community-notes-heading">
+    <section id="community-notes" ref={sectionRef} className={s.section} aria-labelledby="community-notes-heading">
       <div className={s.header}>
         <h2 id="community-notes-heading" className={s.title}>
           <MessageSquareText size={18} aria-hidden="true" />

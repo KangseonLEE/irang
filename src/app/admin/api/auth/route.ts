@@ -11,6 +11,7 @@ import {
   buildLogoutCookieHeader,
 } from "@/lib/admin/auth";
 import { createRateLimiter } from "@/lib/rate-limit";
+import { recordAndCheckLoginAttempt } from "@/lib/admin/login-throttle";
 
 /**
  * 로그인 시도 제한 (2026-09-16 보안 점검).
@@ -34,7 +35,13 @@ function clientIp(request: NextRequest): string {
 }
 
 export async function POST(request: NextRequest) {
-  if (loginLimiter.isLimited(clientIp(request))) {
+  const ip = clientIp(request);
+
+  // 1차: 인메모리(같은 인스턴스에 몰린 폭주를 즉시 차단)
+  // 2차: DB 영속 카운터(인스턴스가 흩어져도 창 전체를 집계) — 실효는 여기서 난다
+  const tooMany =
+    loginLimiter.isLimited(ip) || (await recordAndCheckLoginAttempt(ip)).limited;
+  if (tooMany) {
     return NextResponse.json(
       { error: "시도가 너무 많아요. 잠시 후 다시 해주세요" },
       { status: 429, headers: { "Retry-After": "600", "Cache-Control": "private, no-store" } },

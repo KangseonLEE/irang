@@ -25,6 +25,7 @@ import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { convertToPyeongLabel } from "@/lib/format";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CommunityNotes } from "@/components/community/community-notes";
+import { CommunityJumpLink } from "@/components/community/community-jump-link";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Place } from "schema-dts";
@@ -222,6 +223,8 @@ export default async function RegionDetailPage({ params }: PageProps) {
       <Link href="/regions" className={s.backLink}>
         ← 지역 목록으로
       </Link>
+
+      <CommunityJumpLink from="region_detail" />
 
       {/* 스크롤 시 노출되는 sticky 헤더 — 모바일 전용 (CSS에서 데스크탑 hide) */}
       <StickyRegionHeader

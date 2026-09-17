@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { CommunityNotes } from "@/components/community/community-notes";
+import { CommunityJumpLink } from "@/components/community/community-jump-link";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
@@ -349,6 +350,8 @@ export default async function CropDetailPage({
         </nav>
         <DataSource source="농촌진흥청 · KOSIS" variant="badge" />
       </div>
+
+      <CommunityJumpLink from="crop_detail" />
 
       {/* ── Hero ── */}
       <section className={s.hero}>

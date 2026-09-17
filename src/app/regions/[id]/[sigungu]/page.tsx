@@ -37,6 +37,7 @@ import { DistrictMapSection } from "./district-map-section";
 import { DataSource } from "@/components/ui/data-source";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CommunityNotes } from "@/components/community/community-notes";
+import { CommunityJumpLink } from "@/components/community/community-jump-link";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Place } from "schema-dts";
@@ -241,6 +242,8 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           {sigungu.name}
         </span>
       </nav>
+
+      <CommunityJumpLink from="sigungu_detail" />
 
       {/* 스크롤 시 노출되는 sticky 헤더 — 모바일 전용 */}
       <StickyRegionHeader
