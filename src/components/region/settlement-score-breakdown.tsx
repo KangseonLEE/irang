@@ -151,7 +151,12 @@ export function SettlementScoreBreakdown(props: Props) {
           늘 보여야 하지만 "어떻게 나왔나요"는 성격상 필요할 때 펼치는 설명이고,
           제목이 이미 질문형이라 여는 흐름과도 맞는다.
           native <details> — JS 없이 동작하고 SSR 에 내용이 그대로 남아 색인에 영향 없다. */}
-      <details className={s.breakdown}>
+      {/* 시·도는 펼친 채로 둔다 (2026-09-17 E2E 가 잡은 회귀).
+          시·도 breakdown 의 차원별 근거 안에는 **상위 시군구 링크**가 들어 있고,
+          모바일에서는 시군구 탐색기가 지도 뷰로 시작해 카드(링크)가 숨어 있어서
+          접는 순간 "상호작용 없이 보이는 시군구 링크"가 0 이 된다(실측 10 → 0).
+          높이보다 탐색 경로가 우선. 시군구 모드의 breakdown 은 순수 설명이라 접는다. */}
+      <details className={s.breakdown} open={props.mode === "sido"}>
         <summary className={s.breakdownToggle}>
           <h2 className={s.title} id={`${anchorId}-title`}>
             {score}점은 어떻게 나왔나요?
