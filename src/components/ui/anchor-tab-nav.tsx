@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import s from "./page.module.css";
+import s from "./anchor-tab-nav.module.css";
 
 interface AnchorSection {
   id: string;
@@ -15,7 +15,7 @@ interface AnchorTabNavProps {
 }
 
 /**
- * Sticky Anchor Tab Navigation
+ * Sticky Anchor Tab Navigation — 긴 상세 페이지의 섹션 탐색 (공용, 2026-09-17 승격)
  * - IntersectionObserver로 현재 보이는 섹션을 감지
  * - 탭 클릭 시 해당 섹션으로 smooth scroll
  * - 배민/컬리 스타일 sticky 상단 고정

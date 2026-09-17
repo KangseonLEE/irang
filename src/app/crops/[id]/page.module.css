@@ -442,48 +442,6 @@
   .stickyHeaderTabs::after { display: none; }
 }
 
-.anchorTab {
-  display: flex;
-  overflow-x: auto;
-  scrollbar-width: none;
-  background: var(--background, #fff);
-  border-bottom: 1px solid var(--border, #e5e7eb);
-  padding: 0;
-}
-
-.anchorTab::-webkit-scrollbar { display: none; }
-
-.anchorTabItem {
-  padding: 14px 18px;
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  color: var(--muted-foreground, #6b7280);
-  white-space: nowrap;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: none;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.anchorTabItem[data-active="true"] {
-  color: var(--primary, #1b6b5a);
-  font-weight: 600;
-  border-bottom-color: var(--primary, #1b6b5a);
-}
-
-@media (hover: hover) {
-  .anchorTabItem:hover {
-    color: var(--foreground, #111827);
-  }
-}
-
-.anchorTabItem:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: -2px;
-  border-radius: 4px;
-}
 
 /* ── 본문 그리드 ── */
 .mainGrid {

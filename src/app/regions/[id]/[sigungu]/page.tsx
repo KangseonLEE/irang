@@ -26,6 +26,7 @@ import { Icon } from "@/components/ui/icon";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
+import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
 import { convertToPyeongLabel } from "@/lib/format";
 import { getSigunguCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
@@ -372,6 +373,20 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         <SigunguData province={province} sigungu={sigungu} />
       </Suspense>
 
+      {/* 섹션 탐색 탭 — 작물·시도 상세와 같은 패턴 (2026-09-17) */}
+      <AnchorTabNav
+        sections={[
+          { id: "settlement-score", label: "정착 점수" },
+          { id: "sigungu-crops", label: "대표 작물" },
+          { id: "sigungu-programs", label: "지원사업" },
+          { id: "sigungu-education", label: "정착 교육" },
+          { id: "sigungu-events", label: "체험·행사" },
+          { id: "sigungu-land", label: "필지·임지" },
+          { id: "sigungu-center", label: "지원센터" },
+          { id: "community-notes", label: "의견", track: "sigungu_tab" },
+        ]}
+      />
+
       {/* ── 정착 점수 산식 breakdown (sticky 칩의 anchor target) ── */}
       {sigunguSettlementScore !== null && dimScores && (
         <SettlementScoreBreakdown
@@ -473,7 +488,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
       {/* ── 이 지역 귀농지원센터 (정적) ── */}
       {sigunguCenter && (
-        <section className={s.section} aria-label="이 지역 귀농지원센터">
+        <section className={s.section} aria-label="이 지역 귀농지원센터" id="sigungu-center">
           <div className={s.sectionHeader}>
             <Icon icon={Building2} size="lg" />
             <div>
@@ -488,7 +503,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       )}
 
       {/* ── 추천 지원사업 ── */}
-      <section className={s.section} aria-label="추천 지원사업">
+      <section className={s.section} aria-label="추천 지원사업" id="sigungu-programs">
         <div className={s.sectionHeader}>
           <Icon icon={FileText} size="lg" />
           <div>
@@ -531,7 +546,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       </section>
 
       {/* ── 필지·임지 확인 (외부 포털 허브) ── */}
-      <section className={s.section} aria-label="필지·임지 확인">
+      <section className={s.section} aria-label="필지·임지 확인" id="sigungu-land">
         <div className={s.sectionHeader}>
           <Icon icon={LandPlot} size="lg" />
           <div>
@@ -545,7 +560,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       </section>
 
       {/* ── 정착 교육 ── */}
-      <section className={s.section} aria-label="정착 교육">
+      <section className={s.section} aria-label="정착 교육" id="sigungu-education">
         <div className={s.sectionHeader}>
           <Icon icon={GraduationCap} size="lg" />
           <div>
@@ -587,7 +602,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       </section>
 
       {/* ── 체험·행사 ── */}
-      <section className={s.section} aria-label="체험·행사">
+      <section className={s.section} aria-label="체험·행사" id="sigungu-events">
         <div className={s.sectionHeader}>
           <Icon icon={Calendar} size="lg" />
           <div>

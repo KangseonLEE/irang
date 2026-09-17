@@ -71,7 +71,7 @@ import {
   CropIncomeVarietiesChart,
 } from "@/components/crops/charts-lazy";
 import { canRenderVarietiesChart } from "@/components/crops/variety-income-utils";
-import { AnchorTabNav } from "./anchor-tab-nav";
+import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
 import s from "./page.module.css";
 
 // ── 소득 정보 파싱 유틸 ──

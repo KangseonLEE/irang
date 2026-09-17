@@ -23,6 +23,7 @@ import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
+import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
 import { convertToPyeongLabel } from "@/lib/format";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CommunityNotes } from "@/components/community/community-notes";
@@ -375,6 +376,23 @@ export default async function RegionDetailPage({ params }: PageProps) {
           정적 부분(Hero, 작물, 사이드바)이 먼저 렌더되고,
           API 응답이 완료되면 이 영역이 채워집니다. */}
       <Suspense fallback={<RegionAsyncSkeleton />}>
+        {/* 섹션 탐색 탭 — 작물 상세와 같은 패턴 (2026-09-17).
+            데스크탑 5,773px · 모바일 6,956px 짜리 페이지에 목차가 없었다.
+            id 가 실제로 있는 섹션만 넘긴다 — AnchorTabNav 는 없는 id 를 조용히 건너뛴다. */}
+        <AnchorTabNav
+          sections={[
+            { id: "settlement-score", label: "정착 점수" },
+            { id: "region-crops", label: "추천 작물" },
+            { id: "region-programs", label: "지원사업" },
+            { id: "region-sigungu", label: "시·군·구" },
+            { id: "region-education", label: "정착 교육" },
+            { id: "region-events", label: "체험·행사" },
+            { id: "region-land", label: "필지·임지" },
+            { id: "region-center", label: "지원센터" },
+            { id: "community-notes", label: "의견", track: "region_tab" },
+          ]}
+        />
+
         <RegionAsyncData province={province} sigungus={sigungus} />
       </Suspense>
 
@@ -484,7 +502,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
 
           {/* 이 지역 귀농지원센터 — 정적 */}
           {sidoCenter && (
-            <section className={s.section}>
+            <section className={s.section} id="region-center">
               <div className={s.sectionHeader}>
                 <Icon icon={Building2} size="lg" />
                 <div>

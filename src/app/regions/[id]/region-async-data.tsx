@@ -177,7 +177,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
 
       {/* 지원사업 */}
       {matchedPrograms.length > 0 && (
-        <section className={s.section}>
+        <section className={s.section} id="region-programs">
           <div className={s.sectionHeader}>
             <Icon icon={FileText} size="lg"  />
             <div>
@@ -217,7 +217,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
       )}
 
       {/* 필지·임지 확인 — 외부 포털 허브 */}
-      <section className={s.section}>
+      <section className={s.section} id="region-land">
         <div className={s.sectionHeader}>
           <Icon icon={LandPlot} size="lg" />
           <div>
@@ -232,7 +232,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
 
       {/* 교육 과정 */}
       {matchedEducation.length > 0 && (
-        <section className={s.section}>
+        <section className={s.section} id="region-education">
           <div className={s.sectionHeader}>
             <Icon icon={GraduationCap} size="lg"  />
             <div>
@@ -270,7 +270,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
 
       {/* 체험·행사 */}
       {matchedEvents.length > 0 && (
-        <section className={s.section}>
+        <section className={s.section} id="region-events">
           <div className={s.sectionHeader}>
             <Icon icon={Calendar} size="lg"  />
             <div>
@@ -311,7 +311,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
 
       {/* 시·군·구 탐색 — 지도 ↔ 카드 토글 */}
       {sigungus.length > 0 && (
-        <section className={s.section}>
+        <section className={s.section} id="region-sigungu">
           <div className={s.sectionHeader}>
             <Icon icon={MapPin} size="lg"  />
             <div className={s.sectionHeaderBody}>
