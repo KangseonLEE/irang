@@ -21,6 +21,7 @@ export type FilterFlag =
   | "banned_keyword"
   | "repeated_chars"
   | "low_korean_ratio"
+  | "markup"
   | "honeypot"
   | "too_fast";
 
@@ -62,6 +63,20 @@ const PHONE_RE = /(01[016789][-.\s]?\d{3,4}[-.\s]?\d{4})|(0\d{1,2}[-.\s]?\d{3,4}
 const MESSENGER_RE = /(카톡|카카오톡|kakao|라인|line|텔레그램|telegram|위챗|wechat|오픈채팅)\s*(아이디|id|:|＠|@)/i;
 const REPEAT_RE = /(.)\1{6,}/;
 
+/**
+ * HTML 태그·이벤트 핸들러·스크립트 URL (2026-09-17 보안 점검에서 추가).
+ *
+ * 렌더 자체는 안전하다 — 본문은 JSX 텍스트 노드(`{n.body}`)로 들어가 React 가 이스케이프하고,
+ * 노출 전에 관리자 승인도 거친다. 그런데 **실측해 보니 마크업을 막는 규칙이 없었다**:
+ * `<img src=x onerror=...>` 가 걸린 건 마크업이라서가 아니라 한글 비율이 낮아서였고,
+ * 한국어를 충분히 섞으면(`겨울 바람이 세서 <b>하우스</b> 보강이…`) 그대로 통과했다.
+ * 승인 큐에서 사람이 `<script>` 를 알아보리라는 데 기대는 방어가 되면 안 되므로,
+ * 본문에 태그 모양이 들어오는 것 자체를 거부한다.
+ *
+ * `<5도` 같은 정상 표기를 잡지 않으려고 **태그 형태**(꺾쇠 + 영문자)만 본다.
+ */
+const MARKUP_RE = /<\s*\/?\s*[a-z][a-z0-9]*(\s[^>]*)?\/?>|javascript\s*:|\son[a-z]+\s*=/i;
+
 /** 입력이 한글 문장으로 보이는지 — 한글·숫자·공백·문장부호 외 문자 비율 */
 function koreanRatio(text: string): number {
   const compact = text.replace(/\s/g, "");
@@ -95,6 +110,7 @@ export function runRuleFilter(input: {
   if (BANNED_KEYWORDS.some((kw) => compact.includes(kw))) flags.push("banned_keyword");
   if (REPEAT_RE.test(body)) flags.push("repeated_chars");
   if (body.length >= 20 && koreanRatio(body) < 0.5) flags.push("low_korean_ratio");
+  if (MARKUP_RE.test(body)) flags.push("markup");
 
   return { flags, reject: flags.length > 0 };
 }

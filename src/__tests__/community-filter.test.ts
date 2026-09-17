@@ -68,3 +68,38 @@ describe("target validation", () => {
     expect(isNoteTargetType("user")).toBe(false);
   });
 });
+
+/**
+ * 스크립트 인젝션 (2026-09-17 보안 점검).
+ *
+ * 렌더는 원래 안전하다 — 본문은 JSX 텍스트 노드로 들어가 React 가 이스케이프하고,
+ * 노출 전에 관리자 승인도 거친다. 그런데 실측해 보니 **마크업을 막는 규칙이 없었고**,
+ * `<img src=x onerror=...>` 가 걸린 건 마크업이라서가 아니라 한글 비율 때문이었다.
+ * 한국어를 충분히 섞으면 그대로 통과했다 — 승인 큐에서 사람이 `<script>` 를 알아보는 데
+ * 기대는 방어가 되면 안 되므로 규칙으로 고정한다.
+ */
+describe("스크립트 인젝션 차단", () => {
+  const reject = (body: string) => runRuleFilter({ body, composeMs: 5000 }).reject;
+  const flags = (body: string) => runRuleFilter({ body, composeMs: 5000 }).flags;
+
+  it("한국어가 충분해도 태그가 있으면 거부한다 — 한글 비율에 기대지 않는다", () => {
+    const body = "겨울 바람이 세서 <b>하우스</b> 보강이 필요했어요 정말로요";
+    expect(reject(body)).toBe(true);
+    expect(flags(body)).toContain("markup");
+  });
+
+  it("스크립트 태그·이벤트 핸들러·javascript: 를 잡는다", () => {
+    expect(flags("</script><script>alert(1)</script> 겨울 바람이 세서 좋았어요 정말")).toContain("markup");
+    expect(flags("우리 마을은 <img src=1 onerror=fetch('//x')> 이런 점이 좋아요 참고")).toContain("markup");
+    expect(flags("여기 좋아요 링크는 javascript:alert(1) 입니다 참고하세요 정말로")).toContain("markup");
+  });
+
+  it("꺾쇠가 있어도 태그가 아니면 통과 — '<5도' 같은 정상 표기 오탐 방지", () => {
+    const body = "겨울 아침 기온이 <5도까지 떨어져서 하우스 보강이 필요했어요";
+    expect(reject(body)).toBe(false);
+  });
+
+  it("평범한 의견은 그대로 통과한다", () => {
+    expect(reject("초보라 배추부터 시작했는데 물관리가 제일 어려웠어요")).toBe(false);
+  });
+});
