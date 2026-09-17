@@ -22,6 +22,7 @@
       E-2. interviews.cropLinks.href → CROPS.id 존재
    G. 교육 ↔ 체험 행사 이중 등재
       G-1. EDUCATION_COURSES.url ∩ EVENTS.url = ∅ (9/4 서귀포·무주 이중 등재 사고)
+      H-1. CROPS ↔ public/crops/illustrations/*.webp 1:1 (9/17 사진 폴백 제거)
 
    exit code: 모든 필수 통과 0 / 하나라도 fail 1
    ========================================================================== */
@@ -295,6 +296,41 @@ function check(): CheckResult[] {
       gDups.length === 0
         ? `education ${EDUCATION_COURSES.length} / events ${EVENTS.length} — 공유 출처 0건`
         : `이중 등재 ${gDups.length}건: ${gDups.join(", ")}`,
+  });
+
+  // ──────────────────────────────────────────────────────────
+  // H-1. CROPS ↔ 일러스트 파일 1:1 (2026-09-17)
+  // 배경: `getCropImageSrc` 는 일러스트가 없으면 `/crops/{id}.jpg` 로 떨어지는데,
+  // 그 사진 폴백(39장 8.5MB)은 **55종 전부 일러스트가 생기면서 죽은 경로**가 됐고
+  // Vercel Hobby 한도 조치로 파일을 지웠다. 이제 일러스트 없는 작물이 하나라도
+  // 추가되면 그 작물만 조용히 이미지가 비어 보인다.
+  // 5/22 CROPS ↔ CROP_DETAILS 미스매치로 10건이 404 났던 것과 같은 구조라
+  // 같은 방식(빌드 차단)으로 막는다.
+  // ──────────────────────────────────────────────────────────
+  const illustrationDir = path.join(process.cwd(), "public/crops/illustrations");
+  const illustrationFiles = fs.existsSync(illustrationDir)
+    ? new Set(
+        fs
+          .readdirSync(illustrationDir)
+          .filter((f) => f.endsWith(".webp"))
+          .map((f) => f.replace(/\.webp$/, "")),
+      )
+    : new Set<string>();
+  const missingIllustration = CROPS.filter((c) => !illustrationFiles.has(c.id));
+  const orphanIllustration = [...illustrationFiles].filter(
+    (id) => !CROPS.some((c) => c.id === id),
+  );
+  const hMismatches = [
+    ...missingIllustration.map((c) => `${c.id}(${c.name}) → illustrations/${c.id}.webp 없음`),
+    ...orphanIllustration.map((id) => `illustrations/${id}.webp → CROPS 없음 (고아)`),
+  ];
+  results.push({
+    name: "H-1. CROPS ↔ 일러스트 파일 1:1 (사진 폴백 제거됨)",
+    passed: hMismatches.length === 0,
+    detail:
+      hMismatches.length === 0
+        ? `CROPS ${CROPS.length} / 일러스트 ${illustrationFiles.size} 완전 매칭`
+        : `미스매치 ${hMismatches.length}건: ${hMismatches.slice(0, 5).join(", ")}`,
   });
 
   return results;
