@@ -418,7 +418,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
               </button>
               <div className={s.cardImageWrap}>
                 <Image
-                  src={`/images/regions/${slot.provinceId}.png`}
+                  src={`/images/regions/${slot.provinceId}.webp`}
                   alt=""
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"

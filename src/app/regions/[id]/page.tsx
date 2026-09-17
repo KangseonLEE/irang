@@ -270,7 +270,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
       <section className={s.hero} id="region-hero">
         <div className={s.heroBanner}>
           <Image
-            src={`/images/regions/${province.id}.png`}
+            src={`/images/regions/${province.id}.webp`}
             alt={`${province.name} 풍경 일러스트`}
             fill
             sizes="(max-width: 768px) 100vw, 1280px"
