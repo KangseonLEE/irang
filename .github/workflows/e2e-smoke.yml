@@ -1,0 +1,46 @@
+# ═══════════════════════════════════════════
+# 푸시 시점 최소 안전망 — @smoke 2건만
+#
+# 2026-09-17 신설 (회장 지시 — Vercel Hobby 한도 조치).
+# 전체 E2E 를 푸시마다 프로덕션에 돌리면 Fluid Active CPU·Function Invocations 를
+# 자체 소비한다(하루 20~26 푸시). 전체 스위트는 `e2e.yml` 이 하루 1회 돌리고,
+# 여기서는 **실제로 회귀를 잡아 온 여정 2건**만 남긴다.
+#   - 지역 탐색 → 시군구 상세 → compare: 9/17 아코디언 회귀를 이 테스트가 잡았다
+#   - /assess 위저드 완주: M7 핵심 전환 경로
+# ═══════════════════════════════════════════
+name: E2E smoke
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: e2e-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Playwright @smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PLAYWRIGHT_BASE_URL: "https://irangfarm.com"
+      E2E_SECRET: ${{ secrets.E2E_SECRET }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - name: Vercel 배포 전파 대기
+        # 자동 배포(60~120s) + CF purge 완료 대기. 안전 마진 150s.
+        run: sleep 150
+
+      - name: Run @smoke tests
+        run: npx playwright test --grep @smoke

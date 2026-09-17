@@ -27,7 +27,7 @@ async function gotoOk(page: Page, path: string) {
 // ============================================================
 
 test.describe("여정 ① 진단 완주 → 매칭 결과", () => {
-  test("/assess 위저드 완주 후 /match 결과 렌더", async ({ page }) => {
+  test("@smoke /assess 위저드 완주 후 /match 결과 렌더", async ({ page }) => {
     // 위저드는 스텝마다 400ms transition 가드 + client hydration이 필요.
     // CI(미국 러너 → 서울 CF)는 왕복 지연 + 동시 부하로 JS chunk 다운로드·hydration이
     // 로컬(KR)보다 훨씬 느림 → 넉넉히 여유 부여.
@@ -95,7 +95,7 @@ test.describe("여정 ① 진단 완주 → 매칭 결과", () => {
 // ============================================================
 
 test.describe("여정 ② 지역 탐색 → 시군구 상세 → 비교", () => {
-  test("/regions → 시/도 → 시군구 상세 → /regions/compare 완주", async ({ page }) => {
+  test("@smoke /regions → 시/도 → 시군구 상세 → /regions/compare 완주", async ({ page }) => {
     // 허브 진입
     await gotoOk(page, "/regions");
     await expect(page.locator("h1, h2").first()).toBeVisible();

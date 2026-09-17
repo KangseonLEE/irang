@@ -1,10 +1,12 @@
 name: E2E critical paths
 
+# 2026-09-17: `on: push` 제거 (회장 지시 — Vercel Hobby 한도 조치).
+# 프로덕션 대상 E2E 가 푸시마다 돌면서 Fluid Active CPU·Function Invocations 를
+# 자체 소비했다(하루 20~26 푸시). 전체 스위트는 하루 1회로 내리고, 푸시 시점
+# 안전망은 `e2e-smoke.yml`(@smoke 2건)이 맡는다.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  schedule:
+    - cron: "0 22 * * *" # 07:00 KST
   workflow_dispatch:
     inputs:
       base_url:
@@ -43,11 +45,6 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
-
-      - name: Wait for Vercel deploy to propagate (only on push/PR)
-        if: github.event_name == 'push' || github.event_name == 'pull_request'
-        # Vercel 자동 배포(보통 60~120s) + CF purge workflow 완료 대기. 안전 마진 150s.
-        run: sleep 150
 
       - name: Run Playwright tests
         run: npx playwright test
