@@ -22,7 +22,6 @@ import { Icon } from "@/components/ui/icon";
 import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
-import { StickySidebar } from "@/components/ui/sticky-sidebar";
 import st from "@/components/ui/sidebar-tabs.module.css";
 import { RegionProfileCard } from "@/components/region/region-profile-card";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
@@ -529,7 +528,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
             개요 카드(고정) → 탭[추천 작물 | 이런 분에게 | 현장 이야기].
             "다른 지역과 비교"는 개요 카드 CTA 로 흡수. 페르소나 블록(384px)까지 탭에 넣어야
             사이드바가 뷰포트(900px) 안에 들어 sticky 가 실제로 작동한다(실측 1,370px). */}
-        <StickySidebar className={s.sidebar}>
+        <aside className={s.sidebar}>
           <RegionProfileCard
             overline={province.name}
             title={province.shortName}
@@ -613,7 +612,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
             ]}
           />
 
-        </StickySidebar>
+        </aside>
       </div>
     </div>
   );

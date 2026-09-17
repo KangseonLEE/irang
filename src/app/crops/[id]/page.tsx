@@ -6,7 +6,6 @@ import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { CommunityNotes } from "@/components/community/community-notes";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
-import { StickySidebar } from "@/components/ui/sticky-sidebar";
 import st from "@/components/ui/sidebar-tabs.module.css";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { ShareButton } from "@/components/ui/share-button";
@@ -538,7 +537,7 @@ export default async function CropDetailPage({
         </div>
 
         {/* 사이드바 */}
-        <StickySidebar className={s.sidebar}>
+        <aside className={s.sidebar}>
           {/* 사이드 프로필 카드 */}
           <div className={s.sideProfile}>
             <div className={s.sideProfileHeader}>
@@ -613,6 +612,9 @@ export default async function CropDetailPage({
             </div>
           </div>
 
+          {/* 추천 지원사업 — 탭 카드보다 위: 탭 카드가 sticky 라 뒤에 오는 형제는 그 밑으로 파고든다 (9/17) */}
+          <RelatedProgramsSection relatedPrograms={relatedPrograms} moreHref={programsHref} />
+
           {/* 사이드 탭 — 관련 작물 · 의견 (2026-09-17)
               관련 작물이 카드당 337px(총 1,083px)로 사이드바의 62%를 먹고 있었고,
               sticky 가 걸려 있어도 뷰포트를 넘겨 작동하지 않았다. 비교 상세는
@@ -627,7 +629,7 @@ export default async function CropDetailPage({
                       content: (
                         <>
                           <div className={st.sideTabCropList}>
-                            {relatedCrops.map(({ crop, revenueLabel }) => (
+                            {relatedCrops.slice(0, 4).map(({ crop, revenueLabel }) => (
                               <CropLinkCard
                                 key={crop.id}
                                 cropId={crop.id}
@@ -665,9 +667,7 @@ export default async function CropDetailPage({
             ]}
           />
 
-          {/* 추천 지원사업 */}
-          <RelatedProgramsSection relatedPrograms={relatedPrograms} moreHref={programsHref} />
-        </StickySidebar>
+        </aside>
       </div>
 
       {/* 모바일 하단 바 */}

@@ -1336,17 +1336,11 @@
 }
 
 @media (min-width: 1024px) {
+  /* 사이드바 자체는 sticky 가 아니다 (9/17 회장): 뷰포트보다 길면 상단이든 하단이든 잘린다.
+     행 전체 높이를 차지하게 두고, 그 안의 탭 카드(`ui/sidebar-tabs.module.css .sideTabs`)만
+     sticky — 개요 카드는 본문과 함께 흘러가고 탭 카드(≈480px)는 어느 노트북에서도 통째로 보인다. */
   .sidebar {
-    position: sticky;
-    /* 2026-05-22 Fix 2 + 6/4 간격 축소: 데스크탑 탭은 static(sticky 아님)이라
-       탭 공간 불필요 → header 56 + 12px 여백 = 68px로 상단 띄움 반감. */
-    top: calc(var(--sticky-top, 3.5rem) + 12px); /* 헤더 연동 (8/30) */
-    align-self: start;
-    transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  :global(html[data-header-hidden]) .sidebar {
-    top: 16px;
+    align-self: stretch;
   }
 }
 

@@ -10,6 +10,19 @@
   overflow: hidden;
 }
 
+/* 데스크탑: 사이드바 전체가 아니라 이 탭 카드만 따라온다 (2026-09-17 회장).
+   사이드바 전체(≈900px)는 노트북 뷰포트(≈700px)보다 길어 상단을 붙잡으면 하단이,
+   하단을 붙잡으면 상단이 잘렸다. 탭 카드는 ≈450px 라 어디서든 통째로 보이고,
+   개요 카드는 본문과 함께 흘러간다. 부모(aside)가 행 전체 높이를 차지해야 끝까지 따라온다.
+   ⚠️ 이 카드 뒤에 형제를 두지 말 것 — sticky 카드 밑으로 파고든다. */
+@media (min-width: 1024px) {
+  .sideTabs {
+    position: sticky;
+    top: calc(var(--sticky-top, 3.5rem) + 12px); /* 헤더 연동 — 하드코딩 금지 */
+    transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
 .sideTabList {
   display: flex;
   border-bottom: 1px solid var(--border, #e5e7eb);

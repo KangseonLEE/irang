@@ -982,10 +982,8 @@ a.heroScoreBadge:focus-visible {
     align-items: start;
   }
 
+  /* 사이드바 자체는 sticky 아님 — 탭 카드만 sticky (ui/sidebar-tabs.module.css, 9/17) */
   .sidebar {
-    position: sticky;
-    top: calc(var(--sticky-top, 3.5rem) + 12px); /* 헤더 연동 — 하드코딩 금지 */
-    align-self: start;
-    transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    align-self: stretch;
   }
 }

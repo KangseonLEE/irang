@@ -26,7 +26,6 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
-import { StickySidebar } from "@/components/ui/sticky-sidebar";
 import st from "@/components/ui/sidebar-tabs.module.css";
 import { RegionProfileCard } from "@/components/region/region-profile-card";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
@@ -665,7 +664,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
         {/* 사이드바 — 작물·시도 상세와 같은 구성 (2026-09-17). 시군구는 단일 컬럼이라
             스크롤해도 요약·다음 행동이 따라오지 않았다. 1024px+ 에서 sticky. */}
-        <StickySidebar className={s.sidebar}>
+        <aside className={s.sidebar}>
           <RegionProfileCard
             overline={`${province.name}`}
             title={sigungu.name}
@@ -735,7 +734,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               },
             ]}
           />
-        </StickySidebar>
+        </aside>
       </div>
 
       {/* ── 돌아가기 링크 ── */}
