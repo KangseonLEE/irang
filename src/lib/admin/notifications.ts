@@ -81,7 +81,7 @@ export async function fetchAdminNotifications(): Promise<AdminNotifications> {
   if (pendingNotes > 0) {
     items.push({
       key: "community",
-      label: "승인 대기 의견",
+      label: "승인 대기 이야기",
       count: pendingNotes,
       href: "/admin/community?status=pending",
     });
@@ -89,7 +89,7 @@ export async function fetchAdminNotifications(): Promise<AdminNotifications> {
   if (hiddenNotes > 0) {
     items.push({
       key: "community",
-      label: "신고로 숨겨진 의견",
+      label: "신고로 숨겨진 이야기",
       count: hiddenNotes,
       href: "/admin/community?status=hidden",
     });

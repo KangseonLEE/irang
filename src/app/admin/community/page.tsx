@@ -53,7 +53,7 @@ export default async function AdminCommunityPage({ searchParams }: Props) {
 
   return (
     <div className={s.page}>
-      <h1 className={s.heading}>커뮤니티 의견</h1>
+      <h1 className={s.heading}>현장 이야기</h1>
 
       <div className={s.filters}>
         <div className={s.filterGroup}>
@@ -81,7 +81,7 @@ export default async function AdminCommunityPage({ searchParams }: Props) {
               : `조회 실패: ${result.message ?? "unknown"}`}
         </p>
       ) : result.data.length === 0 ? (
-        <p className={s.empty}>해당 상태의 의견이 없어요</p>
+        <p className={s.empty}>해당 상태의 이야기가 없어요</p>
       ) : (
         <div className={s.list}>
           {result.data.map((note) => (

@@ -948,3 +948,44 @@ a.heroScoreBadge:focus-visible {
   gap: 8px;
   margin-top: 12px;
 }
+
+/* ══════════════════════════════════════════
+   본문 2컬럼 + sticky 사이드바 (2026-09-17, 작물 상세와 동일 패턴)
+   시군구는 단일 컬럼이라 스크롤하면 요약·다음 행동이 사라졌다.
+   ══════════════════════════════════════════ */
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  min-width: 0;
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 5fr 2fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: calc(var(--sticky-top, 3.5rem) + 12px); /* 헤더 연동 — 하드코딩 금지 */
+    align-self: start;
+    transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}

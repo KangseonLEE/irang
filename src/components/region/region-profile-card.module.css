@@ -1,0 +1,129 @@
+/* ══════════════════════════════════════════
+   RegionProfileCard — 지역 상세 사이드바 개요 카드 (2026-09-17)
+   ══════════════════════════════════════════ */
+
+.card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.overline {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--foreground, #111827);
+}
+
+.rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  font-size: var(--fs-body-sm);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.rowLabel {
+  color: var(--muted-foreground, #6b7280);
+  margin: 0;
+}
+
+.rowValue {
+  margin: 0;
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  text-align: right;
+}
+
+.chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+}
+
+.ctas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cta,
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  min-height: 44px;
+}
+
+.cta {
+  border: 1px solid var(--border, #e5e7eb);
+  color: var(--foreground, #111827);
+  background: var(--card, #fff);
+}
+
+.ctaPrimary {
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    border-color: var(--primary, #1b6b5a);
+    color: var(--primary, #1b6b5a);
+  }
+  .ctaPrimary:hover {
+    background: #0d2e27;
+  }
+}
+
+.cta:focus-visible,
+.ctaPrimary:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}

@@ -907,14 +907,6 @@ a.stickyChip:focus-visible {
   padding: 20px;
 }
 
-.sideSectionHeader {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--primary, #1b6b5a);
-  margin-bottom: 14px;
-}
-
 .sideSectionTitle {
   font-size: var(--fs-body);
   font-weight: 700;
@@ -924,13 +916,6 @@ a.stickyChip:focus-visible {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.sideDesc {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  margin: 0 0 12px;
-  line-height: var(--lh-normal);
 }
 
 /* 페르소나 */
@@ -960,25 +945,7 @@ a.stickyChip:focus-visible {
   margin: 0;
 }
 
-/* 비교 CTA */
-.compareCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--primary-foreground);
-  background: var(--primary, #1b6b5a);
-  border-radius: 10px;
-  text-decoration: none;
-  transition: opacity 0.15s;
-}
-
 @media (hover: hover) {
-.compareCta:hover {
-    opacity: 0.9;
-  }
 }
 
 .sigunguName {

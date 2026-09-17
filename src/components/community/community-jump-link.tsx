@@ -18,7 +18,7 @@ export function CommunityJumpLink({ from }: { from: string }) {
   return (
     <a href="#community-notes" className={s.link} data-community-jump={from}>
       <MessageSquareText size={14} className={s.icon} aria-hidden="true" />
-      의견 남기기
+      한마디 남기기
     </a>
   );
 }

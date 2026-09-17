@@ -337,3 +337,24 @@
     justify-self: end;
   }
 }
+
+/* 상세 페이지 → 전용 화면(/stories) "전체 보기" (2026-09-17) */
+.moreLink {
+  align-self: flex-start;
+  margin-top: 2px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+}
+
+@media (hover: hover) {
+  .moreLink:hover {
+    text-decoration: underline;
+  }
+}
+
+.moreLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

@@ -13,6 +13,8 @@ import type { NoteTargetType, PublicNote } from "@/lib/community/types";
 import s from "./community-notes.module.css";
 
 interface Props {
+  /** "전체 보기 →" 링크 — 상세 페이지에서 전용 이야기 화면(/stories)으로 보낼 때 */
+  moreHref?: string;
   targetType: NoteTargetType;
   targetId: string;
   /** 부제 표시용 이름 (예: "경북 영주시", "사과", "청년농업인 영농정착지원") */
@@ -27,9 +29,9 @@ type SubmitState =
   | { kind: "error"; message: string };
 
 const TITLE_BY_TYPE: Record<NoteTargetType, string> = {
-  region: "이 지역, 한 줄 의견",
-  crop: "이 작물, 한 줄 의견",
-  program: "이 지원사업, 한 줄 의견",
+  region: "이 지역 현장 이야기",
+  crop: "이 작물 현장 이야기",
+  program: "이 지원사업 현장 이야기",
 };
 
 function formatDate(iso: string): string {
@@ -43,7 +45,7 @@ function formatDate(iso: string): string {
  * GET 이 503(마이그레이션 미적용·Supabase 미설정) 이면 섹션 자체를 렌더하지 않는다.
  * 사용자 생성 텍스트라 AutoGlossary 미적용.
  */
-export function CommunityNotes({ targetType, targetId, targetLabel }: Props) {
+export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: Props) {
   const [notes, setNotes] = useState<PublicNote[] | null>(null);
   const [available, setAvailable] = useState(true);
   const [body, setBody] = useState("");
@@ -122,7 +124,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel }: Props) {
       if (!res.ok || !json?.ok) {
         setSubmit({
           kind: "error",
-          message: json?.error ?? "의견을 전달하지 못했어요. 잠시 후 다시 시도해 주세요",
+          message: json?.error ?? "이야기를 전달하지 못했어요. 잠시 후 다시 시도해 주세요",
         });
         return;
       }
@@ -164,7 +166,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel }: Props) {
   const handleReport = useCallback(
     async (id: number) => {
       if (reported.has(id)) return;
-      if (!window.confirm("이 의견을 신고할까요? 광고·욕설·무관한 내용이면 검토 후 숨겨져요.")) return;
+      if (!window.confirm("이 이야기를 신고할까요? 광고·욕설·무관한 내용이면 검토 후 숨겨져요.")) return;
       setReported((prev) => new Set(prev).add(id));
       try {
         await fetch(`/api/community/notes/${id}/report`, {
@@ -194,14 +196,19 @@ export function CommunityNotes({ targetType, targetId, targetLabel }: Props) {
           {TITLE_BY_TYPE[targetType]}
         </h2>
         <p className={s.subtitle}>
-          {targetLabel}에 대해 알고 있거나 궁금한 걸 남겨 주세요. 검토 후 게시돼요.
+          {targetLabel}에 대해 겪은 것, 궁금한 것을 한마디 남겨 주세요. 검토 후 게시돼요.
         </p>
+        {moreHref && (
+          <Link href={moreHref} className={s.moreLink} data-community-jump="stories_more">
+            전체 보기 →
+          </Link>
+        )}
       </div>
 
       {notes === null ? (
         <div className={s.skeleton} aria-hidden="true" />
       ) : notes.length === 0 ? (
-        <p className={s.empty}>아직 의견이 없어요. 첫 의견을 남겨 보세요.</p>
+        <p className={s.empty}>아직 이야기가 없어요. 첫 한마디를 남겨 보세요.</p>
       ) : (
         <ul className={s.list}>
           {notes.map((n) => (
@@ -238,7 +245,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel }: Props) {
 
       {submit.kind === "pending" ? (
         <div className={s.notice} role="note">
-          <strong>의견이 전달됐어요.</strong> 검토가 끝나면 이 자리에 게시돼요 (보통 하루 안).
+          <strong>한마디가 전달됐어요.</strong> 검토가 끝나면 이 자리에 게시돼요 (보통 하루 안).
         </div>
       ) : (
         <form
@@ -297,7 +304,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel }: Props) {
                   보내는 중
                 </>
               ) : (
-                "의견 남기기"
+                "한마디 남기기"
               )}
             </button>
           </div>

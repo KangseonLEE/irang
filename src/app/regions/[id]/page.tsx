@@ -9,9 +9,7 @@ import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { RegionShareMenu } from "@/components/region/region-share-menu";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import {
-  GitCompareArrows,
   ArrowRight,
-  UserCheck,
   Building2,
 } from "lucide-react";
 import { getSidoCenter } from "@/lib/data/centers";
@@ -23,6 +21,8 @@ import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
+import { SidebarTabs, sidebarTabStyles as st } from "@/components/ui/sidebar-tabs";
+import { RegionProfileCard } from "@/components/region/region-profile-card";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
 import { convertToPyeongLabel } from "@/lib/format";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
@@ -389,7 +389,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
             { id: "region-events", label: "체험·행사" },
             { id: "region-land", label: "필지·임지" },
             { id: "region-center", label: "지원센터" },
-            { id: "community-notes", label: "의견", track: "region_tab" },
+            { id: "community-notes", label: "현장 이야기", track: "region_tab" },
           ]}
         />
 
@@ -522,45 +522,98 @@ export default async function RegionDetailPage({ params }: PageProps) {
             targetType="region"
             targetId={province.id}
             targetLabel={province.name}
+            moreHref={`/regions/${province.id}/stories`}
           />
         </div>
 
-        {/* Right Sidebar — 정적 */}
+        {/* Right Sidebar — 정적. 작물 상세와 같은 구성(2026-09-17):
+            개요 카드(고정) → 탭[추천 작물 | 이런 분에게 | 현장 이야기].
+            "다른 지역과 비교"는 개요 카드 CTA 로 흡수. 페르소나 블록(384px)까지 탭에 넣어야
+            사이드바가 뷰포트(900px) 안에 들어 sticky 가 실제로 작동한다(실측 1,370px). */}
         <aside className={s.sidebar}>
-          {/* 이런 분에게 추천 */}
-          <section className={s.sideSection}>
-            <div className={s.sideSectionHeader}>
-              <Icon icon={UserCheck} size="lg" />
-              <h3 className={s.sideSectionTitle}>이런 분에게 추천</h3>
-            </div>
-            <div className={s.personaList}>
-              {province.personas.map((persona, i) => (
-                <div key={i} className={s.personaCard}>
-                  <h4 className={s.personaTitle}>{persona.title}</h4>
-                  <p className={s.personaDesc}><AutoGlossary text={persona.description} /></p>
-                </div>
-              ))}
-            </div>
-          </section>
+          <RegionProfileCard
+            overline={province.name}
+            title={province.shortName}
+            rows={[
+              ...(sidoSettlementScore !== null
+                ? [{ label: "정착 점수", value: `${sidoSettlementScore}점` }]
+                : []),
+              { label: "시·군·구", value: `${sigungus.length}곳` },
+              ...(province.area > 0 ? [{ label: "면적", value: `${province.area.toLocaleString()} km²` }] : []),
+              { label: "추천 작물", value: `${allMatchedCrops.length}종` },
+            ]}
+            chips={province.highlights.slice(0, 4)}
+            ctas={[
+              { href: `/regions/compare?stations=${province.representativeStationId}`, label: "다른 지역과 비교", primary: true },
+              { href: `/regions/ranking?sido=${encodeURIComponent(province.shortName)}`, label: "맞춤 시·군·구 찾기" },
+            ]}
+          />
 
-          {/* 비교 CTA */}
-          <section className={s.sideSection}>
-            <div className={s.sideSectionHeader}>
-              <Icon icon={GitCompareArrows} size="lg" />
-              <h3 className={s.sideSectionTitle}>다른 지역과 비교</h3>
-            </div>
-            <p className={s.sideDesc}>
-              {province.shortName}과 다른 지역의 기후·인구·인프라를 비교해
-              보세요.
-            </p>
-            <Link
-              href={`/regions/compare?stations=${province.representativeStationId}`}
-              className={s.compareCta}
-            >
-              비교 페이지로 이동
-              <Icon icon={ArrowRight} size="sm" />
-            </Link>
-          </section>
+          <SidebarTabs
+            tabs={[
+              ...(topCrops.length > 0
+                ? [
+                    {
+                      id: "crops",
+                      label: "추천 작물",
+                      content: (
+                        <>
+                          <div className={st.sideTabCropList}>
+                            {topCrops.slice(0, 4).map(({ crop, revenueLabel }) => (
+                              <CropLinkCard
+                                key={crop.id}
+                                cropId={crop.id}
+                                name={crop.name}
+                                href={`/crops/${crop.id}`}
+                                meta={revenueLabel}
+                              />
+                            ))}
+                          </div>
+                          <a href="#region-crops" className={st.sideTabMore}>
+                            적합도·수익 근거 보기
+                            <Icon icon={ArrowRight} size="sm" />
+                          </a>
+                        </>
+                      ),
+                    },
+                  ]
+                : []),
+              {
+                id: "personas",
+                label: "이런 분에게",
+                content: (
+                  <div className={s.personaList}>
+                    {province.personas.map((persona, i) => (
+                      <div key={i} className={s.personaCard}>
+                        <h4 className={s.personaTitle}>{persona.title}</h4>
+                        <p className={s.personaDesc}><AutoGlossary text={persona.description} /></p>
+                      </div>
+                    ))}
+                  </div>
+                ),
+              },
+              {
+                id: "stories",
+                label: "현장 이야기",
+                content: (
+                  <div className={st.sideTabNotes}>
+                    <p className={st.sideTabNotesText}>
+                      {province.shortName}에 대해 겪은 것, 궁금한 것을 한마디 남겨 주세요. 검토 후 게시돼요.
+                    </p>
+                    <a href="#community-notes" className={st.sideTabMore} data-community-jump="region_side">
+                      한마디 남기기
+                      <Icon icon={ArrowRight} size="sm" />
+                    </a>
+                    <Link href={`/regions/${province.id}/stories`} className={st.sideTabMore} data-community-jump="region_side_more">
+                      이야기 전체 보기
+                      <Icon icon={ArrowRight} size="sm" />
+                    </Link>
+                  </div>
+                ),
+              },
+            ]}
+          />
+
         </aside>
       </div>
     </div>

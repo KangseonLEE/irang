@@ -5,7 +5,7 @@ import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { CommunityNotes } from "@/components/community/community-notes";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
-import { SidebarTabs } from "./sidebar-tabs";
+import { SidebarTabs, sidebarTabStyles as st } from "@/components/ui/sidebar-tabs";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
@@ -313,7 +313,7 @@ export default async function CropDetailPage({
     { id: "tips", label: "정착 팁" },
     // 의견란은 본문 맨 아래(문서 69% 지점)라 스크롤로는 도달이 거의 없다 —
     // 페이지가 이미 가진 탭 내비에 넣어 한 번에 건너뛰게 한다 (9/17)
-    { id: "community-notes", label: "의견", track: "crop_tab" },
+    { id: "community-notes", label: "현장 이야기", track: "crop_tab" },
   ];
 
   return (
@@ -532,7 +532,7 @@ export default async function CropDetailPage({
 
           {/* 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) */}
           <PersonaCta from="crop_detail" copy="이 작물이 내 조건에 맞을까요?" />
-          <CommunityNotes targetType="crop" targetId={id} targetLabel={data.name} />
+          <CommunityNotes targetType="crop" targetId={id} targetLabel={data.name} moreHref={`/crops/${id}/stories`} />
         </div>
 
         {/* 사이드바 */}
@@ -624,7 +624,7 @@ export default async function CropDetailPage({
                       label: "관련 작물",
                       content: (
                         <>
-                          <div className={s.sideTabCropList}>
+                          <div className={st.sideTabCropList}>
                             {relatedCrops.map(({ crop, revenueLabel }) => (
                               <CropLinkCard
                                 key={crop.id}
@@ -635,7 +635,7 @@ export default async function CropDetailPage({
                               />
                             ))}
                           </div>
-                          <Link href={`/crops/compare?crops=${id}`} className={s.sideTabMore}>
+                          <Link href={`/crops/compare?crops=${id}`} className={st.sideTabMore}>
                             수익·난이도 자세히 비교하기
                             <Icon icon={ArrowRight} size="sm" />
                           </Link>
@@ -646,15 +646,15 @@ export default async function CropDetailPage({
                 : []),
               {
                 id: "notes",
-                label: "의견",
+                label: "현장 이야기",
                 content: (
-                  <div className={s.sideTabNotes}>
-                    <p className={s.sideTabNotesText}>
+                  <div className={st.sideTabNotes}>
+                    <p className={st.sideTabNotesText}>
                       {withJosa(data.name, "을")} 길러 봤거나 알아보는 중이라면 한 줄 남겨 주세요.
                       검토 후 이 페이지에 게시돼요.
                     </p>
-                    <a href="#community-notes" className={s.sideTabMore} data-community-jump="crop_side">
-                      의견 남기기
+                    <a href="#community-notes" className={st.sideTabMore} data-community-jump="crop_side">
+                      한마디 남기기
                       <Icon icon={ArrowRight} size="sm" />
                     </a>
                   </div>

@@ -9,8 +9,7 @@ import {
   GraduationCap,
   Calendar,
   Building2,
-  LandPlot,
-} from "lucide-react";
+  LandPlot, ArrowRight } from "lucide-react";
 import { LandCheckBox } from "@/components/region/land-check-box";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
@@ -26,6 +25,8 @@ import { Icon } from "@/components/ui/icon";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
+import { SidebarTabs, sidebarTabStyles as st } from "@/components/ui/sidebar-tabs";
+import { RegionProfileCard } from "@/components/region/region-profile-card";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
 import { convertToPyeongLabel } from "@/lib/format";
 import { getSigunguCenter } from "@/lib/data/centers";
@@ -383,277 +384,357 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           { id: "sigungu-events", label: "체험·행사" },
           { id: "sigungu-land", label: "필지·임지" },
           { id: "sigungu-center", label: "지원센터" },
-          { id: "community-notes", label: "의견", track: "sigungu_tab" },
+          { id: "community-notes", label: "현장 이야기", track: "sigungu_tab" },
         ]}
       />
 
-      {/* ── 정착 점수 산식 breakdown (sticky 칩의 anchor target) ── */}
-      {sigunguSettlementScore !== null && dimScores && (
-        <SettlementScoreBreakdown
-          mode="sigungu"
-          regionName={sigungu.name}
-          score={sigunguSettlementScore}
-          dimensions={{
-            populationTrend: dimScores.populationTrend,
-            farmActivity: dimScores.farmActivity,
-            medical: dimScores.medical,
-            school: dimScores.school,
-            returnFarm: dimScores.returnFarm,
-          }}
-          evidence={dimScores.evidence}
-        />
-      )}
-
-      {/* ── 구 지도 (구 분할 시만 표시) ── */}
-      {hasGuDistricts(sigungu.id) && (
-        <DistrictMapSection
-          provinceId={province.id}
-          sigunguId={sigungu.id}
-          sigunguName={sigungu.name}
-        />
-      )}
-
-      {/* ── 대표 작물 (시도 페이지와 동일한 CropRichCard 패턴) ── */}
-      <section
-        className={s.section}
-        aria-label="대표 작물"
-        id="sigungu-crops"
-      >
-        <div className={s.sectionHeader}>
-          <Icon icon={Sprout} size="lg" />
-          <div className={s.sectionHeaderBody}>
-            <h2 className={s.sectionTitle}>대표 작물</h2>
-            <p className={s.sectionDesc}>
-              {sigungu.name}에서 주로 재배되는 작물이에요.
-            </p>
-          </div>
-          {topCrops.length > 0 && (
-            <Link
-              href={`/regions/compare?stations=${province.representativeStationId}`}
-              className={s.sectionHeaderCta}
-            >
-              지역별 작물 비교 →
-            </Link>
+      {/* ── 본문 2컬럼 (2026-09-17, 작물 상세와 동일 패턴) ── */}
+      <div className={s.mainGrid}>
+        <div className={s.mainContent}>
+          {/* ── 정착 점수 산식 breakdown (sticky 칩의 anchor target) ── */}
+          {sigunguSettlementScore !== null && dimScores && (
+            <SettlementScoreBreakdown
+              mode="sigungu"
+              regionName={sigungu.name}
+              score={sigunguSettlementScore}
+              dimensions={{
+                populationTrend: dimScores.populationTrend,
+                farmActivity: dimScores.farmActivity,
+                medical: dimScores.medical,
+                school: dimScores.school,
+                returnFarm: dimScores.returnFarm,
+              }}
+              evidence={dimScores.evidence}
+            />
           )}
-        </div>
 
-        {topCrops.length > 0 ? (
-          <>
-            <div className={s.cropGrid}>
-              {featuredCrops.map(({ crop, detail, revenueValue, revenueLabel }) => (
-                <CropRichCard
-                  key={crop.id}
-                  cropId={crop.id}
-                  name={crop.name}
-                  href={`/crops/${crop.id}`}
-                  meta={`${crop.growingSeason} 재배`}
-                  revenueLabel={revenueLabel}
-                  revenueValue={revenueValue}
-                  revenueMax={cropRevenueMax > 0 ? cropRevenueMax : null}
-                  laborIntensity={detail.income.laborIntensity}
-                  difficulty={crop.difficulty}
-                  source={detail.income.source}
-                />
-              ))}
+          {/* ── 구 지도 (구 분할 시만 표시) ── */}
+          {hasGuDistricts(sigungu.id) && (
+            <DistrictMapSection
+              provinceId={province.id}
+              sigunguId={sigungu.id}
+              sigunguName={sigungu.name}
+            />
+          )}
+
+          {/* ── 대표 작물 (시도 페이지와 동일한 CropRichCard 패턴) ── */}
+          <section
+            className={s.section}
+            aria-label="대표 작물"
+            id="sigungu-crops"
+          >
+            <div className={s.sectionHeader}>
+              <Icon icon={Sprout} size="lg" />
+              <div className={s.sectionHeaderBody}>
+                <h2 className={s.sectionTitle}>대표 작물</h2>
+                <p className={s.sectionDesc}>
+                  {sigungu.name}에서 주로 재배되는 작물이에요.
+                </p>
+              </div>
+              {topCrops.length > 0 && (
+                <Link
+                  href={`/regions/compare?stations=${province.representativeStationId}`}
+                  className={s.sectionHeaderCta}
+                >
+                  지역별 작물 비교 →
+                </Link>
+              )}
             </div>
-            {compactCrops.length > 0 && (
-              <div className={s.cropCompactList}>
-                {compactCrops.map(({ crop, revenueLabel }) => (
-                  <CropLinkCard
-                    key={crop.id}
-                    cropId={crop.id}
-                    name={crop.name}
-                    href={`/crops/${crop.id}`}
-                    meta={revenueLabel}
-                  />
+
+            {topCrops.length > 0 ? (
+              <>
+                <div className={s.cropGrid}>
+                  {featuredCrops.map(({ crop, detail, revenueValue, revenueLabel }) => (
+                    <CropRichCard
+                      key={crop.id}
+                      cropId={crop.id}
+                      name={crop.name}
+                      href={`/crops/${crop.id}`}
+                      meta={`${crop.growingSeason} 재배`}
+                      revenueLabel={revenueLabel}
+                      revenueValue={revenueValue}
+                      revenueMax={cropRevenueMax > 0 ? cropRevenueMax : null}
+                      laborIntensity={detail.income.laborIntensity}
+                      difficulty={crop.difficulty}
+                      source={detail.income.source}
+                    />
+                  ))}
+                </div>
+                {compactCrops.length > 0 && (
+                  <div className={s.cropCompactList}>
+                    {compactCrops.map(({ crop, revenueLabel }) => (
+                      <CropLinkCard
+                        key={crop.id}
+                        cropId={crop.id}
+                        name={crop.name}
+                        href={`/crops/${crop.id}`}
+                        meta={revenueLabel}
+                      />
+                    ))}
+                  </div>
+                )}
+                {remainingCount > 0 && (
+                  <Link href="/crops" className={s.cropMoreLink}>
+                    {sigungu.name}의 다른 작물 {remainingCount}개 더 보기 →
+                  </Link>
+                )}
+              </>
+            ) : (
+              <div className={s.mainCropsList}>
+                {sigungu.mainCrops.map((crop) => (
+                  <span key={crop} className={s.mainCropBadge}>
+                    {crop}
+                  </span>
                 ))}
               </div>
             )}
-            {remainingCount > 0 && (
-              <Link href="/crops" className={s.cropMoreLink}>
-                {sigungu.name}의 다른 작물 {remainingCount}개 더 보기 →
-              </Link>
-            )}
-          </>
-        ) : (
-          <div className={s.mainCropsList}>
-            {sigungu.mainCrops.map((crop) => (
-              <span key={crop} className={s.mainCropBadge}>
-                {crop}
-              </span>
-            ))}
-          </div>
-        )}
-      </section>
+          </section>
 
-      {/* ── 이 지역 귀농지원센터 (정적) ── */}
-      {sigunguCenter && (
-        <section className={s.section} aria-label="이 지역 귀농지원센터" id="sigungu-center">
-          <div className={s.sectionHeader}>
-            <Icon icon={Building2} size="lg" />
-            <div>
-              <h2 className={s.sectionTitle}>이 지역 귀농지원센터</h2>
-              <p className={s.sectionDesc}>
-                상담·교육·정착 지원은 여기서 시작해요.
-              </p>
-            </div>
-          </div>
-          <CenterCard center={sigunguCenter} />
-        </section>
-      )}
-
-      {/* ── 추천 지원사업 ── */}
-      <section className={s.section} aria-label="추천 지원사업" id="sigungu-programs">
-        <div className={s.sectionHeader}>
-          <Icon icon={FileText} size="lg" />
-          <div>
-            <h2 className={s.sectionTitle}>추천 지원사업</h2>
-            <p className={s.sectionDesc}>
-              {province.shortName} 지역에서 신청 가능한 지원사업이에요.
-            </p>
-          </div>
-        </div>
-        {regionPrograms.length > 0 ? (
-          <div className={s.programList}>
-            {regionPrograms.map((prog) => (
-              <Link
-                key={prog.id}
-                href={`/programs/${prog.id}`}
-                className={s.programCard}
-              >
+          {/* ── 이 지역 귀농지원센터 (정적) ── */}
+          {sigunguCenter && (
+            <section className={s.section} aria-label="이 지역 귀농지원센터" id="sigungu-center">
+              <div className={s.sectionHeader}>
+                <Icon icon={Building2} size="lg" />
                 <div>
-                  <span className={s.programTitle}>{prog.title}</span>
-                  <span className={s.programMeta}>
-                    {prog.organization} ·{" "}
-                    {prog.region === "전국" ? "전국" : province.shortName}
-                  </span>
+                  <h2 className={s.sectionTitle}>이 지역 귀농지원센터</h2>
+                  <p className={s.sectionDesc}>
+                    상담·교육·정착 지원은 여기서 시작해요.
+                  </p>
                 </div>
-                <StatusBadge status={prog.status} />
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <p className={s.infoEmpty}>
-            현재 모집 중인 지원사업이 없어요. 새로운 사업이 등록되면 업데이트할게요.
-          </p>
-        )}
-        <Link
-          href={`/programs?region=${encodeURIComponent(province.name)}`}
-          className={s.viewMore}
-        >
-          전체 지원사업 보기 →
-        </Link>
-      </section>
+              </div>
+              <CenterCard center={sigunguCenter} />
+            </section>
+          )}
 
-      {/* ── 필지·임지 확인 (외부 포털 허브) ── */}
-      <section className={s.section} aria-label="필지·임지 확인" id="sigungu-land">
-        <div className={s.sectionHeader}>
-          <Icon icon={LandPlot} size="lg" />
-          <div>
-            <h2 className={s.sectionTitle}>필지·임지 확인</h2>
-            <p className={s.sectionDesc}>
-              규제 상세는 공식 포털에서 바로 확인해 보세요.
-            </p>
-          </div>
+          {/* ── 추천 지원사업 ── */}
+          <section className={s.section} aria-label="추천 지원사업" id="sigungu-programs">
+            <div className={s.sectionHeader}>
+              <Icon icon={FileText} size="lg" />
+              <div>
+                <h2 className={s.sectionTitle}>추천 지원사업</h2>
+                <p className={s.sectionDesc}>
+                  {province.shortName} 지역에서 신청 가능한 지원사업이에요.
+                </p>
+              </div>
+            </div>
+            {regionPrograms.length > 0 ? (
+              <div className={s.programList}>
+                {regionPrograms.map((prog) => (
+                  <Link
+                    key={prog.id}
+                    href={`/programs/${prog.id}`}
+                    className={s.programCard}
+                  >
+                    <div>
+                      <span className={s.programTitle}>{prog.title}</span>
+                      <span className={s.programMeta}>
+                        {prog.organization} ·{" "}
+                        {prog.region === "전국" ? "전국" : province.shortName}
+                      </span>
+                    </div>
+                    <StatusBadge status={prog.status} />
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className={s.infoEmpty}>
+                현재 모집 중인 지원사업이 없어요. 새로운 사업이 등록되면 업데이트할게요.
+              </p>
+            )}
+            <Link
+              href={`/programs?region=${encodeURIComponent(province.name)}`}
+              className={s.viewMore}
+            >
+              전체 지원사업 보기 →
+            </Link>
+          </section>
+
+          {/* ── 필지·임지 확인 (외부 포털 허브) ── */}
+          <section className={s.section} aria-label="필지·임지 확인" id="sigungu-land">
+            <div className={s.sectionHeader}>
+              <Icon icon={LandPlot} size="lg" />
+              <div>
+                <h2 className={s.sectionTitle}>필지·임지 확인</h2>
+                <p className={s.sectionDesc}>
+                  규제 상세는 공식 포털에서 바로 확인해 보세요.
+                </p>
+              </div>
+            </div>
+            <LandCheckBox />
+          </section>
+
+          {/* ── 정착 교육 ── */}
+          <section className={s.section} aria-label="정착 교육" id="sigungu-education">
+            <div className={s.sectionHeader}>
+              <Icon icon={GraduationCap} size="lg" />
+              <div>
+                <h2 className={s.sectionTitle}>정착 교육</h2>
+                <p className={s.sectionDesc}>
+                  {province.shortName} 지역에서 수강 가능한 교육 과정이에요.
+                </p>
+              </div>
+            </div>
+            {regionEducation.length > 0 ? (
+              <div className={s.programList}>
+                {regionEducation.map((edu) => (
+                  <Link key={edu.id} href={`/education/${edu.id}`} className={s.eduCard}>
+                    <div className={s.eduCardMain}>
+                      <span className={s.programTitle}>{edu.title}</span>
+                      <span className={s.programMeta}>
+                        {edu.organization} · {edu.schedule}
+                      </span>
+                    </div>
+                    <div className={s.eduCardBadges}>
+                      <span className={s.eduTypeBadge}>{edu.type}</span>
+                      <span className={s.eduLevelBadge}>{edu.level}</span>
+                      <StatusBadge status={edu.status} />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className={s.infoEmpty}>
+                현재 모집 중인 교육과정이 없어요. 새로운 과정이 개설되면 업데이트할게요.
+              </p>
+            )}
+            <Link
+              href={`/education?region=${encodeURIComponent(province.name)}`}
+              className={s.viewMore}
+            >
+              전체 교육 보기 →
+            </Link>
+          </section>
+
+          {/* ── 체험·행사 ── */}
+          <section className={s.section} aria-label="체험·행사" id="sigungu-events">
+            <div className={s.sectionHeader}>
+              <Icon icon={Calendar} size="lg" />
+              <div>
+                <h2 className={s.sectionTitle}>체험·행사</h2>
+                <p className={s.sectionDesc}>
+                  {province.shortName} 지역에서 참여할 수 있는 행사예요.
+                </p>
+              </div>
+            </div>
+            {regionEvents.length > 0 ? (
+              <div className={s.programList}>
+                {regionEvents.map((evt) => (
+                  <Link key={evt.id} href={`/events/${evt.id}`} className={s.eduCard}>
+                    <div className={s.eduCardMain}>
+                      <span className={s.programTitle}>{evt.title}</span>
+                      <span className={s.programMeta}>
+                        {evt.location} · {evt.date}
+                        {evt.dateEnd ? ` ~ ${evt.dateEnd}` : ""}
+                      </span>
+                    </div>
+                    <div className={s.eduCardBadges}>
+                      <span className={s.eventTypeBadge} data-type={evt.type}>
+                        {evt.type}
+                      </span>
+                      <StatusBadge status={evt.status} />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className={s.infoEmpty}>
+                현재 접수 중인 행사가 없어요.
+                <br />
+                새로운 행사가 등록되면 업데이트할게요.
+              </p>
+            )}
+            <Link
+              href={`/events?region=${encodeURIComponent(province.name)}`}
+              className={s.viewMore}
+            >
+              전체 행사 보기 →
+            </Link>
+          </section>
+
+          {/* ── 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) ── */}
+          <PersonaCta from="sigungu_detail" copy="이 지역이 내 조건에 맞을까요?" />
+          <CommunityNotes
+            targetType="region"
+            targetId={`${province.id}/${sigungu.id}`}
+            targetLabel={`${province.shortName} ${sigungu.name}`}
+            moreHref={`/regions/${province.id}/${sigungu.id}/stories`}
+          />
         </div>
-        <LandCheckBox />
-      </section>
 
-      {/* ── 정착 교육 ── */}
-      <section className={s.section} aria-label="정착 교육" id="sigungu-education">
-        <div className={s.sectionHeader}>
-          <Icon icon={GraduationCap} size="lg" />
-          <div>
-            <h2 className={s.sectionTitle}>정착 교육</h2>
-            <p className={s.sectionDesc}>
-              {province.shortName} 지역에서 수강 가능한 교육 과정이에요.
-            </p>
-          </div>
-        </div>
-        {regionEducation.length > 0 ? (
-          <div className={s.programList}>
-            {regionEducation.map((edu) => (
-              <Link key={edu.id} href={`/education/${edu.id}`} className={s.eduCard}>
-                <div className={s.eduCardMain}>
-                  <span className={s.programTitle}>{edu.title}</span>
-                  <span className={s.programMeta}>
-                    {edu.organization} · {edu.schedule}
-                  </span>
-                </div>
-                <div className={s.eduCardBadges}>
-                  <span className={s.eduTypeBadge}>{edu.type}</span>
-                  <span className={s.eduLevelBadge}>{edu.level}</span>
-                  <StatusBadge status={edu.status} />
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <p className={s.infoEmpty}>
-            현재 모집 중인 교육과정이 없어요. 새로운 과정이 개설되면 업데이트할게요.
-          </p>
-        )}
-        <Link
-          href={`/education?region=${encodeURIComponent(province.name)}`}
-          className={s.viewMore}
-        >
-          전체 교육 보기 →
-        </Link>
-      </section>
+        {/* 사이드바 — 작물·시도 상세와 같은 구성 (2026-09-17). 시군구는 단일 컬럼이라
+            스크롤해도 요약·다음 행동이 따라오지 않았다. 1024px+ 에서 sticky. */}
+        <aside className={s.sidebar}>
+          <RegionProfileCard
+            overline={`${province.name}`}
+            title={sigungu.name}
+            rows={[
+              ...(sigunguSettlementScore !== null
+                ? [{ label: "정착 점수", value: `${sigunguSettlementScore}점` }]
+                : []),
+              ...(typeof sigungu.area === "number" && sigungu.area > 0
+                ? [{ label: "면적", value: `${sigungu.area.toLocaleString()} km²` }]
+                : []),
+              { label: "대표 작물", value: sigungu.mainCrops.slice(0, 3).join("·") || "—" },
+            ]}
+            chips={sigungu.highlights?.slice(0, 4)}
+            ctas={[
+              { href: `/regions/compare?regions=${province.id}:${sigungu.id}`, label: "다른 지역과 비교", primary: true },
+              { href: `/regions/${province.id}`, label: `${province.shortName} 전체 보기` },
+            ]}
+          />
 
-      {/* ── 체험·행사 ── */}
-      <section className={s.section} aria-label="체험·행사" id="sigungu-events">
-        <div className={s.sectionHeader}>
-          <Icon icon={Calendar} size="lg" />
-          <div>
-            <h2 className={s.sectionTitle}>체험·행사</h2>
-            <p className={s.sectionDesc}>
-              {province.shortName} 지역에서 참여할 수 있는 행사예요.
-            </p>
-          </div>
-        </div>
-        {regionEvents.length > 0 ? (
-          <div className={s.programList}>
-            {regionEvents.map((evt) => (
-              <Link key={evt.id} href={`/events/${evt.id}`} className={s.eduCard}>
-                <div className={s.eduCardMain}>
-                  <span className={s.programTitle}>{evt.title}</span>
-                  <span className={s.programMeta}>
-                    {evt.location} · {evt.date}
-                    {evt.dateEnd ? ` ~ ${evt.dateEnd}` : ""}
-                  </span>
-                </div>
-                <div className={s.eduCardBadges}>
-                  <span className={s.eventTypeBadge} data-type={evt.type}>
-                    {evt.type}
-                  </span>
-                  <StatusBadge status={evt.status} />
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <p className={s.infoEmpty}>
-            현재 접수 중인 행사가 없어요.
-            <br />
-            새로운 행사가 등록되면 업데이트할게요.
-          </p>
-        )}
-        <Link
-          href={`/events?region=${encodeURIComponent(province.name)}`}
-          className={s.viewMore}
-        >
-          전체 행사 보기 →
-        </Link>
-      </section>
-
-      {/* ── 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) ── */}
-      <PersonaCta from="sigungu_detail" copy="이 지역이 내 조건에 맞을까요?" />
-      <CommunityNotes
-        targetType="region"
-        targetId={`${province.id}/${sigungu.id}`}
-        targetLabel={`${province.shortName} ${sigungu.name}`}
-      />
+          <SidebarTabs
+            tabs={[
+              ...(topCrops.length > 0
+                ? [
+                    {
+                      id: "crops",
+                      label: "대표 작물",
+                      content: (
+                        <>
+                          <div className={st.sideTabCropList}>
+                            {topCrops.map(({ crop, revenueLabel }) => (
+                              <CropLinkCard
+                                key={crop.id}
+                                cropId={crop.id}
+                                name={crop.name}
+                                href={`/crops/${crop.id}`}
+                                meta={revenueLabel}
+                              />
+                            ))}
+                          </div>
+                          <a href="#sigungu-crops" className={st.sideTabMore}>
+                            수익·난이도 근거 보기
+                            <Icon icon={ArrowRight} size="sm" />
+                          </a>
+                        </>
+                      ),
+                    },
+                  ]
+                : []),
+              {
+                id: "stories",
+                label: "현장 이야기",
+                content: (
+                  <div className={st.sideTabNotes}>
+                    <p className={st.sideTabNotesText}>
+                      {sigungu.name}에 대해 겪은 것, 궁금한 것을 한마디 남겨 주세요. 검토 후 게시돼요.
+                    </p>
+                    <a href="#community-notes" className={st.sideTabMore} data-community-jump="sigungu_side">
+                      한마디 남기기
+                      <Icon icon={ArrowRight} size="sm" />
+                    </a>
+                    <Link href={`/regions/${province.id}/${sigungu.id}/stories`} className={st.sideTabMore} data-community-jump="sigungu_side_more">
+                      이야기 전체 보기
+                      <Icon icon={ArrowRight} size="sm" />
+                    </Link>
+                  </div>
+                ),
+              },
+            ]}
+          />
+        </aside>
+      </div>
 
       {/* ── 돌아가기 링크 ── */}
       <Link href={`/regions/${province.id}`} className={s.backLink}>

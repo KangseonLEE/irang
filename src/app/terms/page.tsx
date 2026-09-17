@@ -153,11 +153,11 @@ export default function TermsPage() {
       <section className={s.section} id="community">
         <div className={s.sectionHeader}>
           <MessageSquareText size={18} />
-          <h2 className={s.sectionTitle}>제6조 (한 줄 의견 운영 원칙)</h2>
+          <h2 className={s.sectionTitle}>제6조 (현장 이야기 운영 원칙)</h2>
         </div>
         <div className={s.sectionBody}>
           <p>
-            지역·작물·지원사업 페이지의 &ldquo;한 줄 의견&rdquo;은 로그인 없이 남길 수
+            지역·작물·지원사업 페이지의 &ldquo;현장 이야기&rdquo;(한마디)는 로그인 없이 남길 수
             있고, 남긴 글은 검토를 거쳐 게시돼요. 다음에 해당하는 글은 게시하지 않거나
             게시 후에도 숨길 수 있어요.
           </p>

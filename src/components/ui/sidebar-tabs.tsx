@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useId, useRef, useState, type ReactNode } from "react";
-import s from "./page.module.css";
+import s from "./sidebar-tabs.module.css";
 
 export interface SidebarTab {
   id: string;
@@ -10,7 +10,7 @@ export interface SidebarTab {
 }
 
 /**
- * 사이드바 탭 패널 (2026-09-17).
+ * 사이드바 탭 패널 (2026-09-17, 공용 승격).
  *
  * 배경: 사이드바가 1,749px였고 그중 관련 작물이 1,083px(62%)였다. `position: sticky` 가
  * 걸려 있었지만 높이가 뷰포트(900px)를 넘어 **실제로는 따라다니지 못했다**.
@@ -20,6 +20,9 @@ export interface SidebarTab {
  * 숨은 탭의 내부 링크(관련 작물·의견)가 SSR HTML 에서 사라진다 — 유입의 61%가
  * Organic Search 라 내부 링크 손실은 이 사이트에서 가장 비싼 실수다.
  */
+/** 패널 내부 공용 클래스 — 페이지가 압축 목록·더보기·안내문에 같은 스타일을 쓴다 */
+export const sidebarTabStyles = s;
+
 export function SidebarTabs({ tabs }: { tabs: SidebarTab[] }) {
   const [active, setActive] = useState(tabs[0]?.id ?? "");
   const baseId = useId();
