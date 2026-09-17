@@ -22,6 +22,7 @@ import { Icon } from "@/components/ui/icon";
 import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
+import { StickySidebar } from "@/components/ui/sticky-sidebar";
 import st from "@/components/ui/sidebar-tabs.module.css";
 import { RegionProfileCard } from "@/components/region/region-profile-card";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
@@ -372,48 +373,45 @@ export default async function RegionDetailPage({ params }: PageProps) {
 
       <ReferenceNotice />
 
-      {/* ═══ API 의존 데이터 — 스트리밍 (Suspense) ═══
-          사진 배너, 통계, 기후, 지원사업, 교육, 행사, 지도를 포함.
-          정적 부분(Hero, 작물, 사이드바)이 먼저 렌더되고,
-          API 응답이 완료되면 이 영역이 채워집니다. */}
-      <Suspense fallback={<RegionAsyncSkeleton />}>
-        {/* 섹션 탐색 탭 — 작물 상세와 같은 패턴 (2026-09-17).
-            데스크탑 5,773px · 모바일 6,956px 짜리 페이지에 목차가 없었다.
-            id 가 실제로 있는 섹션만 넘긴다 — AnchorTabNav 는 없는 id 를 조용히 건너뛴다. */}
-        <AnchorTabNav
-          sections={[
-            { id: "settlement-score", label: "정착 점수" },
-            { id: "region-crops", label: "추천 작물" },
-            { id: "region-programs", label: "지원사업" },
-            { id: "region-sigungu", label: "시·군·구" },
-            { id: "region-education", label: "정착 교육" },
-            { id: "region-events", label: "체험·행사" },
-            { id: "region-land", label: "필지·임지" },
-            { id: "region-center", label: "지원센터" },
-            { id: "community-notes", label: "현장 이야기", track: "region_tab" },
-          ]}
-        />
+      {/* 섹션 탐색 탭 — 작물 상세와 같은 패턴 (2026-09-17). 그리드 밖·Suspense 밖에 둔다:
+          스트리밍 전에 마운트돼도 AnchorTabNav 는 없는 id 를 스크롤 스파이에서 조용히 건너뛴다. */}
+      <AnchorTabNav
+        sections={[
+          { id: "settlement-score", label: "정착 점수" },
+          { id: "region-crops", label: "추천 작물" },
+          { id: "region-programs", label: "지원사업" },
+          { id: "region-sigungu", label: "시·군·구" },
+          { id: "region-education", label: "정착 교육" },
+          { id: "region-events", label: "체험·행사" },
+          { id: "region-land", label: "필지·임지" },
+          { id: "region-center", label: "지원센터" },
+          { id: "community-notes", label: "현장 이야기", track: "region_tab" },
+        ]}
+      />
 
-        <RegionAsyncData province={province} sigungus={sigungus} />
-      </Suspense>
-
-      {/* ── 정착 점수 산식 breakdown (sticky 칩의 anchor target) ── */}
-      {sidoSettlementScore !== null && sidoDimensions && (
-        <SettlementScoreBreakdown
-          mode="sido"
-          regionName={province.shortName}
-          provinceId={province.id}
-          score={sidoSettlementScore}
-          dimensions={sidoDimensions}
-          includedSigunguCount={sidoIncludedSigunguCount}
-          evidence={sidoEvidence}
-        />
-      )}
-
-      {/* Main Content Grid — 정적 부분 */}
+      {/* Main Content Grid — 탭 내비 바로 아래에서 2열 시작 (2026-09-17 회장: 탭에 진입하는 순간 사이드바가 붙어야 한다).
+          통계·기후·지원사업 등 API 스트리밍 섹션도 좌측 컬럼 안에 둔다. */}
       <div className={s.contentGrid}>
         {/* Left Column */}
         <div className={s.mainContent}>
+          {/* API 의존 데이터 — 스트리밍 (Suspense). 정적 부분(Hero·작물·사이드바)이 먼저 렌더된다. */}
+          <Suspense fallback={<RegionAsyncSkeleton />}>
+            <RegionAsyncData province={province} sigungus={sigungus} />
+          </Suspense>
+
+          {/* ── 정착 점수 산식 breakdown (sticky 칩의 anchor target) ── */}
+          {sidoSettlementScore !== null && sidoDimensions && (
+            <SettlementScoreBreakdown
+              mode="sido"
+              regionName={province.shortName}
+              provinceId={province.id}
+              score={sidoSettlementScore}
+              dimensions={sidoDimensions}
+              includedSigunguCount={sidoIncludedSigunguCount}
+              evidence={sidoEvidence}
+            />
+          )}
+
           {/* 추천 작물 — 정적 데이터 */}
           <section className={s.section} id="region-crops">
             <div className={s.sectionHeader}>
@@ -531,7 +529,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
             개요 카드(고정) → 탭[추천 작물 | 이런 분에게 | 현장 이야기].
             "다른 지역과 비교"는 개요 카드 CTA 로 흡수. 페르소나 블록(384px)까지 탭에 넣어야
             사이드바가 뷰포트(900px) 안에 들어 sticky 가 실제로 작동한다(실측 1,370px). */}
-        <aside className={s.sidebar}>
+        <StickySidebar className={s.sidebar}>
           <RegionProfileCard
             overline={province.name}
             title={province.shortName}
@@ -615,7 +613,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
             ]}
           />
 
-        </aside>
+        </StickySidebar>
       </div>
     </div>
   );

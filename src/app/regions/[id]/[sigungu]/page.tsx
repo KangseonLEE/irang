@@ -26,6 +26,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
+import { StickySidebar } from "@/components/ui/sticky-sidebar";
 import st from "@/components/ui/sidebar-tabs.module.css";
 import { RegionProfileCard } from "@/components/region/region-profile-card";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
@@ -370,11 +371,6 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         </div>
       </header>
 
-      {/* ── API 데이터 섹션: 통계 + 기후 (스트리밍) ── */}
-      <Suspense fallback={<SigunguStatsSkeleton />}>
-        <SigunguData province={province} sigungu={sigungu} />
-      </Suspense>
-
       {/* 섹션 탐색 탭 — 작물·시도 상세와 같은 패턴 (2026-09-17) */}
       <AnchorTabNav
         sections={[
@@ -392,6 +388,11 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       {/* ── 본문 2컬럼 (2026-09-17, 작물 상세와 동일 패턴) ── */}
       <div className={s.mainGrid}>
         <div className={s.mainContent}>
+          {/* ── API 데이터 섹션: 통계 + 기후 (스트리밍) — 탭 내비 바로 아래 2열 안 (2026-09-17) ── */}
+          <Suspense fallback={<SigunguStatsSkeleton />}>
+            <SigunguData province={province} sigungu={sigungu} />
+          </Suspense>
+
           {/* ── 정착 점수 산식 breakdown (sticky 칩의 anchor target) ── */}
           {sigunguSettlementScore !== null && dimScores && (
             <SettlementScoreBreakdown
@@ -664,7 +665,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
         {/* 사이드바 — 작물·시도 상세와 같은 구성 (2026-09-17). 시군구는 단일 컬럼이라
             스크롤해도 요약·다음 행동이 따라오지 않았다. 1024px+ 에서 sticky. */}
-        <aside className={s.sidebar}>
+        <StickySidebar className={s.sidebar}>
           <RegionProfileCard
             overline={`${province.name}`}
             title={sigungu.name}
@@ -734,7 +735,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               },
             ]}
           />
-        </aside>
+        </StickySidebar>
       </div>
 
       {/* ── 돌아가기 링크 ── */}

@@ -593,10 +593,10 @@ a.stickyChip:focus-visible {
 }
 
 @media (min-width: 1024px) {
-.contentGrid {
+  .contentGrid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 16px;
+    grid-template-columns: 5fr 2fr; /* 작물·시군구 상세와 동일 비율 (2026-09-17) */
+    gap: 32px;
     align-items: start;
   }
 }
@@ -894,9 +894,10 @@ a.stickyChip:focus-visible {
 }
 
 @media (min-width: 1024px) {
-.sidebar {
+  .sidebar {
     position: sticky;
-    top: calc(var(--sticky-top, 3.5rem) + 24px); /* 헤더 연동 (8/30) */
+    top: calc(var(--sticky-top, 3.5rem) + 12px); /* 헤더 연동 (8/30) — 작물·시군구와 동일 오프셋 */
+    align-self: start;
   }
 }
 

@@ -43,8 +43,11 @@
 }
 
 .sideTabItem:focus-visible {
+  /* 컨테이너가 radius 16 + overflow hidden 이라 offset -2 사각 링은 첫 탭 모서리가 잘린다.
+     안쪽으로 4px 들이고 링 자체를 둥글게 — 45° 지점이 clip 경계(4.7px) 밖 7.5px 에 놓인다 */
   outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: -2px;
+  outline-offset: -4px;
+  border-radius: 12px;
 }
 
 .sideTabPanel {

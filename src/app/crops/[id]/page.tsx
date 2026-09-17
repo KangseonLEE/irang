@@ -6,6 +6,7 @@ import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { CommunityNotes } from "@/components/community/community-notes";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
+import { StickySidebar } from "@/components/ui/sticky-sidebar";
 import st from "@/components/ui/sidebar-tabs.module.css";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { ShareButton } from "@/components/ui/share-button";
@@ -537,7 +538,7 @@ export default async function CropDetailPage({
         </div>
 
         {/* 사이드바 */}
-        <aside className={s.sidebar}>
+        <StickySidebar className={s.sidebar}>
           {/* 사이드 프로필 카드 */}
           <div className={s.sideProfile}>
             <div className={s.sideProfileHeader}>
@@ -666,7 +667,7 @@ export default async function CropDetailPage({
 
           {/* 추천 지원사업 */}
           <RelatedProgramsSection relatedPrograms={relatedPrograms} moreHref={programsHref} />
-        </aside>
+        </StickySidebar>
       </div>
 
       {/* 모바일 하단 바 */}
