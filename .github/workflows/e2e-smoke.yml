@@ -13,6 +13,14 @@ name: E2E smoke
 on:
   push:
     branches: [main]
+    # 빌드조차 되지 않는 커밋에 프로덕션 E2E 를 돌리지 않는다.
+    # vercel.json ignoreCommand 와 같은 목록 — 한쪽만 바꾸면 어긋난다 (9/17 실측:
+    # docs 전용 푸시는 Vercel 이 7초 만에 Canceled 인데 smoke 는 그대로 돌았다).
+    paths-ignore:
+      - "CLAUDE.md"
+      - "docs/**"
+      - "worklog/**"
+      - "**/*.md"
 
 concurrency:
   group: e2e-smoke-${{ github.ref }}
