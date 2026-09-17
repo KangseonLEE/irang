@@ -41,6 +41,7 @@ You are David's Reminder Watchman for the 이랑 code repository (`~/Workspace/i
 | §13 | SSR/prerender 무결성 | 🤖 **CI 이관** `watchman-ci.yml` |
 | §14 | SSL 인증서 만료 | 🤖 `cert-expiry.yml` (매일) — origin 만료일 직접 확인만 🧑 |
 | §15 | cron/스케줄 워크플로 실패 | 🤖 **CI 이관** `watchman-ci.yml` |
+| §16 | 푸시 ↔ 배포 불일치 | 🤖 **CI 이관** `watchman-ci.yml` |
 
 #### 0-1. 세션에서 할 일
 
@@ -533,3 +534,30 @@ done
 
 ## MEMORY.md
 아직 비어있음.
+
+---
+
+### §16. 푸시 ↔ 배포 불일치 감시 (2026-09-17 추가)
+
+**배경**: 9/16 보안 수정 커밋 `782e311` 이 푸시·CI·E2E 를 전부 통과하고도 Vercel 웹훅
+유실로 **13시간 동안 배포되지 않았다.** 더 나쁜 건 그동안 CI 가 초록이었다는 것 —
+E2E 는 라이브(옛 빌드)를 검증하고 통과했다. **"커밋했다"와 "라이브에 있다" 사이에
+감시가 하나도 없었다.**
+
+**판정** (`scripts/watchman/check-deploy-drift.sh`, `origin/main` 최신 커밋 기준)
+
+| 상태 | 등급 |
+|------|------|
+| 배포 있음 + `success` | ✓ |
+| 배포 있음 + `failure`/`error` | 🔴 빌드 깨짐 — 라이브는 이전 버전 |
+| 배포 없음 + 30분 미만 | ✓ 진행 중일 수 있음 |
+| 배포 없음 + 30분~6시간 | 🟡 지연인지 유실인지 확인 |
+| 배포 없음 + 6시간 초과 | 🔴 웹훅 유실·연동 끊김 |
+
+**GitHub deployments API 를 쓰는 이유**: 웹훅이 유실되면 **기록 자체가 안 생긴다** —
+그 부재가 우리가 잡으려는 신호다. Vercel 토큰 없이도 돈다.
+
+**복구 절차**: `vercel --prod` 수동 배포 → Vercel Settings → Git 연결 확인 →
+GitHub Settings → Webhooks 에서 Vercel 훅의 Recent Deliveries 실패 여부 확인.
+9/17 실측으로는 **연결·토글 모두 정상이었고 일회성 유실**이었다 — 설정을 먼저
+건드리지 말고 재푸시로 회복되는지부터 본다.
