@@ -142,13 +142,14 @@ export default async function ProgramDetailPage({
           ...(validEnd ? { validThrough: validEnd } : {}),
         }}
       />
-      {/* Breadcrumb / Back */}
-      <Link href="/programs" className={s.backLink}>
-        <ArrowLeft size={16} />
-        지원사업 목록
-      </Link>
-
-      <CommunityJumpLink from="program_detail" />
+      {/* Breadcrumb / Back — 의견 바로가기를 같은 줄 끝에 둔다 (9/17: 단독 배치는 흐름을 끊었다) */}
+      <div className={s.topBar}>
+        <Link href="/programs" className={s.backLink}>
+          <ArrowLeft size={16} />
+          지원사업 목록
+        </Link>
+        <CommunityJumpLink from="program_detail" />
+      </div>
 
       {/* Title + Status */}
       <div className={s.titleSection}>

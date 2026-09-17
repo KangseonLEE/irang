@@ -220,11 +220,12 @@ export default async function RegionDetailPage({ params }: PageProps) {
         }}
       />
       {/* Back Link — 정적 */}
-      <Link href="/regions" className={s.backLink}>
-        ← 지역 목록으로
-      </Link>
-
-      <CommunityJumpLink from="region_detail" />
+      <div className={s.topBar}>
+        <Link href="/regions" className={s.backLink}>
+          ← 지역 목록으로
+        </Link>
+        <CommunityJumpLink from="region_detail" />
+      </div>
 
       {/* 스크롤 시 노출되는 sticky 헤더 — 모바일 전용 (CSS에서 데스크탑 hide) */}
       <StickyRegionHeader

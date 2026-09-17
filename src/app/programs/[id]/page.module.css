@@ -23,7 +23,6 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 24px;
   padding: 6px 10px;
   border-radius: 8px;
   color: var(--muted-foreground, #6b7280);
@@ -528,3 +527,16 @@
   margin: 0;
 }
 
+
+/* 뒤로가기·브레드크럼과 의견 바로가기를 한 줄에 (2026-09-17).
+   단독 배치하면 브레드크럼과 본문 사이에 버튼이 떠 흐름을 끊는다(회장 스크린샷). */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  /* .backLink 가 갖고 있던 아래 여백을 줄 전체로 옮긴다 — 자식에 margin 이 남으면
+     같은 줄에 둔 요소끼리 세로 중심이 어긋난다(9/17 실측 sameRow=false) */
+  margin-bottom: 24px;
+}

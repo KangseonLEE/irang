@@ -6,6 +6,8 @@ import s from "./page.module.css";
 interface AnchorSection {
   id: string;
   label: string;
+  /** 계측 훅 — 전역 AssessEntryTracker 가 `data-community-jump` 을 위임 수집한다 */
+  track?: string;
 }
 
 interface AnchorTabNavProps {
@@ -64,12 +66,13 @@ export function AnchorTabNav({ sections }: AnchorTabNavProps) {
 
   return (
     <nav className={s.anchorTab} aria-label="섹션 탐색">
-      {sections.map(({ id, label }) => (
+      {sections.map(({ id, label, track }) => (
         <button
           key={id}
           type="button"
           className={s.anchorTabItem}
           data-active={id === activeId ? "true" : undefined}
+          data-community-jump={track}
           onClick={() => scrollToSection(id)}
         >
           {label}

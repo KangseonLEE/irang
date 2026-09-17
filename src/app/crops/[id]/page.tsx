@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { CommunityNotes } from "@/components/community/community-notes";
-import { CommunityJumpLink } from "@/components/community/community-jump-link";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
@@ -313,6 +312,9 @@ export default async function CropDetailPage({
     { id: "region", label: "재배지역" },
     ...(youthCases.length > 0 ? [{ id: "youth-cases", label: "청년농 사례" }] : []),
     { id: "tips", label: "정착 팁" },
+    // 의견란은 본문 맨 아래(문서 69% 지점)라 스크롤로는 도달이 거의 없다 —
+    // 페이지가 이미 가진 탭 내비에 넣어 한 번에 건너뛰게 한다 (9/17)
+    { id: "community-notes", label: "의견", track: "crop_tab" },
   ];
 
   return (
@@ -350,8 +352,6 @@ export default async function CropDetailPage({
         </nav>
         <DataSource source="농촌진흥청 · KOSIS" variant="badge" />
       </div>
-
-      <CommunityJumpLink from="crop_detail" />
 
       {/* ── Hero ── */}
       <section className={s.hero}>

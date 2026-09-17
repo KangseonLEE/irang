@@ -928,3 +928,13 @@ a.heroScoreBadge:focus-visible {
     font-size: 20px;
   }
 }
+
+/* 뒤로가기·브레드크럼과 의견 바로가기를 한 줄에 (2026-09-17).
+   단독 배치하면 브레드크럼과 본문 사이에 버튼이 떠 흐름을 끊는다(회장 스크린샷). */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}

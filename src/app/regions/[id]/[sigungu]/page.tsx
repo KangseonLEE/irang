@@ -228,7 +228,8 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           ].join(", "),
         }}
       />
-      {/* ── 브레드크럼 (정적) ── */}
+      {/* ── 브레드크럼 (정적) — 의견 바로가기를 같은 줄 끝에 (9/17) ── */}
+      <div className={s.topBar}>
       <nav className={s.breadcrumb} aria-label="경로">
         <Link href="/regions" className={s.breadcrumbLink}>
           지역 탐색
@@ -242,8 +243,8 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           {sigungu.name}
         </span>
       </nav>
-
-      <CommunityJumpLink from="sigungu_detail" />
+        <CommunityJumpLink from="sigungu_detail" />
+      </div>
 
       {/* 스크롤 시 노출되는 sticky 헤더 — 모바일 전용 */}
       <StickyRegionHeader
