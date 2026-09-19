@@ -8,6 +8,7 @@
 
 import { nanoid } from "nanoid";
 import type { Answers, FarmTypeId } from "@/lib/data/match-questions";
+import { internalRequestHeaders } from "@/lib/internal-traffic";
 
 // ── 결과 ID 생성 ──
 
@@ -48,7 +49,7 @@ export async function saveAssessmentResult(
   try {
     const res = await fetch("/api/assess", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...internalRequestHeaders() },
       body: JSON.stringify(payload),
     });
 

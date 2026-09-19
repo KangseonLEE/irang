@@ -5,6 +5,7 @@
  */
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { internalRequestHeaders } from "@/lib/internal-traffic";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
@@ -146,7 +147,7 @@ export function logSearch(query: string, resultCount: number): void {
 
   fetch("/api/search-log", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...internalRequestHeaders() },
     body: JSON.stringify({ query: trimmed, resultCount }),
   }).catch(() => {
     // fire-and-forget: 실패 시 조용히 무시

@@ -11,6 +11,7 @@ import {
 } from "@/lib/community/filter";
 import type { NoteTargetType, PublicNote } from "@/lib/community/types";
 import s from "./community-notes.module.css";
+import { internalRequestHeaders } from "@/lib/internal-traffic";
 
 interface Props {
   /** "전체 보기 →" 링크 — 상세 페이지에서 전용 이야기 화면(/stories)으로 보낼 때 */
@@ -108,7 +109,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
     try {
       const res = await fetch("/api/community/notes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...internalRequestHeaders() },
         body: JSON.stringify({
           targetType,
           targetId,
@@ -149,7 +150,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
         prev?.map((n) => (n.id === id ? { ...n, likeCount: n.likeCount + 1 } : n)) ?? prev,
       );
       try {
-        const res = await fetch(`/api/community/notes/${id}/like`, { method: "POST" });
+        const res = await fetch(`/api/community/notes/${id}/like`, { method: "POST", headers: internalRequestHeaders() });
         const json = (await res.json().catch(() => null)) as { likeCount?: number } | null;
         if (res.ok && typeof json?.likeCount === "number") {
           const count = json.likeCount;
@@ -171,7 +172,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
       try {
         await fetch(`/api/community/notes/${id}/report`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...internalRequestHeaders() },
           body: JSON.stringify({ reason: "user" }),
         });
       } catch {

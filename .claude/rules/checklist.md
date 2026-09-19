@@ -83,3 +83,11 @@
 - 라우트 밑(`src/app/<route>/`) 파일을 다른 곳에서 쓰게 되면 `components/<도메인>/` 또는 `lib/` 로 먼저 옮긴다.
 - 도메인 디렉토리 이름은 하나만(`crops`·`region`). 새 디렉토리를 만들기 전 단·복수 변형이 이미 있는지 `ls src/components` 로 확인.
 - 상세: CLAUDE.md "코드 배치 규칙 — 레이어 경계".
+
+## 체크리스트 J: "우리 실측·테스트가 집계에 남지 않는가?" (2026-09-19)
+
+- 브라우저에서 `/api/*` 에 POST 하는 fetch 를 추가하면 `headers: { …, ...internalRequestHeaders() }` — 빠지면 `internal-traffic-callsites.test.ts` 가 실패한다.
+- 새 write 엔드포인트는 첫 줄에서 `internalSkipReason(req)` 판정 → skip 시 `{ ok: true, skipped }` 로 성공처럼 응답.
+- Playwright 실측은 `scripts/diag-browser.mjs` `openContext()` 로만 컨텍스트를 연다. 로컬 `next start` 도 프로덕션 GA 를 로드한다.
+- 계측 이벤트를 새로 넣을 때 게이트를 우회하는 경로(gtag 직접 로드·별도 픽셀)를 만들지 않는다 — 전부 `GoogleAnalytics` 컴포넌트 한 곳을 지난다.
+- 상세: CLAUDE.md "실측·테스트 트래픽 격리".

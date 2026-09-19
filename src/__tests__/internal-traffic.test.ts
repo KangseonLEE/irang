@@ -2,6 +2,7 @@ import { describe, expect, it, afterEach, vi } from "vitest";
 import {
   INTERNAL_TRAFFIC_COOKIE,
   INTERNAL_TRAFFIC_HEADER,
+  internalRequestHeaders,
   internalSkipReason,
   isE2eRequest,
   type RequestLike,
@@ -147,5 +148,42 @@ describe("markInternalBrowser", () => {
     expect(written).toContain("Path=/");
     expect(written).toContain("SameSite=Lax");
     expect(written).toContain("Secure");
+  });
+});
+
+describe("internalRequestHeaders — 클라이언트 write 표식", () => {
+  const originalNavigator = globalThis.navigator;
+  const originalWindow = globalThis.window;
+  afterEach(() => {
+    Object.defineProperty(globalThis, "navigator", { value: originalNavigator, configurable: true, writable: true });
+    if (originalWindow === undefined) delete (globalThis as { window?: unknown }).window;
+    else (globalThis as { window?: unknown }).window = originalWindow;
+  });
+  const setNav = (webdriver: boolean | undefined) =>
+    Object.defineProperty(globalThis, "navigator", { value: { webdriver }, configurable: true, writable: true });
+  const setStore = (flag: string | null) =>
+    ((globalThis as { window?: unknown }).window = { localStorage: { getItem: () => flag } });
+
+  it("일반 브라우저·플래그 없음 → 빈 객체 (헤더를 안 붙인다)", () => {
+    setNav(false); setStore(null);
+    expect(internalRequestHeaders()).toEqual({});
+  });
+  it("자동화 브라우저 → x-irang-e2e (서버 판정 e2e 와 연결)", () => {
+    setNav(true); setStore(null);
+    const h = internalRequestHeaders();
+    expect(h["x-irang-e2e"]).toBe("1");
+    expect(inProduction(() => internalSkipReason(req({ headers: h })))).toBe("e2e");
+    expect(isE2eRequest(req({ headers: h }))).toBe(true);
+  });
+  it("운영자 localStorage 플래그 → x-irang-internal (쿠키 없이도 서버 판정 internal)", () => {
+    setNav(false); setStore("1");
+    const h = internalRequestHeaders();
+    expect(h[INTERNAL_TRAFFIC_HEADER]).toBe("1");
+    expect(inProduction(() => internalSkipReason(req({ headers: h })))).toBe("internal");
+  });
+  it("스토리지가 throw 해도 webdriver 판정은 살아 있다", () => {
+    setNav(true);
+    (globalThis as { window?: unknown }).window = { localStorage: { getItem: () => { throw new Error("SecurityError"); } } };
+    expect(internalRequestHeaders()["x-irang-e2e"]).toBe("1");
   });
 });

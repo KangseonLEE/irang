@@ -5,8 +5,8 @@
  * env: GA4_PROPERTY_ID(숫자 속성 ID), GA4_SA_JSON(서비스 계정 JSON 원문), 선택 GA4_DAYS(기본 28)
  * 출력: stdout 마크다운. GITHUB_STEP_SUMMARY 가 있으면 거기에도 기록.
  */
-import { createSign } from "node:crypto";
 import { appendFileSync } from "node:fs";
+import { createGa4Client, HOST_FILTER } from "./ga4-client.mjs";
 
 const PID = process.env.GA4_PROPERTY_ID;
 const SA = process.env.GA4_SA_JSON ? JSON.parse(process.env.GA4_SA_JSON) : null;
@@ -16,51 +16,18 @@ if (!PID || !SA) {
   process.exit(2);
 }
 
-const b64 = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
-async function accessToken() {
-  const now = Math.floor(Date.now() / 1000);
-  const unsigned = `${b64({ alg: "RS256", typ: "JWT" })}.${b64({
-    iss: SA.client_email,
-    scope: "https://www.googleapis.com/auth/analytics.readonly",
-    aud: "https://oauth2.googleapis.com/token",
-    iat: now,
-    exp: now + 3600,
-  })}`;
-  const sig = createSign("RSA-SHA256").update(unsigned).sign(SA.private_key, "base64url");
-  const res = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion: `${unsigned}.${sig}` }),
-    signal: AbortSignal.timeout(15_000),
-  });
-  if (!res.ok) throw new Error(`token ${res.status}: ${await res.text()}`);
-  return (await res.json()).access_token;
-}
-
-const token = await accessToken();
+const raw = await createGa4Client({ pid: PID, sa: SA, dateRanges: [{ startDate: `${DAYS}daysAgo`, endDate: "yesterday" }] });
 // 정규 리포트는 hostName == irangfarm.com 만 센다 (9/19). 9/17 로컬 prod 서버 실측이 localhost 로
 // 70명 잡혀 하루 활성이 5배 부풀었고, GA 에서 과거 데이터는 지울 수 없다 — 판정 지표에서 걸러낸다.
 // 진단 모드(GA4_DIAG)는 호스트를 봐야 하므로 필터 없이 조회한다.
-const HOST_FILTER = { filter: { fieldName: "hostName", stringFilter: { matchType: "EXACT", value: "irangfarm.com" } } };
 async function report(body, { allHosts = false } = {}) {
-  const { dimensionFilter, ...rest } = body;
+  const { dimensionFilter, ...body2 } = body;
   const filter = allHosts
     ? dimensionFilter
     : dimensionFilter
       ? { andGroup: { expressions: [HOST_FILTER, dimensionFilter] } }
       : HOST_FILTER;
-  const res = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${PID}:runReport`, {
-    method: "POST",
-    headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-    body: JSON.stringify({ dateRanges: [{ startDate: `${DAYS}daysAgo`, endDate: "yesterday" }], ...rest, ...(filter ? { dimensionFilter: filter } : {}) }),
-    signal: AbortSignal.timeout(30_000),
-  });
-  if (!res.ok) throw new Error(`runReport ${res.status}: ${await res.text()}`);
-  const j = await res.json();
-  return (j.rows ?? []).map((r) => ({
-    d: (r.dimensionValues ?? []).map((v) => v.value),
-    m: (r.metricValues ?? []).map((v) => Number(v.value)),
-  }));
+  return raw({ ...body2, ...(filter ? { dimensionFilter: filter } : {}) });
 }
 
 // 진단 모드 (2026-09-19): 방문 급증이 실제 사용자인지, 우리 실측(로컬 prod 서버 Playwright 등)인지 가른다.

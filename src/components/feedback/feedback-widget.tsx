@@ -6,6 +6,7 @@ import { MessageCircle } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { getPageName } from "@/lib/page-names";
 import s from "./feedback-widget.module.css";
+import { internalRequestHeaders } from "@/lib/internal-traffic";
 
 type Rating = "good" | "neutral" | "bad";
 
@@ -36,7 +37,7 @@ async function saveFeedback(data: {
   try {
     await fetch("/api/quick-feedback", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...internalRequestHeaders() },
       body: JSON.stringify({
         rating: data.rating,
         message: data.message,

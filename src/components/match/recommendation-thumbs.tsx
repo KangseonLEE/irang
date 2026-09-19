@@ -17,6 +17,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 import s from "./recommendation-thumbs.module.css";
+import { internalRequestHeaders } from "@/lib/internal-traffic";
 
 // useSyncExternalStore subscriber — 변경 없음 (mount 시 1회 snapshot만 쓰면 됨)
 function noopSubscribe() {
@@ -101,7 +102,7 @@ export function RecommendationThumbs({
     try {
       const response = await fetch("/api/quick-feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...internalRequestHeaders() },
         body: JSON.stringify({
           thumbs: direction,
           recommendation_id: recommendationId,

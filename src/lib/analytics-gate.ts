@@ -2,6 +2,8 @@
  * GA4 로드 게이트 (2026-09-04)
  *
  * 내부·테스트 트래픽이 GA에 집계되지 않게 gtag.js 로드 자체를 막는다.
+ *   - `navigator.webdriver === true` → 자동화 브라우저 (9/19). Playwright·Puppeteer·Selenium 이
+ *     UA·플래그와 무관하게 세우는 표준 신호라 **실측 스크립트가 아무것도 안 해도** 걸린다
  *   - UA에 `irang-e2e` 토큰 → e2e (fixture의 비콘 차단에 더한 2중 안전망)
  *   - `/admin` 경로 → 운영자 화면 자체 (플래그가 심기기 전 첫 로드도 제외, 9/16)
  *   - localStorage `irang-internal` = "1" → 운영자 브라우저 (/admin 방문 시 자동 설정)
@@ -20,7 +22,7 @@
 export const INTERNAL_TRAFFIC_FLAG = "irang-internal";
 
 export interface GateWindow {
-  navigator?: { userAgent?: string };
+  navigator?: { userAgent?: string; webdriver?: boolean };
   /** `/admin` 경로는 첫 로드부터 집계 제외 (9/16) · 호스트 허용목록 (9/19) */
   location?: { pathname?: string; hostname?: string };
   localStorage?: { getItem(key: string): string | null };
@@ -37,7 +39,9 @@ export function irangGaGate(w: GateWindow, id: string): boolean {
   let reason = "";
   try {
     const ua = (w.navigator && w.navigator.userAgent) || "";
-    if (ua.indexOf("irang-e2e") !== -1) {
+    if (w.navigator && w.navigator.webdriver === true) {
+      reason = "automation";
+    } else if (ua.indexOf("irang-e2e") !== -1) {
       reason = "e2e";
     } else if (
       w.location &&

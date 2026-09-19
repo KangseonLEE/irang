@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import s from "./crop-request-button.module.css";
+import { internalRequestHeaders } from "@/lib/internal-traffic";
 
 interface CropRequestButtonProps {
   query: string;
@@ -20,7 +21,7 @@ export function CropRequestButton({ query }: CropRequestButtonProps) {
     try {
       await fetch("/api/quick-feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...internalRequestHeaders() },
         body: JSON.stringify({
           rating: "neutral",
           message: `[작물 요청] ${query}`,

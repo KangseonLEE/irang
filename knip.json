@@ -5,7 +5,8 @@
     "src/lib/data/province-maps/*.ts",
     "src/lib/data/district-maps/*.ts",
     "src/__tests__/**/*.{ts,tsx}",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "scripts/diag-browser.mjs"
   ],
   "ignore": [
     "workers/**",
@@ -15,5 +16,7 @@
     "add-investment-and-details.mjs",
     "apply-all-crop-changes.mjs"
   ],
-  "ignoreBinaries": ["cloudflared"]
+  "ignoreBinaries": [
+    "cloudflared"
+  ]
 }

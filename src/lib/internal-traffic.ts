@@ -13,6 +13,12 @@
  * 손으로 붙여야 해 새 엔드포인트에서 빠진다. 쿠키는 same-origin fetch 에 자동 동반되므로
  * 앞으로 추가되는 write 엔드포인트도 이 판정 하나만 호출하면 된다.
  *
+ * 클라이언트 쪽 2차 안전망 (9/19): `internalRequestHeaders()` — 자동화 브라우저
+ * (`navigator.webdriver`)면 `x-irang-e2e`, localStorage 플래그면 `x-irang-internal` 을 붙인다.
+ * 쿠키를 못 심은 Playwright 실측·쿠키 차단 브라우저까지 서버 판정에 닿게 한다.
+ * 모든 `/api/*` POST 호출처는 이 헬퍼를 headers 에 펼쳐야 하며, 계약 테스트
+ * (`internal-traffic-callsites.test.ts`)가 빠진 호출처를 잡는다.
+ *
  * GA4 게이트(`analytics-gate.ts`)와 플래그 이름을 공유하되 저장소가 다르다
  * (GA 는 인라인 스크립트라 localStorage, 여기는 서버 판정이라 쿠키) — 둘 다 AdminShell 이 세운다.
  */
@@ -51,6 +57,27 @@ export function internalSkipReason(req: RequestLike): InternalSkipReason | null 
   if (process.env.NODE_ENV !== "production") return "dev";
 
   return null;
+}
+
+/**
+ * write 호출에 붙일 내부·자동화 표식 헤더 (client 전용, 서버에서 호출하면 빈 객체).
+ * - `navigator.webdriver` → `x-irang-e2e: 1` (자동화는 e2e 와 같은 취급 — /api/assess 까지 skip)
+ * - localStorage `irang-internal=1` → `x-irang-internal: 1` (쿠키 차단 브라우저 대비)
+ * 사용: `headers: { "Content-Type": "application/json", ...internalRequestHeaders() }`
+ */
+export function internalRequestHeaders(): Record<string, string> {
+  const h: Record<string, string> = {};
+  if (typeof navigator !== "undefined" && (navigator as { webdriver?: boolean }).webdriver === true) {
+    h["x-irang-e2e"] = "1";
+  }
+  try {
+    if (typeof window !== "undefined" && window.localStorage.getItem(INTERNAL_TRAFFIC_FLAG) === "1") {
+      h[INTERNAL_TRAFFIC_HEADER] = "1";
+    }
+  } catch {
+    // 스토리지 차단 — 쿠키·webdriver 로만 판정
+  }
+  return h;
 }
 
 /** e2e 단독 판정 — 운영자·dev 는 통과시켜야 하는 경로(커뮤니티 작성 등)용 */

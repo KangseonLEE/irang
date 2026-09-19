@@ -8,6 +8,7 @@ import {
   type SelectComboboxOption,
 } from "@/components/ui/select-combobox";
 import s from "./request-modal.module.css";
+import { internalRequestHeaders } from "@/lib/internal-traffic";
 
 const MAX_MESSAGE_LENGTH = 200;
 
@@ -87,7 +88,7 @@ async function saveRequest(data: {
   try {
     const res = await fetch("/api/quick-feedback", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...internalRequestHeaders() },
       body: JSON.stringify({
         rating: "neutral",
         message: data.message,

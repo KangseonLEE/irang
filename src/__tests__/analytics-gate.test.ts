@@ -33,6 +33,16 @@ describe("irangGaGate — GA 로드 게이트", () => {
     expect(w[`ga-disable-${ID}`]).toBeUndefined();
   });
 
+  it("자동화 브라우저(navigator.webdriver)는 UA·플래그·호스트와 무관하게 차단 — 9/17 localhost 70명 재발 차단", () => {
+    const w = fakeWindow({});
+    (w.navigator as { webdriver?: boolean }).webdriver = true;
+    expect(irangGaGate(w, ID)).toBe(false);
+    expect(w[`ga-disable-${ID}`]).toBe(true);
+    const w2 = fakeWindow({});
+    (w2.navigator as { webdriver?: boolean }).webdriver = false;
+    expect(irangGaGate(w2, ID)).toBe(true);
+  });
+
   it("UA에 irang-e2e 토큰이 있으면 차단 + ga-disable", () => {
     const w = fakeWindow({ ua: `${NORMAL_UA} irang-e2e/1.0` });
     expect(irangGaGate(w, ID)).toBe(false);
@@ -101,6 +111,9 @@ describe("irangGaGate — GA 로드 게이트", () => {
     expect(revived(fakeWindow({}), ID)).toBe(true);
     expect(revived(fakeWindow({ ua: "x irang-e2e/1.0" }), ID)).toBe(false);
     expect(revived(fakeWindow({ hostname: "localhost" }), ID)).toBe(false);
+    const wd = fakeWindow({});
+    (wd.navigator as { webdriver?: boolean }).webdriver = true;
+    expect(revived(wd, ID)).toBe(false);
     const w = fakeWindow({ storage: { [INTERNAL_TRAFFIC_FLAG]: "1" } });
     expect(revived(w, ID)).toBe(false);
     expect(w[`ga-disable-${ID}`]).toBe(true);

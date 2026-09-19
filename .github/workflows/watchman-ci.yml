@@ -16,6 +16,7 @@
 #   §12 API fallback 응답 비율           → check-write-activity.ts
 #   §13 주요 페이지 SSR/prerender 무결성 → check-ssr-integrity.sh
 #   §15 cron/스케줄 워크플로 실패        → check-schedule-health.sh
+#   §17 GA4 계측 오염·급증               → check-ga4-anomaly.mjs
 #
 # 설계 원칙:
 #   - 각 검사는 이슈를 직접 만들지 않는다. `등급|항목|근거` 1행을 findings 파일에
@@ -105,6 +106,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/watchman/check-deploy-drift.sh --ci
+
+      - name: "§17 GA4 계측 오염·급증 감시"
+        continue-on-error: true
+        env:
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GA4_SA_JSON: ${{ secrets.GA4_SA_JSON }}
+        run: node scripts/watchman/check-ga4-anomaly.mjs
 
       - name: "§8-2 Cloudflare 차단 약화 감지"
         continue-on-error: true
