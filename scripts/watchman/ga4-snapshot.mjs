@@ -38,11 +38,21 @@ async function accessToken() {
 }
 
 const token = await accessToken();
-async function report(body) {
+// 정규 리포트는 hostName == irangfarm.com 만 센다 (9/19). 9/17 로컬 prod 서버 실측이 localhost 로
+// 70명 잡혀 하루 활성이 5배 부풀었고, GA 에서 과거 데이터는 지울 수 없다 — 판정 지표에서 걸러낸다.
+// 진단 모드(GA4_DIAG)는 호스트를 봐야 하므로 필터 없이 조회한다.
+const HOST_FILTER = { filter: { fieldName: "hostName", stringFilter: { matchType: "EXACT", value: "irangfarm.com" } } };
+async function report(body, { allHosts = false } = {}) {
+  const { dimensionFilter, ...rest } = body;
+  const filter = allHosts
+    ? dimensionFilter
+    : dimensionFilter
+      ? { andGroup: { expressions: [HOST_FILTER, dimensionFilter] } }
+      : HOST_FILTER;
   const res = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${PID}:runReport`, {
     method: "POST",
     headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-    body: JSON.stringify({ dateRanges: [{ startDate: `${DAYS}daysAgo`, endDate: "yesterday" }], ...body }),
+    body: JSON.stringify({ dateRanges: [{ startDate: `${DAYS}daysAgo`, endDate: "yesterday" }], ...rest, ...(filter ? { dimensionFilter: filter } : {}) }),
     signal: AbortSignal.timeout(30_000),
   });
   if (!res.ok) throw new Error(`runReport ${res.status}: ${await res.text()}`);
@@ -60,12 +70,12 @@ if (process.env.GA4_DIAG === "1") {
   const users = [{ name: "activeUsers" }, { name: "sessions" }, { name: "screenPageViews" }];
   const byDate = { orderBys: [{ dimension: { dimensionName: "date" } }] };
   const [byHost, byDayHost, byDayRes, byDayCity, hostPages, byDayBrowser] = await Promise.all([
-    report({ dimensions: [{ name: "hostName" }], metrics: users, orderBys: [{ metric: { metricName: "sessions" }, desc: true }] }),
-    report({ dimensions: [{ name: "date" }, { name: "hostName" }], metrics: users, ...byDate, limit: 200 }),
-    report({ dimensions: [{ name: "date" }, { name: "screenResolution" }], metrics: users, ...byDate, limit: 300 }),
-    report({ dimensions: [{ name: "date" }, { name: "city" }], metrics: users, ...byDate, limit: 300 }),
-    report({ dimensions: [{ name: "hostName" }, { name: "pagePath" }], metrics: [{ name: "screenPageViews" }, { name: "totalUsers" }], orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }], limit: 40 }),
-    report({ dimensions: [{ name: "date" }, { name: "browser" }, { name: "operatingSystem" }], metrics: users, ...byDate, limit: 300 }),
+    report({ dimensions: [{ name: "hostName" }], metrics: users, orderBys: [{ metric: { metricName: "sessions" }, desc: true }] }, { allHosts: true }),
+    report({ dimensions: [{ name: "date" }, { name: "hostName" }], metrics: users, ...byDate, limit: 200 }, { allHosts: true }),
+    report({ dimensions: [{ name: "date" }, { name: "screenResolution" }], metrics: users, ...byDate, limit: 300 }, { allHosts: true }),
+    report({ dimensions: [{ name: "date" }, { name: "city" }], metrics: users, ...byDate, limit: 300 }, { allHosts: true }),
+    report({ dimensions: [{ name: "hostName" }, { name: "pagePath" }], metrics: [{ name: "screenPageViews" }, { name: "totalUsers" }], orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }], limit: 40 }, { allHosts: true }),
+    report({ dimensions: [{ name: "date" }, { name: "browser" }, { name: "operatingSystem" }], metrics: users, ...byDate, limit: 300 }, { allHosts: true }),
   ]);
   const day = (d) => `${d.slice(4, 6)}/${d.slice(6, 8)}`;
   const table = (rows, head) => `| ${head.join(" | ")} |\n|${head.map(() => "---").join("|")}|\n${rows.map((r) => `| ${[...r.d.map((v, i) => (i === 0 && /^\d{8}$/.test(v) ? day(v) : v)), ...r.m].join(" | ")} |`).join("\n") || "| (없음) |"}`;

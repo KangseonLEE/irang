@@ -10,6 +10,7 @@ function fakeWindow(opts: {
   storage?: Record<string, string> | "throw";
   cookie?: string;
   pathname?: string;
+  hostname?: string;
 }): GateWindow {
   const storage = opts.storage;
   return {
@@ -21,7 +22,7 @@ function fakeWindow(opts: {
       },
     },
     document: { cookie: opts.cookie ?? "" },
-    location: { pathname: opts.pathname ?? "/" },
+    location: { pathname: opts.pathname ?? "/", hostname: opts.hostname ?? "irangfarm.com" },
   };
 }
 
@@ -65,6 +66,19 @@ describe("irangGaGate — GA 로드 게이트", () => {
     expect(irangGaGate(fakeWindow({ pathname: "/administration" }), ID)).toBe(false);
   });
 
+  it("호스트가 irangfarm.com 이 아니면 차단 — 로컬 prod 서버·미리보기 alias (9/17 활성 86명 중 70명이 localhost)", () => {
+    for (const hostname of ["localhost", "127.0.0.1", "irang-wheat.vercel.app", "dev.irangfarm.com"]) {
+      const w = fakeWindow({ hostname });
+      expect(irangGaGate(w, ID), hostname).toBe(false);
+      expect(w[`ga-disable-${ID}`]).toBe(true);
+    }
+    expect(irangGaGate(fakeWindow({ hostname: "www.irangfarm.com" }), ID)).toBe(true);
+  });
+
+  it("hostname 이 없는(구형) location 객체는 허용 — 호스트 규칙은 값이 있을 때만", () => {
+    expect(irangGaGate({ location: { pathname: "/" } }, ID)).toBe(true);
+  });
+
   it("플래그 값이 1이 아니면 허용", () => {
     expect(irangGaGate(fakeWindow({ storage: { [INTERNAL_TRAFFIC_FLAG]: "0" } }), ID)).toBe(true);
   });
@@ -86,6 +100,7 @@ describe("irangGaGate — GA 로드 게이트", () => {
     const revived = new Function(`return (${src});`)() as typeof irangGaGate;
     expect(revived(fakeWindow({}), ID)).toBe(true);
     expect(revived(fakeWindow({ ua: "x irang-e2e/1.0" }), ID)).toBe(false);
+    expect(revived(fakeWindow({ hostname: "localhost" }), ID)).toBe(false);
     const w = fakeWindow({ storage: { [INTERNAL_TRAFFIC_FLAG]: "1" } });
     expect(revived(w, ID)).toBe(false);
     expect(w[`ga-disable-${ID}`]).toBe(true);
