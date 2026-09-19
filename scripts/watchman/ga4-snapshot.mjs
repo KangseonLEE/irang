@@ -53,6 +53,48 @@ async function report(body) {
   }));
 }
 
+// 진단 모드 (2026-09-19): 방문 급증이 실제 사용자인지, 우리 실측(로컬 prod 서버 Playwright 등)인지 가른다.
+// 로컬 `next start` 는 NODE_ENV=production 이라 GA 가 로드되고, 새 브라우저 컨텍스트마다 새 사용자로 잡힌다.
+// hostName·screenResolution·city 조합이 서명이다 (localhost / 1280x700·1280x900 / 세션 도시).
+if (process.env.GA4_DIAG === "1") {
+  const users = [{ name: "activeUsers" }, { name: "sessions" }, { name: "screenPageViews" }];
+  const byDate = { orderBys: [{ dimension: { dimensionName: "date" } }] };
+  const [byHost, byDayHost, byDayRes, byDayCity, hostPages, byDayBrowser] = await Promise.all([
+    report({ dimensions: [{ name: "hostName" }], metrics: users, orderBys: [{ metric: { metricName: "sessions" }, desc: true }] }),
+    report({ dimensions: [{ name: "date" }, { name: "hostName" }], metrics: users, ...byDate, limit: 200 }),
+    report({ dimensions: [{ name: "date" }, { name: "screenResolution" }], metrics: users, ...byDate, limit: 300 }),
+    report({ dimensions: [{ name: "date" }, { name: "city" }], metrics: users, ...byDate, limit: 300 }),
+    report({ dimensions: [{ name: "hostName" }, { name: "pagePath" }], metrics: [{ name: "screenPageViews" }, { name: "totalUsers" }], orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }], limit: 40 }),
+    report({ dimensions: [{ name: "date" }, { name: "browser" }, { name: "operatingSystem" }], metrics: users, ...byDate, limit: 300 }),
+  ]);
+  const day = (d) => `${d.slice(4, 6)}/${d.slice(6, 8)}`;
+  const table = (rows, head) => `| ${head.join(" | ")} |\n|${head.map(() => "---").join("|")}|\n${rows.map((r) => `| ${[...r.d.map((v, i) => (i === 0 && /^\d{8}$/.test(v) ? day(v) : v)), ...r.m].join(" | ")} |`).join("\n") || "| (없음) |"}`;
+  const top = (rows, n = 40) => rows.sort((a, b) => b.m[0] - a.m[0]).slice(0, n).sort((a, b) => a.d[0].localeCompare(b.d[0]) || b.m[0] - a.m[0]);
+  const md = `## GA4 진단 — 최근 ${DAYS}일 (어제까지) 방문 급증 출처
+
+### 호스트별 합계 (활성·세션·조회)
+${table(byHost, ["hostName", "활성", "세션", "조회"])}
+
+### 일자 × 호스트
+${table(byDayHost, ["일자", "hostName", "활성", "세션", "조회"])}
+
+### 일자 × 화면 해상도 (상위)
+${table(top(byDayRes), ["일자", "해상도", "활성", "세션", "조회"])}
+
+### 일자 × 도시 (상위)
+${table(top(byDayCity), ["일자", "도시", "활성", "세션", "조회"])}
+
+### 일자 × 브라우저·OS (상위)
+${table(top(byDayBrowser), ["일자", "브라우저", "OS", "활성", "세션", "조회"])}
+
+### 호스트 × 페이지 (조회 상위 40)
+${table(hostPages, ["hostName", "pagePath", "조회", "사용자"])}
+`;
+  console.log(md);
+  if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+  process.exit(0);
+}
+
 // 검색 일별 추이 — DB search_logs 적재량과 대조해 "적재 끊김"과 "사용자가 안 쓴다"를 가른다 (9/16).
 // 9/8 이후 search_logs 0건이 어느 쪽인지 28일 합계만으로는 판정할 수 없었다.
 const searchDailyReq = {

@@ -10,6 +10,9 @@ on:
       days:
         description: "조회 창(일)"
         default: "28"
+      diag:
+        description: "진단 모드 — 호스트·해상도·도시별 분해(이슈 미발행, 스텝 요약만)"
+        default: "false"
 
 permissions:
   contents: read
@@ -30,8 +33,10 @@ jobs:
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
           GA4_SA_JSON: ${{ secrets.GA4_SA_JSON }}
           GA4_DAYS: ${{ github.event.inputs.days || '28' }}
-        run: node scripts/watchman/ga4-snapshot.mjs > snapshot.md
+          GA4_DIAG: ${{ github.event.inputs.diag == 'true' && '1' || '' }}
+        run: node scripts/watchman/ga4-snapshot.mjs | tee snapshot.md
       - name: Open issue
+        if: github.event.inputs.diag != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

@@ -21,6 +21,8 @@ on:
       - "docs/**"
       - "worklog/**"
       - "**/*.md"
+      - ".github/**"
+      - "scripts/**"
 
 concurrency:
   group: e2e-smoke-${{ github.ref }}
