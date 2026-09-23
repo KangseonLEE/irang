@@ -629,18 +629,19 @@ const SYNONYMS: Record<string, string[]> = {
   "경남": ["경상남도"],
   "제주": ["제주특별자치도"],
 
-  // ── 작물 관련 ──
+  // ── 작물 관련 ── (작물명 → 카테고리(식량·과수·특용) 확장은 9/23 제거: "포도"에 사과·배·감귤 등
+  //    같은 카테고리 작물 20종이, "스마트팜"→"기술"은 농업기술원·센터 44건이 무관 결과로 섞였다)
   "사과": ["사과"],
   "딸기": ["딸기"],
   "고추": ["고추"],
   "벼": ["쌀", "벼"],
-  "쌀": ["쌀", "벼", "식량"],
-  "감자": ["감자", "식량"],
-  "포도": ["포도", "과수"],
+  "쌀": ["쌀", "벼"],
+  "감자": ["감자"],
+  "포도": ["포도"],
   "감귤": ["감귤", "귤"],
   "귤": ["감귤", "귤"],
-  "인삼": ["인삼", "특용"],
-  "녹차": ["녹차", "특용"],
+  "인삼": ["인삼"],
+  "녹차": ["녹차"],
   "약초": ["약용작물", "특용"],
 
   // ── 구어체 / 의도 기반 ──
@@ -667,8 +668,8 @@ const SYNONYMS: Record<string, string[]> = {
   "식량작물": ["식량"],
 
   // ── 스마트팜 관련 ──
-  "스마트팜": ["스마트팜", "ICT", "기술"],
-  "ict": ["스마트팜", "ICT", "기술"],
+  "스마트팜": ["스마트팜", "ICT"],
+  "ict": ["스마트팜", "ICT"],
   "기술농업": ["스마트팜", "ICT"],
 
   // ── 정책/제도 ──
@@ -849,7 +850,12 @@ function injectCropPrefixSpace(q: string): string {
   //   "감귤"은 작물 "감"(감)으로 시작하므로 분리 규칙에 걸리면 "감 귤"이 되어
   //   단일어 정확 hoist 분기를 못 타고 복합 쿼리로 빠진다. (감귤 카드가 밀림)
   if (CROP_NAME_SET.has(q)) return q;
+  // 실재 지역·작물 이름은 분리 금지 — "무주"·"무안"이 "무 주"·"무 안"으로 갈려 184건이 나오던 9/23 사고
+  if (ENTITY_NAME_SET.has(q)) return q;
   for (const cropName of CROP_NAMES_BY_LENGTH_DESC) {
+    // 1자 작물(무·감·배·밤·쌀·콩)은 접두 분리하지 않는다 — "배송"→"배 송"(217건)·"감나무"→"감 나무"(91건)처럼
+    // 한 글자가 와일드카드가 된다. 1자 작물의 복합어는 결과 0건 → 끝글자 규칙(getNoResultSuggestions)이 받는다.
+    if (cropName.length < 2) continue;
     if (q.length > cropName.length && q.startsWith(cropName)) {
       const rest = q.slice(cropName.length);
       // 조사 단독은 분리하지 않음 (예: "사과는" → removeKoreanSuffix가 처리)
@@ -1623,8 +1629,11 @@ function matchFaqs(query: string): SearchItem[] {
   const results: SearchItem[] = [];
 
   for (const faq of SEARCH_FAQS) {
-    const matched = faq.patterns.some((p) => q.includes(p.toLowerCase()))
-      || faq.keywords.some((kw) => q.includes(kw.toLowerCase()));
+    // 1자 키워드(삼·돈·땅·집·꽃·귤·뜻)는 정확히 그 한 글자를 검색했을 때만 — "삼"이 삼척·인삼·삼계탕을
+    // 전부 잡던 9/23 감사 결함. 2자 이상은 포함 매칭 유지.
+    const hit = (k: string) => (k.length >= 2 ? q.includes(k) : q === k);
+    const matched = faq.patterns.some((p) => hit(p.toLowerCase()))
+      || faq.keywords.some((kw) => hit(kw.toLowerCase()));
     if (matched) {
       results.push({
         type: "guide",

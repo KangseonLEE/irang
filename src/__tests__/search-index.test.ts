@@ -765,3 +765,47 @@ describe("조사 제거가 실재 이름을 깎지 않는다 (9/23 '오이' → 
     expect(searchAll("사과를").map((r) => r.title)).toContain("사과");
   });
 });
+
+describe("1자 작물 접두 분리·카테고리 동의어 노이즈 (9/23 전수 감사)", () => {
+  const has = (r: ReturnType<typeof searchAll>[number], term: string) =>
+    [r.title, r.subtitle, r.badge ?? "", ...r.keywords].some((f) => f.toLowerCase().includes(term));
+
+  it.each(["무주", "무안"])("지역명 '%s'이 '무 + 나머지'로 갈리지 않는다", (q) => {
+    const rs = searchAll(q);
+    expect(rs.length).toBeLessThan(10);
+    expect(rs.filter((r) => !has(r, q)).map((r) => r.title)).toEqual([]);
+  });
+
+  it("1자 작물 접두 복합어는 와일드카드가 되지 않는다 — '배송'·'감나무'", () => {
+    expect(searchAll("배송").map((r) => r.title)).not.toContain("송파구");
+    expect(searchAll("감나무").map((r) => r.title)).not.toContain("감자");
+  });
+
+  it("2자 이상 작물 접두 분리는 유지 — '사과재배지'", () => {
+    expect(searchAll("사과재배지").length).toBeGreaterThan(3);
+  });
+
+  it("'포도'에 같은 카테고리라는 이유로 사과·감귤이 섞이지 않는다", () => {
+    const titles = searchAll("포도").filter((r) => r.type === "crop").map((r) => r.title);
+    expect(titles).toContain("포도");
+    expect(titles).not.toContain("사과");
+    expect(titles).not.toContain("감귤");
+  });
+
+  it("'스마트팜'에 농업기술원·시청이 '기술' 동의어로 섞이지 않는다", () => {
+    const titles = searchAll("스마트팜").map((r) => r.title);
+    expect(titles.some((t) => t.includes("농업기술원"))).toBe(false);
+    expect(titles).not.toContain("치유농업사 자격시험 (한국농업기술진흥원)");
+  });
+});
+
+describe("FAQ 1자 키워드는 정확 일치일 때만 (9/23 삼척→산양삼)", () => {
+  it("'삼척'·'인삼'에 산양삼 가이드가 붙지 않는다", () => {
+    for (const q of ["삼척", "인삼"]) {
+      expect(searchAll(q).map((r) => r.title)).not.toContain("산양삼·장뇌삼 임산물 비용");
+    }
+  });
+  it("'땅' 한 글자 검색은 여전히 농지 가이드를 찾는다", () => {
+    expect(searchAll("땅").some((r) => r.type === "guide")).toBe(true);
+  });
+});
