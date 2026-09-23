@@ -1304,6 +1304,28 @@ const ONE_CHAR_CROP_VARIETY_PREFIXES: Record<string, string[]> = {
   쌀: ["찹", "흑", "백", "햅", "멥", "현미", "오대", "유기농", "무농약"],
   콩: ["검은", "검정", "서리", "강낭", "완두", "메주", "노란", "흰", "쥐눈이", "풋", "작두"],
 };
+/**
+ * 2자 이상 작물의 앞말 허용 사전 — 품종·재배·상태 수식어. 2차 독립 QA(9/23)가 "여러가지"→가지·"진심어린사과"→사과·
+ * "차량대파"→대파·"미국화"→국화·"우리호두"→호두를 라이브 재현: 작물명이 흔한 어미·한자어와 겹치면 "앞말 1~4자"만으로는
+ * 못 가른다. 앞말이 이 사전의 항목이거나(정확 일치 또는 2자 이상 항목으로 시작: 방울양배추=방울+양) 지역명일 때만 인정.
+ */
+const CROP_VARIETY_MODIFIERS: string[] = [
+  "가시", "방울", "흑", "백", "적", "청", "홍", "황", "자색", "자주", "미니", "왕", "돌", "산", "들",
+  "노지", "하우스", "시설", "유기농", "무농약", "친환경", "토종", "재래", "개량", "국산", "생", "건", "말린", "냉동",
+  "씨", "알", "애", "풋", "햇", "조생", "중생", "만생", "극조생", "여름", "겨울", "봄", "가을", "월동", "고랭지",
+  "단", "꿀", "늦", "쪽", "통", "설향", "샤인", "캠벨", "거봉", "부사", "홍로", "감홍", "골드", "베이비", "점보",
+  "다다기", "취청", "백다다기", "대추", "주먹", "꽃", "쌈", "얼갈이", "봄동", "적상추", "청상추", "로메인",
+];
+const CROP_MODIFIER_SET = new Set(CROP_VARIETY_MODIFIERS);
+const CROP_MODIFIER_HEADS = CROP_VARIETY_MODIFIERS.filter((m) => m.length >= 2);
+const REGION_PREFIX_SET = new Set([
+  ...PROVINCES.map((p) => p.shortName.toLowerCase()),
+  ...SIGUNGUS.map((s) => s.shortName.toLowerCase()).filter((n) => n.length >= 2),
+]);
+function isVarietyPrefix(prefix: string): boolean {
+  if (CROP_MODIFIER_SET.has(prefix) || REGION_PREFIX_SET.has(prefix)) return true;
+  return CROP_MODIFIER_HEADS.some((m) => prefix.startsWith(m));
+}
 function findContainedCropNames(q: string): string[] {
   if (/\s/.test(q)) return [];
   const found: string[] = [];
@@ -1313,7 +1335,7 @@ function findContainedCropNames(q: string): string[] {
     const prefix = q.slice(0, q.length - name.length);
     if (prefix.length < 1) continue;
     const ok = name.length >= 2
-      ? prefix.length <= MAX_VARIETY_PREFIX
+      ? prefix.length <= MAX_VARIETY_PREFIX && isVarietyPrefix(prefix)
       : (ONE_CHAR_CROP_VARIETY_PREFIXES[name] ?? []).includes(prefix);
     if (ok) found.push(c.name);
   }
