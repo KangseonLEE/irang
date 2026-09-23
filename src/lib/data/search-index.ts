@@ -986,22 +986,41 @@ function scoreItemRaw(item: SearchItem, term: string): number {
 }
 
 /** 복합 쿼리 (여러 단어)용 — 각 단어별 최고 점수 합산 + 매칭 단어 수 보너스 */
+/** 부제 부분 매칭만으로 얻을 수 있는 최대 점수 (15 × 최대 타입 가중치 1.2 = 18) */
+const SUBTITLE_ONLY_MAX = 18;
+
+/** 단어의 구체성 등급 — 시·군·구(3) > 작물·기타 특정어(2) > 시·도(1) > 일반어(0) */
+function termSpecificity(term: string): 0 | 1 | 2 | 3 {
+  const t = removeKoreanSuffix(term);
+  if (GENERIC_TERMS.has(t)) return 0;
+  if (SIGUNGU_NAME_SET.has(t)) return 3;
+  if (PROVINCE_NAME_SET.has(t) || PROVINCE_NAME_SET.has(term)) return 1;
+  return 2;
+}
+const PROVINCE_NAME_SET = new Set(PROVINCES.flatMap((p) => [p.shortName.toLowerCase(), p.name.toLowerCase()]));
+const SIGUNGU_NAME_SET = new Set(SIGUNGUS.flatMap((s) => [s.shortName.toLowerCase(), s.name.toLowerCase()]));
+
 function scoreItemMulti(item: SearchItem, terms: string[]): number {
   let total = 0;
   let matched = 0;
-  let specificMatched = false;
-  const hasSpecific = terms.some((term) => !GENERIC_TERMS.has(removeKoreanSuffix(term)));
-  for (const term of terms) {
-    const s = scoreItem(item, term);
+  let bestMatchedSpecificity: 0 | 1 | 2 | 3 = 0;
+  const spec = terms.map(termSpecificity);
+  const hasSpecific = spec.some((s) => s > 0);
+  const hasSigungu = spec.some((s) => s === 3);
+  for (let i = 0; i < terms.length; i++) {
+    const s = scoreItem(item, terms[i]);
     if (s > 0) {
       total += s;
       matched++;
-      if (!GENERIC_TERMS.has(removeKoreanSuffix(term))) specificMatched = true;
+      if (spec[i] > bestMatchedSpecificity) bestMatchedSpecificity = spec[i];
     }
   }
   // 특정어(전남·오이)가 있는 검색에서 일반어(귀농·재배)만 맞은 항목은 제외 — "전남 귀농"에 귀농 가이드 110건,
   // "오이 재배"에 남의 작물 재배 가이드가 OR 로 섞이던 9/23 감사 결함. 전부 일반어인 검색("귀농 교육")은 종전대로.
-  if (hasSpecific && !specificMatched) return 0;
+  if (hasSpecific && bestMatchedSpecificity === 0) return 0;
+  // 시·군·구가 있는 검색에서 시·도만 맞은 항목은 제외 — "충북 서산"에 충주·제천 등 충북 15건,
+  // "경기도 가평"에 수원·성남 등 경기 50건이 OR 로 따라오던 결함. 작물 등 다른 특정어가 맞은 항목은 유지("완도 딸기"의 딸기 카드).
+  if (hasSigungu && bestMatchedSpecificity === 1) return 0;
   // 여러 단어가 동시 매칭되면 보너스 (예: "전남 딸기" 둘 다 매칭 > 하나만)
   return matched > 0 ? total + matched * 10 : 0;
 }
@@ -1089,11 +1108,16 @@ export function searchAll(query: string): SearchItem[] {
     const hoisted = findExactMatchHoists(term, index);
     const hoistedIds = new Set(hoisted.map((i) => i.id));
 
-    const results = index
+    const scored = index
       .filter((item) => !hoistedIds.has(item.id))
       .map((item) => ({ item, score: scoreItem(item, term) }))
       .filter(({ score }) => score > 0)
-      .sort((a, b) => b.score - a.score)
+      .sort((a, b) => b.score - a.score);
+    // 관련도 하한선 (2026-09-23): 정확 일치(hoist 또는 제목 완전 일치 100점)가 있는 검색에서는
+    // 부제(subtitle) 부분 매칭만으로 들어온 항목(15점 × 타입 가중치 ≤ 18)을 뺀다.
+    // "사과"에 망고(설명문 "사과의 6배")·"오이"에 과채류(예시 나열)가 같은 목록에 서던 결함.
+    const hasExact = hoisted.length > 0 || (scored[0]?.score ?? 0) >= 100;
+    const results = (hasExact ? scored.filter(({ score }) => score > SUBTITLE_ONLY_MAX) : scored)
       .map(({ item }) => item);
     return [...hintPrefix, ...hoisted, ...faqResults, ...results];
   }

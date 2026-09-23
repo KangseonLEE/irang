@@ -5,6 +5,7 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { NEGATIVE, POSITIVE } from "./fixtures/search-adversarial-corpus";
 import {
   searchItems,
   searchAll,
@@ -856,5 +857,41 @@ describe("일반어만으로는 매칭되지 않는다 — FAQ 역포함·복합
   it("'재배' 단독은 남의 작물 FAQ 로 시작하지 않는다", () => {
     const titles = searchAll("재배지").map((r) => r.title);
     expect(titles).not.toContain("딸기 재배 정보");
+  });
+});
+
+describe("자동 대체 적대 코퍼스 (9/23) — 무관한 검색어에 후보 0, 품종 검색어엔 기대 작물", () => {
+  it(`NEGATIVE ${NEGATIVE.length}건 전부 후보 없음`, () => {
+    const leaked = NEGATIVE.filter((q) => getNoResultSuggestions(q).length > 0).map((q) => `${q}→${getNoResultSuggestions(q)[0]}`);
+    expect(leaked).toEqual([]);
+  });
+  it(`POSITIVE ${POSITIVE.length}건 기대 작물 포함`, () => {
+    const missed = POSITIVE.filter(([q, crop]) => !getNoResultSuggestions(q).includes(crop)).map(([q, crop]) => `${q}↛${crop}`);
+    expect(missed).toEqual([]);
+  });
+});
+
+describe("관련도 하한선 + 지역 구체성 (9/23 고도화)", () => {
+  it("'사과'에 설명문에 사과가 언급된 망고가 섞이지 않는다", () => {
+    const titles = searchAll("사과").map((r) => r.title);
+    expect(titles[0]).toBe("사과");
+    expect(titles).not.toContain("망고");
+  });
+  it("정확 일치가 없는 검색은 부제 매칭도 그대로 산다 — '수확량'", () => {
+    expect(searchAll("도열병").length).toBeGreaterThan(0);
+  });
+  it("'충북 서산'·'경기도 가평'은 시·도만 맞은 항목을 내린다", () => {
+    const seosan = searchAll("충북 서산").map((r) => r.title);
+    expect(seosan).toContain("서산시");
+    expect(seosan).not.toContain("충주시");
+    const gapyeong = searchAll("경기도 가평").map((r) => r.title);
+    expect(gapyeong).toContain("가평군");
+    expect(gapyeong).not.toContain("수원시");
+  });
+  it("'완도 딸기'는 딸기 작물 카드를 유지한다 (작물 특정어는 살림)", () => {
+    expect(searchAll("완도 딸기").map((r) => r.title)).toContain("딸기");
+  });
+  it("'전남 딸기'는 시·군·구가 없으므로 종전대로", () => {
+    expect(searchAll("전남 딸기").length).toBeGreaterThan(20);
   });
 });

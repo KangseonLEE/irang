@@ -31,6 +31,10 @@ export const analytics = {
   // -- Search --
   search: (query: string) =>
     trackEvent({ action: "search", category: "engagement", label: query }),
+  // 결과 0건 검색어를 실재 작물로 자동 대체해 보여준 경우 (2026-09-23) — label "원검색어>대체어".
+  // 2주 뒤 이 이벤트 대비 대체 작물 상세 page_view 로 기능 실효를 판정한다.
+  searchFallbackShown: (query: string, term: string) =>
+    trackEvent({ action: "search_fallback_shown", category: "engagement", label: `${query}>${term}` }),
 
   // -- Assessment --
   assessStart: () =>

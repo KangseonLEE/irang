@@ -9,6 +9,7 @@ import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, getNoResultSuggestions, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
+import { analytics } from "@/lib/analytics";
 import { withJosa } from "@/lib/format";
 import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
@@ -161,6 +162,7 @@ function SearchPageContent() {
       loggedRef.current = query;
       // 대체 결과를 보여줘도 로그는 원 검색어 0건으로 — admin '결과 없는 검색어'가 작물 추가 신호다
       logSearch(query, fallback ? 0 : totalCount);
+      if (fallback) analytics.searchFallbackShown(query, fallback.term);
     }
   }, [query, totalCount, fallback]);
 
