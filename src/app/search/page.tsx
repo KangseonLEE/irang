@@ -9,6 +9,7 @@ import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, getNoResultSuggestions, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
+import { withJosa } from "@/lib/format";
 import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
 import { ResultCard } from "@/components/search/result-card";
@@ -80,16 +81,34 @@ function SearchPageContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") ?? "";
 
-  const results = useMemo(() => searchAll(query), [query]);
+  const rawResults = useMemo(() => searchAll(query), [query]);
+
+  // 자동 대체 (2026-09-23) — 원 검색어가 0건이고 검색어 안에 실재 작물·지역명이 들어 있으면
+  // ("가시오이" → 오이) 그 결과를 바로 보여주고 상단 한 줄로 알린다. 네이버("~로 검색하시겠습니까?")·
+  // 다음("이것을 찾으시나요?")·아마존("대신 ~을 검색")과 Baymard 원칙(대안이 하나면 자동 적용 + 안내,
+  // 여럿이면 선택지) 그대로. 큰 박스에 알약 하나 띄우는 UI 는 회장 기각.
+  const fallback = useMemo(() => {
+    if (!query || rawResults.length > 0) return null;
+    const terms = getNoResultSuggestions(query);
+    for (const term of terms) {
+      if (searchAll(term).length > 0) return { term, others: terms.filter((x) => x !== term) };
+    }
+    return null;
+  }, [query, rawResults]);
+  const effectiveQuery = fallback?.term ?? query;
+  const results = useMemo(
+    () => (fallback ? searchAll(fallback.term) : rawResults),
+    [fallback, rawResults],
+  );
 
   // 답변 카드 (Featured Snippet) — intent 감지 시 결과 위에 구조화된 답 노출
-  const answer = useMemo(() => (query ? buildSearchAnswer(query) : null), [query]);
+  const answer = useMemo(() => (effectiveQuery ? buildSearchAnswer(effectiveQuery) : null), [effectiveQuery]);
 
   // 지식 패널 (Knowledge Panel) — 답변 카드가 없을 때만(=bare 작물 엔티티)
-  const panel = useMemo(() => (query && !answer ? buildCropPanel(query) : null), [query, answer]);
+  const panel = useMemo(() => (effectiveQuery && !answer ? buildCropPanel(effectiveQuery) : null), [effectiveQuery, answer]);
 
   // 연관 검색어 (Related Searches) — 결과 하단 탐색 확장
-  const relatedSearches = useMemo(() => (query ? buildRelatedSearches(query) : []), [query]);
+  const relatedSearches = useMemo(() => (effectiveQuery ? buildRelatedSearches(effectiveQuery) : []), [effectiveQuery]);
 
   // 답변/패널이 있으면 중복 카드를 목록에서 제외 — 단 히트 수에는 그 카드들을 포함
   // ("참깨"처럼 작물 카드 1건뿐인 검색이 패널에 흡수돼 "총 0건·결과 없음"으로 보이던 8/29 사고)
@@ -140,9 +159,10 @@ function SearchPageContent() {
   useEffect(() => {
     if (query && query !== loggedRef.current) {
       loggedRef.current = query;
-      logSearch(query, totalCount);
+      // 대체 결과를 보여줘도 로그는 원 검색어 0건으로 — admin '결과 없는 검색어'가 작물 추가 신호다
+      logSearch(query, fallback ? 0 : totalCount);
     }
-  }, [query, totalCount]);
+  }, [query, totalCount, fallback]);
 
   // ── 오타 보정 — 0건일 때만 후보 추출 ──
   // (a) 자모 레벤슈타인: 작물·지역 사전 기반, 클라이언트 즉시 계산
@@ -249,9 +269,11 @@ function SearchPageContent() {
           <h1 className={s.resultTitle}>
             &lsquo;{query}&rsquo; 검색 결과
           </h1>
-          <p className={s.resultCount}>
-            총 <strong>{totalCount}</strong>건
-          </p>
+          {!fallback && (
+            <p className={s.resultCount}>
+              총 <strong>{totalCount}</strong>건
+            </p>
+          )}
         </div>
       ) : (
         <div className={s.emptyQuery}>
@@ -330,6 +352,36 @@ function SearchPageContent() {
         </div>
       )}
 
+      {/* 자동 대체 안내 — 원 검색어 0건, 포함된 실재 이름의 결과를 대신 표시 (네이버·다음 한 줄 패턴) */}
+      {query && fallback && (
+        <div className={s.fallbackNotice} role="status">
+          <span>
+            &lsquo;{query}&rsquo;{withJosa(query, "은").slice(query.length)} 아직 없어요. 대신{" "}
+            <Link href={`/search?q=${encodeURIComponent(fallback.term)}`} className={s.fallbackTerm}>
+              {fallback.term}
+            </Link>{" "}
+            결과 <strong>{totalCount}</strong>건이에요.
+          </span>
+          {fallback.others.length > 0 && (
+            <span className={s.fallbackOthers}>
+              다른 뜻:{" "}
+              {fallback.others.map((o) => (
+                <Link key={o} href={`/search?q=${encodeURIComponent(o)}`} className={s.fallbackTerm}>
+                  {o}
+                </Link>
+              ))}
+            </span>
+          )}
+          <RequestButton
+            keyword={query.trim()}
+            pageName="통합 검색"
+            label={`'${query}' 정보 요청하기`}
+            className={s.fallbackRequest}
+            iconSize={14}
+          />
+        </div>
+      )}
+
       {/* 답변 카드 (Featured Snippet) — intent 감지 시 결과 최상단 */}
       {query && answer && (
         <div className={s.answerWrap}>
@@ -345,11 +397,11 @@ function SearchPageContent() {
       )}
 
       {/* 정확히 일치하는 항목 없음 안내 — 결과 위에 배치 (긍정 톤, 2026-05-22) */}
-      {query && !answer && !panel && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(query, results) && (
+      {query && !answer && !panel && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(effectiveQuery, results) && (
         <div className={s.noExactMatch}>
           <div className={s.noExactMatchContent}>
             <p className={s.noExactMatchText}>
-              &lsquo;{query}&rsquo; 관련 검색 결과예요
+              &lsquo;{effectiveQuery}&rsquo; 관련 검색 결과예요
             </p>
             <p className={s.noExactMatchHint}>
               결과 중 더 필요한 정보가 있다면 정보 추가를 요청해 주세요.
@@ -390,7 +442,7 @@ function SearchPageContent() {
                     <ResultCard
                       key={`${item.type}-${item.id}`}
                       item={item}
-                      query={query}
+                      query={effectiveQuery}
                       highlightCls={s.highlight}
                     />
                   ))}
@@ -435,7 +487,7 @@ function SearchPageContent() {
           {/* 오타 보정 제안 — 자모 후보 + 네이버 errata 합본 */}
           {suggestions.length > 0 && (
             <div className={s.suggestSection}>
-              <p className={s.suggestTitle}>혹시 이걸 찾으셨나요?</p>
+              <p className={s.suggestTitle}>이것을 찾으시나요?</p>
               <div className={s.suggestList}>
                 {suggestions.map((sug) => (
                   <Link
@@ -466,7 +518,7 @@ function SearchPageContent() {
                   <ResultCard
                     key={`${item.type}-${item.id}`}
                     item={item}
-                    query={query}
+                    query={effectiveQuery}
                     highlightCls={s.highlight}
                   />
                 ))}

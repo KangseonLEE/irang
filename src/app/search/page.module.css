@@ -597,18 +597,14 @@
   transition: background-color 0.12s;
 }
 
-/* 오타 보정 제안 — 결과 0건일 때 노출 */
+/* 오타 보정 제안 — 결과 0건일 때 한 줄 (2026-09-23 박스·알약 폐기, 다음 "이것을 찾으시나요?" 패턴) */
 .suggestSection {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-  padding: 20px 16px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
-  border-radius: 14px;
-  width: 100%;
-  max-width: 480px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 4px;
 }
 
 /* 결과 없음 힌트 — 가까운 실재 작물을 결과 카드로 안내 (2026-09-14) */
@@ -623,13 +619,6 @@
 }
 
 .hintSection .suggestTitle {
-  text-align: center;
-  font-size: var(--fs-h4);
-  font-weight: 700;
-  color: var(--primary, #1b6b5a);
-}
-
-.suggestTitle {
   font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--foreground);
@@ -640,28 +629,74 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  gap: 4px 12px;
 }
 
 .suggestLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 14px;
   font-size: var(--fs-body-sm);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--primary, #1b6b5a);
-  text-decoration: none;
-  background: var(--card, #fff);
-  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
-  border-radius: 999px;
-  transition: background-color 0.12s, border-color 0.12s;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
 }
 
 @media (hover: hover) {
 .suggestLink:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-    border-color: var(--primary, #1b6b5a);
+    color: var(--primary-dark, #0d2e27);
+  }
+}
+
+/* 자동 대체 안내 — 결과 헤더 아래 한 줄 (2026-09-23) */
+.fallbackNotice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin-top: -8px;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  line-height: 1.6;
+}
+
+.fallbackNotice strong {
+  color: var(--primary, #1b6b5a);
+  font-weight: 700;
+}
+
+.fallbackTerm {
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+}
+
+.fallbackOthers .fallbackTerm + .fallbackTerm {
+  margin-left: 8px;
+}
+
+.fallbackRequest {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+.fallbackTerm:hover {
+    color: var(--primary-dark, #0d2e27);
+  }
+  .fallbackRequest:hover {
+    color: var(--foreground);
   }
 }
 
