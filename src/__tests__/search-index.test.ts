@@ -736,6 +736,14 @@ describe("결과 0건 — 검색어에 포함된 실재 작물·지역 안내 (9
     expect(getNoResultSuggestions("감자칩")).toEqual([]);
   });
 
+  it("1자 작물은 알려진 품종 수식어일 때만 — 밤나무·공감·선배는 제외, 곶감·총각무·찹쌀·완두콩은 대체", () => {
+    for (const q of ["밤나무", "공감", "선배", "어젯밤", "사무실"]) expect(getNoResultSuggestions(q)).toEqual([]);
+    expect(getNoResultSuggestions("곶감")).toEqual(["감"]);
+    expect(getNoResultSuggestions("총각무")).toEqual(["무"]);
+    expect(getNoResultSuggestions("찹쌀")).toEqual(["쌀"]);
+    expect(getNoResultSuggestions("완두콩")).toEqual(["콩"]);
+  });
+
   it("긴 문장이 우연히 작물명으로 끝나도 대체하지 않는다", () => {
     expect(getNoResultSuggestions("저녁에마신와인한잔감")).toEqual([]);
     expect(getNoResultSuggestions("새벽에몰래빠져나온단잠결에느낀두려운밤")).toEqual([]);

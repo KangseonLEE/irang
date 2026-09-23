@@ -1268,16 +1268,30 @@ const NO_RESULT_HINTS: { keys: string[]; suggest: string[] }[] = [
  *       ④ 1자 작물(감·무·배·밤·쌀·콩)은 앞부분 1~3자("대봉감"·"알타리무"·"단감")만. 지역명 자동 대체는 폐기.
  */
 const MAX_VARIETY_PREFIX = 4;
-const MAX_VARIETY_PREFIX_1CHAR = 3;
+/**
+ * 1자 작물은 끝글자 규칙만으로는 "밤나무"→무, "공감"→감, "선배"→배 같은 일반어를 삼킨다 —
+ * 알려진 품종·수식어 앞말일 때만 인정한다(허용목록). 새 품종 검색이 로그에 쌓이면 여기에 추가.
+ */
+const ONE_CHAR_CROP_VARIETY_PREFIXES: Record<string, string[]> = {
+  감: ["대봉", "단", "홍시", "곶", "땡", "반시", "떫은", "청도"],
+  무: ["알타리", "총각", "열", "조선", "왜", "순", "단", "흑", "백", "봄", "가을", "월동"],
+  배: ["나주", "신고", "원황", "황금", "추황", "화산", "돌"],
+  밤: ["옥광", "대보", "공주", "정안", "석추", "단", "약", "알"],
+  쌀: ["찹", "흑", "백", "햅", "멥", "현미", "오대", "유기농", "무농약"],
+  콩: ["검은", "검정", "서리", "강낭", "완두", "메주", "노란", "흰", "쥐눈이", "풋", "작두"],
+};
 function findContainedCropNames(q: string): string[] {
   if (/\s/.test(q)) return [];
   const found: string[] = [];
   for (const c of CROPS) {
     const name = c.name.toLowerCase();
     if (name === q || !q.endsWith(name)) continue;
-    const prefixLen = q.length - name.length;
-    const max = name.length >= 2 ? MAX_VARIETY_PREFIX : MAX_VARIETY_PREFIX_1CHAR;
-    if (prefixLen >= 1 && prefixLen <= max) found.push(c.name);
+    const prefix = q.slice(0, q.length - name.length);
+    if (prefix.length < 1) continue;
+    const ok = name.length >= 2
+      ? prefix.length <= MAX_VARIETY_PREFIX
+      : (ONE_CHAR_CROP_VARIETY_PREFIXES[name] ?? []).includes(prefix);
+    if (ok) found.push(c.name);
   }
   return found.sort((a, b) => b.length - a.length);
 }
