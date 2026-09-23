@@ -809,3 +809,32 @@ describe("FAQ 1자 키워드는 정확 일치일 때만 (9/23 삼척→산양삼
     expect(searchAll("땅").some((r) => r.type === "guide")).toBe(true);
   });
 });
+
+describe("일반어만으로는 매칭되지 않는다 — FAQ 역포함·복합 OR (9/23 감사)", () => {
+  it("'오이 재배'·'오이재배'에 딸기·사과 재배 FAQ 가 붙지 않고 오이가 1위", () => {
+    for (const q of ["오이 재배", "오이재배"]) {
+      const titles = searchAll(q).map((r) => r.title);
+      expect(titles[0]).toBe("오이");
+      expect(titles).not.toContain("딸기 재배 정보");
+      expect(titles).not.toContain("사과 재배 정보");
+    }
+  });
+  it("'딸기 재배'는 딸기 재배 FAQ 를 그대로 찾는다", () => {
+    expect(searchAll("딸기 재배").map((r) => r.title)).toContain("딸기 재배 정보");
+  });
+  it("'전남 귀농'은 전남 관련만 남는다 (귀농만 맞는 가이드 제외)", () => {
+    const rs = searchAll("전남 귀농");
+    expect(rs.length).toBeGreaterThan(5);
+    const fields = (r: (typeof rs)[number]) => [r.title, r.subtitle, ...r.keywords].join(" ");
+    const strangers = rs.filter((r) => !/전남|전라남도/.test(fields(r)));
+    expect(strangers.map((r) => r.title)).toEqual([]);
+  });
+  it("전부 일반어인 검색('귀농 교육'·'귀농 절차')은 종전대로 결과가 있다", () => {
+    expect(searchAll("귀농 교육").length).toBeGreaterThan(10);
+    expect(searchAll("귀농 절차").some((r) => r.type === "guide")).toBe(true);
+  });
+  it("'재배' 단독은 남의 작물 FAQ 로 시작하지 않는다", () => {
+    const titles = searchAll("재배지").map((r) => r.title);
+    expect(titles).not.toContain("딸기 재배 정보");
+  });
+});

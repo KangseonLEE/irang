@@ -989,13 +989,19 @@ function scoreItemRaw(item: SearchItem, term: string): number {
 function scoreItemMulti(item: SearchItem, terms: string[]): number {
   let total = 0;
   let matched = 0;
+  let specificMatched = false;
+  const hasSpecific = terms.some((term) => !GENERIC_TERMS.has(removeKoreanSuffix(term)));
   for (const term of terms) {
     const s = scoreItem(item, term);
     if (s > 0) {
       total += s;
       matched++;
+      if (!GENERIC_TERMS.has(removeKoreanSuffix(term))) specificMatched = true;
     }
   }
+  // 특정어(전남·오이)가 있는 검색에서 일반어(귀농·재배)만 맞은 항목은 제외 — "전남 귀농"에 귀농 가이드 110건,
+  // "오이 재배"에 남의 작물 재배 가이드가 OR 로 섞이던 9/23 감사 결함. 전부 일반어인 검색("귀농 교육")은 종전대로.
+  if (hasSpecific && !specificMatched) return 0;
   // 여러 단어가 동시 매칭되면 보너스 (예: "전남 딸기" 둘 다 매칭 > 하나만)
   return matched > 0 ? total + matched * 10 : 0;
 }
@@ -1624,6 +1630,12 @@ function matchSubRegionHints(query: string): SearchItem[] {
 // FAQ 매칭 — 자연어 질문형 쿼리 → 페이지 매핑
 // ---------------------------------------------------------------------------
 
+/** FAQ 키워드 중 단독으로는 의도를 못 가르는 일반어 — 특정어(작물·지역·제도명)가 함께 있어야 매칭 */
+const FAQ_GENERIC_KEYWORDS = new Set([
+  ...GENERIC_TERMS,
+  "수익", "비교", "절차", "추천", "처음", "차이", "진단", "준비", "적합", "작물", "자금", "사례", "과정", "과수", "정보",
+]);
+
 function matchFaqs(query: string): SearchItem[] {
   const q = query.toLowerCase();
   const results: SearchItem[] = [];
@@ -1632,8 +1644,13 @@ function matchFaqs(query: string): SearchItem[] {
     // 1자 키워드(삼·돈·땅·집·꽃·귤·뜻)는 정확히 그 한 글자를 검색했을 때만 — "삼"이 삼척·인삼·삼계탕을
     // 전부 잡던 9/23 감사 결함. 2자 이상은 포함 매칭 유지.
     const hit = (k: string) => (k.length >= 2 ? q.includes(k) : q === k);
-    const matched = faq.patterns.some((p) => hit(p.toLowerCase()))
-      || faq.keywords.some((kw) => hit(kw.toLowerCase()));
+    // 키워드 매칭: FAQ 에 특정어(작물·지역 등 일반어가 아닌 키워드)가 있으면 그 특정어가 맞아야 한다.
+    // "재배"·"수익" 같은 일반어만으로 "딸기 재배 정보"가 "오이 재배"·"수박 재배지"에 붙던 9/23 감사 결함.
+    // 키워드가 전부 일반어인 FAQ(귀농 절차 등)는 종전대로 일반어 매칭.
+    const kws = faq.keywords.map((k) => k.toLowerCase());
+    const specific = kws.filter((k) => !FAQ_GENERIC_KEYWORDS.has(k));
+    const keywordHit = specific.length > 0 ? specific.some(hit) : kws.some(hit);
+    const matched = faq.patterns.some((p) => hit(p.toLowerCase())) || keywordHit;
     if (matched) {
       results.push({
         type: "guide",
