@@ -12,7 +12,7 @@ import {
   detectIntent,
   buildSearchAnswer,
   buildCropPanel,
-  resolveSearchDisplay,
+  resolveSearchDisplay, getNoResultSuggestions, getNoResultHintItems,
   buildRelatedSearches,
 } from "@/lib/data/search-index";
 
@@ -708,5 +708,38 @@ describe("resolveSearchDisplay — 답변카드·지식패널 흡수 시 히트 
     const { displayResults, hitCount } = resolveSearchDisplay(results, null, panel);
     expect(displayResults.length).toBe(results.length - 1);
     expect(hitCount).toBe(results.length);
+  });
+});
+
+describe("결과 0건 — 검색어에 포함된 실재 작물·지역 안내 (9/23 가시오이)", () => {
+  it.each([
+    ["가시오이", "오이"],
+    ["방울양배추", "배추"], // 양배추는 작물 목록에 없다
+    ["흑마늘", "마늘"],
+    ["자색고구마", "고구마"],
+    ["대봉감", "감"], // 1자 작물은 끝글자일 때만
+    ["알타리무", "무"],
+  ])("%s → 제안·카드에 %s", (q, expected) => {
+    expect(searchAll(q).length).toBe(0);
+    expect(getNoResultSuggestions(q)).toContain(expected);
+    expect(getNoResultHintItems(q).map((i) => i.title)).toContain(expected);
+  });
+
+  it("지역명 포함 복합어는 지역 약칭을 제안한다", () => {
+    expect(searchAll("가평펜션").length).toBe(0);
+    expect(getNoResultSuggestions("가평펜션")).toContain("가평");
+  });
+
+  it("1자 작물은 중간 포함으로는 제안하지 않는다 (오탐 방지)", () => {
+    expect(getNoResultSuggestions("감자칩")).not.toContain("감");
+    expect(getNoResultSuggestions("무화과잼")).not.toContain("무");
+  });
+
+  it("시드 힌트(고사리·명이나물)는 그대로 유지된다", () => {
+    expect(getNoResultHintItems("명이나물").map((i) => i.title)).toEqual(["더덕", "도라지"]);
+  });
+
+  it("검색어와 같은 이름은 제안하지 않는다", () => {
+    expect(getNoResultSuggestions("오이")).not.toContain("오이");
   });
 });

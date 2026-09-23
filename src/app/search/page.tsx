@@ -6,7 +6,7 @@ import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ChevronDown, ChevronUp } from "lucide-react";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
+import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, getNoResultSuggestions, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
 import { RequestButton } from "@/components/feedback/request-modal";
@@ -184,6 +184,13 @@ function SearchPageContent() {
   const suggestions = useMemo(() => {
     const merged: string[] = [];
     const seen = new Set<string>();
+    // (0) 검색어에 포함된 실재 작물·지역명 — "가시오이" → 오이 (2026-09-23). 가장 확실한 의도라 맨 앞.
+    for (const c of totalCount === 0 && query ? getNoResultSuggestions(query) : []) {
+      if (!seen.has(c)) {
+        seen.add(c);
+        merged.push(c);
+      }
+    }
     for (const c of typoCandidates) {
       if (!seen.has(c)) {
         seen.add(c);
