@@ -100,6 +100,7 @@ const FALLBACK_REASONS = [
   { name: "rate-limit", threshold: 100, grade: "🟡" as const, note: "트래픽 폭주·봇 우회 의심" },
   { name: "legacy-columns-only", threshold: 0, grade: "⚪" as const, note: "옛 schema 호환 정상" },
   { name: "natural-language", threshold: 0, grade: "⚪" as const, note: "정상 입력 거부" },
+  { name: "markup", threshold: 0, grade: "⚪" as const, note: "마크업·스킴 페이로드 거부 (스캐너·실측)" },
 ];
 
 const FALLBACK_TABLE = "api_fallback_log";

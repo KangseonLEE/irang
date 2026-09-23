@@ -97,7 +97,17 @@ const channelReq = {
   limit: 8,
 };
 
-const [totals, nvr, events, pages, searchDaily, landings, channels] = await Promise.all([
+// 9/16 진입점 확대(PersonaCta 6지면)의 되돌림 판정(≈9/30) 근거 — 어느 지면이 도달을 만드는지.
+// 지면별 0에 가까우면 철회. compare_view 는 실사용 1순위(지역 비교)의 탭 분포.
+const byLabelReq = (eventName) => ({
+  dimensions: [{ name: "customEvent:event_label" }],
+  metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
+  dimensionFilter: { filter: { fieldName: "eventName", stringFilter: { value: eventName } } },
+  orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
+  limit: 20,
+});
+
+const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel, compareByLabel] = await Promise.all([
   report({ metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "newUsers" }] }),
   report({ dimensions: [{ name: "newVsReturning" }], metrics: [{ name: "activeUsers" }] }),
   report({
@@ -113,6 +123,8 @@ const [totals, nvr, events, pages, searchDaily, landings, channels] = await Prom
   report(searchDailyReq),
   report(landingReq),
   report(channelReq),
+  report(byLabelReq("assess_entry_click")),
+  report(byLabelReq("compare_view")),
 ]);
 
 const active = totals[0]?.m[0] ?? 0;
@@ -153,6 +165,10 @@ const md = `## GA4 스냅샷 — 최근 ${DAYS}일 (어제까지)
 주요 페이지 조회(사용자): ${["/", "/assess", "/match", "/regions/ranking", "/regions/compare", "/programs", "/search"].map((p) => `\`${p}\` ${pg[p]?.users ?? 0}`).join(" · ")}
 
 검색 일별(최근 14일, 건·명): ${searchDaily.slice(-14).map((r) => `${r.d[0].slice(4, 6)}/${r.d[0].slice(6, 8)} ${r.m[0]}·${r.m[1]}`).join(" | ") || "없음"}
+
+진단 진입 클릭 지면별 (assess_entry_click, 건·명 — 9/30 되돌림 판정 근거): ${entryByLabel.map((r) => `${r.d[0]} ${r.m[0]}·${r.m[1]}`).join(" | ") || "0건"}
+
+지역 비교 탭별 (compare_view, 건·명): ${compareByLabel.map((r) => `${r.d[0]} ${r.m[0]}·${r.m[1]}`).join(" | ") || "0건"}
 
 유입 채널(세션): ${channels.map((r) => `${r.d[0]} ${r.m[0]}`).join(" · ") || "없음"}
 

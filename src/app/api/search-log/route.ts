@@ -10,27 +10,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
 import { internalSkipReason } from "@/lib/internal-traffic";
+import { isNaturalLanguageQuery, isMarkupOrSchemeQuery } from "@/lib/search-log-guard";
 
 // ── 입력 검증 ──
 const MAX_QUERY_LENGTH = 200;
 const MIN_QUERY_LENGTH = 2;
 const MAX_RESULT_COUNT = 100_000;
-
-/**
- * 자연어 형태 검색어 휴리스틱 — 클라이언트 logSearch와 동일한 정의.
- * 직접 API 호출이나 다른 진입점에서도 자연어가 새지 않도록 server-side 가드.
- */
-function isNaturalLanguageQuery(query: string): boolean {
-  const t = query.trim();
-  if (/[?]/.test(t)) return true;
-  if (
-    /(어떻|어느|왜|어디|언제|무엇|얼마|어떤|있나|있어|되나|가능|뭐가|뭐예|뭐임)/.test(t)
-  )
-    return true;
-  if (t.length > 20) return true;
-  if (t.split(/\s+/).length >= 5) return true;
-  return false;
-}
 
 // ── 간단한 인메모리 레이트 리밋 (IP별 분당 30회) ──
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -100,6 +85,19 @@ export async function POST(request: NextRequest) {
       { error: `query length must be ${MIN_QUERY_LENGTH}-${MAX_QUERY_LENGTH}` },
       { status: 400 }
     );
+  }
+
+  // 마크업·스킴·템플릿 문자열은 스캐너·실측 페이로드 — 인기 검색어 집계에서 제외 (2026-09-23)
+  if (isMarkupOrSchemeQuery(trimmed)) {
+    await recordApiFallback({
+      endpoint: "/api/search-log",
+      statusCode: 200,
+      fallbackReason: "markup",
+      userAgent: request.headers.get("user-agent"),
+      page: null,
+      requestMeta: { query_length: trimmed.length },
+    });
+    return NextResponse.json({ ok: true, skipped: "markup" });
   }
 
   // 자연어 형태는 통계로 의미 약함 — 조용히 성공 처리하고 INSERT 생략
