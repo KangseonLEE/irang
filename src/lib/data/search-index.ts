@@ -1260,40 +1260,31 @@ const NO_RESULT_HINTS: { keys: string[]; suggest: string[] }[] = [
 ];
 
 /**
- * 검색어 안에 들어 있는 실재 작물명 — "가시오이" → 오이, "방울양배추" → 양배추 (2026-09-23).
- * 결과 0건 검색어의 대부분은 오타가 아니라 **우리에게 없는 하위 품종·복합어**라 자모 보정(글자 수 차 ≤1)도
- * 네이버 errata(오타 전용)도 못 잡는다. 2자 이상은 포함 매칭, 1자 작물(감·무·배·밤·쌀·콩)은
- * 검색어가 3자 이상이고 그 글자로 **끝날 때만**("대봉감"·"알타리무") — 중간 포함은 오탐이 많다.
+ * 검색어가 실재 작물명으로 **끝나는** 경우 그 작물 — "가시오이" → 오이, "방울양배추" → 배추, "대봉감" → 감.
+ * 한국어 복합 명사는 머리말(head)이 끝에 오므로 품종·변형 검색어는 작물명으로 끝난다. 처음엔 "어디든 포함"으로
+ * 잡았다가 9/23 독립 QA 에서 "영양제"→영양군·"강남스타일"→강남구·"화성동탄신도시"→성동구·임의 문장 끝 "감"→감
+ * 같은 오탐이 무작위 68건 중 63건(93%)으로 드러났다(확신 어조로 자동 대체돼 "결과 없음"보다 해롭다).
+ * 규칙: ① 공백 없는 검색어 ② 작물명으로 끝남 ③ 앞부분(품종·수식어)은 1~4자 — 긴 문장은 제외
+ *       ④ 1자 작물(감·무·배·밤·쌀·콩)은 앞부분 1~3자("대봉감"·"알타리무"·"단감")만. 지역명 자동 대체는 폐기.
  */
+const MAX_VARIETY_PREFIX = 4;
+const MAX_VARIETY_PREFIX_1CHAR = 3;
 function findContainedCropNames(q: string): string[] {
+  if (/\s/.test(q)) return [];
   const found: string[] = [];
   for (const c of CROPS) {
     const name = c.name.toLowerCase();
-    if (name === q) continue;
-    if (name.length >= 2 ? q.includes(name) : q.length >= 3 && q.endsWith(name)) found.push(c.name);
+    if (name === q || !q.endsWith(name)) continue;
+    const prefixLen = q.length - name.length;
+    const max = name.length >= 2 ? MAX_VARIETY_PREFIX : MAX_VARIETY_PREFIX_1CHAR;
+    if (prefixLen >= 1 && prefixLen <= max) found.push(c.name);
   }
   return found.sort((a, b) => b.length - a.length);
 }
 
-/** 검색어 안에 들어 있는 지역명(시·도 약칭·시·군·구 약칭) — "가평펜션" → 가평. 2자 이상만. */
-function findContainedRegionNames(q: string): string[] {
-  const names = new Set<string>();
-  for (const p of PROVINCES) {
-    for (const n of [p.shortName, p.name]) {
-      if (n.length >= 2 && n !== q && q.includes(n)) names.add(p.shortName);
-    }
-  }
-  for (const sg of SIGUNGUS) {
-    for (const n of [sg.shortName, sg.name]) {
-      if (n.length >= 2 && n !== q && q.includes(n)) names.add(sg.shortName);
-    }
-  }
-  return [...names].sort((a, b) => b.length - a.length);
-}
-
-/** 결과 0건 검색어에 대해 안내할 실재 작물명을 돌려준다(없으면 빈 배열). 시드 우선, 없으면 포함어. */
+/** 결과 0건 검색어에 대해 안내할 실재 작물명을 돌려준다(없으면 빈 배열). 시드 우선, 없으면 끝말 작물. */
 function getNoResultHints(query: string): string[] {
-  const q = query.trim().toLowerCase().replace(/\s/g, "");
+  const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
   for (const { keys, suggest } of NO_RESULT_HINTS) {
     if (keys.some((k) => q === k || q.includes(k))) return suggest;
@@ -1302,17 +1293,13 @@ function getNoResultHints(query: string): string[] {
 }
 
 /**
- * "혹시 이걸 찾으셨나요?" 링크용 — 검색어에 포함된 실재 작물·지역명(긴 것 우선, 최대 3).
- * 자모·errata 후보보다 앞에 놓는다: 검색어에 그대로 들어 있는 이름이 가장 확실한 의도다.
+ * 자동 대체·"이것을 찾으시나요?" 후보 — 검색어가 실재 작물명으로 끝날 때 그 작물(긴 것 우선, 최대 3).
+ * 자모·errata 후보보다 앞에 놓는다: 검색어 끝에 그대로 있는 작물명이 가장 확실한 의도다.
  */
 export function getNoResultSuggestions(query: string): string[] {
-  const q = query.trim().toLowerCase().replace(/\s/g, "");
+  const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
-  const out: string[] = [];
-  for (const n of [...findContainedCropNames(q), ...findContainedRegionNames(q)]) {
-    if (!out.includes(n)) out.push(n);
-  }
-  return out.sort((a, b) => b.length - a.length).slice(0, 3);
+  return findContainedCropNames(q).slice(0, 3);
 }
 
 /** 힌트 작물명을 검색 결과 카드용 SearchItem(type crop)으로 해석한다(존재하는 작물만). */

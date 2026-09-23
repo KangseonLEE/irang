@@ -725,9 +725,21 @@ describe("결과 0건 — 검색어에 포함된 실재 작물·지역 안내 (9
     expect(getNoResultHintItems(q).map((i) => i.title)).toContain(expected);
   });
 
-  it("지역명 포함 복합어는 지역 약칭을 제안한다", () => {
-    expect(searchAll("가평펜션").length).toBe(0);
-    expect(getNoResultSuggestions("가평펜션")).toContain("가평");
+  it("지역명은 자동 대체하지 않는다 — '가평펜션'·'영양제'·'강남스타일' (9/23 독립 QA: 지명 접두 오탐 93%)", () => {
+    for (const q of ["가평펜션", "영양제", "강남스타일", "정선희", "포항공대", "화성동탄신도시", "통영동피랑벽화마을", "과천서울대공원"]) {
+      expect(getNoResultSuggestions(q)).toEqual([]);
+    }
+  });
+
+  it("작물명이 끝에 있지 않으면 대체하지 않는다 — '오이피클'·'감자칩'", () => {
+    expect(getNoResultSuggestions("오이피클")).toEqual([]);
+    expect(getNoResultSuggestions("감자칩")).toEqual([]);
+  });
+
+  it("긴 문장이 우연히 작물명으로 끝나도 대체하지 않는다", () => {
+    expect(getNoResultSuggestions("저녁에마신와인한잔감")).toEqual([]);
+    expect(getNoResultSuggestions("새벽에몰래빠져나온단잠결에느낀두려운밤")).toEqual([]);
+    expect(getNoResultSuggestions("아주아주아주달콤한사과")).toEqual([]); // 앞부분 5자 초과
   });
 
   it("1자 작물은 중간 포함으로는 제안하지 않는다 (오탐 방지)", () => {

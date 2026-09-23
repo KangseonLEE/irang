@@ -397,7 +397,7 @@ function SearchPageContent() {
       )}
 
       {/* 정확히 일치하는 항목 없음 안내 — 결과 위에 배치 (긍정 톤, 2026-05-22) */}
-      {query && !answer && !panel && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(effectiveQuery, results) && (
+      {query && !fallback && !answer && !panel && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(effectiveQuery, results) && (
         <div className={s.noExactMatch}>
           <div className={s.noExactMatchContent}>
             <p className={s.noExactMatchText}>
