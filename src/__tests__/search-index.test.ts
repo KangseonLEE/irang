@@ -743,3 +743,25 @@ describe("결과 0건 — 검색어에 포함된 실재 작물·지역 안내 (9
     expect(getNoResultSuggestions("오이")).not.toContain("오이");
   });
 });
+
+describe("조사 제거가 실재 이름을 깎지 않는다 (9/23 '오이' → '오' 사고)", () => {
+  const has = (r: ReturnType<typeof searchAll>[number], term: string) =>
+    [r.title, r.subtitle, r.badge ?? "", ...r.keywords].some((f) => f.toLowerCase().includes(term));
+
+  it.each(["오이", "경기", "완도", "보은"])("'%s' 결과는 전부 그 이름을 실제로 포함한다", (term) => {
+    const rs = searchAll(term);
+    expect(rs.length).toBeGreaterThan(0);
+    const strangers = rs.filter((r) => !has(r, term));
+    expect(strangers.map((r) => `${r.type}:${r.title}`)).toEqual([]);
+  });
+
+  it("'오이'에 오산시·오미자가 섞이지 않는다", () => {
+    const titles = searchAll("오이").map((r) => r.title);
+    expect(titles).not.toContain("오산시");
+    expect(titles).not.toContain("오미자");
+  });
+
+  it("진짜 조사는 여전히 뗀다 — '사과를' → 사과", () => {
+    expect(searchAll("사과를").map((r) => r.title)).toContain("사과");
+  });
+});

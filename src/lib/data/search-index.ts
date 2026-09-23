@@ -723,12 +723,28 @@ function expandWithSynonyms(term: string): string[] {
 /** 한국어 조사/어미 패턴 (가장 흔한 것들) */
 const KOREAN_SUFFIXES = /(?:은|는|이|가|을|를|에|의|로|으로|에서|도|만|부터|까지|랑|하고|와|과|이랑)$/;
 
-/** 검색어에서 한국어 조사를 제거하여 어간을 추출 */
+/**
+ * 조사 제거를 건너뛰는 실재 이름 — 작물·시·도·시·군·구.
+ * "오이"의 "이", "완도"의 "도", "경기"의 "기"는 조사가 아니라 이름의 일부다.
+ */
+const ENTITY_NAME_SET: Set<string> = new Set([
+  ...CROPS.map((c) => c.name.toLowerCase()),
+  ...PROVINCES.flatMap((p) => [p.shortName.toLowerCase(), p.name.toLowerCase()]),
+  ...SIGUNGUS.flatMap((s) => [s.shortName.toLowerCase(), s.name.toLowerCase()]),
+]);
+
+/**
+ * 검색어에서 한국어 조사를 제거하여 어간을 추출.
+ * 9/23 사고: "오이" → "오" 로 깎여 오산시·오미자·오프라인·오대쌀·오금옥이 전부 "오이" 결과에 섞였다
+ * (회장 "지역·지자체·용어·교육이 왜 나오는지 모르겠다"). 어간은 2자 이상일 때만 인정하고,
+ * 실재 이름(작물·지역)은 아예 건드리지 않는다.
+ */
 function removeKoreanSuffix(term: string): string {
-  if (term.length <= 1) return term;
+  if (term.length <= 2) return term;
+  if (ENTITY_NAME_SET.has(term)) return term;
   const stripped = term.replace(KOREAN_SUFFIXES, "");
-  // 어간이 너무 짧아지면 원래 term 유지
-  return stripped.length >= 1 ? stripped : term;
+  // 어간이 1자로 줄면 한 글자 부분 매칭이 전 인덱스를 긁는다 — 원래 term 유지
+  return stripped.length >= 2 ? stripped : term;
 }
 
 // ---------------------------------------------------------------------------
