@@ -424,6 +424,15 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-048": { elderRural: 5, family: 5, commuter: 4, farmYouth: 3 },
   // 진안 슬기로운 진안생활 (이미 전입한 신규 주민 대상 정책 안내·1:1 상담)
   "SP-049": { family: 4, elderRural: 4, farmYouth: 4, commuter: 4 },
+  // 2026-09-26: 사용자 요청 "사과" — 과수(사과) 실사업 4건
+  // 농지은행 과원매매 (만 64세 이하·청년창업형후계농·2030세대 융자 — 청년·가족 정착에 맞고 은퇴 세대는 연령 상한)
+  "SP-050": { farmYouth: 5, family: 4, elderRural: 2, commuter: 2 },
+  // 농지은행 과원임대차 (구입 없이 5~10년 임차 — 자본 적은 청년·가족)
+  "SP-051": { farmYouth: 5, family: 4, elderRural: 3, commuter: 2 },
+  // 청송 과수생산 지원 (이미 과수를 재배하는 청송 농업경영체 대상 시설·자재 보조)
+  "SP-052": { farmYouth: 3, family: 3, elderRural: 3, commuter: 2 },
+  // 거창 미래형 사과원 아카데미 (예비 농업인도 가능, 저연령 우선)
+  "SP-053": { farmYouth: 4, family: 4, elderRural: 3, commuter: 3 },
 };
 
 export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
@@ -475,6 +484,10 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-047": "농가주택을 새로 지을 때 설계비를 전액 대 줘요",
   "SP-048": "진안 출향민과 가족만 참여하는 2주 살아보기예요",
   "SP-049": "이미 진안에 전입한 신규 주민을 위한 무료 정책 상담이에요",
+  "SP-050": "과수원 구입비를 ㎡당 2만 원까지 연 2%로 빌려줘 청년·가족 정착에 맞아요",
+  "SP-051": "과수원을 사지 않고 5~10년 빌려 시작할 수 있어 자본 부담이 적어요",
+  "SP-052": "청송에서 과수를 재배 중인 농가에 시설·자재를 절반까지 보조해요",
+  "SP-053": "예비 농업인도 들을 수 있는 사과 다축과원 교육이에요",
 };
 
 /**

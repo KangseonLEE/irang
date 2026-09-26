@@ -252,9 +252,17 @@ export default async function CropDetailPage({
     }
   }
 
+  // 작물 특화 사업(relatedCrops 가 짧은 것)을 앞에, 같은 급이면 접수 중인 것을 앞에.
+  // 작물 범용 5건(relatedCrops = 55종 전부, 9/26)이 특화 사업을 3칸 밖으로 밀지 않게.
   const relatedPrograms = PROGRAMS.filter((p) =>
     p.relatedCrops.some((rc) => rc === data.name)
-  ).slice(0, 3);
+  )
+    .sort(
+      (a, b) =>
+        a.relatedCrops.length - b.relatedCrops.length ||
+        Number(b.status !== "마감") - Number(a.status !== "마감")
+    )
+    .slice(0, 3);
 
   // 관련 작물 — 사이드 탭의 압축 목록용 (수익 라벨 한 줄).
   // 비교 상세(노동·난이도 대비)는 /crops/compare 가 담당한다 (9/17).

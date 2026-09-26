@@ -11,6 +11,7 @@ import {
   type RdaPolicyItem,
 } from "@/lib/api/rda";
 import { deriveStatus } from "@/lib/program-status";
+import { CROPS } from "./crops";
 import { getSupabase, isSupabaseConfigured, type ProgramRow } from "@/lib/supabase";
 import { groupCrawlRows, type CrawlGroupInfo } from "@/lib/crawl-grouping";
 
@@ -94,6 +95,23 @@ export const SUPPORT_TYPES = [
 ] as const;
 
 /** 정적 원본 — status 없음. 외부에서는 PROGRAMS(status 주입됨)를 사용할 것 */
+/**
+ * 작물 범용 사업의 relatedCrops — 창업자금·농지은행·후계농·청년농·귀농닥터처럼 특정 작물을
+ * 가리지 않는 사업은 55종 전부를 대상 작물로 명시한다 (2026-09-26, 사용자 요청 "사과" 0건 대응).
+ * 효과: /programs?q=<작물명> 검색과 /crops/<id> 추천 지원사업이 비지 않는다.
+ * DB 우선 병합 대상(SP-001·002·011·023)은 supabase/migrations/20260926_generic_programs_related_crops.sql 로 동기화.
+ */
+export const ALL_CROP_NAMES: string[] = CROPS.map((c) => c.name);
+
+/**
+ * 과원(過園) 사업의 relatedCrops — 농지은행 과원매매·과원임대차처럼 원문이 "과수"만 말하고
+ * 개별 작물을 나열하지 않는 사업. CROPS 과수 카테고리에서 과채(딸기·수박·참외)를 뺀 나무 과수.
+ */
+const ORCHARD_EXCLUDED = new Set(["딸기", "수박", "참외"]);
+export const ORCHARD_CROP_NAMES: string[] = CROPS.filter(
+  (c) => c.category === "과수" && !ORCHARD_EXCLUDED.has(c.name)
+).map((c) => c.name);
+
 const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
   {
     id: "SP-001",
@@ -101,7 +119,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "정착자의 농업창업자금과 농촌주택 구입자금을 저금리 융자로 지원하는 농식품부 대표 정착사업.",
     description:
-      "농업창업자금 최대 3억원, 주택구입자금 최대 7,500만 원을 연 2% 이내 저금리로 융자받을 수 있어요. 농촌 전입 후 6년 이내 세대주로서 영농교육 100시간 이상 이수가 필요해요. 신청은 시군의 귀농귀촌 담당 부서(농업기술센터나 시청 부서)에서 받고, 접수 시기는 시군마다 달라 상·하반기 두 번 받는 곳도 있어요. 귀농 초기 정착비용 부담을 크게 줄여주는 대표적인 정부 지원사업이에요.",
+      "농업창업자금 최대 3억원, 주택구입자금 최대 7,500만 원을 연 2% 이내 저금리로 융자받을 수 있어요. 농촌 전입 후 6년 이내 세대주로서 영농교육 100시간 이상 이수가 필요해요. 신청은 시군의 귀농귀촌 담당 부서(농업기술센터나 시청 부서)에서 받고, 접수 시기는 시군마다 달라 상·하반기 두 번 받는 곳도 있어요. 귀농 초기 정착비용 부담을 크게 줄여주는 대표적인 정부 지원사업이에요. 사과 같은 과수도 과원 조성·묘목 구입·관수시설·저온저장고까지 창업자금 용도로 인정돼요. 다만 2026년 선정부터 묘목·농기계·농업용 화물차 구입비는 합산 5천만 원까지예요.",
     region: "전국",
     organization: "농림축산식품부 / 각 시군 귀농귀촌 담당 부서",
     supportType: "융자",
@@ -112,7 +130,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "농촌지역 전입일로부터 만 6년 미경과 세대주. 영농 관련 교육 100시간 이상 이수. 접수 기간은 시군별로 달라요(예: 군산 1/12~2/13, 서귀포 상반기 1/14~2/11·하반기 6/12~7/3) — 우리 시군 일정은 담당 부서에 확인하세요.",
     applicationStart: "2026-01-12",
     applicationEnd: "2026-02-13",
-    relatedCrops: [],
+    relatedCrops: ALL_CROP_NAMES, // 작물 범용
     sourceUrl: "https://www.gunsan.go.kr/farm/m2435/view/8495763",
     year: 2026,
     category: "settlement",
@@ -134,7 +152,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "만 18~39세. 총 영농경력 3년 이하. 신청 지자체 실거주 및 주민등록. 연간 약 2,000명 선발.",
     applicationStart: "2025-11-05",
     applicationEnd: "2025-12-11",
-    relatedCrops: [],
+    relatedCrops: ALL_CROP_NAMES, // 작물 범용
     sourceUrl: "https://agro.seoul.go.kr/archives/54938",
     year: 2026,
     category: "youth",
@@ -398,7 +416,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "귀농귀촌 희망자 및 농촌 거주 1년 미만. 각 지역 농업기술센터 또는 그린대로에서 신청.",
     applicationStart: "2026-01-01",
     applicationEnd: "9999-12-31",
-    relatedCrops: [],
+    relatedCrops: ALL_CROP_NAMES, // 작물 범용
     sourceUrl: "https://www.rda.go.kr/young/content/content76.do",
     year: 2026,
     category: "facility",
@@ -473,20 +491,20 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     id: "SP-018",
     title: "농지은행 농지임대수탁사업",
     summary:
-      "농사를 짓지 못하게 된 농지를 농지은행이 위탁받아 농지가 필요한 농업인에게 임대 중개. 2026년부터 위탁수수료 전액 폐지로 부담 제로.",
+      "농사를 짓지 못하게 된 농지를 농지은행이 위탁받아 농지가 필요한 농업인에게 임대 중개. 2026년부터 농업인 위탁자는 수수료가 면제돼요.",
     description:
-      "한국농어촌공사가 운영하는 농지은행이 농사를 짓지 못하게 된 농지 소유주로부터 농지를 위탁받아, 농지가 필요한 농업인에게 임대로 연결해 주는 사업이에요. 정착자 입장에서는 농지를 매입하지 않고도 안정적으로 농지를 빌릴 수 있어 초기 자본 부담이 크게 줄어요. 2026년 1월 1일부터 농지 소유주(위탁자)에 대한 위탁수수료가 완전히 폐지되어 농지를 내놓는 부담도 사라졌어요. 농지은행 통합포털에서 농지 검색·매물 등록·임대 신청이 모두 가능하고, 콜센터 1577-7770에서도 상담받을 수 있어요.",
+      "한국농어촌공사가 운영하는 농지은행이 농사를 짓지 못하게 된 농지 소유주로부터 농지를 위탁받아, 농지가 필요한 농업인에게 임대로 연결해 주는 사업이에요. 정착자 입장에서는 농지를 매입하지 않고도 안정적으로 농지를 빌릴 수 있어 초기 자본 부담이 크게 줄어요. 2026년 1월 1일부터 위탁자가 농업인이면 임대수탁 수수료가 면제돼요(농업인이 아닌 위탁자는 연 임대차료의 5%). 과수원을 통째로 빌리려면 과수 전용 트랙인 과원임대차사업이 조건에 더 맞아요. 농지은행 통합포털에서 농지 검색·매물 등록·임대 신청이 모두 가능하고, 콜센터 1577-7770에서도 상담받을 수 있어요.",
     region: "전국",
     organization: "한국농어촌공사 농지은행",
     supportType: "현물",
-    supportAmount: "농지 임대 중개 (위탁수수료 2026년 완전 폐지)",
+    supportAmount: "농지 임대 중개 (농업인 위탁자 수수료 면제, 그 외 연 임대차료 5%)",
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "농지가 필요한 농업인 또는 농촌 정착 예정자. 농지은행 통합포털(fbo.or.kr) 신청 또는 콜센터 1577-7770 상담.",
     applicationStart: "2026-01-01",
     applicationEnd: "9999-12-31",
-    relatedCrops: [],
+    relatedCrops: ALL_CROP_NAMES, // 작물 범용
     sourceUrl: "https://www.fbo.or.kr/",
     year: 2026,
     category: "settlement",
@@ -508,7 +526,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "만 18세 이상 40세 미만(1985~2008년 출생), 독립 영농경력 3년 이하, 기준중위소득 140% 이하. 2차 추가모집은 2026년 하반기 예정 — 정확한 일자는 농식품부 공고 시 확정.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
-    relatedCrops: [],
+    relatedCrops: ALL_CROP_NAMES, // 작물 범용
     sourceUrl: "https://www.nongmin.com/article/20251104500065",
     year: 2026,
     category: "youth",
@@ -574,7 +592,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "만 18세 이상 49세 이하, 영농 종사 경력 10년 미만. 농업e지(www.agriedu.net)를 통해서만 신청. 상반기 선발은 1~2월 종료, 시·군별 추가 모집 별도 공고.",
     applicationStart: "2026-01-12",
     applicationEnd: "2026-02-11",
-    relatedCrops: [],
+    relatedCrops: ALL_CROP_NAMES, // 작물 범용
     sourceUrl: "https://agro.seoul.go.kr/archives/55168",
     year: 2026,
     category: "settlement",
@@ -1162,6 +1180,97 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     relatedCrops: [],
     sourceUrl:
       "https://www.jinan.go.kr/board/view.jinan?boardId=BBS_0000026&menuCd=DOM_000000107001001000&paging=ok&startPage=1&dataSid=214939",
+    year: 2026,
+    category: "settlement",
+  },
+  // ── 2026-09-26: 사용자 요청 "[지원사업 요청] 사과"(9/25) 대응 — 과수(사과) 실사업 4건.
+  //    data-engineer 조사 → CoS 원문 curl 대조(fbo·cs.go.kr·geochang·usc) 후 등재.
+  //    농지은행 2건은 원문이 "과수"만 말해 ORCHARD_CROP_NAMES(나무 과수 12종) 적용.
+  {
+    id: "SP-050",
+    title: "농지은행 과원매매사업 (과수원 구입 자금)",
+    summary:
+      "과수원을 살 때 ㎡당 2만 원까지 연 2% 융자로 지원받을 수 있어요. 나무가 없는 농지도 과원 조성 계획서로 신청 가능해요.",
+    description:
+      "한국농어촌공사 농지은행이 고령·은퇴 농가의 과수원을 사들여, 과수를 주 작목으로 하려는 농업인에게 다시 팔아 주는 사업이에요. 지원 한도는 과수목까지 포함해 ㎡당 2만 원이고 연리 2%에 나이에 따라 11~30년 원금균분상환이라 초기 목돈 부담이 크게 줄어요. 과수 경력 3년 이상인 과수전업농육성대상자뿐 아니라 청년창업형후계농업경영인과 2030세대도 대상이라 정착 초기에도 길이 열려 있어요. 나무가 아직 없는 농지여도 신규 과원 조성계획서와 조성 증빙을 내면 신청할 수 있어요. 신청은 농지가 있는 지역 관할 한국농어촌공사 지사에서 받고, 상담은 1577-7770이에요. 접수 기간은 별도 공고가 없어 관할 지사에 확인하세요.",
+    region: "전국",
+    organization: "한국농어촌공사 농지은행",
+    supportType: "융자",
+    supportAmount: "㎡당 2만 원 한도(과수목 포함) · 연리 2% · 11~30년 원금균분상환",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 64,
+    eligibilityDetail:
+      "사업시행연도 1월 1일 기준 만 64세 이하 과수전업농육성대상자(과원 0.3ha 이상·최근 3년 이상 과수 전업), 청년창업형후계농업경영인, 2030세대, 과수 주작목 영농조합·농업회사법인. 농지 소재 시·군·구 또는 연접 시·군·구 거주(또는 직선 30km 이내) 요건이 있어요. 농업 외 종합소득 연 3,700만 원 이상은 제외예요. 접수 기간은 별도 공고가 없어 관할 지사(1577-7770)에 확인하세요.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: ORCHARD_CROP_NAMES,
+    sourceUrl: "https://www.fbo.or.kr/contents/Contents.do?menuId=0500100030",
+    year: 2026,
+    category: "settlement",
+  },
+  {
+    id: "SP-051",
+    title: "농지은행 과원임대차사업 (과수원 장기 임차)",
+    summary:
+      "과수원을 사지 않고 5~10년 장기로 빌려 시작할 수 있어요. 이미 자란 나무를 그대로 넘겨받아요.",
+    description:
+      "농지은행이 전업·은퇴하려는 농가의 과수원을 대신 빌려 두고, 과수를 하려는 청년농업인 등에게 5~10년 장기로 다시 임대해 주는 사업이에요. 나무가 이미 자란 과원을 그대로 넘겨받으니 사과처럼 심고 몇 해를 기다려야 하는 작목에서 특히 도움이 돼요. 임차료는 지역 관행 임차료 상한 안에서 공사가 당사자와 협의해 정해요. 만 64세 이하 과수전업농육성대상자와 청년창업형후계농업경영인·2030세대, 과수 주작목 법인이 대상이고, 농지 소재 시·군·구나 연접 지역에 살아야 해요. 신청은 관할 한국농어촌공사 지사에 과원장기임차신청서를 내면 되고 상담은 1577-7770이에요.",
+    region: "전국",
+    organization: "한국농어촌공사 농지은행",
+    supportType: "현물",
+    supportAmount: "과원 장기 임차 중개 (임대기간 5~10년, 임차료는 지역 관행 상한 내 협의)",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 64,
+    eligibilityDetail:
+      "만 64세 이하 과수전업농육성대상자(과원 0.3ha 이상·최근 3년 이상 과수 전업), 청년창업형후계농업경영인, 2030세대, 과수 주작목 영농조합·농업회사법인. 농지 소재 시·군·구 또는 연접 시·군·구 거주(또는 직선 30km 이내). 농업 외 종합소득 연 3,700만 원 이상 제외. 접수 기간은 별도 공고가 없어 관할 지사(1577-7770)에 확인하세요.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: ORCHARD_CROP_NAMES,
+    sourceUrl: "https://www.fbo.or.kr/contents/Contents.do?menuId=0500100040",
+    year: 2026,
+    category: "settlement",
+  },
+  {
+    id: "SP-052",
+    title: "청송군 과수생산 분야 지원사업 (시설현대화·자재·저온저장고)",
+    summary:
+      "사과 주산지 청송에서 과원 시설·자재를 사업비의 30~50%까지 지원받을 수 있어요.",
+    description:
+      "청송군이 과수 농가의 경쟁력을 높이려고 운영하는 7개 묶음의 지원사업이에요. FTA기금 과수고품질시설현대화사업은 품종갱신·관수시설·지주시설·방풍망·열상방상팬 같은 재해예방시설까지 사업비의 50%를 지원해요. 사과적화제(ha당 28만 원 이내)·반사필름·과실봉지처럼 해마다 쓰는 자재도 보조 30~50%로 받을 수 있고, 농가형 저온저장고는 3.3㎡당 280만 원 기준 절반을 지원해요. 저품위 사과는 20kg 한 상자 1만 원에 대구경북능금농협 청송·안덕·진보 경제사업장이 수매해 줘요. 단가는 청송군 안내(2025년 3월 기준)라 해마다 바뀔 수 있고, 사업별 신청 시기와 조건은 청송군 농정과(054-870-6273)에 확인하세요.",
+    region: "경상북도",
+    organization: "청송군 농정과",
+    supportType: "보조금",
+    supportAmount: "시설·자재별 보조 30~50% (FTA기금 과수고품질시설현대화 50%)",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "청송군 과수 재배 농업경영체. 세부사업별 조건이 달라 청송군 농정과(054-870-6273)에 확인해야 해요. 신청은 읍·면사무소 산업팀 경유가 일반적이에요. 신청 기간은 사업별 공고를 확인하세요.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: ["사과", "배", "복숭아", "포도", "감", "자두"],
+    sourceUrl: "https://www.cs.go.kr/specialty/00003170/00004055.web",
+    year: 2026,
+    category: "facility",
+  },
+  {
+    id: "SP-053",
+    title: "거창군 미래형 사과원 아카데미 교육생 모집",
+    summary:
+      "사과 다축과원을 만들려는 거창 농업인·예비 농업인을 위한 44시간 교육이에요. 해마다 한 기수씩 열려요.",
+    description:
+      "거창군이 사과 다축(2축·다축) 과원 조성을 돕기 위해 해마다 여는 교육이에요. 이론·실습 7회와 현장견학 2회로 44시간쯤 되고, 다축 수형의 이해부터 과원 기반 조성, 재배관리까지 다뤄요. 신청 자격은 공고일 기준 거창군에 주소를 두고 실제 거주하는 농업인이나 예비 농업인이라, 막 들어온 정착자도 문을 두드릴 수 있어요. 다축과원 조성 의지가 강한 사람과 저연령 농가를 우선 선발해요. 8기(2024년)·9기(2025년)로 이어져 왔지만 모집 시기가 해마다 달라, 거창군 농업기술센터(055-940-3114)나 군 새소식 게시판을 확인해야 해요.",
+    region: "경상남도",
+    organization: "거창군 농업기술센터",
+    supportType: "교육",
+    supportAmount: "이론·실습 7회 + 현장견학 2회 (약 44시간), 기수당 40명 내외",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "공고일 기준 거창군에 주소를 두고 실제 거주하는 농업인 또는 예비 농업인. 다축과원 조성 희망자·저연령 농가 우선 선발. 구비서류는 교육신청서와 농업경영체등록 확인서예요. 모집 시기가 해마다 달라(2024년 10월·2025년 2월) 공고를 확인해야 해요.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: ["사과"],
+    sourceUrl: "https://www.geochang.go.kr/00445/00450.web?gcode=1002&idx=14088774&amode=view",
     year: 2026,
     category: "settlement",
   },
