@@ -433,6 +433,14 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-052": { farmYouth: 3, family: 3, elderRural: 3, commuter: 2 },
   // 거창 미래형 사과원 아카데미 (예비 농업인도 가능, 저연령 우선)
   "SP-053": { farmYouth: 4, family: 4, elderRural: 3, commuter: 3 },
+  // 2026-09-26 2층: 작물군 국비 사업 — 기존 재배 농가 전제(시설현대화 3년 경력 등)라 청년·가족 정착 후반부
+  "SP-054": { farmYouth: 4, family: 4, elderRural: 3, commuter: 2 },
+  "SP-055": { farmYouth: 4, family: 4, elderRural: 4, commuter: 3 },
+  "SP-056": { farmYouth: 3, family: 4, elderRural: 4, commuter: 2 },
+  "SP-057": { farmYouth: 3, family: 3, elderRural: 4, commuter: 2 },
+  "SP-058": { farmYouth: 3, family: 3, elderRural: 2, commuter: 2 },
+  "SP-059": { farmYouth: 4, family: 4, elderRural: 3, commuter: 2 },
+  "SP-060": { farmYouth: 4, family: 4, elderRural: 3, commuter: 2 },
 };
 
 export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
@@ -488,6 +496,13 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-051": "과수원을 사지 않고 5~10년 빌려 시작할 수 있어 자본 부담이 적어요",
   "SP-052": "청송에서 과수를 재배 중인 농가에 시설·자재를 절반까지 보조해요",
   "SP-053": "예비 농업인도 들을 수 있는 사과 다축과원 교육이에요",
+  "SP-054": "온실 관수·환경관리 설비를 보조 25%·융자 25%로 바꿔요 (경력 3년 필요)",
+  "SP-055": "논에 콩·옥수수·깨를 심으면 ha당 100~200만 원 직불금이에요",
+  "SP-056": "건고추 비가림 시설과 관수·차광 설비를 함께 지원해요",
+  "SP-057": "표고·밤·호두·더덕 생산 기반을 시군 통해 지원받아요",
+  "SP-058": "절화 습식유통 기자재를 aT화훼사업센터에서 지원해요",
+  "SP-059": "인삼 해가림·관수·기계를 국고 20%·융자 30%로 갖춰요",
+  "SP-060": "온실 난방비 줄이는 보온커튼·수막재배 설비를 보조해요",
 };
 
 /**

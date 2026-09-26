@@ -99,6 +99,7 @@ export const SUPPORT_TYPES = [
  * 작물 범용 사업의 relatedCrops — 창업자금·농지은행·후계농·청년농·귀농닥터처럼 특정 작물을
  * 가리지 않는 사업은 55종 전부를 대상 작물로 명시한다 (2026-09-26, 사용자 요청 "사과" 0건 대응).
  * 효과: /programs?q=<작물명> 검색과 /crops/<id> 추천 지원사업이 비지 않는다.
+ * 규칙: relatedCrops 에 "토마토"가 있는 사업은 "방울토마토"도 함께 적는다(같은 토마토 재배, CROPS 에선 별개 항목 — 9/26).
  * DB 우선 병합 대상(SP-001·002·011·023)은 supabase/migrations/20260926_generic_programs_related_crops.sql 로 동기화.
  */
 export const ALL_CROP_NAMES: string[] = CROPS.map((c) => c.name);
@@ -107,6 +108,17 @@ export const ALL_CROP_NAMES: string[] = CROPS.map((c) => c.name);
  * 과원(過園) 사업의 relatedCrops — 농지은행 과원매매·과원임대차처럼 원문이 "과수"만 말하고
  * 개별 작물을 나열하지 않는 사업. CROPS 과수 카테고리에서 과채(딸기·수박·참외)를 뺀 나무 과수.
  */
+/**
+ * 작물군 국비 사업의 relatedCrops (2026-09-26 2층) — 원문이 "채소·화훼류"·"버섯류"처럼 작물군만 말할 때
+ * CROPS 카테고리에서 도출한다. 노지 위주(고추·배추·마늘·양파·무·대파·당근)는 시설원예에서 제외.
+ */
+const OPEN_FIELD_VEG = new Set(["고추", "배추", "마늘", "양파", "무", "대파", "당근"]);
+export const GREENHOUSE_VEG_CROP_NAMES: string[] = CROPS.filter(
+  (c) => (c.category === "채소" && !OPEN_FIELD_VEG.has(c.name)) || ["딸기", "수박", "참외"].includes(c.name)
+).map((c) => c.name);
+export const FLOWER_CROP_NAMES: string[] = CROPS.filter((c) => c.category === "화훼").map((c) => c.name);
+export const MUSHROOM_CROP_NAMES: string[] = CROPS.filter((c) => c.name.endsWith("버섯")).map((c) => c.name);
+
 const ORCHARD_EXCLUDED = new Set(["딸기", "수박", "참외"]);
 export const ORCHARD_CROP_NAMES: string[] = CROPS.filter(
   (c) => c.category === "과수" && !ORCHARD_EXCLUDED.has(c.name)
@@ -174,7 +186,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "충남도내 청년농업인 또는 충남 전입 예정자. 6개월 과정(이론+실습+현장).",
     applicationStart: "2025-12-29",
     applicationEnd: "2026-01-02",
-    relatedCrops: ["딸기", "토마토", "파프리카"],
+    relatedCrops: ["딸기", "토마토", "방울토마토", "파프리카"],
     sourceUrl: "https://youth.chungnam.go.kr/web/main/bbs/cnyouth_notice/497",
     year: 2026,
     category: "youth",
@@ -350,7 +362,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "만 18~39세 대한민국 국적. 전공 무관. 스마트팜 보육센터 기존 이수자 불가. 입문(2개월)→교육형실습(6개월)→경영형실습(12개월) 총 20개월 과정.",
     applicationStart: "2026-04-22",
     applicationEnd: "2026-05-29",
-    relatedCrops: ["딸기", "토마토", "파프리카", "상추"],
+    relatedCrops: ["딸기", "토마토", "방울토마토", "파프리카", "상추"],
     sourceUrl: "https://www.smartfarmkorea.net/edu/pnbsns/all.do?menuId=M01050701",
     year: 2026,
     category: "youth",
@@ -394,7 +406,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "서울시 주민등록 거주자. 나이 제한 사실상 없음. 스마트팜 도입 또는 창업에 관심 있는 시민 대상.",
     applicationStart: "2026-04-06",
     applicationEnd: "2026-04-10",
-    relatedCrops: ["상추", "토마토"],
+    relatedCrops: ["상추", "토마토", "방울토마토"],
     sourceUrl: "https://agro.seoul.go.kr/archives/55870",
     year: 2026,
     category: "facility",
@@ -438,7 +450,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "만 18세 이상 40세 미만. 스마트팜 청년창업 보육사업 수료(예정)생 또는 독립경영 3년 이하 청년농업인. 팀별 2~3인 구성.",
     applicationStart: "2026-04-24",
     applicationEnd: "2026-05-29",
-    relatedCrops: ["딸기", "오이", "토마토"],
+    relatedCrops: ["딸기", "오이", "토마토", "방울토마토"],
     sourceUrl: "https://www.ajunews.com/view/20260424142857765",
     year: 2026,
     category: "youth",
@@ -1273,6 +1285,163 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     sourceUrl: "https://www.geochang.go.kr/00445/00450.web?gcode=1002&idx=14088774&amode=view",
     year: 2026,
     category: "settlement",
+  },
+  // ── 2026-09-26 2층: 작물군 국비·전국 사업 (회장 "추천 진행" — 55종 전부에 '그 작물군 사업'을).
+  //    정부24 serviceInfo/보조금24 dtlEx 고정 페이지(서버 렌더, 한글은 숫자 엔티티 → 디코드 후 대조).
+  //    data-engineer 조사 → CoS 원문 curl 대조 후 등재. 신청 시기는 전부 상대 표기라 9999 페어.
+  {
+    id: "SP-054",
+    title: "스마트팜 ICT융복합확산 — 시설원예 현대화 (온실 관수·환경관리 설비)",
+    summary:
+      "온실 관수·환경관리 장비를 국고보조 25%·융자 25%로 바꿀 수 있어요. 시설 채소·화훼 농가라면 시·군·구청에 신청하세요.",
+    description:
+      "FTA 개방화에 대응해 원예시설을 현대화하는 농식품부 사업이에요. 온실과 공정 육묘장의 측고인상 자재, 양액재배·양액재활용·점적관수·자동관수·탄산가스발생기 같은 관수·관비 설비, 자동개폐기·환풍기·순환팬·제습기·차광·보광시설·온습도조절기 같은 환경관리 설비, 무인방제기·전동운반기·레일카까지 지원해요. 사업비는 국고보조 25%·융자 25%·지방비 30%·자부담 20%로 나뉘고, 융자는 고정 2.0%(또는 변동)에 3년 거치 7년 분할상환이라 초기 부담이 크게 줄어요. 다만 재배나 온실 운영·종사 경력이 3년 이상이어야 하고 신청 품목 경력도 1년 이상이라, 정착 첫해에는 바로 신청하기 어려워요. 신청은 농지가 있는 시·군·구청에 방문 접수하고, 접수 시기는 시군마다 달라 담당 부서에 확인하세요.",
+    region: "전국",
+    organization: "농림축산식품부 / 각 시·군·구청",
+    supportType: "보조금",
+    supportAmount: "국고보조 25% + 융자 25%(고정 2.0%, 3년 거치 7년 분할) + 지방비 30% / 자부담 20%",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "채소·화훼류 재배 시설을 운영하는 농업인·농업법인·생산자단체. 재배 또는 온실 운영·종사 경력 3년 이상(신청 품목 1년 이상)이 필요하고, 원예시설은 신청일 기준 경영정보등록 1년 이상이어야 해요. 여러 품목을 재배하는 시설이면 면적이 가장 넓은 품목을 기준으로 봐요. 연령 제한은 본문에 명시 없어요. 접수 시기는 시·군·구청마다 달라 담당 부서에 확인하세요(농식품부 044-201-2259).",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: [...GREENHOUSE_VEG_CROP_NAMES, ...FLOWER_CROP_NAMES], // 원문 "채소‧화훼류 재배 시설"
+    sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/SD0000010098",
+    year: 2026,
+    category: "facility",
+  },
+  {
+    id: "SP-055",
+    title: "전략작물직불제 (논에 콩·가루쌀·옥수수·깨 재배)",
+    summary:
+      "논에 콩이나 옥수수, 깨를 심으면 ha당 100~200만 원을 직불금으로 받아요. 읍·면·동사무소에 신청하면 돼요.",
+    description:
+      "식량자급률을 높이고 쌀 수급을 안정시키려고 논에 전략작물을 심는 농업인에게 직불금을 주는 제도예요. 하계에는 두류(콩·팥·녹두 등)와 가루쌀이 ha당 200만 원, 식용 옥수수와 깨(참깨·들깨)가 ha당 100만 원이에요. 동계에는 밀이 ha당 100만 원, 보리 등 식량작물과 조사료가 ha당 50만 원이고, 동계에 밀이나 조사료를 심고 하계에 두류나 가루쌀을 이어 심으면 ha당 100만 원을 더 받아요. 대상은 농업경영정보를 등록하고 농업 외 종합소득이 3,700만 원 미만이면서 0.1ha(1천㎡) 이상 논에서 전략작물을 재배하는 농업인이에요. 신청은 농지가 있는 읍·면·동사무소(행정복지센터)에 직불등록신청서를 내면 되고, 접수 기간은 동계·하계로 나뉘어 해마다 달라 공익직불 상담(1334)이나 읍·면·동에 확인하세요. 가루쌀은 농식품부가 지정한 생산단지 농지만 해당돼요.",
+    region: "전국",
+    organization: "농림축산식품부 / 농지 소재지 읍·면·동사무소(행정복지센터)",
+    supportType: "보조금",
+    supportAmount: "ha당 50~600만 원 (하계 두류·가루쌀 200만 / 옥수수·깨 100만 / 하계조사료 500만 / 동계 밀 100만·보리 등 50만 / 이모작 100만 추가)",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "농업경영정보를 등록하고, 농업 외 종합소득 3,700만 원 미만이며 0.1ha(1천㎡) 이상 지급대상 논에서 전략작물을 재배하는 농업인·농업법인·공동농업경영체. 지급대상 농지는 종전 쌀·밭고정직불금 대상 농지이거나 1998년 1월 1일 이후 조성돼 현재 논으로 활용되는 농지예요. 하천구역 농지, 농지처분 명령을 받은 농지, 농지전용 신고·허가를 거친 농지는 제외돼요. 감자는 이동식 하우스를 설치해 6월까지 수확하는 동계 이모작일 때만 해당해요. 연령 제한은 본문에 명시 없어요. 신청 기간은 동계·하계로 나뉘어 해마다 달라 읍·면·동사무소에 확인하세요(상담 1334).",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: ["쌀", "콩", "감자", "옥수수", "들깨", "참깨"], // 원문: 두류·가루쌀·식용 옥수수·깨(참깨·들깨)·감자(동계 조건부)
+    sourceUrl: "https://www.gov.kr/portal/rcvfvrSvc/dtlEx/154300005041",
+    year: 2026,
+    category: "settlement",
+  },
+  {
+    id: "SP-056",
+    title: "고추비가림 재배시설 지원",
+    summary:
+      "건고추용 고추를 비가림 시설에서 키우려면 관수·차광 설비까지 함께 지원받을 수 있어요. 신청은 매년 12월이에요.",
+    description:
+      "FTA 시장개방과 잦은 기상이변에 대비해 고추 생산기반을 넓히려는 농식품부 사업이에요. 비가림 재배시설과 함께 점적관수·스프링클러·관정 같은 관수시설, 자동개폐기·차광망 같은 환경관리시설을 지원해요. 노지 고추는 장마와 폭염에 탄저병 피해가 크게 나는데, 비가림 시설은 그 위험을 낮추는 가장 직접적인 방법이에요. 대상은 고추비가림재배시설에서 건고추용 고추를 재배하려는 농업인과 농업법인이라 조건이 단순해요. 신청은 매년 12월에 시·군·구청 원예과나 유통과에 방문해서 사업신청서와 사업계획서를 내면 되고, 시군에서 사업계획서를 평가해 대상자를 뽑아요. 정확한 접수 일자는 해마다 시군 공고로 정해지니 담당 부서에 확인하세요.",
+    region: "전국",
+    organization: "농림축산식품부 / 각 시·군·구청 원예과·유통과",
+    supportType: "보조금",
+    supportAmount: "고추비가림재배시설 + 관수시설(점적관수·스프링클러·관정) + 환경관리시설(자동개폐기·차광망) — 보조율은 시군 공고 확인",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "고추비가림재배시설에서 건고추용 고추 재배를 희망하는 농업인·농업법인. 시군이 제출된 사업계획서를 바탕으로 지원 자격·요건에 따라 선정해요. 연령 제한은 본문에 명시 없어요. 신청 시기는 본문에 '매년 12월'로만 안내돼 있고 구체적 일자는 시군 공고로 정해져요. 구비서류는 고추비가림재배시설지원 사업신청서와 사업계획서예요. 문의는 해당 지역 시·군·구청(농식품부 044-201-2237).",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: ["고추"],
+    sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/SD0000015802",
+    year: 2026,
+    category: "facility",
+  },
+  {
+    id: "SP-057",
+    title: "임산물생산단지 규모화 (산림작물생산단지·산림복합경영단지)",
+    summary:
+      "표고·밤·호두·더덕 같은 단기소득 임산물 생산 기반을 총사업비 7억까지 지원받아요. 신청은 전년도에 시·군·구에 해요.",
+    description:
+      "산림청이 단기소득 임산물 생산에 필요한 기반 시설을 품목별로 집단화·현대화해 임가 경쟁력을 높이는 사업이에요. 공모형과 소액형으로 나뉘어요. 공모형은 국비 40%·지방비 20%·자부담 40%로 총사업비 1억 원에서 7억 원까지 지원하고 임업후계자·독림가·신지식농업인(임업분야)·생산자단체가 대상이에요. 소액형은 국비 20%·지방비 30%·융자 30%·자부담 20%로 총사업비 1억 원 미만이고 일반 임업인도 신청할 수 있어요. 신청은 소액사업은 전년도 6~7월, 공모사업은 전년도 4~6월경 사업지가 있는 시·군·구에 해요. 대상 품목은 산림청이 정한 임산물 소득원 지원 대상 품목(밤·호두·표고·더덕·도라지·오미자 등)이라 먼저 우리 작물이 목록에 있는지 확인하세요.",
+    region: "전국",
+    organization: "산림청 / 각 시·군·구청 산림부서",
+    supportType: "보조금",
+    supportAmount: "공모: 총사업비 1억~7억 (국비 40·지방비 20·자부담 40) / 소액: 총사업비 1억 미만 (국비 20·지방비 30·융자 30·자부담 20)",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "임업인, 임업후계자, 독림가, 신지식농업인(임업분야), 생산자단체(영농조합법인·농업회사법인·산림조합). 공모사업은 임업후계자·독림가·신지식농업인·생산자단체만 대상이고, 소액사업은 일반 임업인도 신청할 수 있어요. 대상 토지는 근저당·지상권 등 재산권 제한이 없어야 하고 신청자나 생산자단체 소유여야 해요. 대상 품목은 「임업 및 산촌 진흥촉진에 관한 법률 시행규칙」의 임산물 소득원 지원 대상 품목이에요. 연령 제한은 본문에 명시 없어요. 신청 시기는 소액사업 전년도 6~7월, 공모사업 전년도 4~6월경으로만 안내돼 정확한 일자는 시·군·구 공고를 확인하세요.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: ["표고버섯", "밤", "호두", "도라지", "더덕", "오미자"], // 산림청 단기소득임산물 지원 대상 품목표(수실류·버섯류·산나물류·약용류) 대조
+    sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/SD0000010824",
+    year: 2026,
+    category: "facility",
+  },
+  {
+    id: "SP-058",
+    title: "화훼류 습식유통 기자재 구입·임차 비용 지원",
+    summary:
+      "장미·국화 같은 절화를 물에 꽂아 보내는 습식유통 기자재를 지원받아요. 신청은 연초 공고 기간에 aT화훼사업센터로 해요.",
+    description:
+      "절화는 수확 뒤 물이 끊기면 하루가 지나기 전에 값이 떨어져요. 이 사업은 화훼류를 물에 꽂은 채로 유통하는 습식유통에 쓰이는 기자재를 지원해 선도를 유지하고 농가 소득을 높이는 농식품부 사업이에요. 습식대차, 습식물통, 화훼포장망, 수명연장제 같은 기자재를 구입하거나 임차할 때 비용을 지원해요. 대상은 화훼농가와 화훼생산자단체이고, 습식유통 실적이 있거나 새로 참여하려는 곳을 선정해요. 신청은 연초 선정공고 기간에 aT 화훼센터 절화부로 우편이나 방문으로 접수하고, 신청서와 함께 사업자등록증·소속농가 목록·출하실적증명서를 내요. 정확한 공고 일자는 해마다 달라 aT화훼사업센터(02-570-1841)에 확인하세요.",
+    region: "전국",
+    organization: "농림축산식품부 / aT화훼사업센터",
+    supportType: "보조금",
+    supportAmount: "습식대차·습식물통·화훼포장망·수명연장제 등 습식유통 기자재 구입·임차 비용",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "화훼농가 및 화훼생산자단체. 화훼류 습식유통 실적이 있거나 새롭게 참여하려는 곳을 선정해요. 구비서류는 신청서, 사업자등록증, 법인등기부등본, 정관, 통장사본, 소속농가 목록 및 출하실적증명서예요. 연령 제한은 본문에 명시 없어요. 신청 시기는 '연초 선정공고기간 내'로만 안내돼 정확한 일자는 aT화훼사업센터(02-570-1841)에 확인하세요. 접수는 aT 화훼센터 절화부 우편·방문.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: FLOWER_CROP_NAMES, // 원문 "화훼농가" — CROPS 화훼 3종 전부 절화
+    sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/154300000311",
+    year: 2026,
+    category: "settlement",
+  },
+  {
+    id: "SP-059",
+    title: "인삼생산시설현대화 (해가림·관수·방풍망·인삼 기계)",
+    summary:
+      "철재 해가림·점적관수·방풍망과 인삼 파종·수확 기계를 국고 20%·융자 30%로 갖출 수 있어요. 신청은 매년 2월까지예요.",
+    description:
+      "인삼 재배 시설을 내재해형으로 바꾸고 기계화를 돕는 농식품부 사업이에요. 철재 해가림과 하우스 같은 인삼 내재해시설(목재 해가림은 지원 불가), 무인방제시설, 인삼 점적관수시설, 방풍망시설, 그리고 인삼이식기·파종기·수확기 같은 기계를 지원해요. 지원 비율은 국고 20%·지방비 30%·융자 30%·자부담 20%예요. 대상이 '농업인 또는 농업법인'으로 단순해서 인삼을 시작하는 정착자도 신청할 수 있어요. 사업신청서를 작성해 시장·군수에게 제출하고, 신청은 매년 2월까지라 전년 겨울에 준비해야 해요. 세부 접수 일정은 시군 공고를 확인하세요.",
+    region: "전국",
+    organization: "농림축산식품부 원예산업과 / 각 시·군",
+    supportType: "보조금",
+    supportAmount: "국고 20% + 지방비 30% + 융자 30% / 자부담 20% (내재해시설·무인방제·점적관수·방풍망·인삼 이식기·파종기·수확기)",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "농업인 또는 농업법인. 연령 제한은 본문에 명시 없어요. 사업신청서 등을 작성해 시장·군수에게 제출하고, 신청 시기는 '매년 2월까지'로 안내돼 있어요. 목재 해가림 시설은 지원 대상이 아니에요.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: ["인삼"],
+    sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/154300000361",
+    year: 2026,
+    category: "facility",
+  },
+  {
+    id: "SP-060",
+    title: "스마트팜 ICT융복합확산 — 에너지절감시설 (보온커튼·수막재배·열회수)",
+    summary:
+      "온실 난방비를 줄이는 다겹보온커튼·수막재배·열회수 장치를 국고보조 25%·융자 25%로 설치할 수 있어요. 채소·화훼·버섯 농가가 대상이에요.",
+    description:
+      "겨울 난방비가 큰 시설 농가의 에너지 부담을 줄이려는 농식품부 사업이에요. 다겹보온커튼, 자동보온덮개, 순환식 수막재배시설, 열회수형 환기장치, 배기열 회수장치 같은 에너지절감시설을 지원해요. 사업비는 국고보조 25%·융자 25%·지방비 30%·자부담 20%예요. 대상은 채소·화훼·버섯류를 재배하는 농업인·농업법인·생산자단체라 느타리·새송이 같은 시설 버섯 농가도 해당돼요. 시설원예 현대화(관수·환경관리 설비)와 같은 모사업의 다른 세부사업이라 둘 다 필요하면 각각 신청해요. 접수는 농지가 있는 시·군·구청이고 시기는 시군마다 달라 담당 부서에 확인하세요.",
+    region: "전국",
+    organization: "농림축산식품부 / 각 시·군·구청",
+    supportType: "보조금",
+    supportAmount: "국고보조 25% + 융자 25% + 지방비 30% / 자부담 20% (다겹보온커튼·자동보온덮개·순환식 수막재배·열회수형 환기·배기열 회수)",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "채소·화훼·버섯류 재배 농업인·농업법인·생산자단체. 연령 제한은 본문에 명시 없어요. 접수 시기는 시·군·구청마다 달라 담당 부서에 확인하세요.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: [...GREENHOUSE_VEG_CROP_NAMES, ...FLOWER_CROP_NAMES, ...MUSHROOM_CROP_NAMES], // 원문 "채소·화훼‧버섯류"
+    sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/154300005010",
+    year: 2026,
+    category: "facility",
   },
 ];
 

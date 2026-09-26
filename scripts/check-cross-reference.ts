@@ -32,6 +32,7 @@ import * as path from "node:path";
 
 import { CROPS, CROP_DETAILS } from "../src/lib/data/crops";
 import { PROVINCES } from "../src/lib/data/regions";
+import { PROGRAMS } from "../src/lib/data/programs";
 import { SIGUNGUS } from "../src/lib/data/sigungus";
 import { interviews } from "../src/lib/data/landing";
 import { EDUCATION_COURSES } from "../src/lib/data/education";
@@ -157,15 +158,11 @@ function check(): CheckResult[] {
   // D-1. PROGRAMS.region ⊆ PROVINCES.name ∪ {"전국"}
   // D-2. PROGRAMS.relatedCrops ⊆ CROPS.name (부분일치)
   // ──────────────────────────────────────────────────────────
-  const programsFile = fs.readFileSync(
-    path.resolve(__dirname, "../src/lib/data/programs.ts"),
-    "utf-8",
-  );
-  const programIds = [...programsFile.matchAll(/id:\s*"(SP-\d+)"/g)].map((m) => m[1]);
-  const regionMatches = [...programsFile.matchAll(/region:\s*"([^"]+)"/g)].map((m) => m[1]);
-  const relatedCropsMatches = [...programsFile.matchAll(/relatedCrops:\s*\[([^\]]*)\]/g)].map((m) =>
-    m[1].split(",").map((s) => s.replace(/["\s]/g, "")).filter(Boolean),
-  );
+  // 9/26: 정규식 파싱 → 런타임 PROGRAMS. relatedCrops 가 상수(ALL_CROP_NAMES·GREENHOUSE_VEG_CROP_NAMES 등)나
+  // spread 로 정의되면 텍스트 파싱은 식별자를 작물명으로 읽고 id 정렬도 어긋난다(SP-046 오표기 사례).
+  const programIds = PROGRAMS.map((p) => p.id);
+  const regionMatches = PROGRAMS.map((p) => p.region);
+  const relatedCropsMatches = PROGRAMS.map((p) => p.relatedCrops);
 
   const validRegions = new Set<string>(["전국", ...PROVINCES.map((p) => p.name)]);
   const dRegionFails: string[] = [];
