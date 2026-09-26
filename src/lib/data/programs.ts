@@ -50,6 +50,12 @@ export interface SupportProgram {
   createdAt?: string;
   /** 카테고리 — 치유농업·사회적 농업 등 영역 태그 (optional) */
   category?: ProgramCategory;
+  /**
+   * 접수 시기 안내 — 9999 페어(일자 미확정)인데 원문에 "매년 12월"·"전년도 4~7월"처럼 시기가 있는
+   * 연례 창구형 사업. 카드·목록·상세에서 "공고 발표 예정" 대신 이 문구를 보여준다 (2026-09-27 회장 결재).
+   * 실일자가 공고되면 applicationStart/End 를 채우고 이 값은 남겨 둔다(다음 회차 안내).
+   */
+  applicationCycle?: string;
   /** 크롤 row 동일 모사업 그룹핑 결과 — 대표 카드에만 부착 (crawl-grouping.ts) */
   crawlGroup?: CrawlGroupInfo;
 }
@@ -546,6 +552,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "만 18세 이상 40세 미만(1985~2008년 출생), 독립 영농경력 3년 이하, 기준중위소득 140% 이하. 2차 추가모집은 2026년 하반기 예정 — 정확한 일자는 농식품부 공고 시 확정.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "2026년 하반기 예정 — 농식품부 공고 시 확정",
     relatedCrops: ALL_CROP_NAMES, // 작물 범용
     sourceUrl: "https://www.nongmin.com/article/20251104500065",
     year: 2026,
@@ -590,6 +597,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "청년농업인 (도단위 별도 자격 적용). 시·도 농업기술원 공고 확인 필수.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "시·도별 별도 공고",
     relatedCrops: [],
     sourceUrl: "https://www.rda.go.kr/young/custom/policy/view.do?sId=46438",
     year: 2026,
@@ -1223,6 +1231,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "사업시행연도 1월 1일 기준 만 64세 이하 과수전업농육성대상자(과원 0.3ha 이상·최근 3년 이상 과수 전업), 청년창업형후계농업경영인, 2030세대, 과수 주작목 영농조합·농업회사법인. 농지 소재 시·군·구 또는 연접 시·군·구 거주(또는 직선 30km 이내) 요건이 있어요. 농업 외 종합소득 연 3,700만 원 이상은 제외예요. 접수 기간은 별도 공고가 없어 관할 지사(1577-7770)에 확인하세요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "접수 시기는 관할 한국농어촌공사 지사 확인",
     relatedCrops: ORCHARD_CROP_NAMES,
     sourceUrl: "https://www.fbo.or.kr/contents/Contents.do?menuId=0500100030",
     year: 2026,
@@ -1245,6 +1254,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "만 64세 이하 과수전업농육성대상자(과원 0.3ha 이상·최근 3년 이상 과수 전업), 청년창업형후계농업경영인, 2030세대, 과수 주작목 영농조합·농업회사법인. 농지 소재 시·군·구 또는 연접 시·군·구 거주(또는 직선 30km 이내). 농업 외 종합소득 연 3,700만 원 이상 제외. 접수 기간은 별도 공고가 없어 관할 지사(1577-7770)에 확인하세요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "접수 시기는 관할 한국농어촌공사 지사 확인",
     relatedCrops: ORCHARD_CROP_NAMES,
     sourceUrl: "https://www.fbo.or.kr/contents/Contents.do?menuId=0500100040",
     year: 2026,
@@ -1267,6 +1277,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "청송군 과수 재배 농업경영체. 세부사업별 조건이 달라 청송군 농정과(054-870-6273)에 확인해야 해요. 신청은 읍·면사무소 산업팀 경유가 일반적이에요. 신청 기간은 사업별 공고를 확인하세요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "사업별 청송군 공고 확인",
     relatedCrops: ["사과", "배", "복숭아", "포도", "감", "자두"],
     sourceUrl: "https://www.cs.go.kr/specialty/00003170/00004055.web",
     year: 2026,
@@ -1289,6 +1300,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "공고일 기준 거창군에 주소를 두고 실제 거주하는 농업인 또는 예비 농업인. 다축과원 조성 희망자·저연령 농가 우선 선발. 구비서류는 교육신청서와 농업경영체등록 확인서예요. 모집 시기가 해마다 달라(2024년 10월·2025년 2월) 공고를 확인해야 해요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 1기수, 시기 유동 — 거창군 공고 확인",
     relatedCrops: ["사과"],
     sourceUrl: "https://www.geochang.go.kr/00445/00450.web?gcode=1002&idx=14088774&amode=view",
     year: 2026,
@@ -1314,6 +1326,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "채소·화훼류 재배 시설을 운영하는 농업인·농업법인·생산자단체. 재배 또는 온실 운영·종사 경력 3년 이상(신청 품목 1년 이상)이 필요하고, 원예시설은 신청일 기준 경영정보등록 1년 이상이어야 해요. 여러 품목을 재배하는 시설이면 면적이 가장 넓은 품목을 기준으로 봐요. 연령 제한은 본문에 명시 없어요. 접수 시기는 시·군·구청마다 달라 담당 부서에 확인하세요(농식품부 044-201-2259).",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 시·군·구 접수 (시기 상이)",
     relatedCrops: [...GREENHOUSE_VEG_CROP_NAMES, ...FLOWER_CROP_NAMES], // 원문 "채소‧화훼류 재배 시설"
     sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/SD0000010098",
     year: 2026,
@@ -1336,6 +1349,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "농업경영정보를 등록하고, 농업 외 종합소득 3,700만 원 미만이며 0.1ha(1천㎡) 이상 지급대상 논에서 전략작물을 재배하는 농업인·농업법인·공동농업경영체. 지급대상 농지는 종전 쌀·밭고정직불금 대상 농지이거나 1998년 1월 1일 이후 조성돼 현재 논으로 활용되는 농지예요. 하천구역 농지, 농지처분 명령을 받은 농지, 농지전용 신고·허가를 거친 농지는 제외돼요. 감자는 이동식 하우스를 설치해 6월까지 수확하는 동계 이모작일 때만 해당해요. 연령 제한은 본문에 명시 없어요. 신청 기간은 동계·하계로 나뉘어 해마다 달라 읍·면·동사무소에 확인하세요(상담 1334).",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 동계·하계 2회 읍·면·동 접수",
     relatedCrops: ["쌀", "콩", "감자", "옥수수", "들깨", "참깨"], // 원문: 두류·가루쌀·식용 옥수수·깨(참깨·들깨)·감자(동계 조건부)
     sourceUrl: "https://www.gov.kr/portal/rcvfvrSvc/dtlEx/154300005041",
     year: 2026,
@@ -1358,6 +1372,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "고추비가림재배시설에서 건고추용 고추 재배를 희망하는 농업인·농업법인. 시군이 제출된 사업계획서를 바탕으로 지원 자격·요건에 따라 선정해요. 연령 제한은 본문에 명시 없어요. 신청 시기는 본문에 '매년 12월'로만 안내돼 있고 구체적 일자는 시군 공고로 정해져요. 구비서류는 고추비가림재배시설지원 사업신청서와 사업계획서예요. 문의는 해당 지역 시·군·구청(농식품부 044-201-2237).",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 12월 시·군·구 접수",
     relatedCrops: ["고추"],
     sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/SD0000015802",
     year: 2026,
@@ -1380,6 +1395,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "임업인, 임업후계자, 독림가, 신지식농업인(임업분야), 생산자단체(영농조합법인·농업회사법인·산림조합). 공모사업은 임업후계자·독림가·신지식농업인·생산자단체만 대상이고, 소액사업은 일반 임업인도 신청할 수 있어요. 대상 토지는 근저당·지상권 등 재산권 제한이 없어야 하고 신청자나 생산자단체 소유여야 해요. 대상 품목은 「임업 및 산촌 진흥촉진에 관한 법률 시행규칙」의 임산물 소득원 지원 대상 품목이에요. 연령 제한은 본문에 명시 없어요. 신청 시기는 소액사업 전년도 6~7월, 공모사업 전년도 4~6월경으로만 안내돼 정확한 일자는 시·군·구 공고를 확인하세요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "전년도 4~7월 시·군·구 접수",
     relatedCrops: ["표고버섯", "밤", "호두", "도라지", "더덕", "오미자"], // 산림청 단기소득임산물 지원 대상 품목표(수실류·버섯류·산나물류·약용류) 대조
     sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/SD0000010824",
     year: 2026,
@@ -1402,6 +1418,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "화훼농가 및 화훼생산자단체. 화훼류 습식유통 실적이 있거나 새롭게 참여하려는 곳을 선정해요. 구비서류는 신청서, 사업자등록증, 법인등기부등본, 정관, 통장사본, 소속농가 목록 및 출하실적증명서예요. 연령 제한은 본문에 명시 없어요. 신청 시기는 '연초 선정공고기간 내'로만 안내돼 정확한 일자는 aT화훼사업센터(02-570-1841)에 확인하세요. 접수는 aT 화훼센터 절화부 우편·방문.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 연초 aT화훼사업센터 공고",
     relatedCrops: FLOWER_CROP_NAMES, // 원문 "화훼농가" — CROPS 화훼 3종 전부 절화
     sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/154300000311",
     year: 2026,
@@ -1424,6 +1441,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "농업인 또는 농업법인. 연령 제한은 본문에 명시 없어요. 사업신청서 등을 작성해 시장·군수에게 제출하고, 신청 시기는 '매년 2월까지'로 안내돼 있어요. 목재 해가림 시설은 지원 대상이 아니에요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 2월까지 시·군 접수",
     relatedCrops: ["인삼"],
     sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/154300000361",
     year: 2026,
@@ -1446,6 +1464,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "채소·화훼·버섯류 재배 농업인·농업법인·생산자단체. 연령 제한은 본문에 명시 없어요. 접수 시기는 시·군·구청마다 달라 담당 부서에 확인하세요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 시·군·구 접수 (시기 상이)",
     relatedCrops: [...GREENHOUSE_VEG_CROP_NAMES, ...FLOWER_CROP_NAMES, ...MUSHROOM_CROP_NAMES], // 원문 "채소·화훼‧버섯류"
     sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/154300005010",
     year: 2026,
@@ -1492,6 +1511,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "도 안내 페이지에는 지원대상·신청 요건이 명시돼 있지 않아요. 자부담이 편성된 농가 참여 사업이지만 개인 농가 신청 절차는 시·군 공고로 확인해야 해요(인제군은 무·배추 무사마귀병 방제약제 50% 보조를 매년 1~2월 접수). 연령 제한 명시 없음.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 1~2월 시·군 접수 (인제군 기준)",
     relatedCrops: ["무", "배추"],
     sourceUrl: "https://www.gwd.go.kr/portal/partinfo/livestock/horticultural/competitiveness/highland",
     year: 2026,
@@ -1514,6 +1534,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "농업경영체에 등록하고 도내에 거주(주민등록 주소)하는 농업인 중, 기본형 공익직접지불제(소농·면적직불) 지급대상 농지(타 시·도 농지 제외)에서 1,000㎡ 이상 밭농업을 하는 사람이에요. 개인 기준이고 법인은 제외예요. 별도 신청서·구비서류는 없고 기본형 공익직불 신청(매년 2.1.~5.30.)으로 대체돼요. 연령 제한 명시 없음.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 2~5월 공익직불 신청과 함께 접수",
     relatedCrops: FIELD_CROP_NAMES, // 원문 "밭농업"
     sourceUrl: "https://www.gov.kr/portal/rcvfvrSvc/dtlEx/645000000144",
     year: 2026,
@@ -1536,6 +1557,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "농업경영체에 등록한 밭작물 재배농지(과수원 제외)에 암반이 있는 경우예요. 농업경영체 등록확인서·건강보험자격득실확인서·토지등기부등본·가산점 서류를 내고, 읍·면·동 담당자가 현지확인 복명서를 첨부해요. 신청 시기는 '매년 1월 중'. 연령 제한 명시 없음.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 1월 읍·면·동 접수",
     relatedCrops: FIELD_CROP_NAMES, // 원문 "밭작물 재배농지"
     sourceUrl: "https://www.gov.kr/portal/rcvfvrSvc/dtlEx/650000000229",
     year: 2026,
@@ -1561,6 +1583,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "농업경영체를 등록한 당진시 농업인, 농가당 1명. 재배 경력 요건이 없어 신규·귀농인도 신청할 수 있어요. 전화 신청(041-360-6417~8)이고 계획량이 소진되면 마감돼요. 신청 시기는 해마다 4월 초 공고를 확인하세요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 4월 초 전화 접수",
     relatedCrops: ["고구마"],
     sourceUrl: "https://www.dangjin.go.kr/cop/bbs/BBSMSTR_000000000066/selectBoardArticle.do?nttId=1130027",
     year: 2026,
@@ -1583,6 +1606,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "신청일 기준 진도군에 주소를 두고 농업경영체를 등록한 겨울배추 재배 농업인. 재배 사실이 요건이라 첫 작기를 시작하기 전에는 신청이 어려워요. 신청은 읍·면사무소, 문의는 진도군 농업지원과예요. 해마다 11월 초에 공고되니 정확한 일자는 그해 공고를 확인하세요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 11월 초 공고",
     relatedCrops: ["배추"],
     sourceUrl: "https://www.jindo.go.kr/home/board/B0052.cs?m=23&act=read&articleId=176537",
     year: 2026,
@@ -1605,6 +1629,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "마늘·양파 재배농가 또는 시설원예 생산 법인·작목반·생산단체. 전년산 마늘·양파 재배 경작신고를 하지 않은 농가는 지원에서 제외돼요. 신청은 사업장 소재지 읍·면사무소 산업팀, 문의는 고흥군청 원예특작팀(061-830-5763)이에요. 해마다 11~12월에 접수하니 정확한 일자는 그해 공고를 확인하세요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 11~12월 접수",
     relatedCrops: ["마늘", "양파"],
     sourceUrl: "https://www.goheung.go.kr/boardView.do?movePage=1&searchSn=4740&boardId=BD_00018&pageId=www96",
     year: 2026,
@@ -1627,6 +1652,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "양파·마늘을 재배하는 농업인·작목반·생산자단체. 법인 전용이 아니고 재배 연차 제한도 없어요. 상설 안내표라 지원단가·신청 시기가 없으니 농업지도과 스마트원예담당(055-930-3975~3976)에 확인해야 해요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "사업별 합천군 공고 확인",
     relatedCrops: ["양파", "마늘"],
     sourceUrl: "https://www.hc.go.kr/06342/06353/09033.web",
     year: 2026,
@@ -1649,6 +1675,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "충남에 주소를 두고 도내 농지에서 직접 생산하는 농업인으로, 통합마케팅조직·농협·도매시장·로컬푸드 매장·대형마트 등에 출하한 사람. 파종 전후 출하약정 체결이 요건이고 재배 연차 제한은 없어 신규·귀농인도 신청할 수 있어요. 신청은 각 품목 파종 전·후 1개월에 농지 소재지 읍·면·동 행정복지센터. 대파는 2026년에 새로 들어온 품목이고, 가을대파는 정부 가격안정제 대상이라 이 사업에서는 제외돼요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "품목별 파종 전·후 1개월 접수",
     relatedCrops: ["대파", "생강", "들깨", "참깨"],
     sourceUrl: "https://www.seosan.go.kr/agritech/selectBbsNttView.do?key=879&bbsNo=13&nttNo=332434",
     year: 2026,
@@ -1671,6 +1698,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "농업경영체를 등록한 진도군 농업인·농업법인·농협. 재배 경력 요건이 없어 신규·귀농인도 신청할 수 있어요. 신청은 주소지 읍·면사무소, 문의는 진도군 농업지원과(061-540-3522)예요. 2026년은 4월 13일~30일 접수였고 생강 사업량이 1ha라 조기 마감될 수 있어요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 4월 접수",
     relatedCrops: ["생강", "시금치"],
     sourceUrl: "https://www.jindo.go.kr/home/board/B0052.cs?m=23&act=read&articleId=184810",
     year: 2026,
@@ -1693,6 +1721,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "제주도에 주소와 농업경영체를 등록하고 당근·브로콜리를 실제 재배하는 농업인 또는 영농조합법인. 세 조건을 모두 채워야 해요 — ① 밭작물 제주형 자조금 단체 가입 및 지역농협 계통출하 ② 주요 채소류 재배면적 신고제 참여 ③ 자율감축 추진 시 신청량 10% 이상 의무 참여. 재배 연차 요건은 없지만 자조금 가입과 계약재배가 전제라 정착 첫해에는 현실적으로 어려워요. 신청은 품목별 계약재배 지역농협, 문의는 064-728-4812예요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 9월 공고, 10월 말 마감",
     relatedCrops: ["당근", "브로콜리"],
     sourceUrl: "https://www.jejusi.go.kr/etcboard/news_dong.do?mode=detail&notice_id=1d8b1a60fc574860b05abdce2c46e528",
     year: 2026,
@@ -1715,6 +1744,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "농업경영체를 등록하고 제주도에 주소를 둔 농업인으로 도내 농지에서 토종농작물을 재배·관리한 사람. 재배 연차 요건이 없어 그해 토종종자를 분양받으면 신규·귀농인도 신청할 수 있어요. 구비서류는 토종종자 분양 확인서(전년도 지급 대상자는 생략 가능)예요. 신청은 농지 소재지 읍·면·동 주민센터, 문의는 제주특별자치도 식품산업과(064-710-3143)예요. 2026년 접수는 9월 3일 마감됐고 해마다 8월 말에 공고돼요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 8월 말 공고, 9월 초 마감",
     relatedCrops: ["메밀"],
     sourceUrl: "https://www.seogwipo.go.kr/info/news/notice.htm?act=view&seq=155082454",
     year: 2026,

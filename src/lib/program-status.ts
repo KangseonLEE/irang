@@ -101,3 +101,21 @@ export function deriveEventStatus(
   if (end && today > end) return "마감";
   return "접수중";
 }
+
+/** 연례 창구형(9999 페어 + applicationCycle) 상태 배지 라벨 */
+export const CYCLE_LABEL = "정기 접수";
+
+/**
+ * 상태 배지 라벨 SSOT (9/27): 9999 페어인데 접수 시기(applicationCycle)가 있으면 "정기 접수",
+ * 시기도 없으면 "공고 발표 예정", 그 외는 deriveStatus 값.
+ */
+export function programStatusLabel(p: {
+  status: ProgramStatus;
+  applicationStart?: string | null;
+  applicationEnd?: string | null;
+  applicationCycle?: string | null;
+}): string {
+  if (!isUnannounced(p.applicationStart ?? undefined, p.applicationEnd ?? undefined)) return p.status;
+  return p.applicationCycle?.trim() ? CYCLE_LABEL : UNANNOUNCED_LABEL;
+}
+

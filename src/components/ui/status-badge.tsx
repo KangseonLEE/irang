@@ -11,6 +11,7 @@ function getVariant(status: string): string {
       return s.green;
     case "모집예정":
     case "접수예정":
+    case "정기 접수":
       return s.amber;
     case "마감":
     default:

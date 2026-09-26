@@ -8,6 +8,8 @@ interface ApplicationTimelineProps {
   applicationStart: string;
   applicationEnd: string;
   status: "모집중" | "모집예정" | "마감";
+  /** 연례 창구형 접수 시기 문구 (9999 페어일 때 "공고 발표 예정" 대신) */
+  applicationCycle?: string | null;
 }
 
 function formatShortDate(dateStr: string): string {
@@ -27,6 +29,7 @@ export function ApplicationTimeline({
   applicationStart,
   applicationEnd,
   status,
+  applicationCycle,
 }: ApplicationTimelineProps) {
   // 9999-12-31 페어 = 상시 모집 또는 공고 발표 예정 — 일자·진행률·D-day 무의미
   const startUnknown = !applicationStart || applicationStart === ALWAYS_OPEN;
@@ -35,7 +38,9 @@ export function ApplicationTimeline({
   // 상시 모집 또는 공고 발표 예정 (둘 다 9999 또는 end만 9999)
   if (endOpen) {
     const message = startUnknown
-      ? "공고 발표 예정 — 원문 페이지에서 확인하세요"
+      ? applicationCycle?.trim()
+        ? `${applicationCycle.trim()} — 정확한 일자는 원문 공고에서 확인하세요`
+        : "공고 발표 예정 — 원문 페이지에서 확인하세요"
       : "상시 모집 — 원문 공고에서 마감일 확인하세요";
     return (
       <div className={s.wrap}>

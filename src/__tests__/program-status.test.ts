@@ -80,3 +80,26 @@ describe("9999 페어(공고 미발표) — B안", () => {
     expect(deriveStatusLabel(PAST, ALWAYS_OPEN)).toBe("모집중");
   });
 });
+
+// ── 9/27: 연례 창구형 접수 시기 표기 (applicationCycle) ──
+import { programStatusLabel, CYCLE_LABEL } from "@/lib/program-status";
+import { formatApplicationPeriod } from "@/lib/format";
+
+describe("applicationCycle — 9999 페어 표기", () => {
+  it("시기 문구가 있으면 배지 '정기 접수' + 기간 자리엔 시기 문구", () => {
+    const p = { status: "모집예정" as const, applicationStart: "9999-12-31", applicationEnd: "9999-12-31", applicationCycle: "매년 12월 시·군·구 접수" };
+    expect(programStatusLabel(p)).toBe(CYCLE_LABEL);
+    expect(formatApplicationPeriod(p.applicationStart, p.applicationEnd, p.applicationCycle)).toBe("매년 12월 시·군·구 접수");
+  });
+  it("시기 문구가 없으면 종전대로 '공고 발표 예정'", () => {
+    const p = { status: "모집예정" as const, applicationStart: "9999-12-31", applicationEnd: "9999-12-31" };
+    expect(programStatusLabel(p)).toBe("공고 발표 예정");
+    expect(formatApplicationPeriod(p.applicationStart, p.applicationEnd)).toBe("공고 발표 예정");
+  });
+  it("실일자가 있으면 시기 문구가 있어도 실제 상태·기간", () => {
+    const p = { status: "모집중" as const, applicationStart: "2026-01-01", applicationEnd: "9999-12-31", applicationCycle: "매년 1월" };
+    expect(programStatusLabel(p)).toBe("모집중");
+    expect(formatApplicationPeriod(p.applicationStart, p.applicationEnd, p.applicationCycle)).toBe("상시 모집");
+  });
+});
+

@@ -143,11 +143,13 @@ export function formatAgeRange(min?: number | null, max?: number | null): string
 export function formatApplicationPeriod(
   start: string | null | undefined,
   end: string | null | undefined,
+  /** 연례 창구형 사업의 접수 시기 문구 — 9999 페어일 때 "공고 발표 예정" 대신 표시 (9/27) */
+  cycle?: string | null,
 ): string {
   const startUnknown = !start || start === ALWAYS_OPEN_DATE;
   const endOpen = !end || end === ALWAYS_OPEN_DATE;
 
-  if (startUnknown && endOpen) return "공고 발표 예정";
+  if (startUnknown && endOpen) return cycle?.trim() ? cycle.trim() : "공고 발표 예정";
   if (endOpen && start) return "상시 모집";
   if (startUnknown && end) return `~ ${formatDate(end)}`;
   return formatDateRange(start as string, end as string);

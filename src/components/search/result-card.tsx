@@ -14,6 +14,7 @@ import { CENTERS } from "@/lib/data/centers";
 import { interviews } from "@/lib/data/landing";
 import { glossaryMap, CATEGORY_LABELS } from "@/lib/data/glossary";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { programStatusLabel } from "@/lib/program-status";
 import { DeadlineBadge } from "@/components/ui/deadline-badge";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { DifficultyBadge } from "@/components/ui/difficulty-badge";
@@ -350,7 +351,7 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
       </div>
       <div className={s.statusCorner}>
         <DeadlineBadge applicationEnd={prog.applicationEnd} status={prog.status} />
-        <StatusBadge status={prog.status} />
+        <StatusBadge status={programStatusLabel(prog)} />
       </div>
     </>,
     track,

@@ -26,7 +26,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { formatApplicationPeriod, formatAgeRange } from "@/lib/format";
-import { isUnannounced, UNANNOUNCED_LABEL } from "@/lib/program-status";
+import { programStatusLabel } from "@/lib/program-status";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
@@ -154,7 +154,7 @@ export default async function ProgramDetailPage({
       {/* Title + Status */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
-          <StatusBadge status={isUnannounced(program.applicationStart, program.applicationEnd) ? UNANNOUNCED_LABEL : program.status} />
+          <StatusBadge status={programStatusLabel(program)} />
           <SupportTypeBadge type={program.supportType} prefix="지원 유형: " />
         </div>
         <div className={s.titleRow}>
@@ -250,7 +250,7 @@ export default async function ProgramDetailPage({
                       : program.applicationStart === "9999-12-31" &&
                           program.applicationEnd === "9999-12-31"
                         ? "공고 발표 예정 — 원문 페이지에서 확인"
-                        : formatApplicationPeriod(program.applicationStart, program.applicationEnd)
+                        : formatApplicationPeriod(program.applicationStart, program.applicationEnd, program.applicationCycle)
                   }
                 />
                 <InfoRow
@@ -369,6 +369,7 @@ export default async function ProgramDetailPage({
             applicationStart={program.applicationStart}
             applicationEnd={program.applicationEnd}
             status={program.status}
+            applicationCycle={program.applicationCycle}
           />
 
           {/* Eligibility Self Check */}
