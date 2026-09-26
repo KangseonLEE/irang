@@ -113,22 +113,22 @@ export const ALL_CROP_NAMES: string[] = CROPS.map((c) => c.name);
  * CROPS 카테고리에서 도출한다. 노지 위주(고추·배추·마늘·양파·무·대파·당근)는 시설원예에서 제외.
  */
 const OPEN_FIELD_VEG = new Set(["고추", "배추", "마늘", "양파", "무", "대파", "당근"]);
-export const GREENHOUSE_VEG_CROP_NAMES: string[] = CROPS.filter(
+const GREENHOUSE_VEG_CROP_NAMES: string[] = CROPS.filter(
   (c) => (c.category === "채소" && !OPEN_FIELD_VEG.has(c.name)) || ["딸기", "수박", "참외"].includes(c.name)
 ).map((c) => c.name);
-export const FLOWER_CROP_NAMES: string[] = CROPS.filter((c) => c.category === "화훼").map((c) => c.name);
-export const MUSHROOM_CROP_NAMES: string[] = CROPS.filter((c) => c.name.endsWith("버섯")).map((c) => c.name);
+const FLOWER_CROP_NAMES: string[] = CROPS.filter((c) => c.category === "화훼").map((c) => c.name);
+const MUSHROOM_CROP_NAMES: string[] = CROPS.filter((c) => c.name.endsWith("버섯")).map((c) => c.name);
 /** 밭작물 — 논(쌀) 제외 식량 + 노지채소 7종 + 밭 특용(참깨·들깨·생강). 도비 밭직불·밭 기반 사업용 (9/26 2층-b) */
-export const FIELD_CROP_NAMES: string[] = CROPS.filter(
+const FIELD_CROP_NAMES: string[] = CROPS.filter(
   (c) =>
     (c.category === "식량" && c.name !== "쌀") ||
     OPEN_FIELD_VEG.has(c.name) ||
     ["참깨", "들깨", "생강"].includes(c.name)
 ).map((c) => c.name);
-export const OPEN_FIELD_VEG_CROP_NAMES: string[] = CROPS.filter((c) => OPEN_FIELD_VEG.has(c.name)).map((c) => c.name);
+const OPEN_FIELD_VEG_CROP_NAMES: string[] = CROPS.filter((c) => OPEN_FIELD_VEG.has(c.name)).map((c) => c.name);
 
 const ORCHARD_EXCLUDED = new Set(["딸기", "수박", "참외"]);
-export const ORCHARD_CROP_NAMES: string[] = CROPS.filter(
+const ORCHARD_CROP_NAMES: string[] = CROPS.filter(
   (c) => c.category === "과수" && !ORCHARD_EXCLUDED.has(c.name)
 ).map((c) => c.name);
 
