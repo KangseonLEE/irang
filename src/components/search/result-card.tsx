@@ -10,39 +10,23 @@ import { getCropImageSrc, hasCropIllustration } from "@/lib/crop-image";
 import { getProgramById } from "@/lib/data/programs";
 import { getEducationById } from "@/lib/data/education";
 import { getEventById } from "@/lib/data/events";
-import { getSigunguById } from "@/lib/data/sigungus";
+import { getSigunguBySidoAndId, getSigungusBySidoId } from "@/lib/data/sigungus";
+import { getGuByIds } from "@/lib/data/gus";
 import { getProvinceById } from "@/lib/data/regions";
 import { STATIONS } from "@/lib/data/stations";
 import { CENTERS } from "@/lib/data/centers";
 import { interviews, INTERVIEW_CATEGORY_LABEL } from "@/lib/data/landing";
 import { glossaryMap, CATEGORY_LABELS } from "@/lib/data/glossary";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { DeadlineBadge } from "@/components/ui/deadline-badge";
+import { SupportTypeBadge } from "@/components/ui/support-type-badge";
+import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 
 import s from "./result-card.module.css";
 
 // ---------------------------------------------------------------------------
 // 헬퍼
 // ---------------------------------------------------------------------------
-
-/** YYYY-MM-DD 또는 YYYYMMDD → "D-N" 또는 "오늘 마감" (마감 지난 경우 null) */
-function getDeadlineLabel(applicationEnd: string | undefined): string | null {
-  if (!applicationEnd) return null;
-  const raw = applicationEnd.replace(/-/g, "");
-  if (raw.length !== 8) return null;
-  // 9999 = 미정 페어
-  if (raw.startsWith("9999")) return null;
-  const y = Number(raw.slice(0, 4));
-  const m = Number(raw.slice(4, 6)) - 1;
-  const d = Number(raw.slice(6, 8));
-  const end = new Date(y, m, d);
-  if (Number.isNaN(end.getTime())) return null;
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  end.setHours(0, 0, 0, 0);
-  const diff = Math.round((end.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
-  if (diff < 0) return null;
-  if (diff === 0) return "오늘 마감";
-  return `D-${diff}`;
-}
 
 /** 날짜 문자열을 "M.D" 또는 "M.D ~ M.D" 형식으로 포맷 */
 function formatDateRange(start: string, end: string | null): string {
@@ -60,42 +44,119 @@ function formatDateRange(start: string, end: string | null): string {
   return `${s1} ~ ${s2}`;
 }
 
-/** SearchItem id에서 sigungu lookup (id 형식: `${sidoId}-${sigunguId}`) */
-function lookupRegionFromId(id: string): {
-  kind: "sigungu" | "gu" | "station" | "unknown";
-  data?: { provinceName: string; sigunguName?: string; mainCrops?: string[]; description?: string };
-} {
-  // station: 숫자 ID 만
-  if (/^\d+$/.test(id)) {
-    const station = STATIONS.find((st) => st.stnId === id);
+/**
+ * 안전한 외부 URL만 통과 (2026-09-17 보안 점검과 같은 가드).
+ * 허용 프로토콜 밖이면 링크를 만들지 않는다 — React 19 는 `javascript:` 에 렌더 예외를 던져
+ * XSS 보다 **가용성**이 먼저 깨진다.
+ */
+function safeHttpUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" || u.protocol === "http:" ? u.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+interface RegionLookup {
+  kind: "province" | "sigungu" | "gu" | "station" | "unknown";
+  data?: {
+    /** 시·도 약칭 */
+    provinceName: string;
+    /** 시·도 정식 명칭 (province 카드에서만 사용) */
+    provinceFullName?: string;
+    /** 상위 시·군·구 이름 (구 카드) */
+    parentName?: string;
+    mainCrops?: string[];
+    description?: string;
+    /** 소속 시·군·구 수 (province 카드) */
+    sigunguCount?: number;
+  };
+}
+
+/**
+ * SearchItem 의 href 로 지역 종류를 판정한다.
+ *
+ * id 의 하이픈 split 은 못 쓴다 — `jung-gu-seoul`·`gwangju-gg`·`goseong-gw`·`sejong-si` 처럼
+ * **id 자체에 하이픈이 든 시·군·구 31건과 구 32건 전부**가 어긋나 풍부 카드로 못 그렸다
+ * (`province-jeonnam` 시·도 hoist 도 마찬가지). href 는 라우트 구조라 경계가 명확하다.
+ *
+ *   /regions/{sido}                    → 시·도
+ *   /regions/{sido}/{sigungu}          → 시·군·구
+ *   /regions/{sido}/{sigungu}/{gu}     → 구
+ *   /regions?stations={stnId}          → 기상 관측소
+ */
+function lookupRegionFromHref(href: string): RegionLookup {
+  const [path, queryString] = href.split("?");
+
+  if (path === "/regions" && queryString) {
+    const stnId = new URLSearchParams(queryString).get("stations");
+    const station = stnId ? STATIONS.find((st) => st.stnId === stnId) : undefined;
     if (station) {
       return {
         kind: "station",
         data: { provinceName: station.province, description: station.description },
       };
     }
+    return { kind: "unknown" };
   }
-  // sigungu: "sidoId-sigunguId"
-  // gu: "sidoId-sigunguId-guId"
-  const parts = id.split("-");
-  if (parts.length >= 2) {
-    const sidoId = parts[0];
-    const sigunguId = parts[1];
-    const province = getProvinceById(sidoId);
-    const sigungu = getSigunguById(sigunguId);
-    if (province && sigungu) {
-      return {
-        kind: parts.length === 3 ? "gu" : "sigungu",
-        data: {
-          provinceName: province.shortName ?? province.name,
-          sigunguName: sigungu.shortName ?? sigungu.name,
-          mainCrops: sigungu.mainCrops,
-          description: sigungu.description,
-        },
-      };
+
+  const segs = path.split("/").filter(Boolean);
+  if (segs[0] !== "regions" || segs.length < 2) return { kind: "unknown" };
+
+  const province = getProvinceById(segs[1]);
+  if (!province) return { kind: "unknown" };
+  const provinceName = province.shortName ?? province.name;
+
+  // 시·도 — 소속 시·군·구 수 + 대표 작물(빈도 상위)
+  if (segs.length === 2) {
+    const sigungus = getSigungusBySidoId(province.id);
+    const freq = new Map<string, number>();
+    for (const sg of sigungus) {
+      for (const crop of sg.mainCrops) freq.set(crop, (freq.get(crop) ?? 0) + 1);
     }
+    const mainCrops = [...freq.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([crop]) => crop);
+    return {
+      kind: "province",
+      data: {
+        provinceName,
+        provinceFullName: province.name,
+        description: province.description,
+        mainCrops,
+        sigunguCount: sigungus.length,
+      },
+    };
   }
-  return { kind: "unknown" };
+
+  const sigungu = getSigunguBySidoAndId(province.id, segs[2]);
+  if (!sigungu) return { kind: "unknown" };
+
+  // 구 — 자기 설명·작물을 쓰고, 메타에 상위 시 이름을 함께 노출
+  if (segs.length >= 4) {
+    const gu = getGuByIds(province.id, sigungu.id, segs[3]);
+    if (!gu) return { kind: "unknown" };
+    return {
+      kind: "gu",
+      data: {
+        provinceName,
+        parentName: sigungu.shortName ?? sigungu.name,
+        description: gu.description,
+        mainCrops: gu.mainCrops,
+      },
+    };
+  }
+
+  return {
+    kind: "sigungu",
+    data: {
+      provinceName,
+      description: sigungu.description,
+      mainCrops: sigungu.mainCrops,
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -106,35 +167,41 @@ interface ResultCardProps {
   item: SearchItem;
   query: string;
   highlightCls: string;
+  /** 섹션 안 1-based 순위 — 계측 라벨 `<type>:<rank>` 에 쓰인다 */
+  rank?: number;
+  /** 계측 라벨의 타입 부분 override (결과 없음 힌트 카드는 "hint") */
+  trackType?: string;
 }
 
-export function ResultCard({ item, query, highlightCls }: ResultCardProps) {
+export function ResultCard({ item, query, highlightCls, rank, trackType }: ResultCardProps) {
+  const track = rank != null ? `${trackType ?? item.type}:${rank}` : undefined;
+
   // 시드 6종 안내 카드 — 별도 분기 (badge "안내" + id prefix)
   if (item.id.startsWith("sub-region-hint-")) {
-    return renderHintCard(item, query, highlightCls);
+    return renderHintCard(item, query, highlightCls, track);
   }
 
   switch (item.type) {
     case "crop":
-      return renderCropCard(item, query, highlightCls);
+      return renderCropCard(item, query, highlightCls, track);
     case "region":
-      return renderRegionCard(item, query, highlightCls);
+      return renderRegionCard(item, query, highlightCls, track);
     case "program":
-      return renderProgramCard(item, query, highlightCls);
+      return renderProgramCard(item, query, highlightCls, track);
     case "education":
-      return renderEducationCard(item, query, highlightCls);
+      return renderEducationCard(item, query, highlightCls, track);
     case "event":
-      return renderEventCard(item, query, highlightCls);
+      return renderEventCard(item, query, highlightCls, track);
     case "interview":
-      return renderInterviewCard(item, query, highlightCls);
+      return renderInterviewCard(item, query, highlightCls, track);
     case "center":
-      return renderCenterCard(item, query, highlightCls);
+      return renderCenterCard(item, query, highlightCls, track);
     case "glossary":
-      return renderGlossaryCard(item, query, highlightCls);
+      return renderGlossaryCard(item, query, highlightCls, track);
     case "guide":
     case "land":
     default:
-      return renderSimpleCard(item, query, highlightCls);
+      return renderSimpleCard(item, query, highlightCls, track);
   }
 }
 
@@ -143,16 +210,18 @@ export function ResultCard({ item, query, highlightCls }: ResultCardProps) {
 // ---------------------------------------------------------------------------
 
 /** 단순 카드 (guide·land·fallback) — 기존 외형 유지 */
-function renderSimpleCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
+function renderSimpleCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
   return wrapCard(
     item,
     s.cardBase,
     <>
       <span className={s.iconBox}>{item.icon}</span>
       <div className={s.simpleBody}>
-        <span className={s.simpleTitle}>
-          {highlightMatch(item.title, query, highlightCls)}
-        </span>
+        {titleLink(item, item.title, s.stretchLink, (
+          <span className={s.simpleTitle}>
+            {highlightMatch(item.title, query, highlightCls)}
+          </span>
+        ))}
         <span className={s.simpleSubtitle}>
           {highlightMatch(item.subtitle, query, highlightCls)}
         </span>
@@ -160,27 +229,29 @@ function renderSimpleCard(item: SearchItem, query: string, highlightCls: string)
       {item.external && <span className={s.externalBadge}><ExternalLink size={12} aria-hidden="true" />외부</span>}
       {item.badge && !item.external && <span className={s.badge}>{item.badge}</span>}
     </>,
+    track,
   );
 }
 
 /** 시드 안내 카드 (sub-region-hint) */
-function renderHintCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
+function renderHintCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
   return wrapCard(
     item,
     `${s.cardRich} ${s.cardHint}`,
     <>
       <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
-      <span className={s.title}>{highlightMatch(item.title, query, highlightCls)}</span>
+      {richTitle(item, item.title, query, highlightCls)}
       <span className={s.subtitle}>{highlightMatch(item.subtitle, query, highlightCls)}</span>
       <span className={`${s.badge} ${s.badgeHint}`}>안내</span>
     </>,
+    track,
   );
 }
 
 /** 작물 카드 — 가로형 요약 (emoji + name + description + category + difficulty) */
-function renderCropCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
+function renderCropCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
   const crop = CROPS.find((c) => c.id === item.id);
-  if (!crop) return renderSimpleCard(item, query, highlightCls);
+  if (!crop) return renderSimpleCard(item, query, highlightCls, track);
 
   return wrapCard(
     item,
@@ -193,56 +264,63 @@ function renderCropCard(item: SearchItem, query: string, highlightCls: string): 
       ) : (
         <span className={s.iconBox} aria-hidden="true">{crop.emoji}</span>
       )}
-      <span className={s.title}>{highlightMatch(crop.name, query, highlightCls)}</span>
+      {richTitle(item, crop.name, query, highlightCls)}
       <span className={s.subtitle}>{highlightMatch(crop.description, query, highlightCls)}</span>
       <div className={s.metaRow}>
-        <span className={s.metaChip}>난이도 {crop.difficulty}</span>
+        <DifficultyBadge level={crop.difficulty} size="sm" />
       </div>
       <span className={s.badge}>{crop.category}</span>
     </>,
+    track,
   );
 }
 
 /** 지역 카드 — 시도·시군구·구·관측소 분기 */
-function renderRegionCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
-  const looked = lookupRegionFromId(item.id);
-  // sigungu·gu만 풍부 카드 — station/unknown은 단순 카드로 fallback
-  if (looked.kind === "sigungu" || looked.kind === "gu") {
-    const d = looked.data!;
-    const crops = d.mainCrops?.slice(0, 2) ?? [];
-    const totalCrops = d.mainCrops?.length ?? 0;
+function renderRegionCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
+  const looked = lookupRegionFromHref(item.href);
+  if (looked.kind === "unknown" || !looked.data) {
+    return renderSimpleCard(item, query, highlightCls, track);
+  }
+  const d = looked.data;
+
+  // 시·도 — 시·군·구 수 + 대표 작물로 "이 안에 무엇이 있나"를 먼저 보여준다
+  if (looked.kind === "province") {
     return wrapCard(
       item,
       s.cardRich,
       <>
         <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
-        <span className={s.title}>{highlightMatch(item.title, query, highlightCls)}</span>
+        {richTitle(item, item.title, query, highlightCls)}
         <span className={s.subtitle}>{highlightMatch(d.description ?? "", query, highlightCls)}</span>
         <div className={s.metaRow}>
-          <span className={s.metaChipMuted}>{d.provinceName}</span>
-          {crops.length > 0 && (
+          <span className={s.metaChipMuted}>{d.provinceFullName ?? d.provinceName}</span>
+          {d.sigunguCount != null && d.sigunguCount > 0 && (
             <>
               <span className={s.metaSep}>·</span>
-              {crops.map((c) => (
+              <span className={s.metaItem}>시·군·구 {d.sigunguCount}곳</span>
+            </>
+          )}
+          {(d.mainCrops ?? []).length > 0 && (
+            <>
+              <span className={s.metaSep}>·</span>
+              {(d.mainCrops ?? []).map((c) => (
                 <span key={c} className={s.metaChip}>{c}</span>
               ))}
-              {totalCrops > crops.length && (
-                <span className={s.metaItem}>+{totalCrops - crops.length}</span>
-              )}
             </>
           )}
         </div>
       </>,
+      track,
     );
   }
-  if (looked.kind === "station" && looked.data) {
-    const d = looked.data;
+
+  if (looked.kind === "station") {
     return wrapCard(
       item,
       s.cardRich,
       <>
         <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
-        <span className={s.title}>{highlightMatch(item.title, query, highlightCls)}</span>
+        {richTitle(item, item.title, query, highlightCls)}
         <span className={s.subtitle}>{highlightMatch(d.description ?? "", query, highlightCls)}</span>
         <div className={s.metaRow}>
           <span className={s.metaChipMuted}>{d.provinceName}</span>
@@ -250,23 +328,50 @@ function renderRegionCard(item: SearchItem, query: string, highlightCls: string)
           <span className={s.metaItem}>기상 관측소</span>
         </div>
       </>,
+      track,
     );
   }
-  return renderSimpleCard(item, query, highlightCls);
+
+  // 시·군·구 · 구
+  const crops = d.mainCrops?.slice(0, 2) ?? [];
+  const totalCrops = d.mainCrops?.length ?? 0;
+  return wrapCard(
+    item,
+    s.cardRich,
+    <>
+      <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
+      {richTitle(item, item.title, query, highlightCls)}
+      <span className={s.subtitle}>{highlightMatch(d.description ?? "", query, highlightCls)}</span>
+      <div className={s.metaRow}>
+        <span className={s.metaChipMuted}>{d.provinceName}</span>
+        {d.parentName && (
+          <>
+            <span className={s.metaSep}>·</span>
+            <span className={s.metaItem}>{d.parentName}</span>
+          </>
+        )}
+        {crops.length > 0 && (
+          <>
+            <span className={s.metaSep}>·</span>
+            {crops.map((c) => (
+              <span key={c} className={s.metaChip}>{c}</span>
+            ))}
+            {totalCrops > crops.length && (
+              <span className={s.metaItem}>+{totalCrops - crops.length}</span>
+            )}
+          </>
+        )}
+      </div>
+    </>,
+    track,
+  );
 }
 
-/** 지원사업 카드 — status + 지원금액 hero + 지역 + 지원유형 + D-N */
-function renderProgramCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
+/** 지원사업 카드 — status + 지원금액 hero + 지역 + 지원유형 + 마감 임박 */
+function renderProgramCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
   const prog = getProgramById(item.id);
-  if (!prog) return renderSimpleCard(item, query, highlightCls);
+  if (!prog) return renderSimpleCard(item, query, highlightCls, track);
 
-  const deadline = getDeadlineLabel(prog.applicationEnd);
-  const statusClass =
-    prog.status === "모집중"
-      ? s.badgeStatusOpen
-      : prog.status === "모집예정"
-        ? s.badgeStatusUpcoming
-        : s.badgeStatusClosed;
   // supportAmount 텍스트가 너무 길면 1줄 truncate — CSS에서 line-clamp 처리.
   const amount = prog.supportAmount?.trim();
 
@@ -275,7 +380,7 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
     s.cardRich,
     <>
       <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
-      <span className={s.title}>{highlightMatch(prog.title, query, highlightCls)}</span>
+      {richTitle(item, prog.title, query, highlightCls)}
       <span className={s.subtitle}>{highlightMatch(item.subtitle, query, highlightCls)}</span>
       {amount && (
         <span className={s.supportAmount}>{highlightMatch(amount, query, highlightCls)}</span>
@@ -283,37 +388,30 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
       <div className={s.metaRow}>
         <span className={s.metaChipMuted}>{prog.region}</span>
         <span className={s.metaSep}>·</span>
-        <span className={s.metaChip}>{prog.supportType}</span>
+        <SupportTypeBadge type={prog.supportType} />
       </div>
       <div className={s.statusCorner}>
-        {deadline && (
-          <span className={s.badgeDeadline}>{deadline}</span>
-        )}
-        <span className={`${s.badge} ${statusClass}`}>{prog.status}</span>
+        <DeadlineBadge applicationEnd={prog.applicationEnd} status={prog.status} />
+        <StatusBadge status={prog.status} />
       </div>
     </>,
+    track,
   );
 }
 
 /** 교육 카드 — organization + 기간 + 지역 + level + 정원 */
-function renderEducationCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
+function renderEducationCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
   const edu = getEducationById(item.id);
-  if (!edu) return renderSimpleCard(item, query, highlightCls);
+  if (!edu) return renderSimpleCard(item, query, highlightCls, track);
 
   const period = formatDateRange(edu.applicationStart, edu.applicationEnd);
-  const statusClass =
-    edu.status === "모집중"
-      ? s.badgeStatusOpen
-      : edu.status === "모집예정"
-        ? s.badgeStatusUpcoming
-        : s.badgeStatusClosed;
 
   return wrapCard(
     item,
     s.cardRich,
     <>
       <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
-      <span className={s.title}>{highlightMatch(edu.title, query, highlightCls)}</span>
+      {richTitle(item, edu.title, query, highlightCls)}
       <span className={s.subtitle}>{highlightMatch(edu.organization, query, highlightCls)}</span>
       <div className={s.metaRow}>
         <span className={s.metaChipMuted}>{edu.region}</span>
@@ -339,30 +437,27 @@ function renderEducationCard(item: SearchItem, query: string, highlightCls: stri
           </>
         )}
       </div>
-      <span className={`${s.badge} ${statusClass}`}>{edu.status}</span>
+      <div className={s.statusCorner}>
+        <StatusBadge status={edu.status} />
+      </div>
     </>,
+    track,
   );
 }
 
 /** 체험·행사 카드 — 행사일 + 지역 + 장소 + target */
-function renderEventCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
+function renderEventCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
   const ev = getEventById(item.id);
-  if (!ev) return renderSimpleCard(item, query, highlightCls);
+  if (!ev) return renderSimpleCard(item, query, highlightCls, track);
 
   const period = formatDateRange(ev.date, ev.dateEnd);
-  const statusClass =
-    ev.status === "접수중"
-      ? s.badgeStatusOpen
-      : ev.status === "접수예정"
-        ? s.badgeStatusUpcoming
-        : s.badgeStatusClosed;
 
   return wrapCard(
     item,
     s.cardRich,
     <>
       <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
-      <span className={s.title}>{highlightMatch(ev.title, query, highlightCls)}</span>
+      {richTitle(item, ev.title, query, highlightCls)}
       <span className={s.subtitle}>{highlightMatch(item.subtitle, query, highlightCls)}</span>
       <div className={s.metaRow}>
         <span className={s.metaChipMuted}>{ev.region}</span>
@@ -385,15 +480,18 @@ function renderEventCard(item: SearchItem, query: string, highlightCls: string):
           </>
         )}
       </div>
-      <span className={`${s.badge} ${statusClass}`}>{ev.status}</span>
+      <div className={s.statusCorner}>
+        <StatusBadge status={ev.status} />
+      </div>
     </>,
+    track,
   );
 }
 
 /** 인터뷰 카드 — 가로형 요약 (이름·지역 + quote + 작물 + 카테고리) */
-function renderInterviewCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
+function renderInterviewCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
   const iv = interviews.find((p) => p.id === item.id);
-  if (!iv) return renderSimpleCard(item, query, highlightCls);
+  if (!iv) return renderSimpleCard(item, query, highlightCls, track);
 
   const titleStr = `${iv.name} · ${iv.region}`;
   const quoteStr = `“${iv.quote}”`;
@@ -404,7 +502,7 @@ function renderInterviewCard(item: SearchItem, query: string, highlightCls: stri
     s.cardRich,
     <>
       <span className={s.iconBox} aria-hidden="true">{"\u{1F464}"}</span>
-      <span className={s.title}>{highlightMatch(titleStr, query, highlightCls)}</span>
+      {richTitle(item, titleStr, query, highlightCls)}
       <span className={s.subtitle}>{highlightMatch(quoteStr, query, highlightCls)}</span>
       <div className={s.metaRow}>
         {iv.crop && (
@@ -421,13 +519,14 @@ function renderInterviewCard(item: SearchItem, query: string, highlightCls: stri
       </div>
       {categoryLabel && <span className={s.badge}>{categoryLabel}</span>}
     </>,
+    track,
   );
 }
 
 /** 지자체 센터 카드 — sido/sigungu + 전화 + 카테고리(광역/시·군) */
-function renderCenterCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
+function renderCenterCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
   const ctr = CENTERS.find((c) => c.id === item.id);
-  if (!ctr) return renderSimpleCard(item, query, highlightCls);
+  if (!ctr) return renderSimpleCard(item, query, highlightCls, track);
 
   const where = [ctr.sido, ctr.sigungu].filter(Boolean).join(" ");
   const categoryLabel = ctr.category === "sido" ? "광역" : "시·군";
@@ -437,7 +536,7 @@ function renderCenterCard(item: SearchItem, query: string, highlightCls: string)
     s.cardRich,
     <>
       <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
-      <span className={s.title}>{highlightMatch(ctr.name, query, highlightCls)}</span>
+      {richTitle(item, ctr.name, query, highlightCls)}
       <span className={s.subtitle}>{highlightMatch(where, query, highlightCls)}</span>
       <div className={s.metaRow}>
         <span className={s.metaChip}>{categoryLabel}</span>
@@ -456,20 +555,21 @@ function renderCenterCard(item: SearchItem, query: string, highlightCls: string)
         ) : null}
       </div>
     </>,
+    track,
   );
 }
 
 /** 용어 카드 — 용어 + 카테고리 + 짧은 설명 */
-function renderGlossaryCard(item: SearchItem, query: string, highlightCls: string): ReactNode {
+function renderGlossaryCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
   const entry = glossaryMap.get(item.id);
-  if (!entry) return renderSimpleCard(item, query, highlightCls);
+  if (!entry) return renderSimpleCard(item, query, highlightCls, track);
 
   return wrapCard(
     item,
     s.cardRich,
     <>
       <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
-      <span className={s.title}>{highlightMatch(entry.term, query, highlightCls)}</span>
+      {richTitle(item, entry.term, query, highlightCls)}
       <span className={s.subtitle}>{highlightMatch(entry.shortDesc, query, highlightCls)}</span>
       <div className={s.metaRow}>
         <span className={s.metaChip}>{CATEGORY_LABELS[entry.category]}</span>
@@ -481,30 +581,78 @@ function renderGlossaryCard(item: SearchItem, query: string, highlightCls: strin
         )}
       </div>
     </>,
+    track,
   );
 }
 
 // ---------------------------------------------------------------------------
-// Link / a wrapper
+// 카드 껍데기 — article + 제목 stretched link
 // ---------------------------------------------------------------------------
 
-function wrapCard(item: SearchItem, className: string, inner: ReactNode): ReactNode {
+/**
+ * 제목 링크. 카드 전체가 클릭 영역이 되도록 `::after` 로 카드를 덮는다(stretched link).
+ * 보조 액션(전화·신청·원문)은 `.cardAction` 으로 이 오버레이 위에 올린다.
+ *
+ * `aria-label` 에는 하이라이트 `<mark>` 를 뺀 평문 제목을 넣는다 — 스크린리더가 잘린
+ * 토막으로 읽지 않도록.
+ */
+function titleLink(
+  item: SearchItem,
+  titleText: string,
+  className: string,
+  inner: ReactNode,
+): ReactNode {
   if (item.external) {
+    const safe = safeHttpUrl(item.href);
+    // 허용 프로토콜 밖이면 링크를 만들지 않는다 (렌더 예외 차단)
+    if (!safe) return <span className={className}>{inner}</span>;
     return (
       <a
-        key={`${item.type}-${item.id}`}
-        href={item.href}
+        href={safe}
         target="_blank"
         rel="noopener noreferrer"
         className={className}
+        aria-label={titleText}
       >
         {inner}
       </a>
     );
   }
   return (
-    <Link key={`${item.type}-${item.id}`} href={item.href} className={className}>
+    <Link href={item.href} className={className} aria-label={titleText}>
       {inner}
     </Link>
+  );
+}
+
+/** 풍부 카드(.cardRich)의 제목 셀 — grid-column 2 + stretched link */
+function richTitle(
+  item: SearchItem,
+  titleText: string,
+  query: string,
+  highlightCls: string,
+): ReactNode {
+  return titleLink(
+    item,
+    titleText,
+    s.titleCell,
+    <span className={s.title}>{highlightMatch(titleText, query, highlightCls)}</span>,
+  );
+}
+
+function wrapCard(
+  item: SearchItem,
+  className: string,
+  inner: ReactNode,
+  track?: string,
+): ReactNode {
+  return (
+    <article
+      key={`${item.type}-${item.id}`}
+      className={className}
+      data-search-result={track}
+    >
+      {inner}
+    </article>
   );
 }

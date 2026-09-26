@@ -14,6 +14,7 @@ import { withJosa } from "@/lib/format";
 import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
 import { ResultCard } from "@/components/search/result-card";
+import { SearchResultTracker } from "@/components/analytics/search-result-tracker";
 import { SearchAnswerCard } from "@/components/search/search-answer-card";
 import { CropKnowledgePanel } from "@/components/search/crop-knowledge-panel";
 import s from "./page.module.css";
@@ -254,6 +255,9 @@ function SearchPageContent() {
 
   return (
     <div className={s.page}>
+      {/* 검색 결과 카드 클릭 계측 — data-search-result 위임 */}
+      <SearchResultTracker />
+
       {/* 뒤로가기 */}
       <Link href="/" className={s.backLink}>
         <ArrowLeft size={16} />
@@ -440,12 +444,13 @@ function SearchPageContent() {
                   )}
                 </h2>
                 <div className={s.grid}>
-                  {visibleItems.map((item) => (
+                  {visibleItems.map((item, i) => (
                     <ResultCard
                       key={`${item.type}-${item.id}`}
                       item={item}
                       query={effectiveQuery}
                       highlightCls={s.highlight}
+                      rank={i + 1}
                     />
                   ))}
                 </div>
@@ -516,12 +521,14 @@ function SearchPageContent() {
             <div className={s.hintSection}>
               <p className={s.suggestTitle}>이런 작물은 어때요?</p>
               <div className={s.grid}>
-                {noResultHintItems.map((item) => (
+                {noResultHintItems.map((item, i) => (
                   <ResultCard
                     key={`${item.type}-${item.id}`}
                     item={item}
                     query={effectiveQuery}
                     highlightCls={s.highlight}
+                    rank={i + 1}
+                    trackType="hint"
                   />
                 ))}
               </div>

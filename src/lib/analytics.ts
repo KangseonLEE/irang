@@ -31,6 +31,14 @@ export const analytics = {
   // -- Search --
   search: (query: string) =>
     trackEvent({ action: "search", category: "engagement", label: query }),
+  /**
+   * 검색 결과 카드 클릭 (2026-09-26, SearchResultTracker 위임) — label `<type>:<순위>`.
+   *
+   * 검색어는 싣지 않는다. 결과 화면 개편의 판정 축은 "어느 타입이 몇 번째에서 눌리는가"이고,
+   * 검색어는 `search` 이벤트·search_logs 에 이미 있어서 label 을 길게 만들 이유가 없다.
+   */
+  searchResultClick: (typeAndRank: string) =>
+    trackEvent({ action: "search_result_click", category: "search", label: typeAndRank }),
   // 결과 0건 검색어를 실재 작물로 자동 대체해 보여준 경우 (2026-09-23) — label "원검색어>대체어".
   // 2주 뒤 이 이벤트 대비 대체 작물 상세 page_view 로 기능 실효를 판정한다.
   searchFallbackShown: (query: string, term: string) =>

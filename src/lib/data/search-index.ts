@@ -1075,20 +1075,36 @@ export function searchItems(query: string): SearchItem[] {
   return results.slice(0, 12);
 }
 
+/** searchAllGrouped 반환형 — 고정 블록(pinned)과 관련도 정렬 목록(rest) */
+export interface GroupedSearchResults {
+  /**
+   * 관련도 정렬 앞에 고정으로 붙는 블록. 읍·면·동 안내 → 정확 일치 hoist →
+   * 작물 context 딥링크 → FAQ → region×crop 합성 카드 순서.
+   * 타입별 섹션으로 나누면 안 되는 "이 검색에 대한 직답" 묶음이다.
+   */
+  pinned: SearchItem[];
+  /** 점수 내림차순 일반 결과 */
+  rest: SearchItem[];
+}
+
 /**
- * 통합 검색 (결과 페이지용) — 전체 매칭 결과, 관련도 내림차순 정렬.
+ * 통합 검색 (결과 페이지용) — 고정 블록과 일반 결과를 나눠서 반환.
+ *
+ * `searchAll` 은 이 함수의 `[...pinned, ...rest]` 를 돌려주는 얇은 래퍼다.
+ * 매칭·점수·하한선 계산은 전부 여기 그대로 있고, 달라진 건 **반환 모양뿐**.
+ * 결과 화면이 "직답 블록"과 "타입별 섹션"을 다르게 그리려면 이 경계가 필요하다.
  *
  * 복합 쿼리 지원:
  *   "전남 딸기" → "전남" OR "딸기" 로 분리, 관련도 합산 정렬
  */
-export function searchAll(query: string): SearchItem[] {
+export function searchAllGrouped(query: string): GroupedSearchResults {
   const q0 = query.trim().toLowerCase();
-  if (q0.length === 0) return [];
+  if (q0.length === 0) return { pinned: [], rest: [] };
   // 작물명 prefix 자동 공백 — "사과재배지" → "사과 재배지"
   const q = injectCropPrefixSpace(q0);
 
   const terms = q.split(/\s+/).filter(Boolean);
-  if (terms.length === 0) return [];
+  if (terms.length === 0) return { pinned: [], rest: [] };
 
   // 읍·면·동 안내 — 시드 매칭 시 최상단에 노출 (동음이의어는 다수 항목)
   // 복합 쿼리("울산 서생")는 첫 단어로만 매칭 — 단일 단어 검색이 일반적
@@ -1119,7 +1135,7 @@ export function searchAll(query: string): SearchItem[] {
     const hasExact = hoisted.length > 0 || (scored[0]?.score ?? 0) >= 100;
     const results = (hasExact ? scored.filter(({ score }) => score > SUBTITLE_ONLY_MAX) : scored)
       .map(({ item }) => item);
-    return [...hintPrefix, ...hoisted, ...faqResults, ...results];
+    return { pinned: [...hintPrefix, ...hoisted, ...faqResults], rest: results };
   }
 
   // 복합 쿼리: OR 매칭 + 관련도 합산 정렬
@@ -1151,7 +1167,9 @@ export function searchAll(query: string): SearchItem[] {
     .sort((a, b) => b.score - a.score)
     .map(({ item }) => item);
 
-  // region-crop 인텐트일 때 합성 결과 아이템을 최상위에 삽입
+  // region-crop 인텐트일 때 합성 결과 아이템을 최상위에 삽입.
+  // (기존에는 scored.unshift 였다 — pinned 로 옮겨도 최종 연결 순서는 동일하다)
+  const syntheticPrefix: SearchItem[] = [];
   if (intent.type === "region-crop") {
     const province = PROVINCES.find(
       (p) => p.shortName === intent.region || p.name === intent.region,
@@ -1167,7 +1185,7 @@ export function searchAll(query: string): SearchItem[] {
         keywords: [intent.region, intent.crop],
         icon: "\u{1F50D}", // 🔍
       };
-      scored.unshift(syntheticItem);
+      syntheticPrefix.push(syntheticItem);
     }
   }
 
@@ -1259,13 +1277,25 @@ export function searchAll(query: string): SearchItem[] {
     ? scored.filter((it) => !leadingHoistIds.has(it.id))
     : scored;
 
-  return [
-    ...hintPrefix,
-    ...leadingCropHoist,
-    ...cropContextPrefix,
-    ...faqResults,
-    ...scoredOut,
-  ];
+  return {
+    pinned: [
+      ...hintPrefix,
+      ...leadingCropHoist,
+      ...cropContextPrefix,
+      ...faqResults,
+      ...syntheticPrefix,
+    ],
+    rest: scoredOut,
+  };
+}
+
+/**
+ * 통합 검색 (결과 페이지용) — 전체 매칭 결과, 관련도 내림차순 정렬.
+ * `searchAllGrouped` 의 고정 블록 + 일반 결과를 한 배열로 이어 붙인 것.
+ */
+export function searchAll(query: string): SearchItem[] {
+  const { pinned, rest } = searchAllGrouped(query);
+  return pinned.length === 0 ? rest : [...pinned, ...rest];
 }
 
 // ---------------------------------------------------------------------------

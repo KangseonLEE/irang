@@ -9,6 +9,7 @@ import { NEGATIVE, POSITIVE } from "./fixtures/search-adversarial-corpus";
 import {
   searchItems,
   searchAll,
+  searchAllGrouped,
   getQuerySuggestions,
   detectIntent,
   buildSearchAnswer,
@@ -893,5 +894,51 @@ describe("관련도 하한선 + 지역 구체성 (9/23 고도화)", () => {
   });
   it("'전남 딸기'는 시·군·구가 없으므로 종전대로", () => {
     expect(searchAll("전남 딸기").length).toBeGreaterThan(20);
+  });
+});
+
+// ─── searchAllGrouped 계약 (Phase A, 2026-09-26) ───
+
+describe("searchAllGrouped — 고정 블록/일반 결과 분리 계약", () => {
+  const QUERIES = ["사과", "가평", "전남 귀농", "도열병", "가시오이", "울산 서생", "전남 딸기", "사과 수익"];
+
+  it("pinned + rest 를 이어 붙이면 searchAll 과 완전히 같다", () => {
+    for (const q of QUERIES) {
+      const { pinned, rest } = searchAllGrouped(q);
+      const flat = searchAll(q);
+      expect(pinned.length + rest.length, q).toBe(flat.length);
+      expect([...pinned, ...rest].map((i) => `${i.type}:${i.id}`), q).toEqual(
+        flat.map((i) => `${i.type}:${i.id}`),
+      );
+    }
+  });
+
+  it("pinned 는 searchAll 결과의 선두 블록과 id 집합이 일치한다", () => {
+    for (const q of QUERIES) {
+      const { pinned } = searchAllGrouped(q);
+      const head = searchAll(q).slice(0, pinned.length);
+      expect(head.map((i) => i.id), q).toEqual(pinned.map((i) => i.id));
+    }
+  });
+
+  it("빈 쿼리는 pinned·rest 모두 빈 배열", () => {
+    expect(searchAllGrouped("")).toEqual({ pinned: [], rest: [] });
+    expect(searchAllGrouped("   ")).toEqual({ pinned: [], rest: [] });
+  });
+
+  it("정확 일치 hoist 는 pinned 에 들어간다 — '사과'", () => {
+    const { pinned } = searchAllGrouped("사과");
+    expect(pinned.length).toBeGreaterThan(0);
+    expect(pinned[0].title).toBe("사과");
+  });
+
+  it("읍·면·동 안내 카드는 pinned 최상단 — '서생'", () => {
+    const { pinned } = searchAllGrouped("서생");
+    expect(pinned[0]?.id.startsWith("sub-region-hint-")).toBe(true);
+  });
+
+  it("작물 context 딥링크는 pinned — '사과 수익'", () => {
+    const { pinned } = searchAllGrouped("사과 수익");
+    expect(pinned.some((i) => i.href.startsWith("/crops/apple#"))).toBe(true);
   });
 });
