@@ -441,6 +441,11 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-058": { farmYouth: 3, family: 3, elderRural: 2, commuter: 2 },
   "SP-059": { farmYouth: 4, family: 4, elderRural: 3, commuter: 2 },
   "SP-060": { farmYouth: 4, family: 4, elderRural: 3, commuter: 2 },
+  // 2026-09-26 2층-b: 잔여 9종 광역 사업 — 밭농사 위주라 은퇴·가족 정착에 맞고 통근형은 낮음
+  "SP-061": { family: 4, elderRural: 4, farmYouth: 3, commuter: 2 },
+  "SP-062": { family: 3, elderRural: 3, farmYouth: 3, commuter: 2 },
+  "SP-063": { family: 4, elderRural: 5, farmYouth: 4, commuter: 3 },
+  "SP-064": { family: 4, elderRural: 4, farmYouth: 4, commuter: 2 },
 };
 
 export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
@@ -503,6 +508,10 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-058": "절화 습식유통 기자재를 aT화훼사업센터에서 지원해요",
   "SP-059": "인삼 해가림·관수·기계를 국고 20%·융자 30%로 갖춰요",
   "SP-060": "온실 난방비 줄이는 보온커튼·수막재배 설비를 보조해요",
+  "SP-061": "전남 노지채소 1,000㎡ 이상이면 연작장해 경감제를 상시 받아요",
+  "SP-062": "강원 고랭지 무·배추 농가를 위한 도 수급안정 지원이에요",
+  "SP-063": "전북 밭농사 1,000㎡ 이상이면 공익직불 신청으로 도비 직불금까지 받아요",
+  "SP-064": "제주 밭의 암반 제거 비용을 지원해 농지 준비 부담을 줄여요",
 };
 
 /**

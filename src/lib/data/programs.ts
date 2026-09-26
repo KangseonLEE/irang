@@ -118,6 +118,14 @@ export const GREENHOUSE_VEG_CROP_NAMES: string[] = CROPS.filter(
 ).map((c) => c.name);
 export const FLOWER_CROP_NAMES: string[] = CROPS.filter((c) => c.category === "화훼").map((c) => c.name);
 export const MUSHROOM_CROP_NAMES: string[] = CROPS.filter((c) => c.name.endsWith("버섯")).map((c) => c.name);
+/** 밭작물 — 논(쌀) 제외 식량 + 노지채소 7종 + 밭 특용(참깨·들깨·생강). 도비 밭직불·밭 기반 사업용 (9/26 2층-b) */
+export const FIELD_CROP_NAMES: string[] = CROPS.filter(
+  (c) =>
+    (c.category === "식량" && c.name !== "쌀") ||
+    OPEN_FIELD_VEG.has(c.name) ||
+    ["참깨", "들깨", "생강"].includes(c.name)
+).map((c) => c.name);
+export const OPEN_FIELD_VEG_CROP_NAMES: string[] = CROPS.filter((c) => OPEN_FIELD_VEG.has(c.name)).map((c) => c.name);
 
 const ORCHARD_EXCLUDED = new Set(["딸기", "수박", "참외"]);
 export const ORCHARD_CROP_NAMES: string[] = CROPS.filter(
@@ -1440,6 +1448,96 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     applicationEnd: "9999-12-31",
     relatedCrops: [...GREENHOUSE_VEG_CROP_NAMES, ...FLOWER_CROP_NAMES, ...MUSHROOM_CROP_NAMES], // 원문 "채소·화훼‧버섯류"
     sourceUrl: "https://www.gov.kr/portal/service/serviceInfo/154300005010",
+    year: 2026,
+    category: "facility",
+  },
+  // ── 2026-09-26 2층-b: 잔여 9종(고구마·배추·마늘·양파·무·대파·생강·당근·메밀) — 농식품부 시행지침서 220개
+  //    사업 전수에서 개인 농가 대상 국비 사업 부재 확인 → 광역(도) 사업 4건. 보조금24 dtlEx·도청 상설 페이지, CoS 원문 대조.
+  {
+    id: "SP-061",
+    title: "전남 원예작물 연작장해 경감제 지원 (시설원예·노지채소)",
+    summary:
+      "전남에서 노지채소를 1,000㎡ 이상 키우면 연작장해 경감제를 ha당 360만 원까지 현물로 받아요. 상시 신청이라 읍·면·동에 바로 가면 돼요.",
+    description:
+      "같은 밭에 같은 작물을 해마다 심으면 토양 병해가 쌓여 수량이 떨어져요. 이 사업은 그 연작장해를 줄이는 경감제를 현물로 주는 전남 사업이에요. 지원 대상이 시설원예뿐 아니라 노지채소 재배농가까지 포함돼서, 마늘·양파처럼 연작 피해가 큰 작물을 노지에서 키우는 농가도 해당돼요. 농업경영체에 등록하고 1,000㎡ 이상 재배하면 신청할 수 있고, 단가는 ha당 360만 원이에요. 상시 신청이라 거주지 읍·면·동 주민센터에 방문하면 되고, 자세한 건 전남 식량원예과(061-286-6492)에 확인하세요.",
+    region: "전라남도",
+    organization: "전라남도 식량원예과 / 거주지 읍·면·동 주민센터",
+    supportType: "현물",
+    supportAmount: "연작장해 경감제 ha당 360만 원 (현물)",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "농업경영체 등록 시설원예 및 노지채소 1,000㎡ 이상 재배농가. 지원내용 항목에는 '1,000㎡ 이상 시설원예 재배농가, 작목반'으로 적혀 있어 지원대상 항목(노지채소 포함)과 표기가 달라요 — 노지 재배분 인정 여부는 식량원예과에 확인하세요. 연령 제한은 본문에 명시 없어요. 상시 신청.",
+    applicationStart: "2026-01-01",
+    applicationEnd: "9999-12-31",
+    relatedCrops: OPEN_FIELD_VEG_CROP_NAMES, // 원문 "노지채소"
+    sourceUrl: "https://www.gov.kr/portal/rcvfvrSvc/dtlEx/646000000179",
+    year: 2026,
+    category: "facility",
+  },
+  {
+    id: "SP-062",
+    title: "강원 고랭지채소 안정생산 지원 (고랭지 무·배추 수급·가격안정)",
+    summary:
+      "강원 고랭지에서 무·배추를 키우면 방제약제·가격 차액·출하장려금 같은 도 수급안정 지원을 받을 수 있어요. 접수는 시·군 공고를 확인하세요.",
+    description:
+      "여름 고랭지 무·배추는 전국 재배면적의 약 90%가 강원에 있어요. 기상이변으로 출하기 가격이 크게 흔들리자 강원도가 2013년 전국 최초로 수급안정자금을 만들어 운영하고 있어요. 병해충 방제·약제 지원, 산지 집하·출하조절시설, 채소가격 차액 지원, 출하장려금, 연작피해 토양미생물제제 지원으로 구성돼요. 추진계획 기준 고랭지채소 안정생산 지원은 4,000ha·25억 6천만 원(도비·시군비·자부담)이에요. 다만 이 안내 페이지에는 지원 요건과 신청 기간이 없어서, 실제 접수는 시·군 농업기술센터·농정과 공고(예: 인제군 원예특작분야 지원사업, 매년 1~2월)를 확인해야 해요.",
+    region: "강원도",
+    organization: "강원특별자치도 / 각 시·군 농업기술센터·농정과",
+    supportType: "보조금",
+    supportAmount: "고랭지채소 안정생산 지원 4,000ha·2,560백만 원 (도비 384·시군비 896·자부담 1,280) 등 5개 사업",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "도 안내 페이지에는 지원대상·신청 요건이 명시돼 있지 않아요. 자부담이 편성된 농가 참여 사업이지만 개인 농가 신청 절차는 시·군 공고로 확인해야 해요(인제군은 무·배추 무사마귀병 방제약제 50% 보조를 매년 1~2월 접수). 연령 제한 명시 없음.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: ["무", "배추"],
+    sourceUrl: "https://www.gwd.go.kr/portal/partinfo/livestock/horticultural/competitiveness/highland",
+    year: 2026,
+    category: "settlement",
+  },
+  {
+    id: "SP-063",
+    title: "전북 밭농업직불금 지원 (도비 밭직불금)",
+    summary:
+      "전북에서 1,000㎡ 이상 밭농사를 하면 도비 직불금을 농업인당 0.1~1.0ha까지 받아요. 기본형 공익직불 신청으로 같이 처리돼요.",
+    description:
+      "전북이 밭농업 농가의 소득 안정을 위해 국가 공익직불에 더해 도비로 주는 밭직불금이에요. 농업경영체에 등록하고 전북에 주소를 둔 농업인이 기본형 공익직불 지급대상 밭에서 1,000㎡ 이상 밭농사를 하면 농업인당 0.1ha에서 1.0ha까지 현금으로 받아요. 개인 기준이라 법인은 제외예요. 별도 신청서 없이 기본형 공익직불 신청(매년 2월 1일~5월 30일)으로 대체되니, 읍·면·동사무소에서 공익직불을 신청할 때 함께 처리돼요. 문의는 전북 농생명정책과예요.",
+    region: "전라북도",
+    organization: "전북특별자치도 농생명정책과 / 농지 소재지 읍·면·동사무소",
+    supportType: "보조금",
+    supportAmount: "밭농업 소득안정 직불금 — 농업인당 0.1ha~1.0ha (현금)",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "농업경영체에 등록하고 도내에 거주(주민등록 주소)하는 농업인 중, 기본형 공익직접지불제(소농·면적직불) 지급대상 농지(타 시·도 농지 제외)에서 1,000㎡ 이상 밭농업을 하는 사람이에요. 개인 기준이고 법인은 제외예요. 별도 신청서·구비서류는 없고 기본형 공익직불 신청(매년 2.1.~5.30.)으로 대체돼요. 연령 제한 명시 없음.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: FIELD_CROP_NAMES, // 원문 "밭농업"
+    sourceUrl: "https://www.gov.kr/portal/rcvfvrSvc/dtlEx/645000000144",
+    year: 2026,
+    category: "settlement",
+  },
+  {
+    id: "SP-064",
+    title: "제주 경작지 암반제거 지원 (밭작물 재배농지)",
+    summary:
+      "제주 밭에 암반이 있으면 제거 비용과 지반 정리 장비 사용료를 지원받아요. 신청은 매년 1월 중이에요.",
+    description:
+      "제주 밭은 암반이 많아 정식기·수확기 같은 기계를 넣기 어려운 곳이 많아요. 이 사업은 농업경영체에 등록한 밭작물 재배농지(과수원 제외)에 암반이 있으면 200㎥ 이하 암반 제거와 지반 정리 장비 사용료를 지원해요. 무·당근·마늘·양파·메밀처럼 제주 밭작물을 시작하는 정착자가 농지를 고를 때 함께 볼 만한 사업이에요. 신청은 매년 1월 중 읍·면·동 주민센터에 농업경영체 등록확인서·토지등기부등본 등을 내면 되고, 담당자가 현지를 확인해요. 문의는 제주시청 감귤유통과예요.",
+    region: "제주특별자치도",
+    organization: "제주특별자치도 / 읍·면·동 주민센터 (문의 제주시청 감귤유통과)",
+    supportType: "보조금",
+    supportAmount: "200㎥ 이하 암반 제거 및 지반 정리 장비 사용료",
+    eligibilityAgeMin: 18,
+    eligibilityAgeMax: 99,
+    eligibilityDetail:
+      "농업경영체에 등록한 밭작물 재배농지(과수원 제외)에 암반이 있는 경우예요. 농업경영체 등록확인서·건강보험자격득실확인서·토지등기부등본·가산점 서류를 내고, 읍·면·동 담당자가 현지확인 복명서를 첨부해요. 신청 시기는 '매년 1월 중'. 연령 제한 명시 없음.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    relatedCrops: FIELD_CROP_NAMES, // 원문 "밭작물 재배농지"
+    sourceUrl: "https://www.gov.kr/portal/rcvfvrSvc/dtlEx/650000000229",
     year: 2026,
     category: "facility",
   },
