@@ -446,6 +446,15 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-062": { family: 3, elderRural: 3, farmYouth: 3, commuter: 2 },
   "SP-063": { family: 4, elderRural: 5, farmYouth: 4, commuter: 3 },
   "SP-064": { family: 4, elderRural: 4, farmYouth: 4, commuter: 2 },
+  // 2026-09-26 3층: 주산지 시군 특화 — 신규 가능(070·074·075·077) vs 기존 재배 전제(071·072·076)
+  "SP-070": { farmYouth: 4, family: 4, elderRural: 4, commuter: 3 },
+  "SP-071": { family: 3, elderRural: 4, farmYouth: 3, commuter: 2 },
+  "SP-072": { family: 3, elderRural: 4, farmYouth: 3, commuter: 2 },
+  "SP-073": { family: 4, elderRural: 4, farmYouth: 4, commuter: 2 },
+  "SP-074": { family: 4, elderRural: 4, farmYouth: 4, commuter: 3 },
+  "SP-075": { farmYouth: 5, family: 4, elderRural: 4, commuter: 3 },
+  "SP-076": { family: 3, elderRural: 3, farmYouth: 3, commuter: 2 },
+  "SP-077": { elderRural: 5, family: 4, farmYouth: 4, commuter: 3 },
 };
 
 export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
@@ -512,6 +521,14 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-062": "강원 고랭지 무·배추 농가를 위한 도 수급안정 지원이에요",
   "SP-063": "전북 밭농사 1,000㎡ 이상이면 공익직불 신청으로 도비 직불금까지 받아요",
   "SP-064": "제주 밭의 암반 제거 비용을 지원해 농지 준비 부담을 줄여요",
+  "SP-070": "당진 농업인이면 무병 고구마 종순을 시세 80%에 받아요",
+  "SP-071": "진도 겨울배추 농가에 동해방지 부직포 절반을 보조해요",
+  "SP-072": "고흥 마늘·양파 농가에 토양병 방제약제를 지원해요 (전년 경작신고 필요)",
+  "SP-073": "합천 양파·마늘 농가라면 종자대·농기계·건조기까지 5가지 사업이 있어요",
+  "SP-074": "서산 대파·생강 값이 20% 넘게 떨어지면 차액 80%를 보전해요",
+  "SP-075": "진도에서 생강을 시작하면 종자·자재 70%를 보조해 첫해부터 맞아요",
+  "SP-076": "제주 당근 가격이 기준 아래로 떨어지면 차액 90%를 보전해요",
+  "SP-077": "제주 토종 메밀 등을 키우면 ㎡당 400원 소득보전이라 은퇴 정착에 맞아요",
 };
 
 /**
