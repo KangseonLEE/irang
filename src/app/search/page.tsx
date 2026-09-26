@@ -15,6 +15,7 @@ import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
 import { ResultCard } from "@/components/search/result-card";
 import { RegionResultGroup } from "@/components/search/region-result-group";
+import { SectionPager } from "@/components/search/section-pager";
 import { GlossaryResultList } from "@/components/search/glossary-result-list";
 import { SearchResultTracker } from "@/components/analytics/search-result-tracker";
 import { SearchAnswerCard } from "@/components/search/search-answer-card";
@@ -45,12 +46,16 @@ const DEFAULT_TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "
  * 섹션별 초기 노출 개수 — 이 값 초과 시 "더보기 N건" 버튼 표시.
  * region·crop은 동음이의어/유사 작물이 많아 6개, 그 외는 4개. glossary·guide는 짧은 카드라 5개.
  */
+/** 섹션 단 페이지네이션 대상 (지역은 컴포넌트 내부에서 처리) */
+const SECTION_PAGED = new Set<SearchItem["type"]>(["program"]);
+
 const INITIAL_LIMIT: Record<SearchItem["type"], number> = {
   // 지역만 "더보기" 대신 페이지네이션 — RegionResultGroup 내부에서 이 값을 한 페이지 행 수로 쓴다
   // (회장 결재 2026-09-27: 시·도 묶음 + 확대 행 + 5건씩)
   region: 5,
   crop: 6,
-  program: 4,
+  // 지원사업도 지역과 같이 5건씩 페이지네이션 (회장 2026-09-27)
+  program: 5,
   education: 4,
   event: 4,
   center: 4,
@@ -247,6 +252,19 @@ function SearchPageContent() {
 
   // 섹션별 펼침 상태 — query를 상태에 묶어 쿼리 변경 시 자동 초기화
   // (React 공식 권장 패턴: state in render 비교로 useEffect 회피)
+  // 섹션 페이지(지원사업 등 페이지네이션 섹션) — 검색어가 바뀌면 전부 1페이지
+  const [sectionPageState, setSectionPageState] = useState<{ query: string; pages: Record<string, number> }>({
+    query: "",
+    pages: {},
+  });
+  const sectionPages = sectionPageState.query === query ? sectionPageState.pages : {};
+  const gotoSectionPage = (type: string, next: number) => {
+    setSectionPageState((prev) => ({
+      query,
+      pages: { ...(prev.query === query ? prev.pages : {}), [type]: next },
+    }));
+    analytics.searchSectionPage(type, next + 1);
+  };
   const [expandedState, setExpandedState] = useState<{ query: string; flags: Record<string, boolean> }>({
     query,
     flags: {},
@@ -551,9 +569,17 @@ function SearchPageContent() {
             const isExpanded = expanded[group.type] === true;
             // 지역은 컴포넌트 내부 페이지네이션이 상한을 맡는다 — 더보기 버튼 없음, 전량 전달
             const paginated = group.type === "region";
-            const overflow = paginated ? 0 : group.items.length - limit;
-            const visibleItems =
-              paginated || isExpanded ? group.items : group.items.slice(0, limit);
+            // 지원사업은 섹션 단에서 5건씩 페이지네이션 (9/27)
+            const sectionPaged = SECTION_PAGED.has(group.type);
+            const totalPages = sectionPaged ? Math.max(1, Math.ceil(group.items.length / limit)) : 1;
+            const pageIdx = sectionPaged ? Math.min(sectionPages[group.type] ?? 0, totalPages - 1) : 0;
+            const overflow = paginated || sectionPaged ? 0 : group.items.length - limit;
+            const visibleItems = paginated || isExpanded
+              ? group.items
+              : sectionPaged
+                ? group.items.slice(pageIdx * limit, pageIdx * limit + limit)
+                : group.items.slice(0, limit);
+            const startRank = sectionPaged ? pageIdx * limit + 1 : 1;
 
             return (
               <section key={group.type} className={s.section}>
@@ -566,11 +592,19 @@ function SearchPageContent() {
                   )}
                 </h2>
                 <ResultRun
-                  run={{ type: group.type, startRank: 1, items: visibleItems }}
+                  run={{ type: group.type, startRank, items: visibleItems }}
                   query={effectiveQuery}
                   highlightCls={s.highlight}
                   pageSize={paginated ? limit : undefined}
                 />
+                {sectionPaged && (
+                  <SectionPager
+                    page={pageIdx}
+                    total={totalPages}
+                    onChange={(next) => gotoSectionPage(group.type, next)}
+                    ariaLabel={`${meta.label} 결과 페이지`}
+                  />
+                )}
                 {overflow > 0 && (
                   <button
                     type="button"

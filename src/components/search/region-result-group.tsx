@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 
 import { analytics } from "@/lib/analytics";
@@ -10,6 +10,7 @@ import { highlightMatch } from "@/lib/highlight-match";
 
 import { lookupRegionFromHref } from "./region-lookup";
 import { ResultCard } from "./result-card";
+import { SectionPager } from "./section-pager";
 import s from "./region-result-group.module.css";
 
 /** 순위를 들고 다니는 지역 아이템 — 계측 라벨 `<type>:<순위>` 는 섹션 기준 1-based */
@@ -83,7 +84,7 @@ export function RegionResultGroup({
 
   const goto = (next: number) => {
     setPageState({ key: resetKey, page: next });
-    analytics.searchRegionPage(next + 1);
+    analytics.searchSectionPage("region", next + 1);
   };
 
   return (
@@ -175,51 +176,7 @@ export function RegionResultGroup({
         })}
       </div>
 
-      {pages.length > 1 && (
-        <nav className={s.pager} aria-label="지역 결과 페이지">
-          <button
-            type="button"
-            className={s.pagerStep}
-            onClick={() => goto(page - 1)}
-            disabled={page === 0}
-            aria-label="이전 페이지"
-          >
-            <ChevronLeft size={16} aria-hidden="true" />
-            <span className={s.pagerStepLabel}>이전</span>
-          </button>
-          <ul className={s.pagerList}>
-            {pageWindow(page, pages.length).map((p, i) =>
-              p === "gap" ? (
-                <li key={`gap-${i}`} className={s.pagerGap} aria-hidden="true">
-                  …
-                </li>
-              ) : (
-                <li key={p}>
-                  <button
-                    type="button"
-                    className={p === page ? `${s.pagerNum} ${s.pagerNumActive}` : s.pagerNum}
-                    onClick={() => goto(p)}
-                    aria-current={p === page ? "page" : undefined}
-                    aria-label={`${p + 1}페이지`}
-                  >
-                    {p + 1}
-                  </button>
-                </li>
-              ),
-            )}
-          </ul>
-          <button
-            type="button"
-            className={s.pagerStep}
-            onClick={() => goto(page + 1)}
-            disabled={page === pages.length - 1}
-            aria-label="다음 페이지"
-          >
-            <span className={s.pagerStepLabel}>다음</span>
-            <ChevronRight size={16} aria-hidden="true" />
-          </button>
-        </nav>
-      )}
+      <SectionPager page={page} total={pages.length} onChange={goto} ariaLabel="지역 결과 페이지" />
     </>
   );
 }
@@ -388,15 +345,3 @@ function toSegments(units: Unit[]): Segment[] {
  * 페이지 버튼 창 — 5페이지 이하는 전부, 넘으면 처음·현재±1·마지막.
  * 최대 버튼 5개(+… 2개)로 묶는 이유는 375px 폭에서 "이전/다음"까지 한 줄에 들어가야 해서다.
  */
-function pageWindow(current: number, total: number): (number | "gap")[] {
-  if (total <= 5) return Array.from({ length: total }, (_, i) => i);
-
-  const out: (number | "gap")[] = [0];
-  const from = Math.max(1, current - 1);
-  const to = Math.min(total - 2, current + 1);
-  if (from > 1) out.push("gap");
-  for (let p = from; p <= to; p += 1) out.push(p);
-  if (to < total - 2) out.push("gap");
-  out.push(total - 1);
-  return out;
-}
