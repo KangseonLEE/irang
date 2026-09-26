@@ -6,7 +6,7 @@ import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ChevronDown, ChevronUp } from "lucide-react";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchAll, searchAllGrouped, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, getNoResultSuggestions, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
+import { searchAllGrouped, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, getNoResultSuggestions, getPopularTagsWithResults, type SearchItem, type GroupedSearchResults } from "@/lib/data/search-index";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
 import { analytics } from "@/lib/analytics";
@@ -170,19 +170,23 @@ function SearchPageContent() {
   // ("가시오이" → 오이) 그 결과를 바로 보여주고 상단 한 줄로 알린다. 네이버("~로 검색하시겠습니까?")·
   // 다음("이것을 찾으시나요?")·아마존("대신 ~을 검색")과 Baymard 원칙(대안이 하나면 자동 적용 + 안내,
   // 여럿이면 선택지) 그대로. 큰 박스에 알약 하나 띄우는 UI 는 회장 기각.
+  //
+  // 후보 탐색과 최종 결과를 한 useMemo 로 묶는다 (2026-09-26 Phase D) — 전에는 후보를 `searchAll` 로
+  // 훑어 채택한 뒤 같은 검색어를 `searchAllGrouped` 로 **한 번 더** 돌렸다. 채택한 그 결과를 그대로 쓴다.
   const fallback = useMemo(() => {
     if (!query || rawResults.length > 0) return null;
     const terms = getNoResultSuggestions(query);
     for (const term of terms) {
-      if (searchAll(term).length > 0) return { term, others: terms.filter((x) => x !== term) };
+      const candidate = searchAllGrouped(term);
+      if (candidate.pinned.length + candidate.rest.length > 0) {
+        return { term, others: terms.filter((x) => x !== term), groups: candidate };
+      }
     }
     return null;
   }, [query, rawResults]);
   const effectiveQuery = fallback?.term ?? query;
-  const groups = useMemo(
-    () => (fallback ? searchAllGrouped(fallback.term) : rawGroups),
-    [fallback, rawGroups],
-  );
+  // 두 갈래 모두 이미 메모된 값이라 참조가 안정적 — 별도 useMemo 불필요
+  const groups: GroupedSearchResults = fallback ? fallback.groups : rawGroups;
   const results = useMemo(() => [...groups.pinned, ...groups.rest], [groups]);
 
   // 답변 카드 (Featured Snippet) — intent 감지 시 결과 위에 구조화된 답 노출
@@ -383,9 +387,9 @@ function SearchPageContent() {
             지역, 작물, 지원사업을 한번에 검색하세요.
           </p>
 
-          {/* 인기 검색어 — 검색 결과가 있는 태그만 표시 */}
+          {/* 인기 검색어 — 검색 결과가 있는 태그만 표시 (판정은 모듈 캐시, 렌더마다 재스캔하지 않는다) */}
           {(() => {
-            const validTags = POPULAR_TAGS.filter((tag) => searchAll(tag.query).length > 0);
+            const validTags = getPopularTagsWithResults();
             if (validTags.length === 0) return null;
             return (
               <div className={s.popularSection}>

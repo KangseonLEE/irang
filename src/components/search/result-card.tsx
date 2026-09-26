@@ -27,6 +27,17 @@ import s from "./result-card.module.css";
 // 헬퍼
 // ---------------------------------------------------------------------------
 
+/**
+ * id → 항목 조회 맵 (2026-09-26 Phase D).
+ *
+ * 카드 한 장마다 `CROPS.find`·`interviews.find`·`CENTERS.find` 로 배열을 앞에서부터 훑었다 —
+ * 센터는 2,900줄 규모라 결과 4~12건이면 그만큼 선형 탐색이 반복된다. 조회 결과는 정적 데이터라
+ * 모듈 로드 시 1회 색인하면 충분하다 (데이터·표시 내용은 그대로).
+ */
+const CROP_BY_ID = new Map(CROPS.map((c) => [c.id, c]));
+const INTERVIEW_BY_ID = new Map(interviews.map((p) => [p.id, p]));
+const CENTER_BY_ID = new Map(CENTERS.map((c) => [c.id, c]));
+
 /** 날짜 문자열을 "M.D" 또는 "M.D ~ M.D" 형식으로 포맷 */
 function formatDateRange(start: string, end: string | null): string {
   const fmt = (raw: string): string | null => {
@@ -197,7 +208,7 @@ function renderHintCard(item: SearchItem, query: string, highlightCls: string, t
 
 /** 작물 카드 — 가로형 요약 (emoji + name + description + category + difficulty) */
 function renderCropCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
-  const crop = CROPS.find((c) => c.id === item.id);
+  const crop = CROP_BY_ID.get(item.id);
   if (!crop) return renderSimpleCard(item, query, highlightCls, track);
 
   return wrapCard(
@@ -401,7 +412,7 @@ function renderEventCard(item: SearchItem, query: string, highlightCls: string, 
 
 /** 인터뷰 — 인물 카드 전용 컴포넌트에 위임 (일러 썸네일 + 인용구) */
 function renderInterviewCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
-  const iv = interviews.find((p) => p.id === item.id);
+  const iv = INTERVIEW_BY_ID.get(item.id);
   if (!iv) return renderSimpleCard(item, query, highlightCls, track);
   return (
     <InterviewResultCard
@@ -419,7 +430,7 @@ function renderInterviewCard(item: SearchItem, query: string, highlightCls: stri
  * 제목은 센터 목록(내부)으로 가고, 전화·홈페이지는 stretched link 위에 올려 따로 눌린다.
  */
 function renderCenterCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
-  const ctr = CENTERS.find((c) => c.id === item.id);
+  const ctr = CENTER_BY_ID.get(item.id);
   if (!ctr) return renderSimpleCard(item, query, highlightCls, track);
 
   const where = [ctr.sido, ctr.sigungu].filter(Boolean).join(" ");

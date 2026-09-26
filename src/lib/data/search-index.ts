@@ -4,7 +4,7 @@
  * - 클라이언트 사이드 fuzzy-ish 검색 (debounce + prefix match)
  *
  * 번들 최적화:
- * - POPULAR_TAGS는 search-tags.ts에서 re-export (경량 파일)
+ * - POPULAR_TAGS는 search-tags.ts(경량 파일)에서 가져와 내부에서만 쓴다
  * - SEARCH_INDEX 빌드를 lazy initialization으로 지연하여
  *   첫 검색 호출 시에만 데이터 참조 → 모듈 그래프는 유지하되 실행 비용 절감
  */
@@ -59,9 +59,7 @@ export interface SearchItem {
   external?: boolean;
 }
 
-// Re-export from search-tags for backward compatibility
-import { POPULAR_TAGS } from "./search-tags";
-export { POPULAR_TAGS };
+import { POPULAR_TAGS, type SearchTag } from "./search-tags";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -1298,6 +1296,40 @@ export function searchAll(query: string): SearchItem[] {
   return pinned.length === 0 ? rest : [...pinned, ...rest];
 }
 
+/**
+ * "이 검색어에 결과가 있나"만 필요한 판정용 건수 (2026-09-26 Phase D).
+ *
+ * 연관 검색어의 dead 칩 차단·인기 태그 필터가 같은 검색어를 렌더마다 다시 스캔하고 있었다
+ * (`searchAll(cand).length > 0` × 후보 9개). 인덱스와 매칭·점수 식은 그대로고 **건수만** 캐시한다 —
+ * 배열을 캐시하면 호출처가 같은 인스턴스를 공유해 의도치 않은 결합이 생긴다.
+ * 후보는 정적 데이터에서 파생되므로 키 집합이 사실상 유한하지만, 사용자 검색어도 섞일 수 있어 상한을 둔다.
+ */
+const RESULT_COUNT_CACHE_MAX = 300;
+const _resultCountCache = new Map<string, number>();
+
+function countSearchResults(query: string): number {
+  const key = query.trim().toLowerCase();
+  const cached = _resultCountCache.get(key);
+  if (cached !== undefined) return cached;
+  const { pinned, rest } = searchAllGrouped(query);
+  const count = pinned.length + rest.length;
+  if (_resultCountCache.size >= RESULT_COUNT_CACHE_MAX) _resultCountCache.clear();
+  _resultCountCache.set(key, count);
+  return count;
+}
+
+/**
+ * 인기 검색어 중 실제 결과가 있는 태그만 — 정적 데이터 기반이라 프로세스당 1회 계산 후 캐시.
+ * 빈 검색 화면이 렌더마다 8건 전수 스캔을 돌리던 것을 없앤다.
+ */
+let _popularTagsWithResults: SearchTag[] | null = null;
+
+export function getPopularTagsWithResults(): SearchTag[] {
+  return (_popularTagsWithResults ??= POPULAR_TAGS.filter(
+    (tag) => countSearchResults(tag.query) > 0,
+  ));
+}
+
 // ---------------------------------------------------------------------------
 // Query Suggestions (인기 쿼리 자동완성)
 // ---------------------------------------------------------------------------
@@ -2086,7 +2118,7 @@ export function buildRelatedSearches(query: string): string[] {
     const key = cand.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
-    if (searchAll(cand).length > 0) out.push(cand); // dead 칩 차단
+    if (countSearchResults(cand) > 0) out.push(cand); // dead 칩 차단 (건수 캐시)
     if (out.length >= 6) break;
   }
   return out;

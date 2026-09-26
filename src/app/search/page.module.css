@@ -471,31 +471,6 @@
    의미 없이 잘리던 문제 해소(5/31 아이폰 미니 라이브 발견 후속). 섹션별 5건+더보기 구조라
    노출 수 손실은 작고, 1열 폭 확보로 subtitle 2줄 노출(result-card.module.css)이 가능해짐. */
 
-.card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  text-decoration: none;
-  text-align: left;
-  transition: border-color 0.15s, background-color 0.15s;
-}
-
-@media (hover: hover) {
-.card:hover {
-    border-color: var(--primary);
-    background: var(--muted);
-  }
-}
-
-.card:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-}
-
 /* 정확히 일치 항목 없음 안내 배너 */
 .noExactMatch {
   display: flex;

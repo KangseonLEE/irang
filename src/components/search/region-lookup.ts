@@ -29,6 +29,19 @@ export interface RegionLookup {
 }
 
 /**
+ * href → 판정 결과 캐시 (2026-09-26 Phase D).
+ *
+ * 결과 행마다 `getSigungusBySidoId`(SIGUNGUS 229건 전량 필터)·`getSigunguBySidoAndId`·`GUS.find`·
+ * `STATIONS.find` 를 새로 돌렸다. 입력은 href 하나, 출처는 전부 정적 데이터라 같은 href 는 항상 같은 답이다.
+ * "전남 귀농"(지역 56건)처럼 지역 결과가 많은 검색에서 `ResultCard` 와 `RegionResultGroup` 이
+ * 같은 href 를 각각 판정하던 중복까지 함께 사라진다. 반환 객체는 호출처에서 읽기만 한다(공유 안전).
+ */
+const _lookupCache = new Map<string, RegionLookup>();
+
+/** 시·도 판정의 파생값(대표 작물·시·군·구 수)은 시·도 단위로 한 번만 집계한다 */
+const _provinceLookupCache = new Map<string, RegionLookup>();
+
+/**
  * SearchItem 의 href 로 지역 종류를 판정한다.
  *
  * id 의 하이픈 split 은 못 쓴다 — `jung-gu-seoul`·`gwangju-gg`·`goseong-gw`·`sejong-si` 처럼
@@ -41,6 +54,14 @@ export interface RegionLookup {
  *   /regions?stations={stnId}          → 기상 관측소
  */
 export function lookupRegionFromHref(href: string): RegionLookup {
+  const cached = _lookupCache.get(href);
+  if (cached) return cached;
+  const result = computeRegionLookup(href);
+  _lookupCache.set(href, result);
+  return result;
+}
+
+function computeRegionLookup(href: string): RegionLookup {
   const [path, queryString] = href.split("?");
 
   if (path === "/regions" && queryString) {
@@ -64,6 +85,8 @@ export function lookupRegionFromHref(href: string): RegionLookup {
 
   // 시·도 — 소속 시·군·구 수 + 대표 작물(빈도 상위)
   if (segs.length === 2) {
+    const memo = _provinceLookupCache.get(province.id);
+    if (memo) return memo;
     const sigungus = getSigungusBySidoId(province.id);
     const freq = new Map<string, number>();
     for (const sg of sigungus) {
@@ -73,7 +96,7 @@ export function lookupRegionFromHref(href: string): RegionLookup {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 2)
       .map(([crop]) => crop);
-    return {
+    const result: RegionLookup = {
       kind: "province",
       provinceId: province.id,
       data: {
@@ -84,6 +107,8 @@ export function lookupRegionFromHref(href: string): RegionLookup {
         sigunguCount: sigungus.length,
       },
     };
+    _provinceLookupCache.set(province.id, result);
+    return result;
   }
 
   const sigungu = getSigunguBySidoAndId(province.id, segs[2]);

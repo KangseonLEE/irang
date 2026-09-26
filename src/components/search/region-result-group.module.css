@@ -196,10 +196,6 @@
 
 /* 데스크탑 — 2열 배치 + 행을 한 줄로 */
 @media (min-width: 1024px) {
-  .group {
-    padding: 12px 14px 10px;
-  }
-
   .rows {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 10px;
