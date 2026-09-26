@@ -1,0 +1,222 @@
+/**
+ * 지역 결과 — 시·도별 압축 그룹 (Phase C, 2026-09-26)
+ *
+ * 카드 대신 행으로 묶어 같은 세로 공간에 두 배를 담는다. 행 전체가 클릭 영역이고
+ * (이름 링크 stretched) 그룹 헤더의 "비교하기"만 별도 링크다 — 둘은 형제라 중첩이 없다.
+ */
+
+.blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 압축 묶음 전체를 감싸는 한 장의 패널 — 묶음마다 테두리를 두면 12건에서 세로가 늘어난다 */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
+  padding-top: 1px;
+}
+
+.groupTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.groupCount {
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  padding: 1px 7px;
+  border-radius: 9999px;
+}
+
+.compareLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  margin-left: auto;
+  /* 44px 터치 영역을 확보하되 헤더 높이는 늘리지 않는다 (음수 블록 마진) */
+  min-height: 44px;
+  margin-block: -9px;
+  padding-left: 10px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  /* stretched link 오버레이 위로 (행 링크와 별개) */
+  position: relative;
+  z-index: 1;
+}
+
+.compareLink:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+@media (hover: hover) {
+  .compareLink:hover {
+    text-decoration: underline;
+  }
+}
+
+.rows {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 행 — 모바일 2줄(이름·칩 / 설명), 데스크탑 1줄 */
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1px 8px;
+  /* 행은 폭 전체(≈350px)가 클릭 영역 — 높이 40px 로도 터치 여유가 충분하다(WCAG 2.5.8 24px).
+     12건을 모바일 1화면(≈700px) 안에 넣기 위한 값. 보조 링크(비교하기)는 44px 유지. */
+  min-height: 40px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  transition: background-color 0.15s;
+}
+
+@media (hover: hover) {
+  .row:hover {
+    background: var(--muted);
+  }
+}
+
+.rowLink {
+  display: inline-flex;
+  align-items: baseline;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.rowLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.rowLink:focus-visible {
+  outline: none;
+}
+
+.row:has(.rowLink:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+@supports not selector(:has(*)) {
+  .rowLink:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+.rowSido {
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  margin-right: 4px;
+}
+
+.rowName {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  word-break: keep-all;
+}
+
+.rowParent {
+  grid-column: 1;
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.rowDesc {
+  grid-column: 1;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: keep-all;
+}
+
+.rowCrops {
+  grid-column: 2;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rowCrop {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
+  font-weight: 500;
+  font-size: var(--fs-overline);
+  white-space: nowrap;
+}
+
+/* 데스크탑 — 2열 배치 + 행을 한 줄로 */
+@media (min-width: 1024px) {
+  .group {
+    padding: 12px 14px 10px;
+  }
+
+  .rows {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 10px;
+  }
+
+  .row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    min-height: 36px;
+  }
+
+  .rowParent,
+  .rowDesc {
+    grid-column: auto;
+  }
+
+  .rowCrops {
+    grid-row: auto;
+  }
+}

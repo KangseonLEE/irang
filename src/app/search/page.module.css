@@ -321,6 +321,21 @@
 }
 
 /* 답변 카드 래퍼 — 결과 헤더와 섹션 사이 간격 */
+/* 직답 블록 (Phase C, 2026-09-26) — 유형 섹션 위, 답변 카드 바로 아래.
+   경계선·배경 없이 카드만 쌓는다: "이 검색의 답"이라 섹션 제목이 필요 없다. */
+.pinnedBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 640px) {
+.pinnedBlock {
+    margin-bottom: 24px;
+  }
+}
+
 .answerWrap {
   margin: 4px 0 20px;
 }

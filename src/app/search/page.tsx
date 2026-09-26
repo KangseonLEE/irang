@@ -6,7 +6,7 @@ import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ChevronDown, ChevronUp } from "lucide-react";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchAll, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, getNoResultSuggestions, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
+import { searchAll, searchAllGrouped, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, getNoResultSuggestions, POPULAR_TAGS, type SearchItem } from "@/lib/data/search-index";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
 import { analytics } from "@/lib/analytics";
@@ -14,6 +14,8 @@ import { withJosa } from "@/lib/format";
 import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
 import { ResultCard } from "@/components/search/result-card";
+import { RegionResultGroup } from "@/components/search/region-result-group";
+import { GlossaryResultList } from "@/components/search/glossary-result-list";
 import { SearchResultTracker } from "@/components/analytics/search-result-tracker";
 import { SearchAnswerCard } from "@/components/search/search-answer-card";
 import { CropKnowledgePanel } from "@/components/search/crop-knowledge-panel";
@@ -44,13 +46,15 @@ const DEFAULT_TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "
  * region·crop은 동음이의어/유사 작물이 많아 6개, 그 외는 4개. glossary·guide는 짧은 카드라 5개.
  */
 const INITIAL_LIMIT: Record<SearchItem["type"], number> = {
-  region: 6,
+  // 시·도별 압축 그룹(RegionResultGroup)이라 한 건당 세로가 절반 — 같은 화면에 12건 (Phase C)
+  region: 12,
   crop: 6,
   program: 4,
   education: 4,
   event: 4,
   center: 4,
-  interview: 4,
+  // 인물 카드는 56px 썸네일로 키가 크다 — 3건 + 더보기
+  interview: 3,
   glossary: 5,
   guide: 5,
   land: 4,
@@ -79,11 +83,88 @@ function SearchPageFallback() {
   );
 }
 
+/** 같은 유형이 연속된 묶음 — 직답 블록은 유형 섹션이 없으니 순서를 보존하며 런 단위로 그린다 */
+interface TypeRun {
+  type: SearchItem["type"];
+  /** 묶음 첫 항목의 1-based 순위 */
+  startRank: number;
+  items: SearchItem[];
+}
+
+function toTypeRuns(items: SearchItem[]): TypeRun[] {
+  const runs: TypeRun[] = [];
+  items.forEach((item, i) => {
+    const last = runs[runs.length - 1];
+    if (last && last.type === item.type) last.items.push(item);
+    else runs.push({ type: item.type, startRank: i + 1, items: [item] });
+  });
+  return runs;
+}
+
+/**
+ * 결과 묶음 본문 — 유형별 전용 레이아웃 (Phase C).
+ * 지역은 시·도 압축 묶음, 용어는 정의 리스트, 나머지는 카드 목록.
+ */
+function ResultRun({
+  run,
+  query,
+  highlightCls,
+  trackType,
+}: {
+  run: TypeRun;
+  query: string;
+  highlightCls: string;
+  trackType?: string;
+}) {
+  if (run.type === "region") {
+    return (
+      <RegionResultGroup
+        items={run.items.map((item, i) => ({ item, rank: run.startRank + i }))}
+        query={query}
+        highlightCls={highlightCls}
+        trackType={trackType}
+      />
+    );
+  }
+
+  if (run.type === "glossary") {
+    return (
+      <GlossaryResultList
+        items={run.items}
+        query={query}
+        highlightCls={highlightCls}
+        rankOffset={run.startRank - 1}
+        trackType={trackType}
+      />
+    );
+  }
+
+  return (
+    <div className={s.grid}>
+      {run.items.map((item, i) => (
+        <ResultCard
+          key={`${item.type}-${item.id}`}
+          item={item}
+          query={query}
+          highlightCls={highlightCls}
+          rank={run.startRank + i}
+          trackType={trackType}
+        />
+      ))}
+    </div>
+  );
+}
+
 function SearchPageContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") ?? "";
 
-  const rawResults = useMemo(() => searchAll(query), [query]);
+  // 고정 블록(직답)과 관련도 목록을 나눠서 받는다 — pinned 는 타입 섹션으로 쪼개지 않는다
+  const rawGroups = useMemo(() => searchAllGrouped(query), [query]);
+  const rawResults = useMemo(
+    () => [...rawGroups.pinned, ...rawGroups.rest],
+    [rawGroups],
+  );
 
   // 자동 대체 (2026-09-23) — 원 검색어가 0건이고 검색어 안에 실재 작물·지역명이 들어 있으면
   // ("가시오이" → 오이) 그 결과를 바로 보여주고 상단 한 줄로 알린다. 네이버("~로 검색하시겠습니까?")·
@@ -98,10 +179,11 @@ function SearchPageContent() {
     return null;
   }, [query, rawResults]);
   const effectiveQuery = fallback?.term ?? query;
-  const results = useMemo(
-    () => (fallback ? searchAll(fallback.term) : rawResults),
-    [fallback, rawResults],
+  const groups = useMemo(
+    () => (fallback ? searchAllGrouped(fallback.term) : rawGroups),
+    [fallback, rawGroups],
   );
+  const results = useMemo(() => [...groups.pinned, ...groups.rest], [groups]);
 
   // 답변 카드 (Featured Snippet) — intent 감지 시 결과 위에 구조화된 답 노출
   const answer = useMemo(() => (effectiveQuery ? buildSearchAnswer(effectiveQuery) : null), [effectiveQuery]);
@@ -119,11 +201,23 @@ function SearchPageContent() {
     [results, answer, panel],
   );
 
+  // 직답 블록 / 타입별 섹션 분리 — pinned(읍·면·동 안내·정확 일치 hoist·작물 딥링크·FAQ·교차 카드)는
+  // "이 검색에 대한 답" 묶음이라 유형 섹션으로 쪼개지 않고 결과 맨 위에 그대로 둔다.
+  const { pinnedResults, restResults } = useMemo(() => {
+    const pinnedKeys = new Set(groups.pinned.map((i) => `${i.type}-${i.id}`));
+    const inPinned: SearchItem[] = [];
+    const inRest: SearchItem[] = [];
+    for (const r of displayResults) {
+      (pinnedKeys.has(`${r.type}-${r.id}`) ? inPinned : inRest).push(r);
+    }
+    return { pinnedResults: inPinned, restResults: inRest };
+  }, [displayResults, groups]);
+
   // 관련도 기반 동적 섹션 순서 — searchAll 결과 순서에서 도출
   const grouped = useMemo(() => {
     const seen = new Set<SearchItem["type"]>();
     const order: SearchItem["type"][] = [];
-    for (const r of displayResults) {
+    for (const r of restResults) {
       if (!seen.has(r.type)) {
         seen.add(r.type);
         order.push(r.type);
@@ -134,10 +228,10 @@ function SearchPageContent() {
     return sectionOrder
       .map((type) => ({
         type,
-        items: displayResults.filter((r) => r.type === type),
+        items: restResults.filter((r) => r.type === type),
       }))
       .filter((g) => g.items.length > 0);
-  }, [displayResults]);
+  }, [restResults]);
 
   // 헤더 건수·빈 상태·오타 보정·검색 로그 전부 이 값을 기준으로 — 목록 길이(displayResults)가 아님
   const totalCount = hitCount;
@@ -402,6 +496,22 @@ function SearchPageContent() {
         </div>
       )}
 
+      {/* 직답 블록 — 읍·면·동 안내·정확 일치·작물 딥링크·FAQ·교차 카드.
+          유형 섹션으로 쪼개지 않고 관련도 목록 위에 그대로 둔다 (Phase C). */}
+      {query && pinnedResults.length > 0 && (
+        <section className={s.pinnedBlock} aria-label="바로 찾은 결과">
+          {toTypeRuns(pinnedResults).map((run) => (
+            <ResultRun
+              key={`${run.type}-${run.startRank}`}
+              run={run}
+              query={effectiveQuery}
+              highlightCls={s.highlight}
+              trackType="pinned"
+            />
+          ))}
+        </section>
+      )}
+
       {/* 정확히 일치하는 항목 없음 안내 — 결과 위에 배치 (긍정 톤, 2026-05-22) */}
       {query && !fallback && !answer && !panel && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(effectiveQuery, results) && (
         <div className={s.noExactMatch}>
@@ -443,17 +553,11 @@ function SearchPageContent() {
                     <span className={s.sectionHint}>모집중·모집예정만</span>
                   )}
                 </h2>
-                <div className={s.grid}>
-                  {visibleItems.map((item, i) => (
-                    <ResultCard
-                      key={`${item.type}-${item.id}`}
-                      item={item}
-                      query={effectiveQuery}
-                      highlightCls={s.highlight}
-                      rank={i + 1}
-                    />
-                  ))}
-                </div>
+                <ResultRun
+                  run={{ type: group.type, startRank: 1, items: visibleItems }}
+                  query={effectiveQuery}
+                  highlightCls={s.highlight}
+                />
                 {overflow > 0 && (
                   <button
                     type="button"

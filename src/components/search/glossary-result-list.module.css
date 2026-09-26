@@ -1,0 +1,105 @@
+/**
+ * 용어 결과 — 정의 리스트 (Phase C, 2026-09-26)
+ * 카드 테두리 대신 항목 사이 옅은 구분선. 왼쪽 세로선은 쓰지 않는다.
+ */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 4px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.entry {
+  position: relative;
+  padding: 10px 0;
+}
+
+.entry + .entry {
+  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+.term {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.termLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 항목 전체를 클릭 영역으로 */
+.termLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.termLink:focus-visible {
+  outline: none;
+}
+
+.entry:has(.termLink:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+@supports not selector(:has(*)) {
+  .termLink:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+@media (hover: hover) {
+  .termLink:hover {
+    color: var(--primary);
+  }
+}
+
+.category {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
+  font-weight: 500;
+  font-size: var(--fs-overline);
+  white-space: nowrap;
+}
+
+.alias {
+  font-size: var(--fs-overline);
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.desc {
+  margin: 2px 0 0;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: keep-all;
+}
+
+@media (max-width: 639px) {
+  .desc {
+    -webkit-line-clamp: 2;
+  }
+}
