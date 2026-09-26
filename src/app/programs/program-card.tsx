@@ -54,6 +54,7 @@ export function ProgramCard({ program }: { program: SupportProgram }) {
             {isNew && <span className={s.newBadge}>신규</span>}
             <DeadlineBadge
               applicationEnd={program.applicationEnd}
+              applicationStart={program.applicationStart}
               status={program.status}
             />
             <StatusBadge status={statusLabel} />

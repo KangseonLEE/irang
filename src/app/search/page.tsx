@@ -46,8 +46,9 @@ const DEFAULT_TYPE_ORDER: SearchItem["type"][] = ["region", "crop", "program", "
  * region·crop은 동음이의어/유사 작물이 많아 6개, 그 외는 4개. glossary·guide는 짧은 카드라 5개.
  */
 const INITIAL_LIMIT: Record<SearchItem["type"], number> = {
-  // 시·도별 압축 그룹(RegionResultGroup)이라 한 건당 세로가 절반 — 같은 화면에 12건 (Phase C)
-  region: 12,
+  // 지역만 "더보기" 대신 페이지네이션 — RegionResultGroup 내부에서 이 값을 한 페이지 행 수로 쓴다
+  // (회장 결재 2026-09-27: 시·도 묶음 + 확대 행 + 5건씩)
+  region: 5,
   crop: 6,
   program: 4,
   education: 4,
@@ -110,11 +111,14 @@ function ResultRun({
   query,
   highlightCls,
   trackType,
+  pageSize,
 }: {
   run: TypeRun;
   query: string;
   highlightCls: string;
   trackType?: string;
+  /** 지역 섹션에서만 — 이 행 수마다 페이지를 나눈다. 직답 블록은 주지 않는다 */
+  pageSize?: number;
 }) {
   if (run.type === "region") {
     return (
@@ -123,6 +127,7 @@ function ResultRun({
         query={query}
         highlightCls={highlightCls}
         trackType={trackType}
+        pageSize={pageSize}
       />
     );
   }
@@ -544,8 +549,11 @@ function SearchPageContent() {
             const Icon = meta.icon;
             const limit = INITIAL_LIMIT[group.type] ?? 4;
             const isExpanded = expanded[group.type] === true;
-            const overflow = group.items.length - limit;
-            const visibleItems = isExpanded ? group.items : group.items.slice(0, limit);
+            // 지역은 컴포넌트 내부 페이지네이션이 상한을 맡는다 — 더보기 버튼 없음, 전량 전달
+            const paginated = group.type === "region";
+            const overflow = paginated ? 0 : group.items.length - limit;
+            const visibleItems =
+              paginated || isExpanded ? group.items : group.items.slice(0, limit);
 
             return (
               <section key={group.type} className={s.section}>
@@ -561,6 +569,7 @@ function SearchPageContent() {
                   run={{ type: group.type, startRank: 1, items: visibleItems }}
                   query={effectiveQuery}
                   highlightCls={s.highlight}
+                  pageSize={paginated ? limit : undefined}
                 />
                 {overflow > 0 && (
                   <button

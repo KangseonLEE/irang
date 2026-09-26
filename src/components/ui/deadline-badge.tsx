@@ -4,6 +4,8 @@ import s from "./deadline-badge.module.css";
 interface DeadlineBadgeProps {
   /** 신청 종료일 (YYYY-MM-DD). undefined/null/ALWAYS_OPEN이면 상시 표시 */
   applicationEnd?: string | null;
+  /** 신청 시작일 — 시작·종료가 모두 9999(공고 미발표·정기 접수)면 "상시"를 붙이지 않는다 (9/27) */
+  applicationStart?: string | null;
   /** 마감된 사업은 숨김 (이미 StatusBadge가 표시) */
   status?: string;
 }
@@ -16,12 +18,13 @@ interface DeadlineBadgeProps {
  * - 상시: "상시"
  * - 마감 / 미정(9999): 표시 안 함
  */
-export function DeadlineBadge({ applicationEnd, status }: DeadlineBadgeProps) {
+export function DeadlineBadge({ applicationEnd, applicationStart, status }: DeadlineBadgeProps) {
   // 마감된 사업은 표시 안 함
   if (status === "마감") return null;
 
-  // 상시모집
+  // 상시모집 — 단, 9999 페어(시작도 미정)는 상시가 아니라 공고 미발표·정기 접수라 배지 없음
   if (!applicationEnd || applicationEnd === ALWAYS_OPEN) {
+    if (applicationStart === ALWAYS_OPEN) return null;
     return <span className={s.always}>상시</span>;
   }
 

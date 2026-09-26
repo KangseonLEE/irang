@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 import { describe, it, expect, afterEach } from "vitest";
-import { render, cleanup, screen } from "@testing-library/react";
+import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 
 import { RegionResultGroup } from "@/components/search/region-result-group";
 import { GlossaryResultList } from "@/components/search/glossary-result-list";
 import { InterviewResultCard } from "@/components/search/interview-result-card";
 import { interviews } from "@/lib/data/landing";
+import { SIGUNGUS } from "@/lib/data/sigungus";
 import { getInterviewImageSrc } from "@/lib/interview-image";
 import type { SearchItem } from "@/lib/data/search-index";
 
@@ -33,6 +34,13 @@ function ranked(items: SearchItem[]) {
   return items.map((item, i) => ({ item, rank: i + 1 }));
 }
 
+/** 페이지네이션용 실데이터 픽스처 — href 가 실제 시·군·구여야 lookupRegionFromHref 가 행으로 판정한다 */
+const SIGUNGU_FIXTURES: [string, string, string][] = SIGUNGUS.slice(0, 60).map((sg) => [
+  sg.id,
+  sg.name,
+  `/regions/${sg.sidoId}/${sg.id}`,
+]);
+
 afterEach(() => cleanup());
 
 describe("RegionResultGroup — 시·도 묶기", () => {
@@ -58,7 +66,7 @@ describe("RegionResultGroup — 시·도 묶기", () => {
     expect(compare.getAttribute("href")).toBe("/regions/compare?regions=jeonnam");
   });
 
-  it("시·도마다 1건씩이면(동음이의 '중구') 헤더 없이 시·도 접두 행", () => {
+  it("1건짜리 시·도도 헤더 아래 — 묶음 규칙이 예외 없이 읽힌다 (9/27)", () => {
     const { container } = render(
       <RegionResultGroup
         items={ranked([
@@ -71,17 +79,18 @@ describe("RegionResultGroup — 시·도 묶기", () => {
       />,
     );
 
-    // 헤더가 행보다 많아지면 압축이 아니다
-    expect(container.querySelectorAll("h3")).toHaveLength(0);
-    const rows = container.querySelectorAll("li");
-    expect(rows).toHaveLength(3);
-    // 각 행이 어느 시·도인지 스스로 말한다
-    expect(rows[0].textContent).toContain("서울");
-    expect(rows[1].textContent).toContain("부산");
-    expect(rows[2].textContent).toContain("대구");
+    const heads = [...container.querySelectorAll("h3")].map((h) => h.textContent ?? "");
+    expect(heads).toHaveLength(3);
+    expect(heads[0]).toContain("서울");
+    expect(heads[1]).toContain("부산");
+    expect(heads[2]).toContain("대구");
+    // 1곳뿐인 묶음에는 비교하기를 달지 않는다
+    expect(heads.every((h) => h.includes("1곳"))).toBe(true);
+    expect(container.querySelectorAll("a[href*='/regions/compare']")).toHaveLength(0);
+    expect(container.querySelectorAll("li")).toHaveLength(3);
   });
 
-  it("시·군·구 3건 미만이면 압축하지 않고 카드 그대로 (정확 일치 프로미넌스)", () => {
+  it("시·군·구 1건도 카드가 아니라 헤더 + 행", () => {
     const { container } = render(
       <RegionResultGroup
         items={ranked([region("gapyeong", "가평군", "/regions/gyeonggi/gapyeong")])}
@@ -89,8 +98,9 @@ describe("RegionResultGroup — 시·도 묶기", () => {
         highlightCls="hl"
       />,
     );
-    expect(container.querySelectorAll("li")).toHaveLength(0);
-    expect(container.querySelectorAll("article")).toHaveLength(1);
+    expect(container.querySelectorAll("article")).toHaveLength(0);
+    expect(container.querySelectorAll("h3")).toHaveLength(1);
+    expect(container.querySelectorAll("li")).toHaveLength(1);
   });
 
   it("시·도 자체 카드는 묶지 않고 카드로 남고, 시·군·구는 묶인다", () => {
@@ -140,9 +150,17 @@ describe("RegionResultGroup — 시·도 묶기", () => {
         highlightCls="hl"
       />,
     );
+    // 같은 시·도는 첫 등장 위치의 한 묶음으로 모인다 — 헤더가 두 번 생기지 않는다
     const heads = [...container.querySelectorAll("h3")].map((h) => h.textContent ?? "");
+    expect(heads).toHaveLength(2);
     expect(heads[0]).toContain("전남");
     expect(heads[1]).toContain("경기");
+    expect([...container.querySelectorAll("li")].map((li) => li.querySelector("a")?.textContent)).toEqual([
+      "나주시",
+      "순천시",
+      "가평군",
+      "양평군",
+    ]);
   });
 
   it("계측 라벨은 레이아웃과 무관하게 <type>:<순위> — trackType 으로 직답 블록 구분", () => {
@@ -187,6 +205,87 @@ describe("RegionResultGroup — 시·도 묶기", () => {
     for (const li of container.querySelectorAll("li")) {
       expect(li.querySelectorAll("a")).toHaveLength(1);
     }
+  });
+});
+
+describe("RegionResultGroup — 페이지네이션 (9/27)", () => {
+  const many = (n: number) =>
+    ranked(
+      SIGUNGU_FIXTURES.slice(0, n).map(([id, name, href]) => region(id, name, href)),
+    );
+
+  it("pageSize 를 주면 한 페이지 5행 + 페이지네이션, 안 주면 전량", () => {
+    const { container } = render(
+      <RegionResultGroup items={many(12)} query="시" highlightCls="hl" pageSize={5} />,
+    );
+    expect(container.querySelectorAll("li[data-search-result]")).toHaveLength(5);
+    const pager = screen.getByRole("navigation", { name: "지역 결과 페이지" });
+    expect(pager).not.toBeNull();
+    // 12건 / 5 = 3페이지
+    expect(pager.querySelectorAll("button[aria-label$='페이지']")).toHaveLength(3 + 2);
+
+    cleanup();
+    const all = render(<RegionResultGroup items={many(12)} query="시" highlightCls="hl" />);
+    expect(all.container.querySelectorAll("li[data-search-result]")).toHaveLength(12);
+    expect(all.container.querySelectorAll("nav")).toHaveLength(0);
+  });
+
+  it("현재 페이지는 aria-current='page', 이동하면 다음 5건 + 순위 라벨이 이어진다", () => {
+    render(<RegionResultGroup items={many(12)} query="시" highlightCls="hl" pageSize={5} />);
+    expect(screen.getByRole("button", { current: "page" }).textContent).toBe("1");
+
+    fireEvent.click(screen.getByRole("button", { name: "2페이지" }));
+    expect(screen.getByRole("button", { current: "page" }).textContent).toBe("2");
+    expect(
+      [...document.querySelectorAll("li[data-search-result]")].map(
+        (el) => (el as HTMLElement).dataset.searchResult,
+      ),
+    ).toEqual(["region:6", "region:7", "region:8", "region:9", "region:10"]);
+
+    // 마지막 페이지는 나머지 2건 + "다음" 비활성
+    fireEvent.click(screen.getByRole("button", { name: "3페이지" }));
+    expect(document.querySelectorAll("li[data-search-result]")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "다음 페이지" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "이전 페이지" })).not.toBeDisabled();
+  });
+
+  it("잘린 시·도 묶음은 다음 페이지에 헤더가 다시 붙고, 건수는 총계를 유지한다", () => {
+    // 전남 6건 → 1페이지 5행 + 2페이지 1행, 헤더는 양쪽 모두 "6곳"
+    const items = ranked([
+      region("suncheon", "순천시", "/regions/jeonnam/suncheon"),
+      region("naju", "나주시", "/regions/jeonnam/naju"),
+      region("mokpo", "목포시", "/regions/jeonnam/mokpo"),
+      region("yeosu", "여수시", "/regions/jeonnam/yeosu"),
+      region("gwangyang", "광양시", "/regions/jeonnam/gwangyang"),
+      region("damyang", "담양군", "/regions/jeonnam/damyang"),
+    ]);
+    render(<RegionResultGroup items={items} query="전남" highlightCls="hl" pageSize={5} />);
+    expect(document.querySelector("h3")?.textContent).toContain("6곳");
+    expect(document.querySelectorAll("li[data-search-result]")).toHaveLength(5);
+
+    fireEvent.click(screen.getByRole("button", { name: "2페이지" }));
+    expect(document.querySelectorAll("h3")).toHaveLength(1);
+    expect(document.querySelector("h3")?.textContent).toContain("6곳");
+    expect(document.querySelectorAll("li[data-search-result]")).toHaveLength(1);
+  });
+
+  it("페이지가 많으면 버튼 창은 처음·현재±1·마지막 (… 는 버튼 아님)", () => {
+    render(<RegionResultGroup items={many(60)} query="시" highlightCls="hl" pageSize={5} />);
+    const pager = screen.getByRole("navigation", { name: "지역 결과 페이지" });
+    const nums = [...pager.querySelectorAll("li > button")].map((b) => b.textContent);
+    expect(nums).toEqual(["1", "2", "12"]);
+    expect(pager.textContent).toContain("…");
+  });
+
+  it("검색어가 바뀌면 1페이지로 돌아온다", () => {
+    const { rerender } = render(
+      <RegionResultGroup items={many(12)} query="시" highlightCls="hl" pageSize={5} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "3페이지" }));
+    expect(screen.getByRole("button", { current: "page" }).textContent).toBe("3");
+
+    rerender(<RegionResultGroup items={many(11)} query="군" highlightCls="hl" pageSize={5} />);
+    expect(screen.getByRole("button", { current: "page" }).textContent).toBe("1");
   });
 });
 

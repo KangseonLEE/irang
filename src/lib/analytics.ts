@@ -39,6 +39,14 @@ export const analytics = {
    */
   searchResultClick: (typeAndRank: string) =>
     trackEvent({ action: "search_result_click", category: "search", label: typeAndRank }),
+  /**
+   * 지역 결과 페이지 이동 (2026-09-27) — label·value 는 이동한 페이지 번호(1-based).
+   *
+   * 지역 섹션만 한 페이지 5행 + 페이지네이션이다. 2페이지 이후로 넘어가는 비율이 낮으면
+   * 페이지 크기를 키우거나 묶음 단위 접기로 되돌릴 근거가 된다.
+   */
+  searchRegionPage: (page: number) =>
+    trackEvent({ action: "search_region_page", category: "search", label: String(page), value: page }),
   // 결과 0건 검색어를 실재 작물로 자동 대체해 보여준 경우 (2026-09-23) — label "원검색어>대체어".
   // 2주 뒤 이 이벤트 대비 대체 작물 상세 page_view 로 기능 실효를 판정한다.
   searchFallbackShown: (query: string, term: string) =>

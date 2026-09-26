@@ -350,7 +350,7 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
         <SupportTypeBadge type={prog.supportType} />
       </div>
       <div className={s.statusCorner}>
-        <DeadlineBadge applicationEnd={prog.applicationEnd} status={prog.status} />
+        <DeadlineBadge applicationEnd={prog.applicationEnd} applicationStart={prog.applicationStart} status={prog.status} />
         <StatusBadge status={programStatusLabel(prog)} />
       </div>
     </>,
