@@ -33,7 +33,7 @@ beforeAll(() => {
 describe("SourceLinkButton — 원문 바로가기 (9/27)", () => {
   it("정상 링크는 새 창 + noopener 로 원문으로 보낸다", () => {
     render(<SourceLinkButton href="https://www.jindo.go.kr/notice/1" title="진도군 공고" />);
-    const link = screen.getByRole("link", { name: /원문 공고 보기/ });
+    const link = screen.getByRole("link", { name: /공고 확인하기/ });
     expect(link).toHaveAttribute("href", "https://www.jindo.go.kr/notice/1");
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
@@ -56,7 +56,7 @@ describe("SourceLinkButton — 원문 바로가기 (9/27)", () => {
   it("http(s) 가 아닌 프로토콜은 링크로 렌더하지 않고 검색으로 돌린다", () => {
     // React 19 는 javascript: href 를 렌더 중 예외로 막는다 — 가용성이 먼저 깨진다
     render(<SourceLinkButton href="javascript:alert(1)" title="공고" />);
-    expect(screen.queryByRole("link", { name: /원문 공고 보기/ })).toBeNull();
+    expect(screen.queryByRole("link", { name: /공고 확인하기/ })).toBeNull();
     expect(screen.getByRole("link", { name: /원문 검색/ }).getAttribute("href")).toContain(
       "google.com/search",
     );
@@ -181,7 +181,7 @@ describe("EligibilityCheck — 버튼 + 결과 모달 (9/27)", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: "결과 보기" }));
     expect(spy).toHaveBeenCalledWith("pass");
     expect(screen.getByText("신청 조건을 모두 충족해요")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /원문 공고 보기/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /공고 확인하기/ })).toBeInTheDocument();
     spy.mockRestore();
   });
 

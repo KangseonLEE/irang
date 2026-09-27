@@ -35,6 +35,7 @@ import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { EligibilityCheck } from "@/components/programs/eligibility-check";
 import { ApplicationTimeline } from "@/components/programs/application-timeline";
 import { SourceLinkButton } from "@/components/programs/source-link-button";
+import { sourceBlockLabel } from "@/lib/source-label";
 import {
   RelatedCropsCard,
   type RelatedCrop,
@@ -401,7 +402,7 @@ export default async function ProgramDetailPage({
             <div className={s.cardContent}>
               <ExternalLinkBlock
                 href={program.sourceUrl}
-                label="원문 페이지 방문"
+                label={sourceBlockLabel(program.sourceUrl)}
                 linkStatus={program.linkStatus}
                 title={program.title}
               />

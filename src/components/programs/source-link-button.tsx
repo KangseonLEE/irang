@@ -5,6 +5,7 @@ import {
   extractDomain,
   safeHttpUrl,
 } from "@/components/ui/external-link-block";
+import { sourceButtonLabel, sourceHost } from "@/lib/source-label";
 import s from "./source-link-button.module.css";
 
 interface SourceLinkButtonProps {
@@ -50,15 +51,21 @@ export function SourceLinkButton({
     );
   }
 
+  const label = sourceButtonLabel(href);
+  const host = sourceHost(href);
   return (
-    <a
-      href={safeHref}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={s.button}
-    >
-      <ExternalLink size={16} aria-hidden="true" />
-      원문 공고 보기
-    </a>
+    <span className={s.row}>
+      <a
+        href={safeHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={s.button}
+        aria-label={`${label} (${host}, 새 창)`}
+      >
+        <ExternalLink size={16} aria-hidden="true" />
+        {label}
+      </a>
+      {host && <span className={s.host}>{host}</span>}
+    </span>
   );
 }

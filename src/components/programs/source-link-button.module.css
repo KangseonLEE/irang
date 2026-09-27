@@ -8,6 +8,19 @@
   font-size: var(--fs-body-sm);
 }
 
+/* 버튼 + 도메인 힌트 — 어디로 가는지 문구 옆에서 바로 보이게 */
+.row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.host {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+}
+
 @media (min-width: 1024px) {
   .button {
     font-size: var(--fs-body);
