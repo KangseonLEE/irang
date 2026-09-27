@@ -415,6 +415,9 @@ export default async function ProgramDetailPage({
             organization={program.organization}
           />
 
+          {/* 진단 CTA 는 sticky 탭 카드 **앞**에 — 뒤에 두면 sticky 밑으로 파고들어 안 보인다(9/17 작물 상세 동일) */}
+          <PersonaCta from="program_detail" copy="내가 받을 수 있는 지원은 뭘까요?" />
+
           {/* 자격 셀프 체크 · 관련 작물 · 현장 이야기 — 작물·지역 상세와 같은 사이드 탭 (회장 9/28).
               숨은 패널도 hidden 으로만 감춰 SSR 링크는 유지된다(9/17 규칙). */}
           <SidebarTabs
@@ -456,7 +459,6 @@ export default async function ProgramDetailPage({
             ]}
           />
 
-          <PersonaCta from="program_detail" copy="내가 받을 수 있는 지원은 뭘까요?" />
         </div>
       </div>
     </div>
