@@ -15,6 +15,8 @@ interface EligibilityItem {
 }
 
 interface EligibilityCheckProps {
+  /** 사이드 탭 패널 안에 놓일 때 — 카드 껍데기·제목 없이 (탭 라벨이 제목) */
+  bare?: boolean;
   programTitle: string;
   ageMin: number;
   ageMax: number;
@@ -66,6 +68,7 @@ function parseEligibilityItems(detail: string): EligibilityItem[] {
  * 저장·전송 없음 — 브라우저 안에서만 계산한다. 결과만 GA4 에 남긴다(pass / miss:N).
  */
 export function EligibilityCheck({
+  bare = false,
   programTitle,
   ageMin,
   ageMax,
@@ -115,8 +118,8 @@ export function EligibilityCheck({
   }, [checkedCount, total]);
 
   return (
-    <div className={s.wrap}>
-      <h3 className={s.title}>자격 셀프 체크</h3>
+    <div className={bare ? s.wrapBare : s.wrap}>
+      {!bare && <h3 className={s.title}>자격 셀프 체크</h3>}
       <p className={s.lead}>
         연령·거주·교육 조건을 하나씩 짚어 보고 바로 결과를 확인할 수 있어요.
       </p>

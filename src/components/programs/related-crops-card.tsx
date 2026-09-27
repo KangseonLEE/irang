@@ -25,13 +25,14 @@ const PER_PAGE = 5;
  * 그 아래 있던 원문 링크가 데스크탑 y≈4,051px 로 밀려 "원문 링크가 없다"는 리포트가 됐다.
  * 5개씩 나눠 카드 높이를 고정하고, 전체 개수는 제목 옆 배지로 알린다.
  */
-export function RelatedCropsCard({ crops }: { crops: RelatedCrop[] }) {
+export function RelatedCropsCard({ crops, bare = false }: { crops: RelatedCrop[]; /** 사이드 탭 패널 안 — 카드 껍데기·제목 없이 */ bare?: boolean }) {
   const [page, setPage] = useState(0);
   const pageCount = Math.ceil(crops.length / PER_PAGE);
   const visible = crops.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
 
   return (
-    <div className={s.card}>
+    <div className={bare ? s.bare : s.card}>
+      {!bare && (
       <div className={s.cardHeader}>
         <h2 className={s.cardTitle}>
           <Leaf size={16} aria-hidden="true" />
@@ -39,7 +40,9 @@ export function RelatedCropsCard({ crops }: { crops: RelatedCrop[] }) {
           <span className={s.count}>{crops.length}</span>
         </h2>
       </div>
-      <div className={s.cardContent}>
+      )}
+      {bare && <p className={s.bareCount}>이 사업과 이어지는 작물 {crops.length}종이에요.</p>}
+      <div className={bare ? s.bareContent : s.cardContent}>
         <ul className={s.cropList}>
           {visible.map((crop) =>
             crop.id ? (

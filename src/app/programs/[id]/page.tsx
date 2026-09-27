@@ -21,8 +21,7 @@ import {
   Users,
   Lightbulb,
   HelpCircle,
-  ChevronDown,
-} from "lucide-react";
+  ChevronDown, ArrowRight } from "lucide-react";
 import { formatApplicationPeriod, formatAgeRange } from "@/lib/format";
 import { ALWAYS_OPEN, programStatusLabel } from "@/lib/program-status";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
@@ -35,6 +34,8 @@ import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { EligibilityCheck } from "@/components/programs/eligibility-check";
 import { ApplicationTimeline } from "@/components/programs/application-timeline";
 import { sourceBlockLabel } from "@/lib/source-label";
+import { SidebarTabs } from "@/components/ui/sidebar-tabs";
+import st from "@/components/ui/sidebar-tabs.module.css";
 import {
   RelatedCropsCard,
   type RelatedCrop,
@@ -381,6 +382,9 @@ export default async function ProgramDetailPage({
               </section>
             </>
           )}
+
+          {/* 커뮤니티 1단계 — 현장 이야기 (사전 승인제, 2026-09-02). 사이드 탭 "현장 이야기"가 여기로 점프 */}
+          <CommunityNotes targetType="program" targetId={program.id} targetLabel={program.title} />
         </div>
 
         {/* Sidebar — 원문 확인을 맨 위로 (9/27). 관련 작물 55개가 위에 있어
@@ -411,23 +415,48 @@ export default async function ProgramDetailPage({
             organization={program.organization}
           />
 
-          {/* Eligibility Self Check */}
-          <EligibilityCheck
-            programTitle={program.title}
-            ageMin={program.eligibilityAgeMin}
-            ageMax={program.eligibilityAgeMax}
-            eligibilityDetail={program.eligibilityDetail}
-            organization={program.organization}
-            sourceUrl={program.sourceUrl}
-            linkStatus={program.linkStatus}
+          {/* 자격 셀프 체크 · 관련 작물 · 현장 이야기 — 작물·지역 상세와 같은 사이드 탭 (회장 9/28).
+              숨은 패널도 hidden 으로만 감춰 SSR 링크는 유지된다(9/17 규칙). */}
+          <SidebarTabs
+            tabs={[
+              {
+                id: "eligibility",
+                label: "자격 체크",
+                content: (
+                  <EligibilityCheck
+                    bare
+                    programTitle={program.title}
+                    ageMin={program.eligibilityAgeMin}
+                    ageMax={program.eligibilityAgeMax}
+                    eligibilityDetail={program.eligibilityDetail}
+                    organization={program.organization}
+                    sourceUrl={program.sourceUrl}
+                    linkStatus={program.linkStatus}
+                  />
+                ),
+              },
+              ...(relatedCrops.length > 0
+                ? [{ id: "crops", label: "관련 작물", content: <RelatedCropsCard crops={relatedCrops} bare /> }]
+                : []),
+              {
+                id: "notes",
+                label: "현장 이야기",
+                content: (
+                  <div className={st.sideTabNotes}>
+                    <p className={st.sideTabNotesText}>
+                      이 사업을 신청해 봤거나 알아보는 중이라면 한 줄 남겨 주세요. 검토 후 이 페이지에 게시돼요.
+                    </p>
+                    <a href="#community-notes" className={st.sideTabMore} data-community-jump="program_side">
+                      한마디 남기기
+                      <ArrowRight size={14} aria-hidden="true" />
+                    </a>
+                  </div>
+                ),
+              },
+            ]}
           />
 
-          {/* Related Crops — 5개씩 (작물 범용 사업은 55개) */}
-          {relatedCrops.length > 0 && <RelatedCropsCard crops={relatedCrops} />}
-
-          {/* 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) */}
           <PersonaCta from="program_detail" copy="내가 받을 수 있는 지원은 뭘까요?" />
-          <CommunityNotes targetType="program" targetId={program.id} targetLabel={program.title} />
         </div>
       </div>
     </div>

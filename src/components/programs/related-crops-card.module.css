@@ -134,3 +134,22 @@
 .pagerWrap {
   margin-top: 14px;
 }
+
+/* 사이드 탭 패널용 (9/28) */
+.bare {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bareCount {
+  margin: 0;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.bareContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

@@ -232,3 +232,10 @@
   color: var(--muted-foreground, #9ca3af);
   margin: 0;
 }
+
+/* 사이드 탭 패널용 — 껍데기 없이 내용만 (9/28) */
+.wrapBare {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
