@@ -205,3 +205,39 @@
   flex-shrink: 0;
   color: color-mix(in srgb, var(--muted-foreground) 55%, transparent);
 }
+
+/* ── 직답 블록 압축 행 (9/28) — 시·도 헤더 없이 "서울 중구" 한 줄, 설명은 같은 행 오른쪽 ── */
+.rowCompact {
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "name desc";
+  align-items: baseline;
+  min-height: 44px;
+  padding: 10px 8px;
+  gap: 0 10px;
+}
+
+.rowCompact .rowDesc {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-self: center;
+}
+
+.rowCompact .rowMeta {
+  display: none;
+}
+
+.rowSido {
+  margin-right: 6px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+@media (max-width: 639px) {
+  .rowCompact {
+    grid-template-columns: 1fr;
+    grid-template-areas: "name" "desc";
+    gap: 2px 0;
+  }
+}

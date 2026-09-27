@@ -385,3 +385,19 @@ describe("InterviewResultCard — 인물 카드", () => {
     expect(missing.map((p) => p.id)).toEqual([]);
   });
 });
+
+describe("RegionResultGroup — 직답 블록 압축 (9/28)", () => {
+  it("trackType=pinned 이면 시·도 헤더 없이 '시·도 이름' 한 줄 행", () => {
+    const items = [
+      { item: { type: "region" as const, id: "seoul-jung-gu-seoul", title: "중구", subtitle: "서울 중심부", href: "/regions/seoul/jung-gu-seoul", keywords: [], icon: "🏘️" }, rank: 1 },
+      { item: { type: "region" as const, id: "incheon-jung-gu-incheon", title: "중구", subtitle: "인천 도심", href: "/regions/incheon/jung-gu-incheon", keywords: [], icon: "🏘️" }, rank: 2 },
+    ];
+    render(<RegionResultGroup items={items} query="중구" highlightCls="hl" trackType="pinned" />);
+    expect(screen.queryAllByRole("heading", { level: 3 })).toHaveLength(0);
+    const links = screen.getAllByRole("link");
+    expect(links.map((a) => a.getAttribute("aria-label"))).toEqual(["서울 중구", "인천 중구"]);
+    expect(screen.queryByRole("link", { name: /비교하기/ })).toBeNull();
+    expect(document.querySelectorAll('[data-search-result^="pinned:"]')).toHaveLength(2);
+  });
+});
+

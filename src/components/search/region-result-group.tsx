@@ -21,6 +21,8 @@ export interface RankedItem {
 
 /** 시·군·구 한 줄 */
 interface Row extends RankedItem {
+  /** 압축 모드(직답 블록)에서 이름 앞에 붙는 시·도 약칭 — "서울 중구" */
+  sidoPrefix?: string;
   /** React key — `<type>-<id>` */
   key: string;
   name: string;
@@ -41,6 +43,8 @@ type Unit =
   | { kind: "row"; key: string; row: Row };
 
 const STATION_KEY = "station";
+/** 직답 블록 압축 모드 — 시·도 헤더 없이 "시·도 이름" 한 줄 행으로 (회장 9/28) */
+const COMPACT_KEY = "__compact__";
 
 /**
  * 지역 결과 — 전부 시·도로 묶고 5건씩 페이지로 넘긴다 (회장 결재 2026-09-27)
@@ -70,7 +74,10 @@ export function RegionResultGroup({
   /** 주면 이 행 수마다 페이지를 나눈다. 직답 블록(1~2건)은 주지 않는다 */
   pageSize?: number;
 }): ReactNode {
-  const { units, groupTotals } = useMemo(() => buildUnits(items), [items]);
+  // 직답 블록(정확 일치 묶음)은 시·도마다 1곳 헤더가 늘어서면 686px 까지 커진다(중구 6건) →
+  // 헤더 없이 "서울 중구" 한 줄 행으로 압축 (회장 9/28). 지역 섹션은 시·도 묶음 유지.
+  const compact = trackType === "pinned";
+  const { units, groupTotals } = useMemo(() => buildUnits(items, compact), [items, compact]);
   const pages = useMemo(
     () => (pageSize && pageSize > 0 ? paginateUnits(units, pageSize) : [units]),
     [units, pageSize],
@@ -108,9 +115,11 @@ export function RegionResultGroup({
             <div key={`panel-${segIdx}`} className={s.panel}>
               {seg.groups.map((group) => {
                 const isStation = group.key === STATION_KEY;
+                const isCompact = group.key === COMPACT_KEY;
                 const total = groupTotals.get(group.key) ?? group.rows.length;
                 return (
                   <div key={`${group.key}-${group.rows[0].key}`} className={s.group}>
+                    {!isCompact && (
                     <div className={s.groupHead}>
                       <h3 className={s.groupTitle}>
                         {group.label}
@@ -127,19 +136,21 @@ export function RegionResultGroup({
                         </Link>
                       )}
                     </div>
+                    )}
                     <ul className={s.rows}>
                       {group.rows.map((row) => (
                         <li
                           key={row.key}
-                          className={s.row}
+                          className={isCompact ? `${s.row} ${s.rowCompact}` : s.row}
                           data-search-result={`${trackType}:${row.rank}`}
                         >
                           <span className={s.rowHead}>
                             <Link
                               href={row.item.href}
                               className={s.rowLink}
-                              aria-label={row.name}
+                              aria-label={row.sidoPrefix ? `${row.sidoPrefix} ${row.name}` : row.name}
                             >
+                              {row.sidoPrefix && <span className={s.rowSido}>{row.sidoPrefix}</span>}
                               {highlightMatch(row.name, query, highlightCls)}
                             </Link>
                             {row.parentName && (
@@ -188,7 +199,7 @@ export function RegionResultGroup({
  * 두 번 생기지 않는다(9/26 정책 유지). 그래서 유닛 시퀀스는 "묶음 단위로 연속"이고,
  * 페이지를 잘라도 조각난 묶음만 다음 페이지에서 헤더를 다시 얻는다.
  */
-function buildUnits(items: RankedItem[]): {
+function buildUnits(items: RankedItem[], compact = false): {
   units: Unit[];
   groupTotals: Map<string, number>;
 } {
@@ -236,11 +247,12 @@ function buildUnits(items: RankedItem[]): {
         key,
         name: item.title,
         description: info.data.description ?? item.subtitle,
-        crops: (info.data.mainCrops ?? []).slice(0, 2),
-        parentName: info.data.parentName,
-        groupKey: info.provinceId,
-        groupLabel: info.data.provinceName,
-        provinceId: info.provinceId,
+        crops: compact ? [] : (info.data.mainCrops ?? []).slice(0, 2),
+        parentName: compact ? undefined : info.data.parentName,
+        groupKey: compact ? COMPACT_KEY : info.provinceId,
+        groupLabel: compact ? "" : info.data.provinceName,
+        provinceId: compact ? undefined : info.provinceId,
+        sidoPrefix: compact ? info.data.provinceName : undefined,
       });
       continue;
     }
