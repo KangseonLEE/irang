@@ -546,6 +546,55 @@ export default async function CropDetailPage({
 
         {/* 사이드바 */}
         <aside className={s.sidebar}>
+          {/* 사이드 탭 — 관련 작물 · 현장 이야기 (2026-09-17, 9/28 최상단). 비교 상세는 /crops/compare 가 담당. */}
+          <SidebarTabs
+            tabs={[
+              ...(relatedCrops.length > 0
+                ? [
+                    {
+                      id: "related",
+                      label: "관련 작물",
+                      content: (
+                        <>
+                          <div className={st.sideTabCropList}>
+                            {relatedCrops.slice(0, 4).map(({ crop, revenueLabel }) => (
+                              <CropLinkCard
+                                key={crop.id}
+                                cropId={crop.id}
+                                name={crop.name}
+                                href={`/crops/${crop.id}`}
+                                meta={revenueLabel}
+                              />
+                            ))}
+                          </div>
+                          <Link href={`/crops/compare?crops=${id}`} className={st.sideTabMore}>
+                            수익·난이도 자세히 비교하기
+                            <Icon icon={ArrowRight} size="sm" />
+                          </Link>
+                        </>
+                      ),
+                    },
+                  ]
+                : []),
+              {
+                id: "notes",
+                label: "현장 이야기",
+                content: (
+                  <div className={st.sideTabNotes}>
+                    <p className={st.sideTabNotesText}>
+                      {withJosa(data.name, "을")} 길러 봤거나 알아보는 중이라면 한 줄 남겨 주세요.
+                      검토 후 이 페이지에 게시돼요.
+                    </p>
+                    <a href="#community-notes" className={st.sideTabMore} data-community-jump="crop_side">
+                      한마디 남기기
+                      <Icon icon={ArrowRight} size="sm" />
+                    </a>
+                  </div>
+                ),
+              },
+            ]}
+          />
+
           {/* 사이드 프로필 카드 */}
           <div className={s.sideProfile}>
             <div className={s.sideProfileHeader}>
@@ -623,57 +672,6 @@ export default async function CropDetailPage({
           {/* 추천 지원사업 — 탭 카드보다 위: 탭 카드가 sticky 라 뒤에 오는 형제는 그 밑으로 파고든다 (9/17) */}
           <RelatedProgramsSection relatedPrograms={relatedPrograms} moreHref={programsHref} />
 
-          {/* 사이드 탭 — 관련 작물 · 의견 (2026-09-17)
-              관련 작물이 카드당 337px(총 1,083px)로 사이드바의 62%를 먹고 있었고,
-              sticky 가 걸려 있어도 뷰포트를 넘겨 작동하지 않았다. 비교 상세는
-              /crops/compare 가 하는 일이라 여기선 목록 밀도로 충분하다. */}
-          <SidebarTabs
-            tabs={[
-              ...(relatedCrops.length > 0
-                ? [
-                    {
-                      id: "related",
-                      label: "관련 작물",
-                      content: (
-                        <>
-                          <div className={st.sideTabCropList}>
-                            {relatedCrops.slice(0, 4).map(({ crop, revenueLabel }) => (
-                              <CropLinkCard
-                                key={crop.id}
-                                cropId={crop.id}
-                                name={crop.name}
-                                href={`/crops/${crop.id}`}
-                                meta={revenueLabel}
-                              />
-                            ))}
-                          </div>
-                          <Link href={`/crops/compare?crops=${id}`} className={st.sideTabMore}>
-                            수익·난이도 자세히 비교하기
-                            <Icon icon={ArrowRight} size="sm" />
-                          </Link>
-                        </>
-                      ),
-                    },
-                  ]
-                : []),
-              {
-                id: "notes",
-                label: "현장 이야기",
-                content: (
-                  <div className={st.sideTabNotes}>
-                    <p className={st.sideTabNotesText}>
-                      {withJosa(data.name, "을")} 길러 봤거나 알아보는 중이라면 한 줄 남겨 주세요.
-                      검토 후 이 페이지에 게시돼요.
-                    </p>
-                    <a href="#community-notes" className={st.sideTabMore} data-community-jump="crop_side">
-                      한마디 남기기
-                      <Icon icon={ArrowRight} size="sm" />
-                    </a>
-                  </div>
-                ),
-              },
-            ]}
-          />
 
         </aside>
       </div>

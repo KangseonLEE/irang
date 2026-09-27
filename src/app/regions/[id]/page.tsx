@@ -529,24 +529,6 @@ export default async function RegionDetailPage({ params }: PageProps) {
             "다른 지역과 비교"는 개요 카드 CTA 로 흡수. 페르소나 블록(384px)까지 탭에 넣어야
             사이드바가 뷰포트(900px) 안에 들어 sticky 가 실제로 작동한다(실측 1,370px). */}
         <aside className={s.sidebar}>
-          <RegionProfileCard
-            overline={province.name}
-            title={province.shortName}
-            rows={[
-              ...(sidoSettlementScore !== null
-                ? [{ label: "정착 점수", value: `${sidoSettlementScore}점` }]
-                : []),
-              { label: "시·군·구", value: `${sigungus.length}곳` },
-              ...(province.area > 0 ? [{ label: "면적", value: `${province.area.toLocaleString()} km²` }] : []),
-              { label: "추천 작물", value: `${allMatchedCrops.length}종` },
-            ]}
-            chips={province.highlights.slice(0, 4)}
-            ctas={[
-              { href: `/regions/compare?stations=${province.representativeStationId}`, label: "다른 지역과 비교", primary: true },
-              { href: `/regions/ranking?sido=${encodeURIComponent(province.shortName)}`, label: "맞춤 시·군·구 찾기" },
-            ]}
-          />
-
           <SidebarTabs
             tabs={[
               ...(topCrops.length > 0
@@ -611,6 +593,25 @@ export default async function RegionDetailPage({ params }: PageProps) {
               },
             ]}
           />
+
+          <RegionProfileCard
+            overline={province.name}
+            title={province.shortName}
+            rows={[
+              ...(sidoSettlementScore !== null
+                ? [{ label: "정착 점수", value: `${sidoSettlementScore}점` }]
+                : []),
+              { label: "시·군·구", value: `${sigungus.length}곳` },
+              ...(province.area > 0 ? [{ label: "면적", value: `${province.area.toLocaleString()} km²` }] : []),
+              { label: "추천 작물", value: `${allMatchedCrops.length}종` },
+            ]}
+            chips={province.highlights.slice(0, 4)}
+            ctas={[
+              { href: `/regions/compare?stations=${province.representativeStationId}`, label: "다른 지역과 비교", primary: true },
+              { href: `/regions/ranking?sido=${encodeURIComponent(province.shortName)}`, label: "맞춤 시·군·구 찾기" },
+            ]}
+          />
+
 
         </aside>
       </div>

@@ -15,13 +15,9 @@
    하단을 붙잡으면 상단이 잘렸다. 탭 카드는 ≈450px 라 어디서든 통째로 보이고,
    개요 카드는 본문과 함께 흘러간다. 부모(aside)가 행 전체 높이를 차지해야 끝까지 따라온다.
    ⚠️ 이 카드 뒤에 형제를 두지 말 것 — sticky 카드 밑으로 파고든다. */
-@media (min-width: 1024px) {
-  .sideTabs {
-    position: sticky;
-    top: calc(var(--sticky-top, 3.5rem) + 12px); /* 헤더 연동 — 하드코딩 금지 */
-    transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-}
+/* 9/28 회장 "탭 위젯을 항상 최상단으로": 탭 카드가 사이드바 첫 요소가 되면서 sticky 를 뺐다 —
+   sticky 카드 뒤에 오는 형제(개요·원문·신청 기간·추천 지원사업)가 전부 그 밑으로 파고들기 때문.
+   sticky 가 다시 필요하면 탭 카드를 마지막 형제로 되돌리는 것과 세트로만. */
 
 .sideTabList {
   display: flex;

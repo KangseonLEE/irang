@@ -665,25 +665,6 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         {/* 사이드바 — 작물·시도 상세와 같은 구성 (2026-09-17). 시군구는 단일 컬럼이라
             스크롤해도 요약·다음 행동이 따라오지 않았다. 1024px+ 에서 sticky. */}
         <aside className={s.sidebar}>
-          <RegionProfileCard
-            overline={`${province.name}`}
-            title={sigungu.name}
-            rows={[
-              ...(sigunguSettlementScore !== null
-                ? [{ label: "정착 점수", value: `${sigunguSettlementScore}점` }]
-                : []),
-              ...(typeof sigungu.area === "number" && sigungu.area > 0
-                ? [{ label: "면적", value: `${sigungu.area.toLocaleString()} km²` }]
-                : []),
-              { label: "대표 작물", value: sigungu.mainCrops.slice(0, 3).join("·") || "—" },
-            ]}
-            chips={sigungu.highlights?.slice(0, 4)}
-            ctas={[
-              { href: `/regions/compare?regions=${province.id}:${sigungu.id}`, label: "다른 지역과 비교", primary: true },
-              { href: `/regions/${province.id}`, label: `${province.shortName} 전체 보기` },
-            ]}
-          />
-
           <SidebarTabs
             tabs={[
               ...(topCrops.length > 0
@@ -734,6 +715,26 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               },
             ]}
           />
+
+          <RegionProfileCard
+            overline={`${province.name}`}
+            title={sigungu.name}
+            rows={[
+              ...(sigunguSettlementScore !== null
+                ? [{ label: "정착 점수", value: `${sigunguSettlementScore}점` }]
+                : []),
+              ...(typeof sigungu.area === "number" && sigungu.area > 0
+                ? [{ label: "면적", value: `${sigungu.area.toLocaleString()} km²` }]
+                : []),
+              { label: "대표 작물", value: sigungu.mainCrops.slice(0, 3).join("·") || "—" },
+            ]}
+            chips={sigungu.highlights?.slice(0, 4)}
+            ctas={[
+              { href: `/regions/compare?regions=${province.id}:${sigungu.id}`, label: "다른 지역과 비교", primary: true },
+              { href: `/regions/${province.id}`, label: `${province.shortName} 전체 보기` },
+            ]}
+          />
+
         </aside>
       </div>
 

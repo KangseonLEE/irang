@@ -390,34 +390,6 @@ export default async function ProgramDetailPage({
         {/* Sidebar — 원문 확인을 맨 위로 (9/27). 관련 작물 55개가 위에 있어
             데스크탑 y≈4,051px·모바일 5,268px 로 밀려 있던 카드다 */}
         <div className={s.sidebar}>
-          {/* Source Link */}
-          <div className={s.card}>
-            <div className={s.cardHeader}>
-              <h2 className={s.cardTitle}>원문 확인</h2>
-            </div>
-            <div className={s.cardContent}>
-              <ExternalLinkBlock
-                href={program.sourceUrl}
-                label={sourceBlockLabel(program.sourceUrl)}
-                linkStatus={program.linkStatus}
-                title={program.title}
-              />
-            </div>
-          </div>
-
-          {/* Application Timeline */}
-          <ApplicationTimeline
-            applicationStart={program.applicationStart}
-            applicationEnd={program.applicationEnd}
-            status={program.status}
-            statusLabel={statusLabel}
-            applicationCycle={program.applicationCycle}
-            organization={program.organization}
-          />
-
-          {/* 진단 CTA 는 sticky 탭 카드 **앞**에 — 뒤에 두면 sticky 밑으로 파고들어 안 보인다(9/17 작물 상세 동일) */}
-          <PersonaCta from="program_detail" copy="내가 받을 수 있는 지원은 뭘까요?" />
-
           {/* 자격 셀프 체크 · 관련 작물 · 현장 이야기 — 작물·지역 상세와 같은 사이드 탭 (회장 9/28).
               숨은 패널도 hidden 으로만 감춰 SSR 링크는 유지된다(9/17 규칙). */}
           <SidebarTabs
@@ -458,6 +430,35 @@ export default async function ProgramDetailPage({
               },
             ]}
           />
+
+          {/* Source Link */}
+          <div className={s.card}>
+            <div className={s.cardHeader}>
+              <h2 className={s.cardTitle}>원문 확인</h2>
+            </div>
+            <div className={s.cardContent}>
+              <ExternalLinkBlock
+                href={program.sourceUrl}
+                label={sourceBlockLabel(program.sourceUrl)}
+                linkStatus={program.linkStatus}
+                title={program.title}
+              />
+            </div>
+          </div>
+
+          {/* Application Timeline */}
+          <ApplicationTimeline
+            applicationStart={program.applicationStart}
+            applicationEnd={program.applicationEnd}
+            status={program.status}
+            statusLabel={statusLabel}
+            applicationCycle={program.applicationCycle}
+            organization={program.organization}
+          />
+
+          {/* 진단 CTA 는 sticky 탭 카드 **앞**에 — 뒤에 두면 sticky 밑으로 파고들어 안 보인다(9/17 작물 상세 동일) */}
+          <PersonaCta from="program_detail" copy="내가 받을 수 있는 지원은 뭘까요?" />
+
 
         </div>
       </div>
