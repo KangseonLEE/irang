@@ -552,7 +552,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "만 18세 이상 40세 미만(1985~2008년 출생), 독립 영농경력 3년 이하, 기준중위소득 140% 이하. 2차 추가모집은 2026년 하반기 예정 — 정확한 일자는 농식품부 공고 시 확정.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
-    applicationCycle: "2026년 하반기 예정 — 농식품부 공고 시 확정",
+    applicationCycle: "2026년 하반기 예정 (농식품부 공고 시 확정)",
     relatedCrops: ALL_CROP_NAMES, // 작물 범용
     sourceUrl: "https://www.nongmin.com/article/20251104500065",
     year: 2026,

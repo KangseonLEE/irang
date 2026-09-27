@@ -7,17 +7,11 @@
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 @media (min-width: 640px) {
   .wrap { padding: 20px; }
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .title {
@@ -27,10 +21,42 @@
   margin: 0;
 }
 
-.counter {
+.lead {
+  margin: 0;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 카드 안 진입 버튼 ── */
+.openBtn {
+  composes: actionButton actionSecondary from "../ui/action-button.module.css";
+  width: 100%;
+  min-height: 44px;
   font-size: var(--fs-body-sm);
-  font-weight: 600;
   color: var(--primary, #1b6b5a);
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 32%, var(--border, #e5e7eb));
+}
+
+@media (hover: hover) {
+  .openBtn:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+    border-color: var(--primary, #1b6b5a);
+  }
+}
+
+/* ── 모달 본문 ── */
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modalLead {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-normal);
+  color: var(--muted-foreground, #6b7280);
 }
 
 /* ── 프로그레스 바 ── */
@@ -67,19 +93,25 @@
   align-items: flex-start;
   gap: 8px;
   width: 100%;
-  padding: 8px 10px;
-  border: none;
-  border-radius: 10px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
   background: transparent;
   cursor: pointer;
   text-align: left;
   color: var(--muted-foreground, #6b7280);
-  transition: background-color 0.15s, color 0.15s;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .checkBtn svg {
   flex-shrink: 0;
   margin-top: 3px;
+}
+
+.checkBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
 }
 
 @media (hover: hover) {
@@ -90,6 +122,7 @@
 
 .checkBtnChecked {
   color: var(--primary, #1b6b5a);
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
 }
 
@@ -105,17 +138,44 @@
   line-height: var(--lh-normal);
 }
 
+/* ── 모달 하단 액션 ── */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 480px) {
+  .actions {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.primaryBtn {
+  composes: actionButton actionPrimary from "../ui/action-button.module.css";
+  width: 100%;
+  min-height: 48px;
+  font-size: var(--fs-body-sm);
+}
+
+.secondaryBtn {
+  composes: actionButton actionSecondary from "../ui/action-button.module.css";
+  min-height: 44px;
+  font-size: var(--fs-body-sm);
+}
+
 /* ── 결과 ── */
 .resultPass {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   color: var(--primary, #1b6b5a);
   font-size: var(--fs-body-sm);
-  font-weight: 600;
+  font-weight: 700;
   line-height: var(--lh-normal);
 }
 
@@ -123,12 +183,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
   background: color-mix(in srgb, var(--warning-fg, #d97706) 8%, transparent);
   color: var(--warning-fg, #a16207);
   font-size: var(--fs-body-sm);
-  font-weight: 600;
+  font-weight: 700;
   line-height: var(--lh-normal);
 }
 
@@ -137,9 +197,38 @@
   flex-shrink: 0;
 }
 
+.resultDesc {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 미확인 항목 목록 ── */
+.missingList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.missingItem {
+  position: relative;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--muted, #f9fafb);
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  line-height: var(--lh-normal);
+  color: var(--foreground, #111827);
+}
+
 /* ── 면책 ── */
 .disclaimer {
   font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
   color: var(--muted-foreground, #9ca3af);
   margin: 0;
 }

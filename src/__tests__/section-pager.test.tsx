@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 
-import { SectionPager } from "@/components/search/section-pager";
+import { SectionPager } from "@/components/ui/section-pager";
 
 /** 검색 결과 섹션 공용 페이저 (9/27) — 지역·지원사업이 같은 컴포넌트를 쓴다 */
 describe("SectionPager", () => {

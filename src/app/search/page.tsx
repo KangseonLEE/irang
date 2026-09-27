@@ -15,7 +15,7 @@ import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
 import { ResultCard } from "@/components/search/result-card";
 import { RegionResultGroup } from "@/components/search/region-result-group";
-import { SectionPager } from "@/components/search/section-pager";
+import { SectionPager } from "@/components/ui/section-pager";
 import { GlossaryResultList } from "@/components/search/glossary-result-list";
 import { SearchResultTracker } from "@/components/analytics/search-result-tracker";
 import { SearchAnswerCard } from "@/components/search/search-answer-card";

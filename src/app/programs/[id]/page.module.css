@@ -88,6 +88,12 @@
   color: var(--muted-foreground, #6b7280);
 }
 
+/* 원문 바로가기 버튼 행 — 요약과 분리 (9/27) */
+.sourceCtaRow {
+  display: flex;
+  margin-top: 16px;
+}
+
 /* ── 콘텐츠 그리드 ── */
 .contentGrid {
   display: grid;
@@ -229,87 +235,6 @@
   font-size: var(--fs-body-sm);
   line-height: var(--lh-relaxed);
   color: var(--muted-foreground, #6b7280);
-}
-
-/* ── 관련 작물 ── */
-.cropList {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-/* 링크 가능한 작물 아이템 */
-.cropItem {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border, #e5e7eb);
-  text-decoration: none;
-  transition: background-color 0.12s;
-}
-
-.cropItem:last-child {
-  border-bottom: none;
-}
-
-.cropEmoji {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #f0fdf4;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.cropItemText {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  flex: 1;
-  min-width: 0;
-}
-
-.cropItemName {
-  font-size: var(--fs-body);
-  font-weight: 600;
-  color: var(--foreground, #111827);
-}
-
-.cropItemSub {
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground, #6b7280);
-}
-
-.cropArrow {
-  color: var(--muted-foreground, #6b7280);
-  flex-shrink: 0;
-  transition: color 0.12s, transform 0.12s;
-}
-
-@media (hover: hover) {
-  .cropItem:hover .cropItemName {
-    color: var(--primary, #1b6b5a);
-  }
-
-  .cropItem:hover .cropArrow {
-    color: var(--primary, #1b6b5a);
-    transform: translateX(2px);
-  }
-}
-
-/* 링크 없는 작물 (정보만 표시) */
-.cropItemStatic {
-  composes: cropItem;
-  cursor: default;
-}
-
-.cropEmojiMuted {
-  composes: cropEmoji;
-  background: var(--muted, #f9fafb);
 }
 
 /* ═══════════════════════════════════════════
@@ -539,4 +464,17 @@
   /* .backLink 가 갖고 있던 아래 여백을 줄 전체로 옮긴다 — 자식에 margin 이 남으면
      같은 줄에 둔 요소끼리 세로 중심이 어긋난다(9/17 실측 sameRow=false) */
   margin-bottom: 24px;
+}
+
+/* ── 데스크탑 본문 글자 크기 (9/27 회장 "데스크탑 기준 조금 키워도 될 듯") ──
+   모바일은 그대로 두고 1024px 이상에서만 한 단계 올린다. 15px 본문이 1,000px 넘는
+   컬럼에서 작게 읽혔다. 기본 규칙 뒤에 두어야 오버라이드가 이긴다(체크리스트 G). */
+@media (min-width: 1024px) {
+  .pageSummary,
+  .eligibilityText,
+  .descriptionText,
+  .tableValueCell {
+    font-size: var(--fs-body);
+    line-height: var(--lh-relaxed);
+  }
 }

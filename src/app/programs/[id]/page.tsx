@@ -14,19 +14,17 @@ import { JsonLd } from "@/components/seo/json-ld";
 import type { GovernmentService } from "schema-dts";
 import {
   ArrowLeft,
-  ArrowRight,
   MapPin,
   Building2,
   Calendar,
   Coins,
   Users,
-  Leaf,
   Lightbulb,
   HelpCircle,
   ChevronDown,
 } from "lucide-react";
 import { formatApplicationPeriod, formatAgeRange } from "@/lib/format";
-import { programStatusLabel } from "@/lib/program-status";
+import { ALWAYS_OPEN, programStatusLabel } from "@/lib/program-status";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
@@ -36,6 +34,11 @@ import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { EligibilityCheck } from "@/components/programs/eligibility-check";
 import { ApplicationTimeline } from "@/components/programs/application-timeline";
+import { SourceLinkButton } from "@/components/programs/source-link-button";
+import {
+  RelatedCropsCard,
+  type RelatedCrop,
+} from "@/components/programs/related-crops-card";
 import s from "./page.module.css";
 
 export async function generateMetadata({
@@ -79,6 +82,21 @@ export default async function ProgramDetailPage({
   }
 
   const guide = getProgramGuide(id);
+  const statusLabel = programStatusLabel(program);
+
+  // 관련 작물은 클라이언트 카드(페이지네이션)가 받으므로 여기서 직렬화 가능한 값으로 펼친다
+  const relatedCrops: RelatedCrop[] = program.relatedCrops.map((name) => {
+    const info = getCropByName(name);
+    return info
+      ? {
+          name,
+          id: info.id,
+          emoji: info.emoji,
+          category: info.category,
+          difficulty: info.difficulty,
+        }
+      : { name };
+  });
 
   // ── GovernmentService schema ──
   // 9999-12-31 (미정 페어) 또는 잘못된 값은 schema에서 제외 (Google parser 오류 방지)
@@ -154,7 +172,7 @@ export default async function ProgramDetailPage({
       {/* Title + Status */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
-          <StatusBadge status={programStatusLabel(program)} />
+          <StatusBadge status={statusLabel} />
           <SupportTypeBadge type={program.supportType} prefix="지원 유형: " />
         </div>
         <div className={s.titleRow}>
@@ -182,6 +200,15 @@ export default async function ProgramDetailPage({
           </div>
         </div>
         <p className={s.pageSummary}><AutoGlossary text={program.summary} /></p>
+        {/* 원문 바로가기 — 사이드바 맨 아래(데스크탑 y≈4,051px)에만 있어 "링크가 없다"는
+            리포트가 나왔다. 상세에서 가장 자주 하는 행동이라 첫 화면에 둔다 (9/27) */}
+        <div className={s.sourceCtaRow}>
+          <SourceLinkButton
+            href={program.sourceUrl}
+            linkStatus={program.linkStatus}
+            title={program.title}
+          />
+        </div>
       </div>
 
       <ReferenceNotice text="지원사업 정보는 지자체 공고를 참고한 자료예요. 신청 전 해당 기관에서 최신 조건을 꼭 확인하세요." />
@@ -243,13 +270,14 @@ export default async function ProgramDetailPage({
                 <InfoRow
                   icon={<Calendar size={16} />}
                   label="신청 기간"
+                  /* 사이드바 신청 기간 위젯과 같은 문구 — 표는 시기만, 안내는 위젯이 든다 (9/27).
+                     "공고 발표 예정 — 원문 페이지에서 확인"처럼 한 칸에 시기·안내를 겹쳐 쓰지 않는다 */
                   value={
-                    program.applicationEnd === "9999-12-31" &&
-                    program.applicationStart !== "9999-12-31"
-                      ? "상시 모집 — 원문 공고에서 마감일 확인"
-                      : program.applicationStart === "9999-12-31" &&
-                          program.applicationEnd === "9999-12-31"
-                        ? "공고 발표 예정 — 원문 페이지에서 확인"
+                    program.applicationStart === ALWAYS_OPEN &&
+                    program.applicationEnd === ALWAYS_OPEN
+                      ? program.applicationCycle?.trim() || "공고 발표 전이에요"
+                      : program.applicationEnd === ALWAYS_OPEN
+                        ? "상시 모집"
                         : formatApplicationPeriod(program.applicationStart, program.applicationEnd, program.applicationCycle)
                   }
                 />
@@ -362,67 +390,9 @@ export default async function ProgramDetailPage({
           )}
         </div>
 
-        {/* Sidebar */}
+        {/* Sidebar — 원문 확인을 맨 위로 (9/27). 관련 작물 55개가 위에 있어
+            데스크탑 y≈4,051px·모바일 5,268px 로 밀려 있던 카드다 */}
         <div className={s.sidebar}>
-          {/* Application Timeline */}
-          <ApplicationTimeline
-            applicationStart={program.applicationStart}
-            applicationEnd={program.applicationEnd}
-            status={program.status}
-            applicationCycle={program.applicationCycle}
-          />
-
-          {/* Eligibility Self Check */}
-          <EligibilityCheck
-            programTitle={program.title}
-            ageMin={program.eligibilityAgeMin}
-            ageMax={program.eligibilityAgeMax}
-            eligibilityDetail={program.eligibilityDetail}
-          />
-
-          {/* Related Crops */}
-          {program.relatedCrops.length > 0 && (
-            <div className={s.card}>
-              <div className={s.cardHeader}>
-                <h2 className={s.cardTitle}>
-                  <Leaf size={16} />
-                  관련 작물
-                </h2>
-              </div>
-              <div className={s.cardContent}>
-                <div className={s.cropList}>
-                  {program.relatedCrops.map((cropName) => {
-                    const cropInfo = getCropByName(cropName);
-                    if (cropInfo) {
-                      return (
-                        <Link
-                          key={cropName}
-                          href={`/crops/${cropInfo.id}`}
-                          className={s.cropItem}
-                        >
-                          <span className={s.cropEmoji}>{cropInfo.emoji}</span>
-                          <span className={s.cropItemText}>
-                            <span className={s.cropItemName}>{cropName}</span>
-                            <span className={s.cropItemSub}>{cropInfo.category} · {cropInfo.difficulty}</span>
-                          </span>
-                          <ArrowRight size={14} className={s.cropArrow} />
-                        </Link>
-                      );
-                    }
-                    return (
-                      <span key={cropName} className={s.cropItemStatic}>
-                        <span className={s.cropEmojiMuted}>🌱</span>
-                        <span className={s.cropItemText}>
-                          <span className={s.cropItemName}>{cropName}</span>
-                        </span>
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Source Link */}
           <div className={s.card}>
             <div className={s.cardHeader}>
@@ -437,6 +407,30 @@ export default async function ProgramDetailPage({
               />
             </div>
           </div>
+
+          {/* Application Timeline */}
+          <ApplicationTimeline
+            applicationStart={program.applicationStart}
+            applicationEnd={program.applicationEnd}
+            status={program.status}
+            statusLabel={statusLabel}
+            applicationCycle={program.applicationCycle}
+            organization={program.organization}
+          />
+
+          {/* Eligibility Self Check */}
+          <EligibilityCheck
+            programTitle={program.title}
+            ageMin={program.eligibilityAgeMin}
+            ageMax={program.eligibilityAgeMax}
+            eligibilityDetail={program.eligibilityDetail}
+            organization={program.organization}
+            sourceUrl={program.sourceUrl}
+            linkStatus={program.linkStatus}
+          />
+
+          {/* Related Crops — 5개씩 (작물 범용 사업은 55개) */}
+          {relatedCrops.length > 0 && <RelatedCropsCard crops={relatedCrops} />}
 
           {/* 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) */}
           <PersonaCta from="program_detail" copy="내가 받을 수 있는 지원은 뭘까요?" />

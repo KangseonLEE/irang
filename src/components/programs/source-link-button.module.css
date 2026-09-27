@@ -1,0 +1,15 @@
+/* ── 제목 영역 원문 바로가기 버튼 (2026-09-27) ── */
+
+/* actionButton 을 함께 compose 한다 — composes 체인이 깊어지면 base 가 조용히 유실된다(8/31 박제) */
+.button {
+  composes: actionButton actionPrimary from "../ui/action-button.module.css";
+  align-self: flex-start;
+  min-height: 44px;
+  font-size: var(--fs-body-sm);
+}
+
+@media (min-width: 1024px) {
+  .button {
+    font-size: var(--fs-body);
+  }
+}

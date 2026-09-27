@@ -20,7 +20,7 @@ interface ExternalLinkBlockProps {
  * 섞이면 React 19 는 렌더 중 **예외를 던져 페이지 전체가 죽는다**(경고가 아니라 차단).
  * 즉 여기서는 XSS 보다 가용성이 먼저 걸린다 — 허용 프로토콜 밖이면 링크를 렌더하지 않는다.
  */
-function safeHttpUrl(url: string): string | null {
+export function safeHttpUrl(url: string): string | null {
   try {
     const u = new URL(url);
     return u.protocol === "https:" || u.protocol === "http:" ? u.toString() : null;
@@ -30,7 +30,7 @@ function safeHttpUrl(url: string): string | null {
 }
 
 /** URL에서 도메인 추출 */
-function extractDomain(url: string): string {
+export function extractDomain(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./, "");
   } catch {
@@ -44,7 +44,7 @@ function isGovDomain(domain: string): boolean {
 }
 
 /** 검색 폴백 URL 생성 */
-function buildSearchFallback(domain: string, title?: string): string {
+export function buildSearchFallback(domain: string, title?: string): string {
   const query = title
     ? `site:${domain} ${title}`
     : `site:${domain}`;

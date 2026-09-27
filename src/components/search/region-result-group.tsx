@@ -10,7 +10,7 @@ import { highlightMatch } from "@/lib/highlight-match";
 
 import { lookupRegionFromHref } from "./region-lookup";
 import { ResultCard } from "./result-card";
-import { SectionPager } from "./section-pager";
+import { SectionPager } from "@/components/ui/section-pager";
 import s from "./region-result-group.module.css";
 
 /** 순위를 들고 다니는 지역 아이템 — 계측 라벨 `<type>:<순위>` 는 섹션 기준 1-based */

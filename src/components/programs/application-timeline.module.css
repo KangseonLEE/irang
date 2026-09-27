@@ -26,18 +26,54 @@
   font-weight: 700;
 }
 
-/* ── 날짜 ── */
-.dates {
+/* ── 라벨 + 값 행 (9/27) ── */
+.rows {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.rowLabel {
+  margin: 0;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.rowValue {
+  margin: 0;
   font-size: var(--fs-body-sm);
   font-weight: 600;
+  line-height: var(--lh-normal);
   color: var(--foreground, #111827);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 배지가 들어오는 행은 baseline 대신 중심 정렬 (배지 클래스명은 해시되므로 선택자로 못 짚는다) */
+.rowCenter {
+  composes: row;
+  align-items: center;
+}
+
+/* ── 날짜 ── */
+.dates {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .dateSep {
   color: var(--muted-foreground, #9ca3af);
+  font-weight: 500;
 }
 
 /* ── 프로그레스 바 ── */
@@ -92,4 +128,19 @@
 .info strong {
   color: var(--primary, #1b6b5a);
   font-weight: 700;
+}
+
+/* ── 안내 한 줄 ── */
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
+  color: var(--muted-foreground, #9ca3af);
+}
+
+.notice svg {
+  flex-shrink: 0;
 }

@@ -206,4 +206,10 @@ export const analytics = {
 
   calendarRowExpand: (cropId: string) =>
     trackEvent({ action: "calendar_row_expand", category: "crops", label: cropId }),
+
+  // -- 지원사업 자격 셀프 체크 결과 (2026-09-27) --
+  // label `pass` | `miss:<미확인 개수>`. 저장·전송이 없는 기능이라 여기 말고는 흔적이 남지 않는다.
+  // "결과 보기"까지 가는 비율과 pass/miss 분포로, 자격 조건 파싱이 실제로 쓸 만한지 판정한다.
+  programSelfCheckResult: (result: string) =>
+    trackEvent({ action: "program_selfcheck_result", category: "programs", label: result }),
 };

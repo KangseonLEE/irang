@@ -1,0 +1,136 @@
+/* ── 관련 작물 카드 (2026-09-27, 지원사업 상세 사이드바에서 이관 + 5개 페이지네이션) ── */
+
+.card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 20px;
+}
+
+.cardHeader {
+  padding: 24px 24px 0;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  line-height: var(--lh-snug);
+  color: var(--foreground, #111827);
+  margin: 0;
+}
+
+/* 전체 개수 배지 — 페이지에 5개만 보이므로 총량을 제목에서 알린다 */
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+}
+
+.cardContent {
+  padding: 8px 24px 24px;
+}
+
+.cropList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cropRow {
+  margin: 0;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.cropRow:last-child {
+  border-bottom: none;
+}
+
+.cropItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  text-decoration: none;
+}
+
+.cropItem:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.cropEmoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.cropItemText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cropItemName {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--foreground, #111827);
+}
+
+.cropItemSub {
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.cropArrow {
+  color: var(--muted-foreground, #6b7280);
+  flex-shrink: 0;
+  transition: color 0.12s, transform 0.12s;
+}
+
+@media (hover: hover) {
+  .cropItem:hover .cropItemName {
+    color: var(--primary, #1b6b5a);
+  }
+
+  .cropItem:hover .cropArrow {
+    color: var(--primary, #1b6b5a);
+    transform: translateX(2px);
+  }
+}
+
+/* 상세가 없는 작물 (정보만 표시) */
+.cropItemStatic {
+  composes: cropItem;
+  cursor: default;
+}
+
+.cropEmojiMuted {
+  composes: cropEmoji;
+  background: var(--muted, #f9fafb);
+}
+
+/* ── 페이저 ── */
+.pagerWrap {
+  margin-top: 14px;
+}
