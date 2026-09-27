@@ -473,3 +473,30 @@
     line-height: var(--lh-relaxed);
   }
 }
+
+/* ── 사이드 탭 슬롯 (9/28): 모바일은 DOM 순서대로 본문 위, 1024+ 는 오른쪽 컬럼 맨 위 ── */
+.tabsSlot {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .contentGrid {
+    grid-template-areas:
+      "main tabs"
+      "main side";
+    grid-template-rows: auto 1fr;
+    align-items: start;
+  }
+
+  .mainContent {
+    grid-area: main;
+  }
+
+  .tabsSlot {
+    grid-area: tabs;
+  }
+
+  .sidebar {
+    grid-area: side;
+  }
+}

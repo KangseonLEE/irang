@@ -386,6 +386,60 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
       {/* ── 본문 2컬럼 (2026-09-17, 작물 상세와 동일 패턴) ── */}
       <div className={s.mainGrid}>
+        {/* 사이드 탭 — 모바일에선 본문 위, 1024+ 에선 오른쪽 컬럼 첫 요소(grid-template-areas). 회장 9/28 */}
+        <div className={s.tabsSlot}>
+            <SidebarTabs
+              tabs={[
+                ...(topCrops.length > 0
+                  ? [
+                      {
+                        id: "crops",
+                        label: "대표 작물",
+                        content: (
+                          <>
+                            <div className={st.sideTabCropList}>
+                              {topCrops.map(({ crop, revenueLabel }) => (
+                                <CropLinkCard
+                                  key={crop.id}
+                                  cropId={crop.id}
+                                  name={crop.name}
+                                  href={`/crops/${crop.id}`}
+                                  meta={revenueLabel}
+                                />
+                              ))}
+                            </div>
+                            <a href="#sigungu-crops" className={st.sideTabMore}>
+                              수익·난이도 근거 보기
+                              <Icon icon={ArrowRight} size="sm" />
+                            </a>
+                          </>
+                        ),
+                      },
+                    ]
+                  : []),
+                {
+                  id: "stories",
+                  label: "현장 이야기",
+                  content: (
+                    <div className={st.sideTabNotes}>
+                      <p className={st.sideTabNotesText}>
+                        {sigungu.name}에 대해 겪은 것, 궁금한 것을 한마디 남겨 주세요. 검토 후 게시돼요.
+                      </p>
+                      <a href="#community-notes" className={st.sideTabMore} data-community-jump="sigungu_side">
+                        한마디 남기기
+                        <Icon icon={ArrowRight} size="sm" />
+                      </a>
+                      <Link href={`/regions/${province.id}/${sigungu.id}/stories`} className={st.sideTabMore} data-community-jump="sigungu_side_more">
+                        이야기 전체 보기
+                        <Icon icon={ArrowRight} size="sm" />
+                      </Link>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+        </div>
+
         <div className={s.mainContent}>
           {/* ── API 데이터 섹션: 통계 + 기후 (스트리밍) — 탭 내비 바로 아래 2열 안 (2026-09-17) ── */}
           <Suspense fallback={<SigunguStatsSkeleton />}>
@@ -665,56 +719,6 @@ export default async function SigunguDetailPage({ params }: PageProps) {
         {/* 사이드바 — 작물·시도 상세와 같은 구성 (2026-09-17). 시군구는 단일 컬럼이라
             스크롤해도 요약·다음 행동이 따라오지 않았다. 1024px+ 에서 sticky. */}
         <aside className={s.sidebar}>
-          <SidebarTabs
-            tabs={[
-              ...(topCrops.length > 0
-                ? [
-                    {
-                      id: "crops",
-                      label: "대표 작물",
-                      content: (
-                        <>
-                          <div className={st.sideTabCropList}>
-                            {topCrops.map(({ crop, revenueLabel }) => (
-                              <CropLinkCard
-                                key={crop.id}
-                                cropId={crop.id}
-                                name={crop.name}
-                                href={`/crops/${crop.id}`}
-                                meta={revenueLabel}
-                              />
-                            ))}
-                          </div>
-                          <a href="#sigungu-crops" className={st.sideTabMore}>
-                            수익·난이도 근거 보기
-                            <Icon icon={ArrowRight} size="sm" />
-                          </a>
-                        </>
-                      ),
-                    },
-                  ]
-                : []),
-              {
-                id: "stories",
-                label: "현장 이야기",
-                content: (
-                  <div className={st.sideTabNotes}>
-                    <p className={st.sideTabNotesText}>
-                      {sigungu.name}에 대해 겪은 것, 궁금한 것을 한마디 남겨 주세요. 검토 후 게시돼요.
-                    </p>
-                    <a href="#community-notes" className={st.sideTabMore} data-community-jump="sigungu_side">
-                      한마디 남기기
-                      <Icon icon={ArrowRight} size="sm" />
-                    </a>
-                    <Link href={`/regions/${province.id}/${sigungu.id}/stories`} className={st.sideTabMore} data-community-jump="sigungu_side_more">
-                      이야기 전체 보기
-                      <Icon icon={ArrowRight} size="sm" />
-                    </Link>
-                  </div>
-                ),
-              },
-            ]}
-          />
 
           <RegionProfileCard
             overline={`${province.name}`}

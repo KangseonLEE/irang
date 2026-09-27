@@ -209,6 +209,48 @@ export default async function ProgramDetailPage({
 
       <div className={s.contentGrid}>
         {/* Main Info */}
+        {/* 사이드 탭 — 모바일에선 본문 위, 1024+ 에선 오른쪽 컬럼 첫 요소(grid-template-areas). 회장 9/28 */}
+        <div className={s.tabsSlot}>
+            <SidebarTabs
+              tabs={[
+                {
+                  id: "eligibility",
+                  label: "자격 체크",
+                  content: (
+                    <EligibilityCheck
+                      bare
+                      programTitle={program.title}
+                      ageMin={program.eligibilityAgeMin}
+                      ageMax={program.eligibilityAgeMax}
+                      eligibilityDetail={program.eligibilityDetail}
+                      organization={program.organization}
+                      sourceUrl={program.sourceUrl}
+                      linkStatus={program.linkStatus}
+                    />
+                  ),
+                },
+                ...(relatedCrops.length > 0
+                  ? [{ id: "crops", label: "관련 작물", content: <RelatedCropsCard crops={relatedCrops} bare /> }]
+                  : []),
+                {
+                  id: "notes",
+                  label: "현장 이야기",
+                  content: (
+                    <div className={st.sideTabNotes}>
+                      <p className={st.sideTabNotesText}>
+                        이 사업을 신청해 봤거나 알아보는 중이라면 한 줄 남겨 주세요. 검토 후 이 페이지에 게시돼요.
+                      </p>
+                      <a href="#community-notes" className={st.sideTabMore} data-community-jump="program_side">
+                        한마디 남기기
+                        <ArrowRight size={14} aria-hidden="true" />
+                      </a>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+        </div>
+
         <div className={s.mainContent}>
           {/* Basic Information */}
           <section className={s.section}>
@@ -392,44 +434,6 @@ export default async function ProgramDetailPage({
         <div className={s.sidebar}>
           {/* 자격 셀프 체크 · 관련 작물 · 현장 이야기 — 작물·지역 상세와 같은 사이드 탭 (회장 9/28).
               숨은 패널도 hidden 으로만 감춰 SSR 링크는 유지된다(9/17 규칙). */}
-          <SidebarTabs
-            tabs={[
-              {
-                id: "eligibility",
-                label: "자격 체크",
-                content: (
-                  <EligibilityCheck
-                    bare
-                    programTitle={program.title}
-                    ageMin={program.eligibilityAgeMin}
-                    ageMax={program.eligibilityAgeMax}
-                    eligibilityDetail={program.eligibilityDetail}
-                    organization={program.organization}
-                    sourceUrl={program.sourceUrl}
-                    linkStatus={program.linkStatus}
-                  />
-                ),
-              },
-              ...(relatedCrops.length > 0
-                ? [{ id: "crops", label: "관련 작물", content: <RelatedCropsCard crops={relatedCrops} bare /> }]
-                : []),
-              {
-                id: "notes",
-                label: "현장 이야기",
-                content: (
-                  <div className={st.sideTabNotes}>
-                    <p className={st.sideTabNotesText}>
-                      이 사업을 신청해 봤거나 알아보는 중이라면 한 줄 남겨 주세요. 검토 후 이 페이지에 게시돼요.
-                    </p>
-                    <a href="#community-notes" className={st.sideTabMore} data-community-jump="program_side">
-                      한마디 남기기
-                      <ArrowRight size={14} aria-hidden="true" />
-                    </a>
-                  </div>
-                ),
-              },
-            ]}
-          />
 
           {/* Source Link */}
           <div className={s.card}>

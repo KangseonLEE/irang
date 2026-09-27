@@ -392,6 +392,74 @@ export default async function RegionDetailPage({ params }: PageProps) {
           통계·기후·지원사업 등 API 스트리밍 섹션도 좌측 컬럼 안에 둔다. */}
       <div className={s.contentGrid}>
         {/* Left Column */}
+        {/* 사이드 탭 — 모바일에선 본문 위, 1024+ 에선 오른쪽 컬럼 첫 요소(grid-template-areas). 회장 9/28 */}
+        <div className={s.tabsSlot}>
+            <SidebarTabs
+              tabs={[
+                ...(topCrops.length > 0
+                  ? [
+                      {
+                        id: "crops",
+                        label: "추천 작물",
+                        content: (
+                          <>
+                            <div className={st.sideTabCropList}>
+                              {topCrops.slice(0, 4).map(({ crop, revenueLabel }) => (
+                                <CropLinkCard
+                                  key={crop.id}
+                                  cropId={crop.id}
+                                  name={crop.name}
+                                  href={`/crops/${crop.id}`}
+                                  meta={revenueLabel}
+                                />
+                              ))}
+                            </div>
+                            <a href="#region-crops" className={st.sideTabMore}>
+                              적합도·수익 근거 보기
+                              <Icon icon={ArrowRight} size="sm" />
+                            </a>
+                          </>
+                        ),
+                      },
+                    ]
+                  : []),
+                {
+                  id: "personas",
+                  label: "이런 분에게",
+                  content: (
+                    <div className={s.personaList}>
+                      {province.personas.map((persona, i) => (
+                        <div key={i} className={s.personaCard}>
+                          <h4 className={s.personaTitle}>{persona.title}</h4>
+                          <p className={s.personaDesc}><AutoGlossary text={persona.description} /></p>
+                        </div>
+                      ))}
+                    </div>
+                  ),
+                },
+                {
+                  id: "stories",
+                  label: "현장 이야기",
+                  content: (
+                    <div className={st.sideTabNotes}>
+                      <p className={st.sideTabNotesText}>
+                        {province.shortName}에 대해 겪은 것, 궁금한 것을 한마디 남겨 주세요. 검토 후 게시돼요.
+                      </p>
+                      <a href="#community-notes" className={st.sideTabMore} data-community-jump="region_side">
+                        한마디 남기기
+                        <Icon icon={ArrowRight} size="sm" />
+                      </a>
+                      <Link href={`/regions/${province.id}/stories`} className={st.sideTabMore} data-community-jump="region_side_more">
+                        이야기 전체 보기
+                        <Icon icon={ArrowRight} size="sm" />
+                      </Link>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+        </div>
+
         <div className={s.mainContent}>
           {/* API 의존 데이터 — 스트리밍 (Suspense). 정적 부분(Hero·작물·사이드바)이 먼저 렌더된다. */}
           <Suspense fallback={<RegionAsyncSkeleton />}>
@@ -529,70 +597,6 @@ export default async function RegionDetailPage({ params }: PageProps) {
             "다른 지역과 비교"는 개요 카드 CTA 로 흡수. 페르소나 블록(384px)까지 탭에 넣어야
             사이드바가 뷰포트(900px) 안에 들어 sticky 가 실제로 작동한다(실측 1,370px). */}
         <aside className={s.sidebar}>
-          <SidebarTabs
-            tabs={[
-              ...(topCrops.length > 0
-                ? [
-                    {
-                      id: "crops",
-                      label: "추천 작물",
-                      content: (
-                        <>
-                          <div className={st.sideTabCropList}>
-                            {topCrops.slice(0, 4).map(({ crop, revenueLabel }) => (
-                              <CropLinkCard
-                                key={crop.id}
-                                cropId={crop.id}
-                                name={crop.name}
-                                href={`/crops/${crop.id}`}
-                                meta={revenueLabel}
-                              />
-                            ))}
-                          </div>
-                          <a href="#region-crops" className={st.sideTabMore}>
-                            적합도·수익 근거 보기
-                            <Icon icon={ArrowRight} size="sm" />
-                          </a>
-                        </>
-                      ),
-                    },
-                  ]
-                : []),
-              {
-                id: "personas",
-                label: "이런 분에게",
-                content: (
-                  <div className={s.personaList}>
-                    {province.personas.map((persona, i) => (
-                      <div key={i} className={s.personaCard}>
-                        <h4 className={s.personaTitle}>{persona.title}</h4>
-                        <p className={s.personaDesc}><AutoGlossary text={persona.description} /></p>
-                      </div>
-                    ))}
-                  </div>
-                ),
-              },
-              {
-                id: "stories",
-                label: "현장 이야기",
-                content: (
-                  <div className={st.sideTabNotes}>
-                    <p className={st.sideTabNotesText}>
-                      {province.shortName}에 대해 겪은 것, 궁금한 것을 한마디 남겨 주세요. 검토 후 게시돼요.
-                    </p>
-                    <a href="#community-notes" className={st.sideTabMore} data-community-jump="region_side">
-                      한마디 남기기
-                      <Icon icon={ArrowRight} size="sm" />
-                    </a>
-                    <Link href={`/regions/${province.id}/stories`} className={st.sideTabMore} data-community-jump="region_side_more">
-                      이야기 전체 보기
-                      <Icon icon={ArrowRight} size="sm" />
-                    </Link>
-                  </div>
-                ),
-              },
-            ]}
-          />
 
           <RegionProfileCard
             overline={province.name}
