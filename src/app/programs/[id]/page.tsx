@@ -34,7 +34,6 @@ import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { EligibilityCheck } from "@/components/programs/eligibility-check";
 import { ApplicationTimeline } from "@/components/programs/application-timeline";
-import { SourceLinkButton } from "@/components/programs/source-link-button";
 import { sourceBlockLabel } from "@/lib/source-label";
 import {
   RelatedCropsCard,
@@ -201,15 +200,8 @@ export default async function ProgramDetailPage({
           </div>
         </div>
         <p className={s.pageSummary}><AutoGlossary text={program.summary} /></p>
-        {/* 원문 바로가기 — 사이드바 맨 아래(데스크탑 y≈4,051px)에만 있어 "링크가 없다"는
-            리포트가 나왔다. 상세에서 가장 자주 하는 행동이라 첫 화면에 둔다 (9/27) */}
-        <div className={s.sourceCtaRow}>
-          <SourceLinkButton
-            href={program.sourceUrl}
-            linkStatus={program.linkStatus}
-            title={program.title}
-          />
-        </div>
+        {/* 원문 링크는 사이드 "원문 확인" 카드(사이드바 최상단) 한 곳만 — 제목 아래 버튼과 이중 노출이라
+            회장 9/28 "위젯 것만 남기자". 셀프 체크 결과 모달의 링크는 별도 맥락이라 유지 */}
       </div>
 
       <ReferenceNotice text="지원사업 정보는 지자체 공고를 참고한 자료예요. 신청 전 해당 기관에서 최신 조건을 꼭 확인하세요." />

@@ -88,11 +88,6 @@
   color: var(--muted-foreground, #6b7280);
 }
 
-/* 원문 바로가기 버튼 행 — 요약과 분리 (9/27) */
-.sourceCtaRow {
-  display: flex;
-  margin-top: 16px;
-}
 
 /* ── 콘텐츠 그리드 ── */
 .contentGrid {
