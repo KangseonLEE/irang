@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { programStatusLabel } from "@/lib/program-status";
 import { RegionStats } from "./region-stats";
 import { LandCheckBox } from "@/components/region/land-check-box";
 import { DataSource } from "@/components/ui/data-source";
@@ -203,7 +204,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
                       : province.shortName}
                   </span>
                 </div>
-                <StatusBadge status={program.status} />
+                <StatusBadge status={programStatusLabel(program)} />
               </Link>
             ))}
           </div>

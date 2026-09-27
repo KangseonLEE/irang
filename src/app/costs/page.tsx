@@ -40,6 +40,7 @@ import {
   type CropCost,
 } from "@/lib/data/cost-by-type";
 import { getProgramById } from "@/lib/data/programs";
+import { programStatusLabel } from "@/lib/program-status";
 import CostSimulator from "./cost-simulator";
 import CostStrategiesTabs, {
   type StrategyWithStatus,
@@ -124,9 +125,12 @@ export default async function CostsPage({ searchParams }: PageProps) {
      - closed: status="마감" (다음 회차 참고용) */
   const strategiesWithStatus: StrategyWithStatus[] = strategies.map((strategy) => ({
     strategy,
-    status: strategy.programId
-      ? (getProgramById(strategy.programId)?.status ?? null)
-      : null,
+    // 배지 라벨 SSOT(9/28): 9999 페어는 "정기 접수"/"공고 발표 예정" — 마감 분리는 아래 필터가 "마감" 문자열로 하므로 유지
+    status: (() => {
+      if (!strategy.programId) return null;
+      const program = getProgramById(strategy.programId);
+      return program ? programStatusLabel(program) : null;
+    })(),
   }));
   const activeStrategies = strategiesWithStatus.filter(
     ({ status }) => status !== "마감",

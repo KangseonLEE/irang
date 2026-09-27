@@ -23,6 +23,7 @@ import { getEnrichedHighlights } from "@/lib/data/popular-tags";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { programStatusLabel } from "@/lib/program-status";
 import { CropRichCard } from "@/components/crops/crop-rich-card";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
@@ -587,7 +588,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
                         {prog.region === "전국" ? "전국" : province.shortName}
                       </span>
                     </div>
-                    <StatusBadge status={prog.status} />
+                    <StatusBadge status={programStatusLabel(prog)} />
                   </Link>
                 ))}
               </div>
