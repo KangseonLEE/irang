@@ -69,6 +69,18 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
   /** 2~4번 슬라이드 이미지 예열 여부 — LCP 이미지와 대역폭을 다투지 않도록 늦춘다 */
   const [warm, setWarm] = useState(false);
   const layersRef = useRef<HTMLDivElement>(null);
+  /* 직전 슬라이드 — 새 레이어가 완전히 덮을 때까지(1.2s) 아래에 깔아 둔다.
+     즉시 지우면 전환 첫 200ms 동안 배경 그라데이션이 비쳐 어두워진다(9/29 실측). */
+  const prevIndexRef = useRef(0);
+  const [prevIndex, setPrevIndex] = useState<number | null>(null);
+  useEffect(() => {
+    const from = prevIndexRef.current;
+    if (from === index) return;
+    prevIndexRef.current = index;
+    setPrevIndex(from);
+    const t = setTimeout(() => setPrevIndex(null), 1250);
+    return () => clearTimeout(t);
+  }, [index]);
 
   const move = useCallback((step: 1 | -1) => {
     setIndex((prev) => (prev + step + HERO_SLIDES.length) % HERO_SLIDES.length);
@@ -194,7 +206,9 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
           failed[slide.id] || !(i === 0 || warm || i === index) ? null : (
             <div
               key={slide.id}
-              className={`${s.layer}${i === index ? ` ${s.layerActive}` : ""}`}
+              className={`${s.layer}${i === index ? ` ${s.layerActive}` : ""}${
+                i === prevIndex ? ` ${s.layerPrev}` : ""
+              }`}
             >
               <Image
                 src={slide.image}
@@ -203,6 +217,7 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
                 sizes="100vw"
                 /* Next 16: priority 는 deprecated → preload. 첫 슬라이드만 선로드(LCP) */
                 preload={i === 0}
+                decoding="async"
                 className={s.image}
                 onError={() => setFailed((prev) => ({ ...prev, [slide.id]: true }))}
               />

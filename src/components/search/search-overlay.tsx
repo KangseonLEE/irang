@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SearchOverlayContext } from "@/lib/hooks/use-search-overlay";
+import { analytics } from "@/lib/analytics";
 import { useBodyScrollLock } from "@/lib/hooks/use-body-scroll-lock";
 import SearchBar from "./search-bar";
 import s from "./search-overlay.module.css";
@@ -20,10 +21,19 @@ export function SearchOverlayProvider({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const open = useCallback(() => setIsOpen(true), []);
+  /* 열림 계측은 **여기 한 곳** — 닫힌 상태에서 열릴 때만 1회 (9/29).
+     ⚠️ setState 업데이터 **안에서** 발화하면 StrictMode 가 업데이터를 두 번 호출해 2건이 찍힌다
+     (9/29 라이브 실측에서 잡음). 업데이터는 순수하게 두고 현재 상태로 판정한다. */
+  const open = useCallback(
+    (method = "unknown") => {
+      if (!isOpen) analytics.searchOverlayOpen(method);
+      setIsOpen(true);
+    },
+    [isOpen],
+  );
   const close = useCallback(() => setIsOpen(false), []);
 
-  const ctx = useMemo(() => ({ open }), [open]);
+  const ctx = useMemo(() => ({ open, isOpen }), [open, isOpen]);
 
   // 오버레이 오픈 시 body 스크롤 잠금 — iOS Safari 호환(position: fixed 패턴).
   useBodyScrollLock(isOpen);

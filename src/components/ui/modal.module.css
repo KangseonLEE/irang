@@ -11,6 +11,14 @@
   animation: overlayIn 0.2s ease-out;
 }
 
+/* 상단 정렬(검색 팔레트) — 데스크탑만. 모바일은 기존 바텀시트 동작을 건드리지 않는다 */
+@media (min-width: 640px) {
+  .overlay[data-align="top"] {
+    align-items: flex-start;
+    padding-top: 12vh;
+  }
+}
+
 .overlay[data-closing="true"] {
   animation: overlayOut 0.15s ease-in forwards;
 }
@@ -220,5 +228,12 @@
 @media (min-width: 640px) {
   .panelWide {
     max-width: min(1040px, 96vw);
+  }
+}
+
+/* 통합검색 모달 — 빈 상태 2열이 들어갈 폭 (2026-09-29 회장) */
+@media (min-width: 640px) {
+  .panelSearch {
+    max-width: min(880px, 92vw);
   }
 }

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { CommunityNotes } from "@/components/community/community-notes";
 import { CommunityJumpLink } from "@/components/community/community-jump-link";
 import { PersonaCta } from "@/components/persona/persona-cta";
@@ -191,12 +190,6 @@ export default async function ProgramDetailPage({
               variant="ghost"
               size="sm"
               showLabel={false}
-            />
-            <BookmarkButton
-              id={program.id}
-              type="program"
-              title={program.title}
-              subtitle={program.region}
             />
           </div>
         </div>

@@ -14,7 +14,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { TrendingSearches } from "@/components/landing/trending-searches";
 import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { HeroSlider } from "@/components/landing/hero-slider";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
@@ -123,10 +122,6 @@ export default function HomePage() {
             9/28 3차 회장 지시로 모바일까지 공통 렌더(뷰포트 분기는 CSS). 모바일은 검색창을 빼고
             헤더 트리거가 검색 입구를 맡는다 — page.module.css 1-M 블록. */}
         <HeroSlider />
-
-        <div className={s.heroTrending}>
-          <TrendingSearches />
-        </div>
       </section>
 
       {/* ═══ 1-2. 자주 찾는 서비스 — 아이콘 8종, GNB 여정 순 (9/7 회장 결재: 히어로 밖 별도 섹션) ═══ */}

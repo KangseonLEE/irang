@@ -57,6 +57,11 @@ interface SearchBarProps {
   onClose?: () => void;
   /** 읽기 전용 표시 모드 — 시각적으로만 렌더링하고 포커스/인터랙션 비활성화 */
   readOnlyDisplay?: boolean;
+  /**
+   * 제안 목록을 절대 배치 대신 **흐름 배치**로 (2026-09-29 통합검색 모달).
+   * 모달 패널은 overflow: hidden 이라 absolute 드롭다운이 잘린다 — 흐름에 두면 모달 본문이 함께 스크롤된다.
+   */
+  inlineDropdown?: boolean;
 }
 
 interface SearchBarHandle {
@@ -170,6 +175,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     richMode = false,
     onClose: onCloseProp,
     readOnlyDisplay = false,
+    inlineDropdown = false,
   },
   ref,
 ) {
@@ -447,10 +453,10 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     return map;
   }, [allItems]);
 
-  // Reset focusedIndex when results change
+  // Reset focusedIndex when the query or result count changes (9/29 QA: 같은 건수면 직전 하이라이트가 남아 배추→고구마 결)
   useEffect(() => {
     setFocusedIndex(-1);
-  }, [allItems.length]);
+  }, [query, allItems.length]);
 
   // ----- Debounced suggestions -----
   // Phase 1C: dropdown은 네이버 스타일 텍스트 자동완성만 노출.
@@ -641,7 +647,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
         suggestions.length > 0 ||
         query.trim().length > 0));
 
-  const dropdownClass = `${s.dropdown}${isExpanded ? ` ${s.dropdownExpanded}` : ""}`;
+  const dropdownClass = `${s.dropdown}${isExpanded ? ` ${s.dropdownExpanded}` : ""}${
+    inlineDropdown ? ` ${s.dropdownInline}` : ""
+  }${showRich && query.trim().length === 0 ? ` ${s.dropdownRich}` : ""}`;
 
   return (
     <div className={containerClass} ref={containerRef}>
@@ -818,8 +826,27 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                   </Link>
                 </div>
               </div>
-
-              {/* 인기 검색어 */}
+              <div className={s.expandedSection}>
+                <div className={s.sectionLabel}>단계별 가이드</div>
+                <div className={s.guideStepsGrid}>
+                  {PLAN_STEPS.map((step) => (
+                    <Link
+                      key={step.id}
+                      href={`/guide#step${step.step}`}
+                      className={s.guideStepCard}
+                      onClick={handleQuickNav}
+                    >
+                      <span className={s.guideStepNum}>{step.step}</span>
+                      <span className={s.guideStepBody}>
+                        <span className={s.guideStepTitle}>{step.title}</span>
+                        <span className={s.guideStepHint}>{step.timeline}</span>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+              {/* 인기 검색어 — 모달(inlineDropdown)에서는 제외 (9/29 회장): 바로 탐색 → 가이드 → FAQ 만 */}
+              {!inlineDropdown && (
               <div className={s.expandedSection}>
                 <div className={s.sectionLabel}>인기 검색어</div>
                 <div className={s.popularList}>
@@ -845,29 +872,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
                   })}
                 </div>
               </div>
-
-              {/* 농촌 정착 단계별 가이드 — 카드 grid */}
-              <div className={s.expandedSection}>
-                <div className={s.sectionLabel}>단계별 가이드</div>
-                <div className={s.guideStepsGrid}>
-                  {PLAN_STEPS.map((step) => (
-                    <Link
-                      key={step.id}
-                      href={`/guide#step${step.step}`}
-                      className={s.guideStepCard}
-                      onClick={handleQuickNav}
-                    >
-                      <span className={s.guideStepNum}>{step.step}</span>
-                      <span className={s.guideStepBody}>
-                        <span className={s.guideStepTitle}>{step.title}</span>
-                        <span className={s.guideStepHint}>{step.timeline}</span>
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* 자주 묻는 질문 — FEATURED 5건 */}
+              )}
               <div className={s.expandedSection}>
                 <div className={s.sectionLabel}>자주 묻는 질문</div>
                 <div className={s.faqList}>

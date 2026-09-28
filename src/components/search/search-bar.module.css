@@ -874,3 +874,32 @@
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
 }
+
+/* 모달 안 제안 목록 — 절대 배치를 풀어 모달 본문과 함께 스크롤시킨다 (2026-09-29 통합검색 모달).
+   패널이 overflow: hidden 이라 absolute 드롭다운은 잘린다. */
+.dropdownInline {
+  position: static;
+  max-height: none;
+  margin-top: 10px;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* 모달 빈 입력 상태 — 1열 세로 스택 (9/29 회장: 2열·인기 검색어 폐기).
+   섹션 순서는 바로 탐색 → 단계별 가이드 → 자주 묻는 질문. 높이는 Modal 패널의 80dvh 가 잡고
+   넘치는 만큼 본문이 스크롤된다(패널 높이는 2열 때와 동일). */
+.dropdownInline.dropdownRich {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding-bottom: 32px;
+}
+
+/* 모달 안에서는 섹션 사이 구분선을 쓰지 않는다 — 간격(gap)만으로 가른다 */
+.dropdownInline .expandedSection,
+.dropdownInline .expandedSection + .expandedSection {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+}

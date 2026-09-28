@@ -12,7 +12,6 @@ import {
   LandPlot, ArrowRight } from "lucide-react";
 import { LandCheckBox } from "@/components/region/land-check-box";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
-import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { RegionShareMenu } from "@/components/region/region-share-menu";
@@ -275,12 +274,6 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               size="sm"
               showLabel={false}
             />
-            <BookmarkButton
-              id={`${province.id}-${sigungu.id}`}
-              type="region"
-              title={`${province.shortName} ${sigungu.name}`}
-              subtitle={sigungu.description}
-            />
           </>
         }
       />
@@ -307,12 +300,6 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               size="sm"
               showLabel={false}
             />
-            <BookmarkButton
-              id={`${province.id}-${sigungu.id}`}
-              type="region"
-              title={`${province.shortName} ${sigungu.name}`}
-              subtitle={sigungu.description}
-            />
           </div>
           {/* 모바일 ⋯ 메뉴 — 데스크탑에선 CSS로 숨김. */}
           <div className={s.heroMobileMenu}>
@@ -321,12 +308,6 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               shareDescription={`${province.shortName} ${sigungu.name} 농촌 정착 정보: ${sigungu.description}`}
               contentType="region"
               triggerVariant="plain"
-              bookmark={{
-                id: `${province.id}-${sigungu.id}`,
-                type: "region",
-                title: `${province.shortName} ${sigungu.name}`,
-                subtitle: sigungu.description,
-              }}
             />
           </div>
         </div>

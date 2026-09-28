@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { RegionShareMenu } from "@/components/region/region-share-menu";
@@ -257,12 +256,6 @@ export default async function RegionDetailPage({ params }: PageProps) {
               size="sm"
               showLabel={false}
             />
-            <BookmarkButton
-              id={province.id}
-              type="region"
-              title={province.name}
-              subtitle={province.description}
-            />
           </>
         }
       />
@@ -288,12 +281,6 @@ export default async function RegionDetailPage({ params }: PageProps) {
             shareDescription={`${province.name} 농촌 정착 정보: ${province.description}`}
             shareImageUrl={`https://irangfarm.com/regions/${province.id}/opengraph-image`}
             contentType="region"
-            bookmark={{
-              id: province.id,
-              type: "region",
-              title: province.name,
-              subtitle: province.description,
-            }}
           />
         </div>
 
@@ -316,12 +303,6 @@ export default async function RegionDetailPage({ params }: PageProps) {
                   variant="ghost"
                   size="sm"
                   showLabel={false}
-                />
-                <BookmarkButton
-                  id={province.id}
-                  type="region"
-                  title={province.name}
-                  subtitle={province.description}
                 />
               </div>
             </div>

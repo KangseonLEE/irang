@@ -30,13 +30,18 @@ interface ModalProps {
    * 패널 폭. "wide" → max-width 1040px(뷰포트 96vw 상한). 재배 캘린더처럼 12열 표를 가로 스크롤 없이
    * 보여줘야 하는 콘텐츠용 (8/30 회장: 캘린더가 12월까지 안 보임). 기본 640px.
    */
-  size?: "default" | "wide";
+  size?: "default" | "wide" | "search";
+  /**
+   * 세로 정렬. "top" → 상단에서 12vh 아래(검색 팔레트 관례 — ⌘K 류는 화면 중앙보다 위가 눈에 편하다).
+   * 기본은 세로 중앙. (2026-09-29 통합검색 모달)
+   */
+  align?: "center" | "top";
 }
 
 const ANIMATION_DURATION = 150; // ms — overlayOut / panelOut duration
 const DRAG_DISMISS_THRESHOLD = 100; // px — 이 이상 아래로 드래그하면 닫기
 
-export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default" }: ModalProps) {
+export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default", align = "center" }: ModalProps) {
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -256,6 +261,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
     <div
       ref={overlayRef}
       className={s.overlay}
+      data-align={align}
       data-closing={closing || undefined}
       onClick={(e) => {
         // 오버레이(자기 자신) 클릭 시에만 닫기
@@ -265,7 +271,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
     >
       <div
         ref={panelRef}
-        className={`${s.panel} ${size === "wide" ? s.panelWide : ""}`}
+        className={`${s.panel} ${size === "wide" ? s.panelWide : ""} ${size === "search" ? s.panelSearch : ""}`}
         data-mobile-height={mobileHeight}
         role="dialog"
         aria-modal="true"

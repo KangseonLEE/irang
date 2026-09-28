@@ -149,12 +149,8 @@
 }
 
 /* ── 인기 검색어 래퍼 ── */
-.heroTrending {
-  animation: heroFadeUp 0.7s cubic-bezier(.16, 1, .3, 1) 1.3s both;
-}
 
 @media (prefers-reduced-motion: reduce) {
-  .heroTrending { animation: none; }
 }
 
 /* ══════════════════════════════════════════
@@ -187,10 +183,6 @@
   /* 배경 레이어(z 0) 위로 — 위치 지정이 없으면 텍스트가 이미지 아래로 깔린다 */
   .heroTitle,
   .heroSubtitle,
-  .heroTrending {
-    position: relative;
-    z-index: 1;
-  }
 
   .heroTitle {
     margin: 0 0 14px;
@@ -212,14 +204,7 @@
   }
 
   /* 인기 검색어 — 다크 배경용 색 + 좌측 정렬 (컴포넌트 기본은 가운데 정렬·본문색) */
-  .heroTrending {
-    margin-top: 20px;
-  }
 
-  .heroTrending :global([class*="wrapper"]) { justify-content: flex-start; }
-  .heroTrending :global([class*="label"]) { color: rgba(255, 255, 255, 0.62); }
-  .heroTrending :global([class*="item"]) { color: #fff; }
-  .heroTrending :global([class*="skeleton"]) { color: rgba(255, 255, 255, 0.62); }
 
   /* 플로팅 검색 바 — 히어로 하단 경계에 걸침.
      가운데 정렬은 transform 이 아니라 left/right 0 + margin auto 로 한다 —
@@ -254,10 +239,6 @@
   /* 배경 레이어(z 0) 위로 */
   .heroTitle,
   .heroSubtitle,
-  .heroTrending {
-    position: relative;
-    z-index: 1;
-  }
 
   .heroTitle {
     margin: 0 0 8px;
@@ -283,9 +264,6 @@
   /* 인기 검색어는 모바일에서 노출하지 않는다 (9/28 3차 회장 지시) — 데스크탑은 유지.
      렌더 게이트가 아니라 CSS 로 감추는 이유: SSR HTML 은 하나뿐이라 게이트를 걸면 데스크탑에서도
      /search?q= 내부 링크가 SSR 에서 통째로 빠진다(유입 61% Organic). 검색창을 숨기는 방식과 동일. */
-  .heroTrending {
-    display: none;
-  }
 }
 
 /* .page padding-top 이 breakpoint 마다 달라 히어로 상쇄값도 맞춰 준다 (스낵바 기준점 유지) */

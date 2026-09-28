@@ -12,29 +12,43 @@
   pointer-events: none;
 }
 
+/* 전환 중 "울렁거림" 제거 (2026-09-29 회장)
+   원인: Ken Burns 가 `.layerActive .image` 에만 걸려 **활성이 바뀌는 순간** 새 레이어는 scale 1 에서
+   다시 시작하고 나가는 레이어는 1.08 근처였다 → 크로스페이드 1초 동안 두 배율이 어긋나 출렁였다.
+   조치 ① Ken Burns 를 모든 레이어에 **같은 위상으로 상시**(무한 alternate, delay 없음) — 어느 순간에도
+   두 레이어의 배율이 정확히 같다(실측 배율차 0.0000). ② 들어오는 레이어만 1.2s 로 0→1,
+   **나가는 레이어는 페이드하지 않고 그대로 깔아 둔다**(`.layerPrev`) — 한쪽만 움직이니 어긋남이
+   보이지 않고, 배경이 비치는 빈틈도 없다(나가는 쪽을 즉시 0 으로 만들면 첫 200ms 가 어두워진다). */
 .layer {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 1s cubic-bezier(.16, 1, .3, 1);
+  transition: opacity 1.2s cubic-bezier(.4, 0, .2, 1);
+  will-change: opacity;
+}
+
+/* 직전 슬라이드 — 새 레이어가 다 덮을 때까지 그대로 (페이드 없음) */
+.layerPrev {
+  opacity: 1;
+  z-index: 0;
+  transition: none;
 }
 
 .layerActive {
   opacity: 1;
+  z-index: 1;
 }
 
 .image {
   object-fit: cover;
   object-position: center 42%;
-}
-
-/* Ken Burns — 활성 슬라이드만 12초 느린 줌 + 미세 팬 */
-.layerActive .image {
-  animation: kenBurns 12s cubic-bezier(.33, 0, .5, 1) both;
+  /* 모든 레이어가 같은 위상으로 움직여 전환 순간 배율 불연속이 없다 */
+  animation: kenBurns 24s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
 @keyframes kenBurns {
-  from { transform: scale(1) translate3d(0, 0, 0); }
+  from { transform: scale(1.02) translate3d(0, 0, 0); }
   to   { transform: scale(1.08) translate3d(-1.2%, -0.8%, 0); }
 }
 
@@ -42,6 +56,8 @@
 .scrim {
   position: absolute;
   inset: 0;
+  /* 9/29 회장 "갑자기 밝아져 흰 글자가 안 보임": 전환 보정으로 .layerActive 가 z 1 이 되며 스크림(z auto) 위에 그려졌다 — 스크림은 항상 레이어 위 */
+  z-index: 2;
   background:
     /* 9/28 시안 2차: 1차(0.88→0.30 + 하단 0.66)는 일러스트가 거의 안 보였다 — 왼쪽 텍스트 영역만 어둡게, 오른쪽은 트고 하단은 낮게 */
     /* 9/29 B안: 투명 오버레이 헤더의 흰 글자 대비용 상단 띠.
@@ -318,8 +334,14 @@
     transform: scaleX(1);
   }
 
-  .layerActive .image {
+  .layer,
+  .layerActive {
+    transition: none;
+  }
+
+  .image {
     animation: none;
+    transform: scale(1.02);
   }
 
   .copy {
@@ -337,10 +359,10 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 4px 10px;
+  gap: 6px;
+  min-width: 56px;
+  min-height: 56px;
+  padding: 6px 12px;
   border: 0;
   background: transparent;
   color: rgba(255, 255, 255, 0.92);
@@ -351,7 +373,7 @@
 }
 
 .scrollHintText {
-  font-size: 0.72rem;
+  font-size: 0.72rem; /* 모바일 — 데스크탑은 1024+ 블록에서 키운다 */
   font-weight: 600;
   letter-spacing: 0.02em;
   text-shadow: 0 1px 6px rgba(6, 26, 21, 0.5);
@@ -370,24 +392,41 @@
 
 @keyframes scrollHintBounce {
   0%, 100% { transform: translate(-50%, 0); }
-  50% { transform: translate(-50%, 6px); }
+  50% { transform: translate(-50%, 8px); }
 }
 
 /* 데스크탑: 하단 중앙(회장 9/29 "가운데로") — 히어로 검색 바가 헤더로 옮겨져 하단 중앙이 비었다.
    모바일과 같은 세로 스택(텍스트 위·쉐브론 아래), 컨트롤(좌)·피드백 버튼(우)과 겹치지 않음 */
 @media (min-width: 1024px) {
+  /* 9/29 회장 "더 크게" — 히트 영역 56×56 이상, 텍스트 15px/600, 쉐브론 28 */
   .scrollHint {
     bottom: 28px;
-    gap: 4px;
-    padding: 6px 12px;
+    gap: 6px;
+    padding: 8px 16px;
+    min-width: 64px;
+    min-height: 64px;
   }
 
   .scrollHintText {
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
     letter-spacing: 0.04em;
+  }
+
+  .scrollHint svg {
+    width: 28px;
+    height: 28px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .scrollHint { animation: none; }
+}
+
+/* 모바일 쉐브론만 조금 크게 (텍스트는 0.72rem 유지) — 9/29 회장 */
+@media (max-width: 1023px) {
+  .scrollHint svg {
+    width: 24px;
+    height: 24px;
+  }
 }

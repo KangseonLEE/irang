@@ -3,7 +3,6 @@
    page.tsx 에서 분리 — Tailwind 의존 없음
    ──────────────────────────────────────────── */
 
-import { POPULAR_KEYWORDS } from "./popular-keywords";
 
 /* ── (구) 정착 트렌드 데이터: TREND_BENTO_PROFILES로 이전 완료 ── */
 
@@ -1165,26 +1164,6 @@ export const interviews: InterviewCard[] = [
 /* ── 귀농 5단계 로드맵 ── */
 
 /* ── 자주 묻는 질문 (FAQ) ── */
-
-/* ── 인기 검색어 (히어로 슬라이더) ── */
-
-export interface TrendingSearch {
-  label: string;
-  query: string;
-}
-
-/**
- * 히어로 "시작하기 좋은 키워드는" 로테이션 키워드.
- *
- * 검색 오버레이 "인기 검색어"와 싱크 유지를 위해 단일 SSOT(`POPULAR_KEYWORDS`)에서
- * 파생한다 (2026-05-29 회장 결재 — 두 리스트 키워드 불일치 해소).
- * query = label (POPULAR_KEYWORDS 라벨이 곧 검색 쿼리).
- * 항목 추가/변경은 `src/lib/data/popular-keywords.ts`에서만 한다.
- */
-export const trendingSearches: TrendingSearch[] = POPULAR_KEYWORDS.map((k) => ({
-  label: k.label,
-  query: k.label,
-}));
 
 // ─── 인터뷰 정렬 (5/25 회장 결재) ──────────────────────────────────────────
 

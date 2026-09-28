@@ -43,13 +43,6 @@
   box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px color-mix(in srgb, var(--ring) 30%, transparent);
 }
 
-.logoTextWrap {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1px;
-}
-
 .logoTitle {
   font-family: var(--font-logo, Georgia, serif);
   font-size: 1.05rem;
@@ -57,20 +50,6 @@
   letter-spacing: 0.03em;
   line-height: 1.1;
   color: var(--primary, #1b6b5a);
-}
-
-.logoSub {
-  display: none;
-  font-size: var(--fs-overline);
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  line-height: 1.1;
-  color: var(--muted-foreground, #6b7280);
-  white-space: nowrap;
-}
-
-@media (min-width: 900px) {
-  .logoSub { display: block; }
 }
 
 /* ── Desktop GNB ── */
@@ -259,160 +238,8 @@
 }
 
 /* 검색 모드 활성화 시 아이콘 숨기기 — 검색바 닫기 X로 대체됨 */
-.searchBtnHidden {
-  display: none;
-}
-
-/* ── 단축키 키캡 (2026-09-29) — 데스크탑에서만, 마운트 전엔 빈 배지로 폭만 예약(CLS 0) ── */
-.searchKbd {
-  display: none;
-}
-
-@media (min-width: 1024px) {
-  .searchKbd {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    /* "⌘K"·"Ctrl K" 중 넓은 쪽 기준 — 표기가 바뀌어도 이웃이 밀리지 않는다 */
-    min-width: 52px;
-    height: 22px;
-    padding: 0 7px;
-    border: 1px solid var(--border, #e5e7eb);
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1;
-    color: var(--muted-foreground, #6b7280);
-    letter-spacing: 0.02em;
-    white-space: nowrap;
-    pointer-events: none;
-  }
-}
 
 /* ── GNB 검색 모드: nav를 교체하는 풀폭 검색바 ── */
-.gnbSearchBar {
-  flex: 1;
-  display: none;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  max-width: 520px;
-  margin-left: 16px;
-  animation: gnbSearchSlide 0.22s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-
-@media (min-width: 768px) {
-  .gnbSearchBar { display: flex; }
-}
-
-.gnbSearchClose {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: var(--muted-foreground);
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background-color 0.12s, color 0.12s;
-}
-
-@media (hover: hover) {
-  .gnbSearchClose:hover {
-    background: var(--muted);
-    color: var(--foreground);
-  }
-}
-
-.gnbSearchClose:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-@keyframes gnbSearchSlide {
-  from { opacity: 0; transform: scaleX(0.92); }
-  to   { opacity: 1; transform: scaleX(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .gnbSearchBar { animation: none; }
-}
-
-.bookmarkBtn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  border: none;
-  background: transparent;
-  color: var(--muted-foreground);
-  cursor: pointer;
-  transition: color 150ms ease, background-color 150ms ease;
-}
-
-@media (hover: hover) {
-  .bookmarkBtn:hover {
-    background-color: color-mix(in srgb, var(--secondary) 60%, transparent);
-    color: #e74c3c;
-  }
-}
-
-.badge {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 999px;
-  background: #e74c3c;
-  color: var(--primary-foreground);
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 16px;
-  text-align: center;
-}
-
-.ctaButton {
-  display: none;
-  align-items: center;
-  gap: 0.375rem;
-  height: 2rem;
-  border-radius: 8px;
-  background-color: var(--primary, #1b6b5a);
-  padding-left: 0.875rem;
-  padding-right: 0.875rem;
-  font-size: var(--fs-body-sm);
-  line-height: 1.25rem;
-  font-weight: 500;
-  color: var(--primary-foreground);
-  transition: background-color 150ms ease;
-}
-
-@media (hover: hover) {
-  .ctaButton:hover {
-    background-color: color-mix(in srgb, var(--primary) 90%, black);
-  }
-}
-
-.ctaButton:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px color-mix(in srgb, var(--ring) 30%, transparent);
-}
-
-@media (min-width: 900px) {
-  .ctaButton { display: inline-flex; }
-}
-
-
-
 /* ══════════════════════════════════════════
    랜딩 히어로 위 투명 오버레이 (2026-09-29 B안, 1024+ 전용)
 
@@ -438,22 +265,11 @@
   }
 
   :global(body:has([data-landing-hero])) .logoTitle,
-  :global(body:has([data-landing-hero])) .logoSub,
   :global(body:has([data-landing-hero])) .navLink,
   :global(body:has([data-landing-hero])) .navLink.active,
-  :global(body:has([data-landing-hero])) .searchBtn,
-  :global(body:has([data-landing-hero])) .bookmarkBtn {
+  :global(body:has([data-landing-hero])) .searchBtn {
     color: #fff;
     transition: color 0.25s ease;
-  }
-
-  :global(body:has([data-landing-hero])) .logoSub {
-    color: rgba(255, 255, 255, 0.72);
-  }
-
-  :global(body:has([data-landing-hero])) .searchKbd {
-    color: rgba(255, 255, 255, 0.82);
-    border-color: rgba(255, 255, 255, 0.38);
   }
 
   :global(body:has([data-landing-hero])) .navLink.active {
@@ -467,23 +283,21 @@
 
   @media (hover: hover) {
     :global(body:has([data-landing-hero])) .navLink:hover,
-    :global(body:has([data-landing-hero])) .searchBtn:hover,
-    :global(body:has([data-landing-hero])) .bookmarkBtn:hover {
+    :global(body:has([data-landing-hero])) .searchBtn:hover {
       color: #fff;
       background-color: rgba(255, 255, 255, 0.16);
     }
 
-    :global(body:has([data-landing-hero])) .ctaButton:hover {
-      background-color: rgba(255, 255, 255, 0.88);
-      color: var(--primary, #1b6b5a);
+    :global(body:has([data-landing-hero])) .searchField:hover {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.5);
     }
   }
 
   /* 포커스 링은 어두운 배경 위에서 흰색 */
   :global(body:has([data-landing-hero])) .navLink:focus-visible,
   :global(body:has([data-landing-hero])) .searchBtn:focus-visible,
-  :global(body:has([data-landing-hero])) .bookmarkBtn:focus-visible,
-  :global(body:has([data-landing-hero])) .ctaButton:focus-visible {
+  :global(body:has([data-landing-hero])) .searchField:focus-visible {
     outline: 2px solid #fff;
     outline-offset: 2px;
     box-shadow: none;
@@ -493,12 +307,18 @@
     box-shadow: 0 0 0 2px #fff;
   }
 
-  /* 진단 CTA — 딥그린 히어로 위에서 초록 채움은 묻힌다. 흰 알약 + 그린 글자로 반전 */
-  :global(body:has([data-landing-hero])) .ctaButton {
-    background-color: #fff;
-    color: var(--primary, #1b6b5a);
-    border-color: #fff;
-    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  /* 투명 오버레이 위 검색 입력창 — 반투명 흰 필 (색만 전환, 폭·높이 불변) */
+  :global(body:has([data-landing-hero])) .searchField {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  :global(body:has([data-landing-hero])) .searchKbd {
+    background: transparent;
+    /* QA: .82 는 최악 픽셀 4.04 — .92 로 올려 4.5 이상 확보 */
+    color: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.44);
   }
 
   /* ── 히어로를 지나면 원래 흰 헤더 (플래그가 늦게 붙어도 색만 바뀐다) ── */
@@ -508,22 +328,111 @@
   }
 
   :global(html[data-hero-passed]) .logoTitle { color: var(--primary, #1b6b5a); }
-  :global(html[data-hero-passed]) .logoSub { color: var(--muted-foreground, #6b7280); }
   :global(html[data-hero-passed]) .navLink { color: var(--muted-foreground); }
   :global(html[data-hero-passed]) .navLink.active {
     color: var(--primary, #1b6b5a);
     background-color: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   }
-  :global(html[data-hero-passed]) .searchBtn,
-  :global(html[data-hero-passed]) .bookmarkBtn { color: var(--muted-foreground); }
+  :global(html[data-hero-passed]) .searchBtn { color: var(--muted-foreground); }
+  :global(html[data-hero-passed]) .searchField {
+    background: var(--muted, #f9fafb);
+    border-color: var(--border, #e5e7eb);
+    color: var(--muted-foreground, #6b7280);
+  }
   :global(html[data-hero-passed]) .searchKbd {
     color: var(--muted-foreground, #6b7280);
     border-color: var(--border, #e5e7eb);
   }
   :global(html[data-hero-passed]) .logo svg { filter: none; }
-  :global(html[data-hero-passed]) .ctaButton {
-    background-color: var(--primary, #1b6b5a);
-    color: #fff;
-    border-color: var(--primary, #1b6b5a);
+}
+
+/* ══════════════════════════════════════════
+   헤더 검색 (2026-09-29 회장)
+   - <768: 돋보기 아이콘 하나 (오버레이)
+   - 768+: 상시 노출되는 작은 검색 입력창 — 누르면 기존 인라인 GNB 검색바로 **펼쳐진다**.
+     두 UI 를 병행하지 않으려고 아이콘/입력창은 뷰포트로 배타 노출하고, 펼친 뒤에는 둘 다 감춘다.
+   ══════════════════════════════════════════ */
+.searchField {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  width: 200px;
+  padding: 0 10px 0 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 999px;
+  background: var(--muted, #f9fafb);
+  color: var(--muted-foreground, #6b7280);
+  font-size: var(--fs-body-sm);
+  cursor: pointer;
+  transition: width 0.2s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.searchFieldText {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  /* 입력창이 검색 입구를 맡으므로 아이콘 버튼은 숨긴다 */
+  .searchBtn { display: none; }
+  .searchField { display: inline-flex; }
+}
+
+@media (min-width: 1024px) {
+  .searchField { width: 240px; }
+}
+
+@media (min-width: 1280px) {
+  .searchField { width: 280px; }
+}
+
+@media (hover: hover) {
+  .searchField:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, var(--border, #e5e7eb));
   }
+}
+
+.searchField:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px color-mix(in srgb, var(--ring) 30%, transparent);
+}
+
+/* ── 단축키 키캡 — 입력창 안 우측, 1024+ 에서만 (마운트 전엔 빈 배지로 폭만 예약 → CLS 0) ── */
+.searchKbd {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .searchKbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* "⌘K"·"Ctrl K" 중 넓은 쪽 기준 — 표기가 바뀌어도 이웃이 밀리지 않는다 */
+    min-width: 46px;
+    height: 20px;
+    padding: 0 6px;
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 6px;
+    background: var(--background, #fff);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--muted-foreground, #6b7280);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+/* ── 통합검색 모달 본문 (2026-09-29) — 입력창을 크게, 제안·바로가기는 SearchBar 리치 모드가 든다 ── */
+.searchModalBody :global([class*="inputWrapLarge"]) {
+  min-height: 56px;
+  font-size: 1.125rem;
+}
+
+.searchModalBody :global([class*="sectionLabel"]) {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground, #6b7280);
 }

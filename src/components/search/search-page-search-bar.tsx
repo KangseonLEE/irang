@@ -28,7 +28,7 @@ export default function SearchPageSearchBar() {
   }, []);
 
   // 탭(눌렀다 뗌)만 오버레이 — 검색창을 잡고 스크롤하는 제스처는 무시 (9/7 회장 리포트)
-  const tapHandlers = useTapGesture(openOverlay, isMobile);
+  const tapHandlers = useTapGesture(() => openOverlay("search_page_bar"), isMobile);
 
   return (
     <div

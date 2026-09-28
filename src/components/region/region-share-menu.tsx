@@ -1,12 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Heart, MoreHorizontal, Share2, Check } from "lucide-react";
+import { MoreHorizontal, Share2, Check } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
-import {
-  useBookmarks,
-  type BookmarkType,
-} from "@/lib/hooks/use-bookmarks";
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import { analytics } from "@/lib/analytics";
 import s from "./region-share-menu.module.css";
@@ -22,13 +18,6 @@ interface RegionShareMenuProps {
   pageUrl?: string;
   /** GA4 contentType */
   contentType?: string;
-  /** 북마크 메타 */
-  bookmark: {
-    id: string;
-    type: BookmarkType;
-    title: string;
-    subtitle?: string;
-  };
   /** 트리거 버튼 시각 변형 — hero(이미지 위 흰 알약), plain(기본) */
   triggerVariant?: "hero" | "plain";
 }
@@ -107,7 +96,7 @@ function loadKakaoSdk(): Promise<void> {
 
 /**
  * 시도/시군구 hero 우측 상단의 단일 ⋯ 메뉴 트리거 + ActionSheet.
- * 모바일에서 카카오/공유/북마크 3개 액션을 하나의 시트에 모은다.
+ * 모바일에서 카카오/공유 액션을 하나의 시트에 모은다 (9/29: 저장 항목 제거).
  *
  * 데스크탑(≥768px)에서는 페이지 측 CSS로 이 컴포넌트를 숨기고,
  * 기존 `heroActions` inline 3버튼이 그대로 노출된다.
@@ -118,13 +107,10 @@ export function RegionShareMenu({
   shareImageUrl,
   pageUrl,
   contentType = "region",
-  bookmark,
   triggerVariant = "hero",
 }: RegionShareMenuProps) {
   const [open, setOpen] = useState(false);
   const [kakaoReady, setKakaoReady] = useState(false);
-  const { isBookmarked, toggleBookmark, mounted } = useBookmarks();
-  const active = mounted && isBookmarked(bookmark.id, bookmark.type);
 
   // 시트 자동 닫기 타이밍(900ms)을 위해 hook timeout을 같은 값으로 설정
   const close = useCallback(() => setOpen(false), []);
@@ -187,11 +173,6 @@ export function RegionShareMenu({
     if (!ok) close();
   }, [shareTitle, shareDescription, pageUrl, contentType, copy, close]);
 
-  const handleBookmark = useCallback(() => {
-    toggleBookmark(bookmark);
-    close();
-  }, [toggleBookmark, bookmark, close]);
-
   const triggerClass =
     triggerVariant === "hero" ? `${s.trigger} ${s.triggerHero}` : s.trigger;
 
@@ -201,7 +182,7 @@ export function RegionShareMenu({
         type="button"
         className={triggerClass}
         onClick={() => setOpen(true)}
-        aria-label="공유 및 북마크 메뉴 열기"
+        aria-label="공유 메뉴 열기"
         aria-haspopup="dialog"
         aria-expanded={open}
       >
@@ -250,38 +231,6 @@ export function RegionShareMenu({
                   {copied
                     ? "원하는 곳에 붙여넣으세요"
                     : "다른 앱으로 보내거나 링크를 복사해요"}
-                </span>
-              </span>
-            </button>
-          </li>
-          <li role="none">
-            <button
-              type="button"
-              role="menuitemcheckbox"
-              className={`${s.item} ${active ? s.itemActive : ""}`}
-              onClick={handleBookmark}
-              aria-checked={active}
-            >
-              <span
-                className={`${s.itemIcon} ${
-                  active ? s.itemIconActive : s.itemIconNeutral
-                }`}
-                aria-hidden="true"
-              >
-                <Heart
-                  size={18}
-                  fill={active ? "currentColor" : "none"}
-                  strokeWidth={active ? 0 : 1.8}
-                />
-              </span>
-              <span className={s.itemBody}>
-                <span className={s.itemLabel}>
-                  {active ? "북마크 해제" : "북마크에 저장"}
-                </span>
-                <span className={s.itemHint}>
-                  {active
-                    ? "내 북마크에서 빼낼게요"
-                    : "마이 페이지에서 다시 볼 수 있어요"}
                 </span>
               </span>
             </button>

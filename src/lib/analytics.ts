@@ -153,13 +153,6 @@ export const analytics = {
       label: `${contentType}_${method}`,
     }),
 
-  // -- Bookmark crop (Phase E #12 2026-05-21, GA4 → 빌드 시 Reporting API → CropPageCard interestCount) --
-  bookmarkCrop: (cropId: string, action: "add" | "remove", sourcePage: string) =>
-    trackEvent({
-      action: "bookmark_crop",
-      category: "engagement",
-      label: `${cropId}:${action}:${sourcePage}`,
-    }),
 
   // -- External link (OutboundClickTracker 가 사이트 전역 a[href^=http] 외부 이동을 위임 수집, 2026-09-03) --
   // 상세 조회(region/crop/program_view)·cta_click 헬퍼는 호출처 0으로 9/3 삭제 — 조회는 page_view 가 대신한다.
@@ -206,6 +199,15 @@ export const analytics = {
 
   calendarRowExpand: (cropId: string) =>
     trackEvent({ action: "calendar_row_expand", category: "crops", label: cropId }),
+
+  /**
+   * 통합검색 오버레이·검색바 열림 (2026-09-29) — label = 열린 경로.
+   * `shortcut`(⌘K/Ctrl+K) · `header_input`(768+ 작은 검색창) · `mobile_button`(<768 돋보기) · `search_page_bar`.
+   * **닫힌 상태에서 열릴 때만** 1회 — 이미 열린 상태의 재입력·포커스 이동은 세지 않는다.
+   * 단축키를 붙인 뒤 실제로 쓰이는지, 어느 입구가 주인지 가리는 것이 목적이다.
+   */
+  searchOverlayOpen: (method: string) =>
+    trackEvent({ action: "search_overlay_open", category: "search", label: method }),
 
   // -- 지원사업 자격 셀프 체크 결과 (2026-09-27) --
   // label `pass` | `miss:<미확인 개수>`. 저장·전송이 없는 기능이라 여기 말고는 흔적이 남지 않는다.

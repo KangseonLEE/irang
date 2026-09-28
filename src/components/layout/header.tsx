@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Heart } from "lucide-react";
-import { X } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { IrangSymbol } from "@/components/brand/irang-symbol";
-import { BookmarkList } from "@/components/bookmark/bookmark-list";
-import { useBookmarks } from "@/lib/hooks/use-bookmarks";
 import { useSearchOverlay } from "@/lib/hooks/use-search-overlay";
 import { useSearchShortcut, useIsMac, shortcutLabel } from "@/lib/hooks/use-search-shortcut";
 import SearchBar from "@/components/search/search-bar";
+import { Modal } from "@/components/ui/modal";
+import { analytics } from "@/lib/analytics";
 import {
   NAV_GROUPS,
   isNavItemActive,
@@ -19,10 +17,12 @@ import {
 } from "@/lib/data/navigation";
 import s from "./header.module.css";
 
+/** 구독이 필요 없는 스냅샷용 — 인라인으로 두면 렌더마다 새 함수라 재구독이 일어난다 */
+const subscribeNoop = () => () => {};
+
 export function Header() {
   const pathname = usePathname();
-  const [bookmarkOpen, setBookmarkOpen] = useState(false);
-  const [gnbSearchOpen, setGnbSearchOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   /** 드롭다운 클릭 후 일시적으로 hover를 무시하기 위한 플래그 */
   const [navHidden, setNavHidden] = useState(false);
   /** 클릭·키보드로 명시적으로 연 그룹 (hover 열림은 CSS가 담당) */
@@ -30,11 +30,14 @@ export function Header() {
   const navRef = useRef<HTMLElement>(null);
   /** 겹치는 basePath 중 가장 긴 것 하나만 활성 — 두 그룹 동시 활성 방지 */
   const activeGroupId = resolveActiveGroupId(pathname);
+  /** `/search` 는 페이지 검색바가 주인 — 헤더 트리거를 숨겨 입구가 둘이 되지 않게 (QA) */
+  const isSearchPage = pathname === "/search";
   /** 스크롤 내리면 헤더 숨김, 올리면 표시 */
   const [headerHidden, setHeaderHidden] = useState(false);
   const lastScrollY = useRef(0);
-  const { count, mounted } = useBookmarks();
-  const { open: openSearch } = useSearchOverlay();
+  /* 키캡 표기는 마운트 후에만 — 서버/클라이언트 첫 페인트 불일치 방지 */
+  const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
+  const { open: openSearch, isOpen: overlayOpen } = useSearchOverlay();
 
   // 스크롤 방향 감지 — 내리면 숨김, 올리면 표시
   useEffect(() => {
@@ -83,71 +86,60 @@ export function Header() {
     };
   }, []);
 
-  const handleSearchClick = useCallback(() => {
-    if (typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches) {
-      openSearch();
-    } else {
-      setGnbSearchOpen(true);
-    }
-  }, [openSearch]);
+  /* 검색 UI 열기 — **이 함수 하나**가 모든 진입(버튼 클릭·⌘K)을 받는다.
+     모바일(<640)은 전역 오버레이, 그 위는 헤더 인라인 검색바. 계측은 오버레이 쪽은 Provider 가
+     닫힘→열림 전이에서, 인라인 바는 여기서 같은 전이 조건으로 1회씩만 보낸다(중복 0). */
+  const openSearchUi = useCallback(
+    (method: string) => {
+      /* 트리거에 포커스를 두고 연다 — 닫힐 때 Modal 이 previousActive 로 되돌려 주므로
+         ⌘K 로 열어도 포커스가 검색창으로 복귀한다(QA) */
+      searchTriggerRef.current?.focus({ preventScroll: true });
+      if (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches) {
+        openSearch(method);
+        return;
+      }
+      // 업데이터 안에서 발화하면 StrictMode 이중 호출로 2건이 된다(9/29 실측) → 현재 상태로 판정
+      if (!searchModalOpen) analytics.searchOverlayOpen(method);
+      setSearchModalOpen(true);
+    },
+    [openSearch, searchModalOpen],
+  );
 
-  const closeGnbSearch = useCallback(() => setGnbSearchOpen(false), []);
-  const gnbSearchRef = useRef<HTMLDivElement>(null);
+  /* 돋보기 버튼은 <768 에서만 렌더(768+ 는 작은 검색창이 header_input 으로 연다) — 라벨은 mobile_button 하나 */
+  const handleSearchClick = useCallback(() => {
+    openSearchUi("mobile_button");
+  }, [openSearchUi]);
+
+  const closeSearchModal = useCallback(() => {
+    setSearchModalOpen(false);
+    /* 닫은 뒤 포커스를 트리거로 되돌린다 (QA). Modal 의 previousActive 복원(150ms 애니메이션 뒤)
+       보다 나중에 실행돼야 해서 220ms — 그 전에 우리가 먼저 부르면 Modal 이 body 로 덮어쓴다. */
+    setTimeout(() => searchTriggerRef.current?.focus({ preventScroll: true }), 220);
+  }, []);
+  const searchModalRef = useRef<HTMLDivElement>(null);
+  /** 작은 검색창(트리거) — 모달이 닫힐 때 공용 Modal 이 이 요소로 포커스를 돌려준다 */
+  const searchTriggerRef = useRef<HTMLButtonElement>(null);
 
   /* ⌘K(mac) / Ctrl+K — 검색 버튼 클릭과 **같은 경로**로 연다(모바일 오버레이·데스크탑 인라인 바).
      이미 열려 있으면 입력창으로 포커스만 옮긴다. 닫기는 종전대로 Esc. */
   const isMac = useIsMac();
   const onShortcut = useCallback(() => {
-    const input = gnbSearchRef.current?.querySelector("input");
+    const input = searchModalRef.current?.querySelector("input");
     if (input) {
+      // 이미 열려 있으면 포커스만 — 계측은 발화하지 않는다
       input.focus();
       input.select();
       return;
     }
-    handleSearchClick();
-  }, [handleSearchClick]);
+    if (overlayOpen) return; // 모바일 오버레이가 이미 열린 상태
+    openSearchUi("shortcut");
+  }, [openSearchUi, overlayOpen]);
   useSearchShortcut(onShortcut);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setGnbSearchOpen(false);
+    setSearchModalOpen(false);
   }, [pathname]);
-
-  useEffect(() => {
-    if (!gnbSearchOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeGnbSearch();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [gnbSearchOpen, closeGnbSearch]);
-
-  // 뷰포트가 모바일로 줄어들면 GNB 검색 자동 닫기
-  useEffect(() => {
-    if (!gnbSearchOpen) return;
-    const mql = window.matchMedia("(max-width: 767px)");
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- 뷰포트 변경 시 즉시 닫기 필요
-    if (mql.matches) { closeGnbSearch(); return; }
-    const handler = (e: MediaQueryListEvent) => {
-      if (e.matches) closeGnbSearch();
-    };
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, [gnbSearchOpen, closeGnbSearch]);
-
-  // 포커스가 검색 영역 밖으로 이동하면 닫기
-  useEffect(() => {
-    if (!gnbSearchOpen) return;
-    const el = gnbSearchRef.current;
-    if (!el) return;
-    const onFocusOut = (e: FocusEvent) => {
-      const related = e.relatedTarget as Node | null;
-      if (related && el.contains(related)) return;
-      closeGnbSearch();
-    };
-    el.addEventListener("focusout", onFocusOut);
-    return () => el.removeEventListener("focusout", onFocusOut);
-  }, [gnbSearchOpen, closeGnbSearch]);
 
   // 페이지 이동 시 데스크탑 드롭다운 닫기
   useEffect(() => {
@@ -222,129 +214,127 @@ export function Header() {
             aria-label="이랑 홈으로 이동"
           >
             <IrangSymbol size={28} />
-            <span className={s.logoTextWrap}>
-              <span className={s.logoTitle}>이랑</span>
-              <span className={s.logoSub}>농촌 정착을 꿈꾸는 모든 이들의 시작점</span>
-            </span>
+            {/* 슬로건은 제거 (9/29 회장) — 로고는 심볼 + 워드마크만 */}
+            <span className={s.logoTitle}>이랑</span>
           </Link>
 
-          {/* 검색 모드: nav 대신 검색바를 풀폭으로 표시 */}
-          {gnbSearchOpen ? (
-            <div className={s.gnbSearchBar} ref={gnbSearchRef}>
-              <SearchBar
-                size="default"
-                placeholder="궁금한 농촌 정착 정보를 검색해보세요"
-                mobilePlaceholder="지역, 작물, 교육, 비용 검색"
-                richMode
-                autoFocus
-                onClose={closeGnbSearch}
-              />
-              <button
-                type="button"
-                className={s.gnbSearchClose}
-                onClick={closeGnbSearch}
-                aria-label="검색 닫기"
-              >
-                <X size={18} />
-              </button>
-            </div>
-          ) : (
-            /* Desktop Navigation — 드롭다운 GNB */
-            <nav
-              className={`${s.nav}${navHidden ? ` ${s.navHidden}` : ""}`}
-              aria-label="주요 메뉴"
-              ref={navRef}
-              onMouseLeave={() => setNavHidden(false)}
-              onBlur={(e) => {
-                // 포커스가 nav 밖으로 나가면 열린 드롭다운 정리
-                if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
-                setOpenGroupId(null);
-              }}
-            >
-              {NAV_GROUPS.map((group) => {
-                const isGroupActive = activeGroupId === group.id;
-                const isOpen = openGroupId === group.id;
-                return (
-                  <div key={group.id} className={s.navGroup}>
-                    <button
-                      type="button"
-                      className={`${s.navLink} ${isGroupActive ? s.active : ""}`}
-                      aria-haspopup="true"
-                      aria-expanded={isOpen}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => toggleGroup(group.id)}
-                      onFocus={() => setOpenGroupId(group.id)}
-                    >
-                      {group.label}
-                    </button>
-                    <div
-                      className={`${s.dropdown}${isOpen ? ` ${s.dropdownOpen}` : ""}`}
-                    >
-                      {group.items.map((item) => {
-                        const isItemActive = isNavItemActive(pathname, item.href);
-                        return (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`${s.dropdownItem} ${isItemActive ? s.dropdownItemActive : ""}`}
-                            onClick={hideDropdowns}
-                          >
-                            <span className={s.dropdownLabel}>{item.label}</span>
-                            <span className={s.dropdownDesc}>{item.desc}</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
+          {/* Desktop Navigation — 드롭다운 GNB (검색은 모달이라 nav 를 교체하지 않는다) */}
+          <nav
+            className={`${s.nav}${navHidden ? ` ${s.navHidden}` : ""}`}
+            aria-label="주요 메뉴"
+            ref={navRef}
+            onMouseLeave={() => setNavHidden(false)}
+            onBlur={(e) => {
+              // 포커스가 nav 밖으로 나가면 열린 드롭다운 정리
+              if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+              setOpenGroupId(null);
+            }}
+          >
+            {NAV_GROUPS.map((group) => {
+              const isGroupActive = activeGroupId === group.id;
+              const isOpen = openGroupId === group.id;
+              return (
+                <div key={group.id} className={s.navGroup}>
+                  <button
+                    type="button"
+                    className={`${s.navLink} ${isGroupActive ? s.active : ""}`}
+                    aria-haspopup="true"
+                    aria-expanded={isOpen}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => toggleGroup(group.id)}
+                    onFocus={() => setOpenGroupId(group.id)}
+                  >
+                    {group.label}
+                  </button>
+                  <div
+                    className={`${s.dropdown}${isOpen ? ` ${s.dropdownOpen}` : ""}`}
+                  >
+                    {group.items.map((item) => {
+                      const isItemActive = isNavItemActive(pathname, item.href);
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={`${s.dropdownItem} ${isItemActive ? s.dropdownItemActive : ""}`}
+                          onClick={hideDropdowns}
+                        >
+                          <span className={s.dropdownLabel}>{item.label}</span>
+                          <span className={s.dropdownDesc}>{item.desc}</span>
+                        </Link>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </nav>
-          )}
+                </div>
+              );
+            })}
+          </nav>
 
           {/* Right Actions */}
           <div className={s.actions}>
-            {/* 검색 트리거는 모든 페이지·모든 폭에서 상시 노출 (9/29: 히어로 검색창을 없애
-                검색 입구가 여기 하나뿐이다 — 랜딩 데스크탑 조건부 노출 규칙 폐기) */}
+            {/* 검색 — <768 은 돋보기 아이콘, 768+ 는 상시 노출되는 작은 입력창(누르면 모달).
+                아이콘과 입력창은 서로 배타적인 뷰포트에서만 보인다 (9/29 회장).
+                `/search` 에서는 페이지 자체 검색바가 주인이라 헤더 트리거를 숨긴다(QA — 이중 노출). */}
+            {!isSearchPage && (
             <div className={s.searchWrap}>
               <button
                 type="button"
-                className={`${s.searchBtn}${gnbSearchOpen ? ` ${s.searchBtnHidden}` : ""}`}
+                className={s.searchBtn}
                 aria-label="통합검색"
                 aria-haspopup="dialog"
-                aria-expanded={gnbSearchOpen}
+                aria-expanded={searchModalOpen}
                 onClick={handleSearchClick}
                 aria-keyshortcuts={mounted ? (isMac ? "Meta+K" : "Control+K") : undefined}
               >
                 <Search size={20} strokeWidth={1.75} />
               </button>
-              {/* 단축키 키캡 — 1024+ 에서만. 마운트 전에는 빈 배지로 폭만 잡아 CLS 0 */}
-              <span className={s.searchKbd} aria-hidden="true">
-                {shortcutLabel(mounted, isMac)}
-              </span>
+
+              <button
+                type="button"
+                /* 모달이 열려도 트리거는 그대로 둔다 — 감추면 헤더 액션 폭이 줄어 레이아웃이 흔들린다 */
+                className={s.searchField}
+                aria-label="통합검색 열기"
+                aria-haspopup="dialog"
+                aria-expanded={searchModalOpen}
+                ref={searchTriggerRef}
+                /* Tab 으로 지나가기만 해도 열리면 계측이 오염된다(QA) — 클릭·Enter/Space(button 기본)·⌘K 만 */
+                onClick={() => openSearchUi("header_input")}
+                aria-keyshortcuts={mounted ? (isMac ? "Meta+K" : "Control+K") : undefined}
+              >
+                <Search size={16} strokeWidth={1.75} aria-hidden="true" />
+                <span className={s.searchFieldText}>검색</span>
+                {/* 단축키 키캡 — 입력창 안 우측, 1024+ 에서만. 마운트 전엔 빈 배지로 폭만 잡아 CLS 0 */}
+                <span className={s.searchKbd} aria-hidden="true">
+                  {shortcutLabel(mounted, isMac)}
+                </span>
+              </button>
             </div>
-            <button
-              type="button"
-              className={s.bookmarkBtn}
-              onClick={() => setBookmarkOpen(true)}
-              aria-label="저장 목록 열기"
-            >
-              <Heart size={20} strokeWidth={1.75} />
-              {mounted && count > 0 && (
-                <span className={s.badge}>{count > 99 ? "99+" : count}</span>
-              )}
-            </button>
-            <Link
-              href="/match"
-              className={s.ctaButton}
-            >
-              농촌 정착 적합도 진단
-              <ArrowRight size={14} strokeWidth={1.75} />
-            </Link>
+            )}
           </div>
         </div>
       </header>
 
-      <BookmarkList open={bookmarkOpen} onClose={() => setBookmarkOpen(false)} />
+      {/* 통합검색 모달 (768+) — 공용 Modal: 백드롭 클릭·X·Esc 닫기, 포커스 트랩, 스크롤 잠금.
+          <768 은 풀스크린 오버레이(SearchOverlay) 유지 — 중앙 모달은 가상 키보드와 싸운다 (9/29 회장). */}
+      <Modal
+        open={searchModalOpen}
+        onClose={closeSearchModal}
+        title="통합검색"
+        align="top"
+        size="search"
+      >
+        <div ref={searchModalRef} className={s.searchModalBody}>
+          <SearchBar
+            size="large"
+            placeholder="궁금한 농촌 정착 정보를 검색해보세요"
+            mobilePlaceholder="지역, 작물, 교육, 비용 검색"
+            richMode
+            inlineDropdown
+            autoFocus
+            onClose={closeSearchModal}
+          />
+        </div>
+      </Modal>
+
     </>
   );
 }

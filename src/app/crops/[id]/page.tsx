@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { BookmarkButton } from "@/components/bookmark/bookmark-button";
 import { CommunityNotes } from "@/components/community/community-notes";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
@@ -407,12 +406,6 @@ export default async function CropDetailPage({
                 variant="ghost"
                 size="sm"
                 showLabel={false}
-              />
-              <BookmarkButton
-                id={data.id}
-                type="crop"
-                title={data.name}
-                subtitle={data.category}
               />
             </div>
           </div>
