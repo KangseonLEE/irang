@@ -6,10 +6,11 @@
  * 데스크탑은 그리드라 점을 CSS 로 숨긴다. useSearchParams 미사용(Suspense 불필요).
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
+import { SnapDots } from "@/components/ui/snap-dots";
 import s from "./start-cards.module.css";
 
 export interface StartCard {
@@ -24,30 +25,6 @@ export interface StartCard {
 
 export function StartCards({ cards }: { cards: readonly StartCard[] }) {
   const trackRef = useRef<HTMLUListElement>(null);
-  const [active, setActive] = useState(0);
-
-  const sync = useCallback(() => {
-    const el = trackRef.current;
-    if (!el || !el.children.length) return;
-    const first = el.children[0] as HTMLElement;
-    const step = first.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "0");
-    setActive(Math.min(Math.round(el.scrollLeft / step), cards.length - 1));
-  }, [cards.length]);
-
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", sync, { passive: true });
-    return () => el.removeEventListener("scroll", sync);
-  }, [sync]);
-
-  const jump = (i: number) => {
-    const el = trackRef.current;
-    if (!el || !el.children.length) return;
-    const first = el.children[0] as HTMLElement;
-    const step = first.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "0");
-    el.scrollTo({ left: i * step, behavior: "smooth" });
-  };
 
   return (
     <>
@@ -84,19 +61,12 @@ export function StartCards({ cards }: { cards: readonly StartCard[] }) {
         ))}
       </ul>
 
-      <div className={s.dots} role="tablist" aria-label="카드 위치">
-        {cards.map((card, i) => (
-          <button
-            key={card.id}
-            type="button"
-            role="tab"
-            aria-selected={i === active}
-            aria-label={`${card.tag} 카드로`}
-            className={`${s.dot} ${i === active ? s.dotActive : ""}`}
-            onClick={() => jump(i)}
-          />
-        ))}
-      </div>
+      {/* 위치 점 — 공용 SnapDots (768+ 는 CSS 로 숨김) */}
+      <SnapDots
+        trackRef={trackRef}
+        count={cards.length}
+        itemLabel={(i) => `${cards[i].tag} 카드로`}
+      />
     </>
   );
 }

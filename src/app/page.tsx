@@ -153,7 +153,7 @@ export default function HomePage() {
       </ScrollReveal>
 
       {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}
-      <ScrollReveal trackId="trend_cost">
+      <ScrollReveal trackId="trend_cost" variant="fade">
         <TrendCostSection />
       </ScrollReveal>
 
@@ -174,7 +174,7 @@ export default function HomePage() {
       <ScrollReveal trackId="interviews" variant="fade" stagger>
         <div className={s.darkBg}>
           <section className={s.interviewSection} aria-label="인터뷰">
-            <div className={s.interviewHeader}>
+            <div className={s.interviewHeader} data-reveal-x="left">
               <div className={s.interviewHeading}>
                 <span className={s.eyebrowDark}>#실제 정착자</span>
                 <h2 className={`${s.interviewSectionTitle} ${s.sectionTitleDark}`}>
@@ -198,7 +198,7 @@ export default function HomePage() {
         <ScrollReveal trackId="news" variant="fade" stagger>
           <div className={s.mutedBg}>
             <section className={s.newsSection} aria-label="농촌 소식">
-              <div className={s.sectionHeader}>
+              <div className={s.sectionHeader} data-reveal-x="left">
                 <div>
                   <span className={s.eyebrow}>#농촌 소식</span>
                   <h2 className={s.sectionTitle}>놓치면 아까운 <em>소식</em></h2>
@@ -214,7 +214,7 @@ export default function HomePage() {
         <ScrollReveal trackId="bottom_cta" variant="fade" stagger>
           <section className={s.bottomCta} aria-label="다음 단계 선택">
             {/* 좌측 텍스트 블록 */}
-            <div className={s.ctaTextBlock}>
+            <div className={s.ctaTextBlock} data-reveal-x="left">
               <span className={s.ctaEyebrow}>다음 한 걸음</span>
               <h2 className={s.ctaQuestion}>
                 어디서부터<br />시작할까요?
@@ -228,7 +228,7 @@ export default function HomePage() {
             </div>
 
             {/* 우측 카드 그리드 */}
-            <div className={s.ctaPaths}>
+            <div className={s.ctaPaths} data-reveal-x="right">
               <Link href="/guide" className={s.ctaPath} data-track="bottom_cta:guide" data-reveal-item>
                 <span className={s.ctaPathNumber}>01</span>
                 <span className={s.ctaPathLabel}>정보 탐색</span>

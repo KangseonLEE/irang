@@ -13,6 +13,8 @@ import {
   type CostHighlightCard,
 } from "@/lib/data/landing";
 import { DataSource } from "@/components/ui/data-source";
+import { CountUp } from "@/components/ui/count-up";
+import { useCountUp } from "@/lib/hooks/use-count-up";
 import s from "./trend-cost-section.module.css";
 
 /* ── 통합 카테고리 매핑 ── */
@@ -31,52 +33,6 @@ const CATEGORIES: Category[] = [
   { id: "mountain", label: "귀산촌", trendKey: "mountain", costKey: "forestry" },
   { id: "smartfarm", label: "스마트팜", trendKey: "smartfarm", costKey: "smartfarm" },
 ];
-
-/* ── 숫자 카운트업 ── */
-
-function parseNumeric(raw: string) {
-  const m = raw.match(/^([^\d]*)([\d,.]+)(.*)$/);
-  if (!m) return null;
-  return { prefix: m[1], num: parseFloat(m[2].replace(/,/g, "")), suffix: m[3] };
-}
-
-function formatBack(num: number, original: string): string {
-  const parsed = parseNumeric(original);
-  if (!parsed) return original;
-  const dotIdx = original.replace(/,/g, "").indexOf(".");
-  const decimals = dotIdx >= 0 ? original.replace(/,/g, "").length - dotIdx - 1 : 0;
-  const fixed = num.toFixed(decimals);
-  const [intPart, decPart] = fixed.split(".");
-  const withComma = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return `${parsed.prefix}${withComma}${decPart ? `.${decPart}` : ""}${parsed.suffix}`;
-}
-
-function useCountUp(target: string, trigger: boolean, duration = 700) {
-  const [display, setDisplay] = useState(target);
-  const rafRef = useRef<number>(0);
-  useEffect(() => {
-    if (!trigger) return;
-    const parsed = parseNumeric(target);
-    if (!parsed) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDisplay(target);
-      return;
-    }
-    const start = performance.now();
-    const step = (now: number) => {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplay(formatBack(parsed.num * eased, target));
-      if (progress < 1) rafRef.current = requestAnimationFrame(step);
-      else setDisplay(target);
-    };
-    setDisplay(formatBack(0, target));
-    rafRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [target, trigger, duration]);
-  return display;
-}
 
 function formatCostValue(card: CostHighlightCard, raw: number): string {
   switch (card.format) {
@@ -224,14 +180,28 @@ export function TrendCostSection() {
   const cost = COST_TYPE_PROFILES[cat.costKey];
   const maxPct = Math.max(...trend.chart.items.map((r) => r.pct));
 
-  // 카운트업
+  /* 카운트업 시작 — 마운트 즉시가 아니라 섹션이 뷰포트에 들어올 때 (9/28).
+     마운트 트리거면 사용자가 이 섹션에 닿기 전에 애니메이션이 끝나 아무도 못 본다. */
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCountTrigger(true);
+    const el = sectionRef.current;
+    if (!el) return;
+    // reduced-motion 이면 트리거를 켜지 않는다 — 훅의 초기 표시가 이미 최종값이다
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setCountTrigger(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0, rootMargin: "0px 0px -6% 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
   const heroDisplay = useCountUp(trend.hero.value, countTrigger, 800);
-  const stat0Display = useCountUp(trend.stats[0].value, countTrigger, 600);
-  const stat1Display = useCountUp(trend.stats[1].value, countTrigger, 650);
+  const stat0Display = useCountUp(trend.stats[0].value, countTrigger, 800);
+  const stat1Display = useCountUp(trend.stats[1].value, countTrigger, 800);
 
   // 비용 카드 값
   const allCostCards = [cost.hero, ...cost.cards];
@@ -278,7 +248,7 @@ export function TrendCostSection() {
   return (
     <section ref={sectionRef} className={s.section} aria-label="정착 유형별 트렌드와 비용">
       {/* ── 통합 타이틀 ── */}
-      <div className={s.sectionIntro}>
+      <div className={s.sectionIntro} data-reveal-x="left">
         <span className={s.sectionEyebrow}>#유형별 트렌드·비용</span>
         <h2 className={s.sectionTitle}>
           귀농, <em>농사</em>가 다는 아니에요
@@ -394,7 +364,7 @@ export function TrendCostSection() {
                 <p className={s.costCardDesc}>{cost.hero.desc}</p>
               </div>
               <div className={s.costCardBottom}>
-                <span className={s.costCardNum}>{costVals[0]}</span>
+                <span className={s.costCardNum}><CountUp value={costVals[0]} /></span>
                 <span className={s.costCardUnit}>{cost.hero.unit}</span>
               </div>
             </div>
@@ -410,7 +380,7 @@ export function TrendCostSection() {
                     {card.source && <span className={s.costCardSource}>{card.source}</span>}
                   </p>
                   <div className={s.costCardBottom}>
-                    <span className={`${s.costCardNum} ${colorClass}`}>{costVals[i + 1]}</span>
+                    <span className={`${s.costCardNum} ${colorClass}`}><CountUp value={costVals[i + 1]} /></span>
                     <span className={s.costCardUnit}>{card.unit}</span>
                   </div>
                   {card.note && <span className={s.costCardNote}>{card.note}</span>}

@@ -9,6 +9,7 @@ import type { SupportProgram } from "@/lib/data/programs";
 import { ALWAYS_OPEN, type ProgramStatus } from "@/lib/program-status";
 import { formatAgeRange } from "@/lib/format";
 import { analytics } from "@/lib/analytics";
+import { SnapDots } from "@/components/ui/snap-dots";
 import s from "./programs-section.module.css";
 
 type Tab = "active" | "ongoing";
@@ -41,7 +42,10 @@ export function ProgramsSection({ activePrograms, ongoingPrograms }: Props) {
 
   const hasOngoing = ongoingPrograms.length > 0;
   const programs = tab === "active" ? activePrograms : ongoingPrograms;
+  /** 데스크탑 화살표·그라데이션은 3장을 넘겨 스크롤이 생길 때만 */
   const needsCarousel = programs.length > 3;
+  /** 모바일(<768)은 카드 수와 무관하게 항상 1장 노출 + 좌우 스와이프 (9/28 회장: 2장이 세로로 쌓이던 문제) */
+  const mobileCarousel = programs.length > 1;
 
   useDragScroll(scrollRef);
 
@@ -94,6 +98,7 @@ export function ProgramsSection({ activePrograms, ongoingPrograms }: Props) {
   const carouselCls = [
     s.carousel,
     needsCarousel ? s.carouselScroll : "",
+    mobileCarousel ? s.carouselMobile : "",
     animating ? s.carouselFadeOut : s.carouselFadeIn,
   ].filter(Boolean).join(" ");
 
@@ -105,7 +110,7 @@ export function ProgramsSection({ activePrograms, ongoingPrograms }: Props) {
 
   return (
     <section className={s.section} aria-label="지원사업">
-      <div className={s.header}>
+      <div className={s.header} data-reveal-x="left">
         <div className={s.heading}>
           <span className={s.eyebrow}>#지원사업</span>
           <h2 className={s.title}>
@@ -213,6 +218,14 @@ export function ProgramsSection({ activePrograms, ongoingPrograms }: Props) {
               </button>
             </>
           )}
+          {/* 모바일 위치 점 — 768+ 는 공용 CSS 로 숨김. 탭 전환 시 key 로 0번으로 초기화 */}
+          <SnapDots
+            key={tab}
+            trackRef={scrollRef}
+            count={programs.length}
+            label="지원사업 카드 위치"
+            itemLabel={(i) => `${programs[i].title} 카드로`}
+          />
         </div>
       ) : (
         <div className={s.emptyDeadline}>

@@ -58,7 +58,7 @@ export function StartCardsSection({ openProgramCount, dueSoonProgramCount }: Pro
 
   return (
     <section className={s.section} aria-labelledby="start-cards-title">
-      <div className={s.head}>
+      <div className={s.head} data-reveal-x="left">
         <span className={s.eyebrow}>#이랑에서 할 수 있는 것</span>
         <h2 id="start-cards-title" className={s.title}>
           어디서부터 시작할까요?

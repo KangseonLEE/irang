@@ -1,0 +1,38 @@
+/* 가로 스냅 캐러셀 위치 점 — 모바일 전용 (2026-09-28 공용화) */
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 22%, transparent);
+  transition:
+    background 0.18s ease,
+    width 0.18s ease;
+}
+
+.dot:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+.dotActive {
+  width: 20px;
+  border-radius: 4px;
+  background: var(--primary, #1b6b5a);
+}
+
+/* 768+ 는 그리드로 전부 보이므로 위치 개념이 없다 */
+@media (min-width: 768px) {
+  .dots {
+    display: none;
+  }
+}

@@ -45,7 +45,8 @@ export function QuickLinkSection() {
   return (
     <section className={s.section} aria-labelledby="quick-link-title">
       <div className={s.inner}>
-      <div className={s.intro}>
+      {/* 데스크탑(1024+)에서 제목 블록만 왼쪽에서 밀려 들어온다 — 타일은 종전 순차 rise (9/28 A) */}
+      <div className={s.intro} data-reveal-x="left">
         <p className={s.eyebrow}>QUICK LINK</p>
         <h2 id="quick-link-title" className={s.title}>
           자주 찾는 서비스

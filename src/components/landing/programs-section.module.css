@@ -317,6 +317,17 @@
 .carouselScroll { grid-auto-columns: calc((100% - 24px) / 3); }
 }
 
+/* 모바일(<768) — 카드 수와 무관하게 항상 1장 노출 + 다음 카드 12% peek (9/28 회장).
+   2장일 때 세로로 쌓여 섹션이 길어지던 문제. `.carouselScroll`(min-width 640 블록)보다
+   뒤에 와야 640~767 구간에서 46%가 아니라 88%가 적용된다(체크리스트 G). */
+@media (max-width: 767px) {
+  .carouselMobile {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 88%;
+  }
+}
+
 .carouselFadeIn {
   opacity: 1;
   transform: translateY(0);

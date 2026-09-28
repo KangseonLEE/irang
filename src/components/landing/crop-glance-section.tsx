@@ -15,6 +15,7 @@ import { ArrowRight } from "lucide-react";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { parseIncome10a } from "@/lib/format";
 import { getCropImageSrc } from "@/lib/crop-image";
+import { CountUp } from "@/components/ui/count-up";
 import s from "./crop-glance-section.module.css";
 
 const TOP_N = 3; // 9/7 회장: 6 → 3, 나머지는 /crops 로 (헤더 "전체 작물" + 하단 딥링크 유지)
@@ -68,7 +69,7 @@ function difficultyChipClass(difficulty: TopCrop["difficulty"]): string {
 export function CropGlanceSection() {
   return (
     <section className={s.section} aria-label="작물">
-      <div className={s.header}>
+      <div className={s.header} data-reveal-x="left">
         <div className={s.heading}>
           <span className={s.eyebrow}>#수익 TOP 작물</span>
           <h2 className={s.title}>
@@ -108,7 +109,9 @@ export function CropGlanceSection() {
             </span>
             <div className={s.rankCardBody}>
               <span className={s.cropName}>{crop.name}</span>
-              <span className={s.cropIncome}>{formatIncome(crop.income)}만 원</span>
+              <span className={s.cropIncome}>
+                <CountUp value={formatIncome(crop.income)} />만 원
+              </span>
               {/* 10a = 1,000㎡ ≈ 302.5평 → 직관성 위해 "약 300평"으로 표기 (이 섹션 한정). */}
               <span className={s.cropIncomeLabel}>약 300평당 연소득</span>
               <span className={s.chipRow}>
