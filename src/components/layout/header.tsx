@@ -10,6 +10,7 @@ import { IrangSymbol } from "@/components/brand/irang-symbol";
 import { BookmarkList } from "@/components/bookmark/bookmark-list";
 import { useBookmarks } from "@/lib/hooks/use-bookmarks";
 import { useSearchOverlay } from "@/lib/hooks/use-search-overlay";
+import { useSearchShortcut, useIsMac, shortcutLabel } from "@/lib/hooks/use-search-shortcut";
 import SearchBar from "@/components/search/search-bar";
 import {
   NAV_GROUPS,
@@ -31,8 +32,6 @@ export function Header() {
   const activeGroupId = resolveActiveGroupId(pathname);
   /** 스크롤 내리면 헤더 숨김, 올리면 표시 */
   const [headerHidden, setHeaderHidden] = useState(false);
-  // 랜딩: 히어로 검색이 보이는 동안 헤더 검색 트리거 숨김 → 지나면 노출 (9/14)
-  const [showHeaderSearch, setShowHeaderSearch] = useState(false);
   const lastScrollY = useRef(0);
   const { count, mounted } = useBookmarks();
   const { open: openSearch } = useSearchOverlay();
@@ -95,36 +94,23 @@ export function Header() {
   const closeGnbSearch = useCallback(() => setGnbSearchOpen(false), []);
   const gnbSearchRef = useRef<HTMLDivElement>(null);
 
+  /* ⌘K(mac) / Ctrl+K — 검색 버튼 클릭과 **같은 경로**로 연다(모바일 오버레이·데스크탑 인라인 바).
+     이미 열려 있으면 입력창으로 포커스만 옮긴다. 닫기는 종전대로 Esc. */
+  const isMac = useIsMac();
+  const onShortcut = useCallback(() => {
+    const input = gnbSearchRef.current?.querySelector("input");
+    if (input) {
+      input.focus();
+      input.select();
+      return;
+    }
+    handleSearchClick();
+  }, [handleSearchClick]);
+  useSearchShortcut(onShortcut);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setGnbSearchOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (pathname !== "/") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setShowHeaderSearch(true);
-      return;
-    }
-    // 랜딩 <1024: 히어로에서 검색창을 뺐으므로(9/28 3차) 헤더 트리거가 유일한 검색 입구 → 항상 노출.
-    // 랜딩 1024+: 히어로(≈400px)를 지난 뒤 위로 스크롤하면 노출, 최상단(히어로 검색이 기본)·
-    // 아래로 스크롤 시 숨김 — 헤더가 스크롤 업에 복귀하는 동작과 일치 (9/14).
-    // (히어로를 지나 하단 고정 검색 바가 뜬 동안은 header.module.css 가 CSS 로 숨긴다)
-    const desktop = window.matchMedia("(min-width: 1024px)");
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      const scrollingUp = y < lastY;
-      lastY = y;
-      setShowHeaderSearch(!desktop.matches || (y > 400 && scrollingUp));
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    desktop.addEventListener("change", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      desktop.removeEventListener("change", onScroll);
-    };
   }, [pathname]);
 
   useEffect(() => {
@@ -317,20 +303,25 @@ export function Header() {
 
           {/* Right Actions */}
           <div className={s.actions}>
-            {showHeaderSearch && (
-              <div className={s.searchWrap}>
-                <button
-                  type="button"
-                  className={`${s.searchBtn}${gnbSearchOpen ? ` ${s.searchBtnHidden}` : ""}`}
-                  aria-label="통합검색"
-                  aria-haspopup="dialog"
-                  aria-expanded={gnbSearchOpen}
-                  onClick={handleSearchClick}
-                >
-                  <Search size={20} strokeWidth={1.75} />
-                </button>
-              </div>
-            )}
+            {/* 검색 트리거는 모든 페이지·모든 폭에서 상시 노출 (9/29: 히어로 검색창을 없애
+                검색 입구가 여기 하나뿐이다 — 랜딩 데스크탑 조건부 노출 규칙 폐기) */}
+            <div className={s.searchWrap}>
+              <button
+                type="button"
+                className={`${s.searchBtn}${gnbSearchOpen ? ` ${s.searchBtnHidden}` : ""}`}
+                aria-label="통합검색"
+                aria-haspopup="dialog"
+                aria-expanded={gnbSearchOpen}
+                onClick={handleSearchClick}
+                aria-keyshortcuts={mounted ? (isMac ? "Meta+K" : "Control+K") : undefined}
+              >
+                <Search size={20} strokeWidth={1.75} />
+              </button>
+              {/* 단축키 키캡 — 1024+ 에서만. 마운트 전에는 빈 배지로 폭만 잡아 CLS 0 */}
+              <span className={s.searchKbd} aria-hidden="true">
+                {shortcutLabel(mounted, isMac)}
+              </span>
+            </div>
             <button
               type="button"
               className={s.bookmarkBtn}

@@ -14,7 +14,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import HeroSearch from "@/components/search/hero-search";
 import { TrendingSearches } from "@/components/landing/trending-searches";
 import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { HeroSlider } from "@/components/landing/hero-slider";
@@ -100,7 +99,8 @@ export default function HomePage() {
       <UpdatesBanner />
 
       {/* ═══ 1. 히어로 ═══ */}
-      <section className={s.heroSection} aria-label="검색">
+      {/* data-landing-hero — 헤더가 :has() 로 이 페이지를 알아보고 1024+ 에서 투명 오버레이가 된다 (9/29 B안) */}
+      <section className={s.heroSection} aria-label="검색" data-landing-hero>
         <h1 className={s.heroTitle}>
           {/* 검색엔진·스크린리더용 완전한 정적 문구 (SSR HTML에 항상 노출).
               시각적 회전 키워드(KeywordRotator)는 client 렌더라 SSR 텍스트가
@@ -123,16 +123,6 @@ export default function HomePage() {
             9/28 3차 회장 지시로 모바일까지 공통 렌더(뷰포트 분기는 CSS). 모바일은 검색창을 빼고
             헤더 트리거가 검색 입구를 맡는다 — page.module.css 1-M 블록. */}
         <HeroSlider />
-
-        <div className={s.heroSearchWrap}>
-          {/* HeroSearch → SearchBar가 useSearchParams를 사용한다. Suspense 경계가
-              없으면 가장 가까운 경계(=페이지 루트)까지 client-side render로 bailout돼
-              히어로 h1·헤드라인이 SSR HTML에서 통째로 빠진다(검색엔진 색인 누락).
-              검색창만 경계로 감싸 bailout을 이 자리에 가두고, h1 등은 prerender 유지. */}
-          <Suspense fallback={<div className={s.heroSearchFallback} aria-hidden="true" />}>
-            <HeroSearch />
-          </Suspense>
-        </div>
 
         <div className={s.heroTrending}>
           <TrendingSearches />

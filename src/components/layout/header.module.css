@@ -225,8 +225,10 @@
 }
 
 .searchWrap {
-  position: relative;
   display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
 }
 
 .searchBtn {
@@ -259,6 +261,32 @@
 /* 검색 모드 활성화 시 아이콘 숨기기 — 검색바 닫기 X로 대체됨 */
 .searchBtnHidden {
   display: none;
+}
+
+/* ── 단축키 키캡 (2026-09-29) — 데스크탑에서만, 마운트 전엔 빈 배지로 폭만 예약(CLS 0) ── */
+.searchKbd {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .searchKbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* "⌘K"·"Ctrl K" 중 넓은 쪽 기준 — 표기가 바뀌어도 이웃이 밀리지 않는다 */
+    min-width: 52px;
+    height: 22px;
+    padding: 0 7px;
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--muted-foreground, #6b7280);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    pointer-events: none;
+  }
 }
 
 /* ── GNB 검색 모드: nav를 교체하는 풀폭 검색바 ── */
@@ -384,11 +412,118 @@
 }
 
 
-/* 랜딩 데스크탑(9/28 시안) — 히어로를 지나 하단 고정 검색 바가 떠 있는 동안 헤더 검색 트리거 숨김.
-   플래그는 HeroSlider 가 세운다(html[data-hero-floating-search]). 검색 입구가 동시에 둘이면
-   어느 쪽이 주인지 헷갈린다. <1024 는 현행 동작 그대로. */
+
+/* ══════════════════════════════════════════
+   랜딩 히어로 위 투명 오버레이 (2026-09-29 B안, 1024+ 전용)
+
+   서경대 방식(전 구간 100vh + 완전 투명 absolute 헤더)의 절충 — **헤더는 항상 접근 가능**하되
+   히어로 구간에서만 배경을 지우고 글자를 흰색으로 바꾼다. 히어로를 지나면 흰 헤더로 되돌아온다.
+
+   - 첫 페인트는 JS 없이 CSS 로 결정한다: `body:has([data-landing-hero])` — 랜딩에만, 1024+ 에만.
+     최초 스크롤은 0 이므로 투명이 맞고, 복원 스크롤이면 HeroSlider 가 한 프레임 안에 플래그를 세운다.
+   - 되돌림은 `html[data-hero-passed]`(HeroSlider 가 세움) — **색·배경만** 0.25s 로 바뀐다.
+     position·height 는 건드리지 않아 전환 중 레이아웃 시프트가 없고, `data-header-hidden`
+     숨김/복귀(transform) 와도 독립적으로 공존한다(속성이 다르고 서로를 덮지 않는다).
+   - 대비는 히어로 상단 스크림 띠(hero-slider .scrim 의 180deg 그라데이션)가 만든다 — 텍스트
+     그림자를 쓰지 않는다.
+   ══════════════════════════════════════════ */
 @media (min-width: 1024px) {
-  html[data-hero-floating-search] .searchWrap {
-    display: none;
+  :global(body:has([data-landing-hero])) .header {
+    background-color: transparent;
+    border-bottom-color: transparent;
+    transition:
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.25s ease,
+      border-color 0.25s ease;
+  }
+
+  :global(body:has([data-landing-hero])) .logoTitle,
+  :global(body:has([data-landing-hero])) .logoSub,
+  :global(body:has([data-landing-hero])) .navLink,
+  :global(body:has([data-landing-hero])) .navLink.active,
+  :global(body:has([data-landing-hero])) .searchBtn,
+  :global(body:has([data-landing-hero])) .bookmarkBtn {
+    color: #fff;
+    transition: color 0.25s ease;
+  }
+
+  :global(body:has([data-landing-hero])) .logoSub {
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  :global(body:has([data-landing-hero])) .searchKbd {
+    color: rgba(255, 255, 255, 0.82);
+    border-color: rgba(255, 255, 255, 0.38);
+  }
+
+  :global(body:has([data-landing-hero])) .navLink.active {
+    background-color: rgba(255, 255, 255, 0.16);
+  }
+
+  /* 심볼은 currentColor 를 쓰지 않으므로 밝기로 맞춘다 */
+  :global(body:has([data-landing-hero])) .logo svg {
+    filter: brightness(0) invert(1);
+  }
+
+  @media (hover: hover) {
+    :global(body:has([data-landing-hero])) .navLink:hover,
+    :global(body:has([data-landing-hero])) .searchBtn:hover,
+    :global(body:has([data-landing-hero])) .bookmarkBtn:hover {
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.16);
+    }
+
+    :global(body:has([data-landing-hero])) .ctaButton:hover {
+      background-color: rgba(255, 255, 255, 0.88);
+      color: var(--primary, #1b6b5a);
+    }
+  }
+
+  /* 포커스 링은 어두운 배경 위에서 흰색 */
+  :global(body:has([data-landing-hero])) .navLink:focus-visible,
+  :global(body:has([data-landing-hero])) .searchBtn:focus-visible,
+  :global(body:has([data-landing-hero])) .bookmarkBtn:focus-visible,
+  :global(body:has([data-landing-hero])) .ctaButton:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+
+  :global(body:has([data-landing-hero])) .logo:focus-visible {
+    box-shadow: 0 0 0 2px #fff;
+  }
+
+  /* 진단 CTA — 딥그린 히어로 위에서 초록 채움은 묻힌다. 흰 알약 + 그린 글자로 반전 */
+  :global(body:has([data-landing-hero])) .ctaButton {
+    background-color: #fff;
+    color: var(--primary, #1b6b5a);
+    border-color: #fff;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  }
+
+  /* ── 히어로를 지나면 원래 흰 헤더 (플래그가 늦게 붙어도 색만 바뀐다) ── */
+  :global(html[data-hero-passed]) .header {
+    background-color: var(--background, #fff);
+    border-bottom-color: var(--border);
+  }
+
+  :global(html[data-hero-passed]) .logoTitle { color: var(--primary, #1b6b5a); }
+  :global(html[data-hero-passed]) .logoSub { color: var(--muted-foreground, #6b7280); }
+  :global(html[data-hero-passed]) .navLink { color: var(--muted-foreground); }
+  :global(html[data-hero-passed]) .navLink.active {
+    color: var(--primary, #1b6b5a);
+    background-color: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  }
+  :global(html[data-hero-passed]) .searchBtn,
+  :global(html[data-hero-passed]) .bookmarkBtn { color: var(--muted-foreground); }
+  :global(html[data-hero-passed]) .searchKbd {
+    color: var(--muted-foreground, #6b7280);
+    border-color: var(--border, #e5e7eb);
+  }
+  :global(html[data-hero-passed]) .logo svg { filter: none; }
+  :global(html[data-hero-passed]) .ctaButton {
+    background-color: var(--primary, #1b6b5a);
+    color: #fff;
+    border-color: var(--primary, #1b6b5a);
   }
 }

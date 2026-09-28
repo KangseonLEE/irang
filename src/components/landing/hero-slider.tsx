@@ -29,9 +29,8 @@ import s from "./hero-slider.module.css";
  *   스와이프(≥40px, |dx| > |dy|×1.5)로 넘긴다 — 세로 스크롤 제스처와 충돌하지 않도록 pointerup
  *   에서 판정하고(9/7 useTapGesture 교훈), 스와이프로 끝난 제스처의 click 은 한 번 막는다.
  *   정지 버튼이 없으므로 슬라이드 영역은 `aria-live="off"` — 자동 전환이 스크린리더를 끊지 않는다.
- * - 데스크탑에서만 히어로를 지나 `html[data-hero-floating-search]` 를 세워 검색 바를 화면 하단
- *   고정 바로 전환한다(CSS 는 page.module.css). 모바일은 히어로에 검색창이 없고 헤더 트리거가
- *   상시 노출이라 이 플래그·스크롤 리스너를 아예 걸지 않는다.
+ * - 데스크탑에서도 히어로 검색창을 없앴다(9/29 회장) — 검색 입구는 헤더 트리거 하나.
+ *   대신 히어로를 지나면 `html[data-hero-passed]` 를 세워 투명 오버레이 헤더를 흰 헤더로 되돌린다.
  * - 이미지가 없으면(onError) 그 레이어를 접는다 → 히어로의 브랜드 그린 그라데이션이 그대로 보인다.
  */
 export function HeroSlider() {
@@ -63,6 +62,9 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
   };
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  /** 컨트롤 위 hover — 진행 바만 멈추면 타이머와 어긋나므로 **타이머도 같은 상태로 멈춘다** */
+  const [hoverPaused, setHoverPaused] = useState(false);
+  const autoPaused = paused || hoverPaused;
   const [failed, setFailed] = useState<Record<string, true>>({});
   /** 2~4번 슬라이드 이미지 예열 여부 — LCP 이미지와 대역폭을 다투지 않도록 늦춘다 */
   const [warm, setWarm] = useState(false);
@@ -80,27 +82,31 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
 
   /* 자동 전환 6초 — reduced motion·정지 중엔 타이머를 걸지 않는다 */
   useEffect(() => {
-    if (reduced || paused) return;
+    if (reduced || autoPaused) return;
     const timer = setInterval(() => {
       setIndex((prev) => (prev === LAST ? 0 : prev + 1));
     }, HERO_SLIDE_INTERVAL_MS);
     return () => clearInterval(timer);
-  }, [reduced, paused]);
+  }, [reduced, autoPaused]);
 
-  /* 히어로를 지나면 플로팅 검색 바로 전환 (CSS 플래그 하나로 헤더 트리거까지 정리).
-     데스크탑 전용 — 모바일은 히어로에 검색창이 없어 전환할 대상이 없다 */
+  /* 히어로를 지나면 투명 오버레이 헤더 → 흰 헤더 (CSS 가 색만 0.25s 로 바꾼다).
+     데스크탑 전용 — 모바일은 히어로가 헤더를 덮지 않는다. */
   useEffect(() => {
     if (!isDesktop) return;
     const hero = layersRef.current?.parentElement;
     if (!hero) return;
     const root = document.documentElement;
+    /* 헤더 높이는 **실제 요소**에서 읽는다 — `--h-header` 는 rem 단위라 parseInt 가 3 을 준다(9/29 실측:
+       전환 지점이 히어로 하단 −헤더 가 아니라 히어로 하단에서 일어났다) */
+    const headerEl = document.querySelector("header");
     let raf = 0;
     const update = () => {
       raf = 0;
-      if (hero.getBoundingClientRect().bottom <= 72) {
-        root.dataset.heroFloatingSearch = "";
+      const headerH = headerEl?.offsetHeight || 56;
+      if (hero.getBoundingClientRect().bottom <= headerH) {
+        root.dataset.heroPassed = "";
       } else {
-        delete root.dataset.heroFloatingSearch;
+        delete root.dataset.heroPassed;
       }
     };
     const onScroll = () => {
@@ -113,7 +119,7 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
-      delete root.dataset.heroFloatingSearch;
+      delete root.dataset.heroPassed;
     };
   }, [isDesktop]);
 
@@ -233,7 +239,7 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
         })}
       </div>
 
-      {!isDesktop && (
+      {(
         <button
           type="button"
           className={`${s.scrollHint}${scrolled ? ` ${s.scrollHintHidden}` : ""}`}
@@ -249,13 +255,23 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
           모바일은 스와이프로 넘긴다 (9/28 3차 회장 지시) */}
       <div
         className={s.controls}
+        onMouseEnter={isDesktop ? () => setHoverPaused(true) : undefined}
+        onMouseLeave={isDesktop ? () => setHoverPaused(false) : undefined}
         role="group"
         aria-label={isDesktop ? "히어로 슬라이드 제어" : "히어로 슬라이드 진행"}
         onKeyDown={onKeyDown}
       >
         <span className={s.counter}>
           <b className={s.counterNow}>{String(index + 1).padStart(2, "0")}</b>
-          <span className={s.counterRule} aria-hidden="true" />
+          {/* 진행 바 — 자동 전환 간격 동안 0→100%. 슬라이드가 바뀌면 key 로 재마운트해 리셋하고,
+              정지·hover 중엔 CSS 가 animation-play-state 로 멈춘다. 간격은 HERO_SLIDE_INTERVAL_MS 하나만 참조 */}
+          <span
+            key={index}
+            className={s.counterRule}
+            aria-hidden="true"
+            data-paused={autoPaused ? "" : undefined}
+            style={{ "--hero-interval": `${HERO_SLIDE_INTERVAL_MS}ms` } as React.CSSProperties}
+          />
           <span className={s.counterTotal}>
             {String(HERO_SLIDES.length).padStart(2, "0")}
           </span>

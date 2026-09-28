@@ -88,6 +88,22 @@ export const RELEASE_SIGNOFF = "이랑 팀 드림";
 
 export const UPDATES: UpdateItem[] = [
   {
+    id: "20260929-hero-fullscreen",
+    date: "2026-09-29",
+    title: "홈 첫 화면이 화면 가득 채워지고, 검색은 맨 위 돋보기로 모였어요",
+    short: "홈 첫 화면 꽉 채우기",
+    summary:
+      "컴퓨터에서 홈에 들어오면 그림 슬라이드가 화면 전체를 채우고, 맨 위 메뉴는 그림 위에 투명하게 얹혀 있다가 아래로 내리면 흰 메뉴로 바뀌어요. 화면 아래에 따라다니던 검색창은 빼고 맨 위 돋보기 하나로 모았어요. Mac은 ⌘K, Windows는 Ctrl+K를 누르면 바로 검색창이 열려요. 슬라이드 번호 사이 선이 다음 장면까지 남은 시간만큼 차오르고, 화면 아래 가운데 '아래로 내려 보세요'를 누르면 다음 묶음으로 내려가요. 휴대폰 화면은 그대로예요.",
+    href: "/",
+    tag: "개선",
+    media: {
+      before: "/updates/hero-fullscreen-before.webp",
+      after: "/updates/hero-fullscreen-after.webp",
+      frame: "desktop",
+      caption: "이전엔 흰 메뉴 아래 그림이 화면의 3분의 2쯤이었고 검색창이 그림 아래에 걸쳐 있었어요. 지금은 그림이 화면을 다 채우고 메뉴가 그 위에 투명하게 놓여요",
+    },
+  },
+  {
     id: "20260928-hero-slider",
     date: "2026-09-28",
     title: "홈 첫 화면이 그림 슬라이드로 바뀌었어요",

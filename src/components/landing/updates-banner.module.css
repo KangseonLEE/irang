@@ -158,7 +158,9 @@
 @media (min-width: 1024px) {
   .banner {
     position: absolute;
-    top: 16px; /* 히어로가 .page 상단(헤더 바로 아래)에서 시작하므로 히어로 안쪽 16 */
+    /* `.page` 자체는 헤더 아래에서 시작하고 **히어로만** 헤더 뒤로 당겨졌다(9/29 B안) —
+       기준점이 그대로라 top 은 16px 유지가 맞다(실측: 헤더 하단에서 15px). */
+    top: 16px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 6; /* 히어로 섹션(z 5) 위, 헤더(50) 아래 */

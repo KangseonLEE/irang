@@ -148,81 +148,6 @@
   .heroSubtitle { animation: none; }
 }
 
-/* ── 검색바 래퍼 ── */
-.heroSearchWrap {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 600px;
-  margin-bottom: 12px;
-  animation: heroFadeUp 0.7s cubic-bezier(.16, 1, .3, 1) 1.0s both;
-}
-
-@media (min-width: 640px) {
-  .heroSearchWrap {
-    max-width: 680px;
-    margin-bottom: 14px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .heroSearchWrap { max-width: 760px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .heroSearchWrap { animation: none; }
-}
-
-/* Suspense fallback — HeroSearch hydration 전 자리 차지(레이아웃 시프트 방지).
-   large 검색바와 동일 높이·pill 외형 유지. */
-.heroSearchFallback {
-  width: 100%;
-  min-height: 54px;
-  border-radius: 100px;
-  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, var(--border, #e5e7eb));
-  background: #fff;
-  box-shadow:
-    0 4px 24px rgba(27, 107, 90, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-@media (min-width: 640px) {
-  .heroSearchFallback { min-height: 60px; }
-}
-
-@media (min-width: 1024px) {
-  .heroSearchFallback { min-height: 64px; }
-}
-
-/* Supanova Taste — 히어로 검색창 */
-.heroSearchWrap :global([class*="inputWrapLarge"]) {
-  border-radius: 100px;
-  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 20%, var(--border, #e5e7eb));
-  background: #fff;
-  box-shadow:
-    0 4px 24px rgba(27, 107, 90, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.04);
-  transition:
-    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@media (hover: hover) {
-  .heroSearchWrap :global([class*="inputWrapLarge"]):hover {
-    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 35%, var(--border, #e5e7eb));
-    box-shadow:
-      0 8px 32px rgba(27, 107, 90, 0.12),
-      0 2px 6px rgba(0, 0, 0, 0.04);
-  }
-}
-
-.heroSearchWrap :global([class*="inputWrapLarge"]):focus-within {
-  border-color: var(--primary, #1b6b5a);
-  box-shadow:
-    0 8px 32px rgba(27, 107, 90, 0.14),
-    0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
-}
-
 /* ── 인기 검색어 래퍼 ── */
 .heroTrending {
   animation: heroFadeUp 0.7s cubic-bezier(.16, 1, .3, 1) 1.3s both;
@@ -242,9 +167,16 @@
 @media (min-width: 1024px) {
   .heroSection {
     /* 풀블리드 — quick-link-section 과 같은 기법 (html { overflow-x: clip } 전제) */
-    margin: -40px calc(-50vw + 50%) 0; /* 9/28: .page padding-top(40) 을 상쇄해 헤더 바로 아래에서 시작 — 별도 흰 띠 없음 */
-    padding: 64px calc(50vw - 50%) 96px;
-    min-height: min(72vh, 720px);
+    /* B안(9/29 회장): .page padding-top(40) + 헤더 높이까지 상쇄해 히어로가 **헤더 뒤에서** 시작한다.
+       헤더는 흐름에 남은 sticky 그대로고(높이·위치 불변) 배경만 투명해지므로 전환 시 CLS 0. */
+    /* -1px 은 헤더의 border-bottom — 헤더가 실제로 차지하는 높이는 56 + 1 이라
+       이 1px 을 안 빼면 뷰포트 맨 위에 흰 줄이 한 줄 남는다(9/29 픽셀 실측) */
+    margin: calc(-40px - var(--h-header) - 1px) calc(-50vw + 50%) 0;
+    /* 위 패딩에 헤더 높이를 더해 카피가 투명 헤더 밑으로 들어가지 않게 한다 */
+    padding: calc(var(--h-header) + 64px) calc(50vw - 50%) 96px;
+    /* 뷰포트 전체 — 헤더가 위에 겹치므로 100svh 그대로 */
+    min-height: 100vh;
+    min-height: 100svh;
     justify-content: center;
     align-items: flex-start;
     text-align: left;
@@ -292,53 +224,6 @@
   /* 플로팅 검색 바 — 히어로 하단 경계에 걸침.
      가운데 정렬은 transform 이 아니라 left/right 0 + margin auto 로 한다 —
      heroFadeUp 애니메이션이 transform 을 덮어써 translateX(-50%) 가 무효였다(9/28 실측). */
-  .heroSearchWrap {
-    position: absolute;
-    right: 0;
-    bottom: -32px;
-    left: 0;
-    width: min(720px, calc(100% - 96px));
-    max-width: none;
-    margin: 0 auto;
-    z-index: 4;
-  }
-}
-
-/* 히어로를 지난 뒤 — 화면 하단 고정 컴팩트 바(높이 56 = 6 + 44 + 6).
-   플래그는 HeroSlider 가 세운다: html[data-hero-floating-search].
-   같은 플래그로 헤더 검색 트리거를 숨겨 두 입구가 동시에 보이지 않게 한다(header.module.css). */
-@media (min-width: 1024px) {
-  html[data-hero-floating-search] .heroSearchWrap {
-    position: fixed;
-    top: auto;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 6px max(24px, calc((100vw - 720px) / 2));
-    transform: none;
-    background: color-mix(in srgb, #fff 82%, transparent);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 12%, var(--border, #e5e7eb));
-    box-shadow: 0 -6px 24px rgba(13, 46, 39, 0.1);
-    animation: none;
-    z-index: var(--z-header, 50);
-  }
-
-  html[data-hero-floating-search] .heroSearchWrap :global([class*="inputWrapLarge"]) {
-    min-height: 44px;
-    padding: 6px 20px;
-    font-size: 0.9375rem;
-    box-shadow: none;
-  }
-
-  /* 하단 고정 상태에서는 드롭다운을 위로 펼친다 (아래로 열면 화면 밖) */
-  html[data-hero-floating-search] .heroSearchWrap :global([class*="dropdown"]) {
-    top: auto;
-    bottom: calc(100% + 10px);
-  }
 }
 
 /* ══════════════════════════════════════════
@@ -394,9 +279,6 @@
   }
 
   /* 히어로 검색창 제거 — 검색 입구는 헤더 트리거 하나로 (9/28 3차) */
-  .heroSearchWrap {
-    display: none;
-  }
 
   /* 인기 검색어는 모바일에서 노출하지 않는다 (9/28 3차 회장 지시) — 데스크탑은 유지.
      렌더 게이트가 아니라 CSS 로 감추는 이유: SSR HTML 은 하나뿐이라 게이트를 걸면 데스크탑에서도
