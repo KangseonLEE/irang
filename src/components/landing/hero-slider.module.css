@@ -56,12 +56,14 @@
   margin-top: 4px;
 }
 
+/* 9/28 회장 4차: 말머리 칩·아웃라인 CTA 가 같은 알약이라 둘 다 버튼으로 읽혔다 → 히어로 배너 문법대로
+   말머리는 짧은 선 + 자간 넓은 작은 텍스트, 설명 한 줄, CTA 는 채운 흰 버튼 하나. 세로 스택 */
 .copy {
   grid-area: 1 / 1;
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px 14px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
   opacity: 0;
   transform: translateY(8px);
   transition:
@@ -77,20 +79,27 @@
 }
 
 .eyebrow {
-  flex: 0 0 auto;
-  padding: 5px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  border-radius: 100px;
-  background: rgba(255, 255, 255, 0.14);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--hero-accent, #8ee3c2);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.9;
 }
 
 .caption {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 500;
   line-height: 1.5;
   letter-spacing: -0.02em;
@@ -101,15 +110,17 @@
 .cta {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 40px;
-  padding: 8px 18px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 10px 22px;
+  border: 1px solid #fff;
   border-radius: 100px;
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  font-size: 0.875rem;
+  background: #fff;
+  color: var(--primary-dark, #0d2e27);
+  font-size: 0.9375rem;
   font-weight: 700;
+  box-shadow: 0 6px 18px rgba(6, 26, 21, 0.22);
   letter-spacing: -0.01em;
   text-decoration: none;
   transition:
@@ -125,8 +136,8 @@
 
 @media (hover: hover) {
   .cta:hover {
-    background: #fff;
-    border-color: #fff;
+    background: var(--hero-accent, #8ee3c2);
+    border-color: var(--hero-accent, #8ee3c2);
     color: var(--primary-dark, #0d2e27);
   }
 }
@@ -229,20 +240,16 @@
     margin-top: 2px;
   }
 
-  /* 좁은 폭에서 한 줄에 다 못 들어간다 — 말머리·설명·CTA 를 세로로 */
   .copy {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
   }
 
   .caption {
-    font-size: 0.9375rem;
+    font-size: 1rem;
   }
 
   .cta {
-    min-height: 44px; /* 터치 타겟 */
-    padding: 10px 18px;
+    padding: 10px 20px;
   }
 
   /* 버튼이 없으므로 인디케이터만 작게 (9/28 3차) */

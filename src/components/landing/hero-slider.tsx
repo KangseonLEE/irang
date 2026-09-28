@@ -204,7 +204,7 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
               aria-hidden={active ? undefined : true}
               inert={active ? undefined : true}
             >
-              <span className={s.eyebrow}>#{slide.eyebrow}</span>
+              <span className={s.eyebrow}>{slide.eyebrow}</span>
               <p className={s.caption}>{slide.caption}</p>
               <Link
                 href={slide.href}
