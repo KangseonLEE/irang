@@ -130,7 +130,7 @@ export function InterviewCarousel({ items, variant = "light" }: InterviewCarouse
             </>
           );
           return isInternal ? (
-            <Link key={person.id} href={`/interviews/${person.id}`} className={s.card} data-track="interviews:card">
+            <Link key={person.id} href={`/interviews/${person.id}`} className={s.card} data-track="interviews:card" data-reveal-item>
               {cardInner}
             </Link>
           ) : (
@@ -140,6 +140,7 @@ export function InterviewCarousel({ items, variant = "light" }: InterviewCarouse
               target="_blank"
               rel="noopener noreferrer"
               className={s.card}
+              data-reveal-item
             >
               {cardInner}
             </a>

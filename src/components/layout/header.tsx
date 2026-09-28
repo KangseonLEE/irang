@@ -106,18 +106,25 @@ export function Header() {
       setShowHeaderSearch(true);
       return;
     }
-    // 랜딩: 히어로(≈400px)를 지난 뒤 위로 스크롤하면 검색 아이콘 노출(모바일 접근성),
-    // 최상단(히어로 검색이 기본)·아래로 스크롤 시 숨김 — 헤더가 스크롤 업에 복귀하는 동작과 일치 (9/14)
+    // 랜딩 <1024: 히어로에서 검색창을 뺐으므로(9/28 3차) 헤더 트리거가 유일한 검색 입구 → 항상 노출.
+    // 랜딩 1024+: 히어로(≈400px)를 지난 뒤 위로 스크롤하면 노출, 최상단(히어로 검색이 기본)·
+    // 아래로 스크롤 시 숨김 — 헤더가 스크롤 업에 복귀하는 동작과 일치 (9/14).
+    // (히어로를 지나 하단 고정 검색 바가 뜬 동안은 header.module.css 가 CSS 로 숨긴다)
+    const desktop = window.matchMedia("(min-width: 1024px)");
     let lastY = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
       const scrollingUp = y < lastY;
       lastY = y;
-      setShowHeaderSearch(y > 400 && scrollingUp);
+      setShowHeaderSearch(!desktop.matches || (y > 400 && scrollingUp));
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    desktop.addEventListener("change", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      desktop.removeEventListener("change", onScroll);
+    };
   }, [pathname]);
 
   useEffect(() => {

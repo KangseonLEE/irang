@@ -42,6 +42,13 @@
 .stagger.visible [data-reveal-item]:nth-child(7) { transition-delay: 480ms; }
 .stagger.visible [data-reveal-item]:nth-child(8) { transition-delay: 560ms; }
 
+/* 초기 뷰포트에 이미 있던 섹션 — 애니메이션 없이 최종 상태로 (LCP·첫 화면 공백 방지, 9/28).
+   `.stagger` 지연 규칙보다 뒤에 둬야 transition 단축 속성이 delay 까지 리셋한다(체크리스트 G). */
+.instant,
+.instant [data-reveal-item] {
+  transition: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;

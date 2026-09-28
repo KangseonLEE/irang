@@ -24,15 +24,10 @@ interface ScrollRevealProps {
    * 대상 요소에 `data-reveal-item` 을 붙여야 동작한다(타일·카드 등).
    */
   stagger?: boolean;
-  /**
-   * 가벼운 패럴랙스 (9/28). 스크롤 진행에 따라 `--parallax` 를 0 → -20px 로 준다.
-   * 배경 레이어를 가진 섹션이 `transform: translate3d(0, var(--parallax, 0px), 0)` 로 받아 쓴다.
-   */
-  parallax?: boolean;
 }
 
-/** 패럴랙스 최대 이동량 (px) */
-const PARALLAX_MAX = 20;
+/** 자식 순차 리빌이 끝나기까지의 시간 (최대 지연 640 + 지속 550 + 여유) — 이후 마커를 떼어낸다 */
+const STAGGER_SETTLE_MS = 1400;
 
 export function ScrollReveal({
   children,
@@ -42,7 +37,6 @@ export function ScrollReveal({
   trackId,
   variant = "rise",
   stagger = false,
-  parallax = false,
 }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -72,18 +66,41 @@ export function ScrollReveal({
     const el = ref.current;
     if (!el) return;
 
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches) {
+    let settle = 0;
+
+    /* 리빌이 끝나면 자식 마커를 떼어낸다 — `.stagger.visible [data-reveal-item]`(0,3,0) 이
+       살아 있으면 카드 자신의 `:hover { transform }`(0,2,0) 을 영구히 눌러버린다.
+       이미 최종 상태이므로 마커 제거는 화면상 변화 0. 리빌은 한 번만 = 되돌릴 일도 없다. */
+    const dropMarkers = () => {
+      el.querySelectorAll("[data-reveal-item]").forEach((n) =>
+        n.removeAttribute("data-reveal-item"),
+      );
+    };
+
+    const show = (instant: boolean) => {
       el.classList.add(s.visible);
+      if (instant) el.classList.add(s.instant);
       el.dataset.visible = "";
+      if (instant) dropMarkers();
+      else settle = window.setTimeout(dropMarkers, STAGGER_SETTLE_MS);
+    };
+
+    const rect = el.getBoundingClientRect();
+    /* 첫 화면에서 실제로 읽히는 위치(상단 3/4) 에 있는 섹션은 애니메이션 없이 즉시 표시한다 —
+       JS 지연·차단 시에도 첫 화면이 비지 않고, opacity 0 이 LCP 페인트를 늦추지 않는다.
+       (레이아웃 속성은 건드리지 않으므로 CLS 영향은 애초에 0)
+       0.9 로 잡으면 같은 섹션이 375 에선 즉시·1280 에선 애니메이션으로 갈려 동작이 들쑥날쑥해진다. */
+    const inInitialViewport = rect.top < window.innerHeight * 0.75 && rect.bottom > 0;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || inInitialViewport) {
+      show(true);
       return;
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.classList.add(s.visible);
-          el.dataset.visible = "";
+          show(false);
           observer.disconnect();
         }
       },
@@ -91,38 +108,11 @@ export function ScrollReveal({
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  /* 패럴랙스 — rAF 로 묶어 스크롤당 1회만 쓴다. 모션 최소화 설정이면 아예 걸지 않는다 */
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || !parallax) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const rect = el.getBoundingClientRect();
-      const vh = window.innerHeight;
-      if (rect.bottom < 0 || rect.top > vh) return;
-      const progress = (vh - rect.top) / (vh + rect.height);
-      const clamped = Math.min(1, Math.max(0, progress));
-      el.style.setProperty("--parallax", `${(-PARALLAX_MAX * clamped).toFixed(1)}px`);
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-      el.style.removeProperty("--parallax");
+      observer.disconnect();
+      if (settle) clearTimeout(settle);
     };
-  }, [parallax]);
+  }, []);
 
   const cls = [
     s.reveal,

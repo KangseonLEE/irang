@@ -1,4 +1,6 @@
-/* HeroSlider — 데스크탑(1024+) 전용. 컴포넌트가 모바일에서 렌더되지 않으므로 미디어쿼리 없이 데스크탑 값 그대로 둔다.
+/* HeroSlider — 전 폭 공통 (9/28 3차: 모바일까지 확장).
+   기본값 = 데스크탑, 모바일 값은 `@media (max-width: 1023px)` 에 격리한다 —
+   CLAUDE.md "모바일 스타일은 @media (max-width) 블록 안에 격리, 기본값(데스크탑)을 건드리지 않는다".
    기본 규칙 → @media 오버라이드 순서 유지(체크리스트 G). 다크모드 없음, 장식 요소 없음. */
 
 /* ── 배경 레이어 (히어로 섹션 = position: relative 기준) ── */
@@ -204,6 +206,63 @@
 @media (min-width: 1280px) {
   .caption {
     font-size: 1.0625rem;
+  }
+}
+
+/* ══════════════════════════════════════════
+   모바일·태블릿 (<1024) — 9/28 3차 회장 지시로 슬라이더를 이 폭까지 확장.
+   히어로 높이가 min(64dvh, 520px) 로 작아지므로 카피는 세로 스택, 컨트롤은 좌하단 16px.
+   검색창은 히어로에서 빼고 헤더 트리거가 담당한다(page.module.css).
+   ══════════════════════════════════════════ */
+@media (max-width: 1023px) {
+  /* 스크림 — 모바일은 카피가 전체 폭을 쓰므로 좌우 그라데이션이 아니라 위·아래로 어둡게 */
+  .scrim {
+    background:
+      linear-gradient(180deg, rgba(6, 26, 21, 0.8) 0%, rgba(6, 26, 21, 0.58) 46%, rgba(6, 26, 21, 0.78) 100%);
+  }
+
+  .image {
+    object-position: center 45%;
+  }
+
+  .copyStack {
+    margin-top: 2px;
+  }
+
+  /* 좁은 폭에서 한 줄에 다 못 들어간다 — 말머리·설명·CTA 를 세로로 */
+  .copy {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .caption {
+    font-size: 0.9375rem;
+  }
+
+  .cta {
+    min-height: 44px; /* 터치 타겟 */
+    padding: 10px 18px;
+  }
+
+  /* 버튼이 없으므로 인디케이터만 작게 (9/28 3차) */
+  .controls {
+    bottom: 16px;
+    left: 16px;
+    gap: 0;
+  }
+
+  .counter {
+    gap: 8px;
+    font-size: 0.75rem;
+  }
+
+  .counterNow {
+    font-size: 0.8125rem;
+  }
+
+  .counterRule {
+    width: 24px;
   }
 }
 

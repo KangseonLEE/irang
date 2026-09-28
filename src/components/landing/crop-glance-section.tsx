@@ -87,6 +87,7 @@ export function CropGlanceSection() {
             key={crop.id}
             href={`/crops/${crop.id}`}
             data-track="crops:card"
+            data-reveal-item
             className={s.rankCard}
             data-rank={i + 1}
           >

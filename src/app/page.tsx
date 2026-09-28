@@ -119,8 +119,9 @@ export default function HomePage() {
           지역 비교부터 지원금 찾기까지, 필요한 건 다 모았어요.
         </p>
 
-        {/* 데스크탑(1024+) 슬라이드 히어로 — 배경 레이어 + 슬라이드별 카피 + 좌하단 컨트롤.
-            모바일에서는 아무것도 렌더하지 않아 현행 히어로 DOM 과 동일하다 (9/28 시안). */}
+        {/* 슬라이드 히어로 — 배경 레이어 + 슬라이드별 카피 + 좌하단 컨트롤.
+            9/28 3차 회장 지시로 모바일까지 공통 렌더(뷰포트 분기는 CSS). 모바일은 검색창을 빼고
+            헤더 트리거가 검색 입구를 맡는다 — page.module.css 1-M 블록. */}
         <HeroSlider />
 
         <div className={s.heroSearchWrap}>
@@ -139,7 +140,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ 1-2. 자주 찾는 서비스 — 아이콘 8종, GNB 여정 순 (9/7 회장 결재: 히어로 밖 별도 섹션) ═══ */}
-      <ScrollReveal trackId="quick_link" variant="fade" stagger parallax>
+      <ScrollReveal trackId="quick_link" variant="fade" stagger>
         <QuickLinkSection />
       </ScrollReveal>
 
@@ -158,7 +159,7 @@ export default function HomePage() {
 
       {/* ═══ 4-2 + 5. 작물 한눈에 + 이랑에서 할 수 있는 것 3카드 (연한 그린 배경) ═══ */}
       <div className={s.lightGreenBg}>
-        <ScrollReveal trackId="crops">
+        <ScrollReveal trackId="crops" variant="fade" stagger>
           <CropGlanceSection />
         </ScrollReveal>
         <ScrollReveal trackId="start_cards" variant="fade" stagger>
@@ -170,7 +171,7 @@ export default function HomePage() {
       </div>
 
       {/* ═══ 6. 농촌으로 간 사람들의 이야기 (다크 배경) — 9/7 회장: 지원사업 아래로 ═══ */}
-      <ScrollReveal trackId="interviews">
+      <ScrollReveal trackId="interviews" variant="fade" stagger>
         <div className={s.darkBg}>
           <section className={s.interviewSection} aria-label="인터뷰">
             <div className={s.interviewHeader}>
@@ -194,7 +195,7 @@ export default function HomePage() {
 
       {/* ═══ 6+7. 뉴스 → CTA (여백 없이 연결) ═══ */}
       <div className={s.bottomGroup}>
-        <ScrollReveal trackId="news">
+        <ScrollReveal trackId="news" variant="fade" stagger>
           <div className={s.mutedBg}>
             <section className={s.newsSection} aria-label="농촌 소식">
               <div className={s.sectionHeader}>
@@ -210,7 +211,7 @@ export default function HomePage() {
           </div>
         </ScrollReveal>
 
-        <ScrollReveal trackId="bottom_cta">
+        <ScrollReveal trackId="bottom_cta" variant="fade" stagger>
           <section className={s.bottomCta} aria-label="다음 단계 선택">
             {/* 좌측 텍스트 블록 */}
             <div className={s.ctaTextBlock}>
@@ -228,7 +229,7 @@ export default function HomePage() {
 
             {/* 우측 카드 그리드 */}
             <div className={s.ctaPaths}>
-              <Link href="/guide" className={s.ctaPath} data-track="bottom_cta:guide">
+              <Link href="/guide" className={s.ctaPath} data-track="bottom_cta:guide" data-reveal-item>
                 <span className={s.ctaPathNumber}>01</span>
                 <span className={s.ctaPathLabel}>정보 탐색</span>
                 <span className={s.ctaPathDesc}>
@@ -241,7 +242,7 @@ export default function HomePage() {
                   </span>
                 </span>
               </Link>
-              <Link href="/match" className={s.ctaPath} data-track="bottom_cta:match">
+              <Link href="/match" className={s.ctaPath} data-track="bottom_cta:match" data-reveal-item>
                 <span className={s.ctaPathNumber}>02</span>
                 <span className={s.ctaPathLabel}>적합도 진단</span>
                 <span className={s.ctaPathDesc}>
