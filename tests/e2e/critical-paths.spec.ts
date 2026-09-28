@@ -148,6 +148,11 @@ test.describe("4. 상시 모집 라벨 + 어색 카피 차단", () => {
   for (const path of ["/programs/SP-017", "/programs/SP-018"] as const) {
     test(`${path} — '상시 모집' 라벨 노출 + 'N일' 어색 카피 0`, async ({ page }) => {
       await gotoExpectHtml(page, path);
+      // 9/29: 상세 본문은 Suspense 스트리밍 — 로컬 `next start` 는 domcontentloaded 시점 body 가 스켈레톤이라
+      // 본문(≥ 500자)이 붙을 때까지 기다린 뒤 읽는다(라이브는 CDN 완성 HTML 이라 즉시 통과).
+      await page
+        .waitForFunction(() => (document.body.innerText ?? "").length >= 500, null, { timeout: 15_000 })
+        .catch(() => {});
       const body = await getBodyText(page);
 
       // "상시 모집" 또는 "상시" 라벨 1개 이상 — 정확한 표현은 디자인 변경 가능하므로 둘 중 하나
@@ -205,6 +210,11 @@ test.describe("5. 자격 셀프체크 노이즈 차단", () => {
 test.describe("6. 시군구 상세 핵심 UI 마커", () => {
   test("/regions/jeonnam/suncheon — 점수·5차원·세부 카드 노출", async ({ page }) => {
     await gotoExpectHtml(page, "/regions/jeonnam/suncheon");
+    // 9/29: 점수 영역은 Suspense 스트리밍이라 로컬 `next start` 에선 domcontentloaded 시점 body 가
+    // 스켈레톤(≈300자)뿐이다(라이브는 CDN 이 완성 HTML 을 내려 통과). 앵커가 붙을 때까지 기다린 뒤 읽는다.
+    await page
+      .waitForFunction(() => /정착 ?점수|종합 점수/.test(document.body.innerText ?? ""), null, { timeout: 15_000 })
+      .catch(() => {});
     const body = await getBodyText(page);
 
     // 종합 점수 라벨 — '정착 점수' 또는 유사 라벨
