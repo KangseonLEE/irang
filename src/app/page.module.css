@@ -7,6 +7,7 @@
 
 /* ── 페이지 컨테이너 ── */
 .page {
+  position: relative; /* 9/28: 1024+ 업데이트 스낵바가 히어로 위에 absolute 로 뜨는 기준 */
   max-width: 1280px;
   margin: 0 auto;
   padding: 24px 16px 0;

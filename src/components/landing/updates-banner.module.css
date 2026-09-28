@@ -134,7 +134,21 @@
   }
 }
 
-/* 9/7 회장 "배너와 타이틀 간격 축소": 데스크탑 .page gap 120 → 배너-히어로 48 */
+/* 9/28 회장 "스낵바를 일러스트 위로 플로팅, 별도 영역 불필요": 1024+ 는 흐름에서 빼고 히어로 상단에 겹친다.
+   .page 가 position: relative — 히어로가 .page 의 첫 흐름 요소라 top 값이 곧 히어로 안 위치. 모바일은 현행(흐름 배치). */
 @media (min-width: 1024px) {
-  .banner { margin-bottom: -72px; }
+  .banner {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    margin: 0;
+    width: min(100% - 80px, 720px);
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 24px rgba(6, 26, 21, 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 }
