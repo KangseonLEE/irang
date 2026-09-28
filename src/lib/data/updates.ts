@@ -88,6 +88,22 @@ export const RELEASE_SIGNOFF = "이랑 팀 드림";
 
 export const UPDATES: UpdateItem[] = [
   {
+    id: "20260928-hero-slider",
+    date: "2026-09-28",
+    title: "홈 첫 화면이 그림 슬라이드로 바뀌었어요",
+    short: "홈 첫 화면이 새로워졌어요",
+    summary:
+      "홈에 들어오면 새벽 논, 사과 과수원, 마을 텃밭, 스마트팜 온실 네 장면이 천천히 움직이며 바뀌어요. 장면마다 지역 비교·지원사업·작물 정보·유형 진단으로 바로 가는 버튼이 하나씩 있어요. 컴퓨터에서는 검색창이 화면 아래에 따라다니고, 휴대폰에서는 맨 위 돋보기로 검색해요. 아래로 내리면 자주 찾는 서비스, 지원사업, 작물 같은 묶음이 차례로 떠올라요.",
+    href: "/",
+    tag: "개선",
+    media: {
+      before: "/updates/hero-slider-before.webp",
+      after: "/updates/hero-slider-after.webp",
+      frame: "desktop",
+      caption: "이전엔 흰 바탕에 제목과 검색창만 있었고, 지금은 그림 위에 제목·바로가기가 놓이고 검색창이 아래에 걸쳐 있어요",
+    },
+  },
+  {
     id: "20260907-quick-link",
     date: "2026-09-07",
     title: "홈에 '자주 찾는 서비스' 묶음이 생겼어요",
