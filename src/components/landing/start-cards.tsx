@@ -53,7 +53,7 @@ export function StartCards({ cards }: { cards: readonly StartCard[] }) {
     <>
       <ul ref={trackRef} className={s.track} aria-label="시작하기 좋은 세 가지">
         {cards.map((card) => (
-          <li key={card.id} className={s.item}>
+          <li key={card.id} className={s.item} data-reveal-item>
             <Link
               href={card.href}
               className={s.card}

@@ -250,6 +250,7 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
                     key={`${item.category}-${i}`}
                     type="button"
                     className={`${s.navItem} ${isActive ? s.navItemActive : ""}`}
+                    data-reveal-item
                     onClick={() => transitionTo(i)}
                     onMouseEnter={() => {
                       setIsPaused(true);

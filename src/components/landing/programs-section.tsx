@@ -155,6 +155,7 @@ export function ProgramsSection({ activePrograms, ongoingPrograms }: Props) {
                   key={p.id}
                   href={`/programs/${p.id}`}
                   data-track={`programs:card:${tab}`}
+                  data-reveal-item
                   className={`${s.card} ${isUrgent ? s.cardDeadline : ""}`}
                 >
                   <div className={s.cardTopRow}>

@@ -134,7 +134,40 @@
   }
 }
 
-/* 9/7 회장 "배너와 타이틀 간격 축소": 데스크탑 .page gap 120 → 배너-히어로 48 */
+/* 9/28 회장 "스낵바를 일러스트 위로 플로팅, 별도 영역 불필요" — 3차에서 모바일까지 같은 방식.
+   <1024: 히어로 안쪽 상단 12px, 좌우 16px. 히어로가 .page 패딩을 상쇄해 위로 붙으므로 top 12 가 곧 히어로 안쪽 12. */
+@media (max-width: 1023px) {
+  .banner {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    left: 16px;
+    z-index: 6; /* 히어로 위, 헤더(50) 아래 */
+    width: auto;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 6px 20px rgba(6, 26, 21, 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+/* 1024+ 는 흐름에서 빼고 히어로 상단에 겹친다.
+   .page 가 position: relative — 히어로가 .page 의 첫 흐름 요소라 top 값이 곧 히어로 안 위치. 모바일은 현행(흐름 배치). */
 @media (min-width: 1024px) {
-  .banner { margin-bottom: -72px; }
+  .banner {
+    position: absolute;
+    top: 16px; /* 히어로가 .page 상단(헤더 바로 아래)에서 시작하므로 히어로 안쪽 16 */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6; /* 히어로 섹션(z 5) 위, 헤더(50) 아래 */
+    margin: 0;
+    width: min(100% - 80px, 720px);
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 24px rgba(6, 26, 21, 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 }

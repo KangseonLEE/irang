@@ -7,6 +7,7 @@
 
 /* ── 페이지 컨테이너 ── */
 .page {
+  position: relative; /* 9/28: 1024+ 업데이트 스낵바가 히어로 위에 absolute 로 뜨는 기준 */
   max-width: 1280px;
   margin: 0 auto;
   padding: 24px 16px 0;
@@ -229,6 +230,187 @@
 
 @media (prefers-reduced-motion: reduce) {
   .heroTrending { animation: none; }
+}
+
+/* ══════════════════════════════════════════
+   1-D. 슬라이드 히어로 (2026-09-28 시안 — 1024+ 값. 모바일은 아래 1-M 블록)
+   - 9/28 3차 회장 지시로 슬라이더를 모바일까지 확장했다. SSR HTML 은 하나뿐이라 뷰포트 분기는 CSS 로만.
+   - 이미지가 아직 없어도 브랜드 그린 그라데이션으로 성립(플레이스홀더) → 파일이 들어오면 위에 페이드인.
+   - 히어로가 뒤 섹션보다 위에 쌓여야 한다(하단 걸침 검색 바) → z-index 5. isolation 은 쓰지 않는다
+     (isolate 면 뒤 형제가 위로 올라와 고정 바를 덮는다).
+   ══════════════════════════════════════════ */
+@media (min-width: 1024px) {
+  .heroSection {
+    /* 풀블리드 — quick-link-section 과 같은 기법 (html { overflow-x: clip } 전제) */
+    margin: -40px calc(-50vw + 50%) 0; /* 9/28: .page padding-top(40) 을 상쇄해 헤더 바로 아래에서 시작 — 별도 흰 띠 없음 */
+    padding: 64px calc(50vw - 50%) 96px;
+    min-height: min(72vh, 720px);
+    justify-content: center;
+    align-items: flex-start;
+    text-align: left;
+    z-index: 5;
+    background: linear-gradient(118deg, #0b2a23 0%, #14554a 52%, #1b6b5a 100%);
+  }
+
+  /* 배경 레이어(z 0) 위로 — 위치 지정이 없으면 텍스트가 이미지 아래로 깔린다 */
+  .heroTitle,
+  .heroSubtitle,
+  .heroTrending {
+    position: relative;
+    z-index: 1;
+  }
+
+  .heroTitle {
+    margin: 0 0 14px;
+    max-width: 17em;
+    font-size: 3.5rem;
+    color: #fff;
+  }
+
+  /* 회전 키워드는 기본 primary(#1b6b5a) — 다크 히어로에서 대비가 낮아 밝은 민트로 */
+  .heroTitle :global([class*="word"]) {
+    color: #8ee3c2;
+  }
+
+  .heroSubtitle {
+    margin: 0 0 20px;
+    max-width: 34em;
+    font-size: 1.0625rem;
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  /* 인기 검색어 — 다크 배경용 색 + 좌측 정렬 (컴포넌트 기본은 가운데 정렬·본문색) */
+  .heroTrending {
+    margin-top: 20px;
+  }
+
+  .heroTrending :global([class*="wrapper"]) { justify-content: flex-start; }
+  .heroTrending :global([class*="label"]) { color: rgba(255, 255, 255, 0.62); }
+  .heroTrending :global([class*="item"]) { color: #fff; }
+  .heroTrending :global([class*="skeleton"]) { color: rgba(255, 255, 255, 0.62); }
+
+  /* 플로팅 검색 바 — 히어로 하단 경계에 걸침.
+     가운데 정렬은 transform 이 아니라 left/right 0 + margin auto 로 한다 —
+     heroFadeUp 애니메이션이 transform 을 덮어써 translateX(-50%) 가 무효였다(9/28 실측). */
+  .heroSearchWrap {
+    position: absolute;
+    right: 0;
+    bottom: -32px;
+    left: 0;
+    width: min(720px, calc(100% - 96px));
+    max-width: none;
+    margin: 0 auto;
+    z-index: 4;
+  }
+}
+
+/* 히어로를 지난 뒤 — 화면 하단 고정 컴팩트 바(높이 56 = 6 + 44 + 6).
+   플래그는 HeroSlider 가 세운다: html[data-hero-floating-search].
+   같은 플래그로 헤더 검색 트리거를 숨겨 두 입구가 동시에 보이지 않게 한다(header.module.css). */
+@media (min-width: 1024px) {
+  html[data-hero-floating-search] .heroSearchWrap {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 6px max(24px, calc((100vw - 720px) / 2));
+    transform: none;
+    background: color-mix(in srgb, #fff 82%, transparent);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 12%, var(--border, #e5e7eb));
+    box-shadow: 0 -6px 24px rgba(13, 46, 39, 0.1);
+    animation: none;
+    z-index: var(--z-header, 50);
+  }
+
+  html[data-hero-floating-search] .heroSearchWrap :global([class*="inputWrapLarge"]) {
+    min-height: 44px;
+    padding: 6px 20px;
+    font-size: 0.9375rem;
+    box-shadow: none;
+  }
+
+  /* 하단 고정 상태에서는 드롭다운을 위로 펼친다 (아래로 열면 화면 밖) */
+  html[data-hero-floating-search] .heroSearchWrap :global([class*="dropdown"]) {
+    top: auto;
+    bottom: calc(100% + 10px);
+  }
+}
+
+/* ══════════════════════════════════════════
+   1-M. 모바일·태블릿 슬라이드 히어로 (<1024, 2026-09-28 3차 회장 지시)
+   - 데스크탑 기본값을 건드리지 않도록 max-width 블록에 격리 (CLAUDE.md David 원칙 #3).
+   - 높이 min(64dvh, 520px): 첫 화면에 히어로 + "자주 찾는 서비스" 상단이 함께 들어온다.
+   - 검색창은 히어로에서 빼고(display:none → a11y 트리·탭 순서에서도 제외) 헤더 트리거가 담당한다.
+     렌더 게이트(useMediaQuery)로 빼지 않는 이유: SSR HTML 은 하나뿐이라 데스크탑 검색창까지 사라진다.
+   - 하단 고정 탭바(--h-mobile-nav)와는 겹치지 않는다 — 히어로는 문서 최상단이고 높이가 뷰포트 이하.
+   ══════════════════════════════════════════ */
+@media (max-width: 1023px) {
+  .heroSection {
+    /* 풀블리드 — 일러스트가 화면 양끝까지. 안쪽 콘텐츠는 .page 컨테이너 정렬선으로 되돌린다.
+       위 -24 는 .page padding-top 상쇄 — 히어로가 헤더 바로 아래에서 시작해야 그 위에 뜨는
+       업데이트 스낵바의 top 12px 가 곧 "히어로 안쪽 12px" 이 된다(데스크탑과 같은 방식) */
+    margin: -24px calc(-50vw + 50%) 0;
+    padding: 26px calc(50vw - 50%) 80px; /* 아래 80 = 컨트롤(44) + 16 + 여유 */
+    min-height: min(64vh, 520px);
+    min-height: min(64dvh, 520px); /* iOS Safari URL bar 변동 대응 */
+    justify-content: center;
+    align-items: flex-start;
+    text-align: left;
+    background: linear-gradient(118deg, #0b2a23 0%, #14554a 52%, #1b6b5a 100%);
+  }
+
+  /* 배경 레이어(z 0) 위로 */
+  .heroTitle,
+  .heroSubtitle,
+  .heroTrending {
+    position: relative;
+    z-index: 1;
+  }
+
+  .heroTitle {
+    margin: 0 0 8px;
+    max-width: 18em;
+    font-size: 1.5rem;
+    color: #fff;
+  }
+
+  /* 회전 키워드는 기본 primary — 다크 히어로에서 대비가 낮아 밝은 민트로 */
+  .heroTitle :global([class*="word"]) {
+    color: #8ee3c2;
+  }
+
+  .heroSubtitle {
+    margin: 0 0 14px;
+    max-width: 26em;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  /* 히어로 검색창 제거 — 검색 입구는 헤더 트리거 하나로 (9/28 3차) */
+  .heroSearchWrap {
+    display: none;
+  }
+
+  /* 인기 검색어는 모바일에서 노출하지 않는다 (9/28 3차 회장 지시) — 데스크탑은 유지.
+     렌더 게이트가 아니라 CSS 로 감추는 이유: SSR HTML 은 하나뿐이라 게이트를 걸면 데스크탑에서도
+     /search?q= 내부 링크가 SSR 에서 통째로 빠진다(유입 61% Organic). 검색창을 숨기는 방식과 동일. */
+  .heroTrending {
+    display: none;
+  }
+}
+
+/* .page padding-top 이 breakpoint 마다 달라 히어로 상쇄값도 맞춰 준다 (스낵바 기준점 유지) */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .heroSection { margin-top: -32px; }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .heroSection { margin-top: -36px; }
 }
 
 /* ══════════════════════════════════════════
