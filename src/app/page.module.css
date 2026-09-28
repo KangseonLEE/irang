@@ -355,9 +355,11 @@
        위 -24 는 .page padding-top 상쇄 — 히어로가 헤더 바로 아래에서 시작해야 그 위에 뜨는
        업데이트 스낵바의 top 12px 가 곧 "히어로 안쪽 12px" 이 된다(데스크탑과 같은 방식) */
     margin: -24px calc(-50vw + 50%) 0;
-    padding: 26px calc(50vw - 50%) 80px; /* 아래 80 = 컨트롤(44) + 16 + 여유 */
-    min-height: min(64vh, 520px);
-    min-height: min(64dvh, 520px); /* iOS Safari URL bar 변동 대응 */
+    /* 9/28 회장 실기기: 스낵바와 헤드라인이 붙고 히어로가 화면을 못 채움 → 헤더·하단 탭을 뺀 화면 전체,
+       위 96 = 스낵바(12 + 56) + 28 여백, 아래 88 = 스크롤 안내(≈44) + 01/04 + 여유 */
+    padding: 96px calc(50vw - 50%) 88px;
+    min-height: calc(100vh - var(--h-header) - var(--h-mobile-nav) - env(safe-area-inset-bottom, 0px));
+    min-height: calc(100svh - var(--h-header) - var(--h-mobile-nav) - env(safe-area-inset-bottom, 0px)); /* iOS URL bar 변동 대응 */
     justify-content: center;
     align-items: flex-start;
     text-align: left;

@@ -290,3 +290,58 @@
     transform: none;
   }
 }
+
+/* ── 모바일 스크롤 안내 (9/28 실기기) — 하단 중앙, 세로 바운스, 60px 스크롤 후 페이드아웃 ── */
+.scrollHint {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .scrollHint {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    z-index: 2;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 4px 10px;
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.92);
+    transform: translateX(-50%);
+    cursor: pointer;
+    animation: scrollHintBounce 1.8s ease-in-out infinite;
+    transition: opacity 0.35s ease;
+  }
+
+  .scrollHintText {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 6px rgba(6, 26, 21, 0.5);
+  }
+
+  .scrollHintHidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .scrollHint:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    animation: none;
+  }
+}
+
+@keyframes scrollHintBounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, 6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollHint { animation: none; }
+}

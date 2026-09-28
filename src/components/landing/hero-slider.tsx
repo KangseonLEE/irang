@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play, ChevronDown } from "lucide-react";
 import { HERO_SLIDES, HERO_SLIDE_INTERVAL_MS } from "@/lib/data/hero-slides";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import s from "./hero-slider.module.css";
@@ -47,6 +47,20 @@ const LAST = HERO_SLIDES.length - 1;
 const SWIPE_MIN_PX = 40;
 
 function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }) {
+  // 모바일 스크롤 안내 — 히어로가 화면을 가득 채우므로 아래에 더 있다는 신호(회장 9/28 실기기). 60px 내리면 사라진다
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    if (isDesktop) return;
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isDesktop]);
+  const scrollToNext = () => {
+    const hero = document.querySelector('section[aria-label="검색"]');
+    const next = hero?.nextElementSibling as HTMLElement | null;
+    next?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  };
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [failed, setFailed] = useState<Record<string, true>>({});
@@ -218,6 +232,18 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
           );
         })}
       </div>
+
+      {!isDesktop && (
+        <button
+          type="button"
+          className={`${s.scrollHint}${scrolled ? ` ${s.scrollHintHidden}` : ""}`}
+          onClick={scrollToNext}
+          aria-label="아래로 내려 더 보기"
+        >
+          <span className={s.scrollHintText}>아래로 내려 보세요</span>
+          <ChevronDown size={20} aria-hidden="true" />
+        </button>
+      )}
 
       {/* 좌하단 — 01 ── 04 인디케이터. 이전/정지/다음 버튼과 키보드 ←→ 는 데스크탑만,
           모바일은 스와이프로 넘긴다 (9/28 3차 회장 지시) */}
