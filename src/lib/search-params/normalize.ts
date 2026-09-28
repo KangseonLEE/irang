@@ -253,8 +253,9 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
         maxItems: 5,
       },
       status: {
-        enum: ["모집중", "모집예정", "마감"],
-        maxItems: 3,
+        // 9/28: "정기 접수"(9999 페어 + 접수 시기 문구, 연례 창구형) 필터 추가 — 회장 결재
+        enum: ["모집중", "정기 접수", "모집예정", "마감"],
+        maxItems: 4,
       },
     },
     enumValidators: {

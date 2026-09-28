@@ -10,7 +10,7 @@ import {
   stripHtml,
   type RdaPolicyItem,
 } from "@/lib/api/rda";
-import { deriveStatus } from "@/lib/program-status";
+import { deriveStatus, programStatusLabel, UNANNOUNCED_LABEL } from "@/lib/program-status";
 import { CROPS } from "./crops";
 import { getSupabase, isSupabaseConfigured, type ProgramRow } from "@/lib/supabase";
 import { groupCrawlRows, type CrawlGroupInfo } from "@/lib/crawl-grouping";
@@ -2092,7 +2092,11 @@ export async function filterProgramsAsync(
     if (filters.status && filters.status !== "전체") {
       // 5/22 Sprint — status CSV 복수 선택 지원
       const statuses = filters.status.split(",").map((s) => s.trim()).filter(Boolean);
-      if (statuses.length > 0 && !statuses.includes(program.status)) return false;
+      // 9/28: 배지 라벨 SSOT 기준으로 판정 — 9999 페어 + 접수 시기 = "정기 접수"(별도 옵션),
+      // 9999 페어 + 시기 없음("공고 발표 예정")은 "모집예정" 옵션에 포함.
+      const label = programStatusLabel(program);
+      const effective = label === UNANNOUNCED_LABEL ? "모집예정" : label;
+      if (statuses.length > 0 && !statuses.includes(effective)) return false;
     }
     return true;
   });

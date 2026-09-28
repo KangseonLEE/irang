@@ -37,8 +37,9 @@ import { FilterShell } from "@/components/filter/filter-shell";
 import s from "./page.module.css";
 
 /** 5/22 Sprint — status 필터 기본 선택 (마감 제외 = 기존 includeClosed=false 동작 보존). */
-const DEFAULT_STATUS_VALUES = ["모집중", "모집예정"] as const;
-const STATUS_OPTIONS = ["모집중", "모집예정", "마감"] as const;
+// 9/28 회장 결재: "정기 접수"(연례 창구형, 9999 페어 + applicationCycle) 를 필터 옵션으로. 기본값에도 포함.
+const DEFAULT_STATUS_VALUES = ["모집중", "정기 접수", "모집예정"] as const;
+const STATUS_OPTIONS = ["모집중", "정기 접수", "모집예정", "마감"] as const;
 
 const sectionNavItems = [
   { href: "/programs", label: "지원사업" },
