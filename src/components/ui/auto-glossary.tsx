@@ -63,6 +63,32 @@ interface AutoGlossaryProps {
   text: string;
   /** 한 텍스트 블록 내 최대 하이라이트 수 (기본 3) */
   maxHighlights?: number;
+  /**
+   * 이미 다른 블록에서 하이라이트한 slug — 다시 툴팁으로 만들지 않는다 (2026-09-28).
+   * 한 문단을 문장 단위로 쪼개 렌더할 때(SentenceText) 같은 용어가 문장마다 반복되는 것을 막는다.
+   */
+  excludeSlugs?: readonly string[];
+}
+
+/**
+ * 이 텍스트에서 실제로 하이라이트될 slug 목록 (등장 순서, 중복·문맥 검사 반영).
+ * 한도는 적용하지 않는다 — 호출처가 남은 예산만큼 잘라 쓴다.
+ */
+export function glossaryHitSlugs(text: string, exclude: readonly string[] = []): string[] {
+  if (!text) return [];
+  const seen = new Set<string>(exclude);
+  const hits: string[] = [];
+  const regex = new RegExp(glossaryPattern.source, "g");
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(text)) !== null) {
+    const entry = termLookup.get(match[0]);
+    if (!entry) continue;
+    if (entry.contextRequired && !hasValidContext(text, match.index)) continue;
+    if (seen.has(entry.slug)) continue;
+    seen.add(entry.slug);
+    hits.push(entry.slug);
+  }
+  return hits;
 }
 
 /**
@@ -78,10 +104,10 @@ interface AutoGlossaryProps {
  * <AutoGlossary text="노지에서 적과 작업 후 출하합니다" />
  * // → "노지", "적과", "출하"에 자동 툴팁
  */
-export function AutoGlossary({ text, maxHighlights = 3 }: AutoGlossaryProps) {
+export function AutoGlossary({ text, maxHighlights = 3, excludeSlugs }: AutoGlossaryProps) {
   if (!text) return null;
 
-  const seen = new Set<string>();
+  const seen = new Set<string>(excludeSlugs);
   let highlightCount = 0;
   const parts: ReactNode[] = [];
   let lastIndex = 0;

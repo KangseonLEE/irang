@@ -28,7 +28,7 @@ import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
 import { getStationByProvince } from "@/lib/data/stations";
-import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { SentenceText } from "@/components/ui/sentence-text";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { EligibilityCheck } from "@/components/programs/eligibility-check";
@@ -200,7 +200,8 @@ export default async function ProgramDetailPage({
             />
           </div>
         </div>
-        <p className={s.pageSummary}><AutoGlossary text={program.summary} /></p>
+        {/* 문장 단위 줄 나눔 (9/28 회장) — 목록·랜딩 카드는 2줄 clamp 라 제외 */}
+        <p className={s.pageSummary}><SentenceText text={program.summary} glossary /></p>
         {/* 원문 링크는 사이드 "원문 확인" 카드(사이드바 최상단) 한 곳만 — 제목 아래 버튼과 이중 노출이라
             회장 9/28 "위젯 것만 남기자". 셀프 체크 결과 모달의 링크는 별도 맥락이라 유지 */}
       </div>
@@ -211,13 +212,18 @@ export default async function ProgramDetailPage({
         {/* Main Info */}
         {/* 사이드 탭 — 모바일에선 본문 위, 1024+ 에선 오른쪽 컬럼 첫 요소(grid-template-areas). 회장 9/28 */}
         <div className={s.tabsSlot}>
+            {/* 모바일(<1024)은 탭이 아니라 섹션 스택 — 호갱노노 모바일 문법 (회장 9/28).
+                CSS-only 전환이라 DOM·SSR 링크는 한 벌 그대로다. */}
             <SidebarTabs
+              stackBelow
               tabs={[
                 {
                   id: "eligibility",
                   label: "자격 체크",
+                  stackMeta: "공고 기준 · 참고용",
                   content: (
                     <EligibilityCheck
+                      key="eligibility"
                       bare
                       programTitle={program.title}
                       ageMin={program.eligibilityAgeMin}
@@ -230,13 +236,22 @@ export default async function ProgramDetailPage({
                   ),
                 },
                 ...(relatedCrops.length > 0
-                  ? [{ id: "crops", label: "관련 작물", content: <RelatedCropsCard crops={relatedCrops} bare /> }]
+                  ? [
+                      {
+                        id: "crops",
+                        label: "관련 작물",
+                        stackMeta: `${relatedCrops.length}종`,
+                        content: <RelatedCropsCard key="crops" crops={relatedCrops} bare />,
+                      },
+                    ]
                   : []),
                 {
                   id: "notes",
                   label: "현장 이야기",
+                  /* 모바일은 본문 하단에 현장 이야기 섹션이 그대로 있어 티저가 중복이다 */
+                  hideWhenStacked: true,
                   content: (
-                    <div className={st.sideTabNotes}>
+                    <div key="notes" className={st.sideTabNotes}>
                       <p className={st.sideTabNotesText}>
                         이 사업을 신청해 봤거나 알아보는 중이라면 한 줄 남겨 주세요. 검토 후 이 페이지에 게시돼요.
                       </p>
@@ -330,7 +345,7 @@ export default async function ProgramDetailPage({
           <section className={s.section}>
             <h2 className={s.sectionTitle}>자격 조건</h2>
             <p className={s.eligibilityText}>
-              <AutoGlossary text={program.eligibilityDetail} />
+              <SentenceText text={program.eligibilityDetail} glossary />
             </p>
           </section>
 
@@ -339,7 +354,7 @@ export default async function ProgramDetailPage({
             <section className={s.section}>
               <h2 className={s.sectionTitle}>사업 설명</h2>
               <p className={s.descriptionText}>
-                <AutoGlossary text={program.description} />
+                <SentenceText text={program.description} glossary />
               </p>
             </section>
           )}
@@ -359,7 +374,7 @@ export default async function ProgramDetailPage({
               {/* 상세 소개 */}
               <section className={s.section}>
                 <h2 className={s.sectionTitle}>상세 안내</h2>
-                <p className={s.guideIntro}>{guide.intro}</p>
+                <p className={s.guideIntro}><SentenceText text={guide.intro} /></p>
                 <ul className={s.guideHighlights}>
                   {guide.highlights.map((h) => (
                     <li key={h} className={s.guideHighlightItem}>{h}</li>
@@ -426,7 +441,9 @@ export default async function ProgramDetailPage({
           )}
 
           {/* 커뮤니티 1단계 — 현장 이야기 (사전 승인제, 2026-09-02). 사이드 탭 "현장 이야기"가 여기로 점프 */}
-          <CommunityNotes targetType="program" targetId={program.id} targetLabel={program.title} />
+          <div className={s.communitySlot}>
+            <CommunityNotes targetType="program" targetId={program.id} targetLabel={program.title} />
+          </div>
         </div>
 
         {/* Sidebar — 원문 확인을 맨 위로 (9/27). 관련 작물 55개가 위에 있어

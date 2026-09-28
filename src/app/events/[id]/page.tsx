@@ -267,7 +267,7 @@ export default async function EventDetailPage({
             <div className={s.cardContent}>
               <ExternalLinkBlock
                 href={event.url}
-                label="신청 페이지 방문"
+                label="신청 페이지 보러가기"
                 title={event.title}
               />
             </div>

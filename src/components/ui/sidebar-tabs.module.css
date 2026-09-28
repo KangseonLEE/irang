@@ -106,3 +106,67 @@
   line-height: 1.6;
   color: var(--muted-foreground, #6b7280);
 }
+
+/* ══════════════════════════════════════════
+   스택 모드 (stackBelow, 2026-09-28 지원사업 상세 모바일)
+   호갱노노 모바일 문법 — 카드 테두리 없이 흰 블록을 세로로 쌓고 섹션 사이는 회색 띠로만 구분.
+   데스크탑(1024+)은 종전 탭 그대로 — 아래 `:not([data-active])` 규칙이 그 역할을 한다.
+   ══════════════════════════════════════════ */
+
+.stackable .sideTabPanel:not([data-active="true"]) {
+  display: none;
+}
+
+.stackHead {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .stackable {
+    border: none;
+    border-radius: 0;
+    background: none;
+    overflow: visible;
+  }
+
+  /* 탭바는 스택에선 의미가 없다 — 각 패널 제목이 그 역할을 한다 */
+  .stackable .sideTabList {
+    display: none;
+  }
+
+  /* 데스크탑 숨김 규칙(0,3,0)을 이기려면 같은 선택자를 뒤에서 다시 쓴다 (체크리스트 G) */
+  .stackable .sideTabPanel,
+  .stackable .sideTabPanel:not([data-active="true"]) {
+    display: block;
+    padding: 20px;
+    background: var(--card, #fff);
+    border-top: 8px solid var(--section-band, #f2f5f3);
+  }
+
+  /* 본문에 같은 내용이 있는 티저 패널(현장 이야기)은 스택에서 숨긴다 */
+  .stackable .sideTabPanel[data-stack-hidden] {
+    display: none;
+  }
+
+  .stackHead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .stackHeading {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: var(--lh-snug);
+    color: var(--foreground, #111827);
+  }
+
+  .stackMeta {
+    flex-shrink: 0;
+    font-size: var(--fs-caption);
+    color: var(--muted-foreground, #6b7280);
+  }
+}

@@ -7,6 +7,10 @@ export interface SidebarTab {
   id: string;
   label: string;
   content: ReactNode;
+  /** 스택 모드(모바일)에서는 감출 패널 — 본문에 같은 내용이 이미 있는 티저 등 */
+  hideWhenStacked?: boolean;
+  /** 스택 모드 헤딩 우측 회색 메타 ("공고 기준 · 참고용" 등) */
+  stackMeta?: string;
 }
 
 /**
@@ -27,7 +31,18 @@ export interface SidebarTab {
  * 사이드바 링크 3종·카드 간격이 전부 무스타일로 렌더된 원인. 페이지는 CSS 모듈을 직접 import 한다:
  *   import st from "@/components/ui/sidebar-tabs.module.css";
  */
-export function SidebarTabs({ tabs }: { tabs: SidebarTab[] }) {
+export function SidebarTabs({
+  tabs,
+  stackBelow = false,
+}: {
+  tabs: SidebarTab[];
+  /**
+   * 켜면 1024 미만에서 탭이 아니라 **섹션 스택**으로 렌더된다 (2026-09-28 지원사업 상세).
+   * CSS-only 전환 — 탭바는 display:none, 패널은 전부 표시, 각 패널 제목이 섹션 헤딩이 된다.
+   * DOM 이 한 벌이라 하이드레이션 플래시·링크 중복이 없다. 미지정 사용처는 종전 탭 그대로.
+   */
+  stackBelow?: boolean;
+}) {
   const [active, setActive] = useState(tabs[0]?.id ?? "");
   const baseId = useId();
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -45,7 +60,7 @@ export function SidebarTabs({ tabs }: { tabs: SidebarTab[] }) {
   );
 
   return (
-    <div className={s.sideTabs}>
+    <div className={`${s.sideTabs} ${stackBelow ? s.stackable : ""}`}>
       <div className={s.sideTabList} role="tablist" aria-label="사이드 정보 전환">
         {tabs.map((t, i) => (
           <button
@@ -75,9 +90,19 @@ export function SidebarTabs({ tabs }: { tabs: SidebarTab[] }) {
           role="tabpanel"
           id={`${baseId}-panel-${t.id}`}
           aria-labelledby={`${baseId}-tab-${t.id}`}
-          hidden={t.id !== active}
+          /* 스택 모드는 `hidden` 속성 대신 data-active + CSS 로만 감춘다 —
+             속성으로 감추면 모바일에서 CSS 로 되살릴 수 없다(hidden 은 inert 성격). */
+          hidden={stackBelow ? undefined : t.id !== active}
+          data-active={t.id === active ? "true" : undefined}
+          data-stack-hidden={stackBelow && t.hideWhenStacked ? "true" : undefined}
           className={s.sideTabPanel}
         >
+          {stackBelow && (
+            <div className={s.stackHead}>
+              <h2 className={s.stackHeading}>{t.label}</h2>
+              {t.stackMeta && <span className={s.stackMeta}>{t.stackMeta}</span>}
+            </div>
+          )}
           {t.content}
         </div>
       ))}

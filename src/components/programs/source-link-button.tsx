@@ -53,19 +53,18 @@ export function SourceLinkButton({
 
   const label = sourceButtonLabel(href);
   const host = sourceHost(href);
+  /* 도메인 텍스트는 버튼 옆에 노출하지 않는다 (9/28 회장) — 목적지는 aria-label 로만 알리고
+     화면에는 라벨만 남긴다. 도메인 칩·안내문은 사이드 "원문 확인" 카드(ExternalLinkBlock)가 든다. */
   return (
-    <span className={s.row}>
-      <a
-        href={safeHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={s.button}
-        aria-label={`${label} (${host}, 새 창)`}
-      >
-        <ExternalLink size={16} aria-hidden="true" />
-        {label}
-      </a>
-      {host && <span className={s.host}>{host}</span>}
-    </span>
+    <a
+      href={safeHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={s.button}
+      aria-label={`${label} (${host}, 새 창)`}
+    >
+      <ExternalLink size={16} aria-hidden="true" />
+      {label}
+    </a>
   );
 }

@@ -153,3 +153,35 @@
   flex-direction: column;
   gap: 8px;
 }
+
+/* ── 모바일(<1024) pill 한 행 (2026-09-28) — 55종도 가로 스크롤 한 줄로 ── */
+.cropPills {
+  flex-direction: row;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.cropPills::-webkit-scrollbar {
+  display: none;
+}
+
+.cropPills .cropRow {
+  flex: 0 0 auto;
+  border-bottom: none;
+}
+
+.cropPills .cropItem,
+.cropPills .cropItemStatic {
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.cropPills .cropItemSub,
+.cropPills .cropArrow {
+  display: none;
+}

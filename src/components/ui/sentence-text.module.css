@@ -1,0 +1,13 @@
+/* ── 문장 단위 줄 나눔 (2026-09-28) — 상속된 font-size·line-height·color 를 그대로 쓴다 ── */
+
+.block {
+  display: block;
+}
+
+.line {
+  display: block;
+}
+
+.line + .line {
+  margin-top: 7px;
+}

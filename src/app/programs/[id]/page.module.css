@@ -1,21 +1,21 @@
 /* ── 지원사업 상세 페이지 ── */
 
-/* 레이아웃 */
+/* 레이아웃 — 하단 여백은 작물 상세와 같은 결로 (9/28 회장: CTA가 푸터에 붙음) */
 .page {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 16px 16px;
+  padding: 16px 16px 56px;
 }
 
 @media (min-width: 640px) {
   .page {
-    padding: 24px 24px;
+    padding: 24px 24px 72px;
   }
 }
 
 @media (min-width: 1024px) {
   .page {
-    padding: 40px 32px;
+    padding: 40px 32px 96px;
   }
 }
 
@@ -52,20 +52,13 @@
   margin-bottom: 8px;
 }
 
-/* 제목 + 액션 버튼 행 */
+/* 제목 + 액션 버튼 행 — 공용 (모바일 <1024 는 제목 아래 별도 행, 배지와 같은 x) */
 .titleRow {
-  display: flex;
-  align-items: flex-start;
-  gap: 4px;
+  composes: titleRow from "../../../components/ui/detail-title.module.css";
 }
 
 .titleActions {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  gap: 0;
-  /* 제목 첫 줄 baseline에 아이콘 중심 맞추기 */
-  margin-top: 2px;
+  composes: titleActions from "../../../components/ui/detail-title.module.css";
 }
 
 /* 페이지 제목 */
@@ -498,5 +491,57 @@
 
   .sidebar {
     grid-area: side;
+  }
+}
+
+/* ══════════════════════════════════════════
+   모바일(<1024) 섹션 문법 — 흰 블록 + 8px 회색 띠 (2026-09-28 회장, 호갱노노 상세)
+   카드 테두리·라운드로 섹션을 구분하던 것을 띠로 바꾼다. 좌우 패딩 20px.
+   페이지 좌우 패딩(20px)을 음수 마진으로 되돌려 블록만 풀블리드로 만든다 —
+   제목·면책 안내는 20px 거터 안에 그대로 둔다. 데스크탑(1024+)은 전부 불변.
+   ══════════════════════════════════════════ */
+@media (max-width: 1023px) {
+  .page {
+    padding: 16px 20px 56px;
+  }
+
+  .contentGrid {
+    gap: 0;
+    margin-top: 20px;
+  }
+
+  .mainContent {
+    gap: 0;
+  }
+
+  /* 탭 스택(자격 체크·관련 작물) — 패널 자체가 20px 패딩 + 띠를 든다 */
+  .tabsSlot {
+    margin: 0 -20px;
+  }
+
+  .section,
+  .communitySlot {
+    margin: 0 -20px;
+    padding: 20px;
+    background: var(--card, #fff);
+    border-top: 8px solid var(--section-band, #f2f5f3);
+    border-bottom: none;
+  }
+
+  /* 현장 이야기 섹션은 자체 패딩(20px)을 들고 있어 슬롯은 띠만 담당 */
+  .communitySlot {
+    padding: 0;
+  }
+
+  .section:last-child {
+    padding-bottom: 20px;
+  }
+
+  /* 사이드 위젯(원문 확인·신청 기간·진단 CTA)은 본문 스택 뒤 — 띠 하나로 분리하고 카드 톤 유지 */
+  .sidebar {
+    gap: 16px;
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 8px solid var(--section-band, #f2f5f3);
   }
 }

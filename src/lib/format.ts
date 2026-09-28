@@ -242,3 +242,87 @@ export function withJosa(word: string, josa: keyof typeof JOSA_PAIRS | string): 
   if (!pair) return `${word}${josa}`;
   return `${word}${hasFinalConsonant(word) ? pair[0] : pair[1]}`;
 }
+
+/**
+ * 상대 시간 표기 — 커뮤니티 글의 "하루 전" 류 (2026-09-28).
+ *
+ * 1시간 미만은 "방금", 그 뒤는 시간·일 단위, 7일을 넘기면 날짜(YYYY.MM.DD)로 떨어진다.
+ * "1일 전"보다 "하루 전"이 소리 내어 읽기 자연스러워 하루만 예외 표기한다(카피 규칙).
+ */
+export function formatRelativeDate(iso: string, now: Date = new Date()): string {
+  const then = new Date(iso);
+  if (Number.isNaN(then.getTime())) return "";
+  const diffMs = now.getTime() - then.getTime();
+  if (diffMs < 0) return "방금";
+
+  const hours = Math.floor(diffMs / 3_600_000);
+  if (hours < 1) return "방금";
+  if (hours < 24) return `${hours}시간 전`;
+
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "하루 전";
+  if (days <= 7) return `${days}일 전`;
+  // 일주일을 넘기면 절대 날짜 — formatDate 는 "YYYY-MM-DD" 전용이라 여기서 직접 조립한다
+  const mm = String(then.getMonth() + 1).padStart(2, "0");
+  const dd = String(then.getDate()).padStart(2, "0");
+  return `${then.getFullYear()}.${mm}.${dd}`;
+}
+
+/**
+ * 긴 안내문을 문장 단위로 나눈다 (2026-09-28 회장: "쭉 이어서 쓰니까 가독성이 불편").
+ *
+ * 종결 부호(`.` `。` `?` `!`) **뒤에 공백이나 끝**이 올 때만 자르고, 아래는 자르지 않는다:
+ * - 소수·번호: "2.5억", "1. 신청서" (마침표 앞이 숫자)
+ * - 도메인·URL: "fbo.or.kr", "www.example.go.kr" (마침표 뒤에 공백이 없다)
+ * - 괄호 안 마침표: "(최대 5,000만 원. 예산 범위 내)"
+ * - 한 글자 약어: "○. ", "A. "
+ * 열거 마커(①~⑳, "1)", "- ", "• ") 앞에서는 종결 부호가 없어도 나눈다.
+ *
+ * 결과가 1문장이면 호출처가 종전과 같은 한 덩어리로 렌더한다.
+ */
+export function splitSentences(text: string): string[] {
+  const src = (text ?? "").trim();
+  if (!src) return [];
+
+  const OPEN = "([{（［「『";
+  const CLOSE = ")]}）］」』";
+  const TERMINATORS = ".。?!";
+
+  const out: string[] = [];
+  let buf = "";
+  let depth = 0;
+
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (OPEN.includes(ch)) depth++;
+    else if (CLOSE.includes(ch)) depth = Math.max(0, depth - 1);
+    buf += ch;
+
+    if (depth > 0 || !TERMINATORS.includes(ch)) continue;
+
+    const next = src[i + 1];
+    // 뒤에 공백·끝이 아니면 문장 경계가 아니다 (go.kr · 2.5억 · 12.31)
+    if (next !== undefined && !/\s/.test(next)) continue;
+
+    if (ch === ".") {
+      const prev = src[i - 1];
+      if (prev !== undefined && /\d/.test(prev)) continue; // 소수·번호 마커
+      const lastWord = buf.slice(0, -1).trimEnd().split(/\s/).pop() ?? "";
+      if (lastWord.length <= 1) continue; // "○." 같은 한 글자 약어
+    }
+
+    out.push(buf.trim());
+    buf = "";
+  }
+  if (buf.trim()) out.push(buf.trim());
+
+  return out.flatMap(splitByListMarkers).filter(Boolean);
+}
+
+/** 문장 안에 열거 마커가 섞여 있으면 마커 앞에서 한 번 더 나눈다 */
+function splitByListMarkers(sentence: string): string[] {
+  return sentence
+    .split(/\s+(?=(?:[①-⑳]|\d+\)\s|[-•·]\s))/g)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}

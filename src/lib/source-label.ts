@@ -38,14 +38,17 @@ export function sourceButtonLabel(href: string): string {
   }
 }
 
-/** 사이드 "원문 확인" 카드 문구 — 버튼과 같은 갈래, 같은 어조 */
+/**
+ * 사이드 "원문 확인" 카드 문구 — 버튼과 같은 갈래, 같은 어조.
+ * 9/28 회장: "방문"은 사무적이라 "보러가기"로. 도메인은 카드에서 빼고 문구만 남긴다.
+ */
 export function sourceBlockLabel(href: string): string {
   switch (classifySource(href)) {
     case "official":
-      return "공고 페이지 방문";
+      return "원문 공고 보러가기";
     case "news":
-      return "기사 페이지 방문";
+      return "원문 기사 보러가기";
     default:
-      return "안내 페이지 방문";
+      return "원문 페이지 보러가기";
   }
 }

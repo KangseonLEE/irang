@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Leaf } from "lucide-react";
 import { SectionPager } from "@/components/ui/section-pager";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import s from "./related-crops-card.module.css";
 
 /** 페이지 렌더에서 직렬화해 내려주는 작물 한 줄 (Server → Client 경계는 값만) */
@@ -27,8 +28,12 @@ const PER_PAGE = 5;
  */
 export function RelatedCropsCard({ crops, bare = false }: { crops: RelatedCrop[]; /** 사이드 탭 패널 안 — 카드 껍데기·제목 없이 */ bare?: boolean }) {
   const [page, setPage] = useState(0);
+  /* 모바일(<1024)은 5개 페이저 대신 가로 스크롤 pill 한 행 (2026-09-28 회장, 호갱노노 동 칩 행).
+     55종도 한 행에 담기고 페이저 탭이 사라진다. 일러스트가 아니라 기존 이모지를 쓰는 이유는
+     한 행에 55개면 이미지 요청이 55건이 되기 때문 — pill 은 텍스트 비중이 크다. */
+  const isMobile = useMediaQuery("(max-width: 1023px)");
   const pageCount = Math.ceil(crops.length / PER_PAGE);
-  const visible = crops.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
+  const visible = isMobile ? crops : crops.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
 
   return (
     <div className={bare ? s.bare : s.card}>
@@ -43,7 +48,7 @@ export function RelatedCropsCard({ crops, bare = false }: { crops: RelatedCrop[]
       )}
       {bare && <p className={s.bareCount}>이 사업과 이어지는 작물 {crops.length}종이에요.</p>}
       <div className={bare ? s.bareContent : s.cardContent}>
-        <ul className={s.cropList}>
+        <ul className={`${s.cropList} ${isMobile ? s.cropPills : ""}`}>
           {visible.map((crop) =>
             crop.id ? (
               <li key={crop.name} className={s.cropRow}>
@@ -75,7 +80,7 @@ export function RelatedCropsCard({ crops, bare = false }: { crops: RelatedCrop[]
           )}
         </ul>
 
-        {pageCount > 1 && (
+        {pageCount > 1 && !isMobile && (
           <div className={s.pagerWrap}>
             <SectionPager
               page={page}

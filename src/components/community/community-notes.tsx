@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { MessageSquareText, ThumbsUp, Loader2 } from "lucide-react";
+import { MessageSquareText, ThumbsUp, Loader2, Pencil } from "lucide-react";
 import { analytics, trackEvent } from "@/lib/analytics";
 import {
   NICKNAME_MAX_LENGTH,
@@ -10,6 +10,8 @@ import {
   NOTE_MIN_LENGTH,
 } from "@/lib/community/filter";
 import type { NoteTargetType, PublicNote } from "@/lib/community/types";
+import { formatRelativeDate } from "@/lib/format";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import s from "./community-notes.module.css";
 import { internalRequestHeaders } from "@/lib/internal-traffic";
 
@@ -55,7 +57,15 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
   const [submit, setSubmit] = useState<SubmitState>({ kind: "idle" });
   const [liked, setLiked] = useState<Set<number>>(() => new Set());
   const [reported, setReported] = useState<Set<number>>(() => new Set());
+  /* ── 모바일(<1024) 문법 (2026-09-28 회장, 호갱노노 "살아본 이야기") ──
+     아바타·상대 시간·4줄 접기·접힌 입력창·5건씩 더 보기. 데스크탑은 종전 그대로.
+     목록 자체가 클라이언트 fetch 라 미디어쿼리 분기로 SSR 이 달라질 일은 없다. */
+  const isMobile = useMediaQuery("(max-width: 1023px)");
+  const [expanded, setExpanded] = useState<Set<number>>(() => new Set());
+  const [formOpen, setFormOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const composeStartRef = useRef<number | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   // 노출 계측 (9/17) — 의견란이 화면에 실제로 들어온 첫 순간 1회.
   // 작성 0건이 "안 쓴다"인지 "못 본다"인지는 노출과 작성을 따로 세야만 갈린다.
@@ -184,6 +194,12 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
 
   if (!available) return null;
 
+  /** 모바일은 5건만 먼저 — 호갱노노처럼 "N개 더보기"로 그 자리에서 펼친다 */
+  const MOBILE_PAGE = 5;
+  const visibleNotes =
+    notes && isMobile && !showAll ? notes.slice(0, MOBILE_PAGE) : (notes ?? []);
+  const hiddenCount = notes ? notes.length - visibleNotes.length : 0;
+
   const canSubmit =
     submit.kind !== "submitting" &&
     body.trim().length >= NOTE_MIN_LENGTH &&
@@ -194,8 +210,24 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
       <div className={s.header}>
         <h2 id="community-notes-heading" className={s.title}>
           <MessageSquareText size={18} aria-hidden="true" />
-          {TITLE_BY_TYPE[targetType]}
+          {/* 모바일은 섹션 제목이 짧아야 헤더 한 줄에 건수·바로가기까지 들어간다 */}
+          {isMobile ? "현장 이야기" : TITLE_BY_TYPE[targetType]}
         </h2>
+        {isMobile && notes !== null && notes.length > 0 && (
+          <span className={s.countBadge}>{notes.length}</span>
+        )}
+        {isMobile && (
+          <button
+            type="button"
+            className={s.headerJump}
+            onClick={() => {
+              setFormOpen(true);
+              formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }}
+          >
+            한마디 남기기 →
+          </button>
+        )}
         <p className={s.subtitle}>
           {targetLabel}에 대해 겪은 것, 궁금한 것을 한마디 남겨 주세요. 검토 후 게시돼요.
         </p>
@@ -212,14 +244,36 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
         <p className={s.empty}>아직 이야기가 없어요. 첫 한마디를 남겨 보세요.</p>
       ) : (
         <ul className={s.list}>
-          {notes.map((n) => (
+          {visibleNotes.map((n) => (
             <li key={n.id} className={s.item}>
+              {isMobile && (
+                <span className={s.avatar} aria-hidden="true">
+                  {(n.nickname ?? "익명").trim().charAt(0)}
+                </span>
+              )}
               <div className={s.itemMeta}>
                 <span className={s.nickname}>{n.nickname ?? "익명"}</span>
                 <span className={s.date}>{formatDate(n.createdAt)}</span>
               </div>
-              <p className={s.body}>{n.body}</p>
+              <p className={`${s.body} ${isMobile && !expanded.has(n.id) ? s.bodyClamped : ""}`}>
+                {n.body}
+              </p>
+              {isMobile && !expanded.has(n.id) && n.body.length > 90 && (
+                <button
+                  type="button"
+                  className={s.bodyMore}
+                  onClick={() => setExpanded((prev) => new Set(prev).add(n.id))}
+                >
+                  더보기
+                </button>
+              )}
               <div className={s.itemActions}>
+                {isMobile && (
+                  <span className={s.likeSummary}>
+                    {formatRelativeDate(n.createdAt)}
+                    {n.likeCount > 0 ? ` · ${n.likeCount}명이 공감해요` : ""}
+                  </span>
+                )}
                 <button
                   type="button"
                   className={liked.has(n.id) ? s.likeBtnActive : s.likeBtn}
@@ -244,23 +298,47 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
         </ul>
       )}
 
+      {hiddenCount > 0 && (
+        <button type="button" className={s.moreBtn} onClick={() => setShowAll(true)}>
+          현장 이야기 {notes?.length}개 더보기
+        </button>
+      )}
+
       {submit.kind === "pending" ? (
         <div className={s.notice} role="note">
           <strong>한마디가 전달됐어요.</strong> 검토가 끝나면 이 자리에 게시돼요 (보통 하루 안).
         </div>
       ) : (
         <form
-          className={s.form}
+          ref={formRef}
+          /* 브라우저 자동완성·입력 보조 확장이 하이드레이션 전에 폼 필드에
+             `__gcruniqueid` 같은 속성을 주입해 "attributes didn't match" 경고가 뜬다
+             (9/28 회장 dev 배지 2건 — 우리 SSR HTML·소스에는 0건, curl 로 확인).
+             React 는 이 플래그로 **해당 요소의 속성 불일치 경고만** 무시하고
+             자식·이벤트·상태는 그대로 하이드레이션한다. */
+          suppressHydrationWarning
+          className={`${s.form} ${isMobile && !formOpen ? s.formCollapsed : ""}`}
           onSubmit={(e) => {
             e.preventDefault();
             void handleSubmit();
           }}
         >
+          {isMobile && !formOpen && (
+            <button
+              type="button"
+              className={s.formTrigger}
+              onClick={() => setFormOpen(true)}
+            >
+              <span className={s.formTriggerText}>한마디 남기기</span>
+              <Pencil size={16} aria-hidden="true" />
+            </button>
+          )}
           <label htmlFor="community-note-body" className={s.srOnly}>
             의견
           </label>
           <textarea
             id="community-note-body"
+            suppressHydrationWarning
             className={s.textarea}
             value={body}
             maxLength={NOTE_MAX_LENGTH}
@@ -277,6 +355,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
           <div className={s.formRow}>
             <input
               type="text"
+              suppressHydrationWarning
               className={s.nicknameInput}
               value={nickname}
               maxLength={NICKNAME_MAX_LENGTH}
@@ -287,6 +366,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
             {/* 봇용 허니팟 — 사람은 볼 수 없고 자동완성도 막는다 */}
             <input
               type="text"
+              suppressHydrationWarning
               name="website"
               value={honeypot}
               onChange={(e) => setHoneypot(e.target.value)}

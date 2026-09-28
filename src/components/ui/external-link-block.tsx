@@ -1,4 +1,4 @@
-import { ExternalLink, Shield, AlertCircle, Monitor } from "lucide-react";
+import { ExternalLink, AlertCircle } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import s from "./external-link-block.module.css";
 
@@ -38,11 +38,6 @@ export function extractDomain(url: string): string {
   }
 }
 
-/** .go.kr / .or.kr 등 공공기관 도메인 여부 */
-function isGovDomain(domain: string): boolean {
-  return /\.(go|or|ac|re)\.kr$/.test(domain);
-}
-
 /** 검색 폴백 URL 생성 */
 export function buildSearchFallback(domain: string, title?: string): string {
   const query = title
@@ -51,15 +46,20 @@ export function buildSearchFallback(domain: string, title?: string): string {
   return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
 }
 
-/** 원문 외부 링크 블록 — 도메인 배지 + 면책 안내 포함 */
+/**
+ * 원문 외부 링크 블록 — **버튼 하나**가 기본 (2026-09-28 회장, 상세 3종 전역).
+ *
+ * 도메인 배지·기관 실드·"외부 사이트로 연결돼요…" 안내문·PC 권장 힌트를 모두 뺐다.
+ * 같은 내용이 버튼 문구와 푸터 면책 고지에 이미 있어 카드가 길어지기만 했다.
+ * 링크 상태 경고(깨짐·변경 확인)는 **버튼이 실패할 이유**를 설명하므로 남긴다.
+ */
 export function ExternalLinkBlock({
   href,
-  label = "원문 페이지 방문",
+  label = "원문 페이지 보러가기",
   linkStatus = "active",
   title,
 }: ExternalLinkBlockProps) {
   const domain = extractDomain(href);
-  const isGov = isGovDomain(domain);
   const safeHref = safeHttpUrl(href);
 
   // ── 프로토콜이 http(s)가 아니면 깨진 링크와 같이 취급 (검색 폴백) ──
@@ -85,10 +85,6 @@ export function ExternalLinkBlock({
           검색으로 찾아보기
         </a>
 
-        <div className={s.meta}>
-          <span className={s.domainBadge}>{domain}</span>
-        </div>
-
         <p className={s.notice}>
           원문 페이지가 변경되었거나 삭제되었어요. 위 검색 링크를 통해 기관
           사이트에서 직접 확인하시거나, 이랑에 저장된 내용을 참고하세요.
@@ -111,28 +107,10 @@ export function ExternalLinkBlock({
           {label}
         </a>
 
-        <div className={s.meta}>
-          {isGov ? (
-            <span className={s.govBadge} aria-label="공식 정부 도메인">
-              <Shield size={12} aria-hidden="true" />
-              {domain}
-            </span>
-          ) : (
-            <span className={s.domainBadge}>{domain}</span>
-          )}
-        </div>
-
         <p className={s.noticeCaution}>
           이 링크는 최근 변경이 확인되었어요. 페이지 내용이 다를 수 있으니
           기관 홈페이지에서 직접 검색을 권장해요.
         </p>
-
-        {isGov && (
-          <p className={s.desktopHint}>
-            <Monitor size={14} aria-hidden="true" />
-            일부 정부·공공기관 사이트는 모바일 화면에 최적화되어 있지 않아요. 원문 확인은 PC 환경을 권장해요.
-          </p>
-        )}
       </div>
     );
   }
@@ -149,33 +127,6 @@ export function ExternalLinkBlock({
         <ExternalLink size={16} aria-hidden="true" />
         {label}
       </a>
-
-      <div className={s.meta}>
-        {isGov && (
-          <span className={s.govBadge} aria-label="공식 정부 도메인">
-            <Shield size={12} aria-hidden="true" />
-            {domain}
-          </span>
-        )}
-        {!isGov && (
-          <span className={s.domainBadge}>
-            {domain}
-          </span>
-        )}
-      </div>
-
-      <p className={s.notice}>
-        {isGov
-          ? "정부·공공기관 원문 사이트로 연결돼요. 모집 종료 후 원문이 삭제될 수 있으며, 이 경우 이랑에 저장된 내용을 참고하세요."
-          : "외부 사이트로 연결돼요. 페이지가 변경되었을 수 있으며, 이 경우 이랑에 저장된 내용을 참고하세요."}
-      </p>
-
-      {isGov && (
-        <p className={s.desktopHint}>
-          <Monitor size={14} aria-hidden="true" />
-          일부 정부·공공기관 사이트는 모바일 화면에 최적화되어 있지 않아요. 원문 확인은 PC 환경을 권장해요.
-        </p>
-      )}
     </div>
   );
 }

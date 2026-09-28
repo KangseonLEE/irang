@@ -22,7 +22,7 @@ describe("source-label", () => {
     expect(sourceButtonLabel("https://www.gov.kr/x")).toBe("공고 확인하기");
     expect(sourceButtonLabel("https://www.nongmin.com/x")).toBe("관련 기사 보기");
     expect(sourceButtonLabel("https://example.org/x")).toBe("안내 페이지 열기");
-    expect(sourceBlockLabel("https://www.gov.kr/x")).toBe("공고 페이지 방문");
+    expect(sourceBlockLabel("https://www.gov.kr/x")).toBe("원문 공고 보러가기");
   });
 
   it("전체 사업의 출처가 세 갈래 중 하나로 판정되고 기관 출처가 다수", () => {

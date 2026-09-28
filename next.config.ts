@@ -95,7 +95,10 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com https://t1.kakaocdn.net https://*.sentry-cdn.com",
+              // 개발 서버에서만 'unsafe-eval' — React 개발 빌드가 콜스택 재구성 등에 eval 을 쓴다.
+              // 없으면 dev 에서 "eval() is not supported…" 에러가 떠 Next 오버레이 배지가 상시 1건(9/28 회장 실기기).
+              // 프로덕션 번들은 eval 을 쓰지 않으므로 운영 CSP 는 그대로 둔다.
+              `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'"} https://www.googletagmanager.com https://va.vercel-scripts.com https://t1.kakaocdn.net https://*.sentry-cdn.com`,
               "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
               "img-src 'self' data: https: blob:",
               "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com",

@@ -111,41 +111,6 @@
   outline-offset: 3px;
 }
 
-/* ── 메타 정보 (도메인 배지) ── */
-.meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-/* 정부 도메인 배지 (.go.kr, .or.kr 등) */
-.govBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  color: var(--primary, #1b6b5a);
-  border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* 일반 도메인 배지 */
-.domainBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  background: var(--muted, #f9fafb);
-  color: var(--muted-foreground, #6b7280);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
 /* ── 면책 안내 ── */
 .notice {
   font-size: var(--fs-caption, 13px);
@@ -160,35 +125,4 @@
   line-height: var(--lh-relaxed, 1.8);
   color: var(--warning-fg-strong, #92400e);
   margin: 0;
-}
-
-/* PC 환경 권장 안내 (.go.kr 등 정부 사이트용) */
-.desktopHint {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 8px 12px;
-  background: #f0f4ff;
-  color: #3b5998;
-  border: 1px solid #dbe4ff;
-  border-radius: 6px;
-  font-size: var(--fs-caption, 13px);
-  line-height: var(--lh-relaxed, 1.8);
-  margin: 0;
-}
-
-.desktopHint svg {
-  flex-shrink: 0;
-  margin-top: 4px;
-}
-
-/* ── 데스크탑 폰트 상향 (40~60대 가독성) ── */
-@media (min-width: 1024px) {
-  .govBadge {
-    font-size: 13px;
-  }
-
-  .domainBadge {
-    font-size: 13px;
-  }
 }

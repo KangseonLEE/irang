@@ -239,3 +239,170 @@
   flex-direction: column;
   gap: 10px;
 }
+
+/* ══════════════════════════════════════════
+   모바일(<1024) 인라인 체크 (2026-09-28, 호갱노노 보유세 계산기 문법)
+   조건 요약 박스 → 인라인 체크 행 → 결과 행 → 풀폭 CTA. 모달 없음.
+   컴포넌트가 isMobile 분기로만 렌더하므로 미디어쿼리 없이 이 클래스들만 쓴다.
+   ══════════════════════════════════════════ */
+
+.mWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── 조건 평문 (9/28 회장: 회색 요약 박스·옆 버튼 폐기) ── */
+.mConditionText {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  line-height: var(--lh-relaxed);
+  color: var(--foreground, #111827);
+}
+
+.mConditions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mCondition {
+  position: relative;
+  padding-left: 14px;
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  line-height: var(--lh-normal);
+  color: var(--foreground, #111827);
+}
+
+.mCondition::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 9px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 55%, transparent);
+}
+
+/* 풀폭 진입 버튼 — 데스크탑 카드의 .openBtn 과 같은 아웃라인 결 */
+.mOpenBtn {
+  composes: actionButton actionSecondary from "../ui/action-button.module.css";
+  width: 100%;
+  min-height: 48px;
+  font-size: var(--fs-body-sm);
+  color: var(--primary, #1b6b5a);
+  border-color: color-mix(in srgb, var(--primary, #1b6b5a) 32%, var(--border, #e5e7eb));
+}
+
+@media (hover: hover) {
+  .mOpenBtn:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+    border-color: var(--primary, #1b6b5a);
+  }
+}
+
+/* ── 결과 행 ── */
+.mResult {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.mResultLabel {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.mResultRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.mResultNum {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--foreground, #111827);
+}
+
+.mResultOk {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+}
+
+.mResultMiss {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--warning-fg, #a16207);
+}
+
+/* ── 모달 결과: 미충족 항목 → 채워야 할 것 + 이랑 안 경로 (2026-09-28) ── */
+.missingLabel {
+  display: block;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  line-height: var(--lh-normal);
+  color: var(--foreground, #111827);
+}
+
+.missingSupport {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.missingTodo {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  line-height: var(--lh-normal);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.missingSupport .missingTodo {
+  margin-top: 0;
+}
+
+.missingLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 7px 12px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 9%, transparent);
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .missingLink:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
+  }
+}
+
+.missingLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
