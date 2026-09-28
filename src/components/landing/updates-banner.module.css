@@ -139,7 +139,7 @@
 @media (min-width: 1024px) {
   .banner {
     position: absolute;
-    top: 20px;
+    top: 56px; /* .page 데스크탑 padding-top 40 + 히어로 안쪽 16 */
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
