@@ -170,6 +170,8 @@ export interface ProgramRow {
   eligibility_detail: string;
   application_start: string;
   application_end: string;
+  /** 연례 창구형 접수 시기 문구 (2026-09-28 마이그레이션 컬럼) */
+  application_cycle: string | null;
   status: string;
   related_crops: string[] | null;
   source_url: string;

@@ -90,7 +90,7 @@ const FAILURE_CASES: FailureCase[] = [
 ];
 
 const CHECKLIST = [
-  { text: "정착 교육 100시간 이상 이수했나요?", href: "/education" },
+  { text: "정착 교육을 100시간 이상 이수했나요? (창업자금 심사 기준)", href: "/education" },
   { text: "생활비 2년치를 별도로 확보했나요?", href: "/costs" },
   { text: "지역 기후에 맞는 작물을 확인했나요?", href: "/crops/compare" },
   { text: "가족과 충분히 대화하고 합의했나요?", href: null },

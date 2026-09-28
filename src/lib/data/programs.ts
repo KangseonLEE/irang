@@ -145,7 +145,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "정착자의 농업창업자금과 농촌주택 구입자금을 저금리 융자로 지원하는 농식품부 대표 정착사업.",
     description:
-      "농업창업자금 최대 3억원, 주택구입자금 최대 7,500만 원을 연 2% 이내 저금리로 융자받을 수 있어요. 농촌 전입 후 6년 이내 세대주로서 영농교육 100시간 이상 이수가 필요해요. 신청은 시군의 귀농귀촌 담당 부서(농업기술센터나 시청 부서)에서 받고, 접수 시기는 시군마다 달라 상·하반기 두 번 받는 곳도 있어요. 귀농 초기 정착비용 부담을 크게 줄여주는 대표적인 정부 지원사업이에요. 사과 같은 과수도 과원 조성·묘목 구입·관수시설·저온저장고까지 창업자금 용도로 인정돼요. 다만 2026년 선정부터 묘목·농기계·농업용 화물차 구입비는 합산 5천만 원까지예요.",
+      "농업창업자금 최대 3억원, 주택구입자금 최대 7,500만 원을 연 2% 이내 저금리로 융자받을 수 있어요. 농촌 전입 후 6년 이내 세대주여야 하고, 영농 관련 교육은 8시간 이상이 자격 요건이지만 100시간 미만이면 심사에서 최저 등급(D)을 받아 사실상 100시간 이상이 필요해요. 신청은 시군의 귀농귀촌 담당 부서(농업기술센터나 시청 부서)에서 받고, 접수 시기는 시군마다 달라 상·하반기 두 번 받는 곳도 있어요. 귀농 초기 정착비용 부담을 크게 줄여주는 대표적인 정부 지원사업이에요. 사과 같은 과수도 과원 조성·묘목 구입·관수시설·저온저장고까지 창업자금 용도로 인정돼요. 다만 2026년 선정부터 묘목·농기계·농업용 화물차 구입비는 합산 5천만 원까지예요.",
     region: "전국",
     organization: "농림축산식품부 / 각 시군 귀농귀촌 담당 부서",
     supportType: "융자",
@@ -153,9 +153,10 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
-      "농촌지역 전입일로부터 만 6년 미경과 세대주. 영농 관련 교육 100시간 이상 이수. 접수 기간은 시군별로 달라요(예: 군산 1/12~2/13, 서귀포 상반기 1/14~2/11·하반기 6/12~7/3) — 우리 시군 일정은 담당 부서에 확인하세요.",
-    applicationStart: "2026-01-12",
-    applicationEnd: "2026-02-13",
+      "농촌지역 전입일로부터 만 6년 미경과 세대주. 영농 관련 교육 8시간 이상 이수(100시간 미만은 심사 최저 등급 D). 접수 기간은 시군별로 달라요(예: 군산 1/12~2/13, 서귀포 상반기 1/14~2/11·하반기 6/12~7/3) — 우리 시군 일정은 담당 부서에 확인하세요.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    applicationCycle: "매년 초 시·군 접수 (상·하반기 두 번 받는 곳도 있어요)",
     relatedCrops: ALL_CROP_NAMES, // 작물 범용
     sourceUrl: "https://www.gunsan.go.kr/farm/m2435/view/8495763",
     year: 2026,
@@ -167,7 +168,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "만 39세 이하 청년농업인에게 독립경영 초기 3년간 월 정착지원금을 지급하는 보조금 사업.",
     description:
-      "독립경영 1년차 월 110만 원부터 3년차 월 90만 원까지 최대 3년간 정착지원금을 받을 수 있어요. 만 18~39세 청년으로 영농경력 3년 이하이며 해당 지자체에 실거주해야 해요. 연간 약 2,000명을 선발하며, 매년 11~12월경 다음 해 대상자를 모집해요. 청년 정착자의 초기 생활 안정에 실질적으로 도움이 되는 핵심 사업이에요.",
+      "독립경영 1년차 월 110만 원부터 3년차 월 90만 원까지 최대 3년간 정착지원금을 받을 수 있어요. 만 18~39세 청년으로 영농경력 3년 이하이며 해당 지자체에 실거주해야 해요. 다음 해 대상자를 전년 11~12월에 1차 선발하고(2026년 대상자는 2025년 11월 5일~12월 11일 접수), 신청은 농림사업정보시스템(Agrix, uni.agrix.go.kr) 온라인으로만 받아요. 청년 정착자의 초기 생활 안정에 실질적으로 도움이 되는 핵심 사업이에요.",
     region: "전국",
     organization: "농림축산식품부",
     supportType: "보조금",
@@ -175,9 +176,10 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 39,
     eligibilityDetail:
-      "만 18~39세. 총 영농경력 3년 이하. 신청 지자체 실거주 및 주민등록. 연간 약 2,000명 선발.",
-    applicationStart: "2025-11-05",
-    applicationEnd: "2025-12-11",
+      "만 18~39세. 총 영농경력 3년 이하. 신청 지자체 실거주 및 주민등록(사업장·거주지 동일 시·군). 신청은 Agrix(uni.agrix.go.kr) 온라인 전용 — 오프라인 접수 불가.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    applicationCycle: "다음 해 대상자 1차 선발 — 전년 11~12월 Agrix 접수",
     relatedCrops: ALL_CROP_NAMES, // 작물 범용
     sourceUrl: "https://agro.seoul.go.kr/archives/54938",
     year: 2026,
@@ -387,17 +389,18 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "후계농업경영인 선정 후 5년 이상 영농 종사자를 대상으로 최대 2억원 저리 융자(연 1.5%)를 지원하는 육성자금 사업. 전국 500명 선발.",
     description:
-      "후계농업경영인으로 선정된 지 5년 이상 경과한 영농 종사자가 대상이며, 최대 2억원을 연 1.5% 고정금리로 5년 거치 10년 상환 조건으로 융자받을 수 있어요. 전국 약 500명을 선발하며, 거주지 읍면동사무소를 통해 신청해요. 영농 규모 확대나 시설 현대화에 필요한 대규모 자금을 저리로 조달할 수 있는 사업이에요.",
+      "후계농업경영인으로 선정된 지 5년 이상 경과한 영농 종사자가 대상이며, 최대 2억원을 연 1.5% 고정금리로 5년 거치 10년 상환 조건으로 융자받을 수 있어요. 전국 약 500명을 선발하고, 접수처는 지자체마다 달라 시·군 농업기술센터나 읍·면·동에서 받아요(서울은 농업기술센터 인재육성팀). 2026년은 3월 23일부터 4월 15일까지 접수했고, 대출 신청은 「우수후계농업경영인 역량강화교육」 수료 후 가능해요. 영농 규모 확대나 시설 현대화에 필요한 대규모 자금을 저리로 조달할 수 있는 사업이에요.",
     region: "전국",
-    organization: "농림축산식품부 / 지자체 읍면동사무소",
+    organization: "농림축산식품부 / 각 시군 농업기술센터·읍면동",
     supportType: "융자",
     supportAmount: "최대 2억원 (연 1.5% 고정금리, 5년 거치 10년 상환)",
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
-      "후계농업경영인 선정 후 5년 이상 영농 종사자(2021년 이전 선정자). 금융기관 여신제한 대상자 불가. 전국 약 500명 선발.",
-    applicationStart: "2026-03-23",
-    applicationEnd: "2026-04-15",
+      "후계농업경영인 선정 후 5년 이상 영농 종사자(2021년까지 선정자). 금융기관 여신제한 대상자 불가. 전국 약 500명 선발(시·도별 인원배정 없음).",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    applicationCycle: "3~4월 지자체 접수 (2026년은 3/23~4/15)",
     relatedCrops: [],
     sourceUrl: "https://agro.seoul.go.kr/archives/55803",
     year: 2026,
@@ -609,7 +612,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "만 18~49세 영농 10년 미만 농업인을 대상으로 농지·시설 자금 최대 5억원을 1.5% 저금리로 융자해 주는 농식품부 핵심 후계농 양성 사업.",
     description:
-      "농림축산식품부의 후계농업경영인 사업은 만 18세 이상 49세 이하, 영농 종사 경력 10년 미만의 후계농을 대상으로 농지·시설 등 영농기반 마련 자금을 세대당 최대 5억원, 연 1.5% 저금리로 융자해 주는 핵심 양성사업이에요. 5년 거치 20년 분할 상환 조건으로 초기 자본 부담이 매우 낮아요. 농업e지(www.agriedu.net) 시스템을 통해서만 신청할 수 있고, 시·군 농업기술센터에서 접수와 심사를 진행해요. 우수후계농(SP-013) 대상이 되기 전 단계의 일반 후계농 선발 사업으로, 가족 정착·청년 본업 농가의 핵심 진입로예요. 상반기 선발은 1~2월에 종료되었고 시·군별 추가 모집 일정은 별도 공고를 확인하면 돼요.",
+      "농림축산식품부의 후계농업경영인 사업은 만 18세 이상 49세 이하, 영농 종사 경력 10년 미만의 후계농을 대상으로 농지·시설 등 영농기반 마련 자금을 세대당 최대 5억원, 연 1.5% 저금리로 융자해 주는 핵심 양성사업이에요. 5년 거치 20년 분할 상환 조건으로 초기 자본 부담이 매우 낮아요. 차세대농림사업정보시스템(농업e지, nongupez.go.kr)으로만 신청할 수 있고 오프라인 접수는 안 되며, 심사는 주소지 시·군에서 진행해요. 우수후계농(SP-013) 대상이 되기 전 단계의 일반 후계농 선발 사업으로, 가족 정착·청년 본업 농가의 핵심 진입로예요. 2026년 선발은 1월 5일부터 2월 11일까지 접수했고, 다음 회차 일정은 시·군 공고를 확인하면 돼요.",
     region: "전국",
     organization: "농림축산식품부 / 각 시군 농업기술센터",
     supportType: "융자",
@@ -617,9 +620,10 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 49,
     eligibilityDetail:
-      "만 18세 이상 49세 이하, 영농 종사 경력 10년 미만. 농업e지(www.agriedu.net)를 통해서만 신청. 상반기 선발은 1~2월 종료, 시·군별 추가 모집 별도 공고.",
-    applicationStart: "2026-01-12",
-    applicationEnd: "2026-02-11",
+      "만 18세 이상 49세 이하, 영농 종사 경력 10년 미만. 농업e지(nongupez.go.kr) 온라인 전용 신청 — 오프라인 접수 불가. 2026년 접수는 1/5~2/11, 다음 회차는 시·군 공고 확인.",
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    applicationCycle: "1~2월 농업e지 온라인 접수 (2026년은 1/5~2/11)",
     relatedCrops: ALL_CROP_NAMES, // 작물 범용
     sourceUrl: "https://agro.seoul.go.kr/archives/55168",
     year: 2026,
@@ -856,7 +860,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "경남 하동군이 하반기 귀농귀촌 사관학교 교육생 10명을 9월 3일까지 추가 모집. 9월 8~18일 8회차 40시간 과정.",
     description:
-      "경상남도 하동군청 지역활력추진단이 운영하는 '찐하동 농부 첫걸음' 귀농귀촌 사관학교의 하반기 추가모집이에요. 교육은 2026년 9월 8일부터 9월 18일까지 매주 화~금 8회차, 총 40시간으로 진행하고 농업·농촌의 이해와 품종별 현장 견학을 다뤄요. 하동군에 2019년 1월 1일 이후 전입한 귀농귀촌인은 물론, 아직 지역을 정하지 않은 도시민도 신청할 수 있어요. 신청은 8월 28일부터 9월 3일까지 하동군청 지역활력추진단으로 접수하고 입학원서와 주민등록초본을 내면 돼요. 기존 5명에 더해 10명을 추가로 뽑아요. 귀농 농업창업·주택구입 융자는 영농 관련 교육을 100시간 이상 이수해야 신청할 수 있어서, 이런 과정으로 교육 시간을 미리 쌓아두면 나중에 도움이 돼요.",
+      "경상남도 하동군청 지역활력추진단이 운영하는 '찐하동 농부 첫걸음' 귀농귀촌 사관학교의 하반기 추가모집이에요. 교육은 2026년 9월 8일부터 9월 18일까지 매주 화~금 8회차, 총 40시간으로 진행하고 농업·농촌의 이해와 품종별 현장 견학을 다뤄요. 하동군에 2019년 1월 1일 이후 전입한 귀농귀촌인은 물론, 아직 지역을 정하지 않은 도시민도 신청할 수 있어요. 신청은 8월 28일부터 9월 3일까지 하동군청 지역활력추진단으로 접수하고 입학원서와 주민등록초본을 내면 돼요. 기존 5명에 더해 10명을 추가로 뽑아요. 귀농 농업창업·주택구입 융자는 영농 관련 교육 이수 시간이 심사에 반영돼서(100시간 미만은 최저 등급), 이런 과정으로 교육 시간을 미리 쌓아두면 나중에 도움이 돼요.",
     region: "경상남도",
     organization: "하동군청 지역활력추진단 귀농귀촌부서",
     supportType: "교육",
@@ -1797,6 +1801,7 @@ export async function getProgramByIdAsync(
           eligibilityDetail: row.eligibility_detail,
           applicationStart: row.application_start,
           applicationEnd: row.application_end,
+          applicationCycle: row.application_cycle ?? undefined,
           status: deriveStatus(row.application_start, row.application_end),
           relatedCrops: row.related_crops ?? [],
           sourceUrl: row.source_url,
@@ -1990,6 +1995,7 @@ export async function loadPrograms(): Promise<{
           eligibilityDetail: row.eligibility_detail,
           applicationStart: row.application_start,
           applicationEnd: row.application_end,
+          applicationCycle: row.application_cycle ?? undefined,
           status: deriveStatus(row.application_start, row.application_end),
           relatedCrops: row.related_crops ?? [],
           sourceUrl: row.source_url,
