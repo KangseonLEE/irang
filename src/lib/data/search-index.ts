@@ -1700,9 +1700,19 @@ const SUB_REGION_ALIASES: Record<string, string> = {
  * 동음이의어(예: "중앙동"이 여러 시·군·구에 존재)는 다수 항목 노출.
  * 검색 결과 최상단에 노출하여 사용자에게 데이터 제공 범위를 명확히 안내.
  */
+/** 시·도·시·군·구 이름(정식·약칭) — 이 이름을 정확히 친 검색은 읍·면·동 안내를 띄우지 않는다 (9/28 A안) */
+const REGION_NAME_SET: Set<string> = new Set([
+  ...PROVINCES.flatMap((p) => [p.shortName.toLowerCase(), p.name.toLowerCase()]),
+  ...SIGUNGUS.flatMap((s) => [s.shortName.toLowerCase(), s.name.toLowerCase()]),
+]);
+
 function matchSubRegionHints(query: string): SearchItem[] {
   const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
+  // 9/28 회장 결재 A안: "가평"(가평군)·"중구"처럼 시·군·구 이름과 정확히 같은 검색어는 그 지역을 찾은 것이다.
+  // 이름이 같은 읍·면·동(가평읍·안동 중구동) 안내가 정확 일치 카드보다 먼저 서던 잡음을 없앤다.
+  // "가평읍"처럼 읍·면·동을 직접 치면 종전대로 안내한다.
+  if (REGION_NAME_SET.has(q)) return [];
 
   // 별칭(섬 이름 등) → SGIS 등록 키로 정규화
   const normalizedKey = SUB_REGION_ALIASES[q] ?? q;

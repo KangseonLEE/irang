@@ -942,3 +942,22 @@ describe("searchAllGrouped — 고정 블록/일반 결과 분리 계약", () =>
     expect(pinned.some((i) => i.href.startsWith("/crops/apple#"))).toBe(true);
   });
 });
+
+// ── 9/28 A안: 시·군·구 이름 정확 일치 검색은 읍·면·동 안내를 띄우지 않는다 ──
+describe("읍·면·동 안내 억제 — 시·군·구 정확 일치 (9/28)", () => {
+  it("'가평' → 첫 항목이 가평군, sub-region-hint 0건", () => {
+    const r = searchAll("가평");
+    expect(r[0]?.title).toBe("가평군");
+    expect(r.some((x) => x.id.startsWith("sub-region-hint-"))).toBe(false);
+  });
+  it("'중구' → sub-region-hint 0건, 지역 카드 다수", () => {
+    const r = searchAll("중구");
+    expect(r.some((x) => x.id.startsWith("sub-region-hint-"))).toBe(false);
+    expect(r.filter((x) => x.type === "region").length).toBeGreaterThanOrEqual(5);
+  });
+  it("'가평읍'·'서생'처럼 읍·면·동을 직접 치면 안내는 그대로", () => {
+    expect(searchAll("가평읍").some((x) => x.id.startsWith("sub-region-hint-"))).toBe(true);
+    expect(searchAll("서생").some((x) => x.id.startsWith("sub-region-hint-"))).toBe(true);
+  });
+});
+
