@@ -242,7 +242,7 @@
 @media (min-width: 1024px) {
   .heroSection {
     /* 풀블리드 — quick-link-section 과 같은 기법 (html { overflow-x: clip } 전제) */
-    margin: 0 calc(-50vw + 50%);
+    margin: -40px calc(-50vw + 50%) 0; /* 9/28: .page padding-top(40) 을 상쇄해 헤더 바로 아래에서 시작 — 별도 흰 띠 없음 */
     padding: 64px calc(50vw - 50%) 96px;
     min-height: min(72vh, 720px);
     justify-content: center;

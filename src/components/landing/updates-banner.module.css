@@ -139,7 +139,7 @@
 @media (min-width: 1024px) {
   .banner {
     position: absolute;
-    top: 56px; /* .page 데스크탑 padding-top 40 + 히어로 안쪽 16 */
+    top: 16px; /* 히어로가 .page 상단(헤더 바로 아래)에서 시작하므로 히어로 안쪽 16 */
     left: 50%;
     transform: translateX(-50%);
     z-index: 6; /* 히어로 섹션(z 5) 위, 헤더(50) 아래 */
