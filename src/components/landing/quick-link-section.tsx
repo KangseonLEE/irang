@@ -55,7 +55,7 @@ export function QuickLinkSection() {
 
       <ul className={s.track} aria-label="자주 찾는 서비스 바로 가기">
         {QUICK_LINK_ITEMS.map(({ id, href, label, icon: Icon }) => (
-          <li key={id} className={s.item}>
+          <li key={id} className={s.item} data-reveal-item>
             <Link
               href={href}
               className={s.link}

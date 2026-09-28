@@ -17,6 +17,7 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import HeroSearch from "@/components/search/hero-search";
 import { TrendingSearches } from "@/components/landing/trending-searches";
 import { KeywordRotator } from "@/components/landing/keyword-rotator";
+import { HeroSlider } from "@/components/landing/hero-slider";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
@@ -118,6 +119,10 @@ export default function HomePage() {
           지역 비교부터 지원금 찾기까지, 필요한 건 다 모았어요.
         </p>
 
+        {/* 데스크탑(1024+) 슬라이드 히어로 — 배경 레이어 + 슬라이드별 카피 + 좌하단 컨트롤.
+            모바일에서는 아무것도 렌더하지 않아 현행 히어로 DOM 과 동일하다 (9/28 시안). */}
+        <HeroSlider />
+
         <div className={s.heroSearchWrap}>
           {/* HeroSearch → SearchBar가 useSearchParams를 사용한다. Suspense 경계가
               없으면 가장 가까운 경계(=페이지 루트)까지 client-side render로 bailout돼
@@ -134,12 +139,12 @@ export default function HomePage() {
       </section>
 
       {/* ═══ 1-2. 자주 찾는 서비스 — 아이콘 8종, GNB 여정 순 (9/7 회장 결재: 히어로 밖 별도 섹션) ═══ */}
-      <ScrollReveal trackId="quick_link">
+      <ScrollReveal trackId="quick_link" variant="fade" stagger parallax>
         <QuickLinkSection />
       </ScrollReveal>
 
       {/* ═══ 2. 지원사업 (진행·예정 + 마감 임박 + 상시·연중 탭) — 9/7 회장: 인터뷰와 순서 교체 ═══ */}
-      <ScrollReveal trackId="programs">
+      <ScrollReveal trackId="programs" variant="fade" stagger>
         <ProgramsSection
           activePrograms={activePrograms}
           ongoingPrograms={ongoingPrograms}
@@ -156,7 +161,7 @@ export default function HomePage() {
         <ScrollReveal trackId="crops">
           <CropGlanceSection />
         </ScrollReveal>
-        <ScrollReveal trackId="start_cards">
+        <ScrollReveal trackId="start_cards" variant="fade" stagger>
           <StartCardsSection
             openProgramCount={openProgramCount}
             dueSoonProgramCount={dueSoonProgramCount}

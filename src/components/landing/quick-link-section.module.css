@@ -164,13 +164,31 @@
 
 /* 데스크탑: 띠 안에서 좌 제목 블록 · 우 아이콘 행 (안쪽 그리드는 .inner 가 담당) */
 @media (min-width: 1024px) {
+  /* 9/28 시안 — 풀블리드 슬라이드 히어로와 맞붙인다(.page gap 120 상쇄) + 히어로 하단에 걸친
+     플로팅 검색 바(32px 돌출) 아래로 제목이 오도록 padding-top 확보 */
   .section {
-    margin-top: -96px; /* .page gap 120 → 히어로와 24 */
-    padding-top: 30px;
-    padding-bottom: 30px;
+    position: relative;
+    overflow: hidden; /* 패럴랙스 레이어가 위·아래 섹션으로 삐져나오지 않게 */
+    margin-top: -120px;
+    padding-top: 74px;
+    padding-bottom: 34px;
+    background: #f1f7f4; /* 레이어가 움직여도 이음선이 보이지 않도록 단색 바탕 */
+  }
+
+  /* 가벼운 패럴랙스 — ScrollReveal parallax 가 주는 --parallax(0 → -20px)를 배경 레이어만 받는다 */
+  .section::before {
+    content: "";
+    position: absolute;
+    inset: -28px 0;
+    z-index: 0;
+    background: linear-gradient(180deg, #f3f8f6 0%, #eef5f1 100%);
+    transform: translate3d(0, var(--parallax, 0px), 0);
+    pointer-events: none;
   }
 
   .inner {
+    position: relative;
+    z-index: 1; /* 패럴랙스 배경 레이어 위 */
     display: grid;
     grid-template-columns: 220px minmax(0, 1fr);
     align-items: center;
