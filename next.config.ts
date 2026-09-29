@@ -65,6 +65,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "img.youtube.com",
       },
+      /* 홍보 팝업 포스터 — admin 업로드가 Supabase Storage 공개 버킷 `promo` 로 간다 (2026-09-29) */
+      {
+        protocol: "https",
+        hostname: "ghujphlzdzucfezqgmwz.supabase.co",
+        pathname: "/storage/v1/object/public/promo/**",
+      },
     ],
     /* ── Vercel data transfer 절감 (P0) ──
        quality 기본 75 → 70: 시각 차이 거의 없이 transfer ~10% 감소.

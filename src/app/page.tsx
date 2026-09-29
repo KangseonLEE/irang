@@ -20,6 +20,7 @@ import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
 import { PromoPopup } from "@/components/landing/promo-popup";
+import { loadActivePromos } from "@/lib/promos/queries";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
 import { ProgramsSection } from "@/components/landing/programs-section";
@@ -86,8 +87,10 @@ function getProgramsData() {
   return { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount };
 }
 
-export default function HomePage() {
+export default async function HomePage() {
   const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount } = getProgramsData();
+  // 노출 기간·활성 판정은 서버(DB)에서 끝낸다 — 클라이언트는 받은 것만 그린다
+  const promos = await loadActivePromos();
 
   return (
     <div className={s.page}>
@@ -98,8 +101,8 @@ export default function HomePage() {
           서버에서 기본 표시하고 이미 본 사용자만 마운트 후 감춘다 → 첫 방문자는 레이아웃 이동 없음 */}
       <UpdatesBanner />
 
-      {/* 외부 기관 홍보 요청 팝업 (9/29 회장 지시) — 마운트 뒤 열리고 until 지나면 자동 종료. 자동화 UA 에선 안 뜬다 */}
-      <PromoPopup />
+      {/* 외부 기관 홍보 요청 팝업 (9/29 회장 지시) — 노출 기간·내용은 /admin/promos 에서 제어. 자동화 UA 에선 안 뜬다 */}
+      <PromoPopup items={promos} />
 
       {/* ═══ 1. 히어로 ═══ */}
       {/* data-landing-hero — 헤더가 :has() 로 이 페이지를 알아보고 1024+ 에서 투명 오버레이가 된다 (9/29 B안) */}

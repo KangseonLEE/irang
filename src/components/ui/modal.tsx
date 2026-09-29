@@ -38,14 +38,18 @@ interface ModalProps {
   headerAction?: React.ReactNode;
   /** 제목 앞 아이콘(lucide). 색은 primary — 홍보 팝업 확성기 (2026-09-29 회장) */
   titleIcon?: React.ReactNode;
-  /** 오버레이(바깥) 클릭으로 닫기. 기본 true. 홍보 팝업은 실수 클릭으로 닫히지 않게 false (2026-09-29 회장) */
-  closeOnOverlayClick?: boolean;
   /**
    * 세로 정렬. "top" → 상단에서 12vh 아래(검색 팔레트 관례 — ⌘K 류는 화면 중앙보다 위가 눈에 편하다).
    * 기본은 세로 중앙. (2026-09-29 통합검색 모달)
    * "topRight" → 데스크탑에서 살짝 우측 상단(홍보 팝업 — 히어로 제목을 가리지 않게, 2026-09-29 회장).
    */
   align?: "center" | "top" | "topRight";
+  /**
+   * 바깥(오버레이) 클릭으로 닫을지. 기본 true.
+   * false 면 X·Esc 로만 닫는다 — 홍보 팝업처럼 포스터를 보려다 옆을 눌러 실수로 닫히면
+   * 다시 열 방법이 없는 화면용 (2026-09-29 회장).
+   */
+  closeOnOverlayClick?: boolean;
 }
 
 const ANIMATION_DURATION = 150; // ms — overlayOut / panelOut duration
@@ -274,7 +278,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
       data-align={align}
       data-closing={closing || undefined}
       onClick={(e) => {
-        // 오버레이(자기 자신) 클릭 시에만 닫기
+        // 오버레이(자기 자신) 클릭 시에만 닫기 — closeOnOverlayClick=false 면 아예 닫지 않는다
         if (closeOnOverlayClick && e.target === e.currentTarget) handleClose();
       }}
       role="presentation"

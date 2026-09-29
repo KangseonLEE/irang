@@ -6,21 +6,24 @@
  * - 공용 `Modal` 위에 얹는다(포털·Esc·포커스 트랩·스크롤 잠금 공유). 페이지별 모달 재구현 금지 규칙.
  * - 서버·첫 렌더는 닫힘. 마운트 뒤 저장소를 보고 잠깐(700ms) 뒤에 연다 — 히어로가 먼저 그려지고
  *   레이아웃 이동 0, SSR HTML 에 모달 마크업이 섞이지 않는다.
- * - 헤더 "오늘 하루 보지 않기" = localStorage 에 KST 날짜 저장(같은 날이면 숨김). X/Esc 는 기억하지 않는다 —
- *   새로고침하면 다시 뜬다(회장 9/29). 바깥 클릭으로는 닫히지 않는다(closeOnOverlayClick=false).
+ * - 헤더 "오늘 하루 보지 않기" = localStorage 에 KST 날짜 저장(같은 날이면 숨김) — **닫기를 기억하는 건 이것뿐**.
+ *   X·Esc 로 닫은 건 기억하지 않는다(새로고침하면 다시 뜬다). 바깥(오버레이) 클릭으로는 닫히지 않는다 —
+ *   포스터를 보려다 옆을 눌러 사라지면 다시 열 방법이 없다 (2026-09-29 회장).
  * - 자동화(webdriver)·e2e UA 에서는 열지 않는다 — E2E 가 히어로를 클릭하는데 팝업이 덮으면 깨진다.
  *   실측이 필요하면 `localStorage["irang:promo:force"]="1"`.
- * - `until` 이 지나면 데이터 단에서 비활성(`getActivePromos`) → 컴포넌트가 null.
+ * - 노출 대상은 서버(`loadActivePromos`)가 정해 `items` 로 내려준다 — 기간·활성 판정은 데이터 단 몫이고
+ *   컴포넌트는 받은 것만 그린다(빈 배열이면 null). 관리자 `/admin/promos` 에서 내용·기간을 고친다.
+ * - `preview` — 관리자 미리보기. 자동화 게이트·저장소·계측을 전부 건너뛰고 바로 연다.
  * - 여러 건이 활성이면 나열하지 않고 팝업 안에서 한 건씩 넘긴다(‹ n/N ›). 저장소 키는 건별.
  * - "홍보 요청하기" — 당분간 무료 채널. 공용 RequestModal(정보 요청 폼)로 넘긴다.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ExternalLink, AlertTriangle, ChevronLeft, ChevronRight, Megaphone } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { trackEvent } from "@/lib/analytics";
-import { getActivePromos } from "@/lib/data/promo-popup";
+import type { PromoPopupItem } from "@/lib/data/promo-popup";
 import { RequestModal } from "@/components/feedback/request-modal";
 import s from "./promo-popup.module.css";
 
@@ -34,20 +37,39 @@ function storageKey(id: string) {
   return `irang:promo:${id}`;
 }
 
+/**
+ * 업로드한 포스터는 Supabase Storage 절대 URL 로 온다. 그 호스트는 `next.config.ts`
+ * `images.remotePatterns` 에 없어서 최적화 경로가 400 을 돌려주고 컴포넌트가 던진다
+ * (9/29 실측: `/_next/image?url=…supabase.co…` → 400 "url parameter is not allowed").
+ * 원격 포스터는 최적화를 건너뛰고 그대로 그린다 — public/ 안에 둔 포스터는 종전대로 최적화된다.
+ */
+function isRemoteSrc(src: string): boolean {
+  return /^https?:\/\//.test(src);
+}
+
 function isAutomation(): boolean {
   if (typeof navigator === "undefined") return false;
   return navigator.webdriver === true || navigator.userAgent.includes("irang-e2e");
 }
 
-export function PromoPopup() {
-  const items = useMemo(() => getActivePromos(), []);
-  const [open, setOpen] = useState(false);
+interface PromoPopupProps {
+  /** 서버가 고른 노출 대상. 빈 배열이면 아무것도 그리지 않는다 */
+  items: PromoPopupItem[];
+  /** 관리자 미리보기 — 바로 열고, 저장소·계측·자동화 게이트를 건너뛴다 */
+  preview?: boolean;
+  /** 미리보기에서 닫혔을 때(관리자 화면이 상태를 되돌릴 수 있게) */
+  onClose?: () => void;
+}
+
+export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps) {
+  // 미리보기는 관리자가 버튼을 누른 순간 새로 마운트되므로 처음부터 열린 상태로 시작한다
+  const [open, setOpen] = useState(preview);
   const [idx, setIdx] = useState(0);
   const [requestOpen, setRequestOpen] = useState(false);
   const item = items[idx] ?? null;
 
   useEffect(() => {
-    if (!items.length) return;
+    if (!items.length || preview) return;
     let force = false;
     let firstVisible = -1;
     try {
@@ -65,34 +87,47 @@ export function PromoPopup() {
       trackEvent({ action: "promo_popup_view", category: "landing", label: items[firstVisible].id });
     }, OPEN_DELAY_MS);
     return () => window.clearTimeout(t);
-  }, [items]);
+  }, [items, preview]);
 
   if (!item) return null;
 
+  /** 미리보기에서는 계측하지 않는다 — 관리자 확인이 랜딩 지표에 섞이면 안 된다 */
+  const track = (action: string, label: string) => {
+    if (preview) return;
+    trackEvent({ action, category: "landing", label });
+  };
+
   const close = (reason: "close" | "today") => {
-    try {
-      if (reason === "today") window.localStorage.setItem(storageKey(item.id), kstToday());
-    } catch {
-      // 저장 실패해도 이번 렌더에서는 닫힌다
+    if (preview) {
+      setOpen(false);
+      onClose?.();
+      return;
+    }
+    if (reason === "today") {
+      try {
+        window.localStorage.setItem(storageKey(item.id), kstToday());
+      } catch {
+        // 저장 실패해도 이번 렌더에서는 닫힌다
+      }
     }
     setOpen(false);
-    trackEvent({ action: "promo_popup_dismiss", category: "landing", label: `${item.id}:${reason}` });
+    track("promo_popup_dismiss", `${item.id}:${reason}`);
   };
 
   const onLink = (kind: "detail" | "tel") => {
-    trackEvent({ action: "promo_popup_click", category: "landing", label: `${item.id}:${kind}` });
+    track("promo_popup_click", `${item.id}:${kind}`);
   };
 
   const step = (d: 1 | -1) => {
     const next = (idx + d + items.length) % items.length;
     setIdx(next);
-    trackEvent({ action: "promo_popup_view", category: "landing", label: items[next].id });
+    track("promo_popup_view", items[next].id);
   };
 
   const openRequest = () => {
     setOpen(false);
     setRequestOpen(true);
-    trackEvent({ action: "promo_popup_click", category: "landing", label: `${item.id}:request` });
+    track("promo_popup_click", `${item.id}:request`);
   };
 
   return (
@@ -120,6 +155,7 @@ export function PromoPopup() {
             sizes="(min-width: 640px) 360px, 86vw"
             className={s.posterImage}
             priority={false}
+            unoptimized={isRemoteSrc(item.image)}
           />
         </div>
         <div className={s.body}>
@@ -161,8 +197,8 @@ export function PromoPopup() {
             </p>
           )}
           <dl className={s.facts}>
-            {item.facts.map((f) => (
-              <div key={f.label} className={s.fact}>
+            {item.facts.map((f, i) => (
+              <div key={`${f.label}-${i}`} className={s.fact}>
                 <dt>{f.label}</dt>
                 <dd>
                   {f.href ? (
