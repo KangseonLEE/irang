@@ -52,7 +52,7 @@ export const PROMO_POPUP: PromoPopupItem | null = {
     { label: "문의", value: "1800-8114 (내선 1)", href: "tel:18008114" },
   ],
   recruitClosed: true,
-  note: "이번 모집은 끝났어요. 다음 기수나 비슷한 프로그램은 센터에 문의해 보세요.",
+  note: "이번 모집은 9. 28.(일) 18:00에 끝났어요. 다음 기수나 비슷한 프로그램은 센터에 문의해 보세요.",
   href: "https://www.refarmgg.or.kr/cop/bbs/selectBoardArticle.do?bbsId=BBSMSTR_000000000082&nttId=2051&menuNo=60101000",
   until: "2026-11-15",
 };

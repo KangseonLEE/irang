@@ -34,8 +34,7 @@
   flex-wrap: wrap;
 }
 
-.badgeOrg,
-.badgeClosed {
+.badgeOrg {
   display: inline-flex;
   align-items: center;
   height: 24px;
@@ -50,9 +49,50 @@
   color: var(--primary);
 }
 
-.badgeClosed {
-  background: color-mix(in srgb, var(--muted-foreground) 14%, transparent);
-  color: var(--muted-foreground);
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detailBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+/* 모집 종료 안내 — 앰버(StatusBadge 예정·마감 계열 #d97706) 경고 박스, 모집 기간 행 위 */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 2px 0 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, #d97706 45%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, #d97706 12%, #fff);
+  color: #92400e;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.alert svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #d97706;
 }
 
 .title {
@@ -97,38 +137,6 @@
   color: var(--foreground);
 }
 
-.note {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--foreground);
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 18px;
-  border-radius: 12px;
-  font-size: 0.9375rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background 0.18s ease, border-color 0.18s ease;
-}
-
-.primary {
-  background: var(--primary);
-  color: #fff;
-}
-
 .factLink {
   color: var(--primary);
   font-weight: 700;
@@ -148,7 +156,7 @@
   white-space: nowrap;
 }
 
-.primary:focus-visible,
+.detailBtn:focus-visible,
 .todayBtn:focus-visible,
 .factLink:focus-visible {
   outline: 2px solid var(--primary);
@@ -156,8 +164,9 @@
 }
 
 @media (hover: hover) {
-  .primary:hover {
-    background: color-mix(in srgb, var(--primary) 88%, #000);
+  .detailBtn:hover {
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+    border-color: var(--primary);
   }
 
   .todayBtn:hover {
@@ -175,21 +184,17 @@
   }
 
   .poster {
-    flex: 0 0 360px;
+    flex: 0 0 320px;
     padding: 0;
   }
 
   .posterImage {
     max-height: none;
-    width: 360px;
+    width: 320px;
   }
 
   .body {
     flex: 1 1 auto;
   }
 
-  .actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
 }

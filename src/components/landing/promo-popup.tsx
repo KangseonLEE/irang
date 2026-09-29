@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, AlertTriangle } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { trackEvent } from "@/lib/analytics";
 import { PROMO_POPUP, isPromoActive } from "@/lib/data/promo-popup";
@@ -106,10 +106,28 @@ export function PromoPopup() {
         <div className={s.body}>
           <div className={s.badges}>
             <span className={s.badgeOrg}>홍보 요청</span>
-            {item.recruitClosed && <span className={s.badgeClosed}>모집 마감</span>}
           </div>
-          <h3 className={s.title}>{item.title}</h3>
+          <div className={s.titleRow}>
+            <h3 className={s.title}>{item.title}</h3>
+            <a
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={s.detailBtn}
+              onClick={() => onLink("detail")}
+              data-track={`promo:${item.id}:detail`}
+            >
+              프로그램 상세 보기
+              <ExternalLink size={14} aria-hidden="true" />
+            </a>
+          </div>
           <p className={s.tagline}>{item.tagline}</p>
+          {item.recruitClosed && (
+            <p className={s.alert} role="note">
+              <AlertTriangle size={16} aria-hidden="true" />
+              <span>{item.note}</span>
+            </p>
+          )}
           <dl className={s.facts}>
             {item.facts.map((f) => (
               <div key={f.label} className={s.fact}>
@@ -126,20 +144,6 @@ export function PromoPopup() {
               </div>
             ))}
           </dl>
-          <p className={s.note}>{item.note}</p>
-          <div className={s.actions}>
-            <a
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={s.primary}
-              onClick={() => onLink("detail")}
-              data-track={`promo:${item.id}:detail`}
-            >
-              프로그램 상세 보기
-              <ExternalLink size={16} aria-hidden="true" />
-            </a>
-          </div>
         </div>
       </div>
     </Modal>
