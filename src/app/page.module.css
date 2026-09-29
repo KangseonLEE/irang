@@ -182,7 +182,10 @@
 
   /* 배경 레이어(z 0) 위로 — 위치 지정이 없으면 텍스트가 이미지 아래로 깔린다 */
   .heroTitle,
-  .heroSubtitle,
+  .heroSubtitle {
+    position: relative;
+    z-index: 1;
+  }
 
   .heroTitle {
     margin: 0 0 14px;
@@ -238,7 +241,10 @@
 
   /* 배경 레이어(z 0) 위로 */
   .heroTitle,
-  .heroSubtitle,
+  .heroSubtitle {
+    position: relative;
+    z-index: 1;
+  }
 
   .heroTitle {
     margin: 0 0 8px;
