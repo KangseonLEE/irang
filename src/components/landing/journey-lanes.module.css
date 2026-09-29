@@ -20,7 +20,46 @@
   --lane-w: calc(var(--lane-h) / 1.5);
 }
 
-/* ── 카드 화면 ── */
+/* ── ① 게이트 — 두 갈래 (모바일: 46vw 2장 나란히) ── */
+.gate[hidden],
+.cards[hidden] {
+  display: none;
+}
+
+.gate {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+}
+
+.gateTrack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 2px 0;
+  list-style: none;
+}
+
+.gateItem {
+  min-width: 0;
+}
+
+.gateCard {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  max-height: calc(100svh - 380px);
+}
+
+/* 레인 층 뒤로 — 카드 위 한 줄 */
+.lanesBack {
+  align-self: flex-start;
+  margin-bottom: 6px;
+}
+
+/* ── ② 카드 화면 ── */
 .cards {
   display: flex;
   flex-direction: column;
@@ -618,6 +657,15 @@
     padding: 0;
     overflow: visible;
     scroll-snap-type: none;
+  }
+
+  /* 게이트 2장 — 히어로 우측 절반 안에서 나란히 */
+  .gateTrack {
+    gap: 20px;
+  }
+
+  .gateCard {
+    max-height: min(420px, calc(100svh - 300px));
   }
 
   .dots.dots {

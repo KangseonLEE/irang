@@ -25,7 +25,7 @@ import { deriveStatus, isUnannounced } from "../program-status";
 import type { PersonaId } from "./personas";
 import type { CostTypeId } from "./landing";
 
-interface LaneTile {
+export interface LaneTile {
   /** 큰 값 — "12건", "보통", "+9.1%" */
   value: string;
   /** 값이 무엇인지 */
@@ -53,15 +53,17 @@ function shortenSource(text: string): string {
     .trim();
 }
 
-/* ── 레인 ↔ 기존 분류 매핑 ── */
+/* ── 레인 ↔ 기존 분류 매핑 ──
+   아래 매핑·판정 함수는 선택 패널(타일)과 `/start` 허브(journey-lanes-hub.ts)가 **같은 것**을 써야 한다.
+   같은 레인이 화면마다 다른 건수를 보이면 그 자체가 오표시다(9/23 매칭 SSOT 교훈). */
 
-const LANE_PERSONA: Record<string, PersonaId | undefined> = {
+export const LANE_PERSONA: Record<string, PersonaId | undefined> = {
   guinong: "family",
   guichon: "commuter",
   youth: "farmYouth",
 };
 
-const LANE_COST_TYPE: Record<string, CostTypeId | undefined> = {
+export const LANE_COST_TYPE: Record<string, CostTypeId | undefined> = {
   guinong: "farming",
   guichon: "village", // 데이터 0건 — 타일 생략
   forest: "forestry",
@@ -70,7 +72,7 @@ const LANE_COST_TYPE: Record<string, CostTypeId | undefined> = {
 };
 
 /** 임산물 계열 작물 — 귀산촌 난이도 산출 대상 (CROPS 카테고리엔 '임산물'이 없어 이름으로 고정) */
-const FOREST_CROP_NAMES = new Set([
+export const FOREST_CROP_NAMES = new Set([
   "표고버섯",
   "느타리버섯",
   "새송이버섯",
@@ -93,13 +95,13 @@ const MUSHROOM = /버섯|표고/;
 const SMARTFARM_TITLE = /스마트\s?팜|ICT/;
 const FACILITY = /온실|시설원예/;
 
-function isForestProgram(p: SupportProgram): boolean {
+export function isForestProgram(p: SupportProgram): boolean {
   const head = `${p.title} ${p.summary}`;
   if (SMARTFARM_TITLE.test(p.title)) return false;
   return FOREST_CORE.test(head) || MUSHROOM.test(p.title);
 }
 
-function isSmartfarmProgram(p: SupportProgram): boolean {
+export function isSmartfarmProgram(p: SupportProgram): boolean {
   if (SMARTFARM_TITLE.test(p.title)) return true;
   return FACILITY.test(`${p.title} ${p.summary}`) && !/노지/.test(p.summary);
 }
@@ -110,12 +112,28 @@ function isSmartfarmProgram(p: SupportProgram): boolean {
  * "지금 볼 수 있는" 지원사업 — 마감은 빼고, 일자 미확정(9999 페어)이라도 연례 창구형
  * (`applicationCycle`: "매년 12월 시·군·구 접수")은 남긴다. 목록·상세가 "정기 접수"로 보여 주는 건들이다(9/27).
  */
-function activePrograms(programs: readonly SupportProgram[]): SupportProgram[] {
+export function activePrograms(programs: readonly SupportProgram[]): SupportProgram[] {
   return programs.filter((p) => {
     if (deriveStatus(p.applicationStart, p.applicationEnd) === "마감") return false;
     if (isUnannounced(p.applicationStart, p.applicationEnd)) return Boolean(p.applicationCycle);
     return true;
   });
+}
+
+/**
+ * 레인 규칙에 맞는 "지금 볼 수 있는" 지원사업 — 타일 건수와 허브 목록의 **단일 출처**.
+ * 페르소나가 있는 레인(귀농·귀촌·청년농)은 적합도 4+ 로, 없는 레인은 키워드 판정으로 고른다.
+ */
+export function matchLanePrograms(
+  programs: readonly SupportProgram[],
+  laneId: string,
+): SupportProgram[] {
+  const active = activePrograms(programs);
+  const persona = LANE_PERSONA[laneId];
+  if (persona) return active.filter((p) => getProgramPersonaFit(p)[persona] >= 4);
+  if (laneId === "forest") return active.filter(isForestProgram);
+  if (laneId === "smartfarm") return active.filter(isSmartfarmProgram);
+  return active;
 }
 
 const DIFFICULTY_SCORE: Record<string, number> = { 쉬움: 1, 보통: 2, 어려움: 3 };
@@ -129,7 +147,7 @@ function averageDifficulty(crops: CropInfo[]): { label: string; names: string[] 
 }
 
 /** 페르소나 적합도 상위 N 작물 */
-function topCropsFor(persona: PersonaId, n = 5): CropInfo[] {
+export function topCropsFor(persona: PersonaId, n = 5): CropInfo[] {
   return [...CROPS]
     .map((crop) => ({ crop, score: getCropPersonaFit(crop)[persona] }))
     .sort((a, b) => b.score - a.score)
@@ -175,20 +193,7 @@ function pct(now: number, before: number): string {
 /* ── 레인별 타일 ── */
 
 function programTile(programs: SupportProgram[], laneId: string): LaneTile {
-  const active = activePrograms(programs);
-  const persona = LANE_PERSONA[laneId];
-  let matched: SupportProgram[];
-
-  if (persona) {
-    matched = active.filter((p) => getProgramPersonaFit(p)[persona] >= 4);
-  } else if (laneId === "forest") {
-    matched = active.filter(isForestProgram);
-  } else if (laneId === "smartfarm") {
-    matched = active.filter(isSmartfarmProgram);
-  } else {
-    matched = active;
-  }
-
+  const matched = matchLanePrograms(programs, laneId);
   return {
     value: `${matched.length}건`,
     label: "지금 볼 수 있는 지원사업",

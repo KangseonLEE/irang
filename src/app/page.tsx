@@ -18,7 +18,7 @@ import { HeroSlider } from "@/components/landing/hero-slider";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
 import { JourneyLanes } from "@/components/landing/journey-lanes";
-import { resolveJourneyLanes } from "@/lib/data/journey-lanes-images";
+import { resolveJourneyLanes, resolveJourneyGates } from "@/lib/data/journey-lanes-images";
 import { buildLaneStats } from "@/lib/data/journey-lanes-stats";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
@@ -43,6 +43,7 @@ import curtain from "@/components/landing/interview-curtain.module.css";
 
 /** 히어로 여정 레인 — 일러스트 존재 판정까지 끝낸 목록 (프로세스당 1회) */
 const heroLanes = resolveJourneyLanes();
+const heroGates = resolveJourneyGates();
 
 /* ── 지원사업 데이터 준비 (서버 사이드) ── */
 /**
@@ -124,7 +125,11 @@ export default function HomePage() {
         </div>
 
         {/* 여정 카드 6장 — 배경 슬라이드 위. 일러스트 존재 판정은 서버에서 (파일이 없어도 안 깨짐) */}
-        <JourneyLanes lanes={heroLanes} stats={buildLaneStats(heroLanes.map((l) => l.id))} />
+        <JourneyLanes
+          gates={heroGates}
+          lanes={heroLanes}
+          stats={buildLaneStats(heroLanes.map((l) => l.id))}
+        />
 
         {/* 슬라이드 히어로 — 배경 레이어 + 슬라이드별 카피 + 좌하단 컨트롤.
             9/28 3차 회장 지시로 모바일까지 공통 렌더(뷰포트 분기는 CSS). 모바일은 검색창을 빼고

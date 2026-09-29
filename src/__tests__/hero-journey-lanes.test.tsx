@@ -3,40 +3,56 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { JourneyLanes } from "@/components/landing/journey-lanes";
-import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
-import { resolveJourneyLanes } from "@/lib/data/journey-lanes-images";
+import { JOURNEY_GATES, START_LANES } from "@/lib/data/journey-lanes";
+import { resolveJourneyLanes, resolveJourneyGates } from "@/lib/data/journey-lanes-images";
 import { buildLaneStats, parseCostRangeMan } from "@/lib/data/journey-lanes-stats";
 import { normalizeSearchParams, LIST_PAGE_NORMALIZE_OPTIONS } from "@/lib/search-params/normalize";
 
-const LANE_IDS = JOURNEY_LANES.map((l) => l.id);
+const LANE_IDS = START_LANES.map((l) => l.id);
 const stats = buildLaneStats(LANE_IDS);
 
 describe("히어로 여정 레인 6종 (9/29 S·S2)", () => {
-  const html = renderToStaticMarkup(<JourneyLanes lanes={resolveJourneyLanes()} stats={stats} />);
+  const html = renderToStaticMarkup(
+    <JourneyLanes gates={resolveJourneyGates()} lanes={resolveJourneyLanes()} stats={stats} />,
+  );
 
-  it("카드 6장이 전부 SSR <a> 로 남는다 (유입 61% Organic)", () => {
-    expect(JOURNEY_LANES.length).toBe(6);
-    const track = html.slice(html.indexOf("<ul"), html.indexOf("</ul>"));
-    expect(track.match(/<a /g)?.length).toBe(6);
-    for (const lane of JOURNEY_LANES) expect(track).toContain(`data-track="journey_lanes_pick:${lane.id}"`);
+  it("게이트 2장 + 레인 5장이 전부 SSR <a> 로 남는다 (유입 61% Organic)", () => {
+    expect(JOURNEY_GATES.length).toBe(2);
+    expect(START_LANES.length).toBe(5);
+    expect(html.match(/<a /g)?.length).toBe(7);
+    for (const gate of JOURNEY_GATES) expect(html).toContain(`data-track="journey_gate:${gate.id}"`);
+    for (const lane of START_LANES) expect(html).toContain(`data-track="journey_lanes_pick:${lane.id}"`);
   });
 
-  it("귀산촌·스마트팜을 포함한 6종 순서·이름이 유지된다", () => {
-    expect(LANE_IDS).toEqual(["guinong", "guichon", "forest", "youth", "smartfarm", "undecided"]);
-    // 9/29 S4 회장: "아직 시작 전" → 탐색 중(탐색하는 사람이라는 의미)
-    expect(JOURNEY_LANES.map((l) => l.label)).toEqual([
-      "귀농", "귀촌", "귀산촌", "청년농", "스마트팜", "탐색 중",
-    ]);
+  it("레인 층은 hidden 으로만 감춘다 — 조건부 렌더면 내부 링크가 SSR 에서 사라진다", () => {
+    // 게이트 층은 열린 채, 레인 층은 hidden 으로 닫힌 채 SSR
+    const gateIdx = html.indexOf("journey_gate:decided");
+    const laneIdx = html.indexOf("journey_lanes_pick:guinong");
+    expect(gateIdx).toBeGreaterThan(-1);
+    expect(laneIdx).toBeGreaterThan(gateIdx);
+    expect(html.slice(gateIdx - 400, gateIdx)).not.toContain("hidden");
+    expect(html.slice(laneIdx - 600, laneIdx)).toContain("hidden");
+  });
+
+  it("레인 5종 순서·이름과 게이트 2장 라벨", () => {
+    expect(LANE_IDS).toEqual(["guinong", "guichon", "forest", "youth", "smartfarm"]);
+    expect(START_LANES.map((l) => l.label)).toEqual(["귀농", "귀촌", "귀산촌", "청년농", "스마트팜"]);
+    expect(JOURNEY_GATES.map((l) => l.label)).toEqual(["목적이 있어요", "아직 고르는 중"]);
+  });
+
+  it("레인 5장은 허브로, 게이트 2장은 비교 화면으로 간다", () => {
+    for (const lane of START_LANES) expect(lane.href).toBe(`/start/${lane.id}`);
+    for (const gate of JOURNEY_GATES) expect(gate.href).toBe("/start");
   });
 
   it("레인마다 선택 화면 소개글(intro)이 있고 카피 톤을 지킨다", () => {
-    for (const lane of JOURNEY_LANES) {
+    for (const lane of START_LANES) {
       expect(lane.intro.length, lane.id).toBeGreaterThan(60);
       expect(lane.intro, lane.id).not.toMatch(/합니다|입니다/); // copywriting.md
       expect(lane.intro, lane.id).not.toBe(lane.desc); // 카드 한 줄과 다른 글
     }
     // 카드 화면(초기 SSR)에는 소개글이 안 나온다 — 선택 화면 전용
-    for (const lane of JOURNEY_LANES) expect(html).not.toContain(lane.intro);
+    for (const lane of START_LANES) expect(html).not.toContain(lane.intro);
   });
 
   it("난이도 타일은 '진입 난이도' 로 부른다 (재배가 아닌 길의 난이도)", () => {
@@ -47,8 +63,8 @@ describe("히어로 여정 레인 6종 (9/29 S·S2)", () => {
     }
   });
 
-  it("href 6종이 그대로 SSR 되고, persona 값은 normalize 화이트리스트를 통과한다", () => {
-    for (const lane of JOURNEY_LANES) {
+  it("href 가 그대로 SSR 되고, 쿼리는 normalize 화이트리스트를 통과한다", () => {
+    for (const lane of [...JOURNEY_GATES, ...START_LANES]) {
       expect(html).toContain(`href="${lane.href}"`);
       const [path, query] = lane.href.split("?");
       const options = LIST_PAGE_NORMALIZE_OPTIONS[path];
@@ -59,40 +75,41 @@ describe("히어로 여정 레인 6종 (9/29 S·S2)", () => {
   });
 
   it("라우트가 실제로 존재한다", () => {
-    for (const lane of JOURNEY_LANES) {
-      const path = lane.href.split("?")[0];
-      expect(existsSync(join(process.cwd(), "src", "app", path.slice(1), "page.tsx")), path).toBe(true);
-    }
+    expect(existsSync(join(process.cwd(), "src", "app", "start", "page.tsx"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "src", "app", "start", "[lane]", "page.tsx"))).toBe(true);
   });
 
   it("카드는 링크이자 공개 토글 — aria-expanded + aria-controls", () => {
-    expect(html.match(/aria-expanded="false"/g)?.length).toBe(6);
-    expect(html.match(/aria-controls="hero-lane-panel"/g)?.length).toBe(6);
+    expect(html.match(/aria-expanded="false"/g)?.length).toBe(6); // 레인 5 + 게이트 1
+    expect(html.match(/aria-controls="hero-lane-panel"/g)?.length).toBe(5);
   });
 
   it("선택 화면은 닫힌 채 SSR 된다 (hidden) — 히어로 높이를 밀지 않게", () => {
     expect(html).toMatch(/id="hero-lane-panel"[^>]*hidden/);
     // 선택 전에는 뒤로 버튼·큰 포스터·타일이 DOM 에 없다(카드 화면만)
-    expect(html).not.toContain("뒤로");
-    expect(html).not.toContain("탐색하기");
+    expect(html).not.toContain("탐색하기"); // 선택 화면 전용
     // 초기 SSR 에는 이동 링크·이전/다음도 없다 — 카드 라벨(pick)만 나온다
     expect(html).not.toContain('data-track="journey_lanes:');
     expect(html).not.toContain("journey_lanes_nav:"); // 선택 화면 전용 (9/29 S5)
     expect(html).not.toContain("이전:");
-    expect(html.match(/journey_lanes_pick:/g)?.length).toBe(6);
+    expect(html.match(/journey_lanes_pick:/g)?.length).toBe(5);
   });
 
   it("일러스트·캐릭터가 있으면 next/image 로, 없으면 안 그린다 (빌드·렌더 안 깨짐)", () => {
-    for (const lane of resolveJourneyLanes()) {
+    for (const lane of [...resolveJourneyGates(), ...resolveJourneyLanes()]) {
       expect(lane.hasImage, lane.id).toBe(existsSync(join(process.cwd(), "public", lane.image)));
       expect(lane.hasChar, lane.id).toBe(existsSync(join(process.cwd(), "public", lane.charImage)));
       expect(html.includes(encodeURIComponent(lane.image)), lane.id).toBe(lane.hasImage);
     }
     const bare = renderToStaticMarkup(
-      <JourneyLanes lanes={JOURNEY_LANES.map((l) => ({ ...l, hasImage: false, hasChar: false }))} stats={stats} />,
+      <JourneyLanes
+        gates={JOURNEY_GATES.map((l) => ({ ...l, hasImage: false, hasChar: false }))}
+        lanes={START_LANES.map((l) => ({ ...l, hasImage: false, hasChar: false }))}
+        stats={stats}
+      />,
     );
     expect(bare).not.toContain("<img");
-    expect(bare.match(/<a /g)?.length).toBe(6);
+    expect(bare.match(/<a /g)?.length).toBe(7);
   });
 
   it("히어로 스와이프가 카드 제스처를 건너뛸 표식이 있다", () => {
@@ -134,7 +151,6 @@ describe("레인 데이터 타일 — 서버 계산 (9/29 S2)", () => {
     });
     const expected = active.filter((p) => getProgramPersonaFit(p)["family"] >= 4).length;
     expect(stats.guinong[0].value).toBe(`${expected}건`);
-    expect(stats.undecided[0].value).toBe(`${active.length}건`);
     // 마감 건이 섞이면 전체 건수보다 커진다
     expect(active.length).toBeLessThan(PROGRAMS.length);
   });
@@ -153,19 +169,13 @@ describe("레인 데이터 타일 — 서버 계산 (9/29 S2)", () => {
 
   it("레인 판정은 제목·요약만 본다 — 오탐 2건 회귀 (9/29 QA)", async () => {
     const { PROGRAMS } = await import("@/lib/data/programs");
-    const { deriveStatus, isUnannounced } = await import("@/lib/program-status");
-    const active = PROGRAMS.filter((p) => {
-      if (deriveStatus(p.applicationStart, p.applicationEnd) === "마감") return false;
-      if (isUnannounced(p.applicationStart, p.applicationEnd)) return Boolean(p.applicationCycle);
-      return true;
-    });
-    // 판정 규칙을 테스트가 다시 구현하지 않도록, 건수 대신 집합을 직접 재현한다
-    const forest = active.filter(
-      (p) => !/스마트\s?팜|ICT/.test(p.title) && (/산촌|임업|임산물|산림|산양삼/.test(`${p.title} ${p.summary}`) || /버섯|표고/.test(p.title)),
+    // 규칙은 stats 모듈이 SSOT — 테스트가 다시 구현하면 둘이 갈라진다
+    const { activePrograms, isForestProgram, isSmartfarmProgram } = await import(
+      "@/lib/data/journey-lanes-stats"
     );
-    const smartfarm = active.filter(
-      (p) => /스마트\s?팜|ICT/.test(p.title) || (/온실|시설원예/.test(`${p.title} ${p.summary}`) && !/노지/.test(p.summary)),
-    );
+    const active = activePrograms(PROGRAMS);
+    const forest = active.filter(isForestProgram);
+    const smartfarm = active.filter(isSmartfarmProgram);
     const ids = (list: typeof active) => list.map((p) => p.id);
     expect(ids(forest)).toContain("SP-057"); // 임산물생산단지
     expect(ids(forest)).not.toContain("SP-060"); // 스마트팜 에너지절감 — summary 의 "버섯" 오탐

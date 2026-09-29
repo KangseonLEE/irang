@@ -33,16 +33,24 @@ import s from "./journey-lanes.module.css";
 const PANEL_ID = "hero-lane-panel";
 
 export function JourneyLanes({
+  gates,
   lanes,
   stats,
 }: {
+  /** 첫 화면 두 갈래 — [목적이 있어요, 아직 고르는 중] */
+  gates: readonly JourneyLaneCard[];
+  /** 목적이 있는 사람에게 보여 주는 5장 */
   lanes: readonly JourneyLaneCard[];
   stats: LaneStats;
 }) {
   const trackRef = useRef<HTMLUListElement>(null);
   const backRef = useRef<HTMLButtonElement>(null);
   const cardRefs = useRef(new Map<string, HTMLAnchorElement>());
+  /** gate(두 갈래) → lanes(5장) → selected(요약). 뒤로는 한 단씩 되돌아간다 */
+  const [view, setView] = useState<"gate" | "lanes">("gate");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const gateRef = useRef<HTMLAnchorElement | null>(null);
+  const lanesBackRef = useRef<HTMLButtonElement>(null);
   const index = lanes.findIndex((l) => l.id === selectedId);
   const selected = index >= 0 ? lanes[index] : null;
   const tiles = selected ? (stats[selected.id] ?? []) : [];
@@ -88,13 +96,14 @@ export function JourneyLanes({
 
   /* Esc 로 카드 화면 복귀 · ←/→ 로 이웃 여정 전환 (입력 중에는 무시) */
   useEffect(() => {
-    if (!selectedId) return;
+    if (!selectedId && view === "gate") return;
     const onKey = (e: KeyboardEvent) => {
       /* 검색 모달·확인 다이얼로그가 위에 떠 있으면 Esc·←/→ 는 그쪽 것이다 (9/29 QA).
          Next 개발 오버레이(nextjs-portal)는 제외 — 실제 앱 레이어만 본다 */
       if (document.querySelector('[data-irang-dialog], [role="dialog"][aria-modal="true"]')) return;
       if (e.key === "Escape") {
-        select(null);
+        if (selectedId) select(null);
+        else setView("gate");
         return;
       }
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
@@ -117,7 +126,7 @@ export function JourneyLanes({
        검색 모달이 먼저 닫히고, 그 다음 우리 차례엔 이미 다이얼로그가 사라져 가드가 무용지물이다 (9/29 QA) */
     document.addEventListener("keydown", onKey, { capture: true });
     return () => document.removeEventListener("keydown", onKey, { capture: true });
-  }, [selectedId, select, lanes]);
+  }, [selectedId, view, select, lanes]);
 
   /** 새 탭·수식키·가운데 클릭은 링크 그대로, 평범한 클릭만 선택으로 가로챈다 */
   const onCardClick = (id: string) => (e: React.MouseEvent) => {
@@ -125,6 +134,33 @@ export function JourneyLanes({
     e.preventDefault();
     select(id, true);
   };
+
+  /** 게이트에서 막 넘어왔는지 — 선택 화면에서 되돌아온 경우와 포커스 목적지가 다르다 */
+  const cameFromGate = useRef(false);
+
+  /** 게이트 카드 1 — 이동 대신 히어로 안에서 레인 5장으로 전환 */
+  const onGateClick = (e: React.MouseEvent) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    cameFromGate.current = true;
+    setView("lanes");
+  };
+
+  /* 게이트 → 레인일 때만 첫 카드로 포커스(선택 화면에서 돌아올 땐 보던 레인 카드가 받는다) */
+  useEffect(() => {
+    if (view !== "lanes" || selectedId || !cameFromGate.current) return;
+    cameFromGate.current = false;
+    const t = setTimeout(() => cardRefs.current.get(lanes[0]?.id)?.focus({ preventScroll: true }), 60);
+    return () => clearTimeout(t);
+  }, [view, selectedId, lanes]);
+
+  /* 게이트로 돌아오면 눌렀던 게이트 카드로 포커스 복귀 */
+  useEffect(() => {
+    if (view !== "gate") return;
+    const el = gateRef.current;
+    const raf = requestAnimationFrame(() => el?.focus({ preventScroll: true }));
+    return () => cancelAnimationFrame(raf);
+  }, [view]);
 
   /** 링크는 Space 로 눌리지 않지만 이 카드는 disclosure 이기도 하다 — 관례대로 Space 도 받는다 */
   const onCardKeyDown = (id: string) => (e: React.KeyboardEvent) => {
@@ -137,10 +173,57 @@ export function JourneyLanes({
     <div
       className={`${s.wrap}${selected ? ` ${s.wrapSelected}` : ""}`}
       data-hero-lanes
+      data-view={selected ? "selected" : view}
       data-selected={selected ? "" : undefined}
     >
-      {/* ── 카드 화면 ── */}
-      <div className={s.cards} inert={selected ? true : undefined}>
+      {/* ── ① 게이트 — 두 갈래 ── */}
+      <div className={s.gate} hidden={view !== "gate"} inert={view !== "gate" ? true : undefined}>
+        <ul className={s.gateTrack} aria-label="시작 방식 고르기">
+          {gates.map((gate, i) => (
+            <li key={gate.id} className={s.gateItem}>
+              <Link
+                ref={i === 0 ? gateRef : undefined}
+                href={gate.href}
+                className={`${s.card} ${s.gateCard}`}
+                data-track={`journey_gate:${gate.id}`}
+                aria-expanded={i === 0 ? view !== "gate" : undefined}
+                onClick={i === 0 ? onGateClick : undefined}
+                prefetch={false}
+              >
+                <span className={s.art} aria-hidden="true">
+                  {gate.hasImage && (
+                    <Image src={gate.image} alt="" fill sizes="(min-width: 1024px) 260px, 46vw" className={s.image} />
+                  )}
+                </span>
+                <span className={s.body}>
+                  <span className={s.title}>{gate.label}</span>
+                  <span className={s.desc}>{gate.desc}</span>
+                </span>
+                <span className={s.corner} aria-hidden="true">
+                  <ArrowRight size={16} />
+                </span>
+                {gate.hasImage && <span className={s.srOnly}>{gate.alt}</span>}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* ── ② 레인 카드 5장 ── */}
+      <div
+        className={s.cards}
+        hidden={view !== "lanes"}
+        inert={view !== "lanes" || selected ? true : undefined}
+      >
+        <button
+          ref={lanesBackRef}
+          type="button"
+          className={`${s.back} ${s.lanesBack}`}
+          onClick={() => setView("gate")}
+        >
+          <ArrowLeft size={18} aria-hidden="true" />
+          뒤로
+        </button>
         <ul ref={trackRef} className={s.track} aria-label="시작 유형 고르기">
           {lanes.map((lane) => (
             <li key={lane.id} className={s.item}>

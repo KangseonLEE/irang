@@ -8,18 +8,30 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { JOURNEY_LANES, type JourneyLaneCard } from "./journey-lanes";
+import { JOURNEY_GATES, START_LANES, type JourneyLane, type JourneyLaneCard } from "./journey-lanes";
 
-/** 파일 존재 판정은 프로세스당 1회 — ISR 재생성마다 stat 하지 않는다 */
-let cached: readonly JourneyLaneCard[] | null = null;
+const pub = (p: string) => existsSync(join(process.cwd(), "public", p));
 
-export function resolveJourneyLanes(): readonly JourneyLaneCard[] {
-  if (cached) return cached;
-  const pub = (p: string) => existsSync(join(process.cwd(), "public", p));
-  cached = JOURNEY_LANES.map((lane) => ({
+function resolve(list: readonly JourneyLane[]): readonly JourneyLaneCard[] {
+  return list.map((lane) => ({
     ...lane,
     hasImage: pub(lane.image),
     hasChar: pub(lane.charImage),
   }));
-  return cached;
+}
+
+/** 파일 존재 판정은 프로세스당 1회 — ISR 재생성마다 stat 하지 않는다 */
+let cachedLanes: readonly JourneyLaneCard[] | null = null;
+let cachedGates: readonly JourneyLaneCard[] | null = null;
+
+/** 목적이 있는 사람에게 보여 주는 5장 */
+export function resolveJourneyLanes(): readonly JourneyLaneCard[] {
+  cachedLanes ??= resolve(START_LANES);
+  return cachedLanes;
+}
+
+/** 히어로 첫 화면의 두 갈래 */
+export function resolveJourneyGates(): readonly JourneyLaneCard[] {
+  cachedGates ??= resolve(JOURNEY_GATES);
+  return cachedGates;
 }
