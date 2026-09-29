@@ -282,37 +282,12 @@ export async function fetchYouthCases(
 
 /**
  * RDA area1Nm → 이랑 지역명 매핑
- * RDA는 약칭("전남")을 사용하고, 이랑은 정식명("전라남도")을 사용
+ *
+ * 2026-09-29: 자체 표를 버리고 `@/lib/region-normalize` SSOT에 위임.
+ * 기존 구현은 "도"·"시"가 들어 있으면 원문을 그대로 반환해
+ * "강원특별자치도"·"경기 양평" 같은 값이 PROVINCES.name 밖으로 새어 나갔다.
  */
-const AREA_NAME_MAP: Record<string, string> = {
-  "서울": "서울특별시",
-  "경기": "경기도",
-  "강원": "강원도",
-  "충북": "충청북도",
-  "충남": "충청남도",
-  "대전": "대전광역시",
-  "전북": "전라북도",
-  "전남": "전라남도",
-  "광주": "광주광역시",
-  "경북": "경상북도",
-  "경남": "경상남도",
-  "대구": "대구광역시",
-  "부산": "부산광역시",
-  "울산": "울산광역시",
-  "인천": "인천광역시",
-  "세종": "세종특별자치시",
-  "제주": "제주특별자치도",
-  "전국": "전국",
-};
-
-/** RDA 약칭 지역명 → 이랑 정식 지역명 */
-export function mapAreaName(area1Nm: string): string {
-  // 이미 정식명이면 그대로 반환
-  if (area1Nm.includes("도") || area1Nm.includes("시") || area1Nm === "전국") {
-    return area1Nm;
-  }
-  return AREA_NAME_MAP[area1Nm] ?? area1Nm;
-}
+export { mapAreaName } from "@/lib/region-normalize";
 
 /**
  * HTML 태그 제거 (contents 필드 정리용)

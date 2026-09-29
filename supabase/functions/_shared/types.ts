@@ -42,7 +42,10 @@ export interface ProgramInsertRow {
   slug: string;
   title: string;
   summary: string;
+  /** PROVINCES.name 17종 또는 "전국" (region-normalize SSOT) */
   region: string;
+  /** 원문 시·군·구 토큰 — region 정규화로 잘려 나가는 정보 보존 (20260929 마이그레이션 컬럼) */
+  sigungu?: string | null;
   organization: string;
   support_type: string;
   support_amount: string;
@@ -61,7 +64,10 @@ export interface ProgramInsertRow {
 export interface EducationInsertRow {
   slug: string;
   title: string;
+  /** PROVINCES.name 17종 또는 "전국" (region-normalize SSOT) */
   region: string;
+  /** 원문 시·군·구 토큰 (20260929 마이그레이션 컬럼) */
+  sigungu?: string | null;
   organization: string;
   type: string;
   duration: string;
@@ -86,4 +92,29 @@ export interface SyncResult {
   education: { fetched: number; upserted: number };
   statusUpdated: boolean;
   errors: string[];
+}
+
+// ─── 행사(체험) 삽입용 ───
+
+export interface EventInsertRow {
+  slug: string;
+  title: string;
+  /** PROVINCES.name 17종 또는 "전국" (region-normalize SSOT) */
+  region: string;
+  /** 원문 시·군·구 토큰 (20260929 마이그레이션 컬럼) */
+  sigungu?: string | null;
+  organization: string;
+  type: string;
+  date_start: string;
+  date_end: string | null;
+  application_start: string | null;
+  application_end: string | null;
+  location: string;
+  cost: string;
+  description: string;
+  capacity: number | null;
+  target: string;
+  url: string;
+  status: string;
+  is_verified: boolean;
 }

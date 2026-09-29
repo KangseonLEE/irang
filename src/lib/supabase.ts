@@ -162,6 +162,8 @@ export interface ProgramRow {
   summary: string;
   description: string;
   region: string;
+  /** 원문 시·군·구 토큰 — region은 PROVINCES.name SSOT로 정규화되므로 별도 보존 (20260929) */
+  sigungu?: string | null;
   organization: string;
   support_type: string;
   support_amount: string;
@@ -184,6 +186,8 @@ export interface EducationRow {
   slug: string;
   title: string;
   region: string;
+  /** 원문 시·군·구 토큰 — region은 PROVINCES.name SSOT로 정규화되므로 별도 보존 (20260929) */
+  sigungu?: string | null;
   organization: string;
   type: string;
   duration: string;
@@ -204,6 +208,8 @@ export interface EventRow {
   slug: string;
   title: string;
   region: string;
+  /** 원문 시·군·구 토큰 — region은 PROVINCES.name SSOT로 정규화되므로 별도 보존 (20260929) */
+  sigungu?: string | null;
   organization: string;
   type: string;
   date_start: string;

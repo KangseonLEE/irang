@@ -12,6 +12,8 @@ export interface FarmEvent {
   id: string;
   title: string;
   region: string;
+  /** 시·군·구 (수집 원문 기준). region은 시·도 SSOT라 시·군 단위는 여기에 남는다. */
+  sigungu?: string;
   organization: string;
   type: "일일체험" | "팜스테이" | "박람회" | "설명회" | "멘토링" | "축제";
   date: string;
@@ -194,6 +196,7 @@ export async function getEventByIdAsync(
           id: row.slug,
           title: row.title,
           region: row.region,
+          sigungu: row.sigungu ?? undefined,
           organization: row.organization,
           type: row.type as FarmEvent["type"],
           date: row.date_start,
@@ -324,6 +327,7 @@ async function loadEvents(): Promise<{
           id: row.slug,
           title: row.title,
           region: row.region,
+          sigungu: row.sigungu ?? undefined,
           organization: row.organization,
           type: row.type as FarmEvent["type"],
           date: row.date_start,
