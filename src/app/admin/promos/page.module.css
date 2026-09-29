@@ -1,0 +1,498 @@
+/* 어드민 홍보 관리 — 요청 관리(/admin/requests) 카드 문법을 따른다. 기본(모바일) → @media 오버라이드 */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pageHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.lede {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground, #666);
+}
+
+/* ── 버튼 ── */
+
+.primaryBtn,
+.ghostBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 36px;
+  padding: 0 0.85rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.primaryBtn {
+  border: 1px solid var(--primary, #1b6b5a);
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+}
+
+.ghostBtn {
+  border: 1px solid var(--border, #e5e7eb);
+  background: white;
+  color: var(--foreground, #333);
+}
+
+.dangerBtn {
+  color: #b91c1c;
+}
+
+.primaryBtn:disabled,
+.ghostBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  background: white;
+  color: var(--muted-foreground, #666);
+}
+
+.iconBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.primaryBtn:focus-visible,
+.ghostBtn:focus-visible,
+.iconBtn:focus-visible,
+.input:focus-visible,
+.textarea:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ── 목록 ── */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: white;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+}
+
+.cardMain {
+  min-width: 0;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--foreground, #111);
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: var(--muted-foreground, #777);
+}
+
+.idText {
+  font-family: monospace;
+}
+
+.period {
+  font-weight: 600;
+  color: var(--foreground, #333);
+}
+
+.org {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+}
+
+.order {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--muted-foreground, #999);
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* ── 상태 칩 (노출 중·예정·종료·비활성) ── */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 0.5rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.chipLive {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #059669;
+}
+
+.chipScheduled {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #d97706;
+}
+
+.chipEnded {
+  background: var(--muted, #f5f5f5);
+  border-color: var(--border, #e5e7eb);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.chipInactive {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted-foreground, #999);
+  padding: 3rem 0;
+  font-size: 0.9rem;
+}
+
+/* ── 편집 폼 ── */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.formTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.formHeadActions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.formError {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.82rem;
+}
+
+/* 저장소 설정(마이그레이션 미적용)은 실패가 아니라 "아직 준비 중" — 앰버 안내로 구분한다 */
+.setupNotice {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: white;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+}
+
+.blockHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.blockTitle {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--foreground, #333);
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  background: white;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+}
+
+/* 블록 안에 들어간 그리드는 카드 장식을 물려받지 않는다 */
+.block .fieldGrid {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted-foreground, #666);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  min-height: 38px;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  background: white;
+  font-size: 0.85rem;
+  color: var(--foreground, #111);
+  font-family: inherit;
+}
+
+.textarea {
+  min-height: 76px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.input:disabled {
+  background: var(--muted, #f5f5f5);
+  color: var(--muted-foreground, #777);
+}
+
+.hint {
+  font-size: 0.72rem;
+  color: var(--muted-foreground, #999);
+}
+
+.fieldError {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #b91c1c;
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--foreground, #333);
+}
+
+/* ── 포스터 ── */
+
+.posterRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.posterPreview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 128px;
+  min-height: 150px;
+  border: 1px dashed var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--muted, #f7f7f7);
+  overflow: hidden;
+}
+
+.posterThumb {
+  width: 100%;
+  height: auto;
+}
+
+.posterEmpty {
+  font-size: 0.75rem;
+  color: var(--muted-foreground, #999);
+}
+
+.posterFields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.uploadRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fileInput {
+  display: none;
+}
+
+.sizeRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+/* ── 정보 행 ── */
+
+.factList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.factRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.4rem;
+  padding: 0.6rem;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+}
+
+.factLabel {
+  font-weight: 600;
+}
+
+.factHref {
+  font-size: 0.78rem;
+  color: var(--muted-foreground, #666);
+}
+
+.factBtns {
+  display: flex;
+  gap: 0.3rem;
+}
+
+@media (hover: hover) {
+  .primaryBtn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 88%, #000);
+  }
+
+  .ghostBtn:hover:not(:disabled),
+  .iconBtn:hover:not(:disabled) {
+    border-color: var(--primary, #1b6b5a);
+    color: var(--primary, #1b6b5a);
+  }
+
+  .dangerBtn:hover:not(:disabled) {
+    border-color: #b91c1c;
+    color: #b91c1c;
+  }
+}
+
+@media (min-width: 768px) {
+  .card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cardActions {
+    flex-shrink: 0;
+  }
+
+  .fieldGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fieldWide {
+    grid-column: 1 / -1;
+  }
+
+  .posterRow {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .posterPreview {
+    flex: 0 0 128px;
+  }
+
+  .factRow {
+    grid-template-columns: 8rem 1fr 11rem auto;
+    align-items: center;
+  }
+}

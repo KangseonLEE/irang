@@ -14,6 +14,7 @@ import {
   Search,
   ClipboardCheck,
   MessagesSquare,
+  Megaphone,
   type LucideIcon,
 } from "lucide-react";
 
@@ -50,5 +51,11 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     label: "커뮤니티",
     icon: MessagesSquare,
     href: "/admin/community",
+  },
+  {
+    key: "promos",
+    label: "홍보",
+    icon: Megaphone,
+    href: "/admin/promos",
   },
 ];

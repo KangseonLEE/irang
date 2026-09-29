@@ -44,12 +44,18 @@ interface ModalProps {
    * "topRight" → 데스크탑에서 살짝 우측 상단(홍보 팝업 — 히어로 제목을 가리지 않게, 2026-09-29 회장).
    */
   align?: "center" | "top" | "topRight";
+  /**
+   * 바깥(오버레이) 클릭으로 닫을지. 기본 true.
+   * false 면 X·Esc 로만 닫는다 — 홍보 팝업처럼 포스터를 보려다 옆을 눌러 실수로 닫히면
+   * 다시 열 방법이 없는 화면용 (2026-09-29 회장).
+   */
+  closeOnOverlayClick?: boolean;
 }
 
 const ANIMATION_DURATION = 150; // ms — overlayOut / panelOut duration
 const DRAG_DISMISS_THRESHOLD = 100; // px — 이 이상 아래로 드래그하면 닫기
 
-export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default", align = "center", headerAction, titleIcon }: ModalProps) {
+export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default", align = "center", headerAction, titleIcon, closeOnOverlayClick = true }: ModalProps) {
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -272,8 +278,8 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
       data-align={align}
       data-closing={closing || undefined}
       onClick={(e) => {
-        // 오버레이(자기 자신) 클릭 시에만 닫기
-        if (e.target === e.currentTarget) handleClose();
+        // 오버레이(자기 자신) 클릭 시에만 닫기 — closeOnOverlayClick=false 면 아예 닫지 않는다
+        if (closeOnOverlayClick && e.target === e.currentTarget) handleClose();
       }}
       role="presentation"
     >
