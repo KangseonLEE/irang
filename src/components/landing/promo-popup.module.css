@@ -1,0 +1,204 @@
+/* PromoPopup — 공용 Modal 본문 안 레이아웃. 기본(모바일) → @media 오버라이드 (체크리스트 G) */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.poster {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 0;
+}
+
+.posterImage {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 42vh;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badgeOrg,
+.badgeClosed {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badgeOrg {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+}
+
+.badgeClosed {
+  background: color-mix(in srgb, var(--muted-foreground) 14%, transparent);
+  color: var(--muted-foreground);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+.tagline {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--muted-foreground);
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--muted);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 4.5em 1fr;
+  gap: 8px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.fact dt {
+  color: var(--muted-foreground);
+  font-weight: 600;
+}
+
+.fact dd {
+  margin: 0;
+  color: var(--foreground);
+}
+
+.note {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--foreground);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.secondary {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.textBtn {
+  min-height: 40px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.textBtn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .primary:hover {
+    background: color-mix(in srgb, var(--primary) 88%, #000);
+  }
+
+  .secondary:hover {
+    border-color: var(--primary);
+  }
+
+  .textBtn:hover {
+    color: var(--foreground);
+  }
+}
+
+@media (min-width: 640px) {
+  .layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .poster {
+    flex: 0 0 240px;
+    padding: 0;
+  }
+
+  .posterImage {
+    max-height: none;
+    width: 240px;
+  }
+
+  .body {
+    flex: 1 1 auto;
+  }
+
+  .actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
