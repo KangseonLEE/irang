@@ -1,7 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { PROMO_POPUP, isPromoActive } from "@/lib/data/promo-popup";
+import { PROMO_POPUPS, getActivePromos, isPromoActive } from "@/lib/data/promo-popup";
+
+const PROMO_POPUP = PROMO_POPUPS[0] ?? null;
 
 describe("promo popup data", () => {
   it("활성 항목이 있으면 포스터 파일이 public 에 실존하고 링크는 https/tel 이다", () => {
@@ -27,5 +29,13 @@ describe("promo popup data", () => {
     // 2026-11-16 00:30 KST = 2026-11-15T15:30Z → UTC 로는 아직 15일이지만 KST 는 16일 → 비활성
     expect(isPromoActive(item, new Date("2026-11-15T15:30:00Z"))).toBe(false);
     expect(isPromoActive(null)).toBe(false);
+  });
+
+  it("getActivePromos 는 until 이 지난 항목을 제외하고, 주최·문의 행이 있다", () => {
+    expect(getActivePromos(new Date("2027-01-01T00:00:00Z"))).toEqual([]);
+    for (const it of PROMO_POPUPS) {
+      expect(it.facts.some((f) => f.label === "주최")).toBe(true);
+      expect(it.facts.some((f) => f.label === "문의")).toBe(true);
+    }
   });
 });

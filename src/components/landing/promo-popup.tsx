@@ -9,15 +9,18 @@
  * - 헤더 "오늘 하루 보지 않기" = localStorage 에 KST 날짜 저장(같은 날이면 숨김). X/Esc = 이번 방문(sessionStorage)만.
  * - 자동화(webdriver)·e2e UA 에서는 열지 않는다 — E2E 가 히어로를 클릭하는데 팝업이 덮으면 깨진다.
  *   실측이 필요하면 `localStorage["irang:promo:force"]="1"`.
- * - `until` 이 지나면 데이터 단에서 비활성(`isPromoActive`) → 컴포넌트가 null.
+ * - `until` 이 지나면 데이터 단에서 비활성(`getActivePromos`) → 컴포넌트가 null.
+ * - 여러 건이 활성이면 나열하지 않고 팝업 안에서 한 건씩 넘긴다(‹ n/N ›). 저장소 키는 건별.
+ * - "홍보 요청하기" — 당분간 무료 채널. 공용 RequestModal(정보 요청 폼)로 넘긴다.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { ExternalLink, AlertTriangle } from "lucide-react";
+import { ExternalLink, AlertTriangle, ChevronLeft, ChevronRight, Megaphone } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { trackEvent } from "@/lib/analytics";
-import { PROMO_POPUP, isPromoActive } from "@/lib/data/promo-popup";
+import { getActivePromos } from "@/lib/data/promo-popup";
+import { RequestModal } from "@/components/feedback/request-modal";
 import s from "./promo-popup.module.css";
 
 const OPEN_DELAY_MS = 700;
@@ -36,32 +39,38 @@ function isAutomation(): boolean {
 }
 
 export function PromoPopup() {
-  const item = PROMO_POPUP;
+  const items = useMemo(() => getActivePromos(), []);
   const [open, setOpen] = useState(false);
+  const [idx, setIdx] = useState(0);
+  const [requestOpen, setRequestOpen] = useState(false);
+  const item = items[idx] ?? null;
 
   useEffect(() => {
-    if (!isPromoActive(item)) return;
+    if (!items.length) return;
     let force = false;
-    let hiddenToday = false;
-    let closedThisVisit = false;
+    let firstVisible = -1;
     try {
       force = window.localStorage.getItem("irang:promo:force") === "1";
-      hiddenToday = window.localStorage.getItem(storageKey(item.id)) === kstToday();
-      closedThisVisit = window.sessionStorage.getItem(storageKey(item.id)) === "closed";
+      firstVisible = items.findIndex(
+        (it) =>
+          window.localStorage.getItem(storageKey(it.id)) !== kstToday() &&
+          window.sessionStorage.getItem(storageKey(it.id)) !== "closed",
+      );
     } catch {
-      // 저장소 차단 — 못 본 것으로 간주
+      firstVisible = 0; // 저장소 차단 — 못 본 것으로 간주
     }
     // force 는 자동화 게이트만 우회한다 — 사용자의 "오늘 하루 보지 않기"·닫기는 항상 존중
     if (isAutomation() && !force) return;
-    if (hiddenToday || closedThisVisit) return;
+    if (firstVisible < 0) return;
     const t = window.setTimeout(() => {
+      setIdx(firstVisible);
       setOpen(true);
-      trackEvent({ action: "promo_popup_view", category: "landing", label: item.id });
+      trackEvent({ action: "promo_popup_view", category: "landing", label: items[firstVisible].id });
     }, OPEN_DELAY_MS);
     return () => window.clearTimeout(t);
-  }, [item]);
+  }, [items]);
 
-  if (!isPromoActive(item)) return null;
+  if (!item) return null;
 
   const close = (reason: "close" | "today") => {
     try {
@@ -78,11 +87,24 @@ export function PromoPopup() {
     trackEvent({ action: "promo_popup_click", category: "landing", label: `${item.id}:${kind}` });
   };
 
+  const step = (d: 1 | -1) => {
+    const next = (idx + d + items.length) % items.length;
+    setIdx(next);
+    trackEvent({ action: "promo_popup_view", category: "landing", label: items[next].id });
+  };
+
+  const openRequest = () => {
+    setOpen(false);
+    setRequestOpen(true);
+    trackEvent({ action: "promo_popup_click", category: "landing", label: `${item.id}:request` });
+  };
+
   return (
+    <>
     <Modal
       open={open}
       onClose={() => close("close")}
-      title={`${item.org} 소식`}
+      title="이랑에서 알려드립니다"
       align="topRight"
       size="medium"
       headerAction={
@@ -105,7 +127,20 @@ export function PromoPopup() {
         </div>
         <div className={s.body}>
           <div className={s.badges}>
-            <span className={s.badgeOrg}>홍보 요청</span>
+            <span className={s.badgeOrg}>{item.org}</span>
+            {items.length > 1 && (
+              <span className={s.pager}>
+                <button type="button" className={s.pagerBtn} onClick={() => step(-1)} aria-label="이전 소식">
+                  <ChevronLeft size={16} aria-hidden="true" />
+                </button>
+                <span className={s.pagerCount}>
+                  {idx + 1} / {items.length}
+                </span>
+                <button type="button" className={s.pagerBtn} onClick={() => step(1)} aria-label="다음 소식">
+                  <ChevronRight size={16} aria-hidden="true" />
+                </button>
+              </span>
+            )}
           </div>
           <div className={s.titleRow}>
             <h3 className={s.title}>{item.title}</h3>
@@ -144,8 +179,23 @@ export function PromoPopup() {
               </div>
             ))}
           </dl>
+          <div className={s.requestRow}>
+            <span className={s.requestHint}>알리고 싶은 프로그램이 있나요? 당분간 무료예요.</span>
+            <button type="button" className={s.requestBtn} onClick={openRequest} data-track={`promo:${item.id}:request`}>
+              <Megaphone size={14} aria-hidden="true" />
+              홍보 요청하기
+            </button>
+          </div>
         </div>
       </div>
     </Modal>
+    <RequestModal
+      open={requestOpen}
+      onClose={() => setRequestOpen(false)}
+      keyword="홍보 요청"
+      category="홍보"
+      pageName="landing_promo_popup"
+    />
+    </>
   );
 }

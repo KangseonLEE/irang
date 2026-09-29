@@ -30,6 +30,7 @@
 
 .badges {
   display: flex;
+  align-items: center;
   gap: 6px;
   flex-wrap: wrap;
 }
@@ -89,6 +90,10 @@
   line-height: 1.45;
 }
 
+.alert span {
+  white-space: pre-line;
+}
+
 .alert svg {
   flex-shrink: 0;
   margin-top: 2px;
@@ -137,6 +142,65 @@
   color: var(--foreground);
 }
 
+.pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.pagerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--foreground);
+}
+
+.pagerCount {
+  min-width: 3.2em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+/* 하단 홍보 요청 — 당분간 무료 채널 안내 + 작은 버튼 */
+.requestRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.requestHint {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.requestBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
 .factLink {
   color: var(--primary);
   font-weight: 700;
@@ -158,7 +222,9 @@
 
 .detailBtn:focus-visible,
 .todayBtn:focus-visible,
-.factLink:focus-visible {
+.factLink:focus-visible,
+.requestBtn:focus-visible,
+.pagerBtn:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
@@ -167,6 +233,12 @@
   .detailBtn:hover {
     background: color-mix(in srgb, var(--primary) 16%, transparent);
     border-color: var(--primary);
+  }
+
+  .requestBtn:hover,
+  .pagerBtn:hover {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
   }
 
   .todayBtn:hover {
