@@ -271,18 +271,28 @@ function decodeHtmlEntities(str: string): string {
 }
 
 /** 상대/프로토콜 상대 URL → 절대 URL 변환 + 엔티티 디코딩 */
+/**
+ * 썸네일 URL 을 https 로 강제 (2026-09-29).
+ * 사이트 CSP `img-src … https:` 라 `http://` 썸네일(gndomin·jeonmin·sjbnews 등 지역 언론 og:image)은
+ * 통째로 차단돼 깨진 이미지가 됐다. 대부분 https 도 서비스하므로 스킴만 올리고, 안 되는 곳은
+ * `news-tabs-v2` 의 onError 폴백이 받는다. 서버(fetch 시점)에서 바꿔 SSR·클라이언트가 같은 URL 을 본다.
+ */
+export function forceHttps(url: string): string {
+  return url.replace(/^http:\/\//i, "https://");
+}
+
 function resolveImageUrl(imgUrl: string, pageUrl: string): string {
   const decoded = decodeHtmlEntities(imgUrl);
   if (decoded.startsWith("//")) return `https:${decoded}`;
   if (decoded.startsWith("/")) {
     const origin = new URL(pageUrl).origin;
-    return `${origin}${decoded}`;
+    return forceHttps(`${origin}${decoded}`);
   }
   if (!decoded.startsWith("http")) {
     const base = new URL(pageUrl);
-    return new URL(decoded, base).href;
+    return forceHttps(new URL(decoded, base).href);
   }
-  return decoded;
+  return forceHttps(decoded);
 }
 
 // ─── 메인 ───

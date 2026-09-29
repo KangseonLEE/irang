@@ -101,6 +101,8 @@ const nextConfig: NextConfig = {
               `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'"} https://www.googletagmanager.com https://va.vercel-scripts.com https://t1.kakaocdn.net https://*.sentry-cdn.com`,
               "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
               "img-src 'self' data: https: blob:",
+              // 9/29: 외부 http 서브리소스(지역 언론 og:image 등)를 브라우저가 https 로 올려 요청 — img-src 완화 없이 해결
+              "upgrade-insecure-requests",
               "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com",
               "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://sgisapi.mods.go.kr https://apis.data.go.kr https://va.vercel-scripts.com https://kapi.kakao.com https://sharer.kakao.com https://*.ingest.sentry.io",
               // 2026-09-16 보안 점검 — XSS 성공 시 피해를 줄이는 두 줄.
