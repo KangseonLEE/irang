@@ -16,7 +16,7 @@
   width: auto;
   max-width: 100%;
   height: auto;
-  max-height: 42vh;
+  max-height: 52vh;
   border-radius: 12px;
   border: 1px solid var(--border);
 }
@@ -110,8 +110,7 @@
   margin-top: 4px;
 }
 
-.primary,
-.secondary {
+.primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -130,34 +129,28 @@
   color: #fff;
 }
 
-.secondary {
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--foreground);
+.factLink {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 2px;
-}
-
-.textBtn {
-  min-height: 40px;
-  padding: 0 4px;
+/* 헤더 X 왼쪽 텍스트 버튼 — Modal.headerAction */
+.todayBtn {
+  min-height: 36px;
+  padding: 0 8px;
   border: 0;
   background: transparent;
   color: var(--muted-foreground);
   font-size: 0.8125rem;
   font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  white-space: nowrap;
 }
 
 .primary:focus-visible,
-.secondary:focus-visible,
-.textBtn:focus-visible {
+.todayBtn:focus-visible,
+.factLink:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
@@ -167,12 +160,10 @@
     background: color-mix(in srgb, var(--primary) 88%, #000);
   }
 
-  .secondary:hover {
-    border-color: var(--primary);
-  }
-
-  .textBtn:hover {
+  .todayBtn:hover {
     color: var(--foreground);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 }
 
@@ -184,13 +175,13 @@
   }
 
   .poster {
-    flex: 0 0 240px;
+    flex: 0 0 360px;
     padding: 0;
   }
 
   .posterImage {
     max-height: none;
-    width: 240px;
+    width: 360px;
   }
 
   .body {

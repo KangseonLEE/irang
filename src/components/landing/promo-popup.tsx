@@ -6,7 +6,7 @@
  * - 공용 `Modal` 위에 얹는다(포털·Esc·포커스 트랩·스크롤 잠금 공유). 페이지별 모달 재구현 금지 규칙.
  * - 서버·첫 렌더는 닫힘. 마운트 뒤 저장소를 보고 잠깐(700ms) 뒤에 연다 — 히어로가 먼저 그려지고
  *   레이아웃 이동 0, SSR HTML 에 모달 마크업이 섞이지 않는다.
- * - "오늘 하루 보지 않기" = localStorage 에 KST 날짜 저장(같은 날이면 숨김). X/Esc = 이번 방문(sessionStorage)만.
+ * - 헤더 "오늘 하루 보지 않기" = localStorage 에 KST 날짜 저장(같은 날이면 숨김). X/Esc = 이번 방문(sessionStorage)만.
  * - 자동화(webdriver)·e2e UA 에서는 열지 않는다 — E2E 가 히어로를 클릭하는데 팝업이 덮으면 깨진다.
  *   실측이 필요하면 `localStorage["irang:promo:force"]="1"`.
  * - `until` 이 지나면 데이터 단에서 비활성(`isPromoActive`) → 컴포넌트가 null.
@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ExternalLink, Phone } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { trackEvent } from "@/lib/analytics";
 import { PROMO_POPUP, isPromoActive } from "@/lib/data/promo-popup";
@@ -74,12 +74,23 @@ export function PromoPopup() {
     trackEvent({ action: "promo_popup_dismiss", category: "landing", label: `${item.id}:${reason}` });
   };
 
-  const onLink = (kind: "site" | "tel") => {
+  const onLink = (kind: "detail" | "tel") => {
     trackEvent({ action: "promo_popup_click", category: "landing", label: `${item.id}:${kind}` });
   };
 
   return (
-    <Modal open={open} onClose={() => close("close")} title={`${item.org} 소식`} align="topRight">
+    <Modal
+      open={open}
+      onClose={() => close("close")}
+      title={`${item.org} 소식`}
+      align="topRight"
+      size="medium"
+      headerAction={
+        <button type="button" className={s.todayBtn} onClick={() => close("today")}>
+          오늘 하루 보지 않기
+        </button>
+      }
+    >
       <div className={s.layout} data-promo-popup={item.id}>
         <div className={s.poster}>
           <Image
@@ -87,7 +98,7 @@ export function PromoPopup() {
             alt={item.alt}
             width={item.imageWidth}
             height={item.imageHeight}
-            sizes="(min-width: 640px) 260px, 80vw"
+            sizes="(min-width: 640px) 360px, 86vw"
             className={s.posterImage}
             priority={false}
           />
@@ -103,7 +114,15 @@ export function PromoPopup() {
             {item.facts.map((f) => (
               <div key={f.label} className={s.fact}>
                 <dt>{f.label}</dt>
-                <dd>{f.value}</dd>
+                <dd>
+                  {f.href ? (
+                    <a href={f.href} className={s.factLink} onClick={() => onLink("tel")}>
+                      {f.value}
+                    </a>
+                  ) : (
+                    f.value
+                  )}
+                </dd>
               </div>
             ))}
           </dl>
@@ -114,24 +133,12 @@ export function PromoPopup() {
               target="_blank"
               rel="noopener noreferrer"
               className={s.primary}
-              onClick={() => onLink("site")}
-              data-track={`promo:${item.id}:site`}
+              onClick={() => onLink("detail")}
+              data-track={`promo:${item.id}:detail`}
             >
-              센터 안내 보기
+              프로그램 상세 보기
               <ExternalLink size={16} aria-hidden="true" />
             </a>
-            <a href={item.phone.tel} className={s.secondary} onClick={() => onLink("tel")}>
-              <Phone size={16} aria-hidden="true" />
-              {item.phone.display}
-            </a>
-          </div>
-          <div className={s.footer}>
-            <button type="button" className={s.textBtn} onClick={() => close("today")}>
-              오늘 하루 보지 않기
-            </button>
-            <button type="button" className={s.textBtn} onClick={() => close("close")}>
-              닫기
-            </button>
           </div>
         </div>
       </div>

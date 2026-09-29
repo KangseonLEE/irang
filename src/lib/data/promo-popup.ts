@@ -22,16 +22,14 @@ export interface PromoPopupItem {
   imageHeight: number;
   /** 포스터 대체 텍스트 */
   alt: string;
-  /** 정보 행 — 라벨·값 */
-  facts: { label: string; value: string }[];
+  /** 정보 행 — 라벨·값(전화·링크는 href 로 탭 가능) */
+  facts: { label: string; value: string; href?: string }[];
   /** 모집 마감 여부 — true 면 "모집 마감" 배지 + 안내 문구 */
   recruitClosed: boolean;
   /** 안내 한 줄(마감·문의 방법 등) */
   note: string;
   /** 자세히 보기 목적지(외부, https) */
   href: string;
-  /** 전화 문의 — 표시용 / tel: 링크용 */
-  phone: { display: string; tel: string };
   /** 이 날짜(KST, 포함)까지 노출. 이후엔 렌더하지 않는다 */
   until: string;
 }
@@ -46,16 +44,16 @@ export const PROMO_POPUP: PromoPopupItem | null = {
   imageHeight: 851,
   alt: "경기도 귀농귀촌지원센터 관계인구 형성 프로그램 '재능으로 잇는 마실짝꿍' 포스터 — 카메라를 든 손과 새싹, 모집 안내",
   facts: [
+    { label: "모집 기간", value: "9. 28.(일) 18:00 마감" },
     { label: "활동 기간", value: "2026. 10. 17.(토) ~ 11. 15.(일) · 총 5회" },
     { label: "활동 지역", value: "연천군 군남면 옥계2리" },
     { label: "모집 인원", value: "15명 내외" },
     { label: "참여 대상", value: "재능을 나누고 싶은 도시민(평가 선발)" },
-    { label: "모집 기간", value: "9. 28.(일) 18:00 마감" },
+    { label: "문의", value: "1800-8114 (내선 1)", href: "tel:18008114" },
   ],
   recruitClosed: true,
   note: "이번 모집은 끝났어요. 다음 기수나 비슷한 프로그램은 센터에 문의해 보세요.",
   href: "https://www.refarmgg.or.kr/cop/bbs/selectBoardArticle.do?bbsId=BBSMSTR_000000000082&nttId=2051&menuNo=60101000",
-  phone: { display: "1800-8114 (내선 1)", tel: "tel:18008114" },
   until: "2026-11-15",
 };
 

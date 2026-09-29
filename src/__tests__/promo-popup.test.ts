@@ -8,7 +8,8 @@ describe("promo popup data", () => {
     if (!PROMO_POPUP) return;
     expect(existsSync(join(process.cwd(), "public", PROMO_POPUP.image))).toBe(true);
     expect(PROMO_POPUP.href.startsWith("https://")).toBe(true);
-    expect(PROMO_POPUP.phone.tel.startsWith("tel:")).toBe(true);
+    expect(PROMO_POPUP.facts.some((f) => f.href?.startsWith("tel:"))).toBe(true);
+    expect(PROMO_POPUP.facts[0].label).toBe("모집 기간");
     expect(PROMO_POPUP.until).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(PROMO_POPUP.facts.length).toBeGreaterThan(0);
   });
