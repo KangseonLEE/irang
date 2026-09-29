@@ -254,97 +254,98 @@
    - 대비는 히어로 상단 스크림 띠(hero-slider .scrim 의 180deg 그라데이션)가 만든다 — 텍스트
      그림자를 쓰지 않는다.
    ══════════════════════════════════════════ */
-@media (min-width: 1024px) {
-  :global(body:has([data-landing-hero])) .header {
-    background-color: transparent;
-    border-bottom-color: transparent;
-    transition:
-      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      background-color 0.25s ease,
-      border-color 0.25s ease;
-  }
+/* 9/29 P: 모바일도 히어로가 헤더 뒤까지 차오르므로 이 블록의 게이트를 전 폭으로 연다.
+   폭에 따라 보이는 요소만 다를 뿐(모바일=로고·돋보기 / 데스크탑=+GNB·검색창) 규칙은 같다. */
+:global(body:has([data-landing-hero])) .header {
+  background-color: transparent;
+  border-bottom-color: transparent;
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
 
-  :global(body:has([data-landing-hero])) .logoTitle,
-  :global(body:has([data-landing-hero])) .navLink,
-  :global(body:has([data-landing-hero])) .navLink.active,
-  :global(body:has([data-landing-hero])) .searchBtn {
+:global(body:has([data-landing-hero])) .logoTitle,
+:global(body:has([data-landing-hero])) .navLink,
+:global(body:has([data-landing-hero])) .navLink.active,
+:global(body:has([data-landing-hero])) .searchBtn {
+  color: #fff;
+  transition: color 0.25s ease;
+}
+
+:global(body:has([data-landing-hero])) .navLink.active {
+  background-color: rgba(255, 255, 255, 0.16);
+}
+
+/* 심볼은 currentColor 를 쓰지 않으므로 밝기로 맞춘다 */
+:global(body:has([data-landing-hero])) .logo svg {
+  filter: brightness(0) invert(1);
+}
+
+@media (hover: hover) {
+  :global(body:has([data-landing-hero])) .navLink:hover,
+  :global(body:has([data-landing-hero])) .searchBtn:hover {
     color: #fff;
-    transition: color 0.25s ease;
-  }
-
-  :global(body:has([data-landing-hero])) .navLink.active {
     background-color: rgba(255, 255, 255, 0.16);
   }
 
-  /* 심볼은 currentColor 를 쓰지 않으므로 밝기로 맞춘다 */
-  :global(body:has([data-landing-hero])) .logo svg {
-    filter: brightness(0) invert(1);
+  :global(body:has([data-landing-hero])) .searchField:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.5);
   }
-
-  @media (hover: hover) {
-    :global(body:has([data-landing-hero])) .navLink:hover,
-    :global(body:has([data-landing-hero])) .searchBtn:hover {
-      color: #fff;
-      background-color: rgba(255, 255, 255, 0.16);
-    }
-
-    :global(body:has([data-landing-hero])) .searchField:hover {
-      background: rgba(255, 255, 255, 0.22);
-      border-color: rgba(255, 255, 255, 0.5);
-    }
-  }
-
-  /* 포커스 링은 어두운 배경 위에서 흰색 */
-  :global(body:has([data-landing-hero])) .navLink:focus-visible,
-  :global(body:has([data-landing-hero])) .searchBtn:focus-visible,
-  :global(body:has([data-landing-hero])) .searchField:focus-visible {
-    outline: 2px solid #fff;
-    outline-offset: 2px;
-    box-shadow: none;
-  }
-
-  :global(body:has([data-landing-hero])) .logo:focus-visible {
-    box-shadow: 0 0 0 2px #fff;
-  }
-
-  /* 투명 오버레이 위 검색 입력창 — 반투명 흰 필 (색만 전환, 폭·높이 불변) */
-  :global(body:has([data-landing-hero])) .searchField {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.92);
-  }
-
-  :global(body:has([data-landing-hero])) .searchKbd {
-    background: transparent;
-    /* QA: .82 는 최악 픽셀 4.04 — .92 로 올려 4.5 이상 확보 */
-    color: rgba(255, 255, 255, 0.92);
-    border-color: rgba(255, 255, 255, 0.44);
-  }
-
-  /* ── 히어로를 지나면 원래 흰 헤더 (플래그가 늦게 붙어도 색만 바뀐다) ── */
-  :global(html[data-hero-passed]) .header {
-    background-color: var(--background, #fff);
-    border-bottom-color: var(--border);
-  }
-
-  :global(html[data-hero-passed]) .logoTitle { color: var(--primary, #1b6b5a); }
-  :global(html[data-hero-passed]) .navLink { color: var(--muted-foreground); }
-  :global(html[data-hero-passed]) .navLink.active {
-    color: var(--primary, #1b6b5a);
-    background-color: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  }
-  :global(html[data-hero-passed]) .searchBtn { color: var(--muted-foreground); }
-  :global(html[data-hero-passed]) .searchField {
-    background: var(--muted, #f9fafb);
-    border-color: var(--border, #e5e7eb);
-    color: var(--muted-foreground, #6b7280);
-  }
-  :global(html[data-hero-passed]) .searchKbd {
-    color: var(--muted-foreground, #6b7280);
-    border-color: var(--border, #e5e7eb);
-  }
-  :global(html[data-hero-passed]) .logo svg { filter: none; }
 }
+
+/* 포커스 링은 어두운 배경 위에서 흰색 */
+:global(body:has([data-landing-hero])) .navLink:focus-visible,
+:global(body:has([data-landing-hero])) .searchBtn:focus-visible,
+:global(body:has([data-landing-hero])) .searchField:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+:global(body:has([data-landing-hero])) .logo:focus-visible {
+  box-shadow: 0 0 0 2px #fff;
+}
+
+/* 투명 오버레이 위 검색 입력창 — 반투명 흰 필 (색만 전환, 폭·높이 불변) */
+:global(body:has([data-landing-hero])) .searchField {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+:global(body:has([data-landing-hero])) .searchKbd {
+  background: transparent;
+  /* QA: .82 는 최악 픽셀 4.04 — .92 로 올려 4.5 이상 확보 */
+  color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.44);
+}
+
+/* ── 히어로를 지나면 원래 흰 헤더 (플래그가 늦게 붙어도 색만 바뀐다) ── */
+:global(html[data-hero-passed]) .header {
+  background-color: var(--background, #fff);
+  border-bottom-color: var(--border);
+}
+
+:global(html[data-hero-passed]) .logoTitle { color: var(--primary, #1b6b5a); }
+:global(html[data-hero-passed]) .navLink { color: var(--muted-foreground); }
+:global(html[data-hero-passed]) .navLink.active {
+  color: var(--primary, #1b6b5a);
+  background-color: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+}
+:global(html[data-hero-passed]) .searchBtn { color: var(--muted-foreground); }
+:global(html[data-hero-passed]) .searchField {
+  background: var(--muted, #f9fafb);
+  border-color: var(--border, #e5e7eb);
+  color: var(--muted-foreground, #6b7280);
+}
+:global(html[data-hero-passed]) .searchKbd {
+  color: var(--muted-foreground, #6b7280);
+  border-color: var(--border, #e5e7eb);
+}
+:global(html[data-hero-passed]) .logo svg { filter: none; }
+
 
 /* ══════════════════════════════════════════
    헤더 검색 (2026-09-29 회장)

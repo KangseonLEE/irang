@@ -8,6 +8,9 @@ import { HERO_SLIDES, HERO_SLIDE_INTERVAL_MS } from "@/lib/data/hero-slides";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import s from "./hero-slider.module.css";
 
+/** 히어로 하단 컨트롤이 차지하는 띠(bottom 32 + 높이 44 + 여유) — 투명→흰 헤더 전환을 이만큼 앞당긴다 (9/29 QA) */
+const CONTROLS_BAND_PX = 80;
+
 /**
  * HeroSlider — 풀블리드 슬라이드 히어로 (2026-09-28 시안, 9/28 3차로 모바일까지 확장).
  *
@@ -102,9 +105,8 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
   }, [reduced, autoPaused]);
 
   /* 히어로를 지나면 투명 오버레이 헤더 → 흰 헤더 (CSS 가 색만 0.25s 로 바꾼다).
-     데스크탑 전용 — 모바일은 히어로가 헤더를 덮지 않는다. */
+     9/29 P: 모바일도 히어로가 헤더 뒤까지 차오르므로 폭 제한 없이 건다. */
   useEffect(() => {
-    if (!isDesktop) return;
     const hero = layersRef.current?.parentElement;
     if (!hero) return;
     const root = document.documentElement;
@@ -115,7 +117,9 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
     const update = () => {
       raf = 0;
       const headerH = headerEl?.offsetHeight || 56;
-      if (hero.getBoundingClientRect().bottom <= headerH) {
+      /* 9/29 QA: 히어로 하단 컨트롤(01 ── 04, 하단 32 + 높이 44)이 투명 헤더 띠에 들어오는 ~80px 구간에서
+         흰 로고와 겹쳤다 — 컨트롤이 헤더 띠에 닿기 전에 흰 헤더로 먼저 전환한다 */
+      if (hero.getBoundingClientRect().bottom <= headerH + CONTROLS_BAND_PX) {
         root.dataset.heroPassed = "";
       } else {
         delete root.dataset.heroPassed;
@@ -133,7 +137,7 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
       if (raf) cancelAnimationFrame(raf);
       delete root.dataset.heroPassed;
     };
-  }, [isDesktop]);
+  }, []);
 
   /* 모바일 스와이프 — 버튼이 없으므로 유일한 수동 전환 수단.
      pointerdown 이 아니라 pointerup 에서 이동량으로 판정해야 세로 스크롤과 안 싸운다(9/7 박제). */

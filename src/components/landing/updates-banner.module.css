@@ -139,6 +139,8 @@
 @media (max-width: 1023px) {
   .banner {
     position: absolute;
+    /* `.page` 자체는 헤더 아래에서 시작하고 **히어로만** 헤더 뒤로 당겨졌다(9/29 P) —
+       기준점이 그대로라 top 12px 가 곧 "헤더 하단에서 12px"(실측 69) */
     top: 12px;
     right: 16px;
     left: 16px;
