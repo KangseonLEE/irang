@@ -389,10 +389,7 @@
     left: 0;
   }
 
-  .card:hover .cardTitle {
-    text-decoration: underline;
-    text-underline-position: under;
-  }
+  /* 9/29 회장: 카드 hover 시 제목 밑줄 제거 — 테두리·그림자·하단 라인만으로 hover 표현 */
 
   .cardDeadline:hover {
     border-color: color-mix(in srgb, var(--destructive, #dc2626) 30%, var(--border, #e5e7eb));
