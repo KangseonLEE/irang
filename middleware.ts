@@ -279,6 +279,20 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  // 1-2) `/start/undecided` → `/start` (2026-09-29 S7)
+  //
+  // 허브는 목적이 정해진 5종만 있고 undecided 는 비교 화면이 도착지다.
+  // Server Component 의 redirect() 로는 안 된다 — 루트 loading.tsx 스트리밍 때문에
+  // 헤더가 200 으로 먼저 나간다(9/4 소프트 404 박제). 라우터 밖에서 끊어야 진짜 3xx 다.
+  // 307(영구 아님) + no-store — CF 가 이 응답을 들고 있으면 안 된다(5/11 박제).
+  if (pathname === "/start/undecided" || pathname === "/start/undecided/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/start";
+    const response = NextResponse.redirect(url, 307);
+    response.headers.set("Cache-Control", "private, no-store, max-age=0");
+    return response;
+  }
+
   // 2) list 페이지 searchParams 정규화 — 알 수 없는 param/값은 cleaned URL로 308 redirect
   // 봇이 random query (?xyz=abc) 보내면 cache pollution + Vercel Function 호출 폭증.
   // canonical URL만 통과시켜 cache hit률↑, abuse 차단.
