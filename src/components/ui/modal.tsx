@@ -36,6 +36,8 @@ interface ModalProps {
    * (2026-09-29 회장 — 하단 버튼 대신 상단에)
    */
   headerAction?: React.ReactNode;
+  /** 제목 앞 아이콘(lucide). 색은 primary — 홍보 팝업 확성기 (2026-09-29 회장) */
+  titleIcon?: React.ReactNode;
   /**
    * 세로 정렬. "top" → 상단에서 12vh 아래(검색 팔레트 관례 — ⌘K 류는 화면 중앙보다 위가 눈에 편하다).
    * 기본은 세로 중앙. (2026-09-29 통합검색 모달)
@@ -47,7 +49,7 @@ interface ModalProps {
 const ANIMATION_DURATION = 150; // ms — overlayOut / panelOut duration
 const DRAG_DISMISS_THRESHOLD = 100; // px — 이 이상 아래로 드래그하면 닫기
 
-export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default", align = "center", headerAction }: ModalProps) {
+export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default", align = "center", headerAction, titleIcon }: ModalProps) {
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -297,7 +299,14 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
 
         {/* 헤더 */}
         <div className={s.header}>
-          <h2 className={s.title}>{title}</h2>
+          <h2 className={s.title}>
+            {titleIcon && (
+              <span className={s.titleIcon} aria-hidden="true">
+                {titleIcon}
+              </span>
+            )}
+            {title}
+          </h2>
           <div className={s.headerActions}>
           {headerAction}
           <button

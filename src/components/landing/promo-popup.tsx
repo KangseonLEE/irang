@@ -104,7 +104,8 @@ export function PromoPopup() {
     <Modal
       open={open}
       onClose={() => close("close")}
-      title="이랑에서 알려드립니다"
+      title="이랑 소식"
+      titleIcon={<Megaphone size={20} />}
       align="topRight"
       size="medium"
       headerAction={
