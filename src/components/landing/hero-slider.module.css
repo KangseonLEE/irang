@@ -379,7 +379,22 @@
   text-shadow: 0 1px 6px rgba(6, 26, 21, 0.5);
 }
 
+/* 여정을 고르면 슬라이드는 정지 상태다 — 컨트롤(‹ ⏸ › · 01 ── 04)을 숨긴다.
+   1024×600 같은 낮은 뷰포트에서 선택 패널 안으로 들어와 이전/다음 쌍이 둘로 보였다 (9/29 QA) */
+[data-landing-hero]:has([data-hero-lanes][data-selected]) .controls,
+[data-landing-hero]:has([data-hero-lanes][data-selected]) .scrollHint {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden; /* 보이지 않는데 Tab 으로 닿는 컨트롤이 남지 않게 */
+}
+
 .scrollHintHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 여정을 고르면 선택 화면이 히어로를 전부 쓰므로 안내가 캐릭터 발·타일 위에 겹친다 → 숨김 (9/29 S4) */
+[data-landing-hero]:has([data-hero-lanes][data-selected]) .scrollHint {
   opacity: 0;
   pointer-events: none;
 }

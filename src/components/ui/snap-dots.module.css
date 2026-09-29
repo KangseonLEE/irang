@@ -4,14 +4,20 @@
   display: flex;
   justify-content: center;
   gap: 6px;
-  margin-top: 12px;
+  /* 점 자체에 8px 투명 테두리로 표적을 넓혔으므로 간격·여백에서 그만큼 뺀다 */
+  margin-top: 4px;
+  margin-left: -8px;
+  margin-right: -8px;
 }
 
 .dot {
+  /* 시각 크기는 8×8 그대로, 터치 표적만 24×24 로 넓힌다 (9/29 QA) */
   width: 8px;
   height: 8px;
   padding: 0;
-  border: none;
+  border: 8px solid transparent;
+  background-clip: padding-box;
+  box-sizing: content-box;
   border-radius: 50%;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 22%, transparent);
   transition:
@@ -28,6 +34,19 @@
   width: 20px;
   border-radius: 4px;
   background: var(--primary, #1b6b5a);
+}
+
+/* 다크 배경(히어로) 변형 — 비활성 점이 브랜드 그린이면 대비 1.05:1 이라 안 보인다 */
+.dotsOnDark .dot {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.dotsOnDark .dotActive {
+  background: #fff;
+}
+
+.dotsOnDark .dot:focus-visible {
+  outline-color: #fff;
 }
 
 /* 768+ 는 그리드로 전부 보이므로 위치 개념이 없다 */

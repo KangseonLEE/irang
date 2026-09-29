@@ -1,5 +1,7 @@
 /* ══════════════════════════════════════════
-   지원사업 통합 섹션 (추천 + 마감 임박 탭)
+   지원사업 통합 섹션
+   <1024 : 탭(진행·예정 / 상시·연중) + 1장 캐러셀
+   1024+ : sticky 레일 + 단계 캡션 전환 (파일 하단 "레일" 블록)
    ══════════════════════════════════════════ */
 
 .section {
@@ -353,6 +355,8 @@
   overflow: hidden;
   scroll-snap-align: start;
   transition:
+    opacity 0.55s cubic-bezier(.16, 1, .3, 1),
+    transform 0.55s cubic-bezier(.16, 1, .3, 1),
     border-color 0.2s,
     box-shadow 0.2s,
     background 0.2s;
@@ -510,4 +514,273 @@
 
 @media (min-width: 768px) {
 .card { padding: 22px; }
+}
+
+
+/* ══════════════════════════════════════════
+   레일 (2026-09-29 회장 결재 — quietcubes 착안안 1)
+   1024+ : 왼쪽 제목·단계 블록이 position: sticky 로 붙고, 오른쪽 카드 묶음이 차례로 지나간다.
+           탭 대신 단계 캡션이 스크롤 진행에 따라 바뀐다(스크럽 없음 · 신규 의존성 0).
+   <1024 : 종전 그대로 — 탭 + 한 묶음 1장 캐러셀. DOM 은 같고 분기는 전부 CSS.
+   ══════════════════════════════════════════ */
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.railHead {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.railBody {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 단계 인디케이터·묶음 캡션은 1024+ 전용 — 모바일은 탭이 같은 역할을 한다 */
+.steps,
+.groupCaption {
+  display: none;
+}
+
+/* 묶음은 모바일에서 선택된 탭 하나만 — 1024+ 는 전부 노출(아래 미디어 블록) */
+.group {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.groupSelected {
+  display: flex;
+}
+
+/* ── 묶음 등장 — 그 묶음이 화면에 들어올 때 카드가 좌→우로 떠오른다 (JS 가 data-revealed 부여) ──
+   page.tsx ScrollReveal 의 data-reveal-item 을 쓰지 않는 이유: 그 리빌은 섹션 진입 1회라
+   레일 아래쪽 묶음이 화면에 오기 전에 끝나고, 1.8s 뒤 마커까지 떼어 간다. */
+.group:not([data-revealed]) .card {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.group[data-revealed] .card:nth-child(1) { transition-delay: 0ms; }
+.group[data-revealed] .card:nth-child(2) { transition-delay: 70ms; }
+.group[data-revealed] .card:nth-child(3) { transition-delay: 140ms; }
+.group[data-revealed] .card:nth-child(4) { transition-delay: 210ms; }
+.group[data-revealed] .card:nth-child(5) { transition-delay: 280ms; }
+.group[data-revealed] .card:nth-child(6) { transition-delay: 350ms; }
+
+/* 모바일은 한 번에 1장만 보이므로 순차 지연이 곧 "빈 카드 대기"가 된다 — 같이 떠오르게 */
+@media (max-width: 1023px) {
+  .card {
+    transition-duration: 0.3s;
+  }
+
+  .group[data-revealed] .card { transition-delay: 0ms; }
+}
+
+/* ── 데스크탑 레일 ── */
+@media (min-width: 1024px) {
+  .rail {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    align-items: start; /* sticky 가 동작하려면 그리드 아이템이 stretch 되지 않아야 한다 */
+    gap: 40px;
+  }
+
+  /* sticky 대상은 제목·단계 블록뿐 — 높이 ≈ 280px 로 어느 노트북에서도 통째로 보인다 (9/17 규칙) */
+  .railHead {
+    position: sticky;
+    top: calc(var(--sticky-top, 56px) + 24px);
+    gap: 26px;
+  }
+
+  .railBody {
+    gap: 56px;
+  }
+
+  /* 좁은 컬럼이라 제목·전체 보기를 세로로 */
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .viewAll {
+    align-self: flex-start;
+    padding-left: 0;
+  }
+
+  .tabs {
+    display: none;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .stepNum {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--muted, #f3f4f6);
+    color: var(--muted-foreground, #6b7280);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition:
+      background 0.3s ease,
+      color 0.3s ease;
+  }
+
+  .stepActive .stepNum {
+    background: var(--primary, #1b6b5a);
+    color: #fff;
+  }
+
+  .stepBody {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .stepCaption {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--fs-body-sm, 0.9375rem);
+    font-weight: 600;
+    color: var(--muted-foreground, #6b7280);
+    transition:
+      color 0.3s ease,
+      font-weight 0.3s ease;
+  }
+
+  .stepActive .stepCaption {
+    font-weight: 800;
+    color: var(--primary-dark, #0d2e27);
+  }
+
+  .stepCount {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 5px;
+    border-radius: 100px;
+    background: var(--muted, #f3f4f6);
+    color: var(--muted-foreground, #6b7280);
+    font-size: 10.5px;
+    font-weight: 700;
+  }
+
+  .stepActive .stepCount {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+    color: var(--primary, #1b6b5a);
+  }
+
+  .stepDesc {
+    font-size: var(--fs-caption, 0.8125rem);
+    color: var(--muted-foreground, #6b7280);
+  }
+
+  /* 묶음 — 전부 노출, 카드 없는 묶음만 숨긴다(모바일은 탭으로 빈 상태를 보여주므로 DOM 은 유지) */
+  .group {
+    display: flex;
+    gap: 14px;
+  }
+
+  .groupEmpty {
+    display: none;
+  }
+
+  .groupCaption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: var(--fs-body-sm, 0.9375rem);
+    font-weight: 700;
+    color: var(--primary-dark, #0d2e27);
+    letter-spacing: -0.01em;
+  }
+
+  .groupNum {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+    color: var(--primary, #1b6b5a);
+    font-size: 10.5px;
+    font-weight: 800;
+  }
+
+  /* 레일에서는 가로 캐러셀이 아니라 2열 그리드 — 묶음이 세로로 쌓여야 레일 높이가 나온다 */
+  .carousel,
+  .carouselScroll {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    overflow-x: visible;
+    gap: 16px;
+    padding: 0;
+    margin: 0;
+    cursor: auto;
+  }
+
+  /* 가로 스크롤이 없으니 화살표·그라데이션·잡아끌기 신호는 전부 끈다 */
+  .navBtn {
+    display: none;
+  }
+
+  .carouselWrapper::before,
+  .carouselWrapper::after {
+    display: none;
+  }
+}
+
+@media (min-width: 1280px) {
+  .rail {
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group:not([data-revealed]) .card {
+    opacity: 1;
+    transform: none;
+  }
+
+  .card,
+  .stepNum,
+  .stepCaption {
+    transition: none;
+  }
 }

@@ -110,10 +110,6 @@
   .heroTitle { animation: none; }
 }
 
-.heroTitleLine {
-  display: block;
-}
-
 /* 시각적으로 숨기되 접근성 트리·SSR HTML에는 노출 (검색엔진 h1 텍스트 확보) */
 .srOnly {
   position: absolute;
@@ -125,6 +121,23 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* 히어로 머리말 묶음 — 여정을 고르면 0.25s 페이드아웃 후 자리를 비운다 (9/29 S3) */
+.heroIntro {
+  width: 100%;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.heroSection:has([data-hero-lanes][data-selected]) .heroIntro {
+  height: 0;
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
 }
 
 /* ── 서브타이틀 ── */
@@ -168,8 +181,10 @@
     /* -1px 은 헤더의 border-bottom — 헤더가 실제로 차지하는 높이는 56 + 1 이라
        이 1px 을 안 빼면 뷰포트 맨 위에 흰 줄이 한 줄 남는다(9/29 픽셀 실측) */
     margin: calc(-40px - var(--h-header) - 1px) calc(-50vw + 50%) 0;
-    /* 위 패딩에 헤더 높이를 더해 카피가 투명 헤더 밑으로 들어가지 않게 한다 */
-    padding: calc(var(--h-header) + 64px) calc(50vw - 50%) 96px;
+    /* 위 패딩에 헤더 높이를 더해 카피가 투명 헤더 밑으로 들어가지 않게 한다.
+       좌우는 .page 정렬선(calc(50vw - 50%)) 대신 32px — 여정 카드 6장이 한 줄에 최대한 크게
+       들어가야 해서 컨테이너 폭을 86px 더 쓴다 (9/29 회장 ①). 히어로는 풀블리드라 가능. */
+    padding: calc(var(--h-header) + 64px) 32px 96px;
     /* 뷰포트 전체 — 헤더가 위에 겹치므로 100svh 그대로 */
     min-height: 100vh;
     min-height: 100svh;
@@ -178,6 +193,18 @@
     text-align: left;
     z-index: 5;
     background: linear-gradient(118deg, #0b2a23 0%, #14554a 52%, #1b6b5a 100%);
+  }
+
+  /* 여정 카드를 고르면 캐릭터 원반(최대 460)이 들어와 세로가 빠듯해진다 — 낮은 노트북(1366×768)에서
+     히어로가 커지지 않도록 위·아래 여백을 줄여 그만큼을 콘텐츠에 넘긴다 (9/29 S2 실측 +19px) */
+  .heroSection:has([data-hero-lanes][data-selected]) {
+    /* 76 = 업데이트 스낵바 아래(.page top 16 + 높이 ≈60) — 더 줄이면 제목이 스낵바에 깔린다(1366 실측) */
+    padding-top: calc(var(--h-header) + 76px);
+    padding-bottom: 72px;
+    /* min-height 만 있으면 컨테이너 높이가 "콘텐츠 또는 min" 이라 자식이 100% 를 못 쓰고
+       넘치면 히어로가 자라 버린다. 선택 화면은 화면을 꽉 채워야 하므로 높이를 확정한다 (9/29 S4) */
+    height: 100vh;
+    height: 100svh;
   }
 
   /* 배경 레이어(z 0) 위로 — 위치 지정이 없으면 텍스트가 이미지 아래로 깔린다 */
@@ -192,11 +219,6 @@
     max-width: 17em;
     font-size: 3.5rem;
     color: #fff;
-  }
-
-  /* 회전 키워드는 기본 primary(#1b6b5a) — 다크 히어로에서 대비가 낮아 밝은 민트로 */
-  .heroTitle :global([class*="word"]) {
-    color: #8ee3c2;
   }
 
   .heroSubtitle {
@@ -240,6 +262,16 @@
     background: linear-gradient(118deg, #0b2a23 0%, #14554a 52%, #1b6b5a 100%);
   }
 
+  /* 선택 상태 — 카드+캐릭터+타일이 들어와 세로가 빠듯하다. 위·아래 여백을 줄여 히어로 높이를 유지 (9/29 S2) */
+  .heroSection:has([data-hero-lanes][data-selected]) {
+    /* 72 = 스낵바(12 + 56) 아래 — 더 줄이면 제목이 스낵바에 닿는다(9/29 캡처) */
+    padding-top: calc(var(--h-header) + 72px);
+    padding-bottom: 64px;
+    /* 높이 확정 — 선택 화면이 남은 영역을 100% 로 쓰고, 넘치면 히어로가 아니라 화면 안에서 스크롤 */
+    height: calc(100vh - var(--h-mobile-nav) - env(safe-area-inset-bottom, 0px));
+    height: calc(100svh - var(--h-mobile-nav) - env(safe-area-inset-bottom, 0px));
+  }
+
   /* 배경 레이어(z 0) 위로 */
   .heroTitle,
   .heroSubtitle {
@@ -254,11 +286,6 @@
     color: #fff;
   }
 
-  /* 회전 키워드는 기본 primary — 다크 히어로에서 대비가 낮아 밝은 민트로 */
-  .heroTitle :global([class*="word"]) {
-    color: #8ee3c2;
-  }
-
   .heroSubtitle {
     margin: 0 0 14px;
     max-width: 26em;
@@ -271,6 +298,20 @@
   /* 인기 검색어는 모바일에서 노출하지 않는다 (9/28 3차 회장 지시) — 데스크탑은 유지.
      렌더 게이트가 아니라 CSS 로 감추는 이유: SSR HTML 은 하나뿐이라 게이트를 걸면 데스크탑에서도
      /search?q= 내부 링크가 SSR 에서 통째로 빠진다(유입 61% Organic). 검색창을 숨기는 방식과 동일. */
+}
+
+/* 세로가 아주 낮은 데스크탑(1024×600 등) — 아래 여백을 줄여 탐색하기까지 한 화면에 (9/29 QA) */
+@media (min-width: 1024px) and (max-height: 700px) {
+  .heroSection:has([data-hero-lanes][data-selected]) {
+    padding-bottom: 56px;
+  }
+}
+
+/* 태블릿(768~1023)은 스낵바가 63px 라 선택 화면의 뒤로 버튼이 4px 가렸다 (9/29 QA 실측) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .heroSection:has([data-hero-lanes][data-selected]) {
+    padding-top: calc(var(--h-header) + 84px);
+  }
 }
 
 /* .page padding-top 이 breakpoint 마다 달라 히어로 상쇄값도 맞춰 준다 (스낵바 기준점 유지) */

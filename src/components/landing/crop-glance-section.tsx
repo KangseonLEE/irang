@@ -92,7 +92,8 @@ export function CropGlanceSection() {
             className={s.rankCard}
             data-rank={i + 1}
           >
-            <span className={s.rankCardImage}>
+            {/* 아이템 내부 3단 등장 (9/29) — 순위·이미지(1) → 작물명(2) → 수익·칩(3) */}
+            <span className={s.rankCardImage} data-reveal-part="1">
               <span className={s.rankNumber} aria-hidden="true">
                 {i + 1}
               </span>
@@ -108,13 +109,13 @@ export function CropGlanceSection() {
               />
             </span>
             <div className={s.rankCardBody}>
-              <span className={s.cropName}>{crop.name}</span>
-              <span className={s.cropIncome}>
+              <span className={s.cropName} data-reveal-part="2">{crop.name}</span>
+              <span className={s.cropIncome} data-reveal-part="3">
                 <CountUp value={formatIncome(crop.income)} />만 원
               </span>
               {/* 10a = 1,000㎡ ≈ 302.5평 → 직관성 위해 "약 300평"으로 표기 (이 섹션 한정). */}
-              <span className={s.cropIncomeLabel}>약 300평당 연소득</span>
-              <span className={s.chipRow}>
+              <span className={s.cropIncomeLabel} data-reveal-part="3">약 300평당 연소득</span>
+              <span className={s.chipRow} data-reveal-part="3">
                 <span className={`${s.chip} ${difficultyChipClass(crop.difficulty)}`}>
                   {crop.difficulty}
                 </span>

@@ -14,10 +14,12 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { KeywordRotator } from "@/components/landing/keyword-rotator";
 import { HeroSlider } from "@/components/landing/hero-slider";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
+import { JourneyLanes } from "@/components/landing/journey-lanes";
+import { resolveJourneyLanes } from "@/lib/data/journey-lanes-images";
+import { buildLaneStats } from "@/lib/data/journey-lanes-stats";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
@@ -30,12 +32,17 @@ import { interviews } from "@/lib/data/landing";
 import { PROGRAMS } from "@/lib/data/programs";
 import { SurveyCta } from "./survey-cta";
 import s from "./page.module.css";
+// 커튼 리빌 (9/29) — 인터뷰 다크 띠가 이전 섹션을 덮으며 올라온다. page.module.css 대신 전용 모듈
+import curtain from "@/components/landing/interview-curtain.module.css";
 
 /* ────────────────────────────────────────────
    Page — 섹션 순서 (withgo 레퍼런스 기반):
    히어로(검색) → 인터뷰(사회적 증거) → 왜 농촌 정착(동기)
    → 비용(현실) → 지원사업(행동) → 뉴스(시의성) → CTA
    ──────────────────────────────────────────── */
+
+/** 히어로 여정 레인 — 일러스트 존재 판정까지 끝낸 목록 (프로세스당 1회) */
+const heroLanes = resolveJourneyLanes();
 
 /* ── 지원사업 데이터 준비 (서버 사이드) ── */
 /**
@@ -100,23 +107,24 @@ export default function HomePage() {
       {/* ═══ 1. 히어로 ═══ */}
       {/* data-landing-hero — 헤더가 :has() 로 이 페이지를 알아보고 1024+ 에서 투명 오버레이가 된다 (9/29 B안) */}
       <section className={s.heroSection} aria-label="검색" data-landing-hero>
-        <h1 className={s.heroTitle}>
-          {/* 검색엔진·스크린리더용 완전한 정적 문구 (SSR HTML에 항상 노출).
-              시각적 회전 키워드(KeywordRotator)는 client 렌더라 SSR 텍스트가
-              불완전해지므로, 페이지 주제를 담은 정적 h1 문장을 함께 제공한다. */}
-          <span className={s.srOnly}>
-            귀농·귀촌 준비, 어디서부터 시작할까요? 지역·작물·지원금 비교로 시작하세요.
-          </span>
-          <span className={s.heroTitleLine} aria-hidden="true">
-            <KeywordRotator /> 준비,
-          </span>
-          <span className={s.heroTitleLine} aria-hidden="true">
-            어디서부터 시작할까요?
-          </span>
-        </h1>
-        <p className={s.heroSubtitle}>
-          지역 비교부터 지원금 찾기까지, 필요한 건 다 모았어요.
-        </p>
+        {/* 9/29 회장 1안: 히어로 자체가 "어떤 시작인지" 고르는 화면. 회전 키워드는 뺐다 —
+            카드 6장이 이미 선택지를 보여 주므로 제목까지 움직이면 읽을 것이 둘이 된다.
+            SSR 에 완전한 문장이 남도록 주제어는 srOnly 로 덧붙인다(h1 은 1개 유지). */}
+        {/* 여정을 고르면 이 머리말은 접히고 선택 화면이 히어로를 차지한다 (9/29 S3) */}
+        <div className={s.heroIntro}>
+          <h1 className={s.heroTitle}>
+            어떤 시작을 생각하세요?
+            <span className={s.srOnly}>
+              {" "}귀농·귀촌·귀산촌·청년농·스마트팜까지, 지역·작물·지원금을 비교해 보세요.
+            </span>
+          </h1>
+          <p className={s.heroSubtitle}>
+            고르면 지원금·작물·지역을 그 기준으로 보여 드려요.
+          </p>
+        </div>
+
+        {/* 여정 카드 6장 — 배경 슬라이드 위. 일러스트 존재 판정은 서버에서 (파일이 없어도 안 깨짐) */}
+        <JourneyLanes lanes={heroLanes} stats={buildLaneStats(heroLanes.map((l) => l.id))} />
 
         {/* 슬라이드 히어로 — 배경 레이어 + 슬라이드별 카피 + 좌하단 컨트롤.
             9/28 3차 회장 지시로 모바일까지 공통 렌더(뷰포트 분기는 CSS). 모바일은 검색창을 빼고
@@ -157,7 +165,7 @@ export default function HomePage() {
 
       {/* ═══ 6. 농촌으로 간 사람들의 이야기 (다크 배경) — 9/7 회장: 지원사업 아래로 ═══ */}
       <ScrollReveal trackId="interviews" variant="fade" stagger>
-        <div className={s.darkBg}>
+        <div className={`${s.darkBg} ${curtain.curtain}`}>
           <section className={s.interviewSection} aria-label="인터뷰">
             <div className={s.interviewHeader} data-reveal-x="left">
               <div className={s.interviewHeading}>

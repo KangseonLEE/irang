@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play, ChevronDown } from "lucide-react";
 import { HERO_SLIDES, HERO_SLIDE_INTERVAL_MS } from "@/lib/data/hero-slides";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { useHeroLaneSelected } from "@/lib/hooks/use-hero-lane-selection";
 import s from "./hero-slider.module.css";
 
 /** 히어로 하단 컨트롤이 차지하는 띠(bottom 32 + 높이 44 + 여유) — 투명→흰 헤더 전환을 이만큼 앞당긴다 (9/29 QA) */
@@ -21,9 +21,10 @@ const CONTROLS_BAND_PX = 80;
  * - **모든 폭에서 SSR 렌더한다** (9/28 3차 회장 지시로 "모바일 DOM 무변경" 규칙 해제).
  *   SSR HTML 이 하나뿐이므로 뷰포트 분기는 CSS 로만 한다 — 렌더 게이트를 쓰면 데스크탑 SSR 에서도
  *   빠져 LCP·색인이 깨진다. 모바일 값은 `@media (max-width: 1023px)` 에 격리(기본값 = 데스크탑).
- * - 프래그먼트를 반환해 `.layers`·`.copyStack`·`.controls` 가 히어로 섹션의 직계 자식이 된다
+ * - 프래그먼트를 반환해 `.layers`·`.controls` 가 히어로 섹션의 직계 자식이 된다
  *   (래퍼 div 없이 flex 흐름·절대 배치를 그대로 쓴다).
- * - 비활성 슬라이드 카피는 DOM 에 두고 `aria-hidden` + `inert` 로 접근성·포커스에서 제외.
+ * - 9/29 회장 1안: 슬라이드별 카피(말머리·설명·CTA)는 제거했다 — 히어로의 주인공은 여정 카드 6장이고,
+ *   배경은 6초마다 바뀌는 분위기 레이어만 맡는다. 슬라이드 전환 중에도 카드는 그대로 있어야 한다.
  * - `prefers-reduced-motion: reduce` → 자동 전환·Ken Burns·전환 모션 전부 정지(정지 버튼도 숨김).
  * - LCP: 첫 슬라이드만 preload 하고, 나머지 3장은 마운트 2초 뒤에 DOM 에 넣는다. lazy 만으로는
  *   부족하다 — 4장 전부 뷰포트 안이라 첫 로드에서 같이 내려받으며 LCP 이미지와 대역폭을 다툰다
@@ -67,7 +68,9 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
   const [paused, setPaused] = useState(false);
   /** 컨트롤 위 hover — 진행 바만 멈추면 타이머와 어긋나므로 **타이머도 같은 상태로 멈춘다** */
   const [hoverPaused, setHoverPaused] = useState(false);
-  const autoPaused = paused || hoverPaused;
+  /* 여정 카드를 고른 동안엔 배경이 바뀌지 않는다 — 패널을 읽는 중에 전환되면 산만하다 (9/29 S) */
+  const laneSelected = useHeroLaneSelected();
+  const autoPaused = paused || hoverPaused || laneSelected;
   const [failed, setFailed] = useState<Record<string, true>>({});
   /** 2~4번 슬라이드 이미지 예열 여부 — LCP 이미지와 대역폭을 다투지 않도록 늦춘다 */
   const [warm, setWarm] = useState(false);
@@ -153,6 +156,8 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
 
     const onDown = (e: PointerEvent) => {
       if (e.pointerType === "mouse") return;
+      /* 여정 카드 트랙을 옆으로 미는 동작이 배경 슬라이드까지 넘기지 않게 (9/29 S) */
+      if ((e.target as Element | null)?.closest?.("[data-hero-lanes]")) return;
       x0 = e.clientX;
       y0 = e.clientY;
       tracking = true;
@@ -229,33 +234,6 @@ function Slider({ reduced, isDesktop }: { reduced: boolean; isDesktop: boolean }
           ),
         )}
         <span className={s.scrim} />
-      </div>
-
-      {/* 슬라이드별 카피 — 한 칸에 겹쳐 두고 크로스페이드 (높이 고정 → 전환 시 CLS 0).
-          aria-live="off": 자동 전환이 스크린리더 낭독을 끊지 않게 한다(모바일엔 정지 버튼이 없다) */}
-      <div className={s.copyStack} aria-live="off">
-        {HERO_SLIDES.map((slide, i) => {
-          const active = i === index;
-          return (
-            <div
-              key={slide.id}
-              className={`${s.copy}${active ? ` ${s.copyActive}` : ""}`}
-              aria-hidden={active ? undefined : true}
-              inert={active ? undefined : true}
-            >
-              <span className={s.eyebrow}>{slide.eyebrow}</span>
-              <p className={s.caption}>{slide.caption}</p>
-              <Link
-                href={slide.href}
-                className={s.cta}
-                data-track={`hero_slide:${slide.id}`}
-              >
-                {slide.ctaLabel}
-                <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            </div>
-          );
-        })}
       </div>
 
       {(

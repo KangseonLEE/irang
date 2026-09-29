@@ -37,7 +37,8 @@ export function StartCards({ cards }: { cards: readonly StartCard[] }) {
               data-track={`start_card:${card.id}`}
               prefetch={false}
             >
-              <span className={s.art} aria-hidden="true">
+              {/* 아이템 내부 3단 등장 (9/29) — 일러스트(1) → 태그·제목(2) → 설명(3) */}
+              <span className={s.art} aria-hidden="true" data-reveal-part="1">
                 <Image
                   src={card.image}
                   alt=""
@@ -48,9 +49,9 @@ export function StartCards({ cards }: { cards: readonly StartCard[] }) {
                 />
               </span>
               <span className={s.body}>
-                <span className={s.tag}>{card.tag}</span>
-                <span className={s.title}>{card.title}</span>
-                <span className={s.desc}>{card.desc}</span>
+                <span className={s.tag} data-reveal-part="2">{card.tag}</span>
+                <span className={s.title} data-reveal-part="2">{card.title}</span>
+                <span className={s.desc} data-reveal-part="3">{card.desc}</span>
               </span>
               <span className={s.corner} aria-hidden="true">
                 <ArrowUpRight size={18} />

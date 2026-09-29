@@ -63,10 +63,11 @@ export function QuickLinkSection() {
               data-track={`quick_link:${id}`}
               prefetch={false}
             >
-              <span className={s.tile} aria-hidden="true">
+              {/* 아이템 내부 3단 등장 (9/29) — 아이콘(1) → 라벨(2). 본문이 없어 2단까지만 */}
+              <span className={s.tile} aria-hidden="true" data-reveal-part="1">
                 <Icon size={26} strokeWidth={1.75} />
               </span>
-              <span className={s.label}>{label}</span>
+              <span className={s.label} data-reveal-part="2">{label}</span>
             </Link>
           </li>
         ))}
