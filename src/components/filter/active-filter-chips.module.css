@@ -118,3 +118,9 @@
     border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, transparent);
   }
 }
+
+/* 행 전체 터치 영역 (9/29) — 칩 제거 버튼 밖 어디를 눌러도 필터가 열린다 */
+.rowTappable {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}

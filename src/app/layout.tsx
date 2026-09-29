@@ -13,6 +13,7 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { HashHighlight } from "@/components/layout/hash-highlight";
 import { SearchOverlayProvider } from "@/components/search/search-overlay";
+import { DialogProvider } from "@/components/ui/confirm-dialog";
 import { ScrollToTopButton } from "@/components/layout/scroll-to-top-button";
 import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 import { InAppBanner } from "@/components/layout/inapp-banner";
@@ -184,6 +185,7 @@ export default function RootLayout({
         <PageViewTracker />
         <Analytics />
         <SpeedInsights />
+        <DialogProvider>
         <SearchOverlayProvider>
           {/* /admin/* 은 AdminShell 이 크롬을 담당 — 공용 헤더·푸터·탭바·위젯 비노출 (9/2) */}
           <PublicChrome>
@@ -198,6 +200,7 @@ export default function RootLayout({
             <InAppBanner />
           </PublicChrome>
         </SearchOverlayProvider>
+        </DialogProvider>
       </body>
     </html>
   );

@@ -12,7 +12,7 @@ import {
 } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Clock, X, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ArrowUpLeft } from "lucide-react";
+import { Clock, X, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ArrowUpLeft, Trash2 } from "lucide-react";
 // ArrowUpLeft: 자동완성 우상단 화살표 (네이버 패턴 — 클릭 시 입력창 채움)
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
@@ -31,6 +31,7 @@ import { SEARCH_FAQS } from "@/lib/data/search-faq";
 // 답: 첫 5개 표준 FAQ — 5단계 로드맵·비용·적합도·생활비·작물 추천.
 const FEATURED_FAQ_INDICES = [0, 2, 4, 5, 6] as const;
 import { isComposingEvent } from "@/lib/ime";
+import { useDialog } from "@/components/ui/confirm-dialog";
 import s from "./search-bar.module.css";
 
 // ---------------------------------------------------------------------------
@@ -179,6 +180,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   },
   ref,
 ) {
+  const { confirm } = useDialog();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -511,12 +513,19 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     beginNavigation();
   }, [beginNavigation]);
 
-  // ----- 최근 검색어 전체 삭제 (컨펌) -----
-  const handleClearAllRecent = useCallback(() => {
-    if (!window.confirm("최근 검색어를 모두 삭제할까요?")) return;
+  // ----- 최근 검색어 전체 삭제 (공용 확인 다이얼로그 — window.confirm 금지, 9/29) -----
+  const handleClearAllRecent = useCallback(async () => {
+    const ok = await confirm({
+      title: "최근 검색어를 모두 지울까요?",
+      description: "이 기기에 저장된 검색 기록만 지워져요.",
+      confirmLabel: "모두 지우기",
+      tone: "danger",
+      icon: Trash2,
+    });
+    if (!ok) return;
     clearAllRecent();
     setRecentSearches([]);
-  }, []);
+  }, [confirm]);
 
   // ----- 최근 검색어 삭제 -----
   const handleRemoveRecent = useCallback((e: React.MouseEvent, q: string) => {
@@ -573,6 +582,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // (네비게이션 로딩이 stuck된 경우 사용자가 다른 영역 클릭으로 빠져나갈 수 있어야 함)
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
+      /* 확인 다이얼로그(포털)는 DOM 상 바깥이지만 사용자에겐 이 드롭다운의 연장 — 닫지 않는다 */
+      if ((e.target as Element | null)?.closest?.("[data-irang-dialog]")) return;
       if (
         containerRef.current &&
         !containerRef.current.contains(e.target as Node)

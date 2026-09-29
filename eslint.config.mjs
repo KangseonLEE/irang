@@ -97,6 +97,29 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+
+  // ═══════════════════════════════════════════════════════════════
+  // 브라우저 기본 팝업 금지 (2026-09-29 회장) — `useDialog()` 의 confirm/alert 을 쓴다.
+  // OS 팝업은 브랜드 밖이고, 모달 위에서 포커스·스크롤 잠금과 충돌하며 카피 톤도 못 맞춘다.
+  // ═══════════════════════════════════════════════════════════════
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/__tests__/**", "src/lib/analytics-gate.ts"],
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        { name: "confirm", message: "window.confirm 금지 — useDialog().confirm() 을 쓰세요." },
+        { name: "alert", message: "window.alert 금지 — useDialog().alert() 을 쓰세요." },
+        { name: "prompt", message: "window.prompt 금지 — 전용 입력 UI 를 만드세요." },
+      ],
+      "no-restricted-properties": [
+        "error",
+        { object: "window", property: "confirm", message: "window.confirm 금지 — useDialog().confirm()" },
+        { object: "window", property: "alert", message: "window.alert 금지 — useDialog().alert()" },
+        { object: "window", property: "prompt", message: "window.prompt 금지" },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

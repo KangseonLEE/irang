@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { MessageSquareText, ThumbsUp, Loader2, Pencil } from "lucide-react";
+import { MessageSquareText, ThumbsUp, Loader2, Pencil, Flag } from "lucide-react";
 import { analytics, trackEvent } from "@/lib/analytics";
 import {
   NICKNAME_MAX_LENGTH,
@@ -12,6 +12,7 @@ import {
 import type { NoteTargetType, PublicNote } from "@/lib/community/types";
 import { formatRelativeDate } from "@/lib/format";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { useDialog } from "@/components/ui/confirm-dialog";
 import s from "./community-notes.module.css";
 import { internalRequestHeaders } from "@/lib/internal-traffic";
 
@@ -64,6 +65,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
   const [expanded, setExpanded] = useState<Set<number>>(() => new Set());
   const [formOpen, setFormOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const { confirm } = useDialog();
   const composeStartRef = useRef<number | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -177,7 +179,13 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
   const handleReport = useCallback(
     async (id: number) => {
       if (reported.has(id)) return;
-      if (!window.confirm("이 이야기를 신고할까요? 광고·욕설·무관한 내용이면 검토 후 숨겨져요.")) return;
+      const ok = await confirm({
+        title: "이 이야기를 신고할까요?",
+        description: "광고·욕설·무관한 내용이면 검토 후 숨겨져요.",
+        confirmLabel: "신고하기",
+        icon: Flag,
+      });
+      if (!ok) return;
       setReported((prev) => new Set(prev).add(id));
       try {
         await fetch(`/api/community/notes/${id}/report`, {
@@ -189,7 +197,7 @@ export function CommunityNotes({ targetType, targetId, targetLabel, moreHref }: 
         // 무음 — 신고는 best-effort
       }
     },
-    [reported],
+    [reported, confirm],
   );
 
   if (!available) return null;

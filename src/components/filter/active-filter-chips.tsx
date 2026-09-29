@@ -36,7 +36,16 @@ export function ActiveFilterChips({
   className,
 }: ActiveFilterChipsProps) {
   return (
-    <div className={className ? `${s.row} ${className}` : s.row}>
+    /* 9/29 회장: 모바일에서 "필터" 글자만 터치되던 것을 **행 전체**로 — 칩(제거 버튼)을 제외한 빈 영역·
+       안내 문구를 눌러도 필터가 열린다. 접근성 진입점은 여전히 "필터 열기" 버튼(행 자체는 presentation). */
+    <div
+      className={className ? `${s.row} ${s.rowTappable} ${className}` : `${s.row} ${s.rowTappable}`}
+      role="presentation"
+      onClick={(e) => {
+        if ((e.target as HTMLElement).closest("button")) return;
+        onOpenFilter();
+      }}
+    >
       <button
         type="button"
         className={s.filterBtn}

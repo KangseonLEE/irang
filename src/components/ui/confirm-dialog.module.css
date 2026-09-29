@@ -1,0 +1,124 @@
+/* ── 공용 확인·알림 다이얼로그 (2026-09-29) — 모달(z 200) 위에 뜨는 독립 레이어 ── */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-confirm, 210);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.32);
+  overscroll-behavior: contain; /* 다이얼로그 위 휠·터치가 배경으로 새지 않게 */
+  animation: dialogFade 0.15s ease-out;
+}
+
+.panel {
+  width: min(360px, 92vw);
+  padding: 22px 22px 18px;
+  border-radius: 20px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.08);
+  animation: dialogPop 0.15s ease-out;
+}
+
+.panel:focus-visible {
+  outline: none;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: var(--lh-snug);
+  color: var(--foreground, #111827);
+}
+
+.desc {
+  margin: 8px 0 0;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.cancel,
+.confirm {
+  min-height: 40px;
+  padding: 9px 16px;
+  border-radius: 12px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel {
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.confirm {
+  border: 1px solid var(--primary, #1b6b5a);
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+}
+
+/* danger — 붉은색 대신 브랜드 딥그린으로 무게만 준다 */
+.confirmDanger {
+  border-color: var(--brand-800, #0d2e27);
+  background: var(--brand-800, #0d2e27);
+}
+
+@media (hover: hover) {
+  .cancel:hover {
+    background: var(--muted, #f9fafb);
+    color: var(--foreground, #111827);
+  }
+
+  .confirm:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 88%, #000);
+  }
+}
+
+.cancel:focus-visible,
+.confirm:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@keyframes dialogFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dialogPop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .panel {
+    animation: none;
+  }
+}
