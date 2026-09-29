@@ -17,6 +17,13 @@
     align-items: flex-start;
     padding-top: 12vh;
   }
+
+  /* 살짝 우측 상단 — 히어로 제목(좌)을 비워 두고 시선만 끈다. 완전 모서리는 아니고 위 9vh·오른쪽 7vw 여백 */
+  .overlay[data-align="topRight"] {
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 9vh 7vw 20px 20px;
+  }
 }
 
 .overlay[data-closing="true"] {

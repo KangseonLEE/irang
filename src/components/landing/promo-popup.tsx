@@ -79,7 +79,7 @@ export function PromoPopup() {
   };
 
   return (
-    <Modal open={open} onClose={() => close("close")} title={`${item.org} 소식`}>
+    <Modal open={open} onClose={() => close("close")} title={`${item.org} 소식`} align="topRight">
       <div className={s.layout} data-promo-popup={item.id}>
         <div className={s.poster}>
           <Image

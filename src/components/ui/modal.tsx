@@ -34,8 +34,9 @@ interface ModalProps {
   /**
    * 세로 정렬. "top" → 상단에서 12vh 아래(검색 팔레트 관례 — ⌘K 류는 화면 중앙보다 위가 눈에 편하다).
    * 기본은 세로 중앙. (2026-09-29 통합검색 모달)
+   * "topRight" → 데스크탑에서 살짝 우측 상단(홍보 팝업 — 히어로 제목을 가리지 않게, 2026-09-29 회장).
    */
-  align?: "center" | "top";
+  align?: "center" | "top" | "topRight";
 }
 
 const ANIMATION_DURATION = 150; // ms — overlayOut / panelOut duration
