@@ -1,0 +1,272 @@
+/* PromoPopup — 공용 Modal 본문 안 레이아웃. 기본(모바일) → @media 오버라이드 (체크리스트 G) */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.poster {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 0;
+}
+
+.posterImage {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 52vh;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badgeOrg {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badgeOrg {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detailBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+/* 모집 종료 안내 — 앰버(StatusBadge 예정·마감 계열 #d97706) 경고 박스, 모집 기간 행 위 */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 2px 0 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, #d97706 45%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, #d97706 12%, #fff);
+  color: #92400e;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.alert span {
+  white-space: pre-line;
+}
+
+.alert svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #d97706;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+.tagline {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--muted-foreground);
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--muted);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 4.5em 1fr;
+  gap: 8px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.fact dt {
+  color: var(--muted-foreground);
+  font-weight: 600;
+}
+
+.fact dd {
+  margin: 0;
+  color: var(--foreground);
+}
+
+.pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.pagerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--foreground);
+}
+
+.pagerCount {
+  min-width: 3.2em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+/* 하단 홍보 요청 — 당분간 무료 채널 안내 + 작은 버튼 */
+.requestRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.requestHint {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.requestBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.factLink {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* 헤더 X 왼쪽 텍스트 버튼 — Modal.headerAction */
+.todayBtn {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.detailBtn:focus-visible,
+.todayBtn:focus-visible,
+.factLink:focus-visible,
+.requestBtn:focus-visible,
+.pagerBtn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .detailBtn:hover {
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+    border-color: var(--primary);
+  }
+
+  .requestBtn:hover,
+  .pagerBtn:hover {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+  }
+
+  .todayBtn:hover {
+    color: var(--foreground);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+@media (min-width: 640px) {
+  .layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .poster {
+    flex: 0 0 320px;
+    padding: 0;
+  }
+
+  .posterImage {
+    max-height: none;
+    width: 320px;
+  }
+
+  .body {
+    flex: 1 1 auto;
+  }
+
+}

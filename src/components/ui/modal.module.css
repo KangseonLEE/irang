@@ -17,6 +17,13 @@
     align-items: flex-start;
     padding-top: 12vh;
   }
+
+  /* 살짝 우측 상단 — 히어로 제목(좌)을 비워 두고 시선만 끈다. 완전 모서리는 아니고 위 9vh·오른쪽 7vw 여백 */
+  .overlay[data-align="topRight"] {
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 9vh 7vw 20px 20px;
+  }
 }
 
 .overlay[data-closing="true"] {
@@ -98,6 +105,21 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+}
+
+.titleIcon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+  vertical-align: -3px;
+  color: var(--primary, #1b6b5a);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .closeBtn {
@@ -228,6 +250,13 @@
 @media (min-width: 640px) {
   .panelWide {
     max-width: min(1040px, 96vw);
+  }
+}
+
+/* size="medium" — 포스터 + 정보 2단(홍보 팝업). 기본 640 과 wide 1040 사이 */
+@media (min-width: 640px) {
+  .panelMedium {
+    max-width: min(860px, 92vw);
   }
 }
 

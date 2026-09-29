@@ -30,18 +30,26 @@ interface ModalProps {
    * 패널 폭. "wide" → max-width 1040px(뷰포트 96vw 상한). 재배 캘린더처럼 12열 표를 가로 스크롤 없이
    * 보여줘야 하는 콘텐츠용 (8/30 회장: 캘린더가 12월까지 안 보임). 기본 640px.
    */
-  size?: "default" | "wide" | "search";
+  size?: "default" | "wide" | "search" | "medium";
+  /**
+   * 헤더 X 버튼 왼쪽에 놓는 보조 액션(예: 홍보 팝업 "오늘 하루 보지 않기"). 텍스트 버튼 하나 정도를 상정한다.
+   * (2026-09-29 회장 — 하단 버튼 대신 상단에)
+   */
+  headerAction?: React.ReactNode;
+  /** 제목 앞 아이콘(lucide). 색은 primary — 홍보 팝업 확성기 (2026-09-29 회장) */
+  titleIcon?: React.ReactNode;
   /**
    * 세로 정렬. "top" → 상단에서 12vh 아래(검색 팔레트 관례 — ⌘K 류는 화면 중앙보다 위가 눈에 편하다).
    * 기본은 세로 중앙. (2026-09-29 통합검색 모달)
+   * "topRight" → 데스크탑에서 살짝 우측 상단(홍보 팝업 — 히어로 제목을 가리지 않게, 2026-09-29 회장).
    */
-  align?: "center" | "top";
+  align?: "center" | "top" | "topRight";
 }
 
 const ANIMATION_DURATION = 150; // ms — overlayOut / panelOut duration
 const DRAG_DISMISS_THRESHOLD = 100; // px — 이 이상 아래로 드래그하면 닫기
 
-export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default", align = "center" }: ModalProps) {
+export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default", align = "center", headerAction, titleIcon }: ModalProps) {
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -271,7 +279,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
     >
       <div
         ref={panelRef}
-        className={`${s.panel} ${size === "wide" ? s.panelWide : ""} ${size === "search" ? s.panelSearch : ""}`}
+        className={`${s.panel} ${size === "wide" ? s.panelWide : ""} ${size === "search" ? s.panelSearch : ""} ${size === "medium" ? s.panelMedium : ""}`}
         data-mobile-height={mobileHeight}
         role="dialog"
         aria-modal="true"
@@ -291,7 +299,16 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
 
         {/* 헤더 */}
         <div className={s.header}>
-          <h2 className={s.title}>{title}</h2>
+          <h2 className={s.title}>
+            {titleIcon && (
+              <span className={s.titleIcon} aria-hidden="true">
+                {titleIcon}
+              </span>
+            )}
+            {title}
+          </h2>
+          <div className={s.headerActions}>
+          {headerAction}
           <button
             type="button"
             className={s.closeBtn}
@@ -300,6 +317,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
           >
             <X size={20} />
           </button>
+          </div>
         </div>
 
         {/* 본문 */}

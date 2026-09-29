@@ -21,6 +21,7 @@ import { JourneyLanes } from "@/components/landing/journey-lanes";
 import { resolveJourneyLanes, resolveJourneyGates } from "@/lib/data/journey-lanes-images";
 import { buildLaneStats } from "@/lib/data/journey-lanes-stats";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
+import { PromoPopup } from "@/components/landing/promo-popup";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
 import { ProgramsSection } from "@/components/landing/programs-section";
@@ -104,6 +105,9 @@ export default function HomePage() {
       {/* 히어로 위 띠배너 — 최근 업데이트 한 줄 알림 (9/2: 히어로 아래에 두면 모바일 첫 화면에 안 들어와 이동).
           서버에서 기본 표시하고 이미 본 사용자만 마운트 후 감춘다 → 첫 방문자는 레이아웃 이동 없음 */}
       <UpdatesBanner />
+
+      {/* 외부 기관 홍보 요청 팝업 (9/29 회장 지시) — 마운트 뒤 열리고 until 지나면 자동 종료. 자동화 UA 에선 안 뜬다 */}
+      <PromoPopup />
 
       {/* ═══ 1. 히어로 ═══ */}
       {/* data-landing-hero — 헤더가 :has() 로 이 페이지를 알아보고 1024+ 에서 투명 오버레이가 된다 (9/29 B안) */}
