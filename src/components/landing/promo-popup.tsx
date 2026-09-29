@@ -102,7 +102,6 @@ export function PromoPopup() {
       onClose={() => close("close")}
       title="이랑 소식"
       titleIcon={<Megaphone size={20} />}
-      align="topRight"
       size="medium"
       closeOnOverlayClick={false}
       headerAction={
