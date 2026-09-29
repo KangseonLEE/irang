@@ -6,7 +6,8 @@
  * - 공용 `Modal` 위에 얹는다(포털·Esc·포커스 트랩·스크롤 잠금 공유). 페이지별 모달 재구현 금지 규칙.
  * - 서버·첫 렌더는 닫힘. 마운트 뒤 저장소를 보고 잠깐(700ms) 뒤에 연다 — 히어로가 먼저 그려지고
  *   레이아웃 이동 0, SSR HTML 에 모달 마크업이 섞이지 않는다.
- * - 헤더 "오늘 하루 보지 않기" = localStorage 에 KST 날짜 저장(같은 날이면 숨김). X/Esc = 이번 방문(sessionStorage)만.
+ * - 헤더 "오늘 하루 보지 않기" = localStorage 에 KST 날짜 저장(같은 날이면 숨김). X/Esc 는 기억하지 않는다 —
+ *   새로고침하면 다시 뜬다(회장 9/29). 바깥 클릭으로는 닫히지 않는다(closeOnOverlayClick=false).
  * - 자동화(webdriver)·e2e UA 에서는 열지 않는다 — E2E 가 히어로를 클릭하는데 팝업이 덮으면 깨진다.
  *   실측이 필요하면 `localStorage["irang:promo:force"]="1"`.
  * - `until` 이 지나면 데이터 단에서 비활성(`getActivePromos`) → 컴포넌트가 null.
@@ -51,11 +52,7 @@ export function PromoPopup() {
     let firstVisible = -1;
     try {
       force = window.localStorage.getItem("irang:promo:force") === "1";
-      firstVisible = items.findIndex(
-        (it) =>
-          window.localStorage.getItem(storageKey(it.id)) !== kstToday() &&
-          window.sessionStorage.getItem(storageKey(it.id)) !== "closed",
-      );
+      firstVisible = items.findIndex((it) => window.localStorage.getItem(storageKey(it.id)) !== kstToday());
     } catch {
       firstVisible = 0; // 저장소 차단 — 못 본 것으로 간주
     }
@@ -75,7 +72,6 @@ export function PromoPopup() {
   const close = (reason: "close" | "today") => {
     try {
       if (reason === "today") window.localStorage.setItem(storageKey(item.id), kstToday());
-      window.sessionStorage.setItem(storageKey(item.id), "closed");
     } catch {
       // 저장 실패해도 이번 렌더에서는 닫힌다
     }
@@ -108,6 +104,7 @@ export function PromoPopup() {
       titleIcon={<Megaphone size={20} />}
       align="topRight"
       size="medium"
+      closeOnOverlayClick={false}
       headerAction={
         <button type="button" className={s.todayBtn} onClick={() => close("today")}>
           오늘 하루 보지 않기

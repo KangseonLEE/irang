@@ -38,6 +38,8 @@ interface ModalProps {
   headerAction?: React.ReactNode;
   /** 제목 앞 아이콘(lucide). 색은 primary — 홍보 팝업 확성기 (2026-09-29 회장) */
   titleIcon?: React.ReactNode;
+  /** 오버레이(바깥) 클릭으로 닫기. 기본 true. 홍보 팝업은 실수 클릭으로 닫히지 않게 false (2026-09-29 회장) */
+  closeOnOverlayClick?: boolean;
   /**
    * 세로 정렬. "top" → 상단에서 12vh 아래(검색 팔레트 관례 — ⌘K 류는 화면 중앙보다 위가 눈에 편하다).
    * 기본은 세로 중앙. (2026-09-29 통합검색 모달)
@@ -49,7 +51,7 @@ interface ModalProps {
 const ANIMATION_DURATION = 150; // ms — overlayOut / panelOut duration
 const DRAG_DISMISS_THRESHOLD = 100; // px — 이 이상 아래로 드래그하면 닫기
 
-export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default", align = "center", headerAction, titleIcon }: ModalProps) {
+export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default", align = "center", headerAction, titleIcon, closeOnOverlayClick = true }: ModalProps) {
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -273,7 +275,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
       data-closing={closing || undefined}
       onClick={(e) => {
         // 오버레이(자기 자신) 클릭 시에만 닫기
-        if (e.target === e.currentTarget) handleClose();
+        if (closeOnOverlayClick && e.target === e.currentTarget) handleClose();
       }}
       role="presentation"
     >
