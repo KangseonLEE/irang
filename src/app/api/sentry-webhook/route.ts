@@ -70,7 +70,11 @@ export async function POST(request: NextRequest) {
   }
 
   const report = parseSentryWebhook(resource, payload);
-  if (!report) return noContent();
+  if (!report) {
+    const keys = payload && typeof payload === "object" ? Object.keys(payload as Record<string, unknown>) : [];
+    console.warn(`[sentry-webhook] 해석 불가 페이로드 → 204 (resource=${resource}, keys=${keys.join(",")})`);
+    return noContent();
+  }
 
   // issue 훅은 생성·재발만 옮긴다 (resolved·assigned 까지 이슈를 만들면 소음)
   if (report.resource === "issue" && !HANDLED_ISSUE_ACTIONS.has(report.action ?? "")) {

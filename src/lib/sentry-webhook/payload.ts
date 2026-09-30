@@ -143,7 +143,15 @@ function parseEventAlert(data: Json, action: string | undefined): SentryReport |
   const event = isObj(data.event) ? data.event : null;
   if (!event) return null;
 
-  const issueId = str(event.issue_id) ?? str(event.groupID) ?? str(event.group_id);
+  // issue_id 가 없는 페이로드(테스트 알림·일부 이벤트)는 issue_url 끝 세그먼트 → event_id 순으로 대체.
+  // 9/30 실측: 테스트 알림이 여기서 null → 204 로 조용히 떨어져 원인 추적이 막혔다.
+  const fromIssueUrl = (() => {
+    const u = str(event.issue_url) ?? str(event.web_url);
+    const m = u ? /\/issues\/(\d+)/.exec(u) : null;
+    return m ? m[1] : undefined;
+  })();
+  const issueId =
+    str(event.issue_id) ?? str(event.groupID) ?? str(event.group_id) ?? fromIssueUrl ?? str(event.event_id);
   if (!issueId) return null;
 
   const tags = readTags(event.tags);
