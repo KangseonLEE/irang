@@ -44,7 +44,8 @@ const HANDLED_RESOURCES = new Set(["event_alert", "issue"]);
 const noContent = () => new NextResponse(null, { status: 204 });
 
 export async function POST(request: NextRequest) {
-  const secret = process.env.SENTRY_WEBHOOK_SECRET;
+  // 대시보드 붙여넣기 시 끝에 줄바꿈이 따라오는 일이 있어(9/30 실측 41자) 양쪽 공백을 걷어낸다
+  const secret = (process.env.SENTRY_WEBHOOK_SECRET ?? "").trim();
   if (!secret) {
     console.error("[sentry-webhook] SENTRY_WEBHOOK_SECRET 미설정 — 요청 거부");
     return NextResponse.json({ ok: false, error: "secret-missing" }, { status: 503 });
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
     return noContent();
   }
 
-  const token = process.env.GITHUB_ISSUE_TOKEN;
+  const token = (process.env.GITHUB_ISSUE_TOKEN ?? "").trim();
   if (!token) {
     console.error("[sentry-webhook] GITHUB_ISSUE_TOKEN 미설정 — 이슈 생성 불가");
     return NextResponse.json({ ok: false, error: "github-token-missing" }, { status: 503 });
@@ -109,7 +110,7 @@ export async function GET() {
       env: {
         SENTRY_WEBHOOK_SECRET: Boolean(process.env.SENTRY_WEBHOOK_SECRET),
         GITHUB_ISSUE_TOKEN: Boolean(process.env.GITHUB_ISSUE_TOKEN),
-        GITHUB_ISSUE_TOKEN_len: (process.env.GITHUB_ISSUE_TOKEN ?? "").length,
+        GITHUB_ISSUE_TOKEN_len: (process.env.GITHUB_ISSUE_TOKEN ?? "").trim().length,
       },
     },
     { headers: { "Cache-Control": "private, no-store" } },
