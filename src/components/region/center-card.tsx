@@ -1,5 +1,5 @@
 import { ExternalLink, Phone, MapPin } from "lucide-react";
-import type { Center } from "@/lib/data/centers";
+import { centerFallbackNotice, type Center } from "@/lib/data/centers";
 import s from "./center-card.module.css";
 
 interface CenterCardProps {
@@ -19,11 +19,16 @@ export function CenterCard({
   showSidoLabel = false,
   variant = "default",
 }: CenterCardProps) {
+  const fallbackNotice = centerFallbackNotice(center);
+
   if (variant === "compact") {
     return (
       <article className={s.compactCard}>
         <div className={s.compactMain}>
           <h3 className={s.compactName}>{center.name}</h3>
+          {fallbackNotice && (
+            <span className={s.fallbackNotice}>{fallbackNotice}</span>
+          )}
           {center.address && (
             <span className={s.compactAddress}>
               <MapPin size={12} aria-hidden="true" />
@@ -61,6 +66,8 @@ export function CenterCard({
     <article className={s.card}>
       {showSidoLabel && <span className={s.sidoLabel}>{center.sido}</span>}
       <h3 className={s.name}>{center.name}</h3>
+
+      {fallbackNotice && <p className={s.fallbackNotice}>{fallbackNotice}</p>}
 
       {center.address && (
         <p className={s.address}>

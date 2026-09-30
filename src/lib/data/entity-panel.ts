@@ -21,7 +21,12 @@ import { CROPS } from "./crops";
 import { PROGRAMS, REGIONS as PROGRAM_FILTER_REGIONS } from "./programs";
 import { EDUCATION_COURSES, EDUCATION_REGIONS } from "./education";
 import { EVENTS, EVENT_REGIONS } from "./events";
-import { getSidoCenter, getSigunguCenter, type Center } from "./centers";
+import {
+  centerFallbackNotice,
+  getSidoCenter,
+  getSigunguCenter,
+  type Center,
+} from "./centers";
 import {
   deriveStatus,
   deriveEventStatus,
@@ -89,6 +94,8 @@ interface PanelCenter {
   phone?: string;
   address?: string;
   url: string;
+  /** 광역 기관으로 안내하는 항목의 사용자 안내 한 줄 (centerFallbackNotice) */
+  notice?: string;
 }
 
 type EntityPanelKind =
@@ -373,6 +380,7 @@ function toPanelCenter(center: Center | undefined): PanelCenter | undefined {
     phone: center.phone,
     address: center.address,
     url: center.url,
+    notice: centerFallbackNotice(center),
   };
 }
 

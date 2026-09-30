@@ -508,3 +508,13 @@
     justify-content: center;
   }
 }
+
+/* ── 센터 행: 광역 기관 안내 한 줄 (centers fallbackOf 항목) ── */
+.centerNotice {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  word-break: keep-all;
+}

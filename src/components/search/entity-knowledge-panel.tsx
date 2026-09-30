@@ -155,7 +155,12 @@ export function EntityKnowledgePanel({ panel }: { panel: EntityPanel }) {
 
       {panel.center && (
         <div className={s.center}>
-          <span className={s.centerName}>{panel.center.name}</span>
+          <span className={s.centerName}>
+            {panel.center.name}
+            {panel.center.notice && (
+              <span className={s.centerNotice}>{panel.center.notice}</span>
+            )}
+          </span>
           <div className={s.centerActions}>
             {panel.center.phone && (
               <a

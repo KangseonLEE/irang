@@ -10,7 +10,7 @@ import { getCropImageSrc, hasCropIllustration } from "@/lib/crop-image";
 import { getProgramById } from "@/lib/data/programs";
 import { getEducationById } from "@/lib/data/education";
 import { getEventById } from "@/lib/data/events";
-import { CENTERS } from "@/lib/data/centers";
+import { CENTERS, centerFallbackNotice } from "@/lib/data/centers";
 import { interviews } from "@/lib/data/landing";
 import { glossaryMap, CATEGORY_LABELS } from "@/lib/data/glossary";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -437,6 +437,7 @@ function renderCenterCard(item: SearchItem, query: string, highlightCls: string,
   const where = [ctr.sido, ctr.sigungu].filter(Boolean).join(" ");
   const categoryLabel = ctr.category === "sido" ? "광역" : "시·군";
   const site = safeHttpUrl(ctr.url);
+  const fallbackNotice = centerFallbackNotice(ctr);
 
   return wrapCard(
     item,
@@ -445,6 +446,7 @@ function renderCenterCard(item: SearchItem, query: string, highlightCls: string,
       <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
       {richTitle(item, ctr.name, query, highlightCls)}
       <span className={s.subtitle}>{highlightMatch(where, query, highlightCls)}</span>
+      {fallbackNotice && <span className={s.fallbackNotice}>{fallbackNotice}</span>}
       <div className={s.metaRow}>
         <span className={s.metaChip}>{categoryLabel}</span>
         {ctr.address && (
