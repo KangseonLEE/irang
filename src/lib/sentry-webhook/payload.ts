@@ -229,5 +229,12 @@ export function parseSentryWebhook(resource: string | null, payload: unknown): S
   return null;
 }
 
-/** `issue` 훅에서 GitHub 이슈로 옮길 가치가 있는 action 만 통과 */
-export const HANDLED_ISSUE_ACTIONS = new Set(["created", "unresolved", "regression"]);
+/**
+ * `issue` 훅에서 GitHub 이슈로 옮길 가치가 있는 action 만 통과.
+ *
+ * `created` 는 제외한다 (2026-09-30): 새 이슈는 알림 규칙의 `event_alert` 가 이미 옮기는데,
+ * Sentry 는 `issue.created` 훅을 **같은 순간** 따로 쏜다. 두 요청이 동시에 검색 API 를 보면
+ * 둘 다 "없음"을 받아 GitHub 이슈가 2건 생겼다(9/30 실측 #147·#148, 1초 차). 서버리스에는
+ * 잠금이 없으므로 한 경로만 생성하게 한다 — 신규는 알림 규칙, 재발(unresolved·regression)은 훅.
+ */
+export const HANDLED_ISSUE_ACTIONS = new Set(["unresolved", "regression"]);

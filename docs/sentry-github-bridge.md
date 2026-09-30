@@ -35,8 +35,10 @@ Sentry Alert Rule 액션 → POST /api/sentry-webhook → GitHub Issues API
   리소스·action `204` / 본문 JSON 깨짐 `400` / GitHub 실패 `502`(Sentry 재시도) / 성공 `200`.
   **성공처럼 보이는 조용한 통과는 만들지 않는다** — 5/26 quick_feedback silent 202 가
   33일 잠복한 교훈.
-- **리소스**: `event_alert`(알림 규칙 액션), `issue`(action `created`·`unresolved`·`regression`만).
-  `resolved`·`assigned` 등은 204 로 흘린다(소음 방지).
+- **리소스**: `event_alert`(알림 규칙 액션 — 신규 이슈·피드백은 전부 이 경로), `issue`(action
+  `unresolved`·`regression` = 재발만). `created`·`resolved`·`assigned` 등은 204 로 흘린다.
+  `issue.created` 를 받지 않는 이유: 알림 규칙과 **같은 순간** 도착해 검색 기반 중복 방지가
+  경합에 지고 이슈가 2건 생긴다(9/30 #147·#148). 신규 이슈 알림 규칙을 끄면 신규가 안 옮겨진다.
 - **중복 방지**: 이슈 본문에 `<!-- sentry:<issue id> -->` 마커. 생성 전에
   `GET /search/issues?q=repo:… "sentry:<id>" in:body` 로 찾아 있으면 **코멘트만** 추가.
   검색 API 가 실패(레이트 리밋)하면 생성으로 넘어간다 — 알림 유실이 중복 이슈보다 나쁘다.
@@ -91,6 +93,11 @@ Sentry Alert Rule 액션 → POST /api/sentry-webhook → GitHub Issues API
 - 이슈 생성에 **PAT** 를 쓰므로 워크플로가 정상 트리거된다(`GITHUB_TOKEN` 으로 만든 이슈는
   워크플로를 트리거하지 않는다).
 - Search API 는 색인 지연이 있어(수초~수십초) 같은 이슈가 아주 빠르게 두 번 발사되면
-  이슈가 2건 생길 수 있다. 중복이 보이면 한 건을 닫는다.
+  이슈가 2건 생길 수 있다. 그래서 신규 생성 경로를 알림 규칙 하나로 좁혔다(위 리소스 항목).
+- **CF Worker `irang-bot-detection`(`irangfarm.com/*`) 가 WAF 뒤·오리진 앞에 있다.** 미들웨어의
+  지리 503 정책을 그대로 복제한 계층이라, 미들웨어에 예외를 넣어도 Worker 에 같은 예외가 없으면
+  오리진에 닿지 못한다(9/30 — Sentry 웹훅 503 이 7회 연속, 방화벽 이벤트엔 skip 으로만 남아
+  원인이 보이지 않았다). 배포는 `deploy-bot-worker.yml`, 정책 원본은
+  `cloudflare-workers/bot-detection/index.js`.
 - 토큰 만료·Client Secret 회전 시 **양쪽(발급처·Vercel env) 등록을 즉시 실측**한다
   (7/25 `E2E_SECRET` 미등록이 2달 잠복한 패턴).

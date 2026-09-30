@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     return noContent();
   }
 
-  // issue 훅은 생성·재발만 옮긴다 (resolved·assigned 까지 이슈를 만들면 소음)
+  // issue 훅은 재발만 옮긴다 — 신규는 알림 규칙 event_alert 가 담당 (created 까지 받으면 동시 도착으로 2건 생성, 9/30)
   if (report.resource === "issue" && !HANDLED_ISSUE_ACTIONS.has(report.action ?? "")) {
     return noContent();
   }
