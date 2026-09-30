@@ -232,7 +232,16 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
       }
     }
 
-    const pending = refresh ? prepared : prepared.filter((p) => !verified.has(`${p.table}:${p.slug}`));
+    // 같은 배치에 같은 slug 가 두 번 있으면 PostgREST upsert 가 "cannot affect row a second time" 로 통째 실패한다
+    // (9/30 refresh 실측: agrix 60건·rda 8건). 검증 필터가 가려 주던 중복을 여기서 명시적으로 제거 — 첫 항목 우선.
+    const seenSlug = new Set<string>();
+    const deduped = prepared.filter((p) => {
+      const key = `${p.table}:${p.slug}`;
+      if (seenSlug.has(key)) return false;
+      seenSlug.add(key);
+      return true;
+    });
+    const pending = refresh ? deduped : deduped.filter((p) => !verified.has(`${p.table}:${p.slug}`));
     skipped = prepared.length - pending.length;
 
     // ── 3. 원문 URL 헬스체크 (URL 캐시 + 건수 예산) ──
