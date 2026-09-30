@@ -44,6 +44,7 @@ const HANDLED_RESOURCES = new Set(["event_alert", "issue"]);
 const noContent = () => new NextResponse(null, { status: 204 });
 
 export async function POST(request: NextRequest) {
+  console.log(`[sentry-webhook] POST 수신 resource=${request.headers.get(SENTRY_RESOURCE_HEADER) ?? "-"} ua=${(request.headers.get("user-agent") ?? "").slice(0, 40)} country=${request.headers.get("cf-ipcountry") ?? "-"}`);
   // 대시보드 붙여넣기 시 끝에 줄바꿈이 따라오는 일이 있어(9/30 실측 41자) 양쪽 공백을 걷어낸다
   const secret = (process.env.SENTRY_WEBHOOK_SECRET ?? "").trim();
   if (!secret) {
