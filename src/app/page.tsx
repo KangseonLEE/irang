@@ -99,7 +99,7 @@ function getProgramsData() {
 
 /* ── 살아보기(팜스테이) 데이터 준비 (9/30) — 고르는 규칙은 LivingSection 옆에 둔다 ── */
 async function getLivingStays() {
-  const { events } = await filterEventsAsync({ type: "팜스테이" });
+  const { events } = await filterEventsAsync({});
   return pickLivingStays(events);
 }
 

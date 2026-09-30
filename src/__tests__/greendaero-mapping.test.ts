@@ -122,9 +122,9 @@ describe("greendaero — 강의형 / 체험형 분류", () => {
   });
 
   it("체험 유형을 farm_events 어휘로 매핑한다", () => {
-    expect(resolveEventType("경기 귀농귀촌디딤돌 마실짝꿍")).toBe("팜스테이");
-    expect(resolveEventType("칠갑산산꽃마을 농촌에서 살아보기")).toBe("팜스테이");
-    expect(resolveEventType("경기도 농촌 한 달 체험")).toBe("팜스테이");
+    expect(resolveEventType("경기 귀농귀촌디딤돌 마실짝꿍")).toBe("살아보기");
+    expect(resolveEventType("칠갑산산꽃마을 농촌에서 살아보기")).toBe("살아보기");
+    expect(resolveEventType("경기도 농촌 한 달 체험")).toBe("살아보기");
     expect(resolveEventType("2026 춘천시 귀농귀촌 팸투어")).toBe("일일체험");
     expect(resolveEventType("귀농 설명회")).toBe("설명회");
     expect(resolveEventType("귀농귀촌 박람회")).toBe("박람회");
@@ -183,7 +183,7 @@ describe("greendaero — 교육 항목 매핑", () => {
   it("체험형은 farm_events로 가고 eventType이 붙는다", () => {
     const item = mapEduItem(EDU_EXPERIENCE, TODAY)!;
     expect(item.category).toBe("events");
-    expect(item.eventType).toBe("팜스테이");
+    expect(item.eventType).toBe("살아보기");
     expect(item.educationType).toBeUndefined();
     expect(item.title).toBe(
       "경기 귀농귀촌디딤돌 · 귀농귀촌디딤돌 _ 재능으로잇는 마실짝꿍(연천)",
@@ -228,10 +228,10 @@ describe("greendaero — 교육 항목 매핑", () => {
 });
 
 describe("greendaero — 살아보기 매핑", () => {
-  it("전건 farm_events 팜스테이로 간다", () => {
+  it("전건 farm_events 살아보기로 간다", () => {
     const item = mapLiveItem(LIVE_VILLAGE, TODAY)!;
     expect(item.category).toBe("events");
-    expect(item.eventType).toBe("팜스테이");
+    expect(item.eventType).toBe("살아보기");
     expect(item.title).toBe("칠갑산산꽃마을 농촌에서 살아보기 (귀촌형)");
     expect(normalizeRegion(item.region)).toEqual({
       region: "충청남도",

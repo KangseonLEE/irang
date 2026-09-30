@@ -5,6 +5,7 @@ import { PROVINCES } from "@/lib/data/regions";
 import { getEventImage } from "@/lib/events/event-image";
 import { ALWAYS_OPEN, daysUntilDeadline } from "@/lib/program-status";
 import type { FarmEvent } from "@/lib/data/events";
+import { isStayEvent } from "@/components/events/event-fields";
 import { LivingCarousel, type LivingStay } from "./living-carousel";
 import s from "./living-section.module.css";
 
@@ -64,9 +65,10 @@ export const LIVING_MAX = 8;
  * 살아보기 접수창은 2~6주로 짧아 마감 임박 건이 오히려 "지금 결정해야 하는 카드"다.
  */
 export function pickLivingStays(events: FarmEvent[]): FarmEvent[] {
+  // 유형 필터는 여기서 — 마이그레이션 전 행(팜스테이+제목)까지 같이 잡는다
   const rank = (status: string) => (status === "접수중" ? 0 : status === "접수예정" ? 1 : 2);
   return events
-    .filter((e) => e.status !== "마감")
+    .filter((e) => isStayEvent(e) && e.status !== "마감")
     .slice()
     .sort(
       (a, b) =>
@@ -144,7 +146,7 @@ export function LivingSection({ items }: { items: FarmEvent[] }) {
           </h2>
           <p className={s.sub}>이사 전에 마을에서 몇 주 지내 보는 정부 프로그램이에요</p>
         </div>
-        <Link href="/events?type=팜스테이" className={s.viewAll} data-track="living:view_all">
+        <Link href="/events?type=살아보기" className={s.viewAll} data-track="living:view_all">
           모두 보기 <IconWrap icon={ArrowRight} size="sm" />
         </Link>
       </div>

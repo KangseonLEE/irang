@@ -15,9 +15,9 @@ const PROVINCE_BY_NAME = new Map(PROVINCES.map((p) => [p.name, p]));
 /** 마을 유형 (귀농형 / 귀촌형 / 프로젝트형) */
 const VILLAGE_TYPE_RE = /(귀농형|귀촌형|프로젝트형)/;
 
-/** "농촌에서 살아보기" 계열 — 유형 SSOT(EVENT_TYPES)에서 팜스테이로 분류돼 들어온다 */
-export function isStayEvent(event: Pick<FarmEvent, "type">): boolean {
-  return event.type === "팜스테이";
+/** "농촌에서 살아보기" 계열 — 9/30 유형 '살아보기' 신설. 마이그레이션 전 행은 아직 '팜스테이'+제목으로 판별 */
+export function isStayEvent(event: Pick<FarmEvent, "type" | "title">): boolean {
+  return event.type === "살아보기" || (event.type === "팜스테이" && event.title.includes("살아보기"));
 }
 
 /**

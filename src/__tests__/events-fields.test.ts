@@ -21,7 +21,7 @@ const stay: FarmEvent = {
   region: "전라남도",
   sigungu: "강진군",
   organization: "전남 강진군",
-  type: "팜스테이",
+  type: "살아보기",
   date: "2026-10-01",
   dateEnd: "2026-11-13",
   applicationStart: "2026-08-19",

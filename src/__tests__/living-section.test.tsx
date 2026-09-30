@@ -12,7 +12,7 @@ function stay(over: Partial<FarmEvent> & { id: string }): FarmEvent {
     region: "경상북도",
     sigungu: "영양군",
     organization: "영양군",
-    type: "팜스테이",
+    type: "살아보기",
     date: "2026-10-01",
     dateEnd: "2026-11-30",
     applicationStart: "2026-09-09",
@@ -46,9 +46,9 @@ describe("LivingSection — 랜딩 살아보기 캐러셀 (9/30)", () => {
     expect(html).toContain('data-track="living:view_all"');
   });
 
-  it("모두 보기는 /events?type=팜스테이 (라우트 실존)", () => {
+  it("모두 보기는 /events?type=살아보기 (라우트 실존)", () => {
     const html = renderToStaticMarkup(<LivingSection items={three} />);
-    expect(html).toContain("/events?type=팜스테이");
+    expect(html).toContain("/events?type=살아보기");
     expect(existsSync(join(process.cwd(), "src", "app", "events", "page.tsx"))).toBe(true);
     expect(existsSync(join(process.cwd(), "src", "app", "events", "[id]", "page.tsx"))).toBe(true);
   });
