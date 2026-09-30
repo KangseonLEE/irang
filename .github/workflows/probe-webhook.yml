@@ -1,0 +1,15 @@
+# 임시 진단 (2026-09-30): 해외(US 러너)에서 /api/sentry-webhook 이 어떤 응답을 받는지 — 헤더 포함. 확인 후 삭제.
+name: "Probe sentry-webhook from US runner"
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST unsigned (expect 401 if reachable)
+        run: |
+          for UA in "sentry/26.0" "Mozilla/5.0 Chrome/128"; do
+            echo "=== UA: $UA"
+            curl -s -D - -o /tmp/body -X POST -H "Content-Type: application/json" -H "sentry-hook-resource: event_alert" -A "$UA" -d '{}' https://irangfarm.com/api/sentry-webhook | sed -n '1,25p'
+            echo "--- body: $(head -c 200 /tmp/body)"
+          done
