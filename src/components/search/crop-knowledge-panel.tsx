@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import type { CropPanel } from "@/lib/data/search-index";
 import { PROVINCES } from "@/lib/data/regions";
 
-import s from "./crop-knowledge-panel.module.css";
+import s from "./knowledge-panel.module.css";
 
 /** 시도 정식명 → 짧은 표기 (칩 노출용) */
 function shortenRegion(name: string): string {
