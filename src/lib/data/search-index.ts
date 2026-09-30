@@ -29,6 +29,7 @@ import { LAND_TYPES, ZONING_TYPES, EXTERNAL_LAND_SERVICES } from "./land";
 import { PLAN_STEPS } from "./plan";
 import { GUIDE_STEP_SUMMARIES } from "./guide-steps";
 import { SEARCH_FAQS } from "./search-faq";
+import type { EntityPanel } from "./entity-panel";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -2076,14 +2077,24 @@ export function resolveSearchDisplay(
   results: SearchItem[],
   answer: SearchAnswer | null,
   panel: CropPanel | null,
+  /**
+   * 엔티티 지식 패널 (9/30) — 지역·지원사업·교육·행사가 특정됐을 때. 패널이 이미 그린 카드
+   * (`absorbKeys`)를 목록에서 빼고, 뺀 수만큼 히어로로 되돌려 총 건수는 불변으로 둔다.
+   */
+  entityPanel: EntityPanel | null = null,
 ): { displayResults: SearchItem[]; hitCount: number } {
   let displayResults = results;
+  let absorbed = 0;
   if (answer) {
     displayResults = results.filter((r) => !isAnswerSynthetic(r.id, answer));
   } else if (panel) {
     displayResults = results.filter((r) => !(r.type === "crop" && r.id === panel.cropId));
+  } else if (entityPanel) {
+    const keys = new Set(entityPanel.absorbKeys);
+    displayResults = results.filter((r) => !keys.has(`${r.type}-${r.id}`));
+    absorbed = results.length - displayResults.length;
   }
-  const heroCount = (answer ? 1 : 0) + (panel ? 1 : 0);
+  const heroCount = (answer ? 1 : 0) + (panel ? 1 : 0) + absorbed;
   return { displayResults, hitCount: displayResults.length + heroCount };
 }
 

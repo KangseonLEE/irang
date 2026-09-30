@@ -7,6 +7,7 @@ import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, Tre
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { searchAllGrouped, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, getNoResultSuggestions, getPopularTagsWithResults, type SearchItem, type GroupedSearchResults } from "@/lib/data/search-index";
+import { buildEntityPanel } from "@/lib/data/entity-panel";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
 import { analytics } from "@/lib/analytics";
@@ -20,6 +21,7 @@ import { GlossaryResultList } from "@/components/search/glossary-result-list";
 import { SearchResultTracker } from "@/components/analytics/search-result-tracker";
 import { SearchAnswerCard } from "@/components/search/search-answer-card";
 import { CropKnowledgePanel } from "@/components/search/crop-knowledge-panel";
+import { EntityKnowledgePanel } from "@/components/search/entity-knowledge-panel";
 import s from "./page.module.css";
 
 /** 답변 카드와 중복되는 synthetic guide 카드인지 판별 — 그룹 노출에서 제외 */
@@ -205,14 +207,21 @@ function SearchPageContent() {
   // 지식 패널 (Knowledge Panel) — 답변 카드가 없을 때만(=bare 작물 엔티티)
   const panel = useMemo(() => (effectiveQuery && !answer ? buildCropPanel(effectiveQuery) : null), [effectiveQuery, answer]);
 
+  // 엔티티 지식 패널 (9/30) — 답변 카드·작물 패널이 없을 때, 검색어가 지역·지원사업·교육·행사
+  // 하나로 특정되면 그 실체의 요약을 같은 위계로 그린다. 세 히어로는 상호배타다.
+  const entityPanel = useMemo(
+    () => (effectiveQuery && !answer && !panel ? buildEntityPanel(effectiveQuery) : null),
+    [effectiveQuery, answer, panel],
+  );
+
   // 연관 검색어 (Related Searches) — 결과 하단 탐색 확장
   const relatedSearches = useMemo(() => (effectiveQuery ? buildRelatedSearches(effectiveQuery) : []), [effectiveQuery]);
 
   // 답변/패널이 있으면 중복 카드를 목록에서 제외 — 단 히트 수에는 그 카드들을 포함
   // ("참깨"처럼 작물 카드 1건뿐인 검색이 패널에 흡수돼 "총 0건·결과 없음"으로 보이던 8/29 사고)
   const { displayResults, hitCount } = useMemo(
-    () => resolveSearchDisplay(results, answer, panel),
-    [results, answer, panel],
+    () => resolveSearchDisplay(results, answer, panel, entityPanel),
+    [results, answer, panel, entityPanel],
   );
 
   // 직답 블록 / 타입별 섹션 분리 — pinned(읍·면·동 안내·정확 일치 hoist·작물 딥링크·FAQ·교차 카드)는
@@ -523,6 +532,13 @@ function SearchPageContent() {
         </div>
       )}
 
+      {/* 엔티티 지식 패널 — 지역·지원사업·교육·행사가 하나로 특정될 때 */}
+      {query && entityPanel && (
+        <div className={s.answerWrap}>
+          <EntityKnowledgePanel panel={entityPanel} />
+        </div>
+      )}
+
       {/* 직답 블록 — 읍·면·동 안내·정확 일치·작물 딥링크·FAQ·교차 카드.
           유형 섹션으로 쪼개지 않고 관련도 목록 위에 그대로 둔다 (Phase C). */}
       {query && pinnedResults.length > 0 && (
@@ -540,7 +556,7 @@ function SearchPageContent() {
       )}
 
       {/* 정확히 일치하는 항목 없음 안내 — 결과 위에 배치 (긍정 톤, 2026-05-22) */}
-      {query && !fallback && !answer && !panel && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(effectiveQuery, results) && (
+      {query && !fallback && !answer && !panel && !entityPanel && query.trim().length >= 2 && totalCount > 0 && !hasExactMatch(effectiveQuery, results) && (
         <div className={s.noExactMatch}>
           <div className={s.noExactMatchContent}>
             <p className={s.noExactMatchText}>

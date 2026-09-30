@@ -1,0 +1,510 @@
+/* 지식 패널 공용 프레임 — 작물(CropKnowledgePanel)·엔티티(EntityKnowledgePanel) 공통. 좌측 세로선 금지(회장 박제). */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.emoji {
+  font-size: 34px;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--foreground);
+}
+
+.meta {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.detailLink {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary);
+  padding: 7px 13px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, transparent);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.detailLink:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.summary {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+}
+
+/* 사실 그리드 — 데스크탑 2열, 모바일 1열 */
+.factGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin: 0;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.factRow {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 14px;
+  background: var(--card);
+}
+
+.factLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.factValue {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--foreground);
+}
+
+/* 라벨 + 칩 라인 */
+.line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.lineLabel {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  min-width: 48px;
+}
+
+.chips,
+.sitelinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.regionChip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  padding: 4px 11px;
+  border-radius: 20px;
+}
+
+.sitelink {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 9%, transparent);
+  padding: 5px 13px;
+  border-radius: 12px;
+  transition: background 0.15s ease;
+}
+
+.relatedChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--foreground);
+  background: var(--muted);
+  padding: 5px 12px;
+  border-radius: 20px;
+  transition: background 0.15s ease;
+}
+
+.sitelink:focus-visible,
+.relatedChip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ── 엔티티 패널 전용 (지역·지원사업·교육·행사) ───────────────────────────── */
+
+/* 제목 위 작은 라벨 — 시·도 브레드크럼 / 주관 기관 */
+.overline {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+}
+
+.headTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 문장 단위 요약 — 지원 내용·교육 내용 */
+.bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bullet {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+  padding-left: 13px;
+  position: relative;
+}
+
+.bullet::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary) 55%, transparent);
+  pointer-events: none;
+}
+
+.overflowCount {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+/* 추천 작물 — 일러스트 썸네일 링크 카드 */
+.cropCards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cropCard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--foreground);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.cropCard:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.cropThumb {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--muted);
+  overflow: hidden;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.cropThumb img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.cropName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 목록 블록 — 지원사업·교육·행사 */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.groupLabel {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+/* 세로 여백은 터치 영역 확보용 — 배경이 없어 시각 무게는 그대로다 (실측 14px → 26px) */
+.groupMore {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.groupMore:focus-visible,
+.sourceLink:focus-visible,
+.cta:focus-visible,
+.ctaPrimary:focus-visible,
+.centerAction:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.groupList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.groupItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  transition: border-color 0.15s ease;
+}
+
+.groupItem:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.groupItemBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.groupItemTitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--foreground);
+}
+
+.groupItemMeta {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 지자체 센터 */
+.center {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 11px 13px;
+  border-radius: 14px;
+  background: var(--muted);
+}
+
+.centerName {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--foreground);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.centerActions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.centerAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 5px 11px;
+  border-radius: 12px;
+}
+
+/* 원문 링크 */
+.sourceLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 9%, transparent);
+  padding: 8px 14px;
+  border-radius: 12px;
+  transition: background 0.15s ease;
+}
+
+/* 다음 행동 */
+.ctas {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cta,
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 9px 15px;
+  border-radius: 12px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ctaPrimary {
+  color: #fff;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.cta {
+  color: var(--primary);
+  background: var(--card);
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, transparent);
+}
+
+@media (hover: hover) {
+  .detailLink:hover {
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+    border-color: var(--primary);
+  }
+  .sitelink:hover {
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+  }
+  .relatedChip:hover {
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+  }
+}
+
+@media (max-width: 639px) {
+  .panel {
+    padding: 18px 16px;
+    gap: 12px;
+  }
+  .factGrid {
+    grid-template-columns: 1fr;
+  }
+  .name {
+    font-size: 1.125rem;
+  }
+}
+
+@media (hover: hover) {
+  .cropCard:hover {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 5%, transparent);
+  }
+  .groupItem:hover {
+    border-color: var(--primary);
+  }
+  .groupMore:hover {
+    text-decoration: underline;
+  }
+  .sourceLink:hover {
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+  }
+  .ctaPrimary:hover {
+    background: color-mix(in srgb, var(--primary) 88%, #000);
+  }
+  .cta:hover {
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+    border-color: var(--primary);
+  }
+  .centerAction:hover {
+    border-color: var(--primary);
+  }
+}
+
+@media (max-width: 639px) {
+  .cropCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .groupItemMeta {
+    white-space: normal;
+  }
+  .ctas > .cta,
+  .ctas > .ctaPrimary {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
