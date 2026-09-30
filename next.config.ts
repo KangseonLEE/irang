@@ -110,7 +110,11 @@ const nextConfig: NextConfig = {
               // 9/29: 외부 http 서브리소스(지역 언론 og:image 등)를 브라우저가 https 로 올려 요청 — img-src 완화 없이 해결
               "upgrade-insecure-requests",
               "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com",
-              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://sgisapi.mods.go.kr https://apis.data.go.kr https://va.vercel-scripts.com https://kapi.kakao.com https://sharer.kakao.com https://*.ingest.sentry.io",
+              // 9/30: 우리 DSN 은 지역 호스트 `o….ingest.us.sentry.io` 인데 CSP 호스트 와일드카드는
+              // 접미가 정확히 일치해야 매칭된다 — `*.ingest.sentry.io` 로는 `.ingest.us.sentry.io` 가
+              // 잡히지 않아 **브라우저에서 올라가는 Sentry 이벤트가 전부 차단되고 있었다**(서버 측만 도달).
+              // 오류 보고(User Feedback·스크린샷)도 같은 ingest 로 가므로 지역 호스트를 명시한다.
+              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://sgisapi.mods.go.kr https://apis.data.go.kr https://va.vercel-scripts.com https://kapi.kakao.com https://sharer.kakao.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io",
               // 2026-09-16 보안 점검 — XSS 성공 시 피해를 줄이는 두 줄.
               // object-src: 플러그인·<embed> 기반 실행 경로 차단
               // base-uri: <base> 태그 주입으로 상대경로 스크립트를 외부로 돌리는 공격 차단

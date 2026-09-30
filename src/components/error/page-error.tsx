@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import * as Sentry from "@sentry/nextjs";
 import { AlertTriangle, RotateCcw, Home } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { ErrorReportButton } from "./error-report-button";
 import s from "./page-error.module.css";
 
 interface PageErrorProps {
@@ -28,8 +29,13 @@ export function PageError({
   listHref,
   listLabel,
 }: PageErrorProps) {
+  /* 이 오류의 Sentry 이벤트 id — 사용자가 보내는 피드백을 같은 이슈에 묶는 데 쓴다 */
+  const [eventId, setEventId] = useState<string | undefined>();
+
   useEffect(() => {
-    Sentry.captureException(error, { tags: { component: tag } });
+    const id = Sentry.captureException(error, { tags: { component: tag } });
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setEventId(id);
     console.error(`[${tag}]`, error);
   }, [error, tag]);
 
@@ -40,23 +46,19 @@ export function PageError({
       <p className={s.description}>
         잠시 후 다시 시도해 보세요.
       </p>
-      {listHref && listLabel ? (
-        <div className={s.actions}>
-          <button onClick={reset} className={s.retryButton}>
-            <Icon icon={RotateCcw} size="md" />
-            다시 시도
-          </button>
-          <Link href={listHref} className={s.secondaryButton}>
-            <Icon icon={Home} size="md" />
-            {listLabel}
-          </Link>
-        </div>
-      ) : (
+      <div className={s.actions}>
         <button onClick={reset} className={s.retryButton}>
           <Icon icon={RotateCcw} size="md" />
           다시 시도
         </button>
-      )}
+        {listHref && listLabel && (
+          <Link href={listHref} className={s.secondaryButton}>
+            <Icon icon={Home} size="md" />
+            {listLabel}
+          </Link>
+        )}
+        <ErrorReportButton error={error} eventId={eventId} tag={tag} />
+      </div>
     </div>
   );
 }
