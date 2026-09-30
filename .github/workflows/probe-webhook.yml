@@ -11,19 +11,16 @@ jobs:
       E2E_SECRET: ${{ secrets.E2E_SECRET }}
       UA_E2E: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 irang-e2e/1.0"
     steps:
-      - name: CF rules (custom firewall entrypoint · workers routes · rate limit)
-        run: |
-          for P in "rulesets/phases/http_request_firewall_custom/entrypoint" "rulesets/phases/http_ratelimit/entrypoint" "rulesets/phases/http_request_dynamic_redirect/entrypoint" "rulesets/phases/http_config_settings/entrypoint" "workers/routes" "settings/security_level"; do
-            echo "=== $P"; curl -s "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/$P" -H "Authorization: Bearer $CF_API_TOKEN" | jq -c '.success, (.errors[0].message // empty), (.result.rules[]? | {id:.id[0:8], action, enabled, description, expression:(.expression[0:160])}), (.result | if type=="array" then .[] else empty end), (.result.value // empty)'
-          done
       - name: CF firewall events (latest 3)
         run: |
           SINCE=$(date -u -d '3 hours ago' +%Y-%m-%dT%H:%M:%SZ); UNTIL=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           Q=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" '{query:"query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){firewallEventsAdaptive(limit:3,filter:{datetime_geq:$s,datetime_leq:$u,clientRequestPath:\"/api/sentry-webhook\"},orderBy:[datetime_DESC]){datetime action ruleId clientIP edgeResponseStatus userAgent}}}}",variables:{z:$z,s:$s,u:$u}}')
-          curl -s https://api.cloudflare.com/client/v4/graphql -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" -d "$Q" | jq -r '.errors // empty, (.data.viewer.zones[0].firewallEventsAdaptive[]? | "\(.datetime) action=\(.action) rule=\(.ruleId[0:8]) ip=\(.clientIP) edge=\(.edgeResponseStatus) ua=\(.userAgent[0:30])")'
+          curl -s https://api.cloudflare.com/client/v4/graphql -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" -d "$Q" | jq -r '.errors // empty, (.data.viewer.zones[0].firewallEventsAdaptive[]? | "\(.datetime) action=\(.action) rule=\(.ruleId[0:8]) ip=\(.clientIP) edge=\(.edgeResponseStatus) ua=\(.userAgent[0:30])")' || true
       - name: US runner → irangfarm.com with e2e pass (CF skip → Vercel US edge)
         run: |
-          echo "=== US chunk hashes (which build serves US?)"; curl -s -A "$UA_E2E" -H "x-irang-e2e: probe" -H "x-irang-e2e-secret: $E2E_SECRET" https://irangfarm.com/ | grep -oE '/_next/static/chunks/[A-Za-z0-9._-]+\.js' | sort -u | head -3
+          set +e
+          echo "=== US static markers (which build serves US?)"; curl -s -A "$UA_E2E" -H "x-irang-e2e: probe" -H "x-irang-e2e-secret: $E2E_SECRET" https://irangfarm.com/ | grep -oE '_next/static/[^"'"'"' ]{8,80}' | sort -u | head -3
           echo "=== GET diag"; curl -s -D - -A "$UA_E2E" -H "x-irang-e2e: probe" -H "x-irang-e2e-secret: $E2E_SECRET" https://irangfarm.com/api/sentry-webhook | grep -iE "^HTTP/|x-vercel-id|cf-ray|^\{" | tr -d '\r'
           echo "=== POST unsigned (expect 401 invalid-signature from route)"; curl -s -D - -X POST -A "$UA_E2E" -H "x-irang-e2e: probe" -H "x-irang-e2e-secret: $E2E_SECRET" -H "Content-Type: application/json" -H "sentry-hook-resource: event_alert" -d '{"probe":"us-e2e"}' https://irangfarm.com/api/sentry-webhook | grep -iE "^HTTP/|x-vercel-id|retry-after|cf-mitigated|^\{" | tr -d '\r'
-          echo "=== POST with Sentry UA but e2e headers (CF needs UA token → expect 403)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -A "sentry/26.10.0.dev0 (https://sentry.io)" -H "x-irang-e2e-secret: $E2E_SECRET" -H "Content-Type: application/json" -d '{}' https://irangfarm.com/api/sentry-webhook
+          echo "=== POST Sentry UA + e2e secret only (expect CF 403)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -A "sentry/26.10.0.dev0 (https://sentry.io)" -H "x-irang-e2e-secret: $E2E_SECRET" -H "Content-Type: application/json" -d '{}' https://irangfarm.com/api/sentry-webhook
+          true
