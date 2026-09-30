@@ -15,13 +15,21 @@ describe("landing analytics 이벤트 계약", () => {
     delete (globalThis as unknown as { window?: unknown }).window;
   });
 
-  it("landing_section_view / landing_cta_click / programs_tab_switch", () => {
-    analytics.landingSectionView("programs");
+  it("landing_section_view / landing_cta_click / landing_tab_switch", () => {
+    analytics.landingSectionView("discover");
     analytics.landingCtaClick("quick_link:assess");
-    analytics.programsTabSwitch("ongoing");
-    expect(gtag).toHaveBeenNthCalledWith(1, "event", "landing_section_view", expect.objectContaining({ event_category: "landing", event_label: "programs" }));
+    analytics.discoverTabSwitch("education");
+    expect(gtag).toHaveBeenNthCalledWith(1, "event", "landing_section_view", expect.objectContaining({ event_category: "landing", event_label: "discover" }));
     expect(gtag).toHaveBeenNthCalledWith(2, "event", "landing_cta_click", expect.objectContaining({ event_category: "landing", event_label: "quick_link:assess" }));
-    expect(gtag).toHaveBeenNthCalledWith(3, "event", "programs_tab_switch", expect.objectContaining({ event_category: "landing", event_label: "ongoing" }));
+    expect(gtag).toHaveBeenNthCalledWith(3, "event", "landing_tab_switch", expect.objectContaining({ event_category: "landing", event_label: "education" }));
+  });
+
+  // 지원사업·교육·체험·행사 한 섹션(9/30) — 탭 id 4종이 GA4 label 계약이다
+  it("landing_tab_switch 라벨 4종 (지금 열린 기회 탭)", () => {
+    for (const tab of ["programs", "education", "experience", "festival"]) {
+      analytics.discoverTabSwitch(tab);
+      expect(gtag).toHaveBeenLastCalledWith("event", "landing_tab_switch", expect.objectContaining({ event_category: "landing", event_label: tab }));
+    }
   });
 
   it("quick_link 라벨 계약 — 자주 찾는 서비스 아이콘 8종 (9/7)", () => {

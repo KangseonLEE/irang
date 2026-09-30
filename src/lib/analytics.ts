@@ -168,9 +168,14 @@ export const analytics = {
   /** 랜딩 내 [data-track="section:target"] 클릭 (LandingClickTracker 위임) */
   landingCtaClick: (track: string) =>
     trackEvent({ action: "landing_cta_click", category: "landing", label: track }),
-  /** 랜딩 지원사업 탭 전환 (active | deadline | ongoing) */
-  programsTabSwitch: (tab: string) =>
-    trackEvent({ action: "programs_tab_switch", category: "landing", label: tab }),
+  /**
+   * 랜딩 "지금 열린 기회" 탭 전환 (programs | education | experience | festival) — 2026-09-30.
+   *
+   * 지원사업·교육·체험·행사를 한 섹션으로 묶으면서 `programs_tab_switch`(진행·예정 ↔ 상시·연중)를
+   * 대체한다. 방문자가 어느 분야를 찾아보는지가 다음 섹션 순서·수집 우선순위의 근거가 된다.
+   */
+  discoverTabSwitch: (tab: string) =>
+    trackEvent({ action: "landing_tab_switch", category: "landing", label: tab }),
 
   // -- 재배 캘린더 행 확장 (2026-08-30) — 어떤 작물을 펼쳐 보는지 = 인기 작물 신호 --
   // -- 진단 진입 (2026-09-16) --

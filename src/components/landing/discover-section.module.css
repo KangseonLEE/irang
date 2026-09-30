@@ -1,18 +1,23 @@
 /* ══════════════════════════════════════════
-   랜딩 "살아보기" 섹션 (2026-09-30)
-   <1024 : 78vw 가로 스냅 트랙 (스케일 없음)
-   1024+ : 활성 카드만 원래 크기 — 커버플로우
-   스크롤 컨테이너는 하나(.viewport), 레이아웃 분기는 CSS 만.
+   랜딩 "지금 열린 기회" — 지원사업·교육·체험·행사 한 섹션 + 탭 (2026-09-30 회장 지시)
+
+   9/30 살아보기 캐러셀(living-section)의 카드·컨트롤 언어를 그대로 일반화했다.
+   <1024 : 78vw 가로 스냅 트랙 / 1024+ : 활성 카드만 원래 크기(커버플로우).
+   스크롤 컨테이너는 패널마다 하나(.viewport), 레이아웃 분기는 CSS 만.
+
+   카드는 두 종류가 같은 틀(3/4 · radius 20)을 쓴다 —
+   .cardPhoto(사진·지역 일러스트 배경, 흰 글씨) / .cardText(지원사업 등 이미지 없는 건, 카드 배경).
+   글자색은 프레임에 걸린 --dc-fg 토큰으로 갈린다.
    ══════════════════════════════════════════ */
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 /* ── 헤더 ──
-   page.module.css·programs-section.module.css 와 같은 문법이지만 cross-file composes 를 쓰지 않는다
+   page.module.css 와 같은 문법이지만 cross-file composes 를 쓰지 않는다
    (Turbopack composes 2단 한계 + 모듈 간 결합 회피 — 8/31 박제) */
 .header {
   display: flex;
@@ -108,8 +113,105 @@
 }
 
 /* ══════════════════════════════════════════
-   캐러셀
+   탭 — 4개가 375px 한 줄에 들어가야 한다(가로 스크롤 금지).
+   그래서 라벨은 2~4자로 짧게 두고, 모바일에서는 각 탭이 남는 폭을 균등 분배한다.
    ══════════════════════════════════════════ */
+.tabs {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--muted, #f3f4f6);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  /* 모바일은 균등 분배 — min-width: 0 이 없으면 긴 라벨이 트랙을 넓혀 가로 스크롤이 생긴다 */
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 9px 6px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+
+.tabActive {
+  background: var(--card, #fff);
+  color: var(--primary, #1b6b5a);
+  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.08);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 1px;
+}
+
+@media (hover: hover) {
+  .tab:not(.tabActive):hover {
+    color: var(--foreground, #111827);
+  }
+}
+
+.tabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 100px;
+  background: color-mix(in srgb, var(--muted-foreground, #6b7280) 16%, transparent);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.tabActive .tabCount {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
+  color: var(--primary, #1b6b5a);
+}
+
+@media (min-width: 640px) {
+  .tabs {
+    width: fit-content;
+    gap: 4px;
+  }
+
+  .tab {
+    /* 데스크탑은 내용 폭 — 균등 분배가 필요한 건 좁은 화면뿐 */
+    flex: 0 0 auto;
+    padding: 9px 16px;
+    font-size: var(--fs-body-sm);
+  }
+}
+
+/* ══════════════════════════════════════════
+   패널 — 4개를 전부 SSR 에 렌더하고 hidden 으로만 감춘다(내부 링크 색인, 9/17 박제).
+   UA 의 [hidden] { display: none } 은 아래 .panel 의 display 선언에 지므로 명시한다(9/29 박제).
+   ══════════════════════════════════════════ */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+/* 뷰포트 + 컨트롤 래퍼 — hover·포커스가 이 안에 있으면 자동 넘김이 멈춘다 */
 .carousel {
   display: flex;
   flex-direction: column;
@@ -151,11 +253,15 @@
   scroll-snap-align: center;
 }
 
+/* ══════════════════════════════════════════
+   카드 — 두 종류가 같은 프레임
+   ══════════════════════════════════════════ */
 .card {
+  --dc-fg: #fff;
+  --dc-fg-dim: rgba(255, 255, 255, 0.82);
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   aspect-ratio: 3 / 4;
   border-radius: 20px;
   overflow: hidden;
@@ -167,6 +273,24 @@
 .card:focus-visible {
   outline: 3px solid var(--primary, #1b6b5a);
   outline-offset: 3px;
+}
+
+/* 사진·지역 일러스트 배경 — 본문은 아래에서 위로 쌓인다 */
+.cardPhoto {
+  justify-content: flex-end;
+}
+
+/* 이미지 없는 건(지원사업·온라인 교육) — 카드 배경 + 진한 글씨 */
+.cardText {
+  --dc-fg: var(--foreground, #111827);
+  --dc-fg-dim: var(--muted-foreground, #6b7280);
+  justify-content: flex-start;
+  padding: 18px 16px;
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .photo {
@@ -204,6 +328,14 @@
   gap: 6px;
 }
 
+/* 텍스트 카드는 절대배치가 아니라 흐름 안 첫 줄 */
+.cardText .topRow {
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -235,7 +367,7 @@
   color: #b42318;
 }
 
-/* 귀농형/귀촌형 — 우측. 흰 글씨를 얹으려면 알파 0.6 이상이 필요하다 */
+/* 유형 칩(귀촌형·온라인·보조금…) — 우측. 흰 글씨를 얹으려면 알파 0.6 이상이 필요하다 */
 .typeChip {
   composes: badge;
   margin-left: auto;
@@ -245,7 +377,37 @@
   font-weight: 600;
 }
 
-/* ── 하단 본문 ── */
+/* 텍스트 카드 배지 — 흰 배경이라 채움 대신 연한 틴트 (programs-section 카드 언어) */
+.cardText .statusOpen {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  border-radius: 100px;
+  padding: 3px 10px;
+}
+
+.cardText .statusSoon {
+  background: color-mix(in srgb, var(--warning, #d97706) 12%, transparent);
+  color: #b26100;
+  border-radius: 100px;
+  padding: 3px 10px;
+}
+
+.cardText .urgent {
+  background: color-mix(in srgb, var(--destructive, #dc2626) 10%, transparent);
+  color: var(--destructive, #dc2626);
+  border-radius: 100px;
+  padding: 3px 10px;
+}
+
+.cardText .typeChip {
+  background: var(--muted, #f3f4f6);
+  color: var(--muted-foreground, #6b7280);
+  border: 0;
+  border-radius: 100px;
+  padding: 3px 10px;
+}
+
+/* ── 본문 ── */
 .body {
   position: relative;
   z-index: 2;
@@ -253,42 +415,80 @@
   flex-direction: column;
   gap: 3px;
   padding: 16px 14px 14px;
-  color: #fff;
+  color: var(--dc-fg);
+}
+
+.cardText .body {
+  flex: 1;
+  min-height: 0;
+  padding: 12px 0 0;
 }
 
 .region {
   font-size: var(--fs-caption-sm);
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--dc-fg-dim);
   letter-spacing: 0.01em;
 }
 
-.village {
+.cardTitle {
+  margin: 0;
   font-size: var(--fs-h4);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: var(--lh-tight);
+  /* 긴 공고명은 3줄에서 자른다 — 카드는 "고를 수 있게" 하는 자리고 전문은 상세가 맡는다 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
 
-.duration {
+.cardText .cardTitle {
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+
+/* 1행 — 가장 먼저 읽혀야 하는 값 (지원 금액 / 얼마나 머무나 / 언제 열리나) */
+.line1 {
   margin-top: 3px;
   font-size: var(--fs-caption);
   font-weight: 600;
-  color: #fff;
+  color: var(--dc-fg);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.cardText .line1 {
+  color: var(--primary, #1b6b5a);
+  font-size: var(--fs-body-sm);
 }
 
 .metaRow {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
-.meta {
+.cardText .metaRow {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+/* 2행 — 언제까지 신청하나 · 몇 명 */
+.line2 {
   font-size: var(--fs-caption-sm);
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--dc-fg-dim);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
+/* 사진일 때만 출처 — 시·도 배경 일러스트 폴백은 우리 자산이다 */
 .credit {
   margin-left: auto;
   flex-shrink: 0;
@@ -296,7 +496,26 @@
   color: rgba(255, 255, 255, 0.62);
 }
 
-/* ── 컨트롤 (하단 중앙) ── */
+/* 주최 기관 — 신뢰 재료라 지우지 않되 가장 약하게 */
+.foot {
+  margin-top: 4px;
+  font-size: var(--fs-overline);
+  color: var(--dc-fg-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (hover: hover) {
+  .cardText:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.07);
+  }
+}
+
+/* ══════════════════════════════════════════
+   컨트롤 (하단 중앙) — n / N + 진행선 + 이전·정지·다음
+   ══════════════════════════════════════════ */
 .controls {
   display: flex;
   align-items: center;
@@ -353,6 +572,10 @@
   color: color-mix(in srgb, var(--muted-foreground, #6b7280) 55%, transparent);
 }
 
+.counterTotal {
+  color: var(--muted-foreground, #6b7280);
+}
+
 /* 진행선 — 자동 넘김 간격 동안 0→100%. 정지·hover·터치 중엔 타이머와 함께 멈춘다 */
 .progress {
   position: relative;
@@ -371,14 +594,14 @@
   inset: 0;
   transform-origin: left center;
   background: var(--primary, #1b6b5a);
-  animation: livingProgress var(--living-interval, 5000ms) linear forwards;
+  animation: discoverProgress var(--dc-interval, 5000ms) linear forwards;
 }
 
 .progress[data-paused]::after {
   animation-play-state: paused;
 }
 
-@keyframes livingProgress {
+@keyframes discoverProgress {
   from {
     transform: scaleX(0);
   }
@@ -392,7 +615,7 @@
    ══════════════════════════════════════════ */
 @media (min-width: 1024px) {
   .section {
-    gap: 24px;
+    gap: 22px;
   }
 
   .carousel {
@@ -408,23 +631,51 @@
 
   .slide {
     transform: scale(0.84);
-    filter: brightness(0.68);
-    transition:
-      transform 0.5s ease,
-      filter 0.5s ease;
+    transition: transform 0.5s ease;
   }
 
   .slide[data-active] {
     transform: scale(1);
+  }
+
+  /* 비활성 카드 감광 — 사진은 brightness 로 어둡게, 흰 텍스트 카드는 같은 값이 회색 판처럼
+     보이므로 투명도로 물린다(배경이 흰 지면이라 결과가 "연한 카드"가 된다) */
+  .slide .cardPhoto {
+    filter: brightness(0.68);
+    transition: filter 0.5s ease;
+  }
+
+  .slide[data-active] .cardPhoto {
     filter: none;
+  }
+
+  .slide .cardText {
+    opacity: 0.66;
+    transition: opacity 0.5s ease;
+  }
+
+  .slide[data-active] .cardText {
+    opacity: 1;
   }
 
   .body {
     padding: 20px 18px 18px;
   }
 
-  .village {
+  .cardText {
+    padding: 22px 20px;
+  }
+
+  .cardText .body {
+    padding: 14px 0 0;
+  }
+
+  .cardTitle {
     font-size: var(--fs-h3);
+  }
+
+  .cardText .cardTitle {
+    font-size: var(--fs-body);
   }
 
   .ctrlBtn {
@@ -434,7 +685,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .slide {
+  .slide,
+  .slide .cardPhoto,
+  .slide .cardText {
     transition: none;
   }
 
