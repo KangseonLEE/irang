@@ -1,4 +1,4 @@
-# 임시 진단 (2026-09-30): Sentry 웹훅 503. 확인 후 삭제.
+# 임시 진단 (2026-09-30): Sentry 웹훅 503 — CF 가 오리진 없이 직접 낸 503 의 출처. 확인 후 삭제.
 name: "Probe sentry-webhook (CF events + US runner)"
 on:
   workflow_dispatch:
@@ -8,33 +8,26 @@ jobs:
     env:
       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
       CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
-      E2E_SECRET: ${{ secrets.E2E_SECRET }}
-      UA_E2E: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 irang-e2e/1.0"
     steps:
-      - name: CF events calibration (skip events incl. e2e) + http requests groups
+      - name: CF security dimensions for the Sentry rows
         run: |
           set +e
-          SINCE=$(date -u -d '90 minutes ago' +%Y-%m-%dT%H:%M:%SZ); UNTIL=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          Q=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" '{query:"query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){firewallEventsAdaptive(limit:12,filter:{datetime_geq:$s,datetime_leq:$u,clientRequestPath:\"/api/sentry-webhook\",action:\"skip\"},orderBy:[datetime_DESC]){datetime ruleId clientIP edgeResponseStatus originResponseStatus clientRequestHTTPProtocol userAgent}}}}",variables:{z:$z,s:$s,u:$u}}')
-          curl -s https://api.cloudflare.com/client/v4/graphql -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" -d "$Q" | jq -r '(.errors[]?.message), (.data.viewer.zones[0].firewallEventsAdaptive[]? | "\(.datetime) rule=\(.ruleId[0:8]) ip=\(.clientIP) edge=\(.edgeResponseStatus) origin=\(.originResponseStatus) proto=\(.clientRequestHTTPProtocol) ua=\(.userAgent[0:24])")'
-          echo "=== httpRequestsAdaptiveGroups (may be denied on Free)"
-          Q2=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" '{query:"query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){httpRequestsAdaptiveGroups(limit:20,filter:{datetime_geq:$s,datetime_leq:$u,clientRequestPath:\"/api/sentry-webhook\"},orderBy:[datetime_DESC]){count dimensions{datetime clientIP edgeResponseStatus originResponseStatus cacheStatus clientRequestHTTPMethodName}}}}}",variables:{z:$z,s:$s,u:$u}}')
-          curl -s https://api.cloudflare.com/client/v4/graphql -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" -d "$Q2" | jq -c '(.errors[]?.message), (.data.viewer.zones[0].httpRequestsAdaptiveGroups[]? | .dimensions + {n:.count})'
+          SINCE=$(date -u -d '3 hours ago' +%Y-%m-%dT%H:%M:%SZ); UNTIL=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          gq() { jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" --arg q "$1" '{query:$q,variables:{z:$z,s:$s,u:$u}}' | curl -s https://api.cloudflare.com/client/v4/graphql -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" -d @- ; }
+          echo "=== groups: security dims"; gq 'query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){httpRequestsAdaptiveGroups(limit:10,filter:{datetime_geq:$s,datetime_leq:$u,clientRequestPath:"/api/sentry-webhook",edgeResponseStatus:503},orderBy:[datetime_DESC]){count dimensions{datetime clientIP securityAction securitySource edgeResponseContentTypeName clientRequestScheme clientSSLProtocol clientRequestHTTPProtocol}}}}}' | jq -c '(.errors[]?.message), (.data.viewer.zones[0].httpRequestsAdaptiveGroups[]? | .dimensions)'
+          echo "=== groups: more dims"; gq 'query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){httpRequestsAdaptiveGroups(limit:10,filter:{datetime_geq:$s,datetime_leq:$u,clientRequestPath:"/api/sentry-webhook",edgeResponseStatus:503},orderBy:[datetime_DESC]){count dimensions{datetime securityRuleId securityRuleDescription wafAttackScoreClass botManagementDecision requestSource upperTierColoName coloCode}}}}}' | jq -c '(.errors[]?.message), (.data.viewer.zones[0].httpRequestsAdaptiveGroups[]? | .dimensions)'
+          echo "=== raw httpRequestsAdaptive"; gq 'query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){httpRequestsAdaptive(limit:10,filter:{datetime_geq:$s,datetime_leq:$u,clientRequestPath:"/api/sentry-webhook",edgeResponseStatus:503},orderBy:[datetime_DESC]){datetime clientIP securityAction securitySource edgeResponseContentTypeName edgeResponseBodyBytes workerSubrequest}}}}' | jq -c '(.errors[]?.message), (.data.viewer.zones[0].httpRequestsAdaptive[]?)'
+          echo "=== firewall events 24h for Sentry IPs, any action"; SINCE=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ); gq 'query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){firewallEventsAdaptive(limit:30,filter:{datetime_geq:$s,datetime_leq:$u,clientIP_in:["104.155.159.182","104.155.149.19","35.184.238.160"]},orderBy:[datetime_DESC]){datetime action source ruleId clientRequestPath edgeResponseStatus}}}}' | jq -r '(.errors[]?.message), (.data.viewer.zones[0].firewallEventsAdaptive[]? | "\(.datetime) \(.action) \(.source) \(.ruleId[0:8]) \(.clientRequestPath) edge=\(.edgeResponseStatus)")'
+          echo "=== any challenge/jschallenge events 24h"; gq 'query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){firewallEventsAdaptive(limit:10,filter:{datetime_geq:$s,datetime_leq:$u,action_in:["jschallenge","managed_challenge","challenge","challenge_solved","jschallenge_solved","managed_challenge_non_interactive_solved"]},orderBy:[datetime_DESC]){datetime action source clientRequestPath clientIP edgeResponseStatus}}}}' | jq -r '(.errors[]?.message), (.data.viewer.zones[0].firewallEventsAdaptive[]? | "\(.datetime) \(.action) \(.source) \(.clientRequestPath) \(.clientIP) edge=\(.edgeResponseStatus)")'
           true
-      - name: US runner request-shape matrix via e2e pass
+      - name: CF zone settings · workers routes · rulesets phases · ACME rule text
         run: |
           set +e
-          python3 -c "import json;print(json.dumps({'action':'triggered','data':{'event':{'title':'probe','message':'x'*60000}}}))" > big.json
-          B="-H x-irang-e2e:probe -H x-irang-e2e-secret:$E2E_SECRET -H Content-Type:application/json -H sentry-hook-resource:event_alert -H sentry-hook-timestamp:1790752000 -H sentry-hook-signature:0000 -H Request-ID:probe"
-          echo "=== big body 60KB"; curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" -X POST -A "$UA_E2E" $B --data-binary @big.json https://irangfarm.com/api/sentry-webhook
-          echo "=== http1.1 small"; curl -s --http1.1 -o /dev/null -w "%{http_code} %{time_total}s\n" -X POST -A "$UA_E2E" $B -d '{}' https://irangfarm.com/api/sentry-webhook
-          echo "=== http1.1 big"; curl -s --http1.1 -o /dev/null -w "%{http_code} %{time_total}s\n" -X POST -A "$UA_E2E" $B --data-binary @big.json https://irangfarm.com/api/sentry-webhook
-          echo "=== python requests (like Sentry) big"; python3 - <<'PY'
-          import json,os,urllib.request
-          body=open('big.json','rb').read()
-          req=urllib.request.Request('https://irangfarm.com/api/sentry-webhook',data=body,method='POST',headers={'User-Agent':os.environ['UA_E2E'],'x-irang-e2e':'probe','x-irang-e2e-secret':os.environ['E2E_SECRET'],'Content-Type':'application/json','Sentry-Hook-Resource':'event_alert','Sentry-Hook-Signature':'0000','Sentry-Hook-Timestamp':'1790752000','Request-ID':'probe'})
-          try:
-              r=urllib.request.urlopen(req,timeout=20); print(r.status, r.read()[:80])
-          except urllib.error.HTTPError as e: print(e.code, e.read()[:120], dict(e.headers).get('retry-after'))
-          PY
+          Z="https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID"; A="Authorization: Bearer $CF_API_TOKEN"
+          echo "=== settings"; curl -s "$Z/settings" -H "$A" | jq -c '(.errors[]?.message), (.result[]? | select(.id|test("security_level|browser_check|challenge_ttl|always_online|waf|hotlink|ipv6|websockets|opportunistic|http2|http3|origin_error_page|response_buffering|true_client|tls_1_3|min_tls|ssl$|automatic_https|privacy_pass|brotli|early_hints|zero_rtt|proxy_read_timeout|replace_insecure|origin_max_http_version")) | {id,value})'
+          echo "=== bot management"; curl -s "$Z/bot_management" -H "$A" | jq -c '(.errors[]?.message), (.result // empty)'
+          echo "=== workers routes"; curl -s "$Z/workers/routes" -H "$A" | jq -c '(.errors[]?.message), (.result[]? | {pattern,script,enabled})'
+          echo "=== rulesets (zone)"; curl -s "$Z/rulesets" -H "$A" | jq -c '(.errors[]?.message), (.result[]? | {phase,name,kind,version,last_updated})'
+          echo "=== ACME rule expression (no secrets)"; curl -s "$Z/rulesets/phases/http_request_firewall_custom/entrypoint" -H "$A" | jq -c '.result.rules[]? | select(.description|test("ACME|verified|bots";"i")) | {description, action, expression, action_parameters}'
+          echo "=== ddos_l7 / managed WAF entrypoints"; for P in ddos_l7 http_request_firewall_managed http_request_sbfm; do echo "-- $P"; curl -s "$Z/rulesets/phases/$P/entrypoint" -H "$A" | jq -c '(.errors[]?.message), (.result.rules[]? | {id:.id[0:8],action,enabled,description:(.description[0:80]),expression:(.expression[0:120]),params:(.action_parameters|tostring|.[0:200])})'; done
           true
