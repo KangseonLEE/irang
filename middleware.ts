@@ -197,7 +197,10 @@ export async function middleware(request: NextRequest) {
   // CF가 이미 IP+UA 이중 검증으로 통과시킨 신호이므로 middleware도 동일 신뢰.
   const country = request.headers.get("cf-ipcountry");
   const isE2eUa = ua.includes("irang-e2e/1.0");
-  if (country && country !== "KR" && !isVerifiedBot(ua) && !isE2eUa) {
+  // 2026-09-30: Sentry 웹훅(미국 발신)은 HMAC 서명으로 자체 인증하므로 geo 차단 예외.
+  // 9/30 실측 — Sentry Request Log 의 503 이 이 분기였다(라우트 도달 전 차단).
+  const isSentryWebhook = pathname === "/api/sentry-webhook";
+  if (country && country !== "KR" && !isVerifiedBot(ua) && !isE2eUa && !isSentryWebhook) {
     return new NextResponse(null, {
       status: 503,
       headers: {
