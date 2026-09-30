@@ -50,6 +50,8 @@ const EDU_REFERER = `${BASE}/svc/rfph/edc/offline/front/applicationList.do`;
 
 const LIVE_LIST_URL = `${BASE}/svc/rfph/edc/live/apply/list.do`;
 const LIVE_PAGE_URL = `${BASE}/svc/rfph/edc/live/front/apply/list.do`;
+/** 마을 대표 사진 — 목록 JSON 의 thumb_file_id 로 조립 (9/30 실측: 원본 5472px JPEG, Referer 무관 200) */
+const LIVE_IMG_URL = (fileId: string) => `${BASE}/svc/common/board/img/${encodeURIComponent(fileId)}.do`;
 
 const UA =
   "Mozilla/5.0 (compatible; irang-datasync/1.0; +https://irangfarm.com)";
@@ -152,6 +154,7 @@ interface GdLiveItem {
   mvn_psblty_ymd?: string | null;
   rcrt_nope?: string | null;
   vlg_rcrt_hshld_cnt?: string | null;
+  thumb_file_id?: string | null;
 }
 
 interface GdLiveResponse {
@@ -389,6 +392,8 @@ export function mapLiveItem(raw: GdLiveItem, today: string): CrawledItem | null 
   const applyStart = toIsoDate(raw.aply_bgng_ymd);
   const applyEnd = toIsoDate(raw.aply_end_ymd);
   const rcrt = Number.parseInt(raw.rcrt_nope ?? "", 10);
+  const households = Number.parseInt(raw.vlg_rcrt_hshld_cnt ?? "", 10);
+  const thumb = (raw.thumb_file_id ?? "").trim();
 
   return {
     title: typeLabel
@@ -408,6 +413,10 @@ export function mapLiveItem(raw: GdLiveItem, today: string): CrawledItem | null 
     operationStart: toIsoDate(raw.oper_bgng_ymd),
     operationEnd: toIsoDate(raw.oper_end_ymd),
     capacityCount: Number.isFinite(rcrt) ? rcrt : null,
+    imageUrl: /^att-[0-9a-f]{32}$/i.test(thumb) ? LIVE_IMG_URL(thumb) : undefined,
+    moveInDate: toIsoDate(raw.mvn_psblty_ymd),
+    households: Number.isFinite(households) ? households : null,
+    villageType: typeLabel || undefined,
     note: `${SOURCE_NOTE} 마을별 상세는 그린대로 '농촌에서 살아보기' 목록에서 확인하세요.`,
   };
 }

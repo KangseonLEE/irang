@@ -223,4 +223,9 @@ export interface EventRow {
   target: string;
   url: string;
   status: string;
+  /** 9/30 살아보기 마을 카드 — 마이그레이션 20260930 전엔 없음 */
+  image_url?: string | null;
+  move_in_date?: string | null;
+  households?: number | null;
+  village_type?: string | null;
 }

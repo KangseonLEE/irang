@@ -167,6 +167,16 @@ export interface CrawledItem {
   educationType?: "온라인" | "오프라인" | "혼합";
   /** 본문에 덧붙일 출처·주의 문구 (접수 기간 불일치 안내 등) */
   note?: string;
+
+  // ── 2026-09-30 살아보기 마을 카드 필드 (farm_events 전용) ──
+  /** 마을 대표 사진 원본 URL */
+  imageUrl?: string;
+  /** 입주 가능일 (YYYY-MM-DD) */
+  moveInDate?: string;
+  /** 모집 가구 수 (capacityCount 는 인원) */
+  households?: number | null;
+  /** 귀농형 / 귀촌형 / 프로젝트형 */
+  villageType?: string;
 }
 
 // ═══════════════════════════════════════

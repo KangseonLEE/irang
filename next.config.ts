@@ -62,6 +62,12 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
       },
       {
+        // 농촌에서 살아보기 마을 사진 (9/30) — 원본 7MB 라 반드시 next/image 최적화 경유
+        protocol: "https",
+        hostname: "www.greendaero.go.kr",
+        pathname: "/svc/common/board/img/**",
+      },
+      {
         protocol: "https",
         hostname: "img.youtube.com",
       },

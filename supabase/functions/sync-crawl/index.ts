@@ -285,6 +285,11 @@ async function crawlTarget(supabase: any, target: CrawlTarget): Promise<CrawlRes
           url: item.url,
           status: eventStatus(item.status),
           is_verified: isVerified,
+          // 9/30 살아보기 마을 카드 필드 — 마이그레이션 20260930_farm_events_village_fields 적용 후 유효
+          image_url: item.imageUrl ?? null,
+          move_in_date: item.moveInDate ?? null,
+          households: item.households ?? null,
+          village_type: item.villageType ?? null,
         });
       } else if (table === "support_programs") {
         bucket.push({
