@@ -201,6 +201,10 @@ export async function middleware(request: NextRequest) {
   // 9/30 실측 — Sentry Request Log 의 503 이 이 분기였다(라우트 도달 전 차단).
   const isSentryWebhook = pathname === "/api/sentry-webhook";
   if (country && country !== "KR" && !isVerifiedBot(ua) && !isE2eUa && !isSentryWebhook) {
+    if (pathname.startsWith("/api/")) {
+      // API 경로의 geo 차단은 서버-서버 연동(웹훅 등) 진단을 위해 남긴다 (9/30)
+      console.warn(`[middleware] geo 503 path=${pathname} country=${country} ua=${ua.slice(0, 60)}`);
+    }
     return new NextResponse(null, {
       status: 503,
       headers: {
