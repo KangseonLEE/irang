@@ -18,6 +18,12 @@
  * - 확인되지 않거나 soft-404를 반환하는 경우 → 시/군청 메인 누리집으로 폴백 (주석 명기).
  * - Step 2b(강원·충북·충남·제주·수도권 잔여): 다음 PR에서 확장.
  *
+ * 사용자 노출 표기 규칙 (2026-09-30):
+ * - name 에는 실제 기관 명칭만 둔다. "폴백" 같은 내부 용어를 이름에 섞지 않는다
+ *   (검색 엔티티 패널·지역 상세·검색 센터 카드에 그대로 노출됨).
+ * - 시·군·구 자체 창구가 아니라 광역 기관으로 안내하는 항목은 fallbackOf/fallbackReason
+ *   구조 필드로 표시하고, UI 는 centerFallbackNotice() 한 줄로 사용자에게 알린다.
+ *
  * 주의 (CLAUDE.md 8번 원칙):
  * - 한국 공공 사이트는 HTTP 200으로 soft-404를 서빙하는 경우가 많으므로
  *   상태코드뿐 아니라 <title>에 "찾을 수 없/404/에러/오류" 등이 있는지 교차 검증함.
@@ -47,6 +53,19 @@ export interface Center {
   url: string;
   /** URL 검증 일자 (YYYY-MM-DD) */
   verifiedAt: string;
+  /**
+   * 시·군·구 자체 창구를 대신해 상위 단위 기관으로 안내하는 항목.
+   * "sido" = 시·도(광역) 기관으로 안내. 값이 있으면 name 은 그 광역 기관의 실제 명칭이고,
+   * UI 는 centerFallbackNotice() 안내 한 줄을 함께 노출한다.
+   * (내부 용어 "폴백"을 이름에 섞지 않는다 — 사용자 화면에 그대로 노출됨)
+   */
+  fallbackOf?: "sido";
+  /**
+   * 상위 단위로 안내하는 사유 (fallbackOf 가 있을 때만 의미 있음).
+   * - "no-local-office": 구·군 단위 농업 담당 부서가 없어 광역 기관이 창구 (근거: Step 2c 주석)
+   * - "unverified-site": 시·군 전용 누리집을 확인하지 못해 광역 기관으로 안내
+   */
+  fallbackReason?: "no-local-office" | "unverified-site";
 }
 
 export const CENTERS: Center[] = [
@@ -2189,8 +2208,10 @@ export const CENTERS: Center[] = [
     sigungu: "수성구",
     sigunguSlug: "suseong",
     category: "sigungu",
-    // Step 2c 폴백: 수성구청 도메인(suseong.go.kr) 빌드 환경 ECONNREFUSED 지속 → 대구광역시 농업기술센터
-    name: "대구광역시 농업기술센터 (수성구 폴백)",
+    // 수성구 자체 농업 부서 없음 → 대구광역시 농업기술센터가 창구 (Step 2c 2026-04-15)
+    name: "대구광역시 농업기술센터",
+    fallbackOf: "sido",
+    fallbackReason: "no-local-office",
     url: "https://daegu.go.kr/agri/",
     // 검증 2026-04-15: HTTP 200, title="대구광역시 농업기술센터"
     verifiedAt: "2026-04-15",
@@ -2251,8 +2272,10 @@ export const CENTERS: Center[] = [
     sigungu: "동구",
     sigunguSlug: "dong-gu-gwangju",
     category: "sigungu",
-    // Step 2c 폴백: 동구청 도메인(donggu.gwangju.kr) ERR_TLS_CERT_ALTNAME_INVALID → 광주광역시 농업·도시농업 포털
-    name: "광주광역시 농업·도시농업 (동구 폴백)",
+    // 동구 자체 농업 부서 없음 → 광주광역시 농업·도시농업 포털이 창구 (Step 2c 2026-04-15)
+    name: "광주광역시 농업·도시농업",
+    fallbackOf: "sido",
+    fallbackReason: "no-local-office",
     url: "https://www.gwangju.go.kr/agri/",
     // 검증 2026-04-15: HTTP 200, title="광주광역시 농업·도시농업"
     verifiedAt: "2026-04-15",
@@ -2301,8 +2324,10 @@ export const CENTERS: Center[] = [
     sigungu: "동구",
     sigunguSlug: "dong-gu-daejeon",
     category: "sigungu",
-    // Step 2c 폴백: 동구청 도메인(donggu.daejeon.go.kr) 빌드 환경 ECONNREFUSED 지속 → 대전광역시 농업기술센터
-    name: "대전광역시 농업기술센터 (동구 폴백)",
+    // 동구청 도메인(donggu.daejeon.go.kr) 접속 불가로 전용 창구 미확인 → 대전광역시 농업기술센터 안내
+    name: "대전광역시 농업기술센터",
+    fallbackOf: "sido",
+    fallbackReason: "unverified-site",
     url: "https://www.daejeon.go.kr/far/index.do",
     // 검증 2026-04-15: HTTP 200, title="대전광역시 농업기술센터"
     verifiedAt: "2026-04-15",
@@ -2314,8 +2339,10 @@ export const CENTERS: Center[] = [
     sigungu: "서구",
     sigunguSlug: "seo-gu-daejeon",
     category: "sigungu",
-    // Step 2c 폴백: 서구청 도메인(seogu.daejeon.go.kr) 빌드 환경 ECONNREFUSED 지속 → 대전광역시 농업기술센터
-    name: "대전광역시 농업기술센터 (서구 폴백)",
+    // 서구청 도메인(seogu.daejeon.go.kr) 접속 불가로 전용 창구 미확인 → 대전광역시 농업기술센터 안내
+    name: "대전광역시 농업기술센터",
+    fallbackOf: "sido",
+    fallbackReason: "unverified-site",
     url: "https://www.daejeon.go.kr/far/index.do",
     // 검증 2026-04-15: HTTP 200, title="대전광역시 농업기술센터"
     verifiedAt: "2026-04-15",
@@ -2376,8 +2403,10 @@ export const CENTERS: Center[] = [
     sigungu: "남구",
     sigunguSlug: "nam-gu-ulsan",
     category: "sigungu",
-    // Step 2c 폴백: 남구청 도메인(namgu.ulsan.kr) 빌드 환경 ECONNREFUSED 지속 → 울산광역시 농업기술센터
-    name: "울산광역시 농업기술센터 (남구 폴백)",
+    // 남구청 도메인(namgu.ulsan.kr) 접속 불가로 전용 창구 미확인 → 울산광역시 농업기술센터 안내
+    name: "울산광역시 농업기술센터",
+    fallbackOf: "sido",
+    fallbackReason: "unverified-site",
     url: "https://www.ulsan.go.kr/s/atc/main.ulsan",
     // 검증 2026-04-15: HTTP 200, title="울산광역시 농업기술센터"
     verifiedAt: "2026-04-15",
@@ -2487,8 +2516,11 @@ export const CENTERS: Center[] = [
     sigungu: "횡성군",
     sigunguSlug: "hoengseong",
     category: "sigungu",
-    // Step 2c 폴백: 횡성군청 도메인(hoengseong.go.kr) 빌드 환경 ECONNREFUSED 지속 → 강원특별자치도청 귀농귀촌 분야 페이지
-    name: "강원특별자치도 귀농귀촌 (횡성군 폴백)",
+    // 횡성군청 도메인(hoengseong.go.kr) 접속 불가로 전용 창구 미확인 → 강원특별자치도청 귀농귀촌 안내
+    // name 은 기관 공식 명칭이라 신표기 유지 (sido/sidoSlug 는 PROVINCES SSOT 구표기 '강원')
+    name: "강원특별자치도청 귀농귀촌 안내",
+    fallbackOf: "sido",
+    fallbackReason: "unverified-site",
     url: "https://state.gwd.go.kr/portal/partinfo/livestock/agriculture/return",
     // 검증 2026-04-15: HTTP 200, title="귀농귀촌 현황  - 분야별정보 | 강원특별자치도청 - 새로운 강원! 특별 자치시대!"
     verifiedAt: "2026-04-15",
@@ -2962,6 +2994,31 @@ export const CENTERS: Center[] = [
 ];
 
 /** sidoSlug로 광역 센터 조회 */
+/** 광역시·특별시·특별자치시 slug — 상위 단위를 "시"로 읽는 시·도 */
+const METRO_SIDO_SLUGS = new Set([
+  "seoul",
+  "busan",
+  "daegu",
+  "incheon",
+  "gwangju",
+  "daejeon",
+  "ulsan",
+  "sejong",
+]);
+
+/**
+ * 시·군·구 자체 창구가 아니라 광역 기관으로 안내하는 항목의 사용자 안내 한 줄.
+ * fallbackOf 가 없으면 undefined — UI 는 값이 있을 때만 노출한다.
+ */
+export function centerFallbackNotice(center: Center): string | undefined {
+  if (!center.fallbackOf || !center.sigungu) return undefined;
+  const unit = METRO_SIDO_SLUGS.has(center.sidoSlug) ? "시" : "도";
+  if (center.fallbackReason === "no-local-office") {
+    return `${center.sigungu} 자체 센터가 없어 ${unit} 센터로 안내해요`;
+  }
+  return `${center.sigungu} 전용 센터를 확인하지 못해 ${unit} 센터로 안내해요`;
+}
+
 export function getSidoCenter(sidoSlug: string): Center | undefined {
   return CENTERS.find((c) => c.category === "sido" && c.sidoSlug === sidoSlug);
 }

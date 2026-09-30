@@ -281,3 +281,14 @@
     }
   }
 }
+
+/* ── 광역 기관 안내 한 줄 (fallbackOf 항목) ──
+   default·compact 두 variant 공용. 이름 바로 아래 한 줄. */
+.fallbackNotice {
+  display: block;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  line-height: var(--lh-normal);
+  margin: 0;
+  word-break: keep-all;
+}

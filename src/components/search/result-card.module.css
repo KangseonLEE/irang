@@ -485,3 +485,12 @@
     -webkit-line-clamp: 2;
   }
 }
+
+/* ── 센터 카드: 광역 기관 안내 한 줄 (centers fallbackOf 항목) ── */
+.fallbackNotice {
+  grid-column: 2;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground);
+  word-break: keep-all;
+  text-align: left;
+}

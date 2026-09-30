@@ -20,7 +20,7 @@ import {
 import { EmptyState } from "@/components/ui/empty-state";
 import { Modal } from "@/components/ui/modal";
 import { CenterCard } from "@/components/region/center-card";
-import type { Center } from "@/lib/data/centers";
+import { centerFallbackNotice, type Center } from "@/lib/data/centers";
 
 const ITEMS_PER_PAGE = 10;
 import s from "./centers-search.module.css";
@@ -148,7 +148,14 @@ function CentersTableModal({
             paginated.map((center) => (
               <tr key={center.id}>
                 <td className={s.tdSigungu}>{center.sigungu ?? "—"}</td>
-                <td className={s.tdName}>{center.name}</td>
+                <td className={s.tdName}>
+                  {center.name}
+                  {centerFallbackNotice(center) && (
+                    <span className={s.tdNameNotice}>
+                      {centerFallbackNotice(center)}
+                    </span>
+                  )}
+                </td>
                 <td className={s.tdLink}>
                   <a
                     href={center.url}
