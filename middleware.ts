@@ -198,7 +198,9 @@ export async function middleware(request: NextRequest) {
   const country = request.headers.get("cf-ipcountry");
   const isE2eUa = ua.includes("irang-e2e/1.0");
   // 2026-09-30: Sentry 웹훅(미국 발신)은 HMAC 서명으로 자체 인증하므로 geo 차단 예외.
-  // 9/30 실측 — Sentry Request Log 의 503 이 이 분기였다(라우트 도달 전 차단).
+  // 주의 — 같은 정책이 CF Worker `irang-bot-detection`(irangfarm.com/*, 오리진 앞)에도 복제돼 있다.
+  // 여기 예외만 넣고 Worker 를 안 고치면 요청이 오리진에 닿지 못한다(9/30 Sentry 503 7회의 진범은
+  // 이 분기가 아니라 Worker 였다). 예외 추가 시 cloudflare-workers/bot-detection/index.js 동반 수정.
   const isSentryWebhook = pathname === "/api/sentry-webhook";
   if (country && country !== "KR" && !isVerifiedBot(ua) && !isE2eUa && !isSentryWebhook) {
     if (pathname.startsWith("/api/")) {
