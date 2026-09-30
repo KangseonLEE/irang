@@ -1,4 +1,4 @@
-# 임시 진단 (2026-09-30): Sentry 웹훅 503 — US 러너에서 e2e 통행증으로 CF 를 지나 Vercel US 엣지가 어느 빌드·어떤 응답을 주는지. 확인 후 삭제.
+# 임시 진단 (2026-09-30): Sentry 웹훅 503. 확인 후 삭제.
 name: "Probe sentry-webhook (CF events + US runner)"
 on:
   workflow_dispatch:
@@ -11,16 +11,30 @@ jobs:
       E2E_SECRET: ${{ secrets.E2E_SECRET }}
       UA_E2E: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 irang-e2e/1.0"
     steps:
-      - name: CF firewall events (latest 3)
-        run: |
-          SINCE=$(date -u -d '3 hours ago' +%Y-%m-%dT%H:%M:%SZ); UNTIL=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          Q=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" '{query:"query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){firewallEventsAdaptive(limit:3,filter:{datetime_geq:$s,datetime_leq:$u,clientRequestPath:\"/api/sentry-webhook\"},orderBy:[datetime_DESC]){datetime action ruleId clientIP edgeResponseStatus userAgent}}}}",variables:{z:$z,s:$s,u:$u}}')
-          curl -s https://api.cloudflare.com/client/v4/graphql -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" -d "$Q" | jq -r '.errors // empty, (.data.viewer.zones[0].firewallEventsAdaptive[]? | "\(.datetime) action=\(.action) rule=\(.ruleId[0:8]) ip=\(.clientIP) edge=\(.edgeResponseStatus) ua=\(.userAgent[0:30])")' || true
-      - name: US runner → irangfarm.com with e2e pass (CF skip → Vercel US edge)
+      - name: CF events calibration (skip events incl. e2e) + http requests groups
         run: |
           set +e
-          echo "=== US static markers (which build serves US?)"; curl -s -A "$UA_E2E" -H "x-irang-e2e: probe" -H "x-irang-e2e-secret: $E2E_SECRET" https://irangfarm.com/ | grep -oE '_next/static/[^"'"'"' ]{8,80}' | sort -u | head -3
-          echo "=== GET diag"; curl -s -D - -A "$UA_E2E" -H "x-irang-e2e: probe" -H "x-irang-e2e-secret: $E2E_SECRET" https://irangfarm.com/api/sentry-webhook | grep -iE "^HTTP/|x-vercel-id|cf-ray|^\{" | tr -d '\r'
-          echo "=== POST unsigned (expect 401 invalid-signature from route)"; curl -s -D - -X POST -A "$UA_E2E" -H "x-irang-e2e: probe" -H "x-irang-e2e-secret: $E2E_SECRET" -H "Content-Type: application/json" -H "sentry-hook-resource: event_alert" -d '{"probe":"us-e2e"}' https://irangfarm.com/api/sentry-webhook | grep -iE "^HTTP/|x-vercel-id|retry-after|cf-mitigated|^\{" | tr -d '\r'
-          echo "=== POST Sentry UA + e2e secret only (expect CF 403)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -A "sentry/26.10.0.dev0 (https://sentry.io)" -H "x-irang-e2e-secret: $E2E_SECRET" -H "Content-Type: application/json" -d '{}' https://irangfarm.com/api/sentry-webhook
+          SINCE=$(date -u -d '90 minutes ago' +%Y-%m-%dT%H:%M:%SZ); UNTIL=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          Q=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" '{query:"query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){firewallEventsAdaptive(limit:12,filter:{datetime_geq:$s,datetime_leq:$u,clientRequestPath:\"/api/sentry-webhook\",action:\"skip\"},orderBy:[datetime_DESC]){datetime ruleId clientIP edgeResponseStatus originResponseStatus clientRequestHTTPProtocol userAgent}}}}",variables:{z:$z,s:$s,u:$u}}')
+          curl -s https://api.cloudflare.com/client/v4/graphql -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" -d "$Q" | jq -r '(.errors[]?.message), (.data.viewer.zones[0].firewallEventsAdaptive[]? | "\(.datetime) rule=\(.ruleId[0:8]) ip=\(.clientIP) edge=\(.edgeResponseStatus) origin=\(.originResponseStatus) proto=\(.clientRequestHTTPProtocol) ua=\(.userAgent[0:24])")'
+          echo "=== httpRequestsAdaptiveGroups (may be denied on Free)"
+          Q2=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" '{query:"query($z:String!,$s:Time!,$u:Time!){viewer{zones(filter:{zoneTag:$z}){httpRequestsAdaptiveGroups(limit:20,filter:{datetime_geq:$s,datetime_leq:$u,clientRequestPath:\"/api/sentry-webhook\"},orderBy:[datetime_DESC]){count dimensions{datetime clientIP edgeResponseStatus originResponseStatus cacheStatus clientRequestHTTPMethodName}}}}}",variables:{z:$z,s:$s,u:$u}}')
+          curl -s https://api.cloudflare.com/client/v4/graphql -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" -d "$Q2" | jq -c '(.errors[]?.message), (.data.viewer.zones[0].httpRequestsAdaptiveGroups[]? | .dimensions + {n:.count})'
+          true
+      - name: US runner request-shape matrix via e2e pass
+        run: |
+          set +e
+          python3 -c "import json;print(json.dumps({'action':'triggered','data':{'event':{'title':'probe','message':'x'*60000}}}))" > big.json
+          B="-H x-irang-e2e:probe -H x-irang-e2e-secret:$E2E_SECRET -H Content-Type:application/json -H sentry-hook-resource:event_alert -H sentry-hook-timestamp:1790752000 -H sentry-hook-signature:0000 -H Request-ID:probe"
+          echo "=== big body 60KB"; curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" -X POST -A "$UA_E2E" $B --data-binary @big.json https://irangfarm.com/api/sentry-webhook
+          echo "=== http1.1 small"; curl -s --http1.1 -o /dev/null -w "%{http_code} %{time_total}s\n" -X POST -A "$UA_E2E" $B -d '{}' https://irangfarm.com/api/sentry-webhook
+          echo "=== http1.1 big"; curl -s --http1.1 -o /dev/null -w "%{http_code} %{time_total}s\n" -X POST -A "$UA_E2E" $B --data-binary @big.json https://irangfarm.com/api/sentry-webhook
+          echo "=== python requests (like Sentry) big"; python3 - <<'PY'
+          import json,os,urllib.request
+          body=open('big.json','rb').read()
+          req=urllib.request.Request('https://irangfarm.com/api/sentry-webhook',data=body,method='POST',headers={'User-Agent':os.environ['UA_E2E'],'x-irang-e2e':'probe','x-irang-e2e-secret':os.environ['E2E_SECRET'],'Content-Type':'application/json','Sentry-Hook-Resource':'event_alert','Sentry-Hook-Signature':'0000','Sentry-Hook-Timestamp':'1790752000','Request-ID':'probe'})
+          try:
+              r=urllib.request.urlopen(req,timeout=20); print(r.status, r.read()[:80])
+          except urllib.error.HTTPError as e: print(e.code, e.read()[:120], dict(e.headers).get('retry-after'))
+          PY
           true
