@@ -12,8 +12,15 @@
  * 정책 (middleware.ts 1)~1-1)과 동일 — 통합 일관성):
  *   1) AI 학습 봇 UA → 403 (즉시)
  *   2) Headless browser UA → 403 (즉시)
- *   3) cf-ipcountry !== KR 이고 verified bot 아님 + e2e UA 아님 → 503
+ *   3) cf-ipcountry !== KR 이고 verified bot 아님 + e2e UA 아님 + 지리 예외 경로 아님 → 503
  *   4) 그 외 → fetch(request) — origin/edge cache 정상 흐름
+ *
+ * 지리 예외 경로 (2026-09-30, middleware.ts 1-1) 과 동일):
+ *   - /api/sentry-webhook — Sentry(미국 GCP 발신) 웹훅. HMAC 서명으로 자체 인증.
+ *     9/30 실측: WAF 는 verified bot 으로 skip 했지만 이 Worker 가 503 을 내 브리지가
+ *     7회 연속 실패했다(오리진 미도달 — CF httpRequests 에 originResponseStatus 0).
+ *   - /.well-known/acme-challenge/ — Let's Encrypt HTTP-01 검증(해외 발신). 7/24 526 사고의
+ *     경로가 Worker 계층에서도 막혀 있었다.
  *
  * 비고: CF Workers API는 .ts 자동 transpile X (5/19 D2 실 배포 함정 박제).
  *      TS 타입 어노테이션은 SyntaxError(10021). .js 순수 ESM 모듈로 작성.
@@ -57,13 +64,23 @@ function isVerifiedBot(ua) {
   return VERIFIED_BOT_PATTERNS.some((re) => re.test(ua));
 }
 
+// 지리 차단(503) 예외 — 서버-서버 연동·인증서 검증은 방문자 지역과 무관하다
+const GEO_EXEMPT_PATHS = new Set(["/api/sentry-webhook"]);
+const GEO_EXEMPT_PREFIXES = ["/.well-known/acme-challenge/"];
+
+function isGeoExemptPath(pathname) {
+  return GEO_EXEMPT_PATHS.has(pathname)
+      || GEO_EXEMPT_PREFIXES.some((p) => pathname.startsWith(p));
+}
+
 function decide(req) {
   const ua = req.headers.get("user-agent") || "";
   const country = req.headers.get("cf-ipcountry") || "";
   const isE2eUa = ua.includes("irang-e2e/1.0");
+  const pathname = new URL(req.url).pathname;
 
   if (isBlockedBot(ua)) return "block-403";
-  if (country && country !== "KR" && !isVerifiedBot(ua) && !isE2eUa) {
+  if (country && country !== "KR" && !isVerifiedBot(ua) && !isE2eUa && !isGeoExemptPath(pathname)) {
     return "block-503";
   }
   return "allow";
@@ -100,4 +117,4 @@ export default {
 };
 
 // Export for local sim testing (D1).
-export const __test = { decide, isBlockedBot, isVerifiedBot };
+export const __test = { decide, isBlockedBot, isVerifiedBot, isGeoExemptPath };
