@@ -1,0 +1,41 @@
+# apex 인증서 자동 갱신 재개 확인 알림 (2026-09-30 일회성 후속)
+# 배경: CF ACME 스킵 룰 앞공백 + Worker 지리 503 으로 Let's Encrypt HTTP-01 이 두 겹 차단돼 있었고 9/30 에 교정했다.
+#       Vercel 이 실제로 갱신했는지 회장에게 결과를 이슈(assignee → iPhone 푸시)로 알린다. 갱신 확인 후 이 파일은 삭제.
+name: "🔐 인증서 갱신 후속 확인"
+on:
+  schedule:
+    - cron: "30 0 2 10 *"   # 10/2 09:30 KST
+    - cron: "30 0 6 10 *"   # 10/6 09:30 KST
+    - cron: "30 0 12 10 *"  # 10/12 09:30 KST (D-10 직전)
+  workflow_dispatch:
+    inputs:
+      notify:
+        description: "false 면 이슈 없이 결과만 출력"
+        required: false
+        default: "true"
+permissions:
+  issues: write
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      NOTIFY: ${{ github.event.inputs.notify || 'true' }}
+    steps:
+      - name: Vercel origin 인증서 조회 → 판정 → 이슈
+        run: |
+          TEAM=$(curl -s --max-time 15 -H "Authorization: Bearer $VERCEL_TOKEN" "https://api.vercel.com/v9/projects?limit=1" | jq -r '.projects[0].accountId // empty')
+          ROW=$(curl -s --max-time 15 -H "Authorization: Bearer $VERCEL_TOKEN" "https://api.vercel.com/v7/certs?teamId=$TEAM&limit=20" | jq -r '.certs[] | select(.cns|index("irangfarm.com")) | [(.expiresAt|tostring),(.autoRenew|tostring),(.createdAt|tostring)] | @tsv' | head -1)
+          [ -n "$ROW" ] || { echo "::error::irangfarm.com 인증서 엔트리 없음"; exit 1; }
+          EXP_MS=$(echo "$ROW" | cut -f1); AUTO=$(echo "$ROW" | cut -f2); CRE_MS=$(echo "$ROW" | cut -f3)
+          NOW=$(date +%s); DLEFT=$(( (EXP_MS/1000 - NOW) / 86400 )); EXP=$(date -u -d "@$((EXP_MS/1000))" +%Y-%m-%d); CRE=$(date -u -d "@$((CRE_MS/1000))" +%Y-%m-%d)
+          if [ "$DLEFT" -gt 30 ]; then ST="✅ 갱신 완료"; else ST="🔴 아직 미갱신"; fi
+          echo "$ST — 만료 $EXP (D-$DLEFT), 발급 $CRE, autoRenew=$AUTO"
+          [ "$NOTIFY" = "true" ] || exit 0
+          TITLE="🔐 apex 인증서 갱신 후속 — $ST ($(date -u -d '+9 hours' +%m/%d))"
+          printf '| 항목 | 값 |\n|---|---|\n| 판정 | %s |\n| 만료 | %s (D-%s) |\n| 발급 | %s |\n| autoRenew | %s |\n\n9/30 에 CF ACME 스킵 룰 앞공백과 Worker 지리 503 을 교정해 Let'"'"'s Encrypt 검증 경로를 열었어요. D-30 을 넘겼는데도 미갱신이면 `vercel certs issue irangfarm.com` 수동 발급(7/24 절차)을 검토하세요. 갱신 확인 후 이 워크플로(`cert-renewal-followup.yml`)는 삭제해요.\n' "$ST" "$EXP" "$DLEFT" "$CRE" "$AUTO" > body.md
+          N=$(gh issue create --title "$TITLE" --body-file body.md --assignee KangseonLEE --label cert-expiry 2>/dev/null || gh issue create --title "$TITLE" --body-file body.md --assignee KangseonLEE); echo "issue: $N"
+          [ "$DLEFT" -gt 30 ] && gh issue close "$N" --comment "갱신 확인 완료 — 자동 종료" || true
