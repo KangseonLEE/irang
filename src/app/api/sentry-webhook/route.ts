@@ -96,3 +96,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "github-failed" }, { status: 502 });
   }
 }
+
+/**
+ * 진단 전용 GET — 값은 절대 내보내지 않고 "런타임에 보이는지"만 알린다 (2026-09-30 브리지 503 원인 추적).
+ * 서버-서버 웹훅 경로라 사용자 노출 0. 시크릿 존재 여부는 공격 표면이 아니다(값 없음).
+ */
+export async function GET() {
+  return NextResponse.json(
+    {
+      ok: true,
+      runtime: "nodejs",
+      env: {
+        SENTRY_WEBHOOK_SECRET: Boolean(process.env.SENTRY_WEBHOOK_SECRET),
+        GITHUB_ISSUE_TOKEN: Boolean(process.env.GITHUB_ISSUE_TOKEN),
+        GITHUB_ISSUE_TOKEN_len: (process.env.GITHUB_ISSUE_TOKEN ?? "").length,
+      },
+    },
+    { headers: { "Cache-Control": "private, no-store" } },
+  );
+}
