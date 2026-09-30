@@ -297,6 +297,22 @@ describe("POST /api/sentry-webhook", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("issue.created 는 204 로 흘린다 — 신규는 알림 규칙 event_alert 가 담당 (동시 도착 중복 방지, 9/30)", async () => {
+    const res = await POST(webhookRequest("issue", issueCreatedPayload));
+    expect(res.status).toBe(204);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("issue.unresolved(재발) 는 GitHub 로 옮긴다", async () => {
+    fetchMock.mockImplementation(async (url: string) => {
+      if (String(url).includes("/search/issues")) return jsonRes({ total_count: 0, items: [] });
+      return jsonRes({ number: 150, html_url: "https://github.com/KangseonLEE/irang/issues/150" }, 201);
+    });
+    const res = await POST(webhookRequest("issue", { ...issueCreatedPayload, action: "unresolved" }));
+    expect(res.status).toBe(200);
+    await expect(res.json()).resolves.toMatchObject({ ok: true, issueNumber: 150 });
+  });
+
   it("기존 이슈가 없으면 GitHub 이슈를 생성한다", async () => {
     fetchMock.mockImplementation(async (url: string) => {
       if (String(url).includes("/search/issues")) return jsonRes({ total_count: 0, items: [] });
