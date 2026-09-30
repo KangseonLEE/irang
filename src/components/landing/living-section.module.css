@@ -1,0 +1,444 @@
+/* ══════════════════════════════════════════
+   랜딩 "살아보기" 섹션 (2026-09-30)
+   <1024 : 78vw 가로 스냅 트랙 (스케일 없음)
+   1024+ : 활성 카드만 원래 크기 — 커버플로우
+   스크롤 컨테이너는 하나(.viewport), 레이아웃 분기는 CSS 만.
+   ══════════════════════════════════════════ */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── 헤더 ──
+   page.module.css·programs-section.module.css 와 같은 문법이지만 cross-file composes 를 쓰지 않는다
+   (Turbopack composes 2단 한계 + 모듈 간 결합 회피 — 8/31 박제) */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  letter-spacing: 0.02em;
+  width: fit-content;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  color: var(--foreground, #111827);
+  letter-spacing: -0.04em;
+  line-height: var(--lh-tight);
+}
+
+.title em {
+  font-style: normal;
+  color: var(--primary, #1b6b5a);
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+  text-decoration-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+}
+
+.sub {
+  margin: 0;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-snug);
+}
+
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+  padding: 6px 4px;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+
+.viewAll:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (min-width: 640px) {
+  .title {
+    font-size: var(--fs-h2);
+  }
+
+  .sub {
+    font-size: var(--fs-body-sm);
+  }
+
+  .viewAll {
+    font-size: var(--fs-body-sm);
+  }
+}
+
+@media (hover: hover) {
+  .viewAll:hover {
+    color: color-mix(in srgb, var(--primary, #1b6b5a) 80%, #000);
+  }
+}
+
+/* ══════════════════════════════════════════
+   캐러셀
+   ══════════════════════════════════════════ */
+.carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 풀블리드 — 양 끝 카드가 화면 밖으로 잘려야 "가운데가 지금 보는 것"으로 읽힌다.
+   html { overflow-x: clip } 전제 위에서만 안전 (page.module.css .fullWidth 와 같은 기법) */
+.viewport {
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.track {
+  --card-w: 78vw;
+  --card-gap: 12px;
+  display: flex;
+  gap: var(--card-gap);
+  width: max-content;
+  margin: 0;
+  /* 좌우 여백으로 첫·마지막 카드도 화면 가운데에 설 수 있다 (100% = 뷰포트 폭) */
+  padding: 4px calc((100% - var(--card-w)) / 2);
+  list-style: none;
+}
+
+.slide {
+  flex: 0 0 var(--card-w);
+  width: var(--card-w);
+  scroll-snap-align: center;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  aspect-ratio: 3 / 4;
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+  text-decoration: none;
+  background: var(--muted, #f3f4f6);
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--primary, #1b6b5a);
+  outline-offset: 3px;
+}
+
+.photo {
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* 흰 글씨 대비 — 텍스트가 놓이는 하단 50% 구간의 알파를 0.6 이상으로 유지한다.
+   (흰 사진 최악 기준: 알파 .6 → 합성 rgb(102) → 흰 글씨 대비 5.7:1) */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.8) 34%,
+      rgba(0, 0, 0, 0.62) 50%,
+      rgba(0, 0, 0, 0.25) 72%,
+      rgba(0, 0, 0, 0) 90%
+    ),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0) 24%);
+}
+
+/* ── 상단 배지 행 ── */
+.topRow {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  white-space: nowrap;
+}
+
+/* 공용 StatusBadge 는 12% 반투명 배경이라 사진 위에서 읽히지 않는다 → 섹션 로컬 채움 변형 */
+.statusOpen {
+  composes: badge;
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+}
+
+.statusSoon {
+  composes: badge;
+  background: var(--warning, #d97706);
+  color: #fff;
+}
+
+/* 마감 임박 — 사진 위에서 가장 먼저 눈에 들어와야 하므로 흰 알약 + 붉은 글씨 */
+.urgent {
+  composes: badge;
+  background: #fff;
+  color: #b42318;
+}
+
+/* 귀농형/귀촌형 — 우측. 흰 글씨를 얹으려면 알파 0.6 이상이 필요하다 */
+.typeChip {
+  composes: badge;
+  margin-left: auto;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  font-weight: 600;
+}
+
+/* ── 하단 본문 ── */
+.body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 16px 14px 14px;
+  color: #fff;
+}
+
+.region {
+  font-size: var(--fs-caption-sm);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+  letter-spacing: 0.01em;
+}
+
+.village {
+  font-size: var(--fs-h4);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: var(--lh-tight);
+}
+
+.duration {
+  margin-top: 3px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: #fff;
+}
+
+.metaRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.meta {
+  font-size: var(--fs-caption-sm);
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.credit {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* ── 컨트롤 (하단 중앙) ── */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ctrlBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 50%;
+  background: var(--card, #fff);
+  color: var(--muted-foreground, #6b7280);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.ctrlBtn:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .ctrlBtn:hover {
+    color: var(--primary, #1b6b5a);
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 45%, transparent);
+  }
+}
+
+.counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 96px;
+  justify-content: center;
+  font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.counterNow {
+  font-weight: 800;
+  color: var(--foreground, #111827);
+}
+
+.counterSep {
+  color: color-mix(in srgb, var(--muted-foreground, #6b7280) 55%, transparent);
+}
+
+/* 진행선 — 자동 넘김 간격 동안 0→100%. 정지·hover·터치 중엔 타이머와 함께 멈춘다 */
+.progress {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 2px;
+  margin-left: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+}
+
+.progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  background: var(--primary, #1b6b5a);
+  animation: livingProgress var(--living-interval, 5000ms) linear forwards;
+}
+
+.progress[data-paused]::after {
+  animation-play-state: paused;
+}
+
+@keyframes livingProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ══════════════════════════════════════════
+   1024+ — 커버플로우
+   ══════════════════════════════════════════ */
+@media (min-width: 1024px) {
+  .section {
+    gap: 24px;
+  }
+
+  .carousel {
+    gap: 18px;
+  }
+
+  .track {
+    --card-w: clamp(240px, 25vw, 340px);
+    --card-gap: 20px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .slide {
+    transform: scale(0.84);
+    filter: brightness(0.68);
+    transition:
+      transform 0.5s ease,
+      filter 0.5s ease;
+  }
+
+  .slide[data-active] {
+    transform: scale(1);
+    filter: none;
+  }
+
+  .body {
+    padding: 20px 18px 18px;
+  }
+
+  .village {
+    font-size: var(--fs-h3);
+  }
+
+  .ctrlBtn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide {
+    transition: none;
+  }
+
+  .viewport {
+    scroll-behavior: auto;
+  }
+}

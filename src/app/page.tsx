@@ -26,6 +26,8 @@ import { loadActivePromos } from "@/lib/promos/queries";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
 import { ProgramsSection } from "@/components/landing/programs-section";
+import { LivingSection, pickLivingStays } from "@/components/landing/living-section";
+import { filterEventsAsync } from "@/lib/data/events";
 import { deriveStatus, daysUntilDeadline, isUnannounced, ALWAYS_OPEN } from "@/lib/program-status";
 import { StartCardsSection } from "@/components/landing/start-cards-section";
 import { CropGlanceSection } from "@/components/landing/crop-glance-section";
@@ -95,10 +97,16 @@ function getProgramsData() {
   return { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount };
 }
 
+/* ── 살아보기(팜스테이) 데이터 준비 (9/30) — 고르는 규칙은 LivingSection 옆에 둔다 ── */
+async function getLivingStays() {
+  const { events } = await filterEventsAsync({ type: "팜스테이" });
+  return pickLivingStays(events);
+}
+
 export default async function HomePage() {
   const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount } = getProgramsData();
   // 노출 기간·활성 판정은 서버(DB)에서 끝낸다 — 클라이언트는 받은 것만 그린다
-  const promos = await loadActivePromos();
+  const [promos, livingStays] = await Promise.all([loadActivePromos(), getLivingStays()]);
 
   return (
     <div className={s.page}>
@@ -155,6 +163,11 @@ export default async function HomePage() {
           activePrograms={activePrograms}
           ongoingPrograms={ongoingPrograms}
         />
+      </ScrollReveal>
+
+      {/* ═══ 2-2. 농촌에서 살아보기 — 마을 사진 카드 캐러셀 (9/30 회장 지시) ═══ */}
+      <ScrollReveal trackId="living" variant="fade" stagger>
+        <LivingSection items={livingStays} />
       </ScrollReveal>
 
       {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}
