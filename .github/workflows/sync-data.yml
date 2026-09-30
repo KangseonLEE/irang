@@ -15,6 +15,11 @@ on:
   schedule:
     - cron: "0 21 * * *" # 06:00 KST (UTC+9)
   workflow_dispatch: # 수동 실행 지원
+    inputs:
+      refresh:
+        description: "true 면 이미 검증된 행도 다시 upsert (원천 새 필드 백필)"
+        required: false
+        default: "false"
 
 jobs:
   sync-rda:
@@ -62,7 +67,7 @@ jobs:
             "${{ secrets.SUPABASE_URL }}/functions/v1/sync-crawl" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json" \
-            -d '{"target": "${{ matrix.target }}"}' \
+            -d '{"target": "${{ matrix.target }}", "refresh": ${{ github.event.inputs.refresh == 'true' }}}' \
             --max-time 150) || true
 
           http_code=$(echo "$response" | tail -1)

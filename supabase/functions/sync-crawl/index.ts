@@ -80,9 +80,12 @@ Deno.serve(async (req: Request) => {
 
   // ─── 타겟 결정 ───
   let targetId = "all";
+  // refresh=true: 이미 검증된(is_verified) 행도 다시 upsert — 원천에 새 필드가 생겼을 때 백필용 (9/30 사진 등)
+  let refresh = false;
   try {
     const body = await req.json();
     targetId = body.target || "all";
+    refresh = body.refresh === true;
   } catch {
     // body 없으면 전체 실행
   }
@@ -106,7 +109,7 @@ Deno.serve(async (req: Request) => {
   const results: CrawlResult[] = [];
 
   for (const target of targets) {
-    const result = await crawlTarget(supabase, target);
+    const result = await crawlTarget(supabase, target, refresh);
     results.push(result);
   }
 
@@ -183,7 +186,7 @@ function eventStatus(status: string): string {
 
 // deno-lint-ignore no-explicit-any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function crawlTarget(supabase: any, target: CrawlTarget): Promise<CrawlResult> {
+async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false): Promise<CrawlResult> {
   const errors: string[] = [];
   const byTable: Record<string, number> = {};
   let newItems = 0;
@@ -229,7 +232,7 @@ async function crawlTarget(supabase: any, target: CrawlTarget): Promise<CrawlRes
       }
     }
 
-    const pending = prepared.filter((p) => !verified.has(`${p.table}:${p.slug}`));
+    const pending = refresh ? prepared : prepared.filter((p) => !verified.has(`${p.table}:${p.slug}`));
     skipped = prepared.length - pending.length;
 
     // ── 3. 원문 URL 헬스체크 (URL 캐시 + 건수 예산) ──
