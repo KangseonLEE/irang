@@ -402,7 +402,8 @@ export function mapLiveItem(raw: GdLiveItem, today: string): CrawledItem | null 
     // 살아보기 상세는 POST form submit 전용이라 딥링크가 없다 → 목록 페이지로 보낸다
     url: LIVE_PAGE_URL,
     region: raw.sgg_nm ?? "전국",
-    organization: (raw.sgg_nm ?? "").trim() || "농림축산식품부",
+    // 주최는 시·군만 — 원문 sgg_nm 은 "전남광주통합특별시 강진군"처럼 SSOT 밖 시·도 표기가 섞인다(9/30 QA)
+    organization: (raw.sgg_nm ?? "").trim().split(/\s+/).pop() || "농림축산식품부",
     status: statusFromWindow(applyStart, applyEnd, today),
     dateStart: applyStart,
     dateEnd: applyEnd,

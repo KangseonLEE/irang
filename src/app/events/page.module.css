@@ -9,159 +9,14 @@
   gap: 16px;
 }
 
-/* ── Card ── */
-.card {
-  display: flex;
-  flex-direction: column;
-  background: var(--card, #fff);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  text-decoration: none;
-  color: inherit;
-}
-
-.card:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
-}
-
-@media (hover: hover) {
-  .card:hover {
-    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, var(--border, #e5e7eb));
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+/* ── 사진 카드 그리드 ──
+   공용 CardGrid(1 → 2 → 3열) 위에 1280+ 4열만 더한다.
+   지연 주입되는 CSS 순서에 기대지 않도록 클래스를 2중으로 써 특이성을 올린다(9/6 박제). */
+@media (min-width: 1280px) {
+  .photoGrid.photoGrid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
-
-.cardHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px 0;
-  gap: 8px;
-}
-
-.cardBadges {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* ── Type Badge (color-coded) ── */
-.typeBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--fs-overline);
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-  white-space: nowrap;
-  line-height: var(--lh-tight);
-}
-
-/* 일일체험 / 팜스테이: green tint */
-.typeBadgeGreen {
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
-  color: var(--primary, #1b6b5a);
-}
-
-/* 박람회 / 축제: amber tint */
-.typeBadgeAmber {
-  background: color-mix(in srgb, var(--warning, #d97706) 12%, transparent);
-  color: #b45309;
-}
-
-/* 설명회 / 멘토링: blue tint */
-.typeBadgeBlue {
-  background: color-mix(in srgb, var(--info, #2563eb) 12%, transparent);
-  color: #1d4ed8;
-}
-
-/* ── Card Body ── */
-.cardBody {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 12px 16px 16px;
-  flex: 1;
-}
-
-.cardTitle {
-  font-size: var(--fs-body);
-  font-weight: 700;
-  color: var(--foreground);
-  margin: 0;
-  line-height: var(--lh-snug);
-}
-
-.cardMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.cardMetaRow {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  line-height: var(--lh-snug);
-}
-
-.cardMetaIcon {
-  flex-shrink: 0;
-  margin-top: 2px;
-  color: var(--muted-foreground, #6b7280);
-}
-
-.cardMetaValue {
-  color: var(--foreground);
-}
-
-.cardDesc {
-  font-size: var(--fs-body-sm);
-  line-height: var(--lh-normal);
-  color: var(--muted-foreground);
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* ── Card Footer ── */
-.cardFooter {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px 14px;
-  margin-top: auto;
-}
-
-.cardCost {
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--primary, #1b6b5a);
-}
-
-.cardLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--fs-caption);
-  font-weight: 500;
-  color: var(--primary, #1b6b5a);
-  text-decoration: none;
-  padding: 4px 10px;
-  border-radius: 8px;
-  transition: background-color 0.15s;
-}
-
-/* cardLink은 이제 시각 힌트 span — 별도 인터랙션 불필요 */
-
 
 /* ── 정렬 변경 인터랙션 — stagger fade-in (5/25 회장 요청) ── */
 
@@ -170,7 +25,15 @@
 }
 
 .cardAnim {
+  /* grid item 이 트랙 폭을 넘지 않도록 — 사진 카드 래퍼 */
+  min-width: 0;
+  display: flex;
   animation: eventFadeInUp 0.32s ease-out backwards;
+}
+
+.cardAnim > * {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 @keyframes eventFadeInUp {
@@ -180,4 +43,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .cardAnim { animation: none; }
+}
+
+/* 사진 출처 — 카드마다 같은 문장을 25번 반복하는 대신 그리드 아래 한 줄 */
+.photoCredit {
+  margin: 14px 0 0;
+  font-size: var(--fs-caption);
+  color: var(--muted-foreground, #6b7280);
 }

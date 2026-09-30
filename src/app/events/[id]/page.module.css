@@ -41,57 +41,128 @@
   }
 }
 
+/* ── 사진 히어로 (2026-09-30) ──
+   마을 사진이 있으면 사진, 없으면 시·도 배경 일러스트. 배지는 우상단, 마을 유형 칩은 좌하단.
+   노트북에서 사진만으로 첫 화면이 다 차지 않도록 세로 높이를 캡한다. */
+.heroFigure {
+  margin: 0 0 20px;
+}
+
+.hero {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, var(--muted, #f9fafb));
+}
+
+.heroBadges {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+
+/* 사진 위 배지 가독성 — 카드와 같은 처리 (흰 알약 + 그림자) */
+.heroBadges.heroBadges > * {
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.heroChip {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .heroChip {
+    background: rgba(0, 0, 0, 0.66);
+  }
+}
+
+.heroCredit {
+  margin-top: 6px;
+  font-size: var(--fs-overline);
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* 넓은 화면에서는 비율 대신 고정 높이 —
+   `aspect-ratio` + `max-height` 조합은 높이가 캡에 걸리는 순간 비율을 지키려고 **폭까지** 줄여
+   히어로가 본문보다 좁아진다(1280 실측 853px). 높이를 직접 정해 폭은 본문 전체를 쓰게 한다.
+   높이를 400 이상 두면 제목이 첫 화면 밖으로 밀린다. */
+@media (min-width: 768px) {
+  .hero {
+    aspect-ratio: auto;
+    height: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    height: 380px;
+  }
+}
+
+/* ── 지역 한 줄 (제목 위) ── */
+.regionLine {
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground, #6b7280);
+  margin: 0 0 6px;
+}
+
+.regionLink {
+  color: var(--muted-foreground, #6b7280);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+}
+
+@media (hover: hover) {
+  .regionLink:hover {
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.regionLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── 살아보기 한 줄 안내 ── */
+.intro {
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--foreground, #111827);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin: 0;
+}
+
 /* ── 타이틀 섹션 ── */
 .titleSection {
   margin-bottom: 32px;
-}
-
-.badgeRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-/* 행사 유형 뱃지 공통 */
-.typeBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 9999px;
-  font-size: var(--fs-caption);
-  font-weight: 500;
-}
-
-.typeExperience {
-  background: #ecfdf5;
-  color: #047857;
-}
-
-.typeFarmstay {
-  background: #fef3c7;
-  color: var(--warning-fg-strong, #92400e);
-}
-
-.typeExpo {
-  background: #eff6ff;
-  color: #1d4ed8;
-}
-
-.typeSeminar {
-  background: #f5f3ff;
-  color: #6d28d9;
-}
-
-.typeMentoring {
-  background: #fff1f2;
-  color: #be123c;
-}
-
-.typeFestival {
-  background: #fdf4ff;
-  color: #a21caf;
 }
 
 /* 제목 + 액션 버튼 행 — 공용 (모바일 <1024 는 제목 아래 별도 행, 배지와 같은 x) */
@@ -171,53 +242,76 @@
   padding-top: 24px;
 }
 
-/* ── 테이블 ── */
-.table {
-  width: 100%;
-  border-collapse: collapse;
+/* ── 사실 그리드 — 데스크탑 2열 / 모바일 1열 (2026-09-30) ──
+   기존 2열 table 은 좁은 화면에서 라벨 열이 값을 눌러 두 줄씩 접혔다.
+   dl 그리드는 모바일 1열 · 데스크탑 2열로 같은 정보를 절반 높이에 담는다. */
+.factGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin: 0;
 }
 
-.tableRow {
+.fact {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 0;
   border-bottom: 1px solid var(--border, #e5e7eb);
+  min-width: 0;
 }
 
-.tableRow:last-child {
-  border-bottom: none;
+.factLabel {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--foreground, #111827);
 }
 
-.tableLabelCell {
-  width: 100px;
-  padding: 14px 0;
-  vertical-align: top;
+.factValue {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+  color: var(--muted-foreground, #6b7280);
+  line-height: var(--lh-snug);
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
-@media (min-width: 640px) {
-.tableLabelCell {
-    width: 140px;
+.factLink {
+  color: var(--primary, #1b6b5a);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 35%, transparent);
+}
+
+@media (hover: hover) {
+  .factLink:hover {
+    border-bottom-color: var(--primary, #1b6b5a);
   }
 }
 
-.tableValueCell {
-  padding: 14px 0;
-  font-size: var(--fs-body-sm);
-  color: var(--foreground, #111827);
-  word-break: break-word;
+.factLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
-/* 아이콘 + 라벨 */
-.iconLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  color: var(--foreground, #111827);
+@media (min-width: 640px) {
+  .fact {
+    grid-template-columns: 116px 1fr;
+  }
 }
 
-.iconMuted {
-  color: var(--muted-foreground, #6b7280);
-  display: inline-flex;
-  flex-shrink: 0;
+@media (min-width: 1024px) {
+  .factGrid {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 28px;
+  }
+
+  /* 홀수 개일 때 마지막 행 밑줄이 한 칸만 남는 것 방지 */
+  .fact:nth-last-child(1),
+  .fact:nth-last-child(2):nth-child(odd) {
+    border-bottom: none;
+  }
 }
 
 /* ── 설명 텍스트 ── */

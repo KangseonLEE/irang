@@ -1,27 +1,27 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { DeadlineBadge } from "@/components/ui/deadline-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Event } from "schema-dts";
-import { formatDateRange } from "@/lib/format";
-import {
-  ArrowLeft,
-  MapPin,
-  Building2,
-  Calendar,
-  Coins,
-  Users,
-  MapPinned,
-  Tag,
-  CalendarDays,
-} from "lucide-react";
+import { ArrowLeft, CalendarDays } from "lucide-react";
 import { getEventByIdAsync, EVENTS } from "@/lib/data/events";
 import type { FarmEvent } from "@/lib/data/events";
+import { getEventImage } from "@/lib/events/event-image";
+import {
+  buildEventFacts,
+  eventTypeChip,
+  isBoilerplateDescription,
+  isStayEvent,
+  regionLabel,
+  regionHref,
+} from "@/components/events/event-fields";
 import { Icon } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
@@ -41,6 +41,8 @@ export async function generateMetadata({
     description: `${event.region}에서 열리는 ${event.type} "${event.title}". ${event.description.slice(0, 120)}`,
     keywords: [`${event.region} 농촌 정착 체험`, `귀농 ${event.type}`, "귀농 행사", "농촌 체험"],
     alternates: { canonical: `/events/${id}` },
+    // 마을 사진이 있으면 공유 카드도 그 사진으로 (없으면 기본 OG 이미지 라우트)
+    ...(event.imageUrl ? { openGraph: { images: [event.imageUrl] } } : {}),
   };
 }
 
@@ -52,14 +54,9 @@ interface EventDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-const TYPE_CLASS: Record<FarmEvent["type"], string> = {
-  일일체험: s.typeExperience,
-  팜스테이: s.typeFarmstay,
-  박람회: s.typeExpo,
-  설명회: s.typeSeminar,
-  멘토링: s.typeMentoring,
-  축제: s.typeFestival,
-};
+/** 살아보기 한 줄 안내 — 유형 이름만으로는 무엇을 하는 프로그램인지 알 수 없다 */
+const STAY_INTRO =
+  "‘농촌에서 살아보기’는 귀농·귀촌을 결정하기 전에 마을에 일정 기간 머물며 생활과 일을 겪어 보는 프로그램이에요. 숙소와 체험 프로그램이 함께 제공되고, 지원 조건은 마을마다 달라요.";
 
 // GSC 이벤트 구조화 데이터 권장 필드(offers) — cost·status에서 가격·재고 상태 매핑
 function buildOffer(event: FarmEvent): Event["offers"] {
@@ -102,6 +99,11 @@ export default async function EventDetailPage({
   }
 
   const related = getRelatedEvents(event);
+  const image = getEventImage(event);
+  const facts = buildEventFacts(event, "detail");
+  const stay = isStayEvent(event);
+  const showDescription = !isBoilerplateDescription(event.description);
+  const regionLink = regionHref(event);
 
   return (
     <div className={s.page}>
@@ -124,7 +126,7 @@ export default async function EventDetailPage({
             name: event.location,
             address: { "@type": "PostalAddress", addressRegion: event.region, addressCountry: "KR" },
           },
-          image: ["https://irangfarm.com/opengraph-image"],
+          image: [event.imageUrl ?? "https://irangfarm.com/opengraph-image"],
           organizer: { "@type": "Organization", name: event.organization, url: event.url },
           performer: { "@type": "Organization", name: event.organization },
           offers: buildOffer(event),
@@ -138,14 +140,42 @@ export default async function EventDetailPage({
         행사 목록으로
       </Link>
 
-      {/* Title + Badges */}
-      <div className={s.titleSection}>
-        <div className={s.badgeRow}>
+      {/* ── 사진 히어로 — 배지(우상단) + 마을 유형 칩(좌하단) ── */}
+      <figure className={s.heroFigure}>
+        <div className={s.hero}>
+        <Image
+          src={image.src}
+          alt={image.alt}
+          fill
+          sizes="(max-width: 1023px) calc(100vw - 32px), (max-width: 1343px) calc(100vw - 64px), 1216px"
+          quality={72}
+          priority
+          style={{ objectFit: "cover" }}
+        />
+        <div className={s.heroBadges}>
           <StatusBadge status={event.status} />
-          <span className={`${s.typeBadge} ${TYPE_CLASS[event.type]}`}>
-            {event.type}
-          </span>
+          <DeadlineBadge
+            applicationEnd={event.applicationEnd}
+            applicationStart={event.applicationStart}
+            status={event.status}
+          />
         </div>
+        <span className={s.heroChip}>{eventTypeChip(event)}</span>
+        </div>
+        {image.credit && <figcaption className={s.heroCredit}>{image.credit}</figcaption>}
+      </figure>
+
+      {/* Title */}
+      <div className={s.titleSection}>
+        <p className={s.regionLine}>
+          {regionLink ? (
+            <Link href={regionLink} className={s.regionLink}>
+              {regionLabel(event)}
+            </Link>
+          ) : (
+            regionLabel(event)
+          )}
+        </p>
         <div className={s.titleRow}>
           <h1 className={s.pageTitle}>{event.title}</h1>
           <div className={s.titleActions}>
@@ -169,74 +199,45 @@ export default async function EventDetailPage({
       <div className={s.contentGrid}>
         {/* Main content */}
         <div className={s.mainContent}>
-          {/* Basic Info */}
+          {/* 살아보기가 뭔지 먼저 한 줄 */}
+          {stay && <p className={s.intro}>{STAY_INTRO}</p>}
+
+          {/* 사실 그리드 — 데스크탑 2열 / 모바일 1열 */}
           <div className={s.card}>
             <div className={s.cardHeader}>
               <h2 className={s.cardTitle}>기본 정보</h2>
             </div>
             <div className={s.cardContent}>
-              <table className={s.table}>
-                <tbody>
-                  <InfoRow
-                    icon={<Building2 size={16} strokeWidth={1.75} />}
-                    label="주최 기관"
-                    value={event.organization}
-                  />
-                  <InfoRow
-                    icon={<MapPin size={16} strokeWidth={1.75} />}
-                    label="지역"
-                    value={event.region}
-                  />
-                  <InfoRow
-                    icon={<MapPinned size={16} strokeWidth={1.75} />}
-                    label="장소"
-                    value={event.location}
-                  />
-                  <InfoRow
-                    icon={<Calendar size={16} strokeWidth={1.75} />}
-                    label="행사 일시"
-                    value={formatDateRange(event.date, event.dateEnd)}
-                  />
-                  <InfoRow
-                    icon={<Coins size={16} strokeWidth={1.75} />}
-                    label="비용"
-                    value={event.cost}
-                  />
-                  <InfoRow
-                    icon={<Users size={16} strokeWidth={1.75} />}
-                    label="정원"
-                    value={
-                      event.capacity !== null
-                        ? `${event.capacity}명`
-                        : "제한 없음"
-                    }
-                  />
-                  {event.applicationStart && event.applicationEnd && (
-                    <InfoRow
-                      icon={<CalendarDays size={16} strokeWidth={1.75} />}
-                      label="접수 기간"
-                      value={formatDateRange(event.applicationStart, event.applicationEnd)}
-                    />
-                  )}
-                  <InfoRow
-                    icon={<Tag size={16} strokeWidth={1.75} />}
-                    label="대상"
-                    value={event.target}
-                  />
-                </tbody>
-              </table>
+              <dl className={s.factGrid}>
+                {facts.map((fact) => (
+                  <div key={fact.label} className={s.fact}>
+                    <dt className={s.factLabel}>{fact.label}</dt>
+                    <dd className={s.factValue}>
+                      {fact.href ? (
+                        <Link href={fact.href} className={s.factLink}>
+                          {fact.value}
+                        </Link>
+                      ) : (
+                        fact.value
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           </div>
 
-          {/* Description */}
-          <div className={s.card}>
-            <div className={s.cardHeader}>
-              <h2 className={s.cardTitle}>행사 내용</h2>
+          {/* Description — 수집 안내 상투 문구면 생략(아래 원문 링크·참고 안내가 같은 말을 한다) */}
+          {showDescription && (
+            <div className={s.card}>
+              <div className={s.cardHeader}>
+                <h2 className={s.cardTitle}>행사 내용</h2>
+              </div>
+              <div className={s.cardContent}>
+                <p className={s.descriptionText}><AutoGlossary text={event.description} /></p>
+              </div>
             </div>
-            <div className={s.cardContent}>
-              <p className={s.descriptionText}><AutoGlossary text={event.description} /></p>
-            </div>
-          </div>
+          )}
 
           {/* 접수 기간 미제공 안내 (데이터 없을 때만) */}
           {!event.applicationStart && (
@@ -282,7 +283,7 @@ export default async function EventDetailPage({
                       <Link href={`/events/${r.id}`} className={s.relatedLink}>
                         <span className={s.relatedTitle}>{r.title}</span>
                         <span className={s.relatedMeta}>
-                          {r.region} · {r.type}
+                          {regionLabel(r)} · {eventTypeChip(r)}
                         </span>
                       </Link>
                     </li>
@@ -296,29 +297,5 @@ export default async function EventDetailPage({
 
       <ReferenceNotice text="행사 정보는 주최 기관 공고를 참고한 자료예요. 참가 전 해당 기관에서 최신 일정을 확인하세요." />
     </div>
-  );
-}
-
-// --- Sub-components ---
-
-function InfoRow({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <tr className={s.tableRow}>
-      <td className={s.tableLabelCell}>
-        <span className={s.iconLabel}>
-          <span className={s.iconMuted}>{icon}</span>
-          {label}
-        </span>
-      </td>
-      <td className={s.tableValueCell}>{value}</td>
-    </tr>
   );
 }

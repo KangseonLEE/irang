@@ -29,7 +29,9 @@ export function regionFallbackImage(region: string | undefined): string {
 
 export function getEventImage(event: Pick<FarmEvent, "imageUrl" | "region" | "title">): EventImage {
   if (event.imageUrl && /^https:\/\/www\.greendaero\.go\.kr\/svc\/common\/board\/img\//.test(event.imageUrl)) {
-    return { src: event.imageUrl, alt: `${event.title} 마을 사진`, isPhoto: true, credit: "사진: 그린대로" };
+    // "OO마을 농촌에서 살아보기 (귀촌형)" → "OO마을 사진" (제목 꼬리는 카드 칩과 중복)
+    const village = event.title.replace(/\s*농촌에서 살아보기.*$/, "").trim() || event.title;
+    return { src: event.imageUrl, alt: `${village} 사진`, isPhoto: true, credit: "사진: 그린대로" };
   }
   return { src: regionFallbackImage(event.region), alt: "", isPhoto: false };
 }
