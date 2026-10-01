@@ -169,7 +169,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
               name: "정착 작물별 예상 소득은 어떻게 되나요?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "농촌진흥청 자료 기준, 딸기는 10a당 약 171만 원, 사과 약 114만 원, 쌀 약 57만 원 수준이에요. 작물별 상세 소득은 이랑에서 비교할 수 있어요.",
+                text: "농촌진흥청 2025년도 조사 기준, 10a당 딸기(수경) 약 1,642만 원, 사과 약 570만 원, 고구마 약 180만 원 수준이에요. 작물별 상세 소득은 이랑에서 비교할 수 있어요.",
               },
             },
           ],
