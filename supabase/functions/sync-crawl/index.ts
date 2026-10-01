@@ -261,6 +261,7 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
     // ── 4. 테이블별 행 조립 후 일괄 upsert ──
     const today = new Date().toISOString().slice(0, 10);
     // deno-lint-ignore no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rowsByTable: Record<string, any[]> = {};
 
     for (const { item, slug, table } of pending) {
