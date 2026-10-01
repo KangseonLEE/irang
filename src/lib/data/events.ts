@@ -13,7 +13,7 @@ export interface FarmEvent {
   title: string;
   region: string;
   organization: string;
-  type: "일일체험" | "팜스테이" | "박람회" | "설명회" | "멘토링" | "축제";
+  type: "살아보기" | "일일체험" | "팜스테이" | "박람회" | "설명회" | "멘토링" | "축제";
   date: string;
   dateEnd: string | null;
   applicationStart?: string;
@@ -36,6 +36,7 @@ export interface FarmEvent {
 }
 
 export const EVENT_TYPES = [
+  "살아보기", // 9/30 신설 — 수 주 거주형 정부 프로그램(그린대로). 팜스테이(1~2박)와 분리
   "일일체험",
   "팜스테이",
   "박람회",

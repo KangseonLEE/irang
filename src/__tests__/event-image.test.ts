@@ -9,7 +9,7 @@ describe("event image resolver", () => {
     const img = getEventImage({ imageUrl: "https://www.greendaero.go.kr/svc/common/board/img/att-abc.do", region: "전라남도", title: "다산초당권역마을 농촌에서 살아보기" });
     expect(img.isPhoto).toBe(true);
     expect(img.credit).toContain("그린대로");
-    expect(img.alt).toContain("다산초당권역마을");
+    expect(img.alt).toBe("다산초당권역마을 사진");
   });
   it("허용 호스트 밖 URL 은 사진으로 쓰지 않는다", () => {
     expect(getEventImage({ imageUrl: "https://evil.example/x.jpg", region: "경기도", title: "t" }).isPhoto).toBe(false);

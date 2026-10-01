@@ -1,14 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import {
-  Calendar,
-  MapPin,
-  Clock,
-  Users,
-  Tag,
-} from "lucide-react";
-import { Icon } from "@/components/ui/icon";
+import { Calendar } from "lucide-react";
 import { formatDateRange } from "@/lib/format";
 import {
   filterEventsAsync,
@@ -17,7 +10,6 @@ import {
   EVENT_TYPES,
   EVENT_REGIONS,
   DEFAULT_EVENT_SORT,
-  type FarmEvent,
   type EventFilters,
   type EventSortKey,
 } from "@/lib/data/events";
@@ -26,12 +18,14 @@ import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import { FilterShell } from "@/components/filter/filter-shell";
-import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
+import { EventPhotoCard } from "@/components/events/event-photo-card";
+import { meaningfulCost } from "@/components/events/event-fields";
+import { getEventImage } from "@/lib/events/event-image";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { ListToolbar } from "@/components/ui/list-toolbar";
 import { SectionNav } from "@/components/layout/section-nav";
@@ -66,25 +60,6 @@ interface PageProps {
     sort?: string;
   }>;
 }
-
-/** 행사 유형별 배지 색상 클래스 */
-function getTypeBadgeClass(type: FarmEvent["type"]): string {
-  switch (type) {
-    case "일일체험":
-    case "팜스테이":
-      return s.typeBadgeGreen;
-    case "박람회":
-    case "축제":
-      return s.typeBadgeAmber;
-    case "설명회":
-    case "멘토링":
-      return s.typeBadgeBlue;
-    default:
-      return s.typeBadgeGreen;
-  }
-}
-
-/* StatusBadge is now a shared component from @/components/ui/status-badge */
 
 export default async function EventsPage({ searchParams }: PageProps) {
   const params = await searchParams;
@@ -147,7 +122,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
         icon={<Calendar size={20} strokeWidth={1.75} />}
         label="Events"
         title="체험·행사"
-        description="정착 일일체험, 팜스테이, 박람회, 설명회 등 여러 체험과 행사를 찾아보세요."
+        description="농촌에서 살아보기, 일일체험, 박람회, 설명회를 한곳에서 찾아보세요. 사진과 신청 기간을 보고 고르세요."
         periodLabel={periodLabel}
         dataNote={`${dataYear}년 데이터만 있어요. 연도는 바꿀 수 없어요.`}
       />
@@ -241,7 +216,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
                     <td className={dt.muted}>{ev.region}</td>
                     <td className={dt.muted}>{ev.type}</td>
                     <td className={dt.muted}>{formatDateRange(ev.date, ev.dateEnd)}</td>
-                    <td className={`${dt.amount} ${dt.hideOnMobile}`}>{ev.cost}</td>
+                    <td className={`${dt.amount} ${dt.hideOnMobile}`}>{meaningfulCost(ev.cost) ?? "—"}</td>
                     <td className={`${dt.muted} ${dt.hideOnMobile}`}>{ev.organization}</td>
                   </tr>
                 ))}
@@ -254,82 +229,25 @@ export default async function EventsPage({ searchParams }: PageProps) {
         </>
       ) : (
         <div key={currentSort} className={s.gridAnim}>
-          <CardGrid>
+          <CardGrid className={s.photoGrid}>
             {events.map((event, i) => (
               <div
                 key={event.id}
                 className={s.cardAnim}
                 style={{ animationDelay: `${Math.min(i, 5) * 30}ms` }}
               >
-                <EventCard event={event} />
+                <EventPhotoCard event={event} priority={i < 4} />
               </div>
             ))}
           </CardGrid>
+          {events.some((event) => getEventImage(event).isPhoto) && (
+            <p className={s.photoCredit}>
+              마을 사진은 그린대로(농림축산식품부) 공고에서 가져왔어요. 사진이 없는 곳은 시·도 그림으로 대신해요.
+            </p>
+          )}
         </div>
       )}
     </div>
     </>
-  );
-}
-
-// --- 서브 컴포넌트 ---
-
-function EventCard({ event }: { event: FarmEvent }) {
-  return (
-    <Link
-      href={`/events/${event.id}`}
-      className={s.card}
-    >
-      {/* Header: badges */}
-      <div className={s.cardHeader}>
-        <div className={s.cardBadges}>
-          <span className={`${s.typeBadge} ${getTypeBadgeClass(event.type)}`}>
-            <Icon icon={Tag} size="xs" />
-            {event.type}
-          </span>
-          <StatusBadge status={event.status} />
-        </div>
-      </div>
-
-      {/* Body */}
-      <div className={s.cardBody}>
-        <h3 className={s.cardTitle}>{event.title}</h3>
-
-        <div className={s.cardMeta}>
-          <div className={s.cardMetaRow}>
-            <Icon icon={Clock} size="sm" className={s.cardMetaIcon} />
-            <span className={s.cardMetaValue}>
-              {formatDateRange(event.date, event.dateEnd)}
-            </span>
-          </div>
-          <div className={s.cardMetaRow}>
-            <Icon icon={MapPin} size="sm" className={s.cardMetaIcon} />
-            <span className={s.cardMetaValue}>{event.location}</span>
-          </div>
-          <div className={s.cardMetaRow}>
-            <Icon icon={Calendar} size="sm" className={s.cardMetaIcon} />
-            <span className={s.cardMetaValue}>{event.organization}</span>
-          </div>
-          {event.capacity && (
-            <div className={s.cardMetaRow}>
-              <Icon icon={Users} size="sm" className={s.cardMetaIcon} />
-              <span className={s.cardMetaValue}>
-                정원 {event.capacity}명 | {event.target}
-              </span>
-            </div>
-          )}
-        </div>
-
-        <p className={s.cardDesc}><AutoGlossary text={event.description} /></p>
-      </div>
-
-      {/* Footer */}
-      <div className={s.cardFooter}>
-        <span className={s.cardCost}>{event.cost}</span>
-        <span className={s.cardLink} aria-hidden="true">
-          상세보기
-        </span>
-      </div>
-    </Link>
   );
 }

@@ -176,7 +176,7 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     // 2026-05-25: sort 추가 (deadline/recent) — /programs와 동일 패턴
     allowedKeys: ["type", "region", "q", "period", "includeClosed", "view", "page", "sort"],
     enumValidators: {
-      type: ["일일체험", "팜스테이", "박람회", "설명회", "멘토링", "축제"],
+      type: ["살아보기", "일일체험", "팜스테이", "박람회", "설명회", "멘토링", "축제"],
       region: [
         "전국",
         "서울특별시",
