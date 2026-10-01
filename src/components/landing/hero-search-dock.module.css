@@ -1,0 +1,124 @@
+/* 스크롤 후 하단 고정 바 — 1024+ 전용 (그 아래는 하단 탭바와 충돌, 검색 입구는 헤더 돋보기).
+   우하단 플로팅 버튼 2개(맨 위로 right 24 · 피드백 right 80, 각 44px)와 겹치지 않도록
+   폭을 100vw − 양쪽 148px 로 제한해 가운데 둔다. */
+
+.dock {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .dock {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 40; /* 헤더(50)·모달(200) 아래, 본문 위 */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: min(800px, 100vw - 296px);
+    padding: 8px 8px 8px 16px;
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow:
+      0 18px 48px rgba(6, 26, 21, 0.18),
+      0 2px 8px rgba(6, 26, 21, 0.06);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, calc(100% + 32px));
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.25s ease,
+      visibility 0s linear 0.4s;
+  }
+
+  .visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.25s ease,
+      visibility 0s;
+  }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .dock,
+  .visible {
+    transition: none;
+  }
+}
+
+.lanes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.lanesLabel {
+  display: none;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+}
+
+@media (min-width: 1280px) {
+  .lanesLabel {
+    display: inline;
+  }
+}
+
+.laneList {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lane {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  color: var(--foreground, #111827);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+@media (min-width: 1280px) {
+  .lane {
+    padding: 0 12px;
+  }
+}
+
+.lane:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 1px;
+}
+
+@media (hover: hover) {
+  .lane:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.divider {
+  flex: none;
+  width: 1px;
+  height: 24px;
+  background: var(--border, #e5e7eb);
+}
+
+.search {
+  flex: 1;
+  min-width: 0;
+}

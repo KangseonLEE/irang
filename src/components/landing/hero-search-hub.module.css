@@ -1,0 +1,696 @@
+/* ══════════════════════════════════════════
+   랜딩 히어로 A안 (2026-10-01) — 검색 + 정착 유형 + 지금 열린 기회
+   - 풀블리드 + 헤더 뒤에서 시작(투명 오버레이 헤더, header.module.css `body:has([data-landing-hero])`).
+     위 음수 마진 = .page padding-top(24/32/36/40) + 헤더 56 + 헤더 border 1px.
+   - 모바일(<1024)은 내용만큼의 높이(화면 고정 X), 1024+ 는 100svh 근처.
+   - 업데이트 스낵바(updates-banner)가 .page 기준 absolute 로 위에 뜬다 → 위 패딩이 그 자리를 비운다.
+   - 기본(모바일) → @media 오버라이드 순서(체크리스트 G). 다크모드 없음.
+   ══════════════════════════════════════════ */
+
+.hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  margin: calc(-24px - var(--h-header) - 1px) calc(-50vw + 50%) 0;
+  /* 위 = 헤더(56+1) + 스낵바(12 + ≈48) + 여백 */
+  padding: calc(var(--h-header) + 1px + 80px) calc(50vw - 50%) 28px;
+  color: #fff;
+  background: linear-gradient(118deg, #0b2a23 0%, #14554a 52%, #1b6b5a 100%);
+}
+
+@media (min-width: 640px) {
+  .hero {
+    margin-top: calc(-32px - var(--h-header) - 1px);
+    padding-bottom: 36px;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero {
+    margin-top: calc(-36px - var(--h-header) - 1px);
+    padding-top: calc(var(--h-header) + 1px + 92px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    margin-top: calc(-40px - var(--h-header) - 1px);
+    /* 위 = 헤더 + 스낵바(16 + ≈52) + 여백 */
+    padding-top: calc(var(--h-header) + 1px + 100px);
+    padding-bottom: 40px;
+    min-height: 100vh;
+    min-height: 100svh;
+    justify-content: center;
+  }
+}
+
+/* ── 배경 ── */
+.bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bgImage {
+  object-fit: cover;
+  object-position: center 58%;
+}
+
+/* 스크림 — 모바일은 전면이 글자 영역이라 고르게 어둡게 + 상단 헤더 띠 */
+.scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(6, 26, 21, 0.62) 0px, rgba(6, 26, 21, 0.3) 120px, rgba(6, 26, 21, 0) 200px),
+    linear-gradient(180deg, rgba(6, 26, 21, 0.58) 0%, rgba(6, 26, 21, 0.66) 100%);
+}
+
+@media (min-width: 1024px) {
+  /* 데스크탑: 상단 = 투명 헤더 흰 글자 대비 띠(9/29 B안 값), 좌 = 헤드라인, 우 = 유형 카드 제목 */
+  .scrim {
+    background:
+      linear-gradient(180deg, rgba(6, 26, 21, 0.85) 0px, rgba(6, 26, 21, 0.68) 56px, rgba(6, 26, 21, 0.22) 92px, rgba(6, 26, 21, 0) 130px),
+      /* 우측도 0.58 — 해가 걸린 하늘 위 "정착 유형으로 시작하기" 흰 글자 4.5:1 (10/1 픽셀 실측, 0.42 는 3.3) */
+      linear-gradient(90deg, rgba(6, 26, 21, 0.8) 0%, rgba(6, 26, 21, 0.64) 42%, rgba(6, 26, 21, 0.58) 100%),
+      linear-gradient(0deg, rgba(6, 26, 21, 0.45) 0%, rgba(6, 26, 21, 0) 40%);
+  }
+}
+
+/* ── 레이아웃 ── */
+.inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "intro"
+    "types"
+    "data";
+  row-gap: 24px;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "intro types"
+      "data data";
+    column-gap: 48px;
+    row-gap: 36px;
+    align-items: center;
+  }
+}
+
+@media (min-width: 1280px) {
+  .inner {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    column-gap: 64px;
+    row-gap: 40px;
+  }
+}
+
+/* ── 좌: 문장 + 검색 ── */
+.intro {
+  grid-area: intro;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.28;
+  letter-spacing: -0.04em;
+  color: #fff;
+}
+
+.sub {
+  margin: 10px 0 20px;
+  max-width: 30em;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+  }
+
+  .sub {
+    margin: 14px 0 24px;
+    font-size: 1.0625rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .title {
+    font-size: 3rem;
+    line-height: 1.22;
+  }
+}
+
+@media (min-width: 1280px) {
+  .title {
+    font-size: 3.5rem;
+  }
+
+  .sub {
+    margin: 16px 0 28px;
+  }
+}
+
+.searchWrap {
+  width: 100%;
+  max-width: 620px;
+}
+
+/* 인기 검색어 — 모바일은 한 줄 가로 스크롤(화면 끝까지), 768+ 는 줄바꿈 */
+.tagsRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tagsLabel {
+  flex: none;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tags {
+  display: flex;
+  gap: 6px;
+  margin: 0 calc(-50vw + 50%);
+  padding: 0 calc(50vw - 50%);
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tags::-webkit-scrollbar {
+  display: none;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  background: rgba(6, 26, 21, 0.55);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.tag:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .tag:hover {
+    border-color: #fff;
+    background: #fff;
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+@media (min-width: 768px) {
+  .tagsRow {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .tags {
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .tag {
+    min-height: 36px;
+    padding: 0 12px;
+  }
+}
+
+/* ── 우: 정착 유형 카드 ── */
+.types {
+  grid-area: types;
+  min-width: 0;
+}
+
+.typesTitle {
+  margin: 0 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .typeGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .typesTitle {
+    margin-bottom: 12px;
+  }
+
+  .typeGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .typeGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.typeItem {
+  display: flex;
+  min-width: 0;
+}
+
+.typeCard {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "thumb arrow"
+    "label label"
+    "desc desc";
+  align-content: start;
+  min-width: 0;
+  padding: 12px;
+  border: 1.5px solid transparent;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--foreground, #111827);
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(6, 26, 21, 0.16);
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+.typeCard:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  border-color: var(--primary, #1b6b5a);
+}
+
+.thumb {
+  grid-area: thumb;
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, #fff);
+}
+
+.thumbImage {
+  object-fit: cover;
+  object-position: center 12%;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.typeArrow {
+  grid-area: arrow;
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
+  color: var(--primary, #1b6b5a);
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.typeText {
+  display: contents;
+}
+
+.typeLabel {
+  grid-area: label;
+  margin-top: 10px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.typeDesc {
+  grid-area: desc;
+  margin-top: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--muted-foreground, #6b7280);
+}
+
+@media (min-width: 1024px) {
+  .typeCard {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+  }
+
+  .typeArrow {
+    width: 32px;
+    height: 32px;
+  }
+
+  .typeLabel {
+    margin-top: 12px;
+    font-size: 1.125rem;
+  }
+
+  .typeDesc {
+    font-size: 0.875rem;
+  }
+}
+
+@media (hover: hover) {
+  .typeCard:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary, #1b6b5a);
+    box-shadow: 0 16px 36px rgba(6, 26, 21, 0.26);
+  }
+
+  .typeCard:hover .typeArrow {
+    transform: translateX(3px);
+    background: var(--primary, #1b6b5a);
+    color: #fff;
+  }
+
+  .typeCard:hover .thumbImage {
+    transform: scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typeCard,
+  .typeArrow,
+  .thumbImage {
+    transition: none;
+  }
+}
+
+/* ── 하단: 지금 열린 기회 ── */
+.data {
+  grid-area: data;
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 18px;
+  background: #fff;
+  color: var(--foreground, #111827);
+  box-shadow: 0 10px 30px rgba(6, 26, 21, 0.2);
+}
+
+@media (min-width: 1024px) {
+  .data {
+    gap: 20px;
+    padding: 20px 24px;
+    border-radius: 20px;
+  }
+}
+
+/* 1280+: 수치 한 줄(항목 수만큼 열) | 마감 카드 3 — 나란히 */
+@media (min-width: 1280px) {
+  .data {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+
+.statsBlock,
+.deadlineBlock {
+  min-width: 0;
+}
+
+.dataTitle {
+  margin: 0 0 10px;
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--foreground, #111827);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 2열일 때 항목이 홀수면(0 인 항목은 빠진다) 마지막 칸을 한 줄로 — 빈 칸이 남지 않게 */
+.stats > li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+/* 768+: 항목 수만큼 한 줄 */
+@media (min-width: 768px) {
+  .stats {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .stats > li:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+}
+
+@media (min-width: 1280px) {
+  .stats {
+    grid-auto-columns: minmax(118px, auto);
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--muted, #f9fafb);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.stat:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .stat:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 9%, #fff);
+  }
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.statValue {
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--primary, #1b6b5a);
+}
+
+.statUnit {
+  margin-left: 2px;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.deadlineHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dataMore {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 32px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+}
+
+.dataMore:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (hover: hover) {
+  .dataMore:hover {
+    text-decoration: underline;
+  }
+}
+
+.deadlines {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .deadlines {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.deadline {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "badge title"
+    ". amount";
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: start;
+  height: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.2s ease;
+}
+
+.deadline:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .deadline:hover {
+    border-color: var(--primary, #1b6b5a);
+    transform: translateY(-2px);
+  }
+}
+
+@media (min-width: 768px) {
+  .deadline {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "badge"
+      "title"
+      "amount";
+    row-gap: 4px;
+    justify-items: start;
+  }
+}
+
+.dBadge {
+  grid-area: badge;
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 20px;
+  background: color-mix(in srgb, #d97706 14%, transparent);
+  color: #b45309;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.deadlineTitle {
+  grid-area: title;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+.deadlineAmount {
+  grid-area: amount;
+  overflow: hidden;
+  max-width: 100%;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary, #1b6b5a);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deadline {
+    transition: none;
+  }
+}

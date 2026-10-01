@@ -16,13 +16,18 @@ import { Icon as IconWrap } from "@/components/ui/icon";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
-import { HeroShowcase } from "@/components/landing/hero-showcase";
+import { HeroSearchHub, type HeroStat, type HeroDeadline } from "@/components/landing/hero-search-hub";
+import { HeroSearchDock } from "@/components/landing/hero-search-dock";
+import { isStayEvent } from "@/components/events/event-fields";
+import { PROVINCES } from "@/lib/data/regions";
+import { POPULATION_FALLBACK } from "@/lib/data/population";
+import dynamic from "next/dynamic";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
 import { PromoPopup } from "@/components/landing/promo-popup";
 import { loadActivePromos } from "@/lib/promos/queries";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
-import { ExperienceSection, OpportunitySection } from "@/components/landing/discover-section";
+import { ExperienceSection, OpportunitySection, countDistinctByGroup } from "@/components/landing/discover-section";
 import { filterEventsAsync } from "@/lib/data/events";
 import { filterEducationAsync } from "@/lib/data/education";
 import { deriveStatus, daysUntilDeadline, isUnannounced, ALWAYS_OPEN } from "@/lib/program-status";
@@ -33,6 +38,12 @@ import { interviews } from "@/lib/data/landing";
 import { PROGRAMS } from "@/lib/data/programs";
 import { SurveyCta } from "./survey-cta";
 import s from "./page.module.css";
+
+/** 지역 지도 — /regions 와 같은 KoreaMap. 클라이언트 청크를 분리하되 SSR 은 유지(ssr 기본값) */
+const KoreaMap = dynamic(
+  () => import("@/components/map/korea-map").then((mod) => ({ default: mod.KoreaMap })),
+  { loading: () => <div className={s.mapPlaceholder} role="img" aria-label="지도 불러오는 중" /> },
+);
 // 커튼 리빌 (9/29) — 인터뷰 다크 띠가 이전 섹션을 덮으며 올라온다. page.module.css 대신 전용 모듈
 import curtain from "@/components/landing/interview-curtain.module.css";
 
@@ -87,11 +98,29 @@ function getProgramsData() {
     return p.programStatus === "모집중" && d >= 0 && d <= 7;
   }).length;
 
-  return { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount };
+  // 히어로 A안(10/1) — 마감이 가까운 지원사업 3건 (모집중·확정 마감일, 가까운 순)
+  const closingPrograms: HeroDeadline[] = announced
+    .filter((p) => p.programStatus === "모집중" && p.applicationEnd !== ALWAYS_OPEN)
+    .map((p) => ({ id: p.id, title: p.title, amount: p.supportAmount, daysLeft: daysUntilDeadline(p.applicationEnd) }))
+    .filter((p) => Number.isFinite(p.daysLeft) && p.daysLeft >= 0)
+    .sort((a, b) => a.daysLeft - b.daysLeft)
+    .slice(0, 3);
+
+  return { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount, closingPrograms };
+}
+
+/** 지역 지도 섹션 — 시·도 인구밀도(정적 폴백, API 호출 없음). /regions 와 같은 계산 */
+function getProvinceDensityMap(): Record<string, number> {
+  const map: Record<string, number> = {};
+  for (const prov of PROVINCES) {
+    const pop = POPULATION_FALLBACK.find((p) => p.sgisCode === prov.sgisCode);
+    if (pop && prov.area > 0) map[prov.id] = pop.population / prov.area;
+  }
+  return map;
 }
 
 export default async function HomePage() {
-  const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount } = getProgramsData();
+  const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount, closingPrograms } = getProgramsData();
   // 노출 기간·활성 판정은 서버(DB)에서 끝낸다 — 클라이언트는 받은 것만 그린다.
   // 교육·체험·행사는 두 섹션(Opportunity·Experience)이 나눠 쓰므로 목록을 통째로 넘기고 고르기는 그쪽에서 한다.
   const [promos, eventsResult, educationResult] = await Promise.all([
@@ -99,6 +128,28 @@ export default async function HomePage() {
     filterEventsAsync({}),
     filterEducationAsync({}),
   ]);
+
+  // 히어로 데이터 줄 — 전부 배열·DB 결과에서 센다(0 이면 히어로가 그 항목을 그리지 않는다)
+  const heroStats: HeroStat[] = [
+    { id: "programs_open", label: "신청 가능한 지원사업", value: openProgramCount, unit: "건", href: "/programs" },
+    { id: "programs_due", label: "7일 안에 마감", value: dueSoonProgramCount, unit: "건", href: "/programs" },
+    {
+      id: "education_open",
+      label: "모집 중인 교육",
+      // 시간대별로 쪼갠 행(같은 과정 10시·13시·15시)을 한 과정으로 센다 — 랜딩 교육 카드와 같은 묶음 기준
+      value: countDistinctByGroup(educationResult.courses.filter((c) => c.status === "모집중")),
+      unit: "개 과정",
+      href: "/education",
+    },
+    {
+      id: "stay_open",
+      label: "신청 중인 살아보기",
+      value: countDistinctByGroup(eventsResult.events.filter((e) => e.status === "접수중" && isStayEvent(e))),
+      unit: "곳",
+      href: "/events",
+    },
+  ];
+  const provinceDensityMap = getProvinceDensityMap();
 
   return (
     <div className={s.page}>
@@ -112,11 +163,12 @@ export default async function HomePage() {
       {/* 외부 기관 홍보 요청 팝업 (9/29 회장 지시) — 노출 기간·내용은 /admin/promos 에서 제어. 자동화 UA 에선 안 뜬다 */}
       <PromoPopup items={promos} />
 
-      {/* ═══ 1. 히어로 ═══ */}
-      {/* 10/1 회장 결재 — efusioni 문법(세리프 한 줄 + 바뀌는 여정어 + 엇갈린 세로 카드 6장 + 기울기 호버).
-          이전 여정 레인 + 배경 슬라이드 히어로는 태그 archive/hero-journey-lanes-2026-10-01 과
-          journey-lanes.*·hero-slider.* 파일로 보관(렌더만 뺐다). 밝은 배경이라 투명 헤더(data-landing-hero)는 해제 */}
-      <HeroShowcase />
+      {/* ═══ 1. 히어로 — A안 (10/1 회장 결재, 기후금융포털 구도) ═══ */}
+      {/* 검색 입력 + 인기 검색어 + 정착 유형 카드 6 + 지금 열린 기회 수치. data-landing-hero 로 투명 헤더.
+          이전 efusioni 히어로는 태그 archive/hero-efusioni-2026-10-01 과 hero-showcase.* 파일로 보관(렌더만 뺐다) */}
+      <HeroSearchHub stats={heroStats} deadlines={closingPrograms} />
+      {/* 히어로 관찰자(투명 헤더 복귀) + 스크롤 후 하단 고정 바(1024+) */}
+      <HeroSearchDock />
 
       {/* ═══ 1-2. 자주 찾는 서비스 — 아이콘 8종, GNB 여정 순 (9/7 회장 결재: 히어로 밖 별도 섹션) ═══ */}
       <ScrollReveal trackId="quick_link" variant="fade" stagger>
@@ -132,9 +184,40 @@ export default async function HomePage() {
         />
       </ScrollReveal>
 
-      {/* ═══ 2-2. 직접 가 보는 농촌 — 체험·행사 사진 캐러셀 ═══ */}
-      <ScrollReveal trackId="experience" variant="fade" stagger>
-        <ExperienceSection events={eventsResult.events} />
+      {/* ═══ 2-2. 지도로 고르는 지역 (10/1 A안) — KoreaMap 재사용, 시·도 17 SSR 링크 병기 ═══ */}
+      <ScrollReveal trackId="region_map" variant="fade" stagger>
+        <section className={s.mapSection} aria-labelledby="landing-map-title">
+          <div className={s.mapText} data-reveal-x="left">
+            <span className={s.eyebrow}>#지역 탐색</span>
+            <h2 id="landing-map-title" className={s.mapTitle}>
+              지도에서 <em>내 지역</em> 찾기
+            </h2>
+            <p className={s.mapSub}>
+              시·도를 누르면 기후·인구·추천 작물·지원사업을 한곳에서 볼 수 있어요
+            </p>
+            {/* 지도는 클라이언트 클릭(router.push)이라 크롤러가 따라갈 링크를 따로 둔다 */}
+            <ul className={s.provinceLinks} aria-label="시·도 바로가기">
+              {PROVINCES.map((p) => (
+                <li key={p.id}>
+                  <Link href={`/regions/${p.id}`} className={s.provinceLink} data-track={`region_map:${p.id}`}>
+                    {p.shortName}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className={s.mapActions}>
+              <Link href="/regions/compare" className={s.mapCompare} data-track="region_map:compare">
+                지역 비교하기 <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+              <Link href="/regions" className={s.mapAll} data-track="region_map:all">
+                지역 탐색 전체
+              </Link>
+            </div>
+          </div>
+          <div className={s.mapFigure} data-reveal-x="right">
+            <KoreaMap densityMap={provinceDensityMap} showLegend />
+          </div>
+        </section>
       </ScrollReveal>
 
       {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}
@@ -154,6 +237,11 @@ export default async function HomePage() {
           />
         </ScrollReveal>
       </div>
+
+      {/* ═══ 5-2. 직접 가 보는 농촌 — 체험·행사 사진 캐러셀 (10/1 A안: 작물 뒤로) ═══ */}
+      <ScrollReveal trackId="experience" variant="fade" stagger>
+        <ExperienceSection events={eventsResult.events} />
+      </ScrollReveal>
 
       {/* ═══ 6. 농촌으로 간 사람들의 이야기 (다크 배경) — 9/7 회장: 지원사업 아래로 ═══ */}
       <ScrollReveal trackId="interviews" variant="fade" stagger>

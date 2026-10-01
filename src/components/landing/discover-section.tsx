@@ -90,6 +90,11 @@ function groupTitle(title: string): string {
  * 같은 과정을 **시간대별**로 쪼갠 행(유형특화과정 10/1 10시·13시·15시 …)은 제목이 달라 살아남는다.
  * 랜딩은 8장이 전부라 그런 행이 들어오면 탭 하나가 같은 과정으로 채워진다.
  */
+/** 같은 모사업을 한 건으로 센 개수 — 히어로 데이터 줄(10/1)이 원본 행 수(시간대별 분할 포함)를 과장하지 않게 */
+export function countDistinctByGroup(items: { title: string }[]): number {
+  return new Set(items.map((item) => groupTitle(item.title))).size;
+}
+
 function dedupeByGroup<T extends { title: string }>(items: T[]): T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
