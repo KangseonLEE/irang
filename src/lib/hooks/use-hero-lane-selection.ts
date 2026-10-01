@@ -25,6 +25,7 @@ function subscribe(fn: () => void) {
   return () => listeners.delete(fn);
 }
 
+/** @public 보관(10/1 회장) — 여정 레인 히어로(archive/hero-journey-lanes-2026-10-01)를 되살릴 때 HeroSlider 가 쓴다 */
 export function useHeroLaneSelected(): boolean {
   return useSyncExternalStore(
     subscribe,

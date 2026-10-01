@@ -1,0 +1,374 @@
+/* ══════════════════════════════════════════
+   랜딩 히어로 — efusioni 번안 (2026-10-01 회장 결재)
+   - 밝은 띠(band) 위 세리프 한 줄 문장 + 아래 세로 카드 3열(가운데 열만 아래로 엇갈림).
+   - 띠는 첫 카드 줄의 윗부분까지만 깔린다(카드가 띠 경계를 가로지른다) — 띠 아래 패딩만큼
+     그리드를 위로 당겨(--overlap) 카드 높이와 무관하게 성립.
+   - 업데이트 스낵바(updates-banner)는 .page 기준 absolute 로 띠 상단에 뜬다 → 띠 위 패딩이 그 자리를 비워 둔다.
+   - 모바일 퍼스트. 모바일(<640)은 문장을 2줄로 접고 카드는 2열.
+   ══════════════════════════════════════════ */
+
+.hero {
+  --band: #f3f5f2;
+  --overlap: 96px; /* 띠가 카드 줄 안으로 들어가는 깊이 */
+  --offset: 36px; /* 가운데(모바일은 오른쪽) 열이 내려가는 양 */
+  --col-gap: 12px;
+  --row-gap: 24px;
+  --rule-color: var(--foreground, #111827);
+
+  position: relative;
+  /* .page padding-top 상쇄 — 띠가 헤더 바로 아래에서 시작한다 */
+  margin-top: -24px;
+}
+
+/* 풀블리드 띠 (html { overflow-x: clip } 전제 — quick-link-section 과 같은 기법) */
+.band {
+  margin-inline: calc(-50vw + 50%);
+  padding: 92px calc(50vw - 50%) calc(32px + var(--overlap));
+  background: var(--band);
+}
+
+.head {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+/* ── 문장 ── */
+.title {
+  margin: 0;
+  font-family: var(--font-logo);
+  font-weight: 400;
+  font-size: 2rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--foreground, #111827);
+}
+
+/* 모바일: 1줄 = 왼쪽 단어 + 선 / 2줄 = 바뀌는 단어 · 점 · 오른쪽 단어 (오른쪽 정렬) */
+.line {
+  display: grid;
+  /* 1열은 auto — 왼쪽 단어 폭만큼. 1fr 이면 nowrap 단어가 선 위로 넘친다(375 실측) */
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "left rule rule rule"
+    ". word dots right";
+  align-items: end;
+  column-gap: 12px;
+  row-gap: 10px;
+}
+
+.left { grid-area: left; white-space: nowrap; }
+.right { grid-area: right; white-space: nowrap; }
+
+.rule {
+  grid-area: rule;
+  align-self: end;
+  height: 0;
+  margin-bottom: 0.18em;
+  border-bottom: 1.5px solid var(--rule-color);
+}
+
+.wordSlot {
+  grid-area: word;
+  justify-self: end;
+  display: inline-block;
+  overflow: hidden; /* 들어오는 단어가 아래에서 올라올 때 줄 밖이 보이지 않게 */
+  padding-bottom: 0.08em; /* 명조 받침 하단이 잘리지 않게 */
+  white-space: nowrap;
+}
+
+.word {
+  display: inline-block;
+  color: var(--primary, #1b6b5a);
+  animation: wordIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes wordIn {
+  from { opacity: 0; transform: translateY(60%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dots {
+  grid-area: dots;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  gap: 5px;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--foreground, #111827) 16%, transparent);
+  transition: background-color 0.3s ease;
+}
+
+.dot[data-on] {
+  background: var(--primary, #1b6b5a);
+}
+
+.desc {
+  margin: 20px 0 0;
+  font-size: var(--fs-body-sm, 0.875rem);
+  font-weight: 500;
+  line-height: 1.6;
+  text-align: right;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── 카드 그리드 ── */
+.grid {
+  position: relative; /* 띠 배경 위로 */
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--col-gap);
+  row-gap: var(--row-gap);
+  max-width: 1120px;
+  margin: calc(-1 * var(--overlap)) auto 0;
+  /* 내려간 열(translate)은 레이아웃 높이에 안 잡히므로 그만큼 아래를 비운다 */
+  padding: 0 0 var(--offset);
+  list-style: none;
+}
+
+.item {
+  min-width: 0;
+}
+
+/* 모바일 2열: 오른쪽 열을 내린다 */
+.item:nth-child(2n) {
+  translate: 0 var(--offset);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 16px;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 6px;
+}
+
+.media {
+  position: relative;
+  display: block;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 16px;
+  /* 이미지가 뜨기 전 자리 — 딥그린 */
+  background: linear-gradient(160deg, #14554a, #0b2a23);
+  transform-origin: center;
+  will-change: transform;
+}
+
+.img {
+  object-fit: cover;
+  transition: transform 0.3s ease-in-out;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 2px;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--foreground, #111827);
+  transition: color 0.3s ease;
+}
+
+/* 바뀌는 단어와 같은 여정 — 이름 앞 점 + 브랜드 그린 */
+.label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary, #1b6b5a);
+  transform: scale(0);
+  transition: transform 0.3s ease;
+  margin-right: -12px; /* 꺼진 상태에선 자리 차지 0 */
+}
+
+.card[data-active] .label {
+  color: var(--primary, #1b6b5a);
+}
+
+.card[data-active] .label::before {
+  transform: scale(1);
+  margin-right: 0;
+}
+
+.cardDesc {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted-foreground, #6b7280);
+}
+
+@media (hover: hover) {
+  .card:hover .img {
+    transform: scale(1.04);
+  }
+
+  .card:hover .label {
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+/* ── 640+: 문장 한 줄 ── */
+@media (min-width: 640px) {
+  .hero {
+    --overlap: 140px;
+    --offset: 48px;
+    --col-gap: 20px;
+    --row-gap: 32px;
+
+    margin-top: -32px;
+  }
+
+  .band {
+    padding-top: 120px; /* 768~1023 스낵바가 두 줄(≈63px)로 감긴다 */
+    padding-bottom: calc(48px + var(--overlap));
+  }
+
+  .title {
+    font-size: 2.125rem;
+  }
+
+  .line {
+    grid-template-columns: auto minmax(40px, 1fr) auto auto auto;
+    grid-template-areas: "left rule word dots right";
+    column-gap: 16px;
+  }
+
+  /* 설명은 오른쪽 끝(“새 출발” 아래)에 붙는다 */
+  .desc {
+    margin-top: 24px;
+  }
+}
+
+/* ── 768+: 카드 3열, 가운데 열만 내린다 ── */
+@media (min-width: 768px) {
+  .hero {
+    --overlap: 170px;
+    --offset: 56px;
+    --col-gap: 24px;
+    --row-gap: 40px;
+
+    margin-top: -36px;
+  }
+
+  .title {
+    font-size: 2.5rem;
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .item:nth-child(2n) {
+    translate: none;
+  }
+
+  .item:nth-child(3n + 2) {
+    translate: 0 var(--offset);
+  }
+
+  .label {
+    font-size: 1.0625rem;
+  }
+
+  .cardDesc {
+    font-size: 0.875rem;
+  }
+}
+
+/* ── 1024+ ── */
+@media (min-width: 1024px) {
+  .hero {
+    --overlap: 210px;
+    --offset: 80px;
+    --col-gap: 48px;
+    --row-gap: 56px;
+
+    margin-top: -40px;
+  }
+
+  .band {
+    padding-top: 128px; /* 스낵바(top 16 + ≈58) 아래 여유 */
+    padding-bottom: calc(80px + var(--overlap));
+  }
+
+  .title {
+    font-size: clamp(3rem, 4.6vw, 4rem);
+  }
+
+  .line {
+    column-gap: 28px;
+  }
+
+  .rule {
+    border-bottom-width: 2px;
+  }
+
+  .dots {
+    gap: 7px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .desc {
+    margin-top: 32px;
+    font-size: 0.9375rem;
+  }
+}
+
+/* ── 1280+: 레퍼런스 간격 (열 간격 72) ── */
+@media (min-width: 1280px) {
+  .hero {
+    --col-gap: 72px;
+    --overlap: 230px;
+  }
+
+  .line {
+    column-gap: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word {
+    animation: none;
+  }
+
+  .img,
+  .label,
+  .label::before,
+  .dot {
+    transition: none;
+  }
+}

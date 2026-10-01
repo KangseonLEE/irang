@@ -14,12 +14,9 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { HeroSlider } from "@/components/landing/hero-slider";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
-import { JourneyLanes } from "@/components/landing/journey-lanes";
-import { resolveJourneyLanes, resolveJourneyGates } from "@/lib/data/journey-lanes-images";
-import { buildLaneStats } from "@/lib/data/journey-lanes-stats";
+import { HeroShowcase } from "@/components/landing/hero-showcase";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
 import { PromoPopup } from "@/components/landing/promo-popup";
 import { loadActivePromos } from "@/lib/promos/queries";
@@ -44,10 +41,6 @@ import curtain from "@/components/landing/interview-curtain.module.css";
    히어로(검색) → 인터뷰(사회적 증거) → 왜 농촌 정착(동기)
    → 비용(현실) → 지원사업(행동) → 뉴스(시의성) → CTA
    ──────────────────────────────────────────── */
-
-/** 히어로 여정 레인 — 일러스트 존재 판정까지 끝낸 목록 (프로세스당 1회) */
-const heroLanes = resolveJourneyLanes();
-const heroGates = resolveJourneyGates();
 
 /* ── 지원사업 데이터 준비 (서버 사이드) ── */
 /**
@@ -120,36 +113,10 @@ export default async function HomePage() {
       <PromoPopup items={promos} />
 
       {/* ═══ 1. 히어로 ═══ */}
-      {/* data-landing-hero — 헤더가 :has() 로 이 페이지를 알아보고 1024+ 에서 투명 오버레이가 된다 (9/29 B안) */}
-      <section className={s.heroSection} aria-label="검색" data-landing-hero>
-        {/* 9/29 회장 1안: 히어로 자체가 "어떤 시작인지" 고르는 화면. 회전 키워드는 뺐다 —
-            카드 6장이 이미 선택지를 보여 주므로 제목까지 움직이면 읽을 것이 둘이 된다.
-            SSR 에 완전한 문장이 남도록 주제어는 srOnly 로 덧붙인다(h1 은 1개 유지). */}
-        {/* 여정을 고르면 이 머리말은 접히고 선택 화면이 히어로를 차지한다 (9/29 S3) */}
-        <div className={s.heroIntro}>
-          <h1 className={s.heroTitle}>
-            어떤 시작을 생각하세요?
-            <span className={s.srOnly}>
-              {" "}귀농·귀촌·귀산촌·청년농·스마트팜까지, 지역·작물·지원금을 비교해 보세요.
-            </span>
-          </h1>
-          <p className={s.heroSubtitle}>
-            고르면 지원금·작물·지역을 그 기준으로 보여 드려요.
-          </p>
-        </div>
-
-        {/* 여정 카드 6장 — 배경 슬라이드 위. 일러스트 존재 판정은 서버에서 (파일이 없어도 안 깨짐) */}
-        <JourneyLanes
-          gates={heroGates}
-          lanes={heroLanes}
-          stats={buildLaneStats(heroLanes.map((l) => l.id))}
-        />
-
-        {/* 슬라이드 히어로 — 배경 레이어 + 슬라이드별 카피 + 좌하단 컨트롤.
-            9/28 3차 회장 지시로 모바일까지 공통 렌더(뷰포트 분기는 CSS). 모바일은 검색창을 빼고
-            헤더 트리거가 검색 입구를 맡는다 — page.module.css 1-M 블록. */}
-        <HeroSlider />
-      </section>
+      {/* 10/1 회장 결재 — efusioni 문법(세리프 한 줄 + 바뀌는 여정어 + 엇갈린 세로 카드 6장 + 기울기 호버).
+          이전 여정 레인 + 배경 슬라이드 히어로는 태그 archive/hero-journey-lanes-2026-10-01 과
+          journey-lanes.*·hero-slider.* 파일로 보관(렌더만 뺐다). 밝은 배경이라 투명 헤더(data-landing-hero)는 해제 */}
+      <HeroShowcase />
 
       {/* ═══ 1-2. 자주 찾는 서비스 — 아이콘 8종, GNB 여정 순 (9/7 회장 결재: 히어로 밖 별도 섹션) ═══ */}
       <ScrollReveal trackId="quick_link" variant="fade" stagger>

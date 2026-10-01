@@ -1,0 +1,184 @@
+/* /about ⑥ 고정 문장 + 지나가는 일러스트 (efusioni maintenance "Delivering … ( 고객사 )" 번안)
+   구조: .stage 안에서 .sticky(한 화면 높이)가 고정되고, .photos 가 그 위로 겹쳐(-1 화면) 올라간다. */
+
+.stage {
+  position: relative;
+  background: #f3f4f2;
+  --stage-h: 100vh;
+}
+
+@supports (height: 100svh) {
+  .stage {
+    /* iOS 주소창 변동에도 높이가 흔들리지 않게 가장 작은 뷰포트 기준 */
+    --stage-h: 100svh;
+  }
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  height: var(--stage-h);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0 16px;
+  text-align: center;
+}
+
+.line {
+  margin: 0;
+  font-size: clamp(34px, 7.4vw, 88px);
+  font-weight: 500;
+  line-height: 1.28;
+  letter-spacing: -0.035em;
+  color: #1a1f1d;
+}
+
+.paren {
+  white-space: nowrap;
+  color: var(--primary, #1b6b5a);
+}
+
+.word {
+  display: inline-block;
+  animation: wordIn 0.45s ease-out;
+}
+
+@keyframes wordIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.18em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.sub {
+  margin: 0;
+  max-width: 32em;
+  font-size: var(--fs-body-sm);
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+
+.photos {
+  position: relative;
+  z-index: 1;
+  margin-top: calc(var(--stage-h) * -1);
+  /* 첫 일러스트는 첫 화면 바로 아래에서 출발, 마지막은 문장을 완전히 지나간 뒤 고정 해제 */
+  padding: var(--stage-h) 16px calc(var(--stage-h) * 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--stage-h) * 0.26);
+  pointer-events: none;
+}
+
+.photo {
+  position: relative;
+  margin: 0;
+  width: 50vw;
+  aspect-ratio: 2 / 3;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #e4e7e3;
+  box-shadow: 0 24px 60px -28px rgba(13, 46, 39, 0.45);
+}
+
+.left {
+  align-self: flex-start;
+  margin-left: 4vw;
+}
+
+.right {
+  align-self: flex-end;
+  margin-right: 4vw;
+}
+
+.photoImg {
+  object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  .photos {
+    gap: calc(var(--stage-h) * 0.28);
+  }
+
+  .photo {
+    width: min(34vw, 340px);
+  }
+
+  .left,
+  .right {
+    align-self: center;
+    margin: 0;
+  }
+
+  .left {
+    transform: translateX(-26%);
+  }
+
+  .right {
+    transform: translateX(26%);
+  }
+
+  .sub {
+    font-size: var(--fs-body);
+  }
+}
+
+@media (min-width: 1024px) {
+  .photos {
+    gap: calc(var(--stage-h) * 0.3);
+  }
+
+  .left {
+    transform: translateX(-30%);
+  }
+
+  .right {
+    transform: translateX(30%);
+  }
+}
+
+/* 움직임 줄이기: 고정·겹침을 풀고 문장 아래 일러스트를 나란히 */
+@media (prefers-reduced-motion: reduce) {
+  .sticky {
+    position: static;
+    height: auto;
+    padding: 96px 16px 40px;
+  }
+
+  .photos {
+    margin-top: 0;
+    padding: 0 16px 96px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .photo,
+  .left,
+  .right {
+    width: min(28vw, 180px);
+    margin: 0;
+    transform: none;
+    align-self: auto;
+  }
+
+  .word {
+    animation: none;
+  }
+
+  .paren {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.5em;
+    white-space: normal;
+  }
+}

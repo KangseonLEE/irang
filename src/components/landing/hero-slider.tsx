@@ -1,5 +1,8 @@
 "use client";
 
+// 보관(10/1 회장) — 랜딩에서 렌더하지 않는다. 히어로는 hero-showcase 로 교체, 되살릴 땐 태그
+// archive/hero-journey-lanes-2026-10-01 참조. knip.json ignore 에 등록돼 있다.
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Pause, Play, ChevronDown } from "lucide-react";
