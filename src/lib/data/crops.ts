@@ -405,7 +405,7 @@ export const CROPS: CropInfo[] = [
     growingSeason: "10월~이듬해 7월 (시설)",
     difficulty: "어려움",
     description:
-      "100% 시설재배가 전제되는 아열대 과수. 10a당 소득이 사과의 6배에 달하지만, 초기 시설 투자비·난방비·착과 관리 난이도가 모두 높아 충분한 기술과 자본이 필요.",
+      "100% 시설재배가 전제되는 아열대 과수. 10a당 조수입이 1,800만 원대로 높지만, 초기 시설 투자비·난방비·착과 관리 난이도가 모두 높아 충분한 기술과 자본이 필요.",
     emoji: "🥭",
   },
 
@@ -626,7 +626,7 @@ export const CROPS: CropInfo[] = [
     growingSeason: "연중 (시설), 3월~10월 (노지)",
     difficulty: "보통",
     description:
-      "10a당 시설 소득이 약 1,764만 원으로 시설채소 중 상위권이에요. 직거래·프리미엄 시장 수요가 두텁고 통합검색에서도 가장 많이 찾는 채소 중 하나예요.",
+      "10a당 시설 소득이 약 1,000~1,214만 원(토경~수경)으로 시설채소 중 상위권이에요. 직거래·프리미엄 시장 수요가 두텁고 통합검색에서도 가장 많이 찾는 채소 중 하나예요.",
     emoji: "🍅",
   },
   {
@@ -636,7 +636,7 @@ export const CROPS: CropInfo[] = [
     growingSeason: "4월~10월 (시설: 연중)",
     difficulty: "보통",
     description:
-      "시설 가지는 10a당 소득이 약 1,509만 원으로 시설채소 상위권에 들어요. 연속 수확 기간이 길어 노동 분산이 잘되는 편이에요.",
+      "시설 가지는 10a당 소득이 약 1,325만 원으로 시설채소 상위권에 들어요. 연속 수확 기간이 길어 노동 분산이 잘되는 편이에요.",
     emoji: "🍆",
   },
   {
@@ -755,7 +755,7 @@ export const CROPS: CropInfo[] = [
   },
 
   // 화훼 카테고리 신설 — 절화 3종 (한국 절화 생산 상위 품목)
-  // 출처: 농촌진흥청 2024년도 농산물소득조사(시설 장미 10a당 1,383만 원) /
+  // 출처: 농촌진흥청 2025년도 농산물 소득 조사(시설 장미 10a당 925만 원) /
   //       농림축산식품부 화훼재배현황 / 농사로 재배력 / 충청북도 농업기술원 화훼 영농기술
   // 국화·백합은 농진청 소득조사 51개 작목에 미포함 → 수치 추정 금지, 미등재로 명시
   {
@@ -765,7 +765,7 @@ export const CROPS: CropInfo[] = [
     growingSeason: "연중 (시설 절화)",
     difficulty: "어려움",
     description:
-      "10a당 시설 소득이 약 1,383만 원으로 시설작목 4위예요. 연중 수확이라 현금 흐름이 꾸준하지만 겨울 난방비가 수익을 크게 갈라요.",
+      "10a당 시설 소득이 약 925만 원이에요. 연중 수확이라 현금 흐름이 꾸준하지만 겨울 난방비가 수익을 크게 갈라요.",
     emoji: "🌹",
   },
   {
@@ -956,13 +956,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "칼리 비료 중요, 질소 과다 시 잎만 무성해짐",
     },
     income: {
-      revenueRange: "10a당 약 171만 원 (3,000평 재배 시 연 약 1,711만 원)",
+      revenueRange: "10a당 약 180만 원 (3,000평 재배 시 연 약 1,797만 원)",
       costNote: "묘 구입비, 비닐멀칭 자재비가 주요 비용",
       laborNote: "수확이 노동 집약적, 기계 수확 도입 시 효율 향상",
       minScale: "밭 1,000~2,000평",
       annualWorkdays: "약 100~130일",
       laborIntensity: "보통",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
         { name: "밤고구마", note: "전분용·군고구마용, 저장성 우수" },
         { name: "꿀고구마(호박고구마)", note: "소비자 선호도·단가 높음, 직거래 유리" },
@@ -1034,16 +1034,16 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "칼리·인산 충분히, 질소는 분시 필요",
     },
     income: {
-      revenueRange: "10a당 약 95~125만 원 (가을~봄감자 기준)",
+      revenueRange: "10a당 약 56~113만 원 (가을~봄감자 기준)",
       costNote: "씨감자, 농약비 비중이 높음, 저장 시설 필요",
       laborNote: "심기·수확 시 집중 노동, 중간 관리는 비교적 수월",
       minScale: "밭 1,500~3,000평",
       annualWorkdays: "약 80~100일",
       laborIntensity: "보통",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
-        { name: "봄감자", revenueRange: "10a당 약 125만 원 (3,000평 기준 약 1,250만 원)", note: "가장 보편적, 수미·대서 품종" },
-        { name: "가을감자", revenueRange: "10a당 약 95만 원 (3,000평 기준 약 946만 원)", note: "이모작 가능, 소득 다소 낮음" },
+        { name: "봄감자", revenueRange: "10a당 약 113만 원 (3,000평 기준 약 1,129만 원)", note: "가장 보편적, 수미·대서 품종" },
+        { name: "가을감자", revenueRange: "10a당 약 56만 원 (3,000평 기준 약 563만 원)", note: "이모작 가능, 소득 다소 낮음" },
       ],
     },
     majorRegions: ["강원도", "경상북도", "제주특별자치도"],
@@ -1111,13 +1111,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 요구량이 높음, 웃거름 2~3회 분시",
     },
     income: {
-      revenueRange: "10a당 약 114만 원 (3,000평 재배 시 연 약 1,135만 원)",
+      revenueRange: "10a당 약 93만 원 (3,000평 재배 시 연 약 932만 원)",
       costNote: "종자비·비료비 외 큰 비용 없음, 비닐멀칭 권장",
       laborNote: "재배 기간 짧아 노동 부담 적음, 수확 시기가 집중",
       minScale: "밭 1,000~2,000평",
       annualWorkdays: "약 60~80일",
       laborIntensity: "낮음",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
         { name: "찰옥수수", note: "삶아먹는 식용, 택배 직거래 가능" },
         { name: "초당옥수수", note: "높은 당도, 직거래 프리미엄" },
@@ -1139,7 +1139,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
         { category: "수익성", text: "생산비가 낮고 종자·비료비 외 큰 비용이 들지 않음" },
       ],
       cons: [
-        { category: "수익성", text: "ha당 300~700만 원으로 전업 소득원으로는 부족할 수 있음" },
+        { category: "수익성", text: "10a당 약 93만 원(1ha 약 930만 원)으로 전업 소득원으로는 부족할 수 있음" },
         { category: "안정성", text: "수확 시기가 집중되어 적기 출하를 놓치면 품질 저하" },
         { category: "시장성", text: "일반 옥수수는 수입산과의 가격 경쟁에서 불리" },
       ],
@@ -1189,13 +1189,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "칼슘 결핍 주의, 장기 재배이므로 추비 3~4회 필수",
     },
     income: {
-      revenueRange: "10a당 약 1,259만 원 (시설재배 기준)",
+      revenueRange: "10a당 약 652만 원 (시설재배 기준)",
       costNote: "농약비·인건비가 상당, 비가림 시설 투자 고려",
       laborNote: "수확·건조·탈꼭지 등 노동 집약적, 가족 노동력 중요",
       minScale: "밭 1,000~2,000평",
       annualWorkdays: "약 180~220일 (수확·건조 포함)",
       laborIntensity: "높음",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
         { name: "시설고추", note: "연중 출하 가능, 공식 통계 기준 작목" },
         { name: "노지 건고추", note: "건조 비용 포함, 가격 변동 큼 (공식 통계 미수록)" },
@@ -1212,7 +1212,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
-        { category: "수익성", text: "ha당 800~1,500만 원으로 채소류 중 높은 수익 기대" },
+        { category: "수익성", text: "시설재배 시 10a당 약 652만 원으로 채소류 중 높은 수익 기대" },
         { category: "시장성", text: "국내 고추 수요가 안정적이고 건고추 형태로 장기 저장·판매 가능" },
         { category: "안정성", text: "비가림 재배 시 병해가 크게 줄어 품질과 수량 안정화" },
       ],
@@ -1268,17 +1268,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 흡수량 많음, 분시 3~4회 필요",
     },
     income: {
-      revenueRange: "10a당 약 116~260만 원 (봄배추~가을배추 기준)",
+      revenueRange: "10a당 약 102~202만 원 (봄배추~가을배추 기준)",
       costNote: "종자·비료·농약비 중심, 가격 폭락 리스크 있음",
       laborNote: "정식·수확 시 인력 필요, 기계화 어려운 부분 존재",
       minScale: "밭 2,000~3,000평",
       annualWorkdays: "약 100~130일 (작기당)",
       laborIntensity: "보통",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
-        { name: "봄배추", revenueRange: "10a당 약 116만 원 (3,000평 기준 약 1,158만 원)", note: "3~6월 출하, 가격 변동 보통" },
-        { name: "가을배추(김장)", revenueRange: "10a당 약 260만 원 (3,000평 기준 약 2,603만 원)", note: "김장 수요로 가장 소득 높음" },
-        { name: "고랭지 여름배추", revenueRange: "10a당 약 121만 원 (3,000평 기준 약 1,213만 원)", note: "7~8월 출하, 기상 리스크 큼" },
+        { name: "봄배추", revenueRange: "10a당 약 102만 원 (3,000평 기준 약 1,018만 원)", note: "3~6월 출하, 가격 변동 보통" },
+        { name: "가을배추(김장)", revenueRange: "10a당 약 202만 원 (3,000평 기준 약 2,018만 원)", note: "김장 수요로 가장 소득 높음" },
+        { name: "고랭지 여름배추", revenueRange: "10a당 약 129만 원 (3,000평 기준 약 1,292만 원)", note: "7~8월 출하, 기상 리스크 큼" },
       ],
     },
     majorRegions: ["강원도", "전라남도", "충청남도"],
@@ -1496,13 +1496,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 비료 적정량 유지, 과다 시 맛 저하",
     },
     income: {
-      revenueRange: "10a당 약 502만 원 (시설재배 기준)",
+      revenueRange: "10a당 약 563만 원 (시설재배 기준)",
       costNote: "시설비(하우스)가 주요 투자, 운영비는 낮은 편",
       laborNote: "수확·포장이 매일 반복, 꾸준한 노동 필요",
       minScale: "시설 300~500평",
       annualWorkdays: "약 250~300일 (연중 수확)",
       laborIntensity: "보통",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["충청남도", "경기도", "강원도"],
     tips: [
@@ -1569,13 +1569,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "칼슘·붕소 결핍 주의, 엽면시비 병행",
     },
     income: {
-      revenueRange: "10a당 약 511만 원 (3,000평 재배 시 연 약 5,114만 원)",
+      revenueRange: "10a당 약 570만 원 (3,000평 재배 시 연 약 5,703만 원)",
       costNote: "묘목·지주·방조망 등 초기 투자비 높음, 수확까지 3~5년",
       laborNote: "전정·적과·봉지씌우기·수확 등 연중 관리 작업 많음",
       minScale: "과수원 3,000~5,000평",
       annualWorkdays: "약 200~250일 (연중 관리)",
       laborIntensity: "높음",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
         { name: "후지(부사)", note: "국내 재배 70%, 저장성 좋음, 11월 수확" },
         { name: "홍로", note: "추석 출하용, 9월 조생종" },
@@ -1593,7 +1593,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     kosisConfig: { tblId: "DT_1AG20411" },
     prosCons: {
       pros: [
-        { category: "수익성", text: "성목 기준 1ha당1,500~3,000만 원으로 고소득 작물" },
+        { category: "수익성", text: "10a당 약 570만 원(1ha 약 5,700만 원)으로 고소득 작물" },
         { category: "시장성", text: "국내 소비 수요가 안정적이고 직거래·온라인 판매 채널이 다양" },
         { category: "확장성", text: "사과즙·사과잼·체험농장 등 6차산업 연계가 활발" },
         { category: "안정성", text: "저장성이 좋아 CA저장으로 출하 시기를 조절해 가격 대응 가능" },
@@ -1650,13 +1650,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "유기질 비료 위주, 칼슘·붕소 엽면시비 병행",
     },
     income: {
-      revenueRange: "10a당 약 432만 원 (3,000평 재배 시 연 약 4,319만 원)",
+      revenueRange: "10a당 약 443만 원 (3,000평 재배 시 연 약 4,426만 원)",
       costNote: "과수원 조성 비용 높음, 봉지씌우기 인건비 상당",
       laborNote: "전정·수분·적과·봉지·수확 등 연중 세밀한 관리 필요",
       minScale: "과수원 3,000~5,000평",
       annualWorkdays: "약 200~250일",
       laborIntensity: "높음",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
         { name: "신고(나주배)", note: "국내 재배 80%, 선물용 수요 안정적" },
         { name: "원황·화산", note: "조생종, 8~9월 출하로 시기 분산" },
@@ -1672,7 +1672,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     kosisConfig: { tblId: "DT_1AG20411" },
     prosCons: {
       pros: [
-        { category: "수익성", text: "ha당 1,200~2,500만 원으로 과수 중 안정적 고소득" },
+        { category: "수익성", text: "10a당 약 443만 원(1ha 약 4,426만 원)으로 과수 중 안정적 고소득" },
         { category: "시장성", text: "나주배 등 브랜드 가치가 높고, 선물용 수요가 꾸준" },
         { category: "확장성", text: "배즙·배 가공품 등으로 부가가치를 높일 수 있음" },
       ],
@@ -1728,16 +1728,16 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "칼슘·마그네슘 중요, 착색기 질소 제한",
     },
     income: {
-      revenueRange: "10a당 약 548~705만 원 (노지~시설재배 기준)",
+      revenueRange: "10a당 약 480~582만 원 (노지~시설재배 기준)",
       costNote: "비가림 시설·덕 설치 초기 투자 큼, 묘목비 고가",
       laborNote: "적방·적과·봉지·수확 등 세밀한 손작업 많음",
       minScale: "과수원 2,000~3,000평",
       annualWorkdays: "약 200~250일",
       laborIntensity: "높음",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
-        { name: "노지포도", revenueRange: "10a당 약 548만 원 (3,000평 기준 약 5,479만 원)", note: "거봉·캠벨얼리 등, 전통 노지 재배" },
-        { name: "시설포도", revenueRange: "10a당 약 705만 원 (3,000평 기준 약 7,048만 원)", note: "샤인머스캣 등 고급 품종, 시설 투자 필요" },
+        { name: "노지포도", revenueRange: "10a당 약 480만 원 (3,000평 기준 약 4,799만 원)", note: "거봉·캠벨얼리 등, 전통 노지 재배" },
+        { name: "시설포도", revenueRange: "10a당 약 582만 원 (3,000평 기준 약 5,821만 원)", note: "샤인머스캣 등 고급 품종, 시설 투자 필요" },
       ],
     },
     majorRegions: ["경상북도", "충청남도", "경기도"],
@@ -1750,7 +1750,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     kosisConfig: { tblId: "DT_1AG20411" },
     prosCons: {
       pros: [
-        { category: "수익성", text: "품종에 따라 1ha당 1,200~4,000만 원 — 샤인머스캣은 최상위 수익 구간" },
+        { category: "수익성", text: "10a당 노지 약 480만 원, 시설 약 582만 원 — 샤인머스캣 같은 시설재배가 더 높아요" },
         { category: "확장성", text: "와이너리·체험농장과 연계해 6차산업 부가가치 창출 가능" },
         { category: "시장성", text: "프리미엄 품종의 직거래·택배 판매 수요가 매우 높음" },
       ],
@@ -1806,13 +1806,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소·칼리 위주, 미량원소(마그네슘·아연) 보충",
     },
     income: {
-      revenueRange: "10a당 약 287만 원 (3,000평 재배 시 연 약 2,866만 원)",
+      revenueRange: "10a당 약 241만 원 (3,000평 재배 시 연 약 2,405만 원)",
       costNote: "하우스 재배 시 난방비 부담, 노지 재배 상대적 저비용",
       laborNote: "적과·수확 시 인력 집중, 비수기 전정·방제 관리",
       minScale: "과수원 3,000~5,000평",
       annualWorkdays: "약 180~220일",
       laborIntensity: "보통",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
         { name: "노지감귤(온주밀감)", note: "제주 중심, 재배 쉬움, 가격 낮음" },
         { name: "한라봉(부지화)", note: "하우스 재배, 난방비 고려 필요" },
@@ -1884,16 +1884,16 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "양액 재배 시 EC·pH 정밀 관리 필요",
     },
     income: {
-      revenueRange: "10a당 약 1,069~1,500만 원 (토경~수경재배 기준)",
+      revenueRange: "10a당 약 1,260~1,642만 원 (토경~수경재배 기준)",
       costNote: "하우스·난방·양액 시설 초기 투자 상당, 묘 관리비도 높음",
       laborNote: "수확이 매일 반복, 겨울 내내 지속적 관리 필요",
       minScale: "시설 300~500평",
       annualWorkdays: "약 250~300일 (겨울 연속 관리)",
       laborIntensity: "높음",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
-        { name: "토경재배", revenueRange: "10a당 약 1,069만 원", note: "설향 등 일반 재배, 초기 투자 적음" },
-        { name: "수경재배(고설)", revenueRange: "10a당 약 1,500만 원", note: "금실 등 고품질 품종, 노동 효율 높음" },
+        { name: "토경재배", revenueRange: "10a당 약 1,260만 원", note: "설향 등 일반 재배, 초기 투자 적음" },
+        { name: "수경재배(고설)", revenueRange: "10a당 약 1,642만 원", note: "금실 등 고품질 품종, 노동 효율 높음" },
       ],
     },
     majorRegions: ["경상남도", "충청남도", "전라북도"],
@@ -1907,7 +1907,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     kosisConfig: { tblId: "DT_1ET0017" },
     prosCons: {
       pros: [
-        { category: "수익성", text: "10a당 1,500~3,000만 원으로 면적 대비 최고 수준의 수익" },
+        { category: "수익성", text: "10a당 약 1,260~1,642만 원 — 수경재배는 51개 조사 작목 중 소득 1위" },
         { category: "확장성", text: "체험농장·딸기 따기 관광이 매우 인기 있어 부가 수입 확보 용이" },
         { category: "시장성", text: "겨울 과일 수요가 높고, 소비자 선호도가 꾸준히 증가" },
       ],
@@ -1962,13 +1962,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "유기질 기비 위주, 화학비료 최소화",
     },
     income: {
-      revenueRange: "10a당 약 563만 원 (4년근 1기작 합계, 연평균 약 141만 원)",
+      revenueRange: "10a당 약 744만 원 (4년근 1기작 합계, 연평균 약 186만 원)",
       costNote: "차광 시설·묘삼비·토지 비용 높음, 투자 회수까지 4~6년",
       laborNote: "해가림 관리·병해 방제에 세심한 관리 필요",
       minScale: "밭 3,000~5,000평",
       annualWorkdays: "약 150~180일 (4~6년 장기)",
       laborIntensity: "보통",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
         { name: "수삼(4~6년근)", note: "생물 출하, 가장 보편적" },
         { name: "홍삼 가공 원료용", note: "건조·가공 시 부가가치 상승" },
@@ -1985,7 +1985,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
-        { category: "수익성", text: "ha당 3,000~6,000만 원으로 전 작물 중 최고 수준의 수익" },
+        { category: "수익성", text: "4년근 1기작 10a당 약 744만 원 — 수확까지 4년이라 연평균은 약 186만 원" },
         { category: "확장성", text: "홍삼·인삼 가공품으로 6차산업 연계 시 부가가치가 극대화" },
         { category: "시장성", text: "금산·풍기 등 산지 브랜드 파워가 강하고, 수출 수요도 있음" },
       ],
@@ -2040,13 +2040,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "인산·칼리 위주, 질소는 적정량",
     },
     income: {
-      revenueRange: "10a당 약 105만 원",
+      revenueRange: "10a당 약 156만 원",
       costNote: "생산비 낮은 편, 종자·비료비 위주",
       laborNote: "수확·탈립이 노동 집약적, 기계 수확 어려움",
       minScale: "밭 1,000~2,000평",
       annualWorkdays: "약 80~100일",
       laborIntensity: "보통",
-      source: "농촌진흥청 「2024 농산물소득자료집」 (국가승인통계 제143002호)",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["충청남도", "전라남도", "경상북도"],
     tips: [
@@ -2183,7 +2183,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "정식 시 퇴구비·골분 기비. 질소 과다 시 화아분화 저해. 칼리(K) 충분 공급이 당도에 중요",
     },
     income: {
-      revenueRange: "10a당 약 1,853만 원 (사과 대비 약 6배, 경영비 차감 전)",
+      revenueRange: "10a당 약 1,853만 원 (경영비 차감 전 조수입)",
       costNote: "시설 투자비 수천만~억 원, 연간 난방비·가온비가 수익의 상당 부분을 차감",
       laborNote: "화아분화 유도·개화·적과·수확 등 숙련 관리 다수. 착과 실패 시 해당 연도 전손 위험",
       minScale: "시설 1,000~2,000평 (비닐하우스·가온 설비 포함)",
@@ -2205,7 +2205,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     relatedCropIds: ["citrus", "strawberry", "grape"],
     prosCons: {
       pros: [
-        { category: "수익성", text: "10a당 소득 1,853만 원 — 사과 대비 6배. 프리미엄 과일 포지션으로 백화점·고급 유통채널 접근 가능" },
+        { category: "수익성", text: "10a당 조수입 약 1,853만 원(경영비 차감 전). 프리미엄 과일 포지션으로 백화점·고급 유통채널 접근 가능" },
         { category: "시장성", text: "국내 아열대과일 수요 지속 증가. 국산 망고는 신선도·풍미에서 수입산 대비 우위" },
         { category: "확장성", text: "다품종(캐리어·알폰소·어윈 등) 조합으로 수확 시기 분산 가능. 농진청 기술지원 체계 구비" },
         { category: "안정성", text: "연간 출하 패턴이 명확(5~7월 집중). 제주 안덕농협 등 조직화된 판로 존재" },
@@ -2266,13 +2266,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "기비 위주, 질소 과다 시 잎만 무성해지고 뿌리 비대 부진. 붕소 결핍 주의",
     },
     income: {
-      revenueRange: "10a당 약 200~350만 원 (시기·품종에 따라 차이)",
+      revenueRange: "10a당 약 121~143만 원 (고랭지무~가을무 기준)",
       costNote: "종자비·비료비 비중 낮음. 수확·운반 인건비가 주요 비용",
       laborNote: "파종·솎음·수확 시기에 노동력 집중. 기계 수확 가능",
       minScale: "1,000평 이상 권장",
       annualWorkdays: "약 80~100일",
       laborIntensity: "보통",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["제주특별자치도", "강원도", "전라남도", "충청남도"],
     tips: [
@@ -2318,17 +2318,18 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "칼슘·마그네슘 충분 공급. 착과 후 칼리(K) 증량으로 당도 향상",
     },
     income: {
-      revenueRange: "10a당 약 800~1,500만 원 (시설재배, 품종에 따라 차이)",
+      revenueRange: "10a당 약 1,004~1,032만 원 (시설 수경~토경재배 기준)",
       costNote: "시설 투자비(하우스·난방)가 주요 비용. 방울토마토가 대추토마토보다 노동 집약적",
       laborNote: "유인·적심·수확이 연중 반복. 고용 노동력 필요",
       minScale: "시설 500~1,000평",
       annualWorkdays: "약 200~250일 (연중 관리)",
       laborIntensity: "높음",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
-        { name: "완숙토마토", revenueRange: "10a당 약 800~1,000만 원", note: "대과종, 마트·급식 납품 위주" },
-        { name: "방울토마토", revenueRange: "10a당 약 1,000~1,500만 원", note: "소과종, 직거래·프리미엄 시장" },
-        { name: "대추토마토", revenueRange: "10a당 약 900~1,200만 원", note: "최근 인기 급상승, 간식 수요" },
+        { name: "완숙토마토 (토경)", revenueRange: "10a당 약 1,032만 원", note: "대과종, 마트·급식 납품 위주" },
+        { name: "완숙토마토 (수경)", revenueRange: "10a당 약 1,004만 원", note: "생산량 많지만 경영비도 커요" },
+        { name: "방울토마토", revenueRange: "10a당 약 1,000~1,214만 원", note: "소과종, 직거래·프리미엄 시장" },
+        { name: "대추토마토", note: "최근 인기 급상승, 간식 수요 (공식 소득통계 미조사)" },
       ],
     },
     majorRegions: ["전라남도", "경상남도", "강원도", "충청남도"],
@@ -2376,13 +2377,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "초기 질소 충분 공급, 착과 후 칼리(K) 비중 증가. 추비 3~4회 분시",
     },
     income: {
-      revenueRange: "10a당 약 600~1,200만 원 (시설재배 기준)",
+      revenueRange: "10a당 약 1,188만 원 (시설재배 기준)",
       costNote: "시설비·난방비가 주요 경비. 노지재배 시 투자비 대폭 절감",
       laborNote: "매일 수확이 필요하여 노동 강도가 높은 편",
       minScale: "시설 500평 이상",
       annualWorkdays: "약 180~220일",
       laborIntensity: "높음",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["경상남도", "전라남도", "충청남도", "경기도"],
     tips: [
@@ -2428,17 +2429,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "기비 충분히. 착과 시작 후 2~3주 간격 추비. 칼슘 부족 시 과실 기형",
     },
     income: {
-      revenueRange: "10a당 약 300~600만 원 (애호박 노지 기준)",
+      revenueRange: "10a당 약 942만 원 (시설호박 기준)",
       costNote: "노지재배 시 투자비 낮음. 단호박은 저장 판매로 부가가치 확보",
       laborNote: "애호박은 매일 수확 필요, 단호박·늙은호박은 일시 수확",
       minScale: "500~1,000평",
       annualWorkdays: "약 100~140일",
       laborIntensity: "보통",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
-        { name: "애호박", revenueRange: "10a당 약 400~600만 원", note: "연중 수요, 매일 수확 필요" },
-        { name: "단호박", revenueRange: "10a당 약 300~500만 원", note: "저장성 우수, 일시 수확" },
-        { name: "늙은호박", revenueRange: "10a당 약 200~400만 원", note: "호박즙·떡 가공 수요" },
+        { name: "애호박", note: "연중 수요, 매일 수확 필요" },
+        { name: "단호박", note: "저장성 우수, 일시 수확" },
+        { name: "늙은호박", note: "호박즙·떡 가공 수요" },
       ],
     },
     majorRegions: ["전라남도", "경상남도", "충청남도", "제주특별자치도"],
@@ -2485,13 +2486,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 추비 3~4회 분시. 북주기(배토)가 연백부 길이를 결정",
     },
     income: {
-      revenueRange: "10a당 약 400~800만 원 (출하 시기에 따라 변동 큼)",
+      revenueRange: "10a당 약 182만 원 (출하 시기에 따라 변동 큼)",
       costNote: "종자비·인건비 비중 높음. 기계화로 비용 절감 가능",
       laborNote: "파종·북주기·수확에 노동력 집중",
       minScale: "1,000평 이상",
       annualWorkdays: "약 100~130일",
       laborIntensity: "보통",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["전라남도", "충청남도", "경기도", "강원도"],
     tips: [
@@ -2537,13 +2538,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 과다 시 수산 함량 증가. 퇴비 위주 시비, 칼리(K) 충분 공급",
     },
     income: {
-      revenueRange: "10a당 약 200~400만 원 (연 3~4회 재배 시 총 600~1,200만 원)",
+      revenueRange: "10a당 약 229~244만 원 (1기작 기준, 시설~노지)",
       costNote: "종자비·인건비 비중 높음. 시설재배 시 난방비 추가",
       laborNote: "파종~수확 30~45일로 짧아 연 3~4작 가능",
       minScale: "500~1,000평",
       annualWorkdays: "약 100~150일 (다작 기준)",
       laborIntensity: "보통",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["경상남도", "전라남도", "충청남도", "경기도"],
     tips: [
@@ -2641,16 +2642,16 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 과다 시 공동과·열과 발생. 착과 후 칼리(K) 중점 시비",
     },
     income: {
-      revenueRange: "10a당 약 400~800만 원 (시설재배, 품종별 차이)",
+      revenueRange: "10a당 약 284~424만 원 (노지~시설재배 기준)",
       costNote: "비닐하우스·보온 자재 투자 필요. 노지재배 시 시기 한정(여름)",
       laborNote: "인공수분·적과·수확에 노동력 집중",
       minScale: "시설 1,000평 이상",
       annualWorkdays: "약 120~160일",
       laborIntensity: "보통",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
-        { name: "대과 수박 (7~10kg)", revenueRange: "10a당 약 400~600만 원", note: "전통 시장 주력" },
-        { name: "미니수박 (2~3kg)", revenueRange: "10a당 약 500~800만 원", note: "1~2인 가구 타깃, 고단가" },
+        { name: "노지 수박", revenueRange: "10a당 약 284만 원", note: "여름 한철 출하, 전통 시장 주력" },
+        { name: "시설 수박", revenueRange: "10a당 약 424만 원", note: "출하 시기 앞당겨 단가 유리" },
       ],
     },
     majorRegions: ["충청남도", "경상북도", "전라북도", "경기도"],
@@ -2697,17 +2698,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 과다 시 과실 착색 불량. 유기질 비료 위주, 수확 후 기비 충분히",
     },
     income: {
-      revenueRange: "10a당 약 300~600만 원 (품종·출하 시기별 차이)",
+      revenueRange: "10a당 약 303만 원 (3,000평 재배 시 연 약 3,030만 원)",
       costNote: "초기 묘목·지주 시설 투자. 봉지 씌우기·수확 인건비 비중 높음",
       laborNote: "적과·봉지 씌우기·수확 시기에 노동력 집중",
       minScale: "1,000~2,000평",
       annualWorkdays: "약 120~160일",
       laborIntensity: "보통",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
-        { name: "백도 (유명·장호원 등)", revenueRange: "10a당 약 400~600만 원", note: "고급 선물용, 7~8월 출하" },
-        { name: "황도 (황금도 등)", revenueRange: "10a당 약 300~500만 원", note: "캔·가공용 겸용, 8~9월 출하" },
-        { name: "천도 (네프린 계열)", revenueRange: "10a당 약 350~550만 원", note: "털 없어 편의성 높음, 수요 증가" },
+        { name: "백도 (유명·장호원 등)", note: "고급 선물용, 7~8월 출하" },
+        { name: "황도 (황금도 등)", note: "캔·가공용 겸용, 8~9월 출하" },
+        { name: "천도 (네프린 계열)", note: "털 없어 편의성 높음, 수요 증가" },
       ],
     },
     majorRegions: ["충청북도", "경상북도", "경기도", "충청남도"],
@@ -2755,13 +2756,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 과다 시 도장지 발생. 인산·칼리 위주 시비",
     },
     income: {
-      revenueRange: "10a당 약 300~500만 원",
+      revenueRange: "10a당 약 310만 원 (3,000평 재배 시 연 약 3,100만 원)",
       costNote: "사과·배 대비 초기 투자비·관리비 낮은 편",
       laborNote: "전정·적과·수확 시기에 노동 집중",
       minScale: "1,000~2,000평",
       annualWorkdays: "약 100~130일",
       laborIntensity: "보통",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["경상북도", "충청북도", "경상남도"],
     tips: [
@@ -2807,16 +2808,16 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 과다 시 착색 불량·과실 연화. 유기질 비료 위주",
     },
     income: {
-      revenueRange: "10a당 약 300~700만 원 (품종·가공 여부에 따라 차이)",
+      revenueRange: "10a당 약 183만 원 (단감 기준)",
       costNote: "초기 묘목·지주 투자. 곶감 가공 시 건조 시설 추가",
       laborNote: "적과·수확·가공(곶감) 시기에 노동 집중",
       minScale: "1,000~2,000평",
       annualWorkdays: "약 100~150일",
       laborIntensity: "보통",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
-        { name: "단감 (부유·차랑 등)", revenueRange: "10a당 약 400~700만 원", note: "남부 지역, 생과 출하" },
-        { name: "떫은감 (둥시·고종시 등)", revenueRange: "10a당 약 200~400만 원 (곶감 가공 시 600만 원+)", note: "곶감 가공으로 부가가치 극대화" },
+        { name: "단감 (부유·차랑 등)", revenueRange: "10a당 약 183만 원", note: "남부 지역, 생과 출하" },
+        { name: "떫은감 (둥시·고종시 등)", note: "곶감 가공으로 부가가치 극대화 (공식 소득통계 미조사)" },
       ],
     },
     majorRegions: ["경상남도", "경상북도", "전라남도", "충청남도"],
@@ -2863,13 +2864,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "산성 비료(유안 등) 사용. 석회 사용 금지. 유기물 멀칭으로 토양 산도 유지",
     },
     income: {
-      revenueRange: "10a당 약 400~800만 원 (노지·시설, 직거래 여부에 따라 차이)",
+      revenueRange: "10a당 약 741만 원 (3,000평 재배 시 연 약 7,406만 원)",
       costNote: "묘목·피트모스·관수 시설 초기 투자. 수확 인건비 비중 높음",
       laborNote: "손 수확만 가능하여 수확기 인력 확보가 관건",
       minScale: "500~1,000평",
       annualWorkdays: "약 120~160일",
       laborIntensity: "보통",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["전라남도", "경상남도", "충청남도", "경기도"],
     tips: [
@@ -2969,13 +2970,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "착과 후 칼리(K) 증량. 질소 과다 시 당도 저하·열과 발생",
     },
     income: {
-      revenueRange: "10a당 약 600~1,200만 원 (성주참외 기준)",
+      revenueRange: "10a당 약 647만 원 (시설참외 기준)",
       costNote: "시설(하우스·터널) 투자 필수. 가온 재배 시 난방비 추가",
       laborNote: "인공수분·적과·수확에 집중 노동",
       minScale: "시설 1,000평 이상",
       annualWorkdays: "약 150~200일",
       laborIntensity: "높음",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["경상북도", "충청남도", "전라남도"],
     tips: [
@@ -3183,13 +3184,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "퇴비 충분히. 생육 중기 추비 2~3회. 칼리(K) 충분 공급",
     },
     income: {
-      revenueRange: "10a당 약 500~1,000만 원 (가격 변동 크지만 평균 수익성 양호)",
+      revenueRange: "10a당 약 337만 원 (가격 변동 큼)",
       costNote: "종생강 비용이 높음(10a당 150~200kg 필요). 저장 시설 투자",
       laborNote: "식부·배토·수확·저장이 주요 작업",
       minScale: "1,000~2,000평",
       annualWorkdays: "약 120~150일",
       laborIntensity: "보통",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["전라북도", "충청남도", "경상남도"],
     tips: [
@@ -3235,13 +3236,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "질소 과다 시 도복·병해 증가. 인산·칼리 위주 시비",
     },
     income: {
-      revenueRange: "10a당 약 150~300만 원 (들깨 기준, 들기름 가공 시 500만 원+)",
+      revenueRange: "10a당 약 60만 원 (들깨 종실 기준)",
       costNote: "재배 비용 낮음. 들기름 착유기 투자 시 가공 수익 추가",
       laborNote: "파종·제초·수확에 노동 집중. 수확 시기 단기간",
       minScale: "1,000평 이상",
       annualWorkdays: "약 70~100일",
       laborIntensity: "낮음",
-      source: "농촌진흥청 농업소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["충청남도", "전라남도", "전라북도", "경상남도"],
     tips: [
@@ -3342,16 +3343,17 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "착과 후 칼리(K) 증량. 칼슘 부족 시 배꼽썩음과 발생",
     },
     income: {
-      revenueRange: "10a당 시설 약 1,764만 원 (방울토마토 시설재배 기준)",
+      revenueRange: "10a당 약 1,000~1,214만 원 (시설 토경~수경재배 기준)",
       costNote: "시설 투자비·난방비가 주요 비용. 완숙토마토 대비 노동 집약적",
       laborNote: "유인·적심·수확이 연중 반복. 매일 수확 필요",
       minScale: "시설 500평 이상",
       annualWorkdays: "약 220~260일 (연중 관리)",
       laborIntensity: "높음",
-      source: "농촌진흥청 농산물소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
       varieties: [
         { name: "노지 방울토마토", note: "5~10월 출하. 시설 대비 단가 낮으나 투자비 적음" },
-        { name: "시설 방울토마토", revenueRange: "10a당 약 1,764만 원", note: "연중 출하 가능, 시설채소 상위권 소득" },
+        { name: "시설 토경", revenueRange: "10a당 약 1,000만 원", note: "초기 투자 적고 경영비 낮음" },
+        { name: "시설 수경", revenueRange: "10a당 약 1,214만 원", note: "연중 출하 가능, 시설채소 상위권 소득" },
         { name: "미니방울 (대추형)", note: "20g 이하 소과종. 직거래·간식 수요로 단가 프리미엄" },
         { name: "중방울 (스테비아·흑방울 등)", note: "기능성·브랜드 차별화로 직거래 강세" },
       ],
@@ -3366,7 +3368,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     relatedCropIds: ["tomato", "strawberry", "cucumber"],
     prosCons: {
       pros: [
-        { category: "수익성", text: "시설채소 중 상위권 소득(10a당 1,764만 원)으로 검색 인기 1위 작목이에요" },
+        { category: "수익성", text: "시설채소 중 상위권 소득(10a당 약 1,000~1,214만 원)으로 검색 인기 1위 작목이에요" },
         { category: "시장성", text: "통합검색에서 가장 많이 찾는 채소 중 하나로 직거래 수요가 두터워요" },
         { category: "확장성", text: "스테비아·흑방울 등 품종 다양화로 프리미엄 시장 진입이 가능해요" },
       ],
@@ -3400,13 +3402,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "추비 3~4회 분시. 착과 후 칼리(K) 증량. 결주 방지 위해 기비 충분히",
     },
     income: {
-      revenueRange: "10a당 시설 약 1,509만 원 (시설가지 기준)",
+      revenueRange: "10a당 약 1,325만 원 (시설가지 기준)",
       costNote: "시설비·난방비가 주요 경비. 노지재배 시 투자비 절감 가능",
       laborNote: "수확 기간이 길어(연 5~7개월) 노동 분산이 잘 되는 편",
       minScale: "시설 500평 이상",
       annualWorkdays: "약 180~220일",
       laborIntensity: "높음",
-      source: "농촌진흥청 농산물소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["전라남도", "경상남도", "충청남도", "충청북도"],
     tips: [
@@ -3418,7 +3420,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     relatedCropIds: ["tomato", "chili-pepper", "cucumber"],
     prosCons: {
       pros: [
-        { category: "수익성", text: "시설채소 상위권 소득(10a당 1,509만 원)이에요" },
+        { category: "수익성", text: "시설채소 상위권 소득(10a당 약 1,325만 원)이에요" },
         { category: "생활", text: "수확 기간이 길어 노동 분산이 잘되고 가족노동으로 가능해요" },
         { category: "시장성", text: "급식·B2B 수요가 안정적이고 가공(가지말랭이) 연계도 가능해요" },
       ],
@@ -3556,13 +3558,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "양액 조성(N·P·K·Ca·Mg)이 핵심. 시설별 표준 양액 처방 활용",
     },
     income: {
-      revenueRange: "10a당 약 2,500~5,000만 원 (수경재배 시설 기준, 수출 비중에 따라 변동)",
+      revenueRange: "10a당 약 1,198만 원 (시설재배 기준)",
       costNote: "시설 투자비가 매우 큼(첨단 유리온실·환경제어). 양액·전력비도 높음",
       laborNote: "환경제어 자동화로 단순 작업 부담은 낮으나 정밀 관리 필요",
       minScale: "시설 1,000평 이상",
       annualWorkdays: "약 240~280일 (연중 생산)",
       laborIntensity: "보통",
-      source: "농촌진흥청 농산물소득자료집 2024 / KATI 농산물유통정보",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["강원도", "충청남도", "경상남도", "전라남도"],
     tips: [
@@ -3609,13 +3611,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "기비 충분. 추비 시기는 본잎 5~6매 시 1회. 질소 과다 시 가랑이뿌리",
     },
     income: {
-      revenueRange: "10a당 약 200~400만 원 (제주 월동 기준 상한)",
+      revenueRange: "10a당 약 116만 원 (3,000평 재배 시 연 약 1,161만 원)",
       costNote: "종자비·인건비 중심. 시설 없이도 가능. 기계 수확 시 인건비 절감",
       laborNote: "파종·솎음·수확에 노동 집중. 기계 파종·수확 보급률 높음",
       minScale: "1,000~2,000평",
       annualWorkdays: "약 80~110일",
       laborIntensity: "보통",
-      source: "농촌진흥청 농산물소득자료집 2024",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호)",
     },
     majorRegions: ["제주특별자치도", "강원도", "충청남도", "경상북도"],
     tips: [
@@ -4031,13 +4033,13 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       fertilizerNote: "수경은 표준 양액 처방(EC·pH 매일 점검). 토경은 유기물 기비 + 생육 단계별 추비",
     },
     income: {
-      revenueRange: "10a당 약 1,383만 원 (시설 절화 기준)",
+      revenueRange: "10a당 약 925만 원 (시설 절화 기준)",
       costNote: "유리온실·암면 수경 등 시설 투자비가 큼. 겨울 난방비 비중이 특히 높음",
       laborNote: "연중 채화·선별이 반복돼 노동이 상시 분산. 전정·유인은 숙련도가 수량을 가름",
       minScale: "시설 1,000평 이상",
       annualWorkdays: "약 250~290일 (연중 수확)",
       laborIntensity: "높음",
-      source: "농촌진흥청 2024년도 농산물소득조사 (시설 장미 10a당 1,383만 원) / 충청북도 농업기술원 화훼 영농기술",
+      source: "농촌진흥청 「2025년도 농산물 소득 조사」 (2026.9.29 발표, 국가승인통계 제143002호) / 충청북도 농업기술원 화훼 영농기술",
       varieties: [
         { name: "암면 수경재배", note: "토양 전염병·선충 회피, 자동화 유리. 양액 정밀 관리 필수" },
         { name: "토경재배", note: "초기 투자 낮음. 연작 장해·뿌리혹선충 관리 부담" },
@@ -4046,7 +4048,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     majorRegions: ["경기도", "전라남도", "경상남도"],
     tips: [
       "절화류 재배면적은 전남·경기·경남 순이에요(농식품부 화훼재배현황). 화훼공판장 접근성이 단가를 좌우해요.",
-      "10a당 소득이 약 1,383만 원으로 시설작목 4위예요(농촌진흥청 2024). 다만 난방비가 겨울 수익을 크게 깎아요.",
+      "10a당 소득이 약 925만 원이에요(농촌진흥청 2025년도 조사). 다만 난방비가 겨울 수익을 크게 깎아요.",
       "암면 수경으로 바꾸면 토양 전염병과 선충을 피하고 자동화가 쉬워요. 대신 양액 EC·pH를 매일 봐야 해요.",
       "졸업·입학·어버이날에 수요가 몰려요. 온도와 전정으로 성수기에 개화를 맞추는 게 소득의 핵심이에요.",
     ],
