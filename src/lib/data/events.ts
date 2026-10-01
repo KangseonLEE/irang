@@ -25,6 +25,14 @@ export interface FarmEvent {
   target: string;
   url: string;
   status: "접수중" | "접수예정" | "마감";
+  /** 마을 대표 사진 원본 URL (그린대로) — next/image 로만 소비. 없으면 시·도 배경 폴백 */
+  imageUrl?: string;
+  /** 입주 가능일 (살아보기) */
+  moveInDate?: string;
+  /** 모집 가구 수 (capacity 는 인원) */
+  households?: number | null;
+  /** 귀농형 / 귀촌형 / 프로젝트형 */
+  villageType?: string;
 }
 
 export const EVENT_TYPES = [
@@ -207,6 +215,10 @@ export async function getEventByIdAsync(
           target: row.target,
           url: row.url,
           status: deriveEventStatus(row.application_start ?? undefined, row.application_end ?? undefined, row.date_end),
+          imageUrl: row.image_url ?? undefined,
+          moveInDate: row.move_in_date ?? undefined,
+          households: row.households ?? null,
+          villageType: row.village_type ?? undefined,
         };
         return mapped;
       }
@@ -337,6 +349,10 @@ async function loadEvents(): Promise<{
           target: row.target,
           url: row.url,
           status: deriveEventStatus(row.application_start ?? undefined, row.application_end ?? undefined, row.date_end),
+          imageUrl: row.image_url ?? undefined,
+          moveInDate: row.move_in_date ?? undefined,
+          households: row.households ?? null,
+          villageType: row.village_type ?? undefined,
         }));
         return { events, source: "supabase" };
       }
