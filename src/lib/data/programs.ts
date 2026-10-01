@@ -32,6 +32,8 @@ export interface SupportProgram {
   summary: string;
   description?: string;
   region: string;
+  /** 시·군·구 (수집 원문 기준). region은 시·도 SSOT라 시·군 단위는 여기에 남는다. */
+  sigungu?: string;
   organization: string;
   supportType: "보조금" | "융자" | "교육" | "현물" | "컨설팅";
   supportAmount: string;
@@ -1793,6 +1795,7 @@ export async function getProgramByIdAsync(
           summary: row.summary,
           description: row.description || undefined,
           region: row.region,
+          sigungu: row.sigungu ?? undefined,
           organization: row.organization,
           supportType: row.support_type as SupportProgram["supportType"],
           supportAmount: row.support_amount,
@@ -1987,6 +1990,7 @@ export async function loadPrograms(): Promise<{
           summary: row.summary,
           description: row.description || undefined,
           region: row.region,
+          sigungu: row.sigungu ?? undefined,
           organization: row.organization,
           supportType: row.support_type as SupportProgram["supportType"],
           supportAmount: row.support_amount,

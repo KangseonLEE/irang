@@ -18,6 +18,8 @@ export interface EducationCourse {
   id: string;
   title: string;
   region: string;
+  /** 시·군·구 (수집 원문 기준). region은 시·도 SSOT라 시·군 단위는 여기에 남는다. */
+  sigungu?: string;
   organization: string;
   type: "온라인" | "오프라인" | "혼합";
   duration: string;
@@ -219,6 +221,7 @@ export async function getEducationByIdAsync(
           id: row.slug,
           title: row.title,
           region: row.region,
+          sigungu: row.sigungu ?? undefined,
           organization: row.organization,
           type: row.type as EducationCourse["type"],
           duration: row.duration,
@@ -321,6 +324,7 @@ async function loadEducation(): Promise<{
           id: row.slug,
           title: row.title,
           region: row.region,
+          sigungu: row.sigungu ?? undefined,
           organization: row.organization,
           type: row.type as EducationCourse["type"],
           duration: row.duration,
