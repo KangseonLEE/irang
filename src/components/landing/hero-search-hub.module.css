@@ -59,10 +59,47 @@
   object-position: center 58%;
 }
 
+/* 장면 레이어 (HeroRotator) — 들어오는 장면이 위에서 1.2초 페이드, 머무는 동안 천천히 확대 */
+.bgLayers {
+  position: absolute;
+  inset: 0;
+  /* 레이어의 z-index(들어오는 장면 2 / 나가는 장면 1)를 이 안에 가둔다 — 안 가두면 스크림 위로 올라와
+     글씨가 일러스트 위에 맨살로 놓인다(10/1 실측, 9/29 히어로 스크림 사고와 같은 원인) */
+  z-index: 0;
+  isolation: isolate;
+}
+
+.bgLayer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity 1.2s ease,
+    transform 6s linear;
+}
+
+.bgLayer[data-on] {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bgLayer {
+    transition: none;
+    transform: none;
+  }
+
+  .bgLayer[data-on] {
+    transform: none;
+  }
+}
+
 /* 스크림 — 모바일은 전면이 글자 영역이라 고르게 어둡게 + 상단 헤더 띠 */
 .scrim {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background:
     linear-gradient(180deg, rgba(6, 26, 21, 0.62) 0px, rgba(6, 26, 21, 0.3) 120px, rgba(6, 26, 21, 0) 200px),
     linear-gradient(180deg, rgba(6, 26, 21, 0.58) 0%, rgba(6, 26, 21, 0.66) 100%);
@@ -126,6 +163,71 @@
   line-height: 1.28;
   letter-spacing: -0.04em;
   color: #fff;
+}
+
+/* ── 회전 단어 (h1 1행) ──
+   단어 5개를 같은 칸에 겹쳐 두고 data-state 로 아래→위 슬라이드. 칸 폭은 가장 긴 단어(스마트팜) 기준이라
+   뒤의 "준비,"가 단어 길이에 따라 흔들리지 않는다. 시각 전용 — 읽기는 srOnly 문장이 맡는다. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.wordLine,
+.titleRest {
+  display: block;
+}
+
+.wordSlot {
+  display: inline-grid;
+  vertical-align: bottom;
+  overflow: hidden;
+  /* 슬라이드 중 글자 위아래가 잘리지 않게 줄 높이만큼 여유 */
+  padding-block: 0.08em;
+  margin-block: -0.08em;
+}
+
+.word {
+  grid-area: 1 / 1;
+  justify-self: start;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(100%);
+  transition:
+    transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.4s ease;
+}
+
+.wordAccent {
+  color: #9fe0c8;
+}
+
+.word[data-state="in"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.word[data-state="out"] {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+/* 대기 중인 단어는 순간 이동(아래로) — 전환 없이 제자리로 돌아가 다음 차례를 기다린다 */
+.word[data-state="wait"] {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word {
+    transition: none;
+  }
 }
 
 .sub {
@@ -417,6 +519,17 @@
   .typeDesc {
     font-size: 0.875rem;
   }
+}
+
+/* 지금 문장에 나온 유형 — 단어·배경과 같은 순간 강조(HeroRotator 가 data-active 를 옮긴다) */
+.typeCard[data-active] {
+  border-color: var(--primary, #1b6b5a);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 28%, transparent);
+}
+
+.typeCard[data-active] .typeArrow {
+  background: var(--primary, #1b6b5a);
+  color: #fff;
 }
 
 @media (hover: hover) {

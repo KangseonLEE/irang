@@ -59,6 +59,33 @@ describe("랜딩 히어로 A안 — 검색 + 정착 유형 (10/1)", () => {
   });
 });
 
+describe("히어로 장면 회전 — 단어·배경·카드 (10/1 회장)", () => {
+  const html = renderToStaticMarkup(<HeroSearchHub stats={stats} deadlines={deadlines} />);
+
+  it("h1 이 읽는 문장은 5개 유형을 모두 담은 한 줄이다(회전 줄은 aria-hidden)", () => {
+    const h1 = html.slice(html.indexOf("<h1"), html.indexOf("</h1>"));
+    expect(h1).toContain("귀농·귀촌·귀산촌·청년농·스마트팜 준비, 어디서부터 볼까요?");
+    expect(h1.match(/aria-hidden="true"/g)?.length).toBe(2);
+  });
+
+  it("단어 5개가 SSR 되고 첫 장면(귀농)만 보이는 상태로 시작한다", () => {
+    expect(html.match(/data-hero-word=/g)?.length).toBe(5);
+    expect(html).toMatch(/data-hero-word="guinong" data-state="in"/);
+    expect(html.match(/data-state="in"/g)?.length).toBe(1);
+  });
+
+  it("첫 장면과 같은 유형 카드(귀농)가 강조된 채 시작한다", () => {
+    expect(html).toMatch(/data-hero-card="guinong" data-active=""/);
+    expect(html.match(/data-active=""/g)?.length).toBe(1);
+  });
+
+  it("배경 장면 5개가 유형별 이미지로 SSR 된다", () => {
+    for (const img of ["hero-2", "hero-3", "hero-1", "hero-youth", "hero-4"]) {
+      expect(html).toContain(`/landing/hero/${img}.webp`);
+    }
+  });
+});
+
 describe("하단 고정 바 (1024+)", () => {
   const html = renderToStaticMarkup(<HeroSearchDock />);
 
