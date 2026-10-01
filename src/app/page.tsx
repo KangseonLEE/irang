@@ -25,7 +25,7 @@ import { PromoPopup } from "@/components/landing/promo-popup";
 import { loadActivePromos } from "@/lib/promos/queries";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
-import { DiscoverSection } from "@/components/landing/discover-section";
+import { ExperienceSection, OpportunitySection } from "@/components/landing/discover-section";
 import { filterEventsAsync } from "@/lib/data/events";
 import { filterEducationAsync } from "@/lib/data/education";
 import { deriveStatus, daysUntilDeadline, isUnannounced, ALWAYS_OPEN } from "@/lib/program-status";
@@ -100,7 +100,7 @@ function getProgramsData() {
 export default async function HomePage() {
   const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount } = getProgramsData();
   // 노출 기간·활성 판정은 서버(DB)에서 끝낸다 — 클라이언트는 받은 것만 그린다.
-  // 교육·체험·행사는 한 섹션(DiscoverSection)이 나눠 쓰므로 목록을 통째로 넘기고 고르기는 그쪽에서 한다.
+  // 교육·체험·행사는 두 섹션(Opportunity·Experience)이 나눠 쓰므로 목록을 통째로 넘기고 고르기는 그쪽에서 한다.
   const [promos, eventsResult, educationResult] = await Promise.all([
     loadActivePromos(),
     filterEventsAsync({}),
@@ -156,14 +156,18 @@ export default async function HomePage() {
         <QuickLinkSection />
       </ScrollReveal>
 
-      {/* ═══ 2. 지금 열린 기회 — 지원사업·교육·체험·행사 한 섹션 + 탭 (9/30 회장 지시) ═══ */}
+      {/* ═══ 2. 지금 열린 기회 — 지원사업·교육 정보 카드 그리드 (9/30 한 섹션 → 10/1 회장: 이미지 유무로 분리) ═══ */}
       <ScrollReveal trackId="discover" variant="fade" stagger>
-        <DiscoverSection
+        <OpportunitySection
           activePrograms={activePrograms}
           ongoingPrograms={ongoingPrograms}
           courses={educationResult.courses}
-          events={eventsResult.events}
         />
+      </ScrollReveal>
+
+      {/* ═══ 2-2. 직접 가 보는 농촌 — 체험·행사 사진 캐러셀 ═══ */}
+      <ScrollReveal trackId="experience" variant="fade" stagger>
+        <ExperienceSection events={eventsResult.events} />
       </ScrollReveal>
 
       {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}

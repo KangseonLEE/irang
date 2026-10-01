@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
-import { DiscoverSection } from "@/components/landing/discover-section";
+import { ExperienceSection, OpportunitySection } from "@/components/landing/discover-section";
 import type { FarmEvent } from "@/lib/data/events";
 import type { EducationCourse } from "@/lib/data/education";
 import type { SupportProgram } from "@/lib/data/programs";
@@ -92,25 +92,44 @@ const stays = [
   stay({ id: "e3", title: "율곡마을 농촌에서 살아보기 (귀촌형)" }),
 ];
 
-function render(over: Partial<Parameters<typeof DiscoverSection>[0]> = {}) {
+interface RenderProps {
+  activePrograms: Parameters<typeof OpportunitySection>[0]["activePrograms"];
+  ongoingPrograms: Parameters<typeof OpportunitySection>[0]["ongoingPrograms"];
+  courses: EducationCourse[];
+  events: FarmEvent[];
+}
+
+/** 랜딩과 같은 순서로 두 섹션을 이어 렌더한다 (지원사업·교육 → 체험·행사) */
+function render(over: Partial<RenderProps> = {}) {
+  const p: RenderProps = {
+    activePrograms: programs,
+    ongoingPrograms: [],
+    courses,
+    events: stays,
+    ...over,
+  };
   return renderToStaticMarkup(
-    <DiscoverSection
-      activePrograms={programs}
-      ongoingPrograms={[]}
-      courses={courses}
-      events={stays}
-      {...over}
-    />,
+    <>
+      <OpportunitySection activePrograms={p.activePrograms} ongoingPrograms={p.ongoingPrograms} courses={p.courses} />
+      <ExperienceSection events={p.events} />
+    </>,
   );
 }
 
-describe("DiscoverSection — 랜딩 지원사업·교육·체험·행사 한 섹션 (9/30)", () => {
-  it("네 유형이 전부 비면 섹션 자체를 렌더하지 않는다", () => {
-    expect(
-      renderToStaticMarkup(
-        <DiscoverSection activePrograms={[]} ongoingPrograms={[]} courses={[]} events={[]} />,
-      ),
-    ).toBe("");
+describe("OpportunitySection·ExperienceSection — 랜딩 지원사업·교육 / 체험·행사 (9/30 → 10/1 분리)", () => {
+  it("네 유형이 전부 비면 두 섹션 모두 렌더하지 않는다", () => {
+    expect(render({ activePrograms: [], courses: [], events: [] })).toBe("");
+  });
+
+  it("이미지 유무로 섹션이 갈린다 — 지원사업·교육은 그리드(이미지 0), 체험은 사진 캐러셀", () => {
+    const html = render();
+    const opp = html.slice(0, html.indexOf('aria-label="직접 가 보는 농촌"'));
+    const exp = html.slice(html.indexOf('aria-label="직접 가 보는 농촌"'));
+    expect(opp).toContain('aria-label="지금 열린 기회"');
+    expect(opp).not.toContain("<img");
+    expect(opp).not.toContain("슬라이드 제어"); // 자동 넘김·페이저 없음
+    expect(exp).toContain('data-track="discover:experience:card"');
+    expect(exp).toContain("<img");
   });
 
   it("카드가 있는 탭만 만든다 — 행사 0건이면 탭·패널 모두 없다", () => {
@@ -119,8 +138,8 @@ describe("DiscoverSection — 랜딩 지원사업·교육·체험·행사 한 �
     expect(html).toContain('data-track="discover:education:card"');
     expect(html).toContain('data-track="discover:experience:card"');
     expect(html).not.toContain('data-track="discover:festival:card"');
-    // 탭 3개 (role=tab)
-    expect(html.match(/role="tab"/g)?.length).toBe(3);
+    // 탭 = 지원사업·교육 2개 (체험 섹션은 탭 1개라 탭 바를 그리지 않는다)
+    expect(html.match(/role="tab"/g)?.length).toBe(2);
   });
 
   it("비활성 패널도 SSR 에 남는다 — 탭별 링크 수 = 카드 수 (조건부 렌더 금지)", () => {
@@ -129,8 +148,8 @@ describe("DiscoverSection — 랜딩 지원사업·교육·체험·행사 한 �
     expect(html.match(/href="\/education\/ED-[AB]"/g)?.length).toBe(2);
     expect(html.match(/href="\/events\/e\d"/g)?.length).toBe(3);
     // 첫 패널만 보이고 나머지는 hidden — display 를 이기도록 CSS 에 [hidden] 규칙이 있다
-    expect(html.match(/role="tabpanel"/g)?.length).toBe(3);
-    expect(html.match(/hidden=""/g)?.length).toBe(2);
+    expect(html.match(/role="tabpanel"/g)?.length).toBe(2);
+    expect(html.match(/hidden=""/g)?.length).toBe(1);
   });
 
   it("탭 라벨은 짧게(2~4자) + 건수 배지, 기본 탭은 지원사업", () => {
@@ -179,16 +198,34 @@ describe("DiscoverSection — 랜딩 지원사업·교육·체험·행사 한 �
     expect(html).toContain("25명 모집");
     expect(html).toContain("충남 공주시"); // shortName + 시·군·구
     expect(html).toContain("오프라인"); // 유형 칩
-    // 시·도가 있으면 배경 일러스트를 쓴다
-    expect(html).toContain("chungnam");
+    // 10/1 분리 후 교육은 정보 카드 — 시·도 배경 일러스트를 붙이지 않는다
+    expect(html).not.toContain("chungnam");
   });
 
   it("교육 — 같은 모사업의 시간대별 중복은 1건만, 전국(온라인)은 일러스트 없이 텍스트 카드", () => {
     const html = render({
       courses: [
-        course({ id: "ED-1", title: "유형특화과정-예비귀농인 · [비대면] 10/1 (10시~12시)", region: "전국", sigungu: undefined, type: "온라인" }),
-        course({ id: "ED-2", title: "유형특화과정-예비귀농인 · [비대면] 10/1 (13시~15시)", region: "전국", sigungu: undefined, type: "온라인" }),
-        course({ id: "ED-3", title: "유형특화과정-예비귀농인 · [비대면] 10/1 (15시~17시)", region: "전국", sigungu: undefined, type: "온라인" }),
+        course({
+          id: "ED-1",
+          title: "유형특화과정-예비귀농인 · [비대면] 10/1 (10시~12시)",
+          region: "전국",
+          sigungu: undefined,
+          type: "온라인",
+        }),
+        course({
+          id: "ED-2",
+          title: "유형특화과정-예비귀농인 · [비대면] 10/1 (13시~15시)",
+          region: "전국",
+          sigungu: undefined,
+          type: "온라인",
+        }),
+        course({
+          id: "ED-3",
+          title: "유형특화과정-예비귀농인 · [비대면] 10/1 (15시~17시)",
+          region: "전국",
+          sigungu: undefined,
+          type: "온라인",
+        }),
       ],
     });
     expect(html.match(/href="\/education\/ED-\d"/g)?.length).toBe(1);
@@ -199,8 +236,17 @@ describe("DiscoverSection — 랜딩 지원사업·교육·체험·행사 한 �
   it("교육 — 예비 귀농·귀촌 과정이 현직 농업인 기술교육보다 앞", () => {
     const html = render({
       courses: [
-        course({ id: "ED-TECH", title: "2026년 병해충 진단 및 방제 교육", target: "농업인", applicationEnd: inDays(1) }),
-        course({ id: "ED-SETTLE", title: "연암대학교 귀촌 탐색 과정(51기)", applicationEnd: inDays(30) }),
+        course({
+          id: "ED-TECH",
+          title: "2026년 병해충 진단 및 방제 교육",
+          target: "농업인",
+          applicationEnd: inDays(1),
+        }),
+        course({
+          id: "ED-SETTLE",
+          title: "연암대학교 귀촌 탐색 과정(51기)",
+          applicationEnd: inDays(30),
+        }),
       ],
     });
     expect(html.indexOf('href="/education/ED-SETTLE"')).toBeLessThan(html.indexOf('href="/education/ED-TECH"'));
@@ -231,7 +277,8 @@ describe("DiscoverSection — 랜딩 지원사업·교육·체험·행사 한 �
     });
     expect(html).toContain("10.13 하루");
     expect(html).toContain("일일체험"); // 유형 칩
-    expect(html).not.toContain("살아보기");
+    // 머리말("살아보기·체험부터…")은 빼고 카드 안만 본다
+    expect(html.slice(html.indexOf('data-track="discover:experience:card"'))).not.toContain("살아보기");
   });
 
   it("마감 임박(7일 이내)일 때만 D-N 배지, 접수예정은 신청 시작일 표기", () => {
@@ -271,7 +318,8 @@ describe("DiscoverSection — 랜딩 지원사업·교육·체험·행사 한 �
       ],
     });
     expect(html).toContain('data-track="discover:festival:card"');
-    expect(html.match(/role="tab"/g)?.length).toBe(4);
+    expect(html.match(/role="tab"/g)?.length).toBe(4); // 지원사업·교육 + 체험·행사
+    expect(html.match(/aria-selected="true"/g)?.length).toBe(2); // 섹션마다 첫 탭
     expect(html).toContain("10.29 ~ 10.31");
     expect(html).toContain("박람회");
   });
@@ -288,17 +336,27 @@ describe("DiscoverSection — 랜딩 지원사업·교육·체험·행사 한 �
   it("체험 — 같은 제목의 회차별 중복(팸투어 2건)은 1장으로 묶인다", () => {
     const html = render({
       events: [
-        stay({ id: "d1", type: "일일체험", title: "2026 춘천시 귀농귀촌 팸투어_시설원예", date: "2026-10-13", dateEnd: "2026-10-13" }),
-        stay({ id: "d2", type: "일일체험", title: "2026 춘천시 귀농귀촌 팸투어_시설원예", date: "2026-10-14", dateEnd: "2026-10-14" }),
+        stay({
+          id: "d1",
+          type: "일일체험",
+          title: "2026 춘천시 귀농귀촌 팸투어_시설원예",
+          date: "2026-10-13",
+          dateEnd: "2026-10-13",
+        }),
+        stay({
+          id: "d2",
+          type: "일일체험",
+          title: "2026 춘천시 귀농귀촌 팸투어_시설원예",
+          date: "2026-10-14",
+          dateEnd: "2026-10-14",
+        }),
       ],
     });
     expect(html.match(/href="\/events\/d\d"/g)?.length).toBe(1);
   });
 
   it("탭 상한 8장 — 9건을 주면 8장만 카드가 된다", () => {
-    const many = Array.from({ length: 9 }, (_, i) =>
-      stay({ id: `m${i}`, title: `${i}번마을 농촌에서 살아보기 (귀촌형)` }),
-    );
+    const many = Array.from({ length: 9 }, (_, i) => stay({ id: `m${i}`, title: `${i}번마을 농촌에서 살아보기 (귀촌형)` }));
     const html = render({ events: many });
     expect(html.match(/href="\/events\/m\d"/g)?.length).toBe(8);
   });

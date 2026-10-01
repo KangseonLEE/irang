@@ -51,6 +51,15 @@ export interface DiscoverTab {
   cards: DiscoverCard[];
 }
 
+/** 섹션 머리말 — 두 섹션(지원사업·교육 / 체험·행사)이 같은 틀을 쓰고 문구만 다르다 */
+export interface DiscoverHeading {
+  eyebrow: string;
+  /** 제목 앞부분 — 뒤의 `titleEm` 만 강조색 */
+  titleLead: string;
+  titleEm: string;
+  sub: string;
+}
+
 /** 자동 넘김 간격 — 진행 바 애니메이션도 이 값 하나만 참조한다 */
 const INTERVAL_MS = 5000;
 
@@ -65,7 +74,19 @@ const INTERVAL_MS = 5000;
  * - "모두 보기"는 활성 탭의 목적지로 바뀐다. `hidden` 으로 4개를 숨기는 방식은 쓰지 않았다 —
  *   `.viewAll` 이 display 를 선언하고 있어 UA 의 [hidden] 을 이겨 버린다(9/29 박제).
  */
-export function DiscoverTabs({ tabs }: { tabs: DiscoverTab[] }) {
+export function DiscoverTabs({
+  tabs,
+  heading,
+  variant,
+}: {
+  tabs: DiscoverTab[];
+  heading: DiscoverHeading;
+  /**
+   * photo = 사진 카드 커버플로우(체험·행사) / text = 이미지 없는 정보 카드 그리드(지원사업·교육).
+   * 10/1 회장: 지원사업·교육은 이미지가 없어 3:4 커버플로우에 넣으면 빈 흰 포스터가 된다 → 섹션 분리.
+   */
+  variant: "photo" | "text";
+}) {
   const [active, setActive] = useState(0);
   const baseId = useId();
   const tablistRef = useRef<HTMLDivElement>(null);
@@ -106,29 +127,19 @@ export function DiscoverTabs({ tabs }: { tabs: DiscoverTab[] }) {
           여기에 직접 두면 클라이언트 컴포넌트도 서버에서 HTML 로 렌더되므로 제자리에 남는다. */}
       <div className={s.header} data-reveal-x="left">
         <div className={s.heading}>
-          <span className={s.eyebrow}>#모집 중</span>
+          <span className={s.eyebrow}>{heading.eyebrow}</span>
           <h2 className={s.title}>
-            지금 열린 <em>기회</em>
+            {heading.titleLead} <em>{heading.titleEm}</em>
           </h2>
-          <p className={s.sub}>지원금부터 체험까지, 탭으로 골라 보세요</p>
+          <p className={s.sub}>{heading.sub}</p>
         </div>
-        <Link
-          href={current.viewAllHref}
-          className={s.viewAll}
-          data-track={`discover:${current.id}:view_all`}
-        >
+        <Link href={current.viewAllHref} className={s.viewAll} data-track={`discover:${current.id}:view_all`}>
           모두 보기 <ArrowRight size={14} aria-hidden="true" />
         </Link>
       </div>
 
       {showTabs && (
-        <div
-          className={s.tabs}
-          role="tablist"
-          aria-label="분야 선택"
-          ref={tablistRef}
-          onKeyDown={onTablistKeyDown}
-        >
+        <div className={s.tabs} role="tablist" aria-label="분야 선택" ref={tablistRef} onKeyDown={onTablistKeyDown}>
           {tabs.map((t, i) => (
             <button
               key={t.id}
@@ -157,7 +168,7 @@ export function DiscoverTabs({ tabs }: { tabs: DiscoverTab[] }) {
           className={s.panel}
           hidden={i !== active}
         >
-          <DiscoverCarousel tab={t} active={i === active} />
+          {variant === "photo" ? <DiscoverCarousel tab={t} active={i === active} /> : <DiscoverGrid tab={t} />}
         </div>
       ))}
     </>
@@ -234,7 +245,10 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
       const width = step();
       if (!el || !width) return;
       const target = ((next % total) + total) % total;
-      el.scrollTo({ left: target * width, behavior: smooth && !reduced ? "smooth" : "auto" });
+      el.scrollTo({
+        left: target * width,
+        behavior: smooth && !reduced ? "smooth" : "auto",
+      });
     },
     [step, total, reduced],
   );
@@ -292,74 +306,32 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
       onBlur={() => setHeld(false)}
     >
       <div className={s.viewport} ref={viewportRef}>
-          <ul className={s.track}>
-            {items.map((item, i) => (
-              <li
-                key={item.id}
-                className={s.slide}
-                data-card
-                data-active={i === index ? "" : undefined}
+        <ul className={s.track}>
+          {items.map((item, i) => (
+            <li key={item.id} className={s.slide} data-card data-active={i === index ? "" : undefined}>
+              <Link
+                href={item.href}
+                className={`${s.card} ${item.image ? s.cardPhoto : s.cardText}`}
+                data-track={`discover:${tab.id}:card`}
+                /* 활성 카드가 아니면 클릭은 "그 카드로 이동"이 먼저다 — 데스크탑 커버플로우 관례 */
+                onClick={(e) => {
+                  if (isDesktop && i !== index) {
+                    e.preventDefault();
+                    goTo(i);
+                  }
+                }}
               >
-                <Link
-                  href={item.href}
-                  className={`${s.card} ${item.image ? s.cardPhoto : s.cardText}`}
-                  data-track={`discover:${tab.id}:card`}
-                  /* 활성 카드가 아니면 클릭은 "그 카드로 이동"이 먼저다 — 데스크탑 커버플로우 관례 */
-                  onClick={(e) => {
-                    if (isDesktop && i !== index) {
-                      e.preventDefault();
-                      goTo(i);
-                    }
-                  }}
-                >
-                  {item.image && (
-                    <>
-                      <Image
-                        src={item.image.src}
-                        alt={item.image.alt}
-                        fill
-                        sizes="(min-width: 1024px) 340px, 78vw"
-                        className={s.photo}
-                        decoding="async"
-                      />
-                      <span className={s.scrim} aria-hidden="true" />
-                    </>
-                  )}
-
-                  <span className={s.topRow}>
-                    <span className={item.statusTone === "open" ? s.statusOpen : s.statusSoon}>
-                      {item.status}
-                    </span>
-                    {item.deadlineLabel && <span className={s.urgent}>{item.deadlineLabel}</span>}
-                    {item.chip && <span className={s.typeChip}>{item.chip}</span>}
-                  </span>
-
-                  <span className={s.body}>
-                    <span className={s.region}>{item.region}</span>
-                    <span className={s.cardTitle}>{item.title}</span>
-                    {item.line1 && <span className={s.line1}>{item.line1}</span>}
-                    <span className={s.metaRow}>
-                      {item.line2 && <span className={s.line2}>{item.line2}</span>}
-                      {/* 사진일 때만 출처 — 시·도 배경 일러스트 폴백은 우리 자산이다 */}
-                      {item.image?.credit && <span className={s.credit}>{item.image.credit}</span>}
-                    </span>
-                    {item.foot && <span className={s.foot}>{item.foot}</span>}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+                <CardContent item={item} />
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* 하단 중앙 — n / N + 진행선 + 이전·정지·다음 */}
       {total > 1 && (
         <div className={s.controls} role="group" aria-label={`${tab.label} 슬라이드 제어`}>
-          <button
-            type="button"
-            className={s.ctrlBtn}
-            onClick={() => goTo(index - 1)}
-            aria-label="이전 카드"
-          >
+          <button type="button" className={s.ctrlBtn} onClick={() => goTo(index - 1)} aria-label="이전 카드">
             <ChevronLeft size={18} aria-hidden="true" />
           </button>
 
@@ -393,16 +365,69 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
             </button>
           )}
 
-          <button
-            type="button"
-            className={s.ctrlBtn}
-            onClick={() => goTo(index + 1)}
-            aria-label="다음 카드"
-          >
+          <button type="button" className={s.ctrlBtn} onClick={() => goTo(index + 1)} aria-label="다음 카드">
             <ChevronRight size={18} aria-hidden="true" />
           </button>
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * 정보 카드 그리드 (지원사업·교육) — 이미지가 없어 커버플로우 대신 한눈에 비교하는 배치.
+ * <640 가로 스냅 트랙(다음 카드 peek) / 640+ 2열 / 1024+ 4열. 자동 넘김·페이저 없음 —
+ * 비교하며 읽는 정보라 저절로 움직이면 안 된다.
+ */
+function DiscoverGrid({ tab }: { tab: DiscoverTab }) {
+  return (
+    <ul className={s.grid}>
+      {tab.cards.map((item) => (
+        <li key={item.id} className={s.gridItem}>
+          <Link href={item.href} className={`${s.card} ${s.cardText} ${s.cardCompact}`} data-track={`discover:${tab.id}:card`}>
+            <CardContent item={item} />
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** 카드 안쪽 — 사진·텍스트 두 배치가 공유한다 */
+function CardContent({ item }: { item: DiscoverCard }) {
+  return (
+    <>
+      {item.image && (
+        <>
+          <Image
+            src={item.image.src}
+            alt={item.image.alt}
+            fill
+            sizes="(min-width: 1024px) 340px, 78vw"
+            className={s.photo}
+            decoding="async"
+          />
+          <span className={s.scrim} aria-hidden="true" />
+        </>
+      )}
+
+      <span className={s.topRow}>
+        <span className={item.statusTone === "open" ? s.statusOpen : s.statusSoon}>{item.status}</span>
+        {item.deadlineLabel && <span className={s.urgent}>{item.deadlineLabel}</span>}
+        {item.chip && <span className={s.typeChip}>{item.chip}</span>}
+      </span>
+
+      <span className={s.body}>
+        <span className={s.region}>{item.region}</span>
+        <span className={s.cardTitle}>{item.title}</span>
+        {item.line1 && <span className={s.line1}>{item.line1}</span>}
+        <span className={s.metaRow}>
+          {item.line2 && <span className={s.line2}>{item.line2}</span>}
+          {/* 사진일 때만 출처 — 시·도 배경 일러스트 폴백은 우리 자산이다 */}
+          {item.image?.credit && <span className={s.credit}>{item.image.credit}</span>}
+        </span>
+        {item.foot && <span className={s.foot}>{item.foot}</span>}
+      </span>
+    </>
   );
 }

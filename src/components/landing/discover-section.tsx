@@ -1,5 +1,5 @@
 import { PROVINCES } from "@/lib/data/regions";
-import { getEventImage, regionFallbackImage } from "@/lib/events/event-image";
+import { getEventImage } from "@/lib/events/event-image";
 import { ALWAYS_OPEN, daysUntilDeadline, type ProgramStatus } from "@/lib/program-status";
 import { formatAgeRange } from "@/lib/format";
 import type { SupportProgram } from "@/lib/data/programs";
@@ -10,10 +10,11 @@ import { DiscoverTabs, type DiscoverCard, type DiscoverTab } from "./discover-ta
 import s from "./discover-section.module.css";
 
 /**
- * 랜딩 "지금 열린 기회" — 지원사업 · 교육 · 체험 · 행사를 한 섹션 + 탭으로 (2026-09-30 회장 지시).
+ * 랜딩 "지금 열린 기회"(지원사업·교육) + "직접 가 보는 농촌"(체험·행사) 두 섹션.
  *
- * 9/30 오전까지 지원사업 섹션과 살아보기 섹션이 따로 있었고, 교육·행사는 랜딩에 아예 없었다.
- * 네 가지는 방문자에게 전부 "지금 신청할 수 있는 것"이라 한 자리에 모으고 탭으로 가른다.
+ * 9/30 회장 지시로 네 유형을 한 섹션 + 탭으로 모았다가, 10/1 회장 판단으로 둘로 나눴다 —
+ * 지원사업·교육은 이미지가 없어 사진 커버플로우에 넣으면 빈 흰 포스터가 된다.
+ * 정보형(금액·기간을 비교) = 텍스트 카드 그리드, 경험형(어디서 무엇을) = 사진 캐러셀.
  *
  * Server Component: 데이터 → 표시 문장 변환까지 끝내고 클라이언트에는 문자열만 넘긴다.
  * PROVINCES(행정구역 SSOT)·상태 산출·날짜 포맷이 클라이언트 번들에 들어가지 않는다.
@@ -27,10 +28,14 @@ const MAX_CARDS = 8;
  * 지원사업은 접수창이 1~3개월이라 14일이 "서둘러야 하는" 구간이고(9/14 회장 결재값 유지),
  * 살아보기·교육은 2~6주라 14일로 잡으면 거의 전건에 배지가 붙어 신호가 죽는다.
  */
-const URGENT_DAYS = { programs: 14, education: 7, experience: 7, festival: 7 } as const;
+const URGENT_DAYS = {
+  programs: 14,
+  education: 7,
+  experience: 7,
+  festival: 7,
+} as const;
 
 const SHORT_NAME_BY_PROVINCE = new Map(PROVINCES.map((p) => [p.name, p.shortName]));
-const PROVINCE_NAMES = new Set(PROVINCES.map((p) => p.name));
 
 /** "2026-09-30" → "9.30" (앞자리 0 없이 — 카드 안에서 가장 짧게 읽히는 형태) */
 function mmdd(date: string): string {
@@ -41,18 +46,6 @@ function mmdd(date: string): string {
 /** "전남 강진군" — 시·도 약칭 + 시·군·구. 시·군·구가 없으면 시·도 이름 그대로("전국" 포함) */
 function regionText(region: string, sigungu?: string): string {
   return [SHORT_NAME_BY_PROVINCE.get(region) ?? region, sigungu].filter(Boolean).join(" ");
-}
-
-/**
- * 시·도 배경 일러스트를 쓸 수 있는 지역인가.
- *
- * `regionFallbackImage` 는 매칭 실패 시 기본 일러스트(강원)를 돌려준다 — 전국·온라인 건에
- * 그걸 붙이면 "강원 사진"처럼 읽히고, 온라인 교육 8장이 같은 배경으로 깔린다.
- * 그래서 실제 시·도일 때만 일러스트를 쓰고 나머지는 이미지 없는 텍스트 카드로 그린다.
- */
-function regionImage(region: string): DiscoverCard["image"] | undefined {
-  if (!PROVINCE_NAMES.has(region)) return undefined;
-  return { src: regionFallbackImage(region), alt: "", isPhoto: false };
 }
 
 /** 마감 임박 배지 — 지금 받는 중이고 기준 일수 이내일 때만 */
@@ -110,9 +103,12 @@ function dedupeByGroup<T extends { title: string }>(items: T[]): T[] {
 /* ══════════════ 지원사업 ══════════════
    기존 랜딩 지원사업 카드의 표기 언어를 그대로 옮겼다 — 금액이 첫 줄, 신청 기간·연령이 둘째 줄.
    도시 직장인이 지원사업을 볼 때 판단 순서가 "얼마 → 언제까지 → 내가 대상인가"라서다.
-   이미지가 없는 유형이라 흰 카드(.cardText)로 그려진다. */
+   이미지가 없는 유형이라 정보 카드 그리드로 그려진다. */
 
-type ActiveProgram = SupportProgram & { programStatus: ProgramStatus; daysLeft?: number };
+type ActiveProgram = SupportProgram & {
+  programStatus: ProgramStatus;
+  daysLeft?: number;
+};
 
 /** 신청 기간 — 상시 건은 날짜 대신 상시 문구 (9999-12-31이 "12.31"로 새는 것 방지) */
 function programPeriod(start: string, end: string): string {
@@ -122,9 +118,7 @@ function programPeriod(start: string, end: string): string {
 
 function toProgramCard(p: ActiveProgram, ongoing: boolean): DiscoverCard {
   const upcoming = p.programStatus === "모집예정";
-  const deadlineLabel = upcoming
-    ? undefined
-    : urgentLabel(true, p.applicationEnd, URGENT_DAYS.programs);
+  const deadlineLabel = upcoming ? undefined : urgentLabel(true, p.applicationEnd, URGENT_DAYS.programs);
 
   return {
     id: p.id,
@@ -171,7 +165,6 @@ function toEducationCard(c: EducationCourse): DiscoverCard {
   return {
     id: c.id,
     href: `/education/${c.id}`,
-    image: regionImage(c.region),
     status: c.status,
     statusTone: open ? "open" : "soon",
     deadlineLabel,
@@ -179,9 +172,7 @@ function toEducationCard(c: EducationCourse): DiscoverCard {
     region: regionText(c.region, c.sigungu),
     title: groupTitle(c.title),
     line1: period ? scheduleText(period.start, period.end) : undefined,
-    line2: [deadlineText(c.applicationEnd, Boolean(deadlineLabel)), c.capacity ? `${c.capacity}명 모집` : null]
-      .filter(Boolean)
-      .join(" · "),
+    line2: [deadlineText(c.applicationEnd, Boolean(deadlineLabel)), c.capacity ? `${c.capacity}명 모집` : null].filter(Boolean).join(" · "),
     foot: c.organization,
   };
 }
@@ -206,7 +197,10 @@ function parseStayTitle(title: string): { name: string; type?: string } {
     type = paren[1].trim();
     name = name.slice(0, paren.index).trim();
   }
-  name = name.replace(/농촌에서\s*살아보기/g, " ").replace(/\s{2,}/g, " ").trim();
+  name = name
+    .replace(/농촌에서\s*살아보기/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 
   return { name: name || title.trim(), type };
 }
@@ -234,8 +228,7 @@ function toEventCard(event: FarmEvent, within: number): DiscoverCard {
 
   let apply: string | undefined;
   if (openEnded) apply = "상시 모집";
-  else if (event.status === "접수예정" && event.applicationStart)
-    apply = `${mmdd(event.applicationStart)}부터 신청`;
+  else if (event.status === "접수예정" && event.applicationStart) apply = `${mmdd(event.applicationStart)}부터 신청`;
   else apply = deadlineText(event.applicationEnd, Boolean(deadlineLabel));
 
   const recruit = recruitLabel(event);
@@ -264,29 +257,26 @@ function byOpenThenDeadline<T extends { status: string; applicationEnd?: string 
 ) {
   const rank = (status: string) => (status === openLabel ? 0 : status === soonLabel ? 1 : 2);
   return (a: T, b: T) =>
-    rank(a.status) - rank(b.status) ||
-    (a.applicationEnd ?? a.date ?? "").localeCompare(b.applicationEnd ?? b.date ?? "");
+    rank(a.status) - rank(b.status) || (a.applicationEnd ?? a.date ?? "").localeCompare(b.applicationEnd ?? b.date ?? "");
 }
 
 /**
  * 체험 = 가서 겪어 보는 것(살아보기·팜스테이·일일체험) / 행사 = 가서 듣고 보는 것(박람회·설명회·멘토링·축제).
  * `isStayEvent` 를 함께 보는 이유: 마이그레이션 전 행은 유형이 '팜스테이'인 채 제목으로만 살아보기다.
  */
-const isExperience = (e: FarmEvent) =>
-  isStayEvent(e) || e.type === "살아보기" || e.type === "일일체험" || e.type === "팜스테이";
-const isFestival = (e: FarmEvent) =>
-  e.type === "박람회" || e.type === "설명회" || e.type === "멘토링" || e.type === "축제";
+const isExperience = (e: FarmEvent) => isStayEvent(e) || e.type === "살아보기" || e.type === "일일체험" || e.type === "팜스테이";
+const isFestival = (e: FarmEvent) => e.type === "박람회" || e.type === "설명회" || e.type === "멘토링" || e.type === "축제";
 
-interface Props {
+interface OpportunityProps {
   /** 기간 한정 공고 (page.tsx getProgramsData) */
   activePrograms: ActiveProgram[];
   /** 상시·연중 모집 (마감 없음 또는 접수 150일 이상) */
   ongoingPrograms: ActiveProgram[];
   courses: EducationCourse[];
-  events: FarmEvent[];
 }
 
-export function DiscoverSection({ activePrograms, ongoingPrograms, courses, events }: Props) {
+/** 지원사업 · 교육 — 이미지 없는 정보 카드 그리드 */
+export function OpportunitySection({ activePrograms, ongoingPrograms, courses }: OpportunityProps) {
   const programCards = [
     ...activePrograms.map((p) => toProgramCard(p, false)),
     // 상시·연중 건은 같은 트랙 뒤에 — 마감이 없어 "지금 서둘러야 하는" 카드보다 급하지 않다
@@ -304,6 +294,43 @@ export function DiscoverSection({ activePrograms, ongoingPrograms, courses, even
     .slice(0, MAX_CARDS)
     .map(toEducationCard);
 
+  // 카드가 없는 탭은 만들지 않는다 — 빈 패널을 보여주는 건 탭을 누른 사람에게 헛걸음이다
+  const tabs: DiscoverTab[] = [
+    {
+      id: "programs",
+      label: "지원사업",
+      viewAllHref: "/programs",
+      cards: programCards,
+    },
+    {
+      id: "education",
+      label: "교육",
+      viewAllHref: "/education",
+      cards: educationCards,
+    },
+  ].filter((t) => t.cards.length > 0);
+
+  if (tabs.length === 0) return null;
+
+  return (
+    <section className={s.section} aria-label="지금 열린 기회">
+      {/* 제목 블록까지 DiscoverTabs 안에 있다 — 이유는 그 파일 주석(9/30 SSR 실측) */}
+      <DiscoverTabs
+        tabs={tabs}
+        variant="text"
+        heading={{
+          eyebrow: "#모집 중",
+          titleLead: "지금 열린",
+          titleEm: "기회",
+          sub: "지원금과 교육, 탭으로 골라 보세요",
+        }}
+      />
+    </section>
+  );
+}
+
+/** 체험 · 행사 — 사진 카드 커버플로우 */
+export function ExperienceSection({ events }: { events: FarmEvent[] }) {
   const pickEvents = (match: (e: FarmEvent) => boolean) =>
     dedupeByGroup(
       events
@@ -315,20 +342,35 @@ export function DiscoverSection({ activePrograms, ongoingPrograms, courses, even
   const experienceCards = pickEvents(isExperience).map((e) => toEventCard(e, URGENT_DAYS.experience));
   const festivalCards = pickEvents(isFestival).map((e) => toEventCard(e, URGENT_DAYS.festival));
 
-  // 카드가 없는 탭은 만들지 않는다 — 빈 패널을 보여주는 건 탭을 누른 사람에게 헛걸음이다
   const tabs: DiscoverTab[] = [
-    { id: "programs", label: "지원사업", viewAllHref: "/programs", cards: programCards },
-    { id: "education", label: "교육", viewAllHref: "/education", cards: educationCards },
-    { id: "experience", label: "체험", viewAllHref: "/events", cards: experienceCards },
-    { id: "festival", label: "행사", viewAllHref: "/events?type=박람회", cards: festivalCards },
+    {
+      id: "experience",
+      label: "체험",
+      viewAllHref: "/events",
+      cards: experienceCards,
+    },
+    {
+      id: "festival",
+      label: "행사",
+      viewAllHref: "/events?type=박람회",
+      cards: festivalCards,
+    },
   ].filter((t) => t.cards.length > 0);
 
   if (tabs.length === 0) return null;
 
   return (
-    <section className={s.section} aria-label="지금 열린 기회">
-      {/* 제목 블록까지 DiscoverTabs 안에 있다 — 이유는 그 파일 주석(9/30 SSR 실측) */}
-      <DiscoverTabs tabs={tabs} />
+    <section className={s.section} aria-label="직접 가 보는 농촌">
+      <DiscoverTabs
+        tabs={tabs}
+        variant="photo"
+        heading={{
+          eyebrow: "#가서 겪어 보기",
+          titleLead: "직접 가 보는",
+          titleEm: "농촌",
+          sub: "살아보기·체험부터 박람회까지",
+        }}
+      />
     </section>
   );
 }
