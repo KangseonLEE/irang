@@ -82,7 +82,8 @@ fetch_status() {
 # GitHub Actions 러너(미국)에서는 4xx/5xx가 나지만 한국에서는 200인 것이 **같은 날 실측으로 확인된** 호스트만.
 # 이 목록의 호스트는 실패(FAIL)가 아니라 GEO 경고로 집계한다 — 8/30 #118 오탐(goryeong 404·fbo 502, KR 200).
 # 추가 규칙: 한국에서 curl 200 + 본문 키워드 확인 후에만 등록. 추측 등록 금지.
-GEO_WARN_HOSTS="goryeong.go.kr fbo.or.kr goesan.go.kr"
+# 10/1: cs.go.kr(SP-052 404)·geochang.go.kr(SP-053 403) — KR 200 + 본문(과수생산지원사업·사과원 아카데미) 실측
+GEO_WARN_HOSTS="goryeong.go.kr fbo.or.kr goesan.go.kr cs.go.kr geochang.go.kr"
 
 is_geo_host() {
   local d="$1"

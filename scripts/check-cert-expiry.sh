@@ -142,7 +142,9 @@ if [ -n "${VERCEL_TOKEN:-}" ]; then
       else
         echo "  ✓ ${cns} | D-${d_left} (${exp_date}) | autoRenew=${auto}"
       fi
-    done < <(echo "$certs_json" | jq -r '.certs[] | [(.cns|join(",")), (.expiresAt|tostring), (.autoRenew|tostring)] | @tsv' 2>/dev/null)
+    # 같은 도메인에 갱신 전·후 인증서가 함께 남는다(10/1: 옛 apex D-21 + 새 apex D-90).
+    # Vercel 은 최신 인증서를 서빙하므로 도메인별로 만료가 가장 늦은 1건만 판정한다.
+    done < <(echo "$certs_json" | jq -r '.certs | group_by(.cns|join(",")) | map(max_by(.expiresAt)) | .[] | [(.cns|join(",")), (.expiresAt|tostring), (.autoRenew|tostring)] | @tsv' 2>/dev/null)
   fi
 else
   echo "▸ Vercel origin 인증서 — VERCEL_TOKEN 없음, 526 간접 탐지만 수행"
