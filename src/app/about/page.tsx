@@ -95,7 +95,7 @@ const FEATURES = [
   },
   {
     title: "지원사업",
-    description: `${PROGRAMS_FLOOR}건 넘는 지원사업을 조건별로 검색하고 내 상황에 맞는 것만 골라보세요.`,
+    description: "정부·지자체 지원사업을 조건별로 검색하고, 지금 신청할 수 있는 것만 골라 보세요.",
     href: "/programs",
   },
   {
@@ -111,39 +111,23 @@ const FEATURES = [
   },
 ];
 
-const STEPS = [
-  {
-    step: "01",
-    title: "관심 영역 탐색",
-    description:
-      "지역, 작물, 지원사업 정보를 비교하고 관심 가는 곳을 골라보세요.",
-  },
-  {
-    step: "02",
-    title: "농촌 정착 유형 진단",
-    description: "5가지 질문으로 나에게 맞는 지역과 작물을 추천받으세요.",
-  },
-  {
-    step: "03",
-    title: "내 계획 세우기",
-    description:
-      "비교 데이터로 정착 계획을 구체화하고 지원사업을 연결하세요.",
-  },
-];
-
+/**
+ * 실제로 연동하는 공공기관 5곳 (10/1 정정 — 통계청을 KOSIS·SGIS 두 줄로 세고 농촌진흥청을 빠뜨려
+ * '5개 기관'이 우연히 맞던 목록). 기관 단위로 센다. 용도는 src/lib/api/* 실제 호출 기준.
+ */
 const DATA_SOURCES = [
-  { name: "기상청", code: "KMA", description: "ASOS 종관기상 관측 데이터" },
-  { name: "통계청 SGIS", code: "SGIS", description: "지역별 인구·고령화 데이터" },
-  { name: "통계청 KOSIS", code: "KOSIS", description: "농업 생산량·재배면적 통계" },
-  { name: "심평원", code: "HIRA", description: "지역별 의료기관 분포" },
-  { name: "교육부", code: "NEIS", description: "지역별 학교 수 데이터" },
+  { name: "기상청", code: "KMA", description: "지역별 기온·강수·일조 관측(ASOS)" },
+  { name: "통계청", code: "KOSIS·SGIS", description: "귀농·귀촌 통계, 지역 인구·농가 수" },
+  { name: "농촌진흥청", code: "RDA", description: "작물 소득 조사, 청년농 지원사업·교육" },
+  { name: "건강보험심사평가원", code: "HIRA", description: "지역별 의료기관 현황" },
+  { name: "교육부", code: "NEIS", description: "지역별 학교 현황" },
 ];
 
 /** ④ 겹친 타원 — 실제로 지키고 있는 원칙만 (출처 표기 · 같은 기준 비교 · 정정 이력 공개) */
 const PRINCIPLES = [
   {
-    title: "공공데이터만",
-    lines: ["기상청·통계청 같은 공공기관의", "공식 데이터만 써요"],
+    title: "공공기관 자료로",
+    lines: ["기후·인구·소득 같은 숫자는", "공공기관 자료에서 가져와요"],
   },
   {
     title: "같은 기준으로 비교",
@@ -165,54 +149,41 @@ const TILES: Tile[] = [
   {
     kind: "number",
     value: String(PROVINCES.length),
-    label: "개 지역",
+    label: "개 시·도",
     caption: "전국 광역시·도",
     tone: "green",
   },
-  { kind: "image", src: "/crops/illustrations/apple.webp", alt: "사과 일러스트", contain: true },
-  { kind: "image", src: "/landing/hero/hero-2.webp", alt: "사다리가 놓인 가을 사과 과수원" },
   {
     kind: "number",
     value: String(CROPS.length),
     label: "종 작물",
-    caption: "주요 농업 작물",
+    caption: "재배·소득 정보",
     tone: "deep",
   },
-  { kind: "image", src: "/crops/illustrations/strawberry.webp", alt: "딸기 일러스트", contain: true },
   {
     kind: "number",
     value: `${PROGRAMS_FLOOR}+`,
     label: "건 지원사업",
-    caption: "전국·지역별 정착 지원",
-    tone: "deep",
+    caption: "마감된 공고 포함 정리",
+    tone: "green",
   },
-  { kind: "image", src: "/landing/hero/hero-3.webp", alt: "기와집 옆 마을 텃밭" },
   {
     kind: "number",
     value: String(interviews.length),
     label: "명 이야기",
-    caption: "실제 정착인 인터뷰",
-    tone: "green",
+    caption: "언론에 소개된 정착인",
+    tone: "deep",
   },
-  { kind: "image", src: "/crops/illustrations/shiitake.webp", alt: "표고버섯 일러스트", contain: true },
-  { kind: "image", src: "/landing/hero/hero-4.webp", alt: "딸기가 자라는 스마트팜 온실" },
   {
     kind: "number",
     value: String(DATA_SOURCES.length),
     label: "개 기관",
-    caption: "공공 데이터 출처",
+    caption: "연동하는 공공기관",
     tone: "green",
   },
 ];
 
-/** N3 — 인터뷰 미리보기 3인 (mountain·healing·youth 분산) */
-const INTERVIEW_PREVIEW_IDS = ["lee-chunbok", "oh-geumok", "jo-sungsu"];
-
 export default function AboutPage() {
-  const previewInterviews = INTERVIEW_PREVIEW_IDS.map((id) =>
-    interviews.find((p) => p.id === id),
-  ).filter((p): p is NonNullable<typeof p> => Boolean(p));
-
   const stageItems = START_LANES.map(({ id, label, image, alt }) => ({
     id,
     label,
@@ -233,7 +204,7 @@ export default function AboutPage() {
           url: "https://irangfarm.com/about",
           logo: "https://irangfarm.com/icon.svg",
           description:
-            "이랑은 농촌 정착을 준비하는 분들을 위한 비영리 정보 큐레이션 서비스예요. 기상청·통계청(KOSIS·SGIS)·농촌진흥청·심평원·교육부 등 5개 공공기관 데이터로 지역, 작물, 지원사업 정보를 한곳에서 비교할 수 있게 정리해요.",
+            "이랑은 농촌 정착을 준비하는 분들을 위한 비영리 정보 큐레이션 서비스예요. 기상청·통계청(KOSIS·SGIS)·농촌진흥청·건강보험심사평가원·교육부 5개 공공기관 데이터로 지역, 작물, 지원사업 정보를 한곳에서 비교할 수 있게 정리해요.",
           email: "loyal3270@gmail.com",
           contactPoint: {
             "@type": "ContactPoint",
@@ -276,7 +247,7 @@ export default function AboutPage() {
             정착할 곳을 비교해요
           </h2>
           <p className={s.introBody}>
-            <AutoGlossary text="지역·작물·지원사업·인터뷰·치유까지, 농촌 정착에 필요한 정보를 공공데이터 5개 기관 자료로 한곳에 모았어요. 기후·인구·의료·학교처럼 흩어진 숫자를 같은 기준으로 맞춰, 후보지와 작물을 나란히 놓고 고를 수 있어요." />
+            <AutoGlossary text="지역·작물·지원사업·인터뷰·치유까지, 농촌 정착에 필요한 정보를 한곳에 모았어요. 기후·인구·의료·학교·소득처럼 흩어진 숫자는 공공기관 5곳의 자료를 같은 기준으로 맞춰, 후보지와 작물을 나란히 놓고 고를 수 있어요." />
           </p>
           <div className={s.introCtas}>
             <Link href="/assess" className={s.btnPrimary}>
@@ -343,7 +314,7 @@ export default function AboutPage() {
           )}
         </ul>
         <p className={s.tilesNote}>
-          기상청·통계청(KOSIS·SGIS)·농촌진흥청·심평원·교육부 데이터 기반이에요.
+          숫자는 기상청·통계청·농촌진흥청·건강보험심사평가원·교육부 자료 기준이에요. 지원사업은 지금 신청할 수 없는 마감 공고까지 센 숫자예요.
         </p>
       </section>
 
@@ -422,65 +393,6 @@ export default function AboutPage() {
         </ol>
       </section>
 
-      {/* ═══ ⑦-3 이용 흐름 ═══ */}
-      <section className={s.block} aria-labelledby="about-steps-title">
-        <div className={s.sectionHead}>
-          <h2 id="about-steps-title" className={s.sectionTitle}>
-            이렇게 활용하세요
-          </h2>
-          <p className={s.sectionDesc}>
-            3단계로 농촌 정착 계획을 구체화할 수 있어요.
-          </p>
-        </div>
-        <ol className={s.steps}>
-          {STEPS.map((step) => (
-            <li key={step.step} className={s.step}>
-              <span className={s.stepNumber}>{step.step}</span>
-              <h3 className={s.stepTitle}>{step.title}</h3>
-              <p className={s.stepDesc}>
-                <AutoGlossary text={step.description} />
-              </p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {/* ═══ ⑦-4 인터뷰 미리보기 ═══ */}
-      <section
-        className={`${s.block} ${s.blockGray}`}
-        aria-labelledby="about-interviews-title"
-      >
-        <div className={s.sectionHead}>
-          <h2 id="about-interviews-title" className={s.sectionTitle}>
-            먼저 정착한 사람들
-          </h2>
-          <p className={s.sectionDesc}>
-            카테고리별로 정착 경험을 솔직하게 담았어요.
-          </p>
-        </div>
-        <ul className={s.interviews}>
-          {previewInterviews.map((p) => (
-            <li key={p.id}>
-              <Link href={`/interviews/${p.id}`} className={s.interview}>
-                <p className={s.interviewQuote}>&ldquo;{p.quote}&rdquo;</p>
-                <span className={s.interviewMeta}>
-                  <span className={s.interviewName}>{p.name}</span>
-                  <span className={s.interviewSub}>
-                    {p.age} · {p.region}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <div className={s.centerRow}>
-          <Link href="/interviews" className={s.btnGhost}>
-            인터뷰 전체 보기
-            <IconWrap icon={ArrowRight} size="sm" />
-          </Link>
-        </div>
-      </section>
-
       {/* ═══ ⑦-5 데이터 출처 ═══ */}
       <section className={s.block} aria-labelledby="about-data-title">
         <div className={s.sectionHead}>
@@ -488,7 +400,7 @@ export default function AboutPage() {
             출처가 분명한 데이터
           </h2>
           <p className={s.sectionDesc}>
-            기상청·통계청·농촌진흥청 등 5개 공공기관의 공식 데이터만 사용해요.
+            지역·작물 숫자는 아래 5개 공공기관 자료를 연동해요. 지원사업·교육·행사는 정부·지자체 원문 공고를 확인해 정리해요.
           </p>
         </div>
         <ul className={s.sources}>
@@ -550,7 +462,7 @@ export default function AboutPage() {
             <Link href="/about/disclaimer" className={s.operatorItem}>
               <UserSquare2 size={18} strokeWidth={1.75} aria-hidden="true" />
               <span className={s.operatorLabel}>면책 고지·데이터 출처</span>
-              <span className={s.operatorValue}>7개 공공데이터 기관 명시</span>
+              <span className={s.operatorValue}>데이터 출처 목록</span>
             </Link>
           </li>
         </ul>

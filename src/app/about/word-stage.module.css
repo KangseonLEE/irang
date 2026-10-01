@@ -70,18 +70,20 @@
   position: relative;
   z-index: 1;
   margin-top: calc(var(--stage-h) * -1);
-  /* 첫 일러스트는 첫 화면 바로 아래에서 출발, 마지막은 문장을 완전히 지나간 뒤 고정 해제 */
-  padding: var(--stage-h) 16px calc(var(--stage-h) * 0.4);
+  /* 10/1 회장 "너무 길다": 첫 일러스트를 문장이 고정된 직후(0.55화면)에 출발시키고, 간격을 좁혀
+     구간 길이를 데스크탑 4,890 → 약 2,700px 로. 마지막 일러스트가 문장을 지나면 바로 고정 해제 */
+  padding: calc(var(--stage-h) * 0.55) 16px calc(var(--stage-h) * 0.12);
   display: flex;
   flex-direction: column;
-  gap: calc(var(--stage-h) * 0.26);
+  /* 좌우로 번갈아 놓인 일러스트가 세로로 35% 겹치며 지나간다(가로로는 겹치지 않음) */
+  gap: 0;
   pointer-events: none;
 }
 
 .photo {
   position: relative;
   margin: 0;
-  width: 50vw;
+  width: 42vw;
   aspect-ratio: 2 / 3;
   border-radius: 4px;
   overflow: hidden;
@@ -99,17 +101,18 @@
   margin-right: 4vw;
 }
 
+.photo + .photo {
+  /* 일러스트 높이(폭 × 1.5)의 35%만큼 앞 일러스트와 겹친다 */
+  margin-top: calc(42vw * 1.5 * -0.35);
+}
+
 .photoImg {
   object-fit: cover;
 }
 
 @media (min-width: 768px) {
-  .photos {
-    gap: calc(var(--stage-h) * 0.28);
-  }
-
   .photo {
-    width: min(34vw, 340px);
+    width: min(26vw, 260px);
   }
 
   .left,
@@ -119,11 +122,15 @@
   }
 
   .left {
-    transform: translateX(-26%);
+    transform: translateX(-62%);
   }
 
   .right {
-    transform: translateX(26%);
+    transform: translateX(62%);
+  }
+
+  .photo + .photo {
+    margin-top: calc(min(26vw, 260px) * 1.5 * -0.35);
   }
 
   .sub {
@@ -131,17 +138,58 @@
   }
 }
 
+/* 1024+ — 일러스트는 문장 좌우 여백으로만 흐른다(문장을 가리지 않음).
+   문장 폭 ≈ 글자 크기 × 7 → 반폭 min(26vw, 310px). 일러스트는 그 바깥 32px 에서 시작. */
 @media (min-width: 1024px) {
-  .photos {
-    gap: calc(var(--stage-h) * 0.3);
+  .stage {
+    --pw: 200px;
+    --half: min(26vw, 310px);
+  }
+
+  .photo {
+    width: var(--pw);
+  }
+
+  .left,
+  .right {
+    align-self: flex-start;
+    transform: none;
   }
 
   .left {
-    transform: translateX(-30%);
+    margin-left: calc(50% - var(--half) - var(--pw) - 32px);
   }
 
   .right {
-    transform: translateX(30%);
+    margin-left: calc(50% + var(--half) + 32px);
+  }
+
+  /* 좌우로 갈라져 있어 세로로 42% 겹쳐도 부딪치지 않고, 같은 쪽 일러스트 사이엔 틈이 남는다 */
+  .photo + .photo {
+    margin-top: calc(var(--pw) * 1.5 * -0.42);
+  }
+}
+
+@media (min-width: 1280px) {
+  .stage {
+    --pw: 240px;
+  }
+}
+
+/* <1024 — 화면이 좁아 일러스트가 문장 위를 지날 수밖에 없다. 문장을 일러스트 위로 올리고
+   옅은 판을 깔아 어느 순간에도 읽히게 한다(10/1 실측: 겹침 연출에서 문장이 거의 항상 가려짐). */
+@media (max-width: 1023px) {
+  .sticky {
+    z-index: 2;
+  }
+
+  .line,
+  .sub {
+    padding: 10px 18px;
+    border-radius: 18px;
+    background: color-mix(in srgb, #f3f4f2 86%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
   }
 }
 
@@ -164,7 +212,8 @@
 
   .photo,
   .left,
-  .right {
+  .right,
+  .photo + .photo {
     width: min(28vw, 180px);
     margin: 0;
     transform: none;
