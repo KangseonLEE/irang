@@ -25,6 +25,12 @@
 --   · `src/__tests__/region-normalize.test.ts` 가 DB 실측 78종 전수 + Deno 미러 패리티 검증
 --
 -- ⚠ apply 는 회장 수동 (Supabase Dashboard SQL Editor).
+--
+-- mode-check-ok: 10/2 dev QA 사후 검토 (check-migration-not-null 이 9/29부터 main CI 를 막고 있었음).
+--   sigungu 3컬럼 모두 nullable — 기존 행은 NULL 이거나 아래 UPDATE 로 채우고, 신규 INSERT 는 sync-crawl 이
+--   normalizeRegion() 결과로 region·sigungu 를 함께 넣는다. 같은 행 조립(supabase/functions/sync-crawl/index.ts §4)이
+--   세 테이블의 기존 NOT NULL 컬럼을 전부 채우고(region 은 원문이 없으면 "전국"), upsert 오류는 errors 로 올라가
+--   sync-data 워크플로를 실패시킨다(9/30 08:27 실측) — silent fail 경로 없음.
 
 BEGIN;
 
