@@ -294,7 +294,8 @@ export async function middleware(request: NextRequest) {
   // Server Component 의 redirect() 로는 안 된다 — 루트 loading.tsx 스트리밍 때문에
   // 헤더가 200 으로 먼저 나간다(9/4 소프트 404 박제). 라우터 밖에서 끊어야 진짜 3xx 다.
   // 307(영구 아님) + no-store — CF 가 이 응답을 들고 있으면 안 된다(5/11 박제).
-  if (pathname === "/start/undecided" || pathname === "/start/undecided/") {
+  // 끝 슬래시(`/start/undecided/`)는 Next 내장 308 이 먼저 응답해 여기 오지 않는다(10/2 QA 실측) — 분기 불필요.
+  if (pathname === "/start/undecided") {
     const url = request.nextUrl.clone();
     url.pathname = "/start";
     const response = NextResponse.redirect(url, 307);

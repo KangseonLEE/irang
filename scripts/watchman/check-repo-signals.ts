@@ -48,6 +48,26 @@ const CORRECTIONS_PAGE = "src/lib/data/corrections.ts";
 const DATA_DIR = "src/lib/data/";
 
 /**
+ * §9 판정에서 빼는 UI 설정·로직 파일 (10/2 #156 오탐).
+ * 같은 디렉토리에 있지만 사용자에게 보이는 사실·수치가 아니라 라벨·메뉴·검색 로직·릴리스 노트라,
+ * 이 파일들의 수정은 정정 이력 대상이 아니다. #156 은 `journey-lanes.ts` 라벨 개명
+ * ("아직 고르는 중" → "예비 귀농·귀촌인") 한 건을 정정 후보로 잡았다.
+ * 수치를 계산하는 파일(journey-lanes-hub·journey-lanes-stats 등)은 정정이 될 수 있어 넣지 않는다.
+ */
+const NON_FACT_DATA_FILES = new Set([
+  "src/lib/data/journey-lanes.ts",
+  "src/lib/data/journey-lanes-images.ts",
+  "src/lib/data/navigation.ts",
+  "src/lib/data/hero-slides.ts",
+  "src/lib/data/popular-keywords.ts",
+  "src/lib/data/popular-tags.ts",
+  "src/lib/data/search-tags.ts",
+  "src/lib/data/search-index.ts",
+  "src/lib/data/updates.ts",
+  "src/lib/data/promo-popup.ts",
+]);
+
+/**
  * §9-1 "정정 후보" 키워드.
  * "수정"은 §9-1 원문에 있으나 거의 모든 commit 메시지에 등장해 실효 필터가 못 된다
  * (§9-3의 false positive 방지 취지와 정면 충돌) → 의도적으로 제외했다.
@@ -190,6 +210,8 @@ function dataFileStats(sha: string): { files: string[]; deletions: number } {
     const cols = line.trim().split("\t");
     if (cols.length < 3) continue;
     const [, del, path] = cols;
+    // UI 설정·로직 파일은 정정 대상이 아니다 (NON_FACT_DATA_FILES, 10/2 #156)
+    if (NON_FACT_DATA_FILES.has(path)) continue;
     files.push(path);
     // 바이너리는 "-\t-" → 판정 불가라 append-only로 단정하지 않고 삭제 있음으로 본다
     deletions += del === "-" ? 1 : Number(del) || 0;
@@ -199,8 +221,11 @@ function dataFileStats(sha: string): { files: string[]; deletions: number } {
 }
 
 function isCorrectionCandidate(subject: string): boolean {
-  // §9-1 조건 1: fix: / fix(scope): prefix
-  if (/^fix(\([^)]*\))?!?:/.test(subject)) return true;
+  // §9-1 조건 1: fix(data…) 스코프만 (10/2 #156 이후).
+  //   이 리포의 데이터 정정 커밋은 `fix(data): … 정정` 이 표준이고(f4ed86c·a15bcf6·c7d3465),
+  //   UI 커밋의 `fix(landing)`·`fix(start)` 는 라벨·필터만 바꿔도 매번 후보로 잡혔다
+  //   (1e21f74 라벨 개명 → #156, 5cc561d 교육 필터). 다른 스코프의 사실 정정은 조건 2(키워드)가 잡는다.
+  if (/^fix\(data[^)]*\)!?:/.test(subject)) return true;
   // §9-1 조건 2: 정정 계열 키워드
   return CORRECTION_KEYWORDS.some((k) => subject.includes(k));
 }

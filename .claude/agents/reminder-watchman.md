@@ -211,7 +211,7 @@ LAST=$(git log -1 --pretty=format:"%cs" -- src/lib/data/landing.ts src/lib/data/
 
 최근 7일 `git log --oneline` 중 다음 조건 중 하나라도 만족:
 
-- **commit 메시지 prefix가 `fix:` 또는 `fix(...)` + 변경 파일에 `src/lib/data/*` 포함**
+- **commit 메시지 prefix가 `fix(data…)` + 변경 파일에 `src/lib/data/*` 포함** (10/2 #156 이후 — UI 스코프의 `fix(landing)`·`fix(start)` 는 라벨·필터만 바꿔도 잡혀 제외. `journey-lanes.ts`·`navigation.ts`·`updates.ts` 등 UI 설정 파일은 `NON_FACT_DATA_FILES` 로 판정에서 뺌)
 - **commit 메시지에 "정정", "오류", "수정", "보정" 등 키워드 + 데이터 파일 변경**
 - **데이터 파일 자체의 사용자 노출 항목(예: programs.ts의 sourceUrl·title·description) 변경**
 
