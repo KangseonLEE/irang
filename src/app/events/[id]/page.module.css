@@ -19,28 +19,6 @@
   }
 }
 
-/* 뒤로가기 */
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 24px;
-  padding: 6px 10px;
-  border-radius: 4px;
-  color: var(--muted-foreground, #6b7280);
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 0.15s, background-color 0.15s;
-}
-
-@media (hover: hover) {
-.backLink:hover {
-    color: var(--foreground, #111827);
-    background: var(--muted, #f9fafb);
-  }
-}
-
 /* ── 사진 히어로 (2026-09-30) ──
    마을 사진이 있으면 사진, 없으면 시·도 배경 일러스트. 배지는 우상단, 마을 유형 칩은 좌하단.
    노트북에서 사진만으로 첫 화면이 다 차지 않도록 세로 높이를 캡한다. */
@@ -162,7 +140,13 @@
 
 /* ── 타이틀 섹션 ── */
 .titleSection {
-  margin-bottom: 32px;
+  /* 바로 아래 브레드크럼과 14px (2026-10-02) */
+  margin-bottom: 14px;
+}
+
+/* 브레드크럼 — 히어로(제목 블록) 바로 아래 공통 위치 (2026-10-02 회장). 본문과 24px */
+.breadcrumbBar {
+  margin-bottom: 24px;
 }
 
 /* 제목 + 액션 버튼 행 — 공용 (모바일 <1024 는 제목 아래 별도 행, 배지와 같은 x) */

@@ -11,9 +11,9 @@
   gap: 24px;
 }
 
-/* ── 백 링크 ── */
-.backLink {
-  width: 6rem;
+/* ── 브레드크럼 (히어로 아래) ── */
+.breadcrumb {
+  width: 10rem;
   height: 1rem;
 }
 
@@ -234,7 +234,7 @@
   animation: irang-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.backLink { composes: skeleton; }
+.breadcrumb { composes: skeleton; }
 .heroOverline { composes: skeleton; }
 .heroTitle { composes: skeleton; }
 .heroDesc { composes: skeleton; }

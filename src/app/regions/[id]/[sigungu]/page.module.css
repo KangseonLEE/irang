@@ -25,45 +25,6 @@
   }
 }
 
-/* ---- 브레드크럼 ---- */
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  flex-wrap: wrap;
-  font-size: var(--fs-overline);
-}
-
-@media (min-width: 640px) {
-  .breadcrumb {
-    gap: 4px;
-    font-size: var(--fs-caption);
-  }
-}
-
-.breadcrumbLink {
-  color: var(--muted-foreground);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-
-@media (hover: hover) {
-  .breadcrumbLink:hover {
-    color: var(--foreground);
-    text-decoration: underline;
-  }
-}
-
-.breadcrumbSep {
-  color: var(--muted-foreground);
-  flex-shrink: 0;
-}
-
-.breadcrumbCurrent {
-  color: var(--foreground);
-  font-weight: 600;
-}
-
 /* ---- 히어로 ---- */
 .hero {
   position: relative;
@@ -929,14 +890,16 @@ a.heroScoreBadge:focus-visible {
   }
 }
 
-/* 뒤로가기·브레드크럼과 의견 바로가기를 한 줄에 (2026-09-17).
-   단독 배치하면 브레드크럼과 본문 사이에 버튼이 떠 흐름을 끊는다(회장 스크린샷). */
+/* 브레드크럼과 의견 바로가기를 한 줄에 (2026-09-17).
+   2026-10-02 회장: 상세 공통 위치 = 히어로 바로 아래·탭 위. .page gap(20) 기준으로
+   위 14px · 아래 10px 로 당긴다(시·군·구·구 상세 공용). */
 .topBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
+  margin: -6px 0 -10px;
 }
 
 /* 4번째 이후 작물 — 압축 목록 (2026-09-17).

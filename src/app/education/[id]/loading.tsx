@@ -1,15 +1,8 @@
-import { ArrowLeft } from "lucide-react";
 import s from "./loading.module.css";
 
 export default function EducationDetailLoading() {
   return (
     <div className={s.container}>
-      {/* Back link */}
-      <div className={s.backLink}>
-        <ArrowLeft size={16} />
-        <span>교육 목록으로</span>
-      </div>
-
       {/* Title + Badges */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
@@ -18,6 +11,9 @@ export default function EducationDetailLoading() {
         </div>
         <div className={s.skeletonTitle} />
       </div>
+
+      {/* 브레드크럼 — 히어로 아래 (2026-10-02) */}
+      <div className={s.breadcrumb} />
 
       <div className={s.contentGrid}>
         {/* Main content */}

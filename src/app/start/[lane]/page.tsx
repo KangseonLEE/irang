@@ -5,14 +5,28 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRight,
-  ArrowRightCircle,
   BarChart3,
+  CalendarCheck,
+  Compass,
+  GraduationCap,
   HandCoins,
+  Lightbulb,
+  MapPin,
   MessageSquareQuote,
   Sprout,
+  TrendingUp,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { DifficultyBadge } from "@/components/ui/difficulty-badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { EventPhotoCard } from "@/components/events/event-photo-card";
+import { LaneTrendChart } from "@/components/start/lane-trend-chart";
+import { LaneIndicators } from "@/components/start/lane-indicators";
+import { OpportunityTabs, type OpportunityPanel } from "@/components/start/opportunity-tabs";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -22,12 +36,22 @@ import { Icon } from "@/components/ui/icon";
 import { START_LANES, JOURNEY_LANES } from "@/lib/data/journey-lanes";
 import { resolveJourneyLanes } from "@/lib/data/journey-lanes-images";
 import { programStatusLabel, deriveStatus } from "@/lib/program-status";
-import { buildLaneHub, isHubLaneId, type InterviewSummary } from "@/lib/data/journey-lanes-hub";
-import { CROP_COSTS_BY_TYPE } from "@/lib/data/cost-by-type";
-import { TREND_BENTO_PROFILES } from "@/lib/data/landing";
+import {
+  buildLaneHub,
+  isHubLaneId,
+  matchLaneEducation,
+  matchLaneEvents,
+  type InterviewSummary,
+  type RelatedIconName,
+} from "@/lib/data/journey-lanes-hub";
+import { filterEducationAsync, type EducationCourse } from "@/lib/data/education";
+import { filterEventsAsync, type FarmEvent } from "@/lib/data/events";
+import { getCropImageSrc, hasCropIllustration } from "@/lib/crop-image";
 import s from "./page.module.css";
 
 export const dynamicParams = false;
+/* 교육·체험은 DB(그린대로 수집)라 하루 몇 번은 새로 읽는다 — 랜딩과 같은 주기. searchParams 미사용이라 ISR 안전 */
+export const revalidate = 21600;
 
 export function generateStaticParams() {
   /* undecided 는 middleware 가 /start 로 307 을 낸다(라우터 밖에서 끊어야 진짜 3xx) */
@@ -52,11 +76,27 @@ export async function generateMetadata({
 
 const SECTIONS = [
   { id: "hub-status", label: "현황" },
-  { id: "hub-programs", label: "지원사업" },
+  { id: "hub-programs", label: "지원·교육·체험" },
   { id: "hub-crops", label: "작물" },
   { id: "hub-interviews", label: "사람 이야기" },
-  { id: "hub-next", label: "다음 단계" },
+  { id: "hub-related", label: "함께 보기" },
 ];
+
+const RELATED_ICONS: Record<RelatedIconName, LucideIcon> = {
+  map: MapPin,
+  wallet: Wallet,
+  trend: TrendingUp,
+  compass: Compass,
+};
+
+/** 교육·체험 로더 — 실패해도 페이지는 지원사업만으로 선다(빈 배열 = 빈 상태 안내) */
+async function loadOpportunities(): Promise<{ courses: EducationCourse[]; events: FarmEvent[] }> {
+  const [edu, ev] = await Promise.all([
+    filterEducationAsync({}).catch(() => ({ courses: [] as EducationCourse[] })),
+    filterEventsAsync({}).catch(() => ({ events: [] as FarmEvent[] })),
+  ]);
+  return { courses: edu.courses, events: ev.events };
+}
 
 export default async function LaneHubPage({ params }: { params: Promise<{ lane: string }> }) {
   const { lane: id } = await params;
@@ -66,11 +106,108 @@ export default async function LaneHubPage({ params }: { params: Promise<{ lane: 
 
   const hub = buildLaneHub(id);
   const card = resolveJourneyLanes().find((l) => l.id === id);
-  const costRows = hub.costType ? CROP_COSTS_BY_TYPE[hub.costType] : [];
-  const trend = hub.trendKey ? TREND_BENTO_PROFILES[hub.trendKey] : null;
+  const trend = hub.trend;
+  const { courses, events } = await loadOpportunities();
+  const laneCourses = matchLaneEducation(courses, id);
+  const laneEvents = matchLaneEvents(events, id);
+
+  const panels: OpportunityPanel[] = [
+    {
+      id: "programs",
+      label: "지원사업",
+      track: "programs",
+      moreHref: hub.programsHref,
+      moreLabel: "지원사업 전체 보기",
+      empty: (
+        <EmptyState
+          icon={<HandCoins size={20} aria-hidden="true" />}
+          message={`지금 신청할 수 있는 ${lane.label} 지원사업이 없어요`}
+          linkHref="/programs"
+          linkText="지원사업 전체 보기"
+        />
+      ),
+      items: hub.programs.map((p) => (
+        <Link key={p.id} href={`/programs/${p.id}`} className={s.programCard}>
+          <span className={s.programBadges}>
+            <StatusBadge
+              status={programStatusLabel({
+                status: deriveStatus(p.applicationStart, p.applicationEnd),
+                applicationStart: p.applicationStart,
+                applicationEnd: p.applicationEnd,
+                applicationCycle: p.applicationCycle,
+              })}
+            />
+          </span>
+          <span className={s.programTitle}>{p.title}</span>
+          <span className={s.programSummary}>
+            <AutoGlossary text={p.summary} maxHighlights={1} />
+          </span>
+          <span className={s.programMeta}>{p.organization}</span>
+        </Link>
+      )),
+    },
+    {
+      id: "education",
+      label: "교육",
+      track: "education",
+      moreHref: "/education",
+      moreLabel: "교육 전체 보기",
+      empty: (
+        <EmptyState
+          icon={<GraduationCap size={20} aria-hidden="true" />}
+          message={`지금 모집 중인 ${lane.label} 교육이 없어요`}
+          linkHref="/education"
+          linkText="교육 전체 보기"
+        />
+      ),
+      items: laneCourses.map((c) => (
+        <Link key={c.id} href={`/education/${c.id}`} className={s.programCard}>
+          <span className={s.programBadges}>
+            <StatusBadge status={c.status} />
+            <span className={s.chip}>{c.type}</span>
+          </span>
+          <span className={s.programTitle}>{c.title}</span>
+          <span className={s.programSummary}>
+            {c.region}
+            {c.crawlGroup && c.crawlGroup.others.length > 0 && ` 외 ${c.crawlGroup.others.length}개 지역`}
+          </span>
+          <span className={s.programMeta}>{c.organization}</span>
+        </Link>
+      )),
+    },
+    {
+      id: "events",
+      label: "체험",
+      track: "events",
+      moreHref: "/events",
+      moreLabel: "체험 전체 보기",
+      empty: (
+        <EmptyState
+          icon={<CalendarCheck size={20} aria-hidden="true" />}
+          message={`지금 모집 중인 ${lane.label} 체험이 없어요`}
+          linkHref="/events"
+          linkText="체험 전체 보기"
+        />
+      ),
+      items: laneEvents.map((e) => (
+        <EventPhotoCard
+          key={e.id}
+          event={e}
+          sizes="(min-width: 1024px) 380px, (min-width: 640px) 45vw, 100vw"
+        />
+      )),
+    },
+  ];
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd
+        items={[
+          { name: "정착 유형", href: "/start" },
+          { name: lane.label, href: `/start/${id}` },
+        ]}
+      />
+
       {/* ── 상단 스트립 — 포스터 배경 + 제목 + 소개글 + 타일 ── */}
       <header className={s.strip}>
         <span className={s.stripArt} aria-hidden="true">
@@ -98,122 +235,136 @@ export default async function LaneHubPage({ params }: { params: Promise<{ lane: 
         </div>
       </header>
 
-      <AnchorTabNav sections={SECTIONS} />
+      {/* 브레드크럼 → 섹션 탭 (10/2 회장: 상세 공통 — 히어로 아래, 탭 위) */}
+      <div className={s.navBlock}>
+        <Breadcrumb items={[{ name: "정착 유형", href: "/start" }, { name: lane.label }]} />
+        <AnchorTabNav sections={SECTIONS} />
+      </div>
 
-      {/* ── 현황 — 비용 + 추이 ── */}
+      {/* ── 현황 — 대표 작물 비용 + 왜 이 길을 택할까 ── */}
       <ScrollReveal trackId={`start_hub_status`} variant="fade" stagger>
         <section id="hub-status" className={s.section} aria-labelledby="hub-status-title">
           <SectionHeader id="hub-status-title" icon={BarChart3} title={`${lane.label} 현황`} />
           <div className={s.sectionBody}>
-            {costRows.length > 0 && (
+            {hub.costCards.length > 0 && (
               <>
                 <h3 className={s.subTitle}>대표 작물 비용</h3>
                 <ul className={s.costGrid}>
-                  {costRows.map((c) => (
-                    <li key={c.id} className={s.costCard} data-reveal-item>
-                      <span className={s.costName}>{c.name}</span>
-                      <dl className={s.costRows}>
-                        <div className={s.costRow}>
-                          <dt>초기 투자금</dt>
-                          <dd>{c.initialCost}</dd>
-                        </div>
-                        <div className={s.costRow}>
-                          <dt>연 운영비</dt>
-                          <dd>{c.annual}</dd>
-                        </div>
-                        <div className={s.costRow}>
-                          <dt>손익분기</dt>
-                          <dd>{c.breakEven}</dd>
-                        </div>
-                      </dl>
-                      <span className={s.source}>{c.source}</span>
-                    </li>
-                  ))}
+                  {hub.costCards.map((c) => {
+                    const inner = (
+                      <>
+                        <span className={s.costMedia}>
+                          {c.cropId && hasCropIllustration(c.cropId) ? (
+                            <Image
+                              src={getCropImageSrc(c.cropId)}
+                              alt=""
+                              fill
+                              sizes="(min-width: 1024px) 120px, 96px"
+                              className={s.costImg}
+                            />
+                          ) : (
+                            <span className={s.costPlaceholder} aria-hidden="true">
+                              <Sprout size={28} strokeWidth={1.75} />
+                            </span>
+                          )}
+                        </span>
+                        <span className={s.costBody}>
+                          <span className={s.costHead}>
+                            <span className={s.costName}>{c.name}</span>
+                            <DifficultyBadge level={c.difficulty} size="sm" />
+                          </span>
+                          {c.facilityType && <span className={s.costFacility}>{c.facilityType}</span>}
+                          <dl className={s.costRows}>
+                            <div className={s.costRow}>
+                              <dt>초기 투자금</dt>
+                              <dd>{c.initialCost}</dd>
+                            </div>
+                            <div className={s.costRow}>
+                              <dt>연 운영비</dt>
+                              <dd>{c.annual}</dd>
+                            </div>
+                            <div className={s.costRow}>
+                              <dt>손익분기</dt>
+                              <dd>{c.breakEven}</dd>
+                            </div>
+                          </dl>
+                          <span className={s.costSource}>{c.source}</span>
+                        </span>
+                      </>
+                    );
+                    return (
+                      <li key={c.id} data-reveal-item>
+                        {c.cropId ? (
+                          <Link
+                            href={`/crops/${c.cropId}`}
+                            className={`${s.costCard} ${s.costCardLink}`}
+                            data-track={`start_hub_cost:${id}:${c.cropId}`}
+                          >
+                            {inner}
+                          </Link>
+                        ) : (
+                          <div className={s.costCard}>{inner}</div>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </>
             )}
 
-            {trend && (
-              <>
-                <div className={s.subHead}>
-                  <h3 className={s.subTitle}>{trend.title}</h3>
-                  <Link href={trend.href} className={s.more} data-track={`start_hub_more:${id}:trend`}>
-                    통계 더 보기 →
-                  </Link>
-                </div>
-                <p className={s.subtitleText}>{trend.subtitle}</p>
-                <ul className={s.statRow}>
-                  <li className={s.statCard}>
-                    <span className={s.statValue}>{trend.hero.value}</span>
-                    <span className={s.statLabel}>{trend.hero.label}</span>
-                    <span className={s.statSub}>{trend.hero.sub}</span>
-                  </li>
-                  {trend.stats.map((st) => (
-                    <li key={st.label} className={s.statCard}>
-                      <span className={s.statValue}>{st.value}</span>
-                      <span className={s.statLabel}>{st.label}</span>
-                      <span className={s.statSub}>{st.sub}</span>
-                    </li>
-                  ))}
-                </ul>
-                <h3 className={s.subTitle}>
-                  {trend.chart.title} <span className={s.range}>{trend.chart.surveyLabel}</span>
-                </h3>
-                <ul className={s.bars}>
-                  {trend.chart.items.map((it) => (
-                    <li key={it.label} className={s.barRow}>
-                      <span className={s.barLabel}>{it.label}</span>
-                      <span className={s.barTrack} aria-hidden="true">
-                        <span className={s.barFill} style={{ width: `${it.pct}%` }} />
-                      </span>
-                      <span className={s.barPct}>{it.pct}%</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className={s.source}>{trend.source}</p>
-              </>
-            )}
+            <div className={s.subHead}>
+              <h3 className={s.subTitle}>{trend.title}</h3>
+              <Link href={trend.href} className={s.more} data-track={`start_hub_more:${id}:trend`}>
+                통계 더 보기 →
+              </Link>
+            </div>
+            <p className={s.subtitleText}>{trend.subtitle}</p>
+            <div className={s.trendGrid}>
+              <div className={s.trendMain}>
+                <p className={s.trendHeadline}>
+                  <span className={s.trendHeadlineValue}>{trend.headline.value}</span>
+                  <span className={s.trendHeadlineLabel}>{trend.headline.label}</span>
+                  <span className={s.trendHeadlineSub}>{trend.headline.sub}</span>
+                </p>
+                <LaneTrendChart
+                  points={trend.points}
+                  seriesLabel={trend.seriesLabel}
+                  unit={trend.unit}
+                  decimals={trend.decimals}
+                  target={trend.target}
+                />
+              </div>
+              <LaneIndicators items={trend.indicators} />
+            </div>
+
+            <h3 className={s.subTitle}>
+              {trend.reasons.title} <span className={s.range}>{trend.reasons.surveyLabel}</span>
+            </h3>
+            <ul className={s.bars}>
+              {trend.reasons.items.map((it, i) => (
+                <li key={it.label} className={i === 0 ? `${s.barRow} ${s.barRowTop}` : s.barRow}>
+                  <span className={s.barLabel}>{it.label}</span>
+                  <span className={s.barTrack} aria-hidden="true">
+                    <span className={s.barFill} style={{ width: `${it.pct}%` }} />
+                  </span>
+                  <span className={s.barPct}>{it.pct}%</span>
+                </li>
+              ))}
+            </ul>
+            <p className={s.source}>출처: {trend.source}</p>
           </div>
         </section>
       </ScrollReveal>
 
-      {/* ── 지원사업 ── */}
-      <ScrollReveal trackId={`start_hub_programs`} variant="fade" stagger>
+      {/* ── 지원사업·교육·체험 ── */}
+      <ScrollReveal trackId={`start_hub_programs`} variant="fade">
         <section id="hub-programs" className={s.section} aria-labelledby="hub-programs-title">
-          <SectionHeader
-            id="hub-programs-title"
-            icon={HandCoins}
-            title="지금 볼 수 있는 지원사업"
-            more={
-              <Link href={hub.programsHref} className={s.more} data-track={`start_hub_more:${id}:programs`}>
-                전체 보기 →
-              </Link>
-            }
-          />
+          <SectionHeader id="hub-programs-title" icon={HandCoins} title="지금 신청할 수 있어요" />
           <div className={s.sectionBody}>
-            <ul className={s.cardGrid}>
-              {hub.programs.map((p) => (
-                <li key={p.id} data-reveal-item>
-                  <Link href={`/programs/${p.id}`} className={s.programCard}>
-                    <span className={s.programBadges}>
-                      <StatusBadge
-                        status={programStatusLabel({
-                          status: deriveStatus(p.applicationStart, p.applicationEnd),
-                          applicationStart: p.applicationStart,
-                          applicationEnd: p.applicationEnd,
-                          applicationCycle: p.applicationCycle,
-                        })}
-                      />
-                    </span>
-                    <span className={s.programTitle}>{p.title}</span>
-                    <span className={s.programSummary}>
-                      <AutoGlossary text={p.summary} maxHighlights={1} />
-                    </span>
-                    <span className={s.programMeta}>{p.organization}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <p className={s.subtitleText}>
+              {lane.label}에 맞는 지원사업·교육·체험 중 마감되지 않은 것만 모았어요
+            </p>
+            <OpportunityTabs panels={panels} laneId={id} gridClassName={s.cardGrid} />
           </div>
         </section>
       </ScrollReveal>
@@ -279,23 +430,27 @@ export default async function LaneHubPage({ params }: { params: Promise<{ lane: 
         </ScrollReveal>
       )}
 
-      {/* ── 다음 단계 ── */}
+      {/* ── 함께 보면 좋아요 — 순서 없는 추천 링크 묶음 ── */}
       <ScrollReveal trackId={`start_hub_next`} variant="fade" stagger>
-        <section id="hub-next" className={s.section} aria-labelledby="hub-next-title">
-          <SectionHeader id="hub-next-title" icon={ArrowRightCircle} title="다음 단계" />
+        <section id="hub-related" className={s.section} aria-labelledby="hub-related-title">
+          <SectionHeader id="hub-related-title" icon={Lightbulb} title="함께 보면 좋아요" />
           <div className={s.sectionBody}>
+            <p className={s.subtitleText}>{lane.label}을 고민할 때 같이 찾아보는 곳이에요</p>
             <ul className={s.nextGrid}>
               {hub.nextSteps.map((n) => (
                 <li key={n.href} data-reveal-item>
                   <Link href={n.href} className={s.nextCard} data-track={`start_hub_next:${id}`}>
-                    <span className={s.nextLabel}>{n.label}</span>
-                    <span className={s.nextDesc}>{n.desc}</span>
+                    <Icon icon={RELATED_ICONS[n.icon]} size="md" variant="soft" box="md" />
+                    <span className={s.nextText}>
+                      <span className={s.nextLabel}>{n.label}</span>
+                      <span className={s.nextDesc}>{n.desc}</span>
+                    </span>
                     <ArrowRight size={16} className={s.nextIcon} aria-hidden="true" />
                   </Link>
                 </li>
               ))}
             </ul>
-            <PersonaCta from="start_hub" copy="내 조건에 맞는 순서로 볼까요?" />
+            <PersonaCta from="start_hub" copy="내 조건에 맞는 곳부터 볼까요?" />
           </div>
         </section>
       </ScrollReveal>

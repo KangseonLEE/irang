@@ -39,6 +39,17 @@ import {
   type TrendTypeId,
 } from "./landing";
 import { PROGRAMS, type SupportProgram } from "./programs";
+import {
+  mountainData,
+  populationData,
+  satisfactionSegments,
+  satisfactionSummary,
+  smartfarmData,
+  youthData,
+} from "./stats";
+import type { CropCost } from "./cost-by-type";
+import type { EducationCourse } from "./education";
+import type { FarmEvent } from "./events";
 import { getInterviewImageSrc } from "../interview-image";
 import { deriveStatus, isUnannounced } from "../program-status";
 
@@ -252,16 +263,21 @@ function laneInterviews(id: HubLaneId): InterviewSummary[] {
   return picked.slice(0, MAX_INTERVIEWS).map(toSummary);
 }
 
-/* ── 다음 걸음 ── */
+/* ── 함께 보면 좋은 것 ── */
+
+/** 카드 아이콘 이름 — lucide 매핑은 페이지 로컬(lib 이 components 를 import 하지 않게, navigation.ts 와 같은 방식) */
+export type RelatedIconName = "map" | "wallet" | "trend" | "compass";
 
 interface NextStep {
   label: string;
   href: string;
   desc: string;
+  icon: RelatedIconName;
 }
 
 /**
- * 허브 하단 "이어서 볼 것" 3~4개. 목적지는 전부 이미 있는 화면이다(새 필터·새 화면 0).
+ * 허브 하단 "함께 보면 좋아요" 3~4개 — 순서를 강요하는 '단계'가 아니라 곁가지 추천 묶음이다(10/2 회장).
+ * 목적지는 전부 이미 있는 화면이다(새 필터·새 화면 0).
  * 비용은 `LANE_COST_TYPE` 의 원 매핑을 쓴다 — 귀촌은 작물 비용 표가 비어 타일은 안 만들지만
  * `/costs?type=village` 화면 자체는 총액·항목 요약을 갖고 있다.
  */
@@ -272,27 +288,317 @@ function nextStepsFor(id: HubLaneId, laneLabel: string): NextStep[] {
     {
       label: "맞춤 시군구 찾기",
       href: persona ? `/regions/ranking?persona=${persona}` : "/regions/ranking",
-      desc: "정착 점수로 시·군·구 순위를 보고 후보를 좁혀요",
+      desc: `${laneLabel}에 맞는 시·군·구를 정착 점수로 견줘 봐요`,
+      icon: "map",
     },
     {
-      label: "정착 추이 보기",
+      label: "정착 통계",
       href: TREND_BENTO_PROFILES[LANE_TREND[id]].href,
-      desc: `${laneLabel} 인구가 어떻게 움직였는지 흐름으로 봐요`,
+      desc: `${laneLabel} 인구 흐름과 이유를 더 자세히 볼 수 있어요`,
+      icon: "trend",
     },
     {
-      label: "2분 진단",
+      label: "2분 유형 진단",
       href: "/match?mode=assess",
-      desc: "이 길이 나와 맞는지 헷갈리면 진단으로 확인해요",
+      desc: "이 길이 나와 맞는지 헷갈린다면 가볍게 확인해 보세요",
+      icon: "compass",
     },
   ];
   if (costType) {
     steps.splice(1, 0, {
       label: "비용 가이드",
       href: `/costs?type=${costType}`,
-      desc: "초기 투자금과 준비 기간을 항목별로 봐요",
+      desc: "초기 투자금과 준비 기간을 항목별로 볼 수 있어요",
+      icon: "wallet",
     });
   }
   return steps;
+}
+
+/* ── 대표 작물 비용 카드 ── */
+
+interface LaneCostCard {
+  id: string;
+  name: string;
+  /** 작물 DB id — 일러스트·상세 링크용. 비용 표기("산양삼"·"장미 (화훼)")가 DB 에 없으면 null */
+  cropId: string | null;
+  initialCost: string;
+  annual: string;
+  breakEven: string;
+  difficulty: CropCost["difficulty"];
+  facilityType: string | null;
+  source: string;
+}
+
+const CROP_ID_BY_NAME = new Map(CROPS.map((c) => [c.name, c.id]));
+
+/**
+ * 비용 행 → 작물 id. `cropPageId`(비용 데이터가 직접 단 상세 링크)가 1순위,
+ * 없으면 괄호 표기를 뗀 이름이 작물 DB 이름과 **정확히** 같을 때만(부분 일치 금지 — "엽채"가 "상추"로 둔갑하지 않게).
+ */
+function resolveCostCropId(row: Pick<CropCost, "name" | "cropPageId">): string | null {
+  if (row.cropPageId && CROPS.some((c) => c.id === row.cropPageId)) return row.cropPageId;
+  return CROP_ID_BY_NAME.get(baseCropName(row.name)) ?? null;
+}
+
+function costCardsFor(rows: readonly CropCost[]): LaneCostCard[] {
+  return rows.map((c) => ({
+    id: c.id,
+    name: c.name,
+    cropId: resolveCostCropId(c),
+    initialCost: c.initialCost,
+    annual: c.annual,
+    breakEven: c.breakEven,
+    difficulty: c.difficulty,
+    facilityType: c.facilityType ?? null,
+    source: c.source,
+  }));
+}
+
+/* ── "왜 이 길을 택할까" 차트 ── */
+
+interface LaneTrendPoint {
+  year: number;
+  value: number;
+}
+
+/**
+ * 보조 지표 — 데이터 성격에 맞춰 그리는 방식을 고른다.
+ *  · gauge: 전체 중 비율(청년 비율·30대 비중) — 0~100% 링
+ *  · donut: 응답 분포(만족도 4단 응답) — 조각별 비중
+ *  · stat : 금액·나이·면적처럼 비율이 아닌 값 — 숫자 그대로(억지로 차트로 만들지 않는다)
+ */
+export type LaneIndicator =
+  | { kind: "gauge"; label: string; value: string; sub: string; pct: number }
+  | { kind: "donut"; label: string; value: string; sub: string; segments: { label: string; pct: number }[] }
+  | { kind: "stat"; label: string; value: string; sub: string };
+
+interface LaneTrend {
+  /** 섹션 소제목 — "왜 귀농을 할까?" */
+  title: string;
+  subtitle: string;
+  href: string;
+  /** 시계열 이름·단위 — 툴팁·축 표기 */
+  seriesLabel: string;
+  unit: string;
+  /** 소수 자릿수(만 명 1.2 → 1, 가구 2,685 → 0) */
+  decimals: number;
+  points: LaneTrendPoint[];
+  /** 정책 목표선(스마트팜 2027 1만 호) */
+  target: { value: number; label: string } | null;
+  headline: { value: string; label: string; sub: string };
+  indicators: LaneIndicator[];
+  reasons: { title: string; surveyLabel: string; items: { label: string; pct: number }[] };
+  source: string;
+}
+
+const last = <T,>(arr: readonly T[]): T => arr[arr.length - 1];
+
+function growthPct(from: number, to: number): string {
+  const g = Math.round((to / from - 1) * 100);
+  return `${g >= 0 ? "+" : ""}${g}%`;
+}
+
+/** "23.4%" → 23.4 (랜딩 벤토 문자열이 SSOT 인 값만 — 숫자 원천이 따로 없을 때) */
+function pctOf(text: string): number {
+  const n = Number.parseFloat(text.replace(/[^\d.]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+}
+
+/**
+ * 레인별 차트 구성. 시계열은 `stats.ts`(통계 페이지와 같은 원천)에서, 문구·이유 막대는
+ * 랜딩 추세 벤토(`TREND_BENTO_PROFILES`)에서 가져온다 — 두 화면이 다른 수를 말하지 않게.
+ */
+function laneTrendFor(id: HubLaneId): LaneTrend {
+  const profile = TREND_BENTO_PROFILES[LANE_TREND[id]];
+  const base = {
+    title: profile.title,
+    subtitle: profile.subtitle,
+    href: profile.href,
+    headline: { value: profile.hero.value, label: profile.hero.label, sub: profile.hero.sub },
+    reasons: { title: profile.chart.title, surveyLabel: profile.chart.surveyLabel, items: profile.chart.items },
+    target: null as LaneTrend["target"],
+  };
+  const satisfied = satisfactionSegments
+    .filter((seg) => seg.label.includes("만족") && !seg.label.includes("불만족"))
+    .reduce((sum, seg) => sum + seg.pct, 0);
+
+  switch (id) {
+    case "guinong": {
+      const youth = last(youthData);
+      return {
+        ...base,
+        seriesLabel: "귀농 인구",
+        unit: "만 명",
+        decimals: 2,
+        points: populationData.map((d) => ({ year: d.year, value: d.farming })),
+        indicators: [
+          { kind: "gauge", label: "청년 정착 비율", value: `${youth.ratio}%`, sub: `${youth.year}년 · 40세 미만`, pct: youth.ratio },
+          {
+            kind: "donut",
+            label: "정착 만족도",
+            value: `${satisfied}%`,
+            sub: "매우 만족 + 만족",
+            segments: satisfactionSegments,
+          },
+        ],
+        source: `${profile.source} · ${satisfactionSummary.source}`,
+      };
+    }
+    case "guichon": {
+      const [a, b] = profile.stats;
+      return {
+        ...base,
+        seriesLabel: "귀촌 인구",
+        unit: "만 명",
+        decimals: 1,
+        points: populationData.map((d) => ({ year: d.year, value: d.rural })),
+        indicators: [
+          { kind: "gauge", label: a.label, value: a.value, sub: a.sub, pct: pctOf(a.value) },
+          { kind: "gauge", label: b.label, value: b.value, sub: b.sub, pct: pctOf(b.value) },
+        ],
+        source: profile.source,
+      };
+    }
+    case "youth": {
+      const [a, b] = profile.stats;
+      return {
+        ...base,
+        seriesLabel: "청년농 비율",
+        unit: "%",
+        decimals: 1,
+        points: youthData.map((d) => ({ year: d.year, value: d.ratio })),
+        indicators: [
+          { kind: "stat", label: a.label, value: a.value, sub: a.sub },
+          { kind: "stat", label: b.label, value: b.value, sub: b.sub },
+        ],
+        source: profile.source,
+      };
+    }
+    case "forest": {
+      const first = mountainData[0];
+      const latest = last(mountainData);
+      const [, b] = profile.stats;
+      return {
+        ...base,
+        seriesLabel: "귀산촌 가구",
+        unit: "가구",
+        decimals: 0,
+        points: mountainData.map((d) => ({ year: d.year, value: d.households })),
+        indicators: [
+          {
+            kind: "stat",
+            label: `${latest.year - first.year + 1}년간 증가율`,
+            value: growthPct(first.households, latest.households),
+            sub: `${first.year} → ${latest.year}`,
+          },
+          { kind: "stat", label: b.label, value: b.value, sub: b.sub },
+        ],
+        source: profile.source,
+      };
+    }
+    case "smartfarm": {
+      const latest = last(smartfarmData);
+      const goal = 10_000; // 정부 확산 목표 "1만 호"(랜딩 벤토 stats[1] "2027 목표")
+      const reached = Math.round((latest.farms / goal) * 100);
+      return {
+        ...base,
+        seriesLabel: "스마트팜 농가",
+        unit: "곳",
+        decimals: 0,
+        points: smartfarmData.map((d) => ({ year: d.year, value: d.farms })),
+        // 추세선 위 점선으로 목표까지 남은 거리를 보여 준다
+        target: { value: goal, label: "2027 목표 1만 호" },
+        indicators: [
+          {
+            kind: "gauge",
+            label: "2027 목표 달성률",
+            value: `${reached}%`,
+            sub: `1만 호 중 ${latest.farms.toLocaleString()}곳 (${latest.year})`,
+            pct: reached,
+          },
+          { kind: "stat", label: "시설면적", value: `${latest.area.toLocaleString()}ha`, sub: `${latest.year}년 전국 기준` },
+        ],
+        source: profile.source,
+      };
+    }
+  }
+}
+
+/* ── 교육·체험 매칭 ── */
+
+/**
+ * 레인 ↔ 교육·체험 판정 규칙 (2026-10-02).
+ * 지원사업 판정(`journey-lanes-stats.ts`)과 같은 원칙 — **제목(과 수집 출처·마을 유형 같은 구조화 필드)만** 본다.
+ * 그린대로 수집 행은 description 이 전부 "그린대로 … 수집했어요" 같은 정형 문구라 본문 키워드는 신호가 없다.
+ *  · 귀농: "귀농"(귀농귀촌·귀농산어촌 포함) 또는 영농 실무(재배·작물·농기계·병해충·농업일자리·창업농).
+ *          단 "귀촌"만 있고 "귀농"이 없는 과정(예비귀촌인 특화)은 귀촌 쪽으로 보낸다
+ *  · 귀촌: "귀촌"·전원/농촌생활·생활기술·빈집·농촌관광 — 농사가 생업이 아닌 정착
+ *  · 귀산촌: 산촌·산어촌·산림·임업·임산물·산채·목본·약용·특용 (지원사업 FOREST_CORE 를 교육 어휘로 확장)
+ *  · 청년농: 제목 "청년" 또는 수집 출처가 「똑똑!청년농부」(청년농 전용 포털)
+ *  · 스마트팜: 스마트팜·스마트농업·수직농장·ICT·시설원예 (지원사업 SMARTFARM_TITLE·FACILITY 와 같은 축)
+ */
+const EDU_GUINONG = /귀농|재배|작물|농기계|트랙터|병해충|농업일자리|창업농|영농/;
+const EDU_GUICHON = /귀촌|전원생활|농촌생활|생활기술|라이프스타일|빈집|농촌관광|살아보기|한달/;
+const EDU_FOREST = /산촌|산어촌|산림|임업|임산물|산채|목본|약용|특용|산양삼/;
+const EDU_SMARTFARM = /스마트\s?팜|스마트\s?농업|스마트\s?영농|수직농장|ICT|시설원예/;
+const YOUTH_SOURCE = /똑똑!?\s?청년농부/;
+
+function onlyGuichon(title: string): boolean {
+  return /귀촌/.test(title) && !/귀농/.test(title);
+}
+
+const EDUCATION_RULES: Record<HubLaneId, (c: EducationCourse) => boolean> = {
+  guinong: (c) => EDU_GUINONG.test(c.title) && !onlyGuichon(c.title),
+  guichon: (c) => EDU_GUICHON.test(c.title),
+  forest: (c) => EDU_FOREST.test(c.title),
+  youth: (c) => /청년/.test(c.title) || YOUTH_SOURCE.test(c.description),
+  smartfarm: (c) => EDU_SMARTFARM.test(c.title),
+};
+
+/** 체험은 그린대로 마을 유형(귀농형·귀촌형)이 1순위 신호, 없으면 제목 */
+const EVENT_RULES: Record<HubLaneId, (e: FarmEvent) => boolean> = {
+  guinong: (e) => e.villageType === "귀농형" || (!e.villageType && /귀농/.test(e.title)),
+  guichon: (e) => e.villageType === "귀촌형" || (!e.villageType && /귀촌/.test(e.title)),
+  forest: (e) => EDU_FOREST.test(e.title) || /숲/.test(e.title),
+  youth: (e) => /청년/.test(e.title),
+  smartfarm: (e) => EDU_SMARTFARM.test(e.title),
+};
+
+/** 한 목록에 담는 최대치 — 페이지네이션 6건 × 4쪽. 넘치면 목록 페이지로 보낸다 */
+const MAX_OPPORTUNITIES = 24;
+
+const OPEN_RANK: Record<string, number> = { 모집중: 0, 접수중: 0, 모집예정: 1, 접수예정: 1 };
+
+export function matchLaneEducation(courses: readonly EducationCourse[], id: HubLaneId): EducationCourse[] {
+  return courses
+    .filter((c) => c.status !== "마감" && c.linkStatus !== "broken" && EDUCATION_RULES[id](c))
+    .sort(
+      (a, b) =>
+        (OPEN_RANK[a.status] ?? 2) - (OPEN_RANK[b.status] ?? 2) ||
+        a.applicationEnd.localeCompare(b.applicationEnd),
+    )
+    .slice(0, MAX_OPPORTUNITIES);
+}
+
+export function matchLaneEvents(events: readonly FarmEvent[], id: HubLaneId): FarmEvent[] {
+  const seen = new Set<string>();
+  return events
+    .filter((e) => {
+      if (e.status === "마감" || !EVENT_RULES[id](e)) return false;
+      // 같은 공고가 회차별로 두 줄 수집되는 경우(춘천 팸투어 ×2, 일자만 다름) — 카드가 똑같아 보이므로 제목당 한 장.
+      // 회차는 상세·원문에서 고른다.
+      const key = e.title.trim();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort(
+      (a, b) =>
+        (OPEN_RANK[a.status] ?? 2) - (OPEN_RANK[b.status] ?? 2) ||
+        (a.applicationEnd ?? a.date).localeCompare(b.applicationEnd ?? b.date),
+    )
+    .slice(0, MAX_OPPORTUNITIES);
 }
 
 /* ── 허브 ── */
@@ -305,6 +611,10 @@ export interface LaneHub {
   trendKey: TrendTypeId | null;
   /** 선택 패널과 **같은** 타일(같은 계산·같은 출처) */
   tiles: LaneTile[];
+  /** 대표 작물 비용 카드(일러스트 id 포함) — costType 이 null 이면 빈 배열 */
+  costCards: LaneCostCard[];
+  /** "왜 이 길을 택할까" 차트 구성 */
+  trend: LaneTrend;
   programs: SupportProgram[];
   programsHref: string;
   crops: CropInfo[];
@@ -327,6 +637,8 @@ export function buildLaneHub(
     costType: hasCostRows ? (costType as CostTypeId) : null,
     trendKey: LANE_TREND[id],
     tiles: buildLaneStats([id], programs)[id],
+    costCards: hasCostRows && costType ? costCardsFor(CROP_COSTS_BY_TYPE[costType]) : [],
+    trend: laneTrendFor(id),
     programs: sortLanePrograms(matchLanePrograms(programs, id)).slice(0, MAX_PROGRAMS),
     programsHref: programsHrefFor(id),
     crops: laneCrops(id),

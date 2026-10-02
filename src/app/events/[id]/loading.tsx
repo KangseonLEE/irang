@@ -1,16 +1,8 @@
-import { ArrowLeft } from "lucide-react";
-import { Icon } from "@/components/ui/icon";
 import s from "./loading.module.css";
 
 export default function EventDetailLoading() {
   return (
     <div className={s.container}>
-      {/* Back link */}
-      <div className={s.backLink}>
-        <Icon icon={ArrowLeft} size="md" />
-        <span>행사 목록으로</span>
-      </div>
-
       {/* Title + Badges */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
@@ -19,6 +11,9 @@ export default function EventDetailLoading() {
         </div>
         <div className={s.skeletonTitle} />
       </div>
+
+      {/* 브레드크럼 — 히어로 아래 (2026-10-02) */}
+      <div className={s.breadcrumb} />
 
       <div className={s.contentGrid}>
         {/* Main content */}

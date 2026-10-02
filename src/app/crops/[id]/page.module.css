@@ -26,38 +26,14 @@
   .page { padding: 40px 48px 56px; }
 }
 
-/* ── 상단 바: 브레드크럼 + 출처 ── */
+/* 브레드크럼 + 출처 배지 — 히어로 바로 아래 (2026-10-02 회장: 상세 공통 위치) */
 .topBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 20px;
-}
-
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-caption);
-  color: var(--muted-foreground, #6b7280);
-}
-
-.breadcrumbLink {
-  color: var(--muted-foreground, #6b7280);
-  text-decoration: none;
-}
-
-@media (hover: hover) {
-  .breadcrumbLink:hover {
-    color: var(--foreground, #111827);
-  }
-}
-
-.breadcrumbCurrent {
-  color: var(--foreground, #111827);
-  font-weight: 600;
+  margin-top: 14px;
 }
 
 /* ── Hero ── */
@@ -326,7 +302,7 @@
 
 /* ── ReferenceNotice 래퍼 — hero 카드와 간격 ── */
 .referenceWrap {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 /* ── Sticky 작물 헤더 (작물 정보 + 탭 통합) ── */

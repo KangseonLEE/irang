@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 
 /** 홈페이지 ISR — 6h마다 갱신 (뉴스 갱신 주기 + 봇 트래픽 절감 균형) */
 export const revalidate = 21600;
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
@@ -32,7 +33,6 @@ import { filterEventsAsync } from "@/lib/data/events";
 import { filterEducationAsync } from "@/lib/data/education";
 import { deriveStatus, daysUntilDeadline, isUnannounced, ALWAYS_OPEN } from "@/lib/program-status";
 import { StartCardsSection } from "@/components/landing/start-cards-section";
-import { CropGlanceSection } from "@/components/landing/crop-glance-section";
 import { NewsTabsV2Loader } from "@/components/landing/news-tabs-v2-loader";
 import { interviews } from "@/lib/data/landing";
 import { PROGRAMS } from "@/lib/data/programs";
@@ -171,32 +171,44 @@ export default async function HomePage() {
         />
       </ScrollReveal>
 
-      {/* ═══ 2-2. 내 지역 찾기 — 시·도 → 시·군·구 2단 선택 (10/2 회장: 지도·시·도 버튼 제거) ═══ */}
+      {/* ═══ 2-2. 내 지역 찾기 — 시·도 → 시·군·구 2단 선택 (10/2 회장: 지도·시·도 버튼 제거)
+          10/2 회장: 전폭 띠배너 — 시·도 배경 일러스트 + 얇은 어두운 스크림 + 흰 글씨 ═══ */}
       <ScrollReveal trackId="region_map" variant="fade" stagger>
         <section className={s.mapSection} aria-labelledby="landing-map-title">
-          <div className={s.mapText} data-reveal-x="left">
-            <span className={s.eyebrow}>#지역 탐색</span>
-            <h2 id="landing-map-title" className={s.mapTitle}>
-              <em>내 지역</em> 찾기
-            </h2>
-            <p className={s.mapSub}>
-              시·도와 시·군·구를 고르면 기후·인구·추천 작물·지원사업을 한곳에서 볼 수 있어요
-            </p>
-          </div>
-          <div className={s.mapControls} data-reveal-x="right">
-            <RegionPicker
-              provinces={pickerProvinces}
-              sigungus={pickerSigungus}
-              trackPrefix="region_map"
-              className={s.mapPicker}
-            />
-            <div className={s.mapActions}>
-              <Link href="/regions/compare" className={s.mapCompare} data-track="region_map:compare">
-                지역 비교하기 <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-              <Link href="/regions" className={s.mapAll} data-track="region_map:all">
-                지역 탐색 전체
-              </Link>
+          <Image
+            src="/images/regions/jeonnam.webp"
+            alt=""
+            fill
+            sizes="100vw"
+            loading="lazy"
+            className={s.mapBg}
+          />
+          <span className={s.mapScrim} aria-hidden="true" />
+          <div className={s.mapInner}>
+            <div className={s.mapText} data-reveal-x="left">
+              <span className={s.mapEyebrow}>#지역 탐색</span>
+              <h2 id="landing-map-title" className={s.mapTitle}>
+                <em>내 지역</em> 찾기
+              </h2>
+              <p className={s.mapSub}>
+                시·도와 시·군·구를 고르면 기후·인구·추천 작물·지원사업을 한곳에서 볼 수 있어요
+              </p>
+            </div>
+            <div className={s.mapControls} data-reveal-x="right">
+              <RegionPicker
+                provinces={pickerProvinces}
+                sigungus={pickerSigungus}
+                trackPrefix="region_map"
+                className={s.mapPicker}
+              />
+              <div className={s.mapActions}>
+                <Link href="/regions/compare" className={s.mapCompare} data-track="region_map:compare">
+                  지역 비교하기 <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+                <Link href="/regions" className={s.mapAll} data-track="region_map:all">
+                  지역 탐색 전체
+                </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -207,11 +219,8 @@ export default async function HomePage() {
         <TrendCostSection />
       </ScrollReveal>
 
-      {/* ═══ 4-2 + 5. 작물 한눈에 + 이랑에서 할 수 있는 것 3카드 (연한 그린 배경) ═══ */}
+      {/* ═══ 5. 이랑에서 할 수 있는 것 3카드 (연한 그린 배경) — 10/2 회장: "돈 되는 작물, 한눈에" 섹션 제거 ═══ */}
       <div className={s.lightGreenBg}>
-        <ScrollReveal trackId="crops" variant="fade" stagger>
-          <CropGlanceSection />
-        </ScrollReveal>
         <ScrollReveal trackId="start_cards" variant="fade" stagger>
           <StartCardsSection
             openProgramCount={openProgramCount}

@@ -1,0 +1,109 @@
+/* 지원사업·교육·체험 탭 — 탭 모양은 공용 TabBar(ui/tab-bar.module.css)와 같은 시각 언어(1단 compose) */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.tabList {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabList::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  composes: tab from "../ui/tab-bar.module.css";
+  flex: 1 1 0;
+  justify-content: center;
+}
+
+.tabActive {
+  composes: tabActive from "../ui/tab-bar.module.css";
+  flex: 1 1 0;
+  justify-content: center;
+}
+
+.count {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.panel[hidden],
+.panel ul[hidden] {
+  display: none;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.more {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+}
+
+.more:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .more:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+@media (min-width: 640px) {
+  .tabList {
+    align-self: flex-start;
+  }
+
+  .tab,
+  .tabActive {
+    flex: 0 0 auto;
+  }
+
+  .footer {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .footer > .more:only-child {
+    margin-left: auto;
+  }
+}
+
+/* 행 안 카드 높이 맞춤 — 체험 사진 카드처럼 자체 높이를 갖는 카드도 칸을 채운다 */
+.cell {
+  display: flex;
+  min-width: 0;
+}
+
+.cell > * {
+  flex: 1 1 auto;
+  min-width: 0;
+}

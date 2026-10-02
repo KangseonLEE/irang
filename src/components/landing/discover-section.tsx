@@ -162,10 +162,38 @@ function parseSchedule(schedule: string | undefined): { start: string; end: stri
   return single ? { start: single[1], end: null } : null;
 }
 
+/**
+ * 수집 원문이 비어 있을 때 넣는 채움값 — 카드에 올리면 정보량 0 인 칩이 된다(9/30 사진 카드 규칙과 같은 결).
+ * 10/2 실측: 공개 교육 60건 중 비용·기간은 58건이 "상세 공고 참조", 과정 구분은 9건이 채움값.
+ */
+const FILLER_RE = /(상세\s*공고|공고문\s*참조|확인\s*필요|추후\s*공지|미정)/;
+
+function realValue(value: string | undefined | null): string | undefined {
+  const v = value?.trim();
+  return v && !FILLER_RE.test(v) ? v : undefined;
+}
+
+/**
+ * 교육 카드 부가 칩 (10/2 회장: 지원사업 카드처럼 부가 데이터를).
+ * 실제 값이 있는 필드만 — 과정 구분(그린대로 eduSeNm, 예: "귀농귀촌아카데미")·비용·기간.
+ * 난이도(level)는 공개 60건 중 59건이 "초급"이라 구분 정보가 없어 싣지 않는다.
+ */
+function educationTags(c: EducationCourse): string[] {
+  const category = realValue(c.target);
+  return [category !== c.type ? category : undefined, realValue(c.cost), realValue(c.duration)].filter(
+    (v): v is string => Boolean(v),
+  );
+}
+
 function toEducationCard(c: EducationCourse): DiscoverCard {
   const open = c.status === "모집중";
   const deadlineLabel = urgentLabel(open, c.applicationEnd, URGENT_DAYS.education);
   const period = parseSchedule(c.schedule);
+  // 아직 접수 전이면 "언제까지"보다 "언제부터"가 먼저다 — 체험 카드와 같은 규칙
+  const apply =
+    c.status === "모집예정" && c.applicationStart && c.applicationStart !== ALWAYS_OPEN
+      ? `${mmdd(c.applicationStart)}부터 신청`
+      : deadlineText(c.applicationEnd, Boolean(deadlineLabel));
 
   return {
     id: c.id,
@@ -177,7 +205,8 @@ function toEducationCard(c: EducationCourse): DiscoverCard {
     region: regionText(c.region, c.sigungu),
     title: groupTitle(c.title),
     line1: period ? scheduleText(period.start, period.end) : undefined,
-    line2: [deadlineText(c.applicationEnd, Boolean(deadlineLabel)), c.capacity ? `${c.capacity}명 모집` : null].filter(Boolean).join(" · "),
+    line2: [apply, c.capacity ? `${c.capacity}명 모집` : null].filter(Boolean).join(" · "),
+    tags: educationTags(c),
     foot: c.organization,
   };
 }

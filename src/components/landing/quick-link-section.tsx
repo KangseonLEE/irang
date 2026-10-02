@@ -1,7 +1,8 @@
 /**
  * QuickLinkSection — "자주 찾는 서비스" 아이콘 8종 (2026-09-07 회장 결재: 히어로 밖 별도 섹션)
  *
- * - 좌측 제목 블록 + 우측 아이콘 행(1024+), 모바일은 제목 위·아이콘 가로 스냅 스크롤.
+ * - 아이콘 행만 가운데 정렬(10/2 회장: 제목·설명 멘트 제거, h2 는 sr-only 로 유지).
+ *   모바일 4×2 그리드, 768+ 한 줄 8개.
  * - 순서는 GNB 여정(탐색 → 비교·진단 → 준비 → 신청). 항목을 바꾸면 navigation.ts 와 맞출 것.
  * - Server Component: 전부 <Link> 라 SSR HTML 에 내부 링크 8개가 항상 남는다.
  * - 계측: data-track="quick_link:{id}" → LandingClickTracker 가 landing_cta_click 으로 수집.
@@ -45,14 +46,10 @@ export function QuickLinkSection() {
   return (
     <section className={s.section} aria-labelledby="quick-link-title">
       <div className={s.inner}>
-      {/* 데스크탑(1024+)에서 제목 블록만 왼쪽에서 밀려 들어온다 — 타일은 종전 순차 rise (9/28 A) */}
-      <div className={s.intro} data-reveal-x="left">
-        <p className={s.eyebrow}>QUICK LINK</p>
-        <h2 id="quick-link-title" className={s.title}>
-          자주 찾는 서비스
-        </h2>
-        <p className={s.desc}>준비하는 순서대로 모아 뒀어요</p>
-      </div>
+      {/* 10/2 회장: 제목·설명 멘트는 화면에서 걷고 아이콘 행만 가운데 — 섹션 이름은 스크린리더에만 남긴다 */}
+      <h2 id="quick-link-title" className={s.srOnly}>
+        자주 찾는 서비스
+      </h2>
 
       <ul className={s.track} aria-label="자주 찾는 서비스 바로 가기">
         {QUICK_LINK_ITEMS.map(({ id, href, label, icon: Icon }) => (

@@ -488,6 +488,27 @@
   overflow: hidden;
 }
 
+/* 부가 칩 (10/2) — 교육 카드의 과정 구분·비용·기간. 실제 값만 서버에서 넘어온다 */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.tag {
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--muted, #f3f4f6);
+  color: var(--muted-foreground, #6b7280);
+  font-size: var(--fs-caption-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* 사진일 때만 출처 — 시·도 배경 일러스트 폴백은 우리 자산이다 */
 .credit {
   margin-left: auto;
@@ -685,19 +706,32 @@
     gap: 18px;
   }
 
+  /* 10/2 회장: 가운데 정렬 커버플로우는 첫 카드 앞이 텅 빈다(트랙 좌우 패딩 = (뷰포트 − 카드)/2).
+     1024+ 는 왼쪽을 콘텐츠 좌측선에 붙이고(margin-left 0 → 첫 카드 left == 섹션 left)
+     오른쪽만 화면 끝까지 흘린다. 오른쪽 패딩 = 풀블리드 폭이라 마지막 카드는 콘텐츠 우측선에서 멈춘다.
+     끝자락(스크롤로 닿지 않는 마지막 몇 장)은 스크롤 없이 활성 카드만 옮긴다 — discover-tabs.tsx */
+  .viewport {
+    margin-left: 0;
+    padding-right: calc(50vw - 50%);
+  }
+
   .track {
     --card-w: clamp(240px, 25vw, 340px);
     --card-gap: 20px;
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding: 12px 0;
   }
 
+  /* 축소는 li(스냅 대상)가 아니라 안쪽 카드에 — Chrome 은 스냅 위치를 변형된 박스로 계산해
+     scale(0.84) 를 li 에 걸면 start 정렬이 카드마다 20px 씩 어긋난다(10/2 실측) */
   .slide {
-    transform: scale(0.84);
-    transition: transform 0.5s ease;
+    scroll-snap-align: start;
   }
 
-  .slide[data-active] {
+  .slide .card {
+    transform: scale(0.84);
+  }
+
+  .slide[data-active] .card {
     transform: scale(1);
   }
 
@@ -705,7 +739,7 @@
      보이므로 투명도로 물린다(배경이 흰 지면이라 결과가 "연한 카드"가 된다) */
   .slide .cardPhoto {
     filter: brightness(0.68);
-    transition: filter 0.5s ease;
+    transition: transform 0.5s ease, filter 0.5s ease;
   }
 
   .slide[data-active] .cardPhoto {
@@ -714,7 +748,7 @@
 
   .slide .cardText {
     opacity: 0.66;
-    transition: opacity 0.5s ease;
+    transition: transform 0.5s ease, opacity 0.5s ease, border-color 0.2s, box-shadow 0.2s;
   }
 
   .slide[data-active] .cardText {
@@ -748,7 +782,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .slide,
   .slide .cardPhoto,
   .slide .cardText {
     transition: none;

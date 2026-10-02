@@ -8,9 +8,10 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { DeadlineBadge } from "@/components/ui/deadline-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Event } from "schema-dts";
-import { ArrowLeft, CalendarDays } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { getEventByIdAsync, EVENTS } from "@/lib/data/events";
 import type { FarmEvent } from "@/lib/data/events";
 import { getEventImage } from "@/lib/events/event-image";
@@ -134,12 +135,6 @@ export default async function EventDetailPage({
           mainEntityOfPage: `https://irangfarm.com/events/${id}`,
         }}
       />
-      {/* Back link */}
-      <Link href="/events" className={s.backLink}>
-        <Icon icon={ArrowLeft} size="md" />
-        행사 목록으로
-      </Link>
-
       {/* ── 사진 히어로 — 배지(우상단) + 마을 유형 칩(좌하단) ── */}
       <figure className={s.heroFigure}>
         <div className={s.hero}>
@@ -195,6 +190,15 @@ export default async function EventDetailPage({
           </div>
         </div>
       </div>
+
+      {/* 브레드크럼 — 히어로(사진·제목) 아래 공통 위치 (2026-10-02 회장) */}
+      <Breadcrumb
+        className={s.breadcrumbBar}
+        items={[
+          { name: "체험행사", href: "/events" },
+          { name: event.title },
+        ]}
+      />
 
       <div className={s.contentGrid}>
         {/* Main content */}

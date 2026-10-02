@@ -279,3 +279,90 @@ describe("여정 레인 허브 — 하드코딩 금지 가드 (값은 전부 데
     expect(buildLaneHub(id).id).toBe("forest");
   });
 });
+
+describe("여정 레인 허브 — 비용 카드·차트·교육·체험 (10/2)", () => {
+  it("비용 카드 작물 id 는 실재 작물이고 일러스트가 있다 (없는 표기는 null)", async () => {
+    const { CROPS } = await import("@/lib/data/crops");
+    const { hasCropIllustration } = await import("@/lib/crop-image");
+    const ids = new Set(CROPS.map((c) => c.id));
+    for (const hub of hubs) {
+      for (const c of hub.costCards) {
+        if (c.cropId === null) continue;
+        expect(ids.has(c.cropId), `${hub.id} ${c.name}`).toBe(true);
+        expect(hasCropIllustration(c.cropId), `${hub.id} ${c.name} 일러스트`).toBe(true);
+      }
+    }
+    // 산양삼은 작물 DB 에 없다 — 부분 일치로 다른 작물이 붙지 않아야 한다
+    const forest = hubs.find((h) => h.id === "forest")!;
+    expect(forest.costCards.find((c) => c.name === "산양삼")?.cropId).toBeNull();
+  });
+
+  it("비용 카드 수는 비용 표 행 수와 같다 (귀촌은 0)", () => {
+    for (const hub of hubs) {
+      const rows = hub.costType ? CROP_COSTS_BY_TYPE[hub.costType].length : 0;
+      expect(hub.costCards.length, hub.id).toBe(rows);
+    }
+  });
+
+  it("차트 시계열은 연도 오름차순·양수이고, 지표에 출처가 붙는다", () => {
+    for (const hub of hubs) {
+      const { points, indicators, source } = hub.trend;
+      expect(points.length, hub.id).toBeGreaterThanOrEqual(5);
+      for (let i = 1; i < points.length; i += 1) expect(points[i].year).toBeGreaterThan(points[i - 1].year);
+      for (const p of points) expect(p.value).toBeGreaterThan(0);
+      expect(source.length).toBeGreaterThan(0);
+      expect(indicators.length).toBeGreaterThanOrEqual(1);
+      for (const ind of indicators) {
+        if (ind.kind === "gauge") {
+          expect(ind.pct).toBeGreaterThan(0);
+          expect(ind.pct).toBeLessThanOrEqual(100);
+        }
+      }
+    }
+  });
+
+  it("교육·체험 매칭은 마감을 빼고, 레인 규칙으로만 고른다", async () => {
+    const { matchLaneEducation, matchLaneEvents } = await import("@/lib/data/journey-lanes-hub");
+    const course = (title: string, status: "모집중" | "마감" = "모집중") =>
+      ({ id: title, title, status, description: "", applicationEnd: "2026-12-31" }) as never;
+    const event = (title: string, villageType?: string) =>
+      ({ id: title, title, status: "접수중", villageType, date: "2026-10-01" }) as never;
+
+    const courses = [
+      course("예비귀농인 소득작물 재배"),
+      course("예비귀촌인 가드닝 방법"),
+      course("스마트팜의 이해와 도입"),
+      course("목본류·산채류 재배"),
+      course("청년창업농 교육농장 설계"),
+      course("귀농 기초 과정", "마감"),
+    ];
+    const titles = (id: HubLaneId) => matchLaneEducation(courses, id).map((c) => c.title);
+    expect(titles("guinong")).toContain("예비귀농인 소득작물 재배");
+    expect(titles("guinong")).not.toContain("예비귀촌인 가드닝 방법");
+    expect(titles("guinong")).not.toContain("귀농 기초 과정");
+    expect(titles("guichon")).toEqual(["예비귀촌인 가드닝 방법"]);
+    expect(titles("smartfarm")).toEqual(["스마트팜의 이해와 도입"]);
+    expect(titles("forest")).toEqual(["목본류·산채류 재배"]);
+    expect(titles("youth")).toEqual(["청년창업농 교육농장 설계"]);
+
+    const events = [
+      event("대실마을 농촌에서 살아보기 (귀농형)", "귀농형"),
+      event("율곡마을 농촌에서 살아보기 (귀촌형)", "귀촌형"),
+      event("춘천 귀농귀촌 팸투어_시설원예"),
+      event("춘천 귀농귀촌 팸투어_시설원예"),
+    ];
+    const ev = (id: HubLaneId) => matchLaneEvents(events, id).map((e) => e.title);
+    expect(ev("guinong")).toEqual(["대실마을 농촌에서 살아보기 (귀농형)", "춘천 귀농귀촌 팸투어_시설원예"]);
+    expect(ev("guichon")).toEqual(["율곡마을 농촌에서 살아보기 (귀촌형)", "춘천 귀농귀촌 팸투어_시설원예"]);
+    expect(ev("smartfarm")).toEqual(["춘천 귀농귀촌 팸투어_시설원예"]);
+  });
+
+  it("함께 보면 좋아요 카드는 아이콘을 갖고 '단계' 표현을 쓰지 않는다", () => {
+    for (const hub of hubs) {
+      for (const step of hub.nextSteps) {
+        expect(["map", "wallet", "trend", "compass"]).toContain(step.icon);
+        expect(`${step.label} ${step.desc}`, hub.id).not.toMatch(/단계|다음 걸음/);
+      }
+    }
+  });
+});

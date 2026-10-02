@@ -3,8 +3,6 @@ import s from "./loading.module.css";
 export default function CropDetailLoading() {
   return (
     <div className={s.page}>
-      <div className={s.backBtn} />
-
       {/* Hero */}
       <div className={s.hero}>
         <div className={s.heroImage} />
@@ -34,6 +32,9 @@ export default function CropDetailLoading() {
           </div>
         </div>
       </div>
+
+      {/* 브레드크럼 — 히어로 아래 (2026-10-02) */}
+      <div className={s.breadcrumb} />
 
       {/* Main Grid */}
       <div className={s.mainGrid}>

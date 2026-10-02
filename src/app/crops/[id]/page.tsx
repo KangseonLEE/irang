@@ -22,7 +22,6 @@ import {
   FlaskConical,
   TrendingUp,
   FileText,
-  ChevronRight,
   Scale,
   ThumbsUp,
   AlertTriangle,
@@ -61,6 +60,7 @@ import { DataSource } from "@/components/ui/data-source";
 import { Icon } from "@/components/ui/icon";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Article } from "schema-dts";
 import { YouthCaseCards } from "@/components/youth-cases/youth-case-cards";
@@ -174,6 +174,16 @@ function CropMinimalFallback({ crop }: { crop: typeof CROPS[number] }) {
             난이도 {crop.difficulty}
           </span>
         </div>
+      </div>
+
+      <div className={s.topBar}>
+        <Breadcrumb
+          items={[
+            { name: "작물 목록", href: "/crops" },
+            { name: crop.category },
+            { name: crop.name },
+          ]}
+        />
       </div>
 
       <section className={s.fallbackNotice}>
@@ -348,18 +358,6 @@ export default async function CropDetailPage({
           keywords: [data.name, "귀농 작물", "재배 소득", ...data.detail.majorRegions],
         }}
       />
-      {/* ── 브레드크럼 + 출처 ── */}
-      <div className={s.topBar}>
-        <nav className={s.breadcrumb} aria-label="현재 위치">
-          <Link href="/crops" className={s.breadcrumbLink}>작물</Link>
-          <Icon icon={ChevronRight} size="sm" />
-          <span className={s.breadcrumbLink}>{data.category}</span>
-          <Icon icon={ChevronRight} size="sm" />
-          <span className={s.breadcrumbCurrent}>{data.name}</span>
-        </nav>
-        <DataSource source="농촌진흥청 · KOSIS" variant="badge" />
-      </div>
-
       {/* ── Hero ── */}
       <section className={s.hero}>
         <div className={s.heroImageWrap}>
@@ -427,6 +425,18 @@ export default async function CropDetailPage({
           </div>
         </div>
       </section>
+
+      {/* ── 브레드크럼 + 출처 — 히어로 아래·탭 위 공통 위치 (2026-10-02 회장) ── */}
+      <div className={s.topBar}>
+        <Breadcrumb
+          items={[
+            { name: "작물 목록", href: "/crops" },
+            { name: data.category },
+            { name: data.name },
+          ]}
+        />
+        <DataSource source="농촌진흥청 · KOSIS" variant="badge" />
+      </div>
 
       <div className={s.referenceWrap}>
         <ReferenceNotice text="작물 정보는 농촌진흥청·통계청 데이터를 가공한 참고 자료예요. 실제 재배 조건은 지역·품종에 따라 달라요." />

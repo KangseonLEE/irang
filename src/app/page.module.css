@@ -44,16 +44,75 @@
 
 /* ══════════════════════════════════════════
    2-2. 내 지역 찾기 (10/2 회장: 지도·시·도 버튼 제거 → 시·도 → 시·군·구 2단 선택)
+   10/2 회장 2차: 전폭 띠배너 — 시·도 배경 일러스트(next/image fill, lazy) + 얇은 어두운 스크림 + 흰 글씨.
+   풀블리드는 .fullWidth 와 같은 기법(html overflow-x: clip 전제). composes 대신 직접 선언 —
+   이 블록만 position·isolation 이 필요하고 1단 규칙을 지키기 위해서다.
    모바일: 제목 → 선택 → 버튼 5:5 / 1024+: 좌 제목·설명 | 우 선택 + 버튼
    ══════════════════════════════════════════ */
 .mapSection {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 20px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  padding: 44px calc(50vw - 50%);
+  background: var(--surface-dark, #1a3f35); /* 이미지 로드 전·실패 시에도 흰 글씨가 읽히게 */
+  color: #fff;
+}
+
+@media (min-width: 640px) {
+  .mapSection {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
 }
 
 @media (min-width: 1024px) {
   .mapSection {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+}
+
+.mapBg {
+  z-index: -2;
+  object-fit: cover;
+  object-position: center 62%;
+  pointer-events: none;
+}
+
+/* 스크림 — 밝은 하늘 위 흰 글씨 4.5:1. 모바일은 글자가 전폭이라 균일하게,
+   1024+ 는 글자가 있는 왼쪽만 진하게(오른쪽 셀렉트·버튼은 자체 배경이 있다). 장식 요소 */
+.mapScrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(10, 36, 30, 0.72);
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .mapScrim {
+    background: linear-gradient(
+      90deg,
+      rgba(10, 36, 30, 0.74) 0%,
+      rgba(10, 36, 30, 0.64) 55%,
+      rgba(10, 36, 30, 0.6) 100%
+    );
+  }
+}
+
+.mapInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: calc(1280px - 64px);
+  margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .mapInner {
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
     gap: 56px;
     align-items: center;
@@ -66,13 +125,28 @@
   min-width: 0;
 }
 
+.mapEyebrow {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.34);
+  color: #fff;
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .mapTitle {
   margin: 0;
   font-size: var(--fs-h3);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: var(--lh-tight);
-  color: var(--foreground, #111827);
+  color: #fff;
 }
 
 @media (min-width: 640px) {
@@ -81,18 +155,18 @@
 
 .mapTitle em {
   font-style: normal;
-  color: var(--primary, #1b6b5a);
+  color: #fff;
   text-decoration: underline;
   text-decoration-thickness: 3px;
   text-underline-offset: 6px;
-  text-decoration-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+  text-decoration-color: var(--primary-on-dark, #8fcfb5);
 }
 
 .mapSub {
   margin: 10px 0 0;
   font-size: var(--fs-body-sm);
   line-height: 1.6;
-  color: var(--muted-foreground, #6b7280);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .mapControls {
@@ -106,7 +180,7 @@
   margin: 0;
 }
 
-/* 두 버튼 5:5 같은 폭 (10/2 회장) — 채운 버튼(비교) + 라인 버튼(전체) */
+/* 두 버튼 5:5 같은 폭 (10/2 회장) — 흰 채운 버튼(비교) + 흰 외곽선 버튼(전체). 어두운 띠 위 대비 */
 .mapActions {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -122,34 +196,35 @@
   min-width: 0;
   min-height: 44px;
   padding: 0 12px;
-  border: 1px solid var(--primary, #1b6b5a);
+  border: 1px solid #fff;
   border-radius: 4px;
   font-size: 0.9375rem;
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .mapCompare {
-  background: var(--primary, #1b6b5a);
-  color: #fff;
+  background: #fff;
+  color: var(--primary-dark, #0d2e27);
 }
 
 .mapCompare:focus-visible,
 .mapAll:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
+  outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
 .mapAll {
-  background: transparent;
-  color: var(--primary, #1b6b5a);
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.85);
 }
 
 @media (hover: hover) {
-  .mapCompare:hover { background: #0d2e27; border-color: #0d2e27; }
-  .mapAll:hover { background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent); }
+  .mapCompare:hover { background: var(--surface-green-50, #edf5f3); border-color: var(--surface-green-50, #edf5f3); }
+  .mapAll:hover { background: rgba(0, 0, 0, 0.32); border-color: #fff; }
 }
 
 /* ══════════════════════════════════════════

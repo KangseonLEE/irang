@@ -38,6 +38,8 @@ export interface DiscoverCard {
   line1?: string;
   /** 언제까지 신청하나 · 몇 명 */
   line2?: string;
+  /** 부가 칩 — 실제 값이 있을 때만(교육: 과정 구분·비용·기간). 채움값은 서버에서 걸러 넘긴다 */
+  tags?: string[];
   /** 주최 기관 */
   foot?: string;
 }
@@ -176,9 +178,9 @@ export function DiscoverTabs({
 }
 
 /**
- * 카드 트랙 하나 — 스크롤 컨테이너 **하나**로 두 레이아웃을 굴린다
- * (`overflow-x: auto` + `scroll-snap-align: center`). 1024+ 는 활성 카드만 원래 크기로 두고
- * 이웃을 축소·감광해 커버플로우처럼 보이게 하고, <1024 는 78vw 스냅 트랙이 된다.
+ * 카드 트랙 하나 — 스크롤 컨테이너 **하나**로 두 레이아웃을 굴린다.
+ * <1024 는 78vw 가운데 스냅 트랙, 1024+ 는 왼쪽 정렬(스냅 start, 10/2 회장: 첫 카드 앞 빈 공간 제거)
+ * 트랙에서 활성 카드만 원래 크기로 두고 이웃을 축소·감광한다.
  *
  * - 활성 index 는 **스크롤 위치에서 파생**한다(단일 소스). 버튼·자동 넘김도 `scrollTo` 만 부른다.
  * - 비활성 패널은 `display: none` 이라 카드 폭이 0 이다 — 모든 계산·타이머가 `active` 에서 멈춘다.
@@ -192,6 +194,11 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   const viewportRef = useRef<HTMLDivElement>(null);
+  /**
+   * 버튼·자동 넘김이 정한 목표 카드 — 스크롤이 그 위치에 닿을 때까지 중간 스크롤 이벤트가
+   * index 를 덮어쓰지 않게 붙잡아 둔다. 사용자가 직접 끌거나 휠을 굴리면 즉시 놓는다.
+   */
+  const pendingRef = useRef<number | null>(null);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   /** hover·포커스·터치 — 사용자가 보고 있는 동안은 넘기지 않는다 */
@@ -215,26 +222,56 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
     if (!active) return;
     const el = viewportRef.current;
     if (!el) return;
+    pendingRef.current = null;
     el.scrollTo({ left: 0, behavior: "auto" });
     setIndex(0);
     setPaused(false);
     setHeld(false);
   }, [active]);
 
-  /* ── 활성 index 는 스크롤 위치에서 파생 ── */
+  /**
+   * 활성 index 는 스크롤 위치에서 파생.
+   * 1024+ 는 왼쪽 정렬 트랙(10/2)이라 마지막 몇 장은 스크롤로 맨 앞에 설 수 없다 —
+   * 스크롤 끝에 닿아 있으면 그 끝자락 안의 index 는 그대로 둔다(활성 표시만 옮겨 간다).
+   */
   useEffect(() => {
     const el = viewportRef.current;
     if (!el || !active) return;
     const sync = () => {
       const width = step();
       if (!width) return;
-      setIndex(Math.max(0, Math.min(Math.round(el.scrollLeft / width), total - 1)));
+      const max = el.scrollWidth - el.clientWidth;
+      const pending = pendingRef.current;
+      if (pending !== null) {
+        if (Math.abs(el.scrollLeft - Math.min(pending * width, max)) > 2) return;
+        pendingRef.current = null;
+        setIndex(pending);
+        return;
+      }
+      const raw = Math.max(0, Math.min(Math.round(el.scrollLeft / width), total - 1));
+      const atEnd = el.scrollLeft >= max - 2;
+      setIndex((prev) => (atEnd && prev >= raw ? prev : raw));
+    };
+    const release = () => {
+      pendingRef.current = null;
+    };
+    /* 안전판 — 스냅이 목표와 몇 px 다른 곳에 멈춰도 목표 카드를 활성으로 확정한다 */
+    const settle = () => {
+      if (pendingRef.current === null) return;
+      setIndex(pendingRef.current);
+      pendingRef.current = null;
     };
     sync();
+    el.addEventListener("scrollend", settle);
     el.addEventListener("scroll", sync, { passive: true });
+    el.addEventListener("wheel", release, { passive: true });
+    el.addEventListener("pointerdown", release, { passive: true });
     window.addEventListener("resize", sync);
     return () => {
       el.removeEventListener("scroll", sync);
+      el.removeEventListener("scrollend", settle);
+      el.removeEventListener("wheel", release);
+      el.removeEventListener("pointerdown", release);
       window.removeEventListener("resize", sync);
     };
   }, [step, total, active]);
@@ -245,8 +282,16 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
       const width = step();
       if (!el || !width) return;
       const target = ((next % total) + total) % total;
+      const left = Math.min(target * width, el.scrollWidth - el.clientWidth);
+      // 이미 그 자리면(끝자락) 스크롤 이벤트가 안 온다 — 활성만 바로 옮긴다
+      if (Math.abs(el.scrollLeft - left) <= 2) {
+        pendingRef.current = null;
+        setIndex(target);
+        return;
+      }
+      pendingRef.current = target;
       el.scrollTo({
-        left: target * width,
+        left,
         behavior: smooth && !reduced ? "smooth" : "auto",
       });
     },
@@ -421,6 +466,15 @@ function CardContent({ item }: { item: DiscoverCard }) {
         <span className={s.region}>{item.region}</span>
         <span className={s.cardTitle}>{item.title}</span>
         {item.line1 && <span className={s.line1}>{item.line1}</span>}
+        {item.tags && item.tags.length > 0 && (
+          <span className={s.tags}>
+            {item.tags.map((tag) => (
+              <span key={tag} className={s.tag}>
+                {tag}
+              </span>
+            ))}
+          </span>
+        )}
         <span className={s.metaRow}>
           {item.line2 && <span className={s.line2}>{item.line2}</span>}
           {/* 사진일 때만 출처 — 시·도 배경 일러스트 폴백은 우리 자산이다 */}

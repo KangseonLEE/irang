@@ -20,17 +20,16 @@
   }
 }
 
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  color: var(--muted-foreground, #6b7280);
-  font-size: 0.875rem;
+/* 브레드크럼 자리 — 제목 블록 아래 (2026-10-02) */
+.breadcrumb {
+  composes: skeleton;
+  width: 10rem;
+  height: 0.875rem;
   margin-bottom: 1.5rem;
 }
 
 .titleSection {
-  margin-bottom: 2rem;
+  margin-bottom: 0.875rem;
 }
 
 .badgeRow {

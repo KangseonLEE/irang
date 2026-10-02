@@ -20,15 +20,16 @@
   .container { gap: 32px; }
 }
 
-/* ── 뒤로가기 ── */
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--muted-foreground, #6b7280);
-  font-size: var(--fs-body-sm, 0.875rem);
-  font-weight: 500;
-  margin-bottom: -12px;
+/* 브레드크럼 자리 — 히어로 아래 (2026-10-02). .container gap 을 당겨 히어로·본문과 14px */
+.breadcrumb {
+  composes: skeleton;
+  width: 10rem;
+  height: 0.875rem;
+  margin: -10px 0;
+}
+
+@media (min-width: 640px) {
+  .breadcrumb { margin: -14px 0; }
 }
 
 /* ── 히어로 카드 ── */
