@@ -38,6 +38,17 @@ import {
 /** 타겟당 적재 상한 (Edge Function wall-clock 보호) */
 const MAX_ITEMS_PER_TARGET = 60;
 
+/**
+ * 타겟별 상한 예외 (10/2 dev QA).
+ * 그린대로 교육은 공개 JSON 한 번 호출이라 비용이 upsert 1회뿐인데, 기본 상한 60 에 잘려
+ * 활성 138건 중 약 72건이 적재되지 않았다(10/2 정기 실행: itemsFound 138, skipped 60).
+ * 원천이 교육 시작일 오름차순이라 시작이 늦은 과정은 앞쪽이 마감돼야 창에 들어왔다.
+ * URL 헬스체크는 MAX_URL_CHECKS_PER_TARGET 예산이 따로 있어 상한을 올려도 늘지 않는다.
+ */
+const MAX_ITEMS_BY_TARGET: Record<string, number> = {
+  "greendaero-education": 200,
+};
+
 /** 한 실행에서 원문 URL 헬스체크를 수행할 최대 건수 (URL별 캐시 적용) */
 const MAX_URL_CHECKS_PER_TARGET = 12;
 
@@ -198,7 +209,7 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
     items = await collectItems(target);
     console.log(`[sync-crawl] ${target.name}: ${items.length}건 수집`);
 
-    const capped = items.slice(0, MAX_ITEMS_PER_TARGET);
+    const capped = items.slice(0, MAX_ITEMS_BY_TARGET[target.id] ?? MAX_ITEMS_PER_TARGET);
 
     // ── 1. 슬러그 계산 + 테이블별 분류 ──
     interface Prepared {

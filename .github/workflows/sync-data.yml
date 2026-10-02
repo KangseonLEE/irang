@@ -1,6 +1,7 @@
 # 이랑 데이터 자동 동기화
 # - 매일 06:00 KST (21:00 UTC)에 실행
-# - Phase A: RDA API 동기화 + 상태 자동 업데이트
+# - Phase A: 모집 상태 자동 전환 (sync-rda — 10/3 A안: 4/6부터 한 번도 동작하지 않던 RDA API 수집을 걷어내고
+#            상태 전환 RPC 만 남김. RDA 데이터는 Phase B 의 rda-* 크롤 타깃이 수집한다)
 # - Phase B: 정부/공공 사이트 크롤링
 #
 # 2026-09-29: 실패 판정 교정.
@@ -23,7 +24,7 @@ on:
 
 jobs:
   sync-rda:
-    name: "Phase A: RDA API Sync"
+    name: "Phase A: 모집 상태 자동 전환"
     runs-on: ubuntu-latest
     steps:
       - name: Trigger sync-rda Edge Function
@@ -44,6 +45,14 @@ jobs:
             2*) ;;
             *) echo "::error::sync-rda failed with HTTP '$http_code'"; exit 1 ;;
           esac
+
+          # 10/2 dev QA: sync-rda 는 일부만 실패하면 HTTP 200 + ok:false 를 돌려준다
+          # (sync-rda/index.ts — upsert 가 1건이라도 성공하면 500 이 아니다). HTTP 코드만 보면
+          # 상태 자동 전환 실패 같은 부분 실패가 초록으로 묻힌다 — Phase B 와 같은 기준으로 본문도 본다.
+          if echo "$body" | grep -q '"ok":false'; then
+            echo "::error::sync-rda 부분 실패 — $body"
+            exit 1
+          fi
 
   sync-crawl:
     name: "Phase B: Crawl Sites"
