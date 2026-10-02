@@ -551,7 +551,8 @@ function onlyGuichon(title: string): boolean {
 const EDUCATION_RULES: Record<HubLaneId, (c: EducationCourse) => boolean> = {
   guinong: (c) => EDU_GUINONG.test(c.title) && !onlyGuichon(c.title),
   guichon: (c) => EDU_GUICHON.test(c.title),
-  forest: (c) => EDU_FOREST.test(c.title),
+  // 치유(산림치유·치유농업)는 정착이 아니라 휴양·복지 과정이라 귀산촌에서 뺀다(10/2 회장)
+  forest: (c) => EDU_FOREST.test(c.title) && !/치유/.test(c.title),
   youth: (c) => /청년/.test(c.title) || YOUTH_SOURCE.test(c.description),
   smartfarm: (c) => EDU_SMARTFARM.test(c.title),
 };
