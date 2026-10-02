@@ -1,42 +1,11 @@
 /**
- * 인기 검색어 SSOT.
- *
- * 검색 오버레이 "인기 검색어" 순위 리스트(search-bar.tsx `popularSection`)가 쓴다.
- * 칩 형태의 "추천 검색어"는 아래 `RECOMMENDED_KEYWORDS` 가 따로 맡는다 (10/2).
- *
- * 순위·맥락이 있는 trending 리스트.
- * 이랑 도메인 맥락(정착 준비·지역·작물·정책)에 맞춘 10개 상수.
- *
- * 마지막 큐레이션 갱신: 2026-08-02 (감귤 작물→스마트팜, 사과 재배지→장미 —
- * 실검색 로그 최다 키워드 + 7/30 화훼 카테고리 신설 반영, 비시즌 작물 교체)
- *
- * ⚠ 항목 추가/변경 시 전부 `searchAll(label).length > 0` 이어야 한다.
- *   (9/29 히어로 키워드 행 제거 — 검색 오버레이 인기 검색어만 이 배열을 쓴다)
- *   검증: searchAll import 후 각 label 결과 건수 확인 (tsx 스크립트 1회 실행)
+ * 추천 검색어 모듈 — 옛 인기 검색어 순위 목록(`POPULAR_KEYWORDS`)은 소비처가 없어 10/2 삭제했다.
  */
-interface PopularKeyword {
-  /** 표시 라벨 (= 검색 쿼리) */
-  label: string;
-}
-
-export const POPULAR_KEYWORDS: PopularKeyword[] = [
-  { label: "농촌 정착 지원금" },
-  { label: "전남 귀농" },
-  { label: "스마트팜" },
-  { label: "청년농 창업" },
-  { label: "토지이음" },
-  { label: "귀농교육" },
-  { label: "치유농업" },
-  { label: "장미" },
-  { label: "사회적 농장" },
-  { label: "농촌체류형 쉼터" },
-];
-
 /**
  * 추천 검색어 SSOT (2026-10-02 회장 — 세 곳 통일).
  *
  * 소비처: 헤더 검색 패널 "추천 검색어" 칩(search-bar.tsx panelLayout) · `/search` 빈 화면(같은 패널 배치 재사용) ·
- * 랜딩 히어로 "이런 검색어를 추천해요". 전에는 히어로·패널이 `POPULAR_KEYWORDS` 에서 각자 '토지이음'을 빼 썼고,
+ * 랜딩 히어로 "이런 검색어를 추천해요". 전에는 히어로·패널이 옛 `POPULAR_KEYWORDS`(10/2 삭제) 에서 각자 '토지이음'을 빼 썼고,
  * `/search` 빈 화면은 별도 목록(`POPULAR_TAGS` — #귀농융자·#모집중…)이었다.
  *
  * 규칙

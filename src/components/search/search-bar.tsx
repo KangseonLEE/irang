@@ -876,16 +876,22 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           aria-activedescendant={activeDescendant}
           autoComplete="off"
         />
-        {(isExpanded || panelLayout) && query.length > 0 && (
+        {/* X — 검색어가 있으면 지우기. 헤더 검색 패널(onClose 있음)에서는 항상 보이고, 비어 있을 때 누르면 패널을 닫는다
+            (10/2 회장 "X 버튼은 항상 위치"). /search 페이지처럼 닫을 대상이 없으면 검색어가 있을 때만 */}
+        {(isExpanded || panelLayout) && (query.length > 0 || (panelLayout && onCloseProp)) && (
           <button
             type="button"
             className={s.expandedClear}
             onClick={() => {
+              if (query.length === 0 && panelLayout && onCloseProp) {
+                onCloseProp();
+                return;
+              }
               setQuery("");
               setSuggestions([]);
               inputRef.current?.focus();
             }}
-            aria-label="검색어 지우기"
+            aria-label={query.length === 0 && panelLayout && onCloseProp ? "검색 닫기" : "검색어 지우기"}
           >
             <X size={16} />
           </button>

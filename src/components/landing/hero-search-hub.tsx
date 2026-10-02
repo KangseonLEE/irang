@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
 import { RECOMMENDED_KEYWORDS } from "@/lib/data/popular-keywords";
+import { buildLaneStats, type LaneTile } from "@/lib/data/journey-lanes-stats";
 import { HeroSearchForm } from "./hero-search-form";
 import { HeroRotator } from "./hero-rotator";
 import { HeroTypeCarousel } from "./hero-type-carousel";
@@ -63,6 +64,27 @@ const SCENES = [
   { id: "smartfarm", word: "스마트팜", image: "/landing/hero/hero-4.webp" },
 ] as const;
 
+/**
+ * 유형 카드 한 줄 수치 (10/2 회장 "카드에 데이터를 조금 더") — 선택 화면 타일(buildLaneStats)과 **같은 계산**을 쓴다.
+ * 지원사업 건수 · 진입 난이도 · 초기 투자(또는 보완 수치) 3개만. 연도 맥락이 필요한 추세 타일은 카드 폭에서 오해를 부르니 뺀다.
+ */
+const FACT_SHORT_LABEL: Record<string, string> = {
+  // "지원사업 32건"만 두면 바로 아래 "신청 가능한 지원사업 12건"(모집중만)과 모순처럼 읽힌다 —
+  // 이 수치는 정기 접수·모집예정까지 포함한 유형 관련 건수라 "관련"을 붙인다
+  "지금 볼 수 있는 지원사업": "관련 지원사업",
+  "진입 난이도": "난이도",
+  "초기 투자금 평균": "초기 투자",
+  "비교할 시·군·구": "시·군·구",
+  "진단 뒤 볼 작물": "작물",
+};
+
+function cardFacts(tiles: LaneTile[] = []): { label: string; value: string }[] {
+  return tiles
+    .filter((t) => FACT_SHORT_LABEL[t.label] && t.value !== "진단으로")
+    .map((t) => ({ label: FACT_SHORT_LABEL[t.label], value: t.value }))
+    .slice(0, 3);
+}
+
 function dLabel(daysLeft: number): string {
   return daysLeft === 0 ? "오늘 마감" : `D-${daysLeft}`;
 }
@@ -71,6 +93,7 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
   const visibleStats = stats.filter((st) => st.value > 0);
   // 추천 검색어 단일 출처(10/2) — 헤더 검색 패널·/search 빈 화면과 같은 목록
   const tickerKeywords = RECOMMENDED_KEYWORDS;
+  const laneStats = buildLaneStats(JOURNEY_LANES.map((lane) => lane.id));
 
   return (
     <section className={s.hero} aria-labelledby="hero-title" data-landing-hero>
@@ -107,11 +130,12 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
             </h1>
             <p className={s.sub}>궁금한 지역·작물·지원사업을 검색하거나 내 정착 유형부터 골라 보세요</p>
 
+            {/* 10/2 회장: 추천 검색어를 검색창 위로 — 무엇을 칠지 먼저 보고 검색창으로 내려간다 */}
+            <HeroKeywordTicker keywords={tickerKeywords} />
+
             <div className={s.searchWrap}>
               <HeroSearchForm variant="hero" />
             </div>
-
-            <HeroKeywordTicker keywords={tickerKeywords} />
           </div>
 
           {/* ── 우: 정착 유형 카드 6 ── */}
@@ -139,6 +163,16 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
                       <span className={s.typeLabel}>{lane.label}</span>
                       <span className={s.typeDesc}>{lane.desc}</span>
                     </span>
+                    {cardFacts(laneStats[lane.id]).length > 0 && (
+                      <span className={s.typeFacts}>
+                        {cardFacts(laneStats[lane.id]).map((f) => (
+                          <span key={f.label} className={s.typeFact}>
+                            <span className={s.typeFactLabel}>{f.label}</span>
+                            <span className={s.typeFactValue}>{f.value}</span>
+                          </span>
+                        ))}
+                      </span>
+                    )}
                     <span className={s.typeArrow} aria-hidden="true">
                       <ArrowRight size={16} />
                     </span>

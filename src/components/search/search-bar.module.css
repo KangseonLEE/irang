@@ -899,15 +899,15 @@
   min-height: 56px;
   padding: 0 8px 0 18px;
   gap: 8px;
+  /* 히어로 검색창 문법으로 통일(10/2 회장) — 각진 모서리 4px, 1px 테두리, 그림자·초록 링 없음 */
   border: 1px solid var(--foreground, #111827);
-  border-radius: 14px;
+  border-radius: 4px;
   background: var(--background, #fff);
   font-size: 1.0625rem;
 }
 
 .inputWrapPanel:focus-within {
   border-color: var(--primary, #1b6b5a);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
 }
 
 /* 가상 키보드가 뜬 iOS 에서 16px 미만이면 입력 시 확대된다 — 모바일도 17px */
@@ -953,7 +953,7 @@
 .panelSubmitBtn {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: 4px;
 }
 
 .panelSubmitBtn .searchIcon {

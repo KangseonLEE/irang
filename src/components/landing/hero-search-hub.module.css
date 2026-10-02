@@ -300,7 +300,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 10px;
-  margin: 14px 0 0;
+  margin: 0 0 8px;
   font-size: 0.875rem;
 }
 
@@ -373,7 +373,7 @@
 
 @media (min-width: 768px) {
   .ticker {
-    margin-top: 16px;
+    margin-bottom: 10px;
     font-size: 0.9375rem;
   }
 }
@@ -554,7 +554,8 @@
   grid-template-areas:
     "thumb arrow"
     "label label"
-    "desc desc";
+    "desc desc"
+    "facts facts";
   align-content: start;
   min-width: 0;
   padding: 12px;
@@ -640,6 +641,56 @@
   font-weight: 400;
   line-height: 1.45;
   color: rgba(255, 255, 255, 0.86);
+}
+
+/* 카드 수치 줄 (10/2) — 라벨 위·값 아래 3칸, 가는 흰 구분선. 선택 화면 타일과 같은 계산(buildLaneStats) */
+.typeFacts {
+  grid-area: facts;
+  display: flex;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+.typeFact {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-right: 6px;
+}
+
+.typeFact + .typeFact {
+  padding-left: 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.typeFactLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  white-space: nowrap;
+}
+
+.typeFactValue {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 768px) {
+  .typeFactValue {
+    font-size: 0.9375rem;
+  }
+
+  .typeFact + .typeFact {
+    padding-left: 10px;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -1125,12 +1176,12 @@
   animation: heroRiseMove var(--intro-dur) var(--intro-ease) 0.35s backwards;
 }
 
-.searchWrap > * {
-  animation: heroRise var(--intro-dur) var(--intro-ease) 0.7s backwards;
+.ticker {
+  animation: heroRise var(--intro-dur) var(--intro-ease) 0.6s backwards;
 }
 
-.ticker {
-  animation: heroRise var(--intro-dur) var(--intro-ease) 0.8s backwards;
+.searchWrap > * {
+  animation: heroRise var(--intro-dur) var(--intro-ease) 0.7s backwards;
 }
 
 .typesHead {
@@ -1175,7 +1226,8 @@
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas:
       "thumb label arrow"
-      "thumb desc arrow";
+      "thumb desc arrow"
+      "facts facts facts";
     column-gap: 18px;
     align-content: center;
     padding: 18px 20px;
