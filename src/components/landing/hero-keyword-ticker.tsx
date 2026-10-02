@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { HERO_INTRO_MS } from "./hero-intro";
 import s from "./hero-search-hub.module.css";
 
 /**
@@ -12,22 +13,30 @@ import s from "./hero-search-hub.module.css";
  *
  * - 마우스·키보드 포커스가 줄 위에 있는 동안은 넘기지 않는다(누르려는 순간 바뀌면 안 된다).
  * - prefers-reduced-motion / 숨은 탭: 정지.
+ * - 10/2: 히어로 등장 연출(HERO_INTRO_MS)이 끝난 뒤부터 넘긴다. 대기는 마운트 1회만 —
+ *   hover 로 멈췄다 풀릴 때마다 다시 기다리지 않게 별도 상태로 둔다.
  */
 const INTERVAL_MS = 3200;
 
 export function HeroKeywordTicker({ keywords }: { keywords: readonly string[] }) {
   const [index, setIndex] = useState(0);
   const [held, setHeld] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   useEffect(() => {
-    if (reduced || held || keywords.length < 2) return;
+    const t = window.setTimeout(() => setIntroDone(true), HERO_INTRO_MS);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (reduced || held || !introDone || keywords.length < 2) return;
     const timer = window.setInterval(() => {
       if (document.visibilityState !== "visible") return;
       setIndex((i) => (i + 1) % keywords.length);
     }, INTERVAL_MS);
     return () => window.clearInterval(timer);
-  }, [reduced, held, keywords.length]);
+  }, [reduced, held, introDone, keywords.length]);
 
   const current = reduced ? 0 : index;
   const prev = (current - 1 + keywords.length) % keywords.length;

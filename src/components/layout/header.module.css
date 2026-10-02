@@ -445,14 +445,70 @@
   }
 }
 
-/* ── 통합검색 모달 본문 (2026-09-29) — 입력창을 크게, 제안·바로가기는 SearchBar 리치 모드가 든다 ── */
-.searchModalBody :global([class*="inputWrapLarge"]) {
-  min-height: 56px;
-  font-size: 1.125rem;
+/* ══════════════════════════════════════════
+   헤더 검색 패널 열림 (2026-10-02 회장 — 기후금융포털식)
+   - 패널(SearchPanel)은 .header 안 절대 배치라 헤더가 그 위층이어야 한다 → .inner 를 위로
+   - 열린 동안 헤더는 흰 바탕·진한 글씨(랜딩 히어로 위 투명 헤더여도). 선택자를 `.header.searchOpen`
+     자손 선택자(클래스 3개)로 올려 `body:has([data-landing-hero])`·`html[data-hero-passed]` 규칙(0,2,1)을 이긴다.
+   - <768 은 패널이 화면 전체라 하단 탭바(z-header 동급, DOM 뒤) 위로 올라가야 한다 → z-overlay
+   ══════════════════════════════════════════ */
+.inner {
+  position: relative;
+  z-index: 2;
 }
 
-.searchModalBody :global([class*="sectionLabel"]) {
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  color: var(--muted-foreground, #6b7280);
+/* 클래스 3개(0,3,0) — 랜딩 투명 규칙 `body:has([data-landing-hero]) .header`(0,2,1)를 이긴다 */
+.header.searchOpen.searchOpen {
+  z-index: var(--z-overlay, 100);
+  background-color: var(--background, #fff);
+  border-bottom-color: var(--border);
+}
+
+.header.searchOpen .logoTitle { color: var(--primary, #1b6b5a); }
+.header.searchOpen .logo svg { filter: none; }
+.header.searchOpen .navLink { color: var(--muted-foreground); }
+.header.searchOpen .navLink.active {
+  color: var(--primary, #1b6b5a);
+  background-color: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+}
+
+@media (hover: hover) {
+  .header.searchOpen .navLink:hover {
+    color: var(--primary, #1b6b5a);
+    background-color: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
+  }
+}
+
+.header.searchOpen .navLink:focus-visible,
+.header.searchOpen .logo:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px color-mix(in srgb, var(--ring) 30%, transparent);
+}
+
+/* 열린 동안 트리거 자리 — ✕ 닫기 (44px 터치) */
+.searchClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--foreground, #111827);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .searchClose:hover {
+    background-color: var(--muted, #f9fafb);
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.searchClose:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px color-mix(in srgb, var(--ring) 30%, transparent);
 }

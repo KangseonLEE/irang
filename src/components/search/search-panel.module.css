@@ -1,0 +1,78 @@
+/* 헤더 검색 패널 (2026-10-02) — 헤더(.header) 안, 헤더 바로 아래에 붙는다.
+   clip 은 패널을 헤더 아래로만 보이게 자르는 창(窓): 닫힌 패널은 translateY(-100%) 로 창 위쪽에 숨어 있다가
+   0.3s 동안 내려온다. 헤더 내용(.inner)이 위층이라 슬라이드 중에도 GNB·✕ 를 덮지 않는다. */
+.clip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  /* 패널 그림자가 창에 잘리지 않을 만큼 아래 여유 */
+  padding-bottom: 24px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.panel {
+  position: relative;
+  max-height: calc(100vh - var(--h-header, 56px) - 48px);
+  max-height: calc(100dvh - var(--h-header, 56px) - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--background, #fff);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  box-shadow: 0 16px 24px -12px rgba(13, 46, 39, 0.14);
+  transform: translateY(-100%);
+  visibility: hidden;
+  /* 닫힘: 슬라이드업이 끝난 뒤 visibility 를 끈다 */
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.3s;
+}
+
+.panelOpen {
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0s;
+}
+
+.inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 40px 32px 44px;
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    padding: 56px 40px 52px;
+  }
+}
+
+/* <768 — 헤더 아래 화면 전체. 가상 키보드가 뜨면 visualViewport 높이(--search-panel-vvh)로 줄어든다 */
+@media (max-width: 767px) {
+  .clip {
+    padding-bottom: 0;
+  }
+
+  .panel {
+    height: calc(100vh - var(--h-header, 56px));
+    height: calc(var(--search-panel-vvh, 100dvh) - var(--h-header, 56px));
+    max-height: none;
+    border-bottom: 0;
+    box-shadow: none;
+  }
+
+  .inner {
+    padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 32px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .panelOpen {
+    transition: none;
+  }
+}

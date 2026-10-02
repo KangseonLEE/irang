@@ -1,5 +1,5 @@
 /* 랜딩 검색 폼 — 히어로(hero) / 하단 고정 바(dock) 두 크기.
-   불투명 흰 필(반투명 유리 금지 — 일러스트 위 가독성). 모바일 퍼스트, 기본 → @media 순서. */
+   dock = 불투명 흰 필 / hero = 유리 입력창(10/2 회장, 대비 실측 후 채택). 모바일 퍼스트, 기본 → @media 순서. */
 
 .form {
   position: relative;
@@ -84,22 +84,74 @@
   }
 }
 
-/* ── hero ── */
+/* ── hero ── 유리 입력창 (10/2 회장, 기후금융포털식)
+   반투명 어두운 유리 + 흰 1px 테두리 + 흰 글씨, 거의 직각. 왼쪽 돋보기는 숨기고 오른쪽 제출 버튼을
+   돋보기 아이콘 버튼으로 바꾼다 — 버튼 글자 "검색"은 font-size 0 으로 남겨 접근 이름이 된다
+   (TSX 공용이라 dock 은 그대로 글자 버튼). 아이콘은 lucide Search 와 같은 패스를 mask 로 그린다. */
 .hero {
   height: 56px;
-  padding: 0 6px 0 16px;
-  gap: 10px;
-  border-radius: 16px;
-  box-shadow: 0 12px 32px rgba(6, 26, 21, 0.28);
+  padding: 0 4px 0 16px;
+  gap: 8px;
+  border-color: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+  background: rgba(6, 26, 21, 0.42);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  backdrop-filter: blur(12px) saturate(1.1);
   font-size: 1rem;
 }
 
+.hero:focus-within {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.28);
+}
+
+.hero .icon {
+  display: none;
+}
+
+.hero .input {
+  color: #fff;
+  font-weight: 400;
+}
+
+.hero .input::placeholder {
+  color: rgba(255, 255, 255, 0.78);
+}
+
 .hero .submit {
-  min-width: 64px;
-  height: 44px;
-  padding: 0 16px;
-  border-radius: 12px;
-  font-size: 0.9375rem;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: #fff;
+  font-size: 0;
+}
+
+.hero .submit::before {
+  content: "";
+  width: 22px;
+  height: 22px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21 21-4.34-4.34'/%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21 21-4.34-4.34'/%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.hero .submit:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -4px;
+}
+
+@media (hover: hover) {
+  .hero .submit:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hero {
+    background: rgba(6, 26, 21, 0.74);
+  }
 }
 
 @media (min-width: 1024px) {
@@ -107,15 +159,17 @@
     height: 64px;
     padding: 0 8px 0 22px;
     gap: 12px;
-    border-radius: 18px;
     font-size: 1.0625rem;
   }
 
   .hero .submit {
-    min-width: 84px;
-    height: 48px;
-    border-radius: 13px;
-    font-size: 1rem;
+    width: 52px;
+    height: 52px;
+  }
+
+  .hero .submit::before {
+    width: 24px;
+    height: 24px;
   }
 }
 

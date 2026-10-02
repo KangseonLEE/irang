@@ -104,6 +104,26 @@ describe("이런 검색어를 추천해요 — 한 줄 회전 (10/2 회장)", ()
   });
 });
 
+describe("등장 연출 + 유리 UI (10/2 회장)", () => {
+  const html = renderToStaticMarkup(<HeroSearchHub stats={stats} deadlines={deadlines} />);
+
+  it("안개 층은 배경(aria-hidden) 안에만 있고 본문 텍스트·링크는 그대로 SSR 된다", () => {
+    const bg = html.slice(0, html.indexOf("<h1"));
+    expect(bg).toMatch(/class="[^"]*fog/);
+    expect(html).toContain("어디서부터 볼까요?");
+    expect(html.match(/data-track="hero_type:/g)?.length).toBe(6);
+  });
+
+  it("h1 두 줄이 각자 줄 마스크(lineInner)를 갖는다", () => {
+    const h1 = html.slice(html.indexOf("<h1"), html.indexOf("</h1>"));
+    expect(h1.match(/class="[^"]*lineInner/g)?.length).toBe(2);
+  });
+
+  it("유형 카드 li 에 등장 순서(--i 0~5)가 실린다", () => {
+    for (let i = 0; i < 6; i++) expect(html).toContain(`--i:${i}`);
+  });
+});
+
 describe("하단 고정 바 (1024+)", () => {
   const html = renderToStaticMarkup(<HeroSearchDock />);
 

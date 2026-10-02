@@ -30,6 +30,9 @@ import { SEARCH_FAQS } from "@/lib/data/search-faq";
 // 검색 홈에서 노출할 FAQ — 큐레이션된 5건 (자주 들어오는 질문 위주).
 // 답: 첫 5개 표준 FAQ — 5단계 로드맵·비용·적합도·생활비·작물 추천.
 const FEATURED_FAQ_INDICES = [0, 2, 4, 5, 6] as const;
+
+/** 헤더 패널 "추천 검색어" 칩 — 인기 검색어 SSOT 에서 외부 서비스명(토지이음)만 뺀다 (10/2 회장) */
+const PANEL_RECOMMENDED = POPULAR_KEYWORDS.filter((kw) => kw.label !== "토지이음");
 import { isComposingEvent } from "@/lib/ime";
 import { useDialog } from "@/components/ui/confirm-dialog";
 import s from "./search-bar.module.css";
@@ -63,6 +66,13 @@ interface SearchBarProps {
    * 모달 패널은 overflow: hidden 이라 absolute 드롭다운이 잘린다 — 흐름에 두면 모달 본문이 함께 스크롤된다.
    */
   inlineDropdown?: boolean;
+  /**
+   * 헤더 검색 패널 배치 (2026-10-02 회장 — 기후금융포털식 위에서 내려오는 패널).
+   * 제안 목록은 흐름 배치 + 상시 노출(바깥 클릭으로 접지 않는다 — 패널이 열림/닫힘을 맡는다),
+   * 빈 입력이면 추천 검색어 칩 → 최근 검색·바로 탐색 / 단계별 가이드 / 자주 묻는 질문 열(列) 배치,
+   * 검색 버튼은 입력 오른쪽.
+   */
+  panelLayout?: boolean;
 }
 
 interface SearchBarHandle {
@@ -177,6 +187,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     onClose: onCloseProp,
     readOnlyDisplay = false,
     inlineDropdown = false,
+    panelLayout = false,
   },
   ref,
 ) {
@@ -643,8 +654,9 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // ----- Render -----
   const wrapClass = [
     size === "large" ? s.inputWrapLarge : s.inputWrap,
-    autoFocus && !isExpanded ? s.inputWrapAutoFocus : "",
+    autoFocus && !isExpanded && !panelLayout ? s.inputWrapAutoFocus : "",
     isExpanded ? s.inputWrapExpanded : "",
+    panelLayout ? s.inputWrapPanel : "",
   ].filter(Boolean).join(" ");
 
   const containerClass = `${s.container}${isExpanded ? ` ${s.containerExpanded}` : ""}`;
@@ -652,15 +664,180 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const showDropdown =
     isNavigating ||
     isExpanded ||
+    panelLayout ||
     (isOpen &&
       (richMode ||
         showRecent ||
         suggestions.length > 0 ||
         query.trim().length > 0));
 
+  const isEmptyQuery = query.trim().length === 0;
+
   const dropdownClass = `${s.dropdown}${isExpanded ? ` ${s.dropdownExpanded}` : ""}${
     inlineDropdown ? ` ${s.dropdownInline}` : ""
-  }${showRich && query.trim().length === 0 ? ` ${s.dropdownRich}` : ""}`;
+  }${panelLayout ? ` ${s.dropdownPanel}` : ""}${showRich && isEmptyQuery ? ` ${s.dropdownRich}` : ""}`;
+
+  // ── 빈 입력 화면의 섹션들 — 모달·오버레이(세로 스택)와 헤더 패널(열 배치)이 같은 조각을 쓴다 ──
+
+  /* 최근 검색어 */
+  const recentSection = showRecent ? (
+    <div className={s.dropdownSection}>
+      <div className={s.sectionLabelRow}>
+        <div className={s.sectionLabel}>
+          최근 검색
+        </div>
+        <button
+          type="button"
+          className={s.clearAllBtn}
+          onClick={handleClearAllRecent}
+        >
+          전체삭제
+        </button>
+      </div>
+      {recentSearches.map((r, i) => {
+        const itemId = `recent-${i}`;
+        const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
+        return (
+          <div
+            key={`recent-${r.query}`}
+            id={`search-item-${itemId}`}
+            className={`${s.resultItem} ${s.resultItemCompact} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`}
+            role="option"
+            aria-selected={focusedIndex === currentFlatIndex}
+            onClick={() => navigateToSearch(r.query)}
+          >
+            <span className={s.recentIcon} aria-hidden="true">
+              <Clock size={14} />
+            </span>
+            <div className={s.resultItemContent}>
+              <div className={s.resultItemTitle}>{r.query}</div>
+            </div>
+            {r.date && (
+              <span className={s.recentDate}>{r.date}</span>
+            )}
+            <button
+              type="button"
+              className={s.removeRecent}
+              onClick={(e) => handleRemoveRecent(e, r.query)}
+              aria-label={`"${r.query}" 최근 검색 삭제`}
+              tabIndex={-1}
+            >
+              <X size={14} />
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  ) : null;
+
+  /* 바로 탐색 */
+  const quickSection = (
+    <div className={s.expandedSection}>
+      <div className={s.sectionLabel}>바로 탐색</div>
+      <div className={s.quickGrid}>
+        <Link href="/regions" className={s.quickItem} onClick={handleQuickNav}>
+          <MapPin size={16} />
+          <span>지역 비교</span>
+        </Link>
+        <Link href="/crops" className={s.quickItem} onClick={handleQuickNav}>
+          <Sprout size={16} />
+          <span>작물 정보</span>
+        </Link>
+        <Link href="/programs" className={s.quickItem} onClick={handleQuickNav}>
+          <FileText size={16} />
+          <span>지원사업</span>
+        </Link>
+        <Link href="/guide" className={s.quickItem} onClick={handleQuickNav}>
+          <Compass size={16} />
+          <span>정착 로드맵</span>
+        </Link>
+        <Link href="/education" className={s.quickItem} onClick={handleQuickNav}>
+          <GraduationCap size={16} />
+          <span>교육·체험</span>
+        </Link>
+        <Link href="/match" className={s.quickItem} onClick={handleQuickNav}>
+          <Search size={16} />
+          <span>유형 진단</span>
+        </Link>
+      </div>
+    </div>
+  );
+
+  /* 단계별 가이드 */
+  const guideSection = (
+    <div className={s.expandedSection}>
+      <div className={s.sectionLabel}>단계별 가이드</div>
+      <div className={s.guideStepsGrid}>
+        {PLAN_STEPS.map((step) => (
+          <Link
+            key={step.id}
+            href={`/guide#step${step.step}`}
+            className={s.guideStepCard}
+            onClick={handleQuickNav}
+          >
+            <span className={s.guideStepNum}>{step.step}</span>
+            <span className={s.guideStepBody}>
+              <span className={s.guideStepTitle}>{step.title}</span>
+              <span className={s.guideStepHint}>{step.timeline}</span>
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+
+  /* 인기 검색어 (순위 목록) — 모바일 풀스크린 확장·히어로 드롭다운 */
+  const popularSection = (
+    <div className={s.expandedSection}>
+      <div className={s.sectionLabel}>인기 검색어</div>
+      <div className={s.popularList}>
+        {POPULAR_KEYWORDS.map((kw, i) => {
+          const rank = i + 1;
+          const isTop = rank <= 3;
+          return (
+            <button
+              key={kw.label}
+              type="button"
+              className={s.popularItem}
+              onClick={() => navigateToSearch(kw.label)}
+            >
+              <span
+                className={`${s.popularRank}${isTop ? ` ${s.popularRankTop}` : ""}`}
+                aria-hidden="true"
+              >
+                {rank}
+              </span>
+              <span className={s.popularLabel}>{kw.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  /* 자주 묻는 질문 */
+  const faqSection = (
+    <div className={s.expandedSection}>
+      <div className={s.sectionLabel}>자주 묻는 질문</div>
+      <div className={s.faqList}>
+        {FEATURED_FAQ_INDICES.map((idx) => {
+          const faq = SEARCH_FAQS[idx];
+          if (!faq) return null;
+          return (
+            <Link
+              key={faq.href + idx}
+              href={faq.href}
+              className={s.faqItem}
+              onClick={handleQuickNav}
+            >
+              <span className={s.faqQ}>{faq.patterns[0]}</span>
+              <span className={s.faqA}>{faq.description}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
 
   return (
     <div className={containerClass} ref={containerRef}>
@@ -674,7 +851,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           >
             <ArrowLeft size={18} />
           </button>
-        ) : (
+        ) : panelLayout ? null : (
           <button type="submit" className={s.searchSubmitBtn} aria-label="검색">
             <Search
               size={size === "large" ? 22 : 18}
@@ -708,14 +885,14 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           placeholder={activePlaceholder}
           role="combobox"
           aria-label="통합 검색"
-          aria-expanded={isOpen}
+          aria-expanded={isOpen || panelLayout}
           aria-haspopup="listbox"
           aria-autocomplete="list"
           aria-controls="search-listbox"
           aria-activedescendant={activeDescendant}
           autoComplete="off"
         />
-        {isExpanded && query.length > 0 && (
+        {(isExpanded || panelLayout) && query.length > 0 && (
           <button
             type="button"
             className={s.expandedClear}
@@ -727,6 +904,11 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             aria-label="검색어 지우기"
           >
             <X size={16} />
+          </button>
+        )}
+        {panelLayout && (
+          <button type="submit" className={`${s.searchSubmitBtn} ${s.panelSubmitBtn}`} aria-label="검색">
+            <Search size={24} className={s.searchIcon} aria-hidden="true" />
           </button>
         )}
       </form>
@@ -753,157 +935,47 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           aria-label="검색 결과"
           aria-live="polite"
         >
-          {/* 최근 검색어 */}
-          {showRecent && (
-            <div className={s.dropdownSection}>
-              <div className={s.sectionLabelRow}>
-                <div className={s.sectionLabel}>
-                  최근 검색
-                </div>
-                <button
-                  type="button"
-                  className={s.clearAllBtn}
-                  onClick={handleClearAllRecent}
-                >
-                  전체삭제
-                </button>
-              </div>
-              {recentSearches.map((r, i) => {
-                const itemId = `recent-${i}`;
-                const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
-                return (
-                  <div
-                    key={`recent-${r.query}`}
-                    id={`search-item-${itemId}`}
-                    className={`${s.resultItem} ${s.resultItemCompact} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`}
-                    role="option"
-                    aria-selected={focusedIndex === currentFlatIndex}
-                    onClick={() => navigateToSearch(r.query)}
-                  >
-                    <span className={s.recentIcon} aria-hidden="true">
-                      <Clock size={14} />
-                    </span>
-                    <div className={s.resultItemContent}>
-                      <div className={s.resultItemTitle}>{r.query}</div>
-                    </div>
-                    {r.date && (
-                      <span className={s.recentDate}>{r.date}</span>
-                    )}
-                    <button
-                      type="button"
-                      className={s.removeRecent}
-                      onClick={(e) => handleRemoveRecent(e, r.query)}
-                      aria-label={`"${r.query}" 최근 검색 삭제`}
-                      tabIndex={-1}
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* ── 확장/리치 모드 검색 홈: 바로 탐색 + 인기 검색어 ── */}
-          {showRich && query.trim().length === 0 && (
+          {panelLayout && isEmptyQuery ? (
+            /* ── 헤더 패널 검색 홈 (10/2): 추천 검색어 칩 → 3열(최근·바로 탐색 / 가이드 / FAQ) ── */
             <>
-              {/* 바로 탐색 */}
-              <div className={s.expandedSection}>
-                <div className={s.sectionLabel}>바로 탐색</div>
-                <div className={s.quickGrid}>
-                  <Link href="/regions" className={s.quickItem} onClick={handleQuickNav}>
-                    <MapPin size={16} />
-                    <span>지역 비교</span>
-                  </Link>
-                  <Link href="/crops" className={s.quickItem} onClick={handleQuickNav}>
-                    <Sprout size={16} />
-                    <span>작물 정보</span>
-                  </Link>
-                  <Link href="/programs" className={s.quickItem} onClick={handleQuickNav}>
-                    <FileText size={16} />
-                    <span>지원사업</span>
-                  </Link>
-                  <Link href="/guide" className={s.quickItem} onClick={handleQuickNav}>
-                    <Compass size={16} />
-                    <span>정착 로드맵</span>
-                  </Link>
-                  <Link href="/education" className={s.quickItem} onClick={handleQuickNav}>
-                    <GraduationCap size={16} />
-                    <span>교육·체험</span>
-                  </Link>
-                  <Link href="/match" className={s.quickItem} onClick={handleQuickNav}>
-                    <Search size={16} />
-                    <span>유형 진단</span>
-                  </Link>
-                </div>
-              </div>
-              <div className={s.expandedSection}>
-                <div className={s.sectionLabel}>단계별 가이드</div>
-                <div className={s.guideStepsGrid}>
-                  {PLAN_STEPS.map((step) => (
-                    <Link
-                      key={step.id}
-                      href={`/guide#step${step.step}`}
-                      className={s.guideStepCard}
-                      onClick={handleQuickNav}
+              <div className={s.panelChips}>
+                <span className={s.panelChipsLabel}>추천 검색어</span>
+                <div className={s.panelChipList}>
+                  {PANEL_RECOMMENDED.map((kw) => (
+                    <button
+                      key={kw.label}
+                      type="button"
+                      className={s.panelChip}
+                      onClick={() => navigateToSearch(kw.label)}
                     >
-                      <span className={s.guideStepNum}>{step.step}</span>
-                      <span className={s.guideStepBody}>
-                        <span className={s.guideStepTitle}>{step.title}</span>
-                        <span className={s.guideStepHint}>{step.timeline}</span>
-                      </span>
-                    </Link>
+                      {kw.label}
+                    </button>
                   ))}
                 </div>
               </div>
-              {/* 인기 검색어 — 모달(inlineDropdown)에서는 제외 (9/29 회장): 바로 탐색 → 가이드 → FAQ 만 */}
-              {!inlineDropdown && (
-              <div className={s.expandedSection}>
-                <div className={s.sectionLabel}>인기 검색어</div>
-                <div className={s.popularList}>
-                  {POPULAR_KEYWORDS.map((kw, i) => {
-                    const rank = i + 1;
-                    const isTop = rank <= 3;
-                    return (
-                      <button
-                        key={kw.label}
-                        type="button"
-                        className={s.popularItem}
-                        onClick={() => navigateToSearch(kw.label)}
-                      >
-                        <span
-                          className={`${s.popularRank}${isTop ? ` ${s.popularRankTop}` : ""}`}
-                          aria-hidden="true"
-                        >
-                          {rank}
-                        </span>
-                        <span className={s.popularLabel}>{kw.label}</span>
-                      </button>
-                    );
-                  })}
+              <div className={s.panelGrid}>
+                <div className={s.panelCol}>
+                  {recentSection}
+                  {quickSection}
                 </div>
+                <div className={s.panelCol}>{guideSection}</div>
+                <div className={s.panelCol}>{faqSection}</div>
               </div>
+            </>
+          ) : (
+            <>
+              {recentSection}
+
+              {/* ── 확장/리치 모드 검색 홈: 바로 탐색 + 인기 검색어 ── */}
+              {showRich && isEmptyQuery && (
+                <>
+                  {quickSection}
+                  {guideSection}
+                  {/* 인기 검색어 — 모달(inlineDropdown)에서는 제외 (9/29 회장): 바로 탐색 → 가이드 → FAQ 만 */}
+                  {!inlineDropdown && popularSection}
+                  {faqSection}
+                </>
               )}
-              <div className={s.expandedSection}>
-                <div className={s.sectionLabel}>자주 묻는 질문</div>
-                <div className={s.faqList}>
-                  {FEATURED_FAQ_INDICES.map((idx) => {
-                    const faq = SEARCH_FAQS[idx];
-                    if (!faq) return null;
-                    return (
-                      <Link
-                        key={faq.href + idx}
-                        href={faq.href}
-                        className={s.faqItem}
-                        onClick={handleQuickNav}
-                      >
-                        <span className={s.faqQ}>{faq.patterns[0]}</span>
-                        <span className={s.faqA}>{faq.description}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
             </>
           )}
 

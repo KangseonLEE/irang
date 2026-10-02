@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { HERO_INTRO_MS } from "./hero-intro";
 import s from "./hero-search-hub.module.css";
 
 /**
@@ -16,6 +17,7 @@ import s from "./hero-search-hub.module.css";
  *
  * - prefers-reduced-motion: 첫 장면에 멈춘다(SSR 상태 그대로).
  * - 탭이 숨겨진 동안은 넘기지 않는다.
+ * - 10/2: 등장 연출(HERO_INTRO_MS)이 끝난 뒤에 타이머를 건다 — 첫 장면은 연출 + 한 주기만큼 머문다.
  */
 
 export interface HeroScene {
@@ -32,11 +34,17 @@ export function HeroRotator({ scenes }: { scenes: readonly HeroScene[] }) {
 
   useEffect(() => {
     if (reduced || scenes.length < 2) return;
-    const timer = window.setInterval(() => {
-      if (document.visibilityState !== "visible") return;
-      setIndex((i) => (i + 1) % scenes.length);
-    }, INTERVAL_MS);
-    return () => window.clearInterval(timer);
+    let timer: number | undefined;
+    const start = window.setTimeout(() => {
+      timer = window.setInterval(() => {
+        if (document.visibilityState !== "visible") return;
+        setIndex((i) => (i + 1) % scenes.length);
+      }, INTERVAL_MS);
+    }, HERO_INTRO_MS);
+    return () => {
+      window.clearTimeout(start);
+      window.clearInterval(timer);
+    };
   }, [reduced, scenes.length]);
 
   const current = reduced ? 0 : index;

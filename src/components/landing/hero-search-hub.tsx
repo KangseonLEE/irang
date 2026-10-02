@@ -22,7 +22,10 @@ import s from "./hero-search-hub.module.css";
  * - 10/1 회장: 문장 속 유형어 + 배경 장면 + 유형 카드 강조가 4.5초마다 함께 넘어간다(HeroRotator).
  *   SSR 은 첫 장면(귀농) 그대로라 첫 페인트·CLS 는 고정 배경과 같다.
  * - `data-landing-hero` 가 투명 오버레이 헤더를 켠다(header.module.css). 되돌림은 HeroSearchDock.
- * - 카드는 불투명 흰 카드(반투명 유리 금지 — 일러스트 위 가독성).
+ * - 10/2 회장: 기후금융포털식 **등장 연출**(안개 걷힘 → 제목 줄 리빌 → 순차 fade-up, ≈2s, CSS 만)과
+ *   **유리 UI**(반투명 어두운 유리 + 흰 1px 테두리). 등장 연출은 `animation-fill-mode: backwards` 라
+ *   끝나면 원래 스타일로 돌아간다 — JS 가 없어도 2초 뒤 완성 상태, reduced-motion 은 즉시 완성.
+ *   유리 위 흰 글씨 대비는 5개 장면 최악 픽셀 기준으로 맞췄다(불투명도 값 옆 주석).
  * - 수치는 page.tsx 가 배열·DB 결과에서 계산해 넘긴다(하드코딩 금지). 0 인 항목은 그리지 않는다.
  */
 
@@ -73,6 +76,8 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
       <div className={s.bg} aria-hidden="true">
         <HeroRotator scenes={SCENES.map(({ id, image }) => ({ id, image }))} />
         <span className={s.scrim} />
+        {/* 등장 연출: 밝은 안개가 걷히며 배경이 드러난다(끝나면 투명, 상호작용 없음) */}
+        <span className={s.fog} />
       </div>
 
       <div className={s.inner}>
@@ -83,23 +88,26 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
             <span className={s.srOnly}>
               {SCENES.map((sc) => sc.word).join("·")} 준비, 어디서부터 볼까요?
             </span>
+            {/* 줄 단위 마스크 리빌 — 줄(overflow hidden) 안의 lineInner 가 아래에서 올라온다 */}
             <span className={s.wordLine} aria-hidden="true">
-              <span className={s.wordSlot}>
-                {SCENES.map((sc, i) => (
-                  <span
-                    key={sc.id}
-                    className={s.word}
-                    data-hero-word={sc.id}
-                    data-state={i === 0 ? "in" : "wait"}
-                  >
-                    {/* "준비,"까지 한 덩어리로 넘긴다 — 칸 폭이 가장 긴 단어 기준이라 밖에 두면 짧은 단어 뒤가 벌어진다 */}
-                    <span className={s.wordAccent}>{sc.word}</span> 준비,
-                  </span>
-                ))}
+              <span className={s.lineInner}>
+                <span className={s.wordSlot}>
+                  {SCENES.map((sc, i) => (
+                    <span
+                      key={sc.id}
+                      className={s.word}
+                      data-hero-word={sc.id}
+                      data-state={i === 0 ? "in" : "wait"}
+                    >
+                      {/* "준비,"까지 한 덩어리로 넘긴다 — 칸 폭이 가장 긴 단어 기준이라 밖에 두면 짧은 단어 뒤가 벌어진다 */}
+                      <span className={s.wordAccent}>{sc.word}</span> 준비,
+                    </span>
+                  ))}
+                </span>
               </span>
             </span>
             <span className={s.titleRest} aria-hidden="true">
-              어디서부터 볼까요?
+              <span className={s.lineInner}>어디서부터 볼까요?</span>
             </span>
           </h1>
           <p className={s.sub}>
@@ -117,8 +125,9 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
         <div className={s.types}>
           <h2 className={s.typesTitle}>정착 유형으로 시작하기</h2>
           <ul className={s.typeGrid}>
-            {JOURNEY_LANES.map((lane) => (
-              <li key={lane.id} className={s.typeItem}>
+            {JOURNEY_LANES.map((lane, i) => (
+              /* --i = 등장 스태거 순서(CSS 가 지연을 계산) */
+              <li key={lane.id} className={s.typeItem} style={{ "--i": i } as React.CSSProperties}>
                 <Link
                   href={lane.href}
                   className={s.typeCard}

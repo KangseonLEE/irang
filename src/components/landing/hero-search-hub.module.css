@@ -5,6 +5,9 @@
    - 모바일(<1024)은 내용만큼의 높이(화면 고정 X), 1024+ 는 100svh 근처.
    - 업데이트 스낵바(updates-banner)가 .page 기준 absolute 로 위에 뜬다 → 위 패딩이 그 자리를 비운다.
    - 기본(모바일) → @media 오버라이드 순서(체크리스트 G). 다크모드 없음.
+   - 10/2 회장: 유리(glass) UI + 등장 연출(파일 끝 "등장 연출"). 유리 = 어두운 반투명 + backdrop blur +
+     흰 1px 테두리 + 흰 글씨, 모서리 4~8px. 불투명도는 5개 장면 최악 픽셀 대비 실측값(각 주석).
+     backdrop-filter 미지원이면 더 진한 단색(@supports not).
    ══════════════════════════════════════════ */
 
 .hero {
@@ -102,7 +105,8 @@
   z-index: 1;
   background:
     linear-gradient(180deg, rgba(6, 26, 21, 0.62) 0px, rgba(6, 26, 21, 0.3) 120px, rgba(6, 26, 21, 0) 200px),
-    linear-gradient(180deg, rgba(6, 26, 21, 0.58) 0%, rgba(6, 26, 21, 0.66) 100%);
+    /* 10/2 유리 UI 실측: 0.58→0.62 — 375 부제·추천 라벨이 hero-4 장면에서 4.1 이던 것 */
+    linear-gradient(180deg, rgba(6, 26, 21, 0.62) 0%, rgba(6, 26, 21, 0.68) 100%);
 }
 
 @media (min-width: 1024px) {
@@ -114,6 +118,15 @@
       linear-gradient(90deg, rgba(6, 26, 21, 0.8) 0%, rgba(6, 26, 21, 0.64) 42%, rgba(6, 26, 21, 0.58) 100%),
       linear-gradient(0deg, rgba(6, 26, 21, 0.45) 0%, rgba(6, 26, 21, 0) 40%);
   }
+}
+
+/* 등장 연출용 밝은 안개 — 평소엔 투명. 애니메이션(heroFog)의 시작 프레임만 불투명하다 */
+.fog {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: #eef3f1;
+  opacity: 0;
 }
 
 /* ── 레이아웃 ── */
@@ -183,6 +196,14 @@
 .wordLine,
 .titleRest {
   display: block;
+  /* 줄 마스크 — lineInner 가 이 안에서 아래→위로 드러난다. 위아래 여유는 글자 꼬리·악센트용 */
+  overflow: hidden;
+  padding-block: 0.06em;
+  margin-block: -0.06em;
+}
+
+.lineInner {
+  display: block;
 }
 
 .wordSlot {
@@ -237,7 +258,7 @@
   font-weight: 500;
   line-height: 1.55;
   letter-spacing: -0.02em;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.94);
 }
 
 @media (min-width: 768px) {
@@ -287,7 +308,7 @@
   flex: none;
   white-space: nowrap;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .tickerSlot {
@@ -305,11 +326,12 @@
   align-items: center;
   min-height: 36px;
   padding: 0 12px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 999px;
-  background: rgba(6, 26, 21, 0.55);
+  /* 유리 칩 — 반투명 + 흰 1px 테두리, 거의 직각(10/2) */
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  background: rgba(6, 26, 21, 0.4);
   color: #fff;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
   text-decoration: none;
   opacity: 0;
@@ -429,22 +451,24 @@
   align-content: start;
   min-width: 0;
   padding: 12px;
-  border: 1.5px solid transparent;
-  border-radius: 16px;
-  background: #fff;
-  color: var(--foreground, #111827);
+  /* 유리 카드 (10/2) — 어두운 반투명 + blur + 흰 1px 테두리 */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  background: var(--glass-card, rgba(6, 26, 21, 0.36));
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  backdrop-filter: blur(12px) saturate(1.1);
+  color: #fff;
   text-decoration: none;
-  box-shadow: 0 6px 18px rgba(6, 26, 21, 0.16);
   transition:
-    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.25s ease,
     border-color 0.2s ease,
     box-shadow 0.25s ease;
 }
 
 .typeCard:focus-visible {
-  outline: 3px solid #fff;
-  outline-offset: 2px;
-  border-color: var(--primary, #1b6b5a);
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-color: #fff;
 }
 
 .thumb {
@@ -454,8 +478,8 @@
   width: 44px;
   height: 44px;
   overflow: hidden;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, #fff);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .thumbImage {
@@ -477,8 +501,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
-  color: var(--primary, #1b6b5a);
+  background: transparent;
+  color: #fff;
   transition:
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.2s ease,
@@ -493,7 +517,7 @@
   grid-area: label;
   margin-top: 10px;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.3;
 }
@@ -506,20 +530,21 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-size: 0.8125rem;
+  font-weight: 400;
   line-height: 1.45;
-  color: var(--muted-foreground, #6b7280);
+  color: rgba(255, 255, 255, 0.86);
 }
 
 @media (min-width: 1024px) {
   .typeCard {
     padding: 16px;
-    border-radius: 18px;
+    border-radius: 8px;
   }
 
   .thumb {
     width: 52px;
     height: 52px;
-    border-radius: 14px;
+    border-radius: 4px;
   }
 
   .typeArrow {
@@ -537,28 +562,31 @@
   }
 }
 
-/* 지금 문장에 나온 유형 — 단어·배경과 같은 순간 강조(HeroRotator 가 data-active 를 옮긴다) */
+/* 지금 문장에 나온 유형 — 단어·배경과 같은 순간 강조(HeroRotator 가 data-active 를 옮긴다).
+   유리 문법: 테두리를 흰색으로 진하게 + 바탕을 초록 기운으로 살짝 밝게 + 화살표 흰 원.
+   (흰 덧칠로 밝히면 흰 글씨 대비가 떨어진다 — 밝기는 초록 채도로만 올린다) */
 .typeCard[data-active] {
-  border-color: var(--primary, #1b6b5a);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #1b6b5a) 28%, transparent);
+  border-color: rgba(255, 255, 255, 0.95);
+  background: var(--glass-card-active, rgba(22, 78, 64, 0.62));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
 .typeCard[data-active] .typeArrow {
-  background: var(--primary, #1b6b5a);
-  color: #fff;
+  background: #fff;
+  color: var(--primary, #1b6b5a);
 }
 
 @media (hover: hover) {
+  /* 유리 카드는 들뜨지 않는다 — 바탕이 밝아지고 테두리가 진해지며 화살표만 움직인다 */
   .typeCard:hover {
-    transform: translateY(-4px);
-    border-color: var(--primary, #1b6b5a);
-    box-shadow: 0 16px 36px rgba(6, 26, 21, 0.26);
+    border-color: rgba(255, 255, 255, 0.95);
+    background: var(--glass-card-active, rgba(22, 78, 64, 0.62));
   }
 
   .typeCard:hover .typeArrow {
     transform: translateX(3px);
-    background: var(--primary, #1b6b5a);
-    color: #fff;
+    background: #fff;
+    color: var(--primary, #1b6b5a);
   }
 
   .typeCard:hover .thumbImage {
@@ -581,17 +609,20 @@
   gap: 18px;
   min-width: 0;
   padding: 16px;
-  border-radius: 18px;
-  background: #fff;
-  color: var(--foreground, #111827);
-  box-shadow: 0 10px 30px rgba(6, 26, 21, 0.2);
+  /* 큰 유리 박스 (10/2) */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  background: var(--glass-panel, rgba(6, 26, 21, 0.4));
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(14px) saturate(1.1);
+  color: #fff;
 }
 
 @media (min-width: 1024px) {
   .data {
     gap: 20px;
     padding: 20px 24px;
-    border-radius: 20px;
+    border-radius: 8px;
   }
 }
 
@@ -653,9 +684,9 @@
 .dataTitle {
   margin: 0 0 10px;
   font-size: 0.875rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--foreground, #111827);
+  color: #fff;
 }
 
 .stats {
@@ -693,43 +724,48 @@
   gap: 2px;
   min-height: 44px;
   padding: 10px 12px;
-  border-radius: 12px;
-  background: var(--muted, #f9fafb);
+  /* 패널 안 칸 — 얇은 흰 테두리 칸(겹친 blur 는 비싸고 대비 이득이 없어 패널 하나에만 건다) */
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
   color: inherit;
   text-decoration: none;
-  transition: background-color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .stat:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
+  outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
 @media (hover: hover) {
   .stat:hover {
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 9%, #fff);
+    border-color: rgba(255, 255, 255, 0.7);
+    background: rgba(159, 224, 200, 0.1);
   }
 }
 
 .statLabel {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.4;
-  color: var(--muted-foreground, #6b7280);
+  color: rgba(255, 255, 255, 0.86);
 }
 
 .statValue {
   font-size: 1.375rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.2;
-  color: var(--primary, #1b6b5a);
+  color: #9fe0c8;
 }
 
 .statUnit {
   margin-left: 2px;
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .deadlineHead {
@@ -745,13 +781,13 @@
   gap: 2px;
   min-height: 32px;
   font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--primary, #1b6b5a);
+  font-weight: 600;
+  color: #fff;
   text-decoration: none;
 }
 
 .dataMore:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
+  outline: 2px solid #fff;
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -788,22 +824,25 @@
   height: 100%;
   min-height: 44px;
   padding: 10px 12px;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.15s ease, transform 0.2s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .deadline:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
+  outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
 @media (hover: hover) {
   .deadline:hover {
-    border-color: var(--primary, #1b6b5a);
-    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.7);
+    background: rgba(159, 224, 200, 0.1);
   }
 }
 
@@ -825,11 +864,12 @@
   align-items: center;
   height: 22px;
   padding: 0 8px;
-  border-radius: 20px;
-  background: color-mix(in srgb, #d97706 14%, transparent);
-  color: #b45309;
+  border-radius: 4px;
+  /* 어두운 유리 위 앰버 — 밝은 앰버 글씨 + 옅은 앰버 바탕 */
+  background: rgba(251, 191, 36, 0.16);
+  color: #fcd34d;
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -840,7 +880,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.45;
   letter-spacing: -0.01em;
 }
@@ -850,8 +890,8 @@
   overflow: hidden;
   max-width: 100%;
   font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--primary, #1b6b5a);
+  font-weight: 500;
+  color: #9fe0c8;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -859,5 +899,162 @@
 @media (prefers-reduced-motion: reduce) {
   .deadline {
     transition: none;
+  }
+}
+
+/* ── 유리 폴백 — backdrop-filter 미지원이면 흐림 없이 더 진한 단색(대비를 유리값 이상으로) ── */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hero {
+    --glass-card: rgba(6, 26, 21, 0.72);
+    --glass-card-active: rgba(18, 66, 54, 0.82);
+    --glass-panel: rgba(6, 26, 21, 0.76);
+  }
+}
+
+/* ══════════════════════════════════════════
+   등장 연출 (2026-10-02 회장 결재 — 기후금융포털식, 라이브러리 없이 CSS 만)
+   ① 밝은 안개가 걷히며 배경이 1.08 → 1 로 물러난다
+   ② h1 두 줄이 줄 마스크 안에서 차례로 올라온다(120ms 간격)
+   ③ 부제 → 검색 → 추천 검색어 → 유형 제목 → 유형 카드 6(스태거) → 데이터 패널 fade-up
+   총 ≈2s(= HERO_INTRO_MS, hero-intro.ts — 회전 타이머가 이 뒤에 시작).
+
+   - fill-mode 는 `backwards` — 지연 동안 시작 프레임을 쥐고, 끝나면 **원래 스타일로 돌아간다**.
+     `both` 로 끝 프레임을 쥐면 카드 hover transform·data-state 전환이 애니메이션 값에 덮인다.
+   - JS 없이도 CSS 가 돌아 2초 뒤 완성 상태. reduced-motion 은 애니메이션 자체를 끈다(즉시 완성).
+   - backdrop-filter 요소는 **자기 자신**에 opacity 를 건다 — 조상에 opacity<1 이 걸리면 그 조상이
+     backdrop root 가 되어 연출 동안 유리가 흐림 없이 비치다가 끝나는 순간 툭 바뀐다.
+     (유형 카드: li 는 이동만, 카드는 투명도만 / 검색: 폼 자체에 둘 다)
+   ══════════════════════════════════════════ */
+.hero {
+  --intro-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --intro-rise: 14px;
+  --intro-step: 60ms;
+  --intro-dur: 0.6s;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    --intro-rise: 24px;
+    --intro-step: 90ms;
+    --intro-dur: 0.7s;
+  }
+}
+
+@keyframes heroFog {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes heroBgZoom {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes heroLineUp {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroRise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--intro-rise));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroRiseMove {
+  from {
+    transform: translateY(var(--intro-rise));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fog {
+  animation: heroFog 1s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+
+.bgLayers {
+  animation: heroBgZoom 1.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.wordLine > .lineInner {
+  animation: heroLineUp 0.8s var(--intro-ease) 0.3s backwards;
+}
+
+.titleRest > .lineInner {
+  animation: heroLineUp 0.8s var(--intro-ease) 0.42s backwards;
+}
+
+.sub {
+  animation: heroRise var(--intro-dur) var(--intro-ease) 0.6s backwards;
+}
+
+.searchWrap > * {
+  animation: heroRise var(--intro-dur) var(--intro-ease) 0.7s backwards;
+}
+
+.ticker {
+  animation: heroRise var(--intro-dur) var(--intro-ease) 0.8s backwards;
+}
+
+.typesTitle {
+  animation: heroRise var(--intro-dur) var(--intro-ease) 0.8s backwards;
+}
+
+.typeItem {
+  animation: heroRiseMove var(--intro-dur) var(--intro-ease) calc(0.85s + var(--i, 0) * var(--intro-step)) backwards;
+}
+
+.typeItem > .typeCard {
+  animation: heroFadeIn var(--intro-dur) var(--intro-ease) calc(0.85s + var(--i, 0) * var(--intro-step)) backwards;
+}
+
+.data {
+  animation: heroRise var(--intro-dur) var(--intro-ease) 1.3s backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fog {
+    display: none;
+  }
+
+  .fog,
+  .bgLayers,
+  .lineInner,
+  .sub,
+  .searchWrap > *,
+  .ticker,
+  .typesTitle,
+  .typeItem,
+  .typeItem > .typeCard,
+  .data {
+    animation: none;
   }
 }
