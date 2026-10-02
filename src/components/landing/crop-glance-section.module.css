@@ -33,7 +33,7 @@
   align-items: center;
   gap: 6px;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   font-size: var(--fs-overline);
   font-weight: 700;
@@ -78,7 +78,7 @@
   color: var(--primary, #1b6b5a);
   text-decoration: none;
   padding: 6px 4px;
-  border-radius: 6px;
+  border-radius: 4px;
   transition: color 0.15s;
 }
 
@@ -130,7 +130,7 @@
   /* center: 이미지 박스가 카드 높이(텍스트 4줄)로 stretch되지 않게 — 정사각 유지 보장.
      stretch면 .rankCardImage height가 카드 높이로 늘어나 세로 직사각이 됨. */
   align-items: center;
-  border-radius: 16px;
+  border-radius: 8px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   overflow: hidden;
@@ -202,7 +202,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 7px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--card, #fff) 88%, transparent);
   font-size: 13px;
   font-weight: 800;
@@ -269,7 +269,7 @@
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
-  border-radius: 9px;
+  border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
@@ -343,7 +343,7 @@
   gap: 6px;
   min-width: 0;
   padding: 12px 10px;
-  border-radius: 14px;
+  border-radius: 4px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   text-decoration: none;

@@ -14,7 +14,7 @@
 .curtain {
   position: relative; /* 없으면 이전 섹션의 텍스트가 이 띠 배경 위에 그려진다(비위치 요소 페인트 순서) */
   z-index: 1;
-  border-radius: 28px 28px 0 0;
+  border-radius: 8px 8px 0 0;
   box-shadow: 0 -12px 32px rgba(6, 26, 21, 0.08); /* 10/2 오버랩 제거 후 흰 간격을 회색으로 물들이지 않게 약하게 */
   /* 진입 시 아래에서 올라와 덮는다 — ScrollReveal 이 부모에 data-visible 을 붙이면 0 으로 (아래) */
   transform: translateY(40px);

@@ -84,7 +84,7 @@
   width: 100%;
   min-height: 44px;
   padding: 4px 2px;
-  border-radius: 14px;
+  border-radius: 4px;
   color: var(--foreground, #111827);
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;

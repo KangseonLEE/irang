@@ -12,7 +12,7 @@
   margin: 0 auto -52px; /* .page gap(64) 을 12 로 — 9/7 배너↔타이틀 간격 축소. 데스크탑은 아래 -72 */
   padding: 8px 12px;
   border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
-  border-radius: 16px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary) 6%, var(--card));
 }
 
@@ -30,7 +30,7 @@
 .link:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 3px;
-  border-radius: 10px;
+  border-radius: 4px;
 }
 
 .badge {
@@ -39,7 +39,7 @@
   flex: none;
   gap: 4px;
   padding: 3px 9px;
-  border-radius: 20px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary) 14%, transparent);
   color: var(--primary);
   font-size: 0.7rem;
@@ -77,7 +77,7 @@
   height: 32px;
   padding: 0;
   border: none;
-  border-radius: 10px;
+  border-radius: 4px;
   background: transparent;
   color: var(--muted-foreground, #6b7280);
   cursor: pointer;

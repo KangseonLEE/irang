@@ -38,7 +38,7 @@
   align-items: center;
   gap: 6px;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   font-size: var(--fs-overline);
   font-weight: 700;
@@ -83,7 +83,7 @@
   color: var(--primary, #1b6b5a);
   text-decoration: none;
   padding: 6px 4px;
-  border-radius: 6px;
+  border-radius: 4px;
   transition: color 0.15s;
 }
 
@@ -120,7 +120,7 @@
   display: flex;
   gap: 6px;
   padding: 4px;
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--muted, #f3f4f6);
 }
 
@@ -134,7 +134,7 @@
   min-width: 0;
   padding: 9px 6px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 4px;
   background: transparent;
   font-size: var(--fs-caption);
   font-weight: 700;
@@ -170,7 +170,7 @@
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
-  border-radius: 100px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--muted-foreground, #6b7280) 16%, transparent);
   font-size: 11px;
   font-weight: 700;
@@ -263,7 +263,7 @@
   display: flex;
   flex-direction: column;
   aspect-ratio: 3 / 4;
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
   isolation: isolate;
   text-decoration: none;
@@ -340,7 +340,7 @@
   display: inline-flex;
   align-items: center;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: var(--fs-overline);
   font-weight: 700;
   line-height: var(--lh-tight);
@@ -381,21 +381,21 @@
 .cardText .statusOpen {
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   color: var(--primary, #1b6b5a);
-  border-radius: 100px;
+  border-radius: 4px;
   padding: 3px 10px;
 }
 
 .cardText .statusSoon {
   background: color-mix(in srgb, var(--warning, #d97706) 12%, transparent);
   color: #b26100;
-  border-radius: 100px;
+  border-radius: 4px;
   padding: 3px 10px;
 }
 
 .cardText .urgent {
   background: color-mix(in srgb, var(--destructive, #dc2626) 10%, transparent);
   color: var(--destructive, #dc2626);
-  border-radius: 100px;
+  border-radius: 4px;
   padding: 3px 10px;
 }
 
@@ -403,7 +403,7 @@
   background: var(--muted, #f3f4f6);
   color: var(--muted-foreground, #6b7280);
   border: 0;
-  border-radius: 100px;
+  border-radius: 4px;
   padding: 3px 10px;
 }
 

@@ -17,6 +17,11 @@
   background: var(--card, #fff);
 }
 
+/* 랜딩 라운드 통일(10/2) — 히어로 컨트롤 4px */
+.select.select {
+  border-radius: 4px;
+}
+
 .go {
   display: inline-flex;
   align-items: center;
@@ -25,7 +30,7 @@
   min-height: 44px;
   padding: 0;
   border: 0;
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--primary, #1b6b5a);
   color: #fff;
   text-decoration: none;
