@@ -14,7 +14,7 @@
  *   (9/29 히어로 키워드 행 제거 — 검색 오버레이 인기 검색어만 이 배열을 쓴다)
  *   검증: searchAll import 후 각 label 결과 건수 확인 (tsx 스크립트 1회 실행)
  */
-export interface PopularKeyword {
+interface PopularKeyword {
   /** 표시 라벨 (= 검색 쿼리) */
   label: string;
 }

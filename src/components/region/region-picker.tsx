@@ -19,12 +19,12 @@ import { ArrowRight } from "lucide-react";
 import { SelectCombobox, type SelectComboboxOption } from "@/components/ui/select-combobox";
 import s from "./region-picker.module.css";
 
-export interface RegionPickerProvince {
+interface RegionPickerProvince {
   id: string;
   shortName: string;
 }
 
-export interface RegionPickerSigungu {
+interface RegionPickerSigungu {
   sidoId: string;
   id: string;
   name: string;
