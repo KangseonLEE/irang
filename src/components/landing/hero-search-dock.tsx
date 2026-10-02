@@ -9,7 +9,7 @@ import s from "./hero-search-dock.module.css";
 /**
  * 랜딩 A안 (2026-10-01) — 히어로 관찰자 + 스크롤 후 하단 고정 바.
  *
- * 1) 히어로(`[data-landing-hero]`)가 헤더 밑으로 지나가면 `html[data-hero-passed]` 를 세운다 →
+ * 1) 히어로(`[data-landing-hero]`)가 헤더 밑으로 지나가거나 맨 위에서 조금이라도 내려가면(10/2) `html[data-hero-passed]` 를 세운다 →
  *    header.module.css 의 투명 오버레이 헤더가 흰 헤더로 돌아온다(9/29 B안 규칙 재사용, 전 폭).
  * 2) 히어로가 화면 밖으로 완전히 나가면 하단 중앙에 [정착 유형 칩 6 + 검색] 바가 올라오고,
  *    히어로로 돌아오거나 푸터가 화면에 들어오면 내려간다(현대백화점그룹 채용 하단 바 번안).
@@ -40,7 +40,9 @@ export function HeroSearchDock() {
       // 헤더 높이는 실제 요소에서 — --h-header 는 rem 이라 parseInt 하면 3 이 된다(9/29 실측)
       const headerH = headerEl?.offsetHeight || 56;
 
-      if (heroBottom <= headerH) root.dataset.heroPassed = "";
+      /* 10/2 오후 회장: 히어로 중간에서 위로 스크롤해 헤더가 다시 내려오면 투명 헤더가 히어로 본문(데이터 패널 제목 등)과
+         글자째 겹쳤다. 투명은 **맨 위(스크롤 ≤ 8px)에서만** — 조금이라도 내려간 뒤 돌아오는 헤더는 흰 헤더다. */
+      if (heroBottom <= headerH || window.scrollY > 8) root.dataset.heroPassed = "";
       else delete root.dataset.heroPassed;
 
       const footerIn = footerEl ? footerEl.getBoundingClientRect().top < window.innerHeight : false;

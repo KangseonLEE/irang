@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useCallback, useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { IrangSymbol } from "@/components/brand/irang-symbol";
 import { useSearchShortcut, useIsMac, shortcutLabel } from "@/lib/hooks/use-search-shortcut";
-import { SearchPanel } from "@/components/search/search-panel";
 import { analytics } from "@/lib/analytics";
 import {
   NAV_GROUPS,
@@ -16,20 +15,18 @@ import {
 } from "@/lib/data/navigation";
 import s from "./header.module.css";
 
-const SEARCH_PANEL_ID = "header-search-panel";
 
 /** 구독이 필요 없는 스냅샷용 — 인라인으로 두면 렌더마다 새 함수라 재구독이 일어난다 */
 const subscribeNoop = () => () => {};
 
 export function Header() {
   const pathname = usePathname();
-  /** 헤더 검색 패널 (10/2 — 헤더 아래로 내려오는 패널, 전 뷰포트 공통) */
-  const [searchOpen, setSearchOpen] = useState(false);
-  /** 열 때마다 +1 — 패널 속 SearchBar 를 새로 마운트(검색어 초기화 + 입력 포커스). 0 이면 아직 안 열어 마운트도 안 한다 */
-  const [searchSession, setSearchSession] = useState(0);
+  const router = useRouter();
+  /* 10/2 오후 회장: 헤더 검색도 히어로 검색과 같은 화면(`/search`)으로 간다 — 헤더 아래 패널은 폐기.
+     /search 에서는 트리거 자리에 ✕(닫기)를 두고, 들어오기 직전 페이지로 돌려보낸다. */
+  /** 마지막으로 머문 /search 밖 주소(경로+쿼리) — ✕ 의 돌아갈 곳. 없으면(바로 /search 로 들어옴) 홈 */
+  const returnPathRef = useRef<string | null>(null);
   const headerRef = useRef<HTMLElement>(null);
-  /** 스크롤 핸들러가 읽는 열림 상태 — 열린 동안엔 헤더를 숨기지 않는다 */
-  const searchOpenRef = useRef(false);
   /** 드롭다운 클릭 후 일시적으로 hover를 무시하기 위한 플래그 */
   const [navHidden, setNavHidden] = useState(false);
   /** 클릭·키보드로 명시적으로 연 그룹 (hover 열림은 CSS가 담당) */
@@ -45,9 +42,10 @@ export function Header() {
   /* 키캡 표기는 마운트 후에만 — 서버/클라이언트 첫 페인트 불일치 방지 */
   const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
 
+  // /search 밖 주소를 계속 기억 — /search 에 들어오면 그 직전 값이 ✕ 의 목적지
   useEffect(() => {
-    searchOpenRef.current = searchOpen;
-  }, [searchOpen]);
+    if (pathname !== "/search") returnPathRef.current = window.location.pathname + window.location.search;
+  }, [pathname]);
 
   // 스크롤 방향 감지 — 내리면 숨김, 올리면 표시
   useEffect(() => {
@@ -86,12 +84,6 @@ export function Header() {
       scrollingUp = y < lastScrollY.current;
       scheduleSnap();
       const mobile = !window.matchMedia("(min-width: 768px)").matches;
-      // 검색 패널이 열린 동안엔 헤더(패널이 붙어 있다)를 숨기지 않는다
-      if (searchOpenRef.current) {
-        lastScrollY.current = y;
-        anchorY = y;
-        return;
-      }
       /* 최상단 근처에서는 항상 표시 — 헤더가 흐름 안에 자리를 차지하는 페이지에선 그 높이(56)만큼.
          랜딩은 히어로가 헤더 뒤까지 차올라(투명 오버레이) 숨겨도 빈 띠가 생기지 않으므로,
          모바일에선 이 구간을 두지 않고 내리기 시작하자마자 숨긴다(10/2 회장 "내리는 즉시"). */
@@ -129,63 +121,32 @@ export function Header() {
     };
   }, []);
 
-  /** 작은 검색창(768+) · 돋보기(<768) — 닫힐 때 보이는 쪽으로 포커스를 돌려준다 */
-  const searchFieldRef = useRef<HTMLButtonElement>(null);
-  const searchBtnRef = useRef<HTMLButtonElement>(null);
-
-  /* 검색 패널 열기 — **이 함수 하나**가 모든 진입(트리거 클릭·⌘K)을 받는다.
-     계측은 닫힘→열림 전이에서만 1회. 업데이터 안에서 발화하면 StrictMode 이중 호출로 2건이 된다(9/29) */
-  const openSearchUi = useCallback(
+  /** 검색 화면으로 — 트리거 클릭·⌘K 공통. 계측은 기존 이벤트(search_overlay_open, method)를 그대로 쓴다 */
+  const goSearch = useCallback(
     (method: string) => {
-      if (searchOpen) return;
       analytics.searchOverlayOpen(method);
-      setSearchSession((n) => n + 1);
-      setSearchOpen(true);
-      // 아래로 스크롤해 숨은 헤더에서 ⌘K 로 열어도 헤더(패널이 붙는 자리)를 먼저 되살린다
-      setHeaderHidden(false);
-      delete document.documentElement.dataset.headerHidden;
+      router.push("/search");
     },
-    [searchOpen],
+    [router],
   );
 
-  /** 닫기 — Esc·✕ 는 트리거로 포커스 복귀, 바깥 클릭·포커스 이탈·페이지 이동은 그대로 둔다 */
-  const closeSearch = useCallback((restoreFocus: boolean) => {
-    setSearchOpen(false);
-    if (!restoreFocus) return;
-    // ✕ 버튼이 트리거로 바뀐 뒤(다음 프레임)에 보이는 트리거로 — display:none 인 쪽은 offsetParent 가 null
-    requestAnimationFrame(() => {
-      const target = [searchFieldRef.current, searchBtnRef.current].find(
-        (el) => el && el.offsetParent !== null,
-      );
-      target?.focus({ preventScroll: true });
-    });
-  }, []);
+  /** ✕ — 들어오기 직전 페이지로. 기록이 없으면 홈 */
+  const closeSearch = useCallback(() => {
+    router.push(returnPathRef.current ?? "/");
+  }, [router]);
 
-  /* ⌘K(mac) / Ctrl+K — 트리거 클릭과 같은 경로로 연다. 이미 열려 있으면 입력창으로 포커스만 옮긴다 */
+  /* ⌘K(mac) / Ctrl+K — /search 밖에서는 검색 화면으로, /search 에서는 입력창으로 포커스 */
   const isMac = useIsMac();
   const onShortcut = useCallback(() => {
-    // /search 는 페이지 자체 검색창이 주인 — 헤더 패널을 겹쳐 열면 같은 검색창(같은 id)이 둘이 된다(10/2)
     if (isSearchPage) {
       const input = document.querySelector<HTMLInputElement>("main input[type='search'], main input[name='q']");
       input?.focus();
       input?.select();
       return;
     }
-    if (searchOpen) {
-      const input = headerRef.current?.querySelector<HTMLInputElement>("[role='dialog'] input");
-      input?.focus();
-      input?.select();
-      return;
-    }
-    openSearchUi("shortcut");
-  }, [openSearchUi, searchOpen, isSearchPage]);
+    goSearch("shortcut");
+  }, [goSearch, isSearchPage]);
   useSearchShortcut(onShortcut);
-
-  // 페이지 이동 시 검색 패널 닫기 (포커스는 새 페이지에 맡긴다)
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSearchOpen(false);
-  }, [pathname]);
 
   // 페이지 이동 시 데스크탑 드롭다운 닫기
   useEffect(() => {
@@ -253,7 +214,7 @@ export function Header() {
     <>
       <header
         ref={headerRef}
-        className={`${s.header}${headerHidden ? ` ${s.headerHidden}` : ""}${searchOpen ? ` ${s.searchOpen}` : ""}`}
+        className={`${s.header}${headerHidden ? ` ${s.headerHidden}` : ""}`}
       >
         <div className={s.inner}>
           {/* Logo — 심볼 + 워드마크 */}
@@ -320,70 +281,43 @@ export function Header() {
 
           {/* Right Actions */}
           <div className={s.actions}>
-            {/* 검색 — <768 은 돋보기 아이콘, 768+ 는 작은 입력창 모양 트리거. 누르면 헤더 아래로 패널이 내려온다(10/2).
-                열린 동안 트리거 자리는 ✕(닫기) 하나 — 레퍼런스(기후금융포털)와 같다.
-                `/search` 에서는 페이지 자체 검색바가 주인이라 트리거를 숨긴다(QA — 이중 노출, ⌘K 는 동작). */}
-            {searchOpen ? (
-              <button
-                type="button"
-                className={s.searchClose}
-                aria-label="검색 닫기"
-                aria-expanded={true}
-                aria-controls={SEARCH_PANEL_ID}
-                onClick={() => closeSearch(true)}
-              >
+            {/* 검색 — <768 돋보기 · 768+ 작은 입력창 모양. 누르면 히어로 검색과 같은 `/search` 화면으로 간다(10/2 오후 회장).
+                `/search` 에서는 같은 자리에 ✕(닫기) — 들어오기 직전 페이지로 돌아간다. */}
+            {isSearchPage ? (
+              <button type="button" className={s.searchClose} aria-label="검색 닫기" onClick={closeSearch}>
                 <X size={22} strokeWidth={1.75} aria-hidden="true" />
               </button>
             ) : (
-              !isSearchPage && (
-                <div className={s.searchWrap}>
-                  <button
-                    type="button"
-                    ref={searchBtnRef}
-                    className={s.searchBtn}
-                    aria-label="통합검색"
-                    aria-haspopup="dialog"
-                    aria-expanded={false}
-                    aria-controls={SEARCH_PANEL_ID}
-                    onClick={() => openSearchUi("mobile_button")}
-                    aria-keyshortcuts={mounted ? (isMac ? "Meta+K" : "Control+K") : undefined}
-                  >
-                    <Search size={20} strokeWidth={1.75} />
-                  </button>
+              <div className={s.searchWrap}>
+                <Link
+                  href="/search"
+                  className={s.searchBtn}
+                  aria-label="통합검색"
+                  onClick={() => analytics.searchOverlayOpen("mobile_button")}
+                  aria-keyshortcuts={mounted ? (isMac ? "Meta+K" : "Control+K") : undefined}
+                >
+                  <Search size={20} strokeWidth={1.75} />
+                </Link>
 
-                  <button
-                    type="button"
-                    ref={searchFieldRef}
-                    className={s.searchField}
-                    aria-label="통합검색 열기"
-                    aria-haspopup="dialog"
-                    aria-expanded={false}
-                    aria-controls={SEARCH_PANEL_ID}
-                    /* Tab 으로 지나가기만 해도 열리면 계측이 오염된다(QA) — 클릭·Enter/Space(button 기본)·⌘K 만 */
-                    onClick={() => openSearchUi("header_input")}
-                    aria-keyshortcuts={mounted ? (isMac ? "Meta+K" : "Control+K") : undefined}
-                  >
-                    <Search size={16} strokeWidth={1.75} aria-hidden="true" />
-                    <span className={s.searchFieldText}>검색</span>
-                    {/* 단축키 키캡 — 입력창 안 우측, 1024+ 에서만. 마운트 전엔 빈 배지로 폭만 잡아 CLS 0 */}
-                    <span className={s.searchKbd} aria-hidden="true">
-                      {shortcutLabel(mounted, isMac)}
-                    </span>
-                  </button>
-                </div>
-              )
+                <Link
+                  href="/search"
+                  className={s.searchField}
+                  aria-label="통합검색 열기"
+                  onClick={() => analytics.searchOverlayOpen("header_input")}
+                  aria-keyshortcuts={mounted ? (isMac ? "Meta+K" : "Control+K") : undefined}
+                >
+                  <Search size={16} strokeWidth={1.75} aria-hidden="true" />
+                  <span className={s.searchFieldText}>검색</span>
+                  {/* 단축키 키캡 — 입력창 안 우측, 1024+ 에서만. 마운트 전엔 빈 배지로 폭만 잡아 CLS 0 */}
+                  <span className={s.searchKbd} aria-hidden="true">
+                    {shortcutLabel(mounted, isMac)}
+                  </span>
+                </Link>
+              </div>
             )}
           </div>
         </div>
 
-        {/* 검색 패널 — 헤더 안에 두어 sticky 헤더와 함께 움직이고, 헤더 아래로만 내려온다 */}
-        <SearchPanel
-          id={SEARCH_PANEL_ID}
-          open={searchOpen}
-          sessionKey={searchSession}
-          boundaryRef={headerRef}
-          onClose={closeSearch}
-        />
       </header>
     </>
   );
