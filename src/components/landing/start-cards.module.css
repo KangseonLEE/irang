@@ -113,6 +113,7 @@
   top: 14px;
   right: 14px;
   z-index: 1;
+  pointer-events: none; /* 장식 — 누름은 카드 링크가 받는다 */
   display: flex;
   align-items: center;
   justify-content: center;

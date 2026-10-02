@@ -1,9 +1,11 @@
+import { Fragment } from "react";
 import type React from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Compass, Cpu, House, Sprout, Tractor, Trees, type LucideIcon } from "lucide-react";
 import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
 import { RECOMMENDED_KEYWORDS } from "@/lib/data/popular-keywords";
 import { buildLaneStats, type LaneTile } from "@/lib/data/journey-lanes-stats";
+import type { SupportProgram } from "@/lib/data/programs";
 import { HeroSearchForm } from "./hero-search-form";
 import { HeroRotator } from "./hero-rotator";
 import { HeroTypeCarousel } from "./hero-type-carousel";
@@ -50,6 +52,11 @@ export interface HeroDeadline {
 interface HeroSearchHubProps {
   stats: HeroStat[];
   deadlines: HeroDeadline[];
+  /**
+   * 유형 카드 "관련 지원사업" 건수의 모집단 — page.tsx 가 `loadPrograms()`(DB 우선 + 정적 보충)로 넘긴다.
+   * 정적 배열만 쓰면 DB 에만 있는 활성 사업이 빠져 같은 화면 수치와 어긋난다(10/2 QA A🟡2). 없으면 정적 배열.
+   */
+  programs?: readonly SupportProgram[];
 }
 
 /**
@@ -104,11 +111,15 @@ function dLabel(daysLeft: number): string {
   return daysLeft === 0 ? "오늘 마감" : `D-${daysLeft}`;
 }
 
-export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
+export function HeroSearchHub({ stats, deadlines, programs }: HeroSearchHubProps) {
   const visibleStats = stats.filter((st) => st.value > 0);
   // 추천 검색어 단일 출처(10/2) — 헤더 검색 패널·/search 빈 화면과 같은 목록
   const tickerKeywords = RECOMMENDED_KEYWORDS;
-  const laneStats = buildLaneStats(JOURNEY_LANES.map((lane) => lane.id));
+  // programs 가 없으면 buildLaneStats 의 기본값(정적 PROGRAMS)
+  const laneStats = buildLaneStats(
+    JOURNEY_LANES.map((lane) => lane.id),
+    programs,
+  );
 
   return (
     <section className={s.hero} aria-labelledby="hero-title" data-landing-hero>
@@ -125,20 +136,25 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
           <div className={s.intro}>
             <h1 id="hero-title" className={s.title}>
               {/* 스크린리더·검색엔진은 이 한 문장을 읽는다. 아래 회전 줄은 시각 전용 */}
-              <span className={s.srOnly}>{SCENES.map((sc) => sc.word).join("·")} 준비, 어디서부터 볼까요?</span>
+              {/* 뒤 공백들: textContent(검색엔진·복사)가 "볼까요?귀농 준비,귀촌 준비,…"로 붙지 않게(10/2 QA B⚪-5).
+                  블록·그리드 안 공백이라 화면 배치는 그대로다 */}
+              <span className={s.srOnly}>{SCENES.map((sc) => sc.word).join("·")} 준비, 어디서부터 볼까요?</span>{" "}
               {/* 줄 단위 마스크 리빌 — 줄(overflow hidden) 안의 lineInner 가 아래에서 올라온다 */}
               <span className={s.wordLine} aria-hidden="true">
                 <span className={s.lineInner}>
                   <span className={s.wordSlot}>
                     {SCENES.map((sc, i) => (
-                      <span key={sc.id} className={s.word} data-hero-word={sc.id} data-state={i === 0 ? "in" : "wait"}>
-                        {/* "준비,"까지 한 덩어리로 넘긴다 — 칸 폭이 가장 긴 단어 기준이라 밖에 두면 짧은 단어 뒤가 벌어진다 */}
-                        <span className={s.wordAccent}>{sc.word}</span> 준비,
-                      </span>
+                      <Fragment key={sc.id}>
+                        {i > 0 && " "}
+                        <span className={s.word} data-hero-word={sc.id} data-state={i === 0 ? "in" : "wait"}>
+                          {/* "준비,"까지 한 덩어리로 넘긴다 — 칸 폭이 가장 긴 단어 기준이라 밖에 두면 짧은 단어 뒤가 벌어진다 */}
+                          <span className={s.wordAccent}>{sc.word}</span> 준비,
+                        </span>
+                      </Fragment>
                     ))}
                   </span>
                 </span>
-              </span>
+              </span>{" "}
               <span className={s.titleRest} aria-hidden="true">
                 <span className={s.lineInner}>어디서부터 볼까요?</span>
               </span>
@@ -208,7 +224,7 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
                         <Link href={st.href} className={s.stat} data-track={`hero_data:${st.id}`}>
                           <span className={s.statLabel}>{st.label}</span>
                           <span className={s.statValue}>
-                            {st.value.toLocaleString()}
+                            {st.value.toLocaleString("ko-KR")}
                             <span className={s.statUnit}>{st.unit}</span>
                           </span>
                         </Link>

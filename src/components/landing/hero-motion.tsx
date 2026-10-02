@@ -32,11 +32,12 @@ export function useHeroMotionPaused(): boolean {
 export function HeroPauseButton() {
   const { paused, toggle } = useContext(HeroMotionContext);
   return (
+    /* 상태는 라벨로만 알린다(APG 캐러셀 회전 버튼, 10/2 QA) — aria-pressed 까지 바꾸면 "멈추기, 눌림"처럼
+       라벨과 눌림 상태가 서로 다른 말을 한다 */
     <button
       type="button"
       className={s.pauseBtn}
       onClick={toggle}
-      aria-pressed={paused}
       aria-label={paused ? "장면 자동 전환 다시 재생" : "장면 자동 전환 멈추기"}
       title={paused ? "다시 재생" : "멈추기"}
     >

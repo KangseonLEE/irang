@@ -338,6 +338,15 @@
     opacity 0.35s ease;
 }
 
+/* ≤1023 은 스크림이 옅어(모바일 전면 균일) 민트 #9fe0c8 이 최악 픽셀 3.56~3.75 로 4.5 미달(10/2 QA C-Y2).
+   5개 장면 × 320~1023 × DPR 1·2·3 실측 최악 4.82 인 아주 옅은 민트로 — 흰색(5.34)보다 브랜드 기운을 남긴다.
+   1024+ 는 좌측 스크림이 진해 원래 민트가 5.10 이상이라 그대로 둔다. */
+@media (max-width: 1023px) {
+  .tickerItem {
+    color: #e3f8f0;
+  }
+}
+
 .tickerItem[data-state="in"] {
   opacity: 1;
   transform: translateY(0);
@@ -660,18 +669,23 @@
 
 /* 카드가 좁으면(그리드 카드 200px 안팎) 3칸 가로 배치에서 "1,800만 원"이 잘린다 → 라벨 · 값 세로 행.
    10/2 회장 "모바일인데 텍스트 나열로 보인다" — 화면 폭(768+) 기준이면 '데스크탑 사이트 요청'·가로 모드 폰에서도
-   행 배치가 됐다. 화면이 아니라 **카드 실제 폭**으로 가른다(.typeCard container). */
-@container hero-type-card (max-width: 239px) {
+   행 배치가 됐다. 화면이 아니라 **카드 실제 폭**으로 가른다(.typeCard container).
+   10/2 QA C-Y6(1.4.4): 기준을 px(239px)로 두면 글자를 200% 키워도 375 카드(≈281px)는 3칸 가로 배치라
+   라벨이 겹치고 값이 "1,8…"로 잘렸다 → em 으로. 컨테이너 쿼리의 em 은 카드의 글자 크기 기준이라
+   글자를 키우면 기준 폭도 같이 커진다(기본 16px 에서 15em = 240px — 종전과 같은 자리). */
+@container hero-type-card (max-width: 15em) {
   .typeFacts {
     flex-direction: column;
     gap: 4px;
   }
 
+  /* 좁은 행에서 라벨·값이 한 줄에 안 들어가면 값을 다음 줄로 — 잘라서 숨기지 않는다 */
   .typeFact {
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: baseline;
-    gap: 8px;
+    gap: 0 8px;
     padding-right: 0;
   }
 
@@ -949,21 +963,36 @@
   gap: 12px;
 }
 
+/* 누르는 영역 44px(10/2 QA C-Y12, 종전 64×32). 늘린 12px 은 **위로만** — 바로 아래 마감 카드와 1px 거리라
+   아래로 늘리면 카드 위를 덮는다. 위는 묶음 사이 간격(18~20px)·패널 안쪽 여백이라 비어 있다.
+   padding-top 만큼 margin-top 을 빼 제목 줄 높이·글자 위치는 그대로 둔다(::before 확장 금지 — 이웃과 겹침). */
 .dataMore {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  min-height: 32px;
+  position: relative;
+  min-height: 44px;
+  padding-top: 12px;
+  margin-top: -12px;
   font-size: 0.8125rem;
   font-weight: 600;
   color: #fff;
   text-decoration: none;
 }
 
+/* 포커스 링은 글자가 있는 아래 32px 칸에만 — 위로 늘린 누름 여백까지 감싸면 링 안에서 글자가 바닥에 붙어 보인다 */
 .dataMore:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
+  outline: none;
+}
+
+.dataMore:focus-visible::after {
+  content: "";
+  position: absolute;
+  /* 종전 outline(2px, offset 2px)과 같은 자리: 글자 칸(위 12px 아래) 바깥 2~4px 띠 */
+  inset: 8px -4px -4px;
+  border: 2px solid #fff;
   border-radius: 4px;
+  pointer-events: none;
 }
 
 @media (hover: hover) {

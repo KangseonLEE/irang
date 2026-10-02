@@ -1,5 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
+import { render, fireEvent, act } from "@testing-library/react";
 
 vi.mock("next/image", () => ({
   // eslint-disable-next-line @next/next/no-img-element -- 테스트용 next/image 대역
@@ -8,7 +11,10 @@ vi.mock("next/image", () => ({
 
 import { HeroSearchHub, type HeroDeadline, type HeroStat } from "@/components/landing/hero-search-hub";
 import { HeroSearchDock } from "@/components/landing/hero-search-dock";
+import { HeroKeywordTicker } from "@/components/landing/hero-keyword-ticker";
+import { HERO_INTRO_MS } from "@/components/landing/hero-intro";
 import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
+import { PROGRAMS } from "@/lib/data/programs";
 
 const stats: HeroStat[] = [
   { id: "programs_open", label: "신청 가능한 지원사업", value: 12, unit: "건", href: "/programs" },
@@ -97,9 +103,25 @@ describe("히어로 장면 회전 — 단어·배경·카드 (10/1 회장)", () 
     }
   });
 
-  it("자동 전환 정지 버튼이 SSR 된다(WCAG 2.2.2)", () => {
-    expect(html).toMatch(/aria-label="장면 자동 전환 멈추기"/);
-    expect(html).toContain('aria-pressed="false"');
+  it("자동 전환 정지 버튼이 SSR 된다(WCAG 2.2.2) — 상태는 라벨로만(aria-pressed 와 함께 바꾸지 않는다, 10/2 QA)", () => {
+    const btn = html.match(/<button[^>]*장면 자동 전환[^>]*>/)?.[0] ?? "";
+    expect(btn).toContain('aria-label="장면 자동 전환 멈추기"');
+    expect(btn).not.toContain("aria-pressed");
+  });
+
+  it("h1 텍스트는 문장·회전 단어 사이가 띄어져 있다 — 검색엔진·복사 시 '볼까요?귀농' 으로 붙지 않게 (10/2 QA)", () => {
+    const h1 = html.slice(html.indexOf("<h1"), html.indexOf("</h1>") + 5);
+    const text = h1.replace(/<[^>]+>/g, "").replace(/&#x27;/g, "'");
+    expect(text).toContain("볼까요? 귀농 준비,");
+    expect(text).toContain("귀농 준비, 귀촌 준비,");
+    expect(text).not.toMatch(/볼까요\?귀농|준비,귀|준비,어디/);
+  });
+
+  it("장면 배경 이미지 파일이 public 에 실존한다 (컴포넌트 소스 기준)", () => {
+    const src = readFileSync(join(process.cwd(), "src/components/landing/hero-search-hub.tsx"), "utf8");
+    const images = [...src.matchAll(/"(\/landing\/hero\/[\w-]+\.webp)"/g)].map((m) => m[1]);
+    expect(images.length).toBe(5);
+    for (const img of images) expect(existsSync(join(process.cwd(), "public", img)), img).toBe(true);
   });
 });
 
@@ -148,5 +170,70 @@ describe("하단 고정 바 (1024+)", () => {
     expect(html).toContain("inert");
     expect(html.match(/data-track="hero_dock:(?!search_open)/g)?.length).toBe(6);
     expect(html.match(/<a[^>]*data-track="hero_dock:search_open"[^>]*>/)?.[0]).toContain('href="/search"');
+  });
+});
+
+describe("유형 카드 수치 — 모집단은 page.tsx 가 넘긴 지원사업 (10/2 QA A🟡2)", () => {
+  const relatedCount = (h: string) => {
+    // 첫 유형 카드(귀농)의 "관련 지원사업" 값
+    const card = h.slice(h.indexOf('data-hero-card="guinong"'));
+    return card.match(/관련 지원사업<\/span><span[^>]*>(\d+)건/)?.[1];
+  };
+
+  it("programs 를 안 넘기면 정적 배열 기준, 넘기면 그 목록 기준으로 센다", () => {
+    const base = renderToStaticMarkup(<HeroSearchHub stats={stats} deadlines={deadlines} />);
+    const none = renderToStaticMarkup(<HeroSearchHub stats={stats} deadlines={deadlines} programs={[]} />);
+    expect(Number(relatedCount(base))).toBeGreaterThan(0);
+    expect(relatedCount(none)).toBe("0");
+    // 같은 목록이면 같은 수치
+    const same = renderToStaticMarkup(<HeroSearchHub stats={stats} deadlines={deadlines} programs={PROGRAMS} />);
+    expect(relatedCount(same)).toBe(relatedCount(base));
+  });
+});
+
+describe("추천 검색어 회전 — 마우스 올림과 키보드 포커스를 따로 든다 (10/2 QA C-Y10)", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  function setup() {
+    vi.useFakeTimers();
+    window.matchMedia = vi.fn().mockImplementation((q: string) => ({
+      matches: false,
+      media: q,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })) as unknown as typeof window.matchMedia;
+    const utils = render(<HeroKeywordTicker keywords={["사과", "배", "감"]} />);
+    act(() => {
+      vi.advanceTimersByTime(HERO_INTRO_MS + 10);
+    });
+    const shown = () => utils.container.querySelector<HTMLAnchorElement>('a[data-state="in"]')!;
+    return { ...utils, shown };
+  }
+
+  it("포커스가 링크에 있으면 마우스가 지나가 나가도 넘어가지 않는다 — 포커스된 링크가 숨지 않는다", () => {
+    const { container, shown } = setup();
+    const first = shown();
+    first.focus();
+    fireEvent.focusIn(first);
+    const p = container.querySelector("p")!;
+    fireEvent.mouseEnter(p);
+    fireEvent.mouseLeave(p);
+    act(() => {
+      vi.advanceTimersByTime(3200 * 3);
+    });
+    expect(shown()).toBe(first);
+    expect(first).not.toHaveAttribute("aria-hidden");
+    expect(first).not.toHaveAttribute("tabindex", "-1");
+  });
+
+  it("포커스·마우스가 없으면 넘어간다", () => {
+    const { shown } = setup();
+    const first = shown();
+    act(() => {
+      vi.advanceTimersByTime(3200 + 10);
+    });
+    expect(shown()).not.toBe(first);
   });
 });

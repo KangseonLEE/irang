@@ -19,7 +19,7 @@ import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
 import { HeroSearchHub, type HeroStat, type HeroDeadline } from "@/components/landing/hero-search-hub";
 import { HeroSearchDock } from "@/components/landing/hero-search-dock";
-import { isStayEvent } from "@/components/events/event-fields";
+import { isStayEvent, meaningfulCost } from "@/components/events/event-fields";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { RegionPicker } from "@/components/region/region-picker";
@@ -35,7 +35,7 @@ import { deriveStatus, daysUntilDeadline, isUnannounced, ALWAYS_OPEN } from "@/l
 import { StartCardsSection } from "@/components/landing/start-cards-section";
 import { NewsTabsV2Loader } from "@/components/landing/news-tabs-v2-loader";
 import { interviews } from "@/lib/data/landing";
-import { PROGRAMS } from "@/lib/data/programs";
+import { loadPrograms, type SupportProgram } from "@/lib/data/programs";
 import { SurveyCta } from "./survey-cta";
 import s from "./page.module.css";
 
@@ -63,8 +63,13 @@ function isLongRunning(applicationStart: string, applicationEnd: string): boolea
   return Number.isFinite(span) && span >= LONG_RUNNING_MIN_DAYS;
 }
 
-function getProgramsData() {
-  const base = PROGRAMS.map((p) => ({
+/**
+ * 랜딩 지원사업 수치·카드의 모집단 = `loadPrograms()`(DB 우선 + 정적 보충, /programs 와 같은 출처).
+ * 정적 배열(PROGRAMS)만 쓰면 DB 에만 있는 활성 사업이 히어로 수치·유형 카드·카드 그리드에서 빠지고,
+ * DB 가 덮어쓴 일정(연례 사업 정기 접수 등)도 반영되지 않는다(10/2 QA A🟡2).
+ */
+function getProgramsData(programs: readonly SupportProgram[]) {
+  const base = programs.map((p) => ({
     ...p,
     programStatus: deriveStatus(p.applicationStart, p.applicationEnd),
   }));
@@ -96,7 +101,8 @@ function getProgramsData() {
   // 히어로 A안(10/1) — 마감이 가까운 지원사업 3건 (모집중·확정 마감일, 가까운 순)
   const closingPrograms: HeroDeadline[] = announced
     .filter((p) => p.programStatus === "모집중" && p.applicationEnd !== ALWAYS_OPEN)
-    .map((p) => ({ id: p.id, title: p.title, amount: p.supportAmount, daysLeft: daysUntilDeadline(p.applicationEnd) }))
+    // 10/3 재검증: DB 병합 뒤 수집 행은 금액이 "상세 공고 참조"라 강조 줄이 빈 정보였다 — 채움값은 숨긴다
+    .map((p) => ({ id: p.id, title: p.title, amount: meaningfulCost(p.supportAmount) ?? undefined, daysLeft: daysUntilDeadline(p.applicationEnd) }))
     .filter((p) => Number.isFinite(p.daysLeft) && p.daysLeft >= 0)
     .sort((a, b) => a.daysLeft - b.daysLeft)
     .slice(0, 3);
@@ -105,14 +111,15 @@ function getProgramsData() {
 }
 
 export default async function HomePage() {
-  const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount, closingPrograms } = getProgramsData();
   // 노출 기간·활성 판정은 서버(DB)에서 끝낸다 — 클라이언트는 받은 것만 그린다.
   // 교육·체험·행사는 두 섹션(Opportunity·Experience)이 나눠 쓰므로 목록을 통째로 넘기고 고르기는 그쪽에서 한다.
-  const [promos, eventsResult, educationResult] = await Promise.all([
+  const [{ programs }, promos, eventsResult, educationResult] = await Promise.all([
+    loadPrograms(),
     loadActivePromos(),
     filterEventsAsync({}),
     filterEducationAsync({}),
   ]);
+  const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount, closingPrograms } = getProgramsData(programs);
 
   // 히어로 데이터 줄 — 전부 배열·DB 결과에서 센다(0 이면 히어로가 그 항목을 그리지 않는다)
   const heroStats: HeroStat[] = [
@@ -152,8 +159,8 @@ export default async function HomePage() {
 
       {/* ═══ 1. 히어로 — A안 (10/1 회장 결재, 기후금융포털 구도) ═══ */}
       {/* 검색 입력 + 인기 검색어 + 정착 유형 카드 6 + 지금 열린 기회 수치. data-landing-hero 로 투명 헤더.
-          이전 efusioni 히어로는 태그 archive/hero-efusioni-2026-10-01 과 hero-showcase.* 파일로 보관(렌더만 뺐다) */}
-      <HeroSearchHub stats={heroStats} deadlines={closingPrograms} />
+          이전 efusioni 히어로는 태그 archive/hero-efusioni-2026-10-01 에 보관(10/2 QA: 미사용 파일 삭제) */}
+      <HeroSearchHub stats={heroStats} deadlines={closingPrograms} programs={programs} />
       {/* 히어로 관찰자(투명 헤더 복귀) + 스크롤 후 하단 고정 바(1024+) */}
       <HeroSearchDock />
 
@@ -179,7 +186,9 @@ export default async function HomePage() {
             src="/images/regions/jeonnam.webp"
             alt=""
             fill
-            sizes="100vw"
+            /* 원본 1672px — 1024~1599 에서 100vw 면 1920 을 요청한다(원본보다 큼, 10/2 QA B⚪-4).
+               그 구간은 1200 으로 충분하다(어두운 스크림 0.6~0.74 아래 배경). 1600+ 는 원본이 최대라 그대로 */
+            sizes="(min-width: 1024px) and (max-width: 1599px) 1200px, 100vw"
             loading="lazy"
             className={s.mapBg}
           />
@@ -306,7 +315,8 @@ export default async function HomePage() {
                   </span>
                 </span>
               </Link>
-              <Link href="/match" className={s.ctaPath} data-track="bottom_cta:match" data-reveal-item>
+              {/* 10/3 회장: 진단 직행 복원 — data-track 라벨은 GA 추이 연속성을 위해 그대로 둔다 */}
+              <Link href="/match?mode=assess" className={s.ctaPath} data-track="bottom_cta:match" data-reveal-item>
                 <span className={s.ctaPathNumber}>02</span>
                 <span className={s.ctaPathLabel}>적합도 진단</span>
                 <span className={s.ctaPathDesc}>

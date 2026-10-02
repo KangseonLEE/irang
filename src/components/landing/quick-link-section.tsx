@@ -35,7 +35,8 @@ export const QUICK_LINK_ITEMS: readonly QuickItem[] = [
   { id: "regions", href: "/regions", label: "지역 탐색", icon: Map },
   { id: "crops", href: "/crops", label: "작물 정보", icon: IrangSprout },
   { id: "compare", href: "/regions/compare", label: "지역 비교", icon: GitCompareArrows },
-  { id: "assess", href: "/match", label: "유형 진단", icon: ScanSearch },
+  // 10/3 회장: 랜딩 진단 직행 복원 — 모드 선택(/match)을 건너뛰고 진단으로 바로(옛 히어로 슬라이드 링크와 같은 목적지)
+  { id: "assess", href: "/match?mode=assess", label: "유형 진단", icon: ScanSearch },
   { id: "ranking", href: "/regions/ranking", label: "맞춤 시군구", icon: ListOrdered },
   { id: "costs", href: "/costs", label: "비용 가이드", icon: Calculator },
   { id: "programs", href: "/programs", label: "지원사업", icon: HandCoins },

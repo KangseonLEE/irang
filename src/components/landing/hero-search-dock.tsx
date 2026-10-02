@@ -26,6 +26,31 @@ export function HeroSearchDock() {
   const dockRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
+  /* 10/3 재검증: scroll-padding-bottom 만으로는 뷰포트 하단에 걸친 요소(Chromium 은 일부만 보이는 요소를 포커스
+     스크롤하지 않는다)와 포커스 순간 커지는 커버플로우 카드가 도크 밑으로 일부 들어갔다(1024~1440 폭당 4곳).
+     키보드 포커스가 도크와 겹치면 전환이 끝난 뒤 nearest 로 한 번 더 끌어올린다(scroll-padding 110px 이 적용됨). */
+  useEffect(() => {
+    let timer = 0;
+    const onFocusIn = (e: FocusEvent) => {
+      const target = e.target;
+      if (!(target instanceof HTMLElement) || !target.matches(":focus-visible")) return;
+      if (dockRef.current?.contains(target)) return;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        const dock = dockRef.current;
+        if (!dock || dock.dataset.heroDock !== "visible" || document.activeElement !== target) return;
+        if (target.getBoundingClientRect().bottom > dock.getBoundingClientRect().top - 8) {
+          target.scrollIntoView({ block: "nearest" });
+        }
+      }, 550);
+    };
+    document.addEventListener("focusin", onFocusIn);
+    return () => {
+      document.removeEventListener("focusin", onFocusIn);
+      window.clearTimeout(timer);
+    };
+  }, []);
+
   useEffect(() => {
     const hero = document.querySelector<HTMLElement>("[data-landing-hero]");
     if (!hero) return;

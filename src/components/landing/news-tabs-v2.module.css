@@ -284,9 +284,10 @@
   }
 }
 
-/* 프로그레스 바 */
+/* 프로그레스 바 (장식) */
 .navProgress {
   position: absolute;
+  pointer-events: none;
   bottom: 0;
   left: 0;
   height: 2px;

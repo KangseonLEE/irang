@@ -351,6 +351,8 @@
   height: 100%;
   border-radius: 100px;
   width: var(--bar-w, 0%);
+  /* 기본 = 가장 옅은 단계 — 항목이 단계 수보다 많아져도 막대가 사라지지 않게(10/3 데이터 정정: 귀촌·귀산촌 이유 7항목) */
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
   transition: width 0.7s cubic-bezier(.16, 1, .3, 1) 0.15s;
 }
 .reasonBar[data-rank="1"] { background: var(--primary, #1b6b5a); }
@@ -358,6 +360,8 @@
 .reasonBar[data-rank="3"] { background: color-mix(in srgb, var(--primary, #1b6b5a) 55%, transparent); }
 .reasonBar[data-rank="4"] { background: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent); }
 .reasonBar[data-rank="5"] { background: color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent); }
+.reasonBar[data-rank="6"] { background: color-mix(in srgb, var(--primary, #1b6b5a) 24%, transparent); }
+.reasonBar[data-rank="7"] { background: color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent); }
 
 .reasonPct { flex-shrink: 0; width: 36px; font-size: var(--fs-caption); font-weight: 700; color: var(--primary, #1b6b5a); text-align: right; font-variant-numeric: tabular-nums; }
 @media (min-width: 1024px) { .reasonPct { font-size: var(--fs-body-sm, 0.9375rem); } }

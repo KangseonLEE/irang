@@ -163,26 +163,6 @@
   }
 }
 
-.tabCount {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--muted-foreground, #6b7280) 16%, transparent);
-  font-size: 11px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.tabActive .tabCount {
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
-  color: var(--primary, #1b6b5a);
-}
-
 @media (min-width: 640px) {
   .tabs {
     width: fit-content;
@@ -304,6 +284,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
+  pointer-events: none;
   background:
     linear-gradient(
       to top,
@@ -356,7 +337,8 @@
 
 .statusSoon {
   composes: badge;
-  background: var(--warning, #d97706);
+  /* 흰 글씨 4.5:1 — --warning(#d97706) 바탕은 3.2 라 한 단계 진한 앰버 토큰(#a16207, 4.9). 사진 카드 접수예정 배지 */
+  background: var(--warning-fg, #a16207);
   color: #fff;
 }
 
@@ -387,14 +369,16 @@
 
 .cardText .statusSoon {
   background: color-mix(in srgb, var(--warning, #d97706) 12%, transparent);
-  color: #b26100;
+  /* 12px 굵은 글씨라 4.5:1 필요 — #b26100 은 이 바탕(#faefe1)에서 4.01(10/2 QA C-Y7) → 토큰 #92400e 6.2 */
+  color: var(--warning-fg-strong, #92400e);
   border-radius: 4px;
   padding: 3px 10px;
 }
 
 .cardText .urgent {
   background: color-mix(in srgb, var(--destructive, #dc2626) 10%, transparent);
-  color: var(--destructive, #dc2626);
+  /* 12px 굵은 글씨라 4.5:1 필요 — #dc2626 은 이 배경에서 4.12(10/3 재검증). 사진 카드 배지와 같은 #b42318(≈5.6) */
+  color: #b42318;
   border-radius: 4px;
   padding: 3px 10px;
 }
@@ -601,6 +585,7 @@
 .progress {
   position: relative;
   display: block;
+  pointer-events: none;
   width: 44px;
   height: 2px;
   margin-left: 4px;
@@ -640,8 +625,12 @@
   grid-auto-flow: column;
   grid-auto-columns: 82%;
   gap: 12px;
-  margin: 0;
-  padding: 2px 0 6px;
+  /* 가로 스크롤 상자는 넘치는 것을 자른다 — 카드 포커스 링(3px + 간격 3px)이 위·왼쪽에서 잘렸다(10/2 QA C-Y8).
+     사방 6px 안쪽 여백으로 링 자리를 만들고 음수 마진으로 카드 위치는 그대로 둔다(첫 카드 = 본문 왼쪽 선,
+     위는 종전 여백 2px 를 남겨 -4px). 스냅도 같은 6px 를 띄워(scroll-padding) 넘긴 카드가 본문 왼쪽 선에 선다 */
+  margin: -4px -6px 0;
+  padding: 6px;
+  scroll-padding-inline: 6px;
   list-style: none;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -670,6 +659,8 @@
     grid-auto-flow: row;
     grid-auto-columns: auto;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    padding: 2px 0 6px;
     overflow: visible;
     scroll-snap-type: none;
   }

@@ -154,8 +154,9 @@ export function DiscoverTabs({
               className={`${s.tab} ${i === active ? s.tabActive : ""}`}
               onClick={() => select(i)}
             >
+              {/* 건수 배지는 뺐다(10/2 QA A🟡3) — 탭 카드는 상한 8장이라 "지원사업 8"이 히어로 "신청 가능한 지원사업 12건"과
+                  어긋나 보였다. 같은 화면 숫자는 히어로 데이터 줄 하나가 말한다 */}
               {t.label}
-              <span className={s.tabCount}>{t.cards.length}</span>
             </button>
           ))}
         </div>
@@ -177,6 +178,16 @@ export function DiscoverTabs({
   );
 }
 
+/** 키보드로 온 포커스인가(:focus-visible). 판정을 못 하는 환경이면 키보드로 본다 — 멈추는 쪽이 안전하다 */
+function isKeyboardFocus(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) return false;
+  try {
+    return target.matches(":focus-visible");
+  } catch {
+    return true;
+  }
+}
+
 /**
  * 카드 트랙 하나 — 스크롤 컨테이너 **하나**로 두 레이아웃을 굴린다.
  * <1024 는 78vw 가운데 스냅 트랙, 1024+ 는 왼쪽 정렬(스냅 start, 10/2 회장: 첫 카드 앞 빈 공간 제거)
@@ -186,8 +197,10 @@ export function DiscoverTabs({
  * - 비활성 패널은 `display: none` 이라 카드 폭이 0 이다 — 모든 계산·타이머가 `active` 에서 멈춘다.
  * - 탭을 바꿔 들어오면 트랙을 맨 앞으로 되돌린다(페이저 리셋).
  * - 자동 넘김은 데스크탑·활성 패널만. 모바일에서 가로 트랙이 저절로 움직이면 읽는 중 시점을
- *   빼앗고 세로 스크롤 제스처와 싸운다(9/7 useTapGesture 교훈과 같은 결).
- * - hover·포커스·터치 중에는 타이머와 진행 바를 **같이** 멈춘다(9/29 히어로 박제).
+ *   빼앗고 세로 스크롤 제스처와 싸운다(9/7 검색창 탭·스크롤 혼동 사고와 같은 결).
+ * - hover·키보드 포커스·터치 중에는 타이머와 진행 바를 **같이** 멈춘다(9/29 히어로 박제).
+ *   세 원인은 따로 센다 — 하나로 묶으면 키보드 포커스가 안에 있는데 마우스가 지나가 나가는 순간 다시 넘어갔다(10/2 QA C-Y10).
+ * - 키보드로 카드에 들어오면 그 카드로 트랙을 옮긴다 — <1024 에서 Tab 한 카드가 10~55% 만 보인 채 포커스를 받았다(C-Y9).
  */
 function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }) {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
@@ -201,8 +214,11 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
   const pendingRef = useRef<number | null>(null);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  /** hover·포커스·터치 — 사용자가 보고 있는 동안은 넘기지 않는다 */
-  const [held, setHeld] = useState(false);
+  /* 사용자가 보고 있는 동안은 넘기지 않는다 — 마우스 올림 · 키보드 포커스 · 터치를 따로 들고 하나라도 있으면 멈춤 */
+  const [hovered, setHovered] = useState(false);
+  const [focusWithin, setFocusWithin] = useState(false);
+  const [touching, setTouching] = useState(false);
+  const held = hovered || focusWithin || touching;
 
   const items = tab.cards;
   const total = items.length;
@@ -226,7 +242,9 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
     el.scrollTo({ left: 0, behavior: "auto" });
     setIndex(0);
     setPaused(false);
-    setHeld(false);
+    setHovered(false);
+    setFocusWithin(false);
+    setTouching(false);
   }, [active]);
 
   /**
@@ -312,11 +330,11 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
     let release = 0;
     const hold = () => {
       window.clearTimeout(release);
-      setHeld(true);
+      setTouching(true);
     };
     const free = () => {
       window.clearTimeout(release);
-      release = window.setTimeout(() => setHeld(false), 1200);
+      release = window.setTimeout(() => setTouching(false), 1200);
     };
     el.addEventListener("pointerdown", hold, { passive: true });
     el.addEventListener("pointerup", free, { passive: true });
@@ -345,10 +363,17 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
     <div
       className={s.carousel}
       onKeyDown={onKeyDown}
-      onMouseEnter={() => setHeld(true)}
-      onMouseLeave={() => setHeld(false)}
-      onFocus={() => setHeld(true)}
-      onBlur={() => setHeld(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={(e) => {
+        // 키보드 포커스만 — 마우스로 버튼을 누른 뒤 남은 포커스까지 세면 마우스가 떠나도 계속 멈춰 있다
+        if (isKeyboardFocus(e.target)) setFocusWithin(true);
+      }}
+      onBlur={(e) => {
+        // 안쪽 요소끼리 옮겨 다니는 blur 는 무시 — 밖으로 나갈 때만 푼다
+        if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+        setFocusWithin(false);
+      }}
     >
       <div className={s.viewport} ref={viewportRef}>
         <ul className={s.track}>
@@ -358,9 +383,16 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
                 href={item.href}
                 className={`${s.card} ${item.image ? s.cardPhoto : s.cardText}`}
                 data-track={`discover:${tab.id}:card`}
-                /* 활성 카드가 아니면 클릭은 "그 카드로 이동"이 먼저다 — 데스크탑 커버플로우 관례 */
+                /* 키보드로 들어온 카드로 트랙을 옮긴다 — 화면에 반쯤 걸친 카드가 포커스를 받지 않게 */
+                onFocus={(e) => {
+                  // 이동이 진행 중이면(pending) 그 목적지와 비교 — 빠른 Tab 에서 index 가 아직 옛 값이라 이동을 건너뛰던 경합(10/3)
+                  const current = pendingRef.current ?? index;
+                  if (i !== current && isKeyboardFocus(e.currentTarget)) goTo(i);
+                }}
+                /* 활성 카드가 아닌 걸 **마우스로** 누르면 "그 카드로 이동"이 먼저다 — 데스크탑 커버플로우 관례.
+                   키보드 Enter(click detail 0)는 가로채지 않는다(10/2 QA A⚪8 — Enter 가 먹혔다) */
                 onClick={(e) => {
-                  if (isDesktop && i !== index) {
+                  if (isDesktop && i !== index && e.detail !== 0) {
                     e.preventDefault();
                     goTo(i);
                   }
@@ -399,11 +431,11 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
           </span>
 
           {isDesktop && !reduced && (
+            /* 라벨만 바꾼다(APG 캐러셀 회전 버튼) — aria-pressed 와 라벨을 같이 바꾸면 "멈추기, 눌림"처럼 뜻이 엇갈린다 */
             <button
               type="button"
               className={s.ctrlBtn}
               onClick={() => setPaused((p) => !p)}
-              aria-pressed={paused}
               aria-label={paused ? "자동 넘김 다시 시작" : "자동 넘김 멈추기"}
             >
               {paused ? <Play size={16} aria-hidden="true" /> : <Pause size={16} aria-hidden="true" />}
@@ -429,7 +461,16 @@ function DiscoverGrid({ tab }: { tab: DiscoverTab }) {
     <ul className={s.grid}>
       {tab.cards.map((item) => (
         <li key={item.id} className={s.gridItem}>
-          <Link href={item.href} className={`${s.card} ${s.cardText} ${s.cardCompact}`} data-track={`discover:${tab.id}:card`}>
+          <Link
+            href={item.href}
+            className={`${s.card} ${s.cardText} ${s.cardCompact}`}
+            data-track={`discover:${tab.id}:card`}
+            /* <640 은 가로 스크롤 그리드 — 브라우저는 일부만 보이는 카드를 포커스해도 스크롤하지 않아 짝수 번째 카드가
+               20% 만 보인 채 포커스를 받았다(10/3 재검증). 키보드 포커스면 카드를 칸 시작으로 끌어온다. */
+            onFocus={(e) => {
+              if (isKeyboardFocus(e.currentTarget)) e.currentTarget.scrollIntoView({ block: "nearest", inline: "start" });
+            }}
+          >
             <CardContent item={item} />
           </Link>
         </li>

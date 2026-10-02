@@ -21,7 +21,11 @@ const INTERVAL_MS = 3200;
 
 export function HeroKeywordTicker({ keywords }: { keywords: readonly string[] }) {
   const [index, setIndex] = useState(0);
-  const [held, setHeld] = useState(false);
+  /* 마우스 올림과 포커스를 따로 든다 — 하나로 묶으면 포커스가 링크에 있는데 마우스가 지나가 나가는 순간 다시 돌아
+     포커스된 링크가 aria-hidden·tabIndex -1·투명이 됐다(10/2 QA C-Y10) */
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const held = hovered || focused;
   const [introDone, setIntroDone] = useState(false);
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
   const paused = useHeroMotionPaused();
@@ -46,10 +50,13 @@ export function HeroKeywordTicker({ keywords }: { keywords: readonly string[] })
   return (
     <p
       className={s.ticker}
-      onMouseEnter={() => setHeld(true)}
-      onMouseLeave={() => setHeld(false)}
-      onFocus={() => setHeld(true)}
-      onBlur={() => setHeld(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={(e) => {
+        if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+        setFocused(false);
+      }}
     >
       <span className={s.tickerLabel}>이런 검색어를 추천해요</span>
       <span className={s.tickerSlot}>

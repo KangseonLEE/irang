@@ -43,6 +43,16 @@
   }
 }
 
+/* 바가 떠 있는 동안 키보드 포커스가 바 뒤로 숨지 않게 (10/2 QA C-Y1, WCAG 2.4.11).
+   Tab 이동·scrollIntoView 는 html 의 scroll-padding 을 피해 멈춘다 — 바(≈62) + 아래 24 + 여유 24.
+   10/3 Tab 실측(랜딩 68개 정지점): 가려진 포커스 1024·1280·1440 = 23·17·20건 → 0.
+   html 은 이 모듈 밖이라 :global 로 잡되, 바가 보일 때(.visible)만 걸리게 :has 로 묶는다 */
+@media (min-width: 1024px) {
+  :global(html):has(.visible) {
+    scroll-padding-bottom: 110px;
+  }
+}
+
 @media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
   .dock,
   .visible {

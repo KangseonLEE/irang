@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useSyncExternalStore } from "react";
+import { useState, useEffect, useCallback, useId, useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { X } from "lucide-react";
@@ -19,19 +19,43 @@ import s from "./header.module.css";
 /** 구독이 필요 없는 스냅샷용 — 인라인으로 두면 렌더마다 새 함수라 재구독이 일어난다 */
 const subscribeNoop = () => () => {};
 
+/** Navigation API 최소 형태 — TS DOM 라이브러리에 아직 `window.navigation` 이 없다 */
+interface NavigationLike {
+  currentEntry: { index: number } | null;
+  entries: () => { url: string | null }[];
+}
+
+/**
+ * 지금 기록에서 /search 밖 마지막 페이지까지 몇 단계 뒤인가.
+ * 0 = 이 탭의 같은 사이트 기록에 /search 밖 페이지가 없다(바로 들어옴). null = 판단 불가(API 미지원).
+ */
+function stepsBackOutOfSearch(): number | null {
+  const nav = (window as Window & { navigation?: NavigationLike }).navigation;
+  if (!nav?.currentEntry || typeof nav.entries !== "function") return null;
+  const entries = nav.entries();
+  const current = nav.currentEntry.index;
+  for (let i = current - 1; i >= 0; i--) {
+    const url = entries[i]?.url;
+    if (url && new URL(url).pathname !== "/search") return current - i;
+  }
+  return 0;
+}
+
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   /* 10/2 오후 회장: 헤더 검색도 히어로 검색과 같은 화면(`/search`)으로 간다 — 헤더 아래 패널은 폐기.
      /search 에서는 트리거 자리에 ✕(닫기)를 두고, 들어오기 직전 페이지로 돌려보낸다. */
-  /** 마지막으로 머문 /search 밖 주소(경로+쿼리) — ✕ 의 돌아갈 곳. 없으면(바로 /search 로 들어옴) 홈 */
+  /** 마지막으로 머문 /search 밖 주소(경로+쿼리). 있으면 앱 안에서 /search 로 들어왔다는 뜻 — Navigation API 가 없는
+      브라우저에서 ✕ 를 '한 단계 뒤로'로 처리할지 판정한다(없으면 홈으로 교체) */
   const returnPathRef = useRef<string | null>(null);
-  const headerRef = useRef<HTMLElement>(null);
   /** 드롭다운 클릭 후 일시적으로 hover를 무시하기 위한 플래그 */
   const [navHidden, setNavHidden] = useState(false);
   /** 클릭·키보드로 명시적으로 연 그룹 (hover 열림은 CSS가 담당) */
   const [openGroupId, setOpenGroupId] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
+  /** 그룹 버튼 ↔ 드롭다운 id 접두(aria-controls·Esc 복귀용) */
+  const navIdBase = useId();
   /** 겹치는 basePath 중 가장 긴 것 하나만 활성 — 두 그룹 동시 활성 방지 */
   const activeGroupId = resolveActiveGroupId(pathname);
   /** `/search` 는 페이지 검색바가 주인 — 헤더 트리거를 숨겨 입구가 둘이 되지 않게 (QA) */
@@ -130,9 +154,22 @@ export function Header() {
     [router],
   );
 
-  /** ✕ — 들어오기 직전 페이지로. 기록이 없으면 홈 */
+  /**
+   * ✕ — 들어오기 직전 페이지로 **되돌아간다**(새 기록을 쌓지 않는다, 10/2 QA C-Y11).
+   * push 로 가면 ✕ 뒤 '뒤로'가 다시 /search 로 왔다(기록 2→4).
+   * - 앱 안에서 들어왔으면 /search 기록을 거슬러 그 직전 페이지로 — /search 안에서 검색을 여러 번 했어도 한 번에
+   * - 바로 /search 로 들어왔으면(기록에 이 사이트 다른 페이지 없음) 홈으로 **교체** — 사이트 밖으로 나가지 않는다
+   */
   const closeSearch = useCallback(() => {
-    router.push(returnPathRef.current ?? "/");
+    const steps = stepsBackOutOfSearch();
+    if (steps !== null) {
+      if (steps > 0) window.history.go(-steps);
+      else router.replace("/");
+      return;
+    }
+    // Navigation API 가 없는 브라우저 — 기록 깊이를 몰라 back() 은 /search 안 직전 검색으로 갈 수 있다
+    // (10/3 재검증: 검색 2회 뒤 ✕ → /search?q=사과 에 남음). 들어오기 직전 경로로 **교체**한다.
+    router.replace(returnPathRef.current ?? "/");
   }, [router]);
 
   /* ⌘K(mac) / Ctrl+K — /search 밖에서는 검색 화면으로, /search 에서는 입력창으로 포커스 */
@@ -184,19 +221,20 @@ export function Header() {
     });
   }, []);
 
-  // Esc — 열린 드롭다운 닫기 + 포커스 해제
+  // Esc — 열린 드롭다운 닫기. 포커스가 메뉴 안에 있었으면 그 그룹 버튼으로 되돌린다(APG disclosure).
+  // 예전엔 포커스를 body 로 날려 키보드 사용자가 메뉴 위치를 잃었다(10/2 QA).
   useEffect(() => {
     if (!openGroupId) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
+      const focusInNav = navRef.current?.contains(document.activeElement) ?? false;
+      const trigger = document.getElementById(`${navIdBase}-${openGroupId}-trigger`);
       setOpenGroupId(null);
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
+      if (focusInNav) trigger?.focus();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [openGroupId]);
+  }, [openGroupId, navIdBase]);
 
   // 바깥 클릭 — 열린 드롭다운 닫기
   useEffect(() => {
@@ -212,10 +250,7 @@ export function Header() {
 
   return (
     <>
-      <header
-        ref={headerRef}
-        className={`${s.header}${headerHidden ? ` ${s.headerHidden}` : ""}`}
-      >
+      <header className={`${s.header}${headerHidden ? ` ${s.headerHidden}` : ""}`}>
         <div className={s.inner}>
           {/* Logo — 심볼 + 워드마크 */}
           <Link
@@ -245,18 +280,22 @@ export function Header() {
               const isOpen = openGroupId === group.id;
               return (
                 <div key={group.id} className={s.navGroup}>
+                  {/* 디스클로저 버튼(APG) — 포커스만으로는 열지 않는다. Enter·Space(클릭)로 열고 닫고, Esc 는 닫고 버튼으로.
+                      예전엔 포커스로 열려 Enter 를 누르면 오히려 닫혔다(10/2 QA). 다른 그룹 버튼으로 포커스가 오면 열린 그룹은 닫는다 */}
                   <button
                     type="button"
+                    id={`${navIdBase}-${group.id}-trigger`}
                     className={`${s.navLink} ${isGroupActive ? s.active : ""}`}
-                    aria-haspopup="true"
                     aria-expanded={isOpen}
+                    aria-controls={`${navIdBase}-${group.id}-menu`}
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => toggleGroup(group.id)}
-                    onFocus={() => setOpenGroupId(group.id)}
+                    onFocus={() => setOpenGroupId((prev) => (prev !== null && prev !== group.id ? null : prev))}
                   >
                     {group.label}
                   </button>
                   <div
+                    id={`${navIdBase}-${group.id}-menu`}
                     className={`${s.dropdown}${isOpen ? ` ${s.dropdownOpen}` : ""}`}
                   >
                     {group.items.map((item) => {

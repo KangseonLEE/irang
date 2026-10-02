@@ -88,11 +88,15 @@
 }
 
 .resultTitle {
+  min-width: 0;
   font-size: var(--fs-h3);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
   word-break: keep-all;
+  /* 띄어쓰기 없는 긴 검색어는 keep-all 로는 끊을 곳이 없어 1280 에서 제목이 잘렸다(10/2 QA) —
+     넘칠 때만 아무 데서나 끊는다(break-all 과 달리 들어가는 줄은 그대로) */
+  overflow-wrap: anywhere;
 }
 
 .resultCount {
@@ -450,6 +454,9 @@
   font-weight: 600;
   color: var(--foreground);
   margin: 0;
+  /* 공백 없는 긴 검색어가 문단을 한 줄로 늘려 양옆이 잘렸다(10/3 재검증, 운영 동일) */
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .noResultHint {

@@ -5,7 +5,7 @@ import { formatAgeRange } from "@/lib/format";
 import type { SupportProgram } from "@/lib/data/programs";
 import type { FarmEvent } from "@/lib/data/events";
 import type { EducationCourse } from "@/lib/data/education";
-import { durationLabel as spanLabel, isStayEvent, recruitLabel } from "@/components/events/event-fields";
+import { durationLabel as spanLabel, isStayEvent, meaningfulCost, recruitLabel } from "@/components/events/event-fields";
 import { DiscoverTabs, type DiscoverCard, type DiscoverTab } from "./discover-tabs";
 import s from "./discover-section.module.css";
 
@@ -134,7 +134,8 @@ function toProgramCard(p: ActiveProgram, ongoing: boolean): DiscoverCard {
     chip: p.supportType,
     region: regionText(p.region, p.sigungu),
     title: p.title,
-    line1: p.supportAmount,
+    // 수집 행의 "상세 공고 참조" 같은 채움값은 강조 줄로 쓰지 않는다(10/3 재검증)
+    line1: meaningfulCost(p.supportAmount) ?? undefined,
     line2: [`신청 ${programPeriod(p.applicationStart, p.applicationEnd)}`, formatAgeRange(p.eligibilityAgeMin, p.eligibilityAgeMax)]
       .filter(Boolean)
       .join(" · "),
@@ -386,7 +387,8 @@ export function ExperienceSection({ events }: { events: FarmEvent[] }) {
     {
       id: "festival",
       label: "행사",
-      viewAllHref: "/events?type=박람회",
+      // 탭에는 박람회·설명회·멘토링·축제가 섞여 있다 — 한 유형(박람회)으로 거르면 탭에서 본 카드가 목록에 없다(10/2 QA A⚪12)
+      viewAllHref: "/events",
       cards: festivalCards,
     },
   ].filter((t) => t.cards.length > 0);

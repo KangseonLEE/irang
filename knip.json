@@ -14,8 +14,7 @@
     "supabase/**",
     "add-external-resources.mjs",
     "add-investment-and-details.mjs",
-    "apply-all-crop-changes.mjs",
-    "src/components/landing/hero-slider.tsx"
+    "apply-all-crop-changes.mjs"
   ],
   "ignoreBinaries": [
     "cloudflared"

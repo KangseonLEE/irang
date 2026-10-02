@@ -1,16 +1,18 @@
 import { StrictMode } from "react";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 
 /**
  * 헤더 검색 (2026-10-02 오후 회장) — 헤더 검색도 히어로 검색과 같은 `/search` 화면으로 간다.
- * /search 에서는 트리거 자리에 ✕(닫기)가 있고, 들어오기 직전 페이지로 돌아간다(기록이 없으면 홈).
+ * /search 에서는 트리거 자리에 ✕(닫기)가 있고, 들어오기 직전 페이지로 **되돌아간다**(새 기록을 쌓지 않는다, 10/2 QA C-Y11).
  */
 const push = vi.fn();
+const back = vi.fn();
+const replace = vi.fn();
 const pathname = { current: "/regions" };
 vi.mock("next/navigation", () => ({
   usePathname: () => pathname.current,
-  useRouter: () => ({ push }),
+  useRouter: () => ({ push, back, replace }),
 }));
 
 import { Header } from "@/components/layout/header";
@@ -18,10 +20,21 @@ import { Header } from "@/components/layout/header";
 const gtag = vi.fn();
 const openCalls = () => gtag.mock.calls.filter((c) => c[1] === "search_overlay_open");
 
+/** Navigation API 대역 — entries 는 url 만, currentEntry 는 index 만 쓴다 */
+function mockNavigation(urls: string[], currentIndex = urls.length - 1) {
+  (window as unknown as { navigation?: unknown }).navigation = {
+    currentEntry: { index: currentIndex },
+    entries: () => urls.map((u) => ({ url: `http://localhost${u}` })),
+  };
+}
+
 beforeEach(() => {
   gtag.mockClear();
   push.mockClear();
+  back.mockClear();
+  replace.mockClear();
   pathname.current = "/regions";
+  delete (window as unknown as { navigation?: unknown }).navigation;
   (window as unknown as { gtag: unknown }).gtag = gtag;
   window.matchMedia = vi.fn().mockImplementation((q: string) => ({
     matches: !q.includes("max-width"),
@@ -29,6 +42,11 @@ beforeEach(() => {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
   })) as unknown as typeof window.matchMedia;
+});
+
+afterEach(() => {
+  delete (window as unknown as { navigation?: unknown }).navigation;
+  vi.restoreAllMocks();
 });
 
 describe("헤더 검색", () => {
@@ -58,8 +76,12 @@ describe("헤더 검색", () => {
     expect(push).toHaveBeenCalledTimes(1);
     expect(push).toHaveBeenCalledWith("/search");
   });
+});
 
-  it("/search 에서는 트리거 대신 ✕ — 직전 페이지로 돌아간다", () => {
+describe("/search ✕ 닫기 — 기록을 늘리지 않는다 (10/2 QA C-Y11)", () => {
+  // 10/3 재검증: Navigation API 가 없으면 기록 깊이를 몰라 back() 이 /search 안 직전 검색으로 갔다(검색 2회 뒤 ✕ →
+  // /search?q=사과 에 남음). 들어오기 직전 경로로 교체한다 — 기록을 늘리지 않고 /search 에 남지도 않는다.
+  it("앱 안에서 들어왔으면(Navigation API 없음) 들어오기 직전 경로로 교체 — push·back 하지 않는다", () => {
     window.history.replaceState(null, "", "/regions?sido=gyeonggi");
     const { rerender } = render(<Header />);
     pathname.current = "/search";
@@ -67,13 +89,91 @@ describe("헤더 검색", () => {
     rerender(<Header />);
     expect(screen.queryByRole("link", { name: "통합검색 열기" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "검색 닫기" }));
-    expect(push).toHaveBeenCalledWith("/regions?sido=gyeonggi");
+    expect(replace).toHaveBeenCalledWith("/regions?sido=gyeonggi");
+    expect(back).not.toHaveBeenCalled();
+    expect(push).not.toHaveBeenCalled();
   });
 
-  it("/search 로 바로 들어오면 ✕ 는 홈으로", () => {
+  it("/search 로 바로 들어오면 홈으로 교체 — 사이트 밖으로 나가지 않는다", () => {
     pathname.current = "/search";
     render(<Header />);
     fireEvent.click(screen.getByRole("button", { name: "검색 닫기" }));
-    expect(push).toHaveBeenCalledWith("/");
+    expect(replace).toHaveBeenCalledWith("/");
+    expect(back).not.toHaveBeenCalled();
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("Navigation API 가 있으면 /search 기록을 한 번에 거슬러 직전 페이지로 (검색을 여러 번 했어도)", () => {
+    const go = vi.spyOn(window.history, "go").mockImplementation(() => {});
+    mockNavigation(["/", "/regions", "/search?q=사과", "/search?q=배"]);
+    pathname.current = "/search";
+    render(<Header />);
+    fireEvent.click(screen.getByRole("button", { name: "검색 닫기" }));
+    expect(go).toHaveBeenCalledWith(-2);
+    expect(push).not.toHaveBeenCalled();
+    expect(back).not.toHaveBeenCalled();
+  });
+
+  it("Navigation API 기록에 /search 밖 페이지가 없으면(바로 들어옴) 홈으로 교체", () => {
+    const go = vi.spyOn(window.history, "go").mockImplementation(() => {});
+    mockNavigation(["/search?q=사과", "/search?q=배"]);
+    pathname.current = "/search";
+    render(<Header />);
+    fireEvent.click(screen.getByRole("button", { name: "검색 닫기" }));
+    expect(go).not.toHaveBeenCalled();
+    expect(replace).toHaveBeenCalledWith("/");
+  });
+});
+
+describe("GNB 드롭다운 키보드 — 디스클로저 (10/2 QA)", () => {
+  const firstGroup = () => screen.getAllByRole("button", { expanded: false })[0];
+  /** jsdom 의 focus() 는 React onFocus 가 듣는 focusin 을 보내지 않는다 — 브라우저처럼 둘 다 */
+  const focus = (el: HTMLElement) => {
+    el.focus();
+    fireEvent.focusIn(el);
+  };
+
+  it("포커스만으로는 열리지 않고, Enter(클릭)로 열고 다시 누르면 닫는다", () => {
+    render(<Header />);
+    const btn = firstGroup();
+    focus(btn);
+    expect(btn).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(btn);
+    expect(btn).toHaveAttribute("aria-expanded", "true");
+    fireEvent.click(btn);
+    expect(btn).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("버튼은 드롭다운을 aria-controls 로 가리키고 aria-haspopup(메뉴 역할)은 쓰지 않는다", () => {
+    render(<Header />);
+    const btn = firstGroup();
+    const id = btn.getAttribute("aria-controls");
+    expect(id).toBeTruthy();
+    expect(document.getElementById(id!)).not.toBeNull();
+    expect(btn).not.toHaveAttribute("aria-haspopup");
+  });
+
+  it("Esc 는 닫고 포커스를 그 그룹 버튼으로 돌린다 (body 로 날리지 않는다)", () => {
+    render(<Header />);
+    const btn = firstGroup();
+    focus(btn);
+    fireEvent.click(btn);
+    const menu = document.getElementById(btn.getAttribute("aria-controls")!)!;
+    const firstItem = menu.querySelector("a")!;
+    focus(firstItem);
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(btn).toHaveAttribute("aria-expanded", "false");
+    expect(document.activeElement).toBe(btn);
+  });
+
+  it("다른 그룹 버튼으로 포커스가 오면 열려 있던 그룹은 닫힌다", () => {
+    render(<Header />);
+    const [a, b] = screen.getAllByRole("button", { expanded: false });
+    focus(a);
+    fireEvent.click(a);
+    expect(a).toHaveAttribute("aria-expanded", "true");
+    focus(b);
+    expect(a).toHaveAttribute("aria-expanded", "false");
+    expect(b).toHaveAttribute("aria-expanded", "false");
   });
 });
