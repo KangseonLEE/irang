@@ -6,6 +6,7 @@ import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
 import { RECOMMENDED_KEYWORDS } from "@/lib/data/popular-keywords";
 import { HeroSearchForm } from "./hero-search-form";
 import { HeroRotator } from "./hero-rotator";
+import { HeroTypeCarousel } from "./hero-type-carousel";
 import { HeroKeywordTicker } from "./hero-keyword-ticker";
 import { HeroMotionProvider, HeroPauseButton } from "./hero-motion";
 import s from "./hero-search-hub.module.css";
@@ -107,7 +108,7 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
             <p className={s.sub}>궁금한 지역·작물·지원사업을 검색하거나 내 정착 유형부터 골라 보세요</p>
 
             <div className={s.searchWrap}>
-              <HeroSearchForm variant="hero" idPrefix="hero" />
+              <HeroSearchForm variant="hero" />
             </div>
 
             <HeroKeywordTicker keywords={tickerKeywords} />
@@ -120,7 +121,7 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
               {/* 장면·추천 검색어 자동 전환 정지(WCAG 2.2.2) */}
               <HeroPauseButton />
             </div>
-            <ul className={s.typeGrid}>
+            <HeroTypeCarousel labels={JOURNEY_LANES.map((lane) => lane.label)}>
               {JOURNEY_LANES.map((lane, i) => (
                 /* --i = 등장 스태거 순서(CSS 가 지연을 계산) */
                 <li key={lane.id} className={s.typeItem} style={{ "--i": i } as React.CSSProperties}>
@@ -144,7 +145,7 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
                   </Link>
                 </li>
               ))}
-            </ul>
+            </HeroTypeCarousel>
           </div>
 
           {/* ── 하단: 지금 열린 기회 수치 + 마감이 가까운 지원사업 ── */}

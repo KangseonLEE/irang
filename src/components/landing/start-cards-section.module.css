@@ -1,10 +1,9 @@
 /* StartCardsSection — 섹션 머리말. 기본(모바일) → @media 오버라이드 (체크리스트 G) */
 
-/* 하단 여백 = 뒤따르는 인터뷰 다크 띠가 덮는 높이(커튼 오버랩, interview-curtain.module.css).
-   이만큼을 더해 두지 않으면 띠가 이 섹션의 카드 위로 올라온다 (9/29). */
+/* 9/29 의 커튼 오버랩 보정 여백(40/72px)은 10/2 제거 — 이 섹션 뒤에 이제 인터뷰 띠가 아니라
+   "직접 가 보는 농촌"이 오고, 커튼 음수 마진도 없앴다. 띠 하단 여백은 .lightGreenBg 패딩 하나로 */
 .section {
   min-width: 0;
-  padding-bottom: 40px;
 }
 
 .head {
@@ -47,12 +46,5 @@
 
   .title {
     font-size: 2rem;
-  }
-}
-
-/* 1024+ 오버랩은 72px */
-@media (min-width: 1024px) {
-  .section {
-    padding-bottom: 72px;
   }
 }

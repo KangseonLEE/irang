@@ -95,17 +95,27 @@
   color: var(--muted-foreground, #6b7280);
 }
 
+/* 모바일(<768) 진입 UI — 시·도 → 시·군·구 2단 선택 (10/2 회장). 칩 그리드와 자리를 맞바꾼다 */
+.mapPicker {
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .mapPicker { display: none; }
+}
+
+/* 시·도 링크 17 — 768+ 에서 보인다. 모바일은 2단 선택이 대신하므로 화면에서만 숨기고 HTML(크롤러 링크)은 유지 */
 .provinceLinks {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: none;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-@media (min-width: 640px) {
-  .provinceLinks { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+@media (min-width: 768px) {
+  .provinceLinks { display: grid; }
 }
 
 @media (min-width: 1024px) {
@@ -147,27 +157,43 @@
   .provinceLink { min-height: 40px; }
 }
 
+/* 두 버튼 5:5 같은 폭 (10/2 회장) — 채운 버튼(비교) + 라인 버튼(전체) */
 .mapActions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 16px;
-  margin-top: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 12px;
 }
 
-.mapCompare {
+@media (min-width: 768px) {
+  .mapActions { margin-top: 20px; max-width: 480px; }
+}
+
+@media (min-width: 1024px) {
+  .mapActions { max-width: none; }
+}
+
+.mapCompare,
+.mapAll {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  min-width: 0;
   min-height: 44px;
-  padding: 0 18px;
+  padding: 0 12px;
+  border: 1px solid var(--primary, #1b6b5a);
   border-radius: 12px;
-  background: var(--primary, #1b6b5a);
-  color: #fff;
   font-size: 0.9375rem;
   font-weight: 700;
   text-decoration: none;
-  transition: background-color 0.15s ease;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.mapCompare {
+  background: var(--primary, #1b6b5a);
+  color: #fff;
 }
 
 .mapCompare:focus-visible,
@@ -177,18 +203,13 @@
 }
 
 .mapAll {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  font-size: 0.9375rem;
-  font-weight: 600;
+  background: transparent;
   color: var(--primary, #1b6b5a);
-  text-decoration: none;
 }
 
 @media (hover: hover) {
-  .mapCompare:hover { background: #0d2e27; }
-  .mapAll:hover { text-decoration: underline; }
+  .mapCompare:hover { background: #0d2e27; border-color: #0d2e27; }
+  .mapAll:hover { background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent); }
 }
 
 /* 지도 비율 450:760 — 폭을 묶어 세로가 화면을 넘지 않게 (300 → 507px 높이) */

@@ -86,7 +86,7 @@ export function HeroSearchDock() {
       </nav>
       <span className={s.divider} aria-hidden="true" />
       <div className={s.search}>
-        <HeroSearchForm variant="dock" idPrefix="hero-dock" />
+        <HeroSearchForm variant="dock" />
       </div>
     </div>
   );

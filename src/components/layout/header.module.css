@@ -277,7 +277,9 @@
    폭에 따라 보이는 요소만 다를 뿐(모바일=로고·돋보기 / 데스크탑=+GNB·검색창) 규칙은 같다. */
 :global(body:has([data-landing-hero])) .header {
   background-color: transparent;
-  border-bottom-color: transparent;
+  /* 10/2 회장: 투명 헤더와 히어로 사이 흰 반투명 1px 장식선(기후금융포털식). 흰 헤더로 바뀌면
+     아래 `html[data-hero-passed]`·`.searchOpen` 규칙이 var(--border) 로 되돌린다. */
+  border-bottom-color: rgba(255, 255, 255, 0.24);
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.25s ease,

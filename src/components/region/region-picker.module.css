@@ -1,0 +1,51 @@
+/* RegionPicker — [시·도 ▾][시·군·구 ▾][→] 한 줄. 트리거 모양은 SelectCombobox 공용 그대로 */
+
+.picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px;
+  gap: 8px;
+  align-items: stretch;
+}
+
+/* SelectCombobox 트리거(button)에 붙는다 — 그리드 칸 안에서 줄어들 수 있게 */
+.select {
+  min-width: 0;
+}
+
+/* 공용 트리거 배경(muted)은 흰 섹션 위에서 비활성처럼 보인다 — 같은 특이성이면 로드 순서에 지므로 2중 클래스 */
+.select.select:not(:disabled) {
+  background: var(--card, #fff);
+}
+
+.go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.go:disabled {
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 18%, #fff);
+  color: color-mix(in srgb, var(--primary, #1b6b5a) 55%, #fff);
+  cursor: not-allowed;
+}
+
+.go:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .go:not(:disabled):hover {
+    background: var(--primary-dark, #0d2e27);
+  }
+}

@@ -443,19 +443,58 @@
   color: #fff;
 }
 
+/* <768: 한 장씩 넘기는 가로 스냅 캐러셀 (10/2 회장) — 한 장 + 다음 카드 peek.
+   트랙은 히어로 좌우 여백(--hero-gutter = .page 패딩 16/24)만큼 화면 끝까지 넓히고,
+   같은 값의 padding·scroll-padding 으로 첫 카드·스냅 위치를 본문 왼쪽 선에 맞춘다. */
 .typeGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin: 0;
-  padding: 0;
+  --hero-gutter: 16px;
+  display: flex;
+  gap: 10px;
+  /* 위아래 6px = 포커스 링(outline-offset 3 + 2px)이 스크롤 박스에 잘리지 않을 여유. 위는 음수 마진으로 상쇄 */
+  margin: -6px calc(-1 * var(--hero-gutter)) 0;
+  padding: 6px var(--hero-gutter);
   list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--hero-gutter);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.typeGrid::-webkit-scrollbar {
+  display: none;
+}
+
+.typeGrid > .typeItem {
+  flex: 0 0 min(82%, 320px);
+  scroll-snap-align: start;
+}
+
+/* 위치 점 — 카드 아래. 768+ 는 SnapDots 자체 CSS 가 숨긴다 */
+.typeDots {
+  margin-top: 2px;
 }
 
 @media (min-width: 640px) {
   .typeGrid {
+    --hero-gutter: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .typeGrid {
+    display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .typeGrid > .typeItem {
+    flex: none;
   }
 }
 

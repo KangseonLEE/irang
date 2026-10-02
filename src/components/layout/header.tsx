@@ -68,30 +68,58 @@ export function Header() {
       }, 160);
     };
 
+    /* 모바일(<768) 방향 판정 기준점 — 방향이 바뀐 지점에서부터 누적 이동량을 잰다(10/2 회장).
+       데스크탑은 종전대로 "직전 이벤트와의 차이"로 판정한다(동작 불변 지시). */
+    let anchorY = window.scrollY;
+    let anchorDir: 1 | -1 = 1;
+    const show = () => {
+      setHeaderHidden(false);
+      delete document.documentElement.dataset.headerHidden;
+    };
+    const hide = () => {
+      setHeaderHidden(true);
+      document.documentElement.dataset.headerHidden = "";
+    };
+
     const onScroll = () => {
       const y = window.scrollY;
       scrollingUp = y < lastScrollY.current;
       scheduleSnap();
+      const mobile = !window.matchMedia("(min-width: 768px)").matches;
       // 검색 패널이 열린 동안엔 헤더(패널이 붙어 있다)를 숨기지 않는다
       if (searchOpenRef.current) {
         lastScrollY.current = y;
+        anchorY = y;
         return;
       }
-      // 최상단 근처에서는 항상 표시
-      if (y < 56) {
-        setHeaderHidden(false);
-        delete document.documentElement.dataset.headerHidden;
+      /* 최상단 근처에서는 항상 표시 — 헤더가 흐름 안에 자리를 차지하는 페이지에선 그 높이(56)만큼.
+         랜딩은 히어로가 헤더 뒤까지 차올라(투명 오버레이) 숨겨도 빈 띠가 생기지 않으므로,
+         모바일에선 이 구간을 두지 않고 내리기 시작하자마자 숨긴다(10/2 회장 "내리는 즉시"). */
+      const topZone = mobile && document.querySelector("[data-landing-hero]") ? 0 : 56;
+      if (y <= topZone) {
+        show();
+        lastScrollY.current = y;
+        anchorY = y;
+        return;
+      }
+      if (mobile) {
+        /* 10/2: 직전 이벤트와의 차이(>10px)로만 판정하면 손가락으로 천천히 끄는 터치 스크롤은
+           이벤트마다 3~8px 라 영원히 임계를 못 넘는다 — 빠르게 튕길 때만 숨던 원인.
+           방향이 바뀐 지점(anchor)부터 누적해 판정한다. */
+        const dir: 1 | -1 = y > lastScrollY.current ? 1 : y < lastScrollY.current ? -1 : anchorDir;
+        if (dir !== anchorDir) {
+          anchorDir = dir;
+          anchorY = lastScrollY.current;
+        }
+        const moved = y - anchorY;
+        if (moved > THRESHOLD) hide();
+        else if (moved < -THRESHOLD) show();
         lastScrollY.current = y;
         return;
       }
       const delta = y - lastScrollY.current;
-      if (delta > THRESHOLD) {
-        setHeaderHidden(true);
-        document.documentElement.dataset.headerHidden = "";
-      } else if (delta < -THRESHOLD) {
-        setHeaderHidden(false);
-        delete document.documentElement.dataset.headerHidden;
-      }
+      if (delta > THRESHOLD) hide();
+      else if (delta < -THRESHOLD) show();
       lastScrollY.current = y;
     };
     window.addEventListener("scroll", onScroll, { passive: true });

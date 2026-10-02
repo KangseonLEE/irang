@@ -412,6 +412,9 @@ function SearchPageContent() {
             panelLayout
             placeholder="궁금한 농촌 정착 정보를 검색해보세요"
             mobilePlaceholder="지역, 작물, 교육, 비용 검색"
+            /* 랜딩 검색 입구(입력창 모양 링크)가 이 화면으로 보낸다 — 도착하면 바로 입력할 수 있게(10/2 회장).
+               iOS 는 사용자 제스처 밖의 focus 에 가상 키보드를 띄우지 않는다(커서만 놓임) */
+            autoFocus
           />
         </section>
       )}

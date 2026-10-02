@@ -20,6 +20,8 @@ import { HeroSearchHub, type HeroStat, type HeroDeadline } from "@/components/la
 import { HeroSearchDock } from "@/components/landing/hero-search-dock";
 import { isStayEvent } from "@/components/events/event-fields";
 import { PROVINCES } from "@/lib/data/regions";
+import { SIGUNGUS } from "@/lib/data/sigungus";
+import { RegionPicker } from "@/components/region/region-picker";
 import { POPULATION_FALLBACK } from "@/lib/data/population";
 import dynamic from "next/dynamic";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
@@ -150,6 +152,9 @@ export default async function HomePage() {
     },
   ];
   const provinceDensityMap = getProvinceDensityMap();
+  /* 모바일 2단 선택용 — 클라이언트로 넘길 필드만 추린다(sigungus.ts 전체를 번들에 싣지 않게) */
+  const pickerProvinces = PROVINCES.map((p) => ({ id: p.id, shortName: p.shortName }));
+  const pickerSigungus = SIGUNGUS.map((sg) => ({ sidoId: sg.sidoId, id: sg.id, name: sg.name, shortName: sg.shortName }));
 
   return (
     <div className={s.page}>
@@ -195,7 +200,15 @@ export default async function HomePage() {
             <p className={s.mapSub}>
               시·도를 누르면 기후·인구·추천 작물·지원사업을 한곳에서 볼 수 있어요
             </p>
-            {/* 지도는 클라이언트 클릭(router.push)이라 크롤러가 따라갈 링크를 따로 둔다 */}
+            {/* 모바일(<768): 칩 17개 대신 시·도 → 시·군·구 2단 선택 (10/2 회장). 768+ 는 CSS 로 숨김 */}
+            <RegionPicker
+              provinces={pickerProvinces}
+              sigungus={pickerSigungus}
+              trackPrefix="region_map"
+              className={s.mapPicker}
+            />
+            {/* 지도는 클라이언트 클릭(router.push)이라 크롤러가 따라갈 링크를 따로 둔다.
+                모바일에선 위 2단 선택이 대신하므로 화면에서만 숨긴다(HTML 에는 17개 그대로) */}
             <ul className={s.provinceLinks} aria-label="시·도 바로가기">
               {PROVINCES.map((p) => (
                 <li key={p.id}>

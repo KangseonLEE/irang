@@ -31,10 +31,20 @@ describe("랜딩 히어로 A안 — 검색 + 정착 유형 (10/1)", () => {
     expect(html).toContain("data-landing-hero");
   });
 
-  it("검색은 JS 없이 동작하는 GET 폼 (/search, name=q)", () => {
-    expect(html).toMatch(/<form[^>]*action="\/search"[^>]*method="get"/);
-    expect(html).toContain('name="q"');
-    expect(html).toContain('role="search"');
+  it("검색 입구는 /search 로 가는 입력창 모양 링크 — 진짜 입력·폼은 없다 (10/2 회장)", () => {
+    const a = html.match(/<a[^>]*data-track="hero:search_open"[^>]*>/)?.[0] ?? "";
+    expect(a).toContain('href="/search"');
+    expect(a).toContain('aria-label="통합검색 열기"');
+    expect(html).not.toContain("<form");
+    expect(html).not.toContain('name="q"');
+    expect(html).not.toContain("search_submit");
+  });
+
+  it("모바일 유형 캐러셀 — 카드 6장이 한 트랙(ul)에 있고 위치 점 6개가 SSR 된다", () => {
+    const ul = html.slice(html.indexOf("정착 유형으로 시작하기"));
+    expect(ul.match(/<li[^>]*>/g)?.length).toBeGreaterThanOrEqual(6);
+    expect(html).toContain('aria-label="정착 유형 카드 위치"');
+    for (const lane of JOURNEY_LANES) expect(html).toContain(`aria-label="${lane.label} 카드로"`);
   });
 
   it("정착 유형 링크 6개가 SSR <a> 로 남고 계측 라벨이 붙는다", () => {
@@ -133,10 +143,10 @@ describe("등장 연출 + 유리 UI (10/2 회장)", () => {
 describe("하단 고정 바 (1024+)", () => {
   const html = renderToStaticMarkup(<HeroSearchDock />);
 
-  it("첫 렌더는 숨김(inert)이고 유형 6 + 검색 폼을 가진다", () => {
+  it("첫 렌더는 숨김(inert)이고 유형 6 + /search 입구 링크를 가진다", () => {
     expect(html).toContain('data-hero-dock="hidden"');
     expect(html).toContain("inert");
-    expect(html.match(/data-track="hero_dock:(?!search_submit)/g)?.length).toBe(6);
-    expect(html).toMatch(/<form[^>]*action="\/search"/);
+    expect(html.match(/data-track="hero_dock:(?!search_open)/g)?.length).toBe(6);
+    expect(html.match(/<a[^>]*data-track="hero_dock:search_open"[^>]*>/)?.[0]).toContain('href="/search"');
   });
 });

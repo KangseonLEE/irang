@@ -1,83 +1,57 @@
 "use client";
 
-import { useRef, type FormEvent, type KeyboardEvent } from "react";
+import type { KeyboardEvent } from "react";
+import Link from "next/link";
 import { Search } from "lucide-react";
-import { analytics } from "@/lib/analytics";
-import { isComposingEvent } from "@/lib/ime";
 import s from "./hero-search-form.module.css";
 
 /**
- * 랜딩 검색 폼 (2026-10-01 A안) — 히어로 본문과 스크롤 후 하단 고정 바가 함께 쓴다.
+ * 랜딩 검색 입구 (2026-10-02 회장: "검색창을 누르면 바로 통합검색으로") — 히어로 본문과
+ * 스크롤 후 하단 고정 바(1024+)가 함께 쓴다.
  *
- * - **JS 없이도 동작하는 GET 폼**(`/search?q=`). 클라이언트 코드는 계측과 빈 검색·IME 가드만 얹는다.
- *   검색 로그(search_logs)는 /search 페이지가 1회 적재하므로 여기서는 GA `search` 이벤트만 보낸다
- *   (search-bar.tsx navigateToSearch 와 같은 분담).
- * - 한글 조합 중 Enter 는 막는다(9/7 배추→고구마 사고 가드). 조합이 끝난 다음 Enter 로 제출된다.
- * - `useSearchParams` 를 쓰지 않는다 → 랜딩 SSR bailout 0 유지(6/1 교훈).
+ * 입력창 **모양의 링크**(`<a href="/search">`)다. 실제 입력은 /search 빈 화면(검색 홈)이 받는다 —
+ * 그 화면의 검색 바가 마운트 시 포커스를 가져간다(autoFocus).
+ *
+ * 왜 진짜 input 이 아니라 링크인가
+ * - JS 없이도 /search 로 간다(SSR <a>). 크롤러·하이드레이션 전 탭도 동작.
+ * - **탭 vs 스크롤 구분을 브라우저에 맡긴다** — 네이티브 링크는 손가락이 움직여 스크롤이 되면 click 을
+ *   보내지 않는다. 9/7 사고(pointerdown 에서 열어 스크롤 시작만으로 이동)가 구조적으로 생기지 않는다.
+ * - **포커스만으로는 이동하지 않는다**(WCAG 3.2.1, 9/29 박제) — Tab 으로 들어오면 포커스 링만,
+ *   Enter(링크 기본)·Space(아래 핸들러)로 이동한다. input 이었다면 onFocus 이동을 피할 수 없었다.
+ * - 계측은 LandingClickTracker 가 `data-track` 을 잡는다: `hero:search_open` / `hero_dock:search_open`.
  */
 interface HeroSearchFormProps {
-  /** hero = 히어로 큰 입력 / dock = 하단 고정 바 안 작은 입력 */
+  /** hero = 히어로 큰 입구 / dock = 하단 고정 바 안 작은 입구 */
   variant: "hero" | "dock";
-  /** label·input id 충돌 방지용 접두 */
-  idPrefix: string;
 }
 
 /** 375 에서도 잘리지 않는 길이 — 예시를 붙이면 모바일에서 말줄임된다(10/1 실측) */
 const PLACEHOLDER = "지역·작물·지원사업 검색";
 
-export function HeroSearchForm({ variant, idPrefix }: HeroSearchFormProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const inputId = `${idPrefix}-q`;
-
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    const q = inputRef.current?.value.trim() ?? "";
-    if (q.length === 0) {
+export function HeroSearchForm({ variant }: HeroSearchFormProps) {
+  // 링크의 기본 활성 키는 Enter 뿐 — 입력창처럼 보이는 입구라 Space 도 받는다(페이지 스크롤 대신 이동)
+  const onKeyDown = (e: KeyboardEvent<HTMLAnchorElement>) => {
+    if (e.key === " " || e.key === "Spacebar") {
       e.preventDefault();
-      inputRef.current?.focus();
-      return;
-    }
-    analytics.search(q);
-  };
-
-  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && isComposingEvent(e)) {
-      e.preventDefault();
-      return;
-    }
-    // 하단 바 안에서 Esc = 입력 해제(포커스를 놓아 바가 다시 숨을 수 있게)
-    if (e.key === "Escape" && variant === "dock") {
-      e.currentTarget.blur();
+      e.currentTarget.click();
     }
   };
 
   return (
-    <form
-      action="/search"
-      method="get"
-      role="search"
+    <Link
+      href="/search"
       className={`${s.form} ${variant === "hero" ? s.hero : s.dock}`}
-      onSubmit={onSubmit}
+      aria-label="통합검색 열기"
+      data-track={`${variant === "hero" ? "hero" : "hero_dock"}:search_open`}
+      onKeyDown={onKeyDown}
     >
-      <label htmlFor={inputId} className={s.srOnly}>
-        검색어
-      </label>
       <Search className={s.icon} size={variant === "hero" ? 20 : 18} aria-hidden="true" />
-      <input
-        ref={inputRef}
-        id={inputId}
-        name="q"
-        type="search"
-        required
-        autoComplete="off"
-        enterKeyHint="search"
-        maxLength={60}
-        placeholder={PLACEHOLDER}
-        className={s.input}
-        onKeyDown={onKeyDown}
-      />
-      <button type="submit" className={s.submit} data-track={`${variant === "hero" ? "hero" : "hero_dock"}:search_submit`}>
+      <span className={s.input} aria-hidden="true">
+        {PLACEHOLDER}
+      </span>
+      <span className={s.submit} aria-hidden="true">
         검색
-      </button>
-    </form>
+      </span>
+    </Link>
   );
 }
