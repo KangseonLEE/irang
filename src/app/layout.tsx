@@ -112,7 +112,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={s.html}>
+    /* suppressHydrationWarning — iOS Chrome 이 <html> 에 `__gcrremoteframetoken` 을 주입해 하이드레이션 경고(dev "1 Issue")가 났다
+       (10/2 회장 캡처). 이 요소 한 단계의 속성 불일치만 무시한다 — 자식 트리는 그대로 검사된다 */
+    <html lang="ko" className={s.html} suppressHydrationWarning>
       {/* Pretendard 폰트: metadata API에서 외부 스타일시트 link를 지원하지 않아 수동 삽입 */}
       <head>
         {/* ── 구조화 데이터 (JSON-LD) ── */}

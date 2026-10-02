@@ -725,9 +725,15 @@
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
   }
 
+  /* 10/2 회장: 모바일 스냅 카드 = 데스크탑 호버와 같은 효과(화살표 이동·썸네일 확대까지) */
   .typeCard[data-active] .typeArrow {
+    transform: translateX(3px);
     background: #fff;
     color: var(--primary, #1b6b5a);
+  }
+
+  .typeCard[data-active] .thumbImage {
+    transform: scale(1.7);
   }
 }
 
