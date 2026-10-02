@@ -1,3 +1,4 @@
+import type React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
@@ -5,6 +6,7 @@ import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
 import { POPULAR_KEYWORDS } from "@/lib/data/popular-keywords";
 import { HeroSearchForm } from "./hero-search-form";
 import { HeroRotator } from "./hero-rotator";
+import { HeroKeywordTicker } from "./hero-keyword-ticker";
 import s from "./hero-search-hub.module.css";
 
 /**
@@ -55,7 +57,7 @@ const SCENES = [
   { id: "youth", word: "청년농", image: "/landing/hero/hero-youth.webp" },
   { id: "smartfarm", word: "스마트팜", image: "/landing/hero/hero-4.webp" },
 ] as const;
-const TAG_COUNT = 6;
+const EXCLUDED_KEYWORDS = new Set(["토지이음"]);
 
 function dLabel(daysLeft: number): string {
   return daysLeft === 0 ? "오늘 마감" : `D-${daysLeft}`;
@@ -63,7 +65,8 @@ function dLabel(daysLeft: number): string {
 
 export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
   const visibleStats = stats.filter((st) => st.value > 0);
-  const tags = POPULAR_KEYWORDS.slice(0, TAG_COUNT);
+  // 외부 서비스 이름(토지이음)은 "추천 검색어"로 내세우지 않는다 — 이랑 안에 답이 있는 말만
+  const tickerKeywords = POPULAR_KEYWORDS.map((k) => k.label).filter((l) => !EXCLUDED_KEYWORDS.has(l));
 
   return (
     <section className={s.hero} aria-labelledby="hero-title" data-landing-hero>
@@ -107,22 +110,7 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
             <HeroSearchForm variant="hero" idPrefix="hero" />
           </div>
 
-          <div className={s.tagsRow}>
-            <span className={s.tagsLabel}>인기 검색어</span>
-            <ul className={s.tags}>
-              {tags.map((t) => (
-                <li key={t.label}>
-                  <Link
-                    href={`/search?q=${encodeURIComponent(t.label)}`}
-                    className={s.tag}
-                    data-track={`hero_tag:${t.label}`}
-                  >
-                    #{t.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <HeroKeywordTicker keywords={tickerKeywords} />
         </div>
 
         {/* ── 우: 정착 유형 카드 6 ── */}
@@ -158,7 +146,7 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
         {(visibleStats.length > 0 || deadlines.length > 0) && (
           <div className={s.data}>
             {visibleStats.length > 0 && (
-              <div className={s.statsBlock}>
+              <div className={s.statsBlock} style={{ "--n": visibleStats.length } as React.CSSProperties}>
                 <h2 className={s.dataTitle}>지금 열려 있어요</h2>
                 <ul className={s.stats}>
                   {visibleStats.map((st) => (
@@ -177,7 +165,7 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
             )}
 
             {deadlines.length > 0 && (
-              <div className={s.deadlineBlock}>
+              <div className={s.deadlineBlock} style={{ "--n": deadlines.length } as React.CSSProperties}>
                 <div className={s.deadlineHead}>
                   <h2 className={s.dataTitle}>마감이 가까운 지원사업</h2>
                   <Link href="/programs" className={s.dataMore} data-track="hero_data:programs_all">

@@ -273,84 +273,96 @@
   max-width: 620px;
 }
 
-/* 인기 검색어 — 모바일은 한 줄 가로 스크롤(화면 끝까지), 768+ 는 줄바꿈 */
-.tagsRow {
+/* "이런 검색어를 추천해요 {검색어}" — 칩 줄 대신 한 줄, 검색어가 아래→위로 넘어간다 (10/2 회장) */
+.ticker {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 14px 0 0;
+  font-size: 0.875rem;
 }
 
-.tagsLabel {
+.tickerLabel {
   flex: none;
   white-space: nowrap;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
 }
 
-.tags {
-  display: flex;
-  gap: 6px;
-  margin: 0 calc(-50vw + 50%);
-  padding: 0 calc(50vw - 50%);
-  list-style: none;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+.tickerSlot {
+  display: inline-grid;
+  overflow: hidden;
+  /* 포커스 링이 잘리지 않게 칸 안쪽 여유 */
+  padding: 4px;
+  margin: -4px;
 }
 
-.tags::-webkit-scrollbar {
-  display: none;
-}
-
-.tag {
+.tickerItem {
+  grid-area: 1 / 1;
+  justify-self: start;
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 12px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
   background: rgba(6, 26, 21, 0.55);
   color: #fff;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   text-decoration: none;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  opacity: 0;
+  transform: translateY(110%);
+  transition:
+    transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.35s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
-.tag:focus-visible {
+.tickerItem::before {
+  content: "#";
+  margin-right: 2px;
+  opacity: 0.7;
+}
+
+.tickerItem[data-state="in"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tickerItem[data-state="out"] {
+  transform: translateY(-110%);
+}
+
+.tickerItem[data-state="wait"] {
+  transition: none;
+  pointer-events: none;
+}
+
+.tickerItem:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
 @media (hover: hover) {
-  .tag:hover {
-    border-color: #fff;
+  .tickerItem[data-state="in"]:hover {
     background: #fff;
     color: var(--primary, #1b6b5a);
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .tickerItem {
+    transition: none;
+  }
+}
+
 @media (min-width: 768px) {
-  .tagsRow {
-    flex-direction: row;
-    align-items: center;
-    gap: 12px;
+  .ticker {
     margin-top: 16px;
-  }
-
-  .tags {
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    overflow: visible;
-  }
-
-  .tag {
-    min-height: 36px;
-    padding: 0 12px;
+    font-size: 0.9375rem;
   }
 }
 
@@ -447,8 +459,12 @@
 }
 
 .thumbImage {
+  /* 전신 세로 그림(≈400×1000)을 정사각형에 그대로 채우면 얼굴이 잘린다(10/2 회장).
+     위쪽에 붙여 1.6배로 키워 머리·어깨만 보이게 — 6명 모두 몽타주로 확인 */
   object-fit: cover;
-  object-position: center 12%;
+  object-position: 50% 0;
+  transform: scale(1.6);
+  transform-origin: 50% 0;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -546,7 +562,7 @@
   }
 
   .typeCard:hover .thumbImage {
-    transform: scale(1.05);
+    transform: scale(1.7);
   }
 }
 
@@ -579,11 +595,53 @@
   }
 }
 
-/* 1280+: 수치 한 줄(항목 수만큼 열) | 마감 카드 3 — 나란히 */
+/* 1280+: 수치 | 마감 카드 — 나란히, **모든 칸 같은 폭·높이** (10/2 회장).
+   두 묶음을 항목 수(--n)에 비례해 나눈다. flex-basis 에 묶음 안 간격((n-1)×8px)을 먼저 주고 남는 폭을
+   n 비율로 나누면 칸 하나의 폭이 양쪽에서 정확히 같아진다(수치가 3개든 4개든). */
 @media (min-width: 1280px) {
   .data {
-    grid-template-columns: auto minmax(0, 1fr);
+    display: flex;
+    align-items: stretch;
     gap: 28px;
+  }
+
+  .statsBlock,
+  .deadlineBlock {
+    flex: var(--n, 1) 1 calc((var(--n, 1) - 1) * 8px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 두 제목 줄 높이를 맞춰 칸 윗선이 한 줄에 서게("전체 보기" 링크 32px 기준) */
+  .statsBlock > .dataTitle,
+  .deadlineHead {
+    min-height: 32px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  .deadlineHead > .dataTitle {
+    margin: 0;
+  }
+
+  .stats,
+  .deadlines {
+    flex: 1;
+  }
+
+  .deadlines {
+    grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
+  }
+
+  /* 칸 높이도 같게 — 수치 칸이 마감 카드 높이만큼 늘고, 숫자는 아래에 붙는다 */
+  .stats > li {
+    display: flex;
+  }
+
+  .stat {
+    flex: 1;
+    justify-content: space-between;
   }
 }
 
@@ -627,11 +685,7 @@
   }
 }
 
-@media (min-width: 1280px) {
-  .stats {
-    grid-auto-columns: minmax(118px, auto);
-  }
-}
+
 
 .stat {
   display: flex;

@@ -71,7 +71,8 @@ describe("히어로 장면 회전 — 단어·배경·카드 (10/1 회장)", () 
   it("단어 5개가 SSR 되고 첫 장면(귀농)만 보이는 상태로 시작한다", () => {
     expect(html.match(/data-hero-word=/g)?.length).toBe(5);
     expect(html).toMatch(/data-hero-word="guinong" data-state="in"/);
-    expect(html.match(/data-state="in"/g)?.length).toBe(1);
+    // 회전 단어 중 보이는 것은 하나(추천 검색어 줄도 data-state 를 쓰므로 단어만 센다)
+    expect(html.match(/data-hero-word="[^"]+" data-state="in"/g)?.length).toBe(1);
   });
 
   it("첫 장면과 같은 유형 카드(귀농)가 강조된 채 시작한다", () => {
@@ -83,6 +84,23 @@ describe("히어로 장면 회전 — 단어·배경·카드 (10/1 회장)", () 
     for (const img of ["hero-2", "hero-3", "hero-1", "hero-youth", "hero-4"]) {
       expect(html).toContain(`/landing/hero/${img}.webp`);
     }
+  });
+});
+
+describe("이런 검색어를 추천해요 — 한 줄 회전 (10/2 회장)", () => {
+  const html = renderToStaticMarkup(<HeroSearchHub stats={stats} deadlines={deadlines} />);
+
+  it("추천 검색어가 전부 SSR 링크로 남고 외부 서비스명(토지이음)은 빠진다", () => {
+    expect(html).toContain("이런 검색어를 추천해요");
+    expect(html).toContain(`href="/search?q=${encodeURIComponent("농촌 정착 지원금")}"`);
+    expect(html).not.toContain("토지이음");
+  });
+
+  it("보이는 검색어는 하나이고 나머지는 포커스를 받지 않는다", () => {
+    const items = html.match(/<a[^>]*data-track="hero_tag:[^"]*"[^>]*>/g) ?? [];
+    expect(items.length).toBeGreaterThan(1);
+    expect(items.filter((a) => a.includes('data-state="in"')).length).toBe(1);
+    expect(items.filter((a) => a.includes('tabindex="-1"')).length).toBe(items.length - 1);
   });
 });
 

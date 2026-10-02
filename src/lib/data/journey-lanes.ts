@@ -92,7 +92,8 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
   },
   {
     id: "undecided",
-    label: "아직 고르는 중",
+    // 10/2 회장: "아직 고르는 중" 대신 지칭하는 말로 — 정부·지자체 공고가 쓰는 "예비 귀농·귀촌인"
+    label: "예비 귀농·귀촌인",
     desc: "다섯 가지 시작을 한눈에 비교해요",
     intro:
       "아직 어떤 시작이 맞는지 정하지 못했다면 여기서부터예요. 2분 진단으로 내 유형을 알고, 그에 맞는 지역·작물·지원사업을 이어서 볼 수 있어요. 지금 고르지 않아도 괜찮아요.",
@@ -119,7 +120,8 @@ const DECIDED_GATE: JourneyLane = {
 /** 히어로 첫 화면의 두 갈래 — [목적이 있어요, 아직 고르는 중] */
 export const JOURNEY_GATES: readonly JourneyLane[] = [
   DECIDED_GATE,
-  JOURNEY_LANES[JOURNEY_LANES.length - 1],
+  // 보관 중인 게이트 화면은 "목적이 있어요"와 짝을 이루는 문장형 라벨을 그대로 쓴다
+  { ...JOURNEY_LANES[JOURNEY_LANES.length - 1], label: "아직 고르는 중" },
 ] as const;
 
 /** 목적이 있는 사람에게 보여 주는 5장 (게이트 카드로 쓰는 undecided 제외) */

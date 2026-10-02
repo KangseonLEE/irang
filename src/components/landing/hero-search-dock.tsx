@@ -19,8 +19,8 @@ import s from "./hero-search-dock.module.css";
  * (입력 도중 푸터에 닿아도 입력창이 사라지지 않게).
  */
 
-/** 하단 바 칩은 폭이 빠듯해 "아직 고르는 중"만 짧게 쓴다 */
-const SHORT_LABEL: Record<string, string> = { undecided: "고르는 중" };
+/** 하단 바 칩은 폭이 빠듯해 "예비 귀농·귀촌인"만 짧게 쓴다 */
+const SHORT_LABEL: Record<string, string> = { undecided: "예비 귀농·귀촌" };
 
 export function HeroSearchDock() {
   const dockRef = useRef<HTMLDivElement>(null);

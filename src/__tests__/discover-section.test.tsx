@@ -186,7 +186,10 @@ describe("OpportunitySection·ExperienceSection — 랜딩 지원사업·교육 
       ongoingPrograms: [program({ id: "SP-900", applicationEnd: "9999-12-31" })],
     });
     expect(html).toContain("상시 모집");
-    expect(html).not.toContain("12.31"); // 9999-12-31 이 날짜로 새지 않는다
+    // 9999-12-31 이 날짜로 새지 않는다 — 상시 카드만 잘라 본다(다른 카드의 마감일 inDays(90)이
+    // 10/2 기준 정확히 12.31 이라 페이지 전체로 보면 날짜에 따라 깨졌다)
+    const ongoingCard = html.slice(html.indexOf('href="/programs/SP-900"'), html.indexOf("</a>", html.indexOf('href="/programs/SP-900"')));
+    expect(ongoingCard).not.toContain("12.31");
     expect(html.indexOf('href="/programs/SP-001"')).toBeLessThan(html.indexOf('href="/programs/SP-900"'));
   });
 
