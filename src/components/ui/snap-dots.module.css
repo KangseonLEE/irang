@@ -34,8 +34,9 @@
 
 .dotActive {
   width: 20px;
-  /* 둥근 모서리는 테두리 박스 기준 — 투명 테두리 8px 를 더해야 안쪽(보이는 막대)이 반지름 4px 알약이 된다 */
-  border-radius: 4px;
+  /* 둥근 모서리는 테두리 박스 기준 — 투명 테두리 8px 를 더해야 안쪽(보이는 막대)이 반지름 4px 알약이 된다.
+     ⚠️ 10/2 라운드 일괄 통일(4/8px) 때 4px 로 바뀌어 안쪽 반지름이 0(각진 막대)이 됐다 — 12px 고정 */
+  border-radius: 12px;
   background-color: var(--primary, #1b6b5a);
 }
 

@@ -558,21 +558,20 @@
 .thumb {
   grid-area: thumb;
   position: relative;
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 44px;
   height: 44px;
-  overflow: hidden;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.16);
+  /* 10/2 회장: 사람 일러스트 → 아이콘. 유리 카드 위 흰 아이콘 + 옅은 흰 바탕 */
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
 }
 
-.thumbImage {
-  /* 전신 세로 그림(≈400×1000)을 정사각형에 그대로 채우면 얼굴이 잘린다(10/2 회장).
-     위쪽에 붙여 1.6배로 키워 머리·어깨만 보이게 — 6명 모두 몽타주로 확인 */
-  object-fit: cover;
-  object-position: 50% 0;
-  transform: scale(1.6);
-  transform-origin: 50% 0;
+.thumbIcon {
+  width: 22px;
+  height: 22px;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -698,6 +697,11 @@
     border-radius: 4px;
   }
 
+  .thumbIcon {
+    width: 26px;
+    height: 26px;
+  }
+
   .typeArrow {
     width: 32px;
     height: 32px;
@@ -732,8 +736,12 @@
     color: var(--primary, #1b6b5a);
   }
 
-  .typeCard[data-active] .thumbImage {
-    transform: scale(1.7);
+  .typeCard[data-active] .thumbIcon {
+    transform: scale(1.08);
+  }
+
+  .typeCard[data-active] .thumb {
+    background: rgba(255, 255, 255, 0.22);
   }
 }
 
@@ -751,15 +759,19 @@
     color: var(--primary, #1b6b5a);
   }
 
-  .typeCard:hover .thumbImage {
-    transform: scale(1.7);
+  .typeCard:hover .thumbIcon {
+    transform: scale(1.08);
+  }
+
+  .typeCard:hover .thumb {
+    background: rgba(255, 255, 255, 0.22);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .typeCard,
   .typeArrow,
-  .thumbImage {
+  .thumbIcon {
     transition: none;
   }
 }

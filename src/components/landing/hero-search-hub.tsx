@@ -1,7 +1,6 @@
 import type React from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Compass, Cpu, House, Sprout, Tractor, Trees, type LucideIcon } from "lucide-react";
 import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
 import { RECOMMENDED_KEYWORDS } from "@/lib/data/popular-keywords";
 import { buildLaneStats, type LaneTile } from "@/lib/data/journey-lanes-stats";
@@ -86,6 +85,21 @@ function cardFacts(tiles: LaneTile[] = []): { label: string; value: string }[] {
     .slice(0, 3);
 }
 
+/** 유형 카드 아이콘 (10/2 회장: 사람 일러스트 → 아이콘). 브랜드 규칙대로 lucide 만 */
+const LANE_ICON: Record<string, LucideIcon> = {
+  guinong: Tractor,
+  guichon: House,
+  forest: Trees,
+  youth: Sprout,
+  smartfarm: Cpu,
+  undecided: Compass,
+};
+
+function LaneIcon({ id }: { id: string }) {
+  const Glyph = LANE_ICON[id] ?? Compass;
+  return <Glyph className={s.thumbIcon} strokeWidth={1.75} />;
+}
+
 function dLabel(daysLeft: number): string {
   return daysLeft === 0 ? "오늘 마감" : `D-${daysLeft}`;
 }
@@ -157,7 +171,7 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
                     data-hero-card={lane.id}
                   >
                     <span className={s.thumb} aria-hidden="true">
-                      <Image src={lane.charImage} alt="" fill sizes="64px" className={s.thumbImage} />
+                      <LaneIcon id={lane.id} />
                     </span>
                     <span className={s.typeText}>
                       <span className={s.typeLabel}>{lane.label}</span>
