@@ -22,8 +22,6 @@ import { isStayEvent } from "@/components/events/event-fields";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { RegionPicker } from "@/components/region/region-picker";
-import { POPULATION_FALLBACK } from "@/lib/data/population";
-import dynamic from "next/dynamic";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
 import { PromoPopup } from "@/components/landing/promo-popup";
 import { loadActivePromos } from "@/lib/promos/queries";
@@ -41,11 +39,6 @@ import { PROGRAMS } from "@/lib/data/programs";
 import { SurveyCta } from "./survey-cta";
 import s from "./page.module.css";
 
-/** 지역 지도 — /regions 와 같은 KoreaMap. 클라이언트 청크를 분리하되 SSR 은 유지(ssr 기본값) */
-const KoreaMap = dynamic(
-  () => import("@/components/map/korea-map").then((mod) => ({ default: mod.KoreaMap })),
-  { loading: () => <div className={s.mapPlaceholder} role="img" aria-label="지도 불러오는 중" /> },
-);
 // 커튼 리빌 (9/29) — 인터뷰 다크 띠가 이전 섹션을 덮으며 올라온다. page.module.css 대신 전용 모듈
 import curtain from "@/components/landing/interview-curtain.module.css";
 
@@ -111,16 +104,6 @@ function getProgramsData() {
   return { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount, closingPrograms };
 }
 
-/** 지역 지도 섹션 — 시·도 인구밀도(정적 폴백, API 호출 없음). /regions 와 같은 계산 */
-function getProvinceDensityMap(): Record<string, number> {
-  const map: Record<string, number> = {};
-  for (const prov of PROVINCES) {
-    const pop = POPULATION_FALLBACK.find((p) => p.sgisCode === prov.sgisCode);
-    if (pop && prov.area > 0) map[prov.id] = pop.population / prov.area;
-  }
-  return map;
-}
-
 export default async function HomePage() {
   const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount, closingPrograms } = getProgramsData();
   // 노출 기간·활성 판정은 서버(DB)에서 끝낸다 — 클라이언트는 받은 것만 그린다.
@@ -151,7 +134,6 @@ export default async function HomePage() {
       href: "/events",
     },
   ];
-  const provinceDensityMap = getProvinceDensityMap();
   /* 모바일 2단 선택용 — 클라이언트로 넘길 필드만 추린다(sigungus.ts 전체를 번들에 싣지 않게) */
   const pickerProvinces = PROVINCES.map((p) => ({ id: p.id, shortName: p.shortName }));
   const pickerSigungus = SIGUNGUS.map((sg) => ({ sidoId: sg.sidoId, id: sg.id, name: sg.name, shortName: sg.shortName }));
@@ -189,35 +171,25 @@ export default async function HomePage() {
         />
       </ScrollReveal>
 
-      {/* ═══ 2-2. 지도로 고르는 지역 (10/1 A안) — KoreaMap 재사용, 시·도 17 SSR 링크 병기 ═══ */}
+      {/* ═══ 2-2. 내 지역 찾기 — 시·도 → 시·군·구 2단 선택 (10/2 회장: 지도·시·도 버튼 제거) ═══ */}
       <ScrollReveal trackId="region_map" variant="fade" stagger>
         <section className={s.mapSection} aria-labelledby="landing-map-title">
           <div className={s.mapText} data-reveal-x="left">
             <span className={s.eyebrow}>#지역 탐색</span>
             <h2 id="landing-map-title" className={s.mapTitle}>
-              지도에서 <em>내 지역</em> 찾기
+              <em>내 지역</em> 찾기
             </h2>
             <p className={s.mapSub}>
-              시·도를 누르면 기후·인구·추천 작물·지원사업을 한곳에서 볼 수 있어요
+              시·도와 시·군·구를 고르면 기후·인구·추천 작물·지원사업을 한곳에서 볼 수 있어요
             </p>
-            {/* 모바일(<768): 칩 17개 대신 시·도 → 시·군·구 2단 선택 (10/2 회장). 768+ 는 CSS 로 숨김 */}
+          </div>
+          <div className={s.mapControls} data-reveal-x="right">
             <RegionPicker
               provinces={pickerProvinces}
               sigungus={pickerSigungus}
               trackPrefix="region_map"
               className={s.mapPicker}
             />
-            {/* 지도는 클라이언트 클릭(router.push)이라 크롤러가 따라갈 링크를 따로 둔다.
-                모바일에선 위 2단 선택이 대신하므로 화면에서만 숨긴다(HTML 에는 17개 그대로) */}
-            <ul className={s.provinceLinks} aria-label="시·도 바로가기">
-              {PROVINCES.map((p) => (
-                <li key={p.id}>
-                  <Link href={`/regions/${p.id}`} className={s.provinceLink} data-track={`region_map:${p.id}`}>
-                    {p.shortName}
-                  </Link>
-                </li>
-              ))}
-            </ul>
             <div className={s.mapActions}>
               <Link href="/regions/compare" className={s.mapCompare} data-track="region_map:compare">
                 지역 비교하기 <ArrowRight size={16} aria-hidden="true" />
@@ -226,9 +198,6 @@ export default async function HomePage() {
                 지역 탐색 전체
               </Link>
             </div>
-          </div>
-          <div className={s.mapFigure} data-reveal-x="right">
-            <KoreaMap densityMap={provinceDensityMap} showLegend />
           </div>
         </section>
       </ScrollReveal>

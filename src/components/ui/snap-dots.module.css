@@ -58,3 +58,10 @@
     display: none;
   }
 }
+
+/* persistent — 데스크탑에서도 한 장씩 넘기는 캐러셀은 위치 점을 계속 보인다(위 숨김 규칙보다 뒤에 둔다) */
+@media (min-width: 768px) {
+  .dotsPersistent {
+    display: flex;
+  }
+}

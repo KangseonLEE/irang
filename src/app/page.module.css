@@ -43,18 +43,18 @@
    태그 archive/hero-journey-lanes-2026-10-01 에 보관 */
 
 /* ══════════════════════════════════════════
-   2-2. 지도로 고르는 지역 (10/1 A안) — KoreaMap 재사용
-   모바일: 텍스트 → 지도(가운데, 폭 제한) / 1024+: 좌 텍스트·시·도 링크 / 우 지도
+   2-2. 내 지역 찾기 (10/2 회장: 지도·시·도 버튼 제거 → 시·도 → 시·군·구 2단 선택)
+   모바일: 제목 → 선택 → 버튼 5:5 / 1024+: 좌 제목·설명 | 우 선택 + 버튼
    ══════════════════════════════════════════ */
 .mapSection {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 24px;
+  gap: 20px;
 }
 
 @media (min-width: 1024px) {
   .mapSection {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
     gap: 56px;
     align-items: center;
   }
@@ -89,72 +89,21 @@
 }
 
 .mapSub {
-  margin: 10px 0 20px;
+  margin: 10px 0 0;
   font-size: var(--fs-body-sm);
   line-height: 1.6;
   color: var(--muted-foreground, #6b7280);
 }
 
-/* 모바일(<768) 진입 UI — 시·도 → 시·군·구 2단 선택 (10/2 회장). 칩 그리드와 자리를 맞바꾼다 */
+.mapControls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
 .mapPicker {
   margin: 0;
-}
-
-@media (min-width: 768px) {
-  .mapPicker { display: none; }
-}
-
-/* 시·도 링크 17 — 768+ 에서 보인다. 모바일은 2단 선택이 대신하므로 화면에서만 숨기고 HTML(크롤러 링크)은 유지 */
-.provinceLinks {
-  display: none;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-@media (min-width: 768px) {
-  .provinceLinks { display: grid; }
-}
-
-@media (min-width: 1024px) {
-  .provinceLinks { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-}
-
-.provinceLink {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 6px;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
-  background: var(--card, #fff);
-  color: var(--foreground, #111827);
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease, transform 0.2s ease;
-}
-
-.provinceLink:focus-visible {
-  outline: 2px solid var(--primary, #1b6b5a);
-  outline-offset: 2px;
-}
-
-@media (hover: hover) {
-  .provinceLink:hover {
-    border-color: var(--primary, #1b6b5a);
-    background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, #fff);
-    color: var(--primary, #1b6b5a);
-    transform: translateY(-2px);
-  }
-}
-
-@media (min-width: 1024px) {
-  .provinceLink { min-height: 40px; }
 }
 
 /* 두 버튼 5:5 같은 폭 (10/2 회장) — 채운 버튼(비교) + 라인 버튼(전체) */
@@ -162,15 +111,6 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 8px;
-  margin-top: 12px;
-}
-
-@media (min-width: 768px) {
-  .mapActions { margin-top: 20px; max-width: 480px; }
-}
-
-@media (min-width: 1024px) {
-  .mapActions { max-width: none; }
 }
 
 .mapCompare,
@@ -210,29 +150,6 @@
 @media (hover: hover) {
   .mapCompare:hover { background: #0d2e27; border-color: #0d2e27; }
   .mapAll:hover { background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent); }
-}
-
-/* 지도 비율 450:760 — 폭을 묶어 세로가 화면을 넘지 않게 (300 → 507px 높이) */
-.mapFigure {
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto;
-  min-width: 0;
-}
-
-@media (min-width: 640px) {
-  .mapFigure { max-width: 340px; }
-}
-
-@media (min-width: 1024px) {
-  .mapFigure { max-width: 380px; }
-}
-
-.mapPlaceholder {
-  width: 100%;
-  aspect-ratio: 450 / 760;
-  border-radius: 12px;
-  background: var(--muted, #f4f4f5);
 }
 
 /* ══════════════════════════════════════════
