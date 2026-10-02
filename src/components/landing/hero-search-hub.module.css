@@ -443,9 +443,10 @@
   color: #fff;
 }
 
-/* 정착 유형 카드 — 모든 폭에서 한 장씩 넘기는 가로 스냅 캐러셀 (10/2 회장, 한 장 + 다음 카드 peek).
-   모바일은 트랙을 히어로 좌우 여백(--hero-gutter)만큼 화면 끝까지 넓히고 같은 값의 padding·scroll-padding 으로
-   첫 카드·스냅 위치를 본문 왼쪽 선에 맞춘다. 768+ 는 오른쪽 열 안에서만 움직인다. */
+/* 정착 유형 카드 — <768 은 한 장씩 넘기는 가로 스냅 캐러셀(한 장 + 다음 카드 peek), 768+ 는 그리드로 전부 보인다
+   (10/2 오후 회장: 데스크탑은 이전 그리드가 좋다 — 전 폭 캐러셀을 모바일 전용으로 되돌림).
+   모바일 트랙은 히어로 좌우 여백(--hero-gutter)만큼 화면 끝까지 넓히고 같은 값의 padding·scroll-padding 으로
+   첫 카드·스냅 위치를 본문 왼쪽 선에 맞춘다. */
 .typeGrid {
   --hero-gutter: 16px;
   display: flex;
@@ -471,42 +472,9 @@
   scroll-snap-align: start;
 }
 
-/* 점 + (768+) 이전·다음 */
-.typeNav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 2px;
-}
-
+/* 위치 점 — 카드 아래. 768+ 는 SnapDots 자체 CSS 가 숨긴다 */
 .typeDots {
-  margin-top: 0;
-}
-
-.typeNavBtn {
-  display: none;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 50%;
-  background: rgba(6, 26, 21, 0.4);
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.typeNavBtn:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
-}
-
-@media (hover: hover) {
-  .typeNavBtn:hover {
-    border-color: #fff;
-    background: rgba(22, 78, 64, 0.7);
-  }
+  margin-top: 2px;
 }
 
 @media (min-width: 640px) {
@@ -517,28 +485,34 @@
 
 @media (min-width: 768px) {
   .typeGrid {
-    margin: -6px 0 0;
-    padding: 6px 0;
-    scroll-padding-inline: 0;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
   }
 
   .typeGrid > .typeItem {
-    flex-basis: 78%;
-  }
-
-  .typeNavBtn {
-    display: inline-grid;
-  }
-
-  .typeNav {
-    margin-top: 6px;
+    flex: none;
   }
 }
 
 @media (min-width: 1024px) {
   .typesTitle {
     margin-bottom: 12px;
+  }
+
+  .typeGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .typeGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -683,13 +657,28 @@
   text-overflow: ellipsis;
 }
 
+/* 768+ 그리드 카드는 폭이 200px 안팎이라 3칸 가로 배치면 "1,800만 원"이 잘린다 → 라벨 · 값 세로 행 */
 @media (min-width: 768px) {
-  .typeFactValue {
-    font-size: 0.9375rem;
+  .typeFacts {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .typeFact {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    padding-right: 0;
   }
 
   .typeFact + .typeFact {
-    padding-left: 10px;
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .typeFactValue {
+    font-size: 0.875rem;
   }
 }
 
@@ -1216,38 +1205,5 @@
   .typeItem > .typeCard,
   .data {
     animation: none;
-  }
-}
-
-/* 768+ 유형 카드 = 가로형 (10/2 — 한 장씩 넘기며 카드가 넓어져 세로형은 내용이 왼쪽에 몰렸다).
-   [큰 썸네일 | 제목·설명 | 화살표(우측 상단)] */
-@media (min-width: 768px) {
-  .typeCard {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-      "thumb label arrow"
-      "thumb desc arrow"
-      "facts facts facts";
-    column-gap: 18px;
-    align-content: center;
-    padding: 18px 20px;
-  }
-
-  .thumb {
-    width: 88px;
-    height: 88px;
-    border-radius: 6px;
-  }
-
-  .typeLabel {
-    align-self: end;
-    margin-top: 0;
-    font-size: 1.375rem;
-  }
-
-  .typeDesc {
-    align-self: start;
-    margin-top: 4px;
-    font-size: 0.9375rem;
   }
 }
