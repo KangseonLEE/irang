@@ -8,10 +8,12 @@ import {
   MessageCircle,
   Calendar,
   ArrowUpRight,
+  ArrowDownRight,
   Heart,
   ThumbsUp,
   ThumbsDown,
   Clock,
+  Home,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import {
@@ -23,6 +25,11 @@ import {
   dissatisfactionFactors,
   satisfactionSummary,
   satisfactionCauses,
+  settlementSurvey,
+  changePct,
+  formatKoreanCount,
+  signedPct,
+  toCount,
 } from "@/lib/data/stats";
 import {
   PopulationTrendChart,
@@ -39,20 +46,22 @@ import tableStyles from "./stats-shared.module.css";
  * 귀농 탭 — 인구 추이 + 만족도 통합
  * 만족도는 정착자를 대상으로 한 조사이므로 귀농 탭에 흡수.
  * 귀촌(rural)은 별도 village-stats에서 처리.
+ * 연도·증감·기간은 전부 populationData 에서 계산한다(10/3 정정 — "2024" 하드코딩·"+" 고정 제거).
  */
 export function FarmingStats() {
   // 인구 KPI
+  const popFirst = populationData[0];
   const popLatest = populationData[populationData.length - 1];
   const popPrev = populationData[populationData.length - 2];
-  const popGrowth = (
-    ((popLatest.farming - popPrev.farming) / popPrev.farming) *
-    100
-  ).toFixed(1);
+  const popGrowth = changePct(popLatest.farming, popPrev.farming);
 
   // 만족도 KPI
-  const totalSatisfied = satisfactionSegments
-    .filter((d) => d.label === "매우 만족" || d.label === "만족")
-    .reduce((sum, d) => sum + d.pct, 0);
+  const totalSatisfied = Number(
+    satisfactionSegments
+      .filter((d) => d.label === "매우 만족" || d.label === "만족")
+      .reduce((sum, d) => sum + d.pct, 0)
+      .toFixed(1),
+  );
 
   return (
     <section
@@ -70,23 +79,22 @@ export function FarmingStats() {
             Farming Trend
           </span>
           <h2 className={s.title} id="tabpanel-farming-title">
-            정착 인구는 얼마나 늘고 있을까?
+            귀농 인구는 어떻게 변했을까?
           </h2>
           <p className={s.desc}>
-            2015~2024년 10년간 정착 인구 변화와 정착자의 생활 만족도를 한눈에 확인하세요.
+            {popFirst.year}~{popLatest.year}년 {populationData.length}년간 귀농인 변화와 정착자의 생활 만족도를 한눈에 확인하세요.
           </p>
         </div>
         <div className={s.kpiRow}>
           <div className={s.kpiItem}>
-            <span className={s.kpiValue}>{popLatest.farming}만</span>
-            <span className={s.kpiLabel}>2024 정착 인구</span>
+            <span className={s.kpiValue}>{formatKoreanCount(toCount(popLatest.farming))}명</span>
+            <span className={s.kpiLabel}>{popLatest.year} 귀농인</span>
           </div>
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <Icon icon={ArrowUpRight} size="lg" className={s.kpiIcon} />
-              {Number(popGrowth) >= 0 ? "+" : ""}
-              {popGrowth}%
+              <Icon icon={popGrowth >= 0 ? ArrowUpRight : ArrowDownRight} size="lg" className={s.kpiIcon} />
+              {signedPct(popGrowth)}
             </span>
             <span className={s.kpiLabel}>전년 대비 증감</span>
           </div>
@@ -99,21 +107,21 @@ export function FarmingStats() {
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
               <Icon icon={Calendar} size="lg" className={s.kpiIcon} />
-              10년
+              {populationData.length}년
             </span>
             <span className={s.kpiLabel}>데이터 기간</span>
           </div>
         </div>
       </header>
 
-      <ReferenceNotice text="농촌 정착 통계와 만족도는 통계청·농림축산식품부 공공데이터를 가공한 참고 자료예요." />
+      <ReferenceNotice text="농촌 정착 통계와 만족도는 국가데이터처·농림축산식품부 공공데이터를 가공한 참고 자료예요." />
 
       {/* ── 인구 추이 + 연도별 표 ── */}
       <div className={s.dashGrid}>
         <section className={s.card} aria-labelledby="farming-chart-title">
           <h3 className={s.cardTitle} id="farming-chart-title">
             <Icon icon={TrendingUp} size="lg" className={s.cardIcon} />
-            정착 인구 추이
+            귀농인 추이
           </h3>
           <PopulationTrendChart data={populationData} mode="farming" />
           <DataSource source={populationSummary.source} />
@@ -174,7 +182,7 @@ export function FarmingStats() {
         <div className={s.kpiItem}>
           <span className={s.kpiValue}>
             <Icon icon={TrendingDown} size="lg" className={s.kpiIcon} />
-            25%
+            {Math.abs(settlementSurvey.livingCostChange)}%
           </span>
           <span className={s.kpiLabel}>생활비 절감</span>
         </div>
@@ -190,21 +198,24 @@ export function FarmingStats() {
         <div className={s.kpiItem}>
           <span className={s.kpiValue}>
             <Icon icon={Users} size="lg" className={s.kpiIcon} />
-            75%
+            {settlementSurvey.goodRelations}%
           </span>
           <span className={s.kpiLabel}>지역 관계 만족</span>
         </div>
         <div className={s.kpiDivider} />
         <div className={s.kpiItem}>
-          <span className={s.kpiValue}>{popLatest.farming}만</span>
-          <span className={s.kpiLabel}>2024 가구 수</span>
+          <span className={s.kpiValue}>
+            <Icon icon={Home} size="lg" className={s.kpiIcon} />
+            {formatKoreanCount(toCount(popLatest.farmingHouseholds))}
+          </span>
+          <span className={s.kpiLabel}>{popLatest.year} 귀농가구</span>
         </div>
       </div>
 
       {/* ── 원인 분석 (인구 + 만족도) ── */}
       <section className={s.card}>
         <CauseAnalysisSection
-          title="정착 인구 변화의 배경"
+          title="귀농 인구 변화의 배경"
           causes={populationCauses}
         />
       </section>
@@ -245,26 +256,18 @@ function FarmingYearlyTable() {
         <thead>
           <tr>
             <th scope="col">연도</th>
-            <th scope="col">정착 인구</th>
+            <th scope="col">귀농인</th>
             <th scope="col">전년 대비</th>
           </tr>
         </thead>
         <tbody>
           {[...populationData].reverse().map((d) => {
             const prevEntry = populationData.find((e) => e.year === d.year - 1);
-            const diff =
-              prevEntry !== undefined
-                ? (((d.farming - prevEntry.farming) / prevEntry.farming) * 100).toFixed(1)
-                : "—";
             return (
               <tr key={d.year}>
                 <td>{d.year}</td>
-                <td>{d.farming}만</td>
-                <td>
-                  {diff === "—"
-                    ? diff
-                    : `${Number(diff) >= 0 ? "+" : ""}${diff}%`}
-                </td>
+                <td>{formatKoreanCount(toCount(d.farming))}명</td>
+                <td>{prevEntry ? signedPct(changePct(d.farming, prevEntry.farming)) : "—"}</td>
               </tr>
             );
           })}

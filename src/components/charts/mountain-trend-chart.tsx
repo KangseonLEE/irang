@@ -13,7 +13,7 @@ import {
   Cell,
   ReferenceLine,
 } from "recharts";
-import type { YearlyMountain } from "@/lib/data/stats";
+import { changePct, signedPct, type YearlyMountain } from "@/lib/data/stats";
 import s from "./chart-styles.module.css";
 
 interface TooltipEntry {
@@ -52,7 +52,7 @@ function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
           />
           <span>귀산촌 가구</span>
           <span className={s.tooltipValue}>
-            {households.value?.toLocaleString()}가구
+            {households.value?.toLocaleString("ko-KR")}가구
           </span>
         </div>
       )}
@@ -66,7 +66,7 @@ function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
           <span className={s.tooltipValue}>
             {payload
               .find((p) => p.dataKey === "trendline")
-              ?.value?.toLocaleString()}
+              ?.value?.toLocaleString("ko-KR")}
           </span>
         </div>
       )}
@@ -98,6 +98,24 @@ export default function MountainTrendChart({ data }: Props) {
 
   const enrichedData = useMemo(() => calcTrendline(data), [data]);
 
+  /* 축·배지는 data 에서 계산 — 막대는 0 에서 시작(1만 가구 단위로 위만 올린다). 10/3 정정 전 고정 domain
+     [1000, 3200] 은 근거 없는 2천 가구대 수치에 맞춰져 있었다 */
+  const view = useMemo(() => {
+    const first = data[0];
+    const latest = data[data.length - 1];
+    const best = data.reduce((a, b) => (b.households > a.households ? b : a));
+    const top = Math.ceil(best.households / 10_000) * 10_000;
+    const ticks: number[] = [];
+    for (let v = 0; v <= top; v += 10_000) ticks.push(v);
+    return {
+      first,
+      latest,
+      best,
+      change: changePct(latest.households, first.households),
+      axis: { domain: [0, top] as [number, number], ticks },
+    };
+  }, [data]);
+
   return (
     <div>
       <div className={s.chartWrapper}>
@@ -123,8 +141,9 @@ export default function MountainTrendChart({ data }: Props) {
               tick={{ fontSize: 11, fill: "#9ca3af" }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v) => `${(v / 1000).toFixed(1)}천`}
-              domain={[1000, 3200]}
+              tickFormatter={(v: number) => `${v / 10_000}만`}
+              domain={view.axis.domain}
+              ticks={view.axis.ticks}
             />
 
             <ReferenceLine
@@ -133,7 +152,7 @@ export default function MountainTrendChart({ data }: Props) {
               strokeDasharray="6 3"
               strokeWidth={1}
               label={{
-                value: `평균 ${Math.round(avg).toLocaleString()}`,
+                value: `평균 ${Math.round(avg).toLocaleString("ko-KR")}`,
                 position: "right",
                 fontSize: 10,
                 fill: "#9ca3af",
@@ -197,12 +216,12 @@ export default function MountainTrendChart({ data }: Props) {
         </span>
       </div>
 
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+      <div className={s.insightBadgeRow}>
         <span className={s.insightBadge}>
-          7년간 +74% 꾸준한 상승 추세
+          {view.first.year}→{view.latest.year} {signedPct(view.change)}
         </span>
         <span className={s.insightBadge}>
-          2024 최고 2,685가구
+          최다 {view.best.year}년 {view.best.households.toLocaleString("ko-KR")}가구
         </span>
       </div>
     </div>

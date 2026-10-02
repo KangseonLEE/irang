@@ -3,13 +3,23 @@ import {
   ArrowRight,
   Home,
   TrendingUp,
+  TrendingDown,
   BarChart3,
   MessageCircle,
   Calendar,
   ArrowUpRight,
+  ArrowDownRight,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
-import { populationData, populationSummary, populationCauses } from "@/lib/data/stats";
+import {
+  populationData,
+  populationSummary,
+  populationCauses,
+  changePct,
+  formatKoreanCount,
+  signedPct,
+  toCount,
+} from "@/lib/data/stats";
 import { PopulationTrendChart } from "@/components/charts/lazy";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
 import { DataSource } from "@/components/ui/data-source";
@@ -20,13 +30,15 @@ import tableStyles from "./stats-shared.module.css";
 /**
  * 귀촌 탭 — 귀촌 인구 추이만 표시
  * 만족도는 정착자 대상 조사이므로 귀촌 탭에서는 제외(데이터 신뢰성 부족).
+ * 증감 부호·연도·기간은 populationData 에서 계산한다(10/3 정정 — "+" 고정이면 감소가 "+-13%"로 나왔다).
  */
 export function VillageStats() {
   const latest = populationData[populationData.length - 1];
   const prev = populationData[populationData.length - 2];
   const first = populationData[0];
-  const yoyPct = (((latest.rural - prev.rural) / prev.rural) * 100).toFixed(1);
-  const totalGrowth = (((latest.rural - first.rural) / first.rural) * 100).toFixed(0);
+  const yoyPct = changePct(latest.rural, prev.rural);
+  const totalChange = changePct(latest.rural, first.rural);
+  const years = populationData.length;
 
   return (
     <section
@@ -43,52 +55,51 @@ export function VillageStats() {
             Village Trend
           </span>
           <h2 className={s.title} id="tabpanel-village-title">
-            귀촌 인구는 얼마나 늘고 있을까?
+            귀촌 인구는 어떻게 변했을까?
           </h2>
           <p className={s.desc}>
-            농업과 무관하게 시골로 이주하는 귀촌 인구 10년 추이를 확인하세요.
+            농업과 무관하게 시골로 이주하는 귀촌 인구 {years}년 추이를 확인하세요.
           </p>
         </div>
         <div className={s.kpiRow}>
           <div className={s.kpiItem}>
-            <span className={s.kpiValue}>{latest.rural}만</span>
-            <span className={s.kpiLabel}>2024 귀촌 인구</span>
+            <span className={s.kpiValue}>{latest.rural.toFixed(1)}만</span>
+            <span className={s.kpiLabel}>{latest.year} 귀촌인</span>
           </div>
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <Icon icon={ArrowUpRight} size="lg" className={s.kpiIcon} />
-              {Number(yoyPct) >= 0 ? "+" : ""}
-              {yoyPct}%
+              <Icon icon={yoyPct >= 0 ? ArrowUpRight : ArrowDownRight} size="lg" className={s.kpiIcon} />
+              {signedPct(yoyPct)}
             </span>
             <span className={s.kpiLabel}>전년 대비</span>
           </div>
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <Icon icon={TrendingUp} size="lg" className={s.kpiIcon} />
-              +{totalGrowth}%
+              <Icon icon={totalChange >= 0 ? TrendingUp : TrendingDown} size="lg" className={s.kpiIcon} />
+              {signedPct(totalChange)}
             </span>
-            <span className={s.kpiLabel}>10년 누적 증가</span>
+            <span className={s.kpiLabel}>{years}년 누적 변화</span>
           </div>
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
               <Icon icon={Calendar} size="lg" className={s.kpiIcon} />
-              10년
+              {years}년
             </span>
             <span className={s.kpiLabel}>데이터 기간</span>
           </div>
         </div>
       </header>
 
-      <ReferenceNotice text="귀촌 통계는 통계청·농림축산식품부 공공데이터를 가공한 참고 자료예요." />
+      <ReferenceNotice text="귀촌 통계는 국가데이터처·농림축산식품부 공공데이터를 가공한 참고 자료예요." />
 
       <div className={s.dashGrid}>
         <section className={s.card} aria-labelledby="village-chart-title">
           <h3 className={s.cardTitle} id="village-chart-title">
             <Icon icon={TrendingUp} size="lg" className={s.cardIcon} />
-            귀촌 인구 추이
+            귀촌인 추이
           </h3>
           <PopulationTrendChart data={populationData} mode="rural" />
           <DataSource source={populationSummary.source} />
@@ -104,7 +115,7 @@ export function VillageStats() {
               <thead>
                 <tr>
                   <th scope="col">연도</th>
-                  <th scope="col">귀촌 인구</th>
+                  <th scope="col">귀촌인</th>
                   <th scope="col">전년 대비</th>
                 </tr>
               </thead>
@@ -113,19 +124,11 @@ export function VillageStats() {
                   const prevEntry = populationData.find(
                     (e) => e.year === d.year - 1,
                   );
-                  const diff =
-                    prevEntry !== undefined
-                      ? (((d.rural - prevEntry.rural) / prevEntry.rural) * 100).toFixed(1)
-                      : "—";
                   return (
                     <tr key={d.year}>
                       <td>{d.year}</td>
-                      <td>{d.rural}만</td>
-                      <td>
-                        {diff === "—"
-                          ? diff
-                          : `${Number(diff) >= 0 ? "+" : ""}${diff}%`}
-                      </td>
+                      <td>{formatKoreanCount(toCount(d.rural))}명</td>
+                      <td>{prevEntry ? signedPct(changePct(d.rural, prevEntry.rural)) : "—"}</td>
                     </tr>
                   );
                 })}
@@ -138,7 +141,7 @@ export function VillageStats() {
 
       <section className={s.card}>
         <CauseAnalysisSection
-          title="귀촌 인구는 왜 늘었을까?"
+          title="귀촌 인구 변화의 배경"
           causes={populationCauses}
         />
       </section>

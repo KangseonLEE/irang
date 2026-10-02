@@ -3,8 +3,10 @@ import {
   ArrowRight,
   Trees,
   TrendingUp,
+  TrendingDown,
   BarChart3,
   ArrowUpRight,
+  ArrowDownRight,
   MapPin,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
@@ -13,6 +15,10 @@ import {
   mountainSummary,
   mountainReasons,
   mountainCauses,
+  mountainVillageArea,
+  reasonsSource,
+  changePct,
+  signedPct,
 } from "@/lib/data/stats";
 import { MountainTrendChart, FactorBarChart } from "@/components/charts/lazy";
 import CauseAnalysisSection from "@/components/charts/cause-analysis-section";
@@ -21,12 +27,17 @@ import { ReferenceNotice } from "@/components/ui/reference-notice";
 import s from "./stats-dashboard.module.css";
 import tableStyles from "./stats-shared.module.css";
 
+/**
+ * 귀산촌 탭. 수치는 mountainData(국가데이터처 귀산촌 가구)에서 계산하고,
+ * 숫자 포맷은 ko-KR 로 고정한다(통계 탭은 클라이언트 트리라 de-DE 브라우저에서 #418 — 10/3 FE-C 실측).
+ */
 export function MountainStats() {
   const latest = mountainData[mountainData.length - 1];
   const prev = mountainData[mountainData.length - 2];
   const first = mountainData[0];
-  const growthPct = (((latest.households / prev.households) - 1) * 100).toFixed(1);
-  const totalGrowth = (((latest.households / first.households) - 1) * 100).toFixed(0);
+  const growthPct = changePct(latest.households, prev.households);
+  const totalChange = changePct(latest.households, first.households);
+  const years = mountainData.length;
 
   return (
     <section
@@ -46,42 +57,42 @@ export function MountainStats() {
             {mountainSummary.title}
           </h2>
           <p className={s.desc}>
-            산촌진흥지역으로 이주하는 귀산촌 가구 추이와 이주 사유를 분석했어요.
+            산림기본법상 산촌으로 옮긴 귀산촌 가구 추이와 전입 사유를 분석했어요.
           </p>
         </div>
         <div className={s.kpiRow}>
           <div className={s.kpiItem}>
-            <span className={s.kpiValue}>{latest.households.toLocaleString()}</span>
-            <span className={s.kpiLabel}>2024 귀산촌 가구</span>
+            <span className={s.kpiValue}>{latest.households.toLocaleString("ko-KR")}</span>
+            <span className={s.kpiLabel}>{latest.year} 귀산촌 가구</span>
           </div>
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <Icon icon={ArrowUpRight} size="lg" className={s.kpiIcon} />
-              +{growthPct}%
+              <Icon icon={growthPct >= 0 ? ArrowUpRight : ArrowDownRight} size="lg" className={s.kpiIcon} />
+              {signedPct(growthPct)}
             </span>
-            <span className={s.kpiLabel}>전년 대비 증가</span>
+            <span className={s.kpiLabel}>전년 대비</span>
           </div>
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
-              <Icon icon={TrendingUp} size="lg" className={s.kpiIcon} />
-              +{totalGrowth}%
+              <Icon icon={totalChange >= 0 ? TrendingUp : TrendingDown} size="lg" className={s.kpiIcon} />
+              {signedPct(totalChange)}
             </span>
-            <span className={s.kpiLabel}>7년간 증가율</span>
+            <span className={s.kpiLabel}>{years}년간 변화</span>
           </div>
           <div className={s.kpiDivider} />
           <div className={s.kpiItem}>
             <span className={s.kpiValue}>
               <Icon icon={MapPin} size="lg" className={s.kpiIcon} />
-              120+
+              {mountainVillageArea.eupmyeon}곳
             </span>
-            <span className={s.kpiLabel}>산촌진흥지역</span>
+            <span className={s.kpiLabel}>산촌 읍·면</span>
           </div>
         </div>
       </header>
 
-      <ReferenceNotice text="귀산촌 통계는 통계청·산림청 공공데이터를 가공한 참고 자료예요." />
+      <ReferenceNotice text="귀산촌 통계는 국가데이터처·산림청 공공데이터를 가공한 참고 자료예요." />
 
       <div className={s.dashGrid}>
         <section className={s.card} aria-labelledby="mountain-chart-title">
@@ -97,14 +108,14 @@ export function MountainStats() {
           <section className={s.card} aria-labelledby="mountain-reasons-title">
             <h3 className={s.cardTitle} id="mountain-reasons-title">
               <Icon icon={Trees} size="lg" className={s.cardIcon} />
-              귀산촌 사유
+              귀산촌 전입 사유
             </h3>
             <FactorBarChart
               data={mountainReasons}
               variant="positive"
               highlightTop={2}
             />
-            <DataSource source={mountainSummary.source} />
+            <DataSource source={reasonsSource} />
           </section>
 
           <section className={s.card} aria-labelledby="mountain-table-title">
@@ -126,18 +137,12 @@ export function MountainStats() {
                     const prevEntry = mountainData.find(
                       (e) => e.year === d.year - 1,
                     );
-                    const diff =
-                      prevEntry !== undefined
-                        ? (((d.households / prevEntry.households) - 1) * 100).toFixed(1)
-                        : "—";
                     return (
                       <tr key={d.year}>
                         <td>{d.year}</td>
-                        <td>{d.households.toLocaleString()}가구</td>
+                        <td>{d.households.toLocaleString("ko-KR")}가구</td>
                         <td>
-                          {diff === "—"
-                            ? diff
-                            : `${Number(diff) >= 0 ? "+" : ""}${diff}%`}
+                          {prevEntry ? signedPct(changePct(d.households, prevEntry.households)) : "—"}
                         </td>
                       </tr>
                     );
@@ -158,7 +163,8 @@ export function MountainStats() {
         <blockquote className={s.summary}>
           {mountainSummary.description}
         </blockquote>
-        <Link href="/programs/roadmap?tab=mountain-fund" className={s.interviewCta}>
+        {/* 10/3: tab 값은 normalize 화이트리스트(gov-roadmap id)와 같아야 한다 — "mountain-fund" 는 308 로 떨어졌다 */}
+        <Link href="/programs/roadmap?tab=forest-village" className={s.interviewCta}>
           <Icon icon={Trees} size="md" />
           <span>귀산촌 지원사업 보기</span>
           <Icon icon={ArrowRight} size="sm" />

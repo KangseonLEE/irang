@@ -1,22 +1,33 @@
 /* ════════════════════════════════════════════
-   통계 서브페이지 데이터
-   /stats/population, /stats/youth, /stats/satisfaction
-   출처: 통계청 귀농귀촌인통계, 농림축산식품부 귀농귀촌 실태조사
+   통계 데이터 — /stats 5탭 · 랜딩 추세 카드 · 정착 유형 레인이 함께 쓴다
+   출처: 국가데이터처·농림축산식품부·해양수산부 「귀농어·귀촌인통계」(KOSIS orgId 101)
+        농림축산식품부 「귀농·귀촌 실태조사」(KOSIS orgId 114)
+        국회예산정책처 「스마트농업 육성사업 추진현황과 개선과제」(2022, 농식품부 제출자료)
+   2026-10-03 전면 정정 — 연도별 수치를 KOSIS 통계표·보도자료 원문과 1:1 대조해 바꿨다(corrections.ts).
+   수치는 배열에서 계산해 문구를 만든다. 문구 안에 숫자를 손으로 적지 않는다.
    ════════════════════════════════════════════ */
 
 /* ── 공통 타입 ── */
 
 export interface YearlyPopulation {
   year: number;
-  /** 정착 인구 (만 명) */
+  /**
+   * 귀농인 (만 명) — KOSIS DT_1A02004 귀농인수.
+   * 농업경영체·농지대장·축산업 명부에 등록한 **본인만** 센다(함께 이사한 가족 제외).
+   * 정수 ÷ 10,000 그대로 둔다 — 소수 둘째 자리로 줄이면 10년 중 9년의 증감률이 공표치와 어긋난다(10/3 실측).
+   */
   farming: number;
-  /** 귀촌 인구 (만 명) */
+  /** 귀농가구원 (만 명) — 귀농인 + 동반가구원, KOSIS DT_1A02001. 농식품부 "귀농귀촌 인구"는 이 값 + 귀촌인 */
+  farmingMembers: number;
+  /** 귀농가구 (만 가구) — KOSIS DT_1A02008 */
+  farmingHouseholds: number;
+  /** 귀촌인 (만 명) — 귀촌가구주 + 동반가구원, KOSIS DT_1A02014. 귀농인과 달리 함께 온 가족까지 센다 */
   rural: number;
 }
 
 export interface YouthRatio {
   year: number;
-  /** 청년(40세 미만) 정착 비율 (%) */
+  /** 귀농가구주 중 30대 이하(만 39세 이하) 비중 (%) — KOSIS DT_1A02007 연령대별 귀농가구주에서 계산 */
   ratio: number;
 }
 
@@ -30,30 +41,114 @@ export interface Factor {
   pct: number;
 }
 
-/* ── 1. 귀농·귀촌 인구 추이 (2015~2024) ── */
+/* ── 표기 도우미 — 서버·브라우저 글자가 같도록 ko-KR 고정(10/3 #418 교훈) ── */
+
+/** 만 단위 값 → 공표 정수 (정수 ÷ 10,000 으로 저장했으므로 반올림하면 원 수치 그대로) */
+export function toCount(man: number): number {
+  return Math.round(man * 10_000);
+}
+
+/** 413464 → "41만 3,464", 9134 → "9,134" */
+export function formatKoreanCount(n: number): string {
+  if (n < 10_000) return n.toLocaleString("ko-KR");
+  const man = Math.floor(n / 10_000);
+  const rest = n % 10_000;
+  return rest > 0 ? `${man}만 ${rest.toLocaleString("ko-KR")}` : `${man}만`;
+}
+
+/** 증감률(%) — 소수 첫째 자리 */
+export function changePct(now: number, before: number): number {
+  return Number(((now / before - 1) * 100).toFixed(1));
+}
+
+/** 8.7 → "+8.7%", -2.2 → "-2.2%" (부호를 값에서 정한다 — "+" 고정 금지) */
+export function signedPct(v: number, digits = 1): string {
+  return `${v > 0 ? "+" : ""}${v.toFixed(digits)}%`;
+}
+
+/** 늘었으면 "늘었어요", 줄었으면 "줄었어요" */
+function changeVerb(v: number): string {
+  return v >= 0 ? "늘었어요" : "줄었어요";
+}
+
+/**
+ * 최신 해의 증감을 흐름으로 — "3년 연속 감소", "4년 만에 증가", 그 밖엔 "증가"/"감소".
+ * 직전과 방향이 바뀐 지 2년뿐이면 "2년 만에"는 어색해서 그냥 "증가/감소"로 둔다.
+ */
+export function trendOf(values: readonly number[], years: readonly number[]): string | null {
+  const n = values.length;
+  if (n < 2) return null;
+  const dir = (i: number) => Math.sign(values[i] - values[i - 1]);
+  const d = dir(n - 1);
+  if (d === 0) return null;
+  const word = d > 0 ? "증가" : "감소";
+  let run = 1;
+  while (n - 1 - run >= 1 && dir(n - 1 - run) === d) run += 1;
+  if (run >= 2) return `${run}년 연속 ${word}`;
+  for (let i = n - 2; i >= 1; i -= 1) {
+    if (dir(i) === d) {
+      const gap = years[n - 1] - years[i];
+      return gap >= 3 ? `${gap}년 만에 ${word}` : word;
+    }
+  }
+  return word;
+}
+
+const maxBy = <T,>(arr: readonly T[], pick: (d: T) => number): T =>
+  arr.reduce((a, b) => (pick(b) > pick(a) ? b : a));
+const minBy = <T,>(arr: readonly T[], pick: (d: T) => number): T =>
+  arr.reduce((a, b) => (pick(b) < pick(a) ? b : a));
+
+/* ── 1. 귀농·귀촌 인구 추이 (최근 10년) ──
+   국가데이터처 2025년 귀농어·귀촌인통계(2026-06-25 발표)까지. 2015년 기준으로 개념이 바뀌며 2013년까지 소급
+   재작성됐고(통계정보보고서 2020.11), 그 뒤 귀농인·귀촌인 정의 변경은 없다(2025 고시 제2025-372호는 표 추가만).
+   2022년부터 귀농인 판정 명부가 농지원부 → 농지대장으로 바뀌었지만 시계열 단절 공지는 없다. */
 
 export const populationData: YearlyPopulation[] = [
-  { year: 2015, farming: 1.18, rural: 31.7 },
-  { year: 2016, farming: 1.2, rural: 32.3 },
-  { year: 2017, farming: 1.2, rural: 33.4 },
-  { year: 2018, farming: 1.18, rural: 32.8 },
-  { year: 2019, farming: 1.15, rural: 33.0 },
-  { year: 2020, farming: 1.29, rural: 35.5 },
-  { year: 2021, farming: 1.28, rural: 38.0 },
-  { year: 2022, farming: 1.19, rural: 40.0 },
-  { year: 2023, farming: 1.16, rural: 39.8 },
-  { year: 2024, farming: 1.2, rural: 42.2 },
+  { year: 2016, farming: 1.3019, farmingMembers: 2.0559, farmingHouseholds: 1.2875, rural: 47.5489 },
+  { year: 2017, farming: 1.2763, farmingMembers: 1.963, farmingHouseholds: 1.263, rural: 49.7187 },
+  { year: 2018, farming: 1.2055, farmingMembers: 1.7856, farmingHouseholds: 1.1961, rural: 47.2474 },
+  { year: 2019, farming: 1.1504, farmingMembers: 1.6181, farmingHouseholds: 1.1422, rural: 44.4464 },
+  { year: 2020, farming: 1.257, farmingMembers: 1.7447, farmingHouseholds: 1.2489, rural: 47.7122 },
+  { year: 2021, farming: 1.4461, farmingMembers: 1.9776, farmingHouseholds: 1.4347, rural: 49.5658 },
+  { year: 2022, farming: 1.266, farmingMembers: 1.6906, farmingHouseholds: 1.2411, rural: 42.1106 },
+  { year: 2023, farming: 1.054, farmingMembers: 1.368, farmingHouseholds: 1.0307, rural: 40.0093 },
+  { year: 2024, farming: 0.8403, farmingMembers: 1.071, farmingHouseholds: 0.8243, rural: 42.2789 },
+  { year: 2025, farming: 0.9134, farmingMembers: 1.1617, farmingHouseholds: 0.8735, rural: 41.3464 },
 ];
 
+const _popYears = populationData.map((d) => d.year);
 const _latestPop = populationData[populationData.length - 1];
 const _prevPop = populationData[populationData.length - 2];
-const _popGrowth = (((_latestPop.farming + _latestPop.rural) / (_prevPop.farming + _prevPop.rural) - 1) * 100).toFixed(1);
+const _peakFarm = maxBy(populationData, (d) => d.farming);
+const _peakRural = maxBy(populationData, (d) => d.rural);
+const _farmChg = changePct(_latestPop.farming, _prevPop.farming);
+const _ruralChg = changePct(_latestPop.rural, _prevPop.rural);
+const _farmTrend = trendOf(populationData.map((d) => d.farming), _popYears);
+/* 농식품부가 쓰는 "귀농귀촌 인구" 합계 = 귀농가구원 + 귀촌인 (2021년 515,434명 = 19,776 + 495,658) */
+const _totalNow = _latestPop.farmingMembers + _latestPop.rural;
+const _totalChg = changePct(_totalNow, _prevPop.farmingMembers + _prevPop.rural);
+const _ruralGap = toCount(_peakRural.rural) - toCount(_latestPop.rural);
+
+const _farmSentence =
+  _peakFarm.year === _latestPop.year
+    ? `귀농인은 ${_latestPop.year}년 ${formatKoreanCount(toCount(_latestPop.farming))}명으로 최근 ${populationData.length}년 중 가장 많았어요(전년 대비 ${signedPct(_farmChg)}).`
+    : `귀농인은 ${_peakFarm.year}년 ${formatKoreanCount(toCount(_peakFarm.farming))}명으로 가장 많았고, ${_latestPop.year}년에는 ${formatKoreanCount(toCount(_latestPop.farming))}명으로 전년보다 ${Math.abs(_farmChg)}% ${changeVerb(_farmChg)}${_farmTrend && _farmTrend.includes("만에") ? `(${_farmTrend})` : ""}.`;
+
+const _ruralSentence =
+  `귀촌인은 ${_latestPop.year}년 ${formatKoreanCount(toCount(_latestPop.rural))}명으로 전년보다 ${Math.abs(_ruralChg)}% ${changeVerb(_ruralChg)}.` +
+  (_ruralGap > 0
+    ? ` 최근 ${populationData.length}년 중 가장 많았던 ${_peakRural.year}년(${formatKoreanCount(toCount(_peakRural.rural))}명)보다 ${_ruralGap >= 10_000 ? `${Math.floor(_ruralGap / 10_000)}만 명 넘게` : `${_ruralGap.toLocaleString("ko-KR")}명`} 적어요.`
+    : "");
 
 export const populationSummary = {
   title: "귀농·귀촌 인구 추이",
-  description:
-    `정착 인구는 연 ${_latestPop.farming}만 명 수준을 꾸준히 유지하고 있으며, 2020년 코로나19를 계기로 귀촌 인구가 급증해 ${_latestPop.year}년에는 ${_latestPop.rural}만 명을 기록했어요. 귀농과 귀촌을 합산하면 전년 대비 ${_popGrowth}% 증가한 수치로, 농촌 이주에 대한 관심이 지속적으로 높아지고 있어요.`,
-  source: `통계청 귀농귀촌인통계 (${_latestPop.year})`,
+  description: [
+    _farmSentence,
+    _ruralSentence,
+    `귀농가구원과 귀촌인을 더한 귀농·귀촌 인구는 ${formatKoreanCount(toCount(_totalNow))}명으로 전년보다 ${Math.abs(_totalChg)}% ${changeVerb(_totalChg)}.`,
+  ].join(" "),
+  source: `국가데이터처 귀농어·귀촌인통계 (${_latestPop.year})`,
 };
 
 /** 인구 추이 원인 분석 — 공식 보고서 기반 */
@@ -68,80 +163,104 @@ export interface CauseAnalysis {
 
 export const populationCauses: CauseAnalysis[] = [
   {
-    label: "코로나19 팬데믹 — 농촌 이주 가속",
+    label: "코로나19 시기 — 농촌 순유입 증가",
     description:
-      "2020년 코로나19로 재택·원격근무가 확산되면서 농촌 생활에 대한 관심이 급증했어요. 귀농·귀촌 의향 '있음' 응답이 2024년 57.3%로 전년(37.2%) 대비 20.1%p 급증했으며, 비대면 업무 환경이 도시 탈출의 심리적 장벽을 낮춘 것으로 분석돼요.",
-    source: "한국농촌경제연구원, 2020 귀농·귀촌 동향과 시사점",
+      "2020년 귀촌인은 47만 7,122명으로 전년보다 7.3% 늘었고, 귀농인도 1만 2,570명으로 9.3% 늘었어요. 한국농촌경제연구원은 코로나19 팬데믹과 수도권·광역시 주택가격 급등 같은 사회·경제적 충격, 농촌 생활에 대한 관심 증가로 농촌 순유입이 늘었다고 분석했어요.",
+    source: "한국농촌경제연구원, 2020년 귀농·귀촌 동향과 시사점",
     sourceUrl: "https://eiec.kdi.re.kr/policy/domesticView.do?ac=0000158941",
     relatedYears: [2020, 2021],
   },
   {
-    label: "수도권 주택가격 급등 — 압출 효과",
+    label: "수도권 주택가격 — 밀어내는 요인",
     description:
-      "2019년 말부터 급등하기 시작한 수도권 주택가격이 도시 지역의 압출(push) 요인으로 작용했어요. 귀촌 사유 중 '주택'이 26.6%를 차지하며, 수도권에서 이동한 귀촌인이 전체의 42.7%에 달해요.",
-    source: "농림축산식품부, 2024 귀농·귀촌 통계",
-    sourceUrl: "https://www.freezine.co.kr/news/articleView.html?idxno=10836",
-    relatedYears: [2020, 2021, 2022],
+      "귀촌가구가 꼽은 전입 사유에서 ‘주택’은 26.1%로 직업(32.1%) 다음으로 많아요(2025년). 귀촌인의 43.2%가 수도권(서울·인천·경기)에서 왔고, 수도권·광역시 집값 급등은 2020년 농촌 순유입이 늘어난 배경으로도 꼽혀요.",
+    source: "국가데이터처·농림축산식품부, 2025년 귀농어·귀촌인통계",
+    sourceUrl: "https://www.mafra.go.kr/bbs/home/792/578248/artclView.do",
+    relatedYears: [2020, 2021, 2025],
   },
   {
     label: "베이비부머 은퇴 본격화",
     description:
-      "1955~1963년생 베이비부머 세대의 은퇴가 본격화되면서 60대 귀농·귀촌인이 꾸준히 증가하고 있어요. 연고지 농촌으로 돌아가는 U턴형이 귀농의 75.6%를 차지해요.",
-    source: "농림축산식품부, 2023 귀농·귀촌 실태조사",
-    sourceUrl: "https://eiec.kdi.re.kr/policy/materialView.do?num=248593&topic=O",
-    relatedYears: [2022, 2023, 2024],
+      "1955~1963년생 1차 베이비부머에 이어 1964~1974년생 2차 베이비부머의 은퇴가 시작되면서 고령층 귀농이 늘고 있어요. 2025년 70대 이상 귀농인은 전년보다 17.3% 늘어 전체의 8.5%로 가장 큰 비중이었고, 귀농가구주 중 60대 비중은 2015년 24.4%에서 2025년 37.3%로 커졌어요. 연고가 있는 농촌으로 돌아가는 U형 귀농은 75.6%예요(2023년 실태조사).",
+    source: "농림축산식품부, 2025년 귀농어·귀촌인통계 보도자료",
+    sourceUrl: "https://www.mafra.go.kr/bbs/home/792/578248/artclView.do",
+    relatedYears: [2023, 2024, 2025],
   },
   {
-    label: "2024년 역대 최대 — 3년 만의 반등",
+    label: "2025년 귀농, 4년 만의 반등",
     description:
-      "2024년 귀촌 인구 42.2만 명은 역대 최대치로, 2021년 이후 3년 만의 반등이에요. 30대가 전체 귀촌인의 23.4%로 최대 비중을 차지했으며, 직업(32.0%), 주택(26.6%), 가족(24.2%) 순으로 귀촌 사유가 집계됐어요.",
-    source: "통계청 귀농귀촌인통계 (2024)",
-    sourceUrl: "https://www.freezine.co.kr/news/articleView.html?idxno=10836",
-    relatedYears: [2024],
+      "2025년 귀농인은 9,134명으로 전년보다 8.7% 늘어 2021년 이후 4년 만에 증가했어요. 국내 이동 인구가 2.6% 줄어든 가운데 귀촌인은 41만 3,464명으로 2.2% 줄었고, 귀촌 가구주는 30대가 23.2%로 가장 많았어요. 2024년에는 반대로 귀촌인이 3년 만에 늘고(5.7% 증가) 귀농인은 20.3% 줄었어요.",
+    source: "국가데이터처, 2025년 귀농어·귀촌인통계",
+    sourceUrl: "https://mods.go.kr/board.es?act=view&bid=11321&list_no=445590&mid=a10301010000",
+    relatedYears: [2024, 2025],
   },
 ];
 
-/* ── 2. 청년 정착 트렌드 ── */
+/* ── 2. 청년 귀농 비중 (귀농가구주 중 30대 이하) ──
+   KOSIS DT_1A02007 연령대별 귀농가구주 수로 계산. 농식품부 2024 보도자료 "(9.4% → 10.8 → 13.1) … 역대 최고치
+   (기존은 ’18년 11.3%)"와 일치. */
 
 export const youthData: YouthRatio[] = [
-  { year: 2015, ratio: 8.2 },
-  { year: 2016, ratio: 8.5 },
-  { year: 2017, ratio: 9.0 },
-  { year: 2018, ratio: 9.3 },
-  { year: 2019, ratio: 9.8 },
-  { year: 2020, ratio: 10.5 },
-  { year: 2021, ratio: 11.2 },
-  { year: 2022, ratio: 11.8 },
-  { year: 2023, ratio: 12.4 },
+  { year: 2015, ratio: 9.6 },
+  { year: 2016, ratio: 10.4 },
+  { year: 2017, ratio: 10.5 },
+  { year: 2018, ratio: 11.3 },
+  { year: 2019, ratio: 10.6 },
+  { year: 2020, ratio: 10.9 },
+  { year: 2021, ratio: 10.5 },
+  { year: 2022, ratio: 9.4 },
+  { year: 2023, ratio: 10.8 },
   { year: 2024, ratio: 13.1 },
+  { year: 2025, ratio: 12.8 },
 ];
 
-/** 정착 사유 Top 5 (landing.ts trendReasons와 동일 출처이나 stats 전용) */
+/** 귀농 이유 1순위 상위 5개 — 2025 귀농·귀촌 실태조사, 귀농 3,000가구 (KOSIS DT_114055_A003) */
 export const farmingReasons: Factor[] = [
-  { label: "자연환경이 좋아서", pct: 30 },
-  { label: "농업의 비전·발전 가능성", pct: 22 },
-  { label: "가업승계", pct: 19 },
-  { label: "가족·친지 근처 거주", pct: 15 },
-  { label: "건강·여유로운 생활", pct: 8 },
+  { label: "자연환경이 좋아서", pct: 33.3 },
+  { label: "가업 승계", pct: 21.7 },
+  { label: "비전·발전 가능성", pct: 13.5 },
+  { label: "가족·친지 가까이", pct: 13.2 },
+  { label: "본인·가족 건강", pct: 8.1 },
+];
+
+export const farmingReasonsSource = "농림축산식품부 2025 귀농·귀촌 실태조사";
+
+/** 30대 이하 귀농인의 귀농 이유 — 같은 조사 보도자료(2026-02-25, "최근 7년 연속 … 27.3%") */
+export const youthFarmingReasons: Factor[] = [
+  { label: "비전·발전 가능성", pct: 27.3 },
+  { label: "가업 승계", pct: 26.1 },
+  { label: "자연환경이 좋아서", pct: 21.6 },
+  { label: "가족·친지 가까이", pct: 11.6 },
+  { label: "기타", pct: 13.4 },
 ];
 
 const _firstYouth = youthData[0];
 const _latestYouth = youthData[youthData.length - 1];
+const _maxYouth = maxBy(youthData, (d) => d.ratio);
+const _minYouth = minBy(youthData, (d) => d.ratio);
+const _youthPp = Number((_latestYouth.ratio - _firstYouth.ratio).toFixed(1));
 
 export const youthSummary = {
   title: "청년 정착 트렌드",
-  description:
-    `전체 정착자 중 40세 미만 청년 비율은 ${_firstYouth.year}년 ${_firstYouth.ratio}%에서 ${_latestYouth.year}년 ${_latestYouth.ratio}%로, ${_latestYouth.year - _firstYouth.year}년간 꾸준히 상승하며 역대 최고치를 기록했어요. 스마트팜, 6차 산업 등 기술 기반 농업의 확산과 정부의 청년 농촌 정착 지원 강화가 주요 요인이에요. 도시의 높은 주거비·경쟁에 대한 피로감도 청년층의 농촌 이주를 촉진하고 있어요.`,
-  source: `농림축산식품부 귀농귀촌 실태조사 (${_latestYouth.year})`,
+  description: [
+    `귀농가구주 중 30대 이하 비중은 ${_firstYouth.year}년 ${_firstYouth.ratio}%에서 ${_latestYouth.year}년 ${_latestYouth.ratio}%로 ${Math.abs(_youthPp)}%p ${_youthPp >= 0 ? "높아졌어요" : "낮아졌어요"}.`,
+    _minYouth.year < _maxYouth.year
+      ? `해마다 오르기만 한 건 아니에요. ${_minYouth.year}년 ${_minYouth.ratio}%까지 내려갔다가 ${_maxYouth.year}년 ${_maxYouth.ratio}%로 가장 높았어요.`
+      : `${_maxYouth.year}년 ${_maxYouth.ratio}%로 가장 높았고, ${_minYouth.year}년에는 ${_minYouth.ratio}%였어요.`,
+    _maxYouth.year === 2024 ? "농림축산식품부는 2024년 최고치를 청년농 지원 정책의 효과로 판단했어요." : "",
+  ]
+    .filter(Boolean)
+    .join(" "),
+  source: `국가데이터처 귀농어·귀촌인통계 (${_latestYouth.year})`,
 };
 
 export const youthCauses: CauseAnalysis[] = [
   {
     label: "스마트팜 확산 — 기술 기반 농업 진입 장벽 하락",
     description:
-      "센서·자동화 시스템을 활용한 스마트팜 도입으로 노동 강도가 줄고 경험 없이도 생산성을 유지할 수 있게 됐어요. 스마트팜 딸기 재배 시 생산량 30~50% 증가가 가능하며, 이는 IT에 익숙한 청년층에게 매력적인 진입 경로가 되고 있어요.",
-    source: "농림축산식품부, 스마트팜 산업 활성화 동향",
-    sourceUrl: "https://www.narasallim.net/project/1378",
+      "센서·자동화 시스템으로 생육 환경을 원격 제어하는 스마트팜은 노동 부담을 줄여요. 시설원예 스마트팜 도입 농가는 생산량이 평균 33.3% 늘고 자가 노동시간이 9.8% 줄었다는 농림축산식품부 분석이 있어, IT에 익숙한 청년층에게 매력적인 진입 경로가 되고 있어요.",
+    source: "농림축산식품부, 스마트농업 고도화 통해 농업혁신 가속화 (나라경제 2022.2)",
+    sourceUrl: "https://eiec.kdi.re.kr/publish/naraView.do?fcode=00002000040000100005&cidx=13662",
     relatedYears: [2020, 2021, 2022, 2023, 2024],
   },
   {
@@ -162,13 +281,15 @@ export const youthCauses: CauseAnalysis[] = [
   },
 ];
 
-/* ── 3. 정착 만족도 조사 ── */
+/* ── 3. 정착 만족도 조사 ──
+   만족도 분포는 2025 귀농·귀촌 실태조사 "전반적인 귀농 생활 만족도"(귀농 3,000가구, KOSIS DT_114055_A051).
+   불만족은 '매우 불만족' 0.1%를 더한 값, '모름/무응답' 0.1%는 뺐다. */
 
 export const satisfactionSegments: SatisfactionSegment[] = [
-  { label: "매우 만족", pct: 18 },
-  { label: "만족", pct: 52 },
-  { label: "보통", pct: 22 },
-  { label: "불만족", pct: 8 },
+  { label: "매우 만족", pct: 6.4 },
+  { label: "만족", pct: 65.5 },
+  { label: "보통", pct: 26.6 },
+  { label: "불만족", pct: 1.4 },
 ];
 
 export const satisfactionFactors: Factor[] = [
@@ -186,27 +307,50 @@ export const dissatisfactionFactors: Factor[] = [
   { label: "기타", pct: 10 },
 ];
 
+/** 2025 귀농·귀촌 실태조사 — 귀농 전후 월평균 생활비·귀농 5년차 소득 (농식품부 2026-02-25 보도자료) */
+export const settlementSurvey = {
+  year: 2025,
+  livingCostBefore: 239,
+  livingCostAfter: 173,
+  livingCostChange: -27.6,
+  ruralLivingCostBefore: 231,
+  ruralLivingCostAfter: 204,
+  ruralLivingCostChange: -11.7,
+  incomeFirstYear: 2534,
+  incomeFifthYear: 3300,
+  incomeChange: 30.2,
+  /** 지역주민과 '관계가 좋다'(매우 좋음 + 좋음), KOSIS DT_114055_A035 */
+  goodRelations: 75.5,
+} as const;
+
+const _satisfied = Number(
+  satisfactionSegments
+    .filter((seg) => seg.label === "매우 만족" || seg.label === "만족")
+    .reduce((sum, seg) => sum + seg.pct, 0)
+    .toFixed(1),
+);
+
 export const satisfactionSummary = {
   title: "정착 만족도 조사",
-  description:
-    "정착자의 70%가 현재 생활에 만족한다고 응답했으며, 자연환경과 여유로운 삶이 가장 큰 만족 요인으로 꼽혔어요. 반면 의료 접근성, 문화생활 부족, 소득 불안정이 주요 불만 요인이에요. 도시 대비 월 생활비가 25% 낮아 경제적 여유가 만족도에 기여하고 있어요.",
-  source: `농림축산식품부 귀농귀촌 실태조사 (${_latestPop.year})`,
+  description: `귀농가구의 ${_satisfied}%가 귀농 생활에 만족한다고 답했고, 귀농 이유는 자연환경이 1위예요. 반면 의료 접근성, 문화생활 부족, 소득 불안정이 주요 불만 요인으로 꼽혀요. 월평균 생활비는 귀농 전 ${settlementSurvey.livingCostBefore}만 원에서 ${settlementSurvey.livingCostAfter}만 원으로 ${Math.abs(settlementSurvey.livingCostChange)}% 줄었어요.`,
+  /** 조사 연도 고정 — 인구 통계 연도를 따라가지 않는다(10/3 정정) */
+  source: `농림축산식품부 ${settlementSurvey.year} 귀농·귀촌 실태조사`,
 };
 
 export const satisfactionCauses: CauseAnalysis[] = [
   {
-    label: "자연환경 + 여유 — 만족도 핵심 드라이버",
+    label: "자연환경 — 귀농 이유 1위",
     description:
-      "정착 사유 1위가 '자연환경'(30.3%)이고 만족 요인 1위도 '자연환경'(45%)으로, 기대와 현실이 일치하는 유일한 영역이에요. 귀농·귀촌 10가구 중 7가구(71.9%)가 생활에 만족하며, 지역주민과의 관계가 좋다는 응답도 75.5%에 달해요.",
-    source: "농림축산식품부, 2023 귀농·귀촌 실태조사",
-    sourceUrl: "https://www.mafra.go.kr/bbs/home/792/569593/artclView.do",
+      "귀농 이유 1순위는 '자연환경이 좋아서'(33.3%)이고, 귀농가구의 71.9%가 귀농 생활에 만족한다고 답했어요. 지역주민과 관계가 좋다는 응답도 75.5%예요(2025년 실태조사).",
+    source: "농림축산식품부, 2025 귀농·귀촌 실태조사 (KOSIS)",
+    sourceUrl: "https://kosis.kr/statHtml/statHtml.do?orgId=114&tblId=DT_114055_A051",
   },
   {
-    label: "생활비 25% 절감 — 그러나 소득도 감소",
+    label: "생활비는 줄고 — 소득은 평균 농가의 65%",
     description:
-      "귀농 가구의 월평균 생활비는 도시 239만 원에서 173만 원으로 25.1% 감소했어요. 하지만 이는 자발적 절약이 아닌 소득 감소에 따른 강제적 지출 축소로 해석돼요. 5년차 귀농가구 연평균 소득은 3,300만 원 수준이에요.",
-    source: "서울신문, 5년차 귀농가구 연평균 소득 3300만 원",
-    sourceUrl: "https://www.seoul.co.kr/news/society/2026/02/25/20260225500116",
+      "귀농 가구의 월평균 생활비는 귀농 전 239만 원에서 173만 원으로 27.6% 줄었어요. 귀농 5년차 가구소득은 3,300만 원으로 첫해(2,534만 원)보다 30.2% 늘었지만, 전체 농가 평균(5,060만 원)의 65.2% 수준이에요.",
+    source: "농림축산식품부, 2025 귀농·귀촌 실태조사",
+    sourceUrl: "https://www.mafra.go.kr/bbs/home/792/577092/artclView.do",
   },
   {
     label: "의료 접근성 — 불만족 1위 요인의 구조적 원인",
@@ -224,7 +368,9 @@ export const satisfactionCauses: CauseAnalysis[] = [
   },
 ];
 
-/* ── 4. 귀산촌 트렌드 (출처: 통계청 귀농귀촌인통계, 산림청) ── */
+/* ── 4. 귀산촌 (출처: 국가데이터처 귀농어·귀촌인통계, 산림청) ──
+   귀산촌 가구 = 귀촌 가구 중 산림기본법 제3조의 '산촌'으로 옮긴 가구 (KOSIS DT_1A02040).
+   산촌은 2024년 산촌기초조사로 109개 시·군 466개 읍·면 → 108개 시·군 468개 읍·면으로 바뀌었다. */
 
 export interface YearlyMountain {
   year: number;
@@ -233,108 +379,155 @@ export interface YearlyMountain {
 }
 
 export const mountainData: YearlyMountain[] = [
-  { year: 2018, households: 1542 },
-  { year: 2019, households: 1685 },
-  { year: 2020, households: 1967 },
-  { year: 2021, households: 2106 },
-  { year: 2022, households: 2283 },
-  { year: 2023, households: 2461 },
-  { year: 2024, households: 2685 },
+  { year: 2018, households: 43155 },
+  { year: 2019, households: 43665 },
+  { year: 2020, households: 46212 },
+  { year: 2021, households: 46347 },
+  { year: 2022, households: 43587 },
+  { year: 2023, households: 40016 },
+  { year: 2024, households: 40895 },
+  { year: 2025, households: 40350 },
 ];
+
+/** 산림기본법상 산촌 — 2024년 산촌기초조사 기준 (산림청 「산촌이란?」, 2025 귀농어·귀촌인통계 부록3) */
+export const mountainVillageArea = { year: 2024, sigungu: 108, eupmyeon: 468 } as const;
+
+/** 귀산촌 가구 전입 사유 — 2025년, KOSIS DT_1A02042 (기타는 맨 끝) */
+export const mountainReasons: Factor[] = [
+  { label: "직업", pct: 32.1 },
+  { label: "가족", pct: 27.7 },
+  { label: "주택", pct: 17.8 },
+  { label: "자연환경", pct: 10.2 },
+  { label: "주거환경", pct: 3.9 },
+  { label: "교육", pct: 1.5 },
+  { label: "기타", pct: 6.9 },
+];
+
+/** 귀촌 가구 전입 사유 — 2025년, KOSIS DT_1A02032 (기타는 맨 끝) */
+export const villageReasons: Factor[] = [
+  { label: "직업", pct: 32.1 },
+  { label: "주택", pct: 26.1 },
+  { label: "가족", pct: 25.4 },
+  { label: "자연환경", pct: 4.5 },
+  { label: "주거환경", pct: 3.5 },
+  { label: "교육", pct: 1.9 },
+  { label: "기타", pct: 6.6 },
+];
+
+/** 전입 사유 표의 기준 연도 — 인구 배열 연도를 따라가지 않게 따로 둔다 */
+export const reasonsYear = 2025;
+export const reasonsSource = `국가데이터처 귀농어·귀촌인통계 (${reasonsYear}, 전입 사유)`;
+
+/** 귀촌 가구주 연령·출발지 — 2025 귀농어·귀촌인통계 ("귀촌 가구주 중 30대가 23.2%", "수도권이 43.2%를 차지") */
+export const ruralProfile = { year: 2025, age30sShare: 23.2, capitalAreaShare: 43.2 } as const;
 
 const _latestMtn = mountainData[mountainData.length - 1];
 const _prevMtn = mountainData[mountainData.length - 2];
-const _mtnGrowth = (((_latestMtn.households / _prevMtn.households) - 1) * 100).toFixed(1);
+const _maxMtn = maxBy(mountainData, (d) => d.households);
+const _minMtn = minBy(mountainData, (d) => d.households);
+const _mtnChg = changePct(_latestMtn.households, _prevMtn.households);
+const _mtnTopReasons = mountainReasons
+  .filter((r) => r.label !== "기타")
+  .slice(0, 3)
+  .map((r) => r.label)
+  .join("·");
 
 export const mountainSummary = {
   title: "귀산촌 트렌드",
-  description:
-    `산촌으로 이주하는 귀산촌 가구는 ${_latestMtn.year}년 ${_latestMtn.households.toLocaleString()}가구로 전년 대비 ${_mtnGrowth}% 증가했어요. 자연환경과 건강한 삶을 추구하는 은퇴 세대가 중심이며, 산림청의 귀산촌 창업 지원자금과 교육 프로그램이 정착을 돕고 있어요.`,
-  source: `통계청 귀농귀촌인통계 · 산림청 (${_latestMtn.year})`,
+  description: `산림기본법상 산촌으로 옮긴 귀산촌 가구는 ${_latestMtn.year}년 ${_latestMtn.households.toLocaleString("ko-KR")}가구로 전년보다 ${Math.abs(_mtnChg)}% ${changeVerb(_mtnChg)}. ${_maxMtn.year}년 ${_maxMtn.households.toLocaleString("ko-KR")}가구가 가장 많았고, 최근 ${mountainData.length}년 동안 해마다 ${Math.floor(_minMtn.households / 10_000)}만 가구 넘게 산촌으로 옮겼어요. 전입 사유는 ${_mtnTopReasons} 순이에요.`,
+  source: `국가데이터처 귀농어·귀촌인통계 (${_latestMtn.year})`,
 };
-
-export const mountainReasons: Factor[] = [
-  { label: "자연환경·공기 질", pct: 38 },
-  { label: "건강·여유로운 생활", pct: 26 },
-  { label: "은퇴 후 전원생활", pct: 18 },
-  { label: "가업 승계·연고지", pct: 12 },
-  { label: "임업·임산물 사업", pct: 6 },
-];
 
 export const mountainCauses: CauseAnalysis[] = [
   {
-    label: "은퇴 세대의 산촌 이주 증가",
+    label: "귀산촌 가구는 누가, 왜 옮길까",
     description:
-      "귀산촌 가구주의 60%가 50~60대로, 도시 은퇴자의 제2인생 선택지로 산촌이 부상하고 있어요. 산림치유, 임산물 채취 등 저강도 활동으로도 소득과 건강을 동시에 챙길 수 있다는 점이 매력이에요.",
-    source: "산림청 산림임업통계플랫폼 — 산촌·귀산촌 통계",
-    sourceUrl: "https://kfss.forest.go.kr/stat/",
-    relatedYears: [2022, 2023, 2024],
+      "2025년 귀산촌 가구주는 60대(23.4%)가 가장 많고 50대(20.5%)가 뒤를 이어 50~60대가 43.9%예요. 30대 이하도 31.7%를 차지해요. 전입 사유는 직업(32.1%), 가족(27.7%), 주택(17.8%), 자연환경(10.2%) 순이에요.",
+    source: "국가데이터처, 2025년 귀농어·귀촌인통계",
+    sourceUrl: "https://mods.go.kr/board.es?act=view&bid=11321&list_no=445590&mid=a10301010000",
+    relatedYears: [2024, 2025],
   },
   {
-    label: "산림청 지원 정책 확대",
+    label: "산림청 귀산촌 자금 — 창업 3억·주택 7,500만 원",
     description:
-      "산림청은 귀산촌 창업 지원자금(최대 3억 원 융자), 귀산촌 교육(40시간 이수), 산촌진흥지역 정착 지원(주택 최대 7,500만 원) 등의 정책을 운영 중이에요. 2023년부터 산촌유학, 산촌생활 체험 프로그램도 확대됐어요.",
-    source: "산림청 귀산촌 길라잡이",
+      "산림청은 귀산촌인에게 창업자금 세대당 최대 3억 원, 주택 구입·신축 세대당 최대 7,500만 원을 연 2%(5년 거치 10년 분할 상환)로 융자해요. 창업자금은 인정 교육을 5년 이내 60시간 이상 이수해야 하고(주택 자금은 교육 불필요), 신청은 귀산촌 예정지 관할 산림조합에서 해요.",
+    source: "산림청, 귀산촌 길라잡이",
     sourceUrl: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?cmsId=FC_000434&mn=AR02_06_02_02",
-    relatedYears: [2023, 2024],
+    relatedYears: [2024, 2025],
   },
   {
-    label: "산촌진흥지역 지정 확대",
+    label: "산촌 — 108개 시·군 468개 읍·면",
     description:
-      "산촌진흥지역으로 지정된 읍·면이 전국 120여 개로 늘어나면서 지원 대상 지역이 확대됐어요. 강원, 경북, 전남, 충북 산간 지역이 주요 목적지이며, 지자체별 추가 지원도 활발해요.",
-    source: "산림청 산림임업통계플랫폼",
-    sourceUrl: "https://kfss.forest.go.kr/stat/",
-    relatedYears: [2020, 2021, 2022, 2023, 2024],
+      "귀산촌 통계와 산림청 지원 대상의 ‘산촌’은 산림기본법상 산촌이에요. 2024년 산촌기초조사로 109개 시·군 466개 읍·면에서 108개 시·군 468개 읍·면으로 바뀌었고, 경북(112곳)·강원(93곳)·경남(70곳)·전남(53곳) 순으로 많아요. 시·도지사가 따로 지정하는 ‘산촌진흥지역’과는 다른 개념이에요.",
+    source: "산림청, 산촌이란?",
+    sourceUrl: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?cmsId=FC_001180&mn=AR02_06_01_01",
+    relatedYears: [2024],
   },
 ];
 
-/* ── 5. 스마트팜 현황 (출처: 농림축산식품부, 스마트팜코리아) ── */
+/* ── 5. 스마트팜 현황 (출처: 국회예산정책처·농림축산식품부) ──
+   10/3 정정: 근거를 찾지 못한 '스마트팜 도입 농가 수' 시계열(smartfarmData, 2018 4,010곳 → 2024 8,534곳)을 지웠다.
+   2018 "4,010"은 실제로는 2017년 보급 면적(4,010ha)이었다. 통계·랜딩·정착 유형 화면은 공식 보급 면적만 쓴다. */
 
-export interface YearlySmartfarm {
+export interface SmartfarmArea {
   year: number;
-  /** 스마트팜 도입 농가 수 */
-  farms: number;
-  /** 시설면적 (ha) */
+  /** 시설원예 스마트팜(스마트온실) 보급 면적 — ha, 누적, 정책사업 보급 기준 */
   area: number;
+  /** 잠정치 */
+  provisional?: boolean;
 }
 
-export const smartfarmData: YearlySmartfarm[] = [
-  { year: 2018, farms: 4010, area: 4012 },
-  { year: 2019, farms: 4615, area: 4386 },
-  { year: 2020, farms: 5228, area: 4890 },
-  { year: 2021, farms: 6039, area: 5320 },
-  { year: 2022, farms: 7012, area: 5740 },
-  { year: 2023, farms: 7847, area: 6050 },
-  { year: 2024, farms: 8534, area: 6370 },
+/**
+ * 2017~2021: 국회예산정책처 「스마트농업 육성사업 추진현황과 개선과제」(2022.6) [스마트농업 연도별 보급 실적],
+ *            농식품부 제출자료, 2021년은 잠정
+ * 2023:      농림축산식품부 설명자료(2024.11.25) "2023년 말 기준 … 도입한 면적은 7,716ha"
+ * 2022·2024 는 공식 수치를 찾지 못해 넣지 않는다(빈 해를 지어내지 않는다).
+ */
+export const smartfarmAreaData: SmartfarmArea[] = [
+  { year: 2017, area: 4010 },
+  { year: 2018, area: 4900 },
+  { year: 2019, area: 5383 },
+  { year: 2020, area: 5985 },
+  { year: 2021, area: 6485, provisional: true },
+  { year: 2023, area: 7716 },
 ];
 
-const _latestSf = smartfarmData[smartfarmData.length - 1];
-const _firstSf = smartfarmData[0];
-const _sfGrowthTotal = (((_latestSf.farms / _firstSf.farms) - 1) * 100).toFixed(0);
+/** 스마트온실 도입률 — 농식품부 「2026년 스마트농업 육성 시행계획」 "[’24] 스마트온실 16% → [’30] 35%"(온실 55천 ha 기준) */
+export const smartfarmAdoption = { year: 2024, pct: 16, targetYear: 2030, targetPct: 35 } as const;
+
+/** 시설원예 스마트팜 도입 농가 성과 — 농식품부(나라경제 2022.2) */
+export const smartfarmEffect = { output: 33.3, premiumOutput: 35.9, income: 36.9, labor: -9.8 } as const;
+
+const _firstSfa = smartfarmAreaData[0];
+const _latestSfa = smartfarmAreaData[smartfarmAreaData.length - 1];
+const _sfaGrowth = Math.round((_latestSfa.area / _firstSfa.area - 1) * 100);
 
 export const smartfarmSummary = {
   title: "스마트팜 현황",
-  description:
-    `스마트팜 도입 농가는 ${_firstSf.year}년 ${_firstSf.farms.toLocaleString()}곳에서 ${_latestSf.year}년 ${_latestSf.farms.toLocaleString()}곳으로 ${_sfGrowthTotal}% 증가했어요. IoT·AI 기반 자동 제어로 노동 강도를 줄이면서도 생산량 30~50% 향상이 가능해, 청년층과 귀농 초보자의 진입 장벽을 낮추고 있어요.`,
-  source: `농림축산식품부 · 스마트팜코리아 (${_latestSf.year})`,
+  description: `시설원예 스마트팜(스마트온실) 보급 면적은 ${_firstSfa.year}년 ${_firstSfa.area.toLocaleString("ko-KR")}ha에서 ${_latestSfa.year}년 ${_latestSfa.area.toLocaleString("ko-KR")}ha로 ${_sfaGrowth}% 늘었어요. ${smartfarmAdoption.year}년 스마트온실 도입률은 ${smartfarmAdoption.pct}%이고, 정부는 ${smartfarmAdoption.targetYear}년까지 ${smartfarmAdoption.targetPct}%를 목표로 해요. 도입 농가는 생산량이 평균 ${smartfarmEffect.output}% 늘고 자가 노동시간이 ${Math.abs(smartfarmEffect.labor)}% 줄었다는 분석이 있어요.`,
+  /* 정착 유형 타일 폭(약칭 후 30자) 안에 들어가야 한다 — 2017~2021 국회예산정책처(2022), 2023 농식품부(2024.11) */
+  source: "국회예산정책처 2022 · 농림축산식품부 2024",
 };
 
+/** 시설원예 스마트팜 품목별 보급 면적 비중 — 2020년 누적. 기타는 가지·고추·멜론·버섯·포도·새싹인삼 등 */
 export const smartfarmCrops: Factor[] = [
-  { label: "딸기", pct: 28 },
-  { label: "토마토", pct: 22 },
-  { label: "파프리카", pct: 16 },
-  { label: "상추·엽채류", pct: 14 },
-  { label: "화훼", pct: 10 },
-  { label: "기타", pct: 10 },
+  { label: "딸기", pct: 33.8 },
+  { label: "참외", pct: 21.8 },
+  { label: "토마토", pct: 14.1 },
+  { label: "파프리카", pct: 11.4 },
+  { label: "장미", pct: 2.4 },
+  { label: "기타", pct: 16.5 },
 ];
+
+export const smartfarmCropsSource = "국회예산정책처 스마트농업 육성사업 추진현황과 개선과제 (2022, 2020년 누적 보급 면적)";
 
 export const smartfarmCauses: CauseAnalysis[] = [
   {
-    label: "정부 스마트팜 확산 정책",
+    label: "정부 스마트농업 확산 정책",
     description:
-      "농식품부는 '스마트농업 확산·고도화' 전략으로 2027년까지 스마트팜 1만 호 달성을 목표로 하고 있어요. 시설비 30~50% 보조, 청년창업보육센터 4개소(김제·고흥·상주·밀양), 스마트팜 종합자금 융자(3억 한도, 연리 1%) 등을 지원해요.",
-    source: "농림축산식품부, 스마트농업 확산·고도화 방안",
-    sourceUrl: "https://www.smartfarmkorea.net",
+      "농림축산식품부는 「제1차 스마트농업 육성 기본계획(2025~2029)」에서 스마트온실 도입률을 2024년 16%에서 2030년 35%로 높이는 목표를 세웠어요. 스마트팜 종합자금은 보조가 아닌 융자예요(일반 시설자금 1인 50억 원·청년 30억 원 한도, 연 1.0% 고정, 5년 거치 20년 상환). 온실 ICT 장비·신축 보조는 지자체가 공모하는 ICT 융복합 확산사업으로 따로 운영되고, 2026년 계획 기준 국비 25%·지방비 30%·융자 25%·자부담 20%예요. 청년창업보육센터는 김제·고흥·상주·밀양 4곳에서 운영돼요.",
+    source: "농림축산식품부, 2026년 스마트농업 육성 시행계획 (2025.11)",
+    sourceUrl: "https://www.mafra.go.kr/bbs/home/791/594105/download.do",
     relatedYears: [2022, 2023, 2024],
   },
   {
@@ -342,15 +535,15 @@ export const smartfarmCauses: CauseAnalysis[] = [
     description:
       "전국 4개 스마트팜 혁신밸리에서 20개월 장기 교육(입문 → 교육형실습 → 경영형실습)을 국비 무료로 제공해요. 실습비 월 최대 70만 원, 실습재료비 연 최대 360만 원이 지원되며, 수료 후 임대형 스마트팜 입주도 가능해요.",
     source: "한국농업기술진흥원, 스마트팜 청년창업보육센터",
-    sourceUrl: "https://www.smartfarmkorea.net",
+    sourceUrl: "https://www.smartfarmkorea.net/edu/pnbsns/all.do?menuId=M11020201",
     relatedYears: [2023, 2024],
   },
   {
-    label: "생산성 향상 효과 입증",
+    label: "도입 농가 생산성 효과",
     description:
-      "스마트팜 도입 시 딸기 기준 생산량 30~50% 증가, 노동시간 20~30% 절감 효과가 확인됐어요. 데이터 기반 정밀 관리로 품질 균일성도 높아져 수출·프리미엄 시장 진입이 용이해지고 있어요.",
-    source: "농촌진흥청, 스마트팜 성과분석",
-    sourceUrl: "https://www.smartfarmkorea.net",
+      "시설원예 스마트팜 도입 농가는 생산량이 33.3%, 고품질 생산량이 35.9%, 농업소득이 36.9% 늘고 자가 노동시간은 9.8% 줄었다는 농림축산식품부 분석이 있어요. 조사마다 수치는 달라서, 2016년 분석에서는 생산량 27.9% 증가로 나왔어요.",
+    source: "농림축산식품부, 스마트농업 고도화 통해 농업혁신 가속화 (나라경제 2022.2)",
+    sourceUrl: "https://eiec.kdi.re.kr/publish/naraView.do?fcode=00002000040000100005&cidx=13662",
     relatedYears: [2020, 2021, 2022, 2023, 2024],
   },
 ];

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -12,14 +12,22 @@ import {
   Tooltip,
   ReferenceLine,
 } from "recharts";
-import type { YearlyPopulation } from "@/lib/data/stats";
+import {
+  changePct,
+  formatKoreanCount,
+  signedPct,
+  toCount,
+  type YearlyPopulation,
+} from "@/lib/data/stats";
+import { niceAxis } from "./nice-axis";
 import s from "./chart-styles.module.css";
 
 /** Recharts가 content element에 주입하는 Tooltip props */
 interface ChartTooltipProps {
   active?: boolean;
-  payload?: Array<{ color?: string; name?: string; value?: number }>;
+  payload?: Array<{ color?: string; name?: string; value?: number; dataKey?: string | number }>;
   label?: number;
+  significant?: ReadonlySet<number>;
 }
 
 /** Dot 컴포넌트에 Recharts가 전달하는 props */
@@ -27,15 +35,15 @@ interface ChartDotProps {
   cx?: number;
   cy?: number;
   payload?: YearlyPopulation;
+  significant?: ReadonlySet<number>;
 }
-
 
 /* ── 브랜드 색상 ── */
 const COLOR_PRIMARY = "#1B6B5A";
 const COLOR_SECONDARY = "#A8D9CC";
 
-/* ── 유의미 연도 ── */
-const SIGNIFICANT_YEARS = new Set([2020, 2024]);
+/** 코로나19 참조선 연도 */
+const COVID_YEAR = 2020;
 
 interface Props {
   data: YearlyPopulation[];
@@ -48,10 +56,13 @@ interface Props {
   mode?: "all" | "farming" | "rural";
 }
 
+/** 만 단위 값 → "9,134명" · "41만 3,464명" */
+const persons = (man: number) => `${formatKoreanCount(toCount(man))}명`;
+
 /* ── 커스텀 툴팁 ── */
-function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
+function CustomTooltip({ active, payload, label, significant }: ChartTooltipProps) {
   if (!active || !payload?.length) return null;
-  const isSignificant = SIGNIFICANT_YEARS.has(label ?? 0);
+  const isSignificant = significant?.has(label ?? 0) ?? false;
 
   return (
     <div className={s.tooltip}>
@@ -65,7 +76,9 @@ function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
             style={{ background: entry.color }}
           />
           <span>{entry.name}</span>
-          <span className={s.tooltipValue}>{entry.value}만</span>
+          <span className={s.tooltipValue}>
+            {typeof entry.value === "number" ? persons(entry.value) : ""}
+          </span>
         </div>
       ))}
     </div>
@@ -74,9 +87,9 @@ function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
 
 /* ── 귀촌 라인 커스텀 Dot (유의미 연도 강조) ── */
 function RuralDot(props: ChartDotProps) {
-  const { cx, cy, payload } = props;
+  const { cx, cy, payload, significant } = props;
   if (!cx || !cy || !payload) return null;
-  const isSig = SIGNIFICANT_YEARS.has(payload.year);
+  const isSig = significant?.has(payload.year) ?? false;
 
   return (
     <circle
@@ -93,16 +106,16 @@ function RuralDot(props: ChartDotProps) {
 
 /* ── 귀농 라인 커스텀 Dot ── */
 function FarmingDot(props: ChartDotProps) {
-  const { cx, cy, payload } = props;
+  const { cx, cy, payload, significant } = props;
   if (!cx || !cy || !payload) return null;
-  const isSig = SIGNIFICANT_YEARS.has(payload.year);
+  const isSig = significant?.has(payload.year) ?? false;
 
   return (
     <circle
       cx={cx}
       cy={cy}
       r={isSig ? 6 : 3}
-      fill={isSig ? COLOR_PRIMARY : COLOR_PRIMARY}
+      fill={COLOR_PRIMARY}
       stroke="#fff"
       strokeWidth={isSig ? 2.5 : 1.5}
       style={isSig ? { filter: "drop-shadow(0 0 6px rgba(27, 107, 90, 0.5))" } : undefined}
@@ -126,6 +139,39 @@ export default function PopulationTrendChart({ data, mode = "all" }: Props) {
 
   const showFarming = mode === "all" || mode === "farming";
   const showRural = mode === "all" || mode === "rural";
+
+  /* 축·강조 연도·배지 — 전부 data 에서 계산한다(연도·수치 하드코딩 금지) */
+  const view = useMemo(() => {
+    const latest = data[data.length - 1];
+    const prev = data[data.length - 2];
+    const covid = data.find((d) => d.year === COVID_YEAR);
+    const beforeCovid = data.find((d) => d.year === COVID_YEAR - 1);
+    return {
+      latest,
+      significant: new Set([COVID_YEAR, latest.year]) as ReadonlySet<number>,
+      ruralAxis: niceAxis(data.map((d) => d.rural)),
+      farmingAxis: niceAxis(data.map((d) => d.farming)),
+      farmingChange: prev ? changePct(latest.farming, prev.farming) : null,
+      ruralChange: prev ? changePct(latest.rural, prev.rural) : null,
+      covidRuralChange: covid && beforeCovid ? changePct(covid.rural, beforeCovid.rural) : null,
+    };
+  }, [data]);
+
+  const ruralBadges = [
+    view.covidRuralChange !== null
+      ? `${COVID_YEAR} 귀촌 ${signedPct(view.covidRuralChange)} (코로나19 시기)`
+      : null,
+    `${view.latest.year} 귀촌인 ${persons(view.latest.rural)}${
+      view.ruralChange !== null ? ` · ${signedPct(view.ruralChange)}` : ""
+    }`,
+  ].filter((b): b is string => b !== null);
+
+  const farmingBadges = [
+    `${view.latest.year} 귀농인 ${persons(view.latest.farming)}`,
+    view.farmingChange !== null ? `전년 대비 ${signedPct(view.farmingChange)}` : null,
+  ].filter((b): b is string => b !== null);
+
+  const badges = mode === "farming" ? farmingBadges : ruralBadges;
 
   return (
     <div>
@@ -165,8 +211,9 @@ export default function PopulationTrendChart({ data, mode = "all" }: Props) {
                 tick={{ fontSize: 11, fill: "#9ca3af" }}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(v) => `${v}만`}
-                domain={[28, 48]}
+                tickFormatter={(v: number) => `${v}만`}
+                domain={view.ruralAxis.domain}
+                ticks={view.ruralAxis.ticks}
               />
             )}
 
@@ -178,14 +225,15 @@ export default function PopulationTrendChart({ data, mode = "all" }: Props) {
                 tick={{ fontSize: 11, fill: "#9ca3af" }}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(v) => `${v}만`}
-                domain={[1.0, 1.45]}
+                tickFormatter={(v: number) => `${v.toFixed(1)}만`}
+                domain={view.farmingAxis.domain}
+                ticks={view.farmingAxis.ticks}
               />
             )}
 
             {/* 2020년 참조선 (COVID) — 표시되는 첫 축에 부착 */}
             <ReferenceLine
-              x={2020}
+              x={COVID_YEAR}
               yAxisId={showRural ? "rural" : "farming"}
               stroke={COLOR_PRIMARY}
               strokeDasharray="4 4"
@@ -198,7 +246,7 @@ export default function PopulationTrendChart({ data, mode = "all" }: Props) {
               }}
             />
 
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip significant={view.significant} />} />
 
             {/* 귀촌 — 영역 차트 (배경감) */}
             {showRural && (
@@ -206,11 +254,11 @@ export default function PopulationTrendChart({ data, mode = "all" }: Props) {
                 yAxisId="rural"
                 type="monotone"
                 dataKey="rural"
-                name="귀촌 인구"
+                name="귀촌인"
                 fill="url(#ruralGradient)"
                 stroke={COLOR_SECONDARY}
                 strokeWidth={2.5}
-                dot={<RuralDot />}
+                dot={<RuralDot significant={view.significant} />}
                 activeDot={{ r: 7, stroke: COLOR_SECONDARY, strokeWidth: 2.5, fill: "#fff" }}
                 animationDuration={1200}
                 animationEasing="ease-out"
@@ -223,10 +271,10 @@ export default function PopulationTrendChart({ data, mode = "all" }: Props) {
                 yAxisId="farming"
                 type="monotone"
                 dataKey="farming"
-                name="정착 인구"
+                name="귀농인"
                 stroke={COLOR_PRIMARY}
                 strokeWidth={3}
-                dot={<FarmingDot />}
+                dot={<FarmingDot significant={view.significant} />}
                 activeDot={{ r: 7, stroke: COLOR_PRIMARY, strokeWidth: 2.5, fill: "#fff" }}
                 animationDuration={1500}
                 animationEasing="ease-out"
@@ -241,37 +289,24 @@ export default function PopulationTrendChart({ data, mode = "all" }: Props) {
         {showFarming && (
           <span className={s.legendItem}>
             <span className={s.legendDot} style={{ background: COLOR_PRIMARY, borderRadius: "50%" }} />
-            정착 인구{mode === "all" ? " (우축)" : ""}
+            귀농인{mode === "all" ? " (우축)" : ""}
           </span>
         )}
         {showRural && (
           <span className={s.legendItem}>
             <span className={s.legendDot} style={{ background: COLOR_SECONDARY }} />
-            귀촌 인구{mode === "all" ? " (좌축)" : ""}
+            귀촌인{mode === "all" ? " (좌축)" : ""}
           </span>
         )}
       </div>
 
-      {/* 인사이트 배지 */}
+      {/* 인사이트 배지 — data 에서 계산 */}
       <div className={s.insightBadgeRow}>
-        {mode === "rural" && (
-          <>
-            <span className={s.insightBadge}>2020 코로나 이후 귀촌 급증 (+7.6%)</span>
-            <span className={s.insightBadge}>2024 역대 최대 42.2만 명</span>
-          </>
-        )}
-        {mode === "farming" && (
-          <>
-            <span className={s.insightBadge}>2024 정착 인구 1.45만 가구</span>
-            <span className={s.insightBadge}>전년 대비 +1.4%</span>
-          </>
-        )}
-        {mode === "all" && (
-          <>
-            <span className={s.insightBadge}>2020 코로나 이후 귀촌 급증 (+7.6%)</span>
-            <span className={s.insightBadge}>2024 역대 최대 42.2만 명</span>
-          </>
-        )}
+        {badges.map((badge) => (
+          <span key={badge} className={s.insightBadge}>
+            {badge}
+          </span>
+        ))}
       </div>
     </div>
   );
