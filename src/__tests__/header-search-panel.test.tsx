@@ -135,12 +135,12 @@ describe("헤더 검색 패널", () => {
     expect(isOpen()).toBe(false);
   });
 
-  it("/search 에서는 트리거가 없지만 ⌘K 로는 열린다", () => {
+  it("/search 에서는 트리거가 없고 ⌘K 도 패널을 열지 않는다(페이지 검색창이 주인 — 10/2)", () => {
     pathname.current = "/search";
     render(<Header />);
     expect(screen.queryByRole("button", { name: "통합검색 열기" })).toBeNull();
     fireEvent.keyDown(document, { key: "k", ctrlKey: true });
     fireEvent.keyDown(document, { key: "k", metaKey: true });
-    expect(isOpen()).toBe(true);
+    expect(isOpen()).toBe(false);
   });
 });

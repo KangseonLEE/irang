@@ -319,34 +319,23 @@
   margin: -4px;
 }
 
+/* 10/2 회장: 칩·# 없이 글자만 — 제목의 유형어와 같은 민트로, 밑줄은 호버 때만 */
 .tickerItem {
   grid-area: 1 / 1;
   justify-self: start;
   display: inline-flex;
   align-items: center;
   min-height: 36px;
-  padding: 0 12px;
-  /* 유리 칩 — 반투명 + 흰 1px 테두리, 거의 직각(10/2) */
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 4px;
-  background: rgba(6, 26, 21, 0.4);
-  color: #fff;
-  font-weight: 600;
+  color: #9fe0c8;
+  font-weight: 700;
   white-space: nowrap;
   text-decoration: none;
+  text-underline-offset: 4px;
   opacity: 0;
   transform: translateY(110%);
   transition:
     transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1),
-    opacity 0.35s ease,
-    background-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.tickerItem::before {
-  content: "#";
-  margin-right: 2px;
-  opacity: 0.7;
+    opacity 0.35s ease;
 }
 
 .tickerItem[data-state="in"] {
@@ -365,13 +354,14 @@
 
 .tickerItem:focus-visible {
   outline: 2px solid #fff;
-  outline-offset: 2px;
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 @media (hover: hover) {
   .tickerItem[data-state="in"]:hover {
-    background: #fff;
-    color: var(--primary, #1b6b5a);
+    color: #fff;
+    text-decoration: underline;
   }
 }
 
@@ -394,8 +384,59 @@
   min-width: 0;
 }
 
+/* 제목 + 자동 전환 정지 버튼 한 줄 */
+.typesHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.pauseBtn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: -6px -6px -6px 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+/* 보이는 원은 28px, 누르는 영역은 44px */
+.pauseBtn::before {
+  content: "";
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: rgba(6, 26, 21, 0.4);
+}
+
+.pauseBtn > svg {
+  position: relative;
+}
+
+.pauseBtn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -4px;
+}
+
+@media (hover: hover) {
+  .pauseBtn:hover::before {
+    border-color: #fff;
+    background: rgba(22, 78, 64, 0.7);
+  }
+}
+
 .typesTitle {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 0.9375rem;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -1004,16 +1045,18 @@
   animation: heroBgZoom 1.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
+/* LCP(10/2 실측 데스크탑 2.2s·모바일 2.7s): 큰 글자가 투명도 0 으로 기다리면 그만큼 LCP 가 늦는다.
+   제목은 줄 마스크를 유지하되 바로 시작(0.1/0.2s)하고, 부제는 투명도 없이 위치만 움직인다. */
 .wordLine > .lineInner {
-  animation: heroLineUp 0.8s var(--intro-ease) 0.3s backwards;
+  animation: heroLineUp 0.7s var(--intro-ease) 0.1s backwards;
 }
 
 .titleRest > .lineInner {
-  animation: heroLineUp 0.8s var(--intro-ease) 0.42s backwards;
+  animation: heroLineUp 0.7s var(--intro-ease) 0.2s backwards;
 }
 
 .sub {
-  animation: heroRise var(--intro-dur) var(--intro-ease) 0.6s backwards;
+  animation: heroRiseMove var(--intro-dur) var(--intro-ease) 0.35s backwards;
 }
 
 .searchWrap > * {
@@ -1024,7 +1067,7 @@
   animation: heroRise var(--intro-dur) var(--intro-ease) 0.8s backwards;
 }
 
-.typesTitle {
+.typesHead {
   animation: heroRise var(--intro-dur) var(--intro-ease) 0.8s backwards;
 }
 
@@ -1051,7 +1094,7 @@
   .sub,
   .searchWrap > *,
   .ticker,
-  .typesTitle,
+  .typesHead,
   .typeItem,
   .typeItem > .typeCard,
   .data {

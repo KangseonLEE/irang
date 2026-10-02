@@ -136,6 +136,13 @@ export function Header() {
   /* ⌘K(mac) / Ctrl+K — 트리거 클릭과 같은 경로로 연다. 이미 열려 있으면 입력창으로 포커스만 옮긴다 */
   const isMac = useIsMac();
   const onShortcut = useCallback(() => {
+    // /search 는 페이지 자체 검색창이 주인 — 헤더 패널을 겹쳐 열면 같은 검색창(같은 id)이 둘이 된다(10/2)
+    if (isSearchPage) {
+      const input = document.querySelector<HTMLInputElement>("main input[type='search'], main input[name='q']");
+      input?.focus();
+      input?.select();
+      return;
+    }
     if (searchOpen) {
       const input = headerRef.current?.querySelector<HTMLInputElement>("[role='dialog'] input");
       input?.focus();
@@ -143,7 +150,7 @@ export function Header() {
       return;
     }
     openSearchUi("shortcut");
-  }, [openSearchUi, searchOpen]);
+  }, [openSearchUi, searchOpen, isSearchPage]);
   useSearchShortcut(onShortcut);
 
   // 페이지 이동 시 검색 패널 닫기 (포커스는 새 페이지에 맡긴다)

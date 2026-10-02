@@ -6,7 +6,7 @@ import Link from "next/link";
 import { MapPin, FileText, GraduationCap, CalendarDays, BookOpen, ArrowLeft, TrendingUp, Building2, Users, BookMarked, LandPlot, ChevronDown, ChevronUp } from "lucide-react";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
-import { searchAllGrouped, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, getNoResultSuggestions, getPopularTagsWithResults, type SearchItem, type GroupedSearchResults } from "@/lib/data/search-index";
+import { searchAllGrouped, hasExactMatch, buildSearchAnswer, buildCropPanel, buildRelatedSearches, resolveSearchDisplay, getNoResultHintItems, getNoResultSuggestions, type SearchItem, type GroupedSearchResults } from "@/lib/data/search-index";
 import { buildEntityPanel } from "@/lib/data/entity-panel";
 import { findTypoCandidates } from "@/lib/typo-correct";
 import { logSearch } from "@/lib/supabase";
@@ -14,6 +14,7 @@ import { analytics } from "@/lib/analytics";
 import { withJosa } from "@/lib/format";
 import { RequestButton } from "@/components/feedback/request-modal";
 import SearchPageSearchBar from "@/components/search/search-page-search-bar";
+import SearchBar from "@/components/search/search-bar";
 import { ResultCard } from "@/components/search/result-card";
 import { RegionResultGroup } from "@/components/search/region-result-group";
 import { SectionPager } from "@/components/ui/section-pager";
@@ -367,125 +368,52 @@ function SearchPageContent() {
     [query, totalCount],
   );
 
-  // 최근 검색어 (localStorage — 날짜 포함 형식 호환)
-  const recentSearches = useMemo(() => {
-    if (typeof window === "undefined") return [] as { query: string; date: string }[];
-    try {
-      const raw = localStorage.getItem("irang-recent-searches");
-      if (!raw) return [];
-      const parsed = JSON.parse(raw) as Array<string | { query: string; date: string }>;
-      return parsed.slice(0, 10).map((item) =>
-        typeof item === "string" ? { query: item, date: "" } : item,
-      );
-    } catch {
-      return [];
-    }
-  }, // eslint-disable-next-line react-hooks/exhaustive-deps
-  [query]); // query 변경 시 다시 읽음
-
   return (
-    <div className={s.page}>
+    <div className={query ? s.page : `${s.page} ${s.pageHome}`}>
       {/* 검색 결과 카드 클릭 계측 — data-search-result 위임 */}
       <SearchResultTracker />
 
-      {/* 뒤로가기 */}
-      <Link href="/" className={s.backLink}>
-        <ArrowLeft size={16} />
-        홈으로 돌아가기
-      </Link>
-
-      {/* 검색바 */}
-      <div className={s.searchWrap}>
-        <SearchPageSearchBar />
-      </div>
-
-      {/* 결과 헤더 */}
       {query ? (
-        <div className={s.resultHeader}>
-          <h1 className={s.resultTitle}>
-            &lsquo;{query}&rsquo; 검색 결과
-          </h1>
-          {!fallback && (
-            <p className={s.resultCount}>
-              총 <strong>{totalCount}</strong>건
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className={s.emptyQuery}>
-          <Search size={40} className={s.emptyIcon} />
-          <h1 className={s.emptyTitle}>통합 검색</h1>
-          <p className={s.emptyDesc}>
-            지역, 작물, 지원사업을 한번에 검색하세요.
-          </p>
+        <>
+          {/* 뒤로가기 */}
+          <Link href="/" className={s.backLink}>
+            <ArrowLeft size={16} />
+            홈으로 돌아가기
+          </Link>
 
-          {/* 인기 검색어 — 검색 결과가 있는 태그만 표시 (판정은 모듈 캐시, 렌더마다 재스캔하지 않는다) */}
-          {(() => {
-            const validTags = getPopularTagsWithResults();
-            if (validTags.length === 0) return null;
-            return (
-              <div className={s.popularSection}>
-                <h2 className={s.popularTitle}>
-                  <TrendingUp size={16} />
-                  다른 사람들이 많이 찾는 검색어
-                </h2>
-                <div className={s.popularTags}>
-                  {validTags.map((tag) => (
-                    <Link
-                      key={tag.label}
-                      href={`/search?q=${encodeURIComponent(tag.query)}`}
-                      className={s.popularTag}
-                    >
-                      {tag.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* 최근 검색어 */}
-          {recentSearches.length > 0 && (
-            <div className={s.recentSection}>
-              <h2 className={s.recentTitle}>최근 검색어</h2>
-              <div className={s.recentTags}>
-                {recentSearches.map((r) => (
-                  <Link
-                    key={r.query}
-                    href={`/search?q=${encodeURIComponent(r.query)}`}
-                    className={s.recentTag}
-                  >
-                    <Search size={12} />
-                    {r.query}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* 빠른 탐색 */}
-          <div className={s.quickLinks}>
-            <h2 className={s.quickLinksTitle}>바로 탐색하기</h2>
-            <div className={s.quickLinksGrid}>
-              <Link href="/regions" className={s.quickLink}>
-                <MapPin size={16} />
-                지역 비교
-              </Link>
-              <Link href="/crops" className={s.quickLink}>
-                <Sprout size={16} />
-                작물 정보
-              </Link>
-              <Link href="/programs" className={s.quickLink}>
-                <FileText size={16} />
-                지원사업
-              </Link>
-              <Link href="/education" className={s.quickLink}>
-                <GraduationCap size={16} />
-                교육
-              </Link>
-            </div>
+          {/* 검색바 */}
+          <div className={s.searchWrap}>
+            <SearchPageSearchBar />
           </div>
-        </div>
+
+          {/* 결과 헤더 */}
+          <div className={s.resultHeader}>
+            <h1 className={s.resultTitle}>
+              &lsquo;{query}&rsquo; 검색 결과
+            </h1>
+            {!fallback && (
+              <p className={s.resultCount}>
+                총 <strong>{totalCount}</strong>건
+              </p>
+            )}
+          </div>
+        </>
+      ) : (
+        /* 검색 홈 (10/2 회장 — 기후금융포털 검색 페이지 문법): 왼쪽 정렬 큰 안내 문구 → 넓은 검색 바 →
+           추천 검색어 → 최근·바로 탐색 / 단계별 가이드 / 자주 묻는 질문.
+           헤더 검색 패널과 **같은 SearchBar 패널 배치**를 그대로 쓴다 — 추천어·열 구성·시각 언어가 한 벌. */
+        <section className={s.searchHome} aria-labelledby="search-home-title">
+          <h1 id="search-home-title" className={s.searchHomeTitle}>
+            <span className={s.searchHomeLine}>지역·작물·지원사업,</span>{" "}
+            <span className={s.searchHomeLine}>궁금한 걸 검색해 보세요</span>
+          </h1>
+          <SearchBar
+            size="large"
+            panelLayout
+            placeholder="궁금한 농촌 정착 정보를 검색해보세요"
+            mobilePlaceholder="지역, 작물, 교육, 비용 검색"
+          />
+        </section>
       )}
 
       {/* 자동 대체 안내 — 원 검색어 0건, 포함된 실재 이름의 결과를 대신 표시 (네이버·다음 한 줄 패턴) */}

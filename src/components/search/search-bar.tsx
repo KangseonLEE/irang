@@ -17,7 +17,7 @@ import { Clock, X, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap,
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { getQuerySuggestions, searchAll } from "@/lib/data/search-index";
-import { POPULAR_KEYWORDS } from "@/lib/data/popular-keywords";
+import { RECOMMENDED_KEYWORDS } from "@/lib/data/popular-keywords";
 import { highlightMatch } from "@/lib/highlight-match";
 import { analytics } from "@/lib/analytics";
 import { logSearch } from "@/lib/supabase";
@@ -31,8 +31,6 @@ import { SEARCH_FAQS } from "@/lib/data/search-faq";
 // 답: 첫 5개 표준 FAQ — 5단계 로드맵·비용·적합도·생활비·작물 추천.
 const FEATURED_FAQ_INDICES = [0, 2, 4, 5, 6] as const;
 
-/** 헤더 패널 "추천 검색어" 칩 — 인기 검색어 SSOT 에서 외부 서비스명(토지이음)만 뺀다 (10/2 회장) */
-const PANEL_RECOMMENDED = POPULAR_KEYWORDS.filter((kw) => kw.label !== "토지이음");
 import { isComposingEvent } from "@/lib/ime";
 import { useDialog } from "@/components/ui/confirm-dialog";
 import s from "./search-bar.module.css";
@@ -786,31 +784,17 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     </div>
   );
 
-  /* 인기 검색어 (순위 목록) — 모바일 풀스크린 확장·히어로 드롭다운 */
+  /* 추천 검색어 목록 — 모바일 풀스크린 확장·히어로 드롭다운.
+     10/2 단일 출처(RECOMMENDED_KEYWORDS)로 통일. 실제 인기 순위가 아니므로 순위 번호·"인기" 표현은 쓰지 않는다. */
   const popularSection = (
     <div className={s.expandedSection}>
-      <div className={s.sectionLabel}>인기 검색어</div>
+      <div className={s.sectionLabel}>추천 검색어</div>
       <div className={s.popularList}>
-        {POPULAR_KEYWORDS.map((kw, i) => {
-          const rank = i + 1;
-          const isTop = rank <= 3;
-          return (
-            <button
-              key={kw.label}
-              type="button"
-              className={s.popularItem}
-              onClick={() => navigateToSearch(kw.label)}
-            >
-              <span
-                className={`${s.popularRank}${isTop ? ` ${s.popularRankTop}` : ""}`}
-                aria-hidden="true"
-              >
-                {rank}
-              </span>
-              <span className={s.popularLabel}>{kw.label}</span>
-            </button>
-          );
-        })}
+        {RECOMMENDED_KEYWORDS.map((kw) => (
+          <button key={kw} type="button" className={s.popularItem} onClick={() => navigateToSearch(kw)}>
+            <span className={s.popularLabel}>{kw}</span>
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -941,14 +925,14 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
               <div className={s.panelChips}>
                 <span className={s.panelChipsLabel}>추천 검색어</span>
                 <div className={s.panelChipList}>
-                  {PANEL_RECOMMENDED.map((kw) => (
+                  {RECOMMENDED_KEYWORDS.map((kw) => (
                     <button
-                      key={kw.label}
+                      key={kw}
                       type="button"
                       className={s.panelChip}
-                      onClick={() => navigateToSearch(kw.label)}
+                      onClick={() => navigateToSearch(kw)}
                     >
-                      {kw.label}
+                      {kw}
                     </button>
                   ))}
                 </div>

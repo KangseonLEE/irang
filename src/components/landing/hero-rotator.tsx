@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { HERO_INTRO_MS } from "./hero-intro";
+import { useHeroMotionPaused } from "./hero-motion";
 import s from "./hero-search-hub.module.css";
 
 /**
@@ -30,22 +31,31 @@ const INTERVAL_MS = 4500;
 export function HeroRotator({ scenes }: { scenes: readonly HeroScene[] }) {
   const [index, setIndex] = useState(0);
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const paused = useHeroMotionPaused();
   const rootRef = useRef<HTMLDivElement>(null);
+  /**
+   * 배경 이미지는 첫 장면만 처음에 받는다 — 5장(데스크탑 ≈600KB)을 한꺼번에 받던 것을(10/2 실측)
+   * 등장 연출이 끝나면 다음 장면 1장, 이후엔 "지금 + 다음"만 미리 받는 식으로 나눈다.
+   */
+  const [ticks, setTicks] = useState(0);
+  const [introDone, setIntroDone] = useState(false);
+  // 연출 전엔 첫 장면만, 연출 뒤엔 "지금까지 지나간 장면 + 다음 1장"
+  const loadedUpTo = introDone ? Math.min(ticks + 1, scenes.length - 1) : 0;
 
   useEffect(() => {
-    if (reduced || scenes.length < 2) return;
-    let timer: number | undefined;
-    const start = window.setTimeout(() => {
-      timer = window.setInterval(() => {
-        if (document.visibilityState !== "visible") return;
-        setIndex((i) => (i + 1) % scenes.length);
-      }, INTERVAL_MS);
-    }, HERO_INTRO_MS);
-    return () => {
-      window.clearTimeout(start);
-      window.clearInterval(timer);
-    };
-  }, [reduced, scenes.length]);
+    const t = window.setTimeout(() => setIntroDone(true), HERO_INTRO_MS);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (reduced || paused || !introDone || scenes.length < 2) return;
+    const timer = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      setIndex((i) => (i + 1) % scenes.length);
+      setTicks((t) => t + 1);
+    }, INTERVAL_MS);
+    return () => window.clearInterval(timer);
+  }, [reduced, paused, introDone, scenes.length]);
 
   const current = reduced ? 0 : index;
   const prev = (current - 1 + scenes.length) % scenes.length;
@@ -75,15 +85,9 @@ export function HeroRotator({ scenes }: { scenes: readonly HeroScene[] }) {
           /* 들어오는 장면이 위 — 나가는 장면 위로 덮이며 페이드 */
           style={{ zIndex: i === current ? 2 : i === prev ? 1 : 0 }}
         >
-          <Image
-            src={scene.image}
-            alt=""
-            fill
-            priority={i === 0}
-            sizes="100vw"
-            quality={70}
-            className={s.bgImage}
-          />
+          {(i <= loadedUpTo || i === current) && (
+            <Image src={scene.image} alt="" fill priority={i === 0} sizes="100vw" quality={70} className={s.bgImage} />
+          )}
         </div>
       ))}
     </div>

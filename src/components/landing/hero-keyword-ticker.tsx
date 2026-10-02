@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { HERO_INTRO_MS } from "./hero-intro";
+import { useHeroMotionPaused } from "./hero-motion";
 import s from "./hero-search-hub.module.css";
 
 /**
@@ -23,6 +24,7 @@ export function HeroKeywordTicker({ keywords }: { keywords: readonly string[] })
   const [held, setHeld] = useState(false);
   const [introDone, setIntroDone] = useState(false);
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const paused = useHeroMotionPaused();
 
   useEffect(() => {
     const t = window.setTimeout(() => setIntroDone(true), HERO_INTRO_MS);
@@ -30,13 +32,13 @@ export function HeroKeywordTicker({ keywords }: { keywords: readonly string[] })
   }, []);
 
   useEffect(() => {
-    if (reduced || held || !introDone || keywords.length < 2) return;
+    if (reduced || paused || held || !introDone || keywords.length < 2) return;
     const timer = window.setInterval(() => {
       if (document.visibilityState !== "visible") return;
       setIndex((i) => (i + 1) % keywords.length);
     }, INTERVAL_MS);
     return () => window.clearInterval(timer);
-  }, [reduced, held, introDone, keywords.length]);
+  }, [reduced, paused, held, introDone, keywords.length]);
 
   const current = reduced ? 0 : index;
   const prev = (current - 1 + keywords.length) % keywords.length;

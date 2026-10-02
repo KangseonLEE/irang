@@ -80,10 +80,16 @@ describe("히어로 장면 회전 — 단어·배경·카드 (10/1 회장)", () 
     expect(html.match(/data-active=""/g)?.length).toBe(1);
   });
 
-  it("배경 장면 5개가 유형별 이미지로 SSR 된다", () => {
-    for (const img of ["hero-2", "hero-3", "hero-1", "hero-youth", "hero-4"]) {
-      expect(html).toContain(`/landing/hero/${img}.webp`);
+  it("배경은 첫 장면(귀농) 이미지만 SSR 하고 나머지는 연출 뒤에 받는다(10/2 지연 로드)", () => {
+    expect(html).toContain("/landing/hero/hero-2.webp");
+    for (const img of ["hero-3", "hero-1", "hero-youth", "hero-4"]) {
+      expect(html).not.toContain(`/landing/hero/${img}.webp`);
     }
+  });
+
+  it("자동 전환 정지 버튼이 SSR 된다(WCAG 2.2.2)", () => {
+    expect(html).toMatch(/aria-label="장면 자동 전환 멈추기"/);
+    expect(html).toContain('aria-pressed="false"');
   });
 });
 

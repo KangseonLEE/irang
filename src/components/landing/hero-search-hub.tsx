@@ -3,10 +3,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
-import { POPULAR_KEYWORDS } from "@/lib/data/popular-keywords";
+import { RECOMMENDED_KEYWORDS } from "@/lib/data/popular-keywords";
 import { HeroSearchForm } from "./hero-search-form";
 import { HeroRotator } from "./hero-rotator";
 import { HeroKeywordTicker } from "./hero-keyword-ticker";
+import { HeroMotionProvider, HeroPauseButton } from "./hero-motion";
 import s from "./hero-search-hub.module.css";
 
 /**
@@ -60,7 +61,6 @@ const SCENES = [
   { id: "youth", word: "청년농", image: "/landing/hero/hero-youth.webp" },
   { id: "smartfarm", word: "스마트팜", image: "/landing/hero/hero-4.webp" },
 ] as const;
-const EXCLUDED_KEYWORDS = new Set(["토지이음"]);
 
 function dLabel(daysLeft: number): string {
   return daysLeft === 0 ? "오늘 마감" : `D-${daysLeft}`;
@@ -68,135 +68,132 @@ function dLabel(daysLeft: number): string {
 
 export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
   const visibleStats = stats.filter((st) => st.value > 0);
-  // 외부 서비스 이름(토지이음)은 "추천 검색어"로 내세우지 않는다 — 이랑 안에 답이 있는 말만
-  const tickerKeywords = POPULAR_KEYWORDS.map((k) => k.label).filter((l) => !EXCLUDED_KEYWORDS.has(l));
+  // 추천 검색어 단일 출처(10/2) — 헤더 검색 패널·/search 빈 화면과 같은 목록
+  const tickerKeywords = RECOMMENDED_KEYWORDS;
 
   return (
     <section className={s.hero} aria-labelledby="hero-title" data-landing-hero>
-      <div className={s.bg} aria-hidden="true">
-        <HeroRotator scenes={SCENES.map(({ id, image }) => ({ id, image }))} />
-        <span className={s.scrim} />
-        {/* 등장 연출: 밝은 안개가 걷히며 배경이 드러난다(끝나면 투명, 상호작용 없음) */}
-        <span className={s.fog} />
-      </div>
+      <HeroMotionProvider>
+        <div className={s.bg} aria-hidden="true">
+          <HeroRotator scenes={SCENES.map(({ id, image }) => ({ id, image }))} />
+          <span className={s.scrim} />
+          {/* 등장 연출: 밝은 안개가 걷히며 배경이 드러난다(끝나면 투명, 상호작용 없음) */}
+          <span className={s.fog} />
+        </div>
 
-      <div className={s.inner}>
-        {/* ── 좌: 문장 + 검색 + 인기 검색어 ── */}
-        <div className={s.intro}>
-          <h1 id="hero-title" className={s.title}>
-            {/* 스크린리더·검색엔진은 이 한 문장을 읽는다. 아래 회전 줄은 시각 전용 */}
-            <span className={s.srOnly}>
-              {SCENES.map((sc) => sc.word).join("·")} 준비, 어디서부터 볼까요?
-            </span>
-            {/* 줄 단위 마스크 리빌 — 줄(overflow hidden) 안의 lineInner 가 아래에서 올라온다 */}
-            <span className={s.wordLine} aria-hidden="true">
-              <span className={s.lineInner}>
-                <span className={s.wordSlot}>
-                  {SCENES.map((sc, i) => (
-                    <span
-                      key={sc.id}
-                      className={s.word}
-                      data-hero-word={sc.id}
-                      data-state={i === 0 ? "in" : "wait"}
-                    >
-                      {/* "준비,"까지 한 덩어리로 넘긴다 — 칸 폭이 가장 긴 단어 기준이라 밖에 두면 짧은 단어 뒤가 벌어진다 */}
-                      <span className={s.wordAccent}>{sc.word}</span> 준비,
-                    </span>
-                  ))}
+        <div className={s.inner}>
+          {/* ── 좌: 문장 + 검색 + 인기 검색어 ── */}
+          <div className={s.intro}>
+            <h1 id="hero-title" className={s.title}>
+              {/* 스크린리더·검색엔진은 이 한 문장을 읽는다. 아래 회전 줄은 시각 전용 */}
+              <span className={s.srOnly}>{SCENES.map((sc) => sc.word).join("·")} 준비, 어디서부터 볼까요?</span>
+              {/* 줄 단위 마스크 리빌 — 줄(overflow hidden) 안의 lineInner 가 아래에서 올라온다 */}
+              <span className={s.wordLine} aria-hidden="true">
+                <span className={s.lineInner}>
+                  <span className={s.wordSlot}>
+                    {SCENES.map((sc, i) => (
+                      <span key={sc.id} className={s.word} data-hero-word={sc.id} data-state={i === 0 ? "in" : "wait"}>
+                        {/* "준비,"까지 한 덩어리로 넘긴다 — 칸 폭이 가장 긴 단어 기준이라 밖에 두면 짧은 단어 뒤가 벌어진다 */}
+                        <span className={s.wordAccent}>{sc.word}</span> 준비,
+                      </span>
+                    ))}
+                  </span>
                 </span>
               </span>
-            </span>
-            <span className={s.titleRest} aria-hidden="true">
-              <span className={s.lineInner}>어디서부터 볼까요?</span>
-            </span>
-          </h1>
-          <p className={s.sub}>
-            궁금한 지역·작물·지원사업을 검색하거나 내 정착 유형부터 골라 보세요
-          </p>
+              <span className={s.titleRest} aria-hidden="true">
+                <span className={s.lineInner}>어디서부터 볼까요?</span>
+              </span>
+            </h1>
+            <p className={s.sub}>궁금한 지역·작물·지원사업을 검색하거나 내 정착 유형부터 골라 보세요</p>
 
-          <div className={s.searchWrap}>
-            <HeroSearchForm variant="hero" idPrefix="hero" />
+            <div className={s.searchWrap}>
+              <HeroSearchForm variant="hero" idPrefix="hero" />
+            </div>
+
+            <HeroKeywordTicker keywords={tickerKeywords} />
           </div>
 
-          <HeroKeywordTicker keywords={tickerKeywords} />
-        </div>
-
-        {/* ── 우: 정착 유형 카드 6 ── */}
-        <div className={s.types}>
-          <h2 className={s.typesTitle}>정착 유형으로 시작하기</h2>
-          <ul className={s.typeGrid}>
-            {JOURNEY_LANES.map((lane, i) => (
-              /* --i = 등장 스태거 순서(CSS 가 지연을 계산) */
-              <li key={lane.id} className={s.typeItem} style={{ "--i": i } as React.CSSProperties}>
-                <Link
-                  href={lane.href}
-                  className={s.typeCard}
-                  data-track={`hero_type:${lane.id}`}
-                  data-hero-card={lane.id}
-                  data-active={lane.id === SCENES[0].id ? "" : undefined}
-                >
-                  <span className={s.thumb} aria-hidden="true">
-                    <Image src={lane.charImage} alt="" fill sizes="64px" className={s.thumbImage} />
-                  </span>
-                  <span className={s.typeText}>
-                    <span className={s.typeLabel}>{lane.label}</span>
-                    <span className={s.typeDesc}>{lane.desc}</span>
-                  </span>
-                  <span className={s.typeArrow} aria-hidden="true">
-                    <ArrowRight size={16} />
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* ── 하단: 지금 열린 기회 수치 + 마감이 가까운 지원사업 ── */}
-        {(visibleStats.length > 0 || deadlines.length > 0) && (
-          <div className={s.data}>
-            {visibleStats.length > 0 && (
-              <div className={s.statsBlock} style={{ "--n": visibleStats.length } as React.CSSProperties}>
-                <h2 className={s.dataTitle}>지금 열려 있어요</h2>
-                <ul className={s.stats}>
-                  {visibleStats.map((st) => (
-                    <li key={st.id}>
-                      <Link href={st.href} className={s.stat} data-track={`hero_data:${st.id}`}>
-                        <span className={s.statLabel}>{st.label}</span>
-                        <span className={s.statValue}>
-                          {st.value.toLocaleString()}
-                          <span className={s.statUnit}>{st.unit}</span>
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {deadlines.length > 0 && (
-              <div className={s.deadlineBlock} style={{ "--n": deadlines.length } as React.CSSProperties}>
-                <div className={s.deadlineHead}>
-                  <h2 className={s.dataTitle}>마감이 가까운 지원사업</h2>
-                  <Link href="/programs" className={s.dataMore} data-track="hero_data:programs_all">
-                    전체 보기 <ArrowUpRight size={14} aria-hidden="true" />
+          {/* ── 우: 정착 유형 카드 6 ── */}
+          <div className={s.types}>
+            <div className={s.typesHead}>
+              <h2 className={s.typesTitle}>정착 유형으로 시작하기</h2>
+              {/* 장면·추천 검색어 자동 전환 정지(WCAG 2.2.2) */}
+              <HeroPauseButton />
+            </div>
+            <ul className={s.typeGrid}>
+              {JOURNEY_LANES.map((lane, i) => (
+                /* --i = 등장 스태거 순서(CSS 가 지연을 계산) */
+                <li key={lane.id} className={s.typeItem} style={{ "--i": i } as React.CSSProperties}>
+                  <Link
+                    href={lane.href}
+                    className={s.typeCard}
+                    data-track={`hero_type:${lane.id}`}
+                    data-hero-card={lane.id}
+                    data-active={lane.id === SCENES[0].id ? "" : undefined}
+                  >
+                    <span className={s.thumb} aria-hidden="true">
+                      <Image src={lane.charImage} alt="" fill sizes="64px" className={s.thumbImage} />
+                    </span>
+                    <span className={s.typeText}>
+                      <span className={s.typeLabel}>{lane.label}</span>
+                      <span className={s.typeDesc}>{lane.desc}</span>
+                    </span>
+                    <span className={s.typeArrow} aria-hidden="true">
+                      <ArrowRight size={16} />
+                    </span>
                   </Link>
-                </div>
-                <ul className={s.deadlines}>
-                  {deadlines.map((d) => (
-                    <li key={d.id}>
-                      <Link href={`/programs/${d.id}`} className={s.deadline} data-track={`hero_deadline:${d.id}`}>
-                        <span className={s.dBadge}>{dLabel(d.daysLeft)}</span>
-                        <span className={s.deadlineTitle}>{d.title}</span>
-                        {d.amount && <span className={s.deadlineAmount}>{d.amount}</span>}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+                </li>
+              ))}
+            </ul>
           </div>
-        )}
-      </div>
+
+          {/* ── 하단: 지금 열린 기회 수치 + 마감이 가까운 지원사업 ── */}
+          {(visibleStats.length > 0 || deadlines.length > 0) && (
+            <div className={s.data}>
+              {visibleStats.length > 0 && (
+                <div className={s.statsBlock} style={{ "--n": visibleStats.length } as React.CSSProperties}>
+                  <h2 className={s.dataTitle}>지금 열려 있어요</h2>
+                  <ul className={s.stats}>
+                    {visibleStats.map((st) => (
+                      <li key={st.id}>
+                        <Link href={st.href} className={s.stat} data-track={`hero_data:${st.id}`}>
+                          <span className={s.statLabel}>{st.label}</span>
+                          <span className={s.statValue}>
+                            {st.value.toLocaleString()}
+                            <span className={s.statUnit}>{st.unit}</span>
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {deadlines.length > 0 && (
+                <div className={s.deadlineBlock} style={{ "--n": deadlines.length } as React.CSSProperties}>
+                  <div className={s.deadlineHead}>
+                    <h2 className={s.dataTitle}>마감이 가까운 지원사업</h2>
+                    <Link href="/programs" className={s.dataMore} data-track="hero_data:programs_all">
+                      전체 보기 <ArrowUpRight size={14} aria-hidden="true" />
+                    </Link>
+                  </div>
+                  <ul className={s.deadlines}>
+                    {deadlines.map((d) => (
+                      <li key={d.id}>
+                        <Link href={`/programs/${d.id}`} className={s.deadline} data-track={`hero_deadline:${d.id}`}>
+                          <span className={s.dBadge}>{dLabel(d.daysLeft)}</span>
+                          <span className={s.deadlineTitle}>{d.title}</span>
+                          {d.amount && <span className={s.deadlineAmount}>{d.amount}</span>}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </HeroMotionProvider>
     </section>
   );
 }
