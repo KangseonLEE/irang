@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import cs from "@/components/charts/chart-styles.module.css";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import s from "./lane-trend-chart.module.css";
 
 /* ── 브랜드 색상 (charts/ 래퍼와 같은 상수) ── */
@@ -98,6 +99,9 @@ function TrendTooltip({ active, payload, label, seriesLabel, unit, decimals }: T
  */
 export function LaneTrendChart({ points, seriesLabel, unit, decimals, target }: Props) {
   const gradientId = `laneTrend-${useId().replace(/:/g, "")}`;
+  /* 동작 줄이기 설정이면 그리기 애니메이션(900ms)을 끈다(10/3 QA). 서버 스냅샷 false — SSR 은 어차피 정적이라
+     하이드레이션 불일치가 없고, 크기를 재고 처음 그리는 시점(마운트 후)에는 실제 설정값이 들어와 있다 */
+  const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const lastIndex = points.length - 1;
   const values = points.map((p) => p.value).concat(target ? [target.value] : []);
   const max = Math.max(...values);
@@ -157,7 +161,7 @@ export function LaneTrendChart({ points, seriesLabel, unit, decimals, target }: 
               fill={`url(#${gradientId})`}
               dot={<TrendDot lastIndex={lastIndex} seriesLabel={seriesLabel} unit={unit} decimals={decimals} />}
               activeDot={{ r: 6, fill: COLOR_PRIMARY, stroke: "#fff", strokeWidth: 2 }}
-              isAnimationActive
+              isAnimationActive={!reduceMotion}
               animationDuration={900}
             />
           </AreaChart>

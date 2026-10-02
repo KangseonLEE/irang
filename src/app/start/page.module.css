@@ -33,6 +33,7 @@
   overflow: hidden;
   border-radius: 8px;
   background: linear-gradient(155deg, #1f5a4d 0%, #123b33 55%, #0d2e27 100%);
+  pointer-events: none; /* 장식(aria-hidden) — 누르면 감싼 링크가 받는다 */
 }
 
 .thumbImg {
@@ -186,7 +187,9 @@
   }
 
   .colHead {
-    padding: 0 12px 14px;
+    /* 위 8px — 머리 링크 포커스 링(오프셋 3 + 굵기 2 = 5px)이 .tableWrap(overflow-x: auto → y 도 잘림) 위로
+       넘어가 윗변이 잘리던 것(10/3 QA, 1024·1280·1440) */
+    padding: 8px 12px 14px;
     border-bottom: 1px solid var(--border, #e5e7eb);
     text-align: left;
     vertical-align: top;

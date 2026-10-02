@@ -38,13 +38,18 @@ import {
   type InterviewCategoryId,
   type TrendTypeId,
 } from "./landing";
-import { PROGRAMS, type SupportProgram } from "./programs";
+import { PROGRAMS, loadPrograms, type SupportProgram } from "./programs";
 import {
+  changePct,
   mountainData,
   populationData,
   satisfactionSegments,
   satisfactionSummary,
-  smartfarmData,
+  signedPct,
+  smartfarmAdoption,
+  smartfarmAreaData,
+  smartfarmEffect,
+  toCount,
   youthData,
 } from "./stats";
 import type { CropCost } from "./cost-by-type";
@@ -96,8 +101,8 @@ const LANE_INTERVIEW_TYPE: Record<HubLaneId, InterviewCategoryId> = {
   smartfarm: "smartfarm",
 };
 
-/** 한 섹션에 담는 최대치 — 넘치면 각 목록 페이지로 보낸다 */
-const MAX_PROGRAMS = 12;
+/** 한 섹션에 담는 최대치 — 넘치면 각 목록 페이지로 보낸다(탭 배지는 상한 전 전체 건수, 10/3) */
+export const MAX_PROGRAMS = 12;
 const MAX_CROPS = 6;
 const MAX_INTERVIEWS = 6;
 /** 레인마다 최소 이 개수는 채운다(못 채우면 규칙을 한 단계 넓힌다 — 아래 2차 규칙) */
@@ -134,6 +139,20 @@ function programsHrefFor(id: HubLaneId): string {
   const persona = LANE_PERSONA[id];
   if (persona) return `/programs?persona=${persona}`;
   return id === "forest" ? "/programs?q=산림" : "/programs?q=스마트팜";
+}
+
+/**
+ * 허브·비교 화면의 지원사업 원천 — `/programs` 목록과 같은 로더(DB 우선 + 정적 병합, 10/3).
+ * 정적 PROGRAMS 만 쓰면 DB 전용 활성 사업(크롤 수집분)이 빠져 `/programs?q=스마트팜` 과 허브 목록이 갈라진다
+ * (예: `crawl-rda-programs-aaacd312` "2027년 청년창업 스마트팜 지원사업"). 로더가 실패해도 화면은 정적 데이터로 선다.
+ */
+export async function loadHubPrograms(): Promise<SupportProgram[]> {
+  try {
+    const { programs } = await loadPrograms();
+    return programs.length > 0 ? programs : [...PROGRAMS];
+  } catch {
+    return [...PROGRAMS];
+  }
 }
 
 /* ── 작물 ── */
@@ -384,7 +403,7 @@ interface LaneTrend {
   /** 소수 자릿수(만 명 1.2 → 1, 가구 2,685 → 0) */
   decimals: number;
   points: LaneTrendPoint[];
-  /** 정책 목표선(스마트팜 2027 1만 호) */
+  /** 정책 목표선 — 공식 목표가 시계열과 같은 단위로 있을 때만(10/3: 근거 없던 "2027 1만 호" 제거) */
   target: { value: number; label: string } | null;
   headline: { value: string; label: string; sub: string };
   indicators: LaneIndicator[];
@@ -394,15 +413,29 @@ interface LaneTrend {
 
 const last = <T,>(arr: readonly T[]): T => arr[arr.length - 1];
 
-function growthPct(from: number, to: number): string {
-  const g = Math.round((to / from - 1) * 100);
-  return `${g >= 0 ? "+" : ""}${g}%`;
-}
-
 /** "23.4%" → 23.4 (랜딩 벤토 문자열이 SSOT 인 값만 — 숫자 원천이 따로 없을 때) */
 function pctOf(text: string): number {
   const n = Number.parseFloat(text.replace(/[^\d.]/g, ""));
   return Number.isFinite(n) ? n : 0;
+}
+
+/**
+ * 출처 이어 붙이기 — 같은 조사는 한 번만 (10/3 QA: "농림축산식품부 2025 귀농귀촌 실태조사 · 농림축산식품부
+ * 귀농귀촌 실태조사 (2024)"). 구분자는 " · " 만 본다(조사명 안의 "귀농·귀촌" 가운뎃점은 자르지 않는다).
+ * 연도·괄호·공백·가운뎃점만 다른 표기는 같은 조사로 보고 먼저 나온 표기를 남긴다.
+ */
+export function joinSources(...sources: string[]): string {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const part of sources.flatMap((src) => src.split(/\s+·\s+/))) {
+    const label = part.trim();
+    if (!label) continue;
+    const key = label.replace(/\([^)]*\)|\d{4}년?|[\s·]/g, "");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(label);
+  }
+  return out.join(" · ");
 }
 
 /**
@@ -428,10 +461,11 @@ function laneTrendFor(id: HubLaneId): LaneTrend {
       const youth = last(youthData);
       return {
         ...base,
-        seriesLabel: "귀농 인구",
-        unit: "만 명",
-        decimals: 2,
-        points: populationData.map((d) => ({ year: d.year, value: d.farming })),
+        // 10/3 정정: 귀농인은 연 1만 명 안팎이라 "0.84만 명"보다 명 단위가 읽기 쉽다
+        seriesLabel: "귀농인",
+        unit: "명",
+        decimals: 0,
+        points: populationData.map((d) => ({ year: d.year, value: toCount(d.farming) })),
         indicators: [
           { kind: "gauge", label: "청년 정착 비율", value: `${youth.ratio}%`, sub: `${youth.year}년 · 40세 미만`, pct: youth.ratio },
           {
@@ -442,14 +476,14 @@ function laneTrendFor(id: HubLaneId): LaneTrend {
             segments: satisfactionSegments,
           },
         ],
-        source: `${profile.source} · ${satisfactionSummary.source}`,
+        source: joinSources(profile.source, satisfactionSummary.source),
       };
     }
     case "guichon": {
       const [a, b] = profile.stats;
       return {
         ...base,
-        seriesLabel: "귀촌 인구",
+        seriesLabel: "귀촌인",
         unit: "만 명",
         decimals: 1,
         points: populationData.map((d) => ({ year: d.year, value: d.rural })),
@@ -488,8 +522,9 @@ function laneTrendFor(id: HubLaneId): LaneTrend {
         indicators: [
           {
             kind: "stat",
-            label: `${latest.year - first.year + 1}년간 증가율`,
-            value: growthPct(first.households, latest.households),
+            // 10/3 정정: 공식 귀산촌가구는 2018 43,155 → 2025 40,350(감소) — "증가율" 고정 라벨 제거, 부호는 값에서
+            label: `${latest.year - first.year + 1}년간 변화`,
+            value: signedPct(changePct(latest.households, first.households)),
             sub: `${first.year} → ${latest.year}`,
           },
           { kind: "stat", label: b.label, value: b.value, sub: b.sub },
@@ -498,26 +533,30 @@ function laneTrendFor(id: HubLaneId): LaneTrend {
       };
     }
     case "smartfarm": {
-      const latest = last(smartfarmData);
-      const goal = 10_000; // 정부 확산 목표 "1만 호"(랜딩 벤토 stats[1] "2027 목표")
-      const reached = Math.round((latest.farms / goal) * 100);
+      // 10/3 정정: '도입 농가 수' 시계열과 "2027 목표 1만 호"는 공식 근거가 없었다(정부 계획에 없음).
+      // 공식 보급 면적(NABO 2017~2021 · 농식품부 2023, 2022 미공표)과 공식 목표(스마트온실 도입률
+      // 2024 16% → 2030 35%, 2026 시행계획)로 바꾼다. 면적과 도입률은 단위가 달라 목표선은 그리지 않는다.
       return {
         ...base,
-        seriesLabel: "스마트팜 농가",
-        unit: "곳",
+        seriesLabel: "스마트온실 면적",
+        unit: "ha",
         decimals: 0,
-        points: smartfarmData.map((d) => ({ year: d.year, value: d.farms })),
-        // 추세선 위 점선으로 목표까지 남은 거리를 보여 준다
-        target: { value: goal, label: "2027 목표 1만 호" },
+        points: smartfarmAreaData.map((d) => ({ year: d.year, value: d.area })),
+        target: null,
         indicators: [
           {
             kind: "gauge",
-            label: "2027 목표 달성률",
-            value: `${reached}%`,
-            sub: `1만 호 중 ${latest.farms.toLocaleString()}곳 (${latest.year})`,
-            pct: reached,
+            label: "스마트온실 도입률",
+            value: `${smartfarmAdoption.pct}%`,
+            sub: `${smartfarmAdoption.year}년 · ${smartfarmAdoption.targetYear} 목표 ${smartfarmAdoption.targetPct}%`,
+            pct: smartfarmAdoption.pct,
           },
-          { kind: "stat", label: "시설면적", value: `${latest.area.toLocaleString()}ha`, sub: `${latest.year}년 전국 기준` },
+          {
+            kind: "stat",
+            label: "도입 농가 생산량",
+            value: signedPct(smartfarmEffect.output),
+            sub: "시설원예 도입 전후 · 농식품부",
+          },
         ],
         source: profile.source,
       };
@@ -566,8 +605,11 @@ const EVENT_RULES: Record<HubLaneId, (e: FarmEvent) => boolean> = {
   smartfarm: (e) => EDU_SMARTFARM.test(e.title),
 };
 
-/** 한 목록에 담는 최대치 — 페이지네이션 6건 × 4쪽. 넘치면 목록 페이지로 보낸다 */
-const MAX_OPPORTUNITIES = 24;
+/**
+ * 교육·체험 한 목록에 담는 최대치 — 페이지네이션 6건 × 4쪽. 넘치면 목록 페이지로 보낸다.
+ * `matchLane*` 는 **상한 없이** 전체를 돌려준다 — 탭 배지(전체 건수)와 목록(상한까지)이 같은 배열에서 나오게(10/3).
+ */
+export const MAX_OPPORTUNITIES = 24;
 
 const OPEN_RANK: Record<string, number> = { 모집중: 0, 접수중: 0, 모집예정: 1, 접수예정: 1 };
 
@@ -578,8 +620,7 @@ export function matchLaneEducation(courses: readonly EducationCourse[], id: HubL
       (a, b) =>
         (OPEN_RANK[a.status] ?? 2) - (OPEN_RANK[b.status] ?? 2) ||
         a.applicationEnd.localeCompare(b.applicationEnd),
-    )
-    .slice(0, MAX_OPPORTUNITIES);
+    );
 }
 
 export function matchLaneEvents(events: readonly FarmEvent[], id: HubLaneId): FarmEvent[] {
@@ -598,8 +639,7 @@ export function matchLaneEvents(events: readonly FarmEvent[], id: HubLaneId): Fa
       (a, b) =>
         (OPEN_RANK[a.status] ?? 2) - (OPEN_RANK[b.status] ?? 2) ||
         (a.applicationEnd ?? a.date).localeCompare(b.applicationEnd ?? b.date),
-    )
-    .slice(0, MAX_OPPORTUNITIES);
+    );
 }
 
 /* ── 허브 ── */
@@ -616,7 +656,10 @@ export interface LaneHub {
   costCards: LaneCostCard[];
   /** "왜 이 길을 택할까" 차트 구성 */
   trend: LaneTrend;
+  /** 목록에 싣는 지원사업 — 상한 {@link MAX_PROGRAMS} 까지 */
   programs: SupportProgram[];
+  /** 상한 전 전체 건수 = 타일 "N건"과 같은 수(탭 배지가 쓴다) */
+  programsTotal: number;
   programsHref: string;
   crops: CropInfo[];
   cropsHref: string;
@@ -632,6 +675,7 @@ export function buildLaneHub(
   const lane = JOURNEY_LANES.find((l) => l.id === id);
   const costType = LANE_COST_TYPE[id];
   const hasCostRows = Boolean(costType && CROP_COSTS_BY_TYPE[costType].length > 0);
+  const matchedPrograms = sortLanePrograms(matchLanePrograms(programs, id));
 
   return {
     id,
@@ -640,7 +684,8 @@ export function buildLaneHub(
     tiles: buildLaneStats([id], programs)[id],
     costCards: hasCostRows && costType ? costCardsFor(CROP_COSTS_BY_TYPE[costType]) : [],
     trend: laneTrendFor(id),
-    programs: sortLanePrograms(matchLanePrograms(programs, id)).slice(0, MAX_PROGRAMS),
+    programs: matchedPrograms.slice(0, MAX_PROGRAMS),
+    programsTotal: matchedPrograms.length,
     programsHref: programsHrefFor(id),
     crops: laneCrops(id),
     cropsHref: cropsHrefFor(id),

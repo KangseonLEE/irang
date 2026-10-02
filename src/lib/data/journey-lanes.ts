@@ -1,14 +1,20 @@
 /**
- * 히어로 여정 레인 데이터 (2026-09-29 회장 결재 — "히어로부터 시작이 나와야 한다", 1안).
+ * 정착 유형(여정 레인) 데이터 — `/start` 비교·`/start/<id>` 허브·랜딩 히어로 유형 카드의 SSOT.
  *
- * 히어로는 3단이다 (2026-09-29 S7 회장 구조):
+ * 히어로는 3단이었다 (2026-09-29 S7 회장 구조, 10/1 히어로 A안 전환 후 보관):
  *   ① 게이트 — "목적이 있어요" / "아직 고르는 중" 2장 (`JOURNEY_GATES`)
  *   ② 레인 — 목적이 있는 사람에게 5장 (`START_LANES`)
- *   ③ 선택 — 고른 레인의 요약(캐릭터·소개글·데이터 타일) → 탐색하기로 `/start/<id>` 허브
+ *   ③ 선택 — 고른 레인의 요약(소개글·데이터 타일) → 탐색하기로 `/start/<id>` 허브
  *
  * 계측: `data-track="journey_gate:<id>"` · `journey_lanes_pick:<id>` · `journey_lanes:<id>`
  * → LandingClickTracker 가 `landing_cta_click` 으로 수집(신규 이벤트 0).
  * 진단 진입(`data-assess-entry`)은 `/start` 비교 화면의 CTA 가 맡는다(라벨 `start_compare`).
+ *
+ * 이미지: 포스터 파일 실존은 런타임에 확인하지 않고(서버 번들이 public/ 전체를 추적하던 원인, 10/3)
+ * CI `check-cross-reference` H-2 가 보장한다. 캐릭터 일러스트(charImage)·게이트 포스터(decided)는
+ * 어디서도 그리지 않아 10/3 정리했다. 보관 히어로(hero-showcase·journey-lanes 컴포넌트)도 10/3 삭제돼
+ * undecided 포스터는 지금 어느 화면에서도 그리지 않는다 — 데이터 타입·데이터 테스트·H-2 가 이 경로를
+ * 전제로 해서 남겨 뒀다(후속: image 를 목적 레인 전용으로 좁히고 파일 삭제).
  */
 
 export interface JourneyLane {
@@ -20,21 +26,34 @@ export interface JourneyLane {
   /** 선택 화면 소개글 — "이 길이 무엇인지" 3문장 (카드에는 안 쓴다, 9/29 S4) */
   intro: string;
   href: string;
-  /** public 기준 경로 — 파일이 없으면 딥그린 그라데이션 플레이스홀더로 대체된다 */
+  /** 포스터(public 기준 경로) — 실존은 CI H-2 가 보장 */
   image: string;
-  /** 스크린리더용 일러스트 설명 */
+  /** 스크린리더용 포스터 설명 */
   alt: string;
-  /** 선택 패널에 쓰는 캐릭터 일러스트(흰 배경 정사각). 없으면 원형 틴트만 */
-  charImage: string;
 }
 
-/** 일러스트 존재 여부까지 판정된 렌더용 형태 */
+/** 보관 중인 히어로 게이트 카드 — "목적이 있어요"는 포스터가 없어 딥그린 플레이스홀더로 뜬다 */
+export type JourneyGate = Omit<JourneyLane, "image" | "alt"> & { image?: string; alt?: string };
+
+/**
+ * 카드 형태 — 이 형태로 그리던 히어로 여정 화면(`components/landing/journey-lanes.tsx`)은 10/3 삭제됐고, 지금은
+ * CI H-2(이미지 실존)와 데이터 테스트만 쓴다. 포스터가 없는 카드는 `hasImage: false`. `hasChar` 는 항상 false.
+ */
 export interface JourneyLaneCard extends JourneyLane {
   hasImage: boolean;
   hasChar: boolean;
+  charImage: string;
 }
 
-export const JOURNEY_LANES: readonly JourneyLane[] = [
+/** 1~10 → 고유어 수관형사 + "가지"("다섯 가지"), 그 밖은 숫자. 유형 수 문구는 배열 길이에서 만든다(하드코딩 금지) */
+const NATIVE_COUNT = ["한", "두", "세", "네", "다섯", "여섯", "일곱", "여덟", "아홉", "열"] as const;
+
+export function kindsLabel(n: number): string {
+  return `${Number.isInteger(n) && n >= 1 && n <= NATIVE_COUNT.length ? NATIVE_COUNT[n - 1] : n} 가지`;
+}
+
+/** 목적이 있는 사람에게 보여 주는 5장 — 순서가 곧 히어로·비교 화면·사이트맵 순서 */
+const PURPOSE_LANES: readonly JourneyLane[] = [
   {
     id: "guinong",
     label: "귀농",
@@ -44,7 +63,6 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
     href: "/start/guinong",
     image: "/landing/lanes/guinong.webp",
     alt: "이른 아침 과수원에서 사과를 수확하는 부부",
-    charImage: "/landing/lanes/char-guinong.webp",
   },
   {
     id: "guichon",
@@ -55,7 +73,6 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
     href: "/start/guichon",
     image: "/landing/lanes/guichon.webp",
     alt: "간이역 옆 돌담길을 걸어 마을로 들어서는 사람",
-    charImage: "/landing/lanes/char-guichon.webp",
   },
   {
     id: "forest",
@@ -66,7 +83,6 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
     href: "/start/forest",
     image: "/landing/lanes/forest.webp",
     alt: "산촌 마을 숲에서 표고목의 버섯을 따 바구니에 담는 사람",
-    charImage: "/landing/lanes/char-forest.webp",
   },
   {
     id: "youth",
@@ -77,7 +93,6 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
     href: "/start/youth",
     image: "/landing/lanes/youth.webp",
     alt: "밭 옆 트럭에 수확물을 싣고 드론을 바라보는 청년 농부",
-    charImage: "/landing/lanes/char-youth.webp",
   },
   {
     id: "smartfarm",
@@ -88,43 +103,40 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
     href: "/start/smartfarm",
     image: "/landing/lanes/smartfarm.webp",
     alt: "센서가 달린 스마트 온실에서 태블릿으로 작물을 관리하는 모습",
-    charImage: "/landing/lanes/char-smartfarm.webp",
   },
-  {
-    id: "undecided",
-    // 10/2 회장: "아직 고르는 중" 대신 지칭하는 말로 — 정부·지자체 공고가 쓰는 "예비 귀농·귀촌인"
-    label: "예비 귀농·귀촌인",
-    desc: "다섯 가지 시작 비교",
-    intro:
-      "아직 어떤 시작이 맞는지 정하지 못했다면 여기서부터예요. 2분 진단으로 내 유형을 알고, 그에 맞는 지역·작물·지원사업을 이어서 볼 수 있어요. 지금 고르지 않아도 괜찮아요.",
-    href: "/start",
-    image: "/landing/lanes/undecided.webp",
-    alt: "언덕 위에서 들판을 내려다보며 지도를 펼친 사람",
-    charImage: "/landing/lanes/char-undecided.webp",
-  },
-] as const;
+];
 
-/** 게이트 카드 1 — "이미 목적지가 있다" 쪽. 포스터가 없으면 딥그린 플레이스홀더로 뜬다 */
-const DECIDED_GATE: JourneyLane = {
+/** 아직 고르지 못한 사람 — 비교 화면(`/start`)으로 보낸다 */
+const UNDECIDED_LANE: JourneyLane = {
+  id: "undecided",
+  // 10/2 회장: "아직 고르는 중" 대신 지칭하는 말로 — 정부·지자체 공고가 쓰는 "예비 귀농·귀촌인"
+  label: "예비 귀농·귀촌인",
+  desc: `${kindsLabel(PURPOSE_LANES.length)} 시작 비교`,
+  intro:
+    "아직 어떤 시작이 맞는지 정하지 못했다면 여기서부터예요. 2분 진단으로 내 유형을 알고, 그에 맞는 지역·작물·지원사업을 이어서 볼 수 있어요. 지금 고르지 않아도 괜찮아요.",
+  href: "/start",
+  image: "/landing/lanes/undecided.webp",
+  alt: "언덕 위에서 들판을 내려다보며 지도를 펼친 사람",
+};
+
+export const JOURNEY_LANES: readonly JourneyLane[] = [...PURPOSE_LANES, UNDECIDED_LANE];
+
+/** 게이트 카드 1 — "이미 목적지가 있다" 쪽(보관 중인 히어로 화면 전용). 포스터 없음 → 딥그린 플레이스홀더 */
+const DECIDED_GATE: JourneyGate = {
   id: "decided",
   label: "목적이 있어요",
-  desc: "귀농·귀촌·귀산촌·청년농·스마트팜 중에서 골라요",
+  desc: `${PURPOSE_LANES.map((l) => l.label).join("·")} 중에서 골라요`,
   intro:
     "어떤 시작인지 이미 정했다면 바로 그 길만 보면 돼요. 고른 여정의 지원사업·작물·비용·사람 이야기를 한 화면에 모아 드려요.",
   href: "/start",
-  image: "/landing/lanes/decided.webp",
-  alt: "들판 갈림길에서 한쪽 길을 골라 걸어가는 사람",
-  charImage: "/landing/lanes/char-undecided.webp",
 };
 
-/** 히어로 첫 화면의 두 갈래 — [목적이 있어요, 아직 고르는 중] */
-export const JOURNEY_GATES: readonly JourneyLane[] = [
+/** 히어로 첫 화면의 두 갈래 — [목적이 있어요, 아직 고르는 중] (보관 중인 히어로 화면 전용) */
+export const JOURNEY_GATES: readonly JourneyGate[] = [
   DECIDED_GATE,
   // 보관 중인 게이트 화면은 "목적이 있어요"와 짝을 이루는 문장형 라벨을 그대로 쓴다
-  { ...JOURNEY_LANES[JOURNEY_LANES.length - 1], label: "아직 고르는 중" },
-] as const;
+  { ...UNDECIDED_LANE, label: "아직 고르는 중" },
+];
 
 /** 목적이 있는 사람에게 보여 주는 5장 (게이트 카드로 쓰는 undecided 제외) */
-export const START_LANES: readonly JourneyLane[] = JOURNEY_LANES.filter(
-  (l) => l.id !== "undecided",
-);
+export const START_LANES: readonly JourneyLane[] = PURPOSE_LANES;

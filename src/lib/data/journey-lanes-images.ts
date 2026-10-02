@@ -1,37 +1,38 @@
 /**
- * 레인 일러스트 존재 판정 (서버 전용 — `node:fs`).
+ * 레인 → 렌더용 카드(`JourneyLaneCard`) 변환.
  *
- * `public/landing/lanes/*.webp` 가 아직 없어도 빌드·렌더가 깨지지 않아야 한다(회장이 codex 로 순차 생성).
- * 없으면 카드는 딥그린 그라데이션만 깔고, 파일이 들어오면 다음 렌더부터 자동 노출된다.
+ * 10/3: 런타임 파일 존재 판정(`existsSync(public/…)`)을 없앴다. `process.cwd()/public` 을 읽는 코드가 있으면
+ * Next 파일 추적이 `/start`·`/start/[lane]` 서버 번들에 public/ 전체(160파일·20MB)를 싣는다.
+ * 포스터 실존은 CI `scripts/check-cross-reference.ts` H-2 가 보장하므로, 여기서는 "경로가 있으면 그린다"만 판단한다.
+ * (`outputFileTracingExcludes` 로 public/ 만 빼는 우회는 쓰지 않는다 — 서버리스의 ISR 재생성에는 파일이 없어
+ *  판정이 false 로 뒤집히고 포스터가 조용히 사라진다.)
+ *
  * 데이터 모듈(`journey-lanes.ts`)과 분리한 이유: 그쪽은 클라이언트 컴포넌트가 **타입**으로 참조한다.
  */
 
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-import { JOURNEY_GATES, START_LANES, type JourneyLane, type JourneyLaneCard } from "./journey-lanes";
+import { JOURNEY_GATES, START_LANES, type JourneyGate, type JourneyLaneCard } from "./journey-lanes";
 
-const pub = (p: string) => existsSync(join(process.cwd(), "public", p));
-
-function resolve(list: readonly JourneyLane[]): readonly JourneyLaneCard[] {
-  return list.map((lane) => ({
+function toCard(lane: JourneyGate): JourneyLaneCard {
+  return {
     ...lane,
-    hasImage: pub(lane.image),
-    hasChar: pub(lane.charImage),
-  }));
+    image: lane.image ?? "",
+    alt: lane.alt ?? "",
+    hasImage: Boolean(lane.image),
+    // 캐릭터 일러스트는 10/3 정리 — 카드 형태 호환 필드만 남는다(그리던 화면도 10/3 삭제)
+    hasChar: false,
+    charImage: "",
+  };
 }
 
-/** 파일 존재 판정은 프로세스당 1회 — ISR 재생성마다 stat 하지 않는다 */
-let cachedLanes: readonly JourneyLaneCard[] | null = null;
-let cachedGates: readonly JourneyLaneCard[] | null = null;
+const LANE_CARDS: readonly JourneyLaneCard[] = START_LANES.map(toCard);
+const GATE_CARDS: readonly JourneyLaneCard[] = JOURNEY_GATES.map(toCard);
 
 /** 목적이 있는 사람에게 보여 주는 5장 */
 export function resolveJourneyLanes(): readonly JourneyLaneCard[] {
-  cachedLanes ??= resolve(START_LANES);
-  return cachedLanes;
+  return LANE_CARDS;
 }
 
-/** 히어로 첫 화면의 두 갈래 */
+/** 히어로 첫 화면의 두 갈래 (보관 중인 히어로 화면 전용) */
 export function resolveJourneyGates(): readonly JourneyLaneCard[] {
-  cachedGates ??= resolve(JOURNEY_GATES);
-  return cachedGates;
+  return GATE_CARDS;
 }

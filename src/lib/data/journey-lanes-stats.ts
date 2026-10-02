@@ -16,7 +16,7 @@ import {
   populationSummary,
   mountainData,
   mountainSummary,
-  smartfarmData,
+  smartfarmAreaData,
   smartfarmSummary,
   youthData,
   youthSummary,
@@ -111,9 +111,11 @@ export function isSmartfarmProgram(p: SupportProgram): boolean {
 /**
  * "지금 볼 수 있는" 지원사업 — 마감은 빼고, 일자 미확정(9999 페어)이라도 연례 창구형
  * (`applicationCycle`: "매년 12월 시·군·구 접수")은 남긴다. 목록·상세가 "정기 접수"로 보여 주는 건들이다(9/27).
+ * 원문 링크가 깨진 DB 행은 `/programs` 목록처럼 뺀다 — 허브가 DB 로더를 쓰면서 같은 기준이 필요해졌다(10/3).
  */
 export function activePrograms(programs: readonly SupportProgram[]): SupportProgram[] {
   return programs.filter((p) => {
+    if (p.linkStatus === "broken") return false;
     if (deriveStatus(p.applicationStart, p.applicationEnd) === "마감") return false;
     if (isUnannounced(p.applicationStart, p.applicationEnd)) return Boolean(p.applicationCycle);
     return true;
@@ -245,7 +247,8 @@ function trendTile(laneId: string): LaneTile | null {
     const b = prev(populationData);
     return {
       value: pct(a.farming, b.farming),
-      label: `${a.year}년 귀농 인구`,
+      // 10/3 정정: 귀농인(등록 본인)·귀촌인(동반가구원 포함)은 세는 방식이 달라 "인구"로 뭉뚱그리지 않는다
+      label: `${a.year}년 귀농인`,
       source: populationSummary.source,
     };
   }
@@ -254,7 +257,7 @@ function trendTile(laneId: string): LaneTile | null {
     const b = prev(populationData);
     return {
       value: pct(a.rural, b.rural),
-      label: `${a.year}년 귀촌 인구`,
+      label: `${a.year}년 귀촌인`,
       source: populationSummary.source,
     };
   }
@@ -276,19 +279,21 @@ function trendTile(laneId: string): LaneTile | null {
     };
   }
   if (laneId === "smartfarm") {
-    const a = last(smartfarmData);
-    const b = prev(smartfarmData);
+    // 10/3 정정: '도입 농가 수' 시계열은 공식 근거가 없어 공식 보급 면적(ha)으로. 2022년 값이 없어
+    // (NABO 2017~2021 + 농식품부 2023) 전년 대비는 계산하지 않고 최신 면적을 그대로 보여 준다.
+    const a = last(smartfarmAreaData);
     return {
-      value: pct(a.farms, b.farms),
-      label: `${a.year}년 도입 농가`,
+      value: `${a.area.toLocaleString("ko-KR")}ha`,
+      label: `${a.year}년 스마트온실 면적`,
       source: smartfarmSummary.source,
     };
   }
-  // undecided — 귀농·귀촌을 합쳐 본 전체 흐름
+  // undecided — 귀농·귀촌을 합쳐 본 전체 흐름. 농식품부 "귀농귀촌 인구" 관례(귀농가구원 + 귀촌인) — 귀촌인이
+  // 동반가구원까지 세므로 짝도 귀농가구원이어야 셈법이 맞는다(10/3)
   const a = last(populationData);
   const b = prev(populationData);
   return {
-    value: pct(a.farming + a.rural, b.farming + b.rural),
+    value: pct(a.farmingMembers + a.rural, b.farmingMembers + b.rural),
     label: `${a.year}년 농촌 이주`,
     source: populationSummary.source,
   };

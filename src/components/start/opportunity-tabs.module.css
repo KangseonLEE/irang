@@ -33,10 +33,16 @@
   justify-content: center;
 }
 
+/* 배지가 "전체 건수" 정보를 담으므로 opacity 로 흐리지 않는다 — .75 는 비활성 3.0:1·활성 4.36:1 로 대비 미달(10/3 재검증).
+   비활성은 보조 글자색(흰 바탕 4.8:1), 활성은 탭 글자색을 그대로. */
 .count {
   font-size: var(--fs-caption, 0.8125rem);
   font-weight: 700;
-  opacity: 0.75;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.tabActive .count {
+  color: inherit;
 }
 
 .panel {
@@ -44,6 +50,20 @@
   flex-direction: column;
   gap: 16px;
   min-width: 0;
+  /* 페이지를 넘기면 위로 스크롤해 패널 머리에 붙는다 — 위로 가는 순간 헤더가 다시 나타나므로
+     --sticky-top(현재 상태)이 아니라 헤더 높이 상수 기준(CLAUDE.md sticky 규칙) */
+  scroll-margin-top: calc(var(--h-header, 56px) + 12px);
+}
+
+/* 페이지 이동 뒤 포커스 자리(tabIndex -1) — 키보드로 넘겼을 때만 링을 보인다 */
+.panel:focus {
+  outline: none;
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 6px;
+  border-radius: 8px;
 }
 
 .panel[hidden],
@@ -56,6 +76,20 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
+}
+
+.moreRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px 10px;
+  margin: 0;
+}
+
+.capNote {
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
 }
 
 .more {
@@ -92,7 +126,7 @@
     justify-content: space-between;
   }
 
-  .footer > .more:only-child {
+  .footer > .moreRow:only-child {
     margin-left: auto;
   }
 }

@@ -4,20 +4,33 @@ import Image from "next/image";
 import { Compass } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { PersonaCta } from "@/components/persona/persona-cta";
-import { buildLaneCompare } from "@/lib/data/journey-lanes-hub";
-import { resolveJourneyLanes } from "@/lib/data/journey-lanes-images";
+import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { buildLaneCompare, loadHubPrograms } from "@/lib/data/journey-lanes-hub";
+import { START_LANES, kindsLabel } from "@/lib/data/journey-lanes";
+import { startShareMetadata } from "./start-metadata";
 import s from "./page.module.css";
 
+/* 지원사업 건수는 DB(`/programs` 와 같은 로더) + 오늘 날짜로 센다 — 배포 시점에 굳지 않게 랜딩·허브와 같은 6시간 주기.
+   searchParams 를 쓰지 않는 화면이라 ISR 안전(2026-05-11 lessons: searchParams 페이지에만 revalidate 금지) */
+export const revalidate = 21600;
+
+/** 유형 이름·수는 레인 배열에서 센다 — 유형이 늘면 문구가 같이 따라온다(하드코딩 금지) */
+const LANE_NAMES = START_LANES.map((l) => l.label).join("·");
+const LANE_KINDS = kindsLabel(START_LANES.length);
+const DESCRIPTION = `${LANE_NAMES} ${LANE_KINDS} 시작을 지원사업 수, 진입 난이도, 추세, 초기 투자금으로 나란히 비교해요.`;
+
 export const metadata: Metadata = {
-  title: "어떤 시작이 나에게 맞을까요? — 귀농·귀촌·귀산촌·청년농·스마트팜 비교",
-  description:
-    "귀농·귀촌·귀산촌·청년농·스마트팜 다섯 가지 시작을 지원사업 수, 진입 난이도, 추세, 초기 투자금으로 나란히 비교해요.",
+  title: `어떤 시작이 나에게 맞을까요? — ${LANE_NAMES} 비교`,
+  description: DESCRIPTION,
   alternates: { canonical: "/start" },
+  ...startShareMetadata({ title: "어떤 시작이 나에게 맞을까요? | 이랑", description: DESCRIPTION, path: "/start" }),
 };
 
-export default function StartComparePage() {
-  const posters = new Map(resolveJourneyLanes().map((l) => [l.id, l]));
-  const columns = buildLaneCompare().map((row) => ({
+export default async function StartComparePage() {
+  const programs = await loadHubPrograms();
+  const posters = new Map(START_LANES.map((l) => [l.id, l]));
+  const columns = buildLaneCompare(programs).map((row) => ({
     ...row,
     poster: posters.get(row.id),
   }));
@@ -29,18 +42,19 @@ export default function StartComparePage() {
 
   return (
     <div className={s.page}>
+      <BreadcrumbJsonLd items={[{ name: "정착 유형", href: "/start" }]} />
       <PageHeader
         icon={<Compass size={18} aria-hidden="true" />}
         label="START"
         title="어떤 시작이 나에게 맞을까요?"
-        description="다섯 가지 시작을 같은 기준으로 나란히 놓고 골라 보세요."
+        description={`${LANE_KINDS} 시작을 같은 기준으로 나란히 놓고 골라 보세요.`}
         count={columns.length}
       />
 
       {/* 1024+ 비교 표 — 열이 레인, 행이 지표. <1024 는 아래 카드 스택이 담당 */}
       <div className={s.tableWrap}>
         <table className={s.table}>
-          <caption className={s.srOnly}>다섯 가지 시작 비교표</caption>
+          <caption className={s.srOnly}>{LANE_KINDS} 시작 비교표</caption>
           <thead>
             <tr>
               <th scope="col" className={s.rowHead}>
@@ -50,13 +64,15 @@ export default function StartComparePage() {
                 <th key={c.id} scope="col" className={s.colHead}>
                   <Link href={c.href} className={s.colLink} data-track={`start_compare:${c.id}`}>
                     <span className={s.thumb} aria-hidden="true">
-                      {c.poster?.hasImage && (
-                        <Image src={c.poster.image} alt="" fill sizes="120px" className={s.thumbImg} />
+                      {c.poster && (
+                        <Image src={c.poster.image} alt="" fill sizes="56px" className={s.thumbImg} />
                       )}
                     </span>
                     <span className={s.colName}>{c.label}</span>
                   </Link>
-                  <p className={s.colIntro}>{c.intro}</p>
+                  <p className={s.colIntro}>
+                    <AutoGlossary text={c.intro} />
+                  </p>
                 </th>
               ))}
             </tr>
@@ -109,13 +125,13 @@ export default function StartComparePage() {
           <li key={c.id} className={s.stackCard}>
             <Link href={c.href} className={s.stackHead} data-track={`start_compare:${c.id}`}>
               <span className={s.thumb} aria-hidden="true">
-                {c.poster?.hasImage && (
-                  <Image src={c.poster.image} alt="" fill sizes="88px" className={s.thumbImg} />
-                )}
+                {c.poster && <Image src={c.poster.image} alt="" fill sizes="56px" className={s.thumbImg} />}
               </span>
               <span className={s.stackName}>{c.label}</span>
             </Link>
-            <p className={s.colIntro}>{c.intro}</p>
+            <p className={s.colIntro}>
+              <AutoGlossary text={c.intro} />
+            </p>
             <ul className={s.tiles}>
               {c.tiles.map((t) => (
                 <li key={t.label} className={s.tile}>

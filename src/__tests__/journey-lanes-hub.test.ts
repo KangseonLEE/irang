@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   buildLaneCompare,
@@ -363,6 +363,104 @@ describe("여정 레인 허브 — 비용 카드·차트·교육·체험 (10/2)"
         expect(["map", "wallet", "trend", "compass"]).toContain(step.icon);
         expect(`${step.label} ${step.desc}`, hub.id).not.toMatch(/단계|다음 걸음/);
       }
+    }
+  });
+});
+
+describe("여정 레인 허브 — 건수·원천·출처 (10/3 QA)", () => {
+  it("탭 배지 건수(programsTotal) = 타일 'N건' = 규칙 전체, 목록은 상한까지", async () => {
+    const { MAX_PROGRAMS } = await import("@/lib/data/journey-lanes-hub");
+    for (const hub of hubs) {
+      const matched = matchLanePrograms(PROGRAMS, hub.id);
+      const tile = hub.tiles.find((t) => t.label === "지금 볼 수 있는 지원사업")!;
+      expect(hub.programsTotal, hub.id).toBe(matched.length);
+      expect(tile.value, hub.id).toBe(`${hub.programsTotal}건`);
+      expect(hub.programs.length, hub.id).toBe(Math.min(hub.programsTotal, MAX_PROGRAMS));
+    }
+    // 귀농은 상한(12)을 넘는다 — 배지가 목록 길이를 쓰면 "32건" 옆에 "12"가 뜨던 사례
+    const guinong = hubs.find((h) => h.id === "guinong")!;
+    expect(guinong.programsTotal).toBeGreaterThan(guinong.programs.length);
+  });
+
+  it("교육·체험 매칭은 상한 없이 전부 돌려준다 — 배지는 전체, 목록은 페이지가 자른다", async () => {
+    const { matchLaneEducation, matchLaneEvents, MAX_OPPORTUNITIES } = await import("@/lib/data/journey-lanes-hub");
+    const n = MAX_OPPORTUNITIES + 9;
+    const courses = Array.from(
+      { length: n },
+      (_, i) => ({ id: `c${i}`, title: `예비귀농인 재배 실습 ${i}`, status: "모집중", description: "", applicationEnd: "2026-12-31" }) as never,
+    );
+    const events = Array.from(
+      { length: n },
+      (_, i) => ({ id: `e${i}`, title: `귀농 살아보기 ${i}`, status: "접수중", villageType: "귀농형", date: "2026-10-01" }) as never,
+    );
+    expect(matchLaneEducation(courses, "guinong")).toHaveLength(n);
+    expect(matchLaneEvents(events, "guinong")).toHaveLength(n);
+  });
+
+  it("DB 전용 활성 사업도 허브·비교 화면에 들어간다 (loadPrograms 원천)", () => {
+    const dbOnly = {
+      ...PROGRAMS[0],
+      id: "crawl-rda-programs-test",
+      title: "2027년 청년창업 스마트팜 지원사업",
+      summary: "스마트팜 청년 창업 지원",
+      applicationStart: "2026-01-01",
+      applicationEnd: "2099-12-31",
+      applicationCycle: undefined,
+      linkStatus: undefined,
+    };
+    const hub = buildLaneHub("smartfarm", [...PROGRAMS, dbOnly]);
+    expect(hub.programs.map((p) => p.id)).toContain(dbOnly.id);
+    const base = buildLaneHub("smartfarm");
+    expect(hub.programsTotal).toBe(base.programsTotal + 1);
+    const row = buildLaneCompare([...PROGRAMS, dbOnly]).find((r) => r.id === "smartfarm")!;
+    expect(row.tiles[0].value).toBe(`${hub.programsTotal}건`);
+  });
+
+  it("원문 링크가 깨진 DB 행은 '지금 볼 수 있는' 에서 뺀다 (/programs 목록과 같은 기준)", () => {
+    const broken = {
+      ...PROGRAMS[0],
+      id: "crawl-broken",
+      title: "스마트팜 깨진 링크 사업",
+      applicationStart: "2026-01-01",
+      applicationEnd: "2099-12-31",
+      linkStatus: "broken" as const,
+    };
+    expect(matchLanePrograms([...PROGRAMS, broken], "smartfarm").map((p) => p.id)).not.toContain("crawl-broken");
+  });
+
+  it("출처 줄에 같은 조사가 두 번 나오지 않는다 (연도·괄호 표기만 다른 것)", async () => {
+    const { joinSources } = await import("@/lib/data/journey-lanes-hub");
+    expect(
+      joinSources("통계청 · 농림축산식품부 2025 귀농귀촌 실태조사", "농림축산식품부 귀농귀촌 실태조사 (2024)"),
+    ).toBe("통계청 · 농림축산식품부 2025 귀농귀촌 실태조사");
+    // 조사명 안의 가운뎃점("귀농·귀촌")은 자르지 않는다
+    expect(joinSources("농림축산식품부, 2023 귀농·귀촌 실태조사")).toBe("농림축산식품부, 2023 귀농·귀촌 실태조사");
+    for (const hub of hubs) {
+      const keys = hub.trend.source
+        .split(" · ")
+        .map((part) => part.replace(/\([^)]*\)|\d{4}년?|[\s·]/g, ""));
+      expect(new Set(keys).size, `${hub.id}: ${hub.trend.source}`).toBe(keys.length);
+    }
+  });
+
+  it("유형 수 문구는 배열 길이에서 만든다 (kindsLabel)", async () => {
+    const { kindsLabel, START_LANES } = await import("@/lib/data/journey-lanes");
+    expect(kindsLabel(5)).toBe("다섯 가지");
+    expect(kindsLabel(1)).toBe("한 가지");
+    expect(kindsLabel(10)).toBe("열 가지");
+    expect(kindsLabel(12)).toBe("12 가지");
+    const undecided = JOURNEY_LANES.find((l) => l.id === "undecided")!;
+    expect(undecided.desc).toBe(`${kindsLabel(START_LANES.length)} 시작 비교`);
+  });
+
+  it("레인 데이터 모듈은 파일 시스템을 읽지 않는다 — 서버 번들이 public/ 전체를 추적하던 원인 (10/3)", () => {
+    const dir = join(process.cwd(), "src", "lib", "data");
+    for (const file of readdirSync(dir).filter((f) => f.startsWith("journey-lanes"))) {
+      // 주석은 빼고 본다(이 사고를 설명하는 주석이 있다)
+      const code = readFileSync(join(dir, file), "utf8")
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/(^|[^:])\/\/.*$/gm, "$1");
+      expect(code, file).not.toMatch(/from\s+["'](node:)?fs["']|existsSync|readFileSync|process\.cwd\(\)/);
     }
   });
 });
