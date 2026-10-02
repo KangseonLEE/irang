@@ -5,7 +5,7 @@
 .card {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 20px 16px;
   display: flex;
   flex-direction: column;
@@ -75,7 +75,7 @@
 
 .chip {
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   color: var(--primary, #1b6b5a);
   font-size: var(--fs-caption);
@@ -95,7 +95,7 @@
   justify-content: center;
   gap: 6px;
   padding: 11px 14px;
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: var(--fs-body-sm);
   font-weight: 700;
   min-height: 44px;

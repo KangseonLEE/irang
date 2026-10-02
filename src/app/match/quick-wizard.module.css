@@ -65,7 +65,7 @@
   color: var(--muted-foreground);
   background: none;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
   font-family: inherit;
@@ -100,7 +100,7 @@
   align-items: center;
   gap: 4px;
   padding: 3px 10px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   color: var(--primary, #1b6b5a);
   font-size: var(--fs-caption);
@@ -189,7 +189,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--muted, #f9fafb);
   color: var(--muted-foreground, #6b7280);
   font-size: var(--fs-body-sm);
@@ -233,7 +233,7 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: transparent;
   border: 1px solid var(--border, #e5e7eb);
   color: var(--muted-foreground);
@@ -261,7 +261,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 24px 20px;
-  border-radius: 20px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, var(--card, #fff));
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
 }
@@ -302,7 +302,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--card, #fff);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
   align-self: flex-start;
@@ -339,7 +339,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
@@ -367,7 +367,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   color: var(--primary, #1b6b5a);
 }
@@ -413,7 +413,7 @@
   display: flex;
   gap: 14px;
   padding: 18px 20px;
-  border-radius: 16px;
+  border-radius: 8px;
   background: color-mix(in srgb, #d4730d 6%, transparent);
   border: 1px solid color-mix(in srgb, #d4730d 22%, transparent);
 }
@@ -471,7 +471,7 @@
   color: #fff;
   background: #d4730d;
   border: none;
-  border-radius: 10px;
+  border-radius: 4px;
   text-decoration: none;
   transition: opacity 0.15s, box-shadow 0.15s;
   font-family: inherit;
@@ -500,7 +500,7 @@
   color: #d4730d;
   background: transparent;
   border: 1px solid color-mix(in srgb, #d4730d 35%, transparent);
-  border-radius: 10px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
   font-family: inherit;

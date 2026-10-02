@@ -24,7 +24,7 @@
 .principleBox {
   padding: 20px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--card, #fff));
 }
 
@@ -83,7 +83,7 @@
 .dimCard {
   padding: 18px 20px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--card, #fff);
 }
 
@@ -130,7 +130,7 @@
 .dimNote {
   margin: 14px 0 0;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, transparent);
   font-size: 13px;
   color: var(--foreground);
@@ -157,7 +157,7 @@
   padding: 8px 4px;
   color: var(--muted-foreground);
   background: color-mix(in srgb, var(--border, #e5e7eb) 30%, transparent);
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 12px;
   letter-spacing: 0.02em;
 }
@@ -174,7 +174,7 @@
 .weightCell {
   text-align: center;
   padding: 10px 4px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   font-size: 14px;
@@ -212,7 +212,7 @@
   margin-top: 16px;
   padding: 20px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1B6B5A) 6%, var(--card, #fff));
 }
 

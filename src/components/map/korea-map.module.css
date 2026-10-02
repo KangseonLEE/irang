@@ -84,7 +84,7 @@
 .legendBar {
   width: 120px;
   height: 10px;
-  border-radius: 5px;
+  border-radius: 4px;
   background: linear-gradient(
     to right,
     color-mix(in srgb, var(--primary, #1b6b5a) 12%, white),

@@ -29,8 +29,8 @@ export default function CropDetailLoading() {
             ))}
           </div>
           <div className={s.ctaRow}>
-            <div className={s.skeleton} style={{ width: 160, height: 40, borderRadius: 8 }} />
-            <div className={s.skeleton} style={{ width: 120, height: 40, borderRadius: 8 }} />
+            <div className={s.skeleton} style={{ width: 160, height: 40, borderRadius: 4 }} />
+            <div className={s.skeleton} style={{ width: 120, height: 40, borderRadius: 4 }} />
           </div>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function CropDetailLoading() {
               <div className={s.sectionTitle} style={{ width: 100 }} />
               <div className={s.sidebarTags}>
                 {[0, 1, 2].map((j) => (
-                  <div key={j} className={s.skeleton} style={{ width: 80, height: 32, borderRadius: 8 }} />
+                  <div key={j} className={s.skeleton} style={{ width: 80, height: 32, borderRadius: 4 }} />
                 ))}
               </div>
             </div>

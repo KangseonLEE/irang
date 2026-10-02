@@ -27,7 +27,7 @@
   color: var(--foreground, #111827);
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 9999px;
+  border-radius: 4px;
   cursor: pointer;
   white-space: nowrap;
   transition: border-color 0.15s, background-color 0.15s, color 0.15s;
@@ -63,7 +63,7 @@
   max-width: 280px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 14px;
+  border-radius: 8px;
   box-shadow:
     0 4px 12px color-mix(in srgb, #000 8%, transparent),
     0 12px 32px color-mix(in srgb, #000 12%, transparent);
@@ -117,7 +117,7 @@
   color: var(--foreground, #111827);
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   text-align: left;
   white-space: nowrap;

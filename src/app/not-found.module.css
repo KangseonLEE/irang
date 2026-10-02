@@ -44,7 +44,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--primary, #1b6b5a);
   padding: 0.5rem 1rem;
   font-size: var(--fs-body-sm);
@@ -65,7 +65,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 10px;
+  border-radius: 4px;
   border: 1px solid var(--border, #e5e7eb);
   padding: 0.5rem 1rem;
   font-size: var(--fs-body-sm);

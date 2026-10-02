@@ -135,7 +135,7 @@
   margin-top: 4px;
   padding: 10px 22px;
   border: 1px solid #fff;
-  border-radius: 100px;
+  border-radius: 4px;
   background: #fff;
   color: var(--primary-dark, #0d2e27);
   font-size: 0.9375rem;

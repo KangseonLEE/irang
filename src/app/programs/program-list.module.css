@@ -35,7 +35,7 @@
   align-items: center;
   margin-left: 6px;
   padding: 1px 6px;
-  border-radius: 999px;
+  border-radius: 4px;
   font-size: 10px;
   font-weight: 700;
   color: var(--primary-foreground);

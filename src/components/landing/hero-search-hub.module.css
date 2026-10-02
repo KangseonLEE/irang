@@ -535,7 +535,7 @@
   padding: 12px;
   /* 유리 카드 (10/2) — 어두운 반투명 + blur + 흰 1px 테두리 */
   border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--glass-card, rgba(6, 26, 21, 0.36));
   -webkit-backdrop-filter: blur(12px) saturate(1.1);
   backdrop-filter: blur(12px) saturate(1.1);
@@ -607,10 +607,10 @@
 .typeDesc {
   grid-area: desc;
   margin-top: 2px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  /* 10/2 회장: 설명은 한 줄로만 — 문구를 짧게 맞췄고, 좁은 폭에서 넘치면 말줄임 */
   overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: 0.8125rem;
   font-weight: 400;
   line-height: 1.45;
@@ -685,7 +685,7 @@
 @media (min-width: 1024px) {
   .typeCard {
     padding: 16px;
-    border-radius: 8px;
+    border-radius: 4px;
   }
 
   .thumb {
@@ -709,18 +709,22 @@
   }
 }
 
-/* 지금 문장에 나온 유형 — 단어·배경과 같은 순간 강조(HeroRotator 가 data-active 를 옮긴다).
+/* 강조 카드 (10/2 회장: 문장 속 유형어와 싱크하지 않는다 — 글자는 글자대로 돈다).
+   - <768: 캐러셀에서 지금 스냅된 카드(HeroTypeCarousel 이 data-active 를 옮긴다)
+   - 768+: 마우스를 올린 카드만(아래 hover 규칙). data-active 는 무시한다.
    유리 문법: 테두리를 흰색으로 진하게 + 바탕을 초록 기운으로 살짝 밝게 + 화살표 흰 원.
    (흰 덧칠로 밝히면 흰 글씨 대비가 떨어진다 — 밝기는 초록 채도로만 올린다) */
-.typeCard[data-active] {
-  border-color: rgba(255, 255, 255, 0.95);
-  background: var(--glass-card-active, rgba(22, 78, 64, 0.62));
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-}
+@media (max-width: 767px) {
+  .typeCard[data-active] {
+    border-color: rgba(255, 255, 255, 0.95);
+    background: var(--glass-card-active, rgba(22, 78, 64, 0.62));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  }
 
-.typeCard[data-active] .typeArrow {
-  background: #fff;
-  color: var(--primary, #1b6b5a);
+  .typeCard[data-active] .typeArrow {
+    background: #fff;
+    color: var(--primary, #1b6b5a);
+  }
 }
 
 @media (hover: hover) {
@@ -728,6 +732,7 @@
   .typeCard:hover {
     border-color: rgba(255, 255, 255, 0.95);
     background: var(--glass-card-active, rgba(22, 78, 64, 0.62));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
   }
 
   .typeCard:hover .typeArrow {
@@ -758,7 +763,7 @@
   padding: 16px;
   /* 큰 유리 박스 (10/2) */
   border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--glass-panel, rgba(6, 26, 21, 0.4));
   -webkit-backdrop-filter: blur(14px) saturate(1.1);
   backdrop-filter: blur(14px) saturate(1.1);
@@ -769,7 +774,7 @@
   .data {
     gap: 20px;
     padding: 20px 24px;
-    border-radius: 8px;
+    border-radius: 4px;
   }
 }
 
@@ -936,7 +941,7 @@
 .dataMore:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 @media (hover: hover) {

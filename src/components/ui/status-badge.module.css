@@ -4,7 +4,7 @@
   font-size: var(--fs-overline, 11px);
   font-weight: 600;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   white-space: nowrap;
   line-height: var(--lh-tight);
 }

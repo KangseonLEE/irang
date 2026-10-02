@@ -185,7 +185,7 @@
   align-items: center;
   padding: 8px 14px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-full, 999px);
+  border-radius: 4px;
   background: var(--card, #fff);
   color: var(--foreground);
   font-size: var(--fs-caption, 13px);
@@ -236,7 +236,7 @@
 .sidoFilterBtn {
   padding: 5px 10px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-full, 999px);
+  border-radius: 4px;
   background: var(--card, #fff);
   color: var(--muted-foreground);
   font-size: var(--fs-caption-sm, 12px);
@@ -445,7 +445,7 @@
   padding: 2px 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 4px;
   color: var(--muted-foreground);
   font-size: var(--fs-caption-sm, 12px);
   font-weight: 500;

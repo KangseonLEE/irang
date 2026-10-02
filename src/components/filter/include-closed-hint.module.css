@@ -7,7 +7,7 @@
   text-align: center;
   gap: 12px;
   padding: 20px 16px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--warning, #f59e0b) 8%, var(--background, #fff));
   border: 1px solid color-mix(in srgb, var(--warning, #f59e0b) 25%, transparent);
 }
@@ -27,7 +27,7 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--warning, #f59e0b) 15%, transparent);
   color: color-mix(in srgb, var(--warning, #f59e0b) 80%, #000);
   flex-shrink: 0;
@@ -52,7 +52,7 @@
   justify-content: center;
   gap: 4px;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: 4px;
   font-size: var(--fs-body-sm, 14px);
   font-weight: 600;
   background: color-mix(in srgb, var(--warning, #f59e0b) 15%, transparent);

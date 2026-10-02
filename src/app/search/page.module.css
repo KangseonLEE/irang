@@ -50,7 +50,7 @@
 }
 
 .searchWrap :global([class*="inputWrap"]) {
-  border-radius: 100px;
+  border-radius: 4px;
   border-color: color-mix(in srgb, var(--primary, #1b6b5a) 20%, var(--border, #e5e7eb));
   box-shadow:
     0 4px 24px rgba(27, 107, 90, 0.08),
@@ -68,7 +68,7 @@
 }
 
 .searchWrap :global([class*="dropdown"]) {
-  border-radius: 20px;
+  border-radius: 8px;
 }
 
 /* 결과 헤더 */
@@ -265,7 +265,7 @@
   align-items: center;
   gap: 5px;
   padding: 7px 14px;
-  border-radius: 9999px;
+  border-radius: 4px;
   font-size: var(--fs-body-sm);
   font-weight: 500;
   border: 1px solid var(--border);
@@ -342,7 +342,7 @@
   color: var(--muted-foreground);
   background: var(--muted);
   padding: 2px 8px;
-  border-radius: 9999px;
+  border-radius: 4px;
 }
 
 .sectionHint {
@@ -371,7 +371,7 @@
   align-items: center;
   gap: 16px;
   padding: 16px 20px;
-  border-radius: 14px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
 }
@@ -408,7 +408,7 @@
   background: var(--primary, #1b6b5a);
   text-decoration: none;
   padding: 10px 16px;
-  border-radius: 10px;
+  border-radius: 4px;
   border: none;
   white-space: nowrap;
   flex-shrink: 0;
@@ -474,7 +474,7 @@
   color: #fff;
   text-decoration: none;
   padding: 12px 22px;
-  border-radius: 12px;
+  border-radius: 4px;
   border: none;
   background: var(--primary, #1b6b5a);
   cursor: pointer;
@@ -630,7 +630,7 @@
   color: var(--primary, #1b6b5a);
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   text-decoration: none;
   transition: background-color 0.12s, color 0.12s;

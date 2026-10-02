@@ -37,7 +37,7 @@
   flex-direction: column;
   gap: 20px;
   padding: 24px 20px 28px;
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
 }
@@ -83,7 +83,7 @@
 
 /* ── 카드 ── */
 .card {
-  border-radius: 16px;
+  border-radius: 8px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   padding: 20px;
@@ -94,7 +94,7 @@
 
 /* ── 조언 카드 ── */
 .adviceCard {
-  border-radius: 16px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
   padding: 24px 20px;
   display: flex;
@@ -105,7 +105,7 @@
 /* ── Skeleton 애니메이션 — globals.css 의 irang-pulse 사용 ── */
 .skeleton {
   background: var(--muted, #f3f4f6);
-  border-radius: 6px;
+  border-radius: 4px;
   animation: irang-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -138,14 +138,14 @@
 .skeletonQuote {
   composes: skeleton;
   height: 3.5rem;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .skeletonBadge {
   composes: skeleton;
   width: 5rem;
   height: 2rem;
-  border-radius: 20px;
+  border-radius: 8px;
 }
 
 .skeletonLabel {

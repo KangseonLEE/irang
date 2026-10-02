@@ -20,7 +20,7 @@
   color: var(--muted-foreground, #6b7280);
   background: var(--muted, #f9fafb);
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: 4px;
   white-space: nowrap;
 }
 

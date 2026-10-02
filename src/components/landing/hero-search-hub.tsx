@@ -22,7 +22,8 @@ import s from "./hero-search-hub.module.css";
  *   ┌ 지금 열린 기회: 수치 4 │ 마감이 가까운 지원사업 3 ┐
  *
  * - 히어로에서 바로 **검색**하거나 **정착 유형**을 골라 들어간다. 두 입구 모두 SSR 링크/폼이라 JS 없이 동작.
- * - 10/1 회장: 문장 속 유형어 + 배경 장면 + 유형 카드 강조가 4.5초마다 함께 넘어간다(HeroRotator).
+ * - 10/1 회장: 문장 속 유형어 + 배경 장면이 4.5초마다 함께 넘어간다(HeroRotator).
+ *   10/2 회장: 유형 카드는 그 회전과 싱크하지 않는다 — 모바일은 스냅된 카드, 데스크탑은 호버한 카드만 강조.
  *   SSR 은 첫 장면(귀농) 그대로라 첫 페인트·CLS 는 고정 배경과 같다.
  * - `data-landing-hero` 가 투명 오버레이 헤더를 켠다(header.module.css). 되돌림은 HeroSearchDock.
  * - 10/2 회장: 기후금융포털식 **등장 연출**(안개 걷힘 → 제목 줄 리빌 → 순차 fade-up, ≈2s, CSS 만)과
@@ -154,7 +155,6 @@ export function HeroSearchHub({ stats, deadlines }: HeroSearchHubProps) {
                     className={s.typeCard}
                     data-track={`hero_type:${lane.id}`}
                     data-hero-card={lane.id}
-                    data-active={lane.id === SCENES[0].id ? "" : undefined}
                   >
                     <span className={s.thumb} aria-hidden="true">
                       <Image src={lane.charImage} alt="" fill sizes="64px" className={s.thumbImage} />

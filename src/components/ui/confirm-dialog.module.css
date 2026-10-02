@@ -16,7 +16,7 @@
 .panel {
   width: min(360px, 92vw);
   padding: 22px 22px 18px;
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -34,7 +34,7 @@
   width: 36px;
   height: 36px;
   margin-bottom: 12px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   color: var(--primary, #1b6b5a);
 }
@@ -65,7 +65,7 @@
 .confirm {
   min-height: 40px;
   padding: 9px 16px;
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
   cursor: pointer;

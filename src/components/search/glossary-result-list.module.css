@@ -10,7 +10,7 @@
   padding: 4px 12px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 8px;
 }
 
 .entry {
@@ -52,14 +52,14 @@
 .entry:has(.termLink:focus-visible) {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 @supports not selector(:has(*)) {
   .termLink:focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
-    border-radius: 6px;
+    border-radius: 4px;
   }
 }
 
@@ -73,7 +73,7 @@
   display: inline-flex;
   align-items: center;
   padding: 1px 7px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary) 8%, transparent);
   color: var(--primary);
   font-weight: 500;

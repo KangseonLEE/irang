@@ -12,7 +12,7 @@
   margin: 0 auto -52px; /* .page gap(64) 을 12 로 — 9/7 배너↔타이틀 간격 축소. 데스크탑은 아래 -72 */
   padding: 8px 12px;
   border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
-  border-radius: 8px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary) 6%, var(--card));
 }
 

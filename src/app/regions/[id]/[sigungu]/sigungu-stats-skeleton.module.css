@@ -6,7 +6,7 @@
 /* 스켈레톤 애니메이션 — globals.css 의 irang-pulse 사용 */
 .bone {
   background: var(--muted, #f9fafb);
-  border-radius: 6px;
+  border-radius: 4px;
   animation: irang-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -32,7 +32,7 @@
   align-items: flex-start;
   gap: 12px;
   padding: 16px;
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
 }
@@ -41,7 +41,7 @@
   composes: bone;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 4px;
   flex-shrink: 0;
 }
 
@@ -73,7 +73,7 @@
 /* ── Climate Card ── */
 .climateCard {
   padding: 20px;
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   display: flex;

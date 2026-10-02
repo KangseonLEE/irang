@@ -23,7 +23,7 @@
   gap: 6px;
   align-self: flex-start;
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: 4px;
   color: var(--muted-foreground, #6b7280);
   font-size: var(--fs-body-sm);
   font-weight: 500;

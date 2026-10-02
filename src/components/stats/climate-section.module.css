@@ -7,7 +7,7 @@
 .section {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 20px;
 }
 
@@ -63,7 +63,7 @@
   gap: 2px;
   padding: 10px;
   background: var(--muted, #f9fafb);
-  border-radius: 10px;
+  border-radius: 8px;
   min-width: 0;
 }
 
@@ -71,7 +71,7 @@
   .climateCard {
     gap: 4px;
     padding: 16px;
-    border-radius: 12px;
+    border-radius: 8px;
   }
 }
 
@@ -81,7 +81,7 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: var(--secondary, #f0f9f6);
   color: var(--primary, #1b6b5a);
   margin-bottom: 2px;
@@ -91,7 +91,7 @@
   .climateCardIcon {
     width: 28px;
     height: 28px;
-    border-radius: 8px;
+    border-radius: 4px;
     margin-bottom: 4px;
   }
 }
@@ -138,6 +138,6 @@
   margin: 12px 0 0;
   padding: 8px 12px;
   background: var(--muted, #f9fafb);
-  border-radius: 8px;
+  border-radius: 4px;
   line-height: var(--lh-normal);
 }

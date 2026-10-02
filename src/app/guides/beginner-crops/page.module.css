@@ -56,7 +56,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 20px;
-  border-radius: 16px;
+  border-radius: 8px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   text-decoration: none;
@@ -88,7 +88,7 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--primary, #1b6b5a);
   color: #fff;
   font-size: 0.75rem;
@@ -125,7 +125,7 @@
   color: var(--primary, #1b6b5a);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 .cropArrow {
@@ -146,7 +146,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--muted, #f9fafb);
 }
 
@@ -194,7 +194,7 @@
   display: flex;
   gap: 10px;
   padding: 16px 20px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--warning-light, #eab308) 6%, var(--background, #fff));
   border: 1px solid color-mix(in srgb, var(--warning-light, #eab308) 20%, var(--border, #e5e7eb));
   margin-bottom: 16px;
@@ -220,7 +220,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 18px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--muted, #f9fafb);
 }
 
@@ -262,7 +262,7 @@
 
 .criteriaCard {
   padding: 18px;
-  border-radius: 14px;
+  border-radius: 8px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   display: flex;
@@ -282,7 +282,7 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   color: var(--primary, #1b6b5a);
   flex-shrink: 0;
@@ -327,7 +327,7 @@
 
 /* -- CTA -- */
 .cta {
-  border-radius: 20px;
+  border-radius: 4px;
   background: linear-gradient(135deg, var(--primary, #1b6b5a) 0%, #0f4035 100%);
   padding: 32px 24px;
   text-align: center;
@@ -368,7 +368,7 @@
   font-weight: 600;
   color: var(--primary, #1b6b5a);
   background: var(--card, #fff);
-  border-radius: 12px;
+  border-radius: 4px;
   text-decoration: none;
   transition: opacity 0.15s;
 }

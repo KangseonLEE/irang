@@ -10,7 +10,7 @@
   gap: 12px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 16px;
 }
 
@@ -104,7 +104,7 @@
   color: var(--muted-foreground);
   background: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 9999px;
+  border-radius: 4px;
   text-decoration: none;
   white-space: nowrap;
   transition: border-color 0.15s, background-color 0.15s, color 0.15s;
@@ -166,7 +166,7 @@
   color: var(--muted-foreground);
   background: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   list-style: none;
   user-select: none;
@@ -281,7 +281,7 @@
   color: var(--foreground);
   background-color: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 9999px;
+  border-radius: 4px;
   outline: none;
   transition: border-color 0.15s, background-color 0.15s;
 }
@@ -308,7 +308,7 @@
   color: var(--muted-foreground);
   background: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 9999px;
+  border-radius: 4px;
   text-decoration: none;
   white-space: nowrap;
   transition: border-color 0.15s, background-color 0.15s, color 0.15s;
@@ -351,7 +351,7 @@
   color: var(--foreground);
   background-color: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 9999px;
+  border-radius: 4px;
   outline: none;
   text-align: center;
   transition: border-color 0.15s, background-color 0.15s;
@@ -383,7 +383,7 @@
   font-size: var(--fs-caption);
   color: var(--muted-foreground);
   text-decoration: none;
-  border-radius: 9999px;
+  border-radius: 4px;
   white-space: nowrap;
   transition: color 0.15s, background-color 0.15s;
 }

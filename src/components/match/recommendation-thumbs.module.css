@@ -7,7 +7,7 @@
   padding: 8px 10px;
   background: color-mix(in srgb, var(--primary) 4%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary) 12%, transparent);
-  border-radius: 10px;
+  border-radius: 4px;
   min-height: 36px;
 }
 
@@ -27,7 +27,7 @@
   color: var(--muted-foreground);
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 4px;
   cursor: pointer;
   transition:
     color 0.15s ease,

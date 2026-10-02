@@ -148,7 +148,7 @@
   height: 44px;
   padding: 0 4px 0 12px;
   gap: 8px;
-  border-radius: 8px;
+  border-radius: 4px;
   border-color: var(--border, #e5e7eb);
   background: var(--muted, #f9fafb);
   font-size: 0.9375rem;

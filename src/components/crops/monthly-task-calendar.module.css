@@ -6,7 +6,7 @@
 
 .card {
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--card, #fff);
   padding: 20px;
 }
@@ -32,7 +32,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   padding: 3px 10px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   color: var(--primary, #1b6b5a);
   white-space: nowrap;
@@ -55,7 +55,7 @@
   width: 100%;
   height: 44px;
   border: 1px solid color-mix(in srgb, var(--border, #e5e7eb) 70%, transparent);
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--card, #fff);
   cursor: pointer;
   padding: 0;
@@ -144,7 +144,7 @@
   width: max-content;
   max-width: 200px;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--foreground, #111827);
   color: #fff;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);

@@ -18,7 +18,7 @@
   padding: 14px 16px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   text-decoration: none;
   text-align: left;
   transition: border-color 0.15s, background-color 0.15s;
@@ -61,7 +61,7 @@
 .stretchLink:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 @supports selector(:has(*)) {
@@ -117,7 +117,7 @@
   padding: 14px 16px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   text-decoration: none;
   text-align: left;
   transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
@@ -150,7 +150,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--muted);
   font-size: 1.5rem;
   flex-shrink: 0;
@@ -160,7 +160,7 @@
   grid-row: 1 / span 2;
   width: 44px;
   height: 44px;
-  border-radius: 10px;
+  border-radius: 4px;
   overflow: hidden;
   flex-shrink: 0;
   background: var(--muted);
@@ -236,7 +236,7 @@
   display: inline-flex;
   align-items: center;
   padding: 1px 8px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary) 8%, transparent);
   color: var(--primary);
   font-weight: 500;
@@ -248,7 +248,7 @@
   display: inline-flex;
   align-items: center;
   padding: 1px 8px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: var(--muted);
   color: var(--muted-foreground);
   font-weight: 500;
@@ -263,7 +263,7 @@
   font-size: var(--fs-overline);
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: var(--muted);
   color: var(--muted-foreground);
   white-space: nowrap;
@@ -293,7 +293,7 @@
   font-size: var(--fs-overline);
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: color-mix(in srgb, #3b82f6 10%, transparent);
   color: #3b82f6;
   white-space: nowrap;
@@ -378,7 +378,7 @@
   min-height: 44px;
   padding: 0 10px;
   border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--card);
   font-size: var(--fs-caption);
   font-weight: 600;
@@ -416,7 +416,7 @@
   padding: 14px 16px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 8px;
   text-align: left;
   transition: border-color 0.15s, background-color 0.15s;
 }

@@ -14,7 +14,7 @@
   composes: base;
   gap: 0;
   padding: 2px 10px;
-  border-radius: 9999px;
+  border-radius: 4px;
   font-size: var(--fs-caption);
   font-weight: 600;
 }
@@ -24,7 +24,7 @@
   composes: base;
   gap: 4px;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 4px;
   font-size: var(--fs-caption);
   font-weight: 600;
 }

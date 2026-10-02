@@ -79,7 +79,7 @@
   align-items: center;
   gap: 4px;
   padding: 3px 10px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--readiness, #d97706) 10%, transparent);
   color: var(--readiness-strong, #b45309);
   font-size: var(--fs-caption);
@@ -156,7 +156,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--muted, #f9fafb);
   color: var(--muted-foreground, #6b7280);
   font-size: var(--fs-body-sm);
@@ -191,7 +191,7 @@
   color: var(--muted-foreground);
   background: none;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
   font-family: inherit;
@@ -266,7 +266,7 @@
   align-items: center;
   gap: 4px;
   padding: 6px 16px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--readiness, #d97706) 10%, transparent);
   color: var(--readiness-strong, #b45309);
   font-size: var(--fs-body-sm);
@@ -286,7 +286,7 @@
 .card {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -350,14 +350,14 @@
 
 .dimensionBarWrap {
   height: 10px;
-  border-radius: 5px;
+  border-radius: 4px;
   background: var(--muted, #f9fafb);
   overflow: hidden;
 }
 
 .dimensionBarFill {
   height: 100%;
-  border-radius: 5px;
+  border-radius: 4px;
   background: var(--readiness, #d97706);
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -391,7 +391,7 @@
   align-items: flex-start;
   gap: 10px;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
 }
 
@@ -401,7 +401,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--primary, #1b6b5a);
   color: var(--primary-foreground);
   font-size: var(--fs-caption);
@@ -433,7 +433,7 @@
   font-weight: 700;
   color: var(--primary-foreground);
   background: var(--primary, #1b6b5a);
-  border-radius: 14px;
+  border-radius: 4px;
   text-decoration: none;
   transition: opacity 0.15s;
 }
@@ -455,7 +455,7 @@
   color: var(--muted-foreground);
   background: none;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 14px;
+  border-radius: 4px;
   cursor: pointer;
   font-family: inherit;
   transition: border-color 0.15s, color 0.15s;
@@ -500,7 +500,7 @@
 .reinforceCard {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -640,7 +640,7 @@
   align-items: flex-start;
   gap: 10px;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
 }
@@ -729,7 +729,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--readiness, #d97706) 10%, transparent);
   color: var(--readiness-strong, #b45309);
 }

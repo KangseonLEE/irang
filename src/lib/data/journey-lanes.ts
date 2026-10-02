@@ -15,7 +15,7 @@ export interface JourneyLane {
   id: string;
   /** 카드 제목 */
   label: string;
-  /** 한 줄 설명 — 카드에만 쓴다 */
+  /** 한 줄 설명 — 카드에만 쓴다. 10/2 회장: 카드에서 한 줄로만 — 1280+ 그리드 카드(글 폭 ≈170px)에 맞게 12자 안팎 */
   desc: string;
   /** 선택 화면 소개글 — "이 길이 무엇인지" 3문장 (카드에는 안 쓴다, 9/29 S4) */
   intro: string;
@@ -38,7 +38,7 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
   {
     id: "guinong",
     label: "귀농",
-    desc: "농사로 먹고사는 정착을 준비해요",
+    desc: "농사로 먹고사는 정착",
     intro:
       "농사를 생업으로 삼고 농촌에 뿌리내리는 길이에요. 농지·주택·창업자금처럼 지원사업이 가장 많고, 어떤 작물로 시작하느냐가 첫 3년을 좌우해요. 가족과 함께 정착하는 분이 많아요.",
     href: "/start/guinong",
@@ -49,7 +49,7 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
   {
     id: "guichon",
     label: "귀촌",
-    desc: "일은 그대로, 사는 곳을 시골로",
+    desc: "일은 그대로, 집은 시골",
     intro:
       "일과 소득은 지금처럼 두고, 사는 곳만 시골로 옮기는 길이에요. 농사 부담 없이 통근·의료·주거 조건으로 지역을 고르면 돼요. 텃밭이나 주말농장으로 가볍게 시작하는 분이 많아요.",
     href: "/start/guichon",
@@ -60,7 +60,7 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
   {
     id: "forest",
     label: "귀산촌",
-    desc: "숲·임산물로 사는 산촌 정착",
+    desc: "숲·임산물로 사는 산촌",
     intro:
       "숲과 임산물로 사는 산촌 정착이에요. 표고·더덕·산양삼처럼 손이 덜 가는 작목이 많고, 임업 전용 지원이 따로 있어요. 조용한 환경을 찾는 분에게 맞아요.",
     href: "/start/forest",
@@ -71,7 +71,7 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
   {
     id: "youth",
     label: "청년농",
-    desc: "만 39세 이하 청년 지원부터 봐요",
+    desc: "39세 이하 청년 지원",
     intro:
       "만 39세 이하만 받는 영농정착지원금·후계농 자금·농지은행 임대가 따로 있어요. 초기 자본이 적어도 시작할 수 있는 길이라, 어떤 지원부터 챙길지 순서가 중요해요.",
     href: "/start/youth",
@@ -82,7 +82,7 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
   {
     id: "smartfarm",
     label: "스마트팜",
-    desc: "시설·데이터 농업으로 시작",
+    desc: "데이터로 짓는 농사",
     intro:
       "온실과 센서·데이터로 작물을 키우는 시설 농업이에요. 초기 투자금이 크지만 날씨 영향이 적고 노동 강도가 낮아요. 딸기·토마토·엽채류처럼 시설 재배가 자리 잡은 작물로 시작하는 분이 많아요.",
     href: "/start/smartfarm",
@@ -94,7 +94,7 @@ export const JOURNEY_LANES: readonly JourneyLane[] = [
     id: "undecided",
     // 10/2 회장: "아직 고르는 중" 대신 지칭하는 말로 — 정부·지자체 공고가 쓰는 "예비 귀농·귀촌인"
     label: "예비 귀농·귀촌인",
-    desc: "다섯 가지 시작을 한눈에 비교해요",
+    desc: "다섯 가지 시작 비교",
     intro:
       "아직 어떤 시작이 맞는지 정하지 못했다면 여기서부터예요. 2분 진단으로 내 유형을 알고, 그에 맞는 지역·작물·지원사업을 이어서 볼 수 있어요. 지금 고르지 않아도 괜찮아요.",
     href: "/start",

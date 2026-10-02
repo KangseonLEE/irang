@@ -31,7 +31,7 @@
   width: 56px;
   aspect-ratio: 2 / 3;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 8px;
   background: linear-gradient(155deg, #1f5a4d 0%, #123b33 55%, #0d2e27 100%);
 }
 
@@ -63,7 +63,7 @@
   gap: 10px;
   padding: 16px;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--card, #fff);
 }
 
@@ -96,7 +96,7 @@
   gap: 1px;
   min-width: 0;
   padding: 10px 12px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--muted, #f6f8f7);
 }
 
@@ -138,7 +138,7 @@
 .colLink:focus-visible {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 3px;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 @media (hover: hover) {

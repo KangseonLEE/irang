@@ -11,7 +11,7 @@
   padding: 14px 16px;
   background: color-mix(in srgb, var(--primary, #1B6B5A) 4%, var(--card, #fff));
   border: 1px solid color-mix(in srgb, var(--primary, #1B6B5A) 15%, transparent);
-  border-radius: 14px;
+  border-radius: 8px;
 }
 
 @media (min-width: 640px) {
@@ -72,7 +72,7 @@
   gap: 5px;
   padding: 7px 12px;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--card, #fff);
   color: var(--muted-foreground);
   font: inherit;

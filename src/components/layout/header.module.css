@@ -154,7 +154,7 @@
   transform: translateX(-50%);
   min-width: 220px;
   padding: 6px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -284,6 +284,14 @@
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.25s ease,
     border-color 0.25s ease;
+}
+
+/* 10/2 회장 "모바일은 구분선이 안 보인다" — 모바일 히어로 상단은 하늘(밝은 영역)이 걸려 .24 가 묻힌다.
+   실측 375 에서 육안 식별이 어려워 <768 만 진하게. (흰 헤더 복귀 규칙이 뒤에 있어 그대로 이긴다) */
+@media (max-width: 767px) {
+  :global(body:has([data-landing-hero])) .header {
+    border-bottom-color: rgba(255, 255, 255, 0.45);
+  }
 }
 
 :global(body:has([data-landing-hero])) .logoTitle,

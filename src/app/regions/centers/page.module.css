@@ -30,7 +30,7 @@
   padding: 6px 14px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 10px;
+  border-radius: 4px;
 }
 
 .statNumber {
@@ -55,7 +55,7 @@
   color: var(--primary, #1b6b5a);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   padding: 6px 12px;
-  border-radius: 999px;
+  border-radius: 4px;
 }
 
 /* ── notice ── */
@@ -66,7 +66,7 @@
   padding: 20px 24px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 3%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
-  border-radius: 16px;
+  border-radius: 8px;
 }
 
 .noticeTitle {

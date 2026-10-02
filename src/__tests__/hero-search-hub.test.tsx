@@ -85,9 +85,9 @@ describe("히어로 장면 회전 — 단어·배경·카드 (10/1 회장)", () 
     expect(html.match(/data-hero-word="[^"]+" data-state="in"/g)?.length).toBe(1);
   });
 
-  it("첫 장면과 같은 유형 카드(귀농)가 강조된 채 시작한다", () => {
-    expect(html).toMatch(/data-hero-card="guinong" data-active=""/);
-    expect(html.match(/data-active=""/g)?.length).toBe(1);
+  it("유형 카드는 장면 회전과 싱크하지 않는다 — SSR 에 강조 카드가 없다(10/2)", () => {
+    expect(html.match(/data-hero-card=/g)?.length).toBe(6);
+    expect(html).not.toMatch(/data-active=""/);
   });
 
   it("배경은 첫 장면(귀농) 이미지만 SSR 하고 나머지는 연출 뒤에 받는다(10/2 지연 로드)", () => {

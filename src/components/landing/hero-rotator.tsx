@@ -10,11 +10,11 @@ import s from "./hero-search-hub.module.css";
 /**
  * 히어로 장면 회전 (2026-10-01 회장: "처음처럼 문장 속 단어가 슬라이드되며 전환, 배경 이미지도 슬라이드").
  *
- * 한 타이머가 세 가지를 같이 넘긴다 — 순서가 어긋나면 "문장은 귀촌인데 배경은 스마트팜"이 된다.
+ * 한 타이머가 두 가지를 같이 넘긴다 — 순서가 어긋나면 "문장은 귀촌인데 배경은 스마트팜"이 된다.
  *   ① 배경 레이어(이 컴포넌트가 직접 그림): 크로스페이드 + 천천히 확대
  *   ② h1 안의 단어(서버 마크업 `[data-hero-word=<id>]`): data-state 로 아래→위 슬라이드
- *   ③ 유형 카드(서버 마크업 `[data-hero-card=<id>]`): data-active 강조
- * ②③ 은 서버 컴포넌트라 상태를 props 로 줄 수 없어 히어로 루트 안에서 DOM 속성으로만 잇는다.
+ * ② 는 서버 컴포넌트라 상태를 props 로 줄 수 없어 히어로 루트 안에서 DOM 속성으로만 잇는다.
+ * 유형 카드 강조는 10/2 회장 지시로 이 회전과 분리했다(HeroTypeCarousel — 모바일 스냅 카드 / 데스크탑 호버).
  *
  * - prefers-reduced-motion: 첫 장면에 멈춘다(SSR 상태 그대로).
  * - 탭이 숨겨진 동안은 넘기지 않는다.
@@ -68,10 +68,6 @@ export function HeroRotator({ scenes }: { scenes: readonly HeroScene[] }) {
     hero.querySelectorAll<HTMLElement>("[data-hero-word]").forEach((el) => {
       const id = el.dataset.heroWord;
       el.dataset.state = id === activeId ? "in" : id === prevId ? "out" : "wait";
-    });
-    hero.querySelectorAll<HTMLElement>("[data-hero-card]").forEach((el) => {
-      if (el.dataset.heroCard === activeId) el.setAttribute("data-active", "");
-      else el.removeAttribute("data-active");
     });
   }, [current, prev, scenes]);
 

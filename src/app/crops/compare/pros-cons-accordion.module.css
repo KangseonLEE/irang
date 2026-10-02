@@ -10,14 +10,14 @@
 
 .item {
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--card, #fff);
   overflow: hidden;
 }
 
 @media (min-width: 640px) {
   .item {
-    border-radius: 18px;
+    border-radius: 8px;
   }
 }
 
@@ -40,7 +40,7 @@
 .summary:focus-visible {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: -2px;
-  border-radius: 16px;
+  border-radius: 8px;
 }
 
 @media (hover: hover) {
@@ -124,7 +124,7 @@
   align-items: flex-start;
   gap: 6px;
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: #f0faf4;
   border: 1px solid #d4e8dc;
 }
@@ -134,7 +134,7 @@
   align-items: flex-start;
   gap: 6px;
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: #faf8f0;
   border: 1px solid #e8e0c8;
 }
@@ -143,7 +143,7 @@
   display: inline-flex;
   align-items: center;
   padding: 1px 6px;
-  border-radius: 9999px;
+  border-radius: 4px;
   font-size: 10px;
   font-weight: 700;
   background: #dceee3;
@@ -157,7 +157,7 @@
   display: inline-flex;
   align-items: center;
   padding: 1px 6px;
-  border-radius: 9999px;
+  border-radius: 4px;
   font-size: 10px;
   font-weight: 700;
   background: #ede5d0;
@@ -179,7 +179,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--muted, #f9fafb);
   color: var(--primary, #1b6b5a);
 }

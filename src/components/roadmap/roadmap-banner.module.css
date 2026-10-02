@@ -8,7 +8,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 10px 16px;
-  border-radius: 10px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #e8f5f1 0%, #f0faf7 100%);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
   font-size: var(--fs-body-sm);
@@ -57,7 +57,7 @@
   white-space: nowrap;
   flex-shrink: 0;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   transition: background-color 0.15s;
 }

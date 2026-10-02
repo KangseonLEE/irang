@@ -114,7 +114,7 @@
   height: var(--lane-h);
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.18); /* 배경이 사진이라 카드 경계를 세워 준다 */
-  border-radius: 18px;
+  border-radius: 8px;
   /* 일러스트가 아직 없어도 카드가 성립하도록 딥그린 그라데이션이 기본 바탕 */
   background: linear-gradient(155deg, #1f5a4d 0%, #123b33 55%, #0d2e27 100%);
   color: #fff;
@@ -289,7 +289,7 @@
   position: absolute;
   inset: -16px -18px;
   z-index: -1;
-  border-radius: 26px;
+  border-radius: 4px;
   background: linear-gradient(
     100deg,
     rgba(6, 26, 21, 0.93) 0%,
@@ -389,7 +389,7 @@
   z-index: 2;
   width: calc(var(--big-h) / 1.5);
   height: var(--big-h);
-  border-radius: 20px;
+  border-radius: 8px;
 }
 
 /* 카드보다 3px 큰 뒤판이 돌고, 안쪽은 카드가 덮어 테두리 3px 만 빛난다 */
@@ -398,7 +398,7 @@
   position: absolute;
   inset: -3px;
   z-index: 1;
-  border-radius: 23px;
+  border-radius: 8px;
   background: conic-gradient(
     from var(--lane-angle, 0deg),
     transparent 0 72%,
@@ -413,7 +413,7 @@
 .glowBlur {
   inset: -8px;
   z-index: 0;
-  border-radius: 28px;
+  border-radius: 8px;
   filter: blur(10px);
   opacity: 0.55;
 }
@@ -486,7 +486,7 @@
   gap: 1px;
   min-width: 0;
   padding: 8px 10px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -519,7 +519,7 @@
   min-height: 44px;
   margin-top: 8px;
   padding: 11px 22px;
-  border-radius: 999px;
+  border-radius: 4px;
   background: #fff;
   color: var(--primary-dark, #0d2e27);
   font-size: 0.9375rem;

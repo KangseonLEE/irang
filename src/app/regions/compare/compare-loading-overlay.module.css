@@ -5,7 +5,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  border-radius: 16px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--background, #fff) 55%, transparent);
   backdrop-filter: blur(1px);
   animation: overlayIn 0.15s ease-out 0.2s both;
@@ -21,7 +21,7 @@
   gap: 10px;
   margin-top: 24px;
   padding: 12px 18px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   box-shadow: 0 8px 24px color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);

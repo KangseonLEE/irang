@@ -37,7 +37,7 @@ const KoreaMap = dynamic(
           margin: "0 auto",
           aspectRatio: "450 / 760",
           background: "var(--muted, #f4f4f5)",
-          borderRadius: "var(--radius-lg, 12px)",
+          borderRadius: "var(--radius-lg, 8px)",
           animation: "irang-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         }}
         aria-label="지도 불러오는 중"

@@ -59,7 +59,7 @@
 
 /* Card */
 .card {
-  border-radius: 20px;
+  border-radius: 8px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   overflow: hidden;
@@ -99,7 +99,7 @@
 /* Skeleton Animation — globals.css 의 irang-pulse 사용 */
 .skeleton {
   background: var(--muted, #f9fafb);
-  border-radius: 6px;
+  border-radius: 4px;
   animation: irang-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -119,7 +119,7 @@
   composes: skeleton;
   width: 3rem;
   height: 1.25rem;
-  border-radius: 9999px;
+  border-radius: 4px;
 }
 
 .skeletonLabel {
@@ -138,7 +138,7 @@
   composes: skeleton;
   width: 3rem;
   height: 1.25rem;
-  border-radius: 9999px;
+  border-radius: 4px;
 }
 
 .skeletonBlock {

@@ -6,7 +6,7 @@
   gap: 12px;
   padding: 20px 22px;
   border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
-  border-radius: 20px;
+  border-radius: 8px;
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--primary) 6%, var(--card)) 0%,
@@ -42,7 +42,7 @@
   color: var(--primary);
   background: color-mix(in srgb, var(--primary) 10%, transparent);
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: 4px;
   white-space: nowrap;
 }
 
@@ -67,7 +67,7 @@
   align-items: baseline;
   gap: 5px;
   padding: 5px 11px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--muted);
 }
 
@@ -110,7 +110,7 @@
   color: var(--foreground);
   background: color-mix(in srgb, var(--primary) 8%, transparent);
   padding: 3px 10px;
-  border-radius: 20px;
+  border-radius: 4px;
 }
 
 .source {
@@ -136,7 +136,7 @@
   font-size: 0.8125rem;
   font-weight: 600;
   padding: 9px 16px;
-  border-radius: 12px;
+  border-radius: 4px;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 

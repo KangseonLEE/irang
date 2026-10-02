@@ -146,7 +146,7 @@ export function KakaoShareButton({
       className={className}
       style={{
         background: "#FEE500",
-        borderRadius: "6px",
+        borderRadius: "4px",
         padding: size === "sm" ? "5px" : "6px",
         display: "inline-flex",
         alignItems: "center",
