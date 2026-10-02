@@ -522,6 +522,8 @@
 }
 
 .typeCard {
+  /* 수치 줄 배치를 카드 폭으로 가른다(아래 @container) */
+  container: hero-type-card / inline-size;
   display: grid;
   flex: 1;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -657,8 +659,10 @@
   text-overflow: ellipsis;
 }
 
-/* 768+ 그리드 카드는 폭이 200px 안팎이라 3칸 가로 배치면 "1,800만 원"이 잘린다 → 라벨 · 값 세로 행 */
-@media (min-width: 768px) {
+/* 카드가 좁으면(그리드 카드 200px 안팎) 3칸 가로 배치에서 "1,800만 원"이 잘린다 → 라벨 · 값 세로 행.
+   10/2 회장 "모바일인데 텍스트 나열로 보인다" — 화면 폭(768+) 기준이면 '데스크탑 사이트 요청'·가로 모드 폰에서도
+   행 배치가 됐다. 화면이 아니라 **카드 실제 폭**으로 가른다(.typeCard container). */
+@container hero-type-card (max-width: 239px) {
   .typeFacts {
     flex-direction: column;
     gap: 4px;
