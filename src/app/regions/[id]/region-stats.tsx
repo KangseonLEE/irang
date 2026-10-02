@@ -84,7 +84,7 @@ export function RegionStats({
           <div className={s.statBody}>
             <span className={s.statLabel}>면적</span>
             <span className={s.statValue}>
-              {area.toLocaleString()} km²
+              {area.toLocaleString("ko-KR")} km²
             </span>
             <span className={s.statSub}>서울의 약 {seoulRatio}배</span>
           </div>
@@ -131,7 +131,7 @@ export function RegionStats({
             <div className={s.statBody}>
               <span className={s.statLabel}>의료기관</span>
               <span className={s.statValue}>
-                {medical.totalCount.toLocaleString()}개
+                {medical.totalCount.toLocaleString("ko-KR")}개
               </span>
               <span className={s.statSub}>상세 보기 →</span>
             </div>
@@ -158,7 +158,7 @@ export function RegionStats({
             <div className={s.statBody}>
               <span className={s.statLabel}>학교</span>
               <span className={s.statValue}>
-                {school.totalCount.toLocaleString()}개
+                {school.totalCount.toLocaleString("ko-KR")}개
               </span>
               <span className={s.statSub}>상세 보기 →</span>
             </div>

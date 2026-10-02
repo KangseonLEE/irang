@@ -11,21 +11,50 @@ export type EventStatus = "접수중" | "접수예정" | "마감";
 /** 상시모집 마커 — applicationEnd에 이 값이면 마감 없는 상시 프로그램 */
 export const ALWAYS_OPEN = "9999-12-31";
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+/** KST = UTC+9 고정 (1988년 이후 서머타임 없음) */
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
 /**
  * 한국 시간(KST) 기준 오늘 날짜 YYYY-MM-DD.
- * Vercel 서버는 UTC 동작 — toISOString().slice(0,10)을 쓰면 한국 자정~오전 9시 9시간 동안
- * today가 어제 날짜로 잘못 계산되어 마감/모집 전환이 9시간 지연됨.
+ * Vercel 서버는 UTC 동작 — 오프셋 없이 toISOString().slice(0,10)을 쓰면 한국 자정~오전 9시
+ * 9시간 동안 today가 어제 날짜로 잘못 계산되어 마감/모집 전환이 9시간 지연됨(5/26 박제).
+ * 여기서는 +9h 를 더한 뒤 자르므로 서버(UTC)·브라우저(어느 타임존·로케일이든) 결과가 같다.
+ * Intl(en-CA) 포맷에 기대지 않는다 — 브라우저 ICU 버전마다 날짜 모양이 바뀐 전례가 있다.
+ *
+ * 하이드레이션 규칙(10/3): 클라이언트 컴포넌트가 렌더 중 이 값을 직접 부르면 ISR 스냅샷 날짜와
+ * 방문자 날짜가 갈려 React #418 이 난다. 서버가 `asOf={kstToday()}` 로 넘기고 클라이언트는
+ * `useKstToday(asOf)`(lib/hooks/use-kst-today) 로 읽는다.
  */
-function kstToday(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Seoul" });
+export function kstToday(nowMs: number = Date.now()): string {
+  return new Date(nowMs + KST_OFFSET_MS).toISOString().slice(0, 10);
 }
 
-/** 신청기간 기반 상태 판별 (YYYY-MM-DD 문자열) */
+/** "YYYY-MM-DD"(뒤에 시각이 붙어도 앞 10자) → UTC 기준 일 번호. 타임존 무관 */
+function dayNumber(date: string): number {
+  const [y, m, d] = date.slice(0, 10).split("-").map(Number);
+  return Date.UTC(y, m - 1, d) / DAY_MS;
+}
+
+/** 두 날짜(YYYY-MM-DD) 사이 달력 일수 — `to` 가 뒤면 양수. 타임존·시각 무관 */
+export function daysBetween(from: string, to: string): number {
+  return dayNumber(to) - dayNumber(from);
+}
+
+/** ISO 시각(또는 YYYY-MM-DD) → 그 순간의 KST 날짜 YYYY-MM-DD */
+function kstDateOf(iso: string): string {
+  return kstToday(new Date(iso).getTime());
+}
+
+/**
+ * 신청기간 기반 상태 판별 (YYYY-MM-DD 문자열).
+ * `today` 를 넘기면 그 날 기준(하이드레이션 안전), 생략하면 지금 KST 날짜.
+ */
 export function deriveStatus(
   applicationStart?: string | null,
   applicationEnd?: string | null,
+  today: string = kstToday(),
 ): ProgramStatus {
-  const today = kstToday();
   // 상시모집: applicationEnd가 없거나 ALWAYS_OPEN이면 마감 없음
   if (!applicationEnd || applicationEnd === ALWAYS_OPEN) {
     if (!applicationStart || today >= applicationStart) return "모집중";
@@ -65,27 +94,39 @@ export function deriveStatusLabel(
   return deriveStatus(applicationStart, applicationEnd);
 }
 
-/** 마감까지 남은 일수 (음수면 이미 마감, 상시모집이면 Infinity). KST 기준. */
-export function daysUntilDeadline(applicationEnd?: string | null): number {
+/**
+ * 마감까지 남은 일수 (0 = 오늘 마감, 음수면 이미 마감, 상시모집이면 Infinity). KST 기준.
+ * `today`(YYYY-MM-DD) 를 넘기면 그 날 기준 — 클라이언트 트리에서 SSR 되는 곳은 반드시 넘긴다.
+ */
+export function daysUntilDeadline(
+  applicationEnd?: string | null,
+  today: string = kstToday(),
+): number {
   if (!applicationEnd || applicationEnd === ALWAYS_OPEN) return Infinity;
-  const today = new Date(kstToday() + "T00:00:00+09:00");
-  const end = new Date(applicationEnd + "T00:00:00+09:00");
-  return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return daysBetween(today, applicationEnd);
 }
 
 /**
  * createdAt 기준 14일 이내 + 마감되지 않은 프로그램만 "신규"로 판정.
  * Sprint S (2026-05-20): program-card.tsx → lib로 이동 (컴포넌트 export 의존성 제거).
+ *
+ * `today`(KST YYYY-MM-DD) 를 넘기면 날짜 단위로 센다 — 등록일(KST)부터 14일째 전날까지.
+ * 생략하면 종전대로 지금 시각과의 ms 차이. SSR 되는 클라이언트 트리는 today 를 넘겨야
+ * 서버·브라우저 판정이 같다(10/3).
  */
 const NEW_THRESHOLD_DAYS = 14;
 
-export function isNewProgram(createdAt?: string, status?: string): boolean {
+export function isNewProgram(createdAt?: string, status?: string, today?: string): boolean {
   if (!createdAt) return false;
   if (status === "마감") return false;
   const created = new Date(createdAt);
-  const now = new Date();
-  const diffMs = now.getTime() - created.getTime();
-  return diffMs >= 0 && diffMs < NEW_THRESHOLD_DAYS * 24 * 60 * 60 * 1000;
+  if (Number.isNaN(created.getTime())) return false;
+  if (today) {
+    const diffDays = daysBetween(kstDateOf(createdAt), today);
+    return diffDays >= 0 && diffDays < NEW_THRESHOLD_DAYS;
+  }
+  const diffMs = Date.now() - created.getTime();
+  return diffMs >= 0 && diffMs < NEW_THRESHOLD_DAYS * DAY_MS;
 }
 
 /** 체험행사 신청기간 기반 상태 판별 (KST) */

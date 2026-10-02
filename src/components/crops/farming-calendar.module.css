@@ -349,7 +349,7 @@
   width: 24px;
   height: 24px;
   border: none;
-  border-radius: 4px;
+  border-radius: 9999px; /* 원형 유지 — 10/2 라운드 일괄 변경 예외 */
   background: var(--muted, #f3f4f6);
   color: var(--muted-foreground, #6b7280);
   cursor: pointer;
@@ -635,7 +635,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 9999px; /* 원형 유지 — 10/2 라운드 일괄 변경 예외 */
   background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
   font-size: var(--fs-overline);
   font-weight: 700;

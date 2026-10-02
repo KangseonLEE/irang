@@ -22,7 +22,7 @@ import {
   HelpCircle,
   ChevronDown, ArrowRight } from "lucide-react";
 import { formatApplicationPeriod, formatAgeRange } from "@/lib/format";
-import { ALWAYS_OPEN, programStatusLabel } from "@/lib/program-status";
+import { ALWAYS_OPEN, kstToday, programStatusLabel } from "@/lib/program-status";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
@@ -462,7 +462,7 @@ export default async function ProgramDetailPage({
             </div>
           </div>
 
-          {/* Application Timeline */}
+          {/* Application Timeline — asOf: 이 스냅샷을 만든 날(KST). 하이드레이션은 이 날 기준으로 서버와 같게 (10/3) */}
           <ApplicationTimeline
             applicationStart={program.applicationStart}
             applicationEnd={program.applicationEnd}
@@ -470,6 +470,7 @@ export default async function ProgramDetailPage({
             statusLabel={statusLabel}
             applicationCycle={program.applicationCycle}
             organization={program.organization}
+            asOf={kstToday()}
           />
 
           {/* 진단 CTA 는 sticky 탭 카드 **앞**에 — 뒤에 두면 sticky 밑으로 파고들어 안 보인다(9/17 작물 상세 동일) */}

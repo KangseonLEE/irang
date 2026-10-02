@@ -24,6 +24,7 @@ import {
   type ProgramSortKey,
 } from "@/lib/data/programs";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
+import { kstToday } from "@/lib/program-status";
 import { rankProgramsForPersona } from "@/lib/data/persona-fit";
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import Link from "next/link";
@@ -315,6 +316,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         viewMode={viewMode}
         allPrograms={viewMode === "table" ? allFiltered : undefined}
         currentPersona={currentPersona}
+        asOf={kstToday()}
       />
 
       {/* ═══ 피드백 CTA ═══ */}

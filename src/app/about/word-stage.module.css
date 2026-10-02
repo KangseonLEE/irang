@@ -16,6 +16,9 @@
 
 .sticky {
   position: sticky;
+  /* --sticky-top 규칙의 의도된 예외 — 탭 바가 아니라 한 화면 크기 배경 무대다. 헤더가 다시 나와도
+     위 57px 배경만 덮고 가운데 문장(375~1280 실측 top 215px+)과 겹치지 않는다. --sticky-top 을 쓰면
+     100svh 무대 아래가 56px 잘리고 헤더가 숨고 나올 때마다 무대가 출렁인다 (10/3 QA 실측) */
   top: 0;
   z-index: 0;
   height: var(--stage-h);

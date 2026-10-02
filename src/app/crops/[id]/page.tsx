@@ -54,6 +54,7 @@ import {
   type CropStatItem,
 } from "@/lib/api/kosis";
 import { PROGRAMS } from "@/lib/data/programs";
+import { kstToday } from "@/lib/program-status";
 import { GlossaryTerm } from "@/components/ui/term-tooltip";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { DataSource } from "@/components/ui/data-source";
@@ -159,6 +160,16 @@ const DIFFICULTY_BADGE: Record<string, string> = {
   어려움: s.badgeHard,
 };
 
+/**
+ * 브레드크럼 분류 단계("과수" 등) → 작물 목록의 분류 필터. 화면 브레드크럼과 BreadcrumbJsonLd 가
+ * 같은 경로를 쓰도록 한 곳에서 만든다 — 10/3 QA: 화면은 "작물 목록 > 과수 > 딸기", JSON-LD 는 분류 단계 없이
+ * "작물 목록 > 딸기"였다. JSON-LD 의 중간 단계는 URL 이 필요해 목록 필터(`?category=`, normalize 화이트리스트)로 잇는다.
+ * 인코딩은 FilterBar(buildFilterUrl)와 같은 URLSearchParams — 같은 캐시 키가 된다.
+ */
+function cropCategoryHref(category: string): string {
+  return `/crops?${new URLSearchParams({ category }).toString()}`;
+}
+
 // ── detail 미등록 작물용 minimal fallback ──
 
 function CropMinimalFallback({ crop }: { crop: typeof CROPS[number] }) {
@@ -180,7 +191,7 @@ function CropMinimalFallback({ crop }: { crop: typeof CROPS[number] }) {
         <Breadcrumb
           items={[
             { name: "작물 목록", href: "/crops" },
-            { name: crop.category },
+            { name: crop.category, href: cropCategoryHref(crop.category) },
             { name: crop.name },
           ]}
         />
@@ -243,7 +254,7 @@ export default async function CropDetailPage({
       const per1ha = Math.round((riceIncome.income * 10) / 10000);
       incomeData = {
         ...incomeData,
-        revenueRange: `10a당 약 ${per10a}만 원 (3,000평 재배 시 연 약 ${per1ha.toLocaleString()}만 원)`,
+        revenueRange: `10a당 약 ${per10a}만 원 (3,000평 재배 시 연 약 ${per1ha.toLocaleString("ko-KR")}만 원)`,
         source: `통계청 농축산물생산비조사 ${riceIncome.year}년산 (소득 = 총수입 − 경영비)`,
       };
     }
@@ -255,7 +266,7 @@ export default async function CropDetailPage({
       const per3000 = Math.round((cropIncome.income * 10) / 10000);
       incomeData = {
         ...incomeData,
-        revenueRange: `10a당 약 ${per10a}만 원 (3,000평 재배 시 연 약 ${per3000.toLocaleString()}만 원)`,
+        revenueRange: `10a당 약 ${per10a}만 원 (3,000평 재배 시 연 약 ${per3000.toLocaleString("ko-KR")}만 원)`,
         source: `통계청 농축산물생산비조사 ${cropIncome.year}년산 (소득 = 총수입 − 경영비)`,
       };
     }
@@ -304,6 +315,13 @@ export default async function CropDetailPage({
   }
   const programsHref = `/programs?${programsParams.toString()}`;
 
+  // 화면 브레드크럼·BreadcrumbJsonLd 공용 경로 (10/3) — 마지막(현재 작물)은 화면에선 링크 없이 aria-current
+  const breadcrumbTrail = [
+    { name: "작물 목록", href: "/crops" },
+    { name: data.category, href: cropCategoryHref(data.category) },
+    { name: data.name, href: `/crops/${id}` },
+  ];
+
   // 주요 산지 시/군/구 — `detail.majorRegions` 시·도 우선순위로 상위 6개 추출
   // 매칭 0건이면 시·도 라벨(예: "경상북도, 충청북도")을 폴백으로 표시
   const majorSidoIds = detail.majorRegions
@@ -336,10 +354,7 @@ export default async function CropDetailPage({
 
   return (
     <div className={s.page}>
-      <BreadcrumbJsonLd items={[
-        { name: "작물 목록", href: "/crops" },
-        { name: data.name, href: `/crops/${id}` },
-      ]} />
+      <BreadcrumbJsonLd items={breadcrumbTrail} />
       <JsonLd<Article>
         data={{
           "@context": "https://schema.org",
@@ -428,13 +443,7 @@ export default async function CropDetailPage({
 
       {/* ── 브레드크럼 + 출처 — 히어로 아래·탭 위 공통 위치 (2026-10-02 회장) ── */}
       <div className={s.topBar}>
-        <Breadcrumb
-          items={[
-            { name: "작물 목록", href: "/crops" },
-            { name: data.category },
-            { name: data.name },
-          ]}
-        />
+        <Breadcrumb items={breadcrumbTrail} />
         <DataSource source="농촌진흥청 · KOSIS" variant="badge" />
       </div>
 
@@ -493,7 +502,12 @@ export default async function CropDetailPage({
                                 />
                               ))}
                             </div>
-                            <Link href={`/crops/compare?crops=${id}`} className={st.sideTabMore}>
+                            {/* 비교 딥링크 파라미터는 `ids` 하나뿐 — `crops=` 는 normalize 가 308 로 지워 기본 작물로 갔다(10/3).
+                                지금 작물 + 위 목록 앞쪽(최대 4개, 비교 화면 한도)을 미리 골라 둔다 */}
+                            <Link
+                              href={`/crops/compare?ids=${[id, ...relatedCrops.slice(0, 3).map(({ crop }) => crop.id)].join(",")}`}
+                              className={st.sideTabMore}
+                            >
                               수익·난이도 자세히 비교하기
                               <Icon icon={ArrowRight} size="sm" />
                             </Link>
@@ -567,7 +581,7 @@ export default async function CropDetailPage({
           )}
 
           {/* 월별 작업 캘린더 */}
-          <MonthlyTaskCalendar cropId={id} />
+          <MonthlyTaskCalendar cropId={id} asOf={kstToday()} />
 
           {/* 수익정보 */}
           <IncomeSection income={incomeData} />

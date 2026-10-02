@@ -189,7 +189,7 @@ export function SigunguStats({
           <Icon icon={Ruler} size="lg"  />
           <div className={s.statBody}>
             <span className={s.statLabel}>면적</span>
-            <span className={s.statValue}>{area.toLocaleString()} km²</span>
+            <span className={s.statValue}>{area.toLocaleString("ko-KR")} km²</span>
             <span className={s.statSub}>서울의 약 {seoulRatio}배</span>
           </div>
         </button>
@@ -227,7 +227,7 @@ export function SigunguStats({
             <Icon icon={Building2} size="lg"  />
             <div className={s.statBody}>
               <span className={s.statLabel}>의료기관</span>
-              <span className={s.statValue}>{medical.totalCount.toLocaleString()}개</span>
+              <span className={s.statValue}>{medical.totalCount.toLocaleString("ko-KR")}개</span>
               <span className={s.statSub}>
                 {isMedicalFallback ? `${provinceShortName} 기준 ·` : ""} 상세 보기 →
               </span>
@@ -245,7 +245,7 @@ export function SigunguStats({
             <Icon icon={GraduationCap} size="lg"  />
             <div className={s.statBody}>
               <span className={s.statLabel}>학교</span>
-              <span className={s.statValue}>{school.totalCount.toLocaleString()}개</span>
+              <span className={s.statValue}>{school.totalCount.toLocaleString("ko-KR")}개</span>
               <span className={s.statSub}>
                 {isSchoolFallback ? `${provinceShortName} 기준 ·` : ""} 상세 보기 →
               </span>
@@ -264,7 +264,7 @@ export function SigunguStats({
             <div className={s.statBody}>
               <span className={s.statLabel}>농가</span>
               <span className={s.statValue}>
-                {farm.farmCount.toLocaleString()}호
+                {farm.farmCount.toLocaleString("ko-KR")}호
               </span>
               <span className={s.statSub}>
                 가구당 {farm.avgPopulation.toFixed(1)}명
@@ -292,10 +292,10 @@ export function SigunguStats({
             <div className={s.statBody}>
               <span className={s.statLabel}>귀농</span>
               <span className={s.statValue}>
-                {returnFarm.returnFarmPerson.toLocaleString()}명
+                {returnFarm.returnFarmPerson.toLocaleString("ko-KR")}명
               </span>
               <span className={s.statSub}>
-                {returnFarm.returnFarmHousehold.toLocaleString()}가구 · {returnFarm.year}년 기준
+                {returnFarm.returnFarmHousehold.toLocaleString("ko-KR")}가구 · {returnFarm.year}년 기준
               </span>
             </div>
           </button>
@@ -312,7 +312,7 @@ export function SigunguStats({
             <div className={s.statBody}>
               <span className={s.statLabel}>귀촌</span>
               <span className={s.statValue}>
-                {returnFarm.returnRuralPerson.toLocaleString()}명
+                {returnFarm.returnRuralPerson.toLocaleString("ko-KR")}명
               </span>
               <span className={s.statSub}>
                 {returnFarm.year}년 기준 · 상세 보기 →

@@ -25,10 +25,26 @@ import s from "./page.module.css";
  * 스크롤 연출은 네이티브 스크롤 위의 sticky + IntersectionObserver 뿐(휠 가로채기 없음).
  */
 
+/**
+ * 실제로 연동하는 공공기관 (10/1 정정 — 통계청을 KOSIS·SGIS 두 줄로 세고 농촌진흥청을 빠뜨려
+ * '5개 기관'이 우연히 맞던 목록). 기관 단위로 센다. 용도는 src/lib/api/* 실제 호출 기준.
+ */
+const DATA_SOURCES = [
+  { name: "기상청", code: "KMA", description: "지역별 기온·강수·일조 관측(ASOS)" },
+  { name: "통계청", code: "KOSIS·SGIS", description: "귀농·귀촌 통계, 지역 인구·농가 수" },
+  { name: "농촌진흥청", code: "RDA", description: "작물 소득 조사, 청년농 지원사업·교육" },
+  { name: "건강보험심사평가원", code: "HIRA", description: "지역별 의료기관 현황" },
+  { name: "교육부", code: "NEIS", description: "지역별 학교 현황" },
+];
+
+/** 기관 수·이름 나열은 위 목록에서 센다 — 문구마다 "5곳"을 손으로 쓰지 않는다 (10/3) */
+const SOURCE_COUNT = DATA_SOURCES.length;
+const SOURCE_NAMES = DATA_SOURCES.map((src) => src.name).join("·");
+
 export const metadata: Metadata = {
   title: "이랑 서비스 소개 — 농촌 정착 정보 큐레이션",
   description:
-    "공공데이터 5개 기관으로 농촌 정착을 한곳에서. 지역·작물·지원사업·인터뷰·치유까지.",
+    `공공데이터 ${SOURCE_COUNT}개 기관으로 농촌 정착을 한곳에서. 지역·작물·지원사업·인터뷰·치유까지.`,
   alternates: { canonical: "/about" },
 };
 
@@ -109,18 +125,6 @@ const FEATURES = [
       "수익을 넘어 사람과 마을을 잇는 농업의 새로운 방향을 탐색하세요.",
     href: "/education/therapy",
   },
-];
-
-/**
- * 실제로 연동하는 공공기관 5곳 (10/1 정정 — 통계청을 KOSIS·SGIS 두 줄로 세고 농촌진흥청을 빠뜨려
- * '5개 기관'이 우연히 맞던 목록). 기관 단위로 센다. 용도는 src/lib/api/* 실제 호출 기준.
- */
-const DATA_SOURCES = [
-  { name: "기상청", code: "KMA", description: "지역별 기온·강수·일조 관측(ASOS)" },
-  { name: "통계청", code: "KOSIS·SGIS", description: "귀농·귀촌 통계, 지역 인구·농가 수" },
-  { name: "농촌진흥청", code: "RDA", description: "작물 소득 조사, 청년농 지원사업·교육" },
-  { name: "건강보험심사평가원", code: "HIRA", description: "지역별 의료기관 현황" },
-  { name: "교육부", code: "NEIS", description: "지역별 학교 현황" },
 ];
 
 /** ④ 겹친 타원 — 실제로 지키고 있는 원칙만 (출처 표기 · 같은 기준 비교 · 정정 이력 공개) */
@@ -204,7 +208,7 @@ export default function AboutPage() {
           url: "https://irangfarm.com/about",
           logo: "https://irangfarm.com/icon.svg",
           description:
-            "이랑은 농촌 정착을 준비하는 분들을 위한 비영리 정보 큐레이션 서비스예요. 기상청·통계청(KOSIS·SGIS)·농촌진흥청·건강보험심사평가원·교육부 5개 공공기관 데이터로 지역, 작물, 지원사업 정보를 한곳에서 비교할 수 있게 정리해요.",
+            `이랑은 농촌 정착을 준비하는 분들을 위한 비영리 정보 큐레이션 서비스예요. ${SOURCE_NAMES} ${SOURCE_COUNT}개 공공기관 데이터로 지역, 작물, 지원사업 정보를 한곳에서 비교할 수 있게 정리해요.`,
           email: "loyal3270@gmail.com",
           contactPoint: {
             "@type": "ContactPoint",
@@ -230,7 +234,7 @@ export default function AboutPage() {
       {/* ═══ ① 타이틀 띠 — 회색 띠 하단 경계에 걸친 큰 세리프 ═══ */}
       <header className={s.titleBand}>
         <h1 className={s.title}>
-          <span className={s.titleOverline}>서비스 소개</span>
+          <span className={s.titleOverline}>서비스 소개</span>{" "}
           <span className={s.titleWord}>이랑</span>
         </h1>
       </header>
@@ -247,7 +251,7 @@ export default function AboutPage() {
             정착할 곳을 비교해요
           </h2>
           <p className={s.introBody}>
-            <AutoGlossary text="지역·작물·지원사업·인터뷰·치유까지, 농촌 정착에 필요한 정보를 한곳에 모았어요. 기후·인구·의료·학교·소득처럼 흩어진 숫자는 공공기관 5곳의 자료를 같은 기준으로 맞춰, 후보지와 작물을 나란히 놓고 고를 수 있어요." />
+            <AutoGlossary text={`지역·작물·지원사업·인터뷰·치유까지, 농촌 정착에 필요한 정보를 한곳에 모았어요. 기후·인구·의료·학교·소득처럼 흩어진 숫자는 공공기관 ${SOURCE_COUNT}곳의 자료를 같은 기준으로 맞춰, 후보지와 작물을 나란히 놓고 고를 수 있어요.`} />
           </p>
           <div className={s.introCtas}>
             <Link href="/assess" className={s.btnPrimary}>
@@ -314,7 +318,7 @@ export default function AboutPage() {
           )}
         </ul>
         <p className={s.tilesNote}>
-          숫자는 기상청·통계청·농촌진흥청·건강보험심사평가원·교육부 자료 기준이에요. 지원사업은 지금 신청할 수 없는 마감 공고까지 센 숫자예요.
+          숫자는 {SOURCE_NAMES} 자료 기준이에요. 지원사업은 지금 신청할 수 없는 마감 공고까지 센 숫자예요.
         </p>
       </section>
 
@@ -328,7 +332,7 @@ export default function AboutPage() {
             이런 분께
           </h2>
           <p className={s.sectionDesc}>
-            5가지 유형 중 가까운 곳에서 시작해 보세요.
+            {PERSONA_CARDS.length}가지 유형 중 가까운 곳에서 시작해 보세요.
           </p>
         </div>
         <ul className={s.personas}>
@@ -370,7 +374,7 @@ export default function AboutPage() {
             핵심 영역
           </h2>
           <p className={s.sectionDesc}>
-            정착 결정에 필요한 5가지 정보를 한곳에서 비교하세요.
+            정착 결정에 필요한 {FEATURES.length}가지 정보를 한곳에서 비교하세요.
           </p>
         </div>
         <ol className={s.features}>
@@ -400,7 +404,7 @@ export default function AboutPage() {
             출처가 분명한 데이터
           </h2>
           <p className={s.sectionDesc}>
-            지역·작물 숫자는 아래 5개 공공기관 자료를 연동해요. 지원사업·교육·행사는 정부·지자체 원문 공고를 확인해 정리해요.
+            지역·작물 숫자는 아래 {SOURCE_COUNT}개 공공기관 자료를 연동해요. 지원사업·교육·행사는 정부·지자체 원문 공고를 확인해 정리해요.
           </p>
         </div>
         <ul className={s.sources}>

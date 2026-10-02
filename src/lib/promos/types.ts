@@ -49,7 +49,7 @@ export interface PromoRow {
 export const PROMO_COLUMNS =
   "id, org, title, tagline, image_url, image_width, image_height, alt, facts, recruit_closed, note, href, starts_at, until, active, sort_order, updated_at";
 
-export type PromoFact = PromoPopupItem["facts"][number];
+type PromoFact = PromoPopupItem["facts"][number];
 
 function toFacts(value: unknown): PromoFact[] {
   if (!Array.isArray(value)) return [];
@@ -154,7 +154,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
  * 화면에 그대로 나가는 문장 필드에만 적용한다.
  * "잇습니다"처럼 어간이 다른 격식체도 같은 톤이라 `습니다` 까지 함께 막는다.
  */
-export const FORBIDDEN_TONE_RE = /합니다|입니다|습니다/;
+const FORBIDDEN_TONE_RE = /합니다|입니다|습니다/;
 
 export interface ValidationError {
   field: string;

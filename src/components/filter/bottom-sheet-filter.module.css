@@ -88,7 +88,7 @@
   font-weight: 600;
   color: #fff;
   background: var(--primary, #1b6b5a);
-  border-radius: 4px;
+  border-radius: 9999px; /* 원형 유지 — 10/2 라운드 일괄 변경 예외 */
   line-height: 1;
 }
 
