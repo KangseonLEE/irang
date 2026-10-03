@@ -109,15 +109,20 @@ probe_code() {
     echo "$code"
     return 0
   fi
-  # 1차 실패(000/4xx/5xx) 시 2회까지 재시도 — 일시적 네트워크 흔들림 + GitHub runner IP 차단 대응
+  # 타임아웃·연결 실패(000)는 재시도 1회만 (2026-10-03).
+  # 실측: 9/23~10/3 순차 실행 8회에서 30s 타임아웃 뒤 재시도로 살아난 URL 은 **1건**, 끝까지 타임아웃인 URL 은
+  # 회당 2~11건 × 131초(30+3+30+8+60)를 썼다 — 9/30·10/2 job 30분 초과 취소의 주원인. 타임아웃은 어차피 경고 집계.
+  if [ "$code" = "000" ]; then
+    sleep 3
+    fetch_status "$url"
+    return 0
+  fi
+  # 4xx/5xx 는 2회까지 재시도 — 일시 오류·rate limit 대응. 응답이 빨라 비용이 작다.
   # 백오프: 3s → 8s (서버 rate limit·DDoS 보호 회피)
-  if [ "$code" = "000" ] || { [ "$code" -ge 400 ] 2>/dev/null && [ "$code" -lt 600 ] 2>/dev/null; }; then
+  if [ "$code" -ge 400 ] 2>/dev/null && [ "$code" -lt 600 ] 2>/dev/null; then
     sleep 3
     code=$(fetch_status "$url")
   fi
-  # NOTE 2026-08-17: 마지막 재시도는 타임아웃을 60s로 완화.
-  # GitHub Actions 러너는 미국 리전이라 한국 정부 사이트(go.kr)가 30s를 넘기는 일이 잦다.
-  # 실측: 8/17 타임아웃 6건(gunsan·rda·agrohealing·gecpo)이 한국에서는 전부 200.
   if [ "$code" = "000" ] || { [ "$code" -ge 400 ] 2>/dev/null && [ "$code" -lt 600 ] 2>/dev/null; }; then
     sleep 8
     code=$(fetch_status "$url" 60)
@@ -159,9 +164,10 @@ classify_result() {
   fi
 }
 
-# ── 검사 대상 수집 → 병렬 조회 → 원래 순서로 집계 (2026-10-03) ──
-# 9/30·10/2 실행이 job 30분 한도에 걸려 **결과 없이 취소**됐다. URL 하나가 타임아웃이면 30+3+30+8+60 ≈ 131초를
-# 쓰는데 하루 타임아웃 14건이면 그것만 30분이다. 조회를 병렬(기본 6)로 돌리고, 출력·집계는 수집 순서대로 다시 맞춘다.
+# ── 검사 대상 수집 → 조회 → 원래 순서로 집계 (2026-10-03) ──
+# 9/30·10/2 실행이 job 30분 한도에 걸려 **결과 없이 취소**됐다 — 원인은 타임아웃 재시도 사다리(위 probe_code).
+# 조회 동시성은 CHECK_LINKS_CONCURRENCY 로 조절하되 **기본은 순차(1)**: 10/3 US 러너 실측에서 동시 6건은
+# 타임아웃이 14 → 57건으로 늘었다(순차일 땐 정상이던 gunsan·gongju·gov.kr 등까지) — 한국 쪽이 동시 요청을 늦춘다.
 ENTRIES_FILE=$(mktemp)
 CODES_FILE=$(mktemp)
 trap 'rm -f "$ENTRIES_FILE" "$CODES_FILE"' EXIT
@@ -261,7 +267,7 @@ done < <(perl -0777 -ne '
 # ── 병렬 조회 ──
 export -f fetch_status is_geo_host probe_code
 export UA GEO_WARN_HOSTS CODES_FILE
-PROBE_CONCURRENCY=${CHECK_LINKS_CONCURRENCY:-6}
+PROBE_CONCURRENCY=${CHECK_LINKS_CONCURRENCY:-1}
 # 행 번호를 키로 — 병렬 결과는 끝나는 순서대로 쌓이므로 집계는 원래 순서로 다시 맞춘다.
 # 인자는 "행번호 URL" 한 덩어리(URL 에 공백은 없다). NUL 구분(-0): xargs 기본 모드는 따옴표·백슬래시를
 # 해석해 URL 이 깨질 수 있다. -r: 대상 0건이면 실행하지 않는다(GNU xargs 는 빈 입력에도 1회 돈다).
