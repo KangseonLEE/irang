@@ -284,12 +284,15 @@ export interface TrendBentoProfile {
   hero: { value: string; label: string; sub: string; desc: string };
   stats: [TrendBentoStat, TrendBentoStat];
   chart: { title: string; surveyLabel: string; items: { label: string; pct: number }[] };
-  compare: { title: string; items: { label: string; change: string; detail: string }[] };
+  /** 공식 근거가 있는 비교만 둔다. 없으면 생략 — 렌더는 비교 타일을 숨긴다(귀산촌) */
+  compare?: { title: string; items: { label: string; change: string; detail: string }[] };
 }
 
 /* ── 추세 벤토 수치 — stats.ts 배열에서 계산한다 (10/3 정정) ──
    "1.2만"·"42.2만 역대 최대"·"2,685"·"8,534" 같은 손으로 적은 숫자가 공식 통계와 달랐다.
-   비교(compare) 항목 중 출처를 아직 확인하지 못한 것은 그대로 두고 정정 보고에 올렸다. */
+   비교(compare) 항목도 10/3 DE-B 가 원문을 다시 찾았다. 근거를 찾지 못한 것 — 주거비 3.3㎡당 1,800만 → 350만 원,
+   출퇴근 58분 → 차로 10분, 주거 면적 58㎡ → 130㎡, 미세먼지 24 → 17㎍/㎥, 귀산촌 4종, 청년 농지임차 연 300만 원
+   (충남 금산군 등 일부 지자체 사업), '정착 교육 100시간+' — 은 지웠다. 남은 값은 실태조사 보도자료·정책 원문 값이다. */
 const _pop = populationData[populationData.length - 1];
 const _popPrev = populationData[populationData.length - 2];
 const _popYears = populationData.map((d) => d.year);
@@ -362,8 +365,6 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
           change: signedPct(settlementSurvey.livingCostChange),
           detail: `${settlementSurvey.livingCostBefore}만 원 → ${settlementSurvey.livingCostAfter}만 원`,
         },
-        { label: "주거비 (3.3㎡당)", change: "-80%", detail: "1,800만 원 → 350만 원" },
-        { label: "출퇴근", change: "-48분", detail: "평균 58분 → 차로 10분" },
         {
           label: "가구소득 (5년차)",
           change: signedPct(settlementSurvey.incomeChange),
@@ -408,14 +409,17 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     compare: {
       title: "귀촌하면 뭐가 달라질까?",
       items: [
-        { label: "주거 면적", change: "2.2배", detail: "58㎡ → 130㎡ 단독주택" },
         {
           label: "월 생활비",
           change: signedPct(settlementSurvey.ruralLivingCostChange),
           detail: `${settlementSurvey.ruralLivingCostBefore}만 원 → ${settlementSurvey.ruralLivingCostAfter}만 원`,
         },
-        { label: "미세먼지", change: "-29%", detail: "24㎍/㎥ → 17㎍/㎥" },
-        { label: "출퇴근", change: "-48분", detail: "평균 58분 → 차로 10분" },
+        /* 귀농 카드와 같은 축 — 같은 실태조사 보도자료의 귀촌 5년차 가구소득 */
+        {
+          label: "가구소득 (5년차)",
+          change: signedPct(settlementSurvey.ruralIncomeChange),
+          detail: `첫해 ${settlementSurvey.ruralIncomeFirstYear.toLocaleString("ko-KR")}만 원 → ${settlementSurvey.ruralIncomeFifthYear.toLocaleString("ko-KR")}만 원`,
+        },
       ],
     },
   },
@@ -458,8 +462,8 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
       items: [
         { label: "정착지원금", change: "월 110만 원", detail: "보조금 · 최대 3년" },
         { label: "창업자금", change: "최대 3억원", detail: "저금리 융자 지원" },
-        { label: "농지임차 보조", change: "연 300만 원", detail: "임차료 50~80% 지원" },
-        { label: "교육비", change: "전액 무료", detail: "정착 교육 100시간+" },
+        /* 국비 무료 장기 교육(만 18~39세) — programs.ts SP-012 원문. "정착 교육 100시간+"는 귀농 창업자금 심사 기준과 섞인 표기였다 */
+        { label: "교육비", change: "무료", detail: "청년창업보육센터 20개월" },
       ],
     },
   },
@@ -496,15 +500,8 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
       surveyLabel: `귀산촌 가구 전입 사유 · ${reasonsYear}`,
       items: mountainReasons,
     },
-    compare: {
-      title: "산촌 생활, 뭐가 달라질까?",
-      items: [
-        { label: "주거비", change: "-65%", detail: "도시 대비 크게 절감" },
-        { label: "공기질", change: "PM2.5 -35%", detail: "도시 대비 맑은 공기" },
-        { label: "주거 면적", change: "2배+", detail: "단독주택 130㎡ 이상" },
-        { label: "산림소득", change: "연 500만 원+", detail: "임산물·체험 수익" },
-      ],
-    },
+    /* compare 없음 — 주거비 -65%·PM2.5 -35%·주거 면적 2배+·산림소득 연 500만 원+ 모두 근거를 찾지 못했다(10/3 DE-B).
+       귀농·귀촌 실태조사는 귀산촌을 따로 나누지 않고, 임가경제조사(임가 평균)는 귀산촌 가구 값이 아니다. */
   },
   smartfarm: {
     id: "smartfarm",
@@ -659,7 +656,9 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
         { label: "정착 지원금", value: "300만~2,000만 원", sub: "지자체별 상이" },
       ],
     },
-    visibleSections: ["compare", "strategy"],
+    /* 10/3 정정(DE-B): 'compare'(도시 vs 농촌) 제외 — 남은 월 생활비 행은 귀농 가구 값이라 귀촌에 맞지 않고,
+       나머지 행(주거비·주거 형태·생활 만족도)은 근거가 없어 cityVsRural 에서 지웠다 */
+    visibleSections: ["strategy"],
   },
   youth: {
     id: "youth",
@@ -687,7 +686,9 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
         { label: "영농 준비 비용", value: "약 6,567만 원", sub: "농지·시설·장비" },
         { label: "영농정착지원금", value: "최대 3,600만 원", sub: "보조금 (만 18~39세)" },
         { label: "농업창업자금", value: "최대 3억 원", sub: "저금리 융자 지원" },
-        { label: "농지임차 지원", value: "연 최대 300만 원", sub: "임차료 50~80% 보조" },
+        /* 10/3 정정(DE-B): "농지임차 지원 연 최대 300만 원·임차료 50~80%"는 전국 제도가 아니라 일부 지자체 사업
+           (예: 충남 금산군 2026 — 최대 70%·연 300만 원) 조건이라 지우고, 만 18~39세 국비 무료 교육(SP-012 원문)으로 */
+        { label: "청년창업보육센터", value: "교육비 무료", sub: "실습비 월 최대 70만 원" },
       ],
     },
     visibleSections: ["crop", "phase", "compare", "strategy", "support", "simulator"],
@@ -721,7 +722,8 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
         { label: "정착지원(주택)", value: "최대 7,500만 원", sub: "주택 구입·신축" },
       ],
     },
-    visibleSections: ["compare", "strategy"],
+    /* 10/3 정정(DE-B): 'compare' 제외 — 귀산촌 비교 행(주거비·미세먼지·주거 형태·생활 만족도·산림소득)이 모두 근거가 없었다 */
+    visibleSections: ["strategy"],
   },
   smartfarm: {
     id: "smartfarm",
@@ -753,7 +755,8 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
         { label: "혁신밸리 임대형", value: "보증금 1,000만~3,000만", sub: "청년 창업 지원" },
       ],
     },
-    visibleSections: ["crop", "compare", "strategy", "simulator"],
+    /* 10/3 정정(DE-B): 'compare' 제외 — 스마트팜 비교 행(주거비·5년차 소득의 도시 값·시설농 매출·생활 만족도)이 모두 근거가 없었다 */
+    visibleSections: ["crop", "strategy", "simulator"],
   },
 };
 
@@ -785,68 +788,17 @@ export interface CompareRow {
   sentiment: "positive" | "caution" | "neutral";
 }
 
+/* /costs 비교 카드(COMPARE_LABELS_BY_TYPE 로 라벨 필터). 10/3 정정(DE-B): 공식 근거가 있는 행만 남긴다.
+   지운 행 — 주거비 3.3㎡당 1,800만 → 350만 원·주거 형태 58㎡ → 130㎡·출퇴근 58분 → 차로 10분·미세먼지 24 → 17㎍/㎥·
+   5년차 소득의 도시 3,800만 원·생활 만족도 52% → 70%(10/3 정정 이력에서 이미 근거 없음 판정)·산림소득·시설농 매출(1,000㎡ 1.5억~2억 원).
+   월 생활비는 실태조사 값에서 계산한다 — 239 → 173만 원은 -25.1%가 아니라 -27.6%였다.
+   이 행은 귀농 가구 값이라 귀촌·귀산촌·스마트팜 비용 화면은 비교 섹션을 끈다(COST_TYPE_PROFILES.visibleSections). */
 export const cityVsRural: CompareRow[] = [
   {
     label: "월 생활비",
-    city: "239만 원",
-    rural: "173만 원",
-    change: "-25.1%",
-    sentiment: "positive",
-  },
-  {
-    label: "주거비 (3.3㎡당)",
-    city: "1,800만 원",
-    rural: "350만 원",
-    change: "-80%",
-    sentiment: "positive",
-  },
-  {
-    label: "주거 형태",
-    city: "아파트 58㎡",
-    rural: "단독주택 130㎡",
-    change: "2.2배 넓게",
-    sentiment: "positive",
-  },
-  {
-    label: "출퇴근",
-    city: "평균 58분",
-    rural: "차로 10분",
-    change: "-48분",
-    sentiment: "positive",
-  },
-  {
-    label: "미세먼지 (PM2.5)",
-    city: "24㎍/㎥",
-    rural: "17㎍/㎥",
-    change: "-29%",
-    sentiment: "positive",
-  },
-  {
-    label: "5년차 소득",
-    city: "3,800만 원",
-    rural: "3,300만 원",
-    change: "격차 ↓ 추세",
-    sentiment: "caution",
-  },
-  {
-    label: "생활 만족도",
-    city: "52%",
-    rural: "70%",
-    change: "+18%p",
-    sentiment: "positive",
-  },
-  {
-    label: "산림소득",
-    city: "—",
-    rural: "연 500만~1,500만 원",
-    change: "+α",
-    sentiment: "positive",
-  },
-  {
-    label: "시설농 매출",
-    city: "—",
-    rural: "1.5억~2억 원 (1,000㎡)",
-    change: "+α",
+    city: `${settlementSurvey.livingCostBefore}만 원`,
+    rural: `${settlementSurvey.livingCostAfter}만 원`,
+    change: signedPct(settlementSurvey.livingCostChange),
     sentiment: "positive",
   },
 ];

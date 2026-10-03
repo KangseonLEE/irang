@@ -592,21 +592,13 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
    landing.ts cityVsRural 배열에서 label로 필터링됨
    ──────────────────────────────────────────────────────────────── */
 
+// 10/3 정정: 근거 없는 비교 행(주거비·주거 형태·5년차 소득 도시 값·생활 만족도·미세먼지·산림소득·시설농 매출)을
+// cityVsRural 에서 지웠다. 남은 "월 생활비"는 귀농 가구 값이라 귀촌·귀산촌·스마트팜은 비교 섹션 자체를 끈다
+// (COST_TYPE_PROFILES.visibleSections) — 여기 빈 배열은 그 상태를 명시할 뿐이다.
 export const COMPARE_LABELS_BY_TYPE: Record<CostTypeId, string[]> = {
-  farming: ["월 생활비", "주거비 (3.3㎡당)", "5년차 소득", "생활 만족도"],
-  youth: ["월 생활비", "주거비 (3.3㎡당)", "5년차 소득", "생활 만족도"],
-  village: ["월 생활비", "주거비 (3.3㎡당)", "주거 형태", "생활 만족도"],
-  forestry: [
-    "주거비 (3.3㎡당)",
-    "미세먼지 (PM2.5)",
-    "주거 형태",
-    "생활 만족도",
-    "산림소득",
-  ],
-  smartfarm: [
-    "주거비 (3.3㎡당)",
-    "5년차 소득",
-    "시설농 매출",
-    "생활 만족도",
-  ],
+  farming: ["월 생활비"],
+  youth: ["월 생활비"],
+  village: [],
+  forestry: [],
+  smartfarm: [],
 };
