@@ -40,7 +40,7 @@
  *  · 살아보기 상세는 POST form submit 전용이라 딥링크가 없다 → 목록 URL + 안내 문구.
  */
 
-import type { CrawledItem } from "./crawl-utils.ts";
+import type { CollectResult, CrawledItem } from "./crawl-utils.ts";
 
 const BASE = "https://www.greendaero.go.kr";
 
@@ -251,27 +251,66 @@ export function dedupKey(item: CrawledItem): string {
   return `${title}|${org}|${item.dateStart ?? ""}|${item.dateEnd ?? ""}`;
 }
 
-async function getJson<T>(url: string, referer: string, timeoutMs: number): Promise<T | null> {
-  const res = await fetch(url, {
-    headers: {
-      "User-Agent": UA,
-      Accept: "application/json, text/plain, */*",
-      "X-Requested-With": "XMLHttpRequest",
-      Referer: referer,
-    },
-    signal: AbortSignal.timeout(timeoutMs),
-  });
-  if (!res.ok) {
-    console.error(`[greendaero] ${url} → HTTP ${res.status}`);
-    return null;
+/** 응답 형식 이상 — 다시 받아도 같으므로 재시도하지 않는다 */
+class GdFormatError extends Error {}
+
+/**
+ * 실패 문구 꼬리 (crawl-utils `describeFailure` 와 같은 규칙) — 재시도한 실패(4xx·형식 오류 아님)에만
+ * "(재시도 후)"를 붙인다.
+ */
+function describeGdFailure(err: unknown, retried: boolean): string {
+  const message = err instanceof Error
+    ? (err.name === "TimeoutError" || err.name === "AbortError" ? "타임아웃" : err.message)
+    : String(err);
+  const notRetried = err instanceof GdFormatError || /^HTTP 4\d\d$/.test(message);
+  return `${retried && !notRetried ? "(재시도 후)" : ""} — ${message}`;
+}
+
+/**
+ * JSON GET. 실패하면 throw — 호출부가 `CollectResult.errors` 로 옮긴다 (10/4 "성공·0건" 금지).
+ * 10/3 이전엔 HTTP 오류·HTML 응답을 null 로, 네트워크 오류를 호출부 catch 의 break 로 삼켜
+ * 원천이 죽어도 "0건 성공"이 됐다.
+ * `retry` 면 네트워크 오류·타임아웃·5xx 를 10초 뒤 25초 한도로 한 번 더 받는다 — crawl-utils
+ * `fetchWithRetry` 와 같은 규칙. 이 파일은 tsc 검사 대상(테스트가 import)이라 `.ts` 확장자 값
+ * import 를 쓸 수 없어(TS5097) crawl-utils 에서는 타입만 가져온다.
+ */
+async function getJson<T>(url: string, referer: string, timeoutMs: number, retry = false): Promise<T> {
+  const attempts = retry ? 2 : 1;
+  let lastError: unknown = new Error("요청하지 않음");
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    if (attempt > 1) await new Promise((resolve) => setTimeout(resolve, 10_000));
+    try {
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent": UA,
+          Accept: "application/json, text/plain, */*",
+          "X-Requested-With": "XMLHttpRequest",
+          Referer: referer,
+        },
+        signal: AbortSignal.timeout(attempt === 1 ? timeoutMs : 25_000),
+      });
+      if (!res.ok) {
+        lastError = new Error(`HTTP ${res.status}`);
+        await res.body?.cancel().catch(() => {});
+        if (res.status < 500) break;
+        continue;
+      }
+      const text = await res.text();
+      if (!text.trimStart().startsWith("{")) {
+        // 경로가 바뀌면 200 + 랜딩 HTML이 돌아온다 (소프트 404)
+        throw new GdFormatError(`JSON이 아님 (HTML 응답 ${text.length}바이트) — 경로 변경 의심`);
+      }
+      try {
+        return JSON.parse(text) as T;
+      } catch {
+        throw new GdFormatError(`JSON 해석 실패 (${text.length}바이트)`);
+      }
+    } catch (err) {
+      if (err instanceof GdFormatError) throw err;
+      lastError = err;
+    }
   }
-  const text = await res.text();
-  if (!text.trimStart().startsWith("{")) {
-    // 경로가 바뀌면 200 + 랜딩 HTML이 돌아온다 (소프트 404). 조용히 실패하지 않게 로그.
-    console.error(`[greendaero] ${url} → JSON이 아님 (HTML 응답, ${text.length}바이트)`);
-    return null;
-  }
-  return JSON.parse(text) as T;
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }
 
 // ═══════════════════════════════════════
@@ -331,29 +370,48 @@ export function mapEduItem(raw: GdEduItem, today: string): CrawledItem | null {
  * 그린대로 통합교육신청 목록 수집.
  * 접수가 열려 있거나 예정인 건만 남긴다 (마감은 버린다).
  *
+ * @param today KST 오늘 (YYYY-MM-DD) — sync-crawl 이 crawl-utils `kstToday()` 로 넘긴다. 10/4 이전엔 여기서
+ *              UTC 로 계산해, 06:00 KST 스케줄(21:00 UTC 전날)에서 하루 전 날짜로 접수 상태를 매겼다.
+ *              이 파일은 tsc 제약(TS5097)으로 crawl-utils 의 값을 import 할 수 없어 인자로 받는다
  * @param maxPages 페이지 수 (1페이지 = 200건, 기본 3페이지 = 600건)
  */
 export async function fetchGreendaeroEducation(
+  today: string,
   maxPages = 3,
   itemsPerPage = 200,
-): Promise<CrawledItem[]> {
-  const today = new Date().toISOString().slice(0, 10);
+): Promise<CollectResult> {
   const collected: CrawledItem[] = [];
+  const errors: string[] = [];
   const seen = new Set<string>();
 
   for (let page = 1; page <= maxPages; page++) {
-    let json: GdEduResponse | null = null;
+    let json: GdEduResponse;
     try {
+      // 재시도는 1페이지만 — 1페이지가 응답했다면 원천은 살아 있다 (150초 wall-clock 보호)
       json = await getJson<GdEduResponse>(
         `${EDU_LIST_URL}?page=${page}&itemsPerPage=${itemsPerPage}`,
         EDU_REFERER,
         20000,
+        page === 1,
       );
     } catch (err) {
-      console.error(`[greendaero] 교육 ${page}페이지 실패:`, err);
+      errors.push(
+        `그린대로 교육 ${page}페이지 요청 실패${describeGdFailure(err, page === 1)}` +
+          (collected.length > 0 ? ` (앞 페이지 ${collected.length}건은 적재)` : ""),
+      );
       break;
     }
-    if (!json || !Array.isArray(json.list) || json.list.length === 0) break;
+    if (!Array.isArray(json.list)) {
+      errors.push(`그린대로 교육 ${page}페이지: list 가 없음 — 응답 형식 변경 의심`);
+      break;
+    }
+    if (json.list.length === 0) {
+      // 1페이지가 비었는데 원천 총건수가 있으면 형식·파라미터 변경 — 정상 0건과 가른다
+      if (page === 1 && Number(json.totalItems ?? 0) > 0) {
+        errors.push(`그린대로 교육: totalItems ${json.totalItems}인데 목록 0건 — 파라미터·형식 변경 의심`);
+      }
+      break;
+    }
 
     const before = collected.length;
     for (const raw of json.list) {
@@ -376,7 +434,7 @@ export async function fetchGreendaeroEducation(
     if (collected.length === before) break;
   }
 
-  return collected;
+  return { items: collected, errors };
 }
 
 // ═══════════════════════════════════════
@@ -426,21 +484,27 @@ export function mapLiveItem(raw: GdLiveItem, today: string): CrawledItem | null 
 /**
  * 농촌에서 살아보기 운영마을 수집.
  * `vlg_state` 3(모집완료)은 접수 기간으로도 마감이라 status 필터에서 함께 걸러진다.
+ * `today` 는 KST — fetchGreendaeroEducation 과 같다.
  */
-export async function fetchGreendaeroLive(itemsPerPage = 400): Promise<CrawledItem[]> {
-  const today = new Date().toISOString().slice(0, 10);
-  let json: GdLiveResponse | null = null;
+export async function fetchGreendaeroLive(today: string, itemsPerPage = 400): Promise<CollectResult> {
+  let json: GdLiveResponse;
   try {
     json = await getJson<GdLiveResponse>(
       `${LIVE_LIST_URL}?search_mode=1&page=1&items_per_page=${itemsPerPage}&searchText=`,
       LIVE_PAGE_URL,
       20000,
+      true,
     );
   } catch (err) {
-    console.error("[greendaero] 살아보기 목록 실패:", err);
-    return [];
+    return { items: [], errors: [`그린대로 살아보기 목록 요청 실패${describeGdFailure(err, true)}`] };
   }
-  if (!json || !Array.isArray(json.list)) return [];
+  if (!Array.isArray(json.list)) {
+    // 응답은 왔는데 list 가 없다 — 운영마을 0곳이면 빈 배열이 온다 (실측 cnt 302)
+    return { items: [], errors: ["그린대로 살아보기: list 가 없음 — 응답 형식 변경 의심"] };
+  }
+  if (json.list.length === 0 && Number(json.cnt ?? 0) > 0) {
+    return { items: [], errors: [`그린대로 살아보기: cnt ${json.cnt}인데 목록 0건 — 파라미터·형식 변경 의심`] };
+  }
 
   const collected: CrawledItem[] = [];
   const seen = new Set<string>();
@@ -457,5 +521,5 @@ export async function fetchGreendaeroLive(itemsPerPage = 400): Promise<CrawledIt
   console.log(
     `[greendaero] 살아보기: 원본 ${json.list.length}건 → 활성 ${collected.length}건 (cnt ${json.cnt})`,
   );
-  return collected;
+  return { items: collected, errors: [] };
 }

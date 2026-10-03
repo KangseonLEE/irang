@@ -1,0 +1,50 @@
+<!-- 똑똑!청년농부 삭제된 게시글 응답 (HTTP 200, 2026-10-03 실측 sId=99999999) -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>	
+	<title>똑똑! 청년농부</title>
+				<meta http-equiv="Content-Language" content="ko">
+<meta http-equiv="Content-Script-Type" content="text/javascript">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta http-equiv="title" content="똑똑! 청년농부">
+				<meta http-equiv="description" content="똑똑! 청년농부">
+				<meta http-equiv="keywords" content="똑똑! 청년농부">
+			<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="telephone=no, address=no, email=no">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<link rel="shortcut icon" href="/young/images/site/favicon.ico"></head>
+<body>
+	<noscript>
+		<div class="noscript">현재 브라우저가 스크립트를 지원하지 않습니다. 원활한 홈페이지 사용을 위해 스크립트를 허용하거나 최신버전으로 업데이트해주세요.</div>
+	</noscript>
+	<script>
+		var resultMsg = "삭제된 게시글입니다.";
+	
+		window.onload = function(){		
+			if(resultMsg == null || resultMsg == "" || resultMsg == "undefined"){
+				resultMsg = "데이터 처리중 오류가 발생하였습니다.";
+			}
+			alert(resultMsg);
+			document.getElementById("resultForm").submit();
+		}
+		
+	</script>
+	<form id="resultForm" name="resultForm" method="post" action="/young/custom/list.do">
+		<input type="hidden" name="cp" value="">
+			<input type="hidden" name="so" value="">
+			<input type="hidden" name="sv" value="">
+			<input type="hidden" name="sd" value="">
+			<input type="hidden" name="ed" value="">
+			<input type="hidden" name="oc" value="">
+			<input type="hidden" name="ob" value="">
+			
+			<input type="hidden" name="search_keyword" value="">
+			<input type="hidden" name="search_category" value="">
+			<input type="hidden" name="search_area1" value="">
+			<input type="hidden" name="search_area2" value="">
+			<input type="hidden" name="search_ingState" value="">
+			<input type="hidden" name="search_agency" value="">
+	  	</form>
+</body>
+</html>

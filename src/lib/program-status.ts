@@ -60,7 +60,9 @@ export function deriveStatus(
     if (!applicationStart || today >= applicationStart) return "모집중";
     return "모집예정";
   }
-  if (!applicationStart) return today > applicationEnd ? "마감" : "모집중";
+  // 시작일 미상(null 또는 9999) + 마감일 확정 — 마감일까지 모집중. 표기(format.ts "~ {마감일}")와 같은 판정.
+  // 10/3 RDA 수집기가 상세 보강에 실패한 행을 "시작 9999 + 실제 마감일"로 두면서 생긴 조합(정적 데이터엔 0건).
+  if (!applicationStart || applicationStart === ALWAYS_OPEN) return today > applicationEnd ? "마감" : "모집중";
   if (today < applicationStart) return "모집예정";
   if (today > applicationEnd) return "마감";
   return "모집중";

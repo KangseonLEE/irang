@@ -98,7 +98,8 @@ jobs:
           esac
 
           # 2) 2xx여도 본문 ok:false 면 실패다.
-          #    `errors`에는 DB upsert 실패·수집 예외만 담긴다(개별 링크 불량은 담기지 않음).
+          #    `errors`에는 원천 수집 실패(목록 요청 실패·총건수>0 인데 0건·응답 형식 변경, 10/3)와
+          #    DB upsert 실패가 담긴다(개별 링크 불량은 담기지 않음).
           #    대표 사례: `sigungu` 컬럼 마이그레이션을 apply하기 전에 함수를 배포하면
           #    모든 upsert가 "column does not exist"로 실패하면서 응답은 200이다.
           if echo "$body" | grep -q '"ok":false'; then
