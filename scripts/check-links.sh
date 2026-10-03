@@ -11,6 +11,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 PROGRAMS_FILE="$PROJECT_DIR/src/lib/data/programs.ts"
 EDUCATION_FILE="$PROJECT_DIR/src/lib/data/education.ts"
+EVENTS_FILE="$PROJECT_DIR/src/lib/data/events.ts"
+CENTERS_FILE="$PROJECT_DIR/src/lib/data/centers.ts"
 
 # CI 모드 플래그
 CI_MODE=false
@@ -190,6 +192,61 @@ done < <(perl -0777 -ne '
 
 echo ""
 
+# ── 체험·행사 URL 추출 및 체크 (2026-09-29 추가) ──
+# 지자체 체험 프로그램이 events.ts로 들어오기 시작하면서 링크 검증 사각지대가 생겼다.
+echo -e "${CYAN}▸ 체험·행사 (events)${NC}"
+
+while IFS=$'\t' read -r current_id url; do
+  if [ -n "$current_id" ] && [ -n "$url" ]; then
+    check_url "$current_id" "$url" "events"
+  fi
+done < <(perl -0777 -ne '
+  for my $chunk (split /(?=\bid:\s*"evt-)/, $_) {
+    next unless $chunk =~ /\bid:\s*"(evt-[^"]+)"/;
+    my $id = $1;
+    next unless $chunk =~ /\burl:\s*"(https?:[^"]+)"/;
+    print "$id\t$1\n";
+  }
+' "$EVENTS_FILE")
+
+echo ""
+
+# ── 귀농귀촌지원센터 URL 추출 및 체크 (2026-09-29 추가) ──
+# 지자체 센터 홈페이지는 개편·도메인 통합이 잦은데 4월 검증 이후 재확인 경로가 없었다.
+#
+# ⚠ centers.ts는 238건이라 매일 전수 검사하면 기존 78건짜리 job이 4배가 된다
+#   (8/17에 이미 러너 타임아웃으로 30분까지 늘린 이력). 요일별 1/7 슬라이스로
+#   하루 ~34건만 보고 일주일이면 전수 순회한다. 전수 강제는 CHECK_LINKS_ALL_CENTERS=1.
+CENTER_SLICES=7
+CENTER_SLICE=${CHECK_LINKS_CENTER_SLICE:-$(( $(date '+%j' | sed 's/^0*//') % CENTER_SLICES ))}
+if [ "${CHECK_LINKS_ALL_CENTERS:-0}" = "1" ]; then
+  echo -e "${CYAN}▸ 귀농귀촌지원센터 (centers — 전수)${NC}"
+  CENTER_SLICE="all"
+else
+  echo -e "${CYAN}▸ 귀농귀촌지원센터 (centers — 슬라이스 ${CENTER_SLICE}/${CENTER_SLICES}, 주 1회 전수 순회)${NC}"
+fi
+
+CENTER_INDEX=0
+while IFS=$'\t' read -r current_id url; do
+  if [ -n "$current_id" ] && [ -n "$url" ]; then
+    if [ "$CENTER_SLICE" != "all" ] && [ $(( CENTER_INDEX % CENTER_SLICES )) -ne "$CENTER_SLICE" ]; then
+      CENTER_INDEX=$((CENTER_INDEX + 1))
+      continue
+    fi
+    CENTER_INDEX=$((CENTER_INDEX + 1))
+    check_url "$current_id" "$url" "centers"
+  fi
+done < <(perl -0777 -ne '
+  for my $chunk (split /(?=\bid:\s*")/, $_) {
+    next unless $chunk =~ /\bid:\s*"([a-z0-9-]+)"/;
+    my $id = $1;
+    next unless $chunk =~ /\burl:\s*"(https?:[^"]+)"/;
+    print "$id\t$1\n";
+  }
+' "$CENTERS_FILE")
+
+echo ""
+
 # ── 결과 요약 ──
 echo "───────────────────────────────────────────"
 echo -e "  총 ${TOTAL}개 | ${GREEN}정상 ${OK}${NC} | ${RED}실패 ${FAIL}${NC} | ${YELLOW}타임아웃 ${TIMEOUT}${NC}"
@@ -240,7 +297,7 @@ $(echo -e "$ISSUE_BODY")
 
 1. 위 URL에 직접 접속하여 상태를 확인하세요
 2. 페이지가 완전히 삭제된 경우:
-   - \`src/lib/data/programs.ts\` 또는 \`education.ts\`에서 해당 항목에 \`linkStatus: \"broken\"\` 추가
+   - \`src/lib/data/programs.ts\`·\`education.ts\`·\`events.ts\`·\`centers.ts\`에서 해당 항목에 \`linkStatus: \"broken\"\` 추가 또는 URL 교체
    - 이렇게 하면 **목록에서 자동 숨김** + **상세페이지에서 Google 검색 폴백** 표시
 3. URL이 변경된 경우: 새 URL로 업데이트
 4. 일시적 장애인 경우: 다음 날 자동 재검사됩니다

@@ -24,14 +24,18 @@ interface ScrollRevealProps {
    */
   variant?: "rise" | "fade" | "slide-left" | "slide-right";
   /**
-   * 자식 순차 리빌 (9/28). 켜면 안쪽의 `[data-reveal-item]` 형제가 80ms 간격으로 떠오른다.
+   * 자식 순차 리빌 (9/28). 켜면 안쪽의 `[data-reveal-item]` 형제가 70ms 간격으로 떠오른다.
    * 대상 요소에 `data-reveal-item` 을 붙여야 동작한다(타일·카드 등).
+   *
+   * 아이템 안에서 다시 3단으로 채우려면(9/29 quietcubes 문법) 자식에 `data-reveal-part="1|2|3"`
+   * 을 붙인다 — 번호/아이콘(1) → 제목(2) → 본문(3), 그 아이템의 등장 시점 기준 60ms 간격.
    */
   stagger?: boolean;
 }
 
-/** 자식 순차 리빌이 끝나기까지의 시간 (최대 지연 640 + 지속 900 + 여유) — 이후 마커·transform 을 떼어낸다 */
-const STAGGER_SETTLE_MS = 1700;
+/** 자식 순차 리빌이 끝나기까지의 시간 (최대 지연 560 + 내부 3단 120 + 지속 900 + 여유) —
+    이후 마커·transform 을 떼어낸다 */
+const STAGGER_SETTLE_MS = 1800;
 
 /**
  * 시각 리빌 트리거 (9/28 회장: "특정 좌표를 넘기기 전엔 안 떠서 섹션이 없는 것처럼 느껴짐").
@@ -88,6 +92,9 @@ export function ScrollReveal({
     const dropMarkers = () => {
       el.querySelectorAll("[data-reveal-item]").forEach((n) =>
         n.removeAttribute("data-reveal-item"),
+      );
+      el.querySelectorAll("[data-reveal-part]").forEach((n) =>
+        n.removeAttribute("data-reveal-part"),
       );
       el.querySelectorAll("[data-reveal-x]").forEach((n) => n.removeAttribute("data-reveal-x"));
       el.classList.add(s.settled);

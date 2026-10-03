@@ -9,10 +9,10 @@ import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { GovernmentService } from "schema-dts";
 import {
-  ArrowLeft,
   MapPin,
   Building2,
   Calendar,
@@ -22,7 +22,7 @@ import {
   HelpCircle,
   ChevronDown, ArrowRight } from "lucide-react";
 import { formatApplicationPeriod, formatAgeRange } from "@/lib/format";
-import { ALWAYS_OPEN, programStatusLabel } from "@/lib/program-status";
+import { ALWAYS_OPEN, kstToday, programStatusLabel } from "@/lib/program-status";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
@@ -160,15 +160,6 @@ export default async function ProgramDetailPage({
           ...(validEnd ? { validThrough: validEnd } : {}),
         }}
       />
-      {/* Breadcrumb / Back — 의견 바로가기를 같은 줄 끝에 둔다 (9/17: 단독 배치는 흐름을 끊었다) */}
-      <div className={s.topBar}>
-        <Link href="/programs" className={s.backLink}>
-          <ArrowLeft size={16} />
-          지원사업 목록
-        </Link>
-        <CommunityJumpLink from="program_detail" />
-      </div>
-
       {/* Title + Status */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
@@ -197,6 +188,17 @@ export default async function ProgramDetailPage({
         <p className={s.pageSummary}><SentenceText text={program.summary} glossary /></p>
         {/* 원문 링크는 사이드 "원문 확인" 카드(사이드바 최상단) 한 곳만 — 제목 아래 버튼과 이중 노출이라
             회장 9/28 "위젯 것만 남기자". 셀프 체크 결과 모달의 링크는 별도 맥락이라 유지 */}
+      </div>
+
+      {/* 브레드크럼 — 히어로(제목 블록) 아래 공통 위치 (2026-10-02 회장). 의견 바로가기는 같은 줄 끝 (9/17) */}
+      <div className={s.topBar}>
+        <Breadcrumb
+          items={[
+            { name: "지원사업 검색", href: "/programs" },
+            { name: program.title },
+          ]}
+        />
+        <CommunityJumpLink from="program_detail" />
       </div>
 
       <ReferenceNotice text="지원사업 정보는 지자체 공고를 참고한 자료예요. 신청 전 해당 기관에서 최신 조건을 꼭 확인하세요." />
@@ -460,7 +462,7 @@ export default async function ProgramDetailPage({
             </div>
           </div>
 
-          {/* Application Timeline */}
+          {/* Application Timeline — asOf: 이 스냅샷을 만든 날(KST). 하이드레이션은 이 날 기준으로 서버와 같게 (10/3) */}
           <ApplicationTimeline
             applicationStart={program.applicationStart}
             applicationEnd={program.applicationEnd}
@@ -468,6 +470,7 @@ export default async function ProgramDetailPage({
             statusLabel={statusLabel}
             applicationCycle={program.applicationCycle}
             organization={program.organization}
+            asOf={kstToday()}
           />
 
           {/* 진단 CTA 는 sticky 탭 카드 **앞**에 — 뒤에 두면 sticky 밑으로 파고들어 안 보인다(9/17 작물 상세 동일) */}

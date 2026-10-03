@@ -3,7 +3,6 @@ import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowRight,
   ExternalLink,
   MapPin,
@@ -22,6 +21,7 @@ import { getInterviewImageSrc } from "@/lib/interview-image";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Article } from "schema-dts";
 import { InterviewCorrectionNotice } from "@/components/interview/correction-notice";
@@ -156,12 +156,6 @@ export default async function InterviewDetailPage({
           ],
         }}
       />
-      {/* ═══ 뒤로가기 ═══ */}
-      <Link href="/interviews" className={s.backLink}>
-        <Icon icon={ArrowLeft} size="md" />
-        정착 이야기
-      </Link>
-
       {/* ═══ 히어로: 프로필 + 인용문 ═══ */}
       <section className={s.hero}>
         {illustration && (
@@ -228,6 +222,15 @@ export default async function InterviewDetailPage({
           )}
         </div>
       </section>
+
+      {/* ═══ 브레드크럼 — 히어로 아래 공통 위치 (2026-10-02 회장) ═══ */}
+      <Breadcrumb
+        className={s.breadcrumbBar}
+        items={[
+          { name: "정착 이야기", href: "/interviews" },
+          { name: `${person.name}님의 이야기` },
+        ]}
+      />
 
       {/* ═══ 본문: 이야기 (메인 콘텐츠, 가장 넓은 공간) ═══ */}
       <section className={s.storySection}>

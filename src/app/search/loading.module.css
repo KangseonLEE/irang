@@ -43,7 +43,7 @@
 /* Skeleton Animation — globals.css 의 irang-pulse 사용 */
 .skeleton {
   background: var(--muted, #f9fafb);
-  border-radius: 6px;
+  border-radius: 4px;
   animation: irang-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -51,11 +51,11 @@
   composes: skeleton;
   width: 100%;
   height: 3rem;
-  border-radius: 12px;
+  border-radius: 4px;
 }
 
 .skeletonLink {
   composes: skeleton;
   height: 2.75rem;
-  border-radius: 12px;
+  border-radius: 4px;
 }

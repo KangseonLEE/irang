@@ -104,11 +104,13 @@
   --primary-tint-strong: color-mix(in srgb, var(--primary) 40%, transparent);
 
   /* ── Border-Radius Scale ──
-     카드·배지·섹션 등 전역 모서리 반경 통일 */
-  --radius-sm:   8px;      /* 배지, 인풋, 작은 요소 */
-  --radius-md:  12px;      /* 서브카드, 인라인 블록 */
-  --radius-lg:  16px;      /* 메인 카드 컨테이너 */
-  --radius-xl:  20px;      /* 히어로 섹션, 대형 카드 */
+     2026-10-02 회장 결재: 히어로 기준 2단계로 사이트 전체 통일.
+     컨트롤(버튼·배지·칩·인풋·탭·작은 블록) 4px / 박스(카드·패널·모달·배너) 8px / 원형은 50%·full.
+     sm·md 는 컨트롤, lg·xl 은 박스 — 옛 이름은 호출처 호환용으로 남긴다. */
+  --radius-sm:   4px;      /* 컨트롤: 배지, 인풋, 버튼 */
+  --radius-md:   4px;      /* 컨트롤: 서브 블록, 칩 */
+  --radius-lg:   8px;      /* 박스: 카드 컨테이너 */
+  --radius-xl:   8px;      /* 박스: 대형 카드·패널 */
   --radius-full: 9999px;   /* pill 버튼, 아바타 */
 
   /* ── Icon Scale ──
@@ -124,7 +126,7 @@
   --icon-box-md: 34px;   /* soft/solid 컨테이너 — md (섹션 헤더) */
   --icon-box-lg: 40px;   /* soft/solid 컨테이너 — lg (히어로/빈상태) */
   --icon-box-xl: 64px;   /* soft/solid 컨테이너 — xl (빈상태 히어로) */
-  --icon-box-radius: 10px;
+  --icon-box-radius: 4px;
 
   /* Semantic icon backgrounds — soft variant 전용 */
   --icon-bg-primary: #f0f9f6;
@@ -370,7 +372,7 @@ ul, ol {
 
 .irang-skeleton {
   background: var(--muted, #f9fafb);
-  border-radius: 6px;
+  border-radius: 4px;
   animation: irang-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 

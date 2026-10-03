@@ -79,6 +79,7 @@ describe("ApplicationTimeline — 상태·접수 시기·확인처 행 (9/27)", 
         statusLabel="정기 접수"
         applicationCycle="매년 4월 접수"
         organization="진도군 농업지원과"
+        asOf="2026-10-03"
       />,
     );
     expect(screen.getByText("상태")).toBeInTheDocument();
@@ -99,6 +100,7 @@ describe("ApplicationTimeline — 상태·접수 시기·확인처 행 (9/27)", 
         status="모집예정"
         statusLabel="공고 발표 예정"
         organization="농림축산식품부"
+        asOf="2026-10-03"
       />,
     );
     expect(screen.getByText("공고 발표 예정")).toBeInTheDocument();
@@ -114,6 +116,7 @@ describe("ApplicationTimeline — 상태·접수 시기·확인처 행 (9/27)", 
         status="모집중"
         statusLabel="모집중"
         organization="한국농어촌공사 농지은행"
+        asOf="2026-10-03"
       />,
     );
     expect(screen.getByText("1/1부터 상시 모집")).toBeInTheDocument();
@@ -128,6 +131,7 @@ describe("ApplicationTimeline — 상태·접수 시기·확인처 행 (9/27)", 
         status="마감"
         statusLabel="마감"
         organization="군산시"
+        asOf="2026-02-20"
       />,
     );
     // 날짜는 "1/12 ~ 2/13" 한 span 안에 구분자와 함께 들어간다

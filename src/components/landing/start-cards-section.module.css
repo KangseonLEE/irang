@@ -1,5 +1,7 @@
 /* StartCardsSection — 섹션 머리말. 기본(모바일) → @media 오버라이드 (체크리스트 G) */
 
+/* 9/29 의 커튼 오버랩 보정 여백(40/72px)은 10/2 제거 — 이 섹션 뒤에 이제 인터뷰 띠가 아니라
+   "직접 가 보는 농촌"이 오고, 커튼 음수 마진도 없앴다. 띠 하단 여백은 .lightGreenBg 패딩 하나로 */
 .section {
   min-width: 0;
 }
@@ -16,7 +18,7 @@
 .eyebrow {
   display: inline-block;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, #fff);
   color: var(--primary, #1b6b5a);
   font-size: var(--fs-overline, 0.6875rem);

@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
-  ChevronRight,
   ArrowLeft,
   FileText,
   GraduationCap,
@@ -31,6 +30,7 @@ import { GuData } from "./gu-data";
 import { SigunguStatsSkeleton } from "../sigungu-stats-skeleton";
 import { DataSource } from "@/components/ui/data-source";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import s from "../page.module.css";
 
 interface PageProps {
@@ -127,28 +127,6 @@ export default async function GuDetailPage({ params }: PageProps) {
         { name: sigungu.name, href: `/regions/${province.id}/${sigungu.id}` },
         { name: gu.name, href: `/regions/${province.id}/${sigungu.id}/${gu.id}` },
       ]} />
-      {/* -- 브레드크럼 -- */}
-      <nav className={s.breadcrumb} aria-label="경로">
-        <Link href="/regions" className={s.breadcrumbLink}>
-          지역 탐색
-        </Link>
-        <Icon icon={ChevronRight} size="sm" className={s.breadcrumbSep} />
-        <Link href={`/regions/${province.id}`} className={s.breadcrumbLink}>
-          {province.shortName}
-        </Link>
-        <Icon icon={ChevronRight} size="sm" className={s.breadcrumbSep} />
-        <Link
-          href={`/regions/${province.id}/${sigungu.id}`}
-          className={s.breadcrumbLink}
-        >
-          {sigungu.name}
-        </Link>
-        <Icon icon={ChevronRight} size="sm" className={s.breadcrumbSep} />
-        <span className={s.breadcrumbCurrent} aria-current="page">
-          {gu.name}
-        </span>
-      </nav>
-
       {/* -- Hero -- */}
       <header className={s.hero}>
         <span className={s.heroOverline}>
@@ -164,6 +142,18 @@ export default async function GuDetailPage({ params }: PageProps) {
           ))}
         </div>
       </header>
+
+      {/* -- 브레드크럼 — 히어로 아래 공통 위치 (2026-10-02 회장) -- */}
+      <div className={s.topBar}>
+        <Breadcrumb
+          items={[
+            { name: "지역 탐색", href: "/regions" },
+            { name: province.shortName, href: `/regions/${province.id}` },
+            { name: sigungu.name, href: `/regions/${province.id}/${sigungu.id}` },
+            { name: gu.name },
+          ]}
+        />
+      </div>
 
       {/* -- API 데이터 섹션: 통계 + 기후 -- */}
       <Suspense fallback={<SigunguStatsSkeleton />}>

@@ -13,7 +13,7 @@
 .section {
   background: white;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 1.25rem;
 }
 
@@ -94,7 +94,7 @@
   padding: 0.5rem 0.625rem;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: 0 6px 20px color-mix(in srgb, var(--primary, #1b6b5a) 16%, transparent);
   opacity: 0;
   visibility: hidden;

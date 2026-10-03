@@ -86,7 +86,7 @@
   flex-shrink: 0;
   height: 34px;
   padding: 0 14px;
-  border-radius: 999px;
+  border-radius: 4px;
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1;
@@ -178,7 +178,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 14px;
-  border-radius: 16px;
+  border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--card);
   text-decoration: none;
@@ -210,7 +210,7 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border-radius: 999px;
+  border-radius: 999px; /* 원형 유지 — 10/2 라운드 일괄 변경 예외 */
   background: color-mix(in srgb, var(--primary) 12%, transparent);
   color: var(--primary);
   font-weight: 800;
@@ -290,7 +290,7 @@
   align-items: center;
   height: 22px;
   padding: 0 8px;
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--muted);
   font-weight: 600;
   color: var(--foreground);

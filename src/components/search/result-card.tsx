@@ -15,12 +15,12 @@ import { interviews } from "@/lib/data/landing";
 import { glossaryMap, CATEGORY_LABELS } from "@/lib/data/glossary";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { programStatusLabel } from "@/lib/program-status";
-import { DeadlineBadge } from "@/components/ui/deadline-badge";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 
 import { lookupRegionFromHref } from "./region-lookup";
 import { InterviewResultCard } from "./interview-result-card";
+import { SearchDeadlineBadge } from "./search-deadline-badge";
 
 import s from "./result-card.module.css";
 
@@ -350,7 +350,8 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
         <SupportTypeBadge type={prog.supportType} />
       </div>
       <div className={s.statusCorner}>
-        <DeadlineBadge applicationEnd={prog.applicationEnd} applicationStart={prog.applicationStart} status={prog.status} />
+        {/* 날짜 의존 — 하이드레이션 뒤에 오늘 기준으로 그린다(서버·브라우저 날짜가 갈리면 #418, 10/3 QA) */}
+        <SearchDeadlineBadge applicationEnd={prog.applicationEnd} applicationStart={prog.applicationStart} status={prog.status} />
         <StatusBadge status={programStatusLabel(prog)} />
       </div>
     </>,

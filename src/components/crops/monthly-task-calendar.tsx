@@ -4,10 +4,17 @@ import { useState } from "react";
 import { Calendar } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { CROP_CALENDARS, type MonthlyTask } from "@/lib/data/crop-calendar";
+import { useKstToday } from "@/lib/hooks/use-kst-today";
 import s from "./monthly-task-calendar.module.css";
 
 interface MonthlyTaskCalendarProps {
   cropId: string;
+  /**
+   * 서버가 이 HTML 을 만든 날 — KST YYYY-MM-DD (`kstToday()`). "이번 달" 강조의 하이드레이션 기준.
+   * 렌더 중 `new Date().getMonth()` 를 읽으면 서버(UTC·ISR 스냅샷)와 브라우저의 달이 갈리는 날
+   * (매월 1일 KST 0~9시·스냅샷 재생성 전) 전 작물 상세에서 React #418 이 난다 (10/3).
+   */
+  asOf: string;
 }
 
 const MONTH_LABELS = [
@@ -38,14 +45,16 @@ const LEGEND: { intensity: MonthlyTask["intensity"]; label: string }[] = [
   { intensity: "상", label: "많음" },
 ];
 
-export function MonthlyTaskCalendar({ cropId }: MonthlyTaskCalendarProps) {
+export function MonthlyTaskCalendar({ cropId, asOf }: MonthlyTaskCalendarProps) {
   const calendar = CROP_CALENDARS.find((c) => c.cropId === cropId);
   // 활성 툴팁 month (터치/키보드 대응). null = 없음
   const [activeMonth, setActiveMonth] = useState<number | null>(null);
+  // 하이드레이션 = 서버가 그린 날(asOf), 직후 보는 사람의 오늘(KST)
+  const today = useKstToday(asOf);
 
   if (!calendar) return null;
 
-  const currentMonth = new Date().getMonth() + 1; // 1-based
+  const currentMonth = Number(today.slice(5, 7)); // 1-based, KST
   // month 순으로 정렬 (데이터 순서 의존 제거)
   const tasks = [...calendar.tasks].sort((a, b) => a.month - b.month);
   const currentTask = tasks.find((t) => t.month === currentMonth);

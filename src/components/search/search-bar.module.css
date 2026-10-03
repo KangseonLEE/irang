@@ -11,7 +11,7 @@
   gap: 8px;
   padding: 10px 16px;
   border: 1.5px solid var(--border);
-  border-radius: 16px;
+  border-radius: 4px;
   background: var(--card);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -106,7 +106,7 @@
 .searchSubmitBtn:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 @media (hover: hover) {
@@ -164,7 +164,7 @@
   margin-top: 0;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 4px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   /* 히어로 검색 dropdown 이 화면 절반 이상 차지하지 않도록 — 내부 스크롤 */
   max-height: min(560px, 70vh);
@@ -333,7 +333,7 @@
   padding: 0;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   color: var(--muted-foreground);
   cursor: pointer;
   flex-shrink: 0;
@@ -364,7 +364,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--muted);
   color: var(--muted-foreground);
   flex-shrink: 0;
@@ -378,7 +378,7 @@
   min-width: 44px;
   min-height: 44px;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   background: transparent;
   color: var(--muted-foreground);
   cursor: pointer;
@@ -451,7 +451,7 @@
   background: var(--primary, #1b6b5a);
   text-decoration: none;
   padding: 10px 18px;
-  border-radius: 10px;
+  border-radius: 4px;
   border: 1px solid var(--primary, #1b6b5a);
   cursor: pointer;
   transition: background-color 0.12s, box-shadow 0.12s, transform 100ms ease;
@@ -512,7 +512,7 @@
 
 /* 풀스크린 오버레이에서의 입력 래퍼 — 히어로 검색창과 동일한 pill 스타일 */
 .inputWrapExpanded {
-  border-radius: 100px;
+  border-radius: 4px;
   min-height: 48px;
   padding: 10px 16px;
   border-color: color-mix(in srgb, var(--primary, #1b6b5a) 20%, var(--border, #e5e7eb));
@@ -545,7 +545,7 @@
   height: 32px;
   margin: -4px 0 -4px -4px;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   background: transparent;
   color: var(--foreground);
   cursor: pointer;
@@ -610,7 +610,7 @@
   font-weight: 500;
   cursor: pointer;
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   transition: color 0.12s, background-color 0.12s;
   -webkit-tap-highlight-color: transparent;
 }
@@ -661,7 +661,7 @@
   align-items: center;
   gap: 6px;
   padding: 14px 4px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--muted);
   color: var(--foreground);
   text-decoration: none;
@@ -709,7 +709,7 @@
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 4px;
   transition: background-color 0.12s;
   -webkit-tap-highlight-color: transparent;
 }
@@ -729,21 +729,7 @@
   outline-offset: 2px;
 }
 
-.popularRank {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  font-size: var(--fs-caption, 12px);
-  font-weight: 700;
-  color: var(--muted-foreground);
-  flex-shrink: 0;
-}
 
-.popularRankTop {
-  color: var(--primary, #1b6b5a);
-}
 
 .popularLabel {
   flex: 1;
@@ -772,7 +758,7 @@
   align-items: flex-start;
   gap: 10px;
   padding: 12px 12px;
-  border-radius: 12px;
+  border-radius: 8px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   text-decoration: none;
@@ -788,7 +774,7 @@
   flex-shrink: 0;
   width: 24px;
   height: 24px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   color: var(--primary, #1b6b5a);
   font-size: 0.75rem;
@@ -842,7 +828,7 @@
   flex-direction: column;
   gap: 4px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--muted, #f9fafb) 60%, transparent);
   border: 1px solid transparent;
   text-decoration: none;
@@ -902,4 +888,366 @@
   border-top: 0;
   margin-top: 0;
   padding-top: 0;
+}
+
+/* ══════════════════════════════════════════
+   헤더 검색 패널 배치 (2026-10-02 회장 — 기후금융포털식 위에서 내려오는 패널)
+   - 큰 검색 바: 1px 진한 테두리 + 검색 버튼 오른쪽
+   - 제안 목록은 흐름 배치·상시 노출, 빈 입력이면 추천 검색어 칩 → 열 배치
+   ══════════════════════════════════════════ */
+.inputWrapPanel {
+  min-height: 56px;
+  padding: 0 8px 0 18px;
+  gap: 8px;
+  /* 히어로 검색창 문법으로 통일(10/2 회장) — 각진 모서리 4px, 1px 테두리, 그림자·초록 링 없음 */
+  border: 1px solid var(--foreground, #111827);
+  border-radius: 4px;
+  background: var(--background, #fff);
+  font-size: 1.0625rem;
+}
+
+.inputWrapPanel:focus-within {
+  border-color: var(--primary, #1b6b5a);
+}
+
+/* 가상 키보드가 뜬 iOS 에서 16px 미만이면 입력 시 확대된다 — 모바일도 17px */
+.inputWrapPanel .input {
+  height: 54px;
+  font-size: 1.0625rem;
+}
+
+@media (min-width: 768px) {
+  .inputWrapPanel {
+    min-height: 72px;
+    padding: 0 12px 0 28px;
+    font-size: 1.25rem;
+  }
+
+  .inputWrapPanel .input {
+    height: 70px;
+    font-size: 1.25rem;
+  }
+}
+
+/* 브라우저 기본 지우기(type=search)는 숨긴다 — 패널은 자체 지우기 버튼을 쓴다(이중 ✕ 방지) */
+.inputWrapPanel .input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+/* 지우기 버튼 — 데스크탑은 작은 원, 모바일은 44px 터치 영역(바탕 없이) */
+.inputWrapPanel .expandedClear {
+  width: 28px;
+  height: 28px;
+}
+
+@media (max-width: 767px) {
+  .inputWrapPanel .expandedClear {
+    width: 44px;
+    height: 44px;
+    background: transparent;
+  }
+}
+
+.panelSubmitBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 4px;
+}
+
+.panelSubmitBtn .searchIcon {
+  color: var(--foreground, #111827);
+}
+
+@media (min-width: 768px) {
+  .panelSubmitBtn {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (hover: hover) {
+  .panelSubmitBtn:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
+  }
+
+  .panelSubmitBtn:hover .searchIcon {
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+/* 제안 목록 — 패널 본문 흐름에 둔다(패널이 스크롤을 맡는다) */
+.dropdownPanel {
+  position: static;
+  max-height: none;
+  overflow: visible;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  scrollbar-gutter: auto;
+}
+
+/* 패널 안 섹션 라벨은 sticky 를 풀고 바탕을 비운다 (열 배치라 붙어 다닐 스크롤 박스가 없다) */
+.dropdownPanel .sectionLabel {
+  position: static;
+  background: transparent;
+  padding: 0 0 10px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground, #6b7280);
+  text-transform: none;
+}
+
+.dropdownPanel .sectionLabelRow {
+  padding-right: 0;
+  margin-bottom: 6px;
+}
+
+.dropdownPanel .sectionLabelRow .sectionLabel {
+  padding-bottom: 0;
+}
+
+/* ── 추천 검색어 칩 ── */
+.panelChips {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panelChipsLabel {
+  flex-shrink: 0;
+  font-size: var(--fs-body-sm, 14px);
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+}
+
+.panelChipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.panelChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 4px;
+  background: var(--background, #fff);
+  color: var(--foreground, #111827);
+  font-size: var(--fs-body-sm, 14px);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .panelChip:hover {
+    border-color: var(--primary, #1b6b5a);
+    color: var(--primary, #1b6b5a);
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
+  }
+}
+
+.panelChip:active {
+  background: var(--muted, #f9fafb);
+}
+
+.panelChip:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* 모바일: 라벨 위·칩 한 줄 가로 스크롤 (세로 공간을 칩이 먹지 않게) */
+@media (max-width: 767px) {
+  .panelChips {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .panelChipList {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 2px 16px 4px;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+
+  .panelChipList::-webkit-scrollbar {
+    display: none;
+  }
+
+  .panelChip {
+    min-height: 40px;
+    flex-shrink: 0;
+  }
+}
+
+/* ── 열 배치: 1열(모바일) → 2열(768) → 3열(1024) ── */
+.panelGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  margin-top: 28px;
+}
+
+@media (min-width: 768px) {
+  .panelGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 32px;
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border, #e5e7eb);
+  }
+}
+
+@media (min-width: 1024px) {
+  .panelGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 40px;
+  }
+}
+
+.panelCol {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+/* 768~1023: 2열이라 FAQ 열은 아래 행 전폭 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .panelCol:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+.dropdownPanel .dropdownSection,
+.dropdownPanel .expandedSection,
+.dropdownPanel .expandedSection + .expandedSection,
+.dropdownPanel .dropdownSection + .dropdownSection {
+  padding: 0;
+  border-top: 0;
+}
+
+/* 최근 검색 — 행 들여쓰기를 열 시작선에 맞춘다 */
+.dropdownPanel .resultItemCompact {
+  padding: 8px 8px;
+  margin: 0 -8px;
+  border-radius: 4px;
+}
+
+/* 바로 탐색 — 아이콘 타일 대신 링크 목록 2열 */
+.dropdownPanel .quickGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px 12px;
+  padding: 0;
+}
+
+.dropdownPanel .quickItem {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 8px;
+  margin: 0 -8px;
+  border-radius: 4px;
+  background: transparent;
+  font-size: var(--fs-body-sm, 14px);
+  color: var(--foreground, #111827);
+}
+
+.dropdownPanel .quickItem svg {
+  color: var(--primary, #1b6b5a);
+  flex-shrink: 0;
+}
+
+@media (hover: hover) {
+  .dropdownPanel .quickItem:hover {
+    background: var(--muted, #f9fafb);
+  }
+}
+
+.dropdownPanel .quickItem:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -2px;
+}
+
+/* 단계별 가이드 — 카드 대신 번호 목록 */
+.dropdownPanel .guideStepsGrid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+  padding: 0;
+}
+
+.dropdownPanel .guideStepCard {
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 8px;
+  margin: 0 -8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+}
+
+.dropdownPanel .guideStepBody {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (hover: hover) {
+  .dropdownPanel .guideStepCard:hover {
+    background: var(--muted, #f9fafb);
+    border-color: transparent;
+    box-shadow: none;
+  }
+}
+
+/* 자주 묻는 질문 — 질문 한 줄 + 답 요약 2줄 */
+.dropdownPanel .faqList {
+  gap: 2px;
+}
+
+.dropdownPanel .faqItem {
+  padding: 8px 8px;
+  margin: 0 -8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+}
+
+.dropdownPanel .faqA {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (hover: hover) {
+  .dropdownPanel .faqItem:hover {
+    background: var(--muted, #f9fafb);
+    border-color: transparent;
+  }
+}
+
+/* 입력 중 자동완성 — 행을 검색 바 시작선에 맞춘다 */
+.dropdownPanel .suggestRow,
+.dropdownPanel .viewAllLink {
+  border-radius: 4px;
+}
+
+.dropdownPanel .dropdownFooter {
+  border-top: 0;
 }

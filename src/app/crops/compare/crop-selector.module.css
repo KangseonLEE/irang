@@ -35,7 +35,7 @@
   color: var(--primary, #1b6b5a);
   padding: 4px 10px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  border-radius: 9999px;
+  border-radius: 4px;
 }
 .spinner { animation: spin 1s linear infinite; }
 
@@ -107,7 +107,7 @@
 /* 썸네일이 들어가는 카드형 행 — 공용 행보다 모서리가 크고 테두리 자리를 미리 잡는다 */
 .dropdownCard, .dropdownCardActive {
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: 8px;
   transition: background-color 0.12s, border-color 0.12s;
 }
 .dropdownCardActive {
@@ -125,7 +125,7 @@
   flex-shrink: 0;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--card, #fff);
   overflow: hidden;
 }
@@ -159,7 +159,7 @@
   color: var(--primary, #1b6b5a);
   padding: 2px 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
-  border-radius: 9999px;
+  border-radius: 4px;
   flex-shrink: 0;
 }
 
@@ -190,7 +190,7 @@
   font-family: inherit;
   background: var(--muted, #f9fafb);
   border: 2px dashed color-mix(in srgb, var(--primary, #1b6b5a) 22%, var(--border, #e5e7eb));
-  border-radius: 18px;
+  border-radius: 8px;
   color: var(--muted-foreground);
   cursor: pointer;
   transition: background-color 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
@@ -232,7 +232,7 @@
   flex-direction: column;
   background: var(--card, #fff);
   border: 1.5px solid color-mix(in srgb, var(--primary, #1b6b5a) 22%, transparent);
-  border-radius: 18px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
 }
@@ -348,7 +348,7 @@
   padding: 5px 8px 5px 6px;
   background: var(--card, #fff);
   border: 1.5px solid color-mix(in srgb, var(--primary, #1b6b5a) 22%, transparent);
-  border-radius: 9999px;
+  border-radius: 4px;
 }
 
 .chipImg {
@@ -399,7 +399,7 @@
   color: var(--primary, #1b6b5a);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 22%, transparent);
-  border-radius: 9999px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.15s;
 }
@@ -424,7 +424,7 @@
   color: #fff;
   background: var(--primary, #1b6b5a);
   border: none;
-  border-radius: 12px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.15s;
 }
@@ -446,7 +446,7 @@
   color: var(--primary, #1b6b5a);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
-  border-radius: 12px;
+  border-radius: 4px;
   animation: fadeIn 0.2s ease-out;
 }
 

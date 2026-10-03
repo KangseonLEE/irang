@@ -7,6 +7,7 @@ import { EDUCATION_COURSES } from "@/lib/data/education";
 import { EVENTS } from "@/lib/data/events";
 import { interviews, hasFullStory } from "@/lib/data/landing";
 import { RELEASE_GROUPS } from "@/lib/data/updates";
+import { START_LANES } from "@/lib/data/journey-lanes";
 
 const BASE_URL = "https://irangfarm.com";
 
@@ -77,6 +78,14 @@ function getCorePages(now: Date): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/regions/ranking`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/regions/ranking/methodology`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/crops/compare`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    /* 시작 유형 비교 + 레인 허브 5 (9/29 S7) — 히어로 게이트의 도착지 */
+    { url: `${BASE_URL}/start`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    ...START_LANES.map((l) => ({
+      url: `${BASE_URL}/start/${l.id}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
     { url: `${BASE_URL}/programs/roadmap`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     /* canonical은 /stats 단일. 5탭(?tab=)은 동일 페이지의 변형이라
        별도 등록 X (duplicate content 회피). 탭 콘텐츠는 prerendering으로

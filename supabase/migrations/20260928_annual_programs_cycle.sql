@@ -41,6 +41,12 @@
 --   curl -s "https://irangfarm.com/programs/SP-001" | grep -o "매년 초 시·군 접수"
 --   curl -s "https://irangfarm.com/search?q=%EA%B7%80%EB%86%8D%20%EB%86%8D%EC%97%85%EC%B0%BD%EC%97%85" | grep -c "SP-001"
 -- 생성: scratchpad 일회성 스크립트(PROGRAMS 값 추출) — 잔존 파일 없음.
+--
+-- mode-check-ok: 10/2 dev QA 사후 검토 (check-migration-not-null 이 9/29부터 main CI 를 막고 있었음).
+--   application_cycle 은 nullable 표시용 문구 컬럼 — 기존 행은 NULL, 값은 아래 UPDATE 3건(SP-001·002·023)만
+--   채운다. INSERT 경로(sync-crawl 의 support_programs 행 조립, supabase/functions/sync-crawl/index.ts §4)는
+--   이 컬럼을 쓰지 않고 기존 NOT NULL 컬럼(slug·title·summary·region·organization·support_type·support_amount·
+--   application_start·application_end)을 전부 채운다. 신규 INSERT 모드 없음 → 5/26-style silent fail 위험 없음.
 
 BEGIN;
 

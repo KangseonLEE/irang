@@ -12,7 +12,7 @@
   margin: 0 auto -52px; /* .page gap(64) 을 12 로 — 9/7 배너↔타이틀 간격 축소. 데스크탑은 아래 -72 */
   padding: 8px 12px;
   border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
-  border-radius: 16px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary) 6%, var(--card));
 }
 
@@ -30,7 +30,7 @@
 .link:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 3px;
-  border-radius: 10px;
+  border-radius: 4px;
 }
 
 .badge {
@@ -39,7 +39,7 @@
   flex: none;
   gap: 4px;
   padding: 3px 9px;
-  border-radius: 20px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary) 14%, transparent);
   color: var(--primary);
   font-size: 0.7rem;
@@ -68,25 +68,45 @@
   transition: gap 150ms ease;
 }
 
+/* 닫기 — 보이는 칸 32px, 누르는 영역 44px(10/2 QA C-Y12). 버튼 상자 자체를 44px 로 키우고 사방 -6px 마진으로
+   배너 높이·제목과의 간격은 그대로 둔다(제목 링크와 2px 떨어져 겹치지 않는다).
+   ::before 로 누름 영역을 넓히지 않는다 — 이웃과 겹쳐 엉뚱한 것이 눌린다(인터뷰 점 사고). ::before 는 보이는 칸만 그린다 */
 .close {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
+  margin: -6px;
   padding: 0;
   border: none;
-  border-radius: 10px;
+  border-radius: 4px;
   background: transparent;
   color: var(--muted-foreground, #6b7280);
   cursor: pointer;
-  transition: background 150ms ease, color 150ms ease;
+  transition: color 150ms ease;
 }
 
+.close::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 4px;
+  background: transparent;
+  transition: background 150ms ease;
+  pointer-events: none;
+}
+
+.close > svg {
+  position: relative;
+}
+
+/* 링은 보이는 32px 칸 바깥 2px — 종전 outline(offset 2px)과 같은 자리 */
 .close:focus-visible {
   outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  outline-offset: -4px;
 }
 
 @media (hover: hover) {
@@ -95,8 +115,11 @@
   }
 
   .close:hover {
-    background: color-mix(in srgb, var(--primary) 10%, transparent);
     color: var(--foreground);
+  }
+
+  .close:hover::before {
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
   }
 }
 

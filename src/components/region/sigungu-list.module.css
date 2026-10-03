@@ -13,7 +13,7 @@
   align-items: center;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 0 14px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -146,7 +146,7 @@
   flex-direction: column;
   gap: 8px;
   padding: 16px 18px;
-  border-radius: 16px;
+  border-radius: 8px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   text-decoration: none;
@@ -195,7 +195,7 @@
   display: inline-flex;
   align-items: center;
   padding: 3px 10px;
-  border-radius: 20px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, var(--card, #fff));
   color: var(--primary, #1b6b5a);
   font-size: 0.75rem;
@@ -209,7 +209,7 @@
   align-items: center;
   gap: 12px;
   padding: 40px 20px;
-  border-radius: 16px;
+  border-radius: 8px;
   border: 2px dashed var(--border, #e5e7eb);
   background: color-mix(in srgb, var(--muted, #f9fafb) 40%, transparent);
   color: var(--muted-foreground, #6b7280);
@@ -226,7 +226,7 @@
   color: white;
   border: none;
   padding: 8px 16px;
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -251,7 +251,7 @@
   min-width: 36px;
   height: 36px;
   padding: 0 10px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   color: var(--muted-foreground, #6b7280);

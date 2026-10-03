@@ -6,11 +6,11 @@ import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ExternalLinkBlock } from "@/components/ui/external-link-block";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Course } from "schema-dts";
 import { formatDate } from "@/lib/format";
 import {
-  ArrowLeft,
   MapPin,
   Building2,
   Calendar,
@@ -102,12 +102,6 @@ export default async function EducationDetailPage({
           mainEntityOfPage: `https://irangfarm.com/education/${id}`,
         }}
       />
-      {/* Back link */}
-      <Link href="/education" className={s.backLink}>
-        <ArrowLeft size={16} />
-        교육 목록으로
-      </Link>
-
       {/* Title + Badges */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
@@ -135,6 +129,15 @@ export default async function EducationDetailPage({
           </div>
         </div>
       </div>
+
+      {/* 브레드크럼 — 히어로(사진·제목) 아래 공통 위치 (2026-10-02 회장) */}
+      <Breadcrumb
+        className={s.breadcrumbBar}
+        items={[
+          { name: "정착 교육", href: "/education" },
+          { name: course.title },
+        ]}
+      />
 
       <div className={s.contentGrid}>
         {/* Main content */}

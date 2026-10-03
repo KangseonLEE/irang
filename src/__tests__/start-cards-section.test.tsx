@@ -13,9 +13,11 @@ describe("StartCardsSection — 이랑에서 할 수 있는 것 3카드 (9/7)", 
   });
 
   it("href 가 실제 라우트로 존재", () => {
-    for (const href of ["/match", "/regions/ranking", "/programs"]) {
+    // 유형 진단 카드는 모드 선택을 건너뛰고 진단으로 바로(10/3 진단 직행 복원) — 경로 실존은 쿼리를 뗀 경로로 본다
+    for (const href of ["/match?mode=assess", "/regions/ranking", "/programs"]) {
       expect(html).toContain(`href="${href}"`);
-      expect(existsSync(join(process.cwd(), "src", "app", href.slice(1), "page.tsx")), href).toBe(true);
+      const path = href.split("?")[0];
+      expect(existsSync(join(process.cwd(), "src", "app", path.slice(1), "page.tsx")), href).toBe(true);
     }
   });
 

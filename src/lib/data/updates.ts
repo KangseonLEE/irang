@@ -53,6 +53,11 @@ export interface ReleaseNote {
 }
 
 export const RELEASES: Record<string, ReleaseNote> = {
+  "2026-10-02": {
+    tagline: "검색도, 내 길 고르기도 첫 화면에서 🔎",
+    intro:
+      "홈에 들어와서 무엇부터 눌러야 할지 잠깐 멈칫할 때가 있죠. 검색창과 정착 유형 카드를 첫 화면 한가운데에 두었어요.",
+  },
   "2026-09-07": {
     tagline: "가고 싶은 곳, 검색창 바로 아래에서 🧭",
     intro:
@@ -87,6 +92,23 @@ export const RELEASES: Record<string, ReleaseNote> = {
 export const RELEASE_SIGNOFF = "이랑 팀 드림";
 
 export const UPDATES: UpdateItem[] = [
+  {
+    id: "20261002-hero-search-types",
+    date: "2026-10-02",
+    title: "홈 첫 화면에서 바로 검색하고, 내 정착 유형부터 골라 볼 수 있어요",
+    short: "검색·정착 유형을 첫 화면에",
+    summary:
+      "홈 첫 화면 가운데에 큰 검색창이 생겼어요. 누르면 바로 검색 화면이 열리고, 무엇을 칠지 망설여지면 바로 위 추천 검색어를 눌러 보세요. 오른쪽(휴대폰은 아래)에는 귀농·귀촌·귀산촌·청년농·스마트팜·예비 귀농·귀촌인, 여섯 가지 정착 유형 카드가 있어요. 카드마다 관련 지원사업 수·난이도·초기 투자를 먼저 보여 주고, 누르면 그 유형에서 지금 신청할 수 있는 지원사업, 많이 짓는 작물, 먼저 간 사람들 이야기를 한곳에서 볼 수 있어요. '예비 귀농·귀촌인'은 다섯 가지 시작을 나란히 비교하는 화면으로 이어져요. 그 아래엔 지금 신청할 수 있는 지원사업 수와 마감이 가까운 공고를 모았어요.",
+    href: "/",
+    tag: "개선",
+    media: {
+      before: "/updates/hero-search-types-before.webp",
+      after: "/updates/hero-search-types-after.webp",
+      frame: "desktop",
+      caption:
+        "이전엔 그림 슬라이드가 화면을 채우고 검색은 맨 위 작은 창에만 있었어요. 지금은 첫 화면 가운데 큰 검색창과 추천 검색어가, 오른쪽에는 정착 유형 카드 여섯 장이 보여요",
+    },
+  },
   {
     id: "20260929-hero-fullscreen",
     date: "2026-09-29",

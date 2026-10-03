@@ -36,7 +36,8 @@ const CATEGORIES: Category[] = [
 
 function formatCostValue(card: CostHighlightCard, raw: number): string {
   switch (card.format) {
-    case "integer": return Math.round(raw).toLocaleString();
+    // 로캘 고정 — 브라우저 로캘(de-DE "1.234")과 서버 출력("1,234")이 갈려 하이드레이션 #418 (10/2 QA)
+    case "integer": return Math.round(raw).toLocaleString("ko-KR");
     case "decimal1": return raw.toFixed(1);
     case "plain": return Math.round(raw).toString();
   }
@@ -396,6 +397,8 @@ export function TrendCostSection() {
         <div
           className={`${s.stickyBar} ${showSticky ? s.stickyVisible : ""}`}
           aria-hidden={!showSticky}
+          /* 숨은 동안 버튼 5개가 화면 밖에서 Tab 포커스를 받았다(10/2 QA) — aria-hidden 만으로는 포커스가 막히지 않는다 */
+          inert={!showSticky}
         >
           <CategorySelector
             activeIdx={activeIdx}

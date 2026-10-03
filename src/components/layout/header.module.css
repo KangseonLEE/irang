@@ -30,12 +30,31 @@
   padding-right: 1.5rem;
 }
 
+/* 768+ — GNB 를 로고 왼쪽 끝 ~ 검색창 오른쪽 끝의 정중앙에 (10/2 회장).
+   space-between 은 "로고 오른쪽 끝 ~ 검색창 왼쪽 끝" 사이 가운데라, 검색창(280px)이 로고보다 넓은 만큼
+   메뉴가 왼쪽으로 쏠렸다(1440 에서 106px). 양옆 칸을 1fr 로 같게 두면 가운데 칸이 정중앙에 선다. */
+@media (min-width: 768px) {
+  .inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    column-gap: 16px;
+  }
+
+  .inner > :first-child {
+    justify-self: start;
+  }
+
+  .inner > :last-child {
+    justify-self: end;
+  }
+}
+
 /* ── Logo ── */
 .logo {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 0.375rem;
+  border-radius: 4px;
 }
 
 .logo:focus-visible {
@@ -92,7 +111,7 @@
   background: none;
   font-family: inherit;
   cursor: pointer;
-  border-radius: 0.375rem;
+  border-radius: 4px;
   padding: 0.375rem 0.5rem;
   font-size: var(--fs-body-sm);
   line-height: 1.25rem;
@@ -135,7 +154,7 @@
   transform: translateX(-50%);
   min-width: 220px;
   padding: 6px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -143,8 +162,9 @@
   z-index: var(--z-dropdown);
 }
 
+/* 키보드는 상태(.dropdownOpen)로만 연다 — :focus-within 으로 열면 Tab 만으로 펼쳐지고
+   Esc 뒤 버튼에 포커스를 돌려도 닫히지 않는다(10/2 QA, APG disclosure) */
 .navGroup:hover .dropdown,
-.navGroup:focus-within .dropdown,
 .dropdownOpen {
   display: flex;
 }
@@ -160,7 +180,7 @@
   flex-direction: column;
   gap: 2px;
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: 4px;
   text-decoration: none;
   transition: background-color 150ms ease;
 }
@@ -216,7 +236,7 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: 10px;
+  border-radius: 4px;
   border: none;
   background: transparent;
   color: var(--muted-foreground);
@@ -237,9 +257,6 @@
   box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px color-mix(in srgb, var(--ring) 30%, transparent);
 }
 
-/* 검색 모드 활성화 시 아이콘 숨기기 — 검색바 닫기 X로 대체됨 */
-
-/* ── GNB 검색 모드: nav를 교체하는 풀폭 검색바 ── */
 /* ══════════════════════════════════════════
    랜딩 히어로 위 투명 오버레이 (2026-09-29 B안, 1024+ 전용)
 
@@ -251,18 +268,28 @@
    - 되돌림은 `html[data-hero-passed]`(HeroSlider 가 세움) — **색·배경만** 0.25s 로 바뀐다.
      position·height 는 건드리지 않아 전환 중 레이아웃 시프트가 없고, `data-header-hidden`
      숨김/복귀(transform) 와도 독립적으로 공존한다(속성이 다르고 서로를 덮지 않는다).
-   - 대비는 히어로 상단 스크림 띠(hero-slider .scrim 의 180deg 그라데이션)가 만든다 — 텍스트
+   - 대비는 히어로 상단 스크림 띠(hero-search-hub .scrim 의 180deg 그라데이션)가 만든다 — 텍스트
      그림자를 쓰지 않는다.
    ══════════════════════════════════════════ */
 /* 9/29 P: 모바일도 히어로가 헤더 뒤까지 차오르므로 이 블록의 게이트를 전 폭으로 연다.
    폭에 따라 보이는 요소만 다를 뿐(모바일=로고·돋보기 / 데스크탑=+GNB·검색창) 규칙은 같다. */
 :global(body:has([data-landing-hero])) .header {
   background-color: transparent;
-  border-bottom-color: transparent;
+  /* 10/2 회장: 투명 헤더와 히어로 사이 흰 반투명 1px 장식선(기후금융포털식). 흰 헤더로 바뀌면
+     아래 `html[data-hero-passed]` 규칙이 var(--border) 로 되돌린다. */
+  border-bottom-color: rgba(255, 255, 255, 0.24);
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.25s ease,
     border-color 0.25s ease;
+}
+
+/* 10/2 회장 "모바일은 구분선이 안 보인다" — 모바일 히어로 상단은 하늘(밝은 영역)이 걸려 .24 가 묻힌다.
+   실측 375 에서 육안 식별이 어려워 <768 만 진하게. (흰 헤더 복귀 규칙이 뒤에 있어 그대로 이긴다) */
+@media (max-width: 767px) {
+  :global(body:has([data-landing-hero])) .header {
+    border-bottom-color: rgba(255, 255, 255, 0.45);
+  }
 }
 
 :global(body:has([data-landing-hero])) .logoTitle,
@@ -346,6 +373,16 @@
 }
 :global(html[data-hero-passed]) .logo svg { filter: none; }
 
+/* 흰 헤더로 돌아온 뒤 포커스 링도 기본(진한 링)으로 — 위 투명 오버레이 규칙의 흰 링이 흰 배경에 묻혔다
+   (10/2 QA C-Y4, WCAG 2.4.7). 같은 특이성(0,3,1)이라 이 블록이 뒤에 있어야 이긴다 */
+:global(html[data-hero-passed]) .navLink:focus-visible,
+:global(html[data-hero-passed]) .searchBtn:focus-visible,
+:global(html[data-hero-passed]) .searchField:focus-visible,
+:global(html[data-hero-passed]) .logo:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px color-mix(in srgb, var(--ring) 30%, transparent);
+}
+
 
 /* ══════════════════════════════════════════
    헤더 검색 (2026-09-29 회장)
@@ -361,12 +398,13 @@
   width: 200px;
   padding: 0 10px 0 12px;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--muted, #f9fafb);
   color: var(--muted-foreground, #6b7280);
   font-size: var(--fs-body-sm);
   cursor: pointer;
   transition: width 0.2s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  text-decoration: none;
 }
 
 .searchFieldText {
@@ -415,7 +453,7 @@
     height: 20px;
     padding: 0 6px;
     border: 1px solid var(--border, #e5e7eb);
-    border-radius: 6px;
+    border-radius: 4px;
     background: var(--background, #fff);
     font-size: 11px;
     font-weight: 600;
@@ -426,14 +464,30 @@
   }
 }
 
-/* ── 통합검색 모달 본문 (2026-09-29) — 입력창을 크게, 제안·바로가기는 SearchBar 리치 모드가 든다 ── */
-.searchModalBody :global([class*="inputWrapLarge"]) {
-  min-height: 56px;
-  font-size: 1.125rem;
+/* /search 에서 트리거 자리 — ✕ 닫기 (44px 터치). 헤더 아래 검색 패널은 10/2 폐기(b011aae) */
+.searchClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--foreground, #111827);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.searchModalBody :global([class*="sectionLabel"]) {
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  color: var(--muted-foreground, #6b7280);
+@media (hover: hover) {
+  .searchClose:hover {
+    background-color: var(--muted, #f9fafb);
+    color: var(--primary, #1b6b5a);
+  }
+}
+
+.searchClose:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px color-mix(in srgb, var(--ring) 30%, transparent);
 }

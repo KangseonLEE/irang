@@ -1,14 +1,18 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import s from "./section-pager.module.css";
 
 /**
- * 섹션 내부 공용 페이저 (2026-09-27) — 검색 결과 지역·지원사업 섹션, 지원사업 상세 관련 작물이 같은 모양으로 쓴다.
+ * 섹션 내부 공용 페이저 (2026-09-27) — 검색 결과 지역·지원사업 섹션, 지원사업 상세 관련 작물,
+ * 정착 유형 상세 지원사업·교육·체험 탭이 같은 모양으로 쓴다.
  * - 페이지 번호는 0-based, 표시는 1-based.
  * - 버튼 창은 처음·현재±1·마지막, 사이는 "…"(버튼 아님) — 375px 에서 한 줄.
  * - 상태는 호출부가 든다(검색어가 바뀌면 호출부가 0으로 되돌린다). URL 파라미터 없음.
+ * - 이전·다음을 눌러 끝 쪽에 닿으면 그 버튼이 비활성이 되며 포커스가 `<body>` 로 빠진다(WCAG 2.4.3, 10/3 QA).
+ *   그때만 현재 쪽 번호 버튼으로 포커스를 옮긴다. 호출부가 이미 포커스를 다른 곳(패널 등)으로 옮겼으면 건드리지 않는다.
  */
 export function SectionPager({
   page,
@@ -21,13 +25,41 @@ export function SectionPager({
   onChange: (next: number) => void;
   ariaLabel: string;
 }) {
+  const navRef = useRef<HTMLElement>(null);
+  /** 이전·다음으로 넘겼는가 — 번호 버튼은 비활성이 되지 않으니 포커스를 잃지 않는다 */
+  const stepped = useRef(false);
+
+  useEffect(() => {
+    if (!stepped.current) return;
+    stepped.current = false;
+    const nav = navRef.current;
+    if (!nav) return;
+    // 한 프레임 뒤에 본다 — 호출부 효과(패널 포커스 등)가 먼저 돌고, 브라우저의 포커스 정리(비활성 버튼 blur)도 끝난 뒤
+    const frame = requestAnimationFrame(() => {
+      const current = document.activeElement;
+      const lost =
+        !current ||
+        current === document.body ||
+        (nav.contains(current) && current instanceof HTMLButtonElement && current.disabled);
+      if (!lost) return;
+      nav.querySelector<HTMLButtonElement>('[aria-current="page"]')?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [page]);
+
   if (total <= 1) return null;
+
+  const step = (next: number) => {
+    stepped.current = true;
+    onChange(next);
+  };
+
   return (
-    <nav className={s.pager} aria-label={ariaLabel}>
+    <nav ref={navRef} className={s.pager} aria-label={ariaLabel}>
       <button
         type="button"
         className={s.pagerStep}
-        onClick={() => onChange(page - 1)}
+        onClick={() => step(page - 1)}
         disabled={page === 0}
         aria-label="이전 페이지"
       >
@@ -58,7 +90,7 @@ export function SectionPager({
       <button
         type="button"
         className={s.pagerStep}
-        onClick={() => onChange(page + 1)}
+        onClick={() => step(page + 1)}
         disabled={page === total - 1}
         aria-label="다음 페이지"
       >

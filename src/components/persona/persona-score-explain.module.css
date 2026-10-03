@@ -9,7 +9,7 @@
   margin-top: 8px;
   background: color-mix(in srgb, var(--primary) 5%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary) 12%, transparent);
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: 0.8125rem;
 }
 
@@ -58,7 +58,7 @@
   padding: 2px 8px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 4px;
   color: var(--foreground);
   font-size: 0.75rem;
   font-weight: 500;

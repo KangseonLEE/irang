@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
-  ChevronRight,
   ArrowLeft,
   FileText,
   GraduationCap,
@@ -40,6 +39,7 @@ import { SigunguStatsSkeleton } from "./sigungu-stats-skeleton";
 import { DistrictMapSection } from "./district-map-section";
 import { DataSource } from "@/components/ui/data-source";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { CommunityNotes } from "@/components/community/community-notes";
 import { CommunityJumpLink } from "@/components/community/community-jump-link";
 import { PersonaCta } from "@/components/persona/persona-cta";
@@ -235,24 +235,6 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           ].join(", "),
         }}
       />
-      {/* ── 브레드크럼 (정적) — 의견 바로가기를 같은 줄 끝에 (9/17) ── */}
-      <div className={s.topBar}>
-      <nav className={s.breadcrumb} aria-label="경로">
-        <Link href="/regions" className={s.breadcrumbLink}>
-          지역 탐색
-        </Link>
-        <Icon icon={ChevronRight} size="sm" className={s.breadcrumbSep} />
-        <Link href={`/regions/${province.id}`} className={s.breadcrumbLink}>
-          {province.shortName}
-        </Link>
-        <Icon icon={ChevronRight} size="sm" className={s.breadcrumbSep} />
-        <span className={s.breadcrumbCurrent} aria-current="page">
-          {sigungu.name}
-        </span>
-      </nav>
-        <CommunityJumpLink from="sigungu_detail" />
-      </div>
-
       {/* 스크롤 시 노출되는 sticky 헤더 — 모바일 전용 */}
       <StickyRegionHeader
         overline={`${province.shortName} · ${province.name}`}
@@ -351,6 +333,18 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           )}
         </div>
       </header>
+
+      {/* 브레드크럼 — 히어로 아래·탭 위 공통 위치 (2026-10-02 회장). 의견 바로가기는 같은 줄 끝 (9/17) */}
+      <div className={s.topBar}>
+        <Breadcrumb
+          items={[
+            { name: "지역 탐색", href: "/regions" },
+            { name: province.shortName, href: `/regions/${province.id}` },
+            { name: sigungu.name },
+          ]}
+        />
+        <CommunityJumpLink from="sigungu_detail" />
+      </div>
 
       {/* 섹션 탐색 탭 — 작물·시도 상세와 같은 패턴 (2026-09-17) */}
       <AnchorTabNav

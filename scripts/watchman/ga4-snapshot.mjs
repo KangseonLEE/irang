@@ -107,7 +107,8 @@ const byLabelReq = (eventName) => ({
   limit: 20,
 });
 
-const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel, compareByLabel] = await Promise.all([
+// 홍보 팝업 퍼널(9/30 회장 "원본 페이지로 얼마나 이동하는지") — label = "<id>"(view) / "<id>:detail|tel|request"(click) / "<id>:today|close"(dismiss)
+const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel, compareByLabel, promoView, promoClick, promoDismiss] = await Promise.all([
   report({ metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "newUsers" }] }),
   report({ dimensions: [{ name: "newVsReturning" }], metrics: [{ name: "activeUsers" }] }),
   report({
@@ -125,7 +126,19 @@ const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel
   report(channelReq),
   report(byLabelReq("assess_entry_click")),
   report(byLabelReq("compare_view")),
+  report(byLabelReq("promo_popup_view")),
+  report(byLabelReq("promo_popup_click")),
+  report(byLabelReq("promo_popup_dismiss")),
 ]);
+
+// 홍보 팝업 — id 별로 노출(명) → 원문 클릭(명) 전환율. 같은 사람이 여러 번 봐도 명 수로 센다.
+const promoIds = [...new Set([...promoView, ...promoClick, ...promoDismiss].map((r) => String(r.d[0]).split(":")[0]))].filter((x) => x && x !== "(not set)");
+const promoRows = promoIds.map((id) => {
+  const users = (rows, suffix) => rows.filter((r) => r.d[0] === (suffix ? `${id}:${suffix}` : id)).reduce((a, r) => a + Number(r.m[1] ?? 0), 0);
+  const seen = users(promoView, "");
+  const detail = users(promoClick, "detail");
+  return `${id}: 노출 ${seen}명 → 원문 ${detail}명(${seen ? ((detail / seen) * 100).toFixed(1) : "0.0"}%) · 전화 ${users(promoClick, "tel")} · 홍보요청 ${users(promoClick, "request")} · 오늘하루 ${users(promoDismiss, "today")} · 닫기 ${users(promoDismiss, "close")}`;
+});
 
 const active = totals[0]?.m[0] ?? 0;
 const returning = nvr.find((r) => r.d[0] === "returning")?.m[0] ?? 0;
@@ -169,6 +182,8 @@ const md = `## GA4 스냅샷 — 최근 ${DAYS}일 (어제까지)
 진단 진입 클릭 지면별 (assess_entry_click, 건·명 — 9/30 되돌림 판정 근거): ${entryByLabel.map((r) => `${r.d[0]} ${r.m[0]}·${r.m[1]}`).join(" | ") || "0건"}
 
 지역 비교 탭별 (compare_view, 건·명): ${compareByLabel.map((r) => `${r.d[0]} ${r.m[0]}·${r.m[1]}`).join(" | ") || "0건"}
+
+홍보 팝업 퍼널 (promo_popup_view → click, 명 — 원문 이동률): ${promoRows.join(" | ") || "노출 0"}
 
 유입 채널(세션): ${channels.map((r) => `${r.d[0]} ${r.m[0]}`).join(" · ") || "없음"}
 

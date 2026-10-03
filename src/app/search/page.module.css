@@ -50,7 +50,7 @@
 }
 
 .searchWrap :global([class*="inputWrap"]) {
-  border-radius: 100px;
+  border-radius: 4px;
   border-color: color-mix(in srgb, var(--primary, #1b6b5a) 20%, var(--border, #e5e7eb));
   box-shadow:
     0 4px 24px rgba(27, 107, 90, 0.08),
@@ -68,7 +68,7 @@
 }
 
 .searchWrap :global([class*="dropdown"]) {
-  border-radius: 20px;
+  border-radius: 8px;
 }
 
 /* 결과 헤더 */
@@ -88,11 +88,15 @@
 }
 
 .resultTitle {
+  min-width: 0;
   font-size: var(--fs-h3);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
   word-break: keep-all;
+  /* 띄어쓰기 없는 긴 검색어는 keep-all 로는 끊을 곳이 없어 1280 에서 제목이 잘렸다(10/2 QA) —
+     넘칠 때만 아무 데서나 끊는다(break-all 과 달리 들어가는 줄은 그대로) */
+  overflow-wrap: anywhere;
 }
 
 .resultCount {
@@ -135,170 +139,64 @@
   margin: 0;
 }
 
-/* 인기 검색어 */
-.popularSection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  max-width: 480px;
-  margin-top: 16px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
+/* ── 검색 홈 (검색어 없이 들어왔을 때, 10/2 회장 — 기후금융포털 검색 페이지 문법) ──
+   왼쪽 정렬 큰 안내 문구 → 헤더 검색 패널과 같은 SearchBar(panelLayout) 한 벌.
+   폭은 헤더 패널 안쪽(.inner max 1040)과 맞춘다 — 결과 화면(.page 800)은 그대로. */
+.pageHome {
+  max-width: 1040px;
+  padding-top: 32px;
 }
 
-.popularTitle {
+@media (min-width: 768px) {
+  .pageHome {
+    padding: 64px 32px 72px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pageHome {
+    padding: 80px 40px 88px;
+  }
+}
+
+.searchHome {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-body-sm);
-  font-weight: 700;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeSlideIn 0.3s ease-out 0.05s backwards;
+}
+
+@media (min-width: 768px) {
+  .searchHome {
+    gap: 36px;
+  }
+}
+
+.searchHomeTitle {
+  margin: 0;
+  font-size: 1.625rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
   color: var(--foreground);
-  margin: 0;
+  text-align: left;
+  /* 두 줄을 직접 끊는다 — balance 가 줄 위치를 다시 고르지 않게 */
+  text-wrap: wrap;
 }
 
-.popularTitle > svg {
-  color: var(--primary);
+.searchHomeLine {
+  display: block;
 }
 
-.popularTags {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-}
-
-.popularTag {
-  padding: 6px 16px;
-  border-radius: 9999px;
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--muted-foreground);
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-@media (hover: hover) {
-.popularTag:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-    background: color-mix(in srgb, var(--primary) 8%, transparent);
+@media (min-width: 768px) {
+  .searchHomeTitle {
+    font-size: 2.25rem;
   }
 }
 
-.popularTag:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-/* 최근 검색어 */
-.recentSection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  max-width: 480px;
-  margin-top: 8px;
-}
-
-.recentTitle {
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--muted-foreground);
-  margin: 0;
-}
-
-.recentTags {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-}
-
-.recentTag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
-  border-radius: 8px;
-  font-size: var(--fs-caption);
-  font-weight: 500;
-  color: var(--muted-foreground);
-  background: var(--muted);
-  text-decoration: none;
-  transition: color 0.15s, background 0.15s;
-}
-
-@media (hover: hover) {
-.recentTag:hover {
-    color: var(--foreground);
-    background: color-mix(in srgb, var(--muted-foreground) 12%, transparent);
-  }
-}
-
-/* 빠른 탐색 */
-.quickLinks {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  max-width: 480px;
-  margin-top: 12px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-}
-
-.quickLinksTitle {
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--muted-foreground);
-  margin: 0;
-}
-
-.quickLinksGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  width: 100%;
-}
-
-@media (min-width: 480px) {
-.quickLinksGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.quickLink {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 16px 12px;
-  border-radius: var(--radius-lg);
-  background: var(--card);
-  border: 1px solid var(--border);
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  color: var(--foreground);
-  text-decoration: none;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.quickLink > svg {
-  color: var(--primary);
-}
-
-@media (hover: hover) {
-.quickLink:hover {
-    border-color: var(--primary);
-    background: var(--muted);
+@media (min-width: 1024px) {
+  .searchHomeTitle {
+    font-size: 2.5rem;
   }
 }
 
@@ -371,7 +269,7 @@
   align-items: center;
   gap: 5px;
   padding: 7px 14px;
-  border-radius: 9999px;
+  border-radius: 4px;
   font-size: var(--fs-body-sm);
   font-weight: 500;
   border: 1px solid var(--border);
@@ -448,7 +346,7 @@
   color: var(--muted-foreground);
   background: var(--muted);
   padding: 2px 8px;
-  border-radius: 9999px;
+  border-radius: 4px;
 }
 
 .sectionHint {
@@ -477,7 +375,7 @@
   align-items: center;
   gap: 16px;
   padding: 16px 20px;
-  border-radius: 14px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
 }
@@ -514,7 +412,7 @@
   background: var(--primary, #1b6b5a);
   text-decoration: none;
   padding: 10px 16px;
-  border-radius: 10px;
+  border-radius: 4px;
   border: none;
   white-space: nowrap;
   flex-shrink: 0;
@@ -556,6 +454,9 @@
   font-weight: 600;
   color: var(--foreground);
   margin: 0;
+  /* 공백 없는 긴 검색어가 문단을 한 줄로 늘려 양옆이 잘렸다(10/3 재검증, 운영 동일) */
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .noResultHint {
@@ -580,7 +481,7 @@
   color: #fff;
   text-decoration: none;
   padding: 12px 22px;
-  border-radius: 12px;
+  border-radius: 4px;
   border: none;
   background: var(--primary, #1b6b5a);
   cursor: pointer;
@@ -736,7 +637,7 @@
   color: var(--primary, #1b6b5a);
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   text-decoration: none;
   transition: background-color 0.12s, color 0.12s;

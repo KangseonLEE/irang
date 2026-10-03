@@ -10,7 +10,9 @@ name: "CI"
 
 on:
   push:
-    branches: [main]
+    # 10/2 dev QA: 운영 브랜치 release(9/29 분리)는 main 에서 cherry-pick 한 트리라 main CI 가 그 트리를
+    # 검증하지 않는다 — release 푸시에도 같은 게이트를 돈다(release 에 이 변경이 반영된 뒤부터).
+    branches: [main, release]
   pull_request:
     branches: [main]
 

@@ -8,15 +8,6 @@ import s from "./loading.module.css";
 export default function SigunguDetailLoading() {
   return (
     <div className={s.page}>
-      {/* 브레드크럼 */}
-      <div className={s.breadcrumb}>
-        <div className={s.breadcrumbItem} />
-        <div className={s.breadcrumbSep} />
-        <div className={s.breadcrumbItem} />
-        <div className={s.breadcrumbSep} />
-        <div className={s.breadcrumbItemLong} />
-      </div>
-
       {/* Hero */}
       <div className={s.hero}>
         <div className={s.heroOverline} />
@@ -27,6 +18,15 @@ export default function SigunguDetailLoading() {
             <div key={i} className={s.heroTag} />
           ))}
         </div>
+      </div>
+
+      {/* 브레드크럼 — 히어로 아래 (2026-10-02) */}
+      <div className={s.breadcrumb}>
+        <div className={s.breadcrumbItem} />
+        <div className={s.breadcrumbSep} />
+        <div className={s.breadcrumbItem} />
+        <div className={s.breadcrumbSep} />
+        <div className={s.breadcrumbItemLong} />
       </div>
 
       {/* Stats Grid */}

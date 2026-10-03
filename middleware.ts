@@ -198,7 +198,9 @@ export async function middleware(request: NextRequest) {
   const country = request.headers.get("cf-ipcountry");
   const isE2eUa = ua.includes("irang-e2e/1.0");
   // 2026-09-30: Sentry 웹훅(미국 발신)은 HMAC 서명으로 자체 인증하므로 geo 차단 예외.
-  // 9/30 실측 — Sentry Request Log 의 503 이 이 분기였다(라우트 도달 전 차단).
+  // 주의 — 같은 정책이 CF Worker `irang-bot-detection`(irangfarm.com/*, 오리진 앞)에도 복제돼 있다.
+  // 여기 예외만 넣고 Worker 를 안 고치면 요청이 오리진에 닿지 못한다(9/30 Sentry 503 7회의 진범은
+  // 이 분기가 아니라 Worker 였다). 예외 추가 시 cloudflare-workers/bot-detection/index.js 동반 수정.
   const isSentryWebhook = pathname === "/api/sentry-webhook";
   if (country && country !== "KR" && !isVerifiedBot(ua) && !isE2eUa && !isSentryWebhook) {
     if (pathname.startsWith("/api/")) {
@@ -282,6 +284,21 @@ export async function middleware(request: NextRequest) {
       maxAge: internalToggle === "1" ? 365 * 24 * 60 * 60 : 0,
     });
     // 5/11 박제 — redirect 응답이 CF 에 캐시되면 일반 사용자까지 따라간다.
+    response.headers.set("Cache-Control", "private, no-store, max-age=0");
+    return response;
+  }
+
+  // 1-2) `/start/undecided` → `/start` (2026-09-29 S7)
+  //
+  // 허브는 목적이 정해진 5종만 있고 undecided 는 비교 화면이 도착지다.
+  // Server Component 의 redirect() 로는 안 된다 — 루트 loading.tsx 스트리밍 때문에
+  // 헤더가 200 으로 먼저 나간다(9/4 소프트 404 박제). 라우터 밖에서 끊어야 진짜 3xx 다.
+  // 307(영구 아님) + no-store — CF 가 이 응답을 들고 있으면 안 된다(5/11 박제).
+  // 끝 슬래시(`/start/undecided/`)는 Next 내장 308 이 먼저 응답해 여기 오지 않는다(10/2 QA 실측) — 분기 불필요.
+  if (pathname === "/start/undecided") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/start";
+    const response = NextResponse.redirect(url, 307);
     response.headers.set("Cache-Control", "private, no-store, max-age=0");
     return response;
   }

@@ -15,7 +15,7 @@
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--card, #fff);
 }
 
@@ -319,7 +319,7 @@
   padding: 0 12px;
   height: 40px;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--card, #fff);
 }
 .searchBox:focus-within {
@@ -349,7 +349,7 @@
   width: 24px;
   height: 24px;
   border: none;
-  border-radius: 9999px;
+  border-radius: 9999px; /* 원형 유지 — 10/2 라운드 일괄 변경 예외 */
   background: var(--muted, #f3f4f6);
   color: var(--muted-foreground, #6b7280);
   cursor: pointer;
@@ -457,7 +457,7 @@
   gap: 10px;
   padding: 12px;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--card, #fff);
   animation: panelIn 0.16s ease-out;
 }
@@ -496,7 +496,7 @@
   gap: 6px;
   width: fit-content;
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   color: var(--primary, #1b6b5a);
   font-size: var(--fs-overline);
@@ -575,7 +575,7 @@
   display: inline-flex;
   align-items: center;
   padding: 3px 10px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: var(--muted, #f3f4f6);
   font-size: var(--fs-overline);
   font-weight: 600;
@@ -624,7 +624,7 @@
   gap: 8px;
   min-width: 0;
   padding: 6px 10px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--muted, #f9fafb);
 }
 
@@ -635,7 +635,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
+  border-radius: 9999px; /* 원형 유지 — 10/2 라운드 일괄 변경 예외 */
   background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
   font-size: var(--fs-overline);
   font-weight: 700;

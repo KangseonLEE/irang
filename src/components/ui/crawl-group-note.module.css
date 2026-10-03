@@ -5,7 +5,7 @@
   margin-top: 8px;
   padding: 10px 12px;
   background: var(--muted);
-  border-radius: 14px;
+  border-radius: 8px;
 }
 
 .label {
@@ -38,7 +38,7 @@
   color: var(--foreground);
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 4px;
   text-decoration: none;
   transition: border-color 0.15s ease, color 0.15s ease;
 }

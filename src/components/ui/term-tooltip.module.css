@@ -36,7 +36,7 @@
   line-height: 1.65;
   color: var(--primary-foreground);
   background: var(--foreground, #1f2937);
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   opacity: 0;
   transition: opacity 0.12s ease;

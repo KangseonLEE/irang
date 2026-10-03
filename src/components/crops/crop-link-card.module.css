@@ -9,7 +9,7 @@
   gap: 12px;
   padding: 12px 14px;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
+  border-radius: 8px;
   text-decoration: none;
   color: inherit;
   transition: border-color 0.15s, background 0.15s;
@@ -25,7 +25,7 @@
 .image {
   width: 48px;
   height: 48px;
-  border-radius: 10px;
+  border-radius: 8px;
   object-fit: cover;
   flex-shrink: 0;
 }

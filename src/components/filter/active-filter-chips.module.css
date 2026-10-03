@@ -10,7 +10,7 @@
   padding: 8px 12px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
+  border-radius: 4px;
   min-height: 48px;
 }
 
@@ -27,7 +27,7 @@
   border: none;
   cursor: pointer;
   flex-shrink: 0;
-  border-radius: 8px;
+  border-radius: 4px;
   transition: background 0.15s;
 }
 
@@ -53,7 +53,7 @@
   font-weight: 600;
   color: #fff;
   background: var(--primary, #1b6b5a);
-  border-radius: 9999px;
+  border-radius: 9999px; /* 원형 유지 — 10/2 라운드 일괄 변경 예외 */
   line-height: 1;
 }
 
@@ -100,7 +100,7 @@
   color: var(--primary, #1b6b5a);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
-  border-radius: 9999px;
+  border-radius: 4px;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;

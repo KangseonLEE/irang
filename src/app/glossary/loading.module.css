@@ -65,7 +65,7 @@
 }
 
 .termCard {
-  border-radius: 12px;
+  border-radius: 8px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--card, #fff);
   padding: 1rem 1.25rem;
@@ -77,7 +77,7 @@
 /* Skeleton Animation — globals.css 의 irang-pulse 사용 */
 .skeleton {
   background: var(--muted, #f9fafb);
-  border-radius: 6px;
+  border-radius: 4px;
   animation: irang-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -85,7 +85,7 @@
   composes: skeleton;
   width: 4rem;
   height: 2rem;
-  border-radius: 9999px;
+  border-radius: 4px;
 }
 
 .skeletonTerm {
@@ -105,6 +105,6 @@
   width: 100%;
   max-width: 20rem;
   height: 2.5rem;
-  border-radius: 10px;
+  border-radius: 4px;
   margin-bottom: 1.5rem;
 }

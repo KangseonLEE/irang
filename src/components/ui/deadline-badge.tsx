@@ -8,6 +8,13 @@ interface DeadlineBadgeProps {
   applicationStart?: string | null;
   /** 마감된 사업은 숨김 (이미 StatusBadge가 표시) */
   status?: string;
+  /**
+   * 기준일 KST YYYY-MM-DD. 생략하면 렌더 순간의 오늘(`kstToday()`).
+   * ⚠️ 클라이언트 트리 안에서 SSR 되는 호출처(예: /programs ProgramList)는 반드시 넘긴다 —
+   * 서버(ISR·CDN 스냅샷)와 브라우저의 날짜가 갈리면 D-N 글자·색이 어긋나 React #418 이 난다.
+   * 클라이언트에선 `useKstToday(asOf)`, 서버 컴포넌트에선 생략해도 된다(서버에서만 그려진다). (10/3)
+   */
+  today?: string;
 }
 
 /**
@@ -18,7 +25,7 @@ interface DeadlineBadgeProps {
  * - 상시: "상시"
  * - 마감 / 미정(9999): 표시 안 함
  */
-export function DeadlineBadge({ applicationEnd, applicationStart, status }: DeadlineBadgeProps) {
+export function DeadlineBadge({ applicationEnd, applicationStart, status, today }: DeadlineBadgeProps) {
   // 마감된 사업은 표시 안 함
   if (status === "마감") return null;
 
@@ -28,7 +35,7 @@ export function DeadlineBadge({ applicationEnd, applicationStart, status }: Dead
     return <span className={s.always}>상시</span>;
   }
 
-  const days = daysUntilDeadline(applicationEnd);
+  const days = daysUntilDeadline(applicationEnd, today);
 
   // 이미 마감(음수) 또는 미정/먼 미래(Infinity)
   if (days < 0 || !Number.isFinite(days)) return null;

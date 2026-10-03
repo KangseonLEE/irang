@@ -1,0 +1,143 @@
+/* 지원사업·교육·체험 탭 — 탭 모양은 공용 TabBar(ui/tab-bar.module.css)와 같은 시각 언어(1단 compose) */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.tabList {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabList::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  composes: tab from "../ui/tab-bar.module.css";
+  flex: 1 1 0;
+  justify-content: center;
+}
+
+.tabActive {
+  composes: tabActive from "../ui/tab-bar.module.css";
+  flex: 1 1 0;
+  justify-content: center;
+}
+
+/* 배지가 "전체 건수" 정보를 담으므로 opacity 로 흐리지 않는다 — .75 는 비활성 3.0:1·활성 4.36:1 로 대비 미달(10/3 재검증).
+   비활성은 보조 글자색(흰 바탕 4.8:1), 활성은 탭 글자색을 그대로. */
+.count {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 700;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.tabActive .count {
+  color: inherit;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  /* 페이지를 넘기면 위로 스크롤해 패널 머리에 붙는다 — 위로 가는 순간 헤더가 다시 나타나므로
+     --sticky-top(현재 상태)이 아니라 헤더 높이 상수 기준(CLAUDE.md sticky 규칙) */
+  scroll-margin-top: calc(var(--h-header, 56px) + 12px);
+}
+
+/* 페이지 이동 뒤 포커스 자리(tabIndex -1) — 키보드로 넘겼을 때만 링을 보인다 */
+.panel:focus {
+  outline: none;
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 6px;
+  border-radius: 8px;
+}
+
+.panel[hidden],
+.panel ul[hidden] {
+  display: none;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.moreRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px 10px;
+  margin: 0;
+}
+
+.capNote {
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.more {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+}
+
+.more:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .more:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+@media (min-width: 640px) {
+  .tabList {
+    align-self: flex-start;
+  }
+
+  .tab,
+  .tabActive {
+    flex: 0 0 auto;
+  }
+
+  .footer {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .footer > .moreRow:only-child {
+    margin-left: auto;
+  }
+}
+
+/* 행 안 카드 높이 맞춤 — 체험 사진 카드처럼 자체 높이를 갖는 카드도 칸을 채운다 */
+.cell {
+  display: flex;
+  min-width: 0;
+}
+
+.cell > * {
+  flex: 1 1 auto;
+  min-width: 0;
+}

@@ -60,7 +60,7 @@ export interface SearchItem {
   external?: boolean;
 }
 
-import { POPULAR_TAGS, type SearchTag } from "./search-tags";
+import { POPULAR_TAGS } from "./search-tags";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -1317,18 +1317,6 @@ function countSearchResults(query: string): number {
   if (_resultCountCache.size >= RESULT_COUNT_CACHE_MAX) _resultCountCache.clear();
   _resultCountCache.set(key, count);
   return count;
-}
-
-/**
- * 인기 검색어 중 실제 결과가 있는 태그만 — 정적 데이터 기반이라 프로세스당 1회 계산 후 캐시.
- * 빈 검색 화면이 렌더마다 8건 전수 스캔을 돌리던 것을 없앤다.
- */
-let _popularTagsWithResults: SearchTag[] | null = null;
-
-export function getPopularTagsWithResults(): SearchTag[] {
-  return (_popularTagsWithResults ??= POPULAR_TAGS.filter(
-    (tag) => countSearchResults(tag.query) > 0,
-  ));
 }
 
 // ---------------------------------------------------------------------------

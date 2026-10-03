@@ -4,8 +4,9 @@
  * - CLAUDE.md 규칙 8번 "외부 URL 검증은 이중 체크 필수" 준수
  *
  * 크롤 대상:
- *   1. rda.go.kr/young/custom.do — 똑똑!청년농부 (지원사업 + 교육)
+ *   1. rda.go.kr/young/custom.do — 똑똑!청년농부 (지원사업 + 교육 + 행사)
  *   2. uni.agrix.go.kr — 농림부 통합 지원사업 (JSON API)
+ *   3. greendaero.go.kr — 지자체 귀농귀촌 교육·체험 (JSON, greendaero.ts)
  *
  * ※ returnfarm.com → 도메인 만료(2026년 기준)
  * ※ greenroad.go.kr → 접속 불가
@@ -61,7 +62,12 @@ export async function checkUrlHealth(
 
 // ─── 크롤링 대상 정의 ───
 
-export type CrawlTargetType = "rda-listing" | "agrix-api" | "rda-events";
+export type CrawlTargetType =
+  | "rda-listing"
+  | "agrix-api"
+  | "rda-events"
+  | "greendaero-education"
+  | "greendaero-live";
 
 export interface CrawlTarget {
   id: string;
@@ -108,6 +114,22 @@ export const CRAWL_TARGETS: CrawlTarget[] = [
     category: "events",
     type: "rda-events",
   },
+  {
+    // 강의형은 education_courses, 체험형(디딤돌·마실·팸투어)은 farm_events로
+    // 항목 단위 분기된다 (CrawledItem.category). 자세한 규칙은 greendaero.ts 참조.
+    id: "greendaero-education",
+    name: "그린대로 귀농귀촌 교육",
+    url: "https://www.greendaero.go.kr/svc/rfph/edc/offline/front/applicationList.do",
+    category: "education",
+    type: "greendaero-education",
+  },
+  {
+    id: "greendaero-live",
+    name: "그린대로 농촌에서 살아보기",
+    url: "https://www.greendaero.go.kr/svc/rfph/edc/live/front/apply/list.do",
+    category: "events",
+    type: "greendaero-live",
+  },
 ];
 
 // ─── 크롤 결과 타입 ───
@@ -115,12 +137,46 @@ export const CRAWL_TARGETS: CrawlTarget[] = [
 export interface CrawledItem {
   title: string;
   url: string;
+  /** 원문 지역 표기. 적재 직전 `normalizeRegion()`으로 SSOT 귀결된다. */
   region: string;
   organization: string;
   status: string;
+  /** 접수 시작일 (YYYY-MM-DD) */
   dateStart?: string;
+  /** 접수 종료일 (YYYY-MM-DD) */
   dateEnd?: string;
+  /** 대상·자격 문구 */
   capacity?: string;
+
+  // ── 2026-09-29 그린대로 타겟용 확장 ──
+  /**
+   * 원천 시스템의 고유 키. 있으면 slug를 제목 해시 대신 이 값으로 만든다.
+   * 같은 과정명이 회차별로 반복되는 그린대로에서 슬러그 충돌을 막는다.
+   */
+  sourceKey?: string;
+  /** 타겟 기본 category를 항목 단위로 덮어쓴다 (교육 목록 안의 체험형 분리). */
+  category?: "programs" | "education" | "events";
+  /** farm_events.type 지정 (미지정 시 제목에서 추론) */
+  eventType?: string;
+  /** 운영(교육) 기간 — 접수 기간과 별개 */
+  operationStart?: string;
+  operationEnd?: string;
+  /** 정원 */
+  capacityCount?: number | null;
+  /** 교육 운영 형태 → education_courses.type */
+  educationType?: "온라인" | "오프라인" | "혼합";
+  /** 본문에 덧붙일 출처·주의 문구 (접수 기간 불일치 안내 등) */
+  note?: string;
+
+  // ── 2026-09-30 살아보기 마을 카드 필드 (farm_events 전용) ──
+  /** 마을 대표 사진 원본 URL */
+  imageUrl?: string;
+  /** 입주 가능일 (YYYY-MM-DD) */
+  moveInDate?: string;
+  /** 모집 가구 수 (capacityCount 는 인원) */
+  households?: number | null;
+  /** 귀농형 / 귀촌형 / 프로젝트형 */
+  villageType?: string;
 }
 
 // ═══════════════════════════════════════
@@ -281,29 +337,40 @@ export function inferEventType(title: string): string {
 }
 
 /**
- * RDA에서 행사성 키워드로 검색 → 중복 제거 후 반환
- * 여러 키워드를 순회하며 최대 30건 수집
+ * RDA 진행중 목록에서 행사성 항목만 추린다.
+ *
+ * 2026-09-29 이전 구현은 `search_keyword`에 행사 키워드 7종을 넣어
+ * **7회 연속 POST**를 날렸다. 실측 결과 RDA는 키워드 검색 시
+ * "조회된 데이터가 없습니다"만 돌려준다(박람회·체험·축제 전부 0건).
+ * 즉 7배 느리면서 수확은 항상 0이었다.
+ *
+ * 지금은 키워드 없는 진행중 목록을 3페이지까지 받아 **제목으로 직접 거른다**.
+ * 요청 7회 → 최대 3회, 결과는 실제 매칭 건수.
+ * (2026-09-29 실측: 진행중 28건 중 행사 키워드 매칭 0건 —
+ *  RDA에 행사 콘텐츠 자체가 없는 시기다. 체험·행사 공급은 그린대로가 담당.)
  */
-export async function fetchRdaEvents(): Promise<CrawledItem[]> {
+export async function fetchRdaEvents(maxPages = 3): Promise<CrawledItem[]> {
   const allItems: CrawledItem[] = [];
   const seenTitles = new Set<string>();
 
-  for (const keyword of EVENT_KEYWORDS) {
-    if (allItems.length >= 30) break;
-
+  for (let page = 1; page <= maxPages; page++) {
     const items = await fetchRdaListing({
-      search_keyword: keyword,
+      cp: String(page),
       search_ingState: "진행중",
     });
+    if (items.length === 0) break;
 
+    let matched = 0;
     for (const item of items) {
+      if (!EVENT_KEYWORDS.some((kw) => item.title.includes(kw))) continue;
       if (seenTitles.has(item.title)) continue;
       seenTitles.add(item.title);
-      allItems.push(item);
+      allItems.push({ ...item, eventType: inferEventType(item.title) });
+      matched++;
     }
 
     console.log(
-      `[crawl] rda-events "${keyword}": ${items.length}건 (누적 ${allItems.length}건)`
+      `[crawl] rda-events ${page}페이지: ${items.length}건 중 ${matched}건 매칭 (누적 ${allItems.length}건)`
     );
   }
 

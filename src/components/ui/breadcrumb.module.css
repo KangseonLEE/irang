@@ -1,0 +1,62 @@
+/* 상세 페이지 공통 브레드크럼 (2026-10-02) */
+.breadcrumb {
+  min-width: 0;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-caption, 0.8125rem);
+  line-height: 1.5;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sep {
+  flex: none;
+  color: var(--muted-foreground, #6b7280);
+  opacity: 0.7;
+}
+
+.link,
+.text {
+  color: var(--muted-foreground, #6b7280);
+  text-decoration: none;
+}
+
+.link {
+  border-radius: 4px;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--foreground, #111827);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+.current {
+  overflow: hidden;
+  max-width: 24em;
+  color: var(--foreground, #111827);
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

@@ -89,6 +89,20 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      /* dev 서버 전용 — dev.irangfarm.com(CF 터널 → 로컬 3000)이 Cloudflare 를 거친다. Turbopack dev 청크는 파일명이
+         내용이 바뀌어도 그대로라(src_0ujn5vx._.css 등) 엣지에 남으면 폰이 옛 CSS·JS 를 받는다(10/2 회장 "dev 에서 여전히 같다").
+         CF 전용 헤더로 엣지 캐시를 끈다 — 브라우저 캐시 정책(Next 기본)은 건드리지 않는다. 프로덕션 빌드엔 없다. */
+      ...(process.env.NODE_ENV === "development"
+        ? [
+            {
+              source: "/:path*",
+              headers: [
+                { key: "Cloudflare-CDN-Cache-Control", value: "no-store" },
+                { key: "CDN-Cache-Control", value: "no-store" },
+              ],
+            },
+          ]
+        : []),
       {
         source: "/(.*)",
         headers: [

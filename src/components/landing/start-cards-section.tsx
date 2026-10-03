@@ -29,7 +29,8 @@ export function StartCardsSection({ openProgramCount, dueSoonProgramCount }: Pro
   const cards: StartCard[] = [
     {
       id: "assess",
-      href: "/match",
+      // 10/3 회장: 진단 직행 복원 — 모드 선택 화면을 거치지 않고 14문항 진단으로
+      href: "/match?mode=assess",
       tag: "유형 진단",
       title: "내 귀농 유형은?",
       desc: "5분 진단으로 귀농·귀촌·청년농 중 내 방향을 찾아요",

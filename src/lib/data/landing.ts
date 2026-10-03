@@ -3,6 +3,30 @@
    page.tsx 에서 분리 — Tailwind 의존 없음
    ──────────────────────────────────────────── */
 
+import {
+  populationData,
+  youthData,
+  mountainData,
+  mountainVillageArea,
+  mountainReasons,
+  villageReasons,
+  reasonsYear,
+  ruralProfile,
+  farmingReasons,
+  youthFarmingReasons,
+  satisfactionSegments,
+  settlementSurvey,
+  smartfarmAreaData,
+  smartfarmAdoption,
+  smartfarmEffect,
+  smartfarmCrops,
+  changePct,
+  formatKoreanCount,
+  signedPct,
+  toCount,
+  trendOf,
+} from "./stats";
+
 
 /* ── (구) 정착 트렌드 데이터: TREND_BENTO_PROFILES로 이전 완료 ── */
 
@@ -263,43 +287,88 @@ export interface TrendBentoProfile {
   compare: { title: string; items: { label: string; change: string; detail: string }[] };
 }
 
+/* ── 추세 벤토 수치 — stats.ts 배열에서 계산한다 (10/3 정정) ──
+   "1.2만"·"42.2만 역대 최대"·"2,685"·"8,534" 같은 손으로 적은 숫자가 공식 통계와 달랐다.
+   비교(compare) 항목 중 출처를 아직 확인하지 못한 것은 그대로 두고 정정 보고에 올렸다. */
+const _pop = populationData[populationData.length - 1];
+const _popPrev = populationData[populationData.length - 2];
+const _popYears = populationData.map((d) => d.year);
+const _farmChg = changePct(_pop.farming, _popPrev.farming);
+const _ruralChg = changePct(_pop.rural, _popPrev.rural);
+const _farmTrend = trendOf(populationData.map((d) => d.farming), _popYears);
+const _ruralTrend = trendOf(populationData.map((d) => d.rural), _popYears);
+/** "증가"·"감소"만이면 전년 대비 부호와 겹치므로 흐름(연속·만에)일 때만 덧붙인다 */
+const _trendSuffix = (t: string | null) => (t && t !== "증가" && t !== "감소" ? ` · ${t}` : "");
+const _youth = youthData[youthData.length - 1];
+const _youthBest = youthData.reduce((a, b) => (b.ratio > a.ratio ? b : a));
+const _mtn = mountainData[mountainData.length - 1];
+const _mtnPrev = mountainData[mountainData.length - 2];
+const _mtnFirst = mountainData[0];
+const _mtnMin = mountainData.reduce((a, b) => (b.households < a.households ? b : a));
+const _sfa = smartfarmAreaData[smartfarmAreaData.length - 1];
+const _sfaFirst = smartfarmAreaData[0];
+const _sfaChg = changePct(_sfa.area, _sfaFirst.area);
+// 소수 첫째 자리까지 — /stats·/start 가 71.9% 로 쓰는데 홈만 72% 로 반올림하면 같은 수치가 두 값이 된다(10/3 재검증)
+const _satisfied = Number(
+  satisfactionSegments
+    .filter((seg) => seg.label === "매우 만족" || seg.label === "만족")
+    .reduce((sum, seg) => sum + seg.pct, 0)
+    .toFixed(1),
+);
+const _farmers = `${formatKoreanCount(toCount(_pop.farming))}명`;
+
 export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
   farming: {
     id: "farming",
     label: "귀농",
     title: "왜 귀농을 할까?",
     titleEm: "귀농",
-    subtitle: "매년 1.2만 명이 도시를 떠나 농촌을 선택하고 있어요",
+    subtitle: `${_pop.year}년 ${_farmers}이 농사를 지으러 농촌으로 왔어요`,
     href: "/stats?tab=farming",
-    source: "통계청 · 농림축산식품부 2025 귀농귀촌 실태조사",
+    source: `국가데이터처 ${_pop.year} 귀농어·귀촌인통계 · 농림축산식품부 ${settlementSurvey.year} 귀농귀촌 실태조사`,
     hero: {
-      value: "1.2만",
-      label: "2024 정착 인구",
-      sub: "귀촌 42.2만 포함 시 +5.7%",
-      desc: "매년 꾸준히 도시를 떠나 농촌에 정착하는 사람들이 늘고 있어요",
+      value: _farmers,
+      label: `${_pop.year} 귀농인`,
+      sub: `전년 대비 ${signedPct(_farmChg)}${_trendSuffix(_farmTrend)}`,
+      desc: "농업경영체 등에 등록한 귀농 본인 수예요. 함께 이사한 가족은 세지 않아요",
     },
     stats: [
-      { value: "13.1%", label: "청년 정착 비율", sub: "역대 최고 기록", desc: "2030 세대의 귀농이 빠르게 늘며 농촌의 평균 연령이 낮아지고 있어요" },
-      { value: "70%", label: "정착 만족도", sub: "도시 대비 생활비 25%↓", desc: "정착 후 삶의 질이 높아졌다고 응답한 비율이에요" },
+      {
+        value: `${_youth.ratio}%`,
+        label: "청년 귀농 비중",
+        sub: `${_youth.year} · 30대 이하 귀농가구주`,
+        desc:
+          _youthBest.year === _youth.year
+            ? "귀농가구주 중 30대 이하 비중이 가장 높아요"
+            : `${_youthBest.year}년 ${_youthBest.ratio}%가 가장 높았어요`,
+      },
+      {
+        value: `${_satisfied}%`,
+        label: "정착 만족도",
+        sub: `귀농 전보다 생활비 ${Math.abs(settlementSurvey.livingCostChange).toFixed(1)}%↓`,
+        desc: `귀농 생활에 만족한다고 답한 비율이에요 (${settlementSurvey.year} 실태조사)`,
+      },
     ],
     chart: {
       title: "어떤 이유로 떠났을까?",
-      surveyLabel: "정착자 3,092명 응답",
-      items: [
-        { label: "자연환경이 좋아서", pct: 30 },
-        { label: "농업의 비전·발전 가능성", pct: 22 },
-        { label: "가업승계", pct: 19 },
-        { label: "가족·친지 근처 거주", pct: 15 },
-        { label: "건강·여유로운 생활", pct: 8 },
-      ],
+      surveyLabel: `귀농 3,000가구 · ${settlementSurvey.year} 실태조사`,
+      items: farmingReasons,
     },
     compare: {
       title: "농촌으로 가면 뭐가 달라질까?",
       items: [
-        { label: "월 생활비", change: "-25.1%", detail: "239만 원 → 173만 원" },
+        {
+          label: "월 생활비",
+          change: signedPct(settlementSurvey.livingCostChange),
+          detail: `${settlementSurvey.livingCostBefore}만 원 → ${settlementSurvey.livingCostAfter}만 원`,
+        },
         { label: "주거비 (3.3㎡당)", change: "-80%", detail: "1,800만 원 → 350만 원" },
         { label: "출퇴근", change: "-48분", detail: "평균 58분 → 차로 10분" },
-        { label: "생활 만족도", change: "+18%p", detail: "52% → 70%" },
+        {
+          label: "가구소득 (5년차)",
+          change: signedPct(settlementSurvey.incomeChange),
+          detail: `첫해 ${settlementSurvey.incomeFirstYear.toLocaleString("ko-KR")}만 원 → ${settlementSurvey.incomeFifthYear.toLocaleString("ko-KR")}만 원`,
+        },
       ],
     },
   },
@@ -308,35 +377,43 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     label: "귀촌",
     title: "왜 귀촌을 할까?",
     titleEm: "귀촌",
-    subtitle: "42.2만 명이 농업 없이도 농촌에서 새 삶을 시작했어요",
+    subtitle: `${_pop.year}년 ${Math.floor(toCount(_pop.rural) / 10_000)}만 명이 농업 없이 농촌에서 새 삶을 시작했어요`,
     href: "/stats?tab=village",
-    source: "통계청 2025 귀농귀촌인통계",
+    source: `국가데이터처 ${_pop.year} 귀농어·귀촌인통계`,
     hero: {
-      value: "42.2만",
-      label: "2024 귀촌 인구",
-      sub: "역대 최대 · 전년 대비 +5.7%",
-      desc: "농업 없이 농촌에 정착하는 귀촌 인구가 역대 최대를 기록했어요",
+      value: `${_pop.rural.toFixed(1)}만`,
+      label: `${_pop.year} 귀촌인`,
+      sub: `전년 대비 ${signedPct(_ruralChg)}${_trendSuffix(_ruralTrend)}`,
+      desc: "농업 없이 농촌으로 옮긴 사람이에요. 함께 이사한 가족까지 세요",
     },
     stats: [
-      { value: "23.4%", label: "30대 비중", sub: "가장 많은 연령대", desc: "30대가 귀촌 인구 중 가장 높은 비율을 차지하고 있어요" },
-      { value: "42.7%", label: "수도권 출발", sub: "서울·경기·인천", desc: "수도권에서 출발하는 귀촌이 절반에 가까워요" },
+      {
+        value: `${ruralProfile.age30sShare}%`,
+        label: "30대 비중",
+        sub: `${ruralProfile.year} · 귀촌 가구주 기준`,
+        desc: "귀촌 가구주 연령대 중 30대가 가장 많아요",
+      },
+      {
+        value: `${ruralProfile.capitalAreaShare}%`,
+        label: "수도권 출발",
+        sub: "서울·인천·경기",
+        desc: "귀촌인 열 명 중 네 명 이상이 수도권에서 와요",
+      },
     ],
     chart: {
       title: "왜 농촌을 선택했을까?",
-      surveyLabel: "귀촌인 실태조사",
-      items: [
-        { label: "전원생활 선호", pct: 35 },
-        { label: "직장 이전·통근", pct: 22 },
-        { label: "가족과 동거", pct: 18 },
-        { label: "주거비 절감", pct: 15 },
-        { label: "건강·여가 활동", pct: 10 },
-      ],
+      surveyLabel: `귀촌 가구 전입 사유 · ${reasonsYear}`,
+      items: villageReasons,
     },
     compare: {
       title: "귀촌하면 뭐가 달라질까?",
       items: [
         { label: "주거 면적", change: "2.2배", detail: "58㎡ → 130㎡ 단독주택" },
-        { label: "월 생활비", change: "-25.1%", detail: "239만 원 → 173만 원" },
+        {
+          label: "월 생활비",
+          change: signedPct(settlementSurvey.ruralLivingCostChange),
+          detail: `${settlementSurvey.ruralLivingCostBefore}만 원 → ${settlementSurvey.ruralLivingCostAfter}만 원`,
+        },
         { label: "미세먼지", change: "-29%", detail: "24㎍/㎥ → 17㎍/㎥" },
         { label: "출퇴근", change: "-48분", detail: "평균 58분 → 차로 10분" },
       ],
@@ -347,29 +424,34 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     label: "청년농",
     title: "청년, 왜 농업을 택할까?",
     titleEm: "농업",
-    subtitle: "40세 미만 청년농 비율 13.1%로 역대 최고를 기록했어요",
+    subtitle:
+      _youthBest.year === _youth.year
+        ? `귀농가구주 중 30대 이하 비중이 ${_youth.ratio}%로 가장 높아요`
+        : `귀농가구주 중 30대 이하 비중이 ${_youthBest.year}년 ${_youthBest.ratio}%로 가장 높았어요`,
     href: "/stats?tab=youth",
-    source: "농림축산식품부 2025 귀농귀촌 실태조사",
+    source: `국가데이터처 ${_youth.year} 귀농어·귀촌인통계 · 농림축산식품부 ${settlementSurvey.year} 귀농귀촌 실태조사`,
     hero: {
-      value: "13.1%",
-      label: "청년농 비율",
-      sub: "40세 미만 · 역대 최고",
-      desc: "스마트팜과 6차 산업으로 청년 귀농이 빠르게 늘고 있어요",
+      value: `${_youth.ratio}%`,
+      label: "청년 귀농 비중",
+      sub: `${_youth.year} · 30대 이하 귀농가구주`,
+      desc:
+        _youth.ratio >= 10
+          ? "귀농가구주 열 명 중 한 명 이상이 30대 이하예요"
+          : `귀농가구주 중 30대 이하는 ${_youth.ratio}%예요`,
     },
     stats: [
       { value: "3,600만 원", label: "영농정착지원금", sub: "월 110·100·90만 원 × 3년 (매년 감액)", desc: "만 18~39세 청년 창업농에게 지급되는 정부 보조금이에요" },
-      { value: "33세", label: "평균 나이", sub: "2024년 기준", desc: "점점 더 젊은 세대가 농업을 선택하고 있어요" },
+      {
+        value: `${youthFarmingReasons[0].pct}%`,
+        label: "청년 귀농 이유 1위",
+        sub: `${youthFarmingReasons[0].label} · ${settlementSurvey.year}`,
+        desc: "30대 이하 귀농인이 가장 많이 꼽은 이유예요",
+      },
     ],
     chart: {
       title: "청년이 농업을 택한 이유",
-      surveyLabel: "청년 정착자 설문",
-      items: [
-        { label: "비전·발전 가능성", pct: 27 },
-        { label: "자연환경이 좋아서", pct: 22 },
-        { label: "자유로운 생활", pct: 19 },
-        { label: "가업승계", pct: 17 },
-        { label: "IT·스마트팜 관심", pct: 15 },
-      ],
+      surveyLabel: `30대 이하 귀농인 · ${settlementSurvey.year} 실태조사`,
+      items: youthFarmingReasons,
     },
     compare: {
       title: "청년농 지원, 얼마나 받을까?",
@@ -386,29 +468,33 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     label: "귀산촌",
     title: "왜 산촌으로 떠날까?",
     titleEm: "산촌",
-    subtitle: "산촌진흥지역으로 이주하는 가구가 꾸준히 늘고 있어요",
+    subtitle: `최근 ${mountainData.length}년 동안 해마다 ${Math.floor(_mtnMin.households / 10_000)}만 가구 넘게 산촌으로 옮겼어요`,
     href: "/stats?tab=mountain",
-    source: "통계청 · 산림청 귀산촌 동향",
+    source: `국가데이터처 ${_mtn.year} 귀농어·귀촌인통계 · 산림청`,
     hero: {
-      value: "2,685",
-      label: "2024 귀산촌 가구",
-      sub: "전년 대비 +9.1%",
-      desc: "자연환경과 건강한 삶을 찾아 산촌으로 이주하는 흐름이에요",
+      value: _mtn.households.toLocaleString("ko-KR"),
+      label: `${_mtn.year} 귀산촌 가구`,
+      sub: `전년 대비 ${signedPct(changePct(_mtn.households, _mtnPrev.households))}`,
+      desc: "귀촌 가구 중 산림기본법상 산촌으로 옮긴 가구예요",
     },
     stats: [
-      { value: "74%", label: "7년간 증가율", sub: "2018 → 2024", desc: "2018년 1,542가구에서 7년 만에 74% 증가했어요" },
-      { value: "120+", label: "산촌진흥지역", sub: "전국 지정", desc: "산림청이 지정한 귀산촌 대상 지역이에요" },
+      {
+        value: signedPct(changePct(_mtn.households, _mtnFirst.households)),
+        label: `${mountainData.length}년간 변화`,
+        sub: `${_mtnFirst.year} → ${_mtn.year}`,
+        desc: `${_mtnFirst.year}년 ${_mtnFirst.households.toLocaleString("ko-KR")}가구에서 ${_mtn.year}년 ${_mtn.households.toLocaleString("ko-KR")}가구가 됐어요`,
+      },
+      {
+        value: `${mountainVillageArea.eupmyeon}곳`,
+        label: "산촌 읍·면",
+        sub: `${mountainVillageArea.sigungu}개 시·군 · ${mountainVillageArea.year} 기준`,
+        desc: "산림기본법상 산촌으로, 귀산촌 통계와 산림청 지원의 기준이에요",
+      },
     ],
     chart: {
       title: "산촌으로 떠난 이유",
-      surveyLabel: "귀산촌 가구 조사",
-      items: [
-        { label: "자연환경·건강", pct: 38 },
-        { label: "전원생활 선호", pct: 25 },
-        { label: "가족 이유", pct: 15 },
-        { label: "경제적 이유", pct: 12 },
-        { label: "귀농 연계", pct: 10 },
-      ],
+      surveyLabel: `귀산촌 가구 전입 사유 · ${reasonsYear}`,
+      items: mountainReasons,
     },
     compare: {
       title: "산촌 생활, 뭐가 달라질까?",
@@ -425,37 +511,41 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     label: "스마트팜",
     title: "스마트팜, 얼마나 늘었을까?",
     titleEm: "스마트팜",
-    subtitle: "IoT·AI 기반 스마트팜이 빠르게 확산되고 있어요",
+    subtitle: `스마트온실 보급 면적이 ${_sfaFirst.year}년보다 ${Math.round(_sfaChg)}% 늘었어요`,
     href: "/stats?tab=smartfarm",
-    source: "농림축산식품부 · 스마트팜코리아",
+    source: "농림축산식품부 · 국회예산정책처",
     hero: {
-      value: "8,534",
-      label: "2024 스마트팜 농가",
-      sub: "7년간 +113%",
-      desc: "IoT·AI 기반 정밀 농업이 전국으로 확산되고 있어요",
+      value: `${_sfa.area.toLocaleString("ko-KR")}ha`,
+      label: `${_sfa.year} 스마트온실 면적`,
+      sub: `${_sfaFirst.year}년 대비 ${signedPct(_sfaChg, 0)}`,
+      desc: "정책사업으로 스마트온실 장비·시설을 들인 시설원예 면적(누적)이에요",
     },
     stats: [
-      { value: "6,370ha", label: "시설면적", sub: "전국 기준", desc: "스마트팜이 설치된 전체 시설면적이에요" },
-      { value: "1만호", label: "2027 목표", sub: "정부 확산 목표", desc: "정부가 추진 중인 스마트팜 확산 목표예요" },
+      {
+        value: `${smartfarmAdoption.pct}%`,
+        label: "스마트온실 도입률",
+        sub: `${smartfarmAdoption.year} · 온실 5.5만 ha 기준`,
+        desc: "전체 온실 면적 중 스마트온실 비중이에요",
+      },
+      {
+        value: `${smartfarmAdoption.targetPct}%`,
+        label: `${smartfarmAdoption.targetYear} 목표`,
+        sub: "스마트온실 도입률",
+        desc: "제1차 스마트농업 육성 기본계획(2025~2029)의 목표예요",
+      },
     ],
     chart: {
       title: "주요 재배 작물",
-      surveyLabel: "스마트팜 농가 기준",
-      items: [
-        { label: "딸기", pct: 25 },
-        { label: "토마토", pct: 20 },
-        { label: "파프리카", pct: 15 },
-        { label: "화훼류", pct: 12 },
-        { label: "엽채류", pct: 10 },
-      ],
+      surveyLabel: "보급 면적 기준 · 2020년 누적",
+      items: smartfarmCrops,
     },
     compare: {
       title: "스마트팜 도입 효과",
       items: [
-        { label: "생산량", change: "30~50%↑", detail: "정밀 환경 제어" },
-        { label: "인건비", change: "-30%", detail: "자동화 효과" },
-        { label: "품질 균일도", change: "+40%", detail: "데이터 기반 관리" },
-        { label: "병충해", change: "-20%", detail: "조기 감지·대응" },
+        { label: "생산량", change: signedPct(smartfarmEffect.output), detail: "시설원예 도입 농가 평균" },
+        { label: "고품질 생산량", change: signedPct(smartfarmEffect.premiumOutput), detail: "상품성 높은 수확" },
+        { label: "농업소득", change: signedPct(smartfarmEffect.income), detail: "도입 전 대비" },
+        { label: "자가 노동시간", change: signedPct(smartfarmEffect.labor), detail: "원격·자동 제어" },
       ],
     },
   },
@@ -646,7 +736,8 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     cards: [
       { label: "ICT·시설 비중", desc: "하우스 구조물과 환경 제어 장비에 비용이 집중돼요", value: 85, format: "decimal1", unit: "%", color: "primary" },
       { label: "평균 준비 기간", desc: "혁신밸리 교육 포함, 창업까지 걸리는 기간이에요", value: 12, format: "decimal1", unit: "개월", color: "amber" },
-      { label: "정부 시설 보조", desc: "스마트팜 확산 사업으로 시설비의 일부를 보조받아요", value: 50, format: "plain", unit: "%", source: "농진청 스마트팜 확산사업", color: "primary" },
+      /* 10/3 정정: 출처가 농진청이 아니라 농식품부 ICT 융복합 확산사업. 보조율은 해마다·세부 사업마다 달라 2026 계획값을 연도와 함께 적는다 */
+      { label: "ICT 융복합 보조", desc: "온실 ICT 장비·신축 사업비의 국비 25%·지방비 30%를 보조받아요(지자체 공모)", value: 55, format: "plain", unit: "%", source: "농림축산식품부 2026 스마트농업 육성 시행계획", color: "primary" },
       { label: "농업창업자금 융자", desc: "스마트팜 설비와 농지 확보를 위한 융자 한도예요", value: 3, format: "plain", unit: "억원", source: "농림축산식품부 융자사업", color: "muted" },
     ],
     snapshot: {
@@ -658,7 +749,7 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
       items: [
         { label: "비닐하우스 + ICT", value: "3,000만~5,000만 원", sub: "1,000㎡ 기준" },
         { label: "유리온실 + ICT", value: "1억~2억 원", sub: "1,000㎡ 기준" },
-        { label: "정부 시설 보조", value: "시설비 최대 50%", sub: "스마트팜 확산사업" },
+        { label: "ICT 융복합 보조", value: "국비 25%·지방비 30%", sub: "2026 계획 · 지자체 공모" },
         { label: "혁신밸리 임대형", value: "보증금 1,000만~3,000만", sub: "청년 창업 지원" },
       ],
     },

@@ -33,6 +33,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          # 10/2 dev QA: 9/29 release 분리 이후 운영 = `release` 브랜치인데, 스케줄 실행은 기본 브랜치(main)를
+          # 체크아웃해 main 스펙으로 운영을 쳤다. main 에서 스펙을 바꾸면 release 반영 전까지 07:00 운영 E2E 가
+          # 깨진다. 스케줄은 운영과 같은 트리(release)의 스펙으로, 수동 실행은 고른 ref(미리보기 대상 등)로.
+          ref: ${{ github.event_name == 'schedule' && 'release' || github.ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v5

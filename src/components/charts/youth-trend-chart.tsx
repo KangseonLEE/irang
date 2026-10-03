@@ -54,7 +54,7 @@ function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
             className={s.tooltipDot}
             style={{ background: COLOR_PRIMARY }}
           />
-          <span>청년 비율</span>
+          <span>청년 비중</span>
           <span className={s.tooltipValue}>{ratio.value}%</span>
         </div>
       )}
@@ -99,6 +99,19 @@ export default function YouthTrendChart({ data }: Props) {
 
   const enrichedData = useMemo(() => calcTrendline(data), [data]);
 
+  /* 축·배지는 data 에서 계산 — "10년간 꾸준한 상승"·"2024 역대 최고 13.1%" 같은 고정 문구를 두지 않는다(10/3) */
+  const view = useMemo(() => {
+    const first = data[0];
+    const latest = data[data.length - 1];
+    const best = data.reduce((a, b) => (b.ratio > a.ratio ? b : a));
+    const pp = Number((latest.ratio - first.ratio).toFixed(1));
+    /* 막대는 0 에서 시작해야 크기 비교가 정직하다 — 위쪽만 5%p 단위로 올린다 */
+    const top = Math.ceil(best.ratio / 5) * 5;
+    const ticks: number[] = [];
+    for (let v = 0; v <= top; v += 5) ticks.push(v);
+    return { first, latest, best, pp, axis: { domain: [0, top] as [number, number], ticks } };
+  }, [data]);
+
   return (
     <div>
       <div className={s.chartWrapper}>
@@ -124,8 +137,9 @@ export default function YouthTrendChart({ data }: Props) {
               tick={{ fontSize: 11, fill: "#9ca3af" }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v) => `${v}%`}
-              domain={[6, 15]}
+              tickFormatter={(v: number) => `${v}%`}
+              domain={view.axis.domain}
+              ticks={view.axis.ticks}
             />
 
             {/* 평균 참조선 */}
@@ -147,7 +161,7 @@ export default function YouthTrendChart({ data }: Props) {
             {/* 막대 — 유의미(평균 이상) vs 비유의미(평균 미만) 색상 차별 */}
             <Bar
               dataKey="ratio"
-              name="청년 비율"
+              name="청년 비중"
               radius={[4, 4, 0, 0]}
               animationDuration={1000}
               animationEasing="ease-out"
@@ -195,12 +209,13 @@ export default function YouthTrendChart({ data }: Props) {
       </div>
 
       {/* 인사이트 배지 */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+      <div className={s.insightBadgeRow}>
         <span className={s.insightBadge}>
-          10년간 +4.9%p 꾸준한 상승 추세
+          {view.first.year}→{view.latest.year} {view.pp > 0 ? "+" : ""}
+          {view.pp.toFixed(1)}%p
         </span>
         <span className={s.insightBadge}>
-          2024 역대 최고 13.1%
+          최고 {view.best.year}년 {view.best.ratio}%
         </span>
       </div>
     </div>

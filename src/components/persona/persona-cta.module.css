@@ -9,7 +9,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 10px 16px;
-  border-radius: 10px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #e8f5f1 0%, #f0faf7 100%);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
   font-size: var(--fs-body-sm);
@@ -46,7 +46,7 @@
   gap: 4px;
   flex-shrink: 0;
   padding: 7px 14px;
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--primary, #1b6b5a);
   color: #fff;
   font-size: var(--fs-caption);

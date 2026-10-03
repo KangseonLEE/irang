@@ -32,7 +32,7 @@ function variantRadius(variant: SkeletonVariant): string | undefined {
       return "9999px";
     case "rect":
     default:
-      return undefined; // .irang-skeleton 기본값 (6px) 사용
+      return undefined; // .irang-skeleton 기본값 (4px) 사용
   }
 }
 

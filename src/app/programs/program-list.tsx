@@ -10,6 +10,7 @@ import type { SupportProgram, ProgramFilters } from "@/lib/data/programs";
 import type { PersonaId } from "@/lib/data/personas";
 import { getProgramPersonaFitTrace } from "@/lib/data/persona-fit";
 import { isNewProgram, programStatusLabel } from "@/lib/program-status";
+import { useKstToday } from "@/lib/hooks/use-kst-today";
 import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
@@ -32,6 +33,8 @@ interface ProgramListProps {
   allPrograms?: SupportProgram[];
   /** Phase 6 B3 D2 — 페르소나 모드 시 explain row 노출용 */
   currentPersona?: PersonaId;
+  /** 서버가 목록을 그린 날(KST YYYY-MM-DD, `kstToday()`) — D-N·신규 배지 하이드레이션 기준 (10/3) */
+  asOf: string;
 }
 
 export function ProgramList({
@@ -42,9 +45,12 @@ export function ProgramList({
   viewMode = "card",
   allPrograms,
   currentPersona,
+  asOf,
 }: ProgramListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  // 하이드레이션 = 서버가 그린 날(asOf), 직후 보는 사람의 오늘 — 카드 D-N 이 CDN 스냅샷과 어긋나지 않게
+  const today = useKstToday(asOf);
   const [programs, setPrograms] = useState(initialPrograms);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [isPending, startTransition] = useTransition();
@@ -147,7 +153,7 @@ export function ProgramList({
                     <Link href={`/programs/${p.id}`} className={dt.titleLink}>
                       {p.title}
                     </Link>
-                    {isNewProgram(p.createdAt, p.status) && (
+                    {isNewProgram(p.createdAt, p.status, today) && (
                       <span className={s.newTag}>신규</span>
                     )}
                     {p.crawlGroup && (
@@ -192,7 +198,7 @@ export function ProgramList({
                   className={`${s.programCellPersona} ${s.cardAnim}`}
                   style={{ animationDelay: animDelay }}
                 >
-                  <ProgramCard program={program} />
+                  <ProgramCard program={program} today={today} />
                   {program.crawlGroup && (
                     <CrawlGroupNote group={program.crawlGroup} basePath="/programs" />
                   )}
@@ -206,7 +212,7 @@ export function ProgramList({
                 className={s.cardAnim}
                 style={{ animationDelay: animDelay }}
               >
-                <ProgramCard program={program} />
+                <ProgramCard program={program} today={today} />
                 {program.crawlGroup && (
                   <CrawlGroupNote group={program.crawlGroup} basePath="/programs" />
                 )}

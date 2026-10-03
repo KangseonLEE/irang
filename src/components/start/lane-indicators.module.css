@@ -1,0 +1,117 @@
+/* 보조 지표 — 링(게이지·도넛) + 설명. 기본(모바일) → @media */
+.list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: var(--muted, #f6f8f7);
+}
+
+.visual {
+  position: relative;
+  flex: 0 0 auto;
+  width: 76px;
+  height: 76px;
+}
+
+.ring {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.track {
+  fill: none;
+  stroke: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+  stroke-width: 9;
+}
+
+.arc,
+.segment {
+  fill: none;
+  stroke-width: 9;
+}
+
+.arc {
+  stroke: var(--primary, #1b6b5a);
+  stroke-linecap: round;
+}
+
+.center {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--primary, #1b6b5a);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.value {
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--primary, #1b6b5a);
+}
+
+.label {
+  font-size: var(--fs-body-sm, 0.9375rem);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+}
+
+.sub {
+  font-size: var(--fs-caption, 0.8125rem);
+  line-height: 1.4;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  margin-top: 4px;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  color: var(--muted-foreground, #6b7280);
+  white-space: nowrap;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -15,8 +15,14 @@ describe("QuickLinkSection — 자주 찾는 서비스 아이콘 8종 (9/7)", ()
 
   it("모든 href 가 src/app 아래 실제 page.tsx 로 존재", () => {
     for (const item of QUICK_LINK_ITEMS) {
-      expect(existsSync(join(APP_DIR, item.href.slice(1), "page.tsx")), item.href).toBe(true);
+      // 유형 진단은 진단 직행(/match?mode=assess, 10/3) — 경로 실존은 쿼리를 뗀 경로로 본다
+      const path = item.href.split("?")[0];
+      expect(existsSync(join(APP_DIR, path.slice(1), "page.tsx")), item.href).toBe(true);
     }
+  });
+
+  it("유형 진단은 모드 선택을 건너뛰고 진단으로 바로 간다 (10/3 진단 직행 복원)", () => {
+    expect(QUICK_LINK_ITEMS.find((i) => i.id === "assess")?.href).toBe("/match?mode=assess");
   });
 
   it("SSR 마크업에 링크 8개와 quick_link 계측 라벨이 남는다", () => {
@@ -26,6 +32,14 @@ describe("QuickLinkSection — 자주 찾는 서비스 아이콘 8종 (9/7)", ()
       expect(html).toContain(`data-track="quick_link:${item.id}"`);
       expect(html).toContain(item.label);
     }
+  });
+
+  it("제목·설명 멘트는 화면에서 빼고 섹션 이름은 h2 로 남긴다 (10/2)", () => {
+    const html = renderToStaticMarkup(<QuickLinkSection />);
+    expect(html).not.toContain("QUICK LINK");
+    expect(html).not.toContain("준비하는 순서대로");
+    expect(html).toMatch(/<h2 id="quick-link-title"[^>]*>\s*자주 찾는 서비스\s*<\/h2>/);
+    expect(html).toContain('aria-labelledby="quick-link-title"');
   });
 
   it("라벨은 10자 이내 명사형", () => {

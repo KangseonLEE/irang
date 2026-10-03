@@ -26,6 +26,7 @@ import { RegionProfileCard } from "@/components/region/region-profile-card";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
 import { convertToPyeongLabel } from "@/lib/format";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { CommunityNotes } from "@/components/community/community-notes";
 import { CommunityJumpLink } from "@/components/community/community-jump-link";
 import { PersonaCta } from "@/components/persona/persona-cta";
@@ -226,14 +227,6 @@ export default async function RegionDetailPage({ params }: PageProps) {
           ].join(", "),
         }}
       />
-      {/* Back Link — 정적 */}
-      <div className={s.topBar}>
-        <Link href="/regions" className={s.backLink}>
-          ← 지역 목록으로
-        </Link>
-        <CommunityJumpLink from="region_detail" />
-      </div>
-
       {/* 스크롤 시 노출되는 sticky 헤더 — 모바일 전용 (CSS에서 데스크탑 hide) */}
       <StickyRegionHeader
         overline={province.name}
@@ -350,6 +343,17 @@ export default async function RegionDetailPage({ params }: PageProps) {
           </div>
         </header>
       </section>
+
+      {/* 브레드크럼 — 히어로 아래·탭 위 공통 위치 (2026-10-02 회장). 의견 바로가기는 같은 줄 끝 (9/17) */}
+      <div className={s.topBar}>
+        <Breadcrumb
+          items={[
+            { name: "지역 탐색", href: "/regions" },
+            { name: province.name },
+          ]}
+        />
+        <CommunityJumpLink from="region_detail" />
+      </div>
 
       <ReferenceNotice />
 

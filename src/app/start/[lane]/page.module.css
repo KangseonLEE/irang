@@ -1,0 +1,758 @@
+/* /start/[lane] 허브 — 기본(모바일) → @media 오버라이드 (체크리스트 G) */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+/* ── 상단 스트립 ── */
+.strip {
+  position: relative;
+  margin: 0 -16px;
+  padding: 24px 16px 22px;
+  overflow: hidden;
+  background: linear-gradient(155deg, #1f5a4d 0%, #123b33 55%, #0d2e27 100%);
+  color: #fff;
+}
+
+.stripArt {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.stripImg {
+  object-fit: cover;
+  object-position: center 35%;
+}
+
+.strip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, rgba(6, 26, 21, 0.94) 0%, rgba(6, 26, 21, 0.9) 58%, rgba(6, 26, 21, 0.82) 100%);
+  pointer-events: none;
+}
+
+.stripBody {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.stripText {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: var(--fs-overline, 0.6875rem);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--hero-accent, #8ee3c2);
+}
+
+.title {
+  margin: 6px 0 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.intro {
+  margin: 8px 0 0;
+  max-width: 34em;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+/* 소개글 용어 툴팁(AutoGlossary) — 어두운 스트립 위라 기본 회색 점선·초록 포커스 링이 묻힌다 */
+.intro [role="button"] {
+  border-bottom-color: rgba(255, 255, 255, 0.6);
+}
+
+.intro [role="button"]:focus-visible {
+  outline-color: var(--hero-accent, #8ee3c2);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.tileValue {
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--hero-accent, #8ee3c2);
+}
+
+.tileLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.tileSource {
+  font-size: 0.625rem;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ── 섹션 공통 — 작물·지역 상세와 같은 흰 카드 섹션 (간격·폰트 토큰 동일) ── */
+.section {
+  min-width: 0;
+  overflow-wrap: break-word;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  /* 섹션 탭(AnchorTabNav)이 sticky 가 아니라 탭을 누를 수 있는 건 탭이 화면에 보일 때뿐 → 모든 탭 이동은 아래로
+     간다. 아래로 가는 동안 헤더는 숨거나 그대로일 뿐 다시 나타나지 않으므로, 누르는 순간의 헤더 상태(--sticky-top)가
+     착지 여백의 안전한 상한이다 — 숨은 상태 12px(빈 띠 없음) · 보이는 상태 68px(가리지 않음).
+     이전 값(헤더 56 + 탭 44 + 12)은 있지도 않은 sticky 탭 몫까지 비워 112px 빈 띠를 만들었다(10/3 QA).
+     위로 가는 스크롤(페이지 이동 등)은 헤더가 다시 나타나므로 상수(--h-header)를 쓴다 — opportunity-tabs .panel */
+  scroll-margin-top: calc(var(--sticky-top, var(--h-header, 56px)) + 12px);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 0;
+}
+
+/* <640: "전체 보기"가 같은 줄에 있으면 제목("지금 볼 수 있는 지원사업")이 두 줄로 깨진다(375 실측) →
+   링크를 제목 아래로 내리고 아이콘 폭만큼 들여 제목 글자와 맞춘다 */
+@media (max-width: 639px) {
+  .sectionHeader {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .sectionHeader > .sectionTitle {
+    flex: 1 1 100%;
+  }
+
+  .sectionHeader > .more {
+    margin-left: 44px;
+  }
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+}
+
+.sectionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 16px;
+}
+
+.subHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.subTitle {
+  margin: 6px 0 0;
+  font-size: var(--fs-body-sm, 0.9375rem);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+}
+
+.range {
+  font-weight: 500;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.source {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.more {
+  flex: 0 0 auto;
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+}
+
+.more:focus-visible,
+.programCard:focus-visible,
+.interviewCard:focus-visible,
+.nextCard:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
+/* ── 비용 ── */
+.costGrid,
+.cardGrid,
+.cropGrid,
+.nextGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ── 대표 작물 비용 — 테두리 없는 타일 (10/3 회장: "테두리 다 없애고 이쁘게 배치") ──
+   작물 일러스트는 흰 바탕 불투명 이미지라 카드 배경·테두리 없이 섹션의 흰 바탕에 그대로 얹는다.
+   묶음은 선이 아니라 정렬과 여백으로: 이름·난이도 한 줄, 수치는 라벨 열 고정 + 값 바로 옆(넓은 칸에서
+   라벨과 값이 양 끝으로 벌어지지 않게). 640+ 는 일러스트 위·정보 아래 타일, 모바일은 일러스트 왼쪽 행. */
+.costGrid {
+  gap: 20px;
+}
+
+.costCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  height: 100%;
+  border-radius: 8px;
+  color: var(--foreground, #111827);
+  text-decoration: none;
+}
+
+.costMedia {
+  position: relative;
+  flex: 0 0 auto;
+  width: 80px;
+  height: 80px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.costImg {
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+/* 작물 DB 에 없는 비용 표기(산양삼 등) — 일러스트 자리를 같은 크기로 유지 */
+.costPlaceholder {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary, #1b6b5a);
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 7%, transparent);
+}
+
+.costBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.costHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.costName {
+  min-width: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  transition: color 0.15s;
+}
+
+.costFacility {
+  font-size: 0.75rem;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.costRows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 8px 0 0;
+  /* 묶음 폭(640+ 고정 폭)을 em 으로 재므로 글자 크기를 여기서 정한다 — 캡션은 1024+ 에서 13→14px */
+  font-size: var(--fs-caption, 0.8125rem);
+}
+
+.costRow {
+  display: grid;
+  grid-template-columns: 5.5em minmax(0, 1fr);
+  column-gap: 10px;
+}
+
+.costRow dt {
+  color: var(--muted-foreground, #6b7280);
+}
+
+.costRow dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground, #111827);
+}
+
+/* 출처가 카드마다 다를 때만 카드 안에 — 같으면 목록 아래 한 줄(.costSourceNote) */
+.costSource {
+  margin-top: 6px;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.costSourceNote {
+  margin: -2px 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.costCardLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 4px;
+}
+
+/* 좁은 폰(≤389px) — 360 에서 "1,000만~2,000만 원" 이 줄바꿈되며 "원" 만 다음 줄에 남았다(10/3 재검증).
+   일러스트·라벨 열을 줄여 값 칸을 넓히고, 그래도 모자란 320 대에서는 라벨을 값 위로 올린다. */
+@media (max-width: 389px) {
+  .costCard {
+    gap: 12px;
+  }
+
+  .costMedia {
+    width: 64px;
+    height: 64px;
+  }
+
+  .costRow {
+    grid-template-columns: 5em minmax(0, 1fr);
+    column-gap: 8px;
+  }
+}
+
+@media (max-width: 339px) {
+  .costRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── 왜 이 길을 택할까 — 시계열 + 보조 지표 + 이유 막대 (랜딩 추세 벤토와 같은 데이터) ── */
+.subtitleText {
+  margin: 0;
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.trendGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.trendMain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 16px 14px 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+}
+
+.trendHeadline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 0;
+}
+
+.trendHeadlineValue {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--primary, #1b6b5a);
+}
+
+.trendHeadlineLabel {
+  font-size: var(--fs-body-sm, 0.9375rem);
+  font-weight: 700;
+  color: var(--foreground, #111827);
+}
+
+.trendHeadlineSub {
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: minmax(0, 8.5em) minmax(0, 1fr) 2.6em;
+  align-items: center;
+  gap: 10px;
+}
+
+.barLabel {
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--foreground, #111827);
+}
+
+.barTrack {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary, #1b6b5a);
+}
+
+.barPct {
+  font-size: var(--fs-caption, 0.8125rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  text-align: right;
+}
+
+/* 1위 이유만 진하게, 나머지는 한 단계 낮춘다(CLAUDE.md 유의미 데이터 강조) */
+.barRow:not(.barRowTop) .barFill {
+  opacity: 0.55;
+}
+
+.barRowTop .barLabel {
+  font-weight: 700;
+}
+
+/* ── 지원사업·인터뷰·다음 단계 카드 ── */
+.programCard,
+.interviewCard,
+.nextCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  color: var(--foreground, #111827);
+  text-decoration: none;
+}
+
+/* 지원사업 카드 — /programs 목록 카드와 같은 위계(배지 → 제목 → 요약 → 기관) */
+.programCard {
+  gap: 10px;
+  padding: 20px;
+}
+
+.programBadges {
+  display: flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 6px;
+}
+
+.chip {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--muted, #f3f4f6);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.programTitle {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  line-height: var(--lh-snug);
+  color: var(--foreground);
+}
+
+.programSummary {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: var(--fs-caption, 0.8125rem);
+  line-height: 1.5;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.programMeta {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--border, #e5e7eb);
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.interviewQuote {
+  font-size: var(--fs-body-sm, 0.9375rem);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.interviewMeta {
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.nextCard {
+  position: relative;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding-right: 42px;
+}
+
+.nextText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nextLabel {
+  font-size: var(--fs-body, 0.9375rem);
+  font-weight: 700;
+}
+
+.nextDesc {
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.nextIcon {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  color: var(--primary, #1b6b5a);
+  transform: translateY(-50%);
+}
+
+/* ── 브레드크럼 + 섹션 탭 — 스트립 바로 아래 한 덩어리(페이지 gap 을 줄여 붙인다) ── */
+.navBlock {
+  display: flex;
+  flex-direction: column;
+  /* 브레드크럼 ↔ 탭 간격 (10/2 회장 "더 띄워줘" 4 → 16) */
+  gap: 16px;
+  min-width: 0;
+  margin-top: -14px;
+}
+
+@media (hover: hover) {
+  .programCard:hover,
+  .interviewCard:hover,
+  .nextCard:hover {
+    border-color: var(--primary-tint-medium, color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent));
+  }
+
+  /* 대표 작물 타일은 테두리가 없어 이름 색·일러스트 확대로만 반응 */
+  .costCardLink:hover .costName {
+    color: var(--primary, #1b6b5a);
+  }
+
+  .costCardLink:hover .costImg {
+    transform: scale(1.06);
+  }
+
+  .more:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+@media (min-width: 480px) {
+  .sectionHeader {
+    padding: 20px 20px 0;
+  }
+
+  .sectionBody {
+    padding: 16px 20px 20px;
+  }
+}
+
+@media (min-width: 640px) {
+  .sectionHeader {
+    padding: 24px 28px 0;
+  }
+
+  .sectionBody {
+    padding: 20px 28px 28px;
+  }
+
+  .costGrid,
+  .cardGrid,
+  .cropGrid,
+  .nextGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  /* 대표 작물: 여러 열일 때는 일러스트 위·정보 아래 타일을 칸 가운데로 — 테두리가 없어 왼쪽 정렬이면
+     칸 오른쪽이 비어 보인다. 수치 묶음은 블록째 가운데에 두고 안쪽은 라벨 열 고정·값 왼쪽 정렬 유지. */
+  .costGrid {
+    gap: 28px 24px;
+  }
+
+  .costCard {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .costMedia {
+    width: 112px;
+    height: 112px;
+  }
+
+  /* 본문은 칸 전체 폭 — 내용 폭으로 줄어들면 아래 묶음의 min(16.5em, 100%) 가 그 폭에 눌려 타일마다 달라진다 */
+  .costBody {
+    align-self: stretch;
+    align-items: center;
+  }
+
+  .costHead {
+    justify-content: center;
+  }
+
+  /* 묶음 폭 고정 — 카드마다 가장 긴 값에 맞춰 가운데 정렬되면 위아래 타일의 라벨 시작점이 어긋난다.
+     16.5em = 라벨 5.5em + 간격 + 가장 긴 값("2,000만~5,000만 원" ≈ 9.7em)이 한 줄에 드는 폭 — em 이라
+     캡션이 커지는 1024+ 에서도 같은 비율로 커진다(10/3 rem 고정 시 1280 에서 "원"이 줄바꿈된 사례). */
+  .costRows {
+    width: min(16.5em, 100%);
+    text-align: left;
+  }
+}
+
+@media (min-width: 768px) {
+  .programCard {
+    padding: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    gap: 40px;
+    padding: 0 24px 64px;
+  }
+
+  .strip {
+    margin: 0 calc(-50vw + 50%);
+    padding: 40px calc(50vw - 50%) 36px;
+  }
+
+  .stripBody {
+    align-items: center;
+    max-width: calc(1280px - 48px);
+    margin: 0 auto;
+  }
+
+  .title {
+    font-size: 2.25rem;
+  }
+
+  .intro {
+    font-size: 1rem;
+  }
+
+  .costGrid,
+  .cardGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cropGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .barRow {
+    grid-template-columns: minmax(0, 12em) minmax(0, 1fr) 3em;
+  }
+
+  .navBlock {
+    margin-top: -24px;
+  }
+
+  .trendGrid {
+    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .trendMain {
+    padding: 20px 20px 14px;
+  }
+
+  .trendHeadlineValue {
+    font-size: 2rem;
+  }
+
+  .costGrid {
+    gap: 32px 40px;
+  }
+
+  .costMedia {
+    width: 120px;
+    height: 120px;
+  }
+}

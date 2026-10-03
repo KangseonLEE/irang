@@ -1,0 +1,1265 @@
+/* ══════════════════════════════════════════
+   랜딩 히어로 A안 (2026-10-01) — 검색 + 정착 유형 + 지금 열린 기회
+   - 풀블리드 + 헤더 뒤에서 시작(투명 오버레이 헤더, header.module.css `body:has([data-landing-hero])`).
+     위 음수 마진 = .page padding-top(24/32/36/40) + 헤더 56 + 헤더 border 1px.
+   - 모바일(<1024)은 내용만큼의 높이(화면 고정 X), 1024+ 는 100svh 근처.
+   - 업데이트 스낵바(updates-banner)가 .page 기준 absolute 로 위에 뜬다 → 위 패딩이 그 자리를 비운다.
+   - 기본(모바일) → @media 오버라이드 순서(체크리스트 G). 다크모드 없음.
+   - 10/2 회장: 유리(glass) UI + 등장 연출(파일 끝 "등장 연출"). 유리 = 어두운 반투명 + backdrop blur +
+     흰 1px 테두리 + 흰 글씨, 모서리 4~8px. 불투명도는 5개 장면 최악 픽셀 대비 실측값(각 주석).
+     backdrop-filter 미지원이면 더 진한 단색(@supports not).
+   ══════════════════════════════════════════ */
+
+.hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  margin: calc(-24px - var(--h-header) - 1px) calc(-50vw + 50%) 0;
+  /* 위 = 헤더(56+1) + 스낵바(12 + ≈48) + 여백 */
+  padding: calc(var(--h-header) + 1px + 80px) calc(50vw - 50%) 28px;
+  color: #fff;
+  background: linear-gradient(118deg, #0b2a23 0%, #14554a 52%, #1b6b5a 100%);
+}
+
+@media (min-width: 640px) {
+  .hero {
+    margin-top: calc(-32px - var(--h-header) - 1px);
+    padding-bottom: 36px;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero {
+    margin-top: calc(-36px - var(--h-header) - 1px);
+    padding-top: calc(var(--h-header) + 1px + 92px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    margin-top: calc(-40px - var(--h-header) - 1px);
+    /* 위 = 헤더 + 스낵바(16 + ≈52) + 여백 */
+    padding-top: calc(var(--h-header) + 1px + 100px);
+    padding-bottom: 40px;
+    min-height: 100vh;
+    min-height: 100svh;
+    justify-content: center;
+  }
+}
+
+/* ── 배경 ── */
+.bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bgImage {
+  object-fit: cover;
+  object-position: center 58%;
+}
+
+/* 장면 레이어 (HeroRotator) — 들어오는 장면이 위에서 1.2초 페이드, 머무는 동안 천천히 확대 */
+.bgLayers {
+  position: absolute;
+  inset: 0;
+  /* 레이어의 z-index(들어오는 장면 2 / 나가는 장면 1)를 이 안에 가둔다 — 안 가두면 스크림 위로 올라와
+     글씨가 일러스트 위에 맨살로 놓인다(10/1 실측, 9/29 히어로 스크림 사고와 같은 원인) */
+  z-index: 0;
+  isolation: isolate;
+}
+
+.bgLayer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity 1.2s ease,
+    transform 6s linear;
+}
+
+.bgLayer[data-on] {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bgLayer {
+    transition: none;
+    transform: none;
+  }
+
+  .bgLayer[data-on] {
+    transform: none;
+  }
+}
+
+/* 스크림 — 모바일은 전면이 글자 영역이라 고르게 어둡게 + 상단 헤더 띠 */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(6, 26, 21, 0.62) 0px, rgba(6, 26, 21, 0.3) 120px, rgba(6, 26, 21, 0) 200px),
+    /* 10/2 유리 UI 실측: 0.58→0.62 — 375 부제·추천 라벨이 hero-4 장면에서 4.1 이던 것 */
+    linear-gradient(180deg, rgba(6, 26, 21, 0.62) 0%, rgba(6, 26, 21, 0.68) 100%);
+}
+
+@media (min-width: 1024px) {
+  /* 데스크탑: 상단 = 투명 헤더 흰 글자 대비 띠(9/29 B안 값), 좌 = 헤드라인, 우 = 유형 카드 제목 */
+  .scrim {
+    background:
+      linear-gradient(180deg, rgba(6, 26, 21, 0.85) 0px, rgba(6, 26, 21, 0.68) 56px, rgba(6, 26, 21, 0.22) 92px, rgba(6, 26, 21, 0) 130px),
+      /* 우측도 0.58 — 해가 걸린 하늘 위 "정착 유형으로 시작하기" 흰 글자 4.5:1 (10/1 픽셀 실측, 0.42 는 3.3) */
+      linear-gradient(90deg, rgba(6, 26, 21, 0.8) 0%, rgba(6, 26, 21, 0.64) 42%, rgba(6, 26, 21, 0.58) 100%),
+      linear-gradient(0deg, rgba(6, 26, 21, 0.45) 0%, rgba(6, 26, 21, 0) 40%);
+  }
+}
+
+/* 등장 연출용 밝은 안개 — 평소엔 투명. 애니메이션(heroFog)의 시작 프레임만 불투명하다 */
+.fog {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: #eef3f1;
+  opacity: 0;
+}
+
+/* ── 레이아웃 ── */
+.inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "intro"
+    "types"
+    "data";
+  row-gap: 24px;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "intro types"
+      "data data";
+    column-gap: 48px;
+    row-gap: 36px;
+    align-items: center;
+  }
+}
+
+@media (min-width: 1280px) {
+  .inner {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    column-gap: 64px;
+    row-gap: 40px;
+  }
+}
+
+/* ── 좌: 문장 + 검색 ── */
+.intro {
+  grid-area: intro;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.28;
+  letter-spacing: -0.04em;
+  color: #fff;
+}
+
+/* ── 회전 단어 (h1 1행) ──
+   단어 5개를 같은 칸에 겹쳐 두고 data-state 로 아래→위 슬라이드. 칸 폭은 가장 긴 단어(스마트팜) 기준이라
+   뒤의 "준비,"가 단어 길이에 따라 흔들리지 않는다. 시각 전용 — 읽기는 srOnly 문장이 맡는다. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.wordLine,
+.titleRest {
+  display: block;
+  /* 줄 마스크 — lineInner 가 이 안에서 아래→위로 드러난다. 위아래 여유는 글자 꼬리·악센트용 */
+  overflow: hidden;
+  padding-block: 0.06em;
+  margin-block: -0.06em;
+}
+
+.lineInner {
+  display: block;
+}
+
+.wordSlot {
+  display: inline-grid;
+  vertical-align: bottom;
+  overflow: hidden;
+  /* 슬라이드 중 글자 위아래가 잘리지 않게 줄 높이만큼 여유 */
+  padding-block: 0.08em;
+  margin-block: -0.08em;
+}
+
+.word {
+  grid-area: 1 / 1;
+  justify-self: start;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(100%);
+  transition:
+    transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.4s ease;
+}
+
+.wordAccent {
+  color: #9fe0c8;
+}
+
+.word[data-state="in"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.word[data-state="out"] {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+/* 대기 중인 단어는 순간 이동(아래로) — 전환 없이 제자리로 돌아가 다음 차례를 기다린다 */
+.word[data-state="wait"] {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word {
+    transition: none;
+  }
+}
+
+.sub {
+  margin: 10px 0 20px;
+  max-width: 30em;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+  }
+
+  .sub {
+    margin: 14px 0 24px;
+    font-size: 1.0625rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .title {
+    font-size: 3rem;
+    line-height: 1.22;
+  }
+}
+
+@media (min-width: 1280px) {
+  .title {
+    font-size: 3.5rem;
+  }
+
+  .sub {
+    margin: 16px 0 28px;
+  }
+}
+
+.searchWrap {
+  width: 100%;
+  max-width: 620px;
+}
+
+/* "이런 검색어를 추천해요 {검색어}" — 칩 줄 대신 한 줄, 검색어가 아래→위로 넘어간다 (10/2 회장) */
+.ticker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+}
+
+.tickerLabel {
+  flex: none;
+  white-space: nowrap;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.tickerSlot {
+  display: inline-grid;
+  overflow: hidden;
+  /* 포커스 링이 잘리지 않게 칸 안쪽 여유 */
+  padding: 4px;
+  margin: -4px;
+}
+
+/* 10/2 회장: 칩·# 없이 글자만 — 제목의 유형어와 같은 민트로, 밑줄은 호버 때만 */
+.tickerItem {
+  grid-area: 1 / 1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  color: #9fe0c8;
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: none;
+  text-underline-offset: 4px;
+  opacity: 0;
+  transform: translateY(110%);
+  transition:
+    transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.35s ease;
+}
+
+/* ≤1023 은 스크림이 옅어(모바일 전면 균일) 민트 #9fe0c8 이 최악 픽셀 3.56~3.75 로 4.5 미달(10/2 QA C-Y2).
+   5개 장면 × 320~1023 × DPR 1·2·3 실측 최악 4.82 인 아주 옅은 민트로 — 흰색(5.34)보다 브랜드 기운을 남긴다.
+   1024+ 는 좌측 스크림이 진해 원래 민트가 5.10 이상이라 그대로 둔다. */
+@media (max-width: 1023px) {
+  .tickerItem {
+    color: #e3f8f0;
+  }
+}
+
+.tickerItem[data-state="in"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tickerItem[data-state="out"] {
+  transform: translateY(-110%);
+}
+
+.tickerItem[data-state="wait"] {
+  transition: none;
+  pointer-events: none;
+}
+
+.tickerItem:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) {
+  .tickerItem[data-state="in"]:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tickerItem {
+    transition: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .ticker {
+    margin-bottom: 10px;
+    font-size: 0.9375rem;
+  }
+}
+
+/* ── 우: 정착 유형 카드 ── */
+.types {
+  grid-area: types;
+  min-width: 0;
+}
+
+/* 제목 + 자동 전환 정지 버튼 한 줄 */
+.typesHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.pauseBtn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: -6px -6px -6px 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+/* 보이는 원은 28px, 누르는 영역은 44px */
+.pauseBtn::before {
+  content: "";
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: rgba(6, 26, 21, 0.4);
+}
+
+.pauseBtn > svg {
+  position: relative;
+}
+
+.pauseBtn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -4px;
+}
+
+@media (hover: hover) {
+  .pauseBtn:hover::before {
+    border-color: #fff;
+    background: rgba(22, 78, 64, 0.7);
+  }
+}
+
+.typesTitle {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+/* 정착 유형 카드 — <768 은 한 장씩 넘기는 가로 스냅 캐러셀(한 장 + 다음 카드 peek), 768+ 는 그리드로 전부 보인다
+   (10/2 오후 회장: 데스크탑은 이전 그리드가 좋다 — 전 폭 캐러셀을 모바일 전용으로 되돌림).
+   모바일 트랙은 히어로 좌우 여백(--hero-gutter)만큼 화면 끝까지 넓히고 같은 값의 padding·scroll-padding 으로
+   첫 카드·스냅 위치를 본문 왼쪽 선에 맞춘다. */
+.typeGrid {
+  --hero-gutter: 16px;
+  display: flex;
+  gap: 10px;
+  /* 위아래 6px = 포커스 링(outline-offset 3 + 2px)이 스크롤 박스에 잘리지 않을 여유. 위는 음수 마진으로 상쇄 */
+  margin: -6px calc(-1 * var(--hero-gutter)) 0;
+  padding: 6px var(--hero-gutter);
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--hero-gutter);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.typeGrid::-webkit-scrollbar {
+  display: none;
+}
+
+.typeGrid > .typeItem {
+  flex: 0 0 min(82%, 320px);
+  scroll-snap-align: start;
+}
+
+/* 위치 점 — 카드 아래. 768+ 는 SnapDots 자체 CSS 가 숨긴다 */
+.typeDots {
+  margin-top: 2px;
+}
+
+@media (min-width: 640px) {
+  .typeGrid {
+    --hero-gutter: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .typeGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .typeGrid > .typeItem {
+    flex: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .typesTitle {
+    margin-bottom: 12px;
+  }
+
+  .typeGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .typeGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.typeItem {
+  display: flex;
+  min-width: 0;
+}
+
+.typeCard {
+  /* 수치 줄 배치를 카드 폭으로 가른다(아래 @container) */
+  container: hero-type-card / inline-size;
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "thumb arrow"
+    "label label"
+    "desc desc"
+    "facts facts";
+  align-content: start;
+  min-width: 0;
+  padding: 12px;
+  /* 유리 카드 (10/2) — 어두운 반투명 + blur + 흰 1px 테두리 */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  background: var(--glass-card, rgba(6, 26, 21, 0.36));
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  backdrop-filter: blur(12px) saturate(1.1);
+  color: #fff;
+  text-decoration: none;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+.typeCard:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-color: #fff;
+}
+
+.thumb {
+  grid-area: thumb;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 4px;
+  /* 10/2 회장: 사람 일러스트 → 아이콘. 유리 카드 위 흰 아이콘 + 옅은 흰 바탕 */
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.thumbIcon {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.typeArrow {
+  grid-area: arrow;
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.typeText {
+  display: contents;
+}
+
+.typeLabel {
+  grid-area: label;
+  margin-top: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.typeDesc {
+  grid-area: desc;
+  margin-top: 2px;
+  /* 10/2 회장: 설명은 한 줄로만 — 문구를 짧게 맞췄고, 좁은 폭에서 넘치면 말줄임 */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+/* 카드 수치 줄 (10/2) — 라벨 위·값 아래 3칸, 가는 흰 구분선. 선택 화면 타일과 같은 계산(buildLaneStats) */
+.typeFacts {
+  grid-area: facts;
+  display: flex;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+.typeFact {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-right: 6px;
+}
+
+.typeFact + .typeFact {
+  padding-left: 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.typeFactLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  white-space: nowrap;
+}
+
+.typeFactValue {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 카드가 좁으면(그리드 카드 200px 안팎) 3칸 가로 배치에서 "1,800만 원"이 잘린다 → 라벨 · 값 세로 행.
+   10/2 회장 "모바일인데 텍스트 나열로 보인다" — 화면 폭(768+) 기준이면 '데스크탑 사이트 요청'·가로 모드 폰에서도
+   행 배치가 됐다. 화면이 아니라 **카드 실제 폭**으로 가른다(.typeCard container).
+   10/2 QA C-Y6(1.4.4): 기준을 px(239px)로 두면 글자를 200% 키워도 375 카드(≈281px)는 3칸 가로 배치라
+   라벨이 겹치고 값이 "1,8…"로 잘렸다 → em 으로. 컨테이너 쿼리의 em 은 카드의 글자 크기 기준이라
+   글자를 키우면 기준 폭도 같이 커진다(기본 16px 에서 15em = 240px — 종전과 같은 자리). */
+@container hero-type-card (max-width: 15em) {
+  .typeFacts {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* 좁은 행에서 라벨·값이 한 줄에 안 들어가면 값을 다음 줄로 — 잘라서 숨기지 않는다 */
+  .typeFact {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0 8px;
+    padding-right: 0;
+  }
+
+  .typeFact + .typeFact {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .typeFactValue {
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .typeCard {
+    padding: 16px;
+    border-radius: 4px;
+  }
+
+  .thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 4px;
+  }
+
+  .thumbIcon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .typeArrow {
+    width: 32px;
+    height: 32px;
+  }
+
+  .typeLabel {
+    margin-top: 12px;
+    font-size: 1.125rem;
+  }
+
+  .typeDesc {
+    font-size: 0.875rem;
+  }
+}
+
+/* 강조 카드 (10/2 회장: 문장 속 유형어와 싱크하지 않는다 — 글자는 글자대로 돈다).
+   - <768: 캐러셀에서 지금 스냅된 카드(HeroTypeCarousel 이 data-active 를 옮긴다)
+   - 768+: 마우스를 올린 카드만(아래 hover 규칙). data-active 는 무시한다.
+   유리 문법: 테두리를 흰색으로 진하게 + 바탕을 초록 기운으로 살짝 밝게 + 화살표 흰 원.
+   (흰 덧칠로 밝히면 흰 글씨 대비가 떨어진다 — 밝기는 초록 채도로만 올린다) */
+@media (max-width: 767px) {
+  .typeCard[data-active] {
+    border-color: rgba(255, 255, 255, 0.95);
+    background: var(--glass-card-active, rgba(22, 78, 64, 0.62));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  }
+
+  /* 10/2 회장: 모바일 스냅 카드 = 데스크탑 호버와 같은 효과(화살표 이동·썸네일 확대까지) */
+  .typeCard[data-active] .typeArrow {
+    transform: translateX(3px);
+    background: #fff;
+    color: var(--primary, #1b6b5a);
+  }
+
+  .typeCard[data-active] .thumbIcon {
+    transform: scale(1.08);
+  }
+
+  .typeCard[data-active] .thumb {
+    background: rgba(255, 255, 255, 0.22);
+  }
+}
+
+@media (hover: hover) {
+  /* 유리 카드는 들뜨지 않는다 — 바탕이 밝아지고 테두리가 진해지며 화살표만 움직인다 */
+  .typeCard:hover {
+    border-color: rgba(255, 255, 255, 0.95);
+    background: var(--glass-card-active, rgba(22, 78, 64, 0.62));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  }
+
+  .typeCard:hover .typeArrow {
+    transform: translateX(3px);
+    background: #fff;
+    color: var(--primary, #1b6b5a);
+  }
+
+  .typeCard:hover .thumbIcon {
+    transform: scale(1.08);
+  }
+
+  .typeCard:hover .thumb {
+    background: rgba(255, 255, 255, 0.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typeCard,
+  .typeArrow,
+  .thumbIcon {
+    transition: none;
+  }
+}
+
+/* ── 하단: 지금 열린 기회 ── */
+.data {
+  grid-area: data;
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  padding: 16px;
+  /* 큰 유리 박스 (10/2) */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  background: var(--glass-panel, rgba(6, 26, 21, 0.4));
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(14px) saturate(1.1);
+  color: #fff;
+}
+
+@media (min-width: 1024px) {
+  .data {
+    gap: 20px;
+    padding: 20px 24px;
+    border-radius: 4px;
+  }
+}
+
+/* 1280+: 수치 | 마감 카드 — 나란히, **모든 칸 같은 폭·높이** (10/2 회장).
+   두 묶음을 항목 수(--n)에 비례해 나눈다. flex-basis 에 묶음 안 간격((n-1)×8px)을 먼저 주고 남는 폭을
+   n 비율로 나누면 칸 하나의 폭이 양쪽에서 정확히 같아진다(수치가 3개든 4개든). */
+@media (min-width: 1280px) {
+  .data {
+    display: flex;
+    align-items: stretch;
+    gap: 28px;
+  }
+
+  .statsBlock,
+  .deadlineBlock {
+    flex: var(--n, 1) 1 calc((var(--n, 1) - 1) * 8px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 두 제목 줄 높이를 맞춰 칸 윗선이 한 줄에 서게("전체 보기" 링크 32px 기준) */
+  .statsBlock > .dataTitle,
+  .deadlineHead {
+    min-height: 32px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  .deadlineHead > .dataTitle {
+    margin: 0;
+  }
+
+  .stats,
+  .deadlines {
+    flex: 1;
+  }
+
+  .deadlines {
+    grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
+  }
+
+  /* 칸 높이도 같게 — 수치 칸이 마감 카드 높이만큼 늘고, 숫자는 아래에 붙는다 */
+  .stats > li {
+    display: flex;
+  }
+
+  .stat {
+    flex: 1;
+    justify-content: space-between;
+  }
+}
+
+.statsBlock,
+.deadlineBlock {
+  min-width: 0;
+}
+
+.dataTitle {
+  margin: 0 0 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 2열일 때 항목이 홀수면(0 인 항목은 빠진다) 마지막 칸을 한 줄로 — 빈 칸이 남지 않게 */
+.stats > li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+/* 768+: 항목 수만큼 한 줄 */
+@media (min-width: 768px) {
+  .stats {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .stats > li:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+}
+
+
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 44px;
+  padding: 10px 12px;
+  /* 패널 안 칸 — 얇은 흰 테두리 칸(겹친 blur 는 비싸고 대비 이득이 없어 패널 하나에만 건다) */
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.stat:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .stat:hover {
+    border-color: rgba(255, 255, 255, 0.7);
+    background: rgba(159, 224, 200, 0.1);
+  }
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.statValue {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: #9fe0c8;
+}
+
+.statUnit {
+  margin-left: 2px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.deadlineHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* 누르는 영역 44px(10/2 QA C-Y12, 종전 64×32). 늘린 12px 은 **위로만** — 바로 아래 마감 카드와 1px 거리라
+   아래로 늘리면 카드 위를 덮는다. 위는 묶음 사이 간격(18~20px)·패널 안쪽 여백이라 비어 있다.
+   padding-top 만큼 margin-top 을 빼 제목 줄 높이·글자 위치는 그대로 둔다(::before 확장 금지 — 이웃과 겹침). */
+.dataMore {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+  min-height: 44px;
+  padding-top: 12px;
+  margin-top: -12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+}
+
+/* 포커스 링은 글자가 있는 아래 32px 칸에만 — 위로 늘린 누름 여백까지 감싸면 링 안에서 글자가 바닥에 붙어 보인다 */
+.dataMore:focus-visible {
+  outline: none;
+}
+
+.dataMore:focus-visible::after {
+  content: "";
+  position: absolute;
+  /* 종전 outline(2px, offset 2px)과 같은 자리: 글자 칸(위 12px 아래) 바깥 2~4px 띠 */
+  inset: 8px -4px -4px;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .dataMore:hover {
+    text-decoration: underline;
+  }
+}
+
+.deadlines {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .deadlines {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.deadline {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "badge title"
+    ". amount";
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: start;
+  height: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.deadline:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .deadline:hover {
+    border-color: rgba(255, 255, 255, 0.7);
+    background: rgba(159, 224, 200, 0.1);
+  }
+}
+
+@media (min-width: 768px) {
+  .deadline {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "badge"
+      "title"
+      "amount";
+    row-gap: 4px;
+    justify-items: start;
+  }
+}
+
+.dBadge {
+  grid-area: badge;
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 4px;
+  /* 어두운 유리 위 앰버 — 밝은 앰버 글씨 + 옅은 앰버 바탕 */
+  background: rgba(251, 191, 36, 0.16);
+  color: #fcd34d;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.deadlineTitle {
+  grid-area: title;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+.deadlineAmount {
+  grid-area: amount;
+  overflow: hidden;
+  max-width: 100%;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #9fe0c8;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deadline {
+    transition: none;
+  }
+}
+
+/* ── 유리 폴백 — backdrop-filter 미지원이면 흐림 없이 더 진한 단색(대비를 유리값 이상으로) ── */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hero {
+    --glass-card: rgba(6, 26, 21, 0.72);
+    --glass-card-active: rgba(18, 66, 54, 0.82);
+    --glass-panel: rgba(6, 26, 21, 0.76);
+  }
+}
+
+/* ══════════════════════════════════════════
+   등장 연출 (2026-10-02 회장 결재 — 기후금융포털식, 라이브러리 없이 CSS 만)
+   ① 밝은 안개가 걷히며 배경이 1.08 → 1 로 물러난다
+   ② h1 두 줄이 줄 마스크 안에서 차례로 올라온다(120ms 간격)
+   ③ 부제 → 검색 → 추천 검색어 → 유형 제목 → 유형 카드 6(스태거) → 데이터 패널 fade-up
+   총 ≈2s(= HERO_INTRO_MS, hero-intro.ts — 회전 타이머가 이 뒤에 시작).
+
+   - fill-mode 는 `backwards` — 지연 동안 시작 프레임을 쥐고, 끝나면 **원래 스타일로 돌아간다**.
+     `both` 로 끝 프레임을 쥐면 카드 hover transform·data-state 전환이 애니메이션 값에 덮인다.
+   - JS 없이도 CSS 가 돌아 2초 뒤 완성 상태. reduced-motion 은 애니메이션 자체를 끈다(즉시 완성).
+   - backdrop-filter 요소는 **자기 자신**에 opacity 를 건다 — 조상에 opacity<1 이 걸리면 그 조상이
+     backdrop root 가 되어 연출 동안 유리가 흐림 없이 비치다가 끝나는 순간 툭 바뀐다.
+     (유형 카드: li 는 이동만, 카드는 투명도만 / 검색: 폼 자체에 둘 다)
+   ══════════════════════════════════════════ */
+.hero {
+  --intro-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --intro-rise: 14px;
+  --intro-step: 60ms;
+  --intro-dur: 0.6s;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    --intro-rise: 24px;
+    --intro-step: 90ms;
+    --intro-dur: 0.7s;
+  }
+}
+
+@keyframes heroFog {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes heroBgZoom {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes heroLineUp {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroRise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--intro-rise));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroRiseMove {
+  from {
+    transform: translateY(var(--intro-rise));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fog {
+  animation: heroFog 1s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+
+.bgLayers {
+  animation: heroBgZoom 1.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* LCP(10/2 실측 데스크탑 2.2s·모바일 2.7s): 큰 글자가 투명도 0 으로 기다리면 그만큼 LCP 가 늦는다.
+   제목은 줄 마스크를 유지하되 바로 시작(0.1/0.2s)하고, 부제는 투명도 없이 위치만 움직인다. */
+.wordLine > .lineInner {
+  animation: heroLineUp 0.7s var(--intro-ease) 0.1s backwards;
+}
+
+.titleRest > .lineInner {
+  animation: heroLineUp 0.7s var(--intro-ease) 0.2s backwards;
+}
+
+.sub {
+  animation: heroRiseMove var(--intro-dur) var(--intro-ease) 0.35s backwards;
+}
+
+.ticker {
+  animation: heroRise var(--intro-dur) var(--intro-ease) 0.6s backwards;
+}
+
+.searchWrap > * {
+  animation: heroRise var(--intro-dur) var(--intro-ease) 0.7s backwards;
+}
+
+.typesHead {
+  animation: heroRise var(--intro-dur) var(--intro-ease) 0.8s backwards;
+}
+
+.typeItem {
+  animation: heroRiseMove var(--intro-dur) var(--intro-ease) calc(0.85s + var(--i, 0) * var(--intro-step)) backwards;
+}
+
+.typeItem > .typeCard {
+  animation: heroFadeIn var(--intro-dur) var(--intro-ease) calc(0.85s + var(--i, 0) * var(--intro-step)) backwards;
+}
+
+.data {
+  animation: heroRise var(--intro-dur) var(--intro-ease) 1.3s backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fog {
+    display: none;
+  }
+
+  .fog,
+  .bgLayers,
+  .lineInner,
+  .sub,
+  .searchWrap > *,
+  .ticker,
+  .typesHead,
+  .typeItem,
+  .typeItem > .typeCard,
+  .data {
+    animation: none;
+  }
+}

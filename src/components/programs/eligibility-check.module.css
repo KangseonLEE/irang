@@ -3,7 +3,7 @@
 .wrap {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -28,18 +28,24 @@
   color: var(--muted-foreground, #6b7280);
 }
 
-/* ── 카드 안 진입 버튼 ── */
+/* ── 카드 안 진입 버튼 ──
+   글자 크기·색·테두리는 클래스를 두 번 쓴 규칙(특이성 0,2,0)에 둔다. composes 로 함께 붙는
+   actionButton·actionSecondary 와 특이성이 같으면 CSS 청크 순서에 따라 승패가 갈려 — 운영 빌드에선
+   이 덮어쓰기가 져서 회색 테두리·검정 글자·13~14px 로 보였다(dev 는 초록 15px, 10/3 실측). */
 .openBtn {
   composes: actionButton actionSecondary from "../ui/action-button.module.css";
   width: 100%;
   min-height: 44px;
+}
+
+.openBtn.openBtn {
   font-size: var(--fs-body-sm);
   color: var(--primary, #1b6b5a);
   border-color: color-mix(in srgb, var(--primary, #1b6b5a) 32%, var(--border, #e5e7eb));
 }
 
 @media (hover: hover) {
-  .openBtn:hover {
+  .openBtn.openBtn:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
     border-color: var(--primary, #1b6b5a);
   }
@@ -96,7 +102,7 @@
   min-height: 44px;
   padding: 10px 12px;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
+  border-radius: 4px;
   background: transparent;
   cursor: pointer;
   text-align: left;
@@ -156,12 +162,16 @@
   composes: actionButton actionPrimary from "../ui/action-button.module.css";
   width: 100%;
   min-height: 48px;
-  font-size: var(--fs-body-sm);
 }
 
 .secondaryBtn {
   composes: actionButton actionSecondary from "../ui/action-button.module.css";
   min-height: 44px;
+}
+
+/* actionButton 의 font-size 와 같은 특이성이면 청크 순서에 진다 — .openBtn 과 같은 이유 (10/3) */
+.primaryBtn.primaryBtn,
+.secondaryBtn.secondaryBtn {
   font-size: var(--fs-body-sm);
 }
 
@@ -171,7 +181,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   color: var(--primary, #1b6b5a);
   font-size: var(--fs-body-sm);
@@ -184,7 +194,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--warning-fg, #d97706) 8%, transparent);
   color: var(--warning-fg, #a16207);
   font-size: var(--fs-body-sm);
@@ -217,7 +227,7 @@
 .missingItem {
   position: relative;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--muted, #f9fafb);
   font-size: var(--fs-body-sm);
   font-weight: 500;
@@ -290,18 +300,21 @@
   background: color-mix(in srgb, var(--primary, #1b6b5a) 55%, transparent);
 }
 
-/* 풀폭 진입 버튼 — 데스크탑 카드의 .openBtn 과 같은 아웃라인 결 */
+/* 풀폭 진입 버튼 — 데스크탑 카드의 .openBtn 과 같은 아웃라인 결 (덮어쓰기 특이성도 .openBtn 과 같은 이유) */
 .mOpenBtn {
   composes: actionButton actionSecondary from "../ui/action-button.module.css";
   width: 100%;
   min-height: 48px;
+}
+
+.mOpenBtn.mOpenBtn {
   font-size: var(--fs-body-sm);
   color: var(--primary, #1b6b5a);
   border-color: color-mix(in srgb, var(--primary, #1b6b5a) 32%, var(--border, #e5e7eb));
 }
 
 @media (hover: hover) {
-  .mOpenBtn:hover {
+  .mOpenBtn.mOpenBtn:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
     border-color: var(--primary, #1b6b5a);
   }
@@ -387,7 +400,7 @@
   gap: 4px;
   min-height: 36px;
   padding: 7px 12px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 9%, transparent);
   color: var(--primary, #1b6b5a);
   font-size: var(--fs-caption);

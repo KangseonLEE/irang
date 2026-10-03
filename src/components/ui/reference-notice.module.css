@@ -5,7 +5,7 @@
   align-items: flex-start;
   gap: 8px;
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
 }

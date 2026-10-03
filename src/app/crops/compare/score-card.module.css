@@ -52,7 +52,7 @@
   gap: 12px;
   padding: 16px;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--card, #fff);
   scroll-snap-align: start;
 }
@@ -86,7 +86,7 @@
   font-weight: 600;
   color: var(--primary, #1b6b5a);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
-  border-radius: 9999px;
+  border-radius: 4px;
 }
 
 .cardTag {
@@ -110,7 +110,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .metricBest {
@@ -154,7 +154,7 @@
   font-weight: 700;
   color: var(--primary, #1b6b5a);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
-  border-radius: 9999px;
+  border-radius: 4px;
   white-space: nowrap;
 }
 
@@ -165,7 +165,7 @@
   padding: 2px 8px;
   font-size: 11px;
   font-weight: 700;
-  border-radius: 9999px;
+  border-radius: 4px;
 }
 
 .toneEasy {

@@ -30,7 +30,7 @@
   flex-direction: column;
   gap: 20px;
   padding: 24px 20px;
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   box-shadow: var(--shadow-sm);
@@ -83,7 +83,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 0;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   background: var(--background, #fff);
 }
@@ -181,7 +181,7 @@
 .card {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -237,7 +237,7 @@
   line-height: var(--lh-relaxed);
   word-break: keep-all;
   padding: 16px 20px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, var(--background, #fff));
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
   margin: 0;
@@ -249,7 +249,7 @@
   justify-content: center;
   gap: 8px;
   padding: 14px 24px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--primary, #1b6b5a);
   color: var(--primary-foreground);
   text-decoration: none;

@@ -1,16 +1,8 @@
-import { ArrowLeft } from "lucide-react";
-import { Icon } from "@/components/ui/icon";
 import s from "./loading.module.css";
 
 export default function InterviewDetailLoading() {
   return (
     <div className={s.container}>
-      {/* Back link */}
-      <div className={s.backLink}>
-        <Icon icon={ArrowLeft} size="md" />
-        <span>정착 이야기</span>
-      </div>
-
       {/* 히어로: 프로필 + 인용문 */}
       <div className={s.hero}>
         <div className={s.profileRow}>
@@ -27,6 +19,9 @@ export default function InterviewDetailLoading() {
           <div className={s.skeletonBadge} />
         </div>
       </div>
+
+      {/* 브레드크럼 — 히어로 아래 (2026-10-02) */}
+      <div className={s.breadcrumb} />
 
       {/* 이야기 */}
       <div className={s.section}>

@@ -36,7 +36,7 @@
   display: flex;
   position: relative;
   padding: 4px;
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--muted, #f3f4f6);
   width: 100%;
   max-width: 520px;
@@ -69,7 +69,7 @@
   color: var(--muted-foreground, #6b7280);
   background: transparent;
   border: none;
-  border-radius: 10px;
+  border-radius: 4px;
   white-space: nowrap;
   font-family: inherit;
   cursor: pointer;
@@ -104,7 +104,7 @@
 .tab:focus-visible {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
-  border-radius: 10px;
+  border-radius: 4px;
 }
 
 /* 활성 탭 — background를 .tab에 직접 적용 (sub-pixel 오차 회피) */
@@ -189,7 +189,7 @@
   -webkit-backdrop-filter: blur(20px);
   margin: 0 12px;
   padding: 8px;
-  border-radius: 16px;
+  border-radius: 8px;
   border: 1px solid var(--border, #e5e7eb);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
 }

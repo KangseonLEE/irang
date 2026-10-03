@@ -1,0 +1,242 @@
+/* /start 비교 화면 — 기본(모바일) → @media 오버라이드 (체크리스트 G) */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* 표는 데스크탑 전용 — 모바일은 아래 카드 스택 */
+.tableWrap {
+  display: none;
+}
+
+.thumb {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: 56px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 8px;
+  background: linear-gradient(155deg, #1f5a4d 0%, #123b33 55%, #0d2e27 100%);
+  pointer-events: none; /* 장식(aria-hidden) — 누르면 감싼 링크가 받는다 */
+}
+
+.thumbImg {
+  object-fit: cover;
+}
+
+.colIntro {
+  margin: 0;
+  font-size: var(--fs-caption, 0.8125rem);
+  line-height: 1.55;
+  font-weight: 400;
+  color: var(--muted-foreground, #6b7280);
+}
+
+/* ── 모바일 카드 스택 ── */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stackCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--card, #fff);
+}
+
+.stackHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--foreground, #111827);
+  text-decoration: none;
+}
+
+.stackName {
+  font-size: var(--fs-h4, 1.0625rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--muted, #f6f8f7);
+}
+
+.tileValue {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--primary, #1b6b5a);
+}
+
+.tileLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--foreground, #111827);
+}
+
+.tileSource {
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.stackCrops {
+  margin: 0;
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
+.more {
+  align-self: flex-start;
+  font-size: var(--fs-body-sm, 0.9375rem);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+  text-decoration: none;
+}
+
+.more:focus-visible,
+.stackHead:focus-visible,
+.colLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) {
+  .more:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .stackCard:hover {
+    border-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
+  }
+}
+
+/* ── 1024+ 비교 표 ── */
+@media (min-width: 1024px) {
+  .page {
+    gap: 32px;
+    padding: 32px 24px 64px;
+  }
+
+  .stack {
+    display: none;
+  }
+
+  .tableWrap {
+    display: block;
+    overflow-x: auto; /* 넓은 표는 자기 안에서만 가로 스크롤 (페이지 본문은 가로로 안 밀린다) */
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .rowHead {
+    width: 128px;
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    font-size: var(--fs-caption, 0.8125rem);
+    font-weight: 700;
+    color: var(--muted-foreground, #6b7280);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .colHead {
+    /* 위 8px — 머리 링크 포커스 링(오프셋 3 + 굵기 2 = 5px)이 .tableWrap(overflow-x: auto → y 도 잘림) 위로
+       넘어가 윗변이 잘리던 것(10/3 QA, 1024·1280·1440) */
+    padding: 8px 12px 14px;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .colLink {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: var(--foreground, #111827);
+    text-decoration: none;
+  }
+
+  .colName {
+    font-size: var(--fs-h4, 1.0625rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .cell {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    vertical-align: top;
+  }
+
+  .cellValue {
+    display: block;
+    font-size: 1.0625rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--primary, #1b6b5a);
+  }
+
+  .cellLabel {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--foreground, #111827);
+  }
+
+  .cellSource {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.6875rem;
+    line-height: 1.3;
+    color: var(--muted-foreground, #6b7280);
+  }
+}

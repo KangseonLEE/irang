@@ -26,7 +26,7 @@
   flex-direction: column;
   gap: 20px;
   padding: 24px 20px 28px;
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   overflow: hidden;
@@ -55,21 +55,14 @@
   }
 }
 
-/* 뒤로가기 — 히어로 밖, 페이지 직계 자식 */
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-body-sm);
-  font-weight: 500;
-  color: var(--muted-foreground, #6b7280);
-  text-decoration: none;
-  transition: color 0.15s;
-  margin-bottom: -12px; /* 히어로와의 gap 축소 */
+/* 브레드크럼 — 히어로 바로 아래 공통 위치 (2026-10-02 회장). 페이지 직계 자식.
+   .page gap(24 / 640+ 28)을 당겨 히어로·본문과 14px. */
+.breadcrumbBar {
+  margin: -10px 0;
 }
 
-@media (hover: hover) {
-  .backLink:hover { color: var(--primary, #1b6b5a); }
+@media (min-width: 640px) {
+  .breadcrumbBar { margin: -14px 0; }
 }
 
 /* 히어로 상단: 프로필 + 원문 기사 링크 */
@@ -90,7 +83,7 @@
   color: var(--muted-foreground, #6b7280);
   text-decoration: none;
   padding: 5px 10px;
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid var(--border, #e5e7eb);
   background: var(--background, #fff);
   transition: color 0.15s, border-color 0.15s;
@@ -152,7 +145,7 @@
   font-size: var(--fs-caption);
   font-weight: 500;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   color: var(--primary, #1b6b5a);
 }
@@ -203,7 +196,7 @@
   font-weight: 500;
   color: var(--muted-foreground, #6b7280);
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
 }
@@ -216,7 +209,7 @@
   font-weight: 500;
   color: var(--primary, #1b6b5a);
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, var(--background, #fff));
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
   text-decoration: none;
@@ -395,7 +388,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
@@ -471,7 +464,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   text-decoration: none;
@@ -500,7 +493,7 @@
   position: relative;
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   flex-shrink: 0;
   background: #f7f1e3;
@@ -581,7 +574,7 @@
   display: inline-flex;
   align-items: center;
   padding: 10px 20px;
-  border-radius: 10px;
+  border-radius: 4px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
   background: var(--card);

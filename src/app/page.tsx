@@ -10,28 +10,37 @@ export const metadata: Metadata = {
 
 /** 홈페이지 ISR — 6h마다 갱신 (뉴스 갱신 주기 + 봇 트래픽 절감 균형) */
 export const revalidate = 21600;
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { KeywordRotator } from "@/components/landing/keyword-rotator";
-import { HeroSlider } from "@/components/landing/hero-slider";
 import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
+import { HeroSearchHub, type HeroStat, type HeroDeadline } from "@/components/landing/hero-search-hub";
+import { HeroSearchDock } from "@/components/landing/hero-search-dock";
+import { isStayEvent, meaningfulCost } from "@/components/events/event-fields";
+import { PROVINCES } from "@/lib/data/regions";
+import { SIGUNGUS } from "@/lib/data/sigungus";
+import { RegionPicker } from "@/components/region/region-picker";
 import { UpdatesBanner } from "@/components/landing/updates-banner";
 import { PromoPopup } from "@/components/landing/promo-popup";
 import { loadActivePromos } from "@/lib/promos/queries";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
-import { ProgramsSection } from "@/components/landing/programs-section";
+import { ExperienceSection, OpportunitySection, countDistinctByGroup } from "@/components/landing/discover-section";
+import { filterEventsAsync } from "@/lib/data/events";
+import { filterEducationAsync } from "@/lib/data/education";
 import { deriveStatus, daysUntilDeadline, isUnannounced, ALWAYS_OPEN } from "@/lib/program-status";
 import { StartCardsSection } from "@/components/landing/start-cards-section";
-import { CropGlanceSection } from "@/components/landing/crop-glance-section";
 import { NewsTabsV2Loader } from "@/components/landing/news-tabs-v2-loader";
 import { interviews } from "@/lib/data/landing";
-import { PROGRAMS } from "@/lib/data/programs";
+import { loadPrograms, type SupportProgram } from "@/lib/data/programs";
 import { SurveyCta } from "./survey-cta";
 import s from "./page.module.css";
+
+// 커튼 리빌 (9/29) — 인터뷰 다크 띠가 이전 섹션을 덮으며 올라온다. page.module.css 대신 전용 모듈
+import curtain from "@/components/landing/interview-curtain.module.css";
 
 /* ────────────────────────────────────────────
    Page — 섹션 순서 (withgo 레퍼런스 기반):
@@ -54,8 +63,13 @@ function isLongRunning(applicationStart: string, applicationEnd: string): boolea
   return Number.isFinite(span) && span >= LONG_RUNNING_MIN_DAYS;
 }
 
-function getProgramsData() {
-  const base = PROGRAMS.map((p) => ({
+/**
+ * 랜딩 지원사업 수치·카드의 모집단 = `loadPrograms()`(DB 우선 + 정적 보충, /programs 와 같은 출처).
+ * 정적 배열(PROGRAMS)만 쓰면 DB 에만 있는 활성 사업이 히어로 수치·유형 카드·카드 그리드에서 빠지고,
+ * DB 가 덮어쓴 일정(연례 사업 정기 접수 등)도 반영되지 않는다(10/2 QA A🟡2).
+ */
+function getProgramsData(programs: readonly SupportProgram[]) {
+  const base = programs.map((p) => ({
     ...p,
     programStatus: deriveStatus(p.applicationStart, p.applicationEnd),
   }));
@@ -84,13 +98,52 @@ function getProgramsData() {
     return p.programStatus === "모집중" && d >= 0 && d <= 7;
   }).length;
 
-  return { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount };
+  // 히어로 A안(10/1) — 마감이 가까운 지원사업 3건 (모집중·확정 마감일, 가까운 순)
+  const closingPrograms: HeroDeadline[] = announced
+    .filter((p) => p.programStatus === "모집중" && p.applicationEnd !== ALWAYS_OPEN)
+    // 10/3 재검증: DB 병합 뒤 수집 행은 금액이 "상세 공고 참조"라 강조 줄이 빈 정보였다 — 채움값은 숨긴다
+    .map((p) => ({ id: p.id, title: p.title, amount: meaningfulCost(p.supportAmount) ?? undefined, daysLeft: daysUntilDeadline(p.applicationEnd) }))
+    .filter((p) => Number.isFinite(p.daysLeft) && p.daysLeft >= 0)
+    .sort((a, b) => a.daysLeft - b.daysLeft)
+    .slice(0, 3);
+
+  return { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount, closingPrograms };
 }
 
 export default async function HomePage() {
-  const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount } = getProgramsData();
-  // 노출 기간·활성 판정은 서버(DB)에서 끝낸다 — 클라이언트는 받은 것만 그린다
-  const promos = await loadActivePromos();
+  // 노출 기간·활성 판정은 서버(DB)에서 끝낸다 — 클라이언트는 받은 것만 그린다.
+  // 교육·체험·행사는 두 섹션(Opportunity·Experience)이 나눠 쓰므로 목록을 통째로 넘기고 고르기는 그쪽에서 한다.
+  const [{ programs }, promos, eventsResult, educationResult] = await Promise.all([
+    loadPrograms(),
+    loadActivePromos(),
+    filterEventsAsync({}),
+    filterEducationAsync({}),
+  ]);
+  const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount, closingPrograms } = getProgramsData(programs);
+
+  // 히어로 데이터 줄 — 전부 배열·DB 결과에서 센다(0 이면 히어로가 그 항목을 그리지 않는다)
+  const heroStats: HeroStat[] = [
+    { id: "programs_open", label: "신청 가능한 지원사업", value: openProgramCount, unit: "건", href: "/programs" },
+    { id: "programs_due", label: "7일 안에 마감", value: dueSoonProgramCount, unit: "건", href: "/programs" },
+    {
+      id: "education_open",
+      label: "모집 중인 교육",
+      // 시간대별로 쪼갠 행(같은 과정 10시·13시·15시)을 한 과정으로 센다 — 랜딩 교육 카드와 같은 묶음 기준
+      value: countDistinctByGroup(educationResult.courses.filter((c) => c.status === "모집중")),
+      unit: "개 과정",
+      href: "/education",
+    },
+    {
+      id: "stay_open",
+      label: "신청 중인 살아보기",
+      value: countDistinctByGroup(eventsResult.events.filter((e) => e.status === "접수중" && isStayEvent(e))),
+      unit: "곳",
+      href: "/events",
+    },
+  ];
+  /* 모바일 2단 선택용 — 클라이언트로 넘길 필드만 추린다(sigungus.ts 전체를 번들에 싣지 않게) */
+  const pickerProvinces = PROVINCES.map((p) => ({ id: p.id, shortName: p.shortName }));
+  const pickerSigungus = SIGUNGUS.map((sg) => ({ sidoId: sg.sidoId, id: sg.id, name: sg.name, shortName: sg.shortName }));
 
   return (
     <div className={s.page}>
@@ -104,44 +157,70 @@ export default async function HomePage() {
       {/* 외부 기관 홍보 요청 팝업 (9/29 회장 지시) — 노출 기간·내용은 /admin/promos 에서 제어. 자동화 UA 에선 안 뜬다 */}
       <PromoPopup items={promos} />
 
-      {/* ═══ 1. 히어로 ═══ */}
-      {/* data-landing-hero — 헤더가 :has() 로 이 페이지를 알아보고 1024+ 에서 투명 오버레이가 된다 (9/29 B안) */}
-      <section className={s.heroSection} aria-label="검색" data-landing-hero>
-        <h1 className={s.heroTitle}>
-          {/* 검색엔진·스크린리더용 완전한 정적 문구 (SSR HTML에 항상 노출).
-              시각적 회전 키워드(KeywordRotator)는 client 렌더라 SSR 텍스트가
-              불완전해지므로, 페이지 주제를 담은 정적 h1 문장을 함께 제공한다. */}
-          <span className={s.srOnly}>
-            귀농·귀촌 준비, 어디서부터 시작할까요? 지역·작물·지원금 비교로 시작하세요.
-          </span>
-          <span className={s.heroTitleLine} aria-hidden="true">
-            <KeywordRotator /> 준비,
-          </span>
-          <span className={s.heroTitleLine} aria-hidden="true">
-            어디서부터 시작할까요?
-          </span>
-        </h1>
-        <p className={s.heroSubtitle}>
-          지역 비교부터 지원금 찾기까지, 필요한 건 다 모았어요.
-        </p>
-
-        {/* 슬라이드 히어로 — 배경 레이어 + 슬라이드별 카피 + 좌하단 컨트롤.
-            9/28 3차 회장 지시로 모바일까지 공통 렌더(뷰포트 분기는 CSS). 모바일은 검색창을 빼고
-            헤더 트리거가 검색 입구를 맡는다 — page.module.css 1-M 블록. */}
-        <HeroSlider />
-      </section>
+      {/* ═══ 1. 히어로 — A안 (10/1 회장 결재, 기후금융포털 구도) ═══ */}
+      {/* 검색 입력 + 인기 검색어 + 정착 유형 카드 6 + 지금 열린 기회 수치. data-landing-hero 로 투명 헤더.
+          이전 efusioni 히어로는 태그 archive/hero-efusioni-2026-10-01 에 보관(10/2 QA: 미사용 파일 삭제) */}
+      <HeroSearchHub stats={heroStats} deadlines={closingPrograms} programs={programs} />
+      {/* 히어로 관찰자(투명 헤더 복귀) + 스크롤 후 하단 고정 바(1024+) */}
+      <HeroSearchDock />
 
       {/* ═══ 1-2. 자주 찾는 서비스 — 아이콘 8종, GNB 여정 순 (9/7 회장 결재: 히어로 밖 별도 섹션) ═══ */}
       <ScrollReveal trackId="quick_link" variant="fade" stagger>
         <QuickLinkSection />
       </ScrollReveal>
 
-      {/* ═══ 2. 지원사업 (진행·예정 + 마감 임박 + 상시·연중 탭) — 9/7 회장: 인터뷰와 순서 교체 ═══ */}
-      <ScrollReveal trackId="programs" variant="fade" stagger>
-        <ProgramsSection
+      {/* ═══ 2. 지금 열린 기회 — 지원사업·교육 정보 카드 그리드 (9/30 한 섹션 → 10/1 회장: 이미지 유무로 분리) ═══ */}
+      <ScrollReveal trackId="discover" variant="fade" stagger>
+        <OpportunitySection
           activePrograms={activePrograms}
           ongoingPrograms={ongoingPrograms}
+          courses={educationResult.courses}
         />
+      </ScrollReveal>
+
+      {/* ═══ 2-2. 내 지역 찾기 — 시·도 → 시·군·구 2단 선택 (10/2 회장: 지도·시·도 버튼 제거)
+          10/2 회장: 전폭 띠배너 — 시·도 배경 일러스트 + 얇은 어두운 스크림 + 흰 글씨 ═══ */}
+      <ScrollReveal trackId="region_map" variant="fade" stagger>
+        <section className={s.mapSection} aria-labelledby="landing-map-title">
+          <Image
+            src="/images/regions/jeonnam.webp"
+            alt=""
+            fill
+            /* 원본 1672px — 1024~1599 에서 100vw 면 1920 을 요청한다(원본보다 큼, 10/2 QA B⚪-4).
+               그 구간은 1200 으로 충분하다(어두운 스크림 0.6~0.74 아래 배경). 1600+ 는 원본이 최대라 그대로 */
+            sizes="(min-width: 1024px) and (max-width: 1599px) 1200px, 100vw"
+            loading="lazy"
+            className={s.mapBg}
+          />
+          <span className={s.mapScrim} aria-hidden="true" />
+          <div className={s.mapInner}>
+            <div className={s.mapText} data-reveal-x="left">
+              <span className={s.mapEyebrow}>#지역 탐색</span>
+              <h2 id="landing-map-title" className={s.mapTitle}>
+                <em>내 지역</em> 찾기
+              </h2>
+              <p className={s.mapSub}>
+                시·도와 시·군·구를 고르면 기후·인구·추천 작물·지원사업을 한곳에서 볼 수 있어요
+              </p>
+            </div>
+            <div className={s.mapControls} data-reveal-x="right">
+              <RegionPicker
+                provinces={pickerProvinces}
+                sigungus={pickerSigungus}
+                trackPrefix="region_map"
+                className={s.mapPicker}
+              />
+              <div className={s.mapActions}>
+                <Link href="/regions/compare" className={s.mapCompare} data-track="region_map:compare">
+                  지역 비교하기 <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+                <Link href="/regions" className={s.mapAll} data-track="region_map:all">
+                  지역 탐색 전체
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
       </ScrollReveal>
 
       {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}
@@ -149,11 +228,8 @@ export default async function HomePage() {
         <TrendCostSection />
       </ScrollReveal>
 
-      {/* ═══ 4-2 + 5. 작물 한눈에 + 이랑에서 할 수 있는 것 3카드 (연한 그린 배경) ═══ */}
+      {/* ═══ 5. 이랑에서 할 수 있는 것 3카드 (연한 그린 배경) — 10/2 회장: "돈 되는 작물, 한눈에" 섹션 제거 ═══ */}
       <div className={s.lightGreenBg}>
-        <ScrollReveal trackId="crops" variant="fade" stagger>
-          <CropGlanceSection />
-        </ScrollReveal>
         <ScrollReveal trackId="start_cards" variant="fade" stagger>
           <StartCardsSection
             openProgramCount={openProgramCount}
@@ -162,9 +238,14 @@ export default async function HomePage() {
         </ScrollReveal>
       </div>
 
+      {/* ═══ 5-2. 직접 가 보는 농촌 — 체험·행사 사진 캐러셀 (10/1 A안: 작물 뒤로) ═══ */}
+      <ScrollReveal trackId="experience" variant="fade" stagger>
+        <ExperienceSection events={eventsResult.events} />
+      </ScrollReveal>
+
       {/* ═══ 6. 농촌으로 간 사람들의 이야기 (다크 배경) — 9/7 회장: 지원사업 아래로 ═══ */}
       <ScrollReveal trackId="interviews" variant="fade" stagger>
-        <div className={s.darkBg}>
+        <div className={`${s.darkBg} ${curtain.curtain}`}>
           <section className={s.interviewSection} aria-label="인터뷰">
             <div className={s.interviewHeader} data-reveal-x="left">
               <div className={s.interviewHeading}>
@@ -234,7 +315,8 @@ export default async function HomePage() {
                   </span>
                 </span>
               </Link>
-              <Link href="/match" className={s.ctaPath} data-track="bottom_cta:match" data-reveal-item>
+              {/* 10/3 회장: 진단 직행 복원 — data-track 라벨은 GA 추이 연속성을 위해 그대로 둔다 */}
+              <Link href="/match?mode=assess" className={s.ctaPath} data-track="bottom_cta:match" data-reveal-item>
                 <span className={s.ctaPathNumber}>02</span>
                 <span className={s.ctaPathLabel}>적합도 진단</span>
                 <span className={s.ctaPathDesc}>

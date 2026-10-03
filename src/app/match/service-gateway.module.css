@@ -64,7 +64,7 @@
   display: flex;
   gap: 12px;
   padding: 16px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
 }
@@ -83,7 +83,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 14%, transparent);
   color: var(--primary, #1b6b5a);
 }
@@ -149,7 +149,7 @@
   border: none;
   cursor: pointer;
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   transition: color 0.15s, background 0.15s;
   font-family: inherit;
 }
@@ -301,7 +301,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   color: var(--primary, #1b6b5a);
   flex-shrink: 0;
@@ -349,7 +349,7 @@
   line-height: var(--lh-snug);
   color: var(--primary-foreground);
   background: #d4730d;
-  border-radius: 6px;
+  border-radius: 4px;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -364,7 +364,7 @@
   line-height: var(--lh-snug);
   color: var(--primary-foreground);
   background: var(--primary, #1b6b5a);
-  border-radius: 6px;
+  border-radius: 4px;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -466,7 +466,7 @@
   color: #fff;
   background: #d4730d;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 4px;
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(212, 115, 13, 0.25);
   z-index: 1;
@@ -512,7 +512,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px 20px;
-  border-radius: 16px;
+  border-radius: 8px;
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--primary) 4%, white);
   text-decoration: none;
@@ -538,7 +538,7 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary) 12%, transparent);
   color: var(--primary);
   flex-shrink: 0;

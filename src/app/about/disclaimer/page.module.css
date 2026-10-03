@@ -71,7 +71,7 @@
   font-weight: 600;
   color: var(--primary, #1b6b5a);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
-  border-radius: 20px;
+  border-radius: 4px;
 }
 
 .title {
@@ -99,7 +99,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 20px 16px;
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
 }
@@ -152,7 +152,7 @@
 /* ── 강조 문장 ── */
 .highlight {
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 6%, transparent);
   color: var(--foreground, #111);
   font-weight: 500;
@@ -164,7 +164,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 18%, transparent);
   color: var(--foreground, #111);

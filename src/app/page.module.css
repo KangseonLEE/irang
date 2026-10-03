@@ -38,248 +38,193 @@
   }
 }
 
+/* 1. 히어로 — 10/1 A안(검색 + 정착 유형), 스타일은 components/landing/hero-search-hub.module.css.
+   efusioni 히어로는 태그 archive/hero-efusioni-2026-10-01, 그 이전 히어로(.heroSection 등)는
+   태그 archive/hero-journey-lanes-2026-10-01 에 보관 */
+
 /* ══════════════════════════════════════════
-   1. 히어로 섹션
+   2-2. 내 지역 찾기 (10/2 회장: 지도·시·도 버튼 제거 → 시·도 → 시·군·구 2단 선택)
+   10/2 회장 2차: 전폭 띠배너 — 시·도 배경 일러스트(next/image fill, lazy) + 얇은 어두운 스크림 + 흰 글씨.
+   풀블리드는 .fullWidth 와 같은 기법(html overflow-x: clip 전제). composes 대신 직접 선언 —
+   이 블록만 position·isolation 이 필요하고 1단 규칙을 지키기 위해서다.
+   모바일: 제목 → 선택 → 버튼 5:5 / 1024+: 좌 제목·설명 | 우 선택 + 버튼
    ══════════════════════════════════════════ */
-.heroSection {
+.mapSection {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  padding: 44px calc(50vw - 50%);
+  background: var(--surface-dark, #1a3f35); /* 이미지 로드 전·실패 시에도 흰 글씨가 읽히게 */
+  color: #fff;
+}
+
+@media (min-width: 640px) {
+  .mapSection {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mapSection {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+}
+
+.mapBg {
+  z-index: -2;
+  object-fit: cover;
+  object-position: center 62%;
+  pointer-events: none;
+}
+
+/* 스크림 — 밝은 하늘 위 흰 글씨 4.5:1. 모바일은 글자가 전폭이라 균일하게,
+   1024+ 는 글자가 있는 왼쪽만 진하게(오른쪽 셀렉트·버튼은 자체 배경이 있다). 장식 요소 */
+.mapScrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(10, 36, 30, 0.72);
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .mapScrim {
+    background: linear-gradient(
+      90deg,
+      rgba(10, 36, 30, 0.74) 0%,
+      rgba(10, 36, 30, 0.64) 55%,
+      rgba(10, 36, 30, 0.6) 100%
+    );
+  }
+}
+
+.mapInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: calc(1280px - 64px);
+  margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .mapInner {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 56px;
+    align-items: center;
+  }
+}
+
+.mapText {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+}
+
+.mapEyebrow {
+  display: inline-flex;
   align-items: center;
-  text-align: center;
-  padding: 48px 20px 0;
-  gap: 0;
-  position: relative;
+  width: fit-content;
+  margin-bottom: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.34);
+  color: #fff;
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
-@media (min-width: 640px) {
-  .heroSection { padding: 20px 32px 0; }
-}
-
-@media (min-width: 768px) {
-  .heroSection { padding: 24px 36px 0; }
-}
-
-@media (min-width: 1024px) {
-  .heroSection { padding: 24px 40px 0; }
-}
-
-/* 데스크탑 하단 여백 (9/7) */
-@media (min-width: 768px) {
-  .heroSection { padding-bottom: 24px; }
-}
-
-/* 모바일 하단 여백 — 스크롤 화살표 제거(9/7) 후 키워드 행 아래 */
-@media (max-width: 767px) {
-  .heroSection { padding-bottom: 28px; }
-}
-
-/* ── 메인 타이틀 ── */
-.heroTitle {
-  font-size: 1.875rem;
+.mapTitle {
+  margin: 0;
+  font-size: var(--fs-h3);
   font-weight: 800;
-  line-height: 1.3;
   letter-spacing: -0.04em;
-  color: var(--foreground, #111827);
-  margin: 0 auto 12px;
-  max-width: 720px;
-  word-break: keep-all;
-  animation: heroFadeUp 0.7s cubic-bezier(.16, 1, .3, 1) 0.3s both;
-}
-
-@keyframes heroFadeUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to   { opacity: 1; transform: translateY(0); }
+  line-height: var(--lh-tight);
+  color: #fff;
 }
 
 @media (min-width: 640px) {
-  .heroTitle {
-    font-size: 2.625rem;
-    margin-bottom: 16px;
-  }
+  .mapTitle { font-size: var(--fs-h2); }
 }
 
-@media (min-width: 768px) {
-  .heroTitle { font-size: 3rem; }
+.mapTitle em {
+  font-style: normal;
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+  text-decoration-color: var(--primary-on-dark, #8fcfb5);
 }
 
-@media (min-width: 1024px) {
-  .heroTitle { font-size: 3.75rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .heroTitle { animation: none; }
-}
-
-.heroTitleLine {
-  display: block;
-}
-
-/* 시각적으로 숨기되 접근성 트리·SSR HTML에는 노출 (검색엔진 h1 텍스트 확보) */
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* ── 서브타이틀 ── */
-.heroSubtitle {
-  font-size: clamp(0.875rem, 1.5vw, 1.125rem);
-  font-weight: 500;
-  color: var(--muted-foreground, #6b7280);
-  margin-bottom: 24px;
-  max-width: 480px;
-  word-break: keep-all;
+.mapSub {
+  margin: 10px 0 0;
+  font-size: var(--fs-body-sm);
   line-height: 1.6;
-  letter-spacing: -0.02em;
-  animation: heroFadeUp 0.7s cubic-bezier(.16, 1, .3, 1) 0.7s both;
+  color: rgba(255, 255, 255, 0.9);
 }
 
-@media (min-width: 640px) {
-  .heroSubtitle { margin-bottom: 28px; }
+.mapControls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .heroSubtitle { animation: none; }
+.mapPicker {
+  margin: 0;
 }
 
-/* ── 인기 검색어 래퍼 ── */
-
-@media (prefers-reduced-motion: reduce) {
+/* 두 버튼 5:5 같은 폭 (10/2 회장) — 흰 채운 버튼(비교) + 흰 외곽선 버튼(전체). 어두운 띠 위 대비 */
+.mapActions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
 }
 
-/* ══════════════════════════════════════════
-   1-D. 슬라이드 히어로 (2026-09-28 시안 — 1024+ 값. 모바일은 아래 1-M 블록)
-   - 9/28 3차 회장 지시로 슬라이더를 모바일까지 확장했다. SSR HTML 은 하나뿐이라 뷰포트 분기는 CSS 로만.
-   - 이미지가 아직 없어도 브랜드 그린 그라데이션으로 성립(플레이스홀더) → 파일이 들어오면 위에 페이드인.
-   - 히어로가 뒤 섹션보다 위에 쌓여야 한다(하단 걸침 검색 바) → z-index 5. isolation 은 쓰지 않는다
-     (isolate 면 뒤 형제가 위로 올라와 고정 바를 덮는다).
-   ══════════════════════════════════════════ */
-@media (min-width: 1024px) {
-  .heroSection {
-    /* 풀블리드 — quick-link-section 과 같은 기법 (html { overflow-x: clip } 전제) */
-    /* B안(9/29 회장): .page padding-top(40) + 헤더 높이까지 상쇄해 히어로가 **헤더 뒤에서** 시작한다.
-       헤더는 흐름에 남은 sticky 그대로고(높이·위치 불변) 배경만 투명해지므로 전환 시 CLS 0. */
-    /* -1px 은 헤더의 border-bottom — 헤더가 실제로 차지하는 높이는 56 + 1 이라
-       이 1px 을 안 빼면 뷰포트 맨 위에 흰 줄이 한 줄 남는다(9/29 픽셀 실측) */
-    margin: calc(-40px - var(--h-header) - 1px) calc(-50vw + 50%) 0;
-    /* 위 패딩에 헤더 높이를 더해 카피가 투명 헤더 밑으로 들어가지 않게 한다 */
-    padding: calc(var(--h-header) + 64px) calc(50vw - 50%) 96px;
-    /* 뷰포트 전체 — 헤더가 위에 겹치므로 100svh 그대로 */
-    min-height: 100vh;
-    min-height: 100svh;
-    justify-content: center;
-    align-items: flex-start;
-    text-align: left;
-    z-index: 5;
-    background: linear-gradient(118deg, #0b2a23 0%, #14554a 52%, #1b6b5a 100%);
-  }
-
-  /* 배경 레이어(z 0) 위로 — 위치 지정이 없으면 텍스트가 이미지 아래로 깔린다 */
-  .heroTitle,
-  .heroSubtitle {
-    position: relative;
-    z-index: 1;
-  }
-
-  .heroTitle {
-    margin: 0 0 14px;
-    max-width: 17em;
-    font-size: 3.5rem;
-    color: #fff;
-  }
-
-  /* 회전 키워드는 기본 primary(#1b6b5a) — 다크 히어로에서 대비가 낮아 밝은 민트로 */
-  .heroTitle :global([class*="word"]) {
-    color: #8ee3c2;
-  }
-
-  .heroSubtitle {
-    margin: 0 0 20px;
-    max-width: 34em;
-    font-size: 1.0625rem;
-    color: rgba(255, 255, 255, 0.82);
-  }
-
-  /* 인기 검색어 — 다크 배경용 색 + 좌측 정렬 (컴포넌트 기본은 가운데 정렬·본문색) */
-
-
-  /* 플로팅 검색 바 — 히어로 하단 경계에 걸침.
-     가운데 정렬은 transform 이 아니라 left/right 0 + margin auto 로 한다 —
-     heroFadeUp 애니메이션이 transform 을 덮어써 translateX(-50%) 가 무효였다(9/28 실측). */
+.mapCompare,
+.mapAll {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-/* ══════════════════════════════════════════
-   1-M. 모바일·태블릿 슬라이드 히어로 (<1024, 2026-09-28 3차 회장 지시)
-   - 데스크탑 기본값을 건드리지 않도록 max-width 블록에 격리 (CLAUDE.md David 원칙 #3).
-   - 높이 min(64dvh, 520px): 첫 화면에 히어로 + "자주 찾는 서비스" 상단이 함께 들어온다.
-   - 검색창은 히어로에서 빼고(display:none → a11y 트리·탭 순서에서도 제외) 헤더 트리거가 담당한다.
-     렌더 게이트(useMediaQuery)로 빼지 않는 이유: SSR HTML 은 하나뿐이라 데스크탑 검색창까지 사라진다.
-   - 하단 고정 탭바(--h-mobile-nav)와는 겹치지 않는다 — 히어로는 문서 최상단이고 높이가 뷰포트 이하.
-   ══════════════════════════════════════════ */
-@media (max-width: 1023px) {
-  .heroSection {
-    /* 풀블리드 — 일러스트가 화면 양끝까지. 안쪽 콘텐츠는 .page 컨테이너 정렬선으로 되돌린다.
-       위 -24 는 .page padding-top 상쇄 — 히어로가 헤더 바로 아래에서 시작해야 그 위에 뜨는
-       업데이트 스낵바의 top 12px 가 곧 "히어로 안쪽 12px" 이 된다(데스크탑과 같은 방식) */
-    /* 9/29 회장 P: 데스크탑 B안과 같이 **헤더 뒤**(뷰포트 맨 위)부터 시작한다.
-       -24 는 .page padding-top, -1px 은 헤더 border-bottom(안 빼면 맨 위에 흰 줄 한 줄, 9/29 실측) */
-    margin: calc(-24px - var(--h-header) - 1px) calc(-50vw + 50%) 0;
-    /* 위 = 헤더(투명) + 스낵바(12 + 56) + 28 여백, 아래 88 = 스크롤 안내(≈44) + 01/04 + 여유 */
-    padding: calc(var(--h-header) + 96px) calc(50vw - 50%) 88px;
-    min-height: calc(100vh - var(--h-mobile-nav) - env(safe-area-inset-bottom, 0px));
-    min-height: calc(100svh - var(--h-mobile-nav) - env(safe-area-inset-bottom, 0px)); /* iOS URL bar 변동 대응 */
-    justify-content: center;
-    align-items: flex-start;
-    text-align: left;
-    background: linear-gradient(118deg, #0b2a23 0%, #14554a 52%, #1b6b5a 100%);
-  }
-
-  /* 배경 레이어(z 0) 위로 */
-  .heroTitle,
-  .heroSubtitle {
-    position: relative;
-    z-index: 1;
-  }
-
-  .heroTitle {
-    margin: 0 0 8px;
-    max-width: 18em;
-    font-size: 1.5rem;
-    color: #fff;
-  }
-
-  /* 회전 키워드는 기본 primary — 다크 히어로에서 대비가 낮아 밝은 민트로 */
-  .heroTitle :global([class*="word"]) {
-    color: #8ee3c2;
-  }
-
-  .heroSubtitle {
-    margin: 0 0 14px;
-    max-width: 26em;
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.82);
-  }
-
-  /* 히어로 검색창 제거 — 검색 입구는 헤더 트리거 하나로 (9/28 3차) */
-
-  /* 인기 검색어는 모바일에서 노출하지 않는다 (9/28 3차 회장 지시) — 데스크탑은 유지.
-     렌더 게이트가 아니라 CSS 로 감추는 이유: SSR HTML 은 하나뿐이라 게이트를 걸면 데스크탑에서도
-     /search?q= 내부 링크가 SSR 에서 통째로 빠진다(유입 61% Organic). 검색창을 숨기는 방식과 동일. */
+.mapCompare {
+  background: #fff;
+  color: var(--primary-dark, #0d2e27);
 }
 
-/* .page padding-top 이 breakpoint 마다 달라 히어로 상쇄값도 맞춰 준다 (스낵바 기준점 유지) */
-@media (min-width: 640px) and (max-width: 1023px) {
-  .heroSection { margin-top: calc(-32px - var(--h-header) - 1px); }
+.mapCompare:focus-visible,
+.mapAll:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-  .heroSection { margin-top: calc(-36px - var(--h-header) - 1px); }
+.mapAll {
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+@media (hover: hover) {
+  .mapCompare:hover { background: var(--surface-green-50, #edf5f3); border-color: var(--surface-green-50, #edf5f3); }
+  .mapAll:hover { background: rgba(0, 0, 0, 0.32); border-color: #fff; }
 }
 
 /* ══════════════════════════════════════════
@@ -353,7 +298,7 @@
   color: var(--primary-on-dark, #8fcfb5);
   text-decoration: none;
   padding: 6px 4px;
-  border-radius: 6px;
+  border-radius: 4px;
   transition: color 0.15s;
 }
 
@@ -387,7 +332,7 @@
   justify-content: center;
   min-height: 200px;
   padding: 24px;
-  border-radius: 16px;
+  border-radius: 4px;
   background: var(--muted, #f9fafb);
   border: 1px solid var(--border, #e5e7eb);
 }
@@ -455,7 +400,7 @@
   align-items: center;
   gap: 6px;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   font-size: var(--fs-overline);
   font-weight: 700;
@@ -667,7 +612,7 @@
   align-items: center;
   align-self: center;
   padding: 5px 14px;
-  border-radius: 100px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   font-size: 0.6875rem;
   font-weight: 700;
@@ -741,7 +686,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 20px 18px;
-  border-radius: 16px;
+  border-radius: 4px;
   background: #fff;
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
   box-shadow:
@@ -755,7 +700,7 @@
 }
 
 @media (min-width: 640px) {
-  .ctaPath { padding: 28px 24px; gap: 20px; border-radius: 20px; }
+  .ctaPath { padding: 28px 24px; gap: 20px; border-radius: 4px; }
 }
 
 @media (min-width: 768px) {
@@ -838,7 +783,7 @@
   align-self: flex-start;
   margin-top: auto;
   padding: 10px 18px 10px 20px;
-  border-radius: 100px;
+  border-radius: 4px;
   background: var(--primary, #1b6b5a);
   color: #fff;
   font-size: 0.8125rem;
@@ -897,7 +842,7 @@
   gap: 10px;
   width: 100%;
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: 4px;
   border: 1px dashed color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
   background: color-mix(in srgb, var(--primary, #1b6b5a) 4%, transparent);
   transition:
@@ -906,11 +851,11 @@
 }
 
 @media (min-width: 640px) {
-  .ctaSurveyInner { padding: 14px 18px; border-radius: 14px; }
+  .ctaSurveyInner { padding: 14px 18px; border-radius: 4px; }
 }
 
 @media (min-width: 768px) {
-  .ctaSurveyInner { padding: 16px 22px; border-radius: 16px; }
+  .ctaSurveyInner { padding: 16px 22px; border-radius: 4px; }
 }
 
 @media (hover: hover) {
@@ -928,7 +873,7 @@
 .ctaSurvey:focus-visible {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
-  border-radius: 14px;
+  border-radius: 4px;
 }
 
 .ctaSurveyText {

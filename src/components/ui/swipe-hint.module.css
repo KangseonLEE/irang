@@ -13,7 +13,7 @@
   font-weight: 500;
   color: var(--muted-foreground, #6b7280);
   background: var(--muted, #f9fafb);
-  border-radius: 8px;
+  border-radius: 4px;
   margin: 0 12px;
   opacity: 1;
   transition: opacity 0.4s ease-out;

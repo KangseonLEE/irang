@@ -15,51 +15,32 @@
   min-width: 0;
 }
 
-/* 안쪽 래퍼: 모바일은 세로 스택(설명 → 그리드 22px), 데스크탑은 그리드로 전환 */
+/* 안쪽 래퍼 — 10/2 회장: 제목·설명 멘트를 걷어 아이콘 행만 남았다. 행은 가운데 정렬 */
 .inner {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  align-items: center;
   width: 100%;
 }
 
-/* 안쪽 콘텐츠는 페이지 컨테이너와 같은 좌우 정렬 */
-.intro,
+/* 섹션 이름은 스크린리더에만 (h2 — 랜딩 제목 계층 유지) */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .track {
   width: 100%;
   max-width: calc(1280px - 64px);
   margin-left: auto;
   margin-right: auto;
-}
-
-.intro {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* 모바일: 제목 블록 가운데 (태안·고용24 모바일 패턴) */
-  gap: 4px;
-  text-align: center;
-}
-
-.eyebrow {
-  margin: 0;
-  font-size: var(--fs-overline, 0.6875rem);
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: var(--primary, #1b6b5a);
-}
-
-.title {
-  margin: 0;
-  font-size: var(--fs-h3, 1.25rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--primary-dark, #0d2e27);
-}
-
-.desc {
-  margin: 0;
-  font-size: var(--fs-caption, 0.8125rem);
-  color: var(--muted-foreground, #6b7280);
 }
 
 /* 모바일: 4개 × 2줄 그리드 — 한 화면에 8개 전부 (9/7 회장 지시) */
@@ -84,7 +65,7 @@
   width: 100%;
   min-height: 44px;
   padding: 4px 2px;
-  border-radius: 14px;
+  border-radius: 4px;
   color: var(--foreground, #111827);
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
@@ -158,78 +139,43 @@
   }
 }
 
-/* 데스크탑: 띠 안에서 좌 제목 블록 · 우 아이콘 행 (안쪽 그리드는 .inner 가 담당) */
+/* 데스크탑: 아이콘 8개 한 줄 가운데 (10/2 회장: 좌 제목 블록 제거) */
 @media (min-width: 1024px) {
-  /* 9/28 시안 — 풀블리드 슬라이드 히어로와 맞붙인다(.page gap 120 상쇄) + 히어로 하단에 걸친
-     플로팅 검색 바(32px 돌출) 아래로 제목이 오도록 padding-top 확보 */
+  /* 9/28 시안 — 풀블리드 슬라이드 히어로와 맞붙인다(.page gap 120 상쇄) */
   .section {
     position: relative;
     margin-top: -120px;
-    padding-top: 74px;
+    padding-top: 56px;
     padding-bottom: 34px;
   }
 
-  .inner {
-    position: relative;
-    display: grid;
-    grid-template-columns: 220px minmax(0, 1fr);
-    align-items: center;
-    gap: 32px;
-    width: 100%;
-    max-width: calc(1280px - 64px);
-    margin: 0 auto;
-  }
-
-  .intro,
-  .track {
-    max-width: none;
-    margin: 0;
-  }
-
-  /* 링크 박스를 "타일 64 + 8 + 라벨 1줄 18 = 90px"로 고정 — 8개가 같은 박스라 띠 정중앙에 정확히 놓이고,
-     2줄 라벨("맞춤 시군구 찾기")의 둘째 줄만 박스 밖 아래 여백(30px)으로 흘러내린다(9/7 회장 "중앙 안 맞음" 2차) */
   .link {
     padding-top: 0;
     padding-bottom: 0;
   }
 
-  .intro {
-    align-items: flex-start;
-    gap: 6px; /* 제목 블록은 띠 행 중심에 (9/7 회장 3차) */
-    text-align: left;
-  }
-
-  .title {
-    font-size: 1.625rem;
-  }
-
   .track {
-    justify-content: space-between;
-    gap: 0;
+    justify-content: center;
+    gap: 16px;
   }
 
   .item {
-    width: 76px; /* 1024: 트랙 ≈ 620px → 8 × 76 = 608 */
-  }
-
-  .label {
-    font-size: 0.75rem; /* 1024~1279: "맞춤 시군구" 6자가 76px 안에 한 줄 */
+    width: 92px;
   }
 
   .tile {
     width: 64px;
     height: 64px;
   }
-
 }
 
 @media (min-width: 1280px) {
   .track {
-    gap: 6px;
+    gap: 28px;
   }
 
   .item {
-    width: 110px;
+    width: 104px;
   }
 
   .tile {

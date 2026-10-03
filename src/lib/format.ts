@@ -3,9 +3,15 @@
  * - 지역 통계, 모달 등에서 공통으로 사용하는 포맷 함수
  */
 
+/**
+ * 숫자 표기 로케일 고정 (10/3 QA). 무로케일 `toLocaleString()` 은 서버(Node 기본)와 방문자 브라우저 로케일이
+ * 다르면 결과가 갈려(de-DE "6.219" vs "6,219") 클라이언트 컴포넌트에서 하이드레이션 #418 이 난다.
+ */
+const NUMBER_LOCALE = "ko-KR";
+
 /** 인구수를 "123,456명" 형식으로 포맷 (정확한 숫자 표시) */
 export function formatPopulation(pop: number): string {
-  return `${pop.toLocaleString()}명`;
+  return `${pop.toLocaleString(NUMBER_LOCALE)}명`;
 }
 
 /** 서울 면적 기준 상수 (km²) */
@@ -89,7 +95,7 @@ export function convertToPyeongLabel(revenueRange: string): {
   const per1000Pyeong = Math.round(avgPer10a * 3.3);
 
   // 천 단위 콤마
-  const formatted = per1000Pyeong.toLocaleString();
+  const formatted = per1000Pyeong.toLocaleString(NUMBER_LOCALE);
   return {
     value: per1000Pyeong,
     label: `1,000평당 약 ${formatted}만 원`,
@@ -178,9 +184,9 @@ export function formatPyeongFromHa(ha: number): string | null {
   if (pyeong < 100) return null;
   if (pyeong >= 10000) {
     const manPyeong = Math.round(pyeong / 10000);
-    return `약 ${manPyeong.toLocaleString()}만 평`;
+    return `약 ${manPyeong.toLocaleString(NUMBER_LOCALE)}만 평`;
   }
-  return `약 ${pyeong.toLocaleString()}평`;
+  return `약 ${pyeong.toLocaleString(NUMBER_LOCALE)}평`;
 }
 
 /**
@@ -194,7 +200,7 @@ export function formatHectaresWithPyeong(
   ha: number,
   hectareDecimals = 0,
 ): string {
-  const haLabel = `${ha.toLocaleString(undefined, {
+  const haLabel = `${ha.toLocaleString(NUMBER_LOCALE, {
     maximumFractionDigits: hectareDecimals,
     minimumFractionDigits: 0,
   })}ha`;

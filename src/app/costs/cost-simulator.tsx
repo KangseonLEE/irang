@@ -117,15 +117,18 @@ const EXTRA_SUPPORT_BY_TYPE: Record<
 > = {
   farming: null,
   youth: null,
+  // 10/3 정정: 금액은 모델 가정(예시)이고, 보조율은 공식 근거가 있는 것만 적는다.
+  //   스마트팜 — 농촌진흥청이 아니라 농식품부 ICT 융복합 확산사업(지자체 공모), 2026 시행계획 국비 25%·지방비 30%.
+  //   임산물 — "산림청 시설 보조 50%"는 원문을 찾지 못해 비율을 지웠다(사업·연도마다 달라요).
   forestry: {
     label: "임산물 시설 보조",
     amount: 1500,
-    desc: "산림청 시설 보조 50%",
+    desc: "예시 금액 · 산림청 임산물 시설 지원은 사업·연도마다 보조율이 달라요",
   },
   smartfarm: {
     label: "스마트팜 시설 보조",
     amount: 4000,
-    desc: "농진청 시설비 50% 보조",
+    desc: "예시 금액 · 농식품부 ICT 융복합 확산사업(지자체 공모) — 2026년 계획 국비 25%·지방비 30%",
   },
 };
 
@@ -426,7 +429,7 @@ export default function CostSimulator({ type = "farming" }: Props) {
         <div className={s.heroNumber}>
           <span className={s.heroLabel}>예상 총 비용</span>
           <span className={s.heroValue}>
-            {animatedTotal.toLocaleString()}
+            {animatedTotal.toLocaleString("ko-KR")}
             <span className={s.heroUnit}>만 원</span>
           </span>
         </div>
@@ -468,21 +471,21 @@ export default function CostSimulator({ type = "farming" }: Props) {
           <div className={s.resultCard}>
             <span className={s.resultCardLabel}>{farmingLabel}</span>
             <span className={s.resultCardValue}>
-              {farmingCost.toLocaleString()}만 원
+              {farmingCost.toLocaleString("ko-KR")}만 원
             </span>
             <span className={s.resultCardSub}>{farmingSub}</span>
           </div>
           <div className={s.resultCard}>
             <span className={s.resultCardLabel}>{livingLabel}</span>
             <span className={s.resultCardValue}>
-              {livingCost.toLocaleString()}만 원
+              {livingCost.toLocaleString("ko-KR")}만 원
             </span>
             <span className={s.resultCardSub}>{livingSub}</span>
           </div>
           <div className={s.resultCard}>
             <span className={s.resultCardLabel}>월 예상 수입</span>
             <span className={s.resultCardValue}>
-              ~{scaledMonthlyIncome.toLocaleString()}만 원
+              ~{scaledMonthlyIncome.toLocaleString("ko-KR")}만 원
             </span>
             <span className={s.resultCardSub}>
               {selectedCrop?.emoji} {selectedCrop?.name} 기준
@@ -509,12 +512,12 @@ export default function CostSimulator({ type = "farming" }: Props) {
           ) : (
             <>
               <span className={s.supportSaved}>
-                보조금 최대 {totalSupport.toLocaleString()}만 원 절감
+                보조금 최대 {totalSupport.toLocaleString("ko-KR")}만 원 절감
               </span>
               <div className={s.supportNet}>
                 <span className={s.supportNetLabel}>실질 부담</span>
                 <span className={s.supportNetValue}>
-                  {netCost.toLocaleString()}만 원
+                  {netCost.toLocaleString("ko-KR")}만 원
                 </span>
               </div>
             </>

@@ -1,49 +1,49 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   ResponsiveContainer,
   ComposedChart,
   Area,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ReferenceLine,
 } from "recharts";
-import type { YearlySmartfarm } from "@/lib/data/stats";
+import { changePct, signedPct, type SmartfarmArea } from "@/lib/data/stats";
+import { niceAxis } from "./nice-axis";
 import s from "./chart-styles.module.css";
 
 interface ChartTooltipProps {
   active?: boolean;
-  payload?: Array<{ color?: string; name?: string; value?: number }>;
+  payload?: Array<{ color?: string; name?: string; value?: number; payload?: SmartfarmArea }>;
   label?: number;
 }
 
 interface ChartDotProps {
   cx?: number;
   cy?: number;
-  payload?: YearlySmartfarm;
+  payload?: SmartfarmArea;
+  latestYear?: number;
 }
 
 const COLOR_PRIMARY = "#1B6B5A";
 const COLOR_SECONDARY = "#A8D9CC";
-const SIGNIFICANT_YEARS = new Set([2020, 2024]);
+/** 「스마트팜 확산 방안」 발표 연도 (관계부처 합동, 2018.4) */
+const POLICY_YEAR = 2018;
 
 interface Props {
-  data: YearlySmartfarm[];
+  /** 시설원예 스마트팜 보급 면적 — 공식 수치가 없는 해는 빠져 있다(빈 해를 지어내지 않는다) */
+  data: SmartfarmArea[];
 }
 
 function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
   if (!active || !payload?.length) return null;
-  const isSignificant = SIGNIFICANT_YEARS.has(label ?? 0);
 
   return (
     <div className={s.tooltip}>
-      <p className={s.tooltipLabel}>
-        {label}년 {isSignificant ? "★" : ""}
-      </p>
+      <p className={s.tooltipLabel}>{label}년</p>
       {payload.map((entry, i: number) => (
         <div className={s.tooltipRow} key={i}>
           <span
@@ -52,9 +52,7 @@ function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
           />
           <span>{entry.name}</span>
           <span className={s.tooltipValue}>
-            {entry.name === "시설면적"
-              ? `${entry.value?.toLocaleString()}ha`
-              : `${entry.value?.toLocaleString()}곳`}
+            {entry.value?.toLocaleString("ko-KR")}ha{entry.payload?.provisional ? " (잠정)" : ""}
           </span>
         </div>
       ))}
@@ -62,44 +60,22 @@ function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
   );
 }
 
-function FarmsDot(props: ChartDotProps) {
-  const { cx, cy, payload } = props;
+function AreaDot(props: ChartDotProps) {
+  const { cx, cy, payload, latestYear } = props;
   if (!cx || !cy || !payload) return null;
-  const isSig = SIGNIFICANT_YEARS.has(payload.year);
+  const isSig = payload.year === latestYear;
 
   return (
     <circle
       cx={cx}
       cy={cy}
       r={isSig ? 6 : 3}
-      fill={COLOR_PRIMARY}
-      stroke="#fff"
+      fill={payload.provisional ? "#fff" : isSig ? COLOR_PRIMARY : COLOR_SECONDARY}
+      stroke={payload.provisional ? COLOR_PRIMARY : "#fff"}
       strokeWidth={isSig ? 2.5 : 1.5}
       style={
         isSig
           ? { filter: "drop-shadow(0 0 6px rgba(27, 107, 90, 0.5))" }
-          : undefined
-      }
-    />
-  );
-}
-
-function AreaDot(props: ChartDotProps) {
-  const { cx, cy, payload } = props;
-  if (!cx || !cy || !payload) return null;
-  const isSig = SIGNIFICANT_YEARS.has(payload.year);
-
-  return (
-    <circle
-      cx={cx}
-      cy={cy}
-      r={isSig ? 6 : 3}
-      fill={isSig ? COLOR_SECONDARY.replace("CC", "FF") : COLOR_SECONDARY}
-      stroke="#fff"
-      strokeWidth={isSig ? 2.5 : 1.5}
-      style={
-        isSig
-          ? { filter: "drop-shadow(0 0 6px rgba(168, 217, 204, 0.6))" }
           : undefined
       }
     />
@@ -122,6 +98,18 @@ export default function SmartfarmTrendChart({ data }: Props) {
   const handleMouseLeave = useCallback(() => {
     setHoveredYear(null);
   }, []);
+
+  const view = useMemo(() => {
+    const first = data[0];
+    const latest = data[data.length - 1];
+    return {
+      first,
+      latest,
+      axis: niceAxis(data.map((d) => d.area)),
+      growth: changePct(latest.area, first.area),
+      years: data.map((d) => d.year),
+    };
+  }, [data]);
 
   return (
     <div>
@@ -160,87 +148,59 @@ export default function SmartfarmTrendChart({ data }: Props) {
               vertical={false}
             />
 
+            {/* 숫자 축 — 공식 수치가 없는 해는 칸이 비어 보이게 둔다 */}
             <XAxis
               dataKey="year"
+              type="number"
+              domain={["dataMin", "dataMax"]}
+              ticks={view.years}
+              allowDecimals={false}
               tick={{ fontSize: 12, fill: "#9ca3af" }}
               tickLine={false}
               axisLine={{ stroke: "#e5e7eb" }}
             />
 
-            {/* 좌축: 시설면적 */}
             <YAxis
-              yAxisId="area"
-              orientation="left"
               tick={{ fontSize: 11, fill: "#9ca3af" }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v) => `${(v / 1000).toFixed(0)}천ha`}
-              domain={[3000, 7500]}
+              tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}천ha`}
+              domain={view.axis.domain}
+              ticks={view.axis.ticks}
             />
 
-            {/* 우축: 농가 수 */}
-            <YAxis
-              yAxisId="farms"
-              orientation="right"
-              tick={{ fontSize: 11, fill: "#9ca3af" }}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v) => `${(v / 1000).toFixed(0)}천`}
-              domain={[3000, 10000]}
-            />
-
-            <ReferenceLine
-              x={2020}
-              yAxisId="area"
-              stroke={COLOR_PRIMARY}
-              strokeDasharray="4 4"
-              strokeOpacity={0.3}
-              label={{
-                value: "스마트팜 확산 가속",
-                position: "top",
-                fontSize: 10,
-                fill: "#9ca3af",
-              }}
-            />
+            {view.years.includes(POLICY_YEAR) && (
+              <ReferenceLine
+                x={POLICY_YEAR}
+                stroke={COLOR_PRIMARY}
+                strokeDasharray="4 4"
+                strokeOpacity={0.3}
+                label={{
+                  value: "확산 방안 발표",
+                  position: "top",
+                  fontSize: 10,
+                  fill: "#9ca3af",
+                }}
+              />
+            )}
 
             <Tooltip content={<CustomTooltip />} />
 
-            {/* 시설면적 — 영역 차트 */}
             <Area
-              yAxisId="area"
               type="monotone"
               dataKey="area"
-              name="시설면적"
+              name="보급 면적"
               fill="url(#areaGradientSf)"
               stroke={COLOR_SECONDARY}
               strokeWidth={2.5}
-              dot={<AreaDot />}
-              activeDot={{
-                r: 7,
-                stroke: COLOR_SECONDARY,
-                strokeWidth: 2.5,
-                fill: "#fff",
-              }}
-              animationDuration={1200}
-              animationEasing="ease-out"
-            />
-
-            {/* 농가 수 — 라인 차트 */}
-            <Line
-              yAxisId="farms"
-              type="monotone"
-              dataKey="farms"
-              name="도입 농가"
-              stroke={COLOR_PRIMARY}
-              strokeWidth={3}
-              dot={<FarmsDot />}
+              dot={<AreaDot latestYear={view.latest.year} />}
               activeDot={{
                 r: 7,
                 stroke: COLOR_PRIMARY,
                 strokeWidth: 2.5,
                 fill: "#fff",
               }}
-              animationDuration={1500}
+              animationDuration={1200}
               animationEasing="ease-out"
             />
           </ComposedChart>
@@ -249,24 +209,26 @@ export default function SmartfarmTrendChart({ data }: Props) {
 
       <div className={s.legend}>
         <span className={s.legendItem}>
-          <span
-            className={s.legendDot}
-            style={{ background: COLOR_PRIMARY, borderRadius: "50%" }}
-          />
-          도입 농가 (우축)
-        </span>
-        <span className={s.legendItem}>
           <span className={s.legendDot} style={{ background: COLOR_SECONDARY }} />
-          시설면적 (좌축)
+          시설원예 스마트팜 보급 면적 (누적)
         </span>
+        {data.some((d) => d.provisional) && (
+          <span className={s.legendItem}>
+            <span
+              className={s.legendDot}
+              style={{ background: "#fff", border: `2px solid ${COLOR_PRIMARY}`, borderRadius: "50%" }}
+            />
+            잠정치
+          </span>
+        )}
       </div>
 
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+      <div className={s.insightBadgeRow}>
         <span className={s.insightBadge}>
-          7년간 농가 수 113% 증가
+          {view.first.year}→{view.latest.year} 면적 {signedPct(view.growth, 0)}
         </span>
         <span className={s.insightBadge}>
-          2024 8,534곳 · 6,370ha
+          {view.latest.year} {view.latest.area.toLocaleString("ko-KR")}ha
         </span>
       </div>
     </div>

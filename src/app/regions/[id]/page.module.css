@@ -12,20 +12,6 @@
   gap: 16px;
 }
 
-/* ---- 뒤로가기 ---- */
-.backLink {
-  font-size: var(--fs-body-sm);
-  color: var(--muted-foreground);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-
-@media (hover: hover) {
-.backLink:hover {
-    color: var(--foreground);
-  }
-}
-
 /* ---- 히어로 (이미지 + 텍스트 통합 컨테이너) ---- */
 .hero {
   position: relative;
@@ -38,7 +24,7 @@
   position: relative;
   width: 100%;
   height: 200px;
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
   background: var(--muted, #f9fafb);
 }
@@ -127,7 +113,7 @@
   align-self: flex-start;
   margin-top: 4px;
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 30%, transparent);
   color: var(--primary, #1b6b5a);
@@ -194,7 +180,7 @@ a.heroScoreBadge:focus-visible {
   font-size: var(--fs-overline);
   font-weight: 500;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   color: var(--primary, #1b6b5a);
 }
@@ -313,7 +299,7 @@ html:not([data-header-hidden]) .stickyTitleBarVisible {
   flex-shrink: 0;
   height: 26px;
   padding: 0 10px;
-  border-radius: 999px;
+  border-radius: 4px;
   font-size: 0.8125rem;
   font-weight: 600;
   line-height: 1;
@@ -611,7 +597,7 @@ a.stickyChip:focus-visible {
 .section {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 24px;
 }
 
@@ -693,7 +679,7 @@ a.stickyChip:focus-visible {
 .urbanNotice {
   padding: 16px 18px;
   background: var(--muted, #f9fafb);
-  border-radius: 12px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -726,7 +712,7 @@ a.stickyChip:focus-visible {
   color: var(--primary, #1b6b5a);
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 999px;
+  border-radius: 4px;
   text-decoration: none;
   transition: border-color 0.15s, background 0.15s;
 }
@@ -752,7 +738,7 @@ a.stickyChip:focus-visible {
   gap: 12px;
   padding: 12px 14px;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
+  border-radius: 8px;
   text-decoration: none;
   color: inherit;
   transition: border-color 0.15s, background 0.15s;
@@ -804,7 +790,7 @@ a.stickyChip:focus-visible {
   gap: 12px;
   padding: 12px 14px;
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
+  border-radius: 8px;
   text-decoration: none;
   color: inherit;
   transition: border-color 0.15s, background 0.15s;
@@ -843,7 +829,7 @@ a.stickyChip:focus-visible {
   font-size: var(--fs-overline);
   font-weight: 600;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   color: var(--primary, #1b6b5a);
   white-space: nowrap;
@@ -853,7 +839,7 @@ a.stickyChip:focus-visible {
   font-size: var(--fs-overline);
   font-weight: 500;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: var(--muted, #f9fafb);
   color: var(--muted-foreground);
   white-space: nowrap;
@@ -863,7 +849,7 @@ a.stickyChip:focus-visible {
   font-size: var(--fs-overline);
   font-weight: 600;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   white-space: nowrap;
   background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, transparent);
   color: var(--primary, #1b6b5a);
@@ -903,7 +889,7 @@ a.stickyChip:focus-visible {
 .sideSection {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 20px;
 }
 
@@ -928,7 +914,7 @@ a.stickyChip:focus-visible {
 .personaCard {
   padding: 14px;
   background: var(--muted, #f9fafb);
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .personaTitle {
@@ -966,14 +952,16 @@ a.stickyChip:focus-visible {
   margin: 0;
 }
 
-/* 뒤로가기·브레드크럼과 의견 바로가기를 한 줄에 (2026-09-17).
-   단독 배치하면 브레드크럼과 본문 사이에 버튼이 떠 흐름을 끊는다(회장 스크린샷). */
+/* 브레드크럼과 의견 바로가기를 한 줄에 (2026-09-17).
+   2026-10-02 회장: 상세 공통 위치 = 히어로 바로 아래·탭 위. .page gap(16) 기준으로
+   위 14px · 아래 10px 로 당긴다(브레드크럼이 아래 블록에 붙어 보이게). */
 .topBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
+  margin: -2px 0 -6px;
 }
 
 /* 4번째 이후 작물 — 압축 목록 (2026-09-17).

@@ -3,9 +3,6 @@ import s from "./loading.module.css";
 export default function RegionDetailLoading() {
   return (
     <div className={s.page}>
-      {/* Back Link */}
-      <div className={s.backLink} />
-
       {/* Hero Skeleton */}
       <div className={s.hero}>
         <div className={s.heroOverline} />
@@ -17,6 +14,9 @@ export default function RegionDetailLoading() {
           ))}
         </div>
       </div>
+
+      {/* 브레드크럼 — 히어로 아래 (2026-10-02) */}
+      <div className={s.breadcrumb} />
 
       {/* Stats Grid Skeleton */}
       <div className={s.statsGrid}>
