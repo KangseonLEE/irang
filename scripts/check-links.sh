@@ -46,6 +46,7 @@ TOTAL=0
 OK=0
 FAIL=0
 TIMEOUT=0
+SKIPPED=0
 RESULTS=""
 ISSUE_BODY=""
 TIMEOUT_RESULTS=""
@@ -100,6 +101,11 @@ is_geo_host() {
 probe_code() {
   local url="$1"
   local code
+  # 시간 예산을 넘겼으면 조회하지 않는다 — job 한도에 잘려 결과가 통째로 사라지는 것보다 낫다 (10/3)
+  if [ -n "${CHECK_LINKS_DEADLINE:-}" ] && [ "$(date +%s)" -ge "$CHECK_LINKS_DEADLINE" ]; then
+    echo "SKIP"
+    return 0
+  fi
   code=$(fetch_status "$url")
 
   # 지역 차단 호스트가 4xx/5xx면 재시도해도 같은 결과 — 최대 ~2분 낭비를 막는다 (8/30, 15분 job timeout 원인 일부)
@@ -141,6 +147,12 @@ classify_result() {
 
   local domain
   domain=$(echo "$url" | sed 's|https\{0,1\}://\([^/]*\).*|\1|' | sed 's/^www\.//')
+
+  if [ "$code" = "SKIP" ]; then
+    echo -e "  ${YELLOW}…${NC} 미검사(시간 예산 초과) | ${source}/${id} | ${domain}"
+    SKIPPED=$((SKIPPED + 1))
+    return 0
+  fi
 
   if [ "$code" -ge 200 ] && [ "$code" -lt 400 ]; then
     echo -e "  ${GREEN}✓${NC} ${code} | ${source}/${id} | ${domain}"
@@ -266,7 +278,11 @@ done < <(perl -0777 -ne '
 
 # ── 병렬 조회 ──
 export -f fetch_status is_geo_host probe_code
-export UA GEO_WARN_HOSTS CODES_FILE
+# 시간 예산 (기본 30분, CHECK_LINKS_BUDGET_SEC 로 조정) — 10/3 밤 순차 실행이 37분(타임아웃 38건)이었다.
+# 한국 기관 사이트는 미국 러너에서 시간대에 따라 응답이 크게 느려진다(오전 14건 / 밤 38건). job 한도(40분)에
+# 잘리면 결과가 0이 되므로, 예산을 넘긴 URL 은 조회하지 않고 "미검사"로 남긴 채 그때까지의 결과로 끝낸다.
+CHECK_LINKS_DEADLINE=$(( $(date +%s) + ${CHECK_LINKS_BUDGET_SEC:-1800} ))
+export UA GEO_WARN_HOSTS CODES_FILE CHECK_LINKS_DEADLINE
 PROBE_CONCURRENCY=${CHECK_LINKS_CONCURRENCY:-1}
 # 행 번호를 키로 — 병렬 결과는 끝나는 순서대로 쌓이므로 집계는 원래 순서로 다시 맞춘다.
 # 인자는 "행번호 URL" 한 덩어리(URL 에 공백은 없다). NUL 구분(-0): xargs 기본 모드는 따옴표·백슬래시를
@@ -304,7 +320,7 @@ echo ""
 
 # ── 결과 요약 ──
 echo "───────────────────────────────────────────"
-echo -e "  총 ${TOTAL}개 | ${GREEN}정상 ${OK}${NC} | ${RED}실패 ${FAIL}${NC} | ${YELLOW}타임아웃 ${TIMEOUT}${NC}"
+echo -e "  총 ${TOTAL}개 | ${GREEN}정상 ${OK}${NC} | ${RED}실패 ${FAIL}${NC} | ${YELLOW}타임아웃 ${TIMEOUT}${NC}$([ "$SKIPPED" -gt 0 ] && echo " | 미검사 ${SKIPPED}")"
 echo "───────────────────────────────────────────"
 
 # ── 타임아웃은 경고로만 처리 (exit code 영향 없음) ──
@@ -312,6 +328,10 @@ echo "────────────────────────�
 # GitHub Actions 러너(미국)에서 한국 정부 사이트가 상시 타임아웃 → 매일 이슈 생성 →
 # 경보 피로로 진짜 깨진 링크를 가리는 역효과. 실측 8/17: 타임아웃 6건 전부 한국에서 200.
 # 따라서 타임아웃은 warning 주석으로만 남기고, exit 1 / 이슈 생성은 실제 실패(4xx·5xx)에만 적용.
+if [ "$SKIPPED" -gt 0 ] && [ "$CI_MODE" = true ]; then
+  echo "::warning title=외부 링크 미검사 ${SKIPPED}건::시간 예산(${CHECK_LINKS_BUDGET_SEC:-1800}초)을 넘겨 나머지는 다음 실행에서 검사해요."
+fi
+
 if [ $TIMEOUT -gt 0 ]; then
   echo ""
   echo -e "${YELLOW}▸ 타임아웃 (경고 — 러너 리전 이슈 가능성, 실패로 집계 안 함):${NC}"
@@ -381,9 +401,9 @@ $(echo -e "$ISSUE_BODY")
   fi
 
   exit 1
-elif [ $TIMEOUT -gt 0 ]; then
+elif [ $TIMEOUT -gt 0 ] || [ "$SKIPPED" -gt 0 ]; then
   echo ""
-  echo -e "${GREEN}▸ 깨진 링크 없음${NC} (타임아웃 ${TIMEOUT}건은 경고로만 기록)"
+  echo -e "${GREEN}▸ 깨진 링크 없음${NC} (타임아웃 ${TIMEOUT}건은 경고로만 기록$([ "$SKIPPED" -gt 0 ] && echo ", 미검사 ${SKIPPED}건은 다음 실행에서"))"
   exit 0
 else
   echo ""
