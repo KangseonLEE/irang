@@ -12,6 +12,8 @@ import {
   Tooltip,
   ReferenceLine,
 } from "recharts";
+import { REF_LINE_LABEL_GUTTER, RefLineEndLabel } from "./ref-line-end-label";
+import { axisTickLabel, niceAxis } from "./nice-axis";
 import s from "./chart-styles.module.css";
 
 /**
@@ -58,7 +60,7 @@ interface Props {
 function formatPop(v: number): string {
   // 인구를 "12.3만" 형식으로
   if (v >= 10000) return `${(v / 10000).toFixed(1)}만`;
-  return v.toLocaleString();
+  return v.toLocaleString("ko-KR");
 }
 
 function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
@@ -73,14 +75,14 @@ function CustomTooltip({ active, payload, label }: ChartTooltipProps) {
         <div className={s.tooltipRow}>
           <span className={s.tooltipDot} style={{ background: COLOR_PRIMARY }} />
           <span>{sg.name}</span>
-          <span className={s.tooltipValue}>{sg.value.toLocaleString()}명</span>
+          <span className={s.tooltipValue}>{sg.value.toLocaleString("ko-KR")}명</span>
         </div>
       )}
       {sido && sido.value !== undefined && (
         <div className={s.tooltipRow}>
           <span className={s.tooltipDot} style={{ background: COLOR_SIDO }} />
           <span>시도 평균</span>
-          <span className={s.tooltipValue}>{sido.value.toLocaleString()}명</span>
+          <span className={s.tooltipValue}>{sido.value.toLocaleString("ko-KR")}명</span>
         </div>
       )}
     </div>
@@ -123,22 +125,17 @@ export default function SigunguPopulationTrendChart({
     [data],
   );
 
-  // Y축 범위 — 변화 폭이 작아도 그래프가 살아 보이게
-  const { yMin, yMax } = useMemo(() => {
+  // Y축 — 1·2·5 단위 눈금(niceAxis). 예전엔 범위를 1,000 단위로 내림·올림해 "32.3만·25.7만" 같은 눈금이 나왔다(10/3 QA).
+  // 0 에서 시작하지 않는 축이라 변화 폭이 작아도 그래프가 살아 보인다.
+  const axis = useMemo(() => {
     const allValues: number[] = [];
     for (const d of data) {
       allValues.push(d.population);
       if (d.sidoAvg !== undefined) allValues.push(d.sidoAvg);
     }
-    if (allValues.length === 0) return { yMin: 0, yMax: 100 };
-    const min = Math.min(...allValues);
-    const max = Math.max(...allValues);
-    const range = max - min;
-    const pad = Math.max(range * 0.25, max * 0.02);
-    return {
-      yMin: Math.max(0, Math.floor((min - pad) / 1000) * 1000),
-      yMax: Math.ceil((max + pad) / 1000) * 1000,
-    };
+    if (allValues.length === 0) return { domain: [0, 100] as [number, number], ticks: [0, 25, 50, 75, 100], step: 25 };
+    const { domain, ticks } = niceAxis(allValues);
+    return { domain, ticks, step: ticks.length > 1 ? ticks[1] - ticks[0] : 1 };
   }, [data]);
 
   return (
@@ -147,7 +144,7 @@ export default function SigunguPopulationTrendChart({
         <ResponsiveContainer width="100%" height={280}>
           <ComposedChart
             data={data}
-            margin={{ top: 16, right: 12, left: -8, bottom: 0 }}
+            margin={{ top: 16, right: REF_LINE_LABEL_GUTTER, left: -8, bottom: 0 }}
           >
             <defs>
               <linearGradient id="sigunguPopGradient" x1="0" y1="0" x2="0" y2="1">
@@ -173,8 +170,9 @@ export default function SigunguPopulationTrendChart({
               tick={{ fontSize: 11, fill: "#9ca3af" }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={formatPop}
-              domain={[yMin, yMax]}
+              tickFormatter={(v: number) => axisTickLabel(v, axis.step)}
+              domain={axis.domain}
+              ticks={axis.ticks}
             />
 
             <Tooltip content={<CustomTooltip />} />
@@ -185,12 +183,8 @@ export default function SigunguPopulationTrendChart({
               stroke={COLOR_PRIMARY}
               strokeDasharray="4 4"
               strokeOpacity={0.3}
-              label={{
-                value: `5년 평균`,
-                position: "right",
-                fontSize: 10,
-                fill: "#9ca3af",
-              }}
+              // "평균"만 쓰면 범례의 "시도 평균"(회색 점선)과 헷갈린다 — 이 선은 이 시·군·구의 5년 평균
+              label={<RefLineEndLabel above="5년 평균" below={formatPop(Math.round(avgPopulation))} />}
             />
 
             {/* 시군구 인구 — Area */}

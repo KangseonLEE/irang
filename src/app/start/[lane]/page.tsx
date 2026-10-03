@@ -35,6 +35,7 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { Icon } from "@/components/ui/icon";
 import { START_LANES } from "@/lib/data/journey-lanes";
 import { programStatusLabel, deriveStatus } from "@/lib/program-status";
+import { displayText } from "@/lib/programs/display";
 import {
   buildLaneHub,
   isHubLaneId,
@@ -48,7 +49,7 @@ import {
 import { filterEducationAsync, type EducationCourse } from "@/lib/data/education";
 import { filterEventsAsync, type FarmEvent } from "@/lib/data/events";
 import { getCropImageSrc, hasCropIllustration } from "@/lib/crop-image";
-import { startShareMetadata } from "../start-metadata";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import s from "./page.module.css";
 
 export const dynamicParams = false;
@@ -73,7 +74,7 @@ export async function generateMetadata({
     title: `${lane.label}으로 시작하기 — 현황·지원사업·작물·사람 이야기`,
     description: lane.intro,
     alternates: { canonical: `/start/${id}` },
-    ...startShareMetadata({
+    ...shareMetadata({
       title: `${lane.label}으로 시작하기 | 이랑`,
       description: lane.intro,
       path: `/start/${id}`,
@@ -153,9 +154,7 @@ export default async function LaneHubPage({ params }: { params: Promise<{ lane: 
             />
           </span>
           <span className={s.programTitle}>{p.title}</span>
-          <span className={s.programSummary}>
-            <AutoGlossary text={p.summary} maxHighlights={1} />
-          </span>
+          <ProgramSummary id={p.id} summary={p.summary} />
           <span className={s.programMeta}>{p.organization}</span>
         </Link>
       )),
@@ -474,6 +473,17 @@ export default async function LaneHubPage({ params }: { params: Promise<{ lane: 
         </section>
       </ScrollReveal>
     </div>
+  );
+}
+
+/** 지원사업 카드 요약 줄 — 수집 행의 "…에서 수집했어요." 같은 출처 문장뿐이면 줄째 숨긴다 (10/3) */
+function ProgramSummary({ id, summary }: { id: string; summary: string }) {
+  const text = displayText(id, summary);
+  if (!text) return null;
+  return (
+    <span className={s.programSummary}>
+      <AutoGlossary text={text} maxHighlights={1} />
+    </span>
   );
 }
 

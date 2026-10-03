@@ -14,6 +14,7 @@ import {
   ReferenceLine,
 } from "recharts";
 import type { YouthRatio } from "@/lib/data/stats";
+import { REF_LINE_LABEL_GUTTER, RefLineEndLabel } from "./ref-line-end-label";
 import s from "./chart-styles.module.css";
 
 /** Recharts Tooltip payload entry */
@@ -118,7 +119,7 @@ export default function YouthTrendChart({ data }: Props) {
         <ResponsiveContainer width="100%" height={320}>
           <ComposedChart
             data={enrichedData}
-            margin={{ top: 10, right: 12, left: -8, bottom: 0 }}
+            margin={{ top: 10, right: REF_LINE_LABEL_GUTTER, left: 0, bottom: 0 }}
           >
             <CartesianGrid
               strokeDasharray="3 3"
@@ -133,7 +134,9 @@ export default function YouthTrendChart({ data }: Props) {
               axisLine={{ stroke: "#e5e7eb" }}
             />
 
+            {/* 눈금이 "15%" 세 글자라 기본 폭(60)은 남는다 — 오른쪽 라벨 여백만큼 돌려받는다 */}
             <YAxis
+              width={36}
               tick={{ fontSize: 11, fill: "#9ca3af" }}
               tickLine={false}
               axisLine={false}
@@ -148,12 +151,7 @@ export default function YouthTrendChart({ data }: Props) {
               stroke="#9ca3af"
               strokeDasharray="6 3"
               strokeWidth={1}
-              label={{
-                value: `평균 ${avgRatio.toFixed(1)}%`,
-                position: "right",
-                fontSize: 10,
-                fill: "#9ca3af",
-              }}
+              label={<RefLineEndLabel above="평균" below={`${avgRatio.toFixed(1)}%`} />}
             />
 
             <Tooltip content={<CustomTooltip />} />

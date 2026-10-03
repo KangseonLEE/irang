@@ -8,6 +8,8 @@
   --about-gray: #f3f4f2;
   --about-ink: #1a1f1d;
   --about-line: #d9ddd9;
+  /* 회색 띠 위 보조 글자 — muted-foreground(#6b7280)는 #f3f4f2 위 4.38:1 로 미달. 5.95:1 (10/3 QA) */
+  --about-muted: #575f5c;
   --about-pad: 16px;
   display: flex;
   flex-direction: column;
@@ -57,7 +59,7 @@
   font-size: var(--fs-caption);
   font-weight: 600;
   letter-spacing: 0.18em;
-  color: var(--muted-foreground);
+  color: var(--about-muted);
 }
 
 .titleWord {
@@ -329,7 +331,8 @@
 .tileCaption {
   margin-top: auto;
   font-size: var(--fs-caption);
-  color: rgba(255, 255, 255, 0.72);
+  /* 0.72 는 초록 타일(#1b6b5a) 위 4.17:1 로 본문 기준(4.5) 미달 — 0.84 = 5.03:1 · 딥그린 타일 10.7:1 (10/3 QA) */
+  color: rgba(255, 255, 255, 0.84);
 }
 
 .tilesNote {
@@ -511,7 +514,8 @@
   font-size: var(--fs-caption);
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: var(--muted-foreground);
+  /* 회색 띠(#f3f4f2) 위 muted-foreground 는 4.38:1 로 미달 — 출처 코드(.sourceCode)와 같은 브랜드 그린 5.77:1 (10/3 QA) */
+  color: var(--primary, #1b6b5a);
   font-variant-numeric: tabular-nums;
 }
 

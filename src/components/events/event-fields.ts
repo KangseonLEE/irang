@@ -6,6 +6,7 @@
  * 채움값을 자주 담고 있고(9/30 기준 21건 전부 그랬다), 그런 값이 카드에서 가장 눈에 띄는
  * 자리를 차지하면 실제 판단 재료(신청 기간·운영 기간·인원)가 뒤로 밀린다.
  */
+import { meaningfulValue } from "@/lib/programs/display";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import type { FarmEvent } from "@/lib/data/events";
@@ -96,12 +97,9 @@ export function durationLabel(start: string | null | undefined, end: string | nu
   return `약 ${Math.round(days / 30)}개월`;
 }
 
-/** 비용 값이 정보를 담고 있는가 — "상세 공고 참조"·"추후 공지" 같은 채움값은 숨긴다 */
+/** 비용 값이 정보를 담고 있는가 — "상세 공고 참조"·"추후 공지" 같은 채움값은 숨긴다(규칙 SSOT: lib/programs/display) */
 export function meaningfulCost(cost: string | null | undefined): string | null {
-  const value = cost?.trim();
-  if (!value) return null;
-  if (/(참조|참고|미정|추후|별도\s*안내|확인\s*필요|문의)/.test(value)) return null;
-  return value;
+  return meaningfulValue(cost);
 }
 
 /** "4가구 6명" / "6명" / null — 모집 인원 */

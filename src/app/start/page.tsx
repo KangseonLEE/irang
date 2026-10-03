@@ -8,7 +8,7 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { buildLaneCompare, loadHubPrograms } from "@/lib/data/journey-lanes-hub";
 import { START_LANES, kindsLabel } from "@/lib/data/journey-lanes";
-import { startShareMetadata } from "./start-metadata";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import s from "./page.module.css";
 
 /* 지원사업 건수는 DB(`/programs` 와 같은 로더) + 오늘 날짜로 센다 — 배포 시점에 굳지 않게 랜딩·허브와 같은 6시간 주기.
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   title: `어떤 시작이 나에게 맞을까요? — ${LANE_NAMES} 비교`,
   description: DESCRIPTION,
   alternates: { canonical: "/start" },
-  ...startShareMetadata({ title: "어떤 시작이 나에게 맞을까요? | 이랑", description: DESCRIPTION, path: "/start" }),
+  ...shareMetadata({ title: "어떤 시작이 나에게 맞을까요? | 이랑", description: DESCRIPTION, path: "/start" }),
 };
 
 export default async function StartComparePage() {
