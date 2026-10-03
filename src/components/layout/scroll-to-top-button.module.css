@@ -40,6 +40,13 @@
   pointer-events: auto;
 }
 
+/* 키보드 포커스를 가리면 비켜난다(useFocusDodge, 10/3 QA WCAG 2.4.11) — 제자리에서 투명·클릭 통과.
+   .visible 과 같은 특이성이면 선언 순서에 기대게 되므로 한 단계 높인다 */
+.button.visible[data-dodge="true"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
 @media (hover: hover) {
   .button:hover {
     background: var(--card);

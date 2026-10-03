@@ -4,6 +4,10 @@
   /* MobileNav(3.5rem) + 세이프에어리어 + 여유 1rem */
   padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
   color: var(--footer-fg);
+  /* 가장 옅은 글씨(연락처·면책 문구·저작권·약관 링크·면책고지 배지) — 전역 #737373 은 #1a1a1a 위 3.67 이라
+     11~14px 글씨 기준(4.5)에 못 미쳤다(10/3 QA axe). 푸터 안에서만 같은 회색 계열로 밝혀 5.38 —
+     한 단계 위 --footer-muted(#a3a3a3, 6.90)와의 위계는 유지. 하위 DisclaimerBadge 도 이 값을 상속한다. */
+  --footer-subtle: #8f8f8f;
 }
 
 @media (min-width: 768px) {
@@ -49,6 +53,8 @@
 }
 
 .brandTitle {
+  /* 제목 단계를 h3 → h2 로 올리면서(10/3 heading-order) 예전 h3 기본 여백(1em)을 그대로 고정 — 화면 불변 */
+  margin: 1em 0;
   font-family: var(--font-logo, Georgia, serif);
   font-size: 1.2rem;
   line-height: 1.75rem;
@@ -102,8 +108,9 @@
   }
 }
 
-/* Section heading */
+/* Section heading — h4 → h3 로 올리면서(10/3) 예전 h4 기본 여백(1.33em)을 그대로 고정 */
 .sectionTitle {
+  margin: 1.33em 0;
   font-size: var(--fs-caption);
   line-height: 1.25rem;
   font-weight: 600;

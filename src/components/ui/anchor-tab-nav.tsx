@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import s from "./anchor-tab-nav.module.css";
 
 interface AnchorSection {
@@ -22,6 +22,14 @@ interface AnchorTabNavProps {
  */
 export function AnchorTabNav({ sections }: AnchorTabNavProps) {
   const [activeId, setActiveId] = useState(sections[0]?.id ?? "");
+  /**
+   * 섹션별 "헤더가 보일 때의" scroll-margin-top (10/3 QA).
+   * /start 처럼 착지 여백이 `var(--sticky-top)`(헤더 보임 56 / 숨김 0)을 따르는 페이지에서는, 헤더가 보일 때 탭을
+   * 누르면 68px 여백으로 착지하고 → 아래로 가는 동안 헤더가 숨어 여백이 12px 로 줄어 → 착지한 섹션이
+   * 기준선(12+8)보다 56px 아래에 남아 **한 칸 앞 섹션**이 켜졌다(1440·375 전 탭 재현).
+   * 헤더가 보일 때 잰 여백을 기억해 두고 둘 중 큰 쪽을 기준선으로 쓴다 — 여백이 상수인 페이지(작물·지역)는 그대로.
+   */
+  const visibleMarginsRef = useRef(new Map<string, number>());
 
   /**
    * 활성 탭 판정 — "뷰포트 상단에 가장 가까운(그리고 그보다 위에 있는) 섹션" (2026-09-17 교체).
@@ -36,16 +44,21 @@ export function AnchorTabNav({ sections }: AnchorTabNavProps) {
   useEffect(() => {
     let frame = 0;
 
+    const visibleMargins = visibleMarginsRef.current;
     const update = () => {
       frame = 0;
       let current = sections[0]?.id ?? "";
       let bestTop = -Infinity;
+      const headerHidden = document.documentElement.hasAttribute("data-header-hidden");
       for (const { id } of sections) {
         const el = document.getElementById(id);
         if (!el) continue;
         // 기준선은 섹션이 자기 scroll-margin-top 만큼 내려앉은 지점 — 화면 크기마다
         // 다른 고정 OFFSET 을 추측하지 않는다(모바일은 섹션이 ~200px 에 안착한다).
-        const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+        const nowMargin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+        if (!headerHidden) visibleMargins.set(id, nowMargin);
+        // 헤더가 숨어 여백이 줄었어도 헤더가 보일 때의 여백으로 착지했을 수 있다 — 큰 쪽을 기준선으로
+        const margin = Math.max(nowMargin, visibleMargins.get(id) ?? nowMargin);
         const top = el.getBoundingClientRect().top - margin;
         // 기준선을 지난 것 중 **가장 아래** 를 고른다. 배열 순서로 훑으면 탭 순서와
         // DOM 순서가 다를 때 판정이 뒤집힌다(시군구: 지원센터가 지원사업보다 위인데
@@ -67,14 +80,24 @@ export function AnchorTabNav({ sections }: AnchorTabNavProps) {
       if (frame) return;
       frame = requestAnimationFrame(update);
     };
+    // 폭이 바뀌면 여백 규칙(미디어쿼리)도 바뀐다 — 기억한 값을 버리고 다시 잰다.
+    // 높이만 바뀌는 resize(모바일 주소창 접힘·펼침)는 무시 — 헤더가 숨은 채 지우면 기억이 사라진다
+    let lastWidth = window.innerWidth;
+    const onResize = () => {
+      if (window.innerWidth !== lastWidth) {
+        lastWidth = window.innerWidth;
+        visibleMargins.clear();
+      }
+      onScroll();
+    };
 
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
     return () => {
       if (frame) cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
     };
   }, [sections]);
 

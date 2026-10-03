@@ -63,7 +63,7 @@ export function PersonaScorePicker({ dimensionScores, sigunguName }: Props) {
   return (
     <section className={s.section} aria-label="정착 스타일별 점수">
       <div className={s.header}>
-        <h3 className={s.title}>어떤 귀농을 그리고 계세요?</h3>
+        <h2 className={s.title}>어떤 귀농을 그리고 계세요?</h2>
         <p className={s.desc}>
           스타일을 고르시면 {sigunguName}이 나에게 얼마나 맞는지 한 점수로 보여드려요.
         </p>

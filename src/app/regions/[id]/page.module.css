@@ -146,7 +146,9 @@
 .heroScoreMeta {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--muted-foreground);
+  /* muted-foreground 는 점수 배지 틴트(primary 12%, hover 18%) 위 4.05 · 3.70:1 로 미달 —
+     같은 회색을 20% 어둡게 5.71 · 5.21:1 (10/4 axe) */
+  color: color-mix(in srgb, var(--muted-foreground, #6b7280) 80%, #000);
   letter-spacing: -0.01em;
 }
 

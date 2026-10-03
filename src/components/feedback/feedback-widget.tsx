@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { getPageName } from "@/lib/page-names";
+import { useFocusDodge } from "@/lib/hooks/use-focus-dodge";
 import s from "./feedback-widget.module.css";
 import { internalRequestHeaders } from "@/lib/internal-traffic";
 
@@ -57,6 +58,9 @@ export function FeedbackWidget() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const fabRef = useRef<HTMLButtonElement>(null);
+  /* 키보드 포커스(푸터 '이용약관' 등)를 가리면 비켜난다 — 10/3 QA 1440 41% 가림 */
+  const dodge = useFocusDodge(fabRef);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect -- SSR hydration 우회 표준 패턴
   useEffect(() => { setMounted(true); }, []);
@@ -101,8 +105,10 @@ export function FeedbackWidget() {
   return (
     <>
       <button
+        ref={fabRef}
         type="button"
         className={s.fab}
+        data-dodge={dodge ? "true" : undefined}
         onClick={handleOpen}
         aria-label="피드백 보내기"
       >

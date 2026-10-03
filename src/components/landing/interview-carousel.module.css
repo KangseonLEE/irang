@@ -215,7 +215,8 @@
 /* ── 출처 ── */
 .source {
   font-size: var(--fs-overline);
-  color: color-mix(in srgb, var(--muted-foreground, #6b7280) 70%, transparent);
+  /* 70% 투명은 흰 카드 위 2.74:1 로 11~12px 기준(4.5) 미달 — 회색 그대로 4.83:1 (10/4 axe, 밝은 변형) */
+  color: var(--muted-foreground, #6b7280);
   text-align: right;
   margin-top: auto;
   padding-top: 8px;
@@ -347,8 +348,10 @@
   color: #fff;
 }
 
+/* 다크 카드(#284b41) 위 보조 글자 — 흰색 알파만 올린다 (10/4 axe color-contrast).
+   0.55 는 4.18:1 로 13~14px 기준(4.5) 미달 → 0.68 = 5.50:1. 출처(.source)는 한 단계 옅은 0.62 */
 .wrapperDark .meta {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.68);
 }
 
 .wrapperDark .motivation {
@@ -364,13 +367,15 @@
   color: rgba(143, 207, 181, 0.5);
 }
 
+/* 민트(#8FCFB5) 그대로는 자기 틴트(#345a4f) 위 4.32:1 — 같은 민트를 흰색 쪽으로 20% 밝혀 4.86:1 (10/4 axe) */
 .wrapperDark .tag {
   background: rgba(143, 207, 181, 0.12);
-  color: #8FCFB5;
+  color: color-mix(in srgb, var(--primary-on-dark, #8FCFB5) 80%, #fff);
 }
 
+/* 0.35 는 2.62:1 — 11~12px 기준을 넘기는 0.62 = 4.87:1 (메타 0.68 보다 한 단계 옅게, 10/4 axe) */
 .wrapperDark .source {
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.62);
   border-top-color: rgba(255, 255, 255, 0.08);
 }
 

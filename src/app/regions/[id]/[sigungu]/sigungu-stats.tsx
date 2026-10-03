@@ -154,14 +154,15 @@ export function SigunguStats({
     if (v >= 1) {
       return {
         label: `회복 중 +${v.toFixed(1)}%`,
-        color: "#059669",
+        // 글자만 상태색 66% + 검정(StatusBadge 와 같은 식) — #059669 그대로는 3.25:1 (10/4 axe)
+        color: "color-mix(in srgb, #059669 66%, #000)",
         bg: "color-mix(in srgb, #059669 12%, transparent)",
       };
     }
     if (v <= -5) {
       return {
         label: `가속 감소 ${v.toFixed(1)}%`,
-        color: "#d97706",
+        color: "color-mix(in srgb, #d97706 66%, #000)",
         bg: "color-mix(in srgb, #d97706 12%, transparent)",
       };
     }
@@ -327,7 +328,7 @@ export function SigunguStats({
         <section className={s.trendSection} aria-label="인구 5년 추이">
           <div className={s.trendHeader}>
             <div>
-              <h3 className={s.trendTitle}>인구 5년 추이</h3>
+              <h2 className={s.trendTitle}>인구 5년 추이</h2>
               <p className={s.trendDesc}>
                 {trendYearStart}년부터 {trendYearEnd}년까지 {sigunguName} 인구
                 변화예요.
@@ -358,7 +359,7 @@ export function SigunguStats({
         <section className={s.scoreSection} aria-label="차원별 점수">
           <div className={s.scoreHeader}>
             <div>
-              <h3 className={s.scoreSectionTitle}>{sigunguName} 차원별 점수</h3>
+              <h2 className={s.scoreSectionTitle}>{sigunguName} 차원별 점수</h2>
               <p className={s.scoreSectionDesc}>
                 전국에서 어디쯤인지 5가지 차원으로 보여드려요.
               </p>

@@ -39,7 +39,8 @@
   font-size: 10px;
   font-weight: 700;
   color: var(--primary-foreground);
-  background: #e8590c;
+  /* 카드 보기 .newBadge 와 같은 값 — 흰 글자 대비 3.58 → 5.27:1 (10/4 axe) */
+  background: color-mix(in srgb, #e8590c 80%, #000);
   vertical-align: middle;
   white-space: nowrap;
 }

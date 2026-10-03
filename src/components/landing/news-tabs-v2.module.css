@@ -254,6 +254,9 @@
 
 .nav::-webkit-scrollbar { display: none; }
 
+/* 카드(.navItem) = 테두리·배경·여백 / 토글 버튼(.navToggle) = 썸네일+제목, 누르는 영역은 ::after 로 카드 전체.
+   10/3 QA nested-interactive — 예전엔 카드 자체가 버튼이라 모바일 펼침 링크가 버튼 안에 있었다.
+   여백·전환은 예전과 같은 요소(카드)에 그대로 두어 화면이 같다. */
 .navItem {
   flex-shrink: 0;
   display: flex;
@@ -263,14 +266,74 @@
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 4px;
-  cursor: pointer;
-  text-decoration: none;
   color: inherit;
   min-width: 0;
   flex: 1;
   transition:
     border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 버튼 UA 글꼴·가운데 정렬은 예전 카드(버튼)와 같게 두고 상자 장식만 지운다 */
+.navToggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* 카드 여백까지 누르는 영역 — 예전 카드 전체가 버튼이던 것과 같은 범위 */
+.navToggle::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.navToggle:focus-visible {
+  outline: none;
+}
+
+/* 포커스 링은 카드에 — 카드가 overflow: hidden 이라 버튼 바깥 링은 잘린다. 안쪽(-2px)이라 목록 스크롤 박스에도 안 잘린다 */
+.navItem:has(.navToggle:focus-visible) {
+  outline: 2px solid var(--ring, #1b6b5a);
+  outline-offset: -2px;
+}
+
+@supports not selector(:has(*)) {
+  .navToggle:focus-visible {
+    outline: 2px solid var(--ring, #1b6b5a);
+    outline-offset: -2px;
+  }
+}
+
+/* (모바일) 펼친 카드의 기사 링크 — 바깥 링은 카드(overflow: hidden)에 잘리고, 링크 자신의 안쪽 링은
+   그림·본문(position·transform 층)에 덮여 어느 쪽도 보이지 않았다. 카드 위에 얹는 테두리 층으로 그린다 */
+.navExpanded:focus-visible {
+  outline: none;
+}
+
+.navItem:has(.navExpanded:focus-visible)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--ring, #1b6b5a);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@supports not selector(:has(*)) {
+  .navExpanded:focus-visible {
+    outline: 2px solid var(--ring, #1b6b5a);
+    outline-offset: -2px;
+  }
 }
 
 .navItemActive {
@@ -411,6 +474,21 @@
     opacity: 0.65;
   }
 
+  .navToggle {
+    gap: 10px;
+  }
+
+  /* 접힌 카드는 카드째 .65 로 흐린다 — 보조 글씨(#6b7280)가 흐린 뒤 2.52 였다(10/3 axe, 리빌 마커가 떨어진 뒤의
+     실제 상태). 흐림은 그대로 두고 글자만 같은 회색 계열로 진하게 → 흐린 뒤 4.85 */
+  .navItem:not(.navItemActive) .navMeta {
+    color: color-mix(in srgb, var(--foreground, #111827) 85%, var(--muted-foreground, #6b7280));
+  }
+
+  /* 키보드 포커스가 온 접힌 카드는 흐림을 푼다 — .65 로는 포커스 링도 흐려 3:1 에 못 미친다 */
+  .navItem:not(.navItemActive):has(.navToggle:focus-visible) {
+    opacity: 1;
+  }
+
   .navItem:not(.navItemActive) .navExpandWrap {
     display: none;
   }
@@ -437,8 +515,8 @@
     opacity: 1;
   }
 
-  .navItemActive .navThumb,
-  .navItemActive .navText {
+  /* 펼친 카드는 링크가 카드 전체 — 토글(썸네일·제목)은 접는다(예전엔 그 안의 썸네일·제목만 숨겼다) */
+  .navItemActive .navToggle {
     display: none;
   }
 

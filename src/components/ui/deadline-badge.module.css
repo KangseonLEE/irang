@@ -13,15 +13,19 @@
   line-height: var(--lh-tight);
 }
 
+/* 글자색 = 마감 색을 같은 계열로 어둡게 섞은 값 (10/4 axe color-contrast) — StatusBadge 와 같은 식(66%).
+   11~12px 라 4.5:1 이 필요한데 원색 그대로는 자기 12% 틴트 위 urgent 4.01 · warning 2.80 이었다
+   (사진 위 흰 알약 최악 #f0f0f0 에서도 4.23 · 2.79). 바탕 틴트는 원색 그대로 두어 배지 색감은 유지하고 글자만
+   진하게 → 틴트 위 7.38 · 5.64, 흰 알약 최악 7.78 · 5.61. 앰버는 StatusBadge .amber 와 같은 색이 된다 */
 .urgent {
   composes: badge;
-  color: var(--error, #dc2626);
+  color: color-mix(in srgb, var(--error, #dc2626) 66%, #000);
   background: color-mix(in srgb, var(--error, #dc2626) 12%, transparent);
 }
 
 .warning {
   composes: badge;
-  color: var(--warning, #d97706);
+  color: color-mix(in srgb, var(--warning, #d97706) 66%, #000);
   background: color-mix(in srgb, var(--warning, #d97706) 12%, transparent);
 }
 

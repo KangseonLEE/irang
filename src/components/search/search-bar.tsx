@@ -562,6 +562,17 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setFocusedIndex((i) => Math.max(i - 1, -1));
+      } else if (
+        e.key === "Delete" &&
+        showRecent &&
+        focusedIndex >= 0 &&
+        allItems[focusedIndex]?.type === "recent"
+      ) {
+        // 하이라이트한 최근 검색어를 Delete 로 지운다 — 줄 끝 삭제 버튼(마우스용, Tab 순서 밖)의 키보드 대응.
+        // 최근 검색이 보일 때는 입력이 비어 있어 Delete 가 지울 글자도 없다.
+        e.preventDefault();
+        removeRecent(allItems[focusedIndex].query);
+        setRecentSearches(loadRecent());
       } else if (e.key === "Escape") {
         if (isExpanded) {
           handleClose();
@@ -573,7 +584,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       }
       // Enter는 form onSubmit이 처리 — iOS 가상 키보드 Search 버튼과의 호환성 확보
     },
-    [allItems.length, isExpanded, handleClose, onCloseProp],
+    [allItems, focusedIndex, showRecent, isExpanded, handleClose, onCloseProp],
   );
 
   // ----- Form submit: 자동완성 선택 vs 통합검색 페이지 분기 -----
@@ -702,40 +713,51 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           전체삭제
         </button>
       </div>
-      <div role="listbox" id={listboxId} aria-label="최근 검색">
-        {recentSearches.map((r, i) => {
-          const itemId = `recent-${i}`;
-          const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
-          return (
-            <div
-              key={`recent-${r.query}`}
-              id={optionId(itemId)}
-              className={`${s.resultItem} ${s.resultItemCompact} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`}
-              role="option"
-              aria-selected={focusedIndex === currentFlatIndex}
-              onClick={() => navigateToSearch(r.query)}
-            >
-              <span className={s.recentIcon} aria-hidden="true">
-                <Clock size={14} />
-              </span>
-              <div className={s.resultItemContent}>
-                <div className={s.resultItemTitle}>{r.query}</div>
-              </div>
-              {r.date && (
-                <span className={s.recentDate}>{r.date}</span>
-              )}
-              <button
-                type="button"
-                className={s.removeRecent}
-                onClick={(e) => handleRemoveRecent(e, r.query)}
-                aria-label={`"${r.query}" 최근 검색 삭제`}
-                tabIndex={-1}
+      {/* 옵션과 삭제 버튼은 형제 — 버튼은 option 안(대화형 중첩)에도 listbox 안(option 외 자식)에도 둘 수 없다
+          (10/3 QA axe nested-interactive, APG combobox). 두 열이 같은 행 트랙(subgrid)을 나눠 한 줄로 겹친다. */}
+      <div className={s.optionRows} style={{ "--option-rows": recentSearches.length } as React.CSSProperties}>
+        <div role="listbox" id={listboxId} aria-label="최근 검색" className={s.optionList}>
+          {recentSearches.map((r, i) => {
+            const itemId = `recent-${i}`;
+            const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
+            return (
+              <div
+                key={`recent-${r.query}`}
+                id={optionId(itemId)}
+                className={`${s.resultItem} ${s.resultItemCompact} ${focusedIndex === currentFlatIndex ? s.resultItemFocused : ""}`}
+                role="option"
+                aria-selected={focusedIndex === currentFlatIndex}
+                onClick={() => navigateToSearch(r.query)}
               >
-                <X size={14} />
-              </button>
-            </div>
-          );
-        })}
+                <span className={s.recentIcon} aria-hidden="true">
+                  <Clock size={14} />
+                </span>
+                <div className={s.resultItemContent}>
+                  <div className={s.resultItemTitle}>{r.query}</div>
+                </div>
+                {r.date && (
+                  <span className={s.recentDate}>{r.date}</span>
+                )}
+                {/* 삭제 버튼 자리(위에 겹쳐 놓인다) — 행 높이·날짜 위치가 예전과 같게 */}
+                <span className={s.removeRecentSlot} aria-hidden="true" />
+              </div>
+            );
+          })}
+        </div>
+        <div className={`${s.optionActions} ${s.recentActions}`}>
+          {recentSearches.map((r) => (
+            <button
+              key={`remove-${r.query}`}
+              type="button"
+              className={s.removeRecent}
+              onClick={(e) => handleRemoveRecent(e, r.query)}
+              aria-label={`"${r.query}" 최근 검색 삭제`}
+              tabIndex={-1}
+            >
+              <X size={14} aria-hidden="true" />
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   ) : null;
@@ -980,39 +1002,50 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
             </>
           )}
 
-          {/* 자동완성 텍스트 리스트 (네이버 스타일) */}
+          {/* 자동완성 텍스트 리스트 (네이버 스타일) — 채우기(↖) 버튼은 option 밖 형제 열(최근 검색과 같은 구조) */}
           {hasSuggestions && (
-            <div className={s.dropdownSection} role="listbox" id={listboxId} aria-label="검색어 제안">
-              {suggestions.map((sq, i) => {
-                const itemId = `suggestion-${i}`;
-                const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
-                return (
-                  <div
-                    key={itemId}
-                    id={optionId(itemId)}
-                    className={`${s.suggestRow} ${focusedIndex === currentFlatIndex ? s.suggestRowFocused : ""}`}
-                    role="option"
-                    aria-selected={focusedIndex === currentFlatIndex}
-                    onClick={() => navigateToSearch(sq)}
-                  >
-                    <span className={s.suggestIcon} aria-hidden="true">
-                      <Search size={14} />
-                    </span>
-                    <span className={s.suggestText}>
-                      {highlight(sq, query)}
-                    </span>
-                    <button
-                      type="button"
-                      className={s.suggestFill}
-                      onClick={(e) => fillInputWithSuggestion(e, sq)}
-                      aria-label={`"${sq}" 입력창에 채우기`}
-                      tabIndex={-1}
+            <div
+              className={`${s.dropdownSection} ${s.optionRows}`}
+              style={{ "--option-rows": suggestions.length } as React.CSSProperties}
+            >
+              <div role="listbox" id={listboxId} aria-label="검색어 제안" className={s.optionList}>
+                {suggestions.map((sq, i) => {
+                  const itemId = `suggestion-${i}`;
+                  const currentFlatIndex = flatIndexMap.get(itemId) ?? -1;
+                  return (
+                    <div
+                      key={itemId}
+                      id={optionId(itemId)}
+                      className={`${s.suggestRow} ${focusedIndex === currentFlatIndex ? s.suggestRowFocused : ""}`}
+                      role="option"
+                      aria-selected={focusedIndex === currentFlatIndex}
+                      onClick={() => navigateToSearch(sq)}
                     >
-                      <ArrowUpLeft size={16} aria-hidden="true" />
-                    </button>
-                  </div>
-                );
-              })}
+                      <span className={s.suggestIcon} aria-hidden="true">
+                        <Search size={14} />
+                      </span>
+                      <span className={s.suggestText}>
+                        {highlight(sq, query)}
+                      </span>
+                      <span className={s.suggestFillSlot} aria-hidden="true" />
+                    </div>
+                  );
+                })}
+              </div>
+              <div className={`${s.optionActions} ${s.suggestActions}`}>
+                {suggestions.map((sq, i) => (
+                  <button
+                    key={`fill-${i}`}
+                    type="button"
+                    className={s.suggestFill}
+                    onClick={(e) => fillInputWithSuggestion(e, sq)}
+                    aria-label={`"${sq}" 입력창에 채우기`}
+                    tabIndex={-1}
+                  >
+                    <ArrowUpLeft size={16} aria-hidden="true" />
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
