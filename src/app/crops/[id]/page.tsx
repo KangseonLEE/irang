@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -131,11 +132,12 @@ export async function generateMetadata({
     title: `${data.name} 재배 — 소득·난이도·재배환경 | ${regions}`,
     description: `${data.name} 재배 소득, 난이도, 기후·토양 조건을 확인하세요. 주요 산지: ${data.detail.majorRegions.join(", ")}. 정착 작물 선택에 필요한 정보를 비교해 드려요.`,
     alternates: { canonical: `/crops/${id}` },
-    openGraph: {
+    ...shareMetadata({
       title: `${data.name} 재배 정보 | 이랑`,
       description: `${data.name} 소득·난이도·재배환경을 확인하세요.`,
-      images: [{ url: `/crops/${id}/opengraph-image`, width: 1200, height: 630 }],
-    },
+      path: `/crops/${id}`,
+      image: { url: `/crops/${id}/opengraph-image`, width: 1200, height: 630, alt: `${data.name} 재배 정보` },
+    }),
   };
 }
 

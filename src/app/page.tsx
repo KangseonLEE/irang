@@ -19,7 +19,8 @@ import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
 import { HeroSearchHub, type HeroStat, type HeroDeadline } from "@/components/landing/hero-search-hub";
 import { HeroSearchDock } from "@/components/landing/hero-search-dock";
-import { isStayEvent, meaningfulCost } from "@/components/events/event-fields";
+import { isStayEvent } from "@/components/events/event-fields";
+import { displayAmount } from "@/lib/programs/display";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { RegionPicker } from "@/components/region/region-picker";
@@ -102,7 +103,7 @@ function getProgramsData(programs: readonly SupportProgram[]) {
   const closingPrograms: HeroDeadline[] = announced
     .filter((p) => p.programStatus === "모집중" && p.applicationEnd !== ALWAYS_OPEN)
     // 10/3 재검증: DB 병합 뒤 수집 행은 금액이 "상세 공고 참조"라 강조 줄이 빈 정보였다 — 채움값은 숨긴다
-    .map((p) => ({ id: p.id, title: p.title, amount: meaningfulCost(p.supportAmount) ?? undefined, daysLeft: daysUntilDeadline(p.applicationEnd) }))
+    .map((p) => ({ id: p.id, title: p.title, amount: displayAmount(p.id, p.supportAmount) ?? undefined, daysLeft: daysUntilDeadline(p.applicationEnd) }))
     .filter((p) => Number.isFinite(p.daysLeft) && p.daysLeft >= 0)
     .sort((a, b) => a.daysLeft - b.daysLeft)
     .slice(0, 3);

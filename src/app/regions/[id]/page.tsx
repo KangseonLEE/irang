@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -72,11 +73,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `${province.shortName} 귀농 — 지원사업·정착금·기후·작물 정보`,
     description: `${province.shortName} 정착 준비에 필요한 청년·40대·50대 맞춤 지원사업, 정착금, 기후 환경, 추천 작물을 한눈에 확인하세요.`,
     alternates: { canonical: `/regions/${id}` },
-    openGraph: {
+    ...shareMetadata({
       title: `${province.shortName} 농촌 정착 정보 | 이랑`,
       description: `${province.shortName} 농촌 정착 지원사업·기후·작물 정보를 한눈에 확인하세요.`,
-      images: [{ url: `/regions/${id}/opengraph-image`, width: 1200, height: 630 }],
-    },
+      path: `/regions/${id}`,
+      image: { url: `/regions/${id}/opengraph-image`, width: 1200, height: 630, alt: `${province.shortName} 농촌 정착 정보` },
+    }),
   };
 }
 

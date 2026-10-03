@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import { BookOpen, GitCompareArrows } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
@@ -17,11 +18,12 @@ export const metadata: Metadata = {
     "귀농귀촌 지원사업, 청년창업농, 농지은행, 귀산촌 자금, 스마트팜까지. 5대 핵심 정부사업의 자격 요건, 신청 절차, 필요 서류를 한눈에 확인하세요.",
   keywords: ["농촌 정착 지원사업 신청", "청년창업농", "농지은행", "귀농 정부 지원", "농촌 정착 지원금 신청"],
   alternates: { canonical: "/programs/roadmap" },
-  openGraph: {
+  // og:image·사이트명이 빠지고 twitter 제목이 사이트 기본값이던 것(10/3 QA) — 공용 헬퍼로
+  ...shareMetadata({
     title: "농촌 정착 정부사업 진입 가이드 | 이랑",
-    description:
-      "5대 핵심 정부사업의 자격 요건, 신청 절차, 필요 서류를 한눈에 확인하세요.",
-  },
+    description: "5대 핵심 정부사업의 자격 요건, 신청 절차, 필요 서류를 한눈에 확인하세요.",
+    path: "/programs/roadmap",
+  }),
 };
 
 /** 봇 트래픽 절감은 next.config.ts headers의 s-maxage로 처리.

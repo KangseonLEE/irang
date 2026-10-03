@@ -5,7 +5,8 @@ import { formatAgeRange } from "@/lib/format";
 import type { SupportProgram } from "@/lib/data/programs";
 import type { FarmEvent } from "@/lib/data/events";
 import type { EducationCourse } from "@/lib/data/education";
-import { durationLabel as spanLabel, isStayEvent, meaningfulCost, recruitLabel } from "@/components/events/event-fields";
+import { durationLabel as spanLabel, isStayEvent, recruitLabel } from "@/components/events/event-fields";
+import { displayAmount } from "@/lib/programs/display";
 import { DiscoverTabs, type DiscoverCard, type DiscoverTab } from "./discover-tabs";
 import s from "./discover-section.module.css";
 
@@ -135,7 +136,7 @@ function toProgramCard(p: ActiveProgram, ongoing: boolean): DiscoverCard {
     region: regionText(p.region, p.sigungu),
     title: p.title,
     // 수집 행의 "상세 공고 참조" 같은 채움값은 강조 줄로 쓰지 않는다(10/3 재검증)
-    line1: meaningfulCost(p.supportAmount) ?? undefined,
+    line1: displayAmount(p.id, p.supportAmount) ?? undefined,
     line2: [`신청 ${programPeriod(p.applicationStart, p.applicationEnd)}`, formatAgeRange(p.eligibilityAgeMin, p.eligibilityAgeMax)]
       .filter(Boolean)
       .join(" · "),

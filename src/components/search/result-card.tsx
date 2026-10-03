@@ -15,6 +15,7 @@ import { interviews } from "@/lib/data/landing";
 import { glossaryMap, CATEGORY_LABELS } from "@/lib/data/glossary";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { programStatusLabel } from "@/lib/program-status";
+import { displayText } from "@/lib/programs/display";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 
@@ -333,6 +334,8 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
 
   // supportAmount 텍스트가 너무 길면 1줄 truncate — CSS에서 line-clamp 처리.
   const amount = prog.supportAmount?.trim();
+  // 요약(검색 색인 subtitle)이 "…에서 수집했어요." 같은 출처 문장뿐이면 줄째 숨긴다 (10/3)
+  const summary = displayText(item.id, item.subtitle);
 
   return wrapCard(
     item,
@@ -340,7 +343,7 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
     <>
       <span className={s.iconBox} aria-hidden="true">{item.icon}</span>
       {richTitle(item, prog.title, query, highlightCls)}
-      <span className={s.subtitle}>{highlightMatch(item.subtitle, query, highlightCls)}</span>
+      {summary && <span className={s.subtitle}>{highlightMatch(summary, query, highlightCls)}</span>}
       {amount && (
         <span className={s.supportAmount}>{highlightMatch(amount, query, highlightCls)}</span>
       )}

@@ -3,6 +3,7 @@ import { MapPin, Calendar } from "lucide-react";
 import type { SupportProgram } from "@/lib/data/programs";
 import { formatApplicationPeriod } from "@/lib/format";
 import { daysUntilDeadline, ALWAYS_OPEN, isNewProgram, programStatusLabel } from "@/lib/program-status";
+import { displayAmount, displayText } from "@/lib/programs/display";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { DeadlineBadge } from "@/components/ui/deadline-badge";
@@ -32,6 +33,10 @@ export function ProgramCard({ program, today }: { program: SupportProgram; today
   const statusLabel = programStatusLabel(program);
   const typeLabel =
     SUPPORT_TYPE_LABELS[program.supportType] ?? program.supportType;
+  // 수집 행의 "…에서 수집했어요." 같은 출처 문장뿐인 요약은 줄째 숨긴다 (10/3)
+  const summary = displayText(program.id, program.summary);
+  // 수집 행 지원금액은 원문 칸이 비어 "상세 공고 참조"가 채워진다 — 금액처럼 크게 보이지 않게 줄째 숨긴다(랜딩과 같은 규칙, 10/3)
+  const amount = displayAmount(program.id, program.supportAmount);
 
   // 마감 임박 여부 — 카드 border-color 미세 강조용 (D-7 이내, 4면 동일)
   const days =
@@ -65,11 +70,12 @@ export function ProgramCard({ program, today }: { program: SupportProgram; today
           </div>
         </div>
 
-        {/* 제목 */}
-        <h3 className={s.title}>{program.title}</h3>
+        {/* 제목 — /programs 목록은 h1(페이지 제목) 바로 아래라 h2 (10/4 axe heading-order: h1 다음 h3 건너뜀).
+            .title 이 margin·글자 크기·굵기를 모두 정해 두어 h3 → h2 로 바꿔도 화면은 같다 */}
+        <h2 className={s.title}>{program.title}</h2>
 
         {/* 지원금액 — 데이터 핵심 강조 (토스 레퍼런스) */}
-        <p className={s.amountLead}>{program.supportAmount}</p>
+        {amount && <p className={s.amountLead}>{amount}</p>}
 
         {/* 기관 + 지역 */}
         <div className={s.subtitle}>
@@ -92,8 +98,8 @@ export function ProgramCard({ program, today }: { program: SupportProgram; today
           </div>
         </div>
 
-        {/* 요약 */}
-        <p className={s.summary}>{program.summary}</p>
+        {/* 요약 — 정보가 없으면 자리를 남기지 않는다(하단 CTA 는 margin-top:auto 로 바닥에 붙는다) */}
+        {summary && <p className={s.summary}>{summary}</p>}
 
         {/* 하단: 상세보기 CTA */}
         <div className={s.footer}>
