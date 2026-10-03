@@ -235,11 +235,21 @@ async function countBeforeDeployWindow(
  * git 부재·비-repo 환경이면 null — "판정 불가"로 취급하고 🔴 승격하지 않는다.
  */
 function recentRelatedCommits(paths: readonly string[], days: number): string[] | null {
+  const cwd = resolve(__dirname, "../..");
+  // 10/3 #159 오탐: 9/29 운영 브랜치 분리 뒤 main 커밋은 배포가 아니다 — 운영 이력(origin/release)이 있으면 그걸 본다.
+  // 또 CSS 만 바꾼 커밋(8a11662 모서리 일괄 변경)이 적재 경로 "배포 동반"으로 잡혔다 → *.css 는 판정에서 뺀다.
+  let ref = "HEAD";
+  try {
+    execFileSync("git", ["rev-parse", "--verify", "--quiet", "origin/release"], { cwd, stdio: "ignore" });
+    ref = "origin/release";
+  } catch {
+    /* origin/release 없음(로컬 얕은 클론 등) — HEAD 로 판정 */
+  }
   try {
     const out = execFileSync(
       "git",
-      ["log", `--since=${days}.days`, "--format=%h %s", "--", ...paths],
-      { encoding: "utf8", cwd: resolve(__dirname, "../.."), stdio: ["ignore", "pipe", "ignore"] },
+      ["log", ref, `--since=${days}.days`, "--format=%h %s", "--", ...paths, ":(exclude)*.css"],
+      { encoding: "utf8", cwd, stdio: ["ignore", "pipe", "ignore"] },
     );
     return out
       .split("\n")

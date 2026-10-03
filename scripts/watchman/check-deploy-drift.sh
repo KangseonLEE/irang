@@ -9,12 +9,18 @@
 #       CI 가 초록이었다는 것 — E2E 는 라이브(옛 빌드)를 검증하고 통과했다.
 #       "커밋했다"와 "라이브에 있다" 사이에 감시가 하나도 없었다.
 #
-# 판정: origin/main 최신 커밋에 대응하는 배포가 있는가.
+# 판정: 운영 브랜치(release, 9/29 분리) 최신 커밋에 대응하는 Production 배포가 있는가.
 #   - 배포 있음 + success            → ✓
 #   - 배포 있음 + failure/error      → 🔴 (빌드 깨짐)
+#   - 배포 없음 + 마지막 운영 배포 이후 바뀐 게 빌드 생략 경로뿐 → ✓ (vercel.json ignoreCommand 설계 동작)
 #   - 배포 없음 + 커밋 30분 미만     → ✓ (배포 진행 중일 수 있음)
 #   - 배포 없음 + 30분~6시간         → 🟡
 #   - 배포 없음 + 6시간 초과         → 🔴 (웹훅 유실·연동 끊김)
+#
+# 10/3 #159 오탐: 9/29 운영 브랜치를 release 로 분리한 뒤에도 main 을 보고 있었고, main 최신 커밋(3c58c02)은
+# CLAUDE.md 만 바꿔 Vercel 이 빌드를 생략했다 — "기록 없음"이 유실이 아니라 설계였다. 그래서 ① release 를 보고
+# ② 기록이 없으면 마지막 운영 배포와 비교해 빌드 생략 경로만 바뀌었는지 먼저 가른다.
+# main(미리보기)은 운영이 아니라 참고(⚪)로만 남긴다.
 #
 # GitHub deployments API 를 쓰는 이유: 웹훅이 유실되면 **기록 자체가 안 생긴다** —
 # 바로 그 부재가 우리가 잡으려는 신호다. Vercel 토큰 없이도 돈다.
@@ -59,22 +65,63 @@ if [ -z "${GH_TOKEN:-}" ] && ! gh auth status &> /dev/null; then
   exit 0
 fi
 
-# origin/main 최신 커밋 — CI 체크아웃은 main tip 이지만, 로컬에서 돌 때를 위해 원격을 직접 본다
-HEAD_SHA=$(gh api "repos/${REPO}/commits/main" --jq '.sha' 2>/dev/null)
-HEAD_DATE=$(gh api "repos/${REPO}/commits/main" --jq '.commit.committer.date' 2>/dev/null)
+# 빌드 생략 경로 — vercel.json ignoreCommand 의 exclude 목록과 같아야 한다(한쪽만 바꾸면 이 판정이 틀어진다).
+is_build_skipped_path() {
+  case "$1" in
+    CLAUDE.md|docs/*|worklog/*|.github/*|scripts/*|*.md) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# BASE...HEAD 사이에 바뀐 파일이 전부 빌드 생략 경로면 0. 비교 실패·300파일 이상(목록 잘림)은 보수적으로 1.
+# HEAD 가 BASE 보다 뒤(behind)거나 갈라졌으면(diverged — 강제 푸시·브랜치 되감기) 라이브와 브랜치가 다른 것이라 1.
+only_build_skipped_changes() {
+  local base="$1" head="$2" status files count f
+  status=$(gh api "repos/${REPO}/compare/${base}...${head}" --jq '.status' 2>/dev/null) || return 1
+  case "$status" in ahead|identical) ;; *) return 1 ;; esac
+  files=$(gh api "repos/${REPO}/compare/${base}...${head}" --jq '.files[].filename' 2>/dev/null) || return 1
+  count=$(printf '%s\n' "$files" | grep -c . || true)
+  if [ "$count" -ge 300 ]; then return 1; fi
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    is_build_skipped_path "$f" || return 1
+  done <<< "$files"
+  return 0
+}
+
+# 해당 환경의 마지막 success 배포 sha (최근 20건 안에서)
+last_success_sha() {
+  local env="$1" id state
+  for id in $(gh api "repos/${REPO}/deployments?environment=${env}&per_page=20" --jq '.[].id' 2>/dev/null); do
+    state=$(gh api "repos/${REPO}/deployments/${id}/statuses" --jq '.[0].state // ""' 2>/dev/null)
+    if [ "$state" = "success" ]; then
+      gh api "repos/${REPO}/deployments/${id}" --jq '.sha' 2>/dev/null
+      return 0
+    fi
+  done
+  return 1
+}
+
+# ISO8601 Z → epoch. GNU(-d)는 Z를 UTC로 읽지만 BSD(-j -f)는 **로컬 시각으로 읽어**
+# KST에선 9시간(540분) 어긋난다 — 등급을 좌우하는 값이라 BSD 경로에 -u를 명시한다.
+to_epoch() {
+  date -u -d "$1" +%s 2>/dev/null \
+    || date -j -u -f "%Y-%m-%dT%H:%M:%SZ" "$1" +%s 2>/dev/null \
+    || echo 0
+}
+
+NOW_EPOCH=$(date -u +%s)
+
+# ── 운영: release ↔ Production ──
+HEAD_SHA=$(gh api "repos/${REPO}/commits/release" --jq '.sha' 2>/dev/null)
+HEAD_DATE=$(gh api "repos/${REPO}/commits/release" --jq '.commit.committer.date' 2>/dev/null)
 if [ -z "$HEAD_SHA" ]; then
-  echo "✗ origin/main 조회 실패 — 판정 불가로 건너뛰어요."
+  echo "✗ origin/release 조회 실패 — 판정 불가로 건너뛰어요."
   echo "대상 0개 | 위험 0 | 경고 0"
   exit 0
 fi
 SHORT="${HEAD_SHA:0:7}"
-
-NOW_EPOCH=$(date -u +%s)
-# ISO8601 Z → epoch. GNU(-d)는 Z를 UTC로 읽지만 BSD(-j -f)는 **로컬 시각으로 읽어**
-# KST에선 9시간(540분) 어긋난다 — 등급을 좌우하는 값이라 BSD 경로에 -u를 명시한다.
-HEAD_EPOCH=$(date -u -d "$HEAD_DATE" +%s 2>/dev/null \
-  || date -j -u -f "%Y-%m-%dT%H:%M:%SZ" "$HEAD_DATE" +%s 2>/dev/null \
-  || echo 0)
+HEAD_EPOCH=$(to_epoch "$HEAD_DATE")
 if [ "$HEAD_EPOCH" -eq 0 ]; then
   echo "✗ 커밋 시각 파싱 실패 — 판정 불가로 건너뛰어요."
   echo "대상 0개 | 위험 0 | 경고 0"
@@ -82,49 +129,73 @@ if [ "$HEAD_EPOCH" -eq 0 ]; then
 fi
 AGE_MIN=$(( (NOW_EPOCH - HEAD_EPOCH) / 60 ))
 
-echo "  origin/main  ${SHORT} (${AGE_MIN}분 전)"
+echo "  origin/release  ${SHORT} (${AGE_MIN}분 전)"
 
-# 해당 커밋의 배포 기록
-DEP_ID=$(gh api "repos/${REPO}/deployments?sha=${HEAD_SHA}" --jq '.[0].id // empty' 2>/dev/null)
+# 해당 커밋의 Production 배포 기록
+DEP_ID=$(gh api "repos/${REPO}/deployments?sha=${HEAD_SHA}&environment=Production" --jq '.[0].id // empty' 2>/dev/null)
 
 if [ -n "$DEP_ID" ]; then
   STATE=$(gh api "repos/${REPO}/deployments/${DEP_ID}/statuses" --jq '.[0].state // "pending"' 2>/dev/null)
-  echo "  배포 기록    있음 (id ${DEP_ID}, 상태 ${STATE})"
+  echo "  배포 기록       있음 (id ${DEP_ID}, 상태 ${STATE})"
   case "$STATE" in
     success)
-      echo "  ✓ 최신 커밋이 배포됨"
+      echo "  ✓ 운영 최신 커밋이 배포됨"
       ;;
     failure|error)
       echo "  ✗ 배포 실패 상태"
-      report "🔴" "§16 배포 불일치" "최신 커밋 ${SHORT} 배포가 ${STATE} — 라이브는 이전 버전"
+      report "🔴" "§16 배포 불일치" "release 최신 커밋 ${SHORT} 운영 배포가 ${STATE} — 라이브는 이전 버전"
       ;;
     *)
       # pending/in_progress 는 오래 머물면 이상
       if [ "$AGE_MIN" -gt "$CRIT_AFTER_MIN" ]; then
-        report "🔴" "§16 배포 불일치" "최신 커밋 ${SHORT} 배포가 ${AGE_MIN}분째 ${STATE} 상태"
+        report "🔴" "§16 배포 불일치" "release 최신 커밋 ${SHORT} 운영 배포가 ${AGE_MIN}분째 ${STATE} 상태"
       elif [ "$AGE_MIN" -gt "$WARN_AFTER_MIN" ]; then
-        report "🟡" "§16 배포 불일치" "최신 커밋 ${SHORT} 배포가 ${AGE_MIN}분째 ${STATE} 상태"
+        report "🟡" "§16 배포 불일치" "release 최신 커밋 ${SHORT} 운영 배포가 ${AGE_MIN}분째 ${STATE} 상태"
       else
         echo "  ✓ 배포 진행 중 (${AGE_MIN}분)"
       fi
       ;;
   esac
 else
-  echo "  배포 기록    없음"
-  if [ "$AGE_MIN" -gt "$CRIT_AFTER_MIN" ]; then
+  echo "  배포 기록       없음"
+  LAST_PROD=$(last_success_sha Production || true)
+  if [ -n "$LAST_PROD" ] && only_build_skipped_changes "$LAST_PROD" "$HEAD_SHA"; then
+    echo "  ✓ 마지막 운영 배포(${LAST_PROD:0:7}) 이후 바뀐 건 빌드 생략 경로(문서·CI·스크립트)뿐 — 설계 동작"
+  elif [ "$AGE_MIN" -gt "$CRIT_AFTER_MIN" ]; then
     echo "  ✗ ${AGE_MIN}분째 배포 기록 없음"
-    report "🔴" "§16 배포 불일치" "최신 커밋 ${SHORT} 이 ${AGE_MIN}분째 배포되지 않음 — Vercel 웹훅 유실 의심(9/16 782e311 13시간 사례). 복구: vercel --prod 수동 배포 후 Git 연동 확인"
+    report "🔴" "§16 배포 불일치" "release 최신 커밋 ${SHORT} 이 ${AGE_MIN}분째 운영 배포되지 않음(마지막 운영 배포 ${LAST_PROD:0:7}) — Vercel 웹훅 유실 의심(9/16 782e311 13시간 사례). 복구: Vercel Production Branch=release 확인 후 vercel --prod 수동 배포"
   elif [ "$AGE_MIN" -gt "$WARN_AFTER_MIN" ]; then
     echo "  ⚠ ${AGE_MIN}분째 배포 기록 없음"
-    report "🟡" "§16 배포 불일치" "최신 커밋 ${SHORT} 이 ${AGE_MIN}분째 배포되지 않음 — 웹훅 지연인지 유실인지 확인 필요"
+    report "🟡" "§16 배포 불일치" "release 최신 커밋 ${SHORT} 이 ${AGE_MIN}분째 운영 배포되지 않음 — 웹훅 지연인지 유실인지 확인 필요"
   else
     echo "  ✓ 아직 배포 대기 시간 안 (${AGE_MIN}분 < ${WARN_AFTER_MIN}분)"
   fi
 fi
 
+# ── 참고: main ↔ Preview (운영 아님, ⚪ 만 — 이슈를 만들지 않는다) ──
+MAIN_SHA=$(gh api "repos/${REPO}/commits/main" --jq '.sha' 2>/dev/null)
+MAIN_DATE=$(gh api "repos/${REPO}/commits/main" --jq '.commit.committer.date' 2>/dev/null)
+if [ -n "$MAIN_SHA" ]; then
+  MAIN_AGE_MIN=$(( (NOW_EPOCH - $(to_epoch "$MAIN_DATE")) / 60 ))
+  MAIN_DEP=$(gh api "repos/${REPO}/deployments?sha=${MAIN_SHA}" --jq '.[0].id // empty' 2>/dev/null)
+  if [ -n "$MAIN_DEP" ]; then
+    echo "  origin/main     ${MAIN_SHA:0:7} — 미리보기 배포 기록 있음"
+  else
+    LAST_PREVIEW=$(last_success_sha Preview || true)
+    if [ -n "$LAST_PREVIEW" ] && only_build_skipped_changes "$LAST_PREVIEW" "$MAIN_SHA"; then
+      echo "  origin/main     ${MAIN_SHA:0:7} — 마지막 미리보기 이후 빌드 생략 경로만 바뀜"
+    elif [ "$MAIN_AGE_MIN" -gt "$CRIT_AFTER_MIN" ]; then
+      echo "  origin/main     ${MAIN_SHA:0:7} — ${MAIN_AGE_MIN}분째 미리보기 배포 기록 없음"
+      report "⚪" "§16 미리보기 배포" "main ${MAIN_SHA:0:7} 이 ${MAIN_AGE_MIN}분째 미리보기 배포 기록 없음(코드 변경 포함) — 운영 무관, Git 연동 점검 참고"
+    else
+      echo "  origin/main     ${MAIN_SHA:0:7} — 미리보기 대기 (${MAIN_AGE_MIN}분)"
+    fi
+  fi
+fi
+
 echo ""
 echo "───────────────────────────────────────────"
-echo "  대상 1개 | 위험 ${CRIT} | 경고 ${WARN}"
+echo "  대상 1개(release) | 위험 ${CRIT} | 경고 ${WARN}"
 echo "───────────────────────────────────────────"
 echo ""
 
@@ -134,6 +205,6 @@ if [ "$CRIT" -gt 0 ]; then
 elif [ "$WARN" -gt 0 ]; then
   echo "▸ 경고 ${WARN}건 발견 — \$WATCHMAN_FINDINGS 참고"
 else
-  echo "▸ 최신 커밋이 라이브에 반영돼 있어요."
+  echo "▸ 운영 브랜치가 라이브에 반영돼 있어요."
 fi
 exit 0

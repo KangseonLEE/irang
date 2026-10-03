@@ -426,10 +426,10 @@ interface AuditJson {
   vulnerabilities?: Record<string, { severity?: string; name?: string }>;
 }
 
-function runAudit(): AuditSummary {
+function runAudit(omitDev = false): AuditSummary {
   let raw = "";
   try {
-    raw = execFileSync("npm", ["audit", "--json"], {
+    raw = execFileSync("npm", omitDev ? ["audit", "--omit=dev", "--json"] : ["audit", "--json"], {
       cwd: REPO_ROOT,
       encoding: "utf8",
       maxBuffer: 64 * 1024 * 1024,
@@ -474,10 +474,14 @@ function runAudit(): AuditSummary {
 }
 
 function checkDependencyAudit(): void {
-  console.log("▸ §6 의존성 보안 — npm audit critical·high 카운트");
+  console.log("▸ §6 의존성 보안 — npm audit critical·high 카운트 (등급은 운영 의존성 기준)");
   console.log("");
 
-  const audit = runAudit();
+  // 10/3 #159: 개발 전용(eslint-config-next → fast-glob → micromatch → braces) high 5건이 🟡 를 냈는데
+  // 패치가 아직 없는 공지(GHSA-vfj7-8cjw-p6xm, braces ≤3.0.3 = 최신)라 매일 울리기만 한다. 운영 번들에 들어가는
+  // 의존성(--omit=dev)으로만 등급을 매기고, 개발 전용은 ⚪ 참고로 남긴다(이슈 미발행).
+  const audit = runAudit(true);
+  const all = runAudit(false);
 
   if (!audit.ok) {
     console.log(`  ⚪ ${audit.reason}`);
@@ -487,7 +491,20 @@ function checkDependencyAudit(): void {
   }
 
   const pkgSuffix = audit.topPackages.length > 0 ? ` (상위: ${audit.topPackages.join("·")})` : "";
-  console.log(`  critical ${audit.critical}건 · high ${audit.high}건${pkgSuffix}`);
+  console.log(`  운영 의존성 critical ${audit.critical}건 · high ${audit.high}건${pkgSuffix}`);
+  if (all.ok) {
+    const devCritical = Math.max(0, all.critical - audit.critical);
+    const devHigh = Math.max(0, all.high - audit.high);
+    console.log(`  개발 전용 critical ${devCritical}건 · high ${devHigh}건 (참고)`);
+    if (devCritical > 0 || devHigh >= AUDIT_HIGH_MIN) {
+      const devPkgs = all.topPackages.filter((p) => !audit.topPackages.includes(p));
+      addFinding(
+        "⚪",
+        "§6 의존성 보안(개발 전용)",
+        `critical ${devCritical}건·high ${devHigh}건${devPkgs.length ? ` (상위: ${devPkgs.join("·")})` : ""} — 운영 번들 무관, 패치 나오면 갱신`,
+      );
+    }
+  }
   console.log("");
 
   const hits: string[] = [];
