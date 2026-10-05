@@ -106,6 +106,13 @@ const FALLBACK_REASONS = [
 const FALLBACK_TABLE = "api_fallback_log";
 /** 🔴 승격 판정 창 — "최근 7일 0건 + 최근 7일 내 관련 배포" (§11-3) */
 const DEPLOY_WINDOW_DAYS = 7;
+/**
+ * 🔴 승격에 필요한 "배포 직전 7일" 최소 건수 (10/5 #160 후속).
+ * 주 1건 수준이면 다음 7일이 0건일 확률이 e^-1 ≈ 37% 라 "배포 뒤 끊김"의 근거가 못 된다.
+ * 3건이면 e^-3 ≈ 5% — 이때부터 회귀를 의심한다. 10/5 quick_feedback(30일 1건, 9/25 요청 1건)이
+ * a11y 배포(0f9705be, 피드백 버튼 포커스 비켜남) 뒤 🔴로 잡혔지만 버튼·전송 경로는 1280·1440·375 실측 정상이었다.
+ */
+const MIN_BEFORE_DEPLOY_FOR_REGRESSION = 3;
 
 // ── 발견 사항 수집 ─────────────────────────────
 
@@ -317,7 +324,9 @@ async function checkWriteActivity(sb: SupabaseClient): Promise<void> {
           ? "배포 직전 창 조회 실패"
           : beforeDeploy === 0
             ? "배포 직전 7일도 0건 → 기존 정체(회귀 아님)"
-            : `배포 직전 7일 ${beforeDeploy}건 → 배포 후 끊김 의심`;
+            : beforeDeploy < MIN_BEFORE_DEPLOY_FOR_REGRESSION
+              ? `배포 직전 7일 ${beforeDeploy}건 → 표본 부족(기준 ${MIN_BEFORE_DEPLOY_FOR_REGRESSION}건), 회귀 판정 안 함`
+              : `배포 직전 7일 ${beforeDeploy}건 → 배포 후 끊김 의심`;
       console.log(`      ↳ 최근 ${DEPLOY_WINDOW_DAYS}일 관련 배포 ${deploys.length}건: ${deploys.slice(0, 3).join(" / ")}`);
       console.log(`      ↳ ${beforeNote}`);
     }
@@ -338,15 +347,16 @@ async function checkWriteActivity(sb: SupabaseClient): Promise<void> {
     addFinding("🟡", "§11 write 활성도", errored.map((o) => `${o.table} ${o.error}`).join(" · ") + alivePart);
   }
 
-  // §11-3 🔴: 최근 7일 0건 + 최근 7일 내 관련 경로 배포 동반 + **배포 직전 7일엔 적재가 있었음** → 회귀 가능성
+  // §11-3 🔴: 최근 7일 0건 + 최근 7일 내 관련 경로 배포 동반 + **배포 직전 7일엔 적재가 충분했음** → 회귀 가능성
   //   (9/2 보정) 배포 직전에도 0건이면 저트래픽 정체이므로 zeroGrade 로 내려보낸다 — #119·#120 오탐 차단
+  //   (10/5 보정) 직전 1~2건은 우연의 0건과 구분이 안 된다 — MIN_BEFORE_DEPLOY_FOR_REGRESSION 이상일 때만
   const regressed = outcomes.filter(
     (o) =>
       o.effectiveShort === 0 &&
       o.deploys !== null &&
       o.deploys.length > 0 &&
       o.beforeDeploy !== null &&
-      o.beforeDeploy > 0,
+      o.beforeDeploy >= MIN_BEFORE_DEPLOY_FOR_REGRESSION,
   );
   if (regressed.length > 0) {
     const detail = regressed
@@ -373,8 +383,13 @@ async function checkWriteActivity(sb: SupabaseClient): Promise<void> {
     if (group.length === 0) continue;
     const detail = group
       .map((o) => {
+        // 배포는 있었지만 직전 표본이 부족해 🔴에서 내려온 경우를 "배포 없음"으로 적지 않는다
         const deployNote =
-          o.deploys === null ? "배포 동반 판정 불가(git 없음)" : `최근 ${DEPLOY_WINDOW_DAYS}일 관련 배포 없음`;
+          o.deploys === null
+            ? "배포 동반 판정 불가(git 없음)"
+            : o.deploys.length === 0
+              ? `최근 ${DEPLOY_WINDOW_DAYS}일 관련 배포 없음`
+              : `최근 ${DEPLOY_WINDOW_DAYS}일 관련 배포 ${o.deploys.length}건 있으나 배포 직전 7일 ${o.beforeDeploy ?? "?"}건 — 회귀 판정 기준(${MIN_BEFORE_DEPLOY_FOR_REGRESSION}건) 미달`;
         return `${o.table} 최근 ${o.windowDays}일 0건(${deployNote})`;
       })
       .join(" · ");
