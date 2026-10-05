@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import cs from "@/components/charts/chart-styles.module.css";
+import { axisTickLabel, niceAxis } from "@/components/charts/nice-axis";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import s from "./lane-trend-chart.module.css";
 
@@ -104,11 +105,11 @@ export function LaneTrendChart({ points, seriesLabel, unit, decimals, target }: 
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const lastIndex = points.length - 1;
   const values = points.map((p) => p.value).concat(target ? [target.value] : []);
-  const max = Math.max(...values);
-  /* 0 기준선 — 1.15~1.29만 명처럼 좁은 폭을 확대하면 '유지'가 '급등락'으로 보인다(정직한 축) */
-  const domain: [number, number] = [0, max * 1.18];
-  const tick = (v: number) =>
-    v >= 1000 ? `${Math.round(v / 100) / 10}천` : max < 10 ? v.toFixed(1) : `${Math.round(v)}`;
+  /* 0 기준선 — 1.15~1.29만 명처럼 좁은 폭을 확대하면 '유지'가 '급등락'으로 보인다(정직한 축).
+     맨 위는 최댓값을 덮는 1·2·5 단위 눈금 — 예전 `최댓값 × 1.18` 은 "17.1천" 같은 눈금을 만들었다(10/3 QA) */
+  const axis = niceAxis(values, { zero: true });
+  const step = axis.ticks.length > 1 ? axis.ticks[1] - axis.ticks[0] : 1;
+  const tick = (v: number) => axisTickLabel(v, step);
 
   const first = points[0];
   const latest = points[lastIndex];
@@ -134,12 +135,12 @@ export function LaneTrendChart({ points, seriesLabel, unit, decimals, target }: 
               minTickGap={14}
             />
             <YAxis
-              domain={domain}
+              domain={axis.domain}
+              ticks={axis.ticks}
               tick={{ fontSize: 11, fill: COLOR_MUTED }}
               tickLine={false}
               axisLine={false}
               width={44}
-              tickCount={4}
               tickFormatter={tick}
             />
             {target && (

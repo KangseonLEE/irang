@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { JOURNEY_GATES, START_LANES } from "@/lib/data/journey-lanes";
-import { resolveJourneyLanes, resolveJourneyGates } from "@/lib/data/journey-lanes-images";
+import { JOURNEY_GATES, JOURNEY_LANES, START_LANES } from "@/lib/data/journey-lanes";
 import { buildLaneStats, parseCostRangeMan } from "@/lib/data/journey-lanes-stats";
 import { normalizeSearchParams, LIST_PAGE_NORMALIZE_OPTIONS } from "@/lib/search-params/normalize";
 
@@ -62,17 +61,21 @@ describe("정착 유형 레인 데이터 (9/29 S·S2 → 10/3 데이터만)", ()
     expect(existsSync(join(process.cwd(), "src", "app", "start", "[lane]", "page.tsx"))).toBe(true);
   });
 
-  it("포스터는 경로 유무로만 판정하고 있으면 public 에 실존한다 — 캐릭터 일러스트는 정리됨 (10/3)", () => {
-    for (const lane of [...resolveJourneyGates(), ...resolveJourneyLanes()]) {
-      // 런타임 fs 판정은 없앴다(서버 번들이 public/ 전체를 추적하던 원인) — 경로 유무만 본다
-      expect(lane.hasImage, lane.id).toBe(Boolean(lane.image));
-      if (lane.hasImage) {
-        expect(existsSync(join(process.cwd(), "public", lane.image)), `${lane.id} 포스터 실존`).toBe(true);
-      }
-      expect(lane.hasChar, lane.id).toBe(false);
+  it("포스터는 목적 레인 5장에만 있고 public 에 실존한다 — undecided·게이트는 이미지 필드가 없다 (10/3)", () => {
+    // /start 비교 썸네일·/start/<id> 허브 띠가 그리는 포스터 — 타입으로 필수, 실존은 여기와 CI H-2 가 본다
+    // (런타임 fs 판정은 서버 번들이 public/ 전체를 추적하던 원인이라 없앴다)
+    for (const lane of START_LANES) {
+      expect(lane.image, lane.id).toMatch(/^\/landing\/lanes\/[a-z-]+\.webp$/);
+      expect(lane.alt.length, `${lane.id} 포스터 설명`).toBeGreaterThan(0);
+      expect(existsSync(join(process.cwd(), "public", lane.image)), `${lane.id} 포스터 실존`).toBe(true);
     }
-    // 목적형 5장은 전부 포스터가 있다
-    expect(resolveJourneyLanes().every((l) => l.hasImage)).toBe(true);
+    // 포스터를 그리는 화면이 없는 카드에는 이미지 경로를 두지 않는다 — 그리지 않는 파일이 public 에 남지 않게
+    const purposeIds = new Set(START_LANES.map((l) => l.id));
+    const others = [...JOURNEY_LANES, ...JOURNEY_GATES].filter((l) => !purposeIds.has(l.id));
+    expect(others.map((l) => l.id).sort()).toEqual(["decided", "undecided", "undecided"]);
+    for (const lane of others) {
+      expect(Object.keys(lane).filter((k) => /image|alt$/i.test(k)), lane.id).toEqual([]);
+    }
   });
 
   it("출처 문구는 타일 폭 안에서 읽히도록 약칭으로 줄인다", () => {

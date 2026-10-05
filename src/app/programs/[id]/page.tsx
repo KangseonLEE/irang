@@ -33,6 +33,8 @@ import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { EligibilityCheck } from "@/components/programs/eligibility-check";
 import { ApplicationTimeline } from "@/components/programs/application-timeline";
 import { sourceBlockLabel } from "@/lib/source-label";
+import { displayText } from "@/lib/programs/display";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
 import st from "@/components/ui/sidebar-tabs.module.css";
 import {
@@ -51,11 +53,16 @@ export async function generateMetadata({
   if (!program) notFound();
 
   const regionLabel = program.region ?? "";
+  // 수집 행의 출처 문장("…에서 수집했어요")은 설명에 싣지 않는다 (10/3) — 큐레이션 문장은 그대로(10/4)
+  const summary = displayText(program.id, program.summary);
+  const description = `${regionLabel} ${program.title}의 자격 조건, 지원 금액, 신청 방법을 확인하세요.${summary ? ` ${summary.slice(0, 100)}` : ""}`;
   return {
     title: `${program.title} — ${regionLabel} 농촌 정착 지원사업`,
-    description: `${regionLabel} ${program.title}의 자격 조건, 지원 금액, 신청 방법을 확인하세요. ${program.summary?.slice(0, 100) ?? ""}`,
+    description,
     keywords: [`${regionLabel} 농촌 정착 지원사업`, "농촌 정착 지원금", "농촌 정착금", program.title],
     alternates: { canonical: `/programs/${id}` },
+    // 공유 카드 — 없으면 레이아웃의 사이트 기본 제목이 나갔다 (10/4 QA)
+    ...shareMetadata({ title: `${program.title} | 이랑`, description, path: `/programs/${id}` }),
   };
 }
 
@@ -83,6 +90,11 @@ export default async function ProgramDetailPage({
 
   const guide = getProgramGuide(id);
   const statusLabel = programStatusLabel(program);
+  // 수집 행 요약·설명이 출처 문장뿐이면 숨긴다 — 카드(program-card)와 같은 규칙 (10/3).
+  // 수집기가 요약과 설명을 같은 원문 발췌로 채우므로 같으면 "사업 설명"을 한 번 더 보여 주지 않는다.
+  const summary = displayText(program.id, program.summary);
+  const descriptionText = displayText(program.id, program.description);
+  const shareText = summary ?? `${program.region} ${program.title}`;
 
   // 관련 작물은 클라이언트 카드(페이지네이션)가 받으므로 여기서 직렬화 가능한 값으로 펼친다
   const relatedCrops: RelatedCrop[] = program.relatedCrops.map((name) => {
@@ -120,7 +132,7 @@ export default async function ProgramDetailPage({
           "@context": "https://schema.org",
           "@type": "GovernmentService",
           name: program.title,
-          description: program.summary,
+          description: shareText,
           serviceType: program.supportType,
           areaServed: { "@type": "AdministrativeArea", name: program.region },
           provider: {
@@ -171,12 +183,12 @@ export default async function ProgramDetailPage({
           <div className={s.titleActions}>
             <KakaoShareButton
               title={`${program.title} | 이랑`}
-              description={`${program.summary.slice(0, 100)}`}
+              description={shareText.slice(0, 100)}
               contentType="program"
             />
             <ShareButton
               title={`${program.title} | 이랑`}
-              text={`${program.title}: ${program.summary.slice(0, 80)}`}
+              text={`${program.title}: ${shareText.slice(0, 80)}`}
               contentType="program"
               variant="ghost"
               size="sm"
@@ -185,7 +197,7 @@ export default async function ProgramDetailPage({
           </div>
         </div>
         {/* 문장 단위 줄 나눔 (9/28 회장) — 목록·랜딩 카드는 2줄 clamp 라 제외 */}
-        <p className={s.pageSummary}><SentenceText text={program.summary} glossary /></p>
+        {summary && <p className={s.pageSummary}><SentenceText text={summary} glossary /></p>}
         {/* 원문 링크는 사이드 "원문 확인" 카드(사이드바 최상단) 한 곳만 — 제목 아래 버튼과 이중 노출이라
             회장 9/28 "위젯 것만 남기자". 셀프 체크 결과 모달의 링크는 별도 맥락이라 유지 */}
       </div>
@@ -345,11 +357,11 @@ export default async function ProgramDetailPage({
           </section>
 
           {/* 상세 설명 (DB에 description이 있는 경우에만 표시) */}
-          {program.description && (
+          {descriptionText && descriptionText !== summary && (
             <section className={s.section}>
               <h2 className={s.sectionTitle}>사업 설명</h2>
               <p className={s.descriptionText}>
-                <SentenceText text={program.description} glossary />
+                <SentenceText text={descriptionText} glossary />
               </p>
             </section>
           )}

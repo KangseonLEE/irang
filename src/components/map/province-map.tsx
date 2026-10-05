@@ -183,11 +183,14 @@ export function ProvinceMap({
 
   return (
     <div className={s.mapContainer} ref={containerRef}>
+      {/* role="group" (10/4 axe nested-interactive) — 예전 role="img" 는 자식을 보조기기에서 지우는 역할이라
+          그 안의 시군구 버튼(path role=button, Tab 으로 도달)이 화면 낭독기에 이름 없이 남았다.
+          클릭·키보드·툴팁 동작은 그대로, 보조기기에는 "지도 묶음 안의 시군구 버튼"으로 읽힌다 */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox={computedViewBox}
         className={s.svg}
-        role="img"
+        role="group"
         aria-label="시군구 지도 — 인구밀도 기준 색상"
       >
         {/* 시군구 paths — 본토만. 도서는 별도 칩으로 표시 */}
@@ -221,7 +224,7 @@ export function ProvinceMap({
           );
         })}
 
-        {/* 라벨 — 본토만 */}
+        {/* 라벨 — 본토만. 보조기기에는 버튼 이름("OO시 상세 보기")이 같은 내용을 전하므로 글자는 숨긴다 */}
         {mainSigungus.map((sg) => {
           const isActive = hoveredId === sg.sigunguId;
           const sigunguData = sigunguMap.get(sg.sigunguId);
@@ -232,6 +235,7 @@ export function ProvinceMap({
               x={sg.labelX}
               y={sg.labelY}
               className={`${s.label} ${isDense ? s.labelDense : ""} ${isActive ? s.labelActive : ""}`}
+              aria-hidden="true"
             >
               {label}
             </text>

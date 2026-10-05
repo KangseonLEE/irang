@@ -85,8 +85,11 @@
   background: #f3f4f6;
 }
 
+/* 월 숫자 대비 (10/4 axe color-contrast, 13px bold → 4.5:1 필요)
+   - 휴지기: muted-foreground 는 #f3f4f6 위 4.39 → 같은 회색을 20% 어둡게 6.18
+   - 보통: 흰 글자는 primary 50% 칸 위 2.25 → 같은 초록 계열의 진한 글자(brand-700) 5.18 */
 .cellNone .cellMonth {
-  color: var(--muted-foreground, #6b7280);
+  color: color-mix(in srgb, var(--muted-foreground, #6b7280) 80%, #000);
 }
 
 .cellLow {
@@ -102,7 +105,7 @@
 }
 
 .cellMedium .cellMonth {
-  color: #fff;
+  color: var(--brand-700, #0f4035);
 }
 
 .cellHigh {

@@ -53,6 +53,12 @@ export function Header() {
   const [navHidden, setNavHidden] = useState(false);
   /** 클릭·키보드로 명시적으로 연 그룹 (hover 열림은 CSS가 담당) */
   const [openGroupId, setOpenGroupId] = useState<string | null>(null);
+  /**
+   * 마우스가 올라가 있는 그룹 — 펼치는 건 CSS `:hover` 지만 aria-expanded 가 화면과 같아야 한다(10/3 QA:
+   * hover 로 열린 메뉴가 false 로 남았다). 마우스 포인터만 센다 — 터치 탭은 클릭(openGroupId)이 맡고,
+   * CSS hover 열림도 `(hover: hover)` 에서만 일어난다.
+   */
+  const [hoverGroupId, setHoverGroupId] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
   /** 그룹 버튼 ↔ 드롭다운 id 접두(aria-controls·Esc 복귀용) */
   const navIdBase = useId();
@@ -221,20 +227,26 @@ export function Header() {
     });
   }, []);
 
+  /** 지금 펼쳐진 그룹(클릭으로 연 것 우선, 없으면 마우스가 올라간 것). navHidden 이면 CSS 가 둘 다 숨긴다 */
+  const expandedGroupId = navHidden ? null : (openGroupId ?? hoverGroupId);
+
   // Esc — 열린 드롭다운 닫기. 포커스가 메뉴 안에 있었으면 그 그룹 버튼으로 되돌린다(APG disclosure).
   // 예전엔 포커스를 body 로 날려 키보드 사용자가 메뉴 위치를 잃었다(10/2 QA).
+  // hover 로 열린 메뉴도 닫는다(WCAG 1.4.13 — 포인터를 옮기지 않고 닫을 수 있어야) — 마우스가 nav 를 떠나거나
+  // 다른 그룹에 들어갈 때까지 hover 열림을 멈춘다(navHidden).
   useEffect(() => {
-    if (!openGroupId) return;
+    if (!expandedGroupId) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       const focusInNav = navRef.current?.contains(document.activeElement) ?? false;
-      const trigger = document.getElementById(`${navIdBase}-${openGroupId}-trigger`);
+      const trigger = document.getElementById(`${navIdBase}-${expandedGroupId}-trigger`);
       setOpenGroupId(null);
+      setNavHidden(true);
       if (focusInNav) trigger?.focus();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [openGroupId, navIdBase]);
+  }, [expandedGroupId, navIdBase]);
 
   // 바깥 클릭 — 열린 드롭다운 닫기
   useEffect(() => {
@@ -278,15 +290,32 @@ export function Header() {
             {NAV_GROUPS.map((group) => {
               const isGroupActive = activeGroupId === group.id;
               const isOpen = openGroupId === group.id;
+              /* 화면에 펼쳐져 있는가 — 클릭으로 열었거나(.dropdownOpen) 마우스가 올라가 있다(CSS :hover).
+                 둘 다 navHidden 이면 CSS 가 숨기므로 같은 조건으로 판정한다 */
+              const isExpanded = !navHidden && (isOpen || hoverGroupId === group.id);
               return (
-                <div key={group.id} className={s.navGroup}>
+                <div
+                  key={group.id}
+                  className={s.navGroup}
+                  onPointerEnter={(e) => {
+                    if (e.pointerType !== "mouse") return;
+                    setHoverGroupId(group.id);
+                    // 다른 그룹에 들어오면 hover 열림을 다시 허용하고, 클릭으로 열려 있던 다른 그룹은 닫는다(두 메뉴 겹침 방지)
+                    setNavHidden(false);
+                    setOpenGroupId((prev) => (prev !== null && prev !== group.id ? null : prev));
+                  }}
+                  onPointerLeave={(e) => {
+                    if (e.pointerType !== "mouse") return;
+                    setHoverGroupId((prev) => (prev === group.id ? null : prev));
+                  }}
+                >
                   {/* 디스클로저 버튼(APG) — 포커스만으로는 열지 않는다. Enter·Space(클릭)로 열고 닫고, Esc 는 닫고 버튼으로.
                       예전엔 포커스로 열려 Enter 를 누르면 오히려 닫혔다(10/2 QA). 다른 그룹 버튼으로 포커스가 오면 열린 그룹은 닫는다 */}
                   <button
                     type="button"
                     id={`${navIdBase}-${group.id}-trigger`}
                     className={`${s.navLink} ${isGroupActive ? s.active : ""}`}
-                    aria-expanded={isOpen}
+                    aria-expanded={isExpanded}
                     aria-controls={`${navIdBase}-${group.id}-menu`}
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => toggleGroup(group.id)}

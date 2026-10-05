@@ -78,7 +78,9 @@
 
 .therapyBannerDesc {
   font-size: var(--fs-caption);
-  color: var(--muted-foreground);
+  /* muted-foreground 는 배너 틴트(primary 6%, hover 10%) 위 4.42 · 4.18:1 로 미달 —
+     같은 회색을 20% 어둡게 6.24 · 5.88:1 (10/4 axe) */
+  color: color-mix(in srgb, var(--muted-foreground, #6b7280) 80%, #000);
 }
 
 .therapyBannerArrow {

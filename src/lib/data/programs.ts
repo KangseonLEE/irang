@@ -1883,6 +1883,14 @@ export const DEFAULT_PROGRAM_SORT: ProgramSortKey = "deadline";
  *   동률 시 9999-12-31(일자 미정) 가장 뒤로.
  * - recent: createdAt desc. 같은 날짜 또는 미설정 시 원본 배열 인덱스 보존 (안정 정렬).
  */
+/**
+ * 동점 순서 — id 코드 단위 비교. 입력 순서(DB 응답 순서)에 기대면 호출마다 동점 순서가 달라져
+ * 무한 스크롤 offset 이 겹치거나 빠진다(10/3). 코드 단위라 큐레이션 "SP-" 가 수집 "crawl-" 보다 앞선다.
+ */
+function byId(a: SupportProgram, b: SupportProgram): number {
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
 export function sortPrograms(
   programs: SupportProgram[],
   sort: ProgramSortKey,
@@ -1896,7 +1904,7 @@ export function sortPrograms(
       const ad = a.p.createdAt ?? "";
       const bd = b.p.createdAt ?? "";
       if (ad && bd) {
-        if (ad === bd) return a.i - b.i;
+        if (ad === bd) return byId(a.p, b.p);
         return bd.localeCompare(ad);
       }
       // 한쪽만 createdAt 있으면 그 항목 우선 (DB 등록일 신뢰)
@@ -1919,7 +1927,7 @@ export function sortPrograms(
     // 일자 미정(9999-12-31)은 뒤로
     const ae = a.p.applicationEnd || "9999-12-31";
     const be = b.p.applicationEnd || "9999-12-31";
-    if (ae === be) return a.i - b.i;
+    if (ae === be) return byId(a.p, b.p);
     return ae.localeCompare(be);
   });
   return indexed.map((x) => x.p);
@@ -1980,7 +1988,9 @@ export async function loadPrograms(): Promise<{
       const { data, error } = await sb
         .from("support_programs")
         .select("*")
-        .order("application_end", { ascending: true });
+        .order("application_end", { ascending: true })
+        // 동점(같은 마감일·9999 페어) 순서를 고정 — 호출마다 달라지면 목록 offset 이 겹친다(10/3)
+        .order("slug", { ascending: true });
 
       if (!error && data && data.length > 0) {
         const rows = data as unknown as ProgramRow[];

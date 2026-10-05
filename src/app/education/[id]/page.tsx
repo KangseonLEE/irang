@@ -28,6 +28,8 @@ import {
 import type { EducationCourse } from "@/lib/data/education";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page.module.css";
+import { displayText } from "@/lib/programs/display";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 
 export async function generateMetadata({
   params,
@@ -38,11 +40,16 @@ export async function generateMetadata({
   const course = await getEducationByIdAsync(id);
   if (!course) notFound();
 
+  // 수집 행 상투 설명("…에서 수집했어요")은 메타·공유 문구에 싣지 않는다 (10/4 QA)
+  const summary = displayText(course.id, course.description);
+  const description = `${course.region}에서 진행하는 ${course.level} ${course.type} 교육 "${course.title}".${summary ? ` ${summary.slice(0, 120)}` : ""}`;
   return {
     title: `${course.title} — ${course.type}·${course.level} 정착 교육`,
-    description: `${course.region}에서 진행하는 ${course.level} ${course.type} 교육 "${course.title}". ${course.description.slice(0, 120)}`,
+    description,
     keywords: [`${course.region} 정착 교육`, `귀농 ${course.type}`, "정착 교육 과정", course.title],
     alternates: { canonical: `/education/${id}` },
+    // 공유 카드 — 없으면 레이아웃의 사이트 기본 제목이 나갔다 (10/4 QA)
+    ...shareMetadata({ title: `${course.title} | 이랑`, description, path: `/education/${id}` }),
   };
 }
 
@@ -83,6 +90,8 @@ export default async function EducationDetailPage({
   }
 
   const related = getRelatedCourses(course);
+  const summary = displayText(course.id, course.description);
+  const shareText = summary ?? `${course.region} ${course.type} 교육`;
 
   return (
     <div className={s.page}>
@@ -95,8 +104,9 @@ export default async function EducationDetailPage({
           "@context": "https://schema.org",
           "@type": "Course",
           name: course.title,
-          description: course.description,
-          provider: { "@type": "Organization", name: "이랑" },
+          description: shareText,
+          // 과정을 여는 곳은 주관 기관이다 — "이랑"으로 적으면 구조화 데이터가 사실과 달라진다 (10/4 QA)
+          provider: { "@type": "Organization", name: course.organization || course.region },
           inLanguage: "ko",
           about: `${course.region} ${course.type} ${course.level} 귀농 정착 교육`,
           mainEntityOfPage: `https://irangfarm.com/education/${id}`,
@@ -115,12 +125,12 @@ export default async function EducationDetailPage({
           <div className={s.titleActions}>
             <KakaoShareButton
               title={`${course.title} | 이랑`}
-              description={`${course.description.slice(0, 100)}`}
+              description={shareText.slice(0, 100)}
               contentType="education"
             />
             <ShareButton
               title={`${course.title} | 이랑`}
-              text={`${course.title}: ${course.description.slice(0, 80)}`}
+              text={`${course.title}: ${shareText.slice(0, 80)}`}
               contentType="education"
               variant="ghost"
               size="sm"
@@ -199,15 +209,17 @@ export default async function EducationDetailPage({
             </div>
           </div>
 
-          {/* Description */}
-          <div className={s.card}>
-            <div className={s.cardHeader}>
-              <h2 className={s.cardTitle}>교육 내용</h2>
+          {/* Description — 수집 행처럼 상투 문장뿐이면 카드째 숨긴다(원문 링크 카드가 그 역할) */}
+          {summary && (
+            <div className={s.card}>
+              <div className={s.cardHeader}>
+                <h2 className={s.cardTitle}>교육 내용</h2>
+              </div>
+              <div className={s.cardContent}>
+                <p className={s.descriptionText}><AutoGlossary text={summary} /></p>
+              </div>
             </div>
-            <div className={s.cardContent}>
-              <p className={s.descriptionText}><AutoGlossary text={course.description} /></p>
-            </div>
-          </div>
+          )}
 
           {/* Application Period */}
           <div className={s.card}>

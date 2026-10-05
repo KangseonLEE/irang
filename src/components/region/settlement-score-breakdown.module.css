@@ -91,17 +91,19 @@
   margin-left: 2px;
 }
 
+/* 종합 점수 카드 안 보조 글자 — muted-foreground 는 카드 틴트(primary 10%, high 14%) 위 4.17 · 3.94:1 로 미달.
+   같은 회색을 20% 어둡게 5.88 · 5.54:1 (10/4 axe). 카드 밖(흰 차원 카드·섹션 4% 틴트)은 기준을 넘어 그대로 */
 .overallPersona {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--muted-foreground);
+  color: color-mix(in srgb, var(--muted-foreground, #6b7280) 80%, #000);
   margin-left: 8px;
   letter-spacing: -0.01em;
 }
 
 .overallInterp {
   font-size: 0.875rem;
-  color: var(--muted-foreground);
+  color: color-mix(in srgb, var(--muted-foreground, #6b7280) 80%, #000);
   line-height: 1.5;
   margin: 2px 0 0;
   word-break: keep-all;

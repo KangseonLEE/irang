@@ -3,7 +3,10 @@
  * - rda.go.kr/young (똑똑!청년농부) HTML 크롤링
  * - uni.agrix.go.kr 농림부 통합 지원사업 JSON API
  * - greendaero.go.kr 지자체 귀농귀촌 교육·체험 JSON API (2026-09-29 신설)
- * - 수집 데이터는 is_verified: 자동 검증 (broken URL만 false)
+ * - 수집 데이터는 is_verified: 자동 검증 (broken URL, 상세 보강을 못 한 RDA 행만 false — 다음 실행에서 다시 받는다)
+ * - RDA(rda-*) 는 적재할 항목만 상세 페이지로 보강한다: 주관 기관·접수 기간·지원 내용 요약 (10/3)
+ * - 원천 요청 실패(1회 재시도 후)·응답 형식 변경은 그 타깃을 ok:false 로 — "성공·0건" 금지 (10/4).
+ *   원천이 정상 응답한 0건(RDA "총 0건", 그린대로 빈 목록 등)은 실패가 아니다.
  *
  * 타겟별 개별 호출:
  *   POST /functions/v1/sync-crawl { "target": "rda-programs" }
@@ -20,12 +23,16 @@
 import { getServiceClient } from "../_shared/supabase-client.ts";
 import {
   CRAWL_TARGETS,
+  UNKNOWN_DATE,
   fetchRdaListing,
   fetchRdaEvents,
   fetchAgrixPrograms,
+  enrichRdaItems,
   checkUrlHealth,
   crawlSlug,
   inferEventType,
+  kstToday,
+  type CollectResult,
   type CrawlTarget,
   type CrawledItem,
 } from "../_shared/crawl-utils.ts";
@@ -51,6 +58,13 @@ const MAX_ITEMS_BY_TARGET: Record<string, number> = {
 
 /** 한 실행에서 원문 URL 헬스체크를 수행할 최대 건수 (URL별 캐시 적용) */
 const MAX_URL_CHECKS_PER_TARGET = 12;
+
+/**
+ * 타깃 하나의 외부 요청 마감 (ms, 크롤 시작부터). Edge Function wall-clock 150초·워크플로 curl
+ * --max-time 150 안에 upsert 까지 끝내려고 상세 보강·헬스체크를 이 시각에 멈춘다 (10/4).
+ * 목록 재시도(최악 50초)가 생기면서 고정 예산만으로는 150초를 넘길 수 있게 됐다.
+ */
+const CRAWL_DEADLINE_MS = 120_000;
 
 type LinkStatus = "active" | "broken" | "unverified";
 
@@ -140,7 +154,13 @@ Deno.serve(async (req: Request) => {
         : targets.map((t) => t.category).join(","),
     action: "sync",
     record_count: totalNew,
-    status: allErrors.length > 0 ? "partial" : "success",
+    // 모든 타깃이 원천에서 0건으로 실패하면 'failed' — 예전엔 전면 실패도 'partial' 로 남았다 (10/4 QA)
+    status:
+      allErrors.length === 0
+        ? "success"
+        : results.length > 0 && results.every((r) => r.errors.length > 0 && r.itemsFound === 0)
+          ? "failed"
+          : "partial",
     error_message: allErrors.length > 0 ? allErrors.join("; ") : null,
     metadata: {
       targets: results.map((r) => ({
@@ -161,7 +181,10 @@ Deno.serve(async (req: Request) => {
 
 // ─── 수집 ───
 
-async function collectItems(target: CrawlTarget): Promise<CrawledItem[]> {
+/**
+ * 원천 수집. 요청 실패·응답 형식 변경은 빈 배열이 아니라 `errors` 로 돌아온다 (10/4 "성공·0건" 금지).
+ */
+async function collectItems(target: CrawlTarget): Promise<CollectResult> {
   switch (target.type) {
     case "rda-events":
       return await fetchRdaEvents();
@@ -170,11 +193,11 @@ async function collectItems(target: CrawlTarget): Promise<CrawledItem[]> {
     case "agrix-api":
       return await fetchAgrixPrograms(1, 30);
     case "greendaero-education":
-      return await fetchGreendaeroEducation();
+      return await fetchGreendaeroEducation(kstToday());
     case "greendaero-live":
-      return await fetchGreendaeroLive();
+      return await fetchGreendaeroLive(kstToday());
     default:
-      return [];
+      return { items: [], errors: [`수집기 없는 타깃 유형: ${target.type}`] };
   }
 }
 
@@ -204,9 +227,17 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
   let skipped = 0;
   let items: CrawledItem[] = [];
 
+  const deadline = Date.now() + CRAWL_DEADLINE_MS;
+
   try {
     console.log(`[sync-crawl] ${target.name} 크롤링 시작...`);
-    items = await collectItems(target);
+    const collected = await collectItems(target);
+    items = collected.items;
+    // 원천 실패는 타깃 오류 → 응답 ok:false → sync-data.yml Phase B 실패 (모은 항목은 그대로 적재)
+    for (const message of collected.errors) {
+      errors.push(`${target.name}: ${message}`);
+      console.error(`[sync-crawl] ${target.name} 수집 오류: ${message}`);
+    }
     console.log(`[sync-crawl] ${target.name}: ${items.length}건 수집`);
 
     const capped = items.slice(0, MAX_ITEMS_BY_TARGET[target.id] ?? MAX_ITEMS_PER_TARGET);
@@ -252,17 +283,46 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
       seenSlug.add(key);
       return true;
     });
-    const pending = refresh ? deduped : deduped.filter((p) => !verified.has(`${p.table}:${p.slug}`));
+    let pending = refresh ? deduped : deduped.filter((p) => !verified.has(`${p.table}:${p.slug}`));
     skipped = prepared.length - pending.length;
 
-    // ── 3. 원문 URL 헬스체크 (URL 캐시 + 건수 예산) ──
     const healthCache = new Map<string, LinkStatus>();
+
+    // ── 2-1. RDA 상세 보강 (10/3) ──
+    // 목록에는 주관 기관·접수 시작일·지원 내용이 없다 → 적재할 항목(pending)만 상세 페이지를 받는다.
+    // 상세 응답이 곧 원문 링크 확인이라 헬스체크 캐시에 그대로 넣어 같은 URL 을 두 번 받지 않는다.
+    if (target.type === "rda-listing" || target.type === "rda-events") {
+      const enriched = await enrichRdaItems(
+        pending.map((p) => p.item),
+        {
+          today: kstToday(),
+          requireOperationDate: target.category === "events",
+          // 목록 재시도로 시간을 쓴 만큼 줄인다 — 요청 1건 초과분(10초)은 남겨 둔다
+          timeBudgetMs: Math.max(0, Math.min(70_000, deadline - Date.now() - 10_000)),
+        },
+      );
+      for (const [url, status] of enriched.linkStatus) healthCache.set(url, status);
+      const before = pending.length;
+      pending = pending.flatMap((p, i) => {
+        const item = enriched.items[i];
+        if (!item) return []; // 운영 날짜 없는 행사 — 날짜를 지어내지 않는다
+        // 상세를 못 받은 목록 값으로 이미 검증된 행을 덮지 않는다 (refresh 중 일시 장애 대비)
+        if (item.detailMissing && verified.has(`${p.table}:${p.slug}`)) return [];
+        return [{ ...p, item }];
+      });
+      skipped += before - pending.length;
+      console.log(
+        `[sync-crawl] ${target.name} 상세 보강: 요청 ${enriched.fetched}건 · 실패 ${enriched.failed}건 · 예산 밖 ${enriched.deferred}건 · 날짜 없는 행사 제외 ${enriched.dropped}건`
+      );
+    }
+
+    // ── 3. 원문 URL 헬스체크 (URL 캐시 + 건수 예산) ──
     let checks = 0;
     async function linkStatusOf(url: string): Promise<LinkStatus> {
       if (!url) return "unverified";
       const cached = healthCache.get(url);
       if (cached) return cached;
-      if (checks >= MAX_URL_CHECKS_PER_TARGET) return "unverified";
+      if (checks >= MAX_URL_CHECKS_PER_TARGET || Date.now() >= deadline) return "unverified";
       checks++;
       const status = await checkUrlHealth(url);
       healthCache.set(url, status);
@@ -270,19 +330,40 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
     }
 
     // ── 4. 테이블별 행 조립 후 일괄 upsert ──
-    const today = new Date().toISOString().slice(0, 10);
+    // 날짜 폴백도 KST — 06:00 KST 스케줄은 UTC 로 전날이다 (10/4)
+    const today = kstToday();
     // deno-lint-ignore no-explicit-any
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rowsByTable: Record<string, any[]> = {};
 
+    /** 날짜 미상(9999) 표기를 실제 날짜와 가른다 — 미상은 일정 문구·nullable 컬럼으로 새면 안 된다 */
+    const realDate = (date?: string): string | null =>
+      date && date !== UNKNOWN_DATE ? date : null;
+
+    // 접수 마감일을 모르는 지원사업·교육은 적재하지 않는다 (10/4 QA). 수집일로 채우면 하루 '모집중'이었다가 마감되고
+    // (10/2 그린대로 3행), 9999 로 두면 수집기가 행을 지우지 않아 '공고 발표 예정'으로 기본 목록에 남는다.
+    // 시작일만 모르면 시작 미상(9999) — 표기는 "~ 마감일", 판정은 마감일까지 모집중(program-status).
+    // RDA 의 마감일 미상(9999)도 같은 취급 — 목록·상세 둘 다 마감일을 못 줬으면 다음 실행에서 다시 받는다.
+    // 체험·행사는 날짜(운영 시작 또는 접수 시작)가 하나도 없으면 같은 이유로 적재하지 않는다(예전엔 수집일로 채움).
+    const hasDates = (p: (typeof pending)[number]) =>
+      p.table === "farm_events"
+        ? !!(p.item.operationStart ?? p.item.dateStart)
+        : !!p.item.dateEnd && p.item.dateEnd !== UNKNOWN_DATE;
+    const noDates = pending.length - pending.filter(hasDates).length;
+    if (noDates > 0) {
+      pending = pending.filter(hasDates);
+      skipped += noDates;
+      console.log(`[sync-crawl] ${target.name} 날짜 없는 항목 ${noDates}건 제외(접수 마감일·운영일 미상)`);
+    }
+
     for (const { item, slug, table } of pending) {
       const linkStatus = await linkStatusOf(item.url);
       const { region, sigungu } = normalizeRegion(item.region || "전국");
-      const isVerified = linkStatus !== "broken";
-      const description = [
-        `${target.name}에서 수집했어요.`,
-        item.note,
-      ]
+      // 상세를 못 받은 목록 값뿐인 행(RDA)은 미검증으로 남겨 다음 실행에서 다시 받는다
+      const isVerified = linkStatus !== "broken" && !item.detailMissing;
+      // 원문 요약 + 주의 문구만 쓴다. "…에서 수집했어요" 출처 상투문은 정보량이 0 이라 뺐다 (10/3) —
+      // 출처는 source_url·url 로 충분하다. 요약이 없으면 빈 문자열(화면이 빈 요약을 숨긴다).
+      const description = [item.summary, item.note]
         .filter(Boolean)
         .join(" ")
         .slice(0, 500);
@@ -297,10 +378,12 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
           sigungu,
           organization: item.organization || target.name,
           type: item.eventType ?? inferEventType(item.title),
-          date_start: item.operationStart ?? item.dateStart ?? today,
+          // RDA 행사는 운영 날짜(교육기간)가 없으면 위 2-1 단계에서 빠진다 — 아래 폴백은 그린대로용
+          // 날짜 없는 행사는 위에서 빠진다 — 수집일로 채우지 않는다
+          date_start: (item.operationStart ?? item.dateStart) as string,
           date_end: item.operationEnd ?? item.dateEnd ?? null,
-          application_start: item.dateStart ?? null,
-          application_end: item.dateEnd ?? null,
+          application_start: realDate(item.dateStart),
+          application_end: realDate(item.dateEnd),
           location: regionLabel(region, sigungu),
           cost: "상세 공고 참조",
           description,
@@ -324,25 +407,28 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
           sigungu,
           organization: item.organization || target.name,
           support_type: "보조금",
-          support_amount: "상세 공고 참조",
+          support_amount: item.amount || "상세 공고 참조",
           eligibility_age_min: 18,
           eligibility_age_max: 65,
           eligibility_detail: item.capacity || "상세 공고 참조",
-          application_start: item.dateStart || today,
-          application_end: item.dateEnd || today,
+          application_start: item.dateStart || UNKNOWN_DATE,
+          application_end: item.dateEnd,
           status: item.status === "마감" ? "마감" : item.status === "모집예정" ? "모집예정" : "모집중",
           related_crops: [],
           source_url: item.url,
           link_status: linkStatus,
-          year: new Date().getFullYear(),
+          // 원천이 준 목록 연도 (agrix 는 saupYear 폴백이면 작년), 없으면 KST 올해
+          year: item.year ?? Number(today.slice(0, 4)),
           is_verified: isVerified,
         });
       } else {
+        const applyStart = realDate(item.dateStart);
+        const applyEnd = realDate(item.dateEnd);
         const schedule =
           item.operationStart && item.operationEnd
             ? `${item.operationStart} ~ ${item.operationEnd}`
-            : item.dateStart && item.dateEnd
-              ? `${item.dateStart} ~ ${item.dateEnd}`
+            : applyStart && applyEnd
+              ? `${applyStart} ~ ${applyEnd}`
               : "상세 공고 참조";
         bucket.push({
           slug,
@@ -357,8 +443,8 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
           cost: "상세 공고 참조",
           description,
           capacity: item.capacityCount ?? null,
-          application_start: item.dateStart || today,
-          application_end: item.dateEnd || today,
+          application_start: item.dateStart || UNKNOWN_DATE,
+          application_end: item.dateEnd,
           status: item.status === "마감" ? "마감" : item.status === "모집예정" ? "모집예정" : "모집중",
           level: "초급",
           url: item.url,

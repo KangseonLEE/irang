@@ -60,8 +60,18 @@ export function ShareButton({
   ].join(" ");
 
   return (
-    <button onClick={handleShare} className={className} type="button">
-      {copied ? <Check size={size === "sm" ? 14 : 16} /> : <Share2 size={size === "sm" ? 14 : 16} />}
+    <button
+      onClick={handleShare}
+      className={className}
+      type="button"
+      // 아이콘만 보일 때도 이름이 있어야 한다 (10/4 QA axe button-name — 상세 3종)
+      aria-label={showLabel ? undefined : copied ? "링크 복사됨" : "공유하기"}
+    >
+      {copied ? (
+        <Check size={size === "sm" ? 14 : 16} aria-hidden="true" />
+      ) : (
+        <Share2 size={size === "sm" ? 14 : 16} aria-hidden="true" />
+      )}
       {showLabel && (
         <span>{copied ? "링크 복사됨!" : "공유"}</span>
       )}

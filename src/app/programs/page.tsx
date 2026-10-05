@@ -18,14 +18,13 @@ import {
   AGE_RANGES,
   PROGRAM_CATEGORIES,
   PROGRAM_CATEGORY_LABELS,
-  sortPrograms,
   DEFAULT_PROGRAM_SORT,
   type ProgramFilters,
   type ProgramSortKey,
 } from "@/lib/data/programs";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import { kstToday } from "@/lib/program-status";
-import { rankProgramsForPersona } from "@/lib/data/persona-fit";
+import { orderProgramsForList } from "@/lib/programs/list-order";
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import Link from "next/link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
@@ -143,12 +142,9 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   ]);
 
   // 페르소나 필터링: 점수 4+ 사업만 + 점수 내림차순 정렬 (페르소나 모드 시 sort param 무시)
-  // 일반 모드: sortPrograms 적용 (deadline | recent)
-  const allFiltered = currentPersona
-    ? rankProgramsForPersona(rawFiltered, currentPersona)
-        .filter((r) => r.score >= 4)
-        .map((r) => r.program)
-    : sortPrograms(rawFiltered, currentSort);
+  // 일반 모드: 마감순·최신순 (deadline | recent)
+  // 첫 화면과 "더 불러오기"(actions.ts)가 같은 순서 함수를 써야 offset 이 맞는다(10/3)
+  const allFiltered = orderProgramsForList(rawFiltered, { persona: currentPersona, sort: currentSort });
 
   const total = allFiltered.length;
   const programs = allFiltered.slice(0, PAGE_SIZE);

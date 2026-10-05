@@ -582,6 +582,9 @@ const EDU_GUICHON = /귀촌|전원생활|농촌생활|생활기술|라이프스�
 const EDU_FOREST = /산촌|산어촌|산림|임업|임산물|산채|목본|약용|특용|산양삼/;
 const EDU_SMARTFARM = /스마트\s?팜|스마트\s?농업|스마트\s?영농|수직농장|ICT|시설원예/;
 const YOUTH_SOURCE = /똑똑!?\s?청년농부/;
+/** RDA 청년농 포털(똑똑!청년농부) 원문 — 10/3 수집기가 description 의 "…에서 수집했어요" 문구를 원문 발췌로
+ *  바꾸면서 YOUTH_SOURCE 만으로는 이 포털 과정을 못 잡게 됐다. 출처 URL 로 판정한다. */
+const YOUTH_PORTAL_URL = /rda\.go\.kr\/young\//;
 
 function onlyGuichon(title: string): boolean {
   return /귀촌/.test(title) && !/귀농/.test(title);
@@ -592,7 +595,7 @@ const EDUCATION_RULES: Record<HubLaneId, (c: EducationCourse) => boolean> = {
   guichon: (c) => EDU_GUICHON.test(c.title),
   // 치유(산림치유·치유농업)는 정착이 아니라 휴양·복지 과정이라 귀산촌에서 뺀다(10/2 회장)
   forest: (c) => EDU_FOREST.test(c.title) && !/치유/.test(c.title),
-  youth: (c) => /청년/.test(c.title) || YOUTH_SOURCE.test(c.description),
+  youth: (c) => /청년/.test(c.title) || YOUTH_SOURCE.test(c.description) || YOUTH_PORTAL_URL.test(c.url),
   smartfarm: (c) => EDU_SMARTFARM.test(c.title),
 };
 

@@ -10,13 +10,14 @@
  * → LandingClickTracker 가 `landing_cta_click` 으로 수집(신규 이벤트 0).
  * 진단 진입(`data-assess-entry`)은 `/start` 비교 화면의 CTA 가 맡는다(라벨 `start_compare`).
  *
- * 이미지: 포스터 파일 실존은 런타임에 확인하지 않고(서버 번들이 public/ 전체를 추적하던 원인, 10/3)
- * CI `check-cross-reference` H-2 가 보장한다. 캐릭터 일러스트(charImage)·게이트 포스터(decided)는
- * 어디서도 그리지 않아 10/3 정리했다. 보관 히어로(hero-showcase·journey-lanes 컴포넌트)도 10/3 삭제돼
- * undecided 포스터는 지금 어느 화면에서도 그리지 않는다 — 데이터 타입·데이터 테스트·H-2 가 이 경로를
- * 전제로 해서 남겨 뒀다(후속: image 를 목적 레인 전용으로 좁히고 파일 삭제).
+ * 이미지: 포스터는 **목적 레인 5장(`START_LANES`)에만** 있다 — `/start` 비교 썸네일·`/start/<id>` 허브 띠가 그린다.
+ * 타입(`PurposeLane.image` 필수)이 그 두 화면의 포스터를 보장하고, 파일 실존은 CI `check-cross-reference` H-2 가 막는다
+ * (런타임 fs 판정은 서버 번들이 public/ 전체를 추적하던 원인이라 10/3 제거). 예비 귀농·귀촌인(undecided)·게이트 카드는
+ * 포스터를 그리는 화면이 없어(보관 히어로 10/3 삭제) 이미지 필드 자체가 없다 — 10/3 undecided.webp(242KB)·
+ * 렌더 카드 변환(`journey-lanes-images.ts`)·캐릭터 일러스트 호환 필드 정리.
  */
 
+/** 정착 유형 공통 — 히어로 유형 카드·검색 도크·비교 표·허브가 읽는 글 */
 export interface JourneyLane {
   id: string;
   /** 카드 제목 */
@@ -26,23 +27,14 @@ export interface JourneyLane {
   /** 선택 화면 소개글 — "이 길이 무엇인지" 3문장 (카드에는 안 쓴다, 9/29 S4) */
   intro: string;
   href: string;
+}
+
+/** 목적 레인 — 포스터를 그리는 화면(`/start`·`/start/<id>`)이 쓰므로 포스터가 반드시 있다 */
+interface PurposeLane extends JourneyLane {
   /** 포스터(public 기준 경로) — 실존은 CI H-2 가 보장 */
   image: string;
   /** 스크린리더용 포스터 설명 */
   alt: string;
-}
-
-/** 보관 중인 히어로 게이트 카드 — "목적이 있어요"는 포스터가 없어 딥그린 플레이스홀더로 뜬다 */
-export type JourneyGate = Omit<JourneyLane, "image" | "alt"> & { image?: string; alt?: string };
-
-/**
- * 카드 형태 — 이 형태로 그리던 히어로 여정 화면(`components/landing/journey-lanes.tsx`)은 10/3 삭제됐고, 지금은
- * CI H-2(이미지 실존)와 데이터 테스트만 쓴다. 포스터가 없는 카드는 `hasImage: false`. `hasChar` 는 항상 false.
- */
-export interface JourneyLaneCard extends JourneyLane {
-  hasImage: boolean;
-  hasChar: boolean;
-  charImage: string;
 }
 
 /** 1~10 → 고유어 수관형사 + "가지"("다섯 가지"), 그 밖은 숫자. 유형 수 문구는 배열 길이에서 만든다(하드코딩 금지) */
@@ -53,7 +45,7 @@ export function kindsLabel(n: number): string {
 }
 
 /** 목적이 있는 사람에게 보여 주는 5장 — 순서가 곧 히어로·비교 화면·사이트맵 순서 */
-const PURPOSE_LANES: readonly JourneyLane[] = [
+const PURPOSE_LANES: readonly PurposeLane[] = [
   {
     id: "guinong",
     label: "귀농",
@@ -115,14 +107,12 @@ const UNDECIDED_LANE: JourneyLane = {
   intro:
     "아직 어떤 시작이 맞는지 정하지 못했다면 여기서부터예요. 2분 진단으로 내 유형을 알고, 그에 맞는 지역·작물·지원사업을 이어서 볼 수 있어요. 지금 고르지 않아도 괜찮아요.",
   href: "/start",
-  image: "/landing/lanes/undecided.webp",
-  alt: "언덕 위에서 들판을 내려다보며 지도를 펼친 사람",
 };
 
 export const JOURNEY_LANES: readonly JourneyLane[] = [...PURPOSE_LANES, UNDECIDED_LANE];
 
-/** 게이트 카드 1 — "이미 목적지가 있다" 쪽(보관 중인 히어로 화면 전용). 포스터 없음 → 딥그린 플레이스홀더 */
-const DECIDED_GATE: JourneyGate = {
+/** 게이트 카드 1 — "이미 목적지가 있다" 쪽(보관 중인 히어로 화면 전용) */
+const DECIDED_GATE: JourneyLane = {
   id: "decided",
   label: "목적이 있어요",
   desc: `${PURPOSE_LANES.map((l) => l.label).join("·")} 중에서 골라요`,
@@ -132,11 +122,11 @@ const DECIDED_GATE: JourneyGate = {
 };
 
 /** 히어로 첫 화면의 두 갈래 — [목적이 있어요, 아직 고르는 중] (보관 중인 히어로 화면 전용) */
-export const JOURNEY_GATES: readonly JourneyGate[] = [
+export const JOURNEY_GATES: readonly JourneyLane[] = [
   DECIDED_GATE,
   // 보관 중인 게이트 화면은 "목적이 있어요"와 짝을 이루는 문장형 라벨을 그대로 쓴다
   { ...UNDECIDED_LANE, label: "아직 고르는 중" },
 ];
 
-/** 목적이 있는 사람에게 보여 주는 5장 (게이트 카드로 쓰는 undecided 제외) */
-export const START_LANES: readonly JourneyLane[] = PURPOSE_LANES;
+/** 목적이 있는 사람에게 보여 주는 5장 (게이트 카드로 쓰는 undecided 제외) — 포스터(image·alt)가 타입으로 보장된다 */
+export const START_LANES: readonly PurposeLane[] = PURPOSE_LANES;

@@ -23,7 +23,7 @@
    G. 교육 ↔ 체험 행사 이중 등재
       G-1. EDUCATION_COURSES.url ∩ EVENTS.url = ∅ (9/4 서귀포·무주 이중 등재 사고)
       H-1. CROPS ↔ public/crops/illustrations/*.webp 1:1 (9/17 사진 폴백 제거)
-      H-2. 정착 유형(JOURNEY_LANES·게이트·렌더 카드) 이미지 경로 ↔ public/ 실존 (10/3 런타임 fs 판정 제거)
+      H-2. 정착 유형 포스터(목적 레인 START_LANES 전용) ↔ public/ 실존 (10/3 런타임 fs 판정 제거)
 
    exit code: 모든 필수 통과 0 / 하나라도 fail 1
    ========================================================================== */
@@ -39,7 +39,6 @@ import { interviews } from "../src/lib/data/landing";
 import { EDUCATION_COURSES } from "../src/lib/data/education";
 import { EVENTS } from "../src/lib/data/events";
 import { JOURNEY_GATES, JOURNEY_LANES, START_LANES } from "../src/lib/data/journey-lanes";
-import { resolveJourneyGates, resolveJourneyLanes } from "../src/lib/data/journey-lanes-images";
 
 interface CheckResult {
   name: string;
@@ -334,11 +333,13 @@ function check(): CheckResult[] {
   });
 
   // ──────────────────────────────────────────────────────────
-  // H-2. 정착 유형 이미지 ↔ public/ 실존 (2026-10-03)
-  // 배경: `journey-lanes-images.ts` 가 `existsSync(process.cwd()/public/…)` 로 포스터 존재를 런타임에 판정해
+  // H-2. 정착 유형 포스터 ↔ public/ 실존 (2026-10-03)
+  // 배경: 레인 이미지 모듈이 `existsSync(process.cwd()/public/…)` 로 포스터 존재를 런타임에 판정해
   // `/start`·`/start/[lane]` 서버 번들이 public/ 전체(160파일·20.4MB)를 추적했다. 런타임 판정을 없앤 대신
   // 데이터가 가리키는 이미지가 없으면 화면에 깨진 이미지가 뜨므로 여기서 빌드를 막는다.
-  // 대상: 레인·게이트 데이터의 `*image` 필드(image·charImage 등) + 렌더 카드가 그리겠다고 한 경로(hasImage·hasChar).
+  // 계약(10/3 정리): 포스터는 목적 레인 5장(START_LANES)에만 있고 타입으로 필수 — `/start` 비교 썸네일·허브 띠가 그린다.
+  // undecided·게이트는 포스터를 그리는 화면이 없어 이미지 필드가 없다. 그래도 누가 `*image` 필드를 다시 붙이면
+  // 그 경로도 실존해야 한다(그리지 않는 파일을 public 에 두지 않도록 데이터 쪽에서 먼저 막는다).
   // ──────────────────────────────────────────────────────────
   const laneImageRefs = new Map<string, string[]>();
   const addLaneImageRef = (src: string, where: string) => {
@@ -349,21 +350,17 @@ function check(): CheckResult[] {
       if (/image$/i.test(key) && typeof value === "string" && value) addLaneImageRef(value, `${lane.id}.${key}`);
     }
   }
-  for (const card of [...resolveJourneyLanes(), ...resolveJourneyGates()]) {
-    if (card.hasImage) addLaneImageRef(card.image, `카드 ${card.id}.image`);
-    if (card.hasChar) addLaneImageRef(card.charImage, `카드 ${card.id}.charImage`);
-  }
-  const posterless = START_LANES.filter((l) => !l.image).map((l) => `${l.id} → 포스터 경로 없음`);
+  const posterless = START_LANES.filter((l) => !l.image || !l.alt).map((l) => `${l.id} → 포스터 경로·설명 없음`);
   const missingLaneImages = [...laneImageRefs]
     .filter(([src]) => !src.startsWith("/") || !fs.existsSync(path.join(process.cwd(), "public", src)))
     .map(([src, where]) => `${src} (${[...new Set(where)].join(", ")})`);
   const h2Fails = [...posterless, ...missingLaneImages];
   results.push({
-    name: "H-2. 정착 유형 이미지 경로 ↔ public/ 실존 (런타임 fs 판정 제거됨)",
+    name: "H-2. 정착 유형 포스터(목적 레인 전용) ↔ public/ 실존 (런타임 fs 판정 제거됨)",
     passed: h2Fails.length === 0,
     detail:
       h2Fails.length === 0
-        ? `정착 유형 ${START_LANES.length}종 · 이미지 경로 ${laneImageRefs.size}개 전부 public/ 실존`
+        ? `목적 레인 ${START_LANES.length}종 포스터 · 이미지 경로 ${laneImageRefs.size}개 전부 public/ 실존`
         : `없음 ${h2Fails.length}건: ${h2Fails.slice(0, 5).join(", ")}${h2Fails.length > 5 ? " …" : ""}`,
   });
 

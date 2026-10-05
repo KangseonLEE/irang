@@ -33,6 +33,7 @@ import { StepOverview } from "@/components/ui/step-overview";
 import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { CROPS } from "@/lib/data/crops";
+import { settlementSurvey } from "@/lib/data/stats";
 import {
   CROP_COSTS_BY_TYPE,
   STRATEGIES_BY_TYPE,
@@ -82,10 +83,12 @@ const SUPPORT_ITEMS: {
     note: "연 2% · 세대당 1회",
   },
   {
-    label: "정착 교육 100시간",
-    amount: "신청 필수",
+    // 10/4 QA: "100시간 = 핵심 자격 요건"은 틀린 표기 — 자격은 8시간 이상, 100시간 미만이면 심사 최저 등급(D)
+    // (SP-001·gov-roadmap·cost-by-type 과 같은 기준)
+    label: "귀농 교육 8시간 이상",
+    amount: "신청 자격",
     type: "교육",
-    note: "농업창업자금 융자의 핵심 자격 요건이에요",
+    note: "100시간 미만이면 심사 최저 등급이라 사실상 100시간이 기준이에요",
   },
 ];
 
@@ -331,7 +334,10 @@ export default async function CostsPage({ searchParams }: PageProps) {
             초기 투자 이후, 생활비는 줄어요
           </h2>
           <p className={s.sectionDesc}>
-            <AutoGlossary text="정착 후 월 생활비는 평균 25% 감소하고, 주거비는 80% 절감돼요. 초기 투자가 부담되더라도 장기적으로 생활비 절감 효과가 있어요." />
+            {/* 10/3 정정: "25% 감소·주거비 80% 절감"은 근거 없던 문구 — 실태조사 생활비 감소율만 데이터에서 */}
+            <AutoGlossary
+              text={`정착 후 월 생활비는 평균 ${Math.abs(settlementSurvey.livingCostChange)}% 줄어요(${settlementSurvey.year} 귀농·귀촌 실태조사). 초기 투자가 부담되더라도 장기적으로 생활비 절감 효과가 있어요.`}
+            />
           </p>
 
           <div className={s.compareCard}>
@@ -371,7 +377,16 @@ export default async function CostsPage({ searchParams }: PageProps) {
 
           <p className={s.compareSummary}>
             <PiggyBank size={16} />
-            월 생활비만 따져도 <strong>연간 약 792만 원</strong> 절감 효과
+            월 생활비만 따져도{" "}
+            <strong>
+              연간 약{" "}
+              {(
+                (settlementSurvey.livingCostBefore - settlementSurvey.livingCostAfter) *
+                12
+              ).toLocaleString("ko-KR")}
+              만 원
+            </strong>{" "}
+            절감 효과
           </p>
         </section>
       )}

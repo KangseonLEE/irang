@@ -120,6 +120,81 @@ describe("입력 중 — 자동완성", () => {
   });
 });
 
+describe("옵션 안에 대화형 요소가 없다 — 삭제·채우기 버튼은 listbox 밖 형제 (10/3 QA axe nested-interactive)", () => {
+  beforeEach(() => {
+    localStorage.setItem(
+      RECENT_KEY,
+      JSON.stringify([
+        { query: "사과", date: "2026.10.02" },
+        { query: "전남 귀농", date: "2026.10.01" },
+      ]),
+    );
+  });
+
+  it("최근 검색: option 안 button·link 0, 삭제 버튼은 listbox 밖 — 누르면 그 항목만 지우고 이동하지 않는다", () => {
+    const { container } = render(<SearchBar size="large" panelLayout />);
+    const listbox = container.querySelector("[role='listbox']")!;
+    for (const opt of Array.from(listbox.querySelectorAll("[role='option']"))) {
+      expect(opt.querySelectorAll("button, a, input, [tabindex]").length).toBe(0);
+    }
+    const removes = Array.from(container.querySelectorAll<HTMLButtonElement>("button[aria-label$='최근 검색 삭제']"));
+    expect(removes).toHaveLength(2);
+    for (const b of removes) expect(listbox.contains(b)).toBe(false);
+    fireEvent.click(removes[0]);
+    expect(push).not.toHaveBeenCalled();
+    const left = Array.from(container.querySelectorAll("[role='listbox'] [role='option']")).map((o) => o.textContent);
+    expect(left).toHaveLength(1);
+    expect(left[0]).toContain("전남 귀농");
+  });
+
+  it("자동완성: option 안 button 0, 채우기 버튼은 listbox 밖 — 누르면 입력창만 채운다", () => {
+    vi.useFakeTimers();
+    try {
+      const { container } = render(<SearchBar size="large" panelLayout />);
+      const el = input(container);
+      fireEvent.change(el, { target: { value: "사과" } });
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+      const listbox = container.querySelector("[role='listbox']")!;
+      expect(listbox.querySelectorAll("button").length).toBe(0);
+      const fills = Array.from(container.querySelectorAll<HTMLButtonElement>("button[aria-label$='입력창에 채우기']"));
+      expect(fills.length).toBe(listbox.querySelectorAll("[role='option']").length);
+      for (const b of fills) expect(listbox.contains(b)).toBe(false);
+      const target = listbox.querySelectorAll("[role='option']")[1]?.textContent ?? "";
+      fireEvent.click(fills[1]);
+      expect(push).not.toHaveBeenCalled();
+      expect(el.value).toBe(target);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("하이라이트한 최근 검색어는 Delete 로 지운다 — 마우스 전용 삭제 버튼의 키보드 대응", () => {
+    const { container } = render(<SearchBar size="large" panelLayout />);
+    const el = input(container);
+    act(() => {
+      el.focus();
+    });
+    fireEvent.keyDown(el, { key: "ArrowDown" });
+    fireEvent.keyDown(el, { key: "ArrowDown" });
+    fireEvent.keyDown(el, { key: "Delete" });
+    const left = Array.from(container.querySelectorAll("[role='listbox'] [role='option']")).map((o) => o.textContent);
+    expect(left).toHaveLength(1);
+    expect(left[0]).toContain("사과");
+    expect(JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]")).toHaveLength(1);
+  });
+
+  it("한글 조합 중 Enter 는 검색으로 새지 않는다 (IME 가드 유지)", () => {
+    const { container } = render(<SearchBar size="large" panelLayout />);
+    const el = input(container);
+    fireEvent.change(el, { target: { value: "배" } });
+    const notPrevented = fireEvent.keyDown(el, { key: "Enter", isComposing: true });
+    expect(notPrevented).toBe(false);
+    expect(push).not.toHaveBeenCalled();
+  });
+});
+
 describe("인스턴스마다 다른 id — 두 검색창이 함께 떠도 aria 참조가 섞이지 않는다", () => {
   it("리스트박스 id 가 겹치지 않는다", () => {
     localStorage.setItem(RECENT_KEY, JSON.stringify([{ query: "사과", date: "" }]));

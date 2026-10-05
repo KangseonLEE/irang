@@ -76,7 +76,9 @@
   letter-spacing: 0.02em;
   line-height: 1.35;
   color: var(--primary-foreground);
-  background: #e8590c;
+  /* 흰 글자 + #e8590c 는 3.58:1 (11~13px 기준 4.5 미달, 10/4 axe). 글자가 흰색이라 더 진하게 할 수 없어
+     같은 주황 바탕을 20% 어둡게 → 5.27:1. 표 보기 .newTag(program-list.module.css)도 같은 값 */
+  background: color-mix(in srgb, #e8590c 80%, #000);
   white-space: nowrap;
 }
 

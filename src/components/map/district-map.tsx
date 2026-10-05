@@ -206,11 +206,13 @@ export function DistrictMap({
 
   return (
     <div className={s.mapContainer} ref={containerRef}>
+      {/* role="group" (10/4 axe nested-interactive — province-map 과 같은 수정): role="img" 는 자식을 보조기기에서
+          지워 Tab 으로 가는 path 버튼이 이름 없이 남았다. 라벨 글자는 버튼 이름과 같아 숨긴다 */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox={croppedViewBox.str}
         className={s.svg}
-        role="img"
+        role="group"
         aria-label="구 지도"
       >
         {gus.map((g) => {
@@ -251,6 +253,7 @@ export function DistrictMap({
           return (
             <text
               key={`label-${g.guId}`}
+              aria-hidden="true"
               x={labelX}
               y={labelY}
               className={`${s.label} ${s.labelDistrict} ${isActive ? s.labelActive : ""}`}

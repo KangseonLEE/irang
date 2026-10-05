@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { optimizedShareImage, shareMetadata } from "@/lib/seo/share-metadata";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -37,13 +38,22 @@ export async function generateMetadata({
   const event = await getEventByIdAsync(id);
   if (!event) notFound();
 
+  // 수집 행 상투 설명("…집계 기준이에요")은 공유 문구에 싣지 않는다
+  const summary = isBoilerplateDescription(event.description) ? "" : event.description.slice(0, 120);
+  const description = `${event.region}에서 열리는 ${event.type} "${event.title}".${summary ? ` ${summary}` : ""}`;
   return {
     title: `${event.title} — ${event.type} | ${event.region}`,
-    description: `${event.region}에서 열리는 ${event.type} "${event.title}". ${event.description.slice(0, 120)}`,
+    description,
     keywords: [`${event.region} 농촌 정착 체험`, `귀농 ${event.type}`, "귀농 행사", "농촌 체험"],
     alternates: { canonical: `/events/${id}` },
-    // 마을 사진이 있으면 공유 카드도 그 사진으로 (없으면 기본 OG 이미지 라우트)
-    ...(event.imageUrl ? { openGraph: { images: [event.imageUrl] } } : {}),
+    // 마을 사진이 있으면 공유 카드도 그 사진으로(1200px 최적화 경로), 없으면 사이트 기본 OG 이미지.
+    // 예전엔 openGraph 에 이미지만 넣어 제목·사이트명이 빠졌다(10/3 QA — 레이아웃 openGraph 는 통째로 대체된다)
+    ...shareMetadata({
+      title: `${event.title} | 이랑`,
+      description,
+      path: `/events/${id}`,
+      ...(event.imageUrl ? { image: optimizedShareImage(event.imageUrl, event.title) } : {}),
+    }),
   };
 }
 
@@ -179,12 +189,12 @@ export default async function EventDetailPage({
           <div className={s.titleActions}>
             <KakaoShareButton
               title={`${event.title} | 이랑`}
-              description={`${event.description.slice(0, 100)}`}
+              description={showDescription ? event.description.slice(0, 100) : `${event.region} ${event.type}`}
               contentType="event"
             />
             <ShareButton
               title={`${event.title} | 이랑`}
-              text={`${event.title}: ${event.description.slice(0, 80)}`}
+              text={showDescription ? `${event.title}: ${event.description.slice(0, 80)}` : event.title}
               contentType="event"
               variant="ghost"
               size="sm"

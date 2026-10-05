@@ -7,6 +7,10 @@ import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { StatsClient } from "./stats-client";
 import { STATS_TABS, type StatsTabId } from "./stats-tabs";
 import shared from "@/components/stats/stats-shared.module.css";
+import { shareMetadata } from "@/lib/seo/share-metadata";
+
+const SHARE_TITLE = "귀농·귀촌 통계 한눈에 보기 | 이랑";
+const SHARE_DESCRIPTION = "공공데이터 기반 귀농·귀촌·청년·귀산촌·스마트팜 5대 통계와 만족도 분석.";
 
 export const metadata: Metadata = {
   title: "귀농·귀촌 통계 — 인구·청년·귀산촌·스마트팜·만족도",
@@ -21,11 +25,8 @@ export const metadata: Metadata = {
     "정착 만족도",
   ],
   alternates: { canonical: "/stats" },
-  openGraph: {
-    title: "귀농·귀촌 통계 한눈에 보기 | 이랑",
-    description:
-      "공공데이터 기반 귀농·귀촌·청년·귀산촌·스마트팜 5대 통계와 만족도 분석.",
-  },
+  // 공유 카드 메타 — 레이아웃 openGraph 가 통째로 대체되므로 사이트 이미지·사이트명까지 함께 (10/3 QA)
+  ...shareMetadata({ title: SHARE_TITLE, description: SHARE_DESCRIPTION, path: "/stats" }),
 };
 
 /** 봇 트래픽 절감은 next.config.ts headers의 s-maxage로 처리.

@@ -6,6 +6,7 @@
  * 각 타일에 `source` 를 함께 두는 건 "데이터에는 반드시 근거가 있어야 한다"(CLAUDE.md) 원칙.
  */
 
+import { isCrawledRow } from "@/lib/programs/display";
 import { CROPS, type CropInfo } from "./crops";
 import { PROGRAMS, type SupportProgram } from "./programs";
 import { SIGUNGUS } from "./sigungus";
@@ -95,14 +96,24 @@ const MUSHROOM = /버섯|표고/;
 const SMARTFARM_TITLE = /스마트\s?팜|ICT/;
 const FACILITY = /온실|시설원예/;
 
+/**
+ * 수집(crawl-*) 행의 summary 는 원문 공고 발췌(지원대상·자격 문구)라 분류 신호로 쓰지 않는다 — 10/3 수집기가
+ * 요약을 원문 발췌로 바꾸자 남원 면세유 사업이 지원대상의 "시설원예작물" 때문에 스마트팜에 잡혔다.
+ * 큐레이션 행만 summary 까지 본다.
+ */
+function isCrawledProgram(p: SupportProgram): boolean {
+  return isCrawledRow(p.id);
+}
+
 export function isForestProgram(p: SupportProgram): boolean {
-  const head = `${p.title} ${p.summary}`;
+  const head = isCrawledProgram(p) ? p.title : `${p.title} ${p.summary}`;
   if (SMARTFARM_TITLE.test(p.title)) return false;
   return FOREST_CORE.test(head) || MUSHROOM.test(p.title);
 }
 
 export function isSmartfarmProgram(p: SupportProgram): boolean {
   if (SMARTFARM_TITLE.test(p.title)) return true;
+  if (isCrawledProgram(p)) return FACILITY.test(p.title) && !/노지/.test(p.title);
   return FACILITY.test(`${p.title} ${p.summary}`) && !/노지/.test(p.summary);
 }
 

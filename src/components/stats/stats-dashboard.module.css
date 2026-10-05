@@ -215,6 +215,12 @@
   gap: 20px;
 }
 
+/* 분야별 만족도 막대 — 최댓값이 축 끝에 붙으면(39.3 / 축 40) 오른쪽 값 라벨이 SVG 밖으로 1~3px 나가
+   '%'가 잘렸다(10/3 실측 360~1024). 카드 안쪽 여백(20px)으로 흘려 보낸다 */
+.factorChart :global(.recharts-surface) {
+  overflow: visible;
+}
+
 /* ── 하단: 요약 + CTA ── */
 .bottomRow {
   display: flex;

@@ -236,7 +236,8 @@ export default async function EventsPage({ searchParams }: PageProps) {
                 className={s.cardAnim}
                 style={{ animationDelay: `${Math.min(i, 5) * 30}ms` }}
               >
-                <EventPhotoCard event={event} priority={i < 4} />
+                {/* 카드 제목 h2 — 이 목록은 h1(페이지 제목) 바로 아래 (10/4 axe heading-order) */}
+                <EventPhotoCard event={event} priority={i < 4} headingLevel={2} />
               </div>
             ))}
           </CardGrid>

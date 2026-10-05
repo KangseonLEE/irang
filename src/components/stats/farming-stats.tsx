@@ -12,7 +12,7 @@ import {
   Heart,
   ThumbsUp,
   ThumbsDown,
-  Clock,
+  MapPinHouse,
   Home,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
@@ -23,6 +23,7 @@ import {
   satisfactionSegments,
   satisfactionFactors,
   dissatisfactionFactors,
+  areaSatisfactionMeta,
   satisfactionSummary,
   satisfactionCauses,
   settlementSurvey,
@@ -137,7 +138,7 @@ export function FarmingStats() {
         </section>
       </div>
 
-      {/* ── 만족도 분포 + 만족/불만족 요인 ── */}
+      {/* ── 만족도 분포 + 분야별 만족·불만족 (10/3 정정: 근거 없던 '요인' 비중 → 실태조사 분야별 만족도) ── */}
       <div className={s.dashGrid}>
         <section className={s.card} aria-labelledby="farming-sat-title">
           <h3 className={s.cardTitle} id="farming-sat-title">
@@ -152,27 +153,43 @@ export function FarmingStats() {
           <section className={s.card} aria-labelledby="farming-pos-title">
             <h3 className={s.cardTitle} id="farming-pos-title">
               <Icon icon={ThumbsUp} size="lg" className={s.cardIcon} />
-              만족 요인
+              만족도가 높은 분야
             </h3>
-            <FactorBarChart
-              data={satisfactionFactors}
-              variant="positive"
-              highlightTop={2}
+            {/* 상위 3개(절반 넘게 만족)를 진하게 */}
+            <div className={s.factorChart}>
+              <FactorBarChart
+                data={satisfactionFactors}
+                variant="positive"
+                highlightTop={3}
+                decimals={1}
+              />
+            </div>
+            <DataSource
+              source={satisfactionSummary.source}
+              href={areaSatisfactionMeta.href}
+              note={areaSatisfactionMeta.note("만족·매우 만족")}
             />
-            <DataSource source={satisfactionSummary.source} />
           </section>
 
           <section className={s.card} aria-labelledby="farming-neg-title">
             <h3 className={s.cardTitle} id="farming-neg-title">
               <Icon icon={ThumbsDown} size="lg" className={s.cardIcon} />
-              불만족 요인
+              불만족이 많은 분야
             </h3>
-            <FactorBarChart
-              data={dissatisfactionFactors}
-              variant="negative"
-              highlightTop={2}
+            {/* 상위 3개(문화·의료·편의 시설, 35% 이상)가 한 묶음이라 셋을 진하게 */}
+            <div className={s.factorChart}>
+              <FactorBarChart
+                data={dissatisfactionFactors}
+                variant="negative"
+                highlightTop={3}
+                decimals={1}
+              />
+            </div>
+            <DataSource
+              source={satisfactionSummary.source}
+              href={areaSatisfactionMeta.href}
+              note={areaSatisfactionMeta.note("불만족·매우 불만족")}
             />
-            <DataSource source={satisfactionSummary.source} />
           </section>
         </div>
       </div>
@@ -187,12 +204,13 @@ export function FarmingStats() {
           <span className={s.kpiLabel}>생활비 절감</span>
         </div>
         <div className={s.kpiDivider} />
+        {/* 10/3 정정: 근거 없던 '3년 정착 분기점'을 같은 실태조사의 계속 거주 의향으로 */}
         <div className={s.kpiItem}>
           <span className={s.kpiValue}>
-            <Icon icon={Clock} size="lg" className={s.kpiIcon} />
-            3년
+            <Icon icon={MapPinHouse} size="lg" className={s.kpiIcon} />
+            {settlementSurvey.stayIntent.toFixed(1)}%
           </span>
-          <span className={s.kpiLabel}>정착 분기점</span>
+          <span className={s.kpiLabel}>계속 거주 의향</span>
         </div>
         <div className={s.kpiDivider} />
         <div className={s.kpiItem}>
@@ -200,7 +218,9 @@ export function FarmingStats() {
             <Icon icon={Users} size="lg" className={s.kpiIcon} />
             {settlementSurvey.goodRelations}%
           </span>
-          <span className={s.kpiLabel}>지역 관계 만족</span>
+          {/* 문항 = '지역주민들과의 관계'(좋음+매우 좋음, KOSIS A035) — 아래 '이웃 관계' 만족도(A052)와 다른 질문이라
+              "만족" 대신 문항 그대로 (10/4 QA) */}
+          <span className={s.kpiLabel}>주민과 관계 좋음</span>
         </div>
         <div className={s.kpiDivider} />
         <div className={s.kpiItem}>

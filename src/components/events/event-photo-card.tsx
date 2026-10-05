@@ -23,14 +23,25 @@ interface EventPhotoCardProps {
   sizes?: string;
   /** 사진 우선 로딩 (첫 화면 카드 몇 장) */
   priority?: boolean;
+  /**
+   * 카드 제목 단계 (10/4 axe heading-order). 기본 3 = 섹션 h2 아래에 놓이는 자리(/start 기회 탭).
+   * /events 목록처럼 h1 바로 아래면 2 를 넘긴다 — .title 이 margin·크기·굵기를 정해 두어 화면은 같다.
+   */
+  headingLevel?: 2 | 3;
 }
 
 const DEFAULT_SIZES =
   "(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) calc((100vw - 48px) / 2), (max-width: 1279px) calc((100vw - 64px) / 3), 300px";
 
-export function EventPhotoCard({ event, sizes = DEFAULT_SIZES, priority = false }: EventPhotoCardProps) {
+export function EventPhotoCard({
+  event,
+  sizes = DEFAULT_SIZES,
+  priority = false,
+  headingLevel = 3,
+}: EventPhotoCardProps) {
   const image = getEventImage(event);
   const facts = buildEventFacts(event, "card");
+  const Title = headingLevel === 2 ? "h2" : "h3";
 
   return (
     <article className={s.card}>
@@ -58,11 +69,11 @@ export function EventPhotoCard({ event, sizes = DEFAULT_SIZES, priority = false 
 
       <div className={s.body}>
         <p className={s.region}>{regionLabel(event)}</p>
-        <h3 className={s.title}>
+        <Title className={s.title}>
           <Link href={`/events/${event.id}`} className={s.stretchLink}>
             {cardTitle(event)}
           </Link>
-        </h3>
+        </Title>
 
         {facts.length > 0 && (
           <dl className={s.facts}>

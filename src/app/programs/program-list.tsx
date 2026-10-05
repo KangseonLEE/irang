@@ -15,6 +15,7 @@ import { PersonaScoreExplain } from "@/components/persona/persona-score-explain"
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
 import { CrawlGroupNote } from "@/components/ui/crawl-group-note";
+import { displayAmount } from "@/lib/programs/display";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
 import type { ViewMode } from "@/components/ui/view-toggle";
@@ -82,11 +83,18 @@ export function ProgramList({
     if (isPending || !hasMore) return;
 
     startTransition(async () => {
-      const result = await loadMorePrograms(filters, programs.length);
-      setPrograms((prev) => [...prev, ...result.programs]);
+      // 첫 화면과 같은 순서(정렬 키·페르소나)로 다음 쪽을 받는다 — 다르면 쪽이 겹치거나 빠진다(10/3)
+      const result = await loadMorePrograms(filters, programs.length, {
+        persona: currentPersona,
+        sort: searchParams.get("sort") ?? undefined,
+      });
+      setPrograms((prev) => {
+        const seen = new Set(prev.map((p) => p.id));
+        return [...prev, ...result.programs.filter((p) => !seen.has(p.id))];
+      });
       setHasMore(result.hasMore);
     });
-  }, [isPending, hasMore, filters, programs.length]);
+  }, [isPending, hasMore, filters, programs.length, currentPersona, searchParams]);
 
   // IntersectionObserver — 센티넬이 뷰포트에 들어오면 다음 페이지 로드
   useEffect(() => {
@@ -162,7 +170,8 @@ export function ProgramList({
                   </td>
                   <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.region}</td>
                   <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.supportType}</td>
-                  <td className={dt.amount}>{p.supportAmount}</td>
+                  {/* 수집 행의 "상세 공고 참조" 같은 채움값은 금액 칸에 쓰지 않는다 — 카드와 같은 규칙 (10/4 QA) */}
+                  <td className={dt.amount}>{displayAmount(p.id, p.supportAmount) ?? "—"}</td>
                   <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.organization}</td>
                 </tr>
               ))}

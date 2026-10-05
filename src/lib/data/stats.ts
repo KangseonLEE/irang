@@ -292,22 +292,63 @@ export const satisfactionSegments: SatisfactionSegment[] = [
   { label: "불만족", pct: 1.4 },
 ];
 
-export const satisfactionFactors: Factor[] = [
-  { label: "자연환경", pct: 45 },
-  { label: "여유로운 삶", pct: 28 },
-  { label: "건강 개선", pct: 15 },
-  { label: "주거비 절감", pct: 8 },
-  { label: "공동체 문화", pct: 4 },
+/* ── 분야별 귀농 생활 만족도 ──
+   2025 귀농·귀촌 실태조사 "분야별 귀농 생활 만족도"(귀농 3,000가구, KOSIS DT_114055_A052).
+   분야마다 따로 물은 5점 척도라 분야끼리 더해 100%가 되지 않는다.
+   10/3 정정(DE-B): 이전 '만족 요인'(자연환경 45·여유로운 삶 28·건강 개선 15·주거비 절감 8·공동체 문화 4)과
+   '불만족 요인'(의료 접근성 35·문화생활 부족 30·소득 불안정 25·기타 10)은 어느 조사와도 대응되지 않아
+   이 표의 원 값으로 바꿨다. 라벨은 차트 축(100px)에 맞춘 약칭, 원 항목명은 주석. */
+
+interface AreaSatisfaction {
+  label: string;
+  /** [매우 불만족, 불만족, 보통, 만족, 매우 만족] (%) — KOSIS 원 값 그대로 */
+  dist: readonly [number, number, number, number, number];
+}
+
+const areaSatisfaction: readonly AreaSatisfaction[] = [
+  { label: "자연환경", dist: [0, 1.8, 25.1, 56.9, 16.3] },
+  { label: "주거환경", dist: [0.2, 3.4, 37.6, 52.3, 6.6] },
+  { label: "건강증진", dist: [0.2, 6.1, 37.6, 48.2, 7.9] },
+  { label: "이웃 관계", dist: [0.1, 3.2, 52.5, 40.9, 3.4] }, // 이웃과의 관계
+  { label: "직업", dist: [0.3, 10.5, 58.8, 29, 1.4] },
+  { label: "가구소득", dist: [1.3, 17.1, 52.7, 28.1, 0.8] },
+  { label: "행정·금융", dist: [0.9, 22.1, 57.7, 18, 1.2] }, // 행정·금융시설 이용 여건
+  { label: "생활·편의", dist: [3.2, 32, 48.2, 15.4, 1.2] }, // 생활·편의시설 이용 여건
+  { label: "병원·의료", dist: [2.5, 32.8, 48.6, 14.9, 1.3] }, // 병원·보건의료 이용 여건
+  { label: "문화·여가", dist: [3.7, 35.6, 46.3, 13.1, 1.3] }, // 문화·여가시설 이용 여건
 ];
 
-export const dissatisfactionFactors: Factor[] = [
-  { label: "의료 접근성", pct: 35 },
-  { label: "문화생활 부족", pct: 30 },
-  { label: "소득 불안정", pct: 25 },
-  { label: "기타", pct: 10 },
-];
+const _pctSum = (xs: readonly number[]) => Number(xs.reduce((a, b) => a + b, 0).toFixed(1));
+const _areaRates = areaSatisfaction.map((a) => ({
+  label: a.label,
+  /** 만족 + 매우 만족 */
+  satisfied: _pctSum(a.dist.slice(3)),
+  /** 불만족 + 매우 불만족 */
+  dissatisfied: _pctSum(a.dist.slice(0, 2)),
+}));
 
-/** 2025 귀농·귀촌 실태조사 — 귀농 전후 월평균 생활비·귀농 5년차 소득 (농식품부 2026-02-25 보도자료) */
+/** 차트에 보여 줄 분야 수 (분야가 많아 상위만) */
+const AREA_TOP = 5;
+
+/** 분야별 '만족'(만족 + 매우 만족) 비율 상위 — 2025 실태조사 */
+export const satisfactionFactors: Factor[] = [..._areaRates]
+  .sort((a, b) => b.satisfied - a.satisfied)
+  .slice(0, AREA_TOP)
+  .map((a) => ({ label: a.label, pct: a.satisfied }));
+
+/** 분야별 '불만족'(불만족 + 매우 불만족) 비율 상위 — 2025 실태조사 */
+export const dissatisfactionFactors: Factor[] = [..._areaRates]
+  .sort((a, b) => b.dissatisfied - a.dissatisfied)
+  .slice(0, AREA_TOP)
+  .map((a) => ({ label: a.label, pct: a.dissatisfied }));
+
+/** 분야별 만족도 차트의 출처 보조 문구·원 통계표 — "10개 분야별 ‘만족·매우 만족’ 비율 상위 5개" */
+export const areaSatisfactionMeta = {
+  note: (answer: string) => `${areaSatisfaction.length}개 분야별 ‘${answer}’ 비율 상위 ${AREA_TOP}개`,
+  href: "https://kosis.kr/statHtml/statHtml.do?orgId=114&tblId=DT_114055_A052",
+} as const;
+
+/** 2025 귀농·귀촌 실태조사 — 귀농 전후 월평균 생활비·5년차 소득 (농식품부 2026-02-25 보도자료) */
 export const settlementSurvey = {
   year: 2025,
   livingCostBefore: 239,
@@ -319,8 +360,14 @@ export const settlementSurvey = {
   incomeFirstYear: 2534,
   incomeFifthYear: 3300,
   incomeChange: 30.2,
+  /** 귀촌 첫해 → 5년차 가구소득 — 같은 보도자료 "귀촌 … 4,215만원 … 첫해 3,853만원 … 9.4% 증가" */
+  ruralIncomeFirstYear: 3853,
+  ruralIncomeFifthYear: 4215,
+  ruralIncomeChange: 9.4,
   /** 지역주민과 '관계가 좋다'(매우 좋음 + 좋음), KOSIS DT_114055_A035 */
   goodRelations: 75.5,
+  /** 현재 거주 지역에 '계속 거주할 계획' — KOSIS DT_114055_A054, 보도자료 "귀농가구 97.0%" */
+  stayIntent: 97.0,
 } as const;
 
 const _satisfied = Number(
@@ -330,9 +377,16 @@ const _satisfied = Number(
     .toFixed(1),
 );
 
+/** "문화·여가(39.3%), 병원·의료(35.3%), 생활·편의(35.2%)" — 분야 라벨에 가운뎃점이 있어 쉼표로 잇는다 */
+const _topDissatisfied = dissatisfactionFactors
+  .slice(0, 3)
+  .map((f) => `${f.label}(${f.pct}%)`)
+  .join(", ");
+const _topSatisfied = satisfactionFactors[0];
+
 export const satisfactionSummary = {
   title: "정착 만족도 조사",
-  description: `귀농가구의 ${_satisfied}%가 귀농 생활에 만족한다고 답했고, 귀농 이유는 자연환경이 1위예요. 반면 의료 접근성, 문화생활 부족, 소득 불안정이 주요 불만 요인으로 꼽혀요. 월평균 생활비는 귀농 전 ${settlementSurvey.livingCostBefore}만 원에서 ${settlementSurvey.livingCostAfter}만 원으로 ${Math.abs(settlementSurvey.livingCostChange)}% 줄었어요.`,
+  description: `귀농가구의 ${_satisfied}%가 귀농 생활에 만족한다고 답했고, 귀농 이유는 자연환경이 1위예요. 분야별로는 ${_topSatisfied.label}(${_topSatisfied.pct}%)에 만족한다는 답이 가장 많았고, ${_topDissatisfied} 시설 이용 여건에는 불만족한다는 답이 많았어요. 월평균 생활비는 귀농 전 ${settlementSurvey.livingCostBefore}만 원에서 ${settlementSurvey.livingCostAfter}만 원으로 ${Math.abs(settlementSurvey.livingCostChange)}% 줄었어요.`,
   /** 조사 연도 고정 — 인구 통계 연도를 따라가지 않는다(10/3 정정) */
   source: `농림축산식품부 ${settlementSurvey.year} 귀농·귀촌 실태조사`,
 };
@@ -342,7 +396,8 @@ export const satisfactionCauses: CauseAnalysis[] = [
     label: "자연환경 — 귀농 이유 1위",
     description:
       "귀농 이유 1순위는 '자연환경이 좋아서'(33.3%)이고, 귀농가구의 71.9%가 귀농 생활에 만족한다고 답했어요. 지역주민과 관계가 좋다는 응답도 75.5%예요(2025년 실태조사).",
-    source: "농림축산식품부, 2025 귀농·귀촌 실태조사 (KOSIS)",
+    // 관계 75.5% 는 A035(지역주민들과의 관계) — 링크는 귀농 이유·만족도 표(A051) 하나라 출처 줄에 두 표를 다 적는다 (10/4 QA)
+    source: "농림축산식품부, 2025 귀농·귀촌 실태조사 (KOSIS DT_114055_A051·A035)",
     sourceUrl: "https://kosis.kr/statHtml/statHtml.do?orgId=114&tblId=DT_114055_A051",
   },
   {
@@ -352,19 +407,14 @@ export const satisfactionCauses: CauseAnalysis[] = [
     source: "농림축산식품부, 2025 귀농·귀촌 실태조사",
     sourceUrl: "https://www.mafra.go.kr/bbs/home/792/577092/artclView.do",
   },
+  /* 10/3 정정(DE-B): "불만족 1위 = 의료"는 근거 없던 불만족 요인 차트(의료 35%)에 기댄 표현이었다 — 공식 분야별
+     만족도에서는 문화·여가가 1위라 바꿨다. "농촌 1인 가구가 늘수록 미충족 의료 증가"는 출처 보고서(P257)에 없어 지웠다.
+     이어지던 "초기 3년 — 정착 성패의 분기점(농외소득 200만 원 급감)"은 출처로 적은 실태조사 발표에 없는 내용이라 지웠다. */
   {
-    label: "의료 접근성 — 불만족 1위 요인의 구조적 원인",
-    description:
-      "농촌 지역은 도시 대비 의료서비스 접근성, 이용 가능 범위, 응급의료 모두 낮은 수준이에요. 한국보건사회연구원 연구에 따르면 농촌 1인 가구 비율이 높아질수록 미충족 의료 수요가 증가하며, 이는 정착자의 장기 안착을 저해하는 핵심 요인이에요.",
-    source: "한국농촌경제연구원, 농촌·도시 건강실태 및 의료비용 효과 비교",
+    label: "생활 인프라 — 불만족이 가장 많은 분야",
+    description: `분야별로 물으면 ${_topDissatisfied} 시설 이용 여건에 불만족한다는 답이 가장 많았어요(${settlementSurvey.year}년 실태조사). 한국농촌경제연구원 보고서도 농촌 정주만족도 조사에서 필요할 때 의료서비스를 이용하기 쉬운 정도, 지역에서 받을 수 있는 의료서비스의 범위와 수준, 응급의료 접근성이 모두 도시보다 낮게 나왔다고 정리했어요.`,
+    source: "한국농촌경제연구원, 농촌·도시 건강실태 및 의료비용 효과 비교와 정책과제 (2019)",
     sourceUrl: "https://repository.krei.re.kr/bitstream/2018.oak/24943/1/P257.pdf",
-  },
-  {
-    label: "초기 3년 — 정착 성패의 분기점",
-    description:
-      "귀촌인의 최대 고민은 경제 문제이며, 초기 3년간 집중 관리가 필요해요. 농외소득이 200만 원 이상 급감하면서 전체 소득을 끌어내리는 구조가 확인되었으며, 이 시기를 넘기면 만족도가 안정화되는 경향이 있어요.",
-    source: "농림축산식품부, 2024 귀농·귀촌 실태조사 (소득·정착 분석)",
-    sourceUrl: "https://www.mafra.go.kr/bbs/home/792/569593/artclView.do",
   },
 ];
 

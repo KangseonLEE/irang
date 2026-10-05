@@ -40,9 +40,10 @@ export function Footer() {
     <footer className={s.footer}>
       <div className={s.inner}>
         <div className={s.grid}>
-          {/* Brand + 문의 */}
+          {/* Brand + 문의 — 푸터 제목은 h2(이랑) → h3(서비스·데이터 출처). 본문이 h1 하나뿐인 화면(/search 홈)에서
+              h1 다음 h3 으로 건너뛰던 제목 순서(10/3 QA axe heading-order)를 맞춘다. 여백은 예전 h3·h4 값 그대로 */}
           <div>
-            <h3 className={s.brandTitle}>이랑</h3>
+            <h2 className={s.brandTitle}>이랑</h2>
             <p className={s.brandSlogan}>농촌 정착을 꿈꾸는 모든 이들의 시작점</p>
             <ul className={s.brandContact}>
               <li>
@@ -58,7 +59,7 @@ export function Footer() {
 
           {/* Service Links */}
           <div>
-            <h4 className={s.sectionTitle}>서비스</h4>
+            <h3 className={s.sectionTitle}>서비스</h3>
             <ul className={s.linkList}>
               {serviceLinks.map((link) => (
                 <li key={link.href}>
@@ -75,7 +76,7 @@ export function Footer() {
 
           {/* Data Sources — 데스크탑에서만 표시 */}
           <div className={s.dataSourceGroup}>
-            <h4 className={s.sectionTitle}>데이터 출처</h4>
+            <h3 className={s.sectionTitle}>데이터 출처</h3>
             <ul className={s.linkList}>
               {dataSources.map((source) => (
                 <li key={source} className={s.sourceItem}>

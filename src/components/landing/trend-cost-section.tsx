@@ -180,6 +180,8 @@ export function TrendCostSection() {
   const trend = TREND_BENTO_PROFILES[cat.trendKey];
   const cost = COST_TYPE_PROFILES[cat.costKey];
   const maxPct = Math.max(...trend.chart.items.map((r) => r.pct));
+  /** 근거를 찾지 못한 비교 항목은 데이터에서 지웠다(10/3) — 탭마다 0~4개 */
+  const compareItems = trend.compare?.items ?? [];
 
   /* 카운트업 시작 — 마운트 즉시가 아니라 섹션이 뷰포트에 들어올 때 (9/28).
      마운트 트리거면 사용자가 이 섹션에 닿기 전에 애니메이션이 끝나 아무도 못 본다. */
@@ -298,7 +300,7 @@ export function TrendCostSection() {
             </div>
           ))}
 
-          {/* 바 차트 타일 */}
+          {/* 바 차트 타일 — 비교 타일이 없는 탭(귀산촌)은 1024+ 에서 그 자리(3열 2행)까지 채운다(CSS :has) */}
           <div className={s.tileReasons}>
             <div className={s.reasonsHeader}>
               <h3 className={s.reasonsTitle}>{trend.chart.title}</h3>
@@ -319,20 +321,23 @@ export function TrendCostSection() {
             </div>
           </div>
 
-          {/* 비교 타일 */}
-          <div className={s.tileCompare}>
-            <h3 className={s.compareTitle}>{trend.compare.title}</h3>
-            <div className={s.compareList}>
-              {trend.compare.items.map((row, i) => (
-                <div key={row.label} className={s.compareItem}
-                  style={{ "--ci": i } as React.CSSProperties}>
-                  <span className={s.compareLabel}>{row.label}</span>
-                  <span className={s.compareChange}>{row.change}</span>
-                  <span className={s.compareDetail}>{row.detail}</span>
-                </div>
-              ))}
+          {/* 비교 타일 — 공식 근거가 있는 항목만 데이터에 남는다(10/3). 0개면 타일째 숨기고,
+              2열 목록에서 홀수 개면 마지막 칸을 전폭으로 편다(CSS :nth-child) */}
+          {trend.compare && compareItems.length > 0 && (
+            <div className={s.tileCompare}>
+              <h3 className={s.compareTitle}>{trend.compare.title}</h3>
+              <div className={s.compareList}>
+                {compareItems.map((row, i) => (
+                  <div key={row.label} className={s.compareItem}
+                    style={{ "--ci": i } as React.CSSProperties}>
+                    <span className={s.compareLabel}>{row.label}</span>
+                    <span className={s.compareChange}>{row.change}</span>
+                    <span className={s.compareDetail}>{row.detail}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <DataSource source={trend.source} />

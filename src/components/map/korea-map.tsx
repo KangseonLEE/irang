@@ -167,11 +167,13 @@ export function KoreaMap({ selectedProvinceId, onHover, densityMap, showLegend =
 
   return (
     <div className={s.mapContainer} ref={containerRef}>
+      {/* role="group" (10/4 axe nested-interactive — province-map 과 같은 수정): role="img" 는 자식을 보조기기에서
+          지워 Tab 으로 가는 path 버튼이 이름 없이 남았다. 라벨 글자는 버튼 이름과 같아 숨긴다 */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox={KOREA_MAP_VIEWBOX}
         className={s.svg}
-        role="img"
+        role="group"
         aria-label="대한민국 지역 지도 — 인구밀도 기준 색상"
       >
         {/* 지역 path들 */}
@@ -215,6 +217,7 @@ export function KoreaMap({ selectedProvinceId, onHover, densityMap, showLegend =
           return (
             <text
               key={`label-${loc.svgId}`}
+              aria-hidden="true"
               x={pos.x}
               y={pos.y}
               className={`${s.label} ${isHighlighted ? s.labelActive : ""} ${!isHighlighted && isDark ? s.labelDark : ""} ${isSmall ? s.labelSmall : ""}`}

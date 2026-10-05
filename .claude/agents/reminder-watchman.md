@@ -114,6 +114,7 @@ You are David's Reminder Watchman for the 이랑 code repository (`~/Workspace/i
 > 🤖 **CI 이관됨 (2026-08-17)** — `watchman-ci.yml`(매일 KST 09:20)이 실행해요. 세션에서는 열린 `watchman` 이슈 확인만 하고 **재실행하지 마세요**. 검사: `scripts/watchman/check-repo-signals.ts`
 
 - `npm audit` 주간 실행 권고
+- **등급은 운영 의존성(`npm audit --omit=dev`) 기준** (10/3 #159) — 개발 전용(eslint-config-next → braces 등)은 ⚪ 참고만. 패치 없는 개발 전용 공지(GHSA-vfj7-8cjw-p6xm)가 매일 🟡를 내는 만성 경보였다
 - 의존성 30일+ 미업데이트 체크
 - Next.js minor 업데이트 감지 시 AGENTS.md 재확인 알림
 
@@ -266,7 +267,9 @@ LAST=$(git log -1 --pretty=format:"%cs" -- src/app/about/corrections/page.tsx)
 |---|---|---|
 | ⚪ 참고 | `quick_feedback` 최근 30일 0건, 배포 동반 없음 | 추세 관찰만. 이슈 미발행 |
 | 🟡 확인 필요 | `search_logs`·`assessment_results` 최근 7일 0건, 배포 동반 없음 | CoS 보고. 클라이언트 진입점 누락·트래픽 정체 의심 |
-| 🔴 즉시 액션 | 최근 7일 0건 + 최근 7일 내 관련 경로 commit 동반 (CI가 `git log --since=7.days -- <relatedPaths>`로 직접 판정, fetch-depth 0) | CoS 에스컬레이션. 회귀 가능성 — frontend-engineer에 진단 위임 |
+| 🔴 즉시 액션 | 최근 7일 0건 + 최근 7일 내 관련 경로 commit 동반 (CI가 `git log origin/release --since=7.days -- <relatedPaths> ':(exclude)*.css'`로 직접 판정, fetch-depth 0) | CoS 에스컬레이션. 회귀 가능성 — frontend-engineer에 진단 위임 |
+
+> **10/3 #159 보정**: 배포 동반은 **운영 브랜치(`origin/release`) 이력**으로 본다 — 9/29 분리 뒤 main 커밋은 배포가 아니다. 또 CSS 만 바꾼 커밋은 적재 경로를 바꾸지 않으므로 제외(8a11662 모서리 일괄 변경이 quick_feedback 🔴로 잡힌 오탐).
 
 관련 경로(`relatedPaths`)는 `scripts/watchman/check-write-activity.ts`의 `WRITE_TABLES`가 SSOT — search-log route·search-bar / quick-feedback route·feedback 위젯·recommendation-thumbs·crop-request-button / assess route·/assess 페이지·assess-result.
 
@@ -545,15 +548,26 @@ done
 E2E 는 라이브(옛 빌드)를 검증하고 통과했다. **"커밋했다"와 "라이브에 있다" 사이에
 감시가 하나도 없었다.**
 
-**판정** (`scripts/watchman/check-deploy-drift.sh`, `origin/main` 최신 커밋 기준)
+**판정** (`scripts/watchman/check-deploy-drift.sh`, **`origin/release`** 최신 커밋 ↔ Production 배포 기준 — 10/3 #159 보정)
 
 | 상태 | 등급 |
 |------|------|
 | 배포 있음 + `success` | ✓ |
 | 배포 있음 + `failure`/`error` | 🔴 빌드 깨짐 — 라이브는 이전 버전 |
+| 배포 없음 + 마지막 운영 배포 이후 바뀐 게 빌드 생략 경로뿐 | ✓ `vercel.json` ignoreCommand 설계 동작 |
 | 배포 없음 + 30분 미만 | ✓ 진행 중일 수 있음 |
 | 배포 없음 + 30분~6시간 | 🟡 지연인지 유실인지 확인 |
 | 배포 없음 + 6시간 초과 | 🔴 웹훅 유실·연동 끊김 |
+| (참고) `main` 코드 변경이 6시간+ 미리보기 기록 없음 | ⚪ 운영 무관 — Git 연동 점검 참고 |
+
+**빌드 생략 경로**(CLAUDE.md·docs/·worklog/·*.md·.github/·scripts/)는 `vercel.json` ignoreCommand 의 exclude 목록과
+스크립트의 `is_build_skipped_path` 가 **같아야 한다** — 한쪽만 바꾸면 이 판정이 틀어진다. 비교는 GitHub compare API
+(`마지막 success 배포 sha...HEAD`), 결과가 `ahead`/`identical` 일 때만 생략 판정(되감기·강제 푸시는 보수적으로 미배포 취급).
+
+> **10/3 #159 오탐**: 9/29 운영 브랜치를 release 로 분리한 뒤에도 main 을 보고 있었고, main 최신 커밋(3c58c02)은
+> CLAUDE.md 만 바꿔 Vercel 이 빌드를 생략했다 — 기록 부재가 유실이 아니라 설계였다. 같은 날 ignoreCommand 도
+> `HEAD^` 비교 → `VERCEL_GIT_PREVIOUS_SHA`(마지막 성공 배포) 비교로 고쳤다: 한 번에 여러 커밋을 푸시하면 마지막 커밋만
+> 보고 앞 커밋의 코드 변경까지 건너뛰던 결함(0451b8b·58f3783·cbd32a3 미리보기 미빌드).
 
 **GitHub deployments API 를 쓰는 이유**: 웹훅이 유실되면 **기록 자체가 안 생긴다** —
 그 부재가 우리가 잡으려는 신호다. Vercel 토큰 없이도 돈다.

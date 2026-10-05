@@ -40,11 +40,16 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
   const [featuredIdx, setFeaturedIdx] = useState(0);
   const [fadePhase, setFadePhase] = useState<FadePhase>("idle");
   const [isPaused, setIsPaused] = useState(false);
+  // 키보드 포커스가 슬라이더·카드 목록 안에 있는 동안은 자동 넘김을 멈춘다 — 마우스 이탈(isPaused=false)과 따로 센다 (10/4 QA)
+  const [focusPaused, setFocusPaused] = useState(false);
   const [brokenImgs, setBrokenImgs] = useState<Set<string>>(new Set());
   const [contentSlide, setContentSlide] = useState<ContentSlide>("idle");
   const nextIdxRef = useRef<number | null>(null);
   const touchRef = useRef<{ x: number; y: number; t: number } | null>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+  /** 포커스된 토글로 펼친 카드 — 모바일은 펼친 카드의 토글을 숨기므로 펼친 뒤 포커스를 기사 링크로 옮긴다 */
+  const pendingFocusRef = useRef<number | null>(null);
 
   const filtered = useMemo(() => {
     if (activeTab === "all") return items.slice(0, 5);
@@ -94,8 +99,38 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
     }, 200);
   }, [activeTab]);
 
+  // 모바일(<640)은 펼친 카드의 토글을 display:none 으로 접어 포커스가 body 로 떨어졌다(10/4 QA) — 펼친 기사 링크로 옮긴다.
+  // 토글이 보이는 데스크탑은 그대로 둔다(offsetParent 로 판정).
   useEffect(() => {
-    if (isPaused || filtered.length === 0) return;
+    const idx = pendingFocusRef.current;
+    if (idx === null || idx !== featuredIdx) return;
+    pendingFocusRef.current = null;
+    const card = navRef.current?.children[idx] as HTMLElement | undefined;
+    const toggle = card?.querySelector<HTMLElement>("button");
+    if (toggle && toggle.offsetParent === null) {
+      card?.querySelector<HTMLElement>("a")?.focus({ preventScroll: true });
+    }
+  }, [featuredIdx]);
+
+  /** 포커스가 영역 밖으로 나갈 때만 해제 — 안에서 옮겨 다닐 때는 계속 멈춤 */
+  const pauseOnFocus = {
+    // 마우스로 누른 뒤 이탈하면 종전처럼 다시 넘어가야 한다 — 키보드 포커스(:focus-visible)일 때만 멈춘다
+    onFocus: (e: React.FocusEvent<HTMLDivElement>) => {
+      let keyboard = true;
+      try {
+        keyboard = (e.target as HTMLElement).matches(":focus-visible");
+      } catch {
+        // :focus-visible 을 모르는 환경(구형 브라우저)은 포커스만으로 멈춘다
+      }
+      if (keyboard) setFocusPaused(true);
+    },
+    onBlur: (e: React.FocusEvent<HTMLDivElement>) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocusPaused(false);
+    },
+  };
+
+  useEffect(() => {
+    if (isPaused || focusPaused || filtered.length === 0) return;
 
     const timer = setInterval(() => {
       const nextIdx = featuredIdx + 1;
@@ -107,7 +142,7 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
     }, ROTATE_INTERVAL);
 
     return () => clearInterval(timer);
-  }, [filtered.length, isPaused, featuredIdx, transitionTo, advanceTab]);
+  }, [filtered.length, isPaused, focusPaused, featuredIdx, transitionTo, advanceTab]);
 
   const switchTab = useCallback(
     (direction: 1 | -1) => {
@@ -195,6 +230,7 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
               className={s.slider}
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
+              {...pauseOnFocus}
             >
               {featured && (
                 <a
@@ -241,45 +277,58 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
               )}
             </div>
 
-            {/* 하단 썸네일 내비게이션 */}
-            <div className={s.nav}>
+            {/* 하단 썸네일 내비게이션.
+                카드 = 토글 버튼 + (모바일) 펼침 링크 **형제**. 예전엔 링크가 버튼 안에 있어 대화형 요소가 중첩됐다
+                (10/3 QA axe nested-interactive — 스크린리더가 링크를 못 찾거나 버튼 이름에 기사 전문이 섞인다).
+                테두리·배경은 바깥 카드가, 누르는 영역(여백 포함)은 버튼이 그대로 맡아 화면은 같다. */}
+            <div className={s.nav} ref={navRef} {...pauseOnFocus}>
               {filtered.map((item, i) => {
                 const isActive = i === featuredIdx;
                 return (
-                  <button
+                  <div
                     key={`${item.category}-${i}`}
-                    type="button"
                     className={`${s.navItem} ${isActive ? s.navItemActive : ""}`}
                     data-reveal-item
-                    onClick={() => transitionTo(i)}
                     onMouseEnter={() => {
                       setIsPaused(true);
                       transitionTo(i);
                     }}
                     onMouseLeave={() => setIsPaused(false)}
                   >
-                    <div className={s.navThumb}>
-                      {item.thumbnail && !brokenImgs.has(item.thumbnail) ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={item.thumbnail}
-                          alt={item.title}
-                          className={s.navThumbImg}
-                          loading="lazy"
-                          onError={() => {
-                            setBrokenImgs((prev) => new Set(prev).add(item.thumbnail!));
-                          }}
-                        />
-                      ) : (
-                        <div className={s.navThumbFallback}>
-                          <Sprout size={16} />
-                        </div>
-                      )}
-                    </div>
-                    <div className={s.navText}>
-                      <span className={s.navTitle}>{item.title}</span>
-                      <span className={s.navMeta}>{item.source} · {item.date}</span>
-                    </div>
+                    <button
+                      type="button"
+                      className={s.navToggle}
+                      aria-current={isActive ? "true" : undefined}
+                      onClick={(e) => {
+                        // 포커스된 토글로 펼칠 때만 포커스를 옮긴다(마우스·자동 넘김은 해당 없음)
+                        const willTransition = i !== featuredIdx && fadePhase === "idle";
+                        pendingFocusRef.current = willTransition && document.activeElement === e.currentTarget ? i : null;
+                        transitionTo(i);
+                      }}
+                    >
+                      <span className={s.navThumb}>
+                        {item.thumbnail && !brokenImgs.has(item.thumbnail) ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={item.thumbnail}
+                            alt=""
+                            className={s.navThumbImg}
+                            loading="lazy"
+                            onError={() => {
+                              setBrokenImgs((prev) => new Set(prev).add(item.thumbnail!));
+                            }}
+                          />
+                        ) : (
+                          <span className={s.navThumbFallback}>
+                            <Sprout size={16} aria-hidden="true" />
+                          </span>
+                        )}
+                      </span>
+                      <span className={s.navText}>
+                        <span className={s.navTitle}>{item.title}</span>
+                        <span className={s.navMeta}>{item.source} · {item.date}</span>
+                      </span>
+                    </button>
 
                     {/* 모바일 확장 영역 — grid-row 아코디언 (CSS로 데스크탑 숨김) */}
                     <div className={s.navExpandWrap}>
@@ -288,7 +337,6 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
                         target="_blank"
                         rel="noopener noreferrer"
                         className={s.navExpanded}
-                        onClick={(e) => e.stopPropagation()}
                       >
                         <div className={s.slideVisual}>
                           {item.thumbnail && !brokenImgs.has(item.thumbnail) ? (
@@ -323,7 +371,7 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
                         </div>
                       </a>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>

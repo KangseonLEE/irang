@@ -166,6 +166,45 @@ describe("GNB 드롭다운 키보드 — 디스클로저 (10/2 QA)", () => {
     expect(document.activeElement).toBe(btn);
   });
 
+  describe("마우스 hover 로 열면 aria-expanded 도 true — 화면(CSS :hover)과 같다 (10/3 QA)", () => {
+    /** 버튼의 부모 = 드롭다운 그룹(.navGroup) — hover 는 그룹 단위로 잡힌다 */
+    const groupOf = (btn: HTMLElement) => btn.parentElement as HTMLElement;
+
+    it("마우스가 올라가면 true, 떠나면 false", () => {
+      render(<Header />);
+      const btn = firstGroup();
+      fireEvent.pointerEnter(groupOf(btn), { pointerType: "mouse" });
+      expect(btn).toHaveAttribute("aria-expanded", "true");
+      fireEvent.pointerLeave(groupOf(btn), { pointerType: "mouse" });
+      expect(btn).toHaveAttribute("aria-expanded", "false");
+    });
+
+    it("hover 로 연 메뉴도 Esc 로 닫힌다(포인터를 옮기지 않아도 — WCAG 1.4.13)", () => {
+      render(<Header />);
+      const btn = firstGroup();
+      fireEvent.pointerEnter(groupOf(btn), { pointerType: "mouse" });
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(btn).toHaveAttribute("aria-expanded", "false");
+    });
+
+    it("터치 포인터는 hover 로 세지 않는다 — 탭은 클릭 토글이 맡는다", () => {
+      render(<Header />);
+      const btn = firstGroup();
+      fireEvent.pointerEnter(groupOf(btn), { pointerType: "touch" });
+      expect(btn).toHaveAttribute("aria-expanded", "false");
+    });
+
+    it("클릭으로 고정한 그룹은 마우스가 다른 그룹에 들어가면 닫힌다 — 두 메뉴가 겹쳐 열리지 않는다", () => {
+      render(<Header />);
+      const [a, b] = screen.getAllByRole("button", { expanded: false });
+      fireEvent.click(a);
+      expect(a).toHaveAttribute("aria-expanded", "true");
+      fireEvent.pointerEnter(groupOf(b), { pointerType: "mouse" });
+      expect(a).toHaveAttribute("aria-expanded", "false");
+      expect(b).toHaveAttribute("aria-expanded", "true");
+    });
+  });
+
   it("다른 그룹 버튼으로 포커스가 오면 열려 있던 그룹은 닫힌다", () => {
     render(<Header />);
     const [a, b] = screen.getAllByRole("button", { expanded: false });

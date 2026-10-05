@@ -36,6 +36,7 @@ import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import { FilterShell } from "@/components/filter/filter-shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { displayAmount, displayText } from "@/lib/programs/display";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
@@ -341,6 +342,10 @@ export default async function EducationPage({ searchParams }: PageProps) {
 /** 교육 과정 카드 */
 function CourseCard({ course }: { course: EducationCourse }) {
   const isClosed = course.status === "마감";
+  // 수집 행 설명은 "…에서 수집했어요"·"원문 공고를 꼭 확인하세요" 같은 상투 문장뿐이라 줄째 숨긴다 (10/4 QA, 지원사업 카드와 같은 규칙)
+  const description = displayText(course.id, course.description);
+  // 수집 행 비용은 원문 칸이 비어 "상세 공고 참조"가 채워진다 — 금액처럼 굵게 보이지 않게 비운다(자리는 유지)
+  const cost = displayAmount(course.id, course.cost);
 
   return (
     <Link
@@ -353,8 +358,9 @@ function CourseCard({ course }: { course: EducationCourse }) {
         <span className={s.levelBadge}>{course.level}</span>
       </div>
 
-      {/* 제목 */}
-      <h3 className={s.cardTitle}>{course.title}</h3>
+      {/* 제목 — 목록이 h1(페이지 제목) 바로 아래라 h2 (10/4 axe heading-order: h1 다음 h3 건너뜀).
+          .cardTitle 이 margin·글자 크기·굵기를 모두 정해 두어 화면은 같다 */}
+      <h2 className={s.cardTitle}>{course.title}</h2>
 
       {/* 기관 + 지역 */}
       <div className={s.cardSubtitle}>
@@ -389,11 +395,11 @@ function CourseCard({ course }: { course: EducationCourse }) {
       </div>
 
       {/* 설명 */}
-      <p className={s.cardDesc}><AutoGlossary text={course.description} /></p>
+      {description && <p className={s.cardDesc}><AutoGlossary text={description} /></p>}
 
       {/* 하단: 비용 */}
       <div className={s.cardFooter}>
-        <span className={s.cardCost}>{course.cost}</span>
+        <span className={s.cardCost}>{cost ?? ""}</span>
         <span className={s.cardLink} aria-hidden="true">
           상세보기
         </span>

@@ -15,7 +15,7 @@ import type { Factor } from "@/lib/data/stats";
 /** Recharts가 content element에 주입하는 Tooltip props */
 interface ChartTooltipProps {
   active?: boolean;
-  payload?: Array<{ payload: Factor & { rank: number }; color?: string }>;
+  payload?: Array<{ payload: Factor & { rank: number; pctLabel: string }; color?: string }>;
 }
 import s from "./chart-styles.module.css";
 
@@ -25,6 +25,8 @@ interface Props {
   variant?: "positive" | "negative";
   /** 상위 N개까지만 강조 (기본: 2) */
   highlightTop?: number;
+  /** 값 라벨 소수 자릿수 — 지정하면 23 도 "23.0" 으로 맞춘다(같은 차트에 39.3 과 23 이 섞이지 않게, 10/4 QA) */
+  decimals?: number;
 }
 
 const COLOR_POSITIVE = "#1B6B5A";
@@ -35,7 +37,7 @@ const COLOR_NEGATIVE_MUTED = "rgba(220, 38, 38, 0.18)";
 /* ── 커스텀 툴팁 ── */
 function CustomTooltip({ active, payload }: ChartTooltipProps) {
   if (!active || !payload?.length) return null;
-  const { label, pct, rank } = payload[0].payload;
+  const { label, pctLabel, rank } = payload[0].payload;
   return (
     <div className={s.tooltip}>
       <p className={s.tooltipLabel}>{rank}위</p>
@@ -45,7 +47,7 @@ function CustomTooltip({ active, payload }: ChartTooltipProps) {
           style={{ background: payload[0].color }}
         />
         <span>{label}</span>
-        <span className={s.tooltipValue}>{pct}%</span>
+        <span className={s.tooltipValue}>{pctLabel}%</span>
       </div>
     </div>
   );
@@ -55,15 +57,18 @@ export default function FactorBarChart({
   data,
   variant = "positive",
   highlightTop = 2,
+  decimals,
 }: Props) {
+  const formatPct = (v: number) => (decimals == null ? String(v) : v.toFixed(decimals));
   const enrichedData = useMemo(
     () =>
       data.map((d, i) => ({
         ...d,
         rank: i + 1,
         isSignificant: i < highlightTop,
+        pctLabel: decimals == null ? String(d.pct) : d.pct.toFixed(decimals),
       })),
-    [data, highlightTop],
+    [data, highlightTop, decimals],
   );
 
   const mainColor = variant === "positive" ? COLOR_POSITIVE : COLOR_NEGATIVE;
@@ -108,7 +113,7 @@ export default function FactorBarChart({
               fontSize: 13,
               fontWeight: 700,
               fill: "#374151",
-              formatter: (v: unknown) => `${v}%`,
+              formatter: (v: unknown) => (typeof v === "number" ? `${formatPct(v)}%` : `${v}%`),
             }}
           >
             {enrichedData.map((entry) => (
