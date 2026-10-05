@@ -235,7 +235,8 @@ export default async function HomePage() {
       </ScrollReveal>
 
       {/* ═══ 5. 이랑에서 할 수 있는 것 3카드 (연한 그린 배경) — 10/2 회장: "돈 되는 작물, 한눈에" 섹션 제거 ═══ */}
-      <div className={s.lightGreenBg}>
+      {/* 10/5 회장: 바로 아래 농촌 소식 띠와 흰 틈 없이 붙인다 — 카드 끝 → 소식 제목 = 보통 섹션 간격 */}
+      <div className={`${s.lightGreenBg} ${s.bandJoinBelow}`}>
         <ScrollReveal trackId="start_cards" variant="fade" stagger>
           <StartCardsSection
             openProgramCount={openProgramCount}
@@ -247,7 +248,7 @@ export default async function HomePage() {
       {/* ═══ 6+7. 뉴스 → CTA (여백 없이 연결) ═══ */}
       <div className={s.bottomGroup}>
         <ScrollReveal trackId="news" variant="fade" stagger>
-          <div className={s.mutedBg}>
+          <div className={`${s.mutedBg} ${s.bandJoinAbove}`}>
             <section className={s.newsSection} aria-label="농촌 소식">
               <div className={s.sectionHeader} data-reveal-x="left">
                 <div>

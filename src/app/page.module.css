@@ -365,7 +365,7 @@
   padding-right: calc(50vw - 50%);
 }
 
-/* ── 연한 그린 배경 (비용) ── */
+/* ── 연한 그린 배경 (이랑에서 할 수 있는 것 3카드) ── */
 .lightGreenBg {
   composes: fullWidth;
   display: flex;
@@ -421,6 +421,52 @@
   .mutedBg {
     padding-top: 80px;
     padding-bottom: 80px;
+  }
+}
+
+/* ── 3카드(연그린 띠) ↔ 농촌 소식(회색 띠) 맞붙이기 (10/5 회장 "다른 섹션처럼 여백 줄여 통일") ──
+   띠 안 여백(56~80) + 흰 틈(.page gap) + 띠 안 여백이 쌓여 카드 끝 → 소식 제목이 179/219/230/282px 였다.
+   흰 틈을 없애 두 띠를 붙이고, 맞닿는 쪽 안쪽 여백을 섹션 간격의 절반씩 → 카드 끝 → 소식 제목 = 보통 섹션 간격
+   (64/88/100/120). 경계는 띠 색이 바뀌는 자리. 소식 쪽은 제목 줄 위 2~3px 여유를 빼서 맞춘다 */
+.bandJoinBelow {
+  margin-bottom: -64px;
+  padding-bottom: 32px;
+}
+
+.bandJoinAbove {
+  padding-top: 29px;
+}
+
+@media (min-width: 640px) {
+  .bandJoinBelow {
+    margin-bottom: -88px;
+    padding-bottom: 44px;
+  }
+
+  .bandJoinAbove {
+    padding-top: 41px;
+  }
+}
+
+@media (min-width: 768px) {
+  .bandJoinBelow {
+    margin-bottom: -100px;
+    padding-bottom: 50px;
+  }
+
+  .bandJoinAbove {
+    padding-top: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bandJoinBelow {
+    margin-bottom: -120px;
+    padding-bottom: 60px;
+  }
+
+  .bandJoinAbove {
+    padding-top: 58px;
   }
 }
 
