@@ -220,6 +220,13 @@ export default async function HomePage() {
         </section>
       </ScrollReveal>
 
+      {/* ═══ 2-3. 직접 가 보는 농촌 — 살아보기·체험 사진 캐러셀 ═══
+          10/5 회장: 내 지역 찾기 바로 아래로(할 수 있는 것 3카드 뒤 7.0화면 → 2.9화면, 모바일 기준).
+          지역을 고른 다음 "그 지역에 가서 살아 보기"로 잇고, 마감이 있는 신청형을 지금 열린 기회와 함께 위쪽에 모은다 */}
+      <ScrollReveal trackId="experience" variant="fade" stagger>
+        <ExperienceSection events={eventsResult.events} />
+      </ScrollReveal>
+
       {/* ═══ 3+4. 트렌드 + 비용 통합 ═══
           10/5 회장: 트렌드와 비용 사이에 고른 유형의 인터뷰만 담은 "정착한 사람" 띠(유형 수채화 배경).
           띠는 서버에서 유형별로 그려 넘기고 섹션은 고른 탭 것만 마운트한다(인터뷰 데이터는 클라이언트 번들 밖) */}
@@ -236,11 +243,6 @@ export default async function HomePage() {
           />
         </ScrollReveal>
       </div>
-
-      {/* ═══ 5-2. 직접 가 보는 농촌 — 체험·행사 사진 캐러셀 (10/1 A안: 작물 뒤로) ═══ */}
-      <ScrollReveal trackId="experience" variant="fade" stagger>
-        <ExperienceSection events={eventsResult.events} />
-      </ScrollReveal>
 
       {/* ═══ 6+7. 뉴스 → CTA (여백 없이 연결) ═══ */}
       <div className={s.bottomGroup}>
