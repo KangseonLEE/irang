@@ -15,6 +15,7 @@ import { HeroKeywordTicker } from "@/components/landing/hero-keyword-ticker";
 import { HERO_INTRO_MS } from "@/components/landing/hero-intro";
 import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
 import { PROGRAMS } from "@/lib/data/programs";
+import { SETTLEMENT_SCENE_IMAGE } from "@/lib/data/settlement-scenes";
 
 const stats: HeroStat[] = [
   { id: "programs_open", label: "신청 가능한 지원사업", value: 12, unit: "건", href: "/programs" },
@@ -117,11 +118,14 @@ describe("히어로 장면 회전 — 단어·배경·카드 (10/1 회장)", () 
     expect(text).not.toMatch(/볼까요\?귀농|준비,귀|준비,어디/);
   });
 
-  it("장면 배경 이미지 파일이 public 에 실존한다 (컴포넌트 소스 기준)", () => {
-    const src = readFileSync(join(process.cwd(), "src/components/landing/hero-search-hub.tsx"), "utf8");
-    const images = [...src.matchAll(/"(\/landing\/hero\/[\w-]+\.webp)"/g)].map((m) => m[1]);
+  it("장면 배경 이미지 파일이 public 에 실존한다 (유형 그림 SSOT — 히어로·트렌드 탭 인터뷰 띠 공용, 10/5)", () => {
+    const images = Object.values(SETTLEMENT_SCENE_IMAGE);
     expect(images.length).toBe(5);
     for (const img of images) expect(existsSync(join(process.cwd(), "public", img)), img).toBe(true);
+    // 히어로 장면 5개가 전부 SSOT 를 거친다 — 경로를 다시 적어 넣으면 띠와 그림이 갈라지고 캐시도 따로 받는다
+    const src = readFileSync(join(process.cwd(), "src/components/landing/hero-search-hub.tsx"), "utf8");
+    expect(src.match(/image: SETTLEMENT_SCENE_IMAGE\.\w+/g)).toHaveLength(5);
+    expect(src).not.toMatch(/"\/landing\/hero\/[\w-]+\.webp"/);
   });
 });
 

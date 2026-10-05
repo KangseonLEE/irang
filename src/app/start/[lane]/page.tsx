@@ -43,9 +43,9 @@ import {
   matchLaneEducation,
   matchLaneEvents,
   MAX_OPPORTUNITIES,
-  type InterviewSummary,
   type RelatedIconName,
 } from "@/lib/data/journey-lanes-hub";
+import type { InterviewSummary } from "@/lib/data/interview-summary";
 import { filterEducationAsync, type EducationCourse } from "@/lib/data/education";
 import { filterEventsAsync, type FarmEvent } from "@/lib/data/events";
 import { getCropImageSrc, hasCropIllustration } from "@/lib/crop-image";

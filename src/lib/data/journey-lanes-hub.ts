@@ -31,7 +31,6 @@ import {
 } from "./journey-lanes-stats";
 import {
   interviews,
-  hasFullStory,
   TREND_BENTO_PROFILES,
   type CostTypeId,
   type InterviewCard,
@@ -55,7 +54,7 @@ import {
 import type { CropCost } from "./cost-by-type";
 import type { EducationCourse } from "./education";
 import type { FarmEvent } from "./events";
-import { getInterviewImageSrc } from "../interview-image";
+import { toInterviewSummary, type InterviewSummary } from "./interview-summary";
 import { deriveStatus, isUnannounced } from "../program-status";
 
 /* ── 레인 식별자 ── */
@@ -183,21 +182,8 @@ function cropsHrefFor(id: HubLaneId): string {
   return id === "forest" ? "/crops?category=특용" : "/crops";
 }
 
-/* ── 인터뷰 ── */
-
-export interface InterviewSummary {
-  id: string;
-  name: string;
-  region: string;
-  crop: string;
-  /** 카드 한 줄 — 본인 발언 인용 */
-  quote: string;
-  /** 본문 동의자는 상세 페이지, 미동의자는 원문 기사(인터뷰 카드와 같은 규칙) */
-  href: string;
-  external: boolean;
-  /** 일러스트 경로. 없으면 null → 호출자가 FarmerAvatar 로 폴백 */
-  image: string | null;
-}
+/* ── 인터뷰 ──
+   카드 요약 조립(동의자 → 상세, 미동의자 → 원문 기사)은 `interview-summary.ts` 한 곳 — 작물·지역 상세와 공유한다(10/5). */
 
 /** '특용' 작물 이름 = 임산물·약용 계열 판정의 데이터 파생 사전(홍화 같은 약용작물은 키워드로 보완) */
 const SPECIAL_CROP_NAMES = CROPS.filter((c) => c.category === "특용").map((c) => c.name);
@@ -253,20 +239,6 @@ const INTERVIEW_RULES: Record<HubLaneId, ((p: InterviewCard) => boolean)[]> = {
   ],
 };
 
-function toSummary(p: InterviewCard): InterviewSummary {
-  const internal = hasFullStory(p);
-  return {
-    id: p.id,
-    name: p.name,
-    region: p.region,
-    crop: p.crop,
-    quote: p.quote,
-    href: internal ? `/interviews/${p.id}` : p.sourceUrl,
-    external: !internal,
-    image: getInterviewImageSrc(p.id),
-  };
-}
-
 function laneInterviews(id: HubLaneId): InterviewSummary[] {
   const picked: InterviewCard[] = [];
   const seen = new Set<string>();
@@ -279,7 +251,7 @@ function laneInterviews(id: HubLaneId): InterviewSummary[] {
       picked.push(p);
     }
   }
-  return picked.slice(0, MAX_INTERVIEWS).map(toSummary);
+  return picked.slice(0, MAX_INTERVIEWS).map(toInterviewSummary);
 }
 
 /* ── 함께 보면 좋은 것 ── */

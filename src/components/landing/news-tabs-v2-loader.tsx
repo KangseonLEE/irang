@@ -2,6 +2,7 @@ import {
   fetchLatestNews,
   fetchNewsByCategory,
   fetchOgMeta,
+  UNKNOWN_SOURCE,
   type NewsArticle,
 } from "@/lib/api/news";
 import {
@@ -181,6 +182,10 @@ async function fetchAllOgMeta(items: UnifiedNewsItem[]): Promise<void> {
       }
       if (meta.description && !target.description) {
         target.description = meta.description;
+      }
+      // 주소로 언론사를 모른 기사만 페이지가 밝힌 이름으로 채운다(10/5 — "co"·"imaeil" 표기 사고)
+      if (meta.siteName && target.source === UNKNOWN_SOURCE) {
+        target.source = meta.siteName;
       }
     });
   }

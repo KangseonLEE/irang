@@ -108,7 +108,18 @@ const byLabelReq = (eventName) => ({
 });
 
 // 홍보 팝업 퍼널(9/30 회장 "원본 페이지로 얼마나 이동하는지") — label = "<id>"(view) / "<id>:detail|tel|request"(click) / "<id>:today|close"(dismiss)
-const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel, compareByLabel, promoView, promoClick, promoDismiss] = await Promise.all([
+// 랜딩 섹션별 도달 → 클릭 (10/5 회장 "인터뷰를 랜딩에 둘지" — 8/30 계측의 섹션별 판독). 도달 label = 섹션 trackId,
+// 클릭 label = "섹션:대상" 이라 접두어로 묶는다. 인터뷰는 목록·상세 조회도 같이 본다.
+const landingClickReq = { ...byLabelReq("landing_cta_click"), limit: 200 };
+const interviewPagesReq = {
+  dimensions: [{ name: "pagePath" }],
+  metrics: [{ name: "screenPageViews" }, { name: "totalUsers" }],
+  dimensionFilter: { filter: { fieldName: "pagePath", stringFilter: { matchType: "BEGINS_WITH", value: "/interviews" } } },
+  orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
+  limit: 50,
+};
+
+const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel, compareByLabel, promoView, promoClick, promoDismiss, sectionViews, sectionClicks, interviewPages] = await Promise.all([
   report({ metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "newUsers" }] }),
   report({ dimensions: [{ name: "newVsReturning" }], metrics: [{ name: "activeUsers" }] }),
   report({
@@ -129,6 +140,9 @@ const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel
   report(byLabelReq("promo_popup_view")),
   report(byLabelReq("promo_popup_click")),
   report(byLabelReq("promo_popup_dismiss")),
+  report(byLabelReq("landing_section_view")),
+  report(landingClickReq),
+  report(interviewPagesReq),
 ]);
 
 // 홍보 팝업 — id 별로 노출(명) → 원문 클릭(명) 전환율. 같은 사람이 여러 번 봐도 명 수로 센다.
@@ -145,6 +159,33 @@ const returning = nvr.find((r) => r.d[0] === "returning")?.m[0] ?? 0;
 const ev = Object.fromEntries(events.map((r) => [r.d[0], { count: r.m[0], users: r.m[1] }]));
 const pg = Object.fromEntries(pages.map((r) => [r.d[0], { views: r.m[0], users: r.m[1] }]));
 const pct = (a, b) => (b ? `${((a / b) * 100).toFixed(1)}%` : "—");
+
+// 랜딩 섹션 — 클릭 접두어가 섹션 trackId 와 다른 것만 맞춘다(start_card→start_cards, trend→trend_cost)
+const CLICK_PREFIX_TO_SECTION = { start_card: "start_cards", trend: "trend_cost" };
+const SECTION_ORDER = ["quick_link", "start_cards", "discover", "region_map", "trend_cost", "experience", "interviews", "news", "bottom_cta"];
+const sectionView = Object.fromEntries(sectionViews.map((r) => [r.d[0], { events: Number(r.m[0]), users: Number(r.m[1]) }]));
+const sectionClick = {};
+for (const r of sectionClicks) {
+  const prefix = String(r.d[0]).split(":")[0];
+  const id = CLICK_PREFIX_TO_SECTION[prefix] ?? prefix;
+  const c = (sectionClick[id] ??= { events: 0, users: 0 });
+  c.events += Number(r.m[0]);
+  c.users += Number(r.m[1]); // 대상별 명 수의 합 — 한 사람이 여러 대상을 누르면 중복
+}
+const sectionIds = [
+  ...SECTION_ORDER.filter((id) => sectionView[id] || sectionClick[id]),
+  ...[...new Set([...Object.keys(sectionView), ...Object.keys(sectionClick)])].filter((id) => !SECTION_ORDER.includes(id) && id !== "(not set)"),
+];
+const landingUsers = pg["/"]?.users ?? 0;
+const sectionRows = sectionIds.map((id) => {
+  const v = sectionView[id] ?? { events: 0, users: 0 };
+  const c = sectionClick[id] ?? { events: 0, users: 0 };
+  return `| ${id} | ${v.users}명 (${pct(v.users, landingUsers)}) | ${c.events}건 / ${c.users}명 | ${pct(c.users, v.users)} |`;
+});
+const interviewList = interviewPages.find((r) => r.d[0] === "/interviews");
+const interviewDetail = interviewPages.filter((r) => r.d[0] !== "/interviews");
+const interviewDetailViews = interviewDetail.reduce((a, r) => a + Number(r.m[0]), 0);
+const interviewDetailUsers = interviewDetail.reduce((a, r) => a + Number(r.m[1]), 0);
 // 진단 도달 분모 = `/match` (2026-09-16 교정).
 // `/assess` 는 redirect("/match?mode=assess") 한 줄짜리 페이지라 아무도 머물지 않는다 →
 // page_view 가 **구조적으로 항상 0**. 9/8 에 PageViewTracker 를 넣으며 "이제 도달을 잰다"고
@@ -184,6 +225,14 @@ const md = `## GA4 스냅샷 — 최근 ${DAYS}일 (어제까지)
 지역 비교 탭별 (compare_view, 건·명): ${compareByLabel.map((r) => `${r.d[0]} ${r.m[0]}·${r.m[1]}`).join(" | ") || "0건"}
 
 홍보 팝업 퍼널 (promo_popup_view → click, 명 — 원문 이동률): ${promoRows.join(" | ") || "노출 0"}
+
+랜딩 섹션 도달 → 클릭 (landing_section_view → landing_cta_click, 랜딩 사용자 ${landingUsers}명 기준 · 클릭 명 수는 대상별 합이라 중복 가능):
+
+| 섹션 | 도달 | 섹션 안 클릭 | 클릭/도달 |
+|---|---|---|---|
+${sectionRows.join("\n") || "| (계측 없음) | | | |"}
+
+인터뷰 페이지 조회: 목록 \`/interviews\` ${interviewList?.m[0] ?? 0}회·${interviewList?.m[1] ?? 0}명 · 상세 ${interviewDetail.length}쪽 합계 ${interviewDetailViews}회·${interviewDetailUsers}명(쪽별 명 합)
 
 유입 채널(세션): ${channels.map((r) => `${r.d[0]} ${r.m[0]}`).join(" · ") || "없음"}
 

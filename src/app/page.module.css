@@ -38,6 +38,32 @@
   }
 }
 
+/* 자주 찾는 서비스 → 지금 열린 기회 (10/5 회장 "간격이 너무 크다, 지금의 절반으로").
+   아이콘 한 줄뿐인 가벼운 섹션이라 .page 기본 간격이면 떨어져 보였다 — 라벨 글자 아래 → 다음 섹션 첫 글자 위가
+   100/128/140/156px(모바일/640/768/1024+) → 50/64/70/78px. flex 항목의 음수 바깥 여백은 gap 에서 빠진다.
+   실측은 등장 애니메이션이 끝난 뒤에 잰다 — 등장 전엔 아이콘이 아래로 밀려 있어 간격이 28px 작게 잡힌다 */
+.quickLinkSlot {
+  margin-bottom: -50px;
+}
+
+@media (min-width: 640px) {
+  .quickLinkSlot {
+    margin-bottom: -64px;
+  }
+}
+
+@media (min-width: 768px) {
+  .quickLinkSlot {
+    margin-bottom: -70px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .quickLinkSlot {
+    margin-bottom: -78px;
+  }
+}
+
 /* 1. 히어로 — 10/1 A안(검색 + 정착 유형), 스타일은 components/landing/hero-search-hub.module.css.
    efusioni 히어로는 태그 archive/hero-efusioni-2026-10-01, 그 이전 히어로(.heroSection 등)는
    태그 archive/hero-journey-lanes-2026-10-01 에 보관 */
@@ -228,96 +254,6 @@
 }
 
 /* ══════════════════════════════════════════
-   2. 인터뷰 섹션 (다크 배경)
-   ══════════════════════════════════════════ */
-.interviewSection {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-@media (min-width: 768px) {
-  .interviewSection { gap: 20px; }
-}
-
-.interviewSectionTitle {
-  margin: 0 0 20px;
-  font-size: var(--fs-h3);
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: -0.04em;
-  line-height: var(--lh-tight);
-  flex-shrink: 0;
-}
-
-@media (min-width: 640px) {
-  .interviewSectionTitle { font-size: var(--fs-h2); }
-}
-
-@media (min-width: 768px) {
-  .interviewSectionTitle { margin-bottom: 24px; }
-}
-
-.interviewSub {
-  margin: 0;
-  font-size: var(--fs-caption);
-  color: rgba(255, 255, 255, 0.6);
-  line-height: var(--lh-normal);
-}
-
-@media (min-width: 640px) {
-  .interviewSub { font-size: var(--fs-body-sm); }
-}
-
-.interviewHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.interviewHeading {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 0;
-}
-
-.interviewHeading .interviewSectionTitle {
-  margin: 0;
-}
-
-.interviewHeaderLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  align-self: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--primary-on-dark, #8fcfb5);
-  text-decoration: none;
-  padding: 6px 4px;
-  border-radius: 4px;
-  transition: color 0.15s;
-}
-
-@media (min-width: 640px) {
-  .interviewHeaderLink { font-size: var(--fs-body-sm); }
-}
-
-@media (hover: hover) {
-  .interviewHeaderLink:hover {
-    color: #fff;
-  }
-}
-
-.interviewHeaderLink:focus-visible {
-  outline: 2px solid var(--primary-on-dark, #8fcfb5);
-  outline-offset: 2px;
-}
-
-/* ══════════════════════════════════════════
    6. 뉴스 섹션
    ══════════════════════════════════════════ */
 .newsSection {
@@ -411,13 +347,6 @@
   width: fit-content;
 }
 
-.eyebrowDark {
-  composes: eyebrow;
-  color: var(--primary-on-dark, #8fcfb5);
-  background: color-mix(in srgb, var(--primary-on-dark, #8fcfb5) 12%, transparent);
-  width: fit-content;
-}
-
 /* ── 헤드라인 강조 단어 (밑줄 장식) ── */
 .sectionTitle em {
   font-style: normal;
@@ -428,15 +357,6 @@
   text-decoration-color: color-mix(in srgb, var(--primary, #1b6b5a) 40%, transparent);
 }
 
-.sectionTitleDark em {
-  font-style: normal;
-  color: var(--primary-on-dark, #8fcfb5);
-  text-decoration: underline;
-  text-decoration-thickness: 3px;
-  text-underline-offset: 6px;
-  text-decoration-color: color-mix(in srgb, var(--primary-on-dark, #8fcfb5) 40%, transparent);
-}
-
 /* ── 풀와이드 배경 섹션 ── */
 .fullWidth {
   margin-left: calc(-50vw + 50%);
@@ -445,29 +365,7 @@
   padding-right: calc(50vw - 50%);
 }
 
-/* ── 다크 배경 (인터뷰) ── */
-.darkBg {
-  composes: fullWidth;
-  background: var(--surface-dark, #1a3f35);
-  padding-top: 56px;
-  padding-bottom: 56px;
-}
-
-@media (min-width: 640px) {
-  .darkBg {
-    padding-top: 64px;
-    padding-bottom: 64px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .darkBg {
-    padding-top: 80px;
-    padding-bottom: 80px;
-  }
-}
-
-/* ── 연한 그린 배경 (비용) ── */
+/* ── 연한 그린 배경 (이랑에서 할 수 있는 것 3카드) ── */
 .lightGreenBg {
   composes: fullWidth;
   display: flex;
@@ -523,6 +421,52 @@
   .mutedBg {
     padding-top: 80px;
     padding-bottom: 80px;
+  }
+}
+
+/* ── 3카드(연그린 띠) ↔ 농촌 소식(회색 띠) 맞붙이기 (10/5 회장 "다른 섹션처럼 여백 줄여 통일") ──
+   띠 안 여백(56~80) + 흰 틈(.page gap) + 띠 안 여백이 쌓여 카드 끝 → 소식 제목이 179/219/230/282px 였다.
+   흰 틈을 없애 두 띠를 붙이고, 맞닿는 쪽 안쪽 여백을 섹션 간격의 절반씩 → 카드 끝 → 소식 제목 = 보통 섹션 간격
+   (64/88/100/120). 경계는 띠 색이 바뀌는 자리. 소식 쪽은 제목 줄 위 2~3px 여유를 빼서 맞춘다 */
+.bandJoinBelow {
+  margin-bottom: -64px;
+  padding-bottom: 32px;
+}
+
+.bandJoinAbove {
+  padding-top: 29px;
+}
+
+@media (min-width: 640px) {
+  .bandJoinBelow {
+    margin-bottom: -88px;
+    padding-bottom: 44px;
+  }
+
+  .bandJoinAbove {
+    padding-top: 41px;
+  }
+}
+
+@media (min-width: 768px) {
+  .bandJoinBelow {
+    margin-bottom: -100px;
+    padding-bottom: 50px;
+  }
+
+  .bandJoinAbove {
+    padding-top: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bandJoinBelow {
+    margin-bottom: -120px;
+    padding-bottom: 60px;
+  }
+
+  .bandJoinAbove {
+    padding-top: 58px;
   }
 }
 

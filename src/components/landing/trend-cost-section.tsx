@@ -15,6 +15,7 @@ import {
 import { DataSource } from "@/components/ui/data-source";
 import { CountUp } from "@/components/ui/count-up";
 import { useCountUp } from "@/lib/hooks/use-count-up";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import s from "./trend-cost-section.module.css";
 
 /* ── 통합 카테고리 매핑 ── */
@@ -84,12 +85,20 @@ function CategorySelector({ activeIdx, onChange, ariaLabel }: CategorySelectorPr
   );
 }
 
+interface TrendCostSectionProps {
+  /**
+   * 유형별 "정착한 사람" 띠 (10/5 회장) — 서버가 유형마다 그려 넘긴다(components/landing/type-interview-band).
+   * 이 섹션은 고른 탭 것 하나만 트렌드와 비용 사이에 마운트한다. 없으면 띠 자리를 그리지 않는다.
+   */
+  interviewBands?: Partial<Record<TrendTypeId, React.ReactNode>>;
+}
+
 /**
  * 트렌드 + 비용 통합 섹션
  * 상단 underline tabs로 5개 카테고리 공유 전환
  * 각 블록(트렌드 벤토 / 비용 카드)은 원래 헤더·카피·CTA 유지
  */
-export function TrendCostSection() {
+export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {}) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [phase, setPhase] = useState<"idle" | "out" | "in">("idle");
   const [renderedIdx, setRenderedIdx] = useState(0);
@@ -342,6 +351,15 @@ export function TrendCostSection() {
 
         <DataSource source={trend.source} />
       </div>
+
+      {/* ═══ 정착한 사람 띠 — 고른 유형의 인터뷰만 (10/5 회장: 트렌드와 비용 사이, 지역 띠처럼 배경 그림) ═══
+          계측 래퍼(trackId="interviews")는 탭을 바꿔도 그대로라 노출이 한 번만 찍히고, 안쪽 key 만 바뀌며
+          그 유형의 띠가 새로 들어온다(바탕색은 띠가 쥐고 있어 전환 때 흰 틈이 없다) */}
+      {interviewBands && (
+        <ScrollReveal trackId="interviews" variant="fade" className={s.bandSlot}>
+          <div key={cat.id}>{interviewBands[cat.trendKey] ?? null}</div>
+        </ScrollReveal>
+      )}
 
       {/* ═══ 비용 블록 — 원래 헤더 유지 ═══ */}
       <div className={s.block}>

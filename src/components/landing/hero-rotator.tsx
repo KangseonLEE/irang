@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { SETTLEMENT_SCENE_QUALITY, SETTLEMENT_SCENE_SIZES } from "@/lib/data/settlement-scenes";
 import { HERO_INTRO_MS } from "./hero-intro";
 import { useHeroMotionPaused } from "./hero-motion";
 import s from "./hero-search-hub.module.css";
@@ -82,7 +83,16 @@ export function HeroRotator({ scenes }: { scenes: readonly HeroScene[] }) {
           style={{ zIndex: i === current ? 2 : i === prev ? 1 : 0 }}
         >
           {(i <= loadedUpTo || i === current) && (
-            <Image src={scene.image} alt="" fill priority={i === 0} sizes="100vw" quality={70} className={s.bgImage} />
+            <Image
+              src={scene.image}
+              alt=""
+              fill
+              priority={i === 0}
+              /* 트렌드·비용 섹션 인터뷰 띠와 같은 값 — 주소가 같아야 띠가 이 그림을 캐시에서 쓴다 */
+              sizes={SETTLEMENT_SCENE_SIZES}
+              quality={SETTLEMENT_SCENE_QUALITY}
+              className={s.bgImage}
+            />
           )}
         </div>
       ))}

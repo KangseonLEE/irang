@@ -6,6 +6,7 @@ import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
 import { RECOMMENDED_KEYWORDS } from "@/lib/data/popular-keywords";
 import { buildLaneStats, type LaneTile } from "@/lib/data/journey-lanes-stats";
 import type { SupportProgram } from "@/lib/data/programs";
+import { SETTLEMENT_SCENE_IMAGE } from "@/lib/data/settlement-scenes";
 import { HeroSearchForm } from "./hero-search-form";
 import { HeroRotator } from "./hero-rotator";
 import { HeroTypeCarousel } from "./hero-type-carousel";
@@ -64,11 +65,11 @@ interface HeroSearchHubProps {
  * 배경은 유형에 맞는 수채화(hero-youth 는 10/1 codex 생성, 나머지는 9/28 히어로 4장 재배치).
  */
 const SCENES = [
-  { id: "guinong", word: "귀농", image: "/landing/hero/hero-2.webp" },
-  { id: "guichon", word: "귀촌", image: "/landing/hero/hero-3.webp" },
-  { id: "forest", word: "귀산촌", image: "/landing/hero/hero-1.webp" },
-  { id: "youth", word: "청년농", image: "/landing/hero/hero-youth.webp" },
-  { id: "smartfarm", word: "스마트팜", image: "/landing/hero/hero-4.webp" },
+  { id: "guinong", word: "귀농", image: SETTLEMENT_SCENE_IMAGE.farming },
+  { id: "guichon", word: "귀촌", image: SETTLEMENT_SCENE_IMAGE.rural },
+  { id: "forest", word: "귀산촌", image: SETTLEMENT_SCENE_IMAGE.mountain },
+  { id: "youth", word: "청년농", image: SETTLEMENT_SCENE_IMAGE.youth },
+  { id: "smartfarm", word: "스마트팜", image: SETTLEMENT_SCENE_IMAGE.smartfarm },
 ] as const;
 
 /**

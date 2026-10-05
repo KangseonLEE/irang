@@ -267,9 +267,11 @@ LAST=$(git log -1 --pretty=format:"%cs" -- src/app/about/corrections/page.tsx)
 |---|---|---|
 | ⚪ 참고 | `quick_feedback` 최근 30일 0건, 배포 동반 없음 | 추세 관찰만. 이슈 미발행 |
 | 🟡 확인 필요 | `search_logs`·`assessment_results` 최근 7일 0건, 배포 동반 없음 | CoS 보고. 클라이언트 진입점 누락·트래픽 정체 의심 |
-| 🔴 즉시 액션 | 최근 7일 0건 + 최근 7일 내 관련 경로 commit 동반 (CI가 `git log origin/release --since=7.days -- <relatedPaths> ':(exclude)*.css'`로 직접 판정, fetch-depth 0) | CoS 에스컬레이션. 회귀 가능성 — frontend-engineer에 진단 위임 |
+| 🔴 즉시 액션 | 최근 7일 0건 + 최근 7일 내 관련 경로 commit 동반 (CI가 `git log origin/release --since=7.days -- <relatedPaths> ':(exclude)*.css'`로 직접 판정, fetch-depth 0) + **배포 직전 7일 3건 이상** | CoS 에스컬레이션. 회귀 가능성 — frontend-engineer에 진단 위임 |
 
 > **10/3 #159 보정**: 배포 동반은 **운영 브랜치(`origin/release`) 이력**으로 본다 — 9/29 분리 뒤 main 커밋은 배포가 아니다. 또 CSS 만 바꾼 커밋은 적재 경로를 바꾸지 않으므로 제외(8a11662 모서리 일괄 변경이 quick_feedback 🔴로 잡힌 오탐).
+
+> **10/5 #160 보정**: 배포 직전 7일 건수가 **3건 미만이면 🔴로 올리지 않는다**. 주 1건 수준이면 다음 7일이 0건일 확률이 e^-1 ≈ 37%라 "배포 뒤 끊김"의 근거가 못 된다(3건이면 e^-3 ≈ 5%). quick_feedback(30일 1건 — 9/25 요청 1건)이 a11y 배포(0f9705be, 피드백 버튼 포커스 비켜남) 뒤 🔴로 잡혔고, 버튼 표시·클릭·전송은 1280·1440·375 로컬 실측에서 정상(서버 도달 200, 실측 표식으로 저장만 skip)이었다. 기준 미달은 테이블별 zeroGrade 로 내려가며 "관련 배포 N건 있으나 기준 미달"로 적는다.
 
 관련 경로(`relatedPaths`)는 `scripts/watchman/check-write-activity.ts`의 `WRITE_TABLES`가 SSOT — search-log route·search-bar / quick-feedback route·feedback 위젯·recommendation-thumbs·crop-request-button / assess route·/assess 페이지·assess-result.
 

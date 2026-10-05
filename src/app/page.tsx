@@ -13,9 +13,7 @@ export const revalidate = 21600;
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Icon as IconWrap } from "@/components/ui/icon";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { InterviewCarousel } from "@/components/landing/interview-carousel";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
 import { HeroSearchHub, type HeroStat, type HeroDeadline } from "@/components/landing/hero-search-hub";
 import { HeroSearchDock } from "@/components/landing/hero-search-dock";
@@ -29,19 +27,16 @@ import { PromoPopup } from "@/components/landing/promo-popup";
 import { loadActivePromos } from "@/lib/promos/queries";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
+import { buildTypeInterviewBands } from "@/components/landing/type-interview-band";
 import { ExperienceSection, OpportunitySection, countDistinctByGroup } from "@/components/landing/discover-section";
 import { filterEventsAsync } from "@/lib/data/events";
 import { filterEducationAsync } from "@/lib/data/education";
 import { deriveStatus, daysUntilDeadline, isUnannounced, ALWAYS_OPEN } from "@/lib/program-status";
 import { StartCardsSection } from "@/components/landing/start-cards-section";
 import { NewsTabsV2Loader } from "@/components/landing/news-tabs-v2-loader";
-import { interviews } from "@/lib/data/landing";
 import { loadPrograms, type SupportProgram } from "@/lib/data/programs";
 import { SurveyCta } from "./survey-cta";
 import s from "./page.module.css";
-
-// 커튼 리빌 (9/29) — 인터뷰 다크 띠가 이전 섹션을 덮으며 올라온다. page.module.css 대신 전용 모듈
-import curtain from "@/components/landing/interview-curtain.module.css";
 
 /* ────────────────────────────────────────────
    Page — 섹션 순서 (withgo 레퍼런스 기반):
@@ -166,7 +161,8 @@ export default async function HomePage() {
       <HeroSearchDock />
 
       {/* ═══ 1-2. 자주 찾는 서비스 — 아이콘 8종, GNB 여정 순 (9/7 회장 결재: 히어로 밖 별도 섹션) ═══ */}
-      <ScrollReveal trackId="quick_link" variant="fade" stagger>
+      {/* 10/5 회장: 아이콘 한 줄뿐인 섹션이라 다음 섹션(지금 열린 기회)까지 기본 간격이 떠 보인다 → 절반으로 */}
+      <ScrollReveal trackId="quick_link" variant="fade" stagger className={s.quickLinkSlot}>
         <QuickLinkSection />
       </ScrollReveal>
 
@@ -224,13 +220,23 @@ export default async function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}
+      {/* ═══ 2-3. 직접 가 보는 농촌 — 살아보기·체험 사진 캐러셀 ═══
+          10/5 회장: 내 지역 찾기 바로 아래로(할 수 있는 것 3카드 뒤 7.0화면 → 2.9화면, 모바일 기준).
+          지역을 고른 다음 "그 지역에 가서 살아 보기"로 잇고, 마감이 있는 신청형을 지금 열린 기회와 함께 위쪽에 모은다 */}
+      <ScrollReveal trackId="experience" variant="fade" stagger>
+        <ExperienceSection events={eventsResult.events} />
+      </ScrollReveal>
+
+      {/* ═══ 3+4. 트렌드 + 비용 통합 ═══
+          10/5 회장: 트렌드와 비용 사이에 고른 유형의 인터뷰만 담은 "정착한 사람" 띠(유형 수채화 배경).
+          띠는 서버에서 유형별로 그려 넘기고 섹션은 고른 탭 것만 마운트한다(인터뷰 데이터는 클라이언트 번들 밖) */}
       <ScrollReveal trackId="trend_cost" variant="fade">
-        <TrendCostSection />
+        <TrendCostSection interviewBands={buildTypeInterviewBands()} />
       </ScrollReveal>
 
       {/* ═══ 5. 이랑에서 할 수 있는 것 3카드 (연한 그린 배경) — 10/2 회장: "돈 되는 작물, 한눈에" 섹션 제거 ═══ */}
-      <div className={s.lightGreenBg}>
+      {/* 10/5 회장: 바로 아래 농촌 소식 띠와 흰 틈 없이 붙인다 — 카드 끝 → 소식 제목 = 보통 섹션 간격 */}
+      <div className={`${s.lightGreenBg} ${s.bandJoinBelow}`}>
         <ScrollReveal trackId="start_cards" variant="fade" stagger>
           <StartCardsSection
             openProgramCount={openProgramCount}
@@ -239,38 +245,10 @@ export default async function HomePage() {
         </ScrollReveal>
       </div>
 
-      {/* ═══ 5-2. 직접 가 보는 농촌 — 체험·행사 사진 캐러셀 (10/1 A안: 작물 뒤로) ═══ */}
-      <ScrollReveal trackId="experience" variant="fade" stagger>
-        <ExperienceSection events={eventsResult.events} />
-      </ScrollReveal>
-
-      {/* ═══ 6. 농촌으로 간 사람들의 이야기 (다크 배경) — 9/7 회장: 지원사업 아래로 ═══ */}
-      <ScrollReveal trackId="interviews" variant="fade" stagger>
-        <div className={`${s.darkBg} ${curtain.curtain}`}>
-          <section className={s.interviewSection} aria-label="인터뷰">
-            <div className={s.interviewHeader} data-reveal-x="left">
-              <div className={s.interviewHeading}>
-                <span className={s.eyebrowDark}>#실제 정착자</span>
-                <h2 className={`${s.interviewSectionTitle} ${s.sectionTitleDark}`}>
-                  먼저 떠난 사람들의 <em>진짜 이야기</em>
-                </h2>
-                <p className={s.interviewSub}>
-                  도시를 떠나 새로운 삶을 시작한 사람들이에요
-                </p>
-              </div>
-              <Link href="/interviews" className={s.interviewHeaderLink} data-track="interviews:view_all">
-                모두 보기 <IconWrap icon={ArrowRight} size="sm" />
-              </Link>
-            </div>
-            <InterviewCarousel items={interviews.slice(0, 6)} variant="dark" />
-          </section>
-        </div>
-      </ScrollReveal>
-
       {/* ═══ 6+7. 뉴스 → CTA (여백 없이 연결) ═══ */}
       <div className={s.bottomGroup}>
         <ScrollReveal trackId="news" variant="fade" stagger>
-          <div className={s.mutedBg}>
+          <div className={`${s.mutedBg} ${s.bandJoinAbove}`}>
             <section className={s.newsSection} aria-label="농촌 소식">
               <div className={s.sectionHeader} data-reveal-x="left">
                 <div>

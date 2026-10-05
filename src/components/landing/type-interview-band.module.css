@@ -1,0 +1,312 @@
+/* ══════════════════════════════════════════
+   정착 유형별 인터뷰 띠 (2026-10-05 회장: 트렌드·비용 사이, "지역처럼 배경에 그림")
+   풀블리드·스크림·흰 글씨는 랜딩 '내 지역 찾기' 띠(app/page.module.css .mapSection)와 같은 기법·같은 언어.
+   풀블리드는 html { overflow-x: clip } 전제(.fullWidth 와 같은 계산).
+   모바일: 제목 → 인용 → 사람 목록 → 모두 보기 / 1024+: 좌 제목·인용 | 우 사람 목록·모두 보기
+   ══════════════════════════════════════════ */
+
+.band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  padding: 32px calc(50vw - 50%);
+  background: var(--surface-dark, #1a3f35); /* 그림이 오기 전·실패해도 흰 글씨가 읽히고, 탭 전환 때 흰 틈이 안 생긴다 */
+  color: #fff;
+}
+
+@media (min-width: 640px) {
+  .band {
+    padding-top: 44px;
+    padding-bottom: 44px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .band {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+}
+
+.bg {
+  z-index: -2;
+  object-fit: cover;
+  object-position: center 60%;
+  pointer-events: none;
+  animation: bandFadeIn 0.5s ease both;
+}
+
+/* 스크림 — 밝은 하늘·과수원 위 흰 글씨 4.5:1 이상. 모바일은 글자가 전폭이라 균일하게,
+   1024+ 는 제목·인용이 있는 왼쪽을 더 진하게(오른쪽 사람 목록은 자체 어두운 바탕이 있다). 장식 요소 */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(10, 36, 30, 0.74);
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .scrim {
+    background: linear-gradient(
+      90deg,
+      rgba(10, 36, 30, 0.78) 0%,
+      rgba(10, 36, 30, 0.68) 55%,
+      rgba(10, 36, 30, 0.62) 100%
+    );
+  }
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: calc(1280px - 64px);
+  margin: 0 auto;
+  animation: bandFadeIn 0.4s ease both;
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 56px;
+    align-items: center;
+  }
+}
+
+/* ── 왼쪽: 제목 + 인용 ── */
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.34);
+  color: #fff;
+  font-size: var(--fs-overline);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: var(--lh-tight);
+  color: #fff;
+}
+
+.title em {
+  font-style: normal;
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+  text-decoration-color: var(--primary-on-dark, #8fcfb5);
+}
+
+.quote {
+  margin: 16px 0 0;
+}
+
+.quoteText {
+  margin: 0;
+}
+
+.quoteText p {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+@media (min-width: 1024px) {
+  .quote {
+    margin-top: 20px;
+  }
+
+  .quoteText p {
+    font-size: 1.25rem;
+    line-height: 1.55;
+  }
+}
+
+.quoteCite {
+  margin-top: 8px;
+  font-size: var(--fs-caption);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* ── 오른쪽: 사람 목록 + 모두 보기 ── */
+
+.people {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg, 8px);
+  background: rgba(8, 28, 23, 0.55);
+  color: #fff;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.person:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  background: #fff;
+}
+
+.avatarImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.personText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.personHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+}
+
+.personName {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+}
+
+.personMeta,
+.personJob {
+  font-size: var(--fs-caption);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* 하는 일은 한 줄 — 넘치면 말줄임(이름·지역이 먼저 읽히게) */
+.personJob {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cue {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.9);
+  transition: transform 0.15s ease;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--primary-dark, #0d2e27);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.more:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+@media (min-width: 640px) {
+  .more {
+    align-self: flex-start;
+  }
+}
+
+@media (hover: hover) {
+  .person:hover {
+    border-color: rgba(255, 255, 255, 0.45);
+    background: rgba(8, 28, 23, 0.72);
+  }
+
+  .person:hover .cue {
+    transform: translateX(2px);
+  }
+
+  .more:hover {
+    border-color: var(--surface-green-50, #edf5f3);
+    background: var(--surface-green-50, #edf5f3);
+  }
+}
+
+/* 탭을 바꾸면 띠가 새로 마운트된다 — 바탕색(.band)은 그대로 두고 그림·글자만 서서히 들어온다 */
+@keyframes bandFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg,
+  .inner {
+    animation: none;
+  }
+
+  .cue,
+  .person,
+  .more {
+    transition: none;
+  }
+}

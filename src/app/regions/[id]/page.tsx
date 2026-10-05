@@ -30,6 +30,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { CommunityNotes } from "@/components/community/community-notes";
 import { CommunityJumpLink } from "@/components/community/community-jump-link";
+import { InterviewContextSection } from "@/components/interview/interview-context-section";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Place } from "schema-dts";
@@ -568,6 +569,9 @@ export default async function RegionDetailPage({ params }: PageProps) {
               <CenterCard center={sidoCenter} />
             </section>
           )}
+
+          {/* 이 지역에 정착한 사람 — 시·도 전체의 언론 인터뷰 (10/5 B안). 0명이면 렌더 안 함 */}
+          <InterviewContextSection context={{ kind: "sido", sidoId: province.id }} />
 
           {/* 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) */}
           <PersonaCta from="region_detail" copy="이 지역이 내 조건에 맞을까요?" />

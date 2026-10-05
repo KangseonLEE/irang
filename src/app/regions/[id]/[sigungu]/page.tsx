@@ -42,6 +42,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { CommunityNotes } from "@/components/community/community-notes";
 import { CommunityJumpLink } from "@/components/community/community-jump-link";
+import { InterviewContextSection } from "@/components/interview/interview-context-section";
 import { PersonaCta } from "@/components/persona/persona-cta";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Place } from "schema-dts";
@@ -681,6 +682,11 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               전체 행사 보기 →
             </Link>
           </section>
+
+          {/* ── 이 지역에 정착한 사람 — 이 시·군·구와 정확히 일치하는 언론 인터뷰만 (10/5 B안). 0명이면 렌더 안 함 ── */}
+          <InterviewContextSection
+            context={{ kind: "sigungu", sidoId: province.id, sigunguId: sigungu.id }}
+          />
 
           {/* ── 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) ── */}
           <PersonaCta from="sigungu_detail" copy="이 지역이 내 조건에 맞을까요?" />

@@ -96,10 +96,18 @@ function toTimestamp(rfc2822: string): number {
   return isNaN(d.getTime()) ? 0 : d.getTime();
 }
 
-/** 네이버 뉴스 link에서 언론사명 추출 시도 — 불가능하면 "뉴스" 반환 */
-function extractSource(originallink: string): string {
+/**
+ * 언론사 이름을 모를 때 표시 (10/5) — 주소 조각보다 낫다.
+ * 종전엔 지도에 없는 언론사를 호스트 끝에서 두 번째 조각으로 적어 "dynews.co.kr" → "co",
+ * "imaeil.com" → "imaeil" 이 랜딩에 그대로 나갔다(50건 중 41건). 실제 이름은 기사 페이지의
+ * og:site_name 에서 채운다(news-tabs-v2-loader → fetchOgMeta().siteName).
+ */
+export const UNKNOWN_SOURCE = "뉴스";
+
+/** 원문 주소로 아는 언론사 이름 — 모르면 {@link UNKNOWN_SOURCE} */
+export function extractSource(originallink: string): string {
   try {
-    const host = new URL(originallink).hostname.replace("www.", "");
+    const host = new URL(originallink).hostname.replace(/^www\./, "");
     const map: Record<string, string> = {
       "chosun.com": "조선일보",
       "donga.com": "동아일보",
@@ -129,6 +137,14 @@ function extractSource(originallink: string): string {
       "imnews.imbc.com": "MBC",
       "news.kbs.co.kr": "KBS",
       "news.sbs.co.kr": "SBS",
+      // 10/5 — og:site_name 이 없거나 쓸 수 없는 곳(주소 그대로·깨진 인코딩·수식어 붙은 이름)과 농업 전문지
+      "ktv.go.kr": "KTV",
+      "kotra.or.kr": "KOTRA",
+      "christiantoday.co.kr": "크리스천투데이",
+      "ekn.kr": "에너지경제",
+      "cnbnews.com": "CNB뉴스",
+      "aflnews.co.kr": "농수축산신문",
+      "ikpnews.net": "한국농정신문",
     };
     // 정확 매치
     if (map[host]) return map[host];
@@ -136,12 +152,43 @@ function extractSource(originallink: string): string {
     for (const [domain, name] of Object.entries(map)) {
       if (host.endsWith(domain)) return name;
     }
-    // 호스트에서 추출 (예: news.example.com → example)
-    const parts = host.split(".");
-    return parts.length >= 2 ? parts[parts.length - 2] : "뉴스";
+    return UNKNOWN_SOURCE;
   } catch {
-    return "뉴스";
+    return UNKNOWN_SOURCE;
   }
+}
+
+/**
+ * 기사 페이지가 밝힌 언론사 이름을 화면용으로 다듬는다 (10/5). 쓸 수 없으면 undefined.
+ * - "매일신문 | 네이버"(네이버 뉴스 화면의 og:article:author) → "매일신문"
+ * - 주소 그대로("ktv.go.kr")·깨진 인코딩·"네이버 뉴스" 같은 플랫폼 이름은 버린다
+ * - "종교신문 1위 크리스천투데이"처럼 수식어가 붙어 길면 마지막 낱말만
+ */
+export function cleanSiteName(raw: string): string | undefined {
+  const name = decodeHtmlEntities(raw)
+    .replace(/\s+/g, " ")
+    .replace(/\s*[|:·\-–—]+\s*네이버.*$/u, "")
+    .trim();
+  if (!name) return undefined;
+  // 깨진 인코딩(EUC-KR ↔ UTF-8 오독): 대체 문자 또는 라틴-1 보충 문자
+  if (/[\uFFFD\u0080-\u00FF]/.test(name)) return undefined;
+  if (/^(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+\/?$/i.test(name)) return undefined;
+  if (/네이버|^뉴스$|^(?:home|홈)$/i.test(name)) return undefined;
+  if (name.length <= 14) return name;
+  const last = name.split(" ").pop() ?? "";
+  return last.length >= 2 && last.length <= 14 ? last : undefined;
+}
+
+/**
+ * 귀농·농촌 맥락 판정 (10/5). 네이버 검색은 질의어 일부("정착"·"교육"·"축제")만 맞아도 돌려줘서
+ * 인도 민법·스페인 관광·구미 AI 로봇 같은 기사가 섞였다(카테고리 5개 50건 중 8건).
+ * 제목·요약 어디에도 아래 낱말이 없으면 뺀다.
+ */
+const RURAL_CONTEXT =
+  /귀농|귀촌|귀산촌|귀어|농촌|농업|농가|농민|영농|청년농|스마트팜|농산물|농협|농지|농장|작물|재배|수확|과수|축산|임업|산촌|어촌|마을/;
+
+export function isRuralRelevant(title: string, description = ""): boolean {
+  return RURAL_CONTEXT.test(`${title} ${description}`);
 }
 
 // ─── OG 이미지 추출 ───
@@ -149,6 +196,8 @@ function extractSource(originallink: string): string {
 export interface OgMeta {
   image?: string;
   description?: string;
+  /** 언론사 이름 — og:site_name(네이버 뉴스 화면은 og:article:author) 을 {@link cleanSiteName} 으로 다듬은 값 */
+  siteName?: string;
 }
 
 /** og:description / twitter:description / <meta name="description"> 패턴 */
@@ -182,8 +231,31 @@ function extractDescription(head: string): string | undefined {
   return undefined;
 }
 
+/** 네이버 뉴스 화면은 og:site_name 이 플랫폼 이름이라 언론사는 og:article:author 에 있다 */
+function extractSiteName(head: string, pageUrl: string): string | undefined {
+  let naver = false;
+  try {
+    naver = /(^|\.)naver\.com$/i.test(new URL(pageUrl).hostname);
+  } catch {
+    return undefined;
+  }
+  const key = naver ? "og:article:author" : "og:site_name";
+  const patterns = [
+    new RegExp(`<meta[^>]+property=["']${key}["'][^>]+content=["']([^"']+)["']`, "i"),
+    new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${key}["']`, "i"),
+  ];
+  for (const pattern of patterns) {
+    const m = head.match(pattern);
+    if (m?.[1]) {
+      const name = cleanSiteName(m[1]);
+      if (name) return name;
+    }
+  }
+  return undefined;
+}
+
 /**
- * 기사 URL에서 OG 메타데이터(이미지 + 설명)를 추출합니다.
+ * 기사 URL에서 OG 메타데이터(이미지 + 설명 + 언론사 이름)를 추출합니다.
  * - 5초 타임아웃으로 느린 사이트 대응
  * - og:* → twitter:* → meta name 순으로 폴백
  * - 실패 시 빈 객체 반환 (페이지 렌더링 블로킹 방지)
@@ -251,7 +323,7 @@ export async function fetchOgMeta(url: string): Promise<OgMeta> {
       }
     }
 
-    return { image, description: extractDescription(head) };
+    return { image, description: extractDescription(head), siteName: extractSiteName(head, url) };
   } catch {
     return {};
   }
@@ -369,7 +441,7 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
 
       if (!data.items?.length) return null;
 
-      return data.items
+      const articles = data.items
         .map((item) => ({
           title: stripHtml(item.title),
           description: stripHtml(item.description),
@@ -379,7 +451,10 @@ async function fetchNewsByQuery(query: string): Promise<NewsArticle[] | null> {
           naverUrl: item.link || undefined,
           _ts: toTimestamp(item.pubDate),
         }))
+        // 귀농·농촌 맥락이 없는 기사는 뺀다(10/5) — 다 빠지면 호출측이 정적 폴백을 쓰게 null
+        .filter((a) => isRuralRelevant(a.title, a.description))
         .sort((a, b) => b._ts - a._ts);
+      return articles.length > 0 ? articles : null;
     } catch {
       if (attempt < MAX_RETRIES) continue;
       return null;
