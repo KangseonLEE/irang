@@ -145,6 +145,22 @@
   padding-top: 40px;
 }
 
+/* 정착한 사람 띠 자리 (10/5) — 띠가 전폭 배경을 쥐고 있어 여기선 트렌드·비용 블록과의 간격만 맞춘다.
+   띠가 두 블록 사이에 끼면서 .block + .block 이 비용 블록에 더는 안 걸리므로 같은 40px 을 다시 준다 */
+.bandSlot {
+  margin-top: 32px;
+}
+
+@media (min-width: 640px) {
+  .bandSlot {
+    margin-top: 40px;
+  }
+
+  .bandSlot + .block {
+    padding-top: 40px;
+  }
+}
+
 /* ── 트렌드 헤더 ── */
 
 .blockHeader {

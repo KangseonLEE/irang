@@ -6,9 +6,10 @@ import { CROPS } from "@/lib/data/crops";
 import {
   CONTEXT_INTERVIEW_LIMIT,
   getContextInterviews,
-  getInterviewTeaser,
+  getTypeInterviews,
   toInterviewSummary,
 } from "@/lib/data/interview-summary";
+import { TREND_BENTO_PROFILES, type TrendTypeId } from "@/lib/data/landing";
 
 /**
  * 인터뷰 요약·맥락 선택 계약 (2026-10-05 회장 결재 B안 — 랜딩 띠 → 작물·지역 상세)
@@ -147,13 +148,39 @@ describe("인터뷰 링크 무결성 — 어긋나면 상세 섹션이 조용히
   });
 });
 
-describe("getInterviewTeaser — 랜딩 한 줄 진입점", () => {
-  it("전체 인원은 배열 길이, 얼굴 3개는 일러스트가 있는 최근 인물", () => {
-    const t = getInterviewTeaser();
-    expect(t.total).toBe(interviews.length);
-    expect(t.faces).toHaveLength(3);
-    expect(t.faces[0].id).toBe("kim-gwanghun");
-    expect(new Set(t.faces.map((f) => f.id)).size).toBe(3);
-    for (const f of t.faces) expect(f.image).toBe(`/interviews/illustrations/${f.id}.webp`);
+describe("getTypeInterviews — 랜딩 트렌드·비용 탭 사이 인터뷰 띠 (10/5)", () => {
+  const TAB_TYPES = Object.keys(TREND_BENTO_PROFILES) as TrendTypeId[];
+
+  it("대표 분류(category)만 본다 — 보조 태그 farming 이 붙은 스마트팜·치유농업 사람은 귀농 띠에 없다", () => {
+    const { items, total } = getTypeInterviews("farming");
+    expect(total).toBe(interviews.filter((p) => p.category === "farming").length);
+    expect(total).toBeLessThan(interviews.filter((p) => p.category === "farming" || p.tags?.includes("farming")).length);
+    for (const i of items) expect(byId(i.id).category, i.id).toBe("farming");
+  });
+
+  it("탭 5개끼리 사람이 겹치지 않는다 + 탭마다 1명 이상", () => {
+    const seen = new Map<string, TrendTypeId>();
+    for (const t of TAB_TYPES) {
+      const { items, total } = getTypeInterviews(t, 99);
+      expect(total, t).toBeGreaterThan(0);
+      for (const i of items) {
+        expect(seen.has(i.id), `${i.id} 가 ${seen.get(i.id)} 와 ${t} 에 동시`).toBe(false);
+        seen.set(i.id, t);
+      }
+    }
+  });
+
+  it("최근 기사 순 최대 3명 — 스마트팜 6명은 3장, 귀산촌 1명(이춘복)은 1장", () => {
+    const smart = getTypeInterviews("smartfarm");
+    expect(smart.items).toHaveLength(CONTEXT_INTERVIEW_LIMIT);
+    expect(smart.total).toBeGreaterThan(CONTEXT_INTERVIEW_LIMIT);
+    const dates = smart.items.map((i) => i.sourceDate);
+    expect([...dates].sort().reverse()).toEqual(dates);
+    expect(getTypeInterviews("mountain").items.map((i) => i.id)).toEqual(["lee-chunbok"]);
+  });
+
+  it("치유농업은 탭이 없어 띠에 안 나온다(목록 /interviews 에서만)", () => {
+    expect(TAB_TYPES).not.toContain("healing");
+    expect(getTypeInterviews("healing").total).toBeGreaterThan(0);
   });
 });

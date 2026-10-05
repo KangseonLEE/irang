@@ -3,13 +3,14 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { InterviewContextSection } from "@/components/interview/interview-context-section";
-import { InterviewStrip } from "@/components/landing/interview-strip";
-import { interviews } from "@/lib/data/landing";
+import { TypeInterviewBand, buildTypeInterviewBands } from "@/components/landing/type-interview-band";
+import { TrendCostSection } from "@/components/landing/trend-cost-section";
 
 /**
  * 2026-10-05 회장 결재 B안 — 마크업 계약.
  *  - 상세 "정착한 사람": 0명이면 아무것도 안 그림 · 최대 3장 · 더 있으면 /interviews · 외부 링크는 새 창 + noopener
- *  - 랜딩 한 줄 진입점: 계측 라벨 interviews:view_all · trackId="interviews" 유지 (2주 뒤 전/후 비교)
+ *  - 랜딩 트렌드·비용 탭 사이 유형별 띠(같은 날 한 줄 진입점을 대체): 고른 유형의 사람만 · 유형 그림 배경 ·
+ *    계측 라벨 interviews:view_all · trackId="interviews" 유지
  */
 
 const anchors = (html: string) => html.match(/<a [^>]*>/g) ?? [];
@@ -86,28 +87,89 @@ describe("InterviewContextSection — 작물·지역 상세", () => {
   });
 });
 
-describe("InterviewStrip — 랜딩 한 줄 진입점", () => {
-  it("띠 전체가 /interviews 링크 하나, 계측 라벨 interviews:view_all 유지", () => {
-    const html = renderToStaticMarkup(<InterviewStrip />);
-    const links = anchors(html);
-    expect(links).toHaveLength(1);
-    expect(links[0]).toContain('href="/interviews"');
-    expect(links[0]).toContain('data-track="interviews:view_all"');
+describe("TypeInterviewBand — 랜딩 트렌드·비용 사이 유형별 띠 (10/5)", () => {
+  it("귀농: 제목은 '귀농으로 정착한 사람'(유형만 강조), 사람 3명 · 인용은 가장 최근 기사(염수정)", () => {
+    const html = renderToStaticMarkup(<TypeInterviewBand type="farming" />);
+    expect(html).toMatch(/<h3 id="type-interviews-farming"[^>]*><em>귀농<\/em>으로 정착한 사람<\/h3>/);
+    expect(html).toContain('aria-labelledby="type-interviews-farming"');
+    expect(html.match(/<li>/g)).toHaveLength(3);
+    expect(html).toContain("귀농으로 성공하려면 고3 수험생처럼 공부해야 해요.");
+    expect(html).toContain("염수정 님 · 농민신문 2024.02");
   });
 
-  it("인원은 배열 길이에서 — '먼저 떠난 N명의 이야기' h2 + 얼굴 3개(장식)", () => {
-    const html = renderToStaticMarkup(<InterviewStrip />);
-    expect(html).toMatch(new RegExp(`<h2 id="landing-interviews-title"[^>]*>먼저 떠난 ${interviews.length}명의 이야기</h2>`));
-    expect(html).toContain('aria-labelledby="landing-interviews-title"');
-    const imgs = html.match(/<img [^>]*>/g) ?? [];
-    expect(imgs).toHaveLength(3);
-    for (const img of imgs) expect(img).toContain('alt=""');
-    expect(html).toContain("모두 보기");
+  it("배경은 유형 그림(히어로와 같은 hero-2 · sizes 100vw), 장식이라 alt=\"\"", () => {
+    const html = renderToStaticMarkup(<TypeInterviewBand type="farming" />);
+    const bg = (html.match(/<img [^>]*>/g) ?? []).find((img) => img.includes("hero-2.webp"));
+    expect(bg).toBeDefined();
+    expect(bg).toContain('alt=""');
+    expect(bg).toContain('sizes="100vw"');
+    expect(bg).toContain('loading="lazy"');
   });
 
-  it("랜딩은 같은 자리에서 trackId=\"interviews\" 로 감싼다 (노출 지표 연속성)", () => {
+  it("모두 보기 → /interviews?type=<유형> · data-track interviews:view_all, 사람 링크는 interviews:story", () => {
+    const html = renderToStaticMarkup(<TypeInterviewBand type="rural" />);
+    const more = anchors(html).filter((a) => a.includes('href="/interviews?type=rural"'));
+    expect(more).toHaveLength(1);
+    expect(more[0]).toContain('data-track="interviews:view_all"');
+    expect(html).toMatch(/href="\/interviews\?type=rural">귀촌 이야기 모두 보기/);
+    const stories = anchors(html).filter((a) => a.includes('data-track="interviews:story"'));
+    expect(stories).toHaveLength(2);
+  });
+
+  it("원문 기사는 새 창 + noopener noreferrer + 새 창 안내 참조, 본문 동의자(김광훈)는 내부 링크", () => {
+    const html = renderToStaticMarkup(<TypeInterviewBand type="smartfarm" />);
+    const stories = anchors(html).filter((a) => a.includes('data-track="interviews:story"'));
+    expect(stories).toHaveLength(3);
+    const internal = stories.filter((a) => a.includes('href="/interviews/kim-gwanghun"'));
+    expect(internal).toHaveLength(1);
+    expect(internal[0]).not.toContain("target=");
+    for (const a of stories.filter((x) => !x.includes('href="/interviews/'))) {
+      expect(a).toContain('target="_blank"');
+      expect(a).toContain('rel="noopener noreferrer"');
+      expect(a).toContain('aria-describedby="type-interviews-new-tab-smartfarm"');
+    }
+    expect(html).toContain('<span id="type-interviews-new-tab-smartfarm" hidden="">원문 기사가 새 창에서 열려요</span>');
+  });
+
+  it("귀산촌은 1명(이춘복)만 — 인원 수는 적지 않는다(목록은 보조 태그까지 넣어 더 많다)", () => {
+    const html = renderToStaticMarkup(<TypeInterviewBand type="mountain" />);
+    expect(html.match(/<li>/g)).toHaveLength(1);
+    expect(html).toContain("이춘복");
+    expect(html).not.toMatch(/\d+명/);
+  });
+
+  it("buildTypeInterviewBands — 트렌드 탭 5종 모두 띠가 있다", () => {
+    const bands = buildTypeInterviewBands();
+    expect(Object.keys(bands).sort()).toEqual(["farming", "mountain", "rural", "smartfarm", "youth"]);
+    for (const [type, node] of Object.entries(bands)) {
+      expect(renderToStaticMarkup(<>{node}</>), type).toContain(`data-type-interviews="${type}"`);
+    }
+  });
+});
+
+describe("TrendCostSection — 띠는 트렌드와 비용 사이, 첫 화면은 첫 탭(귀농) 것 하나만", () => {
+  it("순서: #정착 트렌드 → 띠(farming) → #비용 가이드, 다른 유형 띠는 HTML 에 없다", () => {
+    const html = renderToStaticMarkup(<TrendCostSection interviewBands={buildTypeInterviewBands()} />);
+    const trend = html.indexOf("#정착 트렌드");
+    const band = html.indexOf('data-type-interviews="farming"');
+    const cost = html.indexOf("#비용 가이드");
+    expect(trend).toBeGreaterThan(-1);
+    expect(band).toBeGreaterThan(trend);
+    expect(cost).toBeGreaterThan(band);
+    expect(html.match(/data-type-interviews=/g)).toHaveLength(1);
+  });
+
+  it("띠를 안 넘기면 띠 자리도 없다", () => {
+    const html = renderToStaticMarkup(<TrendCostSection />);
+    expect(html).not.toContain("data-type-interviews");
+  });
+
+  it("랜딩은 트렌드·비용 섹션에 띠를 넘기고, 하단 한 줄 진입점은 없다", () => {
     const page = readFileSync(join(process.cwd(), "src", "app", "page.tsx"), "utf8");
-    expect(page).toMatch(/<ScrollReveal trackId="interviews"[^>]*>\s*<InterviewStrip \/>\s*<\/ScrollReveal>/);
-    expect(page).not.toContain("InterviewCarousel");
+    expect(page).toContain("<TrendCostSection interviewBands={buildTypeInterviewBands()} />");
+    expect(page).not.toContain("InterviewStrip");
+    expect(page).not.toContain('trackId="interviews"');
+    const section = readFileSync(join(process.cwd(), "src", "components", "landing", "trend-cost-section.tsx"), "utf8");
+    expect(section).toMatch(/<ScrollReveal trackId="interviews"[^>]*>\s*<div key=\{cat\.id\}>/);
   });
 });

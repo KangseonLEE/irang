@@ -38,30 +38,6 @@
   }
 }
 
-/* 한 줄 띠(랜딩 인터뷰 진입점) 자리 — .page gap(64/88/100/120)을 위아래 40/48/52/56px 로 줄인다 (10/5).
-   flex 항목의 음수 바깥 여백은 gap 과 더해진다 */
-.slimSlot {
-  margin-block: -24px;
-}
-
-@media (min-width: 640px) {
-  .slimSlot {
-    margin-block: -40px;
-  }
-}
-
-@media (min-width: 768px) {
-  .slimSlot {
-    margin-block: -48px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .slimSlot {
-    margin-block: -64px;
-  }
-}
-
 /* 1. 히어로 — 10/1 A안(검색 + 정착 유형), 스타일은 components/landing/hero-search-hub.module.css.
    efusioni 히어로는 태그 archive/hero-efusioni-2026-10-01, 그 이전 히어로(.heroSection 등)는
    태그 archive/hero-journey-lanes-2026-10-01 에 보관 */

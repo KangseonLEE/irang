@@ -14,7 +14,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { InterviewStrip } from "@/components/landing/interview-strip";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
 import { HeroSearchHub, type HeroStat, type HeroDeadline } from "@/components/landing/hero-search-hub";
 import { HeroSearchDock } from "@/components/landing/hero-search-dock";
@@ -28,6 +27,7 @@ import { PromoPopup } from "@/components/landing/promo-popup";
 import { loadActivePromos } from "@/lib/promos/queries";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
+import { buildTypeInterviewBands } from "@/components/landing/type-interview-band";
 import { ExperienceSection, OpportunitySection, countDistinctByGroup } from "@/components/landing/discover-section";
 import { filterEventsAsync } from "@/lib/data/events";
 import { filterEducationAsync } from "@/lib/data/education";
@@ -219,9 +219,11 @@ export default async function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* ═══ 3+4. 트렌드 + 비용 통합 ═══ */}
+      {/* ═══ 3+4. 트렌드 + 비용 통합 ═══
+          10/5 회장: 트렌드와 비용 사이에 고른 유형의 인터뷰만 담은 "정착한 사람" 띠(유형 수채화 배경).
+          띠는 서버에서 유형별로 그려 넘기고 섹션은 고른 탭 것만 마운트한다(인터뷰 데이터는 클라이언트 번들 밖) */}
       <ScrollReveal trackId="trend_cost" variant="fade">
-        <TrendCostSection />
+        <TrendCostSection interviewBands={buildTypeInterviewBands()} />
       </ScrollReveal>
 
       {/* ═══ 5. 이랑에서 할 수 있는 것 3카드 (연한 그린 배경) — 10/2 회장: "돈 되는 작물, 한눈에" 섹션 제거 ═══ */}
@@ -237,14 +239,6 @@ export default async function HomePage() {
       {/* ═══ 5-2. 직접 가 보는 농촌 — 체험·행사 사진 캐러셀 (10/1 A안: 작물 뒤로) ═══ */}
       <ScrollReveal trackId="experience" variant="fade" stagger>
         <ExperienceSection events={eventsResult.events} />
-      </ScrollReveal>
-
-      {/* ═══ 6. 먼저 떠난 사람들 — 한 줄 진입점 (10/5 회장 결재 B안) ═══
-          다크 띠 + 캐러셀 6장(도달 12명·클릭 0명) → 링크 띠 하나. 이야기는 작물·지역 상세의 "정착한 사람"으로 옮겼다.
-          trackId·data-track(interviews:view_all) 은 그대로 — 2주 뒤 같은 지표로 전/후 비교 */}
-      {/* 한 줄 띠라 섹션 간격(.page gap)을 그대로 두면 위아래로 떠 보인다 — 이 자리만 간격을 줄인다(10/5) */}
-      <ScrollReveal trackId="interviews" variant="fade" className={s.slimSlot}>
-        <InterviewStrip />
       </ScrollReveal>
 
       {/* ═══ 6+7. 뉴스 → CTA (여백 없이 연결) ═══ */}

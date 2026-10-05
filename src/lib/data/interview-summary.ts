@@ -10,12 +10,19 @@
  *     본문 게재 동의자(hasFullStory)만 `/interviews/{id}` 상세로, 나머지는 원문 기사로 직결한다
  *     (5/9 인터뷰 동의 정책). 이 규칙이 두 곳에 있으면 한쪽만 고쳐져 미동의자 본문 링크가 새어 나간다.
  *  2. 맥락별 선택 {@link getContextInterviews} — 작물 id(`cropLinks`)·시·도 id·(시·도, 시·군·구) id(`regionUrl`).
- *  3. 랜딩 한 줄 진입점 {@link getInterviewTeaser} — 전체 인원 + 최근 인물 얼굴.
+ *  3. 정착 유형별 선택 {@link getTypeInterviews} — 랜딩 트렌드·비용 섹션의 유형 탭 사이 인터뷰 띠(10/5 회장).
+ *     처음엔 랜딩 하단 한 줄 진입점(얼굴 + 전체 인원)이었다가, 같은 날 탭이 고른 유형의 사람만 보여 주는 띠로 옮겼다.
  *
  * UI 무관(lib 레이어) — components 를 import 하지 않는다.
  */
 
-import { interviews, hasFullStory, sortInterviews, type InterviewCard } from "./landing";
+import {
+  interviews,
+  hasFullStory,
+  sortInterviews,
+  type InterviewCard,
+  type InterviewCategoryId,
+} from "./landing";
 import { getInterviewImageSrc } from "../interview-image";
 
 export interface InterviewSummary {
@@ -110,21 +117,22 @@ export function getContextInterviews(
   return { items: matched.slice(0, limit).map(toInterviewSummary), total: matched.length };
 }
 
-/* ── 랜딩 한 줄 진입점 ── */
+/* ── 정착 유형별 (랜딩 트렌드·비용 섹션의 인터뷰 띠) ── */
 
-export interface InterviewTeaser {
-  /** 전체 인터뷰 수 — "먼저 떠난 {total}명의 이야기" (하드코딩 금지, 배열 길이) */
-  total: number;
-  /** 일러스트가 있는 최근 인물 — 겹친 원형 얼굴 */
-  faces: { id: string; image: string }[];
-}
-
-export function getInterviewTeaser(faceCount = 3): InterviewTeaser {
-  const faces: InterviewTeaser["faces"] = [];
-  for (const p of sortInterviews(interviews, "recent")) {
-    if (faces.length >= faceCount) break;
-    const image = getInterviewImageSrc(p.id);
-    if (image) faces.push({ id: p.id, image });
-  }
-  return { total: interviews.length, faces };
+/**
+ * 정착 유형 하나로 정착한 사람 — 대표 분류(`category`)만 본다. 보조 태그(`tags`)는 보지 않는다.
+ * 태그까지 넣으면 "귀농"(대표 3명 + 보조 태그 14명)이 19명 중 17명이 되어 탭마다 다른 사람을 보여 주려던
+ * 의미가 사라진다(10/5). 대표 분류로는 5개 탭이 서로 겹치지 않는다. /interviews?type= 목록은 태그까지 넣는다 —
+ * 띠의 "모두 보기"로 가면 사람이 더 많은 게 정상이다(띠는 인원 수를 적지 않는다).
+ * 최근 기사 순 · 최대 limit 명. 0명이면 items 가 비고, 호출자는 띠를 그리지 않는다.
+ */
+export function getTypeInterviews(
+  type: InterviewCategoryId,
+  limit: number = CONTEXT_INTERVIEW_LIMIT,
+): ContextInterviews {
+  const matched = sortInterviews(
+    interviews.filter((p) => p.category === type),
+    "recent",
+  );
+  return { items: matched.slice(0, limit).map(toInterviewSummary), total: matched.length };
 }

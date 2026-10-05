@@ -220,7 +220,12 @@ const JOSA_PAIRS: Record<string, readonly [string, string]> = {
   는: ["은", "는"],
   과: ["과", "와"],
   와: ["과", "와"],
+  으로: ["으로", "로"],
+  로: ["으로", "로"],
 };
+
+/** "으로/로" 는 ㄹ 받침 뒤에서도 "로"를 쓴다("서울로"·"마을로") — 받침 유무만으로는 못 가른다 */
+const RIEUL_FINAL = 8;
 
 /** 마지막 글자에 받침이 있는가 (한글 음절이 아니면 false) */
 function hasFinalConsonant(word: string): boolean {
@@ -246,6 +251,10 @@ function hasFinalConsonant(word: string): boolean {
 export function withJosa(word: string, josa: keyof typeof JOSA_PAIRS | string): string {
   const pair = JOSA_PAIRS[josa];
   if (!pair) return `${word}${josa}`;
+  if (pair[0] === "으로" && hasFinalConsonant(word)) {
+    const code = word.trim().charCodeAt(word.trim().length - 1);
+    return `${word}${(code - 0xac00) % 28 === RIEUL_FINAL ? pair[1] : pair[0]}`;
+  }
   return `${word}${hasFinalConsonant(word) ? pair[0] : pair[1]}`;
 }
 
