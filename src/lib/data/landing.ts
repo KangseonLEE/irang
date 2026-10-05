@@ -918,7 +918,7 @@ export const interviews: InterviewCard[] = [
     tags: ["farming"],
     sourceUrl: "https://www.farmnmarket.com/news/article.html?no=22960",
     sourceName: "팜앤마켓매거진",
-    sourceDate: "2024.12",
+    sourceDate: "2025.03", // 10/5 원문 대조: 등록 2025-03-12 · 2025년 3월호 (예전 "2024.12")
     regionUrl: "/regions/jeonnam/gangjin",
     cropLinks: [{ name: "딸기", href: "/crops/strawberry" }],
   },
@@ -935,9 +935,10 @@ export const interviews: InterviewCard[] = [
     tags: ["mountain"],
     sourceUrl: "https://bravo.etoday.co.kr/view/atc_view/2723",
     sourceName: "브라보마이라이프",
-    sourceDate: "2024",
+    sourceDate: "2014.05", // 10/5 원문 대조: 입력 2014-05-14 (예전 "2024")
     regionUrl: "/regions/chungnam/dangjin",
-    cropLinks: [{ name: "벼", href: "/crops/rice" }],
+    // 표고버섯 전업농으로 정착 — 쌀 상세에 표고 인용이 뜨던 것을 바로잡음(10/5 QA). 벼는 부수 작목
+    cropLinks: [{ name: "표고버섯", href: "/crops/shiitake" }],
   },
   {
     id: "lee-jonghyun",
@@ -954,7 +955,7 @@ export const interviews: InterviewCard[] = [
     sourceName: "농민신문",
     sourceDate: "2024.01",
     regionUrl: "/regions/gyeonggi/yeoju",
-    cropLinks: [],
+    cropLinks: [{ name: "방울토마토", href: "/crops/cherry-tomato" }], // 10/5: 비어 있어 방울토마토 상세에 0명이었다
   },
   {
     id: "yeom-sujeong",
@@ -1077,7 +1078,7 @@ export const interviews: InterviewCard[] = [
     category: "farming",
     sourceUrl: "https://www.korea.kr/news/policyNewsView.do?newsId=148732769",
     sourceName: "대한민국 정책브리핑",
-    sourceDate: "2023",
+    sourceDate: "2012.05", // 10/5 원문 대조: 정책브리핑 2012-05-11 (예전 "2023")
     regionUrl: "/regions/gyeongbuk/chilgok",
     cropLinks: [],
   },
