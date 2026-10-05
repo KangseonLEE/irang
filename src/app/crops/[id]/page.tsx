@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { CommunityNotes } from "@/components/community/community-notes";
+import { InterviewContextSection } from "@/components/interview/interview-context-section";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
 import st from "@/components/ui/sidebar-tabs.module.css";
@@ -609,6 +610,9 @@ export default async function CropDetailPage({
 
           {/* 정착 팁 */}
           <TipsSection tips={detail.tips} />
+
+          {/* 이 작물로 정착한 사람 — 언론 인터뷰 (10/5 B안: 랜딩 인터뷰 띠를 맥락 화면으로). 0명이면 렌더 안 함 */}
+          <InterviewContextSection context={{ kind: "crop", cropId: id }} />
 
           {/* 커뮤니티 1단계 — 한 줄 의견 (사전 승인제, 2026-09-02) */}
           <PersonaCta from="crop_detail" copy="이 작물이 내 조건에 맞을까요?" />

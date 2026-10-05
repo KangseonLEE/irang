@@ -1,0 +1,134 @@
+/* ══════════════════════════════════════════
+   랜딩 인터뷰 한 줄 진입점 (2026-10-05 회장 결재 B안)
+   다크 풀블리드 띠 → 콘텐츠 폭 안의 밝은 링크 띠 하나. 장식 없이 얼굴 3개 + 문장 + 화살표.
+   모바일: 얼굴 | 제목 / 모두 보기 (2줄) · 640+: 얼굴 | 제목 ……… 모두 보기 (1줄)
+   ══════════════════════════════════════════ */
+
+.strip {
+  min-width: 0;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg, 8px);
+  background: var(--surface-green-50, #edf5f3);
+  color: var(--foreground, #111827);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--ring, #1b6b5a);
+  outline-offset: 3px;
+}
+
+/* 겹친 원형 얼굴 — 흰 테두리로 서로를 가른다 */
+.faces {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.face {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--card, #fff);
+  border-radius: 50%;
+  background: var(--card, #fff);
+  object-fit: cover;
+}
+
+.face + .face {
+  margin-left: -10px;
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-body, 16px);
+  font-weight: 700;
+  line-height: var(--lh-snug, 1.4);
+  letter-spacing: -0.02em;
+  color: var(--foreground, #111827);
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption, 13px);
+  font-weight: 700;
+  color: var(--primary, #1b6b5a);
+}
+
+.moreIcon {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+/* 360 미만(320 실측): 제목(149px)이 글자 칸(144px)을 넘어 3줄이 됐다 — 얼굴 하나를 빼 2줄을 지킨다 */
+@media (max-width: 359px) {
+  .face:nth-child(3) {
+    display: none;
+  }
+}
+
+@media (hover: hover) {
+  .link:hover {
+    background: color-mix(in srgb, var(--primary, #1b6b5a) 10%, var(--surface-green-50, #edf5f3));
+  }
+
+  .link:hover .moreIcon {
+    transform: translateX(3px);
+  }
+}
+
+@media (min-width: 640px) {
+  .link {
+    gap: 16px;
+    min-height: 72px;
+    padding: 14px 24px;
+  }
+
+  .face {
+    width: 44px;
+    height: 44px;
+  }
+
+  .face + .face {
+    margin-left: -12px;
+  }
+
+  .text {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .title {
+    font-size: var(--fs-body-lg, 17px);
+  }
+
+  .more {
+    flex-shrink: 0;
+    font-size: var(--fs-body-sm, 15px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moreIcon {
+    transition: none;
+  }
+}
