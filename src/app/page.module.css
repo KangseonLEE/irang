@@ -38,6 +38,32 @@
   }
 }
 
+/* 자주 찾는 서비스 → 지금 열린 기회 (10/5 회장 "간격이 너무 크다, 지금의 절반으로").
+   아이콘 한 줄뿐인 가벼운 섹션이라 .page 기본 간격이면 떨어져 보였다 — 라벨 글자 아래 → 다음 섹션 첫 글자 위가
+   100/128/140/156px(모바일/640/768/1024+) → 50/64/70/78px. flex 항목의 음수 바깥 여백은 gap 에서 빠진다.
+   실측은 등장 애니메이션이 끝난 뒤에 잰다 — 등장 전엔 아이콘이 아래로 밀려 있어 간격이 28px 작게 잡힌다 */
+.quickLinkSlot {
+  margin-bottom: -50px;
+}
+
+@media (min-width: 640px) {
+  .quickLinkSlot {
+    margin-bottom: -64px;
+  }
+}
+
+@media (min-width: 768px) {
+  .quickLinkSlot {
+    margin-bottom: -70px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .quickLinkSlot {
+    margin-bottom: -78px;
+  }
+}
+
 /* 1. 히어로 — 10/1 A안(검색 + 정착 유형), 스타일은 components/landing/hero-search-hub.module.css.
    efusioni 히어로는 태그 archive/hero-efusioni-2026-10-01, 그 이전 히어로(.heroSection 등)는
    태그 archive/hero-journey-lanes-2026-10-01 에 보관 */

@@ -161,7 +161,8 @@ export default async function HomePage() {
       <HeroSearchDock />
 
       {/* ═══ 1-2. 자주 찾는 서비스 — 아이콘 8종, GNB 여정 순 (9/7 회장 결재: 히어로 밖 별도 섹션) ═══ */}
-      <ScrollReveal trackId="quick_link" variant="fade" stagger>
+      {/* 10/5 회장: 아이콘 한 줄뿐인 섹션이라 다음 섹션(지금 열린 기회)까지 기본 간격이 떠 보인다 → 절반으로 */}
+      <ScrollReveal trackId="quick_link" variant="fade" stagger className={s.quickLinkSlot}>
         <QuickLinkSection />
       </ScrollReveal>
 
