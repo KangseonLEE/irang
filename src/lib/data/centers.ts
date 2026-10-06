@@ -318,9 +318,10 @@ export const CENTERS: Center[] = [
     sigunguSlug: "goyang",
     category: "sigungu",
     name: "고양시 농업기술센터",
-    url: "https://www.goyang.go.kr/atc/index.do",
-    // 검증 2026-04-15: HTTP 200, title="Document" (SPA 렌더 — 실제 atc 서브도메인 정상)
-    verifiedAt: "2026-04-15",
+    url: "https://www.goyang.go.kr/agr/index.do",
+    // 검증 2026-10-06: HTTP 200, 본문 '농업기술센터'·'고양시' — 시청 메인 메뉴의 농업기술센터 링크.
+    // 옛 /atc/index.do 는 사이트 개편으로 404(한국·미국 동일, check-links #162)
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-gwacheon-sigungu",
