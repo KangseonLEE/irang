@@ -5,6 +5,9 @@ import { DataSource } from "@/components/ui/data-source";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./modals.module.css";
 
+/** 농가 통계 기준 연도 — 농림어업총조사(5년 주기). lib/api/sgis.ts FARM_YEAR 와 같은 값 */
+const FARM_CENSUS_YEAR = 2020;
+
 interface FarmHouseholdModalProps {
   sigunguName: string;
   provinceShortName: string;
@@ -120,13 +123,13 @@ export function FarmHouseholdModal({
         />
       </div>
 
-      {farm.isFallback && (
-        <p className={s.summary}>
-          최신 데이터 호출에 실패해 정적 폴백 값으로 표시했어요.
-        </p>
-      )}
+      {/* 기준 연도 안내 — API 성공·폴백 모두 같은 2020 총조사 값이라 "호출 실패" 문구는 사실과 달랐다
+          (10/6 QA1: 운영 표본 20곳 중 7곳 노출). 실패 여부와 무관하게 기준 시점을 밝힌다. */}
+      <p className={s.summary}>
+        {FARM_CENSUS_YEAR}년 농림어업총조사 값이에요. 5년마다 조사하는 통계라 지금과 다를 수 있어요.
+      </p>
 
-      <DataSource source="통계청 SGIS · 농림어업총조사 2020 (5년 주기)" />
+      <DataSource source={`통계청 SGIS · 농림어업총조사 ${FARM_CENSUS_YEAR} (5년 주기)`} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -45,10 +46,12 @@ function buildHref(overrides: { period?: PeriodFilter; page?: number }): string 
 }
 
 export const metadata: Metadata = {
-  title: "데이터 정정 이력",
-  description:
-    "이랑 서비스의 데이터 정정 이력을 확인하세요. 발견된 오류와 수정 내역을 투명하게 공개해요.",
-  alternates: { canonical: "/about/corrections" },
+  ...pageMetadata({
+    title: "데이터 정정 이력",
+    description:
+      "이랑 서비스의 데이터 정정 이력을 확인하세요. 발견된 오류와 수정 내역을 투명하게 공개해요.",
+    path: "/about/corrections",
+  }),
 };
 
 

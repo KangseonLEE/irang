@@ -201,7 +201,8 @@
 }
 
 .tagFix {
-  color: #b45309;
+  /* 글자 대비 — #b45309 는 이 바탕(#f8eee6)에서 4.39:1 로 미달, 한 단계 진하게 6.2:1 (10/6 QA Q3-🟡10) */
+  color: var(--warning-fg-strong, #92400e);
   background: color-mix(in srgb, #b45309 10%, transparent);
 }
 

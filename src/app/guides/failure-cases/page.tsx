@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -20,9 +21,12 @@ import type { Article } from "schema-dts";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "정착 실패 사례 — 실패에서 배우는 준비 핵심 | 이랑",
-  description:
-    "정착 실패 사례 5가지와 대처법을 정리했어요. 준비 없는 귀농, 과도한 투자, 작물 선택 실패, 사회적 고립, 판로 미확보까지 — 같은 실수를 피하세요.",
+  ...pageMetadata({
+    title: "정착 실패 사례 — 실패에서 배우는 준비 핵심",
+    description:
+      "정착 실패 사례 5가지와 대처법을 정리했어요. 준비 없는 귀농, 과도한 투자, 작물 선택 실패, 사회적 고립, 판로 미확보까지 — 같은 실수를 피하세요.",
+    path: "/guides/failure-cases",
+  }),
   keywords: [
     "정착 실패 사례",
     "정착 실패 이유",
@@ -30,7 +34,6 @@ export const metadata: Metadata = {
     "귀농 실패",
     "정착 주의사항",
   ],
-  alternates: { canonical: "/guides/failure-cases" },
 };
 
 interface FailureCase {

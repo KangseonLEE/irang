@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { Info } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
+import { withJosa } from "@/lib/format";
 import s from "./include-closed-hint.module.css";
 
 interface IncludeClosedHintProps {
@@ -30,7 +31,8 @@ function buildUrl(
 ): string {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(filters)) {
-    if (value !== undefined && key !== "includeClosed") {
+    // 마감까지 넓히면 결과 수가 바뀌므로 쪽 번호(page)는 버린다 (10/6)
+    if (value !== undefined && key !== "includeClosed" && key !== "page") {
       params.set(key, value);
     }
   }
@@ -59,9 +61,10 @@ export function IncludeClosedHint({
       </div>
       <div className={s.body}>
         <p className={s.text}>
+          {/* 조사는 라벨 받침에 맞춘다 — "행사이 없어요" 오기(10/6) */}
           {resultCount === 0
-            ? `현재 모집 중인 ${itemLabel}이 없어요.`
-            : `현재 모집 중인 ${itemLabel}이 ${resultCount}건뿐이에요.`}
+            ? `현재 모집 중인 ${withJosa(itemLabel, "이")} 없어요.`
+            : `현재 모집 중인 ${withJosa(itemLabel, "이")} ${resultCount}건뿐이에요.`}
           {" "}마감된 항목도 함께 보면 지난 공고를 참고하거나 하반기 재공고를 미리 확인할 수 있어요.
         </p>
       </div>

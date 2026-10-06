@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import {
   Search,
@@ -19,9 +20,12 @@ import type { HowTo } from "schema-dts";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "정착 준비 순서 — 5단계 체크리스트 | 이랑",
-  description:
-    "정착 준비, 어떤 순서로 하면 좋을까요? 정보 수집부터 영농 시작까지 5단계로 정리했어요. 각 단계별 핵심 과업과 이랑 기능을 연결해 드려요.",
+  ...pageMetadata({
+    title: "정착 준비 순서 — 5단계 체크리스트",
+    description:
+      "정착 준비, 어떤 순서로 하면 좋을까요? 정보 수집부터 영농 시작까지 5단계로 정리했어요. 각 단계별 핵심 과업과 이랑 기능을 연결해 드려요.",
+    path: "/guides/preparation",
+  }),
   keywords: [
     "정착 준비 순서",
     "농촌 정착 절차",
@@ -29,7 +33,6 @@ export const metadata: Metadata = {
     "정착 단계",
     "농촌 정착 방법",
   ],
-  alternates: { canonical: "/guides/preparation" },
 };
 
 interface Step {

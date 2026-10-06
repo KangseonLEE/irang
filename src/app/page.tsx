@@ -15,7 +15,13 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";
-import { HeroSearchHub, type HeroStat, type HeroDeadline } from "@/components/landing/hero-search-hub";
+import {
+  HeroSearchHub,
+  PROGRAMS_DUE_HREF,
+  PROGRAMS_OPEN_HREF,
+  type HeroStat,
+  type HeroDeadline,
+} from "@/components/landing/hero-search-hub";
 import { HeroSearchDock } from "@/components/landing/hero-search-dock";
 import { isStayEvent } from "@/components/events/event-fields";
 import { displayAmount } from "@/lib/programs/display";
@@ -118,9 +124,11 @@ export default async function HomePage() {
   const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount, closingPrograms } = getProgramsData(programs);
 
   // 히어로 데이터 줄 — 전부 배열·DB 결과에서 센다(0 이면 히어로가 그 항목을 그리지 않는다)
+  // 숫자를 누르면 그 숫자가 나오는 목록으로 — /programs 기본 목록은 정기 접수·모집예정까지 49건이라 "17건"이 어긋났다(10/6 QA).
+  // openProgramCount 는 모집중(공고 미발표 제외)이라 status=모집중 목록과 같은 모집단이다(dev 실측 17 = 17)
   const heroStats: HeroStat[] = [
-    { id: "programs_open", label: "신청 가능한 지원사업", value: openProgramCount, unit: "건", href: "/programs" },
-    { id: "programs_due", label: "7일 안에 마감", value: dueSoonProgramCount, unit: "건", href: "/programs" },
+    { id: "programs_open", label: "신청 가능한 지원사업", value: openProgramCount, unit: "건", href: PROGRAMS_OPEN_HREF },
+    { id: "programs_due", label: "7일 안에 마감", value: dueSoonProgramCount, unit: "건", href: PROGRAMS_DUE_HREF },
     {
       id: "education_open",
       label: "모집 중인 교육",

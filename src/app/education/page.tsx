@@ -22,7 +22,6 @@ import {
   sortEducation,
   EDUCATION_REGIONS,
   EDUCATION_TYPES,
-  EDUCATION_LEVELS,
   DEFAULT_EDUCATION_SORT,
   type EducationCourse,
   type EducationFilters,
@@ -36,7 +35,15 @@ import { IncludeClosedHint } from "@/components/filter/include-closed-hint";
 import { FilterShell } from "@/components/filter/filter-shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
-import { displayAmount, displayText } from "@/lib/programs/display";
+import { shareMetadata } from "@/lib/seo/share-metadata";
+import {
+  displayAmount,
+  displayEducationLevel,
+  displayEducationType,
+  displayText,
+  displayValue,
+  isCapacityKnown,
+} from "@/lib/programs/display";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
@@ -56,21 +63,29 @@ const sectionNavItems = [
   { href: "/events", label: "체험·행사" },
 ];
 
+const DESCRIPTION =
+  "귀농 귀촌 교육 과정을 검색하세요. 정착 교육(100시간 이상 권장), 온라인·오프라인 실습, 멘토링 프로그램 일정과 신청 방법을 한눈에 비교해요.";
+
 export const metadata: Metadata = {
   title: "귀농 교육 — 온라인·현장 실습·멘토링 과정 검색",
-  description:
-    "귀농 귀촌 교육 과정을 검색하세요. 정착 교육(100시간 이상 권장), 온라인·오프라인 실습, 멘토링 프로그램 일정과 신청 방법을 한눈에 비교해요.",
+  description: DESCRIPTION,
   alternates: { canonical: "/education" },
+  // 공유 카드 — 없으면 레이아웃의 사이트 기본 제목·설명이 나갔다 (10/6 QA Q2-W3)
+  ...shareMetadata({
+    title: "귀농 교육 — 온라인·현장 실습·멘토링 과정 검색 | 이랑",
+    description: DESCRIPTION,
+    path: "/education",
+  }),
 };
 
 /** 봇 트래픽 절감은 next.config.ts headers의 s-maxage로 처리.
  *  searchParams 의존 페이지에 export const revalidate 추가 시 dynamic SSR과 충돌 (2026-05-11 lessons). */
 
 interface PageProps {
+  // level(난이도)은 읽지 않는다 — 아래 FilterShell 주석 (10/6). 예전 ?level= 링크로 들어와도 거르지 않는다
   searchParams: Promise<{
     region?: string;
     type?: string;
-    level?: string;
     q?: string;
     period?: string;
     includeClosed?: string;
@@ -106,7 +121,6 @@ export default async function EducationPage({ searchParams }: PageProps) {
   const filters: EducationFilters = {
     region: params.region,
     type: params.type,
-    level: params.level,
     query: params.q,
     period,
     includeClosed,
@@ -134,7 +148,6 @@ export default async function EducationPage({ searchParams }: PageProps) {
   const currentFilters: Record<string, string | undefined> = {
     region: params.region,
     type: params.type,
-    level: params.level,
     q: params.q,
     period: params.period,
     includeClosed: params.includeClosed,
@@ -186,7 +199,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
         icon={<GraduationCap size={20} />}
         label="Education"
         title="정착 교육"
-        description="귀농에 필요한 교육 과정을 지역, 유형, 난이도별로 찾아보세요."
+        description="귀농에 필요한 교육 과정을 지역, 유형별로 찾아보세요."
         periodLabel={periodLabel}
         dataNote={`${dataYear}년 데이터만 있어요. 연도는 바꿀 수 없어요.`}
       />
@@ -224,12 +237,10 @@ export default async function EducationPage({ searchParams }: PageProps) {
             options: EDUCATION_TYPES,
             currentValue: params.type,
           },
-          {
-            paramKey: "level",
-            label: "난이도",
-            options: EDUCATION_LEVELS,
-            currentValue: params.level,
-          },
+          /* '난이도' 그룹은 감춘다 (10/6 CoS 결정) — 수집 행의 level 은 원문이 아니라 수집기 기본값("초급")이라
+             '모름'으로 처리했고(lib/programs/display), 그 결과 "초급"으로 거르면 109건이 1건만 남아 필터가 쓸모없어졌다.
+             수집기가 실제 수준을 줄 때까지 숨기고, 예전 ?level= 링크도 거르지 않는다(안 보이는 필터가 목록을 줄이지 않게).
+             되살릴 때: { paramKey: "level", label: "난이도", options: EDUCATION_LEVELS } + filters·currentFilters 의 level */
         ]}
         mobileActions={
           <FilterBar>
@@ -303,9 +314,10 @@ export default async function EducationPage({ searchParams }: PageProps) {
                       )}
                     </td>
                     <td className={`${dt.muted} ${dt.hideOnMobile}`}>{c.region}</td>
-                    <td className={`${dt.muted} ${dt.hideOnMobile}`}>{c.type}</td>
-                    <td className={`${dt.muted} ${dt.hideOnMobile}`}>{c.level}</td>
-                    <td className={dt.amount}>{c.cost}</td>
+                    {/* 수집 행의 기본값(유형 "오프라인"·난이도 "초급")·채움값("상세 공고 참조")은 "—" — 카드와 같은 규칙 (10/6 QA) */}
+                    <td className={`${dt.muted} ${dt.hideOnMobile}`}>{displayEducationType(c.id, c.type) ?? "—"}</td>
+                    <td className={`${dt.muted} ${dt.hideOnMobile}`}>{displayEducationLevel(c.id, c.level) ?? "—"}</td>
+                    <td className={dt.amount}>{displayAmount(c.id, c.cost) ?? "—"}</td>
                     <td className={`${dt.muted} ${dt.hideOnMobile}`}>{c.organization}</td>
                   </tr>
                 ))}
@@ -322,7 +334,7 @@ export default async function EducationPage({ searchParams }: PageProps) {
             {courses.map((course, i) => (
               <div
                 key={course.id}
-                className={s.cardAnim}
+                className={`${s.cardCell} ${s.cardAnim}`}
                 style={{ animationDelay: `${Math.min(i, 5) * 30}ms` }}
               >
                 <CourseCard course={course} />
@@ -346,6 +358,17 @@ function CourseCard({ course }: { course: EducationCourse }) {
   const description = displayText(course.id, course.description);
   // 수집 행 비용은 원문 칸이 비어 "상세 공고 참조"가 채워진다 — 금액처럼 굵게 보이지 않게 비운다(자리는 유지)
   const cost = displayAmount(course.id, course.cost);
+  // 수집 행의 기본값·채움값은 칸째 뺀다 (10/6 QA Q4-W4, lib/programs/display) — 110장 중 108장의 시계 칸이
+  // "상세 공고 참조"였고, 난이도 "초급"·RDA 과정의 "오프라인"·정원 "제한없음"은 원문이 아니라 수집기 기본값이다
+  const level = displayEducationLevel(course.id, course.level);
+  const type = displayEducationType(course.id, course.type);
+  const duration = displayValue(course.id, course.duration);
+  const schedule = displayValue(course.id, course.schedule);
+  const capacityLabel = isCapacityKnown(course.id, course.capacity)
+    ? course.capacity
+      ? `정원 ${course.capacity}명`
+      : "제한없음"
+    : null;
 
   return (
     <Link
@@ -355,7 +378,7 @@ function CourseCard({ course }: { course: EducationCourse }) {
       {/* 상단: 상태 + 난이도 */}
       <div className={s.cardTopRow}>
         <StatusBadge status={course.status} />
-        <span className={s.levelBadge}>{course.level}</span>
+        {level && <span className={s.levelBadge}>{level}</span>}
       </div>
 
       {/* 제목 — 목록이 h1(페이지 제목) 바로 아래라 h2 (10/4 axe heading-order: h1 다음 h3 건너뜀).
@@ -370,29 +393,39 @@ function CourseCard({ course }: { course: EducationCourse }) {
         <span className={s.cardOrg}>{course.organization}</span>
       </div>
 
-      <hr className={s.cardDivider} />
+      {/* 구분선 — 아래에 메타·설명이 하나라도 있을 때만 (수집 행은 둘 다 빌 수 있다) */}
+      {(type || duration || capacityLabel || schedule || description) && <hr className={s.cardDivider} />}
 
-      {/* 메타 정보 2x2 그리드 */}
-      <div className={s.cardMeta}>
-        <div className={s.metaItem}>
-          <TypeIcon type={course.type} />
-          <span className={s.metaValue}>{course.type}</span>
+      {/* 메타 정보 — 짧은 값(방식·정원)은 2열, 긴 값(기간·일정)은 한 줄을 다 쓴다. 반 칸이면
+          "2026-10-07 ~ 2026-…"처럼 끝 날짜가 말줄임으로 잘렸다 (10/6 QA — 마감 포함 199장 메타 796칸 중 130칸) */}
+      {(type || duration || capacityLabel || schedule) && (
+        <div className={s.cardMeta}>
+          {type && (
+            <div className={s.metaItem}>
+              <TypeIcon type={type} />
+              <span className={s.metaValue}>{type}</span>
+            </div>
+          )}
+          {capacityLabel && (
+            <div className={s.metaItem}>
+              <Users size={13} />
+              <span className={s.metaValue}>{capacityLabel}</span>
+            </div>
+          )}
+          {duration && (
+            <div className={`${s.metaItem} ${s.metaItemWide}`}>
+              <Clock size={13} />
+              <span className={s.metaValue}>{duration}</span>
+            </div>
+          )}
+          {schedule && (
+            <div className={`${s.metaItem} ${s.metaItemWide}`}>
+              <CalendarDays size={13} />
+              <span className={s.metaValue}>{schedule}</span>
+            </div>
+          )}
         </div>
-        <div className={s.metaItem}>
-          <Clock size={13} />
-          <span className={s.metaValue}>{course.duration}</span>
-        </div>
-        <div className={s.metaItem}>
-          <CalendarDays size={13} />
-          <span className={s.metaValue}>{course.schedule}</span>
-        </div>
-        <div className={s.metaItem}>
-          <Users size={13} />
-          <span className={s.metaValue}>
-            {course.capacity ? `정원 ${course.capacity}명` : "제한없음"}
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* 설명 */}
       {description && <p className={s.cardDesc}><AutoGlossary text={description} /></p>}

@@ -26,6 +26,7 @@ import { CardGrid } from "@/components/ui/card-grid";
 import { EventPhotoCard } from "@/components/events/event-photo-card";
 import { meaningfulCost } from "@/components/events/event-fields";
 import { getEventImage } from "@/lib/events/event-image";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { ListToolbar } from "@/components/ui/list-toolbar";
 import { SectionNav } from "@/components/layout/section-nav";
@@ -41,11 +42,19 @@ const sectionNavItems = [
   { href: "/events", label: "체험·행사" },
 ];
 
+const DESCRIPTION =
+  "농촌에서 살아보기, 일일체험, 팜스테이, 박람회·설명회 등 귀농·귀촌 행사 일정을 지역별로 찾아보세요. 참가 신청까지 한곳에서.";
+
 export const metadata: Metadata = {
   title: "귀농 체험·행사 — 농촌 살아보기·팜스테이·박람회 일정",
-  description:
-    "농촌에서 살아보기, 일일체험, 팜스테이, 박람회·설명회 등 귀농·귀촌 행사 일정을 지역별로 찾아보세요. 참가 신청까지 한곳에서.",
+  description: DESCRIPTION,
   alternates: { canonical: "/events" },
+  // 공유 카드 — 없으면 레이아웃의 사이트 기본 제목·설명이 나갔다 (10/6 QA Q2-W3)
+  ...shareMetadata({
+    title: "귀농 체험·행사 — 농촌 살아보기·팜스테이·박람회 일정 | 이랑",
+    description: DESCRIPTION,
+    path: "/events",
+  }),
 };
 
 interface PageProps {

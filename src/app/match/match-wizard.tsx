@@ -20,8 +20,9 @@ import {
   generateResultId,
   saveAssessmentResult,
 } from "@/lib/assess-result";
-import { useAssessmentHistory } from "@/hooks/use-assessment-history";
 import { MatchResult } from "./match-result";
+import { useDiagnosisHistory } from "./use-diagnosis-history";
+import { useWizardBackGuard } from "./use-wizard-back-guard";
 import s from "./match-wizard.module.css";
 
 /* ── 컴포넌트 ── */
@@ -40,7 +41,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [dimScores, setDimScores] = useState<MatchDimensionScores | undefined>();
   const [ageGroup, setAgeGroup] = useState<string | undefined>();
-  const { addResult } = useAssessmentHistory();
+  const { addResult } = useDiagnosisHistory();
 
   // 빠른 연타 클릭 방어 — setTimeout 전환 중 추가 클릭 차단
   const transitionRef = useRef(false);
@@ -169,6 +170,9 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
     window.scrollTo(0, 0);
   }, []);
 
+  // 브라우저 뒤로가기 = 한 문항 뒤로 (결과 → 마지막 문항 → … → 첫 문항, 2026-10-06 QA Q4-W11)
+  useWizardBackGuard(showResult ? totalSteps : step, handleBack);
+
   // 결과 화면 진입 시 완료 이벤트 + Supabase 저장 + localStorage 저장
   useEffect(() => {
     if (!showResult) return;
@@ -189,6 +193,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
 
     // localStorage 히스토리 저장
     addResult({
+      kind: "match",
       resultId: id,
       farmTypeId: ft.id,
       farmTypeLabel: ft.label,

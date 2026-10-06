@@ -190,6 +190,30 @@ export function buildEventFacts(event: FarmEvent, variant: "card" | "detail"): E
   return facts;
 }
 
+/** "2026-10-13" → "10월 13일" (형식이 다르거나 미정 9999 면 null) */
+function monthDayLabel(raw: string | null | undefined): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(raw ?? "");
+  if (!m || m[1] === "9999") return null;
+  return `${Number(m[2])}월 ${Number(m[3])}일`;
+}
+
+/**
+ * 상세 페이지 제목 — 같은 제목의 행사가 여럿이면 시작일을 붙여 가른다 (10/6 QA Q2-X4).
+ * 그린대로는 회차를 같은 제목·설명으로 올린다(춘천 팸투어 10/13·10/14, 살아보기 마을 1·2차) — 상세 `<title>`·
+ * 설명·공유 카드가 글자 하나 다르지 않아 검색엔진에는 중복 문서로, 사람에게는 같은 글로 보였다.
+ * 쌍둥이가 없거나 날짜까지 같으면(날짜로도 못 가른다) 원문 제목 그대로.
+ */
+export function distinctEventTitle(
+  event: Pick<FarmEvent, "id" | "title" | "date">,
+  all: readonly Pick<FarmEvent, "id" | "title" | "date">[],
+): string {
+  const twins = all.filter((e) => e.id !== event.id && e.title === event.title);
+  if (twins.length === 0) return event.title;
+  const label = monthDayLabel(event.date);
+  if (!label || twins.every((e) => e.date === event.date)) return event.title;
+  return `${event.title} · ${label}`;
+}
+
 /**
  * 카드에 쓸 제목 — 꼬리에 붙은 마을 유형 표기를 뗀다.
  * 수집 원문이 "…살아보기 (귀촌형)" 형태라 유형 칩과 같은 말이 카드에 두 번 나온다.

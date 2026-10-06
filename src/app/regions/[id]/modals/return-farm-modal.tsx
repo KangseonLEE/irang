@@ -12,6 +12,7 @@ import {
   Legend,
 } from "recharts";
 import { DataSource } from "@/components/ui/data-source";
+import { withJosa } from "@/lib/format";
 import s from "./modals.module.css";
 
 interface TrendItem {
@@ -210,10 +211,10 @@ export function ReturnFarmModal({
         <h4 className={s.insightTitle}>정착 관점</h4>
         <p className={s.insightText}>
           {returnFarm.returnRuralPerson > returnFarm.returnFarmPerson * 3
-            ? `${sigunguName}은 귀촌인이 정착자보다 ${Math.round(returnFarm.returnRuralPerson / returnFarm.returnFarmPerson)}배 많아요. 농업보다 전원생활 목적의 이주가 많은 지역이에요.`
+            ? `${withJosa(sigunguName, "은")} 귀촌인이 정착자보다 ${Math.round(returnFarm.returnRuralPerson / returnFarm.returnFarmPerson)}배 많아요. 농업보다 전원생활 목적의 이주가 많은 지역이에요.`
             : returnFarm.returnFarmPerson > returnFarm.returnRuralPerson
-              ? `${sigunguName}은 귀촌보다 정착 비율이 높아요. 실제 영농을 시작하려는 분들이 많이 찾는 지역이에요.`
-              : `${sigunguName}은 귀농과 귀촌이 균형 있게 이뤄지고 있어요. 영농과 전원생활 모두 가능한 지역이에요.`}
+              ? `${withJosa(sigunguName, "은")} 귀촌보다 정착 비율이 높아요. 실제 영농을 시작하려는 분들이 많이 찾는 지역이에요.`
+              : `${withJosa(sigunguName, "은")} 귀농과 귀촌이 균형 있게 이뤄지고 있어요. 영농과 전원생활 모두 가능한 지역이에요.`}
         </p>
       </div>
 

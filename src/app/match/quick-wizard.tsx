@@ -13,8 +13,9 @@
  * 디자인 결정
  *   - match-wizard.tsx 의 CSS 패턴 재사용 (progress bar + 옵션 그리드)
  *   - 결과 화면은 페르소나 라벨·메시지 + 3개 deep link 카드로 단순화
- *   - URL deep link: /regions/ranking?persona=... (Phase 6 A안 완료된 시스템)
- *   - localStorage 저장 안 함 (1분 점검은 가벼운 시드 — 적합도/유형 진단처럼 결과 저장 불필요)
+ *   - URL deep link: /regions/ranking?persona=... (Phase 6 A안 완료된 시스템) — '기본 균등'은 quick-links.ts
+ *   - 결과는 "이전 진단 결과"(localStorage)에 남긴다 (2026-10-06 — 재방문 지표. 예전엔 저장 안 함)
+ *   - 브라우저 뒤로가기 = 한 문항 뒤로 (use-wizard-back-guard.ts)
  *
  * 분석 이벤트 (analytics.ts 신규)
  *   - quickCheckStart: 마운트 시 1회
@@ -36,7 +37,6 @@ import {
 import {
   QUICK_QUESTIONS,
   mapToPersona,
-  buildRecommendations,
   getResultMessage,
   type QuickAnswers,
 } from "@/lib/data/quick-check";
@@ -46,6 +46,9 @@ import {
   generateResultId,
   saveAssessmentResult,
 } from "@/lib/assess-result";
+import { quickRecommendationLinks } from "./quick-links";
+import { useDiagnosisHistory } from "./use-diagnosis-history";
+import { useWizardBackGuard } from "./use-wizard-back-guard";
 import s from "./match-wizard.module.css";
 import qs from "./quick-wizard.module.css";
 
@@ -54,32 +57,44 @@ import qs from "./quick-wizard.module.css";
 
 interface QuickWizardProps {
   onBack?: () => void;
+  /**
+   * 이전 결과 다시 보기 — 저장해 둔 답으로 결과 화면부터 연다.
+   * 다시 보기는 새 점검이 아니라 분석 이벤트·저장을 하지 않는다(M7 완료 지표가 부풀지 않게).
+   */
+  review?: QuickAnswers;
+  /** 다시 보기에서 "다시 점검하기" — 새 점검으로 (게이트웨이가 주소를 바꾼다) */
+  onRestart?: () => void;
 }
 
-export function QuickWizard({ onBack }: QuickWizardProps) {
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<QuickAnswers>({});
-  const [showResult, setShowResult] = useState(false);
+export function QuickWizard({ onBack, review, onRestart }: QuickWizardProps) {
+  const isReview = review !== undefined;
+  const totalSteps = QUICK_QUESTIONS.length;
+  const [step, setStep] = useState(isReview ? totalSteps - 1 : 0);
+  const [answers, setAnswers] = useState<QuickAnswers>(review ?? {});
+  const [showResult, setShowResult] = useState(isReview);
+  const { addResult } = useDiagnosisHistory();
 
   // 빠른 연타 클릭 방어
   const transitionRef = useRef(false);
+  /** 마지막으로 저장한 답 — 결과 화면을 앞뒤로 오가도 같은 결과는 한 번만 저장 */
+  const savedAnswersRef = useRef<string | null>(null);
 
-  const totalSteps = QUICK_QUESTIONS.length;
   const currentQuestion = QUICK_QUESTIONS[step];
   const progress = showResult ? 100 : ((step + 1) / totalSteps) * 100;
 
-  // 시작 이벤트 (마운트 시 1회)
+  // 시작 이벤트 (마운트 시 1회) — 다시 보기는 새 점검이 아니다
   useEffect(() => {
-    analytics.quickCheckStart();
-  }, []);
+    if (!isReview) analytics.quickCheckStart();
+  }, [isReview]);
 
   // 스텝 변경 시 step_view 이벤트 전송
   useEffect(() => {
+    if (isReview) return;
     const q = QUICK_QUESTIONS[step];
     if (q) {
       analytics.quickCheckStepView(step + 1, q.id);
     }
-  }, [step]);
+  }, [step, isReview]);
 
   const handleSelect = useCallback(
     (optionId: string) => {
@@ -102,33 +117,50 @@ export function QuickWizard({ onBack }: QuickWizardProps) {
   );
 
   const handleBack = useCallback(() => {
-    if (showResult) {
+    if (isReview) {
+      onBack?.(); // 다시 보기의 뒤로 = 목록으로
+    } else if (showResult) {
       setShowResult(false);
     } else if (step > 0) {
       setStep((s) => s - 1);
     } else if (onBack) {
       onBack();
     }
-  }, [step, showResult, onBack]);
+  }, [step, showResult, onBack, isReview]);
 
   const handleReset = useCallback(() => {
+    if (isReview) {
+      onRestart?.();
+      return;
+    }
     transitionRef.current = false;
+    savedAnswersRef.current = null;
     setStep(0);
     setAnswers({});
     setShowResult(false);
     window.scrollTo(0, 0);
-  }, []);
+  }, [isReview, onRestart]);
 
-  // 결과 도달 시 분석 이벤트 + Supabase 가벼운 row 적재 (2026-05-18 A안)
+  // 브라우저 뒤로가기 = 한 단계 뒤로 (결과 → 마지막 문항 → … → 첫 문항). 다시 보기는 게이트웨이 몫이라 끈다
+  useWizardBackGuard(isReview ? 0 : showResult ? totalSteps : step, handleBack);
+
+  // 결과 도달 시 분석 이벤트 + Supabase 가벼운 row 적재 (2026-05-18 A안) + 이전 결과 목록 저장 (10/6)
   useEffect(() => {
-    if (!showResult) return;
+    if (!showResult || isReview) return;
     const persona = mapToPersona(answers);
     analytics.quickCheckComplete(persona);
+
+    const key = JSON.stringify(answers);
+    if (savedAnswersRef.current === key) return;
+    savedAnswersRef.current = key;
+
+    const id = generateResultId();
+    addResult({ kind: "quick", resultId: id, answers });
 
     // Quick wizard 적재 — source='quick'으로 정식 wizard와 구분.
     // 마이그레이션 미적용 시 route가 202 fallback 반환, 라이브 silent fail X.
     saveAssessmentResult({
-      id: generateResultId(),
+      id,
       answers: answers as Record<string, unknown>,
       top_regions: [],
       top_crops: [],
@@ -139,14 +171,16 @@ export function QuickWizard({ onBack }: QuickWizardProps) {
     }).catch(() => {
       // fire-and-forget — 학습 데이터 적재 실패해도 UX는 결과 화면 유지
     });
-  }, [showResult, answers]);
+  }, [showResult, answers, isReview, addResult]);
 
   /* ═══ 결과 화면 ═══ */
   if (showResult) {
     const persona = mapToPersona(answers);
     const personaInfo = getPersona(persona);
     const message = getResultMessage(persona);
-    const recommend = buildRecommendations(persona);
+    const recommend = quickRecommendationLinks(persona);
+    /** '기본 균등'은 작물·지원사업을 맞춤 정렬하지 않고 전체 목록으로 보낸다 */
+    const generic = persona === "balanced";
 
     return (
       <div className={s.page}>
@@ -155,7 +189,7 @@ export function QuickWizard({ onBack }: QuickWizardProps) {
             type="button"
             onClick={handleBack}
             className={qs.backBtn}
-            aria-label="이전 단계로"
+            aria-label={isReview ? "이전 진단 목록으로" : "이전 단계로"}
           >
             <ArrowLeft size={18} />
           </button>
@@ -198,9 +232,11 @@ export function QuickWizard({ onBack }: QuickWizardProps) {
               <Wheat size={22} aria-hidden="true" />
             </div>
             <div className={qs.recommendBody}>
-              <h2 className={qs.recommendTitle}>맞춤 작물</h2>
+              <h2 className={qs.recommendTitle}>{generic ? "작물 둘러보기" : "맞춤 작물"}</h2>
               <p className={qs.recommendDesc}>
-                나에게 어울리는 작물부터 살펴 보세요
+                {generic
+                  ? "난이도·소득을 비교하며 골라 보세요"
+                  : "나에게 어울리는 작물부터 살펴 보세요"}
               </p>
             </div>
             <ArrowRight size={16} className={qs.recommendArrow} aria-hidden="true" />
@@ -211,9 +247,11 @@ export function QuickWizard({ onBack }: QuickWizardProps) {
               <HandCoins size={22} aria-hidden="true" />
             </div>
             <div className={qs.recommendBody}>
-              <h2 className={qs.recommendTitle}>맞춤 지원 사업</h2>
+              <h2 className={qs.recommendTitle}>{generic ? "지원 사업 둘러보기" : "맞춤 지원 사업"}</h2>
               <p className={qs.recommendDesc}>
-                나에게 맞는 지원 사업을 우선 보여드려요
+                {generic
+                  ? "지금 신청할 수 있는 사업부터 살펴보세요"
+                  : "나에게 맞는 지원 사업을 우선 보여드려요"}
               </p>
             </div>
             <ArrowRight size={16} className={qs.recommendArrow} aria-hidden="true" />

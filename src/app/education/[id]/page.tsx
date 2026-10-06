@@ -28,8 +28,23 @@ import {
 import type { EducationCourse } from "@/lib/data/education";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./page.module.css";
-import { displayText } from "@/lib/programs/display";
+import {
+  displayEducationLevel,
+  displayEducationType,
+  displayText,
+  displayValue,
+  isCapacityKnown,
+} from "@/lib/programs/display";
 import { shareMetadata } from "@/lib/seo/share-metadata";
+
+/**
+ * "온라인·초급 정착 교육" 같은 갈래 꼬리 — 수집 행의 기본값(난이도 "초급"·RDA 과정의 "오프라인")은 빼고 남는 값만 (10/6 QA Q1-W4).
+ * 예: 그린대로 비대면 과정 → "온라인 정착 교육", RDA 과정 → "정착 교육".
+ */
+function courseKindLabel(course: Pick<EducationCourse, "id" | "type" | "level">): string {
+  const parts = [displayEducationType(course.id, course.type), displayEducationLevel(course.id, course.level)].filter(Boolean);
+  return parts.length > 0 ? `${parts.join("·")} 정착 교육` : "정착 교육";
+}
 
 export async function generateMetadata({
   params,
@@ -42,11 +57,15 @@ export async function generateMetadata({
 
   // 수집 행 상투 설명("…에서 수집했어요")은 메타·공유 문구에 싣지 않는다 (10/4 QA)
   const summary = displayText(course.id, course.description);
-  const description = `${course.region}에서 진행하는 ${course.level} ${course.type} 교육 "${course.title}".${summary ? ` ${summary.slice(0, 120)}` : ""}`;
+  // 수집 행의 기본값(난이도 "초급"·RDA 과정 "오프라인")은 제목·설명에 싣지 않는다 (10/6 QA Q1-W4)
+  const type = displayEducationType(course.id, course.type);
+  const level = displayEducationLevel(course.id, course.level);
+  const kind = [level, type].filter(Boolean).join(" ");
+  const description = `${course.region}에서 진행하는 ${kind ? `${kind} ` : ""}교육 "${course.title}".${summary ? ` ${summary.slice(0, 120)}` : ""}`;
   return {
-    title: `${course.title} — ${course.type}·${course.level} 정착 교육`,
+    title: `${course.title} — ${courseKindLabel(course)}`,
     description,
-    keywords: [`${course.region} 정착 교육`, `귀농 ${course.type}`, "정착 교육 과정", course.title],
+    keywords: [`${course.region} 정착 교육`, type ? `귀농 ${type}` : "귀농 교육", "정착 교육 과정", course.title],
     alternates: { canonical: `/education/${id}` },
     // 공유 카드 — 없으면 레이아웃의 사이트 기본 제목이 나갔다 (10/4 QA)
     ...shareMetadata({ title: `${course.title} | 이랑`, description, path: `/education/${id}` }),
@@ -72,10 +91,13 @@ function getRelatedCourses(
   current: EducationCourse,
   limit: number = 3
 ): EducationCourse[] {
+  // 수집 행의 난이도는 기본값 "초급"이라 같은 난이도로 묶지 않는다 — 경남 RDA 과정 옆에 "서울 · 초급" 과정이
+  // 관련 교육으로 붙었다 (10/6 QA). 난이도를 모르면 같은 지역만
+  const level = displayEducationLevel(current.id, current.level);
   return EDUCATION_COURSES.filter(
     (c) =>
       c.id !== current.id &&
-      (c.region === current.region || c.level === current.level)
+      (c.region === current.region || (level !== null && c.level === level))
   ).slice(0, limit);
 }
 
@@ -91,7 +113,19 @@ export default async function EducationDetailPage({
 
   const related = getRelatedCourses(course);
   const summary = displayText(course.id, course.description);
-  const shareText = summary ?? `${course.region} ${course.type} 교육`;
+  // 수집 행의 기본값·채움값은 칸째 뺀다 (10/6 QA Q1-W4, lib/programs/display) — 큐레이션 행은 그대로
+  const type = displayEducationType(course.id, course.type);
+  const level = displayEducationLevel(course.id, course.level);
+  const duration = displayValue(course.id, course.duration);
+  const schedule = displayValue(course.id, course.schedule);
+  const cost = displayValue(course.id, course.cost);
+  const target = displayValue(course.id, course.target);
+  const capacityLabel = isCapacityKnown(course.id, course.capacity)
+    ? course.capacity !== null
+      ? `${course.capacity}명`
+      : "제한 없음"
+    : null;
+  const shareText = summary ?? `${course.region} ${type ? `${type} ` : ""}교육`;
 
   return (
     <div className={s.page}>
@@ -108,7 +142,7 @@ export default async function EducationDetailPage({
           // 과정을 여는 곳은 주관 기관이다 — "이랑"으로 적으면 구조화 데이터가 사실과 달라진다 (10/4 QA)
           provider: { "@type": "Organization", name: course.organization || course.region },
           inLanguage: "ko",
-          about: `${course.region} ${course.type} ${course.level} 귀농 정착 교육`,
+          about: [course.region, type, level, "귀농 정착 교육"].filter(Boolean).join(" "),
           mainEntityOfPage: `https://irangfarm.com/education/${id}`,
         }}
       />
@@ -116,9 +150,11 @@ export default async function EducationDetailPage({
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
           <StatusBadge status={course.status} />
-          <span className={`${s.levelBadge} ${LEVEL_CLASS[course.level]}`}>
-            {course.level}
-          </span>
+          {level && (
+            <span className={`${s.levelBadge} ${LEVEL_CLASS[level]}`}>
+              {level}
+            </span>
+          )}
         </div>
         <div className={s.titleRow}>
           <h1 className={s.pageTitle}>{course.title}</h1>
@@ -170,40 +206,48 @@ export default async function EducationDetailPage({
                     label="지역"
                     value={course.region}
                   />
-                  <InfoRow
-                    icon={<Monitor size={16} />}
-                    label="교육 유형"
-                    value={course.type}
-                  />
-                  <InfoRow
-                    icon={<Clock size={16} />}
-                    label="교육 기간"
-                    value={course.duration}
-                  />
-                  <InfoRow
-                    icon={<Calendar size={16} />}
-                    label="일정"
-                    value={course.schedule}
-                  />
-                  <InfoRow
-                    icon={<Coins size={16} />}
-                    label="비용"
-                    value={course.cost}
-                  />
-                  <InfoRow
-                    icon={<Users size={16} />}
-                    label="정원"
-                    value={
-                      course.capacity !== null
-                        ? `${course.capacity}명`
-                        : "제한 없음"
-                    }
-                  />
-                  <InfoRow
-                    icon={<GraduationCap size={16} />}
-                    label="교육 대상"
-                    value={course.target}
-                  />
+                  {type && (
+                    <InfoRow
+                      icon={<Monitor size={16} />}
+                      label="교육 유형"
+                      value={type}
+                    />
+                  )}
+                  {duration && (
+                    <InfoRow
+                      icon={<Clock size={16} />}
+                      label="교육 기간"
+                      value={duration}
+                    />
+                  )}
+                  {schedule && (
+                    <InfoRow
+                      icon={<Calendar size={16} />}
+                      label="일정"
+                      value={schedule}
+                    />
+                  )}
+                  {cost && (
+                    <InfoRow
+                      icon={<Coins size={16} />}
+                      label="비용"
+                      value={cost}
+                    />
+                  )}
+                  {capacityLabel && (
+                    <InfoRow
+                      icon={<Users size={16} />}
+                      label="정원"
+                      value={capacityLabel}
+                    />
+                  )}
+                  {target && (
+                    <InfoRow
+                      icon={<GraduationCap size={16} />}
+                      label="교육 대상"
+                      value={target}
+                    />
+                  )}
                 </tbody>
               </table>
             </div>

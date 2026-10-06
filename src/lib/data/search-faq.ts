@@ -226,7 +226,8 @@ export const SEARCH_FAQS: SearchFaq[] = [
       "어떤 농사가 나한테 맞아?",
       "작물 추천 받고 싶어",
     ],
-    href: "/assess",
+    // `/assess` 는 이리로 넘기기만 하는 페이지 — 한 홉을 줄인다 (10/6 QA Q2-X5)
+    href: "/match?mode=assess",
     title: "농촌 정착 적합도 진단",
     description:
       "10문항으로 나에게 맞는 작물과 지역을 찾아 보세요.",
@@ -516,7 +517,7 @@ export const SEARCH_FAQS: SearchFaq[] = [
       "내 귀농 성향 알고 싶어",
       "농촌 정착 적합도 테스트",
     ],
-    href: "/assess",
+    href: "/match?mode=assess",
     title: "농촌 정착 적합도 진단",
     description:
       "10문항으로 나의 정착 준비도를 확인해 보세요.",

@@ -41,6 +41,27 @@ const _lookupCache = new Map<string, RegionLookup>();
 /** 시·도 판정의 파생값(대표 작물·시·군·구 수)은 시·도 단위로 한 번만 집계한다 */
 const _provinceLookupCache = new Map<string, RegionLookup>();
 
+/** 기상 관측소 지점번호 → 관측소 (검색 인덱스의 관측소 항목 id 가 지점번호다) */
+const STATION_BY_ID = new Map(STATIONS.map((st) => [st.stnId, st]));
+
+/**
+ * 검색 결과 지역 항목의 종류 판정 — 렌더러는 이 함수를 쓴다.
+ *
+ * 관측소는 href 로 가를 수 없다(10/6 QA Q2-W1): 링크를 308 로 잘리던 `/regions?stations=NNN` 에서 소속 시·도
+ * 상세 `/regions/{sido}` 로 바꾸자 시·도 카드와 href 가 같아졌다. 관측소 항목의 id 는 지점번호(숫자)라 다른
+ * 지역 항목(`{sido}-{sigungu}`·`province-{sido}`·`sub-region-hint-*`)과 겹치지 않으므로 id 로 먼저 가른다.
+ */
+export function lookupRegionItem(item: { id: string; href: string }): RegionLookup {
+  const station = STATION_BY_ID.get(item.id);
+  if (station) {
+    return {
+      kind: "station",
+      data: { provinceName: station.province, description: station.description },
+    };
+  }
+  return lookupRegionFromHref(item.href);
+}
+
 /**
  * SearchItem 의 href 로 지역 종류를 판정한다.
  *
@@ -51,9 +72,11 @@ const _provinceLookupCache = new Map<string, RegionLookup>();
  *   /regions/{sido}                    → 시·도
  *   /regions/{sido}/{sigungu}          → 시·군·구
  *   /regions/{sido}/{sigungu}/{gu}     → 구
- *   /regions?stations={stnId}          → 기상 관측소
+ *   /regions?stations={stnId}          → 기상 관측소 (예전 링크 모양 — 인덱스는 더 이상 만들지 않는다)
+ *
+ * 관측소는 이제 `/regions/{sido}` 로 링크하므로 렌더러는 `lookupRegionItem` 을 쓴다.
  */
-export function lookupRegionFromHref(href: string): RegionLookup {
+function lookupRegionFromHref(href: string): RegionLookup {
   const cached = _lookupCache.get(href);
   if (cached) return cached;
   const result = computeRegionLookup(href);

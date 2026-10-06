@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import { ArrowRight, Quote } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
@@ -21,11 +22,13 @@ import { EmptyState } from "@/components/ui/empty-state";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "먼저 떠난 사람들 — 귀농·귀촌 인터뷰",
-  description:
-    "귀농·귀촌·스마트팜·청년농 등 여러 정착 이야기를 한 곳에 모았어요. 카드를 누르면 원문 기사로 이동해 직접 읽을 수 있어요.",
+  ...pageMetadata({
+    title: "먼저 떠난 사람들 — 귀농·귀촌 인터뷰",
+    description:
+      "귀농·귀촌·스마트팜·청년농 등 여러 정착 이야기를 한 곳에 모았어요. 카드를 누르면 원문 기사로 이동해 직접 읽을 수 있어요.",
+    path: "/interviews",
+  }),
   keywords: ["귀농 인터뷰", "귀농 성공 사례", "정착 인터뷰", "정착 이야기", "정착 경험담", "농민신문 귀농", "귀농 사례 모음"],
-  alternates: { canonical: "/interviews" },
 };
 
 const CATEGORY_IDS: readonly InterviewCategoryId[] = INTERVIEW_CATEGORIES.map((c) => c.id);

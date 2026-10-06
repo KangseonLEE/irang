@@ -5,6 +5,7 @@ import {
   PaginatedListModal,
   type FilterOption,
 } from "./paginated-list-modal";
+import { matchesMedicalType } from "./medical-types";
 import s from "./modals.module.css";
 
 interface MedicalItem {
@@ -62,15 +63,6 @@ export function MedicalModal({
     []
   );
 
-  /** includes 기반 필터 카운트 (상급종합, 한방 등 부분 매칭) */
-  const filterMatchCount = useCallback(
-    (typeCount: Record<string, number>, filterValue: string) =>
-      Object.entries(typeCount)
-        .filter(([type]) => type.includes(filterValue))
-        .reduce((sum, [, c]) => sum + c, 0),
-    []
-  );
-
   return (
     <PaginatedListModal<MedicalItem>
       provinceShortName={provinceShortName}
@@ -83,7 +75,7 @@ export function MedicalModal({
       loadingThreshold={500}
       renderItem={renderItem}
       itemKey={itemKey}
-      filterMatchCount={filterMatchCount}
+      matchesFilter={matchesMedicalType}
       dataSource="건강보험심사평가원"
     />
   );

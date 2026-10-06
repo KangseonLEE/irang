@@ -77,6 +77,13 @@ export interface CrawlTarget {
   type: CrawlTargetType;
   /** POST 요청 시 추가 파라미터 */
   params?: Record<string, string>;
+  /**
+   * 수집 중단 표시 (2026-10-06). 값이 있으면 `"all"` 실행에서 빠지고, 단독 호출에는
+   * 원천에 요청하지도 DB 에 쓰지도 않고 200 + `skipped: "disabled"` 로 답한다.
+   * 목록에서 지우지 않는 이유: sync-data.yml matrix 가 타깃 id 를 직접 부르므로
+   * 지우면 매일 HTTP 400 "Unknown target" 으로 워크플로가 빨강이 된다(함수 배포·워크플로 수정 순서 무관하게 안전).
+   */
+  disabled?: { since: string; reason: string };
 }
 
 export const CRAWL_TARGETS: CrawlTarget[] = [
@@ -106,6 +113,18 @@ export const CRAWL_TARGETS: CrawlTarget[] = [
     url: "https://uni.agrix.go.kr/docs7/customizedNew/introduce/IntroduceSaupList.do",
     category: "programs",
     type: "agrix-api",
+    // 2026-10-06 중단 (QA 링크 전수 점검):
+    //  · agrix 포털의 "농식품사업 시행지침서" 메뉴가 농업e지(nongupez.go.kr)로 이관 —
+    //    상세 뷰어(lawFullView.do?SEQ=)는 최소 10/3부터 무응답(25초×2·120초·Chromium 45초 모두 0바이트)
+    //  · 목록 API 는 saupYear 2026 → 0건, 2025 폴백만 응답하고 그 30건은 전부 접수 마감
+    //  · refresh=true 실행이면 mapAgrixItem 이 DB 에서 고친 원문 주소를 옛 lawFullView 주소로 되돌린다
+    //  재개 조건: 농업e지 목록(retrieveListBizSrch)을 새 원천으로 쓸 때 — 사전 검증 4종(갱신 주기·만료·
+    //  Rate limit·역사 가용성)부터. 기존 30행 주소 정정은 supabase/migrations/20261006_crawl_rows_fix.sql
+    disabled: {
+      since: "2026-10-06",
+      reason:
+        "agrix 사업지침이 농업e지로 이관돼 상세 주소가 응답하지 않고, 2026 목록 0건·2025 폴백은 전부 마감",
+    },
   },
   {
     id: "rda-events",
@@ -131,6 +150,26 @@ export const CRAWL_TARGETS: CrawlTarget[] = [
     type: "greendaero-live",
   },
 ];
+
+/**
+ * 요청 대상 타깃 결정 (2026-10-06).
+ * - `"all"`: 중단(disabled)된 타깃을 뺀 전부
+ * - 타깃 id: 그 타깃 하나 — 중단된 타깃이면 `disabled` 에 담아 돌려준다(수집·적재 없이 200 응답용)
+ * - 모르는 id: 둘 다 빈 배열 (호출부가 400 "Unknown target")
+ */
+export function selectCrawlTargets(
+  targetId: string,
+  targets: CrawlTarget[] = CRAWL_TARGETS,
+): { run: CrawlTarget[]; disabled: CrawlTarget[] } {
+  if (targetId === "all") {
+    return { run: targets.filter((t) => !t.disabled), disabled: [] };
+  }
+  const match = targets.filter((t) => t.id === targetId);
+  return {
+    run: match.filter((t) => !t.disabled),
+    disabled: match.filter((t) => t.disabled),
+  };
+}
 
 // ─── 크롤 결과 타입 ───
 

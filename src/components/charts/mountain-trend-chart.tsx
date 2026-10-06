@@ -207,8 +207,8 @@ export default function MountainTrendChart({ data }: Props) {
         </span>
         <span className={s.legendItem}>
           <span
-            className={s.legendDot}
-            style={{ background: COLOR_TREND_LINE, borderRadius: "50%" }}
+            className={`${s.legendDot} ${s.legendDotRound}`}
+            style={{ background: COLOR_TREND_LINE }}
           />
           추세선
         </span>

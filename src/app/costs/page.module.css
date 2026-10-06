@@ -407,13 +407,34 @@
   border-bottom: none;
 }
 
+/* 작물 페이지가 있는 행 — 첫 칸 작물명 링크(.cropRowLink)가 ::after 로 행 전체를 덮는다(10/6 QA: <a role=row> 해소) */
+.cropRowLinked {
+  position: relative;
+}
+
+.cropRowLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cropRowLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
 @media (hover: hover) {
-  .cropRowData:hover {
+  .cropRowLinked:hover {
     background: color-mix(in srgb, var(--primary, #1b6b5a) 3%, transparent);
   }
 }
 
-.cropRowData:focus-visible {
+/* 포커스 링은 예전처럼 행 테두리 안쪽에 — 링크 글자만 감싸면 어느 행이 선택됐는지 덜 보인다 */
+.cropRowLink:focus-visible {
+  outline: none;
+}
+
+.cropRowLinked:has(.cropRowLink:focus-visible) {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: -2px;
 }
@@ -608,13 +629,14 @@
   margin-left: auto;
 }
 
+/* 글씨는 한 단계 진한 같은 색 — 연한 판 위 3.02(초록)·2.95(앰버)로 기준(4.5) 미달이었다(10/6 QA axe). 4.60·4.65 */
 .comparePositive {
-  color: #16a34a;
+  color: #15803d;
   background: color-mix(in srgb, #22c55e 10%, transparent);
 }
 
 .compareCaution {
-  color: #d97706;
+  color: #b45309;
   background: color-mix(in srgb, #f59e0b 10%, transparent);
 }
 

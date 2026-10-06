@@ -72,6 +72,13 @@ interface SearchBarProps {
    * 검색 버튼은 입력 오른쪽.
    */
   panelLayout?: boolean;
+  /**
+   * 입력값을 URL 의 `?q=` 와 맞춘다 (10/6 QA Q4 — 결과 화면 검색창이 비어 있었다).
+   * /search 결과 화면의 검색창·그 검색창이 여는 모바일 오버레이 전용. 주소가 바뀌면(다른 검색어·뒤로가기)
+   * 입력도 따라 바뀌고, 사용자가 고치는 중인 글자는 주소가 그대로인 동안 건드리지 않는다.
+   * 읽기 전용 표시(readOnlyDisplay)에서는 placeholder 대신 현재 검색어를 보여준다.
+   */
+  syncQueryFromUrl?: boolean;
 }
 
 interface SearchBarHandle {
@@ -187,6 +194,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     readOnlyDisplay = false,
     inlineDropdown = false,
     panelLayout = false,
+    syncQueryFromUrl = false,
   },
   ref,
 ) {
@@ -196,6 +204,8 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   const searchParams = useSearchParams();
   // 같은 페이지 내 query 변경(/search?q=A → /search?q=B) 감지를 위해 search string 포함
   const locationKey = `${pathname}?${searchParams.toString()}`;
+  /** 결과 화면에서 입력에 채워 둘 현재 검색어 — syncQueryFromUrl 일 때만 */
+  const urlQuery = syncQueryFromUrl ? (searchParams.get("q") ?? "").trim() : "";
   const containerRef = useRef<HTMLDivElement>(null);
   /* 리스트박스·옵션 id — 인스턴스마다 고유(/search 검색 바와 오버레이가 동시에 떠도 aria-activedescendant 가 섞이지 않게) */
   const idBase = useId();
@@ -212,8 +222,15 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // 안전망 timeout — navigation 5초 내 cleanup 안 되면 강제 해제
   const navTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(urlQuery);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  // 주소의 검색어가 바뀌면 입력도 맞춘다 — effect 대신 렌더 중 비교 (React 공식 prop→state 동기화 패턴)
+  const [syncedUrlQuery, setSyncedUrlQuery] = useState(urlQuery);
+  if (urlQuery !== syncedUrlQuery) {
+    setSyncedUrlQuery(urlQuery);
+    setQuery(urlQuery);
+    setSuggestions([]);
+  }
   const [isOpen, setIsOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<RecentItem[]>([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -248,10 +265,10 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   // 풀스크린 확장 시 body 스크롤 잠금 — iOS Safari 호환(position: fixed 패턴).
   useBodyScrollLock(isExpanded);
 
-  // 풀스크린 닫기
+  // 풀스크린 닫기 — 결과 화면 검색창(syncQueryFromUrl)은 비우지 않고 현재 검색어로 되돌린다
   const handleClose = useCallback(() => {
     setIsOpen(false);
-    setQuery("");
+    setQuery(urlQuery);
     setSuggestions([]);
     setFocusedIndex(-1);
     setIsNavigating(false);
@@ -263,7 +280,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     setRecentSearches(loadRecent());
     inputRef.current?.blur();
     onCloseProp?.();
-  }, [onCloseProp]);
+  }, [onCloseProp, urlQuery]);
 
   // 네비게이션 완료(URL 변경) 시 오버레이 닫기.
   // pathname만 비교하면 같은 페이지 내 query 변경(/search?q=A → /search?q=B)을
@@ -647,19 +664,25 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   useActiveOptionScroll(dropdownRef, focusedIndex, focusedIndex >= 0);
 
   // ── 읽기 전용 표시 모드: 시각적 껍데기만 렌더링 ──
+  // 결과 화면(syncQueryFromUrl)이면 placeholder 대신 현재 검색어를 입력창처럼 왼쪽에 보여준다 (10/6 QA Q4)
   if (readOnlyDisplay) {
     const wrapCls = size === "large" ? s.inputWrapLarge : s.inputWrap;
+    const filled = urlQuery.length > 0;
     return (
       <div className={s.container}>
-        <div className={`${wrapCls} ${s.inputWrapReadOnly}`} style={{ pointerEvents: "none" }}>
+        <div
+          className={`${wrapCls} ${s.inputWrapReadOnly}${filled ? ` ${s.inputWrapReadOnlyFilled}` : ""}`}
+        >
           <Search
             size={size === "large" ? 22 : 18}
             className={s.searchIcon}
             aria-hidden="true"
           />
-          <span style={{ color: "var(--muted-foreground)", fontSize: "inherit", lineHeight: "var(--lh-normal)" }}>
-            {placeholder}
-          </span>
+          {filled ? (
+            <span className={s.readOnlyText}>{urlQuery}</span>
+          ) : (
+            <span className={s.readOnlyPlaceholder}>{placeholder}</span>
+          )}
         </div>
       </div>
     );
@@ -891,6 +914,11 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           onKeyDown={handleKeyDown}
           onFocus={() => {
             setIsOpen(true);
+            // 검색어가 채워진 채로 포커스되면(결과 화면) 그 검색어의 자동완성을 바로 채운다 — 비어 있으면
+            // 드롭다운이 "검색어가 없어요" 안내를 잘못 띄운다 (자동완성은 입력값 자체를 늘 첫 후보로 담는다)
+            if (query.trim().length > 0 && suggestions.length === 0) {
+              setSuggestions(getQuerySuggestions(query));
+            }
             // iOS Safari: 가상 키보드 등장 시 브라우저가 input을 뷰포트 중앙으로
             // scroll-into-view하면서 페이지가 밀리는 현상 방지.
             // mobileExpand 모드에서도 fixed 레이아웃 적용(React re-render) 전에

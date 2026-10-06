@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import { ArrowLeft, Scale, Info, Database, Shield, Quote, MessageSquareText } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "../about/disclaimer/page.module.css";
 
 export const metadata: Metadata = {
-  title: "이용약관 | 이랑",
-  description: "이랑 서비스 이용약관. 정보의 참고성, 면책 사항, 데이터 출처에 대한 안내예요.",
-  alternates: { canonical: "/terms" },
+  ...pageMetadata({
+    title: "이용약관",
+    description:
+      "이랑 서비스 이용약관. 정보의 참고성, 면책 사항, 데이터 출처에 대한 안내예요.",
+    path: "/terms",
+  }),
 };
 
 export default function TermsPage() {

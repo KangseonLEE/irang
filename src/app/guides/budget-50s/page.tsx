@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import {
   Home,
@@ -18,9 +19,12 @@ import type { Article } from "schema-dts";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "50대 정착 자본 — 현실적인 비용 가이드 | 이랑",
-  description:
-    "50대 귀농, 자본은 얼마나 필요할까요? 농지·주택, 시설·장비, 생활비까지 항목별 현실 비용과 50대 맞춤 전략을 정리했어요.",
+  ...pageMetadata({
+    title: "50대 정착 자본 — 현실적인 비용 가이드",
+    description:
+      "50대 귀농, 자본은 얼마나 필요할까요? 농지·주택, 시설·장비, 생활비까지 항목별 현실 비용과 50대 맞춤 전략을 정리했어요.",
+    path: "/guides/budget-50s",
+  }),
   keywords: [
     "50대 정착 자본",
     "50대 정착 비용",
@@ -28,7 +32,6 @@ export const metadata: Metadata = {
     "정착 비용",
     "은퇴 후 귀농",
   ],
-  alternates: { canonical: "/guides/budget-50s" },
 };
 
 const COST_CARDS = [

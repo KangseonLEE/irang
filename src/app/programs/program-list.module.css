@@ -1,3 +1,11 @@
+/* 카드 칸 — 그리드 행 높이를 받아 카드(링크)가 남는 높이를 채우고, 노트("같은 사업, 다른 지역")는
+   칸 안 카드 아래에 남는다. 블록 칸 + 카드 height:100% 는 노트를 칸 밖으로 밀어 다음 카드 밑에 가렸다 (10/6 QA Q3) */
+.programCell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 /* Phase 6 B3 D2 — 페르소나 모드 cell wrapper (카드 + explain row column 묶음) */
 .programCellPersona {
   display: flex;

@@ -17,9 +17,12 @@ const LINKS: LinkItem[] = [
     icon: Map,
   },
   {
-    name: "숲에ON (산림청 GIS)",
-    href: "https://gis.kofpi.or.kr/",
-    desc: "임지 경계·산림 정보·용도 확인",
+    // 2026-10-06 재검증: 옛 https://gis.kofpi.or.kr/ 는 404(KOFPI 자기 메뉴의 gis/main.do 도 404).
+    // 실제 열리는 서비스는 /dad_user/ — 200, title "임업정보 다드림", 본문 "필지별 산림정보 서비스".
+    // 옛 라벨 "숲에ON (산림청 GIS)"은 산림청·KOFPI 메뉴에서 확인되지 않아 목적지 이름으로 정정.
+    name: "임업정보 다드림 (한국임업진흥원)",
+    href: "https://gis.kofpi.or.kr/dad_user/",
+    desc: "필지 단위 산림정보·임산물 소득 조회",
     icon: TreePine,
   },
 ];
@@ -27,7 +30,7 @@ const LINKS: LinkItem[] = [
 /**
  * 필지·임지 확인 — 외부 공식 포털 딥링크 허브.
  * 이랑은 필지 단위 GIS를 자체 제공하지 않으므로, 사용자를
- * 토지이음·숲에ON으로 안내한다.
+ * 토지이음·임업정보 다드림으로 안내한다.
  */
 export function LandCheckBox() {
   return (

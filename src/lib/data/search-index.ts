@@ -16,7 +16,7 @@ import { GUS } from "./gus";
 import { getProvinceById, PROVINCES } from "./regions";
 import { CROPS, CROP_DETAILS } from "./crops";
 import { PROGRAMS } from "./programs";
-import { deriveStatus } from "@/lib/program-status";
+import { deriveStatus, deriveEventStatus } from "@/lib/program-status";
 import { EDUCATION_COURSES } from "./education";
 import { EVENTS } from "./events";
 import { CENTERS } from "./centers";
@@ -82,15 +82,22 @@ function getSearchIndex(): SearchItem[] {
   if (_searchIndex) return _searchIndex;
 
   // ── 지역 (기상 관측소) ──
-  const regionItems: SearchItem[] = STATIONS.map((s) => ({
-    type: "region" as const,
-    id: s.stnId,
-    title: s.name,
-    subtitle: truncate(`${s.province} · ${s.description}`, 40),
-    href: `/regions?stations=${s.stnId}`,
-    keywords: [s.province],
-    icon: "\u{1F4CD}", // 📍
-  }));
+  // 링크는 소속 시·도 상세 (10/6 QA Q2-W1): 예전 `/regions?stations=NNN` 은 `/regions` normalize 화이트리스트
+  // 밖이라 middleware 가 308 로 떼어 지역 첫 화면으로 보냈다. 관측소 판정은 href 가 아니라 id(지점번호)로 한다
+  // (components/search/region-lookup `lookupRegionItem`).
+  const provinceIdByName = new Map(PROVINCES.map((p) => [p.name, p.id]));
+  const regionItems: SearchItem[] = STATIONS.map((s) => {
+    const provinceId = provinceIdByName.get(s.province);
+    return {
+      type: "region" as const,
+      id: s.stnId,
+      title: s.name,
+      subtitle: truncate(`${s.province} · ${s.description}`, 40),
+      href: provinceId ? `/regions/${provinceId}` : "/regions",
+      keywords: [s.province],
+      icon: "\u{1F4CD}", // 📍
+    };
+  });
 
   // ── 지역 (시군구) ──
   const sigunguItems: SearchItem[] = SIGUNGUS.map((sg) => {
@@ -152,6 +159,7 @@ function getSearchIndex(): SearchItem[] {
     }));
 
   // ── 교육 ──
+  // 배지는 접수 기간에서 파생한다 (10/6 QA Q1-F1) — 정적 status 는 손으로 적은 값이라 접수가 끝나도 "모집중"으로 남는다
   const educationItems: SearchItem[] = EDUCATION_COURSES.map((e) => ({
     type: "education" as const,
     id: e.id,
@@ -160,7 +168,7 @@ function getSearchIndex(): SearchItem[] {
     href: `/education/${e.id}`,
     keywords: [e.region, e.type, e.level, e.organization],
     icon: "\u{1F393}", // 🎓
-    badge: e.status,
+    badge: deriveStatus(e.applicationStart, e.applicationEnd),
   }));
 
   // ── 체험·행사 ──
@@ -172,7 +180,7 @@ function getSearchIndex(): SearchItem[] {
     href: `/events/${e.id}`,
     keywords: [e.region, e.type, e.organization, e.target],
     icon: "\u{1F389}", // 🎉
-    badge: e.status,
+    badge: deriveEventStatus(e.applicationStart, e.applicationEnd, e.dateEnd),
   }));
 
   // ── 지자체 센터 ──
@@ -458,7 +466,8 @@ function getSearchIndex(): SearchItem[] {
       id: "assess",
       title: "농촌 정착 적합도 진단",
       subtitle: "10문항으로 확인하는 나의 정착 준비도",
-      href: "/assess",
+      // `/assess` 는 이리로 넘기기만 하는 페이지라 한 홉을 줄인다 (10/6 QA Q2-X5)
+      href: "/match?mode=assess",
       keywords: ["적합도", "진단", "테스트", "준비도", "체크", "평가", "점수"],
       icon: "\u{1F4DD}", // 📝
     },
@@ -640,6 +649,8 @@ const SYNONYMS: Record<string, string[]> = {
   "감귤": ["감귤", "귤"],
   "귤": ["감귤", "귤"],
   "인삼": ["인삼"],
+  // 한 글자 "삼"은 단어 경계로만 맞추므로(10/6) 인삼 뜻을 동의어로 잇는다 — 삼척·삼계탕 같은 부분 일치 없이
+  "삼": ["인삼", "산양삼", "장뇌삼"],
   "녹차": ["녹차"],
   "약초": ["약용작물", "특용"],
 
@@ -768,6 +779,12 @@ const CROP_NAMES_BY_LENGTH_DESC: string[] = (() => {
 const CROP_NAME_SET = new Set(CROP_NAMES_BY_LENGTH_DESC);
 
 /**
+ * 작물명 뒤에 붙어도 농사 맥락으로 읽히는 한 글자 — "사과밭"·"고추묘"·"배추값"·"딸기철"·"고구마순"·"호박씨".
+ * 이때만 "사과 밭"으로 나눈다. 나뉜 한 글자는 단어 경계로만 맞으므로(scoreItemRawSingleChar) 와일드카드가 되지 않는다.
+ */
+const CROP_CONTEXT_ONE_CHAR = new Set(["밭", "묘", "순", "값", "철", "씨"]);
+
+/**
  * 테마 접두어 — "귀농교육"처럼 붙여 쓴 복합어를 "귀농 교육"으로 분리해
  * 복합 쿼리 OR 매칭을 타게 한다. (단일 토큰이면 교육 강좌 제목에 "귀농교육"
  * 연속 문자열이 없어 0점 매칭되던 사고. 6/19 회장 발견)
@@ -857,7 +874,11 @@ function injectCropPrefixSpace(q: string): string {
     if (cropName.length < 2) continue;
     if (q.length > cropName.length && q.startsWith(cropName)) {
       const rest = q.slice(cropName.length);
-      // 조사 단독은 분리하지 않음 (예: "사과는" → removeKoreanSuffix가 처리)
+      // 나머지가 1자면 분리하지 않는다 (10/6 QA Q4-W6) — "사과문"·"고추장"이 "사과 문"·"고추 장"으로 갈려
+      // 한 글자가 독립 검색어가 되고(87건·195건), 앞의 작물명이 직답(작물 hoist·재배 FAQ)으로 올라갔다.
+      // 테마 접두어 분리와 같은 기준. 예외는 농사 맥락의 알려진 한 글자("사과밭"·"고추묘")뿐.
+      // 조사 단독("사과는")도 여기서 걸러져 removeKoreanSuffix 가 처리한다.
+      if (rest.length < 2 && !CROP_CONTEXT_ONE_CHAR.has(rest)) return q;
       if (PARTICLE_ONLY.test(rest)) return q;
       return `${cropName} ${rest}`;
     }
@@ -917,10 +938,17 @@ function scoreItem(item: SearchItem, term: string): number {
 
   // 동의어 확장 + 형태소 처리
   const stemmed = removeKoreanSuffix(term);
-  const expandedTerms = new Set([
-    ...expandWithSynonyms(term),
-    ...(stemmed !== term ? expandWithSynonyms(stemmed) : []),
-  ]);
+  const typedIsPlace = isPlaceName(term) || isPlaceName(stemmed);
+  const expandedTerms = new Set(
+    [
+      ...expandWithSynonyms(term),
+      ...(stemmed !== term ? expandWithSynonyms(stemmed) : []),
+    ].filter(
+      // 장소가 아닌 말의 동의어가 지명과 같으면 버린다 (10/6 QA Q4 동음) — "돈"→"예산"(budget)이 예산군·예산군청을 끌어왔다.
+      // "충북"→"충청북도"처럼 친 말 자체가 지명이면 그대로 쓴다.
+      (t) => t === term || t === stemmed || typedIsPlace || !isPlaceName(t),
+    ),
+  );
 
   let bestScore = 0;
 
@@ -966,8 +994,36 @@ const GENERIC_TERMS = new Set([
   "정보", "찾기", "맞춤", "농촌", "교육", "지원",
 ]);
 
+/**
+ * 단어 경계 — 공백과 목록·괄호 구두점. "고랭지 무·배추"는 [고랭지, 무, 배추], "배동주 — 친환경"은 [배동주, 친환경].
+ * 한 글자 검색어는 이 경계로 자른 **낱말 전체**와만 맞춘다(아래 scoreItemRawSingleChar).
+ */
+const WORD_SPLIT = /[\s·•,、/()[\]{}「」『』<>〈〉《》"'‘’“”:;!?.~+&|=—–-]+/;
+
+function wordsOf(text: string): string[] {
+  return text.toLowerCase().split(WORD_SPLIT).filter(Boolean);
+}
+
+/**
+ * 한 글자 검색어 전용 점수 (10/6 QA Q4-W7) — 정확 일치와 단어 경계만.
+ * "배"가 배추·배동주·재배(용어 배지)·배송을, "감"이 감자·감귤·체험(배지)을, "무"가 무주·무안·무농약을
+ * 부분 문자열로 긁어 배 169건 중 142건·감 85건 중 69건·무 31건 중 18건이 그 단어가 아니었다.
+ * 9/23 원칙 "한 글자는 와일드카드가 아니다"를 점수 단계에서 마무리한다(앞서 어간·접두 분리·FAQ 역포함에 적용).
+ */
+function scoreItemRawSingleChar(item: SearchItem, term: string): number {
+  if (item.title.toLowerCase() === term) return 100;
+  if (wordsOf(item.title).includes(term)) return 60;
+  if (item.badge?.toLowerCase() === term) return 40;
+  if (item.keywords.some((kw) => kw.toLowerCase() === term)) return 35;
+  if (item.keywords.some((kw) => wordsOf(kw).includes(term))) return 25;
+  if (wordsOf(item.subtitle).includes(term)) return 15;
+  return 0;
+}
+
 /** 순수 매칭 점수 (가중치 없이) */
 function scoreItemRaw(item: SearchItem, term: string): number {
+  if (term.length === 1) return scoreItemRawSingleChar(item, term);
+
   const t = item.title.toLowerCase();
   const isGeneric = GENERIC_TERMS.has(term);
 
@@ -978,11 +1034,30 @@ function scoreItemRaw(item: SearchItem, term: string): number {
   if (item.keywords.some((kw) => kw.toLowerCase() === term)) return 35;
   // GENERIC_TERMS는 keywords/subtitle 부분 매칭 차단 — 광범위 노이즈 제거
   if (isGeneric) return 0;
-  if (item.keywords.some((kw) => kw.toLowerCase().includes(term))) return 25;
-  if (item.subtitle.toLowerCase().includes(term)) return 15;
+  // 작물명을 검색할 때 용어의 별칭은 정확 일치로만 (10/6 QA Q4 동음) — "가지"(작물)에 전정(별칭 "가지치기")·
+  // 도장지("웃자란 가지")가, "체리"에 방울토마토("체리토마토")가, "쌀"에 메밀("메밀쌀")이 붙었다.
+  // 별칭 안에 작물명이 들어 있는 건 다른 뜻의 낱말이다. 설명문 일치(15)는 그대로 둔다 — "완도 딸기"의 런너·고설재배처럼
+  // 작물 뜻으로 쓰인 경우가 대부분이고, 단일어 정확 검색에서는 관련도 하한선이 이미 거른다.
+  const aliasPartialOk = !(item.type === "glossary" && CROP_NAME_SET.has(term));
+  // 동음 작물명은 설명문에서 거의 다른 뜻이다 — "가지"는 나뭇가지(전정·도장지·결과지)·"여러 가지"(간작·혼작·이모작·
+  // "다섯 가지 맛" 오미자)로 쓰여, 연관 검색어 "가지 난이도·소득·재배지"에 그 용어들이 줄줄이 섰다(10/6 QA Q4 동음).
+  // 설명문 일치는 끄고, 키워드는 낱말 단위로만. 가지(작물) 항목은 제목·작물 키워드 정확 일치로 이미 잡힌다.
+  const homonym = HOMONYM_CROP_NAMES.has(term);
+  if (
+    aliasPartialOk &&
+    item.keywords.some((kw) =>
+      homonym ? wordsOf(kw).includes(term) : kw.toLowerCase().includes(term),
+    )
+  ) {
+    return 25;
+  }
+  if (!homonym && item.subtitle.toLowerCase().includes(term)) return 15;
 
   return 0;
 }
+
+/** 작물명이면서 농업 글에서 다른 뜻으로 흔히 쓰이는 말 — 설명문 부분 일치를 하지 않는다 */
+const HOMONYM_CROP_NAMES = new Set(["가지"]);
 
 /** 복합 쿼리 (여러 단어)용 — 각 단어별 최고 점수 합산 + 매칭 단어 수 보너스 */
 /** 부제 부분 매칭만으로 얻을 수 있는 최대 점수 (15 × 최대 타입 가중치 1.2 = 18) */
@@ -998,6 +1073,11 @@ function termSpecificity(term: string): 0 | 1 | 2 | 3 {
 }
 const PROVINCE_NAME_SET = new Set(PROVINCES.flatMap((p) => [p.shortName.toLowerCase(), p.name.toLowerCase()]));
 const SIGUNGU_NAME_SET = new Set(SIGUNGUS.flatMap((s) => [s.shortName.toLowerCase(), s.name.toLowerCase()]));
+
+/** 시·도·시·군·구 이름(정식·약칭)인가 */
+function isPlaceName(word: string): boolean {
+  return PROVINCE_NAME_SET.has(word) || SIGUNGU_NAME_SET.has(word);
+}
 
 function scoreItemMulti(item: SearchItem, terms: string[]): number {
   let total = 0;
@@ -1134,7 +1214,10 @@ export function searchAllGrouped(query: string): GroupedSearchResults {
     const hasExact = hoisted.length > 0 || (scored[0]?.score ?? 0) >= 100;
     const results = (hasExact ? scored.filter(({ score }) => score > SUBTITLE_ONLY_MAX) : scored)
       .map(({ item }) => item);
-    return { pinned: [...hintPrefix, ...hoisted, ...faqResults], rest: results };
+    return {
+      pinned: [...hintPrefix, ...hoisted, ...faqResults],
+      rest: dropGuidesShownByFaq(results, faqResults),
+    };
   }
 
   // 복합 쿼리: OR 매칭 + 관련도 합산 정렬
@@ -1272,9 +1355,10 @@ export function searchAllGrouped(query: string): GroupedSearchResults {
     }
   }
   const leadingHoistIds = new Set(leadingCropHoist.map((i) => i.id));
-  const scoredOut = leadingHoistIds.size
-    ? scored.filter((it) => !leadingHoistIds.has(it.id))
-    : scored;
+  const scoredOut = dropGuidesShownByFaq(
+    leadingHoistIds.size ? scored.filter((it) => !leadingHoistIds.has(it.id)) : scored,
+    faqResults,
+  );
 
   return {
     pinned: [
@@ -1629,13 +1713,23 @@ export function detectIntent(query: string): SearchIntent {
   }
 
   // ── 작물 + 컨텍스트 키워드 분기 ──
-  // 단어 분리 매칭 실패한 작물도 substring으로 한번 더 시도 (조사 결합 케이스 대응)
-  // e.g. "사과를" → words에 "사과를" 그대로 들어가지만 includes("사과")는 true
+  // 단어 분리 매칭 실패한 작물도 한번 더 시도 (조사 결합 케이스 대응) — e.g. "사과를 키우는 법"의 "사과를".
+  // 예전엔 검색어 어디든 작물명이 들어 있으면 잡아서(`includes`) "사과문 난이도"·"여러가지 난이도"·"대국민사과 재배지"에
+  // 사과·가지 답변 카드가 직답으로 섰다 (10/6 QA Q4-W6). 낱말 첫머리 + 조사·문맥어, 또는 품종·산지 복합어("청양고추")만.
   if (!detectedCrop) {
-    const cropMatch = CROPS.find((c) =>
-      lowerQuery.includes(c.name.toLowerCase()),
-    );
-    if (cropMatch) detectedCrop = cropMatch.name;
+    for (const word of words) {
+      const head = CROPS.find((c) => {
+        const name = c.name.toLowerCase();
+        if (!word.startsWith(name) || word === name) return false;
+        const tail = word.slice(name.length);
+        return PARTICLE_ONLY.test(tail) || FAQ_ENTITY_TAILS.has(tail);
+      });
+      const crop = head?.name ?? (CROP_NAME_SET.has(word) ? undefined : findContainedCropNames(word)[0]);
+      if (crop) {
+        detectedCrop = crop;
+        break;
+      }
+    }
   }
 
   if (detectedCrop) {
@@ -1742,24 +1836,79 @@ function matchSubRegionHints(query: string): SearchItem[] {
 const FAQ_GENERIC_KEYWORDS = new Set([
   ...GENERIC_TERMS,
   "수익", "비교", "절차", "추천", "처음", "차이", "진단", "준비", "적합", "작물", "자금", "사례", "과정", "과수", "정보",
+  // "난이도"는 모든 작물에 붙는 문맥어다 — 딸기 FAQ 의 특정어로 남아 있어 연관 검색어로 제안되는 "사과 난이도"·
+  // "고추 난이도" 등 990조합 중 108개에 "딸기 재배 정보"가 직답으로 섰다 (10/6 QA Q4-W6)
+  "난이도",
 ]);
 
+/**
+ * 실재 이름 키워드(작물·시·도·시·군·구) 뒤에 붙어도 같은 뜻으로 읽히는 말 — "전남귀농"·"제주정착".
+ * 이 밖의 말이 붙으면 다른 낱말이다: "제주공항"·"제주흑돼지"·"사과문"·"고추장" (10/6 QA Q4-W6).
+ */
+const FAQ_ENTITY_TAILS = new Set([
+  ...THEME_PREFIXES,
+  "정착", "농업", "농사", "지역", "정보", "지원", "지원금", "지원사업", "교육", "체험", "생활", "날씨", "기후",
+  "재배", "수익", "소득", "난이도", "재배지", "산지",
+]);
+
+/**
+ * 시·도 이름 키워드 뒤의 행정 접미 — "제주시"·"제주특별자치도"·"전남도에서"는 같은 지역을 가리킨다.
+ * 시·군 이름 키워드에는 쓰지 않는다: "예산"(비용 FAQ 의 예산=budget)이 "예산군"에 붙으면 동음 오답이다.
+ */
+const PROVINCE_ADMIN_TAIL = /^(?:특별자치도|특별자치시|특별시|광역시|도|시)(?:은|는|이|가|을|를|에|의|로|으로|에서|도|만)?$/;
+
+/**
+ * 품종·산지 복합어 토큰("신고배"·"청송사과"·"제주감귤")인가 — 그 작물을 뜻하는 한 낱말이라, 안에 든 다른 키워드
+ * ("신고"→정보 수정 요청, "제주"→제주 지역 정보)로 직답하지 않는다. 작물명 그 자체("방울토마토")는 제외.
+ */
+function isVarietyCompoundToken(token: string): boolean {
+  return !CROP_NAME_SET.has(token) && findContainedCropNames(token).length > 0;
+}
+
+/**
+ * FAQ 직답 매칭 — 적대 입력 가드 (10/6 QA Q4-W6).
+ * 예전엔 2자 이상 키워드를 검색어 어디에든 들어 있으면 맞췄다(`q.includes`). 그래서 "대국민사과"·"진심어린사과"·
+ * "사과문"에 "사과 재배 정보"가, "제주공항"에 "제주 지역 정보"·"감귤 재배 정보"가, "신고배"에 "정보 수정 요청"이
+ * 직답으로 섰고, 직답 1건이 결과 0건을 막아 "미니사과"·"영주사과"의 자동 대체(→ 사과)도 막혔다.
+ *  - 실재 이름 키워드는 **낱말 첫머리**에서만 — 낱말 전체이거나 뒤에 조사·문맥어(FAQ_ENTITY_TAILS)만 붙을 때.
+ *  - 품종·산지 복합어 토큰 안에서는 어떤 키워드도 맞추지 않는다(그 토큰은 작물이다 → 자동 대체가 받는다).
+ *  - 그 밖의 키워드(비용·얼마·농지은행…)는 자연어 질문("얼마나 들어")을 위해 종전대로 포함 매칭.
+ */
 function matchFaqs(query: string): SearchItem[] {
   const q = query.toLowerCase();
-  const results: SearchItem[] = [];
+  const plainWords = wordsOf(q).filter((w) => !isVarietyCompoundToken(w));
+  const plainText = plainWords.join(" ");
+  const entityHit = (k: string) =>
+    plainWords.some((w) => {
+      if (!w.startsWith(k)) return false;
+      const tail = w.slice(k.length);
+      if (tail === "" || PARTICLE_ONLY.test(tail) || FAQ_ENTITY_TAILS.has(tail)) return true;
+      return PROVINCE_NAME_SET.has(k) && PROVINCE_ADMIN_TAIL.test(tail);
+    });
+  // 1자 키워드(삼·돈·땅·집·꽃·귤·뜻)는 정확히 그 한 글자를 검색했을 때만 — "삼"이 삼척·인삼·삼계탕을
+  // 전부 잡던 9/23 감사 결함.
+  const keywordMatch = (k: string) => {
+    if (k.length < 2) return q === k;
+    if (ENTITY_NAME_SET.has(k)) return entityHit(k);
+    return plainText.includes(k);
+  };
+  // 질문 패턴은 문장 전체가 들어 있을 때만이라 종전대로
+  const patternMatch = (p: string) => (p.length >= 2 ? q.includes(p) : q === p);
 
+  const results: SearchItem[] = [];
+  const seenHref = new Set<string>();
   for (const faq of SEARCH_FAQS) {
-    // 1자 키워드(삼·돈·땅·집·꽃·귤·뜻)는 정확히 그 한 글자를 검색했을 때만 — "삼"이 삼척·인삼·삼계탕을
-    // 전부 잡던 9/23 감사 결함. 2자 이상은 포함 매칭 유지.
-    const hit = (k: string) => (k.length >= 2 ? q.includes(k) : q === k);
+    // 같은 페이지로 가는 FAQ 는 한 장만 — id(`faq-${href}`)가 겹쳐 React key 도 충돌한다
+    if (seenHref.has(faq.href)) continue;
     // 키워드 매칭: FAQ 에 특정어(작물·지역 등 일반어가 아닌 키워드)가 있으면 그 특정어가 맞아야 한다.
     // "재배"·"수익" 같은 일반어만으로 "딸기 재배 정보"가 "오이 재배"·"수박 재배지"에 붙던 9/23 감사 결함.
     // 키워드가 전부 일반어인 FAQ(귀농 절차 등)는 종전대로 일반어 매칭.
     const kws = faq.keywords.map((k) => k.toLowerCase());
     const specific = kws.filter((k) => !FAQ_GENERIC_KEYWORDS.has(k));
-    const keywordHit = specific.length > 0 ? specific.some(hit) : kws.some(hit);
-    const matched = faq.patterns.some((p) => hit(p.toLowerCase())) || keywordHit;
+    const keywordHit = specific.length > 0 ? specific.some(keywordMatch) : kws.some(keywordMatch);
+    const matched = faq.patterns.some((p) => patternMatch(p.toLowerCase())) || keywordHit;
     if (matched) {
+      seenHref.add(faq.href);
       results.push({
         type: "guide",
         id: `faq-${faq.href}`,
@@ -1773,6 +1922,17 @@ function matchFaqs(query: string): SearchItem[] {
   }
 
   return results.slice(0, 3); // FAQ 결과는 최대 3개
+}
+
+/**
+ * FAQ 직답이 이미 안내한 페이지의 가이드 카드는 목록에서 뺀다 (10/6 QA Q4) — "귀농 비용"에 같은 /costs 카드
+ * ("정착 비용 가이드")가 직답과 가이드 섹션에 두 장 섰다. 가이드(type guide)만 대상 — 농지 유형(land)처럼
+ * 한 페이지(/guide#step-4)를 여러 실체가 나눠 쓰는 항목은 건드리지 않는다.
+ */
+function dropGuidesShownByFaq(items: SearchItem[], faqResults: SearchItem[]): SearchItem[] {
+  if (faqResults.length === 0) return items;
+  const faqHrefs = new Set(faqResults.map((f) => f.href));
+  return items.filter((it) => !(it.type === "guide" && faqHrefs.has(it.href)));
 }
 
 

@@ -104,7 +104,10 @@
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(180deg, rgba(6, 26, 21, 0.62) 0px, rgba(6, 26, 21, 0.3) 120px, rgba(6, 26, 21, 0) 200px),
+    /* 상단 띠는 제목 첫 줄(강조 단어, 히어로 위 137~198px)까지 옅게 이어 둔다 — 10/6 QA: 민트 강조 단어 대비가
+       768 에서 3.69~4.25(스마트팜·청년농·귀농·귀산촌), 375 에서 4.33~4.4 로 4.5 아래였다(큰 글자 기준 3 은 충족).
+       종전 200px 에서 끊기던 것을 300px 까지 0.22 → 0 으로 늘려 그 줄만 한 단계 어둡게 */
+    linear-gradient(180deg, rgba(6, 26, 21, 0.62) 0px, rgba(6, 26, 21, 0.3) 120px, rgba(6, 26, 21, 0.22) 200px, rgba(6, 26, 21, 0) 300px),
     /* 10/2 유리 UI 실측: 0.58→0.62 — 375 부제·추천 라벨이 hero-4 장면에서 4.1 이던 것 */
     linear-gradient(180deg, rgba(6, 26, 21, 0.62) 0%, rgba(6, 26, 21, 0.68) 100%);
 }
@@ -817,6 +820,16 @@
 /* 1280+: 수치 | 마감 카드 — 나란히, **모든 칸 같은 폭·높이** (10/2 회장).
    두 묶음을 항목 수(--n)에 비례해 나눈다. flex-basis 에 묶음 안 간격((n-1)×8px)을 먼저 주고 남는 폭을
    n 비율로 나누면 칸 하나의 폭이 양쪽에서 정확히 같아진다(수치가 3개든 4개든). */
+/* 마감 목록 머리줄(제목 + 전체 보기) — 1280+ 의 align-items: center 보다 **앞에** 둔다(체크리스트 G).
+   10/6 QA W12: 이 기본 규칙이 미디어쿼리보다 뒤(959행)에 있어 1280+ 의 center 를 baseline 이 덮었다 —
+   옆 "지금 열려 있어요" 제목과 0.5px 어긋나 있었다 */
+.deadlineHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 @media (min-width: 1280px) {
   .data {
     display: flex;
@@ -954,13 +967,6 @@
   margin-left: 2px;
   font-size: 0.875rem;
   font-weight: 600;
-}
-
-.deadlineHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
 }
 
 /* 누르는 영역 44px(10/2 QA C-Y12, 종전 64×32). 늘린 12px 은 **위로만** — 바로 아래 마감 카드와 1px 거리라

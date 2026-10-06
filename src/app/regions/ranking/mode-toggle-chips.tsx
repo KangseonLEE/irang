@@ -12,6 +12,7 @@ import { useRef, useState } from "react";
 import { Target, BarChart3, Sliders, RotateCcw } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { analytics } from "@/lib/analytics";
+import { withJosa } from "@/lib/format";
 import s from "./mode-toggle-chips.module.css";
 
 type ChipMode = "persona" | "dimension" | "custom";
@@ -83,7 +84,7 @@ export function ModeToggleChips({ current, sido, selectionLabel }: Props) {
               className={`${s.chip} ${isActive ? s.chipActive : ""}`}
               disabled={isActive || isNavigating}
               aria-pressed={isActive}
-              aria-label={`${m.label}로 비교 방식 전환`}
+              aria-label={`${withJosa(m.label, "로")} 비교 방식 전환`}
             >
               <Icon icon={m.icon} size="sm" />
               <span>{m.label}</span>

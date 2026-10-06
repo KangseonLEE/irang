@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import {
   Search,
@@ -44,11 +45,13 @@ const STEP_INTERVIEWS: Record<number, string[]> = {
 // 가이드 페이지는 모든 인터뷰에 공통으로 있는 quote(짧은 발언 인용 + 출처 명시)로 통일.
 
 export const metadata: Metadata = {
-  title: "귀농 절차 5단계 — 준비부터 정착까지 로드맵",
-  description:
-    "귀농 준비부터 정착까지, 5단계 프로세스를 체크리스트와 함께 안내해요. 각 단계별 소요 기간, 핵심 과업, 예상 비용, 지원사업 정보를 확인하세요.",
+  ...pageMetadata({
+    title: "귀농 절차 5단계 — 준비부터 정착까지 로드맵",
+    description:
+      "귀농 준비부터 정착까지, 5단계 프로세스를 체크리스트와 함께 안내해요. 각 단계별 소요 기간, 핵심 과업, 예상 비용, 지원사업 정보를 확인하세요.",
+    path: "/guide",
+  }),
   keywords: ["귀농 절차", "귀농 준비 순서", "농촌 정착 절차", "정착 준비 순서", "정착 로드맵", "정착 단계", "농촌 정착 방법", "정착 준비 기간"],
-  alternates: { canonical: "/guide" },
 };
 
 // ─── 단계 데이터 ───

@@ -74,6 +74,7 @@ const BODY_SUBSET = [
   "기술로업미래열어가",                   // tagline 일부
   "자연속에새삶꿈꾸",                     // tagline 일부
   "·",                                   // 구분자
+  "irangfarm.com",                       // 하단 도메인 (brand-card SITE_DOMAIN)
 ].join("");
 
 export async function getOGFontsWithBody(): Promise<FontData[]> {
@@ -103,8 +104,8 @@ const ASSESS_SUBSET = [
   "0123456789/%·점",
   // 로고
   "이랑",
-  // irang.info
-  "irang.info",
+  // 하단 도메인 (brand-card SITE_DOMAIN)
+  "irangfarm.com",
 ].join("");
 
 export async function getOGFontsForAssess(): Promise<FontData[]> {

@@ -21,6 +21,7 @@
 // 의존성 0 경량 모듈만 import 허용 (middleware 번들). 카테고리 신설 시
 // normalize 누락 → 308 strip 재발(5/29·5/30·6/16) 차단을 위해 SSOT에서 파생.
 import { CROP_CATEGORY_NAMES } from "@/lib/data/crop-categories";
+import { SINGLE_CHAR_CROP_NAMES } from "./filter-match";
 
 interface NormalizeOptions {
   /** 허용된 param key 목록 (이 목록 외엔 제거) */
@@ -30,7 +31,11 @@ interface NormalizeOptions {
   /**
    * key별 multi-value enum 검증 — CSV(쉼표 구분) 입력 허용.
    * 5/20 Sprint P: /programs 복수 선택 chip 도입 (region·supportType·category·age).
+   * 10/6: /events·/education·/crops 도 같은 방식 — 필터 UI(FilterShell)가 모든 그룹을 복수 선택으로 만드는데
+   *   여기만 단일 enum 이라 값 2개를 고르면 308 strip 으로 필터가 통째로 풀렸다(QA Q4-F1).
    * - 입력 "healing,social" → 각 값을 enum 검증 → 통과한 값만 dedup CSV로 재조립
+   * - 값 순서는 **enum 순서로 고정**(10/6) — 같은 선택이 클릭 순서마다 다른 URL(=다른 캐시 키)이 되지 않게.
+   *   FilterShell 도 같은 순서로 URL 을 만들어 정상 사용에서는 재조립이 일어나지 않는다.
    * - 전부 통과 못 하면 key 제거 (308 strip)
    * - 일부만 통과 시 통과한 값만 남김 (5/14 deep link strip 사고 lessons — 정상 값까지 죽이지 않음)
    * - 최대 개수 초과 시 잘라냄 (CSV abuse 방어)
@@ -45,6 +50,13 @@ interface NormalizeOptions {
   maxLengths?: Record<string, number>;
   /** key별 최소 길이 (미만 시 제거 — q 길이 1자 같은 abuse 차단) */
   minLengths?: Record<string, number>;
+  /**
+   * key별 최소 길이 예외 값 — 길이가 모자라도 통과시킨다.
+   * 10/6: q 의 1글자 작물 이름(쌀·콩·감·배·무·밤). 작물 상세의 "추천 지원사업 보기"(`/programs?q=쌀&region=…`)와
+   * 목록 검색창의 1글자 작물 검색이 308 strip 으로 검색어를 잃었다(QA Q2-W1·Q4-W2).
+   * 1글자 매칭은 낱말 단위다(filter-match.ts `matchesListQuery`).
+   */
+  minLengthExceptions?: Record<string, readonly string[]>;
   /** key별 숫자 범위 (벗어나면 제거) */
   numericRanges?: Record<string, { min: number; max: number }>;
 }
@@ -92,20 +104,14 @@ export function normalizeSearchParams(
     }
 
     // Multi-value enum 검증 — CSV 입력 허용 (5/20 Sprint P chip 복수 선택)
-    // 단일값과 CSV 모두 처리. 통과한 값만 dedup CSV로 재조립.
+    // 단일값과 CSV 모두 처리. 통과한 값만 dedup + enum 순서 CSV로 재조립 (10/6 순서 고정).
     if (options.multiValueEnumValidators?.[key]) {
       const spec = options.multiValueEnumValidators[key];
-      const parts = value.split(",");
-      const valid: string[] = [];
-      const seenValue = new Set<string>();
-      for (const p of parts) {
-        const trimmed = p.trim();
-        if (trimmed === "" || seenValue.has(trimmed)) continue;
-        if (!spec.enum.includes(trimmed)) continue;
-        valid.push(trimmed);
-        seenValue.add(trimmed);
-        if (spec.maxItems && valid.length >= spec.maxItems) break;
-      }
+      const requested = new Set(
+        value.split(",").map((p) => p.trim()).filter(Boolean),
+      );
+      let valid = spec.enum.filter((v) => requested.has(v));
+      if (spec.maxItems) valid = valid.slice(0, spec.maxItems);
       if (valid.length === 0) {
         changed = true;
         continue;
@@ -146,8 +152,12 @@ export function normalizeSearchParams(
       continue;
     }
 
-    // 최소 길이 검증 (q 1자 같은 abuse 차단)
-    if (options.minLengths?.[key] && value.length < options.minLengths[key]) {
+    // 최소 길이 검증 (q 1자 같은 abuse 차단) — 예외 값(1글자 작물 이름)은 통과
+    if (
+      options.minLengths?.[key] &&
+      value.length < options.minLengths[key] &&
+      !options.minLengthExceptions?.[key]?.includes(value)
+    ) {
       changed = true;
       continue;
     }
@@ -168,28 +178,56 @@ export function normalizeSearchParams(
 }
 
 /**
+ * 목록 지역 필터 값 — programs `REGIONS`·education `EDUCATION_REGIONS`·events `EVENT_REGIONS` 와 같아야 한다
+ * (데이터 모듈은 supabase 를 끌어와 middleware 번들에 못 넣는다 — 일치는 qa1006-feb-normalize 테스트가 지킨다).
+ */
+const LIST_REGIONS = [
+  "전국",
+  "서울특별시",
+  "경기도",
+  "강원도",
+  "충청북도",
+  "충청남도",
+  "전라북도",
+  "전라남도",
+  "경상북도",
+  "경상남도",
+  "제주특별자치도",
+] as const;
+
+const EVENT_TYPE_VALUES = ["살아보기", "일일체험", "팜스테이", "박람회", "설명회", "멘토링", "축제"] as const;
+const EDUCATION_TYPE_VALUES = ["온라인", "오프라인", "혼합"] as const;
+const EDUCATION_LEVEL_VALUES = ["입문", "초급", "중급", "심화"] as const;
+const CROP_CATEGORY_VALUES = ["전체", ...CROP_CATEGORY_NAMES] as const;
+const CROP_DIFFICULTY_VALUES = ["전체", "쉬움", "보통", "어려움"] as const;
+
+/** 복수 선택 그룹 — 값은 enum 안에서만, 개수 상한은 선택지 수(중복·순서는 normalize 가 정리) */
+function multiSelect(values: readonly string[]): { enum: readonly string[]; maxItems: number } {
+  return { enum: values, maxItems: values.length };
+}
+
+/**
+ * 목록 검색어(q) 허용 글자 — 한글·영숫자·공백 + 제목에 흔한 문장부호(하이픈·가운뎃점·마침표·쉼표·괄호·빗금·물결).
+ * 10/6: "Y-FARM", "귀농·귀촌", "스마트팜(수경)"처럼 제목을 옮겨 친 검색어가 308 strip 으로 검색어를 잃었다.
+ * 따옴표·꺾쇠·& 같은 특수문자는 계속 막는다(5/7 codex 권고의 취지 — q abuse 방어).
+ */
+const SAFE_QUERY = /^[가-힣a-zA-Z0-9\s\-·ㆍ.,()/~]+$/;
+
+/**
  * 경로별 정규화 옵션 정의.
  * middleware에서 pathname으로 매칭해 사용.
  */
 export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
   "/events": {
     // 2026-05-25: sort 추가 (deadline/recent) — /programs와 동일 패턴
+    // 2026-10-06: type·region 복수 선택(CSV) 전환 — FilterShell 이 복수 선택 URL 을 만드는데 단일 enum 이라
+    //   값 2개를 고르면 308 strip 으로 필터가 통째로 풀렸다(QA Q4-F1)
     allowedKeys: ["type", "region", "q", "period", "includeClosed", "view", "page", "sort"],
+    multiValueEnumValidators: {
+      type: multiSelect(EVENT_TYPE_VALUES),
+      region: multiSelect(LIST_REGIONS),
+    },
     enumValidators: {
-      type: ["살아보기", "일일체험", "팜스테이", "박람회", "설명회", "멘토링", "축제"],
-      region: [
-        "전국",
-        "서울특별시",
-        "경기도",
-        "강원도",
-        "충청북도",
-        "충청남도",
-        "전라북도",
-        "전라남도",
-        "경상북도",
-        "경상남도",
-        "제주특별자치도",
-      ],
       view: ["table", "card"],
       includeClosed: ["1"],
       sort: ["deadline", "recent"],
@@ -197,12 +235,15 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     regexValidators: {
       // codex 권고 (5/7): YYYY-MM 만 허용 (앱 실제 사용 형식과 일치)
       period: /^\d{4}-(0[1-9]|1[0-2])$/,
-      // codex 권고 (5/7) q abuse 방어: 한글·영숫자·공백만 (특수문자 차단)
-      q: /^[가-힣a-zA-Z0-9\s]+$/,
+      // codex 권고 (5/7) q abuse 방어 — 10/6 안전한 문장부호 허용(SAFE_QUERY)
+      q: SAFE_QUERY,
     },
     minLengths: {
-      // codex 권고 (5/7) q abuse 방어: 1자 검색 차단
+      // codex 권고 (5/7) q abuse 방어: 1자 검색 차단 — 10/6 1글자 작물 이름만 예외
       q: 2,
+    },
+    minLengthExceptions: {
+      q: SINGLE_CHAR_CROP_NAMES,
     },
     maxLengths: {
       // codex 권고 (5/7): 50 → 30 단축 (cache pollution 차단)
@@ -222,41 +263,15 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     //   - status에 "마감" 포함 시 마감 사업 자동 표시.
     // 2026-05-25: sort 추가 (recent/deadline) — sortPrograms은 5/22 d6fa20a에서 fix됐지만
     //   allowlist 누락으로 middleware가 308 strip해 정렬 실 적용 안 되던 사고 회장 라이브 발견.
+    // 2026-10-06: region 상한 5 → 11(선택지 수). 6곳 이상 고르면 normalize 가 5곳만 남겨 선택이 조용히 빠졌다.
     allowedKeys: ["region", "age", "supportType", "category", "status", "q", "includeClosed", "period", "view", "page", "persona", "sort"],
     multiValueEnumValidators: {
-      region: {
-        enum: [
-          "전국",
-          "서울특별시",
-          "경기도",
-          "강원도",
-          "충청북도",
-          "충청남도",
-          "전라북도",
-          "전라남도",
-          "경상북도",
-          "경상남도",
-          "제주특별자치도",
-        ],
-        maxItems: 5,
-      },
-      supportType: {
-        enum: ["보조금", "융자", "교육", "현물", "컨설팅"],
-        maxItems: 5,
-      },
-      age: {
-        enum: ["19~29세", "30~39세", "40~49세", "50~59세", "60~69세", "70~79세"],
-        maxItems: 6,
-      },
-      category: {
-        enum: ["settlement", "youth", "facility", "healing", "social"],
-        maxItems: 5,
-      },
-      status: {
-        // 9/28: "정기 접수"(9999 페어 + 접수 시기 문구, 연례 창구형) 필터 추가 — 회장 결재
-        enum: ["모집중", "정기 접수", "모집예정", "마감"],
-        maxItems: 4,
-      },
+      region: multiSelect(LIST_REGIONS),
+      supportType: multiSelect(["보조금", "융자", "교육", "현물", "컨설팅"]),
+      age: multiSelect(["19~29세", "30~39세", "40~49세", "50~59세", "60~69세", "70~79세"]),
+      category: multiSelect(["settlement", "youth", "facility", "healing", "social"]),
+      // 9/28: "정기 접수"(9999 페어 + 접수 시기 문구, 연례 창구형) 필터 추가 — 회장 결재
+      status: multiSelect(["모집중", "정기 접수", "모집예정", "마감"]),
     },
     enumValidators: {
       view: ["table", "card"],
@@ -268,8 +283,11 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       period: /^\d{4}-(0[1-9]|1[0-2])$/,
     },
     minLengths: {
-      // codex 권고 (5/7) q abuse 방어: 1자 검색 차단
+      // codex 권고 (5/7) q abuse 방어: 1자 검색 차단 — 10/6 1글자 작물 이름만 예외
       q: 2,
+    },
+    minLengthExceptions: {
+      q: SINGLE_CHAR_CROP_NAMES,
     },
     maxLengths: {
       // codex 권고 (5/7): 50 → 30 단축 (cache pollution 차단)
@@ -281,23 +299,14 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
   },
   "/education": {
     // 2026-05-25: sort 추가 (deadline/recent) — /programs·/events와 동일 패턴
+    // 2026-10-06: region·type·level 복수 선택(CSV) 전환 (QA Q4-F1 — /events 와 같은 사유)
     allowedKeys: ["region", "type", "level", "q", "period", "includeClosed", "view", "page", "sort"],
+    multiValueEnumValidators: {
+      region: multiSelect(LIST_REGIONS),
+      type: multiSelect(EDUCATION_TYPE_VALUES),
+      level: multiSelect(EDUCATION_LEVEL_VALUES),
+    },
     enumValidators: {
-      region: [
-        "전국",
-        "서울특별시",
-        "경기도",
-        "강원도",
-        "충청북도",
-        "충청남도",
-        "전라북도",
-        "전라남도",
-        "경상북도",
-        "경상남도",
-        "제주특별자치도",
-      ],
-      type: ["온라인", "오프라인", "혼합"],
-      level: ["입문", "초급", "중급", "심화"],
       view: ["table", "card"],
       includeClosed: ["1"],
       sort: ["deadline", "recent"],
@@ -306,8 +315,11 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
       period: /^\d{4}-(0[1-9]|1[0-2])$/,
     },
     minLengths: {
-      // codex 권고 (5/7) q abuse 방어: 1자 검색 차단
+      // codex 권고 (5/7) q abuse 방어: 1자 검색 차단 — 10/6 1글자 작물 이름만 예외
       q: 2,
+    },
+    minLengthExceptions: {
+      q: SINGLE_CHAR_CROP_NAMES,
     },
     maxLengths: {
       // codex 권고 (5/7): 50 → 30 단축 (cache pollution 차단)
@@ -324,20 +336,26 @@ export const LIST_PAGE_NORMALIZE_OPTIONS: Record<string, NormalizeOptions> = {
     // 2026-05-30: page 추가 (카드/테이블 20개 페이지네이션 — 누락 시 ?page=2가 308 strip)
     // 2026-06-16: sort income 추가 (실측 검색 의도 "수익순" — 누락 시 ?sort=income이 308 strip되어 P0 딥링크 무력화)
     // 2026-07-30: category 화훼 추가 + SSOT 파생 전환 (카테고리 신설 시 자동 화이트리스트 — 수동 누락으로 인한 308 strip 재발 차단)
+    // 2026-10-06: category·difficulty 복수 선택(CSV) 전환 (QA Q4-F1). "전체"는 옛 링크 호환으로 남긴다(페이지가 무시).
     allowedKeys: ["category", "difficulty", "q", "persona", "sort", "view", "page"],
+    multiValueEnumValidators: {
+      category: multiSelect(CROP_CATEGORY_VALUES),
+      difficulty: multiSelect(CROP_DIFFICULTY_VALUES),
+    },
     enumValidators: {
-      category: ["전체", ...CROP_CATEGORY_NAMES],
-      difficulty: ["전체", "쉬움", "보통", "어려움"],
       persona: ["family", "farmYouth", "elderRural", "commuter", "balanced"],
       sort: ["name", "difficulty", "income"],
       view: ["table", "card"],
     },
     regexValidators: {
-      // codex 권고 (5/7) q abuse 방어: 한글·영숫자·공백만
-      q: /^[가-힣a-zA-Z0-9\s]+$/,
+      // codex 권고 (5/7) q abuse 방어 — 10/6 안전한 문장부호 허용(SAFE_QUERY)
+      q: SAFE_QUERY,
     },
     minLengths: {
       q: 2,
+    },
+    minLengthExceptions: {
+      q: SINGLE_CHAR_CROP_NAMES,
     },
     maxLengths: {
       q: 30,

@@ -26,6 +26,7 @@ import {
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { PageHeader } from "@/components/ui/page-header";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import {
   therapyTrackMap,
   type TherapyTrack,
@@ -35,10 +36,12 @@ import { interviews } from "@/lib/data/landing";
 import { ModelMiniQuiz } from "./model-mini-quiz";
 import s from "./page.module.css";
 
+const DESCRIPTION =
+  "작물 생산 말고도 선택지가 있어요. 치유농업과 사회적 농업, 두 모델의 자격·수익·사례·지원사업을 한눈에 비교해 보세요.";
+
 export const metadata: Metadata = {
   title: "치유·사회적 농업 — 농촌 정착의 또 다른 선택지",
-  description:
-    "작물 생산 말고도 선택지가 있어요. 치유농업과 사회적 농업, 두 모델의 자격·수익·사례·지원사업을 한눈에 비교해 보세요.",
+  description: DESCRIPTION,
   keywords: [
     "치유농업",
     "사회적 농업",
@@ -48,6 +51,12 @@ export const metadata: Metadata = {
     "농촌돌봄농장",
   ],
   alternates: { canonical: "/education/therapy" },
+  // 공유 카드 — 없으면 레이아웃의 사이트 기본 제목·설명이 나갔다 (10/6 QA Q2-W3, 교육 허브와 같은 처리)
+  ...shareMetadata({
+    title: "치유·사회적 농업 — 농촌 정착의 또 다른 선택지 | 이랑",
+    description: DESCRIPTION,
+    path: "/education/therapy",
+  }),
 };
 
 type TabId = "overview" | TherapyTrackId;

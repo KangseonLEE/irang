@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -14,10 +15,12 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "이용 안내 및 면책 고지",
-  description:
-    "이랑은 공공데이터 기반 농촌 정착 정보 큐레이션 서비스예요. 데이터 출처, 정확성, 이용 시 유의사항을 안내해요.",
-  alternates: { canonical: "/about/disclaimer" },
+  ...pageMetadata({
+    title: "이용 안내 및 면책 고지",
+    description:
+      "이랑은 공공데이터 기반 농촌 정착 정보 큐레이션 서비스예요. 데이터 출처, 정확성, 이용 시 유의사항을 안내해요.",
+    path: "/about/disclaimer",
+  }),
 };
 
 const dataSources = [

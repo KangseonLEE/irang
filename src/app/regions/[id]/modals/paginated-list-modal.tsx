@@ -40,10 +40,20 @@ export interface PaginatedListModalProps<T> {
     typeCount: Record<string, number>,
     filterValue: string
   ) => number;
+  /**
+   * 항목 유형이 필터에 속하는가 — 목록 거르기와 칩 숫자가 같은 규칙을 쓴다.
+   * 기본은 포함 매칭(`type.includes(value)`). 의료기관처럼 "병원"이 "종합병원"까지 잡으면 안 되는 경우 넘긴다.
+   */
+  matchesFilter?: (itemType: string, filterValue: string) => boolean;
   /** DataSource 출처 */
   dataSource: string;
   /** DataSource 부가 안내 */
   dataSourceNote?: string;
+}
+
+/** 기본 필터 규칙 — 유형 이름에 필터 값이 들어 있으면 */
+function includesFilter(itemType: string, filterValue: string) {
+  return itemType.includes(filterValue);
 }
 
 /** 네이버 지도 검색 URL */
@@ -69,6 +79,7 @@ export function PaginatedListModal<
   renderItem,
   itemKey,
   filterMatchCount,
+  matchesFilter = includesFilter,
   dataSource,
   dataSourceNote = "항목을 누르면 네이버 지도에서 확인할 수 있어요",
 }: PaginatedListModalProps<T>) {
@@ -142,7 +153,7 @@ export function PaginatedListModal<
   const filteredItems = useMemo(() => {
     let result = items;
     if (activeFilter) {
-      result = result.filter((item) => item.type.includes(activeFilter));
+      result = result.filter((item) => matchesFilter(item.type, activeFilter));
     }
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
@@ -153,19 +164,19 @@ export function PaginatedListModal<
       );
     }
     return result;
-  }, [items, activeFilter, searchQuery]);
+  }, [items, activeFilter, searchQuery, matchesFilter]);
 
   const handleFilterClick = useCallback((value: string) => {
     setActiveFilter((prev) => (prev === value ? "" : value));
   }, []);
 
-  // ── 필터 매칭 카운트 기본 구현: includes 기반 ──
+  // ── 필터 매칭 카운트 기본 구현: 목록 거르기와 같은 matchesFilter 규칙 ──
   const defaultFilterMatchCount = useCallback(
     (tc: Record<string, number>, filterValue: string) =>
       Object.entries(tc)
-        .filter(([type]) => type.includes(filterValue))
+        .filter(([type]) => matchesFilter(type, filterValue))
         .reduce((sum, [, c]) => sum + c, 0),
-    []
+    [matchesFilter]
   );
 
   const getFilterMatchCount = filterMatchCount ?? defaultFilterMatchCount;
@@ -250,6 +261,14 @@ export function PaginatedListModal<
             );
           })}
         </div>
+      )}
+
+      {/* 칩 숫자는 지금까지 불러온 항목 기준 — 다 불러오기 전엔 그렇다고 밝힌다.
+          종전엔 "종합병원 24"가 더 보기 뒤 54로 바뀌어 전체 건수처럼 읽혔다 (10/6 QA1) */}
+      {!isInitialLoad && hasMore && items.length > 0 && Object.keys(typeCount).length > 0 && (
+        <p className={s.filterResult}>
+          유형별 숫자는 지금까지 불러온 {items.length.toLocaleString()}건 기준이에요. 더 보면 늘어나요.
+        </p>
       )}
 
       {/* ── 필터/검색 결과 카운트 ── */}

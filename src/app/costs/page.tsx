@@ -32,6 +32,7 @@ import { GUIDE_STEP_SUMMARIES } from "@/lib/data/guide-steps";
 import { StepOverview } from "@/components/ui/step-overview";
 import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import { CROPS } from "@/lib/data/crops";
 import { settlementSurvey } from "@/lib/data/stats";
 import {
@@ -49,12 +50,18 @@ import CostStrategiesTabs, {
 import s from "./page.module.css";
 
 /* ── SEO ── */
+/* 공유 카드 문구 — metadata.title 은 리터럴로 둔다(seo-titles.test 가 소스에서 정규식으로 읽는다) */
+const SHARE_TITLE = "귀농 비용 가이드 — 초기 투자·운영비·생활비 | 이랑";
+const DESCRIPTION =
+  "귀농·귀촌에 필요한 초기 투자금, 연간 운영비, 생활비를 항목별로 정리했어요. 30대·40대·50대·1인 귀농 자본 계획에 참고하세요.";
+
 export const metadata: Metadata = {
   title: "귀농 비용 가이드 — 초기 투자·운영비·생활비",
-  description:
-    "귀농·귀촌에 필요한 초기 투자금, 연간 운영비, 생활비를 항목별로 정리했어요. 30대·40대·50대·1인 귀농 자본 계획에 참고하세요.",
+  description: DESCRIPTION,
   keywords: ["귀농 비용", "귀농 비용 얼마", "정착 비용", "정착 비용 얼마", "귀농 초기 투자", "정착 자본", "50대 정착 비용", "귀농 생활비"],
   alternates: { canonical: "/costs" },
+  // 공유 카드 — 페이지 openGraph 가 없으면 레이아웃의 사이트 기본 제목·설명이 그대로 나갔다(10/6 QA Q2-W3)
+  ...shareMetadata({ title: SHARE_TITLE, description: DESCRIPTION, path: "/costs" }),
 };
 
 /* ── 지원금 시뮬레이션 데이터 ── */
@@ -283,7 +290,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
           {/* ── 데스크탑: 테이블 ── */}
           <div className={s.cropTable} role="table" aria-label="작물별 투자 비용 비교표">
             {/* 테이블 헤더 */}
-            <div className={`${s.cropRow} ${s.cropRowHeader}`} role="row">
+            <div className={s.cropRowHeader} role="row">
               <span className={s.cropCellHeader} role="columnheader">작물</span>
               <span className={s.cropCellHeader} role="columnheader">초기 투자</span>
               <span className={s.cropCellHeader} role="columnheader">연 운영비</span>
@@ -556,9 +563,10 @@ function CropCard({ crop }: { crop: CropCost }) {
     <>
       <div className={s.cropCardTop}>
         {crop.cropPageId ? (
+          /* 카드 안에 이름이 있다 — 그림은 장식(링크 이름에 작물명이 두 번 들어가지 않게) */
           <Image
             src={getCropImageSrc(crop.cropPageId)}
-            alt={crop.name}
+            alt=""
             width={44}
             height={44}
             className={s.cropCardImg}
@@ -592,15 +600,19 @@ function CropCard({ crop }: { crop: CropCost }) {
   return <div className={s.cropCard}>{inner}</div>;
 }
 
-/* ── 작물 행 (데스크탑 테이블) ── */
+/* ── 작물 행 (데스크탑 테이블) ──
+   행 전체가 작물 페이지로 가는 건 그대로, 링크는 첫 칸 작물명에 두고 ::after 로 행을 덮는다(10/6 QA).
+   예전엔 <a role="row"> 라 링크 역할이 행 역할에 덮여 스크린리더가 링크로 읽지 못했다(axe aria-allowed-role 6건). */
 function CropRow({ crop }: { crop: CropCost }) {
-  const inner = (
-    <>
+  const linked = Boolean(crop.cropPageId);
+  return (
+    <div className={linked ? `${s.cropRowData} ${s.cropRowLinked}` : s.cropRowData} role="row">
       <span className={s.cropName} role="cell">
         {crop.cropPageId ? (
+          /* 이름이 바로 옆에 있다 — 그림은 장식(이름을 두 번 읽지 않게) */
           <Image
             src={getCropImageSrc(crop.cropPageId)}
-            alt={crop.name}
+            alt=""
             width={32}
             height={32}
             className={s.cropImg}
@@ -610,7 +622,13 @@ function CropRow({ crop }: { crop: CropCost }) {
             {crop.name.slice(0, 1)}
           </div>
         )}
-        {crop.name}
+        {crop.cropPageId ? (
+          <Link href={`/crops/${crop.cropPageId}`} className={s.cropRowLink}>
+            {crop.name}
+          </Link>
+        ) : (
+          crop.name
+        )}
       </span>
       <span className={s.cropCell} role="cell" data-label="초기 투자">
         {crop.initialCost}
@@ -627,23 +645,6 @@ function CropRow({ crop }: { crop: CropCost }) {
       <span className={s.cropCell} role="cell" data-label="난이도">
         <DifficultyBadge level={crop.difficulty} size="sm" />
       </span>
-    </>
-  );
-
-  if (crop.cropPageId) {
-    return (
-      <Link
-        href={`/crops/${crop.cropPageId}`}
-        className={`${s.cropRow} ${s.cropRowData}`}
-        role="row"
-      >
-        {inner}
-      </Link>
-    );
-  }
-  return (
-    <div className={`${s.cropRow} ${s.cropRowData}`} role="row">
-      {inner}
     </div>
   );
 }

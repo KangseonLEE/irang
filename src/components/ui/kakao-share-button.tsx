@@ -134,31 +134,29 @@ export function KakaoShareButton({
   // SDK 미로드 시 렌더링하지 않음
   if (!ready) return null;
 
+  /* 노란 칩은 안쪽 span 이 그린다 — 버튼은 투명하게 두고 위아래로만 넓혀 누르는 영역을 44px 로(10/6 QA 터치 표적 26×26).
+     인라인 style 로 박혀 있던 색·여백도 CSS 로 옮겼다(체크리스트 C) */
   const className = [
     s.btn,
     s[`variant_${variant}`],
     s[`size_${size}`],
-  ].join(" ");
+    s.kakao,
+    size === "md" ? s.kakaoMd : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <button
       onClick={handleShare}
       className={className}
-      style={{
-        background: "#FEE500",
-        borderRadius: "4px",
-        padding: size === "sm" ? "5px" : "6px",
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        border: "none",
-        cursor: "pointer",
-      }}
       type="button"
       aria-label="카카오톡으로 공유"
     >
-      <KakaoIcon size={size === "sm" ? 16 : 18} />
-      {showLabel && <span style={{ color: "#191919", marginLeft: 4 }}>카카오톡</span>}
+      <span className={s.kakaoChip}>
+        <KakaoIcon size={size === "sm" ? 16 : 18} />
+        {showLabel && <span className={s.kakaoLabel}>카카오톡</span>}
+      </span>
     </button>
   );
 }

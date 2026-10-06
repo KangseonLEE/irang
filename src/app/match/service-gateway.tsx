@@ -1,82 +1,94 @@
 "use client";
 
-import { useState, useEffect } from "react";
+/**
+ * /match 게이트웨이 — 모드(서비스 선택·빠른 점검·적합도 진단·유형 진단)만 고르는 클라이언트 경계 (2026-10-06 QA Q2-W4).
+ *
+ * - 모드는 URL(`?mode=`)이 정한다. 페이지가 searchParams 를 읽는 동적 렌더라 useSearchParams 가 서버에서 바로 값을 받고,
+ *   BAILOUT 없이 그 모드의 첫 화면(h1 포함)이 HTML 에 들어간다.
+ * - 선택 화면의 제목·카드는 서버가 그려 props 로 넘긴다(intro·cards). 여기서는 "이전 진단 결과" 목록만 그린다.
+ * - 카드는 history.pushState 로 주소만 바꾼다(mode-card-link.tsx) → 뒤로가기 = 선택 화면.
+ */
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import {
-  MapPin,
-  ClipboardCheck,
-  ArrowRight,
-  ChevronRight,
-  Clock,
-  ListChecks,
-  Info,
-  History,
-  Trash2,
-  Calculator,
-} from "lucide-react";
+import { AssessmentWizard } from "../assess/assessment-wizard";
+import { GatewayHistory } from "./gateway-history";
+import { GATEWAY_FROM_SELECT_KEY, gatewayModeHref, resolveGatewayMode, type WizardMode } from "./gateway-mode";
+import type { DiagnosisHistoryItem } from "./diagnosis-history";
+import { HistoryResult } from "./history-result";
 import { MatchWizard } from "./match-wizard";
 import { QuickWizard } from "./quick-wizard";
-import { HistoryResult } from "./history-result";
-import { AssessmentWizard } from "../assess/assessment-wizard";
-import { useAssessmentHistory } from "@/hooks/use-assessment-history";
-import type { AssessmentHistoryItem } from "@/hooks/use-assessment-history";
-import { FARM_TYPES, migrateFarmTypeId } from "@/lib/data/match-questions";
-import { analytics } from "@/lib/analytics";
-import { Zap } from "lucide-react";
 import s from "./service-gateway.module.css";
 
-type Mode = "select" | "quick" | "match" | "assess" | "history-result";
-
-/** 날짜를 "4월 15일" 형태로 포맷 */
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+interface ServiceGatewayProps {
+  /** 선택 화면 윗부분(제목·안내) — 서버 렌더 */
+  intro: ReactNode;
+  /** 진단 카드·비용 바로가기 — 서버 렌더 */
+  cards: ReactNode;
 }
 
-export function ServiceGateway() {
+export function ServiceGateway({ intro, cards }: ServiceGatewayProps) {
   const searchParams = useSearchParams();
-  const { history, hasHistory, clearHistory } = useAssessmentHistory();
+  const mode = resolveGatewayMode((key) => searchParams.get(key));
+  /** 선택 화면에서 연 이전 결과 — 이 브라우저 기록이라 주소에는 싣지 않는다 */
+  const [viewing, setViewing] = useState<DiagnosisHistoryItem | null>(null);
 
-  // URL 파라미터로 직접 진입 시 바로 해당 모드 진행
-  // Phase 2c (2026-05-15): mode=quick 추가
-  const modeParam = searchParams.get("mode");
-  const initialMode: Mode =
-    modeParam === "quick"
-      ? "quick"
-      : modeParam === "assess"
-        ? "assess"
-        : modeParam === "match"
-          ? "match"
-          : searchParams.has("experience") || searchParams.has("lifestyle")
-            ? "match"
-            : "select";
-
-  const [mode, setMode] = useState<Mode>(initialMode);
-  const [viewingItem, setViewingItem] = useState<AssessmentHistoryItem | null>(null);
-
-  // 모드 전환 시 스크롤을 최상단으로 이동
-  // (pathname이 /match로 동일하므로 ScrollToTop이 감지하지 못함)
+  // 화면이 바뀌면 맨 위로 — 같은 /match 안이라 ScrollToTop(pathname 기준)이 못 잡는다
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [mode]);
+  }, [mode, viewing]);
 
-  /** 히스토리 항목 클릭 — localStorage 데이터로 결과 인라인 표시 */
-  const handleHistoryClick = (item: AssessmentHistoryItem) => {
-    setViewingItem(item);
-    setMode("history-result");
-  };
+  /**
+   * 위저드 "처음으로" — 선택 화면 카드로 들어왔으면 뒤로(그 항목으로 돌아감), 딥링크로 바로 들어왔으면
+   * 선택 화면 주소를 쌓는다(back() 이 사이트 밖으로 나가지 않게).
+   */
+  const exitToSelect = useCallback(() => {
+    const state: unknown = window.history.state;
+    const fromSelect =
+      typeof state === "object" && state !== null && GATEWAY_FROM_SELECT_KEY in state;
+    if (fromSelect) window.history.back();
+    else window.history.pushState(null, "", "/match");
+  }, []);
 
-  if (mode === "quick") return <QuickWizard onBack={() => setMode("select")} />;
-  if (mode === "match") return <MatchWizard onBack={() => setMode("select")} />;
-  if (mode === "assess") return <AssessmentWizard onBack={() => setMode("select")} />;
-  if (mode === "history-result" && viewingItem) {
+  /** 이전 결과 화면에서 "다시 …하기" — 같은 진단을 처음부터 (주소를 그 모드로) */
+  const restart = useCallback((next: WizardMode) => {
+    setViewing(null);
+    window.history.pushState({ [GATEWAY_FROM_SELECT_KEY]: true }, "", gatewayModeHref(next));
+  }, []);
+
+  const closeViewing = useCallback(() => setViewing(null), []);
+
+  // key — 같은 컴포넌트라도 새 진단·다시 보기는 상태를 새로 시작한다
+  if (mode === "quick") return <QuickWizard key="quick" onBack={exitToSelect} />;
+  if (mode === "assess") return <AssessmentWizard key="assess" onBack={exitToSelect} />;
+  if (mode === "match") return <MatchWizard key="match" onBack={exitToSelect} />;
+
+  if (viewing?.kind === "quick") {
+    return (
+      <QuickWizard
+        key={`review-${viewing.resultId}`}
+        review={viewing.answers}
+        onBack={closeViewing}
+        onRestart={() => restart("quick")}
+      />
+    );
+  }
+  if (viewing?.kind === "assess") {
+    return (
+      <AssessmentWizard
+        key={`review-${viewing.resultId}`}
+        review={{ answers: viewing.answers, demo: viewing.demo, track: viewing.track }}
+        onBack={closeViewing}
+        onRestart={() => restart("assess")}
+      />
+    );
+  }
+  if (viewing) {
     return (
       <HistoryResult
-        farmTypeId={viewingItem.farmTypeId}
-        regionIds={viewingItem.topRegionIds ?? []}
-        cropIds={viewingItem.topCropIds ?? []}
-        onBack={() => { setViewingItem(null); setMode("select"); }}
+        farmTypeId={viewing.farmTypeId}
+        regionIds={viewing.topRegionIds ?? []}
+        cropIds={viewing.topCropIds ?? []}
+        onBack={closeViewing}
       />
     );
   }
@@ -84,202 +96,9 @@ export function ServiceGateway() {
   /* ═══ 서비스 선택 화면 ═══ */
   return (
     <div className={s.page}>
-      <div className={s.hero}>
-        <span className={s.eyebrow}>나에게 맞는 농촌 정착</span>
-        <h1 className={s.title}>내 정착 유형을 찾아보세요</h1>
-        <p className={s.desc}>
-          목적에 맞는 서비스를 선택하세요.
-        </p>
-      </div>
-
-      {/* ── 안내 배너 ── */}
-      <aside className={s.infoBanner} aria-label="서비스 안내">
-        <div className={s.infoBannerIcon}>
-          <Info size={20} aria-hidden="true" />
-        </div>
-        <div className={s.infoBannerBody}>
-          <ul className={s.infoBannerList}>
-            <li>1분이면 끝나는 빠른 점검부터 14문항 정밀 진단까지 골라서 시작할 수 있어요.</li>
-            <li>어디서부터 봐야 할지 막막하다면 빠른 점검으로 윤곽부터 잡아 보세요.</li>
-          </ul>
-        </div>
-      </aside>
-
-      {/* ── 이전 진단 결과 ── */}
-      {hasHistory && (
-        <section className={s.historySection}>
-          <div className={s.historyHeader}>
-            <h2 className={s.historyTitle}>
-              <History size={16} />
-              이전 진단 결과
-            </h2>
-            <button
-              type="button"
-              onClick={clearHistory}
-              className={s.historyClear}
-            >
-              <Trash2 size={13} />
-              전체 삭제
-            </button>
-          </div>
-          <div className={s.historyList}>
-            {history.map((item) => {
-              const migratedId = migrateFarmTypeId(item.farmTypeId);
-              const ft = FARM_TYPES.find((t) => t.id === migratedId);
-              return (
-                <button
-                  key={item.resultId}
-                  type="button"
-                  onClick={() => handleHistoryClick(item)}
-                  className={s.historyItem}
-                >
-                  <span className={s.historyEmoji}>{ft?.emoji ?? "🌾"}</span>
-                  <div className={s.historyBody}>
-                    <div className={s.historyTopRow}>
-                      <span className={s.historyLabel}>{ft?.label ?? item.farmTypeLabel}</span>
-                      <span className={s.historyDate}>{formatDate(item.savedAt)}</span>
-                    </div>
-                    <span className={s.historyRegions}>
-                      {item.topRegions.join(" · ")}
-                    </span>
-                  </div>
-                  <ChevronRight size={16} className={s.historyArrow} />
-                </button>
-              );
-            })}
-          </div>
-          <p className={s.historyHint}>
-            결과는 현재 브라우저에만 저장돼요. 상단의 전체 삭제로 기록을 지울 수 있어요.
-          </p>
-        </section>
-      )}
-
-      <div className={s.cards}>
-        {/* 빠른 점검 (Phase 2c 2026-05-15) */}
-        <button
-          type="button"
-          className={`${s.card} ${s.cardQuick}`}
-          onClick={() => {
-            analytics.modeSelectClicked("quick");
-            setMode("quick");
-          }}
-        >
-          <span className={s.cardHintBubble}>
-            어디서부터 시작할지 모르겠다면 여기부터!
-          </span>
-          <div className={`${s.cardIcon} ${s.cardIconQuick}`}>
-            <Zap size={28} />
-          </div>
-          <div className={s.cardBody}>
-            <div className={s.cardTitleRow}>
-              <h2 className={s.cardTitle}>빠른 점검</h2>
-              <span className={s.badgeQuick}>1분</span>
-            </div>
-            <p className={s.cardDesc}>
-              4문항으로 정착 윤곽을 빠르게 잡고
-              지역·작물·지원 사업을 한번에 추천 받아 보세요.
-            </p>
-            <div className={s.cardMeta}>
-              <span className={s.cardMetaItem}>
-                <ListChecks size={14} />
-                4문항
-              </span>
-              <span className={s.cardMetaItem}>
-                <Clock size={14} />
-                약 1분
-              </span>
-            </div>
-          </div>
-          <div className={s.cardArrow}>
-            <ArrowRight size={20} />
-          </div>
-        </button>
-
-        {/* 농촌 정착 적합도 진단 */}
-        <button
-          type="button"
-          className={`${s.card} ${s.cardRecommended}`}
-          onClick={() => {
-            analytics.modeSelectClicked("assess");
-            setMode("assess");
-          }}
-        >
-          <div className={`${s.cardIcon} ${s.cardIconAssess}`}>
-            <ClipboardCheck size={28} />
-          </div>
-          <div className={s.cardBody}>
-            <div className={s.cardTitleRow}>
-              <h2 className={s.cardTitle}>농촌 정착 적합도 진단</h2>
-              <span className={s.badge}>정밀</span>
-            </div>
-            <p className={s.cardDesc}>
-              5가지 차원 적합도 진단 + 국가지원 트랙 추천까지,
-              나의 정착 준비 상태를 객관적으로 점검해요.
-            </p>
-            <div className={s.cardMeta}>
-              <span className={s.cardMetaItem}>
-                <ListChecks size={14} />
-                14문항
-              </span>
-              <span className={s.cardMetaItem}>
-                <Clock size={14} />
-                약 4분
-              </span>
-            </div>
-          </div>
-          <div className={s.cardArrow}>
-            <ArrowRight size={20} />
-          </div>
-        </button>
-
-        {/* 정착 유형 진단 */}
-        <button
-          type="button"
-          className={s.card}
-          onClick={() => {
-            analytics.modeSelectClicked("match");
-            setMode("match");
-          }}
-        >
-          <div className={s.cardIcon}>
-            <MapPin size={28} />
-          </div>
-          <div className={s.cardBody}>
-            <h2 className={s.cardTitle}>정착 유형 진단</h2>
-            <p className={s.cardDesc}>
-              기후, 소득 계획, 생활 환경 등에 답하면
-              나에게 맞는 정착 유형과 적합한 지역·작물을 알려드려요.
-            </p>
-            <div className={s.cardMeta}>
-              <span className={s.cardMetaItem}>
-                <ListChecks size={14} />
-                10문항
-              </span>
-              <span className={s.cardMetaItem}>
-                <Clock size={14} />
-                약 3분
-              </span>
-            </div>
-          </div>
-          <div className={s.cardArrow}>
-            <ArrowRight size={20} />
-          </div>
-        </button>
-      </div>
-
-      {/* ── 비용 계산 바로가기 ── */}
-      <section className={s.costCta}>
-        <Link href="/costs#simulator" className={s.costCtaCard}>
-          <div className={s.costCtaIcon}>
-            <Calculator size={20} />
-          </div>
-          <div className={s.costCtaBody}>
-            <h3 className={s.costCtaTitle}>정착 비용, 얼마나 들까?</h3>
-            <p className={s.costCtaDesc}>연령·작물·규모별 예상 비용을 바로 계산해 보세요</p>
-          </div>
-          <ArrowRight size={16} className={s.costCtaArrow} />
-        </Link>
-      </section>
+      {intro}
+      <GatewayHistory onOpen={setViewing} />
+      {cards}
     </div>
   );
 }

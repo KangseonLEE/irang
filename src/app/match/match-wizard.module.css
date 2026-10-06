@@ -579,28 +579,6 @@
   overflow: hidden;
 }
 
-.programStatusOpen {
-  flex-shrink: 0;
-  font-size: var(--fs-overline);
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--success, #16a34a) 12%, transparent);
-  color: #16a34a;
-  white-space: nowrap;
-}
-
-.programStatusClosed {
-  flex-shrink: 0;
-  font-size: var(--fs-overline);
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--muted-foreground, #6b7280) 10%, transparent);
-  color: var(--muted-foreground, #6b7280);
-  white-space: nowrap;
-}
-
 .programClosedHint {
   font-size: var(--fs-overline);
   line-height: var(--lh-snug);

@@ -26,6 +26,7 @@ import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import { kstToday } from "@/lib/program-status";
 import { orderProgramsForList } from "@/lib/programs/list-order";
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ProgramList } from "./program-list";
@@ -47,11 +48,19 @@ const sectionNavItems = [
   { href: "/events", label: "체험·행사" },
 ];
 
+const DESCRIPTION =
+  "전국 귀농·귀촌 지원사업을 지역별로 검색하세요. 정착금 최대 3억, 주택 지원, 영농 자금 등 자격 조건과 신청 방법을 비교해요.";
+
 export const metadata: Metadata = {
   title: "귀농·귀촌 지원사업 — 정착금·주택·영농자금 검색",
-  description:
-    "전국 귀농·귀촌 지원사업을 지역별로 검색하세요. 정착금 최대 3억, 주택 지원, 영농 자금 등 자격 조건과 신청 방법을 비교해요.",
+  description: DESCRIPTION,
   alternates: { canonical: "/programs" },
+  // 공유 카드 — 없으면 레이아웃의 사이트 기본 제목·설명이 나갔다 (10/6 QA Q2-W3)
+  ...shareMetadata({
+    title: "귀농·귀촌 지원사업 — 정착금·주택·영농자금 검색 | 이랑",
+    description: DESCRIPTION,
+    path: "/programs",
+  }),
 };
 
 /* ── /programs는 searchParams 의존 → 자동 dynamic SSR ──

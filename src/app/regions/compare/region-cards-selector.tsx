@@ -8,6 +8,7 @@ import { Search, Plus, X, MapPin, Loader2 } from "lucide-react";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { useActiveOptionScroll } from "@/lib/hooks/use-active-option-scroll";
+import { isComposingEvent, pickOnEnter, rankByName } from "@/lib/ime";
 import {
   REGION_SEARCH_INDEX,
   normalizeRegionQuery,
@@ -58,6 +59,8 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
   const [highlightIdx, setHighlightIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  /** ↑↓로 하이라이트를 직접 옮겼는가 — 옮겼으면 Enter 는 이름 완전 일치보다 그 항목을 고른다 */
+  const navigatedRef = useRef(false);
 
   const [optimisticIds, setOptimisticIds] = useState<string[]>(selectedRegionIds);
 
@@ -211,16 +214,37 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // Tab 으로 검색창을 벗어나면 목록을 닫는다 — 열린 채로 남으면 다음 포커스("지역 추가" 카드 등)를
+      // 덮었다 (10/6 QA1 Q3-🟡8). 기본 동작(포커스 이동)은 그대로 둔다.
+      if (e.key === "Tab") {
+        setIsFocused(false);
+        return;
+      }
       if (!isFocused || filteredResults.length === 0) return;
       if (e.key === "ArrowDown") {
         e.preventDefault();
+        navigatedRef.current = true;
         setHighlightIdx((idx) => Math.min(idx + 1, filteredResults.length - 1));
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
+        navigatedRef.current = true;
         setHighlightIdx((idx) => Math.max(idx - 1, 0));
       } else if (e.key === "Enter") {
+        // 한글 조합 확정 Enter 무시 — 조합 중엔 검색어가 부분 문자열("청ㅈ")이라 엉뚱한 지역이 추가됐다 (Q4-W9, 9/7 패턴)
+        if (isComposingEvent(e)) return;
         e.preventDefault();
-        const target = filteredResults[highlightIdx];
+        const highlighted = filteredResults[highlightIdx];
+        const target = navigatedRef.current
+          ? highlighted
+          : pickOnEnter(
+              rankByName(
+                filteredResults,
+                trimmedQuery,
+                (r) => (r.type === "sido" ? r.label : (r.sigunguName ?? r.label)),
+                (r) => r.searchText,
+              ),
+              highlighted,
+            );
         if (target) {
           addRegion(target.id);
           setQuery("");
@@ -232,8 +256,16 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
         inputRef.current?.blur();
       }
     },
-    [isFocused, filteredResults, highlightIdx, addRegion],
+    [isFocused, filteredResults, highlightIdx, addRegion, trimmedQuery],
   );
+
+  /** 포커스가 검색 영역 밖으로 나가면 닫기 — 마우스 바깥 클릭은 mousedown 핸들러가 맡는다.
+   *  relatedTarget 이 없으면(Safari 버튼 클릭은 포커스를 옮기지 않는다) 여기서 닫지 않는다:
+   *  닫으면 옵션 버튼이 click 전에 사라져 선택이 먹히지 않는다. */
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    const next = e.relatedTarget as Node | null;
+    if (next && !e.currentTarget.contains(next)) setIsFocused(false);
+  }, []);
 
   const reachedLimit = optimisticIds.length >= MAX_SELECTION;
   const showDropdown = isFocused;
@@ -273,7 +305,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
     <div className={s.wrap}>
       {/* 상단 검색 */}
       <div className={s.searchRow}>
-        <div className={s.searchWrap}>
+        <div className={s.searchWrap} onBlur={handleBlur}>
           <Search size={18} className={s.searchIcon} aria-hidden="true" />
           <input
             ref={inputRef}
@@ -282,6 +314,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
             onChange={(e) => {
               setQuery(e.target.value);
               setHighlightIdx(0);
+              navigatedRef.current = false;
             }}
             onFocus={() => setIsFocused(true)}
             onKeyDown={handleKeyDown}
@@ -299,6 +332,8 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
               type="button"
               onClick={() => {
                 setQuery("");
+                setHighlightIdx(0);
+                navigatedRef.current = false;
                 inputRef.current?.focus();
               }}
               className={s.searchClearBtn}

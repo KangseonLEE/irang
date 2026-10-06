@@ -5,6 +5,14 @@
  * - sigunguSlug(시군구)는 src/lib/data/sigungus.ts의 Sigungu.id와 일치한다.
  * - url은 2026-04-15 기준으로 curl + WebFetch/WebSearch 삼중 검증 완료.
  *   각 항목 옆 주석에 검증 증거(HTTP 코드 + 페이지 타이틀)를 남겼다.
+ * - 2026-10-06 전수 재검증(QA 링크 점검, 한국 회선 curl GET + Chromium 렌더 재확인):
+ *   HTTP 200 + 정상 제목 + 본문에 기관명 낱말이 있는 항목만 verifiedAt 을 2026-10-06 으로 올렸다.
+ *   항목 주석의 title 은 최초(4/15) 기록이고, 이번에 주소를 바꾼 항목만 주석을 새로 썼다.
+ *   2026-04-15 로 남은 항목 = 아직 재확인이 끝나지 않은 곳:
+ *   인천 중구·동구·서구(2026-07-01 행정체제 개편 — 중구 누리집 운영 종료, 동구·서구 도메인 변경, SSOT 결정 대기),
+ *   대구 중구(봇 방어 스크립트가 자동화 브라우저에 400 — 사람 브라우저 확인 대상), 통영(자동화 차단 페이지).
+ *   교훈: 4/15 검증은 상태코드만 보고 청송 378B 방화벽 차단 페이지·봉화 메인 리다이렉트를 통과시켰다 —
+ *   재검증 기준에 본문 크기·기관명 낱말을 넣는다.
  *
  * 광역(시·도) 폴백:
  * - 강원: 광역 전용 센터 도메인(returnfarm.gwd.go.kr)이 ECONNREFUSED로
@@ -77,7 +85,7 @@ export const CENTERS: Center[] = [
     name: "전북특별자치도 귀농귀촌 종합안내",
     url: "https://www.jeonbuk.go.kr/index.jeonbuk?menuCd=DOM_000000104008004000",
     // 검증 2026-04-15: HTTP 200, title="분야별 정보 > 전북농업 > 귀농귀촌 종합안내 > 전북특별자치도 지원사업 | 전북특별자치도"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-sido",
@@ -88,7 +96,7 @@ export const CENTERS: Center[] = [
     phone: "1577-1425",
     url: "https://jnfarm.jeonnam.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="전라남도 귀농산어촌 종합지원센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-sido",
@@ -98,7 +106,7 @@ export const CENTERS: Center[] = [
     name: "경상북도 귀농귀촌종합지원센터",
     url: "https://www.gb.go.kr/Main/open_contents/section/refarm/index.html",
     // 검증 2026-04-15: HTTP 200, title="귀농귀촌종합지원센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-sido",
@@ -108,7 +116,7 @@ export const CENTERS: Center[] = [
     name: "경상남도 귀농귀촌 플랫폼",
     url: "https://www.gyeongnam.go.kr/gnreturn/",
     // 검증 2026-04-15: HTTP 200, title="경상남도 귀농귀촌 플랫폼"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungbuk-sido",
@@ -120,7 +128,7 @@ export const CENTERS: Center[] = [
     phone: "043-220-5555",
     url: "https://ares.chungbuk.go.kr/home/main.php",
     // 검증 2026-04-15: HTTP 200, title="충청북도 농업기술원" (폴백 — 전용 센터 도메인 부재)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-sido",
@@ -131,7 +139,7 @@ export const CENTERS: Center[] = [
     name: "충청남도농업기술원 (정착 교육·정책 주무)",
     url: "https://cnnongup.chungnam.go.kr/main.cs",
     // 검증 2026-04-15: HTTP 200, title="충청남도농업기술원" (폴백 — 전용 센터 도메인 부재)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-sido",
@@ -144,7 +152,7 @@ export const CENTERS: Center[] = [
     url: "https://state.gwd.go.kr/portal/partinfo/livestock/agriculture/return",
     // 검증 2026-04-15: HTTP 200, title="귀농귀촌 현황 - 분야별정보 | 강원특별자치도청"
     // (전용 센터 도메인 returnfarm.gwd.go.kr는 서비스 장애로 폴백)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-sido",
@@ -155,7 +163,7 @@ export const CENTERS: Center[] = [
     phone: "031-250-2711",
     url: "https://www.refarmgg.or.kr/",
     // 검증 2026-04-15: HTTP 200, redirect→/index.do, title="경기도귀농귀촌지원센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeju-sido",
@@ -166,7 +174,7 @@ export const CENTERS: Center[] = [
     name: "제주특별자치도 귀농귀촌 지원사업",
     url: "https://www.jeju.go.kr/jeju/life/support/support.htm",
     // 검증 2026-04-15: HTTP 200(원본 302→), title="제주소개 > 제주정착정보 > 정착지원사업 > 귀농귀촌 지원사업 - 제주특별자치도"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
 
   // ==========================================================================
@@ -185,7 +193,7 @@ export const CENTERS: Center[] = [
     name: "강화군청 (농업기술센터 안내)",
     url: "https://www.ganghwa.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="인천광역시 강화군청" (시청 누리집 폴백)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "incheon-ongjin-sigungu",
@@ -197,7 +205,7 @@ export const CENTERS: Center[] = [
     name: "옹진군청 (농업기술센터 안내)",
     url: "https://www.ongjin.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="옹진군청" (시청 누리집 폴백)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
 
   // --- 경기도 (31개 시군) ---
@@ -211,7 +219,7 @@ export const CENTERS: Center[] = [
     name: "수원특례시청 (농업기술센터 안내)",
     url: "https://www.suwon.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="수원특례시청" (시청 누리집 폴백)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-seongnam-sigungu",
@@ -223,7 +231,7 @@ export const CENTERS: Center[] = [
     name: "성남시청",
     url: "https://www.seongnam.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="성남시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-uijeongbu-sigungu",
@@ -235,7 +243,7 @@ export const CENTERS: Center[] = [
     name: "의정부시청",
     url: "https://www.ui4u.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="의정부시청 대표 홈페이지"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-anyang-sigungu",
@@ -247,7 +255,7 @@ export const CENTERS: Center[] = [
     name: "안양시청",
     url: "https://www.anyang.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="안양시 대표홈페이지"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-bucheon-sigungu",
@@ -259,7 +267,7 @@ export const CENTERS: Center[] = [
     name: "부천시청",
     url: "https://www.bucheon.go.kr/",
     // 검증 2026-04-15: HTTP 200 (시청 대표 누리집)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-gwangmyeong-sigungu",
@@ -271,7 +279,7 @@ export const CENTERS: Center[] = [
     name: "광명시청",
     url: "https://www.gm.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="광명시청 HOME > 메인"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-pyeongtaek-sigungu",
@@ -283,7 +291,7 @@ export const CENTERS: Center[] = [
     name: "평택시청",
     url: "https://www.pyeongtaek.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="평택시 대표포털"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-dongducheon-sigungu",
@@ -296,7 +304,7 @@ export const CENTERS: Center[] = [
     name: "동두천시청",
     url: "https://www.ddc.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="동두천시 대표홈페이지" (ddc21.net는 521 응답)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-ansan-sigungu",
@@ -308,7 +316,7 @@ export const CENTERS: Center[] = [
     name: "안산시청",
     url: "https://www.ansan.go.kr/",
     // 검증 2026-04-15: HTTP 200 (시청 대표 누리집)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-goyang-sigungu",
@@ -333,7 +341,7 @@ export const CENTERS: Center[] = [
     name: "과천시청",
     url: "https://www.gccity.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="과천시청에 오신 것을 환영합니다"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-guri-sigungu",
@@ -345,7 +353,7 @@ export const CENTERS: Center[] = [
     name: "구리시청",
     url: "https://www.guri.go.kr/",
     // 검증 2026-04-15: HTTP 200 (시청 대표 누리집)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-namyangju-sigungu",
@@ -357,7 +365,7 @@ export const CENTERS: Center[] = [
     name: "남양주시 농업기술센터",
     url: "https://www.nyj.go.kr/agri/index.do",
     // 검증 2026-04-15: HTTP 200, title="농업기술센터" (전용 서브경로 확인)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-osan-sigungu",
@@ -369,7 +377,7 @@ export const CENTERS: Center[] = [
     name: "오산시청",
     url: "https://www.osan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="오산시"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-siheung-sigungu",
@@ -381,7 +389,7 @@ export const CENTERS: Center[] = [
     name: "시흥시청",
     url: "https://www.siheung.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="시흥시 대표홈페이지"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-gunpo-sigungu",
@@ -393,7 +401,7 @@ export const CENTERS: Center[] = [
     name: "군포시청",
     url: "https://www.gunpo.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="군포시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-uiwang-sigungu",
@@ -405,7 +413,7 @@ export const CENTERS: Center[] = [
     name: "의왕시청",
     url: "https://www.uiwang.go.kr/",
     // 검증 2026-04-15: HTTP 200 (시청 대표 누리집)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-hanam-sigungu",
@@ -417,7 +425,7 @@ export const CENTERS: Center[] = [
     name: "하남시청",
     url: "https://www.hanam.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="하남시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-yongin-sigungu",
@@ -429,7 +437,7 @@ export const CENTERS: Center[] = [
     name: "용인특례시청",
     url: "https://www.yongin.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="용인특례시청 대표포털"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-paju-sigungu",
@@ -441,7 +449,7 @@ export const CENTERS: Center[] = [
     name: "파주시청",
     url: "https://www.paju.go.kr/",
     // 검증 2026-04-15: HTTP 200 (시청 대표 누리집)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-icheon-sigungu",
@@ -453,7 +461,7 @@ export const CENTERS: Center[] = [
     name: "이천시 농업기술센터 (분야별 포털)",
     url: "https://www.icheon.go.kr/depart/index.do",
     // 검증 2026-04-15: HTTP 200, title="이천시 분야별 포털에 오신 것을 환영합니다"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-anseong-sigungu",
@@ -465,7 +473,7 @@ export const CENTERS: Center[] = [
     name: "안성시청",
     url: "https://www.anseong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="안성시청 홈페이지 인트로"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-gimpo-sigungu",
@@ -477,7 +485,7 @@ export const CENTERS: Center[] = [
     name: "김포시청",
     url: "https://www.gimpo.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="김포시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-hwaseong-sigungu",
@@ -489,7 +497,7 @@ export const CENTERS: Center[] = [
     name: "화성시청",
     url: "https://www.hscity.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="화성시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-gwangju-gg-sigungu",
@@ -501,7 +509,7 @@ export const CENTERS: Center[] = [
     name: "광주시청 (경기)",
     url: "https://www.gjcity.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="광주시 홈페이지에 오신 것을 환영합니다"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-yangju-sigungu",
@@ -513,7 +521,7 @@ export const CENTERS: Center[] = [
     name: "양주시청",
     url: "https://www.yangju.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="양주시청 홈페이지에 오신것을 환영합니다"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-pocheon-sigungu",
@@ -525,7 +533,7 @@ export const CENTERS: Center[] = [
     name: "포천시청",
     url: "https://www.pocheon.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="포천시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-yeoju-sigungu",
@@ -537,7 +545,7 @@ export const CENTERS: Center[] = [
     name: "여주시청",
     url: "https://www.yeoju.go.kr/",
     // 검증 2026-04-15: HTTP 200 (시청 대표 누리집)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-yangpyeong-sigungu",
@@ -549,7 +557,7 @@ export const CENTERS: Center[] = [
     name: "양평군 농업기술센터",
     url: "https://www.yp21.go.kr/ypatc/index.do",
     // 검증 2026-04-15: HTTP 200, title="농업기술센터" (ypatc 전용 경로 확인)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-gapyeong-sigungu",
@@ -561,7 +569,7 @@ export const CENTERS: Center[] = [
     name: "가평군청",
     url: "https://www.gp.go.kr/",
     // 검증 2026-04-15: HTTP 200 (군청 대표 누리집 폴백 — portal/atc 경로는 404)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeonggi-yeoncheon-sigungu",
@@ -573,7 +581,7 @@ export const CENTERS: Center[] = [
     name: "연천군청",
     url: "https://www.yeoncheon.go.kr/",
     // 검증 2026-04-15: HTTP 200 (군청 대표 누리집 폴백)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
 
   // --- 전라북도 (14개 시군) ---
@@ -587,7 +595,7 @@ export const CENTERS: Center[] = [
     name: "전주시청",
     url: "https://www.jeonju.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="전주시 대표사이트" (agri.jeonju.go.kr는 ECONNREFUSED로 폴백)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-gunsan-sigungu",
@@ -599,7 +607,7 @@ export const CENTERS: Center[] = [
     name: "군산시청",
     url: "https://www.gunsan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="군산시 누리집"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-iksan-sigungu",
@@ -611,7 +619,7 @@ export const CENTERS: Center[] = [
     name: "익산시청",
     url: "https://www.iksan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="익산시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-jeongeup-sigungu",
@@ -623,7 +631,7 @@ export const CENTERS: Center[] = [
     name: "정읍시청",
     url: "https://www.jeongeup.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="정읍시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-namwon-sigungu",
@@ -635,7 +643,7 @@ export const CENTERS: Center[] = [
     name: "남원시청",
     url: "https://www.namwon.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="남원시 대표 누리집 > 메인"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-gimje-sigungu",
@@ -647,7 +655,7 @@ export const CENTERS: Center[] = [
     name: "김제시청",
     url: "https://www.gimje.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="김제시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-wanju-sigungu",
@@ -659,7 +667,7 @@ export const CENTERS: Center[] = [
     name: "완주귀농귀촌지원센터",
     url: "https://www.wanjuro.org/",
     // 검증 2026-04-15: HTTP 200, title="완주귀농귀촌지원센터" (전용 센터 도메인)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-jinan-sigungu",
@@ -671,7 +679,7 @@ export const CENTERS: Center[] = [
     name: "진안군청",
     url: "https://www.jinan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="새로운 시작으로 성공시대를 열어가는 미래 진안"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-muju-sigungu",
@@ -683,7 +691,7 @@ export const CENTERS: Center[] = [
     name: "무주군청",
     url: "https://www.muju.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="무주군청 > 인트로"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-jangsu-sigungu",
@@ -695,7 +703,7 @@ export const CENTERS: Center[] = [
     name: "장수군청",
     url: "https://www.jangsu.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="장수군청 누리집"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-imsil-sigungu",
@@ -707,7 +715,7 @@ export const CENTERS: Center[] = [
     name: "임실군청",
     url: "https://www.imsil.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="임실군"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-sunchang-sigungu",
@@ -719,7 +727,7 @@ export const CENTERS: Center[] = [
     name: "순창군청",
     url: "https://www.sunchang.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="순창군 대표 > 메인"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-gochang-sigungu",
@@ -731,7 +739,7 @@ export const CENTERS: Center[] = [
     name: "고창군청",
     url: "https://www.gochang.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="고창군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonbuk-buan-sigungu",
@@ -743,7 +751,7 @@ export const CENTERS: Center[] = [
     name: "부안군청",
     url: "https://www.buan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="부안군"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
 
   // --- 전라남도 (22개 시군) ---
@@ -757,7 +765,7 @@ export const CENTERS: Center[] = [
     name: "목포시청",
     url: "https://www.mokpo.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="목포시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-yeosu-sigungu",
@@ -769,7 +777,7 @@ export const CENTERS: Center[] = [
     name: "여수시청",
     url: "https://www.yeosu.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="여수시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-suncheon-sigungu",
@@ -781,7 +789,7 @@ export const CENTERS: Center[] = [
     name: "순천시 농업기술센터",
     url: "https://www.suncheon.go.kr/sca/index.jsp",
     // 검증 2026-04-15: HTTP 200, title="순천시 농업기술센터" (sca 서브경로 확인)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-naju-sigungu",
@@ -793,7 +801,7 @@ export const CENTERS: Center[] = [
     name: "나주시청",
     url: "https://www.naju.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="나주시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-gwangyang-sigungu",
@@ -805,7 +813,7 @@ export const CENTERS: Center[] = [
     name: "광양시청",
     url: "https://www.gwangyang.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="광양시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-damyang-sigungu",
@@ -817,7 +825,7 @@ export const CENTERS: Center[] = [
     name: "담양군청",
     url: "https://www.damyang.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="담양군청" (atec 서브경로는 에러 페이지)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-gokseong-sigungu",
@@ -829,7 +837,7 @@ export const CENTERS: Center[] = [
     name: "곡성군청",
     url: "https://www.gokseong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="곡성군청 인트로"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-gurye-sigungu",
@@ -841,7 +849,7 @@ export const CENTERS: Center[] = [
     name: "구례군청",
     url: "https://www.gurye.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="구례군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-goheung-sigungu",
@@ -853,7 +861,7 @@ export const CENTERS: Center[] = [
     name: "고흥군청",
     url: "https://www.goheung.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="고흥군청" (farm.goheung.go.kr는 ECONNREFUSED로 폴백)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-boseong-sigungu",
@@ -865,7 +873,7 @@ export const CENTERS: Center[] = [
     name: "보성군 농업기술센터",
     url: "https://www.boseong.go.kr/atec/",
     // 검증 2026-04-15: HTTP 200, title="농업기술센터" (전용 서브경로 확인)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-hwasun-sigungu",
@@ -877,7 +885,7 @@ export const CENTERS: Center[] = [
     name: "화순군청",
     url: "https://www.hwasun.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="화순군청 홈페이지"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-jangheung-sigungu",
@@ -889,7 +897,7 @@ export const CENTERS: Center[] = [
     name: "장흥군청",
     url: "https://www.jangheung.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="장흥군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-gangjin-sigungu",
@@ -901,7 +909,7 @@ export const CENTERS: Center[] = [
     name: "강진군청",
     url: "https://www.gangjin.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="강진군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-haenam-sigungu",
@@ -913,7 +921,7 @@ export const CENTERS: Center[] = [
     name: "해남군 농업기술센터",
     url: "https://www.haenam.go.kr/atc/",
     // 검증 2026-04-15: HTTP 200, title="농업기술센터 > 농업기술원_new 메인"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-yeongam-sigungu",
@@ -925,7 +933,7 @@ export const CENTERS: Center[] = [
     name: "영암군 농업기술센터",
     url: "https://www.yeongam.go.kr/home/nong",
     // 검증 2026-04-15: HTTP 200, title="영암군" (home/nong 전용 경로 확인)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-muan-sigungu",
@@ -937,7 +945,7 @@ export const CENTERS: Center[] = [
     name: "무안군청",
     url: "https://www.muan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="무안군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-hampyeong-sigungu",
@@ -949,7 +957,7 @@ export const CENTERS: Center[] = [
     name: "함평군 농업기술센터",
     url: "https://www.hampyeong.go.kr/agri/",
     // 검증 2026-04-15: HTTP 200, title="함평군 농업기술센터" (전용 서브경로 확인)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-yeonggwang-sigungu",
@@ -961,7 +969,7 @@ export const CENTERS: Center[] = [
     name: "영광군청",
     url: "https://www.yeonggwang.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="영광군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-jangseong-sigungu",
@@ -973,7 +981,7 @@ export const CENTERS: Center[] = [
     name: "장성군청",
     url: "https://www.jangseong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="장성군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-wando-sigungu",
@@ -985,7 +993,7 @@ export const CENTERS: Center[] = [
     name: "완도군청",
     url: "https://www.wando.go.kr/",
     // 검증 2026-04-15: HTTP 200 (군청 대표 누리집)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-jindo-sigungu",
@@ -997,7 +1005,7 @@ export const CENTERS: Center[] = [
     name: "진도군청",
     url: "https://www.jindo.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="진도군청 시작 화면"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeonnam-sinan-sigungu",
@@ -1010,7 +1018,7 @@ export const CENTERS: Center[] = [
     name: "신안군청",
     url: "https://www.shinan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="신안군"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
 
   // --- 경상북도 (23개 시군) ---
@@ -1024,7 +1032,7 @@ export const CENTERS: Center[] = [
     name: "포항시청",
     url: "https://www.pohang.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="포항시 대표 포털에 오신 것을 환영합니다"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-gyeongju-sigungu",
@@ -1036,7 +1044,7 @@ export const CENTERS: Center[] = [
     name: "경주시청",
     url: "https://www.gyeongju.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="경주시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-gimcheon-sigungu",
@@ -1048,7 +1056,7 @@ export const CENTERS: Center[] = [
     name: "김천시청",
     url: "https://www.gc.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="김천시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-andong-sigungu",
@@ -1060,7 +1068,7 @@ export const CENTERS: Center[] = [
     name: "안동시 귀농귀촌지원센터",
     url: "https://www.andong.go.kr/refarm/main.do",
     // 검증 2026-04-15: HTTP 200, title="안동시 귀농귀촌지원센터" (refarm 전용 경로 확인)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-gumi-sigungu",
@@ -1072,7 +1080,7 @@ export const CENTERS: Center[] = [
     name: "구미시청",
     url: "https://www.gumi.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="구미시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-yeongju-sigungu",
@@ -1084,7 +1092,7 @@ export const CENTERS: Center[] = [
     name: "영주시 농업기술센터",
     url: "https://www.yeongju.go.kr/atec/index.do",
     // 검증 2026-04-15: HTTP 200, title="영주시 농업기술센터" (atec 전용 경로 확인)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-yeongcheon-sigungu",
@@ -1096,7 +1104,7 @@ export const CENTERS: Center[] = [
     name: "영천시청",
     url: "https://www.yc.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="영천시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-sangju-sigungu",
@@ -1108,7 +1116,7 @@ export const CENTERS: Center[] = [
     name: "상주시청",
     url: "https://www.sangju.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="상주시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-mungyeong-sigungu",
@@ -1120,7 +1128,7 @@ export const CENTERS: Center[] = [
     name: "문경시청",
     url: "https://www.gbmg.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="문경시 홈페이지 통합 서비스 안내"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-gyeongsan-sigungu",
@@ -1132,7 +1140,7 @@ export const CENTERS: Center[] = [
     name: "경산시청",
     url: "https://www.gbgs.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="꽃피다 시민중심 행복경산"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-gunwi-sigungu",
@@ -1144,7 +1152,7 @@ export const CENTERS: Center[] = [
     name: "군위군청",
     url: "https://www.gunwi.go.kr/",
     // 검증 2026-04-15: HTTP 200 (군청 대표 누리집)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-uiseong-sigungu",
@@ -1156,7 +1164,7 @@ export const CENTERS: Center[] = [
     name: "의성군청",
     url: "https://www.usc.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="의성군"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-cheongsong-sigungu",
@@ -1166,9 +1174,10 @@ export const CENTERS: Center[] = [
     sigunguSlug: "cheongsong",
     category: "sigungu",
     name: "청송군 농업기술센터",
-    url: "https://www.cs.go.kr/atec/index.do",
-    // 검증 2026-04-15: HTTP 200 (atec 경로 정상 — title은 SPA로 공란이나 응답 OK)
-    verifiedAt: "2026-04-15",
+    url: "https://www.cs.go.kr/agri.web",
+    // 검증 2026-10-06: HTTP 200, title="청송군 농업기술센터 > 농업기술센터", 본문 '청송'·'농업기술센터' — 군청 메인 메뉴의 농업기술센터 링크.
+    // 옛 /atec/index.do 는 200이지만 378B 웹방화벽 차단 페이지(경로 소멸). 4/15 "SPA 공란"으로 통과시킨 건 이 차단 페이지였음
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-yeongyang-sigungu",
@@ -1180,7 +1189,7 @@ export const CENTERS: Center[] = [
     name: "영양군청",
     url: "https://www.yyg.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="영양군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-yeongdeok-sigungu",
@@ -1192,7 +1201,7 @@ export const CENTERS: Center[] = [
     name: "영덕군청",
     url: "https://www.yd.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="영덕군청 랜딩 페이지"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-cheongdo-sigungu",
@@ -1202,9 +1211,10 @@ export const CENTERS: Center[] = [
     sigunguSlug: "cheongdo",
     category: "sigungu",
     name: "청도군청",
-    url: "https://www.cheongdo.go.kr/",
-    // 검증 2026-04-15: HTTP 200, title="청도군 홈페이지 점검안내" (검증 시점 점검 중 — 군청 공식 도메인 확인)
-    verifiedAt: "2026-04-15",
+    url: "https://www.cheongdo.go.kr/main.do",
+    // 검증 2026-10-06: HTTP 200, title="청도군 누리집에 오신 것을 환영합니다.", 본문 '청도'.
+    // 루트(/)는 curl 등 비브라우저에 2023-11 "점검안내" 페이지를 주고 브라우저만 /main.do 로 이동 → 메인 직접 연결
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-goryeong-sigungu",
@@ -1216,7 +1226,7 @@ export const CENTERS: Center[] = [
     name: "고령군청",
     url: "https://www.goryeong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="고령군"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-seongju-sigungu",
@@ -1228,7 +1238,7 @@ export const CENTERS: Center[] = [
     name: "성주군청",
     url: "https://www.sj.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="성주군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-chilgok-sigungu",
@@ -1240,7 +1250,7 @@ export const CENTERS: Center[] = [
     name: "칠곡군청",
     url: "https://www.chilgok.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="칠곡군청에 오신 것을 환영합니다"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-yecheon-sigungu",
@@ -1250,9 +1260,9 @@ export const CENTERS: Center[] = [
     sigunguSlug: "yecheon",
     category: "sigungu",
     name: "예천군청",
-    url: "http://www.ycg.go.kr/",
-    // 검증 2026-04-15: HTTP 200, title="경북의 중심, 도약하는 예천" (HTTPS는 000 — HTTP만 응답)
-    verifiedAt: "2026-04-15",
+    url: "https://www.ycg.kr/",
+    // 검증 2026-10-06: HTTP 200, title="군민과 함께 성장하는 예천", 본문 '예천' — ycg.go.kr 가 ycg.kr 로 이동(도메인 변경), HTTPS 정상
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-bonghwa-sigungu",
@@ -1261,10 +1271,11 @@ export const CENTERS: Center[] = [
     sigungu: "봉화군",
     sigunguSlug: "bonghwa",
     category: "sigungu",
-    name: "봉화군청 (농업기술센터 안내)",
-    url: "https://www.bonghwa.go.kr/open_content/atc/main.do",
-    // 검증 2026-04-15: HTTP 200, title="봉화군 홈페이지에 오신 것을 환영합니다" (SPA 메인 타이틀)
-    verifiedAt: "2026-04-15",
+    name: "봉화군 농업기술센터",
+    url: "https://www.bonghwa.go.kr/farm/main.do",
+    // 검증 2026-10-06: HTTP 200, title="농업기술센터에 오신 것을 환영합니다.", 본문 '봉화'·'농업기술센터' — 군청 메인 메뉴의 농업기술센터 링크.
+    // 옛 /open_content/atc/main.do 는 군청 메인으로 리다이렉트(딥링크 소멸)
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-uljin-sigungu",
@@ -1276,7 +1287,7 @@ export const CENTERS: Center[] = [
     name: "울진군청",
     url: "https://www.uljin.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="울진군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongbuk-ulleung-sigungu",
@@ -1288,7 +1299,7 @@ export const CENTERS: Center[] = [
     name: "울릉군청",
     url: "https://www.ulleung.go.kr/",
     // 검증 2026-04-15: HTTP 200 (군청 대표 누리집)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
 
   // --- 경상남도 (18개 시군) ---
@@ -1302,7 +1313,7 @@ export const CENTERS: Center[] = [
     name: "창원특례시청",
     url: "https://www.changwon.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="창원특례시"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-jinju-sigungu",
@@ -1314,7 +1325,7 @@ export const CENTERS: Center[] = [
     name: "진주시청",
     url: "https://www.jinju.go.kr/",
     // 검증 2026-04-15: HTTP 200 (시청 대표 누리집)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-tongyeong-sigungu",
@@ -1338,7 +1349,7 @@ export const CENTERS: Center[] = [
     name: "사천시청",
     url: "https://www.sacheon.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="사천시: 대한민국 우주항공 수도 > 사천시"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-gimhae-sigungu",
@@ -1350,7 +1361,7 @@ export const CENTERS: Center[] = [
     name: "김해시청",
     url: "https://www.gimhae.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="김해시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-miryang-sigungu",
@@ -1362,7 +1373,7 @@ export const CENTERS: Center[] = [
     name: "밀양시 귀농귀촌종합지원센터",
     url: "https://www.miryang.go.kr/myreturn/",
     // 검증 2026-04-15: HTTP 200 (myreturn 전용 경로 — 공식 센터 페이지)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-geoje-sigungu",
@@ -1372,9 +1383,10 @@ export const CENTERS: Center[] = [
     sigunguSlug: "geoje",
     category: "sigungu",
     name: "거제시청",
-    url: "https://www.geoje.go.kr/",
-    // 검증 2026-04-15: HTTP 200, title="거제시청 - 함께여는 동남권중심 거제"
-    verifiedAt: "2026-04-15",
+    url: "https://www.geoje.go.kr/index.geoje",
+    // 검증 2026-10-06: HTTP 200, title="거제시청 - 함께여는 동남권중심 거제", 본문 '거제'.
+    // 루트(/)는 http://…/index.geoje 로 302 하는데 80 포트가 닫혀 접속 실패 → https 메인 직접 연결
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-yangsan-sigungu",
@@ -1386,7 +1398,7 @@ export const CENTERS: Center[] = [
     name: "양산시청",
     url: "https://www.yangsan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="양산시 홈페이지에 오신 것을 환영합니다"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-uiryeong-sigungu",
@@ -1398,7 +1410,7 @@ export const CENTERS: Center[] = [
     name: "의령군청",
     url: "https://www.uiryeong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="의령군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-haman-sigungu",
@@ -1410,7 +1422,7 @@ export const CENTERS: Center[] = [
     name: "함안군청",
     url: "https://www.haman.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="함안군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-changnyeong-sigungu",
@@ -1422,7 +1434,7 @@ export const CENTERS: Center[] = [
     name: "창녕군청",
     url: "https://www.cng.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="창녕군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-goseong-gn-sigungu",
@@ -1434,7 +1446,7 @@ export const CENTERS: Center[] = [
     name: "고성군청 (경남)",
     url: "https://www.goseong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="경상남도 고성군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-namhae-sigungu",
@@ -1446,7 +1458,7 @@ export const CENTERS: Center[] = [
     name: "남해군청",
     url: "https://www.namhae.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="남해군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-hadong-sigungu",
@@ -1458,7 +1470,7 @@ export const CENTERS: Center[] = [
     name: "하동군청",
     url: "https://www.hadong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="하동군"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-sancheong-sigungu",
@@ -1470,7 +1482,7 @@ export const CENTERS: Center[] = [
     name: "산청군청",
     url: "https://www.sancheong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="모두가 행복한 산청군"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-hamyang-sigungu",
@@ -1483,7 +1495,7 @@ export const CENTERS: Center[] = [
     name: "함양군청",
     url: "https://www.hygn.go.kr/main.web",
     // 검증 2026-04-15: HTTP 200, title="함양군 대표누리집" (hamyang.go.kr는 미응답)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-geochang-sigungu",
@@ -1495,7 +1507,7 @@ export const CENTERS: Center[] = [
     name: "거창군청",
     url: "https://www.geochang.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="거창군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gyeongnam-hapcheon-sigungu",
@@ -1507,7 +1519,7 @@ export const CENTERS: Center[] = [
     name: "합천군청",
     url: "https://www.hc.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="합천군 인트로"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
 
   // ====== Step 2b (2026-04-15): 잔여 시군구 — 수도권(서울 25 + 인천 본토 8) + 광역시(부산·대구·광주·대전·울산) + 강원 + 충북 + 충남 + 세종 + 제주 ======
@@ -1536,7 +1548,7 @@ export const CENTERS: Center[] = [
     name: "종로구청 (대표 누리집)",
     url: "https://www.jongno.go.kr/portalMain.do",
     // 검증 2026-04-15: HTTP 200, title="종로구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-jung-gu-seoul-sigungu",
@@ -1548,7 +1560,7 @@ export const CENTERS: Center[] = [
     name: "중구청 (대표 누리집)",
     url: "https://junggu.seoul.kr/",
     // 검증 2026-04-15: HTTP 200, 공식 도메인(junggu.seoul.kr) SPA 렌더링
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-yongsan-sigungu",
@@ -1560,7 +1572,7 @@ export const CENTERS: Center[] = [
     name: "용산구청 (대표 누리집)",
     url: "https://yongsan.go.kr/portal/main/main.do",
     // 검증 2026-04-15: HTTP 200, title="용산구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-seongdong-sigungu",
@@ -1572,7 +1584,7 @@ export const CENTERS: Center[] = [
     name: "성동구청 (대표 누리집)",
     url: "https://www.sd.go.kr/main/index.do",
     // 검증 2026-04-15: HTTP 200, title="성동구 - 더불어 행복한 스마트포용도시 성동"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-gwangjin-sigungu",
@@ -1584,7 +1596,7 @@ export const CENTERS: Center[] = [
     name: "광진구청 (대표 누리집)",
     url: "https://gwangjin.go.kr/portal/main/main.do",
     // 검증 2026-04-15: HTTP 200, title="광진구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-dongdaemun-sigungu",
@@ -1596,7 +1608,7 @@ export const CENTERS: Center[] = [
     name: "동대문구청 (대표 누리집)",
     url: "https://www.ddm.go.kr/",
     // 검증 2026-04-15: HTTP 200, 공식 도메인(ddm.go.kr) SPA 렌더링
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-jungnang-sigungu",
@@ -1608,7 +1620,7 @@ export const CENTERS: Center[] = [
     name: "중랑구청 (대표 누리집)",
     url: "https://www.jungnang.go.kr/portal/main.do",
     // 검증 2026-04-15: HTTP 200, title="중랑구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-seongbuk-sigungu",
@@ -1620,7 +1632,7 @@ export const CENTERS: Center[] = [
     name: "성북구청 (대표 누리집)",
     url: "https://sb.go.kr/",
     // 검증 2026-04-15: HTTP 200, 공식 도메인(sb.go.kr) SPA 렌더링
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-gangbuk-sigungu",
@@ -1632,7 +1644,7 @@ export const CENTERS: Center[] = [
     name: "강북구청 (대표 누리집)",
     url: "https://gangbuk.go.kr/",
     // 검증 2026-04-15: HTTP 200, 공식 도메인(gangbuk.go.kr) SPA 렌더링
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-dobong-sigungu",
@@ -1644,7 +1656,7 @@ export const CENTERS: Center[] = [
     name: "도봉구청 (대표 누리집)",
     url: "https://www.dobong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="도봉구청 대표 사이트"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-nowon-sigungu",
@@ -1656,7 +1668,7 @@ export const CENTERS: Center[] = [
     name: "노원구청 (대표 누리집)",
     url: "https://www.nowon.kr/www/index.do",
     // 검증 2026-04-15: HTTP 200, title="노원구청 : 노원구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-eunpyeong-sigungu",
@@ -1668,7 +1680,7 @@ export const CENTERS: Center[] = [
     name: "은평구청 (대표 누리집)",
     url: "https://www.ep.go.kr/www/index.do",
     // 검증 2026-04-15: HTTP 200, title="은평구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-seodaemun-sigungu",
@@ -1680,7 +1692,7 @@ export const CENTERS: Center[] = [
     name: "서대문구청 (대표 누리집)",
     url: "https://sdm.go.kr/index.do",
     // 검증 2026-04-15: HTTP 200, 공식 서대문구청 도메인(SPA 렌더, 타이틀 인코딩 이슈)
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-mapo-sigungu",
@@ -1692,7 +1704,7 @@ export const CENTERS: Center[] = [
     name: "마포구청 (대표 누리집)",
     url: "https://www.mapo.go.kr/site/main/home",
     // 검증 2026-04-15: HTTP 200, title="마포구청 | 대표사이트"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-yangcheon-sigungu",
@@ -1704,7 +1716,7 @@ export const CENTERS: Center[] = [
     name: "양천구청 (대표 누리집)",
     url: "https://www.yangcheon.go.kr/site/yangcheon/main.do",
     // 검증 2026-04-15: HTTP 200, title="양천구청 대표홈페이지"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-gangseo-sigungu",
@@ -1716,7 +1728,7 @@ export const CENTERS: Center[] = [
     name: "강서구청 (대표 누리집)",
     url: "https://www.gangseo.seoul.kr/index",
     // 검증 2026-04-15: HTTP 200, title="강서구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-guro-sigungu",
@@ -1728,7 +1740,7 @@ export const CENTERS: Center[] = [
     name: "구로구청 (대표 누리집)",
     url: "https://www.guro.go.kr:443/",
     // 검증 2026-04-15: HTTP 200, title="구로구청 홈페이지에 오신것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-geumcheon-sigungu",
@@ -1740,7 +1752,7 @@ export const CENTERS: Center[] = [
     name: "금천구청 (대표 누리집)",
     url: "https://geumcheon.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="금천구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-yeongdeungpo-sigungu",
@@ -1752,7 +1764,7 @@ export const CENTERS: Center[] = [
     name: "영등포구청 (대표 누리집)",
     url: "https://www.ydp.go.kr/www/index.do",
     // 검증 2026-04-15: HTTP 200, title="희망 행복 미래도시 영등포"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-dongjak-sigungu",
@@ -1764,7 +1776,7 @@ export const CENTERS: Center[] = [
     name: "동작구청 (대표 누리집)",
     url: "https://www.dongjak.go.kr/portal/main/main.do",
     // 검증 2026-04-15: HTTP 200, title="동작구청 포털사이트"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-gwanak-sigungu",
@@ -1776,7 +1788,7 @@ export const CENTERS: Center[] = [
     name: "관악구청 (대표 누리집)",
     url: "https://www.gwanak.go.kr/site/gwanak/main.do",
     // 검증 2026-04-15: HTTP 200, title="관악구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-seocho-sigungu",
@@ -1788,7 +1800,7 @@ export const CENTERS: Center[] = [
     name: "서초구청 (대표 누리집)",
     url: "https://www.seocho.go.kr:443/",
     // 검증 2026-04-15: HTTP 200, title="서초구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-gangnam-sigungu",
@@ -1800,7 +1812,7 @@ export const CENTERS: Center[] = [
     name: "강남구청 (대표 누리집)",
     url: "https://gangnam.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="강남구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-songpa-sigungu",
@@ -1812,7 +1824,7 @@ export const CENTERS: Center[] = [
     name: "송파구청 (대표 누리집)",
     url: "https://www.songpa.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="송파구청에 오신것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "seoul-gangdong-sigungu",
@@ -1825,7 +1837,7 @@ export const CENTERS: Center[] = [
     name: "강동구청 도시농업포털",
     url: "https://cityfarm.gangdong.go.kr/site/main/home",
     // 검증 2026-04-15: HTTP 200, title="Home::강동구청 도시농업포털"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   // -- 인천 --
   {
@@ -1862,7 +1874,7 @@ export const CENTERS: Center[] = [
     name: "미추홀구청 (대표 누리집)",
     url: "https://www.michuhol.go.kr/main/main.do",
     // 검증 2026-04-15: HTTP 200, title="인천광역시 미추홀구"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "incheon-yeonsu-sigungu",
@@ -1874,7 +1886,7 @@ export const CENTERS: Center[] = [
     name: "연수구청 (대표 누리집)",
     url: "https://www.yeonsu.go.kr/main/",
     // 검증 2026-04-15: HTTP 200, title="인천광역시 연수구"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "incheon-namdong-sigungu",
@@ -1886,7 +1898,7 @@ export const CENTERS: Center[] = [
     name: "남동구청 (대표 누리집)",
     url: "https://www.namdong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="남동구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "incheon-bupyeong-sigungu",
@@ -1898,7 +1910,7 @@ export const CENTERS: Center[] = [
     name: "부평구청 (대표 누리집)",
     url: "https://www.icbp.go.kr/main/",
     // 검증 2026-04-15: HTTP 200, title="인천광역시 부평구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "incheon-gyeyang-sigungu",
@@ -1910,7 +1922,7 @@ export const CENTERS: Center[] = [
     name: "계양구청 (대표 누리집)",
     url: "https://www.gyeyang.go.kr/open_content/main/",
     // 검증 2026-04-15: HTTP 200, title="계양구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "incheon-seo-gu-incheon-sigungu",
@@ -1935,7 +1947,7 @@ export const CENTERS: Center[] = [
     name: "중구청 (대표 누리집)",
     url: "https://www.bsjunggu.go.kr/index.junggu",
     // 검증 2026-04-15: HTTP 200, title="부산광역시 중구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-seo-gu-busan-sigungu",
@@ -1947,7 +1959,7 @@ export const CENTERS: Center[] = [
     name: "서구청 (대표 누리집)",
     url: "https://www.bsseogu.go.kr/index.bsseogu",
     // 검증 2026-04-15: HTTP 200, title="부산광역시 서구청 홈페이지에 오신 것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-dong-gu-busan-sigungu",
@@ -1959,7 +1971,7 @@ export const CENTERS: Center[] = [
     name: "동구청 (대표 누리집)",
     url: "https://www.bsdonggu.go.kr/",
     // 검증 2026-04-15: HTTP 200(→/index.donggu), title="부산광역시 동구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-yeongdo-sigungu",
@@ -1971,7 +1983,7 @@ export const CENTERS: Center[] = [
     name: "영도구청 (대표 누리집)",
     url: "https://www.yeongdo.go.kr/main.web",
     // 검증 2026-04-15: HTTP 200, title="영도구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-busanjin-sigungu",
@@ -1983,7 +1995,7 @@ export const CENTERS: Center[] = [
     name: "부산진구청 (대표 누리집)",
     url: "https://busanjin.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="부산진구"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-dongnae-sigungu",
@@ -1995,7 +2007,7 @@ export const CENTERS: Center[] = [
     name: "동래구청 (대표 누리집)",
     url: "https://www.dongnae.go.kr/index.dongnae",
     // 검증 2026-04-15: HTTP 200, title="동래구청 홈페이지에 오신것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-nam-gu-busan-sigungu",
@@ -2007,7 +2019,7 @@ export const CENTERS: Center[] = [
     name: "남구청 (대표 누리집)",
     url: "https://bsnamgu.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="부산 남구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-buk-gu-busan-sigungu",
@@ -2019,7 +2031,7 @@ export const CENTERS: Center[] = [
     name: "북구청 (대표 누리집)",
     url: "https://www.bsbukgu.go.kr/index.bsbukgu",
     // 검증 2026-04-15: HTTP 200, title="부산북구청 대표 홈페이지에 오신것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-haeundae-sigungu",
@@ -2031,7 +2043,7 @@ export const CENTERS: Center[] = [
     name: "해운대구청 (대표 누리집)",
     url: "https://haeundae.go.kr/",
     // 검증 2026-04-15: HTTP 200, 공식 도메인(haeundae.go.kr) SPA 렌더링
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-saha-sigungu",
@@ -2043,7 +2055,7 @@ export const CENTERS: Center[] = [
     name: "사하구청 (대표 누리집)",
     url: "https://www.saha.go.kr/main.do",
     // 검증 2026-04-15: HTTP 200, title="부산광역시 사하구"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-geumjeong-sigungu",
@@ -2055,7 +2067,7 @@ export const CENTERS: Center[] = [
     name: "금정구청 (대표 누리집)",
     url: "https://www.geumjeong.go.kr/index.geumj",
     // 검증 2026-04-15: HTTP 200, title="부산광역시 금정구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-gangseo-busan-sigungu",
@@ -2067,7 +2079,7 @@ export const CENTERS: Center[] = [
     name: "강서구청 (대표 누리집)",
     url: "https://bsgangseo.go.kr/main.do",
     // 검증 2026-04-15: HTTP 200, title="부산광역시 강서구청에 오신 것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-yeonje-sigungu",
@@ -2079,7 +2091,7 @@ export const CENTERS: Center[] = [
     name: "연제구청 (대표 누리집)",
     url: "https://yeonje.go.kr/main.do",
     // 검증 2026-04-15: HTTP 200, title="부산연제구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-suyeong-sigungu",
@@ -2091,7 +2103,7 @@ export const CENTERS: Center[] = [
     name: "수영구청 (대표 누리집)",
     url: "https://www.suyeong.go.kr/index.suyeong",
     // 검증 2026-04-15: HTTP 200, title="부산광역시 수영구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-sasang-sigungu",
@@ -2103,7 +2115,7 @@ export const CENTERS: Center[] = [
     name: "사상구청 (대표 누리집)",
     url: "https://www.sasang.go.kr/index.sasang",
     // 검증 2026-04-15: HTTP 200, title="사상구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "busan-gijang-sigungu",
@@ -2115,7 +2127,7 @@ export const CENTERS: Center[] = [
     name: "기장군청 (대표 누리집)",
     url: "https://gijang.go.kr/index.gijang",
     // 검증 2026-04-15: HTTP 200, title="기장군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   // -- 대구 --
   {
@@ -2140,7 +2152,7 @@ export const CENTERS: Center[] = [
     name: "동구청 (대표 누리집)",
     url: "https://dong.daegu.kr/main.do",
     // 검증 2026-04-15: HTTP 200, title="대구광역시 동구청 홈페이지에 오신 것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "daegu-seo-gu-daegu-sigungu",
@@ -2152,7 +2164,7 @@ export const CENTERS: Center[] = [
     name: "서구청 (대표 누리집)",
     url: "https://dgs.go.kr/main.do",
     // 검증 2026-04-15: HTTP 200, title="대구광역시 서구청 홈페이지에 오신것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "daegu-nam-gu-daegu-sigungu",
@@ -2164,7 +2176,7 @@ export const CENTERS: Center[] = [
     name: "남구청 (대표 누리집)",
     url: "https://nam.daegu.kr/",
     // 검증 2026-04-15: HTTP 200, title="대구광역시 남구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "daegu-buk-gu-daegu-sigungu",
@@ -2176,7 +2188,7 @@ export const CENTERS: Center[] = [
     name: "북구청 (대표 누리집)",
     url: "https://www.buk.daegu.kr/",
     // 검증 2026-04-15: HTTP 200, title="대구광역시 북구 > >"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "daegu-dalseo-sigungu",
@@ -2188,7 +2200,7 @@ export const CENTERS: Center[] = [
     name: "달서구청 (대표 누리집)",
     url: "https://dalseo.daegu.kr/",
     // 검증 2026-04-15: HTTP 200, title="대구광역시 달서구"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "daegu-dalseong-sigungu",
@@ -2200,7 +2212,7 @@ export const CENTERS: Center[] = [
     name: "달성군청 (대표 누리집)",
     url: "https://dalseong.daegu.kr/",
     // 검증 2026-04-15: HTTP 200, title="군민이 빛나는 달성(대구광역시 달성군)"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "daegu-suseong-sigungu",
@@ -2215,7 +2227,7 @@ export const CENTERS: Center[] = [
     fallbackReason: "no-local-office",
     url: "https://daegu.go.kr/agri/",
     // 검증 2026-04-15: HTTP 200, title="대구광역시 농업기술센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   // -- 광주 --
   {
@@ -2228,7 +2240,7 @@ export const CENTERS: Center[] = [
     name: "서구청 (대표 누리집)",
     url: "https://www.seogu.gwangju.kr/",
     // 검증 2026-04-15: HTTP 200, title="seogu"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gwangju-nam-gu-gwangju-sigungu",
@@ -2240,7 +2252,7 @@ export const CENTERS: Center[] = [
     name: "남구청 (대표 누리집)",
     url: "https://www.namgu.gwangju.kr/",
     // 검증 2026-04-15: HTTP 200, title="광주광역시 남구"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gwangju-buk-gu-gwangju-sigungu",
@@ -2252,7 +2264,7 @@ export const CENTERS: Center[] = [
     name: "북구청 (대표 누리집)",
     url: "https://bukgu.gwangju.kr/",
     // 검증 2026-04-15: HTTP 200, title="광주광역시 북구"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gwangju-gwangsan-sigungu",
@@ -2264,7 +2276,7 @@ export const CENTERS: Center[] = [
     name: "광산구청 (대표 누리집)",
     url: "https://www.gwangsan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="광산구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gwangju-dong-gu-gwangju-sigungu",
@@ -2279,7 +2291,7 @@ export const CENTERS: Center[] = [
     fallbackReason: "no-local-office",
     url: "https://www.gwangju.go.kr/agri/",
     // 검증 2026-04-15: HTTP 200, title="광주광역시 농업·도시농업"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   // -- 대전 --
   {
@@ -2292,7 +2304,7 @@ export const CENTERS: Center[] = [
     name: "중구청 (대표 누리집)",
     url: "https://djjunggu.go.kr/kr/index.do",
     // 검증 2026-04-15: HTTP 200, title="대전광역시 중구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "daejeon-yuseong-sigungu",
@@ -2304,7 +2316,7 @@ export const CENTERS: Center[] = [
     name: "유성구청 (대표 누리집)",
     url: "https://www.yuseong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="대전 유성구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "daejeon-daedeok-sigungu",
@@ -2316,7 +2328,7 @@ export const CENTERS: Center[] = [
     name: "대덕구청 (대표 누리집)",
     url: "https://daedeok.go.kr/dpt/DPT.do",
     // 검증 2026-04-15: HTTP 200, title="대전광역시 대덕구청 홈페이지"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "daejeon-dong-gu-daejeon-sigungu",
@@ -2331,7 +2343,7 @@ export const CENTERS: Center[] = [
     fallbackReason: "unverified-site",
     url: "https://www.daejeon.go.kr/far/index.do",
     // 검증 2026-04-15: HTTP 200, title="대전광역시 농업기술센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "daejeon-seo-gu-daejeon-sigungu",
@@ -2346,7 +2358,7 @@ export const CENTERS: Center[] = [
     fallbackReason: "unverified-site",
     url: "https://www.daejeon.go.kr/far/index.do",
     // 검증 2026-04-15: HTTP 200, title="대전광역시 농업기술센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   // -- 울산 --
   {
@@ -2359,7 +2371,7 @@ export const CENTERS: Center[] = [
     name: "중구청 (대표 누리집)",
     url: "https://www.junggu.ulsan.kr/index.ulsan",
     // 검증 2026-04-15: HTTP 200, title="누구나 살고싶은 종갓집 중구 [울산광역시 중구청]"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "ulsan-dong-gu-ulsan-sigungu",
@@ -2371,7 +2383,7 @@ export const CENTERS: Center[] = [
     name: "동구청 (대표 누리집)",
     url: "https://www.donggu.ulsan.kr/",
     // 검증 2026-04-15: HTTP 200, title="울산광역시 동구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "ulsan-buk-gu-ulsan-sigungu",
@@ -2383,7 +2395,7 @@ export const CENTERS: Center[] = [
     name: "북구청 (대표 누리집)",
     url: "https://www.bukgu.ulsan.kr/index.do;jsessionid=WyLG8s3ZyvfWEgaB9zeG31HNC1B565NZVc6XliEFRyUlgot6tQZNdX5apKcVz1Ca.www_ap_servlet_engine1",
     // 검증 2026-04-15: HTTP 200, title="울산광역시 북구청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "ulsan-ulju-sigungu",
@@ -2395,7 +2407,7 @@ export const CENTERS: Center[] = [
     name: "울주군청 (대표 누리집)",
     url: "https://www.ulju.ulsan.kr/ulju/main.do",
     // 검증 2026-04-15: HTTP 200, title="울산광역시 울주군 대표홈페이지에 오신 것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "ulsan-nam-gu-ulsan-sigungu",
@@ -2410,7 +2422,7 @@ export const CENTERS: Center[] = [
     fallbackReason: "unverified-site",
     url: "https://www.ulsan.go.kr/s/atc/main.ulsan",
     // 검증 2026-04-15: HTTP 200, title="울산광역시 농업기술센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   // -- 강원 --
   {
@@ -2423,7 +2435,7 @@ export const CENTERS: Center[] = [
     name: "춘천시청 (대표 누리집)",
     url: "https://www.chuncheon.go.kr/cityhall/",
     // 검증 2026-04-15: HTTP 200, title="춘천시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-wonju-sigungu",
@@ -2435,7 +2447,7 @@ export const CENTERS: Center[] = [
     name: "원주시청 (대표 누리집)",
     url: "https://www.wonju.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="원주시청 홈페이지에 오신것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-gangneung-sigungu",
@@ -2447,7 +2459,7 @@ export const CENTERS: Center[] = [
     name: "강릉시청 (대표 누리집)",
     url: "https://gn.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="강릉시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-donghae-sigungu",
@@ -2460,7 +2472,7 @@ export const CENTERS: Center[] = [
     name: "동해시 농업기술센터",
     url: "https://dh.go.kr/agriculture/index.do",
     // 검증 2026-04-15: HTTP 200, title=" - 농업기술센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-taebaek-sigungu",
@@ -2472,7 +2484,7 @@ export const CENTERS: Center[] = [
     name: "태백시청 (대표 누리집)",
     url: "https://www.taebaek.go.kr/intro.jsp",
     // 검증 2026-04-15: HTTP 200, title="태백시"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-sokcho-sigungu",
@@ -2484,7 +2496,7 @@ export const CENTERS: Center[] = [
     name: "속초시청 (대표 누리집)",
     url: "https://sokcho.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="속초시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-samcheok-sigungu",
@@ -2496,7 +2508,7 @@ export const CENTERS: Center[] = [
     name: "삼척시청 (대표 누리집)",
     url: "https://www.samcheok.go.kr/portal/intro/intro.jsp",
     // 검증 2026-04-15: HTTP 200, title="삼척시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-hongcheon-sigungu",
@@ -2508,7 +2520,7 @@ export const CENTERS: Center[] = [
     name: "홍천군청 (대표 누리집)",
     url: "https://www.hongcheon.go.kr/hongcheon_intro_new/intro.html",
     // 검증 2026-04-15: HTTP 200, title="홍천군 인트로"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-hoengseong-sigungu",
@@ -2524,7 +2536,7 @@ export const CENTERS: Center[] = [
     fallbackReason: "unverified-site",
     url: "https://state.gwd.go.kr/portal/partinfo/livestock/agriculture/return",
     // 검증 2026-04-15: HTTP 200, title="귀농귀촌 현황  - 분야별정보 | 강원특별자치도청 - 새로운 강원! 특별 자치시대!"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-yeongwol-sigungu",
@@ -2536,7 +2548,7 @@ export const CENTERS: Center[] = [
     name: "영월군청 (대표 누리집)",
     url: "https://www.yw.go.kr/www/index.do",
     // 검증 2026-04-15: HTTP 200, title="영월군"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-pyeongchang-sigungu",
@@ -2548,7 +2560,7 @@ export const CENTERS: Center[] = [
     name: "평창군청 (대표 누리집)",
     url: "https://pc.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="평창군입니다. 평창행정"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-jeongseon-sigungu",
@@ -2560,7 +2572,7 @@ export const CENTERS: Center[] = [
     name: "정선군청 (대표 누리집)",
     url: "https://jeongseon.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="정선군청 인트로"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-cheorwon-sigungu",
@@ -2573,7 +2585,7 @@ export const CENTERS: Center[] = [
     name: "철원군 농업기술센터",
     url: "https://www.cwg.go.kr/atc/index.do",
     // 검증 2026-04-15: HTTP 200, title="철원군 농업기술센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-hwacheon-sigungu",
@@ -2585,7 +2597,7 @@ export const CENTERS: Center[] = [
     name: "화천군청 (대표 누리집)",
     url: "https://www.ihc.go.kr/www/index.do",
     // 검증 2026-04-15: HTTP 200, title="화천군 대표 누리집"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-yanggu-sigungu",
@@ -2597,7 +2609,7 @@ export const CENTERS: Center[] = [
     name: "양구군청 (대표 누리집)",
     url: "https://yanggu.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="국토의 정중앙 양구에 오신걸 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-inje-sigungu",
@@ -2609,7 +2621,7 @@ export const CENTERS: Center[] = [
     name: "인제군청 (대표 누리집)",
     url: "https://inje.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="인제군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-goseong-gw-sigungu",
@@ -2621,7 +2633,7 @@ export const CENTERS: Center[] = [
     name: "고성군청 (대표 누리집)",
     url: "https://gwgs.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="강원고성군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "gangwon-yangyang-sigungu",
@@ -2633,7 +2645,7 @@ export const CENTERS: Center[] = [
     name: "양양군청 (대표 누리집)",
     url: "https://yangyang.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="해 오름의 고장 양양에 오신 것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   // -- 충북 --
   {
@@ -2646,7 +2658,7 @@ export const CENTERS: Center[] = [
     name: "청주시청 (대표 누리집)",
     url: "https://intro.cheongju.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="청주시청 인트로"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungbuk-chungju-sigungu",
@@ -2658,7 +2670,7 @@ export const CENTERS: Center[] = [
     name: "충주시청 (대표 누리집)",
     url: "https://www.chungju.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="충주시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungbuk-jecheon-sigungu",
@@ -2670,7 +2682,7 @@ export const CENTERS: Center[] = [
     name: "제천시청 (대표 누리집)",
     url: "https://www.jecheon.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="제천시청에 오신 것을 환영합니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungbuk-boeun-sigungu",
@@ -2683,7 +2695,7 @@ export const CENTERS: Center[] = [
     name: "보은군 농업기술센터",
     url: "https://www.boeun.go.kr/bio/index.do",
     // 검증 2026-04-15: HTTP 200, title="농업기술센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungbuk-okcheon-sigungu",
@@ -2695,7 +2707,7 @@ export const CENTERS: Center[] = [
     name: "옥천군청 (대표 누리집)",
     url: "https://oc.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="옥천군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungbuk-yeongdong-sigungu",
@@ -2707,7 +2719,7 @@ export const CENTERS: Center[] = [
     name: "영동군청 (대표 누리집)",
     url: "https://www.yd21.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="영동군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungbuk-jeungpyeong-sigungu",
@@ -2719,7 +2731,7 @@ export const CENTERS: Center[] = [
     name: "증평군청 (대표 누리집)",
     url: "https://www.jp.go.kr/kor.do",
     // 검증 2026-04-15: HTTP 200, title="증평군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungbuk-jincheon-sigungu",
@@ -2731,7 +2743,7 @@ export const CENTERS: Center[] = [
     name: "진천군청 (대표 누리집)",
     url: "https://www.jincheon.go.kr/home/intro.do",
     // 검증 2026-04-15: HTTP 200, title="진천군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungbuk-goesan-sigungu",
@@ -2743,7 +2755,7 @@ export const CENTERS: Center[] = [
     name: "괴산군청 (대표 누리집)",
     url: "https://goesan.go.kr/www/index.do",
     // 검증 2026-04-15: HTTP 200, title="괴산군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungbuk-eumseong-sigungu",
@@ -2756,7 +2768,7 @@ export const CENTERS: Center[] = [
     name: "음성군 농업기술센터",
     url: "https://www.eumseong.go.kr/esatc/index.do",
     // 검증 2026-04-15: HTTP 200, title="농업기술센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungbuk-danyang-sigungu",
@@ -2768,7 +2780,7 @@ export const CENTERS: Center[] = [
     name: "단양군청 (대표 누리집)",
     url: "https://danyang.go.kr/dy21/1",
     // 검증 2026-04-15: HTTP 200, title="단양군"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   // -- 충남 --
   {
@@ -2781,7 +2793,7 @@ export const CENTERS: Center[] = [
     name: "천안시청 (대표 누리집)",
     url: "https://www.cheonan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="천안시청 인트로"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-gongju-sigungu",
@@ -2793,7 +2805,7 @@ export const CENTERS: Center[] = [
     name: "공주시청 (대표 누리집)",
     url: "https://gongju.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="공주시청_인트로"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-boryeong-sigungu",
@@ -2805,7 +2817,7 @@ export const CENTERS: Center[] = [
     name: "보령시청 (대표 누리집)",
     url: "https://brcn.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="보령시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-asan-sigungu",
@@ -2818,7 +2830,7 @@ export const CENTERS: Center[] = [
     name: "아산시 농업기술센터",
     url: "https://farm.asan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="아산시 농업기술센터 홈페이지입니다."
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-seosan-sigungu",
@@ -2830,7 +2842,7 @@ export const CENTERS: Center[] = [
     name: "서산시청 (대표 누리집)",
     url: "https://www.seosan.go.kr/www/index.do",
     // 검증 2026-04-15: HTTP 200, title="서산시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-nonsan-sigungu",
@@ -2842,7 +2854,7 @@ export const CENTERS: Center[] = [
     name: "논산시청 (대표 누리집)",
     url: "https://nonsan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="논산시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-gyeryong-sigungu",
@@ -2854,7 +2866,7 @@ export const CENTERS: Center[] = [
     name: "계룡시청 (대표 누리집)",
     url: "https://gyeryong.go.kr/kr/",
     // 검증 2026-04-15: HTTP 200, title="계룡시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-dangjin-sigungu",
@@ -2866,7 +2878,7 @@ export const CENTERS: Center[] = [
     name: "당진시청 (대표 누리집)",
     url: "https://www.dangjin.go.kr/kor.do",
     // 검증 2026-04-15: HTTP 200, title="당진시청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-geumsan-sigungu",
@@ -2878,7 +2890,7 @@ export const CENTERS: Center[] = [
     name: "금산군청 (대표 누리집)",
     url: "https://geumsan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="금산군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-buyeo-sigungu",
@@ -2890,7 +2902,7 @@ export const CENTERS: Center[] = [
     name: "부여군청 (대표 누리집)",
     url: "https://buyeo.go.kr/intro.html",
     // 검증 2026-04-15: HTTP 200, title="부여군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-seocheon-sigungu",
@@ -2900,9 +2912,9 @@ export const CENTERS: Center[] = [
     sigunguSlug: "seocheon",
     category: "sigungu",
     name: "서천군청 (대표 누리집)",
-    url: "http://www.seocheon.go.kr/kor.do",
-    // 검증 2026-04-15: HTTP 200, title="서천군청"
-    verifiedAt: "2026-04-15",
+    url: "https://www.seocheon.go.kr/kor.do",
+    // 검증 2026-10-06: HTTPS 200, title="서천군청", 본문 '서천' (http 주소도 https 로 이동 — 비보안 링크 정리)
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-cheongyang-sigungu",
@@ -2914,7 +2926,7 @@ export const CENTERS: Center[] = [
     name: "청양군청 (대표 누리집)",
     url: "https://www.cheongyang.go.kr/kor.do",
     // 검증 2026-04-15: HTTP 200, title="청양군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-hongseong-sigungu",
@@ -2926,7 +2938,7 @@ export const CENTERS: Center[] = [
     name: "홍성군청 (대표 누리집)",
     url: "https://hongseong.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="홍성군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-yesan-sigungu",
@@ -2938,7 +2950,7 @@ export const CENTERS: Center[] = [
     name: "예산군청 (대표 누리집)",
     url: "https://yesan.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="예산군청"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "chungnam-taean-sigungu",
@@ -2951,7 +2963,7 @@ export const CENTERS: Center[] = [
     name: "태안군 농업기술센터",
     url: "https://www.taean.go.kr/farm.do",
     // 검증 2026-04-15: HTTP 200, title="태안군 농업기술센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   // -- 세종 --
   {
@@ -2964,7 +2976,7 @@ export const CENTERS: Center[] = [
     name: "세종특별자치시 (대표 누리집)",
     url: "https://www.sejong.go.kr/kor.do",
     // 검증 2026-04-15: HTTP 200, title="세종소개"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   // -- 제주 --
   {
@@ -2978,7 +2990,7 @@ export const CENTERS: Center[] = [
     name: "제주농업기술센터",
     url: "https://agri.jeju.go.kr/jeju/index.htm",
     // 검증 2026-04-15: HTTP 200, title="제주농업기술센터"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
   {
     id: "jeju-seogwipo-sigungu",
@@ -2990,7 +3002,7 @@ export const CENTERS: Center[] = [
     name: "서귀포시청 (대표 누리집)",
     url: "https://seogwipo.go.kr/",
     // 검증 2026-04-15: HTTP 200, title="메인 - 서귀포시"
-    verifiedAt: "2026-04-15",
+    verifiedAt: "2026-10-06",
   },
 ];
 

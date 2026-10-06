@@ -8,6 +8,7 @@ import s from "./filter-bar.module.css";
 
 /**
  * 현재 활성 필터를 유지하면서 특정 필터만 변경하는 URL 생성
+ * 쪽 번호(page)는 필터가 바뀌면 버린다 — 좁힌 결과에 그 쪽이 없으면 빈 표가 나온다(10/6). page 자체를 바꿀 때만 남긴다.
  * @public CLAUDE.md 「FilterBar」에 문서화된 공개 헬퍼 — 외부 사용처가 없어도 유지 (2026-09-04 knip)
  */
 export function buildFilterUrl(
@@ -19,6 +20,7 @@ export function buildFilterUrl(
   const params = new URLSearchParams();
   const merged = { ...current, [key]: value };
   for (const [k, v] of Object.entries(merged)) {
+    if (k === "page" && key !== "page") continue;
     if (v && v !== "전체") {
       params.set(k, v);
     }
@@ -253,10 +255,10 @@ export function FilterActions({
 }: FilterActionsProps) {
   return (
     <div className={s.filterActions}>
-      {/* 검색 폼 — 기존 필터를 hidden input으로 유지 */}
+      {/* 검색 폼 — 기존 필터를 hidden input으로 유지 (쪽 번호는 새 검색이라 버린다) */}
       <form className={s.searchForm} action={basePath} method="get">
         {Object.entries(currentFilters).map(([k, v]) =>
-          v && k !== searchParamKey ? (
+          v && k !== searchParamKey && k !== "page" ? (
             <input key={k} type="hidden" name={k} value={v} />
           ) : null,
         )}
@@ -276,7 +278,7 @@ export function FilterActions({
         {numberInput && (
           <form className={s.numberForm} action={basePath} method="get">
             {Object.entries(currentFilters).map(([k, v]) =>
-              v && k !== numberInput.paramKey ? (
+              v && k !== numberInput.paramKey && k !== "page" ? (
                 <input key={k} type="hidden" name={k} value={v} />
               ) : null,
             )}

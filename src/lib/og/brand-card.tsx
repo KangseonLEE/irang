@@ -6,6 +6,12 @@
 
 import type { ReactElement } from "react";
 
+/**
+ * 카드 하단에 찍는 사이트 주소 (10/6) — 예전엔 접속되지 않는 "irang.info"(A 레코드 없음)였다.
+ * 글자를 바꾸면 fonts.ts 의 서브셋 문자열(BODY_SUBSET·ASSESS_SUBSET)도 함께 맞춘다.
+ */
+const SITE_DOMAIN = "irangfarm.com";
+
 /* ── 공통 로고 마크 (좌하단 워터마크) ── */
 
 function logoMark(size: "sm" | "md" = "sm"): ReactElement {
@@ -135,7 +141,7 @@ export function brandCard(): ReactElement {
           letterSpacing: "0.5px",
         }}
       >
-        irang.info
+        {SITE_DOMAIN}
       </div>
     </div>
   );
@@ -320,7 +326,7 @@ export function assessScoreCard({
             color: "#8B8477",
           }}
         >
-          irang.info
+          {SITE_DOMAIN}
         </div>
       </div>
     </div>
@@ -459,7 +465,7 @@ export function resultCard({
             color: "#8B8477",
           }}
         >
-          irang.info
+          {SITE_DOMAIN}
         </div>
       </div>
     </div>

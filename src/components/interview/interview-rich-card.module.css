@@ -131,9 +131,12 @@
   margin: 0;
 }
 
-/* ── 카드 푸터 ── */
+/* ── 카드 푸터 ──
+   한 줄에 다 안 들어가면 "원문·이야기 읽기"가 배지 아래 줄(오른쪽)로 내려간다 (10/6 QA Q3 — 4열에서
+   카드가 290px 로 좁아지자 링크 글자가 "서울신문/원문"처럼 두 줄로 쪼개지고 작물 배지가 잘렸다) */
 .cardFooter {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
@@ -148,6 +151,7 @@
   gap: 6px;
   flex-wrap: wrap;
   min-width: 0;
+  max-width: 100%;
 }
 
 .cardRegionBadge {
@@ -180,6 +184,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* 배지 줄보다 길면 줄임표 — 카드 밖으로 밀어내지 않는다 */
+  max-width: 100%;
 }
 
 .cardCrop > svg {
@@ -190,6 +196,9 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  /* 줄이 바뀌어도 오른쪽 끝 — 링크 글자는 쪼개지 않는다 */
+  margin-left: auto;
+  white-space: nowrap;
   font-size: var(--fs-body-sm);
   font-weight: 600;
   color: var(--primary, #1b6b5a);

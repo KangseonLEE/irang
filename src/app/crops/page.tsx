@@ -8,19 +8,19 @@ import { Icon } from "@/components/ui/icon";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
-import {
-  CROPS,
-  CROP_CATEGORIES,
-  CROP_DIFFICULTIES,
-  sortCrops,
-  DEFAULT_CROP_SORT,
-  type CropCategory,
-  type CropDifficulty,
-  type CropSortKey,
-} from "@/lib/data/crops";
+import { CROPS, DEFAULT_CROP_SORT, type CropSortKey } from "@/lib/data/crops";
 import { CropSortControl } from "./crop-sort-control";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
-import { rankCropsForPersona, getCropPersonaFitTrace, type FitTrace } from "@/lib/data/persona-fit";
+import { getCropPersonaFitTrace, type FitTrace } from "@/lib/data/persona-fit";
+import { shareMetadata } from "@/lib/seo/share-metadata";
+import {
+  CATEGORY_OPTIONS,
+  DIFFICULTY_OPTIONS,
+  cropListEmptyMessage,
+  filterCropList,
+  scoringPersonaOf,
+  selectedOptions,
+} from "./crop-list-filter";
 import { CropPageCard } from "@/components/crops/crop-page-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { PersonaCta } from "@/components/persona/persona-cta";
@@ -48,12 +48,21 @@ const FarmingCalendar = dynamic(
     )
 );
 
+const DESCRIPTION =
+  "딸기, 블루베리, 감귤 등 귀농 인기 작물의 수익성, 난이도, 기후 조건을 비교하세요. 초보자 추천 작물부터 고소득 작물까지 한눈에 확인할 수 있어요.";
+
 export const metadata: Metadata = {
   title: "귀농 작물 목록 — 수익·난이도·재배환경 비교",
-  description:
-    "딸기, 블루베리, 감귤 등 귀농 인기 작물의 수익성, 난이도, 기후 조건을 비교하세요. 초보자 추천 작물부터 고소득 작물까지 한눈에 확인할 수 있어요.",
+  description: DESCRIPTION,
   keywords: ["귀농 작물", "귀농 작물 추천", "정착 작물", "정착 작물 추천", "작물 수익", "작물 재배", "정착 초보 작물", "고소득 작물"],
   alternates: { canonical: "/crops" },
+  // 공유 카드도 페이지 제목·설명으로 — 안 정하면 레이아웃의 사이트 기본 카드가 나갔다(10/6 QA Q2-W3).
+  // 제목은 위 title + " | 이랑"(공유 카드는 레이아웃 제목 템플릿을 안 거친다) — 일치는 qa1006-feb-crops 테스트가 지킨다
+  ...shareMetadata({
+    title: "귀농 작물 목록 — 수익·난이도·재배환경 비교 | 이랑",
+    description: DESCRIPTION,
+    path: "/crops",
+  }),
 };
 
 interface PageProps {
@@ -73,68 +82,49 @@ const PER_PAGE = 20;
 
 export default async function CropsPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const currentCategory = (params.category ?? "전체") as CropCategory;
-  const currentDifficulty = (params.difficulty ?? "전체") as CropDifficulty;
+  // 카테고리·난이도는 복수 선택(CSV) — 그룹 안은 합집합, 그룹 사이는 교집합 (10/6 QA Q4-F1)
+  const selectedCategories = selectedOptions(CATEGORY_OPTIONS, params.category);
+  const selectedDifficulties = selectedOptions(DIFFICULTY_OPTIONS, params.difficulty);
+  const categoryValue = selectedCategories.length > 0 ? selectedCategories.join(",") : undefined;
+  const difficultyValue = selectedDifficulties.length > 0 ? selectedDifficulties.join(",") : undefined;
   const searchQuery = params.q?.trim() ?? "";
   const currentPersona =
     params.persona && PERSONA_INDEX.has(params.persona as PersonaId)
       ? (params.persona as PersonaId)
       : undefined;
+  // 적합도로 거르고 줄 세우는 페르소나 — "기본 균등"(balanced)은 제외(모두 3점이라 거르면 빈 목록, 10/6 QA Q4-W3)
+  const scoringPersona = scoringPersonaOf(currentPersona);
   const currentSort: CropSortKey =
     params.sort === "difficulty" || params.sort === "income"
       ? params.sort
       : DEFAULT_CROP_SORT;
   const viewMode: ViewMode = params.view === "table" ? "table" : "card";
 
-  // 카테고리 필터링
-  let filteredCrops =
-    currentCategory === "전체"
-      ? CROPS
-      : CROPS.filter((c) => c.category === currentCategory);
-
-  // 난이도 필터링
-  if (currentDifficulty !== "전체") {
-    filteredCrops = filteredCrops.filter(
-      (c) => c.difficulty === currentDifficulty,
-    );
-  }
-
-  // 텍스트 검색 필터링 (이름 + 설명, 대소문자 무시)
-  if (searchQuery) {
-    const q = searchQuery.toLowerCase();
-    filteredCrops = filteredCrops.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q),
-    );
-  }
-
-  // 페르소나 필터링: 점수 4+ 작물만 + 점수 내림차순 정렬 (페르소나 모드 시 sort param 무시)
-  // 일반 모드: sortCrops 적용 (name | difficulty)
-  if (currentPersona) {
-    filteredCrops = rankCropsForPersona(filteredCrops, currentPersona)
-      .filter((r) => r.score >= 4)
-      .map((r) => r.crop);
-  } else {
-    filteredCrops = sortCrops(filteredCrops, currentSort);
-  }
+  // 카테고리·난이도·검색어(이름 + 설명, 1글자는 낱말 단위) → 적합도 페르소나면 4점 이상 점수순, 아니면 고른 정렬
+  const filteredCrops = filterCropList(CROPS, {
+    categories: selectedCategories,
+    difficulties: selectedDifficulties,
+    query: searchQuery,
+    persona: currentPersona,
+    sort: currentSort,
+  });
 
   // 페이지네이션 — 카드·테이블 공통 20개/페이지. 범위 밖 page는 clamp.
   const totalPages = Math.max(1, Math.ceil(filteredCrops.length / PER_PAGE));
   const page = Math.min(Math.max(1, Number(params.page) || 1), totalPages);
   const pagedCrops = filteredCrops.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  // Phase 6 B3 D2 — 페르소나 모드일 때만 카드별 trace 사전 계산 (현재 페이지만)
-  const cropTraces: Map<string, FitTrace> = currentPersona
+  // Phase 6 B3 D2 — 페르소나 모드일 때만 카드별 trace 사전 계산 (현재 페이지만, 균등은 근거가 없어 생략)
+  const cropTraces: Map<string, FitTrace> = scoringPersona
     ? new Map(
-        pagedCrops.map((c) => [c.id, getCropPersonaFitTrace(c, currentPersona)]),
+        pagedCrops.map((c) => [c.id, getCropPersonaFitTrace(c, scoringPersona)]),
       )
     : new Map();
 
   // 현재 활성 필터 (URL 빌딩용) — 필터/정렬 변경 시 page 리셋 (events·programs 준용: page 미포함)
   const currentFilters: Record<string, string | undefined> = {
-    category: params.category,
-    difficulty: params.difficulty,
+    category: categoryValue,
+    difficulty: difficultyValue,
     q: params.q,
     persona: params.persona,
     sort: currentSort === DEFAULT_CROP_SORT ? undefined : currentSort,
@@ -195,14 +185,14 @@ export default async function CropsPage({ searchParams }: PageProps) {
           {
             paramKey: "category",
             label: "카테고리",
-            options: CROP_CATEGORIES.filter((c) => c !== "전체"),
-            currentValue: params.category,
+            options: CATEGORY_OPTIONS,
+            currentValue: categoryValue,
           },
           {
             paramKey: "difficulty",
             label: "난이도",
-            options: CROP_DIFFICULTIES.filter((d) => d !== "전체"),
-            currentValue: params.difficulty,
+            options: DIFFICULTY_OPTIONS,
+            currentValue: difficultyValue,
           },
         ]}
         mobileActions={
@@ -229,11 +219,17 @@ export default async function CropsPage({ searchParams }: PageProps) {
         }
       />
 
+      {/* 결과 영역 제목 — 화면엔 툴바가 같은 정보를 보여 주므로 보조기기용. h1 다음 카드 이름(h3)이 바로 오면
+          제목 단계가 건너뛰어진다(10/6 QA axe heading-order, 가나다순 첫 카드 '가지'에서 검출) */}
+      {filteredCrops.length > 0 && (
+        <h2 className={s.srOnly}>작물 {filteredCrops.length}종</h2>
+      )}
+
       {/* 결과 수 + 정렬 + 보기 토글 */}
       {filteredCrops.length > 0 && (
         <ListToolbar count={filteredCrops.length} unit="종" label="작물">
-          {/* 페르소나 모드에선 점수순이 본질이라 sort selector 숨김 */}
-          {!currentPersona && (
+          {/* 페르소나 모드에선 점수순이 본질이라 sort selector 숨김 (균등은 일반 정렬이라 노출) */}
+          {!scoringPersona && (
             <CropSortControl
               currentSort={currentSort}
               currentFilters={currentFilters}
@@ -276,13 +272,12 @@ export default async function CropsPage({ searchParams }: PageProps) {
         <>
           <EmptyState
             icon={<Sprout size={32} strokeWidth={1.75} />}
-            message={
-              searchQuery
-                ? `'${searchQuery}' 검색 결과가 없어요`
-                : currentDifficulty !== "전체"
-                  ? `'${currentCategory}' 카테고리의 '${currentDifficulty}' 난이도 작물이 없어요`
-                  : `'${currentCategory}' 카테고리에 등록된 작물이 없어요`
-            }
+            message={cropListEmptyMessage({
+              query: searchQuery,
+              categories: selectedCategories,
+              difficulties: selectedDifficulties,
+              personaLabel: scoringPersona ? PERSONA_INDEX.get(scoringPersona)?.label : undefined,
+            })}
             linkHref="/crops"
             linkText="전체 작물 보기"
           />

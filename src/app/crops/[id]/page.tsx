@@ -604,7 +604,7 @@ export default async function CropDetailPage({
             <div id="youth-cases">
               <YouthCaseCards
                 cases={youthCases}
-                title={`${data.name}를 재배하는 청년농`}
+                title={`${withJosa(data.name, "를")} 재배하는 청년농`}
                 description="농촌진흥청 청년농부 사례에서 가져왔어요"
               />
             </div>

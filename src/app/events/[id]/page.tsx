@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { optimizedShareImage, shareMetadata } from "@/lib/seo/share-metadata";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -13,11 +14,12 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Event } from "schema-dts";
 import { CalendarDays } from "lucide-react";
-import { getEventByIdAsync, EVENTS } from "@/lib/data/events";
+import { filterEventsAsync, getEventByIdAsync, EVENTS } from "@/lib/data/events";
 import type { FarmEvent } from "@/lib/data/events";
 import { getEventImage } from "@/lib/events/event-image";
 import {
   buildEventFacts,
+  distinctEventTitle,
   eventTypeChip,
   isBoilerplateDescription,
   isStayEvent,
@@ -29,6 +31,21 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import s from "./page.module.css";
 
+/**
+ * 같은 제목 회차를 가르려면 전체 행사가 필요하다 — generateMetadata 와 페이지가 한 요청에서 한 번만 읽게 (React cache).
+ * 마감 회차도 쌍둥이로 센다(마감 상세도 색인돼 있다).
+ */
+const loadAllEvents = cache(async () => (await filterEventsAsync({ includeClosed: true })).events);
+
+/** 상세 제목 — 같은 제목 회차가 있으면 " · 10월 13일" (10/6 QA Q2-X4, event-fields) */
+async function detailTitle(event: FarmEvent): Promise<string> {
+  try {
+    return distinctEventTitle(event, await loadAllEvents());
+  } catch {
+    return event.title;
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -38,18 +55,19 @@ export async function generateMetadata({
   const event = await getEventByIdAsync(id);
   if (!event) notFound();
 
+  const title = await detailTitle(event);
   // 수집 행 상투 설명("…집계 기준이에요")은 공유 문구에 싣지 않는다
   const summary = isBoilerplateDescription(event.description) ? "" : event.description.slice(0, 120);
-  const description = `${event.region}에서 열리는 ${event.type} "${event.title}".${summary ? ` ${summary}` : ""}`;
+  const description = `${event.region}에서 열리는 ${event.type} "${title}".${summary ? ` ${summary}` : ""}`;
   return {
-    title: `${event.title} — ${event.type} | ${event.region}`,
+    title: `${title} — ${event.type} | ${event.region}`,
     description,
     keywords: [`${event.region} 농촌 정착 체험`, `귀농 ${event.type}`, "귀농 행사", "농촌 체험"],
     alternates: { canonical: `/events/${id}` },
     // 마을 사진이 있으면 공유 카드도 그 사진으로(1200px 최적화 경로), 없으면 사이트 기본 OG 이미지.
     // 예전엔 openGraph 에 이미지만 넣어 제목·사이트명이 빠졌다(10/3 QA — 레이아웃 openGraph 는 통째로 대체된다)
     ...shareMetadata({
-      title: `${event.title} | 이랑`,
+      title: `${title} | 이랑`,
       description,
       path: `/events/${id}`,
       ...(event.imageUrl ? { image: optimizedShareImage(event.imageUrl, event.title) } : {}),
@@ -110,6 +128,7 @@ export default async function EventDetailPage({
   }
 
   const related = getRelatedEvents(event);
+  const title = await detailTitle(event);
   const image = getEventImage(event);
   const facts = buildEventFacts(event, "detail");
   const stay = isStayEvent(event);
@@ -119,7 +138,7 @@ export default async function EventDetailPage({
   // "체험·행사" (10/3: 상세만 "체험행사"라 화면·구조화 데이터가 목록과 달랐다)
   const breadcrumbTrail = [
     { name: "체험·행사", href: "/events" },
-    { name: event.title, href: `/events/${id}` },
+    { name: title, href: `/events/${id}` },
   ];
 
   return (
@@ -129,8 +148,9 @@ export default async function EventDetailPage({
         data={{
           "@context": "https://schema.org",
           "@type": "Event",
-          name: event.title,
-          description: event.description,
+          name: title,
+          // 수집 안내 상투 문구("그린대로(농식품부) 집계 기준이에요…")는 화면처럼 구조화 데이터에도 싣지 않는다 (10/6 QA)
+          description: showDescription ? event.description : `${regionLabel(event)}에서 열리는 ${event.type} "${title}"`,
           startDate: event.date,
           ...(event.dateEnd ? { endDate: event.dateEnd } : {}),
           eventStatus: "https://schema.org/EventScheduled",
@@ -185,16 +205,16 @@ export default async function EventDetailPage({
           )}
         </p>
         <div className={s.titleRow}>
-          <h1 className={s.pageTitle}>{event.title}</h1>
+          <h1 className={s.pageTitle}>{title}</h1>
           <div className={s.titleActions}>
             <KakaoShareButton
-              title={`${event.title} | 이랑`}
+              title={`${title} | 이랑`}
               description={showDescription ? event.description.slice(0, 100) : `${event.region} ${event.type}`}
               contentType="event"
             />
             <ShareButton
-              title={`${event.title} | 이랑`}
-              text={showDescription ? `${event.title}: ${event.description.slice(0, 80)}` : event.title}
+              title={`${title} | 이랑`}
+              text={showDescription ? `${title}: ${event.description.slice(0, 80)}` : title}
               contentType="event"
               variant="ghost"
               size="sm"

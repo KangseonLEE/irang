@@ -13,6 +13,8 @@ import {
 import { deriveStatus } from "@/lib/program-status";
 import { getSupabase, isSupabaseConfigured, type EducationRow } from "@/lib/supabase";
 import { groupCrawlRows, type CrawlGroupInfo } from "@/lib/crawl-grouping";
+import { isCrawledRow } from "@/lib/programs/display";
+import { matchesListQuery, parseFilterValues } from "@/lib/search-params/filter-match";
 
 export interface EducationCourse {
   id: string;
@@ -57,7 +59,11 @@ export const EDUCATION_TYPES = ["온라인", "오프라인", "혼합"] as const;
 
 export const EDUCATION_LEVELS = ["입문", "초급", "중급", "심화"] as const;
 
-export const EDUCATION_COURSES: EducationCourse[] = [
+/**
+ * 정적 큐레이션 원본 — status 칸이 없다. 손으로 적은 상태는 시간이 지나면 낡는다(10/6 QA: ED-001 이 4/17 마감 뒤에도
+ * "모집중"). 상태는 신청 기간에서 파생해 `EDUCATION_COURSES` 로 내보낸다 — 지원사업 `PROGRAMS_RAW` 와 같은 방식.
+ */
+const EDUCATION_COURSES_RAW: Omit<EducationCourse, "status">[] = [
   {
     id: "ED-001",
     title: "서울시 전원생활교육 (귀촌 준비 기초)",
@@ -73,8 +79,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
       "전원생활 준비 및 성공사례, 채소·과수·화훼 기초영농기술, 농기계 안전사용법을 배우는 서울시 공식 귀촌 준비 교육 과정이에요. 기별 40명 선착순 모집.",
     capacity: 40,
     applicationStart: "2026-02-10",
-    applicationEnd: "2026-04-17",
-    status: "모집중",
+    applicationEnd: "2026-04-16",
     level: "입문",
     url: "https://agro.seoul.go.kr/archives/55475",
   },
@@ -85,7 +90,7 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     organization: "서울시 농업기술센터",
     type: "오프라인",
     duration: "14시간 (3일)",
-    schedule: "2026.4.21(월) ~ 4.23(수)",
+    schedule: "2026.4.21(화) ~ 4.23(목)",
     target: "서울 거주자 (주민등록상)",
     cost: "무료",
     description:
@@ -93,7 +98,6 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     capacity: 45,
     applicationStart: "2026-04-06",
     applicationEnd: "2026-04-10",
-    status: "마감",
     level: "초급",
     url: "https://agro.seoul.go.kr/archives/55870",
   },
@@ -112,7 +116,6 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     capacity: 120,
     applicationStart: "2026-02-02",
     applicationEnd: "2026-02-20",
-    status: "마감",
     level: "입문",
     url: "https://www.gninews.co.kr/news/article.html?no=769163",
   },
@@ -131,7 +134,6 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     capacity: 80,
     applicationStart: "2026-07-30",
     applicationEnd: "2026-08-03",
-    status: "마감",
     level: "입문",
     url: "https://www.seogwipo.go.kr/group/selfgoverning/town/farming/education.htm?act=view&seq=154700410",
   },
@@ -150,7 +152,6 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     capacity: 30,
     applicationStart: "2025-12-29",
     applicationEnd: "2026-01-02",
-    status: "마감",
     level: "중급",
     url: "https://youth.chungnam.go.kr/web/main/bbs/cnyouth_notice/497",
   },
@@ -169,7 +170,6 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     capacity: null,
     applicationStart: "2026-01-01",
     applicationEnd: "2026-12-31",
-    status: "모집중",
     level: "입문",
     url: "https://agriedu.net/",
   },
@@ -184,21 +184,89 @@ export const EDUCATION_COURSES: EducationCourse[] = [
     target: "농촌 정착 희망자 (영주 지역 체류 가능자)",
     cost: "입교비 소정 (확인 필요)",
     description:
-      "영주 소백산 인근 귀농드림타운에서 체류하며 농업을 학습하고 현장실습을 병행하는 체류형 교육 프로그램이에요. 현재 제11기 운영 중이며 5세대 추가 모집 중이에요.",
+      "영주 소백산 인근 귀농드림타운에서 체류하며 농업을 학습하고 현장실습을 병행하는 체류형 교육 프로그램이에요. 2026년 3월 제11기 입교식 때 정원 30세대 중 25세대가 입교했고, 남은 5세대는 정원이 찰 때까지 수시로 신청을 받았어요.",
     capacity: 5,
     applicationStart: "2026-01-01",
     applicationEnd: "2026-12-31",
-    status: "모집중",
     level: "초급",
     url: "http://www.ttlnews.com/news/articleView.html?idxno=3085607",
   },
 ];
 
+/** 신청 기간 → 모집 상태 (지원사업과 같은 규칙 — KST 오늘 기준) */
+function deriveEducationStatus(c: Pick<EducationCourse, "applicationStart" | "applicationEnd">): EducationCourse["status"] {
+  return deriveStatus(c.applicationStart, c.applicationEnd);
+}
+
+/** 정적 데이터에 파생 status를 주입한 배열 — 외부에서 쓰는 공식 export */
+export const EDUCATION_COURSES: EducationCourse[] = EDUCATION_COURSES_RAW.map((c) => ({
+  ...c,
+  status: deriveEducationStatus(c),
+}));
+
 // --- 헬퍼 함수 ---
 
-/** ID로 단일 교육 과정 조회 */
+/** ID로 단일 교육 과정 조회 — 정적 데이터만 (동기, 부르는 날 기준 상태) */
 export function getEducationById(id: string): EducationCourse | undefined {
-  return EDUCATION_COURSES.find((c) => c.id === id);
+  const c = EDUCATION_COURSES_RAW.find((c) => c.id === id);
+  return c ? { ...c, status: deriveEducationStatus(c) } : undefined;
+}
+
+/**
+ * DB 행 → EducationCourse. 목록(`loadEducation`)·상세(`getEducationByIdAsync`) 공용.
+ * status 는 DB 칸이 아니라 신청 기간에서 파생한다 — 10/6 전에는 교육만 DB status 칸을 그대로 써서 수집기가 적재한 날의
+ * 상태(접수중)가 마감 뒤에도 남았다(QA Q1-W19). 지원사업·체험과 같은 규칙.
+ */
+function mapEducationRow(row: EducationRow): EducationCourse {
+  return {
+    id: row.slug,
+    title: row.title,
+    region: row.region,
+    sigungu: row.sigungu ?? undefined,
+    organization: row.organization,
+    type: row.type as EducationCourse["type"],
+    duration: row.duration,
+    schedule: row.schedule,
+    target: row.target,
+    cost: row.cost,
+    description: row.description,
+    capacity: row.capacity,
+    applicationStart: row.application_start,
+    applicationEnd: row.application_end,
+    status: deriveStatus(row.application_start, row.application_end),
+    level: row.level as EducationCourse["level"],
+    url: row.url,
+    linkStatus: (row.link_status ?? undefined) as EducationCourse["linkStatus"],
+  };
+}
+
+/** 상위 소스(DB·API) 결과에 그 소스에 없는 정적 행을 붙인다 — CLAUDE.md "데이터 소스 병합 원칙" (QA Q1-W3: ED-003~005 미노출) */
+function withStaticOnly(primary: EducationCourse[]): EducationCourse[] {
+  const primaryIds = new Set(primary.map((c) => c.id));
+  const staticOnly = EDUCATION_COURSES_RAW.filter((c) => !primaryIds.has(c.id)).map((c) => ({
+    ...c,
+    status: deriveEducationStatus(c),
+  }));
+  return [...primary, ...staticOnly];
+}
+
+/**
+ * 수집기 기본값 — 원문이 아니라 수집기·API 매핑이 일괄로 채운 칸(10/6 DB):
+ * - 수준(level): 수집 행 전부 "초급"(242/242) · RDA API 폴백 행(rda-edu-*)도 "초급"
+ * - 방식(type): 원천이 방식을 주지 않는 수집 행(RDA 95/95)·RDA API 폴백 행은 "오프라인".
+ *   그린대로 수집 행만 원문(대면·비대면)에서 방식을 정한다(supabase/functions/_shared/greendaero.ts resolveEducationType).
+ * 필터에선 '모름'으로 다룬다 — 그 그룹을 고르면 빠지고, 고르지 않은 전체 보기에는 나온다(QA Q1-W4·Q4-W4).
+ * 화면 표시 쪽 같은 규칙은 lib/programs/display.ts(displayEducationLevel·displayEducationType).
+ */
+const TYPE_FROM_SOURCE_PREFIXES = ["crawl-greendaero-"];
+
+function isLevelUnknown(id: string): boolean {
+  return isCrawledRow(id) || id.startsWith("rda-edu-");
+}
+
+function isTypeUnknown(id: string): boolean {
+  if (id.startsWith("rda-edu-")) return true;
+  return isCrawledRow(id) && !TYPE_FROM_SOURCE_PREFIXES.some((prefix) => id.startsWith(prefix));
 }
 
 /** ID(slug)로 단일 교육과정 조회 — Supabase → 정적 폴백 (비동기) */
@@ -216,27 +284,7 @@ export async function getEducationByIdAsync(
         .maybeSingle();
 
       if (!error && data) {
-        const row = data as unknown as EducationRow;
-        return {
-          id: row.slug,
-          title: row.title,
-          region: row.region,
-          sigungu: row.sigungu ?? undefined,
-          organization: row.organization,
-          type: row.type as EducationCourse["type"],
-          duration: row.duration,
-          schedule: row.schedule,
-          target: row.target,
-          cost: row.cost,
-          description: row.description,
-          capacity: row.capacity,
-          applicationStart: row.application_start,
-          applicationEnd: row.application_end,
-          status: row.status as EducationCourse["status"],
-          level: row.level as EducationCourse["level"],
-          url: row.url,
-          linkStatus: (row.link_status ?? undefined) as EducationCourse["linkStatus"],
-        };
+        return mapEducationRow(data as unknown as EducationRow);
       }
     } catch {
       // Supabase 에러 → 정적 폴백
@@ -244,7 +292,7 @@ export async function getEducationByIdAsync(
   }
 
   // 2️⃣ 정적 폴백
-  return EDUCATION_COURSES.find((c) => c.id === id);
+  return getEducationById(id);
 }
 
 /** 현재 연월 문자열 (YYYY-MM) */
@@ -254,7 +302,7 @@ export function getCurrentPeriod(): string {
 }
 
 
-/** 필터 조건 */
+/** 필터 조건 — region·type·level 은 URL 그대로의 쉼표 목록(CSV, 복수 선택)도 받는다. 그룹 안은 합집합, 그룹 사이는 교집합 */
 export interface EducationFilters {
   region?: string;
   type?: string;
@@ -319,52 +367,23 @@ async function loadEducation(): Promise<{
         .order("application_end", { ascending: true });
 
       if (!error && data && data.length > 0) {
-        const rows = data as unknown as EducationRow[];
-        const courses: EducationCourse[] = rows.map((row) => ({
-          id: row.slug,
-          title: row.title,
-          region: row.region,
-          sigungu: row.sigungu ?? undefined,
-          organization: row.organization,
-          type: row.type as EducationCourse["type"],
-          duration: row.duration,
-          schedule: row.schedule,
-          target: row.target,
-          cost: row.cost,
-          description: row.description,
-          capacity: row.capacity,
-          applicationStart: row.application_start,
-          applicationEnd: row.application_end,
-          status: row.status as EducationCourse["status"],
-          level: row.level as EducationCourse["level"],
-          url: row.url,
-          linkStatus: (row.link_status ?? undefined) as EducationCourse["linkStatus"],
-        }));
-        return { courses, source: "supabase" };
+        const dbCourses = (data as unknown as EducationRow[]).map(mapEducationRow);
+        // 정적 데이터 중 DB에 없는 과정 병합 (10/6 전엔 없어서 ED-003~005 가 운영 목록에 0회 노출)
+        return { courses: withStaticOnly(dbCourses), source: "supabase" };
       }
     } catch {
       // Supabase 에러 → 다음 소스로
     }
   }
 
-  // 2️⃣ RDA API 시도
+  // 2️⃣ RDA API 시도 — 정적 큐레이션 과정도 붙인다
   const apiData = await fetchRdaEducation({ pageSize: 100 });
   if (apiData && apiData.length > 0) {
-    const courses = apiData.map(mapRdaEdu);
-    return { courses, source: "api" };
+    return { courses: withStaticOnly(apiData.map(mapRdaEdu)), source: "api" };
   }
 
-  // 3️⃣ 정적 폴백 — 날짜 기반 상태 재계산
-  const courses = EDUCATION_COURSES.map((c) => {
-    const derived = deriveStatus(c.applicationStart, c.applicationEnd);
-    const statusMap: Record<string, EducationCourse["status"]> = {
-      "모집중": "모집중",
-      "모집예정": "모집예정",
-      "마감": "마감",
-    };
-    return { ...c, status: statusMap[derived] ?? c.status };
-  });
-  return { courses, source: "fallback" };
+  // 3️⃣ 정적 폴백 — 부르는 날 기준 상태
+  return { courses: withStaticOnly([]), source: "fallback" };
 }
 
 /**
@@ -385,6 +404,11 @@ export async function filterEducationAsync(
     periodEnd = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
   }
 
+  // 복수 선택(CSV) — 그룹 안은 합집합, 그룹 사이는 교집합 (10/6 QA Q4-F1)
+  const regions = parseFilterValues(filters.region);
+  const types = parseFilterValues(filters.type);
+  const levels = parseFilterValues(filters.level);
+
   const filtered = allCourses.filter((course) => {
     // 원문 링크 깨진 항목은 목록에서 숨김
     if (course.linkStatus === "broken") return false;
@@ -395,23 +419,20 @@ export async function filterEducationAsync(
         return false;
       }
     }
-    if (filters.query) {
-      const q = filters.query.toLowerCase();
-      const searchable = [
+    // 검색어 — 1글자(작물 이름만 normalize 통과)는 낱말 단위, 2글자 이상은 부분 일치 (filter-match.ts)
+    if (
+      !matchesListQuery(filters.query, [
         course.title, course.description, course.region,
         course.organization, course.target,
-      ].join(" ").toLowerCase();
-      if (!searchable.includes(q)) return false;
+      ])
+    ) {
+      return false;
     }
-    if (filters.region && filters.region !== "전체") {
-      if (course.region !== "전국" && course.region !== filters.region) return false;
-    }
-    if (filters.type && filters.type !== "전체") {
-      if (course.type !== filters.type) return false;
-    }
-    if (filters.level && filters.level !== "전체") {
-      if (course.level !== filters.level) return false;
-    }
+    // 지역 — 전국 과정은 어느 지역을 골라도 남는다
+    if (regions.length > 0 && course.region !== "전국" && !regions.includes(course.region)) return false;
+    // 방식·수준 — 수집기 기본값은 '모름'(빠짐)
+    if (types.length > 0 && (isTypeUnknown(course.id) || !types.includes(course.type))) return false;
+    if (levels.length > 0 && (isLevelUnknown(course.id) || !levels.includes(course.level))) return false;
     return true;
   });
 

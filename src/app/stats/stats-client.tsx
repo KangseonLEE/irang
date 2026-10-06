@@ -11,17 +11,22 @@ import s from "./stats-client.module.css";
 
 /* ── 탭 셀렉터 (인라인·sticky 공용) ──
    inlineRefForVisibility prop으로 외부에서 가시성 추적용 ref 받음.
-   모바일 하단 sticky bar와 인라인 셀렉터가 둘 다 같은 컴포넌트 사용. */
+   모바일 하단 sticky bar와 인라인 셀렉터가 둘 다 같은 컴포넌트 사용.
+   10/6 QA: ① 두 묶음이 같은 탭 id(tab-farming…)를 써서 id 가 겹쳤다 → 하단 바는 idSuffix 로 가른다
+   ② role=tab 인데 ←/→ 가 없었다 → APG 탭 관례(roving tabindex + ←/→·Home/End, 포커스 이동 = 선택) */
 function StatsTabNav({
   activeTab,
   onChange,
   innerRefProp,
   ariaLabel,
+  idSuffix = "",
 }: {
   activeTab: StatsTabId;
-  onChange: (id: StatsTabId) => void;
+  onChange: (id: StatsTabId, via?: "pointer" | "keyboard") => void;
   innerRefProp?: React.RefObject<HTMLDivElement | null>;
   ariaLabel: string;
+  /** 탭 id 접미 — 패널(aria-labelledby="tab-…")은 인라인 묶음 id 를 가리킨다 */
+  idSuffix?: string;
 }) {
   const localRef = useRef<HTMLDivElement>(null);
   const innerRef = innerRefProp ?? localRef;
@@ -30,7 +35,7 @@ function StatsTabNav({
   useEffect(() => {
     const inner = innerRef.current;
     if (!inner) return;
-    const active = inner.querySelector<HTMLElement>('[aria-current="page"]');
+    const active = inner.querySelector<HTMLElement>('[aria-selected="true"]');
     if (active) {
       active.scrollIntoView({
         inline: "center",
@@ -40,24 +45,43 @@ function StatsTabNav({
     }
   }, [activeTab, innerRef]);
 
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.altKey || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    const index = STATS_TABS.findIndex((t) => t.id === activeTab);
+    const last = STATS_TABS.length - 1;
+    let next: number | null = null;
+    if (e.key === "ArrowRight") next = index === last ? 0 : index + 1;
+    else if (e.key === "ArrowLeft") next = index === 0 ? last : index - 1;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = last;
+    if (next === null) return;
+    e.preventDefault();
+    onChange(STATS_TABS[next].id, "keyboard");
+    innerRef.current?.querySelectorAll<HTMLButtonElement>("[role=tab]")[next]?.focus();
+  };
+
   return (
     <nav className={s.tabNav} aria-label={ariaLabel}>
-      <div ref={innerRef} className={s.tabNavInner} role="tablist">
-        {STATS_TABS.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            id={`tab-${tab.id}`}
-            aria-controls={`summary-${tab.id}`}
-            aria-selected={tab.id === activeTab}
-            aria-current={tab.id === activeTab ? "page" : undefined}
-            onClick={() => onChange(tab.id)}
-            className={`${s.tab} ${tab.id === activeTab ? s.tabActive : ""}`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div ref={innerRef} className={s.tabNavInner} role="tablist" onKeyDown={onKeyDown}>
+        {STATS_TABS.map((tab) => {
+          const selected = tab.id === activeTab;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              id={`tab-${tab.id}${idSuffix}`}
+              /* 패널은 고른 탭 것만 렌더된다 — 없는 id 를 가리키지 않게 선택된 탭만 연결 */
+              aria-controls={selected ? `summary-${tab.id}` : undefined}
+              aria-selected={selected}
+              tabIndex={selected ? 0 : -1}
+              onClick={() => onChange(tab.id)}
+              className={`${s.tab} ${selected ? s.tabActive : ""}`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
     </nav>
   );
@@ -94,7 +118,11 @@ export function StatsClient({ initialTab }: StatsClientProps) {
     };
   }, []);
 
-  const handleTabChange = useCallback((id: StatsTabId) => {
+  /** ←/→ 로 바꾼 탭인가 — 모바일에선 인라인 탭바가 흐름 안에 있어, 내용으로 스크롤하면 포커스가 있는 탭이 화면 밖으로 나간다 */
+  const keyboardChangeRef = useRef(false);
+
+  const handleTabChange = useCallback((id: StatsTabId, via: "pointer" | "keyboard" = "pointer") => {
+    keyboardChangeRef.current = via === "keyboard";
     setActiveTab(id);
     if (typeof window !== "undefined") {
       window.history.replaceState({}, "", `/stats?tab=${id}`);
@@ -111,6 +139,9 @@ export function StatsClient({ initialTab }: StatsClientProps) {
       isFirstRenderRef.current = false;
       return;
     }
+    const keyboard = keyboardChangeRef.current;
+    keyboardChangeRef.current = false;
+    if (keyboard && window.matchMedia("(max-width: 767px)").matches) return;
     const target = document.getElementById(`summary-${activeTab}`);
     if (!target) return;
     // GNB(56) + 여유 8 — 탭바 자체는 인라인이므로 offset 가산 X
@@ -129,15 +160,19 @@ export function StatsClient({ initialTab }: StatsClientProps) {
         ariaLabel="통계 카테고리 선택"
       />
 
-      {/* 모바일 하단 sticky bar — 인라인이 viewport 밖으로 나가면 등장 */}
+      {/* 모바일 하단 sticky bar — 인라인이 viewport 밖으로 나가면 등장.
+          숨은 동안 inert — aria-hidden 만으로는 Tab 이 화면 밖 버튼에 멈췄다(10/6 QA: 첫 Tab 4번이 보이지 않는 바로 갔다,
+          axe aria-hidden-focus). 랜딩 트렌드·비용 하단 바와 같은 처리 */}
       <div
         className={`${s.stickyBar} ${showStickyBar ? s.stickyVisible : ""}`}
         aria-hidden={!showStickyBar}
+        inert={!showStickyBar}
       >
         <StatsTabNav
           activeTab={activeTab}
           onChange={handleTabChange}
           ariaLabel="통계 카테고리 선택 (하단)"
+          idSuffix="-bar"
         />
       </div>
 

@@ -21,19 +21,27 @@ import {
   Lightbulb,
   HelpCircle,
   ChevronDown, ArrowRight } from "lucide-react";
-import { formatApplicationPeriod, formatAgeRange } from "@/lib/format";
+import { formatApplicationPeriod } from "@/lib/format";
 import { ALWAYS_OPEN, kstToday, programStatusLabel } from "@/lib/program-status";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
-import { getStationByProvince } from "@/lib/data/stations";
+import { PROVINCES } from "@/lib/data/regions";
 import { SentenceText } from "@/components/ui/sentence-text";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { EligibilityCheck } from "@/components/programs/eligibility-check";
 import { ApplicationTimeline } from "@/components/programs/application-timeline";
 import { sourceBlockLabel } from "@/lib/source-label";
-import { displayText } from "@/lib/programs/display";
+import {
+  displayAgeRange,
+  displayAmount,
+  displaySupportType,
+  displayText,
+  displayValue,
+  isCrawledRow,
+} from "@/lib/programs/display";
+import { parseEligibilityItems } from "@/lib/programs/parse-eligibility";
 import { programSeoDescription, programSeoTitle } from "@/lib/programs/seo";
 import { shareMetadata } from "@/lib/seo/share-metadata";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
@@ -98,6 +106,29 @@ export default async function ProgramDetailPage({
   const descriptionText = displayText(program.id, program.description);
   const shareText = summary ?? `${program.region} ${program.title}`;
 
+  // 수집 행의 기본값(지원 유형 "보조금"·연령 18~65)과 채움값("상세 공고 참조")은 원문에서 온 값이 아니다 —
+  // 배지·기본 정보 표·자격 조건·셀프 체크·JSON-LD 에서 칸째 뺀다. 큐레이션 행은 그대로 (10/6 QA Q1-F2·W4, lib/programs/display)
+  const crawled = isCrawledRow(program.id);
+  const supportType = displaySupportType(program.id, program.supportType);
+  const supportAmount = displayAmount(program.id, program.supportAmount);
+  const ageLabel = displayAgeRange(program.id, program.eligibilityAgeMin, program.eligibilityAgeMax);
+  const eligibilityText = displayValue(program.id, program.eligibilityDetail);
+  const selfCheckItems = parseEligibilityItems(eligibilityText ?? "");
+  // 연령 항목이 빠진 수집 행은 짚을 조건이 0개일 수 있다 — 그때는 셀프 체크 탭째 뺀다("0개 중 0개 → 모두 충족" 방지)
+  const hasSelfCheck = ageLabel !== null || selfCheckItems.length > 0;
+  const audience = {
+    ...(eligibilityText ? { audienceType: eligibilityText } : {}),
+    ...(!crawled && program.eligibilityAgeMin ? { suggestedMinAge: program.eligibilityAgeMin } : {}),
+    ...(!crawled && program.eligibilityAgeMax && program.eligibilityAgeMax < 99
+      ? { suggestedMaxAge: program.eligibilityAgeMax }
+      : {}),
+  };
+
+  // 지역 칸 → 시·도 상세. `/regions?stations=` 는 normalize 화이트리스트 밖이라 308 strip 돼
+  // 지도 첫 화면으로 떨어졌다 (10/6 QA Q2-W1). "전국"처럼 시·도가 아니면 지역 탐색 첫 화면
+  const province = PROVINCES.find((p) => p.name === program.region);
+  const regionHref = province ? `/regions/${province.id}` : "/regions";
+
   // 관련 작물은 클라이언트 카드(페이지네이션)가 받으므로 여기서 직렬화 가능한 값으로 펼친다
   const relatedCrops: RelatedCrop[] = program.relatedCrops.map((name) => {
     const info = getCropByName(name);
@@ -135,22 +166,15 @@ export default async function ProgramDetailPage({
           "@type": "GovernmentService",
           name: program.title,
           description: shareText,
-          serviceType: program.supportType,
+          ...(supportType ? { serviceType: supportType } : {}),
           areaServed: { "@type": "AdministrativeArea", name: program.region },
           provider: {
             "@type": "GovernmentOrganization",
             name: program.organization,
           },
-          audience: {
-            "@type": "Audience",
-            audienceType: program.eligibilityDetail,
-            ...(program.eligibilityAgeMin
-              ? { suggestedMinAge: program.eligibilityAgeMin }
-              : {}),
-            ...(program.eligibilityAgeMax && program.eligibilityAgeMax < 99
-              ? { suggestedMaxAge: program.eligibilityAgeMax }
-              : {}),
-          },
+          ...(Object.keys(audience).length > 0
+            ? { audience: { "@type": "Audience", ...audience } }
+            : {}),
           ...(program.relatedCrops.length > 0
             ? { keywords: program.relatedCrops.join(", ") }
             : {}),
@@ -178,7 +202,7 @@ export default async function ProgramDetailPage({
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
           <StatusBadge status={statusLabel} />
-          <SupportTypeBadge type={program.supportType} prefix="지원 유형: " />
+          {supportType && <SupportTypeBadge type={supportType} prefix="지원 유형: " />}
         </div>
         <div className={s.titleRow}>
           <h1 className={s.pageTitle}>{program.title}</h1>
@@ -226,24 +250,30 @@ export default async function ProgramDetailPage({
             <SidebarTabs
               stackBelow
               tabs={[
-                {
-                  id: "eligibility",
-                  label: "자격 체크",
-                  stackMeta: "공고 기준 · 참고용",
-                  content: (
-                    <EligibilityCheck
-                      key="eligibility"
-                      bare
-                      programTitle={program.title}
-                      ageMin={program.eligibilityAgeMin}
-                      ageMax={program.eligibilityAgeMax}
-                      eligibilityDetail={program.eligibilityDetail}
-                      organization={program.organization}
-                      sourceUrl={program.sourceUrl}
-                      linkStatus={program.linkStatus}
-                    />
-                  ),
-                },
+                ...(hasSelfCheck
+                  ? [
+                      {
+                        id: "eligibility",
+                        label: "자격 체크",
+                        stackMeta: "공고 기준 · 참고용",
+                        content: (
+                          <EligibilityCheck
+                            key="eligibility"
+                            bare
+                            programTitle={program.title}
+                            ageMin={program.eligibilityAgeMin}
+                            ageMax={program.eligibilityAgeMax}
+                            hideAge={ageLabel === null}
+                            eligibilityDetail={eligibilityText ?? ""}
+                            items={selfCheckItems}
+                            organization={program.organization}
+                            sourceUrl={program.sourceUrl}
+                            linkStatus={program.linkStatus}
+                          />
+                        ),
+                      },
+                    ]
+                  : []),
                 ...(relatedCrops.length > 0
                   ? [
                       {
@@ -291,17 +321,9 @@ export default async function ProgramDetailPage({
                     </span>
                   </td>
                   <td className={s.tableValueCell}>
-                    {(() => {
-                      const station = getStationByProvince(program.region);
-                      const href = station
-                        ? `/regions?stations=${station.stnId}`
-                        : "/regions";
-                      return (
-                        <Link href={href} className={s.regionLink}>
-                          {program.region}
-                        </Link>
-                      );
-                    })()}
+                    <Link href={regionHref} className={s.regionLink}>
+                      {program.region}
+                    </Link>
                   </td>
                 </tr>
                 <InfoRow
@@ -309,24 +331,28 @@ export default async function ProgramDetailPage({
                   label="담당 기관"
                   value={program.organization}
                 />
-                <tr className={s.tableRow}>
-                  <td className={s.tableLabelCell}>
-                    <span className={s.iconLabel}>
-                      <span className={s.iconMuted}>
-                        <Coins size={16} />
+                {supportType && (
+                  <tr className={s.tableRow}>
+                    <td className={s.tableLabelCell}>
+                      <span className={s.iconLabel}>
+                        <span className={s.iconMuted}>
+                          <Coins size={16} />
+                        </span>
+                        지원 유형
                       </span>
-                      지원 유형
-                    </span>
-                  </td>
-                  <td className={s.tableValueCell}>
-                    <SupportTypeBadge type={program.supportType} />
-                  </td>
-                </tr>
-                <InfoRow
-                  icon={<Coins size={16} />}
-                  label="지원 금액"
-                  value={program.supportAmount}
-                />
+                    </td>
+                    <td className={s.tableValueCell}>
+                      <SupportTypeBadge type={supportType} />
+                    </td>
+                  </tr>
+                )}
+                {supportAmount && (
+                  <InfoRow
+                    icon={<Coins size={16} />}
+                    label="지원 금액"
+                    value={supportAmount}
+                  />
+                )}
                 <InfoRow
                   icon={<Calendar size={16} />}
                   label="신청 기간"
@@ -341,22 +367,26 @@ export default async function ProgramDetailPage({
                         : formatApplicationPeriod(program.applicationStart, program.applicationEnd, program.applicationCycle)
                   }
                 />
-                <InfoRow
-                  icon={<Users size={16} />}
-                  label="대상 연령"
-                  value={formatAgeRange(program.eligibilityAgeMin, program.eligibilityAgeMax)}
-                />
+                {ageLabel && (
+                  <InfoRow
+                    icon={<Users size={16} />}
+                    label="대상 연령"
+                    value={ageLabel}
+                  />
+                )}
               </tbody>
             </table>
           </section>
 
-          {/* Eligibility */}
-          <section className={s.section}>
-            <h2 className={s.sectionTitle}>자격 조건</h2>
-            <p className={s.eligibilityText}>
-              <SentenceText text={program.eligibilityDetail} glossary />
-            </p>
-          </section>
+          {/* Eligibility — 수집 행의 "상세 공고 참조" 채움값이면 섹션째 뺀다(원문 확인 카드가 그 역할) */}
+          {eligibilityText && (
+            <section className={s.section}>
+              <h2 className={s.sectionTitle}>자격 조건</h2>
+              <p className={s.eligibilityText}>
+                <SentenceText text={eligibilityText} glossary />
+              </p>
+            </section>
+          )}
 
           {/* 상세 설명 (DB에 description이 있는 경우에만 표시) */}
           {descriptionText && descriptionText !== summary && (

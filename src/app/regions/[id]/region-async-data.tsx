@@ -5,8 +5,9 @@
  * <Suspense>로 감싸면 정적 부분이 먼저 스트리밍되고,
  * 이 컴포넌트는 API 응답 후 채워집니다.
  *
- * 8개 비동기 작업을 전부 병렬 호출합니다:
- *   기후 · 인구 · 의료 · 학교 · 사진 · 시군구인구 · 프로그램 · 교육
+ * 외부 API 6종(기후 · 인구 · 의료 · 학교 · 시군구 인구 · 시군구 농가)을 병렬 호출합니다.
+ * 지원사업 · 교육 · 체험·행사 목록은 page.tsx 가 먼저 불러 props 로 넘긴다 — 섹션 탭이
+ * "실제로 있는 섹션"만 가리키려면 탭을 그리는 쪽이 목록 개수를 알아야 해서다 (10/6 QA1).
  */
 
 import Link from "next/link";
@@ -26,10 +27,11 @@ import { DataSource } from "@/components/ui/data-source";
 import { SigunguExplorer } from "@/components/region/sigungu-explorer";
 import type { Province } from "@/lib/data/regions";
 import type { Sigungu } from "@/lib/data/sigungus";
+import type { SupportProgram } from "@/lib/data/programs";
+import type { EducationCourse } from "@/lib/data/education";
+import type { FarmEvent } from "@/lib/data/events";
 import { loadProvinceMap } from "@/lib/data/province-maps";
-import { filterProgramsAsync } from "@/lib/data/programs";
-import { filterEducationAsync } from "@/lib/data/education";
-import { filterEvents } from "@/lib/data/events";
+import { listRegionHref } from "./list-region-href";
 import { fetchMultipleClimateData } from "@/lib/api/weather";
 import {
   fetchPopulationData,
@@ -43,12 +45,22 @@ import s from "./page.module.css";
 interface RegionAsyncDataProps {
   province: Province;
   sigungus: Sigungu[];
+  /** 마감 제외·날짜 파생 상태·가까운 지역 순으로 정리된 목록 (region-listings.ts) */
+  programs: SupportProgram[];
+  education: EducationCourse[];
+  events: FarmEvent[];
 }
 
-export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataProps) {
+export async function RegionAsyncData({
+  province,
+  sigungus,
+  programs: matchedPrograms,
+  education: matchedEducation,
+  events: matchedEvents,
+}: RegionAsyncDataProps) {
   const stationIds = province.stationIds;
 
-  // 9개 비동기 작업 전부 병렬 호출
+  // 외부 API 6종 병렬 호출
   const [
     climateResult,
     populationResult,
@@ -56,8 +68,6 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
     schoolResult,
     subRegionPopResult,
     subRegionFarmResult,
-    programsResult,
-    educationResult,
   ] = await Promise.allSettled([
     fetchMultipleClimateData(stationIds),
     fetchPopulationData([province.sgisCode]),
@@ -65,8 +75,6 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
     fetchSchoolCounts([province.eduCode]),
     fetchSubRegionPopulations(province.sgisCode),
     fetchSubRegionFarms(province.sgisCode),
-    filterProgramsAsync({ region: province.name, includeClosed: false }),
-    filterEducationAsync({ region: province.name, includeClosed: false }),
   ]);
 
   const climateData =
@@ -87,20 +95,6 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
     climateData.find((d) => d.stnId === province.representativeStationId) ??
     climateData[0] ??
     null;
-
-  const matchedPrograms =
-    programsResult.status === "fulfilled"
-      ? programsResult.value.programs.slice(0, 6)
-      : [];
-  const matchedEducation =
-    educationResult.status === "fulfilled"
-      ? educationResult.value.courses.slice(0, 4)
-      : [];
-
-  const matchedEvents = filterEvents({
-    region: province.name,
-    includeClosed: false,
-  }).slice(0, 4);
 
   // 시군구 인구밀도 지도 데이터
   const subRegionPop =
@@ -209,7 +203,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
             ))}
           </div>
           <Link
-            href={`/programs?region=${encodeURIComponent(province.name)}`}
+            href={listRegionHref("/programs", province.name)}
             className={s.viewMore}
           >
             전체 지원사업 보기 →
@@ -261,7 +255,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
             ))}
           </div>
           <Link
-            href={`/education?region=${encodeURIComponent(province.name)}`}
+            href={listRegionHref("/education", province.name)}
             className={s.viewMore}
           >
             전체 교육 보기 →
@@ -302,7 +296,7 @@ export async function RegionAsyncData({ province, sigungus }: RegionAsyncDataPro
             ))}
           </div>
           <Link
-            href={`/events?region=${encodeURIComponent(province.name)}`}
+            href={listRegionHref("/events", province.name)}
             className={s.viewMore}
           >
             전체 행사 보기 →

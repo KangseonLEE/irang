@@ -4,6 +4,7 @@
 // 5차원 각각의 데이터 출처 + 정규화 방식 + 갱신 주기 + 누락 시군구를 명시.
 
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import { Fragment } from "react";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
@@ -23,10 +24,14 @@ import {
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "점수는 어떻게 만들었나요? — 산식 공개",
-  description:
-    "이랑의 차원별 점수가 어떤 데이터로 어떻게 계산되는지 자세히 보여드려요. 모두 공공 데이터 기반이에요.",
-  alternates: { canonical: "/regions/ranking/methodology" },
+  // 문서 제목·설명·canonical·공유 카드를 같은 값에서 — 종전엔 공유 카드가 사이트 기본 제목·설명을
+  // 물려받고 og:url 도 없었다 (10/6 QA1 Q2-W3)
+  ...pageMetadata({
+    title: "점수는 어떻게 만들었나요? — 산식 공개",
+    description:
+      "이랑의 차원별 점수가 어떤 데이터로 어떻게 계산되는지 자세히 보여드려요. 모두 공공 데이터 기반이에요.",
+    path: "/regions/ranking/methodology",
+  }),
 };
 
 export const revalidate = 86400;

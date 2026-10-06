@@ -288,7 +288,7 @@ export default function PopulationTrendChart({ data, mode = "all" }: Props) {
       <div className={s.legend}>
         {showFarming && (
           <span className={s.legendItem}>
-            <span className={s.legendDot} style={{ background: COLOR_PRIMARY, borderRadius: "50%" }} />
+            <span className={`${s.legendDot} ${s.legendDotRound}`} style={{ background: COLOR_PRIMARY }} />
             귀농인{mode === "all" ? " (우축)" : ""}
           </span>
         )}

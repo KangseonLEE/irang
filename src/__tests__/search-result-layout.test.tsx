@@ -121,11 +121,12 @@ describe("RegionResultGroup — 시·도 묶기", () => {
   });
 
   it("관측소는 '기상 관측소' 한 묶음으로 모이고 비교하기 링크가 없다", () => {
+    // 검색 인덱스와 같은 모양 — id 는 지점번호, 링크는 소속 시·도 상세 (10/6 QA Q2-W1: `?stations=` 는 308 로 잘렸다)
     const { container } = render(
       <RegionResultGroup
         items={ranked([
-          region("stn-108", "서울 관측소", "/regions?stations=108"),
-          region("stn-119", "수원 관측소", "/regions?stations=119"),
+          region("108", "서울 관측소", "/regions/seoul"),
+          region("119", "수원 관측소", "/regions/gyeonggi"),
         ])}
         query="관측소"
         highlightCls="hl"
@@ -135,6 +136,10 @@ describe("RegionResultGroup — 시·도 묶기", () => {
     expect(heads).toHaveLength(1);
     expect(heads[0].textContent).toContain("기상 관측소");
     expect(container.querySelectorAll("a[href*='/regions/compare']")).toHaveLength(0);
+    // 시·도 카드(article)로 잘못 그리지 않고 행으로 — 링크는 시·도 상세
+    expect(container.querySelectorAll("article")).toHaveLength(0);
+    const links = [...container.querySelectorAll("li a")].map((a) => a.getAttribute("href"));
+    expect(links).toEqual(["/regions/seoul", "/regions/gyeonggi"]);
   });
 
   it("행 순서는 첫 등장 순 — 관련도 신호를 보존한다", () => {

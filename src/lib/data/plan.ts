@@ -238,16 +238,19 @@ export const PLAN_STEPS: PlanStep[] = [
         description:
           "한국농어촌공사 농지은행, 부동산 매물 사이트 등을 통해 조건에 맞는 농지를 탐색해요. " +
           "임야, 전, 답, 과수원 등 지목과 실제 이용 현황을 반드시 확인해요.",
-        externalLink: "https://www.farmland.or.kr",
+        // 2026-10-06: farmland.or.kr 는 DNS 없음 → 농지은행 통합포털(200, title "농지은행 통합포털")
+        externalLink: "https://www.fbo.or.kr/",
         externalLinkLabel: "농지은행 바로가기",
       },
       {
         id: "step4-item2",
-        label: "토지이용규제 확인 (LURIS)",
+        label: "토지이용규제 확인 (토지이음)",
         description:
-          "토지이용규제정보시스템(LURIS)에서 농업진흥지역, 개발행위제한, 군사시설보호구역 등 규제 사항을 확인해요.",
-        externalLink: "https://luris.molit.go.kr",
-        externalLinkLabel: "LURIS 바로가기",
+          "토지이음에서 농업진흥지역, 개발행위제한, 군사시설보호구역 등 규제 사항을 확인해요.",
+        // 2026-10-06: luris.molit.go.kr 는 인증서 만료·메타 이동뿐(LURIS 는 토지이음으로 통합).
+        // 토지이음 루트는 /web/am/amMain.jsp 로 메타 이동 — 도착 페이지 200, title "토지이음"
+        externalLink: "https://www.eum.go.kr/",
+        externalLinkLabel: "토지이음 바로가기",
       },
       {
         id: "step4-item3",

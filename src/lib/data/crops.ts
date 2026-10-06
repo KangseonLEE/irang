@@ -1622,12 +1622,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     externalResources: [
       {
         type: "youtube",
-        title: "9월 사과나무 유목관리 / 2년생 생육상태",
-        url: "https://www.youtube.com/watch?v=HQVv19CoH7g",
-        thumbnail: "https://img.youtube.com/vi/HQVv19CoH7g/mqdefault.jpg",
-      },
-      {
-        type: "youtube",
         title: "사과 조류피해 이렇게 하면 새가 도망갑니다 [사과재배]",
         url: "https://www.youtube.com/watch?v=rV_qE57LLVE",
         thumbnail: "https://img.youtube.com/vi/rV_qE57LLVE/mqdefault.jpg",
@@ -1788,12 +1782,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
         url: "https://www.youtube.com/watch?v=04es-lmgP_U",
         thumbnail: "https://img.youtube.com/vi/04es-lmgP_U/mqdefault.jpg",
       },
-      {
-        type: "blog",
-        title: "포도 재배법 — 다락골사랑 블로그",
-        url: "http://blog.daum.net/_blog/BlogTypeView.do?articleno=543&blogid=0TcG5&categoryId=16&regdt=20130604214210",
-        source: "다음 블로그",
-      },
     ],
   },
   {
@@ -1937,18 +1925,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
         title: "스마트팜 46일 매출공개 / 딸기농장 / 매출 / 귀농 / 수익",
         url: "https://www.youtube.com/watch?v=zzsqX3oSqfc",
         thumbnail: "https://img.youtube.com/vi/zzsqX3oSqfc/mqdefault.jpg",
-      },
-      {
-        type: "youtube",
-        title: "[딸기 일지#3] 스마트팜(수경재배)에서 2달 만에 딸기 재배",
-        url: "https://www.youtube.com/watch?v=Vvcv4Oe-OUk",
-        thumbnail: "https://img.youtube.com/vi/Vvcv4Oe-OUk/mqdefault.jpg",
-      },
-      {
-        type: "blog",
-        title: "딸기 재배 방법 :: 알콩달콩 귀농생활",
-        url: "https://blog.daum.net/interworld/207",
-        source: "다음 블로그",
       },
     ],
   },

@@ -14,12 +14,12 @@ import { CENTERS, centerFallbackNotice } from "@/lib/data/centers";
 import { interviews } from "@/lib/data/landing";
 import { glossaryMap, CATEGORY_LABELS } from "@/lib/data/glossary";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { programStatusLabel } from "@/lib/program-status";
+import { deriveStatus, programStatusLabel } from "@/lib/program-status";
 import { displayText } from "@/lib/programs/display";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 
-import { lookupRegionFromHref } from "./region-lookup";
+import { lookupRegionItem } from "./region-lookup";
 import { InterviewResultCard } from "./interview-result-card";
 import { SearchDeadlineBadge } from "./search-deadline-badge";
 
@@ -237,7 +237,7 @@ function renderCropCard(item: SearchItem, query: string, highlightCls: string, t
 
 /** 지역 카드 — 시도·시군구·구·관측소 분기 */
 function renderRegionCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
-  const looked = lookupRegionFromHref(item.href);
+  const looked = lookupRegionItem(item);
   if (looked.kind === "unknown" || !looked.data) {
     return renderSimpleCard(item, query, highlightCls, track);
   }
@@ -366,6 +366,10 @@ function renderProgramCard(item: SearchItem, query: string, highlightCls: string
 function renderEducationCard(item: SearchItem, query: string, highlightCls: string, track?: string): ReactNode {
   const edu = getEducationById(item.id);
   if (!edu) return renderSimpleCard(item, query, highlightCls, track);
+  // 상태는 접수 기간에서 파생한다 (10/6 QA Q1-F1) — 정적 status 는 손으로 적은 값이라 ED-001(4/17 접수 종료)이
+  // "모집중"으로 남았다. 지원사업 카드(getProgramById → deriveStatus)와 같은 기준. 결과 카드는 운영에서
+  // 클라이언트 렌더라(Suspense CSR) 서버·브라우저 날짜가 갈릴 하이드레이션이 없다(search-deadline-badge 주석).
+  const status = deriveStatus(edu.applicationStart, edu.applicationEnd);
 
   return wrapCard(
     item,
@@ -382,7 +386,7 @@ function renderEducationCard(item: SearchItem, query: string, highlightCls: stri
         capacity: edu.capacity,
       })}
       <div className={s.statusCorner}>
-        <StatusBadge status={edu.status} />
+        <StatusBadge status={status} />
       </div>
     </>,
     track,

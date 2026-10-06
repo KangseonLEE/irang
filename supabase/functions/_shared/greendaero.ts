@@ -330,15 +330,18 @@ export function mapEduItem(raw: GdEduItem, today: string): CrawledItem | null {
   const applyEnd = toIsoDate(raw.eduRcrtEndDt);
   const status = statusFromWindow(applyStart, applyEnd, today);
 
-  const experience = isExperienceProgram(
-    raw.eduDetailCrseNm,
-    raw.atpnCn,
-    raw.eduTypeNm,
-    raw.eduSeNm,
-  );
+  // 순수 비대면(온라인) 과정은 체험형이 될 수 없다 — 숙박·현장 체류가 없다 (2026-10-06).
+  // "[비대면] … 농촌융복합 6차산업과 농촌체험관광"(팜러닝, eduOperSeNm "비대면교육")이 강의 주제의
+  // '농촌체험'에 걸려 행사(farm_events·일일체험)로 새고, 체험형이라 온라인 판정을 건너뛰어 지역도
+  // 교육기관 본사(서울 서초구)로 들어갔다. 10/6 원천 1페이지 실측: 체험 키워드 적중 10건 중
+  // 오프라인 8건은 전부 진짜 체험형(디딤돌·팸투어·체험학교…), 틀린 건 순수 비대면 2건뿐.
+  const operationType = resolveEducationType(raw.eduOperSeNm);
+  const experience =
+    operationType !== "온라인" &&
+    isExperienceProgram(raw.eduDetailCrseNm, raw.atpnCn, raw.eduTypeNm, raw.eduSeNm);
 
   const planNope = Number.parseInt(raw.planNope ?? "", 10);
-  const educationType = experience ? undefined : resolveEducationType(raw.eduOperSeNm);
+  const educationType = experience ? undefined : operationType;
 
   // 순수 비대면 과정의 주소는 교육기관 본사(대개 서울)라 수강 지역이 아니다.
   // 지역 필터에서 "서울 과정"으로 오인되지 않도록 전국 버킷에 둔다.
@@ -352,7 +355,11 @@ export function mapEduItem(raw: GdEduItem, today: string): CrawledItem | null {
     status,
     dateStart: applyStart,
     dateEnd: applyEnd,
-    capacity: raw.eduSeNm ?? undefined,
+    // capacity(= 대상·자격 문구 → DB target '교육 대상')는 비워 둔다 (2026-10-06).
+    // 목록 응답엔 대상 필드가 없다(142개 키 전수 확인). 예전엔 교육 구분 eduSeNm("귀농귀촌아카데미"·
+    // "지자체 귀농귀촌교육"·"농업일자리탐색(4h)" …)을 넣어 상세의 "교육 대상"에 교육 구분이 찍혔다(147행).
+    // 비우면 수집기가 '상세 공고 참조'를 넣고, 화면은 수집 행의 채움값을 숨긴다(lib/programs/display).
+    capacity: undefined,
     sourceKey: detailId,
     category: experience ? "events" : "education",
     eventType: experience

@@ -20,13 +20,18 @@ export function SearchOverlayProvider({
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  /** 결과 화면 검색창에서 열렸는가 — 그때만 지금 검색어를 채워서 연다 (10/6 QA Q4) */
+  const [fromResultBar, setFromResultBar] = useState(false);
 
   /* 열림 계측은 **여기 한 곳** — 닫힌 상태에서 열릴 때만 1회 (9/29).
      ⚠️ setState 업데이터 **안에서** 발화하면 StrictMode 가 업데이터를 두 번 호출해 2건이 찍힌다
      (9/29 라이브 실측에서 잡음). 업데이터는 순수하게 두고 현재 상태로 판정한다. */
   const open = useCallback(
     (method = "unknown") => {
-      if (!isOpen) analytics.searchOverlayOpen(method);
+      if (!isOpen) {
+        analytics.searchOverlayOpen(method);
+        setFromResultBar(method === "search_page_bar");
+      }
       setIsOpen(true);
     },
     [isOpen],
@@ -71,6 +76,7 @@ export function SearchOverlayProvider({
               richMode
               autoFocus
               onClose={close}
+              syncQueryFromUrl={fromResultBar}
             />
           </div>
         </div>

@@ -42,17 +42,19 @@ export default function SearchPageSearchBar() {
     [open],
   );
 
+  // 결과 화면 검색창에는 지금 검색어를 채워 둔다 (10/6 QA Q4) — 비어 있으면 무엇을 검색했는지 다시 읽어야 하고,
+  // 고쳐 검색하려면 처음부터 다시 쳐야 했다. 모바일은 읽기 전용 표시에 검색어를 보이고, 누르면 같은 검색어로 오버레이가 열린다.
   if (!isMobile) {
     return (
       <div>
-        <SearchBar size="default" placeholder="지역, 작물, 교육, 비용 검색" />
+        <SearchBar size="default" placeholder="지역, 작물, 교육, 비용 검색" syncQueryFromUrl />
       </div>
     );
   }
 
   return (
     <div role="button" tabIndex={0} aria-label="통합 검색 열기" onClick={open} onKeyDown={onKeyDown}>
-      <SearchBar size="default" placeholder="지역, 작물, 교육, 비용 검색" readOnlyDisplay />
+      <SearchBar size="default" placeholder="지역, 작물, 교육, 비용 검색" readOnlyDisplay syncQueryFromUrl />
     </div>
   );
 }

@@ -175,13 +175,13 @@ export function YouthCaseCards({
             <ChevronLeft size={16} />
           </button>
 
-          <div className={s.dots} role="tablist" aria-label="청년농 사례 탐색">
+          {/* 버튼 묶음 + 지금 위치 aria-current (10/6 QA) — 예전 tablist/tab 은 ←/→·탭 패널이 없어 역할과 동작이 어긋났다(공용 SnapDots 와 같은 처리) */}
+          <div className={s.dots} role="group" aria-label="청년농 사례 탐색">
             {Array.from({ length: maxIndex + 1 }).map((_, i) => (
               <button
                 key={i}
                 type="button"
-                role="tab"
-                aria-selected={i === activeIndex}
+                aria-current={i === activeIndex ? "true" : undefined}
                 aria-label={`사례 ${i + 1}번 보기`}
                 className={`${s.dot} ${i === activeIndex ? s.dotActive : ""}`}
                 onClick={() => {

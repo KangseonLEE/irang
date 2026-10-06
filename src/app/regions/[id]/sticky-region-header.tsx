@@ -1,7 +1,26 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import s from "./page.module.css";
+
+/**
+ * 글로벌 헤더가 숨었는가(`html[data-header-hidden]`, header.tsx 가 토글).
+ * 요약 바는 CSS 상 "hero 를 지났고 + 헤더가 숨었을 때"만 보인다 — 헤더가 보이는 동안엔 opacity 0 으로 물린다.
+ */
+function subscribeHeaderHidden(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-header-hidden"],
+  });
+  return () => observer.disconnect();
+}
+function readHeaderHidden() {
+  return document.documentElement.hasAttribute("data-header-hidden");
+}
+function readHeaderHiddenOnServer() {
+  return false;
+}
 
 export interface StickyChip {
   /** 칩 라벨 — 짧게 (예: "정착 점수 78") */
@@ -43,6 +62,14 @@ export function StickyRegionHeader({
   actions,
 }: StickyRegionHeaderProps) {
   const [visible, setVisible] = useState(false);
+  const headerHidden = useSyncExternalStore(
+    subscribeHeaderHidden,
+    readHeaderHidden,
+    readHeaderHiddenOnServer,
+  );
+  // 실제로 화면에 보이는가 — CSS(page.module.css .stickyTitleBar*)와 같은 조건.
+  // 숨은(opacity 0) 동안 안의 공유 버튼 2개·칩이 Tab 포커스를 받던 것을 inert 로 막는다 (10/6 QA1 백로그)
+  const shown = visible && headerHidden;
   const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -74,19 +101,15 @@ export function StickyRegionHeader({
       ref={barRef}
       className={`${s.stickyTitleBar} ${visible ? s.stickyTitleBarVisible : ""}`}
       role="banner"
-      aria-hidden={!visible}
+      aria-hidden={!shown}
+      inert={!shown}
     >
       <div className={s.stickyTitleBarTop}>
         <span className={s.stickyTitleBarOverline}>{overline}</span>
         <span className={s.stickyTitleBarName}>{shortName}</span>
         {actions && (
-          <div
-            className={s.stickyTitleBarActions}
-            // sticky bar가 숨겨져 있을 때 안의 버튼이 tab 순서에 들어가지 않도록.
-            // actions 내부에서 disabled 필요 시 호출 측이 처리.
-          >
-            {actions}
-          </div>
+          // 숨은 동안의 Tab 순서 제외는 바깥 div 의 inert 가 맡는다
+          <div className={s.stickyTitleBarActions}>{actions}</div>
         )}
       </div>
       {hasChips && (
@@ -104,7 +127,6 @@ export function StickyRegionHeader({
                 className={`${s.stickyChip} ${
                   chip.tone === "primary" ? s.stickyChipPrimary : ""
                 }`}
-                tabIndex={visible ? 0 : -1}
               >
                 {chip.label}
               </a>

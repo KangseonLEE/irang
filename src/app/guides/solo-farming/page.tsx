@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import {
   Leaf,
@@ -19,9 +20,12 @@ import type { Article } from "schema-dts";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "1인 농촌 정착 가이드 — 혼자서도 가능한 귀농 전략 | 이랑",
-  description:
-    "혼자서도 농촌으로 갈 수 있을까요? 1인 귀농에 적합한 작물, 필요 자본, 핵심 과제와 맞춤 전략을 정리했어요.",
+  ...pageMetadata({
+    title: "1인 농촌 정착 가이드 — 혼자서도 가능한 귀농 전략",
+    description:
+      "혼자서도 농촌으로 갈 수 있을까요? 1인 귀농에 적합한 작물, 필요 자본, 핵심 과제와 맞춤 전략을 정리했어요.",
+    path: "/guides/solo-farming",
+  }),
   keywords: [
     "1인 귀농",
     "혼자 귀농",
@@ -29,7 +33,6 @@ export const metadata: Metadata = {
     "1인 정착 작물",
     "혼자 농사",
   ],
-  alternates: { canonical: "/guides/solo-farming" },
 };
 
 const REALITY_CHECK = [
