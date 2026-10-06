@@ -41,6 +41,12 @@ describe("withJosa", () => {
     expect(withJosa("바다", "으로")).toBe("바다로");
   });
 
+  it("이에요/예요 — 받침 있으면 이에요, 없으면 예요", () => {
+    expect(withJosa("전남·경남·충남", "이에요")).toBe("전남·경남·충남이에요");
+    expect(withJosa("충남·경기", "이에요")).toBe("충남·경기예요");
+    expect(withJosa("3월~8월", "예요")).toBe("3월~8월이에요");
+  });
+
   it("모르는 조사는 그대로 붙인다", () => {
     expect(withJosa("감", "도")).toBe("감도");
   });

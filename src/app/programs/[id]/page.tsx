@@ -34,6 +34,7 @@ import { EligibilityCheck } from "@/components/programs/eligibility-check";
 import { ApplicationTimeline } from "@/components/programs/application-timeline";
 import { sourceBlockLabel } from "@/lib/source-label";
 import { displayText } from "@/lib/programs/display";
+import { programSeoDescription, programSeoTitle } from "@/lib/programs/seo";
 import { shareMetadata } from "@/lib/seo/share-metadata";
 import { SidebarTabs } from "@/components/ui/sidebar-tabs";
 import st from "@/components/ui/sidebar-tabs.module.css";
@@ -55,11 +56,12 @@ export async function generateMetadata({
   const regionLabel = program.region ?? "";
   // 수집 행의 출처 문장("…에서 수집했어요")은 설명에 싣지 않는다 (10/3) — 큐레이션 문장은 그대로(10/4)
   const summary = displayText(program.id, program.summary);
-  const description = `${regionLabel} ${program.title}의 자격 조건, 지원 금액, 신청 방법을 확인하세요.${summary ? ` ${summary.slice(0, 100)}` : ""}`;
+  // 검색 결과 제목·설명 — "조건·신청 방법" + "귀농 지원사업", 노출 큰 사업은 실제 검색어로 (10/6 GSC 9월, lib/programs/seo)
+  const description = programSeoDescription(program, summary);
   return {
-    title: `${program.title} — ${regionLabel} 농촌 정착 지원사업`,
+    title: programSeoTitle(program),
     description,
-    keywords: [`${regionLabel} 농촌 정착 지원사업`, "농촌 정착 지원금", "농촌 정착금", program.title],
+    keywords: [`${regionLabel} 귀농 지원사업`.trim(), "귀농 지원금", "귀농 정착 지원금", "농촌 정착 지원금", program.title],
     alternates: { canonical: `/programs/${id}` },
     // 공유 카드 — 없으면 레이아웃의 사이트 기본 제목이 나갔다 (10/4 QA)
     ...shareMetadata({ title: `${program.title} | 이랑`, description, path: `/programs/${id}` }),
