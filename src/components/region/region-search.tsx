@@ -238,6 +238,20 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
         aria-autocomplete="list"
         aria-expanded={showDropdown}
         aria-controls="region-search-listbox"
+        // 키보드 하이라이트를 보조기기에 알린다 — 트리(빈 입력)는 지금 패널의 항목, 검색은 결과 항목 (10/6 QA2 F6)
+        aria-activedescendant={
+          !showDropdown
+            ? undefined
+            : isTree
+              ? pane === "sido"
+                ? `region-search-sido-${sidoIdx}`
+                : subItems[sigunguIdx]
+                  ? `region-search-sub-${sigunguIdx}`
+                  : undefined
+              : filteredResults[highlightIdx]
+                ? `region-search-opt-${highlightIdx}`
+                : undefined
+        }
       />
       {isPending ? (
         <Loader2 size={16} className={s.spinner} aria-hidden="true" />
@@ -280,6 +294,7 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
                       key={p.id}
                       type="button"
                       role="option"
+                      id={`region-search-sido-${idx}`}
                       aria-selected={sidoIdx === idx}
                       className={
                         sidoIdx === idx ? s.treeItemActive : s.treeItem
@@ -310,6 +325,7 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
                       key={item.href}
                       type="button"
                       role="option"
+                      id={`region-search-sub-${idx}`}
                       aria-selected={pane === "sigungu" && sigunguIdx === idx}
                       className={[
                         pane === "sigungu" && sigunguIdx === idx
@@ -338,6 +354,7 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
                   key={item.href}
                   type="button"
                   role="option"
+                  id={`region-search-opt-${idx}`}
                   aria-selected={highlightIdx === idx}
                   className={
                     highlightIdx === idx ? s.dropdownItemActive : s.dropdownItem

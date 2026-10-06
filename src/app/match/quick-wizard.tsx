@@ -15,7 +15,7 @@
  *   - 결과 화면은 페르소나 라벨·메시지 + 3개 deep link 카드로 단순화
  *   - URL deep link: /regions/ranking?persona=... (Phase 6 A안 완료된 시스템) — '기본 균등'은 quick-links.ts
  *   - 결과는 "이전 진단 결과"(localStorage)에 남긴다 (2026-10-06 — 재방문 지표. 예전엔 저장 안 함)
- *   - 브라우저 뒤로가기 = 한 문항 뒤로 (use-wizard-back-guard.ts)
+ *   - 브라우저 뒤로가기 = 한 문항 뒤로 (lib/diagnosis/use-wizard-back-guard.ts)
  *
  * 분석 이벤트 (analytics.ts 신규)
  *   - quickCheckStart: 마운트 시 1회
@@ -47,8 +47,8 @@ import {
   saveAssessmentResult,
 } from "@/lib/assess-result";
 import { quickRecommendationLinks } from "./quick-links";
-import { useDiagnosisHistory } from "./use-diagnosis-history";
-import { useWizardBackGuard } from "./use-wizard-back-guard";
+import { useDiagnosisHistory } from "@/lib/diagnosis/use-diagnosis-history";
+import { useWizardBackGuard } from "@/lib/diagnosis/use-wizard-back-guard";
 import s from "./match-wizard.module.css";
 import qs from "./quick-wizard.module.css";
 
@@ -145,14 +145,15 @@ export function QuickWizard({ onBack, review, onRestart }: QuickWizardProps) {
   useWizardBackGuard(isReview ? 0 : showResult ? totalSteps : step, handleBack);
 
   // 결과 도달 시 분석 이벤트 + Supabase 가벼운 row 적재 (2026-05-18 A안) + 이전 결과 목록 저장 (10/6)
+  // 같은 답의 결과는 이벤트·저장 모두 한 번 — 결과에 다시 들어올 때마다 완료 이벤트가 나가던 것 (10/6 2차 QA R2-Q4)
   useEffect(() => {
     if (!showResult || isReview) return;
-    const persona = mapToPersona(answers);
-    analytics.quickCheckComplete(persona);
-
     const key = JSON.stringify(answers);
     if (savedAnswersRef.current === key) return;
     savedAnswersRef.current = key;
+
+    const persona = mapToPersona(answers);
+    analytics.quickCheckComplete(persona);
 
     const id = generateResultId();
     addResult({ kind: "quick", resultId: id, answers });

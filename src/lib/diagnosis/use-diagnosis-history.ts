@@ -16,7 +16,7 @@ import {
   parseHistory,
   type DiagnosisHistoryItem,
   type NewHistoryItem,
-} from "./diagnosis-history";
+} from "./history";
 
 const EMPTY: DiagnosisHistoryItem[] = [];
 const listeners = new Set<() => void>();

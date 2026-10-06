@@ -31,6 +31,7 @@ import s from "./page.module.css";
 import {
   displayEducationLevel,
   displayEducationType,
+  displayTarget,
   displayText,
   displayValue,
   isCapacityKnown,
@@ -119,7 +120,8 @@ export default async function EducationDetailPage({
   const duration = displayValue(course.id, course.duration);
   const schedule = displayValue(course.id, course.schedule);
   const cost = displayValue(course.id, course.cost);
-  const target = displayValue(course.id, course.target);
+  // 그린대로 교육은 원천에 대상 칸이 없다 — 교육 구분("귀농귀촌아카데미")이 들어갔던 칸이라 싣지 않는다 (10/6 QA R2)
+  const target = displayTarget(course.id, course.target);
   const capacityLabel = isCapacityKnown(course.id, course.capacity)
     ? course.capacity !== null
       ? `${course.capacity}명`

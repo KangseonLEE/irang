@@ -6,7 +6,8 @@
  */
 
 import { getSupabase, isSupabaseConfigured, type EventRow } from "@/lib/supabase";
-import { deriveEventStatus } from "@/lib/program-status";
+import { kstToday, deriveEventStatus } from "@/lib/program-status";
+import { isCrawledRow } from "@/lib/programs/display";
 import { matchesListQuery, parseFilterValues } from "@/lib/search-params/filter-match";
 
 export interface FarmEvent {
@@ -100,7 +101,7 @@ const EVENTS_RAW: Omit<FarmEvent, "status">[] = [
     description:
       "120개사 400부스 규모의 스마트농업·귀농귀촌 박람회예요. 스마트팜 기술 전시, 심포지엄·세미나가 진행되며 경남국제축산박람회(GILEX)가 동시 개최돼요.",
     capacity: null,
-    target: "스마트팜 도입 희망 농업인, 농촌 정착 예정자, 농업 기업",
+    target: "스마트팜 도입 희망 농업인, 귀농 예정자",
     url: "https://sfkorea.kr/",
   },
   {
@@ -219,6 +220,27 @@ function mapEventRow(row: EventRow): FarmEvent {
   };
 }
 
+/**
+ * 순수 비대면 강의인가 — 체험(살아보기·일일체험…)이 아니다 (10/6 QA R2-Q1 🟡4).
+ *
+ * 그린대로 교육 목록의 "유형특화과정-예비귀촌인 · [비대면] 10/31 (주말반 10시~12시) 농촌융복합 6차산업과 농촌체험관광"
+ * (crawl-greendaero-education-2ca872c9)이 강의 주제의 '체험'에 걸려 farm_events·'일일체험'으로 적재됐고, 지역도
+ * 교육기관 본사(서울 서초구)로 들어가 서울 상세·/events 에 '일일체험'으로 나왔다. 수집기는 운영 구분(eduOperSeNm)으로
+ * 고쳤고(supabase/functions/_shared/greendaero.ts) 이미 적재된 행은 DB 수정 SQL 이 지우지만 결재 대기라, 그 전까지 여기서 막는다.
+ *
+ * DB 행에는 운영 구분 칸이 없어 제목으로만 판정한다 — **보수적으로** 셋 다일 때만:
+ *  ① 수집 행(crawl-*) — 손으로 고른 큐레이션 행은 건드리지 않는다
+ *  ② 제목의 한 마디(" · " 로 나뉜 사업명·회차 안내)가 "[비대면]" 으로 시작
+ *  ③ 제목 어디에도 대면·현장·실습·오프라인 표지가 없다 — "비대면+현장실습" 체험학교는 체험으로 남는다
+ */
+export function isOnlineOnlyLecture(event: Pick<FarmEvent, "id" | "title">): boolean {
+  if (!isCrawledRow(event.id)) return false;
+  const startsOnline = event.title.split("·").some((segment) => segment.trim().startsWith("[비대면]"));
+  if (!startsOnline) return false;
+  const hasOfflineMark = /(^|[^비])대면|현장|실습|오프라인/.test(event.title);
+  return !hasOfflineMark;
+}
+
 /** DB 결과에 DB 에 없는 정적 행을 붙인다 — CLAUDE.md "데이터 소스 병합 원칙" (QA Q1-W3: evt-004 수원 케이팜 미노출) */
 function withStaticOnly(primary: FarmEvent[]): FarmEvent[] {
   const primaryIds = new Set(primary.map((e) => e.id));
@@ -240,7 +262,9 @@ export async function getEventByIdAsync(
         .maybeSingle();
 
       if (!error && data) {
-        return mapEventRow(data as unknown as EventRow);
+        const event = mapEventRow(data as unknown as EventRow);
+        // 체험이 아닌 비대면 강의 — 목록·사이트맵과 같이 상세도 열지 않는다(isOnlineOnlyLecture)
+        return isOnlineOnlyLecture(event) ? undefined : event;
       }
     } catch {
       // Supabase 에러 → 정적 폴백
@@ -252,8 +276,8 @@ export async function getEventByIdAsync(
 
 /** 현재 연월 문자열 (YYYY-MM) */
 export function getCurrentPeriod(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  // KST 기준 달 — Vercel 서버는 UTC 라 new Date() 로 세면 매월 1일 0~9시(KST)에 지난달이 된다 (10/6 QA)
+  return kstToday().slice(0, 7);
 }
 
 
@@ -343,7 +367,8 @@ async function loadEvents(): Promise<{
         .order("date_start", { ascending: true });
 
       if (!error && data && data.length > 0) {
-        const dbEvents = (data as unknown as EventRow[]).map(mapEventRow);
+        // 체험이 아닌 순수 비대면 강의는 뺀다 — 지역 상세·/events·랜딩·사이트맵이 모두 이 로더를 쓴다 (10/6 QA R2)
+        const dbEvents = (data as unknown as EventRow[]).map(mapEventRow).filter((e) => !isOnlineOnlyLecture(e));
         // 정적 데이터 중 DB에 없는 행사 병합 (10/6 전엔 없어서 evt-004 수원 케이팜이 목록에 0회 노출)
         return { events: withStaticOnly(dbEvents), source: "supabase" };
       }

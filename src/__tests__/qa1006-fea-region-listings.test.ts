@@ -53,9 +53,9 @@ vi.mock("@/lib/data/events", async (importOriginal) => {
 });
 
 import {
-  isLocalRow,
   loadRegionListings,
-  rankByRegion,
+  rankVenuesByRegion,
+  regionScopeOf,
 } from "@/app/regions/[id]/region-listings";
 
 function event(partial: Partial<FarmEvent> & Pick<FarmEvent, "id" | "region">): FarmEvent {
@@ -116,7 +116,7 @@ function program(
   } as SupportProgram;
 }
 
-const GAPYEONG = { name: "가평군", shortName: "가평" };
+const GAPYEONG = { id: "gapyeong", name: "가평군", shortName: "가평" };
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -187,7 +187,7 @@ describe("가까운 지역 먼저 — 시·군·구 → 시·도 → 전국, 같
     expect(events.map((e) => e.id)).toEqual(["gapyeong", "yeoncheon", "yeoju", "national"]);
   });
 
-  it("지원사업: 다른 시·군 전용 사업은 전국 사업 뒤로 (시·군 사업은 그 주민만 신청 가능)", async () => {
+  it("지원사업: 시·군·구 상세는 이 시·군 → 시·도 공통 → 전국, 다른 시·군 전용은 뺀다 (QA2 R2-Q2 F1)", async () => {
     mocks.programs = [
       program({ id: "anseong", region: "경기도", sigungu: "안성", applicationStart: "2026-09-01", applicationEnd: "2026-10-10" }),
       program({ id: "SP-011", region: "전국", applicationStart: "2026-01-01", applicationEnd: "2026-12-31" }),
@@ -195,41 +195,46 @@ describe("가까운 지역 먼저 — 시·군·구 → 시·도 → 전국, 같
       program({ id: "gapyeong", region: "경기도", sigungu: "가평군", applicationStart: "2026-09-01", applicationEnd: "2026-12-15" }),
     ];
     const local = await loadRegionListings({ provinceName: "경기도", local: GAPYEONG });
-    expect(local.programs.map((p) => p.id)).toEqual(["gapyeong", "gyeonggi-wide", "SP-011", "anseong"]);
+    expect(local.programs.map((p) => p.id)).toEqual(["gapyeong", "gyeonggi-wide", "SP-011"]);
 
-    // 시·도 상세(지역 맥락 없음)에선 시·군 사업도 그 시·도 사업이다
+    // 시·도 상세: 시·도 공통 → 전국 → 도 안의 시·군 전용(마감 임박순)
     const sido = await loadRegionListings({ provinceName: "경기도" });
-    expect(sido.programs.map((p) => p.id)).toEqual(["anseong", "gyeonggi-wide", "gapyeong", "SP-011"]);
+    expect(sido.programs.map((p) => p.id)).toEqual(["gyeonggi-wide", "SP-011", "anseong", "gapyeong"]);
   });
 
-  it("rankByRegion 은 같은 범위 안의 입력 순서를 지킨다", () => {
-    const rows = [
-      { id: "a", region: "전국" },
-      { id: "b", region: "경기도" },
-      { id: "c", region: "전국" },
-      { id: "d", region: "경기도" },
-    ];
-    expect(rankByRegion(rows, { provinceName: "경기도" }).map((r) => r.id)).toEqual(["b", "d", "a", "c"]);
+  it("rankVenuesByRegion 은 같은 범위 안의 입력 순서를 지킨다", () => {
+    const row = (id: string, region: string) => ({ id, region, title: id, organization: "기관" });
+    const rows = [row("a", "전국"), row("b", "경기도"), row("c", "전국"), row("d", "경기도")];
+    expect(rankVenuesByRegion(rows, { provinceName: "경기도" }).map((r) => r.id)).toEqual(["b", "d", "a", "c"]);
   });
 });
 
-describe("isLocalRow — 이름이 같거나 하위 구가 붙은 경우만", () => {
-  it("정식·약칭·하위 구 표기를 잡는다", () => {
-    expect(isLocalRow("가평군", GAPYEONG)).toBe(true);
-    expect(isLocalRow("가평", GAPYEONG)).toBe(true);
-    expect(isLocalRow(" 가평군 ", GAPYEONG)).toBe(true);
-    expect(isLocalRow("수원시 장안구", { name: "수원시", shortName: "수원" })).toBe(true);
+describe("regionScopeOf — 검색 패널과 같은 시·군 판정기(localSigunguIdsOf)", () => {
+  const base = { title: "제목", organization: "기관" };
+
+  it("시·군·구 칸의 정식·약칭·하위 구 표기를 잡는다", () => {
+    const ctx = { provinceName: "경기도", local: GAPYEONG };
+    expect(regionScopeOf({ ...base, region: "경기도", sigungu: "가평군" }, ctx)).toBe("own");
+    expect(regionScopeOf({ ...base, region: "경기도", sigungu: "가평" }, ctx)).toBe("own");
+    const suwon = { provinceName: "경기도", local: { id: "suwon", name: "수원시", shortName: "수원" } };
+    expect(regionScopeOf({ ...base, region: "경기도", sigungu: "수원시 장안구" }, suwon)).toBe("own");
+  });
+
+  it("칸이 비어도 제목·주관 기관에서 시·군을 찾는다 (SP-035 공주 같은 큐레이션 사업)", () => {
+    const ctx = { provinceName: "충청남도", local: { id: "cheonan", name: "천안시", shortName: "천안" } };
+    expect(regionScopeOf({ region: "충청남도", title: "공주시 귀농인 정착 지원", organization: "공주시청" }, ctx)).toBe("other");
+    expect(regionScopeOf({ region: "충청남도", title: "천안시 귀농 지원", organization: "천안시농업기술센터" }, ctx)).toBe("own");
   });
 
   it("포함 관계만으로는 같은 지역으로 보지 않는다 (인천 동구 ≠ 남동구)", () => {
-    expect(isLocalRow("남동구", { name: "동구", shortName: "동구" })).toBe(false);
-    expect(isLocalRow("강동구", { name: "동구", shortName: "동구" })).toBe(false);
-    expect(isLocalRow("가평읍내", GAPYEONG)).toBe(false);
+    const ctx = { provinceName: "인천광역시", local: { id: "dong-gu-incheon", name: "동구", shortName: "동구" } };
+    expect(regionScopeOf({ ...base, region: "인천광역시", sigungu: "남동구" }, ctx)).toBe("other");
+    expect(regionScopeOf({ ...base, region: "인천광역시", sigungu: "동구" }, ctx)).toBe("own");
   });
 
-  it("값이 없거나 지역 맥락이 없으면 false", () => {
-    expect(isLocalRow(undefined, GAPYEONG)).toBe(false);
-    expect(isLocalRow("", GAPYEONG)).toBe(false);
-    expect(isLocalRow("가평군", undefined)).toBe(false);
+  it("시·도 공통·전국·시·도 상세", () => {
+    expect(regionScopeOf({ ...base, region: "경기도" }, { provinceName: "경기도", local: GAPYEONG })).toBe("shared");
+    expect(regionScopeOf({ ...base, region: "전국" }, { provinceName: "경기도", local: GAPYEONG })).toBe("national");
+    expect(regionScopeOf({ ...base, region: "경기도", sigungu: "안성" }, { provinceName: "경기도" })).toBe("local");
   });
 });

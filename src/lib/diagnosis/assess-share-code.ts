@@ -4,7 +4,7 @@
  * 디코더는 src/lib/assess-share.ts `decodeAssessScore` — 이 파일은 그 짝인 인코더다. 4/18 공유 버튼이 진단 첫 화면(/assess)
  * 링크로 바뀌며 호출처가 사라졌고, 9/4 knip 정리 때 인코더가 함께 지워졌다. 포맷(v2, 8 토큰):
  *   {tierNum}-{totalScore}-{motivation}-{finance}-{family}-{experience}-{adaptability}-{ageCode}
- * 왕복(encode → decode)은 src/__tests__/qa1006-fed2-assess-share.test.ts 가 지킨다.
+ * 왕복(encode → decode)은 src/__tests__/qa1006-fed2-diagnosis.test.tsx 가 지킨다. 위치: 10/6 2차에 app/assess → lib/diagnosis (라우트 간 import 정리).
  */
 import { DIMENSIONS, type DimensionScore } from "@/lib/data/assessment";
 

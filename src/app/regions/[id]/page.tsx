@@ -173,23 +173,26 @@ export default async function RegionDetailPage({ params }: PageProps) {
         )
       : null;
 
-  // 지원사업 · 교육 · 체험·행사 — DB ∪ 정적, 날짜 파생 상태, 마감 제외, 시·도 → 전국 순 (region-listings.ts).
+  // 지원사업 · 교육 · 체험·행사 — DB ∪ 정적, 날짜 파생 상태, 마감 제외 (region-listings.ts).
+  // 지원사업은 시·도 공통 → 전국 → 도 안의 시·군 전용 순 (10/6 QA2 — 경북 6칸 중 4칸을 시·군 사업이 차지하던 것)
   // 탭이 실제로 그려질 섹션만 가리키도록 여기서 먼저 불러 RegionAsyncData 에 넘긴다 (10/6 QA1 Q3-🟡7)
   const listings = await loadRegionListings({ provinceName: province.name });
   const regionPrograms = listings.programs.slice(0, 6);
   const regionEducation = listings.education.slice(0, 4);
   const regionEvents = listings.events.slice(0, 4);
 
+  // 탭 순서 = 화면(DOM) 순서 (10/6 QA2 R2-Q3 F3 — "정착 점수" 탭이 맨 앞인데 섹션은 아래쪽이라 스크롤하면
+  // 활성 탭이 앞뒤로 튀었다). 지원사업~시·군·구는 RegionAsyncData(스트리밍)가, 그 뒤는 이 파일이 그린다
   const tabSections = [
+    ...(regionPrograms.length > 0 ? [{ id: "region-programs", label: "지원사업" }] : []),
+    { id: "region-land", label: "필지·임지" },
+    ...(regionEducation.length > 0 ? [{ id: "region-education", label: "정착 교육" }] : []),
+    ...(regionEvents.length > 0 ? [{ id: "region-events", label: "체험·행사" }] : []),
+    ...(sigungus.length > 0 ? [{ id: "region-sigungu", label: "시·군·구" }] : []),
     ...(sidoSettlementScore !== null && sidoDimensions
       ? [{ id: "settlement-score", label: "정착 점수" }]
       : []),
     { id: "region-crops", label: "추천 작물" },
-    ...(regionPrograms.length > 0 ? [{ id: "region-programs", label: "지원사업" }] : []),
-    ...(sigungus.length > 0 ? [{ id: "region-sigungu", label: "시·군·구" }] : []),
-    ...(regionEducation.length > 0 ? [{ id: "region-education", label: "정착 교육" }] : []),
-    ...(regionEvents.length > 0 ? [{ id: "region-events", label: "체험·행사" }] : []),
-    { id: "region-land", label: "필지·임지" },
     ...(sidoCenter ? [{ id: "region-center", label: "지원센터" }] : []),
     { id: "community-notes", label: "현장 이야기", track: "region_tab" },
   ];

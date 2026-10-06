@@ -114,16 +114,35 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
   }, []);
 
   const scrollToSlug = useCallback(
-    (slug: string) => {
+    (slug: string, opts?: { moveFocus?: boolean }) => {
       // 펼치기
       setExpandedSlug(slug);
       // DOM 업데이트 후 스크롤
       requestAnimationFrame(() => {
         const el = document.getElementById(slug);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (!el) return;
+        // 관련 용어 버튼은 지금 접히는 카드 안에 있다 — 누른 버튼이 사라지면 포커스가 BODY 로 떨어져
+        // 다음 Tab 이 문서 처음부터 시작했다(10/6 R2-Q3 F5). 옮겨 간 용어의 펼침 버튼으로 넘긴다.
+        // 스크롤은 아래 한 번만 — 포커스 스크롤과 겹치지 않게 preventScroll
+        if (opts?.moveFocus) el.querySelector<HTMLElement>("h3 button")?.focus({ preventScroll: true });
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
       });
     },
     [],
+  );
+
+  /** 관련 용어로 이동 — 지금 필터(카테고리·검색어)에 안 보이는 용어면 필터부터 푼다(해시 이동과 같은 처리) */
+  const goToRelated = useCallback(
+    (slug: string) => {
+      // 없는 용어면 아무것도 하지 않는다 — 펼침 상태만 바뀌면 지금 카드가 접히고 포커스를 잃는다
+      if (!entries.some((e) => e.slug === slug)) return;
+      if (!filtered.some((e) => e.slug === slug)) {
+        setSelectedCategory("all");
+        setQuery("");
+      }
+      scrollToSlug(slug, { moveFocus: true });
+    },
+    [entries, filtered, scrollToSlug],
   );
 
   // ── URL 해시(#slug)로 직접 이동: 툴팁 "자세히" 링크 + 검색 결과 클릭 지원 ──
@@ -280,7 +299,7 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
                                 key={slug}
                                 type="button"
                                 className={s.termRelatedLink}
-                                onClick={() => scrollToSlug(slug)}
+                                onClick={() => goToRelated(slug)}
                               >
                                 {slug}
                               </button>

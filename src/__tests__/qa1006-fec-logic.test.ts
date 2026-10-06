@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { axisDelta, documentDelta } from "@/lib/hooks/use-focus-reveal";
+import { axisDelta, documentDelta } from "@/lib/scroll-geometry";
 import { donutLabelRadius } from "@/components/charts/donut-label";
 import { PROGRAMS_DUE_HREF, PROGRAMS_OPEN_HREF } from "@/components/landing/hero-search-hub";
 import { NAV_ITEMS } from "@/lib/data/navigation";

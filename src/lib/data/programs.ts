@@ -10,11 +10,11 @@ import {
   stripHtml,
   type RdaPolicyItem,
 } from "@/lib/api/rda";
-import { deriveStatus, programStatusLabel, UNANNOUNCED_LABEL } from "@/lib/program-status";
+import { kstToday, deriveStatus, programStatusLabel, UNANNOUNCED_LABEL } from "@/lib/program-status";
 import { CROPS } from "./crops";
 import { getSupabase, isSupabaseConfigured, type ProgramRow } from "@/lib/supabase";
 import { groupCrawlRows, type CrawlGroupInfo } from "@/lib/crawl-grouping";
-import { isCrawledRow } from "@/lib/programs/display";
+import { hasCollectorDefaults } from "@/lib/programs/display";
 import { matchesListQuery, parseFilterValues } from "@/lib/search-params/filter-match";
 
 /** 카테고리 — Sprint P P2-e (2026-05-20) + Sprint Q 확장 (2026-05-20)
@@ -237,7 +237,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     id: "SP-005",
     title: "함평군 귀농어귀촌 체류형 지원센터 입교 (제6기)",
     summary:
-      "함평군에서 농촌 정착 희망자에게 주거공간·공동실습농지·시설하우스를 제공하는 체류형 교육.",
+      "함평군에서 귀농 희망자에게 주거공간·공동실습농지·시설하우스를 제공하는 체류형 교육.",
     description:
       "함평군 귀농어귀촌 체류형 지원센터의 제6기 입교생 21세대를 모집하는 사업이에요. 선발되면 3~11월 9개월간 센터에 머물며 공동 실습 농지·시설하우스·작업장을 활용해 귀농·귀촌 교육을 받아요. 만 65세 이하로 도시에서 1년 이상 살다가 함평군에 전입한 지 6개월이 안 된 분이나, 이주를 희망하는 예비 귀농인이 신청할 수 있어요.",
     region: "전라남도",
@@ -259,9 +259,9 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     id: "SP-006",
     title: "금산군 체류형 귀농교육센터 입교",
     summary:
-      "금산군에서 1년간 체류하며 인삼·약초 중심 영농교육을 받을 수 있는 체류형 귀농 프로그램.",
+      "금산군귀농교육센터에서 1년간 체류하며 이론·실습 교육을 받는 체류형 귀농 프로그램. 3세대 선발, 보증금·월 사용료 납부.",
     description:
-      "금산군 특화작목인 인삼과 약초를 중심으로 1년간 체류하며 영농교육을 받아요. 76㎡ 2세대, 69.4㎡ 1세대 등 총 3세대만 선발하므로 경쟁률이 높아요. 체류 주택이 무상 제공되며, 금산 지역 특산물 재배 노하우를 현장에서 직접 배울 수 있는 것이 강점이에요.",
+      "금산군귀농교육센터에서 2026년 3월부터 2027년 2월까지 1년간 머물며 이론 교육부터 농업기술 실습까지 단계별로 귀농을 준비해요. 76㎡ 2세대, 69.4㎡ 1세대 등 총 3세대만 선발하고, 입교신청서와 농업창업계획서로 서류·면접 심사를 거쳐요. 체류 주택은 무료가 아니라 보증금과 월 사용료를 내요(76㎡형 보증금 69만 원·월 23만 원, 69.4㎡형 보증금 63만 원·월 21만 원, 관리비 별도). 반려동물 동반과 가축 사육은 안 돼요.",
     region: "충청남도",
     organization: "금산군귀농교육센터",
     supportType: "현물",
@@ -269,7 +269,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
-      "농촌 정착 희망자. 1년간 체류하며 영농 교육 참여.",
+      "귀농을 희망하는 도시민. 1년간(2026.3~2027.2) 체류하며 교육 참여. 보증금·월 사용료·관리비 납부.",
     applicationStart: "2026-01-15",
     applicationEnd: "2026-02-10",
     relatedCrops: ["인삼", "도라지", "더덕"],
@@ -283,7 +283,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "무안군에서 약 10개월간 체류 주거를 제공하며 영농 이론 및 실습 교육을 지원하는 프로그램.",
     description:
-      "약 10개월간 무안군 내 체류형 주거를 무상으로 제공받으며 영농 이론과 실습 교육을 병행해요. 귀농 전 장기 체류를 통해 지역 환경과 농업 여건을 충분히 파악할 수 있어요. 주거비 부담 없이 안정적으로 정착 준비를 할 수 있어 초기 정착 실패 위험을 줄여줘요.",
+      "무안군으로 귀농을 희망하는 만 65세 이하 도시민이 약 10개월간 현경면 체류형 귀농인의 집에 머물며 영농 이론과 실습 교육을 받아요. 주거는 원룸형(27㎡) 7호와 가족형(44㎡) 1호 등 8호이고, 시설하우스 2동(600㎡)과 실습포장(2,900㎡)에서 실습해요. 귀농 전 장기 체류로 지역 환경과 농업 여건을 충분히 파악할 수 있어요. 비용 조건은 무안군 공고문을 확인하세요.",
     region: "전라남도",
     organization: "무안군",
     supportType: "현물",
@@ -291,7 +291,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
-      "농촌 정착 희망자. 10개월간 체류하며 영농 이론 및 실습 교육.",
+      "무안군으로 귀농을 희망하는 만 65세 이하 도시민. 약 10개월간 체류하며 영농 이론·실습 교육.",
     applicationStart: "2026-01-10",
     applicationEnd: "2026-02-06",
     relatedCrops: [],
@@ -1829,14 +1829,13 @@ function withStaticOnly(primary: SupportProgram[]): SupportProgram[] {
   return [...primary, ...staticOnly];
 }
 
-/**
+/*
  * 수집기 기본값을 가진 행 — 수집 행(crawl-*)·RDA API 폴백 행(rda-*)은 지원 유형("보조금")·대상 연령(18~65)을
  * 원문이 아니라 수집기·매핑이 일괄로 채운다(10/6 DB: 수집 91행 전부 같은 값). 필터에선 '모름'으로 다룬다 —
- * 그 그룹을 고르면 빠지고, 고르지 않은 전체 보기에는 나온다(QA Q1-W4·Q4-W4). 화면 표시는 lib/programs/display.ts.
+ * 그 그룹을 고르면 빠지고, 고르지 않은 전체 보기에는 나온다(QA Q1-W4·Q4-W4).
+ * 판정은 화면 표시·맞춤 점수와 같은 `hasCollectorDefaults`(lib/programs/display.ts) 하나다 (10/6 QA R2 — 따로 두면
+ * RDA API 폴백 행에서 표시와 필터가 갈라졌다).
  */
-function hasCollectorDefaults(id: string): boolean {
-  return isCrawledRow(id) || id.startsWith("rda-");
-}
 
 // --- 헬퍼 함수 ---
 
@@ -1876,8 +1875,8 @@ export async function getProgramByIdAsync(
 
 /** 현재 연월 문자열 (YYYY-MM) */
 export function getCurrentPeriod(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  // KST 기준 달 — Vercel 서버는 UTC 라 new Date() 로 세면 매월 1일 0~9시(KST)에 지난달이 된다 (10/6 QA)
+  return kstToday().slice(0, 7);
 }
 
 /** 연령대 필터 옵션 (19세~79세, 10살 간격) */

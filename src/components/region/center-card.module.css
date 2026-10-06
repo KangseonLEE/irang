@@ -43,6 +43,9 @@
   color: var(--foreground);
   margin: 0;
   line-height: var(--lh-snug);
+  /* 띄어쓰기 없는 긴 기관명("경기도귀농귀촌지원센터")은 keep-all 로는 줄을 못 바꿔 카드 밖으로 16~43px 넘쳤다
+     (10/6 QA2, 320~390). 들어갈 자리가 없을 때만 글자 단위로 넘긴다 — 띄어 쓴 이름은 종전처럼 낱말 단위 */
+  overflow-wrap: anywhere;
 }
 
 /* ── 주소 ── */

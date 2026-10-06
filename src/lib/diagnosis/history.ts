@@ -155,9 +155,22 @@ export function parseHistory(raw: unknown): DiagnosisHistoryItem[] {
   return out.slice(0, HISTORY_MAX_ITEMS);
 }
 
-/** 같은 진단을 같은 답으로 다시 본 것인가 — 결과 화면을 앞뒤로 오가도 목록이 같은 결과로 채워지지 않게 */
+function isMatchItem(
+  x: DiagnosisHistoryItem | NewHistoryItem,
+): x is MatchHistoryItem | Omit<MatchHistoryItem, "savedAt"> {
+  return x.kind === undefined || x.kind === "match";
+}
+
+function sameIds(a: readonly string[] | undefined, b: readonly string[] | undefined): boolean {
+  return JSON.stringify(a ?? []) === JSON.stringify(b ?? []);
+}
+
+/**
+ * 같은 결과인가 — 목록에 같은 결과가 두 칸 들어가지 않게.
+ * 빠른 점검·적합도 진단은 답으로, 정착 유형 진단은 결과(유형 + 추천 지역·작물)로 본다 — 유형 진단 항목은 답을 남기지
+ * 않아서 예전엔 늘 "다른 결과"로 판정돼 같은 답으로 다시 마치면 두 칸이 됐다 (10/6 2차 QA R2-Q4).
+ */
 function sameResult(a: DiagnosisHistoryItem, b: NewHistoryItem): boolean {
-  if ((a.kind ?? "match") !== (b.kind ?? "match")) return false;
   if (a.kind === "quick" && b.kind === "quick") {
     return JSON.stringify(a.answers) === JSON.stringify(b.answers);
   }
@@ -168,12 +181,15 @@ function sameResult(a: DiagnosisHistoryItem, b: NewHistoryItem): boolean {
       JSON.stringify(a.track) === JSON.stringify(b.track)
     );
   }
+  if (isMatchItem(a) && isMatchItem(b)) {
+    return a.farmTypeId === b.farmTypeId && sameIds(a.topRegionIds, b.topRegionIds) && sameIds(a.topCropIds, b.topCropIds);
+  }
   return false;
 }
 
 /**
  * 새 결과를 맨 앞에 넣는다 — 최대 5건.
- * 같은 resultId 는 무시하고, 바로 앞 결과와 답이 같으면 시각만 새로 고친다(중복 저장 방지).
+ * 같은 resultId 는 무시하고, 목록에 같은 결과가 이미 있으면 그 칸을 빼고 맨 앞에 새로 둔다(시각만 새로).
  */
 export function addHistoryItem(
   list: readonly DiagnosisHistoryItem[],
@@ -181,6 +197,6 @@ export function addHistoryItem(
   savedAt: string,
 ): DiagnosisHistoryItem[] {
   if (list.some((h) => h.resultId === item.resultId)) return [...list];
-  const rest = list.length > 0 && sameResult(list[0], item) ? list.slice(1) : list;
+  const rest = list.filter((h) => !sameResult(h, item));
   return [{ ...item, savedAt } as DiagnosisHistoryItem, ...rest].slice(0, HISTORY_MAX_ITEMS);
 }

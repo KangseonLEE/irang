@@ -13,10 +13,11 @@
 }
 
 .title {
+  /* h1 → p (10/6) — 예전 h1 의 UA 위 여백을 그대로 둬 스켈레톤 높이를 지킨다 */
+  margin: 0.67em 0 0.5rem;
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.025em;
-  margin-bottom: 0.5rem;
 }
 
 .description {

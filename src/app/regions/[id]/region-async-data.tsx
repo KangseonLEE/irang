@@ -32,6 +32,7 @@ import type { EducationCourse } from "@/lib/data/education";
 import type { FarmEvent } from "@/lib/data/events";
 import { loadProvinceMap } from "@/lib/data/province-maps";
 import { listRegionHref } from "./list-region-href";
+import { educationCardFields } from "./education-card";
 import { fetchMultipleClimateData } from "@/lib/api/weather";
 import {
   fetchPopulationData,
@@ -238,21 +239,23 @@ export async function RegionAsyncData({
             </div>
           </div>
           <div className={s.programList}>
-            {matchedEducation.map((course) => (
-              <Link key={course.id} href={`/education/${course.id}`} className={s.eduCard}>
-                <div className={s.eduCardMain}>
-                  <span className={s.programTitle}>{course.title}</span>
-                  <span className={s.programMeta}>
-                    {course.organization} · {course.schedule}
-                  </span>
-                </div>
-                <div className={s.eduCardBadges}>
-                  <span className={s.eduTypeBadge}>{course.type}</span>
-                  <span className={s.eduLevelBadge}>{course.level}</span>
-                  <StatusBadge status={course.status} />
-                </div>
-              </Link>
-            ))}
+            {matchedEducation.map((course) => {
+              // 수집 행의 기본값(오프라인·초급)·채움값(상세 공고 참조)은 그리지 않는다 (10/6 QA2 W-b)
+              const card = educationCardFields(course);
+              return (
+                <Link key={course.id} href={`/education/${course.id}`} className={s.eduCard}>
+                  <div className={s.eduCardMain}>
+                    <span className={s.programTitle}>{course.title}</span>
+                    {card.meta && <span className={s.programMeta}>{card.meta}</span>}
+                  </div>
+                  <div className={s.eduCardBadges}>
+                    {card.type && <span className={s.eduTypeBadge}>{card.type}</span>}
+                    {card.level && <span className={s.eduLevelBadge}>{card.level}</span>}
+                    <StatusBadge status={course.status} />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
           <Link
             href={listRegionHref("/education", province.name)}

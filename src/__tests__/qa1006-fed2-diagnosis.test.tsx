@@ -14,13 +14,13 @@ import { decodeAssessScore } from "@/lib/assess-share";
 import { DIMENSIONS, RESULT_TIERS, type DimensionScore } from "@/lib/data/assessment";
 import { QUICK_QUESTIONS, buildRecommendations, mapToPersona, type QuickAnswers } from "@/lib/data/quick-check";
 import { PERSONAS } from "@/lib/data/personas";
-import { assessSharePath, encodeAssessScore } from "@/app/assess/share-code";
+import { assessSharePath, encodeAssessScore } from "@/lib/diagnosis/assess-share-code";
 import {
   HISTORY_MAX_ITEMS,
   addHistoryItem,
   parseHistory,
   type DiagnosisHistoryItem,
-} from "@/app/match/diagnosis-history";
+} from "@/lib/diagnosis/history";
 import { gatewayModeHref, resolveGatewayMode } from "@/app/match/gateway-mode";
 import { quickRecommendationLinks } from "@/app/match/quick-links";
 import { GatewayCards, GatewayIntro } from "@/app/match/gateway-select";
@@ -131,7 +131,7 @@ describe("적합도 진단 공유 — 결과 주소 /a/{code}", () => {
   });
 
   it("위저드가 진단 첫 화면(/assess)이 아니라 결과 주소를 복사한다", () => {
-    const src = read("src/app/assess/assessment-wizard.tsx");
+    const src = read("src/app/match/assessment-wizard.tsx");
     expect(src).toMatch(/assessSharePath\(shareCode\)/);
     expect(src).not.toMatch(/window\.location\.origin\}\/assess`/);
   });
@@ -188,7 +188,7 @@ describe("이전 진단 결과 — 세 진단 공용 저장", () => {
   it("세 위저드가 같은 저장소 훅으로 남긴다 (예전엔 유형 진단만)", () => {
     for (const [file, kind] of [
       ["src/app/match/quick-wizard.tsx", "quick"],
-      ["src/app/assess/assessment-wizard.tsx", "assess"],
+      ["src/app/match/assessment-wizard.tsx", "assess"],
       ["src/app/match/match-wizard.tsx", "match"],
     ] as const) {
       const src = read(file);

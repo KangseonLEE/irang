@@ -26,6 +26,7 @@ import { getSigunguCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
 import { loadRegionListings } from "../../region-listings";
 import { listRegionHref } from "../../list-region-href";
+import { educationCardFields } from "../../education-card";
 import { GuData } from "./gu-data";
 import { SigunguStatsSkeleton } from "../sigungu-stats-skeleton";
 import { DataSource } from "@/components/ui/data-source";
@@ -111,11 +112,11 @@ export default async function GuDetailPage({ params }: PageProps) {
 
   const year = new Date().getFullYear();
 
-  // 지역 관련 지원사업 / 교육 / 행사 — 시·군·구 상세와 같은 경로(DB ∪ 정적, 날짜 파생 상태, 마감 제외).
-  // 수집 행의 시·군·구는 구가 아니라 시 단위라 상위 시를 "이 지역"으로 본다 (10/6 QA1)
+  // 지역 관련 지원사업 / 교육 / 행사 — 시·군·구 상세와 같은 경로(DB ∪ 정적, 날짜 파생 상태, 마감 제외,
+  // 다른 시·군 전용 지원사업 제외). 시·군 판정은 구가 아니라 시 단위라 상위 시를 "이 지역"으로 본다 (10/6 QA1·QA2)
   const listings = await loadRegionListings({
     provinceName: province.name,
-    local: { name: sigungu.name, shortName: sigungu.shortName },
+    local: { id: sigungu.id, name: sigungu.name, shortName: sigungu.shortName },
   });
   const regionPrograms = listings.programs.slice(0, 3);
   const regionEducation = listings.education.slice(0, 3);
@@ -282,21 +283,23 @@ export default async function GuDetailPage({ params }: PageProps) {
         </div>
         {regionEducation.length > 0 ? (
           <div className={s.programList}>
-            {regionEducation.map((edu) => (
-              <Link key={edu.id} href={`/education/${edu.id}`} className={s.eduCard}>
-                <div className={s.eduCardMain}>
-                  <span className={s.programTitle}>{edu.title}</span>
-                  <span className={s.programMeta}>
-                    {edu.organization} · {edu.schedule}
-                  </span>
-                </div>
-                <div className={s.eduCardBadges}>
-                  <span className={s.eduTypeBadge}>{edu.type}</span>
-                  <span className={s.eduLevelBadge}>{edu.level}</span>
-                  <StatusBadge status={edu.status} />
-                </div>
-              </Link>
-            ))}
+            {regionEducation.map((edu) => {
+              // 수집 행의 기본값(오프라인·초급)·채움값(상세 공고 참조)은 그리지 않는다 (10/6 QA2 W-b)
+              const card = educationCardFields(edu);
+              return (
+                <Link key={edu.id} href={`/education/${edu.id}`} className={s.eduCard}>
+                  <div className={s.eduCardMain}>
+                    <span className={s.programTitle}>{edu.title}</span>
+                    {card.meta && <span className={s.programMeta}>{card.meta}</span>}
+                  </div>
+                  <div className={s.eduCardBadges}>
+                    {card.type && <span className={s.eduTypeBadge}>{card.type}</span>}
+                    {card.level && <span className={s.eduLevelBadge}>{card.level}</span>}
+                    <StatusBadge status={edu.status} />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <p className={s.infoEmpty}>

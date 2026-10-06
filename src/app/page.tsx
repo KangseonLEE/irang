@@ -19,11 +19,13 @@ import {
   HeroSearchHub,
   PROGRAMS_DUE_HREF,
   PROGRAMS_OPEN_HREF,
+  STAY_FILTER,
+  STAY_OPEN_HREF,
+  listStat,
   type HeroStat,
   type HeroDeadline,
 } from "@/components/landing/hero-search-hub";
 import { HeroSearchDock } from "@/components/landing/hero-search-dock";
-import { isStayEvent } from "@/components/events/event-fields";
 import { displayAmount } from "@/lib/programs/display";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
@@ -34,9 +36,9 @@ import { loadActivePromos } from "@/lib/promos/queries";
 import { LandingClickTracker } from "@/components/analytics/landing-click-tracker";
 import { TrendCostSection } from "@/components/landing/trend-cost-section";
 import { buildTypeInterviewBands } from "@/components/landing/type-interview-band";
-import { ExperienceSection, OpportunitySection, countDistinctByGroup } from "@/components/landing/discover-section";
+import { ExperienceSection, OpportunitySection } from "@/components/landing/discover-section";
 import { filterEventsAsync } from "@/lib/data/events";
-import { filterEducationAsync } from "@/lib/data/education";
+import { filterEducationAsync, getCurrentPeriod } from "@/lib/data/education";
 import { deriveStatus, daysUntilDeadline, isUnannounced, ALWAYS_OPEN } from "@/lib/program-status";
 import { StartCardsSection } from "@/components/landing/start-cards-section";
 import { NewsTabsV2Loader } from "@/components/landing/news-tabs-v2-loader";
@@ -115,11 +117,16 @@ function getProgramsData(programs: readonly SupportProgram[]) {
 export default async function HomePage() {
   // 노출 기간·활성 판정은 서버(DB)에서 끝낸다 — 클라이언트는 받은 것만 그린다.
   // 교육·체험·행사는 두 섹션(Opportunity·Experience)이 나눠 쓰므로 목록을 통째로 넘기고 고르기는 그쪽에서 한다.
-  const [{ programs }, promos, eventsResult, educationResult] = await Promise.all([
+  // 뒤의 두 목록은 히어로 수치 전용 — 숫자를 누르면 나오는 목록을 **그 목록과 같은 조건으로** 다시 센다(10/6 R2-Q4).
+  // /education 기본 목록은 이번 달(period) 조건이 붙고, 살아보기 링크는 /events?type=살아보기 라 위 두 목록과 집합이 다르다
+  const [{ programs }, promos, eventsResult, educationResult, educationDefault, stayList] = await Promise.all([
     loadPrograms(),
     loadActivePromos(),
     filterEventsAsync({}),
     filterEducationAsync({}),
+    // /education 이 period 없이 열릴 때 쓰는 조건 그대로 (education/page.tsx: period = params.period || getCurrentPeriod())
+    filterEducationAsync({ period: getCurrentPeriod() }),
+    filterEventsAsync(STAY_FILTER),
   ]);
   const { activePrograms, ongoingPrograms, openProgramCount, dueSoonProgramCount, closingPrograms } = getProgramsData(programs);
 
@@ -129,21 +136,24 @@ export default async function HomePage() {
   const heroStats: HeroStat[] = [
     { id: "programs_open", label: "신청 가능한 지원사업", value: openProgramCount, unit: "건", href: PROGRAMS_OPEN_HREF },
     { id: "programs_due", label: "7일 안에 마감", value: dueSoonProgramCount, unit: "건", href: PROGRAMS_DUE_HREF },
-    {
+    // 교육·살아보기도 같은 원칙 — 예전엔 같은 과정의 시간대별 행을 한 과정으로 묶어 세서 "62개 과정" → 목록 110건,
+    // 살아보기는 "11곳" → /events 기본 목록 16건(유형 섞임)이었다(10/6 R2-Q4). 이제 목록 화면의 "검색 결과 N건"과 같은 수다
+    listStat({
       id: "education_open",
-      label: "모집 중인 교육",
-      // 시간대별로 쪼갠 행(같은 과정 10시·13시·15시)을 한 과정으로 센다 — 랜딩 교육 카드와 같은 묶음 기준
-      value: countDistinctByGroup(educationResult.courses.filter((c) => c.status === "모집중")),
-      unit: "개 과정",
+      items: educationDefault.courses,
+      openStatus: "모집중",
+      openLabel: "모집 중인 교육",
+      mixedLabel: "모집 중·예정 교육",
       href: "/education",
-    },
-    {
+    }),
+    listStat({
       id: "stay_open",
-      label: "신청 중인 살아보기",
-      value: countDistinctByGroup(eventsResult.events.filter((e) => e.status === "접수중" && isStayEvent(e))),
-      unit: "곳",
-      href: "/events",
-    },
+      items: stayList.events,
+      openStatus: "접수중",
+      openLabel: "신청 중인 살아보기",
+      mixedLabel: "모집 중·예정 살아보기",
+      href: STAY_OPEN_HREF,
+    }),
   ];
   /* 모바일 2단 선택용 — 클라이언트로 넘길 필드만 추린다(sigungus.ts 전체를 번들에 싣지 않게) */
   const pickerProvinces = PROVINCES.map((p) => ({ id: p.id, shortName: p.shortName }));

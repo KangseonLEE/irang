@@ -314,6 +314,12 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
             aria-autocomplete="list"
             aria-expanded={showDropdown}
             aria-controls="crop-selector-dropdown"
+            // 키보드 하이라이트를 보조기기에 알린다 (10/6 QA2 F6)
+            aria-activedescendant={
+              showDropdown && highlightId && filteredResults.some((r) => r.id === highlightId)
+                ? `crop-selector-opt-${highlightId}`
+                : undefined
+            }
             disabled={reachedLimit}
           />
           {query && (
@@ -355,6 +361,7 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
                           key={item.id}
                           type="button"
                           role="option"
+                          id={`crop-selector-opt-${item.id}`}
                           aria-selected={isHighlighted}
                           className={
                             isHighlighted ? s.dropdownCardActive : s.dropdownCard

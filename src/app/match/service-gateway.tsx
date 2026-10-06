@@ -10,10 +10,10 @@
  */
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
-import { AssessmentWizard } from "../assess/assessment-wizard";
+import { AssessmentWizard } from "./assessment-wizard";
 import { GatewayHistory } from "./gateway-history";
 import { GATEWAY_FROM_SELECT_KEY, gatewayModeHref, resolveGatewayMode, type WizardMode } from "./gateway-mode";
-import type { DiagnosisHistoryItem } from "./diagnosis-history";
+import type { DiagnosisHistoryItem } from "@/lib/diagnosis/history";
 import { HistoryResult } from "./history-result";
 import { MatchWizard } from "./match-wizard";
 import { QuickWizard } from "./quick-wizard";

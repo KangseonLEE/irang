@@ -491,6 +491,22 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
     setFocusedIndex(-1);
   }, [query, allItems.length]);
 
+  // ----- 열기 -----
+  // 드롭다운을 열면서, 검색어가 채워져 있으면(결과 화면) 그 검색어의 자동완성을 바로 채운다 — 비어 있으면
+  // 드롭다운이 "검색어가 없어요" 안내를 잘못 띄운다 (자동완성은 입력값 자체를 늘 첫 후보로 담는다).
+  const openDropdown = useCallback(() => {
+    setIsOpen(true);
+    if (query.trim().length > 0) {
+      setSuggestions((prev) => (prev.length > 0 ? prev : getQuerySuggestions(query)));
+    }
+  }, [query]);
+
+  /**
+   * 포커스가 포인터(클릭·탭)로 왔는가 — onPointerDown 이 표시하고 onFocus 가 소비한다 (10/6 2차 QA N2).
+   * 검색어가 채워진 입력에 Tab 으로 들어오면 자동완성을 띄우지 않는다(운영과 같음). ↓ 키·입력으로 연다.
+   */
+  const pointerFocusRef = useRef(false);
+
   // ----- Debounced suggestions -----
   // Phase 1C: dropdown은 네이버 스타일 텍스트 자동완성만 노출.
   // 풍부 카드(섹션·서브타이틀·배지)는 /search?q= 결과 페이지에서만 사용.
@@ -575,6 +591,11 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       }
       if (e.key === "ArrowDown") {
         e.preventDefault();
+        // 닫혀 있으면 먼저 연다 (APG 콤보박스) — Tab 으로 들어와 닫힌 채인 결과 화면 검색창
+        if (!isOpen && !panelLayout) {
+          openDropdown();
+          return;
+        }
         setFocusedIndex((i) => Math.min(i + 1, allItems.length - 1));
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
@@ -601,7 +622,24 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
       }
       // Enter는 form onSubmit이 처리 — iOS 가상 키보드 Search 버튼과의 호환성 확보
     },
-    [allItems, focusedIndex, showRecent, isExpanded, handleClose, onCloseProp],
+    [allItems, focusedIndex, showRecent, isExpanded, handleClose, onCloseProp, isOpen, panelLayout, openDropdown],
+  );
+
+  // ----- 포커스가 검색창 밖으로 나가면 닫는다 (10/6 2차 QA N2) -----
+  // 바깥 mousedown 만 듣고 있어 Tab 으로 나가도 자동완성이 열린 채 아래 지식 패널 링크(사과 8개 정지점)를 덮었다.
+  // relatedTarget 이 없으면(빈 곳 클릭·창 전환) 바깥 mousedown 처리에 맡긴다. 포털로 뜬 대화상자(정보 추가 요청 모달·
+  // 확인 다이얼로그)는 이 검색창의 연장이라 닫지 않는다 — 닫으면 그 안의 요청 버튼과 함께 모달이 사라진다.
+  // 모바일 풀스크린(확장)은 그 자체가 한 겹이라 뒤로·Esc 로만 닫는다.
+  const handleContainerBlur = useCallback(
+    (e: React.FocusEvent<HTMLDivElement>) => {
+      const next = e.relatedTarget as Element | null;
+      if (!next || isExpanded) return;
+      if (containerRef.current?.contains(next)) return;
+      if (next.closest?.("[role='dialog'], [role='alertdialog'], [data-irang-dialog]")) return;
+      setIsOpen(false);
+      setFocusedIndex(-1);
+    },
+    [isExpanded],
   );
 
   // ----- Form submit: 자동완성 선택 vs 통합검색 페이지 분기 -----
@@ -881,7 +919,7 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
   );
 
   return (
-    <div className={containerClass} ref={containerRef}>
+    <div className={containerClass} ref={containerRef} onBlur={handleContainerBlur}>
       <form className={wrapClass} onSubmit={handleSubmit} role="search">
         {isExpanded ? (
           <button
@@ -912,13 +950,17 @@ export default forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar(
           value={query}
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
+          onPointerDown={() => {
+            // 이미 포커스된 입력을 다시 누르면(Tab 으로 들어와 닫힌 채) 연다. 아니면 다가올 onFocus 에 "포인터"라고 알린다.
+            if (typeof document !== "undefined" && document.activeElement === inputRef.current) openDropdown();
+            else pointerFocusRef.current = true;
+          }}
           onFocus={() => {
-            setIsOpen(true);
-            // 검색어가 채워진 채로 포커스되면(결과 화면) 그 검색어의 자동완성을 바로 채운다 — 비어 있으면
-            // 드롭다운이 "검색어가 없어요" 안내를 잘못 띄운다 (자동완성은 입력값 자체를 늘 첫 후보로 담는다)
-            if (query.trim().length > 0 && suggestions.length === 0) {
-              setSuggestions(getQuerySuggestions(query));
-            }
+            const byPointer = pointerFocusRef.current;
+            pointerFocusRef.current = false;
+            // 채워진 검색어에 Tab 으로 들어오면 열지 않는다 (10/6 2차 QA N2 — 운영과 같음, ↓·입력으로 연다).
+            // 빈 입력은 종전대로 연다(최근 검색). 자동 포커스 인스턴스(오버레이·검색 홈)는 열린 채 시작하는 화면이라 연다.
+            if (byPointer || autoFocus || query.trim().length === 0) openDropdown();
             // iOS Safari: 가상 키보드 등장 시 브라우저가 input을 뷰포트 중앙으로
             // scroll-into-view하면서 페이지가 밀리는 현상 방지.
             // mobileExpand 모드에서도 fixed 레이아웃 적용(React re-render) 전에

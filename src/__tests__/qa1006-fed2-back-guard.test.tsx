@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
-import { useWizardBackGuard } from "@/app/match/use-wizard-back-guard";
+import { useWizardBackGuard } from "@/lib/diagnosis/use-wizard-back-guard";
 
 function Wizard() {
   const [step, setStep] = useState(0);

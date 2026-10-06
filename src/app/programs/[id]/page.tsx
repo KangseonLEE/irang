@@ -39,7 +39,7 @@ import {
   displaySupportType,
   displayText,
   displayValue,
-  isCrawledRow,
+  hasCollectorDefaults,
 } from "@/lib/programs/display";
 import { parseEligibilityItems } from "@/lib/programs/parse-eligibility";
 import { programSeoDescription, programSeoTitle } from "@/lib/programs/seo";
@@ -108,7 +108,7 @@ export default async function ProgramDetailPage({
 
   // 수집 행의 기본값(지원 유형 "보조금"·연령 18~65)과 채움값("상세 공고 참조")은 원문에서 온 값이 아니다 —
   // 배지·기본 정보 표·자격 조건·셀프 체크·JSON-LD 에서 칸째 뺀다. 큐레이션 행은 그대로 (10/6 QA Q1-F2·W4, lib/programs/display)
-  const crawled = isCrawledRow(program.id);
+  const crawled = hasCollectorDefaults(program.id);
   const supportType = displaySupportType(program.id, program.supportType);
   const supportAmount = displayAmount(program.id, program.supportAmount);
   const ageLabel = displayAgeRange(program.id, program.eligibilityAgeMin, program.eligibilityAgeMax);

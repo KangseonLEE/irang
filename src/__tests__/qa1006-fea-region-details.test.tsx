@@ -189,7 +189,11 @@ describe("CentersSearch — 목록이 서버 렌더에 실린다", () => {
   })).filter((g) => g.centers.length > 0);
 
   it("renderToString(서버) 결과에 광역 센터 카드와 시·도 묶음 버튼이 전부 있다", () => {
-    const html = renderToString(<CentersSearch sidoCenters={sidoCenters} sigunguGroups={sigunguGroups} />);
+    // 붙여 쓴 기관명 사이의 줄바꿈 지점(<wbr>, 10/6 QA2)은 글자가 아니라 빼고 본다
+    const html = renderToString(<CentersSearch sidoCenters={sidoCenters} sigunguGroups={sigunguGroups} />).replace(
+      /<wbr\/>/g,
+      "",
+    );
     for (const c of sidoCenters) expect(html).toContain(c.name);
     for (const g of sigunguGroups) expect(html).toContain(`${g.shortName} 시·군 센터 ${g.centers.length}곳 보기`);
   });

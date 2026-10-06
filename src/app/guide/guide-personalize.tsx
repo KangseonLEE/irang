@@ -7,7 +7,7 @@ import { migrateFarmTypeId, FARM_TYPES, type FarmTypeId } from "@/lib/data/match
 import s from "./page.module.css";
 
 /**
- * "이전 진단 결과" 저장 항목에서 이 배너가 쓰는 부분 — 저장 모양은 src/app/match/diagnosis-history.ts.
+ * "이전 진단 결과" 저장 항목에서 이 배너가 쓰는 부분 — 저장 모양은 src/lib/diagnosis/history.ts.
  * 10/6 부터 빠른 점검 결과(farmTypeId 없음)도 같은 목록에 들어온다 — 정착 유형이 있는 가장 최근 결과를 쓴다.
  */
 interface HistoryFarmType {

@@ -853,7 +853,8 @@ export const SEARCH_FAQS: SearchFaq[] = [
       "고추 재배 정보",
       "고추 수익 괜찮아?",
     ],
-    href: "/crops/pepper",
+    // 작물 id 는 chili-pepper — "/crops/pepper" 는 운영에서도 404 였다 (10/6 2차 점검)
+    href: "/crops/chili-pepper",
     title: "고추 재배 정보",
     description:
       "고추의 재배 조건, 난이도, 예상 수익을 확인해 보세요.",

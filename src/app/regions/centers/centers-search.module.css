@@ -281,17 +281,25 @@
 }
 
 /* 광역 거점 9곳 — 모바일 2단(스크롤 부담 절반) → 태블릿 2단 → 데스크탑 3단
-   row-gap > column-gap: 카드 사이 호흡 확보, 좌우는 컴팩트하게 */
+   row-gap > column-gap: 카드 사이 호흡 확보, 좌우는 컴팩트하게.
+   열은 minmax(0, 1fr) — 1fr 은 최소가 내용 폭(auto)이라 320·360 에서 카드가 오른쪽으로 56·16px 넘쳤다 (10/6 QA2 R2-Q3 F2) */
 .sidoGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: 10px;
   row-gap: 16px;
 }
 
+/* 360 미만(320·340)은 1단 — 2단이면 글자 폭이 111~121px 라 기관명이 3~4줄로 쪼개졌다 (10/6 QA2 광역 센터 3줄) */
+@media (max-width: 359px) {
+  .sidoGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (min-width: 640px) {
   .sidoGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 14px;
     row-gap: 20px;
   }
@@ -299,7 +307,7 @@
 
 @media (min-width: 1024px) {
   .sidoGrid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: 16px;
     row-gap: 22px;
   }
@@ -321,21 +329,21 @@
 /* 광역 카드 grid — 2열(모바일) → 2열(640px) → 3열(1024px). 클릭 시 시·군 chip 모달 open. */
 .groupList {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   align-items: start;
 }
 
 @media (min-width: 640px) {
   .groupList {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
 }
 
 @media (min-width: 1024px) {
   .groupList {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
   }
 }

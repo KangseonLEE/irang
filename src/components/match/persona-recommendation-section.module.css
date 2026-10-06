@@ -1,6 +1,6 @@
 /* ==========================================================================
    PersonaRecommendationSection — 공통 페르소나 추천 카드 + 추천 picks
-   match-result.tsx, assessment-wizard.tsx, /assess/result/[id], /assess/r/[data]
+   match-result.tsx, match/assessment-wizard.tsx, /assess/result/[id], /assess/r/[data]
    4곳에서 재사용. 기존 match-wizard.module.css 의 persona* 클래스에서 추출.
    ========================================================================== */
 

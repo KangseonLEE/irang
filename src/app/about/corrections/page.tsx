@@ -159,26 +159,30 @@ export default async function CorrectionsPage({ searchParams }: Props) {
         </div>
 
         {totalPages > 1 && (
+          /* 갈 곳이 없는 쪽(첫 쪽의 "이전"·끝 쪽의 "다음")은 링크가 아니라 글자로 둔다 — 예전엔 흐린 링크가 Tab 포커스를 받고
+             Enter 로 같은 쪽을 다시 열었다 (10/6 2차 QA R2-Q3 F8). role=link + aria-disabled 로 "비활성 링크"라고 읽힌다 */
           <nav className={c.pagination} aria-label="페이지 이동">
-            <Link
-              href={buildHref({ period, page: Math.max(1, page - 1) })}
-              className={`${c.pageBtn} ${page === 1 ? c.pageBtnDisabled : ""}`}
-              aria-disabled={page === 1}
-              scroll={false}
-            >
-              이전
-            </Link>
+            {page > 1 ? (
+              <Link href={buildHref({ period, page: page - 1 })} className={c.pageBtn} scroll={false}>
+                이전
+              </Link>
+            ) : (
+              <span className={`${c.pageBtn} ${c.pageBtnDisabled}`} role="link" aria-disabled="true">
+                이전
+              </span>
+            )}
             <span className={c.pageInfo}>
               {page} / {totalPages}
             </span>
-            <Link
-              href={buildHref({ period, page: Math.min(totalPages, page + 1) })}
-              className={`${c.pageBtn} ${page === totalPages ? c.pageBtnDisabled : ""}`}
-              aria-disabled={page === totalPages}
-              scroll={false}
-            >
-              다음
-            </Link>
+            {page < totalPages ? (
+              <Link href={buildHref({ period, page: page + 1 })} className={c.pageBtn} scroll={false}>
+                다음
+              </Link>
+            ) : (
+              <span className={`${c.pageBtn} ${c.pageBtnDisabled}`} role="link" aria-disabled="true">
+                다음
+              </span>
+            )}
           </nav>
         )}
       </section>

@@ -34,6 +34,7 @@ import { getSigunguCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
 import { loadRegionListings } from "../region-listings";
 import { listRegionHref } from "../list-region-href";
+import { educationCardFields } from "../education-card";
 import { SigunguData } from "./sigungu-data";
 import { SigunguStatsSkeleton } from "./sigungu-stats-skeleton";
 import { DistrictMapSection } from "./district-map-section";
@@ -182,26 +183,28 @@ export default async function SigunguDetailPage({ params }: PageProps) {
   const year = new Date().getFullYear();
 
   // 지역 관련 지원사업 · 교육 · 행사 — DB ∪ 정적, 상태는 날짜에서 파생, 마감 제외,
-  // 이 시·군·구 → 시·도 → 전국 순 (10/6 QA1: 정적 status 로 지난 행사가 "접수중"이던 것 교정)
+  // 이 시·군·구 → 시·도 → 전국 순 (10/6 QA1: 정적 status 로 지난 행사가 "접수중"이던 것 교정).
+  // 다른 시·군 전용 지원사업은 뺀다 — 판정은 검색 패널과 같은 localSigunguIdsOf (10/6 QA2 F1)
   const listings = await loadRegionListings({
     provinceName: province.name,
-    local: { name: sigungu.name, shortName: sigungu.shortName },
+    local: { id: sigungu.id, name: sigungu.name, shortName: sigungu.shortName },
   });
   const regionPrograms = listings.programs.slice(0, 3);
   const regionEducation = listings.education.slice(0, 3);
   const regionEvents = listings.events.slice(0, 3);
 
-  // 섹션 탭은 실제로 그려지는 섹션만 (10/6 QA1 Q3-🟡7 — 없는 섹션을 가리키는 탭은 눌러도 반응이 없었다)
+  // 섹션 탭은 실제로 그려지는 섹션만 (10/6 QA1 Q3-🟡7 — 없는 섹션을 가리키는 탭은 눌러도 반응이 없었다),
+  // 순서는 화면(DOM) 순서 (10/6 QA2 R2-Q3 F3 — 지원센터·필지·임지 탭이 섹션 순서와 달라 활성 탭이 튀었다)
   const tabSections = [
     ...(sigunguSettlementScore !== null && dimScores
       ? [{ id: "settlement-score", label: "정착 점수" }]
       : []),
     { id: "sigungu-crops", label: "대표 작물" },
+    ...(sigunguCenter ? [{ id: "sigungu-center", label: "지원센터" }] : []),
     { id: "sigungu-programs", label: "지원사업" },
+    { id: "sigungu-land", label: "필지·임지" },
     { id: "sigungu-education", label: "정착 교육" },
     { id: "sigungu-events", label: "체험·행사" },
-    { id: "sigungu-land", label: "필지·임지" },
-    ...(sigunguCenter ? [{ id: "sigungu-center", label: "지원센터" }] : []),
     { id: "community-notes", label: "현장 이야기", track: "sigungu_tab" },
   ];
 
@@ -614,21 +617,23 @@ export default async function SigunguDetailPage({ params }: PageProps) {
             </div>
             {regionEducation.length > 0 ? (
               <div className={s.programList}>
-                {regionEducation.map((edu) => (
-                  <Link key={edu.id} href={`/education/${edu.id}`} className={s.eduCard}>
-                    <div className={s.eduCardMain}>
-                      <span className={s.programTitle}>{edu.title}</span>
-                      <span className={s.programMeta}>
-                        {edu.organization} · {edu.schedule}
-                      </span>
-                    </div>
-                    <div className={s.eduCardBadges}>
-                      <span className={s.eduTypeBadge}>{edu.type}</span>
-                      <span className={s.eduLevelBadge}>{edu.level}</span>
-                      <StatusBadge status={edu.status} />
-                    </div>
-                  </Link>
-                ))}
+                {regionEducation.map((edu) => {
+                  // 수집 행의 기본값(오프라인·초급)·채움값(상세 공고 참조)은 그리지 않는다 (10/6 QA2 W-b)
+                  const card = educationCardFields(edu);
+                  return (
+                    <Link key={edu.id} href={`/education/${edu.id}`} className={s.eduCard}>
+                      <div className={s.eduCardMain}>
+                        <span className={s.programTitle}>{edu.title}</span>
+                        {card.meta && <span className={s.programMeta}>{card.meta}</span>}
+                      </div>
+                      <div className={s.eduCardBadges}>
+                        {card.type && <span className={s.eduTypeBadge}>{card.type}</span>}
+                        {card.level && <span className={s.eduLevelBadge}>{card.level}</span>}
+                        <StatusBadge status={edu.status} />
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             ) : (
               <p className={s.infoEmpty}>

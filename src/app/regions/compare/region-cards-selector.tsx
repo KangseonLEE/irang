@@ -325,6 +325,12 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
             aria-autocomplete="list"
             aria-expanded={showDropdown}
             aria-controls="region-cards-listbox"
+            // 키보드 하이라이트를 보조기기에 알린다 — 포커스는 입력창에 둔 채 활성 옵션만 가리킨다 (10/6 QA2 F6)
+            aria-activedescendant={
+              showDropdown && filteredResults[highlightIdx]
+                ? `region-cards-opt-${highlightIdx}`
+                : undefined
+            }
             disabled={reachedLimit}
           />
           {query && (
@@ -363,6 +369,7 @@ export function RegionCardsSelector({ selectedRegionIds }: Props) {
                   <button
                     type="button"
                     role="option"
+                    id={`region-cards-opt-${idx}`}
                     aria-selected={highlightIdx === idx}
                     className={highlightIdx === idx ? s.dropdownItemActive : s.dropdownItem}
                     onClick={() => {

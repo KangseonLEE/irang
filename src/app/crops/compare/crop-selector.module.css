@@ -153,6 +153,10 @@
   font-size: var(--fs-caption);
   color: var(--muted-foreground);
 }
+/* 강조(키보드 하이라이트) 카드의 녹색 틴트 위에선 회색 글자가 4.39:1 로 기준(4.5) 미달 — 한 단계 진하게 (10/6 QA2 R2-Q3 F7) */
+.dropdownCardActive .dropdownCardMeta {
+  color: color-mix(in srgb, var(--muted-foreground) 70%, var(--foreground));
+}
 .dropdownCardBadge {
   font-size: var(--fs-caption);
   font-weight: 600;

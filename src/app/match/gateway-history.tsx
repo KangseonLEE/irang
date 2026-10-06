@@ -7,12 +7,13 @@
  * 서버와 하이드레이션 첫 렌더는 빈 목록이라 아무것도 그리지 않는다 — 기록이 있으면 마운트 뒤 나타난다.
  */
 import { ChevronRight, History, Trash2 } from "lucide-react";
+import { useDialog } from "@/components/ui/confirm-dialog";
 import { calculateResult } from "@/lib/data/assessment";
 import { FARM_TYPES, migrateFarmTypeId } from "@/lib/data/match-questions";
 import { getPersona } from "@/lib/data/personas";
 import { mapToPersona } from "@/lib/data/quick-check";
-import type { DiagnosisHistoryItem } from "./diagnosis-history";
-import { useDiagnosisHistory } from "./use-diagnosis-history";
+import type { DiagnosisHistoryItem } from "@/lib/diagnosis/history";
+import { useDiagnosisHistory } from "@/lib/diagnosis/use-diagnosis-history";
 import s from "./service-gateway.module.css";
 
 /** "4월 15일" — 저장 시각(브라우저 기준) */
@@ -63,7 +64,20 @@ interface GatewayHistoryProps {
 
 export function GatewayHistory({ onOpen }: GatewayHistoryProps) {
   const { history, hasHistory, clearHistory } = useDiagnosisHistory();
+  const { confirm } = useDialog();
   if (!hasHistory) return null;
+
+  /** 되돌릴 수 없는 삭제 — 세 진단 기록이 한꺼번에 지워지므로 한 번 묻는다 (10/6 2차 QA R2-Q4, 공용 다이얼로그) */
+  const handleClear = async () => {
+    const ok = await confirm({
+      title: "이전 진단 결과를 모두 지울까요?",
+      description: `이 브라우저에 저장된 결과 ${history.length}건이 지워져요. 지운 결과는 되돌릴 수 없어요.`,
+      confirmLabel: "모두 지우기",
+      tone: "danger",
+      icon: Trash2,
+    });
+    if (ok) clearHistory();
+  };
 
   return (
     <section className={s.historySection} aria-labelledby="gateway-history-title">
@@ -72,7 +86,7 @@ export function GatewayHistory({ onOpen }: GatewayHistoryProps) {
           <History size={16} aria-hidden="true" />
           이전 진단 결과
         </h2>
-        <button type="button" onClick={clearHistory} className={s.historyClear}>
+        <button type="button" onClick={handleClear} className={s.historyClear}>
           <Trash2 size={14} aria-hidden="true" />
           전체 삭제
         </button>

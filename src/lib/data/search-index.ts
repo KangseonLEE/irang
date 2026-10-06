@@ -82,22 +82,19 @@ function getSearchIndex(): SearchItem[] {
   if (_searchIndex) return _searchIndex;
 
   // ── 지역 (기상 관측소) ──
-  // 링크는 소속 시·도 상세 (10/6 QA Q2-W1): 예전 `/regions?stations=NNN` 은 `/regions` normalize 화이트리스트
-  // 밖이라 middleware 가 308 로 떼어 지역 첫 화면으로 보냈다. 관측소 판정은 href 가 아니라 id(지점번호)로 한다
-  // (components/search/region-lookup `lookupRegionItem`).
-  const provinceIdByName = new Map(PROVINCES.map((p) => [p.name, p.id]));
-  const regionItems: SearchItem[] = STATIONS.map((s) => {
-    const provinceId = provinceIdByName.get(s.province);
-    return {
-      type: "region" as const,
-      id: s.stnId,
-      title: s.name,
-      subtitle: truncate(`${s.province} · ${s.description}`, 40),
-      href: provinceId ? `/regions/${provinceId}` : "/regions",
-      keywords: [s.province],
-      icon: "\u{1F4CD}", // 📍
-    };
-  });
+  // 링크는 그 관측소를 고른 지역 비교(기후 탭) — 지역 상세의 "다른 지역과 비교"와 같은 딥링크 (10/6 2차 QA).
+  // `/regions?stations=` 는 normalize 308 로 잘렸고(1차), 시·도 상세로 보내면 "제주" 바로 찾은 결과 3장이 모두
+  // /regions/jeju 로 가 관측소 카드의 쓸모가 없었다. `/regions/compare` 는 stations(숫자 CSV)를 받는다.
+  // 관측소 판정은 href 가 아니라 id(지점번호)로 한다 (components/search/region-lookup `lookupRegionItem`).
+  const regionItems: SearchItem[] = STATIONS.map((s) => ({
+    type: "region" as const,
+    id: s.stnId,
+    title: s.name,
+    subtitle: truncate(`${s.province} · ${s.description}`, 40),
+    href: `/regions/compare?stations=${s.stnId}`,
+    keywords: [s.province],
+    icon: "\u{1F4CD}", // 📍
+  }));
 
   // ── 지역 (시군구) ──
   const sigunguItems: SearchItem[] = SIGUNGUS.map((sg) => {
@@ -860,6 +857,17 @@ function findExactMatchHoists(
   return out;
 }
 
+/** 작물 이름 → 인덱스의 작물 카드 (이름 순서 유지, 없는 이름은 건너뜀) */
+function cropCardsByName(names: string[], index: SearchItem[]): SearchItem[] {
+  const out: SearchItem[] = [];
+  for (const name of names) {
+    const crop = CROPS.find((c) => c.name === name);
+    const card = crop ? index.find((it) => it.type === "crop" && it.id === crop.id) : undefined;
+    if (card) out.push(card);
+  }
+  return out;
+}
+
 function injectCropPrefixSpace(q: string): string {
   if (q.length < 2 || /\s/.test(q)) return q;
   // q 자체가 정확한 작물명이면 분리 금지.
@@ -868,6 +876,9 @@ function injectCropPrefixSpace(q: string): string {
   if (CROP_NAME_SET.has(q)) return q;
   // 실재 지역·작물 이름은 분리 금지 — "무주"·"무안"이 "무 주"·"무 안"으로 갈려 184건이 나오던 9/23 사고
   if (ENTITY_NAME_SET.has(q)) return q;
+  // 알려진 품종 복합어도 분리 금지 — "오이고추"(고추 품종)가 "오이 고추"로 갈려 오이가 서던 10/6 2차 실측.
+  // 한 낱말로 두면 단일어 경로에서 그 작물(고추)로 안내된다. "대추토마토"(토마토)도 같은 결.
+  if (varietyCropOf(q)) return q;
   for (const cropName of CROP_NAMES_BY_LENGTH_DESC) {
     // 1자 작물(무·감·배·밤·쌀·콩)은 접두 분리하지 않는다 — "배송"→"배 송"(217건)·"감나무"→"감 나무"(91건)처럼
     // 한 글자가 와일드카드가 된다. 1자 작물의 복합어는 결과 0건 → 끝글자 규칙(getNoResultSuggestions)이 받는다.
@@ -1214,9 +1225,21 @@ export function searchAllGrouped(query: string): GroupedSearchResults {
     const hasExact = hoisted.length > 0 || (scored[0]?.score ?? 0) >= 100;
     const results = (hasExact ? scored.filter(({ score }) => score > SUBTITLE_ONLY_MAX) : scored)
       .map(({ item }) => item);
+    const rest = dropGuidesShownByFaq(results, faqResults);
+
+    // 품종·산지 복합어("청양고추"·"청송사과")는 그 작물을 뜻한다 (10/6 2차 QA). 다른 결과(청양군 카드)가 있으면
+    // 결과 화면의 자동 대체(0건일 때만)가 돌지 않아 작물 정보가 통째로 빠졌다 → 작물 카드를 직답으로 함께 놓는다.
+    // 다른 결과가 없으면 비워 둔다 — 자동 대체가 작물 결과 전체 + 안내 한 줄로 받는다("꽈리고추" → 고추).
+    // 그 작물 카드 자신(설명문에 "대추토마토"가 든 토마토 카드)은 "다른 결과"로 세지 않는다.
+    const varietyCrop = varietyCropOf(term);
+    const varietyCards = varietyCrop ? cropCardsByName([varietyCrop], index) : [];
+    const varietyKeys = new Set(varietyCards.map((i) => `${i.type}-${i.id}`));
+    const restOut = varietyKeys.size ? rest.filter((it) => !varietyKeys.has(`${it.type}-${it.id}`)) : rest;
+    const othersFound = hintPrefix.length + hoisted.length + faqResults.length + restOut.length > 0;
+
     return {
-      pinned: [...hintPrefix, ...hoisted, ...faqResults],
-      rest: dropGuidesShownByFaq(results, faqResults),
+      pinned: [...hintPrefix, ...hoisted, ...(othersFound ? varietyCards : []), ...faqResults],
+      rest: restOut,
     };
   }
 
@@ -1346,13 +1369,10 @@ export function searchAllGrouped(query: string): GroupedSearchResults {
   //   context 인텐트가 있으면 cropContextPrefix 딥링크가 더 정확하므로 중복 hoist 생략.
   const leadingCropHoist: SearchItem[] = [];
   if (cropContextPrefix.length === 0) {
-    const firstCrop = CROPS.find((c) => c.name.toLowerCase() === terms[0]);
-    if (firstCrop) {
-      const cropItem = index.find(
-        (it) => it.type === "crop" && it.id === firstCrop.id,
-      );
-      if (cropItem) leadingCropHoist.push(cropItem);
-    }
+    // 첫 단어가 품종·산지 복합어("꽈리고추 재배")면 그 작물 — 여러 단어 검색엔 자동 대체가 없어 여기서만 작물이 선다 (10/6 2차)
+    const firstCropName =
+      CROPS.find((c) => c.name.toLowerCase() === terms[0])?.name ?? varietyCropOf(terms[0]);
+    if (firstCropName) leadingCropHoist.push(...cropCardsByName([firstCropName], index));
   }
   const leadingHoistIds = new Set(leadingCropHoist.map((i) => i.id));
   const scoredOut = dropGuidesShownByFaq(
@@ -1453,12 +1473,23 @@ const CROP_VARIETY_MODIFIERS: string[] = [
 ];
 const CROP_MODIFIER_SET = new Set(CROP_VARIETY_MODIFIERS);
 const CROP_MODIFIER_HEADS = CROP_VARIETY_MODIFIERS.filter((m) => m.length >= 2);
+/**
+ * 그 작물에만 붙는 품종 앞말 (10/6 2차 QA — 90일 인기 검색어 "꽈리고추"가 0건 화면이었다).
+ * 일반 사전(CROP_VARIETY_MODIFIERS)에 넣으면 "오이X"·"꽈리X"가 다른 작물에도 붙으므로 작물별로 둔다.
+ * 고추 근거: 가락시장 경매 품목(풋고추(일반)·꽈리고추·청양고추·녹광고추·오이맛고추·홍고추), 고추 재배 단계
+ * (crops.ts — 풋고추·홍고추·건고추), 오이고추 = 오이맛고추 = 아삭이고추(녹광×피망 교잡 계열 통칭).
+ * 청양은 지명 앞말로도 이미 통과한다 — 고추 품종명이라 여기에도 적어 둔다.
+ */
+const CROP_SPECIFIC_VARIETY_PREFIXES: Record<string, string[]> = {
+  고추: ["꽈리", "청양", "녹광", "오이맛", "오이", "아삭이", "홍", "풋", "건"],
+};
 const REGION_PREFIX_SET = new Set([
   ...PROVINCES.map((p) => p.shortName.toLowerCase()),
   ...SIGUNGUS.map((s) => s.shortName.toLowerCase()).filter((n) => n.length >= 2),
 ]);
-function isVarietyPrefix(prefix: string): boolean {
+function isVarietyPrefix(prefix: string, cropName: string): boolean {
   if (CROP_MODIFIER_SET.has(prefix) || REGION_PREFIX_SET.has(prefix)) return true;
+  if ((CROP_SPECIFIC_VARIETY_PREFIXES[cropName] ?? []).includes(prefix)) return true;
   return CROP_MODIFIER_HEADS.some((m) => prefix.startsWith(m));
 }
 function findContainedCropNames(q: string): string[] {
@@ -1470,11 +1501,17 @@ function findContainedCropNames(q: string): string[] {
     const prefix = q.slice(0, q.length - name.length);
     if (prefix.length < 1) continue;
     const ok = name.length >= 2
-      ? prefix.length <= MAX_VARIETY_PREFIX && isVarietyPrefix(prefix)
+      ? prefix.length <= MAX_VARIETY_PREFIX && isVarietyPrefix(prefix, name)
       : (ONE_CHAR_CROP_VARIETY_PREFIXES[name] ?? []).includes(prefix);
     if (ok) found.push(c.name);
   }
   return found.sort((a, b) => b.length - a.length);
+}
+
+/** 품종·산지 복합어("청양고추"·"꽈리고추"·"청송사과")가 가리키는 작물 — 작물명 그 자체·해당 없음이면 null */
+function varietyCropOf(word: string): string | null {
+  if (CROP_NAME_SET.has(word)) return null;
+  return findContainedCropNames(word)[0] ?? null;
 }
 
 /** 결과 0건 검색어에 대해 안내할 실재 작물명을 돌려준다(없으면 빈 배열). 시드 우선, 없으면 끝말 작물. */
@@ -2258,7 +2295,8 @@ export function buildRelatedSearches(query: string): string[] {
     cropName = intent.crop;
   } else {
     const exact = CROPS.find((c) => c.name.toLowerCase() === trimmed.toLowerCase());
-    if (exact) cropName = exact.name;
+    // 품종·산지 복합어("청양고추")는 그 작물의 연관어(고추 소득·재배지·난이도)로 잇는다 (10/6 2차)
+    cropName = exact?.name ?? varietyCropOf(trimmed.toLowerCase());
   }
 
   if (cropName) {

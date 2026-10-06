@@ -6,7 +6,7 @@
  * 채움값을 자주 담고 있고(9/30 기준 21건 전부 그랬다), 그런 값이 카드에서 가장 눈에 띄는
  * 자리를 차지하면 실제 판단 재료(신청 기간·운영 기간·인원)가 뒤로 밀린다.
  */
-import { meaningfulValue } from "@/lib/programs/display";
+import { displayTarget, meaningfulValue } from "@/lib/programs/display";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import type { FarmEvent } from "@/lib/data/events";
@@ -125,11 +125,15 @@ export function distinctLocation(event: Pick<FarmEvent, "location" | "region" | 
   return value;
 }
 
-/** 대상 값이 유형 칩과 겹치지 않는가 ("농촌에서 살아보기 귀촌형" ↔ 칩 "귀촌형") */
+/**
+ * 대상 값 — 유형 칩과 겹치거나("농촌에서 살아보기 귀촌형" ↔ 칩 "귀촌형") 원문 대상이 아니면 null.
+ * 수집 행의 채움값("상세 공고 참조")·대상 칸이 없는 원천(그린대로 교육 → 교육 구분이 들어갔던 칸)은
+ * `displayTarget`(lib/programs/display)이 거른다 (10/6 QA R2: DB 정정 뒤 체험 9행의 대상이 "상세 공고 참조"가 된다).
+ */
 export function distinctTarget(
-  event: Pick<FarmEvent, "target" | "type" | "villageType" | "title">,
+  event: Pick<FarmEvent, "id" | "target" | "type" | "villageType" | "title">,
 ): string | null {
-  const value = event.target?.trim();
+  const value = displayTarget(event.id, event.target);
   if (!value) return null;
   const chip = eventTypeChip(event);
   if (value.includes(chip) && value.replace(chip, "").replace(/[\s·]|농촌에서\s*살아보기/g, "") === "") return null;

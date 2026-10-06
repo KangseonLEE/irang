@@ -1,14 +1,17 @@
 /**
  * 지역 상세(시·도 · 시·군·구 · 구) 목록 섹션 데이터 — 지원사업 · 정착 교육 · 체험·행사
- * (2026-10-06 QA1 Q1-F1 · Q1-W3)
+ * (2026-10-06 QA1 Q1-F1 · Q1-W3, QA2 R2-Q2 F1)
  *
  * 종전: 시·군·구·구 상세는 정적 `EDUCATION_COURSES`·`EVENTS` 를 **손으로 적은 status** 로 거르고 그 값을
  * 배지로 그렸다 → 4/26 에 끝난 박람회가 10월에도 "접수중"(111쪽). DB 에만 있는 접수 중 행(그린대로
  * 살아보기 등)은 보이지 않았다. 시·도 상세는 async 로더를 썼지만 체험·행사만 정적이었다.
  *
  * 이제 세 목록 모두 같은 경로:
- *   async 로더(DB ∪ 정적) → 상태를 날짜에서 다시 파생 → 마감 제외 → 가까운 지역 먼저
- *   (시·군·구 → 시·도 → 전국) → 같은 범위 안에서는 마감 임박순.
+ *   async 로더(DB ∪ 정적) → 상태를 날짜에서 다시 파생 → 마감 제외 → 마감 임박순 → 지역 범위 순.
+ *
+ * 지역 범위는 검색 패널과 같은 판정기(`localSigunguIdsOf` — 제목·주관 기관·시·군·구 칸에서 그 시·도의 실제
+ * 시·군·구를 찾는다)로 가른다. QA2: 1차 수정이 `row.sigungu` 칸만 봐서, 칸이 빈 큐레이션 시·군 사업(SP-035 공주·
+ * SP-070 당진…)이 "시·도 공통"으로 잡혀 시·군·구 상세 783칸 중 244칸을 다른 시·군 사업이 차지했다.
  *
  * 상태를 여기서 한 번 더 파생하는 이유: 로더가 DB `status` 컬럼을 그대로 실어 오는 경로가 있으면
  * (수집 시점 값) 지난 항목이 "모집중"으로 남는다. 파생은 멱등이라 로더가 이미 파생해도 결과가 같다.
@@ -30,10 +33,12 @@ import {
   sortEvents,
   type FarmEvent,
 } from "@/lib/data/events";
+import { localSigunguIdsOf } from "@/lib/data/entity-panel";
 import { deriveEventStatus, deriveStatus } from "@/lib/program-status";
 
-/** 시·군·구 이름 — 수집 행의 `sigungu` 는 정식("청주시")·약칭("괴산") 둘 다 온다 */
-export interface LocalArea {
+/** 지금 보고 있는 시·군·구 (구 상세면 상위 시) — id 는 SIGUNGUS.id */
+interface LocalArea {
+  id: string;
   name: string;
   shortName: string;
 }
@@ -41,7 +46,7 @@ export interface LocalArea {
 export interface RegionListingContext {
   /** PROVINCES.name (행정구역명 SSOT) */
   provinceName: string;
-  /** 시·군·구 상세면 그 시·군·구, 구 상세면 상위 시 */
+  /** 시·군·구 상세면 그 시·군·구, 구 상세면 상위 시. 시·도 상세는 없음 */
   local?: LocalArea;
 }
 
@@ -52,46 +57,78 @@ export interface RegionListings {
 }
 
 /**
- * 행이 이 시·군·구 소속인가 — 정확히 같은 이름이거나 "수원시 장안구"처럼 이름 뒤에 하위 구가 붙은 경우만.
- * `includes` 로 비교하면 인천 동구 상세에서 "남동구" 행이 지역 행사로 잡힌다.
+ * 행의 지역 범위.
+ * - own: 지금 보는 시·군·구 전용 / other: 같은 시·도의 다른 시·군·구 전용
+ * - local: 시·도 상세에서 본 "시·도 안의 시·군·구 전용"
+ * - shared: 시·도 공통 / national: 전국(또는 다른 시·도)
  */
-export function isLocalRow(rowSigungu: string | undefined, local: LocalArea | undefined): boolean {
-  const sg = rowSigungu?.trim();
-  if (!sg || !local) return false;
-  return [local.name, local.shortName].some((n) => n && (sg === n || sg.startsWith(`${n} `)));
+export type RegionScope = "own" | "other" | "local" | "shared" | "national";
+
+interface ScopedRow {
+  region: string;
+  title: string;
+  organization: string;
+  sigungu?: string;
 }
 
-interface RankOptions {
-  /**
-   * 다른 시·군·구 전용 행을 맨 뒤로 — 지원사업용. 시·군 사업은 대개 그 지역 주민만 신청할 수 있어
-   * 가평 상세에서 안성시 공고가 전국 사업보다 앞서면 안 된다. 교육·행사는 다른 시·군에서도 들으러
-   * 갈 수 있으니 시·도 범위로 둔다.
-   */
-  otherLocalLast?: boolean;
+export function regionScopeOf(row: ScopedRow, ctx: RegionListingContext): RegionScope {
+  if (row.region !== ctx.provinceName) return "national";
+  const ids = localSigunguIdsOf({
+    region: row.region,
+    title: row.title,
+    organization: row.organization,
+    sigungu: row.sigungu,
+  });
+  if (ids.length === 0) return "shared";
+  if (!ctx.local) return "local";
+  return ids.includes(ctx.local.id) ? "own" : "other";
 }
 
-/** 0 = 그 시·군·구, 1 = 그 시·도, 2 = 전국(그 밖), 3 = 같은 시·도의 다른 시·군·구 전용(otherLocalLast) */
-function regionTier(
-  row: { region: string; sigungu?: string },
-  ctx: RegionListingContext,
-  options: RankOptions,
-): 0 | 1 | 2 | 3 {
-  if (row.region !== ctx.provinceName) return 2;
-  if (isLocalRow(row.sigungu, ctx.local)) return 0;
-  if (options.otherLocalLast && ctx.local && row.sigungu?.trim()) return 3;
-  return 1;
-}
+/**
+ * 범위별 순서. 같은 순위 안에서는 들어온 순서(마감 임박순)를 지킨다. 순위 null = 목록에서 뺀다.
+ *
+ * 지원사업 — 시·군 사업은 대개 그 시·군 주민만 신청할 수 있다.
+ *   시·군·구·구 상세: 이 시·군 → 시·도 공통 → 전국, 다른 시·군 전용은 뺀다 (검색 패널과 같은 규칙)
+ *   시·도 상세: 시·도 공통 → 전국 → 도 안의 시·군 전용 (경북 6칸 중 4칸을 시·군 사업이 차지하던 것)
+ * 교육·체험·행사 — 대상이 시·군에 묶이기보다 그 시·군에서 열리는 것이라(서울 송파·서초 강의, 청도 캠프)
+ *   다른 시·군 것도 시·도 범위로 남긴다: 이 시·군 → 시·도(다른 시·군 포함) → 전국.
+ */
+const PROGRAM_RANK: Record<RegionScope, number | null> = {
+  own: 0,
+  shared: 1,
+  national: 2,
+  local: 3,
+  other: null,
+};
 
-/** 가까운 지역 먼저 — 같은 범위 안에서는 들어온 순서(마감 임박순)를 유지한다 */
-export function rankByRegion<T extends { region: string; sigungu?: string }>(
+const VENUE_RANK: Record<RegionScope, number | null> = {
+  own: 0,
+  shared: 1,
+  other: 1,
+  local: 1,
+  national: 2,
+};
+
+function rankRows<T extends ScopedRow>(
   rows: readonly T[],
   ctx: RegionListingContext,
-  options: RankOptions = {},
+  rank: Record<RegionScope, number | null>,
 ): T[] {
   return rows
-    .map((row, i) => ({ row, i, tier: regionTier(row, ctx, options) }))
-    .sort((a, b) => a.tier - b.tier || a.i - b.i)
+    .map((row, i) => ({ row, i, r: rank[regionScopeOf(row, ctx)] }))
+    .filter((x): x is { row: T; i: number; r: number } => x.r !== null)
+    .sort((a, b) => a.r - b.r || a.i - b.i)
     .map(({ row }) => row);
+}
+
+/** 지원사업 범위 정렬 — 시·군·구 상세면 다른 시·군 전용을 뺀다 */
+function rankProgramsByRegion<T extends ScopedRow>(rows: readonly T[], ctx: RegionListingContext): T[] {
+  return rankRows(rows, ctx, PROGRAM_RANK);
+}
+
+/** 교육·체험·행사 범위 정렬 — 이 시·군 것을 앞으로, 나머지는 그대로 */
+export function rankVenuesByRegion<T extends ScopedRow>(rows: readonly T[], ctx: RegionListingContext): T[] {
+  return rankRows(rows, ctx, VENUE_RANK);
 }
 
 /** 날짜로 상태를 다시 파생하고 마감을 뺀다 */
@@ -129,10 +166,8 @@ export async function loadRegionListings(ctx: RegionListingContext): Promise<Reg
   const events = eventsResult.status === "fulfilled" ? eventsResult.value.events : [];
 
   return {
-    programs: rankByRegion(sortPrograms(openPrograms(programs), "deadline"), ctx, {
-      otherLocalLast: true,
-    }),
-    education: rankByRegion(sortEducation(openEducation(education), "deadline"), ctx),
-    events: rankByRegion(sortEvents(openEvents(events), "deadline"), ctx),
+    programs: rankProgramsByRegion(sortPrograms(openPrograms(programs), "deadline"), ctx),
+    education: rankVenuesByRegion(sortEducation(openEducation(education), "deadline"), ctx),
+    events: rankVenuesByRegion(sortEvents(openEvents(events), "deadline"), ctx),
   };
 }

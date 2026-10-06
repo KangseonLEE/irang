@@ -182,6 +182,12 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
           aria-autocomplete="list"
           aria-expanded={showDropdown}
           aria-controls="crop-suitability-listbox"
+          // 키보드 하이라이트를 보조기기에 알린다 (10/6 QA2 F6)
+          aria-activedescendant={
+            showDropdown && flatOrder[highlightIdx]
+              ? `crop-suitability-opt-${flatOrder[highlightIdx].id}`
+              : undefined
+          }
         />
         {query && (
           <button
@@ -230,6 +236,7 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
                           key={c.id}
                           type="button"
                           role="option"
+                          id={`crop-suitability-opt-${c.id}`}
                           aria-selected={isHighlighted}
                           className={
                             isSelected

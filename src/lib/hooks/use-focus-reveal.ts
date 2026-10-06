@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { axisDelta, documentDelta, stickyCoverBand, stickyStateOf, type StickyState } from "@/lib/scroll-geometry";
 
 /**
  * 키보드 포커스 노출 보장 — 전역 한 곳(레이아웃)에서 건다 (2026-10-06 QA Q3-🟡5·🟡12).
@@ -22,9 +23,12 @@ import { useEffect } from "react";
  * 다른 컴포넌트와 싸우지 않는 규칙
  * - 키보드로 온 포커스(`:focus-visible` + 마지막 입력이 키보드)만. 마우스·터치 포커스, 터치 입력창(KeyboardFocusGuard 몫)은 그대로.
  * - 포커스 직후 두 프레임 사이에 스크롤이 움직이고 있으면(캐러셀 goTo·탭 전환 smooth 스크롤) 그 컴포넌트가 하는 중이다 —
- *   손대지 않고 끝난 뒤(약 420ms, 헤더 전환 0.35s 이후) 다시 잰다. 그때도 다 보이면 아무것도 안 한다.
+ *   손대지 않고, 고정 띠의 CSS 전환(헤더 0.35s·헤더를 따라 내려오는 sticky 머리의 top)이 끝난 뒤 다시 잰다. 그때도 다 보이면 아무것도 안 한다.
+ * - sticky 는 붙어 있을 때(stuck)만 "문서를 밀어도 안 움직이는 띠"다. 흐름 안 sticky 는 내용과 같고, 담는 상자 끝에 밀려 올라가는
+ *   sticky 는 아직 아래를 덮는다 — 문서를 위로 굴리면 붙는 자리까지 같이 내려오므로 그 자리를 띠 끝으로 본다(10/6 R2-Q3 R2·R3).
+ * - 띠끼리 떨어져 있어도(모바일 탭바 위 8px 띄운 하단 바) 24px 까지 건너 찾는다(R1).
  * - 완전히 화면 밖인 요소는 건드리지 않는다 — `focus({ preventScroll: true })` 로 일부러 스크롤을 막은 경우다.
- * - fixed 상자(모달·하단 바) 안 요소는 그 상자 안 스크롤만, sticky·fixed 안 요소는 문서를 밀지 않는다.
+ * - fixed 상자(모달·하단 바)·붙어 있는 sticky 안 요소는 그 상자 안 스크롤만 하고 문서는 밀지 않는다.
  * - 떠 있는 버튼(피드백·맨 위로)은 가리면 스스로 비켜나므로(useFocusDodge) 띠로 세지 않는다 — `data-focus-reveal-ignore`.
  * - 보정은 즉시(instant) — 브라우저 자체 포커스 스크롤도 즉시라, 두 프레임 뒤 이어지는 보정이 한 번의 이동처럼 보인다.
  *   부드럽게 끌면 포커스 직후 수백 ms 동안 가린 채로 남고, 모션 감소 설정도 따로 챙길 필요가 없다.
@@ -35,46 +39,8 @@ const NAV_KEYS = new Set(["Tab", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDow
 const GAP = 8;
 /** 이보다 작은 차이는 반올림 오차 — 움직이지 않는다 */
 const EPS = 1;
-/** 컴포넌트 smooth 스크롤·헤더 등장(0.35s)이 끝난 뒤 다시 잴 때 */
+/** Web Animations 를 못 쓰는 브라우저에서 늦은 측정까지 기다리는 시간 — 헤더 전환 0.35s + 여유 */
 const LATE_MS = 420;
-
-/**
- * 한 축에서 보이게 하는 최소 이동량(양수 = 앞으로 스크롤).
- * align 이 start·center·end 면 그 정렬(스냅 위치)로, nearest 면 가까운 가장자리로. 이미 다 보이면 0.
- * 칸보다 큰 요소는 시작 가장자리가 칸 안에 있으면 그대로(이미 첫머리부터 읽힌다), 아니면 시작을 맞춘다.
- */
-export function axisDelta(
-  start: number,
-  end: number,
-  viewStart: number,
-  viewEnd: number,
-  align: "start" | "center" | "end" | "nearest" = "nearest",
-): number {
-  if (start >= viewStart - EPS && end <= viewEnd + EPS) return 0;
-  if (align === "start") return start - viewStart;
-  if (align === "end") return end - viewEnd;
-  if (align === "center") return (start + end) / 2 - (viewStart + viewEnd) / 2;
-  if (end - start > viewEnd - viewStart) {
-    return start >= viewStart - EPS && start < viewEnd ? 0 : start - viewStart;
-  }
-  return start < viewStart ? start - viewStart : end - viewEnd;
-}
-
-/**
- * 문서를 위아래로 미는 양 — 띠(위 bandTop · 아래 bandBottom) 사이에 요소가 다 들어오게.
- * 위로 미는데(음수) 헤더가 숨어 있으면 위로 스크롤하는 순간 헤더(+모바일 섹션 탭)가 내려오므로 `revealExtra` 만큼 더 민다.
- */
-export function documentDelta(
-  rect: { top: number; bottom: number },
-  bandTop: number,
-  bandBottom: number,
-  revealExtra = 0,
-): number {
-  const delta = axisDelta(rect.top, rect.bottom, bandTop, bandBottom);
-  // 헤더는 위로 10px 넘게 스크롤하면 돌아온다(header.tsx THRESHOLD)
-  if (delta < -10 && revealExtra > 0) return axisDelta(rect.top, rect.bottom, bandTop + revealExtra, bandBottom);
-  return delta;
-}
 
 function isFocusVisible(el: Element): boolean {
   try {
@@ -94,15 +60,33 @@ function isScrollable(el: Element, axis: "x" | "y"): boolean {
 /** 요소에서 문서까지의 조상 — fixed/sticky 를 만나면 표시 */
 function ancestry(el: Element) {
   const containers: HTMLElement[] = [];
-  let positioned = false; // fixed·sticky 안인가 → 문서는 밀지 않는다
+  let positioned = false; // fixed 안이거나, 지금 붙어 있는(stuck) sticky 안인가 → 문서는 밀지 않는다
   let fixed = false; // fixed 안인가 → 그 위 상자도 건드리지 않는다
   for (let n = el.parentElement; n && n !== document.body && n !== document.documentElement; n = n.parentElement) {
     const pos = getComputedStyle(n).position;
-    if (pos === "fixed" || pos === "sticky") positioned = true;
+    // sticky 는 실제로 붙어 있을 때만 — 흐름 안에 있는 sticky(지역 상세 시·군 패널 등)는 문서와 함께 움직이므로 밀어야 보인다
+    // (10/6 R2-Q3 R3: /regions/jeonnam 1280 '여수시' 카드가 sticky 조상 때문에 보정을 건너뛰어 헤더에 6/9 가렸다)
+    if (pos === "fixed" || (pos === "sticky" && stickyState(n) === "stuck")) positioned = true;
     if (!fixed && (isScrollable(n, "x") || isScrollable(n, "y"))) containers.push(n);
     if (pos === "fixed") fixed = true;
   }
   return { containers, positioned };
+}
+
+/** sticky 요소의 붙는 기준 — top 값이 있으면 위, 없고 bottom 값이 있으면 아래. 둘 다 auto 면 붙지 않는다 */
+function stickyEdge(n: Element): { edge: "top" | "bottom"; offset: number } | null {
+  const cs = getComputedStyle(n);
+  const top = parseFloat(cs.top);
+  if (Number.isFinite(top)) return { edge: "top", offset: top };
+  const bottom = parseFloat(cs.bottom);
+  if (Number.isFinite(bottom)) return { edge: "bottom", offset: bottom };
+  return null;
+}
+
+/** sticky 요소의 지금 상태(flow·stuck·pushed — 판정은 scroll-geometry 의 순수 함수) */
+function stickyState(n: Element): StickyState {
+  const e = stickyEdge(n);
+  return e ? stickyStateOf(e.edge, n.getBoundingClientRect(), e.offset, window.innerHeight) : "flow";
 }
 
 /** 컨테이너 안에서 정렬 기준이 될 상자 — 스냅 영역(scroll-snap-align)이 있으면 그 상자, 없으면 요소 자신 */
@@ -135,19 +119,39 @@ function isVisibleBox(r: DOMRect): boolean {
 
 /**
  * (x, y) 에 맨 위로 그려진 고정 띠(fixed·sticky 조상)의 상자. 띠가 아니거나, el 을 품은 띠·스스로 비켜나는 버튼이면 null.
- * el 이 null 이면(키를 누르는 순간의 예측) 품고 있는지 따지지 않는다.
  */
-function overlayAt(x: number, y: number, el: Element | null): DOMRect | null {
+function overlayAt(x: number, y: number, el: Element): { top: number; bottom: number } | null {
   const hit = document.elementFromPoint(x, y);
-  if (!hit || (el && (hit === el || el.contains(hit)))) return null;
+  if (!hit || hit === el || el.contains(hit)) return null;
   for (let n: Element | null = hit; n && n !== document.body && n !== document.documentElement; n = n.parentElement) {
     if (n.closest("[data-focus-reveal-ignore]")) return null;
     const pos = getComputedStyle(n).position;
-    if (pos === "fixed" || pos === "sticky") {
-      if (el && n.contains(el)) return null;
-      const r = n.getBoundingClientRect();
-      return isVisibleBox(r) ? r : null;
+    if (pos !== "fixed" && pos !== "sticky") continue;
+    const r = n.getBoundingClientRect();
+    if (pos === "sticky") {
+      const e = stickyEdge(n);
+      // 흐름 안 sticky 는 띠가 아니다 — 더 바깥 조상을 본다
+      const band = e ? stickyCoverBand(e.edge, r, e.offset, window.innerHeight) : null;
+      if (!band) continue;
+      if (n.contains(el)) return null;
+      // 밀려나는 중이면 붙는 자리까지 합친 구간(stickyCoverBand 주석 — 10/6 R2-Q3 R2)
+      return isVisibleBox(r) ? band : null;
     }
+    if (n.contains(el)) return null;
+    return isVisibleBox(r) ? { top: r.top, bottom: r.bottom } : null;
+  }
+  return null;
+}
+
+/**
+ * 가장자리에서 띠를 찾다가 빈 곳을 만나면 조금 더(최대 24px) 들어가 본다 — 띠끼리 떨어져 있을 수 있다.
+ * 10/6 R2-Q3 R1: 랜딩 320 트렌드·비용 하단 바는 모바일 탭바 위 8px 띄워 떠 있어, 탭바 바로 위 한 점만 보고 멈추면 바를 못 셌다
+ * ('귀농 이야기 모두 보기'가 바 밑에 9/9 가림).
+ */
+function overlayNear(x: number, y: number, el: Element, dir: 1 | -1): { top: number; bottom: number } | null {
+  for (let d = 0; d <= 24; d += 4) {
+    const r = overlayAt(x, y + d * dir, el);
+    if (r) return r;
   }
   return null;
 }
@@ -164,7 +168,7 @@ function overlayBand(el: Element, rect: DOMRect): { top: number; bottom: number 
   for (const x of xs) {
     let y = 1;
     for (let i = 0; i < 4 && y < vh / 2; i++) {
-      const r = overlayAt(x, y, el);
+      const r = overlayNear(x, y, el, 1);
       if (!r || r.bottom <= y) break;
       top = Math.max(top, r.bottom);
       y = r.bottom + 1;
@@ -174,7 +178,7 @@ function overlayBand(el: Element, rect: DOMRect): { top: number; bottom: number 
   for (const x of xs) {
     let y = vh - 2;
     for (let i = 0; i < 4 && y > vh / 2; i++) {
-      const r = overlayAt(x, y, el);
+      const r = overlayNear(x, y, el, -1);
       if (!r || r.top >= y) break;
       bottom = Math.min(bottom, r.top);
       y = r.top - 1;
@@ -261,7 +265,7 @@ function reveal(el: Element): boolean {
   if (positioned) return moved;
 
   const band = overlayBand(el, rect);
-  // 내려오는 중인 헤더는 다 내려온 자리로 — 헤더 아래 sticky 띠(작물 상세 머리 등)는 늦은 측정(420ms)이 마저 잡는다
+  // 내려오는 중인 헤더는 다 내려온 자리로 — 헤더 아래 sticky 띠(작물 상세 머리 등)는 늦은 측정(띠 전환이 끝난 뒤)이 마저 잡는다
   const bandTop = Math.max(band.top, headerFinalBottom());
   const top = rect.top - shiftY;
   const bottom = rect.bottom - shiftY;
@@ -278,14 +282,11 @@ export function useFocusReveal(): void {
   useEffect(() => {
     const root = document.documentElement;
     let keyboard = false;
-    let lateTimer = 0;
-    let raf1 = 0;
-    let raf2 = 0;
+    /** 지금 진행 중인 보정 흐름 번호 — 새 포커스·포인터·휠이 오면 올려서 이전 흐름을 버린다 */
+    let token = 0;
 
     const cancel = () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-      window.clearTimeout(lateTimer);
+      token++;
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -303,37 +304,47 @@ export function useFocusReveal(): void {
       cancel();
     };
 
-    /** 두 프레임 사이에 스크롤이 움직였는가 — 다른 컴포넌트가 smooth 스크롤 중 */
-    const settleThen = (el: Element, tries: number) => {
-      const before = scrollPositions(el);
-      raf2 = requestAnimationFrame(() => {
-        raf2 = requestAnimationFrame(() => {
-          if (document.activeElement !== el) return;
-          const after = scrollPositions(el);
-          const moving = before.length !== after.length || before.some((v, i) => Math.abs(v - after[i]) > 0.5);
-          if (moving) {
-            if (tries > 0) lateTimer = window.setTimeout(() => settleThen(el, tries - 1), 250);
-            return;
-          }
+    /** 이 흐름이 아직 유효하고 포커스가 그대로인가 */
+    const alive = (el: Element, my: number) => my === token && document.activeElement === el;
+
+    /**
+     * 스크롤이 멈춰 있으면 보정한다. 두 프레임 사이에 움직이면(다른 컴포넌트의 smooth 스크롤) 250ms 간격으로 tries 번 다시 본다.
+     */
+    const settleAndReveal = async (el: Element, my: number, tries: number): Promise<void> => {
+      for (let i = 0; i <= tries; i++) {
+        const before = scrollPositions(el);
+        await nextFrame();
+        await nextFrame();
+        if (!alive(el, my)) return;
+        const after = scrollPositions(el);
+        const moving = before.length !== after.length || before.some((v, j) => Math.abs(v - after[j]) > 0.5);
+        if (!moving) {
           reveal(el);
-        });
-      });
+          return;
+        }
+        if (i < tries) await wait(250);
+        if (!alive(el, my)) return;
+      }
     };
 
     const onFocusIn = (e: FocusEvent) => {
       const el = e.target;
       if (!(el instanceof Element) || el === document.body || el === root) return;
       if (!keyboard || !isFocusVisible(el)) return;
-      cancel();
-      // 브라우저 포커스 스크롤은 focusin 뒤에 일어난다 — 한 프레임 기다려 그 결과 위에서 잰다
-      raf1 = requestAnimationFrame(() => {
-        if (document.activeElement !== el) return;
-        settleThen(el, 0);
-        // 헤더 등장·컴포넌트 smooth 스크롤이 끝난 뒤 한 번 더 — 그때 다 보이면 아무것도 안 한다
-        lateTimer = window.setTimeout(() => {
-          if (document.activeElement === el) settleThen(el, 3);
-        }, LATE_MS);
-      });
+      const my = ++token;
+      void (async () => {
+        // 브라우저 포커스 스크롤은 focusin 뒤에 일어난다 — 한 프레임 기다려 그 결과 위에서 잰다
+        await nextFrame();
+        if (!alive(el, my)) return;
+        await settleAndReveal(el, my, 0);
+        // 늦은 측정 — 헤더가 다시 내려오거나(0.35s) 헤더 아래 sticky 띠가 top 을 옮기는 전환이 끝난 뒤.
+        // 고정 시각(420ms)으로는 우리 보정이 헤더를 불러낸 경우 전환이 아직 안 끝나 작물 상세 머리에 1/3 가렸다(10/6 R2-Q3 R2)
+        await nextFrame();
+        await nextFrame();
+        await overlayTransitionsDone();
+        if (!alive(el, my)) return;
+        await settleAndReveal(el, my, 3);
+      })();
     };
 
     window.addEventListener("keydown", onKeyDown, true);
@@ -350,4 +361,35 @@ export function useFocusReveal(): void {
       cancel();
     };
   }, []);
+}
+
+function nextFrame(): Promise<void> {
+  return new Promise((r) => requestAnimationFrame(() => r()));
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((r) => window.setTimeout(r, ms));
+}
+
+/**
+ * 고정 띠(fixed·sticky)의 CSS 전환이 끝날 때까지 — 헤더 숨김·보임(transform 0.35s), 헤더를 따라 내려오는 sticky 머리의 top 전환 등.
+ * 끝없는 애니메이션은 세지 않는다(전환만). 아무리 길어도 700ms 에서 끊는다.
+ */
+function overlayTransitionsDone(): Promise<void> {
+  if (typeof document.getAnimations !== "function" || typeof CSSTransition === "undefined") return wait(LATE_MS);
+  const running = document.getAnimations().filter((a) => {
+    if (!(a instanceof CSSTransition) || a.playState !== "running") return false;
+    const target = (a.effect as KeyframeEffect | null)?.target;
+    if (!(target instanceof Element)) return false;
+    const pos = getComputedStyle(target).position;
+    return pos === "sticky" || pos === "fixed";
+  });
+  if (!running.length) return Promise.resolve();
+  return Promise.race([
+    Promise.all(running.map((a) => a.finished.then(
+      () => undefined,
+      () => undefined,
+    ))),
+    wait(700),
+  ]).then(() => undefined);
 }

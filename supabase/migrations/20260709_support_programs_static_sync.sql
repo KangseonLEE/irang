@@ -1,6 +1,20 @@
 -- ⚠ SUPERSEDED (2026-10-06) — 적용 금지. 이 파일은 한 번도 적용되지 않았고(운영 DB 값으로 확인),
 --   그 사이 내용이 낡아 9/28 정정(SP-001 '교육 100시간 자격' 오표기 제거·SP-002 '연간 약 2,000명' 삭제)을 되돌린다.
 --   대체: 20261006_curated_rows_static_sync.sql (스냅샷 값 가드 포함)
+--
+-- 실행 차단 가드 (2026-10-06 R2): 첫 문장에서 예외를 던져 아래 UPDATE 가 하나도 반영되지 않게 한다.
+--   · SQL Editor(한 번에 전송): 첫 오류에서 전체가 중단·롤백된다
+--   · psql -f(오류 뒤에도 다음 문장을 계속 실행): BEGIN 으로 묶어 두었으므로 예외 뒤 문장은
+--     "current transaction is aborted" 로 전부 거부되고 마지막 COMMIT 은 ROLLBACK 이 된다
+--   · supabase db push 를 쓰게 되면 이 파일이 매번 실패한다 — 그때는 파일을 지우거나
+--     `supabase migration repair --status applied 20260709` 로 이력만 정리할 것(내용은 적용하지 말 것)
+BEGIN;
+
+DO $$
+BEGIN
+  RAISE EXCEPTION '20260709_support_programs_static_sync.sql 은 SUPERSEDED — 적용 금지 (9/28 정정을 되돌림). 대체: 20261006_curated_rows_static_sync.sql';
+END $$;
+
 -- support_programs — 정적 정의(src/lib/data/programs.ts) 텍스트 drift 동기화
 --
 -- 배경 (2026-07-09 재점검, 회장 결재):
@@ -137,3 +151,5 @@ WHERE slug = 'SP-026';
 --    SELECT slug FROM support_programs
 --    WHERE slug LIKE 'SP-%' AND eligibility_detail LIKE '%귀농 희망%';
 --    기대: 0건
+
+COMMIT;

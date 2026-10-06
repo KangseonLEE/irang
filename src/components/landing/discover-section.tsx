@@ -89,12 +89,8 @@ function groupTitle(title: string): string {
  * `filterEducationAsync` 의 지역 그룹핑(crawl-grouping)은 "지역만 다른 공고"를 묶지만,
  * 같은 과정을 **시간대별**로 쪼갠 행(유형특화과정 10/1 10시·13시·15시 …)은 제목이 달라 살아남는다.
  * 랜딩은 8장이 전부라 그런 행이 들어오면 탭 하나가 같은 과정으로 채워진다.
+ * (히어로 수치는 이 묶음으로 세지 않는다 — 숫자를 누르면 나오는 목록의 건수와 같아야 해서다. 10/6 R2-Q4)
  */
-/** 같은 모사업을 한 건으로 센 개수 — 히어로 데이터 줄(10/1)이 원본 행 수(시간대별 분할 포함)를 과장하지 않게 */
-export function countDistinctByGroup(items: { title: string }[]): number {
-  return new Set(items.map((item) => groupTitle(item.title))).size;
-}
-
 function dedupeByGroup<T extends { title: string }>(items: T[]): T[] {
   const seen = new Set<string>();
   return items.filter((item) => {

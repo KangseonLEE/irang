@@ -83,9 +83,10 @@ describe("결과 화면 검색창 — 현재 검색어를 채운다 (Q4)", () =>
     expect(combobox(container).value).toBe("사과 소득");
   });
 
-  it("채워진 채로 포커스하면 자동완성이 뜨고 '검색어가 없어요' 안내는 뜨지 않는다", () => {
+  it("채워진 채로 누르면(포인터) 자동완성이 뜨고 '검색어가 없어요' 안내는 뜨지 않는다", () => {
     const { container } = render(<SearchBar syncQueryFromUrl />);
     act(() => {
+      fireEvent.pointerDown(combobox(container));
       fireEvent.focus(combobox(container));
     });
     expect(container.querySelector("[role='listbox']")).not.toBeNull();

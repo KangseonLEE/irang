@@ -35,9 +35,9 @@ import { analytics } from "@/lib/analytics";
 import { saveAssessmentResult, generateResultId } from "@/lib/assess-result";
 import { ResultSaveCta } from "@/components/result/result-save-cta";
 import { PersonaRecommendationSection } from "@/components/match/persona-recommendation-section";
-import { useDiagnosisHistory } from "../match/use-diagnosis-history";
-import { useWizardBackGuard } from "../match/use-wizard-back-guard";
-import { assessSharePath, encodeAssessScore } from "./share-code";
+import { assessSharePath, encodeAssessScore } from "@/lib/diagnosis/assess-share-code";
+import { useDiagnosisHistory } from "@/lib/diagnosis/use-diagnosis-history";
+import { useWizardBackGuard } from "@/lib/diagnosis/use-wizard-back-guard";
 import s from "./assessment-wizard.module.css";
 
 /* ── 화면 상태 ── */

@@ -10,10 +10,10 @@ import {
   stripHtml,
   type RdaEduItem,
 } from "@/lib/api/rda";
-import { deriveStatus } from "@/lib/program-status";
+import { kstToday, deriveStatus } from "@/lib/program-status";
 import { getSupabase, isSupabaseConfigured, type EducationRow } from "@/lib/supabase";
 import { groupCrawlRows, type CrawlGroupInfo } from "@/lib/crawl-grouping";
-import { isCrawledRow } from "@/lib/programs/display";
+import { hasCollectorDefaults, isEducationTypeUnknown } from "@/lib/programs/display";
 import { matchesListQuery, parseFilterValues } from "@/lib/search-params/filter-match";
 
 export interface EducationCourse {
@@ -181,7 +181,7 @@ const EDUCATION_COURSES_RAW: Omit<EducationCourse, "status">[] = [
     type: "오프라인",
     duration: "수개월 (체류형)",
     schedule: "수시 접수 (제11기 운영 중)",
-    target: "농촌 정착 희망자 (영주 지역 체류 가능자)",
+    target: "귀농 희망자 (영주 지역 체류 가능자)",
     cost: "입교비 소정 (확인 필요)",
     description:
       "영주 소백산 인근 귀농드림타운에서 체류하며 농업을 학습하고 현장실습을 병행하는 체류형 교육 프로그램이에요. 2026년 3월 제11기 입교식 때 정원 30세대 중 25세대가 입교했고, 남은 5세대는 정원이 찰 때까지 수시로 신청을 받았어요.",
@@ -250,24 +250,15 @@ function withStaticOnly(primary: EducationCourse[]): EducationCourse[] {
   return [...primary, ...staticOnly];
 }
 
-/**
+/*
  * 수집기 기본값 — 원문이 아니라 수집기·API 매핑이 일괄로 채운 칸(10/6 DB):
  * - 수준(level): 수집 행 전부 "초급"(242/242) · RDA API 폴백 행(rda-edu-*)도 "초급"
  * - 방식(type): 원천이 방식을 주지 않는 수집 행(RDA 95/95)·RDA API 폴백 행은 "오프라인".
  *   그린대로 수집 행만 원문(대면·비대면)에서 방식을 정한다(supabase/functions/_shared/greendaero.ts resolveEducationType).
  * 필터에선 '모름'으로 다룬다 — 그 그룹을 고르면 빠지고, 고르지 않은 전체 보기에는 나온다(QA Q1-W4·Q4-W4).
- * 화면 표시 쪽 같은 규칙은 lib/programs/display.ts(displayEducationLevel·displayEducationType).
+ * 판정은 화면 표시(displayEducationLevel·displayEducationType)와 같은 함수 — lib/programs/display.ts
+ * `hasCollectorDefaults`(수준)·`isEducationTypeUnknown`(방식) (10/6 QA R2: 따로 두면 RDA API 폴백 행에서 표시와 필터가 갈라졌다).
  */
-const TYPE_FROM_SOURCE_PREFIXES = ["crawl-greendaero-"];
-
-function isLevelUnknown(id: string): boolean {
-  return isCrawledRow(id) || id.startsWith("rda-edu-");
-}
-
-function isTypeUnknown(id: string): boolean {
-  if (id.startsWith("rda-edu-")) return true;
-  return isCrawledRow(id) && !TYPE_FROM_SOURCE_PREFIXES.some((prefix) => id.startsWith(prefix));
-}
 
 /** ID(slug)로 단일 교육과정 조회 — Supabase → 정적 폴백 (비동기) */
 export async function getEducationByIdAsync(
@@ -297,8 +288,8 @@ export async function getEducationByIdAsync(
 
 /** 현재 연월 문자열 (YYYY-MM) */
 export function getCurrentPeriod(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  // KST 기준 달 — Vercel 서버는 UTC 라 new Date() 로 세면 매월 1일 0~9시(KST)에 지난달이 된다 (10/6 QA)
+  return kstToday().slice(0, 7);
 }
 
 
@@ -431,8 +422,8 @@ export async function filterEducationAsync(
     // 지역 — 전국 과정은 어느 지역을 골라도 남는다
     if (regions.length > 0 && course.region !== "전국" && !regions.includes(course.region)) return false;
     // 방식·수준 — 수집기 기본값은 '모름'(빠짐)
-    if (types.length > 0 && (isTypeUnknown(course.id) || !types.includes(course.type))) return false;
-    if (levels.length > 0 && (isLevelUnknown(course.id) || !levels.includes(course.level))) return false;
+    if (types.length > 0 && (isEducationTypeUnknown(course.id) || !types.includes(course.type))) return false;
+    if (levels.length > 0 && (hasCollectorDefaults(course.id) || !levels.includes(course.level))) return false;
     return true;
   });
 

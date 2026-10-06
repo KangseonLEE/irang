@@ -23,7 +23,6 @@ import { buildEntityPanel, localSigunguIdsOf } from "@/lib/data/entity-panel";
 import { SEARCH_FAQS } from "@/lib/data/search-faq";
 import { CROPS } from "@/lib/data/crops";
 import { EDUCATION_COURSES } from "@/lib/data/education";
-import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS, getSigungusBySidoId } from "@/lib/data/sigungus";
 import { STATIONS } from "@/lib/data/stations";
 import { deriveStatus } from "@/lib/program-status";
@@ -50,24 +49,31 @@ describe("교육 상태는 접수 기간에서 파생한다 (Q1-F1)", () => {
 
 // ─── Q2-W1 관측소 링크 ───
 
-describe("기상 관측소 결과는 소속 시·도 상세로 간다 (Q2-W1)", () => {
-  it("어떤 결과도 `/regions?stations=` 로 링크하지 않는다", () => {
-    for (const q of ["보성", "순천", "광주", "전남 귀농", "서귀포", "금산", "영주"]) {
-      expect(all(q).filter((r) => r.href.includes("stations=")).map((r) => r.title), q).toEqual([]);
+describe("기상 관측소 결과는 지역 비교(관측소 선택)로 간다 (Q2-W1 → 10/6 2차)", () => {
+  it("어떤 결과도 normalize 가 잘라 내는 `/regions?stations=` 로 링크하지 않는다", () => {
+    for (const q of ["보성", "순천", "광주", "전남 귀농", "서귀포", "금산", "영주", "제주"]) {
+      expect(all(q).filter((r) => r.href.startsWith("/regions?")).map((r) => r.title), q).toEqual([]);
     }
   });
 
-  it("관측소 항목은 `/regions/{시·도 id}` 이고, 렌더러 판정은 여전히 관측소다", () => {
+  it("관측소 항목은 `/regions/compare?stations={지점번호}` 이고, 렌더러 판정은 관측소다", () => {
     for (const st of STATIONS) {
       const item = all(st.name).find((r) => r.type === "region" && r.id === st.stnId);
       if (!item) continue;
-      const province = PROVINCES.find((p) => p.name === st.province)!;
-      expect(item.href, st.name).toBe(`/regions/${province.id}`);
+      expect(item.href, st.name).toBe(`/regions/compare?stations=${st.stnId}`);
       expect(lookupRegionItem(item).kind, st.name).toBe("station");
     }
   });
 
-  it("관측소가 아닌 시·도 카드는 같은 href 라도 시·도로 판정한다", () => {
+  it("'제주' 바로 찾은 결과의 관측소는 시·도 카드와 다른 곳으로 간다", () => {
+    const { pinned } = searchAllGrouped("제주");
+    const station = pinned.find((p) => p.type === "region" && STATIONS.some((st) => st.stnId === p.id));
+    const province = pinned.find((p) => p.id === "province-jeju");
+    expect(station?.href).toBe("/regions/compare?stations=184");
+    expect(province?.href).toBe("/regions/jeju");
+  });
+
+  it("관측소가 아닌 시·도 카드는 시·도로 판정한다", () => {
     expect(lookupRegionItem({ id: "province-jeonnam", href: "/regions/jeonnam" }).kind).toBe("province");
   });
 });
