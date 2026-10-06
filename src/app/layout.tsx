@@ -44,11 +44,11 @@ export const metadata: Metadata = {
     },
   },
   title: {
-    default: "이랑 — 농촌 정착 정보 큐레이션 포탈",
+    default: "이랑 — 귀농·귀촌 정보 큐레이션 포탈",
     template: "%s | 이랑",
   },
   description:
-    "농촌 정착(귀농·귀촌)을 준비하는 사람을 위한 정보 큐레이션 서비스예요. 지역 비교, 작물 정보, 정착 비용, 지원사업까지 공공데이터로 한곳에서 확인하세요.",
+    "귀농·귀촌을 준비하는 사람을 위한 정보 큐레이션 서비스예요. 지역 비교, 작물 정보, 정착 비용, 지원사업까지 공공데이터로 한곳에서 확인하세요.",
   keywords: [
     "귀농",
     "귀촌",
@@ -75,9 +75,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "이랑" }],
   openGraph: {
-    title: "이랑 — 농촌 정착 정보 큐레이션 포탈",
+    title: "이랑 — 귀농·귀촌 정보 큐레이션 포탈",
     description:
-      "농촌 정착(귀농·귀촌)을 준비하는 사람을 위한 정보 큐레이션 서비스예요. 지역 비교, 작물 정보, 정착 비용, 지원사업까지 공공데이터로 한곳에서 확인하세요.",
+      "귀농·귀촌을 준비하는 사람을 위한 정보 큐레이션 서비스예요. 지역 비교, 작물 정보, 정착 비용, 지원사업까지 공공데이터로 한곳에서 확인하세요.",
     type: "website",
     locale: "ko_KR",
     siteName: "이랑",
@@ -86,15 +86,15 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "이랑 — 농촌 정착 정보 큐레이션 포탈",
+        alt: "이랑 — 귀농·귀촌 정보 큐레이션 포탈",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "이랑 — 농촌 정착 정보 큐레이션 포탈",
+    title: "이랑 — 귀농·귀촌 정보 큐레이션 포탈",
     description:
-      "농촌 정착(귀농·귀촌)을 준비하는 사람을 위한 정보 큐레이션 서비스예요. 지역 비교, 작물 정보, 정착 비용, 지원사업까지 공공데이터로 한곳에서 확인하세요.",
+      "귀농·귀촌을 준비하는 사람을 위한 정보 큐레이션 서비스예요. 지역 비교, 작물 정보, 정착 비용, 지원사업까지 공공데이터로 한곳에서 확인하세요.",
   },
 };
 
@@ -123,7 +123,7 @@ export default function RootLayout({
             "@context": "https://schema.org",
             "@type": "WebSite",
             name: "이랑",
-            alternateName: "이랑 — 농촌 정착 정보 큐레이션 포탈",
+            alternateName: "이랑 — 귀농·귀촌 정보 큐레이션 포탈",
             url: "https://irangfarm.com",
             description:
               "농촌 정착 예정자를 위한 지역 비교, 지원사업 검색, 작물 정보를 한곳에서.",

@@ -75,6 +75,7 @@ import {
 } from "@/components/crops/charts-lazy";
 import { canRenderVarietiesChart } from "@/components/crops/variety-income-utils";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
+import { cropSeoDescription, cropSeoTitle } from "@/lib/crops/seo";
 import s from "./page.module.css";
 
 // ── 소득 정보 파싱 유틸 ──
@@ -121,17 +122,18 @@ export async function generateMetadata({
     const cropOnly = CROPS.find((c) => c.id === id);
     if (cropOnly) {
       return {
-        title: `${cropOnly.name} 작물 정보 | 이랑`,
+        // 레이아웃 템플릿이 " | 이랑"을 붙인다 — 여기서 또 붙이면 "| 이랑 | 이랑"
+        title: `${cropOnly.name} 작물 정보`,
         description: `${cropOnly.name} — ${cropOnly.description} 상세 정보는 준비 중이에요.`,
         alternates: { canonical: `/crops/${id}` },
       };
     }
     return { title: "작물 상세" };
   }
-  const regions = data.detail.majorRegions.slice(0, 3).join("·");
+  // 검색 결과 제목·설명 — 실제 난이도·10a당 소득·시기·주산지 + "귀농" (10/6 GSC 9월, lib/crops/seo)
   return {
-    title: `${data.name} 재배 — 소득·난이도·재배환경 | ${regions}`,
-    description: `${data.name} 재배 소득, 난이도, 기후·토양 조건을 확인하세요. 주요 산지: ${data.detail.majorRegions.join(", ")}. 정착 작물 선택에 필요한 정보를 비교해 드려요.`,
+    title: cropSeoTitle(data),
+    description: cropSeoDescription(data),
     alternates: { canonical: `/crops/${id}` },
     ...shareMetadata({
       title: `${data.name} 재배 정보 | 이랑`,

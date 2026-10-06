@@ -42,7 +42,7 @@ const SOURCE_COUNT = DATA_SOURCES.length;
 const SOURCE_NAMES = DATA_SOURCES.map((src) => src.name).join("·");
 
 export const metadata: Metadata = {
-  title: "이랑 서비스 소개 — 농촌 정착 정보 큐레이션",
+  title: "이랑 서비스 소개 — 귀농·귀촌 정보 큐레이션",
   description:
     `공공데이터 ${SOURCE_COUNT}개 기관으로 농촌 정착을 한곳에서. 지역·작물·지원사업·인터뷰·치유까지.`,
   alternates: { canonical: "/about" },
@@ -204,7 +204,7 @@ export default function AboutPage() {
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "이랑",
-          alternateName: "이랑 — 농촌 정착 정보 큐레이션 포탈",
+          alternateName: "이랑 — 귀농·귀촌 정보 큐레이션 포탈",
           url: "https://irangfarm.com/about",
           logo: "https://irangfarm.com/icon.svg",
           description:

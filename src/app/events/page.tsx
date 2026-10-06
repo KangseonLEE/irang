@@ -42,9 +42,9 @@ const sectionNavItems = [
 ];
 
 export const metadata: Metadata = {
-  title: "농촌 정착 체험·행사 — 일일체험·팜스테이·박람회 일정",
+  title: "귀농 체험·행사 — 농촌 살아보기·팜스테이·박람회 일정",
   description:
-    "정착 일일체험, 팜스테이, 박람회, 설명회 등 귀농 관련 행사 일정을 지역별로 찾아보세요. 참가 신청까지 한곳에서.",
+    "농촌에서 살아보기, 일일체험, 팜스테이, 박람회·설명회 등 귀농·귀촌 행사 일정을 지역별로 찾아보세요. 참가 신청까지 한곳에서.",
   alternates: { canonical: "/events" },
 };
 
