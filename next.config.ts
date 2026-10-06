@@ -32,28 +32,34 @@ const nextConfig: NextConfig = {
       { source: "/stats/smartfarm", destination: "/stats?tab=smartfarm", permanent: true },
     ];
   },
-  /* ── 단축 URL 리라이트 ── */
+  /* ── 리라이트 ── */
   async rewrites() {
-    return [
-      // 매칭 결과 단축 URL: /r/:id → /assess/result/:id
-      {
-        source: "/r/:id/opengraph-image",
-        destination: "/assess/result/:id/opengraph-image",
-      },
-      {
-        source: "/r/:id",
-        destination: "/assess/result/:id?utm_source=share&utm_medium=shorturl",
-      },
-      // 진단 결과 단축 URL: /a/:data → /assess/r/:data
-      {
-        source: "/a/:data/opengraph-image",
-        destination: "/assess/r/:data/opengraph-image",
-      },
-      {
-        source: "/a/:data",
-        destination: "/assess/r/:data?utm_source=share&utm_medium=shorturl",
-      },
-    ];
+    return {
+      /* /sitemap.xml → 분할 사이트맵 목록(sitemapindex) (10/6). app/sitemap.ts 가 분할(generateSitemaps)이어도
+         이 경로를 예약해 같은 자리에 route 를 두면 "Conflicting route and metadata" 로 dev 가 통째로 멈춘다 —
+         파일 라우팅 전에 다른 경로(app/sitemap-index.xml)로 넘긴다 */
+      beforeFiles: [{ source: "/sitemap.xml", destination: "/sitemap-index.xml" }],
+      afterFiles: [
+        // 매칭 결과 단축 URL: /r/:id → /assess/result/:id
+        {
+          source: "/r/:id/opengraph-image",
+          destination: "/assess/result/:id/opengraph-image",
+        },
+        {
+          source: "/r/:id",
+          destination: "/assess/result/:id?utm_source=share&utm_medium=shorturl",
+        },
+        // 진단 결과 단축 URL: /a/:data → /assess/r/:data
+        {
+          source: "/a/:data/opengraph-image",
+          destination: "/assess/r/:data/opengraph-image",
+        },
+        {
+          source: "/a/:data",
+          destination: "/assess/r/:data?utm_source=share&utm_medium=shorturl",
+        },
+      ],
+    };
   },
   images: {
     remotePatterns: [
