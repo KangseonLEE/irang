@@ -272,7 +272,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "귀농을 희망하는 도시민. 1년간(2026.3~2027.2) 체류하며 교육 참여. 보증금·월 사용료·관리비 납부.",
     applicationStart: "2026-01-15",
     applicationEnd: "2026-02-10",
-    relatedCrops: ["인삼", "도라지", "더덕"],
+    relatedCrops: [],
     sourceUrl: "http://www.daejeontoday.com/news/articleView.html?idxno=722515",
     year: 2026,
     category: "facility",

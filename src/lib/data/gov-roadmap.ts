@@ -93,7 +93,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     icon: Sprout,
     summary:
       "도시에서 농촌으로 이주하여 농업에 종사하려는 분을 위한 포괄적 정착 지원 사업이에요. 창업자금 최대 3억 원(연 2%, 5년 거치 10년 상환)과 주택구입비 최대 7,500만 원을 융자 지원해요.",
-    targetAudience: "정착자 · 재촌비농업인 · 농촌 정착 희망자 (만 18~65세, 주택 구입·신축 자금은 연령 상한 없음)",
+    targetAudience: "귀농인 · 재촌비농업인(주택자금 제외) · 귀농 희망자 (만 18~65세, 주택 구입·신축 자금은 연령 상한 없음)",
     supportAmount: "창업자금 최대 3억 원 + 주택자금 최대 7,500만 원 (융자)",
     supportType: "융자",
     eligibility: [
