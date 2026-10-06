@@ -19,6 +19,14 @@ const cases = [
   { name: "11) 미국 Chrome 이 /.well-known/ 다른 경로", r: req("Mozilla/5.0 Chrome/124.0", "US", "/.well-known/security.txt"), expect: "block-503" },
   { name: "12) 미국 AI 학습 봇이 웹훅 경로 (403 이 우선)", r: req("GPTBot/1.0", "US", "/api/sentry-webhook"), expect: "block-403" },
   { name: "13) 한국 사용자가 웹훅 경로", r: req("Mozilla/5.0 Chrome/124.0", "KR", "/api/sentry-webhook"), expect: "allow" },
+  { name: "14) GSC URL 검사 실시간 테스트 (미국)", r: req("Mozilla/5.0 (compatible; Google-InspectionTool/1.0;)", "US"), expect: "allow" },
+  { name: "15) ChatGPT 검색 로봇 OAI-SearchBot (미국)", r: req("Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; OAI-SearchBot/1.0; +https://openai.com/searchbot", "US"), expect: "allow" },
+  { name: "16) Claude 검색 로봇 Claude-SearchBot (미국)", r: req("Mozilla/5.0 (compatible; Claude-SearchBot/1.0; +https://www.anthropic.com)", "US"), expect: "allow" },
+  { name: "17) Claude-User (미국)", r: req("Mozilla/5.0 (compatible; Claude-User/1.0; +Claude-User@anthropic.com)", "US"), expect: "allow" },
+  { name: "18) Perplexity 검색 로봇 (미국)", r: req("Mozilla/5.0 (compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)", "US"), expect: "allow" },
+  { name: "19) Perplexity-User (미국)", r: req("Mozilla/5.0 (compatible; Perplexity-User/1.0; +https://perplexity.ai/perplexity-user)", "US"), expect: "allow" },
+  { name: "20) 학습 봇 ClaudeBot (한국이어도 403)", r: req("Mozilla/5.0 (compatible; ClaudeBot/1.0; +claudebot@anthropic.com)", "KR"), expect: "block-403" },
+  { name: "21) 학습 봇 GPTBot (한국이어도 403)", r: req("Mozilla/5.0 (compatible; GPTBot/1.1; +https://openai.com/gptbot)", "KR"), expect: "block-403" },
 ];
 
 let pass = 0, fail = 0;

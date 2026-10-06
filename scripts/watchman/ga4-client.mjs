@@ -1,11 +1,9 @@
 /**
  * GA4 Data API 최소 클라이언트 (의존성 0) — ga4-snapshot.mjs · check-ga4-anomaly.mjs 공용 (2026-09-19).
- * 서비스 계정 JWT(RS256) → OAuth 토큰 → analyticsdata runReport.
+ * 서비스 계정 JWT(RS256) → OAuth 토큰(google-auth.mjs, 서치 콘솔과 공용) → analyticsdata runReport.
  * env: GA4_PROPERTY_ID(숫자 속성 ID), GA4_SA_JSON(서비스 계정 JSON 원문)
  */
-import { createSign } from "node:crypto";
-
-const b64 = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
+import { SCOPES, googleAccessToken } from "./google-auth.mjs";
 
 export function ga4Env() {
   const pid = process.env.GA4_PROPERTY_ID;
@@ -13,32 +11,12 @@ export function ga4Env() {
   return pid && sa?.client_email && sa?.private_key ? { pid, sa } : null;
 }
 
-async function accessToken(sa) {
-  const now = Math.floor(Date.now() / 1000);
-  const unsigned = `${b64({ alg: "RS256", typ: "JWT" })}.${b64({
-    iss: sa.client_email,
-    scope: "https://www.googleapis.com/auth/analytics.readonly",
-    aud: "https://oauth2.googleapis.com/token",
-    iat: now,
-    exp: now + 3600,
-  })}`;
-  const sig = createSign("RSA-SHA256").update(unsigned).sign(sa.private_key, "base64url");
-  const res = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion: `${unsigned}.${sig}` }),
-    signal: AbortSignal.timeout(15_000),
-  });
-  if (!res.ok) throw new Error(`token ${res.status}: ${await res.text()}`);
-  return (await res.json()).access_token;
-}
-
 /**
  * runReport 함수를 만든다. 반환 함수는 `body.dateRanges` 가 없으면 `dateRanges` 기본값을 쓰고,
  * 행을 `{ d: string[], m: number[] }` 로 평탄화해 돌려준다.
  */
 export async function createGa4Client({ pid, sa, dateRanges }) {
-  const token = await accessToken(sa);
+  const token = await googleAccessToken(sa, SCOPES.analytics);
   return async function report(body) {
     const res = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${pid}:runReport`, {
       method: "POST",

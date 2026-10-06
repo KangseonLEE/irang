@@ -9,6 +9,8 @@ const IS_PUBLIC_PRODUCTION = process.env.VERCEL_ENV === "production";
 
 // 학습용으로 우리 데이터를 긁어가는 크롤러 — Vercel data transfer만 소모하고 SEO에는 도움 안 됨.
 // Googlebot/Bingbot 같은 검색용 봇은 그대로 허용 (검색 노출에 필요).
+// AI 검색·답변 로봇(OAI-SearchBot·ChatGPT-User·Claude-SearchBot·Claude-User·PerplexityBot·Perplexity-User)도 "*" 규칙으로
+// 허용한다 — 10/6 회장 결재(AI 검색 노출). PerplexityBot 은 Perplexity 검색 색인용이라 이 목록에서 뺐다.
 const AI_TRAINING_CRAWLERS = [
   "GPTBot",
   "ClaudeBot",
@@ -17,7 +19,6 @@ const AI_TRAINING_CRAWLERS = [
   "Google-Extended",
   "CCBot",
   "Bytespider",
-  "PerplexityBot",
   "Meta-ExternalAgent",
   "Applebot-Extended",
   "Diffbot",
@@ -73,6 +74,8 @@ export default function robots(): MetadataRoute.Robots {
       })),
     ],
     sitemap: [
+      // 목록(sitemapindex) — 콘솔·서치어드바이저에 /sitemap.xml 로 등록돼 있어도 찾아간다 (10/6)
+      `${BASE_URL}/sitemap.xml`,
       `${BASE_URL}/sitemap/core.xml`,
       `${BASE_URL}/sitemap/regions.xml`,
       `${BASE_URL}/sitemap/content.xml`,

@@ -32,8 +32,9 @@ const NORMALIZE_PATHS = new Set(Object.keys(LIST_PAGE_NORMALIZE_OPTIONS));
 
 /**
  * AI 학습 크롤러 user-agent 패턴.
- * robots.txt에 차단된 명단과 동일하게 유지.
- * Googlebot/Bingbot 등 검색용 봇은 차단하지 않는다 (SEO 영향 X).
+ * robots.txt에 차단된 명단과 동일하게 유지. CF Worker(cloudflare-workers/bot-detection)와 같은 목록 — 계약 테스트가 대조한다.
+ * Googlebot/Bingbot 등 검색용 봇과 AI 검색용 봇(아래 VERIFIED)은 차단하지 않는다.
+ * 10/6: PerplexityBot 은 Perplexity 검색 색인용(학습 아님)이라 차단에서 뺐다 — AI 검색 노출(회장 결재).
  */
 const BLOCKED_BOT_PATTERNS = [
   /GPTBot/i,
@@ -43,7 +44,6 @@ const BLOCKED_BOT_PATTERNS = [
   /Google-Extended/i,
   /CCBot/i,
   /Bytespider/i,
-  /PerplexityBot/i,
   /Meta-ExternalAgent/i,
   /Applebot-Extended/i,
   /Diffbot/i,
@@ -110,9 +110,14 @@ const VERIFIED_BOT_PATTERNS = [
   /facebookexternalhit/i,
   /LinkedInBot/i,
   /Slackbot/i,
-  // AI assistants (preview/citation용 — 학습 봇과 별개 GPTBot/ClaudeBot은 위에서 이미 차단됨)
+  // AI 검색·답변 (10/6 회장: AI 검색 노출 — 학습용 GPTBot·ClaudeBot 등은 위에서 차단 유지).
+  // UA 만 맞춘 위장은 CF WAF(KR 외 차단, CF 가 IP 로 확인한 verified bot 만 skip)가 이 단계 전에 막는다
+  /OAI-SearchBot/i,
   /ChatGPT-User/i,
+  /Claude-SearchBot/i,
+  /Claude-User/i,
   /PerplexityBot/i,
+  /Perplexity-User/i,
   // Korean search engines (cf-ipcountry 무관 통과)
   /Yeti/i,
   /Daum/i,

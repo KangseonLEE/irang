@@ -1,0 +1,50 @@
+# 서치 콘솔 월간 스냅샷 (2026-10-06, 회장 "다 진행하자") — 구글 검색 성과·색인 상태를 내려받지 않고 매달 이슈로.
+# 시크릿: GA4_SA_JSON(GA4 스냅샷과 같은 서비스 계정 — GSC 속성 사용자 '제한됨' + Search Console API 사용 설정 필요),
+#         E2E_SECRET(미국 러너가 KR 외 차단을 지나 사이트맵을 읽는 우회 헤더). 라벨 gsc-snapshot.
+name: GSC snapshot
+
+on:
+  schedule:
+    - cron: "40 0 4 * *" # 매월 4일 KST 09:40 — 서치 콘솔 확정 데이터는 2~3일 늦게 들어온다
+  workflow_dispatch:
+    inputs:
+      month:
+        description: "조회 월 YYYY-MM (비우면 지난달)"
+        default: ""
+      inspect:
+        description: "사이트맵 URL 중 노출 0인 것의 색인 상태 검사"
+        default: "true"
+      limit:
+        description: "색인 검사 최대 URL 수 (하루 한도 2,000)"
+        default: "400"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Run report
+        env:
+          GSC_SA_JSON: ${{ secrets.GA4_SA_JSON }}
+          GSC_MONTH: ${{ github.event.inputs.month || '' }}
+          GSC_INSPECT: ${{ github.event.inputs.inspect == 'false' && '0' || '1' }}
+          GSC_INSPECT_LIMIT: ${{ github.event.inputs.limit || '400' }}
+          E2E_SECRET: ${{ secrets.E2E_SECRET }}
+        # 실패하면 이슈를 만들지 않는다 — tee 로 이으면 node 의 실패 코드가 가려진다
+        run: |
+          node scripts/watchman/gsc-snapshot.mjs > snapshot.md
+          cat snapshot.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Open issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create gsc-snapshot --color 1B6B5A --description "서치 콘솔 월간 검색 성과·색인 상태" 2>/dev/null || true
+          gh issue create --title "GSC 스냅샷 $(date -u +%Y-%m-%d)" --label gsc-snapshot --assignee KangseonLEE --body-file snapshot.md
