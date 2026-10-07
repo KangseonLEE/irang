@@ -101,6 +101,12 @@ export interface SigunguStatsProps {
   /** KOSIS 행정코드 (귀농귀촌 추이 모달용) */
   admCode?: string;
   /**
+   * 귀농·귀촌 수가 이 화면 단위가 아니라 상위 시 전체 값일 때 그 시 이름 — 시 아래 구 상세(gu-data)가 넘긴다.
+   * 통계청 귀농어·귀촌인통계는 시·군 단위라 구 값이 없다. 카드 이름·안내 창에 밝힌다(10/7 — 처인구에 용인시 전체
+   * 70명이 '귀농 70명 · 2025년 기준'으로만 보여 구의 숫자처럼 읽혔다).
+   */
+  returnFarmScope?: string;
+  /**
    * 원천(심평원·교육부)만 새 구로 바뀌어 셀 수 없게 된 지역(region-reorganizations countsUnavailable).
    * 있으면 의료기관·학교 카드를 '확인 불가'로 두고 새 구청 안내 창을 연다 — 옛 코드·이름으로 세면 0을
    * 돌려줘 '0개'로 보이던 것(10/7 B안의 인천 옛 3개 구). A안 이후 지금은 해당 지역이 없다.
@@ -147,6 +153,7 @@ export function SigunguStats({
   eduCode,
   sigunguNameForNeis,
   admCode,
+  returnFarmScope,
   reorg = null,
   medicalUnit,
 }: SigunguStatsProps) {
@@ -332,7 +339,7 @@ export function SigunguStats({
           >
             <Icon icon={Sprout} size="lg" />
             <div className={s.statBody}>
-              <span className={s.statLabel}>귀농</span>
+              <span className={s.statLabel}>{returnFarmScope ? `${returnFarmScope} 귀농` : "귀농"}</span>
               <span className={s.statValue}>
                 {returnFarm.returnFarmPerson.toLocaleString("ko-KR")}명
               </span>
@@ -352,7 +359,7 @@ export function SigunguStats({
           >
             <Icon icon={Home} size="lg" />
             <div className={s.statBody}>
-              <span className={s.statLabel}>귀촌</span>
+              <span className={s.statLabel}>{returnFarmScope ? `${returnFarmScope} 귀촌` : "귀촌"}</span>
               <span className={s.statValue}>
                 {returnFarm.returnRuralPerson.toLocaleString("ko-KR")}명
               </span>
@@ -545,11 +552,11 @@ export function SigunguStats({
       )}
 
       {returnFarm && admCode && (
-        <Modal open={activeModal === "returnFarm"} onClose={closeModal} title={`${sigunguName} 귀농·귀촌`}>
+        <Modal open={activeModal === "returnFarm"} onClose={closeModal} title={`${returnFarmScope ?? sigunguName} 귀농·귀촌`}>
           <ReturnFarmModal
             returnFarm={returnFarm}
             regionCode={admCode}
-            sigunguName={sigunguName}
+            sigunguName={returnFarmScope ?? sigunguName}
           />
         </Modal>
       )}

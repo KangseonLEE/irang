@@ -234,6 +234,7 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
       eduCode={province.eduCode}
       sigunguNameForNeis={gu.name}
       admCode={sigungu.admCode}
+      returnFarmScope={sigungu.name}
     />
   );
 }

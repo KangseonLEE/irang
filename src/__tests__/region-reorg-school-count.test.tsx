@@ -299,4 +299,19 @@ describe("SigunguStats — 원천만 바뀐 구는 '확인 불가' + 새 구청 
     expect(screen.getByText("683개")).toBeInTheDocument();
     expect(screen.getByText("88개")).toBeInTheDocument();
   });
+
+  it("시 아래 구는 귀농·귀촌 카드가 시 전체 값임을 밝힌다 (10/7 — 처인구에 용인시 70명이 구 숫자처럼 보였다)", () => {
+    const returnFarm = { returnFarmPerson: 114, returnFarmHousehold: 109, returnRuralPerson: 23790, year: 2025 };
+    const { unmount } = render(
+      <SigunguStats {...base} sigunguName="만세구" returnFarm={returnFarm} returnFarmScope="화성시" />,
+    );
+    expect(screen.getByText("화성시 귀농")).toBeInTheDocument();
+    expect(screen.getByText("화성시 귀촌")).toBeInTheDocument();
+    expect(screen.queryByText(/^귀농$/)).toBeNull();
+    unmount();
+    // 시·군·구 화면은 그대로
+    render(<SigunguStats {...base} sigunguName="화성시" returnFarm={returnFarm} />);
+    expect(screen.getByText("귀농")).toBeInTheDocument();
+    expect(screen.getByText("귀촌")).toBeInTheDocument();
+  });
 });
