@@ -2,8 +2,8 @@
  * 시와 그 아래 구가 같은 것을 셀 때 서로 맞는가 — 10/7 독립 QA 후속
  *
  * 보호 대상:
- *   1) 시 면적 = 구 면적 합 (화성 688.28 ≠ 4구 합 706.50 이었다 — 시 값이 옛 자료). 성남은 원래 있던 1.52㎢ 차이
- *      (출처 대조 전) — 아래 표에 사유와 함께 둔다. 새 차이가 생기면 실패
+ *   1) 시 면적 = 구 면적 합 — 화성 688.28 ≠ 4구 합 706.50, 성남 141.74 ≠ 140.22 였다(옛 값이 해마다 섞임).
+ *      10/7 지적통계 2025 로 일괄 갱신(scripts/collect-areas.ts) 뒤 13개 시 전부 일치
  *   2) 인구 추이 '시·도 평균'은 그 시·도의 시·군·구 단위만 — 구 행·시 합산 행이 겹쳐 들어가 경기 평균이 −14% 였다
  *   3) 화성 312500(구 미배정 심평원 코드) 기관 → 구 판정: 읍·면·동 이름 우선, 없으면 주소 법정동, 두 구면 null
  */
@@ -12,26 +12,27 @@ import { describe, expect, it } from "vitest";
 
 import { GUS, getGusOfCity } from "@/lib/data/gus";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import { PROVINCES } from "@/lib/data/regions";
 import { POPULATION_TREND_SIGUNGU } from "@/lib/data/population-trend";
 import { sidoSigunguAverageByYear } from "@/lib/data/population-trend-average";
 import { residualItemGuId } from "@/lib/api/hira";
-
-/** 원래 있던 시 면적 ↔ 구 면적 합 차이 — 출처를 대조하기 전까지 사유와 함께 둔다 */
-const KNOWN_AREA_GAP: Record<string, string> = {
-  seongnam: "시 141.74 vs 구 합 140.22 — 10/7 이전부터. 성남시 공식 면적 출처 대조 전",
-};
 
 describe("시 면적 = 구 면적 합", () => {
   const cities = [...new Set(GUS.map((g) => g.parentSigunguId))];
   it.each(cities)("%s", (cityId) => {
     const city = SIGUNGUS.find((s) => s.id === cityId)!;
     const sum = GUS.filter((g) => g.parentSigunguId === cityId).reduce((a, g) => a + g.area, 0);
-    if (KNOWN_AREA_GAP[cityId]) return;
     expect(Math.abs(sum - city.area), `${cityId} 시 ${city.area} vs 구 합 ${sum.toFixed(2)}`).toBeLessThanOrEqual(0.05);
   });
 
-  it("화성시 = 화성특례시 '화성시 전체면적' 2026.4.30 기준 706.50㎢", () => {
+  it("화성시 = 지적통계 2025 = 화성특례시 '화성시 전체면적' 2026.4.30 = 706.50㎢, 성남시 = 141.63㎢(수정 45.45·중원 26.42·분당 69.76)", () => {
     expect(SIGUNGUS.find((s) => s.id === "hwaseong")!.area).toBe(706.5);
+    expect(SIGUNGUS.find((s) => s.id === "seongnam")!.area).toBe(141.63);
+  });
+
+  it("대구 면적에 군위(2023 편입)가 들어 있다 — 883 → 1,499.68㎢, 경북에선 빠졌다", () => {
+    expect(PROVINCES.find((p) => p.id === "daegu")!.area).toBe(1499.68);
+    expect(PROVINCES.find((p) => p.id === "gyeongbuk")!.area).toBeLessThan(19000);
   });
 });
 
