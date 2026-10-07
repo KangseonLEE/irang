@@ -19,7 +19,8 @@ describe("면적 상수", () => {
     const gb = PROVINCES.find((p) => p.id === "gyeongbuk")!.area;
     expect(((gb / NATIONAL_AREA_KM2) * 100).toFixed(1)).toBe("18.3");
   });
-  it("서울 비교 문장은 그대로 — 서울 자신은 약 1.0배", () => {
-    expect(seoulAreaCompare(SEOUL_AREA_KM2).ratio).toBe("약 1.0배");
+  it("서울 자신은 비교 기준 — '서울의 약 1.0배'가 아니라(10/8), 비슷한 면적은 종전대로 약 1.0배", () => {
+    expect(seoulAreaCompare(SEOUL_AREA_KM2)).toEqual({ ratio: "비교 기준", sentence: "다른 지역 면적 비교의 기준" });
+    expect(seoulAreaCompare(614.37).ratio).toBe("약 1.0배");
   });
 });

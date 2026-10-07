@@ -1048,6 +1048,10 @@ function scoreItemRawSingleChar(item: SearchItem, term: string): number {
   return 0;
 }
 
+/** 검색어 상한 — 문장형 질문도 100자·20낱말이면 충분하다 */
+const SEARCH_MAX_CHARS = 100;
+const SEARCH_MAX_TERMS = 20;
+
 /** 행정구역 종류를 뜻하는 말 — 이름 끝에 붙어 쓰이므로 낱말 첫머리 규칙(nameLike)을 걸지 않는다 */
 const ADMIN_KIND_TERMS: ReadonlySet<string> = new Set(["광역시", "특별시", "특례시", "특별자치시"]);
 
@@ -1155,38 +1159,39 @@ function isCommonWordGuStemHit(item: SearchItem, term: string): boolean {
 }
 
 /**
- * 이랑이 다루는 말인가 — 개념어(DOMAIN_VOCAB)이거나 그것으로 시작하는 붙여 쓴 말이거나, 색인에 제목·키워드 전체로
- * 맞는 항목이 있으면(가중치 없는 35점 이상, 키워드·부제 안의 부분 일치는 치지 않음). "텃밭"·"농지"·"귀촌"·"날씨"·
- * "전원주택"·"아파트"(실거래가 키워드)는 그렇고, "가입"("농협 조합원 가입"의 일부일 뿐)·"게시판"·"미인"·"김홍도"·
- * "대한독립"·"사항"은 아니다. 색인은 정적이라 낱말마다 한 번 센다.
+ * 지명과 함께 쓰면 그 지역을 찾는 말 — 영농·주거·땅·생활 인프라. 일상어 구 이름 줄기(GU_STEMS_COMMON_WORDS)로만 맞은
+ * 구는 못 맞춘 다른 낱말이 이 말이거나(이 말로 시작해 뒤에 두 글자 이상, 또는 이 말로 끝나는 붙여 쓴 말), 실재
+ * 지명·작물 이름일 때만 남긴다. FAQ·동의어 사전의 메타어(신청·결과·후기·비교·마감…)와 색인 제목 부분 일치는 치지
+ * 않는다 — 10/8 3차 QA: 그 판정이 "회원 모집"·"청원 마감"·"상당 기간"을 지명 검색으로 받아 구 카드를 1위로 다시
+ * 세웠고, '감'·'밤'·'가지'로 끝나는 말(자신감·오늘밤·여러가지)과 '이사회'까지 받았다.
  */
-const DOMAIN_WORD_MIN_RAW = 35;
+const PLACE_CONTEXT_WORDS: ReadonlySet<string> = new Set([
+  // 영농
+  "귀농", "귀촌", "귀산촌", "농사", "농업", "농지", "농가", "농장", "영농", "텃밭", "주말농장", "과수원", "비닐하우스",
+  "스마트팜", "재배", "작물", "농작물", "축사", "체험", "귀농교육",
+  // 주거·땅
+  "주택", "전원주택", "전원생활", "농막", "빈집", "아파트", "빌라", "땅값", "집값", "시세", "실거래가", "공시지가", "매물",
+  "임대", "분양", "토지", "부동산",
+  // 생활 인프라
+  "날씨", "기후", "병원", "의료", "학교", "교통", "일자리", "직장", "마트", "맛집", "인구", "생활비", "정착", "이사", "이주",
+  // 행정·지원·사람 ('시청'은 보기, '도청'은 엿듣기 뜻이 있어 넣지 않는다)
+  "구청", "주민센터", "행정복지센터", "농업기술센터", "지원사업", "지원금", "보조금", "융자", "청년", "청년농", "귀농인", "귀촌인",
+  "도시농업",
+]);
 
-/** 지명과 함께 쓰면 그 지역을 찾는 생활 문맥어 — 색인엔 낱말로 없지만 지역 상세(기후·의료·생활)로 이어진다 */
-const PLACE_CONTEXT_WORDS = ["날씨", "기후", "이사", "이주", "분양", "교통", "일자리", "맛집", "텃밭"];
-
-/** 이랑이 다루는 개념어 — 동의어 사전 키·FAQ 키워드·생활 문맥어(2자 이상). 붙여 쓴 말은 이 말로 시작하면 인정한다 */
-const DOMAIN_VOCAB: ReadonlySet<string> = new Set(
-  [...Object.keys(SYNONYMS), ...SEARCH_FAQS.flatMap((f) => f.keywords), ...PLACE_CONTEXT_WORDS]
-    .map((w) => w.toLowerCase())
-    .filter((w) => w.length >= 2),
+/** 붙여 쓴 말의 끝으로 인정하는 작물 — 두 글자 이상(동음 '가지' 제외)과 '쌀'(생명쌀·이천쌀). 감·밤·무·배·콩은 자신감·오늘밤처럼 다른 말 */
+const PLACE_CONTEXT_CROP_SUFFIXES: string[] = CROP_NAMES_BY_LENGTH_DESC.filter(
+  (c) => (c.length >= 2 && !HOMONYM_CROP_NAMES.has(c)) || c === "쌀",
 );
 
-const _domainWordCache = new Map<string, boolean>();
-function isDomainWord(term: string): boolean {
-  const cached = _domainWordCache.get(term);
-  if (cached !== undefined) return cached;
-  const stem = removeKoreanSuffix(term);
-  const strong = (w: string) => !isChosungQuery(w) && getSearchIndex().some((it) => bestRawScore(it, w) >= DOMAIN_WORD_MIN_RAW);
-  // 붙여 쓴 말("전원주택"·"귀농교육"·"텃밭분양")은 개념어로 시작하면 — 색인 제목 안의 짧은 조각("대한")은 치지 않는다
-  const startsWithVocab = (w: string) => [...DOMAIN_VOCAB].some((v) => w.length > v.length && w.startsWith(v));
-  // 작물명으로 끝나는 붙여 쓴 말(특산 브랜드 "생명쌀"·"꿀사과") — 한 글자 작물은 앞말 2자 이상일 때만(업무·공감·홍콩 제외)
-  const endsWithCrop = (w: string) =>
-    CROP_NAMES_BY_LENGTH_DESC.some((c) => w.length > c.length && w.endsWith(c) && (c.length >= 2 || w.length - c.length >= 2));
-  const ok = DOMAIN_VOCAB.has(term) || DOMAIN_VOCAB.has(stem) || strong(term) || startsWithVocab(term) || endsWithCrop(term);
-  if (_domainWordCache.size >= 2000) _domainWordCache.clear();
-  _domainWordCache.set(term, ok);
-  return ok;
+function isPlaceContextWord(term: string): boolean {
+  const w = removeKoreanSuffix(term);
+  if (PLACE_CONTEXT_WORDS.has(term) || PLACE_CONTEXT_WORDS.has(w) || ENTITY_NAME_SET.has(term) || ENTITY_NAME_SET.has(w)) return true;
+  for (const v of PLACE_CONTEXT_WORDS) {
+    if (w.length - v.length >= 2 && w.startsWith(v)) return true; // 텃밭분양·이사비용 (이사회는 아님)
+    if (v !== "이사" && w.length > v.length && w.endsWith(v)) return true; // 도시텃밭·시골집값·동물병원 (대표이사는 아님)
+  }
+  return PLACE_CONTEXT_CROP_SUFFIXES.some((c) => w.length - c.length >= (c === "쌀" ? 2 : 1) && w.endsWith(c)); // 생명쌀·꿀사과
 }
 
 function scoreItemMulti(item: SearchItem, terms: string[]): number {
@@ -1209,8 +1214,8 @@ function scoreItemMulti(item: SearchItem, terms: string[]): number {
       missedSpecific.push(terms[i]);
     }
   }
-  // 일상어 줄기로만 맞은 구는, 못 맞춘 낱말이 색인에 없는 말이면 뺀다 (GU_STEMS_COMMON_WORDS)
-  if (onlyCommonWordGuStem && matched > 0 && missedSpecific.some((t) => !isDomainWord(t))) return 0;
+  // 일상어 줄기로만 맞은 구는, 못 맞춘 낱말이 지역을 찾는 말이 아니면 뺀다 (GU_STEMS_COMMON_WORDS·isPlaceContextWord)
+  if (onlyCommonWordGuStem && matched > 0 && missedSpecific.some((t) => !isPlaceContextWord(t))) return 0;
   // 특정어(전남·오이)가 있는 검색에서 일반어(귀농·재배)만 맞은 항목은 제외 — "전남 귀농"에 귀농 가이드 110건,
   // "오이 재배"에 남의 작물 재배 가이드가 OR 로 섞이던 9/23 감사 결함. 전부 일반어인 검색("귀농 교육")은 종전대로.
   if (hasSpecific && bestMatchedSpecificity === 0) return 0;
@@ -1294,12 +1299,13 @@ export interface GroupedSearchResults {
  *   "전남 딸기" → "전남" OR "딸기" 로 분리, 관련도 합산 정렬
  */
 export function searchAllGrouped(query: string): GroupedSearchResults {
-  const q0 = query.trim().toLowerCase();
+  // 길이·낱말 수 상한 — 주소창의 q 는 길이 제한이 없어 낱말 2,000개 입력이 탭을 3초 멈췄다(10/8 3차 QA)
+  const q0 = query.trim().toLowerCase().slice(0, SEARCH_MAX_CHARS);
   if (q0.length === 0) return { pinned: [], rest: [] };
   // 작물명 prefix 자동 공백 — "사과재배지" → "사과 재배지"
   const q = injectCropPrefixSpace(q0);
 
-  const terms = q.split(/\s+/).filter(Boolean);
+  const terms = q.split(/\s+/).filter(Boolean).slice(0, SEARCH_MAX_TERMS);
   if (terms.length === 0) return { pinned: [], rest: [] };
 
   // 읍·면·동 안내 — 시드 매칭 시 최상단에 노출 (동음이의어는 다수 항목)
@@ -2099,8 +2105,22 @@ const FAQ_WHOLE_WORD_KEYWORDS: ReadonlySet<string> = new Set(["독립"]);
 
 /** 시·도·시·군·구·구의 정식 이름 — 낱말 전체가 지명이면 그 안의 FAQ 키워드를 맞추지 않는다("수정구"에 정보 수정 요청, "예산군"에 비용) */
 const FULL_PLACE_NAME_SET: ReadonlySet<string> = new Set(
-  [...PROVINCES.map((p) => p.name), ...SIGUNGUS.map((s) => s.name), ...GUS.map((g) => g.name)].map((n) => n.toLowerCase()),
+  [
+    ...PROVINCES.map((p) => p.name),
+    ...SIGUNGUS.map((s) => s.name),
+    ...GUS.map((g) => g.name),
+    // 시와 구를 붙여 쓴 꼴 — "용인시처인구"에 인구 통계, "성남시수정구"에 정보 수정 요청이 붙었다(10/8 3차 QA)
+    ...GUS.flatMap((g) => {
+      const city = SIGUNGUS.find((s) => s.id === g.parentSigunguId);
+      return city ? [`${city.name}${g.name}`, `${city.shortName}${g.name}`] : [];
+    }),
+  ].map((n) => n.toLowerCase()),
 );
+
+/** 2자 키워드가 낱말 경계에 걸쳤는지 볼 때 쓰는 낱말 — 일반어·FAQ 키워드(2자 이상) */
+const FAQ_STRADDLE_WORDS: string[] = [...new Set([...GENERIC_TERMS, ...SEARCH_FAQS.flatMap((f) => f.keywords)])]
+  .map((w) => w.toLowerCase())
+  .filter((w) => w.length >= 2);
 
 function matchFaqs(query: string, rawQuery: string = query): SearchItem[] {
   const q = query.toLowerCase();
@@ -2134,7 +2154,10 @@ function matchFaqs(query: string, rawQuery: string = query): SearchItem[] {
       if (FULL_PLACE_NAME_SET.has(w)) return false;
       if (k.length >= 3) return w.includes(k);
       for (let at = w.indexOf(k); at >= 0; at = w.indexOf(k, at + 1)) {
-        if (at !== 1 || FAQ_ONE_CHAR_PREFIXES.has(w[0]) || /\d/.test(w[0])) return true; // "1단계"·"5단계"
+        if (at === 1 && !FAQ_ONE_CHAR_PREFIXES.has(w[0]) && !/\d/.test(w[0])) continue; // "1단계"·"5단계"는 허용
+        // 낱말 중간의 2자 키워드가 둘째 글자부터 다른 낱말에 걸치면 뺀다 — "청년창업농|지원금"·"후계농|지원"의 '농지'
+        if (at >= 2 && FAQ_STRADDLE_WORDS.some((v) => w.startsWith(v, at + 1))) continue;
+        return true;
       }
       return false;
     });
