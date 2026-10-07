@@ -1,0 +1,219 @@
+# ═══════════════════════════════════════════
+# 지역 통계 정합성 주간 전수 대조 (2026-10-07, 회장 "정확한 데이터인지 항상 정합성 체크 — 신뢰도가 생명")
+#
+# scripts/check-region-stats-integrity.ts 를 주 1회 돌린다 — 지역 상세(시·도 17·시·군·구 229·시 아래 구 32)
+# 의료기관·학교·인구 카드를 원천(심평원·교육부 NEIS)에서 직접 만든 기준값과 운영 화면으로 전수 대조.
+# 원천 쪽 코드는 예고 없이 바뀐다(10/7 발견: 광주 5구 코드 이전·세종 코드·화성 구 신설·인천 개편·군위 편입).
+# 배포 때만 대조하면 그 사이의 원천 변화를 못 본다 — 그래서 상시화.
+#
+# 미국 러너 제약 (스크립트가 환경변수를 보고 경로를 고른다):
+#   - data.go.kr 은 클라우드 대역을 400(code 10)으로 막는다 → 심평원은 프록시 Worker 경유
+#     (시크릿 DATA_GO_KR_PROXY_URL·DATA_GO_KR_PROXY_SECRET — 앱 src/lib/api/_datagokr.ts 와 같은 경로).
+#     시크릿이 없으면 직접 호출을 시도하고, 막히면 '접근 점검 실패'로 바로 멈춘다(이슈에 이유가 남는다).
+#   - 운영 페이지는 Cloudflare 가 한국 외를 막는다 → E2E 우회(UA irang-e2e/1.0 + E2E_SECRET 헤더).
+#     이 UA 는 GA·DB 적재에서 빠진다.
+#
+# 이슈 (라벨 region-integrity — api-health·community-pending 과 같은 생명주기):
+#   - 화면 불일치·페이지 실패·심평원 코드↔지역명 불일치·시·도 합계 차이 중 하나라도 있거나, 대조를 끝내지
+#     못하면 이슈 생성(열려 있으면 코멘트 + 제목 갱신). 지역명·합계 대조는 원천 코드 이동(광주·화성)을
+#     잡는 유일한 신호라 화면 불일치와 같은 급으로 본다 — 기준값이 우리 코드표로 만들어져 화면과 같이 틀린다.
+#   - 전체 대조가 깨끗하면 열린 이슈 자동 종료. 부분 대조(only)는 닫지 않는다 — 다른 시·도 문제가 남아 있을 수 있다.
+#   - 본문은 --body-file (표·목록의 백틱이 쉘 명령 치환에 먹힌 #128 교훈).
+#
+# 잡 성패: "대조를 끝냈는가"만 본다. 불일치는 이슈가 알리고 잡은 성공 — 결과까지 실패로 만들면
+#   watchman §15 가 같은 내용을 한 번 더 경보한다(watchman-ci 9/2~9/16 자기 증폭). 접근 실패(시크릿 누락·차단)·
+#   스크립트 크래시·시간 초과만 실패 → §15 가 연속 실패(2주 🟡·3주 🔴)를 잡는다.
+# ═══════════════════════════════════════════
+
+name: "🧮 지역 통계 정합성 대조"
+
+on:
+  schedule:
+    # 매주 월요일 KST 10:10 (UTC 01:10)
+    - cron: "10 1 * * 1"
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "시·도 id 쉼표 목록 (예: sejong,gwangju) — 비우면 전체 278쪽. 부분 대조는 열린 이슈를 닫지 않아요"
+        required: false
+        default: ""
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: region-integrity
+  cancel-in-progress: false
+
+jobs:
+  integrity:
+    name: 지역 상세 통계 ↔ 원천 전수 대조
+    runs-on: ubuntu-latest
+    # 278쪽 × 운영 렌더(시·도별 예열 후 동시 2) — 로컬 약 15분. 미국 러너는 왕복 지연이 더해지고 캐시가 식은
+    # 쪽은 렌더가 길다. 결과 없이 잘리는 게 가장 나빠(check-links 10/3) 대조 스텝 65분 + 판정·이슈 여유.
+    timeout-minutes: 80
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      LABEL: region-integrity
+      ASSIGNEE: KangseonLEE
+      SUMMARY_JSON: ${{ github.workspace }}/region-integrity.json
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      # 입력은 env 로만 넘긴다(쉘 주입 방지). 스크립트가 PROVINCES.id 와 대조해 모르는 id 는 멈춘다
+      ONLY: ${{ inputs.only }}
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v5
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: "npm"
+
+      # tsx 는 devDependency(9/4 — npx 로 매번 받으면 러너 네트워크에 따라 몇 분씩 걸린다)
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: region-integrity 라벨 생성 (없으면)
+        run: |
+          gh label create "$LABEL" --color "1B6B5A" \
+            --description "지역 통계 ↔ 공공데이터 원천 주간 전수 대조 자동 이슈" \
+            2>/dev/null || true
+
+      # 불일치가 있으면 스크립트가 exit 1 — 판정은 다음 스텝이 요약 JSON 으로 한다
+      - name: 전수 대조
+        id: check
+        continue-on-error: true
+        timeout-minutes: 65
+        env:
+          DATA_GO_KR_API_KEY: ${{ secrets.DATA_GO_KR_API_KEY }}
+          DATA_GO_KR_PROXY_URL: ${{ secrets.DATA_GO_KR_PROXY_URL }}
+          DATA_GO_KR_PROXY_SECRET: ${{ secrets.DATA_GO_KR_PROXY_SECRET }}
+          NEIS_API_KEY: ${{ secrets.NEIS_API_KEY }}
+          E2E_SECRET: ${{ secrets.E2E_SECRET }}
+        run: |
+          ARGS=("--json=$SUMMARY_JSON")
+          if [ -n "$ONLY" ]; then ARGS+=("--only=$ONLY"); fi
+          npx tsx scripts/check-region-stats-integrity.ts "${ARGS[@]}"
+
+      - name: 판정 + 이슈 생성·코멘트·종료
+        id: judge
+        if: always()
+        run: |
+          set -u
+          TODAY=$(TZ=Asia/Seoul date +%Y-%m-%d)
+          MD=$(TZ=Asia/Seoul date +%m/%d)
+          if [ -n "$ONLY" ]; then SCOPE="부분 대조 · ${ONLY}"; else SCOPE="전체 대조"; fi
+
+          # ── 상태: crash(요약 없음) / fatal(대조 못 끝냄) / problems / clean ──
+          PROBLEMS=0
+          if [ ! -s "$SUMMARY_JSON" ] || ! jq -e . "$SUMMARY_JSON" >/dev/null 2>&1; then
+            STATE=crash
+          elif [ -n "$(jq -r '.fatal // empty' "$SUMMARY_JSON")" ]; then
+            STATE=fatal
+          elif [ "$(jq -r '.pages // 0' "$SUMMARY_JSON")" -eq 0 ]; then
+            STATE=crash
+          else
+            PROBLEMS=$(jq '(.counts.mismatch // 0) + (.counts.err // 0) + ((.nameIssues // []) | length) + ((.sumIssues // []) | length)' "$SUMMARY_JSON")
+            if [ "$PROBLEMS" -gt 0 ]; then STATE=problems; else STATE=clean; fi
+          fi
+          echo "state=${STATE} problems=${PROBLEMS}"
+          if [ "$STATE" = problems ] || [ "$STATE" = clean ]; then
+            echo "completed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "completed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # ── 본문 (파일로 조립) ──
+          {
+            printf '%s\n\n' "## 🧮 지역 통계 정합성 대조 — ${TODAY} · ${SCOPE}"
+            case "$STATE" in
+              crash)
+                printf '%s\n' "**대조 스크립트가 요약을 남기지 못하고 끝났어요** — 의존성 설치 실패·크래시·시간 초과(65분) 중 하나예요. 실행 로그를 확인해 주세요."
+                ;;
+              fatal)
+                jq -r '
+                  "**대조를 끝내지 못했어요.**", "",
+                  "> \(.fatal | gsub("\n"; " "))",
+                  (if ((.access // {}) | length) > 0 then
+                    "", "| 접근 점검 | 결과 | 내용 |", "|---|---|---|",
+                    (.access | to_entries[] | select(.value != null) | .value
+                      | "| \(.label) | \(if .ok then "✅" else "❌" end) | \(.detail | gsub("\n"; " ") | gsub("\\|"; "\\|")) |")
+                  else empty end)
+                ' "$SUMMARY_JSON"
+                ;;
+              *)
+                jq -r '
+                  def lst($a; $n; f): ($a[:$n][] | f), (if ($a | length) > $n then "- … 외 \(($a | length) - $n)건 — 전체 목록은 실행 로그" else empty end);
+                  "운영 화면 **\(.pages)쪽** — 일치 \(.counts.ok) · 캐시 시점 차이 \(.counts.near) · **불일치 \(.counts.mismatch) · 실패 \(.counts.err)**",
+                  "",
+                  "심평원 코드↔지역명 불일치 **\(.nameIssues | length)건** · 시·도 합계 차이 **\(.sumIssues | length)건** · 경로: 심평원 \(if .route.hira == "proxy" then "프록시" else "직접" end) · 운영 페이지 \(if .route.page == "e2e" then "e2e 우회" else "일반 UA" end)",
+                  (if (.problems | length) > 0 then
+                    "", "### 화면 불일치·실패 (\(.problems | length)쪽)", "",
+                    lst(.problems; 50; "- `\(.key)` — \(.msgs | join("; "))\(if .reason then " (\(.reason))" else "" end)")
+                  else empty end),
+                  (if (.nameIssues | length) > 0 then
+                    "", "### 심평원 코드 ↔ 지역명 불일치 (\(.nameIssues | length)건)", "",
+                    lst(.nameIssues; 50; "- \(.)")
+                  else empty end),
+                  (if (.sumIssues | length) > 0 then
+                    "", "### 시·도 합계 ≠ 시·군·구 합 (\(.sumIssues | length)건)", "",
+                    lst(.sumIssues; 50; "- \(.)")
+                  else empty end),
+                  (if (.near | length) > 0 then
+                    "", "<details><summary>캐시 시점 차이 \(.near | length)쪽 (±2·0.5% 이내 — 조치 불요)</summary>", "",
+                    lst(.near; 80; "- `\(.key)` — \(.near | join("; "))"),
+                    "", "</details>"
+                  else empty end),
+                  (if (.coverage | length) > 0 then
+                    "", "<details><summary>학교 포착률 \(.coverage | length)건 (빈 주소·붙은 주소 = 원천 쪽 문제, 참고)</summary>", "",
+                    lst(.coverage; 30; "- \(.)"),
+                    "", "</details>"
+                  else empty end)
+                ' "$SUMMARY_JSON"
+                ;;
+            esac
+            printf '\n%s\n' "---"
+            printf '%s\n' "<sub>실행 로그: ${RUN_URL} · 재실행 \`gh workflow run region-integrity.yml\` (부분: \`-f only=gwangju,incheon\`) · 로컬(한국 회선) \`npx tsx scripts/check-region-stats-integrity.ts\`</sub>"
+            printf '%s\n' "<sub>🤖 region-integrity.yml — 매주 월 10:10(KST) 자동 대조. 전체 대조에서 문제가 0이 되면 이 이슈는 자동으로 닫혀요.</sub>"
+          } > issue-body.md
+          cat issue-body.md >> "$GITHUB_STEP_SUMMARY"
+
+          # ── 이슈 ──
+          OPEN_NUM=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty' 2>/dev/null || true)
+          if [ "$STATE" = clean ]; then
+            if [ -z "$ONLY" ] && [ -n "$OPEN_NUM" ]; then
+              {
+                printf '%s\n\n' "✅ ${TODAY} 전체 대조에서 문제 0건이에요 — 이슈를 닫아요."
+                cat issue-body.md
+              } > close-comment.md
+              gh issue comment "$OPEN_NUM" --body-file close-comment.md
+              gh issue close "$OPEN_NUM"
+              echo "closed #${OPEN_NUM}"
+            else
+              echo "문제 0건 · ${SCOPE} — 이슈 동작 없음"
+            fi
+            exit 0
+          fi
+
+          if [ "$STATE" = problems ]; then
+            TITLE="🧮 지역 통계 정합성 — 문제 ${PROBLEMS}건 (${MD})"
+          else
+            TITLE="🧮 지역 통계 정합성 — 대조 실패 (${MD})"
+          fi
+          if [ -n "$OPEN_NUM" ]; then
+            gh issue comment "$OPEN_NUM" --body-file issue-body.md
+            gh issue edit "$OPEN_NUM" --title "$TITLE" >/dev/null
+            echo "commented #${OPEN_NUM}"
+          else
+            gh issue create --title "$TITLE" --label "$LABEL" --assignee "$ASSIGNEE" --body-file issue-body.md
+          fi
+
+      # 불일치는 이슈가 알린다 — 잡은 대조를 끝내지 못했을 때만 실패(§15 가 연속 실패를 본다)
+      - name: 대조를 끝내지 못했으면 실패
+        if: always() && steps.judge.outputs.completed != 'true'
+        run: |
+          echo "::error::지역 통계 대조를 끝내지 못했어요 — region-integrity 이슈·위 로그 참고"
+          exit 1

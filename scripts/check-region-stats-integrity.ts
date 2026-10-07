@@ -10,12 +10,23 @@
  * 화성 신설 구, 청주 인구 코드, 학교 1,000건 제한·이름 부분 일치.
  *
  * 실행(한국 회선 — data.go.kr 은 클라우드 대역을 막는다):
- *   npx tsx scripts/check-region-stats-integrity.ts [--base=https://irangfarm.com] [--only=gwangju,incheon]
+ *   npx tsx scripts/check-region-stats-integrity.ts [--base=https://irangfarm.com] [--only=gwangju,incheon] [--json=요약.json]
  * 대조는 운영 페이지를 렌더하므로 시·도별 첫 쪽은 하나씩(데이터 캐시 예열), 나머지는 동시 2개로 연다 —
  * 동시 요청이 시간 초과를 만들면 시·도 대체값이 하루 캐시에 남는다(10/7 1차 대조에서 실제로 일어남).
  * 불일치가 있으면 exit 1.
+ *
+ * CI(주 1회 .github/workflows/region-integrity.yml, 미국 러너 — 10/7 추가):
+ *   - 키는 .env.local 위에 환경변수를 얹어 읽는다(환경변수 우선). CI 엔 .env.local 이 없다.
+ *   - 심평원은 DATA_GO_KR_PROXY_URL·SECRET 이 있으면 앱과 같은 프록시 Worker 경유(src/lib/api/_datagokr.ts),
+ *     없으면 직접 호출(로컬 한국 회선). 프록시는 KV 캐시(심평원 7일)를 거치므로 앱이 본 것과 같은 원천 응답이다.
+ *   - 운영 페이지는 E2E_SECRET 이 있으면 e2e 우회(UA irang-e2e/1.0 + 시크릿 헤더, playwright.config.ts) —
+ *     Cloudflare 가 한국 외를 막는다. 이 UA 는 GA·DB 적재에서 빠진다.
+ *   - 대조 전 접근 점검(NEIS·심평원·운영 페이지 각 1건) — 하나라도 막히면 278쪽을 돌기 전에 이유와 함께 멈춘다.
+ *   - --json 은 요약(건수·불일치 목록·코드↔지역명·시·도 합계·학교 포착률·접근 점검)을 쓴다. 대조를 끝내지
+ *     못해도 fatal 과 함께 쓴다. 공개 저장소라 키·프록시 주소는 메시지에서 가린다.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { buildDataGoKrRequest, isDataGoKrProxied } from "@/lib/api/_datagokr";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { GUS } from "@/lib/data/gus";
@@ -29,24 +40,67 @@ const args = Object.fromEntries(
   }),
 );
 const BASE = (args.base ?? "https://irangfarm.com").replace(/\/+$/, "");
-const ONLY = args.only ? new Set(String(args.only).split(",")) : null;
+const ONLY = args.only ? new Set(String(args.only).split(",").map((s) => s.trim()).filter(Boolean)) : null;
+const JSON_OUT = args.json && args.json !== "true" ? args.json : null;
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36";
 
-const env: Record<string, string> = {};
-for (const line of readFileSync(".env.local", "utf8").split("\n")) {
-  const m = line.trim().match(/^([A-Z0-9_]+)=(.*)$/);
-  if (m) env[m[1]] = m[2].trim().replace(/^["']|["']$/g, "");
+// .env.local(로컬) 위에 환경변수(CI·일회성 덮어쓰기)를 얹는다 — dotenv·Next 와 같은 우선순위. 빈 값은 없는 것으로 본다
+const env: Record<string, string | undefined> = {};
+if (existsSync(".env.local")) {
+  for (const line of readFileSync(".env.local", "utf8").split("\n")) {
+    const m = line.trim().match(/^([A-Z0-9_]+)=(.*)$/);
+    if (m) env[m[1]] = m[2].trim().replace(/^["']|["']$/g, "");
+  }
+}
+for (const [k, v] of Object.entries(process.env)) if (v) env[k] = v;
+
+// 미국 러너(CI)는 Cloudflare 가 한국 외를 막는다 — E2E 와 같은 우회(UA 토큰 + 시크릿 헤더). 시크릿은 헤더로만 보낸다
+const PAGE_HEADERS: Record<string, string> = env.E2E_SECRET
+  ? {
+      "User-Agent": `${UA} irang-e2e/1.0`,
+      "Accept-Language": "ko-KR,ko;q=0.9",
+      "x-irang-e2e": "region-integrity",
+      "x-irang-e2e-secret": env.E2E_SECRET,
+    }
+  : { "User-Agent": UA, "Accept-Language": "ko-KR,ko;q=0.9" };
+
+/** 메시지·요약에 남기기 전 키·프록시 주소를 가린다 — 공개 저장소의 로그·이슈로 나간다 */
+function mask(s: string): string {
+  let out = s.replace(/(KEY|serviceKey)=[^&\s)]+/g, "$1=***");
+  const proxy = env.DATA_GO_KR_PROXY_URL?.replace(/\/+$/, "");
+  if (proxy) out = out.split(proxy).join("{프록시}");
+  for (const v of [env.DATA_GO_KR_PROXY_SECRET, env.DATA_GO_KR_API_KEY, env.NEIS_API_KEY, env.E2E_SECRET]) {
+    if (v && v.length >= 8) out = out.split(v).join("***");
+  }
+  return out;
+}
+const snippet = (t: string) => t.replace(/\s+/g, " ").trim().slice(0, 160);
+function errText(e: unknown): string {
+  if (!(e instanceof Error)) return String(e);
+  if (e.name === "TimeoutError") return "시간 초과";
+  const cause = (e as { cause?: { code?: string } }).cause?.code;
+  return cause ? `${e.message} (${cause})` : e.message;
 }
 
-async function getJson<T>(url: string): Promise<T> {
+async function getJson<T>(url: string, headers: Record<string, string> = {}): Promise<T> {
+  let last = "";
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
-      if (res.ok) return (await res.json()) as T;
-    } catch {}
-    await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+      const res = await fetch(url, { headers, signal: AbortSignal.timeout(30_000) });
+      const text = await res.text();
+      if (res.ok) {
+        try {
+          return JSON.parse(text) as T;
+        } catch {
+          last = `JSON 아님 — ${snippet(text)}`;
+        }
+      } else last = `HTTP ${res.status} ${snippet(text)}`;
+    } catch (e) {
+      last = errText(e);
+    }
+    if (attempt < 2) await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
   }
-  throw new Error(`원천 응답 실패: ${url.replace(/(KEY|serviceKey)=[^&]+/, "$1=***")}`);
+  throw new Error(mask(`원천 응답 실패 (${last}): ${url}`));
 }
 
 async function pool<T, R>(items: T[], n: number, fn: (t: T) => Promise<R>): Promise<R[]> {
@@ -65,21 +119,29 @@ async function pool<T, R>(items: T[], n: number, fn: (t: T) => Promise<R>): Prom
 
 // ── 원천: 교육부 NEIS ──
 type SchoolRow = { ORG_RDNMA?: string };
-type NeisJson = { schoolInfo?: [{ head?: { list_total_count?: number }[] }, { row?: SchoolRow[] }] };
+type NeisJson = {
+  schoolInfo?: [{ head?: { list_total_count?: number }[] }, { row?: SchoolRow[] }];
+  RESULT?: { CODE?: string; MESSAGE?: string };
+};
 const neisCache = new Map<string, SchoolRow[]>();
+const neisUrl = (edu: string, i: number, size = 1000) =>
+  `https://open.neis.go.kr/hub/schoolInfo?KEY=${env.NEIS_API_KEY}&Type=json&pIndex=${i}&pSize=${size}&ATPT_OFCDC_SC_CODE=${edu}`;
 async function neisRows(edu: string): Promise<SchoolRow[]> {
   if (neisCache.has(edu)) return neisCache.get(edu)!;
-  const url = (i: number) =>
-    `https://open.neis.go.kr/hub/schoolInfo?KEY=${env.NEIS_API_KEY}&Type=json&pIndex=${i}&pSize=1000&ATPT_OFCDC_SC_CODE=${edu}`;
-  const first = await getJson<NeisJson>(url(1));
+  const first = await getJson<NeisJson>(neisUrl(edu, 1));
+  // 원천이 오류(키·일일 한도·점검)라고 답하면 0건으로 세지 않는다 — '데이터 없음'(INFO-200)만 0건
+  if (!first?.schoolInfo && first?.RESULT?.CODE !== "INFO-200")
+    throw new Error(`NEIS ${edu} 오류 ${first?.RESULT?.CODE ?? "(형식 다름)"} ${first?.RESULT?.MESSAGE ?? ""}`.trim());
   const total = Number(first?.schoolInfo?.[0]?.head?.[0]?.list_total_count ?? 0);
   const rows: SchoolRow[] = [...(first?.schoolInfo?.[1]?.row ?? [])];
   for (let i = 2; rows.length < total; i++) {
-    const page = await getJson<NeisJson>(url(i));
+    const page = await getJson<NeisJson>(neisUrl(edu, i));
     const r = page?.schoolInfo?.[1]?.row ?? [];
     if (!r.length) break;
     rows.push(...r);
   }
+  // 덜 받은 목록으로 세지 않는다 — 중간 쪽이 오류면 그 시·도 학교 수가 통째로 작게 나온다
+  if (rows.length < total) throw new Error(`NEIS ${edu} 목록 ${rows.length}/${total}건만 받음`);
   neisCache.set(edu, rows);
   return rows;
 }
@@ -87,12 +149,23 @@ const inDistrict = (addr: string | undefined, name: string) => !!addr && addr.sp
 
 // ── 원천: 심평원 ──
 type HiraItem = { sidoCdNm?: string; sgguCdNm?: string };
-type HiraJson = { response?: { body?: { totalCount?: number | string; items?: { item?: HiraItem | HiraItem[] } } } };
+type HiraJson = {
+  response?: {
+    header?: { resultCode?: string; resultMsg?: string };
+    body?: { totalCount?: number | string; items?: { item?: HiraItem | HiraItem[] } };
+  };
+};
+const HIRA_PATH = "B551182/hospInfoServicev2/getHospBasisList";
 async function hira(sidoCd: string, sgguCd?: string) {
-  const q = `sidoCd=${sidoCd}${sgguCd ? `&sgguCd=${sgguCd}` : ""}&pageNo=1&numOfRows=1&_type=json`;
-  const j = await getJson<HiraJson>(
-    `https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList?serviceKey=${env.DATA_GO_KR_API_KEY}&${q}`,
-  );
+  // 앱(hira.ts)과 같은 파라미터 — 프록시 KV 키도 같아 앱이 본 원천 응답과 같은 값을 받는다
+  const params: Record<string, string> = { sidoCd, pageNo: "1", numOfRows: "1", _type: "json" };
+  if (sgguCd) params.sgguCd = sgguCd;
+  const req = buildDataGoKrRequest(HIRA_PATH, params, env);
+  if (!req) throw new Error("심평원 키 없음 — DATA_GO_KR_API_KEY 또는 DATA_GO_KR_PROXY_URL·SECRET");
+  const j = await getJson<HiraJson>(req.url, req.headers);
+  const head = j?.response?.header;
+  if (head?.resultCode && head.resultCode !== "00")
+    throw new Error(mask(`심평원 resultCode ${head.resultCode} ${head.resultMsg ?? ""}: ${req.url}`));
   const body = j?.response?.body;
   const item = Array.isArray(body?.items?.item) ? body.items.item[0] : body?.items?.item;
   return { total: Number(body?.totalCount ?? NaN), name: item ? `${item.sidoCdNm} ${item.sgguCdNm}` : null };
@@ -194,21 +267,106 @@ const toNum = (v: string) => {
   return m ? Number(m[1].replace(/,/g, "")) : null;
 };
 
+/** 페이지 실패 사유(마지막 시도) — 요약에서 '막혔나(403·503)·느렸나(시간 초과)'를 가른다 */
+const pageFailures = new Map<string, string>();
 async function fetchPage(path: string): Promise<string | null> {
+  let last = "";
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const res = await fetch(`${BASE}/regions/${path}`, {
-        headers: { "User-Agent": UA, "Accept-Language": "ko-KR,ko;q=0.9" },
+        headers: PAGE_HEADERS,
         signal: AbortSignal.timeout(150_000),
       });
-      if (res.ok) return await res.text();
-    } catch {}
-    await new Promise((r) => setTimeout(r, 4000 * (attempt + 1)));
+      if (res.ok) {
+        const html = await res.text();
+        pageFailures.delete(path);
+        return html;
+      }
+      await res.body?.cancel();
+      last = `HTTP ${res.status}`;
+    } catch (e) {
+      last = errText(e);
+    }
+    if (attempt < 2) await new Promise((r) => setTimeout(r, 4000 * (attempt + 1)));
   }
+  pageFailures.set(path, last);
   return null;
 }
 
+// ── 접근 점검 (CI 대비) ──
+type Access = { ok: boolean; label: string; detail: string };
+const access: Record<"neis" | "hira" | "page", Access | undefined> = { neis: undefined, hira: undefined, page: undefined };
+const route = () => ({ hira: isDataGoKrProxied(env) ? "proxy" : "direct", page: env.E2E_SECRET ? "e2e" : "browser" });
+
+/** 대조 전 원천 2종·운영 페이지를 1건씩 — 하나라도 막히면 수백 쪽을 돌기 전에 이유와 함께 멈춘다 */
+async function preflight() {
+  const unknown = ONLY ? [...ONLY].filter((id) => !PROVINCES.some((p) => p.id === id)) : [];
+  if (unknown.length) throw new Error(`알 수 없는 시·도 id: ${unknown.join(", ")} (PROVINCES.id)`);
+  if (ONLY && !ONLY.size) throw new Error("--only 에 시·도 id 가 없어요");
+  if (!env.NEIS_API_KEY) throw new Error("NEIS_API_KEY 없음");
+  const p = PROVINCES.find((x) => !ONLY || ONLY.has(x.id))!;
+  const r = route();
+  const probes: Record<keyof typeof access, [string, () => Promise<string>]> = {
+    neis: [
+      "교육부 NEIS",
+      async () => {
+        const j = await getJson<NeisJson>(neisUrl(p.eduCode, 1, 1));
+        const n = Number(j?.schoolInfo?.[0]?.head?.[0]?.list_total_count ?? 0);
+        if (!n) throw new Error(`학교 0건 — ${j?.RESULT?.CODE ?? "형식 다름"} ${j?.RESULT?.MESSAGE ?? ""}`.trim());
+        return `${p.name} 학교 ${n.toLocaleString("ko-KR")}곳`;
+      },
+    ],
+    hira: [
+      `심평원 (${r.hira === "proxy" ? "프록시" : "직접"})`,
+      async () => {
+        const h = await hira(toHiraSidoCd(p.hiraSidoCd));
+        if (!Number.isFinite(h.total)) throw new Error("응답에 totalCount 없음");
+        return `${p.name} 의료기관 ${h.total.toLocaleString("ko-KR")}곳`;
+      },
+    ],
+    page: [
+      `운영 페이지 (${r.page === "e2e" ? "e2e 우회" : "일반 UA"})`,
+      async () => {
+        const html = await fetchPage(p.id);
+        if (!html) throw new Error(pageFailures.get(p.id) ?? "응답 없음");
+        return `/regions/${p.id} 통계 카드 ${Object.keys(readCards(html)).length}개`;
+      },
+    ],
+  };
+  await Promise.all(
+    (Object.keys(probes) as (keyof typeof access)[]).map(async (k) => {
+      const [label, run] = probes[k];
+      try {
+        access[k] = { ok: true, label, detail: await run() };
+      } catch (e) {
+        access[k] = { ok: false, label, detail: mask(e instanceof Error ? e.message : String(e)) };
+      }
+    }),
+  );
+  for (const a of Object.values(access)) console.log(`  ${a?.ok ? "✓" : "✗"} ${a?.label} — ${a?.detail}`);
+  const bad = Object.values(access).filter((a): a is Access => !!a && !a.ok);
+  if (!bad.length) return;
+  // CI(미국 러너)에서 흔한 원인 두 가지는 바로 짚는다
+  const hints: string[] = [];
+  if (process.env.GITHUB_ACTIONS && !access.hira?.ok && r.hira === "direct")
+    hints.push("미국 러너는 data.go.kr 직접 호출이 막혀요 — GitHub 시크릿 DATA_GO_KR_PROXY_URL·DATA_GO_KR_PROXY_SECRET 필요");
+  if (process.env.GITHUB_ACTIONS && !access.page?.ok && r.page === "browser")
+    hints.push("미국 러너는 운영 페이지가 막혀요 — GitHub 시크릿 E2E_SECRET 필요");
+  throw new Error(
+    `접근 점검 실패 — ${bad.map((a) => `${a.label}: ${a.detail}`).join(" / ")}${hints.length ? ` · ${hints.join(" · ")}` : ""}`,
+  );
+}
+
+/** --json 요약. 대조를 끝내지 못했을 때도 fatal 과 접근 점검 결과를 남긴다 */
+function writeSummary(extra: Record<string, unknown>) {
+  if (!JSON_OUT) return;
+  const summary = { generatedAt: new Date().toISOString(), base: BASE, only: ONLY ? [...ONLY] : null, route: route(), access, ...extra };
+  writeFileSync(JSON_OUT, `${JSON.stringify(summary, null, 2)}\n`);
+}
+
 async function main() {
+  console.log(`접근 점검 (원천 2종·운영 페이지, 심평원 ${route().hira} · 페이지 ${route().page})…`);
+  await preflight();
   console.log(`원천 기준값 생성 중 (NEIS·심평원)…`);
   const exp = await buildExpected();
   const unavailable = new Set(
@@ -283,9 +441,30 @@ async function main() {
   console.log(`학교 포착률 확인 ${exp.coverage.length}건 (빈 주소·붙은 주소는 원천 쪽 문제)`);
   for (const n of exp.coverage) console.log(`  · ${n}`);
   if (count("MISMATCH") || count("ERR")) process.exitCode = 1;
+
+  // ── 요약 (--json) — 판정은 위 결과를 그대로 옮긴다 ──
+  if (pageFailures.size) {
+    const causes: Record<string, number> = {};
+    for (const c of pageFailures.values()) causes[c] = (causes[c] ?? 0) + 1;
+    console.log(`페이지 실패 사유: ${Object.entries(causes).map(([c, n]) => `${c} ${n}쪽`).join(" · ")}`);
+  }
+  writeSummary({
+    fatal: null,
+    pages: results.length,
+    counts: { ok: count("OK"), near: count("NEAR"), mismatch: count("MISMATCH"), err: count("ERR") },
+    problems: results
+      .filter((r) => r.status === "MISMATCH" || r.status === "ERR")
+      .map((r) => ({ key: r.key, kind: r.kind, status: r.status, msgs: r.msgs, ...(pageFailures.has(r.key) ? { reason: pageFailures.get(r.key) } : {}) })),
+    near: results.filter((r) => r.status === "NEAR").map((r) => ({ key: r.key, kind: r.kind, near: r.near })),
+    nameIssues,
+    sumIssues,
+    coverage: exp.coverage,
+  });
 }
 
 main().catch((e) => {
-  console.error(e instanceof Error ? e.message : e);
+  const msg = mask(e instanceof Error ? e.message : String(e));
+  console.error(msg);
+  writeSummary({ fatal: msg });
   process.exit(1);
 });
