@@ -10,6 +10,7 @@ import {
   Sprout,
   Home,
   Tractor,
+  ExternalLink,
 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { Modal } from "@/components/ui/modal";
@@ -26,6 +27,7 @@ import { SchoolModal } from "../modals/school-modal";
 import { PopulationModal, ReturnFarmModal } from "../modals/lazy";
 import { FarmHouseholdModal } from "../modals/farm-household-modal";
 import { PersonaScorePicker } from "./persona-score-picker";
+import type { RegionReorganization } from "@/lib/data/region-reorganizations";
 import s from "./page.module.css";
 
 // ── Props (서버 컴포넌트에서 전달) ──
@@ -98,6 +100,12 @@ export interface SigunguStatsProps {
   sigunguNameForNeis: string;
   /** KOSIS 행정코드 (귀농귀촌 추이 모달용) */
   admCode?: string;
+  /**
+   * 행정구역 개편으로 사라진 구(인천 중구·동구·서구, 2026-07-01).
+   * 있으면 의료기관·학교 카드를 '확인 불가'로 두고 새 구청 안내 창을 연다 —
+   * 옛 코드·이름으로 세면 공공데이터가 0을 돌려줘 '0개'로 보이던 것(10/7).
+   */
+  reorg?: RegionReorganization | null;
 }
 
 type ModalType =
@@ -107,6 +115,7 @@ type ModalType =
   | "school"
   | "returnFarm"
   | "farm"
+  | "reorg"
   | null;
 
 export function SigunguStats({
@@ -136,6 +145,7 @@ export function SigunguStats({
   eduCode,
   sigunguNameForNeis,
   admCode,
+  reorg = null,
 }: SigunguStatsProps) {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const closeModal = () => setActiveModal(null);
@@ -218,7 +228,21 @@ export function SigunguStats({
           </button>
         )}
 
-        {medical && (
+        {reorg ? (
+          <button
+            type="button"
+            className={s.statCard}
+            onClick={() => setActiveModal("reorg")}
+            aria-haspopup="dialog"
+          >
+            <Icon icon={Building2} size="lg" />
+            <div className={s.statBody}>
+              <span className={s.statLabel}>의료기관</span>
+              <span className={s.statValue}>확인 불가</span>
+              <span className={s.statSub}>개편 안내 보기 →</span>
+            </div>
+          </button>
+        ) : medical && (
           <button
             type="button"
             className={s.statCard}
@@ -236,7 +260,21 @@ export function SigunguStats({
           </button>
         )}
 
-        {school && (
+        {reorg ? (
+          <button
+            type="button"
+            className={s.statCard}
+            onClick={() => setActiveModal("reorg")}
+            aria-haspopup="dialog"
+          >
+            <Icon icon={GraduationCap} size="lg" />
+            <div className={s.statBody}>
+              <span className={s.statLabel}>학교</span>
+              <span className={s.statValue}>확인 불가</span>
+              <span className={s.statSub}>개편 안내 보기 →</span>
+            </div>
+          </button>
+        ) : school && (
           <button
             type="button"
             className={s.statCard}
@@ -469,6 +507,38 @@ export function SigunguStats({
           sigunguName={sigunguNameForNeis}
         />
       </Modal>
+
+      {reorg && (
+        <Modal
+          open={activeModal === "reorg"}
+          onClose={closeModal}
+          title={`${sigunguName} 행정구역 개편`}
+        >
+          <div className={s.reorgModal}>
+            <p>{reorg.summary}</p>
+            <p>
+              건강보험심사평가원 의료기관·교육부 학교 자료가 새 구 기준으로 바뀌어, 개편 전 {sigunguName}{" "}
+              기준으로는 수를 셀 수 없어요. 새 구청 누리집에서 확인하세요.
+            </p>
+            <ul className={s.reorgLinks}>
+              {reorg.successors.map((successor) => (
+                <li key={successor.url}>
+                  <a
+                    href={successor.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={s.reorgLink}
+                    aria-label={`${successor.name} 누리집 (새 창)`}
+                  >
+                    {successor.name}
+                    <ExternalLink size={14} aria-hidden="true" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Modal>
+      )}
 
       {returnFarm && admCode && (
         <Modal open={activeModal === "returnFarm"} onClose={closeModal} title={`${sigunguName} 귀농·귀촌`}>

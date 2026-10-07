@@ -17,6 +17,8 @@ import { PROGRAMS } from "@/lib/data/programs";
 import { LazyPopulationBars } from "./charts-lazy";
 import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
+import { getRegionReorganization } from "@/lib/data/region-reorganizations";
+import { withJosa } from "@/lib/format";
 import type { RegionItem } from "./region-item";
 import s from "./climate-view.module.css";
 import shared from "./page.module.css";
@@ -55,6 +57,10 @@ export async function InfraView({ regions }: Props) {
   }
 
   const metrics = buildInfraMetricRows(regions, infraByRegion);
+  // 행정구역 개편으로 사라진 구(인천 중구·동구·서구) — 의료기관·학교는 '—' (10/7)
+  const reorgLabels = regions
+    .filter((r) => r.sigungu && getRegionReorganization(r.sigungu.id))
+    .map((r) => r.label);
 
   return (
     <>
@@ -89,6 +95,11 @@ export async function InfraView({ regions }: Props) {
       )}
 
       <ReferenceNotice text="시·군·구 선택 시 인구·의료·학교는 해당 시·군·구 단위 통계예요. 지원사업은 시·도 단위로 집계해요." />
+      {reorgLabels.length > 0 && (
+        <ReferenceNotice
+          text={`${withJosa(reorgLabels.join("·"), "은")} 2026년 7월 1일 행정구역 개편으로 의료기관·학교 수를 확인할 수 없어 —로 표시해요.`}
+        />
+      )}
       <DataSource source="통계지리정보서비스(SGIS) · 건강보험심사평가원 · 교육부 NEIS · 공공누리 제1유형" />
     </>
   );
@@ -309,29 +320,37 @@ async function fetchInfraForRegions(
 ): Promise<RegionInfraData[]> {
   const promises = regions.map(async (region) => {
     if (region.sigungu) {
+      // 개편으로 사라진 구는 옛 코드·이름으로 세면 0 — 조회도, 시·도 대체값도 쓰지 않는다
+      const reorg = getRegionReorganization(region.sigungu.id);
       const [popResult, medResult, schResult] = await Promise.allSettled([
         fetchSigunguPopulationData(region.sigungu.sgisCode),
-        fetchSigunguMedicalFacilities(
-          region.station.hiraSidoCd,
-          region.sigungu.hiraSgguCd,
-        ),
-        fetchSigunguSchoolCounts(region.station.eduCode, region.sigungu.name),
+        reorg
+          ? Promise.resolve(null)
+          : fetchSigunguMedicalFacilities(
+              region.station.hiraSidoCd,
+              region.sigungu.hiraSgguCd,
+            ),
+        reorg
+          ? Promise.resolve(null)
+          : fetchSigunguSchoolCounts(region.station.eduCode, region.sigungu.name),
       ]);
 
       let pop = popResult.status === "fulfilled" ? popResult.value : null;
       let med = medResult.status === "fulfilled" ? medResult.value : null;
       let sch = schResult.status === "fulfilled" ? schResult.value : null;
 
-      const needsFallback = !pop || !med || !sch;
+      const medFallback = !med && !reorg;
+      const schFallback = !sch && !reorg;
+      const needsFallback = !pop || medFallback || schFallback;
       if (needsFallback) {
         const [popFb, medFb, schFb] = await Promise.allSettled([
           !pop
             ? fetchPopulationData([region.station.sgisCode])
             : Promise.resolve([]),
-          !med
+          medFallback
             ? fetchMedicalFacilities([region.station.hiraSidoCd])
             : Promise.resolve([]),
-          !sch ? fetchSchoolCounts([region.station.eduCode]) : Promise.resolve([]),
+          schFallback ? fetchSchoolCounts([region.station.eduCode]) : Promise.resolve([]),
         ]);
         if (!pop && popFb.status === "fulfilled" && popFb.value[0]) {
           pop = popFb.value[0];

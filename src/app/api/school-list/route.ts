@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { fetchEduSchoolRows, isSchoolInDistrict } from "@/lib/api/education";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -101,51 +102,10 @@ export async function GET(request: NextRequest) {
     // NEIS LCTN_SC_NM은 시도 수준만 지원하므로,
     // 시군구 필터링은 전체 조회 후 주소(ORG_RDNMA) 기반으로 수행
     if (sigunguName) {
-      // 1단계: 전체 건수 확인
-      const countUrl = new URL(API_BASE);
-      countUrl.searchParams.set("KEY", apiKey);
-      countUrl.searchParams.set("Type", "json");
-      countUrl.searchParams.set("pIndex", "1");
-      countUrl.searchParams.set("pSize", "1");
-      countUrl.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
-
-      const countRes = await fetch(countUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
-      if (!countRes.ok) throw new Error(`HTTP ${countRes.status}`);
-      const countJson = await countRes.json();
-
-      if (countJson.RESULT) {
-        if (countJson.RESULT.CODE === "INFO-200") {
-          return NextResponse.json({ items: [], totalCount: 0 });
-        }
-        throw new Error(`NEIS error: ${countJson.RESULT.CODE}`);
-      }
-
-      const totalAll = countJson?.schoolInfo?.[0]?.head?.[0]?.list_total_count ?? 0;
-
-      // 2단계: 전체 받아서 주소 필터링
-      const fullUrl = new URL(API_BASE);
-      fullUrl.searchParams.set("KEY", apiKey);
-      fullUrl.searchParams.set("Type", "json");
-      fullUrl.searchParams.set("pIndex", "1");
-      fullUrl.searchParams.set("pSize", String(Math.min(totalAll, 1000)));
-      fullUrl.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
-
-      const fullRes = await fetch(fullUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
-      if (!fullRes.ok) throw new Error(`HTTP ${fullRes.status}`);
-      const fullJson = await fullRes.json();
-
-      if (fullJson.RESULT) {
-        if (fullJson.RESULT.CODE === "INFO-200") {
-          return NextResponse.json({ items: [], totalCount: 0 });
-        }
-        throw new Error(`NEIS error: ${fullJson.RESULT.CODE}`);
-      }
-
-      const allRows = fullJson?.schoolInfo?.[1]?.row ?? [];
-      const filtered = allRows.filter(
-        (item: Record<string, string>) =>
-          (item.ORG_RDNMA || "").includes(sigunguName)
-      );
+      // 시·도 학교 전부(1,000건씩 나눠 받기) → 주소 낱말이 시군구명과 같은 학교만.
+      // 상세 카드의 학교 수(fetchSigunguSchoolCounts)와 같은 함수라 숫자가 어긋나지 않는다 (10/7 정정)
+      const allRows = await fetchEduSchoolRows(apiKey, eduCode, 10_000);
+      const filtered = allRows.filter((item) => isSchoolInDistrict(item.ORG_RDNMA, sigunguName));
 
       // 페이지네이션 적용
       const pageNum = parseInt(page, 10);
@@ -153,14 +113,12 @@ export async function GET(request: NextRequest) {
       const start = (pageNum - 1) * pageSize;
       const paged = filtered.slice(start, start + pageSize);
 
-      const items: SchoolItem[] = paged.map(
-        (item: Record<string, string>) => ({
-          name: item.SCHUL_NM || "",
-          type: item.SCHUL_KND_SC_NM || "",
-          address: item.ORG_RDNMA || item.ORG_RDNDA || "",
-          foundType: item.FOND_SC_NM || "",
-        })
-      );
+      const items: SchoolItem[] = paged.map((item) => ({
+        name: item.SCHUL_NM || "",
+        type: item.SCHUL_KND_SC_NM || "",
+        address: item.ORG_RDNMA || item.ORG_RDNDA || "",
+        foundType: item.FOND_SC_NM || "",
+      }));
 
       return NextResponse.json(
         { items, totalCount: filtered.length },

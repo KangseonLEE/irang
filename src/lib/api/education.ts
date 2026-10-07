@@ -97,14 +97,78 @@ async function fetchEduSchoolCount(
   }
 }
 
+/** NEIS 학교 정보 1건 — 이 모듈과 /api/school-list 가 쓰는 필드만 */
+export interface NeisSchoolRow {
+  SCHUL_NM?: string;
+  SCHUL_KND_SC_NM?: string;
+  ORG_RDNMA?: string;
+  ORG_RDNDA?: string;
+  FOND_SC_NM?: string;
+}
+
+/** NEIS 가 한 번에 돌려주는 최대 건수 */
+const NEIS_MAX_PAGE_SIZE = 1000;
+
+/**
+ * 시·도 교육청의 학교 목록을 전부 받는다 — NEIS 는 한 번에 1,000건까지라 나눠 받는다.
+ *
+ * 10/7: 첫 1,000건만 받아 세던 탓에 학교가 1,000곳이 넘는 서울(1,416)·경기(2,667)·경남(1,017)의
+ * 시·군·구 학교 수가 전부 적게 나왔다(수원시 65 → 실제 214).
+ * 자료 없음(INFO-200)은 빈 배열, 그 밖의 실패는 예외 — 호출자가 null·502 로 바꾼다.
+ */
+export async function fetchEduSchoolRows(
+  apiKey: string,
+  eduCode: string,
+  timeoutMs: number
+): Promise<NeisSchoolRow[]> {
+  const getPage = async (pIndex: number, pSize: number) => {
+    const url = new URL(API_BASE);
+    url.searchParams.set("KEY", apiKey);
+    url.searchParams.set("Type", "json");
+    url.searchParams.set("pIndex", String(pIndex));
+    url.searchParams.set("pSize", String(pSize));
+    url.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(timeoutMs) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.RESULT) {
+      if (json.RESULT.CODE === "INFO-200") return null;
+      throw new Error(`NEIS error: ${json.RESULT.CODE}`);
+    }
+    return json;
+  };
+
+  const head = await getPage(1, 1);
+  const total = Number(head?.schoolInfo?.[0]?.head?.[0]?.list_total_count ?? 0);
+  if (!head || !total) return [];
+
+  const pageCount = Math.ceil(total / NEIS_MAX_PAGE_SIZE);
+  const pages = await Promise.all(
+    Array.from({ length: pageCount }, (_, i) => getPage(i + 1, NEIS_MAX_PAGE_SIZE))
+  );
+  return pages.flatMap((p) => (p?.schoolInfo?.[1]?.row ?? []) as NeisSchoolRow[]);
+}
+
+/**
+ * 학교 도로명 주소가 그 시·군·구(또는 시 아래 구)에 속하는가 — 주소 낱말이 이름과 같을 때만.
+ *
+ * 10/7: 이름이 들어 있기만 하면 세던 탓에 '동구'가 남동구(인천), '서구'가 달서구(대구)·강서구(부산)
+ * 학교까지 셌다(대구 서구 140 → 실제 31). 띄어쓰기 없이 붙은 원천 주소 1건(전북교육청 전주)은 세지 못한다.
+ */
+export function isSchoolInDistrict(
+  address: string | null | undefined,
+  districtName: string
+): boolean {
+  if (!address || !districtName) return false;
+  return address.split(/\s+/).includes(districtName);
+}
+
 /**
  * 특정 교육청 + 시군구명으로 시군구 단위 학교 수를 조회한다.
  *
  * NEIS API의 LCTN_SC_NM 파라미터는 시도 수준만 지원하므로,
- * 시도 전체 학교를 조회한 뒤 주소(ORG_RDNMA)에 시군구명이 포함된
- * 학교만 카운트한다.
- *
- * 시 단위(예: "영주시")도 정확히 매칭한다.
+ * 시도 전체 학교를 조회한 뒤 주소(ORG_RDNMA)의 낱말이 시군구명과 같은
+ * 학교만 카운트한다(시 단위 "영주시"·시 아래 구 "장안구" 모두).
  * API 실패 시 null을 반환.
  */
 async function fetchSigunguSchoolCount(
@@ -112,50 +176,9 @@ async function fetchSigunguSchoolCount(
   eduCode: string,
   sigunguName: string
 ): Promise<SchoolData | null> {
-  // 1단계: 전체 학교 수 확인 (pSize=1)
-  const countUrl = new URL(API_BASE);
-  countUrl.searchParams.set("KEY", apiKey);
-  countUrl.searchParams.set("Type", "json");
-  countUrl.searchParams.set("pIndex", "1");
-  countUrl.searchParams.set("pSize", "1");
-  countUrl.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
-
   try {
-    const countRes = await fetch(countUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
-    if (!countRes.ok) throw new Error(`HTTP ${countRes.status}`);
-
-    const countJson = await countRes.json();
-    if (countJson.RESULT) {
-      if (countJson.RESULT.CODE === "INFO-200") {
-        return { eduCode, sidoName: sigunguName, totalCount: 0 };
-      }
-      throw new Error(`NEIS error: ${countJson.RESULT.CODE}`);
-    }
-
-    const totalAll = countJson?.schoolInfo?.[0]?.head?.[0]?.list_total_count ?? 0;
-    if (totalAll === 0) {
-      return { eduCode, sidoName: sigunguName, totalCount: 0 };
-    }
-
-    // 2단계: 전체 학교 목록 받아서 주소 필터링
-    const fullUrl = new URL(API_BASE);
-    fullUrl.searchParams.set("KEY", apiKey);
-    fullUrl.searchParams.set("Type", "json");
-    fullUrl.searchParams.set("pIndex", "1");
-    fullUrl.searchParams.set("pSize", String(Math.min(totalAll, 1000)));
-    fullUrl.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
-
-    const fullRes = await fetch(fullUrl.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
-    if (!fullRes.ok) throw new Error(`HTTP ${fullRes.status}`);
-
-    const fullJson = await fullRes.json();
-    if (fullJson.RESULT) throw new Error(`NEIS error: ${fullJson.RESULT.CODE}`);
-
-    const rows = fullJson?.schoolInfo?.[1]?.row ?? [];
-    const count = rows.filter(
-      (r: Record<string, string>) =>
-        (r.ORG_RDNMA || "").includes(sigunguName)
-    ).length;
+    const rows = await fetchEduSchoolRows(apiKey, eduCode, FETCH_TIMEOUT);
+    const count = rows.filter((r) => isSchoolInDistrict(r.ORG_RDNMA, sigunguName)).length;
 
     return {
       eduCode,
