@@ -179,9 +179,12 @@ export default async function GuDetailPage({ params }: PageProps) {
           <Icon icon={Sprout} size="lg" />
           <div>
             <h2 className={s.sectionTitle}>대표 작물</h2>
-            <p className={s.sectionDesc}>
-              {gu.name}에서 주로 재배되는 작물이에요.
-            </p>
+            {/* 작물이 없으면 '주로 재배되는 작물이에요' 바로 아래 '자료가 없어요'가 붙어 모순 — 설명을 숨긴다 (10/7 QA) */}
+            {(matchedCrops.length > 0 || gu.mainCrops.length > 0) && (
+              <p className={s.sectionDesc}>
+                {gu.name}에서 주로 재배되는 작물이에요.
+              </p>
+            )}
           </div>
         </div>
         {matchedCrops.length > 0 ? (

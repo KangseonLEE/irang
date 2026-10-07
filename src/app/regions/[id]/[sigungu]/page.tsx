@@ -484,9 +484,11 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               <Icon icon={Sprout} size="lg" />
               <div className={s.sectionHeaderBody}>
                 <h2 className={s.sectionTitle}>대표 작물</h2>
-                <p className={s.sectionDesc}>
-                  {sigungu.name}에서 주로 재배되는 작물이에요.
-                </p>
+                {(topCrops.length > 0 || sigungu.mainCrops.length > 0) && (
+                  <p className={s.sectionDesc}>
+                    {sigungu.name}에서 주로 재배되는 작물이에요.
+                  </p>
+                )}
               </div>
               {topCrops.length > 0 && (
                 <Link

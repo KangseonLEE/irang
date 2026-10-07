@@ -150,6 +150,28 @@ async function fetchYearData(
   }
 }
 
+/**
+ * 해마다 SGIS 를 묻고, 못 받은 해는 잠깐 뒤 한 번 더 — 10개 연도를 한꺼번에 물으면 몇 해가 일시 실패로 빠졌고,
+ * 그 빈 추이가 하루 동안 캐시됐다(10/7 운영 실측: 부천 원미구 2016·2020 누락).
+ */
+async function fetchYears(accessToken: string, regionCode: string, years: readonly number[]): Promise<TrendItem[]> {
+  const first = await Promise.all(years.map((year) => fetchYearData(accessToken, regionCode, year)));
+  const missing = years.filter((_, i) => !first[i]);
+  let retried: (TrendItem | null)[] = [];
+  if (missing.length > 0) {
+    await new Promise((r) => setTimeout(r, 400));
+    retried = await Promise.all(missing.map((year) => fetchYearData(accessToken, regionCode, year)));
+  }
+  return [...first, ...retried].filter((v): v is TrendItem => v !== null).sort((a, b) => a.year - b.year);
+}
+
+/** 다 받았으면 하루, 빠진 해가 있으면 5분 — 일시 실패로 빈 추이가 하루 동안 남지 않게 */
+function trendCacheControl(got: number, want: number): string {
+  return got >= want
+    ? "public, s-maxage=86400, stale-while-revalidate=3600"
+    : "public, s-maxage=300, stale-while-revalidate=60";
+}
+
 export async function GET(request: NextRequest) {
   // Rate Limit 체크
   const ip =
@@ -198,7 +220,7 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json(
       { data: composite.sort((a, b) => a.year - b.year) },
-      { headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=3600" } },
+      { headers: { "Cache-Control": trendCacheControl(composite.length, years.length) } },
     );
   }
 
@@ -210,15 +232,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // 병렬 호출
-  const results = await Promise.allSettled(
-    years.map((year) => fetchYearData(accessToken, sgisCode, year))
-  );
-
-  let data: TrendItem[] = results
-    .map((r) => (r.status === "fulfilled" ? r.value : null))
-    .filter((v): v is TrendItem => v !== null)
-    .sort((a, b) => a.year - b.year);
+  // 병렬 호출 + 못 받은 해 한 번 더
+  let data: TrendItem[] = await fetchYears(accessToken, sgisCode, years);
 
   // ── 일반시 fallback: SGIS는 구가 있는 시(예: 성남시 31020)에 시 단위
   //   추이를 반환하지 않음. 빈 결과면 산하 구의 trend를 합산해 시 trend 생성.
@@ -264,8 +279,7 @@ export async function GET(request: NextRequest) {
     { data },
     {
       headers: {
-        "Cache-Control":
-          "public, s-maxage=86400, stale-while-revalidate=3600",
+        "Cache-Control": trendCacheControl(data.length, years.length),
       },
     }
   );

@@ -301,15 +301,21 @@ export async function fetchGuResidualItems(sidoCd: string, gu: GuDistrict): Prom
   if (codes.length === 0 || !gu.legalAreas) return [];
   const lists = await Promise.all(codes.map((c) => fetchHiraItems(sidoCd, c)));
   if (lists.some((l) => l === null)) return null;
-  const areaToGu = new Map(
-    getGusOfCity(gu.sidoId, gu.parentSigunguId).flatMap((g) => (g.legalAreas ?? []).map((a) => [a, g.id] as const)),
-  );
-  return (lists as HiraListItem[][]).flat().filter((item) => {
-    const byName = item.emdongNm ? areaToGu.get(item.emdongNm.trim()) : undefined;
-    if (byName) return byName === gu.id;
-    const hits = new Set((item.addr ?? "").split(/[\s(),]+/).flatMap((t) => areaToGu.get(t) ?? []));
-    return hits.size === 1 && hits.has(gu.id);
-  });
+  const siblings = getGusOfCity(gu.sidoId, gu.parentSigunguId);
+  return (lists as HiraListItem[][]).flat().filter((item) => residualItemGuId(item, siblings) === gu.id);
+}
+
+/**
+ * 시 단위 코드로 남은 기관 하나가 놓인 구 id — 읍·면·동 이름(emdongNm), 없으면 주소 낱말을 그 시 구들의
+ * 법정 읍·면·동(legalAreas)에 맞춰 본다. 한 구로만 가리킬 때만, 아니면 null(어느 구에도 넣지 않는다).
+ * 주간 정합성 대조가 같은 함수로 '모든 기관이 한 구에 배정되는가'를 0 허용으로 본다(10/7 독립 QA).
+ */
+export function residualItemGuId(item: HiraListItem, siblings: readonly GuDistrict[]): string | null {
+  const areaToGu = new Map(siblings.flatMap((g) => (g.legalAreas ?? []).map((a) => [a, g.id] as const)));
+  const byName = item.emdongNm ? areaToGu.get(item.emdongNm.trim()) : undefined;
+  if (byName) return byName;
+  const hits = new Set((item.addr ?? "").split(/[\s(),]+/).flatMap((t) => areaToGu.get(t) ?? []));
+  return hits.size === 1 ? [...hits][0] : null;
 }
 
 /**

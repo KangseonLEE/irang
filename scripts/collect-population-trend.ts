@@ -107,15 +107,26 @@ async function fetchProvinceSubPopulation(
   url.searchParams.set("year", String(year));
   url.searchParams.set("low_search", "1");
 
-  const res = await fetch(url.toString());
-  const json = await res.json();
-  if (json.errCd !== 0 && json.errCd !== "0") {
-    console.warn(
-      `[skip] sgis=${provinceSgisCode} year=${year}: ${json.errMsg ?? json.errCd}`,
-    );
-    return [];
+  // 일시 오류(SGIS 응답 지연·errCd)는 두 번 더 묻고, 그래도 안 되면 멈춘다 — 예전엔 그 해를 빈 목록으로 넘겨
+  // 시·도 합을 0 으로 쓴 채 성공으로 끝났다(10/7 독립 QA 재현: 서울 2018 = 0). 덜 받은 파일을 쓰지 않는다
+  let last = "";
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt) await new Promise((r) => setTimeout(r, 1500 * attempt));
+    try {
+      const res = await fetch(url.toString(), { signal: AbortSignal.timeout(30_000) });
+      const json = await res.json();
+      if (json.errCd === 0 || json.errCd === "0") {
+        const rows = (json.result as PopulationApiItem[]) ?? [];
+        if (rows.length > 0) return rows;
+        last = "빈 결과";
+      } else {
+        last = `${json.errMsg ?? json.errCd}`;
+      }
+    } catch (e) {
+      last = e instanceof Error ? e.message : String(e);
+    }
   }
-  return (json.result as PopulationApiItem[]) ?? [];
+  throw new Error(`SGIS 인구 sgis=${provinceSgisCode} year=${year} 세 번 실패(${last}) — 정적 데이터 갱신 중단`);
 }
 
 function calcAgingRate(item: PopulationApiItem): number {
