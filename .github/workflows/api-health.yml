@@ -113,8 +113,17 @@ jobs:
             "https://sgisapi.kostat.go.kr/OpenAPI3/auth/authentication.json?consumer_key=test&consumer_secret=test"
 
           # ── 3. KOSIS (통계청) ───────────────────────────────────────
-          check_api "KOSIS" \
-            "https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=${KOSIS_API_KEY:-MISSING}&itmId=ALL&objL1=ALL&objL2=&format=json&jsonVD=Y&prdSe=Y&startPrdDe=2023&endPrdDe=2023&orgId=101&tblId=DT_1EA1501"
+          KOSIS_URL="https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=${KOSIS_API_KEY:-MISSING}&itmId=ALL&objL1=ALL&objL2=&format=json&jsonVD=Y&prdSe=Y&startPrdDe=2023&endPrdDe=2023&orgId=101&tblId=DT_1EA1501"
+          check_api "KOSIS" "$KOSIS_URL"
+          # KOSIS 는 키가 틀려도 HTTP 200 + 본문 {"err":"11","errMsg":"유효하지않은 인증KEY입니다."} 라 상태 코드로는
+          # 키 부패를 못 본다 — 10/7 GitHub 시크릿이 4/20 값으로 무효였는데 ✅ 로 통과, 주간 대조의 면적 검사가 건너뛰어졌다
+          KOSIS_BODY=$(curl -s --max-time "$TIMEOUT" "$KOSIS_URL" 2>/dev/null || true)
+          if printf '%s' "$KOSIS_BODY" | grep -q '"err"'; then
+            KOSIS_ERR=$(printf '%s' "$KOSIS_BODY" | sed -n 's/.*"errMsg":"\([^"]*\)".*/\1/p' | head -c 80)
+            RESULT_TABLE="${RESULT_TABLE}| KOSIS 본문 | 키 검증 | ❌ ${KOSIS_ERR:-오류 응답} | | GitHub 시크릿 KOSIS_API_KEY 확인 |\n"
+            FAIL_COUNT=$((FAIL_COUNT + 1))
+            echo "[❌] KOSIS 본문 — ${KOSIS_ERR:-오류 응답}"
+          fi
 
           # ── 4. HIRA (심평원) — 앱 실사용 경로(hira.ts HIRA_PATH)와 동일. 9/2: 이전 MdlrtHospInfoService는
           #      400을 "서버 생존"으로 통과시켜 실경로 11s 지연·타임아웃을 못 봤음 ────────────
