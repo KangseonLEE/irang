@@ -120,7 +120,7 @@ jobs:
           elif [ "$(jq -r '.pages // 0' "$SUMMARY_JSON")" -eq 0 ]; then
             STATE=crash
           else
-            PROBLEMS=$(jq '(.counts.mismatch // 0) + (.counts.err // 0) + ((.nameIssues // []) | length) + ((.sumIssues // []) | length) + ((.popIssues // []) | length) + ((.guSumIssues // []) | length)' "$SUMMARY_JSON")
+            PROBLEMS=$(jq '(.counts.mismatch // 0) + (.counts.err // 0) + ((.nameIssues // []) | length) + ((.sumIssues // []) | length) + ((.popIssues // []) | length) + ((.guSumIssues // []) | length) + ((.guPartitionIssues // []) | length)' "$SUMMARY_JSON")
             if [ "$PROBLEMS" -gt 0 ]; then STATE=problems; else STATE=clean; fi
           fi
           echo "state=${STATE} problems=${PROBLEMS}"
@@ -175,6 +175,10 @@ jobs:
                     "", "### 구 화면 합 ≠ 시 화면 (\(.guSumIssues | length)건)", "",
                     lst(.guSumIssues; 50; "- \(.)")
                   else empty end),
+                  (if ((.guPartitionIssues // []) | length) > 0 then
+                    "", "### 구 배정 — 어느 구에도 안 들거나 두 구에 든 학교·기관 (\(.guPartitionIssues | length)건)", "",
+                    lst(.guPartitionIssues; 50; "- \(.)")
+                  else empty end),
                   (if (.near | length) > 0 then
                     "", "<details><summary>캐시 시점 차이 \(.near | length)쪽 (±2·0.5% 이내 — 조치 불요)</summary>", "",
                     lst(.near; 80; "- `\(.key)` — \(.near | join("; "))"),
@@ -185,9 +189,9 @@ jobs:
                     lst(.coverage; 30; "- \(.)"),
                     "", "</details>"
                   else empty end),
-                  (if (((.guSumNear // []) | length) + ((.geoIssues // []) | length)) > 0 then
-                    "", "<details><summary>구 판정 참고 \(((.guSumNear // []) | length) + ((.geoIssues // []) | length))건 (구 화면 합 ±2 이내 · 주소 좌표 변환 못 한 학교·기관)</summary>", "",
-                    lst((.guSumNear // []) + (.geoIssues // []); 30; "- \(.)"),
+                  (if (((.guSumNear // []) | length) + ((.geoIssues // []) | length) + ((.cityNamelessSchools // []) | length)) > 0 then
+                    "", "<details><summary>구 판정 참고 \(((.guSumNear // []) | length) + ((.geoIssues // []) | length) + ((.cityNamelessSchools // []) | length))건 (구 화면 합 ±2 이내 · 주소 좌표 변환 못 한 학교·기관 · 시 이름 없이 구 이름으로 든 학교)</summary>", "",
+                    lst((.guSumNear // []) + (.geoIssues // []) + (.cityNamelessSchools // []); 30; "- \(.)"),
                     "", "</details>"
                   else empty end)
                 ' "$SUMMARY_JSON"

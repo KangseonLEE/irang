@@ -38,7 +38,8 @@ export interface RegionReorganization {
 
 // 통계청 인구 자료(SGIS)에 새 구가 아직 없어 행정동 값을 더한다 — 그 사실만 밝힌다. 귀농·귀촌 통계는 원래 자치구
 // 단위로 나오지 않아(KOSIS 귀농어·귀촌인 통계는 시·군만) 새 구라서 없는 게 아니다
-const NEW_DISTRICT_DETAIL = "인구는 통계청 2024년 행정동 통계를 새 구에 속한 동별로 더한 값이에요.";
+// 연도는 인구 조회 연도(lib/api/sgis.ts — 올해 − 2)와 같게 — 고정해 두면 해가 바뀌는 날 문장과 값이 어긋난다 (10/7 QA)
+const NEW_DISTRICT_DETAIL = `인구는 통계청 ${new Date().getFullYear() - 2}년 행정동 통계를 새 구에 속한 동별로 더한 값이에요.`;
 
 /** 키 = sigungus.ts 의 시·군·구 id */
 export const REGION_REORGANIZATIONS: Readonly<Record<string, RegionReorganization>> = {

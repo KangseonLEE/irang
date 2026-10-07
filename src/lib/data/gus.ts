@@ -171,7 +171,8 @@ export function hasGuDistricts(sigunguId: string): boolean {
  * 법정동만으로 구를 정할 수 없는 학교(교육부 학교 코드 SD_SCHUL_CODE → 구 id) — 10/7 통계청 주소 좌표 변환으로 확인.
  * - 상세 주소에 법정동이 없음: 송내초(부천 상동) · 방교초·왕배초(화성 동탄구) · 청연초(화성 효행구)
  * - 두 구에 걸친 법정동 능동: 능동중·능동초·푸른중·푸른초·한마음초 — 모두 동탄3동 쪽(동탄구)
- * 새 학교가 이 판정으로 빠지면 주간 정합성 대조(scripts/check-region-stats-integrity.ts)가 구별 학교 수 불일치로 잡는다.
+ * 새 학교가 어느 구에도 배정되지 않거나 두 구에 배정되면 주간 정합성 대조(scripts/check-region-stats-integrity.ts)가
+ * 그날의 교육부 목록에 이 판정을 그대로 돌려 '구 배정' 문제로 잡는다(0 허용 — 10/7 독립 QA 뒤, 그 전엔 ±2 가 묻었다).
  */
 export const SCHOOL_GU_OVERRIDES: Readonly<Record<string, string>> = {
   "7581086": "wonmi-gu", // 송내초등학교 — 상동

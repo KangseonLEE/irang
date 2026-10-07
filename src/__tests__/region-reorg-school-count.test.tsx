@@ -197,7 +197,7 @@ describe("행정구역 개편 SSOT — region-reorganizations (A안)", () => {
   it("상단 안내 문장 — 서술체, 밖으로 나가는 주소 없음, 자료 기준을 밝힌다", () => {
     const text = reorgNoticeText(REGION_REORGANIZATIONS.yeongjong, "영종구");
     expect(text).toContain("영종구가 됐어요");
-    expect(text).toContain("2024년 행정동 통계");
+    expect(text).toContain(`${new Date().getFullYear() - 2}년 행정동 통계`);
     expect(text).not.toMatch(/합니다|https?:|확인할 수 없어요/);
   });
 
@@ -208,7 +208,7 @@ describe("행정구역 개편 SSOT — region-reorganizations (A안)", () => {
     expect(getGuReorganization("jangan-gu")).toBeNull();
     const text = reorgNoticeText(GU_REORGANIZATIONS["manse-gu"], "만세구");
     expect(text).toContain("2026년 2월 1일 화성시에 만세구·효행구·병점구·동탄구가 생겼어요");
-    expect(text).toContain("2024년 행정동 통계");
+    expect(text).toContain(`${new Date().getFullYear() - 2}년 행정동 통계`);
     expect(text).not.toMatch(/합니다|https?:/);
   });
 

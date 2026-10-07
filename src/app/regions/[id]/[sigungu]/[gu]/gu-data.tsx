@@ -19,9 +19,9 @@ import { getFarmFallback } from "@/lib/data/farms";
 import {
   getPopulationTrend,
   POPULATION_TREND_YEARS,
-  POPULATION_TREND_SIGUNGU,
   type PopulationTrendPoint,
 } from "@/lib/data/population-trend";
+import { sidoSigunguAverageByYear } from "@/lib/data/population-trend-average";
 import { getDimensionScores } from "@/lib/data/dimension-scores";
 import {
   fetchGuMedicalFacilities,
@@ -143,21 +143,8 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
 
   // -- 인구 5년 추이 (정적 폴백 — 구 sgisCode 기준) --
   const guTrend: PopulationTrendPoint[] = getPopulationTrend(gu.sgisCode);
-  const sidoSigunguAvgByYear = (() => {
-    const map = new Map<number, { sum: number; count: number }>();
-    for (const p of POPULATION_TREND_SIGUNGU) {
-      if (!p.sgisCode.startsWith(province.sgisCode)) continue;
-      const t = map.get(p.year) ?? { sum: 0, count: 0 };
-      t.sum += p.population;
-      t.count += 1;
-      map.set(p.year, t);
-    }
-    const avgMap = new Map<number, number>();
-    for (const [year, { sum, count }] of map.entries()) {
-      avgMap.set(year, count > 0 ? Math.round(sum / count) : 0);
-    }
-    return avgMap;
-  })();
+  // 시·도 평균 = 그 시·도의 시·군·구 단위만(구 행·시 합산 행이 겹쳐 들어가던 것, 10/7)
+  const sidoSigunguAvgByYear = sidoSigunguAverageByYear(province.id);
   const populationTrendData = guTrend.map((p) => ({
     year: p.year,
     population: p.population,

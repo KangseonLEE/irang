@@ -24,9 +24,9 @@ import { getFarmFallback } from "@/lib/data/farms";
 import {
   getPopulationTrend,
   POPULATION_TREND_YEARS,
-  POPULATION_TREND_SIGUNGU,
   type PopulationTrendPoint,
 } from "@/lib/data/population-trend";
+import { sidoSigunguAverageByYear } from "@/lib/data/population-trend-average";
 import { getDimensionScores } from "@/lib/data/dimension-scores";
 import {
   fetchSigunguMedicalFacilities,
@@ -156,22 +156,8 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
 
   // ── 인구 5년 추이 (정적 폴백 기반 — 빌드 안정성) ──
   const sigunguTrend: PopulationTrendPoint[] = getPopulationTrend(sigungu.sgisCode);
-  // 시도 시군구 평균 = 같은 시도의 모든 시군구 평균 (연도별)
-  const sidoSigunguAvgByYear = (() => {
-    const map = new Map<number, { sum: number; count: number }>();
-    for (const p of POPULATION_TREND_SIGUNGU) {
-      if (!p.sgisCode.startsWith(province.sgisCode)) continue;
-      const t = map.get(p.year) ?? { sum: 0, count: 0 };
-      t.sum += p.population;
-      t.count += 1;
-      map.set(p.year, t);
-    }
-    const avgMap = new Map<number, number>();
-    for (const [year, { sum, count }] of map.entries()) {
-      avgMap.set(year, count > 0 ? Math.round(sum / count) : 0);
-    }
-    return avgMap;
-  })();
+  // 시·도 평균 = 그 시·도의 시·군·구 단위만 연도별로(구 행·시 합산 행이 겹쳐 들어가던 것, 10/7)
+  const sidoSigunguAvgByYear = sidoSigunguAverageByYear(province.id);
 
   // 차트용 데이터 합성: 시군구 + 시도평균
   const populationTrendData = sigunguTrend.map((p) => ({
