@@ -14,8 +14,17 @@ export function formatPopulation(pop: number): string {
   return `${pop.toLocaleString(NUMBER_LOCALE)}명`;
 }
 
-/** 서울 면적 기준 상수 (km²) */
-const SEOUL_AREA_KM2 = 605;
+/** 서울 면적(㎢) — 국토교통부 지적통계 2025, regions.ts 서울과 같은 값(area-constants 테스트로 확인) */
+export const SEOUL_AREA_KM2 = 605.25;
+
+/** 국토 면적(㎢) — 지적통계 2025 시·도 17곳 합(regions.ts 합과 같은 값, area-constants 테스트로 확인) */
+export const NATIONAL_AREA_KM2 = 100_472.39;
+
+/**
+ * 전국 인구밀도(명/㎢) — 통계청 SGIS 2024 총인구 51,795,011명(시·도 17곳 합) ÷ NATIONAL_AREA_KM2 = 515.5.
+ * 지역 상세의 인구도 같은 SGIS 연도라 비교 기준을 맞춘다. 면적·연도가 바뀌면 다시 계산한다.
+ */
+export const NATIONAL_POP_DENSITY = 516;
 
 /**
  * 서울과 면적 비교 — 서울보다 크면 '약 N.N배', 작으면 '약 N%'. 예전엔 작은 구가 전부 '서울의 약 0.0배'로

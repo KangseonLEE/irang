@@ -124,7 +124,16 @@ function getSearchIndex(): SearchItem[] {
       title: `${sigunguName} ${g.name}`,
       subtitle: truncate(`${provinceName} · ${g.description}`, 45),
       href: `/regions/${g.sidoId}/${g.parentSigunguId}/${g.id}`,
-      keywords: [g.shortName, sigunguName, provinceName, ...g.mainCrops, ...g.highlights],
+      // 약칭 + 구가 정식 이름과 다르면 별칭으로 — "합포구"·"회원구"(마산합포구·마산회원구). 행정구역 이름은 낱말
+      // 첫머리에서만 맞추므로(nameLike) 별칭이 없으면 0건이다(10/8 2차 QA)
+      keywords: [
+        g.shortName,
+        ...(!g.shortName.endsWith("구") && `${g.shortName}구` !== g.name ? [`${g.shortName}구`] : []),
+        sigunguName,
+        provinceName,
+        ...g.mainCrops,
+        ...g.highlights,
+      ],
       icon: "\u{1F3E1}", // 🏡
     };
   });
@@ -347,7 +356,7 @@ function getSearchIndex(): SearchItem[] {
     title: ls.name,
     subtitle: truncate(ls.description, 50),
     href: ls.url,
-    keywords: ["농지", "토지", "부동산", "매물"],
+    keywords: ["농지", "토지", "부동산", "매물", ...(ls.keywords ?? [])],
     icon: ls.icon,
     external: true,
   }));
@@ -689,6 +698,8 @@ const SYNONYMS: Record<string, string[]> = {
   "전원": ["귀촌", "전원생활"],
   "은퇴": ["귀촌", "전원생활", "시니어"],
   "땅": ["농지", "토지", "땅", "지목"],
+  // 색인에 '주말농장'이 없어 "주말농장"·"상록 주말농장"이 0건이었다(10/8 2차 QA) — 같은 뜻의 텃밭으로 잇는다
+  "주말농장": ["주말농장", "텃밭"],
   "집": ["주택", "주거", "쉼터", "농막"],
   "주택": ["주택", "주거", "쉼터"],
   "농막": ["농막", "쉼터", "체류형", "임시주거"],
@@ -948,6 +959,12 @@ function scoreItem(item: SearchItem, term: string): number {
     return Math.round(score * (TYPE_WEIGHT[item.type] ?? 1.0));
   }
 
+  // 타입 가중치 적용
+  return Math.round(bestRawScore(item, term) * (TYPE_WEIGHT[item.type] ?? 1.0));
+}
+
+/** 동의어·형태소 확장 뒤 가중치 없는 최고 점수 (초성 검색 제외) */
+function bestRawScore(item: SearchItem, term: string): number {
   // 동의어 확장 + 형태소 처리
   const stemmed = removeKoreanSuffix(term);
   const typedIsPlace = isPlaceName(term) || isPlaceName(stemmed);
@@ -969,8 +986,7 @@ function scoreItem(item: SearchItem, term: string): number {
     if (score > bestScore) bestScore = score;
   }
 
-  // 타입 가중치 적용
-  return Math.round(bestScore * (TYPE_WEIGHT[item.type] ?? 1.0));
+  return bestScore;
 }
 
 /**
@@ -1032,6 +1048,9 @@ function scoreItemRawSingleChar(item: SearchItem, term: string): number {
   return 0;
 }
 
+/** 행정구역 종류를 뜻하는 말 — 이름 끝에 붙어 쓰이므로 낱말 첫머리 규칙(nameLike)을 걸지 않는다 */
+const ADMIN_KIND_TERMS: ReadonlySet<string> = new Set(["광역시", "특별시", "특례시", "특별자치시"]);
+
 /** 순수 매칭 점수 (가중치 없이) */
 function scoreItemRaw(item: SearchItem, term: string): number {
   if (term.length === 1) return scoreItemRawSingleChar(item, term);
@@ -1043,12 +1062,20 @@ function scoreItemRaw(item: SearchItem, term: string): number {
   // 행정구역 이름(○○구·○○군·○○시)은 지역·센터 항목의 낱말 첫머리에서만 — "북구"가 "천안시 서북구"에, "대구"가
   // "해운대구"·"해운대구청"에, "양구"가 "계양구"에, "양주시"가 "남양주시"에, "인구"가 "용인시 처인구"에 낱말 중간으로
   // 붙었다(10/7, 학교 수 '동구 → 남동구'와 같은 결함). 제목·키워드·부제 모두. "양구"→양구군·"남구"→포항시 남구처럼
-  // 낱말 첫머리 일치는 그대로
-  const nameLike = (item.type === "region" || item.type === "center") && /[구군시]$/.test(term) && term.length >= 2;
+  // 낱말 첫머리 일치는 그대로. 행정구역 종류를 뜻하는 말(광역시·특례시 등)은 이름 뒤에 붙는 게 정상이라 빼고 종전대로
+  // ("광역시"가 62 → 0건, "특례시"가 수원·용인·창원특례시청을 잃었다 — 10/8 2차 QA)
+  const nameLike =
+    (item.type === "region" || item.type === "center") &&
+    /[구군시]$/.test(term) &&
+    term.length >= 2 &&
+    !ADMIN_KIND_TERMS.has(term);
   const atWordStart = (s: string) => wordsOf(s).some((w) => w.startsWith(term));
   if (nameLike) {
     if (t.startsWith(term)) return 80;
     if (atWordStart(t)) return 60;
+    // 앞에 두 글자 이상이 붙은 3자 이상 이름 — "합포구"·"회원구"(마산합포구·마산회원구). 두 글자 이름("대구"→해운대구)·
+    // 한 글자 조각 뒤("북구"→서북구·"양주시"→남양주시)는 여기 안 걸린다
+    if (term.length >= 3 && wordsOf(t).some((w) => w.length - term.length >= 2 && w.endsWith(term))) return 60;
   } else {
     if (t.startsWith(term)) return 80;
     if (t.includes(term)) return 60;
@@ -1108,11 +1135,13 @@ function isGuItem(item: SearchItem): boolean {
 }
 
 /**
- * 일상어와 같은 구 이름 줄기(gus.ts shortName) — 여러 낱말 검색에서 구가 이 줄기 하나로만 맞았으면, 일반어가 아닌
- * 다른 낱말까지 맞아야 남긴다. "대한독립 만세"에 만세구, "회원 가입"에 마산회원구, "청원 게시판"에 청원구,
- * "동안 미인"에 동안구, "단원 김홍도"에 단원구, "수정 사항"에 수정구가 1위로 섰다(10/7 독립 QA).
- * 지명으로만 쓰이는 줄기(분당·동탄·처인·기흥…)는 넣지 않는다 — "분당 아파트"·"동탄 텃밭"엔 시·군·구 "가평 펜션"처럼
- * 구 카드가 선다. 정식 이름("만세구 농지")·시 이름과 함께("화성 만세")·작물로 맞은 구("쌀 수익")·단독("만세")은 그대로.
+ * 일상어와 같은 구 이름 줄기(gus.ts shortName) — 여러 낱말 검색에서 구가 이 줄기 하나로만 맞았고, 못 맞춘 다른 낱말이
+ * 색인 어디에도 없는 말이면 그 구를 뺀다. "대한독립 만세"에 만세구, "회원 가입"에 마산회원구, "청원 게시판"에 청원구,
+ * "동안 미인"에 동안구, "단원 김홍도"에 단원구가 1위로 섰다(10/7 독립 QA) — 대한독립·가입·게시판·미인·김홍도는 색인에
+ * 없는 말이다. 다른 낱말이 색인에 있는 말이면 지명으로 쓴 검색이라 남긴다: "수지 텃밭"·"청원 농지"·"수지 귀촌"·
+ * "상록 주말농장"(10/8 2차 QA — 처음엔 '다른 낱말도 그 구가 맞춰야'로 걸어 이런 검색 832개에서 구 카드가 빠졌다).
+ * 지명으로만 쓰이는 줄기(분당·동탄·처인·기흥…)는 넣지 않는다 — 시·군·구 "가평 펜션"처럼 구 카드가 선다.
+ * 정식 이름("만세구 농지")·시 이름과 함께("화성 만세")·작물로 맞은 구("쌀 수익")·단독("만세")은 그대로.
  */
 const GU_STEMS_COMMON_WORDS: ReadonlySet<string> = new Set([
   "만세", "회원", "청원", "동안", "단원", "수지", "수정", "상당", "상록", "서원", "동남", "서북", "장안", "중원", "성산", "효행",
@@ -1125,6 +1154,41 @@ function isCommonWordGuStemHit(item: SearchItem, term: string): boolean {
   return (item.title.split(" ").pop() ?? "").includes(stem);
 }
 
+/**
+ * 이랑이 다루는 말인가 — 개념어(DOMAIN_VOCAB)이거나 그것으로 시작하는 붙여 쓴 말이거나, 색인에 제목·키워드 전체로
+ * 맞는 항목이 있으면(가중치 없는 35점 이상, 키워드·부제 안의 부분 일치는 치지 않음). "텃밭"·"농지"·"귀촌"·"날씨"·
+ * "전원주택"·"아파트"(실거래가 키워드)는 그렇고, "가입"("농협 조합원 가입"의 일부일 뿐)·"게시판"·"미인"·"김홍도"·
+ * "대한독립"·"사항"은 아니다. 색인은 정적이라 낱말마다 한 번 센다.
+ */
+const DOMAIN_WORD_MIN_RAW = 35;
+
+/** 지명과 함께 쓰면 그 지역을 찾는 생활 문맥어 — 색인엔 낱말로 없지만 지역 상세(기후·의료·생활)로 이어진다 */
+const PLACE_CONTEXT_WORDS = ["날씨", "기후", "이사", "이주", "분양", "교통", "일자리", "맛집", "텃밭"];
+
+/** 이랑이 다루는 개념어 — 동의어 사전 키·FAQ 키워드·생활 문맥어(2자 이상). 붙여 쓴 말은 이 말로 시작하면 인정한다 */
+const DOMAIN_VOCAB: ReadonlySet<string> = new Set(
+  [...Object.keys(SYNONYMS), ...SEARCH_FAQS.flatMap((f) => f.keywords), ...PLACE_CONTEXT_WORDS]
+    .map((w) => w.toLowerCase())
+    .filter((w) => w.length >= 2),
+);
+
+const _domainWordCache = new Map<string, boolean>();
+function isDomainWord(term: string): boolean {
+  const cached = _domainWordCache.get(term);
+  if (cached !== undefined) return cached;
+  const stem = removeKoreanSuffix(term);
+  const strong = (w: string) => !isChosungQuery(w) && getSearchIndex().some((it) => bestRawScore(it, w) >= DOMAIN_WORD_MIN_RAW);
+  // 붙여 쓴 말("전원주택"·"귀농교육"·"텃밭분양")은 개념어로 시작하면 — 색인 제목 안의 짧은 조각("대한")은 치지 않는다
+  const startsWithVocab = (w: string) => [...DOMAIN_VOCAB].some((v) => w.length > v.length && w.startsWith(v));
+  // 작물명으로 끝나는 붙여 쓴 말(특산 브랜드 "생명쌀"·"꿀사과") — 한 글자 작물은 앞말 2자 이상일 때만(업무·공감·홍콩 제외)
+  const endsWithCrop = (w: string) =>
+    CROP_NAMES_BY_LENGTH_DESC.some((c) => w.length > c.length && w.endsWith(c) && (c.length >= 2 || w.length - c.length >= 2));
+  const ok = DOMAIN_VOCAB.has(term) || DOMAIN_VOCAB.has(stem) || strong(term) || startsWithVocab(term) || endsWithCrop(term);
+  if (_domainWordCache.size >= 2000) _domainWordCache.clear();
+  _domainWordCache.set(term, ok);
+  return ok;
+}
+
 function scoreItemMulti(item: SearchItem, terms: string[]): number {
   let total = 0;
   let matched = 0;
@@ -1132,7 +1196,7 @@ function scoreItemMulti(item: SearchItem, terms: string[]): number {
   const spec = terms.map(termSpecificity);
   const hasSpecific = spec.some((s) => s > 0);
   const hasSigungu = spec.some((s) => s === 3);
-  let missedSpecific = false;
+  const missedSpecific: string[] = [];
   let onlyCommonWordGuStem = isGuItem(item);
   for (let i = 0; i < terms.length; i++) {
     const s = scoreItem(item, terms[i]);
@@ -1142,11 +1206,11 @@ function scoreItemMulti(item: SearchItem, terms: string[]): number {
       if (spec[i] > bestMatchedSpecificity) bestMatchedSpecificity = spec[i];
       if (onlyCommonWordGuStem && !isCommonWordGuStemHit(item, terms[i])) onlyCommonWordGuStem = false;
     } else if (spec[i] > 0) {
-      missedSpecific = true;
+      missedSpecific.push(terms[i]);
     }
   }
-  // 일상어 줄기로만 맞은 구는 일반어 아닌 낱말을 모두 맞춰야 남긴다 (GU_STEMS_COMMON_WORDS)
-  if (onlyCommonWordGuStem && matched > 0 && missedSpecific) return 0;
+  // 일상어 줄기로만 맞은 구는, 못 맞춘 낱말이 색인에 없는 말이면 뺀다 (GU_STEMS_COMMON_WORDS)
+  if (onlyCommonWordGuStem && matched > 0 && missedSpecific.some((t) => !isDomainWord(t))) return 0;
   // 특정어(전남·오이)가 있는 검색에서 일반어(귀농·재배)만 맞은 항목은 제외 — "전남 귀농"에 귀농 가이드 110건,
   // "오이 재배"에 남의 작물 재배 가이드가 OR 로 섞이던 9/23 감사 결함. 전부 일반어인 검색("귀농 교육")은 종전대로.
   if (hasSpecific && bestMatchedSpecificity === 0) return 0;
@@ -1244,7 +1308,7 @@ export function searchAllGrouped(query: string): GroupedSearchResults {
   const hintPrefix = [...matchFormerNameHints(q), ...matchSubRegionHints(terms[0] ?? q)];
 
   // FAQ 매칭 — 질문형 쿼리를 FAQ 패턴과 비교하여 상위에 삽입
-  const faqResults = matchFaqs(q);
+  const faqResults = matchFaqs(q, q0);
 
   const index = getSearchIndex();
 
@@ -2015,42 +2079,42 @@ function isVarietyCompoundToken(token: string): boolean {
  * 직답으로 섰고, 직답 1건이 결과 0건을 막아 "미니사과"·"영주사과"의 자동 대체(→ 사과)도 막혔다.
  *  - 실재 이름 키워드는 **낱말 첫머리**에서만 — 낱말 전체이거나 뒤에 조사·문맥어(FAQ_ENTITY_TAILS)만 붙을 때.
  *  - 품종·산지 복합어 토큰 안에서는 어떤 키워드도 맞추지 않는다(그 토큰은 작물이다 → 자동 대체가 받는다).
- *  - 그 밖의 키워드(비용·얼마·농지은행…)는 낱말 첫머리에서("얼마나 들어"), 또는 앞부분이 아는 낱말(들)일 때
- *    ("귀농비용"·"귀농창업비용") 맞춘다 — 낱말 중간 아무 데서나 맞추던 것은 10/7 에 막았다(isKnownCompound).
+ *  - 그 밖의 키워드(비용·얼마·농지은행…)는 자연어 질문("얼마나 들어")·붙여 쓴 질문("농사비용")을 위해 포함 매칭하되,
+ *    지명 낱말 안("수정구")과 한 글자 이름 조각 뒤("처|인구")는 뺀다(10/7~8, matchFaqs 의 plainHit).
  */
 /**
- * 붙여 쓴 질문('귀농비용'·'귀농창업비용')의 앞부분 판정용 낱말 — FAQ 키워드·실재 이름·일반어·색인 키워드(2자 이상, 소문자).
- * 색인을 처음 쓸 때 한 번 만든다.
+ * 2자 키워드가 낱말 둘째 글자부터 시작할 때 앞 한 글자로 허용하는 말 — FAQ 의 한 글자 키워드(땅·집·돈…)와 흔한 앞말.
+ * 그 밖의 한 글자 앞말은 이름 조각이다: "처|인구"(처인구)에 인구 통계, "귀|농지원센터"에 농지 구입 가이드가 붙었다(10/7).
  */
-let _faqPrefixVocab: ReadonlySet<string> | null = null;
-function faqPrefixVocab(): ReadonlySet<string> {
-  if (_faqPrefixVocab) return _faqPrefixVocab;
-  const words = [
-    ...SEARCH_FAQS.flatMap((f) => f.keywords),
-    ...ENTITY_NAME_SET,
-    ...GENERIC_TERMS,
-    ...getSearchIndex().flatMap((it) => it.keywords),
-  ]
-    .map((w) => w.toLowerCase())
-    .filter((w) => w.length >= 2 && !/\s/.test(w));
-  _faqPrefixVocab = new Set(words);
-  return _faqPrefixVocab;
-}
+const FAQ_ONE_CHAR_PREFIXES: ReadonlySet<string> = new Set([
+  ...SEARCH_FAQS.flatMap((f) => f.keywords).filter((k) => k.length === 1),
+  "논", "밭", "산", "첫", "새", "내", "월", "연", "총",
+]);
 
-/** 아는 낱말 하나 또는 아는 낱말(각 2자 이상)을 이어 붙인 것인가 — '귀농창업' = 귀농 + 창업, '대한'·'처'(처인구)·'귀'(귀농지원센터)는 아님 */
-function isKnownCompound(s: string): boolean {
-  const vocab = faqPrefixVocab();
-  if (s.length < 2) return false;
-  if (vocab.has(s)) return true;
-  for (let i = 2; i <= s.length - 2; i++) {
-    if (vocab.has(s.slice(0, i)) && isKnownCompound(s.slice(i))) return true;
-  }
-  return false;
-}
+/**
+ * 낱말 전체(또는 조사·문맥어가 붙은 꼴)로만 맞추는 FAQ 키워드 — '독립'은 홀로서기 뜻이지만 독립운동·독립영화·
+ * 대한독립·독립유공자 안에도 들어 있다(10/7~8 QA). "독립"·"귀농 독립"·"독립 농가"는 그대로 1인 정착 가이드
+ */
+const FAQ_WHOLE_WORD_KEYWORDS: ReadonlySet<string> = new Set(["독립"]);
 
-function matchFaqs(query: string): SearchItem[] {
+/** 시·도·시·군·구·구의 정식 이름 — 낱말 전체가 지명이면 그 안의 FAQ 키워드를 맞추지 않는다("수정구"에 정보 수정 요청, "예산군"에 비용) */
+const FULL_PLACE_NAME_SET: ReadonlySet<string> = new Set(
+  [...PROVINCES.map((p) => p.name), ...SIGUNGUS.map((s) => s.name), ...GUS.map((g) => g.name)].map((n) => n.toLowerCase()),
+);
+
+function matchFaqs(query: string, rawQuery: string = query): SearchItem[] {
   const q = query.toLowerCase();
-  const plainWords = wordsOf(q).filter((w) => !isVarietyCompoundToken(w));
+  const raw = rawQuery.toLowerCase();
+  // 띄우기 전 낱말도 함께 본다 — 테마 접두어 띄우기(injectCropPrefixSpace)가 "귀농인통계"를 "귀농 인통계",
+  // "농촌에병원있어?"를 "농촌 에병원있어"로 갈라 키워드가 낱말 둘째 글자에 걸렸다(10/8)
+  const toPlainWords = (s: string) => wordsOf(s).filter((w) => !isVarietyCompoundToken(w));
+  // 여러 낱말 검색엔 테마 접두어 띄우기가 안 돼 "귀농독립 알려줘"의 '독립'이 낱말 첫머리에 오지 않는다 — 낱말마다 같은 규칙으로
+  const themeRest = (w: string) => {
+    const p = THEME_PREFIXES.find((t) => w.length - t.length >= 2 && w.startsWith(t));
+    return p ? [w.slice(p.length)] : [];
+  };
+  const base = [...toPlainWords(q), ...toPlainWords(raw)];
+  const plainWords = [...new Set([...base, ...base.flatMap(themeRest)])];
   const entityHit = (k: string) =>
     plainWords.some((w) => {
       if (!w.startsWith(k)) return false;
@@ -2060,23 +2124,27 @@ function matchFaqs(query: string): SearchItem[] {
     });
   // 1자 키워드(삼·돈·땅·집·꽃·귤·뜻)는 정확히 그 한 글자를 검색했을 때만 — "삼"이 삼척·인삼·삼계탕을
   // 전부 잡던 9/23 감사 결함.
-  // 일반 키워드는 낱말 첫머리에서, 또는 앞부분이 아는 낱말(들)일 때만 — '대한독립 만세'의 '독립'에 1인 정착 FAQ,
-  // '처인구'의 '인구'에 인구 통계, '귀농지원센터'의 '농지'에 농지 구입 가이드가 붙었다(10/7).
-  // '귀농비용'·'귀농창업비용'처럼 아는 말을 이어 쓴 질문은 그대로 맞는다
+  // 일반 키워드는 낱말 안 포함 일치(붙여 쓴 질문 "농사비용"·"시골생활비"·"나에게맞는지역"을 위해). 다만
+  //  - 낱말 전체가 지명이면 맞추지 않는다 — "수정구"의 '수정'(정보 수정 요청), "예산군"의 '예산'(비용)
+  //  - 2자 키워드가 낱말 둘째 글자에서 시작하면 앞 한 글자가 허용된 말일 때만 — "처|인구"·"귀|농지원센터"(10/7)
+  // 10/7 1차는 '앞부분이 아는 낱말일 때만'으로 걸어 붙여 쓴 질문 38종이 직답을 잃었고(대부분 0건), 아는 낱말
+  // 분해가 지수 시간이라 긴 반복 입력에 탭이 멈췄다(10/8 2차 QA) — 위 두 조건만 남겼다
   const plainHit = (k: string) =>
     plainWords.some((w) => {
+      if (FULL_PLACE_NAME_SET.has(w)) return false;
+      if (k.length >= 3) return w.includes(k);
       for (let at = w.indexOf(k); at >= 0; at = w.indexOf(k, at + 1)) {
-        if (at === 0 || isKnownCompound(w.slice(0, at))) return true;
+        if (at !== 1 || FAQ_ONE_CHAR_PREFIXES.has(w[0]) || /\d/.test(w[0])) return true; // "1단계"·"5단계"
       }
       return false;
     });
   const keywordMatch = (k: string) => {
     if (k.length < 2) return q === k;
-    if (ENTITY_NAME_SET.has(k)) return entityHit(k);
+    if (ENTITY_NAME_SET.has(k) || FAQ_WHOLE_WORD_KEYWORDS.has(k)) return entityHit(k);
     return plainHit(k);
   };
   // 질문 패턴은 문장 전체가 들어 있을 때만이라 종전대로
-  const patternMatch = (p: string) => (p.length >= 2 ? q.includes(p) : q === p);
+  const patternMatch = (p: string) => (p.length >= 2 ? q.includes(p) || raw.includes(p) : q === p);
 
   const results: SearchItem[] = [];
   const seenHref = new Set<string>();
