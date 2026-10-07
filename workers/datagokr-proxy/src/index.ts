@@ -96,7 +96,11 @@ async function handleProxy(request: Request, env: Env, upstreamPath: string): Pr
   const params = new URL(request.url).searchParams;
   const key = cacheKeyFor(upstreamPath, params);
 
-  const hit = await env.DATAGOKR_CACHE.get(key, "text");
+  // 정합성 대조(region-integrity)는 기준값을 원천에서 새로 받아야 한다 — 저장분(KV)을 건너뛰고 upstream 을 부른 뒤
+  // 성공하면 KV 도 새 값으로 갱신한다(예열과 같은 효과). 10/7: 저장 시점이 다른 시·도 합계와 구별 건수를 비교해
+  // 대구 4,236 ≠ 4,235 가 '불일치'로 잡혔다 — 앱 요청은 이 헤더를 보내지 않는다
+  const fresh = request.headers.get("x-irang-proxy-fresh") === "1";
+  const hit = fresh ? null : await env.DATAGOKR_CACHE.get(key, "text");
   if (hit !== null) {
     return new Response(hit, {
       status: 200,

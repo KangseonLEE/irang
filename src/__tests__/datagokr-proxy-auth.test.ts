@@ -7,8 +7,12 @@
  * CI 키는 조회(/proxy)만 — 예열(/warm)은 앱 키로만.
  * upstream 을 부르지 않는 응답(허용 밖 경로 404, /warm 403)으로 인증 단계만 본다.
  */
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import worker from "../../workers/datagokr-proxy/src/index";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 const APP = "a".repeat(64);
 const CI = "c".repeat(64);
@@ -49,5 +53,45 @@ describe("data.go.kr 프록시 Worker 인증", () => {
     const r = await call("/proxy/not-allowed", APP, env({ PROXY_SECRET: "" }));
     expect(r.status).toBe(500);
     expect(await r.json()).toMatchObject({ missing: ["PROXY_SECRET"] });
+  });
+});
+
+/**
+ * 저장분 건너뛰기(x-irang-proxy-fresh) — 정합성 대조 기준값 (10/7)
+ * 저장분(KV)끼리 비교하면 시·도 합계와 구별 건수의 저장 시점이 달라 대구 4,236 ≠ 4,235 가 '불일치'로 잡혔다.
+ * 대조는 원천에서 새로 받고, 받은 새 값은 저장분에도 써서 앱도 최신이 된다. 앱 요청(헤더 없음)은 종전대로 저장분.
+ */
+describe("data.go.kr 프록시 Worker 저장분 건너뛰기", () => {
+  const HIRA = "/proxy/B551182/hospInfoServicev2/getHospBasisList?sidoCd=230000&pageNo=1&numOfRows=1&_type=json";
+
+  it("헤더 없으면 저장분, 있으면 원천에서 새로 받아 저장분도 갱신", async () => {
+    const store = new Map<string, string>();
+    const kv = {
+      get: vi.fn(async (k: string) => store.get(k) ?? null),
+      put: vi.fn(async (k: string, v: string) => void store.set(k, v)),
+    };
+    let upstreamBody = '{"v":1}';
+    const upstream = vi.fn(async () => new Response(upstreamBody, { status: 200 }));
+    vi.stubGlobal("fetch", upstream);
+    const req = (fresh: boolean) =>
+      worker.fetch(
+        new Request(`https://proxy.test${HIRA}`, {
+          headers: { "x-irang-proxy-secret": CI, ...(fresh ? { "x-irang-proxy-fresh": "1" } : {}) },
+        }),
+        env({ PROXY_SECRET_CI: CI, DATAGOKR_CACHE: kv }) as never,
+      );
+
+    expect(await (await req(false)).text()).toBe('{"v":1}'); // 처음 — 원천에서 받아 저장
+    upstreamBody = '{"v":2}'; // 원천이 바뀜
+    const cached = await req(false);
+    expect(cached.headers.get("x-irang-proxy")).toBe("kv-hit");
+    expect(await cached.text()).toBe('{"v":1}'); // 앱 요청은 저장분
+    expect(upstream).toHaveBeenCalledTimes(1);
+
+    const fresh = await req(true);
+    expect(fresh.headers.get("x-irang-proxy")).toBe("upstream");
+    expect(await fresh.text()).toBe('{"v":2}'); // 대조는 원천의 새 값
+    expect(upstream).toHaveBeenCalledTimes(2);
+    expect(await (await req(false)).text()).toBe('{"v":2}'); // 저장분도 새 값으로
   });
 });

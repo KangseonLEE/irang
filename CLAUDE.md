@@ -742,8 +742,8 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
 | `npm run knip` | `knip.json` | 미사용 파일·export·타입 검출 (2026-09-04 도입, 기준 0건 유지). scripts·province/district-maps·테스트는 entry, workers·supabase functions·루트 일회성 mjs는 ignore |
 | — | `scripts/generate-province-maps.ts` | 시도별 SVG 지도 데이터 생성 (statgarten 옛 경계 — 인천·대구는 건너뜀) |
 | — | `npx tsx scripts/generate-province-map-sgis.ts <incheon\|daegu>` | 행정구역 개편 시·도 지도를 통계청 SGIS 경계로 생성 — 신설 구는 `region-composites.ts` 행정동 묶음, 경계 면적(km²) 대조 출력 (2026-10-07) |
-| — | `.github/workflows/region-integrity.yml` | 지역 통계 전수 대조 주 1회(월 10:10 KST) — 불일치·대조 실패 시 `region-integrity` 이슈. 미국 러너라 심평원은 프록시 시크릿, 운영 페이지는 E2E_SECRET 필요 (2026-10-07) |
-| — | `.github/workflows/deploy-datagokr-proxy.yml` | data.go.kr 프록시 Worker 배포(dispatch) — 예열 목록을 `gen-hira-warm-list.ts` 로 다시 만들어 커밋본과 대조한 뒤 `CF_API_TOKEN` 으로 wrangler deploy, 시크릿 없는 요청 401 로 시크릿 유지 확인. 로컬 wrangler 로그인 불필요 (2026-10-07) |
+| — | `.github/workflows/region-integrity.yml` | 지역 통계 전수 대조 주 1회(월 10:10 KST) — 불일치·대조 실패 시 `region-integrity` 이슈. 미국 러너라 심평원은 프록시 Worker 의 CI 전용 키(GitHub `DATAGOKR_PROXY_CI_KEY` = Worker `PROXY_SECRET_CI`), 운영 페이지는 E2E_SECRET 필요 (2026-10-07) |
+| — | `.github/workflows/deploy-datagokr-proxy.yml` | data.go.kr 프록시 Worker 배포(dispatch) — 예열 목록을 `gen-hira-warm-list.ts` 로 다시 만들어 커밋본과 대조한 뒤 `CF_API_TOKEN` 으로 wrangler deploy, CI 전용 키(`DATAGOKR_PROXY_CI_KEY` → Worker `PROXY_SECRET_CI`) 동기화, 키 없음 401·CI 키 통과·CI 키 예열 403 확인(시크릿 전파 최대 2분 대기). 로컬 wrangler 로그인 불필요 (2026-10-07) |
 
 ---
 

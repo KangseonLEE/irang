@@ -20,7 +20,9 @@
  * CI(주 1회 .github/workflows/region-integrity.yml, 미국 러너 — 10/7 추가):
  *   - 키는 .env.local 위에 환경변수를 얹어 읽는다(환경변수 우선). CI 엔 .env.local 이 없다.
  *   - 심평원은 DATA_GO_KR_PROXY_URL·SECRET 이 있으면 앱과 같은 프록시 Worker 경유(src/lib/api/_datagokr.ts),
- *     없으면 직접 호출(로컬 한국 회선). 프록시는 KV 캐시(심평원 7일)를 거치므로 앱이 본 것과 같은 원천 응답이다.
+ *     없으면 직접 호출(로컬 한국 회선). 프록시로 받을 땐 저장분(KV, 심평원 7일)을 건너뛰고 원천에서 새로 받는다
+ *     (x-irang-proxy-fresh — 10/7, 저장 시점이 다른 합계끼리 비교하면 1~2개 차이가 불일치로 잡혔다). CI 키는 Worker
+ *     PROXY_SECRET_CI(GitHub DATAGOKR_PROXY_CI_KEY) — 앱 키와 별개.
  *   - 운영 페이지는 E2E_SECRET 이 있으면 e2e 우회(UA irang-e2e/1.0 + 시크릿 헤더, playwright.config.ts) —
  *     Cloudflare 가 한국 외를 막는다. 이 UA 는 GA·DB 적재에서 빠진다.
  *   - 대조 전 접근 점검(NEIS·심평원·운영 페이지 각 1건) — 하나라도 막히면 278쪽을 돌기 전에 이유와 함께 멈춘다.
@@ -173,10 +175,12 @@ type HiraJson = {
 };
 const HIRA_PATH = "B551182/hospInfoServicev2/getHospBasisList";
 async function hira(sidoCd: string, sgguCd?: string) {
-  // 앱(hira.ts)과 같은 파라미터 — 프록시 KV 키도 같아 앱이 본 원천 응답과 같은 값을 받는다
+  // 앱(hira.ts)과 같은 파라미터. 프록시 경로(CI)도 저장분(KV)을 건너뛰고 원천에서 새로 받는다(fresh) —
+  // 기준값은 우리 경로를 거치지 않고 원천에서 만든다. 저장분끼리 비교하면 시·도 합계와 구별 건수의 저장 시점이 달라
+  // 1~2개 차이가 '불일치'로 잡혔다(10/7 대구 4,236 ≠ 4,235). 받은 새 값은 Worker 가 KV 에도 다시 써 앱도 최신이 된다
   const params: Record<string, string> = { sidoCd, pageNo: "1", numOfRows: "1", _type: "json" };
   if (sgguCd) params.sgguCd = sgguCd;
-  const req = buildDataGoKrRequest(HIRA_PATH, params, env);
+  const req = buildDataGoKrRequest(HIRA_PATH, params, env, { fresh: true });
   if (!req) throw new Error("심평원 키 없음 — DATA_GO_KR_API_KEY 또는 DATA_GO_KR_PROXY_URL·SECRET");
   const j = await getJson<HiraJson>(req.url, req.headers);
   const head = j?.response?.header;
