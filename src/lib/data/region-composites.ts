@@ -20,14 +20,26 @@
  *   해에는 같은 코드로 SGIS 를 직접 묻는다 — SGIS 가 새 구를 싣는 날부터는 그 값이 나온다(lib/api/sgis.ts).
  * - 한계: SGIS 행정동 경계는 2025-07-11 경계 조정(백석동 일대 검암경서동 → 당하동) 이전 기준이라, 그 일대 인구는
  *   검단이 아니라 서해에 더해진다(국가데이터처 연계표).
+ *
+ * 2026-02-01 화성시 일반구 신설(만세·효행·병점·동탄, 10/7 반영)도 같은 방식이다. 다만 화성시는 그대로 우리 시·군·구
+ * 단위로 남고 새 구는 그 아래(gus.ts)라 parentSigunguId 를 둔다. 네 구 모두 행정동 목록으로 정의하고 '나머지' 구는
+ * 두지 않는다 — 새 동은 어느 구에서든 생길 수 있어(동탄6~9동·새솔동 전례), 나머지를 두면 다른 구의 새 동이 조용히
+ * 엉뚱한 구에 붙는다. 모르는 동이 나오면 합을 내지 않는다(resolveSplitGu). 10/7 확인: SGIS 2024 화성 행정동 29개 =
+ * 조례 별표1 구성 29개, 동 인구 합 = 31240 단건 값(1,004,079명), 2018~2023년도 같은 29개 코드.
  */
 
 export interface SgisComposite {
   /** 국가데이터처 한국행정구역분류 코드 — sigungus.ts 의 sgisCode 와 같다 */
   sgisCode: string;
-  /** sigungus.ts 의 시·군·구 id */
+  /** sigungus.ts 의 시·군·구 id — 시 아래 신설 구(parentSigunguId 있음)면 gus.ts 의 구 id */
   sigunguId: string;
   name: string;
+  /**
+   * 시 아래에 새로 생긴 일반구면 그 시의 id (예: 화성 2026). 시는 그대로 우리 시·군·구 단위로 남으므로 이 신설 구는
+   * 시·도 단위 집계(REPLACED_SGIS_GU·compositesInProvince — 시·도 지도·인구 추이·읍면동 안내)에 넣지 않는다.
+   * 없으면 시·군·구 자리를 대신하는 신설 구(인천 2026).
+   */
+  parentSigunguId?: string;
   /** 통째로 들어오는 옛 구 (SGIS 5자리) */
   wholeGu: readonly string[];
   /** 나뉜 옛 구 — 그 행정동 중 dongs 만, 또는 다른 신설 구에 들어가지 않은 나머지 전부(rest) */
@@ -77,6 +89,51 @@ export const SGIS_COMPOSITES: readonly SgisComposite[] = [
     // 옛 서구의 나머지 — 검단·불로대곡·오류왕길·당하·마전·원당·아라(2024 기준 7개 동)
     split: { gu: "23080", rest: true },
   },
+
+  // 2026-02-01 화성시 일반구 — 「화성시 읍ㆍ면ㆍ동ㆍ리의 명칭 및 관할구역에 관한 조례」(제2494호, 2025.11.12) 별표1.
+  // 코드: 국가데이터처 한국행정구역분류 2026.7.10판(31241~31244). 행정동은 SGIS 2024 코드(31240xxx)
+  {
+    sgisCode: "31241",
+    sigunguId: "manse-gu",
+    parentSigunguId: "hwaseong",
+    name: "만세구",
+    wholeGu: [],
+    // 우정읍·향남읍·남양읍·마도면·송산면·서신면·팔탄면·장안면·양감면·새솔동
+    split: {
+      gu: "31240",
+      dongs: ["31240130", "31240140", "31240150", "31240350", "31240360", "31240370", "31240380", "31240390", "31240420", "31240670"],
+    },
+  },
+  {
+    sgisCode: "31242",
+    sigunguId: "hyohaeng-gu",
+    parentSigunguId: "hwaseong",
+    name: "효행구",
+    wholeGu: [],
+    // 봉담읍·매송면·비봉면·정남면·기배동
+    split: { gu: "31240", dongs: ["31240120", "31240310", "31240330", "31240430", "31240560"] },
+  },
+  {
+    sgisCode: "31243",
+    sigunguId: "byeongjeom-gu",
+    parentSigunguId: "hwaseong",
+    name: "병점구",
+    wholeGu: [],
+    // 진안동·병점1동·병점2동·반월동·화산동
+    split: { gu: "31240", dongs: ["31240520", "31240530", "31240540", "31240550", "31240570"] },
+  },
+  {
+    sgisCode: "31244",
+    sigunguId: "dongtan-gu",
+    parentSigunguId: "hwaseong",
+    name: "동탄구",
+    wholeGu: [],
+    // 동탄1~9동
+    split: {
+      gu: "31240",
+      dongs: ["31240610", "31240600", "31240620", "31240640", "31240650", "31240700", "31240691", "31240710", "31240720"],
+    },
+  },
 ];
 
 const BY_CODE = new Map(SGIS_COMPOSITES.map((c) => [c.sgisCode, c]));
@@ -88,12 +145,17 @@ export function getSgisComposite(sgisCode: string): SgisComposite | null {
 
 /** 신설 구로 바뀌어 더는 우리 지역 단위가 아닌 옛 구 코드 (통째·나뉜 구 모두) */
 export const REPLACED_SGIS_GU: ReadonlySet<string> = new Set(
-  SGIS_COMPOSITES.flatMap((c) => [...c.wholeGu, ...(c.split ? [c.split.gu] : [])]),
+  SGIS_COMPOSITES.filter((c) => !c.parentSigunguId).flatMap((c) => [...c.wholeGu, ...(c.split ? [c.split.gu] : [])]),
 );
 
 /** 이 시·도(SGIS 2자리)의 신설 구 */
 export function compositesInProvince(provinceSgisCode: string): SgisComposite[] {
-  return SGIS_COMPOSITES.filter((c) => c.sgisCode.startsWith(provinceSgisCode));
+  return SGIS_COMPOSITES.filter((c) => !c.parentSigunguId && c.sgisCode.startsWith(provinceSgisCode));
+}
+
+/** 이 시(sigungus.ts id) 아래 신설 구 — 구 지도(generate-province-map-sgis --district)용 */
+export function compositesInCity(sigunguId: string): SgisComposite[] {
+  return SGIS_COMPOSITES.filter((c) => c.parentSigunguId === sigunguId);
 }
 
 /** 이 신설 구들을 만들려면 행정동 단위로 받아야 하는 옛 구 */

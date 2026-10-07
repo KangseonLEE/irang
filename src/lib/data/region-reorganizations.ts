@@ -101,6 +101,31 @@ export function getRegionReorganization(sigunguId: string): RegionReorganization
 }
 
 /**
+ * 시 아래 신설 구 안내 (10/7) — 2026-02-01 화성시 만세·효행·병점·동탄구. 키 = gus.ts 의 구 id.
+ * 화성시는 그대로 시·군·구 단위로 남아 시 화면엔 안내가 없고, 구 화면 상단에만 둔다. 통계청(SGIS)에 새 구가 아직 없어
+ * 인구·농가는 행정동을 더한다(region-composites.ts) — 인천 신설 구와 같은 둘째 문장.
+ * 근거: 「화성시 읍ㆍ면ㆍ동ㆍ리의 명칭 및 관할구역에 관한 조례」(제2494호) 부칙 시행일, 행정안전부 변경내역 알림(2026.2.1. 시행).
+ */
+const HWASEONG_GU: RegionReorganization = {
+  effectiveDate: "2026-02-01",
+  summary: "2026년 2월 1일 화성시에 만세구·효행구·병점구·동탄구가 생겼어요.",
+  successors: [],
+  countsUnavailable: false,
+  detail: NEW_DISTRICT_DETAIL,
+};
+export const GU_REORGANIZATIONS: Readonly<Record<string, RegionReorganization>> = {
+  "manse-gu": HWASEONG_GU,
+  "hyohaeng-gu": HWASEONG_GU,
+  "byeongjeom-gu": HWASEONG_GU,
+  "dongtan-gu": HWASEONG_GU,
+};
+
+/** 신설된 시 아래 구면 그 정보, 아니면 null */
+export function getGuReorganization(guId: string): RegionReorganization | null {
+  return GU_REORGANIZATIONS[guId] ?? null;
+}
+
+/**
  * 시·도 단위 개편 안내 (10/7) — 2026-07-01 광주광역시·전라남도 → 전남광주통합특별시.
  * 통계(통계청 2024 인구·2025 귀농 등)는 통합 전 기준으로 나오고 시·도 SSOT(PROVINCES)도 17개라 광주·전남을 나눠 둔다.
  * 심평원은 이미 통합 코드(360000) 아래로 옮겨 hira.ts 가 광주 5구와 전남을 갈라 센다.

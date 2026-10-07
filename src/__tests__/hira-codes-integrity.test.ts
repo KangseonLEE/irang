@@ -7,6 +7,7 @@
  *   3) 합산 중 한 곳이라도 실패하면 숫자를 내지 않는다(덜 센 합 금지)
  *   4) 시 아래 구 코드표 — 심평원 응답 지역명으로 확인한 값 고정(뒤바뀐 16곳)
  *   5) 의료기관 목록은 조회 단위를 이어 붙여 30건씩
+ *   6) 구 신설 뒤 시 단위 코드로 남은 기관(화성 312500)은 법정 읍·면·동으로 그 구에 더한다 — 카드·목록 같게 (10/7)
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -24,8 +25,12 @@ import { GUS } from "@/lib/data/gus";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { GET as medicalList } from "@/app/api/medical-list/route";
 
-/** 심평원 흉내 — (sidoCd, sgguCd) 별 건수. 목록 요청이면 그만큼 행을 만든다 */
-function stubHira(counts: Record<string, number>, fail: Set<string> = new Set()) {
+/** 심평원 흉내 — (sidoCd, sgguCd) 별 건수. 목록 요청이면 그만큼 행을 만든다(listed 에 있으면 그 행을 그대로) */
+function stubHira(
+  counts: Record<string, number>,
+  fail: Set<string> = new Set(),
+  listed: Record<string, Record<string, string>[]> = {},
+) {
   const calls: URLSearchParams[] = [];
   vi.stubGlobal(
     "fetch",
@@ -34,16 +39,18 @@ function stubHira(counts: Record<string, number>, fail: Set<string> = new Set())
       calls.push(q);
       const key = `${q.get("sidoCd")}/${q.get("sgguCd") ?? ""}`;
       if (fail.has(key)) return new Response("down", { status: 503 });
-      const total = counts[key] ?? 0;
+      const total = listed[key]?.length ?? counts[key] ?? 0;
       const rows = Number(q.get("numOfRows"));
       const page = Number(q.get("pageNo"));
       const n = Math.max(0, Math.min(rows, total - (page - 1) * rows));
-      const item = Array.from({ length: n }, (_, i) => ({
-        yadmNm: `${key}#${(page - 1) * rows + i}`,
-        clCdNm: "의원",
-        addr: "",
-        telno: "",
-      }));
+      const item = listed[key]
+        ? listed[key].slice((page - 1) * rows, (page - 1) * rows + n)
+        : Array.from({ length: n }, (_, i) => ({
+            yadmNm: `${key}#${(page - 1) * rows + i}`,
+            clCdNm: "의원",
+            addr: "",
+            telno: "",
+          }));
       return new Response(JSON.stringify({ response: { body: { totalCount: total, items: { item } } } }));
     }),
   );
@@ -61,6 +68,12 @@ afterEach(() => {
 });
 
 const GWANGJU = ["360801", "360802", "360803", "360804", "360805"];
+
+// 화성 312500 — 구 신설 뒤에도 시 단위 코드로 남은 2곳(송산보건지소 송산면·안석보건진료소 남양읍, 10/7 실측)
+const RESIDUAL_312500 = [
+  { yadmNm: "송산보건지소", clCdNm: "보건지소", addr: "경기도 화성시 송산면 사강로 1", emdongNm: "송산면", telno: "" },
+  { yadmNm: "안석보건진료소", clCdNm: "보건진료소", addr: "경기도 화성시 남양읍 안석길 1", emdongNm: "남양읍", telno: "" },
+];
 
 describe("시·도 코드 → 심평원 조회 방식", () => {
   it("광주·전남은 통합 코드, 세종은 410000, 나머지는 그대로", () => {
@@ -95,6 +108,35 @@ describe("구가 있는 시·시 아래 구", () => {
     calls.length = 0;
     await expect(fetchGuMedicalFacilities("310000", "310604")).resolves.toMatchObject({ totalCount: 549 });
     expect(calls.map((q) => q.get("sgguCd"))).toEqual(["310604"]);
+  });
+
+  it("화성 만세구 = 구 코드 269 + 시 단위로 남은 송산면·남양읍 2곳, 동탄구엔 더하지 않는다", async () => {
+    stubHira({ "310000/312501": 269, "310000/312504": 468 }, new Set(), { "310000/312500": RESIDUAL_312500 });
+    await expect(fetchGuMedicalFacilities("310000", "312501")).resolves.toMatchObject({ totalCount: 271 });
+    await expect(fetchGuMedicalFacilities("310000", "312504")).resolves.toMatchObject({ totalCount: 468 });
+  });
+
+  it("시 단위 기관 주소가 동 이름만 줄 때는 법정동으로, 어느 구인지 모르면 어느 구에도 넣지 않는다", async () => {
+    const listed = {
+      "310000/312500": [
+        { yadmNm: "가", addr: "경기도 화성시 동탄대로 1 (반송동)", emdongNm: "", clCdNm: "의원", telno: "" },
+        { yadmNm: "나", addr: "경기도 화성시 동탄원천로 1 (능동)", emdongNm: "능동", clCdNm: "의원", telno: "" },
+      ],
+    };
+    stubHira({ "310000/312503": 159, "310000/312504": 468 }, new Set(), listed);
+    await expect(fetchGuMedicalFacilities("310000", "312504")).resolves.toMatchObject({ totalCount: 469 });
+    await expect(fetchGuMedicalFacilities("310000", "312503")).resolves.toMatchObject({ totalCount: 159 });
+  });
+
+  it("시 단위 코드 목록을 못 받으면 구 수를 내지 않는다 (덜 센 합 금지)", async () => {
+    stubHira({ "310000/312501": 269 }, new Set(["310000/312500"]));
+    await expect(fetchGuMedicalFacilities("310000", "312501")).resolves.toBeNull();
+  });
+
+  it("부천 원미구(시 대표 코드 310303 과 같음)는 그 구 하나만, 남는 시 단위 코드가 없다", async () => {
+    const calls = stubHira({ "310000/310301": 400, "310000/310302": 300, "310000/310303": 700 });
+    await expect(fetchGuMedicalFacilities("310000", "310303")).resolves.toMatchObject({ totalCount: 700 });
+    expect(calls.map((q) => q.get("sgguCd"))).toEqual(["310303"]);
   });
 
   it("시 합산 중 한 구라도 실패하면 숫자를 내지 않는다", async () => {
@@ -134,9 +176,12 @@ describe("코드표 — 심평원 응답 지역명으로 확인한 값 (10/7)", 
     "wansan-gu": "350401", "deokjin-gu": "350402",
     "nam-gu-pohang": "370701", "buk-gu-pohang": "370702",
     "uichang-gu": "380704", "seongsan-gu": "380705", "masanhappo-gu": "380702", "masanhoewon-gu": "380701", "jinhae-gu": "380703",
+    // 10/7 — 부천(2024 재설치)·화성(2026 신설), 응답 지역명 '부천원미구'·'화성만세구' 등으로 확인
+    "wonmi-gu": "310303", "sosa-gu": "310301", "ojeong-gu": "310302",
+    "manse-gu": "312501", "hyohaeng-gu": "312502", "byeongjeom-gu": "312503", "dongtan-gu": "312504",
   };
 
-  it("시 아래 구 32곳의 심평원 코드", () => {
+  it("시 아래 구 39곳의 심평원 코드", () => {
     expect(GUS).toHaveLength(Object.keys(HIRA_TRUTH).length);
     for (const g of GUS) expect(g.hiraSgguCd, g.id).toBe(HIRA_TRUTH[g.id]);
   });
@@ -182,6 +227,17 @@ describe("/api/medical-list — 조회 단위 이어 붙이기", () => {
     const body = await (await medicalList(req("sidoCd=310000&sgguCd=310604&page=1&unit=gu"))).json();
     expect(body.totalCount).toBe(549);
     expect(body.items.every((i: { name: string }) => i.name.startsWith("310000/310604#"))).toBe(true);
+  });
+
+  it("화성 만세구(unit=gu) 목록 = 구 코드 269 뒤에 시 단위로 남은 2곳 — 상세 카드 271 과 같다", async () => {
+    stubHira({ "310000/312501": 269 }, new Set(), { "310000/312500": RESIDUAL_312500 });
+    const last = await (await medicalList(req("sidoCd=310000&sgguCd=312501&page=9&unit=gu"))).json();
+    expect(last.totalCount).toBe(271);
+    // 9쪽 = 240~269번째 — 구 코드 끝 29건 + 송산보건지소 1건
+    expect(last.items).toHaveLength(30);
+    expect(last.items.map((i: { name: string }) => i.name)).toContain("송산보건지소");
+    const tail = await (await medicalList(req("sidoCd=310000&sgguCd=312501&page=10&unit=gu"))).json();
+    expect(tail.items.map((i: { name: string }) => i.name)).toEqual(["안석보건진료소"]);
   });
 
   it("구가 있는 시는 구 전부 — 수원 전체 1,806", async () => {

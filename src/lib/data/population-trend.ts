@@ -10505,6 +10505,38 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 8.9
   },
   {
+    "sgisCode": "31241",
+    "name": "만세구",
+    "year": 2018,
+    "population": 225646,
+    "householdCount": 77921,
+    "agingRate": 11
+  },
+  {
+    "sgisCode": "31242",
+    "name": "효행구",
+    "year": 2018,
+    "population": 121284,
+    "householdCount": 41471,
+    "agingRate": 11
+  },
+  {
+    "sgisCode": "31243",
+    "name": "병점구",
+    "year": 2018,
+    "population": 150919,
+    "householdCount": 54422,
+    "agingRate": 7.7
+  },
+  {
+    "sgisCode": "31244",
+    "name": "동탄구",
+    "year": 2018,
+    "population": 278808,
+    "householdCount": 97215,
+    "agingRate": 4.4
+  },
+  {
     "sgisCode": "23100",
     "name": "제물포구",
     "year": 2019,
@@ -10535,6 +10567,38 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "population": 157819,
     "householdCount": 54864,
     "agingRate": 9.5
+  },
+  {
+    "sgisCode": "31241",
+    "name": "만세구",
+    "year": 2019,
+    "population": 237534,
+    "householdCount": 82614,
+    "agingRate": 11.1
+  },
+  {
+    "sgisCode": "31242",
+    "name": "효행구",
+    "year": 2019,
+    "population": 123000,
+    "householdCount": 43072,
+    "agingRate": 11.5
+  },
+  {
+    "sgisCode": "31243",
+    "name": "병점구",
+    "year": 2019,
+    "population": 149904,
+    "householdCount": 55054,
+    "agingRate": 8.4
+  },
+  {
+    "sgisCode": "31244",
+    "name": "동탄구",
+    "year": 2019,
+    "population": 327664,
+    "householdCount": 117351,
+    "agingRate": 4.4
   },
   {
     "sgisCode": "23100",
@@ -10569,6 +10633,38 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 10.2
   },
   {
+    "sgisCode": "31241",
+    "name": "만세구",
+    "year": 2020,
+    "population": 246706,
+    "householdCount": 88682,
+    "agingRate": 11.4
+  },
+  {
+    "sgisCode": "31242",
+    "name": "효행구",
+    "year": 2020,
+    "population": 124571,
+    "householdCount": 45746,
+    "agingRate": 12.5
+  },
+  {
+    "sgisCode": "31243",
+    "name": "병점구",
+    "year": 2020,
+    "population": 152499,
+    "householdCount": 57250,
+    "agingRate": 9
+  },
+  {
+    "sgisCode": "31244",
+    "name": "동탄구",
+    "year": 2020,
+    "population": 357083,
+    "householdCount": 130193,
+    "agingRate": 4.7
+  },
+  {
     "sgisCode": "23100",
     "name": "제물포구",
     "year": 2021,
@@ -10601,6 +10697,38 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 10.5
   },
   {
+    "sgisCode": "31241",
+    "name": "만세구",
+    "year": 2021,
+    "population": 251485,
+    "householdCount": 93489,
+    "agingRate": 12
+  },
+  {
+    "sgisCode": "31242",
+    "name": "효행구",
+    "year": 2021,
+    "population": 127427,
+    "householdCount": 48439,
+    "agingRate": 13.1
+  },
+  {
+    "sgisCode": "31243",
+    "name": "병점구",
+    "year": 2021,
+    "population": 158690,
+    "householdCount": 61522,
+    "agingRate": 9.5
+  },
+  {
+    "sgisCode": "31244",
+    "name": "동탄구",
+    "year": 2021,
+    "population": 368779,
+    "householdCount": 137982,
+    "agingRate": 5.1
+  },
+  {
     "sgisCode": "23100",
     "name": "제물포구",
     "year": 2022,
@@ -10631,6 +10759,38 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "population": 195630,
     "householdCount": 72732,
     "agingRate": 10.5
+  },
+  {
+    "sgisCode": "31241",
+    "name": "만세구",
+    "year": 2022,
+    "population": 258064,
+    "householdCount": 96252,
+    "agingRate": 12.5
+  },
+  {
+    "sgisCode": "31242",
+    "name": "효행구",
+    "year": 2022,
+    "population": 133953,
+    "householdCount": 51949,
+    "agingRate": 13.6
+  },
+  {
+    "sgisCode": "31243",
+    "name": "병점구",
+    "year": 2022,
+    "population": 158771,
+    "householdCount": 63262,
+    "agingRate": 10.1
+  },
+  {
+    "sgisCode": "31244",
+    "name": "동탄구",
+    "year": 2022,
+    "population": 380684,
+    "householdCount": 145079,
+    "agingRate": 5.5
   }
 ];
 

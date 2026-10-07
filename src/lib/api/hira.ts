@@ -6,6 +6,9 @@
 
 import { FETCH_TIMEOUT } from "./_build-phase";
 import { buildDataGoKrRequest, isDataGoKrProxied } from "./_datagokr";
+import { GUS, getGusOfCity, type GuDistrict } from "@/lib/data/gus";
+import { PROVINCES } from "@/lib/data/regions";
+import { SIGUNGUS } from "@/lib/data/sigungus";
 
 // 8/30: data.go.kr가 AWS 대역을 400(code 10)으로 위장 차단 → 프록시 스위치(_datagokr.ts)
 const HIRA_PATH = "B551182/hospInfoServicev2/getHospBasisList";
@@ -231,10 +234,89 @@ export async function fetchSigunguMedicalFacilities(
   return fetchSigunguMedicalCount(sidoCd, sgguCd);
 }
 
+/** 우리 시·도 코드 + 구 심평원 코드 → 시 아래 구 (없으면 undefined) */
+function findGuByHira(sidoCd: string, sgguCd: string): GuDistrict | undefined {
+  const province = PROVINCES.find((p) => p.hiraSidoCd === sidoCd);
+  return province ? GUS.find((g) => g.sidoId === province.id && g.hiraSgguCd === sgguCd) : undefined;
+}
+
+/**
+ * 구가 생긴 뒤에도 시 단위 코드로 남은 심평원 코드 — 그 시의 코드 목록(GU_HIRA_CODES_MAP) 중 어느 구 코드도 아닌 것.
+ * 10/7: 화성 312500 에 송산보건지소(송산면)·안석보건진료소(남양읍) 2곳 — 둘 다 만세구인데 주소에 구 이름이 없다.
+ */
+function residualHiraCodesOfGu(gu: GuDistrict): string[] {
+  const city = SIGUNGUS.find((s) => s.id === gu.parentSigunguId && s.sidoId === gu.sidoId);
+  const all = city ? (GU_HIRA_CODES_MAP[city.hiraSgguCd] ?? []) : [];
+  const guCodes = new Set(getGusOfCity(gu.sidoId, gu.parentSigunguId).map((g) => g.hiraSgguCd));
+  return all.filter((c) => !guCodes.has(c));
+}
+
+/** 심평원 목록의 한 건 — 구를 정하는 데 쓰는 필드만 */
+export interface HiraListItem {
+  yadmNm?: string;
+  clCdNm?: string;
+  addr?: string;
+  telno?: string;
+  /** 읍·면·동 이름 */
+  emdongNm?: string;
+}
+
+/** 코드 하나의 목록 전부 — 실패면 null (시 단위로 남은 코드처럼 몇 건뿐인 목록에만 쓴다) */
+async function fetchHiraItems(sidoCd: string, sgguCd: string): Promise<HiraListItem[] | null> {
+  const out: HiraListItem[] = [];
+  for (let page = 1; page <= 10; page += 1) {
+    const req = buildDataGoKrRequest(HIRA_PATH, {
+      sidoCd: toHiraSidoCd(sidoCd),
+      sgguCd,
+      pageNo: String(page),
+      numOfRows: "100",
+      _type: "json",
+    });
+    if (!req) return null;
+    try {
+      const json = (await fetchHiraJson(req.url, req.headers)) as {
+        response?: { body?: { totalCount?: number | string; items?: { item?: HiraListItem | HiraListItem[] } | "" } };
+      };
+      const body = json?.response?.body;
+      const total = Number(body?.totalCount);
+      if (!Number.isFinite(total)) throw new Error("totalCount not found in response");
+      const raw = body?.items && typeof body.items === "object" ? body.items.item : undefined;
+      const items = Array.isArray(raw) ? raw : raw ? [raw] : [];
+      out.push(...items);
+      if (out.length >= total || items.length === 0) return out.length >= total ? out : null;
+    } catch (error) {
+      console.error(`Failed to fetch medical facility list for ${sidoCd}/${sgguCd}:`, error);
+      return null;
+    }
+  }
+  return null;
+}
+
+/**
+ * 시 단위 코드로 남은 기관 중 이 구에 놓인 것 — 읍·면·동 이름(emdongNm), 없으면 주소 낱말을 구의 법정 읍·면·동
+ * (gus.ts legalAreas)에 맞춰 본다. 한 구로만 가리키는 기관만 그 구로 센다. 남은 코드가 없으면 [], 못 받으면 null.
+ */
+export async function fetchGuResidualItems(sidoCd: string, gu: GuDistrict): Promise<HiraListItem[] | null> {
+  const codes = residualHiraCodesOfGu(gu);
+  if (codes.length === 0 || !gu.legalAreas) return [];
+  const lists = await Promise.all(codes.map((c) => fetchHiraItems(sidoCd, c)));
+  if (lists.some((l) => l === null)) return null;
+  const areaToGu = new Map(
+    getGusOfCity(gu.sidoId, gu.parentSigunguId).flatMap((g) => (g.legalAreas ?? []).map((a) => [a, g.id] as const)),
+  );
+  return (lists as HiraListItem[][]).flat().filter((item) => {
+    const byName = item.emdongNm ? areaToGu.get(item.emdongNm.trim()) : undefined;
+    if (byName) return byName === gu.id;
+    const hits = new Set((item.addr ?? "").split(/[\s(),]+/).flatMap((t) => areaToGu.get(t) ?? []));
+    return hits.size === 1 && hits.has(gu.id);
+  });
+}
+
 /**
  * 시 아래 구 하나의 의료기관 수 — 구 코드 하나만 센다.
  * 시 대표 코드는 그 시의 구 코드 하나와 같아서(수원 310604 = 영통구) fetchSigunguMedicalFacilities 로
  * 구를 물으면 시 전체가 합쳐졌다(영통구 1,806 → 실제 549, 10/7). 구 상세는 반드시 이 함수로.
+ * 구 신설 뒤 시 단위 코드로 남은 기관(화성 312500)은 법정 읍·면·동으로 그 구에 더한다 — 하나라도 못 받으면 null.
  */
 export async function fetchGuMedicalFacilities(
   sidoCd: string,
@@ -244,7 +326,13 @@ export async function fetchGuMedicalFacilities(
     console.error("DATA_GO_KR_API_KEY is not set");
     return null;
   }
-  return fetchSigunguMedicalCount(sidoCd, sgguCd);
+  const gu = findGuByHira(sidoCd, sgguCd);
+  const [base, residual] = await Promise.all([
+    fetchSigunguMedicalCount(sidoCd, sgguCd),
+    gu ? fetchGuResidualItems(sidoCd, gu) : Promise.resolve([] as HiraListItem[]),
+  ]);
+  if (!base || !residual) return null;
+  return residual.length ? { ...base, totalCount: base.totalCount + residual.length } : base;
 }
 
 /**

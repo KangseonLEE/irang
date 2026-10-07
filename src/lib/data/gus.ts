@@ -1,7 +1,9 @@
 /**
  * 구(區) 단위 지역 데이터
- * - 일반구가 있는 11개 시의 하위 구 32개
- * - 부천시는 2016년 구 폐지로 제외
+ * - 일반구가 있는 13개 시의 하위 구 39개
+ * - 부천시: 2016년 구 폐지 → 2024-01-01 원미·소사·오정구 재설치 (10/7 반영 — 예전엔 폐지 상태로 빠져 있었다)
+ * - 화성시: 2026-02-01 만세·효행·병점·동탄구 신설 (10/7 반영). 통계청(SGIS)에 새 구 코드가 아직 없어 인구·농가는
+ *   행정동을 더한다(region-composites.ts parentSigunguId)
  * - 구 상세 페이지 + 시 상세 페이지 구 지도에서 사용
  */
 
@@ -26,12 +28,18 @@ export interface GuDistrict {
   description: string;
   /** 핵심 키워드 (2~3개) */
   highlights: string[];
-  /** 대표 작물 */
+  /** 대표 작물 — 구 단위 공식 자료가 없으면 빈 배열(화면은 '자료 없음' 안내) */
   mainCrops: string[];
+  /**
+   * 법정 읍·면·동 — 원천 주소에 구 이름이 없는 시(부천·화성)만 둔다. 교육부 학교 주소(education.ts)와
+   * 심평원의 시 단위로 남은 기관(hira.ts)을 이 목록으로 구에 나눈다 (10/7).
+   * 두 구에 걸친 법정동(화성 능동 — 병점구 진안동 9통 / 동탄구 동탄3동 31통)은 넣지 않는다 — 학교는 SCHOOL_GU_OVERRIDES.
+   */
+  legalAreas?: readonly string[];
 }
 
 // ---------------------------------------------------------------------------
-// 구 데이터 (11개 시, 32개 구)
+// 구 데이터 (13개 시, 39개 구)
 // ---------------------------------------------------------------------------
 
 export const GUS: GuDistrict[] = [
@@ -75,6 +83,30 @@ export const GUS: GuDistrict[] = [
   { id: "cheoin-gu", name: "처인구", shortName: "처인", parentSigunguId: "yongin", sidoId: "gyeonggi", sgisCode: "31191", hiraSgguCd: "312003", area: 466.28, description: "용인 남부, 대규모 농업지대·딸기 명산지", highlights: ["딸기", "대규모농업", "정착 인기"], mainCrops: ["딸기", "배", "쌀"] },
   { id: "giheung-gu", name: "기흥구", shortName: "기흥", parentSigunguId: "yongin", sidoId: "gyeonggi", sgisCode: "31192", hiraSgguCd: "312001", area: 81.92, description: "용인 중부, 산업단지 인근 도시농업", highlights: ["도시농업", "직거래"], mainCrops: ["상추", "딸기"] },
   { id: "suji-gu", name: "수지구", shortName: "수지", parentSigunguId: "yongin", sidoId: "gyeonggi", sgisCode: "31193", hiraSgguCd: "312002", area: 43.12, description: "용인 북부, 수지 신도시 근교 체험농장", highlights: ["체험농장", "근교농업"], mainCrops: ["상추", "토마토"] },
+
+  // ========================================================================
+  // 부천시 (3구) — 경기도. 2024-01-01 구 재설치
+  //   코드: 통계청 31051~31053 · 심평원 310303(원미)·310301(소사)·310302(오정) — 응답 지역명으로 확인(10/7)
+  //   면적: 부천시 통계(구별 행정구역 면적) · 법정동: 행정안전부 「법정동 변경내역」 2024.1.1 시행분
+  //   교육부 학교 주소의 84%(112/134)에 구 이름이 없어 법정동으로 나눈다(education.ts schoolMatcher)
+  // ========================================================================
+  { id: "wonmi-gu", name: "원미구", shortName: "원미", parentSigunguId: "bucheon", sidoId: "gyeonggi", sgisCode: "31051", hiraSgguCd: "310303", area: 20.58, description: "부천 중심부, 상동 문화동산 텃밭 등 도시농업", highlights: ["도시농업"], mainCrops: [], legalAreas: ["원미동", "심곡동", "춘의동", "도당동", "약대동", "소사동", "역곡동", "중동", "상동"] },
+  { id: "sosa-gu", name: "소사구", shortName: "소사", parentSigunguId: "bucheon", sidoId: "gyeonggi", sgisCode: "31052", hiraSgguCd: "310301", area: 12.83, description: "부천 남부, 소사본동·범박동·옥길동 일대 도심", highlights: [], mainCrops: [], legalAreas: ["소사본동", "심곡본동", "범박동", "괴안동", "송내동", "옥길동", "계수동"] },
+  { id: "ojeong-gu", name: "오정구", shortName: "오정", parentSigunguId: "bucheon", sidoId: "gyeonggi", sgisCode: "31053", hiraSgguCd: "310302", area: 20.05, description: "부천 북부, 대장동 들판과 개발제한구역의 근교농업 지역", highlights: ["근교농업", "개발제한구역"], mainCrops: [], legalAreas: ["오정동", "여월동", "작동", "원종동", "고강동", "대장동", "삼정동", "내동"] },
+
+  // ========================================================================
+  // 화성시 (4구) — 경기도. 2026-02-01 신설 (「화성시 읍ㆍ면ㆍ동ㆍ리의 명칭 및 관할구역에 관한 조례」 별표1)
+  //   코드: 국가데이터처 한국행정구역분류 31241~31244(SGIS 미등재 → region-composites.ts 행정동 합) ·
+  //         심평원 312501~312504(시 단위로 남은 312500 은 법정 읍·면·동으로 나눈다, hira.ts)
+  //   면적: 화성시 토지정보과 구별 면적(2026.4.30, 간척지 제외) · 법정동: 조례 별표1 2025.12.31 법정동 기준판
+  //         (2026.3.1 오산동 → 여울동, 옛 이름도 둔다). 능동은 병점·동탄에 걸쳐 목록에서 뺀다
+  //   설명·작물: 구청 일반현황(만세 '농축수산업' 산업 중심지, 효행 '개발제한구역·농업진흥지역'·도농복합권역),
+  //         송산포도(송산면 일대, 향토문화전자대전). 병점·동탄은 농업 자료가 없다
+  // ========================================================================
+  { id: "manse-gu", name: "만세구", shortName: "만세", parentSigunguId: "hwaseong", sidoId: "gyeonggi", sgisCode: "31241", hiraSgguCd: "312501", area: 472.38, description: "화성 서부, 송산포도 산지가 있는 농축수산업 권역", highlights: ["송산포도", "농축수산업"], mainCrops: ["포도"], legalAreas: ["우정읍", "향남읍", "남양읍", "마도면", "송산면", "서신면", "팔탄면", "장안면", "양감면", "새솔동"] },
+  { id: "hyohaeng-gu", name: "효행구", shortName: "효행", parentSigunguId: "hwaseong", sidoId: "gyeonggi", sgisCode: "31242", hiraSgguCd: "312502", area: 153.48, description: "화성 중부, 농업진흥지역이 넓은 도농복합 권역", highlights: ["도농복합", "농업진흥지역"], mainCrops: [], legalAreas: ["봉담읍", "매송면", "비봉면", "정남면", "배양동", "기안동"] },
+  { id: "byeongjeom-gu", name: "병점구", shortName: "병점", parentSigunguId: "hwaseong", sidoId: "gyeonggi", sgisCode: "31243", hiraSgguCd: "312503", area: 25.12, description: "화성 동부, 병점·진안·반월동 일대 도심", highlights: [], mainCrops: [], legalAreas: ["진안동", "기산동", "반정동", "병점동", "반월동", "황계동", "송산동", "안녕동"] },
+  { id: "dongtan-gu", name: "동탄구", shortName: "동탄", parentSigunguId: "hwaseong", sidoId: "gyeonggi", sgisCode: "31244", hiraSgguCd: "312504", area: 55.52, description: "화성 동부, 동탄1~9동 신도시", highlights: [], mainCrops: [], legalAreas: ["반송동", "석우동", "청계동", "영천동", "중동", "오산동", "여울동", "방교동", "금곡동", "송동", "산척동", "장지동", "목동", "신동"] },
 
   // ========================================================================
   // 청주시 (4구) — 충청북도
@@ -134,3 +166,27 @@ const CITIES_WITH_GU = new Set(GUS.map((g) => g.parentSigunguId));
 export function hasGuDistricts(sigunguId: string): boolean {
   return CITIES_WITH_GU.has(sigunguId);
 }
+
+/**
+ * 법정동만으로 구를 정할 수 없는 학교(교육부 학교 코드 SD_SCHUL_CODE → 구 id) — 10/7 통계청 주소 좌표 변환으로 확인.
+ * - 상세 주소에 법정동이 없음: 송내초(부천 상동) · 방교초·왕배초(화성 동탄구) · 청연초(화성 효행구)
+ * - 두 구에 걸친 법정동 능동: 능동중·능동초·푸른중·푸른초·한마음초 — 모두 동탄3동 쪽(동탄구)
+ * 새 학교가 이 판정으로 빠지면 주간 정합성 대조(scripts/check-region-stats-integrity.ts)가 구별 학교 수 불일치로 잡는다.
+ */
+export const SCHOOL_GU_OVERRIDES: Readonly<Record<string, string>> = {
+  "7581086": "wonmi-gu", // 송내초등학교 — 상동
+  "7679366": "dongtan-gu", // 방교초등학교
+  "7679367": "dongtan-gu", // 왕배초등학교
+  "7679516": "hyohaeng-gu", // 청연초등학교
+  "7679103": "dongtan-gu", // 능동중학교
+  "7679018": "dongtan-gu", // 능동초등학교
+  "7679123": "dongtan-gu", // 푸른중학교
+  "7679061": "dongtan-gu", // 푸른초등학교
+  "7679063": "dongtan-gu", // 한마음초등학교
+};
+
+/** 같은 시의 구 전부 */
+export function getGusOfCity(sidoId: string, parentSigunguId: string): GuDistrict[] {
+  return GUS.filter((g) => g.sidoId === sidoId && g.parentSigunguId === parentSigunguId);
+}
+

@@ -9,6 +9,9 @@
  */
 
 import { FETCH_TIMEOUT } from "./_build-phase";
+import { GUS, SCHOOL_GU_OVERRIDES, getGusOfCity } from "@/lib/data/gus";
+import { PROVINCES } from "@/lib/data/regions";
+import { SIGUNGUS } from "@/lib/data/sigungus";
 
 const API_BASE = "https://open.neis.go.kr/hub/schoolInfo";
 
@@ -99,6 +102,8 @@ async function fetchEduSchoolCount(
 
 /** NEIS 학교 정보 1건 — 이 모듈과 /api/school-list 가 쓰는 필드만 */
 export interface NeisSchoolRow {
+  /** 표준 학교 코드 — 구를 주소로 정할 수 없는 학교의 예외 표(gus.ts SCHOOL_GU_OVERRIDES) 키 */
+  SD_SCHUL_CODE?: string;
   SCHUL_NM?: string;
   SCHUL_KND_SC_NM?: string;
   ORG_RDNMA?: string;
@@ -191,12 +196,46 @@ export function isSchoolInDistrict(
   return address.split(/\s+/).includes(districtName);
 }
 
+/** 학교 주소의 낱말 — 도로명 주소(읍·면이 여기 있다) + 상세 주소(법정동: "(상동, ○○초등학교)"·"상동 ○○초"·"(산척동 741)") */
+function addressTokens(row: NeisSchoolRow): string[] {
+  return [...(row.ORG_RDNMA ?? "").split(/\s+/), ...(row.ORG_RDNDA ?? "").split(/[\s(),]+/)].filter(Boolean);
+}
+
+/**
+ * 이 학교가 그 시·군·구(또는 시 아래 구)에 속하는가 — 상세 카드의 학교 수와 학교 목록(/api/school-list)이 같은 판정을 쓴다.
+ *
+ * 기본은 도로명 주소 낱말이 이름과 같을 때(isSchoolInDistrict). 원천 주소에 구 이름이 거의 없는 시(부천 2024·화성 2026 구
+ * 설치 — gus.ts legalAreas)의 구는 이렇게 정한다(10/7 — 구 이름만 세면 부천 원미구 14곳·화성 병점구 4곳으로 나왔다):
+ *   1) 주소에 이 구 이름 → 이 구, 다른 구 이름 → 그 구
+ *   2) 그 시 주소인데 구 이름이 없으면 법정 읍·면·동으로 — 한 구로만 가리킬 때만
+ *   3) 그래도 못 정하는 학교(상세 주소에 동이 없음·두 구에 걸친 법정동)는 SCHOOL_GU_OVERRIDES
+ * 10/7 통계청 주소 좌표 변환 대조: 부천 134곳 전부·화성 198곳 전부 같은 구(화성 2곳은 주소가 불완전해 좌표 변환 실패).
+ */
+export function schoolMatcher(eduCode: string, districtName: string): (row: NeisSchoolRow) => boolean {
+  const province = PROVINCES.find((p) => p.eduCode === eduCode);
+  const gu = province ? GUS.find((g) => g.sidoId === province.id && g.name === districtName && g.legalAreas) : undefined;
+  const city = gu ? SIGUNGUS.find((s) => s.id === gu.parentSigunguId && s.sidoId === gu.sidoId) : undefined;
+  if (!gu || !city) return (row) => isSchoolInDistrict(row.ORG_RDNMA, districtName);
+
+  const siblings = getGusOfCity(gu.sidoId, gu.parentSigunguId);
+  const areaToGu = new Map(siblings.flatMap((g) => (g.legalAreas ?? []).map((a) => [a, g.id] as const)));
+  return (row) => {
+    if (isSchoolInDistrict(row.ORG_RDNMA, gu.name)) return true;
+    if (!isSchoolInDistrict(row.ORG_RDNMA, city.name)) return false;
+    if (siblings.some((g) => isSchoolInDistrict(row.ORG_RDNMA, g.name))) return false;
+    const override = row.SD_SCHUL_CODE ? SCHOOL_GU_OVERRIDES[row.SD_SCHUL_CODE] : undefined;
+    if (override) return override === gu.id;
+    const hits = new Set(addressTokens(row).flatMap((t) => areaToGu.get(t) ?? []));
+    return hits.size === 1 && hits.has(gu.id);
+  };
+}
+
 /**
  * 특정 교육청 + 시군구명으로 시군구 단위 학교 수를 조회한다.
  *
  * NEIS API의 LCTN_SC_NM 파라미터는 시도 수준만 지원하므로,
  * 시도 전체 학교를 조회한 뒤 주소(ORG_RDNMA)의 낱말이 시군구명과 같은
- * 학교만 카운트한다(시 단위 "영주시"·시 아래 구 "장안구" 모두).
+ * 학교만 카운트한다(시 단위 "영주시"·시 아래 구 "장안구" 모두). 부천·화성의 구는 법정동까지 본다(schoolMatcher).
  * API 실패 시 null을 반환.
  */
 async function fetchSigunguSchoolCount(
@@ -206,7 +245,7 @@ async function fetchSigunguSchoolCount(
 ): Promise<SchoolData | null> {
   try {
     const rows = await fetchEduSchoolRows(apiKey, eduCode);
-    const count = rows.filter((r) => isSchoolInDistrict(r.ORG_RDNMA, sigunguName)).length;
+    const count = rows.filter(schoolMatcher(eduCode, sigunguName)).length;
 
     return {
       eduCode,
