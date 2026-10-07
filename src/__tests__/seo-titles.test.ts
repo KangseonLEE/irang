@@ -202,7 +202,11 @@ describe("문서 제목에 사이트 접미를 직접 붙이지 않는다 (전 �
       if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.name.text === "metadata" && node.initializer) {
         visitMetadataExpr(node.initializer, sf, consts, out);
       }
-      const isGen = ts.isFunctionDeclaration(node) && node.name?.text === "generateMetadata";
+      // generateMetadata + 반환 타입이 Metadata 인 공용 함수(storiesMetadata 등 — 10/7 '| 이랑 | 이랑' 이 여기서 샜다)
+      const isGen =
+        ts.isFunctionDeclaration(node) &&
+        (node.name?.text === "generateMetadata" ||
+          (!!node.type && /^(Promise<\s*)?Metadata(\s*>)?$/.test(node.type.getText(sf))));
       if (inGenerateMetadata && ts.isReturnStatement(node) && node.expression) {
         visitMetadataExpr(node.expression, sf, consts, out);
       }
@@ -238,6 +242,31 @@ describe("문서 제목에 사이트 접미를 직접 붙이지 않는다 (전 �
       for (const t of documentTitles(readFileSync(join(APP_DIR, f), "utf8"), f)) {
         if (SUFFIX.test(t)) offenders.push(`${f}: ${t}`);
       }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it("라우트 밖 메타데이터 함수(components·lib)도 접미를 직접 붙이지 않는다 — 현장 이야기 화면", () => {
+    const SRC = join(process.cwd(), "src");
+    const walk = (dir: string): string[] =>
+      readdirSync(dir).flatMap((e) => {
+        const full = join(dir, e);
+        if (statSync(full).isDirectory()) return walk(full);
+        return /\.tsx?$/.test(e) ? [full] : [];
+      });
+    const read = (full: string) => documentTitles(readFileSync(full, "utf8"), full);
+    // 스캐너 자기 검증 — 이 함수의 제목을 실제로 읽는다
+    expect(read(join(SRC, "components", "community", "stories-page.tsx"))).toEqual(["${label} 현장 이야기"]);
+    // 고치기 전 형태면 잡힌다
+    expect(
+      documentTitles(
+        `export function xMetadata(label: string): Metadata { return { title: \`\${label} 현장 이야기 | 이랑\`, robots: { index: false } }; }`,
+        "z.tsx",
+      ),
+    ).toEqual(["${label} 현장 이야기 | 이랑"]);
+    const offenders: string[] = [];
+    for (const full of [...walk(join(SRC, "components")), ...walk(join(SRC, "lib"))]) {
+      for (const t of read(full)) if (SUFFIX.test(t)) offenders.push(`${full.slice(SRC.length + 1)}: ${t}`);
     }
     expect(offenders).toEqual([]);
   });

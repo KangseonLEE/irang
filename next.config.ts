@@ -32,6 +32,9 @@ const nextConfig: NextConfig = {
       { source: "/stats/smartfarm", destination: "/stats?tab=smartfarm", permanent: true },
       // 행정구역 개편으로 옮긴 지역 상세 (10/7) — src/lib/data/region-reorganizations.ts MOVED_REGION_PATHS 와 같은 표
       // (region-moved-paths.test.ts 가 맞춰 본다). 나뉜 구(인천 중구·서구)는 시·도 화면으로, 통째로 옮긴 곳은 새 상세로
+      // 통째로 옮긴 곳은 하위 경로 없는 주소를 먼저 받는다 — `:path*` 가 비면 '/jemulpo/' 처럼 끝 '/'가 붙어 두 번 넘어간다
+      { source: "/regions/incheon/dong-gu-incheon", destination: "/regions/incheon/jemulpo", permanent: true },
+      { source: "/regions/gyeongbuk/gunwi", destination: "/regions/daegu/gunwi", permanent: true },
       { source: "/regions/incheon/jung-gu-incheon/:path*", destination: "/regions/incheon", permanent: true },
       { source: "/regions/incheon/dong-gu-incheon/:path*", destination: "/regions/incheon/jemulpo/:path*", permanent: true },
       { source: "/regions/incheon/seo-gu-incheon/:path*", destination: "/regions/incheon", permanent: true },
