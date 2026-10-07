@@ -35,6 +35,7 @@ import { PersonaCta } from "@/components/persona/persona-cta";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Place } from "schema-dts";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
+import { getSidoReorganization, sidoReorgNoticeText } from "@/lib/data/region-reorganizations";
 import { RegionAsyncData } from "./region-async-data";
 import { loadRegionListings } from "./region-listings";
 import { RegionAsyncSkeleton } from "./region-async-skeleton";
@@ -88,6 +89,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
   if (!province) notFound();
 
   // 정적 데이터 — API 호출 없이 즉시 사용 가능
+  const sidoReorg = getSidoReorganization(province.id);
   const sigungus = getSigungusBySidoId(province.id);
   const sidoCenter = getSidoCenter(province.id);
 
@@ -381,6 +383,8 @@ export default async function RegionDetailPage({ params }: PageProps) {
         <CommunityJumpLink from="region_detail" />
       </div>
 
+      {/* 시·도 단위 개편 안내(10/7 전남광주통합특별시) — 모바일 히어로는 글씨가 사진 위라 공통 안내 자리에 둔다 */}
+      {sidoReorg && <ReferenceNotice text={sidoReorgNoticeText(sidoReorg)} />}
       <ReferenceNotice />
 
       {/* 섹션 탐색 탭 — 작물 상세와 같은 패턴 (2026-09-17). 그리드 밖·Suspense 밖에 둔다:

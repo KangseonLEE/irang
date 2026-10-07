@@ -103,4 +103,29 @@ describe("통합검색 — 옛 이름으로 찾으면 새 지역 안내", () => 
     expect(hints("경상북도 군위군")).toEqual(["/regions/daegu/gunwi"]);
     expect(hints("중구")).toEqual([]); // 시·도 없이 '중구'만 치면 여러 도시의 중구 — 안내하지 않는다
   });
+
+  it("새 시·도 이름 '전남광주통합특별시'(2026-07-01)는 광주·전남 두 화면으로 안내 — 10/7 전엔 0건", async () => {
+    const { searchAll } = await import("@/lib/data/search-index");
+    const hints = (q: string) =>
+      (searchAll(q) as unknown as { href: string; badge?: string }[]).filter((x) => x.badge === "안내").map((x) => x.href);
+    for (const q of ["전남광주통합특별시", "전남광주특별시", "전남광주"]) {
+      expect(hints(q), q).toEqual(["/regions/gwangju", "/regions/jeonnam"]);
+    }
+    expect(hints("광주")).toEqual([]); // 기존 이름 검색은 그대로
+    expect(hints("전남")).toEqual([]);
+  });
+});
+
+describe("시·도 단위 개편 안내 — 전남광주통합특별시", () => {
+  it("광주·전남만 안내가 있고, 문장은 출범일·통합 전 기준을 담는다", async () => {
+    const { getSidoReorganization, sidoReorgNoticeText } = await import("@/lib/data/region-reorganizations");
+    for (const id of ["gwangju", "jeonnam"]) {
+      const r = getSidoReorganization(id);
+      expect(r?.effectiveDate, id).toBe("2026-07-01");
+      expect(sidoReorgNoticeText(r!)).toMatch(/2026년 7월 1일.*전남광주통합특별시.*통합 전 기준/);
+    }
+    for (const p of PROVINCES.filter((x) => x.id !== "gwangju" && x.id !== "jeonnam")) {
+      expect(getSidoReorganization(p.id), p.id).toBeNull();
+    }
+  });
 });
