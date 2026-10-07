@@ -52,7 +52,18 @@ if (existsSync(".env.local")) {
     if (m) env[m[1]] = m[2].trim().replace(/^["']|["']$/g, "");
   }
 }
-for (const [k, v] of Object.entries(process.env)) if (v) env[k] = v;
+// 환경변수에도 .env.local 과 같은 정리(앞뒤 공백·따옴표)를 한다. 10/7 첫 CI 실측: GitHub 시크릿 키로 NEIS ERROR-290·
+// 심평원 403 code 30 — 로컬에서 키를 따옴표로 감싸거나 끝에 공백을 붙이면 똑같이 재현된다. 정리한 키는 요약에 남겨 재등록을 알린다
+const KEY_NAMES = ["DATA_GO_KR_API_KEY", "DATA_GO_KR_PROXY_URL", "DATA_GO_KR_PROXY_SECRET", "NEIS_API_KEY", "E2E_SECRET"];
+const envFixed: string[] = [];
+for (const k of KEY_NAMES) {
+  const raw = process.env[k];
+  const v = raw?.trim().replace(/^["']|["']$/g, "");
+  if (!v) continue;
+  if (v !== raw) envFixed.push(k);
+  env[k] = v;
+}
+if (envFixed.length) console.warn(`환경변수 ${envFixed.join("·")} 값 앞뒤의 공백·따옴표를 정리해 썼어요 — 원본 시크릿 재등록을 권해요`);
 
 // 미국 러너(CI)는 Cloudflare 가 한국 외를 막는다 — E2E 와 같은 우회(UA 토큰 + 시크릿 헤더). 시크릿은 헤더로만 보낸다
 const PAGE_HEADERS: Record<string, string> = env.E2E_SECRET
@@ -346,11 +357,16 @@ async function preflight() {
   for (const a of Object.values(access)) console.log(`  ${a?.ok ? "✓" : "✗"} ${a?.label} — ${a?.detail}`);
   const bad = Object.values(access).filter((a): a is Access => !!a && !a.ok);
   if (!bad.length) return;
-  // CI(미국 러너)에서 흔한 원인 두 가지는 바로 짚는다
+  // 원인을 오류 코드로 바로 짚는다 — 키 무효(NEIS ERROR-290·심평원 code 30)와 미국 러너 차단(심평원 400 code 10)은 처방이 다르다
   const hints: string[] = [];
-  if (process.env.GITHUB_ACTIONS && !access.hira?.ok && r.hira === "direct")
-    hints.push("미국 러너는 data.go.kr 직접 호출이 막혀요 — GitHub 시크릿 DATA_GO_KR_PROXY_URL·DATA_GO_KR_PROXY_SECRET 필요");
-  if (process.env.GITHUB_ACTIONS && !access.page?.ok && r.page === "browser")
+  const ci = !!process.env.GITHUB_ACTIONS;
+  if (access.neis && !access.neis.ok && access.neis.detail.includes("ERROR-290"))
+    hints.push("NEIS 키가 무효예요(ERROR-290) — NEIS_API_KEY 값 확인(따옴표·공백·옛 키)");
+  if (access.hira && !access.hira.ok && /SERVICE_KEY_IS_NOT_REGISTERED|"returnReasonCode": ?"30"/.test(access.hira.detail))
+    hints.push(`심평원 키가 무효예요(code 30) — ${r.hira === "proxy" ? "프록시 Worker 의 DATA_GO_KR_API_KEY" : "DATA_GO_KR_API_KEY 값(따옴표·공백·옛 키)"} 확인`);
+  if (ci && !access.hira?.ok && r.hira === "direct")
+    hints.push("미국 러너는 data.go.kr 직접 호출이 막혀요(400 code 10) — GitHub 시크릿 DATA_GO_KR_PROXY_URL·DATA_GO_KR_PROXY_SECRET 필요");
+  if (ci && !access.page?.ok && r.page === "browser")
     hints.push("미국 러너는 운영 페이지가 막혀요 — GitHub 시크릿 E2E_SECRET 필요");
   throw new Error(
     `접근 점검 실패 — ${bad.map((a) => `${a.label}: ${a.detail}`).join(" / ")}${hints.length ? ` · ${hints.join(" · ")}` : ""}`,
@@ -360,7 +376,7 @@ async function preflight() {
 /** --json 요약. 대조를 끝내지 못했을 때도 fatal 과 접근 점검 결과를 남긴다 */
 function writeSummary(extra: Record<string, unknown>) {
   if (!JSON_OUT) return;
-  const summary = { generatedAt: new Date().toISOString(), base: BASE, only: ONLY ? [...ONLY] : null, route: route(), access, ...extra };
+  const summary = { generatedAt: new Date().toISOString(), base: BASE, only: ONLY ? [...ONLY] : null, route: route(), access, envFixed, ...extra };
   writeFileSync(JSON_OUT, `${JSON.stringify(summary, null, 2)}\n`);
 }
 

@@ -175,6 +175,10 @@ jobs:
                 ' "$SUMMARY_JSON"
                 ;;
             esac
+            # 시크릿 값 앞뒤 공백·따옴표를 스크립트가 정리해 쓴 경우 — 같은 시크릿을 쓰는 다른 워크플로는 그대로 실패한다
+            if [ "$STATE" != crash ]; then
+              jq -r 'if ((.envFixed // []) | length) > 0 then "", "⚠️ 시크릿 \(.envFixed | join("·")) 값 앞뒤의 공백·따옴표를 정리해 썼어요 — 같은 시크릿을 쓰는 다른 워크플로(api-health 등)는 그대로라 재등록을 권해요." else empty end' "$SUMMARY_JSON" || true
+            fi
             printf '\n%s\n' "---"
             printf '%s\n' "<sub>실행 로그: ${RUN_URL} · 재실행 \`gh workflow run region-integrity.yml\` (부분: \`-f only=gwangju,incheon\`) · 로컬(한국 회선) \`npx tsx scripts/check-region-stats-integrity.ts\`</sub>"
             printf '%s\n' "<sub>🤖 region-integrity.yml — 매주 월 10:10(KST) 자동 대조. 전체 대조에서 문제가 0이 되면 이 이슈는 자동으로 닫혀요.</sub>"
