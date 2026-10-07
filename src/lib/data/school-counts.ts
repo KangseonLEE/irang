@@ -970,7 +970,7 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "35010",
     "name": "전주시",
-    "totalCount": 156,
+    "totalCount": 157,
     "elementary": 75,
     "middle": 41,
     "high": 29
