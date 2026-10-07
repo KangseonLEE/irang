@@ -961,3 +961,68 @@ describe("읍·면·동 안내 억제 — 시·군·구 정확 일치 (9/28)", (
   });
 });
 
+
+// ── 10/7 독립 QA: 행정구역 이름 낱말 중간 일치 · 일상어 구 이름 · FAQ 키워드 붙여 쓰기 ──
+describe("지역·센터 이름은 낱말 첫머리에서만 (10/7)", () => {
+  const titles = (q: string) => searchAll(q).filter((r) => r.type === "region" || r.type === "center").map((r) => r.title);
+  it("대구≠해운대구·해운대구청, 양구≠계양구, 양주시≠남양주시, 북구≠서북구·성북구, 동구≠남동구, 인구≠처인구", () => {
+    expect(titles("대구")).not.toContain("해운대구");
+    expect(titles("대구").some((t) => t.startsWith("해운대구청"))).toBe(false);
+    expect(titles("양구")).not.toContain("계양구");
+    expect(titles("양주시")).not.toContain("남양주시");
+    expect(titles("북구")).not.toContain("천안시 서북구");
+    expect(titles("북구")).not.toContain("성북구");
+    expect(titles("동구")).not.toContain("남동구");
+    expect(titles("인구")).not.toContain("용인시 처인구");
+  });
+  it("낱말 첫머리 일치는 그대로 — 양구 → 양구군 1위, 포항 남구 → 포항시 남구 1위, 대구 → 대구", () => {
+    expect(searchAll("양구")[0]?.title).toBe("양구군");
+    expect(searchAll("포항 남구")[0]?.title).toBe("포항시 남구");
+    expect(titles("대구")).toContain("대구");
+  });
+});
+
+describe("일상어와 같은 구 이름 — 그 낱말 하나로만 맞은 구는 띄우지 않는다 (10/7)", () => {
+  const regions = (q: string) => searchAll(q).filter((r) => r.type === "region").map((r) => r.title);
+  it.each([
+    ["대한독립 만세", "화성시 만세구"],
+    ["회원 가입", "창원시 마산회원구"],
+    ["청원 게시판", "청주시 청원구"],
+    ["동안 미인", "안양시 동안구"],
+    ["단원 김홍도", "안산시 단원구"],
+    ["수정 사항", "성남시 수정구"],
+    ["정보 수정 요청", "성남시 수정구"],
+  ])("%s → %s 없음", (q, gu) => {
+    expect(regions(q)).not.toContain(gu);
+  });
+  it.each([
+    ["화성 만세", "화성시 만세구"],
+    ["만세구", "화성시 만세구"],
+    ["만세", "화성시 만세구"],
+    ["동탄 귀농", "화성시 동탄구"],
+    ["분당 아파트", "성남시 분당구"],
+    ["용인 수지", "용인시 수지구"],
+  ])("%s → %s 그대로", (q, gu) => {
+    expect(regions(q)).toContain(gu);
+  });
+  it("작물로 맞은 구는 다른 낱말을 못 맞춰도 그대로 — '쌀 수익'의 쌀 재배 구", () => {
+    expect(regions("쌀 수익").some((t) => / .+구$/.test(t))).toBe(true);
+  });
+});
+
+describe("FAQ 키워드가 낱말 중간에 붙으면 앞부분이 아는 낱말일 때만 (10/7)", () => {
+  const faqs = (q: string) => searchAll(q).filter((r) => r.id.startsWith("faq-")).map((r) => r.title);
+  it("처인구≠인구 통계, 귀농지원센터≠농지 구입, 대한독립≠1인 정착", () => {
+    expect(faqs("처인구")).not.toContain("귀농·귀촌 인구 통계");
+    expect(faqs("귀농지원센터 연락처")).not.toContain("농지 구입 가이드");
+    expect(faqs("귀농지원센터 연락처")).toContain("지자체 귀농지원센터");
+    expect(faqs("대한독립 만세")).toEqual([]);
+  });
+  it("아는 낱말을 이어 쓴 질문은 그대로 — 귀농비용·귀농창업비용·정착지원금·독립해서 농사", () => {
+    expect(faqs("귀농비용")).toContain("정착 비용 가이드");
+    expect(faqs("귀농창업비용")).toContain("정착 비용 가이드");
+    expect(faqs("농업창업비용")).toContain("정착 비용 가이드");
+    expect(faqs("정착지원금")).toContain("지원사업 목록");
+    expect(faqs("독립해서 농사")).toContain("1인 정착 가이드");
+  });
+});
