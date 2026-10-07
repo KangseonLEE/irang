@@ -2,5 +2,5 @@
   "regions": [
     "icn1"
   ],
-  "ignoreCommand": "git rev-parse HEAD^ >/dev/null 2>&1 && git diff --quiet \"${VERCEL_GIT_PREVIOUS_SHA:-HEAD^}\" HEAD -- . ':(exclude)CLAUDE.md' ':(exclude)docs/' ':(exclude)worklog/' ':(exclude)*.md' ':(exclude).github/' ':(exclude)scripts/'"
+  "ignoreCommand": "sh scripts/vercel-ignore-build.sh"
 }
