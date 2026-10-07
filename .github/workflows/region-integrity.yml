@@ -120,7 +120,7 @@ jobs:
           elif [ "$(jq -r '.pages // 0' "$SUMMARY_JSON")" -eq 0 ]; then
             STATE=crash
           else
-            PROBLEMS=$(jq '(.counts.mismatch // 0) + (.counts.err // 0) + ((.nameIssues // []) | length) + ((.sumIssues // []) | length) + ((.popIssues // []) | length)' "$SUMMARY_JSON")
+            PROBLEMS=$(jq '(.counts.mismatch // 0) + (.counts.err // 0) + ((.nameIssues // []) | length) + ((.sumIssues // []) | length) + ((.popIssues // []) | length) + ((.guSumIssues // []) | length)' "$SUMMARY_JSON")
             if [ "$PROBLEMS" -gt 0 ]; then STATE=problems; else STATE=clean; fi
           fi
           echo "state=${STATE} problems=${PROBLEMS}"
@@ -171,6 +171,10 @@ jobs:
                     "", "### 인구 원천 문제 (\(.popIssues | length)건)", "",
                     lst(.popIssues; 50; "- \(.)")
                   else empty end),
+                  (if ((.guSumIssues // []) | length) > 0 then
+                    "", "### 구 화면 합 ≠ 시 화면 (\(.guSumIssues | length)건)", "",
+                    lst(.guSumIssues; 50; "- \(.)")
+                  else empty end),
                   (if (.near | length) > 0 then
                     "", "<details><summary>캐시 시점 차이 \(.near | length)쪽 (±2·0.5% 이내 — 조치 불요)</summary>", "",
                     lst(.near; 80; "- `\(.key)` — \(.near | join("; "))"),
@@ -179,6 +183,11 @@ jobs:
                   (if (.coverage | length) > 0 then
                     "", "<details><summary>학교 포착률 \(.coverage | length)건 (빈 주소·붙은 주소 = 원천 쪽 문제, 참고)</summary>", "",
                     lst(.coverage; 30; "- \(.)"),
+                    "", "</details>"
+                  else empty end),
+                  (if (((.guSumNear // []) | length) + ((.geoIssues // []) | length)) > 0 then
+                    "", "<details><summary>구 판정 참고 \(((.guSumNear // []) | length) + ((.geoIssues // []) | length))건 (구 화면 합 ±2 이내 · 주소 좌표 변환 못 한 학교·기관)</summary>", "",
+                    lst((.guSumNear // []) + (.geoIssues // []); 30; "- \(.)"),
                     "", "</details>"
                   else empty end)
                 ' "$SUMMARY_JSON"
