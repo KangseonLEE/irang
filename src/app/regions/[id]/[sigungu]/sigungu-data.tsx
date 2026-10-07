@@ -37,6 +37,7 @@ import {
 } from "@/lib/api/education";
 import { fetchMultipleClimateData } from "@/lib/api/weather";
 import { fetchReturnFarmStats } from "@/lib/api/kosis";
+import { getRegionReorganization } from "@/lib/data/region-reorganizations";
 import { SigunguStats } from "./sigungu-stats";
 import s from "./page.module.css";
 
@@ -47,6 +48,9 @@ interface SigunguDataProps {
 
 export async function SigunguData({ province, sigungu }: SigunguDataProps) {
   const hiraSgguCd = sigungu.hiraSgguCd;
+  // 행정구역 개편으로 사라진 구(인천 중구·동구·서구) — 옛 코드·이름으로는 공공데이터가 0을 돌려줘
+  // 조회 자체를 하지 않고, 시·도 수치로 대신 채우지도 않는다(화면은 '확인 불가', 10/7)
+  const reorg = getRegionReorganization(sigungu.id);
 
   // ── Phase 1: 시군구 수준 + 기후 + 귀농귀촌 + 농가 (6개 병렬) ──
   const [
@@ -58,10 +62,10 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
     farmResult,
   ] = await Promise.allSettled([
     fetchSigunguPopulationData(sigungu.sgisCode),
-    hiraSgguCd
+    hiraSgguCd && !reorg
       ? fetchSigunguMedicalFacilities(province.hiraSidoCd, hiraSgguCd)
       : Promise.resolve(null),
-    fetchSigunguSchoolCounts(province.eduCode, sigungu.name),
+    reorg ? Promise.resolve(null) : fetchSigunguSchoolCounts(province.eduCode, sigungu.name),
     fetchMultipleClimateData(province.stationIds),
     fetchReturnFarmStats(sigungu.admCode),
     fetchFarmHousehold(sigungu.sgisCode),
@@ -76,8 +80,8 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
 
   // ── Phase 2: 실패 항목만 시/도 폴백 (lazy fallback) ──
   const needsPopFallback = !sigunguPop;
-  const needsMedicalFallback = !sigunguMedical;
-  const needsSchoolFallback = !sigunguSchool;
+  const needsMedicalFallback = !reorg && !sigunguMedical;
+  const needsSchoolFallback = !reorg && !sigunguSchool;
 
   let sidoPop = null;
   let sidoMedical = null;
@@ -247,6 +251,7 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
       hiraSgguCd={hiraSgguCd}
       eduCode={province.eduCode}
       sigunguNameForNeis={sigungu.name}
+      reorg={reorg}
       admCode={sigungu.admCode}
     />
     </div>

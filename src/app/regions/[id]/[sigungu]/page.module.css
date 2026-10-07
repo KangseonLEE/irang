@@ -180,6 +180,12 @@
   line-height: var(--lh-normal);
 }
 
+/* 행정구역 개편 안내 (인천 중구·동구·서구) — 설명 바로 아래, 설명 줄 길이에 맞춘 폭 */
+.heroReorgNotice {
+  margin-top: 8px;
+  max-width: 640px;
+}
+
 /* ---- Hero 정착 점수 배지 ---- */
 .heroScoreBadge {
   display: inline-flex;
@@ -976,5 +982,53 @@ a.heroScoreBadge:focus-visible {
 
   .sidebar {
     grid-area: side;
+  }
+}
+
+/* ── 행정구역 개편 안내 창 (인천 중구·동구·서구, 10/7) ── */
+.reorgModal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  color: var(--foreground);
+}
+
+.reorgModal p {
+  margin: 0;
+}
+
+.reorgLinks {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.reorgLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.reorgLink:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .reorgLink:hover {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 6%, transparent);
   }
 }

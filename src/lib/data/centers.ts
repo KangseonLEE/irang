@@ -1847,10 +1847,12 @@ export const CENTERS: Center[] = [
     sigungu: "중구",
     sigunguSlug: "jung-gu-incheon",
     category: "sigungu",
-    name: "중구청 (대표 누리집)",
-    url: "https://www.icjg.go.kr/index",
-    // 검증 2026-04-15: HTTP 200, title="인천광역시 중구청"
-    verifiedAt: "2026-04-15",
+    name: "제물포구청 (옛 중구, 대표 누리집)",
+    url: "https://www.jemulpo.go.kr/",
+    // 2026-07-01 인천 행정체제 개편 — 중구는 제물포구·영종구로 분구, 옛 icjg.go.kr 은 7/1 종료(10/7 DNS 없음).
+    // 영종구청은 상세 '확인 불가' 카드 안내 창(region-reorganizations.ts)에서 함께 안내.
+    // 검증 2026-10-07: 브라우저 200, title="인천광역시 제물포구청", 본문 "제물포구" 13회 (curl 은 방화벽 403 이 섞여 나옴)
+    verifiedAt: "2026-10-07",
   },
   {
     id: "incheon-dong-gu-incheon-sigungu",
@@ -1859,10 +1861,11 @@ export const CENTERS: Center[] = [
     sigungu: "동구",
     sigunguSlug: "dong-gu-incheon",
     category: "sigungu",
-    name: "동구청 (대표 누리집)",
-    url: "https://www.icdonggu.go.kr/",
-    // 검증 2026-04-15: HTTP 200, title="인천광역시 동구청"
-    verifiedAt: "2026-04-15",
+    name: "제물포구청 (옛 동구, 대표 누리집)",
+    url: "https://www.jemulpo.go.kr/",
+    // 2026-07-01 인천 행정체제 개편 — 동구는 제물포구로(옛 icdonggu.go.kr 은 제물포구청으로 넘어감)
+    // 검증 2026-10-07: 브라우저 200, title="인천광역시 제물포구청" (curl 은 방화벽 403 이 섞여 나옴)
+    verifiedAt: "2026-10-07",
   },
   {
     id: "incheon-michuhol-sigungu",
@@ -1931,10 +1934,12 @@ export const CENTERS: Center[] = [
     sigungu: "서구",
     sigunguSlug: "seo-gu-incheon",
     category: "sigungu",
-    name: "서구청 (대표 누리집)",
-    url: "https://seo.incheon.kr/open_content/main/",
-    // 검증 2026-04-15: HTTP 200, title="인천광역시 서구청"
-    verifiedAt: "2026-04-15",
+    name: "서해구청 (옛 서구, 대표 누리집)",
+    url: "https://www.seohae.go.kr/open_content/main/",
+    // 2026-07-01 인천 행정체제 개편 — 서구는 서해구·검단구로 분구(옛 seo.incheon.kr 은 서해구청으로 넘어감).
+    // 검단구청은 상세 '확인 불가' 카드 안내 창(region-reorganizations.ts)에서 함께 안내.
+    // 검증 2026-10-07: HTTP 200, title="인천광역시 서해구청", 본문 "서해구" 62회
+    verifiedAt: "2026-10-07",
   },
   // -- 부산 --
   {

@@ -31,6 +31,8 @@ import { RegionProfileCard } from "@/components/region/region-profile-card";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
 import { convertToPyeongLabel } from "@/lib/format";
 import { getSigunguCenter } from "@/lib/data/centers";
+import { getRegionReorganization, reorgNoticeText } from "@/lib/data/region-reorganizations";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { CenterCard } from "@/components/region/center-card";
 import { loadRegionListings } from "../region-listings";
 import { listRegionHref } from "../list-region-href";
@@ -127,6 +129,8 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
   // 시군구 귀농지원센터 (정적 — 상위 광역 폴백하지 않음)
   const sigunguCenter = getSigunguCenter(sigungu.id);
+  // 행정구역 개편으로 나뉘거나 합쳐진 곳(인천 중구·동구·서구, 2026-07-01) — 상단 안내 + 의료기관·학교 '확인 불가'
+  const reorg = getRegionReorganization(sigungu.id);
 
   // 대표 작물 매칭 + 평수 환산 + 수익 정렬 (시도 페이지와 동일 패턴)
   const allMatchedCrops = CROPS.flatMap((crop) => {
@@ -315,6 +319,12 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           </div>
         </div>
         <p className={s.heroDesc}>{sigungu.description}</p>
+        {reorg && (
+          <ReferenceNotice
+            text={reorgNoticeText(reorg, sigungu.name)}
+            className={s.heroReorgNotice}
+          />
+        )}
         {sigunguSettlementScore !== null && (
           <>
             {/* 모바일: inline 큰 숫자 */}
