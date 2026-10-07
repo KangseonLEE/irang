@@ -105,6 +105,9 @@ https://www.cs.go.kr/agri.web 센터 청송군 농업기술센터(10/6 교체)
 https://www.geochang.go.kr/00445/00450.web?gcode=1002&idx=14088774&amode=view SP-053
 https://www.geochang.go.kr/ 센터 거창군청
 https://www.gc.go.kr/ 센터 김천시청
+https://www.yc.go.kr/ 센터 영천시청(10/7 #165 미국 404 · 한국 200 "영천시청")
+https://www.yyg.go.kr/ 센터 영양군청(10/7 #165 미국 404 · 한국 200 "영양군청 | 대한민국 별천지 영양")
+https://www.goseong.go.kr/ 센터 고성군청(경남, 10/7 #165 미국 400 · 한국 200 "경상남도 고성군청")
 "
 
 is_geo_url() {
