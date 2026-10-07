@@ -720,7 +720,8 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
 ### 기타
 
 - SGIS API 관련 경고는 정상 (Dynamic route fallback)
-- 커밋 후 `git push origin main` → Vercel 자동 배포
+- 커밋 후 `git push origin main` → 미리보기 배포만 된다. 운영은 회장이 그 작업에 "배포"를 지시한 뒤 `release` 브랜치로 옮긴다(9/29 분리, `git commit-tree "origin/main^{tree}" -p origin/release -p origin/main` 병합 — 트리 = main, 강제 푸시 없음)
+- **DB 큐레이션 행(SP·ED·evt)을 SQL 로 고친 뒤에는 재빌드한다** — 지원사업·교육·행사 상세는 `generateStaticParams` 로 빌드 때 HTML 을 만들어 두므로 SQL 만으로는 화면이 안 바뀐다(지원사업은 하루 뒤, 교육·행사는 다음 배포까지 예전 값). Vercel 대시보드 → 최신 Production 배포 → **Redeploy**. 같은 커밋 재배포는 빌드 생략 규칙(`vercel.json` ignoreCommand)의 예외라 빌드된다(10/7). 수집 행(crawl-*)은 동적 렌더라 바로 반영
 - 커밋 메시지 접두사: `feat:`, `fix:`, `style:`, `copy:`, `redesign:`, `refactor:`
 
 ### Scripts
