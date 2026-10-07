@@ -41,6 +41,7 @@ import { SIGUNGUS } from "@/lib/data/sigungus";
 import { GUS, type GuDistrict } from "@/lib/data/gus";
 import { GU_HIRA_CODES_MAP, residualItemGuId, toHiraSidoCd } from "@/lib/api/hira";
 import { schoolMatcher } from "@/lib/api/education";
+import { AREA_NOT_YET_IN_CADASTRE, fetchCadastreAreas, matchCadastreArea } from "@/lib/data/cadastre-area";
 import { REGION_REORGANIZATIONS } from "@/lib/data/region-reorganizations";
 import { INTEGRATED_CITY_GU_CODES } from "@/lib/data/integrated-cities";
 import { REPLACED_SGIS_GU, compositeRows, compositesInProvince, getSgisComposite, splitGuOf } from "@/lib/data/region-composites";
@@ -66,7 +67,7 @@ if (existsSync(".env.local")) {
 }
 // 환경변수에도 .env.local 과 같은 정리(앞뒤 공백·따옴표)를 한다. 10/7 첫 CI 실측: GitHub 시크릿 키로 NEIS ERROR-290·
 // 심평원 403 code 30 — 로컬에서 키를 따옴표로 감싸거나 끝에 공백을 붙이면 똑같이 재현된다. 정리한 키는 요약에 남겨 재등록을 알린다
-const KEY_NAMES = ["DATA_GO_KR_API_KEY", "DATA_GO_KR_PROXY_URL", "DATA_GO_KR_PROXY_SECRET", "NEIS_API_KEY", "E2E_SECRET", "SGIS_KEY", "SGIS_SECRET"];
+const KEY_NAMES = ["DATA_GO_KR_API_KEY", "DATA_GO_KR_PROXY_URL", "DATA_GO_KR_PROXY_SECRET", "NEIS_API_KEY", "E2E_SECRET", "SGIS_KEY", "SGIS_SECRET", "KOSIS_API_KEY"];
 const envFixed: string[] = [];
 for (const k of KEY_NAMES) {
   const raw = process.env[k];
@@ -89,10 +90,10 @@ const PAGE_HEADERS: Record<string, string> = env.E2E_SECRET
 
 /** 메시지·요약에 남기기 전 키·프록시 주소를 가린다 — 공개 저장소의 로그·이슈로 나간다 */
 function mask(s: string): string {
-  let out = s.replace(/(KEY|serviceKey|accessToken|consumer_key|consumer_secret)=[^&\s)]+/g, "$1=***");
+  let out = s.replace(/(KEY|serviceKey|accessToken|consumer_key|consumer_secret|apiKey)=[^&\s)]+/g, "$1=***");
   const proxy = env.DATA_GO_KR_PROXY_URL?.replace(/\/+$/, "");
   if (proxy) out = out.split(proxy).join("{프록시}");
-  for (const v of [env.DATA_GO_KR_PROXY_SECRET, env.DATA_GO_KR_API_KEY, env.NEIS_API_KEY, env.E2E_SECRET, env.SGIS_KEY, env.SGIS_SECRET]) {
+  for (const v of [env.DATA_GO_KR_PROXY_SECRET, env.DATA_GO_KR_API_KEY, env.NEIS_API_KEY, env.E2E_SECRET, env.SGIS_KEY, env.SGIS_SECRET, env.KOSIS_API_KEY]) {
     if (v && v.length >= 8) out = out.split(v).join("***");
   }
   return out;
@@ -629,6 +630,47 @@ async function main() {
   await preflight();
   console.log(`원천 기준값 생성 중 (NEIS·심평원)…`);
   const exp = await buildExpected();
+
+  // ── 면적 — 정적 자료(regions·sigungus·gus) ↔ 국토교통부 지적통계 공표 최신 연도 (10/7) ──
+  // 화면 카드가 정적 값을 그대로 보여 주므로 원천과 직접 맞춘다. 새 해 통계가 나오면 여기서 차이가 나고, 갱신은
+  // scripts/collect-areas.ts. 그 해 통계에 아직 없는 신설 구는 AREA_NOT_YET_IN_CADASTRE 로 뺀다
+  const areaIssues: string[] = [];
+  let areaNote: { year?: string; skipped?: string } = {};
+  if (!env.KOSIS_API_KEY) areaNote = { skipped: "KOSIS_API_KEY 없음" };
+  else {
+    try {
+      const { year, rows } = await fetchCadastreAreas(env.KOSIS_API_KEY);
+      areaNote = { year };
+      const cmp = (label: string, ours: number, v: number | null) => {
+        if (v === null) areaIssues.push(`${label} — 지적통계 ${year}년에 없음`);
+        else if (Math.abs(v - ours) > 0.005) areaIssues.push(`${label} 정적 ${ours} ≠ 지적통계 ${year}년 ${v}㎢`);
+      };
+      for (const p of PROVINCES.filter((x) => !ONLY || ONLY.has(x.id))) cmp(`시·도 ${p.name}`, p.area, matchCadastreArea(rows, { kind: "sido", sido: p }));
+      for (const sg of SIGUNGUS.filter((x) => (!ONLY || ONLY.has(x.sidoId)) && !AREA_NOT_YET_IN_CADASTRE[x.id])) {
+        const p = PROVINCES.find((x) => x.id === sg.sidoId)!;
+        cmp(`${p.shortName} ${sg.name}`, sg.area, matchCadastreArea(rows, { kind: "sigungu", sido: p, name: sg.name }));
+      }
+      for (const g of GUS.filter((x) => (!ONLY || ONLY.has(x.sidoId)) && !AREA_NOT_YET_IN_CADASTRE[x.id])) {
+        const p = PROVINCES.find((x) => x.id === g.sidoId)!;
+        const city = SIGUNGUS.find((x) => x.id === g.parentSigunguId)!;
+        cmp(`${city.name} ${g.name}`, g.area, matchCadastreArea(rows, { kind: "sigungu", sido: p, name: `${city.name}${g.name}` }));
+      }
+      // 신설이라 빼 둔 단위가 새 해 통계에 들어오면 알린다 — 그때 공고 면적 대신 지적통계로 바꾼다
+      for (const id of Object.keys(AREA_NOT_YET_IN_CADASTRE)) {
+        const sg = SIGUNGUS.find((x) => x.id === id);
+        const g = GUS.find((x) => x.id === id);
+        const sidoId = sg?.sidoId ?? g?.sidoId;
+        if (!sidoId || (ONLY && !ONLY.has(sidoId))) continue;
+        const p = PROVINCES.find((x) => x.id === sidoId)!;
+        const city = g ? SIGUNGUS.find((x) => x.id === g.parentSigunguId) : undefined;
+        const name = sg ? sg.name : `${city?.name ?? ""}${g!.name}`;
+        const v = matchCadastreArea(rows, { kind: "sigungu", sido: p, name });
+        if (v !== null) areaIssues.push(`${p.shortName} ${name} — 지적통계 ${year}년에 이제 있어요(${v}㎢, 정적 ${sg?.area ?? g?.area}) — cadastre-area.ts AREA_NOT_YET_IN_CADASTRE 에서 빼고 collect-areas 실행`);
+      }
+    } catch (e) {
+      areaNote = { skipped: mask(e instanceof Error ? e.message : String(e)) };
+    }
+  }
   const unavailable = new Set(
     Object.entries(REGION_REORGANIZATIONS)
       .filter(([, r]) => r.countsUnavailable)
@@ -753,7 +795,9 @@ async function main() {
   for (const n of exp.partition) console.log(`  ✗ ${n}`);
   if (exp.cityNameless.length) console.log(`시 이름 없이 구 이름으로 시에 든 학교 ${exp.cityNameless.length}곳(동음 구 이름 감시 참고)`);
   for (const n of exp.cityNameless) console.log(`  · ${n}`);
-  if (count("MISMATCH") || count("ERR") || exp.popIssues.length || guSumIssues.length || exp.partition.length) process.exitCode = 1;
+  console.log(areaNote.skipped ? `면적 대조 건너뜀 — ${areaNote.skipped}` : `면적(지적통계 ${areaNote.year}년) ≠ 정적 자료 ${areaIssues.length}건${areaIssues.length ? " — npx tsx scripts/collect-areas.ts 로 갱신" : ""}`);
+  for (const n of areaIssues.slice(0, 40)) console.log(`  ✗ ${n}`);
+  if (count("MISMATCH") || count("ERR") || exp.popIssues.length || guSumIssues.length || exp.partition.length || areaIssues.length) process.exitCode = 1;
 
   // ── 요약 (--json) — 판정은 위 결과를 그대로 옮긴다 ──
   if (pageFailures.size) {
@@ -779,6 +823,8 @@ async function main() {
     geoIssues: exp.geoIssues,
     guPartitionIssues: exp.partition,
     cityNamelessSchools: exp.cityNameless,
+    areaIssues,
+    area: areaNote,
   });
 }
 

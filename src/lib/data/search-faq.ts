@@ -154,7 +154,7 @@ export const SEARCH_FAQS: SearchFaq[] = [
     title: "정착 비용 가이드",
     description:
       "연령별, 작물별 초기 투자금과 절감 전략을 확인해 보세요.",
-    keywords: ["비용", "돈", "자금", "투자금", "예산", "얼마", "초기비용"],
+    keywords: ["비용", "돈", "자금", "투자금", "예산", "얼마", "초기비용", "창업비용"],
   },
   {
     patterns: [
