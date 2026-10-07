@@ -21,7 +21,7 @@ export const SEOUL_AREA_KM2 = 605.25;
 export const NATIONAL_AREA_KM2 = 100_472.39;
 
 /**
- * 전국 인구밀도(명/㎢) — 통계청 SGIS 2024 총인구 51,795,011명(시·도 17곳 합) ÷ NATIONAL_AREA_KM2 = 515.5.
+ * 전국 인구밀도(명/㎢) — 통계청 SGIS 2024 총인구 51,805,547명(시·도 17곳 합, 10/8 직접 조회) ÷ NATIONAL_AREA_KM2 = 515.6.
  * 지역 상세의 인구도 같은 SGIS 연도라 비교 기준을 맞춘다. 면적·연도가 바뀌면 다시 계산한다.
  */
 export const NATIONAL_POP_DENSITY = 516;
@@ -31,6 +31,8 @@ export const NATIONAL_POP_DENSITY = 516;
  * 보였다(10/7: 제물포구 22.4㎢, 대구 중구 7㎢). ratio = 모달 값, sentence = 카드 문장.
  */
 export function seoulAreaCompare(area: number): { ratio: string; sentence: string } {
+  // 서울 화면에서 '서울의 약 1.0배'가 나왔다(10/8 3차 QA) — 서울 자신은 비교 기준이라고만
+  if (Math.abs(area - SEOUL_AREA_KM2) < 0.01) return { ratio: "비교 기준", sentence: "다른 지역 면적 비교의 기준" };
   const r = area / SEOUL_AREA_KM2;
   if (r >= 1) return { ratio: `약 ${r.toFixed(1)}배`, sentence: `서울의 약 ${r.toFixed(1)}배` };
   const pct = Math.round(r * 100);
