@@ -102,6 +102,11 @@ describe("구가 있는 시·시 아래 구", () => {
     await expect(fetchSigunguMedicalFacilities("310000", "310604")).resolves.toBeNull();
   });
 
+  it("화성시는 2026년 신설 4구와 시 단위 코드를 모두 더한다 (동탄구 하나만 세던 것)", () => {
+    const hwaseong = SIGUNGUS.find((s) => s.id === "hwaseong")!;
+    expect(GU_HIRA_CODES_MAP[hwaseong.hiraSgguCd]).toEqual(["312500", "312501", "312502", "312503", "312504"]);
+  });
+
   it("목록 조회 단위 — 시는 구 전부, 시 아래 구는 하나, 광주는 5구, 전남은 넘겨받은 시·군", () => {
     expect(hiraListUnits("310000", "310604")).toHaveLength(4);
     expect(hiraListUnits("310000", "310604", { single: true })).toEqual([{ sidoCd: "310000", sgguCd: "310604" }]);
