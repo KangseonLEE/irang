@@ -44,6 +44,18 @@ describe("옛 지역 주소 → 새 주소", () => {
     }
   });
 
+  it("통째로 옮긴 곳은 하위 경로 없는 옛 주소도 한 번에 넘긴다 (끝 '/' 붙는 두 번 넘김 방지)", () => {
+    // 10/7 운영 실측: '/gyeongbuk/gunwi' → '/daegu/gunwi/' → '/daegu/gunwi' 두 번. 정확한 주소 규칙이 `:path*` 보다 앞에 있어야 한다
+    const config = readFileSync(join(process.cwd(), "next.config.ts"), "utf8");
+    for (const [from, to] of Object.entries(MOVED_REGION_PATHS)) {
+      if (!to.includes("/")) continue;
+      const exactAt = config.indexOf(`{ source: "/regions/${from}", destination: "/regions/${to}", permanent: true }`);
+      const wildAt = config.indexOf(`"/regions/${from}/:path*"`);
+      expect(exactAt, from).toBeGreaterThan(-1);
+      expect(exactAt, from).toBeLessThan(wildAt);
+    }
+  });
+
   it("옛 주소는 지역 단위에 없고, 새 주소는 실재한다", () => {
     for (const [from, to] of Object.entries(MOVED_REGION_PATHS)) {
       expect(exists(from), from).toBe(false);

@@ -51,7 +51,8 @@ export function StoriesPage({ targetType, targetId, label, backHref, backLabel, 
 /** 전용 화면 메타데이터 — UGC 가 적을 땐 얇은 페이지라 색인하지 않고 상세를 canonical 로 */
 export function storiesMetadata(label: string, canonicalPath: string): Metadata {
   return {
-    title: `${label} 현장 이야기 | 이랑`,
+    // 사이트 이름은 루트 레이아웃 제목 틀('%s | 이랑')이 붙인다 — 여기서 또 붙이면 '| 이랑 | 이랑'
+    title: `${label} 현장 이야기`,
     description: `${label}에 대해 먼저 겪은 사람들의 한마디. 검토를 거쳐 게시돼요.`,
     robots: { index: false, follow: true },
     alternates: { canonical: canonicalPath },
