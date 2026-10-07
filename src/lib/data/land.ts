@@ -176,6 +176,8 @@ export interface ExternalLandService {
   description: string;
   /** 아이콘 */
   icon: string;
+  /** 통합검색 키워드 — 그 서비스에서 실제로 조회하는 것을 부르는 말(땅값 = 토지 실거래가) */
+  keywords?: string[];
 }
 
 export const EXTERNAL_LAND_SERVICES: ExternalLandService[] = [
@@ -185,6 +187,7 @@ export const EXTERNAL_LAND_SERVICES: ExternalLandService[] = [
     description:
       "국토교통부에서 운영하는 부동산 실거래가 조회 시스템. 토지·아파트·단독주택 등의 실거래 가격을 지역별·기간별로 조회할 수 있어, 농지 매입 시 적정 가격 판단에 필수적이에요.",
     icon: "💰",
+    keywords: ["실거래가", "시세", "땅값", "집값", "아파트", "단독주택"],
   },
   {
     name: "토지이음",
@@ -192,6 +195,7 @@ export const EXTERNAL_LAND_SERVICES: ExternalLandService[] = [
     description:
       "토지이용계획 열람, 용도지역·지구·구역 규제 확인, 개별공시지가 조회 등을 제공하는 국토교통부 통합 플랫폼. 기존 토지이용규제정보서비스(LURIS)가 통합되었으며, 농지 매입 전 규제 사항과 개발 가능성을 반드시 확인해야 해요.",
     icon: "🗺️",
+    keywords: ["토지이용계획", "용도지역", "공시지가"],
   },
   {
     name: "씨:리얼(SEE:REAL)",
@@ -199,6 +203,7 @@ export const EXTERNAL_LAND_SERVICES: ExternalLandService[] = [
     description:
       "한국토지주택공사(LH)에서 운영하는 부동산 종합정보 포털. 공시지가, 실거래가, 개발 계획, 토지 거래 허가구역 등을 한곳에서 확인할 수 있어요. 기존 온나라 부동산 포털이 통합·개편됐어요.",
     icon: "🏛️",
+    keywords: ["공시지가", "실거래가"],
   },
   {
     name: "농지은행",
