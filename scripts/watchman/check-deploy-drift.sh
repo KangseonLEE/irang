@@ -12,7 +12,7 @@
 # 판정: 운영 브랜치(release, 9/29 분리) 최신 커밋에 대응하는 Production 배포가 있는가.
 #   - 배포 있음 + success            → ✓
 #   - 배포 있음 + failure/error      → 🔴 (빌드 깨짐)
-#   - 배포 없음 + 마지막 운영 배포 이후 바뀐 게 빌드 생략 경로뿐 → ✓ (vercel.json ignoreCommand 설계 동작)
+#   - 배포 없음 + 마지막 운영 배포 이후 바뀐 게 빌드 생략 경로뿐 → ✓ (scripts/vercel-ignore-build.sh 설계 동작)
 #   - 배포 없음 + 커밋 30분 미만     → ✓ (배포 진행 중일 수 있음)
 #   - 배포 없음 + 30분~6시간         → 🟡
 #   - 배포 없음 + 6시간 초과         → 🔴 (웹훅 유실·연동 끊김)
@@ -65,7 +65,7 @@ if [ -z "${GH_TOKEN:-}" ] && ! gh auth status &> /dev/null; then
   exit 0
 fi
 
-# 빌드 생략 경로 — vercel.json ignoreCommand 의 exclude 목록과 같아야 한다(한쪽만 바꾸면 이 판정이 틀어진다).
+# 빌드 생략 경로 — scripts/vercel-ignore-build.sh(vercel.json ignoreCommand)의 exclude 목록과 같아야 한다(한쪽만 바꾸면 이 판정이 틀어진다).
 is_build_skipped_path() {
   case "$1" in
     CLAUDE.md|docs/*|worklog/*|.github/*|scripts/*|*.md) return 0 ;;
