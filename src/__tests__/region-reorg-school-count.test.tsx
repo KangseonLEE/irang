@@ -80,6 +80,33 @@ describe("fetchEduSchoolRows — 1,000건씩 나눠 전부 받기", () => {
     expect(pages).toEqual(["1", "2", "3"]);
   });
 
+  it("같은 교육청을 동시에 물으면 한 번만 받는다", async () => {
+    const calls = stubNeis(1500, (p, i) => `서울특별시 종로구 길 ${p}-${i}`);
+    const [a, b] = await Promise.all([fetchEduSchoolRows("KEY", "B10"), fetchEduSchoolRows("KEY", "B10")]);
+    expect(a).toHaveLength(1500);
+    expect(b).toBe(a);
+    expect(calls).toHaveLength(2); // 1쪽(전체 건수 포함) + 2쪽
+  });
+
+  it("한 쪽이 한 번 실패해도 다시 받아 채운다", async () => {
+    let failed = false;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: string) => {
+        const url = new URL(input);
+        const pIndex = Number(url.searchParams.get("pIndex"));
+        if (pIndex === 2 && !failed) {
+          failed = true;
+          return new Response("busy", { status: 503 });
+        }
+        const n = pIndex === 1 ? 1000 : 200;
+        const row = Array.from({ length: n }, (_, i) => ({ ORG_RDNMA: `경상남도 창원시 의창구 길 ${pIndex}-${i}` }));
+        return new Response(JSON.stringify({ schoolInfo: [{ head: [{ list_total_count: 1200 }] }, { row }] }));
+      }),
+    );
+    await expect(fetchEduSchoolRows("KEY", "S10")).resolves.toHaveLength(1200);
+  });
+
   it("자료 없음(INFO-200)은 빈 배열", async () => {
     vi.stubGlobal(
       "fetch",
@@ -107,29 +134,33 @@ describe("fetchEduSchoolRows — 1,000건씩 나눠 전부 받기", () => {
 describe("행정구역 개편 SSOT — region-reorganizations", () => {
   const ids = Object.keys(REGION_REORGANIZATIONS);
 
-  it("키는 실재하는 인천 시·군·구 id", () => {
-    expect(ids.sort()).toEqual(["dong-gu-incheon", "jung-gu-incheon", "seo-gu-incheon"]);
-    for (const id of ids) {
-      const sg = SIGUNGUS.find((s) => s.id === id);
-      expect(sg, id).toBeDefined();
-      expect(sg!.sidoId).toBe("incheon");
+  it("키는 실재하는 시·군·구 id — 인천 3구는 '확인 불가', 군위는 대구 코드로 센다", () => {
+    expect(ids.sort()).toEqual(["dong-gu-incheon", "gunwi", "jung-gu-incheon", "seo-gu-incheon"]);
+    for (const id of ids) expect(SIGUNGUS.find((s) => s.id === id), id).toBeDefined();
+    for (const id of ["dong-gu-incheon", "jung-gu-incheon", "seo-gu-incheon"]) {
+      expect(SIGUNGUS.find((s) => s.id === id)!.sidoId).toBe("incheon");
+      expect(REGION_REORGANIZATIONS[id].countsUnavailable).toBe(true);
     }
+    expect(REGION_REORGANIZATIONS.gunwi.countsUnavailable).toBe(false);
+    const gunwi = SIGUNGUS.find((s) => s.id === "gunwi")!;
+    expect([gunwi.hiraSidoCd, gunwi.hiraSgguCd, gunwi.eduCode]).toEqual(["230000", "230200", "D10"]);
   });
 
   it("개편 안 된 곳은 null", () => {
     expect(getRegionReorganization("bupyeong")).toBeNull();
   });
 
-  it("시행일·새 구청 주소 형식", () => {
+  it("시행일·새 구청 주소 형식 — 나뉘거나 합쳐진 곳은 새 구청이 있어야", () => {
     for (const r of Object.values(REGION_REORGANIZATIONS)) {
       expect(r.effectiveDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(r.successors.length).toBeGreaterThan(0);
+      if (r.countsUnavailable) expect(r.successors.length).toBeGreaterThan(0);
       for (const s of r.successors) expect(s.url).toMatch(/^https:\/\//);
     }
   });
 
   it("센터 링크가 새 구청 중 하나를 가리킨다 — 옛 중구청 주소(icjg)는 남지 않는다", () => {
     for (const [id, r] of Object.entries(REGION_REORGANIZATIONS)) {
+      if (!r.successors.length) continue;
       const center = getSigunguCenter(id);
       expect(center, id).toBeDefined();
       expect(r.successors.map((s) => s.url)).toContain(center!.url);
@@ -142,6 +173,13 @@ describe("행정구역 개편 SSOT — region-reorganizations", () => {
     expect(text).toContain("제물포구와 영종구로 나뉘었어요");
     expect(text).toContain("확인할 수 없어요");
     expect(text).not.toMatch(/합니다|https?:/);
+  });
+
+  it("군위 안내 — 대구 기준 수·대구 지원사업 확인", () => {
+    const text = reorgNoticeText(REGION_REORGANIZATIONS.gunwi, "군위군");
+    expect(text).toContain("대구광역시로 편입됐어요");
+    expect(text).toContain("대구광역시 군위군 기준");
+    expect(text).not.toMatch(/합니다|확인할 수 없어요/);
   });
 });
 

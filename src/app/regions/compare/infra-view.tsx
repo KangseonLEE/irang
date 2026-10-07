@@ -59,7 +59,7 @@ export async function InfraView({ regions }: Props) {
   const metrics = buildInfraMetricRows(regions, infraByRegion);
   // 행정구역 개편으로 사라진 구(인천 중구·동구·서구) — 의료기관·학교는 '—' (10/7)
   const reorgLabels = regions
-    .filter((r) => r.sigungu && getRegionReorganization(r.sigungu.id))
+    .filter((r) => r.sigungu && getRegionReorganization(r.sigungu.id)?.countsUnavailable)
     .map((r) => r.label);
 
   return (
@@ -321,18 +321,21 @@ async function fetchInfraForRegions(
   const promises = regions.map(async (region) => {
     if (region.sigungu) {
       // 개편으로 사라진 구는 옛 코드·이름으로 세면 0 — 조회도, 시·도 대체값도 쓰지 않는다
-      const reorg = getRegionReorganization(region.sigungu.id);
+      const reorg = getRegionReorganization(region.sigungu.id)?.countsUnavailable;
       const [popResult, medResult, schResult] = await Promise.allSettled([
         fetchSigunguPopulationData(region.sigungu.sgisCode),
         reorg
           ? Promise.resolve(null)
           : fetchSigunguMedicalFacilities(
-              region.station.hiraSidoCd,
+              region.sigungu.hiraSidoCd ?? region.station.hiraSidoCd,
               region.sigungu.hiraSgguCd,
             ),
         reorg
           ? Promise.resolve(null)
-          : fetchSigunguSchoolCounts(region.station.eduCode, region.sigungu.name),
+          : fetchSigunguSchoolCounts(
+              region.sigungu.eduCode ?? region.station.eduCode,
+              region.sigungu.name,
+            ),
       ]);
 
       let pop = popResult.status === "fulfilled" ? popResult.value : null;

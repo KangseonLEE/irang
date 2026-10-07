@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
     if (sigunguName) {
       // 시·도 학교 전부(1,000건씩 나눠 받기) → 주소 낱말이 시군구명과 같은 학교만.
       // 상세 카드의 학교 수(fetchSigunguSchoolCounts)와 같은 함수라 숫자가 어긋나지 않는다 (10/7 정정)
-      const allRows = await fetchEduSchoolRows(apiKey, eduCode, 10_000);
+      const allRows = await fetchEduSchoolRows(apiKey, eduCode);
       const filtered = allRows.filter((item) => isSchoolInDistrict(item.ORG_RDNMA, sigunguName));
 
       // 페이지네이션 적용

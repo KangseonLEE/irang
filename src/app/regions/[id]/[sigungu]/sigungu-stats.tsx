@@ -106,6 +106,8 @@ export interface SigunguStatsProps {
    * 옛 코드·이름으로 세면 공공데이터가 0을 돌려줘 '0개'로 보이던 것(10/7).
    */
   reorg?: RegionReorganization | null;
+  /** 시 아래 구 상세 — 의료기관 목록을 구 하나로 (gu-data 가 넘김) */
+  medicalUnit?: "gu";
 }
 
 type ModalType =
@@ -146,6 +148,7 @@ export function SigunguStats({
   sigunguNameForNeis,
   admCode,
   reorg = null,
+  medicalUnit,
 }: SigunguStatsProps) {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const closeModal = () => setActiveModal(null);
@@ -496,6 +499,7 @@ export function SigunguStats({
           totalCount={medical?.totalCount ?? 0}
           hiraSidoCd={hiraSidoCd}
           sgguCd={hiraSgguCd}
+          single={medicalUnit === "gu"}
         />
       </Modal>
 

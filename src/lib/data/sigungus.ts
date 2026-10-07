@@ -20,6 +20,13 @@ export interface Sigungu {
   sgisCode: string;
   /** HIRA 시군구 코드 (건강보험심사평가원 자체 체계) */
   hiraSgguCd: string;
+  /**
+   * 소속 시·도와 다른 시·도 코드로 조회해야 할 때만 — 군위군은 2023-07-01 대구로 편입돼 심평원·교육부가
+   * 대구 코드 아래에 둔다(10/7 전수 대조: 경북 코드로는 의료기관·학교 0). 없으면 소속 시·도 코드를 쓴다.
+   */
+  hiraSidoCd?: string;
+  /** 위와 같은 이유의 교육청 코드 (군위 → 대구 D10) */
+  eduCode?: string;
   /** 한 줄 소개 */
   description: string;
   /** 핵심 키워드 (2~3개) */
@@ -153,7 +160,7 @@ export const SIGUNGUS: Sigungu[] = [
   // ========================================================================
   // 세종특별자치시 (sejong) (1)
   // ========================================================================
-  { id: "sejong-si", name: "세종특별자치시", shortName: "세종", sidoId: "sejong", admCode: "29010", sgisCode: "29010", hiraSgguCd: "", description: "행정수도 도농복합 지역, 스마트팜 선도", highlights: ["도농복합", "스마트팜"], mainCrops: ["쌀", "딸기", "포도"], area: 465.23 },
+  { id: "sejong-si", name: "세종특별자치시", shortName: "세종", sidoId: "sejong", admCode: "29010", sgisCode: "29010", hiraSgguCd: "410000", description: "행정수도 도농복합 지역, 스마트팜 선도", highlights: ["도농복합", "스마트팜"], mainCrops: ["쌀", "딸기", "포도"], area: 465.23 },
 
   // ========================================================================
   // 대전광역시 (daejeon) (5)
@@ -204,11 +211,11 @@ export const SIGUNGUS: Sigungu[] = [
   // ========================================================================
   // 광주광역시 (gwangju) (5)
   // ========================================================================
-  { id: "dong-gu-gwangju", name: "동구", shortName: "동구", sidoId: "gwangju", admCode: "24010", sgisCode: "24010", hiraSgguCd: "240001", description: "광주 도심 문화·예술 중심 지역", highlights: ["문화예술", "도심"], mainCrops: ["상추", "고추"], area: 48.76 },
-  { id: "seo-gu-gwangju", name: "서구", shortName: "서구", sidoId: "gwangju", admCode: "24020", sgisCode: "24020", hiraSgguCd: "240003", description: "광주 서부 도시농업 활성화 지역", highlights: ["도시농업", "직거래"], mainCrops: ["상추", "배추"], area: 47.81 },
-  { id: "nam-gu-gwangju", name: "남구", shortName: "남구", sidoId: "gwangju", admCode: "24030", sgisCode: "24030", hiraSgguCd: "240005", description: "양림동 도시재생 연계 텃밭 운영", highlights: ["도시재생", "텃밭"], mainCrops: ["상추", "토마토"], area: 61.02 },
-  { id: "buk-gu-gwangju", name: "북구", shortName: "북구", sidoId: "gwangju", admCode: "24040", sgisCode: "24040", hiraSgguCd: "240002", description: "무등산 자락 근교 농업·딸기 재배", highlights: ["근교농업", "딸기"], mainCrops: ["딸기", "쌀", "배추"], area: 120.81 },
-  { id: "gwangsan", name: "광산구", shortName: "광산", sidoId: "gwangju", admCode: "24050", sgisCode: "24050", hiraSgguCd: "240004", description: "광주 최대 농업지대, 쌀·무 주산지", highlights: ["농업지대", "쌀"], mainCrops: ["쌀", "무", "배추"], area: 222.89 },
+  { id: "dong-gu-gwangju", name: "동구", shortName: "동구", sidoId: "gwangju", admCode: "24010", sgisCode: "24010", hiraSgguCd: "360801", description: "광주 도심 문화·예술 중심 지역", highlights: ["문화예술", "도심"], mainCrops: ["상추", "고추"], area: 48.76 },
+  { id: "seo-gu-gwangju", name: "서구", shortName: "서구", sidoId: "gwangju", admCode: "24020", sgisCode: "24020", hiraSgguCd: "360803", description: "광주 서부 도시농업 활성화 지역", highlights: ["도시농업", "직거래"], mainCrops: ["상추", "배추"], area: 47.81 },
+  { id: "nam-gu-gwangju", name: "남구", shortName: "남구", sidoId: "gwangju", admCode: "24030", sgisCode: "24030", hiraSgguCd: "360805", description: "양림동 도시재생 연계 텃밭 운영", highlights: ["도시재생", "텃밭"], mainCrops: ["상추", "토마토"], area: 61.02 },
+  { id: "buk-gu-gwangju", name: "북구", shortName: "북구", sidoId: "gwangju", admCode: "24040", sgisCode: "24040", hiraSgguCd: "360802", description: "무등산 자락 근교 농업·딸기 재배", highlights: ["근교농업", "딸기"], mainCrops: ["딸기", "쌀", "배추"], area: 120.81 },
+  { id: "gwangsan", name: "광산구", shortName: "광산", sidoId: "gwangju", admCode: "24050", sgisCode: "24050", hiraSgguCd: "360804", description: "광주 최대 농업지대, 쌀·무 주산지", highlights: ["농업지대", "쌀"], mainCrops: ["쌀", "무", "배추"], area: 222.89 },
 
   // ========================================================================
   // 전라남도 (jeonnam) (22)
@@ -290,7 +297,7 @@ export const SIGUNGUS: Sigungu[] = [
   { id: "sangju", name: "상주시", shortName: "상주", sidoId: "gyeongbuk", admCode: "37080", sgisCode: "37080", hiraSgguCd: "370900", description: "삼백의 고장(쌀·누에·감), 자전거 도시", highlights: ["감", "쌀", "자전거"], mainCrops: ["감", "쌀", "사과"], area: 1254.82 },
   { id: "mungyeong", name: "문경시", shortName: "문경", sidoId: "gyeongbuk", admCode: "37090", sgisCode: "37090", hiraSgguCd: "370800", description: "문경새재 오미자·사과 특산, 도자기 마을", highlights: ["오미자", "사과"], mainCrops: ["오미자", "사과", "고추"], area: 911.69 },
   { id: "gyeongsan", name: "경산시", shortName: "경산", sidoId: "gyeongbuk", admCode: "37100", sgisCode: "37100", hiraSgguCd: "371000", description: "대구 배후도시, 대추·포도 재배", highlights: ["대추", "포도"], mainCrops: ["대추", "포도", "복숭아"], area: 411.71 },
-  { id: "gunwi", name: "군위군", shortName: "군위", sidoId: "gyeongbuk", admCode: "37310", sgisCode: "22520", hiraSgguCd: "230200", description: "삼국유사의 고장, 사과·대추 재배", highlights: ["사과", "대추"], mainCrops: ["사과", "대추", "고추"], area: 614.06 },
+  { id: "gunwi", name: "군위군", shortName: "군위", sidoId: "gyeongbuk", admCode: "37310", sgisCode: "22520", hiraSgguCd: "230200", hiraSidoCd: "230000", eduCode: "D10", description: "삼국유사의 고장, 사과·대추 재배", highlights: ["사과", "대추"], mainCrops: ["사과", "대추", "고추"], area: 614.06 },
   { id: "uiseong", name: "의성군", shortName: "의성", sidoId: "gyeongbuk", admCode: "37320", sgisCode: "37520", hiraSgguCd: "370021", description: "의성마늘의 본고장, 사과·고추 주산지", highlights: ["마늘", "사과"], mainCrops: ["마늘", "사과", "고추"], area: 1176.82 },
   { id: "cheongsong", name: "청송군", shortName: "청송", sidoId: "gyeongbuk", admCode: "37330", sgisCode: "37530", hiraSgguCd: "370023", description: "주왕산 자락 청송사과 브랜드", highlights: ["사과", "청정"], mainCrops: ["사과", "고추", "감자"], area: 845.67 },
   { id: "yeongyang", name: "영양군", shortName: "영양", sidoId: "gyeongbuk", admCode: "37340", sgisCode: "37540", hiraSgguCd: "370013", description: "영양고추의 본고장, 청정 산간 농업", highlights: ["고추", "청정"], mainCrops: ["고추", "사과", "약초"], area: 815.09 },

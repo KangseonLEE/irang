@@ -8,6 +8,10 @@
  * 공공데이터는 이미 새 구 기준이라 옛 이름·코드로 세면 0이 나온다(10/7 운영 실측: 심평원 의료기관
  * 중구·동구·서구 0곳, 교육부 학교 주소는 제물포구·영종구·서해구·검단구로 바뀜). 이 지역의 의료기관·학교
  * 수는 '확인 불가'로 두고 새 구청으로 안내한다(B안). 새 구로 데이터 전체를 옮기는 A안은 별도 결정.
+
+ *
+ * 2023-07-01 군위군 대구 편입: 심평원·교육부가 대구 코드 아래에 둬 경북 코드로는 0이었다(10/7 전수 대조).
+ * 군위는 나뉜 게 아니라 옮겨 간 것이라 수는 대구 코드로 그대로 센다(sigungus.ts hiraSidoCd·eduCode).
  */
 
 interface RegionSuccessor {
@@ -22,8 +26,15 @@ export interface RegionReorganization {
   effectiveDate: string;
   /** 한 문장 설명 — 화면 안내 첫 문장 */
   summary: string;
-  /** 이 지역을 이어받은 구 */
+  /** 이 지역을 이어받은 구 — 옮겨 가기만 한 곳(군위)은 비어 있다 */
   successors: RegionSuccessor[];
+  /**
+   * 의료기관·학교 수를 셀 수 없는가. 나뉘거나 합쳐진 구(인천)는 true — 옛 구 단위 원천이 없다.
+   * 다른 시·도로 옮겨 간 곳(군위)은 false — 새 시·도 코드로 센다.
+   */
+  countsUnavailable: boolean;
+  /** 상단 안내의 둘째 문장 — 없으면 '개편 전 기준 자료 + 확인 불가' 기본 문장 */
+  detail?: string;
 }
 
 const JEMULPO: RegionSuccessor = { name: "제물포구청", url: "https://www.jemulpo.go.kr/" };
@@ -37,16 +48,26 @@ export const REGION_REORGANIZATIONS: Readonly<Record<string, RegionReorganizatio
     effectiveDate: "2026-07-01",
     summary: "2026년 7월 1일 인천 행정체제 개편으로 중구는 제물포구와 영종구로 나뉘었어요.",
     successors: [JEMULPO, YEONGJONG],
+    countsUnavailable: true,
   },
   "dong-gu-incheon": {
     effectiveDate: "2026-07-01",
     summary: "2026년 7월 1일 인천 행정체제 개편으로 동구는 제물포구가 됐어요.",
     successors: [JEMULPO],
+    countsUnavailable: true,
   },
   "seo-gu-incheon": {
     effectiveDate: "2026-07-01",
     summary: "2026년 7월 1일 인천 행정체제 개편으로 서구는 서해구와 검단구로 나뉘었어요.",
     successors: [SEOHAE, GEOMDAN],
+    countsUnavailable: true,
+  },
+  gunwi: {
+    effectiveDate: "2023-07-01",
+    summary: "2023년 7월 1일 군위군은 경상북도에서 대구광역시로 편입됐어요.",
+    successors: [],
+    countsUnavailable: false,
+    detail: "의료기관·학교 수는 대구광역시 군위군 기준으로 셌어요. 지원사업은 경상북도가 아니라 대구광역시 사업을 함께 확인하세요.",
   },
 };
 
@@ -60,5 +81,8 @@ export function getRegionReorganization(sigunguId: string): RegionReorganization
  * 새 구청 링크는 '확인 불가' 카드의 안내 창과 센터 칸(centers.ts)에서 안내한다.
  */
 export function reorgNoticeText(reorg: RegionReorganization, sigunguName: string): string {
-  return `${reorg.summary} 이 화면은 개편 전 ${sigunguName} 기준 자료예요. 의료기관·학교 수는 공공데이터가 새 구 기준으로 바뀌어 확인할 수 없어요.`;
+  const detail =
+    reorg.detail ??
+    `이 화면은 개편 전 ${sigunguName} 기준 자료예요. 의료기관·학교 수는 공공데이터가 새 구 기준으로 바뀌어 확인할 수 없어요.`;
+  return `${reorg.summary} ${detail}`;
 }
