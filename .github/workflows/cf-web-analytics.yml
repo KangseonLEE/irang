@@ -10,6 +10,10 @@
 #   disable-auto-install — irangfarm.com 사이트의 자동 삽입(auto_install)을 끈다. 되돌리기는 대시보드
 #                          Analytics & Logs → Web Analytics → irangfarm.com → Manage site 에서 다시 켠다
 # 확인: 한국 회선에서 운영 HTML 에 cloudflareinsights 가 없어야 한다(미국 러너는 KR 외 차단으로 HTML 을 못 본다)
+#   — 브라우저 헤더(Accept: text/html, 압축)로 받아야 보인다. curl 기본 헤더엔 삽입되지 않는다
+# 권한: CF_API_TOKEN 에 계정 Web Analytics 권한이 있어야 한다. 10/7 첫 실행은 code 10000(Authentication error) —
+#   같은 토큰·계정으로 Workers 배포는 되므로 계정 ID 가 아니라 권한 문제. 권한이 없으면 대시보드에서 직접 끈다
+#   (Analytics & Logs → Web Analytics → irangfarm.com → Manage site → 자동 설치 끄기)
 # ═══════════════════════════════════════════
 name: Cloudflare Web Analytics
 
