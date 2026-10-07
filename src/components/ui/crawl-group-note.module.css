@@ -48,13 +48,20 @@
   outline-offset: 2px;
 }
 
+/* 마감 칩은 회색 글씨로만 구분 — 예전 opacity 0.7 이 회색 글씨를 한 번 더 옅게 해 흰 칩 위 대비가 기준(4.5) 아래였다
+   (10/6 QA axe color-contrast 44건). muted-foreground 그대로면 흰 바탕 4.83 */
 .chipClosed {
   color: var(--muted-foreground);
-  opacity: 0.7;
 }
 
 .closedTag {
   font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+/* 같은 지역 칩 구분 값(시·군·구·일정·순번) */
+.chipDetail {
   font-weight: 600;
   color: var(--muted-foreground);
 }

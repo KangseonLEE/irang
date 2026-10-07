@@ -54,7 +54,10 @@ interface FilterShellProps {
   currentFilters: Record<string, string | undefined>;
 }
 
-/** URL 빌더 — currentFilters에 changes를 덮어쓰고 빈 값은 제거. */
+/**
+ * URL 빌더 — currentFilters에 changes를 덮어쓰고 빈 값은 제거.
+ * 필터가 바뀌면 결과 수가 달라지므로 쪽 번호(page)는 버린다 — 좁힌 결과에 3쪽이 없으면 빈 표가 나왔다(10/6).
+ */
 function buildUrl(
   basePath: string,
   currentFilters: Record<string, string | undefined>,
@@ -63,10 +66,21 @@ function buildUrl(
   const merged = { ...currentFilters, ...changes };
   const sp = new URLSearchParams();
   for (const [k, v] of Object.entries(merged)) {
+    if (k === "page") continue;
     if (v && v !== "전체") sp.set(k, v);
   }
   const qs = sp.toString();
   return qs ? `${basePath}?${qs}` : basePath;
+}
+
+/**
+ * 선택 값 → URL 값(CSV). 순서는 클릭 순서가 아니라 선택지 순서로 고정한다 — middleware normalize 가
+ * 같은 순서로 재조립하므로, 클릭 순서를 그대로 쓰면 308 한 번을 더 거치고 같은 선택이 다른 캐시 키가 된다(10/6).
+ */
+function toCsv(values: readonly string[], options: readonly string[]): string | undefined {
+  const selected = new Set(values);
+  const ordered = options.filter((opt) => selected.has(opt));
+  return ordered.length > 0 ? ordered.join(",") : undefined;
 }
 
 export function FilterShell({
@@ -114,8 +128,10 @@ export function FilterShell({
           id: `${p.paramKey}:${v}`,
           label,
           onRemove: () => {
-            const next = values.filter((x) => x !== v);
-            const nextCsv = next.length > 0 ? next.join(",") : undefined;
+            const nextCsv = toCsv(
+              values.filter((x) => x !== v),
+              p.options,
+            );
             const url = buildUrl(basePath, currentFilters, {
               [p.paramKey]: nextCsv,
             });
@@ -130,8 +146,7 @@ export function FilterShell({
   const handleSheetApply = (selections: Record<string, string[]>) => {
     const changes: Record<string, string | undefined> = {};
     for (const p of params) {
-      const sel = selections[p.paramKey] ?? [];
-      changes[p.paramKey] = sel.length > 0 ? sel.join(",") : undefined;
+      changes[p.paramKey] = toCsv(selections[p.paramKey] ?? [], p.options);
     }
     const url = buildUrl(basePath, currentFilters, changes);
     setSheetOpen(false);
@@ -147,8 +162,12 @@ export function FilterShell({
   };
 
   // 데스크탑 dropdown 적용 — 해당 paramKey만 변경
-  const handleDropdownApply = (paramKey: string, values: string[]) => {
-    const csv = values.length > 0 ? values.join(",") : undefined;
+  const handleDropdownApply = (
+    paramKey: string,
+    options: readonly string[],
+    values: string[],
+  ) => {
+    const csv = toCsv(values, options);
     const url = buildUrl(basePath, currentFilters, { [paramKey]: csv });
     setOpenDropdownId(null);
     startTransition(() => router.push(url, { scroll: false }));
@@ -194,7 +213,9 @@ export function FilterShell({
                   )
                 }
                 onClose={() => setOpenDropdownId(null)}
-                onApply={(values) => handleDropdownApply(p.paramKey, values)}
+                onApply={(values) =>
+                  handleDropdownApply(p.paramKey, p.options, values)
+                }
                 alignRight={alignRight}
               />
             );

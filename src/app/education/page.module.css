@@ -99,13 +99,22 @@
   }
 }
 
-/* ── Course Card ── */
+/* ── Course Card ──
+   칸(.cardCell)은 flex 세로 — 카드가 남는 높이를 채우고 노트("같은 사업, 다른 지역")는 칸 안 카드 아래에 남는다.
+   예전 `.card { height: 100% }` 는 칸 높이를 통째로 차지해 노트를 칸 밖으로 74px 밀었고, 칩 25개가 전부
+   다음 카드 밑에 가려 칩을 누르면 다른 교육 상세로 갔다 (10/6 QA Q3-🔴1). */
+.cardCell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  height: 100%;
+  flex: 1 1 auto;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: var(--radius-lg);
@@ -133,8 +142,14 @@
   outline-offset: 2px;
 }
 
+/* 마감 — 불투명도 대신 바탕·제목 색으로 물러나게 한다 (10/6 QA, axe color-contrast 982노드).
+   opacity 0.55 는 카드 속 글자를 전부 흐려 회색 글씨가 2.15:1 까지 떨어졌다. 바탕 #f9fafb 위 회색 글씨는 4.63:1. */
 .cardClosed {
-  opacity: 0.55;
+  background: var(--muted, #f9fafb);
+}
+
+.cardClosed .cardTitle {
+  color: var(--muted-foreground, #6b7280);
 }
 
 /* ── Card Top Row: Status + Level ── */
@@ -233,6 +248,21 @@
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* 기간·일정 — 반 칸이면 "2026-10-07 ~ 2026-…"처럼 끝 날짜가 말줄임으로 잘렸다 (10/6 QA). 한 줄을 다 쓰고,
+   "1기 3.23~27 / 2기 4.6~10 / 3기 4.20~24"처럼 그래도 긴 값은 두 줄까지. 아이콘은 첫 줄에 맞춘다 */
+.metaItemWide {
+  grid-column: 1 / -1;
+  align-items: flex-start;
+}
+
+.metaItemWide svg {
+  margin-top: 0.2em;
+}
+
+.metaItemWide .metaValue {
+  -webkit-line-clamp: 2;
 }
 
 /* ── Card Description ── */

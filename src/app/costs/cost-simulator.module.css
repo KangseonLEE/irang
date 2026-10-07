@@ -281,7 +281,9 @@
 
 .supportDesc {
   font-size: var(--fs-caption);
-  color: var(--muted-foreground, #6b7280);
+  /* 연한 primary 6% 판 위 13~15px 글씨 — muted-foreground 는 4.42 라 기준(4.5) 미달(10/6 QA axe).
+     같은 회색 계열을 반 단계 진하게(trend-cost --tc-muted-soft 와 같은 값) 5.22 */
+  color: color-mix(in srgb, var(--muted-foreground, #6b7280) 90%, #000);
   line-height: 1.5;
   word-break: keep-all;
   margin: 0;

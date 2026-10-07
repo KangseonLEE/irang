@@ -3,7 +3,7 @@ import { MapPin, Calendar } from "lucide-react";
 import type { SupportProgram } from "@/lib/data/programs";
 import { formatApplicationPeriod } from "@/lib/format";
 import { daysUntilDeadline, ALWAYS_OPEN, isNewProgram, programStatusLabel } from "@/lib/program-status";
-import { displayAmount, displayText } from "@/lib/programs/display";
+import { displayAmount, displaySupportType, displayText } from "@/lib/programs/display";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";
 import { DeadlineBadge } from "@/components/ui/deadline-badge";
@@ -31,8 +31,9 @@ export function ProgramCard({ program, today }: { program: SupportProgram; today
   const isNew = isNewProgram(program.createdAt, program.status, today);
   // 9999 페어: 접수 시기가 있으면 "정기 접수", 없으면 "공고 발표 예정" (program-status SSOT, 9/27)
   const statusLabel = programStatusLabel(program);
-  const typeLabel =
-    SUPPORT_TYPE_LABELS[program.supportType] ?? program.supportType;
+  // 수집 행의 지원 유형은 수집기 기본값 "보조금"뿐이라 배지째 뺀다 — 교육·경진대회 공고도 "보조금 지원"으로 보였다 (10/6 QA)
+  const supportType = displaySupportType(program.id, program.supportType);
+  const typeLabel = supportType ? (SUPPORT_TYPE_LABELS[supportType] ?? supportType) : null;
   // 수집 행의 "…에서 수집했어요." 같은 출처 문장뿐인 요약은 줄째 숨긴다 (10/3)
   const summary = displayText(program.id, program.summary);
   // 수집 행 지원금액은 원문 칸이 비어 "상세 공고 참조"가 채워진다 — 금액처럼 크게 보이지 않게 줄째 숨긴다(랜딩과 같은 규칙, 10/3)
@@ -57,7 +58,7 @@ export function ProgramCard({ program, today }: { program: SupportProgram; today
       <div className={cardClass}>
         {/* 상단: 유형(overline) + 상태/신규/마감D-N */}
         <div className={s.topRow}>
-          <SupportTypeBadge type={program.supportType} label={typeLabel} />
+          {supportType && typeLabel && <SupportTypeBadge type={supportType} label={typeLabel} />}
           <div className={s.badges}>
             {isNew && <span className={s.newBadge}>신규</span>}
             <DeadlineBadge

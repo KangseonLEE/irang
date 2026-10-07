@@ -347,15 +347,23 @@ function DiscoverCarousel({ tab, active }: { tab: DiscoverTab; active: boolean }
     };
   }, []);
 
+  /**
+   * ←/→ — 트랙을 한 장 옮기고, 카드에 포커스가 있었으면 포커스도 그 카드로 옮긴다(roving).
+   * 10/6 QA: 트랙만 움직이고 포커스는 첫 카드에 남아, 화면에서 사라진(노출 0%) 카드에서 Enter 를 누르면 보이지 않는 카드로 갔다.
+   * 이동은 goTo(smooth)가 맡으므로 포커스는 preventScroll — 브라우저 포커스 스크롤이 스냅·smooth 이동과 다투지 않게.
+   * 이전·다음·정지 버튼에 포커스가 있을 때는 포커스를 그대로 둔다(같은 버튼을 이어 누를 수 있게).
+   */
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.altKey || e.metaKey || e.ctrlKey || e.shiftKey) return;
-    if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      goTo(index - 1);
-    } else if (e.key === "ArrowRight") {
-      e.preventDefault();
-      goTo(index + 1);
-    }
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const links = Array.from(viewportRef.current?.querySelectorAll<HTMLElement>("[data-card] > a") ?? []);
+    const focused = e.target instanceof Element ? links.findIndex((a) => a.contains(e.target as Node)) : -1;
+    // 카드에 포커스가 있으면 그 카드에서, 아니면(제어 버튼) 진행 중 목적지(pending)·활성 카드에서 센다 — 빠른 연타에 index 가 옛 값일 수 있다
+    const from = focused >= 0 ? focused : (pendingRef.current ?? index);
+    const next = (((e.key === "ArrowLeft" ? from - 1 : from + 1) % total) + total) % total;
+    goTo(next);
+    if (focused >= 0) links[next]?.focus({ preventScroll: true });
   };
 
   return (

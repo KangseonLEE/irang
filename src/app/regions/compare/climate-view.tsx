@@ -8,6 +8,7 @@ import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { SwipeHint } from "@/components/ui/swipe-hint";
 import type { RegionItem } from "./region-item";
+import { withJosa } from "@/lib/format";
 import s from "./climate-view.module.css";
 import shared from "./page.module.css";
 
@@ -447,6 +448,11 @@ function ComparisonRow({
   );
 }
 
+/** 이름 끝 글자에 맞는 조사만 — "춘천시(평균 11℃)가"처럼 괄호를 사이에 둘 때 */
+function particleOf(word: string, josa: string): string {
+  return withJosa(word, josa).slice(word.length);
+}
+
 function buildRegionSummary(
   regions: RegionItem[],
   climateByStation: Map<string, ClimateData>,
@@ -470,7 +476,7 @@ function buildRegionSummary(
 
   if (warmest.climate.avgTemp - coldest.climate.avgTemp > 1) {
     parts.push(
-      `따뜻한 기후를 선호한다면 ${warmest.region.label}(평균 ${warmest.climate.avgTemp}℃)이 유리하고, 서늘한 환경을 원한다면 ${coldest.region.label}(평균 ${coldest.climate.avgTemp}℃)이 적합해요.`,
+      `따뜻한 기후를 선호한다면 ${warmest.region.label}(평균 ${warmest.climate.avgTemp}℃)${particleOf(warmest.region.label, "이")} 유리하고, 서늘한 환경을 원한다면 ${coldest.region.label}(평균 ${coldest.climate.avgTemp}℃)${particleOf(coldest.region.label, "이")} 적합해요.`,
     );
   } else {
     parts.push(
@@ -485,7 +491,7 @@ function buildRegionSummary(
     const wettest = withClimate.reduce((a, b) =>
       a.climate.totalPrecipitation > b.climate.totalPrecipitation ? a : b,
     );
-    parts.push(`강수량은 ${wettest.region.label}이 가장 많아요.`);
+    parts.push(`강수량은 ${withJosa(wettest.region.label, "이")} 가장 많아요.`);
   }
 
   return parts.join(" ");

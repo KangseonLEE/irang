@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -31,9 +32,9 @@ import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
 import { convertToPyeongLabel } from "@/lib/format";
 import { getSigunguCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
-import { PROGRAMS } from "@/lib/data/programs";
-import { EDUCATION_COURSES } from "@/lib/data/education";
-import { EVENTS } from "@/lib/data/events";
+import { loadRegionListings } from "../region-listings";
+import { listRegionHref } from "../list-region-href";
+import { educationCardFields } from "../education-card";
 import { SigunguData } from "./sigungu-data";
 import { SigunguStatsSkeleton } from "./sigungu-stats-skeleton";
 import { DistrictMapSection } from "./district-map-section";
@@ -96,11 +97,23 @@ export async function generateMetadata({
   const sidoName = province?.shortName ?? "";
 
   const mainCropsLabel = sigungu.mainCrops.slice(0, 3).join("·");
+  const title = `${sidoName} ${sigungu.name} 귀농 — 지원사업·작물·인프라`;
+  const description = `${sidoName} ${sigungu.name} 농촌 정착 정보. 대표 작물: ${mainCropsLabel}. 인구, 의료·교육 인프라, 농촌 정착 지원사업을 확인하세요. ${sigungu.description}`;
   return {
-    title: `${sidoName} ${sigungu.name} 귀농 — 지원사업·작물·인프라`,
-    description: `${sidoName} ${sigungu.name} 농촌 정착 정보. 대표 작물: ${mainCropsLabel}. 인구, 의료·교육 인프라, 농촌 정착 지원사업을 확인하세요. ${sigungu.description}`,
+    // 공유 카드까지 같은 값에서 — 종전엔 사이트 기본 제목·설명을 물려받고 og:url 도 없었다(10/6 QA1 Q2-W3).
+    // 이미지는 상위 시·도 OG(종전에도 물려받던 그림)를 그대로 쓴다.
+    ...pageMetadata({
+      title,
+      description,
+      path: `/regions/${id}/${sigunguId}`,
+      image: {
+        url: `/regions/${id}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: `${sidoName} ${sigungu.name} 귀농 정보`,
+      },
+    }),
     keywords: [`${sigungu.name} 귀농`, `${sidoName} 귀농`, `${sigungu.name} 지원사업`, ...sigungu.mainCrops.slice(0, 3)],
-    alternates: { canonical: `/regions/${id}/${sigunguId}` },
   };
 }
 
@@ -169,24 +182,31 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
   const year = new Date().getFullYear();
 
-  // 지역 관련 지원사업 · 교육 · 행사 (시/도 + 전국, 마감 제외)
-  const regionPrograms = PROGRAMS.filter(
-    (p) =>
-      (p.region === province.name || p.region === "전국") &&
-      p.status !== "마감"
-  ).slice(0, 3);
+  // 지역 관련 지원사업 · 교육 · 행사 — DB ∪ 정적, 상태는 날짜에서 파생, 마감 제외,
+  // 이 시·군·구 → 시·도 → 전국 순 (10/6 QA1: 정적 status 로 지난 행사가 "접수중"이던 것 교정).
+  // 다른 시·군 전용 지원사업은 뺀다 — 판정은 검색 패널과 같은 localSigunguIdsOf (10/6 QA2 F1)
+  const listings = await loadRegionListings({
+    provinceName: province.name,
+    local: { id: sigungu.id, name: sigungu.name, shortName: sigungu.shortName },
+  });
+  const regionPrograms = listings.programs.slice(0, 3);
+  const regionEducation = listings.education.slice(0, 3);
+  const regionEvents = listings.events.slice(0, 3);
 
-  const regionEducation = EDUCATION_COURSES.filter(
-    (e) =>
-      (e.region === province.name || e.region === "전국") &&
-      e.status !== "마감"
-  ).slice(0, 3);
-
-  const regionEvents = EVENTS.filter(
-    (e) =>
-      (e.region === province.name || e.region === "전국") &&
-      e.status !== "마감"
-  ).slice(0, 3);
+  // 섹션 탭은 실제로 그려지는 섹션만 (10/6 QA1 Q3-🟡7 — 없는 섹션을 가리키는 탭은 눌러도 반응이 없었다),
+  // 순서는 화면(DOM) 순서 (10/6 QA2 R2-Q3 F3 — 지원센터·필지·임지 탭이 섹션 순서와 달라 활성 탭이 튀었다)
+  const tabSections = [
+    ...(sigunguSettlementScore !== null && dimScores
+      ? [{ id: "settlement-score", label: "정착 점수" }]
+      : []),
+    { id: "sigungu-crops", label: "대표 작물" },
+    ...(sigunguCenter ? [{ id: "sigungu-center", label: "지원센터" }] : []),
+    { id: "sigungu-programs", label: "지원사업" },
+    { id: "sigungu-land", label: "필지·임지" },
+    { id: "sigungu-education", label: "정착 교육" },
+    { id: "sigungu-events", label: "체험·행사" },
+    { id: "community-notes", label: "현장 이야기", track: "sigungu_tab" },
+  ];
 
   return (
     <div className={s.page}>
@@ -348,18 +368,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
       </div>
 
       {/* 섹션 탐색 탭 — 작물·시도 상세와 같은 패턴 (2026-09-17) */}
-      <AnchorTabNav
-        sections={[
-          { id: "settlement-score", label: "정착 점수" },
-          { id: "sigungu-crops", label: "대표 작물" },
-          { id: "sigungu-programs", label: "지원사업" },
-          { id: "sigungu-education", label: "정착 교육" },
-          { id: "sigungu-events", label: "체험·행사" },
-          { id: "sigungu-land", label: "필지·임지" },
-          { id: "sigungu-center", label: "지원센터" },
-          { id: "community-notes", label: "현장 이야기", track: "sigungu_tab" },
-        ]}
-      />
+      <AnchorTabNav sections={tabSections} />
 
       {/* ── 본문 2컬럼 (2026-09-17, 작물 상세와 동일 패턴) ── */}
       <div className={s.mainGrid}>
@@ -574,7 +583,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               </p>
             )}
             <Link
-              href={`/programs?region=${encodeURIComponent(province.name)}`}
+              href={listRegionHref("/programs", province.name)}
               className={s.viewMore}
             >
               전체 지원사업 보기 →
@@ -608,21 +617,23 @@ export default async function SigunguDetailPage({ params }: PageProps) {
             </div>
             {regionEducation.length > 0 ? (
               <div className={s.programList}>
-                {regionEducation.map((edu) => (
-                  <Link key={edu.id} href={`/education/${edu.id}`} className={s.eduCard}>
-                    <div className={s.eduCardMain}>
-                      <span className={s.programTitle}>{edu.title}</span>
-                      <span className={s.programMeta}>
-                        {edu.organization} · {edu.schedule}
-                      </span>
-                    </div>
-                    <div className={s.eduCardBadges}>
-                      <span className={s.eduTypeBadge}>{edu.type}</span>
-                      <span className={s.eduLevelBadge}>{edu.level}</span>
-                      <StatusBadge status={edu.status} />
-                    </div>
-                  </Link>
-                ))}
+                {regionEducation.map((edu) => {
+                  // 수집 행의 기본값(오프라인·초급)·채움값(상세 공고 참조)은 그리지 않는다 (10/6 QA2 W-b)
+                  const card = educationCardFields(edu);
+                  return (
+                    <Link key={edu.id} href={`/education/${edu.id}`} className={s.eduCard}>
+                      <div className={s.eduCardMain}>
+                        <span className={s.programTitle}>{edu.title}</span>
+                        {card.meta && <span className={s.programMeta}>{card.meta}</span>}
+                      </div>
+                      <div className={s.eduCardBadges}>
+                        {card.type && <span className={s.eduTypeBadge}>{card.type}</span>}
+                        {card.level && <span className={s.eduLevelBadge}>{card.level}</span>}
+                        <StatusBadge status={edu.status} />
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             ) : (
               <p className={s.infoEmpty}>
@@ -630,7 +641,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               </p>
             )}
             <Link
-              href={`/education?region=${encodeURIComponent(province.name)}`}
+              href={listRegionHref("/education", province.name)}
               className={s.viewMore}
             >
               전체 교육 보기 →
@@ -676,7 +687,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               </p>
             )}
             <Link
-              href={`/events?region=${encodeURIComponent(province.name)}`}
+              href={listRegionHref("/events", province.name)}
               className={s.viewMore}
             >
               전체 행사 보기 →

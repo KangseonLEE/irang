@@ -28,6 +28,11 @@ interface EligibilityCheckProps {
   sourceUrl: string;
   linkStatus?: "active" | "broken" | "unverified";
   items?: EligibilityItem[];
+  /**
+   * 연령 자동 항목을 빼는가 — 수집 행의 18~65 는 원문이 아니라 수집기 기본값이다 (10/6 QA Q1-F2).
+   * 본문이 "만 45세 미만 청년"인 공고에 "만 18~65세"를 체크하게 하면 결과가 사실과 달라진다.
+   */
+  hideAge?: boolean;
 }
 
 /**
@@ -49,11 +54,12 @@ export function EligibilityCheck({
   sourceUrl,
   linkStatus,
   items: externalItems,
+  hideAge = false,
 }: EligibilityCheckProps) {
   const items = externalItems ?? parseEligibilityItems(eligibilityDetail);
 
   const allItems: EligibilityItem[] = [
-    { label: formatAgeRange(ageMin, ageMax), detail: "연령 조건" },
+    ...(hideAge ? [] : [{ label: formatAgeRange(ageMin, ageMax), detail: "연령 조건" }]),
     ...items,
   ];
 
@@ -99,6 +105,10 @@ export function EligibilityCheck({
   }, [checkedCount, total]);
 
   const summaryLine = allItems.map((i) => i.label).join(" · ");
+
+  /* 짚을 조건이 하나도 없으면 그리지 않는다 — 0개면 "0개 중 0개" → 결과가 "모두 충족해요"로 나온다.
+     호출부(지원사업 상세)는 이 경우 탭째 빼지만, 컴포넌트도 스스로 막는다 (10/6 QA). */
+  if (total === 0) return null;
 
   const modal = (
         <Modal open={open} onClose={() => setOpen(false)} title="자격 셀프 체크">
@@ -266,7 +276,9 @@ export function EligibilityCheck({
     <div className={bare ? s.wrapBare : s.wrap}>
       {!bare && <h3 className={s.title}>자격 셀프 체크</h3>}
       <p className={s.lead}>
-        연령·거주·교육 조건을 하나씩 짚어 보고 바로 결과를 확인할 수 있어요.
+        {hideAge
+          ? "공고에 적힌 조건을 하나씩 짚어 보고 바로 결과를 확인할 수 있어요."
+          : "연령·거주·교육 조건을 하나씩 짚어 보고 바로 결과를 확인할 수 있어요."}
       </p>
       <button type="button" className={s.openBtn} onClick={openModal}>
         <Icon icon={ClipboardCheck} size="sm" />

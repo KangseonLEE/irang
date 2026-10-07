@@ -15,6 +15,8 @@ import {
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { Icon } from "@/components/ui/icon";
 import { interviews, hasFullStory } from "@/lib/data/landing";
+import { withJosa } from "@/lib/format";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import { CROPS } from "@/lib/data/crops";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import { getInterviewImageSrc } from "@/lib/interview-image";
@@ -36,6 +38,11 @@ function toIsoDate(sourceDate: string): string | undefined {
   if (!match) return undefined;
   const [, year, month, day = "01"] = match;
   return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
+/** 문장 안 작물 이름 — 괄호 설명("딸기 (스마트팜·설향)")을 떼어 조사가 이름에 붙게 한다 */
+function cropForSentence(crop: string): string {
+  return crop.replace(/\s*\([^)]*\)\s*$/, "");
 }
 
 function getInterviewById(id: string) {
@@ -71,16 +78,24 @@ export async function generateMetadata({
 
   const regionShort = person.region.split(" ")[0];
   return {
-    title: `${person.name}님의 정착 이야기 — ${regionShort} ${person.crop}`,
-    description: `${regionShort}에서 ${person.crop}을(를) 재배하는 ${person.name}님의 정착 경험담. ${person.story.slice(0, 120)}`,
+    ...pageMetadata({
+      title: `${person.name}님의 정착 이야기 — ${regionShort} ${person.crop}`,
+      description: `${regionShort}에서 ${withJosa(cropForSentence(person.crop), "을")} 재배하는 ${person.name}님의 정착 경험담. ${person.story.slice(0, 120)}`,
+      path: `/interviews/${id}`,
+    }),
     keywords: [`${regionShort} 귀농`, `${person.crop} 재배`, "정착 인터뷰"],
-    alternates: { canonical: `/interviews/${id}` },
   };
 }
 
+/**
+ * 인터뷰 id 는 정적 데이터 전집합 — 모르는 id 는 라우터 단계에서 진짜 404 (10/6 QA Q2-X7).
+ * 동적 fallback 이면 not-found 본문이 loading.tsx 스트리밍 뒤에 들어가 200 + noindex(소프트 404)가 됐다.
+ */
+export const dynamicParams = false;
+
 export function generateStaticParams() {
-  // 본문 동의 받은 분만 정적 페이지로 빌드. 미동의자는 dynamic 처리 + redirect.
-  return interviews.filter(hasFullStory).map((i) => ({ id: i.id }));
+  // 미동의자도 포함한다 — 그 페이지는 원문 기사로 넘기는 역할만 하지만, 빠지면 dynamicParams=false 에서 404 가 된다
+  return interviews.map((i) => ({ id: i.id }));
 }
 
 interface InterviewDetailPageProps {
@@ -94,7 +109,9 @@ export default async function InterviewDetailPage({
   const person = getInterviewById(id);
   if (!person) return notFound();
 
-  // 본문 미동의자는 원문 기사로 308 redirect (이름·본문 비공개, 출처 직결)
+  // 본문 미동의자는 원문 기사로 보낸다 (이름·본문 비공개, 출처 직결).
+  // HTTP 리다이렉트가 아니라 클라이언트 리다이렉트다 — loading.tsx 스트리밍이 먼저 시작돼 상태 코드는 200 이고,
+  // Next 가 <meta http-equiv="refresh"> 를 넣어 넘긴다(robots noindex). 307/308 이 필요하면 middleware 에서 끊어야 한다.
   if (!hasFullStory(person)) {
     redirect(person.sourceUrl);
   }
@@ -105,7 +122,7 @@ export default async function InterviewDetailPage({
 
   const datePublished = toIsoDate(person.sourceDate);
   const regionShort = person.region.split(" ")[0];
-  const articleDescription = `${regionShort}에서 ${person.crop}을(를) 재배하는 ${person.name}님의 정착 경험담. ${person.story.slice(0, 140)}`;
+  const articleDescription = `${regionShort}에서 ${withJosa(cropForSentence(person.crop), "을")} 재배하는 ${person.name}님의 정착 경험담. ${person.story.slice(0, 140)}`;
 
   return (
     <div className={s.page}>

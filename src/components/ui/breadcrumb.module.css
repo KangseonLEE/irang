@@ -35,11 +35,30 @@
   text-decoration: none;
 }
 
+/* 누르는 영역 — 글자(13px, 높이 약 20px)만큼이라 22×20 이었다(10/6 QA 터치 표적).
+   안쪽 여백을 늘린 만큼 바깥 여백을 빼 줄 높이·글자 자리는 그대로, 누르는 영역만 세로 44px·좌우 +6px.
+   좌우 6px 는 구분 꺾쇠(14px)·간격(4+4) 안이라 이웃 링크와 겹치지 않는다 */
 .link {
+  position: relative;
+  padding: 12px 6px;
+  margin: -12px -6px;
   border-radius: 4px;
 }
 
+/* 포커스 링은 예전처럼 글자 상자에 — 넓힌 투명 영역 전체를 감싸지 않게 */
 .link:focus-visible {
+  outline: none;
+}
+
+.link::before {
+  content: "";
+  position: absolute;
+  inset: 12px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.link:focus-visible::before {
   outline: 2px solid var(--primary, #1b6b5a);
   outline-offset: 2px;
 }

@@ -16,6 +16,7 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import type { DimensionEvidenceMap } from "@/lib/data/dimension-scores";
 import type { SidoDimensionEvidenceMap } from "@/lib/data/sido-evidence";
+import { withJosa } from "@/lib/format";
 import s from "./settlement-score-breakdown.module.css";
 
 interface DimensionBreakdownInput {
@@ -115,14 +116,14 @@ export function SettlementScoreBreakdown(props: Props) {
   const overallInterpretation =
     score >= 67
       ? props.mode === "sigungu"
-        ? `${props.regionName}은 정착 환경이 안정적인 편이에요`
+        ? `${withJosa(props.regionName, "은")} 정착 환경이 안정적인 편이에요`
         : `${props.regionName} 산하는 평균적으로 안정적인 편이에요`
       : score >= 34
         ? props.mode === "sigungu"
-          ? `${props.regionName}은 차원별로 강·약이 갈려요`
+          ? `${withJosa(props.regionName, "은")} 차원별로 강·약이 갈려요`
           : `${props.regionName} 산하는 시군구별 편차가 커요`
         : props.mode === "sigungu"
-          ? `${props.regionName}은 정착 인프라가 부족한 편이에요`
+          ? `${withJosa(props.regionName, "은")} 정착 인프라가 부족한 편이에요`
           : `${props.regionName} 산하는 정착 인프라가 약한 편이에요`;
 
   return (
@@ -170,7 +171,7 @@ export function SettlementScoreBreakdown(props: Props) {
               {missingLabels.length > 0 && (
                 <>
                   {" "}
-                  {missingLabels.join("·")}는 데이터가 없어 빠졌어요.
+                  {withJosa(missingLabels.join("·"), "는")} 데이터가 없어 빠졌어요.
                 </>
               )}
             </>

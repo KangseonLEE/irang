@@ -6,12 +6,13 @@ import { Sparkles, ArrowRight } from "lucide-react";
 import { migrateFarmTypeId, FARM_TYPES, type FarmTypeId } from "@/lib/data/match-questions";
 import s from "./page.module.css";
 
-interface AssessHistoryItem {
-  resultId: string;
-  farmTypeId: FarmTypeId;
-  farmTypeLabel: string;
-  topRegions: string[];
-  savedAt: string;
+/**
+ * "이전 진단 결과" 저장 항목에서 이 배너가 쓰는 부분 — 저장 모양은 src/lib/diagnosis/history.ts.
+ * 10/6 부터 빠른 점검 결과(farmTypeId 없음)도 같은 목록에 들어온다 — 정착 유형이 있는 가장 최근 결과를 쓴다.
+ */
+interface HistoryFarmType {
+  farmTypeId?: unknown;
+  farmTypeLabel?: unknown;
 }
 
 const TYPE_STEP_EMPHASIS: Record<FarmTypeId, { steps: number[]; tip: string }> = {
@@ -44,15 +45,21 @@ export function GuidePersonalize() {
     try {
       const raw = localStorage.getItem("irang_assess_history");
       if (!raw) return;
-      const arr: AssessHistoryItem[] = JSON.parse(raw);
-      if (!Array.isArray(arr) || arr.length === 0) return;
-      const latest = arr[0];
+      const arr: unknown = JSON.parse(raw);
+      if (!Array.isArray(arr)) return;
+      const latest = (arr as HistoryFarmType[]).find(
+        (item): item is { farmTypeId: string; farmTypeLabel?: unknown } =>
+          typeof item === "object" && item !== null && typeof item.farmTypeId === "string",
+      );
+      if (!latest) return;
       const migratedId = migrateFarmTypeId(latest.farmTypeId);
       const emphasis = TYPE_STEP_EMPHASIS[migratedId];
       if (!emphasis) return;
       const farmType = FARM_TYPES.find(t => t.id === migratedId);
+      const label =
+        farmType?.label ?? (typeof latest.farmTypeLabel === "string" ? latest.farmTypeLabel : "");
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setData({ label: farmType?.label ?? latest.farmTypeLabel, tip: emphasis.tip, steps: emphasis.steps });
+      setData({ label, tip: emphasis.tip, steps: emphasis.steps });
     } catch { /* ignore */ }
   }, []);
 
@@ -91,7 +98,8 @@ export function GuidePersonalize() {
           <span className={s.personalizeTip}>{data.tip}</span>
         </div>
       </div>
-      <Link href="/assess" className={s.personalizeLink}>
+      {/* /assess 는 이리로 넘기기만 하는 페이지 — 한 홉 줄인다 (10/6 QA Q2-X5) */}
+      <Link href="/match?mode=assess" className={s.personalizeLink}>
         다시 진단 <ArrowRight size={14} />
       </Link>
     </div>

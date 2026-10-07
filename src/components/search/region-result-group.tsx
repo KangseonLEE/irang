@@ -8,7 +8,7 @@ import { analytics } from "@/lib/analytics";
 import type { SearchItem } from "@/lib/data/search-index";
 import { highlightMatch } from "@/lib/highlight-match";
 
-import { lookupRegionFromHref } from "./region-lookup";
+import { lookupRegionItem } from "./region-lookup";
 import { ResultCard } from "./result-card";
 import { SectionPager } from "@/components/ui/section-pager";
 import s from "./region-result-group.module.css";
@@ -226,7 +226,7 @@ function buildUnits(items: RankedItem[], compact = false): {
     const key = `${item.type}-${item.id}`;
     const info = item.id.startsWith("sub-region-hint-")
       ? ({ kind: "unknown" } as const)
-      : lookupRegionFromHref(item.href);
+      : lookupRegionItem(item);
 
     if (info.kind === "station" && info.data) {
       pushRow({

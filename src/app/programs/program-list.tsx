@@ -15,7 +15,7 @@ import { PersonaScoreExplain } from "@/components/persona/persona-score-explain"
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
 import { CrawlGroupNote } from "@/components/ui/crawl-group-note";
-import { displayAmount } from "@/lib/programs/display";
+import { displayAmount, displaySupportType } from "@/lib/programs/display";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
 import type { ViewMode } from "@/components/ui/view-toggle";
@@ -169,7 +169,8 @@ export function ProgramList({
                     )}
                   </td>
                   <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.region}</td>
-                  <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.supportType}</td>
+                  {/* 수집 행의 지원 유형은 수집기 기본값 "보조금"뿐이다 — 카드 배지와 같은 규칙 (10/6 QA) */}
+                  <td className={`${dt.muted} ${dt.hideOnMobile}`}>{displaySupportType(p.id, p.supportType) ?? "—"}</td>
                   {/* 수집 행의 "상세 공고 참조" 같은 채움값은 금액 칸에 쓰지 않는다 — 카드와 같은 규칙 (10/4 QA) */}
                   <td className={dt.amount}>{displayAmount(p.id, p.supportAmount) ?? "—"}</td>
                   <td className={`${dt.muted} ${dt.hideOnMobile}`}>{p.organization}</td>
@@ -218,7 +219,7 @@ export function ProgramList({
             return (
               <div
                 key={program.id}
-                className={s.cardAnim}
+                className={`${s.programCell} ${s.cardAnim}`}
                 style={{ animationDelay: animDelay }}
               >
                 <ProgramCard program={program} today={today} />

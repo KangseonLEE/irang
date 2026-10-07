@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import { Building2, Clock, ExternalLink } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
@@ -9,11 +9,15 @@ import { CentersSearch } from "./centers-search";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농귀촌지원센터 전국 안내",
-  description:
-    "광역 9개 시·도와 전국 시·군 귀농귀촌지원센터 연락처, 운영시간을 한곳에서 확인하세요. 귀농 상담 예약에 참고하세요.",
+  // 문서 제목·설명·canonical·공유 카드를 같은 값에서 — 종전엔 공유 카드가 사이트 기본 제목·설명을
+  // 물려받고 og:url 도 없었다 (10/6 QA1 Q2-W3)
+  ...pageMetadata({
+    title: "귀농귀촌지원센터 전국 안내",
+    description:
+      "광역 9개 시·도와 전국 시·군 귀농귀촌지원센터 연락처, 운영시간을 한곳에서 확인하세요. 귀농 상담 예약에 참고하세요.",
+    path: "/regions/centers",
+  }),
   keywords: ["귀농지원센터", "귀농상담", "귀농귀촌지원센터", "귀농 문의"],
-  alternates: { canonical: "/regions/centers" },
 };
 
 export default function CentersHubPage() {
@@ -56,12 +60,11 @@ export default function CentersHubPage() {
         </div>
       </div>
 
-      <Suspense>
-        <CentersSearch
-          sidoCenters={sidoCenters}
-          sigunguGroups={sigunguGroups}
-        />
-      </Suspense>
+      {/* useSearchParams 를 쓰지 않아 Suspense 경계가 필요 없다 — 목록이 SSR HTML 에 그대로 실린다 (10/6 QA1) */}
+      <CentersSearch
+        sidoCenters={sidoCenters}
+        sigunguGroups={sigunguGroups}
+      />
 
       <aside className={s.notice}>
         <h2 className={s.noticeTitle}>준비 중인 지역</h2>

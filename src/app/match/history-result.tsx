@@ -20,7 +20,9 @@ import type { FarmTypeId } from "@/lib/data/match-questions";
 import { PROVINCES } from "@/lib/data/regions";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
-import { deriveStatus } from "@/lib/program-status";
+import { deriveStatus, programStatusLabel } from "@/lib/program-status";
+import { displaySupportType } from "@/lib/programs/display";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { PersonalizedRoadmap } from "@/components/match/personalized-roadmap";
@@ -162,15 +164,8 @@ export function HistoryResult({
                 <div className={s.programCardBody}>
                   <div className={s.programCardTitleRow}>
                     <h3 className={s.programCardTitle}>{prog.title}</h3>
-                    <span
-                      className={
-                        prog.status === "마감"
-                          ? s.programStatusClosed
-                          : s.programStatusOpen
-                      }
-                    >
-                      {prog.status}
-                    </span>
+                    {/* 공용 상태 배지 + 표기 SSOT — 연례 사업은 "정기 접수", 글자 대비 4.5:1 이상 (10/6 QA axe: 예전 초록 글자 2.9:1) */}
+                    <StatusBadge status={programStatusLabel(prog)} />
                   </div>
                   <p className={s.programCardDesc}>{prog.summary}</p>
                   {prog.status === "마감" && (
@@ -179,9 +174,10 @@ export function HistoryResult({
                     </p>
                   )}
                   <div className={s.programCardMeta}>
-                    <span className={s.programCardBadge}>
-                      {prog.supportType}
-                    </span>
+                    {/* 수집 행의 "보조금"은 수집기 기본값이라 감춘다 (lib/programs/display, 10/6 QA) */}
+                    {displaySupportType(prog.id, prog.supportType) && (
+                      <span className={s.programCardBadge}>{prog.supportType}</span>
+                    )}
                     <span className={s.programCardRegion}>{prog.region}</span>
                   </div>
                 </div>

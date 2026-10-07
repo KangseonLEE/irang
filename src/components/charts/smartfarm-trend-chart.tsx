@@ -214,10 +214,7 @@ export default function SmartfarmTrendChart({ data }: Props) {
         </span>
         {data.some((d) => d.provisional) && (
           <span className={s.legendItem}>
-            <span
-              className={s.legendDot}
-              style={{ background: "#fff", border: `2px solid ${COLOR_PRIMARY}`, borderRadius: "50%" }}
-            />
+            <span className={`${s.legendDot} ${s.legendDotHollow}`} />
             잠정치
           </span>
         )}

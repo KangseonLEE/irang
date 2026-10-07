@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import { ArrowLeft, Sparkles, ChevronDown, ChevronRight, Bell } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
@@ -11,10 +12,12 @@ import u from "./page.module.css";
 import { TAG_CLASS } from "./tag-class";
 
 export const metadata: Metadata = {
-  title: "업데이트 소식 — 이렇게 개선됐어요",
-  description:
-    "이랑이 최근에 무엇을 고치고 무엇을 더했는지 확인하세요. 새 기능과 개선 내역을 날짜순으로 정리했어요.",
-  alternates: { canonical: "/about/updates" },
+  ...pageMetadata({
+    title: "업데이트 소식 — 이렇게 개선됐어요",
+    description:
+      "이랑이 최근에 무엇을 고치고 무엇을 더했는지 확인하세요. 새 기능과 개선 내역을 날짜순으로 정리했어요.",
+    path: "/about/updates",
+  }),
 };
 
 /** 행 하단 태그 요약 — 같은 태그는 한 번만, UPDATES 순서 유지 */

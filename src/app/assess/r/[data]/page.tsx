@@ -14,6 +14,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BarChart3, RotateCcw } from "lucide-react";
 import { decodeAssessScore } from "@/lib/assess-share";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import { DIMENSIONS } from "@/lib/data/assessment";
 import { PersonaRecommendationSection } from "@/components/match/persona-recommendation-section";
 import s from "./share.module.css";
@@ -31,28 +32,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const result = decodeAssessScore(data);
 
   if (!result) {
-    return { title: "결과를 찾지 못했어요 | 이랑" };
+    // 레이아웃 템플릿이 " | 이랑" 을 붙인다 — 여기서 또 붙이면 "| 이랑 | 이랑" (10/6 QA Q2-W2)
+    return { title: "결과를 찾지 못했어요" };
   }
 
   const { tier, totalScore } = result;
   const title = `${tier.emoji} 나의 정착 준비도: ${tier.title}`;
   const description = `총점 ${totalScore}/40점 — ${tier.summary}`;
+  // 공유 단축 주소 /a/{data} (next.config 리라이트) — 진단 결과 화면의 "결과 공유하기"가 이 주소를 복사한다 (10/6).
+  // canonical 이 없으면 레이아웃의 "/"(홈)를 물려받았다
+  const shortPath = `/a/${data}`;
 
   return {
-    title: `${title} | 이랑`,
+    title,
     description,
     robots: { index: false, follow: true },
-    openGraph: {
+    alternates: { canonical: shortPath },
+    // 공유 카드 이미지는 이 라우트의 opengraph-image(점수 카드) — 설정의 images 가 파일 기반 이미지를 덮으므로 경로를 직접 싣는다
+    // (shareMetadata 기본값이면 사이트 기본 카드가 나간다, 10/6 dev 실측)
+    ...shareMetadata({
       title,
       description,
-      type: "website",
-      siteName: "이랑 — 농촌 정착 정보 큐레이션",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
+      path: shortPath,
+      image: { url: `/assess/r/${data}/opengraph-image`, width: 1200, height: 630, alt: title },
+    }),
   };
 }
 
@@ -128,11 +131,12 @@ export default async function AssessSharePage({ params }: PageProps) {
       <section className={s.cta}>
         <h2 className={s.ctaTitle}>나도 진단 받아보기</h2>
         <p className={s.ctaDesc}>
-          10가지 질문으로 나의 정착 준비 상태를 점검하고,
+          14문항으로 나의 정착 준비 상태를 점검하고,
           부족한 영역별 보강 방법까지 알아보세요
         </p>
+        {/* /assess 는 넘기기만 하는 페이지라 utm 을 잃었다 — 진단 화면으로 바로 (10/6 QA Q2-X5) */}
         <Link
-          href="/assess?utm_source=share&utm_medium=assess_result"
+          href="/match?mode=assess&utm_source=share&utm_medium=assess_result"
           className={s.ctaBtn}
         >
           나도 진단하기

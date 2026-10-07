@@ -193,6 +193,11 @@
   }
 }
 
+.historyItem:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+}
+
 .historyEmoji {
   font-size: 1.5rem;
   flex-shrink: 0;
@@ -260,6 +265,7 @@
 }
 
 /* ── 선택 카드 ── */
+/* 10/6: 버튼 → 링크(<a>, mode-card-link.tsx) — 제목 h2 를 담고, 자바스크립트 전에도 그 모드로 간다 */
 .card {
   display: flex;
   align-items: flex-start;
@@ -271,6 +277,7 @@
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
   text-align: left;
+  text-decoration: none;
   font-family: inherit;
   color: inherit;
   -webkit-tap-highlight-color: transparent;
@@ -348,7 +355,8 @@
   font-weight: 700;
   line-height: var(--lh-snug);
   color: var(--primary-foreground);
-  background: #d4730d;
+  /* 흰 글자 대비 — #d4730d 는 3.35:1 이라 미달, #b45309 는 5.0:1 (10/6 QA) */
+  background: #b45309;
   border-radius: 4px;
   white-space: nowrap;
   flex-shrink: 0;
@@ -394,8 +402,9 @@
   color: var(--primary, #1b6b5a);
 }
 
+/* 글자 색 — 흰 바탕 대비 #d4730d 3.35:1 → #b45309 5.0:1 (10/6 QA). 아이콘·테두리 같은 그래픽은 #d4730d 유지(3:1 기준) */
 .cardIconAssess ~ .cardBody .cardMetaItem {
-  color: #d4730d;
+  color: #b45309;
 }
 
 /* ── 화살표 ── */

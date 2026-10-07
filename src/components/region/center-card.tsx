@@ -1,6 +1,22 @@
+import { Fragment } from "react";
 import { ExternalLink, Phone, MapPin } from "lucide-react";
 import { centerFallbackNotice, type Center } from "@/lib/data/centers";
+import { centerNameSegments } from "./center-name";
 import s from "./center-card.module.css";
+
+/** 붙여 쓴 기관명에 줄바꿈 지점(<wbr>)을 넣는다 — 2단 카드에서 넘치거나 한 글자만 남던 것 (10/6 QA2) */
+function CenterName({ name }: { name: string }) {
+  return (
+    <>
+      {centerNameSegments(name).map((segment, i) => (
+        <Fragment key={i}>
+          {i > 0 && <wbr />}
+          {segment}
+        </Fragment>
+      ))}
+    </>
+  );
+}
 
 interface CenterCardProps {
   center: Center;
@@ -25,7 +41,9 @@ export function CenterCard({
     return (
       <article className={s.compactCard}>
         <div className={s.compactMain}>
-          <h3 className={s.compactName}>{center.name}</h3>
+          <h3 className={s.compactName}>
+            <CenterName name={center.name} />
+          </h3>
           {fallbackNotice && (
             <span className={s.fallbackNotice}>{fallbackNotice}</span>
           )}
@@ -65,7 +83,9 @@ export function CenterCard({
   return (
     <article className={s.card}>
       {showSidoLabel && <span className={s.sidoLabel}>{center.sido}</span>}
-      <h3 className={s.name}>{center.name}</h3>
+      <h3 className={s.name}>
+        <CenterName name={center.name} />
+      </h3>
 
       {fallbackNotice && <p className={s.fallbackNotice}>{fallbackNotice}</p>}
 

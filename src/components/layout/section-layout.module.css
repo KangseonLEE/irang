@@ -9,3 +9,9 @@
     --sticky-extra: 0px;
   }
 }
+
+/* 모바일 섹션 탭 높이를 html 에 알린다 (10/6 QA) — 키보드 포커스 노출 가드(use-focus-reveal)가 역방향 Tab 으로 위로 밀 때
+   헤더와 함께 다시 내려올 띠 높이로 쓴다(그 순간 숨어 있어 화면에서 잴 수 없다) */
+:global(html):has(.underSectionNav) {
+  --kbd-pad-extra: var(--h-section-nav, 44px);
+}

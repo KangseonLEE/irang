@@ -250,33 +250,35 @@
   .arrowMobile { display: none; }
 }
 
+/* 점 버튼 상자 24×24(보이는 점 8px + 투명 테두리 8px) — 10/6 QA: 7×7 이라 터치 표적 기준(24px) 미달.
+   예전 ::before inset -18px 확장은 6px 간격 이웃 점과 겹쳐 옆 점을 가로챘다 → 상자 자체를 키우고 간격 0.
+   공용 SnapDots(ui/snap-dots)와 같은 방식 — 색은 background-color 로(단축 속성은 clip 을 되돌려 테두리까지 칠한다) */
 .dots {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0;
 }
 
 .dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--border, #d1d5db);
+  background-color: var(--border, #d1d5db);
   transition: background-color 0.2s, transform 0.2s;
-  border: none;
+  border: 8px solid transparent;
+  background-clip: padding-box;
   padding: 0;
   cursor: pointer;
   box-sizing: content-box;
-  position: relative;
 }
 
-.dot::before {
-  content: "";
-  position: absolute;
-  inset: -18px;
+.dot:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -4px;
 }
 
 .dotActive {
-  background: var(--primary, #1B6B5A);
+  background-color: var(--primary, #1B6B5A);
   transform: scale(1.3);
 }
 

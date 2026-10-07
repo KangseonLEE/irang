@@ -81,19 +81,38 @@ fetch_status() {
   fi
 }
 
-# ── 지역 차단 호스트 (2026-08-30) ──
-# GitHub Actions 러너(미국)에서는 4xx/5xx가 나지만 한국에서는 200인 것이 **같은 날 실측으로 확인된** 호스트만.
-# 이 목록의 호스트는 실패(FAIL)가 아니라 GEO 경고로 집계한다 — 8/30 #118 오탐(goryeong 404·fbo 502, KR 200).
-# 추가 규칙: 한국에서 curl 200 + 본문 키워드 확인 후에만 등록. 추측 등록 금지.
-# 10/1: cs.go.kr(SP-052 404)·geochang.go.kr(SP-053 403) — KR 200 + 본문(과수생산지원사업·사과원 아카데미) 실측
-# 10/3: gc.go.kr(김천시청 404, #158) — KR 200 + title 김천시청 + main.do 본문 '김천시' 82회 실측
-GEO_WARN_HOSTS="goryeong.go.kr fbo.or.kr goesan.go.kr cs.go.kr geochang.go.kr gc.go.kr"
+# ── 지역 차단 URL (2026-08-30 호스트 단위 → 2026-10-06 정확한 URL 단위) ──
+# GitHub Actions 러너(미국)에서는 4xx/5xx가 나지만 한국에서는 200인 것이 **한국 실측으로 확인된 정확한 URL** 만
+# 실패(FAIL)가 아니라 GEO 경고로 집계한다.
+# 10/6 URL 단위로 좁힌 이유: 호스트 단위(cs.go.kr)일 때 청송군 농업기술센터 /atec/index.do 가 한국에서도
+#   378B 웹방화벽 차단 페이지(경로 소멸)였는데, SP-052 때문에 등록한 같은 호스트라 매일 "GEO 경고"로 묻혔다
+#   (run 37410465252). 이제 같은 호스트라도 목록에 없는 URL(새로 넣거나 바뀐 주소)은 한국 실측 전까지 실패로 본다.
+# 등록 규칙: 한국 회선 curl GET 200 + 정상 제목 + 본문 키워드 확인 후 **정확한 URL** 을 그대로 추가. 추측 등록 금지.
+#   데이터의 URL 을 바꾸면 옛 줄은 지우고 새 URL 을 다시 확인해 넣는다. 한 줄 = "URL 메모"(첫 칸만 비교).
+# 이력: 8/30 #118 goryeong 404·fbo 502 / 10/1 cs.go.kr SP-052 404·geochang SP-053 403 / 10/3 gc.go.kr 김천시청 404(#158)
+#   — 모두 한국 200. 아래 13건은 10/6 한국 전수 점검(QA 링크 점검 + data-engineer 재확인)에서 200·제목·본문 확인.
+GEO_WARN_URLS="
+https://www.fbo.or.kr/ SP-018 농지은행 통합포털
+https://www.fbo.or.kr/contents/Contents.do?menuId=0500100030 SP-050
+https://www.fbo.or.kr/contents/Contents.do?menuId=0500100040 SP-051
+https://www.goryeong.go.kr/kor/boardView.do?BRD_ID=1023&BOARD_IDX=41828&IDX=154 SP-038
+https://www.goryeong.go.kr/ 센터 고령군청
+https://www.goesan.go.kr/rfarm/selectBbsNttView.do?key=1662&bbsNo=326&nttNo=134164 SP-044
+https://www.goesan.go.kr/rfarm/selectBbsNttView.do?key=1662&bbsNo=326&nttNo=134163 SP-045
+https://goesan.go.kr/www/index.do 센터 괴산군청
+https://www.cs.go.kr/specialty/00003170/00004055.web SP-052
+https://www.cs.go.kr/agri.web 센터 청송군 농업기술센터(10/6 교체)
+https://www.geochang.go.kr/00445/00450.web?gcode=1002&idx=14088774&amode=view SP-053
+https://www.geochang.go.kr/ 센터 거창군청
+https://www.gc.go.kr/ 센터 김천시청
+"
 
-is_geo_host() {
-  local d="$1"
-  for h in $GEO_WARN_HOSTS; do
-    [ "$d" = "$h" ] && return 0
-  done
+is_geo_url() {
+  local u="$1" line
+  while IFS= read -r line; do
+    line="${line%%[[:space:]]*}"
+    [ -n "$line" ] && [ "$u" = "$line" ] && return 0
+  done <<< "$GEO_WARN_URLS"
   return 1
 }
 
@@ -108,10 +127,8 @@ probe_code() {
   fi
   code=$(fetch_status "$url")
 
-  # 지역 차단 호스트가 4xx/5xx면 재시도해도 같은 결과 — 최대 ~2분 낭비를 막는다 (8/30, 15분 job timeout 원인 일부)
-  local domain_early
-  domain_early=$(echo "$url" | sed 's|https\{0,1\}://\([^/]*\).*|\1|' | sed 's/^www\.//')
-  if [ "$code" != "000" ] && is_geo_host "$domain_early" && [ "$code" -ge 400 ] 2>/dev/null; then
+  # 지역 차단 URL 이 4xx/5xx면 재시도해도 같은 결과 — 최대 ~2분 낭비를 막는다 (8/30, 15분 job timeout 원인 일부)
+  if [ "$code" != "000" ] && is_geo_url "$url" && [ "$code" -ge 400 ] 2>/dev/null; then
     echo "$code"
     return 0
   fi
@@ -162,8 +179,8 @@ classify_result() {
     TIMEOUT=$((TIMEOUT + 1))
     TIMEOUT_RESULTS="${TIMEOUT_RESULTS}\n  ⏱ TIMEOUT: ${source}/${id} — ${url}"
     TIMEOUT_BODY="${TIMEOUT_BODY}| \`${source}/${id}\` | TIMEOUT | ${url} |\n"
-  elif is_geo_host "$domain"; then
-    # 지역 차단 호스트의 4xx/5xx — 경고 집계(타임아웃과 같은 취급). 한국에서 재확인 필요 표시.
+  elif is_geo_url "$url"; then
+    # 한국 실측 등록 URL 의 4xx/5xx — 경고 집계(타임아웃과 같은 취급). 한국에서 재확인 필요 표시.
     echo -e "  ${YELLOW}⚠${NC} ${code} GEO | ${source}/${id} | ${domain} (러너 지역 차단 가능 — 한국에서 재확인)"
     TIMEOUT=$((TIMEOUT + 1))
     TIMEOUT_RESULTS="${TIMEOUT_RESULTS}\n  ⚠ ${code} GEO: ${source}/${id} — ${url}"
@@ -277,12 +294,12 @@ done < <(perl -0777 -ne '
 
 
 # ── 병렬 조회 ──
-export -f fetch_status is_geo_host probe_code
+export -f fetch_status is_geo_url probe_code
 # 시간 예산 (기본 30분, CHECK_LINKS_BUDGET_SEC 로 조정) — 10/3 밤 순차 실행이 37분(타임아웃 38건)이었다.
 # 한국 기관 사이트는 미국 러너에서 시간대에 따라 응답이 크게 느려진다(오전 14건 / 밤 38건). job 한도(40분)에
 # 잘리면 결과가 0이 되므로, 예산을 넘긴 URL 은 조회하지 않고 "미검사"로 남긴 채 그때까지의 결과로 끝낸다.
 CHECK_LINKS_DEADLINE=$(( $(date +%s) + ${CHECK_LINKS_BUDGET_SEC:-1800} ))
-export UA GEO_WARN_HOSTS CODES_FILE CHECK_LINKS_DEADLINE
+export UA GEO_WARN_URLS CODES_FILE CHECK_LINKS_DEADLINE
 PROBE_CONCURRENCY=${CHECK_LINKS_CONCURRENCY:-1}
 # 행 번호를 키로 — 병렬 결과는 끝나는 순서대로 쌓이므로 집계는 원래 순서로 다시 맞춘다.
 # 인자는 "행번호 URL" 한 덩어리(URL 에 공백은 없다). NUL 구분(-0): xargs 기본 모드는 따옴표·백슬래시를

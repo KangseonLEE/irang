@@ -57,10 +57,12 @@
   position: relative;
 }
 
+/* 터치 영역은 위아래로만 넓힌다(34 + 5×2 = 44px) — 폭은 이미 44px 을 넘는다.
+   예전엔 좌우로도 4px 넓혀 그 4px 이 링크의 scrollWidth 에 잡혀 "글자가 상자를 4px 넘친다"로 측정됐다(10/6 R2-Q3 F9) */
 .cta::after {
   content: "";
   position: absolute;
-  inset: -5px -4px;
+  inset: -5px 0;
 }
 
 @media (hover: hover) {

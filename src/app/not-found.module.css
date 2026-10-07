@@ -13,7 +13,8 @@
   font-size: 3.75rem;
   line-height: 1;
   font-weight: 700;
-  color: color-mix(in srgb, var(--primary, #1b6b5a) 20%, transparent);
+  /* 큰 글자(60px) 대비 3:1 이상 — 예전 20% 틴트는 1.35:1 이라 axe 경고 (10/6 2차 QA R2-Q3). 70% = 3.3:1, 여전히 제목보다 옅다 */
+  color: color-mix(in srgb, var(--primary, #1b6b5a) 70%, white);
 }
 
 .title {

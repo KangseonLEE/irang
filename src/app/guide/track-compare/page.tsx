@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import { GitCompareArrows, Info, ExternalLink } from "lucide-react";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
@@ -11,10 +12,12 @@ import {
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농·귀산촌 추진체계 비교 | 이랑",
-  description:
-    "귀농과 귀산촌의 나이, 교육이수, 사업기간, 지원금액, 상환조건을 한눈에 비교해보세요. 농림축산식품부·산림청 공식 기준이에요.",
-  alternates: { canonical: "/guide/track-compare" },
+  ...pageMetadata({
+    title: "귀농·귀산촌 추진체계 비교",
+    description:
+      "귀농과 귀산촌의 나이, 교육이수, 사업기간, 지원금액, 상환조건을 한눈에 비교해보세요. 농림축산식품부·산림청 공식 기준이에요.",
+    path: "/guide/track-compare",
+  }),
 };
 
 export const revalidate = 86400;

@@ -197,3 +197,14 @@
 @media (prefers-reduced-motion: reduce) {
   .stickyBar { transition: none !important; }
 }
+
+/* ── 하단 바가 떠 있는 동안(모바일) — 10/6 QA 375 ──
+   ① 키보드 포커스·scrollIntoView 가 바(높이 57) 밑으로 숨지 않게 html scroll-padding-bottom 에 바를 더한다
+      (원인 분석 제목이 바에 통째로 가린 사례). 탭바 56 + safe-area + 간격 8 + 바 57 + 여유 16
+   ② 피드백 버튼을 바 위로 — 바 오른쪽 탭(스마트팜)을 덮었다. 랜딩 트렌드·비용 하단 바와 같은 --sticky-selector-offset */
+@media (max-width: 767px) {
+  :global(html):has(.stickyVisible) {
+    scroll-padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px) + 8px + 57px + 16px);
+    --sticky-selector-offset: 48px;
+  }
+}

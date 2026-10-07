@@ -35,30 +35,49 @@ import { analytics } from "@/lib/analytics";
 import { saveAssessmentResult, generateResultId } from "@/lib/assess-result";
 import { ResultSaveCta } from "@/components/result/result-save-cta";
 import { PersonaRecommendationSection } from "@/components/match/persona-recommendation-section";
+import { assessSharePath, encodeAssessScore } from "@/lib/diagnosis/assess-share-code";
+import { useDiagnosisHistory } from "@/lib/diagnosis/use-diagnosis-history";
+import { useWizardBackGuard } from "@/lib/diagnosis/use-wizard-back-guard";
 import s from "./assessment-wizard.module.css";
 
 /* ── 화면 상태 ── */
 type Phase = "demographic" | "quiz" | "track" | "result";
 
-interface AssessmentWizardProps {
-  onBack?: () => void;
+/** 이전 결과 다시 보기 — 세 단계 답을 그대로 받아 결과 화면부터 연다 */
+interface AssessmentReview {
+  answers: Answers;
+  demo: DemographicAnswers;
+  track: MatchAnswers;
 }
 
-export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
-  const [phase, setPhase] = useState<Phase>("demographic");
-  const [demoStep, setDemoStep] = useState(0);
-  const [demoAnswers, setDemoAnswers] = useState<DemographicAnswers>({});
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Answers>({});
-  const [trackStep, setTrackStep] = useState(0);
-  const [trackAnswers, setTrackAnswers] = useState<MatchAnswers>({});
+interface AssessmentWizardProps {
+  onBack?: () => void;
+  /** 이전 결과 다시 보기 — 분석 이벤트·저장 없이 결과 화면만 (M7 완료 지표가 부풀지 않게) */
+  review?: AssessmentReview;
+  /** 다시 보기에서 "다시 진단하기" — 새 진단으로 (게이트웨이가 주소를 바꾼다) */
+  onRestart?: () => void;
+}
 
-  // 빠른 연타 클릭 방어 — setTimeout 전환 중 추가 클릭 차단
-  const transitionRef = useRef(false);
-
+export function AssessmentWizard({ onBack, review, onRestart }: AssessmentWizardProps) {
+  const isReview = review !== undefined;
   const totalDemoSteps = DEMOGRAPHIC_QUESTIONS.length;
   const totalSteps = QUESTIONS.length;
   const totalTrackSteps = TRACK_QUESTIONS.length;
+
+  const [phase, setPhase] = useState<Phase>(isReview ? "result" : "demographic");
+  const [demoStep, setDemoStep] = useState(isReview ? totalDemoSteps - 1 : 0);
+  const [demoAnswers, setDemoAnswers] = useState<DemographicAnswers>(review?.demo ?? {});
+  const [step, setStep] = useState(isReview ? totalSteps - 1 : 0);
+  const [answers, setAnswers] = useState<Answers>(review?.answers ?? {});
+  const [trackStep, setTrackStep] = useState(isReview ? totalTrackSteps - 1 : 0);
+  const [trackAnswers, setTrackAnswers] = useState<MatchAnswers>(review?.track ?? {});
+  const { addResult } = useDiagnosisHistory();
+
+  // 빠른 연타 클릭 방어 — setTimeout 전환 중 추가 클릭 차단
+  const transitionRef = useRef(false);
+  /** 마지막으로 저장한 결과의 답 — 같은 결과는 한 번만 저장·계측 ("다시 진단하기"는 새로 센다) */
+  const savedKeyRef = useRef<string | null>(null);
+
   const currentQuestion = QUESTIONS[step];
 
   // 진행률: 인구통계 + 진단 + 트랙 질문
@@ -120,13 +139,14 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
   const quizActive: boolean = phase === "quiz";
   const trackActive: boolean = phase === "track";
 
-  // 진입 시 분석 이벤트 전송
+  // 진입 시 분석 이벤트 전송 — 다시 보기는 새 진단이 아니다
   useEffect(() => {
-    analytics.assessStart();
-  }, []);
+    if (!isReview) analytics.assessStart();
+  }, [isReview]);
 
   // 스텝 변경 시 step_view 이벤트 전송
   useEffect(() => {
+    if (isReview) return;
     if (phase === "demographic") {
       const q = DEMOGRAPHIC_QUESTIONS[demoStep];
       if (q) analytics.assessStepView(demoStep + 1, q.id);
@@ -134,7 +154,7 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
       const q = QUESTIONS[step];
       if (q) analytics.assessStepView(totalDemoSteps + step + 1, q.id);
     }
-  }, [phase, demoStep, step, totalDemoSteps]);
+  }, [phase, demoStep, step, totalDemoSteps, isReview]);
 
   /* ── 인구통계 선택 핸들러 ── */
   const handleDemoSelect = useCallback(
@@ -200,7 +220,15 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
   );
 
   const handleBack = useCallback(() => {
-    if (phase === "demographic") {
+    if (isReview) {
+      onBack?.(); // 다시 보기의 뒤로 = 목록으로
+      return;
+    }
+    if (phase === "result") {
+      // 결과에서 뒤로(브라우저 뒤로가기) — 마지막 트랙 문항으로, 답은 그대로
+      setPhase("track");
+      setTrackStep(totalTrackSteps - 1);
+    } else if (phase === "demographic") {
       if (demoStep > 0) {
         setDemoStep((s) => s - 1);
       } else if (onBack) {
@@ -223,10 +251,15 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
         setStep(totalSteps - 1);
       }
     }
-  }, [phase, step, demoStep, trackStep, totalDemoSteps, totalSteps, onBack]);
+  }, [phase, step, demoStep, trackStep, totalDemoSteps, totalSteps, totalTrackSteps, onBack, isReview]);
 
   const handleReset = useCallback(() => {
+    if (isReview) {
+      onRestart?.();
+      return;
+    }
     transitionRef.current = false;
+    savedKeyRef.current = null;
     setPhase("demographic");
     setDemoStep(0);
     setDemoAnswers({});
@@ -235,7 +268,19 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
     setTrackStep(0);
     setTrackAnswers({});
     window.scrollTo(0, 0);
-  }, []);
+  }, [isReview, onRestart]);
+
+  // 브라우저 뒤로가기 = 한 문항 뒤로 — 세 단계(기본 정보·적합도·트랙)와 결과를 한 줄로 센 위치.
+  // 다시 보기는 게이트웨이 몫이라 끈다
+  const depth =
+    phase === "demographic"
+      ? demoStep
+      : phase === "quiz"
+        ? totalDemoSteps + step
+        : phase === "track"
+          ? totalDemoSteps + totalSteps + trackStep
+          : totalDemoSteps + totalSteps + totalTrackSteps;
+  useWizardBackGuard(isReview ? 0 : depth, handleBack);
 
   // 결과 계산 (결과 화면일 때만)
   const result = useMemo<AssessmentResult | null>(
@@ -243,30 +288,40 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
     [phase, answers]
   );
 
-  // 결과 화면 진입 시 완료 이벤트 전송
-  useEffect(() => {
-    if (result) {
-      analytics.assessComplete(result.tier.id, result.totalScore);
-    }
-  }, [result]);
-
   // 추천 국가지원 트랙 계산
   const farmType = useMemo(
     () => (phase === "result" ? classifyFarmType(trackAnswers, demoAnswers.ageGroup) : null),
     [phase, trackAnswers, demoAnswers.ageGroup],
   );
 
-  // ── Supabase 적재 (Sprint H D2 Fix-1, 2026-05-19) ──
+  // ── Supabase 적재 (Sprint H D2 Fix-1, 2026-05-19) + 이전 결과 목록 저장 (2026-10-06) ──
   // 14문항 정밀 wizard가 25일째 0건 black hole이었던 root cause = 이 호출 누락.
   // match-wizard.tsx 패턴(source='full') 동일 적용. fire-and-forget — 실패해도 결과 화면 유지.
   // 라이브 silent fail 방지: catch에서 console.warn으로 표면화 (5/14 supabase silent fail 박제 가드)
-  const savedRef = useRef(false);
+  // 같은 답으로 결과를 다시 보면(뒤로 갔다 돌아옴) 한 번만 저장한다. 답을 바꾸거나 "다시 진단하기"로 새로 마치면
+  // 새 결과로 저장한다 — 예전 savedRef(인스턴스당 한 번)는 다시 진단한 결과를 버렸다.
   useEffect(() => {
-    if (!result || !farmType || savedRef.current) return;
-    savedRef.current = true;
+    if (!result || !farmType || isReview) return;
+    const key = JSON.stringify([answers, demoAnswers, trackAnswers]);
+    if (savedKeyRef.current === key) return;
+    savedKeyRef.current = key;
+
+    // 완료 이벤트도 결과 한 건에 한 번 — 브라우저 뒤로가기로 결과를 다시 봐도 M7 완료 수가 늘지 않게
+    analytics.assessComplete(result.tier.id, result.totalScore);
+
+    const id = generateResultId();
+    addResult({
+      kind: "assess",
+      resultId: id,
+      answers,
+      demo: demoAnswers,
+      track: trackAnswers,
+      farmTypeId: farmType.id,
+      farmTypeLabel: farmType.label,
+    });
 
     saveAssessmentResult({
-      id: generateResultId(),
+      id,
       answers: {
         ...answers,
         // 14문항 정밀 wizard 컨텍스트 — answers JSON에 보존
@@ -293,11 +348,13 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
       .catch((err) => {
         console.warn("[assess] save exception:", err);
       });
-  }, [result, farmType, answers, trackAnswers, demoAnswers.ageGroup]);
+  }, [result, farmType, answers, trackAnswers, demoAnswers, isReview, addResult]);
 
   /* ═══ 결과 화면 ═══ */
   if (phase === "result" && result) {
     const { totalScore, tier, dimensions } = result;
+    // 공유 링크용 결과 코드 — /assess/r/[data] 가 같은 값으로 결과를 다시 그린다
+    const shareCode = encodeAssessScore(tier.id, totalScore, dimensions, demoAnswers.ageGroup);
 
     // 인구통계 기반 맞춤 지원 힌트
     const demoHints = getDemographicHints(demoAnswers);
@@ -310,6 +367,14 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
 
     return (
       <div className={s.resultPage}>
+        {/* 이전 결과 다시 보기 — 목록으로 돌아가는 길 (결과 화면엔 원래 뒤로 버튼이 없다) */}
+        {isReview && (
+          <button onClick={handleBack} className={s.navBtnBack} type="button">
+            <ArrowLeft size={16} aria-hidden="true" />
+            이전 진단 목록
+          </button>
+        )}
+
         {/* 히어로 */}
         <div className={s.resultHero}>
           <span className={s.resultEmoji}>{tier.emoji}</span>
@@ -326,10 +391,14 @@ export function AssessmentWizard({ onBack }: AssessmentWizardProps) {
           <p className={s.resultSummary}>{tier.summary}</p>
         </div>
 
-        {/* 출력/공유 아이콘 */}
+        {/* 출력/공유 아이콘 — 공유는 이 결과 화면(/a/…) 주소. 예전엔 진단 첫 화면(/assess)을 복사했다 (4/18~, 10/6 QA Q4-W11) */}
         <ResultSaveCta
           printTitle={`이랑 - 농촌 정착 적합도 진단 결과 (${tier.title})`}
-          shareText={`나의 정착 준비 단계는 "${tier.title}" ${tier.emoji}\n${typeof window !== "undefined" ? `${window.location.origin}/assess` : ""}`}
+          shareText={
+            shareCode
+              ? `나의 정착 준비 단계는 "${tier.title}" ${tier.emoji}\n${typeof window !== "undefined" ? window.location.origin : ""}${assessSharePath(shareCode)}`
+              : undefined
+          }
         />
 
         {/* 상세 분석 */}

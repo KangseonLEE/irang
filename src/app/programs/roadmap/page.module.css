@@ -128,13 +128,19 @@
   position: relative;
 }
 
+/* 바깥으로 빼는 폭은 화면 왼쪽 여백(.page 패딩 32px 거터를 남긴 만큼)까지만 (10/6 QA).
+   고정 164px 는 본문 왼쪽 여백이 196px 이상인 1608px+ 화면에서만 맞았다 — 1280·1366·1440 에선 사이드바가
+   x = −132 / −89 / −52 로 화면 밖에 있었고 Tab 포커스가 보이지 않는 목차로 갔다.
+   본문 왼쪽 = (100vw − 1280px)/2 + 32px → 당길 폭 = (100vw − 1280px)/2, 최대 164px — 목차 왼쪽이 32px(제목과 같은 거터)
+   아래로 내려가지 않는다. 좁은 화면에선 본문 열이 그만큼 좁아진다(1280: 1052px, 1440: 1132px, 1608+: 1216px 종전 그대로). */
 @media (min-width: 1280px) {
 .contentLayout {
+    --roadmap-sidebar-pull: min(164px, calc((100vw - 1280px) / 2));
     display: grid;
     grid-template-columns: 140px 1fr;
     gap: 24px;
-    width: calc(100% + 164px);
-    margin-left: -164px;
+    width: calc(100% + var(--roadmap-sidebar-pull));
+    margin-left: calc(-1 * var(--roadmap-sidebar-pull));
     align-items: start;
   }
 }

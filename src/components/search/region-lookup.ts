@@ -41,6 +41,27 @@ const _lookupCache = new Map<string, RegionLookup>();
 /** 시·도 판정의 파생값(대표 작물·시·군·구 수)은 시·도 단위로 한 번만 집계한다 */
 const _provinceLookupCache = new Map<string, RegionLookup>();
 
+/** 기상 관측소 지점번호 → 관측소 (검색 인덱스의 관측소 항목 id 가 지점번호다) */
+const STATION_BY_ID = new Map(STATIONS.map((st) => [st.stnId, st]));
+
+/**
+ * 검색 결과 지역 항목의 종류 판정 — 렌더러는 이 함수를 쓴다.
+ *
+ * 관측소 항목의 id 는 지점번호(숫자)라 다른 지역 항목(`{sido}-{sigungu}`·`province-{sido}`·`sub-region-hint-*`)과
+ * 겹치지 않으므로 id 로 먼저 가른다. 링크는 `/regions/compare?stations={stnId}`(지역 비교 딥링크, 10/6 2차) —
+ * 1차의 `/regions/{sido}` 는 시·도 카드와 href 가 같아 "제주" 바로 찾은 결과 3장이 모두 /regions/jeju 로 갔다.
+ */
+export function lookupRegionItem(item: { id: string; href: string }): RegionLookup {
+  const station = STATION_BY_ID.get(item.id);
+  if (station) {
+    return {
+      kind: "station",
+      data: { provinceName: station.province, description: station.description },
+    };
+  }
+  return lookupRegionFromHref(item.href);
+}
+
 /**
  * SearchItem 의 href 로 지역 종류를 판정한다.
  *
@@ -51,9 +72,12 @@ const _provinceLookupCache = new Map<string, RegionLookup>();
  *   /regions/{sido}                    → 시·도
  *   /regions/{sido}/{sigungu}          → 시·군·구
  *   /regions/{sido}/{sigungu}/{gu}     → 구
- *   /regions?stations={stnId}          → 기상 관측소
+ *   /regions/compare?stations={stnId}  → 기상 관측소 (지역 비교 딥링크 — 검색 인덱스가 만드는 모양)
+ *   /regions?stations={stnId}          → 기상 관측소 (예전 링크 모양 — normalize 308 로 잘려 더 이상 만들지 않는다)
+ *
+ * 렌더러는 id 로 먼저 가르는 `lookupRegionItem` 을 쓴다.
  */
-export function lookupRegionFromHref(href: string): RegionLookup {
+function lookupRegionFromHref(href: string): RegionLookup {
   const cached = _lookupCache.get(href);
   if (cached) return cached;
   const result = computeRegionLookup(href);
@@ -64,7 +88,7 @@ export function lookupRegionFromHref(href: string): RegionLookup {
 function computeRegionLookup(href: string): RegionLookup {
   const [path, queryString] = href.split("?");
 
-  if (path === "/regions" && queryString) {
+  if ((path === "/regions" || path === "/regions/compare") && queryString) {
     const stnId = new URLSearchParams(queryString).get("stations");
     const station = stnId ? STATIONS.find((st) => st.stnId === stnId) : undefined;
     if (station) {

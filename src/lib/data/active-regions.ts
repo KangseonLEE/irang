@@ -153,7 +153,9 @@ const RAW: ActiveCategory[] = [
     label: "청년농",
     desc: "39세 이하 영농 정착 지원 활발",
     sourceLabel: "농식품부 청년농업인 영농정착지원 (2024)",
-    sourceUrl: "https://www.greendaero.go.kr/yng/main.do",
+    // 2026-10-06: 옛 그린대로 /yng/main.do 는 200 + "페이지가 존재하지 않습니다"(소프트 404).
+    // 그린대로 메인 헤더 "탄탄대로" → 청년농 통합 플랫폼(200, title "청년농 통합 플랫폼 탄탄대로")
+    sourceUrl: "https://youngfarmer.greendaero.go.kr/",
     basisYear: "2024년",
     regions: [
       buildEntry("gimje", "선정 1위권", "쌀평야, 청년 영농정착 거점"),
@@ -213,7 +215,9 @@ const RAW: ActiveCategory[] = [
     label: "사회적 농업",
     desc: "취약계층·공동체와 함께 농사",
     sourceLabel: "농식품부 사회적농업 활성화 지원 (2024)",
-    sourceUrl: "https://www.greendaero.go.kr/social/main.do",
+    // 2026-10-06: 옛 그린대로 /social/main.do 는 소프트 404, 그린대로 메뉴에 사회적농업 항목 없음.
+    // 사회적농업 온라인포털(200, title "사회적농업 온라인포털") — therapy.ts 공식 링크와 동일 주소
+    sourceUrl: "https://www.socialfarm.kr/web/index.do",
     basisYear: "2024년",
     regions: [
       buildEntry("hongseong", "장곡 사회적 농업", "전국 1세대 사례"),

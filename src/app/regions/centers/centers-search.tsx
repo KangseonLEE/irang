@@ -5,10 +5,10 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ChangeEvent,
   type KeyboardEvent,
 } from "react";
-import { useSearchParams } from "next/navigation";
 import {
   ChevronDown,
   ChevronLeft,
@@ -40,6 +40,24 @@ interface SidoGroup {
 interface CentersSearchProps {
   sidoCenters: Center[];
   sigunguGroups: SidoGroup[];
+}
+
+/**
+ * URL `?q=` (검색 결과의 "센터 찾기" 딥링크) — 서버 렌더·하이드레이션 때는 빈 값(전체 목록)이고
+ * 그 뒤 브라우저 주소에서 읽는다. `useSearchParams` 를 쓰면 이 컴포넌트 전체가 클라이언트 렌더로 빠져
+ * (Suspense bailout) 센터 목록이 SSR HTML 에 하나도 없었다 (10/6 QA1).
+ * 클라이언트 이동으로 들어오면 Next 가 커밋 중에 주소를 바꾸고, useSyncExternalStore 가 커밋 뒤
+ * 스냅샷 변화를 확인해 다시 그린다.
+ */
+function subscribeUrl(onChange: () => void) {
+  window.addEventListener("popstate", onChange);
+  return () => window.removeEventListener("popstate", onChange);
+}
+function readUrlQuery() {
+  return new URLSearchParams(window.location.search).get("q") ?? "";
+}
+function readServerQuery() {
+  return "";
 }
 
 /** 검색 매칭: 대소문자 무시, 공백 trim, name/sido/sigungu/slug 전체 검사 */
@@ -133,7 +151,7 @@ function CentersTableModal({
             <th scope="col" className={s.thSigungu}>시·군</th>
             <th scope="col" className={s.thName}>센터/기관</th>
             <th scope="col" className={s.thLink}>
-              <span className="sr-only">홈페이지</span>
+              <span className={s.srOnly}>홈페이지</span>
             </th>
           </tr>
         </thead>
@@ -207,8 +225,11 @@ export function CentersSearch({
   sidoCenters,
   sigunguGroups,
 }: CentersSearchProps) {
-  const searchParams = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const urlQuery = useSyncExternalStore(subscribeUrl, readUrlQuery, readServerQuery);
+  /** 사용자가 직접 입력한 값 — null 이면 아직 입력 전이라 URL 값을 그대로 쓴다 */
+  const [typedQuery, setTypedQuery] = useState<string | null>(null);
+  const query = typedQuery ?? urlQuery;
+  const setQuery = setTypedQuery;
   const [region, setRegion] = useState<string>(REGION_ALL);
   /** 모달로 열린 광역 id. null이면 닫힘 — 사용자 명시 클릭으로만 변경. */
   const [openSidoId, setOpenSidoId] = useState<string | null>(null);
@@ -217,14 +238,13 @@ export function CentersSearch({
   // URL ?q= 파라미터로 진입 시 결과 영역으로 스크롤
   useEffect(() => {
     if (initialScrollDone.current) return;
-    const urlQuery = searchParams.get("q");
     if (!urlQuery) return;
     initialScrollDone.current = true;
     requestAnimationFrame(() => {
       const searchWrap = document.querySelector(`.${s.searchWrap}`);
       searchWrap?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-  }, [searchParams]);
+  }, [urlQuery]);
 
   const q = query.trim();
   const hasQuery = q.length > 0;

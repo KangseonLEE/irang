@@ -18,7 +18,7 @@
  * - "홍보 요청하기" — 당분간 무료 채널. 공용 RequestModal(정보 요청 폼)로 넘긴다.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ExternalLink, AlertTriangle, ChevronLeft, ChevronRight, Megaphone } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
@@ -66,6 +66,8 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
   const [open, setOpen] = useState(preview);
   const [idx, setIdx] = useState(0);
   const [requestOpen, setRequestOpen] = useState(false);
+  /** 팝업이 열리기 전 포커스 — 요청 모달을 닫은 뒤 돌아갈 자리(10/6 QA) */
+  const returnFocusRef = useRef<HTMLElement | null>(null);
   const item = items[idx] ?? null;
 
   useEffect(() => {
@@ -82,6 +84,8 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
     if (isAutomation() && !force) return;
     if (firstVisible < 0) return;
     const t = window.setTimeout(() => {
+      const active = document.activeElement;
+      returnFocusRef.current = active instanceof HTMLElement && active !== document.body ? active : null;
       setIdx(firstVisible);
       setOpen(true);
       trackEvent({ action: "promo_popup_view", category: "landing", label: items[firstVisible].id });
@@ -128,6 +132,27 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
     setOpen(false);
     setRequestOpen(true);
     track("promo_popup_click", `${item.id}:request`);
+  };
+
+  /**
+   * 요청 모달을 닫으면 공용 Modal 은 열기 직전 포커스로 돌려보내는데, 그건 이미 닫혀 사라진 팝업 안 "홍보 요청하기"라
+   * 포커스가 BODY 로 떨어졌다(10/6 QA — 다음 Tab 이 문서 끝 포털 자리에서 이어진다). 팝업이 열리기 전 포커스가 있었으면 그리로,
+   * 없으면(팝업은 저절로 뜬다) 본문 첫 제목으로 옮긴다 — 맨 위로 버튼과 같은 방식(tabindex -1, 스크롤 없이).
+   * Modal 이 닫히며 포커스를 되돌리는 정리(effect cleanup)가 끝난 다음 프레임에 옮긴다.
+   */
+  const closeRequest = () => {
+    setRequestOpen(false);
+    requestAnimationFrame(() => {
+      const back = returnFocusRef.current;
+      if (back && back.isConnected) {
+        back.focus({ preventScroll: true });
+        return;
+      }
+      const heading = document.querySelector<HTMLElement>("main h1");
+      if (!heading) return;
+      if (!heading.hasAttribute("tabindex")) heading.setAttribute("tabindex", "-1");
+      heading.focus({ preventScroll: true });
+    });
   };
 
   return (
@@ -224,7 +249,7 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
     </Modal>
     <RequestModal
       open={requestOpen}
-      onClose={() => setRequestOpen(false)}
+      onClose={closeRequest}
       keyword="홍보 요청"
       category="홍보"
       pageName="landing_promo_popup"

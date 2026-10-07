@@ -133,7 +133,9 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Escape") {
+      // Esc·Tab 으로 닫기 — Tab 으로 검색창을 벗어났는데 목록이 열린 채 남으면 다음 포커스를 덮는다
+      // (10/6 QA1, 비교 셀렉터와 같은 규칙). Tab 기본 동작(포커스 이동)은 그대로 둔다.
+      if (e.key === "Escape" || e.key === "Tab") {
         setIsFocused(false);
         return;
       }
@@ -205,8 +207,19 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
     ],
   );
 
+  /** 포커스가 검색 영역 밖으로 나가면 닫기 — 마우스 바깥 클릭은 mousedown 핸들러가 맡는다.
+   *  relatedTarget 이 없으면(Safari 버튼 클릭은 포커스를 옮기지 않는다) 여기서 닫지 않는다:
+   *  닫으면 항목 버튼이 click 전에 사라져 이동이 먹히지 않는다. */
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    const next = e.relatedTarget as Node | null;
+    if (next && !e.currentTarget.contains(next)) setIsFocused(false);
+  }, []);
+
   return (
-    <div className={className ? `${s.searchWrap} ${className}` : s.searchWrap}>
+    <div
+      className={className ? `${s.searchWrap} ${className}` : s.searchWrap}
+      onBlur={handleBlur}
+    >
       <Search size={18} className={s.searchIcon} aria-hidden="true" />
       <input
         ref={inputRef}
@@ -225,6 +238,20 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
         aria-autocomplete="list"
         aria-expanded={showDropdown}
         aria-controls="region-search-listbox"
+        // 키보드 하이라이트를 보조기기에 알린다 — 트리(빈 입력)는 지금 패널의 항목, 검색은 결과 항목 (10/6 QA2 F6)
+        aria-activedescendant={
+          !showDropdown
+            ? undefined
+            : isTree
+              ? pane === "sido"
+                ? `region-search-sido-${sidoIdx}`
+                : subItems[sigunguIdx]
+                  ? `region-search-sub-${sigunguIdx}`
+                  : undefined
+              : filteredResults[highlightIdx]
+                ? `region-search-opt-${highlightIdx}`
+                : undefined
+        }
       />
       {isPending ? (
         <Loader2 size={16} className={s.spinner} aria-hidden="true" />
@@ -267,6 +294,7 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
                       key={p.id}
                       type="button"
                       role="option"
+                      id={`region-search-sido-${idx}`}
                       aria-selected={sidoIdx === idx}
                       className={
                         sidoIdx === idx ? s.treeItemActive : s.treeItem
@@ -297,6 +325,7 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
                       key={item.href}
                       type="button"
                       role="option"
+                      id={`region-search-sub-${idx}`}
                       aria-selected={pane === "sigungu" && sigunguIdx === idx}
                       className={[
                         pane === "sigungu" && sigunguIdx === idx
@@ -325,6 +354,7 @@ export function RegionSearch({ onNavigate, placeholder, className}: RegionSearch
                   key={item.href}
                   type="button"
                   role="option"
+                  id={`region-search-opt-${idx}`}
                   aria-selected={highlightIdx === idx}
                   className={
                     highlightIdx === idx ? s.dropdownItemActive : s.dropdownItem

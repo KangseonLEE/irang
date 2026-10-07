@@ -31,6 +31,8 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
   const [highlightIdx, setHighlightIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  /** ↑↓로 하이라이트를 직접 옮겼는가 — 옮겼으면 Enter 는 이름 완전 일치보다 그 항목을 고른다 */
+  const navigatedRef = useRef(false);
 
   const selectedCrop = useMemo(
     () => (selectedId ? crops.find((c) => c.id === selectedId) ?? null : null),
@@ -108,21 +110,31 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // Tab 으로 검색창을 벗어나면 목록을 닫는다 — 열린 채로 남으면 다음 포커스를 덮는다 (10/6 QA1 Q3-🟡8)
+      if (e.key === "Tab") {
+        setIsFocused(false);
+        return;
+      }
       if (!isFocused || flatOrder.length === 0) return;
       if (e.key === "ArrowDown") {
         e.preventDefault();
+        navigatedRef.current = true;
         setHighlightIdx((idx) => Math.min(idx + 1, flatOrder.length - 1));
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
+        navigatedRef.current = true;
         setHighlightIdx((idx) => Math.max(idx - 1, 0));
       } else if (e.key === "Enter") {
         // 한글 조합 중 Enter(조합 확정)는 무시 — 부분 문자열로 엉뚱한 작물이 확정되던 사고(9/7 배추→고구마)
         if (isComposingEvent(e)) return;
         e.preventDefault();
-        const target = pickOnEnter(
-          ranked.filter((r) => flatOrder.some((c) => c.id === r.item.id)),
-          flatOrder[highlightIdx],
-        );
+        const highlighted = flatOrder[highlightIdx];
+        const target = navigatedRef.current
+          ? highlighted
+          : pickOnEnter(
+              ranked.filter((r) => flatOrder.some((c) => c.id === r.item.id)),
+              highlighted,
+            );
         if (target) handleSelect(target.id);
       } else if (e.key === "Escape") {
         setIsFocused(false);
@@ -132,6 +144,13 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
     [isFocused, flatOrder, highlightIdx, handleSelect, ranked],
   );
 
+  /** 포커스가 검색 영역 밖으로 나가면 닫기 — 마우스 바깥 클릭은 mousedown 핸들러가 맡는다.
+   *  relatedTarget 이 없으면(Safari 버튼 클릭은 포커스를 옮기지 않는다) 여기서 닫지 않는다. */
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    const next = e.relatedTarget as Node | null;
+    if (next && !e.currentTarget.contains(next)) setIsFocused(false);
+  }, []);
+
   const showDropdown = isFocused;
 
   useActiveOptionScroll(dropdownRef, highlightIdx, showDropdown);
@@ -139,7 +158,7 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
   return (
     <div className={s.wrap}>
       {/* 검색 input — 선택된 작물 정보는 아래 cropSummary 카드에 노출 */}
-      <div className={s.searchWrap}>
+      <div className={s.searchWrap} onBlur={handleBlur}>
         <Sprout size={18} className={s.searchIcon} aria-hidden="true" />
         <input
           ref={inputRef}
@@ -148,6 +167,7 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
           onChange={(e) => {
             setQuery(e.target.value);
             setHighlightIdx(0);
+            navigatedRef.current = false;
           }}
           onFocus={() => setIsFocused(true)}
           onKeyDown={handleKeyDown}
@@ -162,12 +182,20 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
           aria-autocomplete="list"
           aria-expanded={showDropdown}
           aria-controls="crop-suitability-listbox"
+          // 키보드 하이라이트를 보조기기에 알린다 (10/6 QA2 F6)
+          aria-activedescendant={
+            showDropdown && flatOrder[highlightIdx]
+              ? `crop-suitability-opt-${flatOrder[highlightIdx].id}`
+              : undefined
+          }
         />
         {query && (
           <button
             type="button"
             onClick={() => {
               setQuery("");
+              setHighlightIdx(0);
+              navigatedRef.current = false;
               inputRef.current?.focus();
             }}
             className={s.searchClearBtn}
@@ -208,6 +236,7 @@ export function CropSuitabilitySelector({ crops, selectedId }: Props) {
                           key={c.id}
                           type="button"
                           role="option"
+                          id={`crop-suitability-opt-${c.id}`}
                           aria-selected={isHighlighted}
                           className={
                             isSelected

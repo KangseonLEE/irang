@@ -8,8 +8,14 @@ import s from "./term-tooltip.module.css";
 /* ==========================================================================
    TermTooltip
    모든 기기: Portal 기반 동적 배치 (뷰포트 경계 자동 보정)
-   데스크탑: hover 트리거
-   모바일:   click/tap 트리거
+   마우스:   hover 로 미리보기, 클릭하면 고정(마우스가 떠나도 유지) — 고정된 것을 다시 클릭하면 닫힘
+   터치·펜:  탭으로 열기 / 다시 탭·바깥 탭으로 닫기 (hover 열기 없음)
+   키보드:   Enter·Space 열기·닫기, Esc 닫기
+
+   10/6 QA(Q4-W8): 예전엔 hover 와 click 이 같은 토글을 공유했다.
+   - 데스크탑: hover 로 열린 뒤 클릭하면 토글이라 닫혔다.
+   - 터치: 탭이 만드는 호환 mouseenter 가 먼저 열고 이어진 click 이 토글로 닫아, 첫 탭은 반응이 없고 두 번째 탭에 열렸다.
+   → hover 열기는 pointerType "mouse" 에서만, click 은 "고정해서 열기"(이미 고정된 상태에서만 닫기).
    ========================================================================== */
 
 interface TermTooltipProps {
@@ -30,6 +36,8 @@ const VIEWPORT_PAD = 12;
 
 export function TermTooltip({ term, description, glossarySlug }: TermTooltipProps) {
   const [open, setOpen] = useState(false);
+  /** 클릭·탭·키보드로 연 상태 — hover 로 연 미리보기와 달리 마우스가 떠나도 닫히지 않는다 */
+  const [pinned, setPinned] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [pos, setPos] = useState<PopoverPos | null>(null);
   const termRef = useRef<HTMLSpanElement>(null);
@@ -39,6 +47,12 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
+  }, []);
+
+  /** 닫기는 고정도 함께 푼다 — 다음 hover 미리보기가 고정으로 남지 않게 */
+  const close = useCallback(() => {
+    setOpen(false);
+    setPinned(false);
   }, []);
 
   // ── 위치 계산 (뷰포트 경계 자동 보정) ──
@@ -86,15 +100,14 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
 
     requestAnimationFrame(calcPosition);
 
-    const handleClose = () => setOpen(false);
-    window.addEventListener("scroll", handleClose, { passive: true });
-    window.addEventListener("resize", handleClose);
+    window.addEventListener("scroll", close, { passive: true });
+    window.addEventListener("resize", close);
 
     return () => {
-      window.removeEventListener("scroll", handleClose);
-      window.removeEventListener("resize", handleClose);
+      window.removeEventListener("scroll", close);
+      window.removeEventListener("resize", close);
     };
-  }, [open, calcPosition]);
+  }, [open, calcPosition, close]);
 
   // ── 외부 클릭/터치 시 닫기 ──
   useEffect(() => {
@@ -106,7 +119,7 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
         termRef.current && !termRef.current.contains(target) &&
         popoverRef.current && !popoverRef.current.contains(target)
       ) {
-        setOpen(false);
+        close();
       }
     };
 
@@ -117,44 +130,60 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
       document.removeEventListener("touchstart", handleOutside);
       document.removeEventListener("mousedown", handleOutside);
     };
-  }, [open]);
+  }, [open, close]);
 
-  // ── 호버 핸들러 (데스크탑) ──
-  const handleMouseEnter = useCallback(() => {
+  // ── 호버 핸들러 (마우스만) — 터치 탭이 만드는 호환 mouse 이벤트·펜은 무시 ──
+  const handlePointerEnter = useCallback((e: React.PointerEvent) => {
+    if (e.pointerType !== "mouse") return;
     clearTimeout(hoverTimeout.current);
     setOpen(true);
   }, []);
 
-  const handleMouseLeave = useCallback(() => {
-    // 짧은 딜레이: 용어 → 팝오버로 마우스 이동 시 깜빡임 방지
-    hoverTimeout.current = setTimeout(() => setOpen(false), 120);
-  }, []);
+  const handlePointerLeave = useCallback(
+    (e: React.PointerEvent) => {
+      if (e.pointerType !== "mouse" || pinned) return;
+      // 짧은 딜레이: 용어 → 팝오버로 마우스 이동 시 깜빡임 방지
+      hoverTimeout.current = setTimeout(close, 120);
+    },
+    [pinned, close],
+  );
 
-  // ── 클릭 핸들러 (모바일 + 키보드) ──
+  /** 클릭·탭·Enter — 열기(고정). 이미 고정돼 열려 있을 때만 닫는다(hover 로 열린 미리보기를 누르면 고정) */
+  const togglePinned = () => {
+    clearTimeout(hoverTimeout.current);
+    if (open && pinned) {
+      close();
+      return;
+    }
+    setPinned(true);
+    setOpen(true);
+  };
+
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setOpen((prev) => !prev);
+    togglePinned();
   };
 
   return (
     <span
       className={s.wrapper}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
     >
       <span
         ref={termRef}
         className={s.term}
         role="button"
         tabIndex={0}
+        aria-expanded={open}
         onClick={handleClick}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            setOpen((prev) => !prev);
+            togglePinned();
           }
-          if (e.key === "Escape") setOpen(false);
+          if (e.key === "Escape") close();
         }}
       >
         {term}
@@ -175,8 +204,8 @@ export function TermTooltip({ term, description, glossarySlug }: TermTooltipProp
                 : { top: 0, left: -9999 }
             }
             onClick={(e) => e.stopPropagation()}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            onPointerEnter={handlePointerEnter}
+            onPointerLeave={handlePointerLeave}
           >
             <p className={s.popoverText}>{description}</p>
             {glossarySlug && (

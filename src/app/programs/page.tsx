@@ -24,8 +24,9 @@ import {
 } from "@/lib/data/programs";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import { kstToday } from "@/lib/program-status";
-import { orderProgramsForList } from "@/lib/programs/list-order";
+import { orderProgramsForList, scoringProgramPersona } from "@/lib/programs/list-order";
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ProgramList } from "./program-list";
@@ -47,11 +48,19 @@ const sectionNavItems = [
   { href: "/events", label: "체험·행사" },
 ];
 
+const DESCRIPTION =
+  "전국 귀농·귀촌 지원사업을 지역별로 검색하세요. 정착금 최대 3억, 주택 지원, 영농 자금 등 자격 조건과 신청 방법을 비교해요.";
+
 export const metadata: Metadata = {
   title: "귀농·귀촌 지원사업 — 정착금·주택·영농자금 검색",
-  description:
-    "전국 귀농·귀촌 지원사업을 지역별로 검색하세요. 정착금 최대 3억, 주택 지원, 영농 자금 등 자격 조건과 신청 방법을 비교해요.",
+  description: DESCRIPTION,
   alternates: { canonical: "/programs" },
+  // 공유 카드 — 없으면 레이아웃의 사이트 기본 제목·설명이 나갔다 (10/6 QA Q2-W3)
+  ...shareMetadata({
+    title: "귀농·귀촌 지원사업 — 정착금·주택·영농자금 검색 | 이랑",
+    description: DESCRIPTION,
+    path: "/programs",
+  }),
 };
 
 /* ── /programs는 searchParams 의존 → 자동 dynamic SSR ──
@@ -101,6 +110,10 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     params.persona && PERSONA_INDEX.has(params.persona as PersonaId)
       ? (params.persona as PersonaId)
       : undefined;
+  // 점수로 줄 세우는 페르소나만 '맞춤 정렬' — '기본 균등'(balanced)은 사업 사이에 차이를 매기지 않아 일반 정렬과 같다.
+  // 그런데 배너는 "맞춤 정렬 중 · 기본 균등 기준"을 띄우고 정렬 선택을 숨겼다 (10/6 QA R2-Q4 ⚪4) → 일반 목록처럼 보인다.
+  // URL 의 persona=balanced 는 그대로 둔다(currentFilters) — 필터를 바꿔도 진단 결과가 링크에 남는다.
+  const scoringPersona = scoringProgramPersona(currentPersona);
 
   // 정렬 키 — default 'deadline'. 5/22 회장 결재 옵션 A.
   const currentSort: ProgramSortKey =
@@ -144,7 +157,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   // 페르소나 필터링: 점수 4+ 사업만 + 점수 내림차순 정렬 (페르소나 모드 시 sort param 무시)
   // 일반 모드: 마감순·최신순 (deadline | recent)
   // 첫 화면과 "더 불러오기"(actions.ts)가 같은 순서 함수를 써야 offset 이 맞는다(10/3)
-  const allFiltered = orderProgramsForList(rawFiltered, { persona: currentPersona, sort: currentSort });
+  const allFiltered = orderProgramsForList(rawFiltered, { persona: scoringPersona, sort: currentSort });
 
   const total = allFiltered.length;
   const programs = allFiltered.slice(0, PAGE_SIZE);
@@ -207,7 +220,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
       {/* 로드맵 단계 컨텍스트 */}
       <Suspense>
         <RoadmapBanner />
-        <PersonaCta persona={currentPersona} from="programs_list" />
+        <PersonaCta persona={scoringPersona} from="programs_list" />
       </Suspense>
 
       {/* 정부사업 진입 가이드 배너 */}
@@ -291,8 +304,8 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
       />
 
       <ListToolbar count={total}>
-        {/* 페르소나 모드에선 점수순이 본질이라 sort selector 숨김. 일반 모드에서만 노출. */}
-        {!currentPersona && (
+        {/* 페르소나 모드에선 점수순이 본질이라 sort selector 숨김. 일반 모드(균등 포함)에서만 노출. */}
+        {!scoringPersona && (
           <ProgramSortControl
             currentSort={currentSort}
             currentFilters={currentFilters}
@@ -311,7 +324,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         filters={filters}
         viewMode={viewMode}
         allPrograms={viewMode === "table" ? allFiltered : undefined}
-        currentPersona={currentPersona}
+        currentPersona={scoringPersona}
         asOf={kstToday()}
       />
 

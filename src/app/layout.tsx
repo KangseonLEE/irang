@@ -5,6 +5,7 @@ import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { Header } from "@/components/layout/header";
 import { KeyboardFocusGuard } from "@/components/layout/keyboard-focus-guard";
+import { FocusRevealGuard } from "@/components/layout/focus-reveal-guard";
 import { OutboundClickTracker } from "@/components/analytics/outbound-click-tracker";
 import { AssessEntryTracker } from "@/components/analytics/assess-entry-tracker";
 import { PublicChrome } from "@/components/layout/public-chrome";
@@ -181,6 +182,7 @@ export default function RootLayout({
         <ScrollToTop />
         <HashHighlight />
         <KeyboardFocusGuard />
+        <FocusRevealGuard />
         <OutboundClickTracker />
         <AssessEntryTracker />
         <GoogleAnalytics />

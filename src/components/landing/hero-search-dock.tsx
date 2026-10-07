@@ -56,7 +56,8 @@ export function HeroSearchDock() {
     if (!hero) return;
     const root = document.documentElement;
     const headerEl = document.querySelector("header");
-    const footerEl = document.querySelector("footer");
+    // 사이트 푸터만 — 섹션 안 <footer> 가 앞에 있으면 그걸 잡는다(10/6 /stats 대시보드에서 같은 함정 확인)
+    const footerEl = document.querySelector("body > footer");
     let raf = 0;
 
     const update = () => {

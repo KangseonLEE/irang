@@ -26,6 +26,7 @@ import { CropSuitabilitySelector } from "./crop-suitability-selector";
 import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import type { RegionItem } from "./region-item";
+import { withJosa } from "@/lib/format";
 import s from "./suitability-view.module.css";
 import metric from "./climate-view.module.css";
 
@@ -419,22 +420,22 @@ function generateVerdict(
   isFacility: boolean,
 ): string {
   if (isMajorRegion && tempFit === "good") {
-    return `${stationName}은(는) ${cropName} 주산지로 재배 여건이 우수해요.`;
+    return `${withJosa(stationName, "은")} ${cropName} 주산지로 재배 여건이 우수해요.`;
   }
   if (isMajorRegion && tempFit === "marginal") {
-    return `${stationName}은(는) 주산지지만 기온이 다소 경계예요. 품종 선택에 주의가 필요해요.`;
+    return `${withJosa(stationName, "은")} 주산지지만 기온이 다소 경계예요. 품종 선택에 주의가 필요해요.`;
   }
   if (isMajorRegion && tempFit === "poor") {
-    return `${stationName}은(는) 주산지지만 기온 적합도가 낮아요. 시설재배를 고려해 보세요.`;
+    return `${withJosa(stationName, "은")} 주산지지만 기온 적합도가 낮아요. 시설재배를 고려해 보세요.`;
   }
   if (isFacility) {
-    return `${stationName}은(는) 주산지 외 지역이지만 시설재배로 충분히 가능해요.`;
+    return `${withJosa(stationName, "은")} 주산지 외 지역이지만 시설재배로 충분히 가능해요.`;
   }
   if (!isMajorRegion && tempFit === "good") {
-    return `${stationName}은(는) 주산지는 아니지만 기후 조건은 양호해요. 소규모 시도에 적합해요.`;
+    return `${withJosa(stationName, "은")} 주산지는 아니지만 기후 조건은 양호해요. 소규모 시도에 적합해요.`;
   }
   if (!isMajorRegion && tempFit === "marginal") {
-    return `${stationName}은(는) 주산지 외이며 기후도 경계 수준이에요. 신중한 검토가 필요해요.`;
+    return `${withJosa(stationName, "은")} 주산지 외이며 기후도 경계 수준이에요. 신중한 검토가 필요해요.`;
   }
-  return `${stationName}은(는) ${cropName} 재배에 적합하지 않은 조건이에요. 다른 작물을 고려해 보세요.`;
+  return `${withJosa(stationName, "은")} ${cropName} 재배에 적합하지 않은 조건이에요. 다른 작물을 고려해 보세요.`;
 }

@@ -1,12 +1,11 @@
 import { PROVINCES } from "@/lib/data/regions";
 import { getEventImage } from "@/lib/events/event-image";
 import { ALWAYS_OPEN, daysUntilDeadline, type ProgramStatus } from "@/lib/program-status";
-import { formatAgeRange } from "@/lib/format";
 import type { SupportProgram } from "@/lib/data/programs";
 import type { FarmEvent } from "@/lib/data/events";
 import type { EducationCourse } from "@/lib/data/education";
 import { durationLabel as spanLabel, isStayEvent, recruitLabel } from "@/components/events/event-fields";
-import { displayAmount } from "@/lib/programs/display";
+import { displayAgeRange, displayAmount, displaySupportType } from "@/lib/programs/display";
 import { DiscoverTabs, type DiscoverCard, type DiscoverTab } from "./discover-tabs";
 import s from "./discover-section.module.css";
 
@@ -90,12 +89,8 @@ function groupTitle(title: string): string {
  * `filterEducationAsync` 의 지역 그룹핑(crawl-grouping)은 "지역만 다른 공고"를 묶지만,
  * 같은 과정을 **시간대별**로 쪼갠 행(유형특화과정 10/1 10시·13시·15시 …)은 제목이 달라 살아남는다.
  * 랜딩은 8장이 전부라 그런 행이 들어오면 탭 하나가 같은 과정으로 채워진다.
+ * (히어로 수치는 이 묶음으로 세지 않는다 — 숫자를 누르면 나오는 목록의 건수와 같아야 해서다. 10/6 R2-Q4)
  */
-/** 같은 모사업을 한 건으로 센 개수 — 히어로 데이터 줄(10/1)이 원본 행 수(시간대별 분할 포함)를 과장하지 않게 */
-export function countDistinctByGroup(items: { title: string }[]): number {
-  return new Set(items.map((item) => groupTitle(item.title))).size;
-}
-
 function dedupeByGroup<T extends { title: string }>(items: T[]): T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -132,12 +127,17 @@ function toProgramCard(p: ActiveProgram, ongoing: boolean): DiscoverCard {
     status: upcoming ? "모집예정" : ongoing ? "상시 모집" : "모집중",
     statusTone: upcoming ? "soon" : "open",
     deadlineLabel,
-    chip: p.supportType,
+    // 수집 행의 지원 유형은 수집기 기본값 "보조금"이라(10/6 QA) 칩으로 올리지 않는다 — 연령과 같은 원칙(display.ts SSOT)
+    chip: displaySupportType(p.id, p.supportType) ?? undefined,
     region: regionText(p.region, p.sigungu),
     title: p.title,
     // 수집 행의 "상세 공고 참조" 같은 채움값은 강조 줄로 쓰지 않는다(10/3 재검증)
     line1: displayAmount(p.id, p.supportAmount) ?? undefined,
-    line2: [`신청 ${programPeriod(p.applicationStart, p.applicationEnd)}`, formatAgeRange(p.eligibilityAgeMin, p.eligibilityAgeMax)]
+    // 연령도 같은 결 — 수집 행의 연령은 원문이 아니라 수집기 기본값(만 18~65세)이라 카드에 올리면 사실처럼 읽힌다(10/6 QA F2)
+    line2: [
+      `신청 ${programPeriod(p.applicationStart, p.applicationEnd)}`,
+      displayAgeRange(p.id, p.eligibilityAgeMin, p.eligibilityAgeMax),
+    ]
       .filter(Boolean)
       .join(" · "),
     foot: p.organization,

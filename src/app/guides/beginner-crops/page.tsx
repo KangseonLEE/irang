@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -17,9 +18,12 @@ import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "초보 정착 추천 작물 — 난이도 낮은 작물 TOP 5 | 이랑",
-  description:
-    "처음 농촌으로 정착한다면 난이도 낮고 안정적인 작물부터 시작하세요. 초보자에게 추천하는 작물 5가지와 선택 기준을 정리했어요.",
+  ...pageMetadata({
+    title: "초보 정착 추천 작물 — 난이도 낮은 작물 TOP 5",
+    description:
+      "처음 농촌으로 정착한다면 난이도 낮고 안정적인 작물부터 시작하세요. 초보자에게 추천하는 작물 5가지와 선택 기준을 정리했어요.",
+    path: "/guides/beginner-crops",
+  }),
   keywords: [
     "초보 정착 추천 작물",
     "정착 초보 작물",
@@ -27,7 +31,6 @@ export const metadata: Metadata = {
     "정착 작물 추천",
     "초보 농사 작물",
   ],
-  alternates: { canonical: "/guides/beginner-crops" },
 };
 
 /* -- 데이터에서 난이도 '쉬움' 작물 추출 (최대 5개) -- */

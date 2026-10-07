@@ -1,11 +1,16 @@
 import s from "./loading.module.css";
 
+/**
+ * /match 로딩 스켈레톤 — 제목은 h1 이 아니다 (2026-10-06).
+ * 페이지가 동적 렌더가 되면서 이 스켈레톤이 스트리밍 첫 조각으로 HTML 에 함께 실린다 — 여기 h1 이 있으면
+ * 실제 화면의 h1 과 겹쳐 한 문서에 h1 이 둘이 된다.
+ */
 export default function MatchLoading() {
   return (
-    <div className={s.container}>
+    <div className={s.container} role="status" aria-label="맞춤 추천 화면을 준비하는 중">
       {/* Header */}
       <div className={s.header}>
-        <h1 className={s.title}>맞춤 추천</h1>
+        <p className={s.title}>맞춤 추천</p>
         <p className={s.description}>
           서비스를 준비하는 중이에요
         </p>

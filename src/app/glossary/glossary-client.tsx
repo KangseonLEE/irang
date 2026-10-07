@@ -114,16 +114,35 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
   }, []);
 
   const scrollToSlug = useCallback(
-    (slug: string) => {
+    (slug: string, opts?: { moveFocus?: boolean }) => {
       // 펼치기
       setExpandedSlug(slug);
       // DOM 업데이트 후 스크롤
       requestAnimationFrame(() => {
         const el = document.getElementById(slug);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (!el) return;
+        // 관련 용어 버튼은 지금 접히는 카드 안에 있다 — 누른 버튼이 사라지면 포커스가 BODY 로 떨어져
+        // 다음 Tab 이 문서 처음부터 시작했다(10/6 R2-Q3 F5). 옮겨 간 용어의 펼침 버튼으로 넘긴다.
+        // 스크롤은 아래 한 번만 — 포커스 스크롤과 겹치지 않게 preventScroll
+        if (opts?.moveFocus) el.querySelector<HTMLElement>("h3 button")?.focus({ preventScroll: true });
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
       });
     },
     [],
+  );
+
+  /** 관련 용어로 이동 — 지금 필터(카테고리·검색어)에 안 보이는 용어면 필터부터 푼다(해시 이동과 같은 처리) */
+  const goToRelated = useCallback(
+    (slug: string) => {
+      // 없는 용어면 아무것도 하지 않는다 — 펼침 상태만 바뀌면 지금 카드가 접히고 포커스를 잃는다
+      if (!entries.some((e) => e.slug === slug)) return;
+      if (!filtered.some((e) => e.slug === slug)) {
+        setSelectedCategory("all");
+        setQuery("");
+      }
+      scrollToSlug(slug, { moveFocus: true });
+    },
+    [entries, filtered, scrollToSlug],
   );
 
   // ── URL 해시(#slug)로 직접 이동: 툴팁 "자세히" 링크 + 검색 결과 클릭 지원 ──
@@ -227,7 +246,11 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
           </button>
         </div>
       ) : (
-        <div role="list">
+        /* 10/6 QA(axe aria-required-children, critical): 예전엔 `div[role=list]` 직계가 <section> 이라 목록 구조가 깨졌다.
+           초성 묶음은 제목(h2)이 이끄는 구획이라 목록 역할 없이 둔다.
+           용어 카드는 APG 아코디언 — 제목(h3) 안의 버튼이 펼침을 맡는다. 카드 전체가 role=button 이던 때는
+           펼친 뒤 안쪽 "관련 용어" 버튼이 버튼 속 버튼(nested-interactive)이 되고 h3 도 버튼에 묻혀 제목으로 읽히지 않았다. */
+        <div>
           {[...grouped.entries()].map(([cho, items]) => (
             <section
               key={cho}
@@ -239,39 +262,34 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
               <h2 className={s.termGroupHeading}>{cho}</h2>
               {items.map((entry) => {
                 const isExpanded = expandedSlug === entry.slug;
+                const panelId = `${entry.slug}-desc`;
                 return (
-                  <div
-                    key={entry.slug}
-                    id={entry.slug}
-                    className={isExpanded ? s.termCardExpanded : s.termCard}
-                    role="button"
-                    onClick={() => toggleExpand(entry.slug)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        toggleExpand(entry.slug);
-                      }
-                    }}
-                    tabIndex={0}
-                    aria-expanded={isExpanded}
-                  >
-                    <div className={s.termCardHeader}>
-                      <div className={s.termCardHeaderText}>
-                        <h3 className={s.termName}>{entry.term}</h3>
-                        <p className={s.termShortDesc}>{entry.shortDesc}</p>
-                      </div>
-                      <span className={s.categoryBadge}>
-                        {categoryLabels[entry.category]}
-                      </span>
-                      <Icon
-                        icon={ChevronDown}
-                        size="lg"
-                        className={isExpanded ? s.termExpandIconOpen : s.termExpandIcon}
-                      />
-                    </div>
+                  <div key={entry.slug} id={entry.slug} className={isExpanded ? s.termCardExpanded : s.termCard}>
+                    <h3 className={s.termHeading}>
+                      <button
+                        type="button"
+                        className={s.termToggle}
+                        onClick={() => toggleExpand(entry.slug)}
+                        aria-expanded={isExpanded}
+                        aria-controls={isExpanded ? panelId : undefined}
+                      >
+                        <span className={s.termCardHeaderText}>
+                          <span className={s.termName}>{entry.term}</span>
+                          <span className={s.termShortDesc}>{entry.shortDesc}</span>
+                        </span>
+                        <span className={s.categoryBadge}>
+                          {categoryLabels[entry.category]}
+                        </span>
+                        <Icon
+                          icon={ChevronDown}
+                          size="lg"
+                          className={isExpanded ? s.termExpandIconOpen : s.termExpandIcon}
+                        />
+                      </button>
+                    </h3>
 
                     {isExpanded && (
-                      <div>
+                      <div id={panelId} className={s.termBody}>
                         <p className={s.termLongDesc}>{entry.longDesc}</p>
                         {entry.related && entry.related.length > 0 && (
                           <div className={s.termRelated}>
@@ -281,10 +299,7 @@ export function GlossaryClient({ entries, categoryLabels }: GlossaryClientProps)
                                 key={slug}
                                 type="button"
                                 className={s.termRelatedLink}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  scrollToSlug(slug);
-                                }}
+                                onClick={() => goToRelated(slug)}
                               >
                                 {slug}
                               </button>

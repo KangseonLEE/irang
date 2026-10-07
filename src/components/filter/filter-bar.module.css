@@ -48,29 +48,6 @@
   }
 }
 
-/* ── Mobile wrap (FilterRow의 mobileWrap opt-in) ──
-   1 그룹 + 옵션 5~8개 페이지용 (/interviews 6 + 전체).
-   2026-05-22 회장 결재 — 1 그룹은 BottomSheet 부적합·collapsibleOnMobile 인지 부족.
-   chip 줄바꿈 + label은 화면에 보이도록 wrap. 640px+ 기본 가로 스크롤 동일. */
-@media (max-width: 639px) {
-  .filterRowWrap {
-    flex-wrap: wrap;
-    overflow-x: visible;
-    align-items: center;
-  }
-
-  .filterRowWrap > .filterGroup {
-    flex-wrap: wrap;
-    flex-shrink: 1;
-    min-width: 0;
-  }
-
-  .filterRowWrap > .filterGroup > .filterPills {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-}
-
 /* ── Group (라벨 + pill 목록) ── */
 .filterGroup {
   display: flex;
@@ -91,6 +68,34 @@
   display: flex;
   gap: 4px;
   flex-shrink: 0;
+}
+
+/* ── Mobile wrap (FilterRow의 mobileWrap opt-in) ──
+   1 그룹 + 옵션 5~8개 페이지용 (/interviews 6 + 전체).
+   2026-05-22 회장 결재 — 1 그룹은 BottomSheet 부적합·collapsibleOnMobile 인지 부족.
+   chip 줄바꿈 + label은 화면에 보이도록 wrap. 640px+ 기본 가로 스크롤 동일.
+   10/6 QA(Q3): .filterPills 의 flex-shrink:0 을 풀지 않아 칩 줄(443px)이 부모(309px)를 넘었다 —
+   320~414 에서 "스마트팜"이 잘리고 "치유농업"은 화면 밖이라 가로 스크롤도, 키보드 포커스 표시도 안 됐다.
+   칩 상자를 그룹 폭(라벨 아래 한 줄 전체)에 맞춰 줄바꿈시킨다. 기본 규칙 뒤에 둔다(체크리스트 G). */
+@media (max-width: 639px) {
+  .filterRowWrap {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    align-items: center;
+  }
+
+  .filterRowWrap > .filterGroup {
+    flex-wrap: wrap;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .filterRowWrap > .filterGroup > .filterPills {
+    flex: 1 1 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
 }
 
 /* ── Pill (당근·토스·배민 기준 32px) ── */

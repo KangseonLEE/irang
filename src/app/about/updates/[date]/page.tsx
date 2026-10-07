@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import {
   RELEASE_GROUPS,
   RELEASE_SIGNOFF,
@@ -31,11 +32,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const release = getRelease(date);
   if (!release) return { title: "업데이트 소식" };
   const title = releaseTitle(release);
-  return {
+  return pageMetadata({
     title: `${title} — ${formatReleaseDate(date)} 업데이트 소식`,
     description: release.note?.intro ?? release.items.map((i) => i.title).join(" · "),
-    alternates: { canonical: `/about/updates/${date}` },
-  };
+    path: `/about/updates/${date}`,
+  });
 }
 
 /** 날짜 단위 공지 상세 — 카카오 공지 구조(태그라인 → 인사말 → 항목·이미지 → 마무리). 목록은 ../page.tsx */

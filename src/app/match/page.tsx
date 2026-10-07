@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import { JsonLd } from "@/components/seo/json-ld";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import type { FAQPage } from "schema-dts";
+import { GatewayCards, GatewayIntro } from "./gateway-select";
 import { ServiceGateway } from "./service-gateway";
 
 export const metadata: Metadata = {
-  title: "나에게 맞는 농촌 정착 — 1분 빠른 점검부터 14문항 정밀 진단까지",
-  description:
-    "1분이면 끝나는 빠른 점검, 14문항 적합도 진단, 10문항 유형 진단. 나에게 맞는 지역·작물·지원 사업까지 데이터로 추천해 드려요.",
+  ...pageMetadata({
+    title: "나에게 맞는 농촌 정착 — 1분 빠른 점검부터 14문항 정밀 진단까지",
+    description:
+      "1분이면 끝나는 빠른 점검, 14문항 적합도 진단, 10문항 유형 진단. 나에게 맞는 지역·작물·지원 사업까지 데이터로 추천해 드려요.",
+    path: "/match",
+  }),
   keywords: [
     "정착 유형",
     "농촌 정착 진단",
@@ -20,10 +24,19 @@ export const metadata: Metadata = {
     "빠른 자기 점검",
     "1분 귀농 점검",
   ],
-  alternates: { canonical: "/match" },
 };
 
-export default function MatchPage() {
+interface PageProps {
+  /** 모드를 정하는 키 — gateway-mode.ts resolveGatewayMode */
+  searchParams: Promise<{ mode?: string; experience?: string; lifestyle?: string }>;
+}
+
+export default async function MatchPage({ searchParams }: PageProps) {
+  /* searchParams 를 읽으면 이 페이지는 요청 시 렌더(동적)다 — 게이트웨이의 useSearchParams 가 서버에서 바로 값을 받아
+     ?mode= 에 맞는 첫 화면(h1 포함)이 HTML 에 그대로 들어간다. 정적 프리렌더였을 땐 그 훅이 BAILOUT 으로 게이트웨이
+     전체를 CSR 로 넘겨 HTML 에는 로딩 스켈레톤만 있었다(5/15~, 10/6 QA Q2-W4). revalidate 는 두지 않는다(동적 페이지). */
+  await searchParams;
+
   return (
     <>
       <BreadcrumbJsonLd items={[{ name: "맞춤 매칭", href: "/match" }]} />
@@ -59,9 +72,7 @@ export default function MatchPage() {
           ],
         }}
       />
-      <Suspense>
-        <ServiceGateway />
-      </Suspense>
+      <ServiceGateway intro={<GatewayIntro />} cards={<GatewayCards />} />
     </>
   );
 }

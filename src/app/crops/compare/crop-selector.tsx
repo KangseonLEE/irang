@@ -15,6 +15,7 @@ import type { CropInfo } from "@/lib/data/crops";
 import { CROP_CATEGORY_NAMES } from "@/lib/data/crop-categories";
 import { getCropImageSrc } from "@/lib/crop-image";
 import { isComposingEvent, pickOnEnter, rankByName } from "@/lib/ime";
+import { withJosa } from "@/lib/format";
 import s from "./crop-selector.module.css";
 
 const MAX_SELECTION = 4;
@@ -63,6 +64,9 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** ↑↓로 하이라이트를 직접 옮겼는가 — 옮겼으면 Enter 는 이름 완전 일치보다 그 항목을 고른다
+   *  ("배" 입력 후 ↓로 "배추"를 골라도 완전 일치 "배"가 추가되던 것 방지) */
+  const navigatedRef = useRef(false);
 
   const [optimisticIds, setOptimisticIds] = useState<string[]>(selectedIds);
   // compact 모드: 2개 이상 선택 완료 시 카드 4슬롯을 칩 strip 으로 접어 결과까지 스크롤 단축.
@@ -146,8 +150,10 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
 
   const showSwapFeedback = useCallback((replacedName: string, newName: string) => {
     if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
+    // "(으)로" 를 그대로 노출하지 않는다 — 따옴표 뒤 조사는 이름 끝 글자에 맞춘다 (10/6 QA1)
+    const toJosa = withJosa(newName, "으로").slice(newName.length);
     setSwapMessage(
-      `최대 ${MAX_SELECTION}개까지 골랐어요. "${replacedName}" 대신 "${newName}"(으)로 바꿨어요.`,
+      `최대 ${MAX_SELECTION}개까지 골랐어요. "${replacedName}" 대신 "${newName}"${toJosa} 바꿨어요.`,
     );
     messageTimerRef.current = setTimeout(() => setSwapMessage(""), 3000);
   }, []);
@@ -207,23 +213,34 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // Tab 으로 검색창을 벗어나면 목록을 닫는다 — 열린 채로 남으면 다음 포커스("작물 추가" 등)를
+      // 덮었다 (10/6 QA1 Q3-🟡8). 기본 동작(포커스 이동)은 그대로 둔다.
+      if (e.key === "Tab") {
+        setIsFocused(false);
+        return;
+      }
       if (!isFocused || filteredResults.length === 0) return;
       const idx = filteredResults.findIndex((r) => r.id === highlightId);
       if (e.key === "ArrowDown") {
         e.preventDefault();
+        navigatedRef.current = true;
         const next = filteredResults[Math.min(idx + 1, filteredResults.length - 1)];
         if (next) setHighlightId(next.id);
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
+        navigatedRef.current = true;
         const prev = filteredResults[Math.max(idx - 1, 0)];
         if (prev) setHighlightId(prev.id);
       } else if (e.key === "Enter") {
         if (isComposingEvent(e)) return; // 한글 조합 확정 Enter 무시 (9/7)
         e.preventDefault();
-        const target = pickOnEnter(
-          rankByName(filteredResults, trimmedQuery, (r) => r.name, (r) => `${r.category}${r.searchText}`),
-          filteredResults[idx >= 0 ? idx : 0],
-        );
+        const highlighted = filteredResults[idx >= 0 ? idx : 0];
+        const target = navigatedRef.current
+          ? highlighted
+          : pickOnEnter(
+              rankByName(filteredResults, trimmedQuery, (r) => r.name, (r) => `${r.category}${r.searchText}`),
+              highlighted,
+            );
         if (target) {
           addCrop(target.id);
           setQuery("");
@@ -237,6 +254,14 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
     },
     [isFocused, filteredResults, highlightId, addCrop, trimmedQuery],
   );
+
+  /** 포커스가 검색 영역 밖으로 나가면 닫기 — 마우스 바깥 클릭은 mousedown 핸들러가 맡는다.
+   *  relatedTarget 이 없으면(Safari 버튼 클릭은 포커스를 옮기지 않는다) 여기서 닫지 않는다:
+   *  닫으면 옵션 버튼이 click 전에 사라져 선택이 먹히지 않는다. */
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    const next = e.relatedTarget as Node | null;
+    if (next && !e.currentTarget.contains(next)) setIsFocused(false);
+  }, []);
 
   const reachedLimit = optimisticIds.length >= MAX_SELECTION;
   const showDropdown = isFocused;
@@ -252,7 +277,7 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
     <div className={s.wrap} role="group" aria-label="비교할 작물 선택">
       {/* 상단 검색 + 메타 */}
       <div className={s.searchRow}>
-        <div className={s.searchWrap}>
+        <div className={s.searchWrap} onBlur={handleBlur}>
           <Search size={18} className={s.searchIcon} aria-hidden="true" />
           <input
             ref={inputRef}
@@ -261,13 +286,13 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
             onChange={(e) => {
               const next = e.target.value;
               setQuery(next);
+              navigatedRef.current = false;
               // filteredResults가 query에 따라 즉시 재계산되므로
-              // highlight를 첫 항목으로 동기화 (set-state-in-effect 회피)
-              const trimmed = next.trim().replace(/\s/g, "").toLowerCase();
+              // highlight를 첫 항목으로 동기화 (set-state-in-effect 회피).
+              // 목록과 같은 이름 우선 랭킹으로 — 단순 포함 검색의 첫 항목은 설명문만 맞는 작물일 수 있다
+              const trimmed = next.trim().replace(/\s/g, "");
               const nextResults = trimmed
-                ? searchIndex.filter((r) =>
-                    r.searchText.toLowerCase().includes(trimmed),
-                  )
+                ? rankByName(searchIndex, trimmed, (r) => r.name, (r) => `${r.category}${r.searchText}`).map((r) => r.item)
                 : searchIndex;
               setHighlightId(nextResults.length > 0 ? nextResults[0].id : null);
             }}
@@ -289,6 +314,12 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
             aria-autocomplete="list"
             aria-expanded={showDropdown}
             aria-controls="crop-selector-dropdown"
+            // 키보드 하이라이트를 보조기기에 알린다 (10/6 QA2 F6)
+            aria-activedescendant={
+              showDropdown && highlightId && filteredResults.some((r) => r.id === highlightId)
+                ? `crop-selector-opt-${highlightId}`
+                : undefined
+            }
             disabled={reachedLimit}
           />
           {query && (
@@ -296,6 +327,8 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
               type="button"
               onClick={() => {
                 setQuery("");
+                navigatedRef.current = false;
+                setHighlightId(searchIndex[0]?.id ?? null);
                 inputRef.current?.focus();
               }}
               className={s.searchClearBtn}
@@ -328,6 +361,7 @@ export function CropSelector({ crops, selectedIds }: CropSelectorProps) {
                           key={item.id}
                           type="button"
                           role="option"
+                          id={`crop-selector-opt-${item.id}`}
                           aria-selected={isHighlighted}
                           className={
                             isHighlighted ? s.dropdownCardActive : s.dropdownCard

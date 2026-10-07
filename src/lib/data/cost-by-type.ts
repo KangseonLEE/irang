@@ -419,8 +419,9 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
     },
     {
       title: "체류형 귀농 프로그램",
-      desc: "주거+농지+시설을 무상 제공받으며 수개월간 귀농을 체험할 수 있어요.",
-      saving: "체류 기간 무상",
+      // 2026-10-06: '무상'은 원문(함평 SP-005)에 없다 — 원문은 21세대·3~11월 9개월 체류·공동 실습 농지·시설하우스
+      desc: "21세대 체류형 주거와 공동 실습 농지·시설하우스를 쓰며 9개월간(3~11월) 귀농을 준비할 수 있어요. (예: 함평군)",
+      saving: "9개월 체류 교육",
       href: "/programs/SP-005",
       type: "현물",
       programId: "SP-005",
@@ -449,7 +450,7 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
       kind: "system",
     },
     {
-      title: "후계농업경영인 육성자금",
+      title: "우수후계농업경영인 육성자금",
       desc: "후계농 선정 5년 이상 영농 종사자가 대상. 연 1.5% 고정금리·5년 거치 10년 상환.",
       saving: "최대 2억 원",
       href: "/programs/SP-013",
@@ -487,9 +488,11 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
       kind: "system",
     },
     {
-      title: "주택구입 융자",
-      desc: "귀촌인에게 주택 구입·신축에 최대 7,500만 원을 연 2%로 융자해요.",
-      saving: "최대 7,500만 원",
+      title: "주택구입 융자 (귀농할 때)",
+      // 2026-10-06: 2026 시행지침상 지원 대상은 귀농인·재촌비농업인(주택자금 제외)·귀농희망자 — 귀촌만으로는 대상이 아니다.
+      // 옛 문구 '귀촌인에게 … 융자'는 자격을 잘못 안내했다(군산시 공고 첨부 「2026년 귀농 농업창업 및 주택구입 지원사업 시행지침」)
+      desc: "귀촌만으로는 대상이 아니에요. 농업인이 되려고 농촌으로 옮긴 귀농인(귀농 희망자 포함)이면 주택 구입·신축에 최대 7,500만 원을 연 2% 고정금리(또는 변동금리)로 융자받을 수 있어요.",
+      saving: "귀농 시 최대 7,500만 원",
       href: "/programs/SP-001",
       type: "융자",
       programId: "SP-001",
@@ -497,8 +500,9 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
     },
     {
       title: "체류형 귀농인의 집",
-      desc: "10개월간 무상 체류 주거 + 영농 교육으로 귀촌 전 지역을 충분히 체험할 수 있어요. (예: 무안군)",
-      saving: "10개월 주거 무상",
+      // 2026-10-06: '무상'은 원문(무안 SP-007)에 없다 — 원문은 약 10개월 체류·주거 8호·시설하우스·실습포장
+      desc: "약 10개월간 체류형 주거에 머물며 영농 이론·실습 교육을 받고 정착 전 지역을 충분히 겪어 볼 수 있어요. 비용 조건은 공고문에서 확인하세요. (예: 무안군)",
+      saving: "약 10개월 체류 교육",
       href: "/programs/SP-007",
       type: "현물",
       programId: "SP-007",
@@ -568,8 +572,9 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
     },
     {
       title: "귀농닥터 1:1 멘토링 (무료)",
-      desc: "농촌진흥청·시군 농업기술센터에서 선도농가 1:1 현장 컨설팅을 무료로 제공해요. 상시 신청 가능.",
-      saving: "컨설팅 무료",
+      // 2026-10-06: 운영 기관 원문(그린대로 귀농닥터, 농정원) — 1~11월 신청(예산 소진 시 조기 마감)·연 최대 8회·교육비 무료
+      desc: "농정원 귀농귀촌종합센터가 분야별 전문가·귀농 선배와 1:1로 연결해 현장 멘토링을 해 줘요. 신청은 매년 1~11월 그린대로에서 받고, 예산이 소진되면 일찍 마감될 수 있어요.",
+      saving: "연 최대 8회 무료",
       href: "/programs/SP-011",
       type: "컨설팅",
       programId: "SP-011",
@@ -578,7 +583,7 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
     {
       title: "혁신밸리 청년 보육센터 교육",
       desc: "상주·고흥·김제·밀양 4개 혁신밸리에서 20개월 입문→실습 교육을 국비 무료로 받아요. 만 18~39세 대상.",
-      saving: "교육비 무료 + 실습비 월 70만 원",
+      saving: "교육비 무료 + 실습비 월 최대 70만 원",
       href: "/programs/SP-012",
       type: "교육",
       programId: "SP-012",

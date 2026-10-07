@@ -1,6 +1,12 @@
-/* ── Card Link ── */
+/* ── Card Link ──
+   칸(program-list .programCell — flex 세로)의 남는 높이를 채운다. 예전 `.card { height: 100% }` 는
+   부모 링크 높이가 auto 라 먹지 않아 같은 줄 카드 높이가 270/332px 로 들쭉날쭉했고, 칸이 그리드 높이를 차지하는
+   교육 목록에선 형제 노트("같은 사업, 다른 지역")를 칸 밖으로 밀어 다음 카드 밑에 가렸다 (10/6 QA Q3).
+   flex 로 채우면 노트는 칸 안 카드 아래에 남고 카드 높이도 줄마다 같다. */
 .link {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
   text-decoration: none;
   color: inherit;
 }
@@ -11,7 +17,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  height: 100%;
+  flex: 1 1 auto;
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 8px;
@@ -37,9 +43,16 @@
   outline-offset: 2px;
 }
 
-/* ── Closed State ── */
+/* ── Closed State ──
+   불투명도 대신 바탕·제목 색으로 물러나게 한다 (10/6 QA — 교육 목록과 같은 처리).
+   opacity 0.5 는 카드 속 글자를 전부 흐려 회색 글씨 대비가 1.98:1 까지 떨어졌다(axe color-contrast, /programs?status=마감 271노드).
+   바탕 #f9fafb 위 회색 글씨는 4.63:1, 금액(primary)은 6.09:1. */
 .closed {
-  opacity: 0.5;
+  background: var(--muted, #f9fafb);
+}
+
+.closed .title {
+  color: var(--muted-foreground, #6b7280);
 }
 
 /* ── Urgent (마감 D-7 이내) — 4면 amber border (border-left 금지, 박제 가드) ── */
@@ -64,6 +77,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  /* 수집 행은 지원 유형 배지가 없다(10/6) — 홀로 남아도 오른쪽에 붙게 */
+  margin-left: auto;
 }
 
 .newBadge {

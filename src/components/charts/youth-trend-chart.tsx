@@ -201,7 +201,7 @@ export default function YouthTrendChart({ data }: Props) {
           평균 미만
         </span>
         <span className={s.legendItem}>
-          <span className={s.legendDot} style={{ background: COLOR_TREND_LINE, borderRadius: "50%" }} />
+          <span className={`${s.legendDot} ${s.legendDotRound}`} style={{ background: COLOR_TREND_LINE }} />
           추세선
         </span>
       </div>

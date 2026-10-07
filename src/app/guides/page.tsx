@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import {
   BookOpen,
@@ -16,10 +17,12 @@ import type { CollectionPage } from "schema-dts";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "농촌 정착 가이드 모음 | 이랑",
-  description:
-    "정착 준비 순서, 50대 정착 자본, 1인 귀농, 실패 사례, 초보 추천 작물까지 — 상황별 농촌 정착 가이드를 모았어요.",
-  alternates: { canonical: "/guides" },
+  ...pageMetadata({
+    title: "농촌 정착 가이드 모음",
+    description:
+      "정착 준비 순서, 50대 정착 자본, 1인 귀농, 실패 사례, 초보 추천 작물까지 — 상황별 농촌 정착 가이드를 모았어요.",
+    path: "/guides",
+  }),
   keywords: [
     "농촌 정착 가이드",
     "정착 준비",

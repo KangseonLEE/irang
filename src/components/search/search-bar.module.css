@@ -136,9 +136,31 @@
   color: var(--muted-foreground);
 }
 
-/* 읽기 전용 표시 모드 — 중앙 정렬 */
+/* 읽기 전용 표시 모드 — 중앙 정렬 (누름은 바깥 래퍼 버튼이 받는다) */
 .inputWrapReadOnly {
   justify-content: center;
+  pointer-events: none;
+}
+
+/* 결과 화면: 현재 검색어를 채운 읽기 전용 표시 — 입력창처럼 왼쪽 정렬 (10/6 QA Q4) */
+.inputWrapReadOnlyFilled {
+  justify-content: flex-start;
+}
+
+.readOnlyPlaceholder {
+  color: var(--muted-foreground);
+  font-size: inherit;
+  line-height: var(--lh-normal);
+}
+
+.readOnlyText {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--foreground);
+  font-size: inherit;
+  line-height: var(--lh-normal);
 }
 
 /* 최근 검색 키워드 — 컴팩트 높이 */
@@ -642,6 +664,14 @@
 .expandedClear:active {
   background: var(--border);
   color: var(--foreground);
+}
+
+/* 풀스크린(확장) 검색도 자체 지우기 버튼을 쓴다 — 브라우저 기본 지우기(type=search)와 이중 ✕ 방지.
+   결과 화면에서 검색어를 채운 채로 열면서(10/6) 열리자마자 두 개가 나란히 보였다. 패널 배치와 같은 규칙 */
+.inputWrapExpanded .input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
 }
 
 .dropdownExpanded {

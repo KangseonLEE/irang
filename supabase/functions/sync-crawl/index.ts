@@ -1,7 +1,7 @@
 /**
  * sync-crawl Edge Function
  * - rda.go.kr/young (똑똑!청년농부) HTML 크롤링
- * - uni.agrix.go.kr 농림부 통합 지원사업 JSON API
+ * - uni.agrix.go.kr 농림부 통합 지원사업 JSON API — 2026-10-06 수집 중단(농업e지 이관, CRAWL_TARGETS disabled)
  * - greendaero.go.kr 지자체 귀농귀촌 교육·체험 JSON API (2026-09-29 신설)
  * - 수집 데이터는 is_verified: 자동 검증 (broken URL, 상세 보강을 못 한 RDA 행만 false — 다음 실행에서 다시 받는다)
  * - RDA(rda-*) 는 적재할 항목만 상세 페이지로 보강한다: 주관 기관·접수 기간·지원 내용 요약 (10/3)
@@ -23,6 +23,7 @@
 import { getServiceClient } from "../_shared/supabase-client.ts";
 import {
   CRAWL_TARGETS,
+  selectCrawlTargets,
   UNKNOWN_DATE,
   fetchRdaListing,
   fetchRdaEvents,
@@ -115,10 +116,24 @@ Deno.serve(async (req: Request) => {
     // body 없으면 전체 실행
   }
 
-  const targets =
-    targetId === "all"
-      ? CRAWL_TARGETS
-      : CRAWL_TARGETS.filter((t) => t.id === targetId);
+  // 중단(disabled)된 타깃은 "all" 에서 빠지고, 단독 호출이면 원천 요청·DB 쓰기 없이 200 으로 답한다 (10/6 agrix)
+  const { run: targets, disabled } = selectCrawlTargets(targetId);
+
+  if (disabled.length > 0 && targets.length === 0) {
+    const t = disabled[0];
+    console.log(`[sync-crawl] ${t.name} 수집 중단 상태라 건너뜀 (${t.disabled?.since}): ${t.disabled?.reason}`);
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        skipped: "disabled",
+        target: t.id,
+        since: t.disabled?.since,
+        reason: t.disabled?.reason,
+        results: [],
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
+  }
 
   if (targets.length === 0) {
     return new Response(

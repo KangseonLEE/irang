@@ -16,6 +16,7 @@ interface ChartTooltipProps {
   active?: boolean;
   payload?: Array<{ payload: SatisfactionSegment }>;
 }
+import { donutLabelLineEnd, donutLabelRadius } from "./donut-label";
 import s from "./chart-styles.module.css";
 
 /* ── 색상 매핑: 만족 계열은 진하게, 불만족 계열은 연하게 ── */
@@ -28,6 +29,7 @@ const SEGMENT_COLORS: Record<string, string> = {
 
 /** 유의미(만족+매우만족) 여부 */
 const SIGNIFICANT_LABELS = new Set(["매우 만족", "만족"]);
+
 
 interface Props {
   data: SatisfactionSegment[];
@@ -63,7 +65,7 @@ export default function SatisfactionDonutChart({ data }: Props) {
 
   return (
     <div>
-      <div className={s.chartWrapper} style={{ minHeight: 280 }}>
+      <div className={`${s.chartWrapper} ${s.chartWrapperDonut}`}>
         <ResponsiveContainer width="100%" height={280}>
           <PieChart>
             <Pie
@@ -79,13 +81,34 @@ export default function SatisfactionDonutChart({ data }: Props) {
               onMouseLeave={() => setHoveredIdx(null)}
               animationDuration={1000}
               animationEasing="ease-out"
+              /* 연결선 — 라벨을 상자 안으로 당긴 만큼 선도 글자 앞에서 멈춘다(기본 선은 링 + 20px 고정이라 글자를 뚫었다) */
+              labelLine={(props: PieLabelRenderProps & { pct: number; stroke?: string }) => {
+                const { cx, cy, midAngle, outerRadius: or } = props;
+                const angle = -(midAngle ?? 0) * (Math.PI / 180);
+                const text = `${props.pct}%`;
+                const labelRadius = donutLabelRadius({ cx: cx as number, cy: cy as number, outerRadius: or as number, angle, text });
+                const end = donutLabelLineEnd({ outerRadius: or as number, angle, text, labelRadius });
+                if (!end) return <g />;
+                const x1 = (cx as number) + (or as number) * Math.cos(angle);
+                const y1 = (cy as number) + (or as number) * Math.sin(angle);
+                const x2 = (cx as number) + end * Math.cos(angle);
+                const y2 = (cy as number) + end * Math.sin(angle);
+                return <path d={`M${x1},${y1}L${x2},${y2}`} stroke={props.stroke} fill="none" className="recharts-pie-label-line" />;
+              }}
               label={(props: PieLabelRenderProps) => {
                 const { cx, cy, midAngle, outerRadius: or } = props;
                 const pct = (props as PieLabelRenderProps & { pct: number }).pct;
                 const RADIAN = Math.PI / 180;
-                const radius = (or as number) + 38;
-                const x = (cx as number) + radius * Math.cos(-(midAngle ?? 0) * RADIAN);
-                const y = (cy as number) + radius * Math.sin(-(midAngle ?? 0) * RADIAN);
+                const angle = -(midAngle ?? 0) * RADIAN;
+                const radius = donutLabelRadius({
+                  cx: cx as number,
+                  cy: cy as number,
+                  outerRadius: or as number,
+                  angle,
+                  text: `${pct}%`,
+                });
+                const x = (cx as number) + radius * Math.cos(angle);
+                const y = (cy as number) + radius * Math.sin(angle);
                 return (
                   <text
                     x={x}
@@ -157,35 +180,27 @@ export default function SatisfactionDonutChart({ data }: Props) {
         {data.map((entry, i) => {
           const isSig = SIGNIFICANT_LABELS.has(entry.label);
           return (
+            /* 범례는 읽는 정보다 — 예전 role=button·tabIndex 는 누를 동작이 없는 버튼(Tab 정지점만 4개)이었다(10/6 QA).
+               마우스를 올리면 조각이 강조되는 건 그대로 둔다(값은 범례 글자로 이미 다 보인다) */
             <div
               key={entry.label}
               className={hoveredIdx === i ? s.donutLegendItemActive : s.donutLegendItem}
               onMouseEnter={() => setHoveredIdx(i)}
               onMouseLeave={() => setHoveredIdx(null)}
-              role="button"
-              tabIndex={0}
             >
               <span
-                className={s.donutLegendDot}
-                style={{
-                  background: SEGMENT_COLORS[entry.label],
-                  opacity: isSig ? 1 : 0.45,
-                }}
+                className={isSig ? s.donutLegendDot : `${s.donutLegendDot} ${s.donutLegendDotMuted}`}
+                style={{ background: SEGMENT_COLORS[entry.label] }}
               />
               <span className={s.donutLegendLabel}>{entry.label}</span>
-              <span
-                className={s.donutLegendPct}
-                style={{ color: isSig ? "#1B6B5A" : "#9ca3af" }}
-              >
-                {entry.pct}%
-              </span>
+              <span className={isSig ? s.donutLegendPctSig : s.donutLegendPctMuted}>{entry.pct}%</span>
             </div>
           );
         })}
       </div>
 
       {/* 인사이트 배지 */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+      <div className={s.insightBadgeRow}>
         <span className={s.insightBadge}>
           만족 + 매우 만족 합산 {totalSatisfied}%
         </span>

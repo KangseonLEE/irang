@@ -6,7 +6,7 @@
  * 채움값을 자주 담고 있고(9/30 기준 21건 전부 그랬다), 그런 값이 카드에서 가장 눈에 띄는
  * 자리를 차지하면 실제 판단 재료(신청 기간·운영 기간·인원)가 뒤로 밀린다.
  */
-import { meaningfulValue } from "@/lib/programs/display";
+import { displayTarget, meaningfulValue } from "@/lib/programs/display";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import type { FarmEvent } from "@/lib/data/events";
@@ -125,11 +125,15 @@ export function distinctLocation(event: Pick<FarmEvent, "location" | "region" | 
   return value;
 }
 
-/** 대상 값이 유형 칩과 겹치지 않는가 ("농촌에서 살아보기 귀촌형" ↔ 칩 "귀촌형") */
+/**
+ * 대상 값 — 유형 칩과 겹치거나("농촌에서 살아보기 귀촌형" ↔ 칩 "귀촌형") 원문 대상이 아니면 null.
+ * 수집 행의 채움값("상세 공고 참조")·대상 칸이 없는 원천(그린대로 교육 → 교육 구분이 들어갔던 칸)은
+ * `displayTarget`(lib/programs/display)이 거른다 (10/6 QA R2: DB 정정 뒤 체험 9행의 대상이 "상세 공고 참조"가 된다).
+ */
 export function distinctTarget(
-  event: Pick<FarmEvent, "target" | "type" | "villageType" | "title">,
+  event: Pick<FarmEvent, "id" | "target" | "type" | "villageType" | "title">,
 ): string | null {
-  const value = event.target?.trim();
+  const value = displayTarget(event.id, event.target);
   if (!value) return null;
   const chip = eventTypeChip(event);
   if (value.includes(chip) && value.replace(chip, "").replace(/[\s·]|농촌에서\s*살아보기/g, "") === "") return null;
@@ -188,6 +192,30 @@ export function buildEventFacts(event: FarmEvent, variant: "card" | "detail"): E
   }
 
   return facts;
+}
+
+/** "2026-10-13" → "10월 13일" (형식이 다르거나 미정 9999 면 null) */
+function monthDayLabel(raw: string | null | undefined): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(raw ?? "");
+  if (!m || m[1] === "9999") return null;
+  return `${Number(m[2])}월 ${Number(m[3])}일`;
+}
+
+/**
+ * 상세 페이지 제목 — 같은 제목의 행사가 여럿이면 시작일을 붙여 가른다 (10/6 QA Q2-X4).
+ * 그린대로는 회차를 같은 제목·설명으로 올린다(춘천 팸투어 10/13·10/14, 살아보기 마을 1·2차) — 상세 `<title>`·
+ * 설명·공유 카드가 글자 하나 다르지 않아 검색엔진에는 중복 문서로, 사람에게는 같은 글로 보였다.
+ * 쌍둥이가 없거나 날짜까지 같으면(날짜로도 못 가른다) 원문 제목 그대로.
+ */
+export function distinctEventTitle(
+  event: Pick<FarmEvent, "id" | "title" | "date">,
+  all: readonly Pick<FarmEvent, "id" | "title" | "date">[],
+): string {
+  const twins = all.filter((e) => e.id !== event.id && e.title === event.title);
+  if (twins.length === 0) return event.title;
+  const label = monthDayLabel(event.date);
+  if (!label || twins.every((e) => e.date === event.date)) return event.title;
+  return `${event.title} · ${label}`;
 }
 
 /**

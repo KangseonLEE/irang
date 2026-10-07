@@ -6,7 +6,9 @@
  */
 
 import { getSupabase, isSupabaseConfigured, type EventRow } from "@/lib/supabase";
-import { deriveEventStatus } from "@/lib/program-status";
+import { kstToday, deriveEventStatus } from "@/lib/program-status";
+import { isCrawledRow } from "@/lib/programs/display";
+import { matchesListQuery, parseFilterValues } from "@/lib/search-params/filter-match";
 
 export interface FarmEvent {
   id: string;
@@ -61,7 +63,11 @@ export const EVENT_REGIONS = [
   "제주특별자치도",
 ] as const;
 
-export const EVENTS: FarmEvent[] = [
+/**
+ * 정적 큐레이션 원본 — status 칸이 없다. 손으로 적은 상태는 시간이 지나면 낡는다(10/6 QA: evt-001~003 이 행사가
+ * 끝난 뒤에도 "접수중"). 상태는 신청 기간·행사 종료일에서 파생해 `EVENTS` 로 내보낸다 — 지원사업 `PROGRAMS_RAW` 와 같은 방식.
+ */
+const EVENTS_RAW: Omit<FarmEvent, "status">[] = [
   {
     id: "evt-001",
     title: "Y-FARM EXPO 2026 귀농귀촌 지역살리기 박람회",
@@ -75,11 +81,10 @@ export const EVENTS: FarmEvent[] = [
     location: "수원컨벤션센터",
     cost: "사전등록 시 무료",
     description:
-      "기업·기관 전시부스, 일반인 참관등록, 비즈니스 매칭, 특별 체험(그림대회, 생막걸리 만들기) 등이 진행되는 귀농귀촌·지역살리기 전문 박람회이에요.",
+      "기업·기관 전시부스, 일반인 참관등록, 비즈니스 매칭, 특별 체험(그림대회, 생막걸리 만들기) 등이 진행되는 귀농귀촌·지역살리기 전문 박람회예요.",
     capacity: null,
     target: "귀농·귀촌 희망자, 농업 관련 기업·기관",
     url: "https://yfarmexpo.co.kr/fairDash.do",
-    status: "접수중",
   },
   {
     id: "evt-002",
@@ -94,11 +99,10 @@ export const EVENTS: FarmEvent[] = [
     location: "창원컨벤션센터(CECO) 제1,2전시장",
     cost: "무료 (사전등록)",
     description:
-      "120개사 400부스 규모의 스마트농업·귀농귀촌 박람회이에요. 스마트팜 기술 전시, 심포지엄·세미나가 진행되며 경남국제축산박람회(GILEX)가 동시 개최돼요.",
+      "120개사 400부스 규모의 스마트농업·귀농귀촌 박람회예요. 스마트팜 기술 전시, 심포지엄·세미나가 진행되며 경남국제축산박람회(GILEX)가 동시 개최돼요.",
     capacity: null,
-    target: "스마트팜 도입 희망 농업인, 농촌 정착 예정자, 농업 기업",
+    target: "스마트팜 도입 희망 농업인, 귀농 예정자",
     url: "https://sfkorea.kr/",
-    status: "접수중",
   },
   {
     id: "evt-003",
@@ -113,11 +117,10 @@ export const EVENTS: FarmEvent[] = [
     location: "청주 OSCO (오스코)",
     cost: "무료 (사전등록 ~6/17)",
     description:
-      "AgTech 기획관, 도시농업관, 귀농귀촌 정보 등 농업·축산·귀농 분야 종합 박람회이에요. 바이어 및 참관객 무료 입장으로 사전등록 후 참여할 수 있어요.",
+      "AgTech 기획관, 도시농업관, 귀농귀촌 정보 등 농업·축산·귀농 분야 종합 박람회예요. 바이어 및 참관객 무료 입장으로 사전등록 후 참여할 수 있어요.",
     capacity: null,
     target: "귀농귀촌 희망자, 농업 기술 관심자",
     url: "https://kfarm.co.kr/",
-    status: "접수중",
   },
   {
     id: "evt-004",
@@ -134,7 +137,6 @@ export const EVENTS: FarmEvent[] = [
     capacity: null,
     target: "귀농귀촌 희망자, 농업 관심 시민",
     url: "https://www.showala.com/ex/ex_detail.php?idx=3305",
-    status: "접수예정",
   },
   {
     id: "evt-005",
@@ -154,7 +156,6 @@ export const EVENTS: FarmEvent[] = [
     capacity: null,
     target: "전북 귀농귀촌 관심자",
     url: "https://www.mjjnews.net/news/article.html?no=55756",
-    status: "마감",
   },
   {
     id: "evt-006",
@@ -173,17 +174,78 @@ export const EVENTS: FarmEvent[] = [
     capacity: 5,
     target: "농촌 정착 희망자",
     url: "https://gecpo.org/552867",
-    status: "마감",
   },
 ];
 
+/** 신청 기간·행사 종료일 → 접수 상태 (KST 오늘 기준) */
+function deriveStatusOf(e: Pick<FarmEvent, "applicationStart" | "applicationEnd" | "dateEnd">): FarmEvent["status"] {
+  return deriveEventStatus(e.applicationStart, e.applicationEnd, e.dateEnd);
+}
+
+/** 정적 데이터에 파생 status를 주입한 배열 — 외부에서 쓰는 공식 export */
+export const EVENTS: FarmEvent[] = EVENTS_RAW.map((e) => ({ ...e, status: deriveStatusOf(e) }));
+
 // --- 헬퍼 함수 ---
 
-/** ID로 단일 행사 조회 — 정적 데이터만 (동기) */
+/** ID로 단일 행사 조회 — 정적 데이터만 (동기, 부르는 날 기준 상태) */
 export function getEventById(id: string): FarmEvent | undefined {
-  const e = EVENTS.find((e) => e.id === id);
-  if (!e) return undefined;
-  return { ...e, status: deriveEventStatus(e.applicationStart, e.applicationEnd, e.dateEnd) };
+  const e = EVENTS_RAW.find((e) => e.id === id);
+  return e ? { ...e, status: deriveStatusOf(e) } : undefined;
+}
+
+/** DB 행 → FarmEvent. 목록(`loadEvents`)·상세(`getEventByIdAsync`) 공용. status 는 DB 칸이 아니라 날짜에서 파생 */
+function mapEventRow(row: EventRow): FarmEvent {
+  return {
+    id: row.slug,
+    title: row.title,
+    region: row.region,
+    sigungu: row.sigungu ?? undefined,
+    organization: row.organization,
+    type: row.type as FarmEvent["type"],
+    date: row.date_start,
+    dateEnd: row.date_end,
+    applicationStart: row.application_start ?? undefined,
+    applicationEnd: row.application_end ?? undefined,
+    location: row.location,
+    cost: row.cost,
+    description: row.description,
+    capacity: row.capacity,
+    target: row.target,
+    url: row.url,
+    status: deriveEventStatus(row.application_start ?? undefined, row.application_end ?? undefined, row.date_end),
+    imageUrl: row.image_url ?? undefined,
+    moveInDate: row.move_in_date ?? undefined,
+    households: row.households ?? null,
+    villageType: row.village_type ?? undefined,
+  };
+}
+
+/**
+ * 순수 비대면 강의인가 — 체험(살아보기·일일체험…)이 아니다 (10/6 QA R2-Q1 🟡4).
+ *
+ * 그린대로 교육 목록의 "유형특화과정-예비귀촌인 · [비대면] 10/31 (주말반 10시~12시) 농촌융복합 6차산업과 농촌체험관광"
+ * (crawl-greendaero-education-2ca872c9)이 강의 주제의 '체험'에 걸려 farm_events·'일일체험'으로 적재됐고, 지역도
+ * 교육기관 본사(서울 서초구)로 들어가 서울 상세·/events 에 '일일체험'으로 나왔다. 수집기는 운영 구분(eduOperSeNm)으로
+ * 고쳤고(supabase/functions/_shared/greendaero.ts) 이미 적재된 행은 DB 수정 SQL 이 지우지만 결재 대기라, 그 전까지 여기서 막는다.
+ *
+ * DB 행에는 운영 구분 칸이 없어 제목으로만 판정한다 — **보수적으로** 셋 다일 때만:
+ *  ① 수집 행(crawl-*) — 손으로 고른 큐레이션 행은 건드리지 않는다
+ *  ② 제목의 한 마디(" · " 로 나뉜 사업명·회차 안내)가 "[비대면]" 으로 시작
+ *  ③ 제목 어디에도 대면·현장·실습·오프라인 표지가 없다 — "비대면+현장실습" 체험학교는 체험으로 남는다
+ */
+export function isOnlineOnlyLecture(event: Pick<FarmEvent, "id" | "title">): boolean {
+  if (!isCrawledRow(event.id)) return false;
+  const startsOnline = event.title.split("·").some((segment) => segment.trim().startsWith("[비대면]"));
+  if (!startsOnline) return false;
+  const hasOfflineMark = /(^|[^비])대면|현장|실습|오프라인/.test(event.title);
+  return !hasOfflineMark;
+}
+
+/** DB 결과에 DB 에 없는 정적 행을 붙인다 — CLAUDE.md "데이터 소스 병합 원칙" (QA Q1-W3: evt-004 수원 케이팜 미노출) */
+function withStaticOnly(primary: FarmEvent[]): FarmEvent[] {
+  const primaryIds = new Set(primary.map((e) => e.id));
+  const staticOnly = EVENTS_RAW.filter((e) => !primaryIds.has(e.id)).map((e) => ({ ...e, status: deriveStatusOf(e) }));
+  return [...primary, ...staticOnly];
 }
 
 /** ID(slug)로 단일 행사 조회 — Supabase → 정적 폴백 (비동기) */
@@ -200,31 +262,9 @@ export async function getEventByIdAsync(
         .maybeSingle();
 
       if (!error && data) {
-        const row = data as unknown as EventRow;
-        const mapped: FarmEvent = {
-          id: row.slug,
-          title: row.title,
-          region: row.region,
-          sigungu: row.sigungu ?? undefined,
-          organization: row.organization,
-          type: row.type as FarmEvent["type"],
-          date: row.date_start,
-          dateEnd: row.date_end,
-          applicationStart: row.application_start ?? undefined,
-          applicationEnd: row.application_end ?? undefined,
-          location: row.location,
-          cost: row.cost,
-          description: row.description,
-          capacity: row.capacity,
-          target: row.target,
-          url: row.url,
-          status: deriveEventStatus(row.application_start ?? undefined, row.application_end ?? undefined, row.date_end),
-          imageUrl: row.image_url ?? undefined,
-          moveInDate: row.move_in_date ?? undefined,
-          households: row.households ?? null,
-          villageType: row.village_type ?? undefined,
-        };
-        return mapped;
+        const event = mapEventRow(data as unknown as EventRow);
+        // 체험이 아닌 비대면 강의 — 목록·사이트맵과 같이 상세도 열지 않는다(isOnlineOnlyLecture)
+        return isOnlineOnlyLecture(event) ? undefined : event;
       }
     } catch {
       // Supabase 에러 → 정적 폴백
@@ -236,12 +276,12 @@ export async function getEventByIdAsync(
 
 /** 현재 연월 문자열 (YYYY-MM) */
 export function getCurrentPeriod(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  // KST 기준 달 — Vercel 서버는 UTC 라 new Date() 로 세면 매월 1일 0~9시(KST)에 지난달이 된다 (10/6 QA)
+  return kstToday().slice(0, 7);
 }
 
 
-/** 필터 조건 */
+/** 필터 조건 — region·type 은 URL 그대로의 쉼표 목록(CSV, 복수 선택)도 받는다. 그룹 안은 합집합, 그룹 사이는 교집합 */
 export interface EventFilters {
   region?: string;
   type?: string;
@@ -264,10 +304,10 @@ export function filterEvents(filters: EventFilters): FarmEvent[] {
     periodEnd = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
   }
 
-  return EVENTS.map((e) => ({
-    ...e,
-    status: deriveEventStatus(e.applicationStart, e.applicationEnd, e.dateEnd),
-  })).filter((event) => {
+  const regions = parseFilterValues(filters.region);
+  const types = parseFilterValues(filters.type);
+
+  return EVENTS_RAW.map((e) => ({ ...e, status: deriveStatusOf(e) })).filter((event) => {
     // 마감 제외 (기본 동작)
     if (!filters.includeClosed && event.status === "마감") {
       return false;
@@ -282,10 +322,9 @@ export function filterEvents(filters: EventFilters): FarmEvent[] {
       }
     }
 
-    // 텍스트 검색
-    if (filters.query) {
-      const q = filters.query.toLowerCase();
-      const searchable = [
+    // 텍스트 검색 — 1글자(작물 이름만 normalize 통과)는 낱말 단위 (filter-match.ts)
+    if (
+      !matchesListQuery(filters.query, [
         event.title,
         event.description,
         event.region,
@@ -293,26 +332,19 @@ export function filterEvents(filters: EventFilters): FarmEvent[] {
         event.location,
         event.type,
         event.target,
-      ]
-        .join(" ")
-        .toLowerCase();
-      if (!searchable.includes(q)) {
-        return false;
-      }
+      ])
+    ) {
+      return false;
     }
 
-    // 지역 필터
-    if (filters.region && filters.region !== "전체") {
-      if (event.region !== "전국" && event.region !== filters.region) {
-        return false;
-      }
+    // 지역 필터 (복수 선택 = 합집합, 전국 행사는 항상 남김)
+    if (regions.length > 0 && event.region !== "전국" && !regions.includes(event.region)) {
+      return false;
     }
 
-    // 행사 유형 필터
-    if (filters.type && filters.type !== "전체") {
-      if (event.type !== filters.type) {
-        return false;
-      }
+    // 행사 유형 필터 (복수 선택 = 합집합)
+    if (types.length > 0 && !types.includes(event.type)) {
+      return false;
     }
 
     return true;
@@ -335,42 +367,18 @@ async function loadEvents(): Promise<{
         .order("date_start", { ascending: true });
 
       if (!error && data && data.length > 0) {
-        const rows = data as unknown as EventRow[];
-        const events: FarmEvent[] = rows.map((row) => ({
-          id: row.slug,
-          title: row.title,
-          region: row.region,
-          sigungu: row.sigungu ?? undefined,
-          organization: row.organization,
-          type: row.type as FarmEvent["type"],
-          date: row.date_start,
-          dateEnd: row.date_end,
-          applicationStart: row.application_start ?? undefined,
-          applicationEnd: row.application_end ?? undefined,
-          location: row.location,
-          cost: row.cost,
-          description: row.description,
-          capacity: row.capacity,
-          target: row.target,
-          url: row.url,
-          status: deriveEventStatus(row.application_start ?? undefined, row.application_end ?? undefined, row.date_end),
-          imageUrl: row.image_url ?? undefined,
-          moveInDate: row.move_in_date ?? undefined,
-          households: row.households ?? null,
-          villageType: row.village_type ?? undefined,
-        }));
-        return { events, source: "supabase" };
+        // 체험이 아닌 순수 비대면 강의는 뺀다 — 지역 상세·/events·랜딩·사이트맵이 모두 이 로더를 쓴다 (10/6 QA R2)
+        const dbEvents = (data as unknown as EventRow[]).map(mapEventRow).filter((e) => !isOnlineOnlyLecture(e));
+        // 정적 데이터 중 DB에 없는 행사 병합 (10/6 전엔 없어서 evt-004 수원 케이팜이 목록에 0회 노출)
+        return { events: withStaticOnly(dbEvents), source: "supabase" };
       }
     } catch {
       // Supabase 에러 → 정적 폴백
     }
   }
 
-  const events = EVENTS.map((e) => ({
-    ...e,
-    status: deriveEventStatus(e.applicationStart, e.applicationEnd, e.dateEnd),
-  }));
-  return { events, source: "fallback" };
+  // 정적 폴백 — 부르는 날 기준 상태
+  return { events: withStaticOnly([]), source: "fallback" };
 }
 
 /**
@@ -380,6 +388,9 @@ export async function filterEventsAsync(
   filters: EventFilters
 ): Promise<{ events: FarmEvent[]; source: "supabase" | "fallback" }> {
   const { events: allEvents, source } = await loadEvents();
+  // 복수 선택(CSV) — 그룹 안은 합집합, 그룹 사이는 교집합 (10/6 QA Q4-F1)
+  const regions = parseFilterValues(filters.region);
+  const types = parseFilterValues(filters.type);
 
   const filtered = allEvents.filter((event) => {
     // 마감 제외 (기본 동작)
@@ -393,20 +404,17 @@ export async function filterEventsAsync(
       const eventEnd = event.dateEnd || event.date;
       if (event.date > periodEnd || eventEnd < periodStart) return false;
     }
-    if (filters.query) {
-      const q = filters.query.toLowerCase();
-      const searchable = [
+    // 검색어 — 1글자(작물 이름만 normalize 통과)는 낱말 단위, 2글자 이상은 부분 일치 (filter-match.ts)
+    if (
+      !matchesListQuery(filters.query, [
         event.title, event.description, event.region,
         event.organization, event.location,
-      ].join(" ").toLowerCase();
-      if (!searchable.includes(q)) return false;
+      ])
+    ) {
+      return false;
     }
-    if (filters.region && filters.region !== "전체") {
-      if (event.region !== "전국" && event.region !== filters.region) return false;
-    }
-    if (filters.type && filters.type !== "전체") {
-      if (event.type !== filters.type) return false;
-    }
+    if (regions.length > 0 && event.region !== "전국" && !regions.includes(event.region)) return false;
+    if (types.length > 0 && !types.includes(event.type)) return false;
     return true;
   });
 

@@ -20,8 +20,9 @@ import {
   generateResultId,
   saveAssessmentResult,
 } from "@/lib/assess-result";
-import { useAssessmentHistory } from "@/hooks/use-assessment-history";
 import { MatchResult } from "./match-result";
+import { useDiagnosisHistory } from "@/lib/diagnosis/use-diagnosis-history";
+import { useWizardBackGuard } from "@/lib/diagnosis/use-wizard-back-guard";
 import s from "./match-wizard.module.css";
 
 /* ── 컴포넌트 ── */
@@ -40,10 +41,18 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [dimScores, setDimScores] = useState<MatchDimensionScores | undefined>();
   const [ageGroup, setAgeGroup] = useState<string | undefined>();
-  const { addResult } = useAssessmentHistory();
+  const { addResult } = useDiagnosisHistory();
 
   // 빠른 연타 클릭 방어 — setTimeout 전환 중 추가 클릭 차단
   const transitionRef = useRef(false);
+  /**
+   * 마지막으로 저장한 결과의 키(답 + 미리 채운 연령대·차원 점수) — 같은 결과는 저장·완료 이벤트를 한 번만 (10/6 2차 QA R2-Q4).
+   * 예전엔 saveStatus 1회 가드라 "다시 시작하기"·뒤로가기로 답을 바꿔도 새 결과가 저장되지 않았고(공유 링크도 첫 결과),
+   * 완료 이벤트는 결과에 다시 들어올 때마다 나갔다. 적합도 진단(assessment-wizard)과 같은 규칙.
+   */
+  const savedKeyRef = useRef<string | null>(null);
+  /** 지금 화면 결과의 id — 앞선 저장 응답이 늦게 와서 새 결과의 상태를 덮지 않게 */
+  const currentIdRef = useRef<string | null>(null);
 
   // 매칭 시작 이벤트 (마운트 시 1회)
   useEffect(() => {
@@ -163,24 +172,28 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
 
   const handleReset = useCallback(() => {
     transitionRef.current = false;
+    savedKeyRef.current = null; // "다시 시작하기"로 새로 마치면 같은 답이어도 새 결과로 센다
     setStep(0);
     setAnswers({});
     setShowResult(false);
     window.scrollTo(0, 0);
   }, []);
 
-  // 결과 화면 진입 시 완료 이벤트 + Supabase 저장 + localStorage 저장
+  // 브라우저 뒤로가기 = 한 문항 뒤로 (결과 → 마지막 문항 → … → 첫 문항, 2026-10-06 QA Q4-W11)
+  useWizardBackGuard(showResult ? totalSteps : step, handleBack);
+
+  // 결과 화면 진입 시 완료 이벤트 + Supabase 저장 + localStorage 저장 — 결과 한 건(키)에 한 번
   useEffect(() => {
     if (!showResult) return;
+    const key = JSON.stringify([answers, ageGroup ?? null, dimScores ?? null]);
+    if (savedKeyRef.current === key) return;
+    savedKeyRef.current = key;
 
     analytics.matchComplete();
 
-    // 결과 저장 (1회만 실행)
-    if (saveStatus !== "idle") return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSaveStatus("saving");
-
     const id = generateResultId();
+    currentIdRef.current = id;
+    setSaveStatus("saving");
     setResultId(id);
 
     const ft = classifyFarmType(answers, ageGroup);
@@ -189,6 +202,7 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
 
     // localStorage 히스토리 저장
     addResult({
+      kind: "match",
       resultId: id,
       farmTypeId: ft.id,
       farmTypeLabel: ft.label,
@@ -208,9 +222,13 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
       referrer: searchParams.get("utm_source"),
       age_group: ageGroup ?? null,
     })
-      .then((res) => setSaveStatus(res.success ? "saved" : "error"))
-      .catch(() => setSaveStatus("error"));
-  }, [showResult]); // eslint-disable-line react-hooks/exhaustive-deps
+      .then((res) => {
+        if (currentIdRef.current === id) setSaveStatus(res.success ? "saved" : "error");
+      })
+      .catch(() => {
+        if (currentIdRef.current === id) setSaveStatus("error");
+      });
+  }, [showResult, answers, ageGroup, dimScores, addResult, searchParams]);
 
   // 결과 계산
   const topProvinces = useMemo(

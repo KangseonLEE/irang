@@ -229,8 +229,8 @@ export default function SigunguPopulationTrendChart({
         {showSidoCompare && (
           <span className={s.legendItem}>
             <span
-              className={s.legendDot}
-              style={{ background: COLOR_SIDO, borderRadius: "50%" }}
+              className={`${s.legendDot} ${s.legendDotRound}`}
+              style={{ background: COLOR_SIDO }}
             />
             시도 평균
           </span>

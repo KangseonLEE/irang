@@ -10,10 +10,12 @@ import {
   stripHtml,
   type RdaPolicyItem,
 } from "@/lib/api/rda";
-import { deriveStatus, programStatusLabel, UNANNOUNCED_LABEL } from "@/lib/program-status";
+import { kstToday, deriveStatus, programStatusLabel, UNANNOUNCED_LABEL } from "@/lib/program-status";
 import { CROPS } from "./crops";
 import { getSupabase, isSupabaseConfigured, type ProgramRow } from "@/lib/supabase";
 import { groupCrawlRows, type CrawlGroupInfo } from "@/lib/crawl-grouping";
+import { hasCollectorDefaults } from "@/lib/programs/display";
+import { matchesListQuery, parseFilterValues } from "@/lib/search-params/filter-match";
 
 /** 카테고리 — Sprint P P2-e (2026-05-20) + Sprint Q 확장 (2026-05-20)
  *  성격 분류: 정착·창업 / 청년 / 시설·체류 / 치유농업 / 사회적 농업
@@ -145,7 +147,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     id: "SP-001",
     title: "귀농 농업창업 및 주택구입 지원사업",
     summary:
-      "정착자의 농업창업자금과 농촌주택 구입자금을 저금리 융자로 지원하는 농식품부 대표 정착사업.",
+      "귀농인의 농업창업자금과 농촌주택 구입자금을 저금리 융자로 지원하는 농식품부 대표 정착사업.",
     description:
       "농업창업자금 최대 3억원, 주택구입자금 최대 7,500만 원을 연 2% 이내 저금리로 융자받을 수 있어요. 농촌 전입 후 6년 이내 세대주여야 하고, 영농 관련 교육은 8시간 이상이 자격 요건이지만 100시간 미만이면 심사에서 최저 등급(D)을 받아 사실상 100시간 이상이 필요해요. 신청은 시군의 귀농귀촌 담당 부서(농업기술센터나 시청 부서)에서 받고, 접수 시기는 시군마다 달라 상·하반기 두 번 받는 곳도 있어요. 귀농 초기 정착비용 부담을 크게 줄여주는 대표적인 정부 지원사업이에요. 사과 같은 과수도 과원 조성·묘목 구입·관수시설·저온저장고까지 창업자금 용도로 인정돼요. 다만 2026년 선정부터 묘목·농기계·농업용 화물차 구입비는 합산 5천만 원까지예요.",
     region: "전국",
@@ -193,7 +195,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "충남 청년농업인 대상 6개월 스마트팜 교육과정(이론+실습+현장)으로 창업역량을 지원.",
     description:
-      "6개월 과정으로 이론교육, 시설 실습, 선도농가 현장실습을 체계적으로 이수해요. 수강료 전액 지원에 현장실습 훈련비 월 최대 100만 원까지 지급돼요. 딸기·토마토·파프리카 등 시설원예 중심의 스마트팜 기술을 익힐 수 있으며, 충남 거주 또는 전입 예정 만 18~44세 청년이 대상이에요.",
+      "스마트팜 기본역량 이론(1개월), 활용능력 실습(2개월), 선도농가와 짝을 이룬 현장실습(3개월)으로 이어지는 6개월 과정이에요. 수강료는 전액 지원되고, 현장실습 교육 기간에는 훈련비가 월 최대 100만 원까지 지급돼요. 충남에 살거나 충남으로 전입할 예정인 만 18~44세 청년이 신청할 수 있어요.",
     region: "충청남도",
     organization: "충청남도농업기술원",
     supportType: "교육",
@@ -235,9 +237,9 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     id: "SP-005",
     title: "함평군 귀농어귀촌 체류형 지원센터 입교 (제6기)",
     summary:
-      "함평군에서 농촌 정착 희망자에게 주거공간·공동실습농지·시설하우스를 제공하는 체류형 교육.",
+      "함평군에서 귀농 희망자에게 주거공간·공동실습농지·시설하우스를 제공하는 체류형 교육.",
     description:
-      "21세대 규모의 체류형 주거공간과 공동실습농지, 시설하우스, 작업장을 무상으로 이용할 수 있어요. 도시에서 1년 이상 거주한 만 65세 이하 농촌 정착 희망자가 대상이며, 함평군 전입 6개월 이내이거나 이주 예정인 예비정착자도 신청 가능해요. 실제 농촌에서 생활하며 영농기술을 익힐 수 있는 체류형 프로그램이에요.",
+      "함평군 귀농어귀촌 체류형 지원센터의 제6기 입교생 21세대를 모집하는 사업이에요. 선발되면 3~11월 9개월간 센터에 머물며 공동 실습 농지·시설하우스·작업장을 활용해 귀농·귀촌 교육을 받아요. 만 65세 이하로 도시에서 1년 이상 살다가 함평군에 전입한 지 6개월이 안 된 분이나, 이주를 희망하는 예비 귀농인이 신청할 수 있어요.",
     region: "전라남도",
     organization: "함평군 귀농어귀촌 체류형 지원센터",
     supportType: "현물",
@@ -245,7 +247,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
-      "만 65세 이하. 도시지역 1년 이상 거주 후 함평군 전입 6개월 이내 또는 이주 희망 예비정착자.",
+      "만 65세 이하. 도시지역 1년 이상 거주 후 함평군 전입 6개월 이내 또는 이주 희망 예비귀농인.",
     applicationStart: "2026-01-10",
     applicationEnd: "2026-02-10",
     relatedCrops: [],
@@ -257,9 +259,9 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     id: "SP-006",
     title: "금산군 체류형 귀농교육센터 입교",
     summary:
-      "금산군에서 1년간 체류하며 인삼·약초 중심 영농교육을 받을 수 있는 체류형 귀농 프로그램.",
+      "금산군귀농교육센터에서 1년간 체류하며 이론·실습 교육을 받는 체류형 귀농 프로그램. 3세대 선발, 보증금·월 사용료 납부.",
     description:
-      "금산군 특화작목인 인삼과 약초를 중심으로 1년간 체류하며 영농교육을 받아요. 76㎡ 2세대, 69.4㎡ 1세대 등 총 3세대만 선발하므로 경쟁률이 높아요. 체류 주택이 무상 제공되며, 금산 지역 특산물 재배 노하우를 현장에서 직접 배울 수 있는 것이 강점이에요.",
+      "금산군귀농교육센터에서 2026년 3월부터 2027년 2월까지 1년간 머물며 이론 교육부터 농업기술 실습까지 단계별로 귀농을 준비해요. 76㎡ 2세대, 69.4㎡ 1세대 등 총 3세대만 선발하고, 입교신청서와 농업창업계획서로 서류·면접 심사를 거쳐요. 체류 주택은 무료가 아니라 보증금과 월 사용료를 내요(76㎡형 보증금 69만 원·월 23만 원, 69.4㎡형 보증금 63만 원·월 21만 원, 관리비 별도). 반려동물 동반과 가축 사육은 안 돼요.",
     region: "충청남도",
     organization: "금산군귀농교육센터",
     supportType: "현물",
@@ -267,10 +269,10 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
-      "농촌 정착 희망자. 1년간 체류하며 영농 교육 참여.",
+      "귀농을 희망하는 도시민. 1년간(2026.3~2027.2) 체류하며 교육 참여. 보증금·월 사용료·관리비 납부.",
     applicationStart: "2026-01-15",
     applicationEnd: "2026-02-10",
-    relatedCrops: ["인삼", "도라지", "더덕"],
+    relatedCrops: [],
     sourceUrl: "http://www.daejeontoday.com/news/articleView.html?idxno=722515",
     year: 2026,
     category: "facility",
@@ -281,7 +283,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "무안군에서 약 10개월간 체류 주거를 제공하며 영농 이론 및 실습 교육을 지원하는 프로그램.",
     description:
-      "약 10개월간 무안군 내 체류형 주거를 무상으로 제공받으며 영농 이론과 실습 교육을 병행해요. 귀농 전 장기 체류를 통해 지역 환경과 농업 여건을 충분히 파악할 수 있어요. 주거비 부담 없이 안정적으로 정착 준비를 할 수 있어 초기 정착 실패 위험을 줄여줘요.",
+      "무안군으로 귀농을 희망하는 만 65세 이하 도시민이 약 10개월간 현경면 체류형 귀농인의 집에 머물며 영농 이론과 실습 교육을 받아요. 주거는 원룸형(27㎡) 7호와 가족형(44㎡) 1호 등 8호이고, 시설하우스 2동(600㎡)과 실습포장(2,900㎡)에서 실습해요. 귀농 전 장기 체류로 지역 환경과 농업 여건을 충분히 파악할 수 있어요. 비용 조건은 무안군 공고문을 확인하세요.",
     region: "전라남도",
     organization: "무안군",
     supportType: "현물",
@@ -289,7 +291,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
-      "농촌 정착 희망자. 10개월간 체류하며 영농 이론 및 실습 교육.",
+      "무안군으로 귀농을 희망하는 만 65세 이하 도시민. 약 10개월간 체류하며 영농 이론·실습 교육.",
     applicationStart: "2026-01-10",
     applicationEnd: "2026-02-06",
     relatedCrops: [],
@@ -301,13 +303,13 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     id: "SP-008",
     title: "연천군 신규농업인 선도농가 현장실습 교육",
     summary:
-      "연천군 귀농귀촌인 대상 선도농가 현장실습 교육으로 월 80만 원 교육훈련비를 지급.",
+      "연천군 귀농귀촌인 대상 선도농가 현장실습 교육으로 월 최대 80만 원 교육훈련비를 지급.",
     description:
-      "연수생에게 월 80만 원 교육훈련비, 선도농가에게 월 40만 원 교수수당을 지급하는 실습형 교육이에요. 최근 5년 이내 연천군으로 이주한 귀농귀촌인 또는 만 40세 미만 청장년이 대상이며, 교육기간은 2026년 6~10월이에요. 숙련 농가에서 직접 기술을 전수받는 현장 중심 교육으로 실전 역량을 키울 수 있어요.",
+      "연수생에게 월 최대 80만 원 교육훈련비, 선도농가에게 월 최대 40만 원 교수수당을 지급하는 실습형 교육이에요. 최근 5년 이내 연천군으로 이주한 귀농귀촌인 또는 만 40세 미만 청장년이 대상이며, 교육기간은 2026년 6~10월이에요. 숙련 농가에서 직접 기술을 전수받는 현장 중심 교육으로 실전 역량을 키울 수 있어요.",
     region: "경기도",
     organization: "연천군 농업기술센터",
     supportType: "교육",
-    supportAmount: "연수생 월 80만 원 교육훈련비 + 선도농가 월 40만 원 교수수당",
+    supportAmount: "연수생 월 최대 80만 원 교육훈련비 + 선도농가 월 최대 40만 원 교수수당",
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
@@ -432,23 +434,26 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
   },
   {
     id: "SP-011",
-    title: "귀농닥터 멘토링 (선도농가 현장실습 교육 지원)",
+    title: "귀농닥터 멘토링 (1:1 현장 컨설팅)",
     summary:
-      "귀농귀촌 희망자에게 무료 1:1 현장 컨설팅과 선도농가 기술 전수를 제공하는 상시 프로그램.",
+      "귀농귀촌 희망 도시민과 농촌 전입 6년 미만 귀농귀촌인에게 분야별 전문가·귀농 선배가 1:1 현장 멘토링을 연 최대 8회 무료로 해 주는 사업.",
+    // 2026-10-06 정정: 운영 기관 원문(그린대로 귀농닥터 — 농정원)은 신청 1~11월(예산 소진 시 조기 마감)·
+    // 대상 '농촌거주 만 6년 미만'·연 최대 8회. 옛 '상시·연중'·'1년 미만'·'농촌진흥청'·'선도농가 현장실습'은 원문과 달랐다
     description:
-      "귀농귀촌 희망자 또는 농촌 거주 1년 미만인 분이 무료로 1:1 현장 컨설팅을 받을 수 있는 상시 프로그램이에요. 각 지역 농업기술센터나 그린대로 플랫폼을 통해 수시로 신청하며, 경험 많은 선도농가가 직접 기술을 전수해요. 별도의 모집기간 없이 연중 이용 가능하여 귀농 초기 시행착오를 줄이는 데 효과적이에요.",
+      "귀농귀촌을 준비하는 도시민이나 농촌에 전입한 지 만 6년이 안 된 귀농귀촌인(영농정착지원사업 선정자 포함)이 귀농닥터(분야별 전문가·귀농 선배)와 1:1로 연결돼 현장 멘토링을 받는 사업이에요. 한 사람당 한 해 최대 8회까지 교육비 없이 받을 수 있고, 멘토링은 멘토나 멘티의 농장에서 회차당 2시간 이상 진행돼요. 신청은 매년 1~11월 그린대로에서 받지만, 예산이 소진되면 일찍 마감될 수 있어요.",
     region: "전국",
-    organization: "농촌진흥청 / 각 시군 농업기술센터",
+    organization: "농림수산식품교육문화정보원 귀농귀촌종합센터",
     supportType: "컨설팅",
-    supportAmount: "무료 1:1 현장 컨설팅 + 선도농가 기술 전수",
+    supportAmount: "1:1 현장 멘토링 연 최대 8회 (교육비 무료)",
     eligibilityAgeMin: 18,
-    eligibilityAgeMax: 65,
+    eligibilityAgeMax: 99,
     eligibilityDetail:
-      "귀농귀촌 희망자 및 농촌 거주 1년 미만. 각 지역 농업기술센터 또는 그린대로에서 신청.",
-    applicationStart: "2026-01-01",
+      "귀농귀촌을 희망하는 도시민, 농촌 거주 만 6년 미만(전입일 기준) 귀농귀촌인 또는 영농정착지원사업 선정자. 멘토(귀농닥터)의 가족(배우자·직계존속·형제자매)은 제외. 그린대로(greendaero.go.kr)에서 신청.",
+    applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    applicationCycle: "매년 1~11월 그린대로 접수 (예산 소진 시 조기 마감)",
     relatedCrops: ALL_CROP_NAMES, // 작물 범용
-    sourceUrl: "https://www.rda.go.kr/young/content/content76.do",
+    sourceUrl: "https://www.greendaero.go.kr/svc/rfph/edc/doctor/front/index.do",
     year: 2026,
     category: "facility",
   },
@@ -542,11 +547,13 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
   },
   {
     id: "SP-020",
-    title: "2026년 청년농업인 영농정착지원사업 2차 추가모집",
+    title: "2026년 청년농업인 영농정착지원사업 2차 모집",
     summary:
-      "1차 모집(2025-11-05~12-11) 완료. 2차 추가모집은 2026년 하반기 예정 — 정확한 일자는 농식품부 공고 시 확정.",
+      "1차(2025-11-05~12-11)에 이어 2차 대상자를 2026년 6월 1일~7월 10일 농업e지 온라인으로 모집. 만 18~39세, 영농경력 3년 이하.",
+    // 2026-10-06 정정: '2차 추가모집 2026년 하반기 예정'은 낡은 값 — 2차는 6/1~7/10 에 이미 진행됐다
+    // (해남·고창·거제·달성 등 시·군 2차 공고, RDA 똑똑!청년농부 게시). 신청 창구도 Agrix → 농업e지.
     description:
-      "농림축산식품부의 청년농업인 영농정착지원사업은 만 18세 이상 40세 미만, 독립경영 3년 이하 청년농을 대상으로 최장 3년간 월 최대 110만 원의 정착지원금을 지급하는 핵심 사업이에요. 1차 모집은 2025년 11월 5일부터 12월 11일까지 진행돼 완료되었고, 2차 추가모집은 2026년 하반기 중 예산 범위에서 잔여 인원을 대상으로 진행할 예정이에요. 다만 정확한 모집 일자는 현재 미확정 상태이며, 농식품부 공고가 발표되어야 확정돼요. 선발되면 후계농자금, 농신보 우대보증, 농지 임대 우선지원 등 연계 혜택도 함께 받을 수 있어요. 농림사업정보시스템(uni.agrix.go.kr)과 농식품부 누리집을 주기적으로 확인하면 좋아요.",
+      "농림축산식품부의 청년농업인 영농정착지원사업은 만 18~39세, 영농 경력이 없거나 3년 이하인 청년농에게 최장 3년간 월 최대 110만 원의 정착지원금을 주는 사업이에요. 2026년 사업은 1차 모집(2025년 11월 5일~12월 11일)에 이어 2026년 6월 1일부터 7월 10일까지 2차 모집을 했고, 신청은 농업e지 온라인으로만 받았어요(방문 접수 없음). 선발되면 후계농자금, 농신보 우대보증, 농지 임대 우선지원 등 연계 혜택도 함께 받을 수 있어요.",
     region: "전국",
     organization: "농림축산식품부",
     supportType: "보조금",
@@ -554,12 +561,11 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 39,
     eligibilityDetail:
-      "만 18세 이상 40세 미만(1985~2008년 출생), 독립 영농경력 3년 이하, 기준중위소득 140% 이하. 2차 추가모집은 2026년 하반기 예정 — 정확한 일자는 농식품부 공고 시 확정.",
-    applicationStart: "9999-12-31",
-    applicationEnd: "9999-12-31",
-    applicationCycle: "2026년 하반기 예정 (농식품부 공고 시 확정)",
+      "만 18~39세(1986~2008년 출생), 영농 경력 없거나 3년 이하(2023년 이후 경영주 등록자), 병역필·면제, 신청 시·군 실거주(주민등록 포함). 일정 수준 이상 재산·소득자 제외. 2차 접수 2026.6.1~7.10 농업e지 온라인.",
+    applicationStart: "2026-06-01",
+    applicationEnd: "2026-07-10",
     relatedCrops: ALL_CROP_NAMES, // 작물 범용
-    sourceUrl: "https://www.nongmin.com/article/20251104500065",
+    sourceUrl: "https://www.rda.go.kr/young/custom/policy/view.do?sId=46862",
     year: 2026,
     category: "youth",
   },
@@ -637,7 +643,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "경남 고성군이 7월·8월 입주 귀농인의 집 3개소 입주자를 5월 22일까지 모집. 6개월~1년 거주하며 정착 준비.",
     description:
-      "경상남도 고성군농업기술센터가 운영하는 귀농인의 집 3개소(7월 입주 2개소·8월 입주 1개소)에 입주자를 모집해요. 신청은 5월 22일까지 받고, 입주 기간은 6개월부터 최대 1년까지 거주하며 지역을 직접 탐색하고 정착을 준비할 수 있어요. 가족 단위 정착 또는 노년 귀촌 페르소나에 적합한 체류형 사업이에요. 임시 주거지를 제공받아 본격 귀농 전 지역·작물·이웃을 충분히 파악할 수 있어 시행착오를 줄여줘요. 경남 권역에 추가된 첫 케이스로, 그동안 부족했던 경남 정보 보강에 큰 도움이 돼요.",
+      "경상남도 고성군농업기술센터가 운영하는 귀농인의 집 3개소(7월 입주 2개소·8월 입주 1개소)에 입주자를 모집해요. 신청은 5월 22일까지 받고, 입주 기간은 6개월부터 최대 1년까지 거주하며 지역을 직접 탐색하고 정착을 준비할 수 있어요. 임시 주거지에 살면서 본격적으로 귀농하기 전에 지역·작물·이웃을 미리 살펴볼 수 있어요.",
     region: "경상남도",
     organization: "고성군농업기술센터",
     supportType: "현물",
@@ -645,7 +651,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
-      "농촌 정착 희망 도시민. 7월 입주 2개소·8월 입주 1개소. 신청 마감 2026-05-22. 고성군농업기술센터 신청.",
+      "귀농 희망 도시민. 7월 입주 2개소·8월 입주 1개소. 신청 마감 2026-05-22. 고성군농업기술센터 신청.",
     applicationStart: "2026-05-01",
     applicationEnd: "2026-05-22",
     relatedCrops: [],
@@ -679,9 +685,9 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     id: "SP-026",
     title: "제주 신규농업인 현장실습 연수생·선도농가 모집",
     summary:
-      "제주농업기술센터가 신규농업인 3명·선도농가 3명을 매칭해 1:1 현장실습. 연수생 월 80만 원·선도농가 월 40만 원 지원. 5월 25일까지 신청.",
+      "제주농업기술센터가 신규농업인 3명·선도농가 3명을 매칭해 1:1 현장실습. 연수생 월 최대 80만 원·선도농가 월 최대 40만 원 지원. 2월 25일까지 신청.",
     description:
-      "제주특별자치도 농업기술원이 신규·청년농업인의 안정적인 영농 정착을 위해 운영하는 현장실습 매칭 사업이에요. 영농 경험이 부족한 신규농업인 3명과 선도농가 3명을 1:1로 연결해 재배기술·품질관리·경영·창업 단계까지 실습 중심으로 교육해요. 연수생에게 월 최대 80만 원, 선도농가에게 월 최대 40만 원의 교육비가 지원돼요. 신청은 5월 5일 오전 9시부터 25일 오후 6시까지 제주농업기술센터(제주시 애월읍 상귀리 173, 2층) 방문 접수로 받아요. 제주 권역에 추가된 첫 케이스로, 청년·균형형 페르소나 양쪽에 적합해요. 서류심사와 현지심사를 거쳐 최종 선정해요.",
+      "제주특별자치도 농업기술원이 신규·청년농업인의 안정적인 영농 정착을 위해 운영하는 현장실습 매칭 사업이에요. 영농 경험이 부족한 신규농업인 3명과 선도농가 3명을 1:1로 연결해 재배기술·품질관리·경영·창업 단계까지 실습 중심으로 교육해요. 연수생에게 월 최대 80만 원, 선도농가에게 월 최대 40만 원의 교육비가 지원돼요. 신청은 2월 5일 오전 9시부터 25일 오후 6시까지 제주농업기술센터(제주시 애월읍 상귀리 173, 2층) 방문 접수로 받아요. 서류심사와 현지심사를 거쳐 최종 선정해요.",
     region: "제주특별자치도",
     organization: "제주특별자치도 농업기술원",
     supportType: "교육",
@@ -689,9 +695,9 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 65,
     eligibilityDetail:
-      "신규농업인 3명·선도농가 3명. 신청 5월 5일~25일 (방문 접수). 제주농업기술센터(제주시 애월읍 상귀리 173, 2층).",
-    applicationStart: "2026-05-05",
-    applicationEnd: "2026-05-25",
+      "신규농업인 3명·선도농가 3명. 신청 2월 5일~25일 (방문 접수). 제주농업기술센터(제주시 애월읍 상귀리 173, 2층).",
+    applicationStart: "2026-02-05",
+    applicationEnd: "2026-02-25",
     relatedCrops: [],
     sourceUrl: "https://www.koreatimenews.com/news/article.html?no=1064324",
     year: 2026,
@@ -708,7 +714,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "서울시농업기술센터가 운영하는 124시간 1급 치유농업사 양성과정. 모집 3월 9일~13일, 교육 4월 15일~6월 10일, 자기부담 120만 원.",
     description:
-      "서울시농업기술센터가 농촌진흥청 인증 양성기관으로 운영하는 1급 치유농업사 양성과정이에요. 총 124시간(이론 50시간·실습 74시간)으로, 2026년 1기는 4월 15일부터 6월 10일까지 매주 수·목 09:00~18:00 진행해요. 모집은 2026년 3월 9일 09:00부터 3월 13일 18:00까지 서울시 공공서비스예약 시스템에서 받아요. 정원 40명, 자기부담금 120만 원(교재·재료·견학비 포함)이에요. 신청 대상은 주민등록상 만 18세 이상 서울·경기·강원·인천 거주자예요. 1급 자격시험 응시 자격을 충족시키는 양성과정이며, 치유농업·사회적 농업 페르소나에게 적합해요.",
+      "서울시농업기술센터가 농촌진흥청 인증 양성기관으로 운영하는 1급 치유농업사 양성과정이에요. 총 124시간(이론 50시간·실습 74시간)으로, 2026년 1기는 4월 15일부터 6월 10일까지 매주 수·목 09:00~18:00 진행해요. 모집은 2026년 3월 9일 09:00부터 3월 13일 18:00까지 서울시 공공서비스예약 시스템에서 받아요. 정원 40명, 자기부담금 120만 원(교재·재료·견학비 포함)이에요. 신청 대상은 주민등록상 만 18세 이상 서울·경기·강원·인천 거주자예요. 1급 자격시험 응시 자격을 충족시키는 양성과정이에요.",
     region: "서울특별시",
     organization: "서울시농업기술센터",
     supportType: "교육",
@@ -730,7 +736,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     summary:
       "농촌진흥청 주관 치유농업사 국가자격시험. 2급은 양성기관 교육 이수자, 1급은 2급 취득 후 5년 경력. 한국농업기술진흥원이 시험 운영.",
     description:
-      "농촌진흥청 주관, 한국농업기술진흥원이 시행하는 치유농업사 국가자격시험이에요. 2급은 농진청 인증 양성기관 교육과정을 이수한 사람이 응시할 수 있어요. 1급은 2급 자격 취득 후 5년 이상 관련 업무 경력 등을 충족해야 해요. 시험은 1차 선택형(2급 3과목·1급 4과목)과 2차 주관식으로 구성되며, 1차는 과목당 40점 이상·평균 60점 이상, 2차는 60점 이상이면 합격이에요. 2026년 구체적인 시험 일정은 한국농업기술진흥원과 치유농업ON 포털에서 발표 시 확정되므로 미정으로 표기해요. 자격 취득 후 양성기관 강의, 치유농장 운영, 사회적 농업 프로그램 기획 등 다양한 경로로 활동할 수 있어요.",
+      "농촌진흥청 주관, 한국농업기술진흥원이 시행하는 치유농업사 국가자격시험이에요. 2급은 농진청 인증 양성기관 교육과정을 이수한 사람이 응시할 수 있어요. 1급은 2급 자격 취득 후 5년 이상 관련 업무 경력 등을 충족해야 해요. 시험은 1차 선택형(2급 3과목·1급 4과목)과 2차 주관식으로 구성되며, 1차는 과목당 40점 이상·평균 60점 이상, 2차는 60점 이상이면 합격이에요. 2026년 시험은 1차 접수 7월 31일~8월 6일(시험 9월 5일), 2차 접수 10월 2일~8일(시험 11월 7일)로 공고됐어요(1·2급 같은 일정). 자격 취득 후 양성기관 강의, 치유농장 운영, 사회적 농업 프로그램 기획 등 다양한 경로로 활동할 수 있어요.",
     region: "전국",
     organization: "농촌진흥청 / 한국농업기술진흥원",
     supportType: "교육",
@@ -741,6 +747,8 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "2급 — 농진청 인증 양성기관 교육과정 이수. 1급 — 2급 취득 후 5년 이상 관련 업무 경력. 한국농업기술진흥원 주관.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    // 2026-10-06: 치유농업ON 자격시험공고(https://www.agrohealing.go.kr/ps/application/testPblanc.do) 원문
+    applicationCycle: "치유농업ON 공고 (2026년: 1차 접수 7/31~8/6, 2차 접수 10/2~10/8)",
     relatedCrops: [],
     sourceUrl: "https://www.agrohealing.go.kr/sf/crfrmr/testGuid/retrieveTestGuid.do",
     year: 2026,
@@ -763,6 +771,8 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
       "거주 광역 농업기술원·기술센터 이용. 13개 광역거점(2027년 17개소 확대 예정). 센터별 운영 일정 상이.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
+    // 모집 공고가 아니라 센터 안내 — '공고 발표 예정'은 오해를 부른다(2026-10-06 QA)
+    applicationCycle: "센터별 일정 — 거주지 광역 센터 문의",
     relatedCrops: [],
     sourceUrl: "https://www.agrohealing.go.kr/sf/crfrmSprtInst/crfrmCnter/retrieveCrfrmCnter.do",
     year: 2026,
@@ -772,9 +782,9 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     id: "SP-030",
     title: "농촌돌봄서비스활성화지원사업 — 농촌돌봄농장 (2026 공모)",
     summary:
-      "농식품부가 2026년 농촌돌봄농장 23개소 신규 모집(총 100개소 확대). 신청 12월 15일~31일, 2026년 1월 말 선정. 장애인·노약자 등 취약계층 대상 사회적 농업 프로그램 운영.",
+      "농식품부가 2026년 농촌돌봄농장 23개소 신규 모집(총 100개소 확대). 2025년 12월 15~31일 접수, 2026년 1월 말 선정 — 매년 12월 다음 해 공모. 장애인·노약자 등 취약계층 대상 사회적 농업 프로그램 운영.",
     description:
-      "농림축산식품부가 운영하는 농촌돌봄서비스활성화지원사업(舊 사회적농업 활성화 지원사업)의 농촌돌봄농장 부문이에요. 농촌 지역 복지시설이 부족한 곳에서 장애인·노약자 등 취약계층을 대상으로 농업활동을 통한 돌봄·교육·일자리를 제공하는 농장을 지원해요. 2026년에는 23개소를 신규 선정해 총 100개소로 확대해요. 신청은 매년 12월 15일부터 31일까지 받고, 서면·현장심사를 거쳐 1월 말 최종 선정해요. 2025년 10월 기준 97개소가 4,436명에게 돌봄 서비스를 제공해 전년 대비 10% 증가했어요. 사회적 농업·치유농업 페르소나에게 적합한 사업이에요.",
+      "농림축산식품부가 운영하는 농촌돌봄서비스활성화지원사업(舊 사회적농업 활성화 지원사업)의 농촌돌봄농장 부문이에요. 농촌 지역 복지시설이 부족한 곳에서 장애인·노약자 등 취약계층을 대상으로 농업활동을 통한 돌봄·교육·일자리를 제공하는 농장을 지원해요. 2026년에는 23개소를 신규 선정해 총 100개소로 확대해요. 신청은 매년 12월에 다음 해 사업자를 공모해요. 2026년 사업은 2025년 12월 15~31일에 받아 서면·현장심사를 거쳐 1월 말 선정하는 일정이었어요. 2025년 10월 기준 97개소가 4,436명에게 돌봄 서비스를 제공해 전년 대비 10% 증가했어요.",
     region: "전국",
     organization: "농림축산식품부",
     supportType: "보조금",
@@ -782,9 +792,12 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 99,
     eligibilityDetail:
-      "농촌 지역 사회적 농업 운영 의지가 있는 농가·법인. 장애인·노약자 등 취약계층 돌봄 프로그램 운영 가능. 매년 12월 15~31일 신청.",
-    applicationStart: "2026-12-15",
-    applicationEnd: "2026-12-31",
+      "농촌 지역 사회적 농업 운영 의지가 있는 농가·법인. 장애인·노약자 등 취약계층 돌봄 프로그램 운영 가능. 매년 12월 신청 (2026년 사업은 2025.12.15~31).",
+    // 10/6 QA Q1-W5: 5/20 에 넣은 "2026-12-15~31"은 추정 일자였다 — 원문(노컷 2025-12-11)상 2026년 공모 접수는
+    // 2025.12.15~31 이고, 2025년 사업도 2024.12.27 마감(고창·평창군 공지)이라 연례 12월 창구 → 9999 페어 + 접수 시기
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    applicationCycle: "매년 12월 접수 (2026년 사업은 2025.12.15~31)",
     relatedCrops: [],
     sourceUrl: "https://www.nocutnews.co.kr/news/6441539",
     year: 2026,
@@ -794,9 +807,9 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     id: "SP-031",
     title: "농촌돌봄서비스활성화지원사업 — 농촌주민생활돌봄공동체 (2026 공모)",
     summary:
-      "농식품부가 2026년 농촌주민생활돌봄공동체 27개소 신규 모집(총 65개소 확대). 신청 12월 15일~31일, 2026년 1월 말 선정. 반찬배달·교통편의·소규모 집수리 등 생활서비스 제공.",
+      "농식품부가 2026년 농촌주민생활돌봄공동체 27개소 신규 모집(총 65개소 확대). 2025년 12월 15~31일 접수, 2026년 1월 말 선정 — 매년 12월 다음 해 공모. 반찬배달·교통편의·소규모 집수리 등 생활서비스 제공.",
     description:
-      "농림축산식품부가 운영하는 농촌돌봄서비스활성화지원사업의 주민생활돌봄공동체 부문이에요. 사회복지 인프라가 부족한 농촌 지역에서 반찬배달·교통편의·소규모 집수리 등 일상생활 서비스를 주민 공동체가 직접 제공해요. 2026년에는 27개소를 신규 선정해 총 65개소로 확대해요. 신청은 매년 12월 15일부터 31일까지 받고, 서면·현장심사를 거쳐 1월 말 최종 선정해요. 2025년 10월 기준 40개소가 39,864명에게 4,683건의 생활서비스를 제공해 전년 대비 46% 증가했어요. 농촌 정착 후 지역공동체 활동에 관심 있는 분에게 적합해요.",
+      "농림축산식품부가 운영하는 농촌돌봄서비스활성화지원사업의 주민생활돌봄공동체 부문이에요. 사회복지 인프라가 부족한 농촌 지역에서 반찬배달·교통편의·소규모 집수리 등 일상생활 서비스를 주민 공동체가 직접 제공해요. 2026년에는 27개소를 신규 선정해 총 65개소로 확대해요. 신청은 매년 12월에 다음 해 사업자를 공모해요. 2026년 사업은 2025년 12월 15~31일에 받아 서면·현장심사를 거쳐 1월 말 선정하는 일정이었어요. 2025년 10월 기준 40개소가 39,864명에게 4,683건의 생활서비스를 제공해 전년 대비 46% 증가했어요. 농촌 정착 후 지역공동체 활동에 관심 있는 분에게 적합해요.",
     region: "전국",
     organization: "농림축산식품부",
     supportType: "보조금",
@@ -804,9 +817,11 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMin: 18,
     eligibilityAgeMax: 99,
     eligibilityDetail:
-      "농촌 지역 주민 공동체. 반찬배달·교통편의·소규모 집수리 등 생활서비스 제공 의지. 매년 12월 15~31일 신청.",
-    applicationStart: "2026-12-15",
-    applicationEnd: "2026-12-31",
+      "농촌 지역 주민 공동체. 반찬배달·교통편의·소규모 집수리 등 생활서비스 제공 의지. 매년 12월 신청 (2026년 사업은 2025.12.15~31).",
+    // 10/6 QA Q1-W5: SP-030 과 같은 사유 — 원문(푸드투데이 2025-12-11)상 2026년 공모 접수는 2025.12.15~31
+    applicationStart: "9999-12-31",
+    applicationEnd: "9999-12-31",
+    applicationCycle: "매년 12월 접수 (2026년 사업은 2025.12.15~31)",
     relatedCrops: [],
     sourceUrl: "https://www.foodtoday.or.kr/news/article.html?no=200816",
     year: 2026,
@@ -1764,6 +1779,64 @@ export const PROGRAMS: SupportProgram[] = PROGRAMS_RAW.map((p) => ({
   status: deriveStatus(p.applicationStart, p.applicationEnd),
 }));
 
+/** 정적 큐레이션 행 — DB 우선 병합 때 DB 에 없는 칸을 같은 slug 로 채운다 (mapProgramRow) */
+const STATIC_PROGRAM_BY_ID = new Map(PROGRAMS_RAW.map((p) => [p.id, p]));
+
+/**
+ * DB 행 → SupportProgram. 목록(`loadPrograms`)·상세(`getProgramByIdAsync`) 공용 — 두 곳이 따로 매핑하면 칸이 갈린다.
+ *
+ * - `category`: DB 에 칸이 없다 → 같은 slug 의 정적 값을 붙인다. 10/6 전에는 DB 우선 12행이 분류를 잃어
+ *   운영 `/programs?category=youth` 가 3건 중 1건(SP-020)만 보였다(SP-002·SP-022 누락, QA Q1-W1).
+ *   페르소나 적합도(persona-fit)도 category 를 본다.
+ * - `applicationCycle`: DB 값 우선, 비어 있으면 정적 값 — 정적에만 접수 시기를 적고 DB 를 못 맞춘 행(SP-022 "시·도별 별도 공고")이
+ *   "공고 발표 예정"으로 보이지 않게.
+ */
+function mapProgramRow(row: ProgramRow): SupportProgram {
+  const curated = STATIC_PROGRAM_BY_ID.get(row.slug);
+  return {
+    id: row.slug,
+    title: row.title,
+    summary: row.summary,
+    description: row.description || undefined,
+    region: row.region,
+    sigungu: row.sigungu ?? undefined,
+    organization: row.organization,
+    supportType: row.support_type as SupportProgram["supportType"],
+    supportAmount: row.support_amount,
+    eligibilityAgeMin: row.eligibility_age_min,
+    eligibilityAgeMax: row.eligibility_age_max,
+    eligibilityDetail: row.eligibility_detail,
+    applicationStart: row.application_start,
+    applicationEnd: row.application_end,
+    applicationCycle: row.application_cycle?.trim() || curated?.applicationCycle,
+    status: deriveStatus(row.application_start, row.application_end),
+    relatedCrops: row.related_crops ?? [],
+    sourceUrl: row.source_url,
+    linkStatus: (row.link_status ?? undefined) as SupportProgram["linkStatus"],
+    year: row.year,
+    createdAt: row.created_at,
+    category: curated?.category,
+  };
+}
+
+/** 상위 소스(DB·API) 결과에 그 소스에 없는 정적 행을 붙인다 — CLAUDE.md "데이터 소스 병합 원칙" (5/10·5/11) */
+function withStaticOnly(primary: SupportProgram[]): SupportProgram[] {
+  const primaryIds = new Set(primary.map((p) => p.id));
+  const staticOnly = PROGRAMS_RAW.filter((p) => !primaryIds.has(p.id)).map((p) => ({
+    ...p,
+    status: deriveStatus(p.applicationStart, p.applicationEnd),
+  }));
+  return [...primary, ...staticOnly];
+}
+
+/*
+ * 수집기 기본값을 가진 행 — 수집 행(crawl-*)·RDA API 폴백 행(rda-*)은 지원 유형("보조금")·대상 연령(18~65)을
+ * 원문이 아니라 수집기·매핑이 일괄로 채운다(10/6 DB: 수집 91행 전부 같은 값). 필터에선 '모름'으로 다룬다 —
+ * 그 그룹을 고르면 빠지고, 고르지 않은 전체 보기에는 나온다(QA Q1-W4·Q4-W4).
+ * 판정은 화면 표시·맞춤 점수와 같은 `hasCollectorDefaults`(lib/programs/display.ts) 하나다 (10/6 QA R2 — 따로 두면
+ * RDA API 폴백 행에서 표시와 필터가 갈라졌다).
+ */
+
 // --- 헬퍼 함수 ---
 
 /** ID(slug)로 단일 프로그램 조회 — 정적 데이터만 (동기, 날짜 기반 상태) */
@@ -1788,30 +1861,7 @@ export async function getProgramByIdAsync(
         .maybeSingle();
 
       if (!error && data) {
-        const row = data as unknown as ProgramRow;
-        return {
-          id: row.slug,
-          title: row.title,
-          summary: row.summary,
-          description: row.description || undefined,
-          region: row.region,
-          sigungu: row.sigungu ?? undefined,
-          organization: row.organization,
-          supportType: row.support_type as SupportProgram["supportType"],
-          supportAmount: row.support_amount,
-          eligibilityAgeMin: row.eligibility_age_min,
-          eligibilityAgeMax: row.eligibility_age_max,
-          eligibilityDetail: row.eligibility_detail,
-          applicationStart: row.application_start,
-          applicationEnd: row.application_end,
-          applicationCycle: row.application_cycle ?? undefined,
-          status: deriveStatus(row.application_start, row.application_end),
-          relatedCrops: row.related_crops ?? [],
-          sourceUrl: row.source_url,
-          linkStatus: (row.link_status ?? undefined) as SupportProgram["linkStatus"],
-          year: row.year,
-          createdAt: row.created_at,
-        };
+        return mapProgramRow(data as unknown as ProgramRow);
       }
     } catch {
       // Supabase 에러 → 정적 폴백
@@ -1825,8 +1875,8 @@ export async function getProgramByIdAsync(
 
 /** 현재 연월 문자열 (YYYY-MM) */
 export function getCurrentPeriod(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  // KST 기준 달 — Vercel 서버는 UTC 라 new Date() 로 세면 매월 1일 0~9시(KST)에 지난달이 된다 (10/6 QA)
+  return kstToday().slice(0, 7);
 }
 
 /** 연령대 필터 옵션 (19세~79세, 10살 간격) */
@@ -1846,7 +1896,10 @@ function parseAgeRange(range: string): { min: number; max: number } | null {
   return { min: Number(match[1]), max: Number(match[2]) };
 }
 
-/** 필터 조건에 맞는 프로그램 목록 반환 */
+/**
+ * 필터 조건 — region·age·supportType·category·status 는 URL 그대로의 쉼표 목록(CSV, 복수 선택)도 받는다.
+ * 그룹 안은 합집합, 그룹 사이는 교집합. 값 하나("경기도")는 원소 하나짜리 목록과 같다.
+ */
 export interface ProgramFilters {
   region?: string;
   age?: string;
@@ -1856,7 +1909,7 @@ export interface ProgramFilters {
   includeClosed?: boolean;
   /** 조회 시점 "YYYY-MM" — 해당 월에 모집기간이 겹치는 사업만 표시 */
   period?: string;
-  /** 카테고리 — "healing" | "social" (Sprint P P2-e) */
+  /** 카테고리 — PROGRAM_CATEGORIES 값의 CSV (Sprint P P2-e) */
   category?: string;
 }
 
@@ -1993,48 +2046,19 @@ export async function loadPrograms(): Promise<{
         .order("slug", { ascending: true });
 
       if (!error && data && data.length > 0) {
-        const rows = data as unknown as ProgramRow[];
-        const dbPrograms: SupportProgram[] = rows.map((row) => ({
-          id: row.slug,
-          title: row.title,
-          summary: row.summary,
-          description: row.description || undefined,
-          region: row.region,
-          sigungu: row.sigungu ?? undefined,
-          organization: row.organization,
-          supportType: row.support_type as SupportProgram["supportType"],
-          supportAmount: row.support_amount,
-          eligibilityAgeMin: row.eligibility_age_min,
-          eligibilityAgeMax: row.eligibility_age_max,
-          eligibilityDetail: row.eligibility_detail,
-          applicationStart: row.application_start,
-          applicationEnd: row.application_end,
-          applicationCycle: row.application_cycle ?? undefined,
-          status: deriveStatus(row.application_start, row.application_end),
-          relatedCrops: row.related_crops ?? [],
-          sourceUrl: row.source_url,
-          linkStatus: (row.link_status ?? undefined) as SupportProgram["linkStatus"],
-          year: row.year,
-          createdAt: row.created_at,
-        }));
+        const dbPrograms = (data as unknown as ProgramRow[]).map(mapProgramRow);
         // 정적 데이터 중 Supabase에 없는 항목 병합
-        const dbIds = new Set(dbPrograms.map((p) => p.id));
-        const staticOnly = PROGRAMS
-          .filter((p) => !dbIds.has(p.id))
-          .map((p) => ({ ...p, status: deriveStatus(p.applicationStart, p.applicationEnd) }));
-        const programs = [...dbPrograms, ...staticOnly];
-        return { programs, source: "supabase" };
+        return { programs: withStaticOnly(dbPrograms), source: "supabase" };
       }
     } catch {
       // Supabase 에러 → 다음 소스로
     }
   }
 
-  // 2️⃣ RDA API 시도
+  // 2️⃣ RDA API 시도 — 정적 큐레이션 행도 붙인다(상위 소스가 무엇이든 정적 고유 행은 남는다)
   const apiData = await fetchPolicies({ pageSize: 100 });
   if (apiData && apiData.length > 0) {
-    const programs = apiData.map(mapRdaPolicy);
-    return { programs, source: "api" };
+    return { programs: withStaticOnly(apiData.map(mapRdaPolicy)), source: "api" };
   }
 
   // 3️⃣ 정적 폴백 — 하드코딩 status 대신 날짜 기반으로 재계산
@@ -2064,6 +2088,16 @@ export async function filterProgramsAsync(
     periodEnd = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
   }
 
+  // 복수 선택(CSV) — 그룹 안은 합집합, 그룹 사이는 교집합 (10/6 QA Q4-F1: 값 하나만 `!==` 로 비교해
+  // "보조금,융자" 0건 · "settlement,youth" 0건 · "경기도,강원도" 전국 사업만 · 연령 2구간은 첫 구간만)
+  const regions = parseFilterValues(filters.region);
+  const supportTypes = parseFilterValues(filters.supportType);
+  const categories = parseFilterValues(filters.category);
+  const statuses = parseFilterValues(filters.status);
+  const ageRanges = parseFilterValues(filters.age)
+    .map(parseAgeRange)
+    .filter((range): range is { min: number; max: number } => range !== null);
+
   const filtered = allPrograms.filter((program) => {
     // 원문 링크 깨진 항목은 목록에서 숨김
     if (program.linkStatus === "broken") return false;
@@ -2083,40 +2117,40 @@ export async function filterProgramsAsync(
         }
       }
     }
-    if (filters.query) {
-      const q = filters.query.toLowerCase();
-      const searchable = [
+    // 검색어 — 1글자(작물 이름만 normalize 통과)는 낱말 단위, 2글자 이상은 부분 일치 (filter-match.ts)
+    if (
+      !matchesListQuery(filters.query, [
         program.title,
         program.summary,
         program.region,
         program.organization,
         ...program.relatedCrops,
-      ]
-        .join(" ")
-        .toLowerCase();
-      if (!searchable.includes(q)) return false;
+      ])
+    ) {
+      return false;
     }
-    if (filters.region && filters.region !== "전체") {
-      if (program.region !== "전국" && program.region !== filters.region) return false;
+    // 지역 — 전국 사업은 어느 지역을 골라도 남는다
+    if (regions.length > 0 && program.region !== "전국" && !regions.includes(program.region)) return false;
+    // 연령 — 고른 구간 중 하나라도 자격 연령과 겹치면 남는다. 수집 행의 18~65 는 기본값이라 '모름'(빠짐)
+    if (ageRanges.length > 0) {
+      if (hasCollectorDefaults(program.id)) return false;
+      const overlaps = ageRanges.some(
+        (range) => range.min <= program.eligibilityAgeMax && range.max >= program.eligibilityAgeMin,
+      );
+      if (!overlaps) return false;
     }
-    if (filters.age) {
-      const range = parseAgeRange(filters.age);
-      if (range && (range.min > program.eligibilityAgeMax || range.max < program.eligibilityAgeMin)) return false;
+    // 지원 유형 — 수집 행의 "보조금"은 기본값이라 '모름'(빠짐)
+    if (supportTypes.length > 0) {
+      if (hasCollectorDefaults(program.id) || !supportTypes.includes(program.supportType)) return false;
     }
-    if (filters.supportType && filters.supportType !== "전체") {
-      if (program.supportType !== filters.supportType) return false;
-    }
-    if (filters.category && filters.category !== "전체") {
-      if (program.category !== filters.category) return false;
-    }
-    if (filters.status && filters.status !== "전체") {
+    if (categories.length > 0 && !(program.category && categories.includes(program.category))) return false;
+    if (statuses.length > 0) {
       // 5/22 Sprint — status CSV 복수 선택 지원
-      const statuses = filters.status.split(",").map((s) => s.trim()).filter(Boolean);
       // 9/28: 배지 라벨 SSOT 기준으로 판정 — 9999 페어 + 접수 시기 = "정기 접수"(별도 옵션),
       // 9999 페어 + 시기 없음("공고 발표 예정")은 "모집예정" 옵션에 포함.
       const label = programStatusLabel(program);
       const effective = label === UNANNOUNCED_LABEL ? "모집예정" : label;
-      if (statuses.length > 0 && !statuses.includes(effective)) return false;
+      if (!statuses.includes(effective)) return false;
     }
     return true;
   });

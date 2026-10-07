@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Mail, FileText, UserSquare2 } from "lucide-react";
@@ -42,16 +43,23 @@ const SOURCE_COUNT = DATA_SOURCES.length;
 const SOURCE_NAMES = DATA_SOURCES.map((src) => src.name).join("·");
 
 export const metadata: Metadata = {
-  title: "이랑 서비스 소개 — 귀농·귀촌 정보 큐레이션",
-  description:
-    `공공데이터 ${SOURCE_COUNT}개 기관으로 농촌 정착을 한곳에서. 지역·작물·지원사업·인터뷰·치유까지.`,
-  alternates: { canonical: "/about" },
+  ...pageMetadata({
+    title: "이랑 서비스 소개 — 귀농·귀촌 정보 큐레이션",
+    description:
+      `공공데이터 ${SOURCE_COUNT}개 기관으로 농촌 정착을 한곳에서. 지역·작물·지원사업·인터뷰·치유까지.`,
+    path: "/about",
+  }),
 };
 
-/** N1 — 페르소나 5종 (이런 분께). href 는 /match?persona={id} deep link */
+/**
+ * N1 — 페르소나 5종 (이런 분께). 버튼 문구가 약속한 화면으로 바로 보낸다 (10/6 QA Q2-X6).
+ * 예전 링크(/match?persona=…)는 /match 가 persona 를 읽지 않아 그냥 진단 선택 화면이 열렸다.
+ * 지역 순위·지원사업 목록은 persona 를 읽어 그 유형 기준으로 줄 세운다(normalize 화이트리스트 등록 값).
+ */
 const PERSONA_CARDS = [
   {
     id: "family",
+    href: "/regions/ranking?persona=family",
     image: "/landing/personas/family.webp",
     alt: "텃밭에서 아이와 채소를 가꾸는 가족",
     label: "자녀 양육 가구",
@@ -65,6 +73,7 @@ const PERSONA_CARDS = [
     label: "청년 영농",
     tagline: "농업을 제 본업으로 시작하고 싶어요.",
     cta: "청년 지원사업 보기",
+    href: "/programs?persona=farmYouth",
   },
   {
     id: "elderRural",
@@ -73,6 +82,7 @@ const PERSONA_CARDS = [
     label: "노년 귀촌",
     tagline: "은퇴 후 한적한 곳에서 쉬고 싶어요.",
     cta: "의료 인프라 확인",
+    href: "/regions/ranking?persona=elderRural",
   },
   {
     id: "commuter",
@@ -80,7 +90,9 @@ const PERSONA_CARDS = [
     alt: "시골 간이역에서 출근길에 나선 직장인",
     label: "귀촌 직장인",
     tagline: "도시 출퇴근하면서 시골에서 살고 싶어요.",
-    cta: "교통 좋은 지역 보기",
+    // 순위에 교통 지표는 없다 — 인구 추세·의료·학교 비중이 큰 '귀촌 직장인' 가중치라 "교통"을 약속하지 않는다
+    cta: "생활 여건 좋은 지역 보기",
+    href: "/regions/ranking?persona=commuter",
   },
   {
     id: "balanced",
@@ -91,6 +103,7 @@ const PERSONA_CARDS = [
     label: "아직 모르겠어요",
     tagline: "유형 정하지 않고 둘러보고 싶어요.",
     cta: "균등 추천 시작",
+    href: "/regions/ranking?persona=balanced",
   },
 ] as const;
 
@@ -254,7 +267,8 @@ export default function AboutPage() {
             <AutoGlossary text={`지역·작물·지원사업·인터뷰·치유까지, 농촌 정착에 필요한 정보를 한곳에 모았어요. 기후·인구·의료·학교·소득처럼 흩어진 숫자는 공공기관 ${SOURCE_COUNT}곳의 자료를 같은 기준으로 맞춰, 후보지와 작물을 나란히 놓고 고를 수 있어요.`} />
           </p>
           <div className={s.introCtas}>
-            <Link href="/assess" className={s.btnPrimary}>
+            {/* /assess 는 이리로 넘기기만 하는 페이지 — 한 홉 줄인다 (10/6 QA Q2-X5) */}
+            <Link href="/match?mode=assess" className={s.btnPrimary}>
               지금 바로 시작하기
               <IconWrap icon={ArrowRight} size="sm" />
             </Link>
@@ -338,7 +352,7 @@ export default function AboutPage() {
         <ul className={s.personas}>
           {PERSONA_CARDS.map((p) => (
             <li key={p.id}>
-              <Link href={`/match?persona=${p.id}`} className={s.persona}>
+              <Link href={p.href} className={s.persona}>
                 <span className={s.personaArt}>
                   <Image
                     src={p.image}

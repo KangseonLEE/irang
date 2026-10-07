@@ -23,6 +23,8 @@ interface Props {
  * - 스크롤 위치 → 활성 점 동기화. 점 클릭 시 해당 카드로 스크롤.
  * - 데스크탑(768+)에서는 CSS 로 숨긴다 — 그리드로 전부 보이므로 위치 개념이 없다.
  * - 트랙 내용이 바뀌는 경우(탭 전환)는 호출처에서 `key` 로 초기화한다.
+ * - 역할은 "버튼 묶음" + 지금 위치 `aria-current` (10/6 QA). 예전 tablist/tab 은 ←/→ 이동·aria-controls(탭 패널)가 없어
+ *   역할이 약속한 동작을 하지 않았다 — 점은 패널을 바꾸는 탭이 아니라 그 카드로 스크롤하는 버튼이다.
  */
 export function SnapDots({ trackRef, count, label = "카드 위치", itemLabel, tone = "default", className }: Props) {
   const [active, setActive] = useState(0);
@@ -58,13 +60,12 @@ export function SnapDots({ trackRef, count, label = "카드 위치", itemLabel, 
   };
 
   return (
-    <div className={`${s.dots}${tone === "onDark" ? ` ${s.dotsOnDark}` : ""} ${className ?? ""}`} role="tablist" aria-label={label}>
+    <div className={`${s.dots}${tone === "onDark" ? ` ${s.dotsOnDark}` : ""} ${className ?? ""}`} role="group" aria-label={label}>
       {Array.from({ length: count }, (_, i) => (
         <button
           key={i}
           type="button"
-          role="tab"
-          aria-selected={i === active}
+          aria-current={i === active ? "true" : undefined}
           aria-label={itemLabel ? itemLabel(i) : `${i + 1}번째`}
           className={`${s.dot} ${i === active ? s.dotActive : ""}`}
           onClick={() => jump(i)}

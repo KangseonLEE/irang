@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { shareMetadata } from "@/lib/seo/share-metadata";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -25,7 +25,7 @@ import { SidebarTabs } from "@/components/ui/sidebar-tabs";
 import st from "@/components/ui/sidebar-tabs.module.css";
 import { RegionProfileCard } from "@/components/region/region-profile-card";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
-import { convertToPyeongLabel } from "@/lib/format";
+import { convertToPyeongLabel, withJosa } from "@/lib/format";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { CommunityNotes } from "@/components/community/community-notes";
@@ -36,6 +36,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import type { Place } from "schema-dts";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { RegionAsyncData } from "./region-async-data";
+import { loadRegionListings } from "./region-listings";
 import { RegionAsyncSkeleton } from "./region-async-skeleton";
 import { StickyRegionHeader, type StickyChip } from "./sticky-region-header";
 import { getCropFit } from "@/lib/data/crop-fit";
@@ -70,17 +71,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id } = await params;
   const province = PROVINCES.find((p) => p.id === id);
   if (!province) notFound();
-  return {
-    title: `${province.shortName} 귀농 — 지원사업·정착금·기후·작물 정보`,
-    description: `${province.shortName} 정착 준비에 필요한 청년·40대·50대 맞춤 지원사업, 정착금, 기후 환경, 추천 작물을 한눈에 확인하세요.`,
-    alternates: { canonical: `/regions/${id}` },
-    ...shareMetadata({
-      title: `${province.shortName} 농촌 정착 정보 | 이랑`,
-      description: `${province.shortName} 농촌 정착 지원사업·기후·작물 정보를 한눈에 확인하세요.`,
-      path: `/regions/${id}`,
-      image: { url: `/regions/${id}/opengraph-image`, width: 1200, height: 630, alt: `${province.shortName} 농촌 정착 정보` },
-    }),
-  };
+  const title = `${province.shortName} 귀농 — 지원사업·정착금·기후·작물 정보`;
+  const description = `${province.shortName} 정착 준비에 필요한 청년·40대·50대 맞춤 지원사업, 정착금, 기후 환경, 추천 작물을 한눈에 확인하세요.`;
+  // 공유 카드 제목·설명 = 검색 결과 제목·설명 (10/6 "귀농" 복원과 일치 — QA1 Q2-W3)
+  return pageMetadata({
+    title,
+    description,
+    path: `/regions/${id}`,
+    image: { url: `/regions/${id}/opengraph-image`, width: 1200, height: 630, alt: `${province.shortName} 귀농 정보` },
+  });
 }
 
 export default async function RegionDetailPage({ params }: PageProps) {
@@ -173,6 +172,30 @@ export default async function RegionDetailPage({ params }: PageProps) {
           })),
         )
       : null;
+
+  // 지원사업 · 교육 · 체험·행사 — DB ∪ 정적, 날짜 파생 상태, 마감 제외 (region-listings.ts).
+  // 지원사업은 시·도 공통 → 전국 → 도 안의 시·군 전용 순 (10/6 QA2 — 경북 6칸 중 4칸을 시·군 사업이 차지하던 것)
+  // 탭이 실제로 그려질 섹션만 가리키도록 여기서 먼저 불러 RegionAsyncData 에 넘긴다 (10/6 QA1 Q3-🟡7)
+  const listings = await loadRegionListings({ provinceName: province.name });
+  const regionPrograms = listings.programs.slice(0, 6);
+  const regionEducation = listings.education.slice(0, 4);
+  const regionEvents = listings.events.slice(0, 4);
+
+  // 탭 순서 = 화면(DOM) 순서 (10/6 QA2 R2-Q3 F3 — "정착 점수" 탭이 맨 앞인데 섹션은 아래쪽이라 스크롤하면
+  // 활성 탭이 앞뒤로 튀었다). 지원사업~시·군·구는 RegionAsyncData(스트리밍)가, 그 뒤는 이 파일이 그린다
+  const tabSections = [
+    ...(regionPrograms.length > 0 ? [{ id: "region-programs", label: "지원사업" }] : []),
+    { id: "region-land", label: "필지·임지" },
+    ...(regionEducation.length > 0 ? [{ id: "region-education", label: "정착 교육" }] : []),
+    ...(regionEvents.length > 0 ? [{ id: "region-events", label: "체험·행사" }] : []),
+    ...(sigungus.length > 0 ? [{ id: "region-sigungu", label: "시·군·구" }] : []),
+    ...(sidoSettlementScore !== null && sidoDimensions
+      ? [{ id: "settlement-score", label: "정착 점수" }]
+      : []),
+    { id: "region-crops", label: "추천 작물" },
+    ...(sidoCenter ? [{ id: "region-center", label: "지원센터" }] : []),
+    { id: "community-notes", label: "현장 이야기", track: "region_tab" },
+  ];
 
   // sticky 칩 구성. 페이지 anchor가 있으면 부드러운 스크롤로 연결.
   const stickyChips: StickyChip[] = [];
@@ -361,20 +384,9 @@ export default async function RegionDetailPage({ params }: PageProps) {
       <ReferenceNotice />
 
       {/* 섹션 탐색 탭 — 작물 상세와 같은 패턴 (2026-09-17). 그리드 밖·Suspense 밖에 둔다:
-          스트리밍 전에 마운트돼도 AnchorTabNav 는 없는 id 를 스크롤 스파이에서 조용히 건너뛴다. */}
-      <AnchorTabNav
-        sections={[
-          { id: "settlement-score", label: "정착 점수" },
-          { id: "region-crops", label: "추천 작물" },
-          { id: "region-programs", label: "지원사업" },
-          { id: "region-sigungu", label: "시·군·구" },
-          { id: "region-education", label: "정착 교육" },
-          { id: "region-events", label: "체험·행사" },
-          { id: "region-land", label: "필지·임지" },
-          { id: "region-center", label: "지원센터" },
-          { id: "community-notes", label: "현장 이야기", track: "region_tab" },
-        ]}
-      />
+          스트리밍 전에 마운트돼도 AnchorTabNav 는 없는 id 를 스크롤 스파이에서 조용히 건너뛴다.
+          탭 목록은 실제로 그려지는 섹션만 (10/6 QA1 — 체험·행사 16/17 시·도·지원센터 광역 8곳이 빈 탭이었다) */}
+      <AnchorTabNav sections={tabSections} />
 
       {/* Main Content Grid — 탭 내비 바로 아래에서 2열 시작 (2026-09-17 회장: 탭에 진입하는 순간 사이드바가 붙어야 한다).
           통계·기후·지원사업 등 API 스트리밍 섹션도 좌측 컬럼 안에 둔다. */}
@@ -451,7 +463,13 @@ export default async function RegionDetailPage({ params }: PageProps) {
         <div className={s.mainContent}>
           {/* API 의존 데이터 — 스트리밍 (Suspense). 정적 부분(Hero·작물·사이드바)이 먼저 렌더된다. */}
           <Suspense fallback={<RegionAsyncSkeleton />}>
-            <RegionAsyncData province={province} sigungus={sigungus} />
+            <RegionAsyncData
+              province={province}
+              sigungus={sigungus}
+              programs={regionPrograms}
+              education={regionEducation}
+              events={regionEvents}
+            />
           </Suspense>
 
           {/* ── 정착 점수 산식 breakdown (sticky 칩의 anchor target) ── */}
@@ -533,7 +551,7 @@ export default async function RegionDetailPage({ params }: PageProps) {
             ) : (
               <div className={s.urbanNotice}>
                 <p className={s.urbanNoticeText}>
-                  {province.shortName}은 도시 인프라 중심이라 매칭된 추천 작물이
+                  {withJosa(province.shortName, "은")} 도시 인프라 중심이라 매칭된 추천 작물이
                   없어요. 근교 시군구도 둘러보세요.
                 </p>
                 {nearbyRuralSigungus.length > 0 && (

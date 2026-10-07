@@ -41,6 +41,8 @@ export function ScrollToTopButton() {
       type="button"
       className={`${s.button}${visible ? ` ${s.visible}` : ""}`}
       data-dodge={dodge ? "true" : undefined}
+      /* 키보드 포커스를 가리면 스스로 비켜난다 — 전역 포커스 노출(use-focus-reveal)이 문서를 밀 띠로 세지 않게 */
+      data-focus-reveal-ignore=""
       onClick={handleClick}
       aria-label="맨 위로 이동"
       /* 숨김 상태(투명)에서는 Tab 이 보이지 않는 버튼에 머물지 않게 — 10/3 QA(포커스가 보이지 않음) */

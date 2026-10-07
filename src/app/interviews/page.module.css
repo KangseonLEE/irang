@@ -52,23 +52,25 @@
   flex-shrink: 0;
 }
 
-/* ═══ 카드 그리드 ═══ */
+/* ═══ 카드 그리드 ═══
+   minmax(0, 1fr) — 1fr 는 최소 폭이 카드 내용 폭(약 317px)이라 1280~1391px 에서 4열이 컨테이너를 넘쳐
+   넷째 열이 61·18px 잘렸다(10/6 QA Q3). 열 폭을 먼저 나누고, 좁아진 카드 안에서 하단 행이 줄을 바꾼다 */
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
 @media (min-width: 640px) {
-  .grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 }
 
 @media (min-width: 960px) {
-  .grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 }
 
 @media (min-width: 1280px) {
-  .grid { grid-template-columns: repeat(4, 1fr); }
+  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 /* 카드 외형은 InterviewRichCard 컴포넌트 모듈로 이관

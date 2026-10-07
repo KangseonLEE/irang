@@ -57,7 +57,11 @@ export function ShareButton({
     s.btn,
     s[`variant_${variant}`],
     s[`size_${size}`],
-  ].join(" ");
+    // 아이콘만 있는 작은 투명 버튼 — 누르는 영역만 세로 44px 로 (10/6 QA 터치 표적)
+    variant === "ghost" && size === "sm" && !showLabel ? s.hitSm : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <button

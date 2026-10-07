@@ -50,6 +50,49 @@ export interface HeroDeadline {
   daysLeft: number;
 }
 
+/**
+ * 히어로 수치·"전체 보기"의 목적지 — 숫자를 누르면 그 숫자가 나오는 목록이어야 한다(10/6 QA: "신청 가능 17건" → 기본 목록 49건).
+ * `status`·`sort` 는 /programs normalize 화이트리스트 값이다(308 strip 안 됨, :3417 운영 빌드 200 실측).
+ * 인코딩은 FilterBar(buildFilterUrl)와 같은 URLSearchParams — 목록 안에서 필터를 눌러 온 주소와 같은 캐시 키가 된다.
+ */
+export const PROGRAMS_OPEN_HREF = `/programs?${new URLSearchParams({ status: "모집중" })}`;
+/** 마감 가까운 순 — "7일 안에 마감 N건"·"마감이 가까운 지원사업 전체 보기"는 맨 위 N건이 그 사업들이다 */
+export const PROGRAMS_DUE_HREF = `/programs?${new URLSearchParams({ status: "모집중", sort: "deadline" })}`;
+
+/**
+ * 살아보기 수치의 목록 조건 — 숫자(page.tsx `filterEventsAsync(STAY_FILTER)`)와 링크가 **같은 객체**에서 나온다.
+ * 10/6 R2-Q4: "신청 중인 살아보기 11곳" → /events 기본 목록 16건(살아보기만 골라도 12건)이었다.
+ * `type` 은 /events normalize 화이트리스트(EVENT_TYPE_VALUES) 값이라 308 strip 되지 않는다.
+ */
+export const STAY_FILTER = { type: "살아보기" } as const;
+export const STAY_OPEN_HREF = `/events?${new URLSearchParams(STAY_FILTER)}`;
+
+/**
+ * 목록 하나를 히어로 수치 한 칸으로 — 숫자는 그 목록이 보여 주는 건수 그대로(목록 화면 "검색 결과 N건"과 같은 단위),
+ * 라벨은 그 목록에 실제로 든 것. 목적지 목록은 예정 건까지 보여 주므로 예정을 숫자에서 빼면 또 어긋난다 —
+ * 대신 예정이 섞이면 "모집 중인"이라 부르지 않는다(10/6 R2-Q4).
+ */
+export function listStat({
+  id,
+  items,
+  openStatus,
+  openLabel,
+  mixedLabel,
+  href,
+}: {
+  id: string;
+  items: readonly { status: string }[];
+  /** 지금 신청할 수 있는 상태 값 — 교육 "모집중", 체험 "접수중" */
+  openStatus: string;
+  openLabel: string;
+  /** 예정 건이 섞였을 때 */
+  mixedLabel: string;
+  href: string;
+}): HeroStat {
+  const allOpen = items.every((item) => item.status === openStatus);
+  return { id, label: allOpen ? openLabel : mixedLabel, value: items.length, unit: "건", href };
+}
+
 interface HeroSearchHubProps {
   stats: HeroStat[];
   deadlines: HeroDeadline[];
@@ -239,7 +282,7 @@ export function HeroSearchHub({ stats, deadlines, programs }: HeroSearchHubProps
                 <div className={s.deadlineBlock} style={{ "--n": deadlines.length } as React.CSSProperties}>
                   <div className={s.deadlineHead}>
                     <h2 className={s.dataTitle}>마감이 가까운 지원사업</h2>
-                    <Link href="/programs" className={s.dataMore} data-track="hero_data:programs_all">
+                    <Link href={PROGRAMS_DUE_HREF} className={s.dataMore} data-track="hero_data:programs_all">
                       전체 보기 <ArrowUpRight size={14} aria-hidden="true" />
                     </Link>
                   </div>

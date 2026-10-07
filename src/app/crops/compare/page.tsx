@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Scale, Lightbulb, TrendingUp, Info } from "lucide-react";
@@ -20,14 +21,19 @@ import { ScoreCards, type ScoreCardItem, type DifficultyTone } from "./score-car
 import { DifficultyIncomeScatter } from "./difficulty-income-scatter";
 import { ProsConsAccordion, type ProsConsAccordionItem } from "./pros-cons-accordion";
 import { DesktopHint } from "@/components/ui/desktop-hint";
+import { withJosa } from "@/lib/format";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "정착 작물 비교 — 소득·난이도·장단점 비교",
-  description:
-    "최대 4개 작물의 소득, 난이도, 장단점을 한 화면에서 비교하세요. 난이도 × 소득 산점도로 쉽고 돈 되는 작물이 한눈에 보여요.",
+  // 문서 제목·설명·canonical·공유 카드를 같은 값에서 — 종전엔 공유 카드가 사이트 기본 제목·설명을
+  // 물려받고 og:url 도 없었다 (10/6 QA1 Q2-W3)
+  ...pageMetadata({
+    title: "정착 작물 비교 — 소득·난이도·장단점 비교",
+    description:
+      "최대 4개 작물의 소득, 난이도, 장단점을 한 화면에서 비교하세요. 난이도 × 소득 산점도로 쉽고 돈 되는 작물이 한눈에 보여요.",
+    path: "/crops/compare",
+  }),
   keywords: ["작물 비교", "정착 작물 비교", "작물 소득 비교", "정착 작물 선택"],
-  alternates: { canonical: "/crops/compare" },
 };
 
 const DEFAULT_CROP_IDS: string[] = [];
@@ -317,7 +323,7 @@ function CompareBody({ crops }: { crops: CropWithDetail[] }) {
           <DifficultyIncomeScatter crops={scatterCrops} />
           {scatterExcluded.length > 0 && (
             <p className={s.scatterNote}>
-              {scatterExcluded.map((c) => c.name).join("·")}는 소득 기준이 달라
+              {withJosa(scatterExcluded.map((c) => c.name).join("·"), "는")} 소득 기준이 달라
               산점도에서 빠졌어요.
             </p>
           )}

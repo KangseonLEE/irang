@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useId } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -58,24 +58,50 @@ function renderTitleWithEm(title: string, em: string) {
 /* ── 카테고리 셀렉터 (인라인 + 모바일 sticky 공용) ──
    indicator div를 JS로 동적 계산하던 패턴을 제거하고 .tabActive에 background를
    직접 적용. flex: 1 1 0 균등 분배에서 sub-pixel 오차 없이 글자가 항상
-   활성 영역 정중앙에 위치. */
+   활성 영역 정중앙에 위치.
+   10/6 QA: role=tab 인데 ←/→ 이동·aria-controls 가 없어 역할과 동작이 어긋났다 → APG 탭 관례대로
+   roving tabindex(Tab 은 활성 탭 하나에만 멈춘다) + ←/→·Home/End(포커스 이동 = 선택) + 패널 연결. */
 
 interface CategorySelectorProps {
   activeIdx: number;
-  onChange: (idx: number) => void;
+  /** via = "keyboard" 면 모바일 자동 스크롤을 건너뛴다 — 포커스가 있는 탭을 화면 밖으로 밀어내지 않게 */
+  onChange: (idx: number, via: "pointer" | "keyboard") => void;
   ariaLabel: string;
+  /** 탭 id 접두 — 인라인·하단 고정 두 묶음이 같은 id 를 쓰지 않게 */
+  idPrefix: string;
+  /** 두 묶음이 함께 가리키는 콘텐츠 패널 id */
+  panelId: string;
 }
 
-function CategorySelector({ activeIdx, onChange, ariaLabel }: CategorySelectorProps) {
+function CategorySelector({ activeIdx, onChange, ariaLabel, idPrefix, panelId }: CategorySelectorProps) {
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.altKey || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    const last = CATEGORIES.length - 1;
+    let next: number | null = null;
+    if (e.key === "ArrowRight") next = activeIdx === last ? 0 : activeIdx + 1;
+    else if (e.key === "ArrowLeft") next = activeIdx === 0 ? last : activeIdx - 1;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = last;
+    if (next === null) return;
+    e.preventDefault();
+    onChange(next, "keyboard");
+    listRef.current?.querySelectorAll<HTMLButtonElement>("[role=tab]")[next]?.focus();
+  };
+
   return (
-    <div className={s.selector} role="tablist" aria-label={ariaLabel}>
+    <div className={s.selector} role="tablist" aria-label={ariaLabel} ref={listRef} onKeyDown={onKeyDown}>
       {CATEGORIES.map((c, i) => (
         <button
           key={c.id}
           role="tab"
+          id={`${idPrefix}-${c.id}`}
           aria-selected={activeIdx === i}
+          aria-controls={panelId}
+          tabIndex={activeIdx === i ? 0 : -1}
           className={`${s.tab} ${activeIdx === i ? s.tabActive : ""}`}
-          onClick={() => onChange(i)}
+          onClick={() => onChange(i, "pointer")}
           type="button"
         >
           {c.label}
@@ -106,6 +132,12 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
   const [hasInteracted, setHasInteracted] = useState(false);
   const outTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const inTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  /** 탭·패널 id (인라인·하단 고정 두 tablist 가 같은 패널을 가리킨다) */
+  const baseId = useId();
+  const panelId = `${baseId}-panel`;
+  const inlineTabId = `${baseId}-tab`;
+  /** ←/→ 로 바꾼 탭이면 모바일 자동 스크롤을 건너뛴다 — 포커스가 있는 인라인 탭이 화면 밖으로 밀려나지 않게 */
+  const skipScrollRef = useRef(false);
 
   /* ── 모바일 하단 sticky 가시성 ── */
   const sectionRef = useRef<HTMLElement>(null);
@@ -160,6 +192,10 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
   useEffect(() => {
     if (!hasInteracted) return;
     if (typeof window === "undefined") return;
+    if (skipScrollRef.current) {
+      skipScrollRef.current = false;
+      return;
+    }
     if (!window.matchMedia("(max-width: 767px)").matches) return;
     const target = trendBlockRef.current;
     if (!target) return;
@@ -221,9 +257,10 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
     allCostCards.map((c) => formatCostValue(c, c.value)),
   );
 
-  const handleChange = useCallback((idx: number) => {
+  const handleChange = useCallback((idx: number, via: "pointer" | "keyboard" = "pointer") => {
     // 같은 탭 클릭만 무시 — phase 가드는 제거해서 애니메이션 중에도 즉시 반응
     if (idx === activeIdx) return;
+    skipScrollRef.current = via === "keyboard";
 
     // 진행 중이던 타이머 모두 취소
     if (outTimer.current) clearTimeout(outTimer.current);
@@ -272,9 +309,22 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
 
       {/* ── 세그먼트 컨트롤 (인라인) ── */}
       <div className={s.selectorWrap} ref={inlineSelectorRef}>
-        <CategorySelector activeIdx={activeIdx} onChange={handleChange} ariaLabel="정착 유형 선택" />
+        <CategorySelector
+          activeIdx={activeIdx}
+          onChange={handleChange}
+          ariaLabel="정착 유형 선택"
+          idPrefix={inlineTabId}
+          panelId={panelId}
+        />
       </div>
 
+      {/* ═══ 탭 패널 — 트렌드·정착한 사람 띠·비용 세 블록이 함께 바뀐다(10/6 QA: 탭이 가리킬 패널) ═══ */}
+      <div
+        id={panelId}
+        role="tabpanel"
+        aria-labelledby={`${inlineTabId}-${CATEGORIES[activeIdx].id}`}
+        className={s.panel}
+      >
       {/* ═══ 트렌드 블록 — 원래 헤더 유지 (탭 변경 스크롤 앵커) ═══ */}
       <div ref={trendBlockRef} className={s.block}>
         <div className={s.blockHeader}>
@@ -415,6 +465,8 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
         </div>
       </div>
 
+      </div>
+
       {/* ── 모바일 하단 sticky 세그먼트 (Portal — ScrollReveal transform 회피) ── */}
       {mounted && createPortal(
         <div
@@ -427,6 +479,8 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
             activeIdx={activeIdx}
             onChange={handleChange}
             ariaLabel="정착 유형 선택 (고정)"
+            idPrefix={`${baseId}-stab`}
+            panelId={panelId}
           />
         </div>,
         document.body,

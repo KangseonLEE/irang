@@ -1,19 +1,21 @@
-/* ── Card Grid (공통) ── */
+/* ── Card Grid (공통) ──
+   열은 minmax(0, 1fr) — 그냥 1fr 은 최소 폭이 내용(긴 단어·nowrap 배지)이라 320px 에서 카드가 트랙을 넘쳐
+   오른쪽 8px 이 잘렸다(10/6 QA /education 320). 0 하한이면 카드가 칸 폭에 맞춰 줄어든다 */
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
 @media (min-width: 640px) {
   .grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1024px) {
   .grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

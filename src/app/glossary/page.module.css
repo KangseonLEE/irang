@@ -182,12 +182,12 @@
 }
 
 /* ── 용어 카드 ── */
+/* APG 아코디언(10/6 QA) — 카드는 테두리·배경만, 누르는 영역은 제목(h3) 안 버튼(.termToggle)이 카드 안쪽 여백까지 채운다.
+   예전 카드 전체 role=button 과 같은 크기로 눌리고, 펼친 본문(.termBody)은 버튼 밖이라 글을 고르거나 관련 용어를 눌러도 접히지 않는다 */
 .termCard {
   border: 1px solid var(--border, #e5e7eb);
   border-radius: var(--radius-lg);
-  padding: 16px 20px;
   background: var(--card, #fff);
-  cursor: pointer;
   scroll-margin-top: 80px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -204,10 +204,36 @@
   border-color: color-mix(in srgb, var(--primary, #1b6b5a) 30%, var(--border, #e5e7eb));
 }
 
-.termCardHeader {
+.termHeading {
+  margin: 0;
+  font: inherit;
+}
+
+.termToggle {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 16px 20px;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* 펼치면 요약 ↔ 본문 간격 12px — 예전 본문 margin-top 과 같게 */
+.termCardExpanded .termToggle {
+  padding-bottom: 12px;
+}
+
+/* 카드 테두리 안쪽에 그린다 — 바깥 링은 이웃 카드와 12px 간격 안에서 겹쳐 보였다 */
+.termToggle:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: -2px;
 }
 
 .termCardHeaderText {
@@ -216,6 +242,7 @@
 }
 
 .termName {
+  display: block;
   font-size: var(--fs-body);
   font-weight: 700;
   color: var(--foreground);
@@ -238,7 +265,11 @@
 }
 
 .termShortDesc {
+  display: block;
+  /* 제목(h3) 안으로 들어오며 전역 h1~h6 text-wrap: balance 를 물려받는다 — 예전 <p> 줄바꿈 그대로 */
+  text-wrap: wrap;
   font-size: var(--fs-body-sm);
+  font-weight: 400;
   color: var(--muted-foreground, #6b7280);
   line-height: 1.5;
   margin: 6px 0 0;
@@ -257,9 +288,13 @@
   color: var(--primary, #1b6b5a);
 }
 
-/* ── 확장 영역 (longDesc) ── */
+/* ── 확장 영역 (longDesc) — 버튼이 위 여백(16)을 쥐고 있어 본문은 좌우·아래만 ── */
+.termBody {
+  padding: 0 20px 16px;
+}
+
 .termLongDesc {
-  margin: 12px 0 0;
+  margin: 0;
   padding: 12px 16px;
   border-radius: 4px;
   background: var(--muted, #f9fafb);

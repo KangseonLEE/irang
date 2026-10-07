@@ -22,8 +22,11 @@ import { FARM_TYPES, migrateFarmTypeId } from "@/lib/data/match-questions";
 import { PROVINCES } from "@/lib/data/regions";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
-import { deriveStatus } from "@/lib/program-status";
+import { deriveStatus, programStatusLabel } from "@/lib/program-status";
+import { displaySupportType } from "@/lib/programs/display";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { isValidResultId } from "@/lib/assess-result";
+import { shareMetadata } from "@/lib/seo/share-metadata";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
 import { ShareButtons } from "@/components/share/share-buttons";
@@ -61,7 +64,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const result = await getResult(id);
 
   if (!result) {
-    return { title: "결과를 찾지 못했어요 | 이랑" };
+    // 레이아웃 템플릿이 " | 이랑" 을 붙인다 — 여기서 또 붙이면 "| 이랑 | 이랑" (10/6 QA Q2-W2)
+    return { title: "결과를 찾지 못했어요" };
   }
 
   const farmType = FARM_TYPES.find(
@@ -80,25 +84,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${emoji} 나의 정착 유형: ${label}`;
   const description = `추천 지역: ${regions} — 이랑에서 농촌 정착 적합도 진단을 받아보세요!`;
 
-  const shortUrl = `https://irang.info/r/${id}`;
+  // 공유 단축 주소 /r/{id} (next.config 리라이트). 예전엔 접속되지 않는 irang.info 를 canonical·og:url 로 냈다 —
+  // A 레코드가 없는 도메인이라 공유 미리보기가 그 주소를 가리켰다 (10/6). metadataBase(irangfarm.com) 기준 경로로 둔다
+  const shortPath = `/r/${id}`;
 
   return {
-    title: `${title} | 이랑`,
+    title,
     description,
     robots: { index: false, follow: true },
-    alternates: { canonical: shortUrl },
-    openGraph: {
+    alternates: { canonical: shortPath },
+    // 공유 카드 이미지는 이 라우트의 opengraph-image(결과 카드) — 설정의 images 가 파일 기반 이미지를 덮으므로 경로를 직접 싣는다
+    // (shareMetadata 기본값이면 사이트 기본 카드가 나간다, 10/6 dev 실측)
+    ...shareMetadata({
       title,
       description,
-      type: "website",
-      url: shortUrl,
-      siteName: "이랑 — 농촌 정착 정보 큐레이션",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
+      path: shortPath,
+      image: { url: `/assess/result/${id}/opengraph-image`, width: 1200, height: 630, alt: title },
+    }),
   };
 }
 
@@ -235,15 +237,8 @@ export default async function AssessResultPage({ params }: PageProps) {
                 <div className={s.programCardBody}>
                   <div className={s.programCardTitleRow}>
                     <h3 className={s.programCardTitle}>{prog.title}</h3>
-                    <span
-                      className={
-                        prog.status === "마감"
-                          ? s.programStatusClosed
-                          : s.programStatusOpen
-                      }
-                    >
-                      {prog.status}
-                    </span>
+                    {/* 공용 상태 배지 + 표기 SSOT — 연례 사업은 "정기 접수", 글자 대비 4.5:1 이상 (10/6 QA axe: 예전 초록 글자 2.9:1) */}
+                    <StatusBadge status={programStatusLabel(prog)} />
                   </div>
                   <p className={s.programCardDesc}>{prog.summary}</p>
                   {prog.status === "마감" && (
@@ -252,7 +247,10 @@ export default async function AssessResultPage({ params }: PageProps) {
                     </p>
                   )}
                   <div className={s.programCardMeta}>
-                    <span className={s.programCardBadge}>{prog.supportType}</span>
+                    {/* 수집 행의 "보조금"은 수집기 기본값이라 감춘다 (lib/programs/display, 10/6 QA) */}
+                    {displaySupportType(prog.id, prog.supportType) && (
+                      <span className={s.programCardBadge}>{prog.supportType}</span>
+                    )}
                     <span className={s.programCardRegion}>{prog.region}</span>
                   </div>
                 </div>

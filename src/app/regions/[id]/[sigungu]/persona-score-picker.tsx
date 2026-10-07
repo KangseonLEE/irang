@@ -9,6 +9,7 @@ import {
   type PersonaId,
   computePersonaScoreDetailed,
 } from "@/lib/data/personas";
+import { withJosa } from "@/lib/format";
 import s from "./persona-score-picker.module.css";
 
 const STORAGE_KEY = "irang-persona";
@@ -65,7 +66,7 @@ export function PersonaScorePicker({ dimensionScores, sigunguName }: Props) {
       <div className={s.header}>
         <h2 className={s.title}>어떤 귀농을 그리고 계세요?</h2>
         <p className={s.desc}>
-          스타일을 고르시면 {sigunguName}이 나에게 얼마나 맞는지 한 점수로 보여드려요.
+          스타일을 고르시면 {withJosa(sigunguName, "이")} 나에게 얼마나 맞는지 한 점수로 보여드려요.
         </p>
       </div>
 

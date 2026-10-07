@@ -76,7 +76,7 @@ export default function FactorBarChart({
     variant === "positive" ? COLOR_POSITIVE_MUTED : COLOR_NEGATIVE_MUTED;
 
   return (
-    <div className={s.chartWrapper} style={{ minHeight: 200 }}>
+    <div className={`${s.chartWrapper} ${s.chartWrapperShort}`}>
       <ResponsiveContainer width="100%" height={data.length * 48 + 20}>
         <BarChart
           data={enrichedData}

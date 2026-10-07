@@ -249,27 +249,124 @@ function regionFilterHref(
     : base;
 }
 
+// ---------------------------------------------------------------------------
+// 시·군 전용 판정 — "이 지원사업·교육은 어느 시·군 사람을 위한 것인가" (10/6 QA Q4-W5)
+// ---------------------------------------------------------------------------
+
+/** 지명 뒤에 붙는 조사 — "영광에서 살아보기"·"진안의" */
+const PLACE_PARTICLE = /^(?:에서|에|의|으로|로|은|는|이|가|을|를|과|와|도|만)$/;
+/** 제목·주관 기관 낱말 경계 */
+const PLACE_TOKEN_SPLIT = /[\s/·,、「」『』[\]()]+/;
+
+interface SigunguNameEntry {
+  id: string;
+  /** 정식 명칭 — "청도군". 낱말이 이것으로 시작하면 그 시·군 ("청도군농업기술센터"·"하동군청") */
+  name: string;
+  /** 약칭 — "청도". 낱말 전체이거나 조사만 붙을 때만 (시·도 약칭과 같으면 null: "제주"·"세종"은 시·도 전체) */
+  shortName: string | null;
+}
+
+const _sigunguNamesByProvince = new Map<string, SigunguNameEntry[]>();
+
+function sigunguNamesOf(province: Province): SigunguNameEntry[] {
+  const cached = _sigunguNamesByProvince.get(province.id);
+  if (cached) return cached;
+  const entries = getSigungusBySidoId(province.id).map((sg) => ({
+    id: sg.id,
+    name: sg.name,
+    shortName:
+      sg.shortName.length >= 2 && sg.shortName !== province.shortName ? sg.shortName : null,
+  }));
+  _sigunguNamesByProvince.set(province.id, entries);
+  return entries;
+}
+
+/**
+ * 제목·주관 기관에서 그 시·도 소속 시·군·구를 찾는다.
+ *
+ * `scripts/check-program-dup.ts` 의 `extractLocalities`("OO군/시" 정규식)와 같은 목적이지만, 여기서는 시·도가
+ * 이미 정해져 있으므로 **그 시·도의 실제 시·군·구 목록**과 대조한다 — "의성군농업기술센터"·"하동군청"처럼 접미가
+ * 붙은 낱말, "영광에서"·"(진안 신규 전입)"처럼 약칭만 쓴 낱말까지 잡고, "영양제" 같은 우연한 접두는 약칭 단독
+ * (+조사)만 인정해서 거른다. 주관 기관의 괄호(문의처 — "(문의 제주시청 감귤유통과)")는 대상 지역이 아니라 뺀다.
+ */
+function localSigunguIds(
+  province: Province,
+  title: string,
+  organization: string,
+  sigunguField?: string,
+): Set<string> {
+  const entries = sigunguNamesOf(province);
+  const text = [title, organization.replace(/\([^)]*\)/g, " "), sigunguField ?? ""].join(" ");
+  const ids = new Set<string>();
+  for (const word of text.split(PLACE_TOKEN_SPLIT)) {
+    if (!word) continue;
+    for (const entry of entries) {
+      if (word.startsWith(entry.name)) {
+        ids.add(entry.id);
+        continue;
+      }
+      const short = entry.shortName;
+      if (short && word.startsWith(short)) {
+        const tail = word.slice(short.length);
+        if (tail === "" || PLACE_PARTICLE.test(tail)) ids.add(entry.id);
+      }
+    }
+  }
+  return ids;
+}
+
+/**
+ * 지원사업·교육이 어느 시·군·구 전용인가 (시·군 id 목록, 시·도 전체·전국이면 빈 배열) — 패널 판정과 같은 규칙.
+ * `item.region` 은 시·도 정식 명칭(PROVINCES.name SSOT).
+ */
+export function localSigunguIdsOf(item: {
+  region: string;
+  title: string;
+  organization: string;
+  sigungu?: string;
+}): string[] {
+  const province = PROVINCES.find((p) => p.name === item.region);
+  if (!province) return [];
+  return [...localSigunguIds(province, item.title, item.organization, item.sigungu)];
+}
+
+/**
+ * 시·군·구 패널에서의 위치 — own: 이 시·군 전용 / other: 다른 시·군 전용 / shared: 시·도 전체·전국.
+ * "예천"에 청도·고령·안동 사업이, "무주"에 진안 전입자 전용 사업이 "신청할 수 있는 지원사업"으로 섰다.
+ */
+type LocalScope = "own" | "other" | "shared";
+
+function localScope(
+  province: Province,
+  sigungu: Sigungu | undefined,
+  item: { region: string; title: string; organization: string; sigungu?: string },
+): LocalScope {
+  if (!sigungu || item.region !== province.name) return "shared";
+  const ids = localSigunguIds(province, item.title, item.organization, item.sigungu);
+  if (ids.size === 0) return "shared";
+  return ids.has(sigungu.id) ? "own" : "other";
+}
+
 interface ActiveProgram {
   program: (typeof PROGRAMS)[number];
   status: ReturnType<typeof deriveStatus>;
-  /** 시·군 단위로 특화된 사업 (시·도 전체·전국 사업보다 먼저) */
+  /** 이 시·군 전용 사업 (시·도 전체·전국 사업보다 먼저) */
   local: boolean;
 }
 
 /**
  * 시·도(+ 전국) 활성 지원사업. 상태 판정은 `deriveStatus` — 검색 인덱스와 같은 기준이라
- * 목록·검색·패널이 같은 사업 집합을 본다.
+ * 목록·검색·패널이 같은 사업 집합을 본다. 시·군·구 패널이면 다른 시·군 전용 사업은 빼고 이 시·군 전용을 앞에 둔다.
  */
-function activePrograms(provinceName: string, sigungu?: Sigungu): ActiveProgram[] {
-  const localNames = sigungu ? [sigungu.name, sigungu.shortName] : [];
+function activePrograms(province: Province, sigungu?: Sigungu): ActiveProgram[] {
   const out: ActiveProgram[] = [];
   for (const program of PROGRAMS) {
-    if (program.region !== provinceName && program.region !== "전국") continue;
+    if (program.region !== province.name && program.region !== "전국") continue;
     const status = deriveStatus(program.applicationStart, program.applicationEnd);
     if (status === "마감") continue;
-    const sg = program.sigungu?.trim();
-    const local = Boolean(sg && localNames.some((n) => n && sg.includes(n)));
-    out.push({ program, status, local });
+    const scope = localScope(province, sigungu, program);
+    if (scope === "other") continue;
+    out.push({ program, status, local: scope === "own" });
   }
   // 시·군 특화 → 모집중 → 시·도 사업 순. 사용자가 지금 신청할 수 있는 것을 먼저 본다.
   const rank = (p: ActiveProgram) =>
@@ -294,15 +391,26 @@ interface RegionCounts {
   events: number;
 }
 
-/** 시·도(+ 전국) 활성 교육 과정 */
-function activeCourses(provinceName: string) {
-  return EDUCATION_COURSES.filter((c) => {
-    if (c.region !== provinceName && c.region !== "전국") return false;
-    return deriveStatus(c.applicationStart, c.applicationEnd) !== "마감";
-  });
+/**
+ * 시·도(+ 전국) 활성 교육 과정. 시·군·구 패널이면 지원사업과 같은 규칙 — 교육도 대상이 시·군에 묶인다
+ * ("영주 지역 체류 가능자"·"화성시 귀농귀촌 희망 시민"). 예천 패널에 영주 체류형 교육이 서던 결함.
+ */
+function activeCourses(province: Province, sigungu?: Sigungu) {
+  const own: typeof EDUCATION_COURSES = [];
+  const shared: typeof EDUCATION_COURSES = [];
+  for (const c of EDUCATION_COURSES) {
+    if (c.region !== province.name && c.region !== "전국") continue;
+    if (deriveStatus(c.applicationStart, c.applicationEnd) === "마감") continue;
+    const scope = localScope(province, sigungu, c);
+    if (scope === "other") continue;
+    (scope === "own" ? own : shared).push(c);
+  }
+  return [...own, ...shared];
 }
 
-/** 시·도(+ 전국) 활성 체험·행사 */
+/**
+ * 시·도(+ 전국) 활성 체험·행사. 박람회·살아보기는 다른 시·군 사람도 찾아가는 행사라 시·군 전용 규칙을 걸지 않는다.
+ */
 function activeEvents(provinceName: string) {
   return EVENTS.filter(
     (e) => (e.region === provinceName || e.region === "전국") &&
@@ -311,18 +419,18 @@ function activeEvents(provinceName: string) {
 }
 
 /** 패널 fact 용 건수 — 목록 블록과 같은 집합을 센다 */
-function regionCounts(provinceName: string, sigungu?: Sigungu): RegionCounts {
+function regionCounts(province: Province, sigungu?: Sigungu): RegionCounts {
   return {
-    programs: activePrograms(provinceName, sigungu).length,
-    courses: activeCourses(provinceName).length,
-    events: activeEvents(provinceName).length,
+    programs: activePrograms(province, sigungu).length,
+    courses: activeCourses(province, sigungu).length,
+    events: activeEvents(province.name).length,
   };
 }
 
 function regionGroups(province: Province, sigungu?: Sigungu): PanelGroup[] {
   const groups: PanelGroup[] = [];
 
-  const programs = activePrograms(province.name, sigungu);
+  const programs = activePrograms(province, sigungu);
   if (programs.length > 0) {
     groups.push({
       label: "신청할 수 있는 지원사업",
@@ -334,7 +442,7 @@ function regionGroups(province: Province, sigungu?: Sigungu): PanelGroup[] {
     });
   }
 
-  const courses = activeCourses(province.name);
+  const courses = activeCourses(province, sigungu);
   if (courses.length > 0) {
     groups.push({
       label: "정착 교육",
@@ -413,7 +521,7 @@ function buildSigunguPanel(sigungu: Sigungu): EntityPanel | null {
   const center = getSigunguCenter(sigungu.id);
   const crops = toPanelCrops(sigungu.mainCrops, 3);
 
-  const counts = regionCounts(province.name, sigungu);
+  const counts = regionCounts(province, sigungu);
   const facts: PanelFact[] = [];
   if (sigungu.area > 0) {
     facts.push({ label: "면적", value: `${sigungu.area.toLocaleString()} km²` });
@@ -491,7 +599,7 @@ function buildProvincePanel(province: Province): EntityPanel | null {
     .map(([name]) => name);
   const crops = toPanelCrops(topCropNames, 3);
 
-  const counts = regionCounts(province.name);
+  const counts = regionCounts(province);
   const facts: PanelFact[] = [];
   if (sigungus.length > 0) {
     facts.push({ label: "시·군·구", value: countLabel(sigungus.length, "곳") });

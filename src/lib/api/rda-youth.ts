@@ -170,9 +170,10 @@ function toYouthCaseCard(item: RdaYouthItem): YouthCaseCard {
   const rawUrl = item.bbsInfo08 || "";
   const youtubeId = extractYoutubeId(rawUrl);
   // embed URL → 시청 가능한 watch URL로 변환
+  // 폴백: 옛 /young/main/sub01/youthList.do 는 404(2026-10-06) → 똑똑!청년농부 메뉴 "사례 > 청년홍보영상"
   const sourceUrl = youtubeId
     ? `https://www.youtube.com/watch?v=${youtubeId}`
-    : rawUrl || "https://www.rda.go.kr/young/main/sub01/youthList.do";
+    : rawUrl || "https://www.rda.go.kr/young/board/board21.do";
 
   return {
     id: item.bbsSeq,

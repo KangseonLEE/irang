@@ -12,6 +12,7 @@
 import type { CropInfo } from "./crops";
 import type { SupportProgram } from "./programs";
 import type { PersonaId } from "./personas";
+import { hasCollectorDefaults } from "@/lib/programs/display";
 
 export type FitScore = 1 | 2 | 3 | 4 | 5;
 export type PersonaFit = Record<PersonaId, FitScore>;
@@ -191,8 +192,9 @@ interface TraceReason {
    * - "age": 연령 요건 기반
    * - "override": 명시적 override
    * - "balanced": balanced 페르소나 안내
+   * - "unknown": 수집 공고라 연령·지원 방식을 점수에 쓰지 않았다는 안내 (10/6 QA R2)
    */
-  kind: "category" | "difficulty" | "age" | "override" | "balanced";
+  kind: "category" | "difficulty" | "age" | "override" | "balanced" | "unknown";
   /** UI 라벨 (사용자 노출 카피, ~예요/세요 톤) */
   label: string;
 }
@@ -272,6 +274,14 @@ export function getCropPersonaFitTrace(
  * - balanced: 3 default
  */
 function calcProgramDefaultFit(program: SupportProgram): PersonaFit {
+  // 수집 행·RDA API 폴백 행의 연령(18~65)·지원 유형("보조금")은 원문이 아니라 수집기 기본값이다 — 점수에 쓰지 않고
+  // 모두 중립(3)으로 둔다 (10/6 QA R2). 종전엔 기본값만으로 family·farmYouth·elderRural 4점("65세 이하 신청 가능해요
+  // (노년 친화) · 보조금 지원이에요")을 받아, 본문이 "만 45세 미만 청년"인 공고가 노년 맞춤 목록 7위에 올랐다.
+  // 4점 미만이라 페르소나 목록(list-order PERSONA_MIN_SCORE)·여정 레인 건수(journey-lanes-stats)에서 빠진다.
+  if (hasCollectorDefaults(program.id)) {
+    return { family: 3, farmYouth: 3, elderRural: 3, commuter: 3, balanced: 3 };
+  }
+
   const ageMin = program.eligibilityAgeMin;
   const ageMax = program.eligibilityAgeMax;
   const isYouthOnly = ageMax > 0 && ageMax <= 40;
@@ -559,6 +569,16 @@ export function getProgramPersonaFitTrace(
   }
 
   const reasons: TraceReason[] = [];
+
+  // 수집 행 — 연령·지원 유형 사유는 기본값에서 나온 말이라 싣지 않는다 (10/6 QA R2, calcProgramDefaultFit 와 같은 판정)
+  if (hasCollectorDefaults(program.id)) {
+    reasons.push({ kind: "unknown", label: "연령·지원 방식은 공고 원문에서 확인해 주세요" });
+    if (override[personaId] !== undefined) {
+      const reasonCopy = PROGRAM_OVERRIDE_REASONS[program.id];
+      if (reasonCopy) reasons.push({ kind: "override", label: reasonCopy });
+    }
+    return { score: finalScore, baseScore, reasons };
+  }
 
   // 1. 연령 요건 사유
   const ageMin = program.eligibilityAgeMin;

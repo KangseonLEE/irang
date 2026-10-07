@@ -469,7 +469,8 @@
   font-size: var(--fs-body-sm);
   font-weight: 700;
   color: #fff;
-  background: #d4730d;
+  /* 흰 글자 대비 — #d4730d 3.35:1 미달 → #b45309 5.0:1 (10/6 QA) */
+  background: #b45309;
   border: none;
   border-radius: 4px;
   text-decoration: none;
@@ -497,7 +498,8 @@
   padding: 8px 14px;
   font-size: var(--fs-body-sm);
   font-weight: 600;
-  color: #d4730d;
+  /* 옅은 주황 바탕 위 글자 — #d4730d 3.2:1 미달 → 6.6:1 (hover 바탕에서도 6.0:1, 10/6 QA) */
+  color: var(--warning-fg-strong, #92400e);
   background: transparent;
   border: 1px solid color-mix(in srgb, #d4730d 35%, transparent);
   border-radius: 4px;

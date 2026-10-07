@@ -7,6 +7,7 @@
 // 페르소나 가중치: src/lib/data/personas.ts
 
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import Link from "next/link";
 import { Trophy, Users, Sprout, HeartPulse, GraduationCap, Compass, ArrowRight } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
@@ -38,6 +39,7 @@ import { WeightCustomizerModal } from "@/components/persona/weight-customizer-mo
 import { RankingWizardHero } from "./ranking-wizard-hero";
 import { ModeToggleChips } from "./mode-toggle-chips";
 import { RankResults } from "./rank-results";
+import { withJosa } from "@/lib/format";
 import s from "./page.module.css";
 
 /** Sprint 2 (2026-05-16) — 결과 상단 ModeToggleChips용 현재 mode·라벨 산출 */
@@ -50,10 +52,14 @@ function deriveCurrentMode(
 }
 
 export const metadata: Metadata = {
-  title: "맞춤 시군구 찾기 — 조건별 시·군·구 순위",
-  description:
-    "전국 시군구를 5가지 차원으로 비교하거나, 내 정착 스타일에 맞춘 종합 점수로 줄 세워 보세요.",
-  alternates: { canonical: "/regions/ranking" },
+  // 문서 제목·설명·canonical·공유 카드를 같은 값에서 — 종전엔 공유 카드가 사이트 기본 제목·설명을
+  // 물려받고 og:url 도 없었다 (10/6 QA1 Q2-W3)
+  ...pageMetadata({
+    title: "맞춤 시군구 찾기 — 조건별 시·군·구 순위",
+    description:
+      "전국 시군구를 5가지 차원으로 비교하거나, 내 정착 스타일에 맞춘 종합 점수로 줄 세워 보세요.",
+    path: "/regions/ranking",
+  }),
 };
 
 /** 봇 트래픽 절감은 next.config.ts headers의 s-maxage로 처리.
@@ -284,7 +290,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
             <p className={s.dimensionDesc}>
               {isCustom
                 ? `직접 조정한 가중치예요. 인구 ${persona.weights.populationTrend}% · 농가 ${persona.weights.farmActivity}% · 의료 ${persona.weights.medical}% · 학교 ${persona.weights.school}% · 귀농 ${persona.weights.returnFarm}%`
-                : `${persona.audience}을(를) 위한 스타일이에요. 5차원을 가중 평균해 하나의 점수로 만들어요.`}
+                : `${withJosa(persona.audience, "을")} 위한 스타일이에요. 5차원을 가중 평균해 하나의 점수로 만들어요.`}
             </p>
           )}
           {persona && (() => {

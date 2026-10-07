@@ -116,6 +116,8 @@ export function AnchorTabNav({ sections }: AnchorTabNavProps) {
           type="button"
           className={s.anchorTabItem}
           data-active={id === activeId ? "true" : undefined}
+          /* 지금 보고 있는 섹션 — 색·밑줄만으로는 스크린리더에 전달되지 않았다(10/6 QA) */
+          aria-current={id === activeId ? "true" : undefined}
           data-community-jump={track}
           onClick={() => scrollToSection(id)}
         >

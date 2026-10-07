@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
@@ -50,6 +50,60 @@ async function saveFeedback(data: {
   }
 }
 
+/**
+ * 랜딩 히어로가 버튼 자리 밑에 깔려 있는 동안 버튼에 `data-over-hero` 를 단다 — 10/6 QA ⚪.
+ * 첫 화면에서 버튼이 히어로의 마감 카드·"전체 보기"(1280)·유형 카드 수치(768)를 덮었다. 히어로가 버튼 위로 지나가면 다시 보인다.
+ * React 상태 대신 속성을 직접 토글한다 — 첫 측정을 그리기 전(layout effect)에 끝내 버튼이 한 번 떴다 사라지지 않게,
+ * 스크롤마다 다시 렌더하지 않게(hero-search-dock 의 html[data-hero-passed] 와 같은 방식).
+ */
+function useOverLandingHero(
+  ref: React.RefObject<HTMLElement | null>,
+  pathname: string | null,
+  /** 버튼이 그려진 뒤에만 잰다(마운트 전엔 ref 가 비어 있다) */
+  enabled: boolean,
+): void {
+  useLayoutEffect(() => {
+    const fab = ref.current;
+    if (!enabled || !fab) return;
+    // 히어로는 랜딩에만 있다 — 다른 경로는 듣지도 않는다
+    if (pathname !== "/") {
+      fab.removeAttribute("data-over-hero");
+      return;
+    }
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      // 매번 찾는다 — 첫 로드는 레이아웃(이 버튼)이 하이드레이션될 때 랜딩 본문이 아직 스트리밍 중일 수 있다(dev 실측: 히어로 없음 → 영영 안 잼)
+      const hero = document.querySelector<HTMLElement>("[data-landing-hero]");
+      const f = fab.getBoundingClientRect();
+      if (!hero || f.width === 0) {
+        fab.removeAttribute("data-over-hero");
+        return;
+      }
+      const h = hero.getBoundingClientRect();
+      fab.toggleAttribute("data-over-hero", h.top < f.bottom && h.bottom > f.top - 8);
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(measure);
+    };
+    measure();
+    // 본문 스트리밍·스타일시트·웹폰트가 늦게 붙어도 맞게 — 다음 프레임과 잠시 뒤 두 번 더 잰다
+    schedule();
+    const lates = [700, 2000].map((ms) => window.setTimeout(schedule, ms));
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    window.addEventListener("load", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("load", schedule);
+      lates.forEach((t) => window.clearTimeout(t));
+      if (raf) cancelAnimationFrame(raf);
+      fab.removeAttribute("data-over-hero");
+    };
+  }, [ref, pathname, enabled]);
+}
+
 export function FeedbackWidget() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -61,6 +115,7 @@ export function FeedbackWidget() {
   const fabRef = useRef<HTMLButtonElement>(null);
   /* 키보드 포커스(푸터 '이용약관' 등)를 가리면 비켜난다 — 10/3 QA 1440 41% 가림 */
   const dodge = useFocusDodge(fabRef);
+  useOverLandingHero(fabRef, pathname, mounted);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect -- SSR hydration 우회 표준 패턴
   useEffect(() => { setMounted(true); }, []);
@@ -109,6 +164,8 @@ export function FeedbackWidget() {
         type="button"
         className={s.fab}
         data-dodge={dodge ? "true" : undefined}
+        /* 키보드 포커스를 가리면 스스로 비켜난다 — 전역 포커스 노출(use-focus-reveal)이 문서를 밀 띠로 세지 않게 */
+        data-focus-reveal-ignore=""
         onClick={handleOpen}
         aria-label="피드백 보내기"
       >

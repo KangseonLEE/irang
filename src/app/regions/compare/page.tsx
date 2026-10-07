@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import { Suspense } from "react";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
@@ -19,11 +20,15 @@ import { parseRegions } from "./region-item";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "농촌 정착 지역 비교 — 기후·인프라·지원사업 데이터 비교",
-  description:
-    "귀농 후보 지역 최대 3곳의 기후, 인구, 의료·교육 인프라, 지원사업을 나란히 비교하세요. 시·도 단위 또는 시·군·구 단위까지 골라 데이터로 확인할 수 있어요.",
+  // 문서 제목·설명·canonical·공유 카드를 같은 값에서 — 종전엔 공유 카드가 사이트 기본 제목·설명을
+  // 물려받고 og:url 도 없었다 (10/6 QA1 Q2-W3)
+  ...pageMetadata({
+    title: "농촌 정착 지역 비교 — 기후·인프라·지원사업 데이터 비교",
+    description:
+      "귀농 후보 지역 최대 3곳의 기후, 인구, 의료·교육 인프라, 지원사업을 나란히 비교하세요. 시·도 단위 또는 시·군·구 단위까지 골라 데이터로 확인할 수 있어요.",
+    path: "/regions/compare",
+  }),
   keywords: ["농촌 정착 지역 비교", "농촌 정착 지역 추천", "귀농 어디", "귀농 후보지", "시군구 비교"],
-  alternates: { canonical: "/regions/compare" },
 };
 
 interface PageProps {

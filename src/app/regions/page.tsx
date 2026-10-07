@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/share-metadata";
 import { Suspense } from "react";
 import Link from "next/link";
 import {
@@ -52,10 +53,14 @@ import { RegionSearch } from "@/components/region/region-search";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "귀농 지역 탐색 — 17개 시·도 기후·인프라·지원사업 비교",
-  description:
-    "전국 17개 시·도의 기후, 인구, 의료·교육 인프라, 추천 작물, 귀농·귀촌 지원사업을 비교하세요. 인구밀도 지도로 한눈에 파악할 수 있어요.",
-  alternates: { canonical: "/regions" },
+  // 문서 제목·설명·canonical·공유 카드를 같은 값에서 — 종전엔 공유 카드가 사이트 기본 제목·설명을
+  // 물려받고 og:url 도 없었다 (10/6 QA1 Q2-W3)
+  ...pageMetadata({
+    title: "귀농 지역 탐색 — 17개 시·도 기후·인프라·지원사업 비교",
+    description:
+      "전국 17개 시·도의 기후, 인구, 의료·교육 인프라, 추천 작물, 귀농·귀촌 지원사업을 비교하세요. 인구밀도 지도로 한눈에 파악할 수 있어요.",
+    path: "/regions",
+  }),
 };
 
 /** 봇 트래픽 절감은 next.config.ts headers의 s-maxage로 처리.
