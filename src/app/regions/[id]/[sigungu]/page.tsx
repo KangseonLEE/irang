@@ -32,7 +32,7 @@ import { RegionProfileCard } from "@/components/region/region-profile-card";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
 import { convertToPyeongLabel } from "@/lib/format";
 import { getSigunguCenter } from "@/lib/data/centers";
-import { getRegionReorganization, reorgNoticeText } from "@/lib/data/region-reorganizations";
+import { getRegionReorganization, getSidoReorganization, reorgNoticeText, sidoReorgNoticeText } from "@/lib/data/region-reorganizations";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { CenterCard } from "@/components/region/center-card";
 import { loadRegionListings } from "../region-listings";
@@ -134,6 +134,8 @@ export default async function SigunguDetailPage({ params }: PageProps) {
   const sigunguCenter = getSigunguCenter(sigungu.id);
   // 행정구역 개편을 겪은 곳(인천 신설 4개 구·대구 군위) — 상단 안내. 셀 수 없는 곳이면 의료기관·학교 '확인 불가'
   const reorg = getRegionReorganization(sigungu.id);
+  // 시·군·구 자체 개편 안내가 없을 때만 시·도 단위 안내(10/7 전남광주통합특별시)
+  const sidoReorg = reorg ? null : getSidoReorganization(province.id);
 
   // 대표 작물 매칭 + 평수 환산 + 수익 정렬 (시도 페이지와 동일 패턴)
   const allMatchedCrops = CROPS.flatMap((crop) => {
@@ -328,6 +330,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
             className={s.heroReorgNotice}
           />
         )}
+        {sidoReorg && <ReferenceNotice text={sidoReorgNoticeText(sidoReorg)} className={s.heroReorgNotice} />}
         {sigunguSettlementScore !== null && (
           <>
             {/* 모바일: inline 큰 숫자 */}

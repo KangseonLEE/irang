@@ -22,6 +22,9 @@ import { Icon } from "@/components/ui/icon";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { programStatusLabel } from "@/lib/program-status";
 import { CropLinkCard } from "@/components/crops/crop-link-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ReferenceNotice } from "@/components/ui/reference-notice";
+import { getGuReorganization, reorgNoticeText } from "@/lib/data/region-reorganizations";
 import { getSigunguCenter } from "@/lib/data/centers";
 import { CenterCard } from "@/components/region/center-card";
 import { loadRegionListings } from "../../region-listings";
@@ -93,6 +96,10 @@ export default async function GuDetailPage({ params }: PageProps) {
 
   // 시군구 귀농지원센터 (구가 아닌 상위 시 기준)
   const sigunguCenter = getSigunguCenter(sigungu.id);
+  // 시 아래 신설 구(화성 2026-02-01) — 상단 안내 (10/7)
+  const guReorg = getGuReorganization(gu.id);
+  // 근거 있는 키워드만 둔 구(부천 소사·화성 병점·동탄)는 빈 태그 줄을 그리지 않는다
+  const heroTags = getEnrichedHighlights(gu.sgisCode, gu.highlights);
 
   // 대표 작물 매칭 (정적 데이터)
   const matchedCrops = CROPS.filter((crop) => {
@@ -137,13 +144,16 @@ export default async function GuDetailPage({ params }: PageProps) {
         </span>
         <h1 className={s.heroTitle}>{gu.name}</h1>
         <p className={s.heroDesc}>{gu.description}</p>
-        <div className={s.heroTags}>
-          {getEnrichedHighlights(gu.sgisCode, gu.highlights).map((tag) => (
-            <span key={tag} className={s.heroTag}>
-              {tag}
-            </span>
-          ))}
-        </div>
+        {guReorg && <ReferenceNotice text={reorgNoticeText(guReorg, gu.name)} className={s.heroReorgNotice} />}
+        {heroTags.length > 0 && (
+          <div className={s.heroTags}>
+            {heroTags.map((tag) => (
+              <span key={tag} className={s.heroTag}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </header>
 
       {/* -- 브레드크럼 — 히어로 아래 공통 위치 (2026-10-02 회장) -- */}
@@ -186,7 +196,7 @@ export default async function GuDetailPage({ params }: PageProps) {
               />
             ))}
           </div>
-        ) : (
+        ) : gu.mainCrops.length > 0 ? (
           <div className={s.mainCropsList}>
             {gu.mainCrops.map((crop) => (
               <span key={crop} className={s.mainCropBadge}>
@@ -194,6 +204,9 @@ export default async function GuDetailPage({ params }: PageProps) {
               </span>
             ))}
           </div>
+        ) : (
+          // 구 단위로 대표 작물을 꼽을 공식 자료가 없는 곳(부천 3구·화성 효행·병점·동탄, 10/7) — 지어내지 않는다
+          <EmptyState icon={<Icon icon={Sprout} size="lg" />} message="대표 작물로 꼽을 공식 자료가 없어요." />
         )}
       </section>
 

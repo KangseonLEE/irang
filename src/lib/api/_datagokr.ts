@@ -28,6 +28,8 @@ export function buildDataGoKrRequest(
   path: string,
   params: Record<string, string>,
   env: EnvLike = process.env,
+  /** fresh: 프록시 저장분(KV)을 건너뛰고 원천에서 새로 — 정합성 대조 기준값 전용(10/7). 앱은 쓰지 않는다 */
+  opts: { fresh?: boolean } = {},
 ): DataGoKrRequest | null {
   const proxy = env.DATA_GO_KR_PROXY_URL?.replace(/\/+$/, "");
   const proxySecret = env.DATA_GO_KR_PROXY_SECRET;
@@ -35,7 +37,9 @@ export function buildDataGoKrRequest(
   if (proxy && proxySecret) {
     const url = new URL(`${proxy}/proxy/${path}`);
     for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-    return { url: url.toString(), headers: { "x-irang-proxy-secret": proxySecret } };
+    const headers: Record<string, string> = { "x-irang-proxy-secret": proxySecret };
+    if (opts.fresh) headers["x-irang-proxy-fresh"] = "1";
+    return { url: url.toString(), headers };
   }
 
   const apiKey = env.DATA_GO_KR_API_KEY;

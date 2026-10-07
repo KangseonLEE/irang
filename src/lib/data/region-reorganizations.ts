@@ -101,6 +101,70 @@ export function getRegionReorganization(sigunguId: string): RegionReorganization
 }
 
 /**
+ * 시 아래 신설 구 안내 (10/7) — 2026-02-01 화성시 만세·효행·병점·동탄구. 키 = gus.ts 의 구 id.
+ * 화성시는 그대로 시·군·구 단위로 남아 시 화면엔 안내가 없고, 구 화면 상단에만 둔다. 통계청(SGIS)에 새 구가 아직 없어
+ * 인구·농가는 행정동을 더한다(region-composites.ts) — 인천 신설 구와 같은 둘째 문장.
+ * 근거: 「화성시 읍ㆍ면ㆍ동ㆍ리의 명칭 및 관할구역에 관한 조례」(제2494호) 부칙 시행일, 행정안전부 변경내역 알림(2026.2.1. 시행).
+ */
+const HWASEONG_GU: RegionReorganization = {
+  effectiveDate: "2026-02-01",
+  summary: "2026년 2월 1일 화성시에 만세구·효행구·병점구·동탄구가 생겼어요.",
+  successors: [],
+  countsUnavailable: false,
+  detail: NEW_DISTRICT_DETAIL,
+};
+export const GU_REORGANIZATIONS: Readonly<Record<string, RegionReorganization>> = {
+  "manse-gu": HWASEONG_GU,
+  "hyohaeng-gu": HWASEONG_GU,
+  "byeongjeom-gu": HWASEONG_GU,
+  "dongtan-gu": HWASEONG_GU,
+};
+
+/** 신설된 시 아래 구면 그 정보, 아니면 null */
+export function getGuReorganization(guId: string): RegionReorganization | null {
+  return GU_REORGANIZATIONS[guId] ?? null;
+}
+
+/**
+ * 시·도 단위 개편 안내 (10/7) — 2026-07-01 광주광역시·전라남도 → 전남광주통합특별시.
+ * 통계(통계청 2024 인구·2025 귀농 등)는 통합 전 기준으로 나오고 시·도 SSOT(PROVINCES)도 17개라 광주·전남을 나눠 둔다.
+ * 심평원은 이미 통합 코드(360000) 아래로 옮겨 hira.ts 가 광주 5구와 전남을 갈라 센다.
+ * 시·도 화면(공통 안내 자리)과 그 아래 시·군·구 화면 상단에 같은 문장을 둔다 — 상단 안내엔 밖으로 나가는 링크를 두지 않는다(9/28).
+ * 근거: 위키백과 '전남광주통합특별시'·뉴스(2026-06-28 '대한민국 최초 광역통합'), 정부24 소관기관 표기 '전남광주통합특별시'.
+ */
+interface SidoReorganization {
+  /** 시행일 YYYY-MM-DD */
+  effectiveDate: string;
+  /** 첫 문장 — 통합검색 안내의 부제로도 쓴다 */
+  summary: string;
+  /** 둘째 문장 */
+  detail: string;
+  /** 새 이름 표기 — 통합검색이 이 이름으로 찾으면 해당 시·도 화면으로 안내한다(search-index). 지금은 우리 지역 단위에 없는 이름 */
+  newNames: string[];
+}
+const GWANGJU_JEONNAM: SidoReorganization = {
+  effectiveDate: "2026-07-01",
+  summary: "2026년 7월 1일 광주광역시와 전라남도가 합쳐져 전남광주통합특별시가 출범했어요.",
+  detail: "통계 자료는 아직 통합 전 기준으로 나와 광주와 전남을 나눠 보여 드려요.",
+  newNames: ["전남광주통합특별시", "전남광주특별시", "전남광주"],
+};
+/** 키 = regions.ts 의 시·도 id */
+export const SIDO_REORGANIZATIONS: Readonly<Record<string, SidoReorganization>> = {
+  gwangju: GWANGJU_JEONNAM,
+  jeonnam: GWANGJU_JEONNAM,
+};
+
+/** 개편된 시·도면 그 정보, 아니면 null */
+export function getSidoReorganization(sidoId: string): SidoReorganization | null {
+  return SIDO_REORGANIZATIONS[sidoId] ?? null;
+}
+
+/** 시·도 상단 안내 문장 */
+export function sidoReorgNoticeText(reorg: SidoReorganization): string {
+  return `${reorg.summary} ${reorg.detail}`;
+}
+
+/**
  * 상세 상단 안내 문장. 9/28 결정대로 상단 안내엔 밖으로 나가는 링크를 두지 않는다 —
  * 새 구청 링크는 '확인 불가' 카드의 안내 창과 센터 칸(centers.ts)에서 안내한다.
  */

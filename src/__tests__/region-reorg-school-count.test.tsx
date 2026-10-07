@@ -17,12 +17,15 @@ import {
   isSchoolInDistrict,
 } from "@/lib/api/education";
 import {
+  GU_REORGANIZATIONS,
   REGION_REORGANIZATIONS,
+  getGuReorganization,
   getRegionReorganization,
   reorgNoticeText,
   type RegionReorganization,
 } from "@/lib/data/region-reorganizations";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import { GUS } from "@/lib/data/gus";
 import { PROVINCES } from "@/lib/data/regions";
 import { getSigunguCenter } from "@/lib/data/centers";
 import { SigunguStats, type SigunguStatsProps } from "@/app/regions/[id]/[sigungu]/sigungu-stats";
@@ -196,6 +199,17 @@ describe("행정구역 개편 SSOT — region-reorganizations (A안)", () => {
     expect(text).toContain("영종구가 됐어요");
     expect(text).toContain("2024년 행정동 통계");
     expect(text).not.toMatch(/합니다|https?:|확인할 수 없어요/);
+  });
+
+  it("화성 신설 4개 구 안내 (10/7) — 키는 화성의 구, 시행일·행정동 합 기준을 밝힌다", () => {
+    const ids = Object.keys(GU_REORGANIZATIONS).sort();
+    expect(ids).toEqual(["byeongjeom-gu", "dongtan-gu", "hyohaeng-gu", "manse-gu"]);
+    for (const id of ids) expect(GUS.find((g) => g.id === id)?.parentSigunguId, id).toBe("hwaseong");
+    expect(getGuReorganization("jangan-gu")).toBeNull();
+    const text = reorgNoticeText(GU_REORGANIZATIONS["manse-gu"], "만세구");
+    expect(text).toContain("2026년 2월 1일 화성시에 만세구·효행구·병점구·동탄구가 생겼어요");
+    expect(text).toContain("2024년 행정동 통계");
+    expect(text).not.toMatch(/합니다|https?:/);
   });
 
   it("군위 안내 — 대구 편입, 대구 기준", () => {

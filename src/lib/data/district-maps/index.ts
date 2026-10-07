@@ -5,7 +5,7 @@ import type { GuMapLocation } from './goyang';
 export type { GuMapLocation };
 
 /** 구 지도가 있는 시군구 ID 목록 */
-export const DISTRICT_MAP_IDS = ["goyang","seongnam","suwon","ansan","anyang","yongin","cheongju","cheonan","jeonju","pohang","changwon"] as const;
+export const DISTRICT_MAP_IDS = ["goyang","seongnam","suwon","ansan","anyang","yongin","cheongju","cheonan","jeonju","pohang","changwon","bucheon","hwaseong"] as const;
 
 // Dynamic import helper for code-splitting
 export async function loadDistrictMap(sigunguId: string) {

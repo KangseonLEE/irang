@@ -30,8 +30,10 @@ on:
   deployment_status:
   workflow_dispatch: # 긴급 수동 트리거 (기존 main HEAD에 대한 강제 purge)
 
+# 배포 신호는 ref 가 비어 와서 모든 실행이 한 묶음이었다(10/7 e2e-smoke 취소와 같은 구조) — 대기 중인 운영 purge 가
+# 뒤따른 미리보기 신호에 밀려 취소될 수 있어 배포 환경별로 묶는다.
 concurrency:
-  group: cf-purge-${{ github.ref }}
+  group: cf-purge-${{ github.event.deployment.environment || github.ref }}
   cancel-in-progress: false # purge는 직렬 처리 (race 방지)
 
 permissions:

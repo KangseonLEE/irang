@@ -1,5 +1,5 @@
 /**
- * 인천 신설 4개 구 — 행정동 합산 회귀 테스트 (2026-10-07 A안)
+ * 신설 구 행정동 합산 회귀 테스트 — 인천 신설 4개 구(2026-10-07 A안) · 화성 신설 4개 구(10/7)
  *
  * 보호 대상:
  *   1) 신설 구 정의(region-composites.ts)가 sigungus.ts 와 맞는다 — 국가데이터처 분류 코드·이름·시·도
@@ -16,10 +16,13 @@ import {
   REPLACED_SGIS_GU,
   SGIS_COMPOSITES,
   compositeRows,
+  compositesInCity,
+  compositesInProvince,
   getSgisComposite,
   resolveSplitGu,
 } from "@/lib/data/region-composites";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import { GUS } from "@/lib/data/gus";
 import { PROVINCES } from "@/lib/data/regions";
 import { fetchFarmHousehold, fetchSigunguPopulationData, fetchSubRegionPopulations } from "@/lib/api/sgis";
 import { POPULATION_TREND_SIGUNGU, POPULATION_TREND_YEARS } from "@/lib/data/population-trend";
@@ -39,15 +42,32 @@ const DONG_GU_2024 = 57944;
 const codes = (rows: [string, number][]) => rows.map(([c]) => c);
 
 describe("정의 — sigungus.ts 와 맞물림", () => {
-  it("신설 구마다 같은 id·임시 코드·이름의 인천 시·군·구가 있다", () => {
-    for (const c of SGIS_COMPOSITES) {
+  it("시·군·구 자리 신설 구마다 같은 id·임시 코드·이름의 인천 시·군·구가 있다", () => {
+    const own = SGIS_COMPOSITES.filter((c) => !c.parentSigunguId);
+    for (const c of own) {
       const sg = SIGUNGUS.find((s) => s.id === c.sigunguId);
       expect(sg, c.sigunguId).toBeDefined();
       expect([sg!.sgisCode, sg!.name, sg!.sidoId]).toEqual([c.sgisCode, c.name, "incheon"]);
       expect(c.sgisCode.startsWith(PROVINCES.find((p) => p.id === "incheon")!.sgisCode)).toBe(true);
       expect(getSgisComposite(c.sgisCode)).toBe(c);
     }
-    expect(SGIS_COMPOSITES.map((c) => c.sigunguId).sort()).toEqual(["geomdan", "jemulpo", "seohae", "yeongjong"]);
+    expect(own.map((c) => c.sigunguId).sort()).toEqual(["geomdan", "jemulpo", "seohae", "yeongjong"]);
+  });
+
+  it("시 아래 신설 구(화성 2026)는 같은 id·코드·이름의 구(gus.ts)가 있고, 시는 그대로 시·군·구로 남는다", () => {
+    const sub = SGIS_COMPOSITES.filter((c) => c.parentSigunguId);
+    expect(sub.map((c) => c.sigunguId).sort()).toEqual(["byeongjeom-gu", "dongtan-gu", "hyohaeng-gu", "manse-gu"]);
+    for (const c of sub) {
+      const g = GUS.find((x) => x.id === c.sigunguId);
+      expect(g, c.sigunguId).toBeDefined();
+      expect([g!.sgisCode, g!.name, g!.parentSigunguId]).toEqual([c.sgisCode, c.name, c.parentSigunguId]);
+      expect(SIGUNGUS.find((s) => s.id === c.sigunguId), c.sigunguId).toBeUndefined();
+    }
+    expect(SIGUNGUS.find((s) => s.id === "hwaseong")?.sgisCode).toBe("31240");
+    // 시·도 단위 집계(시·도 지도·인구 추이·읍면동 안내)엔 넣지 않는다 — 화성시 자리가 사라지면 안 된다
+    expect(compositesInProvince("31")).toEqual([]);
+    expect(compositesInCity("hwaseong").map((c) => c.sgisCode).sort()).toEqual(["31241", "31242", "31243", "31244"]);
+    expect(REPLACED_SGIS_GU.has("31240")).toBe(false);
   });
 
   it("옛 중구·동구·서구 코드는 더는 우리 지역 단위가 아니다", () => {
@@ -55,9 +75,13 @@ describe("정의 — sigungus.ts 와 맞물림", () => {
     for (const code of REPLACED_SGIS_GU) expect(SIGUNGUS.find((s) => s.sgisCode === code), code).toBeUndefined();
   });
 
-  it("코드는 국가데이터처 한국행정구역분류 2026.7.10판 — 제물포 23100·영종 23110·서해 23120·검단 23130", () => {
+  it("코드는 국가데이터처 한국행정구역분류 2026.7.10판 — 제물포 23100·영종 23110·서해 23120·검단 23130·만세~동탄 31241~31244", () => {
     const byId = Object.fromEntries(SGIS_COMPOSITES.map((c) => [c.sigunguId, c.sgisCode]));
-    expect(byId).toEqual({ jemulpo: "23100", yeongjong: "23110", seohae: "23120", geomdan: "23130" });
+    expect(byId).toEqual({
+      jemulpo: "23100", yeongjong: "23110", seohae: "23120", geomdan: "23130",
+      // 화성 2026-02-01 — 같은 분류 2026.7.10판
+      "manse-gu": "31241", "hyohaeng-gu": "31242", "byeongjeom-gu": "31243", "dongtan-gu": "31244",
+    });
   });
 });
 
@@ -96,6 +120,38 @@ describe("resolveSplitGu — 나뉜 옛 구의 행정동 배정", () => {
     const dongRows = new Map([["23010", codes(JUNG_2024).map((adm_cd) => ({ adm_cd }))]]);
     expect(compositeRows(jemulpo, guRows, dongRows)).toHaveLength(8);
     expect(compositeRows(jemulpo, [{ adm_cd: "23040" }], dongRows)).toBeNull(); // 옛 동구 행이 없으면 null
+  });
+});
+
+// 화성시 SGIS 2024 행정동 29개 인구 (10/7 실측) — [코드, 인구]. 동 합 = 31240 단건 1,004,079
+const HWASEONG_2024: [string, number][] = [
+  ["31240130", 21019], ["31240140", 99417], ["31240150", 64940], ["31240350", 9966], ["31240360", 11838],
+  ["31240370", 8586], ["31240380", 15525], ["31240390", 15128], ["31240420", 6895], ["31240670", 26584],
+  ["31240120", 108945], ["31240310", 6442], ["31240330", 8137], ["31240430", 14010], ["31240560", 16010],
+  ["31240520", 50399], ["31240530", 36195], ["31240540", 22194], ["31240550", 36407], ["31240570", 28218],
+  ["31240610", 48860], ["31240600", 33250], ["31240620", 39587], ["31240640", 51283], ["31240650", 45594],
+  ["31240700", 43164], ["31240691", 55004], ["31240710", 36295], ["31240720", 44187],
+];
+
+describe("화성 신설 4개 구 (2026-02-01) — 행정동 29개를 조례 별표1 대로", () => {
+  it("만세 10 · 효행 5 · 병점 5 · 동탄 9, 인구 합 = 화성시", () => {
+    const r = resolveSplitGu("31240", codes(HWASEONG_2024))!;
+    expect(["31241", "31242", "31243", "31244"].map((c) => r.get(c)!.length)).toEqual([10, 5, 5, 9]);
+    const pop = new Map(HWASEONG_2024);
+    const sums = ["31241", "31242", "31243", "31244"].map((c) => r.get(c)!.reduce((a, d) => a + pop.get(d)!, 0));
+    expect(sums).toEqual([279898, 153544, 173413, 397224]);
+    expect(sums.reduce((a, b) => a + b, 0)).toBe(1004079);
+  });
+
+  it("'나머지' 구가 없다 — 모르는 동(분동·신설)이 나오면 합을 내지 않는다", () => {
+    expect(resolveSplitGu("31240", [...codes(HWASEONG_2024), "31240730"])).toBeNull();
+    expect(resolveSplitGu("31240", codes(HWASEONG_2024).filter((c) => c !== "31240670"))).toBeNull(); // 새솔동 빠짐
+  });
+
+  it("compositeRows — 동탄구 = 동탄1~9동 9행 (시 아래 구라 시·도 행은 쓰지 않는다)", () => {
+    const dongtan = getSgisComposite("31244")!;
+    const dongRows = new Map([["31240", codes(HWASEONG_2024).map((adm_cd) => ({ adm_cd }))]]);
+    expect(compositeRows(dongtan, [], dongRows)).toHaveLength(9);
   });
 });
 

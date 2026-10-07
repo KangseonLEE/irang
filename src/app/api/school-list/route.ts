@@ -11,7 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { fetchEduSchoolRows, isSchoolInDistrict } from "@/lib/api/education";
+import { fetchEduSchoolRows, schoolMatcher } from "@/lib/api/education";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -102,10 +102,10 @@ export async function GET(request: NextRequest) {
     // NEIS LCTN_SC_NM은 시도 수준만 지원하므로,
     // 시군구 필터링은 전체 조회 후 주소(ORG_RDNMA) 기반으로 수행
     if (sigunguName) {
-      // 시·도 학교 전부(1,000건씩 나눠 받기) → 주소 낱말이 시군구명과 같은 학교만.
-      // 상세 카드의 학교 수(fetchSigunguSchoolCounts)와 같은 함수라 숫자가 어긋나지 않는다 (10/7 정정)
+      // 시·도 학교 전부(1,000건씩 나눠 받기) → 주소 낱말이 시군구명과 같은 학교만(부천·화성의 구는 법정동까지).
+      // 상세 카드의 학교 수(fetchSigunguSchoolCounts)와 같은 판정이라 숫자가 어긋나지 않는다 (10/7 정정)
       const allRows = await fetchEduSchoolRows(apiKey, eduCode);
-      const filtered = allRows.filter((item) => isSchoolInDistrict(item.ORG_RDNMA, sigunguName));
+      const filtered = allRows.filter(schoolMatcher(eduCode, sigunguName));
 
       // 페이지네이션 적용
       const pageNum = parseInt(page, 10);

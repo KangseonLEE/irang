@@ -1,14 +1,15 @@
 # ═══════════════════════════════════════════
 # 지역 통계 정합성 주간 전수 대조 (2026-10-07, 회장 "정확한 데이터인지 항상 정합성 체크 — 신뢰도가 생명")
 #
-# scripts/check-region-stats-integrity.ts 를 주 1회 돌린다 — 지역 상세(시·도 17·시·군·구 229·시 아래 구 32)
+# scripts/check-region-stats-integrity.ts 를 주 1회 돌린다 — 지역 상세(시·도 17·시·군·구 230·시 아래 구 39)
 # 의료기관·학교·인구 카드를 원천(심평원·교육부 NEIS)에서 직접 만든 기준값과 운영 화면으로 전수 대조.
 # 원천 쪽 코드는 예고 없이 바뀐다(10/7 발견: 광주 5구 코드 이전·세종 코드·화성 구 신설·인천 개편·군위 편입).
 # 배포 때만 대조하면 그 사이의 원천 변화를 못 본다 — 그래서 상시화.
 #
 # 미국 러너 제약 (스크립트가 환경변수를 보고 경로를 고른다):
 #   - data.go.kr 은 클라우드 대역을 400(code 10)으로 막는다 → 심평원은 프록시 Worker 경유
-#     (시크릿 DATA_GO_KR_PROXY_URL·DATA_GO_KR_PROXY_SECRET — 앱 src/lib/api/_datagokr.ts 와 같은 경로).
+#     (시크릿 DATA_GO_KR_PROXY_URL + CI 전용 키 DATAGOKR_PROXY_CI_KEY 를 스크립트의 DATA_GO_KR_PROXY_SECRET 으로 —
+#      앱 src/lib/api/_datagokr.ts 와 같은 경로. 앱 키는 어디서도 다시 볼 수 없어 CI 키를 따로 뒀다(10/7, Worker PROXY_SECRET_CI)).
 #     시크릿이 없으면 직접 호출을 시도하고, 막히면 '접근 점검 실패'로 바로 멈춘다(이슈에 이유가 남는다).
 #   - 운영 페이지는 Cloudflare 가 한국 외를 막는다 → E2E 우회(UA irang-e2e/1.0 + E2E_SECRET 헤더).
 #     이 UA 는 GA·DB 적재에서 빠진다.
@@ -90,7 +91,7 @@ jobs:
         env:
           DATA_GO_KR_API_KEY: ${{ secrets.DATA_GO_KR_API_KEY }}
           DATA_GO_KR_PROXY_URL: ${{ secrets.DATA_GO_KR_PROXY_URL }}
-          DATA_GO_KR_PROXY_SECRET: ${{ secrets.DATA_GO_KR_PROXY_SECRET }}
+          DATA_GO_KR_PROXY_SECRET: ${{ secrets.DATAGOKR_PROXY_CI_KEY }}
           NEIS_API_KEY: ${{ secrets.NEIS_API_KEY }}
           E2E_SECRET: ${{ secrets.E2E_SECRET }}
           # 인구 대조(통계청 SGIS) — 없으면 인구만 건너뛰고 요약에 이유를 남긴다

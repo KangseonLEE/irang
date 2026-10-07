@@ -5,7 +5,8 @@
  * - sidoCd (필수): 시도 코드
  * - sgguCd (선택): 시군구 코드 — 없으면 시도 전체
  * - page (선택): 페이지 번호 (기본 1)
- * - unit=gu (선택): 시 아래 구 상세 — 구 코드 하나만 (시 대표 코드와 같아도 시 전체로 넓히지 않음)
+ * - unit=gu (선택): 시 아래 구 상세 — 구 코드 하나만 (시 대표 코드와 같아도 시 전체로 넓히지 않음).
+ *   구 신설 뒤 시 단위 코드로 남은 기관(화성 312500)은 법정 읍·면·동으로 그 구 목록 끝에 붙인다 — 상세 카드 수와 같게 (10/7)
  *
  * - Rate Limiting: IP 기반 분당 30건
  * 반환: { items: MedicalItem[], totalCount: number }
@@ -13,7 +14,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { buildDataGoKrRequest } from "@/lib/api/_datagokr";
-import { GU_HIRA_CODES_MAP, hiraListUnits } from "@/lib/api/hira";
+import { GU_HIRA_CODES_MAP, fetchGuResidualItems, hiraListUnits, type HiraListItem } from "@/lib/api/hira";
+import { GUS } from "@/lib/data/gus";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 
@@ -191,13 +193,30 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const isGu = searchParams.get("unit") === "gu";
   const units = hiraListUnits(sidoCd, sgguCd, {
-    single: searchParams.get("unit") === "gu",
+    single: isGu,
     provinceGuCodes: sgguCd ? undefined : provinceGuCodes(sidoCd),
   });
 
   try {
-    const { totalCount, raw: rawItems } = await listAcrossUnits(units, parseInt(page, 10));
+    const pageNum = parseInt(page, 10);
+    const { totalCount: baseTotal, raw: baseItems } = await listAcrossUnits(units, pageNum);
+    // 시 아래 구: 시 단위 코드로 남은 기관 중 이 구에 놓인 것을 목록 끝에 (fetchGuMedicalFacilities 와 같은 판정)
+    const province = PROVINCES.find((p) => p.hiraSidoCd === sidoCd);
+    const gu = isGu && sgguCd && province ? GUS.find((g) => g.sidoId === province.id && g.hiraSgguCd === sgguCd) : undefined;
+    let extra: HiraListItem[] = [];
+    if (gu) {
+      const residual = await fetchGuResidualItems(sidoCd, gu);
+      if (!residual) throw new Error("residual list failed");
+      extra = residual;
+    }
+    const start = (pageNum - 1) * PAGE_SIZE;
+    const rawItems: Record<string, string>[] = [
+      ...baseItems,
+      ...(extra.slice(Math.max(0, start - baseTotal), Math.max(0, start + PAGE_SIZE - baseTotal)) as Record<string, string>[]),
+    ];
+    const totalCount = baseTotal + extra.length;
 
     const items: MedicalItem[] = rawItems
       .map((item) => ({

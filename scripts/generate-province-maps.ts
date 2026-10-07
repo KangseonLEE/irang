@@ -30,6 +30,12 @@ interface Province {
 
 /** SGIS 경계로 다시 만든 시·도 — 인천(2026 개편)·대구(군위 편입). scripts/generate-province-map-sgis.ts */
 const SGIS_GENERATED = new Set(["incheon", "daegu"]);
+/**
+ * 통계청(SGIS) 경계로 만드는 구 지도 — 옛 경계 자료(statgarten)에 구가 없거나 옛 구라 맞지 않는 시
+ * (부천 2024 일반구 재설치·화성 2026 일반구 신설). 파일은 generate-province-map-sgis.ts --district 가 쓰고,
+ * 여기서는 구 지도 목록(index)에만 넣는다 — statgarten 경로로 덮어쓰지 않는다(10/7).
+ */
+const SGIS_DISTRICT_GENERATED = ["bucheon", "hwaseong"];
 
 const PROVINCES: Province[] = [
   { id: "seoul", name: "서울특별시" },
@@ -369,6 +375,17 @@ interface DistrictMapEntry {
   path: string;
 }
 
+/**
+ * 손으로 옮긴 구 라벨 자리 — 무게중심이 경계나 다른 라벨과 겹쳐 옮긴 값(4/20 성남 수정·중원, 63f10e30 청주 상당·서원).
+ * 생성 파일만 고쳐 두면 재실행 한 번에 되돌아간다(10/7 재실행으로 발견) — 생성기가 같은 자리를 다시 쓰게 여기 둔다.
+ */
+const GU_LABEL_OVERRIDES: Record<string, { x: number; y: number }> = {
+  "sujeong-gu": { x: 378, y: 578 },
+  "jungwon-gu": { x: 425, y: 575 },
+  "sangdang-gu": { x: 165, y: 490 },
+  "seowon-gu": { x: 88, y: 522 },
+};
+
 function generateDistrictFileContent(
   viewBox: string,
   sigunguId: string,
@@ -393,7 +410,7 @@ function generateDistrictFileContent(
   ];
 
   for (const entry of entries) {
-    const centroid = computeCentroid(entry.path);
+    const centroid = GU_LABEL_OVERRIDES[entry.guId] ?? computeCentroid(entry.path);
     const pathStr = JSON.stringify(entry.path);
     lines.push(
       `  { guId: ${JSON.stringify(entry.guId)}, name: ${JSON.stringify(entry.name)}, path: ${pathStr}, labelX: ${centroid.x}, labelY: ${centroid.y} },`,
@@ -537,6 +554,7 @@ async function main() {
   // Write district map files
   const districtIds: string[] = [];
   for (const [sigunguId, dm] of districtMaps) {
+    if (SGIS_DISTRICT_GENERATED.includes(sigunguId)) continue; // SGIS 생성기가 쓴 파일을 지키기
     if (dm.entries.length < 2) {
       console.log(`  Skipping district map for ${sigunguId} (only ${dm.entries.length} gu)`);
       continue;
@@ -547,6 +565,10 @@ async function main() {
     writeFileSync(filePath, content, "utf-8");
     console.log(`  Wrote district map: ${filePath} (${dm.entries.length} gus)`);
     districtIds.push(sigunguId);
+  }
+
+  for (const id of SGIS_DISTRICT_GENERATED) {
+    if (existsSync(resolve(districtOutDir, `${id}.ts`)) && !districtIds.includes(id)) districtIds.push(id);
   }
 
   // Write district-maps index.ts

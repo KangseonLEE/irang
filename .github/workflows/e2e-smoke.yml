@@ -19,8 +19,11 @@ on:
   deployment_status:
   workflow_dispatch:
 
+# 10/7: Vercel 배포 신호는 ref 가 비어 와서(커밋 SHA 로 배포) 모든 실행이 'e2e-smoke-' 한 묶음이었다 —
+# main 미리보기 신호(건너뛸 실행)가 진행 중이던 운영 점검을 취소했다("higher priority waiting request for e2e-smoke-").
+# 배포 환경(Production·Preview)별로 묶는다 — 새 운영 배포만 이전 운영 점검을 대체한다.
 concurrency:
-  group: e2e-smoke-${{ github.ref }}
+  group: e2e-smoke-${{ github.event.deployment.environment || github.ref }}
   cancel-in-progress: true
 
 jobs:

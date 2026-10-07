@@ -1794,6 +1794,34 @@ export const FARM_FALLBACK_SIGUNGU: FarmStat[] = [
     "farmCount": 12582,
     "farmPopulation": 31901,
     "avgPopulation": 2.5
+  },
+  {
+    "sgisCode": "31241",
+    "name": "만세구",
+    "farmCount": 6415,
+    "farmPopulation": 15716,
+    "avgPopulation": 2.4
+  },
+  {
+    "sgisCode": "31242",
+    "name": "효행구",
+    "farmCount": 2399,
+    "farmPopulation": 6163,
+    "avgPopulation": 2.6
+  },
+  {
+    "sgisCode": "31243",
+    "name": "병점구",
+    "farmCount": 895,
+    "farmPopulation": 2497,
+    "avgPopulation": 2.8
+  },
+  {
+    "sgisCode": "31244",
+    "name": "동탄구",
+    "farmCount": 686,
+    "farmPopulation": 1964,
+    "avgPopulation": 2.9
   }
 ];
 

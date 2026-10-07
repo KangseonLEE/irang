@@ -21,6 +21,7 @@ import { resolve } from "node:path";
 // .env.local 우선 로드 (Next.js 컨벤션)
 config({ path: resolve(__dirname, "../.env.local") });
 import { PROVINCES } from "../src/lib/data/regions";
+import { SGIS_COMPOSITES, compositeRows, splitGuOf } from "../src/lib/data/region-composites";
 
 const AUTH_URL =
   "https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json";
@@ -115,6 +116,37 @@ async function main() {
 
   console.log(`[collect-farms] total=${all.length}`);
 
+  // 시 아래 신설 구(화성 2026 — SGIS 미등재) — 행정동 농가를 더한다 (region-composites.ts). 구 화면은 빌드 때 미리 만들고
+  // 빌드 땐 SGIS 를 부르지 않으므로(lib/api/sgis.ts fetchFarmHousehold) 여기 값이 첫 화면의 농가 카드가 된다 (10/7).
+  // 비공개(N/A) 동이 하나라도 있으면 그 구는 뺀다. 시·군·구 단위 신설 구(인천)는 화면이 요청 때 만들어져 실행 중 합을
+  // 쓰고, 넣으면 정착 점수 입력(compute-dimension-scores 의 getFarmFallback)이 바뀌어 이번엔 넣지 않는다.
+  // 시·도 합(아래)은 SGIS 시·군·구 행만으로 낸다 — 구 값은 화성시 행과 같은 땅이라 더하면 두 번 센다.
+  const cityComposites = SGIS_COMPOSITES.filter((c) => c.parentSigunguId);
+  const dongRowsByGu = new Map<string, FarmApiItem[]>();
+  for (const gu of splitGuOf(cityComposites)) {
+    dongRowsByGu.set(gu, await fetchProvinceSubFarms(token, gu));
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  const compositeFarms: typeof all = [];
+  for (const c of cityComposites) {
+    const rows = compositeRows(c, [], dongRowsByGu);
+    const nums = rows?.map((r) => [Number(r.farm_cnt), Number(r.population)] as const);
+    if (!rows || !nums || nums.some(([a, b]) => !Number.isFinite(a) || !Number.isFinite(b))) {
+      console.warn(`  [skip] 신설 구 ${c.name}(${c.sgisCode}): 행정동 정의와 응답이 맞지 않거나 비공개 동이 있음`);
+      continue;
+    }
+    const farmCount = nums.reduce((a, [n]) => a + n, 0);
+    const farmPopulation = nums.reduce((a, [, n]) => a + n, 0);
+    compositeFarms.push({
+      sgisCode: c.sgisCode,
+      name: c.name,
+      farmCount,
+      farmPopulation,
+      avgPopulation: farmCount > 0 ? Math.round((farmPopulation / farmCount) * 10) / 10 : 0,
+    });
+  }
+  console.log(`[collect-farms] 시 아래 신설 구=${compositeFarms.length}`);
+
   // 시도 합산도 함께 — 시도 페이지에서 사용
   const sidoTotals = new Map<
     string,
@@ -179,7 +211,7 @@ export interface FarmStat {
 }
 
 /** 시군구 농가 통계 (SGIS 5자리) */
-export const FARM_FALLBACK_SIGUNGU: FarmStat[] = ${JSON.stringify(all, null, 2)};
+export const FARM_FALLBACK_SIGUNGU: FarmStat[] = ${JSON.stringify([...all, ...compositeFarms], null, 2)};
 
 /** 시도 합산 농가 통계 (SGIS 2자리) */
 const FARM_FALLBACK_SIDO: FarmStat[] = ${JSON.stringify(sidoArr, null, 2)};

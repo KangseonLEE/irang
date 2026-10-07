@@ -19,6 +19,17 @@ describe("buildDataGoKrRequest", () => {
     expect(req?.headers).toEqual({ "x-irang-proxy-secret": "s3cret" });
   });
 
+  it("fresh(정합성 대조 기준값)는 프록시일 때만 저장분 건너뛰기 헤더를 붙인다 — 앱 기본 요청엔 없음", () => {
+    const env = { DATA_GO_KR_PROXY_URL: "https://x.workers.dev", DATA_GO_KR_PROXY_SECRET: "s", DATA_GO_KR_API_KEY: "K" };
+    expect(buildDataGoKrRequest(PATH, {}, env, { fresh: true })?.headers).toEqual({
+      "x-irang-proxy-secret": "s",
+      "x-irang-proxy-fresh": "1",
+    });
+    expect(buildDataGoKrRequest(PATH, {}, env)?.headers).toEqual({ "x-irang-proxy-secret": "s" });
+    // 직접 호출엔 저장분이 없으니 헤더도 없다
+    expect(buildDataGoKrRequest(PATH, {}, { DATA_GO_KR_API_KEY: "K" }, { fresh: true })?.headers).toEqual({});
+  });
+
   it("프록시 env가 없으면 직접 호출 + serviceKey", () => {
     const req = buildDataGoKrRequest(PATH, { stnIds: "108" }, { DATA_GO_KR_API_KEY: "REALKEY" });
     expect(req?.url).toBe("https://apis.data.go.kr/" + PATH + "?serviceKey=REALKEY&stnIds=108");

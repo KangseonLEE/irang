@@ -13,7 +13,7 @@ import { getChosung, isChosungQuery, matchChosung } from "../chosung";
 import { STATIONS } from "./stations";
 import { SIGUNGUS, getSigunguById } from "./sigungus";
 import { GUS } from "./gus";
-import { REGION_REORGANIZATIONS } from "./region-reorganizations";
+import { REGION_REORGANIZATIONS, SIDO_REORGANIZATIONS } from "./region-reorganizations";
 import { getProvinceById, PROVINCES } from "./regions";
 import { CROPS, CROP_DETAILS } from "./crops";
 import { PROGRAMS } from "./programs";
@@ -1862,6 +1862,26 @@ const FORMER_NAME_HINTS: ReadonlyMap<string, readonly SearchItem[]> = (() => {
           }
         }
       }
+    }
+  }
+  // 새 시·도 이름 안내 — '전남광주통합특별시'(2026-07-01)는 우리 지역 단위에 없는 이름이라 검색이 0건이었다.
+  // 통계가 통합 전 기준이라 광주·전남을 나눠 두므로 두 시·도 화면으로 안내한다(SIDO_REORGANIZATIONS.newNames)
+  for (const [sidoId, reorg] of Object.entries(SIDO_REORGANIZATIONS)) {
+    const prov = getProvinceById(sidoId);
+    if (!prov) continue;
+    for (const newName of reorg.newNames) {
+      const item: SearchItem = {
+        type: "region",
+        id: `new-name-${sidoId}-${newName}`,
+        title: `${reorg.newNames[0]} → ${prov.shortName}`,
+        subtitle: reorg.summary,
+        href: `/regions/${sidoId}`,
+        keywords: [newName, prov.name],
+        icon: "\u{1F4CD}", // 📍
+        badge: "안내",
+      };
+      const k = newName.toLowerCase();
+      map.set(k, [...(map.get(k) ?? []), item]);
     }
   }
   return map;
