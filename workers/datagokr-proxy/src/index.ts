@@ -7,7 +7,10 @@
  * 예열:  GET /warm?offset=N (같은 시크릿) 또는 cron — hira-warm-list.json을 40건씩 순환해 KV를 채운다.
  *        HIRA는 콜드 7~13초라 사용자 요청 전에 채워 두는 것이 이 Worker의 두 번째 목적(8/30).
  *
- * 시크릿(wrangler secret): DATA_GO_KR_API_KEY, PROXY_SECRET / KV: DATAGOKR_CACHE
+ * 시크릿(wrangler secret): DATA_GO_KR_API_KEY, PROXY_SECRET(앱·Vercel) / KV: DATAGOKR_CACHE
+ *   PROXY_SECRET_CI(선택, 10/7): GitHub 자동 대조(region-integrity) 전용 키 — 조회(/proxy)만, 예열(/warm)은 안 된다.
+ *   앱 키를 CI 에 복사하지 않고 따로 둬서 한쪽만 바꾸거나 끊을 수 있다. 값은 GitHub 시크릿 DATAGOKR_PROXY_CI_KEY 가
+ *   원본이고 deploy-datagokr-proxy.yml 이 Worker 에 넣는다.
  */
 
 import WARM_LIST from "./hira-warm-list.json";
@@ -15,6 +18,7 @@ import WARM_LIST from "./hira-warm-list.json";
 interface Env {
   DATA_GO_KR_API_KEY: string;
   PROXY_SECRET: string;
+  PROXY_SECRET_CI?: string;
   DATAGOKR_CACHE: KVNamespace;
 }
 
@@ -147,12 +151,16 @@ export default {
       const missing = ["PROXY_SECRET", "DATA_GO_KR_API_KEY"].filter((k) => !(env as unknown as Record<string, unknown>)[k]);
       return json(500, { error: "worker secrets not configured", missing });
     }
-    if (!secretMatches(request.headers.get("x-irang-proxy-secret"), env.PROXY_SECRET)) {
+    const given = request.headers.get("x-irang-proxy-secret");
+    const isApp = secretMatches(given, env.PROXY_SECRET);
+    const isCi = !isApp && !!env.PROXY_SECRET_CI && secretMatches(given, env.PROXY_SECRET_CI);
+    if (!isApp && !isCi) {
       return json(401, { error: "unauthorized" });
     }
 
     const url = new URL(request.url);
     if (url.pathname === "/warm") {
+      if (!isApp) return json(403, { error: "warm needs the app key" });
       const offset = Number(url.searchParams.get("offset") ?? "0") || 0;
       const r = await warmBatch(env, offset);
       return json(200, { offset, ...r });

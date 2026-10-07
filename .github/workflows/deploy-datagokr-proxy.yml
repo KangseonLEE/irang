@@ -47,11 +47,31 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: npx --yes wrangler@4 deploy 2>&1 | sed -E 's#https://[A-Za-z0-9.-]+\.workers\.dev#https://***.workers.dev#g'
 
-      - name: Live verify — 시크릿 없는 요청은 401 (500 이면 Worker 시크릿 유실)
+      # 자동 대조(region-integrity) 전용 키 — 원본은 GitHub 시크릿 DATAGOKR_PROXY_CI_KEY. 앱 키(PROXY_SECRET)와 별개(10/7)
+      - name: CI 전용 키 동기화 (GitHub DATAGOKR_PROXY_CI_KEY → Worker PROXY_SECRET_CI)
+        working-directory: workers/datagokr-proxy
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CI_KEY: ${{ secrets.DATAGOKR_PROXY_CI_KEY }}
+        run: |
+          if [ -z "$CI_KEY" ]; then echo "::warning::DATAGOKR_PROXY_CI_KEY 미등록 — CI 키 동기화를 건너뛴다(자동 대조가 심평원에 못 닿는다)"; exit 0; fi
+          printf '%s' "$CI_KEY" | npx --yes wrangler@4 secret put PROXY_SECRET_CI 2>&1 | sed -E 's#https://[A-Za-z0-9.-]+\.workers\.dev#https://***.workers.dev#g'
+
+      # upstream 을 부르지 않는 응답으로 인증 단계만 본다: 허용 밖 경로는 인증 통과 시 404, 실패 시 401
+      - name: Live verify — 키 없음 401 · CI 키 통과(404) · CI 키 예열 거절(403)
         shell: bash
         env:
           PROXY_URL: ${{ secrets.DATA_GO_KR_PROXY_URL }}
+          CI_KEY: ${{ secrets.DATAGOKR_PROXY_CI_KEY }}
         run: |
-          code=$(curl -s -o /tmp/body -w "%{http_code}" --max-time 30 "${PROXY_URL%/}/proxy/B551182/hospInfoServicev2/getHospBasisList?numOfRows=1" || true)
-          echo "시크릿 없는 요청 → HTTP $code $(cat /tmp/body 2>/dev/null)"
-          test "$code" = "401"
+          W="${PROXY_URL%/}"
+          code=$(curl -s -o /tmp/body -w "%{http_code}" --max-time 30 "$W/proxy/not-allowed" || true)
+          echo "키 없는 요청 → HTTP $code $(cat /tmp/body 2>/dev/null)"; test "$code" = "401"
+          if [ -n "$CI_KEY" ]; then
+            code=$(curl -s -o /tmp/body -w "%{http_code}" --max-time 30 -H "x-irang-proxy-secret: $CI_KEY" "$W/proxy/not-allowed" || true)
+            echo "CI 키 + 허용 밖 경로 → HTTP $code (404 = 인증 통과)"; test "$code" = "404"
+            code=$(curl -s -o /tmp/body -w "%{http_code}" --max-time 30 -H "x-irang-proxy-secret: $CI_KEY" "$W/warm" || true)
+            echo "CI 키 + /warm → HTTP $code (403 = 예열은 앱 키만)"; test "$code" = "403"
+          fi
