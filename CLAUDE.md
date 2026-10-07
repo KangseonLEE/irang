@@ -742,6 +742,7 @@ gh api repos/KangseonLEE/irang/deployments/$DEP_ID/statuses --jq '.[0] | "\(.sta
 | — | `scripts/generate-province-maps.ts` | 시도별 SVG 지도 데이터 생성 (statgarten 옛 경계 — 인천·대구는 건너뜀) |
 | — | `npx tsx scripts/generate-province-map-sgis.ts <incheon\|daegu>` | 행정구역 개편 시·도 지도를 통계청 SGIS 경계로 생성 — 신설 구는 `region-composites.ts` 행정동 묶음, 경계 면적(km²) 대조 출력 (2026-10-07) |
 | — | `.github/workflows/region-integrity.yml` | 지역 통계 전수 대조 주 1회(월 10:10 KST) — 불일치·대조 실패 시 `region-integrity` 이슈. 미국 러너라 심평원은 프록시 시크릿, 운영 페이지는 E2E_SECRET 필요 (2026-10-07) |
+| — | `.github/workflows/deploy-datagokr-proxy.yml` | data.go.kr 프록시 Worker 배포(dispatch) — 예열 목록을 `gen-hira-warm-list.ts` 로 다시 만들어 커밋본과 대조한 뒤 `CF_API_TOKEN` 으로 wrangler deploy, 시크릿 없는 요청 401 로 시크릿 유지 확인. 로컬 wrangler 로그인 불필요 (2026-10-07) |
 
 ---
 

@@ -1,0 +1,57 @@
+# data.go.kr 프록시 Worker 배포 (2026-10-07)
+#
+# 왜: 로컬 wrangler OAuth 가 만료되면 배포가 사람 로그인에 묶인다 — 10/7 심평원 예열 목록 갱신이 그랬다.
+#     봇 차단 Worker(deploy-bot-worker.yml)와 같은 CF_API_TOKEN 으로 CI 에서 배포한다.
+# 언제: workers/datagokr-proxy 코드·wrangler.toml 이 바뀌었거나, 예열 목록(src/hira-warm-list.json)을
+#       scripts/gen-hira-warm-list.ts 로 다시 만들어 커밋했을 때 dispatch.
+# 시크릿: Worker 시크릿(PROXY_SECRET·DATA_GO_KR_API_KEY)은 wrangler deploy 가 건드리지 않는다.
+#        배포 뒤 시크릿 없는 요청이 401 이면 시크릿이 그대로 붙어 있는 것, 500 이면 유실(Worker 가 누락 이름을 응답).
+# 공개 저장소라 로그의 workers.dev 주소는 가린다(지역 정합성 대조 스크립트와 같은 규칙).
+name: "Deploy data.go.kr proxy Worker"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-datagokr-proxy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: 예열 목록 = 앱이 실제로 보내는 심평원 요청 (다시 만들어 대조)
+        run: |
+          npx tsx scripts/gen-hira-warm-list.ts
+          git diff --exit-code -- workers/datagokr-proxy/src/hira-warm-list.json \
+            || { echo "::error::hira-warm-list.json 이 앱 요청과 다르다 — 로컬에서 scripts/gen-hira-warm-list.ts 를 돌려 커밋한 뒤 다시 배포"; exit 1; }
+
+      - name: Deploy (wrangler)
+        working-directory: workers/datagokr-proxy
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 deploy 2>&1 | sed -E 's#https://[A-Za-z0-9.-]+\.workers\.dev#https://***.workers.dev#g'
+
+      - name: Live verify — 시크릿 없는 요청은 401 (500 이면 Worker 시크릿 유실)
+        shell: bash
+        env:
+          PROXY_URL: ${{ secrets.DATA_GO_KR_PROXY_URL }}
+        run: |
+          code=$(curl -s -o /tmp/body -w "%{http_code}" --max-time 30 "${PROXY_URL%/}/proxy/B551182/hospInfoServicev2/getHospBasisList?numOfRows=1" || true)
+          echo "시크릿 없는 요청 → HTTP $code $(cat /tmp/body 2>/dev/null)"
+          test "$code" = "401"
