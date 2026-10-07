@@ -25,6 +25,7 @@
  *   - --json 은 요약(건수·불일치 목록·코드↔지역명·시·도 합계·학교 포착률·접근 점검)을 쓴다. 대조를 끝내지
  *     못해도 fatal 과 함께 쓴다. 공개 저장소라 키·프록시 주소는 메시지에서 가린다.
  */
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { buildDataGoKrRequest, isDataGoKrProxied } from "@/lib/api/_datagokr";
 import { PROVINCES } from "@/lib/data/regions";
@@ -360,10 +361,14 @@ async function preflight() {
   // 원인을 오류 코드로 바로 짚는다 — 키 무효(NEIS ERROR-290·심평원 code 30)와 미국 러너 차단(심평원 400 code 10)은 처방이 다르다
   const hints: string[] = [];
   const ci = !!process.env.GITHUB_ACTIONS;
+  // 키 지문(sha256 앞 8자) — 값을 드러내지 않고 시크릿이 로컬 .env.local 의 키와 같은지 대조한다
+  const fp = (v?: string) => (v ? createHash("sha256").update(v).digest("hex").slice(0, 8) : "없음");
   if (access.neis && !access.neis.ok && access.neis.detail.includes("ERROR-290"))
-    hints.push("NEIS 키가 무효예요(ERROR-290) — NEIS_API_KEY 값 확인(따옴표·공백·옛 키)");
+    hints.push(`NEIS 키가 무효예요(ERROR-290) — NEIS_API_KEY 값 확인(따옴표·공백·옛 키, 지문 ${fp(env.NEIS_API_KEY)})`);
   if (access.hira && !access.hira.ok && /SERVICE_KEY_IS_NOT_REGISTERED|"returnReasonCode": ?"30"/.test(access.hira.detail))
-    hints.push(`심평원 키가 무효예요(code 30) — ${r.hira === "proxy" ? "프록시 Worker 의 DATA_GO_KR_API_KEY" : "DATA_GO_KR_API_KEY 값(따옴표·공백·옛 키)"} 확인`);
+    hints.push(
+      `심평원 키가 무효예요(code 30) — ${r.hira === "proxy" ? "프록시 Worker 의 DATA_GO_KR_API_KEY" : `DATA_GO_KR_API_KEY 값(따옴표·공백·옛 키, 지문 ${fp(env.DATA_GO_KR_API_KEY)})`} 확인`,
+    );
   if (ci && !access.hira?.ok && r.hira === "direct")
     hints.push("미국 러너는 data.go.kr 직접 호출이 막혀요(400 code 10) — GitHub 시크릿 DATA_GO_KR_PROXY_URL·DATA_GO_KR_PROXY_SECRET 필요");
   if (ci && !access.page?.ok && r.page === "browser")
