@@ -9,36 +9,34 @@
  */
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { STATIONS } from "../src/lib/data/stations";
 import { PROVINCES } from "../src/lib/data/regions";
 import { SIGUNGUS } from "../src/lib/data/sigungus";
 import { GUS } from "../src/lib/data/gus";
-import { GU_HIRA_CODES_MAP } from "../src/lib/api/hira";
+import { hiraCountRequests } from "../src/lib/api/hira";
 
-// 시군구·구는 소속 시도의 대표 관측소(PROVINCES.representativeStationId → STATIONS.stnId)로 hiraSidoCd를 얻는다 (region-item.ts와 동일)
-const sidoOf = new Map(
-  PROVINCES.map((p) => [p.id, STATIONS.find((st) => st.stnId === p.representativeStationId)?.hiraSidoCd] as const),
-);
+// 시·도 코드는 PROVINCES(상세·비교 화면이 쓰는 SSOT) — 10/7 이전엔 관측소 표 코드를 써 대구가 인천 코드(220000)였다
+const sidoOf = new Map(PROVINCES.map((p) => [p.id, p.hiraSidoCd] as const));
 const entries = new Map<string, { sidoCd: string; sgguCd?: string }>();
+// 앱이 심평원에 실제로 보내는 묶음 그대로(광주·전남·세종 코드 변환, 구 전개) — hira.ts hiraCountRequests 하나로 (10/7)
+const add = (reqs: { sidoCd: string; sgguCd?: string }[]) => {
+  for (const r of reqs) entries.set(r.sgguCd ? `${r.sidoCd}:${r.sgguCd}` : r.sidoCd, r);
+};
 
 // 시도 단위 (fetchMedicalFacilities → fetchSidoMedicalCount)
-for (const s of STATIONS) entries.set(s.hiraSidoCd, { sidoCd: s.hiraSidoCd });
+for (const p of PROVINCES) add(hiraCountRequests(p.hiraSidoCd));
 
 // 시군구 단위 (fetchSigunguMedicalFacilities → GU 전개 또는 단일)
 for (const sg of SIGUNGUS) {
   const sidoCd = sidoOf.get(sg.sidoId);
-  if (!sidoCd) continue;
-  const codes = GU_HIRA_CODES_MAP[sg.hiraSgguCd] ?? [sg.hiraSgguCd];
-  for (const c of codes) entries.set(`${sidoCd}:${c}`, { sidoCd, sgguCd: c });
+  if (sidoCd) add(hiraCountRequests(sidoCd, sg.hiraSgguCd));
 }
-// 구 단위 페이지 (gu-data.tsx)
+// 구 단위 페이지 (gu-data.tsx → fetchGuMedicalFacilities, 구 코드 하나)
 for (const g of GUS) {
   const sidoCd = sidoOf.get(g.sidoId);
-  if (!sidoCd) continue;
-  entries.set(`${sidoCd}:${g.hiraSgguCd}`, { sidoCd, sgguCd: g.hiraSgguCd });
+  if (sidoCd) add(hiraCountRequests(sidoCd, g.hiraSgguCd, { single: true }));
 }
 
 const list = [...entries.values()];
 const out = resolve(__dirname, "../workers/datagokr-proxy/src/hira-warm-list.json");
 writeFileSync(out, JSON.stringify(list, null, 0) + "\n");
-console.log(`hira warm list: ${list.length}건 (시도 ${STATIONS.length} · 시군구/구 ${list.length - new Set(STATIONS.map((s) => s.hiraSidoCd)).size}) → ${out}`);
+console.log(`hira warm list: ${list.length}건 (시도 ${PROVINCES.length}) → ${out}`);

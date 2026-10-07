@@ -1,7 +1,7 @@
 "use client";
 
 import { DataSource } from "@/components/ui/data-source";
-import { withJosa } from "@/lib/format";
+import { seoulAreaCompare, withJosa } from "@/lib/format";
 import s from "./modals.module.css";
 
 interface AreaModalProps {
@@ -11,7 +11,6 @@ interface AreaModalProps {
   population: number | null;
 }
 
-const SEOUL_AREA = 605;
 const NATIONAL_AREA = 100_401; // 대한민국 총 면적 (km²)
 
 export function AreaModal({
@@ -19,7 +18,7 @@ export function AreaModal({
   area,
   population,
 }: AreaModalProps) {
-  const seoulRatio = (area / SEOUL_AREA).toFixed(1);
+  const seoulRatio = seoulAreaCompare(area).ratio;
   const nationalPercent = ((area / NATIONAL_AREA) * 100).toFixed(1);
   const density = population ? Math.round(population / area) : null;
   const nationalDensity = 515; // 전국 평균 인구밀도 (명/km²)
@@ -35,7 +34,7 @@ export function AreaModal({
         </div>
         <div className={s.statItem}>
           <span className={s.statItemLabel}>서울 대비</span>
-          <span className={s.statItemValue}>약 {seoulRatio}배</span>
+          <span className={s.statItemValue}>{seoulRatio}</span>
         </div>
         <div className={s.statItem}>
           <span className={s.statItemLabel}>전국 면적 비율</span>

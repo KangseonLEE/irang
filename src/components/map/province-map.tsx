@@ -13,11 +13,14 @@ import s from "./province-map.module.css";
  * 본토만 viewBox에 잡혀 본토 시·군이 크게 보임.
  * 5/10 추가: 경북 울릉도가 viewBox를 800까지 늘려 본토가 작게 보이는 이슈.
  * 5/22 추가: 전남 신안군이 다도해 1004개 섬으로 viewBox 좌측 광역 차지 → 본토 축소 (회장 라이브 발견).
+ * 10/7 추가: 인천 옹진군 — 백령도까지 서해에 흩어져 본토 9개 구가 오른쪽 끝에 몰렸다(신설 4개 구를 누를 수 없을 만큼).
+ *   강화는 본토와 붙어 있어 지도에 둔다.
  */
 const ISLAND_SIGUNGUS: Record<string, ReadonlySet<string>> = {
   gyeongbuk: new Set(["ulleung"]),
   jeonnam: new Set(["sinan"]),
-  // TODO: 다른 시·도 도서 점검 후 추가 (인천 옹진·강화, 충남 태안 도서 등)
+  incheon: new Set(["ongjin"]),
+  // TODO: 다른 시·도 도서 점검 후 추가 (충남 태안 도서 등)
 };
 
 /** SVG path "d" 문자열에서 모든 (x, y) 좌표 페어 추출 */

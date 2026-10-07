@@ -2,7 +2,7 @@
  * 시군구 차원별 5점수 (자동 생성)
  *
  * 생성 스크립트: scripts/compute-dimension-scores.ts
- * 마지막 갱신: 2026-05-10
+ * 마지막 갱신: 2026-10-07
  *
  * ⚠ 절대 수동 편집 금지. 갱신은 `npx tsx scripts/compute-dimension-scores.ts`
  *
@@ -10,7 +10,7 @@
  * 1. populationTrend: 5년 인구 변화율 선형 (-10% → 0, +5% → 100)
  * 2. farmActivity: 인구 1만명당 농가 수 전국 분위 (1~100). 도시 자치구 null
  * 3. medical: 인구 1만명당 의료기관 수 전국 분위 (1~100)
- * 4. school: 인구 1만명당 학교 수 전국 분위 (1~100). 군위 null
+ * 4. school: 인구 1만명당 학교 수 전국 분위 (1~100). 학교 0곳이면 null
  * 5. returnFarm: 농촌 정착 인구 비율 전국 분위 (1~100). 도시 자치구 null
  *
  * 회장 결재 사항 (A'안):
@@ -54,7 +54,7 @@ export interface DimensionScores {
   farmActivity: number | null;
   /** 의료 인프라 분위 (1~100) */
   medical: number | null;
-  /** 학교 인프라 분위 (1~100). 군위 null */
+  /** 학교 인프라 분위 (1~100). 학교 0곳이면 null */
   school: number | null;
   /** 농촌 정착 인구 비율 분위 (1~100). 도시 자치구 null */
   returnFarm: number | null;
@@ -70,7 +70,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 23,
     "farmActivity": null,
     "medical": 98,
-    "school": 51,
+    "school": 53,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -81,9 +81,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 31.86,
+        "rawValue": 32.34,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 31.9곳",
+        "rawLabel": "1만 명당 의료기관 32.3곳",
         "rankPercent": 2,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 2%)"
       },
@@ -91,8 +91,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 3.19,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.2곳",
-        "rankPercent": 49,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 49%)"
+        "rankPercent": 47,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 47%)"
       },
       "returnFarm": null
     }
@@ -103,7 +103,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 43,
     "farmActivity": null,
     "medical": 99,
-    "school": 41,
+    "school": 46,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -114,17 +114,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 49.26,
+        "rawValue": 49.66,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 49.3곳",
+        "rawLabel": "1만 명당 의료기관 49.7곳",
         "rankPercent": 1,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 1%)"
       },
       "school": {
-        "rawValue": 2.55,
+        "rawValue": 2.71,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 2.6곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 41%)"
+        "rawLabel": "1만 명당 학교 2.7곳",
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 46%)"
       },
       "returnFarm": null
     }
@@ -134,8 +134,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "용산구",
     "populationTrend": 44,
     "farmActivity": null,
-    "medical": 56,
-    "school": 14,
+    "medical": 58,
+    "school": 15,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -146,17 +146,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 15.09,
+        "rawValue": 15.37,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 15.1곳",
-        "rankPercent": 44,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 44%)"
+        "rawLabel": "1만 명당 의료기관 15.4곳",
+        "rankPercent": 42,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 42%)"
       },
       "school": {
-        "rawValue": 1.69,
+        "rawValue": 1.73,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 14%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 15%)"
       },
       "returnFarm": null
     }
@@ -166,8 +166,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "성동구",
     "populationTrend": 13,
     "farmActivity": null,
-    "medical": 75,
-    "school": 6,
+    "medical": 77,
+    "school": 5,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -178,17 +178,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 17.37,
+        "rawValue": 17.69,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 17.4곳",
-        "rankPercent": 25,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 25%)"
+        "rawLabel": "1만 명당 의료기관 17.7곳",
+        "rankPercent": 23,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 23%)"
       },
       "school": {
         "rawValue": 1.42,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 6%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 5%)"
       },
       "returnFarm": null
     }
@@ -210,7 +210,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 17.43,
+        "rawValue": 17.4,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 17.4곳",
         "rankPercent": 25,
@@ -231,7 +231,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 53,
     "farmActivity": null,
     "medical": 84,
-    "school": 7,
+    "school": 6,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -242,9 +242,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 18.48,
+        "rawValue": 18.36,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 18.5곳",
+        "rawLabel": "1만 명당 의료기관 18.4곳",
         "rankPercent": 16,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 16%)"
       },
@@ -252,7 +252,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.43,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 7%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 6%)"
       },
       "returnFarm": null
     }
@@ -262,7 +262,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "중랑구",
     "populationTrend": 45,
     "farmActivity": null,
-    "medical": 57,
+    "medical": 59,
     "school": 1,
     "returnFarm": null,
     "evidence": {
@@ -274,11 +274,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 15.22,
+        "rawValue": 15.46,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 15.2곳",
-        "rankPercent": 43,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 43%)"
+        "rawLabel": "1만 명당 의료기관 15.5곳",
+        "rankPercent": 41,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 41%)"
       },
       "school": {
         "rawValue": 1.27,
@@ -294,7 +294,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "성북구",
     "populationTrend": 63,
     "farmActivity": null,
-    "medical": 31,
+    "medical": 29,
     "school": 6,
     "returnFarm": null,
     "evidence": {
@@ -306,10 +306,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 12.93,
+        "rawValue": 12.91,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 31%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 29%)"
       },
       "school": {
         "rawValue": 1.42,
@@ -325,7 +325,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "강북구",
     "populationTrend": 21,
     "farmActivity": null,
-    "medical": 71,
+    "medical": 70,
     "school": 3,
     "returnFarm": null,
     "evidence": {
@@ -337,11 +337,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 16.61,
+        "rawValue": 16.57,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 16.6곳",
-        "rankPercent": 29,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 29%)"
+        "rankPercent": 30,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 30%)"
       },
       "school": {
         "rawValue": 1.32,
@@ -358,7 +358,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 18,
     "farmActivity": null,
     "medical": 27,
-    "school": 7,
+    "school": 9,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -369,16 +369,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 12.56,
+        "rawValue": 12.66,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.6곳",
+        "rawLabel": "1만 명당 의료기관 12.7곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 27%)"
       },
       "school": {
-        "rawValue": 1.48,
+        "rawValue": 1.51,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 7%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 9%)"
       },
       "returnFarm": null
     }
@@ -388,8 +388,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "노원구",
     "populationTrend": 20,
     "farmActivity": null,
-    "medical": 59,
-    "school": 26,
+    "medical": 58,
+    "school": 27,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -400,17 +400,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 15.47,
+        "rawValue": 15.43,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 15.5곳",
-        "rankPercent": 41,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 41%)"
+        "rawLabel": "1만 명당 의료기관 15.4곳",
+        "rankPercent": 42,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 42%)"
       },
       "school": {
-        "rawValue": 1.99,
+        "rawValue": 2.01,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.0곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 26%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 27%)"
       },
       "returnFarm": null
     }
@@ -421,7 +421,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 55,
     "farmActivity": null,
     "medical": 62,
-    "school": 9,
+    "school": 7,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -432,9 +432,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 15.84,
+        "rawValue": 15.92,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 15.8곳",
+        "rawLabel": "1만 명당 의료기관 15.9곳",
         "rankPercent": 38,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 38%)"
       },
@@ -442,7 +442,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.5,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 9%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 7%)"
       },
       "returnFarm": null
     }
@@ -452,7 +452,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "서대문구",
     "populationTrend": 65,
     "farmActivity": null,
-    "medical": 47,
+    "medical": 48,
     "school": 4,
     "returnFarm": null,
     "evidence": {
@@ -464,10 +464,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.23,
+        "rawValue": 14.39,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.2곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 47%)"
+        "rawLabel": "1만 명당 의료기관 14.4곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 48%)"
       },
       "school": {
         "rawValue": 1.35,
@@ -484,7 +484,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 56,
     "farmActivity": null,
     "medical": 96,
-    "school": 4,
+    "school": 7,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -495,17 +495,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 21.96,
+        "rawValue": 21.94,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 22.0곳",
+        "rawLabel": "1만 명당 의료기관 21.9곳",
         "rankPercent": 4,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 4%)"
       },
       "school": {
-        "rawValue": 1.41,
+        "rawValue": 1.43,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 4%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 7%)"
       },
       "returnFarm": null
     }
@@ -516,7 +516,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 39,
     "farmActivity": null,
     "medical": 68,
-    "school": 9,
+    "school": 8,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -527,9 +527,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 16.46,
+        "rawValue": 16.42,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 16.5곳",
+        "rawLabel": "1만 명당 의료기관 16.4곳",
         "rankPercent": 32,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 32%)"
       },
@@ -537,7 +537,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.5,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 9%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 8%)"
       },
       "returnFarm": null
     }
@@ -547,8 +547,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "강서구",
     "populationTrend": 41,
     "farmActivity": null,
-    "medical": 76,
-    "school": 8,
+    "medical": 78,
+    "school": 9,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -559,17 +559,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 17.68,
+        "rawValue": 17.72,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 17.7곳",
-        "rankPercent": 24,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 24%)"
+        "rankPercent": 22,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 22%)"
       },
       "school": {
-        "rawValue": 1.49,
+        "rawValue": 1.51,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 8%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 9%)"
       },
       "returnFarm": null
     }
@@ -579,8 +579,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "구로구",
     "populationTrend": 52,
     "farmActivity": null,
-    "medical": 51,
-    "school": 5,
+    "medical": 53,
+    "school": 4,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -591,17 +591,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.64,
+        "rawValue": 14.81,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.6곳",
-        "rankPercent": 49,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 49%)"
+        "rawLabel": "1만 명당 의료기관 14.8곳",
+        "rankPercent": 47,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 47%)"
       },
       "school": {
         "rawValue": 1.41,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.4곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 5%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 4%)"
       },
       "returnFarm": null
     }
@@ -643,7 +643,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "영등포구",
     "populationTrend": 78,
     "farmActivity": null,
-    "medical": 94,
+    "medical": 95,
     "school": 1,
     "returnFarm": null,
     "evidence": {
@@ -655,16 +655,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 21.3,
+        "rawValue": 21.4,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 21.3곳",
-        "rankPercent": 6,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 6%)"
+        "rawLabel": "1만 명당 의료기관 21.4곳",
+        "rankPercent": 5,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 5%)"
       },
       "school": {
-        "rawValue": 1.14,
+        "rawValue": 1.17,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 1.1곳",
+        "rawLabel": "1만 명당 학교 1.2곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 1%)"
       },
       "returnFarm": null
@@ -675,8 +675,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "동작구",
     "populationTrend": 48,
     "farmActivity": null,
-    "medical": 63,
-    "school": 4,
+    "medical": 62,
+    "school": 3,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -687,17 +687,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 15.93,
+        "rawValue": 15.91,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 15.9곳",
-        "rankPercent": 37,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 37%)"
+        "rankPercent": 38,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 38%)"
       },
       "school": {
         "rawValue": 1.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.3곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 4%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 3%)"
       },
       "returnFarm": null
     }
@@ -707,7 +707,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "관악구",
     "populationTrend": 49,
     "farmActivity": null,
-    "medical": 49,
+    "medical": 50,
     "school": 1,
     "returnFarm": null,
     "evidence": {
@@ -719,13 +719,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.53,
+        "rawValue": 14.47,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.5곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 49%)"
+        "rankPercent": 50,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 50%)"
       },
       "school": {
-        "rawValue": 1.17,
+        "rawValue": 1.19,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.2곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 1%)"
@@ -739,7 +740,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 24,
     "farmActivity": null,
     "medical": 99,
-    "school": 8,
+    "school": 10,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -750,17 +751,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 41.63,
+        "rawValue": 42.02,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 41.6곳",
+        "rawLabel": "1만 명당 의료기관 42.0곳",
         "rankPercent": 1,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 1%)"
       },
       "school": {
-        "rawValue": 1.49,
+        "rawValue": 1.51,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 8%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 10%)"
       },
       "returnFarm": null
     }
@@ -771,7 +772,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 57,
     "farmActivity": null,
     "medical": 100,
-    "school": 14,
+    "school": 13,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -782,9 +783,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 62.28,
+        "rawValue": 63.62,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 62.3곳",
+        "rawLabel": "1만 명당 의료기관 63.6곳",
         "rankPercent": 1,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 1%)"
       },
@@ -792,7 +793,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.68,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 14%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 13%)"
       },
       "returnFarm": null
     }
@@ -814,14 +815,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 20.86,
+        "rawValue": 21.14,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 20.9곳",
+        "rawLabel": "1만 명당 의료기관 21.1곳",
         "rankPercent": 7,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 7%)"
       },
       "school": {
-        "rawValue": 1.51,
+        "rawValue": 1.53,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 10%)"
@@ -846,9 +847,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 21.51,
+        "rawValue": 21.55,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 21.5곳",
+        "rawLabel": "1만 명당 의료기관 21.6곳",
         "rankPercent": 5,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 5%)"
       },
@@ -862,66 +863,64 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     }
   },
   {
-    "sgisCode": "23010",
-    "name": "중구",
-    "populationTrend": 100,
+    "sgisCode": "23100",
+    "name": "제물포구",
+    "populationTrend": 3,
     "farmActivity": null,
-    "medical": 5,
-    "school": 51,
+    "medical": 43,
+    "school": 58,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
-        "rawValue": 26.1,
+        "rawValue": -9.5,
         "rawUnit": "%",
-        "rawLabel": "5년 인구 +26.1%",
-        "interpretation": "2018~2022년 인구 +26.1% 변화로 회복세예요"
+        "rawLabel": "5년 인구 -9.5%",
+        "interpretation": "2018~2022년 인구 -9.5% 변화로 감소 폭이 커요"
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 9.96,
+        "rawValue": 13.84,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 10.0곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 5%)"
+        "rawLabel": "1만 명당 의료기관 13.8곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 43%)"
       },
       "school": {
-        "rawValue": 3.19,
+        "rawValue": 3.48,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 3.2곳",
-        "rankPercent": 49,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 49%)"
+        "rawLabel": "1만 명당 학교 3.5곳",
+        "rankPercent": 42,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 42%)"
       },
       "returnFarm": null
     }
   },
   {
-    "sgisCode": "23020",
-    "name": "동구",
-    "populationTrend": 0,
+    "sgisCode": "23110",
+    "name": "영종구",
+    "populationTrend": 100,
     "farmActivity": null,
-    "medical": 54,
-    "school": 100,
+    "medical": 1,
+    "school": 42,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
-        "rawValue": -10.9,
+        "rawValue": 49.5,
         "rawUnit": "%",
-        "rawLabel": "5년 인구 -10.9%",
-        "interpretation": "2018~2022년 인구 -10.9% 변화로 감소 폭이 커요"
+        "rawLabel": "5년 인구 +49.5%",
+        "interpretation": "2018~2022년 인구 +49.5% 변화로 회복세예요"
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.98,
+        "rawValue": 8.73,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 15.0곳",
-        "rankPercent": 46,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 46%)"
+        "rawLabel": "1만 명당 의료기관 8.7곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 1%)"
       },
       "school": {
-        "rawValue": 16.87,
+        "rawValue": 2.56,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 16.9곳",
-        "rankPercent": 1,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 1%)"
+        "rawLabel": "1만 명당 학교 2.6곳",
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 42%)"
       },
       "returnFarm": null
     }
@@ -931,7 +930,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "미추홀구",
     "populationTrend": 67,
     "farmActivity": null,
-    "medical": 28,
+    "medical": 27,
     "school": 2,
     "returnFarm": null,
     "evidence": {
@@ -943,10 +942,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 12.67,
+        "rawValue": 12.64,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 28%)"
+        "rawLabel": "1만 명당 의료기관 12.6곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 27%)"
       },
       "school": {
         "rawValue": 1.3,
@@ -962,7 +961,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "연수구",
     "populationTrend": 100,
     "farmActivity": null,
-    "medical": 31,
+    "medical": 32,
     "school": 22,
     "returnFarm": null,
     "evidence": {
@@ -974,15 +973,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 12.96,
+        "rawValue": 13.06,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.0곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 31%)"
+        "rawLabel": "1만 명당 의료기관 13.1곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 32%)"
       },
       "school": {
-        "rawValue": 1.85,
+        "rawValue": 1.87,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 1.8곳",
+        "rawLabel": "1만 명당 학교 1.9곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 22%)"
       },
       "returnFarm": null
@@ -1005,14 +1004,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.86,
+        "rawValue": 14.8,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.9곳",
+        "rawLabel": "1만 명당 의료기관 14.8곳",
         "rankPercent": 48,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 48%)"
       },
       "school": {
-        "rawValue": 1.62,
+        "rawValue": 1.64,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.6곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 12%)"
@@ -1037,7 +1036,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 13.69,
+        "rawValue": 13.71,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.7곳",
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 40%)"
@@ -1056,8 +1055,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "계양구",
     "populationTrend": 24,
     "farmActivity": null,
-    "medical": 34,
-    "school": 21,
+    "medical": 33,
+    "school": 22,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -1068,47 +1067,78 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 13.19,
+        "rawValue": 13.08,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.2곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 34%)"
+        "rawLabel": "1만 명당 의료기관 13.1곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 33%)"
       },
       "school": {
-        "rawValue": 1.84,
+        "rawValue": 1.87,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 1.8곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 21%)"
+        "rawLabel": "1만 명당 학교 1.9곳",
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 22%)"
       },
       "returnFarm": null
     }
   },
   {
-    "sgisCode": "23080",
-    "name": "서구",
-    "populationTrend": 100,
+    "sgisCode": "23120",
+    "name": "서해구",
+    "populationTrend": 84,
     "farmActivity": null,
-    "medical": 20,
-    "school": 21,
+    "medical": 12,
+    "school": 14,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
-        "rawValue": 9.1,
+        "rawValue": 2.5,
         "rawUnit": "%",
-        "rawLabel": "5년 인구 +9.1%",
-        "interpretation": "2018~2022년 인구 +9.1% 변화로 회복세예요"
+        "rawLabel": "5년 인구 +2.5%",
+        "interpretation": "2018~2022년 인구 +2.5% 변화로 회복세예요"
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 11.84,
+        "rawValue": 11.21,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 11.8곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 20%)"
+        "rawLabel": "1만 명당 의료기관 11.2곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 12%)"
       },
       "school": {
-        "rawValue": 1.82,
+        "rawValue": 1.71,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 1.8곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 21%)"
+        "rawLabel": "1만 명당 학교 1.7곳",
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 14%)"
+      },
+      "returnFarm": null
+    }
+  },
+  {
+    "sgisCode": "23130",
+    "name": "검단구",
+    "populationTrend": 100,
+    "farmActivity": null,
+    "medical": 37,
+    "school": 30,
+    "returnFarm": null,
+    "evidence": {
+      "populationTrend": {
+        "rawValue": 24.8,
+        "rawUnit": "%",
+        "rawLabel": "5년 인구 +24.8%",
+        "interpretation": "2018~2022년 인구 +24.8% 변화로 회복세예요"
+      },
+      "farmActivity": null,
+      "medical": {
+        "rawValue": 13.39,
+        "rawUnit": "곳",
+        "rawLabel": "1만 명당 의료기관 13.4곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 37%)"
+      },
+      "school": {
+        "rawValue": 2.15,
+        "rawUnit": "곳",
+        "rawLabel": "1만 명당 학교 2.1곳",
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 30%)"
       },
       "returnFarm": null
     }
@@ -1118,9 +1148,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "강화군",
     "populationTrend": 87,
     "farmActivity": 57,
-    "medical": 31,
-    "school": 69,
-    "returnFarm": 58,
+    "medical": 34,
+    "school": 70,
+    "returnFarm": 55,
     "evidence": {
       "populationTrend": {
         "rawValue": 3.1,
@@ -1136,24 +1166,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 43%)"
       },
       "medical": {
-        "rawValue": 12.95,
+        "rawValue": 13.1,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 31%)"
+        "rawLabel": "1만 명당 의료기관 13.1곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 34%)"
       },
       "school": {
         "rawValue": 5.57,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.6곳",
-        "rankPercent": 31,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 31%)"
+        "rankPercent": 30,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 30%)"
       },
       "returnFarm": {
         "rawValue": 0.11,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 42,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 42%)"
+        "rankPercent": 45,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 45%)"
       }
     }
   },
@@ -1164,7 +1194,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "farmActivity": 34,
     "medical": 44,
     "school": 98,
-    "returnFarm": 39,
+    "returnFarm": 40,
     "evidence": {
       "populationTrend": {
         "rawValue": 0.6,
@@ -1192,10 +1222,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 2%)"
       },
       "returnFarm": {
-        "rawValue": 0.06,
+        "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 39%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 40%)"
       }
     }
   },
@@ -1204,7 +1234,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "수원시",
     "populationTrend": 64,
     "farmActivity": null,
-    "medical": 51,
+    "medical": 53,
     "school": 17,
     "returnFarm": null,
     "evidence": {
@@ -1216,16 +1246,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.81,
+        "rawValue": 14.85,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.8곳",
-        "rankPercent": 49,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 49%)"
+        "rankPercent": 47,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 47%)"
       },
       "school": {
-        "rawValue": 1.73,
+        "rawValue": 1.76,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 1.7곳",
+        "rawLabel": "1만 명당 학교 1.8곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 17%)"
       },
       "returnFarm": null
@@ -1237,7 +1267,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 48,
     "farmActivity": null,
     "medical": 94,
-    "school": 18,
+    "school": 19,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -1255,10 +1285,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 6%)"
       },
       "school": {
-        "rawValue": 1.77,
+        "rawValue": 1.79,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 18%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 19%)"
       },
       "returnFarm": null
     }
@@ -1280,7 +1310,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 13.75,
+        "rawValue": 13.78,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.8곳",
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 42%)"
@@ -1318,7 +1348,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 26%)"
       },
       "school": {
-        "rawValue": 1.63,
+        "rawValue": 1.65,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.6곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 13%)"
@@ -1331,7 +1361,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "부천시",
     "populationTrend": 36,
     "farmActivity": null,
-    "medical": 48,
+    "medical": 50,
     "school": 13,
     "returnFarm": null,
     "evidence": {
@@ -1343,10 +1373,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.48,
+        "rawValue": 14.47,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.5곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 48%)"
+        "rankPercent": 50,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 50%)"
       },
       "school": {
         "rawValue": 1.65,
@@ -1362,7 +1393,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "광명시",
     "populationTrend": 0,
     "farmActivity": null,
-    "medical": 73,
+    "medical": 74,
     "school": 15,
     "returnFarm": null,
     "evidence": {
@@ -1374,14 +1405,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 17.04,
+        "rawValue": 17.22,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 17.0곳",
-        "rankPercent": 27,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 27%)"
+        "rawLabel": "1만 명당 의료기관 17.2곳",
+        "rankPercent": 26,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 26%)"
       },
       "school": {
-        "rawValue": 1.69,
+        "rawValue": 1.73,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 15%)"
@@ -1394,9 +1425,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "평택시",
     "populationTrend": 100,
     "farmActivity": 8,
-    "medical": 21,
-    "school": 31,
-    "returnFarm": 8,
+    "medical": 20,
+    "school": 33,
+    "returnFarm": 6,
     "evidence": {
       "populationTrend": {
         "rawValue": 17,
@@ -1411,22 +1442,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 8%)"
       },
       "medical": {
-        "rawValue": 11.86,
+        "rawValue": 12.03,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 11.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 21%)"
+        "rawLabel": "1만 명당 의료기관 12.0곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 20%)"
       },
       "school": {
-        "rawValue": 2.17,
+        "rawValue": 2.24,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.2곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 31%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 33%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 8%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 6%)"
       }
     }
   },
@@ -1435,8 +1466,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "동두천시",
     "populationTrend": 43,
     "farmActivity": null,
-    "medical": 5,
-    "school": 39,
+    "medical": 4,
+    "school": 41,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -1450,13 +1481,13 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 9.88,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 9.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 5%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 4%)"
       },
       "school": {
         "rawValue": 2.44,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.4곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 39%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 41%)"
       },
       "returnFarm": null
     }
@@ -1467,7 +1498,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 62,
     "farmActivity": null,
     "medical": 13,
-    "school": 11,
+    "school": 10,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -1478,16 +1509,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 11.22,
+        "rawValue": 11.36,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 11.2곳",
+        "rawLabel": "1만 명당 의료기관 11.4곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 13%)"
       },
       "school": {
-        "rawValue": 1.52,
+        "rawValue": 1.54,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 11%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 10%)"
       },
       "returnFarm": null
     }
@@ -1497,7 +1528,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "고양시",
     "populationTrend": 91,
     "farmActivity": null,
-    "medical": 35,
+    "medical": 36,
     "school": 18,
     "returnFarm": null,
     "evidence": {
@@ -1509,13 +1540,13 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 13.36,
+        "rawValue": 13.39,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.4곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 35%)"
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 36%)"
       },
       "school": {
-        "rawValue": 1.75,
+        "rawValue": 1.76,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 18%)"
@@ -1528,7 +1559,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "과천시",
     "populationTrend": 100,
     "farmActivity": null,
-    "medical": 65,
+    "medical": 67,
     "school": 19,
     "returnFarm": null,
     "evidence": {
@@ -1540,11 +1571,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 16.21,
+        "rawValue": 16.35,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 16.2곳",
-        "rankPercent": 35,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 35%)"
+        "rawLabel": "1만 명당 의료기관 16.3곳",
+        "rankPercent": 33,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 33%)"
       },
       "school": {
         "rawValue": 1.77,
@@ -1560,8 +1591,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "구리시",
     "populationTrend": 27,
     "farmActivity": null,
-    "medical": 88,
-    "school": 14,
+    "medical": 89,
+    "school": 16,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -1572,17 +1603,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 19.12,
+        "rawValue": 19.28,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 19.1곳",
-        "rankPercent": 12,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 12%)"
+        "rawLabel": "1만 명당 의료기관 19.3곳",
+        "rankPercent": 11,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 11%)"
       },
       "school": {
-        "rawValue": 1.68,
+        "rawValue": 1.74,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 14%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 16%)"
       },
       "returnFarm": null
     }
@@ -1591,10 +1622,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31130",
     "name": "남양주시",
     "populationTrend": 100,
-    "farmActivity": 2,
+    "farmActivity": 1,
     "medical": 17,
-    "school": 19,
-    "returnFarm": 3,
+    "school": 20,
+    "returnFarm": 2,
     "evidence": {
       "populationTrend": {
         "rawValue": 8.8,
@@ -1606,25 +1637,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 68.48,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 68.5호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 2%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 1%)"
       },
       "medical": {
-        "rawValue": 11.64,
+        "rawValue": 11.75,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 11.6곳",
+        "rawLabel": "1만 명당 의료기관 11.8곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 17%)"
       },
       "school": {
         "rawValue": 1.81,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.8곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 19%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 20%)"
       },
       "returnFarm": {
-        "rawValue": 0.01,
+        "rawValue": 0,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 3%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 2%)"
       }
     }
   },
@@ -1633,7 +1664,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "오산시",
     "populationTrend": 100,
     "farmActivity": null,
-    "medical": 11,
+    "medical": 10,
     "school": 27,
     "returnFarm": null,
     "evidence": {
@@ -1645,10 +1676,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 10.88,
+        "rawValue": 11.01,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 10.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 11%)"
+        "rawLabel": "1만 명당 의료기관 11.0곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 10%)"
       },
       "school": {
         "rawValue": 2.02,
@@ -1664,8 +1695,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "시흥시",
     "populationTrend": 100,
     "farmActivity": null,
-    "medical": 6,
-    "school": 17,
+    "medical": 5,
+    "school": 16,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -1676,16 +1707,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 10.26,
+        "rawValue": 10.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.3곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 6%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 5%)"
       },
       "school": {
         "rawValue": 1.74,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 17%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 16%)"
       },
       "returnFarm": null
     }
@@ -1695,8 +1726,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "군포시",
     "populationTrend": 45,
     "farmActivity": null,
-    "medical": 29,
-    "school": 16,
+    "medical": 27,
+    "school": 17,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -1707,16 +1738,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 12.7,
+        "rawValue": 12.66,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 29%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 27%)"
       },
       "school": {
-        "rawValue": 1.72,
+        "rawValue": 1.76,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 1.7곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 16%)"
+        "rawLabel": "1만 명당 학교 1.8곳",
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 17%)"
       },
       "returnFarm": null
     }
@@ -1726,8 +1757,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "의왕시",
     "populationTrend": 100,
     "farmActivity": null,
-    "medical": 9,
-    "school": 24,
+    "medical": 10,
+    "school": 25,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -1738,16 +1769,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 10.68,
+        "rawValue": 11,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 10.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 9%)"
+        "rawLabel": "1만 명당 의료기관 11.0곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 10%)"
       },
       "school": {
-        "rawValue": 1.91,
+        "rawValue": 1.97,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 1.9곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 24%)"
+        "rawLabel": "1만 명당 학교 2.0곳",
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 25%)"
       },
       "returnFarm": null
     }
@@ -1757,7 +1788,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "하남시",
     "populationTrend": 100,
     "farmActivity": null,
-    "medical": 48,
+    "medical": 50,
     "school": 11,
     "returnFarm": null,
     "evidence": {
@@ -1769,10 +1800,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.47,
+        "rawValue": 14.56,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.5곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 48%)"
+        "rawLabel": "1만 명당 의료기관 14.6곳",
+        "rankPercent": 50,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 50%)"
       },
       "school": {
         "rawValue": 1.59,
@@ -1789,8 +1821,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 92,
     "farmActivity": 1,
     "medical": 22,
-    "school": 20,
-    "returnFarm": 1,
+    "school": 21,
+    "returnFarm": 5,
     "evidence": {
       "populationTrend": {
         "rawValue": 3.8,
@@ -1805,22 +1837,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 1%)"
       },
       "medical": {
-        "rawValue": 12.05,
+        "rawValue": 12.17,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.1곳",
+        "rawLabel": "1만 명당 의료기관 12.2곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 22%)"
       },
       "school": {
-        "rawValue": 1.82,
+        "rawValue": 1.87,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 1.8곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 20%)"
+        "rawLabel": "1만 명당 학교 1.9곳",
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 21%)"
       },
       "returnFarm": {
-        "rawValue": 0,
+        "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 1%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 5%)"
       }
     }
   },
@@ -1828,10 +1860,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31200",
     "name": "파주시",
     "populationTrend": 100,
-    "farmActivity": 7,
-    "medical": 12,
-    "school": 38,
-    "returnFarm": 6,
+    "farmActivity": 6,
+    "medical": 10,
+    "school": 40,
+    "returnFarm": 9,
     "evidence": {
       "populationTrend": {
         "rawValue": 9.6,
@@ -1843,25 +1875,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 133.57,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 134호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 7%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 6%)"
       },
       "medical": {
-        "rawValue": 10.9,
+        "rawValue": 11,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 10.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 12%)"
+        "rawLabel": "1만 명당 의료기관 11.0곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 10%)"
       },
       "school": {
-        "rawValue": 2.36,
+        "rawValue": 2.42,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.4곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 38%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 40%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 6%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 9%)"
       }
     }
   },
@@ -1869,9 +1901,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31210",
     "name": "이천시",
     "populationTrend": 87,
-    "farmActivity": 23,
+    "farmActivity": 22,
     "medical": 18,
-    "school": 44,
+    "school": 45,
     "returnFarm": 22,
     "evidence": {
       "populationTrend": {
@@ -1884,22 +1916,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 362.2,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 362호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 23%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 22%)"
       },
       "medical": {
-        "rawValue": 11.75,
+        "rawValue": 11.8,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.8곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 18%)"
       },
       "school": {
-        "rawValue": 2.64,
+        "rawValue": 2.68,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 2.6곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 44%)"
+        "rawLabel": "1만 명당 학교 2.7곳",
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 45%)"
       },
       "returnFarm": {
-        "rawValue": 0.02,
+        "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
         "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 22%)"
@@ -1910,10 +1942,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31220",
     "name": "안성시",
     "populationTrend": 91,
-    "farmActivity": 25,
-    "medical": 10,
-    "school": 47,
-    "returnFarm": 30,
+    "farmActivity": 24,
+    "medical": 7,
+    "school": 50,
+    "returnFarm": 29,
     "evidence": {
       "populationTrend": {
         "rawValue": 3.7,
@@ -1925,25 +1957,26 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 380.74,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 381호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 25%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 24%)"
       },
       "medical": {
-        "rawValue": 10.69,
+        "rawValue": 10.64,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 10.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 10%)"
+        "rawLabel": "1만 명당 의료기관 10.6곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 7%)"
       },
       "school": {
-        "rawValue": 2.83,
+        "rawValue": 2.88,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 2.8곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 47%)"
+        "rawLabel": "1만 명당 학교 2.9곳",
+        "rankPercent": 50,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 50%)"
       },
       "returnFarm": {
-        "rawValue": 0.03,
+        "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 30%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 29%)"
       }
     }
   },
@@ -1952,9 +1985,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "김포시",
     "populationTrend": 100,
     "farmActivity": 4,
-    "medical": 14,
-    "school": 22,
-    "returnFarm": 7,
+    "medical": 13,
+    "school": 20,
+    "returnFarm": 4,
     "evidence": {
       "populationTrend": {
         "rawValue": 15.6,
@@ -1969,22 +2002,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 4%)"
       },
       "medical": {
-        "rawValue": 11.28,
+        "rawValue": 11.34,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.3곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 14%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 13%)"
       },
       "school": {
         "rawValue": 1.85,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.9곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 22%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 20%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 7%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 4%)"
       }
     }
   },
@@ -1993,9 +2026,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "화성시",
     "populationTrend": 100,
     "farmActivity": 5,
-    "medical": 1,
+    "medical": 11,
     "school": 30,
-    "returnFarm": 11,
+    "returnFarm": 12,
     "evidence": {
       "populationTrend": {
         "rawValue": 19.9,
@@ -2010,13 +2043,13 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 5%)"
       },
       "medical": {
-        "rawValue": 4.95,
+        "rawValue": 11.1,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 4.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 1%)"
+        "rawLabel": "1만 명당 의료기관 11.1곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 11%)"
       },
       "school": {
-        "rawValue": 2.11,
+        "rawValue": 2.15,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.1곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 30%)"
@@ -2025,7 +2058,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 11%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 12%)"
       }
     }
   },
@@ -2034,9 +2067,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "광주시",
     "populationTrend": 100,
     "farmActivity": 2,
-    "medical": 3,
+    "medical": 2,
     "school": 11,
-    "returnFarm": 5,
+    "returnFarm": 3,
     "evidence": {
       "populationTrend": {
         "rawValue": 7.9,
@@ -2051,10 +2084,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 2%)"
       },
       "medical": {
-        "rawValue": 9.24,
+        "rawValue": 9.37,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 9.2곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 3%)"
+        "rawLabel": "1만 명당 의료기관 9.4곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 2%)"
       },
       "school": {
         "rawValue": 1.55,
@@ -2066,7 +2099,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 5%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 3%)"
       }
     }
   },
@@ -2074,10 +2107,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31260",
     "name": "양주시",
     "populationTrend": 100,
-    "farmActivity": 8,
-    "medical": 7,
-    "school": 90,
-    "returnFarm": 2,
+    "farmActivity": 9,
+    "medical": 6,
+    "school": 48,
+    "returnFarm": 9,
     "evidence": {
       "populationTrend": {
         "rawValue": 11.6,
@@ -2089,26 +2122,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 153.71,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 154호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 8%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 9%)"
       },
       "medical": {
-        "rawValue": 10.33,
+        "rawValue": 10.49,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 10.3곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 7%)"
+        "rawLabel": "1만 명당 의료기관 10.5곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 6%)"
       },
       "school": {
-        "rawValue": 8.11,
+        "rawValue": 2.8,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 8.1곳",
-        "rankPercent": 10,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 10%)"
+        "rawLabel": "1만 명당 학교 2.8곳",
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 48%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 2%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 9%)"
       }
     }
   },
@@ -2117,9 +2149,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "포천시",
     "populationTrend": 75,
     "farmActivity": 23,
-    "medical": 4,
-    "school": 49,
-    "returnFarm": 27,
+    "medical": 3,
+    "school": 50,
+    "returnFarm": 24,
     "evidence": {
       "populationTrend": {
         "rawValue": 1.2,
@@ -2134,22 +2166,23 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 23%)"
       },
       "medical": {
-        "rawValue": 9.72,
+        "rawValue": 9.66,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 9.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 4%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 3%)"
       },
       "school": {
         "rawValue": 2.94,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.9곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 49%)"
+        "rankPercent": 50,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 50%)"
       },
       "returnFarm": {
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 27%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 24%)"
       }
     }
   },
@@ -2157,10 +2190,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31280",
     "name": "여주시",
     "populationTrend": 77,
-    "farmActivity": 36,
+    "farmActivity": 35,
     "medical": 26,
-    "school": 61,
-    "returnFarm": 36,
+    "school": 62,
+    "returnFarm": 30,
     "evidence": {
       "populationTrend": {
         "rawValue": 1.5,
@@ -2172,26 +2205,26 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 604.23,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 604호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 36%)"
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 35%)"
       },
       "medical": {
-        "rawValue": 12.47,
+        "rawValue": 12.56,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.5곳",
+        "rawLabel": "1만 명당 의료기관 12.6곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 26%)"
       },
       "school": {
         "rawValue": 4.04,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 4.0곳",
-        "rankPercent": 39,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 39%)"
+        "rankPercent": 38,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 38%)"
       },
       "returnFarm": {
-        "rawValue": 0.05,
+        "rawValue": 0.04,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 36%)"
+        "rawLabel": "전체 인구 대비 귀농 0.0%",
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 30%)"
       }
     }
   },
@@ -2199,10 +2232,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31580",
     "name": "양평군",
     "populationTrend": 100,
-    "farmActivity": null,
-    "medical": 29,
-    "school": 58,
-    "returnFarm": null,
+    "farmActivity": 32,
+    "medical": 28,
+    "school": 59,
+    "returnFarm": 42,
     "evidence": {
       "populationTrend": {
         "rawValue": 5.3,
@@ -2210,31 +2243,41 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawLabel": "5년 인구 +5.3%",
         "interpretation": "2018~2022년 인구 +5.3% 변화로 회복세예요"
       },
-      "farmActivity": null,
+      "farmActivity": {
+        "rawValue": 525.78,
+        "rawUnit": "호",
+        "rawLabel": "1만 명당 농가 526호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 32%)"
+      },
       "medical": {
         "rawValue": 12.74,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 29%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 28%)"
       },
       "school": {
         "rawValue": 3.76,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.8곳",
-        "rankPercent": 42,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 42%)"
+        "rankPercent": 41,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 41%)"
       },
-      "returnFarm": null
+      "returnFarm": {
+        "rawValue": 0.07,
+        "rawUnit": "%",
+        "rawLabel": "전체 인구 대비 귀농 0.1%",
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 42%)"
+      }
     }
   },
   {
     "sgisCode": "31570",
     "name": "가평군",
     "populationTrend": 64,
-    "farmActivity": null,
+    "farmActivity": 38,
     "medical": 61,
-    "school": 63,
-    "returnFarm": null,
+    "school": 64,
+    "returnFarm": 41,
     "evidence": {
       "populationTrend": {
         "rawValue": -0.3,
@@ -2242,11 +2285,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawLabel": "5년 인구 -0.3%",
         "interpretation": "2018~2022년 인구 -0.3% 변화로 안정 추세예요"
       },
-      "farmActivity": null,
+      "farmActivity": {
+        "rawValue": 627.73,
+        "rawUnit": "호",
+        "rawLabel": "1만 명당 농가 628호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 38%)"
+      },
       "medical": {
-        "rawValue": 15.73,
+        "rawValue": 15.9,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 15.7곳",
+        "rawLabel": "1만 명당 의료기관 15.9곳",
         "rankPercent": 39,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 39%)"
       },
@@ -2254,20 +2302,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 4.52,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 4.5곳",
-        "rankPercent": 37,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 37%)"
+        "rankPercent": 36,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 36%)"
       },
-      "returnFarm": null
+      "returnFarm": {
+        "rawValue": 0.07,
+        "rawUnit": "%",
+        "rawLabel": "전체 인구 대비 귀농 0.1%",
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 41%)"
+      }
     }
   },
   {
     "sgisCode": "31550",
     "name": "연천군",
     "populationTrend": 34,
-    "farmActivity": null,
+    "farmActivity": 40,
     "medical": 33,
-    "school": 69,
-    "returnFarm": null,
+    "school": 71,
+    "returnFarm": 53,
     "evidence": {
       "populationTrend": {
         "rawValue": -4.8,
@@ -2275,7 +2328,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawLabel": "5년 인구 -4.8%",
         "interpretation": "2018~2022년 인구 -4.8% 변화로 안정 추세예요"
       },
-      "farmActivity": null,
+      "farmActivity": {
+        "rawValue": 745.74,
+        "rawUnit": "호",
+        "rawLabel": "1만 명당 농가 746호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 40%)"
+      },
       "medical": {
         "rawValue": 13.08,
         "rawUnit": "곳",
@@ -2286,10 +2344,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 5.57,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.6곳",
-        "rankPercent": 31,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 31%)"
+        "rankPercent": 29,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 29%)"
       },
-      "returnFarm": null
+      "returnFarm": {
+        "rawValue": 0.1,
+        "rawUnit": "%",
+        "rawLabel": "전체 인구 대비 귀농 0.1%",
+        "rankPercent": 47,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 47%)"
+      }
     }
   },
   {
@@ -2297,9 +2361,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "춘천시",
     "populationTrend": 86,
     "farmActivity": 13,
-    "medical": 33,
-    "school": 47,
-    "returnFarm": 11,
+    "medical": 32,
+    "school": 48,
+    "returnFarm": 17,
     "evidence": {
       "populationTrend": {
         "rawValue": 2.9,
@@ -2314,22 +2378,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 13%)"
       },
       "medical": {
-        "rawValue": 13.1,
+        "rawValue": 13.03,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.1곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 33%)"
+        "rawLabel": "1만 명당 의료기관 13.0곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 32%)"
       },
       "school": {
         "rawValue": 2.8,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.8곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 47%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 48%)"
       },
       "returnFarm": {
-        "rawValue": 0.01,
+        "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 11%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 17%)"
       }
     }
   },
@@ -2338,9 +2402,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "원주시",
     "populationTrend": 100,
     "farmActivity": 15,
-    "medical": 45,
-    "school": 45,
-    "returnFarm": 10,
+    "medical": 47,
+    "school": 47,
+    "returnFarm": 14,
     "evidence": {
       "populationTrend": {
         "rawValue": 5.1,
@@ -2355,22 +2419,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 15%)"
       },
       "medical": {
-        "rawValue": 14.01,
+        "rawValue": 14.21,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.0곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 45%)"
+        "rawLabel": "1만 명당 의료기관 14.2곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 47%)"
       },
       "school": {
         "rawValue": 2.74,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.7곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 45%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 47%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 10%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 14%)"
       }
     }
   },
@@ -2379,9 +2443,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "강릉시",
     "populationTrend": 65,
     "farmActivity": 21,
-    "medical": 28,
-    "school": 48,
-    "returnFarm": 17,
+    "medical": 29,
+    "school": 50,
+    "returnFarm": 10,
     "evidence": {
       "populationTrend": {
         "rawValue": -0.2,
@@ -2396,22 +2460,23 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 21%)"
       },
       "medical": {
-        "rawValue": 12.69,
+        "rawValue": 12.78,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 28%)"
+        "rawLabel": "1만 명당 의료기관 12.8곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 29%)"
       },
       "school": {
         "rawValue": 2.93,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.9곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 48%)"
+        "rankPercent": 50,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 50%)"
       },
       "returnFarm": {
-        "rawValue": 0.02,
+        "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 17%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 10%)"
       }
     }
   },
@@ -2420,8 +2485,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "동해시",
     "populationTrend": 59,
     "farmActivity": null,
-    "medical": 24,
-    "school": 54,
+    "medical": 21,
+    "school": 55,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -2432,17 +2497,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 12.22,
+        "rawValue": 12.1,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.2곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 24%)"
+        "rawLabel": "1만 명당 의료기관 12.1곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 21%)"
       },
       "school": {
         "rawValue": 3.34,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.3곳",
-        "rankPercent": 46,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 46%)"
+        "rankPercent": 45,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 45%)"
       },
       "returnFarm": null
     }
@@ -2452,8 +2517,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "태백시",
     "populationTrend": 0,
     "farmActivity": null,
-    "medical": 14,
-    "school": 79,
+    "medical": 15,
+    "school": 80,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -2464,17 +2529,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 11.25,
+        "rawValue": 11.51,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 11.2곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 14%)"
+        "rawLabel": "1만 명당 의료기관 11.5곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 15%)"
       },
       "school": {
         "rawValue": 6.39,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.4곳",
-        "rankPercent": 21,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 21%)"
+        "rankPercent": 20,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 20%)"
       },
       "returnFarm": null
     }
@@ -2484,7 +2549,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "속초시",
     "populationTrend": 89,
     "farmActivity": null,
-    "medical": 70,
+    "medical": 72,
     "school": 43,
     "returnFarm": null,
     "evidence": {
@@ -2496,11 +2561,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 16.56,
+        "rawValue": 16.69,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 16.6곳",
-        "rankPercent": 30,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 30%)"
+        "rawLabel": "1만 명당 의료기관 16.7곳",
+        "rankPercent": 28,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 28%)"
       },
       "school": {
         "rawValue": 2.6,
@@ -2516,9 +2581,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "삼척시",
     "populationTrend": 31,
     "farmActivity": 37,
-    "medical": 7,
-    "school": 70,
-    "returnFarm": 30,
+    "medical": 5,
+    "school": 71,
+    "returnFarm": 29,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.3,
@@ -2536,20 +2601,20 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 10.27,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.3곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 7%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 5%)"
       },
       "school": {
         "rawValue": 5.6,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.6곳",
-        "rankPercent": 30,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 30%)"
+        "rankPercent": 29,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 29%)"
       },
       "returnFarm": {
-        "rawValue": 0.03,
+        "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 30%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 29%)"
       }
     }
   },
@@ -2558,9 +2623,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "홍천군",
     "populationTrend": 47,
     "farmActivity": 63,
-    "medical": 38,
-    "school": 82,
-    "returnFarm": 67,
+    "medical": 37,
+    "school": 84,
+    "returnFarm": 58,
     "evidence": {
       "populationTrend": {
         "rawValue": -2.9,
@@ -2579,21 +2644,21 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.49,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.5곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 38%)"
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 37%)"
       },
       "school": {
         "rawValue": 6.9,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.9곳",
-        "rankPercent": 18,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 18%)"
+        "rankPercent": 16,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 16%)"
       },
       "returnFarm": {
-        "rawValue": 0.14,
+        "rawValue": 0.12,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 33,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 33%)"
+        "rankPercent": 42,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 42%)"
       }
     }
   },
@@ -2602,9 +2667,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "횡성군",
     "populationTrend": 78,
     "farmActivity": 64,
-    "medical": 20,
-    "school": 86,
-    "returnFarm": 76,
+    "medical": 19,
+    "school": 88,
+    "returnFarm": 71,
     "evidence": {
       "populationTrend": {
         "rawValue": 1.7,
@@ -2623,21 +2688,21 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 11.81,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.8곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 20%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 19%)"
       },
       "school": {
         "rawValue": 7.58,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.6곳",
-        "rankPercent": 14,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 14%)"
+        "rankPercent": 12,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 12%)"
       },
       "returnFarm": {
-        "rawValue": 0.16,
+        "rawValue": 0.15,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 24,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 24%)"
+        "rankPercent": 29,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 29%)"
       }
     }
   },
@@ -2645,10 +2710,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32530",
     "name": "영월군",
     "populationTrend": 47,
-    "farmActivity": 48,
-    "medical": 8,
-    "school": 91,
-    "returnFarm": 69,
+    "farmActivity": 49,
+    "medical": 7,
+    "school": 92,
+    "returnFarm": 83,
     "evidence": {
       "populationTrend": {
         "rawValue": -3,
@@ -2660,27 +2725,27 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 854.6,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 855호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 48%)"
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 49%)"
       },
       "medical": {
         "rawValue": 10.66,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 8%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 7%)"
       },
       "school": {
         "rawValue": 8.13,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 8.1곳",
-        "rankPercent": 9,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 9%)"
+        "rankPercent": 8,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 8%)"
       },
       "returnFarm": {
-        "rawValue": 0.14,
+        "rawValue": 0.19,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 31,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 31%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 17,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 17%)"
       }
     }
   },
@@ -2690,8 +2755,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 45,
     "farmActivity": 60,
     "medical": 55,
-    "school": 89,
-    "returnFarm": 74,
+    "school": 90,
+    "returnFarm": 67,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.3,
@@ -2717,15 +2782,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 8.01,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 8.0곳",
-        "rankPercent": 11,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 11%)"
+        "rankPercent": 10,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 10%)"
       },
       "returnFarm": {
-        "rawValue": 0.15,
+        "rawValue": 0.14,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 26,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 26%)"
+        "rawLabel": "전체 인구 대비 귀농 0.1%",
+        "rankPercent": 33,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 33%)"
       }
     }
   },
@@ -2733,10 +2798,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32550",
     "name": "정선군",
     "populationTrend": 25,
-    "farmActivity": 44,
-    "medical": 17,
-    "school": 97,
-    "returnFarm": 40,
+    "farmActivity": 45,
+    "medical": 16,
+    "school": 98,
+    "returnFarm": 61,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.3,
@@ -2748,26 +2813,27 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 805.9,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 806호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 44%)"
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 45%)"
       },
       "medical": {
         "rawValue": 11.69,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 17%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 16%)"
       },
       "school": {
         "rawValue": 9.89,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 9.9곳",
-        "rankPercent": 3,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 3%)"
+        "rankPercent": 2,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 2%)"
       },
       "returnFarm": {
-        "rawValue": 0.06,
+        "rawValue": 0.12,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 40%)"
+        "rankPercent": 39,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 39%)"
       }
     }
   },
@@ -2777,8 +2843,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 19,
     "farmActivity": 54,
     "medical": 23,
-    "school": 78,
-    "returnFarm": 48,
+    "school": 79,
+    "returnFarm": 40,
     "evidence": {
       "populationTrend": {
         "rawValue": -7.2,
@@ -2794,23 +2860,23 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 46%)"
       },
       "medical": {
-        "rawValue": 12.15,
+        "rawValue": 12.4,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.2곳",
+        "rawLabel": "1만 명당 의료기관 12.4곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 23%)"
       },
       "school": {
         "rawValue": 6.32,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.3곳",
-        "rankPercent": 22,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 22%)"
+        "rankPercent": 21,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 21%)"
       },
       "returnFarm": {
-        "rawValue": 0.08,
+        "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 48%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 40%)"
       }
     }
   },
@@ -2818,10 +2884,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32570",
     "name": "화천군",
     "populationTrend": 28,
-    "farmActivity": 46,
-    "medical": 55,
-    "school": 92,
-    "returnFarm": 67,
+    "farmActivity": 47,
+    "medical": 41,
+    "school": 93,
+    "returnFarm": 51,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.9,
@@ -2833,28 +2899,27 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 816.15,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 816호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 46%)"
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 47%)"
       },
       "medical": {
-        "rawValue": 15.08,
+        "rawValue": 13.75,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 15.1곳",
-        "rankPercent": 45,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 45%)"
+        "rawLabel": "1만 명당 의료기관 13.8곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 41%)"
       },
       "school": {
         "rawValue": 8.43,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 8.4곳",
-        "rankPercent": 8,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 8%)"
+        "rankPercent": 7,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 7%)"
       },
       "returnFarm": {
-        "rawValue": 0.14,
+        "rawValue": 0.09,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 33,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 33%)"
+        "rankPercent": 49,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 49%)"
       }
     }
   },
@@ -2862,10 +2927,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32580",
     "name": "양구군",
     "populationTrend": 28,
-    "farmActivity": 66,
+    "farmActivity": 65,
     "medical": 15,
     "school": 95,
-    "returnFarm": 60,
+    "returnFarm": 50,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.8,
@@ -2877,8 +2942,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1094.89,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,095호",
-        "rankPercent": 34,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 34%)"
+        "rankPercent": 35,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 35%)"
       },
       "medical": {
         "rawValue": 11.53,
@@ -2894,11 +2959,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 5%)"
       },
       "returnFarm": {
-        "rawValue": 0.12,
+        "rawValue": 0.09,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 40,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 40%)"
+        "rankPercent": 50,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 50%)"
       }
     }
   },
@@ -2907,9 +2972,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "인제군",
     "populationTrend": 78,
     "farmActivity": 53,
-    "medical": 7,
-    "school": 87,
-    "returnFarm": 47,
+    "medical": 6,
+    "school": 89,
+    "returnFarm": 37,
     "evidence": {
       "populationTrend": {
         "rawValue": 1.8,
@@ -2928,20 +2993,20 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 10.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.4곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 7%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 6%)"
       },
       "school": {
         "rawValue": 7.77,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.8곳",
-        "rankPercent": 13,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 13%)"
+        "rankPercent": 11,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 11%)"
       },
       "returnFarm": {
-        "rawValue": 0.07,
+        "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 47%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 37%)"
       }
     }
   },
@@ -2949,10 +3014,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32600",
     "name": "고성군",
     "populationTrend": 43,
-    "farmActivity": 41,
+    "farmActivity": 42,
     "medical": 19,
-    "school": 86,
-    "returnFarm": 38,
+    "school": 88,
+    "returnFarm": 43,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.6,
@@ -2964,7 +3029,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 783.35,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 783호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 41%)"
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 42%)"
       },
       "medical": {
         "rawValue": 11.8,
@@ -2976,14 +3041,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 7.74,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.7곳",
-        "rankPercent": 14,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 14%)"
+        "rankPercent": 12,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 12%)"
       },
       "returnFarm": {
-        "rawValue": 0.05,
+        "rawValue": 0.08,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 38%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 43%)"
       }
     }
   },
@@ -2992,9 +3057,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "양양군",
     "populationTrend": 91,
     "farmActivity": 62,
-    "medical": 4,
-    "school": 85,
-    "returnFarm": 44,
+    "medical": 3,
+    "school": 87,
+    "returnFarm": 52,
     "evidence": {
       "populationTrend": {
         "rawValue": 3.6,
@@ -3013,20 +3078,21 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 9.79,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 9.8곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 4%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 3%)"
       },
       "school": {
         "rawValue": 7.53,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.5곳",
-        "rankPercent": 15,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 15%)"
+        "rankPercent": 13,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 13%)"
       },
       "returnFarm": {
-        "rawValue": 0.07,
+        "rawValue": 0.1,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 44%)"
+        "rankPercent": 48,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 48%)"
       }
     }
   },
@@ -3052,7 +3118,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 11%)"
       },
       "medical": {
-        "rawValue": 13.36,
+        "rawValue": 13.38,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.4곳",
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 36%)"
@@ -3075,10 +3141,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33020",
     "name": "충주시",
     "populationTrend": 68,
-    "farmActivity": 28,
-    "medical": 30,
-    "school": 53,
-    "returnFarm": 26,
+    "farmActivity": 27,
+    "medical": 28,
+    "school": 56,
+    "returnFarm": 27,
     "evidence": {
       "populationTrend": {
         "rawValue": 0.3,
@@ -3090,26 +3156,26 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 413.98,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 414호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 28%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 27%)"
       },
       "medical": {
-        "rawValue": 12.79,
+        "rawValue": 12.74,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.8곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 30%)"
+        "rawLabel": "1만 명당 의료기관 12.7곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 28%)"
       },
       "school": {
-        "rawValue": 3.29,
+        "rawValue": 3.38,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 3.3곳",
-        "rankPercent": 47,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 47%)"
+        "rawLabel": "1만 명당 학교 3.4곳",
+        "rankPercent": 44,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 44%)"
       },
       "returnFarm": {
-        "rawValue": 0.03,
+        "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 26%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 27%)"
       }
     }
   },
@@ -3117,10 +3183,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33030",
     "name": "제천시",
     "populationTrend": 39,
-    "farmActivity": 32,
-    "medical": 53,
-    "school": 56,
-    "returnFarm": 27,
+    "farmActivity": 31,
+    "medical": 51,
+    "school": 57,
+    "returnFarm": 26,
     "evidence": {
       "populationTrend": {
         "rawValue": -4.2,
@@ -3132,27 +3198,27 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 489.36,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 489호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 32%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 31%)"
       },
       "medical": {
-        "rawValue": 14.95,
+        "rawValue": 14.8,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.9곳",
-        "rankPercent": 47,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 47%)"
+        "rawLabel": "1만 명당 의료기관 14.8곳",
+        "rankPercent": 49,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 49%)"
       },
       "school": {
         "rawValue": 3.45,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.4곳",
-        "rankPercent": 44,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 44%)"
+        "rankPercent": 43,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 43%)"
       },
       "returnFarm": {
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 27%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 26%)"
       }
     }
   },
@@ -3160,10 +3226,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33520",
     "name": "보은군",
     "populationTrend": 28,
-    "farmActivity": null,
-    "medical": 82,
-    "school": 84,
-    "returnFarm": null,
+    "farmActivity": 76,
+    "medical": 80,
+    "school": 85,
+    "returnFarm": 88,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.8,
@@ -3171,32 +3237,44 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawLabel": "5년 인구 -5.8%",
         "interpretation": "2018~2022년 인구 -5.8% 변화로 감소 폭이 커요"
       },
-      "farmActivity": null,
+      "farmActivity": {
+        "rawValue": 1337.97,
+        "rawUnit": "호",
+        "rawLabel": "1만 명당 농가 1,338호",
+        "rankPercent": 24,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 24%)"
+      },
       "medical": {
-        "rawValue": 18.28,
+        "rawValue": 17.95,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 18.3곳",
-        "rankPercent": 18,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 18%)"
+        "rawLabel": "1만 명당 의료기관 18.0곳",
+        "rankPercent": 20,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 20%)"
       },
       "school": {
         "rawValue": 7.18,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.2곳",
-        "rankPercent": 16,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 16%)"
+        "rankPercent": 15,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 15%)"
       },
-      "returnFarm": null
+      "returnFarm": {
+        "rawValue": 0.21,
+        "rawUnit": "%",
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 12,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 12%)"
+      }
     }
   },
   {
     "sgisCode": "33530",
     "name": "옥천군",
     "populationTrend": 43,
-    "farmActivity": 67,
+    "farmActivity": 66,
     "medical": 77,
-    "school": 64,
-    "returnFarm": 65,
+    "school": 65,
+    "returnFarm": 73,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.5,
@@ -3208,8 +3286,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1096.99,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,097호",
-        "rankPercent": 33,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 33%)"
+        "rankPercent": 34,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 34%)"
       },
       "medical": {
         "rawValue": 17.7,
@@ -3222,15 +3300,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 4.58,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 4.6곳",
-        "rankPercent": 36,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 36%)"
+        "rankPercent": 35,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 35%)"
       },
       "returnFarm": {
-        "rawValue": 0.14,
+        "rawValue": 0.17,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 35,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 35%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 27,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 27%)"
       }
     }
   },
@@ -3239,8 +3317,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "영동군",
     "populationTrend": 3,
     "farmActivity": 78,
-    "medical": 82,
-    "school": 74,
+    "medical": 86,
+    "school": 76,
     "returnFarm": 75,
     "evidence": {
       "populationTrend": {
@@ -3257,21 +3335,21 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 22%)"
       },
       "medical": {
-        "rawValue": 18.26,
+        "rawValue": 18.49,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 18.3곳",
-        "rankPercent": 18,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 18%)"
+        "rawLabel": "1만 명당 의료기관 18.5곳",
+        "rankPercent": 14,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 14%)"
       },
       "school": {
         "rawValue": 5.93,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.9곳",
-        "rankPercent": 26,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 26%)"
+        "rankPercent": 24,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 24%)"
       },
       "returnFarm": {
-        "rawValue": 0.15,
+        "rawValue": 0.17,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
         "rankPercent": 25,
@@ -3284,9 +3362,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "증평군",
     "populationTrend": 72,
     "farmActivity": 27,
-    "medical": 32,
-    "school": 44,
-    "returnFarm": 77,
+    "medical": 30,
+    "school": 45,
+    "returnFarm": 32,
     "evidence": {
       "populationTrend": {
         "rawValue": 0.8,
@@ -3304,20 +3382,19 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.97,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.0곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 32%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 30%)"
       },
       "school": {
         "rawValue": 2.65,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 44%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 45%)"
       },
       "returnFarm": {
-        "rawValue": 0.16,
+        "rawValue": 0.04,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 23,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 23%)"
+        "rawLabel": "전체 인구 대비 귀농 0.0%",
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 32%)"
       }
     }
   },
@@ -3325,10 +3402,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33550",
     "name": "진천군",
     "populationTrend": 100,
-    "farmActivity": 27,
-    "medical": 10,
-    "school": 55,
-    "returnFarm": 31,
+    "farmActivity": 26,
+    "medical": 11,
+    "school": 56,
+    "returnFarm": 34,
     "evidence": {
       "populationTrend": {
         "rawValue": 11,
@@ -3340,26 +3417,26 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 385.52,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 386호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 27%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 26%)"
       },
       "medical": {
-        "rawValue": 10.84,
+        "rawValue": 11.05,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 10.8곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 10%)"
+        "rawLabel": "1만 명당 의료기관 11.1곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 11%)"
       },
       "school": {
         "rawValue": 3.43,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.4곳",
-        "rankPercent": 45,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 45%)"
+        "rankPercent": 44,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 44%)"
       },
       "returnFarm": {
-        "rawValue": 0.04,
+        "rawValue": 0.05,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 31%)"
+        "rawLabel": "전체 인구 대비 귀농 0.1%",
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 34%)"
       }
     }
   },
@@ -3367,10 +3444,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33560",
     "name": "괴산군",
     "populationTrend": 56,
-    "farmActivity": 79,
-    "medical": 45,
-    "school": 78,
-    "returnFarm": 87,
+    "farmActivity": 78,
+    "medical": 44,
+    "school": 80,
+    "returnFarm": 90,
     "evidence": {
       "populationTrend": {
         "rawValue": -1.6,
@@ -3382,28 +3459,28 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1371.13,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,371호",
-        "rankPercent": 21,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 21%)"
+        "rankPercent": 22,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 22%)"
       },
       "medical": {
         "rawValue": 14.01,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.0곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 45%)"
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 44%)"
       },
       "school": {
         "rawValue": 6.34,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.3곳",
-        "rankPercent": 22,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 22%)"
+        "rankPercent": 20,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 20%)"
       },
       "returnFarm": {
-        "rawValue": 0.22,
+        "rawValue": 0.23,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 13,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 13%)"
+        "rankPercent": 10,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 10%)"
       }
     }
   },
@@ -3412,8 +3489,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "음성군",
     "populationTrend": 48,
     "farmActivity": 36,
-    "medical": 27,
-    "school": 57,
+    "medical": 26,
+    "school": 59,
     "returnFarm": 37,
     "evidence": {
       "populationTrend": {
@@ -3429,20 +3506,20 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 36%)"
       },
       "medical": {
-        "rawValue": 12.48,
+        "rawValue": 12.58,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.5곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 27%)"
+        "rawLabel": "1만 명당 의료기관 12.6곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 26%)"
       },
       "school": {
-        "rawValue": 3.51,
+        "rawValue": 3.61,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 3.5곳",
-        "rankPercent": 43,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 43%)"
+        "rawLabel": "1만 명당 학교 3.6곳",
+        "rankPercent": 41,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 41%)"
       },
       "returnFarm": {
-        "rawValue": 0.05,
+        "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 37%)"
@@ -3453,10 +3530,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33580",
     "name": "단양군",
     "populationTrend": 20,
-    "farmActivity": 73,
-    "medical": 62,
-    "school": 86,
-    "returnFarm": 86,
+    "farmActivity": 72,
+    "medical": 61,
+    "school": 87,
+    "returnFarm": 54,
     "evidence": {
       "populationTrend": {
         "rawValue": -7,
@@ -3468,29 +3545,29 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1219.3,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,219호",
-        "rankPercent": 27,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 27%)"
+        "rankPercent": 28,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 28%)"
       },
       "medical": {
         "rawValue": 15.87,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 15.9곳",
-        "rankPercent": 38,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 38%)"
+        "rankPercent": 39,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 39%)"
       },
       "school": {
         "rawValue": 7.56,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.6곳",
-        "rankPercent": 14,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 14%)"
+        "rankPercent": 13,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 13%)"
       },
       "returnFarm": {
-        "rawValue": 0.21,
+        "rawValue": 0.11,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 14,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 14%)"
+        "rawLabel": "전체 인구 대비 귀농 0.1%",
+        "rankPercent": 46,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 46%)"
       }
     }
   },
@@ -3498,9 +3575,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "29010",
     "name": "세종특별자치시",
     "populationTrend": 100,
-    "farmActivity": 11,
-    "medical": 1,
-    "school": 48,
+    "farmActivity": 12,
+    "medical": 23,
+    "school": 49,
     "returnFarm": 8,
     "evidence": {
       "populationTrend": {
@@ -3513,19 +3590,19 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 187.22,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 187호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 11%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 12%)"
       },
       "medical": {
-        "rawValue": 0,
+        "rawValue": 12.28,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 0.0곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 1%)"
+        "rawLabel": "1만 명당 의료기관 12.3곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 23%)"
       },
       "school": {
         "rawValue": 2.85,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.8곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 48%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 49%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
@@ -3540,8 +3617,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "동구",
     "populationTrend": 50,
     "farmActivity": null,
-    "medical": 54,
-    "school": 29,
+    "medical": 53,
+    "school": 30,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -3552,17 +3629,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.96,
+        "rawValue": 14.83,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 15.0곳",
-        "rankPercent": 46,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 46%)"
+        "rawLabel": "1만 명당 의료기관 14.8곳",
+        "rankPercent": 47,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 47%)"
       },
       "school": {
-        "rawValue": 2.08,
+        "rawValue": 2.12,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.1곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 29%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 30%)"
       },
       "returnFarm": null
     }
@@ -3573,7 +3650,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 24,
     "farmActivity": null,
     "medical": 65,
-    "school": 40,
+    "school": 41,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -3584,7 +3661,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 16.11,
+        "rawValue": 16.06,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 16.1곳",
         "rankPercent": 35,
@@ -3594,7 +3671,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.5,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.5곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 40%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 41%)"
       },
       "returnFarm": null
     }
@@ -3605,7 +3682,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 53,
     "farmActivity": null,
     "medical": 90,
-    "school": 25,
+    "school": 26,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -3616,9 +3693,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 19.61,
+        "rawValue": 19.67,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 19.6곳",
+        "rawLabel": "1만 명당 의료기관 19.7곳",
         "rankPercent": 10,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 10%)"
       },
@@ -3626,7 +3703,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.98,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.0곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 25%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 26%)"
       },
       "returnFarm": null
     }
@@ -3637,7 +3714,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 73,
     "farmActivity": null,
     "medical": 43,
-    "school": 34,
+    "school": 36,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -3648,16 +3725,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 13.92,
+        "rawValue": 13.86,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.9곳",
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 43%)"
       },
       "school": {
-        "rawValue": 2.27,
+        "rawValue": 2.3,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 34%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 36%)"
       },
       "returnFarm": null
     }
@@ -3667,8 +3744,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "대덕구",
     "populationTrend": 32,
     "farmActivity": null,
-    "medical": 26,
-    "school": 37,
+    "medical": 24,
+    "school": 38,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -3682,13 +3759,13 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 12.48,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.5곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 26%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 24%)"
       },
       "school": {
         "rawValue": 2.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 37%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 38%)"
       },
       "returnFarm": null
     }
@@ -3699,8 +3776,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 83,
     "farmActivity": 10,
     "medical": 25,
-    "school": 28,
-    "returnFarm": 5,
+    "school": 27,
+    "returnFarm": 4,
     "evidence": {
       "populationTrend": {
         "rawValue": 2.4,
@@ -3715,22 +3792,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 10%)"
       },
       "medical": {
-        "rawValue": 12.43,
+        "rawValue": 12.5,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.4곳",
+        "rawLabel": "1만 명당 의료기관 12.5곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 25%)"
       },
       "school": {
-        "rawValue": 2.02,
+        "rawValue": 2.04,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.0곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 28%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 27%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 5%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 4%)"
       }
     }
   },
@@ -3740,7 +3817,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 42,
     "farmActivity": 50,
     "medical": 63,
-    "school": 66,
+    "school": 67,
     "returnFarm": 46,
     "evidence": {
       "populationTrend": {
@@ -3767,11 +3844,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 5,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.0곳",
-        "rankPercent": 34,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 34%)"
+        "rankPercent": 33,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 33%)"
       },
       "returnFarm": {
-        "rawValue": 0.07,
+        "rawValue": 0.08,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 46%)"
@@ -3784,8 +3861,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 42,
     "farmActivity": 45,
     "medical": 56,
-    "school": 65,
-    "returnFarm": 48,
+    "school": 67,
+    "returnFarm": 47,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.7,
@@ -3810,14 +3887,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 4.87,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 4.9곳",
-        "rankPercent": 35,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 35%)"
+        "rankPercent": 33,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 33%)"
       },
       "returnFarm": {
-        "rawValue": 0.07,
+        "rawValue": 0.09,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 48%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 47%)"
       }
     }
   },
@@ -3826,9 +3903,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "아산시",
     "populationTrend": 100,
     "farmActivity": 14,
-    "medical": 8,
-    "school": 41,
-    "returnFarm": 24,
+    "medical": 7,
+    "school": 44,
+    "returnFarm": 20,
     "evidence": {
       "populationTrend": {
         "rawValue": 6.1,
@@ -3843,22 +3920,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 14%)"
       },
       "medical": {
-        "rawValue": 10.57,
+        "rawValue": 10.66,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 10.6곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 8%)"
+        "rawLabel": "1만 명당 의료기관 10.7곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 7%)"
       },
       "school": {
-        "rawValue": 2.56,
+        "rawValue": 2.64,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 41%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 44%)"
       },
       "returnFarm": {
-        "rawValue": 0.03,
+        "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 24%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 20%)"
       }
     }
   },
@@ -3866,10 +3943,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34050",
     "name": "서산시",
     "populationTrend": 81,
-    "farmActivity": 38,
-    "medical": 18,
-    "school": 50,
-    "returnFarm": 35,
+    "farmActivity": 37,
+    "medical": 17,
+    "school": 52,
+    "returnFarm": 38,
     "evidence": {
       "populationTrend": {
         "rawValue": 2.2,
@@ -3881,26 +3958,26 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 622.77,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 623호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 38%)"
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 37%)"
       },
       "medical": {
         "rawValue": 11.75,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 18%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 17%)"
       },
       "school": {
         "rawValue": 3.09,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.1곳",
-        "rankPercent": 50,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 50%)"
+        "rankPercent": 48,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 48%)"
       },
       "returnFarm": {
-        "rawValue": 0.05,
+        "rawValue": 0.06,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 35%)"
+        "rawLabel": "전체 인구 대비 귀농 0.1%",
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 38%)"
       }
     }
   },
@@ -3909,9 +3986,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "논산시",
     "populationTrend": 34,
     "farmActivity": 48,
-    "medical": 74,
-    "school": 67,
-    "returnFarm": 49,
+    "medical": 73,
+    "school": 68,
+    "returnFarm": 44,
     "evidence": {
       "populationTrend": {
         "rawValue": -4.9,
@@ -3926,24 +4003,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 48%)"
       },
       "medical": {
-        "rawValue": 17.29,
+        "rawValue": 17.2,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 17.3곳",
-        "rankPercent": 26,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 26%)"
+        "rawLabel": "1만 명당 의료기관 17.2곳",
+        "rankPercent": 27,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 27%)"
       },
       "school": {
         "rawValue": 5.05,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.0곳",
-        "rankPercent": 33,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 33%)"
+        "rankPercent": 32,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 32%)"
       },
       "returnFarm": {
         "rawValue": 0.08,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 49%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 44%)"
       }
     }
   },
@@ -3952,9 +4029,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "계룡시",
     "populationTrend": 80,
     "farmActivity": 6,
-    "medical": 37,
+    "medical": 45,
     "school": 43,
-    "returnFarm": 21,
+    "returnFarm": 23,
     "evidence": {
       "populationTrend": {
         "rawValue": 2.1,
@@ -3969,10 +4046,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 6%)"
       },
       "medical": {
-        "rawValue": 13.44,
+        "rawValue": 14.15,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.4곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 37%)"
+        "rawLabel": "1만 명당 의료기관 14.1곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 45%)"
       },
       "school": {
         "rawValue": 2.59,
@@ -3981,10 +4058,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 43%)"
       },
       "returnFarm": {
-        "rawValue": 0.02,
+        "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 21%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 23%)"
       }
     }
   },
@@ -3993,9 +4070,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "당진시",
     "populationTrend": 71,
     "farmActivity": 35,
-    "medical": 17,
+    "medical": 20,
     "school": 54,
-    "returnFarm": 34,
+    "returnFarm": 35,
     "evidence": {
       "populationTrend": {
         "rawValue": 0.7,
@@ -4010,10 +4087,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 35%)"
       },
       "medical": {
-        "rawValue": 11.74,
+        "rawValue": 11.97,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 11.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 17%)"
+        "rawLabel": "1만 명당 의료기관 12.0곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 20%)"
       },
       "school": {
         "rawValue": 3.33,
@@ -4023,10 +4100,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 46%)"
       },
       "returnFarm": {
-        "rawValue": 0.04,
+        "rawValue": 0.06,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 34%)"
+        "rawLabel": "전체 인구 대비 귀농 0.1%",
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 35%)"
       }
     }
   },
@@ -4034,10 +4111,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34510",
     "name": "금산군",
     "populationTrend": 35,
-    "farmActivity": 69,
-    "medical": 66,
-    "school": 68,
-    "returnFarm": 62,
+    "farmActivity": 68,
+    "medical": 68,
+    "school": 70,
+    "returnFarm": 73,
     "evidence": {
       "populationTrend": {
         "rawValue": -4.8,
@@ -4049,29 +4126,29 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1145.25,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,145호",
-        "rankPercent": 31,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 31%)"
+        "rankPercent": 32,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 32%)"
       },
       "medical": {
-        "rawValue": 16.22,
+        "rawValue": 16.41,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 16.2곳",
-        "rankPercent": 34,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 34%)"
+        "rawLabel": "1만 명당 의료기관 16.4곳",
+        "rankPercent": 32,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 32%)"
       },
       "school": {
         "rawValue": 5.53,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.5곳",
-        "rankPercent": 32,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 32%)"
+        "rankPercent": 30,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 30%)"
       },
       "returnFarm": {
-        "rawValue": 0.12,
+        "rawValue": 0.17,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 38,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 38%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 27,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 27%)"
       }
     }
   },
@@ -4079,10 +4156,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34530",
     "name": "부여군",
     "populationTrend": 16,
-    "farmActivity": null,
-    "medical": 72,
-    "school": 73,
-    "returnFarm": null,
+    "farmActivity": 81,
+    "medical": 70,
+    "school": 75,
+    "returnFarm": 78,
     "evidence": {
       "populationTrend": {
         "rawValue": -7.6,
@@ -4090,32 +4167,44 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawLabel": "5년 인구 -7.6%",
         "interpretation": "2018~2022년 인구 -7.6% 변화로 감소 폭이 커요"
       },
-      "farmActivity": null,
+      "farmActivity": {
+        "rawValue": 1509.25,
+        "rawUnit": "호",
+        "rawLabel": "1만 명당 농가 1,509호",
+        "rankPercent": 19,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 19%)"
+      },
       "medical": {
-        "rawValue": 16.92,
+        "rawValue": 16.59,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 16.9곳",
-        "rankPercent": 28,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 28%)"
+        "rawLabel": "1만 명당 의료기관 16.6곳",
+        "rankPercent": 30,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 30%)"
       },
       "school": {
         "rawValue": 5.86,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.9곳",
-        "rankPercent": 27,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 27%)"
+        "rankPercent": 25,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 25%)"
       },
-      "returnFarm": null
+      "returnFarm": {
+        "rawValue": 0.18,
+        "rawUnit": "%",
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 22,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 22%)"
+      }
     }
   },
   {
     "sgisCode": "34540",
     "name": "서천군",
     "populationTrend": 27,
-    "farmActivity": 70,
-    "medical": 78,
-    "school": 79,
-    "returnFarm": 84,
+    "farmActivity": 69,
+    "medical": 79,
+    "school": 81,
+    "returnFarm": 59,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.9,
@@ -4127,29 +4216,29 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1199.78,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,200호",
-        "rankPercent": 30,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 30%)"
+        "rankPercent": 31,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 31%)"
       },
       "medical": {
         "rawValue": 17.77,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 17.8곳",
-        "rankPercent": 22,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 22%)"
+        "rankPercent": 21,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 21%)"
       },
       "school": {
         "rawValue": 6.46,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.5곳",
-        "rankPercent": 21,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 21%)"
+        "rankPercent": 19,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 19%)"
       },
       "returnFarm": {
-        "rawValue": 0.21,
+        "rawValue": 0.12,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 16,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 16%)"
+        "rawLabel": "전체 인구 대비 귀농 0.1%",
+        "rankPercent": 41,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 41%)"
       }
     }
   },
@@ -4158,8 +4247,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "청양군",
     "populationTrend": 36,
     "farmActivity": 99,
-    "medical": 68,
-    "school": 72,
+    "medical": 69,
+    "school": 73,
     "returnFarm": 92,
     "evidence": {
       "populationTrend": {
@@ -4179,20 +4268,20 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 16.46,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 16.5곳",
-        "rankPercent": 32,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 32%)"
+        "rankPercent": 31,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 31%)"
       },
       "school": {
         "rawValue": 5.71,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.7곳",
-        "rankPercent": 28,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 28%)"
+        "rankPercent": 27,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 27%)"
       },
       "returnFarm": {
-        "rawValue": 0.24,
+        "rawValue": 0.26,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rawLabel": "전체 인구 대비 귀농 0.3%",
         "rankPercent": 8,
         "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 8%)"
       }
@@ -4203,9 +4292,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "홍성군",
     "populationTrend": 49,
     "farmActivity": 59,
-    "medical": 41,
-    "school": 62,
-    "returnFarm": 42,
+    "medical": 43,
+    "school": 64,
+    "returnFarm": 45,
     "evidence": {
       "populationTrend": {
         "rawValue": -2.6,
@@ -4221,23 +4310,23 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 41%)"
       },
       "medical": {
-        "rawValue": 13.75,
+        "rawValue": 13.95,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.8곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 41%)"
+        "rawLabel": "1만 명당 의료기관 14.0곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 43%)"
       },
       "school": {
         "rawValue": 4.39,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 4.4곳",
-        "rankPercent": 38,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 38%)"
+        "rankPercent": 36,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 36%)"
       },
       "returnFarm": {
-        "rawValue": 0.06,
+        "rawValue": 0.08,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 42%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 45%)"
       }
     }
   },
@@ -4245,10 +4334,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34570",
     "name": "예산군",
     "populationTrend": 48,
-    "farmActivity": 72,
+    "farmActivity": 71,
     "medical": 48,
-    "school": 73,
-    "returnFarm": 57,
+    "school": 74,
+    "returnFarm": 62,
     "evidence": {
       "populationTrend": {
         "rawValue": -2.7,
@@ -4260,28 +4349,28 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1204.8,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,205호",
-        "rankPercent": 28,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 28%)"
+        "rankPercent": 29,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 29%)"
       },
       "medical": {
-        "rawValue": 14.42,
+        "rawValue": 14.29,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.4곳",
+        "rawLabel": "1만 명당 의료기관 14.3곳",
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 48%)"
       },
       "school": {
         "rawValue": 5.72,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.7곳",
-        "rankPercent": 27,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 27%)"
+        "rankPercent": 26,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 26%)"
       },
       "returnFarm": {
-        "rawValue": 0.11,
+        "rawValue": 0.12,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 43,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 43%)"
+        "rankPercent": 38,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 38%)"
       }
     }
   },
@@ -4289,10 +4378,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34580",
     "name": "태안군",
     "populationTrend": 63,
-    "farmActivity": 64,
-    "medical": 30,
-    "school": 65,
-    "returnFarm": 64,
+    "farmActivity": 63,
+    "medical": 31,
+    "school": 67,
+    "returnFarm": 58,
     "evidence": {
       "populationTrend": {
         "rawValue": -0.5,
@@ -4304,28 +4393,28 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1084.84,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,085호",
-        "rankPercent": 36,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 36%)"
+        "rankPercent": 37,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 37%)"
       },
       "medical": {
-        "rawValue": 12.86,
+        "rawValue": 13.02,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 30%)"
+        "rawLabel": "1만 명당 의료기관 13.0곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 31%)"
       },
       "school": {
         "rawValue": 4.95,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 4.9곳",
-        "rankPercent": 35,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 35%)"
+        "rankPercent": 33,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 33%)"
       },
       "returnFarm": {
-        "rawValue": 0.13,
+        "rawValue": 0.12,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 36,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 36%)"
+        "rankPercent": 42,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 42%)"
       }
     }
   },
@@ -4335,7 +4424,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 74,
     "farmActivity": null,
     "medical": 72,
-    "school": 36,
+    "school": 37,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -4346,17 +4435,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 16.86,
+        "rawValue": 16.71,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 16.9곳",
+        "rawLabel": "1만 명당 의료기관 16.7곳",
         "rankPercent": 28,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 28%)"
       },
       "school": {
-        "rawValue": 2.33,
+        "rawValue": 2.34,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 36%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 37%)"
       },
       "returnFarm": null
     }
@@ -4366,8 +4455,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "군산시",
     "populationTrend": 53,
     "farmActivity": 16,
-    "medical": 42,
-    "school": 50,
+    "medical": 41,
+    "school": 53,
     "returnFarm": 14,
     "evidence": {
       "populationTrend": {
@@ -4383,17 +4472,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 16%)"
       },
       "medical": {
-        "rawValue": 13.85,
+        "rawValue": 13.74,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.8곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 42%)"
+        "rawLabel": "1만 명당 의료기관 13.7곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 41%)"
       },
       "school": {
         "rawValue": 3.15,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.2곳",
-        "rankPercent": 50,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 50%)"
+        "rankPercent": 47,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 47%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
@@ -4407,10 +4496,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35030",
     "name": "익산시",
     "populationTrend": 27,
-    "farmActivity": 26,
+    "farmActivity": 25,
     "medical": 52,
-    "school": 59,
-    "returnFarm": 23,
+    "school": 60,
+    "returnFarm": 22,
     "evidence": {
       "populationTrend": {
         "rawValue": -6,
@@ -4422,12 +4511,12 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 382.27,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 382호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 26%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 25%)"
       },
       "medical": {
-        "rawValue": 14.87,
+        "rawValue": 14.8,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.9곳",
+        "rawLabel": "1만 명당 의료기관 14.8곳",
         "rankPercent": 48,
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 48%)"
       },
@@ -4435,14 +4524,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 3.83,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.8곳",
-        "rankPercent": 41,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 41%)"
+        "rankPercent": 40,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 40%)"
       },
       "returnFarm": {
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 23%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 22%)"
       }
     }
   },
@@ -4451,9 +4540,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "정읍시",
     "populationTrend": 36,
     "farmActivity": 56,
-    "medical": 85,
-    "school": 82,
-    "returnFarm": 52,
+    "medical": 84,
+    "school": 83,
+    "returnFarm": 50,
     "evidence": {
       "populationTrend": {
         "rawValue": -4.6,
@@ -4469,25 +4558,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 44%)"
       },
       "medical": {
-        "rawValue": 18.5,
+        "rawValue": 18.4,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 18.5곳",
-        "rankPercent": 15,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 15%)"
+        "rawLabel": "1만 명당 의료기관 18.4곳",
+        "rankPercent": 16,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 16%)"
       },
       "school": {
         "rawValue": 6.68,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.7곳",
-        "rankPercent": 18,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 18%)"
+        "rankPercent": 17,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 17%)"
       },
       "returnFarm": {
         "rawValue": 0.09,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 48,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 48%)"
+        "rankPercent": 50,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 50%)"
       }
     }
   },
@@ -4496,9 +4585,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "남원시",
     "populationTrend": 39,
     "farmActivity": 55,
-    "medical": 85,
-    "school": 80,
-    "returnFarm": 68,
+    "medical": 83,
+    "school": 82,
+    "returnFarm": 65,
     "evidence": {
       "populationTrend": {
         "rawValue": -4.1,
@@ -4514,25 +4603,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 45%)"
       },
       "medical": {
-        "rawValue": 18.6,
+        "rawValue": 18.34,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 18.6곳",
-        "rankPercent": 15,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 15%)"
+        "rawLabel": "1만 명당 의료기관 18.3곳",
+        "rankPercent": 17,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 17%)"
       },
       "school": {
         "rawValue": 6.51,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.5곳",
-        "rankPercent": 20,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 20%)"
+        "rankPercent": 18,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 18%)"
       },
       "returnFarm": {
         "rawValue": 0.14,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 32,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 32%)"
+        "rankPercent": 35,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 35%)"
       }
     }
   },
@@ -4541,9 +4630,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "김제시",
     "populationTrend": 41,
     "farmActivity": 55,
-    "medical": 81,
-    "school": 83,
-    "returnFarm": 61,
+    "medical": 82,
+    "school": 84,
+    "returnFarm": 66,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.8,
@@ -4559,25 +4648,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 45%)"
       },
       "medical": {
-        "rawValue": 18.14,
+        "rawValue": 18.27,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 18.1곳",
-        "rankPercent": 19,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 19%)"
+        "rawLabel": "1만 명당 의료기관 18.3곳",
+        "rankPercent": 18,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 18%)"
       },
       "school": {
         "rawValue": 7.15,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.2곳",
-        "rankPercent": 17,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 17%)"
+        "rankPercent": 16,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 16%)"
       },
       "returnFarm": {
-        "rawValue": 0.12,
+        "rawValue": 0.14,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 39,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 39%)"
+        "rankPercent": 34,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 34%)"
       }
     }
   },
@@ -4585,10 +4674,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35510",
     "name": "완주군",
     "populationTrend": 45,
-    "farmActivity": 42,
-    "medical": 44,
-    "school": 68,
-    "returnFarm": 45,
+    "farmActivity": 43,
+    "medical": 47,
+    "school": 69,
+    "returnFarm": 56,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.3,
@@ -4600,26 +4689,27 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 791.38,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 791호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 42%)"
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 43%)"
       },
       "medical": {
-        "rawValue": 13.93,
+        "rawValue": 14.24,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.9곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 44%)"
+        "rawLabel": "1만 명당 의료기관 14.2곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 47%)"
       },
       "school": {
         "rawValue": 5.49,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.5곳",
-        "rankPercent": 32,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 32%)"
+        "rankPercent": 31,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 31%)"
       },
       "returnFarm": {
-        "rawValue": 0.07,
+        "rawValue": 0.11,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 45%)"
+        "rankPercent": 44,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 44%)"
       }
     }
   },
@@ -4629,8 +4719,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 48,
     "farmActivity": 82,
     "medical": 90,
-    "school": 99,
-    "returnFarm": 94,
+    "school": 100,
+    "returnFarm": 95,
     "evidence": {
       "populationTrend": {
         "rawValue": -2.8,
@@ -4660,11 +4750,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 1%)"
       },
       "returnFarm": {
-        "rawValue": 0.25,
+        "rawValue": 0.3,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
-        "rankPercent": 6,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 6%)"
+        "rankPercent": 5,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 5%)"
       }
     }
   },
@@ -4672,10 +4762,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35530",
     "name": "무주군",
     "populationTrend": 45,
-    "farmActivity": 98,
-    "medical": 70,
-    "school": 90,
-    "returnFarm": 96,
+    "farmActivity": 99,
+    "medical": 71,
+    "school": 91,
+    "returnFarm": 77,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.3,
@@ -4687,29 +4777,29 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2038.03,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 2,038호",
-        "rankPercent": 2,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 2%)"
+        "rankPercent": 1,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 1%)"
       },
       "medical": {
         "rawValue": 16.59,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 16.6곳",
-        "rankPercent": 30,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 30%)"
+        "rankPercent": 29,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 29%)"
       },
       "school": {
         "rawValue": 8.07,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 8.1곳",
-        "rankPercent": 10,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 10%)"
+        "rankPercent": 9,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 9%)"
       },
       "returnFarm": {
-        "rawValue": 0.27,
+        "rawValue": 0.18,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.3%",
-        "rankPercent": 4,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 4%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 23,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 23%)"
       }
     }
   },
@@ -4718,9 +4808,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "장수군",
     "populationTrend": 28,
     "farmActivity": 98,
-    "medical": 69,
-    "school": 98,
-    "returnFarm": 89,
+    "medical": 70,
+    "school": 99,
+    "returnFarm": 97,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.9,
@@ -4739,22 +4829,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 16.47,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 16.5곳",
-        "rankPercent": 31,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 31%)"
+        "rankPercent": 30,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 30%)"
       },
       "school": {
         "rawValue": 10.98,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 11.0곳",
-        "rankPercent": 2,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 2%)"
+        "rankPercent": 1,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 1%)"
       },
       "returnFarm": {
-        "rawValue": 0.22,
+        "rawValue": 0.33,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 11,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 11%)"
+        "rawLabel": "전체 인구 대비 귀농 0.3%",
+        "rankPercent": 3,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 3%)"
       }
     }
   },
@@ -4765,7 +4855,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "farmActivity": 87,
     "medical": 97,
     "school": 99,
-    "returnFarm": 90,
+    "returnFarm": 83,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.5,
@@ -4795,11 +4885,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 1%)"
       },
       "returnFarm": {
-        "rawValue": 0.24,
+        "rawValue": 0.19,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 10,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 10%)"
+        "rankPercent": 17,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 17%)"
       }
     }
   },
@@ -4810,7 +4900,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "farmActivity": 97,
     "medical": 97,
     "school": 97,
-    "returnFarm": 100,
+    "returnFarm": 99,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.8,
@@ -4826,9 +4916,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 3%)"
       },
       "medical": {
-        "rawValue": 23.74,
+        "rawValue": 23.34,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 23.7곳",
+        "rawLabel": "1만 명당 의료기관 23.3곳",
         "rankPercent": 3,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 3%)"
       },
@@ -4840,7 +4930,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 3%)"
       },
       "returnFarm": {
-        "rawValue": 0.36,
+        "rawValue": 0.37,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.4%",
         "rankPercent": 1,
@@ -4854,8 +4944,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 22,
     "farmActivity": 86,
     "medical": 83,
-    "school": 89,
-    "returnFarm": 78,
+    "school": 90,
+    "returnFarm": 88,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.7,
@@ -4881,15 +4971,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 7.88,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.9곳",
-        "rankPercent": 11,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 11%)"
+        "rankPercent": 10,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 10%)"
       },
       "returnFarm": {
-        "rawValue": 0.17,
+        "rawValue": 0.21,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 22,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 22%)"
+        "rankPercent": 12,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 12%)"
       }
     }
   },
@@ -4898,9 +4988,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "부안군",
     "populationTrend": 25,
     "farmActivity": 84,
-    "medical": 77,
-    "school": 88,
-    "returnFarm": 66,
+    "medical": 76,
+    "school": 89,
+    "returnFarm": 78,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.2,
@@ -4916,25 +5006,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 16%)"
       },
       "medical": {
-        "rawValue": 17.73,
+        "rawValue": 17.52,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 17.7곳",
-        "rankPercent": 23,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 23%)"
+        "rawLabel": "1만 명당 의료기관 17.5곳",
+        "rankPercent": 24,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 24%)"
       },
       "school": {
         "rawValue": 7.81,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.8곳",
-        "rankPercent": 12,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 12%)"
+        "rankPercent": 11,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 11%)"
       },
       "returnFarm": {
-        "rawValue": 0.14,
+        "rawValue": 0.18,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 34,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 34%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 22,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 22%)"
       }
     }
   },
@@ -4943,7 +5033,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "동구",
     "populationTrend": 100,
     "farmActivity": null,
-    "medical": 95,
+    "medical": 94,
     "school": 31,
     "returnFarm": null,
     "evidence": {
@@ -4955,11 +5045,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 21.5,
+        "rawValue": 21.32,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 21.5곳",
-        "rankPercent": 5,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 5%)"
+        "rawLabel": "1만 명당 의료기관 21.3곳",
+        "rankPercent": 6,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 6%)"
       },
       "school": {
         "rawValue": 2.16,
@@ -4976,7 +5066,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 33,
     "farmActivity": null,
     "medical": 93,
-    "school": 25,
+    "school": 24,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -4987,7 +5077,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 20.19,
+        "rawValue": 20.15,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 20.2곳",
         "rankPercent": 7,
@@ -4997,7 +5087,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.92,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.9곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 25%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 24%)"
       },
       "returnFarm": null
     }
@@ -5007,8 +5097,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "남구",
     "populationTrend": 58,
     "farmActivity": null,
-    "medical": 67,
-    "school": 46,
+    "medical": 69,
+    "school": 49,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -5022,14 +5112,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 16.45,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 16.5곳",
-        "rankPercent": 33,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 33%)"
+        "rankPercent": 31,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 31%)"
       },
       "school": {
-        "rawValue": 2.8,
+        "rawValue": 2.84,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.8곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 46%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 49%)"
       },
       "returnFarm": null
     }
@@ -5039,8 +5129,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "북구",
     "populationTrend": 44,
     "farmActivity": null,
-    "medical": 50,
-    "school": 37,
+    "medical": 51,
+    "school": 38,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -5051,17 +5141,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.61,
+        "rawValue": 14.77,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.6곳",
-        "rankPercent": 50,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 50%)"
+        "rawLabel": "1만 명당 의료기관 14.8곳",
+        "rankPercent": 49,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 49%)"
       },
       "school": {
         "rawValue": 2.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 37%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 38%)"
       },
       "returnFarm": null
     }
@@ -5083,13 +5173,13 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 12.38,
+        "rawValue": 12.4,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.4곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 24%)"
       },
       "school": {
-        "rawValue": 2.23,
+        "rawValue": 2.21,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.2곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 33%)"
@@ -5102,7 +5192,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "목포시",
     "populationTrend": 32,
     "farmActivity": null,
-    "medical": 34,
+    "medical": 31,
     "school": 54,
     "returnFarm": null,
     "evidence": {
@@ -5114,10 +5204,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 13.16,
+        "rawValue": 13.02,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.2곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 34%)"
+        "rawLabel": "1만 명당 의료기관 13.0곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 31%)"
       },
       "school": {
         "rawValue": 3.32,
@@ -5133,10 +5223,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36020",
     "name": "여수시",
     "populationTrend": 60,
-    "farmActivity": 20,
-    "medical": 39,
-    "school": 57,
-    "returnFarm": 17,
+    "farmActivity": 19,
+    "medical": 38,
+    "school": 58,
+    "returnFarm": 11,
     "evidence": {
       "populationTrend": {
         "rawValue": -1,
@@ -5148,26 +5238,26 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 296.41,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 296호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 20%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 19%)"
       },
       "medical": {
-        "rawValue": 13.65,
+        "rawValue": 13.54,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.6곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 39%)"
+        "rawLabel": "1만 명당 의료기관 13.5곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 38%)"
       },
       "school": {
         "rawValue": 3.58,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.6곳",
-        "rankPercent": 43,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 43%)"
+        "rankPercent": 42,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 42%)"
       },
       "returnFarm": {
-        "rawValue": 0.02,
+        "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 17%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 11%)"
       }
     }
   },
@@ -5175,10 +5265,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36030",
     "name": "순천시",
     "populationTrend": 76,
-    "farmActivity": 29,
-    "medical": 38,
-    "school": 49,
-    "returnFarm": 29,
+    "farmActivity": 28,
+    "medical": 35,
+    "school": 51,
+    "returnFarm": 24,
     "evidence": {
       "populationTrend": {
         "rawValue": 1.4,
@@ -5190,25 +5280,26 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 436.22,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 436호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 29%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 28%)"
       },
       "medical": {
-        "rawValue": 13.49,
+        "rawValue": 13.38,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.5곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 38%)"
+        "rawLabel": "1만 명당 의료기관 13.4곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 35%)"
       },
       "school": {
         "rawValue": 3.01,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.0곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 49%)"
+        "rankPercent": 49,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 49%)"
       },
       "returnFarm": {
         "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 29%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 24%)"
       }
     }
   },
@@ -5216,10 +5307,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36040",
     "name": "나주시",
     "populationTrend": 97,
-    "farmActivity": 43,
-    "medical": 53,
-    "school": 64,
-    "returnFarm": 52,
+    "farmActivity": 44,
+    "medical": 54,
+    "school": 66,
+    "returnFarm": 53,
     "evidence": {
       "populationTrend": {
         "rawValue": 4.5,
@@ -5231,28 +5322,28 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 791.65,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 792호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 43%)"
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 44%)"
       },
       "medical": {
         "rawValue": 14.9,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.9곳",
-        "rankPercent": 47,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 47%)"
+        "rankPercent": 46,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 46%)"
       },
       "school": {
         "rawValue": 4.7,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 4.7곳",
-        "rankPercent": 36,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 36%)"
+        "rankPercent": 34,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 34%)"
       },
       "returnFarm": {
-        "rawValue": 0.09,
+        "rawValue": 0.11,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 48,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 48%)"
+        "rankPercent": 47,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 47%)"
       }
     }
   },
@@ -5260,10 +5351,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36060",
     "name": "광양시",
     "populationTrend": 75,
-    "farmActivity": 30,
-    "medical": 12,
-    "school": 57,
-    "returnFarm": 25,
+    "farmActivity": 29,
+    "medical": 9,
+    "school": 60,
+    "returnFarm": 21,
     "evidence": {
       "populationTrend": {
         "rawValue": 1.3,
@@ -5275,26 +5366,26 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 475.72,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 476호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 30%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 29%)"
       },
       "medical": {
-        "rawValue": 10.9,
+        "rawValue": 10.96,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 10.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 12%)"
+        "rawLabel": "1만 명당 의료기관 11.0곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 9%)"
       },
       "school": {
-        "rawValue": 3.7,
+        "rawValue": 3.77,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 3.7곳",
-        "rankPercent": 43,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 43%)"
+        "rawLabel": "1만 명당 학교 3.8곳",
+        "rankPercent": 40,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 40%)"
       },
       "returnFarm": {
-        "rawValue": 0.03,
+        "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 25%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 21%)"
       }
     }
   },
@@ -5302,10 +5393,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36510",
     "name": "담양군",
     "populationTrend": 64,
-    "farmActivity": 74,
-    "medical": 79,
-    "school": 75,
-    "returnFarm": 77,
+    "farmActivity": 73,
+    "medical": 81,
+    "school": 77,
+    "returnFarm": 60,
     "evidence": {
       "populationTrend": {
         "rawValue": -0.4,
@@ -5317,29 +5408,29 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1245.3,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,245호",
-        "rankPercent": 26,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 26%)"
+        "rankPercent": 27,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 27%)"
       },
       "medical": {
-        "rawValue": 17.9,
+        "rawValue": 18.13,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 17.9곳",
-        "rankPercent": 21,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 21%)"
+        "rawLabel": "1만 명당 의료기관 18.1곳",
+        "rankPercent": 19,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 19%)"
       },
       "school": {
         "rawValue": 5.97,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.0곳",
-        "rankPercent": 25,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 25%)"
+        "rankPercent": 23,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 23%)"
       },
       "returnFarm": {
-        "rawValue": 0.16,
+        "rawValue": 0.12,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 23,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 23%)"
+        "rawLabel": "전체 인구 대비 귀농 0.1%",
+        "rankPercent": 40,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 40%)"
       }
     }
   },
@@ -5347,10 +5438,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36520",
     "name": "곡성군",
     "populationTrend": 27,
-    "farmActivity": 93,
-    "medical": 91,
-    "school": 71,
-    "returnFarm": 99,
+    "farmActivity": 94,
+    "medical": 92,
+    "school": 73,
+    "returnFarm": 96,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.9,
@@ -5362,29 +5453,29 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1766.84,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,767호",
-        "rankPercent": 7,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 7%)"
+        "rankPercent": 6,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 6%)"
       },
       "medical": {
         "rawValue": 20.03,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 20.0곳",
-        "rankPercent": 9,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 9%)"
+        "rankPercent": 8,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 8%)"
       },
       "school": {
         "rawValue": 5.67,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.7곳",
-        "rankPercent": 29,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 29%)"
+        "rankPercent": 27,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 27%)"
       },
       "returnFarm": {
-        "rawValue": 0.32,
+        "rawValue": 0.31,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
-        "rankPercent": 1,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 1%)"
+        "rankPercent": 4,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 4%)"
       }
     }
   },
@@ -5395,7 +5486,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "farmActivity": 90,
     "medical": 93,
     "school": 87,
-    "returnFarm": 86,
+    "returnFarm": 72,
     "evidence": {
       "populationTrend": {
         "rawValue": -4.5,
@@ -5411,25 +5502,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 10%)"
       },
       "medical": {
-        "rawValue": 20.29,
+        "rawValue": 20.72,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 20.3곳",
+        "rawLabel": "1만 명당 의료기관 20.7곳",
         "rankPercent": 7,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 7%)"
       },
       "school": {
-        "rawValue": 7.77,
+        "rawValue": 7.34,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 7.8곳",
+        "rawLabel": "1만 명당 학교 7.3곳",
         "rankPercent": 13,
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 13%)"
       },
       "returnFarm": {
-        "rawValue": 0.21,
+        "rawValue": 0.17,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 14,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 14%)"
+        "rankPercent": 28,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 28%)"
       }
     }
   },
@@ -5437,10 +5528,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36550",
     "name": "고흥군",
     "populationTrend": 44,
-    "farmActivity": 92,
-    "medical": 79,
+    "farmActivity": 91,
+    "medical": 80,
     "school": 81,
-    "returnFarm": 83,
+    "returnFarm": 93,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.4,
@@ -5452,29 +5543,29 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1716.19,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,716호",
-        "rankPercent": 8,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 8%)"
+        "rankPercent": 9,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 9%)"
       },
       "medical": {
         "rawValue": 17.91,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 17.9곳",
-        "rankPercent": 21,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 21%)"
+        "rankPercent": 20,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 20%)"
       },
       "school": {
-        "rawValue": 6.65,
+        "rawValue": 6.48,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 6.7곳",
+        "rawLabel": "1만 명당 학교 6.5곳",
         "rankPercent": 19,
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 19%)"
       },
       "returnFarm": {
-        "rawValue": 0.2,
+        "rawValue": 0.26,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 17,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 17%)"
+        "rawLabel": "전체 인구 대비 귀농 0.3%",
+        "rankPercent": 7,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 7%)"
       }
     }
   },
@@ -5483,9 +5574,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "보성군",
     "populationTrend": 14,
     "farmActivity": 83,
-    "medical": 89,
-    "school": 96,
-    "returnFarm": 95,
+    "medical": 88,
+    "school": 97,
+    "returnFarm": 89,
     "evidence": {
       "populationTrend": {
         "rawValue": -7.9,
@@ -5501,25 +5592,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 17%)"
       },
       "medical": {
-        "rawValue": 19.59,
+        "rawValue": 19.04,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 19.6곳",
-        "rankPercent": 11,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 11%)"
+        "rawLabel": "1만 명당 의료기관 19.0곳",
+        "rankPercent": 12,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 12%)"
       },
       "school": {
         "rawValue": 9.66,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 9.7곳",
-        "rankPercent": 4,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 4%)"
+        "rankPercent": 3,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 3%)"
       },
       "returnFarm": {
-        "rawValue": 0.27,
+        "rawValue": 0.22,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.3%",
-        "rankPercent": 5,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 5%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 11,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 11%)"
       }
     }
   },
@@ -5528,9 +5619,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "화순군",
     "populationTrend": 64,
     "farmActivity": 58,
-    "medical": 78,
-    "school": 67,
-    "returnFarm": 61,
+    "medical": 77,
+    "school": 69,
+    "returnFarm": 68,
     "evidence": {
       "populationTrend": {
         "rawValue": -0.4,
@@ -5546,25 +5637,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 42%)"
       },
       "medical": {
-        "rawValue": 17.89,
+        "rawValue": 17.55,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 17.9곳",
-        "rankPercent": 22,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 22%)"
+        "rawLabel": "1만 명당 의료기관 17.6곳",
+        "rankPercent": 23,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 23%)"
       },
       "school": {
         "rawValue": 5.18,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.2곳",
-        "rankPercent": 33,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 33%)"
+        "rankPercent": 31,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 31%)"
       },
       "returnFarm": {
-        "rawValue": 0.12,
+        "rawValue": 0.15,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 39,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 39%)"
+        "rankPercent": 32,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 32%)"
       }
     }
   },
@@ -5574,8 +5665,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 25,
     "farmActivity": 91,
     "medical": 89,
-    "school": 89,
-    "returnFarm": 70,
+    "school": 91,
+    "returnFarm": 87,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.2,
@@ -5591,9 +5682,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 9%)"
       },
       "medical": {
-        "rawValue": 19.32,
+        "rawValue": 19.62,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 19.3곳",
+        "rawLabel": "1만 명당 의료기관 19.6곳",
         "rankPercent": 11,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 11%)"
       },
@@ -5601,15 +5692,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 8.03,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 8.0곳",
-        "rankPercent": 11,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 11%)"
+        "rankPercent": 9,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 9%)"
       },
       "returnFarm": {
-        "rawValue": 0.14,
+        "rawValue": 0.21,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 30,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 30%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 13,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 13%)"
       }
     }
   },
@@ -5618,9 +5709,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "강진군",
     "populationTrend": 30,
     "farmActivity": 88,
-    "medical": 76,
+    "medical": 75,
     "school": 94,
-    "returnFarm": 85,
+    "returnFarm": 86,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.5,
@@ -5639,8 +5730,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 17.47,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 17.5곳",
-        "rankPercent": 24,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 24%)"
+        "rankPercent": 25,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 25%)"
       },
       "school": {
         "rawValue": 8.9,
@@ -5650,11 +5741,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 6%)"
       },
       "returnFarm": {
-        "rawValue": 0.21,
+        "rawValue": 0.2,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 15,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 15%)"
+        "rankPercent": 14,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 14%)"
       }
     }
   },
@@ -5663,9 +5754,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "해남군",
     "populationTrend": 28,
     "farmActivity": 81,
-    "medical": 69,
+    "medical": 67,
     "school": 74,
-    "returnFarm": 83,
+    "returnFarm": 76,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.8,
@@ -5681,25 +5772,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 19%)"
       },
       "medical": {
-        "rawValue": 16.52,
+        "rawValue": 16.36,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 16.5곳",
-        "rankPercent": 31,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 31%)"
+        "rawLabel": "1만 명당 의료기관 16.4곳",
+        "rankPercent": 33,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 33%)"
       },
       "school": {
-        "rawValue": 5.93,
+        "rawValue": 5.77,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 5.9곳",
+        "rawLabel": "1만 명당 학교 5.8곳",
         "rankPercent": 26,
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 26%)"
       },
       "returnFarm": {
-        "rawValue": 0.2,
+        "rawValue": 0.17,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 17,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 17%)"
+        "rankPercent": 24,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 24%)"
       }
     }
   },
@@ -5708,8 +5799,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "영암군",
     "populationTrend": 56,
     "farmActivity": 71,
-    "medical": 40,
-    "school": 77,
+    "medical": 39,
+    "school": 79,
     "returnFarm": 80,
     "evidence": {
       "populationTrend": {
@@ -5729,14 +5820,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.68,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.7곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 40%)"
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 39%)"
       },
       "school": {
         "rawValue": 6.22,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.2곳",
-        "rankPercent": 23,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 23%)"
+        "rankPercent": 21,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 21%)"
       },
       "returnFarm": {
         "rawValue": 0.18,
@@ -5752,9 +5843,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "무안군",
     "populationTrend": 100,
     "farmActivity": 42,
-    "medical": 28,
-    "school": 61,
-    "returnFarm": 53,
+    "medical": 30,
+    "school": 63,
+    "returnFarm": 60,
     "evidence": {
       "populationTrend": {
         "rawValue": 11.4,
@@ -5769,24 +5860,24 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 42%)"
       },
       "medical": {
-        "rawValue": 12.69,
+        "rawValue": 12.91,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 28%)"
+        "rawLabel": "1만 명당 의료기관 12.9곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 30%)"
       },
       "school": {
-        "rawValue": 4.19,
+        "rawValue": 4.3,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 4.2곳",
-        "rankPercent": 39,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 39%)"
+        "rawLabel": "1만 명당 학교 4.3곳",
+        "rankPercent": 37,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 37%)"
       },
       "returnFarm": {
-        "rawValue": 0.09,
+        "rawValue": 0.12,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 47,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 47%)"
+        "rankPercent": 40,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 40%)"
       }
     }
   },
@@ -5797,7 +5888,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "farmActivity": 96,
     "medical": 88,
     "school": 93,
-    "returnFarm": 97,
+    "returnFarm": 96,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.1,
@@ -5827,11 +5918,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 7%)"
       },
       "returnFarm": {
-        "rawValue": 0.27,
+        "rawValue": 0.32,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
-        "rankPercent": 3,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 3%)"
+        "rankPercent": 4,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 4%)"
       }
     }
   },
@@ -5841,8 +5932,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 63,
     "farmActivity": 61,
     "medical": 87,
-    "school": 76,
-    "returnFarm": 58,
+    "school": 77,
+    "returnFarm": 68,
     "evidence": {
       "populationTrend": {
         "rawValue": -0.5,
@@ -5868,15 +5959,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 6.08,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.1곳",
-        "rankPercent": 24,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 24%)"
+        "rankPercent": 23,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 23%)"
       },
       "returnFarm": {
-        "rawValue": 0.11,
+        "rawValue": 0.15,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 42,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 42%)"
+        "rankPercent": 32,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 32%)"
       }
     }
   },
@@ -5884,10 +5975,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36650",
     "name": "장성군",
     "populationTrend": 41,
-    "farmActivity": 77,
-    "medical": 59,
-    "school": 72,
-    "returnFarm": 81,
+    "farmActivity": 76,
+    "medical": 60,
+    "school": 76,
+    "returnFarm": 84,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.8,
@@ -5899,29 +5990,29 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1329.16,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,329호",
-        "rankPercent": 23,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 23%)"
+        "rankPercent": 24,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 24%)"
       },
       "medical": {
-        "rawValue": 15.4,
+        "rawValue": 15.65,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 15.4곳",
-        "rankPercent": 41,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 41%)"
+        "rawLabel": "1만 명당 의료기관 15.6곳",
+        "rankPercent": 40,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 40%)"
       },
       "school": {
-        "rawValue": 5.71,
+        "rawValue": 5.96,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 5.7곳",
-        "rankPercent": 28,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 28%)"
+        "rawLabel": "1만 명당 학교 6.0곳",
+        "rankPercent": 24,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 24%)"
       },
       "returnFarm": {
         "rawValue": 0.19,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 19,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 19%)"
+        "rankPercent": 16,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 16%)"
       }
     }
   },
@@ -5929,10 +6020,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36660",
     "name": "완도군",
     "populationTrend": 46,
-    "farmActivity": 39,
+    "farmActivity": 40,
     "medical": 59,
     "school": 96,
-    "returnFarm": 45,
+    "returnFarm": 48,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.1,
@@ -5944,7 +6035,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 720.82,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 721호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 39%)"
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 40%)"
       },
       "medical": {
         "rawValue": 15.58,
@@ -5961,10 +6052,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 4%)"
       },
       "returnFarm": {
-        "rawValue": 0.07,
+        "rawValue": 0.09,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 45%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 48%)"
       }
     }
   },
@@ -5972,10 +6063,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36670",
     "name": "진도군",
     "populationTrend": 57,
-    "farmActivity": 75,
+    "farmActivity": 74,
     "medical": 80,
-    "school": 96,
-    "returnFarm": 54,
+    "school": 97,
+    "returnFarm": 76,
     "evidence": {
       "populationTrend": {
         "rawValue": -1.4,
@@ -5987,8 +6078,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1305.58,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,306호",
-        "rankPercent": 25,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 25%)"
+        "rankPercent": 26,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 26%)"
       },
       "medical": {
         "rawValue": 17.97,
@@ -6001,15 +6092,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 9.67,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 9.7곳",
-        "rankPercent": 4,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 4%)"
+        "rankPercent": 3,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 3%)"
       },
       "returnFarm": {
-        "rawValue": 0.1,
+        "rawValue": 0.18,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 46,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 46%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 24,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 24%)"
       }
     }
   },
@@ -6018,9 +6109,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "신안군",
     "populationTrend": 39,
     "farmActivity": 95,
-    "medical": 83,
+    "medical": 85,
     "school": 100,
-    "returnFarm": 98,
+    "returnFarm": 100,
     "evidence": {
       "populationTrend": {
         "rawValue": -4.2,
@@ -6039,22 +6130,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 18.45,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 18.4곳",
-        "rankPercent": 17,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 17%)"
+        "rankPercent": 15,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 15%)"
       },
       "school": {
-        "rawValue": 12.59,
+        "rawValue": 12.89,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 12.6곳",
+        "rawLabel": "1만 명당 학교 12.9곳",
         "rankPercent": 1,
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 1%)"
       },
       "returnFarm": {
-        "rawValue": 0.27,
+        "rawValue": 0.4,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.3%",
-        "rankPercent": 2,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 2%)"
+        "rawLabel": "전체 인구 대비 귀농 0.4%",
+        "rankPercent": 1,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 1%)"
       }
     }
   },
@@ -6075,9 +6166,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 33.78,
+        "rawValue": 33.54,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 33.8곳",
+        "rawLabel": "1만 명당 의료기관 33.5곳",
         "rankPercent": 2,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 2%)"
       },
@@ -6095,8 +6186,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "서구",
     "populationTrend": 53,
     "farmActivity": null,
-    "medical": 35,
-    "school": 82,
+    "medical": 33,
+    "school": 35,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6107,17 +6198,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 13.36,
+        "rawValue": 13.07,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.4곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 35%)"
+        "rawLabel": "1만 명당 의료기관 13.1곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 33%)"
       },
       "school": {
-        "rawValue": 6.68,
+        "rawValue": 2.29,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 6.7곳",
-        "rankPercent": 18,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 18%)"
+        "rawLabel": "1만 명당 학교 2.3곳",
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 35%)"
       },
       "returnFarm": null
     }
@@ -6127,8 +6217,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "동구",
     "populationTrend": 77,
     "farmActivity": null,
-    "medical": 86,
-    "school": 36,
+    "medical": 83,
+    "school": 37,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6139,17 +6229,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 18.62,
+        "rawValue": 18.27,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 18.6곳",
-        "rankPercent": 14,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 14%)"
+        "rawLabel": "1만 명당 의료기관 18.3곳",
+        "rankPercent": 17,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 17%)"
       },
       "school": {
         "rawValue": 2.33,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 36%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 37%)"
       },
       "returnFarm": null
     }
@@ -6159,8 +6249,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "영도구",
     "populationTrend": 7,
     "farmActivity": null,
-    "medical": 25,
-    "school": 40,
+    "medical": 23,
+    "school": 39,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6171,16 +6261,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 12.47,
+        "rawValue": 12.19,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.5곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 25%)"
+        "rawLabel": "1만 명당 의료기관 12.2곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 23%)"
       },
       "school": {
-        "rawValue": 2.55,
+        "rawValue": 2.37,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 2.5곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 40%)"
+        "rawLabel": "1만 명당 학교 2.4곳",
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 39%)"
       },
       "returnFarm": null
     }
@@ -6202,14 +6292,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 24.74,
+        "rawValue": 24.86,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 24.7곳",
+        "rawLabel": "1만 명당 의료기관 24.9곳",
         "rankPercent": 3,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 3%)"
       },
       "school": {
-        "rawValue": 1.88,
+        "rawValue": 1.91,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.9곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 23%)"
@@ -6254,8 +6344,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "남구",
     "populationTrend": 9,
     "farmActivity": null,
-    "medical": 62,
-    "school": 29,
+    "medical": 63,
+    "school": 28,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6266,17 +6356,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 15.85,
+        "rawValue": 16.04,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 15.8곳",
-        "rankPercent": 38,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 38%)"
+        "rawLabel": "1만 명당 의료기관 16.0곳",
+        "rankPercent": 37,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 37%)"
       },
       "school": {
         "rawValue": 2.05,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.1곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 29%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 28%)"
       },
       "returnFarm": null
     }
@@ -6286,8 +6376,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "북구",
     "populationTrend": 30,
     "farmActivity": null,
-    "medical": 45,
-    "school": 26,
+    "medical": 46,
+    "school": 31,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6298,16 +6388,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.08,
+        "rawValue": 14.15,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.1곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 45%)"
+        "rawLabel": "1만 명당 의료기관 14.2곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 46%)"
       },
       "school": {
-        "rawValue": 2,
+        "rawValue": 2.18,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 2.0곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 26%)"
+        "rawLabel": "1만 명당 학교 2.2곳",
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 31%)"
       },
       "returnFarm": null
     }
@@ -6318,7 +6408,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 34,
     "farmActivity": null,
     "medical": 87,
-    "school": 16,
+    "school": 17,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6329,17 +6419,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 18.96,
+        "rawValue": 18.69,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 19.0곳",
+        "rawLabel": "1만 명당 의료기관 18.7곳",
         "rankPercent": 13,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 13%)"
       },
       "school": {
-        "rawValue": 1.72,
+        "rawValue": 1.75,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 16%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 17%)"
       },
       "returnFarm": null
     }
@@ -6350,7 +6440,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 18,
     "farmActivity": null,
     "medical": 49,
-    "school": 24,
+    "school": 23,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6361,16 +6451,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 14.49,
+        "rawValue": 14.39,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.5곳",
+        "rawLabel": "1만 명당 의료기관 14.4곳",
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 49%)"
       },
       "school": {
         "rawValue": 1.91,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.9곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 24%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 23%)"
       },
       "returnFarm": null
     }
@@ -6381,7 +6471,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 12,
     "farmActivity": null,
     "medical": 64,
-    "school": 36,
+    "school": 37,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6392,7 +6482,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 16,
+        "rawValue": 16.05,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 16.0곳",
         "rankPercent": 36,
@@ -6402,7 +6492,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.33,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 36%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 37%)"
       },
       "returnFarm": null
     }
@@ -6412,7 +6502,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "강서구",
     "populationTrend": 100,
     "farmActivity": null,
-    "medical": 2,
+    "medical": 1,
     "school": 52,
     "returnFarm": null,
     "evidence": {
@@ -6424,15 +6514,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 8.84,
+        "rawValue": 9.25,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 8.8곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 2%)"
+        "rawLabel": "1만 명당 의료기관 9.3곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 1%)"
       },
       "school": {
-        "rawValue": 3.2,
+        "rawValue": 3.13,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 3.2곳",
+        "rawLabel": "1만 명당 학교 3.1곳",
         "rankPercent": 48,
         "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 48%)"
       },
@@ -6445,7 +6535,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 66,
     "farmActivity": null,
     "medical": 92,
-    "school": 10,
+    "school": 8,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6466,7 +6556,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1.5,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.5곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 10%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 8%)"
       },
       "returnFarm": null
     }
@@ -6488,9 +6578,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 19.88,
+        "rawValue": 19.82,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 19.9곳",
+        "rawLabel": "1만 명당 의료기관 19.8곳",
         "rankPercent": 10,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 10%)"
       },
@@ -6508,7 +6598,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "사상구",
     "populationTrend": 8,
     "farmActivity": null,
-    "medical": 22,
+    "medical": 17,
     "school": 23,
     "returnFarm": null,
     "evidence": {
@@ -6520,10 +6610,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 11.98,
+        "rawValue": 11.74,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.0곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 22%)"
+        "rawLabel": "1만 명당 의료기관 11.7곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 17%)"
       },
       "school": {
         "rawValue": 1.88,
@@ -6538,10 +6628,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "21510",
     "name": "기장군",
     "populationTrend": 100,
-    "farmActivity": 5,
+    "farmActivity": 4,
     "medical": 21,
     "school": 35,
-    "returnFarm": 9,
+    "returnFarm": 15,
     "evidence": {
       "populationTrend": {
         "rawValue": 8.8,
@@ -6553,10 +6643,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 106.02,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 106호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 5%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 4%)"
       },
       "medical": {
-        "rawValue": 11.98,
+        "rawValue": 12.03,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.0곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 21%)"
@@ -6571,7 +6661,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 9%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 15%)"
       }
     }
   },
@@ -6581,7 +6671,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 72,
     "farmActivity": null,
     "medical": 100,
-    "school": 42,
+    "school": 43,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6592,9 +6682,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 61.8,
+        "rawValue": 62.18,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 61.8곳",
+        "rawLabel": "1만 명당 의료기관 62.2곳",
         "rankPercent": 1,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 1%)"
       },
@@ -6602,7 +6692,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.58,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 42%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 43%)"
       },
       "returnFarm": null
     }
@@ -6612,8 +6702,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "동구",
     "populationTrend": 48,
     "farmActivity": null,
-    "medical": 58,
-    "school": 15,
+    "medical": 57,
+    "school": 14,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6627,14 +6717,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 15.26,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 15.3곳",
-        "rankPercent": 42,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 42%)"
+        "rankPercent": 43,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 43%)"
       },
       "school": {
         "rawValue": 1.71,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 1.7곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 15%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 14%)"
       },
       "returnFarm": null
     }
@@ -6645,7 +6735,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 0,
     "farmActivity": null,
     "medical": 71,
-    "school": 93,
+    "school": 24,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6656,18 +6746,17 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 16.8,
+        "rawValue": 16.67,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 16.8곳",
+        "rawLabel": "1만 명당 의료기관 16.7곳",
         "rankPercent": 29,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 29%)"
       },
       "school": {
-        "rawValue": 8.71,
+        "rawValue": 1.93,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 8.7곳",
-        "rankPercent": 7,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 7%)"
+        "rawLabel": "1만 명당 학교 1.9곳",
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 24%)"
       },
       "returnFarm": null
     }
@@ -6678,7 +6767,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 34,
     "farmActivity": null,
     "medical": 81,
-    "school": 33,
+    "school": 34,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6699,7 +6788,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.24,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.2곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 33%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 34%)"
       },
       "returnFarm": null
     }
@@ -6709,7 +6798,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "북구",
     "populationTrend": 58,
     "farmActivity": null,
-    "medical": 41,
+    "medical": 40,
     "school": 20,
     "returnFarm": null,
     "evidence": {
@@ -6721,10 +6810,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 13.7,
+        "rawValue": 13.73,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.7곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 41%)"
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 40%)"
       },
       "school": {
         "rawValue": 1.82,
@@ -6752,16 +6841,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 22.81,
+        "rawValue": 22.93,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 22.8곳",
+        "rawLabel": "1만 명당 의료기관 22.9곳",
         "rankPercent": 4,
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 4%)"
       },
       "school": {
-        "rawValue": 1.84,
+        "rawValue": 1.86,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 1.8곳",
+        "rawLabel": "1만 명당 학교 1.9곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 21%)"
       },
       "returnFarm": null
@@ -6772,8 +6861,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "달서구",
     "populationTrend": 30,
     "farmActivity": null,
-    "medical": 64,
-    "school": 27,
+    "medical": 63,
+    "school": 26,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6787,14 +6876,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 16.03,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 16.0곳",
-        "rankPercent": 36,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 36%)"
+        "rankPercent": 37,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 37%)"
       },
       "school": {
         "rawValue": 2,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.0곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 27%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 26%)"
       },
       "returnFarm": null
     }
@@ -6804,9 +6893,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "달성군",
     "populationTrend": 100,
     "farmActivity": 12,
-    "medical": 9,
-    "school": 39,
-    "returnFarm": 20,
+    "medical": 8,
+    "school": 40,
+    "returnFarm": 17,
     "evidence": {
       "populationTrend": {
         "rawValue": 6.1,
@@ -6824,19 +6913,64 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 10.67,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 9%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 8%)"
       },
       "school": {
         "rawValue": 2.44,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.4곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 39%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 40%)"
       },
       "returnFarm": {
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 20%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 17%)"
+      }
+    }
+  },
+  {
+    "sgisCode": "22520",
+    "name": "군위군",
+    "populationTrend": 52,
+    "farmActivity": 92,
+    "medical": 64,
+    "school": 83,
+    "returnFarm": 98,
+    "evidence": {
+      "populationTrend": {
+        "rawValue": -2.2,
+        "rawUnit": "%",
+        "rawLabel": "5년 인구 -2.2%",
+        "interpretation": "2018~2022년 인구 -2.2% 변화로 안정 추세예요"
+      },
+      "farmActivity": {
+        "rawValue": 1730.05,
+        "rawUnit": "호",
+        "rawLabel": "1만 명당 농가 1,730호",
+        "rankPercent": 8,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 8%)"
+      },
+      "medical": {
+        "rawValue": 16.06,
+        "rawUnit": "곳",
+        "rawLabel": "1만 명당 의료기관 16.1곳",
+        "rankPercent": 36,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 36%)"
+      },
+      "school": {
+        "rawValue": 6.88,
+        "rawUnit": "곳",
+        "rawLabel": "1만 명당 학교 6.9곳",
+        "rankPercent": 17,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 17%)"
+      },
+      "returnFarm": {
+        "rawValue": 0.34,
+        "rawUnit": "%",
+        "rawLabel": "전체 인구 대비 귀농 0.3%",
+        "rankPercent": 2,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 2%)"
       }
     }
   },
@@ -6857,9 +6991,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 11.53,
+        "rawValue": 11.58,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 11.5곳",
+        "rawLabel": "1만 명당 의료기관 11.6곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 16%)"
       },
       "school": {
@@ -6876,7 +7010,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "남구",
     "populationTrend": 33,
     "farmActivity": null,
-    "medical": 92,
+    "medical": 91,
     "school": 29,
     "returnFarm": null,
     "evidence": {
@@ -6888,11 +7022,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 20.12,
+        "rawValue": 19.96,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 20.1곳",
-        "rankPercent": 8,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 8%)"
+        "rawLabel": "1만 명당 의료기관 20.0곳",
+        "rankPercent": 9,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 9%)"
       },
       "school": {
         "rawValue": 2.06,
@@ -6908,7 +7042,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "동구",
     "populationTrend": 15,
     "farmActivity": null,
-    "medical": 14,
+    "medical": 13,
     "school": 34,
     "returnFarm": null,
     "evidence": {
@@ -6920,10 +7054,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 11.35,
+        "rawValue": 11.29,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 11.4곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 14%)"
+        "rawLabel": "1만 명당 의료기관 11.3곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 13%)"
       },
       "school": {
         "rawValue": 2.27,
@@ -6939,8 +7073,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "북구",
     "populationTrend": 100,
     "farmActivity": null,
-    "medical": 2,
-    "school": 38,
+    "medical": 1,
+    "school": 40,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -6951,16 +7085,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 8.86,
+        "rawValue": 8.81,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 8.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 2%)"
+        "rawLabel": "1만 명당 의료기관 8.8곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 1%)"
       },
       "school": {
-        "rawValue": 2.35,
+        "rawValue": 2.4,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.4곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 38%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 40%)"
       },
       "returnFarm": null
     }
@@ -6970,9 +7104,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "울주군",
     "populationTrend": 64,
     "farmActivity": 20,
-    "medical": 3,
-    "school": 46,
-    "returnFarm": 23,
+    "medical": 2,
+    "school": 47,
+    "returnFarm": 28,
     "evidence": {
       "populationTrend": {
         "rawValue": -0.4,
@@ -6987,22 +7121,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 20%)"
       },
       "medical": {
-        "rawValue": 9.34,
+        "rawValue": 9.38,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 9.3곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 3%)"
+        "rawLabel": "1만 명당 의료기관 9.4곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 2%)"
       },
       "school": {
         "rawValue": 2.77,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.8곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 46%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 47%)"
       },
       "returnFarm": {
-        "rawValue": 0.03,
+        "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 23%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 28%)"
       }
     }
   },
@@ -7011,8 +7145,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "포항시",
     "populationTrend": 56,
     "farmActivity": 19,
-    "medical": 38,
-    "school": 46,
+    "medical": 37,
+    "school": 47,
     "returnFarm": 19,
     "evidence": {
       "populationTrend": {
@@ -7028,16 +7162,16 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 19%)"
       },
       "medical": {
-        "rawValue": 13.51,
+        "rawValue": 13.45,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.5곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 38%)"
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 37%)"
       },
       "school": {
         "rawValue": 2.76,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.8곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 46%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 47%)"
       },
       "returnFarm": {
         "rawValue": 0.02,
@@ -7051,9 +7185,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37020",
     "name": "경주시",
     "populationTrend": 55,
-    "farmActivity": 31,
-    "medical": 19,
-    "school": 52,
+    "farmActivity": 30,
+    "medical": 18,
+    "school": 53,
     "returnFarm": 32,
     "evidence": {
       "populationTrend": {
@@ -7066,20 +7200,20 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 483.41,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 483호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 31%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 30%)"
       },
       "medical": {
         "rawValue": 11.78,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.8곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 19%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 18%)"
       },
       "school": {
         "rawValue": 3.23,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.2곳",
-        "rankPercent": 48,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 48%)"
+        "rankPercent": 47,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 47%)"
       },
       "returnFarm": {
         "rawValue": 0.04,
@@ -7094,9 +7228,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "김천시",
     "populationTrend": 56,
     "farmActivity": 52,
-    "medical": 15,
-    "school": 60,
-    "returnFarm": 43,
+    "medical": 14,
+    "school": 62,
+    "returnFarm": 35,
     "evidence": {
       "populationTrend": {
         "rawValue": -1.6,
@@ -7112,23 +7246,23 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 48%)"
       },
       "medical": {
-        "rawValue": 11.47,
+        "rawValue": 11.4,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 11.5곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 15%)"
+        "rawLabel": "1만 명당 의료기관 11.4곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 14%)"
       },
       "school": {
-        "rawValue": 3.92,
+        "rawValue": 3.99,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 3.9곳",
-        "rankPercent": 40,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 40%)"
+        "rawLabel": "1만 명당 학교 4.0곳",
+        "rankPercent": 38,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 38%)"
       },
       "returnFarm": {
-        "rawValue": 0.07,
+        "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 43%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 35%)"
       }
     }
   },
@@ -7136,9 +7270,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37040",
     "name": "안동시",
     "populationTrend": 41,
-    "farmActivity": 40,
-    "medical": 50,
-    "school": 58,
+    "farmActivity": 41,
+    "medical": 49,
+    "school": 60,
     "returnFarm": 42,
     "evidence": {
       "populationTrend": {
@@ -7151,24 +7285,23 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 774.75,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 775호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 40%)"
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 41%)"
       },
       "medical": {
-        "rawValue": 14.55,
+        "rawValue": 14.42,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.5곳",
-        "rankPercent": 50,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 50%)"
+        "rawLabel": "1만 명당 의료기관 14.4곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 49%)"
       },
       "school": {
         "rawValue": 3.78,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.8곳",
-        "rankPercent": 42,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 42%)"
+        "rankPercent": 40,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 40%)"
       },
       "returnFarm": {
-        "rawValue": 0.06,
+        "rawValue": 0.07,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
         "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 42%)"
@@ -7180,9 +7313,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "구미시",
     "populationTrend": 46,
     "farmActivity": 17,
-    "medical": 16,
+    "medical": 14,
     "school": 42,
-    "returnFarm": 13,
+    "returnFarm": 7,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.1,
@@ -7197,10 +7330,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 17%)"
       },
       "medical": {
-        "rawValue": 11.54,
+        "rawValue": 11.49,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.5곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 16%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 14%)"
       },
       "school": {
         "rawValue": 2.57,
@@ -7212,7 +7345,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 13%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 7%)"
       }
     }
   },
@@ -7220,10 +7353,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37060",
     "name": "영주시",
     "populationTrend": 32,
-    "farmActivity": 45,
+    "farmActivity": 46,
     "medical": 46,
-    "school": 59,
-    "returnFarm": 50,
+    "school": 61,
+    "returnFarm": 36,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.2,
@@ -7235,7 +7368,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 812.44,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 812호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 45%)"
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 46%)"
       },
       "medical": {
         "rawValue": 14.18,
@@ -7247,15 +7380,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 3.84,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.8곳",
-        "rankPercent": 41,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 41%)"
+        "rankPercent": 39,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 39%)"
       },
       "returnFarm": {
-        "rawValue": 0.08,
+        "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 50,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 50%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 36%)"
       }
     }
   },
@@ -7264,9 +7396,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "영천시",
     "populationTrend": 74,
     "farmActivity": 51,
-    "medical": 52,
-    "school": 62,
-    "returnFarm": 70,
+    "medical": 54,
+    "school": 63,
+    "returnFarm": 55,
     "evidence": {
       "populationTrend": {
         "rawValue": 1.1,
@@ -7282,25 +7414,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 49%)"
       },
       "medical": {
-        "rawValue": 14.84,
+        "rawValue": 14.94,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 14.8곳",
-        "rankPercent": 48,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 48%)"
+        "rawLabel": "1만 명당 의료기관 14.9곳",
+        "rankPercent": 46,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 46%)"
       },
       "school": {
         "rawValue": 4.21,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 4.2곳",
-        "rankPercent": 38,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 38%)"
+        "rankPercent": 37,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 37%)"
       },
       "returnFarm": {
-        "rawValue": 0.14,
+        "rawValue": 0.11,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 30,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 30%)"
+        "rankPercent": 45,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 45%)"
       }
     }
   },
@@ -7309,9 +7441,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "상주시",
     "populationTrend": 37,
     "farmActivity": 77,
-    "medical": 61,
+    "medical": 60,
     "school": 75,
-    "returnFarm": 72,
+    "returnFarm": 63,
     "evidence": {
       "populationTrend": {
         "rawValue": -4.5,
@@ -7330,22 +7462,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 15.66,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 15.7곳",
-        "rankPercent": 39,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 39%)"
+        "rankPercent": 40,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 40%)"
       },
       "school": {
-        "rawValue": 6.01,
+        "rawValue": 5.9,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 6.0곳",
+        "rawLabel": "1만 명당 학교 5.9곳",
         "rankPercent": 25,
         "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 25%)"
       },
       "returnFarm": {
-        "rawValue": 0.15,
+        "rawValue": 0.13,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 28,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 28%)"
+        "rankPercent": 37,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 37%)"
       }
     }
   },
@@ -7353,10 +7485,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37090",
     "name": "문경시",
     "populationTrend": 53,
-    "farmActivity": 61,
+    "farmActivity": 60,
     "medical": 66,
-    "school": 66,
-    "returnFarm": 55,
+    "school": 68,
+    "returnFarm": 57,
     "evidence": {
       "populationTrend": {
         "rawValue": -2,
@@ -7368,8 +7500,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1021.11,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,021호",
-        "rankPercent": 39,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 39%)"
+        "rankPercent": 40,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 40%)"
       },
       "medical": {
         "rawValue": 16.29,
@@ -7382,15 +7514,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 5.04,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.0곳",
-        "rankPercent": 34,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 34%)"
+        "rankPercent": 32,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 32%)"
       },
       "returnFarm": {
-        "rawValue": 0.1,
+        "rawValue": 0.12,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 45,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 45%)"
+        "rankPercent": 43,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 43%)"
       }
     }
   },
@@ -7399,9 +7531,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "경산시",
     "populationTrend": 93,
     "farmActivity": 17,
-    "medical": 21,
-    "school": 30,
-    "returnFarm": 14,
+    "medical": 20,
+    "school": 29,
+    "returnFarm": 18,
     "evidence": {
       "populationTrend": {
         "rawValue": 3.9,
@@ -7416,49 +7548,23 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 17%)"
       },
       "medical": {
-        "rawValue": 11.91,
+        "rawValue": 11.84,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 11.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 21%)"
+        "rawLabel": "1만 명당 의료기관 11.8곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 20%)"
       },
       "school": {
         "rawValue": 2.1,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.1곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 30%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 29%)"
       },
       "returnFarm": {
-        "rawValue": 0.01,
+        "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 14%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 18%)"
       }
-    }
-  },
-  {
-    "sgisCode": "22520",
-    "name": "군위군",
-    "populationTrend": 52,
-    "farmActivity": null,
-    "medical": 1,
-    "school": null,
-    "returnFarm": null,
-    "evidence": {
-      "populationTrend": {
-        "rawValue": -2.2,
-        "rawUnit": "%",
-        "rawLabel": "5년 인구 -2.2%",
-        "interpretation": "2018~2022년 인구 -2.2% 변화로 안정 추세예요"
-      },
-      "farmActivity": null,
-      "medical": {
-        "rawValue": 0,
-        "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 0.0곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 1%)"
-      },
-      "school": null,
-      "returnFarm": null
     }
   },
   {
@@ -7467,8 +7573,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 42,
     "farmActivity": 94,
     "medical": 73,
-    "school": 80,
-    "returnFarm": 89,
+    "school": 82,
+    "returnFarm": 94,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.7,
@@ -7494,15 +7600,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 6.49,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.5곳",
-        "rankPercent": 20,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 20%)"
+        "rankPercent": 18,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 18%)"
       },
       "returnFarm": {
-        "rawValue": 0.23,
+        "rawValue": 0.29,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 11,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 11%)"
+        "rawLabel": "전체 인구 대비 귀농 0.3%",
+        "rankPercent": 6,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 6%)"
       }
     }
   },
@@ -7511,9 +7617,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "청송군",
     "populationTrend": 39,
     "farmActivity": 100,
-    "medical": 72,
-    "school": 94,
-    "returnFarm": 98,
+    "medical": 73,
+    "school": 95,
+    "returnFarm": 99,
     "evidence": {
       "populationTrend": {
         "rawValue": -4.1,
@@ -7532,22 +7638,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 16.83,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 16.8곳",
-        "rankPercent": 28,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 28%)"
+        "rankPercent": 27,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 27%)"
       },
       "school": {
         "rawValue": 9.06,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 9.1곳",
-        "rankPercent": 6,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 6%)"
+        "rankPercent": 5,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 5%)"
       },
       "returnFarm": {
-        "rawValue": 0.28,
+        "rawValue": 0.35,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.3%",
-        "rankPercent": 2,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 2%)"
+        "rankPercent": 1,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 1%)"
       }
     }
   },
@@ -7555,10 +7661,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37540",
     "name": "영양군",
     "populationTrend": 17,
-    "farmActivity": 89,
-    "medical": 41,
-    "school": 95,
-    "returnFarm": 92,
+    "farmActivity": 88,
+    "medical": 40,
+    "school": 96,
+    "returnFarm": 94,
     "evidence": {
       "populationTrend": {
         "rawValue": -7.4,
@@ -7570,28 +7676,28 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1686.56,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,687호",
-        "rankPercent": 11,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 11%)"
+        "rankPercent": 12,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 12%)"
       },
       "medical": {
         "rawValue": 13.7,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.7곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 41%)"
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 40%)"
       },
       "school": {
         "rawValue": 9.13,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 9.1곳",
-        "rankPercent": 5,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 5%)"
+        "rankPercent": 4,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 4%)"
       },
       "returnFarm": {
-        "rawValue": 0.24,
+        "rawValue": 0.27,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 8,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 8%)"
+        "rawLabel": "전체 인구 대비 귀농 0.3%",
+        "rankPercent": 6,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 6%)"
       }
     }
   },
@@ -7601,8 +7707,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 19,
     "farmActivity": 58,
     "medical": 79,
-    "school": 81,
-    "returnFarm": 73,
+    "school": 83,
+    "returnFarm": 74,
     "evidence": {
       "populationTrend": {
         "rawValue": -7.1,
@@ -7628,15 +7734,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 6.56,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.6곳",
-        "rankPercent": 19,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 19%)"
+        "rankPercent": 17,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 17%)"
       },
       "returnFarm": {
-        "rawValue": 0.15,
+        "rawValue": 0.17,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 27,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 27%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 26,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 26%)"
       }
     }
   },
@@ -7646,8 +7752,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 53,
     "farmActivity": 89,
     "medical": 76,
-    "school": 68,
-    "returnFarm": 95,
+    "school": 70,
+    "returnFarm": 91,
     "evidence": {
       "populationTrend": {
         "rawValue": -2,
@@ -7673,15 +7779,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 5.49,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.5곳",
-        "rankPercent": 32,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 32%)"
+        "rankPercent": 30,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 30%)"
       },
       "returnFarm": {
-        "rawValue": 0.26,
+        "rawValue": 0.24,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.3%",
-        "rankPercent": 5,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 5%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 9,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 9%)"
       }
     }
   },
@@ -7690,9 +7796,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "고령군",
     "populationTrend": 15,
     "farmActivity": 70,
-    "medical": 60,
-    "school": 71,
-    "returnFarm": 51,
+    "medical": 57,
+    "school": 72,
+    "returnFarm": 65,
     "evidence": {
       "populationTrend": {
         "rawValue": -7.7,
@@ -7708,25 +7814,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 30%)"
       },
       "medical": {
-        "rawValue": 15.59,
+        "rawValue": 15.26,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 15.6곳",
-        "rankPercent": 40,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 40%)"
+        "rawLabel": "1만 명당 의료기관 15.3곳",
+        "rankPercent": 43,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 43%)"
       },
       "school": {
         "rawValue": 5.64,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.6곳",
-        "rankPercent": 29,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 29%)"
+        "rankPercent": 28,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 28%)"
       },
       "returnFarm": {
-        "rawValue": 0.08,
+        "rawValue": 0.14,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 49,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 49%)"
+        "rankPercent": 35,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 35%)"
       }
     }
   },
@@ -7735,9 +7841,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "성주군",
     "populationTrend": 59,
     "farmActivity": 73,
-    "medical": 57,
-    "school": 70,
-    "returnFarm": 80,
+    "medical": 56,
+    "school": 72,
+    "returnFarm": 70,
     "evidence": {
       "populationTrend": {
         "rawValue": -1.1,
@@ -7756,22 +7862,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 15.18,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 15.2곳",
-        "rankPercent": 43,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 43%)"
+        "rankPercent": 44,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 44%)"
       },
       "school": {
         "rawValue": 5.63,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.6곳",
-        "rankPercent": 30,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 30%)"
+        "rankPercent": 28,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 28%)"
       },
       "returnFarm": {
-        "rawValue": 0.19,
+        "rawValue": 0.15,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 20,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 20%)"
+        "rankPercent": 30,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 30%)"
       }
     }
   },
@@ -7779,10 +7885,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37590",
     "name": "칠곡군",
     "populationTrend": 26,
-    "farmActivity": 30,
-    "medical": 10,
-    "school": 56,
-    "returnFarm": 28,
+    "farmActivity": 29,
+    "medical": 8,
+    "school": 57,
+    "returnFarm": 27,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.1,
@@ -7794,26 +7900,26 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 446.86,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 447호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 30%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 29%)"
       },
       "medical": {
         "rawValue": 10.74,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.7곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 10%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 8%)"
       },
       "school": {
         "rawValue": 3.43,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.4곳",
-        "rankPercent": 44,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 44%)"
+        "rankPercent": 43,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 43%)"
       },
       "returnFarm": {
-        "rawValue": 0.03,
+        "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 28%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 27%)"
       }
     }
   },
@@ -7821,10 +7927,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37600",
     "name": "예천군",
     "populationTrend": 100,
-    "farmActivity": 76,
+    "farmActivity": 75,
     "medical": 39,
-    "school": 63,
-    "returnFarm": 73,
+    "school": 65,
+    "returnFarm": 71,
     "evidence": {
       "populationTrend": {
         "rawValue": 6.6,
@@ -7836,8 +7942,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1311.16,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,311호",
-        "rankPercent": 24,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 24%)"
+        "rankPercent": 25,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 25%)"
       },
       "medical": {
         "rawValue": 13.59,
@@ -7846,18 +7952,18 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 39%)"
       },
       "school": {
-        "rawValue": 4.41,
+        "rawValue": 4.59,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 4.4곳",
-        "rankPercent": 37,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 37%)"
+        "rawLabel": "1만 명당 학교 4.6곳",
+        "rankPercent": 35,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 35%)"
       },
       "returnFarm": {
-        "rawValue": 0.15,
+        "rawValue": 0.16,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 27,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 27%)"
+        "rankPercent": 29,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 29%)"
       }
     }
   },
@@ -7865,10 +7971,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37610",
     "name": "봉화군",
     "populationTrend": 22,
-    "farmActivity": 95,
-    "medical": 24,
-    "school": 92,
-    "returnFarm": 88,
+    "farmActivity": 96,
+    "medical": 25,
+    "school": 93,
+    "returnFarm": 85,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.7,
@@ -7880,28 +7986,28 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1802.21,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,802호",
-        "rankPercent": 5,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 5%)"
+        "rankPercent": 4,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 4%)"
       },
       "medical": {
-        "rawValue": 12.15,
+        "rawValue": 12.5,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 12.2곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 24%)"
+        "rawLabel": "1만 명당 의료기관 12.5곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 25%)"
       },
       "school": {
         "rawValue": 8.33,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 8.3곳",
-        "rankPercent": 8,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 8%)"
+        "rankPercent": 7,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 7%)"
       },
       "returnFarm": {
-        "rawValue": 0.22,
+        "rawValue": 0.2,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 12,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 12%)"
+        "rankPercent": 15,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 15%)"
       }
     }
   },
@@ -7910,9 +8016,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "울진군",
     "populationTrend": 37,
     "farmActivity": 47,
-    "medical": 46,
-    "school": 71,
-    "returnFarm": 39,
+    "medical": 45,
+    "school": 73,
+    "returnFarm": 45,
     "evidence": {
       "populationTrend": {
         "rawValue": -4.4,
@@ -7930,20 +8036,20 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 14.14,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 14.1곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 46%)"
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 45%)"
       },
       "school": {
         "rawValue": 5.66,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 5.7곳",
-        "rankPercent": 29,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 29%)"
+        "rankPercent": 27,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 27%)"
       },
       "returnFarm": {
-        "rawValue": 0.05,
+        "rawValue": 0.08,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 39%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 45%)"
       }
     }
   },
@@ -7953,8 +8059,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 33,
     "farmActivity": 33,
     "medical": 3,
-    "school": 84,
-    "returnFarm": 41,
+    "school": 86,
+    "returnFarm": 39,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.1,
@@ -7978,14 +8084,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 7.24,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.2곳",
-        "rankPercent": 16,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 16%)"
+        "rankPercent": 14,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 14%)"
       },
       "returnFarm": {
         "rawValue": 0.06,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 41%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 39%)"
       }
     }
   },
@@ -7993,10 +8099,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38010",
     "name": "창원시",
     "populationTrend": 49,
-    "farmActivity": null,
-    "medical": 36,
-    "school": 35,
-    "returnFarm": null,
+    "farmActivity": 7,
+    "medical": 35,
+    "school": 36,
+    "returnFarm": 1,
     "evidence": {
       "populationTrend": {
         "rawValue": -2.6,
@@ -8004,20 +8110,30 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawLabel": "5년 인구 -2.6%",
         "interpretation": "2018~2022년 인구 -2.6% 변화로 안정 추세예요"
       },
-      "farmActivity": null,
+      "farmActivity": {
+        "rawValue": 142.78,
+        "rawUnit": "호",
+        "rawLabel": "1만 명당 농가 143호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 7%)"
+      },
       "medical": {
-        "rawValue": 13.41,
+        "rawValue": 13.35,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.4곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 36%)"
+        "rawLabel": "1만 명당 의료기관 13.3곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 35%)"
       },
       "school": {
-        "rawValue": 2.29,
+        "rawValue": 2.32,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 35%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 36%)"
       },
-      "returnFarm": null
+      "returnFarm": {
+        "rawValue": 0,
+        "rawUnit": "%",
+        "rawLabel": "전체 인구 대비 귀농 0.0%",
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 1%)"
+      }
     }
   },
   {
@@ -8025,9 +8141,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "진주시",
     "populationTrend": 64,
     "farmActivity": 24,
-    "medical": 43,
-    "school": 45,
-    "returnFarm": 18,
+    "medical": 42,
+    "school": 46,
+    "returnFarm": 19,
     "evidence": {
       "populationTrend": {
         "rawValue": -0.3,
@@ -8042,22 +8158,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 24%)"
       },
       "medical": {
-        "rawValue": 13.87,
+        "rawValue": 13.84,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.9곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 43%)"
+        "rawLabel": "1만 명당 의료기관 13.8곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 42%)"
       },
       "school": {
-        "rawValue": 2.71,
+        "rawValue": 2.73,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.7곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 45%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 46%)"
       },
       "returnFarm": {
         "rawValue": 0.02,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 18%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 19%)"
       }
     }
   },
@@ -8067,8 +8183,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 24,
     "farmActivity": 18,
     "medical": 34,
-    "school": 53,
-    "returnFarm": 20,
+    "school": 55,
+    "returnFarm": 25,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.4,
@@ -8083,23 +8199,23 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 18%)"
       },
       "medical": {
-        "rawValue": 13.25,
+        "rawValue": 13.09,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.3곳",
+        "rawLabel": "1만 명당 의료기관 13.1곳",
         "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 34%)"
       },
       "school": {
-        "rawValue": 3.25,
+        "rawValue": 3.33,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.3곳",
-        "rankPercent": 47,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 47%)"
+        "rankPercent": 45,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 45%)"
       },
       "returnFarm": {
-        "rawValue": 0.02,
+        "rawValue": 0.03,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 20%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 25%)"
       }
     }
   },
@@ -8107,10 +8223,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38060",
     "name": "사천시",
     "populationTrend": 49,
-    "farmActivity": 33,
-    "medical": 32,
-    "school": 55,
-    "returnFarm": 36,
+    "farmActivity": 32,
+    "medical": 30,
+    "school": 57,
+    "returnFarm": 33,
     "evidence": {
       "populationTrend": {
         "rawValue": -2.6,
@@ -8122,26 +8238,26 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 529.04,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 529호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 33%)"
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 32%)"
       },
       "medical": {
         "rawValue": 12.99,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.0곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 32%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 30%)"
       },
       "school": {
-        "rawValue": 3.38,
+        "rawValue": 3.48,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 3.4곳",
-        "rankPercent": 45,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 45%)"
+        "rawLabel": "1만 명당 학교 3.5곳",
+        "rankPercent": 43,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 43%)"
       },
       "returnFarm": {
-        "rawValue": 0.05,
+        "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 36%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 33%)"
       }
     }
   },
@@ -8150,9 +8266,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "김해시",
     "populationTrend": 76,
     "farmActivity": 9,
-    "medical": 11,
+    "medical": 9,
     "school": 32,
-    "returnFarm": 2,
+    "returnFarm": 1,
     "evidence": {
       "populationTrend": {
         "rawValue": 1.5,
@@ -8167,10 +8283,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 9%)"
       },
       "medical": {
-        "rawValue": 10.85,
+        "rawValue": 10.87,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 10.9곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 11%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 9%)"
       },
       "school": {
         "rawValue": 2.19,
@@ -8182,7 +8298,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 0,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 2%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 1%)"
       }
     }
   },
@@ -8190,10 +8306,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38080",
     "name": "밀양시",
     "populationTrend": 53,
-    "farmActivity": 52,
-    "medical": 37,
-    "school": 61,
-    "returnFarm": 55,
+    "farmActivity": 53,
+    "medical": 38,
+    "school": 63,
+    "returnFarm": 49,
     "evidence": {
       "populationTrend": {
         "rawValue": -2.1,
@@ -8205,28 +8321,27 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 902.69,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 903호",
-        "rankPercent": 48,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 48%)"
+        "rankPercent": 47,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 47%)"
       },
       "medical": {
-        "rawValue": 13.49,
+        "rawValue": 13.59,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 13.5곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 37%)"
+        "rawLabel": "1만 명당 의료기관 13.6곳",
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 38%)"
       },
       "school": {
         "rawValue": 4.13,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 4.1곳",
-        "rankPercent": 39,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 39%)"
+        "rankPercent": 37,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 37%)"
       },
       "returnFarm": {
-        "rawValue": 0.1,
+        "rawValue": 0.09,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 45,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 45%)"
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 49%)"
       }
     }
   },
@@ -8235,9 +8350,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "거제시",
     "populationTrend": 24,
     "farmActivity": 14,
-    "medical": 6,
-    "school": 50,
-    "returnFarm": 16,
+    "medical": 4,
+    "school": 51,
+    "returnFarm": 13,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.4,
@@ -8252,23 +8367,23 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 14%)"
       },
       "medical": {
-        "rawValue": 10.06,
+        "rawValue": 9.93,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 10.1곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 6%)"
+        "rawLabel": "1만 명당 의료기관 9.9곳",
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 4%)"
       },
       "school": {
         "rawValue": 3.08,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 3.1곳",
-        "rankPercent": 50,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 50%)"
+        "rankPercent": 49,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 49%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 16%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 13%)"
       }
     }
   },
@@ -8277,9 +8392,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "양산시",
     "populationTrend": 82,
     "farmActivity": 3,
-    "medical": 23,
-    "school": 32,
-    "returnFarm": 4,
+    "medical": 22,
+    "school": 33,
+    "returnFarm": 6,
     "evidence": {
       "populationTrend": {
         "rawValue": 2.3,
@@ -8294,22 +8409,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 3%)"
       },
       "medical": {
-        "rawValue": 12.1,
+        "rawValue": 12.13,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 12.1곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 23%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 22%)"
       },
       "school": {
         "rawValue": 2.21,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.2곳",
-        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 32%)"
+        "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 33%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 4%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 6%)"
       }
     }
   },
@@ -8318,9 +8433,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "의령군",
     "populationTrend": 32,
     "farmActivity": 80,
-    "medical": 86,
-    "school": 93,
-    "returnFarm": 59,
+    "medical": 87,
+    "school": 94,
+    "returnFarm": 82,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.2,
@@ -8339,22 +8454,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 18.78,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 18.8곳",
-        "rankPercent": 14,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 14%)"
+        "rankPercent": 13,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 13%)"
       },
       "school": {
         "rawValue": 8.79,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 8.8곳",
-        "rankPercent": 7,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 7%)"
+        "rankPercent": 6,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 6%)"
       },
       "returnFarm": {
-        "rawValue": 0.11,
+        "rawValue": 0.19,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 41,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 41%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 18,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 18%)"
       }
     }
   },
@@ -8362,10 +8477,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38520",
     "name": "함안군",
     "populationTrend": 16,
-    "farmActivity": 49,
-    "medical": 13,
-    "school": 64,
-    "returnFarm": 33,
+    "farmActivity": 50,
+    "medical": 12,
+    "school": 66,
+    "returnFarm": 47,
     "evidence": {
       "populationTrend": {
         "rawValue": -7.6,
@@ -8377,26 +8492,27 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 866.06,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 866호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 49%)"
+        "rankPercent": 50,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 50%)"
       },
       "medical": {
         "rawValue": 11.22,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.2곳",
-        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 13%)"
+        "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 12%)"
       },
       "school": {
         "rawValue": 4.81,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 4.8곳",
-        "rankPercent": 36,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 36%)"
+        "rankPercent": 34,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 34%)"
       },
       "returnFarm": {
-        "rawValue": 0.04,
+        "rawValue": 0.08,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 33%)"
+        "rawLabel": "전체 인구 대비 귀농 0.1%",
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 하위 47%)"
       }
     }
   },
@@ -8405,9 +8521,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "창녕군",
     "populationTrend": 25,
     "farmActivity": 67,
-    "medical": 66,
-    "school": 76,
-    "returnFarm": 63,
+    "medical": 67,
+    "school": 78,
+    "returnFarm": 69,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.2,
@@ -8426,22 +8542,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 16.33,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 16.3곳",
-        "rankPercent": 34,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 34%)"
+        "rankPercent": 33,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 33%)"
       },
       "school": {
         "rawValue": 6.12,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.1곳",
-        "rankPercent": 24,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 24%)"
+        "rankPercent": 22,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 22%)"
       },
       "returnFarm": {
-        "rawValue": 0.12,
+        "rawValue": 0.15,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 37,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 37%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 31,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 31%)"
       }
     }
   },
@@ -8451,8 +8567,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 22,
     "farmActivity": 65,
     "medical": 47,
-    "school": 77,
-    "returnFarm": 71,
+    "school": 78,
+    "returnFarm": 64,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.7,
@@ -8477,15 +8593,15 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 6.21,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.2곳",
-        "rankPercent": 23,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 23%)"
+        "rankPercent": 22,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 22%)"
       },
       "returnFarm": {
-        "rawValue": 0.14,
+        "rawValue": 0.13,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 29,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 29%)"
+        "rankPercent": 36,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 36%)"
       }
     }
   },
@@ -8493,10 +8609,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38550",
     "name": "남해군",
     "populationTrend": 32,
-    "farmActivity": 80,
-    "medical": 69,
-    "school": 83,
-    "returnFarm": 56,
+    "farmActivity": 79,
+    "medical": 66,
+    "school": 85,
+    "returnFarm": 79,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.2,
@@ -8508,29 +8624,29 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1430.44,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,430호",
-        "rankPercent": 20,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 20%)"
+        "rankPercent": 21,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 21%)"
       },
       "medical": {
-        "rawValue": 16.55,
+        "rawValue": 16.3,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 16.5곳",
-        "rankPercent": 31,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 31%)"
+        "rawLabel": "1만 명당 의료기관 16.3곳",
+        "rankPercent": 34,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 34%)"
       },
       "school": {
         "rawValue": 7.16,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.2곳",
-        "rankPercent": 17,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 17%)"
+        "rankPercent": 15,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 15%)"
       },
       "returnFarm": {
-        "rawValue": 0.1,
+        "rawValue": 0.18,
         "rawUnit": "%",
-        "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 44,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 44%)"
+        "rawLabel": "전체 인구 대비 귀농 0.2%",
+        "rankPercent": 21,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 21%)"
       }
     }
   },
@@ -8539,9 +8655,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "하동군",
     "populationTrend": 13,
     "farmActivity": 86,
-    "medical": 84,
-    "school": 88,
-    "returnFarm": 79,
+    "medical": 85,
+    "school": 90,
+    "returnFarm": 91,
     "evidence": {
       "populationTrend": {
         "rawValue": -8,
@@ -8560,22 +8676,22 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 18.46,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 18.5곳",
-        "rankPercent": 16,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 16%)"
+        "rankPercent": 15,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 15%)"
       },
       "school": {
         "rawValue": 7.84,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.8곳",
-        "rankPercent": 12,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 12%)"
+        "rankPercent": 10,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 10%)"
       },
       "returnFarm": {
-        "rawValue": 0.17,
+        "rawValue": 0.24,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 21,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 21%)"
+        "rankPercent": 9,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 9%)"
       }
     }
   },
@@ -8584,9 +8700,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "산청군",
     "populationTrend": 41,
     "farmActivity": 85,
-    "medical": 83,
-    "school": 85,
-    "returnFarm": 93,
+    "medical": 86,
+    "school": 86,
+    "returnFarm": 86,
     "evidence": {
       "populationTrend": {
         "rawValue": -3.8,
@@ -8602,25 +8718,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 15%)"
       },
       "medical": {
-        "rawValue": 18.29,
+        "rawValue": 18.59,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 18.3곳",
-        "rankPercent": 17,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 17%)"
+        "rawLabel": "1만 명당 의료기관 18.6곳",
+        "rankPercent": 14,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 14%)"
       },
       "school": {
         "rawValue": 7.31,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 7.3곳",
-        "rankPercent": 15,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 15%)"
+        "rankPercent": 14,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 14%)"
       },
       "returnFarm": {
-        "rawValue": 0.25,
+        "rawValue": 0.2,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 7,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 7%)"
+        "rankPercent": 14,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 14%)"
       }
     }
   },
@@ -8629,9 +8745,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "함양군",
     "populationTrend": 32,
     "farmActivity": 83,
-    "medical": 80,
-    "school": 79,
-    "returnFarm": 82,
+    "medical": 78,
+    "school": 80,
+    "returnFarm": 81,
     "evidence": {
       "populationTrend": {
         "rawValue": -5.2,
@@ -8647,25 +8763,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 17%)"
       },
       "medical": {
-        "rawValue": 18.05,
+        "rawValue": 17.77,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 18.0곳",
-        "rankPercent": 20,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 20%)"
+        "rawLabel": "1만 명당 의료기관 17.8곳",
+        "rankPercent": 22,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 22%)"
       },
       "school": {
         "rawValue": 6.39,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.4곳",
-        "rankPercent": 21,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 21%)"
+        "rankPercent": 20,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 20%)"
       },
       "returnFarm": {
-        "rawValue": 0.19,
+        "rawValue": 0.18,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 18,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 18%)"
+        "rankPercent": 19,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 19%)"
       }
     }
   },
@@ -8674,9 +8790,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "거창군",
     "populationTrend": 52,
     "farmActivity": 68,
-    "medical": 67,
-    "school": 75,
-    "returnFarm": 64,
+    "medical": 65,
+    "school": 77,
+    "returnFarm": 63,
     "evidence": {
       "populationTrend": {
         "rawValue": -2.2,
@@ -8692,25 +8808,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 32%)"
       },
       "medical": {
-        "rawValue": 16.35,
+        "rawValue": 16.18,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 16.4곳",
-        "rankPercent": 33,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 33%)"
+        "rawLabel": "1만 명당 의료기관 16.2곳",
+        "rankPercent": 35,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 35%)"
       },
       "school": {
         "rawValue": 5.96,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 6.0곳",
-        "rankPercent": 25,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 25%)"
+        "rankPercent": 23,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 23%)"
       },
       "returnFarm": {
         "rawValue": 0.13,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.1%",
-        "rankPercent": 36,
-        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 36%)"
+        "rankPercent": 37,
+        "interpretation": "정착 비율이 평균 수준이에요 (전국 상위 37%)"
       }
     }
   },
@@ -8718,10 +8834,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38600",
     "name": "합천군",
     "populationTrend": 24,
-    "farmActivity": 92,
-    "medical": 86,
-    "school": 91,
-    "returnFarm": 91,
+    "farmActivity": 93,
+    "medical": 82,
+    "school": 92,
+    "returnFarm": 81,
     "evidence": {
       "populationTrend": {
         "rawValue": -6.5,
@@ -8733,29 +8849,29 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 1730.2,
         "rawUnit": "호",
         "rawLabel": "1만 명당 농가 1,730호",
-        "rankPercent": 8,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 8%)"
+        "rankPercent": 7,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 7%)"
       },
       "medical": {
-        "rawValue": 18.71,
+        "rawValue": 18.21,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 의료기관 18.7곳",
-        "rankPercent": 14,
-        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 14%)"
+        "rawLabel": "1만 명당 의료기관 18.2곳",
+        "rankPercent": 18,
+        "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 18%)"
       },
       "school": {
         "rawValue": 8.23,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 8.2곳",
-        "rankPercent": 9,
-        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 9%)"
+        "rankPercent": 8,
+        "interpretation": "1만 명당 학교가 많아 자녀 교육 환경이 좋아요 (전국 상위 8%)"
       },
       "returnFarm": {
-        "rawValue": 0.24,
+        "rawValue": 0.19,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.2%",
-        "rankPercent": 9,
-        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 9%)"
+        "rankPercent": 19,
+        "interpretation": "정착 비율이 높아 정착 사례가 많은 곳이에요 (전국 상위 19%)"
       }
     }
   },
@@ -8765,8 +8881,8 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 84,
     "farmActivity": 22,
     "medical": 60,
-    "school": 43,
-    "returnFarm": 15,
+    "school": 44,
+    "returnFarm": 16,
     "evidence": {
       "populationTrend": {
         "rawValue": 2.6,
@@ -8781,7 +8897,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 22%)"
       },
       "medical": {
-        "rawValue": 15.63,
+        "rawValue": 15.61,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 15.6곳",
         "rankPercent": 40,
@@ -8791,13 +8907,13 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.6,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.6곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 43%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 44%)"
       },
       "returnFarm": {
         "rawValue": 0.01,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 15%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 16%)"
       }
     }
   },
@@ -8806,9 +8922,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "서귀포시",
     "populationTrend": 89,
     "farmActivity": 39,
-    "medical": 58,
-    "school": 60,
-    "returnFarm": 33,
+    "medical": 57,
+    "school": 61,
+    "returnFarm": 31,
     "evidence": {
       "populationTrend": {
         "rawValue": 3.3,
@@ -8826,21 +8942,21 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 15.24,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 15.2곳",
-        "rankPercent": 42,
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 42%)"
+        "rankPercent": 43,
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 상위 43%)"
       },
       "school": {
         "rawValue": 3.98,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 4.0곳",
-        "rankPercent": 40,
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 40%)"
+        "rankPercent": 39,
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 상위 39%)"
       },
       "returnFarm": {
         "rawValue": 0.04,
         "rawUnit": "%",
         "rawLabel": "전체 인구 대비 귀농 0.0%",
-        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 33%)"
+        "interpretation": "정착 비율이 낮은 편이에요 (전국 하위 31%)"
       }
     }
   }

@@ -4,14 +4,14 @@
  * 생성 스크립트: scripts/collect-medical-facilities.ts
  * 데이터 소스: 건강보험심사평가원 의료기관 정보 v2
  *   https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList
- * 마지막 수집: 2026-05-03
+ * 마지막 수집: 2026-10-07
  *
  * ⚠ 절대 수동 편집 금지. 갱신은 `npx tsx scripts/collect-medical-facilities.ts`
  *
  * Phase 4 — 빌드 시 시군구별 HIRA API 호출을 제거하기 위한 정적 폴백.
  * 통합시는 산하 구 totalCount 합산.
  *
- * 커버리지: 229/229 시군구 (수집일 기준)
+ * 커버리지: 230/230 시군구 (수집일 기준)
  */
 
 export interface MedicalFacilityStat {
@@ -28,87 +28,87 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "11010",
     "name": "종로구",
-    "totalCount": 470
+    "totalCount": 477
   },
   {
     "sgisCode": "11020",
     "name": "중구",
-    "totalCount": 617
+    "totalCount": 622
   },
   {
     "sgisCode": "11030",
     "name": "용산구",
-    "totalCount": 331
+    "totalCount": 337
   },
   {
     "sgisCode": "11040",
     "name": "성동구",
-    "totalCount": 490
+    "totalCount": 499
   },
   {
     "sgisCode": "11050",
     "name": "광진구",
-    "totalCount": 604
+    "totalCount": 603
   },
   {
     "sgisCode": "11060",
     "name": "동대문구",
-    "totalCount": 648
+    "totalCount": 644
   },
   {
     "sgisCode": "11070",
     "name": "중랑구",
-    "totalCount": 577
+    "totalCount": 586
   },
   {
     "sgisCode": "11080",
     "name": "성북구",
-    "totalCount": 564
+    "totalCount": 563
   },
   {
     "sgisCode": "11090",
     "name": "강북구",
-    "totalCount": 478
+    "totalCount": 477
   },
   {
     "sgisCode": "11100",
     "name": "도봉구",
-    "totalCount": 382
+    "totalCount": 385
   },
   {
     "sgisCode": "11110",
     "name": "노원구",
-    "totalCount": 768
+    "totalCount": 766
   },
   {
     "sgisCode": "11120",
     "name": "은평구",
-    "totalCount": 720
+    "totalCount": 724
   },
   {
     "sgisCode": "11130",
     "name": "서대문구",
-    "totalCount": 453
+    "totalCount": 458
   },
   {
     "sgisCode": "11140",
     "name": "마포구",
-    "totalCount": 796
+    "totalCount": 795
   },
   {
     "sgisCode": "11150",
     "name": "양천구",
-    "totalCount": 703
+    "totalCount": 701
   },
   {
     "sgisCode": "11160",
     "name": "강서구",
-    "totalCount": 983
+    "totalCount": 985
   },
   {
     "sgisCode": "11170",
     "name": "구로구",
-    "totalCount": 621
+    "totalCount": 628
   },
   {
     "sgisCode": "11180",
@@ -118,82 +118,87 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "11190",
     "name": "영등포구",
-    "totalCount": 856
+    "totalCount": 860
   },
   {
     "sgisCode": "11200",
     "name": "동작구",
-    "totalCount": 616
+    "totalCount": 615
   },
   {
     "sgisCode": "11210",
     "name": "관악구",
-    "totalCount": 722
+    "totalCount": 719
   },
   {
     "sgisCode": "11220",
     "name": "서초구",
-    "totalCount": 1595
+    "totalCount": 1610
   },
   {
     "sgisCode": "11230",
     "name": "강남구",
-    "totalCount": 3115
+    "totalCount": 3182
   },
   {
     "sgisCode": "11240",
     "name": "송파구",
-    "totalCount": 1326
+    "totalCount": 1344
   },
   {
     "sgisCode": "11250",
     "name": "강동구",
-    "totalCount": 965
+    "totalCount": 967
   },
   {
-    "sgisCode": "23010",
-    "name": "중구",
-    "totalCount": 150
+    "sgisCode": "23100",
+    "name": "제물포구",
+    "totalCount": 143
   },
   {
-    "sgisCode": "23020",
-    "name": "동구",
-    "totalCount": 87
+    "sgisCode": "23110",
+    "name": "영종구",
+    "totalCount": 92
   },
   {
     "sgisCode": "23090",
     "name": "미추홀구",
-    "totalCount": 526
+    "totalCount": 525
   },
   {
     "sgisCode": "23040",
     "name": "연수구",
-    "totalCount": 519
+    "totalCount": 523
   },
   {
     "sgisCode": "23050",
     "name": "남동구",
-    "totalCount": 760
+    "totalCount": 757
   },
   {
     "sgisCode": "23060",
     "name": "부평구",
-    "totalCount": 682
+    "totalCount": 683
   },
   {
     "sgisCode": "23070",
     "name": "계양구",
-    "totalCount": 380
+    "totalCount": 377
   },
   {
-    "sgisCode": "23080",
-    "name": "서구",
-    "totalCount": 688
+    "sgisCode": "23120",
+    "name": "서해구",
+    "totalCount": 432
+  },
+  {
+    "sgisCode": "23130",
+    "name": "검단구",
+    "totalCount": 262
   },
   {
     "sgisCode": "23510",
     "name": "강화군",
-    "totalCount": 86
+    "totalCount": 87
   },
   {
     "sgisCode": "23520",
@@ -203,7 +208,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "31010",
     "name": "수원시",
-    "totalCount": 1802
+    "totalCount": 1806
   },
   {
     "sgisCode": "31020",
@@ -213,7 +218,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "31030",
     "name": "의정부시",
-    "totalCount": 626
+    "totalCount": 627
   },
   {
     "sgisCode": "31040",
@@ -223,17 +228,17 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "31050",
     "name": "부천시",
-    "totalCount": 1173
+    "totalCount": 1172
   },
   {
     "sgisCode": "31060",
     "name": "광명시",
-    "totalCount": 484
+    "totalCount": 489
   },
   {
     "sgisCode": "31070",
     "name": "평택시",
-    "totalCount": 700
+    "totalCount": 710
   },
   {
     "sgisCode": "31080",
@@ -243,102 +248,102 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "31090",
     "name": "안산시",
-    "totalCount": 802
+    "totalCount": 812
   },
   {
     "sgisCode": "31100",
     "name": "고양시",
-    "totalCount": 1395
+    "totalCount": 1398
   },
   {
     "sgisCode": "31110",
     "name": "과천시",
-    "totalCount": 119
+    "totalCount": 120
   },
   {
     "sgisCode": "31120",
     "name": "구리시",
-    "totalCount": 352
+    "totalCount": 355
   },
   {
     "sgisCode": "31130",
     "name": "남양주시",
-    "totalCount": 838
+    "totalCount": 846
   },
   {
     "sgisCode": "31140",
     "name": "오산시",
-    "totalCount": 264
+    "totalCount": 267
   },
   {
     "sgisCode": "31150",
     "name": "시흥시",
-    "totalCount": 572
+    "totalCount": 577
   },
   {
     "sgisCode": "31160",
     "name": "군포시",
-    "totalCount": 340
+    "totalCount": 339
   },
   {
     "sgisCode": "31170",
     "name": "의왕시",
-    "totalCount": 168
+    "totalCount": 173
   },
   {
     "sgisCode": "31180",
     "name": "하남시",
-    "totalCount": 456
+    "totalCount": 459
   },
   {
     "sgisCode": "31190",
     "name": "용인시",
-    "totalCount": 1283
+    "totalCount": 1296
   },
   {
     "sgisCode": "31200",
     "name": "파주시",
-    "totalCount": 535
+    "totalCount": 540
   },
   {
     "sgisCode": "31210",
     "name": "이천시",
-    "totalCount": 267
+    "totalCount": 268
   },
   {
     "sgisCode": "31220",
     "name": "안성시",
-    "totalCount": 223
+    "totalCount": 222
   },
   {
     "sgisCode": "31230",
     "name": "김포시",
-    "totalCount": 554
+    "totalCount": 557
   },
   {
     "sgisCode": "31240",
     "name": "화성시",
-    "totalCount": 461
+    "totalCount": 1034
   },
   {
     "sgisCode": "31250",
     "name": "광주시",
-    "totalCount": 363
+    "totalCount": 368
   },
   {
     "sgisCode": "31260",
     "name": "양주시",
-    "totalCount": 251
+    "totalCount": 255
   },
   {
     "sgisCode": "31270",
     "name": "포천시",
-    "totalCount": 159
+    "totalCount": 158
   },
   {
     "sgisCode": "31280",
     "name": "여주시",
-    "totalCount": 142
+    "totalCount": 143
   },
   {
     "sgisCode": "31580",
@@ -348,7 +353,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "31570",
     "name": "가평군",
-    "totalCount": 94
+    "totalCount": 95
   },
   {
     "sgisCode": "31550",
@@ -358,32 +363,32 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "32010",
     "name": "춘천시",
-    "totalCount": 384
+    "totalCount": 382
   },
   {
     "sgisCode": "32020",
     "name": "원주시",
-    "totalCount": 507
+    "totalCount": 514
   },
   {
     "sgisCode": "32030",
     "name": "강릉시",
-    "totalCount": 273
+    "totalCount": 275
   },
   {
     "sgisCode": "32040",
     "name": "동해시",
-    "totalCount": 106
+    "totalCount": 105
   },
   {
     "sgisCode": "32050",
     "name": "태백시",
-    "totalCount": 44
+    "totalCount": 45
   },
   {
     "sgisCode": "32060",
     "name": "속초시",
-    "totalCount": 134
+    "totalCount": 135
   },
   {
     "sgisCode": "32070",
@@ -418,12 +423,12 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "32560",
     "name": "철원군",
-    "totalCount": 50
+    "totalCount": 51
   },
   {
     "sgisCode": "32570",
     "name": "화천군",
-    "totalCount": 34
+    "totalCount": 31
   },
   {
     "sgisCode": "32580",
@@ -448,22 +453,22 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "33010",
     "name": "청주시",
-    "totalCount": 1147
+    "totalCount": 1149
   },
   {
     "sgisCode": "33020",
     "name": "충주시",
-    "totalCount": 276
+    "totalCount": 275
   },
   {
     "sgisCode": "33030",
     "name": "제천시",
-    "totalCount": 195
+    "totalCount": 193
   },
   {
     "sgisCode": "33520",
     "name": "보은군",
-    "totalCount": 56
+    "totalCount": 55
   },
   {
     "sgisCode": "33530",
@@ -473,7 +478,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "33540",
     "name": "영동군",
-    "totalCount": 80
+    "totalCount": 81
   },
   {
     "sgisCode": "33590",
@@ -483,7 +488,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "33550",
     "name": "진천군",
-    "totalCount": 101
+    "totalCount": 103
   },
   {
     "sgisCode": "33560",
@@ -493,7 +498,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "33570",
     "name": "음성군",
-    "totalCount": 128
+    "totalCount": 129
   },
   {
     "sgisCode": "33580",
@@ -503,27 +508,27 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "29010",
     "name": "세종특별자치시",
-    "totalCount": 0
+    "totalCount": 470
   },
   {
     "sgisCode": "25010",
     "name": "동구",
-    "totalCount": 346
+    "totalCount": 343
   },
   {
     "sgisCode": "25020",
     "name": "중구",
-    "totalCount": 361
+    "totalCount": 360
   },
   {
     "sgisCode": "25030",
     "name": "서구",
-    "totalCount": 930
+    "totalCount": 933
   },
   {
     "sgisCode": "25040",
     "name": "유성구",
-    "totalCount": 514
+    "totalCount": 512
   },
   {
     "sgisCode": "25050",
@@ -533,7 +538,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "34010",
     "name": "천안시",
-    "totalCount": 855
+    "totalCount": 860
   },
   {
     "sgisCode": "34020",
@@ -548,7 +553,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "34040",
     "name": "아산시",
-    "totalCount": 384
+    "totalCount": 387
   },
   {
     "sgisCode": "34050",
@@ -558,27 +563,27 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "34060",
     "name": "논산시",
-    "totalCount": 202
+    "totalCount": 201
   },
   {
     "sgisCode": "34070",
     "name": "계룡시",
-    "totalCount": 57
+    "totalCount": 60
   },
   {
     "sgisCode": "34080",
     "name": "당진시",
-    "totalCount": 201
+    "totalCount": 205
   },
   {
     "sgisCode": "34510",
     "name": "금산군",
-    "totalCount": 85
+    "totalCount": 86
   },
   {
     "sgisCode": "34530",
     "name": "부여군",
-    "totalCount": 104
+    "totalCount": 102
   },
   {
     "sgisCode": "34540",
@@ -593,52 +598,52 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "34560",
     "name": "홍성군",
-    "totalCount": 138
+    "totalCount": 140
   },
   {
     "sgisCode": "34570",
     "name": "예산군",
-    "totalCount": 111
+    "totalCount": 110
   },
   {
     "sgisCode": "34580",
     "name": "태안군",
-    "totalCount": 78
+    "totalCount": 79
   },
   {
     "sgisCode": "35010",
     "name": "전주시",
-    "totalCount": 1123
+    "totalCount": 1113
   },
   {
     "sgisCode": "35020",
     "name": "군산시",
-    "totalCount": 369
+    "totalCount": 366
   },
   {
     "sgisCode": "35030",
     "name": "익산시",
-    "totalCount": 412
+    "totalCount": 410
   },
   {
     "sgisCode": "35040",
     "name": "정읍시",
-    "totalCount": 191
+    "totalCount": 190
   },
   {
     "sgisCode": "35050",
     "name": "남원시",
-    "totalCount": 140
+    "totalCount": 138
   },
   {
     "sgisCode": "35060",
     "name": "김제시",
-    "totalCount": 142
+    "totalCount": 143
   },
   {
     "sgisCode": "35510",
     "name": "완주군",
-    "totalCount": 132
+    "totalCount": 135
   },
   {
     "sgisCode": "35520",
@@ -663,7 +668,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "35560",
     "name": "순창군",
-    "totalCount": 60
+    "totalCount": 59
   },
   {
     "sgisCode": "35570",
@@ -673,17 +678,17 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "35580",
     "name": "부안군",
-    "totalCount": 84
+    "totalCount": 83
   },
   {
     "sgisCode": "24010",
     "name": "동구",
-    "totalCount": 239
+    "totalCount": 237
   },
   {
     "sgisCode": "24020",
     "name": "서구",
-    "totalCount": 579
+    "totalCount": 578
   },
   {
     "sgisCode": "24030",
@@ -693,27 +698,27 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "24040",
     "name": "북구",
-    "totalCount": 635
+    "totalCount": 642
   },
   {
     "sgisCode": "24050",
     "name": "광산구",
-    "totalCount": 522
+    "totalCount": 523
   },
   {
     "sgisCode": "36010",
     "name": "목포시",
-    "totalCount": 289
+    "totalCount": 286
   },
   {
     "sgisCode": "36020",
     "name": "여수시",
-    "totalCount": 366
+    "totalCount": 363
   },
   {
     "sgisCode": "36030",
     "name": "순천시",
-    "totalCount": 367
+    "totalCount": 364
   },
   {
     "sgisCode": "36040",
@@ -723,12 +728,12 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "36060",
     "name": "광양시",
-    "totalCount": 159
+    "totalCount": 160
   },
   {
     "sgisCode": "36510",
     "name": "담양군",
-    "totalCount": 78
+    "totalCount": 79
   },
   {
     "sgisCode": "36520",
@@ -738,7 +743,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "36530",
     "name": "구례군",
-    "totalCount": 47
+    "totalCount": 48
   },
   {
     "sgisCode": "36550",
@@ -748,17 +753,17 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "36560",
     "name": "보성군",
-    "totalCount": 71
+    "totalCount": 69
   },
   {
     "sgisCode": "36570",
     "name": "화순군",
-    "totalCount": 107
+    "totalCount": 105
   },
   {
     "sgisCode": "36580",
     "name": "장흥군",
-    "totalCount": 65
+    "totalCount": 66
   },
   {
     "sgisCode": "36590",
@@ -768,7 +773,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "36600",
     "name": "해남군",
-    "totalCount": 103
+    "totalCount": 102
   },
   {
     "sgisCode": "36610",
@@ -778,7 +783,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "36620",
     "name": "무안군",
-    "totalCount": 115
+    "totalCount": 117
   },
   {
     "sgisCode": "36630",
@@ -793,7 +798,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "36650",
     "name": "장성군",
-    "totalCount": 62
+    "totalCount": 63
   },
   {
     "sgisCode": "36660",
@@ -813,27 +818,27 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "21010",
     "name": "중구",
-    "totalCount": 139
+    "totalCount": 138
   },
   {
     "sgisCode": "21020",
     "name": "서구",
-    "totalCount": 140
+    "totalCount": 137
   },
   {
     "sgisCode": "21030",
     "name": "동구",
-    "totalCount": 160
+    "totalCount": 157
   },
   {
     "sgisCode": "21040",
     "name": "영도구",
-    "totalCount": 137
+    "totalCount": 134
   },
   {
     "sgisCode": "21050",
     "name": "부산진구",
-    "totalCount": 867
+    "totalCount": 871
   },
   {
     "sgisCode": "21060",
@@ -843,32 +848,32 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "21070",
     "name": "남구",
-    "totalCount": 409
+    "totalCount": 414
   },
   {
     "sgisCode": "21080",
     "name": "북구",
-    "totalCount": 388
+    "totalCount": 390
   },
   {
     "sgisCode": "21090",
     "name": "해운대구",
-    "totalCount": 715
+    "totalCount": 705
   },
   {
     "sgisCode": "21100",
     "name": "사하구",
-    "totalCount": 439
+    "totalCount": 436
   },
   {
     "sgisCode": "21110",
     "name": "금정구",
-    "totalCount": 364
+    "totalCount": 365
   },
   {
     "sgisCode": "21120",
     "name": "강서구",
-    "totalCount": 127
+    "totalCount": 133
   },
   {
     "sgisCode": "21130",
@@ -878,22 +883,22 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "21140",
     "name": "수영구",
-    "totalCount": 338
+    "totalCount": 337
   },
   {
     "sgisCode": "21150",
     "name": "사상구",
-    "totalCount": 248
+    "totalCount": 243
   },
   {
     "sgisCode": "21510",
     "name": "기장군",
-    "totalCount": 209
+    "totalCount": 210
   },
   {
     "sgisCode": "22010",
     "name": "중구",
-    "totalCount": 479
+    "totalCount": 482
   },
   {
     "sgisCode": "22020",
@@ -903,7 +908,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "22030",
     "name": "서구",
-    "totalCount": 270
+    "totalCount": 268
   },
   {
     "sgisCode": "22040",
@@ -913,12 +918,12 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "22050",
     "name": "북구",
-    "totalCount": 602
+    "totalCount": 603
   },
   {
     "sgisCode": "22060",
     "name": "수성구",
-    "totalCount": 918
+    "totalCount": 923
   },
   {
     "sgisCode": "22070",
@@ -931,34 +936,39 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
     "totalCount": 284
   },
   {
+    "sgisCode": "22520",
+    "name": "군위군",
+    "totalCount": 35
+  },
+  {
     "sgisCode": "26010",
     "name": "중구",
-    "totalCount": 236
+    "totalCount": 237
   },
   {
     "sgisCode": "26020",
     "name": "남구",
-    "totalCount": 626
+    "totalCount": 621
   },
   {
     "sgisCode": "26030",
     "name": "동구",
-    "totalCount": 175
+    "totalCount": 174
   },
   {
     "sgisCode": "26040",
     "name": "북구",
-    "totalCount": 192
+    "totalCount": 191
   },
   {
     "sgisCode": "26510",
     "name": "울주군",
-    "totalCount": 209
+    "totalCount": 210
   },
   {
     "sgisCode": "37010",
     "name": "포항시",
-    "totalCount": 671
+    "totalCount": 668
   },
   {
     "sgisCode": "37020",
@@ -968,17 +978,17 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "37030",
     "name": "김천시",
-    "totalCount": 158
+    "totalCount": 157
   },
   {
     "sgisCode": "37040",
     "name": "안동시",
-    "totalCount": 227
+    "totalCount": 225
   },
   {
     "sgisCode": "37050",
     "name": "구미시",
-    "totalCount": 472
+    "totalCount": 470
   },
   {
     "sgisCode": "37060",
@@ -988,7 +998,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "37070",
     "name": "영천시",
-    "totalCount": 148
+    "totalCount": 149
   },
   {
     "sgisCode": "37080",
@@ -1003,12 +1013,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "37100",
     "name": "경산시",
-    "totalCount": 352
-  },
-  {
-    "sgisCode": "22520",
-    "name": "군위군",
-    "totalCount": 0
+    "totalCount": 350
   },
   {
     "sgisCode": "37520",
@@ -1038,7 +1043,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "37570",
     "name": "고령군",
-    "totalCount": 47
+    "totalCount": 46
   },
   {
     "sgisCode": "37580",
@@ -1058,7 +1063,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "37610",
     "name": "봉화군",
-    "totalCount": 35
+    "totalCount": 36
   },
   {
     "sgisCode": "37620",
@@ -1073,17 +1078,17 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "38010",
     "name": "창원시",
-    "totalCount": 1363
+    "totalCount": 1357
   },
   {
     "sgisCode": "38030",
     "name": "진주시",
-    "totalCount": 487
+    "totalCount": 486
   },
   {
     "sgisCode": "38050",
     "name": "통영시",
-    "totalCount": 163
+    "totalCount": 161
   },
   {
     "sgisCode": "38060",
@@ -1093,22 +1098,22 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "38070",
     "name": "김해시",
-    "totalCount": 594
+    "totalCount": 595
   },
   {
     "sgisCode": "38080",
     "name": "밀양시",
-    "totalCount": 137
+    "totalCount": 138
   },
   {
     "sgisCode": "38090",
     "name": "거제시",
-    "totalCount": 238
+    "totalCount": 235
   },
   {
     "sgisCode": "38100",
     "name": "양산시",
-    "totalCount": 427
+    "totalCount": 428
   },
   {
     "sgisCode": "38510",
@@ -1133,7 +1138,7 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "38550",
     "name": "남해군",
-    "totalCount": 67
+    "totalCount": 66
   },
   {
     "sgisCode": "38560",
@@ -1143,27 +1148,27 @@ export const MEDICAL_FALLBACK_SIGUNGU: MedicalFacilityStat[] = [
   {
     "sgisCode": "38570",
     "name": "산청군",
-    "totalCount": 60
+    "totalCount": 61
   },
   {
     "sgisCode": "38580",
     "name": "함양군",
-    "totalCount": 65
+    "totalCount": 64
   },
   {
     "sgisCode": "38590",
     "name": "거창군",
-    "totalCount": 96
+    "totalCount": 95
   },
   {
     "sgisCode": "38600",
     "name": "합천군",
-    "totalCount": 75
+    "totalCount": 73
   },
   {
     "sgisCode": "39010",
     "name": "제주시",
-    "totalCount": 774
+    "totalCount": 773
   },
   {
     "sgisCode": "39020",

@@ -30,6 +30,12 @@ const nextConfig: NextConfig = {
       { source: "/stats/youth", destination: "/stats?tab=youth", permanent: true },
       { source: "/stats/mountain", destination: "/stats?tab=mountain", permanent: true },
       { source: "/stats/smartfarm", destination: "/stats?tab=smartfarm", permanent: true },
+      // 행정구역 개편으로 옮긴 지역 상세 (10/7) — src/lib/data/region-reorganizations.ts MOVED_REGION_PATHS 와 같은 표
+      // (region-moved-paths.test.ts 가 맞춰 본다). 나뉜 구(인천 중구·서구)는 시·도 화면으로, 통째로 옮긴 곳은 새 상세로
+      { source: "/regions/incheon/jung-gu-incheon/:path*", destination: "/regions/incheon", permanent: true },
+      { source: "/regions/incheon/dong-gu-incheon/:path*", destination: "/regions/incheon/jemulpo/:path*", permanent: true },
+      { source: "/regions/incheon/seo-gu-incheon/:path*", destination: "/regions/incheon", permanent: true },
+      { source: "/regions/gyeongbuk/gunwi/:path*", destination: "/regions/daegu/gunwi/:path*", permanent: true },
     ];
   },
   /* ── 리라이트 ── */

@@ -5,7 +5,7 @@
  * 1. populationTrend: 5년 인구 변화율 → 선형 (-10% ~ +5% → 0~100)
  * 2. farmActivity: 인구 1만명당 농가 수 → 전국 분위 (1~100). 도시 자치구는 null
  * 3. medical: 인구 1만명당 의료기관 수 → 전국 분위 (1~100)
- * 4. school: 인구 1만명당 학교 수 → 전국 분위 (1~100). 군위는 null (NEIS 미등록)
+ * 4. school: 인구 1만명당 학교 수 → 전국 분위 (1~100). 학교 0곳이면 null
  * 5. returnFarm: 귀농 인구 비율 → 전국 분위 (1~100). 도시 자치구는 null
  *
  * 도시 자치구 hide 기준: KOSIS 귀농 데이터 부재 → 농가·귀농 두 차원 동시 null
@@ -19,7 +19,7 @@
  *   - 농가·의료·학교·귀농 모두 전국 분위 통일 (어르신 친화 카피 일관)
  *   - 인구 추세만 선형 (변화율 자체가 직관적이라 분위 변환 불필요)
  *   - 도시 자치구: 농가·귀농 두 차원 hide
- *   - 군위: 학교 차원 hide (NEIS 자체 미등록)
+ *   - (10/7) 군위 학교는 NEIS 대구교육청에 있다 — 예전 '미등록'은 경북교육청으로 셌던 탓. 군위를 대구로 옮긴 뒤 정상 산출
  */
 
 import { writeFileSync } from "node:fs";
@@ -98,7 +98,7 @@ function getMedicalRaw(sgisCode: string): number | null {
 
 function getSchoolRaw(sgisCode: string): number | null {
   const sch = schoolByCode.get(sgisCode);
-  if (!sch || sch.totalCount === 0) return null; // 군위 = 0 → null
+  if (!sch || sch.totalCount === 0) return null; // 학교 0곳 → null (10/7 기준 해당 없음)
   const pop = populationByCode.get(sgisCode);
   if (!pop || pop === 0) return null;
   return sch.totalCount / (pop / 10000);
@@ -322,7 +322,7 @@ function main() {
  * 1. populationTrend: 5년 인구 변화율 선형 (-10% → 0, +5% → 100)
  * 2. farmActivity: 인구 1만명당 농가 수 전국 분위 (1~100). 도시 자치구 null
  * 3. medical: 인구 1만명당 의료기관 수 전국 분위 (1~100)
- * 4. school: 인구 1만명당 학교 수 전국 분위 (1~100). 군위 null
+ * 4. school: 인구 1만명당 학교 수 전국 분위 (1~100). 학교 0곳이면 null
  * 5. returnFarm: 농촌 정착 인구 비율 전국 분위 (1~100). 도시 자치구 null
  *
  * 회장 결재 사항 (A'안):
@@ -366,7 +366,7 @@ export interface DimensionScores {
   farmActivity: number | null;
   /** 의료 인프라 분위 (1~100) */
   medical: number | null;
-  /** 학교 인프라 분위 (1~100). 군위 null */
+  /** 학교 인프라 분위 (1~100). 학교 0곳이면 null */
   school: number | null;
   /** 농촌 정착 인구 비율 분위 (1~100). 도시 자치구 null */
   returnFarm: number | null;

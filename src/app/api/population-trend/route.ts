@@ -12,6 +12,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { GUS } from "@/lib/data/gus";
+import { getSgisComposite } from "@/lib/data/region-composites";
+import { fetchCompositePopulationTrend } from "@/lib/api/sgis";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -181,6 +183,25 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const latestYear = getLatestAvailableYear();
+  const startYear = latestYear - yearsParam + 1;
+  const years = Array.from(
+    { length: yearsParam },
+    (_, i) => startYear + i
+  );
+
+  // 신설 구(인천 2026 개편 — SGIS 미등재): 해마다 옛 구·행정동 값을 더한다 (region-composites.ts)
+  if (getSgisComposite(sgisCode)) {
+    const composite = await fetchCompositePopulationTrend(sgisCode, years);
+    if (!composite) {
+      return NextResponse.json({ error: "Failed to authenticate with SGIS" }, { status: 502 });
+    }
+    return NextResponse.json(
+      { data: composite.sort((a, b) => a.year - b.year) },
+      { headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=3600" } },
+    );
+  }
+
   const accessToken = await getAccessToken();
   if (!accessToken) {
     return NextResponse.json(
@@ -188,13 +209,6 @@ export async function GET(request: NextRequest) {
       { status: 502 }
     );
   }
-
-  const latestYear = getLatestAvailableYear();
-  const startYear = latestYear - yearsParam + 1;
-  const years = Array.from(
-    { length: yearsParam },
-    (_, i) => startYear + i
-  );
 
   // 병렬 호출
   const results = await Promise.allSettled(
@@ -229,6 +243,8 @@ export async function GET(request: NextRequest) {
         }
       });
       data = Array.from(yearMap.entries())
+        // 그해 구가 하나라도 빠지면 그 해는 뺀다 — 덜 센 합을 추이로 그리지 않는다 (10/7)
+        .filter(([, items]) => items.length === childGus.length)
         .map(([year, items]) => {
           const population = items.reduce((s, i) => s + i.population, 0);
           const householdCount = items.reduce((s, i) => s + i.householdCount, 0);

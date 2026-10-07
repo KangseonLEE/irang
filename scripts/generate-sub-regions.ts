@@ -1,7 +1,7 @@
 /**
  * 전국 읍·면·동 안내 카드 자동 생성 스크립트
  *
- * - 통계청 SGIS Stage API로 233개 시·군·구 하위 읍·면·동 트리를 일괄 수집한다.
+ * - 통계청 SGIS Stage API로 시·군·구 하위 읍·면·동 트리를 일괄 수집한다(신설 구는 옛 구·행정동을 region-composites.ts 정의대로 묶는다).
  * - 결과를 src/lib/data/sub-regions.generated.ts 의 정적 데이터로 직렬화한다.
  * - search-index.ts 의 matchSubRegionHint()가 이 데이터를 키로 hint를 노출한다.
  *
@@ -32,6 +32,7 @@ config({ path: resolve(__dirname, "../.env.local") });
 
 import { SIGUNGUS } from "../src/lib/data/sigungus";
 import { GUS } from "../src/lib/data/gus";
+import { SGIS_COMPOSITES, getSgisComposite, resolveSplitGu, splitGuOf } from "../src/lib/data/region-composites";
 
 // ---------------------------------------------------------------------------
 // SGIS API
@@ -160,7 +161,7 @@ async function main() {
   const token = await getAccessToken();
   console.log("       ✅ token 발급");
 
-  console.log("[2/4] 233개 시·군·구 stage API 호출 (통합시 11곳은 하위 구로 분할)...");
+  console.log(`[2/4] ${SIGUNGUS.length}개 시·군·구 stage API 호출 (통합시는 하위 구로, 신설 구는 옛 구·행정동으로)...`);
 
   const records: SubRegionRecord[] = [];
   let processedSigungu = 0;
@@ -170,6 +171,7 @@ async function main() {
   // 통합시가 아닌 시·군·구는 sgisCode로 직접 stage 조회
   for (const sg of SIGUNGUS) {
     if (INTEGRATED_SIGUNGU_IDS.has(sg.id)) continue;
+    if (getSgisComposite(sg.sgisCode)) continue; // 신설 구 — 아래에서 옛 구·행정동으로 묶는다
 
     const items = await fetchSubRegions(token, sg.sgisCode);
     if (items.length === 0) {
@@ -205,6 +207,29 @@ async function main() {
       });
     }
     processedGu++;
+  }
+
+  // 신설 구(인천 2026 개편) — SGIS 에 아직 없어 옛 구 stage 를 받아 region-composites.ts 정의대로 나눈다
+  const sidoOfComposite = (sigunguId: string) => SIGUNGUS.find((s) => s.id === sigunguId)!.sidoId;
+  for (const c of SGIS_COMPOSITES) {
+    for (const gu of c.wholeGu) {
+      const items = await fetchSubRegions(token, gu);
+      if (items.length === 0) throw new Error(`${c.name}: 옛 구 ${gu} stage 0건 — 정적 데이터 갱신 중단`);
+      for (const item of items) {
+        records.push({ sgisCode: item.cd, fullName: item.addr_name, sigunguId: c.sigunguId, sidoId: sidoOfComposite(c.sigunguId) });
+      }
+    }
+  }
+  for (const gu of splitGuOf(SGIS_COMPOSITES)) {
+    const items = await fetchSubRegions(token, gu);
+    const assigned = resolveSplitGu(gu, items.map((i) => i.cd));
+    if (!assigned) throw new Error(`옛 구 ${gu} 의 행정동이 region-composites.ts 정의와 맞지 않음 — 중단`);
+    for (const c of SGIS_COMPOSITES) {
+      const mine = new Set(assigned.get(c.sgisCode) ?? []);
+      for (const item of items.filter((i) => mine.has(i.cd))) {
+        records.push({ sgisCode: item.cd, fullName: item.addr_name, sigunguId: c.sigunguId, sidoId: sidoOfComposite(c.sigunguId) });
+      }
+    }
   }
 
   // 폐지된 구 코드 (부천 등) — SGIS는 유지하지만 GUS 테이블에 없음.

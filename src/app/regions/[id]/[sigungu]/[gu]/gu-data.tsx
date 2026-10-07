@@ -13,6 +13,7 @@ import {
   fetchSigunguPopulationData,
   fetchPopulationData,
   fetchFarmHousehold,
+  farmAvgDiffPct,
 } from "@/lib/api/sgis";
 import { getFarmFallback } from "@/lib/data/farms";
 import {
@@ -57,7 +58,7 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
     // NEIS는 구 이름으로 검색 (예: "장안구")
     fetchSigunguSchoolCounts(province.eduCode, gu.name),
     fetchMultipleClimateData(province.stationIds),
-    fetchReturnFarmStats(sigungu.admCode),
+    fetchReturnFarmStats(sigungu.admCode, sigungu.name),
     fetchFarmHousehold(gu.sgisCode),
   ]);
 
@@ -137,12 +138,8 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
   // 농가 데이터 + 시도 평균 비교
   const farm = guFarmResult.status === "fulfilled" ? guFarmResult.value : null;
   const sidoFarm = getFarmFallback(province.sgisCode);
-  let farmRatioVsSido: number | null = null;
-  if (farm && sidoFarm && sidoFarm.avgPopulation > 0 && farm.avgPopulation > 0) {
-    farmRatioVsSido = Math.round(
-      ((farm.avgPopulation - sidoFarm.avgPopulation) / sidoFarm.avgPopulation) * 100,
-    );
-  }
+  // 반올림 전 두 수로 비교 — SGIS 가 정수로 준 평균으로 비교하면 -33% 같은 엉뚱한 차이가 났다 (10/7)
+  const farmRatioVsSido = farm && sidoFarm ? farmAvgDiffPct(farm, sidoFarm) : null;
 
   // -- 인구 5년 추이 (정적 폴백 — 구 sgisCode 기준) --
   const guTrend: PopulationTrendPoint[] = getPopulationTrend(gu.sgisCode);

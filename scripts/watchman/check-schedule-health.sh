@@ -26,7 +26,9 @@ if [[ "${1:-}" == "--ci" ]]; then
 fi
 
 # ── 점검 대상 워크플로 (파일명, .yml 제외) ──
-WORKFLOWS=("sync-data" "api-health" "check-links" "check-policy" "data-freshness" "ip-list-sync" "cert-expiry" "watchman-ci" "community-pending" "ga4-snapshot" "gsc-snapshot")
+# region-integrity(10/7, 주 1회): 불일치는 자체 이슈로 알리고 잡은 "대조를 못 끝냈을 때"만 실패한다 —
+#   여기서 연속 실패(2주 🟡·3주 🔴)는 감시 자체가 멈췄다는 뜻(시크릿 누락·접근 차단·크래시)이다.
+WORKFLOWS=("sync-data" "api-health" "check-links" "check-policy" "data-freshness" "ip-list-sync" "cert-expiry" "watchman-ci" "community-pending" "ga4-snapshot" "gsc-snapshot" "region-integrity")
 
 # sync-data는 실패 1회만으로도 즉시 🔴 (데이터 동기화 중단 = 라이브 stale 직결)
 IMMEDIATE_CRIT_WORKFLOW="sync-data"

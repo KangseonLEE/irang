@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { pageMetadata } from "@/lib/seo/share-metadata";
 import { notFound } from "next/navigation";
+import { EmptyState } from "@/components/ui/empty-state";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -100,7 +101,9 @@ export async function generateMetadata({
 
   const mainCropsLabel = sigungu.mainCrops.slice(0, 3).join("·");
   const title = `${sidoName} ${sigungu.name} 귀농 — 지원사업·작물·인프라`;
-  const description = `${sidoName} ${sigungu.name} 농촌 정착 정보. 대표 작물: ${mainCropsLabel}. 인구, 의료·교육 인프라, 농촌 정착 지원사업을 확인하세요. ${sigungu.description}`;
+  // 대표 작물 근거가 없는 곳(인천 제물포구 등 원도심)은 '대표 작물: .' 이 되지 않게 그 구절을 뺀다
+  const cropsClause = mainCropsLabel ? ` 대표 작물: ${mainCropsLabel}.` : "";
+  const description = `${sidoName} ${sigungu.name} 농촌 정착 정보.${cropsClause} 인구, 의료·교육 인프라, 농촌 정착 지원사업을 확인하세요. ${sigungu.description}`;
   return {
     // 공유 카드까지 같은 값에서 — 종전엔 사이트 기본 제목·설명을 물려받고 og:url 도 없었다(10/6 QA1 Q2-W3).
     // 이미지는 상위 시·도 OG(종전에도 물려받던 그림)를 그대로 쓴다.
@@ -129,7 +132,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
 
   // 시군구 귀농지원센터 (정적 — 상위 광역 폴백하지 않음)
   const sigunguCenter = getSigunguCenter(sigungu.id);
-  // 행정구역 개편으로 나뉘거나 합쳐진 곳(인천 중구·동구·서구, 2026-07-01) — 상단 안내 + 의료기관·학교 '확인 불가'
+  // 행정구역 개편을 겪은 곳(인천 신설 4개 구·대구 군위) — 상단 안내. 셀 수 없는 곳이면 의료기관·학교 '확인 불가'
   const reorg = getRegionReorganization(sigungu.id);
 
   // 대표 작물 매칭 + 평수 환산 + 수익 정렬 (시도 페이지와 동일 패턴)
@@ -530,7 +533,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
                   </Link>
                 )}
               </>
-            ) : (
+            ) : sigungu.mainCrops.length > 0 ? (
               <div className={s.mainCropsList}>
                 {sigungu.mainCrops.map((crop) => (
                   <span key={crop} className={s.mainCropBadge}>
@@ -538,6 +541,8 @@ export default async function SigunguDetailPage({ params }: PageProps) {
                   </span>
                 ))}
               </div>
+            ) : (
+              <EmptyState icon={<Icon icon={Sprout} size="lg" />} message="대표 작물로 꼽을 공식 자료가 없어요." />
             )}
           </section>
 

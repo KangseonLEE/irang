@@ -24,6 +24,7 @@ import { resolve } from "node:path";
 // .env.local 우선 로드 (Next.js 컨벤션)
 config({ path: resolve(__dirname, "../.env.local") });
 import { PROVINCES } from "../src/lib/data/regions";
+import { REPLACED_SGIS_GU, SGIS_COMPOSITES, compositeRows, splitGuOf } from "../src/lib/data/region-composites";
 
 const AUTH_URL =
   "https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json";
@@ -144,10 +145,13 @@ async function main() {
   console.log(`[collect-population-trend] token ok (len=${token.length})`);
 
   const all: Point[] = [];
+  /** 시·도 아래 시·군·구 원본 행 (시·도 코드/연도) — 신설 구가 통째로 들어온 옛 구 값을 쓴다 */
+  const rawByProvinceYear = new Map<string, PopulationApiItem[]>();
 
   for (const p of PROVINCES) {
     for (const year of YEARS) {
       const items = await fetchProvinceSubPopulation(token, p.sgisCode, year);
+      rawByProvinceYear.set(`${p.sgisCode}/${year}`, items);
       for (const it of items) {
         all.push({
           sgisCode: it.adm_cd,
@@ -177,7 +181,11 @@ async function main() {
       const matched = all.filter(
         (p) => p.year === year && guSet.has(p.sgisCode),
       );
-      if (matched.length === 0) continue;
+      // 구 하나라도 없으면 그 해는 뺀다 — 덜 센 합을 추이로 남기지 않는다 (10/7)
+      if (matched.length !== guSet.size) {
+        console.warn(`[skip] 통합시 ${cityCode} ${year}: 구 ${matched.length}/${guSet.size}`);
+        continue;
+      }
       const totalPop = matched.reduce((s, p) => s + p.population, 0);
       const totalHousehold = matched.reduce(
         (s, p) => s + p.householdCount,
@@ -249,8 +257,41 @@ async function main() {
     }
   }
 
-  // 시도 합산이 끝났으니 통합시 데이터를 시군구 시계열에 합쳐 직렬화한다
-  all.push(...integratedPoints);
+  // ── 신설 구(인천 2026 개편, SGIS 미등재) — 해마다 옛 구 + 행정동 합 (region-composites.ts) ──
+  const compositePoints: Point[] = [];
+  const splitGu = splitGuOf(SGIS_COMPOSITES);
+  for (const year of YEARS) {
+    const dongRowsByGu = new Map<string, PopulationApiItem[]>();
+    for (const gu of splitGu) {
+      dongRowsByGu.set(gu, await fetchProvinceSubPopulation(token, gu, year));
+      await new Promise((r) => setTimeout(r, 200));
+    }
+    for (const c of SGIS_COMPOSITES) {
+      const guRows = rawByProvinceYear.get(`${c.sgisCode.slice(0, 2)}/${year}`) ?? [];
+      const rows = compositeRows(c, guRows, dongRowsByGu);
+      if (!rows) {
+        console.warn(`[skip] 신설 구 ${c.name} ${year}: 행정동 정의와 응답이 맞지 않음`);
+        continue;
+      }
+      const population = rows.reduce((a, r) => a + (parseInt(r.tot_ppltn, 10) || 0), 0);
+      const elderly = rows.reduce((a, r) => a + (parseInt(r.tot_ppltn, 10) || 0) * (calcAgingRate(r) / 100), 0);
+      compositePoints.push({
+        sgisCode: c.sgisCode,
+        name: c.name,
+        year,
+        population,
+        householdCount: rows.reduce((a, r) => a + (parseInt(r.tot_family, 10) || 0), 0),
+        agingRate: population > 0 ? Math.round((elderly / population) * 1000) / 10 : 0,
+      });
+    }
+  }
+  console.log(`[collect-population-trend] 신설 구=${compositePoints.length} points`);
+
+  // 시도 합산이 끝났으니 통합시·신설 구를 시군구 시계열에 합치고, 신설 구로 바뀐 옛 구는 뺀다
+  // (옛 구가 남으면 '시·도 시·군·구 평균' 같은 집계가 같은 땅을 두 번 센다)
+  const current = all.filter((p) => !REPLACED_SGIS_GU.has(p.sgisCode));
+  all.length = 0;
+  all.push(...current, ...integratedPoints, ...compositePoints);
 
   // 직렬화
   const filePath = resolve(__dirname, "../src/lib/data/population-trend.ts");

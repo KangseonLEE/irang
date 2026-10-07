@@ -76,6 +76,27 @@ export function toHiraSidoCd(sidoCd: string): string {
   return HIRA_SIDO_QUERY[sidoCd]?.sidoCd ?? sidoCd;
 }
 
+/**
+ * 의료기관 수 하나를 셀 때 심평원에 실제로 보내는 (sidoCd, sgguCd) 묶음 — 시·도 코드 변환(광주·전남·세종)과
+ * 구가 있는 시의 구 전개까지 fetchSidoMedicalCount·fetchSigunguMedicalFacilities·fetchGuMedicalFacilities 와 같다.
+ * 프록시 Worker 예열 목록(scripts/gen-hira-warm-list.ts)이 쓴다 — 예열 키가 앱 요청과 달라 예열이 헛돌지 않게.
+ */
+export function hiraCountRequests(
+  sidoCd: string,
+  sgguCd?: string,
+  opts: { single?: boolean } = {},
+): { sidoCd: string; sgguCd?: string }[] {
+  const sido = toHiraSidoCd(sidoCd);
+  if (!sgguCd) {
+    const q = HIRA_SIDO_QUERY[sidoCd];
+    if (q?.onlyGu) return q.onlyGu.map((c) => ({ sidoCd: sido, sgguCd: c }));
+    if (q?.exceptGu) return [{ sidoCd: sido }, ...q.exceptGu.map((c) => ({ sidoCd: sido, sgguCd: c }))];
+    return [{ sidoCd: sido }];
+  }
+  const codes = !opts.single && GU_HIRA_CODES_MAP[sgguCd] ? GU_HIRA_CODES_MAP[sgguCd] : [sgguCd];
+  return codes.map((c) => ({ sidoCd: sido, sgguCd: c }));
+}
+
 /** 심평원 의료기관 수 하나 — 실패면 null */
 async function fetchHiraTotal(sidoCd: string, sgguCd?: string): Promise<number | null> {
   const params: Record<string, string> = { sidoCd: toHiraSidoCd(sidoCd), pageNo: "1", numOfRows: "1", _type: "json" };

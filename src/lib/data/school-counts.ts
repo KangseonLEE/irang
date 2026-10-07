@@ -4,15 +4,14 @@
  * 생성 스크립트: scripts/collect-school-counts.ts
  * 데이터 소스: 교육부 NEIS 학교정보
  *   https://open.neis.go.kr/hub/schoolInfo
- * 마지막 수집: 2026-05-03
+ * 마지막 수집: 2026-10-07
  *
  * ⚠ 절대 수동 편집 금지. 갱신은 `npx tsx scripts/collect-school-counts.ts`
  *
  * Phase 4 — 빌드 시 시군구별 NEIS API 호출을 제거하기 위한 정적 폴백.
- * 시도교육청 단위로 전체 학교 목록을 받아 도로명주소 시군구명 매칭으로 분류.
+ * 시도교육청 학교 목록에서 주소 낱말이 시·군·구 이름과 같은 학교만 센다 (상세 화면과 같은 판정).
  *
- * 커버리지: 229/229 시군구 (수집일 기준)
- * 0건 또는 주소 매칭 누락 의심: 1건 (스크립트 콘솔 참조)
+ * 커버리지: 230/230 시군구 (수집일 기준)
  */
 
 export interface SchoolCountStat {
@@ -43,16 +42,16 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "11020",
     "name": "중구",
-    "totalCount": 32,
-    "elementary": 11,
-    "middle": 7,
+    "totalCount": 34,
+    "elementary": 12,
+    "middle": 8,
     "high": 11
   },
   {
     "sgisCode": "11030",
     "name": "용산구",
-    "totalCount": 37,
-    "elementary": 14,
+    "totalCount": 38,
+    "elementary": 15,
     "middle": 9,
     "high": 10
   },
@@ -107,7 +106,7 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "11100",
     "name": "도봉구",
-    "totalCount": 45,
+    "totalCount": 46,
     "elementary": 23,
     "middle": 13,
     "high": 9
@@ -115,9 +114,9 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "11110",
     "name": "노원구",
-    "totalCount": 99,
+    "totalCount": 100,
     "elementary": 42,
-    "middle": 25,
+    "middle": 26,
     "high": 25
   },
   {
@@ -139,9 +138,9 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "11140",
     "name": "마포구",
-    "totalCount": 51,
+    "totalCount": 52,
     "elementary": 22,
-    "middle": 13,
+    "middle": 14,
     "high": 9
   },
   {
@@ -155,8 +154,8 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "11160",
     "name": "강서구",
-    "totalCount": 83,
-    "elementary": 34,
+    "totalCount": 84,
+    "elementary": 35,
     "middle": 22,
     "high": 23
   },
@@ -179,10 +178,10 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "11190",
     "name": "영등포구",
-    "totalCount": 46,
+    "totalCount": 47,
     "elementary": 23,
     "middle": 12,
-    "high": 8
+    "high": 9
   },
   {
     "sgisCode": "11200",
@@ -195,18 +194,18 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "11210",
     "name": "관악구",
-    "totalCount": 58,
-    "elementary": 21,
+    "totalCount": 59,
+    "elementary": 22,
     "middle": 16,
     "high": 17
   },
   {
     "sgisCode": "11220",
     "name": "서초구",
-    "totalCount": 57,
+    "totalCount": 58,
     "elementary": 24,
     "middle": 16,
-    "high": 11
+    "high": 12
   },
   {
     "sgisCode": "11230",
@@ -219,8 +218,8 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "11240",
     "name": "송파구",
-    "totalCount": 96,
-    "elementary": 41,
+    "totalCount": 97,
+    "elementary": 42,
     "middle": 29,
     "high": 20
   },
@@ -233,20 +232,20 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
     "high": 14
   },
   {
-    "sgisCode": "23010",
-    "name": "중구",
-    "totalCount": 48,
-    "elementary": 19,
-    "middle": 11,
-    "high": 16
+    "sgisCode": "23100",
+    "name": "제물포구",
+    "totalCount": 36,
+    "elementary": 14,
+    "middle": 8,
+    "high": 11
   },
   {
-    "sgisCode": "23020",
-    "name": "동구",
-    "totalCount": 98,
-    "elementary": 47,
-    "middle": 24,
-    "high": 19
+    "sgisCode": "23110",
+    "name": "영종구",
+    "totalCount": 27,
+    "elementary": 13,
+    "middle": 6,
+    "high": 8
   },
   {
     "sgisCode": "23090",
@@ -259,17 +258,17 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "23040",
     "name": "연수구",
-    "totalCount": 74,
+    "totalCount": 75,
     "elementary": 34,
-    "middle": 19,
+    "middle": 20,
     "high": 16
   },
   {
     "sgisCode": "23050",
     "name": "남동구",
-    "totalCount": 83,
+    "totalCount": 84,
     "elementary": 39,
-    "middle": 21,
+    "middle": 22,
     "high": 16
   },
   {
@@ -283,18 +282,26 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "23070",
     "name": "계양구",
-    "totalCount": 53,
+    "totalCount": 54,
     "elementary": 27,
     "middle": 15,
-    "high": 10
+    "high": 11
   },
   {
-    "sgisCode": "23080",
-    "name": "서구",
-    "totalCount": 106,
-    "elementary": 54,
-    "middle": 29,
-    "high": 21
+    "sgisCode": "23120",
+    "name": "서해구",
+    "totalCount": 66,
+    "elementary": 33,
+    "middle": 19,
+    "high": 13
+  },
+  {
+    "sgisCode": "23130",
+    "name": "검단구",
+    "totalCount": 42,
+    "elementary": 22,
+    "middle": 10,
+    "high": 9
   },
   {
     "sgisCode": "23510",
@@ -315,17 +322,17 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "31010",
     "name": "수원시",
-    "totalCount": 211,
-    "elementary": 100,
-    "middle": 57,
+    "totalCount": 214,
+    "elementary": 102,
+    "middle": 58,
     "high": 45
   },
   {
     "sgisCode": "31020",
     "name": "성남시",
-    "totalCount": 160,
-    "elementary": 73,
-    "middle": 44,
+    "totalCount": 162,
+    "elementary": 74,
+    "middle": 45,
     "high": 36
   },
   {
@@ -339,8 +346,8 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "31040",
     "name": "안양시",
-    "totalCount": 88,
-    "elementary": 40,
+    "totalCount": 89,
+    "elementary": 41,
     "middle": 24,
     "high": 21
   },
@@ -355,17 +362,17 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "31060",
     "name": "광명시",
-    "totalCount": 48,
-    "elementary": 24,
+    "totalCount": 49,
+    "elementary": 25,
     "middle": 12,
     "high": 11
   },
   {
     "sgisCode": "31070",
     "name": "평택시",
-    "totalCount": 128,
-    "elementary": 74,
-    "middle": 30,
+    "totalCount": 132,
+    "elementary": 77,
+    "middle": 31,
     "high": 22
   },
   {
@@ -379,16 +386,16 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "31090",
     "name": "안산시",
-    "totalCount": 109,
+    "totalCount": 110,
     "elementary": 54,
-    "middle": 29,
+    "middle": 30,
     "high": 24
   },
   {
     "sgisCode": "31100",
     "name": "고양시",
-    "totalCount": 183,
-    "elementary": 90,
+    "totalCount": 184,
+    "elementary": 91,
     "middle": 45,
     "high": 38
   },
@@ -403,8 +410,8 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "31120",
     "name": "구리시",
-    "totalCount": 31,
-    "elementary": 15,
+    "totalCount": 32,
+    "elementary": 16,
     "middle": 8,
     "high": 7
   },
@@ -435,17 +442,17 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "31160",
     "name": "군포시",
-    "totalCount": 46,
+    "totalCount": 47,
     "elementary": 27,
-    "middle": 11,
+    "middle": 12,
     "high": 8
   },
   {
     "sgisCode": "31170",
     "name": "의왕시",
-    "totalCount": 30,
+    "totalCount": 31,
     "elementary": 15,
-    "middle": 8,
+    "middle": 9,
     "high": 6
   },
   {
@@ -459,31 +466,31 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "31190",
     "name": "용인시",
-    "totalCount": 194,
-    "elementary": 106,
-    "middle": 52,
+    "totalCount": 199,
+    "elementary": 108,
+    "middle": 55,
     "high": 33
   },
   {
     "sgisCode": "31200",
     "name": "파주시",
-    "totalCount": 116,
-    "elementary": 65,
-    "middle": 29,
+    "totalCount": 119,
+    "elementary": 66,
+    "middle": 31,
     "high": 20
   },
   {
     "sgisCode": "31210",
     "name": "이천시",
-    "totalCount": 60,
-    "elementary": 31,
+    "totalCount": 61,
+    "elementary": 32,
     "middle": 15,
     "high": 12
   },
   {
     "sgisCode": "31220",
     "name": "안성시",
-    "totalCount": 59,
+    "totalCount": 60,
     "elementary": 34,
     "middle": 13,
     "high": 9
@@ -499,9 +506,9 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "31240",
     "name": "화성시",
-    "totalCount": 197,
-    "elementary": 110,
-    "middle": 50,
+    "totalCount": 200,
+    "elementary": 112,
+    "middle": 51,
     "high": 34
   },
   {
@@ -515,10 +522,10 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "31260",
     "name": "양주시",
-    "totalCount": 197,
-    "elementary": 110,
-    "middle": 52,
-    "high": 30
+    "totalCount": 68,
+    "elementary": 41,
+    "middle": 14,
+    "high": 9
   },
   {
     "sgisCode": "31270",
@@ -715,9 +722,9 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "33020",
     "name": "충주시",
-    "totalCount": 71,
+    "totalCount": 73,
     "elementary": 38,
-    "middle": 17,
+    "middle": 19,
     "high": 11
   },
   {
@@ -779,10 +786,10 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "33570",
     "name": "음성군",
-    "totalCount": 36,
+    "totalCount": 37,
     "elementary": 20,
     "middle": 10,
-    "high": 4
+    "high": 5
   },
   {
     "sgisCode": "33580",
@@ -803,8 +810,8 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "25010",
     "name": "동구",
-    "totalCount": 48,
-    "elementary": 22,
+    "totalCount": 49,
+    "elementary": 23,
     "middle": 12,
     "high": 9
   },
@@ -827,10 +834,10 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "25040",
     "name": "유성구",
-    "totalCount": 84,
+    "totalCount": 85,
     "elementary": 42,
     "middle": 23,
-    "high": 16
+    "high": 17
   },
   {
     "sgisCode": "25050",
@@ -843,9 +850,9 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "34010",
     "name": "천안시",
-    "totalCount": 139,
+    "totalCount": 140,
     "elementary": 79,
-    "middle": 31,
+    "middle": 32,
     "high": 22
   },
   {
@@ -867,9 +874,9 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "34040",
     "name": "아산시",
-    "totalCount": 93,
-    "elementary": 53,
-    "middle": 23,
+    "totalCount": 96,
+    "elementary": 54,
+    "middle": 24,
     "high": 12
   },
   {
@@ -963,7 +970,7 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "35010",
     "name": "전주시",
-    "totalCount": 155,
+    "totalCount": 156,
     "elementary": 75,
     "middle": 41,
     "high": 29
@@ -1091,10 +1098,10 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "24030",
     "name": "남구",
-    "totalCount": 60,
+    "totalCount": 61,
     "elementary": 23,
     "middle": 16,
-    "high": 18
+    "high": 19
   },
   {
     "sgisCode": "24040",
@@ -1107,10 +1114,10 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "24050",
     "name": "광산구",
-    "totalCount": 94,
-    "elementary": 45,
-    "middle": 28,
-    "high": 19
+    "totalCount": 93,
+    "elementary": 46,
+    "middle": 27,
+    "high": 18
   },
   {
     "sgisCode": "36010",
@@ -1147,9 +1154,9 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "36060",
     "name": "광양시",
-    "totalCount": 54,
+    "totalCount": 55,
     "elementary": 29,
-    "middle": 14,
+    "middle": 15,
     "high": 9
   },
   {
@@ -1171,16 +1178,16 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "36530",
     "name": "구례군",
-    "totalCount": 18,
-    "elementary": 11,
+    "totalCount": 17,
+    "elementary": 10,
     "middle": 5,
     "high": 2
   },
   {
     "sgisCode": "36550",
     "name": "고흥군",
-    "totalCount": 39,
-    "elementary": 20,
+    "totalCount": 38,
+    "elementary": 19,
     "middle": 15,
     "high": 4
   },
@@ -1219,8 +1226,8 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "36600",
     "name": "해남군",
-    "totalCount": 37,
-    "elementary": 22,
+    "totalCount": 36,
+    "elementary": 21,
     "middle": 11,
     "high": 4
   },
@@ -1235,8 +1242,8 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "36620",
     "name": "무안군",
-    "totalCount": 38,
-    "elementary": 21,
+    "totalCount": 39,
+    "elementary": 22,
     "middle": 12,
     "high": 5
   },
@@ -1259,8 +1266,8 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "36650",
     "name": "장성군",
-    "totalCount": 23,
-    "elementary": 12,
+    "totalCount": 24,
+    "elementary": 13,
     "middle": 7,
     "high": 4
   },
@@ -1283,8 +1290,8 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "36680",
     "name": "신안군",
-    "totalCount": 43,
-    "elementary": 24,
+    "totalCount": 44,
+    "elementary": 25,
     "middle": 13,
     "high": 6
   },
@@ -1299,10 +1306,10 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "21020",
     "name": "서구",
-    "totalCount": 70,
-    "elementary": 32,
-    "middle": 18,
-    "high": 13
+    "totalCount": 24,
+    "elementary": 11,
+    "middle": 7,
+    "high": 5
   },
   {
     "sgisCode": "21030",
@@ -1315,18 +1322,18 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "21040",
     "name": "영도구",
-    "totalCount": 28,
-    "elementary": 14,
+    "totalCount": 26,
+    "elementary": 12,
     "middle": 8,
     "high": 6
   },
   {
     "sgisCode": "21050",
     "name": "부산진구",
-    "totalCount": 66,
+    "totalCount": 67,
     "elementary": 30,
     "middle": 19,
-    "high": 17
+    "high": 18
   },
   {
     "sgisCode": "21060",
@@ -1347,17 +1354,17 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "21080",
     "name": "북구",
-    "totalCount": 55,
-    "elementary": 28,
-    "middle": 16,
+    "totalCount": 60,
+    "elementary": 30,
+    "middle": 19,
     "high": 9
   },
   {
     "sgisCode": "21090",
     "name": "해운대구",
-    "totalCount": 65,
+    "totalCount": 66,
     "elementary": 32,
-    "middle": 18,
+    "middle": 19,
     "high": 14
   },
   {
@@ -1379,10 +1386,10 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "21120",
     "name": "강서구",
-    "totalCount": 46,
+    "totalCount": 45,
     "elementary": 21,
     "middle": 11,
-    "high": 8
+    "high": 7
   },
   {
     "sgisCode": "21130",
@@ -1404,7 +1411,7 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
     "sgisCode": "21150",
     "name": "사상구",
     "totalCount": 39,
-    "elementary": 21,
+    "elementary": 20,
     "middle": 10,
     "high": 5
   },
@@ -1435,10 +1442,10 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "22030",
     "name": "서구",
-    "totalCount": 140,
-    "elementary": 70,
-    "middle": 36,
-    "high": 29
+    "totalCount": 31,
+    "elementary": 16,
+    "middle": 8,
+    "high": 6
   },
   {
     "sgisCode": "22040",
@@ -1459,10 +1466,10 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "22060",
     "name": "수성구",
-    "totalCount": 74,
+    "totalCount": 75,
     "elementary": 34,
     "middle": 23,
-    "high": 16
+    "high": 17
   },
   {
     "sgisCode": "22070",
@@ -1479,6 +1486,14 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
     "elementary": 33,
     "middle": 18,
     "high": 10
+  },
+  {
+    "sgisCode": "22520",
+    "name": "군위군",
+    "totalCount": 15,
+    "elementary": 8,
+    "middle": 5,
+    "high": 2
   },
   {
     "sgisCode": "26010",
@@ -1507,8 +1522,8 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "26040",
     "name": "북구",
-    "totalCount": 51,
-    "elementary": 22,
+    "totalCount": 52,
+    "elementary": 23,
     "middle": 14,
     "high": 12
   },
@@ -1539,10 +1554,10 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "37030",
     "name": "김천시",
-    "totalCount": 54,
+    "totalCount": 55,
     "elementary": 27,
     "middle": 15,
-    "high": 9
+    "high": 10
   },
   {
     "sgisCode": "37040",
@@ -1579,8 +1594,8 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "37080",
     "name": "상주시",
-    "totalCount": 56,
-    "elementary": 29,
+    "totalCount": 55,
+    "elementary": 28,
     "middle": 16,
     "high": 10
   },
@@ -1599,14 +1614,6 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
     "elementary": 31,
     "middle": 15,
     "high": 12
-  },
-  {
-    "sgisCode": "22520",
-    "name": "군위군",
-    "totalCount": 0,
-    "elementary": 0,
-    "middle": 0,
-    "high": 0
   },
   {
     "sgisCode": "37520",
@@ -1675,9 +1682,9 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "37600",
     "name": "예천군",
-    "totalCount": 24,
+    "totalCount": 25,
     "elementary": 12,
-    "middle": 9,
+    "middle": 10,
     "high": 3
   },
   {
@@ -1707,32 +1714,32 @@ export const SCHOOL_FALLBACK_SIGUNGU: SchoolCountStat[] = [
   {
     "sgisCode": "38010",
     "name": "창원시",
-    "totalCount": 233,
+    "totalCount": 236,
     "elementary": 113,
-    "middle": 62,
+    "middle": 65,
     "high": 48
   },
   {
     "sgisCode": "38030",
     "name": "진주시",
-    "totalCount": 95,
+    "totalCount": 96,
     "elementary": 47,
-    "middle": 21,
+    "middle": 22,
     "high": 23
   },
   {
     "sgisCode": "38050",
     "name": "통영시",
-    "totalCount": 40,
-    "elementary": 21,
+    "totalCount": 41,
+    "elementary": 22,
     "middle": 12,
     "high": 5
   },
   {
     "sgisCode": "38060",
     "name": "사천시",
-    "totalCount": 37,
-    "elementary": 17,
+    "totalCount": 38,
+    "elementary": 18,
     "middle": 11,
     "high": 9
   },

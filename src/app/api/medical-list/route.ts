@@ -81,12 +81,12 @@ type HiraUnit = { sidoCd: string; sgguCd?: string };
 
 /**
  * 시·도 목록을 시·군 코드로 이어 붙여야 할 때(전남 — 심평원 통합 코드에서 광주를 빼야 함)
- * 그 시·도에 속한 우리 시·군 코드. 다른 시·도 코드로 조회하는 시·군(군위 → 대구)은 뺀다.
+ * 그 시·도에 속한 우리 시·군 코드.
  */
 function provinceGuCodes(sidoCd: string): string[] {
   const province = PROVINCES.find((p) => p.hiraSidoCd === sidoCd);
   if (!province) return [];
-  return SIGUNGUS.filter((sg) => sg.sidoId === province.id && sg.hiraSgguCd && !sg.hiraSidoCd).flatMap(
+  return SIGUNGUS.filter((sg) => sg.sidoId === province.id && sg.hiraSgguCd).flatMap(
     (sg) => GU_HIRA_CODES_MAP[sg.hiraSgguCd] ?? [sg.hiraSgguCd]
   );
 }

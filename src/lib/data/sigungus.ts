@@ -1,7 +1,6 @@
 /**
  * 시/군/구 단위 지역 데이터
- * - 행정안전부 행정표준코드 기준 (2024년)
- * - 17개 시/도 하위 229개 시/군/구
+ * - 17개 시·도 하위 시·군·구 — 2026-07-01 인천 행정체제 개편·2023-07-01 군위 대구 편입 반영
  * - 귀농 상세 페이지(군/구 드릴다운)에서 사용
  */
 
@@ -14,19 +13,16 @@ export interface Sigungu {
   shortName: string;
   /** 소속 시/도 ID (Province.id 참조) */
   sidoId: string;
-  /** 행정구역 코드 (5자리, 예: "47210") */
+  /**
+   * KOSIS 귀농어·귀촌인 통계 지역 코드 (5자리, 옛 행정구역분류 체계 — 군 = 3xx, 예: 순천 36030).
+   * 자치구는 그 표에 없다. 10/7 전수 대조: 15곳이 한 칸씩 밀려 서천 화면에 부여 수치가 나가는 등 이웃 군 값이
+   * 표시됐다 — 코드는 KOSIS 응답 지역명으로 확인하고(isSameRegionName), 이름이 다르면 화면에 쓰지 않는다.
+   */
   admCode: string;
-  /** SGIS 시군구 코드 */
+  /** SGIS 시군구 코드 — SGIS 에 아직 없는 신설 구는 임시 코드(region-composites.ts, 행정동 합산) */
   sgisCode: string;
   /** HIRA 시군구 코드 (건강보험심사평가원 자체 체계) */
   hiraSgguCd: string;
-  /**
-   * 소속 시·도와 다른 시·도 코드로 조회해야 할 때만 — 군위군은 2023-07-01 대구로 편입돼 심평원·교육부가
-   * 대구 코드 아래에 둔다(10/7 전수 대조: 경북 코드로는 의료기관·학교 0). 없으면 소속 시·도 코드를 쓴다.
-   */
-  hiraSidoCd?: string;
-  /** 위와 같은 이유의 교육청 코드 (군위 → 대구 D10) */
-  eduCode?: string;
   /** 한 줄 소개 */
   description: string;
   /** 핵심 키워드 (2~3개) */
@@ -72,16 +68,20 @@ export const SIGUNGUS: Sigungu[] = [
   { id: "gangdong", name: "강동구", shortName: "강동", sidoId: "seoul", admCode: "11250", sgisCode: "11250", hiraSgguCd: "110002", description: "강일·미사 도시농업 선도 지역, 서울 최대 농지 보유", highlights: ["도시농업", "친환경"], mainCrops: ["쌀", "배추"], area: 24.59 },
 
   // ========================================================================
-  // 인천광역시 (23)
+  // 인천광역시 (incheon) (11) — 2026-07-01 행정체제 개편 반영(제물포·영종·서해·검단, region-composites.ts)
   // ========================================================================
-  { id: "jung-gu-incheon", name: "중구", shortName: "중구", sidoId: "incheon", admCode: "23010", sgisCode: "23010", hiraSgguCd: "220004", description: "인천 도심 속 차이나타운 인근 도시농업", highlights: ["도시농업", "도심"], mainCrops: ["상추", "고추"], area: 88.45 },
-  { id: "dong-gu-incheon", name: "동구", shortName: "동구", sidoId: "incheon", admCode: "23020", sgisCode: "23020", hiraSgguCd: "220002", description: "송현동 일대 주민 텃밭 운영", highlights: ["주민텃밭", "도시농업"], mainCrops: ["상추", "배추"], area: 7.19 },
+  // 신설 4개 구(2026-07-01) — 코드: 국가데이터처 한국행정구역분류 2026.7.10판(SGIS 미반영 → region-composites.ts 행정동 합) ·
+  // 심평원 응답 지역명 확인(10/7) · 면적: 구청 공식(제물포 22.4 · 영종 125.82 · 검단 60.2㎢), 서해는 구청 값이 개편 전 서구
+  // 그대로라 지적통계 옛 서구 119.02㎢(국토교통부 2025) − 검단 60.2㎢ = 58.8㎢ · 설명·작물: 구청 누리집 근거만(제물포는 농업 근거 없음)
+  { id: "jemulpo", name: "제물포구", shortName: "제물포", sidoId: "incheon", admCode: "23100", sgisCode: "23100", hiraSgguCd: "220010", description: "개항장·차이나타운이 있는 인천 원도심", highlights: ["원도심", "개항장"], mainCrops: [], area: 22.4 },
+  { id: "yeongjong", name: "영종구", shortName: "영종", sidoId: "incheon", admCode: "23110", sgisCode: "23110", hiraSgguCd: "220009", description: "영종·용유 섬쌀과 호박고구마가 나는 섬 지역", highlights: ["섬농업", "섬쌀"], mainCrops: ["쌀", "고구마", "포도"], area: 125.82 },
   { id: "michuhol", name: "미추홀구", shortName: "미추홀", sidoId: "incheon", admCode: "23040", sgisCode: "23090", hiraSgguCd: "220001", description: "인천 구도심 도시 재생·농업 접목 지역", highlights: ["도시재생", "텃밭"], mainCrops: ["상추", "고추"], area: 25.22 },
   { id: "yeonsu", name: "연수구", shortName: "연수", sidoId: "incheon", admCode: "23050", sgisCode: "23040", hiraSgguCd: "220007", description: "송도 일대 스마트팜 시범 지역", highlights: ["스마트팜", "도시농업"], mainCrops: ["상추", "토마토"], area: 50.10 },
   { id: "namdong", name: "남동구", shortName: "남동", sidoId: "incheon", admCode: "23060", sgisCode: "23050", hiraSgguCd: "220006", description: "소래습지 인근 친환경 농업 지대", highlights: ["친환경", "근교농업"], mainCrops: ["쌀", "배추"], area: 57.08 },
   { id: "bupyeong", name: "부평구", shortName: "부평", sidoId: "incheon", admCode: "23070", sgisCode: "23060", hiraSgguCd: "220003", description: "굴포천 일대 도시농업 활성화 지역", highlights: ["도시농업", "체험"], mainCrops: ["상추", "감자"], area: 31.98 },
   { id: "gyeyang", name: "계양구", shortName: "계양", sidoId: "incheon", admCode: "23080", sgisCode: "23070", hiraSgguCd: "220008", description: "계양산 자락 근교 농업 지대", highlights: ["근교농업", "친환경"], mainCrops: ["쌀", "배추"], area: 45.57 },
-  { id: "seo-gu-incheon", name: "서구", shortName: "서구", sidoId: "incheon", admCode: "23090", sgisCode: "23080", hiraSgguCd: "220005", description: "검단 신도시 인근 대규모 농업지대", highlights: ["대규모농업", "근교농업"], mainCrops: ["쌀", "감자"], area: 113.41 },
+  { id: "seohae", name: "서해구", shortName: "서해", sidoId: "incheon", admCode: "23120", sgisCode: "23120", hiraSgguCd: "220011", description: "청라·검암 일대 도시, 지역쌀 정서진미 생산", highlights: ["도시농업", "근교농업"], mainCrops: ["쌀"], area: 58.8 },
+  { id: "geomdan", name: "검단구", shortName: "검단", sidoId: "incheon", admCode: "23130", sgisCode: "23130", hiraSgguCd: "220012", description: "검단 신도시 곁 대곡·불로 들녘, 지역쌀 검단불로촌장수미 생산", highlights: ["근교농업", "신도시"], mainCrops: ["쌀"], area: 60.2 },
   { id: "ganghwa", name: "강화군", shortName: "강화", sidoId: "incheon", admCode: "23310", sgisCode: "23510", hiraSgguCd: "220100", description: "인삼·순무 특산지, 섬 귀농의 최적지", highlights: ["인삼", "순무", "섬농업"], mainCrops: ["인삼", "순무", "쌀"], area: 411.25 },
   { id: "ongjin", name: "옹진군", shortName: "옹진", sidoId: "incheon", admCode: "23320", sgisCode: "23520", hiraSgguCd: "220200", description: "섬 특화 농수산업, 백령도·연평도 포함", highlights: ["섬농업", "수산업"], mainCrops: ["쌀", "고구마"], area: 164.67 },
 
@@ -116,9 +116,9 @@ export const SIGUNGUS: Sigungu[] = [
   { id: "yangju", name: "양주시", shortName: "양주", sidoId: "gyeonggi", admCode: "31260", sgisCode: "31260", hiraSgguCd: "312700", description: "감악산 자락 친환경 농업 지역", highlights: ["친환경", "체험"], mainCrops: ["배", "밤", "고추"], area: 310.30 },
   { id: "pocheon", name: "포천시", shortName: "포천", sidoId: "gyeonggi", admCode: "31270", sgisCode: "31270", hiraSgguCd: "312800", description: "산정호수 인근 약초·버섯 특화 지역", highlights: ["약초", "버섯", "정착 인기"], mainCrops: ["인삼", "버섯", "사과"], area: 826.46 },
   { id: "yeoju", name: "여주시", shortName: "여주", sidoId: "gyeonggi", admCode: "31280", sgisCode: "31280", hiraSgguCd: "312900", description: "여주 쌀·고구마의 본고장, 귀농 최적지", highlights: ["여주쌀", "고구마", "정착 인기"], mainCrops: ["쌀", "고구마", "땅콩"], area: 607.74 },
-  { id: "yangpyeong", name: "양평군", shortName: "양평", sidoId: "gyeonggi", admCode: "31310", sgisCode: "31580", hiraSgguCd: "310009", description: "수도권 대표 귀농·친환경 농업 1번지", highlights: ["귀농1번지", "친환경", "유기농"], mainCrops: ["쌀", "딸기", "한우"], area: 877.81 },
-  { id: "gapyeong", name: "가평군", shortName: "가평", sidoId: "gyeonggi", admCode: "31320", sgisCode: "31570", hiraSgguCd: "310001", description: "북한강변 잣·표고버섯 특산지, 관광 귀농 적합", highlights: ["잣", "버섯", "관광귀농"], mainCrops: ["잣", "표고버섯", "딸기"], area: 843.63 },
-  { id: "yeoncheon", name: "연천군", shortName: "연천", sidoId: "gyeonggi", admCode: "31330", sgisCode: "31550", hiraSgguCd: "310011", description: "한탄강 현무암 토양 콩·율무 특산지", highlights: ["콩", "율무", "청정환경"], mainCrops: ["콩", "율무", "쌀"], area: 695.71 },
+  { id: "yangpyeong", name: "양평군", shortName: "양평", sidoId: "gyeonggi", admCode: "31380", sgisCode: "31580", hiraSgguCd: "310009", description: "수도권 대표 귀농·친환경 농업 1번지", highlights: ["귀농1번지", "친환경", "유기농"], mainCrops: ["쌀", "딸기", "한우"], area: 877.81 },
+  { id: "gapyeong", name: "가평군", shortName: "가평", sidoId: "gyeonggi", admCode: "31370", sgisCode: "31570", hiraSgguCd: "310001", description: "북한강변 잣·표고버섯 특산지, 관광 귀농 적합", highlights: ["잣", "버섯", "관광귀농"], mainCrops: ["잣", "표고버섯", "딸기"], area: 843.63 },
+  { id: "yeoncheon", name: "연천군", shortName: "연천", sidoId: "gyeonggi", admCode: "31350", sgisCode: "31550", hiraSgguCd: "310011", description: "한탄강 현무암 토양 콩·율무 특산지", highlights: ["콩", "율무", "청정환경"], mainCrops: ["콩", "율무", "쌀"], area: 695.71 },
 
   // ========================================================================
   // 강원도 (18)
@@ -148,10 +148,10 @@ export const SIGUNGUS: Sigungu[] = [
   { id: "cheongju", name: "청주시", shortName: "청주", sidoId: "chungbuk", admCode: "33010", sgisCode: "33010", hiraSgguCd: "330104", description: "충북도청 소재지, 도시 근교 농업·직거래 중심", highlights: ["근교농업", "직거래"], mainCrops: ["쌀", "딸기", "포도"], area: 940.30 },
   { id: "chungju", name: "충주시", shortName: "충주", sidoId: "chungbuk", admCode: "33020", sgisCode: "33020", hiraSgguCd: "330200", description: "충주 사과·포도 주산지, 수안보 온천 인근", highlights: ["사과", "포도"], mainCrops: ["사과", "포도", "쌀"], area: 983.70 },
   { id: "jecheon", name: "제천시", shortName: "제천", sidoId: "chungbuk", admCode: "33030", sgisCode: "33030", hiraSgguCd: "330300", description: "한방 약초의 본고장, 약령시 전통", highlights: ["약초", "한방"], mainCrops: ["약초", "인삼", "사과"], area: 882.93 },
-  { id: "boeun", name: "보은군", shortName: "보은", sidoId: "chungbuk", admCode: "33310", sgisCode: "33520", hiraSgguCd: "330003", description: "속리산 자락 대추·황토 특산지", highlights: ["대추", "황토"], mainCrops: ["대추", "쌀", "고추"], area: 584.15 },
-  { id: "okcheon", name: "옥천군", shortName: "옥천", sidoId: "chungbuk", admCode: "33320", sgisCode: "33530", hiraSgguCd: "330005", description: "금강변 포도·복숭아 재배 최적지", highlights: ["포도", "복숭아"], mainCrops: ["포도", "복숭아", "쌀"], area: 537.08 },
-  { id: "yeongdong", name: "영동군", shortName: "영동", sidoId: "chungbuk", admCode: "33330", sgisCode: "33540", hiraSgguCd: "330004", description: "전국 최대 포도 산지, 감·와인 특구", highlights: ["포도", "와인"], mainCrops: ["포도", "감", "사과"], area: 845.43 },
-  { id: "jeungpyeong", name: "증평군", shortName: "증평", sidoId: "chungbuk", admCode: "33340", sgisCode: "33590", hiraSgguCd: "330011", description: "소규모 인삼·고추 재배 중심 농촌", highlights: ["인삼", "고추"], mainCrops: ["인삼", "고추", "쌀"], area: 81.84 },
+  { id: "boeun", name: "보은군", shortName: "보은", sidoId: "chungbuk", admCode: "33320", sgisCode: "33520", hiraSgguCd: "330003", description: "속리산 자락 대추·황토 특산지", highlights: ["대추", "황토"], mainCrops: ["대추", "쌀", "고추"], area: 584.15 },
+  { id: "okcheon", name: "옥천군", shortName: "옥천", sidoId: "chungbuk", admCode: "33330", sgisCode: "33530", hiraSgguCd: "330005", description: "금강변 포도·복숭아 재배 최적지", highlights: ["포도", "복숭아"], mainCrops: ["포도", "복숭아", "쌀"], area: 537.08 },
+  { id: "yeongdong", name: "영동군", shortName: "영동", sidoId: "chungbuk", admCode: "33340", sgisCode: "33540", hiraSgguCd: "330004", description: "전국 최대 포도 산지, 감·와인 특구", highlights: ["포도", "와인"], mainCrops: ["포도", "감", "사과"], area: 845.43 },
+  { id: "jeungpyeong", name: "증평군", shortName: "증평", sidoId: "chungbuk", admCode: "33390", sgisCode: "33590", hiraSgguCd: "330011", description: "소규모 인삼·고추 재배 중심 농촌", highlights: ["인삼", "고추"], mainCrops: ["인삼", "고추", "쌀"], area: 81.84 },
   { id: "jincheon", name: "진천군", shortName: "진천", sidoId: "chungbuk", admCode: "33350", sgisCode: "33550", hiraSgguCd: "330009", description: "수도권 접근 용이한 귀농 인기 지역", highlights: ["수도권접근", "정착 인기"], mainCrops: ["쌀", "딸기", "배"], area: 406.99 },
   { id: "goesan", name: "괴산군", shortName: "괴산", sidoId: "chungbuk", admCode: "33360", sgisCode: "33560", hiraSgguCd: "330001", description: "유기농 특구, 고추·미선나무 자생지", highlights: ["유기농특구", "고추"], mainCrops: ["고추", "사과", "쌀"], area: 842.12 },
   { id: "eumseong", name: "음성군", shortName: "음성", sidoId: "chungbuk", admCode: "33370", sgisCode: "33570", hiraSgguCd: "330006", description: "고추·수박 주산지, 교통 요충지", highlights: ["고추", "수박"], mainCrops: ["고추", "수박", "쌀"], area: 520.26 },
@@ -183,12 +183,12 @@ export const SIGUNGUS: Sigungu[] = [
   { id: "gyeryong", name: "계룡시", shortName: "계룡", sidoId: "chungnam", admCode: "34070", sgisCode: "34070", hiraSgguCd: "340800", description: "계룡산 자락 소규모 친환경 농업", highlights: ["친환경", "소규모"], mainCrops: ["쌀", "고추"], area: 60.72 },
   { id: "dangjin", name: "당진시", shortName: "당진", sidoId: "chungnam", admCode: "34080", sgisCode: "34080", hiraSgguCd: "340900", description: "서해안 간척 농업 대규모 쌀 생산지", highlights: ["간척농업", "쌀"], mainCrops: ["쌀", "감자", "마늘"], area: 694.97 },
   { id: "geumsan", name: "금산군", shortName: "금산", sidoId: "chungnam", admCode: "34310", sgisCode: "34510", hiraSgguCd: "340002", description: "전국 인삼 유통의 80%, 인삼 특구", highlights: ["인삼특구", "약초"], mainCrops: ["인삼", "약초", "고추"], area: 575.82 },
-  { id: "buyeo", name: "부여군", shortName: "부여", sidoId: "chungnam", admCode: "34320", sgisCode: "34530", hiraSgguCd: "340007", description: "백제 역사 도시, 수박·딸기 주산지", highlights: ["수박", "역사관광"], mainCrops: ["수박", "딸기", "쌀"], area: 624.51 },
-  { id: "seocheon", name: "서천군", shortName: "서천", sidoId: "chungnam", admCode: "34330", sgisCode: "34540", hiraSgguCd: "340009", description: "금강 하류 갯벌 김·쌀 복합 농수산", highlights: ["김", "갯벌"], mainCrops: ["쌀", "김", "고추"], area: 365.77 },
-  { id: "cheongyang", name: "청양군", shortName: "청양", sidoId: "chungnam", admCode: "34340", sgisCode: "34550", hiraSgguCd: "340014", description: "청양고추의 본고장, 구기자 특산", highlights: ["고추", "구기자"], mainCrops: ["고추", "구기자", "쌀"], area: 479.14 },
-  { id: "hongseong", name: "홍성군", shortName: "홍성", sidoId: "chungnam", admCode: "34350", sgisCode: "34560", hiraSgguCd: "340015", description: "홍성 한우·새조개 명산지, 농촌 정착 선호 지역", highlights: ["한우", "정착 인기"], mainCrops: ["쌀", "고추", "한우"], area: 443.79 },
-  { id: "yesan", name: "예산군", shortName: "예산", sidoId: "chungnam", admCode: "34360", sgisCode: "34570", hiraSgguCd: "340012", description: "예산 사과·배 산지, 덕산온천 관광 연계", highlights: ["사과", "배"], mainCrops: ["사과", "배", "쌀"], area: 542.60 },
-  { id: "taean", name: "태안군", shortName: "태안", sidoId: "chungnam", admCode: "34370", sgisCode: "34580", hiraSgguCd: "340016", description: "서해안 최대 해수욕장, 육쪽마늘 특산", highlights: ["육쪽마늘", "해양관광"], mainCrops: ["마늘", "쌀", "고추"], area: 515.33 },
+  { id: "buyeo", name: "부여군", shortName: "부여", sidoId: "chungnam", admCode: "34330", sgisCode: "34530", hiraSgguCd: "340007", description: "백제 역사 도시, 수박·딸기 주산지", highlights: ["수박", "역사관광"], mainCrops: ["수박", "딸기", "쌀"], area: 624.51 },
+  { id: "seocheon", name: "서천군", shortName: "서천", sidoId: "chungnam", admCode: "34340", sgisCode: "34540", hiraSgguCd: "340009", description: "금강 하류 갯벌 김·쌀 복합 농수산", highlights: ["김", "갯벌"], mainCrops: ["쌀", "김", "고추"], area: 365.77 },
+  { id: "cheongyang", name: "청양군", shortName: "청양", sidoId: "chungnam", admCode: "34350", sgisCode: "34550", hiraSgguCd: "340014", description: "청양고추의 본고장, 구기자 특산", highlights: ["고추", "구기자"], mainCrops: ["고추", "구기자", "쌀"], area: 479.14 },
+  { id: "hongseong", name: "홍성군", shortName: "홍성", sidoId: "chungnam", admCode: "34360", sgisCode: "34560", hiraSgguCd: "340015", description: "홍성 한우·새조개 명산지, 농촌 정착 선호 지역", highlights: ["한우", "정착 인기"], mainCrops: ["쌀", "고추", "한우"], area: 443.79 },
+  { id: "yesan", name: "예산군", shortName: "예산", sidoId: "chungnam", admCode: "34370", sgisCode: "34570", hiraSgguCd: "340012", description: "예산 사과·배 산지, 덕산온천 관광 연계", highlights: ["사과", "배"], mainCrops: ["사과", "배", "쌀"], area: 542.60 },
+  { id: "taean", name: "태안군", shortName: "태안", sidoId: "chungnam", admCode: "34380", sgisCode: "34580", hiraSgguCd: "340016", description: "서해안 최대 해수욕장, 육쪽마늘 특산", highlights: ["육쪽마늘", "해양관광"], mainCrops: ["마늘", "쌀", "고추"], area: 515.33 },
 
   // ========================================================================
   // 전라북도 (jeonbuk) (14)
@@ -264,7 +264,7 @@ export const SIGUNGUS: Sigungu[] = [
   { id: "gijang", name: "기장군", shortName: "기장", sidoId: "busan", admCode: "21310", sgisCode: "21510", hiraSgguCd: "210100", description: "기장 미역·다시마 특산, 농수산 복합", highlights: ["미역", "농수산"], mainCrops: ["미역", "쌀", "딸기"], area: 218.04 },
 
   // ========================================================================
-  // 대구광역시 (daegu) (8)
+  // 대구광역시 (daegu) (9) — 군위군 2023-07-01 경북에서 편입
   // ========================================================================
   { id: "jung-gu-daegu", name: "중구", shortName: "중구", sidoId: "daegu", admCode: "22010", sgisCode: "22010", hiraSgguCd: "230006", description: "대구 도심 약령시 한방 특구", highlights: ["한방특구", "도심"], mainCrops: ["약초", "상추"], area: 7.06 },
   { id: "dong-gu-daegu", name: "동구", shortName: "동구", sidoId: "daegu", admCode: "22020", sgisCode: "22020", hiraSgguCd: "230002", description: "팔공산 자락 사과·포도 과수원 지대", highlights: ["사과", "포도"], mainCrops: ["사과", "포도", "배추"], area: 182.16 },
@@ -274,6 +274,7 @@ export const SIGUNGUS: Sigungu[] = [
   { id: "suseong", name: "수성구", shortName: "수성", sidoId: "daegu", admCode: "22060", sgisCode: "22060", hiraSgguCd: "230005", description: "수성못 인근 도시농업 체험 지역", highlights: ["도시농업", "체험"], mainCrops: ["상추", "딸기"], area: 76.55 },
   { id: "dalseo", name: "달서구", shortName: "달서", sidoId: "daegu", admCode: "22070", sgisCode: "22070", hiraSgguCd: "230007", description: "월배 일대 도시 텃밭·직거래 활성화", highlights: ["도시텃밭", "직거래"], mainCrops: ["상추", "토마토"], area: 62.34 },
   { id: "dalseong", name: "달성군", shortName: "달성", sidoId: "daegu", admCode: "22310", sgisCode: "22510", hiraSgguCd: "230100", description: "비슬산 자락 딸기·수박 대규모 재배지", highlights: ["딸기", "수박"], mainCrops: ["딸기", "수박", "쌀"], area: 426.59 },
+  { id: "gunwi", name: "군위군", shortName: "군위", sidoId: "daegu", admCode: "22320", sgisCode: "22520", hiraSgguCd: "230200", description: "삼국유사의 고장, 사과·대추 재배", highlights: ["사과", "대추"], mainCrops: ["사과", "대추", "고추"], area: 614.06 },
 
   // ========================================================================
   // 울산광역시 (ulsan) (5)
@@ -285,7 +286,7 @@ export const SIGUNGUS: Sigungu[] = [
   { id: "ulju", name: "울주군", shortName: "울주", sidoId: "ulsan", admCode: "26310", sgisCode: "26510", hiraSgguCd: "260100", description: "배·단감 전국 유명 산지, 귀농 핵심 지역", highlights: ["배", "단감", "정착 인기"], mainCrops: ["배", "단감", "쌀"], area: 756.70 },
 
   // ========================================================================
-  // 경상북도 (gyeongbuk) (23)
+  // 경상북도 (gyeongbuk) (22)
   // ========================================================================
   { id: "pohang", name: "포항시", shortName: "포항", sidoId: "gyeongbuk", admCode: "37010", sgisCode: "37010", hiraSgguCd: "370702", description: "동해안 과메기·대게 도시, 근교 농업", highlights: ["과메기", "근교농업"], mainCrops: ["쌀", "배추", "감자"], area: 1128.84 },
   { id: "gyeongju", name: "경주시", shortName: "경주", sidoId: "gyeongbuk", admCode: "37020", sgisCode: "37020", hiraSgguCd: "370100", description: "천년고도 벚꽃·한우 명산지", highlights: ["한우", "역사관광"], mainCrops: ["쌀", "감자", "한우"], area: 1324.41 },
@@ -297,7 +298,6 @@ export const SIGUNGUS: Sigungu[] = [
   { id: "sangju", name: "상주시", shortName: "상주", sidoId: "gyeongbuk", admCode: "37080", sgisCode: "37080", hiraSgguCd: "370900", description: "삼백의 고장(쌀·누에·감), 자전거 도시", highlights: ["감", "쌀", "자전거"], mainCrops: ["감", "쌀", "사과"], area: 1254.82 },
   { id: "mungyeong", name: "문경시", shortName: "문경", sidoId: "gyeongbuk", admCode: "37090", sgisCode: "37090", hiraSgguCd: "370800", description: "문경새재 오미자·사과 특산, 도자기 마을", highlights: ["오미자", "사과"], mainCrops: ["오미자", "사과", "고추"], area: 911.69 },
   { id: "gyeongsan", name: "경산시", shortName: "경산", sidoId: "gyeongbuk", admCode: "37100", sgisCode: "37100", hiraSgguCd: "371000", description: "대구 배후도시, 대추·포도 재배", highlights: ["대추", "포도"], mainCrops: ["대추", "포도", "복숭아"], area: 411.71 },
-  { id: "gunwi", name: "군위군", shortName: "군위", sidoId: "gyeongbuk", admCode: "37310", sgisCode: "22520", hiraSgguCd: "230200", hiraSidoCd: "230000", eduCode: "D10", description: "삼국유사의 고장, 사과·대추 재배", highlights: ["사과", "대추"], mainCrops: ["사과", "대추", "고추"], area: 614.06 },
   { id: "uiseong", name: "의성군", shortName: "의성", sidoId: "gyeongbuk", admCode: "37320", sgisCode: "37520", hiraSgguCd: "370021", description: "의성마늘의 본고장, 사과·고추 주산지", highlights: ["마늘", "사과"], mainCrops: ["마늘", "사과", "고추"], area: 1176.82 },
   { id: "cheongsong", name: "청송군", shortName: "청송", sidoId: "gyeongbuk", admCode: "37330", sgisCode: "37530", hiraSgguCd: "370023", description: "주왕산 자락 청송사과 브랜드", highlights: ["사과", "청정"], mainCrops: ["사과", "고추", "감자"], area: 845.67 },
   { id: "yeongyang", name: "영양군", shortName: "영양", sidoId: "gyeongbuk", admCode: "37340", sgisCode: "37540", hiraSgguCd: "370013", description: "영양고추의 본고장, 청정 산간 농업", highlights: ["고추", "청정"], mainCrops: ["고추", "사과", "약초"], area: 815.09 },
@@ -314,7 +314,7 @@ export const SIGUNGUS: Sigungu[] = [
   // ========================================================================
   // 경상남도 (gyeongnam) (18)
   // ========================================================================
-  { id: "changwon", name: "창원시", shortName: "창원", sidoId: "gyeongnam", admCode: "38010", sgisCode: "38010", hiraSgguCd: "380705", description: "경남도청 소재지, 산업도시 근교 농업", highlights: ["근교농업", "산업도시"], mainCrops: ["쌀", "배추", "감자"], area: 747.11 },
+  { id: "changwon", name: "창원시", shortName: "창원", sidoId: "gyeongnam", admCode: "38110", sgisCode: "38010", hiraSgguCd: "380705", description: "경남도청 소재지, 산업도시 근교 농업", highlights: ["근교농업", "산업도시"], mainCrops: ["쌀", "배추", "감자"], area: 747.11 },
   { id: "jinju", name: "진주시", shortName: "진주", sidoId: "gyeongnam", admCode: "38030", sgisCode: "38030", hiraSgguCd: "380500", description: "남강 유등축제 도시, 딸기·단감 명산지", highlights: ["딸기", "단감"], mainCrops: ["딸기", "단감", "쌀"], area: 712.64 },
   { id: "tongyeong", name: "통영시", shortName: "통영", sidoId: "gyeongnam", admCode: "38050", sgisCode: "38050", hiraSgguCd: "380800", description: "한려수도 관광도시, 수산·근교 농업", highlights: ["수산", "관광"], mainCrops: ["쌀", "감자", "고추"], area: 239.81 },
   { id: "sacheon", name: "사천시", shortName: "사천", sidoId: "gyeongnam", admCode: "38060", sgisCode: "38060", hiraSgguCd: "380300", description: "사천 딸기·실크 명산지, 항공우주산업", highlights: ["딸기", "항공우주"], mainCrops: ["딸기", "쌀", "감자"], area: 398.24 },

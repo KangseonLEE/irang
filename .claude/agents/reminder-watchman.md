@@ -449,6 +449,7 @@ vercel certs ls
 | `ip-list-sync.yml` | 매주 월 00:00 | CF IP 리스트 동기화 |
 | `data-refresh-reminder.yml` | 연 1회 (2/28) | 리마인더 |
 | `vercel-recheck-reminder.yml` | 연 1회 | 리마인더 |
+| `region-integrity.yml` | 매주 월 01:10 (10:10 KST) | 지역 통계 원천 전수 대조 — 불일치·실패는 `region-integrity` 이슈로, 잡 실패는 '대조를 못 끝냄'만 (2026-10-07) |
 
 #### 15-3. 판정
 
