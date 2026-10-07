@@ -23,7 +23,7 @@ import {
 } from "@/lib/data/population-trend";
 import { getDimensionScores } from "@/lib/data/dimension-scores";
 import {
-  fetchSigunguMedicalFacilities,
+  fetchGuMedicalFacilities,
   fetchMedicalFacilities,
 } from "@/lib/api/hira";
 import {
@@ -52,7 +52,8 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
     guFarmResult,
   ] = await Promise.allSettled([
     fetchSigunguPopulationData(gu.sgisCode),
-    fetchSigunguMedicalFacilities(province.hiraSidoCd, gu.hiraSgguCd),
+    // 구 코드 하나만 — 시 대표 코드와 같은 구(영통·분당 등)가 시 전체로 합쳐지던 것 (10/7)
+    fetchGuMedicalFacilities(province.hiraSidoCd, gu.hiraSgguCd),
     // NEIS는 구 이름으로 검색 (예: "장안구")
     fetchSigunguSchoolCounts(province.eduCode, gu.name),
     fetchMultipleClimateData(province.stationIds),
@@ -232,6 +233,7 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
       sgisCode={gu.sgisCode}
       hiraSidoCd={province.hiraSidoCd}
       hiraSgguCd={gu.hiraSgguCd}
+      medicalUnit="gu"
       eduCode={province.eduCode}
       sigunguNameForNeis={gu.name}
       admCode={sigungu.admCode}

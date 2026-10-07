@@ -20,6 +20,8 @@ interface MedicalModalProps {
   totalCount: number;
   hiraSidoCd: string;
   sgguCd?: string;
+  /** 시 아래 구 상세 — 구 코드 하나만(시 대표 코드와 같아도 시 전체로 넓히지 않음, 10/7) */
+  single?: boolean;
 }
 
 /** 의료기관 유형 필터 옵션 */
@@ -39,13 +41,15 @@ export function MedicalModal({
   totalCount,
   hiraSidoCd,
   sgguCd,
+  single = false,
 }: MedicalModalProps) {
   const params = useMemo(
     () => ({
       sidoCd: hiraSidoCd,
       ...(sgguCd ? { sgguCd } : {}),
+      ...(single ? { unit: "gu" } : {}),
     }),
-    [hiraSidoCd, sgguCd]
+    [hiraSidoCd, sgguCd, single]
   );
 
   const renderItem = useCallback(

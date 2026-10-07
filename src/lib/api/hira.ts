@@ -42,6 +42,7 @@ const SIDO_NAME_MAP: Record<string, string> = {
   "240000": "광주광역시",
   "250000": "대전광역시",
   "260000": "울산광역시",
+  "290000": "세종특별자치시",
   "310000": "경기도",
   "320000": "강원도",
   "330000": "충청북도",
@@ -52,6 +53,60 @@ const SIDO_NAME_MAP: Record<string, string> = {
   "380000": "경상남도",
   "390000": "제주특별자치도",
 };
+
+/** 심평원이 광주를 '전남광주'(360000) 아래로 옮긴 뒤의 광주 5구 코드 — 동·북·서·광산·남 (10/7 전수 대조) */
+const GWANGJU_GU_HIRA_CODES = ["360801", "360802", "360803", "360804", "360805"] as const;
+
+/**
+ * 우리 시·도 코드(PROVINCES.hiraSidoCd) → 심평원 조회 방식.
+ *
+ * 10/7 운영 전수 대조: 심평원이 광주 5구를 '전남광주'(360000) 아래 360801~360805 로 옮겨 240000 에는
+ * 3곳만 남았고(광주 서구 의료기관 '0개'), 전남 시·도 합계에는 광주 병원이 섞였다. 세종은 심평원 코드가
+ * 410000 이라 우리 290000 으로는 0곳이었다. 우리 시·도 체계(광주·전남 분리, PROVINCES SSOT)는 그대로 두고
+ * 여기서만 바꿔 센다.
+ */
+const HIRA_SIDO_QUERY: Record<string, { sidoCd: string; onlyGu?: readonly string[]; exceptGu?: readonly string[] }> = {
+  "240000": { sidoCd: "360000", onlyGu: GWANGJU_GU_HIRA_CODES }, // 광주 = 통합 코드 중 광주 5구
+  "360000": { sidoCd: "360000", exceptGu: GWANGJU_GU_HIRA_CODES }, // 전남 = 통합 코드 전체 − 광주 5구
+  "290000": { sidoCd: "410000" }, // 세종
+};
+
+/** 우리 시·도 코드 → 심평원 조회 코드 */
+export function toHiraSidoCd(sidoCd: string): string {
+  return HIRA_SIDO_QUERY[sidoCd]?.sidoCd ?? sidoCd;
+}
+
+/** 심평원 의료기관 수 하나 — 실패면 null */
+async function fetchHiraTotal(sidoCd: string, sgguCd?: string): Promise<number | null> {
+  const params: Record<string, string> = { sidoCd: toHiraSidoCd(sidoCd), pageNo: "1", numOfRows: "1", _type: "json" };
+  if (sgguCd) params.sgguCd = sgguCd;
+  const req = buildDataGoKrRequest(HIRA_PATH, params);
+  if (!req) return null;
+
+  try {
+    const json = (await fetchHiraJson(req.url, req.headers)) as {
+      response?: { body?: { totalCount?: number | string } };
+    };
+    const totalCount = json?.response?.body?.totalCount;
+    if (totalCount == null) {
+      throw new Error("totalCount not found in response");
+    }
+    return Number(totalCount);
+  } catch (error) {
+    console.error(
+      `Failed to fetch medical facility count for ${sidoCd}${sgguCd ? `/${sgguCd}` : ""}:`,
+      error
+    );
+    return null;
+  }
+}
+
+/** 여러 구 코드의 합 — 하나라도 실패하면 null. 덜 센 합을 숫자로 내보내지 않는다 (10/7) */
+async function sumHiraTotals(sidoCd: string, sgguCds: readonly string[]): Promise<number | null> {
+  const parts = await Promise.all(sgguCds.map((c) => fetchHiraTotal(sidoCd, c)));
+  if (parts.some((p) => p === null)) return null;
+  return (parts as number[]).reduce((a, b) => a + b, 0);
+}
 
 /**
  * 구 분할 시: 시 hiraSgguCd → 전체 구 코드 매핑.
@@ -86,31 +141,23 @@ export interface MedicalFacilityData {
 async function fetchSidoMedicalCount(
   sidoCd: string
 ): Promise<MedicalFacilityData | null> {
-  const req = buildDataGoKrRequest(HIRA_PATH, { sidoCd, pageNo: "1", numOfRows: "1", _type: "json" });
-  if (!req) return null;
-
-  try {
-    const json = (await fetchHiraJson(req.url, req.headers)) as {
-      response?: { body?: { totalCount?: number | string } };
-    };
-    const totalCount = json?.response?.body?.totalCount;
-
-    if (totalCount == null) {
-      throw new Error("totalCount not found in response");
-    }
-
-    return {
-      sidoCd,
-      sidoName: SIDO_NAME_MAP[sidoCd] ?? sidoCd,
-      totalCount: Number(totalCount),
-    };
-  } catch (error) {
-    console.error(
-      `Failed to fetch medical facility count for sido ${sidoCd}:`,
-      error
-    );
-    return null;
+  const q = HIRA_SIDO_QUERY[sidoCd];
+  let total: number | null;
+  if (q?.onlyGu) {
+    total = await sumHiraTotals(sidoCd, q.onlyGu);
+  } else if (q?.exceptGu) {
+    const [all, excluded] = await Promise.all([fetchHiraTotal(sidoCd), sumHiraTotals(sidoCd, q.exceptGu)]);
+    total = all === null || excluded === null ? null : all - excluded;
+  } else {
+    total = await fetchHiraTotal(sidoCd);
   }
+  if (total === null) return null;
+
+  return {
+    sidoCd,
+    sidoName: SIDO_NAME_MAP[sidoCd] ?? sidoCd,
+    totalCount: total,
+  };
 }
 
 /**
@@ -121,31 +168,13 @@ async function fetchSigunguMedicalCount(
   sidoCd: string,
   sgguCd: string
 ): Promise<MedicalFacilityData | null> {
-  const req = buildDataGoKrRequest(HIRA_PATH, { sidoCd, sgguCd, pageNo: "1", numOfRows: "1", _type: "json" });
-  if (!req) return null;
-
-  try {
-    const json = (await fetchHiraJson(req.url, req.headers)) as {
-      response?: { body?: { totalCount?: number | string } };
-    };
-    const totalCount = json?.response?.body?.totalCount;
-
-    if (totalCount == null) {
-      throw new Error("totalCount not found in response");
-    }
-
-    return {
-      sidoCd: `${sidoCd}_${sgguCd}`,
-      sidoName: sgguCd,
-      totalCount: Number(totalCount),
-    };
-  } catch (error) {
-    console.error(
-      `Failed to fetch medical facility count for sigungu ${sidoCd}/${sgguCd}:`,
-      error
-    );
-    return null;
-  }
+  const total = await fetchHiraTotal(sidoCd, sgguCd);
+  if (total === null) return null;
+  return {
+    sidoCd: `${sidoCd}_${sgguCd}`,
+    sidoName: sgguCd,
+    totalCount: total,
+  };
 }
 
 /**
@@ -165,21 +194,9 @@ export async function fetchSigunguMedicalFacilities(
   // 구 분할 시: 각 구의 의료기관 수를 병렬 조회하여 합산
   const guCodes = GU_HIRA_CODES_MAP[sgguCd];
   if (guCodes) {
-    const results = await Promise.allSettled(
-      guCodes.map((guCd) => fetchSigunguMedicalCount(sidoCd, guCd))
-    );
-
-    let total = 0;
-    let hasAny = false;
-    for (const r of results) {
-      if (r.status === "fulfilled" && r.value) {
-        total += r.value.totalCount;
-        hasAny = true;
-      }
-    }
-
-    if (!hasAny) return null;
-
+    // 한 구라도 실패하면 null — 예전엔 성공한 구만 더해 시 전체를 덜 센 숫자로 보였다 (10/7)
+    const total = await sumHiraTotals(sidoCd, guCodes);
+    if (total === null) return null;
     return {
       sidoCd: `${sidoCd}_${sgguCd}`,
       sidoName: sgguCd,
@@ -188,6 +205,45 @@ export async function fetchSigunguMedicalFacilities(
   }
 
   return fetchSigunguMedicalCount(sidoCd, sgguCd);
+}
+
+/**
+ * 시 아래 구 하나의 의료기관 수 — 구 코드 하나만 센다.
+ * 시 대표 코드는 그 시의 구 코드 하나와 같아서(수원 310604 = 영통구) fetchSigunguMedicalFacilities 로
+ * 구를 물으면 시 전체가 합쳐졌다(영통구 1,806 → 실제 549, 10/7). 구 상세는 반드시 이 함수로.
+ */
+export async function fetchGuMedicalFacilities(
+  sidoCd: string,
+  sgguCd: string
+): Promise<MedicalFacilityData | null> {
+  if (!isDataGoKrProxied() && !process.env.DATA_GO_KR_API_KEY) {
+    console.error("DATA_GO_KR_API_KEY is not set");
+    return null;
+  }
+  return fetchSigunguMedicalCount(sidoCd, sgguCd);
+}
+
+/**
+ * 의료기관 목록(/api/medical-list)을 이어 붙일 심평원 조회 단위.
+ * - 시 아래 구(single) → 구 코드 하나 / 구가 있는 시 → 그 시의 구 전부 / 그 밖 시·군·구 → 코드 하나
+ * - 시·도: 광주 = 광주 5구, 전남 = provinceGuCodes(전남 시·군 코드 — 호출자가 데이터에서 넘김), 그 밖 = 시·도 전체
+ */
+export function hiraListUnits(
+  sidoCd: string,
+  sgguCd: string | null,
+  opts: { single?: boolean; provinceGuCodes?: readonly string[] } = {}
+): { sidoCd: string; sgguCd?: string }[] {
+  const hiraSido = toHiraSidoCd(sidoCd);
+  if (sgguCd) {
+    const codes = (!opts.single && GU_HIRA_CODES_MAP[sgguCd]) || [sgguCd];
+    return codes.map((c) => ({ sidoCd: hiraSido, sgguCd: c }));
+  }
+  const q = HIRA_SIDO_QUERY[sidoCd];
+  if (q?.onlyGu) return q.onlyGu.map((c) => ({ sidoCd: hiraSido, sgguCd: c }));
+  if (q?.exceptGu && opts.provinceGuCodes?.length) {
+    return opts.provinceGuCodes.map((c) => ({ sidoCd: hiraSido, sgguCd: c }));
+  }
+  return [{ sidoCd: hiraSido }];
 }
 
 /**

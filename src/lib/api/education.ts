@@ -110,43 +110,71 @@ export interface NeisSchoolRow {
 const NEIS_MAX_PAGE_SIZE = 1000;
 
 /**
+ * NEIS 목록 한 쪽의 시간 제한. 학교 1,000곳짜리 응답은 무거워 기본 제한(빌드 3초·실행 5초)으로는
+ * 자주 넘긴다 — 10/7 운영: 나눠 받기로 바꾼 첫 배포에서 시 아래 구 32쪽·시·군·구 16쪽이 시간 초과로
+ * 시·도 전체 값으로 대체됐다.
+ */
+const NEIS_TIMEOUT = Math.max(FETCH_TIMEOUT, 15_000);
+
+/** 같은 교육청 목록을 동시에 여러 번 받지 않는다 — 빌드·동시 렌더가 같은 시·도를 한꺼번에 물을 때 */
+const inflightRows = new Map<string, Promise<NeisSchoolRow[]>>();
+
+/**
  * 시·도 교육청의 학교 목록을 전부 받는다 — NEIS 는 한 번에 1,000건까지라 나눠 받는다.
  *
  * 10/7: 첫 1,000건만 받아 세던 탓에 학교가 1,000곳이 넘는 서울(1,416)·경기(2,667)·경남(1,017)의
- * 시·군·구 학교 수가 전부 적게 나왔다(수원시 65 → 실제 214).
- * 자료 없음(INFO-200)은 빈 배열, 그 밖의 실패는 예외 — 호출자가 null·502 로 바꾼다.
+ * 시·군·구 학교 수가 전부 적게 나왔다(수원시 65 → 실제 214). 첫 쪽(1,000건)에 전체 건수가 함께 오므로
+ * 나머지 쪽만 이어서 받는다. 쪽마다 한 번 더 시도하고, 그래도 실패하면 예외 — 호출자가 null·502 로 바꾼다.
+ * 자료 없음(INFO-200)은 빈 배열.
  */
-export async function fetchEduSchoolRows(
+export function fetchEduSchoolRows(
   apiKey: string,
   eduCode: string,
-  timeoutMs: number
+  timeoutMs: number = NEIS_TIMEOUT
 ): Promise<NeisSchoolRow[]> {
-  const getPage = async (pIndex: number, pSize: number) => {
+  const pending = inflightRows.get(eduCode);
+  if (pending) return pending;
+  const job = loadEduSchoolRows(apiKey, eduCode, timeoutMs).finally(() => inflightRows.delete(eduCode));
+  inflightRows.set(eduCode, job);
+  return job;
+}
+
+async function loadEduSchoolRows(apiKey: string, eduCode: string, timeoutMs: number): Promise<NeisSchoolRow[]> {
+  const getPage = async (pIndex: number) => {
     const url = new URL(API_BASE);
     url.searchParams.set("KEY", apiKey);
     url.searchParams.set("Type", "json");
     url.searchParams.set("pIndex", String(pIndex));
-    url.searchParams.set("pSize", String(pSize));
+    url.searchParams.set("pSize", String(NEIS_MAX_PAGE_SIZE));
     url.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(timeoutMs) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    if (json.RESULT) {
-      if (json.RESULT.CODE === "INFO-200") return null;
-      throw new Error(`NEIS error: ${json.RESULT.CODE}`);
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(timeoutMs) });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (json.RESULT) {
+          if (json.RESULT.CODE === "INFO-200") return null;
+          throw new Error(`NEIS error: ${json.RESULT.CODE}`);
+        }
+        return json;
+      } catch (error) {
+        lastError = error;
+      }
     }
-    return json;
+    throw lastError;
   };
 
-  const head = await getPage(1, 1);
-  const total = Number(head?.schoolInfo?.[0]?.head?.[0]?.list_total_count ?? 0);
-  if (!head || !total) return [];
-
+  const first = await getPage(1);
+  if (!first) return [];
+  const total = Number(first?.schoolInfo?.[0]?.head?.[0]?.list_total_count ?? 0);
+  const rows: NeisSchoolRow[] = [...(first?.schoolInfo?.[1]?.row ?? [])];
   const pageCount = Math.ceil(total / NEIS_MAX_PAGE_SIZE);
-  const pages = await Promise.all(
-    Array.from({ length: pageCount }, (_, i) => getPage(i + 1, NEIS_MAX_PAGE_SIZE))
-  );
-  return pages.flatMap((p) => (p?.schoolInfo?.[1]?.row ?? []) as NeisSchoolRow[]);
+  if (pageCount > 1) {
+    const rest = await Promise.all(Array.from({ length: pageCount - 1 }, (_, i) => getPage(i + 2)));
+    for (const p of rest) rows.push(...(p?.schoolInfo?.[1]?.row ?? []));
+  }
+  return rows;
 }
 
 /**
@@ -177,7 +205,7 @@ async function fetchSigunguSchoolCount(
   sigunguName: string
 ): Promise<SchoolData | null> {
   try {
-    const rows = await fetchEduSchoolRows(apiKey, eduCode, FETCH_TIMEOUT);
+    const rows = await fetchEduSchoolRows(apiKey, eduCode);
     const count = rows.filter((r) => isSchoolInDistrict(r.ORG_RDNMA, sigunguName)).length;
 
     return {

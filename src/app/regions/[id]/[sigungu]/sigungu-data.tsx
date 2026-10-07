@@ -51,6 +51,11 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
   // 행정구역 개편으로 사라진 구(인천 중구·동구·서구) — 옛 코드·이름으로는 공공데이터가 0을 돌려줘
   // 조회 자체를 하지 않고, 시·도 수치로 대신 채우지도 않는다(화면은 '확인 불가', 10/7)
   const reorg = getRegionReorganization(sigungu.id);
+  // 나뉘거나 합쳐진 구만 '확인 불가' — 옮겨 간 곳(군위)은 새 시·도 코드로 센다
+  const countsUnavailable = reorg?.countsUnavailable ? reorg : null;
+  // 소속 시·도와 다른 코드로 조회하는 곳(군위 → 대구, 2023 편입) — 없으면 소속 시·도 코드
+  const hiraSidoCd = sigungu.hiraSidoCd ?? province.hiraSidoCd;
+  const eduCode = sigungu.eduCode ?? province.eduCode;
 
   // ── Phase 1: 시군구 수준 + 기후 + 귀농귀촌 + 농가 (6개 병렬) ──
   const [
@@ -62,10 +67,10 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
     farmResult,
   ] = await Promise.allSettled([
     fetchSigunguPopulationData(sigungu.sgisCode),
-    hiraSgguCd && !reorg
-      ? fetchSigunguMedicalFacilities(province.hiraSidoCd, hiraSgguCd)
+    hiraSgguCd && !countsUnavailable
+      ? fetchSigunguMedicalFacilities(hiraSidoCd, hiraSgguCd)
       : Promise.resolve(null),
-    reorg ? Promise.resolve(null) : fetchSigunguSchoolCounts(province.eduCode, sigungu.name),
+    countsUnavailable ? Promise.resolve(null) : fetchSigunguSchoolCounts(eduCode, sigungu.name),
     fetchMultipleClimateData(province.stationIds),
     fetchReturnFarmStats(sigungu.admCode),
     fetchFarmHousehold(sigungu.sgisCode),
@@ -80,8 +85,8 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
 
   // ── Phase 2: 실패 항목만 시/도 폴백 (lazy fallback) ──
   const needsPopFallback = !sigunguPop;
-  const needsMedicalFallback = !reorg && !sigunguMedical;
-  const needsSchoolFallback = !reorg && !sigunguSchool;
+  const needsMedicalFallback = !countsUnavailable && !sigunguMedical;
+  const needsSchoolFallback = !countsUnavailable && !sigunguSchool;
 
   let sidoPop = null;
   let sidoMedical = null;
@@ -247,11 +252,11 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
       populationChangePct={populationChangePct}
       dimensionScores={dimensionScores}
       sgisCode={sigungu.sgisCode}
-      hiraSidoCd={province.hiraSidoCd}
+      hiraSidoCd={hiraSidoCd}
       hiraSgguCd={hiraSgguCd}
-      eduCode={province.eduCode}
+      eduCode={eduCode}
       sigunguNameForNeis={sigungu.name}
-      reorg={reorg}
+      reorg={countsUnavailable}
       admCode={sigungu.admCode}
     />
     </div>
