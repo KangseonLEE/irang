@@ -305,9 +305,11 @@ async function buildExpected() {
     sido[p.id] = { name: p.name, school: rows.length };
     const matched = new Set<number>();
     for (const sg of SIGUNGUS.filter((s) => s.sidoId === p.id)) {
+      // 구가 있는 시는 시 이름 또는 그 구 이름 — 원천 주소에 시 이름이 붙어 와도('…교육청전주시 덕진구') 그 시 학교다
+      const names = [sg.name, ...GUS.filter((g) => g.sidoId === p.id && g.parentSigunguId === sg.id).map((g) => g.name)];
       let c = 0;
       rows.forEach((r, i) => {
-        if (inDistrict(r.ORG_RDNMA, sg.name)) {
+        if (names.some((n) => inDistrict(r.ORG_RDNMA, n))) {
           c++;
           matched.add(i);
         }

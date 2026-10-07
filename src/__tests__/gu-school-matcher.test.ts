@@ -79,6 +79,26 @@ describe("schoolMatcher — 화성 4구", () => {
   });
 });
 
+describe("구가 있는 시 — 시 이름 또는 그 구 이름", () => {
+  it("시 이름이 붙어 온 주소('…교육청전주시 덕진구')도 전주시·덕진구 둘 다 센다 — 시 화면 = 구 화면 합", () => {
+    const rows = [
+      row("8332238", "진북고등공민학교", "전북특별자치도교육청전주시 덕진구 숲정이3길 35", "진북고등공민학교"),
+      row("j1", "가", "전북특별자치도 전주시 완산구 효자로 1", "(효자동)"),
+      row("j2", "나", "전북특별자치도 익산시 무왕로 1", "(영등동)"),
+    ];
+    const names = (n: string) => rows.filter(schoolMatcher("P10", n)).map((r) => r.SCHUL_NM);
+    expect(names("전주시")).toEqual(["진북고등공민학교", "가"]);
+    expect(names("덕진구")).toEqual(["진북고등공민학교"]);
+    expect(names("완산구")).toEqual(["가"]);
+    expect(names("익산시")).toEqual(["나"]);
+  });
+
+  it("구가 없는 시·군은 예전과 같다", () => {
+    const rows = [row("k1", "가", "경상북도 영주시 대학로 1", ""), row("k2", "나", "경상북도 봉화군 봉화로 1", "")];
+    expect(rows.filter(schoolMatcher("R10", "영주시")).map((r) => r.SCHUL_NM)).toEqual(["가"]);
+  });
+});
+
 describe("법정 읍·면·동 표 — gus.ts legalAreas", () => {
   it("부천·화성 구에만 있고, 한 시 안에서 겹치지 않는다", () => {
     const withAreas = GUS.filter((g) => g.legalAreas);

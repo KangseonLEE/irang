@@ -213,6 +213,14 @@ function addressTokens(row: NeisSchoolRow): string[] {
  */
 export function schoolMatcher(eduCode: string, districtName: string): (row: NeisSchoolRow) => boolean {
   const province = PROVINCES.find((p) => p.eduCode === eduCode);
+  // 구가 있는 시: 시 이름 또는 그 구 이름 — 원천 주소에 시 이름이 붙어 와도('…교육청전주시 덕진구') 구 이름으로 센다.
+  // 시 화면 = 구 화면 합이 되게(10/7 운영 대조: 전주시 156 ≠ 완산 84 + 덕진 73)
+  const cityWithGu = province ? SIGUNGUS.find((s) => s.sidoId === province.id && s.name === districtName) : undefined;
+  const childGus = cityWithGu ? getGusOfCity(cityWithGu.sidoId, cityWithGu.id) : [];
+  if (childGus.length) {
+    return (row) =>
+      isSchoolInDistrict(row.ORG_RDNMA, districtName) || childGus.some((g) => isSchoolInDistrict(row.ORG_RDNMA, g.name));
+  }
   const gu = province ? GUS.find((g) => g.sidoId === province.id && g.name === districtName && g.legalAreas) : undefined;
   const city = gu ? SIGUNGUS.find((s) => s.id === gu.parentSigunguId && s.sidoId === gu.sidoId) : undefined;
   if (!gu || !city) return (row) => isSchoolInDistrict(row.ORG_RDNMA, districtName);

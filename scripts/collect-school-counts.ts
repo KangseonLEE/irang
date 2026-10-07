@@ -2,7 +2,7 @@
  * NEIS 시군구 학교 수 일괄 수집 스크립트 (Phase 4)
  *
  * - 17개 시도교육청 학교 전체 목록 → 주소 낱말이 시·군·구 이름과 같은 학교만 센다
- * - 조회(fetchEduSchoolRows)·판정(isSchoolInDistrict)은 상세 화면과 같은 lib/api/education 함수 (10/7)
+ * - 조회(fetchEduSchoolRows)·판정(schoolMatcher)은 상세 화면과 같은 lib/api/education 함수 (10/7)
  *
  * 결과 파일: src/lib/data/school-counts.ts 자동 생성
  *
@@ -32,7 +32,7 @@ config({ path: resolve(__dirname, "../.env.local") });
 import { SIGUNGUS } from "../src/lib/data/sigungus";
 import { PROVINCES } from "../src/lib/data/regions";
 // 상세 화면과 같은 조회·판정 — 10/7 정적 자료가 따로 놀아 '동구'에 남동구 학교가 섞였다(인천 동구 98 → 실제 약 20)
-import { fetchEduSchoolRows, isSchoolInDistrict, type NeisSchoolRow } from "../src/lib/api/education";
+import { fetchEduSchoolRows, schoolMatcher, type NeisSchoolRow } from "../src/lib/api/education";
 
 interface SchoolCount {
   /** SGIS 시군구 코드 (5자리) */
@@ -105,8 +105,10 @@ async function main() {
     let middle = 0;
     let high = 0;
 
+    // 상세 화면과 같은 판정 — 구가 있는 시는 시 이름 또는 그 구 이름(10/7)
+    const inSigungu = schoolMatcher(province.eduCode, sg.name);
     for (const row of rows) {
-      if (!isSchoolInDistrict(row.ORG_RDNMA, sg.name)) continue;
+      if (!inSigungu(row)) continue;
       total++;
       const kind = classifyKind(String(row.SCHUL_KND_SC_NM ?? ""));
       if (kind === "elementary") elementary++;

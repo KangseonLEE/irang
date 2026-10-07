@@ -4424,7 +4424,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 74,
     "farmActivity": null,
     "medical": 72,
-    "school": 37,
+    "school": 38,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -4442,10 +4442,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "1만 명당 의료기관이 많아 접근성이 좋아요 (전국 상위 28%)"
       },
       "school": {
-        "rawValue": 2.34,
+        "rawValue": 2.36,
         "rawUnit": "곳",
-        "rawLabel": "1만 명당 학교 2.3곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 37%)"
+        "rawLabel": "1만 명당 학교 2.4곳",
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 38%)"
       },
       "returnFarm": null
     }
@@ -5130,7 +5130,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "populationTrend": 44,
     "farmActivity": null,
     "medical": 51,
-    "school": 38,
+    "school": 37,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
@@ -5151,7 +5151,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 2.35,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.3곳",
-        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 38%)"
+        "interpretation": "1만 명당 학교가 평균 수준이에요 (전국 하위 37%)"
       },
       "returnFarm": null
     }
