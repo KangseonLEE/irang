@@ -25,7 +25,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -42,6 +42,12 @@ const TARGETS: Target[] = [
     label: "dimension-scores",
     script: "scripts/compute-dimension-scores.ts",
     committed: "src/lib/data/dimension-scores.ts",
+  },
+  {
+    // 10/7: 생성 파일만 '정착 인기'로 손봐 둔 채 템플릿은 '귀농인기'였다 — 재실행 한 번에 화면 문구가 되돌아갔다
+    label: "popular-tags",
+    script: "scripts/compute-popular-tags.ts",
+    committed: "src/lib/data/popular-tags.ts",
   },
 ];
 

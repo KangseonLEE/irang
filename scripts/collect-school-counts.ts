@@ -1,11 +1,8 @@
 /**
  * NEIS 시군구 학교 수 일괄 수집 스크립트 (Phase 4)
  *
- * - 17개 시도교육청 × 1회 = 시도별 학교 전체 목록(pSize=1000) 일괄 fetch
- *   → 각 시도교육청 응답을 메모리에서 시군구명 주소 매칭으로 카운트
- * - 결과: 229개 시군구 + 12개 통합시(이미 sigungus.ts에 통합 등록) = 241개 항목
- * - throttle: 시도당 1회 호출이라 동시 5, 200ms delay
- *   (HIRA 대비 호출 횟수가 매우 적어 ~30초 내 완료 예상)
+ * - 17개 시도교육청 학교 전체 목록 → 주소 낱말이 시·군·구 이름과 같은 학교만 센다
+ * - 조회(fetchEduSchoolRows)·판정(isSchoolInDistrict)은 상세 화면과 같은 lib/api/education 함수 (10/7)
  *
  * 결과 파일: src/lib/data/school-counts.ts 자동 생성
  *
@@ -34,13 +31,8 @@ config({ path: resolve(__dirname, "../.env.local") });
 
 import { SIGUNGUS } from "../src/lib/data/sigungus";
 import { PROVINCES } from "../src/lib/data/regions";
-
-const API_BASE = "https://open.neis.go.kr/hub/schoolInfo";
-const TIMEOUT_MS = 8000;
-const RETRY = 2;
-const CONCURRENCY = 5;
-const DELAY_MS = 200;
-const PAGE_SIZE = 1000;
+// 상세 화면과 같은 조회·판정 — 10/7 정적 자료가 따로 놀아 '동구'에 남동구 학교가 섞였다(인천 동구 98 → 실제 약 20)
+import { fetchEduSchoolRows, isSchoolInDistrict, type NeisSchoolRow } from "../src/lib/api/education";
 
 interface SchoolCount {
   /** SGIS 시군구 코드 (5자리) */
@@ -55,145 +47,6 @@ interface SchoolCount {
   middle: number;
   /** 고등학교 수 */
   high: number;
-}
-
-interface NeisRow {
-  ATPT_OFCDC_SC_CODE?: string;
-  SCHUL_KND_SC_NM?: string; // 학교급 (초등학교/중학교/고등학교/특수학교 등)
-  ORG_RDNMA?: string;       // 도로명주소
-  LCTN_SC_NM?: string;       // 시도명
-  [k: string]: unknown;
-}
-
-/** NEIS 시도교육청 단위 학교 전체 목록 (페이지네이션 포함) */
-async function fetchSidoSchools(
-  apiKey: string,
-  eduCode: string,
-): Promise<NeisRow[] | null> {
-  // 1단계: 총 개수 조회 (pSize=1)
-  const headUrl = new URL(API_BASE);
-  headUrl.searchParams.set("KEY", apiKey);
-  headUrl.searchParams.set("Type", "json");
-  headUrl.searchParams.set("pIndex", "1");
-  headUrl.searchParams.set("pSize", "1");
-  headUrl.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
-
-  let total = 0;
-  for (let attempt = 0; attempt <= RETRY; attempt++) {
-    try {
-      const res = await fetch(headUrl.toString(), {
-        signal: AbortSignal.timeout(TIMEOUT_MS),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-
-      // 데이터 없음 (INFO-200) → 0
-      if (json?.RESULT?.CODE === "INFO-200") return [];
-      if (json?.RESULT) {
-        throw new Error(`NEIS error: ${json.RESULT.CODE} - ${json.RESULT.MESSAGE}`);
-      }
-
-      total = Number(json?.schoolInfo?.[0]?.head?.[0]?.list_total_count ?? 0);
-      break;
-    } catch (err) {
-      if (attempt === RETRY) {
-        console.warn(`  [head fail] eduCode=${eduCode}: ${(err as Error).message}`);
-        return null;
-      }
-      await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
-    }
-  }
-
-  if (total === 0) return [];
-
-  // 2단계: 페이지네이션 fetch
-  const pages = Math.ceil(total / PAGE_SIZE);
-  const rows: NeisRow[] = [];
-  for (let p = 1; p <= pages; p++) {
-    const url = new URL(API_BASE);
-    url.searchParams.set("KEY", apiKey);
-    url.searchParams.set("Type", "json");
-    url.searchParams.set("pIndex", String(p));
-    url.searchParams.set("pSize", String(PAGE_SIZE));
-    url.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
-
-    let pageOk = false;
-    for (let attempt = 0; attempt <= RETRY; attempt++) {
-      try {
-        const res = await fetch(url.toString(), {
-          signal: AbortSignal.timeout(TIMEOUT_MS),
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        if (json?.RESULT) throw new Error(`NEIS error: ${json.RESULT.CODE}`);
-        const pageRows = json?.schoolInfo?.[1]?.row ?? [];
-        rows.push(...(pageRows as NeisRow[]));
-        pageOk = true;
-        break;
-      } catch (err) {
-        if (attempt === RETRY) {
-          console.warn(
-            `  [page fail] eduCode=${eduCode} page=${p}: ${(err as Error).message}`,
-          );
-        } else {
-          await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
-        }
-      }
-    }
-    if (!pageOk) return null;
-
-    // 페이지 간 미세 delay (NEIS rate limit 보수적)
-    if (p < pages) await new Promise((r) => setTimeout(r, 100));
-  }
-
-  return rows;
-}
-
-/** throttled batch — concurrency 만큼 병렬 + 배치마다 delay */
-async function batchProcess<T, U>(
-  items: T[],
-  worker: (item: T) => Promise<U>,
-  concurrency: number,
-  delayMs: number,
-): Promise<U[]> {
-  const results: U[] = [];
-  for (let i = 0; i < items.length; i += concurrency) {
-    const slice = items.slice(i, i + concurrency);
-    const batch = await Promise.all(slice.map(worker));
-    results.push(...batch);
-    if (i + concurrency < items.length) {
-      await new Promise((r) => setTimeout(r, delayMs));
-    }
-  }
-  return results;
-}
-
-/**
- * 시군구명이 도로명주소에 포함되는지 검사.
- * "중구"처럼 짧은 이름은 시도명과 함께 매칭해야 정확하다 (예: 서울 중구 vs 부산 중구).
- *
- * NEIS의 ORG_RDNMA는 "서울특별시 중구 ..." 형식 → 시도 풀네임 + 시군구명으로 검사.
- */
-/**
- * 시도 별칭 — 행정구역 명칭 변경 대응.
- * 2024년부터 전북/강원이 "특별자치도"로 변경됐으나 NEIS 일부 학교는 여전히
- * 옛 명칭 사용. 두 표기 모두 매칭하도록 별칭 배열로 처리.
- */
-const SIDO_ALIASES: Record<string, string[]> = {
-  "전라북도": ["전라북도", "전북특별자치도"],
-  "강원도": ["강원도", "강원특별자치도"],
-  "제주특별자치도": ["제주특별자치도", "제주도"],
-};
-
-function matchSigungu(
-  rdnma: string,
-  sidoFullName: string,
-  sigunguName: string,
-): boolean {
-  if (!rdnma) return false;
-  const aliases = SIDO_ALIASES[sidoFullName] ?? [sidoFullName];
-  const sidoOk = aliases.some((alias) => rdnma.startsWith(alias));
-  return sidoOk && rdnma.includes(sigunguName);
 }
 
 /**
@@ -214,33 +67,20 @@ async function main() {
   if (!apiKey) throw new Error("NEIS_API_KEY missing in .env.local");
 
   console.log(`[collect-schools] sigungu=${SIGUNGUS.length}, sido=${PROVINCES.length}`);
-  console.log(
-    `[collect-schools] concurrency=${CONCURRENCY}, delay=${DELAY_MS}ms`,
-  );
 
   const startTime = Date.now();
 
-  // 1) 시도교육청별 전체 학교 목록 일괄 수집
-  const sidoResults = await batchProcess(
-    PROVINCES,
-    async (province) => {
-      const rows = await fetchSidoSchools(apiKey, province.eduCode);
-      const status = rows === null ? "FAIL" : `${rows.length} rows`;
-      console.log(`  [${province.shortName}] eduCode=${province.eduCode}: ${status}`);
-      return { province, rows };
-    },
-    CONCURRENCY,
-    DELAY_MS,
-  );
-
-  // 시도교육청 단위 실패 → 해당 시도 내 모든 시군구 누락 처리
-  const sidoMap = new Map<string, NeisRow[]>();
+  // 1) 시도교육청별 전체 학교 목록 — lib/api/education 그대로(1,000건씩 나눠 받기·쪽마다 재시도)
+  const sidoMap = new Map<string, NeisSchoolRow[]>();
   const sidoFails: string[] = [];
-  for (const { province, rows } of sidoResults) {
-    if (rows === null) {
-      sidoFails.push(province.shortName);
-    } else {
+  for (const province of PROVINCES) {
+    try {
+      const rows = await fetchEduSchoolRows(apiKey, province.eduCode, 30_000);
       sidoMap.set(province.id, rows);
+      console.log(`  [${province.shortName}] eduCode=${province.eduCode}: ${rows.length} rows`);
+    } catch (err) {
+      sidoFails.push(province.shortName);
+      console.log(`  [${province.shortName}] eduCode=${province.eduCode}: FAIL ${(err as Error).message}`);
     }
   }
 
@@ -266,8 +106,7 @@ async function main() {
     let high = 0;
 
     for (const row of rows) {
-      const rdnma = String(row.ORG_RDNMA ?? "");
-      if (!matchSigungu(rdnma, province.name, sg.name)) continue;
+      if (!isSchoolInDistrict(row.ORG_RDNMA, sg.name)) continue;
       total++;
       const kind = classifyKind(String(row.SCHUL_KND_SC_NM ?? ""));
       if (kind === "elementary") elementary++;
@@ -322,7 +161,7 @@ async function main() {
  * ⚠ 절대 수동 편집 금지. 갱신은 \`npx tsx scripts/collect-school-counts.ts\`
  *
  * Phase 4 — 빌드 시 시군구별 NEIS API 호출을 제거하기 위한 정적 폴백.
- * 시도교육청 단위로 전체 학교 목록을 받아 도로명주소 시군구명 매칭으로 분류.
+ * 시도교육청 학교 목록에서 주소 낱말이 시·군·구 이름과 같은 학교만 센다 (상세 화면과 같은 판정).
  *
  * 커버리지: ${successList.length}/${SIGUNGUS.length} 시군구 (수집일 기준)
 ${missingNote}${zeroNote} */

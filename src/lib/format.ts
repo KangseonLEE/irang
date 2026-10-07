@@ -15,7 +15,19 @@ export function formatPopulation(pop: number): string {
 }
 
 /** 서울 면적 기준 상수 (km²) */
-export const SEOUL_AREA_KM2 = 605;
+const SEOUL_AREA_KM2 = 605;
+
+/**
+ * 서울과 면적 비교 — 서울보다 크면 '약 N.N배', 작으면 '약 N%'. 예전엔 작은 구가 전부 '서울의 약 0.0배'로
+ * 보였다(10/7: 제물포구 22.4㎢, 대구 중구 7㎢). ratio = 모달 값, sentence = 카드 문장.
+ */
+export function seoulAreaCompare(area: number): { ratio: string; sentence: string } {
+  const r = area / SEOUL_AREA_KM2;
+  if (r >= 1) return { ratio: `약 ${r.toFixed(1)}배`, sentence: `서울의 약 ${r.toFixed(1)}배` };
+  const pct = Math.round(r * 100);
+  if (pct < 1) return { ratio: "1% 미만", sentence: "서울 면적의 1% 미만" };
+  return { ratio: `약 ${pct}%`, sentence: `서울 면적의 약 ${pct}%` };
+}
 
 /**
  * revenueRange 선두 패턴에서 10a당 연소득(만원)을 파싱.

@@ -14,6 +14,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { DataSource } from "@/components/ui/data-source";
 import { POPULAR_RETURN_FARM_CODES } from "@/lib/data/popular-tags";
 import { DIMENSION_SCORES } from "@/lib/data/dimension-scores";
+import { RETURN_FARM_RATE_SIGUNGU } from "@/lib/data/return-farm-rate";
 import { PERSONAS } from "@/lib/data/personas";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
@@ -36,6 +37,10 @@ export const metadata: Metadata = {
 
 export const revalidate = 86400;
 
+/** 정착 비율 자료 연도 — 최신 연도에 비공개('X')로 빠진 곳은 전년도 값을 쓴다(collect-return-farm-rate) */
+const RETURN_FARM_YEARS = [...new Set(RETURN_FARM_RATE_SIGUNGU.map((r) => r.year))].sort((a, b) => b - a);
+const RETURN_FARM_YEAR_LABEL = `${RETURN_FARM_YEARS[0]}년${RETURN_FARM_YEARS.length > 1 ? ", 비공개 지역은 전년도" : ""}`;
+
 const DIMENSIONS = [
   {
     label: "인구 추세",
@@ -45,7 +50,7 @@ const DIMENSIONS = [
       "(가장 최근 인구 - 5년 전 인구) / 5년 전 인구 × 100 = 변화율(%)",
     normalize:
       "변화율을 0~100 점수로 바꿔요. -10% 이하면 0점, +5% 이상이면 100점, 그 사이는 일정하게 펼쳐요.",
-    note: "+1% 이상이면 ‘회복 중’, -5% 이하면 ‘가속 감소’, 그 사이는 ‘안정’으로 표시해요.",
+    note: "+1% 이상이면 ‘회복 중’, -5% 이하면 ‘가속 감소’, 그 사이는 ‘안정’으로 표시해요. 2026년 7월 새로 생긴 인천 제물포·영종·서해·검단구는 옛 행정동 통계를 새 구대로 더해 계산했어요.",
     cycle: "1년에 한 번 갱신",
   },
   {
@@ -75,13 +80,13 @@ const DIMENSIONS = [
     formula: "인구 1만 명당 학교 수 = 학교 수 / (인구 / 10,000)",
     normalize:
       "전국 시군구를 줄 세워서 위에서 몇 %인지를 1~100점으로 표시해요.",
-    note: "군위군은 행정구역이 바뀌면서 NEIS에 등록되지 않아 학교 점수가 빠져 있어요.",
+    note: null,
     cycle: "1년에 한 번 갱신",
   },
   {
     label: "농촌 정착 활성도",
     desc: "그 지역에 정착 인구가 얼마나 들어왔는지를 인구 대비로 보여드려요.",
-    source: "통계청 KOSIS 귀농어·귀촌인 통계 (2024년)",
+    source: `통계청 KOSIS 귀농어·귀촌인 통계 (${RETURN_FARM_YEAR_LABEL})`,
     formula: "정착 인구 수 / 그 지역 전체 인구 × 100 = 정착 비율(%)",
     normalize:
       "전국 시군구를 줄 세워서 위에서 몇 %인지를 1~100점으로 표시해요.",

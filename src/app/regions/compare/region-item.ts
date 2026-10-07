@@ -12,6 +12,7 @@
 import { PROVINCES, type Province } from "@/lib/data/regions";
 import { SIGUNGUS, type Sigungu } from "@/lib/data/sigungus";
 import { STATIONS, type Station } from "@/lib/data/stations";
+import { MOVED_REGION_PATHS } from "@/lib/data/region-reorganizations";
 
 export interface RegionItem {
   /** "{provinceId}" 또는 "{provinceId}:{sigunguId}" */
@@ -48,7 +49,10 @@ export function parseRegions(
 }
 
 /** "{provinceId}" 또는 "{provinceId}:{sigunguId}" → RegionItem */
-function buildRegionItem(id: string): RegionItem | null {
+function buildRegionItem(rawId: string): RegionItem | null {
+  // 행정구역 개편으로 옮긴 옛 id(인천 중구·동구·서구, 경북 군위)는 새 자리로 — 공유된 비교 링크가 조용히 빠지지 않게
+  const moved = MOVED_REGION_PATHS[rawId.replace(":", "/")];
+  const id = moved ? moved.replace("/", ":") : rawId;
   const [provinceId, sigunguId] = id.split(":");
   const province = PROVINCES.find((p) => p.id === provinceId);
   if (!province) return null;

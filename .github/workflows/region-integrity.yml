@@ -93,6 +93,9 @@ jobs:
           DATA_GO_KR_PROXY_SECRET: ${{ secrets.DATA_GO_KR_PROXY_SECRET }}
           NEIS_API_KEY: ${{ secrets.NEIS_API_KEY }}
           E2E_SECRET: ${{ secrets.E2E_SECRET }}
+          # 인구 대조(통계청 SGIS) — 없으면 인구만 건너뛰고 요약에 이유를 남긴다
+          SGIS_KEY: ${{ secrets.SGIS_KEY }}
+          SGIS_SECRET: ${{ secrets.SGIS_SECRET }}
         run: |
           ARGS=("--json=$SUMMARY_JSON")
           if [ -n "$ONLY" ]; then ARGS+=("--only=$ONLY"); fi
@@ -116,7 +119,7 @@ jobs:
           elif [ "$(jq -r '.pages // 0' "$SUMMARY_JSON")" -eq 0 ]; then
             STATE=crash
           else
-            PROBLEMS=$(jq '(.counts.mismatch // 0) + (.counts.err // 0) + ((.nameIssues // []) | length) + ((.sumIssues // []) | length)' "$SUMMARY_JSON")
+            PROBLEMS=$(jq '(.counts.mismatch // 0) + (.counts.err // 0) + ((.nameIssues // []) | length) + ((.sumIssues // []) | length) + ((.popIssues // []) | length)' "$SUMMARY_JSON")
             if [ "$PROBLEMS" -gt 0 ]; then STATE=problems; else STATE=clean; fi
           fi
           echo "state=${STATE} problems=${PROBLEMS}"
@@ -150,6 +153,7 @@ jobs:
                   "운영 화면 **\(.pages)쪽** — 일치 \(.counts.ok) · 캐시 시점 차이 \(.counts.near) · **불일치 \(.counts.mismatch) · 실패 \(.counts.err)**",
                   "",
                   "심평원 코드↔지역명 불일치 **\(.nameIssues | length)건** · 시·도 합계 차이 **\(.sumIssues | length)건** · 경로: 심평원 \(if .route.hira == "proxy" then "프록시" else "직접" end) · 운영 페이지 \(if .route.page == "e2e" then "e2e 우회" else "일반 UA" end)",
+                  (if .population.skipped then "", "> ⚠️ 인구 대조 건너뜀 — \(.population.skipped)" else "", "인구(통계청 SGIS \(.population.year)) 원천 문제 **\((.popIssues // []) | length)건**" end),
                   (if (.problems | length) > 0 then
                     "", "### 화면 불일치·실패 (\(.problems | length)쪽)", "",
                     lst(.problems; 50; "- `\(.key)` — \(.msgs | join("; "))\(if .reason then " (\(.reason))" else "" end)")
@@ -161,6 +165,10 @@ jobs:
                   (if (.sumIssues | length) > 0 then
                     "", "### 시·도 합계 ≠ 시·군·구 합 (\(.sumIssues | length)건)", "",
                     lst(.sumIssues; 50; "- \(.)")
+                  else empty end),
+                  (if ((.popIssues // []) | length) > 0 then
+                    "", "### 인구 원천 문제 (\(.popIssues | length)건)", "",
+                    lst(.popIssues; 50; "- \(.)")
                   else empty end),
                   (if (.near | length) > 0 then
                     "", "<details><summary>캐시 시점 차이 \(.near | length)쪽 (±2·0.5% 이내 — 조치 불요)</summary>", "",

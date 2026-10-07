@@ -19,7 +19,7 @@ import type { ClimateInfo } from "@/components/stats/climate-section";
 import {
   SigunguPopulationTrendChart,
 } from "@/components/charts/lazy";
-import { formatPopulation, SEOUL_AREA_KM2 } from "@/lib/format";
+import { formatPopulation, seoulAreaCompare } from "@/lib/format";
 import { AreaModal } from "../modals/area-modal";
 import { MedicalModal } from "../modals/medical-modal";
 import { SchoolModal } from "../modals/school-modal";
@@ -101,9 +101,9 @@ export interface SigunguStatsProps {
   /** KOSIS 행정코드 (귀농귀촌 추이 모달용) */
   admCode?: string;
   /**
-   * 행정구역 개편으로 사라진 구(인천 중구·동구·서구, 2026-07-01).
-   * 있으면 의료기관·학교 카드를 '확인 불가'로 두고 새 구청 안내 창을 연다 —
-   * 옛 코드·이름으로 세면 공공데이터가 0을 돌려줘 '0개'로 보이던 것(10/7).
+   * 원천(심평원·교육부)만 새 구로 바뀌어 셀 수 없게 된 지역(region-reorganizations countsUnavailable).
+   * 있으면 의료기관·학교 카드를 '확인 불가'로 두고 새 구청 안내 창을 연다 — 옛 코드·이름으로 세면 0을
+   * 돌려줘 '0개'로 보이던 것(10/7 B안의 인천 옛 3개 구). A안 이후 지금은 해당 지역이 없다.
    */
   reorg?: RegionReorganization | null;
   /** 시 아래 구 상세 — 의료기관 목록을 구 하나로 (gu-data 가 넘김) */
@@ -153,7 +153,7 @@ export function SigunguStats({
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const closeModal = () => setActiveModal(null);
 
-  const seoulRatio = (area / SEOUL_AREA_KM2).toFixed(1);
+  const seoulCompare = seoulAreaCompare(area);
   const density = population ? Math.round(population.population / area) : null;
 
   // 트렌드 배지 분류 (5년 변화율 기준)
@@ -204,7 +204,7 @@ export function SigunguStats({
           <div className={s.statBody}>
             <span className={s.statLabel}>면적</span>
             <span className={s.statValue}>{area.toLocaleString("ko-KR")} km²</span>
-            <span className={s.statSub}>서울의 약 {seoulRatio}배</span>
+            <span className={s.statSub}>{seoulCompare.sentence}</span>
           </div>
         </button>
 

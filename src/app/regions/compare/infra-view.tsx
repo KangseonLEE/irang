@@ -57,7 +57,7 @@ export async function InfraView({ regions }: Props) {
   }
 
   const metrics = buildInfraMetricRows(regions, infraByRegion);
-  // 행정구역 개편으로 사라진 구(인천 중구·동구·서구) — 의료기관·학교는 '—' (10/7)
+  // 원천만 새 구로 바뀌어 셀 수 없는 지역(countsUnavailable) — 의료기관·학교는 '—' (10/7, 지금은 해당 없음)
   const reorgLabels = regions
     .filter((r) => r.sigungu && getRegionReorganization(r.sigungu.id)?.countsUnavailable)
     .map((r) => r.label);
@@ -319,6 +319,9 @@ async function fetchInfraForRegions(
   regions: RegionItem[],
 ): Promise<RegionInfraData[]> {
   const promises = regions.map(async (region) => {
+    // 코드는 상세 화면과 같은 시·도 표(PROVINCES SSOT). 10/7: 측정소 표(stations.ts)의 교육청·심평원 코드가
+    // 4개 시·도에서 어긋나 강원 춘천·경북 영주 학교 0개교, 대구 수성 의료기관 0개소로 나왔다
+    const { hiraSidoCd, eduCode, sgisCode } = region.province;
     if (region.sigungu) {
       // 개편으로 사라진 구는 옛 코드·이름으로 세면 0 — 조회도, 시·도 대체값도 쓰지 않는다
       const reorg = getRegionReorganization(region.sigungu.id)?.countsUnavailable;
@@ -326,45 +329,17 @@ async function fetchInfraForRegions(
         fetchSigunguPopulationData(region.sigungu.sgisCode),
         reorg
           ? Promise.resolve(null)
-          : fetchSigunguMedicalFacilities(
-              region.sigungu.hiraSidoCd ?? region.station.hiraSidoCd,
-              region.sigungu.hiraSgguCd,
-            ),
+          : fetchSigunguMedicalFacilities(hiraSidoCd, region.sigungu.hiraSgguCd),
         reorg
           ? Promise.resolve(null)
-          : fetchSigunguSchoolCounts(
-              region.sigungu.eduCode ?? region.station.eduCode,
-              region.sigungu.name,
-            ),
+          : fetchSigunguSchoolCounts(eduCode, region.sigungu.name),
       ]);
 
-      let pop = popResult.status === "fulfilled" ? popResult.value : null;
-      let med = medResult.status === "fulfilled" ? medResult.value : null;
-      let sch = schResult.status === "fulfilled" ? schResult.value : null;
-
-      const medFallback = !med && !reorg;
-      const schFallback = !sch && !reorg;
-      const needsFallback = !pop || medFallback || schFallback;
-      if (needsFallback) {
-        const [popFb, medFb, schFb] = await Promise.allSettled([
-          !pop
-            ? fetchPopulationData([region.station.sgisCode])
-            : Promise.resolve([]),
-          medFallback
-            ? fetchMedicalFacilities([region.station.hiraSidoCd])
-            : Promise.resolve([]),
-          schFallback ? fetchSchoolCounts([region.station.eduCode]) : Promise.resolve([]),
-        ]);
-        if (!pop && popFb.status === "fulfilled" && popFb.value[0]) {
-          pop = popFb.value[0];
-        }
-        if (!med && medFb.status === "fulfilled" && medFb.value[0]) {
-          med = medFb.value[0];
-        }
-        if (!sch && schFb.status === "fulfilled" && schFb.value[0]) {
-          sch = schFb.value[0];
-        }
-      }
+      // 시·군·구 값을 못 받으면 '—' 로 둔다. 시·도 값을 시·군·구 칸에 넣지 않는다 — 상세 화면은 '(시·도 기준)'을
+      // 밝히지만 비교 칸엔 밝힐 자리가 없어, 강원 전체 학교 수가 춘천 값처럼 보였다 (10/7)
+      const pop = popResult.status === "fulfilled" ? popResult.value : null;
+      const med = medResult.status === "fulfilled" ? medResult.value : null;
+      const sch = schResult.status === "fulfilled" ? schResult.value : null;
 
       return {
         region,
@@ -377,9 +352,9 @@ async function fetchInfraForRegions(
     }
 
     const [popResult, medResult, schResult] = await Promise.allSettled([
-      fetchPopulationData([region.station.sgisCode]),
-      fetchMedicalFacilities([region.station.hiraSidoCd]),
-      fetchSchoolCounts([region.station.eduCode]),
+      fetchPopulationData([sgisCode]),
+      fetchMedicalFacilities([hiraSidoCd]),
+      fetchSchoolCounts([eduCode]),
     ]);
 
     const pop =

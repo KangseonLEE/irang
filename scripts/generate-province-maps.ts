@@ -28,6 +28,9 @@ interface Province {
   name: string;
 }
 
+/** SGIS 경계로 다시 만든 시·도 — 인천(2026 개편)·대구(군위 편입). scripts/generate-province-map-sgis.ts */
+const SGIS_GENERATED = new Set(["incheon", "daegu"]);
+
 const PROVINCES: Province[] = [
   { id: "seoul", name: "서울특별시" },
   { id: "incheon", name: "인천광역시" },
@@ -458,6 +461,11 @@ async function main() {
   >();
 
   for (const province of PROVINCES) {
+    // 행정구역 개편이 있은 시·도는 SGIS 경계 생성기가 만든다 — 옛 statgarten 경계로 덮어쓰지 않는다 (10/7)
+    if (SGIS_GENERATED.has(province.id)) {
+      console.log(`\n[${province.id}] skip — scripts/generate-province-map-sgis.ts 로 생성`);
+      continue;
+    }
     const url = buildSvgUrl(province.name);
     console.log(`\n[${province.id}] Downloading ${province.name}...`);
 

@@ -9,6 +9,11 @@ export interface Station {
   name: string;
   province: string;
   description: string;
+  /**
+   * 아래 세 코드는 소속 시·도(PROVINCES, regions.ts)와 같아야 한다 — 10/7 강원·경남·경북·제주 교육청 코드와
+   * 대구 심평원 코드가 다른 시·도 것으로 들어가 지역 비교 인프라가 0으로 나왔다. 화면은 이제 PROVINCES 코드를 쓰고,
+   * stations-codes.test.ts 가 두 표가 같은지 본다.
+   */
   /** SGIS 시도 단위 지역코드 */
   sgisCode: string;
   /** 건강보험심사평가원 시도코드 */
@@ -25,9 +30,9 @@ export const STATIONS: Station[] = [
   { stnId: "239", name: "세종", province: "세종특별자치시", description: "행정수도 도농복합", sgisCode: "29", hiraSidoCd: "290000", eduCode: "I10" },
 
   // 강원도
-  { stnId: "101", name: "춘천", province: "강원도", description: "강원 내륙", sgisCode: "32", hiraSidoCd: "320000", eduCode: "R10" },
-  { stnId: "211", name: "인제", province: "강원도", description: "산간 고랭지", sgisCode: "32", hiraSidoCd: "320000", eduCode: "R10" },
-  { stnId: "217", name: "정선", province: "강원도", description: "고랭지 농업", sgisCode: "32", hiraSidoCd: "320000", eduCode: "R10" },
+  { stnId: "101", name: "춘천", province: "강원도", description: "강원 내륙", sgisCode: "32", hiraSidoCd: "320000", eduCode: "K10" },
+  { stnId: "211", name: "인제", province: "강원도", description: "산간 고랭지", sgisCode: "32", hiraSidoCd: "320000", eduCode: "K10" },
+  { stnId: "217", name: "정선", province: "강원도", description: "고랭지 농업", sgisCode: "32", hiraSidoCd: "320000", eduCode: "K10" },
 
   // 충청도
   { stnId: "131", name: "청주", province: "충청북도", description: "충북 중심", sgisCode: "33", hiraSidoCd: "330000", eduCode: "M10" },
@@ -41,17 +46,17 @@ export const STATIONS: Station[] = [
   { stnId: "259", name: "순천", province: "전라남도", description: "남해안 온난", sgisCode: "36", hiraSidoCd: "360000", eduCode: "Q10" },
 
   // 경상도
-  { stnId: "143", name: "대구", province: "대구광역시", description: "경북 분지", sgisCode: "22", hiraSidoCd: "220000", eduCode: "D10" },
+  { stnId: "143", name: "대구", province: "대구광역시", description: "경북 분지", sgisCode: "22", hiraSidoCd: "230000", eduCode: "D10" },
   { stnId: "159", name: "부산", province: "부산광역시", description: "남부 항만 도시", sgisCode: "21", hiraSidoCd: "210000", eduCode: "C10" },
   { stnId: "152", name: "울산", province: "울산광역시", description: "산업 도시 근교", sgisCode: "26", hiraSidoCd: "260000", eduCode: "H10" },
-  { stnId: "192", name: "진주", province: "경상남도", description: "경남 내륙", sgisCode: "38", hiraSidoCd: "380000", eduCode: "T10" },
-  { stnId: "289", name: "산청", province: "경상남도", description: "지리산 자락", sgisCode: "38", hiraSidoCd: "380000", eduCode: "T10" },
-  { stnId: "271", name: "봉화", province: "경상북도", description: "경북 산간", sgisCode: "37", hiraSidoCd: "370000", eduCode: "S10" },
-  { stnId: "272", name: "영주", province: "경상북도", description: "사과 주산지", sgisCode: "37", hiraSidoCd: "370000", eduCode: "S10" },
+  { stnId: "192", name: "진주", province: "경상남도", description: "경남 내륙", sgisCode: "38", hiraSidoCd: "380000", eduCode: "S10" },
+  { stnId: "289", name: "산청", province: "경상남도", description: "지리산 자락", sgisCode: "38", hiraSidoCd: "380000", eduCode: "S10" },
+  { stnId: "271", name: "봉화", province: "경상북도", description: "경북 산간", sgisCode: "37", hiraSidoCd: "370000", eduCode: "R10" },
+  { stnId: "272", name: "영주", province: "경상북도", description: "사과 주산지", sgisCode: "37", hiraSidoCd: "370000", eduCode: "R10" },
 
   // 제주
-  { stnId: "184", name: "제주", province: "제주특별자치도", description: "감귤 재배", sgisCode: "39", hiraSidoCd: "390000", eduCode: "V10" },
-  { stnId: "189", name: "서귀포", province: "제주특별자치도", description: "아열대 작물", sgisCode: "39", hiraSidoCd: "390000", eduCode: "V10" },
+  { stnId: "184", name: "제주", province: "제주특별자치도", description: "감귤 재배", sgisCode: "39", hiraSidoCd: "390000", eduCode: "T10" },
+  { stnId: "189", name: "서귀포", province: "제주특별자치도", description: "아열대 작물", sgisCode: "39", hiraSidoCd: "390000", eduCode: "T10" },
 ];
 
 /** 기본 표시 지역 (페이지 최초 로딩 시, 최대 3개) */

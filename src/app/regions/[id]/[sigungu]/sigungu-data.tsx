@@ -18,6 +18,7 @@ import {
   fetchSigunguPopulationData,
   fetchPopulationData,
   fetchFarmHousehold,
+  farmAvgDiffPct,
 } from "@/lib/api/sgis";
 import { getFarmFallback } from "@/lib/data/farms";
 import {
@@ -48,14 +49,12 @@ interface SigunguDataProps {
 
 export async function SigunguData({ province, sigungu }: SigunguDataProps) {
   const hiraSgguCd = sigungu.hiraSgguCd;
-  // 행정구역 개편으로 사라진 구(인천 중구·동구·서구) — 옛 코드·이름으로는 공공데이터가 0을 돌려줘
-  // 조회 자체를 하지 않고, 시·도 수치로 대신 채우지도 않는다(화면은 '확인 불가', 10/7)
+  // 행정구역 개편으로 셀 수 없게 된 곳이면 조회 자체를 하지 않고 시·도 수치로 대신 채우지도 않는다
+  // (화면은 '확인 불가', 10/7). 지금은 해당 지역 없음 — 인천 옛 중구·동구·서구는 신설 4개 구로 옮겼다
   const reorg = getRegionReorganization(sigungu.id);
-  // 나뉘거나 합쳐진 구만 '확인 불가' — 옮겨 간 곳(군위)은 새 시·도 코드로 센다
   const countsUnavailable = reorg?.countsUnavailable ? reorg : null;
-  // 소속 시·도와 다른 코드로 조회하는 곳(군위 → 대구, 2023 편입) — 없으면 소속 시·도 코드
-  const hiraSidoCd = sigungu.hiraSidoCd ?? province.hiraSidoCd;
-  const eduCode = sigungu.eduCode ?? province.eduCode;
+  const hiraSidoCd = province.hiraSidoCd;
+  const eduCode = province.eduCode;
 
   // ── Phase 1: 시군구 수준 + 기후 + 귀농귀촌 + 농가 (6개 병렬) ──
   const [
@@ -72,7 +71,7 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
       : Promise.resolve(null),
     countsUnavailable ? Promise.resolve(null) : fetchSigunguSchoolCounts(eduCode, sigungu.name),
     fetchMultipleClimateData(province.stationIds),
-    fetchReturnFarmStats(sigungu.admCode),
+    fetchReturnFarmStats(sigungu.admCode, sigungu.name),
     fetchFarmHousehold(sigungu.sgisCode),
   ]);
 
@@ -152,12 +151,8 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
   // ── 농가 데이터 + 시도 평균 비교 (정적 폴백 기반) ──
   const farm = farmResult.status === "fulfilled" ? farmResult.value : null;
   const sidoFarm = getFarmFallback(province.sgisCode); // 시도 합산
-  let farmRatioVsSido: number | null = null;
-  if (farm && sidoFarm && sidoFarm.avgPopulation > 0 && farm.avgPopulation > 0) {
-    farmRatioVsSido = Math.round(
-      ((farm.avgPopulation - sidoFarm.avgPopulation) / sidoFarm.avgPopulation) * 100,
-    );
-  }
+  // 반올림 전 두 수로 비교 — SGIS 가 정수로 준 평균으로 비교하면 -33% 같은 엉뚱한 차이가 났다 (10/7)
+  const farmRatioVsSido = farm && sidoFarm ? farmAvgDiffPct(farm, sidoFarm) : null;
 
   // ── 인구 5년 추이 (정적 폴백 기반 — 빌드 안정성) ──
   const sigunguTrend: PopulationTrendPoint[] = getPopulationTrend(sigungu.sgisCode);

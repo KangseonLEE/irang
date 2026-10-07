@@ -12,7 +12,7 @@
  *     (POPULATION_FALLBACK은 시도 단위만 보유 — 시군구는 trend 데이터 사용)
  *
  * 코드 매핑 주의 — 회장 메모(SGIS 코드 체계 vs 행안부 코드):
- *   - KOSIS C1 코드 = 행안부 admCode (예: 전남 순천 = 46150)
+ *   - KOSIS C1 코드 = sigungus.ts admCode (옛 행정구역분류 체계, 예: 전남 순천 = 36030 — 행안부 코드 아님)
  *   - sigungus.ts: admCode + sgisCode 둘 다 보유
  *   - 결과 직렬화는 sgisCode 5자리로 통일 (다른 폴백 데이터와 일관)
  *
@@ -38,7 +38,7 @@ import { resolve } from "node:path";
 config({ path: resolve(__dirname, "../.env.local") });
 
 import { SIGUNGUS } from "../src/lib/data/sigungus";
-import { fetchReturnFarmStats } from "../src/lib/api/kosis";
+import { fetchReturnFarmStats, fetchReturnFarmStatsOfYear, isSameRegionName } from "../src/lib/api/kosis";
 import { POPULATION_TREND_SIGUNGU, POPULATION_TREND_YEARS } from "../src/lib/data/population-trend";
 
 interface ReturnFarmRate {
@@ -78,6 +78,11 @@ async function main() {
   const kosisMap = new Map(
     kosisData.map((d) => [d.regionCode, d]),
   );
+  // 최신 연도에 비공개('X')로 빠진 곳(2025 울릉 등)은 전년도 값 — 없으면 순위 계산이 그곳을 도시 자치구로 본다
+  const prevMap = new Map(
+    (await fetchReturnFarmStatsOfYear(dataYear - 1)).map((d) => [d.regionCode, d]),
+  );
+  const prevYearUsed: string[] = [];
 
   // 3) 최신 연도 시군구 인구 lookup (sgisCode 기준)
   const trendLatestYear = Math.max(...POPULATION_TREND_YEARS);
@@ -96,9 +101,15 @@ async function main() {
   const failList: string[] = [];
 
   for (const sg of SIGUNGUS) {
-    const kosisRow = kosisMap.get(sg.admCode);
+    const latestRow = kosisMap.get(sg.admCode);
+    const kosisRow = latestRow ?? prevMap.get(sg.admCode);
     if (!kosisRow) {
       failList.push(`${sg.name} (admCode=${sg.admCode}, KOSIS 미발견)`);
+      continue;
+    }
+    // 코드가 이웃 지역을 가리키면 쓰지 않는다 — 10/7 15건이 한 칸씩 밀려 옥천에 보은 값이 들어가 있었다
+    if (!isSameRegionName(kosisRow.regionName, sg.name)) {
+      failList.push(`${sg.name} (admCode=${sg.admCode} → KOSIS '${kosisRow.regionName}', 이름 다름)`);
       continue;
     }
     const population = populationMap.get(sg.sgisCode);
@@ -107,12 +118,13 @@ async function main() {
       continue;
     }
     const rate = (kosisRow.returnFarmPerson / population) * 100;
+    if (!latestRow) prevYearUsed.push(`${sg.name}(${kosisRow.year})`);
     successList.push({
       sgisCode: sg.sgisCode,
       name: sg.name,
       returnFarmCount: kosisRow.returnFarmPerson,
       returnFarmRate: Number(rate.toFixed(4)),
-      year: dataYear,
+      year: kosisRow.year,
     });
   }
 
@@ -138,7 +150,7 @@ async function main() {
  * 생성 스크립트: scripts/collect-return-farm-rate.ts
  * 데이터 소스: KOSIS 통계청 귀농어·귀촌인 통계 (DT_1A02002)
  * 인구 베이스: src/lib/data/population-trend.ts (${trendLatestYear}년)
- * 통계 연도: ${dataYear}
+ * 통계 연도: ${dataYear}${prevYearUsed.length ? ` (비공개로 빠진 곳은 전년도 값: ${prevYearUsed.join(", ")})` : ""}
  * 마지막 수집: ${new Date().toISOString().slice(0, 10)}
  *
  * ⚠ 절대 수동 편집 금지. 갱신은 \`npx tsx scripts/collect-return-farm-rate.ts\`
@@ -147,7 +159,7 @@ async function main() {
  * 비율 = (해당 지역 귀농인 수 / 해당 지역 전체 인구) × 100
  *
  * ⚠ 코드 체계 주의:
- *   - KOSIS C1 코드 = 행안부 admCode (예: 전남 순천 = 46150)
+ *   - KOSIS C1 코드 = sigungus.ts admCode (옛 행정구역분류 체계, 예: 전남 순천 = 36030 — 행안부 코드 아님)
  *   - 본 파일의 sgisCode = SGIS 5자리 (예: 전남 순천 = 36030)
  *   - 매핑은 sigungus.ts의 admCode + sgisCode 페어를 통해 변환
  *

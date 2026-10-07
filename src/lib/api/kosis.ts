@@ -472,9 +472,11 @@ export interface ReturnFarmData {
  * - DT_1A02015: 귀촌인 수 (itmId=T01, C2=0 계)
  *
  * @param regionCode 시군구 코드 (5자리, 없으면 전체 조회)
+ * @param expectedName 우리 시·군·구 이름 — 주면 응답 지역명이 같은 행만 돌려준다(다르면 빈 배열)
  */
 export async function fetchReturnFarmStats(
   regionCode?: string,
+  expectedName?: string,
 ): Promise<ReturnFarmData[]> {
   const apiKey = process.env.KOSIS_API_KEY;
   if (!apiKey) return [];
@@ -484,10 +486,37 @@ export async function fetchReturnFarmStats(
   // 귀농귀촌 통계는 보통 6월에 전년 데이터 공개 → 전년~2년전 시도
   for (const year of [currentYear - 1, currentYear - 2, currentYear - 3]) {
     const data = await fetchReturnFarmForYear(apiKey, year, regionCode);
-    if (data.length > 0) return data;
+    if (data.length === 0) continue;
+    if (!expectedName) return data;
+    // 코드가 이웃 지역을 가리키면(10/7: 서천 → 부여 값) 숫자를 내지 않는다 — 다른 해도 같은 코드라 더 찾지 않는다
+    const mine = data.filter((d) => isSameRegionName(d.regionName, expectedName));
+    if (mine.length === 0) {
+      console.warn(`KOSIS 귀농 ${regionCode}: 응답 지역 '${data[0].regionName}' ≠ '${expectedName}' — 표시 안 함`);
+    }
+    return mine;
   }
 
   return [];
+}
+
+/**
+ * KOSIS 지역명과 우리 시·군·구 이름이 같은 곳인가 — 표기만 다른 경우('세종시' ↔ '세종특별자치시')는 같다고 본다.
+ * 코드만 믿고 숫자를 보이지 않기 위한 확인이다(10/7 admCode 15건 밀림).
+ */
+export function isSameRegionName(kosisName: string | undefined | null, ourName: string): boolean {
+  if (!kosisName) return false;
+  const norm = (s: string) => s.replace(/\s+/g, "").replace(/특별자치시$/, "시");
+  return norm(kosisName) === norm(ourName);
+}
+
+/**
+ * 특정 연도의 시군구 귀농·귀촌 통계 — 정적 수집(scripts/collect-return-farm-rate.ts)이 최신 연도에서 비공개('X')로
+ * 빠진 곳을 전년도 값으로 채울 때 쓴다.
+ */
+export async function fetchReturnFarmStatsOfYear(year: number, regionCode?: string): Promise<ReturnFarmData[]> {
+  const apiKey = process.env.KOSIS_API_KEY;
+  if (!apiKey) return [];
+  return fetchReturnFarmForYear(apiKey, year, regionCode);
 }
 
 async function fetchReturnFarmForYear(
@@ -624,10 +653,12 @@ export interface ReturnFarmTrendItem {
  *
  * @param regionCode 시군구 코드 (5자리)
  * @param years 조회할 연도 수 (기본 10)
+ * @param expectedName 우리 시·군·구 이름 — 주면 응답 지역명이 같은 행만 쓴다
  */
 export async function fetchReturnFarmTrend(
   regionCode: string,
   years = 10,
+  expectedName?: string,
 ): Promise<ReturnFarmTrendItem[]> {
   const apiKey = process.env.KOSIS_API_KEY;
   if (!apiKey) return [];
@@ -675,11 +706,15 @@ export async function fetchReturnFarmTrend(
       return Array.isArray(json) ? (json as KOSISReturnFarmRawItem[]) : [];
     };
 
-    const [personItems, householdItems, ruralItems] = await Promise.all([
+    const raw = await Promise.all([
       parseJson(personRes),
       parseJson(householdRes),
       parseJson(ruralRes),
     ]);
+    // 응답 지역명이 우리 이름과 다른 행은 버린다 — 코드가 이웃 지역을 가리켜도 그 숫자를 그리지 않는다
+    const [personItems, householdItems, ruralItems] = expectedName
+      ? raw.map((items) => items.filter((i) => isSameRegionName(i.C1_NM, expectedName)))
+      : raw;
 
     if (personItems.length === 0) return [];
 

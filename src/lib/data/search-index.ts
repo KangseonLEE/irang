@@ -13,6 +13,7 @@ import { getChosung, isChosungQuery, matchChosung } from "../chosung";
 import { STATIONS } from "./stations";
 import { SIGUNGUS, getSigunguById } from "./sigungus";
 import { GUS } from "./gus";
+import { REGION_REORGANIZATIONS } from "./region-reorganizations";
 import { getProvinceById, PROVINCES } from "./regions";
 import { CROPS, CROP_DETAILS } from "./crops";
 import { PROGRAMS } from "./programs";
@@ -1198,7 +1199,8 @@ export function searchAllGrouped(query: string): GroupedSearchResults {
 
   // 읍·면·동 안내 — 시드 매칭 시 최상단에 노출 (동음이의어는 다수 항목)
   // 복합 쿼리("울산 서생")는 첫 단어로만 매칭 — 단일 단어 검색이 일반적
-  const hintPrefix = matchSubRegionHints(terms[0] ?? q);
+  // 옛 이름('인천 중구', '경북 군위군')은 검색어 전체로 — 새 지역 안내를 읍·면·동 안내보다 먼저
+  const hintPrefix = [...matchFormerNameHints(q), ...matchSubRegionHints(terms[0] ?? q)];
 
   // FAQ 매칭 — 질문형 쿼리를 FAQ 패턴과 비교하여 상위에 삽입
   const faqResults = matchFaqs(q);
@@ -1825,6 +1827,49 @@ const REGION_NAME_SET: Set<string> = new Set([
   ...PROVINCES.flatMap((p) => [p.shortName.toLowerCase(), p.name.toLowerCase()]),
   ...SIGUNGUS.flatMap((s) => [s.shortName.toLowerCase(), s.name.toLowerCase()]),
 ]);
+
+/**
+ * 옛 이름 안내 — 행정구역 개편으로 사라진 이름을 치면 새 지역으로 안내한다 (10/7).
+ * '인천 중구'는 제목이 정확히 같은 다른 도시의 중구가 먼저 서서 새 구(제물포·영종)가 묻혔다.
+ * region-reorganizations.ts formerNames('시·도 약칭 + 이름')가 SSOT — 시·도 정식 이름·붙여 쓰기·'군' 생략도 받는다.
+ */
+const FORMER_NAME_HINTS: ReadonlyMap<string, readonly SearchItem[]> = (() => {
+  const map = new Map<string, SearchItem[]>();
+  for (const [sigunguId, reorg] of Object.entries(REGION_REORGANIZATIONS)) {
+    const sg = getSigunguById(sigunguId);
+    const prov = sg ? getProvinceById(sg.sidoId) : undefined;
+    if (!sg || !prov) continue;
+    for (const former of reorg.formerNames ?? []) {
+      const [sidoShort, name] = former.split(/\s+/);
+      const formerProv = PROVINCES.find((p) => p.shortName === sidoShort);
+      const sidoForms = formerProv ? [formerProv.shortName, formerProv.name] : [sidoShort];
+      const nameForms = [...new Set([name, name.replace(/(시|군)$/, "")])].filter((n) => n.length >= 2);
+      const item: SearchItem = {
+        type: "region",
+        id: `former-name-${sigunguId}-${former}`,
+        title: `${former} → ${prov.shortName} ${sg.name}`,
+        subtitle: reorg.summary,
+        href: `/regions/${sg.sidoId}/${sg.id}`,
+        keywords: [former, sg.name],
+        icon: "\u{1F4CD}", // 📍
+        badge: "안내",
+      };
+      for (const sido of sidoForms) {
+        for (const n of nameForms) {
+          for (const key of [`${sido} ${n}`, `${sido}${n}`]) {
+            const k = key.toLowerCase();
+            map.set(k, [...(map.get(k) ?? []), item]);
+          }
+        }
+      }
+    }
+  }
+  return map;
+})();
+
+function matchFormerNameHints(query: string): SearchItem[] {
+  return [...(FORMER_NAME_HINTS.get(query.trim().toLowerCase().replace(/\s+/g, " ")) ?? [])];
+}
 
 function matchSubRegionHints(query: string): SearchItem[] {
   const q = query.trim().toLowerCase();

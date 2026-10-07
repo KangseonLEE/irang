@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/icon";
 import { Modal } from "@/components/ui/modal";
 import { ClimateSection } from "@/components/stats/climate-section";
 import type { ClimateInfo } from "@/components/stats/climate-section";
-import { formatPopulation, SEOUL_AREA_KM2 } from "@/lib/format";
+import { formatPopulation, seoulAreaCompare } from "@/lib/format";
 import { AreaModal } from "./modals/area-modal";
 // recharts 의존 모달은 지연 로드 — 초기 JS에서 recharts 제외 (./modals/lazy 주석 참조)
 import { PopulationModal } from "./modals/lazy";
@@ -64,7 +64,7 @@ export function RegionStats({
   const closeModal = () => setActiveModal(null);
 
   // 서울 대비 면적 비교
-  const seoulRatio = (area / SEOUL_AREA_KM2).toFixed(1);
+  const seoulCompare = seoulAreaCompare(area);
   const density = population
     ? Math.round(population.population / area)
     : null;
@@ -86,7 +86,7 @@ export function RegionStats({
             <span className={s.statValue}>
               {area.toLocaleString("ko-KR")} km²
             </span>
-            <span className={s.statSub}>서울의 약 {seoulRatio}배</span>
+            <span className={s.statSub}>{seoulCompare.sentence}</span>
           </div>
         </button>
 

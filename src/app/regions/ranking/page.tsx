@@ -89,7 +89,7 @@ const DIMENSION_NOTES: Record<DimensionId, string | null> = {
   populationTrend: null,
   farmActivity: "도시 자치구는 농가 통계가 따로 잡히지 않아 빠져 있어요.",
   medical: null,
-  school: "군위군은 학교 정보가 등록되어 있지 않아 빠져 있어요.",
+  school: null,
   returnFarm: "도시 자치구는 농촌 정착 통계가 따로 잡히지 않아 빠져 있어요.",
 };
 

@@ -1,17 +1,14 @@
 /**
- * 행정구역 개편으로 나뉘거나 합쳐진 시·군·구 — 우리 데이터는 개편 전 체계로 남아 있는 곳의 안내용 SSOT.
+ * 행정구역 개편을 겪은 시·군·구의 화면 안내 SSOT.
  *
- * 2026-07-01 인천 행정체제 개편: 중구 → 제물포구·영종구, 동구 → 제물포구, 서구 → 서해구·검단구.
- * 근거(10/6 QA·10/7 확인): 옛 중구청 누리집 종료 안내("영종구와 제물포구로 분구", 2026.7.1. 09:00),
- * 옛 동구청 주소 → 제물포구청, 옛 서구청 주소 → 서해구청으로 넘어가고, 검단구청은 별도 누리집.
+ * 2026-07-01 인천 행정체제 개편: 중구·동구·서구 → 제물포구·영종구·서해구·검단구.
+ *   근거(10/6 QA·10/7 확인): 옛 중구청 누리집 종료 안내("영종구와 제물포구로 분구", 2026.7.1. 09:00),
+ *   옛 동구청 주소 → 제물포구청, 옛 서구청 주소 → 서해구청, 검단구청은 별도 누리집.
+ *   10/7 A안: 옛 3개 구 대신 신설 4개 구를 우리 지역 단위로 두었다(sigungus.ts). 심평원(220009~220012)·
+ *   교육부 학교 주소는 이미 새 구 기준이라 그대로 세고, SGIS 에는 새 구가 아직 없어 인구는 행정동을 더한다
+ *   (region-composites.ts). 옛 주소는 MOVED_REGION_PATHS 로 옮긴다.
  *
- * 공공데이터는 이미 새 구 기준이라 옛 이름·코드로 세면 0이 나온다(10/7 운영 실측: 심평원 의료기관
- * 중구·동구·서구 0곳, 교육부 학교 주소는 제물포구·영종구·서해구·검단구로 바뀜). 이 지역의 의료기관·학교
- * 수는 '확인 불가'로 두고 새 구청으로 안내한다(B안). 새 구로 데이터 전체를 옮기는 A안은 별도 결정.
-
- *
- * 2023-07-01 군위군 대구 편입: 심평원·교육부가 대구 코드 아래에 둬 경북 코드로는 0이었다(10/7 전수 대조).
- * 군위는 나뉜 게 아니라 옮겨 간 것이라 수는 대구 코드로 그대로 센다(sigungus.ts hiraSidoCd·eduCode).
+ * 2023-07-01 군위군 대구 편입: 10/7 A안으로 경북 → 대구 아래로 옮겼다(/regions/daegu/gunwi).
  */
 
 interface RegionSuccessor {
@@ -26,49 +23,76 @@ export interface RegionReorganization {
   effectiveDate: string;
   /** 한 문장 설명 — 화면 안내 첫 문장 */
   summary: string;
-  /** 이 지역을 이어받은 구 — 옮겨 가기만 한 곳(군위)은 비어 있다 */
+  /** 이 지역을 이어받은 기관 — '확인 불가' 안내 창에서 새 구청으로 안내할 때만 채운다 */
   successors: RegionSuccessor[];
   /**
-   * 의료기관·학교 수를 셀 수 없는가. 나뉘거나 합쳐진 구(인천)는 true — 옛 구 단위 원천이 없다.
-   * 다른 시·도로 옮겨 간 곳(군위)은 false — 새 시·도 코드로 센다.
+   * 의료기관·학교 수를 셀 수 없는가 — 옛 구를 그대로 둔 채 원천(심평원·교육부)만 새 구로 바뀌었을 때 true
+   * (10/7 B안의 인천 옛 3개 구). true 면 조회하지 않고 '확인 불가'로 둔다. 지금은 true 인 곳이 없다.
    */
   countsUnavailable: boolean;
   /** 상단 안내의 둘째 문장 — 없으면 '개편 전 기준 자료 + 확인 불가' 기본 문장 */
   detail?: string;
+  /** 옛 이름('시·도 약칭 + 시·군·구') — 통합검색이 옛 이름으로 찾으면 이 지역으로 안내한다(search-index) */
+  formerNames?: string[];
 }
 
-const JEMULPO: RegionSuccessor = { name: "제물포구청", url: "https://www.jemulpo.go.kr/" };
-const YEONGJONG: RegionSuccessor = { name: "영종구청", url: "https://www.yeongjong.go.kr/main/main.do" };
-const SEOHAE: RegionSuccessor = { name: "서해구청", url: "https://www.seohae.go.kr/open_content/main/" };
-const GEOMDAN: RegionSuccessor = { name: "검단구청", url: "https://www.geomdan.go.kr/" };
+// 통계청 인구 자료(SGIS)에 새 구가 아직 없어 행정동 값을 더한다 — 그 사실만 밝힌다. 귀농·귀촌 통계는 원래 자치구
+// 단위로 나오지 않아(KOSIS 귀농어·귀촌인 통계는 시·군만) 새 구라서 없는 게 아니다
+const NEW_DISTRICT_DETAIL = "인구는 통계청 2024년 행정동 통계를 새 구에 속한 동별로 더한 값이에요.";
 
 /** 키 = sigungus.ts 의 시·군·구 id */
 export const REGION_REORGANIZATIONS: Readonly<Record<string, RegionReorganization>> = {
-  "jung-gu-incheon": {
+  jemulpo: {
     effectiveDate: "2026-07-01",
-    summary: "2026년 7월 1일 인천 행정체제 개편으로 중구는 제물포구와 영종구로 나뉘었어요.",
-    successors: [JEMULPO, YEONGJONG],
-    countsUnavailable: true,
+    summary: "2026년 7월 1일 인천 행정체제 개편으로 옛 동구와 옛 중구 내륙이 합쳐져 제물포구가 됐어요.",
+    successors: [],
+    countsUnavailable: false,
+    detail: NEW_DISTRICT_DETAIL,
+    formerNames: ["인천 중구", "인천 동구"],
   },
-  "dong-gu-incheon": {
+  yeongjong: {
     effectiveDate: "2026-07-01",
-    summary: "2026년 7월 1일 인천 행정체제 개편으로 동구는 제물포구가 됐어요.",
-    successors: [JEMULPO],
-    countsUnavailable: true,
+    summary: "2026년 7월 1일 인천 행정체제 개편으로 옛 중구의 영종·용유 지역이 영종구가 됐어요.",
+    successors: [],
+    countsUnavailable: false,
+    detail: NEW_DISTRICT_DETAIL,
+    formerNames: ["인천 중구"],
   },
-  "seo-gu-incheon": {
+  seohae: {
     effectiveDate: "2026-07-01",
-    summary: "2026년 7월 1일 인천 행정체제 개편으로 서구는 서해구와 검단구로 나뉘었어요.",
-    successors: [SEOHAE, GEOMDAN],
-    countsUnavailable: true,
+    summary: "2026년 7월 1일 인천 행정체제 개편으로 옛 서구가 서해구와 검단구로 나뉘었어요.",
+    successors: [],
+    countsUnavailable: false,
+    detail: NEW_DISTRICT_DETAIL,
+    formerNames: ["인천 서구"],
+  },
+  geomdan: {
+    effectiveDate: "2026-07-01",
+    summary: "2026년 7월 1일 인천 행정체제 개편으로 옛 서구의 검단 지역이 검단구가 됐어요.",
+    successors: [],
+    countsUnavailable: false,
+    detail: NEW_DISTRICT_DETAIL,
+    formerNames: ["인천 서구"],
   },
   gunwi: {
     effectiveDate: "2023-07-01",
     summary: "2023년 7월 1일 군위군은 경상북도에서 대구광역시로 편입됐어요.",
     successors: [],
     countsUnavailable: false,
-    detail: "의료기관·학교 수는 대구광역시 군위군 기준으로 셌어요. 지원사업은 경상북도가 아니라 대구광역시 사업을 함께 확인하세요.",
+    detail: "통계와 지원사업 모두 대구광역시 기준으로 보여 드려요.",
+    formerNames: ["경북 군위군"],
   },
+};
+
+/**
+ * 옛 상세 주소 → 새 주소 (`/regions/` 뒤 경로). next.config.ts redirects 와 같은 표다 — 테스트가 맞춰 본다.
+ * 나뉜 구(인천 중구·서구)는 두 신설 구가 함께 보이는 시·도 화면으로, 통째로 옮겨 간 곳은 새 상세로.
+ */
+export const MOVED_REGION_PATHS: Readonly<Record<string, string>> = {
+  "incheon/jung-gu-incheon": "incheon",
+  "incheon/dong-gu-incheon": "incheon/jemulpo",
+  "incheon/seo-gu-incheon": "incheon",
+  "gyeongbuk/gunwi": "daegu/gunwi",
 };
 
 /** 개편된 시·군·구면 그 정보, 아니면 null */

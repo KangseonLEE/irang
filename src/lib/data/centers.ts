@@ -9,7 +9,7 @@
  *   HTTP 200 + 정상 제목 + 본문에 기관명 낱말이 있는 항목만 verifiedAt 을 2026-10-06 으로 올렸다.
  *   항목 주석의 title 은 최초(4/15) 기록이고, 이번에 주소를 바꾼 항목만 주석을 새로 썼다.
  *   2026-04-15 로 남은 항목 = 아직 재확인이 끝나지 않은 곳:
- *   인천 중구·동구·서구(2026-07-01 행정체제 개편 — 중구 누리집 운영 종료, 동구·서구 도메인 변경, SSOT 결정 대기),
+ *   (인천 중구·동구·서구는 2026-10-07 신설 4개 구청(제물포·영종·서해·검단)으로 바꾸고 재검증했다)
  *   대구 중구(봇 방어 스크립트가 자동화 브라우저에 400 — 사람 브라우저 확인 대상), 통영(자동화 차단 페이지).
  *   교훈: 4/15 검증은 상태코드만 보고 청송 378B 방화벽 차단 페이지·봉화 메인 리다이렉트를 통과시켰다 —
  *   재검증 기준에 본문 크기·기관명 낱말을 넣는다.
@@ -1143,18 +1143,6 @@ export const CENTERS: Center[] = [
     verifiedAt: "2026-10-06",
   },
   {
-    id: "gyeongbuk-gunwi-sigungu",
-    sido: "경북",
-    sidoSlug: "gyeongbuk",
-    sigungu: "군위군",
-    sigunguSlug: "gunwi",
-    category: "sigungu",
-    name: "군위군청",
-    url: "https://www.gunwi.go.kr/",
-    // 검증 2026-04-15: HTTP 200 (군청 대표 누리집)
-    verifiedAt: "2026-10-06",
-  },
-  {
     id: "gyeongbuk-uiseong-sigungu",
     sido: "경북",
     sidoSlug: "gyeongbuk",
@@ -1841,30 +1829,29 @@ export const CENTERS: Center[] = [
   },
   // -- 인천 --
   {
-    id: "incheon-jung-gu-incheon-sigungu",
+    id: "incheon-jemulpo-sigungu",
     sido: "인천",
     sidoSlug: "incheon",
-    sigungu: "중구",
-    sigunguSlug: "jung-gu-incheon",
+    sigungu: "제물포구",
+    sigunguSlug: "jemulpo",
     category: "sigungu",
-    name: "제물포구청 (옛 중구, 대표 누리집)",
+    name: "제물포구청 (대표 누리집)",
     url: "https://www.jemulpo.go.kr/",
-    // 2026-07-01 인천 행정체제 개편 — 중구는 제물포구·영종구로 분구, 옛 icjg.go.kr 은 7/1 종료(10/7 DNS 없음).
-    // 영종구청은 상세 '확인 불가' 카드 안내 창(region-reorganizations.ts)에서 함께 안내.
-    // 검증 2026-10-07: 브라우저 200, title="인천광역시 제물포구청", 본문 "제물포구" 13회 (curl 은 방화벽 403 이 섞여 나옴)
+    // 2026-07-01 인천 행정체제 개편 신설 — 옛 동구 + 옛 중구 내륙. 옛 동구청 주소가 넘어왔다
+    // 검증 2026-10-07: HTTP 200, title="인천광역시 제물포구청", 본문 "제물포구" 244회
     verifiedAt: "2026-10-07",
   },
   {
-    id: "incheon-dong-gu-incheon-sigungu",
+    id: "incheon-yeongjong-sigungu",
     sido: "인천",
     sidoSlug: "incheon",
-    sigungu: "동구",
-    sigunguSlug: "dong-gu-incheon",
+    sigungu: "영종구",
+    sigunguSlug: "yeongjong",
     category: "sigungu",
-    name: "제물포구청 (옛 동구, 대표 누리집)",
-    url: "https://www.jemulpo.go.kr/",
-    // 2026-07-01 인천 행정체제 개편 — 동구는 제물포구로(옛 icdonggu.go.kr 은 제물포구청으로 넘어감)
-    // 검증 2026-10-07: 브라우저 200, title="인천광역시 제물포구청" (curl 은 방화벽 403 이 섞여 나옴)
+    name: "영종구청 (대표 누리집)",
+    url: "https://www.yeongjong.go.kr/main/main.do",
+    // 2026-07-01 인천 행정체제 개편 신설 — 옛 중구 영종·용유 (옛 icjg.go.kr 은 7/1 종료)
+    // 검증 2026-10-07: HTTP 200, title="인천광역시 영종구청", 본문 "영종구" 89회
     verifiedAt: "2026-10-07",
   },
   {
@@ -1928,17 +1915,29 @@ export const CENTERS: Center[] = [
     verifiedAt: "2026-10-06",
   },
   {
-    id: "incheon-seo-gu-incheon-sigungu",
+    id: "incheon-seohae-sigungu",
     sido: "인천",
     sidoSlug: "incheon",
-    sigungu: "서구",
-    sigunguSlug: "seo-gu-incheon",
+    sigungu: "서해구",
+    sigunguSlug: "seohae",
     category: "sigungu",
-    name: "서해구청 (옛 서구, 대표 누리집)",
+    name: "서해구청 (대표 누리집)",
     url: "https://www.seohae.go.kr/open_content/main/",
-    // 2026-07-01 인천 행정체제 개편 — 서구는 서해구·검단구로 분구(옛 seo.incheon.kr 은 서해구청으로 넘어감).
-    // 검단구청은 상세 '확인 불가' 카드 안내 창(region-reorganizations.ts)에서 함께 안내.
-    // 검증 2026-10-07: HTTP 200, title="인천광역시 서해구청", 본문 "서해구" 62회
+    // 2026-07-01 인천 행정체제 개편 — 옛 서구 중 검단 지역을 뺀 곳. 옛 서구청 주소가 넘어왔다
+    // 검증 2026-10-07: HTTP 200, title="인천광역시 서해구청", 본문 "서해구" 110회
+    verifiedAt: "2026-10-07",
+  },
+  {
+    id: "incheon-geomdan-sigungu",
+    sido: "인천",
+    sidoSlug: "incheon",
+    sigungu: "검단구",
+    sigunguSlug: "geomdan",
+    category: "sigungu",
+    name: "검단구청 (대표 누리집)",
+    url: "https://www.geomdan.go.kr/",
+    // 2026-07-01 인천 행정체제 개편 신설 — 옛 서구 검단 지역
+    // 검증 2026-10-07: HTTP 200, title="인천광역시 검단구청", 본문 "검단구" 137회
     verifiedAt: "2026-10-07",
   },
   // -- 부산 --
@@ -2233,6 +2232,19 @@ export const CENTERS: Center[] = [
     url: "https://daegu.go.kr/agri/",
     // 검증 2026-04-15: HTTP 200, title="대구광역시 농업기술센터"
     verifiedAt: "2026-10-06",
+  },
+  {
+    id: "daegu-gunwi-sigungu",
+    sido: "대구",
+    sidoSlug: "daegu",
+    sigungu: "군위군",
+    sigunguSlug: "gunwi",
+    category: "sigungu",
+    name: "군위군청",
+    url: "https://www.gunwi.go.kr/ko/index.do",
+    // 2023-07-01 대구 편입 — 10/7 경북 → 대구로 옮김. 루트(/)는 83B 스크립트 리다이렉트라 실제 첫 화면 주소로
+    // 검증 2026-10-07: HTTP 200, title="군위군청", 본문 "대구광역시 군위군" 21회
+    verifiedAt: "2026-10-07",
   },
   // -- 광주 --
   {

@@ -5,7 +5,9 @@
  * 기준값은 우리 수집 코드를 거치지 않고 원천에서 직접 만든다 — 같은 코드로 만든 기준은 같은 실수를 정답으로 삼는다.
  *   1) 학교: 교육부 NEIS 시·도 목록 전부 → 주소 낱말 일치로 셈 + 시·도별 포착률(어느 시·군·구에도 안 잡힌 학교)
  *   2) 의료기관: 심평원 코드별 건수 + 응답 지역명(코드가 정말 그 지역인가) + 시·도 합계 = 시·군·구 합 교차 확인
- *   3) 화면: 운영 페이지 카드 값과 대조 — 일치 / 캐시 시점 차이(±2, 0.5%) / 불일치 / 시·도 대체값('기준')
+ *   3) 인구: 통계청 SGIS (앱과 같은 연도) — 시·군·구는 시·도 아래 목록에서, 구가 있는 시는 구 합, 인천 신설 4개 구는
+ *      행정동 합(region-composites.ts 정의) + 네 구 합 = 옛 중구·동구·서구 합 교차 확인 (10/7 A안)
+ *   4) 화면: 운영 페이지 카드 값과 대조 — 일치 / 캐시 시점 차이(±2, 0.5%) / 불일치 / 시·도 대체값('기준')
  * 10/7 첫 실행이 찾은 것: 광주 5구 코드 이전(서구 '0개'), 세종 코드, 군위 편입, 시 아래 구 코드 16곳 뒤바뀜,
  * 화성 신설 구, 청주 인구 코드, 학교 1,000건 제한·이름 부분 일치.
  *
@@ -33,6 +35,8 @@ import { SIGUNGUS } from "@/lib/data/sigungus";
 import { GUS } from "@/lib/data/gus";
 import { GU_HIRA_CODES_MAP, toHiraSidoCd } from "@/lib/api/hira";
 import { REGION_REORGANIZATIONS } from "@/lib/data/region-reorganizations";
+import { INTEGRATED_CITY_GU_CODES } from "@/lib/data/integrated-cities";
+import { REPLACED_SGIS_GU, compositeRows, compositesInProvince, getSgisComposite, splitGuOf } from "@/lib/data/region-composites";
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => {
@@ -55,7 +59,7 @@ if (existsSync(".env.local")) {
 }
 // 환경변수에도 .env.local 과 같은 정리(앞뒤 공백·따옴표)를 한다. 10/7 첫 CI 실측: GitHub 시크릿 키로 NEIS ERROR-290·
 // 심평원 403 code 30 — 로컬에서 키를 따옴표로 감싸거나 끝에 공백을 붙이면 똑같이 재현된다. 정리한 키는 요약에 남겨 재등록을 알린다
-const KEY_NAMES = ["DATA_GO_KR_API_KEY", "DATA_GO_KR_PROXY_URL", "DATA_GO_KR_PROXY_SECRET", "NEIS_API_KEY", "E2E_SECRET"];
+const KEY_NAMES = ["DATA_GO_KR_API_KEY", "DATA_GO_KR_PROXY_URL", "DATA_GO_KR_PROXY_SECRET", "NEIS_API_KEY", "E2E_SECRET", "SGIS_KEY", "SGIS_SECRET"];
 const envFixed: string[] = [];
 for (const k of KEY_NAMES) {
   const raw = process.env[k];
@@ -78,10 +82,10 @@ const PAGE_HEADERS: Record<string, string> = env.E2E_SECRET
 
 /** 메시지·요약에 남기기 전 키·프록시 주소를 가린다 — 공개 저장소의 로그·이슈로 나간다 */
 function mask(s: string): string {
-  let out = s.replace(/(KEY|serviceKey)=[^&\s)]+/g, "$1=***");
+  let out = s.replace(/(KEY|serviceKey|accessToken|consumer_key|consumer_secret)=[^&\s)]+/g, "$1=***");
   const proxy = env.DATA_GO_KR_PROXY_URL?.replace(/\/+$/, "");
   if (proxy) out = out.split(proxy).join("{프록시}");
-  for (const v of [env.DATA_GO_KR_PROXY_SECRET, env.DATA_GO_KR_API_KEY, env.NEIS_API_KEY, env.E2E_SECRET]) {
+  for (const v of [env.DATA_GO_KR_PROXY_SECRET, env.DATA_GO_KR_API_KEY, env.NEIS_API_KEY, env.E2E_SECRET, env.SGIS_KEY, env.SGIS_SECRET]) {
     if (v && v.length >= 8) out = out.split(v).join("***");
   }
   return out;
@@ -183,7 +187,52 @@ async function hira(sidoCd: string, sgguCd?: string) {
   return { total: Number(body?.totalCount ?? NaN), name: item ? `${item.sidoCdNm} ${item.sgguCdNm}` : null };
 }
 
-type Expected = { name: string; medical?: number; school?: number; hiraNames?: (string | null)[] };
+// ── 원천: 통계청 SGIS 인구 ──
+type SgisRow = { adm_cd: string; adm_nm?: string; tot_ppltn: string };
+type SgisJson<T> = { errCd?: number | string; errMsg?: string; result?: T };
+/** 앱(lib/api/sgis.ts)과 같은 연도 — 통계는 1~2년 늦게 나온다 */
+const SGIS_YEAR = new Date().getFullYear() - 2;
+const SGIS_BASE = "https://sgisapi.kostat.go.kr/OpenAPI3";
+let sgisAccess: string | null | undefined;
+/** 인구 대조를 건너뛴 이유(키 없음·인증 실패) — null 이면 대조함 */
+let sgisSkip: string | null = null;
+/** SGIS 키가 없거나 인증이 안 되면 null — 인구 대조만 건너뛰고 이유를 요약에 남긴다 */
+async function sgisToken(): Promise<string | null> {
+  if (sgisAccess !== undefined) return sgisAccess;
+  sgisAccess = null;
+  if (!env.SGIS_KEY || !env.SGIS_SECRET) {
+    sgisSkip = "SGIS_KEY·SGIS_SECRET 없음";
+    return null;
+  }
+  try {
+    const j = await getJson<SgisJson<{ accessToken?: string }>>(
+      `${SGIS_BASE}/auth/authentication.json?consumer_key=${env.SGIS_KEY}&consumer_secret=${env.SGIS_SECRET}`,
+    );
+    sgisAccess = j?.result?.accessToken ?? null;
+    if (!sgisAccess) sgisSkip = `SGIS 인증 실패 ${j?.errCd ?? ""} ${j?.errMsg ?? ""}`.trim();
+  } catch (e) {
+    sgisSkip = mask(e instanceof Error ? e.message : String(e));
+  }
+  return sgisAccess;
+}
+/** adm_cd 바로 아래 단계 인구 전부(시·도 → 시·군·구, 시·군·구 → 행정동). 오류면 throw — 0명으로 세지 않는다 */
+async function sgisRows(token: string, admCd: string): Promise<SgisRow[]> {
+  const j = await getJson<SgisJson<SgisRow[]>>(
+    `${SGIS_BASE}/stats/population.json?accessToken=${token}&adm_cd=${admCd}&year=${SGIS_YEAR}&low_search=1`,
+  );
+  if (String(j?.errCd) !== "0" || !Array.isArray(j?.result) || !j.result.length)
+    throw new Error(`SGIS 인구 ${admCd} ${SGIS_YEAR} 오류 ${j?.errCd ?? ""} ${j?.errMsg ?? ""}`.trim());
+  return j.result;
+}
+async function sgisTotal(token: string, admCd: string): Promise<number> {
+  const j = await getJson<SgisJson<SgisRow[]>>(`${SGIS_BASE}/stats/population.json?accessToken=${token}&adm_cd=${admCd}&year=${SGIS_YEAR}`);
+  const row = Array.isArray(j?.result) ? j.result[0] : undefined;
+  if (String(j?.errCd) !== "0" || !row) throw new Error(`SGIS 인구 ${admCd} ${SGIS_YEAR} 오류 ${j?.errCd ?? ""} ${j?.errMsg ?? ""}`.trim());
+  return Number(row.tot_ppltn);
+}
+const popOf = (rows: SgisRow[]) => rows.reduce((a, r) => a + Number(r.tot_ppltn), 0);
+
+type Expected = { name: string; medical?: number; school?: number; population?: number; hiraNames?: (string | null)[] };
 
 async function buildExpected() {
   const sido: Record<string, Expected & { sigunguSum?: number }> = {};
@@ -197,12 +246,11 @@ async function buildExpected() {
     sido[p.id] = { name: p.name, school: rows.length };
     const matched = new Set<number>();
     for (const sg of SIGUNGUS.filter((s) => s.sidoId === p.id)) {
-      const own = sg.eduCode ? await neisRows(sg.eduCode) : rows;
       let c = 0;
-      own.forEach((r, i) => {
+      rows.forEach((r, i) => {
         if (inDistrict(r.ORG_RDNMA, sg.name)) {
           c++;
-          if (!sg.eduCode) matched.add(i);
+          matched.add(i);
         }
       });
       sigungu[`${p.id}/${sg.id}`] = { name: sg.name, school: c };
@@ -230,7 +278,7 @@ async function buildExpected() {
     async (sg) => {
       const p = PROVINCES.find((x) => x.id === sg.sidoId)!;
       const codes = GU_HIRA_CODES_MAP[sg.hiraSgguCd] ?? [sg.hiraSgguCd];
-      const parts = await Promise.all(codes.map((c) => hira(toHiraSidoCd(sg.hiraSidoCd ?? p.hiraSidoCd), c)));
+      const parts = await Promise.all(codes.map((c) => hira(toHiraSidoCd(p.hiraSidoCd), c)));
       Object.assign(sigungu[`${p.id}/${sg.id}`], {
         medical: parts.reduce((a, b) => a + (Number.isFinite(b.total) ? b.total : 0), 0),
         hiraNames: parts.map((x) => x.name),
@@ -257,12 +305,52 @@ async function buildExpected() {
         : p.hiraSidoCd === "360000"
           ? (await hira("360000")).total - gwangju
           : (await hira(toHiraSidoCd(p.hiraSidoCd))).total;
-    sido[p.id].sigunguSum = SIGUNGUS.filter((s) => s.sidoId === p.id && !s.hiraSidoCd).reduce(
+    sido[p.id].sigunguSum = SIGUNGUS.filter((s) => s.sidoId === p.id).reduce(
       (a, s) => a + (sigungu[`${p.id}/${s.id}`]?.medical ?? 0),
       0,
     );
   }
-  return { sido, sigungu, gu, coverage };
+
+  // 인구 — SGIS 키가 없으면 건너뛴다(요약에 이유). 신설 구는 행정동 합 + 네 구 합 = 옛 구 합
+  const popIssues: string[] = [];
+  const token = await sgisToken();
+  if (token) {
+    for (const p of provinces) {
+      sido[p.id].population = await sgisTotal(token, p.sgisCode);
+      const rows = await sgisRows(token, p.sgisCode);
+      const byCode = new Map(rows.map((r) => [r.adm_cd, r]));
+      const composites = compositesInProvince(p.sgisCode);
+      const dongRowsByGu = new Map<string, SgisRow[]>();
+      for (const g of splitGuOf(composites)) dongRowsByGu.set(g, await sgisRows(token, g));
+      for (const sg of SIGUNGUS.filter((s) => s.sidoId === p.id)) {
+        const key = `${p.id}/${sg.id}`;
+        const composite = getSgisComposite(sg.sgisCode);
+        const cityGu = INTEGRATED_CITY_GU_CODES[sg.sgisCode];
+        const parts = composite
+          ? compositeRows(composite, rows, dongRowsByGu)
+          : cityGu
+            ? cityGu.map((c) => byCode.get(c)).every(Boolean)
+              ? cityGu.map((c) => byCode.get(c)!)
+              : null
+            : byCode.has(sg.sgisCode)
+              ? [byCode.get(sg.sgisCode)!]
+              : null;
+        if (parts) sigungu[key].population = popOf(parts);
+        else popIssues.push(`${key} ${sg.name} — SGIS ${SGIS_YEAR} 에서 인구를 만들 수 없음(코드 ${sg.sgisCode})`);
+      }
+      for (const g of GUS.filter((x) => x.sidoId === p.id)) {
+        const row = byCode.get(g.sgisCode);
+        if (row) gu[`${p.id}/${g.parentSigunguId}/${g.id}`].population = Number(row.tot_ppltn);
+        else popIssues.push(`${p.id}/${g.parentSigunguId}/${g.id} ${g.name} — SGIS ${SGIS_YEAR} 에 코드 ${g.sgisCode} 없음`);
+      }
+      if (composites.length) {
+        const newSum = composites.reduce((a, c) => a + (sigungu[`${p.id}/${c.sigunguId}`]?.population ?? NaN), 0);
+        const oldSum = popOf([...REPLACED_SGIS_GU].filter((c) => c.startsWith(p.sgisCode)).map((c) => byCode.get(c)!).filter(Boolean));
+        if (newSum !== oldSum) popIssues.push(`${p.id} 신설 구 인구 합 ${newSum} ≠ 옛 구 합 ${oldSum} — 행정동 정의 확인`);
+      }
+    }
+  }
+  return { sido, sigungu, gu, coverage, popIssues };
 }
 
 // ── 화면 대조 ──
@@ -275,7 +363,7 @@ function readCards(html: string) {
   return out;
 }
 const toNum = (v: string) => {
-  const m = v.match(/^([\d,]+)\s*(개|곳)?$/);
+  const m = v.match(/^([\d,]+)\s*(개|곳|명)?$/);
   return m ? Number(m[1].replace(/,/g, "")) : null;
 };
 
@@ -441,6 +529,16 @@ async function main() {
     }
     const pop = c["실거주 인구"];
     if (pop?.sub.includes("기준")) msgs.push(`인구 시·도 대체값 ${pop.value}`);
+    else if (j.e.population !== undefined) {
+      const n = pop ? toNum(pop.value) : null;
+      if (!pop) msgs.push("인구 카드 없음");
+      else if (n === null) msgs.push(`인구 값 해석 불가 '${pop.value}'`);
+      else if (n !== j.e.population) {
+        const d = Math.abs(n - j.e.population);
+        if (d <= Math.max(2, Math.round(j.e.population * 0.005))) near.push(`인구 ${n} vs 원천 ${j.e.population}`);
+        else msgs.push(`인구 화면 ${n} ≠ 원천 ${j.e.population}`);
+      }
+    }
     return { ...j, status: msgs.length ? "MISMATCH" : near.length ? "NEAR" : "OK", msgs, near };
   };
 
@@ -457,11 +555,13 @@ async function main() {
   for (const r of results.filter((x) => x.status === "NEAR")) console.log(`  ≈ ${r.key} — ${r.near.join("; ")}`);
   console.log(`\n심평원 코드 ↔ 지역명 불일치 ${nameIssues.length}건`);
   for (const n of nameIssues) console.log(`  ✗ ${n}`);
-  console.log(`시·도 합계 ≠ 시·군·구 합 ${sumIssues.length}건 (인천 개편 구·대구 군위는 설계상 차이)`);
+  console.log(`시·도 합계 ≠ 시·군·구 합 ${sumIssues.length}건`);
   for (const n of sumIssues) console.log(`  · ${n}`);
+  console.log(sgisSkip ? `인구 대조 건너뜀 — ${sgisSkip}` : `인구(SGIS ${SGIS_YEAR}) 원천 문제 ${exp.popIssues.length}건`);
+  for (const n of exp.popIssues) console.log(`  · ${n}`);
   console.log(`학교 포착률 확인 ${exp.coverage.length}건 (빈 주소·붙은 주소는 원천 쪽 문제)`);
   for (const n of exp.coverage) console.log(`  · ${n}`);
-  if (count("MISMATCH") || count("ERR")) process.exitCode = 1;
+  if (count("MISMATCH") || count("ERR") || exp.popIssues.length) process.exitCode = 1;
 
   // ── 요약 (--json) — 판정은 위 결과를 그대로 옮긴다 ──
   if (pageFailures.size) {
@@ -479,6 +579,8 @@ async function main() {
     near: results.filter((r) => r.status === "NEAR").map((r) => ({ key: r.key, kind: r.kind, near: r.near })),
     nameIssues,
     sumIssues,
+    popIssues: exp.popIssues,
+    population: sgisSkip ? { skipped: sgisSkip } : { year: SGIS_YEAR },
     coverage: exp.coverage,
   });
 }

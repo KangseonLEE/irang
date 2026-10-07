@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { fetchReturnFarmTrend } from "@/lib/api/kosis";
+import { SIGUNGUS } from "@/lib/data/sigungus";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -69,7 +70,9 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const data = await fetchReturnFarmTrend(regionCode, years);
+  // 우리 시·군·구 코드만 — 응답 지역명이 그 이름과 같은 행만 그린다 (10/7 admCode 밀림 재발 방지)
+  const sigungu = SIGUNGUS.find((s) => s.admCode === regionCode);
+  const data = sigungu ? await fetchReturnFarmTrend(regionCode, years, sigungu.name) : [];
 
   return NextResponse.json(
     { data },

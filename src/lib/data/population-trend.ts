@@ -4,7 +4,7 @@
  * 생성 스크립트: scripts/collect-population-trend.ts
  * 데이터 소스: 통계청 SGIS 인구통계 (1~2년 지연)
  * 수집 연도: 2018, 2019, 2020, 2021, 2022
- * 마지막 수집: 2026-05-03
+ * 마지막 수집: 2026-10-07
  *
  * ⚠ 절대 수동 편집 금지. 갱신은 `npx tsx scripts/collect-population-trend.ts`
  *
@@ -1033,22 +1033,6 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 17.3
   },
   {
-    "sgisCode": "23010",
-    "name": "중구",
-    "year": 2018,
-    "population": 119514,
-    "householdCount": 48828,
-    "agingRate": 14.1
-  },
-  {
-    "sgisCode": "23020",
-    "name": "동구",
-    "year": 2018,
-    "population": 65185,
-    "householdCount": 25737,
-    "agingRate": 19.7
-  },
-  {
     "sgisCode": "23040",
     "name": "연수구",
     "year": 2018,
@@ -1081,14 +1065,6 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 10.7
   },
   {
-    "sgisCode": "23080",
-    "name": "서구",
-    "year": 2018,
-    "population": 532713,
-    "householdCount": 189779,
-    "agingRate": 9.3
-  },
-  {
     "sgisCode": "23090",
     "name": "미추홀구",
     "year": 2018,
@@ -1111,22 +1087,6 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "population": 19207,
     "householdCount": 9149,
     "agingRate": 23.5
-  },
-  {
-    "sgisCode": "23010",
-    "name": "중구",
-    "year": 2019,
-    "population": 131863,
-    "householdCount": 55660,
-    "agingRate": 14
-  },
-  {
-    "sgisCode": "23020",
-    "name": "동구",
-    "year": 2019,
-    "population": 63003,
-    "householdCount": 25183,
-    "agingRate": 21
   },
   {
     "sgisCode": "23040",
@@ -1161,14 +1121,6 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 11.7
   },
   {
-    "sgisCode": "23080",
-    "name": "서구",
-    "year": 2019,
-    "population": 540655,
-    "householdCount": 195663,
-    "agingRate": 9.9
-  },
-  {
     "sgisCode": "23090",
     "name": "미추홀구",
     "year": 2019,
@@ -1191,22 +1143,6 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "population": 19040,
     "householdCount": 8862,
     "agingRate": 24.7
-  },
-  {
-    "sgisCode": "23010",
-    "name": "중구",
-    "year": 2020,
-    "population": 138586,
-    "householdCount": 59494,
-    "agingRate": 14.5
-  },
-  {
-    "sgisCode": "23020",
-    "name": "동구",
-    "year": 2020,
-    "population": 61285,
-    "householdCount": 25234,
-    "agingRate": 22.5
   },
   {
     "sgisCode": "23040",
@@ -1241,14 +1177,6 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 12.9
   },
   {
-    "sgisCode": "23080",
-    "name": "서구",
-    "year": 2020,
-    "population": 541534,
-    "householdCount": 200854,
-    "agingRate": 10.6
-  },
-  {
     "sgisCode": "23090",
     "name": "미추홀구",
     "year": 2020,
@@ -1271,22 +1199,6 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "population": 19292,
     "householdCount": 8750,
     "agingRate": 26.5
-  },
-  {
-    "sgisCode": "23010",
-    "name": "중구",
-    "year": 2021,
-    "population": 141758,
-    "householdCount": 62254,
-    "agingRate": 15
-  },
-  {
-    "sgisCode": "23020",
-    "name": "동구",
-    "year": 2021,
-    "population": 61053,
-    "householdCount": 25984,
-    "agingRate": 23.6
   },
   {
     "sgisCode": "23040",
@@ -1321,14 +1233,6 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 14
   },
   {
-    "sgisCode": "23080",
-    "name": "서구",
-    "year": 2021,
-    "population": 551026,
-    "householdCount": 210245,
-    "agingRate": 11.4
-  },
-  {
     "sgisCode": "23090",
     "name": "미추홀구",
     "year": 2021,
@@ -1351,22 +1255,6 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "population": 18984,
     "householdCount": 9306,
     "agingRate": 28
-  },
-  {
-    "sgisCode": "23010",
-    "name": "중구",
-    "year": 2022,
-    "population": 150670,
-    "householdCount": 67034,
-    "agingRate": 15.3
-  },
-  {
-    "sgisCode": "23020",
-    "name": "동구",
-    "year": 2022,
-    "population": 58078,
-    "householdCount": 25069,
-    "agingRate": 24.7
   },
   {
     "sgisCode": "23040",
@@ -1399,14 +1287,6 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "population": 288122,
     "householdCount": 117769,
     "agingRate": 15.2
-  },
-  {
-    "sgisCode": "23080",
-    "name": "서구",
-    "year": 2022,
-    "population": 581069,
-    "householdCount": 225749,
-    "agingRate": 11.8
   },
   {
     "sgisCode": "23090",
@@ -10591,6 +10471,166 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "population": 1016751,
     "householdCount": 426408,
     "agingRate": 16.6
+  },
+  {
+    "sgisCode": "23100",
+    "name": "제물포구",
+    "year": 2018,
+    "population": 114149,
+    "householdCount": 45633,
+    "agingRate": 20.2
+  },
+  {
+    "sgisCode": "23110",
+    "name": "영종구",
+    "year": 2018,
+    "population": 70550,
+    "householdCount": 28932,
+    "agingRate": 9.3
+  },
+  {
+    "sgisCode": "23120",
+    "name": "서해구",
+    "year": 2018,
+    "population": 375913,
+    "householdCount": 135924,
+    "agingRate": 9.5
+  },
+  {
+    "sgisCode": "23130",
+    "name": "검단구",
+    "year": 2018,
+    "population": 156800,
+    "householdCount": 53855,
+    "agingRate": 8.9
+  },
+  {
+    "sgisCode": "23100",
+    "name": "제물포구",
+    "year": 2019,
+    "population": 110403,
+    "householdCount": 44668,
+    "agingRate": 21.6
+  },
+  {
+    "sgisCode": "23110",
+    "name": "영종구",
+    "year": 2019,
+    "population": 84463,
+    "householdCount": 36175,
+    "agingRate": 9.2
+  },
+  {
+    "sgisCode": "23120",
+    "name": "서해구",
+    "year": 2019,
+    "population": 382836,
+    "householdCount": 140799,
+    "agingRate": 10
+  },
+  {
+    "sgisCode": "23130",
+    "name": "검단구",
+    "year": 2019,
+    "population": 157819,
+    "householdCount": 54864,
+    "agingRate": 9.5
+  },
+  {
+    "sgisCode": "23100",
+    "name": "제물포구",
+    "year": 2020,
+    "population": 107805,
+    "householdCount": 44773,
+    "agingRate": 23.1
+  },
+  {
+    "sgisCode": "23110",
+    "name": "영종구",
+    "year": 2020,
+    "population": 92066,
+    "householdCount": 39955,
+    "agingRate": 9.7
+  },
+  {
+    "sgisCode": "23120",
+    "name": "서해구",
+    "year": 2020,
+    "population": 384310,
+    "householdCount": 145120,
+    "agingRate": 10.8
+  },
+  {
+    "sgisCode": "23130",
+    "name": "검단구",
+    "year": 2020,
+    "population": 157224,
+    "householdCount": 55734,
+    "agingRate": 10.2
+  },
+  {
+    "sgisCode": "23100",
+    "name": "제물포구",
+    "year": 2021,
+    "population": 106547,
+    "householdCount": 45723,
+    "agingRate": 24.4
+  },
+  {
+    "sgisCode": "23110",
+    "name": "영종구",
+    "year": 2021,
+    "population": 96264,
+    "householdCount": 42515,
+    "agingRate": 10.1
+  },
+  {
+    "sgisCode": "23120",
+    "name": "서해구",
+    "year": 2021,
+    "population": 380805,
+    "householdCount": 147822,
+    "agingRate": 11.8
+  },
+  {
+    "sgisCode": "23130",
+    "name": "검단구",
+    "year": 2021,
+    "population": 170221,
+    "householdCount": 62423,
+    "agingRate": 10.5
+  },
+  {
+    "sgisCode": "23100",
+    "name": "제물포구",
+    "year": 2022,
+    "population": 103310,
+    "householdCount": 45077,
+    "agingRate": 25.5
+  },
+  {
+    "sgisCode": "23110",
+    "name": "영종구",
+    "year": 2022,
+    "population": 105438,
+    "householdCount": 47026,
+    "agingRate": 10.5
+  },
+  {
+    "sgisCode": "23120",
+    "name": "서해구",
+    "year": 2022,
+    "population": 385439,
+    "householdCount": 153017,
+    "agingRate": 12.6
+  },
+  {
+    "sgisCode": "23130",
+    "name": "검단구",
+    "year": 2022,
+    "population": 195630,
+    "householdCount": 72732,
+    "agingRate": 10.5
   }
 ];
 

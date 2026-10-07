@@ -1,10 +1,9 @@
 /**
  * HIRA 시군구 의료기관 통계 일괄 수집 스크립트 (Phase 4)
  *
- * - 229개 시군구 + 12개 통합시(구 합산) = 241개 항목
- * - 시군구당 totalCount 1회 호출 (numOfRows=1) — 약 241회
- * - 통합시는 구별로 각각 호출 후 합산 (실제 호출 ~270회)
- * - throttle: 동시 5개, 200ms delay → 약 11분 예상
+ * - 시·군·구마다 lib/api/hira fetchSigunguMedicalFacilities — 구가 있는 시는 구 합(하나라도 실패하면 미수집),
+ *   광주·세종 심평원 코드 변환까지 상세 화면과 같다
+ * - throttle: 동시 5개, 200ms delay
  *
  * 결과: src/lib/data/medical-facilities.ts 자동 생성
  *
@@ -27,37 +26,12 @@ import { resolve } from "node:path";
 
 config({ path: resolve(__dirname, "../.env.local") });
 
-import { SIGUNGUS } from "../src/lib/data/sigungus";
+import { SIGUNGUS, type Sigungu } from "../src/lib/data/sigungus";
 import { PROVINCES } from "../src/lib/data/regions";
+import { fetchSigunguMedicalFacilities } from "../src/lib/api/hira";
 
-const API_BASE =
-  "https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList";
-const TIMEOUT_MS = 8000;
-const RETRY = 2;
 const CONCURRENCY = 5;
 const DELAY_MS = 200;
-
-/**
- * 통합시 hiraSgguCd → 산하 구 코드 배열 매핑.
- * sigungus.ts 의 통합시는 대표 구 코드(예: 수원 영통구 310604)를 사용 중이므로,
- * 시 전체 의료기관 수를 얻으려면 모든 구를 합산해야 한다.
- *
- * (src/lib/api/hira.ts 의 GU_HIRA_CODES_MAP 과 동일 — SSOT는 hira.ts)
- */
-const HIRA_GU_MAP: Record<string, string[]> = {
-  "310604": ["310601", "310602", "310603", "310604"], // 수원시
-  "310403": ["310401", "310402", "310403"],           // 성남시
-  "310702": ["310701", "310702"],                     // 안양시
-  "310303": ["310301", "310302", "310303"],           // 부천시
-  "311102": ["311101", "311102"],                     // 안산시
-  "311903": ["311901", "311902", "311903"],           // 고양시
-  "312003": ["312001", "312002", "312003"],           // 용인시
-  "330104": ["330101", "330102", "330103", "330104"], // 청주시
-  "340202": ["340201", "340202"],                     // 천안시
-  "350402": ["350401", "350402"],                     // 전주시
-  "370702": ["370701", "370702"],                     // 포항시
-  "380705": ["380701", "380702", "380703", "380704", "380705"], // 창원시
-};
 
 interface MedicalCount {
   /** 시군구 sgisCode (5자리) */
@@ -68,73 +42,15 @@ interface MedicalCount {
   totalCount: number;
 }
 
-/** API 응답 totalCount 1회 조회 */
-async function fetchSigunguTotal(
-  apiKey: string,
-  sidoCd: string,
-  sgguCd: string,
-): Promise<number | null> {
-  const url = new URL(API_BASE);
-  url.searchParams.set("serviceKey", apiKey);
-  url.searchParams.set("sidoCd", sidoCd);
-  url.searchParams.set("sgguCd", sgguCd);
-  url.searchParams.set("pageNo", "1");
-  url.searchParams.set("numOfRows", "1");
-  url.searchParams.set("_type", "json");
-
-  for (let attempt = 0; attempt <= RETRY; attempt++) {
-    try {
-      const res = await fetch(url.toString(), {
-        signal: AbortSignal.timeout(TIMEOUT_MS),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const json = await res.json();
-      const total = json?.response?.body?.totalCount;
-      if (total == null) throw new Error("no totalCount");
-
-      return Number(total);
-    } catch (err) {
-      if (attempt === RETRY) {
-        console.warn(
-          `  [fail] sido=${sidoCd}/sggu=${sgguCd}: ${(err as Error).message}`,
-        );
-        return null;
-      }
-      await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
-    }
-  }
-  return null;
-}
-
-/** 단일 시군구 합계 (통합시면 구 합산) */
-async function fetchOne(
-  apiKey: string,
-  sigungu: { sgisCode: string; name: string; sidoId: string; hiraSgguCd: string },
-  sidoCd: string,
-): Promise<MedicalCount | null> {
-  const guCodes = HIRA_GU_MAP[sigungu.hiraSgguCd] ?? [sigungu.hiraSgguCd];
-
-  let total = 0;
-  let anyOk = false;
-  for (const code of guCodes) {
-    const count = await fetchSigunguTotal(apiKey, sidoCd, code);
-    if (count !== null) {
-      total += count;
-      anyOk = true;
-    }
-    if (guCodes.length > 1) {
-      await new Promise((r) => setTimeout(r, 100));
-    }
-  }
-
-  if (!anyOk) return null;
-
-  return {
-    sgisCode: sigungu.sgisCode,
-    name: sigungu.name,
-    totalCount: total,
-  };
+/**
+ * 시·군·구 하나 — 상세 화면과 같은 lib/api/hira 함수로 센다 (10/7).
+ * 예전엔 이 스크립트가 구 코드표·시·도 코드를 따로 들고 있어 세종·군위 0곳, 화성 절반(동탄구만),
+ * 구 하나가 실패해도 나머지만 더한 숫자가 정적 자료(순위 점수)에 남았다.
+ */
+async function fetchOne(sg: Sigungu, hiraSidoCd: string): Promise<MedicalCount | null> {
+  const result = await fetchSigunguMedicalFacilities(hiraSidoCd, sg.hiraSgguCd);
+  if (!result) return null;
+  return { sgisCode: sg.sgisCode, name: sg.name, totalCount: result.totalCount };
 }
 
 /** throttled batch — concurrency 만큼 병렬 + 배치마다 delay */
@@ -157,8 +73,7 @@ async function batchProcess<T, U>(
 }
 
 async function main() {
-  const apiKey = process.env.DATA_GO_KR_API_KEY;
-  if (!apiKey) throw new Error("DATA_GO_KR_API_KEY missing in .env.local");
+  if (!process.env.DATA_GO_KR_API_KEY) throw new Error("DATA_GO_KR_API_KEY missing in .env.local");
 
   console.log(`[collect-medical] sigungu=${SIGUNGUS.length}`);
   console.log(
@@ -185,7 +100,7 @@ async function main() {
   const results = await batchProcess(
     targets,
     async ({ sg, hiraSidoCd }) => {
-      const result = await fetchOne(apiKey, sg, hiraSidoCd);
+      const result = await fetchOne(sg, hiraSidoCd);
       processed++;
       if (processed % 20 === 0) {
         const elapsedSec = ((Date.now() - startTime) / 1000).toFixed(0);

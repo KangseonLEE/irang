@@ -226,10 +226,10 @@ describe("regionScopeOf — 검색 패널과 같은 시·군 판정기(localSigu
     expect(regionScopeOf({ region: "충청남도", title: "천안시 귀농 지원", organization: "천안시농업기술센터" }, ctx)).toBe("own");
   });
 
-  it("포함 관계만으로는 같은 지역으로 보지 않는다 (인천 동구 ≠ 남동구)", () => {
-    const ctx = { provinceName: "인천광역시", local: { id: "dong-gu-incheon", name: "동구", shortName: "동구" } };
-    expect(regionScopeOf({ ...base, region: "인천광역시", sigungu: "남동구" }, ctx)).toBe("other");
-    expect(regionScopeOf({ ...base, region: "인천광역시", sigungu: "동구" }, ctx)).toBe("own");
+  it("포함 관계만으로는 같은 지역으로 보지 않는다 (대구 서구 ≠ 달서구)", () => {
+    const ctx = { provinceName: "대구광역시", local: { id: "seo-gu-daegu", name: "서구", shortName: "서구" } };
+    expect(regionScopeOf({ ...base, region: "대구광역시", sigungu: "달서구" }, ctx)).toBe("other");
+    expect(regionScopeOf({ ...base, region: "대구광역시", sigungu: "서구" }, ctx)).toBe("own");
   });
 
   it("시·도 공통·전국·시·도 상세", () => {

@@ -16,6 +16,13 @@ import {
 } from "@/lib/data/farms";
 import { INTEGRATED_CITY_GU_CODES } from "@/lib/data/integrated-cities";
 import {
+  compositeRows,
+  compositesInProvince,
+  getSgisComposite,
+  splitGuOf,
+  type SgisComposite,
+} from "@/lib/data/region-composites";
+import {
   POPULATION_TREND_SIGUNGU,
   POPULATION_TREND_YEARS,
 } from "@/lib/data/population-trend";
@@ -211,6 +218,16 @@ export async function fetchSigunguPopulationData(
   // 토큰 발급 실패 → 정적 폴백 즉시 반환 (시도 폴백 안 거침)
   if (!accessToken) return getSigunguStaticPop(sgisCode);
 
+  // 신설 구(인천 2026 개편 — SGIS 미등재): 옛 구·행정동 값을 더한다. 더할 수 없으면 같은 코드로 직접
+  // (SGIS 가 새 구를 싣는 해부터는 직접 조회가 답한다), 그것도 없으면 정적 값
+  const composite = getSgisComposite(sgisCode);
+  if (composite) {
+    const result =
+      (await fetchCompositePopulation(accessToken, composite, year)) ??
+      (await fetchFromSGIS(accessToken, sgisCode, year));
+    return result ?? getSigunguStaticPop(sgisCode);
+  }
+
   // 구 분할 시: 상위 시/도에서 low_search=1로 구 데이터를 받아 합산
   const guCodes = GU_CODES_MAP[sgisCode];
   if (guCodes) {
@@ -224,20 +241,16 @@ export async function fetchSigunguPopulationData(
 }
 
 /**
- * 구 분할 시(성남시 등)의 인구를 구별 데이터 합산으로 조회한다.
- * 상위 시/도 코드로 low_search=1 호출 → 해당 구 코드만 필터링 → 합산.
+ * SGIS 인구 통계 — admCd 바로 아래 단계 전부(시·도 → 시·군·구, 시·군·구 → 행정동). 실패면 null.
  */
-async function fetchMultiGuPopulation(
+async function fetchPopulationRows(
   accessToken: string,
-  cityCode: string,
-  guCodes: string[],
+  admCd: string,
   year: number,
-): Promise<PopulationData | null> {
-  const provinceCode = cityCode.substring(0, 2); // "31020" → "31"
-
+): Promise<SGISPopulationResult[] | null> {
   const url = new URL(POPULATION_URL);
   url.searchParams.set("accessToken", accessToken);
-  url.searchParams.set("adm_cd", provinceCode);
+  url.searchParams.set("adm_cd", admCd);
   url.searchParams.set("year", String(year));
   url.searchParams.set("low_search", "1");
 
@@ -251,50 +264,115 @@ async function fetchMultiGuPopulation(
     }
 
     const results = json.result as SGISPopulationResult[] | undefined;
-    if (!results || !Array.isArray(results)) return null;
-
-    const guSet = new Set(guCodes);
-    const matched = results.filter((r) => guSet.has(r.adm_cd));
-    if (matched.length === 0) return null;
-
-    // 합산
-    let totalPop = 0;
-    let totalHousehold = 0;
-    let weightedOldage = 0;
-    let weightedJuv = 0;
-
-    for (const item of matched) {
-      const pop = parseInt(item.tot_ppltn, 10) || 0;
-      totalPop += pop;
-      totalHousehold += parseInt(item.tot_family, 10) || 0;
-
-      // 가중 평균 부양비 (인구 비례)
-      const oldageDep = parseFloat(item.oldage_suprt_per || "0");
-      const juvDep = parseFloat(item.juv_suprt_per || "0");
-      weightedOldage += oldageDep * pop;
-      weightedJuv += juvDep * pop;
-    }
-
-    const avgOldage = totalPop > 0 ? weightedOldage / totalPop : 0;
-    const avgJuv = totalPop > 0 ? weightedJuv / totalPop : 0;
-    const agingRate =
-      avgOldage + avgJuv > 0
-        ? Math.round((avgOldage / (100 + avgOldage + avgJuv)) * 1000) / 10
-        : 0;
-
-    // 시 이름 추출: "성남시 수정구" → "성남시"
-    const cityName = matched[0].adm_nm?.split(" ")[0] || "";
-
-    return {
-      regionCode: cityCode,
-      regionName: cityName,
-      population: totalPop,
-      householdCount: totalHousehold,
-      agingRate,
-    };
+    return Array.isArray(results) && results.length > 0 ? results : null;
   } catch {
     return null;
   }
+}
+
+/** 행 하나의 고령화율(65세 이상 / 전체, 0~1) — 부양비로 역산 */
+function agingShareOf(item: SGISPopulationResult): number {
+  const oldageDep = parseFloat(item.oldage_suprt_per || "0");
+  const juvDep = parseFloat(item.juv_suprt_per || "0");
+  return oldageDep + juvDep > 0 ? oldageDep / (100 + oldageDep + juvDep) : 0;
+}
+
+/**
+ * 여러 행을 하나로 — 인구·세대는 합, 고령화율은 Σ(65세 이상) / Σ(인구).
+ * 행마다 65세 이상 = 인구 × 그 행 고령화율이라, 인구로 가중한 고령화율 평균이 곧 정확한 합이다.
+ */
+function sumPopulationRows(
+  rows: readonly SGISPopulationResult[],
+  regionCode: string,
+  regionName: string,
+): PopulationData {
+  let population = 0;
+  let householdCount = 0;
+  let elderly = 0;
+  for (const item of rows) {
+    const pop = parseInt(item.tot_ppltn, 10) || 0;
+    population += pop;
+    householdCount += parseInt(item.tot_family, 10) || 0;
+    elderly += pop * agingShareOf(item);
+  }
+  return {
+    regionCode,
+    regionName,
+    population,
+    householdCount,
+    agingRate: population > 0 ? Math.round((elderly / population) * 1000) / 10 : 0,
+  };
+}
+
+/**
+ * 구 분할 시(성남시 등)의 인구를 구별 데이터 합산으로 조회한다.
+ * 상위 시/도 코드로 low_search=1 호출 → 해당 구 코드만 필터링 → 합산.
+ * 구 하나라도 응답에 없으면 null — 덜 센 합을 숫자로 내보내지 않는다 (10/7).
+ */
+async function fetchMultiGuPopulation(
+  accessToken: string,
+  cityCode: string,
+  guCodes: string[],
+  year: number,
+): Promise<PopulationData | null> {
+  const results = await fetchPopulationRows(accessToken, cityCode.substring(0, 2), year); // "31020" → "31"
+  if (!results) return null;
+
+  const guSet = new Set(guCodes);
+  const matched = results.filter((r) => guSet.has(r.adm_cd));
+  if (matched.length !== guSet.size) return null;
+
+  // 시 이름 추출: "성남시 수정구" → "성남시"
+  const cityName = matched[0].adm_nm?.split(" ")[0] || "";
+  return sumPopulationRows(matched, cityCode, cityName);
+}
+
+/**
+ * 신설 구(SGIS 미등재)의 인구 — 통째로 들어온 옛 구 + 나뉜 옛 구의 해당 행정동을 더한다.
+ * 필요한 행이 하나라도 없으면 null (region-composites.ts).
+ */
+async function fetchCompositePopulation(
+  accessToken: string,
+  composite: SgisComposite,
+  year: number,
+): Promise<PopulationData | null> {
+  const splitGu = splitGuOf([composite]);
+  const [guRows, ...dongLists] = await Promise.all([
+    composite.wholeGu.length > 0
+      ? fetchPopulationRows(accessToken, composite.sgisCode.substring(0, 2), year)
+      : Promise.resolve([] as SGISPopulationResult[]),
+    ...splitGu.map((gu) => fetchPopulationRows(accessToken, gu, year)),
+  ]);
+  if (!guRows || dongLists.some((d) => d === null)) return null;
+  const dongRowsByGu = new Map(splitGu.map((gu, i) => [gu, dongLists[i] as SGISPopulationResult[]]));
+  const rows = compositeRows(composite, guRows, dongRowsByGu);
+  if (!rows) return null;
+  return sumPopulationRows(rows, composite.sgisCode, composite.name);
+}
+
+/**
+ * 신설 구의 연도별 인구 (/api/population-trend 용) — SGIS 는 지난 연도도 지금의 행정동 코드로
+ * 돌려줘 같은 묶음으로 더할 수 있다. 합을 못 낸 해는 뺀다. 신설 구가 아니거나 인증 실패면 null.
+ */
+export async function fetchCompositePopulationTrend(
+  sgisCode: string,
+  years: readonly number[],
+): Promise<{ year: number; population: number; householdCount: number; agingRate: number }[] | null> {
+  const composite = getSgisComposite(sgisCode);
+  if (!composite) return null;
+  const accessToken = await getAccessToken();
+  if (!accessToken) return null;
+  const perYear = await Promise.all(
+    years.map(async (year) => {
+      const data =
+        (await fetchCompositePopulation(accessToken, composite, year)) ??
+        (await fetchFromSGIS(accessToken, sgisCode, year));
+      return data
+        ? { year, population: data.population, householdCount: data.householdCount, agingRate: data.agingRate }
+        : null;
+    }),
+  );
+  return perYear.filter((p): p is NonNullable<typeof p> => p !== null);
 }
 
 /**
@@ -366,6 +444,22 @@ export async function fetchSubRegionPopulations(
         householdCount: household,
         agingRate,
       };
+    }
+
+    // 신설 구(인천 2026 개편) — 나뉜 옛 구만 행정동으로 한 번 더 받아 더한다. 못 더하면 정적 값 유지
+    const composites = compositesInProvince(provinceSgisCode);
+    if (composites.length > 0) {
+      const splitGu = splitGuOf(composites);
+      const dongLists = await Promise.all(splitGu.map((gu) => fetchPopulationRows(accessToken, gu, year)));
+      const dongRowsByGu = new Map<string, SGISPopulationResult[]>();
+      splitGu.forEach((gu, i) => {
+        const rows = dongLists[i];
+        if (rows) dongRowsByGu.set(gu, rows);
+      });
+      for (const c of composites) {
+        const rows = compositeRows(c, results as SGISPopulationResult[], dongRowsByGu);
+        if (rows) map[c.sgisCode] = sumPopulationRows(rows, c.sgisCode, c.name);
+      }
     }
 
     return map;
@@ -462,13 +556,102 @@ interface SGISFarmResult {
   avg_population: string;
 }
 
+/**
+ * 가구당 농가 인구 — 농가 인구 ÷ 농가 수. SGIS 의 avg_population 은 정수로 반올림돼 와(중구 2.34 → "2")
+ * 시·도 평균(소수 한 자리)과 비교하면 크게 어긋났다(10/7). 항상 두 수로 다시 계산한다.
+ */
+function farmAvg(farmCount: number, farmPopulation: number): number {
+  return farmCount > 0 ? Math.round((farmPopulation / farmCount) * 10) / 10 : 0;
+}
+
+/** 가구당 농가 인구가 시·도 평균보다 몇 % 많은가(음수 = 적음) — 반올림하기 전의 두 수로 계산한다 */
+export function farmAvgDiffPct(
+  farm: { farmCount: number; farmPopulation: number },
+  sido: { farmCount: number; farmPopulation: number },
+): number | null {
+  if (farm.farmCount <= 0 || sido.farmCount <= 0 || farm.farmPopulation <= 0 || sido.farmPopulation <= 0) return null;
+  const mine = farm.farmPopulation / farm.farmCount;
+  const avg = sido.farmPopulation / sido.farmCount;
+  return Math.round(((mine - avg) / avg) * 100);
+}
+
+/** SGIS 농가 행 하나 → 화면 데이터 */
+function farmRowToData(item: SGISFarmResult): FarmHouseholdData {
+  const farmCount = parseInt(item.farm_cnt, 10) || 0;
+  const farmPopulation = parseInt(item.population, 10) || 0;
+  return {
+    regionCode: item.adm_cd,
+    regionName: item.adm_nm || "",
+    farmCount,
+    farmPopulation,
+    avgPopulation: farmAvg(farmCount, farmPopulation),
+    isFallback: false,
+  };
+}
+
+/** 여러 농가 행의 합 — 비공개(N/A) 값이 하나라도 있으면 합을 알 수 없어 null */
+function sumFarmRows(
+  rows: readonly SGISFarmResult[],
+  regionCode: string,
+  regionName: string,
+): FarmHouseholdData | null {
+  let farmCount = 0;
+  let farmPopulation = 0;
+  for (const r of rows) {
+    const c = Number(r.farm_cnt);
+    const p = Number(r.population);
+    if (!Number.isFinite(c) || !Number.isFinite(p)) return null;
+    farmCount += c;
+    farmPopulation += p;
+  }
+  return { regionCode, regionName, farmCount, farmPopulation, avgPopulation: farmAvg(farmCount, farmPopulation), isFallback: false };
+}
+
+/** SGIS 농가 통계 — admCd 바로 아래 단계 전부. 실패면 null */
+async function fetchFarmRows(accessToken: string, admCd: string, year: number): Promise<SGISFarmResult[] | null> {
+  const url = new URL(FARM_URL);
+  url.searchParams.set("accessToken", accessToken);
+  url.searchParams.set("year", String(year));
+  url.searchParams.set("adm_cd", admCd);
+  url.searchParams.set("low_search", "1");
+  try {
+    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.errCd !== 0 && json.errCd !== "0") throw new Error(`SGIS farm error: ${json.errMsg || json.errCd}`);
+    const results = json.result as SGISFarmResult[] | undefined;
+    return Array.isArray(results) && results.length > 0 ? results : null;
+  } catch {
+    return null;
+  }
+}
+
+/** 신설 구의 농가 — 통째로 들어온 옛 구 + 나뉜 옛 구의 해당 행정동 */
+async function fetchCompositeFarm(
+  accessToken: string,
+  composite: SgisComposite,
+  year: number,
+): Promise<FarmHouseholdData | null> {
+  const splitGu = splitGuOf([composite]);
+  const [guRows, ...dongLists] = await Promise.all([
+    composite.wholeGu.length > 0
+      ? fetchFarmRows(accessToken, composite.sgisCode.substring(0, 2), year)
+      : Promise.resolve([] as SGISFarmResult[]),
+    ...splitGu.map((gu) => fetchFarmRows(accessToken, gu, year)),
+  ]);
+  if (!guRows || dongLists.some((d) => d === null)) return null;
+  const dongRowsByGu = new Map(splitGu.map((gu, i) => [gu, dongLists[i] as SGISFarmResult[]]));
+  const rows = compositeRows(composite, guRows, dongRowsByGu);
+  return rows ? sumFarmRows(rows, composite.sgisCode, composite.name) : null;
+}
+
 function farmStatToData(stat: FarmStat, isFallback = true): FarmHouseholdData {
   return {
     regionCode: stat.sgisCode,
     regionName: stat.name,
     farmCount: stat.farmCount,
     farmPopulation: stat.farmPopulation,
-    avgPopulation: stat.avgPopulation,
+    avgPopulation: farmAvg(stat.farmCount, stat.farmPopulation),
     isFallback,
   };
 }
@@ -497,6 +680,14 @@ export async function fetchFarmHousehold(
     return fb ? farmStatToData(fb, true) : null;
   }
 
+  // 신설 구(인천 2026 개편) — 행정동 값을 더한다. 비공개(N/A) 동이 있으면 합을 낼 수 없어 null
+  // (2025 농림어업총조사가 SGIS 에 실리면 같은 코드 직접 조회로 넘어가도록 아래 단건 조회를 그대로 탄다)
+  const composite = getSgisComposite(sgisCode);
+  if (composite) {
+    const summed = await fetchCompositeFarm(accessToken, composite, year);
+    if (summed) return summed;
+  }
+
   const url = new URL(FARM_URL);
   url.searchParams.set("accessToken", accessToken);
   url.searchParams.set("year", String(year));
@@ -520,14 +711,7 @@ export async function fetchFarmHousehold(
     }
 
     const item: SGISFarmResult = Array.isArray(result) ? result[0] : result;
-    return {
-      regionCode: item.adm_cd,
-      regionName: item.adm_nm || "",
-      farmCount: parseInt(item.farm_cnt, 10) || 0,
-      farmPopulation: parseInt(item.population, 10) || 0,
-      avgPopulation: parseFloat(item.avg_population) || 0,
-      isFallback: false,
-    };
+    return farmRowToData(item);
   } catch {
     const fb = getFarmFallback(sgisCode);
     return fb ? farmStatToData(fb, true) : null;
@@ -579,14 +763,24 @@ export async function fetchSubRegionFarms(
 
     const apiMap: Record<string, FarmHouseholdData> = {};
     for (const item of results) {
-      apiMap[item.adm_cd] = {
-        regionCode: item.adm_cd,
-        regionName: item.adm_nm || "",
-        farmCount: parseInt(item.farm_cnt, 10) || 0,
-        farmPopulation: parseInt(item.population, 10) || 0,
-        avgPopulation: parseFloat(item.avg_population) || 0,
-        isFallback: false,
-      };
+      apiMap[item.adm_cd] = farmRowToData(item);
+    }
+
+    // 신설 구(인천 2026 개편) — 나뉜 옛 구만 행정동으로 받아 더한다
+    const composites = compositesInProvince(provinceSgisCode);
+    if (composites.length > 0) {
+      const splitGu = splitGuOf(composites);
+      const dongLists = await Promise.all(splitGu.map((gu) => fetchFarmRows(accessToken, gu, year)));
+      const dongRowsByGu = new Map<string, SGISFarmResult[]>();
+      splitGu.forEach((gu, i) => {
+        const rows = dongLists[i];
+        if (rows) dongRowsByGu.set(gu, rows);
+      });
+      for (const c of composites) {
+        const rows = compositeRows(c, results, dongRowsByGu);
+        const summed = rows ? sumFarmRows(rows, c.sgisCode, c.name) : null;
+        if (summed) apiMap[c.sgisCode] = summed;
+      }
     }
 
     // CLAUDE.md 데이터 병합 원칙: API 응답에 없는 항목은 정적 폴백 보충
