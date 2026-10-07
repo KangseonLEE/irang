@@ -81,12 +81,46 @@ async function fetchUpstream(env: Env, path: string, params: URLSearchParams): P
   });
 }
 
-/** 한 조회를 upstream에서 받아 KV에 저장. 성공 본문 또는 null */
-async function fetchAndStore(env: Env, path: string, params: URLSearchParams): Promise<{ status: number; body: string; ok: boolean }> {
+/**
+ * KV 저장은 덤이다 — 실패해도 응답은 그대로 돌려준다. Free 플랜 KV 쓰기는 하루 1,000회(00:00 UTC 초기화)라
+ * 넘기면 put 이 예외를 던지는데, 10/7 밤 그 예외가 응답을 502 로 바꿔 저장분에 없는 의료기관·기상 조회가 전부
+ * 실패했다(주간 대조 CI 가 'KV put() limit exceeded for the day' 로 발견).
+ */
+async function storeBestEffort(env: Env, key: string, body: string, ttl: number): Promise<void> {
+  try {
+    await env.DATAGOKR_CACHE.put(key, body, { expirationTtl: ttl });
+  } catch (err) {
+    console.warn(`KV put 실패 — 응답은 그대로: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
+/** KV 읽기 실패는 저장분 없음으로 본다 */
+async function readCache(env: Env, key: string): Promise<string | null> {
+  try {
+    return await env.DATAGOKR_CACHE.get(key, "text");
+  } catch (err) {
+    console.warn(`KV get 실패 — 저장분 없음으로: ${err instanceof Error ? err.message : String(err)}`);
+    return null;
+  }
+}
+
+/**
+ * 한 조회를 upstream에서 받아 KV에 저장. `skipIfSame` 이면 저장분과 같을 때 쓰지 않는다 — 정합성 대조(fresh)는
+ * 하루에 수백 건을 새로 받는데 값은 대부분 그대로라, 쓰기 한도를 대조가 다 쓰지 않게(10/7).
+ * 예열은 TTL 을 늘리려고 같아도 쓴다.
+ */
+async function fetchAndStore(
+  env: Env,
+  path: string,
+  params: URLSearchParams,
+  opts: { skipIfSame?: boolean } = {},
+): Promise<{ status: number; body: string; ok: boolean }> {
   const res = await fetchUpstream(env, path, params);
   const body = await res.text();
   if (res.ok) {
-    await env.DATAGOKR_CACHE.put(cacheKeyFor(path, params), body, { expirationTtl: PATH_TTL[path] });
+    const key = cacheKeyFor(path, params);
+    const same = opts.skipIfSame ? (await readCache(env, key)) === body : false;
+    if (!same) await storeBestEffort(env, key, body, PATH_TTL[path]);
   }
   return { status: res.status, body, ok: res.ok };
 }
@@ -100,7 +134,7 @@ async function handleProxy(request: Request, env: Env, upstreamPath: string): Pr
   // 성공하면 KV 도 새 값으로 갱신한다(예열과 같은 효과). 10/7: 저장 시점이 다른 시·도 합계와 구별 건수를 비교해
   // 대구 4,236 ≠ 4,235 가 '불일치'로 잡혔다 — 앱 요청은 이 헤더를 보내지 않는다
   const fresh = request.headers.get("x-irang-proxy-fresh") === "1";
-  const hit = fresh ? null : await env.DATAGOKR_CACHE.get(key, "text");
+  const hit = fresh ? null : await readCache(env, key);
   if (hit !== null) {
     return new Response(hit, {
       status: 200,
@@ -110,7 +144,7 @@ async function handleProxy(request: Request, env: Env, upstreamPath: string): Pr
 
   let result: { status: number; body: string; ok: boolean };
   try {
-    result = await fetchAndStore(env, upstreamPath, params);
+    result = await fetchAndStore(env, upstreamPath, params, { skipIfSame: fresh });
   } catch (err) {
     return json(502, { error: "upstream fetch failed", detail: err instanceof Error ? err.message : String(err) });
   }
@@ -173,10 +207,14 @@ export default {
     return handleProxy(request, env, match?.[1] ?? "");
   },
 
-  /** cron: 커서를 KV에 두고 40건씩 순환 — 5분 간격 트리거로 한 시간 안에 전체 예열 */
+  /**
+   * cron: 커서를 KV에 두고 40건씩 순환 — 하루 한 바퀴(wrangler.toml 7회 × 40 = 280 ≥ 목록 273).
+   * 10/7 까지는 5분 간격 2시간(24회 ≈ KV 쓰기 984회)이라 예열만으로 하루 쓰기 한도(1,000)를 거의 다 썼다.
+   * HIRA 저장분 TTL 이 7일이라 하루 한 바퀴면 만료되기 전에 늘 다시 채워진다.
+   */
   async scheduled(_controller: ScheduledController, env: Env): Promise<void> {
-    const cursor = Number((await env.DATAGOKR_CACHE.get(WARM_CURSOR_KEY, "text")) ?? "0") || 0;
+    const cursor = Number((await readCache(env, WARM_CURSOR_KEY)) ?? "0") || 0;
     const r = await warmBatch(env, cursor);
-    await env.DATAGOKR_CACHE.put(WARM_CURSOR_KEY, String(r.next));
+    await storeBestEffort(env, WARM_CURSOR_KEY, String(r.next), 30 * 24 * 60 * 60);
   },
 };

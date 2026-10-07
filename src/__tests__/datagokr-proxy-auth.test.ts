@@ -95,3 +95,75 @@ describe("data.go.kr 프록시 Worker 저장분 건너뛰기", () => {
     expect(await (await req(false)).text()).toBe('{"v":2}'); // 저장분도 새 값으로
   });
 });
+
+/**
+ * KV 저장은 덤 — 쓰기 한도 초과에도 응답은 그대로 (10/7 밤)
+ * Free 플랜 KV 쓰기 하루 1,000회를 넘기자 put 예외가 응답을 502 로 바꿔, 저장분에 없는 의료기관·기상 조회가
+ * 전부 실패했다(주간 대조 CI 'KV put() limit exceeded for the day'). 대조(fresh)는 값이 같으면 쓰지 않는다.
+ */
+describe("data.go.kr 프록시 Worker — KV 쓰기 실패·한도", () => {
+  const HIRA = "/proxy/B551182/hospInfoServicev2/getHospBasisList?sidoCd=310000&pageNo=1&numOfRows=1&_type=json";
+  const req = (e: Record<string, unknown>, fresh = false) =>
+    worker.fetch(
+      new Request(`https://proxy.test${HIRA}`, {
+        headers: { "x-irang-proxy-secret": APP, ...(fresh ? { "x-irang-proxy-fresh": "1" } : {}) },
+      }),
+      e as never,
+    );
+
+  it("put 이 한도 초과로 실패해도 원천 응답을 200 으로 돌려준다", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response('{"n":7}', { status: 200 })));
+    const kv = {
+      get: async () => null,
+      put: vi.fn(async () => {
+        throw new Error("KV put() limit exceeded for the day.");
+      }),
+    };
+    const r = await req(env({ DATAGOKR_CACHE: kv }));
+    expect(r.status).toBe(200);
+    expect(await r.text()).toBe('{"n":7}');
+    expect(kv.put).toHaveBeenCalledTimes(1);
+  });
+
+  it("get 이 실패하면 저장분 없음으로 보고 원천에서 받는다", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response('{"n":8}', { status: 200 })));
+    const kv = {
+      get: async () => {
+        throw new Error("KV get failed");
+      },
+      put: async () => {},
+    };
+    const r = await req(env({ DATAGOKR_CACHE: kv }));
+    expect(r.status).toBe(200);
+    expect(await r.text()).toBe('{"n":8}');
+  });
+
+  it("대조(fresh)는 저장분과 같으면 쓰지 않고, 다르면 쓴다", async () => {
+    const store = new Map<string, string>();
+    const kv = {
+      get: vi.fn(async (k: string) => store.get(k) ?? null),
+      put: vi.fn(async (k: string, v: string) => void store.set(k, v)),
+    };
+    let body = '{"n":1}';
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(body, { status: 200 })));
+    await req(env({ DATAGOKR_CACHE: kv })); // 앱 요청 — 저장
+    expect(kv.put).toHaveBeenCalledTimes(1);
+    await req(env({ DATAGOKR_CACHE: kv }), true); // 대조 — 같은 값
+    expect(kv.put).toHaveBeenCalledTimes(1);
+    body = '{"n":2}';
+    await req(env({ DATAGOKR_CACHE: kv }), true); // 대조 — 바뀐 값
+    expect(kv.put).toHaveBeenCalledTimes(2);
+    expect([...store.values()]).toEqual(['{"n":2}']);
+  });
+
+  it("cron 예열은 커서 저장이 실패해도 예외를 던지지 않는다", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 200 })));
+    const kv = {
+      get: async () => null,
+      put: async () => {
+        throw new Error("KV put() limit exceeded for the day.");
+      },
+    };
+    await expect(worker.scheduled({ scheduledTime: Date.now() } as never, env({ DATAGOKR_CACHE: kv }) as never)).resolves.toBeUndefined();
+  });
+});
