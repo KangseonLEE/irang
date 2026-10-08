@@ -18,8 +18,8 @@
  * - sgisCode 는 국가데이터처 「한국행정구역분류」 2026.7.10 기준판 코드(제물포 23100·영종 23110·서해 23120·검단 23130).
  *   SGIS 는 이 분류 코드를 그대로 써 왔지만(군위 22520·미추홀 23090) 10/7 현재 새 구는 아직 없다. 행정동 합이 안 되는
  *   해에는 같은 코드로 SGIS 를 직접 묻는다 — SGIS 가 새 구를 싣는 날부터는 그 값이 나온다(lib/api/sgis.ts).
- * - 한계: SGIS 행정동 경계는 2025-07-11 경계 조정(백석동 일대 검암경서동 → 당하동) 이전 기준이라, 그 일대 인구는
- *   검단이 아니라 서해에 더해진다(국가데이터처 연계표).
+ * - 2025-07-11 경계 조정(백석동 일대 검암경서동 → 당하동): SGIS 행정동·집계구 연계는 조정 전 기준이라 그 일대가
+ *   검암경서동(서해)에 들어가 있다. 집계구 25곳을 서해에서 빼 검단에 더한다(OA_TRANSFERS, 10/8) — 2024년 12,681명.
  *
  * 2026-02-01 화성시 일반구 신설(만세·효행·병점·동탄, 10/7 반영)도 같은 방식이다. 다만 화성시는 그대로 우리 시·군·구
  * 단위로 남고 새 구는 그 아래(gus.ts)라 parentSigunguId 를 둔다. 네 구 모두 행정동 목록으로 정의하고 '나머지' 구는
@@ -220,4 +220,96 @@ export function compositeRows<T extends { adm_cd: string }>(
     rows.push(...dongRows.filter((r) => mineSet.has(r.adm_cd)));
   }
   return rows;
+}
+
+/**
+ * 집계구 단위 이동 — SGIS 행정동·집계구 연계가 행정동 경계 조정 전 기준이라 신설 구 경계와 어긋나는 곳 (2026-10-08).
+ *
+ * 2025-07-11 인천 서구 행정동 경계 조정(행정안전부 「행정기관 및 관할구역 변경내역」 2025.7.11 시행, 서구 「동의 명칭과
+ * 구역에 관한 조례」): 검암경서동의 경인아라뱃길 북쪽(백석동 일대)이 당하동으로 갔다 — 지금은 검단구다. SGIS 는 2024년
+ * 통계까지 이 일대를 검암경서동(23080510) 집계구로 둬 서해에 더해졌다.
+ * 옮길 집계구 25곳: SGIS 2025 집계구 중심점을 경인아라뱃길 중심선(OSM way 378066778, UTM-K 투영)으로 나눈 북쪽(경계에
+ * 걸친 2곳 포함, 불확실성 ±500명 안팎). 2024년 12,681명·4,847세대. 교차 확인: 주민등록 2025-06→07 검암경서동 −12,477명 /
+ * 당하동 +12,348명(KOSIS DT_1B04005N).
+ */
+export interface OaTransfer {
+  /** 집계구가 SGIS 에서 속한 행정동(경계 조정 전 연계) */
+  dong: string;
+  /** 집계구를 빼는 신설 구 / 더하는 신설 구 (sgisCode) */
+  from: string;
+  to: string;
+  /** 옮길 집계구 코드(14자리) */
+  oaCodes: readonly string[];
+}
+
+export const OA_TRANSFERS: readonly OaTransfer[] = [
+  {
+    dong: "23080510", // 검암경서동
+    from: "23120", // 서해구
+    to: "23130", // 검단구
+    oaCodes: [
+      "23080510040001", "23080510040101", "23080510040102", "23080510040103", "23080510040104",
+      "23080510040105", "23080510040106", "23080510040107", "23080510040108", "23080510040109",
+      "23080510040110", "23080510040111", "23080510040112", "23080510040201", "23080510040202",
+      "23080510040203", "23080510040204", "23080510040205", "23080510040206", "23080510040207",
+      "23080510040208", "23080510040209", "23080510040210", "23080510040211", "23080510040212",
+    ],
+  },
+];
+
+/** 이 신설 구들의 인구를 내려면 집계구 단위로 받아야 하는 행정동 */
+export function oaDongsOf(composites: readonly SgisComposite[]): string[] {
+  const codes = new Set(composites.map((c) => c.sgisCode));
+  return [...new Set(OA_TRANSFERS.filter((t) => codes.has(t.from) || codes.has(t.to)).map((t) => t.dong))];
+}
+
+/** 인구 통계 행 — 셀 수 있는 값(인구·세대)과 부양비(고령 비중 계산용) */
+interface CountRow {
+  adm_cd: string;
+  tot_ppltn: string;
+  tot_family: string;
+}
+
+/** 셀 수 있는 값(인구·세대)만 부호를 뒤집는다. 부양비는 그대로 — 65세 이상 = 인구 × 비중이라 인구와 함께 빠진다 */
+function negateCounts<T extends CountRow>(row: T): T {
+  const neg = (v: string) => (/^-?\d+$/.test(v) ? String(-Number(v)) : v);
+  return { ...row, tot_ppltn: neg(row.tot_ppltn), tot_family: neg(row.tot_family) };
+}
+
+/**
+ * 신설 구 인구 행 — compositeRows 에 집계구 이동을 더한다(빼는 쪽은 인구·세대 부호를 뒤집은 행). 소비처는 행을 그대로
+ * 더하면 된다(인구·세대 합, 고령 인구 = 인구 × 행 비중의 합).
+ * - 옮길 집계구가 그 행정동 응답에 하나도 없으면 옮기지 않는다 — SGIS 가 연계를 고친 해라 두 번 옮기지 않게
+ *   (집계구 코드가 바뀐 경우도 여기로 오므로 정합성 대조가 '이동이 꺼짐'을 문제로 알린다)
+ * - 일부만 있으면 null — 덜 옮긴 값을 숫자로 내보내지 않는다. 그 행정동 집계구 응답이 없어도 null
+ * - 비공개(N/A) 집계구는 셀 수 없어 옮기지 않는다(그 몫은 원래 행정동 쪽에 남는다 — 2024년엔 0곳, 2020·2022년엔 대부분이
+ *   비공개였지만 그때 이 일대 인구는 500~800명이었다)
+ */
+export function compositePopulationRows<T extends CountRow>(
+  composite: SgisComposite,
+  guRows: readonly T[],
+  dongRowsByGu: ReadonlyMap<string, readonly T[]>,
+  oaRowsByDong: ReadonlyMap<string, readonly T[]>,
+): T[] | null {
+  const rows = compositeRows(composite, guRows, dongRowsByGu);
+  if (!rows) return null;
+  for (const t of OA_TRANSFERS) {
+    if (t.from !== composite.sgisCode && t.to !== composite.sgisCode) continue;
+    const oaRows = oaRowsByDong.get(t.dong);
+    if (!oaRows) return null;
+    const want = new Set(t.oaCodes);
+    const moving = oaRows.filter((r) => want.has(r.adm_cd));
+    if (moving.length === 0) continue;
+    if (moving.length !== want.size) return null;
+    // 비공개(N/A) 집계구는 셀 수 없으니 옮기지 않는다 — 빼는 쪽과 더하는 쪽이 같은 행만 쓰게
+    const countable = moving.filter((r) => /^\d+$/.test(r.tot_ppltn));
+    rows.push(...(t.from === composite.sgisCode ? countable.map(negateCounts) : countable));
+  }
+  return rows;
+}
+
+/** 이 해 이 행정동 집계구 응답에 옮길 집계구가 있는가 — 정합성 대조가 '이동이 꺼짐'을 알리는 데 쓴다 */
+export function oaTransferActive(transfer: OaTransfer, oaRows: readonly { adm_cd: string }[]): boolean {
+  const want = new Set(transfer.oaCodes);
+  return oaRows.some((r) => want.has(r.adm_cd));
 }

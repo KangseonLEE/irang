@@ -208,7 +208,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
             </Link>
           </p>
           <DataSource
-            source={`기상청 ASOS · SGIS 인구 · 농림어업총조사 2020 · 심평원 의료기관 · NEIS 학교 · KOSIS 정착 통계 (총 ${DIMENSION_SCORES.length}개 시군구 기준)`}
+            source={`기상청 ASOS · SGIS 인구 · 농림어업총조사 2025 · 심평원 의료기관 · NEIS 학교 · KOSIS 정착 통계 (총 ${DIMENSION_SCORES.length}개 시군구 기준)`}
           />
         </>
       ) : (
@@ -372,7 +372,7 @@ export default async function RankingPage({ searchParams }: PageProps) {
       </p>
 
       <DataSource
-        source={`기상청 ASOS · SGIS 인구 · 농림어업총조사 2020 · 심평원 의료기관 · NEIS 학교 · KOSIS 정착 통계 (총 ${DIMENSION_SCORES.length}개 시군구 기준)`}
+        source={`기상청 ASOS · SGIS 인구 · 농림어업총조사 2025 · 심평원 의료기관 · NEIS 학교 · KOSIS 정착 통계 (총 ${DIMENSION_SCORES.length}개 시군구 기준)`}
       />
         </>
       )}

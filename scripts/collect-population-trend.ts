@@ -24,7 +24,7 @@ import { resolve } from "node:path";
 // .env.local 우선 로드 (Next.js 컨벤션)
 config({ path: resolve(__dirname, "../.env.local") });
 import { PROVINCES } from "../src/lib/data/regions";
-import { REPLACED_SGIS_GU, SGIS_COMPOSITES, compositeRows, splitGuOf } from "../src/lib/data/region-composites";
+import { REPLACED_SGIS_GU, SGIS_COMPOSITES, compositePopulationRows, oaDongsOf, splitGuOf } from "../src/lib/data/region-composites";
 
 const AUTH_URL =
   "https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json";
@@ -268,18 +268,24 @@ async function main() {
     }
   }
 
-  // ── 신설 구(인천 2026 개편, SGIS 미등재) — 해마다 옛 구 + 행정동 합 (region-composites.ts) ──
+  // ── 신설 구(인천 2026 개편, SGIS 미등재) — 해마다 옛 구 + 행정동 합 + 경계 조정 집계구 이동 (region-composites.ts) ──
   const compositePoints: Point[] = [];
   const splitGu = splitGuOf(SGIS_COMPOSITES);
+  const oaDongs = oaDongsOf(SGIS_COMPOSITES);
   for (const year of YEARS) {
     const dongRowsByGu = new Map<string, PopulationApiItem[]>();
     for (const gu of splitGu) {
       dongRowsByGu.set(gu, await fetchProvinceSubPopulation(token, gu, year));
       await new Promise((r) => setTimeout(r, 200));
     }
+    const oaRowsByDong = new Map<string, PopulationApiItem[]>();
+    for (const dong of oaDongs) {
+      oaRowsByDong.set(dong, await fetchProvinceSubPopulation(token, dong, year));
+      await new Promise((r) => setTimeout(r, 200));
+    }
     for (const c of SGIS_COMPOSITES) {
       const guRows = rawByProvinceYear.get(`${c.sgisCode.slice(0, 2)}/${year}`) ?? [];
-      const rows = compositeRows(c, guRows, dongRowsByGu);
+      const rows = compositePopulationRows(c, guRows, dongRowsByGu, oaRowsByDong);
       if (!rows) {
         console.warn(`[skip] 신설 구 ${c.name} ${year}: 행정동 정의와 응답이 맞지 않음`);
         continue;

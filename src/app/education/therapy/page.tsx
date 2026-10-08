@@ -227,7 +227,7 @@ function OverviewTab() {
           />
           <CompareRow
             label="시장 규모"
-            healing="우수 시설 13→17개소 (2027 목표)"
+            healing="우수 치유농업시설 91곳 (2025 첫 인증)"
             social="105 주체 / 14 시·도 (2023)"
           />
         </div>

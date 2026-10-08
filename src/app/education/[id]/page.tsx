@@ -122,11 +122,7 @@ export default async function EducationDetailPage({
   const cost = displayValue(course.id, course.cost);
   // 그린대로 교육은 원천에 대상 칸이 없다 — 교육 구분("귀농귀촌아카데미")이 들어갔던 칸이라 싣지 않는다 (10/6 QA R2)
   const target = displayTarget(course.id, course.target);
-  const capacityLabel = isCapacityKnown(course.id, course.capacity)
-    ? course.capacity !== null
-      ? `${course.capacity}명`
-      : "제한 없음"
-    : null;
+  const capacityLabel = isCapacityKnown(course.capacity) ? `${course.capacity}명` : null;
   const shareText = summary ?? `${course.region} ${type ? `${type} ` : ""}교육`;
 
   return (

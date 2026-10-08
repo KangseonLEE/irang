@@ -91,7 +91,11 @@ fetch_status() {
 #   데이터의 URL 을 바꾸면 옛 줄은 지우고 새 URL 을 다시 확인해 넣는다. 한 줄 = "URL 메모"(첫 칸만 비교).
 # 이력: 8/30 #118 goryeong 404·fbo 502 / 10/1 cs.go.kr SP-052 404·geochang SP-053 403 / 10/3 gc.go.kr 김천시청 404(#158)
 #   — 모두 한국 200. 아래 13건은 10/6 한국 전수 점검(QA 링크 점검 + data-engineer 재확인)에서 200·제목·본문 확인.
-GEO_WARN_URLS="
+# 목록은 따옴표 없는 히어독(read -d '')으로 둔다 — 10/7 메모의 "영양군청 | 대한민국 별천지 영양" 같은 큰따옴표가
+#   큰따옴표 문자열을 끊어 목록이 통째로 빈 값이 되고(set -e 라 스크립트가 시작하자마자 멈춤) 한 번도 실행 전에
+#   발견됐다(10/8). \$( ) 안 히어독은 macOS bash 3.2 가 메모의 괄호에 걸려 뒤쪽 case 구문까지 깨므로 쓰지 않는다.
+#   메모에는 무엇을 써도 되지만 첫 칸(URL)만 비교한다. src/__tests__/check-links-geo-list.test.ts 가 파싱을 검사한다
+IFS= read -r -d '' GEO_WARN_URLS <<'GEO' || true
 https://www.fbo.or.kr/ SP-018 농지은행 통합포털
 https://www.fbo.or.kr/contents/Contents.do?menuId=0500100030 SP-050
 https://www.fbo.or.kr/contents/Contents.do?menuId=0500100040 SP-051
@@ -102,13 +106,14 @@ https://www.goesan.go.kr/rfarm/selectBbsNttView.do?key=1662&bbsNo=326&nttNo=1341
 https://goesan.go.kr/www/index.do 센터 괴산군청
 https://www.cs.go.kr/specialty/00003170/00004055.web SP-052
 https://www.cs.go.kr/agri.web 센터 청송군 농업기술센터(10/6 교체)
-https://www.geochang.go.kr/00445/00450.web?gcode=1002&idx=14088774&amode=view SP-053
+https://www.geochang.go.kr/00445/00452.web?amode=view&news_epct_no=37613 SP-053(10/8 9기 공고 → 10기 군 보도자료 교체 · 한국 200 "뉴스미디어포털 > 군정소식> 보도자료" · 본문 10기·44시간·40명)
 https://www.geochang.go.kr/ 센터 거창군청
 https://www.gc.go.kr/ 센터 김천시청
 https://www.yc.go.kr/ 센터 영천시청(10/7 #165 미국 404 · 한국 200 "영천시청")
 https://www.yyg.go.kr/ 센터 영양군청(10/7 #165 미국 404 · 한국 200 "영양군청 | 대한민국 별천지 영양")
 https://www.goseong.go.kr/ 센터 고성군청(경남, 10/7 #165 미국 400 · 한국 200 "경상남도 고성군청")
-"
+https://jung.daegu.kr/ 센터 대구 중구청(봇 방어: JS 쿠키 확인 후 새로고침 — 자동 점검은 늘 400 · 10/8 쿠키 재현 200 "대구광역시 중구청" → /new/pages/main/ "대구광역시 중구")
+GEO
 
 is_geo_url() {
   local u="$1" line

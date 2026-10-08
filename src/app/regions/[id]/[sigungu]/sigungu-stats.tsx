@@ -55,7 +55,7 @@ export interface SigunguStatsProps {
   } | null;
   climate: ClimateInfo | null;
   hasFallback: boolean;
-  /** 농가 통계 (SGIS 농림어업총조사 2020) */
+  /** 농가 통계 (2025 농림어업총조사 — KOSIS, lib/data/farms.ts) */
   farm: {
     farmCount: number;
     farmPopulation: number;
@@ -107,6 +107,11 @@ export interface SigunguStatsProps {
    */
   returnFarmScope?: string;
   /**
+   * 농가 수가 이 화면 단위가 아니라 상위 시 전체 값일 때 그 시 이름 — 2025 농림어업총조사에 없는 신설 구(화성 2026)의
+   * 구 상세가 넘긴다. 카드 이름·안내 창에 밝힌다(10/8, returnFarmScope 와 같은 방식).
+   */
+  farmScope?: string;
+  /**
    * 원천(심평원·교육부)만 새 구로 바뀌어 셀 수 없게 된 지역(region-reorganizations countsUnavailable).
    * 있으면 의료기관·학교 카드를 '확인 불가'로 두고 새 구청 안내 창을 연다 — 옛 코드·이름으로 세면 0을
    * 돌려줘 '0개'로 보이던 것(10/7 B안의 인천 옛 3개 구). A안 이후 지금은 해당 지역이 없다.
@@ -154,6 +159,7 @@ export function SigunguStats({
   sigunguNameForNeis,
   admCode,
   returnFarmScope,
+  farmScope,
   reorg = null,
   medicalUnit,
 }: SigunguStatsProps) {
@@ -311,7 +317,7 @@ export function SigunguStats({
           >
             <Icon icon={Tractor} size="lg" />
             <div className={s.statBody}>
-              <span className={s.statLabel}>농가</span>
+              <span className={s.statLabel}>{farmScope ? `${farmScope} 농가` : "농가"}</span>
               <span className={s.statValue}>
                 {farm.farmCount.toLocaleString("ko-KR")}호
               </span>
@@ -565,10 +571,10 @@ export function SigunguStats({
         <Modal
           open={activeModal === "farm"}
           onClose={closeModal}
-          title={`${sigunguName} 농가 통계`}
+          title={`${farmScope ?? sigunguName} 농가 통계`}
         >
           <FarmHouseholdModal
-            sigunguName={sigunguName}
+            sigunguName={farmScope ?? sigunguName}
             provinceShortName={provinceShortName}
             farm={farm}
             sidoAvgPopulation={sidoFarmAvgPopulation}

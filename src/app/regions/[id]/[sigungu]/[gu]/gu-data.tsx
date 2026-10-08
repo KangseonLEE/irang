@@ -135,8 +135,12 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
 
   const hasFallback = isPopulationFallback || isMedicalFallback || isSchoolFallback;
 
-  // 농가 데이터 + 시도 평균 비교
-  const farm = guFarmResult.status === "fulfilled" ? guFarmResult.value : null;
+  // 농가 데이터 + 시도 평균 비교 — 2025 농림어업총조사 구 단위 값. 2026-02 신설된 화성 4구는 조사 기준일(2025-12-01)
+  // 경계라 표에 없어, 시 전체 값을 범위를 밝혀(카드 '화성시 농가') 보여 준다 — 귀농·귀촌 카드와 같은 방식 (10/8)
+  const guFarm = guFarmResult.status === "fulfilled" ? guFarmResult.value : null;
+  const parentFarmStat = guFarm ? null : getFarmFallback(sigungu.sgisCode);
+  const farm = guFarm ?? parentFarmStat;
+  const farmScope = !guFarm && parentFarmStat ? sigungu.name : undefined;
   const sidoFarm = getFarmFallback(province.sgisCode);
   // 반올림 전 두 수로 비교 — SGIS 가 정수로 준 평균으로 비교하면 -33% 같은 엉뚱한 차이가 났다 (10/7)
   const farmRatioVsSido = farm && sidoFarm ? farmAvgDiffPct(farm, sidoFarm) : null;
@@ -204,10 +208,11 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
               farmCount: farm.farmCount,
               farmPopulation: farm.farmPopulation,
               avgPopulation: farm.avgPopulation,
-              isFallback: !!farm.isFallback,
+              isFallback: false,
             }
           : null
       }
+      farmScope={farmScope}
       sidoFarmAvgPopulation={sidoFarm?.avgPopulation ?? null}
       farmRatioVsSido={farmRatioVsSido}
       populationTrend={populationTrendData}

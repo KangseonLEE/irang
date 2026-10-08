@@ -227,9 +227,12 @@ describe("교육 상세 — 수집 행 (crawl-rda-education-a2b161c3)", () => {
     expect(meta.title).toBe("영주 소백산귀농드림타운 체류형 농업창업교육 — 오프라인·초급 정착 교육");
     const html = renderToStaticMarkup(await educationPage.default({ params: Promise.resolve({ id: "ED-008" }) }));
     const text = visibleText(html);
-    expect(text).toContain("입교비 소정 (확인 필요)");
+    // 10/8 원문 대조 값 — 비용 문구가 수집 행 규칙에 지워지지 않는다
+    expect(text).toContain("교육비 선납 원룸형 120만 원·투룸형 240만 원");
     expect(text).toContain("초급");
-    expect(text).toContain("5명");
+    // 정원은 30세대라 '명'으로 싣지 않는다(본문에 세대로 적음) — '제한 없음'도 아니다
+    expect(text).toContain("30세대");
+    expect(text).not.toContain("제한 없음");
   });
 });
 

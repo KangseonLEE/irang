@@ -14,6 +14,7 @@
 # 권한: CF_API_TOKEN 에 계정 Web Analytics 권한이 있어야 한다. 10/7 첫 실행은 code 10000(Authentication error) —
 #   같은 토큰·계정으로 Workers 배포는 되므로 계정 ID 가 아니라 권한 문제. 권한이 없으면 대시보드에서 직접 끈다
 #   (Analytics & Logs → Web Analytics → irangfarm.com → Manage site → 자동 설치 끄기)
+# 2026-10-08: 회장이 대시보드에서 Disable — 운영 HTML·콘솔 0건 확인. 이 워크플로는 다시 켜졌는지 볼 때(inspect, 권한 필요)만 쓴다
 # ═══════════════════════════════════════════
 name: Cloudflare Web Analytics
 

@@ -4,7 +4,7 @@
  * 생성 스크립트: scripts/collect-population-trend.ts
  * 데이터 소스: 통계청 SGIS 인구통계 (1~2년 지연)
  * 수집 연도: 2018, 2019, 2020, 2021, 2022
- * 마지막 수집: 2026-10-07
+ * 마지막 수집: 2026-10-08
  *
  * ⚠ 절대 수동 편집 금지. 갱신은 `npx tsx scripts/collect-population-trend.ts`
  *
@@ -10492,17 +10492,17 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "sgisCode": "23120",
     "name": "서해구",
     "year": 2018,
-    "population": 375913,
-    "householdCount": 135924,
-    "agingRate": 9.5
+    "population": 375085,
+    "householdCount": 135771,
+    "agingRate": 9.4
   },
   {
     "sgisCode": "23130",
     "name": "검단구",
     "year": 2018,
-    "population": 156800,
-    "householdCount": 53855,
-    "agingRate": 8.9
+    "population": 157628,
+    "householdCount": 54008,
+    "agingRate": 9.1
   },
   {
     "sgisCode": "31241",
@@ -10556,17 +10556,17 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "sgisCode": "23120",
     "name": "서해구",
     "year": 2019,
-    "population": 382836,
-    "householdCount": 140799,
-    "agingRate": 10
+    "population": 382288,
+    "householdCount": 140735,
+    "agingRate": 9.9
   },
   {
     "sgisCode": "23130",
     "name": "검단구",
     "year": 2019,
-    "population": 157819,
-    "householdCount": 54864,
-    "agingRate": 9.5
+    "population": 158367,
+    "householdCount": 54928,
+    "agingRate": 9.8
   },
   {
     "sgisCode": "31241",
@@ -10620,17 +10620,17 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "sgisCode": "23120",
     "name": "서해구",
     "year": 2020,
-    "population": 384310,
-    "householdCount": 145120,
-    "agingRate": 10.8
+    "population": 383797,
+    "householdCount": 145068,
+    "agingRate": 10.7
   },
   {
     "sgisCode": "23130",
     "name": "검단구",
     "year": 2020,
-    "population": 157224,
-    "householdCount": 55734,
-    "agingRate": 10.2
+    "population": 157737,
+    "householdCount": 55786,
+    "agingRate": 10.4
   },
   {
     "sgisCode": "31241",
@@ -10684,17 +10684,17 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "sgisCode": "23120",
     "name": "서해구",
     "year": 2021,
-    "population": 380805,
-    "householdCount": 147822,
-    "agingRate": 11.8
+    "population": 380304,
+    "householdCount": 147770,
+    "agingRate": 11.7
   },
   {
     "sgisCode": "23130",
     "name": "검단구",
     "year": 2021,
-    "population": 170221,
-    "householdCount": 62423,
-    "agingRate": 10.5
+    "population": 170722,
+    "householdCount": 62475,
+    "agingRate": 10.7
   },
   {
     "sgisCode": "31241",
@@ -10748,17 +10748,17 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "sgisCode": "23120",
     "name": "서해구",
     "year": 2022,
-    "population": 385439,
-    "householdCount": 153017,
-    "agingRate": 12.6
+    "population": 384974,
+    "householdCount": 152965,
+    "agingRate": 12.5
   },
   {
     "sgisCode": "23130",
     "name": "검단구",
     "year": 2022,
-    "population": 195630,
-    "householdCount": 72732,
-    "agingRate": 10.5
+    "population": 196095,
+    "householdCount": 72784,
+    "agingRate": 10.6
   },
   {
     "sgisCode": "31241",

@@ -134,8 +134,8 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       },
     ],
     applicationPeriod: {
-      typical: "매년 1~3월 (지자체별 상이)",
-      frequency: "연 1~2회",
+      typical: "상반기 1월 1일~2월 10일 · 하반기 6월 1일~7월 10일 (원칙, 시·군별 상이)",
+      frequency: "연 2회 (원칙)",
     },
     steps: [
       {

@@ -39,6 +39,9 @@ const nextConfig: NextConfig = {
       { source: "/regions/incheon/dong-gu-incheon/:path*", destination: "/regions/incheon/jemulpo/:path*", permanent: true },
       { source: "/regions/incheon/seo-gu-incheon/:path*", destination: "/regions/incheon", permanent: true },
       { source: "/regions/gyeongbuk/gunwi/:path*", destination: "/regions/daegu/gunwi/:path*", permanent: true },
+      // 지원사업 목록에서 뺀 안내 항목 (10/8) — SP-029 '치유농업센터(광역거점)'는 신청하는 사업이 아니라 센터 안내라
+      // 치유농업 페이지(시·도 치유농업센터 17곳 안내)로 보낸다. 색인·공유 링크가 404 로 끊기지 않게
+      { source: "/programs/SP-029", destination: "/education/therapy?tab=healing", permanent: true },
     ];
   },
   /* ── 리라이트 ── */

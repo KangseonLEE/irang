@@ -15,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   REPLACED_SGIS_GU,
   SGIS_COMPOSITES,
+  compositePopulationRows,
   compositeRows,
   compositesInCity,
   compositesInProvince,
@@ -39,6 +40,18 @@ const SEO_2024: [string, number][] = [
   ["23080840", 26769], ["23080850", 28110], ["23080860", 20968], ["23080870", 24476], ["23080880", 71049],
 ];
 const DONG_GU_2024 = 57944;
+/** 검암경서동(23080510) 집계구 중 경인아라뱃길 북쪽 25곳 SGIS 2024 [코드, 인구, 세대] — 10/8 조사(합 12,681명·4,847세대) */
+const BAEKSEOK_OA_2024: [string, number, number][] = [
+  ["23080510040001", 491, 57], ["23080510040101", 407, 167], ["23080510040102", 601, 228], ["23080510040103", 540, 239],
+  ["23080510040104", 410, 175], ["23080510040105", 480, 191], ["23080510040106", 414, 186], ["23080510040107", 469, 205],
+  ["23080510040108", 490, 223], ["23080510040109", 574, 228], ["23080510040110", 507, 195], ["23080510040111", 432, 149],
+  ["23080510040112", 413, 186], ["23080510040201", 525, 179], ["23080510040202", 561, 207], ["23080510040203", 551, 193],
+  ["23080510040204", 657, 232], ["23080510040205", 451, 190], ["23080510040206", 387, 170], ["23080510040207", 486, 201],
+  ["23080510040208", 633, 229], ["23080510040209", 652, 230], ["23080510040210", 429, 142], ["23080510040211", 552, 208],
+  ["23080510040212", 569, 237],
+];
+/** 검암경서동의 나머지(아라뱃길 남쪽) — 동 합 54,558 에서 북쪽을 뺀 값을 한 행으로 */
+const GEOMAM_SOUTH_2024 = 54558 - 12681;
 const codes = (rows: [string, number][]) => rows.map(([c]) => c);
 
 describe("정의 — sigungus.ts 와 맞물림", () => {
@@ -156,7 +169,7 @@ describe("화성 신설 4개 구 (2026-02-01) — 행정동 29개를 조례 별�
 });
 
 /** SGIS 흉내 — adm_cd(+low_search) 별 응답 */
-function stubSgis(opts: { failDong?: string; farmNA?: string } = {}) {
+function stubSgis(opts: { failDong?: string; farmNA?: string; oa?: "moved" | "partial" | "none" } = {}) {
   const calls: string[] = [];
   vi.stubGlobal(
     "fetch",
@@ -176,6 +189,12 @@ function stubSgis(opts: { failDong?: string; farmNA?: string } = {}) {
       if (adm === "23") rows = [row("23020", DONG_GU_2024), row("23040", 417391)];
       if (adm === "23010") rows = JUNG_2024.filter(([c]) => c !== opts.failDong).map(([c, p]) => row(c, p));
       if (adm === "23080") rows = SEO_2024.filter(([c]) => c !== opts.failDong).map(([c, p]) => row(c, p));
+      // 검암경서동 집계구 — 기본은 SGIS 2024 그대로(북쪽 25곳이 아직 검암경서동). moved = SGIS 가 연계를 고쳐 북쪽이 빠진 해,
+      // partial = 북쪽 일부만(집계구 코드가 바뀐 해), none = 응답 없음
+      if (adm === "23080510" && opts.oa !== "none") {
+        const north = BAEKSEOK_OA_2024.slice(0, opts.oa === "partial" ? 10 : 25).map(([c, p, h]) => ({ ...row(c, p), tot_family: String(h) }));
+        rows = [...(opts.oa === "moved" ? [] : north), row("23080510050001", GEOMAM_SOUTH_2024)];
+      }
       return new Response(JSON.stringify({ errCd: 0, result: rows }));
     }),
   );
@@ -195,7 +214,8 @@ describe("SGIS 인구 — 신설 구 합산", () => {
   it("네 구 인구 = SGIS 2024 행정동 합, 넷을 더하면 옛 중구+동구+서구", async () => {
     stubSgis();
     const [je, yj, sh, gd] = await Promise.all(["23100", "23110", "23120", "23130"].map(fetchSigunguPopulationData));
-    expect([je?.population, yj?.population, sh?.population, gd?.population]).toEqual([101960, 120921, 405829, 228237]);
+    // 서해·검단은 백석동 일대 집계구 25곳(12,681명)을 서해에서 빼 검단에 더한 값 — 행정동 합만이면 405,829·228,237
+    expect([je?.population, yj?.population, sh?.population, gd?.population]).toEqual([101960, 120921, 393148, 240918]);
     const oldTotal = JUNG_2024.reduce((s, [, p]) => s + p, 0) + DONG_GU_2024 + SEO_2024.reduce((s, [, p]) => s + p, 0);
     expect(je!.population + yj!.population + sh!.population + gd!.population).toBe(oldTotal);
     expect(je?.regionName).toBe("제물포구");
@@ -215,20 +235,75 @@ describe("SGIS 인구 — 신설 구 합산", () => {
     stubSgis();
     const map = await fetchSubRegionPopulations("23");
     expect(map["23100"]?.population).toBe(101960);
-    expect(map["23130"]?.population).toBe(228237);
+    expect(map["23120"]?.population).toBe(393148);
+    expect(map["23130"]?.population).toBe(240918);
+  });
+
+  it("백석동 집계구 이동 — 세대도 같이 옮기고, 넷의 합은 그대로", async () => {
+    stubSgis();
+    const [sh, gd] = await Promise.all(["23120", "23130"].map(fetchSigunguPopulationData));
+    stubSgis({ oa: "moved" });
+    const [sh0, gd0] = await Promise.all(["23120", "23130"].map(fetchSigunguPopulationData));
+    // moved = SGIS 가 연계를 고친 해 → 이미 당하동에 들어가 있으니 옮기지 않는다(두 번 옮기지 않게)
+    expect([sh0?.population, gd0?.population]).toEqual([405829, 228237]);
+    expect(sh!.householdCount - sh0!.householdCount).toBe(-4847);
+    expect(gd!.householdCount - gd0!.householdCount).toBe(4847);
+  });
+
+  it("옮길 집계구가 일부만 있거나 집계구 응답이 없으면 합을 내지 않는다(덜 옮긴 값을 내보내지 않는다)", async () => {
+    for (const oa of ["partial", "none"] as const) {
+      stubSgis({ oa });
+      const sh = await fetchSigunguPopulationData("23120");
+      const latest = POPULATION_TREND_YEARS[POPULATION_TREND_YEARS.length - 1];
+      const fallback = POPULATION_TREND_SIGUNGU.find((p) => p.sgisCode === "23120" && p.year === latest);
+      expect(sh?.population ?? null, oa).toBe(fallback?.population ?? null);
+    }
   });
 });
 
-describe("SGIS 농가 — 신설 구 합산", () => {
-  it("행정동 농가를 더하고, 평균 가구원은 두 수로 다시 계산한다", async () => {
-    stubSgis();
-    const yj = await fetchFarmHousehold("23110");
-    expect(yj).toMatchObject({ farmCount: 50, farmPopulation: 125, avgPopulation: 2.5, isFallback: false });
+describe("compositePopulationRows — 집계구 이동 단위 규칙", () => {
+  const seohae = getSgisComposite("23120")!;
+  const geomdan = getSgisComposite("23130")!;
+  const dongRows = new Map([["23080", SEO_2024.map(([adm_cd, p]) => ({ adm_cd, tot_ppltn: String(p), tot_family: "0" }))]]);
+  const oaRows = (rows: { adm_cd: string; tot_ppltn: string; tot_family: string }[]) => new Map([["23080510", rows]]);
+  const north = BAEKSEOK_OA_2024.map(([adm_cd, p, h]) => ({ adm_cd, tot_ppltn: String(p), tot_family: String(h) }));
+  const sum = (rows: { tot_ppltn: string }[] | null) => rows?.reduce((a, r) => a + (parseInt(r.tot_ppltn, 10) || 0), 0) ?? null;
+
+  it("서해는 빼고 검단은 더한다", () => {
+    expect(sum(compositePopulationRows(seohae, [], dongRows, oaRows(north)))! - sum(compositeRows(seohae, [], dongRows))!).toBe(-12681);
+    expect(sum(compositePopulationRows(geomdan, [], dongRows, oaRows(north)))! - sum(compositeRows(geomdan, [], dongRows))!).toBe(12681);
   });
 
-  it("비공개(N/A) 동이 하나라도 있으면 그 구는 합을 내지 않는다", async () => {
-    stubSgis({ farmNA: "23010560" }); // 도원동 — 제물포
-    await expect(fetchFarmHousehold("23100")).resolves.toBeNull();
-    await expect(fetchFarmHousehold("23110")).resolves.not.toBeNull(); // 영종엔 영향 없음
+  it("비공개(N/A) 집계구는 양쪽 모두 옮기지 않는다", () => {
+    const withNa = north.map((r, i) => (i === 0 ? { ...r, tot_ppltn: "N/A" } : r));
+    const moved = 12681 - 491;
+    expect(sum(compositePopulationRows(seohae, [], dongRows, oaRows(withNa)))! - sum(compositeRows(seohae, [], dongRows))!).toBe(-moved);
+    expect(sum(compositePopulationRows(geomdan, [], dongRows, oaRows(withNa)))! - sum(compositeRows(geomdan, [], dongRows))!).toBe(moved);
+  });
+
+  it("이동이 없는 신설 구(제물포·화성)는 compositeRows 와 같다", () => {
+    const jemulpo = getSgisComposite("23100")!;
+    const guRows = [{ adm_cd: "23020", tot_ppltn: "57944", tot_family: "0" }];
+    const jungRows = new Map([["23010", JUNG_2024.map(([adm_cd, p]) => ({ adm_cd, tot_ppltn: String(p), tot_family: "0" }))]]);
+    expect(compositePopulationRows(jemulpo, guRows, jungRows, new Map())).toEqual(compositeRows(jemulpo, guRows, jungRows));
+  });
+});
+
+describe("농가 — 2025 총조사 정적 값만, 신설 구는 표에 없음 (10/8)", () => {
+  it("인천 신설 4구는 2025 표에 없어 null — 실행 중 SGIS 를 부르지 않는다", async () => {
+    const calls = stubSgis();
+    for (const code of ["23100", "23110", "23120", "23130"]) {
+      await expect(fetchFarmHousehold(code)).resolves.toBeNull();
+    }
+    expect(calls).toEqual([]);
+  });
+
+  it("화성 신설 4구도 null(구 화면은 화성시 값을 범위를 밝혀 쓴다), 화성시는 2025 값", async () => {
+    const calls = stubSgis();
+    for (const code of ["31241", "31242", "31243", "31244"]) {
+      await expect(fetchFarmHousehold(code)).resolves.toBeNull();
+    }
+    await expect(fetchFarmHousehold("31240")).resolves.toMatchObject({ farmCount: 12994, farmPopulation: 29477, avgPopulation: 2.3, isFallback: false });
+    expect(calls).toEqual([]);
   });
 });

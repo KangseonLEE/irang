@@ -104,7 +104,7 @@ describe("hasCollectorDefaults — 수집 행과 RDA API 폴백 행", () => {
     expect(displayEducationLevel("rda-edu-801", "초급")).toBeNull();
     expect(displayEducationType("rda-edu-801", "오프라인")).toBeNull();
     expect(isEducationTypeUnknown("rda-edu-801")).toBe(true);
-    expect(isCapacityKnown("rda-edu-801", null)).toBe(false);
+    expect(isCapacityKnown(null)).toBe(false);
   });
 });
 

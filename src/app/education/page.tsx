@@ -364,11 +364,7 @@ function CourseCard({ course }: { course: EducationCourse }) {
   const type = displayEducationType(course.id, course.type);
   const duration = displayValue(course.id, course.duration);
   const schedule = displayValue(course.id, course.schedule);
-  const capacityLabel = isCapacityKnown(course.id, course.capacity)
-    ? course.capacity
-      ? `정원 ${course.capacity}명`
-      : "제한없음"
-    : null;
+  const capacityLabel = isCapacityKnown(course.capacity) ? `정원 ${course.capacity}명` : null;
 
   return (
     <Link

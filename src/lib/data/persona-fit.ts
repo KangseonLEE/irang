@@ -441,7 +441,7 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-051": { farmYouth: 5, family: 4, elderRural: 3, commuter: 2 },
   // 청송 과수생산 지원 (이미 과수를 재배하는 청송 농업경영체 대상 시설·자재 보조)
   "SP-052": { farmYouth: 3, family: 3, elderRural: 3, commuter: 2 },
-  // 거창 미래형 사과원 아카데미 (예비 농업인도 가능, 저연령 우선)
+  // 거창 미래형 사과원 아카데미 (거창 거주 농업인, 청년농·후계농·다축 전환 희망자 우선 — 10/8 10기 원문)
   "SP-053": { farmYouth: 4, family: 4, elderRural: 3, commuter: 3 },
   // 2026-09-26 2층: 작물군 국비 사업 — 기존 재배 농가 전제(시설현대화 3년 경력 등)라 청년·가족 정착 후반부
   "SP-054": { farmYouth: 4, family: 4, elderRural: 3, commuter: 2 },
@@ -465,6 +465,8 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   "SP-075": { farmYouth: 5, family: 4, elderRural: 4, commuter: 3 },
   "SP-076": { family: 3, elderRural: 3, farmYouth: 3, commuter: 2 },
   "SP-077": { elderRural: 5, family: 4, farmYouth: 4, commuter: 3 },
+  // 2026-10-08: 충주 과수 시설현대화·명품과원 (생산유통통합조직·푸드플랜 참여 경영체 전제, 신규 과원은 명품과원 창구)
+  "SP-078": { farmYouth: 4, family: 3, elderRural: 3, commuter: 2 },
 };
 
 export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
@@ -493,7 +495,7 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-018": "농지 임대수탁이라 자본 부담이 큰 가족·노년에 강점이에요",
   "SP-020": "40세 미만 청년농 정착지원 2차 모집이에요",
   "SP-021": "40세 미만 청년 대상 임대형 스마트팜 입주(예산)이에요",
-  "SP-022": "청년농 R&D 아이디어 사업화 공모라 본업 농가에 맞아요",
+  "SP-022": "청년농 아이디어 사업화 보조사업이라 본업 청년농에 맞아요",
   "SP-023": "만 49세 이하 후계농 융자(최대 5억원)라 가족·본업 농가 핵심이에요",
   "SP-024": "체류형 귀농인의 집(고성)이라 가족·노년에 잘 맞아요",
   "SP-025": "체류형 귀농인의 집(논산)이라 가족·반귀농에 잘 맞아요",
@@ -519,7 +521,7 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-050": "과수원 구입비를 ㎡당 2만 원까지 연 2%로 빌려줘 청년·가족 정착에 맞아요",
   "SP-051": "과수원을 사지 않고 5~10년 빌려 시작할 수 있어 자본 부담이 적어요",
   "SP-052": "청송에서 과수를 재배 중인 농가에 시설·자재를 절반까지 보조해요",
-  "SP-053": "예비 농업인도 들을 수 있는 사과 다축과원 교육이에요",
+  "SP-053": "거창에 사는 농업인이 듣는 사과 다축과원 교육이에요 (청년농·후계농 우선)",
   "SP-054": "온실 관수·환경관리 설비를 보조 25%·융자 25%로 바꿔요 (경력 3년 필요)",
   "SP-055": "논에 콩·옥수수·깨를 심으면 ha당 100~200만 원 직불금이에요",
   "SP-056": "건고추 비가림 시설과 관수·차광 설비를 함께 지원해요",
@@ -539,6 +541,7 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-075": "진도에서 생강을 시작하면 종자·자재 70%를 보조해 첫해부터 맞아요",
   "SP-076": "제주 당근 가격이 기준 아래로 떨어지면 차액 90%를 보전해요",
   "SP-077": "제주 토종 메밀 등을 키우면 ㎡당 400원 소득보전이라 은퇴 정착에 맞아요",
+  "SP-078": "충주에서 과원 시설을 바꾸거나 새 과원을 만들면 사업비 절반을 보조해요 (통합조직·푸드플랜 참여 필요)",
 };
 
 /**

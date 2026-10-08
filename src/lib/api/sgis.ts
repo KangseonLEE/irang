@@ -16,9 +16,10 @@ import {
 } from "@/lib/data/farms";
 import { INTEGRATED_CITY_GU_CODES } from "@/lib/data/integrated-cities";
 import {
-  compositeRows,
+  compositePopulationRows,
   compositesInProvince,
   getSgisComposite,
+  oaDongsOf,
   splitGuOf,
   type SgisComposite,
 } from "@/lib/data/region-composites";
@@ -55,14 +56,6 @@ function getSigunguStaticPop(sgisCode: string): PopulationData | null {
 
 const AUTH_URL = "https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json";
 const POPULATION_URL = "https://sgisapi.mods.go.kr/OpenAPI3/stats/population.json";
-const FARM_URL = "https://sgisapi.mods.go.kr/OpenAPI3/stats/farmhousehold.json";
-
-/**
- * SGIS 농림어업총조사 최신 기준연도.
- * 5년 주기(2000/2005/2010/2015/2020). 다음 갱신은 2025 조사 발표(~2026 말).
- * 새 연도가 추가되면 이 상수와 scripts/collect-farms.ts 의 YEAR 를 함께 변경.
- */
-const FARM_YEAR = 2020;
 
 export interface PopulationData {
   regionCode: string;
@@ -328,8 +321,8 @@ async function fetchMultiGuPopulation(
 }
 
 /**
- * 신설 구(SGIS 미등재)의 인구 — 통째로 들어온 옛 구 + 나뉜 옛 구의 해당 행정동을 더한다.
- * 필요한 행이 하나라도 없으면 null (region-composites.ts).
+ * 신설 구(SGIS 미등재)의 인구 — 통째로 들어온 옛 구 + 나뉜 옛 구의 해당 행정동을 더하고, 경계 조정으로 옮겨 간
+ * 집계구(서해 → 검단, 10/8)를 반영한다. 필요한 행이 하나라도 없으면 null (region-composites.ts).
  */
 async function fetchCompositePopulation(
   accessToken: string,
@@ -337,15 +330,18 @@ async function fetchCompositePopulation(
   year: number,
 ): Promise<PopulationData | null> {
   const splitGu = splitGuOf([composite]);
-  const [guRows, ...dongLists] = await Promise.all([
+  const oaDongs = oaDongsOf([composite]);
+  const [guRows, ...lists] = await Promise.all([
     composite.wholeGu.length > 0
       ? fetchPopulationRows(accessToken, composite.sgisCode.substring(0, 2), year)
       : Promise.resolve([] as SGISPopulationResult[]),
     ...splitGu.map((gu) => fetchPopulationRows(accessToken, gu, year)),
+    ...oaDongs.map((dong) => fetchPopulationRows(accessToken, dong, year)),
   ]);
-  if (!guRows || dongLists.some((d) => d === null)) return null;
-  const dongRowsByGu = new Map(splitGu.map((gu, i) => [gu, dongLists[i] as SGISPopulationResult[]]));
-  const rows = compositeRows(composite, guRows, dongRowsByGu);
+  if (!guRows || lists.some((d) => d === null)) return null;
+  const dongRowsByGu = new Map(splitGu.map((gu, i) => [gu, lists[i] as SGISPopulationResult[]]));
+  const oaRowsByDong = new Map(oaDongs.map((dong, i) => [dong, lists[splitGu.length + i] as SGISPopulationResult[]]));
+  const rows = compositePopulationRows(composite, guRows, dongRowsByGu, oaRowsByDong);
   if (!rows) return null;
   return sumPopulationRows(rows, composite.sgisCode, composite.name);
 }
@@ -446,18 +442,28 @@ export async function fetchSubRegionPopulations(
       };
     }
 
-    // 신설 구(인천 2026 개편) — 나뉜 옛 구만 행정동으로 한 번 더 받아 더한다. 못 더하면 정적 값 유지
+    // 신설 구(인천 2026 개편) — 나뉜 옛 구만 행정동으로, 경계 조정 집계구는 집계구로 한 번 더 받아 더한다.
+    // 못 더하면 정적 값 유지
     const composites = compositesInProvince(provinceSgisCode);
     if (composites.length > 0) {
       const splitGu = splitGuOf(composites);
-      const dongLists = await Promise.all(splitGu.map((gu) => fetchPopulationRows(accessToken, gu, year)));
+      const oaDongs = oaDongsOf(composites);
+      const lists = await Promise.all([
+        ...splitGu.map((gu) => fetchPopulationRows(accessToken, gu, year)),
+        ...oaDongs.map((dong) => fetchPopulationRows(accessToken, dong, year)),
+      ]);
       const dongRowsByGu = new Map<string, SGISPopulationResult[]>();
       splitGu.forEach((gu, i) => {
-        const rows = dongLists[i];
+        const rows = lists[i];
         if (rows) dongRowsByGu.set(gu, rows);
       });
+      const oaRowsByDong = new Map<string, SGISPopulationResult[]>();
+      oaDongs.forEach((dong, i) => {
+        const rows = lists[splitGu.length + i];
+        if (rows) oaRowsByDong.set(dong, rows);
+      });
       for (const c of composites) {
-        const rows = compositeRows(c, results as SGISPopulationResult[], dongRowsByGu);
+        const rows = compositePopulationRows(c, results as SGISPopulationResult[], dongRowsByGu, oaRowsByDong);
         if (rows) map[c.sgisCode] = sumPopulationRows(rows, c.sgisCode, c.name);
       }
     }
@@ -529,12 +535,16 @@ export async function fetchPopulationData(
 }
 
 // ──────────────────────────────────────────────────────────────────────────
-// 농가 통계 (SGIS farmhousehold.json — 농림어업총조사 5년 주기, 최신 2020)
+// 농가 통계 — 2025 농림어업총조사(KOSIS DT_1AG25104 → scripts/collect-farms.ts → lib/data/farms.ts)
+//
+// 실행 중 외부 호출은 하지 않는다(10/8). SGIS farmhousehold 에는 2025 가 없어(2015·2020 만) 예전처럼 요청 때 SGIS 를
+// 부르면 화면 카드는 2020, 순위 점수(farms.ts)는 2025 로 갈라진다. 행정동 묶음 신설 구(인천·화성 2026)는 2025 표에
+// 없어 null — 인천 4구는 카드가 숨고, 화성 4구는 구 화면이 시(화성시) 값을 범위를 밝혀 보여 준다.
 // ──────────────────────────────────────────────────────────────────────────
 
 /** 농가 단건/일괄 응답 데이터 */
 export interface FarmHouseholdData {
-  /** 행정코드 (SGIS, 시도 2자리 또는 시군구 5자리) */
+  /** 행정코드 (SGIS 체계, 시도 2자리 또는 시군구·구 5자리) */
   regionCode: string;
   /** 행정구역명 */
   regionName: string;
@@ -544,22 +554,11 @@ export interface FarmHouseholdData {
   farmPopulation: number;
   /** 가구당 평균 농가 인구 */
   avgPopulation: number;
-  /** 폴백 데이터 사용 여부 */
+  /** 대체값 사용 여부 — 농가는 정적 자료가 원천이라 늘 false */
   isFallback?: boolean;
 }
 
-interface SGISFarmResult {
-  adm_cd: string;
-  adm_nm: string;
-  farm_cnt: string;
-  population: string;
-  avg_population: string;
-}
-
-/**
- * 가구당 농가 인구 — 농가 인구 ÷ 농가 수. SGIS 의 avg_population 은 정수로 반올림돼 와(중구 2.34 → "2")
- * 시·도 평균(소수 한 자리)과 비교하면 크게 어긋났다(10/7). 항상 두 수로 다시 계산한다.
- */
+/** 가구당 농가 인구 — 농가 인구 ÷ 농가 수, 소수 한 자리 */
 function farmAvg(farmCount: number, farmPopulation: number): number {
   return farmCount > 0 ? Math.round((farmPopulation / farmCount) * 10) / 10 : 0;
 }
@@ -575,232 +574,33 @@ export function farmAvgDiffPct(
   return Math.round(((mine - avg) / avg) * 100);
 }
 
-/** SGIS 농가 행 하나 → 화면 데이터 */
-function farmRowToData(item: SGISFarmResult): FarmHouseholdData {
-  const farmCount = parseInt(item.farm_cnt, 10) || 0;
-  const farmPopulation = parseInt(item.population, 10) || 0;
-  return {
-    regionCode: item.adm_cd,
-    regionName: item.adm_nm || "",
-    farmCount,
-    farmPopulation,
-    avgPopulation: farmAvg(farmCount, farmPopulation),
-    isFallback: false,
-  };
-}
-
-/** 여러 농가 행의 합 — 비공개(N/A) 값이 하나라도 있으면 합을 알 수 없어 null */
-function sumFarmRows(
-  rows: readonly SGISFarmResult[],
-  regionCode: string,
-  regionName: string,
-): FarmHouseholdData | null {
-  let farmCount = 0;
-  let farmPopulation = 0;
-  for (const r of rows) {
-    const c = Number(r.farm_cnt);
-    const p = Number(r.population);
-    if (!Number.isFinite(c) || !Number.isFinite(p)) return null;
-    farmCount += c;
-    farmPopulation += p;
-  }
-  return { regionCode, regionName, farmCount, farmPopulation, avgPopulation: farmAvg(farmCount, farmPopulation), isFallback: false };
-}
-
-/** SGIS 농가 통계 — admCd 바로 아래 단계 전부. 실패면 null */
-async function fetchFarmRows(accessToken: string, admCd: string, year: number): Promise<SGISFarmResult[] | null> {
-  const url = new URL(FARM_URL);
-  url.searchParams.set("accessToken", accessToken);
-  url.searchParams.set("year", String(year));
-  url.searchParams.set("adm_cd", admCd);
-  url.searchParams.set("low_search", "1");
-  try {
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    if (json.errCd !== 0 && json.errCd !== "0") throw new Error(`SGIS farm error: ${json.errMsg || json.errCd}`);
-    const results = json.result as SGISFarmResult[] | undefined;
-    return Array.isArray(results) && results.length > 0 ? results : null;
-  } catch {
-    return null;
-  }
-}
-
-/** 신설 구의 농가 — 통째로 들어온 옛 구 + 나뉜 옛 구의 해당 행정동 */
-async function fetchCompositeFarm(
-  accessToken: string,
-  composite: SgisComposite,
-  year: number,
-): Promise<FarmHouseholdData | null> {
-  const splitGu = splitGuOf([composite]);
-  const [guRows, ...dongLists] = await Promise.all([
-    composite.wholeGu.length > 0
-      ? fetchFarmRows(accessToken, composite.sgisCode.substring(0, 2), year)
-      : Promise.resolve([] as SGISFarmResult[]),
-    ...splitGu.map((gu) => fetchFarmRows(accessToken, gu, year)),
-  ]);
-  if (!guRows || dongLists.some((d) => d === null)) return null;
-  const dongRowsByGu = new Map(splitGu.map((gu, i) => [gu, dongLists[i] as SGISFarmResult[]]));
-  const rows = compositeRows(composite, guRows, dongRowsByGu);
-  return rows ? sumFarmRows(rows, composite.sgisCode, composite.name) : null;
-}
-
-function farmStatToData(stat: FarmStat, isFallback = true): FarmHouseholdData {
+function farmStatToData(stat: FarmStat): FarmHouseholdData {
   return {
     regionCode: stat.sgisCode,
     regionName: stat.name,
     farmCount: stat.farmCount,
     farmPopulation: stat.farmPopulation,
     avgPopulation: farmAvg(stat.farmCount, stat.farmPopulation),
-    isFallback,
+    isFallback: false,
   };
 }
 
-/**
- * 시군구 단건 농가 데이터.
- * - 빌드 안정성을 위해 빌드 단계에서는 SGIS 호출 없이 정적 폴백만 사용.
- * - ISR on-demand(런타임) 단계에서는 API 호출 후 실패 시 폴백.
- *
- * @param sgisCode SGIS 5자리 시군구 코드
- * @param year 기본 2020 (5년 주기 농림어업총조사)
- */
-export async function fetchFarmHousehold(
-  sgisCode: string,
-  year: number = FARM_YEAR,
-): Promise<FarmHouseholdData | null> {
-  // 빌드 단계: 정적 폴백만 사용 (Vercel 빌드 60s 한도 보호)
-  if (process.env.NEXT_PHASE === "phase-production-build") {
-    const fb = getFarmFallback(sgisCode);
-    return fb ? farmStatToData(fb, true) : null;
-  }
-
-  const accessToken = await getAccessToken();
-  if (!accessToken) {
-    const fb = getFarmFallback(sgisCode);
-    return fb ? farmStatToData(fb, true) : null;
-  }
-
-  // 신설 구(인천 2026 개편) — 행정동 값을 더한다. 비공개(N/A) 동이 있으면 합을 낼 수 없어 null
-  // (2025 농림어업총조사가 SGIS 에 실리면 같은 코드 직접 조회로 넘어가도록 아래 단건 조회를 그대로 탄다)
-  const composite = getSgisComposite(sgisCode);
-  if (composite) {
-    const summed = await fetchCompositeFarm(accessToken, composite, year);
-    if (summed) return summed;
-  }
-
-  const url = new URL(FARM_URL);
-  url.searchParams.set("accessToken", accessToken);
-  url.searchParams.set("year", String(year));
-  url.searchParams.set("adm_cd", sgisCode);
-
-  try {
-    const res = await fetch(url.toString(), {
-      next: { revalidate: 86400 },
-      signal: AbortSignal.timeout(FETCH_TIMEOUT),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const json = await res.json();
-    if (json.errCd !== 0 && json.errCd !== "0") {
-      throw new Error(`SGIS farm error: ${json.errMsg || json.errCd}`);
-    }
-
-    const result = json.result;
-    if (!result || (Array.isArray(result) && result.length === 0)) {
-      throw new Error("No result");
-    }
-
-    const item: SGISFarmResult = Array.isArray(result) ? result[0] : result;
-    return farmRowToData(item);
-  } catch {
-    const fb = getFarmFallback(sgisCode);
-    return fb ? farmStatToData(fb, true) : null;
-  }
+/** 시군구·구 단건 농가 데이터 (2025 총조사). 표에 없는 단위(행정동 묶음 신설 구)는 null */
+export async function fetchFarmHousehold(sgisCode: string): Promise<FarmHouseholdData | null> {
+  const stat = getFarmFallback(sgisCode);
+  return stat ? farmStatToData(stat) : null;
 }
 
 /**
- * 시도 하위 시군구 농가 데이터 일괄 조회 (low_search=1).
- * - 빌드 단계: 정적 폴백 사용.
- * - 런타임: API 호출 → 실패 시 정적 폴백.
- *
- * @param provinceSgisCode SGIS 시도 2자리 코드
+ * 시도 하위 시군구 농가 데이터 (2025 총조사) — 시·도 상세 농가 밀도 지도용.
  * @returns sigungu sgisCode → FarmHouseholdData 매핑
  */
 export async function fetchSubRegionFarms(
   provinceSgisCode: string,
-  year: number = FARM_YEAR,
 ): Promise<Record<string, FarmHouseholdData>> {
-  // 빌드 단계: 정적 폴백만 — 한 번에 17개 시도가 빌드되면 SGIS 부하 큼
-  if (process.env.NEXT_PHASE === "phase-production-build") {
-    return fallbackSubRegionFarms(provinceSgisCode);
-  }
-
-  const accessToken = await getAccessToken();
-  if (!accessToken) return fallbackSubRegionFarms(provinceSgisCode);
-
-  const url = new URL(FARM_URL);
-  url.searchParams.set("accessToken", accessToken);
-  url.searchParams.set("year", String(year));
-  url.searchParams.set("adm_cd", provinceSgisCode);
-  url.searchParams.set("low_search", "1");
-
-  try {
-    const res = await fetch(url.toString(), {
-      next: { revalidate: 86400 },
-      signal: AbortSignal.timeout(FETCH_TIMEOUT),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const json = await res.json();
-    if (json.errCd !== 0 && json.errCd !== "0") {
-      throw new Error(`SGIS sub farm error: ${json.errMsg || json.errCd}`);
-    }
-
-    const results = json.result as SGISFarmResult[] | undefined;
-    if (!results || !Array.isArray(results)) {
-      return fallbackSubRegionFarms(provinceSgisCode);
-    }
-
-    const apiMap: Record<string, FarmHouseholdData> = {};
-    for (const item of results) {
-      apiMap[item.adm_cd] = farmRowToData(item);
-    }
-
-    // 신설 구(인천 2026 개편) — 나뉜 옛 구만 행정동으로 받아 더한다
-    const composites = compositesInProvince(provinceSgisCode);
-    if (composites.length > 0) {
-      const splitGu = splitGuOf(composites);
-      const dongLists = await Promise.all(splitGu.map((gu) => fetchFarmRows(accessToken, gu, year)));
-      const dongRowsByGu = new Map<string, SGISFarmResult[]>();
-      splitGu.forEach((gu, i) => {
-        const rows = dongLists[i];
-        if (rows) dongRowsByGu.set(gu, rows);
-      });
-      for (const c of composites) {
-        const rows = compositeRows(c, results, dongRowsByGu);
-        const summed = rows ? sumFarmRows(rows, c.sgisCode, c.name) : null;
-        if (summed) apiMap[c.sgisCode] = summed;
-      }
-    }
-
-    // CLAUDE.md 데이터 병합 원칙: API 응답에 없는 항목은 정적 폴백 보충
-    const fallbackMap = fallbackSubRegionFarms(provinceSgisCode);
-    for (const [code, data] of Object.entries(fallbackMap)) {
-      if (!apiMap[code]) apiMap[code] = data;
-    }
-
-    return apiMap;
-  } catch {
-    return fallbackSubRegionFarms(provinceSgisCode);
-  }
-}
-
-function fallbackSubRegionFarms(
-  provinceSgisCode: string,
-): Record<string, FarmHouseholdData> {
   const map: Record<string, FarmHouseholdData> = {};
   for (const stat of getFarmsBySido(provinceSgisCode)) {
-    map[stat.sgisCode] = farmStatToData(stat, true);
+    map[stat.sgisCode] = farmStatToData(stat);
   }
   return map;
 }
