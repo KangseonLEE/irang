@@ -1644,6 +1644,9 @@ function getNoResultHints(query: string): string[] {
 export function getNoResultSuggestions(query: string): string[] {
   const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
+  // 시드 힌트가 있는 검색어는 자동 대체하지 않는다 — "산마늘"(명이나물)은 끝말 규칙으로 마늘이 되지만 다른 식물이라,
+  // 9/14 에 정한 안내(더덕·도라지 카드)를 9/23 자동 대체가 덮어쓰고 있었다(10/8 화면 QA)
+  if (NO_RESULT_HINTS.some(({ keys }) => keys.some((k) => q === k || q.includes(k)))) return [];
   return findContainedCropNames(q).slice(0, 3);
 }
 

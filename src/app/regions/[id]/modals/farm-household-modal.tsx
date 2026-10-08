@@ -117,10 +117,13 @@ export function FarmHouseholdModal({
       {/* 해석 안내 */}
       <div className={s.notice}>
         <Info size={16} className={s.noticeIcon} aria-hidden="true" />
-        <AutoGlossary
-          text={`농가는 경지를 10a(약 300평) 이상 짓거나, 지난 1년 동안 농축산물을 120만 원어치 이상 팔았거나, 120만 원어치 이상의 가축을 기르는 가구예요. 가구원 수가 많을수록 가족농 비중이 높고, 적을수록 1~2인 고령 농가 비중이 높은 편이에요.`}
-          maxHighlights={2}
-        />
+        {/* .notice 가 flex 라 AutoGlossary 가 쪼갠 [글자, '10a' 툴팁, 글자]가 각각 칸이 돼 문장이 세 칸으로 갈라졌다 — 문단으로 감싼다 (10/8 QA) */}
+        <p className={s.noticeText}>
+          <AutoGlossary
+            text={`농가는 경지를 10a(약 300평) 이상 짓거나, 지난 1년 동안 농축산물을 120만 원어치 이상 팔았거나, 120만 원어치 이상의 가축을 기르는 가구예요. 가구원 수가 많을수록 가족농 비중이 높고, 적을수록 1~2인 고령 농가 비중이 높은 편이에요.`}
+            maxHighlights={2}
+          />
+        </p>
       </div>
 
       {/* 기준 시점 안내 — 2025 총조사(2025-12-01 기준, 2026-09-29 확정 공표)는 조사 명부에 농지대장 같은 행정자료를
