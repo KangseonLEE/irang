@@ -151,6 +151,7 @@ jobs:
                 ' "$SUMMARY_JSON"
                 ;;
               *)
+                # 아래 jq 프로그램은 작은따옴표 문자열이라 안에 ASCII 작은따옴표를 쓰면 프로그램이 끊긴다(10/8 첫 실행 실패) — 인용은 ‘ ’ 로. src/__tests__/workflow-jq-compile.test.ts 가 검사
                 jq -r '
                   def lst($a; $n; f): ($a[:$n][] | f), (if ($a | length) > $n then "- … 외 \(($a | length) - $n)건 — 전체 목록은 실행 로그" else empty end);
                   "운영 화면 **\(.pages)쪽** — 일치 \(.counts.ok) · 캐시 시점 차이 \(.counts.near) · **불일치 \(.counts.mismatch) · 실패 \(.counts.err)**",
@@ -177,7 +178,7 @@ jobs:
                     "", "### 구 화면 합 ≠ 시 화면 (\(.guSumIssues | length)건)", "",
                     lst(.guSumIssues; 50; "- \(.)")
                   else empty end),
-                  (if .area.skipped then "", "### 면적 대조를 못 했어요 (문제 1건)", "", "> \(.area.skipped)", "", "키 문제면 GitHub 시크릿 `KOSIS_API_KEY` 를 확인해요 — 건너뛴 대조는 '문제 0'으로 치지 않아요(10/8)." else empty end),
+                  (if .area.skipped then "", "### 면적 대조를 못 했어요 (문제 1건)", "", "> \(.area.skipped)", "", "키 문제면 GitHub 시크릿 `KOSIS_API_KEY` 를 확인해요 — 건너뛴 대조는 ‘문제 0’으로 치지 않아요(10/8)." else empty end),
                   (if ((.areaIssues // []) | length) > 0 then
                     "", "### 면적 — 정적 자료 ≠ 지적통계 \(.area.year)년 (\(.areaIssues | length)건)", "",
                     "새 해 통계가 나왔으면 `npx tsx scripts/collect-areas.ts` 로 갱신해요.", "",
