@@ -9,6 +9,7 @@ const eslintConfig = defineConfig([
   // Override default ignores of eslint-config-next.
   globalIgnores([
     "workers/**", // Cloudflare Worker — 별도 런타임 타입(caches.default 등), 앱 린트 제외 (8/30)
+    ".claude/**", // 에이전트 작업 공간(.claude/worktrees) — 리포 사본이 통째로 들어와 검사가 두 벌이 된다 (10/8)
     ".next/**",
     "out/**",
     "build/**",
