@@ -32,3 +32,10 @@
   min-height: 100vh;
   min-height: 100svh;
 }
+
+/* 본문 바로가기로 포커스가 넘어온 <main>(tabIndex -1) — 화면 전체를 두르는 전역 :focus-visible 테두리는 끈다.
+   조작 요소가 아니라 다음 Tab 의 출발점일 뿐이고, 링크를 누르면 본문 첫머리로 이미 스크롤된다 */
+.main:focus,
+.main:focus-visible {
+  outline: none;
+}

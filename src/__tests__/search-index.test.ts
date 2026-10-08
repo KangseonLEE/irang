@@ -733,6 +733,15 @@ describe("결과 0건 — 검색어에 포함된 실재 작물·지역 안내 (9
     }
   });
 
+  it("시드 힌트 검색어는 자동 대체하지 않고 시드 카드를 보인다 — 산마늘은 마늘이 아니다 (10/8)", () => {
+    for (const q of ["산마늘", "명이나물", "고사리"]) {
+      expect(getNoResultSuggestions(q), q).toEqual([]);
+    }
+    expect(getNoResultHintItems("산마늘").map((i) => i.title)).toEqual(["더덕", "도라지"]);
+    // 시드에 없는 '산' 앞말은 종전대로 — 9/23 코퍼스가 정한 산딸기 → 딸기
+    expect(getNoResultSuggestions("산딸기")).toEqual(["딸기"]);
+  });
+
   it("작물명이 끝에 있지 않으면 대체하지 않는다 — '오이피클'·'감자칩'", () => {
     expect(getNoResultSuggestions("오이피클")).toEqual([]);
     expect(getNoResultSuggestions("감자칩")).toEqual([]);

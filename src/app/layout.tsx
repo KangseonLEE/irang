@@ -13,6 +13,8 @@ import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { HashHighlight } from "@/components/layout/hash-highlight";
+import { SkipLink } from "@/components/layout/skip-link";
+import { MAIN_CONTENT_ID } from "@/components/layout/main-content";
 import { SearchOverlayProvider } from "@/components/search/search-overlay";
 import { DialogProvider } from "@/components/ui/confirm-dialog";
 import { ScrollToTopButton } from "@/components/layout/scroll-to-top-button";
@@ -179,6 +181,8 @@ export default function RootLayout({
         />
       </head>
       <body className={s.body}>
+        {/* 첫 Tab — 헤더·전체 메뉴를 건너뛰고 본문으로 (KWCAG 반복 영역 건너뛰기, 10/8) */}
+        <SkipLink />
         <ScrollToTop />
         <HashHighlight />
         <KeyboardFocusGuard />
@@ -195,7 +199,9 @@ export default function RootLayout({
           <PublicChrome>
             <Header />
           </PublicChrome>
-          <main className={s.main}>{children}</main>
+          {/* 본문 바로가기의 도착점. tabIndex 는 상시로 두지 않는다 — 사파리에서 드롭다운 선택이 사라진다(skip-link.tsx 주석).
+              바로가기를 누를 때만 붙였다 뗀다(포커스 테두리는 layout.module.css 에서 끈다) */}
+          <main id={MAIN_CONTENT_ID} className={s.main}>{children}</main>
           <PublicChrome>
             <Footer />
             <MobileNav />

@@ -897,7 +897,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "윤작 작물로 활용하면 토양 질소를 자연 보충하여 후작물에 유리해요.",
     ],
     relatedCropIds: ["rice", "corn", "sesame"],
-    kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
         { category: "재배난이도", text: "재배 기술이 비교적 단순하고, 병해충 관리 부담이 적음" },
@@ -975,7 +974,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "직거래·체험농장과 연계하면 수익성을 크게 높일 수 있어요.",
     ],
     relatedCropIds: ["potato", "corn", "lettuce"],
-    kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
         { category: "재배난이도", text: "병해충에 강하고 재배가 쉬워 초보 정착자도 도전 가능" },
@@ -1053,7 +1051,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "봄·가을 이모작이 가능한 지역이라면 연간 수익을 높일 수 있어요.",
     ],
     relatedCropIds: ["sweet-potato", "corn", "napa-cabbage"],
-    kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
         { category: "수익성", text: "고랭지 여름 감자는 시세가 높아 프리미엄 수익 기대 가능" },
@@ -1131,7 +1128,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "옥수수 후작으로 배추·무를 심으면 토지 활용도를 높일 수 있어요.",
     ],
     relatedCropIds: ["sweet-potato", "potato", "soybean"],
-    kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
         { category: "생활", text: "재배 기간이 짧아(3~4개월) 노동 집중 기간이 한정적" },
@@ -1209,7 +1205,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "첫해부터 대면적보다 1,000평 이하로 시작해 병해 관리 노하우를 익히세요.",
     ],
     relatedCropIds: ["garlic", "onion", "napa-cabbage"],
-    kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
         { category: "수익성", text: "시설재배 시 10a당 약 652만 원으로 채소류 중 높은 수익 기대" },
@@ -1288,7 +1283,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "배추 계약 재배를 활용하면 가격 하락 위험을 줄일 수 있어요.",
     ],
     relatedCropIds: ["chili-pepper", "garlic", "onion"],
-    kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
         { category: "시장성", text: "김장 수요가 매년 안정적이라 가을배추 판매 기반이 탄탄" },
@@ -1365,7 +1359,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "마늘쫑도 별도 수입원이 되니, 출하 루트를 미리 확보해두세요.",
     ],
     relatedCropIds: ["onion", "chili-pepper", "napa-cabbage"],
-    kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
         { category: "시장성", text: "국내 마늘 수요가 안정적이고, 건마늘·깐마늘 등 가공 수요도 꾸준" },
@@ -1438,7 +1431,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "양파즙·양파 가공품 등 6차산업과 연계하면 부가가치를 높일 수 있어요.",
     ],
     relatedCropIds: ["garlic", "napa-cabbage", "chili-pepper"],
-    kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
         { category: "수익성", text: "대량 생산이 가능하고, 저장 양파 출하 전략으로 비수기 고가 판매 가능" },
@@ -1511,7 +1503,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "여름 고온기에는 추대(꽃대) 방지 품종을 선택하세요.",
     ],
     relatedCropIds: ["sweet-potato", "napa-cabbage", "chili-pepper"],
-    kosisConfig: { tblId: "DT_1ET0017" },
     prosCons: {
       pros: [
         { category: "수익성", text: "소규모 비닐하우스에서도 시작할 수 있어 초기 투자 부담이 적음" },
@@ -1590,7 +1581,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "첫 수확까지 3~5년이 걸리므로, 그 사이 소득원(단기 작물)을 병행하세요.",
     ],
     relatedCropIds: ["pear", "grape", "citrus"],
-    kosisConfig: { tblId: "DT_1AG20411" },
     prosCons: {
       pros: [
         { category: "수익성", text: "10a당 약 570만 원(1ha 약 5,700만 원)으로 고소득 작물" },
@@ -1663,7 +1653,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "봉지씌우기 작업이 인건비의 상당 부분을 차지하니 적기에 인력 확보가 필요해요.",
     ],
     relatedCropIds: ["apple", "grape", "citrus"],
-    kosisConfig: { tblId: "DT_1AG20411" },
     prosCons: {
       pros: [
         { category: "수익성", text: "10a당 약 443만 원(1ha 약 4,426만 원)으로 과수 중 안정적 고소득" },
@@ -1741,7 +1730,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "와이너리·체험농장과 연계하면 6차산업으로 부가가치를 높일 수 있어요.",
     ],
     relatedCropIds: ["apple", "pear", "strawberry"],
-    kosisConfig: { tblId: "DT_1AG20411" },
     prosCons: {
       pros: [
         { category: "수익성", text: "10a당 노지 약 480만 원, 시설 약 582만 원 — 샤인머스캣 같은 시설재배가 더 높아요" },
@@ -1814,7 +1802,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "감귤 가공(주스, 초콜릿 등)으로 부가가치를 높이는 농가가 늘고 있어요.",
     ],
     relatedCropIds: ["apple", "pear", "grape"],
-    kosisConfig: { tblId: "DT_1AG20411" },
     prosCons: {
       pros: [
         { category: "수익성", text: "만감류(한라봉·천혜향)는 kg당 단가가 높아 고소득 가능" },
@@ -1892,7 +1879,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "첫해는 소규모(100~200평)로 시작해 환경 제어 감각을 익히세요.",
     ],
     relatedCropIds: ["grape", "lettuce", "citrus"],
-    kosisConfig: { tblId: "DT_1ET0017" },
     prosCons: {
       pros: [
         { category: "수익성", text: "10a당 약 1,260~1,642만 원 — 수경재배는 51개 조사 작목 중 소득 1위" },
@@ -1958,7 +1944,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "홍삼 가공까지 하면 부가가치가 크게 올라가요.",
     ],
     relatedCropIds: ["sesame", "chili-pepper"],
-    kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
         { category: "수익성", text: "4년근 1기작 10a당 약 744만 원 — 수확까지 4년이라 연평균은 약 186만 원" },
@@ -2031,7 +2016,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "들깨와 함께 재배하면 작업을 효율적으로 분산할 수 있어요.",
     ],
     relatedCropIds: ["soybean", "corn", "ginseng"],
-    kosisConfig: { tblId: "DT_1ET0292" },
     prosCons: {
       pros: [
         { category: "시장성", text: "국산 참깨는 수입산 대비 2~3배 높은 가격으로 프리미엄 판매 가능" },

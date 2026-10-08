@@ -8,6 +8,7 @@
  * - 계측: data-track="start_card:{id}" → LandingClickTracker. 섹션 노출은 ScrollReveal trackId="start_cards".
  */
 
+import { PROGRAMS_DUE_HREF } from "./hero-search-hub";
 import { StartCards, type StartCard } from "./start-cards";
 import s from "./start-cards-section.module.css";
 
@@ -48,7 +49,10 @@ export function StartCardsSection({ openProgramCount, dueSoonProgramCount }: Pro
     },
     {
       id: "programs",
-      href: "/programs",
+      // 숫자를 누르면 그 숫자가 나오는 목록으로(10/6 히어로 수치와 같은 원칙) — "지금 신청할 수 있는 N건·이번 주 마감 N건"은
+      // 모집중을 마감 가까운 순으로 본 목록이다. 기본 /programs 는 정기 접수·모집예정까지 섞여 건수가 달랐다(10/8: 15건 → 47건).
+      // 신청할 수 있는 사업이 없을 땐 빈 목록 대신 전체로
+      href: openProgramCount > 0 ? PROGRAMS_DUE_HREF : "/programs",
       tag: "지원사업",
       title: "지금 받을 수 있는 지원은?",
       desc: programDesc,

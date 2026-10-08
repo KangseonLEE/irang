@@ -134,8 +134,13 @@ function overlayAt(x: number, y: number, el: Element): { top: number; bottom: nu
       const band = e ? stickyCoverBand(e.edge, r, e.offset, window.innerHeight) : null;
       if (!band) continue;
       if (n.contains(el)) return null;
-      // 밀려나는 중이면 붙는 자리까지 합친 구간(stickyCoverBand 주석 — 10/6 R2-Q3 R2)
-      return isVisibleBox(r) ? band : null;
+      if (!isVisibleBox(r)) return null;
+      // 밀려나는 중이면 붙는 자리까지 합친 구간(stickyCoverBand 주석 — 10/6 R2-Q3 R2). 단 그렇게 넓혀 세는 건 **지금 자리에서
+      // 이미 요소를 덮고 있을 때만** — 문서를 굴려야 띠가 따라오니까. 덮지 않는데 넓히면 다 보이는 요소를 '가렸다'고 보고
+      // 문서를 수백 px 굴렸다(10/8: 지역 상세 시·군 카드 칸이 밀려 올라간 채 바로 아래 정착 점수 접기 버튼으로 Tab → 509px 위로 튐)
+      const t = el.getBoundingClientRect();
+      const coveredNow = t.top < r.bottom + GAP && t.bottom > r.top - GAP;
+      return coveredNow ? band : { top: r.top, bottom: r.bottom };
     }
     if (n.contains(el)) return null;
     return isVisibleBox(r) ? { top: r.top, bottom: r.bottom } : null;

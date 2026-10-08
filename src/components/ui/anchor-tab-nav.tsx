@@ -14,10 +14,35 @@ interface AnchorTabNavProps {
   sections: AnchorSection[];
 }
 
+/** 섹션 안에서 순차 포커스(Tab)가 닿는 요소 — 포커스 받을 제목이 이것들보다 앞에 있어야 한다 */
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
+
+/**
+ * 탭으로 이동한 섹션에서 포커스를 받을 요소 (10/6 QA F4).
+ * 섹션 이름(aria-labelledby) → 첫 제목 순으로 고르되, **섹션의 첫 조작 요소보다 앞**에 있고 조작 요소 안이 아닐 때만 쓴다.
+ * 정착 점수처럼 제목이 접기 버튼(summary) 안에 있으면 그 제목에 포커스를 두는 순간 다음 Tab 이 접기 버튼을 건너뛴다 —
+ * 그때는 섹션 자신을 받는다(다음 Tab = 섹션의 첫 조작 요소).
+ */
+function sectionFocusTarget(section: HTMLElement): HTMLElement {
+  const labelId = section.getAttribute("aria-labelledby")?.split(/\s+/)[0];
+  const firstFocusable = section.querySelector<HTMLElement>(FOCUSABLE);
+  const candidates = [
+    labelId ? document.getElementById(labelId) : null,
+    section.querySelector<HTMLElement>("h1, h2, h3, h4, h5, h6"),
+  ];
+  for (const c of candidates) {
+    if (!c || !section.contains(c) || c.closest(FOCUSABLE)) continue;
+    if (firstFocusable && c.compareDocumentPosition(firstFocusable) & Node.DOCUMENT_POSITION_PRECEDING) continue;
+    return c;
+  }
+  return section;
+}
+
 /**
  * Sticky Anchor Tab Navigation — 긴 상세 페이지의 섹션 탐색 (공용, 2026-09-17 승격)
  * - 스크롤 위치로 현재 섹션을 판정(뷰포트 상단에 가장 가까운 섹션)
- * - 탭 클릭 시 해당 섹션으로 smooth scroll
+ * - 탭 클릭 시 해당 섹션으로 smooth scroll + 포커스를 섹션 제목으로(다음 Tab 이 그 섹션 안에서 이어진다)
  * - 배민/컬리 스타일 sticky 상단 고정
  */
 export function AnchorTabNav({ sections }: AnchorTabNavProps) {
@@ -106,6 +131,16 @@ export function AnchorTabNav({ sections }: AnchorTabNavProps) {
     if (!el) return;
     // offset은 CSS scroll-margin-top(section)이 화면별로 담당 — sticky 높이 + 여백 일원화
     el.scrollIntoView({ behavior: "smooth", block: "start" });
+    // 포커스도 그 섹션으로 — 탭 버튼에 남아 있으면 키보드 사용자의 다음 Tab 이 섹션이 아니라 다음 탭으로 갔다(10/6 QA F4).
+    // 스크롤은 위 smooth 한 번만(preventScroll). 마우스로 누른 경우엔 :focus-visible 이 붙지 않아 링이 보이지 않는다.
+    const target = sectionFocusTarget(el);
+    if (!target.hasAttribute("tabindex")) {
+      target.setAttribute("tabindex", "-1");
+      // 붙인 tabindex 는 포커스가 떠나면 뗀다 — 섹션에 남겨 두면 WebKit(사파리·iOS 전 브라우저)이 그 안 버튼 클릭 포커스를
+      // 섹션에 줘서, "relatedTarget 이 바깥이면 닫는" 드롭다운의 선택이 사라진다(10/8 2차 QA — <main> 상시 tabindex 와 같은 결)
+      target.addEventListener("blur", () => target.removeAttribute("tabindex"), { once: true });
+    }
+    target.focus({ preventScroll: true });
   }, []);
 
   return (

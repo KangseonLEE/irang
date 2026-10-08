@@ -1003,13 +1003,14 @@ function RegionSection({
 
   return (
     <section id="region" className={s.section}>
-      <div className={s.sectionHeader}>
+      {/* 다른 섹션(SectionHeader)과 같은 h2 — 섹션 탭으로 오면 포커스가 이 제목에 앉는다(10/6 QA F4) */}
+      <h2 className={s.sectionHeader}>
         <span className={s.sectionHeaderIcon}><Icon icon={MapPin} size="lg" /></span>
         <span>인기 재배지역</span>
         {kosisYear && (
           <span className={s.kosisBadge}>{kosisYear}년 KOSIS</span>
         )}
-      </div>
+      </h2>
       <div className={s.sectionBody}>
         {top5.length > 0 ? (
           <div className={s.regionRanking}>
