@@ -2143,8 +2143,10 @@ export const CENTERS: Center[] = [
     category: "sigungu",
     name: "중구청 (대표 누리집)",
     url: "https://jung.daegu.kr/",
-    // 검증 2026-04-15: HTTP 200, 공식 도메인(jung.daegu.kr) SPA 렌더링
-    verifiedAt: "2026-04-15",
+    // 검증 2026-10-08: 첫 응답은 JS 쿠키 확인 후 새로고침하는 봇 방어 페이지(441B) — 자동 점검은 항상 400.
+    //   쿠키 확인을 거치면 200 '대구광역시 중구청' → /new/pages/main/ 200 '대구광역시 중구'(본문 '중구' 60회).
+    //   check-links 는 GEO 경고 목록으로 본다
+    verifiedAt: "2026-10-08",
   },
   {
     id: "daegu-dong-gu-daegu-sigungu",
