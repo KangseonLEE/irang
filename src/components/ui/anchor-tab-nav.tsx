@@ -134,7 +134,12 @@ export function AnchorTabNav({ sections }: AnchorTabNavProps) {
     // 포커스도 그 섹션으로 — 탭 버튼에 남아 있으면 키보드 사용자의 다음 Tab 이 섹션이 아니라 다음 탭으로 갔다(10/6 QA F4).
     // 스크롤은 위 smooth 한 번만(preventScroll). 마우스로 누른 경우엔 :focus-visible 이 붙지 않아 링이 보이지 않는다.
     const target = sectionFocusTarget(el);
-    if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+    if (!target.hasAttribute("tabindex")) {
+      target.setAttribute("tabindex", "-1");
+      // 붙인 tabindex 는 포커스가 떠나면 뗀다 — 섹션에 남겨 두면 WebKit(사파리·iOS 전 브라우저)이 그 안 버튼 클릭 포커스를
+      // 섹션에 줘서, "relatedTarget 이 바깥이면 닫는" 드롭다운의 선택이 사라진다(10/8 2차 QA — <main> 상시 tabindex 와 같은 결)
+      target.addEventListener("blur", () => target.removeAttribute("tabindex"), { once: true });
+    }
     target.focus({ preventScroll: true });
   }, []);
 

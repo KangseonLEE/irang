@@ -163,6 +163,29 @@ describe("AnchorTabNav 탭 이동 뒤 포커스", () => {
     expect(document.activeElement).toBe(sec);
   });
 
+  it("붙인 tabindex 는 포커스가 떠나면 뗀다 — 섹션에 남으면 WebKit 이 그 안 버튼 클릭 포커스를 섹션에 줘 드롭다운 선택이 사라진다", () => {
+    const sec = document.getElementById("s-a")!;
+    fill("s-a", `<a href="/z">앞 링크</a><h2>현황 제목</h2>`);
+    render(<AnchorTabNav sections={SECTIONS} />);
+    fireEvent.click(screen.getByRole("button", { name: "현황" }));
+    expect(document.activeElement).toBe(sec);
+    expect(sec.getAttribute("tabindex")).toBe("-1");
+    (sec.querySelector("a") as HTMLElement).focus();
+    expect(sec.hasAttribute("tabindex")).toBe(false);
+  });
+
+  it("원래 있던 tabindex 는 떼지 않는다", () => {
+    const sec = document.getElementById("s-b")!;
+    fill("s-b", `<h2 tabindex="0">지원 제목</h2><a href="/q">링크</a>`);
+    sec.setAttribute("tabindex", "-1");
+    render(<AnchorTabNav sections={SECTIONS} />);
+    fireEvent.click(screen.getByRole("button", { name: "지원" }));
+    expect(document.activeElement).toBe(sec);
+    (sec.querySelector("a") as HTMLElement).focus();
+    expect(sec.getAttribute("tabindex")).toBe("-1");
+    sec.removeAttribute("tabindex");
+  });
+
   it("두 번 눌러도 tabindex 는 한 번만 붙고, 섹션이 없으면 아무것도 하지 않는다", () => {
     fill("s-b", `<h2>지원 제목</h2>`);
     render(<AnchorTabNav sections={[...SECTIONS, { id: "s-missing", label: "없음" }]} />);

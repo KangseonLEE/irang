@@ -7,7 +7,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen } from "@testing-library/react";
-import { SkipLink, MAIN_CONTENT_ID } from "@/components/layout/skip-link";
+import { SkipLink } from "@/components/layout/skip-link";
+import { MAIN_CONTENT_ID } from "@/components/layout/main-content";
 import { HashHighlight } from "@/components/layout/hash-highlight";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
@@ -21,12 +22,37 @@ describe("본문 바로가기", () => {
     expect(link.getAttribute("href")).toBe(`#${MAIN_CONTENT_ID}`);
   });
 
-  it("루트 레이아웃: 링크가 헤더보다 먼저(첫 Tab), <main> 은 같은 id + tabIndex -1(포커스가 실제로 넘어온다)", () => {
+  it("루트 레이아웃: 링크가 헤더보다 먼저(첫 Tab), <main> 은 같은 id — tabIndex 는 상시로 두지 않는다", () => {
     const skipAt = layoutSrc.indexOf("<SkipLink />");
     const headerAt = layoutSrc.indexOf("<Header />");
     expect(skipAt).toBeGreaterThan(-1);
     expect(skipAt).toBeLessThan(headerAt);
-    expect(layoutSrc).toMatch(/<main id=\{MAIN_CONTENT_ID\} tabIndex=\{-1\}/);
+    expect(layoutSrc).toMatch(/<main id=\{MAIN_CONTENT_ID\}/);
+    // 상시 tabindex 는 WebKit 이 버튼 클릭 포커스를 main 에 줘 드롭다운 선택을 지운다(10/8 2차 QA) — 다시 붙지 않게
+    const mainTag = layoutSrc.slice(layoutSrc.indexOf("<main"), layoutSrc.indexOf(">", layoutSrc.indexOf("<main")));
+    expect(mainTag).not.toMatch(/tabIndex/i);
+  });
+
+  it("누르는 순간에만 main 에 tabindex=-1 을 붙여 포커스를 옮기고, 포커스가 떠나면 뗀다", () => {
+    const main = document.createElement("main");
+    main.id = MAIN_CONTENT_ID;
+    document.body.appendChild(main);
+    const other = document.createElement("button");
+    document.body.appendChild(other);
+    try {
+      render(<SkipLink />);
+      expect(main.hasAttribute("tabindex")).toBe(false);
+      act(() => {
+        screen.getByRole("link", { name: "본문 바로가기" }).click();
+      });
+      expect(main.getAttribute("tabindex")).toBe("-1");
+      expect(document.activeElement).toBe(main);
+      act(() => other.focus());
+      expect(main.hasAttribute("tabindex")).toBe(false);
+    } finally {
+      main.remove();
+      other.remove();
+    }
   });
 });
 
