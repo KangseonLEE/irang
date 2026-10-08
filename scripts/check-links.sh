@@ -106,7 +106,7 @@ https://www.goesan.go.kr/rfarm/selectBbsNttView.do?key=1662&bbsNo=326&nttNo=1341
 https://goesan.go.kr/www/index.do 센터 괴산군청
 https://www.cs.go.kr/specialty/00003170/00004055.web SP-052
 https://www.cs.go.kr/agri.web 센터 청송군 농업기술센터(10/6 교체)
-https://www.geochang.go.kr/00445/00450.web?gcode=1002&idx=14088774&amode=view SP-053
+https://www.geochang.go.kr/00445/00452.web?amode=view&news_epct_no=37613 SP-053(10/8 9기 공고 → 10기 군 보도자료 교체 · 한국 200 "뉴스미디어포털 > 군정소식> 보도자료" · 본문 10기·44시간·40명)
 https://www.geochang.go.kr/ 센터 거창군청
 https://www.gc.go.kr/ 센터 김천시청
 https://www.yc.go.kr/ 센터 영천시청(10/7 #165 미국 404 · 한국 200 "영천시청")
