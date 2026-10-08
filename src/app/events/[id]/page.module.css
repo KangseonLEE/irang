@@ -79,6 +79,27 @@
   }
 }
 
+/* 행사 포스터 (10/8) — 잘리지 않게 놓고 뒤에 같은 이미지를 흐리게 깐다 */
+.heroBackdrop {
+  /* 넓은 히어로(1216×380)에선 양옆 띠가 넓어 블러가 약하면 그림 조각이 얼룩처럼 보인다 — 세게 풀고 바탕과 섞는다 */
+  filter: blur(40px) saturate(1.05);
+  transform: scale(1.2);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.heroPoster {
+  z-index: 1;
+  object-fit: contain;
+}
+
+/* 16:10 자르기를 확인한 넓은 배너 — 모바일 히어로(16:10)에서만 채운다. 768+ 는 고정 높이라 배너 비율에 가깝다 */
+@media (max-width: 767px) {
+  .heroPosterCrop {
+    object-fit: cover;
+  }
+}
+
 .heroCredit {
   margin-top: 6px;
   font-size: var(--fs-overline);

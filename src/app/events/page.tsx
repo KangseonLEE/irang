@@ -25,7 +25,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { CardGrid } from "@/components/ui/card-grid";
 import { EventPhotoCard } from "@/components/events/event-photo-card";
 import { meaningfulCost } from "@/components/events/event-fields";
-import { getEventImage } from "@/lib/events/event-image";
+import { eventImageCreditNote } from "@/lib/events/event-image";
 import { shareMetadata } from "@/lib/seo/share-metadata";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { ListToolbar } from "@/components/ui/list-toolbar";
@@ -92,6 +92,8 @@ export default async function EventsPage({ searchParams }: PageProps) {
     loadSyncMeta("farm_events"),
   ]);
   const events = sortEvents(rawEvents, currentSort);
+  // 카드 보기 아래 출처 한 줄(마을 사진·행사 포스터가 보일 때만)
+  const creditNote = eventImageCreditNote(events);
 
   // 테이블 페이지네이션
   const tablePage = Math.max(1, Number(params.page) || 1);
@@ -250,11 +252,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
               </div>
             ))}
           </CardGrid>
-          {events.some((event) => getEventImage(event).isPhoto) && (
-            <p className={s.photoCredit}>
-              마을 사진은 그린대로(농림축산식품부) 공고에서 가져왔어요. 사진이 없는 곳은 시·도 그림으로 대신해요.
-            </p>
-          )}
+          {creditNote && <p className={s.photoCredit}>{creditNote}</p>}
         </div>
       )}
     </div>

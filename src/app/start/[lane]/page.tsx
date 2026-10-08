@@ -24,6 +24,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { EventPhotoCard } from "@/components/events/event-photo-card";
+import { eventImageCreditNote } from "@/lib/events/event-image";
 import { LaneTrendChart } from "@/components/start/lane-trend-chart";
 import { LaneIndicators } from "@/components/start/lane-indicators";
 import { OpportunityTabs, type OpportunityPanel } from "@/components/start/opportunity-tabs";
@@ -124,6 +125,7 @@ export default async function LaneHubPage({ params }: { params: Promise<{ lane: 
   /* 매칭은 상한 없이 — 탭 배지는 전체 건수, 목록은 상한까지 */
   const laneCourses = matchLaneEducation(courses, id);
   const laneEvents = matchLaneEvents(events, id);
+  const shownEvents = laneEvents.slice(0, MAX_OPPORTUNITIES);
 
   const panels: OpportunityPanel[] = [
     {
@@ -204,13 +206,14 @@ export default async function LaneHubPage({ params }: { params: Promise<{ lane: 
           linkText="체험 전체 보기"
         />
       ),
-      items: laneEvents.slice(0, MAX_OPPORTUNITIES).map((e) => (
+      items: shownEvents.map((e) => (
         <EventPhotoCard
           key={e.id}
           event={e}
           sizes="(min-width: 1024px) 380px, (min-width: 640px) 45vw, 100vw"
         />
       )),
+      note: eventImageCreditNote(shownEvents) ?? undefined,
     },
   ];
 

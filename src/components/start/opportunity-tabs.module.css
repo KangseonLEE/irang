@@ -71,6 +71,13 @@
   display: none;
 }
 
+/* 카드 아래 출처 한 줄 (체험 탭 — 마을 사진·행사 포스터) */
+.note {
+  margin: 0;
+  font-size: var(--fs-caption, 0.8125rem);
+  color: var(--muted-foreground, #6b7280);
+}
+
 .footer {
   display: flex;
   flex-direction: column;

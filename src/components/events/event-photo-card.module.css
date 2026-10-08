@@ -43,6 +43,19 @@
   transition: transform 0.3s ease;
 }
 
+/* 행사 포스터 — 잘리지 않게 놓고, 뒤에 같은 이미지를 흐리게 깔아 남는 자리를 채운다(10/8).
+   포스터는 hover 확대(.image)를 주지 않는다 — 자르기 여유가 좁은 배너는 3% 확대만으로 글자가 가장자리에 닿는다 */
+.backdrop {
+  filter: blur(24px) saturate(1.05);
+  transform: scale(1.2);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.poster {
+  z-index: 1;
+}
+
 /* 상태 · 마감 D-N — 사진 우상단 */
 .badges {
   position: absolute;
