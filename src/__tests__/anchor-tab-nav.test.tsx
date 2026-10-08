@@ -94,3 +94,84 @@ describe("AnchorTabNav 활성 탭", () => {
     expect(active()).toBe("현황");
   });
 });
+
+/**
+ * 탭으로 섹션 이동 뒤 포커스 (10/6 QA F4) — 포커스가 탭 버튼에 남으면 키보드 사용자의 다음 Tab 이
+ * 섹션이 아니라 다음 탭으로 갔다. 이동한 섹션의 제목(없거나 쓸 수 없으면 섹션)으로 옮기고, 스크롤은 smooth 한 번만.
+ */
+describe("AnchorTabNav 탭 이동 뒤 포커스", () => {
+  const scrollIntoView = vi.fn();
+  beforeEach(() => {
+    setLayout({ tops: { "s-a": 300, "s-b": 1300, "s-c": 2300 }, margin: "72px" });
+    Object.defineProperty(Element.prototype, "scrollIntoView", { configurable: true, writable: true, value: scrollIntoView });
+    scrollIntoView.mockClear();
+  });
+
+  const fill = (id: string, html: string) => {
+    document.getElementById(id)!.innerHTML = html;
+  };
+
+  it("섹션 첫 제목으로 포커스를 옮긴다 — tabindex=-1 을 붙이고 스크롤은 막는다(이동은 smooth scrollIntoView 한 번)", () => {
+    fill("s-b", `<h2>지원 제목</h2><a href="/x">첫 링크</a>`);
+    const focusSpy = vi.spyOn(HTMLElement.prototype, "focus");
+    render(<AnchorTabNav sections={SECTIONS} />);
+    fireEvent.click(screen.getByRole("button", { name: "지원" }));
+    const heading = document.querySelector("#s-b h2") as HTMLElement;
+    expect(document.activeElement).toBe(heading);
+    expect(heading.getAttribute("tabindex")).toBe("-1");
+    expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
+  });
+
+  it("aria-labelledby 가 가리키는 섹션 이름이 첫 조작 요소보다 앞이면 그것을 쓴다", () => {
+    const sec = document.getElementById("s-c")!;
+    sec.setAttribute("aria-labelledby", "s-c-title");
+    fill("s-c", `<p id="s-c-title">작물 이름</p><h3>하위 제목</h3><a href="/y">링크</a>`);
+    render(<AnchorTabNav sections={SECTIONS} />);
+    fireEvent.click(screen.getByRole("button", { name: "작물" }));
+    expect(document.activeElement?.id).toBe("s-c-title");
+    sec.removeAttribute("aria-labelledby");
+  });
+
+  it("제목이 접기 버튼(summary) 안이면 섹션 자신 — 제목에 두면 다음 Tab 이 접기 버튼을 건너뛴다(정착 점수)", () => {
+    const sec = document.getElementById("s-b")!;
+    sec.setAttribute("aria-labelledby", "s-b-title");
+    fill("s-b", `<div>40점</div><details open><summary><h2 id="s-b-title">어떻게 나왔나요?</h2></summary><p>설명</p></details>`);
+    render(<AnchorTabNav sections={SECTIONS} />);
+    fireEvent.click(screen.getByRole("button", { name: "지원" }));
+    expect(document.activeElement).toBe(sec);
+    expect(sec.getAttribute("tabindex")).toBe("-1");
+    sec.removeAttribute("aria-labelledby");
+  });
+
+  it("제목보다 앞에 링크가 있으면 섹션 자신 — 제목에 두면 앞의 링크를 Tab 으로 못 간다", () => {
+    const sec = document.getElementById("s-a")!;
+    fill("s-a", `<a href="/z">앞 링크</a><h2>현황 제목</h2>`);
+    render(<AnchorTabNav sections={SECTIONS} />);
+    fireEvent.click(screen.getByRole("button", { name: "현황" }));
+    expect(document.activeElement).toBe(sec);
+  });
+
+  it("Tab 순서에 든 제목(tabindex=0)은 건드리지 않고 섹션이 받는다 — 다음 Tab 이 그 제목이 된다", () => {
+    const sec = document.getElementById("s-b")!;
+    fill("s-b", `<h2 tabindex="0">지원 제목</h2>`);
+    render(<AnchorTabNav sections={SECTIONS} />);
+    fireEvent.click(screen.getByRole("button", { name: "지원" }));
+    const heading = document.querySelector("#s-b h2") as HTMLElement;
+    expect(heading.getAttribute("tabindex")).toBe("0");
+    expect(document.activeElement).toBe(sec);
+  });
+
+  it("두 번 눌러도 tabindex 는 한 번만 붙고, 섹션이 없으면 아무것도 하지 않는다", () => {
+    fill("s-b", `<h2>지원 제목</h2>`);
+    render(<AnchorTabNav sections={[...SECTIONS, { id: "s-missing", label: "없음" }]} />);
+    const btn = screen.getByRole("button", { name: "지원" });
+    fireEvent.click(btn);
+    fireEvent.click(btn);
+    expect(document.querySelectorAll('#s-b [tabindex="-1"]')).toHaveLength(1);
+    const before = document.activeElement;
+    fireEvent.click(screen.getByRole("button", { name: "없음" }));
+    expect(document.activeElement).toBe(before);
+  });
+});

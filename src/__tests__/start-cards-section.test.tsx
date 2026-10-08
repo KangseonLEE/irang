@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { StartCardsSection } from "@/components/landing/start-cards-section";
+import { PROGRAMS_DUE_HREF } from "@/components/landing/hero-search-hub";
 
 describe("StartCardsSection — 이랑에서 할 수 있는 것 3카드 (9/7)", () => {
   const html = renderToStaticMarkup(<StartCardsSection openProgramCount={12} dueSoonProgramCount={3} />);
@@ -14,11 +15,18 @@ describe("StartCardsSection — 이랑에서 할 수 있는 것 3카드 (9/7)", 
 
   it("href 가 실제 라우트로 존재", () => {
     // 유형 진단 카드는 모드 선택을 건너뛰고 진단으로 바로(10/3 진단 직행 복원) — 경로 실존은 쿼리를 뗀 경로로 본다
-    for (const href of ["/match?mode=assess", "/regions/ranking", "/programs"]) {
-      expect(html).toContain(`href="${href}"`);
+    for (const href of ["/match?mode=assess", "/regions/ranking", PROGRAMS_DUE_HREF]) {
+      expect(html).toContain(`href="${href.replace(/&/g, "&amp;")}"`);
       const path = href.split("?")[0];
       expect(existsSync(join(process.cwd(), "src", "app", path.slice(1), "page.tsx")), href).toBe(true);
     }
+  });
+
+  it("지원사업 카드는 숫자가 나오는 목록으로 — 모집중·마감 가까운 순(10/8), 신청할 수 있는 게 없으면 전체", () => {
+    expect(PROGRAMS_DUE_HREF).toBe(`/programs?${new URLSearchParams({ status: "모집중", sort: "deadline" })}`);
+    const none = renderToStaticMarkup(<StartCardsSection openProgramCount={0} dueSoonProgramCount={0} />);
+    expect(none).toContain('href="/programs"');
+    expect(none).not.toContain("status=");
   });
 
   it("지원사업 카드에 서버 집계 숫자가 들어간다", () => {

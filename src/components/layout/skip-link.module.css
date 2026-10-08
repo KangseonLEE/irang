@@ -1,0 +1,30 @@
+/* 본문 바로가기 — 평소엔 화면 위 밖, 포커스를 받으면 왼쪽 위에 나타난다.
+   헤더(50)·헤더 드롭다운(60) 위. 투명 헤더(랜딩)·노치(safe-area)에서도 글자가 히어로 사진 위에 묻히지 않게 채운 배경. */
+.skipLink {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top, 0px));
+  left: max(8px, env(safe-area-inset-left, 0px));
+  z-index: var(--z-overlay, 100);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: var(--primary, #1b6b5a);
+  color: #fff;
+  font-size: var(--fs-body-sm, 15px);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  transform: translateY(calc(-100% - 32px));
+}
+
+.skipLink:focus,
+.skipLink:focus-visible {
+  transform: none;
+  /* 채운 배경 안쪽 흰 링 — 전역 :focus-visible(테두리 바깥 primary)은 같은 색 배경에 묻힌다 */
+  outline: 2px solid #fff;
+  outline-offset: -5px;
+}

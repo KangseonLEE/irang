@@ -164,9 +164,12 @@
     /* 헤더 연동 sticky 오프셋 (CLAUDE.md sticky 규칙 · 10/6 QA1) — 헤더가 보이면 56 + 32 = 88px(종전 값),
        아래로 스크롤해 헤더가 숨으면 32px. 고정 88px 이면 헤더가 숨은 동안 위에 빈 띠가 남았다 */
     top: calc(var(--sticky-top, 3.5rem) + var(--sticky-extra, 0px) + 32px);
-    /* 위 오프셋 + 아래 여백 32px 를 뺀 높이 — 헤더가 보일 때 종전 100vh - 120px 와 같다 */
-    max-height: calc(100vh - var(--sticky-top, 3.5rem) - var(--sticky-extra, 0px) - 64px);
-    max-height: calc(100dvh - var(--sticky-top, 3.5rem) - var(--sticky-extra, 0px) - 64px);
+    /* 높이는 헤더가 보일 때 기준의 상수(종전 100vh - 120px) — top 만 헤더를 따라간다.
+       예전엔 max-height 도 --sticky-top 을 따라가서 헤더가 숨는 순간 카드 칸이 커지고(경기 1280×800: 680 → 700px)
+       이 행 아래 섹션(정착 점수·추천 작물·지원센터·현장 이야기)이 통째로 20px 밀렸다 — 보던 화면이 흔들리고,
+       페이지 맨 위에서 섹션 탭을 누르면 착지가 그만큼 어긋나 활성 탭이 한 칸 앞에 켜졌다(10/8 실측: 정착 점수 착지 101 vs 80) */
+    max-height: calc(100vh - var(--h-header, 3.5rem) - var(--sticky-extra, 0px) - 64px);
+    max-height: calc(100dvh - var(--h-header, 3.5rem) - var(--sticky-extra, 0px) - 64px);
     overflow-y: auto;
     /* 스크롤바 스타일 다듬기 */
     scrollbar-width: thin;

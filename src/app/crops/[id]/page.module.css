@@ -471,6 +471,23 @@
   .section { scroll-margin-top: 96px; }
 }
 
+/* 섹션 탭이 가리키는데 다른 모듈이 그리는 섹션(월별 작업·현장 이야기)과 청년농 사례 래퍼 — 착지 여백을 공통 .section 과 같게.
+   여백이 0·72px 라 모바일에선 탭을 누르면 제목이 sticky 바(헤더+탭)에 가렸다(10/8 실측 390: 월별작업·청년농 사례 제목 21px,
+   현장 이야기 94px — 바 아래 끝 104px). 활성 탭 판정도 각 섹션의 이 여백을 기준선으로 쓴다(AnchorTabNav) */
+.mainContent :global(#monthly-calendar),
+.mainContent :global(#youth-cases),
+.mainContent :global(#community-notes) {
+  scroll-margin-top: 184px;
+}
+
+@media (min-width: 1024px) {
+  .mainContent :global(#monthly-calendar),
+  .mainContent :global(#youth-cases),
+  .mainContent :global(#community-notes) {
+    scroll-margin-top: 96px;
+  }
+}
+
 .sectionHeader {
   display: flex;
   align-items: center;

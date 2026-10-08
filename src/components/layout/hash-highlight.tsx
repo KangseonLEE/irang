@@ -25,7 +25,8 @@ function highlightHash() {
   // 약간의 딜레이: 아코디언 열림/DOM 업데이트 대기
   setTimeout(() => {
     const el = document.getElementById(hash);
-    if (!el) return;
+    // 본문 바로가기(#main-content)는 페이지 전체라 깜빡일 대상이 아니다 (10/8)
+    if (!el || el.tagName === "MAIN") return;
 
     el.classList.add(HIGHLIGHT_CLASS);
     setTimeout(() => el.classList.remove(HIGHLIGHT_CLASS), DURATION);

@@ -96,7 +96,7 @@ export function ProgramList({
     });
   }, [isPending, hasMore, filters, programs.length, currentPersona, searchParams]);
 
-  // IntersectionObserver — 센티넬이 뷰포트에 들어오면 다음 페이지 로드
+  // IntersectionObserver — 센티넬이 화면 위·아래 두 화면 거리 안에 들어오면 다음 페이지 로드
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel || !hasMore) return;
@@ -107,7 +107,14 @@ export function ProgramList({
           handleLoadMore();
         }
       },
-      { rootMargin: "200px" }
+      // 위·아래로 두 화면(200%)씩 넓혀 미리 불러온다 (10/8 CLS). 200px 이면 응답(운영 0.24~0.34초)이 오기 전에 목록 끝
+      // 아래 의견 요청·푸터가 먼저 화면에 들어왔다가 새 카드에 밀려 내려갔다 — 스크롤 중 레이아웃 이동 CLS
+      // 0.14~0.53(1280)·0.39~0.94(375) 실측. 한 화면(100%)은 빠른 스크롤(초당 1,700px)에서 아직 0.39~0.44 였고 두 화면에서 0.
+      // 퍼센트는 뷰포트 높이 기준이라 기기마다 같은 여유가 된다. 붙은 뒤에도 센티넬이 범위 안이면 다음 쪽을 이어 받는다
+      // (옵저버를 다시 걸 때 첫 콜백). 위쪽도 넓히는 건 End 키처럼 센티넬을 한 번에 지나쳐 화면 위로 올라간 경우를
+      // 잡기 위해서다 — 아래만 넓혔을 땐 모바일에서 맨 끝으로 건너뛰면 다음 쪽을 영영 안 불렀다.
+      // 대가: 데스크탑은 첫 화면에서 다음 쪽을 미리 받는다(스크롤 없이 서버 액션 2회, 모바일 0회)
+      { rootMargin: "200% 0px 200% 0px" }
     );
 
     observer.observe(sentinel);
