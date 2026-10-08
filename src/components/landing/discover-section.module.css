@@ -278,6 +278,43 @@
   z-index: 0;
 }
 
+/* ── 행사 포스터 카드 (10/8) — 포스터 속 글자 위에 카드 글자를 얹지 않는다 ──
+   바탕: 같은 포스터를 크게 흐리게(작은 크기로 받아 늘림) · 틀: 상단 배지 줄 아래 ~ 본문 위 빈 칸을 채우고 포스터를 잘리지 않게.
+   틀은 스크림보다 위(z 2)라 어둡게 덮이지 않고, 카드가 세로 flex 라 본문 높이가 달라도 겹치지 않는다 */
+.posterBackdrop {
+  object-fit: cover;
+  z-index: 0;
+  filter: blur(18px) brightness(0.72) saturate(1.1);
+  transform: scale(1.18);
+}
+
+.posterFrame {
+  position: relative;
+  z-index: 2;
+  /* 본문 바로 위 16:10 — 카드가 세로 flex(아래로 쌓임)라 남는 높이는 틀 위(흐린 바탕)로 간다.
+     위 46px 는 배지 줄과 떨어뜨리는 최소 간격, 제목이 길어 자리가 모자라면 틀 높이가 먼저 준다 */
+  flex: 0 1 auto;
+  min-height: 0;
+  /* 폭을 직접 준다 — 늘이기(stretch) + 좌우 margin 이면 WebKit(사파리·iOS 전 브라우저)이 세로를 카드 전체 폭 ÷ 1.6 으로 잡아
+     틀이 16:10 보다 높아지고(280×190) 채우는 배너의 양끝 글자가 잘렸다(10/8 실측) */
+  align-self: center;
+  width: calc(100% - 24px);
+  aspect-ratio: 16 / 10;
+  margin: 46px 0 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.posterImage {
+  object-fit: contain;
+  object-position: center;
+}
+
+.posterImageCover {
+  object-fit: cover;
+  object-position: center;
+}
+
 /* 흰 글씨 대비 — 텍스트가 놓이는 하단 50% 구간의 알파를 0.6 이상으로 유지한다.
    (흰 사진 최악 기준: 알파 .6 → 합성 rgb(102) → 흰 글씨 대비 5.7:1) */
 .scrim {

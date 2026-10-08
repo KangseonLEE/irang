@@ -1,5 +1,5 @@
 import { PROVINCES } from "@/lib/data/regions";
-import { getEventImage } from "@/lib/events/event-image";
+import { getEventImage, posterCoverFactor, scaleSizes } from "@/lib/events/event-image";
 import { ALWAYS_OPEN, daysUntilDeadline, type ProgramStatus } from "@/lib/program-status";
 import type { SupportProgram } from "@/lib/data/programs";
 import type { FarmEvent } from "@/lib/data/events";
@@ -255,6 +255,15 @@ function stayDuration(start: string, end: string | null): string | undefined {
   return `${mmdd(start)}부터 ${span} 살아보기`;
 }
 
+/** 랜딩 카드 이미지 — 포스터는 본문 위 16:10 틀(폭 = 카드 − 24px)에 그린다. 채우는 배너는 그 배율만큼 큰 이미지를 받는다 */
+const LANDING_POSTER_SIZES = "(min-width: 1024px) 296px, calc(78vw - 24px)";
+function landingImage(event: FarmEvent): NonNullable<DiscoverCard["image"]> {
+  const image = getEventImage(event);
+  return image.kind === "poster"
+    ? { ...image, sizes: scaleSizes(LANDING_POSTER_SIZES, posterCoverFactor(image)) }
+    : image;
+}
+
 function toEventCard(event: FarmEvent, within: number): DiscoverCard {
   const stay = isStayEvent(event);
   const { name, type } = parseStayTitle(event.title);
@@ -272,8 +281,9 @@ function toEventCard(event: FarmEvent, within: number): DiscoverCard {
   return {
     id: event.id,
     href: `/events/${event.id}`,
-    // 글자를 사진 위에 얹는 카드라 행사 포스터(자체 글자)는 쓰지 않는다 — 마을 사진·시·도 그림만
-    image: getEventImage(event, { allowPoster: false }),
+    // 행사 포스터 > 마을 사진 > 시·도 그림 (10/8 회장: 랜딩도 포스터). 포스터는 자체 글자가 있어 카드 글자와 겹치지 않게
+    // 흐린 같은 포스터를 바탕에 깔고 글자 위 빈 칸에 잘리지 않게 넣는다(discover-tabs CardContent kind="poster")
+    image: landingImage(event),
     status: event.status,
     statusTone: open ? "open" : "soon",
     deadlineLabel,

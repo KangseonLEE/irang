@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { StatusBadge } from "@/components/ui/status-badge";
 import { DeadlineBadge } from "@/components/ui/deadline-badge";
-import { getEventImage } from "@/lib/events/event-image";
+import { posterCoverFactor, scaleSizes, getEventImage } from "@/lib/events/event-image";
 import type { FarmEvent } from "@/lib/data/events";
 
 import { buildEventFacts, cardTitle, eventTypeChip, regionLabel } from "./event-fields";
@@ -66,7 +66,8 @@ export function EventPhotoCard({
           src={image.src}
           alt={image.alt}
           fill
-          sizes={sizes}
+          // 16:10 을 채우는 넓은 배너는 카드보다 넓게 그려진다 — 그 배율만큼 큰 이미지를 받는다(흐려짐 방지, 10/8)
+          sizes={scaleSizes(sizes, posterCoverFactor(image))}
           quality={70}
           priority={priority}
           className={image.kind === "poster" ? s.poster : s.image}
