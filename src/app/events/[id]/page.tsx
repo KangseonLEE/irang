@@ -17,6 +17,7 @@ import { CalendarDays } from "lucide-react";
 import { filterEventsAsync, getEventByIdAsync, EVENTS } from "@/lib/data/events";
 import type { FarmEvent } from "@/lib/data/events";
 import { getEventImage } from "@/lib/events/event-image";
+import { EVENT_POSTERS } from "@/lib/data/event-posters";
 import {
   buildEventFacts,
   distinctEventTitle,
@@ -59,18 +60,25 @@ export async function generateMetadata({
   // 수집 행 상투 설명("…집계 기준이에요")은 공유 문구에 싣지 않는다
   const summary = isBoilerplateDescription(event.description) ? "" : event.description.slice(0, 120);
   const description = `${event.region}에서 열리는 ${event.type} "${title}".${summary ? ` ${summary}` : ""}`;
+  const poster = EVENT_POSTERS[event.id];
+  const shareImage = poster
+    ? { url: poster.url, width: poster.width, height: poster.height, alt: `${title} 홍보 이미지` }
+    : event.imageUrl
+      ? optimizedShareImage(event.imageUrl, event.title)
+      : undefined;
   return {
     title: `${title} — ${event.type} | ${event.region}`,
     description,
     keywords: [`${event.region} 농촌 정착 체험`, `귀농 ${event.type}`, "귀농 행사", "농촌 체험"],
     alternates: { canonical: `/events/${id}` },
-    // 마을 사진이 있으면 공유 카드도 그 사진으로(1200px 최적화 경로), 없으면 사이트 기본 OG 이미지.
+    // 행사 포스터·마을 사진이 있으면 공유 카드도 그 이미지로, 없으면 사이트 기본 OG 이미지.
+    // 포스터는 원본 크기 그대로(공유용으로 만든 이미지가 많고 수백 KB), 마을 사진은 원본 7MB 라 1200px 최적화 경로.
     // 예전엔 openGraph 에 이미지만 넣어 제목·사이트명이 빠졌다(10/3 QA — 레이아웃 openGraph 는 통째로 대체된다)
     ...shareMetadata({
       title: `${title} | 이랑`,
       description,
       path: `/events/${id}`,
-      ...(event.imageUrl ? { image: optimizedShareImage(event.imageUrl, event.title) } : {}),
+      ...(shareImage ? { image: shareImage } : {}),
     }),
   };
 }
@@ -82,6 +90,9 @@ export function generateStaticParams() {
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
 }
+
+/** 히어로 이미지 sizes — 본문 폭(모바일 좌우 16 · 데스크탑 좌우 32 · 최대 1216) */
+const HERO_SIZES = "(max-width: 1023px) calc(100vw - 32px), (max-width: 1343px) calc(100vw - 64px), 1216px";
 
 /** 살아보기 한 줄 안내 — 유형 이름만으로는 무엇을 하는 프로그램인지 알 수 없다 */
 const STAY_INTRO =
@@ -160,7 +171,8 @@ export default async function EventDetailPage({
             name: event.location,
             address: { "@type": "PostalAddress", addressRegion: event.region, addressCountry: "KR" },
           },
-          image: [event.imageUrl ?? "https://irangfarm.com/opengraph-image"],
+          // 포스터·마을 사진(외부 원본 절대 주소)이 있으면 그것, 없으면 사이트 기본 이미지 — 시·도 일러스트는 행사 이미지가 아니다
+          image: [image.kind === "illustration" ? "https://irangfarm.com/opengraph-image" : image.src],
           organizer: { "@type": "Organization", name: event.organization, url: event.url },
           performer: { "@type": "Organization", name: event.organization },
           offers: buildOffer(event),
@@ -171,14 +183,33 @@ export default async function EventDetailPage({
       {/* ── 사진 히어로 — 배지(우상단) + 마을 유형 칩(좌하단) ── */}
       <figure className={s.heroFigure}>
         <div className={s.hero}>
+        {/* 행사 포스터는 잘리지 않게(contain) — 남는 자리는 같은 이미지를 흐리게 깔아 채운다(카드와 같은 처리, 10/8).
+            16:10 자르기를 확인한 넓은 배너(crop16x10)는 모바일 히어로(16:10)에서만 채운다 — 넓은 화면 히어로는 배너 비율에 가깝다.
+            object-fit 은 화면 폭에 따라 바뀌므로 인라인 style 이 아니라 CSS 클래스로 정한다 */}
+        {image.kind === "poster" && (
+          <Image
+            src={image.src}
+            alt=""
+            aria-hidden="true"
+            fill
+            sizes={HERO_SIZES}
+            quality={72}
+            priority
+            className={s.heroBackdrop}
+            style={{ objectFit: "cover" }}
+          />
+        )}
         <Image
           src={image.src}
           alt={image.alt}
           fill
-          sizes="(max-width: 1023px) calc(100vw - 32px), (max-width: 1343px) calc(100vw - 64px), 1216px"
+          sizes={HERO_SIZES}
           quality={72}
           priority
-          style={{ objectFit: "cover" }}
+          className={
+            image.kind === "poster" ? `${s.heroPoster}${image.crop16x10 ? ` ${s.heroPosterCrop}` : ""}` : undefined
+          }
+          style={image.kind === "poster" ? undefined : { objectFit: "cover" }}
         />
         <div className={s.heroBadges}>
           <StatusBadge status={event.status} />

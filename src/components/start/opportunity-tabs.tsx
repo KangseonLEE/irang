@@ -22,6 +22,8 @@ export interface OpportunityPanel {
   moreLabel: string;
   /** 계측 라벨 접미사 — data-track="start_hub_more:<lane>:<track>" */
   track: string;
+  /** 카드 아래 한 줄 안내 — 체험 탭의 사진·포스터 출처(eventImageCreditNote) */
+  note?: string;
 }
 
 /** 데스크탑 3열 × 2줄 */
@@ -160,6 +162,7 @@ export function OpportunityTabs({
                     ))}
                   </ul>
                 ))}
+            {p.items.length > 0 && p.note && <p className={s.note}>{p.note}</p>}
             <div className={s.footer}>
               <SectionPager
                 page={page}

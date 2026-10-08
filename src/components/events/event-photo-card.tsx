@@ -40,12 +40,28 @@ export function EventPhotoCard({
   headingLevel = 3,
 }: EventPhotoCardProps) {
   const image = getEventImage(event);
+  // 포스터는 잘리지 않게(contain) 놓고 흐린 배경을 깐다 — 16:10 자르기를 확인한 넓은 배너만 사진처럼 채운다(cover)
+  const letterbox = image.kind === "poster" && !image.crop16x10;
   const facts = buildEventFacts(event, "card");
   const Title = headingLevel === 2 ? "h2" : "h3";
 
   return (
     <article className={s.card}>
       <div className={s.media}>
+        {/* 남는 자리는 같은 이미지를 흐리게 깔아 채운다(같은 src·sizes·quality 라 한 번만 받는다) */}
+        {letterbox && (
+          <Image
+            src={image.src}
+            alt=""
+            aria-hidden="true"
+            fill
+            sizes={sizes}
+            quality={70}
+            priority={priority}
+            className={s.backdrop}
+            style={{ objectFit: "cover" }}
+          />
+        )}
         <Image
           src={image.src}
           alt={image.alt}
@@ -53,8 +69,8 @@ export function EventPhotoCard({
           sizes={sizes}
           quality={70}
           priority={priority}
-          className={s.image}
-          style={{ objectFit: "cover" }}
+          className={image.kind === "poster" ? s.poster : s.image}
+          style={{ objectFit: letterbox ? "contain" : "cover" }}
         />
         <div className={s.badges}>
           <StatusBadge status={event.status} />

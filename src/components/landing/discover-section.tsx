@@ -272,7 +272,8 @@ function toEventCard(event: FarmEvent, within: number): DiscoverCard {
   return {
     id: event.id,
     href: `/events/${event.id}`,
-    image: getEventImage(event),
+    // 글자를 사진 위에 얹는 카드라 행사 포스터(자체 글자)는 쓰지 않는다 — 마을 사진·시·도 그림만
+    image: getEventImage(event, { allowPoster: false }),
     status: event.status,
     statusTone: open ? "open" : "soon",
     deadlineLabel,

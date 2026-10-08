@@ -92,6 +92,24 @@ const nextConfig: NextConfig = {
         hostname: "ghujphlzdzucfezqgmwz.supabase.co",
         pathname: "/storage/v1/object/public/promo/**",
       },
+      /* 행사 포스터 (2026-10-08, src/lib/data/event-posters.ts) — 남의 CDN 이라 파일 하나씩만 연다.
+         디렉터리째(`/**`) 열면 그 CDN 의 아무 이미지나 우리 이미지 최적화 한도로 변환된다. 쿼리 문자열도 막는다.
+         포스터를 추가하면 여기에도 한 줄 — src/__tests__/event-posters.test.ts 가 빠진 것을 잡는다 */
+      {
+        protocol: "https",
+        hostname: "cdn2.micehub.com",
+        port: "",
+        pathname: "/home/2016/micehub/Files/20260225_151211_1844335168.png",
+        search: "",
+      },
+      {
+        protocol: "https",
+        hostname: "d3hjmc9lw655td.cloudfront.net",
+        port: "",
+        pathname:
+          "/wp-content/uploads/2026/09/29021142/KFARM-HOMEPAGE-PNG2%EB%B0%B0%EC%A0%80%EC%9E%A5-1-1-scaled.png",
+        search: "",
+      },
     ],
     /* ── Vercel data transfer 절감 (P0) ──
        quality 기본 75 → 70: 시각 차이 거의 없이 transfer ~10% 감소.
