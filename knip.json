@@ -17,6 +17,7 @@
     "apply-all-crop-changes.mjs"
   ],
   "ignoreBinaries": [
-    "cloudflared"
+    "cloudflared",
+    "jq"
   ]
 }

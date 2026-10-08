@@ -131,7 +131,7 @@ describe("FarmHouseholdModal — 실패 문구 대신 기준 연도", () => {
       />,
     );
     expect(screen.queryByText(/호출에 실패/)).toBeNull();
-    expect(screen.getByText(/2020년 농림어업총조사 값이에요/)).toBeInTheDocument();
+    expect(screen.getByText(/2025년 농림어업총조사 값이에요/)).toBeInTheDocument();
   });
 });
 

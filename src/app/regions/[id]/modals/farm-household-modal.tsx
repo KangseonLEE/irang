@@ -5,8 +5,8 @@ import { DataSource } from "@/components/ui/data-source";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import s from "./modals.module.css";
 
-/** 농가 통계 기준 연도 — 농림어업총조사(5년 주기). lib/api/sgis.ts FARM_YEAR 와 같은 값 */
-const FARM_CENSUS_YEAR = 2020;
+/** 농가 통계 기준 연도 — 농림어업총조사(5년 주기). scripts/collect-farms.ts YEAR 와 같은 값 */
+const FARM_CENSUS_YEAR = 2025;
 
 interface FarmHouseholdModalProps {
   sigunguName: string;
@@ -118,18 +118,18 @@ export function FarmHouseholdModal({
       <div className={s.notice}>
         <Info size={16} className={s.noticeIcon} aria-hidden="true" />
         <AutoGlossary
-          text={`농가는 영농·축산을 주업으로 하는 가구를 뜻해요. 가구원수가 많을수록 가족농 비중이 높고, 적을수록 1~2인 고령 농가 비중이 높은 편이에요.`}
+          text={`농가는 경지를 10a(약 300평) 이상 짓거나, 지난 1년 동안 농축산물을 120만 원어치 이상 팔았거나, 120만 원어치 이상의 가축을 기르는 가구예요. 가구원 수가 많을수록 가족농 비중이 높고, 적을수록 1~2인 고령 농가 비중이 높은 편이에요.`}
           maxHighlights={2}
         />
       </div>
 
-      {/* 기준 연도 안내 — API 성공·폴백 모두 같은 2020 총조사 값이라 "호출 실패" 문구는 사실과 달랐다
-          (10/6 QA1: 운영 표본 20곳 중 7곳 노출). 실패 여부와 무관하게 기준 시점을 밝힌다. */}
+      {/* 기준 시점 안내 — 2025 총조사(2025-12-01 기준, 2026-09-29 확정 공표)는 조사 명부에 농지대장 같은 행정자료를
+          더해 2020 값과 바로 비교하면 안 된다(공표 일러두기). 화면에 2020→2025 증감은 보이지 않는다 (10/8) */}
       <p className={s.summary}>
-        {FARM_CENSUS_YEAR}년 농림어업총조사 값이에요. 5년마다 조사하는 통계라 지금과 다를 수 있어요.
+        {FARM_CENSUS_YEAR}년 농림어업총조사 값이에요(2025년 12월 1일 기준). 5년마다 조사하는 통계라 지금과 다를 수 있어요. 2025년 조사부터 농지대장 같은 행정자료로 조사 대상이 넓어져 2020년 값과 바로 비교하기는 어려워요.
       </p>
 
-      <DataSource source={`통계청 SGIS · 농림어업총조사 ${FARM_CENSUS_YEAR} (5년 주기)`} />
+      <DataSource source={`국가데이터처 KOSIS · 농림어업총조사 ${FARM_CENSUS_YEAR} 확정 (5년 주기)`} />
     </div>
   );
 }

@@ -219,16 +219,21 @@ describe("SGIS 인구 — 신설 구 합산", () => {
   });
 });
 
-describe("SGIS 농가 — 신설 구 합산", () => {
-  it("행정동 농가를 더하고, 평균 가구원은 두 수로 다시 계산한다", async () => {
-    stubSgis();
-    const yj = await fetchFarmHousehold("23110");
-    expect(yj).toMatchObject({ farmCount: 50, farmPopulation: 125, avgPopulation: 2.5, isFallback: false });
+describe("농가 — 2025 총조사 정적 값만, 신설 구는 표에 없음 (10/8)", () => {
+  it("인천 신설 4구는 2025 표에 없어 null — 실행 중 SGIS 를 부르지 않는다", async () => {
+    const calls = stubSgis();
+    for (const code of ["23100", "23110", "23120", "23130"]) {
+      await expect(fetchFarmHousehold(code)).resolves.toBeNull();
+    }
+    expect(calls).toEqual([]);
   });
 
-  it("비공개(N/A) 동이 하나라도 있으면 그 구는 합을 내지 않는다", async () => {
-    stubSgis({ farmNA: "23010560" }); // 도원동 — 제물포
-    await expect(fetchFarmHousehold("23100")).resolves.toBeNull();
-    await expect(fetchFarmHousehold("23110")).resolves.not.toBeNull(); // 영종엔 영향 없음
+  it("화성 신설 4구도 null(구 화면은 화성시 값을 범위를 밝혀 쓴다), 화성시는 2025 값", async () => {
+    const calls = stubSgis();
+    for (const code of ["31241", "31242", "31243", "31244"]) {
+      await expect(fetchFarmHousehold(code)).resolves.toBeNull();
+    }
+    await expect(fetchFarmHousehold("31240")).resolves.toMatchObject({ farmCount: 12994, farmPopulation: 29477, avgPopulation: 2.3, isFallback: false });
+    expect(calls).toEqual([]);
   });
 });

@@ -2,7 +2,7 @@
  * 시군구 차원별 5점수 (자동 생성)
  *
  * 생성 스크립트: scripts/compute-dimension-scores.ts
- * 마지막 갱신: 2026-10-07
+ * 마지막 갱신: 2026-10-08
  *
  * ⚠ 절대 수동 편집 금지. 갱신은 `npx tsx scripts/compute-dimension-scores.ts`
  *
@@ -1147,7 +1147,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "23510",
     "name": "강화군",
     "populationTrend": 87,
-    "farmActivity": 57,
+    "farmActivity": 51,
     "medical": 34,
     "school": 70,
     "returnFarm": 55,
@@ -1159,11 +1159,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +3.1% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 965.82,
+        "rawValue": 1021.98,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 966호",
-        "rankPercent": 43,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 43%)"
+        "rawLabel": "1만 명당 농가 1,022호",
+        "rankPercent": 49,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 49%)"
       },
       "medical": {
         "rawValue": 13.1,
@@ -1191,7 +1191,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "23520",
     "name": "옹진군",
     "populationTrend": 71,
-    "farmActivity": 34,
+    "farmActivity": 39,
     "medical": 44,
     "school": 98,
     "returnFarm": 40,
@@ -1203,10 +1203,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +0.6% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 586.17,
+        "rawValue": 786.9,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 586호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 34%)"
+        "rawLabel": "1만 명당 농가 787호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 39%)"
       },
       "medical": {
         "rawValue": 13.97,
@@ -1436,9 +1436,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +17.0% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 153.4,
+        "rawValue": 194.34,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 153호",
+        "rawLabel": "1만 명당 농가 194호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 8%)"
       },
       "medical": {
@@ -1634,9 +1634,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +8.8% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 68.48,
+        "rawValue": 85.76,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 68.5호",
+        "rawLabel": "1만 명당 농가 85.8호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 1%)"
       },
       "medical": {
@@ -1831,9 +1831,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +3.8% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 68.46,
+        "rawValue": 94.65,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 68.5호",
+        "rawLabel": "1만 명당 농가 94.6호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 1%)"
       },
       "medical": {
@@ -1872,9 +1872,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +9.6% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 133.57,
+        "rawValue": 174.52,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 134호",
+        "rawLabel": "1만 명당 농가 175호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 6%)"
       },
       "medical": {
@@ -1913,9 +1913,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +3.0% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 362.2,
+        "rawValue": 408.68,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 362호",
+        "rawLabel": "1만 명당 농가 409호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 22%)"
       },
       "medical": {
@@ -1942,7 +1942,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31220",
     "name": "안성시",
     "populationTrend": 91,
-    "farmActivity": 24,
+    "farmActivity": 23,
     "medical": 7,
     "school": 50,
     "returnFarm": 29,
@@ -1954,10 +1954,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +3.7% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 380.74,
+        "rawValue": 430.64,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 381호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 24%)"
+        "rawLabel": "1만 명당 농가 431호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 23%)"
       },
       "medical": {
         "rawValue": 10.64,
@@ -1996,9 +1996,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +15.6% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 101.37,
+        "rawValue": 129.65,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 101호",
+        "rawLabel": "1만 명당 농가 130호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 4%)"
       },
       "medical": {
@@ -2037,9 +2037,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +19.9% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 111.6,
+        "rawValue": 139.5,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 112호",
+        "rawLabel": "1만 명당 농가 139호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 5%)"
       },
       "medical": {
@@ -2066,7 +2066,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31250",
     "name": "광주시",
     "populationTrend": 100,
-    "farmActivity": 2,
+    "farmActivity": 4,
     "medical": 2,
     "school": 11,
     "returnFarm": 3,
@@ -2078,10 +2078,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +7.9% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 99.97,
+        "rawValue": 128.68,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 100.0호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 2%)"
+        "rawLabel": "1만 명당 농가 129호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 4%)"
       },
       "medical": {
         "rawValue": 9.37,
@@ -2107,7 +2107,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31260",
     "name": "양주시",
     "populationTrend": 100,
-    "farmActivity": 9,
+    "farmActivity": 6,
     "medical": 6,
     "school": 48,
     "returnFarm": 9,
@@ -2119,10 +2119,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +11.6% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 153.71,
+        "rawValue": 176.01,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 154호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 9%)"
+        "rawLabel": "1만 명당 농가 176호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 6%)"
       },
       "medical": {
         "rawValue": 10.49,
@@ -2148,7 +2148,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31270",
     "name": "포천시",
     "populationTrend": 75,
-    "farmActivity": 23,
+    "farmActivity": 22,
     "medical": 3,
     "school": 50,
     "returnFarm": 24,
@@ -2160,10 +2160,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +1.2% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 369.02,
+        "rawValue": 420.75,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 369호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 23%)"
+        "rawLabel": "1만 명당 농가 421호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 22%)"
       },
       "medical": {
         "rawValue": 9.66,
@@ -2190,7 +2190,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31280",
     "name": "여주시",
     "populationTrend": 77,
-    "farmActivity": 35,
+    "farmActivity": 37,
     "medical": 26,
     "school": 62,
     "returnFarm": 30,
@@ -2202,10 +2202,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +1.5% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 604.23,
+        "rawValue": 720.89,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 604호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 35%)"
+        "rawLabel": "1만 명당 농가 721호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 37%)"
       },
       "medical": {
         "rawValue": 12.56,
@@ -2244,9 +2244,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +5.3% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 525.78,
+        "rawValue": 621.55,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 526호",
+        "rawLabel": "1만 명당 농가 622호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 32%)"
       },
       "medical": {
@@ -2274,7 +2274,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31570",
     "name": "가평군",
     "populationTrend": 64,
-    "farmActivity": 38,
+    "farmActivity": 36,
     "medical": 61,
     "school": 64,
     "returnFarm": 41,
@@ -2286,10 +2286,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -0.3% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 627.73,
+        "rawValue": 693.67,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 628호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 38%)"
+        "rawLabel": "1만 명당 농가 694호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 36%)"
       },
       "medical": {
         "rawValue": 15.9,
@@ -2317,7 +2317,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "31550",
     "name": "연천군",
     "populationTrend": 34,
-    "farmActivity": 40,
+    "farmActivity": 37,
     "medical": 33,
     "school": 71,
     "returnFarm": 53,
@@ -2329,10 +2329,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.8% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 745.74,
+        "rawValue": 713.28,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 746호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 40%)"
+        "rawLabel": "1만 명당 농가 713호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 37%)"
       },
       "medical": {
         "rawValue": 13.08,
@@ -2372,9 +2372,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +2.9% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 228.64,
+        "rawValue": 262.38,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 229호",
+        "rawLabel": "1만 명당 농가 262호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 13%)"
       },
       "medical": {
@@ -2413,9 +2413,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +5.1% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 246.95,
+        "rawValue": 300.21,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 247호",
+        "rawLabel": "1만 명당 농가 300호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 15%)"
       },
       "medical": {
@@ -2454,9 +2454,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -0.2% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 327.53,
+        "rawValue": 382.05,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 328호",
+        "rawLabel": "1만 명당 농가 382호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 21%)"
       },
       "medical": {
@@ -2580,7 +2580,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32070",
     "name": "삼척시",
     "populationTrend": 31,
-    "farmActivity": 37,
+    "farmActivity": 33,
     "medical": 5,
     "school": 71,
     "returnFarm": 29,
@@ -2592,10 +2592,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.3% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 618.15,
+        "rawValue": 643.03,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 618호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 37%)"
+        "rawLabel": "1만 명당 농가 643호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 33%)"
       },
       "medical": {
         "rawValue": 10.27,
@@ -2622,7 +2622,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32510",
     "name": "홍천군",
     "populationTrend": 47,
-    "farmActivity": 63,
+    "farmActivity": 67,
     "medical": 37,
     "school": 84,
     "returnFarm": 58,
@@ -2634,11 +2634,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.9% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1040.86,
+        "rawValue": 1264.74,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,041호",
-        "rankPercent": 37,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 37%)"
+        "rawLabel": "1만 명당 농가 1,265호",
+        "rankPercent": 33,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 33%)"
       },
       "medical": {
         "rawValue": 13.49,
@@ -2666,7 +2666,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32520",
     "name": "횡성군",
     "populationTrend": 78,
-    "farmActivity": 64,
+    "farmActivity": 71,
     "medical": 19,
     "school": 88,
     "returnFarm": 71,
@@ -2678,11 +2678,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +1.7% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 1087.51,
+        "rawValue": 1368.36,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,088호",
-        "rankPercent": 36,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 36%)"
+        "rawLabel": "1만 명당 농가 1,368호",
+        "rankPercent": 29,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 29%)"
       },
       "medical": {
         "rawValue": 11.81,
@@ -2710,7 +2710,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32530",
     "name": "영월군",
     "populationTrend": 47,
-    "farmActivity": 49,
+    "farmActivity": 55,
     "medical": 7,
     "school": 92,
     "returnFarm": 83,
@@ -2722,10 +2722,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.0% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 854.6,
+        "rawValue": 1089.36,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 855호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 49%)"
+        "rawLabel": "1만 명당 농가 1,089호",
+        "rankPercent": 45,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 45%)"
       },
       "medical": {
         "rawValue": 10.66,
@@ -2753,7 +2754,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32540",
     "name": "평창군",
     "populationTrend": 45,
-    "farmActivity": 60,
+    "farmActivity": 61,
     "medical": 55,
     "school": 90,
     "returnFarm": 67,
@@ -2765,11 +2766,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.3% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1011.65,
+        "rawValue": 1189.95,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,012호",
-        "rankPercent": 40,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 40%)"
+        "rawLabel": "1만 명당 농가 1,190호",
+        "rankPercent": 39,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 39%)"
       },
       "medical": {
         "rawValue": 14.99,
@@ -2798,7 +2799,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32550",
     "name": "정선군",
     "populationTrend": 25,
-    "farmActivity": 45,
+    "farmActivity": 42,
     "medical": 16,
     "school": 98,
     "returnFarm": 61,
@@ -2810,10 +2811,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.3% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 805.9,
+        "rawValue": 867.36,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 806호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 45%)"
+        "rawLabel": "1만 명당 농가 867호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 42%)"
       },
       "medical": {
         "rawValue": 11.69,
@@ -2841,7 +2842,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32560",
     "name": "철원군",
     "populationTrend": 19,
-    "farmActivity": 54,
+    "farmActivity": 56,
     "medical": 23,
     "school": 79,
     "returnFarm": 40,
@@ -2853,11 +2854,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -7.2% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 925.02,
+        "rawValue": 1100.01,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 925호",
-        "rankPercent": 46,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 46%)"
+        "rawLabel": "1만 명당 농가 1,100호",
+        "rankPercent": 44,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 44%)"
       },
       "medical": {
         "rawValue": 12.4,
@@ -2884,7 +2885,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32570",
     "name": "화천군",
     "populationTrend": 28,
-    "farmActivity": 47,
+    "farmActivity": 53,
     "medical": 41,
     "school": 93,
     "returnFarm": 51,
@@ -2896,10 +2897,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.9% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 816.15,
+        "rawValue": 1043.69,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 816호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 47%)"
+        "rawLabel": "1만 명당 농가 1,044호",
+        "rankPercent": 47,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 47%)"
       },
       "medical": {
         "rawValue": 13.75,
@@ -2927,7 +2929,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32580",
     "name": "양구군",
     "populationTrend": 28,
-    "farmActivity": 65,
+    "farmActivity": 58,
     "medical": 15,
     "school": 95,
     "returnFarm": 50,
@@ -2939,11 +2941,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.8% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1094.89,
+        "rawValue": 1140.03,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,095호",
-        "rankPercent": 35,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 35%)"
+        "rawLabel": "1만 명당 농가 1,140호",
+        "rankPercent": 42,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 42%)"
       },
       "medical": {
         "rawValue": 11.53,
@@ -2971,7 +2973,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32590",
     "name": "인제군",
     "populationTrend": 78,
-    "farmActivity": 53,
+    "farmActivity": 50,
     "medical": 6,
     "school": 89,
     "returnFarm": 37,
@@ -2983,11 +2985,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +1.8% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 911.5,
+        "rawValue": 1003.07,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 912호",
-        "rankPercent": 47,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 47%)"
+        "rawLabel": "1만 명당 농가 1,003호",
+        "rankPercent": 50,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 50%)"
       },
       "medical": {
         "rawValue": 10.35,
@@ -3026,9 +3028,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.6% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 783.35,
+        "rawValue": 875.14,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 783호",
+        "rawLabel": "1만 명당 농가 875호",
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 42%)"
       },
       "medical": {
@@ -3056,7 +3058,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "32610",
     "name": "양양군",
     "populationTrend": 91,
-    "farmActivity": 62,
+    "farmActivity": 64,
     "medical": 3,
     "school": 87,
     "returnFarm": 52,
@@ -3068,11 +3070,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +3.6% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 1028.76,
+        "rawValue": 1195.51,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,029호",
-        "rankPercent": 38,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 38%)"
+        "rawLabel": "1만 명당 농가 1,196호",
+        "rankPercent": 36,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 36%)"
       },
       "medical": {
         "rawValue": 9.79,
@@ -3100,7 +3102,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33010",
     "name": "청주시",
     "populationTrend": 77,
-    "farmActivity": 11,
+    "farmActivity": 12,
     "medical": 36,
     "school": 39,
     "returnFarm": 12,
@@ -3112,10 +3114,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +1.6% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 186.1,
+        "rawValue": 257.41,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 186호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 11%)"
+        "rawLabel": "1만 명당 농가 257호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 12%)"
       },
       "medical": {
         "rawValue": 13.38,
@@ -3153,9 +3155,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +0.3% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 413.98,
+        "rawValue": 507.41,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 414호",
+        "rawLabel": "1만 명당 농가 507호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 27%)"
       },
       "medical": {
@@ -3195,9 +3197,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.2% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 489.36,
+        "rawValue": 605.51,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 489호",
+        "rawLabel": "1만 명당 농가 606호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 31%)"
       },
       "medical": {
@@ -3226,7 +3228,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33520",
     "name": "보은군",
     "populationTrend": 28,
-    "farmActivity": 76,
+    "farmActivity": 78,
     "medical": 80,
     "school": 85,
     "returnFarm": 88,
@@ -3238,11 +3240,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.8% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1337.97,
+        "rawValue": 1556.99,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,338호",
-        "rankPercent": 24,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 24%)"
+        "rawLabel": "1만 명당 농가 1,557호",
+        "rankPercent": 22,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 22%)"
       },
       "medical": {
         "rawValue": 17.95,
@@ -3271,7 +3273,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33530",
     "name": "옥천군",
     "populationTrend": 43,
-    "farmActivity": 66,
+    "farmActivity": 65,
     "medical": 77,
     "school": 65,
     "returnFarm": 73,
@@ -3283,11 +3285,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.5% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1096.99,
+        "rawValue": 1226.75,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,097호",
-        "rankPercent": 34,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 34%)"
+        "rawLabel": "1만 명당 농가 1,227호",
+        "rankPercent": 35,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 35%)"
       },
       "medical": {
         "rawValue": 17.7,
@@ -3316,7 +3318,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33540",
     "name": "영동군",
     "populationTrend": 3,
-    "farmActivity": 78,
+    "farmActivity": 79,
     "medical": 86,
     "school": 76,
     "returnFarm": 75,
@@ -3328,11 +3330,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -9.6% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1359.87,
+        "rawValue": 1581.95,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,360호",
-        "rankPercent": 22,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 22%)"
+        "rawLabel": "1만 명당 농가 1,582호",
+        "rankPercent": 21,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 21%)"
       },
       "medical": {
         "rawValue": 18.49,
@@ -3361,7 +3363,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33590",
     "name": "증평군",
     "populationTrend": 72,
-    "farmActivity": 27,
+    "farmActivity": 24,
     "medical": 30,
     "school": 45,
     "returnFarm": 32,
@@ -3373,10 +3375,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +0.8% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 392.82,
+        "rawValue": 449.73,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 393호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 27%)"
+        "rawLabel": "1만 명당 농가 450호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 24%)"
       },
       "medical": {
         "rawValue": 12.97,
@@ -3402,7 +3404,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33550",
     "name": "진천군",
     "populationTrend": 100,
-    "farmActivity": 26,
+    "farmActivity": 29,
     "medical": 11,
     "school": 56,
     "returnFarm": 34,
@@ -3414,10 +3416,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +11.0% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 385.52,
+        "rawValue": 541.78,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 386호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 26%)"
+        "rawLabel": "1만 명당 농가 542호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 29%)"
       },
       "medical": {
         "rawValue": 11.05,
@@ -3444,7 +3446,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33560",
     "name": "괴산군",
     "populationTrend": 56,
-    "farmActivity": 78,
+    "farmActivity": 81,
     "medical": 44,
     "school": 80,
     "returnFarm": 90,
@@ -3456,11 +3458,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -1.6% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1371.13,
+        "rawValue": 1623.84,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,371호",
-        "rankPercent": 22,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 22%)"
+        "rawLabel": "1만 명당 농가 1,624호",
+        "rankPercent": 19,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 19%)"
       },
       "medical": {
         "rawValue": 14.01,
@@ -3488,7 +3490,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33570",
     "name": "음성군",
     "populationTrend": 48,
-    "farmActivity": 36,
+    "farmActivity": 35,
     "medical": 26,
     "school": 59,
     "returnFarm": 37,
@@ -3500,10 +3502,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.8% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 616.01,
+        "rawValue": 690.98,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 616호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 36%)"
+        "rawLabel": "1만 명당 농가 691호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 35%)"
       },
       "medical": {
         "rawValue": 12.58,
@@ -3530,7 +3532,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "33580",
     "name": "단양군",
     "populationTrend": 20,
-    "farmActivity": 72,
+    "farmActivity": 71,
     "medical": 61,
     "school": 87,
     "returnFarm": 54,
@@ -3542,11 +3544,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -7.0% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1219.3,
+        "rawValue": 1345.5,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,219호",
-        "rankPercent": 28,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 28%)"
+        "rawLabel": "1만 명당 농가 1,345호",
+        "rankPercent": 29,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 29%)"
       },
       "medical": {
         "rawValue": 15.87,
@@ -3575,7 +3577,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "29010",
     "name": "세종특별자치시",
     "populationTrend": 100,
-    "farmActivity": 12,
+    "farmActivity": 11,
     "medical": 23,
     "school": 49,
     "returnFarm": 8,
@@ -3587,10 +3589,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +22.5% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 187.22,
+        "rawValue": 241.43,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 187호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 12%)"
+        "rawLabel": "1만 명당 농가 241호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 11%)"
       },
       "medical": {
         "rawValue": 12.28,
@@ -3774,7 +3776,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34010",
     "name": "천안시",
     "populationTrend": 83,
-    "farmActivity": 10,
+    "farmActivity": 9,
     "medical": 25,
     "school": 27,
     "returnFarm": 4,
@@ -3786,10 +3788,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +2.4% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 161.51,
+        "rawValue": 202.08,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 162호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 10%)"
+        "rawLabel": "1만 명당 농가 202호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 9%)"
       },
       "medical": {
         "rawValue": 12.5,
@@ -3827,9 +3829,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.7% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 875.25,
+        "rawValue": 985.78,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 875호",
+        "rawLabel": "1만 명당 농가 986호",
         "rankPercent": 50,
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 50%)"
       },
@@ -3871,9 +3873,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.7% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 807.37,
+        "rawValue": 916.68,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 807호",
+        "rawLabel": "1만 명당 농가 917호",
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 45%)"
       },
       "medical": {
@@ -3914,9 +3916,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +6.1% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 243.59,
+        "rawValue": 285.11,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 244호",
+        "rawLabel": "1만 명당 농가 285호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 14%)"
       },
       "medical": {
@@ -3943,7 +3945,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34050",
     "name": "서산시",
     "populationTrend": 81,
-    "farmActivity": 37,
+    "farmActivity": 38,
     "medical": 17,
     "school": 52,
     "returnFarm": 38,
@@ -3955,10 +3957,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +2.2% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 622.77,
+        "rawValue": 731.45,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 623호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 37%)"
+        "rawLabel": "1만 명당 농가 731호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 38%)"
       },
       "medical": {
         "rawValue": 11.75,
@@ -3985,7 +3987,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34060",
     "name": "논산시",
     "populationTrend": 34,
-    "farmActivity": 48,
+    "farmActivity": 46,
     "medical": 73,
     "school": 68,
     "returnFarm": 44,
@@ -3997,10 +3999,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.9% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 845.69,
+        "rawValue": 926.39,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 846호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 48%)"
+        "rawLabel": "1만 명당 농가 926호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 46%)"
       },
       "medical": {
         "rawValue": 17.2,
@@ -4028,7 +4030,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34070",
     "name": "계룡시",
     "populationTrend": 80,
-    "farmActivity": 6,
+    "farmActivity": 10,
     "medical": 45,
     "school": 43,
     "returnFarm": 23,
@@ -4040,10 +4042,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +2.1% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 120.94,
+        "rawValue": 214.07,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 121호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 6%)"
+        "rawLabel": "1만 명당 농가 214호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 10%)"
       },
       "medical": {
         "rawValue": 14.15,
@@ -4069,7 +4071,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34080",
     "name": "당진시",
     "populationTrend": 71,
-    "farmActivity": 35,
+    "farmActivity": 34,
     "medical": 20,
     "school": 54,
     "returnFarm": 35,
@@ -4081,10 +4083,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +0.7% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 594.48,
+        "rawValue": 647.46,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 594호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 35%)"
+        "rawLabel": "1만 명당 농가 647호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 34%)"
       },
       "medical": {
         "rawValue": 11.97,
@@ -4123,9 +4125,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.8% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1145.25,
+        "rawValue": 1271.02,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,145호",
+        "rawLabel": "1만 명당 농가 1,271호",
         "rankPercent": 32,
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 32%)"
       },
@@ -4156,7 +4158,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34530",
     "name": "부여군",
     "populationTrend": 16,
-    "farmActivity": 81,
+    "farmActivity": 83,
     "medical": 70,
     "school": 75,
     "returnFarm": 78,
@@ -4168,11 +4170,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -7.6% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1509.25,
+        "rawValue": 1670.6,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,509호",
-        "rankPercent": 19,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 19%)"
+        "rawLabel": "1만 명당 농가 1,671호",
+        "rankPercent": 17,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 17%)"
       },
       "medical": {
         "rawValue": 16.59,
@@ -4201,7 +4203,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34540",
     "name": "서천군",
     "populationTrend": 27,
-    "farmActivity": 69,
+    "farmActivity": 70,
     "medical": 79,
     "school": 81,
     "returnFarm": 59,
@@ -4213,11 +4215,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.9% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1199.78,
+        "rawValue": 1336.52,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,200호",
-        "rankPercent": 31,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 31%)"
+        "rawLabel": "1만 명당 농가 1,337호",
+        "rankPercent": 30,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 30%)"
       },
       "medical": {
         "rawValue": 17.77,
@@ -4246,7 +4248,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34550",
     "name": "청양군",
     "populationTrend": 36,
-    "farmActivity": 99,
+    "farmActivity": 98,
     "medical": 69,
     "school": 73,
     "returnFarm": 92,
@@ -4258,11 +4260,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.6% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 2135.34,
+        "rawValue": 2121.23,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 2,135호",
-        "rankPercent": 1,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 1%)"
+        "rawLabel": "1만 명당 농가 2,121호",
+        "rankPercent": 2,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 2%)"
       },
       "medical": {
         "rawValue": 16.46,
@@ -4291,7 +4293,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34560",
     "name": "홍성군",
     "populationTrend": 49,
-    "farmActivity": 59,
+    "farmActivity": 52,
     "medical": 43,
     "school": 64,
     "returnFarm": 45,
@@ -4303,11 +4305,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.6% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 999.51,
+        "rawValue": 1028.31,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,000호",
-        "rankPercent": 41,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 41%)"
+        "rawLabel": "1만 명당 농가 1,028호",
+        "rankPercent": 48,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 48%)"
       },
       "medical": {
         "rawValue": 13.95,
@@ -4334,7 +4336,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34570",
     "name": "예산군",
     "populationTrend": 48,
-    "farmActivity": 71,
+    "farmActivity": 58,
     "medical": 48,
     "school": 74,
     "returnFarm": 62,
@@ -4346,11 +4348,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.7% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1204.8,
+        "rawValue": 1163.62,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,205호",
-        "rankPercent": 29,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 29%)"
+        "rawLabel": "1만 명당 농가 1,164호",
+        "rankPercent": 42,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 42%)"
       },
       "medical": {
         "rawValue": 14.29,
@@ -4378,7 +4380,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "34580",
     "name": "태안군",
     "populationTrend": 63,
-    "farmActivity": 63,
+    "farmActivity": 62,
     "medical": 31,
     "school": 67,
     "returnFarm": 58,
@@ -4390,11 +4392,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -0.5% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1084.84,
+        "rawValue": 1190.36,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,085호",
-        "rankPercent": 37,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 37%)"
+        "rawLabel": "1만 명당 농가 1,190호",
+        "rankPercent": 38,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 38%)"
       },
       "medical": {
         "rawValue": 13.02,
@@ -4454,7 +4456,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35020",
     "name": "군산시",
     "populationTrend": 53,
-    "farmActivity": 16,
+    "farmActivity": 14,
     "medical": 41,
     "school": 53,
     "returnFarm": 14,
@@ -4466,10 +4468,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.1% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 249.93,
+        "rawValue": 296.5,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 250호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 16%)"
+        "rawLabel": "1만 명당 농가 297호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 14%)"
       },
       "medical": {
         "rawValue": 13.74,
@@ -4496,7 +4498,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35030",
     "name": "익산시",
     "populationTrend": 27,
-    "farmActivity": 25,
+    "farmActivity": 27,
     "medical": 52,
     "school": 60,
     "returnFarm": 22,
@@ -4508,10 +4510,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.0% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 382.27,
+        "rawValue": 474.89,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 382호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 25%)"
+        "rawLabel": "1만 명당 농가 475호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 27%)"
       },
       "medical": {
         "rawValue": 14.8,
@@ -4539,7 +4541,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35040",
     "name": "정읍시",
     "populationTrend": 36,
-    "farmActivity": 56,
+    "farmActivity": 55,
     "medical": 84,
     "school": 83,
     "returnFarm": 50,
@@ -4551,11 +4553,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.6% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 963.92,
+        "rawValue": 1082.47,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 964호",
-        "rankPercent": 44,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 44%)"
+        "rawLabel": "1만 명당 농가 1,082호",
+        "rankPercent": 45,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 45%)"
       },
       "medical": {
         "rawValue": 18.4,
@@ -4584,7 +4586,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35050",
     "name": "남원시",
     "populationTrend": 39,
-    "farmActivity": 55,
+    "farmActivity": 66,
     "medical": 83,
     "school": 82,
     "returnFarm": 65,
@@ -4596,11 +4598,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.1% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 927.33,
+        "rawValue": 1237.59,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 927호",
-        "rankPercent": 45,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 45%)"
+        "rawLabel": "1만 명당 농가 1,238호",
+        "rankPercent": 34,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 34%)"
       },
       "medical": {
         "rawValue": 18.34,
@@ -4629,7 +4631,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35060",
     "name": "김제시",
     "populationTrend": 41,
-    "farmActivity": 55,
+    "farmActivity": 53,
     "medical": 82,
     "school": 84,
     "returnFarm": 66,
@@ -4641,11 +4643,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.8% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 933.35,
+        "rawValue": 1040.79,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 933호",
-        "rankPercent": 45,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 45%)"
+        "rawLabel": "1만 명당 농가 1,041호",
+        "rankPercent": 47,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 47%)"
       },
       "medical": {
         "rawValue": 18.27,
@@ -4686,9 +4688,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.3% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 791.38,
+        "rawValue": 903.65,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 791호",
+        "rawLabel": "1만 명당 농가 904호",
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 43%)"
       },
       "medical": {
@@ -4717,7 +4719,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35520",
     "name": "진안군",
     "populationTrend": 48,
-    "farmActivity": 82,
+    "farmActivity": 92,
     "medical": 90,
     "school": 100,
     "returnFarm": 95,
@@ -4729,11 +4731,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.8% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1528.81,
+        "rawValue": 1918.3,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,529호",
-        "rankPercent": 18,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 18%)"
+        "rawLabel": "1만 명당 농가 1,918호",
+        "rankPercent": 8,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 8%)"
       },
       "medical": {
         "rawValue": 19.87,
@@ -4762,7 +4764,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35530",
     "name": "무주군",
     "populationTrend": 45,
-    "farmActivity": 99,
+    "farmActivity": 91,
     "medical": 71,
     "school": 91,
     "returnFarm": 77,
@@ -4774,11 +4776,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.3% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 2038.03,
+        "rawValue": 1902.13,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 2,038호",
-        "rankPercent": 1,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 1%)"
+        "rawLabel": "1만 명당 농가 1,902호",
+        "rankPercent": 9,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 9%)"
       },
       "medical": {
         "rawValue": 16.59,
@@ -4807,7 +4809,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35540",
     "name": "장수군",
     "populationTrend": 28,
-    "farmActivity": 98,
+    "farmActivity": 99,
     "medical": 70,
     "school": 99,
     "returnFarm": 97,
@@ -4819,11 +4821,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.9% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1988.42,
+        "rawValue": 2145.14,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,988호",
-        "rankPercent": 2,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 2%)"
+        "rawLabel": "1만 명당 농가 2,145호",
+        "rankPercent": 1,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 1%)"
       },
       "medical": {
         "rawValue": 16.47,
@@ -4852,7 +4854,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35550",
     "name": "임실군",
     "populationTrend": 30,
-    "farmActivity": 87,
+    "farmActivity": 82,
     "medical": 97,
     "school": 99,
     "returnFarm": 83,
@@ -4864,11 +4866,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.5% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1615.44,
+        "rawValue": 1646.74,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,615호",
-        "rankPercent": 13,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 13%)"
+        "rawLabel": "1만 명당 농가 1,647호",
+        "rankPercent": 18,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 18%)"
       },
       "medical": {
         "rawValue": 25.28,
@@ -4897,7 +4899,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35560",
     "name": "순창군",
     "populationTrend": 21,
-    "farmActivity": 97,
+    "farmActivity": 99,
     "medical": 97,
     "school": 97,
     "returnFarm": 99,
@@ -4909,11 +4911,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.8% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1840.66,
+        "rawValue": 2144.86,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,841호",
-        "rankPercent": 3,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 3%)"
+        "rawLabel": "1만 명당 농가 2,145호",
+        "rankPercent": 1,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 1%)"
       },
       "medical": {
         "rawValue": 23.34,
@@ -4942,7 +4944,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35570",
     "name": "고창군",
     "populationTrend": 22,
-    "farmActivity": 86,
+    "farmActivity": 85,
     "medical": 83,
     "school": 90,
     "returnFarm": 88,
@@ -4954,11 +4956,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.7% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1570.38,
+        "rawValue": 1787.77,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,570호",
-        "rankPercent": 14,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 14%)"
+        "rawLabel": "1만 명당 농가 1,788호",
+        "rankPercent": 15,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 15%)"
       },
       "medical": {
         "rawValue": 18.31,
@@ -4987,7 +4989,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "35580",
     "name": "부안군",
     "populationTrend": 25,
-    "farmActivity": 84,
+    "farmActivity": 74,
     "medical": 76,
     "school": 89,
     "returnFarm": 78,
@@ -4999,11 +5001,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.2% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1554.5,
+        "rawValue": 1441.36,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,555호",
-        "rankPercent": 16,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 16%)"
+        "rawLabel": "1만 명당 농가 1,441호",
+        "rankPercent": 26,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 26%)"
       },
       "medical": {
         "rawValue": 17.52,
@@ -5235,9 +5237,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -1.0% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 296.41,
+        "rawValue": 353.21,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 296호",
+        "rawLabel": "1만 명당 농가 353호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 19%)"
       },
       "medical": {
@@ -5265,7 +5267,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36030",
     "name": "순천시",
     "populationTrend": 76,
-    "farmActivity": 28,
+    "farmActivity": 29,
     "medical": 35,
     "school": 51,
     "returnFarm": 24,
@@ -5277,10 +5279,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +1.4% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 436.22,
+        "rawValue": 546.45,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 436호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 28%)"
+        "rawLabel": "1만 명당 농가 546호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 29%)"
       },
       "medical": {
         "rawValue": 13.38,
@@ -5319,9 +5321,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +4.5% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 791.65,
+        "rawValue": 904.21,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 792호",
+        "rawLabel": "1만 명당 농가 904호",
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 44%)"
       },
       "medical": {
@@ -5351,7 +5353,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36060",
     "name": "광양시",
     "populationTrend": 75,
-    "farmActivity": 29,
+    "farmActivity": 28,
     "medical": 9,
     "school": 60,
     "returnFarm": 21,
@@ -5363,10 +5365,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +1.3% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 475.72,
+        "rawValue": 524.86,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 476호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 29%)"
+        "rawLabel": "1만 명당 농가 525호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 28%)"
       },
       "medical": {
         "rawValue": 10.96,
@@ -5393,7 +5395,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36510",
     "name": "담양군",
     "populationTrend": 64,
-    "farmActivity": 73,
+    "farmActivity": 76,
     "medical": 81,
     "school": 77,
     "returnFarm": 60,
@@ -5405,11 +5407,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -0.4% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1245.3,
+        "rawValue": 1502.57,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,245호",
-        "rankPercent": 27,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 27%)"
+        "rawLabel": "1만 명당 농가 1,503호",
+        "rankPercent": 24,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 24%)"
       },
       "medical": {
         "rawValue": 18.13,
@@ -5438,7 +5440,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36520",
     "name": "곡성군",
     "populationTrend": 27,
-    "farmActivity": 94,
+    "farmActivity": 96,
     "medical": 92,
     "school": 73,
     "returnFarm": 96,
@@ -5450,11 +5452,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.9% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1766.84,
+        "rawValue": 2061.31,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,767호",
-        "rankPercent": 6,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 6%)"
+        "rawLabel": "1만 명당 농가 2,061호",
+        "rankPercent": 4,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 4%)"
       },
       "medical": {
         "rawValue": 20.03,
@@ -5483,7 +5485,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36530",
     "name": "구례군",
     "populationTrend": 37,
-    "farmActivity": 90,
+    "farmActivity": 86,
     "medical": 93,
     "school": 87,
     "returnFarm": 72,
@@ -5495,11 +5497,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.5% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1702.14,
+        "rawValue": 1832.51,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,702호",
-        "rankPercent": 10,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 10%)"
+        "rawLabel": "1만 명당 농가 1,833호",
+        "rankPercent": 14,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 14%)"
       },
       "medical": {
         "rawValue": 20.72,
@@ -5528,7 +5530,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36550",
     "name": "고흥군",
     "populationTrend": 44,
-    "farmActivity": 91,
+    "farmActivity": 88,
     "medical": 80,
     "school": 81,
     "returnFarm": 93,
@@ -5540,11 +5542,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.4% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1716.19,
+        "rawValue": 1832.85,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,716호",
-        "rankPercent": 9,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 9%)"
+        "rawLabel": "1만 명당 농가 1,833호",
+        "rankPercent": 12,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 12%)"
       },
       "medical": {
         "rawValue": 17.91,
@@ -5585,9 +5587,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -7.9% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1536.25,
+        "rawValue": 1745.12,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,536호",
+        "rawLabel": "1만 명당 농가 1,745호",
         "rankPercent": 17,
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 17%)"
       },
@@ -5618,7 +5620,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36570",
     "name": "화순군",
     "populationTrend": 64,
-    "farmActivity": 58,
+    "farmActivity": 60,
     "medical": 77,
     "school": 69,
     "returnFarm": 68,
@@ -5630,11 +5632,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -0.4% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 985.09,
+        "rawValue": 1170.14,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 985호",
-        "rankPercent": 42,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 42%)"
+        "rawLabel": "1만 명당 농가 1,170호",
+        "rankPercent": 40,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 40%)"
       },
       "medical": {
         "rawValue": 17.55,
@@ -5663,7 +5665,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36580",
     "name": "장흥군",
     "populationTrend": 25,
-    "farmActivity": 91,
+    "farmActivity": 90,
     "medical": 89,
     "school": 91,
     "returnFarm": 87,
@@ -5675,11 +5677,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.2% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1715.92,
+        "rawValue": 1879.42,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,716호",
-        "rankPercent": 9,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 9%)"
+        "rawLabel": "1만 명당 농가 1,879호",
+        "rankPercent": 10,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 10%)"
       },
       "medical": {
         "rawValue": 19.62,
@@ -5720,9 +5722,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.5% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1685.41,
+        "rawValue": 1840.77,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,685호",
+        "rawLabel": "1만 명당 농가 1,841호",
         "rankPercent": 12,
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 12%)"
       },
@@ -5765,9 +5767,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.8% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1515.72,
+        "rawValue": 1633.1,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,516호",
+        "rawLabel": "1만 명당 농가 1,633호",
         "rankPercent": 19,
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 19%)"
       },
@@ -5798,7 +5800,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36610",
     "name": "영암군",
     "populationTrend": 56,
-    "farmActivity": 71,
+    "farmActivity": 63,
     "medical": 39,
     "school": 79,
     "returnFarm": 80,
@@ -5810,11 +5812,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -1.6% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1201.17,
+        "rawValue": 1193.7,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,201호",
-        "rankPercent": 29,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 29%)"
+        "rawLabel": "1만 명당 농가 1,194호",
+        "rankPercent": 37,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 37%)"
       },
       "medical": {
         "rawValue": 13.68,
@@ -5842,7 +5844,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36620",
     "name": "무안군",
     "populationTrend": 100,
-    "farmActivity": 42,
+    "farmActivity": 47,
     "medical": 30,
     "school": 63,
     "returnFarm": 60,
@@ -5854,10 +5856,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +11.4% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 789.14,
+        "rawValue": 931.92,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 789호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 42%)"
+        "rawLabel": "1만 명당 농가 932호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 47%)"
       },
       "medical": {
         "rawValue": 12.91,
@@ -5885,7 +5887,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36630",
     "name": "함평군",
     "populationTrend": 33,
-    "farmActivity": 96,
+    "farmActivity": 95,
     "medical": 88,
     "school": 93,
     "returnFarm": 96,
@@ -5897,11 +5899,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.1% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1840.4,
+        "rawValue": 1968.47,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,840호",
-        "rankPercent": 4,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 4%)"
+        "rawLabel": "1만 명당 농가 1,968호",
+        "rankPercent": 5,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 5%)"
       },
       "medical": {
         "rawValue": 19.28,
@@ -5930,7 +5932,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36640",
     "name": "영광군",
     "populationTrend": 63,
-    "farmActivity": 61,
+    "farmActivity": 60,
     "medical": 87,
     "school": 77,
     "returnFarm": 68,
@@ -5942,11 +5944,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -0.5% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1026.9,
+        "rawValue": 1174.1,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,027호",
-        "rankPercent": 39,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 39%)"
+        "rawLabel": "1만 명당 농가 1,174호",
+        "rankPercent": 40,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 40%)"
       },
       "medical": {
         "rawValue": 18.86,
@@ -5975,7 +5977,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36650",
     "name": "장성군",
     "populationTrend": 41,
-    "farmActivity": 76,
+    "farmActivity": 72,
     "medical": 60,
     "school": 76,
     "returnFarm": 84,
@@ -5987,11 +5989,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.8% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1329.16,
+        "rawValue": 1408.88,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,329호",
-        "rankPercent": 24,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 24%)"
+        "rawLabel": "1만 명당 농가 1,409호",
+        "rankPercent": 28,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 28%)"
       },
       "medical": {
         "rawValue": 15.65,
@@ -6032,9 +6034,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.1% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 720.82,
+        "rawValue": 807.67,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 721호",
+        "rawLabel": "1만 명당 농가 808호",
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 40%)"
       },
       "medical": {
@@ -6063,7 +6065,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36670",
     "name": "진도군",
     "populationTrend": 57,
-    "farmActivity": 74,
+    "farmActivity": 73,
     "medical": 80,
     "school": 97,
     "returnFarm": 76,
@@ -6075,11 +6077,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -1.4% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1305.58,
+        "rawValue": 1417.86,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,306호",
-        "rankPercent": 26,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 26%)"
+        "rawLabel": "1만 명당 농가 1,418호",
+        "rankPercent": 27,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 27%)"
       },
       "medical": {
         "rawValue": 17.97,
@@ -6108,7 +6110,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "36680",
     "name": "신안군",
     "populationTrend": 39,
-    "farmActivity": 95,
+    "farmActivity": 94,
     "medical": 85,
     "school": 100,
     "returnFarm": 100,
@@ -6120,11 +6122,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.2% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1789.86,
+        "rawValue": 1966.44,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,790호",
-        "rankPercent": 5,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 5%)"
+        "rawLabel": "1만 명당 농가 1,966호",
+        "rankPercent": 6,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 6%)"
       },
       "medical": {
         "rawValue": 18.45,
@@ -6628,7 +6630,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "21510",
     "name": "기장군",
     "populationTrend": 100,
-    "farmActivity": 4,
+    "farmActivity": 3,
     "medical": 21,
     "school": 35,
     "returnFarm": 15,
@@ -6640,10 +6642,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +8.8% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 106.02,
+        "rawValue": 127.16,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 106호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 4%)"
+        "rawLabel": "1만 명당 농가 127호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 3%)"
       },
       "medical": {
         "rawValue": 12.03,
@@ -6904,9 +6906,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +6.1% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 223.43,
+        "rawValue": 259.62,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 223호",
+        "rawLabel": "1만 명당 농가 260호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 12%)"
       },
       "medical": {
@@ -6933,7 +6935,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "22520",
     "name": "군위군",
     "populationTrend": 52,
-    "farmActivity": 92,
+    "farmActivity": 91,
     "medical": 64,
     "school": 83,
     "returnFarm": 98,
@@ -6945,11 +6947,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.2% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1730.05,
+        "rawValue": 1889.71,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,730호",
-        "rankPercent": 8,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 8%)"
+        "rawLabel": "1만 명당 농가 1,890호",
+        "rankPercent": 9,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 9%)"
       },
       "medical": {
         "rawValue": 16.06,
@@ -7103,7 +7105,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "26510",
     "name": "울주군",
     "populationTrend": 64,
-    "farmActivity": 20,
+    "farmActivity": 17,
     "medical": 2,
     "school": 47,
     "returnFarm": 28,
@@ -7115,10 +7117,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -0.4% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 300.24,
+        "rawValue": 331.15,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 300호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 20%)"
+        "rawLabel": "1만 명당 농가 331호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 17%)"
       },
       "medical": {
         "rawValue": 9.38,
@@ -7144,7 +7146,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37010",
     "name": "포항시",
     "populationTrend": 56,
-    "farmActivity": 19,
+    "farmActivity": 18,
     "medical": 37,
     "school": 47,
     "returnFarm": 19,
@@ -7156,10 +7158,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -1.5% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 281.87,
+        "rawValue": 336.93,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 282호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 19%)"
+        "rawLabel": "1만 명당 농가 337호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 18%)"
       },
       "medical": {
         "rawValue": 13.45,
@@ -7197,9 +7199,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -1.7% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 483.41,
+        "rawValue": 597.9,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 483호",
+        "rawLabel": "1만 명당 농가 598호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 30%)"
       },
       "medical": {
@@ -7227,7 +7229,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37030",
     "name": "김천시",
     "populationTrend": 56,
-    "farmActivity": 52,
+    "farmActivity": 57,
     "medical": 14,
     "school": 62,
     "returnFarm": 35,
@@ -7239,11 +7241,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -1.6% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 888.54,
+        "rawValue": 1126.45,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 889호",
-        "rankPercent": 48,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 48%)"
+        "rawLabel": "1만 명당 농가 1,126호",
+        "rankPercent": 43,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 43%)"
       },
       "medical": {
         "rawValue": 11.4,
@@ -7282,9 +7284,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.8% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 774.75,
+        "rawValue": 840.57,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 775호",
+        "rawLabel": "1만 명당 농가 841호",
         "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 41%)"
       },
       "medical": {
@@ -7312,7 +7314,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37050",
     "name": "구미시",
     "populationTrend": 46,
-    "farmActivity": 17,
+    "farmActivity": 20,
     "medical": 14,
     "school": 42,
     "returnFarm": 7,
@@ -7324,10 +7326,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.1% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 256.37,
+        "rawValue": 354.01,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 256호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 17%)"
+        "rawLabel": "1만 명당 농가 354호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 20%)"
       },
       "medical": {
         "rawValue": 11.49,
@@ -7353,7 +7355,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37060",
     "name": "영주시",
     "populationTrend": 32,
-    "farmActivity": 46,
+    "farmActivity": 45,
     "medical": 46,
     "school": 61,
     "returnFarm": 36,
@@ -7365,10 +7367,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.2% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 812.44,
+        "rawValue": 921.09,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 812호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 46%)"
+        "rawLabel": "1만 명당 농가 921호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 45%)"
       },
       "medical": {
         "rawValue": 14.18,
@@ -7395,7 +7397,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37070",
     "name": "영천시",
     "populationTrend": 74,
-    "farmActivity": 51,
+    "farmActivity": 48,
     "medical": 54,
     "school": 63,
     "returnFarm": 55,
@@ -7407,11 +7409,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +1.1% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 878.07,
+        "rawValue": 977.63,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 878호",
-        "rankPercent": 49,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 49%)"
+        "rawLabel": "1만 명당 농가 978호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 48%)"
       },
       "medical": {
         "rawValue": 14.94,
@@ -7440,7 +7441,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37080",
     "name": "상주시",
     "populationTrend": 37,
-    "farmActivity": 77,
+    "farmActivity": 76,
     "medical": 60,
     "school": 75,
     "returnFarm": 63,
@@ -7452,11 +7453,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.5% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1349.88,
+        "rawValue": 1462.64,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,350호",
-        "rankPercent": 23,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 23%)"
+        "rawLabel": "1만 명당 농가 1,463호",
+        "rankPercent": 24,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 24%)"
       },
       "medical": {
         "rawValue": 15.66,
@@ -7485,7 +7486,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37090",
     "name": "문경시",
     "populationTrend": 53,
-    "farmActivity": 60,
+    "farmActivity": 59,
     "medical": 66,
     "school": 68,
     "returnFarm": 57,
@@ -7497,11 +7498,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.0% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1021.11,
+        "rawValue": 1169.07,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,021호",
-        "rankPercent": 40,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 40%)"
+        "rawLabel": "1만 명당 농가 1,169호",
+        "rankPercent": 41,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 41%)"
       },
       "medical": {
         "rawValue": 16.29,
@@ -7542,9 +7543,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +3.9% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 254.14,
+        "rawValue": 329.73,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 254호",
+        "rawLabel": "1만 명당 농가 330호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 17%)"
       },
       "medical": {
@@ -7571,7 +7572,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37520",
     "name": "의성군",
     "populationTrend": 42,
-    "farmActivity": 94,
+    "farmActivity": 97,
     "medical": 73,
     "school": 82,
     "returnFarm": 94,
@@ -7583,11 +7584,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.7% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1777.92,
+        "rawValue": 2094.61,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,778호",
-        "rankPercent": 6,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 6%)"
+        "rawLabel": "1만 명당 농가 2,095호",
+        "rankPercent": 3,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 3%)"
       },
       "medical": {
         "rawValue": 17.16,
@@ -7628,9 +7629,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.1% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 2198.25,
+        "rawValue": 2225.87,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 2,198호",
+        "rawLabel": "1만 명당 농가 2,226호",
         "rankPercent": 1,
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 1%)"
       },
@@ -7661,7 +7662,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37540",
     "name": "영양군",
     "populationTrend": 17,
-    "farmActivity": 88,
+    "farmActivity": 94,
     "medical": 40,
     "school": 96,
     "returnFarm": 94,
@@ -7673,11 +7674,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -7.4% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1686.56,
+        "rawValue": 1965.04,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,687호",
-        "rankPercent": 12,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 12%)"
+        "rawLabel": "1만 명당 농가 1,965호",
+        "rankPercent": 6,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 6%)"
       },
       "medical": {
         "rawValue": 13.7,
@@ -7705,7 +7706,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37550",
     "name": "영덕군",
     "populationTrend": 19,
-    "farmActivity": 58,
+    "farmActivity": 63,
     "medical": 79,
     "school": 83,
     "returnFarm": 74,
@@ -7717,11 +7718,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -7.1% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 988.78,
+        "rawValue": 1193.16,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 989호",
-        "rankPercent": 42,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 42%)"
+        "rawLabel": "1만 명당 농가 1,193호",
+        "rankPercent": 37,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 37%)"
       },
       "medical": {
         "rawValue": 17.9,
@@ -7750,7 +7751,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37560",
     "name": "청도군",
     "populationTrend": 53,
-    "farmActivity": 89,
+    "farmActivity": 87,
     "medical": 76,
     "school": 70,
     "returnFarm": 91,
@@ -7762,11 +7763,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.0% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1695.84,
+        "rawValue": 1832.69,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,696호",
-        "rankPercent": 11,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 11%)"
+        "rawLabel": "1만 명당 농가 1,833호",
+        "rankPercent": 13,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 13%)"
       },
       "medical": {
         "rawValue": 17.48,
@@ -7795,7 +7796,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37570",
     "name": "고령군",
     "populationTrend": 15,
-    "farmActivity": 70,
+    "farmActivity": 69,
     "medical": 57,
     "school": 72,
     "returnFarm": 65,
@@ -7807,11 +7808,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -7.7% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1200.32,
+        "rawValue": 1305.16,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,200호",
-        "rankPercent": 30,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 30%)"
+        "rawLabel": "1만 명당 농가 1,305호",
+        "rankPercent": 31,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 31%)"
       },
       "medical": {
         "rawValue": 15.26,
@@ -7852,9 +7853,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -1.1% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1238.65,
+        "rawValue": 1410.98,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,239호",
+        "rawLabel": "1만 명당 농가 1,411호",
         "rankPercent": 27,
         "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 27%)"
       },
@@ -7885,7 +7886,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37590",
     "name": "칠곡군",
     "populationTrend": 26,
-    "farmActivity": 29,
+    "farmActivity": 25,
     "medical": 8,
     "school": 57,
     "returnFarm": 27,
@@ -7897,10 +7898,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.1% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 446.86,
+        "rawValue": 465,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 447호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 29%)"
+        "rawLabel": "1만 명당 농가 465호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 25%)"
       },
       "medical": {
         "rawValue": 10.74,
@@ -7927,7 +7928,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37600",
     "name": "예천군",
     "populationTrend": 100,
-    "farmActivity": 75,
+    "farmActivity": 77,
     "medical": 39,
     "school": 65,
     "returnFarm": 71,
@@ -7939,11 +7940,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +6.6% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 1311.16,
+        "rawValue": 1521.82,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,311호",
-        "rankPercent": 25,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 25%)"
+        "rawLabel": "1만 명당 농가 1,522호",
+        "rankPercent": 23,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 23%)"
       },
       "medical": {
         "rawValue": 13.59,
@@ -7971,7 +7972,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37610",
     "name": "봉화군",
     "populationTrend": 22,
-    "farmActivity": 96,
+    "farmActivity": 93,
     "medical": 25,
     "school": 93,
     "returnFarm": 85,
@@ -7983,11 +7984,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.7% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1802.21,
+        "rawValue": 1951.87,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,802호",
-        "rankPercent": 4,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 4%)"
+        "rawLabel": "1만 명당 농가 1,952호",
+        "rankPercent": 7,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 7%)"
       },
       "medical": {
         "rawValue": 12.5,
@@ -8015,7 +8016,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37620",
     "name": "울진군",
     "populationTrend": 37,
-    "farmActivity": 47,
+    "farmActivity": 49,
     "medical": 45,
     "school": 73,
     "returnFarm": 45,
@@ -8027,10 +8028,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -4.4% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 826.48,
+        "rawValue": 983.37,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 826호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 47%)"
+        "rawLabel": "1만 명당 농가 983호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 49%)"
       },
       "medical": {
         "rawValue": 14.14,
@@ -8057,7 +8058,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "37630",
     "name": "울릉군",
     "populationTrend": 33,
-    "farmActivity": 33,
+    "farmActivity": 35,
     "medical": 3,
     "school": 86,
     "returnFarm": 39,
@@ -8069,10 +8070,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.1% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 564.67,
+        "rawValue": 652.75,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 565호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 33%)"
+        "rawLabel": "1만 명당 농가 653호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 35%)"
       },
       "medical": {
         "rawValue": 9.65,
@@ -8099,7 +8100,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38010",
     "name": "창원시",
     "populationTrend": 49,
-    "farmActivity": 7,
+    "farmActivity": 9,
     "medical": 35,
     "school": 36,
     "returnFarm": 1,
@@ -8111,10 +8112,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.6% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 142.78,
+        "rawValue": 196.09,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 143호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 7%)"
+        "rawLabel": "1만 명당 농가 196호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 9%)"
       },
       "medical": {
         "rawValue": 13.35,
@@ -8152,9 +8153,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -0.3% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 376.05,
+        "rawValue": 461.15,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 376호",
+        "rawLabel": "1만 명당 농가 461호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 24%)"
       },
       "medical": {
@@ -8181,7 +8182,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38050",
     "name": "통영시",
     "populationTrend": 24,
-    "farmActivity": 18,
+    "farmActivity": 19,
     "medical": 34,
     "school": 55,
     "returnFarm": 25,
@@ -8193,10 +8194,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.4% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 274.46,
+        "rawValue": 340.72,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 274호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 18%)"
+        "rawLabel": "1만 명당 농가 341호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 19%)"
       },
       "medical": {
         "rawValue": 13.09,
@@ -8235,9 +8236,9 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.6% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 529.04,
+        "rawValue": 620.76,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 529호",
+        "rawLabel": "1만 명당 농가 621호",
         "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 32%)"
       },
       "medical": {
@@ -8265,7 +8266,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38070",
     "name": "김해시",
     "populationTrend": 76,
-    "farmActivity": 9,
+    "farmActivity": 7,
     "medical": 9,
     "school": 32,
     "returnFarm": 1,
@@ -8277,10 +8278,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +1.5% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 157.73,
+        "rawValue": 192.07,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 158호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 9%)"
+        "rawLabel": "1만 명당 농가 192호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 7%)"
       },
       "medical": {
         "rawValue": 10.87,
@@ -8306,7 +8307,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38080",
     "name": "밀양시",
     "populationTrend": 53,
-    "farmActivity": 53,
+    "farmActivity": 54,
     "medical": 38,
     "school": 63,
     "returnFarm": 49,
@@ -8318,11 +8319,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.1% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 902.69,
+        "rawValue": 1065.53,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 903호",
-        "rankPercent": 47,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 47%)"
+        "rawLabel": "1만 명당 농가 1,066호",
+        "rankPercent": 46,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 46%)"
       },
       "medical": {
         "rawValue": 13.59,
@@ -8349,7 +8350,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38090",
     "name": "거제시",
     "populationTrend": 24,
-    "farmActivity": 14,
+    "farmActivity": 16,
     "medical": 4,
     "school": 51,
     "returnFarm": 13,
@@ -8361,10 +8362,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.4% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 229.21,
+        "rawValue": 321.19,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 229호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 14%)"
+        "rawLabel": "1만 명당 농가 321호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 16%)"
       },
       "medical": {
         "rawValue": 9.93,
@@ -8391,7 +8392,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38100",
     "name": "양산시",
     "populationTrend": 82,
-    "farmActivity": 3,
+    "farmActivity": 2,
     "medical": 22,
     "school": 33,
     "returnFarm": 6,
@@ -8403,10 +8404,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +2.3% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 100.04,
+        "rawValue": 123.94,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 100호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 3%)"
+        "rawLabel": "1만 명당 농가 124호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 2%)"
       },
       "medical": {
         "rawValue": 12.13,
@@ -8432,7 +8433,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38510",
     "name": "의령군",
     "populationTrend": 32,
-    "farmActivity": 80,
+    "farmActivity": 78,
     "medical": 87,
     "school": 94,
     "returnFarm": 82,
@@ -8444,11 +8445,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.2% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1490.49,
+        "rawValue": 1533.64,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,490호",
-        "rankPercent": 20,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 20%)"
+        "rawLabel": "1만 명당 농가 1,534호",
+        "rankPercent": 22,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 22%)"
       },
       "medical": {
         "rawValue": 18.78,
@@ -8477,7 +8478,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38520",
     "name": "함안군",
     "populationTrend": 16,
-    "farmActivity": 50,
+    "farmActivity": 47,
     "medical": 12,
     "school": 66,
     "returnFarm": 47,
@@ -8489,11 +8490,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -7.6% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 866.06,
+        "rawValue": 955.15,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 866호",
-        "rankPercent": 50,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 50%)"
+        "rawLabel": "1만 명당 농가 955호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 47%)"
       },
       "medical": {
         "rawValue": 11.22,
@@ -8520,7 +8520,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38530",
     "name": "창녕군",
     "populationTrend": 25,
-    "farmActivity": 67,
+    "farmActivity": 65,
     "medical": 67,
     "school": 78,
     "returnFarm": 69,
@@ -8532,11 +8532,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.2% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1105.03,
+        "rawValue": 1215.56,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,105호",
-        "rankPercent": 33,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 33%)"
+        "rawLabel": "1만 명당 농가 1,216호",
+        "rankPercent": 35,
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 35%)"
       },
       "medical": {
         "rawValue": 16.33,
@@ -8565,7 +8565,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38540",
     "name": "고성군",
     "populationTrend": 22,
-    "farmActivity": 65,
+    "farmActivity": 68,
     "medical": 47,
     "school": 78,
     "returnFarm": 64,
@@ -8577,11 +8577,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.7% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1091.35,
+        "rawValue": 1298.4,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,091호",
-        "rankPercent": 35,
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 상위 35%)"
+        "rawLabel": "1만 명당 농가 1,298호",
+        "rankPercent": 32,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 32%)"
       },
       "medical": {
         "rawValue": 14.29,
@@ -8609,7 +8609,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38550",
     "name": "남해군",
     "populationTrend": 32,
-    "farmActivity": 79,
+    "farmActivity": 80,
     "medical": 66,
     "school": 85,
     "returnFarm": 79,
@@ -8621,11 +8621,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.2% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1430.44,
+        "rawValue": 1603.81,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,430호",
-        "rankPercent": 21,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 21%)"
+        "rawLabel": "1만 명당 농가 1,604호",
+        "rankPercent": 20,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 20%)"
       },
       "medical": {
         "rawValue": 16.3,
@@ -8654,7 +8654,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38560",
     "name": "하동군",
     "populationTrend": 13,
-    "farmActivity": 86,
+    "farmActivity": 89,
     "medical": 85,
     "school": 90,
     "returnFarm": 91,
@@ -8666,11 +8666,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -8.0% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1602.6,
+        "rawValue": 1860.05,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,603호",
-        "rankPercent": 14,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 14%)"
+        "rawLabel": "1만 명당 농가 1,860호",
+        "rankPercent": 11,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 11%)"
       },
       "medical": {
         "rawValue": 18.46,
@@ -8699,7 +8699,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38570",
     "name": "산청군",
     "populationTrend": 41,
-    "farmActivity": 85,
+    "farmActivity": 96,
     "medical": 86,
     "school": 86,
     "returnFarm": 86,
@@ -8711,11 +8711,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -3.8% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1562.89,
+        "rawValue": 1970.38,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,563호",
-        "rankPercent": 15,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 15%)"
+        "rawLabel": "1만 명당 농가 1,970호",
+        "rankPercent": 4,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 4%)"
       },
       "medical": {
         "rawValue": 18.59,
@@ -8744,7 +8744,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38580",
     "name": "함양군",
     "populationTrend": 32,
-    "farmActivity": 83,
+    "farmActivity": 86,
     "medical": 78,
     "school": 80,
     "returnFarm": 81,
@@ -8756,11 +8756,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -5.2% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1535.11,
+        "rawValue": 1818.31,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,535호",
-        "rankPercent": 17,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 17%)"
+        "rawLabel": "1만 명당 농가 1,818호",
+        "rankPercent": 14,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 14%)"
       },
       "medical": {
         "rawValue": 17.77,
@@ -8789,7 +8789,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38590",
     "name": "거창군",
     "populationTrend": 52,
-    "farmActivity": 68,
+    "farmActivity": 75,
     "medical": 65,
     "school": 77,
     "returnFarm": 63,
@@ -8801,11 +8801,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -2.2% 변화로 안정 추세예요"
       },
       "farmActivity": {
-        "rawValue": 1107.8,
+        "rawValue": 1447.14,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,108호",
-        "rankPercent": 32,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 32%)"
+        "rawLabel": "1만 명당 농가 1,447호",
+        "rankPercent": 25,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 25%)"
       },
       "medical": {
         "rawValue": 16.18,
@@ -8834,7 +8834,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "38600",
     "name": "합천군",
     "populationTrend": 24,
-    "farmActivity": 93,
+    "farmActivity": 84,
     "medical": 82,
     "school": 92,
     "returnFarm": 81,
@@ -8846,11 +8846,11 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 -6.5% 변화로 감소 폭이 커요"
       },
       "farmActivity": {
-        "rawValue": 1730.2,
+        "rawValue": 1776.86,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 1,730호",
-        "rankPercent": 7,
-        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 7%)"
+        "rawLabel": "1만 명당 농가 1,777호",
+        "rankPercent": 16,
+        "interpretation": "1만 명당 농가가 많아 농업 활동이 활발해요 (전국 상위 16%)"
       },
       "medical": {
         "rawValue": 18.21,
@@ -8879,7 +8879,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "39010",
     "name": "제주시",
     "populationTrend": 84,
-    "farmActivity": 22,
+    "farmActivity": 26,
     "medical": 60,
     "school": 44,
     "returnFarm": 16,
@@ -8891,10 +8891,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +2.6% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 359.05,
+        "rawValue": 468.84,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 359호",
-        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 22%)"
+        "rawLabel": "1만 명당 농가 469호",
+        "interpretation": "1만 명당 농가가 적은 편이에요 (전국 하위 26%)"
       },
       "medical": {
         "rawValue": 15.61,
@@ -8921,7 +8921,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "sgisCode": "39020",
     "name": "서귀포시",
     "populationTrend": 89,
-    "farmActivity": 39,
+    "farmActivity": 40,
     "medical": 57,
     "school": 61,
     "returnFarm": 31,
@@ -8933,10 +8933,10 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "interpretation": "2018~2022년 인구 +3.3% 변화로 회복세예요"
       },
       "farmActivity": {
-        "rawValue": 694.78,
+        "rawValue": 824.54,
         "rawUnit": "호",
-        "rawLabel": "1만 명당 농가 695호",
-        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 39%)"
+        "rawLabel": "1만 명당 농가 825호",
+        "interpretation": "1만 명당 농가가 평균 수준이에요 (전국 하위 40%)"
       },
       "medical": {
         "rawValue": 15.24,
