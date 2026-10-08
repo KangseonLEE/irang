@@ -21,6 +21,8 @@ export interface EventImage {
   credit?: string;
   /** 포스터만 — 16:10 가운데 자르기에도 내용이 다 남는다(EVENT_POSTERS crop16x10) */
   crop16x10?: boolean;
+  /** 포스터만 — 원본 가로 ÷ 세로(16:10 틀을 채울 때 그려지는 배율 계산용) */
+  aspect?: number;
 }
 
 const REGION_ID_BY_NAME = new Map(PROVINCES.map((p) => [p.name, p.id]));
@@ -45,6 +47,7 @@ export function getEventImage(
       isPhoto: true,
       credit: `이미지: ${poster.credit}`,
       crop16x10: poster.crop16x10 === true,
+      aspect: poster.width / poster.height,
     };
   }
   if (event.imageUrl && /^https:\/\/www\.greendaero\.go\.kr\/svc\/common\/board\/img\//.test(event.imageUrl)) {
@@ -67,4 +70,50 @@ export function eventImageCreditNote(events: readonly Parameters<typeof getEvent
   if (parts.length === 0) return null;
   if (kinds.has("illustration")) parts.push("사진이 없는 곳은 시·도 그림으로 대신해요.");
   return parts.join(" ");
+}
+
+/**
+ * 16:10 틀을 가운데 자르기(cover)로 채우는 포스터는 틀보다 넓게 그려진다 — 가로로 긴 배너(케이팜 2560×824 = 3.1:1)는
+ * 틀 폭의 aspect ÷ 1.6 ≈ 1.94배. next/image `sizes` 가 틀 폭만 말하면 그만큼 작은 이미지를 받아 늘려 흐려진다
+ * (10/8 랜딩 실측: 640px 를 1,044px 로 늘림). 그 배율 — 채우지 않는 이미지는 1.
+ */
+export function posterCoverFactor(image: EventImage, frameAspect = 16 / 10): number {
+  if (image.kind !== "poster" || !image.crop16x10 || !image.aspect) return 1;
+  const factor = image.aspect / frameAspect;
+  return factor > 1.01 ? Math.round(factor * 100) / 100 : 1;
+}
+
+/** 괄호 밖의 구분자로만 나눈다 — calc()·min() 안의 쉼표·공백, 미디어 조건 괄호 안의 공백은 그대로 둔다 */
+function splitTopLevel(text: string, isSeparator: (ch: string) => boolean): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = "";
+  for (const ch of text) {
+    if (ch === "(") depth += 1;
+    else if (ch === ")") depth = Math.max(0, depth - 1);
+    if (depth === 0 && isSeparator(ch)) {
+      parts.push(current);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  parts.push(current);
+  return parts;
+}
+
+/**
+ * `sizes` 의 각 길이에 배율을 곱한다 — "(max-width: 639px) calc(100vw - 32px), 300px" → 각 항목 calc(… * f).
+ * 항목의 마지막 값이 길이, 그 앞은 미디어 조건("(min-width: 640px) and (max-width: 1023px)"도 그대로)
+ */
+export function scaleSizes(sizes: string, factor: number): string {
+  if (factor === 1) return sizes;
+  return splitTopLevel(sizes, (ch) => ch === ",")
+    .map((part) => {
+      const tokens = splitTopLevel(part.trim(), (ch) => /\s/.test(ch)).filter(Boolean);
+      const length = tokens.pop() ?? "";
+      const media = tokens.join(" ");
+      return `${media ? `${media} ` : ""}calc(${length} * ${factor})`;
+    })
+    .join(", ");
 }

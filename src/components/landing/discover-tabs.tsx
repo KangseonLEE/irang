@@ -22,7 +22,18 @@ export interface DiscoverCard {
    * 배경 이미지. 실제 사진(`isPhoto`)이거나 시·도 배경 일러스트.
    * 없으면(지원사업·전국 온라인 교육 등) 흰 카드 + 진한 글씨로 그린다.
    */
-  image?: { src: string; alt: string; isPhoto: boolean; credit?: string };
+  image?: {
+    src: string;
+    alt: string;
+    isPhoto: boolean;
+    credit?: string;
+    /** poster = 행사 포스터(자체 글자) — 흐린 바탕 + 본문 위 16:10 틀(10/8) */
+    kind?: "photo" | "poster" | "illustration";
+    /** 포스터만 — 16:10 가운데 자르기에도 내용이 다 남는다(event-posters crop16x10). 아니면 틀 안에 잘리지 않게 */
+    crop16x10?: boolean;
+    /** 포스터만 — 서버가 만든 next/image sizes(채우는 배너는 늘어나는 배율까지 반영) */
+    sizes?: string;
+  };
   /** "모집중" | "접수중" | "모집예정" | "접수예정" | "상시 모집" */
   status: string;
   /** open = 지금 신청 가능(초록) / soon = 아직 안 열림(앰버) */
@@ -491,7 +502,25 @@ function DiscoverGrid({ tab }: { tab: DiscoverTab }) {
 function CardContent({ item }: { item: DiscoverCard }) {
   return (
     <>
-      {item.image && (
+      {item.image && item.image.kind === "poster" ? (
+        <>
+          {/* 포스터는 글자가 든 이미지라 카드 글자를 그 위에 얹지 않는다 — 같은 포스터를 흐리게 깔아 바탕을 채우고,
+              포스터 자체는 본문 바로 위 16:10 틀에 넣는다(16:10 가운데 자르기가 확인된 배너는 채우고, 아니면 잘리지 않게).
+              10/8 회장: 랜딩도 포스터 */}
+          <Image src={item.image.src} alt="" fill sizes="96px" className={s.posterBackdrop} decoding="async" aria-hidden="true" />
+          <span className={s.scrim} aria-hidden="true" />
+          <span className={s.posterFrame}>
+            <Image
+              src={item.image.src}
+              alt={item.image.alt}
+              fill
+              sizes={item.image.sizes ?? "(min-width: 1024px) 296px, calc(78vw - 24px)"}
+              className={item.image.crop16x10 ? s.posterImageCover : s.posterImage}
+              decoding="async"
+            />
+          </span>
+        </>
+      ) : item.image ? (
         <>
           <Image
             src={item.image.src}
@@ -503,7 +532,7 @@ function CardContent({ item }: { item: DiscoverCard }) {
           />
           <span className={s.scrim} aria-hidden="true" />
         </>
-      )}
+      ) : null}
 
       <span className={s.topRow}>
         <span className={item.statusTone === "open" ? s.statusOpen : s.statusSoon}>{item.status}</span>

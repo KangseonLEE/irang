@@ -146,10 +146,45 @@ describe("eventImageCreditNote — 목록 아래 출처 한 줄", () => {
 });
 
 describe("랜딩 '직접 가 보는 농촌' 카드", () => {
-  it("글자를 사진 위에 얹는 카드라 포스터를 쓰지 않는다", () => {
+  it("포스터를 쓴다(10/8 회장) — 포스터 카드는 흐린 바탕 + 본문 위 틀에 잘리지 않게, 글자를 포스터 위에 얹지 않는다", () => {
     const src = readFileSync(join(process.cwd(), "src/components/landing/discover-section.tsx"), "utf8");
     const calls = src.match(/getEventImage\([^)]*\)/g) ?? [];
     expect(calls.length).toBeGreaterThan(0);
-    for (const call of calls) expect(call).toContain("allowPoster: false");
+    for (const call of calls) expect(call).not.toContain("allowPoster: false");
+    const tabs = readFileSync(join(process.cwd(), "src/components/landing/discover-tabs.tsx"), "utf8");
+    expect(tabs).toContain('kind === "poster"');
+    expect(tabs).toContain("s.posterFrame");
+    const css = readFileSync(join(process.cwd(), "src/components/landing/discover-section.module.css"), "utf8");
+    expect(css).toMatch(/\.posterImage\s*\{[^}]*object-fit:\s*contain/);
+  });
+});
+
+describe("16:10 을 채우는 포스터의 이미지 크기 (10/8 — 640px 를 1,044px 로 늘려 흐려지던 것)", () => {
+  it("채우는 배너만 배율(aspect ÷ 1.6), 잘리지 않게 놓는 포스터·사진은 1", async () => {
+    const { posterCoverFactor } = await import("@/lib/events/event-image");
+    const banner = getEventImage({ id: "evt-004", title: "케이팜", region: "경기도" });
+    expect(banner.kind).toBe("poster");
+    expect(banner.crop16x10).toBe(true);
+    expect(posterCoverFactor(banner)).toBeCloseTo(2560 / 824 / 1.6, 1);
+    const poster = getEventImage({ id: "evt-001", title: "Y-FARM", region: "경기도" });
+    expect(posterCoverFactor(poster)).toBe(1); // 잘리지 않게(contain) — 틀 폭이면 충분
+    expect(posterCoverFactor(getEventImage({ title: "마을", region: "강원도" }))).toBe(1);
+  });
+
+  it("sizes 의 각 길이에 배율을 곱한다(미디어 조건은 그대로)", async () => {
+    const { scaleSizes } = await import("@/lib/events/event-image");
+    expect(scaleSizes("(min-width: 1024px) 296px, calc(78vw - 24px)", 1.94)).toBe(
+      "(min-width: 1024px) calc(296px * 1.94), calc(calc(78vw - 24px) * 1.94)",
+    );
+    expect(scaleSizes("300px", 1)).toBe("300px");
+    // 미디어 조건이 and 로 이어져도, 길이에 쉼표가 든 함수(min·max)가 있어도 항목이 깨지지 않는다
+    expect(scaleSizes("(min-width: 640px) and (max-width: 1023px) 45vw, min(300px, 90vw)", 2)).toBe(
+      "(min-width: 640px) and (max-width: 1023px) calc(45vw * 2), calc(min(300px, 90vw) * 2)",
+    );
+    expect(
+      scaleSizes("(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) calc((100vw - 48px) / 2), 300px", 1.5),
+    ).toBe(
+      "(max-width: 639px) calc(calc(100vw - 32px) * 1.5), (max-width: 1023px) calc(calc((100vw - 48px) / 2) * 1.5), calc(300px * 1.5)",
+    );
   });
 });

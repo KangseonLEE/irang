@@ -16,7 +16,7 @@ import type { Event } from "schema-dts";
 import { CalendarDays } from "lucide-react";
 import { filterEventsAsync, getEventByIdAsync, EVENTS } from "@/lib/data/events";
 import type { FarmEvent } from "@/lib/data/events";
-import { getEventImage } from "@/lib/events/event-image";
+import { getEventImage, posterCoverFactor } from "@/lib/events/event-image";
 import { EVENT_POSTERS } from "@/lib/data/event-posters";
 import {
   buildEventFacts,
@@ -203,7 +203,12 @@ export default async function EventDetailPage({
           src={image.src}
           alt={image.alt}
           fill
-          sizes={HERO_SIZES}
+          // 모바일 히어로(16:10)를 채우는 넓은 배너는 히어로보다 넓게 그려진다 — 그 폭에서만 배율만큼 큰 이미지(10/8)
+          sizes={
+            posterCoverFactor(image) > 1
+              ? `(max-width: 767px) calc((100vw - 32px) * ${posterCoverFactor(image)}), ${HERO_SIZES}`
+              : HERO_SIZES
+          }
           quality={72}
           priority
           className={
