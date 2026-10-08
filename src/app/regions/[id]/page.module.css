@@ -196,6 +196,13 @@ a.heroScoreBadge:focus-visible {
   scroll-margin-top: 72px;
 }
 
+/* 섹션 탭(AnchorTabNav)이 가리키는 나머지 섹션도 같은 착지 여백 — 지원사업·필지·임지·정착 교육·체험·행사·시·군·구·
+ * 지원센터는 여백이 없어 모바일에서 키보드로 탭을 누르면 포커스가 앉은 제목이 요약 바(.stickyTitleBar)에 100% 가렸고,
+ * 포커스 보정이 화면을 되돌리며 활성 탭이 한 칸 앞에 켜졌다(10/8 2차 QA 🟡). 활성 탭 판정도 이 여백을 기준선으로 쓴다 */
+.section {
+  scroll-margin-top: 72px;
+}
+
 /* ---- 스크롤 시 상단 sticky 헤더 (모바일 한정) ---- */
 .stickyTitleBar {
   position: fixed;
