@@ -73,7 +73,7 @@ describe("지원사업 — DB 행에 정적 category·접수 시기 병합 (Q1-W
         // DB 에 있는 큐레이션 행 — category 칸이 DB 에 없다
         programRow("SP-001", { support_type: "융자", application_start: "9999-12-31", application_end: "9999-12-31", application_cycle: "매년 초 시·군 접수" }),
         programRow("SP-002", { eligibility_age_max: 39, application_start: "9999-12-31", application_end: "9999-12-31", application_cycle: "전년 11~12월 Agrix 접수" }),
-        // DB 의 접수 시기가 비어 있는 큐레이션 행 — 정적 값("시·도별 별도 공고")으로 채운다
+        // DB 의 접수 시기가 비어 있는 큐레이션 행 — 정적 applicationCycle 로 채운다
         programRow("SP-022", { support_type: "컨설팅", eligibility_age_max: 39, application_start: "9999-12-31", application_end: "9999-12-31", application_cycle: null }),
         programRow("SP-023", { support_type: "융자", application_start: "9999-12-31", application_end: "9999-12-31", application_cycle: "1~2월 농업e지 온라인 접수" }),
       ],
@@ -101,7 +101,7 @@ describe("지원사업 — DB 행에 정적 category·접수 시기 병합 (Q1-W
   it("DB 접수 시기가 비면 정적 값 — SP-022 는 '공고 발표 예정'이 아니라 '정기 접수'", async () => {
     const { programs } = await loadPrograms();
     const sp022 = programs.find((p) => p.id === "SP-022")!;
-    expect(sp022.applicationCycle).toBe("시·도별 별도 공고");
+    expect(sp022.applicationCycle).toBe("매년 6~7월 경기 시·군 접수 (2027년 사업은 2026년 6월 하순~7월 24일)");
     expect(programStatusLabel(sp022)).toBe(CYCLE_LABEL);
     // DB 값이 있으면 DB 우선
     expect(programs.find((p) => p.id === "SP-001")?.applicationCycle).toBe("매년 초 시·군 접수");
@@ -109,7 +109,7 @@ describe("지원사업 — DB 행에 정적 category·접수 시기 병합 (Q1-W
 
   it("상세(getProgramByIdAsync)도 같은 매핑 — category·접수 시기", async () => {
     expect((await getProgramByIdAsync("SP-002"))?.category).toBe("youth");
-    expect((await getProgramByIdAsync("SP-022"))?.applicationCycle).toBe("시·도별 별도 공고");
+    expect((await getProgramByIdAsync("SP-022"))?.applicationCycle).toBe("매년 6~7월 경기 시·군 접수 (2027년 사업은 2026년 6월 하순~7월 24일)");
   });
 });
 

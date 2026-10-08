@@ -152,11 +152,13 @@ export function displayEducationType<T extends string>(id: string | null | undef
 }
 
 /**
- * 정원을 아는가 — 수집 행의 `capacity` null 은 "제한 없음"이 아니라 "원문에 정원 칸이 없음"이다.
- * 큐레이션 행의 null 은 손으로 "제한 없음"을 뜻하게 둔 값이라 아는 것으로 본다.
+ * 정원을 싣는가 — 사람 수가 있을 때만. null 은 "제한 없음"이 아니라 "정원을 싣지 않음"이다.
+ * - 수집 행: 원문에 정원 칸이 없다
+ * - 큐레이션 행: 과정마다 다르거나(ED-006 귀농귀촌종합센터 교육) 사람이 아닌 단위다(ED-008 30세대)
+ * 10/8 전에는 큐레이션 null 을 "제한 없음"으로 보였는데, 정원이 정말 없는 큐레이션 과정은 하나도 없었다.
  */
-export function isCapacityKnown(id: string | null | undefined, capacity: number | null | undefined): boolean {
-  return !(hasCollectorDefaults(id) && (capacity === null || capacity === undefined));
+export function isCapacityKnown(capacity: number | null | undefined): capacity is number {
+  return typeof capacity === "number" && capacity > 0;
 }
 
 /**

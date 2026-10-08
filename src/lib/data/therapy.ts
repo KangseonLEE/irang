@@ -124,10 +124,10 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
         source: "농촌진흥청 (1급 4개소 포함) ★★★",
       },
       {
-        label: "치유농업 우수 시설",
-        value: "13→17개소",
-        year: "2027 목표",
-        source: "농촌진흥청 확산 계획 ★★★",
+        label: "시·도 치유농업센터",
+        value: "17곳",
+        year: "2026",
+        source: "치유농업ON 치유농업센터 목록 ★★★",
       },
     ],
     certification: {
@@ -168,10 +168,16 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
     market: {
       indicators: [
         {
-          label: "치유농업 우수 시설",
-          value: "13→17개소",
-          year: "2027 목표",
-          source: "농촌진흥청 ★★★",
+          label: "우수 치유농업시설",
+          value: "91곳",
+          year: "2025 첫 인증",
+          source: "한국농업기술진흥원 2025 인증 결과·치유농업ON ★★★",
+        },
+        {
+          label: "시·도 치유농업센터",
+          value: "17곳",
+          year: "2026",
+          source: "치유농업ON 치유농업센터 목록 ★★★",
         },
         {
           label: "서울 시민 연 참여",
@@ -247,9 +253,15 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
         source: "농촌진흥청 ★★★",
       },
       {
-        title: "치유농업 확산센터",
-        detail: "2025년부터 권역 거점 확산센터 운영",
-        source: "농촌진흥청 ★★★",
+        title: "시·도 치유농업센터",
+        detail:
+          "도 농업기술원과 특·광역시·세종 농업기술센터 17곳에 있는 광역 거점이에요. 치유농장 창업 지원·교육·컨설팅을 하니 거주지 센터에 먼저 문의하세요.",
+        source: "치유농업ON 치유농업센터 목록 ★★★",
+      },
+      {
+        title: "중앙치유농업센터",
+        detail: "경남 김해시 진영읍에 짓고 있는 국가 거점이에요. 2027년 상반기 준공이 목표예요.",
+        source: "농촌진흥청 치유농업 포럼(2026.7.28) ★★★",
       },
       {
         title: "AI 치유농업 플랫폼",

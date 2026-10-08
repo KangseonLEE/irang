@@ -84,10 +84,11 @@ describe("교육 — 수집 행 기본값 숨김", () => {
     expect(displayEducationType("ED-006", "혼합")).toBe("혼합");
   });
 
-  it("정원: 수집 행의 null 은 '제한 없음'이 아니라 미상, 큐레이션 null 은 제한 없음", () => {
-    expect(isCapacityKnown(CRAWLED_RDA_EDU, null)).toBe(false);
-    expect(isCapacityKnown(CRAWLED_GD_EDU, 100)).toBe(true);
-    expect(isCapacityKnown("ED-006", null)).toBe(true);
+  it("정원: null 은 '제한 없음'이 아니라 싣지 않음 — 수집·큐레이션 모두 (10/8 ED-006 과정별 상이·ED-008 세대 단위)", () => {
+    expect(isCapacityKnown(null)).toBe(false);
+    expect(isCapacityKnown(undefined)).toBe(false);
+    expect(isCapacityKnown(0)).toBe(false);
+    expect(isCapacityKnown(100)).toBe(true);
   });
 
   it("교육 기간·일정·대상·비용 채움값: 수집 행만 null", () => {
@@ -105,7 +106,7 @@ describe("교육 — 수집 행 기본값 숨김", () => {
       for (const field of ["duration", "schedule", "target", "cost"] as const) {
         expect(displayValue(c.id, c[field]), `${c.id}.${field}`).toBe(c[field].trim() || null);
       }
-      expect(isCapacityKnown(c.id, c.capacity), c.id).toBe(true);
+      expect(isCapacityKnown(c.capacity), c.id).toBe(c.capacity !== null && c.capacity > 0);
     }
   });
 });
