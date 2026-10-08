@@ -362,6 +362,12 @@ a.heroScoreBadge:focus-visible {
 }
 
 /* ---- 섹션 공통 ---- */
+/* 섹션 탭(AnchorTabNav)이 가리키는 섹션의 착지 여백 — 전역 헤더(56px) 아래로. 여백이 없어 키보드로 지원센터·지원사업·
+ * 필지·임지·정착 교육·체험·행사 탭을 누르면 포커스가 앉은 제목이 헤더에 가렸다(10/8 2차 QA 🟡). 시·도 상세와 같은 72px */
+.section {
+  scroll-margin-top: 72px;
+}
+
 .section {
   background: var(--card, #fff);
   border: 1px solid var(--border, #e5e7eb);
