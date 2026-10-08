@@ -44,7 +44,7 @@ import { schoolMatcher } from "@/lib/api/education";
 import { AREA_NOT_YET_IN_CADASTRE, fetchCadastreAreas, matchCadastreArea } from "@/lib/data/cadastre-area";
 import { REGION_REORGANIZATIONS } from "@/lib/data/region-reorganizations";
 import { INTEGRATED_CITY_GU_CODES } from "@/lib/data/integrated-cities";
-import { REPLACED_SGIS_GU, compositeRows, compositesInProvince, getSgisComposite, splitGuOf } from "@/lib/data/region-composites";
+import { OA_TRANSFERS, REPLACED_SGIS_GU, compositePopulationRows, compositesInProvince, getSgisComposite, oaDongsOf, oaTransferActive, splitGuOf } from "@/lib/data/region-composites";
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => {
@@ -219,7 +219,7 @@ async function hiraItems(sidoCd: string, sgguCd: string): Promise<HiraRow[]> {
 }
 
 // ── 원천: 통계청 SGIS 인구 ──
-type SgisRow = { adm_cd: string; adm_nm?: string; tot_ppltn: string };
+type SgisRow = { adm_cd: string; adm_nm?: string; tot_ppltn: string; tot_family: string };
 type SgisJson<T> = { errCd?: number | string; errMsg?: string; result?: T };
 /** 앱(lib/api/sgis.ts)과 같은 연도 — 통계는 1~2년 늦게 나온다 */
 const SGIS_YEAR = new Date().getFullYear() - 2;
@@ -459,12 +459,22 @@ async function buildExpected() {
       const composites = compositesInProvince(p.sgisCode);
       const dongRowsByGu = new Map<string, SgisRow[]>();
       for (const g of splitGuOf(composites)) dongRowsByGu.set(g, await sgisRows(token, g));
+      // 경계 조정 집계구 이동(백석동 일대 서해 → 검단, 10/8) — 그 행정동은 집계구 단위로 받는다
+      const oaRowsByDong = new Map<string, SgisRow[]>();
+      for (const d of oaDongsOf(composites)) oaRowsByDong.set(d, await sgisRows(token, d));
+      for (const t of OA_TRANSFERS.filter((x) => oaRowsByDong.has(x.dong))) {
+        // 옮길 집계구가 응답에 없으면 앱은 옮기지 않는다 — SGIS 가 연계를 고친 해(정의를 지울 때)인지 집계구 코드가 바뀐 해
+        // (목록을 갱신할 때)인지 사람이 봐야 해서 문제로 센다
+        if (!oaTransferActive(t, oaRowsByDong.get(t.dong) ?? [])) {
+          popIssues.push(`${p.id} 집계구 이동(${t.dong} → ${t.to})이 꺼짐 — SGIS ${SGIS_YEAR} 응답에 옮길 집계구가 없음. 연계가 고쳐졌으면 region-composites OA_TRANSFERS 를 지우고, 집계구 코드가 바뀌었으면 목록을 갱신해요`);
+        }
+      }
       for (const sg of SIGUNGUS.filter((s) => s.sidoId === p.id)) {
         const key = `${p.id}/${sg.id}`;
         const composite = getSgisComposite(sg.sgisCode);
         const cityGu = INTEGRATED_CITY_GU_CODES[sg.sgisCode];
         const parts = composite
-          ? compositeRows(composite, rows, dongRowsByGu)
+          ? compositePopulationRows(composite, rows, dongRowsByGu, oaRowsByDong)
           : cityGu
             ? cityGu.map((c) => byCode.get(c)).every(Boolean)
               ? cityGu.map((c) => byCode.get(c)!)
@@ -480,7 +490,7 @@ async function buildExpected() {
         // 시 아래 신설 구(화성 2026 — SGIS 미등재)는 시의 행정동을 정의대로 더한다
         const composite = getSgisComposite(g.sgisCode);
         if (composite?.split && !dongRowsByGu.has(composite.split.gu)) dongRowsByGu.set(composite.split.gu, await sgisRows(token, composite.split.gu));
-        const parts = composite ? compositeRows(composite, rows, dongRowsByGu) : byCode.has(g.sgisCode) ? [byCode.get(g.sgisCode)!] : null;
+        const parts = composite ? compositePopulationRows(composite, rows, dongRowsByGu, oaRowsByDong) : byCode.has(g.sgisCode) ? [byCode.get(g.sgisCode)!] : null;
         if (parts) gu[key].population = popOf(parts);
         else popIssues.push(`${key} ${g.name} — SGIS ${SGIS_YEAR} 에 코드 ${g.sgisCode} 없음`);
       }
@@ -515,9 +525,112 @@ function readCards(html: string) {
   return out;
 }
 const toNum = (v: string) => {
-  const m = v.match(/^([\d,]+)\s*(개|곳|명)?$/);
+  const m = v.match(/^([\d,]+)\s*(개|곳|명|호)?$/);
   return m ? Number(m[1].replace(/,/g, "")) : null;
 };
+
+// ── 농가 기준값 — KOSIS 2025 농림어업총조사 원표를 직접 받는다 (10/8) ──
+// 화면 카드는 정적 farms.ts(collect-farms 가 같은 원표에서 만든 값)를 그대로 보여 준다. 여기서는 farms.ts 를 거치지 않고
+// 원표를 다시 받아 우리 단위와 **이름**으로 맞춘다(시·도 코드 앞자리 안, 구는 부모 시 코드 앞 4자리로 한 번 더 좁힘).
+// 정적 값이라 캐시 시점 차이가 없다 → 0 허용.
+const FARM_CENSUS_YEAR = 2025;
+/** label null = 카드가 없어야 하는 단위(2025 표에 없는 인천 신설 4구) */
+type FarmExpect = { label: string; farm: number; avg: string } | { label: null };
+type FarmRow = { code: string; name: string; farm: number; pop: number };
+
+async function buildFarmExpected(key: string, issues: string[]): Promise<Map<string, FarmExpect>> {
+  const url = new URL("https://kosis.kr/openapi/Param/statisticsParameterData.do");
+  const params: Record<string, string> = {
+    method: "getList",
+    apiKey: key,
+    itmId: "T00+T01+",
+    objL1: "ALL",
+    objL2: "000",
+    format: "json",
+    jsonVD: "Y",
+    prdSe: "F",
+    startPrdDe: String(FARM_CENSUS_YEAR),
+    endPrdDe: String(FARM_CENSUS_YEAR),
+    orgId: "101",
+    tblId: "DT_1AG25104",
+  };
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  let json: unknown = null;
+  for (let attempt = 0; attempt < 3 && !Array.isArray(json); attempt++) {
+    if (attempt) await new Promise((r) => setTimeout(r, 1500 * attempt));
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+      json = await res.json();
+    } catch (e) {
+      json = { err: errText(e) };
+    }
+  }
+  // KOSIS 는 키가 틀려도 HTTP 200 + 본문 err 로 답한다(10/8 api-health) — 배열이 아니면 대조를 못 한 것
+  if (!Array.isArray(json)) throw new Error(`KOSIS 농가 표 응답 오류 — ${JSON.stringify(json)?.slice(0, 160)}`);
+  const rows = new Map<string, FarmRow>();
+  for (const r of json as { C1: string; C1_NM: string; ITM_ID: string; DT: string }[]) {
+    const cur = rows.get(r.C1) ?? { code: r.C1, name: r.C1_NM, farm: NaN, pop: NaN };
+    if (r.ITM_ID === "T00") cur.farm = Number(r.DT);
+    if (r.ITM_ID === "T01") cur.pop = Number(r.DT);
+    rows.set(r.C1, cur);
+  }
+  // 5자리 시·군·구·구 행 — 동부(xx003)·읍부(xx004)·면부(xx005) 합계 행은 뺀다
+  const sub5 = (sido: string) =>
+    [...rows.values()].filter((k) => k.code.length === 5 && k.code.startsWith(sido) && !/^\d{2}00[345]$/.test(k.code));
+  const one = (cands: FarmRow[], what: string): FarmRow | null => {
+    if (cands.length !== 1) {
+      issues.push(`${what} — 원천 행 ${cands.length}개(이름으로 하나를 못 정함)`);
+      return null;
+    }
+    const k = cands[0];
+    if (!Number.isFinite(k.farm) || !Number.isFinite(k.pop)) {
+      issues.push(`${what} — 원천 값 없음(${k.code})`);
+      return null;
+    }
+    return k;
+  };
+  const avgOf = (k: FarmRow) => (k.farm > 0 ? Math.round((k.pop / k.farm) * 10) / 10 : 0).toFixed(1);
+
+  const out = new Map<string, FarmExpect>();
+  for (const p of PROVINCES.filter((x) => !ONLY || ONLY.has(x.id))) {
+    const subs = sub5(p.sgisCode);
+    if (!subs.length) {
+      issues.push(`${p.name} — 원천에 시·군·구 행이 없음`);
+      continue;
+    }
+    const cityRow = new Map<string, FarmRow>();
+    for (const sg of SIGUNGUS.filter((s) => s.sidoId === p.id)) {
+      const key = `${p.id}/${sg.id}`;
+      // 인천 2026 신설 4구 — 조사 기준일(2025-12-01) 뒤에 생겨 표에 없다 → 화면에 농가 카드가 없어야 한다
+      if (getSgisComposite(sg.sgisCode)) {
+        out.set(key, { label: null });
+        continue;
+      }
+      const k = one(subs.filter((x) => x.name === sg.name), `${p.shortName} ${sg.name}`);
+      if (!k) continue;
+      cityRow.set(sg.id, k);
+      out.set(key, { label: "농가", farm: k.farm, avg: avgOf(k) });
+    }
+    for (const g of GUS.filter((x) => x.sidoId === p.id)) {
+      const key = `${p.id}/${g.parentSigunguId}/${g.id}`;
+      const city = cityRow.get(g.parentSigunguId);
+      if (!city) continue; // 부모 시를 못 정한 이유는 위에서 이미 남겼다
+      // 화성 2026 신설 4구 — 표엔 화성시 하나. 화면은 시 값을 '화성시 농가'로 범위를 밝혀 보여 준다
+      if (getSgisComposite(g.sgisCode)) {
+        const cityName = SIGUNGUS.find((s) => s.id === g.parentSigunguId)?.name ?? "";
+        out.set(key, { label: `${cityName} 농가`, farm: city.farm, avg: avgOf(city) });
+        continue;
+      }
+      const k = one(
+        subs.filter((x) => x.name === g.name && x.code !== city.code && x.code.slice(0, 4) === city.code.slice(0, 4)),
+        `${p.shortName} ${city.name} ${g.name}`,
+      );
+      if (!k) continue;
+      out.set(key, { label: "농가", farm: k.farm, avg: avgOf(k) });
+    }
+  }
+  return out;
+}
 
 /** 페이지 실패 사유(마지막 시도) — 요약에서 '막혔나(403·503)·느렸나(시간 초과)'를 가른다 */
 const pageFailures = new Map<string, string>();
@@ -671,6 +784,20 @@ async function main() {
       areaNote = { skipped: mask(e instanceof Error ? e.message : String(e)) };
     }
   }
+  // ── 농가 — 시·군·구·구 화면 카드 ↔ KOSIS 2025 농림어업총조사 원표 (10/8) ──
+  const farmIssues: string[] = [];
+  let farmNote: { year?: number; skipped?: string } = {};
+  let farmExp: Map<string, FarmExpect> | null = null;
+  if (!env.KOSIS_API_KEY) farmNote = { skipped: "KOSIS_API_KEY 없음" };
+  else {
+    try {
+      farmExp = await buildFarmExpected(env.KOSIS_API_KEY, farmIssues);
+      farmNote = { year: FARM_CENSUS_YEAR };
+    } catch (e) {
+      farmNote = { skipped: mask(e instanceof Error ? e.message : String(e)) };
+    }
+  }
+
   const unavailable = new Set(
     Object.entries(REGION_REORGANIZATIONS)
       .filter(([, r]) => r.countsUnavailable)
@@ -743,6 +870,26 @@ async function main() {
         else msgs.push(`인구 화면 ${n} ≠ 원천 ${j.e.population}`);
       }
     }
+    // 농가 — 시·도 화면엔 카드가 없다. 정적 값이라 0 허용
+    const fe = j.kind === "sido" ? undefined : farmExp?.get(j.key);
+    if (fe) {
+      const farmCards = Object.entries(c).filter(([k]) => /농가$/.test(k));
+      if (fe.label === null) {
+        if (farmCards.length) msgs.push(`농가 카드가 없어야 하는데 '${farmCards[0][0]} ${farmCards[0][1].value}'`);
+      } else {
+        const got = c[fe.label];
+        if (!got) {
+          msgs.push(`농가 카드 없음 — 라벨 '${fe.label}' 기대${farmCards.length ? `, 화면 '${farmCards.map(([k]) => k).join("·")}'` : ""}`);
+        } else {
+          const n = toNum(got.value);
+          // 구 화면 합 = 시 화면 대조는 그 단위 자기 값일 때만(‘화성시 농가’처럼 시 범위를 보인 카드는 빼야 합이 맞다)
+          if (n !== null && fe.label === "농가") vals["농가"] = n;
+          if (n !== fe.farm) msgs.push(`농가 화면 ${got.value} ≠ 원천 ${fe.farm.toLocaleString("ko-KR")}호`);
+          const avg = got.sub.match(/가구당 ([\d.]+)명/)?.[1];
+          if (avg !== fe.avg) msgs.push(`농가 가구당 인원 화면 ${avg ?? "없음"} ≠ 원천 ${fe.avg}명`);
+        }
+      }
+    }
     return { ...j, status: msgs.length ? "MISMATCH" : near.length ? "NEAR" : "OK", msgs, near, vals };
   };
 
@@ -753,7 +900,7 @@ async function main() {
   for (const list of bySido.values()) results.push(await check(list[0]));
   results.push(...(await pool([...bySido.values()].flatMap((l) => l.slice(1)), 2, check)));
 
-  // 구가 있는 시 — 구 화면 합 = 시 화면 (의료기관·학교·인구). 구 판정이 어느 학교·기관을 빠뜨리거나 두 번 세면 여기서 드러난다
+  // 구가 있는 시 — 구 화면 합 = 시 화면 (의료기관·학교·인구·농가). 구 판정이 어느 학교·기관을 빠뜨리거나 두 번 세면 여기서 드러난다
   const guSumIssues: string[] = [];
   const guSumNear: string[] = [];
   const byKey = new Map(results.map((r) => [r.key, r]));
@@ -762,7 +909,7 @@ async function main() {
     const city = byKey.get(`${sg.sidoId}/${sg.id}`);
     const parts = gus.map((g) => byKey.get(`${sg.sidoId}/${sg.id}/${g.id}`));
     if (!gus.length || !city || parts.some((r) => !r)) continue;
-    for (const label of ["의료기관", "학교", "인구"]) {
+    for (const label of ["의료기관", "학교", "인구", "농가"]) {
       const whole = city.vals[label];
       const nums = parts.map((r) => r!.vals[label]);
       if (whole === undefined || nums.some((v) => v === undefined)) continue;
@@ -795,9 +942,11 @@ async function main() {
   for (const n of exp.partition) console.log(`  ✗ ${n}`);
   if (exp.cityNameless.length) console.log(`시 이름 없이 구 이름으로 시에 든 학교 ${exp.cityNameless.length}곳(동음 구 이름 감시 참고)`);
   for (const n of exp.cityNameless) console.log(`  · ${n}`);
+  console.log(farmNote.skipped ? `농가 대조 건너뜀 — ${farmNote.skipped}` : `농가(농림어업총조사 ${farmNote.year}) 원천 짝 맞추기 문제 ${farmIssues.length}건`);
+  for (const n of farmIssues) console.log(`  ✗ ${n}`);
   console.log(areaNote.skipped ? `면적 대조 건너뜀 — ${areaNote.skipped}` : `면적(지적통계 ${areaNote.year}년) ≠ 정적 자료 ${areaIssues.length}건${areaIssues.length ? " — npx tsx scripts/collect-areas.ts 로 갱신" : ""}`);
   for (const n of areaIssues.slice(0, 40)) console.log(`  ✗ ${n}`);
-  if (count("MISMATCH") || count("ERR") || exp.popIssues.length || guSumIssues.length || exp.partition.length || areaIssues.length) process.exitCode = 1;
+  if (count("MISMATCH") || count("ERR") || exp.popIssues.length || guSumIssues.length || exp.partition.length || areaIssues.length || farmIssues.length) process.exitCode = 1;
 
   // ── 요약 (--json) — 판정은 위 결과를 그대로 옮긴다 ──
   if (pageFailures.size) {
@@ -825,6 +974,8 @@ async function main() {
     cityNamelessSchools: exp.cityNameless,
     areaIssues,
     area: areaNote,
+    farmIssues,
+    farm: farmNote,
   });
 }
 

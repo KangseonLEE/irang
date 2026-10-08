@@ -16,9 +16,10 @@ import {
 } from "@/lib/data/farms";
 import { INTEGRATED_CITY_GU_CODES } from "@/lib/data/integrated-cities";
 import {
-  compositeRows,
+  compositePopulationRows,
   compositesInProvince,
   getSgisComposite,
+  oaDongsOf,
   splitGuOf,
   type SgisComposite,
 } from "@/lib/data/region-composites";
@@ -320,8 +321,8 @@ async function fetchMultiGuPopulation(
 }
 
 /**
- * 신설 구(SGIS 미등재)의 인구 — 통째로 들어온 옛 구 + 나뉜 옛 구의 해당 행정동을 더한다.
- * 필요한 행이 하나라도 없으면 null (region-composites.ts).
+ * 신설 구(SGIS 미등재)의 인구 — 통째로 들어온 옛 구 + 나뉜 옛 구의 해당 행정동을 더하고, 경계 조정으로 옮겨 간
+ * 집계구(서해 → 검단, 10/8)를 반영한다. 필요한 행이 하나라도 없으면 null (region-composites.ts).
  */
 async function fetchCompositePopulation(
   accessToken: string,
@@ -329,15 +330,18 @@ async function fetchCompositePopulation(
   year: number,
 ): Promise<PopulationData | null> {
   const splitGu = splitGuOf([composite]);
-  const [guRows, ...dongLists] = await Promise.all([
+  const oaDongs = oaDongsOf([composite]);
+  const [guRows, ...lists] = await Promise.all([
     composite.wholeGu.length > 0
       ? fetchPopulationRows(accessToken, composite.sgisCode.substring(0, 2), year)
       : Promise.resolve([] as SGISPopulationResult[]),
     ...splitGu.map((gu) => fetchPopulationRows(accessToken, gu, year)),
+    ...oaDongs.map((dong) => fetchPopulationRows(accessToken, dong, year)),
   ]);
-  if (!guRows || dongLists.some((d) => d === null)) return null;
-  const dongRowsByGu = new Map(splitGu.map((gu, i) => [gu, dongLists[i] as SGISPopulationResult[]]));
-  const rows = compositeRows(composite, guRows, dongRowsByGu);
+  if (!guRows || lists.some((d) => d === null)) return null;
+  const dongRowsByGu = new Map(splitGu.map((gu, i) => [gu, lists[i] as SGISPopulationResult[]]));
+  const oaRowsByDong = new Map(oaDongs.map((dong, i) => [dong, lists[splitGu.length + i] as SGISPopulationResult[]]));
+  const rows = compositePopulationRows(composite, guRows, dongRowsByGu, oaRowsByDong);
   if (!rows) return null;
   return sumPopulationRows(rows, composite.sgisCode, composite.name);
 }
@@ -438,18 +442,28 @@ export async function fetchSubRegionPopulations(
       };
     }
 
-    // 신설 구(인천 2026 개편) — 나뉜 옛 구만 행정동으로 한 번 더 받아 더한다. 못 더하면 정적 값 유지
+    // 신설 구(인천 2026 개편) — 나뉜 옛 구만 행정동으로, 경계 조정 집계구는 집계구로 한 번 더 받아 더한다.
+    // 못 더하면 정적 값 유지
     const composites = compositesInProvince(provinceSgisCode);
     if (composites.length > 0) {
       const splitGu = splitGuOf(composites);
-      const dongLists = await Promise.all(splitGu.map((gu) => fetchPopulationRows(accessToken, gu, year)));
+      const oaDongs = oaDongsOf(composites);
+      const lists = await Promise.all([
+        ...splitGu.map((gu) => fetchPopulationRows(accessToken, gu, year)),
+        ...oaDongs.map((dong) => fetchPopulationRows(accessToken, dong, year)),
+      ]);
       const dongRowsByGu = new Map<string, SGISPopulationResult[]>();
       splitGu.forEach((gu, i) => {
-        const rows = dongLists[i];
+        const rows = lists[i];
         if (rows) dongRowsByGu.set(gu, rows);
       });
+      const oaRowsByDong = new Map<string, SGISPopulationResult[]>();
+      oaDongs.forEach((dong, i) => {
+        const rows = lists[splitGu.length + i];
+        if (rows) oaRowsByDong.set(dong, rows);
+      });
       for (const c of composites) {
-        const rows = compositeRows(c, results as SGISPopulationResult[], dongRowsByGu);
+        const rows = compositePopulationRows(c, results as SGISPopulationResult[], dongRowsByGu, oaRowsByDong);
         if (rows) map[c.sgisCode] = sumPopulationRows(rows, c.sgisCode, c.name);
       }
     }

@@ -1091,14 +1091,14 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
-        "rawValue": 2.5,
+        "rawValue": 2.6,
         "rawUnit": "%",
-        "rawLabel": "5년 인구 +2.5%",
-        "interpretation": "2018~2022년 인구 +2.5% 변화로 회복세예요"
+        "rawLabel": "5년 인구 +2.6%",
+        "interpretation": "2018~2022년 인구 +2.6% 변화로 회복세예요"
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 11.21,
+        "rawValue": 11.22,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 11.2곳",
         "interpretation": "1만 명당 의료기관이 적은 편이에요 (전국 하위 12%)"
@@ -1117,25 +1117,25 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "검단구",
     "populationTrend": 100,
     "farmActivity": null,
-    "medical": 37,
+    "medical": 35,
     "school": 30,
     "returnFarm": null,
     "evidence": {
       "populationTrend": {
-        "rawValue": 24.8,
+        "rawValue": 24.4,
         "rawUnit": "%",
-        "rawLabel": "5년 인구 +24.8%",
-        "interpretation": "2018~2022년 인구 +24.8% 변화로 회복세예요"
+        "rawLabel": "5년 인구 +24.4%",
+        "interpretation": "2018~2022년 인구 +24.4% 변화로 회복세예요"
       },
       "farmActivity": null,
       "medical": {
-        "rawValue": 13.39,
+        "rawValue": 13.36,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.4곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 37%)"
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 35%)"
       },
       "school": {
-        "rawValue": 2.15,
+        "rawValue": 2.14,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 학교 2.1곳",
         "interpretation": "1만 명당 학교가 적은 편이에요 (전국 하위 30%)"
@@ -1528,7 +1528,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "고양시",
     "populationTrend": 91,
     "farmActivity": null,
-    "medical": 36,
+    "medical": 37,
     "school": 18,
     "returnFarm": null,
     "evidence": {
@@ -1543,7 +1543,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.39,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.4곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 36%)"
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 37%)"
       },
       "school": {
         "rawValue": 1.76,
@@ -5268,7 +5268,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
     "name": "순천시",
     "populationTrend": 76,
     "farmActivity": 29,
-    "medical": 35,
+    "medical": 36,
     "school": 51,
     "returnFarm": 24,
     "evidence": {
@@ -5288,7 +5288,7 @@ export const DIMENSION_SCORES: DimensionScores[] = [
         "rawValue": 13.38,
         "rawUnit": "곳",
         "rawLabel": "1만 명당 의료기관 13.4곳",
-        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 35%)"
+        "interpretation": "1만 명당 의료기관이 평균 수준이에요 (전국 하위 36%)"
       },
       "school": {
         "rawValue": 3.01,

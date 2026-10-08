@@ -122,7 +122,7 @@ jobs:
           elif [ "$(jq -r '.pages // 0' "$SUMMARY_JSON")" -eq 0 ]; then
             STATE=crash
           else
-            PROBLEMS=$(jq '(.counts.mismatch // 0) + (.counts.err // 0) + ((.nameIssues // []) | length) + ((.sumIssues // []) | length) + ((.popIssues // []) | length) + ((.guSumIssues // []) | length) + ((.guPartitionIssues // []) | length) + ((.areaIssues // []) | length) + (if .area.skipped then 1 else 0 end) + (if .population.skipped then 1 else 0 end)' "$SUMMARY_JSON")
+            PROBLEMS=$(jq '(.counts.mismatch // 0) + (.counts.err // 0) + ((.nameIssues // []) | length) + ((.sumIssues // []) | length) + ((.popIssues // []) | length) + ((.guSumIssues // []) | length) + ((.guPartitionIssues // []) | length) + ((.areaIssues // []) | length) + (if .area.skipped then 1 else 0 end) + ((.farmIssues // []) | length) + (if .farm.skipped then 1 else 0 end) + (if .population.skipped then 1 else 0 end)' "$SUMMARY_JSON")
             if [ "$PROBLEMS" -gt 0 ]; then STATE=problems; else STATE=clean; fi
           fi
           echo "state=${STATE} problems=${PROBLEMS}"
@@ -158,6 +158,7 @@ jobs:
                   "",
                   "심평원 코드↔지역명 불일치 **\(.nameIssues | length)건** · 시·도 합계 차이 **\(.sumIssues | length)건** · 경로: 심평원 \(if .route.hira == "proxy" then "프록시" else "직접" end) · 운영 페이지 \(if .route.page == "e2e" then "e2e 우회" else "일반 UA" end)",
                   (if .population.skipped then "", "> ⚠️ 인구 대조를 못 했어요(문제 1건) — \(.population.skipped) · 키 문제면 GitHub 시크릿 `SGIS_KEY`·`SGIS_SECRET` 확인" else "", "인구(통계청 SGIS \(.population.year)) 원천 문제 **\((.popIssues // []) | length)건**" end),
+                  (if (.farm.year // null) != null then "농가(농림어업총조사 \(.farm.year), 시·군·구·구 화면 카드 0 허용 — 불일치는 위 화면 대조에 포함) 원천 짝 맞추기 문제 **\((.farmIssues // []) | length)건**" else empty end),
                   (if (.problems | length) > 0 then
                     "", "### 화면 불일치·실패 (\(.problems | length)쪽)", "",
                     lst(.problems; 50; "- `\(.key)` — \(.msgs | join("; "))\(if .reason then " (\(.reason))" else "" end)")
@@ -177,6 +178,12 @@ jobs:
                   (if ((.guSumIssues // []) | length) > 0 then
                     "", "### 구 화면 합 ≠ 시 화면 (\(.guSumIssues | length)건)", "",
                     lst(.guSumIssues; 50; "- \(.)")
+                  else empty end),
+                  (if .farm.skipped then "", "### 농가 대조를 못 했어요 (문제 1건)", "", "> \(.farm.skipped)", "", "키 문제면 GitHub 시크릿 `KOSIS_API_KEY` 를 확인해요 — 건너뛴 대조는 ‘문제 0’으로 치지 않아요." else empty end),
+                  (if ((.farmIssues // []) | length) > 0 then
+                    "", "### 농가 — 원천(농림어업총조사 \(.farm.year)) 행과 우리 단위 짝 맞추기 실패 (\(.farmIssues | length)건)", "",
+                    "이름이 바뀌었거나 행이 둘 이상이에요. 원표를 확인하고 `npx tsx scripts/collect-farms.ts` 가드도 함께 봐요.", "",
+                    lst(.farmIssues; 40; "- \(.)")
                   else empty end),
                   (if .area.skipped then "", "### 면적 대조를 못 했어요 (문제 1건)", "", "> \(.area.skipped)", "", "키 문제면 GitHub 시크릿 `KOSIS_API_KEY` 를 확인해요 — 건너뛴 대조는 ‘문제 0’으로 치지 않아요(10/8)." else empty end),
                   (if ((.areaIssues // []) | length) > 0 then
