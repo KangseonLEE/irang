@@ -236,7 +236,7 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
                 <a
                   href={featured.url}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener" referrerPolicy="origin"
                   className={`${s.slide}${slideClass ? ` ${slideClass}` : ""}`}
                 >
                   <div className={s.slideVisual}>
@@ -335,7 +335,7 @@ export function NewsTabsV2({ items }: NewsTabsV2Props) {
                       <a
                         href={item.url}
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="noopener" referrerPolicy="origin"
                         className={s.navExpanded}
                       >
                         <div className={s.slideVisual}>

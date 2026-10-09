@@ -125,7 +125,7 @@ export function YouthCaseCards({
             key={c.id}
             href={c.sourceUrl}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener" referrerPolicy="origin"
             className={s.card}
           >
             {/* YouTube 썸네일 (16:9) */}

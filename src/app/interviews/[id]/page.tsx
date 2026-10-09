@@ -209,7 +209,7 @@ export default async function InterviewDetailPage({
           <a
             href={person.sourceUrl}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener" referrerPolicy="origin"
             className={s.sourceLink}
           >
             <Icon icon={ExternalLink} size="sm" />
@@ -373,7 +373,7 @@ export default async function InterviewDetailPage({
                   key={p.id}
                   href={p.sourceUrl}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener" referrerPolicy="origin"
                   className={s.relatedCard}
                 >
                   {cardInner}

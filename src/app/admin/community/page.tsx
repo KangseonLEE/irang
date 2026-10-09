@@ -92,7 +92,7 @@ export default async function AdminCommunityPage({ searchParams }: Props) {
                   href={resolveTargetHref(note.targetType, note.targetId)}
                   className={s.keywordBadge}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener" referrerPolicy="origin"
                   title={note.targetId}
                 >
                   {resolveTargetLabel(note.targetType, note.targetId, programTitles)}

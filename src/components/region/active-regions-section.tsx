@@ -102,7 +102,7 @@ export function ActiveRegionsSection({ activeId }: ActiveRegionsSectionProps) {
         <a
           href={current.sourceUrl}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener" referrerPolicy="origin"
           className={s.sourceLink}
         >
           {current.sourceLabel}

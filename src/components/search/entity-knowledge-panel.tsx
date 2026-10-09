@@ -175,7 +175,7 @@ export function EntityKnowledgePanel({ panel }: { panel: EntityPanel }) {
               <a
                 href={centerSite}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener" referrerPolicy="origin"
                 className={s.centerAction}
                 aria-label={`${panel.center.name} 홈페이지 (새 창)`}
               >
@@ -191,7 +191,7 @@ export function EntityKnowledgePanel({ panel }: { panel: EntityPanel }) {
         <a
           href={source}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener" referrerPolicy="origin"
           className={s.sourceLink}
         >
           {panel.source.label}

@@ -600,7 +600,7 @@ function TrackDetail({ track }: { track: TherapyTrack }) {
           <a
             href={track.officialUrl}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener" referrerPolicy="origin"
             className={s.officialLink}
           >
             {track.officialUrlName}
@@ -611,7 +611,7 @@ function TrackDetail({ track }: { track: TherapyTrack }) {
               key={link.url}
               href={link.url}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener" referrerPolicy="origin"
               className={s.officialLink}
             >
               {link.name}

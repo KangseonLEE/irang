@@ -52,7 +52,7 @@ export default function CauseAnalysisSection({ title, causes }: Props) {
                   <a
                     href={cause.sourceUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noopener" referrerPolicy="origin"
                     className={s.causeSource}
                   >
                     <ExternalLink size={12} aria-hidden="true" />

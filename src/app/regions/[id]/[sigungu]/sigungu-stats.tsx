@@ -543,7 +543,7 @@ export function SigunguStats({
                   <a
                     href={successor.url}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noopener" referrerPolicy="origin"
                     className={s.reorgLink}
                     aria-label={`${successor.name} 누리집 (새 창)`}
                   >

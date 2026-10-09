@@ -44,7 +44,7 @@ export function LandCheckBox() {
             key={link.href}
             href={link.href}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener" referrerPolicy="origin"
             className={s.card}
             aria-label={`${link.name} 새 창에서 열기`}
           >

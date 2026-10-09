@@ -69,7 +69,7 @@ export function CenterCard({
           <a
             href={center.url}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener" referrerPolicy="origin"
             className={s.compactWeb}
             aria-label={`${center.name} 홈페이지 새 창`}
           >
@@ -99,7 +99,7 @@ export function CenterCard({
       <a
         href={center.url}
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener" referrerPolicy="origin"
         className={s.webCta}
       >
         홈페이지

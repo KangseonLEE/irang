@@ -36,7 +36,8 @@ describe("SourceLinkButton — 원문 바로가기 (9/27)", () => {
     const link = screen.getByRole("link", { name: /공고 확인하기/ });
     expect(link).toHaveAttribute("href", "https://www.jindo.go.kr/notice/1");
     expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    expect(link).toHaveAttribute("rel", "noopener");
+    expect(link).toHaveAttribute("referrerpolicy", "origin");
   });
 
   it("broken 이면 ExternalLinkBlock 과 같은 site: 검색 목적지로 보낸다", () => {

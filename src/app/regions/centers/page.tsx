@@ -75,7 +75,7 @@ export default function CentersHubPage() {
         <a
           href="https://www.greendaero.go.kr/"
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener" referrerPolicy="origin"
           className={s.noticeLink}
         >
           귀농귀촌종합센터 바로가기

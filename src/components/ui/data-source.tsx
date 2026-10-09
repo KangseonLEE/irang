@@ -44,7 +44,7 @@ export function DataSource({
         <a
           href={href}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener" referrerPolicy="origin"
           className={s.link}
         >
           {extractDomain(href)} <ExternalLink size={10} />

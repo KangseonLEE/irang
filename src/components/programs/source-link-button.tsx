@@ -42,7 +42,7 @@ export function SourceLinkButton({
       <a
         href={buildSearchFallback(domain, title)}
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener" referrerPolicy="origin"
         className={s.button}
       >
         <Search size={16} aria-hidden="true" />
@@ -59,7 +59,7 @@ export function SourceLinkButton({
     <a
       href={safeHref}
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener" referrerPolicy="origin"
       className={s.button}
       aria-label={`${label} (${host}, 새 창)`}
     >

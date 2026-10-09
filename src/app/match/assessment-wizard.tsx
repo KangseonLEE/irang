@@ -524,7 +524,7 @@ export function AssessmentWizard({ onBack, review, onRestart }: AssessmentWizard
                                 href={action.link}
                                 className={s.reinforceActionLink}
                                 {...(action.isExternal
-                                  ? { target: "_blank", rel: "noopener noreferrer" }
+                                  ? { target: "_blank", rel: "noopener", referrerPolicy: "origin" as const }
                                   : {})}
                               >
                                 {action.title}

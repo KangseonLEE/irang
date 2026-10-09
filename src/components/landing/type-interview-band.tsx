@@ -129,7 +129,7 @@ function PersonLink({ person: p, newTabHintId }: { person: InterviewSummary; new
     <a
       href={p.href}
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener" referrerPolicy="origin"
       className={s.person}
       aria-describedby={newTabHintId}
       data-track="interviews:story"

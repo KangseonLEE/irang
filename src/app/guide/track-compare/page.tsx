@@ -63,7 +63,7 @@ export default function TrackComparePage() {
             <a
               href={track.sourceUrl}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener" referrerPolicy="origin"
               className={s.sourceLink}
             >
               공식 출처 바로가기
@@ -103,7 +103,7 @@ export default function TrackComparePage() {
                   <a
                     href={t.sourceUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noopener" referrerPolicy="origin"
                     className={`${s.sourceLink} ${s.sourceLinkInline}`}
                   >
                     바로가기
