@@ -367,7 +367,7 @@ function ProgramContent({
                   key={i}
                   href={link.href}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener" referrerPolicy="origin"
                   className={s.stepsPortalLink}
                 >
                   <ExternalLink size={14} />
@@ -443,7 +443,7 @@ function ProgramContent({
                 key={i}
                 href={link.href}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener" referrerPolicy="origin"
                 className={`${s.relatedLink} ${s.externalLink}`}
               >
                 {link.label}

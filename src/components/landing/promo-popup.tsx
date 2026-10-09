@@ -205,7 +205,7 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
             <a
               href={item.href}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener" referrerPolicy="origin"
               className={s.detailBtn}
               onClick={() => onLink("detail")}
               data-track={`promo:${item.id}:detail`}

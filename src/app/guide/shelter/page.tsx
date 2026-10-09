@@ -132,7 +132,7 @@ export default function ShelterGuidePage() {
                         key={sid}
                         href={src.url}
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="noopener" referrerPolicy="origin"
                         className={s.sourcePill}
                         title={src.label}
                       >
@@ -217,7 +217,7 @@ export default function ShelterGuidePage() {
             key={src.url}
             href={src.url}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener" referrerPolicy="origin"
             className={s.sourceListLink}
           >
             <ExternalLink size={11} strokeWidth={2} />

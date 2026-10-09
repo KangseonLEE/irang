@@ -78,7 +78,7 @@ export function ExternalLinkBlock({
         <a
           href={searchUrl}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener" referrerPolicy="origin"
           className={s.searchFallback}
         >
           <Search size={16} aria-hidden="true" />
@@ -100,7 +100,7 @@ export function ExternalLinkBlock({
         <a
           href={safeHref ?? href}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener" referrerPolicy="origin"
           className={s.buttonCaution}
         >
           <ExternalLink size={16} aria-hidden="true" />
@@ -121,7 +121,7 @@ export function ExternalLinkBlock({
       <a
         href={safeHref ?? href}
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener" referrerPolicy="origin"
         className={s.button}
       >
         <ExternalLink size={16} aria-hidden="true" />

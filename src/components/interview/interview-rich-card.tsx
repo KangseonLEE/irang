@@ -107,7 +107,7 @@ export function InterviewRichCard({ person, autoGlossary = true }: InterviewRich
     <a
       href={person.sourceUrl}
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener" referrerPolicy="origin"
       className={s.card}
     >
       {cardInner}

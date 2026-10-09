@@ -133,7 +133,7 @@ function StrategyCard({
     <a
       href={strategy.href}
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener" referrerPolicy="origin"
       className={className}
       aria-label={`${strategy.title} — 외부 사이트(${externalHost})에서 새 창으로 열림`}
     >

@@ -420,7 +420,7 @@ export default function GuidePage() {
                           key={id}
                           href={person.sourceUrl}
                           target="_blank"
-                          rel="noopener noreferrer"
+                          rel="noopener" referrerPolicy="origin"
                           className={s.interviewCard}
                         >
                           {cardInner}

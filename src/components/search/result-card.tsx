@@ -477,7 +477,7 @@ function renderCenterCard(item: SearchItem, query: string, highlightCls: string,
           <a
             href={site}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener" referrerPolicy="origin"
             className={s.cardAction}
             aria-label={`${ctr.name} 홈페이지 (새 창)`}
           >
@@ -542,7 +542,7 @@ function titleLink(
       <a
         href={safe}
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener" referrerPolicy="origin"
         className={className}
         aria-label={titleText}
       >

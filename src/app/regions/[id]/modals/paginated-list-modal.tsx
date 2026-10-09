@@ -288,7 +288,7 @@ export function PaginatedListModal<
               key={itemKey(item, i)}
               href={naverMapUrl(item.name)}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener" referrerPolicy="origin"
               className={s.listItemLink}
             >
               {renderItem(item, i)}

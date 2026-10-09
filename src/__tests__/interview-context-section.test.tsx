@@ -25,7 +25,7 @@ describe("InterviewContextSection — 작물·지역 상세", () => {
     expect(html).toContain('aria-labelledby="interview-context-heading"');
   });
 
-  it("동의자는 내부 링크(새 창 아님), 미동의자는 원문 기사 새 창 + noopener noreferrer", () => {
+  it("동의자는 내부 링크(새 창 아님), 미동의자는 원문 기사 새 창 + noopener + 출처(origin) 전달", () => {
     const html = renderToStaticMarkup(<InterviewContextSection context={{ kind: "crop", cropId: "strawberry" }} />);
     const cards = anchors(html).filter((a) => !a.includes('href="/interviews"'));
     expect(cards).toHaveLength(3);
@@ -35,7 +35,8 @@ describe("InterviewContextSection — 작물·지역 상세", () => {
     for (const a of cards.filter((x) => !x.includes("/interviews/"))) {
       expect(a).toMatch(/href="https?:\/\//);
       expect(a).toContain('target="_blank"');
-      expect(a).toContain('rel="noopener noreferrer"');
+      expect(a).toContain('rel="noopener"');
+      expect(a).toContain('referrerPolicy="origin"');
       // 새 창 안내 — 숨긴 설명 요소를 직접 참조
       expect(a).toContain('aria-describedby="interview-context-new-tab"');
     }
@@ -116,7 +117,7 @@ describe("TypeInterviewBand — 랜딩 트렌드·비용 사이 유형별 띠 (1
     expect(stories).toHaveLength(2);
   });
 
-  it("원문 기사는 새 창 + noopener noreferrer + 새 창 안내 참조, 본문 동의자(김광훈)는 내부 링크", () => {
+  it("원문 기사는 새 창 + noopener + 출처(origin) 전달 + 새 창 안내 참조, 본문 동의자(김광훈)는 내부 링크", () => {
     const html = renderToStaticMarkup(<TypeInterviewBand type="smartfarm" />);
     const stories = anchors(html).filter((a) => a.includes('data-track="interviews:story"'));
     expect(stories).toHaveLength(3);
@@ -125,7 +126,8 @@ describe("TypeInterviewBand — 랜딩 트렌드·비용 사이 유형별 띠 (1
     expect(internal[0]).not.toContain("target=");
     for (const a of stories.filter((x) => !x.includes('href="/interviews/'))) {
       expect(a).toContain('target="_blank"');
-      expect(a).toContain('rel="noopener noreferrer"');
+      expect(a).toContain('rel="noopener"');
+      expect(a).toContain('referrerPolicy="origin"');
       expect(a).toContain('aria-describedby="type-interviews-new-tab-smartfarm"');
     }
     expect(html).toContain('<span id="type-interviews-new-tab-smartfarm" hidden="">원문 기사가 새 창에서 열려요</span>');

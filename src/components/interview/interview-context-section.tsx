@@ -134,7 +134,7 @@ function InterviewContextCard({
     <a
       href={p.href}
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener" referrerPolicy="origin"
       className={s.card}
       aria-describedby={NEW_TAB_HINT_ID}
     >

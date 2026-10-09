@@ -436,7 +436,7 @@ export default async function LaneHubPage({ params }: { params: Promise<{ lane: 
                     <Link
                       href={p.href}
                       className={s.interviewCard}
-                      {...(p.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      {...(p.external ? { target: "_blank", rel: "noopener", referrerPolicy: "origin" as const } : {})}
                     >
                       <span className={s.interviewQuote}>&ldquo;{p.quote}&rdquo;</span>
                       <span className={s.interviewMeta}>
