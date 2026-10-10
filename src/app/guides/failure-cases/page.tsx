@@ -19,6 +19,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Article } from "schema-dts";
 import s from "./page.module.css";
+import { RETURN_FARM_LOAN } from "@/lib/data/policy-facts";
 
 export const metadata: Metadata = {
   ...pageMetadata({
@@ -93,7 +94,7 @@ const FAILURE_CASES: FailureCase[] = [
 ];
 
 const CHECKLIST = [
-  { text: "정착 교육을 100시간 이상 이수했나요? (창업자금 심사 기준)", href: "/education" },
+  { text: `정착 교육을 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 이상 이수했나요? (창업자금 심사 기준)`, href: "/education" },
   { text: "생활비 2년치를 별도로 확보했나요?", href: "/costs" },
   { text: "지역 기후에 맞는 작물을 확인했나요?", href: "/crops/compare" },
   { text: "가족과 충분히 대화하고 합의했나요?", href: null },

@@ -24,6 +24,7 @@ import { SubPageHero } from "@/components/ui/sub-page-hero";
 import {
   costByAge,
   cityVsRural,
+  youthSettlementTotalManwon,
   COST_TYPES,
   COST_TYPE_PROFILES,
   type CostTypeId,
@@ -34,7 +35,13 @@ import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { shareMetadata } from "@/lib/seo/share-metadata";
 import { CROPS } from "@/lib/data/crops";
-import { settlementSurvey } from "@/lib/data/stats";
+import { settlementSurvey, settlementSurveyUrl } from "@/lib/data/stats";
+import {
+  RETURN_FARM_LOAN,
+  YOUTH_SETTLEMENT,
+  POLICY_TEXT,
+  formatManwon,
+} from "@/lib/data/policy-facts";
 import {
   CROP_COSTS_BY_TYPE,
   STRATEGIES_BY_TYPE,
@@ -51,12 +58,12 @@ import s from "./page.module.css";
 
 /* ── SEO ── */
 /* 공유 카드 문구 — metadata.title 은 리터럴로 둔다(seo-titles.test 가 소스에서 정규식으로 읽는다) */
-const SHARE_TITLE = "귀농 비용 가이드 — 초기 투자·운영비·생활비 | 이랑";
+const SHARE_TITLE = "귀농 비용 가이드 — 투자액·생활비·지원금 | 이랑";
 const DESCRIPTION =
-  "귀농·귀촌에 필요한 초기 투자금, 연간 운영비, 생활비를 항목별로 정리했어요. 30대·40대·50대·1인 귀농 자본 계획에 참고하세요.";
+  "귀농 가구 평균 투자액과 연령대별 투자액, 준비 기간, 생활비 변화를 실태조사 기준으로 정리했어요. 작물별 소득과 정부 융자·보조금도 함께 볼 수 있어요.";
 
 export const metadata: Metadata = {
-  title: "귀농 비용 가이드 — 초기 투자·운영비·생활비",
+  title: "귀농 비용 가이드 — 투자액·생활비·지원금",
   description: DESCRIPTION,
   keywords: ["귀농 비용", "귀농 비용 얼마", "정착 비용", "정착 비용 얼마", "귀농 초기 투자", "정착 자본", "50대 정착 비용", "귀농 생활비"],
   alternates: { canonical: "/costs" },
@@ -64,7 +71,7 @@ export const metadata: Metadata = {
   ...shareMetadata({ title: SHARE_TITLE, description: DESCRIPTION, path: "/costs" }),
 };
 
-/* ── 지원금 시뮬레이션 데이터 ── */
+/* ── 지원금 시뮬레이션 데이터 — 한도·금리·지원금은 policy-facts.ts 한 곳에서 (10/10) ── */
 const SUPPORT_ITEMS: {
   label: string;
   amount: string;
@@ -73,29 +80,28 @@ const SUPPORT_ITEMS: {
 }[] = [
   {
     label: "농업창업자금",
-    amount: "최대 3억 원",
+    amount: `최대 ${formatManwon(RETURN_FARM_LOAN.startupMaxManwon.value)}`,
     type: "융자",
-    note: "연 2% 저금리 · 5년 거치 10년 상환",
+    note: `${RETURN_FARM_LOAN.interestRate.value} · ${RETURN_FARM_LOAN.repayment.value}`,
   },
   {
     label: "청년창업농 영농정착지원",
-    amount: "최대 3,600만 원",
+    amount: `최대 ${formatManwon(youthSettlementTotalManwon)}`,
     type: "보조금",
-    note: "만 18~39세 · 월 110·100·90만 원 × 3년 (매년 감액)",
+    note: `만 ${YOUTH_SETTLEMENT.ageRange.value[0]}~${YOUTH_SETTLEMENT.ageRange.value[1]}세 · ${POLICY_TEXT.youthMonthly} (매년 감액)`,
   },
   {
     label: "주택구입 지원",
-    amount: "최대 7,500만 원",
+    amount: `최대 ${formatManwon(RETURN_FARM_LOAN.housingMaxManwon.value)}`,
     type: "융자",
-    note: "연 2% · 세대당 1회",
+    note: `${RETURN_FARM_LOAN.interestRate.value} · 귀농인 대상`,
   },
   {
     // 10/4 QA: "100시간 = 핵심 자격 요건"은 틀린 표기 — 자격은 8시간 이상, 100시간 미만이면 심사 최저 등급(D)
-    // (SP-001·gov-roadmap·cost-by-type 과 같은 기준)
-    label: "귀농 교육 8시간 이상",
+    label: `귀농 교육 ${RETURN_FARM_LOAN.minEducationHours.value}시간 이상`,
     amount: "신청 자격",
     type: "교육",
-    note: "100시간 미만이면 심사 최저 등급이라 사실상 100시간이 기준이에요",
+    note: `${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 미만이면 심사 최저 등급이라 사실상 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간이 기준이에요`,
   },
 ];
 
@@ -149,18 +155,21 @@ export default async function CostsPage({ searchParams }: PageProps) {
     ({ status }) => status === "마감",
   );
 
-  /* ── 카테고리별 작물 섹션 설명 문구 ── */
+  /* ── 카테고리별 작물 섹션 설명 문구 ──
+     10/10: '콩 300만 원대·사과 6,000만 원 이상'·'산양삼·호두 7년 이상'·'ICT 1,000㎡ 단가' 같은 근거 없는 투자 문구를 지우고,
+     작물 상세의 공식 소득 통계로 바꿨다 */
   const cropSectionDesc: Record<CostTypeId, string> = {
     farming:
-      "평균 투자금이라는 숫자는 작물에 따라 크게 달라요. 콩은 300만 원대로도 시작할 수 있지만, 사과는 6,000만 원 이상 투자가 필요해요.",
+      "같은 면적이라도 작물에 따라 소득과 일하는 날이 크게 달라요. 경영비를 뺀 10a(약 300평)당 소득이에요.",
     youth:
-      "청년농에 인기 있는 시설 작물이에요. 딸기·토마토 시설은 초기 투자가 크지만, 영농정착지원금과 청년 우대 융자로 부담을 줄일 수 있어요.",
+      "청년농에 인기 있는 시설 작물은 소득이 높은 만큼 일하는 날도 많아요. 경영비를 뺀 10a(약 300평)당 소득이에요.",
     village: "",
-    forestry:
-      "임산물은 손익분기까지 오래 걸리는 품목이 많아요. 표고·도라지는 3~4년이면 회수되지만, 산양삼·호두는 7년 이상이 필요해요.",
+    forestry: "",
     smartfarm:
-      "ICT 시설 단가는 작물과 시설 형태(비닐/유리/식물공장)에 따라 크게 달라요. 모두 1,000㎡(약 300평) 기준 참고값이에요.",
+      "스마트온실에서 많이 키우는 작물이에요. 소득은 시설 형태를 나누지 않은 작물별 10a(약 300평)당 값이에요.",
   };
+
+  const investmentAnswer = `농림축산식품부 ${settlementSurvey.year} 귀농귀촌 실태조사에서 귀농 가구가 농지·가축·시설에 투자한 금액은 평균 ${settlementSurvey.investment.toLocaleString("ko-KR")}만 원이었고, 그중 ${settlementSurvey.initialInvestmentShare}%를 정착 초기에 썼어요. 연령별로는 ${costByAge.map((d) => `${d.age} ${d.amount}`).join(", ")}이에요.`;
 
   return (
     <div className={s.page}>
@@ -169,29 +178,28 @@ export default async function CostsPage({ searchParams }: PageProps) {
         data={{
           "@context": "https://schema.org",
           "@type": "FAQPage",
+          /* 10/10 정정: '농촌진흥청 자료 기준 평균 2억~3억 원'은 같은 화면 본문(실태조사 6,219만 원)과 어긋나고 출처도 확인되지 않았다.
+             '1인 최소 자본 3,000만~5,000만 원'·'연 운영비 1,000만~2,000만 원'도 근거가 없어 실태조사 값이 있는 질문으로 바꿨다 */
           mainEntity: [
             {
               "@type": "Question",
-              name: "농촌 정착 초기 투자금은 얼마나 필요한가요?",
+              name: "귀농 초기 투자금은 얼마나 드나요?",
+              acceptedAnswer: { "@type": "Answer", text: investmentAnswer },
+            },
+            {
+              "@type": "Question",
+              name: "귀농 준비 기간은 얼마나 걸리나요?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "농촌진흥청 자료 기준, 농촌 정착 초기 투자금은 평균 약 2억~3억 원이에요. 농지 구입비, 주택 비용, 농기계·시설비가 주요 항목이에요.",
+                text: `같은 실태조사에서 귀농 준비 기간은 평균 ${settlementSurvey.prepMonths}개월, 귀촌은 ${settlementSurvey.ruralPrepMonths}개월이었어요.`,
               },
             },
             {
               "@type": "Question",
-              name: "1인 정착 최소 자본은 얼마인가요?",
+              name: "귀농하면 생활비가 줄어드나요?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "임대 농지 + 소규모 시설 기준 약 3,000만~5,000만 원으로 시작할 수 있어요. 지자체 정착금과 영농 자금 지원을 활용하면 초기 부담을 줄일 수 있어요.",
-              },
-            },
-            {
-              "@type": "Question",
-              name: "정착 후 연간 운영비는 얼마나 드나요?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "작물과 규모에 따라 다르지만, 소규모 밭작물 기준 연 1,000만~2,000만 원 수준이에요. 인건비, 자재비, 농약·비료비가 주요 항목이에요.",
+                text: `귀농 가구의 월평균 생활비는 귀농 전 ${settlementSurvey.livingCostBefore}만 원에서 ${settlementSurvey.livingCostAfter}만 원으로 ${Math.abs(settlementSurvey.livingCostChange)}% 줄었어요(${settlementSurvey.year} 귀농귀촌 실태조사).`,
               },
             },
           ],
@@ -240,15 +248,16 @@ export default async function CostsPage({ searchParams }: PageProps) {
         <section className={s.section} aria-label="연령별 비용">
           <h2 className={s.sectionTitle}>
             <Users size={20} />
-            연령별 초기 투자 비용
+            연령별 투자액
           </h2>
           <p className={s.sectionDesc}>
-            <AutoGlossary text="40대의 투자금이 가장 높은 이유는 시설 투자(하우스, 스마트팜)에 적극적이기 때문이에요. 60대는 소규모 노지 재배를 선택하는 경우가 많아 투자금이 낮아요." />
+            {/* 10/10: '40대는 시설 투자에 적극적이라' 같은 원인 설명은 원문에 없어 지웠다 — 원문은 "30~40대 젊은층의 투자액이 높은 수준" */}
+            <AutoGlossary text={`농지·가축·시설에 투자한 금액이에요. 30~40대 귀농 가구의 투자액이 다른 연령대보다 많아요(${settlementSurvey.year} 귀농귀촌 실태조사).`} />
           </p>
           <div
             className={s.barChart}
             role="img"
-            aria-label="연령별 초기 투자 비용 막대 그래프"
+            aria-label="연령별 투자액 막대 그래프"
           >
             {costByAge.map((item) => (
               <div key={item.age} className={s.barRow}>
@@ -263,6 +272,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
               </div>
             ))}
           </div>
+          <DataSource source={`농림축산식품부 ${settlementSurvey.year} 귀농귀촌 실태조사`} href={settlementSurveyUrl} />
           <Link href="/programs" className={s.inlineLink}>
             내 나이에 맞는 지원사업 확인하기 <ArrowRight size={14} />
           </Link>
@@ -274,27 +284,26 @@ export default async function CostsPage({ searchParams }: PageProps) {
         <section className={s.section} aria-label="작물별 투자 비교">
           <h2 className={s.sectionTitle}>
             <Sprout size={20} />
-            작물별 초기 투자, 이렇게 달라요
+            작물별 소득, 이렇게 달라요
           </h2>
           <p className={s.sectionDesc}>
             <AutoGlossary text={cropSectionDesc[activeType]} />
           </p>
 
           {/* ── 모바일: 가로 스크롤 카드 ── */}
-          <div className={s.cropCarousel} aria-label="작물별 투자 비용 카드">
+          <div className={s.cropCarousel} aria-label="작물별 소득 카드">
             {cropCosts.map((crop) => (
               <CropCard key={crop.id} crop={crop} />
             ))}
           </div>
 
           {/* ── 데스크탑: 테이블 ── */}
-          <div className={s.cropTable} role="table" aria-label="작물별 투자 비용 비교표">
-            {/* 테이블 헤더 */}
+          <div className={s.cropTable} role="table" aria-label="작물별 소득 비교표">
+            {/* 테이블 헤더 — 10/10: 원문 없던 초기 투자·연 운영비·손익분기 칸을 빼고 작물 상세의 공식 소득·노동일로 */}
             <div className={s.cropRowHeader} role="row">
               <span className={s.cropCellHeader} role="columnheader">작물</span>
-              <span className={s.cropCellHeader} role="columnheader">초기 투자</span>
-              <span className={s.cropCellHeader} role="columnheader">연 운영비</span>
-              <span className={s.cropCellHeader} role="columnheader">손익분기</span>
+              <span className={s.cropCellHeader} role="columnheader">10a당 소득</span>
+              <span className={s.cropCellHeader} role="columnheader">소득 기준</span>
               <span className={s.cropCellHeader} role="columnheader">노동일</span>
               <span className={s.cropCellHeader} role="columnheader">난이도</span>
             </div>
@@ -306,8 +315,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
           {/* 출처 표시 — 카테고리별 작물 데이터 */}
           {cropCosts[0]?.source && (
             <p className={s.cropSourceNote}>
-              출처 · {Array.from(new Set(cropCosts.map((c) => c.source))).join(" / ")}
-              {cropCosts.some((c) => c.isReference) && " · 일부 작물은 단가 기반 참고값이에요"}
+              출처 · {Array.from(new Set(cropCosts.map((c) => c.source))).join(" / ")} · 노동일은 작물 상세 기준
             </p>
           )}
 
@@ -326,7 +334,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
           </h2>
           <p className={s.sectionDesc}>
             <AutoGlossary
-              text="비용의 대부분은 4단계(영농 시작)에 집중돼요. 각 카드를 탭하면 해당 단계의 상세 가이드를 확인할 수 있어요."
+              text={`귀농 가구 투자의 ${settlementSurvey.initialInvestmentShare}%는 정착 초기에 들어가요(${settlementSurvey.year} 실태조사). 각 카드를 탭하면 해당 단계의 상세 가이드를 확인할 수 있어요.`}
             />
           </p>
           <StepOverview steps={GUIDE_STEP_SUMMARIES} />
@@ -433,13 +441,13 @@ export default async function CostsPage({ searchParams }: PageProps) {
             정부 지원을 적용하면?
           </h2>
           <p className={s.sectionDesc}>
-            <AutoGlossary text="평균 초기 비용, 정부 지원사업을 활용하면 실질 자기자본 부담을 크게 줄일 수 있어요." />
+            <AutoGlossary text="정부 융자와 보조금을 함께 보면 처음에 마련해야 할 돈을 가늠할 수 있어요." />
           </p>
 
           <div className={s.simCard}>
             {/* Before */}
             <div className={s.simBefore}>
-              <span className={s.simLabel}>평균 초기 투자금</span>
+              <span className={s.simLabel}>{profile.snapshot.totalLabel}</span>
               <span className={s.simBeforeValue}>
                 {profile.snapshot.totalValue}
                 <span className={s.simBeforeUnit}>{profile.snapshot.totalUnit}</span>
@@ -465,15 +473,13 @@ export default async function CostsPage({ searchParams }: PageProps) {
             {/* After */}
             <div className={s.simAfter}>
               <div className={s.simAfterContent}>
-                <span className={s.simAfterLabel}>
-                  지원금 활용 시 실질 부담
-                </span>
+                {/* 10/10: '자기자본 2,000만 원대로 시작 가능'은 근거가 없어 지웠다 — 융자·보조금의 성격만 안내 */}
+                <span className={s.simAfterLabel}>알아 두세요</span>
                 <span className={s.simAfterValue}>
-                  자기자본 2,000만 원대로 시작 가능
+                  융자는 갚는 돈, 보조금은 조건이 있어요
                 </span>
                 <span className={s.simAfterSub}>
-                  * 청년창업농(만 18~39세)의 경우 보조금 + 융자 조합으로 더 낮출 수
-                  있어요
+                  * 영농정착지원금은 만 {YOUTH_SETTLEMENT.ageRange.value[0]}~{YOUTH_SETTLEMENT.ageRange.value[1]}세 청년 창업농이 선발돼야 받아요
                 </span>
               </div>
             </div>
@@ -493,7 +499,7 @@ export default async function CostsPage({ searchParams }: PageProps) {
             내 상황으로 계산해 보기
           </h2>
           <p className={s.sectionDesc}>
-            연령, 작물, 규모를 선택하면 예상 비용과 지원금 절감 효과를 바로 확인할 수 있어요.
+            연령대, 작물, 재배 면적을 고르면 평균 투자액과 예상 소득을 함께 볼 수 있어요.
           </p>
           <Suspense fallback={null}>
             <CostSimulator type={activeType} />
@@ -557,87 +563,57 @@ function SnapshotCard({
   );
 }
 
-/* ── 작물 카드 (모바일) — 작물 페이지 있으면 Link, 없으면 div ── */
+/* ── 작물 카드 (모바일) — 작물 상세로 이동 ── */
 function CropCard({ crop }: { crop: CropCost }) {
-  const inner = (
-    <>
+  return (
+    <Link href={`/crops/${crop.cropPageId}`} className={s.cropCard}>
       <div className={s.cropCardTop}>
-        {crop.cropPageId ? (
-          /* 카드 안에 이름이 있다 — 그림은 장식(링크 이름에 작물명이 두 번 들어가지 않게) */
-          <Image
-            src={getCropImageSrc(crop.cropPageId)}
-            alt=""
-            width={44}
-            height={44}
-            className={s.cropCardImg}
-          />
-        ) : (
-          <div className={s.cropCardImgFallback} aria-hidden="true">
-            {crop.name.slice(0, 1)}
-          </div>
-        )}
+        {/* 카드 안에 이름이 있다 — 그림은 장식(링크 이름에 작물명이 두 번 들어가지 않게) */}
+        <Image
+          src={getCropImageSrc(crop.cropPageId)}
+          alt=""
+          width={44}
+          height={44}
+          className={s.cropCardImg}
+        />
         <DifficultyBadge level={crop.difficulty} size="sm" />
       </div>
       <span className={s.cropCardName}>{crop.name}</span>
-      <span className={s.cropCardCost}>{crop.initialCost}</span>
+      <span className={s.cropCardCost}>
+        {crop.income === "자료 없음" ? "소득 자료 없음" : `10a당 ${crop.income}`}
+      </span>
       <div className={s.cropCardMeta}>
-        <span>손익분기 {crop.breakEven}</span>
         <span>{crop.labor}</span>
-        {crop.facilityType && (
-          <span className={s.cropCardFacility}>{crop.facilityType}</span>
-        )}
+        {crop.basis && <span className={s.cropCardFacility}>{crop.basis}</span>}
       </div>
-    </>
+    </Link>
   );
-
-  if (crop.cropPageId) {
-    return (
-      <Link href={`/crops/${crop.cropPageId}`} className={s.cropCard}>
-        {inner}
-      </Link>
-    );
-  }
-  return <div className={s.cropCard}>{inner}</div>;
 }
 
 /* ── 작물 행 (데스크탑 테이블) ──
    행 전체가 작물 페이지로 가는 건 그대로, 링크는 첫 칸 작물명에 두고 ::after 로 행을 덮는다(10/6 QA).
    예전엔 <a role="row"> 라 링크 역할이 행 역할에 덮여 스크린리더가 링크로 읽지 못했다(axe aria-allowed-role 6건). */
 function CropRow({ crop }: { crop: CropCost }) {
-  const linked = Boolean(crop.cropPageId);
   return (
-    <div className={linked ? `${s.cropRowData} ${s.cropRowLinked}` : s.cropRowData} role="row">
+    <div className={`${s.cropRowData} ${s.cropRowLinked}`} role="row">
       <span className={s.cropName} role="cell">
-        {crop.cropPageId ? (
-          /* 이름이 바로 옆에 있다 — 그림은 장식(이름을 두 번 읽지 않게) */
-          <Image
-            src={getCropImageSrc(crop.cropPageId)}
-            alt=""
-            width={32}
-            height={32}
-            className={s.cropImg}
-          />
-        ) : (
-          <div className={s.cropImgFallback} aria-hidden="true">
-            {crop.name.slice(0, 1)}
-          </div>
-        )}
-        {crop.cropPageId ? (
-          <Link href={`/crops/${crop.cropPageId}`} className={s.cropRowLink}>
-            {crop.name}
-          </Link>
-        ) : (
-          crop.name
-        )}
+        {/* 이름이 바로 옆에 있다 — 그림은 장식(이름을 두 번 읽지 않게) */}
+        <Image
+          src={getCropImageSrc(crop.cropPageId)}
+          alt=""
+          width={32}
+          height={32}
+          className={s.cropImg}
+        />
+        <Link href={`/crops/${crop.cropPageId}`} className={s.cropRowLink}>
+          {crop.name}
+        </Link>
       </span>
-      <span className={s.cropCell} role="cell" data-label="초기 투자">
-        {crop.initialCost}
+      <span className={s.cropCell} role="cell" data-label="10a당 소득">
+        {crop.income}
       </span>
-      <span className={s.cropCell} role="cell" data-label="연 운영비">
-        {crop.annual}
-      </span>
-      <span className={s.cropCell} role="cell" data-label="손익분기">
-        {crop.breakEven}
+      <span className={s.cropCell} role="cell" data-label="소득 기준">
+        {crop.basis ?? "—"}
       </span>
       <span className={s.cropCell} role="cell" data-label="노동일">
         {crop.labor}

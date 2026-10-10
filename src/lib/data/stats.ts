@@ -6,6 +6,7 @@
    2026-10-03 전면 정정 — 연도별 수치를 KOSIS 통계표·보도자료 원문과 1:1 대조해 바꿨다(corrections.ts).
    수치는 배열에서 계산해 문구를 만든다. 문구 안에 숫자를 손으로 적지 않는다.
    ════════════════════════════════════════════ */
+import { FOREST_VILLAGE_LOAN, formatManwon } from "./policy-facts";
 
 /* ── 공통 타입 ── */
 
@@ -151,6 +152,19 @@ export const populationSummary = {
   source: `국가데이터처 귀농어·귀촌인통계 (${_latestPop.year})`,
 };
 
+/** 귀촌 가구주 연령·출발지 — 2025 귀농어·귀촌인통계 ("귀촌 가구주 중 30대가 23.2%", "수도권이 43.2%를 차지") */
+export const ruralProfile = { year: 2025, age30sShare: 23.2, capitalAreaShare: 43.2 } as const;
+
+/** 시설원예 스마트팜 도입 농가 성과 — 농식품부(나라경제 2022.2) */
+export const smartfarmEffect = { output: 33.3, premiumOutput: 35.9, income: 36.9, labor: -9.8 } as const;
+
+
+/** 원인 분석 문장용 — 해당 연도 행과 전년 대비 증감률 */
+const _popRow = (y: number) => populationData.find((d) => d.year === y)!;
+const _popChg = (y: number, key: "farming" | "rural") => changePct(_popRow(y)[key], _popRow(y - 1)[key]);
+
+/* 위 두 상수는 아래 원인 분석 문장이 값에서 계산하도록 앞으로 옮겼다(10/10 — 모듈 평가 순서) */
+
 /** 인구 추이 원인 분석 — 공식 보고서 기반 */
 export interface CauseAnalysis {
   label: string;
@@ -165,7 +179,7 @@ export const populationCauses: CauseAnalysis[] = [
   {
     label: "코로나19 시기 — 농촌 순유입 증가",
     description:
-      "2020년 귀촌인은 47만 7,122명으로 전년보다 7.3% 늘었고, 귀농인도 1만 2,570명으로 9.3% 늘었어요. 한국농촌경제연구원은 코로나19 팬데믹과 수도권·광역시 주택가격 급등 같은 사회·경제적 충격, 농촌 생활에 대한 관심 증가로 농촌 순유입이 늘었다고 분석했어요.",
+      `2020년 귀촌인은 ${formatKoreanCount(toCount(_popRow(2020).rural))}명으로 전년보다 ${_popChg(2020, "rural")}% 늘었고, 귀농인도 ${formatKoreanCount(toCount(_popRow(2020).farming))}명으로 ${_popChg(2020, "farming")}% 늘었어요. 한국농촌경제연구원은 코로나19 팬데믹과 수도권·광역시 주택가격 급등 같은 사회·경제적 충격, 농촌 생활에 대한 관심 증가로 농촌 순유입이 늘었다고 분석했어요.`,
     source: "한국농촌경제연구원, 2020년 귀농·귀촌 동향과 시사점",
     sourceUrl: "https://eiec.kdi.re.kr/policy/domesticView.do?ac=0000158941",
     relatedYears: [2020, 2021],
@@ -189,7 +203,7 @@ export const populationCauses: CauseAnalysis[] = [
   {
     label: "2025년 귀농, 4년 만의 반등",
     description:
-      "2025년 귀농인은 9,134명으로 전년보다 8.7% 늘어 2021년 이후 4년 만에 증가했어요. 국내 이동 인구가 2.6% 줄어든 가운데 귀촌인은 41만 3,464명으로 2.2% 줄었고, 귀촌 가구주는 30대가 23.2%로 가장 많았어요. 2024년에는 반대로 귀촌인이 3년 만에 늘고(5.7% 증가) 귀농인은 20.3% 줄었어요.",
+      `2025년 귀농인은 ${formatKoreanCount(toCount(_popRow(2025).farming))}명으로 전년보다 ${_popChg(2025, "farming")}% 늘어 2021년 이후 4년 만에 증가했어요. 국내 이동 인구가 2.6% 줄어든 가운데 귀촌인은 ${formatKoreanCount(toCount(_popRow(2025).rural))}명으로 ${Math.abs(_popChg(2025, "rural"))}% 줄었고, 귀촌 가구주는 30대가 ${ruralProfile.age30sShare}%로 가장 많았어요. 2024년에는 반대로 귀촌인이 3년 만에 늘고(${_popChg(2024, "rural")}% 증가) 귀농인은 ${Math.abs(_popChg(2024, "farming"))}% 줄었어요.`,
     source: "국가데이터처, 2025년 귀농어·귀촌인통계",
     sourceUrl: "https://mods.go.kr/board.es?act=view&bid=11321&list_no=445590&mid=a10301010000",
     relatedYears: [2024, 2025],
@@ -258,7 +272,7 @@ export const youthCauses: CauseAnalysis[] = [
   {
     label: "스마트팜 확산 — 기술 기반 농업 진입 장벽 하락",
     description:
-      "센서·자동화 시스템으로 생육 환경을 원격 제어하는 스마트팜은 노동 부담을 줄여요. 시설원예 스마트팜 도입 농가는 생산량이 평균 33.3% 늘고 자가 노동시간이 9.8% 줄었다는 농림축산식품부 분석이 있어, IT에 익숙한 청년층에게 매력적인 진입 경로가 되고 있어요.",
+      `센서·자동화 시스템으로 생육 환경을 원격 제어하는 스마트팜은 노동 부담을 줄여요. 시설원예 스마트팜 도입 농가는 생산량이 평균 ${smartfarmEffect.output}% 늘고 자가 노동시간이 ${Math.abs(smartfarmEffect.labor)}% 줄었다는 농림축산식품부 분석이 있어, IT에 익숙한 청년층에게 매력적인 진입 경로가 되고 있어요.`,
     source: "농림축산식품부, 스마트농업 고도화 통해 농업혁신 가속화 (나라경제 2022.2)",
     sourceUrl: "https://eiec.kdi.re.kr/publish/naraView.do?fcode=00002000040000100005&cidx=13662",
     relatedYears: [2020, 2021, 2022, 2023, 2024],
@@ -274,7 +288,7 @@ export const youthCauses: CauseAnalysis[] = [
   {
     label: "'농업의 비전' — 청년 정착 사유 7년 연속 최고",
     description:
-      "30대 이하 청년층이 '농업의 비전 및 발전 가능성'을 정착 사유로 꼽은 비율이 27.3%로 7년 연속 최고치를 기록했어요. 6차 산업, 체험 농업, 로컬 브랜딩 등 새로운 농업 모델이 청년들에게 창업 기회로 인식되고 있어요.",
+      `30대 이하 청년층이 '농업의 비전 및 발전 가능성'을 정착 사유로 꼽은 비율이 ${youthFarmingReasons[0].pct}%로 7년 연속 최고치를 기록했어요. 6차 산업, 체험 농업, 로컬 브랜딩 등 새로운 농업 모델이 청년들에게 창업 기회로 인식되고 있어요.`,
     source: "대한민국 정책브리핑, 청년층 귀농 이유 분석",
     sourceUrl: "https://www.korea.kr/news/policyNewsView.do?newsId=148940202",
     relatedYears: [2022, 2023, 2024],
@@ -368,7 +382,37 @@ export const settlementSurvey = {
   goodRelations: 75.5,
   /** 현재 거주 지역에 '계속 거주할 계획' — KOSIS DT_114055_A054, 보도자료 "귀농가구 97.0%" */
   stayIntent: 97.0,
+  /** 평균 농가 가구소득 (만 원, 2024) — 같은 보도자료 "평균 농가(5,060만원, ‘24)". 원 통계는 국가데이터처 농가경제조사 */
+  avgFarmHouseholdIncome: 5060,
+  avgFarmHouseholdIncomeYear: 2024,
+  /** 같은 표의 평균 농가 소득 구성 (만 원) — 농업소득 958·농외소득 2,015·이전소득 1,824·비경상소득 263 */
+  avgFarmIncomeParts: { agri: 958, offFarm: 2015, transfer: 1824, irregular: 263 },
+  /** 준비 기간 (개월) — 보도자료 "귀농 준비기간은 평균 27.4개월, 귀촌은 15.5개월" */
+  prepMonths: 27.4,
+  ruralPrepMonths: 15.5,
+  /**
+   * 농지·가축·시설 투자액 (만 원) — 보도자료 별첨 "투자 농지·가축·시설에 대한 투자액은 귀농가구 6,219만원, 귀촌가구 4,563만원".
+   * 생활비·주거비를 더한 '총 정착 비용'이 아니다. 10/10 정정: 예전 화면은 이 값을 영농 준비 84.6% + 생활 정착비로 나눴는데
+   * 84.6%·생활 정착비는 원문에 없었다.
+   */
+  investment: 6219,
+  ruralInvestment: 4563,
+  /** 투자 시기 — "(귀농) 초기 투자 89.6%, 추가 투자 10.4% / (귀촌) 78.4, 21.6" */
+  initialInvestmentShare: 89.6,
+  ruralInitialInvestmentShare: 78.4,
 } as const;
+
+/** 2025 실태조사 귀농가구 연령별 투자액 (만 원) — 보도자료 별첨 "(30대 이하) 8,209만원, (40대) 9,547, (50대) 6,485, (60대) 5,512, (70대 이상) 4,413" */
+export const investmentByAge: readonly { age: string; amount: number }[] = [
+  { age: "30대 이하", amount: 8209 },
+  { age: "40대", amount: 9547 },
+  { age: "50대", amount: 6485 },
+  { age: "60대", amount: 5512 },
+  { age: "70대 이상", amount: 4413 },
+];
+
+/** 실태조사 투자액 원문(보도자료 별첨) — 출처 링크 */
+export const settlementSurveyUrl = "https://www.mafra.go.kr/bbs/home/792/577092/artclView.do";
 
 const _satisfied = Number(
   satisfactionSegments
@@ -383,6 +427,8 @@ const _topDissatisfied = dissatisfactionFactors
   .map((f) => `${f.label}(${f.pct}%)`)
   .join(", ");
 const _topSatisfied = satisfactionFactors[0];
+/** 귀농 5년차 가구소득 ÷ 평균 농가 가구소득 (%) — 보도자료 "65.2% 수준" 과 같은 값이 나온다 */
+const _incomeVsFarm = (settlementSurvey.incomeFifthYear / settlementSurvey.avgFarmHouseholdIncome) * 100;
 
 export const satisfactionSummary = {
   title: "정착 만족도 조사",
@@ -395,15 +441,15 @@ export const satisfactionCauses: CauseAnalysis[] = [
   {
     label: "자연환경 — 귀농 이유 1위",
     description:
-      "귀농 이유 1순위는 '자연환경이 좋아서'(33.3%)이고, 귀농가구의 71.9%가 귀농 생활에 만족한다고 답했어요. 지역주민과 관계가 좋다는 응답도 75.5%예요(2025년 실태조사).",
+      `귀농 이유 1순위는 '${farmingReasons[0].label}'(${farmingReasons[0].pct}%)이고, 귀농가구의 ${_satisfied}%가 귀농 생활에 만족한다고 답했어요. 지역주민과 관계가 좋다는 응답도 ${settlementSurvey.goodRelations}%예요(${settlementSurvey.year}년 실태조사).`,
     // 관계 75.5% 는 A035(지역주민들과의 관계) — 링크는 귀농 이유·만족도 표(A051) 하나라 출처 줄에 두 표를 다 적는다 (10/4 QA)
     source: "농림축산식품부, 2025 귀농·귀촌 실태조사 (KOSIS DT_114055_A051·A035)",
     sourceUrl: "https://kosis.kr/statHtml/statHtml.do?orgId=114&tblId=DT_114055_A051",
   },
   {
-    label: "생활비는 줄고 — 소득은 평균 농가의 65%",
+    label: `생활비는 줄고 — 소득은 평균 농가의 ${Math.round(_incomeVsFarm)}%`,
     description:
-      "귀농 가구의 월평균 생활비는 귀농 전 239만 원에서 173만 원으로 27.6% 줄었어요. 귀농 5년차 가구소득은 3,300만 원으로 첫해(2,534만 원)보다 30.2% 늘었지만, 전체 농가 평균(5,060만 원)의 65.2% 수준이에요.",
+      `귀농 가구의 월평균 생활비는 귀농 전 ${settlementSurvey.livingCostBefore}만 원에서 ${settlementSurvey.livingCostAfter}만 원으로 ${Math.abs(settlementSurvey.livingCostChange)}% 줄었어요. 귀농 5년차 가구소득은 ${settlementSurvey.incomeFifthYear.toLocaleString("ko-KR")}만 원으로 첫해(${settlementSurvey.incomeFirstYear.toLocaleString("ko-KR")}만 원)보다 ${settlementSurvey.incomeChange}% 늘었지만, 전체 농가 평균(${settlementSurvey.avgFarmHouseholdIncome.toLocaleString("ko-KR")}만 원, ${settlementSurvey.avgFarmHouseholdIncomeYear}년)의 ${_incomeVsFarm.toFixed(1)}% 수준이에요.`,
     source: "농림축산식품부, 2025 귀농·귀촌 실태조사",
     sourceUrl: "https://www.mafra.go.kr/bbs/home/792/577092/artclView.do",
   },
@@ -468,8 +514,6 @@ export const villageReasons: Factor[] = [
 export const reasonsYear = 2025;
 export const reasonsSource = `국가데이터처 귀농어·귀촌인통계 (${reasonsYear}, 전입 사유)`;
 
-/** 귀촌 가구주 연령·출발지 — 2025 귀농어·귀촌인통계 ("귀촌 가구주 중 30대가 23.2%", "수도권이 43.2%를 차지") */
-export const ruralProfile = { year: 2025, age30sShare: 23.2, capitalAreaShare: 43.2 } as const;
 
 const _latestMtn = mountainData[mountainData.length - 1];
 const _prevMtn = mountainData[mountainData.length - 2];
@@ -492,15 +536,15 @@ export const mountainCauses: CauseAnalysis[] = [
   {
     label: "귀산촌 가구는 누가, 왜 옮길까",
     description:
-      "2025년 귀산촌 가구주는 60대(23.4%)가 가장 많고 50대(20.5%)가 뒤를 이어 50~60대가 43.9%예요. 30대 이하도 31.7%를 차지해요. 전입 사유는 직업(32.1%), 가족(27.7%), 주택(17.8%), 자연환경(10.2%) 순이에요.",
+      `2025년 귀산촌 가구주는 60대(23.4%)가 가장 많고 50대(20.5%)가 뒤를 이어 50~60대가 43.9%예요. 30대 이하도 31.7%를 차지해요. 전입 사유는 ${mountainReasons.filter((r) => r.label !== "기타").slice(0, 4).map((r) => `${r.label}(${r.pct}%)`).join(", ")} 순이에요.`,
     source: "국가데이터처, 2025년 귀농어·귀촌인통계",
     sourceUrl: "https://mods.go.kr/board.es?act=view&bid=11321&list_no=445590&mid=a10301010000",
     relatedYears: [2024, 2025],
   },
   {
-    label: "산림청 귀산촌 자금 — 창업 3억·주택 7,500만 원",
+    label: `산림청 귀산촌 자금 — 창업 ${formatManwon(FOREST_VILLAGE_LOAN.startupMaxManwon.value).replace(" 원", "")}·주택 ${formatManwon(FOREST_VILLAGE_LOAN.housingMaxManwon.value)}`,
     description:
-      "산림청은 귀산촌인에게 창업자금 세대당 최대 3억 원, 주택 구입·신축 세대당 최대 7,500만 원을 연 2%(5년 거치 10년 분할 상환)로 융자해요. 창업자금은 인정 교육을 5년 이내 60시간 이상 이수해야 하고(주택 자금은 교육 불필요), 신청은 귀산촌 예정지 관할 산림조합에서 해요.",
+      `산림청은 귀산촌인에게 창업자금 세대당 최대 ${formatManwon(FOREST_VILLAGE_LOAN.startupMaxManwon.value)}, 주택 구입·신축 세대당 최대 ${formatManwon(FOREST_VILLAGE_LOAN.housingMaxManwon.value)}을 ${FOREST_VILLAGE_LOAN.interestRate.value}(${FOREST_VILLAGE_LOAN.repayment.value})로 융자해요. 창업자금은 인정 교육을 5년 이내 ${FOREST_VILLAGE_LOAN.educationHours.value}시간 이상 이수해야 하고(주택 자금은 교육 불필요), 신청은 ${FOREST_VILLAGE_LOAN.applyOffice.value}에서 해요.`,
     source: "산림청, 귀산촌 길라잡이",
     sourceUrl: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?cmsId=FC_000434&mn=AR02_06_02_02",
     relatedYears: [2024, 2025],
@@ -545,8 +589,6 @@ export const smartfarmAreaData: SmartfarmArea[] = [
 /** 스마트온실 도입률 — 농식품부 「2026년 스마트농업 육성 시행계획」 "[’24] 스마트온실 16% → [’30] 35%"(온실 55천 ha 기준) */
 export const smartfarmAdoption = { year: 2024, pct: 16, targetYear: 2030, targetPct: 35 } as const;
 
-/** 시설원예 스마트팜 도입 농가 성과 — 농식품부(나라경제 2022.2) */
-export const smartfarmEffect = { output: 33.3, premiumOutput: 35.9, income: 36.9, labor: -9.8 } as const;
 
 const _firstSfa = smartfarmAreaData[0];
 const _latestSfa = smartfarmAreaData[smartfarmAreaData.length - 1];
@@ -591,7 +633,7 @@ export const smartfarmCauses: CauseAnalysis[] = [
   {
     label: "도입 농가 생산성 효과",
     description:
-      "시설원예 스마트팜 도입 농가는 생산량이 33.3%, 고품질 생산량이 35.9%, 농업소득이 36.9% 늘고 자가 노동시간은 9.8% 줄었다는 농림축산식품부 분석이 있어요. 조사마다 수치는 달라서, 2016년 분석에서는 생산량 27.9% 증가로 나왔어요.",
+      `시설원예 스마트팜 도입 농가는 생산량이 ${smartfarmEffect.output}%, 고품질 생산량이 ${smartfarmEffect.premiumOutput}%, 농업소득이 ${smartfarmEffect.income}% 늘고 자가 노동시간은 ${Math.abs(smartfarmEffect.labor)}% 줄었다는 농림축산식품부 분석이 있어요. 조사마다 수치는 달라서, 2016년 분석에서는 생산량 27.9% 증가로 나왔어요.`,
     source: "농림축산식품부, 스마트농업 고도화 통해 농업혁신 가속화 (나라경제 2022.2)",
     sourceUrl: "https://eiec.kdi.re.kr/publish/naraView.do?fcode=00002000040000100005&cidx=13662",
     relatedYears: [2020, 2021, 2022, 2023, 2024],

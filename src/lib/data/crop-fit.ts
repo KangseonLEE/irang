@@ -6,11 +6,11 @@
  *
  * 회장 결재: "Phase 6 personaFit 시동 X, 부담 적은 범위" — 외부 API 호출 없이
  * 정적 데이터(`crops.ts`의 `majorRegions` + `sigungus.ts`의 `mainCrops`) 만으로 산출.
+ * mainCrops 는 10/10부터 2025 농림어업총조사 재배면적 상위 3작물(sigungu-main-crops.ts) — 손 입력값이 아니다.
  *
  * 산출 기준 (시도가 작물의 majorRegions에 포함된 카드만 노출되는 전제):
- *   - 산하 시군구 mainCrops에 작물 이름이 ≥ 3곳 등장 → high (광역 주산지)
- *   - 1~2곳 등장 → high (지역 주산지)
- *   - 0곳 → mid (시도는 주산지지만 시군구 단위 매칭 부재)
+ *   - 산하 시군구 중 그 작물이 주요 작물(재배면적 상위 3)인 곳 ≥ 1 → high
+ *   - 0곳 → mid (주산지 시·도지만 시·군·구 상위 작물엔 없음) — 근거 없는 '재배 환경이 잘 맞아요' 문구는 뺐다(10/10)
  *
  * 별칭 처리: `CROP_NAME_LOOKUP`을 통해 "방울토마토" → "토마토" 등의
  * 별칭이 사용된 시군구도 정규 작물에 카운트한다.
@@ -52,20 +52,14 @@ export function getCropFit(
     if (matched) matchCount += 1;
   }
 
-  if (matchCount >= 3) {
-    return {
-      level: "high",
-      reason: `${provinceShortName} 산하 ${matchCount}곳에서 재배해요`,
-    };
-  }
   if (matchCount >= 1) {
     return {
       level: "high",
-      reason: `${provinceShortName} ${matchCount}곳에서 재배 중이에요`,
+      reason: `${provinceShortName} ${matchCount}곳의 주요 작물이에요`,
     };
   }
   return {
     level: "mid",
-    reason: `${provinceShortName} 주산지로 재배 환경이 잘 맞아요`,
+    reason: `${provinceShortName} 시·군·구 주요 작물엔 없어요`,
   };
 }

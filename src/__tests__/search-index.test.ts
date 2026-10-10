@@ -647,8 +647,16 @@ describe("buildCropPanel (지식 패널 데이터)", () => {
 
   it("패널 facts 값은 괄호 앞 핵심부만 노출돼 과도하게 길지 않다", () => {
     const p = buildCropPanel("감귤");
-    const revenue = p?.facts.find((f) => f.label === "평균소득");
+    const revenue = p?.facts.find((f) => f.label === "10a당 소득");
+    expect(revenue?.value).toBeDefined();
     expect(revenue?.value).not.toContain("(");
+  });
+
+  it("공식 소득 통계가 없는 작물은 소득 숫자를, 출처 없는 손익분기는 어느 작물도 패널에 싣지 않는다 (10/10)", () => {
+    expect(buildCropPanel("깻잎")?.facts.some((f) => f.label === "10a당 소득")).toBe(false);
+    for (const name of ["감귤", "딸기", "깻잎", "블루베리"]) {
+      expect(buildCropPanel(name)?.facts.some((f) => f.label === "손익분기")).toBe(false);
+    }
   });
 });
 

@@ -3,6 +3,17 @@
    정착 준비에 필요한 농업 용어를 카테고리별로 정리
    ========================================================================== */
 
+import { settlementSurvey } from "./stats";
+import { POLICY_TEXT, YOUTH_SETTLEMENT } from "./policy-facts";
+
+/* 숫자는 원천 상수에서 — 평균 농가소득·투자액은 2025 귀농귀촌 실태조사(stats.ts), 정책 금액은 policy-facts.ts (10/10) */
+const _sv = settlementSurvey;
+const _fy = _sv.avgFarmHouseholdIncomeYear;
+const _parts = _sv.avgFarmIncomeParts;
+const _man = (n: number) => `${n.toLocaleString("ko-KR")}만 원`;
+const _pct = (n: number) => Math.round((n / _sv.avgFarmHouseholdIncome) * 100);
+const _ym = YOUTH_SETTLEMENT.monthlyManwonByYear.value;
+
 export type GlossaryCategory =
   | "cultivation" // 재배방식
   | "soil" // 토양·비료
@@ -329,7 +340,7 @@ export const GLOSSARY_ENTRIES: GlossaryEntry[] = [
     term: "농가소득",
     shortDesc: "농업소득 + 겸업소득 + 이전소득 등을 합한 총소득",
     longDesc:
-      "농가소득은 농업을 통해 벌어들이는 농업소득뿐 아니라, 겸업소득(농외소득), 정부 보조금·연금 등의 이전소득을 모두 합산한 농가 전체의 소득이에요. 평균 농가소득은 약 4,600만 원이며, 이 중 농업소득 비중은 약 30% 수준이에요.",
+      `농가소득은 농업을 통해 벌어들이는 농업소득뿐 아니라, 겸업소득(농외소득), 정부 보조금·연금 등의 이전소득을 모두 합산한 농가 전체의 소득이에요. ${_fy}년 평균 농가소득은 ${_man(_sv.avgFarmHouseholdIncome)}이고, 이 중 농업소득은 ${_man(_parts.agri)}(약 ${_pct(_parts.agri)}%)예요.`,
     category: "economy",
     aliases: ["농업소득"],
     related: ["조수입", "전업농"],
@@ -395,10 +406,10 @@ export const GLOSSARY_ENTRIES: GlossaryEntry[] = [
   {
     slug: "영농정착지원금",
     term: "영농정착지원금",
-    // 10/3 정정: 1년차가 월 110만 원(2년차 100·3년차 90) — 아래 longDesc·SP-002 와 같은 값
-    shortDesc: "청년 농업인에게 최대 3년간 월 110만 원(1년차)부터 지원하는 정부 보조금",
+    // 10/10: 금액·연령·경력은 policy-facts.ts(SP-002) 한 곳에서
+    shortDesc: `청년 농업인에게 최대 3년간 월 ${_ym[0]}만 원(1년차)부터 지원하는 정부 보조금`,
     longDesc:
-      "영농정착지원금은 정착 후 초기 안정을 돕기 위해 정부가 최대 3년간 매월 지급하는 보조금이에요. 1년차 월 110만 원, 2년차 월 100만 원, 3년차 월 90만 원이 지급돼요(2026년 기준). 만 18~39세, 영농경력 3년 이하, 신청 지자체 실거주 등의 자격 요건을 충족해야 신청할 수 있어요.",
+      `영농정착지원금은 정착 후 초기 안정을 돕기 위해 정부가 최대 3년간 매월 지급하는 보조금이에요. ${POLICY_TEXT.youthMonthly}이 지급돼요(2026년 기준). 만 ${YOUTH_SETTLEMENT.ageRange.value[0]}~${YOUTH_SETTLEMENT.ageRange.value[1]}세, 영농경력 ${YOUTH_SETTLEMENT.maxFarmingYears.value}년 이하, 신청 지자체 실거주 등의 자격 요건을 충족해야 신청할 수 있어요.`,
     category: "settlement",
     aliases: ["정착지원금"],
     related: ["귀농", "귀농귀촌종합센터"],
@@ -571,7 +582,7 @@ export const GLOSSARY_ENTRIES: GlossaryEntry[] = [
     term: "하우스",
     shortDesc: "비닐이나 유리로 덮은 농업용 온실 구조물",
     longDesc:
-      "하우스(비닐하우스·유리온실)는 비닐이나 유리로 둘러싸인 시설 구조물로, 내부 온도·습도를 조절하여 사계절 작물을 재배할 수 있어요. 단동 하우스(1동)와 연동 하우스(여러 동 연결)가 있으며, 초기 투자비는 단동 기준 10a당 약 3,000~5,000만 원 수준이에요. 딸기, 토마토, 파프리카 등 고소득 작물에 많이 활용돼요.",
+      "하우스(비닐하우스·유리온실)는 비닐이나 유리로 둘러싸인 시설 구조물로, 내부 온도·습도를 조절하여 사계절 작물을 재배할 수 있어요. 단동 하우스(1동)와 연동 하우스(여러 동 연결)가 있고, 설치비는 구조·자재·지역에 따라 크게 달라요. 딸기, 토마토, 파프리카 등 고소득 작물에 많이 활용돼요.",
     category: "cultivation",
     aliases: ["비닐하우스", "온실", "유리온실"],
     related: ["시설재배", "스마트팜"],
@@ -638,7 +649,7 @@ export const GLOSSARY_ENTRIES: GlossaryEntry[] = [
     term: "초기투자",
     shortDesc: "농촌 정착 시작 시 농지·시설·장비 등에 필요한 자본",
     longDesc:
-      "초기투자는 농촌 정착을 시작할 때 농지 매입(또는 임차), 하우스·시설 설치, 농기계 구입, 종자·비료 구매 등에 들어가는 자금이에요. 작물에 따라 차이가 크며, 노지 밭작물은 수백만 원, 시설 과채류는 수억 원까지 필요할 수 있어요. 정부 융자(귀농 농업창업자금)를 활용하면 부담을 줄일 수 있어요.",
+      `초기투자는 농촌 정착을 시작할 때 농지 매입(또는 임차), 하우스·시설 설치, 농기계 구입, 종자·비료 구매 등에 들어가는 자금이에요. 작물과 시설에 따라 차이가 커요. ${_sv.year} 귀농귀촌 실태조사에서 귀농 가구가 농지·가축·시설에 투자한 금액은 평균 ${_man(_sv.investment)}이었어요. 정부 융자(귀농 농업창업자금)를 활용하면 부담을 줄일 수 있어요.`,
     category: "economy",
     aliases: ["초기비용", "창업자금"],
     related: ["영농정착지원금", "생산비"],
@@ -882,7 +893,7 @@ export const GLOSSARY_ENTRIES: GlossaryEntry[] = [
     term: "관정",
     shortDesc: "농업용수를 확보하기 위해 지하수를 뽑는 관(管)으로 된 우물",
     longDesc:
-      "관정(管井)은 지하에 관을 박아 지하수를 양수(퍼 올림)하는 시설이에요. 저수지나 하천이 멀리 있는 밭작물 재배지에서 핵심적인 용수원이에요. 관정 굴착에는 허가가 필요하며, 비용(500만~2,000만 원)·수량·수질을 사전에 조사해야 해요. 귀농 시 농지 구입 전 기존 관정 유무를 확인하는 것이 중요해요.",
+      "관정(管井)은 지하에 관을 박아 지하수를 양수(퍼 올림)하는 시설이에요. 저수지나 하천이 멀리 있는 밭작물 재배지에서 핵심적인 용수원이에요. 관정 굴착에는 허가(또는 신고)가 필요하고, 굴착 비용·수량·수질을 사전에 조사해야 해요. 귀농 시 농지 구입 전 기존 관정 유무를 확인하는 것이 중요해요.",
     category: "soil",
     aliases: ["우물", "농업관정"],
     related: ["관개"],
@@ -1452,7 +1463,7 @@ export const GLOSSARY_ENTRIES: GlossaryEntry[] = [
     term: "농촌돌봄농장",
     shortDesc: "복지기관과 연계해 취약계층 돌봄을 제공하는 사회적 농업 단위",
     longDesc:
-      "농촌돌봄농장은 사회적 농업의 실행 단위 중 하나로, 복지기관과 연계해 취약계층 돌봄·재활·직업훈련을 제공해요. 농식품부 공모에 선정되면 연 단위 정부 지원(최대 5,500만 원)을 받을 수 있어요.",
+      "농촌돌봄농장은 사회적 농업의 실행 단위 중 하나로, 복지기관과 연계해 취약계층 돌봄·재활·직업훈련을 제공해요. 농식품부 공모에 선정되면 연 단위로 정부 지원을 받아요. 지원액은 해마다 공모 공고에서 확인하세요.",
     category: "settlement",
     aliases: ["돌봄농장"],
     related: ["사회적 농업"],
@@ -1562,7 +1573,7 @@ export const GLOSSARY_ENTRIES: GlossaryEntry[] = [
     term: "농외소득",
     shortDesc: "농가 소득 중 농업 활동 외에서 발생하는 수입",
     longDesc:
-      "농외소득(農外所得)은 농가 전체 소득에서 농업 외 활동으로 얻는 수입을 뜻해요. 임대·임금·사업·이전·재산 소득이 모두 포함되며, 2023년 기준 한국 평균 농가소득의 약 60%가 농외소득이에요. 정착 초기에 농업 소득이 적을 때 농외소득(부업·연금·임대 등)으로 생활비를 보전하는 전략이 일반적이에요.",
+      `농외소득(農外所得)은 농가 소득 중 농업 외 활동(겸업·사업·근로·임대 등)으로 얻는 수입이에요. 보조금·연금 같은 이전소득은 따로 세요. ${_fy}년 평균 농가소득 ${_man(_sv.avgFarmHouseholdIncome)} 가운데 농외소득은 ${_man(_parts.offFarm)}(약 ${_pct(_parts.offFarm)}%), 이전소득은 ${_man(_parts.transfer)}이에요. 정착 초기에 농업 소득이 적을 때 농외소득(부업·임대 등)과 이전소득(연금 등)으로 생활비를 보전하는 전략이 일반적이에요.`,
     category: "economy",
     aliases: ["농업 외 소득"],
     related: ["6차산업"],

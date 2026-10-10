@@ -8,6 +8,8 @@
    ⚠️   공식 통계 미발표 항목 (시설별 상이·정성 정보)
    ========================================================================== */
 
+import { POLICY_TEXT, RETURN_FARM_LOAN } from "./policy-facts";
+
 export type TherapyTrackId = "healing" | "social";
 
 interface TherapyStat {
@@ -147,13 +149,14 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
         "두 가지 수익 경로가 있어요. ① 개인·가족 대상 체험 프로그램 수입, ② 복지기관(주1회 등) 정기 계약 매출. 안정적 운영의 핵심은 기관 정기 계약이에요.",
       funding: [
         {
-          label: "농촌 정착 창업자금",
-          value: "최대 3억원 (연 1.5%)",
+          label: "귀농 농업창업자금 (융자)",
+          // 2026-10-10: 연 1.5% 는 원문(보조금24 2.0%)과 달랐다 — policy-facts 로 통일
+          value: `최대 ${POLICY_TEXT.returnFarmStartupMax} (${RETURN_FARM_LOAN.interestRate.value})`,
           source: "농식품부 ★★★",
         },
         {
-          label: "농촌 주택구입자금",
-          value: "최대 7,500만 원 (연 1.5%)",
+          label: "귀농 주택구입자금 (융자)",
+          value: `최대 ${POLICY_TEXT.returnFarmHousingMax} (${RETURN_FARM_LOAN.interestRate.value})`,
           source: "농식품부 ★★★",
         },
         {
@@ -269,8 +272,8 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
         source: "농촌진흥청 ★★★",
       },
       {
-        title: "농촌 정착 창업자금",
-        detail: "최대 3억원, 연 1.5% 융자 — 치유농장 창업 연계 가능",
+        title: "귀농 농업창업자금",
+        detail: `최대 ${POLICY_TEXT.returnFarmStartupMax}, ${RETURN_FARM_LOAN.interestRate.value} 융자 — 치유농장 창업 연계 가능`,
         source: "농림축산식품부 ★★★",
       },
     ],
@@ -305,7 +308,7 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
       },
       {
         q: "국가 지원을 받을 수 있어요?",
-        a: "협업형 사업비(기관당 최대 500만 원), 농촌 정착 창업자금(최대 3억원, 1.5%), AI 플랫폼 사업 등 다양한 정부 지원이 있어요.",
+        a: `협업형 사업비(기관당 최대 500만 원), 귀농 농업창업자금(최대 ${POLICY_TEXT.returnFarmStartupMax} 융자, ${RETURN_FARM_LOAN.interestRate.value}), AI 플랫폼 사업 등 다양한 정부 지원이 있어요.`,
       },
       {
         q: "수익 실현까지 얼마나 걸려요?",
@@ -355,12 +358,6 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
         year: "2023",
         source: "농식품부 ★★★",
       },
-      {
-        label: "돌봄농장 최대 지원액",
-        value: "연 5,500만 원",
-        year: "2025",
-        source: "농식품부 돌봄서비스 활성화 ★★★",
-      },
     ],
     certification: {
       hasCertification: false,
@@ -381,37 +378,14 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
     },
     revenue: {
       summary:
-        "국비 70% + 지방비 30% + 자체 부담 구조예요. 사업 5종 중 한 가지에 선정되면 연 단위 지원금을 받아요. 운영조직 10명 이하가 59.3%로 소규모 중심이에요.",
+        "국비 70% + 지방비 30% + 자체 부담 구조예요. 공모에 선정되면 연 단위 지원금을 받고, 금액은 사업 유형과 연차에 따라 공고에서 정해져요. 운영조직 10명 이하가 59.3%로 소규모 중심이에요.",
       funding: [
+        // 10/10: 유형별 금액(2,000만·6,000만·9,000만·1억 5,500만·평균 5,500만·6,900만)은 원문 공고로 확인되지 않아 뺐다.
+        // 지원 단가는 해마다 공모 공고(농식품부 농촌돌봄서비스 활성화 지원사업)에서 정해진다.
         {
-          label: "사회적 농장 (1년차)",
-          value: "최대 2,000만 원",
-          source: "농식품부 2023~2025 ★★★",
-        },
-        {
-          label: "사회적 농장 (2~5년차)",
-          value: "최대 6,000만 원",
-          source: "농식품부 2023~2025 ★★★",
-        },
-        {
-          label: "농촌돌봄공동체",
-          value: "최대 9,000만 원",
-          source: "농식품부 ★★★",
-        },
-        {
-          label: "거점 농장",
-          value: "최대 1억 5,500만 원",
-          source: "농식품부 ★★★",
-        },
-        {
-          label: "돌봄농장 평균 지원",
-          value: "연 5,500만 원",
-          source: "농식품부 2025 ★★★",
-        },
-        {
-          label: "돌봄공동체 평균 지원",
-          value: "연 6,900만 원",
-          source: "농식품부 ★★★",
+          label: "지원 금액",
+          value: "사업 유형·연차별로 달라요 (공모 공고 확인)",
+          source: "농식품부 농촌돌봄서비스 활성화 지원사업",
         },
       ],
     },
@@ -484,22 +458,22 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
     supportPrograms: [
       {
         title: "사회적 농장 사업",
-        detail: "1년차 최대 2,000만 원, 2~5년차 최대 6,000만 원",
+        detail: "연 단위 지원 — 금액은 공모 공고에서 확인",
         source: "농식품부 ★★★",
       },
       {
         title: "농촌돌봄농장",
-        detail: "연 평균 5,500만 원 지원, 복지기관 연계 필수",
+        detail: "복지기관 연계 필수 — 금액은 공모 공고에서 확인",
         source: "농식품부 ★★★",
       },
       {
         title: "농촌주민 생활돌봄공동체",
-        detail: "최대 9,000만 원, 농촌 마을 단위 돌봄",
+        detail: "농촌 마을 단위 돌봄 — 금액은 공모 공고에서 확인",
         source: "농식품부 ★★★",
       },
       {
         title: "권역 거점 농장",
-        detail: "최대 1억 5,500만 원, 권역 허브 역할",
+        detail: "권역 허브 역할 — 금액은 공모 공고에서 확인",
         source: "농식품부 ★★★",
       },
       {
@@ -533,7 +507,7 @@ export const THERAPY_TRACKS: TherapyTrack[] = [
       },
       {
         q: "지원 금액 규모는 얼마예요?",
-        a: "사업 종류에 따라 달라요. 사회적 농장 1년차 최대 2,000만 원, 5년차 최대 6,000만 원, 돌봄공동체 9,000만 원, 거점 농장 1억 5,500만 원까지예요.",
+        a: "사업 유형과 연차에 따라 달라요. 지원 단가는 해마다 농식품부 공모 공고에서 정해지니, 그해 공고를 확인해 주세요.",
       },
       {
         q: "어떤 서비스를 제공할 수 있어요?",

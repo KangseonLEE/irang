@@ -1,3 +1,4 @@
+import { officialIncomeFigure } from "@/lib/crops/income";
 /**
  * 통합 검색 인덱스
  * - 사이트 내 존재하는 모든 데이터를 단일 검색 인덱스로 통합
@@ -16,6 +17,8 @@ import { GUS } from "./gus";
 import { REGION_REORGANIZATIONS, SIDO_REORGANIZATIONS } from "./region-reorganizations";
 import { getProvinceById, PROVINCES } from "./regions";
 import { CROPS, CROP_DETAILS } from "./crops";
+import { CROP_SIGUNGU_AREAS } from "./crop-sigungu-areas";
+import { GU_MAIN_CROPS, MAIN_CROP_RULE, MAIN_CROPS_SKEWED_PROVINCES } from "./sigungu-main-crops";
 import { PROGRAMS } from "./programs";
 import { deriveStatus, deriveEventStatus } from "@/lib/program-status";
 import { EDUCATION_COURSES } from "./education";
@@ -98,6 +101,26 @@ function getSearchIndex(): SearchItem[] {
   }));
 
   // ── 지역 (시군구) ──
+  // 작물명으로 지역이 걸리는 건 그 작물 재배면적 전국 상위(2025 농림어업총조사, crop-sigungu-areas.ts)인 곳만.
+  // 10/10 전엔 손 입력 mainCrops 전부가 키워드라 '쌀' 검색에 지역 135곳이 섞였고, 총조사 기준 mainCrops 를 그대로 넣으면
+  // 쌀이 190여 곳 1위라 더 늘어난다 — 작물 검색에서 지역은 '주산지'만 보인다.
+  const cropNameById = new Map(CROPS.map((c) => [c.id, c.name]));
+  const topProducerCrops = new Map<string, string[]>();
+  /** 작물 id → 주산지로 볼 최소 면적(ha) — 1위 면적의 5%, 최소 10ha (감귤: 서귀포 8,911ha 다음이 27ha) */
+  const producerFloor = new Map<string, number>();
+  for (const [cropId, stat] of Object.entries(CROP_SIGUNGU_AREAS)) {
+    const name = cropNameById.get(cropId);
+    if (!name) continue;
+    const floor = Math.max(MAIN_CROP_RULE.minAreaHa, (stat.top[0]?.area ?? 0) * 0.05);
+    producerFloor.set(cropId, floor);
+    for (const t of stat.top) {
+      // 기준 면적 미만·농가 주소지 쏠림 시·도(서울)는 주산지로 보지 않는다 — 주요 작물과 같은 규칙
+      if (t.area < floor) continue;
+      const sg = getSigunguById(t.sigunguId);
+      if (!sg || MAIN_CROPS_SKEWED_PROVINCES.includes(sg.sidoId)) continue;
+      topProducerCrops.set(t.sigunguId, [...(topProducerCrops.get(t.sigunguId) ?? []), name]);
+    }
+  }
   const sigunguItems: SearchItem[] = SIGUNGUS.map((sg) => {
     const province = getProvinceById(sg.sidoId);
     const provinceName = province?.name ?? "";
@@ -107,7 +130,7 @@ function getSearchIndex(): SearchItem[] {
       title: sg.name,
       subtitle: truncate(`${provinceName} · ${sg.description}`, 45),
       href: `/regions/${sg.sidoId}/${sg.id}`,
-      keywords: [sg.shortName, provinceName, ...sg.mainCrops, ...sg.highlights],
+      keywords: [sg.shortName, provinceName, ...(topProducerCrops.get(sg.id) ?? []), ...sg.highlights],
       icon: "\u{1F3E1}", // 🏡
     };
   });
@@ -131,7 +154,10 @@ function getSearchIndex(): SearchItem[] {
         ...(!g.shortName.endsWith("구") && `${g.shortName}구` !== g.name ? [`${g.shortName}구`] : []),
         sigunguName,
         provinceName,
-        ...g.mainCrops,
+        // 구는 그 구의 주요 작물 중 위 주산지 최소 면적을 넘는 것만(작물 주산지 순위 표는 시·군·구 단위)
+        ...(GU_MAIN_CROPS[g.id] ?? [])
+          .filter((e) => e.areaHa >= (producerFloor.get(e.cropId) ?? Infinity))
+          .map((e) => e.crop),
         ...g.highlights,
       ],
       icon: "\u{1F3E1}", // 🏡
@@ -366,7 +392,7 @@ function getSearchIndex(): SearchItem[] {
     type: "guide" as const,
     id: `step-${gs.step}`,
     title: `${gs.step}단계: ${gs.title}`,
-    subtitle: truncate(`${gs.period} · ${gs.cost.amount}`, 50),
+    subtitle: truncate(gs.cost.amount ? `${gs.period} · ${gs.cost.amount}` : gs.period, 50),
     href: `/guide#step-${gs.step}`,
     keywords: [
       gs.title,
@@ -678,8 +704,10 @@ const SYNONYMS: Record<string, string[]> = {
 
   // ── 카테고리 매핑 ──
   "채소류": ["채소"],
-  "과일": ["과수"],
-  "과일류": ["과수"],
+  // 딸기·수박·참외는 통계 분류상 채소(과채류, 10/11)지만 사람들은 '과일'로 찾는다
+  "과일": ["과수", "딸기", "수박", "참외"],
+  "과일류": ["과수", "딸기", "수박", "참외"],
+  "과채류": ["딸기", "수박", "참외", "토마토", "오이", "호박", "가지", "파프리카"],
   "특작": ["특용"],
   "특용작물": ["특용"],
   "식량작물": ["식량"],
@@ -2275,7 +2303,7 @@ export function buildSearchAnswer(query: string): SearchAnswer | null {
       const inc = detail?.income;
       const facts: SearchAnswerFact[] = [{ label: "난이도", value: crop.difficulty }];
       if (inc?.laborIntensity) facts.push({ label: "노동강도", value: inc.laborIntensity });
-      if (inc?.minScale) facts.push({ label: "최소규모", value: inc.minScale });
+      if (inc?.minScale) facts.push({ label: "권장 규모(참고)", value: inc.minScale });
       return {
         ...base,
         kind: intent.type,
@@ -2433,13 +2461,11 @@ export function buildCropPanel(query: string): CropPanel | null {
   const detail = CROP_DETAILS.find((d) => d.id === crop.id);
 
   const facts: SearchAnswerFact[] = [];
-  const revenue = leadSegment(detail?.income?.revenueRange);
-  if (revenue) facts.push({ label: "평균소득", value: revenue });
-  if (detail?.investmentDetail?.breakEvenPeriod) {
-    facts.push({ label: "손익분기", value: leadSegment(detail.investmentDetail.breakEvenPeriod)! });
-  }
+  // 10/10: 소득은 공식 통계(농진청 소득조사·KOSIS)가 있는 작물만 숫자로, 손익분기는 출처가 없어 뺐다.
+  const official = detail?.income ? officialIncomeFigure(detail.income) : null;
+  if (official) facts.push({ label: "10a당 소득", value: `${official}만 원` });
   if (detail?.income?.minScale) {
-    facts.push({ label: "최소규모", value: detail.income.minScale });
+    facts.push({ label: "권장 규모(참고)", value: detail.income.minScale });
   }
   const climate = leadSegment(detail?.cultivation?.climate);
   if (climate) facts.push({ label: "재배환경", value: climate });

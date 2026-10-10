@@ -12,7 +12,7 @@ import {
   type CropInfo,
   type CropDetailInfo,
 } from "@/lib/data/crops";
-import { parseIncome10a } from "@/app/crops/crop-aggregate";
+import { officialIncome10a, officialIncomeAgency } from "@/lib/crops/income";
 import { DataSource } from "@/components/ui/data-source";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { CropSelector, type CropSelectorItem } from "./crop-selector";
@@ -64,18 +64,18 @@ const selectorCrops: CropSelectorItem[] = CROPS.map((c) => ({
   description: c.description,
 }));
 
-/** revenueRange 문자열에서 소득 숫자(만원) 범위 추출 — 표기·차트용 */
-function parseIncomeRange(revenueRange: string): { min: number; max: number } {
-  const numbers = revenueRange.match(/[\d,]+(?:\.\d+)?/g);
-  if (!numbers || numbers.length === 0) return { min: 0, max: 0 };
-
-  const parsed = numbers.map((n) => parseFloat(n.replace(/,/g, "")));
-  const values = parsed.filter((v) => v !== 10);
-
-  if (values.length === 0) return { min: 0, max: 0 };
-  if (values.length === 1) return { min: values[0], max: values[0] };
-
-  return { min: Math.min(values[0], values[1]), max: Math.max(values[0], values[1]) };
+/**
+ * 공식 소득의 머리 숫자(만원) 범위 — "10a당 약 1,260~1,642만 원 (…)" → { 1260, 1642 }.
+ * 공식 통계가 아닌 '추정' 작목·1ha/임야 기준 표기는 { 0, 0 }(자료 없음) — 10/10: 종전엔 문자열의 숫자를 아무거나 집어
+ * 루꼴라 '1ha당 4,000~8,000'을 10a 값으로 그렸다.
+ */
+function parseIncomeRange(income: { revenueRange: string; source?: string }): { min: number; max: number } {
+  if (!officialIncomeAgency(income.source)) return { min: 0, max: 0 };
+  const m = income.revenueRange.match(/^10a당\s*약\s*([\d,]+)(?:\s*~\s*([\d,]+))?\s*만\s*원/);
+  if (!m) return { min: 0, max: 0 };
+  const lo = Number(m[1].replace(/,/g, ""));
+  const hi = m[2] ? Number(m[2].replace(/,/g, "")) : lo;
+  return { min: Math.min(lo, hi), max: Math.max(lo, hi) };
 }
 
 /** annualWorkdays 문자열에서 일수 추출 (예: "약 60~80일 (이앙·수확기 집중)" → 70 평균) */
@@ -218,7 +218,7 @@ export default async function CropComparePage({ searchParams }: PageProps) {
 function CompareBody({ crops }: { crops: CropWithDetail[] }) {
   // 스코어카드 best 강조 — 서버에서 미리 판정
   const incomeCenters = crops.map((c) => {
-    const { min, max } = parseIncomeRange(c.detail.income.revenueRange);
+    const { min, max } = parseIncomeRange(c.detail.income);
     return max > 0 ? Math.round((min + max) / 2) : null;
   });
   const validIncomes = incomeCenters.filter((v): v is number => v !== null);
@@ -237,7 +237,7 @@ function CompareBody({ crops }: { crops: CropWithDetail[] }) {
   ).length;
 
   const scoreItems: ScoreCardItem[] = crops.map((c, i) => {
-    const { min, max } = parseIncomeRange(c.detail.income.revenueRange);
+    const { min, max } = parseIncomeRange(c.detail.income);
     const incomeText =
       max <= 0
         ? null
@@ -271,22 +271,25 @@ function CompareBody({ crops }: { crops: CropWithDetail[] }) {
   });
 
   // 소득 차트 데이터
-  const incomeBarsData = crops.map((c) => {
-    const { min, max } = parseIncomeRange(c.detail.income.revenueRange);
+  const incomeRows = crops.map((c) => {
+    const { min, max } = parseIncomeRange(c.detail.income);
     return { id: c.id, name: c.name, incomeMin: min, incomeMax: max };
   });
+  // 공식 소득이 없는 작목은 막대에서 빼고 이름만 적는다(0 막대가 평균선을 끌어내리지 않게)
+  const incomeBarsData = incomeRows.filter((r) => r.incomeMax > 0);
+  const incomeExcluded = incomeRows.filter((r) => r.incomeMax <= 0);
 
-  // 산점도 데이터 — parseIncome10a 실값만, 파싱 불가 작물 제외
+  // 산점도 데이터 — 공식 소득(officialIncome10a)만, 추정·기준 다른 작물 제외
   const scatterCrops = crops
     .map((c) => {
-      const income10a = parseIncome10a(c.detail.income.revenueRange);
+      const income10a = officialIncome10a(c.detail.income);
       return income10a !== null
         ? { id: c.id, name: c.name, difficulty: c.difficulty, income10a }
         : null;
     })
     .filter((c): c is NonNullable<typeof c> => c !== null);
   const scatterExcluded = crops.filter(
-    (c) => parseIncome10a(c.detail.income.revenueRange) === null,
+    (c) => officialIncome10a(c.detail.income) === null,
   );
 
   // 장단점 아코디언 데이터
@@ -311,7 +314,12 @@ function CompareBody({ crops }: { crops: CropWithDetail[] }) {
       {/* 3. 소득 비교 (막대 + 평균선) */}
       <section className={s.chartSection}>
         <h3 className={s.chartSectionTitle}>예상 소득 비교</h3>
-        <IncomeBars crops={incomeBarsData} />
+        {incomeBarsData.length > 0 && <IncomeBars crops={incomeBarsData} />}
+        {incomeExcluded.length > 0 && (
+          <p className={s.scatterNote}>
+            {withJosa(incomeExcluded.map((c) => c.name).join("·"), "는")} 공식 소득 통계가 없어 막대에서 빠졌어요.
+          </p>
+        )}
       </section>
 
       {/* 4. 난이도 × 소득 산점도 (킬러 시각화) */}
@@ -323,7 +331,7 @@ function CompareBody({ crops }: { crops: CropWithDetail[] }) {
           <DifficultyIncomeScatter crops={scatterCrops} />
           {scatterExcluded.length > 0 && (
             <p className={s.scatterNote}>
-              {withJosa(scatterExcluded.map((c) => c.name).join("·"), "는")} 소득 기준이 달라
+              {withJosa(scatterExcluded.map((c) => c.name).join("·"), "는")} 공식 소득 통계가 없거나 기준이 달라
               산점도에서 빠졌어요.
             </p>
           )}

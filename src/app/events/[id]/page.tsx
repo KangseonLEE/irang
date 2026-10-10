@@ -31,6 +31,7 @@ import { Icon } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import s from "./page.module.css";
+import { offerPrice } from "./offer-price";
 
 /**
  * 같은 제목 회차를 가르려면 전체 행사가 필요하다 — generateMetadata 와 페이지가 한 요청에서 한 번만 읽게 (React cache).
@@ -106,13 +107,12 @@ function buildOffer(event: FarmEvent): Event["offers"] {
       : event.status === "접수예정"
         ? "https://schema.org/PreOrder"
         : "https://schema.org/InStock";
-  const isFree = event.cost.includes("무료");
   return {
     "@type": "Offer",
     url: event.url,
     availability,
     priceCurrency: "KRW",
-    ...(isFree ? { price: "0" } : {}),
+    ...offerPrice(event.cost),
     ...(event.applicationStart ? { validFrom: event.applicationStart } : {}),
   };
 }

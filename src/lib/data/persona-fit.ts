@@ -13,6 +13,7 @@ import type { CropInfo } from "./crops";
 import type { SupportProgram } from "./programs";
 import type { PersonaId } from "./personas";
 import { hasCollectorDefaults } from "@/lib/programs/display";
+import { POLICY_TEXT } from "./policy-facts";
 
 export type FitScore = 1 | 2 | 3 | 4 | 5;
 export type PersonaFit = Record<PersonaId, FitScore>;
@@ -478,13 +479,13 @@ export function getProgramPersonaFit(program: SupportProgram): PersonaFit {
 /** 사업 override 사유 카피 (Phase 6 B3 D1) — 사용자 노출 톤(~예요/세요). */
 const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-001": "후계농 융자(주택 포함)라 가족·본업 농가에 가장 맞아요",
-  "SP-002": "40세 이하 청년농 정착지원이라 본업 농가 전용이에요",
+  "SP-002": `${POLICY_TEXT.youthAgeMaxLabel} 청년농 정착지원이라 본업 농가 전용이에요`,
   "SP-003": "충남 청년창업농 교육이라 청년 본업 농가에 맞아요",
   "SP-004": "스마트팜 시설 사업이라 본업 농가 중심이에요",
   "SP-005": "체류형 살아보기라 통근·노년 귀촌에 잘 맞아요",
   "SP-006": "체류형 살아보기라 통근·노년 귀촌에 잘 맞아요",
   "SP-007": "체류형 살아보기라 통근·노년 귀촌에 잘 맞아요",
-  "SP-008": "월 80만 원 영농학습 지원이라 청년·가족에 적합해요",
+  "SP-008": "월 최대 80만 원 영농학습 지원이라 청년·가족에 적합해요",
   "SP-009": "체험형 농촌 프로그램이라 통근·노년·가족 모두 무난해요",
   "SP-010": "체류형 프로그램이라 통근·노년·가족 모두 무난해요",
   "SP-011": "농기원 실습 교육이라 청년·가족 입문자에게 맞아요",

@@ -18,6 +18,7 @@
 #   §15 cron/스케줄 워크플로 실패        → check-schedule-health.sh
 #   §17 GA4 계측 오염·급증               → check-ga4-anomaly.mjs
 #   §18 지자체 주관 활성 공고 공급량      → check-local-program-supply.ts
+#   §19 지원사업 원문 대조일 90일 경과    → check-program-verified.ts
 #
 # 설계 원칙:
 #   - 각 검사는 이슈를 직접 만들지 않는다. `등급|항목|근거` 1행을 findings 파일에
@@ -128,6 +129,10 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npx tsx scripts/watchman/check-local-program-supply.ts --ci
+
+      - name: "§19 지원사업 원문 대조일"
+        continue-on-error: true
+        run: npx tsx scripts/watchman/check-program-verified.ts --ci
 
       - name: "§6·§9·§10 의존성 + 정정 이력 + 모집 사이클"
         continue-on-error: true

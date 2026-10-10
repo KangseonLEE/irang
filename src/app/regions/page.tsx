@@ -19,7 +19,7 @@ import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
-import { POPULATION_FALLBACK } from "@/lib/data/population";
+import { POPULATION_FALLBACK, POPULATION_FALLBACK_YEAR } from "@/lib/data/population";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import dynamic from "next/dynamic";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
@@ -72,7 +72,7 @@ interface RegionsPageProps {
 
 export default async function RegionsPage({ searchParams }: RegionsPageProps) {
   const sp = await searchParams;
-  // 시/도별 인구밀도 계산 (정적 fallback 데이터 사용 — API 호출 불필요)
+  // 시/도별 인구밀도 계산 — SGIS 인구통계 생성본(population-trend.ts) 최신 연도 ÷ 지적통계 면적, API 호출 불필요
   const provinceDensityMap: Record<string, number> = {};
   for (const prov of PROVINCES) {
     const popData = POPULATION_FALLBACK.find((p) => p.sgisCode === prov.sgisCode);
@@ -114,7 +114,7 @@ export default async function RegionsPage({ searchParams }: RegionsPageProps) {
         </div>
         <div className={s.mapWrap}>
           <div className={s.densityLegend}>
-            <span className={s.densityLegendTitle}>인구밀도</span>
+            <span className={s.densityLegendTitle}>인구밀도 ({POPULATION_FALLBACK_YEAR})</span>
             <div className={s.densityLegendRow}>
               <span className={s.densityLegendLabel}>낮음</span>
               <div className={s.densityLegendBar} />

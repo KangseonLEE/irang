@@ -101,7 +101,7 @@ export default function CropAreaChart({ data }: Props) {
             tick={{ fontSize: 13, fill: "#374151", fontWeight: 600 }}
             tickLine={false}
             axisLine={false}
-            width={84}
+            width={104}
           />
           <Tooltip
             content={<CustomTooltip />}

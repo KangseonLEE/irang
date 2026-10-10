@@ -16,7 +16,9 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Article } from "schema-dts";
+import { investmentByAge, settlementSurvey } from "@/lib/data/stats";
 import s from "./page.module.css";
+import { POLICY_TEXT, RETURN_FARM_LOAN } from "@/lib/data/policy-facts";
 
 export const metadata: Metadata = {
   ...pageMetadata({
@@ -39,8 +41,8 @@ const COST_CARDS = [
     icon: Home,
     title: "농지·주택",
     items: [
-      { label: "매매", value: "1.5~3억 원", note: "지역·면적에 따라 편차 큼" },
-      { label: "임대", value: "월 30~80만 원", note: "보증금 별도" },
+      { label: "매매", value: "지역·면적마다 달라요", note: "농지은행 시세 정보로 확인" },
+      { label: "임대", value: "지역·면적마다 달라요", note: "농지은행 임대 매물로 확인" },
     ],
     tip: "초기에는 임대로 시작하는 게 리스크를 줄이는 방법이에요. 농지은행을 활용하면 합리적인 가격에 임차할 수 있어요.",
   },
@@ -48,8 +50,8 @@ const COST_CARDS = [
     icon: Warehouse,
     title: "시설·장비",
     items: [
-      { label: "비닐하우스", value: "3,000만~1억 원", note: "규모·자재에 따라" },
-      { label: "소형 농기계", value: "1,000~3,000만 원", note: "관리기, 경운기 등" },
+      { label: "비닐하우스", value: "규모·자재마다 달라요", note: "시·군 지원사업 확인" },
+      { label: "소형 농기계", value: "임대로 시작 가능", note: "농업기술센터 농기계 임대" },
     ],
     tip: "농업기술센터의 공동 임대 서비스를 활용하면 초기 투자비를 크게 줄일 수 있어요. 구매는 2~3년 경험 후 결정해도 늦지 않아요.",
   },
@@ -57,8 +59,8 @@ const COST_CARDS = [
     icon: ShoppingCart,
     title: "생활비",
     items: [
-      { label: "2인 가구 기준", value: "월 150~250만 원", note: "식비, 교통, 공과금 포함" },
-      { label: "초기 안정 자금", value: "3,600~6,000만 원", note: "2년치 생활비 별도 확보 권장" },
+      { label: "귀농 후 월평균", value: `${settlementSurvey.livingCostAfter}만 원`, note: `${settlementSurvey.year} 귀농·귀촌 실태조사` },
+      { label: "2년치 생활비", value: `약 ${(settlementSurvey.livingCostAfter * 24).toLocaleString("ko-KR")}만 원`, note: "월평균 생활비 × 24개월" },
     ],
     tip: "정착 후 첫 수확까지 소득 공백이 발생해요. 채소류 3~6개월, 과수류는 3~5년이 걸리므로 생활비를 미리 확보하세요.",
   },
@@ -79,7 +81,7 @@ const TIPS_50S = [
   },
   {
     title: "지원사업 적극 활용",
-    desc: "농촌 정착금(최대 3억 원 융자), 영농 자금 대출, 주택 수리비 지원(최대 2,000만 원) 등을 놓치지 마세요.",
+    desc: `귀농 창업자금(최대 ${POLICY_TEXT.returnFarmStartupMax} 융자), 영농 자금 대출, 시·군의 주택 수리비 지원(금액은 시·군마다 달라요) 등을 놓치지 마세요.`,
   },
 ];
 
@@ -154,7 +156,7 @@ export default function Budget50sGuidePage() {
           <Icon icon={AlertTriangle} size="md" color="warning" variant="soft" />
           <p className={s.cautionText}>
             <AutoGlossary
-              text="귀농 투자 평균 약 5,260만 원. 안정된 기반을 마련하는 데 4~5년이 걸리므로, 그 기간의 여유자금을 반드시 별도 확보하세요."
+              text={`50대 귀농 가구의 농지·가축·시설 투자액은 평균 ${(investmentByAge.find((a) => a.age === "50대")?.amount ?? settlementSurvey.investment).toLocaleString("ko-KR")}만 원이에요(${settlementSurvey.year} 실태조사, 전체 평균 ${settlementSurvey.investment.toLocaleString("ko-KR")}만 원). 안정된 기반을 마련하는 데 4~5년이 걸리므로, 그 기간의 여유자금을 반드시 별도 확보하세요.`}
               maxHighlights={2}
             />
           </p>
@@ -183,7 +185,7 @@ export default function Budget50sGuidePage() {
             <Icon icon={Banknote} size="md" variant="soft" />
             <div className={s.supportBody}>
               <strong>귀농 창업 정착금</strong>
-              <span>최대 3억 원 융자 (이자 2%대)</span>
+              <span>최대 {POLICY_TEXT.returnFarmStartupMax} 융자 ({RETURN_FARM_LOAN.interestRate.value})</span>
             </div>
           </div>
           <div className={s.supportItem}>
@@ -197,7 +199,7 @@ export default function Budget50sGuidePage() {
             <Icon icon={Banknote} size="md" variant="soft" />
             <div className={s.supportBody}>
               <strong>주택 수리비 지원</strong>
-              <span>최대 2,000만 원 (빈집 수리 포함)</span>
+              <span>시·군마다 달라요 (빈집 수리 포함)</span>
             </div>
           </div>
         </div>

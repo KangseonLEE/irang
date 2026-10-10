@@ -19,6 +19,17 @@ import {
   Leaf,
   type LucideIcon,
 } from "lucide-react";
+import {
+  EXCELLENT_SUCCESSOR,
+  POLICY_TEXT,
+  RETURN_FARM_LOAN,
+  YOUTH_SETTLEMENT,
+  formatManwon,
+} from "./policy-facts";
+
+const LOAN = RETURN_FARM_LOAN;
+const YOUTH = YOUTH_SETTLEMENT;
+const [YOUTH_AGE_MIN, YOUTH_AGE_MAX] = YOUTH.ageRange.value;
 
 /* ── 타입 ── */
 
@@ -138,20 +149,20 @@ const GUIDES: ProgramGuide[] = [
   {
     programId: "SP-001",
     intro:
-      "농림축산식품부가 운영하는 정착자 정착의 핵심 사업이에요. 농업창업자금 최대 3억 원, 주택구입자금 최대 7,500만 원을 연 2% 이내 저금리 융자로 지원해요. 시·군의 귀농귀촌 담당 부서(농업기술센터나 시청 부서)에서 상반기·하반기 두 번 모집하는 게 원칙이에요(상반기 1월 1일~2월 10일, 하반기 6월 1일~7월 10일 — 시·군마다 조금씩 달라요). 귀농 초기 가장 큰 부담인 정착비용을 크게 줄여주는 대표적인 정부 사업이에요.",
+      `농림축산식품부가 운영하는 귀농 정착의 핵심 사업이에요. 농업창업자금 최대 ${POLICY_TEXT.returnFarmStartupMax}, 주택구입자금 최대 ${POLICY_TEXT.returnFarmHousingMax}을 ${LOAN.interestRate.value} 저금리 융자로 지원해요. ${LOAN.applyOffice.value}에서 상반기·하반기 두 번 모집하는 게 원칙이에요(${LOAN.applicationWindow.value} — 시·군마다 조금씩 달라요). 귀농 초기 가장 큰 부담인 정착비용을 크게 줄여주는 대표적인 정부 사업이에요.`,
     highlights: [
-      "농업창업자금 최대 3억 원 + 주택구입 최대 7,500만 원 (연 2%)",
-      "5년 거치 10년 상환 — 초기 상환 부담 없음",
+      `농업창업자금 최대 ${POLICY_TEXT.returnFarmStartupMax} + 주택구입 최대 ${POLICY_TEXT.returnFarmHousingMax} (${LOAN.interestRate.value})`,
+      `${LOAN.repayment.value} — 초기 상환 부담 없음`,
       "전국 모든 시·군에서 신청 가능",
-      "영농교육 8시간 이상 이수가 자격, 100시간 미만은 심사 최저 등급",
+      `영농교육 ${LOAN.minEducationHours.value}시간 이상 이수가 자격, ${LOAN.lowestGradeBelowHours.value}시간 미만은 심사 최저 등급`,
       "정착 후 5년 이상 영농 종사 의무",
     ],
     steps: [
       {
         icon: GraduationCap,
-        title: "정착 교육 이수 (100시간 이상 권장)",
+        title: `정착 교육 이수 (${LOAN.lowestGradeBelowHours.value}시간 이상 권장)`,
         description:
-          "농림수산식품교육문화정보원, 농업기술원, 귀농귀촌종합센터 등에서 온·오프라인 교육을 이수하세요. 자격은 8시간 이상이지만 100시간 미만이면 심사에서 최저 등급(D)을 받아 사실상 100시간 이상이 필요해요. 온라인은 최대 50시간까지 인정돼요.",
+          `농림수산식품교육문화정보원, 농업기술원, 귀농귀촌종합센터 등에서 온·오프라인 교육을 이수하세요. 자격은 ${LOAN.minEducationHours.value}시간 이상이지만 ${LOAN.lowestGradeBelowHours.value}시간 미만이면 심사에서 최저 등급(D)을 받아 사실상 ${LOAN.lowestGradeBelowHours.value}시간 이상이 필요해요. 온라인은 최대 50시간까지 인정돼요.`,
       },
       {
         icon: MapPin,
@@ -163,13 +174,13 @@ const GUIDES: ProgramGuide[] = [
         icon: FileText,
         title: "농업경영체 등록",
         description:
-          "AGRIX 시스템에 농업경영체를 등록하세요. 농지 임대차 계약이나 소유 증빙이 필요해요.",
+          "국립농산물품질관리원(농관원)에 농업경영체를 등록하세요. 농지 임대차 계약이나 소유 증빙이 필요해요.",
       },
       {
         icon: ClipboardList,
         title: "신청서 접수",
         description:
-          "거주지 시·군 농업기술센터에 사업 신청서, 농업창업계획서, 교육 이수증 등을 제출해요. 매년 1~2월경 공고가 나와요.",
+          `${LOAN.applyOffice.value}를 찾아가 사업 신청서, 농업창업계획서, 교육 이수 증빙 등을 내요(방문 접수). 접수는 ${LOAN.applicationWindow.value} 두 번이 원칙이고, 실제 기간은 시·군 공고로 확인하세요.`,
       },
       {
         icon: CheckCircle2,
@@ -192,7 +203,7 @@ const GUIDES: ProgramGuide[] = [
       {
         question: "상환 조건이 어떻게 되나요?",
         answer:
-          "연 2% 이내 금리로 5년 거치 후 10년간 원금을 균등분할 상환해요. 조기 상환 수수료는 없어요.",
+          `${LOAN.interestRate.value} 금리로 ${LOAN.repayment.value} 조건이에요. 세부 상환 방식은 대출을 취급하는 농협과 상담하세요.`,
       },
       {
         question: "융자금 용도에 제한이 있나요?",
@@ -212,32 +223,32 @@ const GUIDES: ProgramGuide[] = [
   {
     programId: "SP-002",
     intro:
-      "만 39세 이하 청년이 농업에 안정적으로 정착할 수 있도록 최대 3년간 월 정착지원금을 지급하는 보조금 사업이에요. 1년차 월 110만 원, 2년차 월 100만 원, 3년차 월 90만 원으로 체감 지급되며, 전국 연간 약 2,000명을 선발해요. 독립 경영이 핵심 조건이에요.",
+      `${POLICY_TEXT.youthAgeMaxLabel} 청년이 농업에 안정적으로 정착할 수 있도록 최대 3년간 월 정착지원금을 지급하는 보조금 사업이에요. ${POLICY_TEXT.youthMonthly}으로 해마다 줄어들고, 독립 경영이 핵심 조건이에요.`,
     highlights: [
-      "월 최대 110만 원, 3년간 정착지원금 지급 (보조금, 상환 불필요)",
-      "전국 연간 약 2,000명 선발",
+      `${POLICY_TEXT.youthMonthlyMax}, 3년간 정착지원금 지급 (보조금, 상환 불필요)`,
+      `신청은 ${YOUTH.applyChannel.value}`,
       "청년농업희망카드(바우처)로 지급",
       "멘토 매칭으로 영농 기술 + 경영 역량 강화",
-      "만 18~39세 대상, 독립 경영 3년 이하",
+      `만 ${YOUTH_AGE_MIN}~${YOUTH_AGE_MAX}세 대상, 독립 경영 ${YOUTH.maxFarmingYears.value}년 이하`,
     ],
     steps: [
       {
         icon: UserCheck,
         title: "자격 요건 확인",
         description:
-          "만 18~39세, 독립경영 3년 이하, 신청 지자체 실거주가 기본 요건이에요. 본인 세대 건강보험료가 중위소득 140%(4인 기준)를 넘으면 신청할 수 없어요.",
+          `만 ${YOUTH_AGE_MIN}~${YOUTH_AGE_MAX}세, 독립경영 ${YOUTH.maxFarmingYears.value}년 이하, 신청 지자체 실거주가 기본 요건이에요. 본인 세대 건강보험료가 중위소득 140%(4인 기준)를 넘으면 신청할 수 없어요.`,
       },
       {
         icon: GraduationCap,
         title: "농업교육 이수 (배점 반영)",
         description:
-          "농고·농대 미졸업자는 농업교육 이수 시간이 서류평가 배점에 반영돼요(100시간 이상이면 만점). 3년 이상의 영농 경영 계획서를 함께 작성해요.",
+          `농고·농대 미졸업자는 농업교육 이수 시간이 서류평가 배점에 반영돼요(${YOUTH.educationFullScoreHours.value}시간 이상이면 만점). 3년 이상의 영농 경영 계획서를 함께 작성해요.`,
       },
       {
         icon: FileText,
         title: "농업경영체 등록 + 신청서 접수",
         description:
-          "AGRIX에 농업경영체를 독립 등록하고, 거주지 시·군·구 농업 부서에 신청서를 제출하세요. 보통 전년도 11~12월에 접수해요.",
+          `농업경영체를 독립 등록하고, ${YOUTH.applyChannel.value}으로 신청해요(방문 접수는 받지 않아요). 다음 해 대상자를 전년도 11~12월에 1차 선발해요(2026년 대상자는 ${YOUTH.firstRound2026.value}에 당시 시스템 Agrix로 접수했고, 2026년 6~7월 2차부터 농업e지로 바뀌었어요).`,
       },
       {
         icon: Users,
@@ -273,7 +284,7 @@ const GUIDES: ProgramGuide[] = [
       "면접에서 '왜 농업인가'에 대한 명확한 비전이 가장 중요해요.",
       "경영 계획서의 숫자(매출, 비용)를 구체적으로 설명할 수 있어야 해요.",
       "영농정착지원사업에 선정되면 귀농닥터 멘토링(1:1 현장 멘토링, 연 최대 8회 무료)도 신청할 수 있어요.",
-      "접수 기간이 짧으니(보통 2~3주) 공고가 나오면 바로 신청하세요.",
+      `접수 마감 시각이 지나면 수정·추가가 안 되니(2026년 대상자는 ${YOUTH.firstRound2026.value}) 서류를 미리 준비하세요.`,
     ],
   },
 
@@ -382,7 +393,7 @@ const GUIDES: ProgramGuide[] = [
       {
         question: "자기부담금이 1억 3,200만 원 이상 필요한데 어떻게 마련하나요?",
         answer:
-          "귀농 농업창업자금(최대 3억 원 융자)이나 농지은행 지원을 함께 활용하는 방법이 있어요. 사전에 자금 계획을 꼼꼼히 세우세요.",
+          `귀농 농업창업자금(최대 ${POLICY_TEXT.returnFarmStartupMax} 융자)이나 농지은행 지원을 함께 활용하는 방법이 있어요. 사전에 자금 계획을 꼼꼼히 세우세요.`,
       },
     ],
     tips: [
@@ -793,11 +804,11 @@ const GUIDES: ProgramGuide[] = [
   {
     programId: "SP-013",
     intro:
-      "후계농업경영인으로 선정된 지 5년 이상 경과한 영농 종사자를 대상으로 최대 2억 원을 연 1.5% 고정금리로 융자 지원하는 사업이에요. 5년 거치 10년 상환 조건이며, 전국 약 500명을 선발해요. 영농 규모 확대나 시설 현대화에 필요한 대규모 자금을 저리로 조달할 수 있어요.",
+      `후계농업경영인으로 선정된 지 5년 이상 경과한 영농 종사자를 대상으로 ${POLICY_TEXT.excellentSuccessorLoan} 융자를 지원하는 사업이에요. 전국 ${EXCELLENT_SUCCESSOR.quota.value}명을 선발해요(시·도별 배정 없음). 영농 규모 확대나 시설 현대화에 필요한 대규모 자금을 저리로 조달할 수 있어요.`,
     highlights: [
-      "최대 2억 원 융자 (연 1.5% 고정금리)",
-      "5년 거치 10년 상환 — 장기 상환 조건",
-      "전국 약 500명 선발",
+      `최대 ${formatManwon(EXCELLENT_SUCCESSOR.maxManwon.value)} 융자 (${EXCELLENT_SUCCESSOR.interestRate.value})`,
+      `${EXCELLENT_SUCCESSOR.repayment.value} — 장기 상환 조건`,
+      `전국 ${EXCELLENT_SUCCESSOR.quota.value}명 선발`,
       "영농 규모 확대·시설 현대화 자금으로 활용",
       "후계농업경영인 선정 후 5년 이상 경과자 대상",
     ],
@@ -806,25 +817,25 @@ const GUIDES: ProgramGuide[] = [
         icon: UserCheck,
         title: "자격 확인",
         description:
-          "후계농업경영인으로 선정된 지 5년 이상(2021년 이전 선정자)인지 확인하세요.",
+          "후계농업경영인으로 선정된 지 5년 이상(2021년까지 선정된 분)인지 확인하세요.",
       },
       {
         icon: ClipboardList,
-        title: "거주지 읍면동사무소에 신청",
+        title: "지자체 공고 확인 후 신청",
         description:
-          "거주지 읍면동사무소를 방문하여 육성자금 신청서와 영농 계획서를 제출해요.",
+          `접수처는 지자체마다 달라요(시·군 농업기술센터나 읍·면·동, 서울은 농업기술센터 인재육성팀). 사업계획서·대출신청자료·사전신용조사서 등을 내요. 2026년은 ${EXCELLENT_SUCCESSOR.period2026.value} 접수했어요.`,
       },
       {
         icon: Building2,
-        title: "시군구 → 시도 심사",
+        title: "지자체 평가 → 평가기관 검증",
         description:
-          "시·군·구에서 1차 심사 후 시·도에서 최종 심사를 진행해요.",
+          "지자체가 서류를 평가해 추천 대상자를 고르고, 평가기관이 그 결과를 검증한 뒤 합격자를 발표해요(2026년은 5월 말 발표 예정이었어요).",
       },
       {
         icon: Banknote,
         title: "융자 실행",
         description:
-          "선정 후 금융기관을 통해 융자금이 지급돼요.",
+          "선정 후 「우수후계농업경영인 역량강화교육」을 수료해야 대출을 신청할 수 있어요. 실제 대출 금액은 담보·신용 평가로 정해져요.",
       },
     ],
     faq: [
@@ -840,7 +851,7 @@ const GUIDES: ProgramGuide[] = [
       },
     ],
     tips: [
-      "접수 기간이 3~4주로 짧으니 공고가 나오면 바로 준비하세요.",
+      "접수 기간이 3주 남짓으로 짧으니 공고가 나오면 바로 준비하세요.",
       "영농 계획서에 구체적인 투자 계획과 예상 수익을 담아야 심사에 유리해요.",
       "청년농업인이라면 청년창업농 영농정착지원과 중복 수혜가 가능한지 확인하세요.",
     ],
@@ -850,13 +861,13 @@ const GUIDES: ProgramGuide[] = [
   {
     programId: "SP-014",
     intro:
-      "서울시 농업기술센터에서 운영하는 3일(14시간) 단기 집중 교육이에요. 식물공장, 아쿠아포닉스, 디지털농업, 스마트팜 온실 구축 등 실용적인 내용을 다루며, 현장 견학이 포함되어 있어요. 서울시 주민등록 거주자 40명을 선착순 모집하며 교육비는 전액 무료예요.",
+      "서울시 농업기술센터에서 운영하는 3일(14시간) 단기 집중 교육이에요. 식물공장, 아쿠아포닉스, 디지털농업, 스마트팜 온실 구축 등 실용적인 내용을 다루며, 현장 견학이 포함되어 있어요. 서울시 주민등록 거주자 40명(예비 5명을 더해 45명까지)을 선착순으로 받았고 교육비는 전액 무료예요.",
     highlights: [
       "3일 14시간 단기 집중 과정 — 부담 없이 참여 가능",
       "교육비 전액 무료",
       "식물공장·아쿠아포닉스·디지털농업·스마트팜 온실 등 실용 주제",
       "현장 견학 포함",
-      "서울시 거주자 40명 선착순 모집",
+      "서울시 거주자 40명 + 예비 5명 선착순 모집",
     ],
     steps: [
       {
@@ -869,7 +880,7 @@ const GUIDES: ProgramGuide[] = [
         icon: ClipboardList,
         title: "온라인 접수 (선착순)",
         description:
-          "홈페이지에서 온라인으로 접수해요. 40명 선착순이라 공고 즉시 신청하는 것이 중요해요.",
+          "홈페이지에서 온라인으로 접수해요. 예비 포함 45명 선착순이라 공고 즉시 신청하는 것이 중요해요.",
       },
       {
         icon: GraduationCap,

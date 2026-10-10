@@ -455,21 +455,6 @@ a.heroScoreBadge:focus-visible {
   }
 }
 
-.mainCropsList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.mainCropBadge {
-  font-size: var(--fs-body-sm);
-  font-weight: 600;
-  padding: 6px 14px;
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--primary, #1b6b5a) 8%, transparent);
-  color: var(--primary, #1b6b5a);
-}
-
 /* ---- 지원사업 · 교육 · 행사 (시/도와 동일 패턴) ---- */
 .programList {
   display: flex;

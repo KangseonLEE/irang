@@ -5,10 +5,12 @@
 import { CROPS, CROP_DETAILS, type CropInfo } from "@/lib/data/crops";
 import { PROVINCES } from "@/lib/data/regions";
 import { parseIncome10a } from "@/lib/format";
+import { officialIncome10a, officialIncomeFigure } from "@/lib/crops/income";
 import type { CropRow } from "./crop-list";
 import type { CropFact, CropIncomeFact } from "./crop-dashboard";
 
 export { parseIncome10a };
+
 
 /** 행정구역 정식명 → 짧은 표기(전남·충남 등) 매핑. PROVINCES SSOT 기준. */
 const PROVINCE_SHORT = new Map(PROVINCES.map((p) => [p.name, p.shortName]));
@@ -105,7 +107,7 @@ export function buildCropRows(crops: CropInfo[]): CropRow[] {
       difficulty: crop.difficulty,
       growingSeason: crop.growingSeason,
       laborIntensity: detail?.income.laborIntensity ?? null,
-      income10a: detail ? parseIncome10a(detail.income.revenueRange) : null,
+      incomeText: detail ? officialIncomeFigure(detail.income) : null,
       majorRegions:
         detail && detail.majorRegions.length > 0
           ? detail.majorRegions.slice(0, 3).map(toShort).join(", ")
@@ -142,8 +144,8 @@ export function buildCropFacts(): {
 
 /**
  * 10a당 연소득 비교 차트용 facts.
- * - revenueRange 선두 패턴이 파싱되는 작물만 포함 (10a·1ha 기준)
- * - 임산물 등 기준이 다른 작물은 제외하고 id/name을 별도 반환 (각주용)
+ * - 공식 소득(officialIncome10a — 농진청 2025 소득 조사·통계청 생산비조사)만 포함. 추정 작목은 제외(10/10)
+ * - 제외한 작물은 id/name을 별도 반환 (각주용)
  * - 모든 수치는 동적 파싱 — 하드코딩 없음
  */
 export function buildIncomeFacts(): {
@@ -155,7 +157,7 @@ export function buildIncomeFacts(): {
   for (const crop of CROPS) {
     const detail = detailById.get(crop.id);
     const income10a = detail
-      ? parseIncome10a(detail.income.revenueRange)
+      ? officialIncome10a(detail.income)
       : null;
     if (income10a === null) {
       excludedNames.push(crop.name);

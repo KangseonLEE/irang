@@ -268,7 +268,7 @@ export default async function LaneHubPage({ params }: { params: Promise<{ lane: 
           <div className={s.sectionBody}>
             {hub.costCards.length > 0 && (
               <>
-                <h3 className={s.subTitle}>대표 작물 비용</h3>
+                <h3 className={s.subTitle}>대표 작물 소득</h3>
                 <ul className={s.costGrid}>
                   {hub.costCards.map((c) => {
                     const inner = (
@@ -293,19 +293,16 @@ export default async function LaneHubPage({ params }: { params: Promise<{ lane: 
                             <span className={s.costName}>{c.name}</span>
                             <DifficultyBadge level={c.difficulty} size="sm" />
                           </span>
-                          {c.facilityType && <span className={s.costFacility}>{c.facilityType}</span>}
+                          {c.basis && <span className={s.costFacility}>{c.basis}</span>}
+                          {/* 10/10: 원문이 없던 초기 투자금·연 운영비·손익분기 대신 작물 상세의 공식 소득·노동일 */}
                           <dl className={s.costRows}>
                             <div className={s.costRow}>
-                              <dt>초기 투자금</dt>
-                              <dd>{c.initialCost}</dd>
+                              <dt>10a당 소득</dt>
+                              <dd>{c.income}</dd>
                             </div>
                             <div className={s.costRow}>
-                              <dt>연 운영비</dt>
-                              <dd>{c.annual}</dd>
-                            </div>
-                            <div className={s.costRow}>
-                              <dt>손익분기</dt>
-                              <dd>{c.breakEven}</dd>
+                              <dt>노동일</dt>
+                              <dd>{c.labor}</dd>
                             </div>
                           </dl>
                           {!costSharedSource && <span className={s.costSource}>{c.source}</span>}

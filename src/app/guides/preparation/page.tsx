@@ -18,6 +18,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { HowTo } from "schema-dts";
 import s from "./page.module.css";
+import { RETURN_FARM_LOAN } from "@/lib/data/policy-facts";
 
 export const metadata: Metadata = {
   ...pageMetadata({
@@ -67,7 +68,7 @@ const STEPS: Step[] = [
     title: "교육 이수",
     period: "2~4개월 전",
     items: [
-      "시·도 농업기술센터에서 정착 창업 교육을 이수하세요. 창업자금 융자는 8시간 이상이 자격이지만 100시간 미만이면 심사 최저 등급이라 100시간 이상을 권해요.",
+      `시·도 농업기술센터에서 정착 창업 교육을 이수하세요. 창업자금 융자는 ${RETURN_FARM_LOAN.minEducationHours.value}시간 이상이 자격이지만 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 미만이면 심사 최저 등급이라 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 이상을 권해요.`,
       "관심 작물 관련 전문 교육(과수 재배, 스마트팜 등)도 병행하면 좋아요.",
       "교육 과정에서 만난 동기생이 정착 후 가장 든든한 네트워크가 돼요.",
       "체류형 귀농 교육은 숙박 + 현장 실습이 포함되어 현지 생활을 미리 경험할 수 있어요.",

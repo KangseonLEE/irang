@@ -27,6 +27,8 @@ import { DataSource } from "@/components/ui/data-source";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import type { RegionItem } from "./region-item";
 import { withJosa } from "@/lib/format";
+import { CROP_SIGUNGU_AREAS } from "@/lib/data/crop-sigungu-areas";
+import { MAIN_CROPS_RESIDENCE_SKEW } from "@/lib/data/sigungu-main-crops";
 import s from "./suitability-view.module.css";
 import metric from "./climate-view.module.css";
 
@@ -194,7 +196,15 @@ function SuitabilityMetrics({
 }) {
   const results: VerdictResult[] = regions.map((region) => {
     const climate = climateByStation.get(region.station.stnId);
-    const isMajorRegion = detail.majorRegions.includes(region.station.province);
+    // 시·군·구를 고른 경우 시·도 주산지를 그대로 물려주지 않는다(10/10 3차 QA — 주소지 쏠림으로 뺀 안양이 '쌀 주산지'로 보였다).
+    // 총조사 시·군·구 재배면적 상위 목록이 있는 작물은 그 목록으로, 없으면 시·도 주산지이면서 주소지 쏠림 단위가 아닐 때만.
+    const sigunguTop = CROP_SIGUNGU_AREAS[detail.id]?.top;
+    const skew = region.sigungu ? MAIN_CROPS_RESIDENCE_SKEW[region.sigungu.id] : undefined;
+    const isMajorRegion = region.sigungu
+      ? sigunguTop
+        ? sigunguTop.some((t) => t.sigunguId === region.sigungu!.id)
+        : detail.majorRegions.includes(region.station.province) && !skew?.all
+      : detail.majorRegions.includes(region.station.province);
     const parsed = parseClimateTemp(detail.cultivation.climate);
     const tempFit: TempFit =
       parsed && climate

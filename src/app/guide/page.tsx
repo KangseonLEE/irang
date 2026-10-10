@@ -27,7 +27,9 @@ import { GuidePersonalize } from "./guide-personalize";
 import { interviews, hasFullStory } from "@/lib/data/landing";
 import { GUIDE_STEP_SUMMARIES } from "@/lib/data/guide-steps";
 import { MessageSquareQuote } from "lucide-react";
+import { settlementSurvey } from "@/lib/data/stats";
 import s from "./page.module.css";
+import { POLICY_TEXT, RETURN_FARM_LOAN } from "@/lib/data/policy-facts";
 
 /**
  * 가이드 단계별 관련 인터뷰 매핑
@@ -117,11 +119,11 @@ const STEPS: GuideStep[] = [
     title: "교육 이수",
     period: "3~6개월",
     summary:
-      "귀농 관련 교육을 이수하는 단계예요. 창업자금 융자는 8시간 이상이 자격이지만 100시간 미만이면 심사 최저 등급이라, 대부분 100시간을 목표로 준비해요.",
+      `귀농 관련 교육을 이수하는 단계예요. 창업자금 융자는 ${RETURN_FARM_LOAN.minEducationHours.value}시간 이상이 자격이지만 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 미만이면 심사 최저 등급이라, 대부분 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간을 목표로 준비해요.`,
     details: [
       "귀농귀촌종합센터, 농업기술센터, 한국농수산대학 등에서 교육을 수강하세요.",
       "이론교육(온라인)과 실습교육(오프라인)을 균형 있게 이수하세요.",
-      "정착 창업 교육을 100시간 이상 채워 두면 창업자금 심사 등급이 올라가고, 농촌 정착지원금·농지 임대 같은 지원사업 준비도 한결 수월해져요.",
+      `정착 창업 교육을 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 이상 채워 두면 창업자금 심사 등급이 올라가고, 농촌 정착지원금·농지 임대 같은 지원사업 준비도 한결 수월해져요.`,
       "교육 과정에서 만나는 동기생들이 정착 후 가장 든든한 네트워크가 돼요.",
       "가능하면 관심 작물과 관련된 전문 교육(예: 과수 재배, 스마트팜 등)도 병행하세요.",
     ],
@@ -129,7 +131,7 @@ const STEPS: GuideStep[] = [
       "귀농 기초 교육 수강 신청",
       "온라인 교육 수강 (이론)",
       "오프라인 실습 교육 참여",
-      "교육 이수 인증서 확보 (100시간 이상 권장)",
+      `교육 이수 인증서 확보 (${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 이상 권장)`,
       "관심 작물 전문 교육 수강",
       "교육 동기생 네트워크 구축",
     ],
@@ -217,7 +219,7 @@ const STEPS: GuideStep[] = [
       "작물 선택은 지역보다 먼저 고민하는 게 좋아요. 작물에 따라 최적 기후·토양·판로가 달라지기 때문이에요.",
     ],
     caution:
-      "이 단계의 투자 비용이 평균 약 5,260만 원으로 가장 커요. 안정된 기반을 마련하는 데 4~5년이 걸리므로, 그 기간의 여유자금과 예비비를 반드시 별도 확보한 뒤 투자하세요.",
+      `이 단계의 투자 비용이 가장 커요 — 귀농 가구의 농지·가축·시설 투자액은 평균 ${settlementSurvey.investment.toLocaleString("ko-KR")}만 원이에요(${settlementSurvey.year} 귀농·귀촌 실태조사). 안정된 기반을 마련하는 데 4~5년이 걸리므로, 그 기간의 여유자금과 예비비를 반드시 별도 확보한 뒤 투자하세요.`,
     links: [
       { label: "작물 난이도·수익 비교", href: "/crops" },
       { label: "지원사업 검색", href: "/programs" },
@@ -232,7 +234,7 @@ const STEPS: GuideStep[] = [
     summary:
       "주거를 안정시키고, 지역 커뮤니티에 합류하며, 지속 가능한 영농 기반을 다지는 단계예요.",
     details: [
-      "귀농 주택 수리비 지원(최대 2,000만 원), 빈집 수리 지원 등을 활용하여 주거를 안정시키세요.",
+      "시·군의 귀농 주택 수리비·빈집 수리 지원(금액은 시·군마다 달라요)을 활용하여 주거를 안정시키세요.",
       "마을 이장·부녀회·청년농업인 모임 등 지역 커뮤니티에 적극 참여하세요. 농촌은 '관계'가 곧 인프라예요.",
       "수확물의 판로를 확보하세요. 직거래, 로컬푸드 매장, 학교 급식, 온라인 판매 등 여러 채널을 시도하세요.",
       "첫 수확 후 결과를 분석하여 2년차 영농 계획을 수정하세요.",
@@ -278,10 +280,10 @@ export default function GuidePage() {
       >
         <figure className={s.heroCostGroup}>
           <span className={s.heroCostBadge}>
-            총 예상 비용 약 6,350~6,500만 원 · 지원사업 활용 시 절감 가능
+            귀농 가구 평균 농지·가축·시설 투자 {settlementSurvey.investment.toLocaleString("ko-KR")}만 원
           </span>
           <figcaption className={s.heroCostSource}>
-            출처: 농림축산식품부 정착자 실태조사 기준 평균
+            출처: 농림축산식품부 {settlementSurvey.year} 귀농·귀촌 실태조사
           </figcaption>
         </figure>
       </SubPageHero>
@@ -363,8 +365,8 @@ export default function GuidePage() {
                 return (
                   <div className={`${s.stepCostCard} ${stepCost.highlight ? s.stepCostHighlight : ""}`}>
                     <div className={s.stepCostHeader}>
-                      <span className={s.stepCostLabel}>예상 비용</span>
-                      <span className={s.stepCostAmount}>{stepCost.amount}</span>
+                      <span className={s.stepCostLabel}>{stepCost.amount ? "예상 비용" : "드는 비용"}</span>
+                      {stepCost.amount && <span className={s.stepCostAmount}>{stepCost.amount}</span>}
                     </div>
                     <span className={s.stepCostDesc}>{stepCost.desc}</span>
                   </div>
@@ -480,7 +482,7 @@ export default function GuidePage() {
             <ul className={s.altModelPoints}>
               <li>치유농업법 2021년 시행</li>
               <li>시·도 치유농업센터 17곳</li>
-              <li>창업 자금 협업형 500만 원·융자 최대 3억원</li>
+              <li>창업 자금 협업형 500만 원·융자 최대 {POLICY_TEXT.returnFarmStartupMax}</li>
             </ul>
             <span className={s.altModelArrow}>
               자세히 보기
@@ -502,7 +504,7 @@ export default function GuidePage() {
             <ul className={s.altModelPoints}>
               <li>국비 70 + 지방비 30 매칭</li>
               <li>장애·고령·다문화·저소득 대상 5종 사업</li>
-              <li>연 최대 9,000만 원·14개 시·도 105 주체</li>
+              <li>14개 시·도 105 주체 (2023)</li>
             </ul>
             <span className={s.altModelArrow}>
               자세히 보기

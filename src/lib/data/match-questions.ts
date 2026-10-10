@@ -40,6 +40,7 @@ import {
   Hourglass,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
+import { POLICY_TEXT, YOUTH_SETTLEMENT } from "./policy-facts";
 
 /* ── 질문 인터페이스 ── */
 
@@ -134,13 +135,13 @@ export const QUESTIONS: Question[] = [
         id: "vegetable",
         label: "채소",
         icon: Leaf,
-        description: "고추, 마늘, 배추, 양파 등",
+        description: "고추, 마늘, 배추, 딸기·수박 등",
       },
       {
         id: "fruit",
         label: "과수",
         icon: Apple,
-        description: "사과, 딸기, 포도, 감귤 등",
+        description: "사과, 배, 포도, 감귤 등",
       },
       {
         id: "special",
@@ -418,7 +419,7 @@ export const FARM_TYPES: FarmType[] = [
     emoji: "🚀",
     tagline: "청년의 에너지로 농업에 도전하는 당신",
     description:
-      "만 39세 이하 청년이 농업을 창업으로 접근하는 유형이에요. 청년 귀농 정착지원금(월 최대 110만 원, 최장 3년), 청년 창업농 영농정착 지원, 스마트팜 청년창업 보육 등 청년 전용 지원사업이 풍부해요.",
+      `${POLICY_TEXT.youthAgeMaxLabel} 청년이 농업을 창업으로 접근하는 유형이에요. 청년농업인 영농정착지원금(${POLICY_TEXT.youthMonthlyMax}, 최장 ${YOUTH_SETTLEMENT.monthlyManwonByYear.value.length}년), 스마트팜 청년창업 보육 등 청년 전용 지원사업이 풍부해요.`,
     traits: ["청년 전용 지원", "창업 마인드", "빠른 정착"],
     programIds: ["SP-012", "SP-002", "SP-003", "SP-001", "SP-004"],
   },

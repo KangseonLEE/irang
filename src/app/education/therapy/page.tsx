@@ -35,6 +35,7 @@ import {
 import { interviews } from "@/lib/data/landing";
 import { ModelMiniQuiz } from "./model-mini-quiz";
 import s from "./page.module.css";
+import { POLICY_TEXT } from "@/lib/data/policy-facts";
 
 const DESCRIPTION =
   "작물 생산 말고도 선택지가 있어요. 치유농업과 사회적 농업, 두 모델의 자격·수익·사례·지원사업을 한눈에 비교해 보세요.";
@@ -217,8 +218,8 @@ function OverviewTab() {
           />
           <CompareRow
             label="지원 규모"
-            healing="협업형 500만 원 + 창업 3억원(융자)"
-            social="연 2,000~15,500만 원 (사업 5종)"
+            healing={`협업형 500만 원 + 귀농 창업자금 ${POLICY_TEXT.returnFarmStartupMax}(융자)`}
+            social="사업 유형·연차별 (공모 공고 확인)"
           />
           <CompareRow
             label="주관 부처"

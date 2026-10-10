@@ -666,8 +666,8 @@ export function CropDashboard({
             ))}
           </div>
           <p className={s.incomeNote}>
-            10a(1,000㎡) 기준 · 임산물 등 기준이 다른 {excludedIncomeNames.length}종은
-            제외 · 출처: 농촌진흥청 농업소득자료집 2024·통계청
+            10a(1,000㎡) 기준, 범위가 있는 작물은 가운데 값 · 공식 소득 통계가 없는 {excludedIncomeNames.length}종은
+            제외 · 출처: 농촌진흥청 2025년도 농산물 소득 조사·통계청 농축산물생산비조사
           </p>
         </div>
       </div>

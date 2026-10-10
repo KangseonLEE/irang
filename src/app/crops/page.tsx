@@ -34,6 +34,7 @@ import { CalendarModal } from "./calendar-modal";
 import { CropRequestButton } from "./crop-request-button";
 import { CropList } from "./crop-list";
 import { CropDashboard } from "./crop-dashboard";
+import { beginnerCropsAnswer, cropIncomeAnswer } from "./crops-faq";
 import {
   buildCropRows,
   buildCropFacts,
@@ -151,7 +152,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
               name: "초보자에게 추천하는 정착 작물은 무엇인가요?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "쌀, 고구마, 감자 등 밭작물이 난이도가 낮아 초보자에게 적합해요. 시설 투자가 적고 재배 기술이 비교적 간단해요.",
+                text: beginnerCropsAnswer(),
               },
             },
             {
@@ -159,7 +160,7 @@ export default async function CropsPage({ searchParams }: PageProps) {
               name: "정착 작물별 예상 소득은 어떻게 되나요?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "농촌진흥청 2025년도 조사 기준, 10a당 딸기(수경) 약 1,642만 원, 사과 약 570만 원, 고구마 약 180만 원 수준이에요. 작물별 상세 소득은 이랑에서 비교할 수 있어요.",
+                text: cropIncomeAnswer(),
               },
             },
           ],
