@@ -47,6 +47,7 @@ import { PROVINCES } from "@/lib/data/regions";
 import {
   getMajorSigungusForCrop,
   getMajorSigunguLinksForCrop,
+  SIGUNGUS,
 } from "@/lib/data/sigungus";
 import {
   fetchRiceIncome,
@@ -54,6 +55,7 @@ import {
   CROP_INCOME_TABLE,
 } from "@/lib/api/kosis";
 import { CROP_AREAS, type CropAreaStat } from "@/lib/data/crop-areas";
+import { CROP_SIGUNGU_AREAS, CROP_SIGUNGU_YEAR, type CropSigunguArea } from "@/lib/data/crop-sigungu-areas";
 import { PROGRAMS } from "@/lib/data/programs";
 import { kstToday } from "@/lib/program-status";
 import { GlossaryTerm } from "@/components/ui/term-tooltip";
@@ -327,11 +329,13 @@ export default async function CropDetailPage({
   const majorSidoIds = detail.majorRegions
     .map((rname) => PROVINCES.find((p) => p.name === rname)?.id)
     .filter((id): id is string => Boolean(id));
-  const majorSigunguShortNames = getMajorSigungusForCrop(
-    data.name,
-    majorSidoIds,
-    6,
-  );
+  // 총조사 재배면적 순이 있으면 그 순서(본문 '주요 산지' 칩과 같은 근거, 10/10), 없으면 mainCrops 태그
+  const censusTop = CROP_SIGUNGU_AREAS[id]?.top;
+  const majorSigunguShortNames = censusTop
+    ? censusTop
+        .slice(0, 6)
+        .flatMap((t) => SIGUNGUS.find((x) => x.id === t.sigunguId)?.shortName ?? [])
+    : getMajorSigungusForCrop(data.name, majorSidoIds, 6);
   const hasSigunguMatch = majorSigunguShortNames.length > 0;
   const majorRegionLabel = hasSigunguMatch
     ? majorSigunguShortNames.join("·")
@@ -590,6 +594,7 @@ export default async function CropDetailPage({
           <RegionSection
             majorRegions={detail.majorRegions}
             cropArea={cropArea}
+            cropSigungu={CROP_SIGUNGU_AREAS[id] ?? null}
             cropName={data.name}
             majorSidoIds={majorSidoIds}
           />
@@ -977,11 +982,13 @@ function ProsConsSection({ prosCons }: { prosCons: ProsConsInfo }) {
 function RegionSection({
   majorRegions,
   cropArea,
+  cropSigungu,
   cropName,
   majorSidoIds,
 }: {
   majorRegions: string[];
   cropArea: CropAreaStat | null;
+  cropSigungu: CropSigunguArea | null;
   cropName: string;
   majorSidoIds: string[];
 }) {
@@ -997,7 +1004,14 @@ function RegionSection({
 
   // 시·군·구 단위 cross-link (5/22 회장 fix) — sidebar와 동일 helper.
   // 본문은 차트(시·도 KOSIS 정량) + 시·군·구 chip row(정성)를 함께 노출.
-  const sigunguLinks = getMajorSigunguLinksForCrop(cropName, majorSidoIds, 8);
+  // 2025 농림어업총조사 재배면적이 있는 작물은 그 순서(scripts/collect-crop-sigungu-areas.ts, 10/10),
+  // 없으면 mainCrops 태그 — 태그 순서는 목록 순서라 '주요 산지'의 근거가 아니었다(쌀 → 목포·여수·순천).
+  const sigunguLinks = cropSigungu
+    ? cropSigungu.top.slice(0, 8).flatMap((t) => {
+        const sg = SIGUNGUS.find((x) => x.id === t.sigunguId);
+        return sg ? [{ id: sg.id, sidoId: sg.sidoId, shortName: sg.shortName, name: sg.name }] : [];
+      })
+    : getMajorSigunguLinksForCrop(cropName, majorSidoIds, 8);
 
   return (
     <section id="region" className={s.section}>
@@ -1088,6 +1102,12 @@ function RegionSection({
                 </Link>
               ))}
             </div>
+            {cropSigungu && (
+              <DataSource
+                source={`국가데이터처 ${CROP_SIGUNGU_YEAR} 농림어업총조사`}
+                note="재배면적 큰 순"
+              />
+            )}
           </div>
         )}
 

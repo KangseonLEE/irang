@@ -61,3 +61,21 @@ describe("작물 시·도 재배면적", () => {
     }
   });
 });
+
+describe("작물 주산지(majorRegions) = 재배면적 순 (10/10 정정)", () => {
+  // 규칙: 1위 시·도 + 전국의 5% 이상인 시·도를 큰 순으로, 최대 max(3, 그 작물 칸 수)
+  it("KOSIS 면적이 있는 작물은 주산지가 면적 순 상위 시·도와 같다", async () => {
+    const { CROP_DETAILS } = await import("@/lib/data/crops");
+    for (const d of CROP_DETAILS) {
+      const a = CROP_AREAS[d.id];
+      if (!a) continue;
+      const names = a.provinces.map((p) => PROVINCES.find((x) => x.id === p.provinceId)!.name);
+      expect(d.majorRegions[0], `${d.id} 주산지 1위`).toBe(names[0]);
+      expect(d.majorRegions, d.id).toEqual(names.slice(0, d.majorRegions.length));
+      for (const r of d.majorRegions.slice(1)) {
+        const p = a.provinces[names.indexOf(r)];
+        expect(p.areaHa / a.totalHa, `${d.id} ${r} 비중`).toBeGreaterThanOrEqual(0.05);
+      }
+    }
+  });
+});
