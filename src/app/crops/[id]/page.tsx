@@ -49,12 +49,11 @@ import {
   getMajorSigunguLinksForCrop,
 } from "@/lib/data/sigungus";
 import {
-  fetchCropStats,
   fetchRiceIncome,
   fetchCropIncome,
   CROP_INCOME_TABLE,
-  type CropStatItem,
 } from "@/lib/api/kosis";
+import { CROP_AREAS, type CropAreaStat } from "@/lib/data/crop-areas";
 import { PROGRAMS } from "@/lib/data/programs";
 import { kstToday } from "@/lib/program-status";
 import { GlossaryTerm } from "@/components/ui/term-tooltip";
@@ -243,12 +242,8 @@ export default async function CropDetailPage({
     return <CropMinimalFallback crop={cropOnly} />;
   }
 
-  const cropStats = data.detail.kosisConfig
-    ? await fetchCropStats(
-        data.detail.kosisConfig.tblId,
-        data.detail.kosisConfig.objL1Code
-      ).catch(() => [] as CropStatItem[])
-    : [];
+  // 시·도 재배면적 — scripts/collect-crop-areas.ts 가 KOSIS 원천과 대조해 고정한 자료(실행 중 외부 호출 0, 10/9)
+  const cropArea = CROP_AREAS[id] ?? null;
 
   // KOSIS 생산비조사에서 최신 소득 데이터 자동 갱신 (쌀·마늘·양파·콩)
   let incomeData = data.detail.income;
@@ -594,7 +589,7 @@ export default async function CropDetailPage({
           {/* 인기 재배지역 */}
           <RegionSection
             majorRegions={detail.majorRegions}
-            cropStats={cropStats}
+            cropArea={cropArea}
             cropName={data.name}
             majorSidoIds={majorSidoIds}
           />
@@ -981,21 +976,24 @@ function ProsConsSection({ prosCons }: { prosCons: ProsConsInfo }) {
 
 function RegionSection({
   majorRegions,
-  cropStats,
+  cropArea,
   cropName,
   majorSidoIds,
 }: {
   majorRegions: string[];
-  cropStats: CropStatItem[];
+  cropArea: CropAreaStat | null;
   cropName: string;
   majorSidoIds: string[];
 }) {
-  const top5 = cropStats
-    .filter((st) => st.regionName !== "전국" && st.regionName !== "계" && st.cultivationArea > 0)
-    .sort((a, b) => b.cultivationArea - a.cultivationArea)
-    .slice(0, 5);
+  const top5 = (cropArea?.provinces ?? [])
+    .filter((p) => p.areaHa > 0)
+    .slice(0, 5)
+    .flatMap((p) => {
+      const province = PROVINCES.find((pr) => pr.id === p.provinceId);
+      return province ? [{ regionName: province.name, cultivationArea: p.areaHa }] : [];
+    });
 
-  const kosisYear = top5.length > 0 ? top5[0].year : null;
+  const kosisYear = top5.length > 0 ? cropArea?.year ?? null : null;
 
   // 시·군·구 단위 cross-link (5/22 회장 fix) — sidebar와 동일 helper.
   // 본문은 차트(시·도 KOSIS 정량) + 시·군·구 chip row(정성)를 함께 노출.
@@ -1046,7 +1044,13 @@ function RegionSection({
                 );
               })}
             </div>
-            <DataSource source="KOSIS 국가통계포털" href="https://kosis.kr" />
+            {cropArea && (
+              <DataSource
+                source={`국가데이터처 KOSIS 「${cropArea.tableName}」 ${cropArea.year}년`}
+                note={`전국 ${formatHectaresWithPyeong(cropArea.totalHa)} 중 상위 시·도`}
+                href={`https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=${cropArea.tblId}`}
+              />
+            )}
           </div>
         ) : (
           <div className={s.regionPills}>

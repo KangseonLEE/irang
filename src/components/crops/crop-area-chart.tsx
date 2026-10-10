@@ -10,10 +10,10 @@ import {
   Tooltip,
   Cell,
 } from "recharts";
-import { formatHectaresWithPyeong, formatPyeongFromHa } from "@/lib/format";
+import { formatPyeongFromHa } from "@/lib/format";
 import s from "@/components/charts/chart-styles.module.css";
 
-/** RegionSection이 넘기는 시·도 재배면적 항목 (CropStatItem에서 필요한 필드만) */
+/** RegionSection이 넘기는 시·도 재배면적 항목 (lib/data/crop-areas 에서 시·도 이름으로 변환) */
 interface CropAreaDatum {
   regionName: string;
   cultivationArea: number; // ha
@@ -50,7 +50,7 @@ function CustomTooltip({ active, payload }: ChartTooltipProps) {
         />
         <span>재배면적</span>
         <span className={s.tooltipValue}>
-          {cultivationArea.toLocaleString()}ha
+          {cultivationArea.toLocaleString("ko-KR")}ha
         </span>
       </div>
       {pyeong && (
@@ -83,19 +83,17 @@ export default function CropAreaChart({ data }: Props) {
 
   return (
     <div className={s.chartWrapper} style={{ minHeight: 180 }}>
-      <ResponsiveContainer width="100%" height={enriched.length * 46 + 20}>
+      <ResponsiveContainer width="100%" height={enriched.length * 46}>
         <BarChart
           data={enriched}
           layout="vertical"
-          margin={{ top: 0, right: 56, left: 0, bottom: 0 }}
+          margin={{ top: 0, right: 16, left: 0, bottom: 0 }}
         >
+          {/* 값은 막대 끝 라벨이 보여 준다 — 축 눈금 대신 오른쪽에 라벨 자리를 둔다(1위 라벨이 꺾이던 것, 10/9) */}
           <XAxis
             type="number"
-            tick={{ fontSize: 11, fill: "#9ca3af" }}
-            tickLine={false}
-            axisLine={false}
-            tickFormatter={(v) => `${Number(v).toLocaleString()}ha`}
-            domain={[0, "auto"]}
+            hide
+            domain={[0, (dataMax: number) => dataMax * 1.5]}
           />
           <YAxis
             type="category"
@@ -120,8 +118,8 @@ export default function CropAreaChart({ data }: Props) {
               fontSize: 12,
               fontWeight: 700,
               fill: "#4b5563",
-              formatter: (v: unknown) =>
-                formatHectaresWithPyeong(Number(v)),
+              // 평 환산은 툴팁·aria-label 에 있다 — 막대 끝엔 ha 만(모바일에서 두 줄로 꺾이지 않게)
+              formatter: (v: unknown) => `${Math.round(Number(v)).toLocaleString("ko-KR")}ha`,
             }}
           >
             {enriched.map((entry) => (

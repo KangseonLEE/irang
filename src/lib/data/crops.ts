@@ -67,11 +67,6 @@ export interface CultivationStep {
 }
 
 /** KOSIS 연동 설정 — API 데이터 매핑용 */
-interface KosisConfig {
-  tblId: string;
-  objL1Code?: string;
-}
-
 /** 장단점 카테고리 */
 export type ProsConsCategory =
   | "수익성"
@@ -128,7 +123,6 @@ export interface CropDetailInfo {
   majorRegions: string[];
   tips: string[];
   relatedCropIds: string[];
-  kosisConfig?: KosisConfig;
   prosCons?: ProsConsInfo;
   /** 재배 방법 (단계별) */
   cultivationSteps?: CultivationStep[];
@@ -819,7 +813,6 @@ export const CROP_DETAILS: CropDetailInfo[] = [
       "첫 해는 관행 재배로 경험을 쌓고, 이후 친환경·특수미 등 부가가치를 높여보세요.",
     ],
     relatedCropIds: ["soybean", "corn", "sweet-potato"],
-    kosisConfig: { tblId: "DT_1ET0034" },
     prosCons: {
       pros: [
         { category: "재배난이도", text: "기계화율이 높아 대면적 관리가 수월하고, 기술 진입 장벽이 낮음" },
