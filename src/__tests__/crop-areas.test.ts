@@ -63,7 +63,7 @@ describe("작물 시·도 재배면적", () => {
 });
 
 describe("작물 주산지(majorRegions) = 재배면적 순 (10/10 정정)", () => {
-  // 규칙: 1위 시·도 + 전국의 5% 이상인 시·도를 큰 순으로, 최대 max(3, 그 작물 칸 수)
+  // 규칙: 1위 시·도 + 전국의 5% 이상인 시·도를 큰 순으로, 최대 5곳
   // 근거: 농작물생산조사(CROP_AREAS) → 없으면 2025 농림어업총조사 시·도 행(CROP_SIGUNGU_AREAS.provinces)
   function expectAreaOrder(id: string, majorRegions: string[], provinces: { provinceId: string; area: number }[], total: number) {
     const names = provinces.map((p) => PROVINCES.find((x) => x.id === p.provinceId)!.name);
@@ -73,8 +73,8 @@ describe("작물 주산지(majorRegions) = 재배면적 순 (10/10 정정)", () 
       const p = provinces[names.indexOf(r)];
       expect(p.area / total, `${id} ${r} 비중`).toBeGreaterThanOrEqual(0.05);
     }
-    // 5% 이상인데 빠진 시·도가 칸 수 안에 남아 있으면 안 된다(최대 max(3, 칸 수))
-    const cap = Math.max(3, majorRegions.length);
+    // 5% 이상인데 빠진 시·도가 있으면 안 된다(최대 5곳 — 10/10 2차 QA: 인삼 충북 16.6% 누락)
+    const cap = 5;
     const eligible = provinces.filter((p, i) => i === 0 || p.area / total >= 0.05).length;
     expect(majorRegions.length, `${id} 칸 수`).toBe(Math.min(cap, eligible));
   }

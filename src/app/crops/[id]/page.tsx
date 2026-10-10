@@ -1120,7 +1120,7 @@ function RegionSection({
           </div>
           {/* 차트가 없는 작물: 총조사 시·도 행이 근거면 출처, 없으면 손 입력임을 밝힌다(10/10) */}
           {regionBasis ? (
-            <DataSource source={regionBasis.label} note="재배면적이 큰 시·도 순 (전국 5% 이상)" className={s.regionBasisSource} />
+            <DataSource source={regionBasis.label} note="재배면적이 큰 시·도 순 (전국 5% 이상, 최대 5곳)" className={s.regionBasisSource} />
           ) : (
             <p className={s.regionBasisNote}>공식 재배면적 통계가 없어 알려진 산지를 참고로 적었어요.</p>
           )}
