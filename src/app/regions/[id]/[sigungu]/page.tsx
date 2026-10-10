@@ -22,6 +22,7 @@ import {
   getMainCropEntries,
   getSigunguBySidoAndId,
   mainCropsEmptyMessage,
+  mainCropsRiceExcluded,
   mainCropsEmptyReason,
 } from "@/lib/data/sigungus";
 import { MAIN_CROPS_SOURCE } from "@/lib/data/sigungu-main-crops";
@@ -485,7 +486,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
                 <h2 className={s.sectionTitle}>주요 작물</h2>
                 {mainCropEntries.length > 0 && (
                   <p className={s.sectionDesc}>
-                    {sigungu.name} 농가가 가장 넓게 재배하는 작물이에요.
+                    {sigungu.name} 농가가 가장 넓게 재배하는 작물이에요{mainCropsRiceExcluded(sigungu.id) ? " (쌀은 주소지 기준 면적이 실제 논보다 훨씬 넓어 뺐어요)" : ""}.
                   </p>
                 )}
               </div>
@@ -544,7 +545,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
             ) : (
               <EmptyState
                 icon={<Icon icon={Sprout} size="lg" />}
-                message={mainCropsEmptyMessage(mainCropsEmpty)}
+                message={mainCropsEmptyMessage(mainCropsEmpty, undefined, sigungu.id)}
               />
             )}
           </section>

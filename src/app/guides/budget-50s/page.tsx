@@ -16,7 +16,7 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Article } from "schema-dts";
-import { settlementSurvey } from "@/lib/data/stats";
+import { investmentByAge, settlementSurvey } from "@/lib/data/stats";
 import s from "./page.module.css";
 import { POLICY_TEXT, RETURN_FARM_LOAN } from "@/lib/data/policy-facts";
 
@@ -156,7 +156,7 @@ export default function Budget50sGuidePage() {
           <Icon icon={AlertTriangle} size="md" color="warning" variant="soft" />
           <p className={s.cautionText}>
             <AutoGlossary
-              text={`귀농 가구의 농지·가축·시설 투자액은 평균 ${settlementSurvey.investment.toLocaleString("ko-KR")}만 원이에요(${settlementSurvey.year} 실태조사). 안정된 기반을 마련하는 데 4~5년이 걸리므로, 그 기간의 여유자금을 반드시 별도 확보하세요.`}
+              text={`50대 귀농 가구의 농지·가축·시설 투자액은 평균 ${(investmentByAge.find((a) => a.age === "50대")?.amount ?? settlementSurvey.investment).toLocaleString("ko-KR")}만 원이에요(${settlementSurvey.year} 실태조사, 전체 평균 ${settlementSurvey.investment.toLocaleString("ko-KR")}만 원). 안정된 기반을 마련하는 데 4~5년이 걸리므로, 그 기간의 여유자금을 반드시 별도 확보하세요.`}
               maxHighlights={2}
             />
           </p>

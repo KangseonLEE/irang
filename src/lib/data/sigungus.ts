@@ -443,15 +443,31 @@ export function mainCropsEmptyReason(unitId: string, sidoId: string): "not-in-ce
   return "small";
 }
 
+/** 쌀만 주소지 쏠림으로 뺀 단위인가(의왕·광명 등 — 다른 작물은 보인다) */
+export function mainCropsRiceExcluded(unitId: string): boolean {
+  const j = MAIN_CROPS_RESIDENCE_SKEW[unitId];
+  return Boolean(j?.rice && !j.all);
+}
+
 /** 빈 이유 → 한 줄 안내 */
-export function mainCropsEmptyMessage(reason: ReturnType<typeof mainCropsEmptyReason>, parentName?: string): string {
+export function mainCropsEmptyMessage(
+  reason: ReturnType<typeof mainCropsEmptyReason>,
+  parentName?: string,
+  unitId?: string,
+): string {
   switch (reason) {
     case "not-in-census":
       return parentName
         ? `새로 생긴 구라 2025 농림어업총조사에 구 단위 값이 없어요. ${parentName} 전체 값을 확인해 보세요.`
         : "새로 생긴 구라 2025 농림어업총조사에 구 단위 값이 없어요.";
-    case "residence-skew":
+    case "residence-skew": {
+      // 광역시 자치구·서울은 경지면적이 '○○ 전체'·'○○군외' 묶음으로만 공표돼 구 하나를 따로 판정할 수 없다(10/10 3차 QA)
+      const unit = unitId ? MAIN_CROPS_RESIDENCE_SKEW[unitId]?.landUnit : undefined;
+      if (unit && /전체$|외$/.test(unit)) {
+        return `농림어업총조사 재배면적은 농가 주소지 기준이에요. 경지면적은 '${unit}' 묶음으로만 공표되는데, 이 묶음의 재배면적이 실제 논밭보다 훨씬 넓게 잡혀 구 단위 주요 작물을 꼽지 않았어요.`;
+      }
       return "농림어업총조사 재배면적은 농가 주소지 기준이에요. 이곳은 실제 논밭보다 훨씬 넓게 잡혀(다른 지역 논밭이 섞여) 주요 작물로 꼽지 않았어요.";
+    }
     case "small":
       return `2025 농림어업총조사 작물 ${MAIN_CROP_RULE.cropCount}종 가운데 ${MAIN_CROP_RULE.minAreaHa}ha 넘게 재배하는 작물이 없어요.`;
     default:

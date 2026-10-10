@@ -18,6 +18,7 @@ import {
   getMainCropEntries,
   getSigunguBySidoAndId,
   mainCropsEmptyMessage,
+  mainCropsRiceExcluded,
   mainCropsEmptyReason,
 } from "@/lib/data/sigungus";
 import { MAIN_CROPS_SOURCE } from "@/lib/data/sigungu-main-crops";
@@ -70,7 +71,8 @@ export async function generateMetadata({
   const sigunguName = sigungu?.name ?? "";
 
   const title = `${sigunguName} ${gu.name} 귀농 — 작물·인프라·지원사업`;
-  const description = `${sidoName} ${sigunguName} ${gu.name} 농촌 정착 정보. 인구, 의료·교육 인프라, 추천 작물, 지원사업을 확인하세요. ${gu.description}`;
+  const cropPart = getMainCropEntries(gu.id).length > 0 ? "주요 작물, " : "";
+  const description = `${sidoName} ${sigunguName} ${gu.name} 농촌 정착 정보. 인구, 의료·교육 인프라, ${cropPart}지원사업을 확인하세요. ${gu.description}`;
   return {
     // 공유 카드까지 같은 값에서 — 사이트 기본 제목·설명 상속·og:url 없음 교정 (10/6 QA1 Q2-W3)
     ...pageMetadata({
@@ -178,7 +180,7 @@ export default async function GuDetailPage({ params }: PageProps) {
             {/* 작물이 없으면 설명 바로 아래 '자료가 없어요'가 붙어 모순 — 설명을 숨긴다 (10/7 QA) */}
             {matchedCrops.length > 0 && (
               <p className={s.sectionDesc}>
-                {gu.name} 농가가 가장 넓게 재배하는 작물이에요.
+                {gu.name} 농가가 가장 넓게 재배하는 작물이에요{mainCropsRiceExcluded(gu.id) ? " (쌀은 주소지 기준 면적이 실제 논보다 훨씬 넓어 뺐어요)" : ""}.
               </p>
             )}
           </div>
@@ -205,7 +207,7 @@ export default async function GuDetailPage({ params }: PageProps) {
           // 2025 총조사에 구 단위 값이 없는 곳(화성 2026 신설 4구) — 지어내지 않는다
           <EmptyState
             icon={<Icon icon={Sprout} size="lg" />}
-            message={mainCropsEmptyMessage(mainCropsEmptyReason(gu.id, gu.sidoId), sigungu.name)}
+            message={mainCropsEmptyMessage(mainCropsEmptyReason(gu.id, gu.sidoId), sigungu.name, gu.id)}
           />
         )}
       </section>

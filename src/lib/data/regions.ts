@@ -419,7 +419,7 @@ export const PROVINCES: Province[] = [
     shortName: "경북",
     area: 18428.19,
     description: "사과·포도·복숭아 재배면적 전국 1위(농작물생산조사 2024~2025), 전통 농촌 마을 보존",
-    highlights: ["사과 주산지", "포도·인삼", "전통 농촌"],
+    highlights: ["사과 주산지", "포도·복숭아", "전통 농촌"],
     stationIds: ["271", "272"],
     representativeStationId: "272",
     sgisCode: "37",
