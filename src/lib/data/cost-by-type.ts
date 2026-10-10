@@ -2,52 +2,47 @@
    비용 가이드 — 카테고리별 데이터 (5종 분기)
    /costs?type={farming|village|youth|forestry|smartfarm}
 
-   출처 (코드 변경 시 갱신 필수):
-   - 농림축산식품부 2025 귀농귀촌 실태조사
-   - 농촌진흥청(RDA) 2024 농축산물 표준소득자료집
-   - 농촌진흥청 ICT 스마트팜 시설 단가 자료
-   - 산림청 2024 임업경영실태조사 / 임업통계연보
-   - 산림청 임산물 표준소득
-   - 농식품부 스마트팜 혁신밸리 사업 안내(상주·고흥·김제·밀양)
-   - 청년창업농 영농정착 시행지침 2025
+   원칙 (10/10 정정):
+   - 작물 행의 숫자는 작물 상세(crops.ts CROP_DETAILS)에서 읽는다 — 여기서 숫자를 다시 적지 않는다.
+   - 소득은 공식 통계(농촌진흥청 「2025년도 농산물 소득 조사」·통계청 농축산물생산비조사)가 출처인 10a당 값만.
+     그 밖의 작물은 "자료 없음"으로 둔다(지어내지 않는다).
+   - 정책 금액(한도·금리·지원금)은 policy-facts.ts 에서 가져온다.
 
-   원칙:
-   - 모든 작물 데이터에 source 필수
-   - 단가는 범위(min~max)로 표기, 단일값 금지
-   - 손익분기 7년+ 작물(산양삼·호두 등)은 difficulty="어려움"
-   - 정적 폴백/참고값 — 실시간 시세 아님
+   10/10 에 지운 것 — 초기 투자금·연 운영비·손익분기 범위(23행 × 3칸)와 노동일수: 출처로 적은 "농진청 표준소득자료집"은
+   10a당 경영비·소득 자료라 총 투자액·손익분기 칸과 대응하지 않았고, 노동일수는 같은 작물의 작물 상세 값과 20행 중 17행이 달랐다.
+   귀산촌 임산물 6행은 공식 소득 통계 출처가 확인되지 않아 뺐다.
    ──────────────────────────────────────────────────────────────── */
 
 import type { CostTypeId } from "./landing";
+import { CROPS, CROP_DETAILS } from "./crops";
+import {
+  RETURN_FARM_LOAN,
+  YOUTH_SETTLEMENT,
+  EXCELLENT_SUCCESSOR,
+  formatManwon,
+} from "./policy-facts";
 
 /* ── 타입 정의 ── */
 
 export interface CropCost {
   /** 카드 표시용 ID (slug) */
   id: string;
-  /** 작물명 (한글) */
+  /** 작물 상세 페이지 ID — CROPS 에 있는 id 만 쓴다 */
+  cropPageId: string;
+  /** 작물명 (한글) — 작물 DB 이름 */
   name: string;
-  /** 초기 투자금 범위 (만원 단위, 텍스트) */
-  initialCost: string;
-  /** 연 운영비 범위 (만원, 텍스트) */
-  annual: string;
-  /** 손익분기 도달 연차 */
-  breakEven: string;
-  /** 연간 노동일수 */
+  /** 10a당 소득 — "약 180만 원"(단위 면적은 표 머리·라벨이 '10a당'으로 밝힌다). 공식 통계가 없으면 "자료 없음" */
+  income: string;
+  /** 10a당 소득 범위 (만 원) — [하한, 상한], 단일값이면 둘이 같다. 공식 통계가 없으면 null */
+  incomeManwon10a: readonly [number, number] | null;
+  /** 소득 기준 — "시설재배 기준" 같은 원문 괄호. 없으면 생략 */
+  basis?: string;
+  /** 연간 노동일수 — "연 100~130일" (작물 상세 annualWorkdays). 없으면 "자료 없음" */
   labor: string;
-  /** 난이도 */
+  /** 난이도 (작물 DB) */
   difficulty: "쉬움" | "보통" | "어려움";
-  /** 데이터 출처 (필수) */
+  /** 소득 출처 */
   source: string;
-  /** 시설 형태 */
-  facilityType?: "노지" | "비닐하우스" | "유리온실" | "임산물 시설" | "원목" | "소규모";
-  /**
-   * 작물 상세 페이지 ID — 존재하지 않으면 카드는 Link가 아닌 div로 렌더링.
-   * id와 cropPageId가 같으면 /crops/{id}로 이동.
-   */
-  cropPageId?: string;
-  /** 참고값임을 표시 (range-only 카테고리) */
-  isReference?: boolean;
 }
 
 export interface CostStrategy {
@@ -69,333 +64,87 @@ export interface CostStrategy {
 }
 
 /* ────────────────────────────────────────────────────────────────
-   1. CROP_COSTS_BY_TYPE — 카테고리별 작물별 투자비용
+   1. CROP_COSTS_BY_TYPE — 카테고리별 대표 작물 (값은 작물 상세에서)
    ──────────────────────────────────────────────────────────────── */
 
-/* 출처 약어 */
-const SRC_RDA = "농촌진흥청 2024 농축산물 표준소득자료집";
-const SRC_RDA_FOREST = "산림청 2024 임산물 표준소득";
-const SRC_FOREST_REPORT = "산림청 2024 임업경영실태조사";
-const SRC_RDA_ICT = "농촌진흥청 ICT 스마트팜 시설 단가 (2024)";
-const SRC_MAFRA_VALLEY = "농식품부 스마트팜 혁신밸리 사업 안내";
-const SRC_RDA_YOUTH = "농촌진흥청 표준소득자료집 + 청년창업농 인기품목 통계";
+/** 공식 소득 통계로 인정하는 출처 — 작물 상세 income.source 에 이 이름이 있어야 소득을 보여 준다 */
+const OFFICIAL_INCOME_SOURCE = /2025년도 농산물 소득 조사|농축산물생산비조사/;
+
+/** "10a당 약 1,260~1,642만 원 (토경~수경재배 기준)" → { amount: "약 1,260~1,642만 원", basis: "토경~수경재배 기준" } */
+function splitRevenue(
+  revenueRange: string,
+): { amount: string; range: readonly [number, number]; basis?: string } | null {
+  const m = revenueRange.match(/^10a당\s*(약\s*([\d,]+)(?:\s*~\s*([\d,]+))?\s*만\s*원)\s*(?:\(([^)]*)\))?/);
+  if (!m) return null;
+  const lo = Number(m[2].replace(/,/g, ""));
+  const hi = m[3] ? Number(m[3].replace(/,/g, "")) : lo;
+  if (!Number.isFinite(lo) || !Number.isFinite(hi)) return null;
+  const basis = m[4]?.trim();
+  // "3,000평 재배 시 연 약 571만 원" 같은 환산 괄호는 기준이 아니라 계산 예시라 뺀다
+  return { amount: m[1].replace(/\s+/g, " "), range: [lo, hi], basis: basis && !/[\d,]+평/.test(basis) ? basis : undefined };
+}
+
+/** "약 100~130일 (수확·건조 포함)" → "연 100~130일" */
+function toLaborLabel(annualWorkdays: string | undefined): string {
+  const m = annualWorkdays?.match(/([\d,]+(?:\s*~\s*[\d,]+)?)\s*일/);
+  return m ? `연 ${m[1].replace(/\s+/g, "")}일` : "자료 없음";
+}
+
+/** 작물 id → 비용 화면 행. 작물 DB 에 없는 id 는 만들지 않는다(테스트가 잡는다) */
+export function cropCostRow(cropId: string, id: string = cropId): CropCost | null {
+  const crop = CROPS.find((c) => c.id === cropId);
+  const detail = CROP_DETAILS.find((d) => d.id === cropId);
+  if (!crop || !detail) return null;
+  const official = OFFICIAL_INCOME_SOURCE.test(detail.income.source ?? "");
+  const revenue = official ? splitRevenue(detail.income.revenueRange) : null;
+  return {
+    id,
+    cropPageId: crop.id,
+    name: crop.name,
+    income: revenue?.amount ?? "자료 없음",
+    incomeManwon10a: revenue?.range ?? null,
+    basis: revenue?.basis,
+    labor: toLaborLabel(detail.income.annualWorkdays),
+    difficulty: crop.difficulty,
+    source: revenue ? (detail.income.source ?? "") : "작물 상세",
+  };
+}
+
+const rows = (ids: readonly string[]): CropCost[] =>
+  ids.map((id) => cropCostRow(id)).filter((r): r is CropCost => r !== null);
 
 export const CROP_COSTS_BY_TYPE: Record<CostTypeId, CropCost[]> = {
-  /* ── 정착 일반 — 노지 밭작물 + 대표 과수 ── */
-  farming: [
-    {
-      id: "soybean",
-      cropPageId: "soybean",
-      name: "콩",
-      initialCost: "300만~500만 원",
-      annual: "150만~250만 원",
-      breakEven: "1~2년",
-      labor: "연 30~50일",
-      difficulty: "쉬움",
-      facilityType: "노지",
-      source: SRC_RDA,
-    },
-    {
-      id: "corn",
-      cropPageId: "corn",
-      name: "옥수수",
-      initialCost: "500만~1,000만 원",
-      annual: "200만~400만 원",
-      breakEven: "1~2년",
-      labor: "연 30~50일",
-      difficulty: "쉬움",
-      facilityType: "노지",
-      source: SRC_RDA,
-    },
-    {
-      id: "sweet-potato",
-      cropPageId: "sweet-potato",
-      name: "고구마",
-      initialCost: "1,000만~2,000만 원",
-      annual: "300만~500만 원",
-      breakEven: "1~2년",
-      labor: "연 60~90일",
-      difficulty: "쉬움",
-      facilityType: "노지",
-      source: SRC_RDA,
-    },
-    {
-      id: "chili-pepper",
-      cropPageId: "chili-pepper",
-      name: "고추",
-      initialCost: "2,000만~4,000만 원",
-      annual: "600만~1,000만 원",
-      breakEven: "2~3년",
-      labor: "연 80~120일",
-      difficulty: "어려움",
-      facilityType: "노지",
-      source: SRC_RDA,
-    },
-    {
-      id: "perilla-seed",
-      cropPageId: "perilla-seed",
-      name: "들깨",
-      initialCost: "300만~600만 원",
-      annual: "150만~300만 원",
-      breakEven: "1~2년",
-      labor: "연 30~50일",
-      difficulty: "쉬움",
-      facilityType: "노지",
-      source: SRC_RDA,
-    },
-    {
-      id: "apple",
-      cropPageId: "apple",
-      name: "사과",
-      initialCost: "3,000만~6,000만 원",
-      annual: "1,000만~1,500만 원",
-      breakEven: "5~7년",
-      labor: "연 150~200일",
-      difficulty: "어려움",
-      facilityType: "노지",
-      source: SRC_RDA,
-    },
-  ],
-
-  /* ── 청년농 — 시설 작물 + 고소득 품목 ── */
-  youth: [
-    {
-      id: "strawberry",
-      cropPageId: "strawberry",
-      name: "딸기 (시설)",
-      initialCost: "5,000만~1억 원",
-      annual: "1,500만~2,500만 원",
-      breakEven: "3~5년",
-      labor: "연 250일+",
-      difficulty: "어려움",
-      facilityType: "비닐하우스",
-      source: SRC_RDA_YOUTH,
-    },
-    {
-      id: "tomato",
-      cropPageId: "tomato",
-      name: "토마토 (시설)",
-      initialCost: "4,000만~8,000만 원",
-      annual: "1,200만~2,000만 원",
-      breakEven: "3~4년",
-      labor: "연 200~280일",
-      difficulty: "어려움",
-      facilityType: "비닐하우스",
-      source: SRC_RDA_YOUTH,
-    },
-    {
-      id: "blueberry",
-      cropPageId: "blueberry",
-      name: "블루베리",
-      initialCost: "2,500만~5,000만 원",
-      annual: "800만~1,500만 원",
-      breakEven: "4~5년",
-      labor: "연 100~150일",
-      difficulty: "보통",
-      facilityType: "노지",
-      source: SRC_RDA_YOUTH,
-    },
-    {
-      id: "shiitake-bag",
-      cropPageId: "shiitake",
-      name: "표고 (소규모)",
-      initialCost: "1,500만~3,000만 원",
-      annual: "500만~900만 원",
-      breakEven: "2~3년",
-      labor: "연 120~180일",
-      difficulty: "보통",
-      facilityType: "소규모",
-      source: SRC_RDA_FOREST,
-    },
-    {
-      id: "ginseng",
-      cropPageId: "ginseng",
-      name: "인삼",
-      initialCost: "3,000만~5,000만 원",
-      annual: "800만~1,200만 원",
-      breakEven: "5~6년",
-      labor: "연 100~160일",
-      difficulty: "어려움",
-      facilityType: "노지",
-      source: SRC_RDA_YOUTH,
-    },
-    {
-      id: "chili-pepper",
-      cropPageId: "chili-pepper",
-      name: "고추",
-      initialCost: "2,000만~4,000만 원",
-      annual: "600만~1,000만 원",
-      breakEven: "2~3년",
-      labor: "연 80~120일",
-      difficulty: "어려움",
-      facilityType: "노지",
-      source: SRC_RDA,
-    },
-  ],
-
-  /* ── 귀촌 — visibleSections에 'crop' 미포함이지만 안전 빈 배열 ── */
+  /* 정착 일반 — 노지 밭작물 + 대표 과수 */
+  farming: rows(["soybean", "corn", "sweet-potato", "chili-pepper", "perilla-seed", "apple"]),
+  /* 청년농 — 시설 작물 + 고소득 품목 */
+  /* 10/10: 표고버섯은 공식 소득 통계(2025 소득조사)에 없어 같은 시설 작물인 오이로 바꿨다 */
+  youth: rows(["strawberry", "tomato", "blueberry", "cucumber", "ginseng", "chili-pepper"]),
+  /* 귀촌 — visibleSections 에 'crop' 미포함 */
   village: [],
-
-  /* ── 귀산촌 — 임산물 (손익분기 7년+ 품목 다수) ── */
-  forestry: [
-    {
-      id: "shiitake-log",
-      cropPageId: "shiitake",
-      name: "표고 (원목)",
-      initialCost: "1,500만~3,500만 원",
-      annual: "500만~1,000만 원",
-      breakEven: "3~4년",
-      labor: "연 120~200일",
-      difficulty: "보통",
-      facilityType: "원목",
-      source: SRC_RDA_FOREST,
-      isReference: true,
-    },
-    {
-      id: "wild-ginseng",
-      name: "산양삼",
-      initialCost: "2,000만~5,000만 원",
-      annual: "300만~600만 원",
-      breakEven: "7~10년",
-      labor: "연 60~100일",
-      difficulty: "어려움",
-      facilityType: "임산물 시설",
-      source: SRC_RDA_FOREST,
-      isReference: true,
-    },
-    {
-      id: "bellflower",
-      cropPageId: "bellflower",
-      name: "도라지",
-      initialCost: "500만~1,500만 원",
-      annual: "200만~400만 원",
-      breakEven: "3~4년",
-      labor: "연 50~90일",
-      difficulty: "보통",
-      facilityType: "노지",
-      source: SRC_RDA_FOREST,
-      isReference: true,
-    },
-    {
-      id: "chestnut",
-      cropPageId: "chestnut",
-      name: "밤",
-      initialCost: "1,500만~3,000만 원",
-      annual: "400만~800만 원",
-      breakEven: "5~7년",
-      labor: "연 60~100일",
-      difficulty: "보통",
-      facilityType: "노지",
-      source: SRC_RDA_FOREST,
-      isReference: true,
-    },
-    {
-      id: "omija",
-      cropPageId: "omija",
-      name: "오미자",
-      initialCost: "1,500만~3,500만 원",
-      annual: "500만~900만 원",
-      breakEven: "4~5년",
-      labor: "연 80~140일",
-      difficulty: "보통",
-      facilityType: "노지",
-      source: SRC_RDA_FOREST,
-      isReference: true,
-    },
-    {
-      id: "walnut",
-      cropPageId: "walnut",
-      name: "호두",
-      initialCost: "2,000만~4,000만 원",
-      annual: "400만~800만 원",
-      breakEven: "7~10년",
-      labor: "연 50~80일",
-      difficulty: "어려움",
-      facilityType: "노지",
-      source: SRC_FOREST_REPORT,
-      isReference: true,
-    },
-  ],
-
-  /* ── 스마트팜 — ICT 시설 작물 (1,000㎡ 기준 단가) ── */
-  smartfarm: [
-    {
-      id: "strawberry-ict",
-      cropPageId: "strawberry",
-      name: "딸기 (ICT)",
-      initialCost: "8,000만~1.5억 원",
-      annual: "2,000만~3,500만 원",
-      breakEven: "3~5년",
-      labor: "연 220~280일",
-      difficulty: "어려움",
-      facilityType: "비닐하우스",
-      source: SRC_RDA_ICT,
-      isReference: true,
-    },
-    {
-      id: "tomato-ict",
-      cropPageId: "tomato",
-      name: "토마토 (ICT)",
-      initialCost: "7,000만~1.2억 원",
-      annual: "1,800만~2,800만 원",
-      breakEven: "3~4년",
-      labor: "연 200~260일",
-      difficulty: "어려움",
-      facilityType: "비닐하우스",
-      source: SRC_RDA_ICT,
-      isReference: true,
-    },
-    {
-      id: "paprika-glass",
-      name: "파프리카 (유리온실)",
-      initialCost: "1.5억~2.5억 원",
-      annual: "3,000만~5,000만 원",
-      breakEven: "4~6년",
-      labor: "연 240~300일",
-      difficulty: "어려움",
-      facilityType: "유리온실",
-      source: SRC_RDA_ICT,
-      isReference: true,
-    },
-    {
-      id: "rose-flower",
-      name: "장미 (화훼)",
-      initialCost: "1.2억~2억 원",
-      annual: "2,500만~4,000만 원",
-      breakEven: "4~5년",
-      labor: "연 250일+",
-      difficulty: "어려움",
-      facilityType: "유리온실",
-      source: SRC_RDA_ICT,
-      isReference: true,
-    },
-    {
-      id: "lettuce-hydro",
-      cropPageId: "lettuce",
-      name: "엽채 (수경)",
-      initialCost: "5,000만~1억 원",
-      annual: "1,200만~2,000만 원",
-      breakEven: "3~4년",
-      labor: "연 180~220일",
-      difficulty: "보통",
-      facilityType: "비닐하우스",
-      source: SRC_MAFRA_VALLEY,
-      isReference: true,
-    },
-  ],
+  /* 귀산촌 — 임산물 소득은 공식 통계 출처를 확인하지 못해 비워 둔다(10/10) */
+  forestry: [],
+  /* 스마트팜 — 시설원예 주력 품목(국회예산정책처 2020 보급 면적 비중 상위 + 엽채) */
+  smartfarm: rows(["strawberry", "tomato", "paprika", "rose", "lettuce"]),
 };
 
 /* ────────────────────────────────────────────────────────────────
    2. STRATEGIES_BY_TYPE — 카테고리별 비용 절감 전략
    ──────────────────────────────────────────────────────────────── */
 
+const _startup = formatManwon(RETURN_FARM_LOAN.startupMaxManwon.value);
+const _housing = formatManwon(RETURN_FARM_LOAN.housingMaxManwon.value);
+const _youthMonthly = YOUTH_SETTLEMENT.monthlyManwonByYear.value;
+const _youthTotal = _youthMonthly.reduce((sum, m) => sum + m * 12, 0);
+const _youthDesc = `만 ${YOUTH_SETTLEMENT.ageRange.value[0]}~${YOUTH_SETTLEMENT.ageRange.value[1]}세 청년 창업농에게 월 ${_youthMonthly.join("·")}만 원을 3년간 지급해요. (매년 감액)`;
+const _youthSaving = `최대 ${formatManwon(_youthTotal)}`;
+
 export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
   /* ── 정착 일반 ── */
   farming: [
     {
       title: "농업창업자금 융자",
-      desc: "농지·시설·장비 구입에 최대 3억 원을 연 2% 저금리로 융자받을 수 있어요.",
-      saving: "최대 3억 원",
+      desc: `농지·시설·장비 구입에 최대 ${_startup}을 ${RETURN_FARM_LOAN.interestRate.value} 금리로 융자받을 수 있어요(${RETURN_FARM_LOAN.repayment.value}).`,
+      saving: `최대 ${_startup}`,
       href: "/programs/SP-001",
       type: "융자",
       programId: "SP-001",
@@ -403,17 +152,18 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
     },
     {
       title: "청년창업농 영농정착",
-      desc: "만 18~39세 청년 창업농에게 월 110·100·90만 원을 3년간 지급해요. (매년 감액)",
-      saving: "최대 3,600만 원",
+      desc: _youthDesc,
+      saving: _youthSaving,
       href: "/programs/SP-002",
       type: "보조금",
       programId: "SP-002",
       kind: "system",
     },
+    /* 10/10: '투자금 50%↓'는 근거가 없어 지웠다 — 비율 대신 비교할 수 있는 곳으로 보낸다 */
     {
       title: "소규모로 시작하기",
-      desc: "임대 농지 + 노지 재배로 시작하면 초기 투자를 크게 줄일 수 있어요.",
-      saving: "투자금 50%↓",
+      desc: "임대 농지와 노지 재배로 시작하면 처음 사야 할 것이 줄어요. 작물마다 소득과 노동일이 달라 먼저 비교해 보세요.",
+      saving: "작물별 소득 비교",
       href: "/crops",
       kind: "system",
     },
@@ -433,8 +183,8 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
   youth: [
     {
       title: "영농정착지원금",
-      desc: "만 18~39세 청년 창업농에게 월 110·100·90만 원을 3년간 지급해요. (매년 감액)",
-      saving: "최대 3,600만 원",
+      desc: _youthDesc,
+      saving: _youthSaving,
       href: "/programs/SP-002",
       type: "보조금",
       programId: "SP-002",
@@ -442,8 +192,8 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
     },
     {
       title: "농업창업·주택구입 융자",
-      desc: "농업창업 최대 3억 원, 주택구입 최대 7,500만 원을 연 2% 저금리로 융자해요. 영농교육 8시간 이상 이수가 자격이고, 100시간 미만이면 심사 최저 등급이라 사실상 100시간이 기준이에요.",
-      saving: "최대 3.75억 원",
+      desc: `농업창업 최대 ${_startup}, 주택구입 최대 ${_housing}을 ${RETURN_FARM_LOAN.interestRate.value} 금리로 융자해요. 영농교육 ${RETURN_FARM_LOAN.minEducationHours.value}시간 이상 이수가 자격이고, ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 미만이면 심사 최저 등급이라 사실상 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간이 기준이에요.`,
+      saving: `최대 ${formatManwon(RETURN_FARM_LOAN.startupMaxManwon.value + RETURN_FARM_LOAN.housingMaxManwon.value)}`,
       href: "/programs/SP-001",
       type: "융자",
       programId: "SP-001",
@@ -451,8 +201,8 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
     },
     {
       title: "우수후계농업경영인 육성자금",
-      desc: "후계농 선정 5년 이상 영농 종사자가 대상. 연 1.5% 고정금리·5년 거치 10년 상환.",
-      saving: "최대 2억 원",
+      desc: `후계농 선정 5년 이상 영농 종사자가 대상이에요. ${EXCELLENT_SUCCESSOR.interestRate.value}·${EXCELLENT_SUCCESSOR.repayment.value}.`,
+      saving: `최대 ${formatManwon(EXCELLENT_SUCCESSOR.maxManwon.value)}`,
       href: "/programs/SP-013",
       type: "융자",
       programId: "SP-013",
@@ -480,10 +230,11 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
       external: true,
       kind: "system",
     },
+    /* 10/10: '초기비용 70%↓'·'1억 원 이상 절감'은 근거가 없어 지웠다 */
     {
       title: "임차로 시작하기",
-      desc: "구입 대신 전·월세로 시작하면 초기 부담을 1억 원 이상 줄일 수 있어요. 지역별 시세를 비교해보세요.",
-      saving: "초기비용 70%↓",
+      desc: "구입 대신 전·월세로 먼저 살아 보면 지역이 맞는지 확인한 뒤 집을 고를 수 있어요. 지역별로 비교해 보세요.",
+      saving: "살아 보고 결정",
       href: "/regions",
       kind: "system",
     },
@@ -491,8 +242,8 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
       title: "주택구입 융자 (귀농할 때)",
       // 2026-10-06: 2026 시행지침상 지원 대상은 귀농인·재촌비농업인(주택자금 제외)·귀농희망자 — 귀촌만으로는 대상이 아니다.
       // 옛 문구 '귀촌인에게 … 융자'는 자격을 잘못 안내했다(군산시 공고 첨부 「2026년 귀농 농업창업 및 주택구입 지원사업 시행지침」)
-      desc: "귀촌만으로는 대상이 아니에요. 농업인이 되려고 농촌으로 옮긴 귀농인(귀농 희망자 포함)이면 주택 구입·신축에 최대 7,500만 원을 연 2% 고정금리(또는 변동금리)로 융자받을 수 있어요.",
-      saving: "귀농 시 최대 7,500만 원",
+      desc: `귀촌만으로는 대상이 아니에요. 농업인이 되려고 농촌으로 옮긴 귀농인(귀농 희망자 포함)이면 주택 구입·신축에 최대 ${_housing}을 ${RETURN_FARM_LOAN.interestRate.value} 금리로 융자받을 수 있어요.`,
+      saving: `귀농 시 최대 ${_housing}`,
       href: "/programs/SP-001",
       type: "융자",
       programId: "SP-001",
@@ -562,9 +313,10 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
       kind: "system",
     },
     {
-      title: "ICT 융자 (3억)",
-      desc: "스마트팜 설비·농지 확보를 위한 농업창업자금 융자 한도예요.",
-      saving: "최대 3억 원",
+      /* 10/10: 'ICT 융자'는 ICT 전용 사업이 아니라 귀농 농업창업자금(SP-001) — 이름을 그대로 쓴다 */
+      title: "농업창업자금 융자",
+      desc: "귀농인이면 스마트팜 설비·농지 확보에도 쓸 수 있는 귀농 농업창업자금 융자예요.",
+      saving: `최대 ${_startup}`,
       href: "/programs/SP-001",
       type: "융자",
       programId: "SP-001",

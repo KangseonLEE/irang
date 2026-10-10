@@ -9,6 +9,8 @@ import type { VarietyIncome } from "@/lib/data/crops";
  */
 export function parseVarietyRevenueMan(raw: string | undefined): number | null {
   if (!raw) return null;
+  // '추정' 값(공식 소득 통계에 없는 작목, 10/10)은 차트 숫자로 쓰지 않는다 — 텍스트로만 보인다
+  if (/^\s*추정/.test(raw)) return null;
   // 괄호(연 환산 등) 앞부분만 사용 — 10a당 값 우선
   const head = raw.split("(")[0];
   // "116~260만 원" → [116, 260], "1,069만 원" → [1069]

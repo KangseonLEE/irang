@@ -77,6 +77,10 @@ import {
 import { canRenderVarietiesChart } from "@/components/crops/variety-income-utils";
 import { AnchorTabNav } from "@/components/ui/anchor-tab-nav";
 import { cropSeoDescription, cropSeoTitle } from "@/lib/crops/seo";
+import { officialIncomeAgency } from "@/lib/crops/income";
+import { isPlausibleKosisIncome } from "@/lib/crops/kosis-income-guard";
+import { majorRegionBasis, type MajorRegionBasis } from "@/lib/crops/major-regions";
+import { CROP_INCOME_SURVEY } from "@/lib/data/crop-income-source";
 import s from "./page.module.css";
 
 // ── 소득 정보 파싱 유틸 ──
@@ -247,11 +251,13 @@ export default async function CropDetailPage({
   // 시·도 재배면적 — scripts/collect-crop-areas.ts 가 KOSIS 원천과 대조해 고정한 자료(실행 중 외부 호출 0, 10/9)
   const cropArea = CROP_AREAS[id] ?? null;
 
-  // KOSIS 생산비조사에서 최신 소득 데이터 자동 갱신 (쌀·마늘·양파·콩)
+  // KOSIS 생산비조사에서 최신 소득 데이터 자동 갱신 (쌀·마늘·양파·콩).
+  // 연도·항목 정합(총수입 − 경영비 = 소득)·정적 값 대비 범위를 통과할 때만 바꾼다(10/10, lib/crops/kosis-income-guard)
   let incomeData = data.detail.income;
+  const thisYear = Number(kstToday().slice(0, 4));
   if (id === "rice") {
     const riceIncome = await fetchRiceIncome().catch(() => null);
-    if (riceIncome && riceIncome.income > 0) {
+    if (isPlausibleKosisIncome(riceIncome, data.detail.income.revenueRange, thisYear)) {
       const per10a = Math.round(riceIncome.income / 10000);
       const per1ha = Math.round((riceIncome.income * 10) / 10000);
       incomeData = {
@@ -263,7 +269,7 @@ export default async function CropDetailPage({
   } else if (id in CROP_INCOME_TABLE) {
     const tblId = CROP_INCOME_TABLE[id];
     const cropIncome = await fetchCropIncome(tblId).catch(() => null);
-    if (cropIncome && cropIncome.income > 0) {
+    if (isPlausibleKosisIncome(cropIncome, data.detail.income.revenueRange, thisYear)) {
       const per10a = Math.round(cropIncome.income / 10000);
       const per3000 = Math.round((cropIncome.income * 10) / 10000);
       incomeData = {
@@ -341,6 +347,16 @@ export default async function CropDetailPage({
     ? majorSigunguShortNames.join("·")
     : detail.majorRegions.slice(0, 3).join(", ");
 
+  // 출처 배지 — 실제로 원천이 있는 섹션만 적는다(10/10: 모든 작물에 '농촌진흥청 · KOSIS'가 붙어 추정 소득·손 입력 칸까지 공공 자료로 읽혔다)
+  const regionBasis = majorRegionBasis(id);
+  const incomeAgency = officialIncomeAgency(incomeData.source);
+  const sourceBadge = [
+    incomeAgency ? `소득 ${incomeAgency}` : null,
+    regionBasis ? "재배지역 국가데이터처" : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   const anchorSections = [
     { id: "overview", label: "개요" },
     ...(detail.prosCons ? [{ id: "pros-cons", label: "장단점" }] : []),
@@ -364,7 +380,10 @@ export default async function CropDetailPage({
           "@context": "https://schema.org",
           "@type": "Article",
           headline: `${data.name} 재배 정보 — 소득·난이도·재배환경`,
-          description: `${data.name} 재배 소득, 난이도, 기후·토양 조건을 확인하세요. 주요 산지: ${data.detail.majorRegions.join(", ")}.`,
+          // 주산지는 재배면적 통계가 근거일 때만 싣는다(10/10 — 손 입력 주산지 16종은 빼고)
+          description: regionBasis
+            ? `${data.name} 재배 소득, 난이도, 기후·토양 조건을 확인하세요. 주요 산지: ${data.detail.majorRegions.join(", ")}.`
+            : `${data.name} 재배 소득, 난이도, 기후·토양 조건을 확인하세요.`,
           image: getCropImageAbsoluteUrl(data.id),
           author: { "@type": "Organization", name: "이랑" },
           publisher: {
@@ -374,7 +393,7 @@ export default async function CropDetailPage({
           },
           inLanguage: "ko",
           mainEntityOfPage: `https://irangfarm.com/crops/${id}`,
-          keywords: [data.name, "귀농 작물", "재배 소득", ...data.detail.majorRegions],
+          keywords: [data.name, "귀농 작물", "재배 소득", ...(regionBasis ? data.detail.majorRegions : [])],
         }}
       />
       {/* ── Hero ── */}
@@ -448,11 +467,11 @@ export default async function CropDetailPage({
       {/* ── 브레드크럼 + 출처 — 히어로 아래·탭 위 공통 위치 (2026-10-02 회장) ── */}
       <div className={s.topBar}>
         <Breadcrumb items={breadcrumbTrail} />
-        <DataSource source="농촌진흥청 · KOSIS" variant="badge" />
+        {sourceBadge && <DataSource source={sourceBadge} variant="badge" />}
       </div>
 
       <div className={s.referenceWrap}>
-        <ReferenceNotice text="작물 정보는 농촌진흥청·통계청 데이터를 가공한 참고 자료예요. 실제 재배 조건은 지역·품종에 따라 달라요." />
+        <ReferenceNotice text="소득·재배지역은 섹션마다 적은 공공 통계를, 재배 환경·난이도·팁은 공개 재배 자료를 정리한 참고 내용이에요. 실제 재배 조건은 지역·품종에 따라 달라요." />
       </div>
 
       {/* ── Sticky 작물 헤더 (작물 정보 + 탭 통합 컨테이너) ── */}
@@ -597,6 +616,7 @@ export default async function CropDetailPage({
             cropSigungu={CROP_SIGUNGU_AREAS[id] ?? null}
             cropName={data.name}
             majorSidoIds={majorSidoIds}
+            regionBasis={regionBasis}
           />
 
           {/* 청년농 재배 사례 */}
@@ -862,7 +882,7 @@ function IncomeSection({
                 <span className={`${s.indicatorIcon} ${s.indicatorIconScale}`}>
                   <Icon icon={Maximize2} size="md" />
                 </span>
-                <p className={s.indicatorLabel}>최소 권장 규모</p>
+                <p className={s.indicatorLabel}>권장 규모 (참고)</p>
                 <p className={s.indicatorValue}>{income.minScale}</p>
               </div>
             )}
@@ -888,6 +908,10 @@ function IncomeSection({
             )}
           </div>
         )}
+        {hasIndicators && (
+          // 규모·노동일수·강도는 공식 통계가 아닌 재배 자료 정리값이다(10/10 — '출처가 있는 칸만' 원칙, 숫자 단정 방지)
+          <p className={s.indicatorNote}>규모·노동일수·노동 강도는 재배 자료를 정리한 참고값이에요. 공식 통계가 아니에요.</p>
+        )}
 
         {/* 비용 구조 테이블 */}
         <div className={s.costTable}>
@@ -907,9 +931,16 @@ function IncomeSection({
             <p className={s.costValue}><AutoGlossary text={income.laborNote} /></p>
           </div>
         </div>
+        {/* 링크는 실제 원문으로 — 소득 조사는 보도자료, 생산비조사는 KOSIS. 추정 작목은 링크 없음(10/10) */}
         <DataSource
-          source={income.source ?? "농촌진흥청 농업소득자료집 · KOSIS 국가통계포털"}
-          href="https://kosis.kr"
+          source={income.source ?? "공식 소득 통계 없음"}
+          href={
+            officialIncomeAgency(income.source) === "농촌진흥청"
+              ? CROP_INCOME_SURVEY.url
+              : officialIncomeAgency(income.source)
+                ? "https://kosis.kr"
+                : undefined
+          }
         />
       </div>
     </section>
@@ -985,12 +1016,14 @@ function RegionSection({
   cropSigungu,
   cropName,
   majorSidoIds,
+  regionBasis,
 }: {
   majorRegions: string[];
   cropArea: CropAreaStat | null;
   cropSigungu: CropSigunguArea | null;
   cropName: string;
   majorSidoIds: string[];
+  regionBasis: MajorRegionBasis;
 }) {
   const top5 = (cropArea?.provinces ?? [])
     .filter((p) => p.areaHa > 0)
@@ -1067,6 +1100,7 @@ function RegionSection({
             )}
           </div>
         ) : (
+          <>
           <div className={s.regionPills}>
             {majorRegions.map((r) => {
               const province = PROVINCES.find((p) => p.name === r);
@@ -1084,6 +1118,13 @@ function RegionSection({
               );
             })}
           </div>
+          {/* 차트가 없는 작물: 총조사 시·도 행이 근거면 출처, 없으면 손 입력임을 밝힌다(10/10) */}
+          {regionBasis ? (
+            <DataSource source={regionBasis.label} note="재배면적이 큰 시·도 순 (전국 5% 이상)" className={s.regionBasisSource} />
+          ) : (
+            <p className={s.regionBasisNote}>공식 재배면적 통계가 없어 알려진 산지를 참고로 적었어요.</p>
+          )}
+          </>
         )}
 
         {/* 시·군·구 단위 주요 산지 (5/22 회장 fix) — sigungu.mainCrops 매핑 기반 cross-link */}

@@ -3,6 +3,7 @@
  * - 단계별 체크리스트, 이랑 내부 링크, 외부 기관 링크 포함
  * - 출처: 농림축산식품부 귀농귀촌종합센터 가이드, 귀농어·귀촌 활성화법
  */
+import { RETURN_FARM_LOAN } from "./policy-facts";
 
 /* ── 체크리스트 항목 ── */
 
@@ -110,16 +111,16 @@ export const PLAN_STEPS: PlanStep[] = [
     icon: "📚",
     description:
       "귀농에 필요한 실질적인 지식과 기술을 습득하는 단계예요. " +
-      "공인 교육 이수(40시간 이상)는 농촌 정착금 등 지원사업 신청의 필수 요건이므로 반드시 이수해야 해요. " +
+      `귀농 창업·주택자금 융자는 영농 교육 ${RETURN_FARM_LOAN.minEducationHours.value}시간 이상이 신청 자격이고, ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 미만이면 심사에서 최저 등급을 받아요. 그래서 대부분 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간을 목표로 준비해요. ` +
       "선도 농가 현장 체험을 통해 실제 농촌 생활을 미리 경험해 볼 수 있어요.",
-    goal: "공인 교육 이수(40시간+), 작물 선정, 현장 감각 확보",
+    goal: `영농 교육 이수(${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 목표), 작물 선정, 현장 감각 확보`,
     checklist: [
       {
         id: "step2-item1",
-        label: "귀농귀촌 교육 수강 (40시간 이상)",
+        label: `귀농귀촌 교육 수강 (${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 목표)`,
         description:
           "농업기술센터, 귀농귀촌종합센터 등에서 제공하는 공인 교육을 이수해요. " +
-          "귀농 창업자금 지원사업의 필수 요건(100시간 이상 권장)이므로 체계적으로 수강 계획을 세워요.",
+          `귀농 창업자금은 ${RETURN_FARM_LOAN.minEducationHours.value}시간 이상이 자격이지만 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 미만이면 심사 최저 등급이라, 체계적으로 수강 계획을 세워요.`,
         irangLink: "/education",
         irangLinkLabel: "교육 과정 탐색",
       },

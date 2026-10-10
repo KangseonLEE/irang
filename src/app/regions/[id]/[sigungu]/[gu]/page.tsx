@@ -14,10 +14,15 @@ import {
 import { LandCheckBox } from "@/components/region/land-check-box";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
 import { PROVINCES } from "@/lib/data/regions";
-import { getSigunguBySidoAndId } from "@/lib/data/sigungus";
+import {
+  getMainCropEntries,
+  getSigunguBySidoAndId,
+  mainCropsEmptyMessage,
+  mainCropsEmptyReason,
+} from "@/lib/data/sigungus";
+import { MAIN_CROPS_SOURCE } from "@/lib/data/sigungu-main-crops";
 import { getGuByIds, GUS } from "@/lib/data/gus";
-import { getEnrichedHighlights } from "@/lib/data/popular-tags";
-import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
+import { CROPS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { programStatusLabel } from "@/lib/program-status";
@@ -99,22 +104,13 @@ export default async function GuDetailPage({ params }: PageProps) {
   // 시 아래 신설 구(화성 2026-02-01) — 상단 안내 (10/7)
   const guReorg = getGuReorganization(gu.id);
   // 근거 있는 키워드만 둔 구(부천 소사·화성 병점·동탄)는 빈 태그 줄을 그리지 않는다
-  const heroTags = getEnrichedHighlights(gu.sgisCode, gu.highlights);
+  const heroTags = gu.highlights;
 
-  // 대표 작물 매칭 (정적 데이터)
-  const matchedCrops = CROPS.filter((crop) => {
-    const detail = CROP_DETAILS.find((d) => d.id === crop.id);
-    return (
-      gu.mainCrops.some(
-        (mc) => crop.name === mc || crop.name.includes(mc)
-      ) ||
-      (detail?.majorRegions?.includes(province.name) &&
-        gu.mainCrops.some(
-          (mc) =>
-            detail.majorRegions?.some((r) => r.includes(mc)) ||
-            crop.name.includes(mc)
-        ))
-    );
+  // 주요 작물 — 2025 농림어업총조사 구 단위 재배면적 큰 순(최대 3, sigungu-main-crops.ts, 10/10)
+  const mainCropEntries = getMainCropEntries(gu.id);
+  const matchedCrops = mainCropEntries.flatMap((entry) => {
+    const crop = CROPS.find((c) => c.id === entry.cropId);
+    return crop ? [{ crop, areaHa: entry.areaHa }] : [];
   });
 
   const year = new Date().getFullYear();
@@ -173,43 +169,44 @@ export default async function GuDetailPage({ params }: PageProps) {
         <GuData province={province} sigungu={sigungu} gu={gu} />
       </Suspense>
 
-      {/* -- 대표 작물 -- */}
-      <section className={s.section} aria-label="대표 작물">
+      {/* -- 주요 작물 — 2025 농림어업총조사 재배면적 큰 순 -- */}
+      <section className={s.section} aria-label="주요 작물">
         <div className={s.sectionHeader}>
           <Icon icon={Sprout} size="lg" />
           <div>
-            <h2 className={s.sectionTitle}>대표 작물</h2>
-            {/* 작물이 없으면 '주로 재배되는 작물이에요' 바로 아래 '자료가 없어요'가 붙어 모순 — 설명을 숨긴다 (10/7 QA) */}
-            {(matchedCrops.length > 0 || gu.mainCrops.length > 0) && (
+            <h2 className={s.sectionTitle}>주요 작물</h2>
+            {/* 작물이 없으면 설명 바로 아래 '자료가 없어요'가 붙어 모순 — 설명을 숨긴다 (10/7 QA) */}
+            {matchedCrops.length > 0 && (
               <p className={s.sectionDesc}>
-                {gu.name}에서 주로 재배되는 작물이에요.
+                {gu.name} 농가가 가장 넓게 재배하는 작물이에요.
               </p>
             )}
           </div>
         </div>
         {matchedCrops.length > 0 ? (
-          <div className={s.cropGrid}>
-            {matchedCrops.map((crop) => (
-              <CropLinkCard
-                key={crop.id}
-                cropId={crop.id}
-                name={crop.name}
-                href={`/crops/${crop.id}`}
-                meta={`${crop.category} · 재배난이도: ${crop.difficulty}`}
-              />
-            ))}
-          </div>
-        ) : gu.mainCrops.length > 0 ? (
-          <div className={s.mainCropsList}>
-            {gu.mainCrops.map((crop) => (
-              <span key={crop} className={s.mainCropBadge}>
-                {crop}
-              </span>
-            ))}
-          </div>
+          <>
+            <div className={s.cropGrid}>
+              {matchedCrops.map(({ crop, areaHa }) => (
+                <CropLinkCard
+                  key={crop.id}
+                  cropId={crop.id}
+                  name={crop.name}
+                  href={`/crops/${crop.id}`}
+                  meta={`재배면적 ${Math.round(areaHa).toLocaleString("ko-KR")}ha · 난이도 ${crop.difficulty}`}
+                />
+              ))}
+            </div>
+            <DataSource
+              source={MAIN_CROPS_SOURCE}
+              note="농가 주소지 기준 재배면적이라 논밭이 다른 지역에 있을 수 있어요. 버섯·약초·화훼·축산은 이 표에 없어요."
+            />
+          </>
         ) : (
-          // 구 단위로 대표 작물을 꼽을 공식 자료가 없는 곳(부천 3구·화성 효행·병점·동탄, 10/7) — 지어내지 않는다
-          <EmptyState icon={<Icon icon={Sprout} size="lg" />} message="대표 작물로 꼽을 공식 자료가 없어요." />
+          // 2025 총조사에 구 단위 값이 없는 곳(화성 2026 신설 4구) — 지어내지 않는다
+          <EmptyState
+            icon={<Icon icon={Sprout} size="lg" />}
+            message={mainCropsEmptyMessage(mainCropsEmptyReason(gu.id, gu.sidoId), sigungu.name)}
+          />
         )}
       </section>
 

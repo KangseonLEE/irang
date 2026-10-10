@@ -1,3 +1,4 @@
+import { settlementSurvey } from "./stats";
 /**
  * 귀농 5단계 공용 요약 데이터
  *
@@ -41,7 +42,7 @@ export const GUIDE_STEP_SUMMARIES: GuideStepSummary[] = [
     step: 4,
     title: "영농 시작",
     period: "12~18개월",
-    cost: { amount: "약 5,260만 원", desc: "농지, 농기계, 시설 투자", highlight: true },
+    cost: { amount: `약 ${settlementSurvey.investment.toLocaleString("ko-KR")}만 원`, desc: `농지·가축·시설 투자 (${settlementSurvey.year} 실태조사 평균)`, highlight: true },
   },
   {
     step: 5,

@@ -527,7 +527,7 @@ function buildSigunguPanel(sigungu: Sigungu): EntityPanel | null {
     facts.push({ label: "면적", value: `${sigungu.area.toLocaleString()} km²` });
   }
   if (sigungu.mainCrops.length > 0) {
-    facts.push({ label: "대표 작물", value: sigungu.mainCrops.slice(0, 3).join(" · ") });
+    facts.push({ label: "주요 작물", value: sigungu.mainCrops.slice(0, 3).join(" · ") });
   }
   if (counts.programs > 0) {
     facts.push({ label: "신청 가능 지원사업", value: countLabel(counts.programs, "건") });
@@ -539,7 +539,7 @@ function buildSigunguPanel(sigungu: Sigungu): EntityPanel | null {
   }
 
   const sitelinks: PanelLink[] = [
-    { label: "대표 작물", href: `${base}#sigungu-crops` },
+    { label: "주요 작물", href: `${base}#sigungu-crops` },
     { label: "지원사업", href: `${base}#sigungu-programs` },
     { label: "정착 교육", href: `${base}#sigungu-education` },
     { label: "현장 이야기", href: `${base}#community-notes` },
@@ -608,7 +608,7 @@ function buildProvincePanel(province: Province): EntityPanel | null {
     facts.push({ label: "면적", value: `${province.area.toLocaleString()} km²` });
   }
   if (topCropNames.length > 0) {
-    facts.push({ label: "대표 작물", value: topCropNames.slice(0, 3).join(" · ") });
+    facts.push({ label: "시·군·구 주요 작물", value: topCropNames.slice(0, 3).join(" · ") });
   }
   if (counts.programs > 0) {
     facts.push({ label: "신청 가능 지원사업", value: countLabel(counts.programs, "건") });

@@ -304,35 +304,6 @@
   .supportSaved { font-size: 1.5rem; }
 }
 
-.supportNet {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-top: 4px;
-  padding-top: 10px;
-  border-top: 1px solid color-mix(in srgb, var(--primary, #1b6b5a) 15%, transparent);
-}
-
-.supportNetLabel {
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--muted-foreground, #6b7280);
-}
-
-@media (min-width: 1024px) {
-  .supportNetLabel { font-size: var(--fs-body-sm); }
-}
-
-.supportNetValue {
-  font-size: 1.125rem;
-  font-weight: 800;
-  color: var(--foreground);
-}
-
-@media (min-width: 640px) {
-  .supportNetValue { font-size: 1.25rem; }
-}
-
 /* ── 결과 안내 ── */
 .disclaimer {
   font-size: var(--fs-overline);

@@ -1,0 +1,112 @@
+# ═══════════════════════════════════════════
+# 원천 생성본 주간 재수집 대조 (2026-10-10, 회장 "데이터 신뢰도 — 전부 원천과 맞추고 계속 감시")
+#
+# KOSIS 원천에서 만들어 리포에 고정한 정적 자료를 매주 다시 수집해, 커밋된 생성본과 다르면 알린다.
+#   - 작물 시·도 재배면적(crop-areas) · 작물 시·군·구 재배면적·주산지 근거(crop-sigungu-areas)
+#   - 시·군·구 주요 작물(sigungu-main-crops) · 활발한 지역 귀농·귀촌(active-regions-stats)
+#   - 농가(farms) · 면적(collect-areas → regions/sigungus/gus) · 귀농 비율(return-farm-rate)
+# 각 수집기는 원천 항목 이름·단위·지역 짝·합계를 확인하고, 하나라도 어긋나면 파일을 쓰지 않고 실패한다.
+#
+# 결과:
+#   - 수집기 실패(가드 위반·원천 형식 변경) → 이슈(라벨 data-source-drift). 원천 쪽 변화라 사람이 봐야 한다.
+#   - 생성본이 달라짐(새 연도 공표·원천 정정) → 이슈에 바뀐 파일과 diff 요약. 로컬에서 같은 수집기를 돌려
+#     원천을 확인한 뒤 커밋하고, 화면 문장(지역 소개 속 순위 등)도 다시 대조한다.
+#   - 전부 같으면 열린 이슈 자동 종료.
+#   수집일 줄(수집일·마지막 수집)은 비교에서 뺀다.
+# 잡 성패는 "끝까지 돌았는가"만 — 결과 차이는 이슈가 알린다(watchman §15 이중 경보 방지, region-integrity 와 같은 규칙).
+# ═══════════════════════════════════════════
+
+name: "🧾 원천 생성본 주간 대조"
+
+on:
+  schedule:
+    # 매주 수요일 KST 10:20 (UTC 01:20)
+    - cron: "20 1 * * 3"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: data-sources
+  cancel-in-progress: false
+
+jobs:
+  recollect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      LABEL: data-source-drift
+      KOSIS_API_KEY: ${{ secrets.KOSIS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: 수집기 실행
+        id: run
+        run: |
+          : > failed.txt
+          for s in collect-crop-areas collect-crop-sigungu-areas collect-sigungu-main-crops collect-active-regions-stats collect-farms collect-areas collect-return-farm-rate; do
+            echo "::group::$s"
+            if ! npx tsx "scripts/$s.ts" > "log-$s.txt" 2>&1; then
+              echo "$s" >> failed.txt
+            fi
+            tail -15 "log-$s.txt"
+            echo "::endgroup::"
+          done
+
+      - name: 판정 + 이슈
+        run: |
+          git diff -I '수집일' -I '마지막 수집' --stat -- src/lib/data > diff.txt || true
+          changed=$(grep -c '|' diff.txt || true)
+          failed=$(wc -l < failed.txt | tr -d ' ')
+          echo "수집기 실패 $failed · 바뀐 생성본 $changed"
+          existing=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty')
+
+          if [ "$failed" = "0" ] && [ "$changed" = "0" ]; then
+            echo "원천과 생성본이 같아요."
+            if [ -n "$existing" ]; then
+              gh issue close "$existing" --comment "$(date -u +%F) 재수집 결과 원천과 생성본이 같아 닫아요."
+            fi
+            exit 0
+          fi
+
+          {
+            echo "## 원천 생성본 주간 대조 — $(date -u +%F)"
+            echo
+            if [ "$failed" != "0" ]; then
+              echo "### 수집기 실패 (가드 위반 또는 원천 형식 변경)"
+              while read -r s; do
+                echo "- \`$s\` — 마지막 출력:"
+                echo '```'
+                tail -20 "log-$s.txt"
+                echo '```'
+              done < failed.txt
+              echo
+            fi
+            if [ "$changed" != "0" ]; then
+              echo "### 커밋된 생성본과 달라진 파일"
+              echo '```'
+              cat diff.txt
+              echo '```'
+              echo
+              echo "새 연도 공표나 원천 정정일 수 있어요. 로컬에서 같은 수집기를 돌려 원천을 확인한 뒤 커밋하고,"
+              echo "지역 소개 문장 속 순위·연도도 다시 대조해 주세요."
+            fi
+            echo
+            echo "워크플로: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } > body.md
+
+          gh label create "$LABEL" --color D93F0B --description "원천 생성본 주간 대조" 2>/dev/null || true
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file body.md
+          else
+            gh issue create --title "🧾 원천 생성본 차이 — $(date -u +%F)" --label "$LABEL" --body-file body.md
+          fi

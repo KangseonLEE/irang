@@ -7,257 +7,57 @@ import {
   SelectCombobox,
   type SelectComboboxOption,
 } from "@/components/ui/select-combobox";
-import type { CostTypeId } from "@/lib/data/landing";
+import { youthSettlementTotalManwon, type CostTypeId } from "@/lib/data/landing";
+import { investmentByAge, settlementSurvey } from "@/lib/data/stats";
+import { cropCostRow, type CropCost } from "@/lib/data/cost-by-type";
+import {
+  RETURN_FARM_LOAN,
+  YOUTH_SETTLEMENT,
+  POLICY_TEXT,
+  formatManwon,
+} from "@/lib/data/policy-facts";
 import s from "./cost-simulator.module.css";
 
 /* ────────────────────────────────────────────────────────────────
-   계산 상수 — 카테고리별 (출처: 농진청 표준소득자료집·실태조사)
+   계산 근거 (10/10 전면 정정)
+   - 투자액: 농식품부 2025 귀농귀촌 실태조사 연령별 투자액(농지·가축·시설, stats.ts investmentByAge)
+   - 초기·추가 투자 비율: 같은 조사 귀농 가구 전체 "초기 투자 89.6%, 추가 투자 10.4%"
+   - 소득: 작물 상세(crops.ts)의 공식 통계 10a당 소득(경영비 차감) × 고른 면적
+   - 지원: policy-facts.ts (영농정착지원금·농업창업자금)
 
-   - farming: 정착 실태조사 2023 평균 (만원)
-   - youth: 30대 이하 정착자 평균 + 청년 우대금리 융자
-   - forestry: 산림청 임업경영실태조사 + 임산물 표준소득
-   - smartfarm: 농진청 ICT 시설 단가 (1,000㎡ 기준)
+   지운 것 — 원문이 없었다: 규모 계수 12개(소·중·대 0.6·1.0·1.8, 스마트팜 0.5·2.5·6.0 등), 영농 준비비 5,263만·
+   생활 정착비 956만 원 분할, 청년 영농비 6,567만 원(= 8,209 × 근거 없는 80%), 작물 월 소득 손 입력표 34종과
+   표에 없는 작물 26종의 월 100만 원(청년 200만 원) 기본값, 임산물·스마트팜 작물 월 소득·예시 보조금(1,500·4,000만 원).
+   공식 소득 통계가 없는 작물은 고를 수 없게 했다.
    ──────────────────────────────────────────────────────────────── */
 
-interface BaseCost {
-  farming: number; // 영농 준비비 (만원)
-  living: number; // 생활 정착비 (만원)
-}
+/** 1,000평 = 3,305.8㎡ = 10a(1,000㎡) × 3.3058 */
+const PYEONG_TO_10A = 3.3058 / 1000;
 
-const BASE_COSTS_BY_TYPE: Record<Exclude<CostTypeId, "village">, BaseCost> = {
-  farming: { farming: 5263, living: 956 }, // 귀농 평균 6,219
-  youth: { farming: 6567, living: 1642 }, // 30대 이하 평균 8,209 (영농 80% 비중)
-  forestry: { farming: 4000, living: 1000 }, // 임산물 시설 + 정착
-  smartfarm: { farming: 8000, living: 1000 }, // 비닐+ICT 1,000㎡ 평균
+const AREA_OPTIONS = [1000, 3000, 5000] as const;
+type AreaPyeong = (typeof AREA_OPTIONS)[number];
+
+/** 연 소득으로 바로 곱할 수 없는 기준(여러 해 한 번 수확한 합계·1기작)은 계산에서 뺀다 */
+const NOT_ANNUAL_BASIS = /기작|합계/;
+
+/** 공식 통계 10a당 소득이 있는 작물만 — 작물 상세가 갱신되면 따라 바뀐다 */
+const SIMULATOR_CROPS: CropCost[] = CROPS.map((c) => cropCostRow(c.id))
+  .filter((r): r is CropCost => r !== null)
+  .filter((r) => r.incomeManwon10a !== null && !NOT_ANNUAL_BASIS.test(r.basis ?? ""));
+
+const CROP_SELECT_OPTIONS: SelectComboboxOption[] = SIMULATOR_CROPS.map((crop) => {
+  const emoji = CROPS.find((c) => c.id === crop.cropPageId)?.emoji ?? "";
+  return { value: crop.cropPageId, label: `${emoji} ${crop.name}`.trim(), hint: crop.basis };
+});
+
+const DEFAULT_CROP: Record<"farming" | "youth", string> = {
+  farming: "sweet-potato",
+  youth: "strawberry",
 };
 
-type AgeGroup = "30대" | "40대" | "50대";
-type ScaleKey = "small" | "medium" | "large";
+const youthAgeLabel = investmentByAge[0].age;
 
-const AGE_OPTIONS: AgeGroup[] = ["30대", "40대", "50대"];
-
-/* ── 카테고리별 규모 옵션 ── */
-interface ScaleOption {
-  key: ScaleKey;
-  label: string;
-  detail: string;
-}
-
-const SCALE_OPTIONS_BY_TYPE: Record<
-  Exclude<CostTypeId, "village">,
-  ScaleOption[]
-> = {
-  farming: [
-    { key: "small", label: "소규모", detail: "1,000평" },
-    { key: "medium", label: "중규모", detail: "3,000평" },
-    { key: "large", label: "대규모", detail: "5,000평" },
-  ],
-  youth: [
-    { key: "small", label: "소규모", detail: "1,000평" },
-    { key: "medium", label: "중규모", detail: "3,000평" },
-    { key: "large", label: "대규모", detail: "5,000평" },
-  ],
-  forestry: [
-    { key: "small", label: "소규모 임야", detail: "1ha" },
-    { key: "medium", label: "중규모 임야", detail: "3ha" },
-    { key: "large", label: "대규모 임야", detail: "5ha" },
-  ],
-  smartfarm: [
-    { key: "small", label: "비닐하우스", detail: "1,000㎡" },
-    { key: "medium", label: "유리온실", detail: "1,000㎡" },
-    { key: "large", label: "식물공장", detail: "1,000㎡" },
-  ],
-};
-
-/* ── 카테고리·규모별 계수 ── */
-const SCALE_FACTOR_BY_TYPE: Record<
-  Exclude<CostTypeId, "village">,
-  Record<ScaleKey, number>
-> = {
-  farming: { small: 0.6, medium: 1.0, large: 1.8 },
-  youth: { small: 0.6, medium: 1.0, large: 1.8 },
-  forestry: { small: 0.5, medium: 1.0, large: 2.0 },
-  smartfarm: { small: 0.5, medium: 2.5, large: 6.0 }, // 비닐 → 유리 → 식물공장
-};
-
-/* ── 연령별 지원금 ──
-   kind 구분:
-   - "grant": 정부 보조금 (상환 의무 없음 → 실질 부담 차감)
-   - "loan_info": 저금리 융자 안내 (상환 의무 있음 → 절감액 아님, 안내만) */
-const SUPPORT_BY_AGE: Record<
-  AgeGroup,
-  { label: string; amount: number; desc: string; kind: "grant" | "loan_info" }
-> = {
-  "30대": {
-    label: "청년창업농",
-    amount: 3600,
-    kind: "grant",
-    desc: "월 110·100·90만 원 × 3년 (매년 감액)",
-  },
-  "40대": {
-    label: "농업창업자금 융자",
-    amount: 0,
-    kind: "loan_info",
-    desc: "최대 3억 원을 연 2% 저금리로 융자 활용 가능 (상환 의무 있음)",
-  },
-  "50대": {
-    label: "농업창업자금 융자",
-    amount: 0,
-    kind: "loan_info",
-    desc: "최대 3억 원을 연 2% 저금리로 융자 활용 가능 (상환 의무 있음)",
-  },
-};
-
-/* ── 카테고리별 추가 지원금 (영농정착·시설보조 등) ──
-   주의: youth는 SUPPORT_BY_AGE["30대"]가 이미 청년창업농 영농정착지원금(3,960만)을
-   포함하므로 별도 EXTRA를 두지 않아 중복 계산을 방지. */
-const EXTRA_SUPPORT_BY_TYPE: Record<
-  Exclude<CostTypeId, "village">,
-  { label: string; amount: number; desc: string } | null
-> = {
-  farming: null,
-  youth: null,
-  // 10/3 정정: 금액은 모델 가정(예시)이고, 보조율은 공식 근거가 있는 것만 적는다.
-  //   스마트팜 — 농촌진흥청이 아니라 농식품부 ICT 융복합 확산사업(지자체 공모), 2026 시행계획 국비 25%·지방비 30%.
-  //   임산물 — "산림청 시설 보조 50%"는 원문을 찾지 못해 비율을 지웠다(사업·연도마다 달라요).
-  forestry: {
-    label: "임산물 시설 보조",
-    amount: 1500,
-    desc: "예시 금액 · 산림청 임산물 시설 지원은 사업·연도마다 보조율이 달라요",
-  },
-  smartfarm: {
-    label: "스마트팜 시설 보조",
-    amount: 4000,
-    desc: "예시 금액 · 농식품부 ICT 융복합 확산사업(지자체 공모) — 2026년 계획 국비 25%·지방비 30%",
-  },
-};
-
-/* ────────────────────────────────────────────────────────────────
-   작물 옵션 (카테고리별)
-   소득은 농진청 표준소득자료집 기반 추정 — 만원/월
-   ──────────────────────────────────────────────────────────────── */
-
-interface CropOption {
-  id: string;
-  name: string;
-  emoji: string;
-  /** 월 평균 소득 (만원) */
-  monthlyIncome: number;
-}
-
-const CROP_INCOME_ESTIMATE: Record<string, number> = {
-  rice: 48,
-  soybean: 36,
-  "sweet-potato": 83,
-  potato: 79,
-  corn: 43,
-  "chili-pepper": 246,
-  "napa-cabbage": 142,
-  garlic: 95,
-  onion: 125,
-  lettuce: 105,
-  apple: 427,
-  pear: 360,
-  grape: 393,
-  peach: 220,
-  persimmon: 131,
-  citrus: 188,
-  strawberry: 426,
-  tomato: 325,
-  cucumber: 450,
-  pepper: 280,
-  watermelon: 250,
-  melon: 280,
-  ginseng: 480,
-  mushroom: 350,
-  sesame: 55,
-  perilla: 65,
-  blueberry: 380,
-  cherry: 300,
-  plum: 160,
-  fig: 210,
-  mango: 400,
-  arugula: 150,
-  jujube: 180,
-  chestnut: 120,
-};
-
-/** 임산물 추정 월 소득 (산림청 임산물 표준소득 기반) */
-const FOREST_CROP_OPTIONS: CropOption[] = [
-  { id: "shiitake-log", name: "표고 (원목)", emoji: "🍄", monthlyIncome: 80 },
-  { id: "wild-ginseng", name: "산양삼", emoji: "🌿", monthlyIncome: 50 },
-  { id: "bellflower", name: "도라지", emoji: "🌱", monthlyIncome: 35 },
-  { id: "chestnut", name: "밤", emoji: "🌰", monthlyIncome: 60 },
-  { id: "omija", name: "오미자", emoji: "🍒", monthlyIncome: 70 },
-  { id: "walnut", name: "호두", emoji: "🥜", monthlyIncome: 55 },
-];
-
-/** 스마트팜 작물 (ICT 시설 기준, 월 소득 ↑) */
-const SMARTFARM_CROP_OPTIONS: CropOption[] = [
-  { id: "strawberry", name: "딸기 (ICT)", emoji: "🍓", monthlyIncome: 600 },
-  { id: "tomato", name: "토마토 (ICT)", emoji: "🍅", monthlyIncome: 450 },
-  { id: "paprika", name: "파프리카 (유리온실)", emoji: "🫑", monthlyIncome: 700 },
-  { id: "rose", name: "장미 (화훼)", emoji: "🌹", monthlyIncome: 500 },
-  { id: "lettuce-hydro", name: "엽채 (수경)", emoji: "🥬", monthlyIncome: 350 },
-];
-
-/** 청년농 인기 작물 (시설 위주) */
-const YOUTH_CROP_IDS = [
-  "strawberry",
-  "tomato",
-  "blueberry",
-  "ginseng",
-  "chili-pepper",
-  "cucumber",
-  "apple",
-  "grape",
-];
-
-function buildFarmingCropOptions(): CropOption[] {
-  return CROPS.map((crop) => ({
-    id: crop.id,
-    name: crop.name,
-    emoji: crop.emoji,
-    monthlyIncome: CROP_INCOME_ESTIMATE[crop.id] ?? 100,
-  }));
-}
-
-function buildYouthCropOptions(): CropOption[] {
-  return CROPS.filter((c) => YOUTH_CROP_IDS.includes(c.id)).map((crop) => ({
-    id: crop.id,
-    name: crop.name,
-    emoji: crop.emoji,
-    monthlyIncome: CROP_INCOME_ESTIMATE[crop.id] ?? 200,
-  }));
-}
-
-const CROP_OPTIONS_BY_TYPE: Record<
-  Exclude<CostTypeId, "village">,
-  CropOption[]
-> = {
-  farming: buildFarmingCropOptions(),
-  youth: buildYouthCropOptions(),
-  forestry: FOREST_CROP_OPTIONS,
-  smartfarm: SMARTFARM_CROP_OPTIONS,
-};
-
-/** SelectCombobox용 옵션 — 타입별로 고정이라 모듈 로드 시 1회만 만든다 */
-const CROP_SELECT_OPTIONS_BY_TYPE: Record<
-  Exclude<CostTypeId, "village">,
-  SelectComboboxOption[]
-> = {
-  farming: toSelectOptions(CROP_OPTIONS_BY_TYPE.farming),
-  youth: toSelectOptions(CROP_OPTIONS_BY_TYPE.youth),
-  forestry: toSelectOptions(CROP_OPTIONS_BY_TYPE.forestry),
-  smartfarm: toSelectOptions(CROP_OPTIONS_BY_TYPE.smartfarm),
-};
-
-function toSelectOptions(list: CropOption[]): SelectComboboxOption[] {
-  return list.map((crop) => ({
-    value: crop.id,
-    label: `${crop.emoji} ${crop.name}`,
-  }));
-}
+const man = (n: number) => `${Math.round(n).toLocaleString("ko-KR")}만 원`;
 
 /* ────────────────────────────────────────────────────────────────
    카운트업 훅
@@ -299,66 +99,42 @@ function useCountUp(target: number, duration = 600): number {
    ──────────────────────────────────────────────────────────────── */
 
 interface Props {
-  /** 비용 가이드 카테고리 */
+  /** 비용 가이드 카테고리 — 시뮬레이터는 귀농·청년농에서만 보인다(실태조사 투자액이 있는 유형) */
   type?: CostTypeId;
 }
 
 export default function CostSimulator({ type = "farming" }: Props) {
-  // village는 simulator 미노출 — 안전 fallback으로 farming 사용
-  const safeType: Exclude<CostTypeId, "village"> =
-    type === "village" ? "farming" : type;
+  const safeType: "farming" | "youth" = type === "youth" ? "youth" : "farming";
 
-  const baseCosts = BASE_COSTS_BY_TYPE[safeType];
-  const scaleOptions = SCALE_OPTIONS_BY_TYPE[safeType];
-  const scaleFactors = SCALE_FACTOR_BY_TYPE[safeType];
-  const cropOptions = CROP_OPTIONS_BY_TYPE[safeType];
-  const cropSelectOptions = CROP_SELECT_OPTIONS_BY_TYPE[safeType];
-  const extraSupport = EXTRA_SUPPORT_BY_TYPE[safeType];
+  const [age, setAge] = useState(safeType === "youth" ? youthAgeLabel : "40대");
+  const [cropId, setCropId] = useState(
+    SIMULATOR_CROPS.some((c) => c.cropPageId === DEFAULT_CROP[safeType])
+      ? DEFAULT_CROP[safeType]
+      : (SIMULATOR_CROPS[0]?.cropPageId ?? ""),
+  );
+  const [area, setArea] = useState<AreaPyeong>(3000);
 
-  const [age, setAge] = useState<AgeGroup>(safeType === "youth" ? "30대" : "40대");
-  const [cropId, setCropId] = useState(cropOptions[0]?.id ?? "rice");
-  const [scale, setScale] = useState<ScaleKey>("medium");
+  const ageRow = investmentByAge.find((d) => d.age === age) ?? investmentByAge[0];
+  const totalCost = ageRow.amount;
+  const initialPct = settlementSurvey.initialInvestmentShare;
+  const laterPct = Number((100 - initialPct).toFixed(1));
+  const initialCost = (totalCost * initialPct) / 100;
+  const laterCost = totalCost - initialCost;
 
-  const factor = scaleFactors[scale];
-  const farmingCost = Math.round(baseCosts.farming * factor);
-  const livingCost = Math.round(baseCosts.living * factor);
-  const totalCost = farmingCost + livingCost;
+  const crop = SIMULATOR_CROPS.find((c) => c.cropPageId === cropId) ?? SIMULATOR_CROPS[0];
+  const units = area * PYEONG_TO_10A;
+  const [lo, hi] = crop?.incomeManwon10a ?? [0, 0];
+  const incomeLo = lo * units;
+  const incomeHi = hi * units;
+  const incomeLabel =
+    Math.round(incomeLo) === Math.round(incomeHi)
+      ? `약 ${man(incomeLo)}`
+      : `약 ${Math.round(incomeLo).toLocaleString("ko-KR")}~${man(incomeHi)}`;
 
-  const support = SUPPORT_BY_AGE[age];
-  // 청년농(30대)이면 영농정착 추가 적용
-  const applyExtra =
-    extraSupport && (safeType !== "youth" || age === "30대");
-  const extraAmount = applyExtra ? extraSupport.amount : 0;
-  // 보조금만 절감액으로 차감 (융자는 상환 의무가 있어 절감 아님)
-  const grantAmount = support.kind === "grant" ? support.amount : 0;
-  const totalSupport = grantAmount + extraAmount;
-  const netCost = Math.max(0, totalCost - totalSupport);
-  const isLoanOnly = support.kind === "loan_info" && !applyExtra;
-
-  const selectedCrop = cropOptions.find((c) => c.id === cropId) ?? cropOptions[0];
-  const monthlyIncome = selectedCrop?.monthlyIncome ?? 100;
-  const scaledMonthlyIncome = Math.round(monthlyIncome * factor);
-
-  const farmingPct = Math.round((farmingCost / totalCost) * 100);
-  const livingPct = 100 - farmingPct;
+  const isYouthAge = age === youthAgeLabel;
+  const [youthMin, youthMax] = YOUTH_SETTLEMENT.ageRange.value;
 
   const animatedTotal = useCountUp(totalCost);
-
-  /* 라벨 */
-  const farmingLabel =
-    safeType === "smartfarm"
-      ? "시설·ICT 비용"
-      : safeType === "forestry"
-        ? "임야·시설 비용"
-        : "영농 준비비";
-  const farmingSub =
-    safeType === "smartfarm"
-      ? "하우스 + 환경제어 + 양액"
-      : safeType === "forestry"
-        ? "차광망 + 재배사 + 종묘"
-        : "농지 + 시설 + 장비";
-  const livingLabel = "생활 정착비";
-  const livingSub = "주거 + 이사 + 생활";
 
   return (
     <div className={s.wrapper}>
@@ -367,15 +143,15 @@ export default function CostSimulator({ type = "farming" }: Props) {
         <div className={s.inputGroup}>
           <label className={s.inputLabel}>연령대</label>
           <div className={s.pillGroup}>
-            {AGE_OPTIONS.map((opt) => (
+            {investmentByAge.map((opt) => (
               <button
-                key={opt}
-                className={`${s.pill} ${age === opt ? s.pillActive : ""}`}
-                onClick={() => setAge(opt)}
+                key={opt.age}
+                className={`${s.pill} ${age === opt.age ? s.pillActive : ""}`}
+                onClick={() => setAge(opt.age)}
                 type="button"
-                aria-pressed={age === opt}
+                aria-pressed={age === opt.age}
               >
-                {opt}
+                {opt.age}
               </button>
             ))}
           </div>
@@ -383,39 +159,29 @@ export default function CostSimulator({ type = "farming" }: Props) {
 
         <div className={s.inputGroup}>
           <label className={s.inputLabel} id="crop-select-label">
-            {safeType === "smartfarm"
-              ? "재배 작물"
-              : safeType === "forestry"
-                ? "임산물 선택"
-                : "작물 선택"}
+            작물 선택
           </label>
           <SelectCombobox
             className={s.cropSelect}
             value={cropId}
             onChange={setCropId}
-            options={cropSelectOptions}
+            options={CROP_SELECT_OPTIONS}
             labelledBy="crop-select-label"
           />
         </div>
 
         <div className={s.inputGroup}>
-          <label className={s.inputLabel}>
-            {safeType === "smartfarm"
-              ? "시설 종류"
-              : safeType === "forestry"
-                ? "임야 면적"
-                : "재배 규모"}
-          </label>
+          <label className={s.inputLabel}>재배 면적</label>
           <div className={s.pillGroup}>
-            {scaleOptions.map((opt) => (
+            {AREA_OPTIONS.map((opt) => (
               <button
-                key={opt.key}
-                className={`${s.pill} ${scale === opt.key ? s.pillActive : ""}`}
-                onClick={() => setScale(opt.key)}
+                key={opt}
+                className={`${s.pill} ${area === opt ? s.pillActive : ""}`}
+                onClick={() => setArea(opt)}
                 type="button"
-                aria-pressed={scale === opt.key}
+                aria-pressed={area === opt}
               >
-                {opt.label} ({opt.detail})
+                {opt.toLocaleString("ko-KR")}평
               </button>
             ))}
           </div>
@@ -427,7 +193,7 @@ export default function CostSimulator({ type = "farming" }: Props) {
       {/* 결과 패널 */}
       <div className={s.resultPanel}>
         <div className={s.heroNumber}>
-          <span className={s.heroLabel}>예상 총 비용</span>
+          <span className={s.heroLabel}>{ageRow.age} 귀농 가구 평균 투자액</span>
           <span className={s.heroValue}>
             {animatedTotal.toLocaleString("ko-KR")}
             <span className={s.heroUnit}>만 원</span>
@@ -438,99 +204,65 @@ export default function CostSimulator({ type = "farming" }: Props) {
           <div
             className={s.stackBar}
             role="img"
-            aria-label={`${farmingLabel} ${farmingPct}%, ${livingLabel} ${livingPct}%`}
+            aria-label={`정착 초기 투자 ${initialPct}%, 추가 투자 ${laterPct}%`}
           >
-            <div
-              className={s.stackBarFarming}
-              style={{ width: `${farmingPct}%` }}
-            />
-            <div
-              className={s.stackBarLiving}
-              style={{ width: `${livingPct}%` }}
-            />
+            <div className={s.stackBarFarming} style={{ width: `${initialPct}%` }} />
+            <div className={s.stackBarLiving} style={{ width: `${laterPct}%` }} />
           </div>
           <div className={s.stackBarLegend}>
             <span className={s.legendItem}>
-              <span
-                className={`${s.legendDot} ${s.legendDotFarming}`}
-                aria-hidden="true"
-              />
-              {farmingLabel} {farmingPct}%
+              <span className={`${s.legendDot} ${s.legendDotFarming}`} aria-hidden="true" />
+              정착 초기 {initialPct}%
             </span>
             <span className={s.legendItem}>
-              <span
-                className={`${s.legendDot} ${s.legendDotLiving}`}
-                aria-hidden="true"
-              />
-              {livingLabel} {livingPct}%
+              <span className={`${s.legendDot} ${s.legendDotLiving}`} aria-hidden="true" />
+              추가 투자 {laterPct}%
             </span>
           </div>
         </div>
 
         <div className={s.resultCards}>
           <div className={s.resultCard}>
-            <span className={s.resultCardLabel}>{farmingLabel}</span>
-            <span className={s.resultCardValue}>
-              {farmingCost.toLocaleString("ko-KR")}만 원
-            </span>
-            <span className={s.resultCardSub}>{farmingSub}</span>
+            <span className={s.resultCardLabel}>정착 초기 투자</span>
+            <span className={s.resultCardValue}>약 {man(initialCost)}</span>
+            <span className={s.resultCardSub}>농지·가축·시설</span>
           </div>
           <div className={s.resultCard}>
-            <span className={s.resultCardLabel}>{livingLabel}</span>
-            <span className={s.resultCardValue}>
-              {livingCost.toLocaleString("ko-KR")}만 원
-            </span>
-            <span className={s.resultCardSub}>{livingSub}</span>
+            <span className={s.resultCardLabel}>추가 투자</span>
+            <span className={s.resultCardValue}>약 {man(laterCost)}</span>
+            <span className={s.resultCardSub}>정착 이후</span>
           </div>
           <div className={s.resultCard}>
-            <span className={s.resultCardLabel}>월 예상 수입</span>
-            <span className={s.resultCardValue}>
-              ~{scaledMonthlyIncome.toLocaleString("ko-KR")}만 원
-            </span>
+            <span className={s.resultCardLabel}>연 예상 소득</span>
+            <span className={s.resultCardValue}>{incomeLabel}</span>
             <span className={s.resultCardSub}>
-              {selectedCrop?.emoji} {selectedCrop?.name} 기준
+              {crop?.name} {area.toLocaleString("ko-KR")}평 · 10a당 {crop?.income}
             </span>
           </div>
         </div>
 
-        {/* 지원금 차감 — 보조금(grant)이 있을 때만 "절감" 표시. 융자만 있으면 안내만. */}
+        {/* 지원 안내 — 보조금을 투자액에서 빼 '실질 부담'을 만들지 않는다(조건부 지원이라 10/10 정정) */}
         <div className={s.supportSection}>
           <span className={s.supportTitle}>
             <PiggyBank size={16} aria-hidden="true" />
-            {age} {support.label}
-            {applyExtra && ` + ${extraSupport.label}`}
-            {isLoanOnly ? " 활용 가능" : " 활용 시"}
+            {isYouthAge ? "영농정착지원금 활용 시" : "농업창업자금 융자 활용 가능"}
           </span>
           <p className={s.supportDesc}>
-            {support.desc}
-            {applyExtra && ` · ${extraSupport.desc}`}
+            {isYouthAge
+              ? `만 ${youthMin}~${youthMax}세 청년 창업농으로 선발되면 ${POLICY_TEXT.youthMonthly}을 받아요 (매년 감액)`
+              : `농지·시설·장비 구입에 최대 ${formatManwon(RETURN_FARM_LOAN.startupMaxManwon.value)}을 ${RETURN_FARM_LOAN.interestRate.value} 금리로 융자받을 수 있어요 (${RETURN_FARM_LOAN.repayment.value})`}
           </p>
-          {isLoanOnly ? (
-            <span className={s.supportSaved}>
-              저금리 융자로 자기자본 부담 감소 (별도 상환)
-            </span>
-          ) : (
-            <>
-              <span className={s.supportSaved}>
-                보조금 최대 {totalSupport.toLocaleString("ko-KR")}만 원 절감
-              </span>
-              <div className={s.supportNet}>
-                <span className={s.supportNetLabel}>실질 부담</span>
-                <span className={s.supportNetValue}>
-                  {netCost.toLocaleString("ko-KR")}만 원
-                </span>
-              </div>
-            </>
-          )}
+          <span className={s.supportSaved}>
+            {isYouthAge
+              ? `3년간 최대 ${formatManwon(youthSettlementTotalManwon)} 보조금`
+              : "융자라 갚아야 하는 돈이에요"}
+          </span>
         </div>
 
         <p className={s.disclaimer}>
-          * {safeType === "smartfarm"
-            ? "농진청 ICT 시설 단가(1,000㎡)와 농식품부 혁신밸리 자료 기반 추정이에요."
-            : safeType === "forestry"
-              ? "산림청 임업경영실태조사·임산물 표준소득 기반 추정이에요."
-              : "정착 실태조사 2023 평균과 농진청 표준소득자료집 기반 추정이에요."}
-          {" "}실제 비용은 지역·시설·작물에 따라 달라요.
+          * 투자액은 농림축산식품부 {settlementSurvey.year} 귀농귀촌 실태조사의 연령대별 평균이라 면적과 작물에 따라 달라지지
+          않아요. 소득은 {crop?.source}의 10a당 소득(경영비를 뺀 값)에 면적을 곱한 값이에요. 처음부터 이만큼 버는 건
+          아니고, 지역·시설·경험에 따라 달라요.
         </p>
       </div>
     </div>

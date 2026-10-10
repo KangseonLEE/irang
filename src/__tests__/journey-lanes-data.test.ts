@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { JOURNEY_GATES, JOURNEY_LANES, START_LANES } from "@/lib/data/journey-lanes";
-import { buildLaneStats, parseCostRangeMan } from "@/lib/data/journey-lanes-stats";
+import { buildLaneStats } from "@/lib/data/journey-lanes-stats";
 import { normalizeSearchParams, LIST_PAGE_NORMALIZE_OPTIONS } from "@/lib/search-params/normalize";
 
 /**
@@ -80,7 +80,7 @@ describe("정착 유형 레인 데이터 (9/29 S·S2 → 10/3 데이터만)", ()
 
   it("출처 문구는 타일 폭 안에서 읽히도록 약칭으로 줄인다", () => {
     const sources = Object.values(stats).flatMap((tiles) => tiles.map((t) => t.source));
-    expect(sources.some((s) => s.includes("농진청"))).toBe(true);
+    expect(sources.some((s) => s.includes("농식품부"))).toBe(true);
     for (const s of sources) {
       expect(s, s).not.toMatch(/농촌진흥청|농림축산식품부|행정안전부/);
       expect(s.length, s).toBeLessThanOrEqual(30);
@@ -165,29 +165,15 @@ describe("레인 데이터 타일 — 서버 계산 (9/29 S2)", () => {
     }
   });
 
-  it("초기 투자금 출처는 섞인 출처 수를 드러낸다", async () => {
-    const { CROP_COSTS_BY_TYPE } = await import("@/lib/data/cost-by-type");
-    const n = new Set(CROP_COSTS_BY_TYPE.youth.map((c) => c.source)).size;
-    expect(n).toBeGreaterThan(1);
-    expect(stats.youth[3].source).toContain(`외 ${n - 1}`);
-    expect(stats.guinong[3].source).not.toContain("외 "); // farming 은 단일 출처
-  });
-
-  it("비용 범위 파서 — 만·억·콤바인 표기", () => {
-    expect(parseCostRangeMan("300만~500만 원")).toBe(400);
-    expect(parseCostRangeMan("5,000만~1억 원")).toBe(7500);
-    expect(parseCostRangeMan("1.5억~2.5억 원")).toBe(20000);
-    expect(parseCostRangeMan("1억 5,000만 원")).toBe(15000);
-    expect(parseCostRangeMan("미정")).toBeNull();
-  });
-
-  it("초기 투자금 타일은 cost-by-type 평균과 일치하고, 데이터 없는 레인엔 안 뜬다", async () => {
-    const { CROP_COSTS_BY_TYPE } = await import("@/lib/data/cost-by-type");
-    const vals = CROP_COSTS_BY_TYPE.farming.map((c) => parseCostRangeMan(c.initialCost)!);
-    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-    expect(stats.guinong[3].value).toBe(`${(Math.round(avg / 100) * 100).toLocaleString()}만 원`);
-    // village(귀촌)은 작물 비용 데이터가 0건 → 시·군·구 타일로 대체
-    expect(CROP_COSTS_BY_TYPE.village.length).toBe(0);
-    expect(stats.guichon[3].label).toBe("비교할 시·군·구");
+  /* 10/10: 작물 비용 표의 '초기 투자금' 범위 평균(원문 없음) → 실태조사 투자액 */
+  it("투자액 타일은 실태조사 값과 같고, 공식 투자액이 없는 레인엔 안 뜬다", async () => {
+    const { settlementSurvey, investmentByAge } = await import("@/lib/data/stats");
+    const man = (n: number) => `${n.toLocaleString("ko-KR")}만 원`;
+    expect(stats.guinong[3]).toMatchObject({ label: "평균 투자액", value: man(settlementSurvey.investment) });
+    expect(stats.guichon[3]).toMatchObject({ label: "평균 투자액", value: man(settlementSurvey.ruralInvestment) });
+    expect(stats.youth[3]).toMatchObject({ value: man(investmentByAge[0].amount) });
+    for (const id of ["forest", "smartfarm"]) {
+      expect(stats[id].some((t) => t.label.includes("투자액")), id).toBe(false);
+    }
   });
 });

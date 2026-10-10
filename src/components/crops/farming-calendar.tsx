@@ -340,7 +340,7 @@ function CropDetailPanel({
                 </div>
                 {income.minScale && (
                   <div className={s.detailFact}>
-                    <dt className={s.detailLabel}>최소 규모</dt>
+                    <dt className={s.detailLabel}>권장 규모(참고)</dt>
                     <dd className={s.detailValue}>{income.minScale}</dd>
                   </div>
                 )}

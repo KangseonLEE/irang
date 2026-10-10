@@ -924,6 +924,13 @@
   }
 }
 
+.indicatorNote {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+
 .indicatorCard {
   display: flex;
   flex-direction: column;
@@ -1196,6 +1203,18 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 20px;
+}
+
+/* 차트·통계 근거가 없는 주산지 안내 (10/10) */
+.regionBasisNote {
+  margin: -8px 0 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+
+.regionBasisSource {
+  margin: -8px 0 20px;
 }
 
 .regionPill {

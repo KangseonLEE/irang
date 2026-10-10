@@ -16,8 +16,8 @@ export interface CropRow {
   growingSeason: string;
   /** CROP_DETAILS.income.laborIntensity, 없으면 null */
   laborIntensity: "낮음" | "보통" | "높음" | null;
-  /** 10a당 연소득(만원) — parseIncome10a, 파싱 불가 시 null */
-  income10a: number | null;
+  /** 10a당 소득 원표 숫자("1,260~1,642") — 공식 소득 통계일 때만, 아니면 null(추정 작목, 10/10) */
+  incomeText: string | null;
   /** majorRegions 상위 2~3개 join, 없으면 "" */
   majorRegions: string;
 }
@@ -85,9 +85,9 @@ export function CropList({ rows }: CropListProps) {
                 <DifficultyBadge level={c.difficulty} size="sm" />
               </td>
               <td data-label="예상 수익">
-                {c.income10a !== null ? (
+                {c.incomeText !== null ? (
                   <span className={s.income}>
-                    {c.income10a.toLocaleString()}만 원
+                    {c.incomeText}만 원
                   </span>
                 ) : (
                   <span className={dt.muted}>—</span>

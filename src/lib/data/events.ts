@@ -170,7 +170,7 @@ const EVENTS_RAW: Omit<FarmEvent, "status">[] = [
     type: "일일체험",
     date: "2026-04-01",
     dateEnd: "2026-06-30",
-    applicationStart: "2026-02-01",
+    applicationStart: "2026-03-01", // 2026-10-10: 원문(영월 2026-04-03 기사)은 "지난 3월 참가자 모집" — SP-009 와 맞춤
     applicationEnd: "2026-03-31",
     location: "강원도 영월군 요선농촌체험휴양마을",
     cost: "체류 지원 (주거+영농실습)",

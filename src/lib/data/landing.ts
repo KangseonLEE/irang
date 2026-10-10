@@ -25,7 +25,61 @@ import {
   signedPct,
   toCount,
   trendOf,
+  investmentByAge,
 } from "./stats";
+import {
+  RETURN_FARM_LOAN,
+  YOUTH_SETTLEMENT,
+  POLICY_TEXT,
+  formatManwon,
+} from "./policy-facts";
+
+
+/* ── 비용 화면 수치 — 원문이 있는 값만, 같은 숫자는 한 곳에서 계산한다 (10/10 정정) ──
+   투자액·준비 기간·생활비·소득: 농식품부 2025 귀농귀촌 실태조사(stats.ts settlementSurvey·investmentByAge).
+   정책 한도·금리·지원금: policy-facts.ts (귀농 창업·주택 융자 SP-001, 청년 영농정착지원 SP-002).
+   지운 값 — 원문을 찾지 못했다: 영농 준비비 비중 84.6%(→ 원문은 '초기 투자 89.6%'), 생활 정착비 956만 원,
+   귀촌 '임차 기준 2,800만 원·주거비 85%·준비 14개월(원문 15.5개월)·지자체 정착금 1,000만 원·KB부동산 추정',
+   청년 '영농 준비비 80%·준비 21개월·6,567만 원', 귀산촌 '창업 비용 5,000만 원(3,000~8,000)·시설 60%·준비 30개월·
+   교육 60~120시간(원문 5년 이내 60시간)', 스마트팜 '비닐하우스 ICT 4,000만 원·유리온실 1억~2억·식물공장 5억+·
+   ICT 85%·준비 12개월·혁신밸리 보증금 1,000~3,000만 원'. 귀촌 탭의 '주택구입 융자'는 귀촌만으로는 대상이 아니라 뺐다(10/6 정정). */
+const _sv = settlementSurvey;
+const _loan = RETURN_FARM_LOAN;
+const _youthSupport = YOUTH_SETTLEMENT;
+const _startupEok = _loan.startupMaxManwon.value / 10_000;
+const _housingMan = _loan.housingMaxManwon.value;
+const _youthMonthly = _youthSupport.monthlyManwonByYear.value;
+/** 영농정착지원금 3년 합계(만 원) — 월 지원금 × 12개월을 연차별로 더한다 */
+export const youthSettlementTotalManwon = _youthMonthly.reduce((sum, m) => sum + m * 12, 0);
+const _youthAge = `만 ${_youthSupport.ageRange.value[0]}~${_youthSupport.ageRange.value[1]}세`;
+const _initialAmt = Math.round((_sv.investment * _sv.initialInvestmentShare) / 100);
+const _ruralInitialAmt = Math.round((_sv.ruralInvestment * _sv.ruralInitialInvestmentShare) / 100);
+const _youthInvest = investmentByAge[0];
+const _surveySource = `농림축산식품부 ${_sv.year} 귀농귀촌 실태조사`;
+const _loanSource = "귀농 농업창업 및 주택구입 지원사업(농식품부)";
+const _man = (n: number) => `${n.toLocaleString("ko-KR")}만 원`;
+
+/**
+ * 산림청 귀산촌 창업·주택 자금 — 원문 https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?cmsId=FC_000434&mn=AR02_06_02_02
+ * 10/10 재대조: "창업 세대 당 3억원 이내 · 주택구입 세대 당 75백만원 이내 · 연리 2%, 5년 거치 10년 분할 상환(융자100%) ·
+ * 5년 이내 60시간 이수 · 신청시기 (상반기) 2~3월 / (하반기) 6~7월 · 귀산촌 예정지 관할지역 산림조합". gov-roadmap 과 같은 값.
+ */
+const FOREST_FUND = {
+  startupManwon: 30_000,
+  housingManwon: 7_500,
+  rate: "연 2%",
+  repayment: "5년 거치 10년 분할 상환",
+  eduHours: 60,
+  applyPeriod: "상반기 2~3월 · 하반기 6~7월",
+  source: "산림청 귀산촌 창업·주택 자금 안내",
+} as const;
+
+/**
+ * 스마트팜 — 농식품부 「2026년 스마트농업 육성 시행계획」 ICT 융복합 확산사업 재원 구성(국비 25%·지방비 30%·융자 25%·자부담 20%,
+ * stats.ts smartfarmCauses 와 같은 원문) + 스마트팜 청년창업 보육센터(SP-012 원문: 20개월·국비 무료·실습비 월 최대 70만 원).
+ */
+const SMARTFARM_ICT = { year: 2026, national: 25, local: 30, loan: 25, self: 20 } as const;
+const SMARTFARM_INCUBATOR = { months: 20, practiceManwon: 70 } as const;
 
 
 /* ── (구) 정착 트렌드 데이터: TREND_BENTO_PROFILES로 이전 완료 ── */
@@ -444,7 +498,12 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
           : `귀농가구주 중 30대 이하는 ${_youth.ratio}%예요`,
     },
     stats: [
-      { value: "3,600만 원", label: "영농정착지원금", sub: "월 110·100·90만 원 × 3년 (매년 감액)", desc: "만 18~39세 청년 창업농에게 지급되는 정부 보조금이에요" },
+      {
+        value: `${youthSettlementTotalManwon.toLocaleString("ko-KR")}만 원`,
+        label: "영농정착지원금",
+        sub: `월 ${YOUTH_SETTLEMENT.monthlyManwonByYear.value.join("·")}만 원 × 3년 (매년 감액)`,
+        desc: `만 ${YOUTH_SETTLEMENT.ageRange.value[0]}~${YOUTH_SETTLEMENT.ageRange.value[1]}세 청년 창업농에게 지급되는 정부 보조금이에요`,
+      },
       {
         value: `${youthFarmingReasons[0].pct}%`,
         label: "청년 귀농 이유 1위",
@@ -460,10 +519,10 @@ export const TREND_BENTO_PROFILES: Record<TrendTypeId, TrendBentoProfile> = {
     compare: {
       title: "청년농 지원, 얼마나 받을까?",
       items: [
-        { label: "정착지원금", change: "월 110만 원", detail: "보조금 · 최대 3년" },
-        { label: "창업자금", change: "최대 3억원", detail: "저금리 융자 지원" },
+        { label: "정착지원금", change: `월 ${YOUTH_SETTLEMENT.monthlyManwonByYear.value[0]}만 원`, detail: "보조금 · 최대 3년" },
+        { label: "창업자금", change: `최대 ${formatManwon(RETURN_FARM_LOAN.startupMaxManwon.value)}`, detail: `융자 · ${RETURN_FARM_LOAN.interestRate.value}` },
         /* 국비 무료 장기 교육(만 18~39세) — programs.ts SP-012 원문. "정착 교육 100시간+"는 귀농 창업자금 심사 기준과 섞인 표기였다 */
-        { label: "교육비", change: "무료", detail: "청년창업보육센터 20개월" },
+        { label: "교육비", change: "무료", detail: `청년창업보육센터 ${SMARTFARM_INCUBATOR.months}개월` },
       ],
     },
   },
@@ -602,27 +661,27 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     label: "귀농",
     headline: "농촌 정착까지,",
     em: "얼마가 들까?",
-    desc: "평균 6,219만 원의 초기 비용 중 대부분은 영농 준비에 쓰여요. 정부 융자를 활용하면 부담을 크게 줄일 수 있어요.",
-    source: "농림축산식품부 2025 귀농귀촌 실태조사",
+    desc: `귀농 가구는 농지·가축·시설에 평균 ${_man(_sv.investment)}을 투자했고, 그중 ${_sv.initialInvestmentShare}%를 정착 초기에 썼어요. 정부 융자를 활용하면 한 번에 드는 부담을 나눌 수 있어요.`,
+    source: _surveySource,
     confidence: "official",
-    hero: { label: "평균 초기 투자금", desc: "농지·시설·장비·종자 등 영농 시작에 필요한 총비용이에요", value: 6219, format: "integer", unit: "만 원", color: "primary" },
+    hero: { label: "평균 투자액", desc: "농지·가축·시설에 투자한 금액이에요 (귀농 가구 평균)", value: _sv.investment, format: "integer", unit: "만 원", color: "primary" },
     cards: [
-      { label: "영농 준비비 비중", desc: "초기 비용의 대부분이 농지 구입과 시설 투자에 집중돼요", value: 84.6, format: "decimal1", unit: "%", note: "약 5,261만 원", color: "primary" },
-      { label: "평균 준비 기간", desc: "탐색부터 정착까지 평균 소요 기간이에요", value: 27.4, format: "decimal1", unit: "개월", color: "amber" },
-      { label: "정부 주택자금 융자", desc: "정착자 주거 안정을 위한 정부 지원 한도예요", value: 7500, format: "integer", unit: "만 원", source: "귀농귀촌 정착지원사업", color: "muted" },
-      { label: "농업창업자금 융자", desc: "영농 정착에 필요한 농지·시설·장비 구입 지원 한도예요", value: 3, format: "plain", unit: "억원", source: "농림축산식품부 융자사업", color: "primary" },
+      { label: "초기 투자 비중", desc: "투자의 대부분이 정착 초기에 들어가요", value: _sv.initialInvestmentShare, format: "decimal1", unit: "%", note: `약 ${_man(_initialAmt)}`, color: "primary" },
+      { label: "평균 준비 기간", desc: "탐색부터 정착까지 평균 소요 기간이에요", value: _sv.prepMonths, format: "decimal1", unit: "개월", color: "amber" },
+      { label: "주택구입 융자", desc: "귀농인이 농촌 주택을 사거나 지을 때 받을 수 있는 융자 한도예요", value: _housingMan, format: "integer", unit: "만 원", source: _loanSource, color: "muted" },
+      { label: "농업창업자금 융자", desc: "농지·시설·장비 구입에 쓸 수 있는 융자 한도예요", value: _startupEok, format: "plain", unit: "억 원", source: _loanSource, color: "primary" },
     ],
     snapshot: {
-      totalLabel: "귀농 평균 총 비용",
-      totalValue: "6,219",
-      totalRaw: 6219,
+      totalLabel: "귀농 평균 투자액",
+      totalValue: _sv.investment.toLocaleString("ko-KR"),
+      totalRaw: _sv.investment,
       totalUnit: "만 원",
-      totalSub: "이 중 <strong>84.6%</strong>가 영농 준비에 집중",
+      totalSub: `농지·가축·시설 투자 · 이 중 <strong>${_sv.initialInvestmentShare}%</strong>를 정착 초기에 투자`,
       items: [
-        { label: "영농 준비 비용", value: "5,260만 원", sub: "농지·시설·장비" },
-        { label: "평균 준비 기간", value: "27.4개월", sub: "탐색부터 정착까지" },
-        { label: "정부 창업자금", value: "최대 3억 원", sub: "저금리 융자 지원" },
-        { label: "주택자금 지원", value: "최대 7,500만 원", sub: "정부 융자 지원" },
+        { label: "정착 초기 투자", value: `약 ${_man(_initialAmt)}`, sub: `투자액의 ${_sv.initialInvestmentShare}%` },
+        { label: "평균 준비 기간", value: `${_sv.prepMonths}개월`, sub: "탐색부터 정착까지" },
+        { label: "정부 창업자금", value: `최대 ${formatManwon(_loan.startupMaxManwon.value)}`, sub: `융자 · ${_loan.interestRate.value}` },
+        { label: "주택자금 지원", value: `최대 ${formatManwon(_housingMan)}`, sub: "융자 · 귀농인 대상" },
       ],
     },
     visibleSections: ["age", "crop", "phase", "compare", "strategy", "support", "simulator"],
@@ -632,32 +691,30 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     label: "귀촌",
     headline: "귀촌 정착까지,",
     em: "비용이 달라요",
-    desc: "농업 없이 농촌에 정착하는 귀촌은 주거비가 비용의 대부분이에요. 임차로 시작하면 초기 부담을 크게 줄일 수 있어요.",
-    source: "귀농귀촌 실태조사 + KB부동산 시세 기반 추정",
-    confidence: "estimated",
-    confidenceNote: "귀촌 단독 공식 실태조사가 없어 주거 시세 기반 추정값이에요",
-    hero: { label: "임차 시작 기준 정착 비용", desc: "농업 없이 농촌에 정착할 때 필요한 주거·생활 비용이에요", value: 2800, format: "integer", unit: "만 원", color: "primary" },
+    desc: `귀촌 가구도 농지·가축·시설에 평균 ${_man(_sv.ruralInvestment)}을 투자했어요. 준비 기간은 평균 ${_sv.ruralPrepMonths}개월로 귀농(${_sv.prepMonths}개월)보다 짧아요.`,
+    source: _surveySource,
+    confidence: "official",
+    hero: { label: "평균 투자액", desc: "농지·가축·시설에 투자한 금액이에요 (귀촌 가구 평균)", value: _sv.ruralInvestment, format: "integer", unit: "만 원", color: "primary" },
     cards: [
-      { label: "주거비 비중", desc: "귀촌 비용의 대부분이 주택 임차나 구입에 집중돼요", value: 85, format: "decimal1", unit: "%", color: "primary" },
-      { label: "평균 준비 기간", desc: "주거지 탐색과 이주 준비에 걸리는 기간이에요", value: 14, format: "decimal1", unit: "개월", color: "amber" },
-      { label: "주택구입 융자", desc: "귀촌인 주거 안정을 위한 정부 융자 한도예요", value: 7500, format: "integer", unit: "만 원", source: "귀농귀촌 정착지원사업", color: "muted" },
-      { label: "지자체 정착 지원금", desc: "시·군별로 귀촌인에게 정착금을 지급해요", value: 1000, format: "integer", unit: "만 원", source: "지자체별 300~2,000만 원", color: "primary" },
+      { label: "초기 투자 비중", desc: "투자의 대부분이 정착 초기에 들어가요", value: _sv.ruralInitialInvestmentShare, format: "decimal1", unit: "%", note: `약 ${_man(_ruralInitialAmt)}`, color: "primary" },
+      { label: "평균 준비 기간", desc: "주거지 탐색과 이주 준비에 걸리는 기간이에요", value: _sv.ruralPrepMonths, format: "decimal1", unit: "개월", color: "amber" },
+      { label: "월 생활비", desc: `귀촌 전 ${_man(_sv.ruralLivingCostBefore)}보다 ${Math.abs(_sv.ruralLivingCostChange)}% 줄었어요`, value: _sv.ruralLivingCostAfter, format: "integer", unit: "만 원", color: "primary" },
+      { label: "5년차 가구소득", desc: `첫해 ${_man(_sv.ruralIncomeFirstYear)}보다 ${_sv.ruralIncomeChange}% 늘었어요`, value: _sv.ruralIncomeFifthYear, format: "integer", unit: "만 원", color: "muted" },
     ],
     snapshot: {
-      totalLabel: "귀촌 정착 비용 (임차 기준)",
-      totalValue: "2,800",
-      totalRaw: 2800,
+      totalLabel: "귀촌 평균 투자액",
+      totalValue: _sv.ruralInvestment.toLocaleString("ko-KR"),
+      totalRaw: _sv.ruralInvestment,
       totalUnit: "만 원",
-      totalSub: "주택 구입 시 <strong>1억~1.5억 원</strong>으로 증가",
+      totalSub: `농지·가축·시설 투자 · 이 중 <strong>${_sv.ruralInitialInvestmentShare}%</strong>를 정착 초기에 투자`,
       items: [
-        { label: "주거비 (임차)", value: "2,000만~8,000만 원", sub: "전세·월세 보증금" },
-        { label: "이사·정착비", value: "300만~700만 원", sub: "이사비·인테리어" },
-        { label: "주택구입 융자", value: "최대 7,500만 원", sub: "정부 융자 지원" },
-        { label: "정착 지원금", value: "300만~2,000만 원", sub: "지자체별 상이" },
+        { label: "정착 초기 투자", value: `약 ${_man(_ruralInitialAmt)}`, sub: `투자액의 ${_sv.ruralInitialInvestmentShare}%` },
+        { label: "평균 준비 기간", value: `${_sv.ruralPrepMonths}개월`, sub: "탐색부터 정착까지" },
+        { label: "월 생활비", value: _man(_sv.ruralLivingCostAfter), sub: `귀촌 전 ${_man(_sv.ruralLivingCostBefore)}` },
+        { label: "5년차 가구소득", value: _man(_sv.ruralIncomeFifthYear), sub: `첫해 ${_man(_sv.ruralIncomeFirstYear)}` },
       ],
     },
-    /* 10/3 정정(DE-B): 'compare'(도시 vs 농촌) 제외 — 남은 월 생활비 행은 귀농 가구 값이라 귀촌에 맞지 않고,
-       나머지 행(주거비·주거 형태·생활 만족도)은 근거가 없어 cityVsRural 에서 지웠다 */
+    /* 10/3 정정(DE-B): 'compare'(도시 vs 농촌) 제외 — 남은 월 생활비 행은 귀농 가구 값이라 귀촌에 맞지 않는다 */
     visibleSections: ["strategy"],
   },
   youth: {
@@ -665,61 +722,59 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     label: "청년농",
     headline: "청년농 창업,",
     em: "얼마면 시작할까?",
-    desc: "30대 이하 정착자의 평균 투자금은 8,209만 원이에요. 영농정착지원금과 창업자금을 합치면 실질 부담을 크게 줄일 수 있어요.",
-    source: "농림축산식품부 2025 실태조사 + 청년창업농 시행지침",
-    confidence: "estimated",
-    confidenceNote: "실태조사 30대 이하 수치를 활용한 추정이에요",
-    hero: { label: "30대 이하 평균 투자금", desc: "청년 정착자의 평균 초기 투자 비용이에요", value: 8209, format: "integer", unit: "만 원", color: "primary" },
+    desc: `${_youthInvest.age} 귀농 가구의 평균 투자액은 ${_man(_youthInvest.amount)}으로 전체 평균(${_man(_sv.investment)})보다 많아요. 영농정착지원금과 창업자금 융자를 함께 살펴보세요.`,
+    source: `${_surveySource} · 청년농업인 영농정착지원사업 시행지침`,
+    confidence: "official",
+    hero: { label: `${_youthInvest.age} 평균 투자액`, desc: `${_youthInvest.age} 귀농 가구가 농지·가축·시설에 투자한 금액이에요`, value: _youthInvest.amount, format: "integer", unit: "만 원", color: "primary" },
     cards: [
-      { label: "영농 준비비 비중", desc: "농지·시설·장비 투자가 전체의 대부분을 차지해요", value: 80, format: "decimal1", unit: "%", color: "primary" },
-      { label: "평균 준비 기간", desc: "교육과 현장 실습을 거쳐 창업하는 기간이에요", value: 21, format: "decimal1", unit: "개월", color: "amber" },
-      { label: "영농정착지원금", desc: "만 18~39세 창업농에게 월 110·100·90만 원을 3년 지급해요 (매년 감액)", value: 3600, format: "integer", unit: "만 원", source: "보조금 · 농림축산식품부", color: "primary" },
-      { label: "농업창업자금 융자", desc: "영농에 필요한 농지·시설·장비 구입 지원 한도예요", value: 3, format: "plain", unit: "억원", source: "농림축산식품부 융자사업", color: "muted" },
+      { label: "영농정착지원금", desc: `${_youthAge} 창업농에게 ${POLICY_TEXT.youthMonthly}을 지급해요`, value: youthSettlementTotalManwon, format: "integer", unit: "만 원", source: "보조금 · 농림축산식품부", color: "primary" },
+      { label: "농업창업자금 융자", desc: "농지·시설·장비 구입에 쓸 수 있는 융자 한도예요", value: _startupEok, format: "plain", unit: "억 원", source: _loanSource, color: "muted" },
+      { label: "청년창업 보육센터", desc: `스마트팜 혁신밸리 4곳에서 국비 무료로 교육받아요 (실습비 월 최대 ${SMARTFARM_INCUBATOR.practiceManwon}만 원)`, value: SMARTFARM_INCUBATOR.months, format: "plain", unit: "개월", source: "스마트팜 청년창업 보육센터", color: "amber" },
+      { label: "귀농 이유 1위", desc: `${_youthInvest.age} 귀농인이 가장 많이 꼽은 이유예요 (${youthFarmingReasons[0].label})`, value: youthFarmingReasons[0].pct, format: "decimal1", unit: "%", color: "primary" },
     ],
     snapshot: {
-      totalLabel: "청년농 평균 총 비용",
-      totalValue: "8,209",
-      totalRaw: 8209,
+      totalLabel: `${_youthInvest.age} 평균 투자액`,
+      totalValue: _youthInvest.amount.toLocaleString("ko-KR"),
+      totalRaw: _youthInvest.amount,
       totalUnit: "만 원",
-      totalSub: "영농정착지원금 <strong>최대 3,600만 원</strong> 별도 지원",
+      totalSub: `영농정착지원금 <strong>최대 ${_man(youthSettlementTotalManwon)}</strong> 별도 지원`,
       items: [
-        { label: "영농 준비 비용", value: "약 6,567만 원", sub: "농지·시설·장비" },
-        { label: "영농정착지원금", value: "최대 3,600만 원", sub: "보조금 (만 18~39세)" },
-        { label: "농업창업자금", value: "최대 3억 원", sub: "저금리 융자 지원" },
-        /* 10/3 정정(DE-B): "농지임차 지원 연 최대 300만 원·임차료 50~80%"는 전국 제도가 아니라 일부 지자체 사업
-           (예: 충남 금산군 2026 — 최대 70%·연 300만 원) 조건이라 지우고, 만 18~39세 국비 무료 교육(SP-012 원문)으로 */
-        { label: "청년창업보육센터", value: "교육비 무료", sub: "실습비 월 최대 70만 원" },
+        { label: "영농정착지원금", value: `최대 ${_man(youthSettlementTotalManwon)}`, sub: `보조금 (${_youthAge})` },
+        { label: "농업창업자금", value: `최대 ${formatManwon(_loan.startupMaxManwon.value)}`, sub: `융자 · ${_loan.interestRate.value}` },
+        /* 10/3 정정(DE-B): "농지임차 지원 연 최대 300만 원"은 일부 지자체 사업 조건이라 지우고, 만 18~39세 국비 무료 교육(SP-012 원문)으로 */
+        { label: "청년창업보육센터", value: "교육비 무료", sub: `실습비 월 최대 ${SMARTFARM_INCUBATOR.practiceManwon}만 원` },
+        { label: "전체 귀농 평균", value: _man(_sv.investment), sub: "투자액 비교" },
       ],
     },
-    visibleSections: ["crop", "phase", "compare", "strategy", "support", "simulator"],
+    visibleSections: ["age", "crop", "phase", "compare", "strategy", "support", "simulator"],
   },
   forestry: {
     id: "forestry",
     label: "귀산촌",
     headline: "귀산촌 정착,",
-    em: "비용 구조가 달라요",
-    desc: "임야 확보와 임산물 시설에 투자가 집중돼요. 산림청이 별도 창업자금을 지원하며, 농림부와 지원 체계가 달라요.",
-    source: "산림청 귀산촌 지원사업 안내",
+    em: "지원 체계가 달라요",
+    desc: "임야 확보와 임산물 시설에 투자가 들어가요. 산림청이 별도로 창업·주택 자금을 융자하고, 산촌으로 옮겨야 대상이 돼요.",
+    source: FOREST_FUND.source,
     confidence: "range-only",
-    confidenceNote: "공식 실태조사가 없어 품목별 단가 기반 참고값이에요",
-    hero: { label: "평균 창업 비용 (추정)", desc: "임야·시설·종묘 등 귀산촌 창업에 필요한 예상 비용이에요", value: 5000, format: "integer", unit: "만 원", color: "primary" },
+    confidenceNote: "귀산촌 가구의 투자액은 공식 조사가 없어 산림청 지원 한도를 보여 드려요",
+    hero: { label: "산림청 창업자금", desc: `임산물 생산·유통 기반 조성에 세대당 최대 ${formatManwon(FOREST_FUND.startupManwon)}을 ${FOREST_FUND.rate}로 융자해요`, value: FOREST_FUND.startupManwon / 10_000, format: "plain", unit: "억 원", color: "primary" },
     cards: [
-      { label: "시설 투자비 비중", desc: "차광망·재배사 등 임산물 시설에 투자가 집중돼요", value: 60, format: "decimal1", unit: "%", color: "primary" },
-      { label: "평균 준비 기간", desc: "교육이수와 임야 확보에 귀농보다 시간이 더 걸려요", value: 30, format: "decimal1", unit: "개월", color: "amber" },
-      { label: "산림청 창업자금", desc: "임산물 생산·임야 매입·시설 투자 융자 한도예요", value: 3, format: "plain", unit: "억원", source: "산림청 귀산촌 지원사업", color: "muted" },
-      { label: "정착지원(주택)", desc: "귀산촌 정착에 필요한 주택 구입·신축 지원이에요", value: 7500, format: "integer", unit: "만 원", source: "산림청 귀산촌 지원사업", color: "primary" },
+      { label: "주택구입·신축 융자", desc: "귀산촌 주택을 사거나 지을 때 세대당 받을 수 있는 한도예요", value: FOREST_FUND.housingManwon, format: "integer", unit: "만 원", source: FOREST_FUND.source, color: "primary" },
+      { label: "교육 이수 요건", desc: "창업자금은 인정 교육을 5년 이내에 이만큼 들어야 해요 (주택 자금은 불필요)", value: FOREST_FUND.eduHours, format: "plain", unit: "시간", source: FOREST_FUND.source, color: "amber" },
+      { label: "산촌 읍·면", desc: `산림기본법상 산촌(${mountainVillageArea.sigungu}개 시·군)으로 옮겨야 대상이에요`, value: mountainVillageArea.eupmyeon, format: "integer", unit: "곳", source: `산림청 ${mountainVillageArea.year} 산촌기초조사`, color: "muted" },
+      { label: `${mountainData[mountainData.length - 1].year} 귀산촌 가구`, desc: "한 해 동안 산촌으로 옮긴 가구예요", value: mountainData[mountainData.length - 1].households, format: "integer", unit: "가구", source: "국가데이터처 귀농어·귀촌인통계", color: "primary" },
     ],
     snapshot: {
-      totalLabel: "귀산촌 창업 비용 (추정)",
-      totalValue: "3,000~8,000",
-      totalRaw: 5000,
-      totalUnit: "만 원",
-      totalSub: "품목(표고·산양삼·밤 등)에 따라 <strong>편차가 커요</strong>",
+      totalLabel: "산림청 창업자금 한도",
+      totalValue: `최대 ${FOREST_FUND.startupManwon / 10_000}억`,
+      totalRaw: FOREST_FUND.startupManwon,
+      totalUnit: "원",
+      totalSub: `주택구입·신축은 <strong>최대 ${_man(FOREST_FUND.housingManwon)}</strong> 별도 · ${FOREST_FUND.rate} 융자`,
       items: [
-        { label: "임야·시설 투자", value: "2,000~5,000만 원", sub: "차광망·재배사·종묘" },
-        { label: "준비 기간", value: "24~36개월", sub: "교육이수 60~120시간" },
-        { label: "산림청 창업자금", value: "최대 3억 원", sub: "금리 2% 융자 지원" },
-        { label: "정착지원(주택)", value: "최대 7,500만 원", sub: "주택 구입·신축" },
+        { label: "창업자금", value: `최대 ${formatManwon(FOREST_FUND.startupManwon)}`, sub: `${FOREST_FUND.rate} · ${FOREST_FUND.repayment}` },
+        { label: "주택구입·신축", value: `최대 ${formatManwon(FOREST_FUND.housingManwon)}`, sub: "세대당 융자" },
+        { label: "교육 이수", value: `${FOREST_FUND.eduHours}시간`, sub: "5년 이내 · 창업자금 요건" },
+        { label: "신청", value: "관할 산림조합", sub: FOREST_FUND.applyPeriod },
       ],
     },
     /* 10/3 정정(DE-B): 'compare' 제외 — 귀산촌 비교 행(주거비·미세먼지·주거 형태·생활 만족도·산림소득)이 모두 근거가 없었다 */
@@ -729,38 +784,38 @@ export const COST_TYPE_PROFILES: Record<CostTypeId, CostTypeProfile> = {
     id: "smartfarm",
     label: "스마트팜",
     headline: "스마트팜 창업,",
-    em: "초기 투자가 달라요",
-    desc: "비닐하우스 ICT 기준 4,000만 원부터, 유리온실은 2억 원 이상이에요. 정부 시설 보조와 혁신밸리 프로그램을 활용할 수 있어요.",
-    source: "농진청 스마트팜 시설 단가 · 농식품부 혁신밸리 사업",
+    em: "지원부터 살펴봐요",
+    desc: "시설 형태(비닐하우스·유리온실)에 따라 투자 규모가 크게 달라요. 지자체가 공모하는 ICT 융복합 확산사업과 혁신밸리 교육을 활용할 수 있어요.",
+    source: `농림축산식품부 ${SMARTFARM_ICT.year} 스마트농업 육성 시행계획 · 스마트팜 청년창업 보육센터`,
     confidence: "range-only",
-    confidenceNote: "시설 유형(비닐하우스·유리온실)에 따라 편차가 커요",
-    hero: { label: "비닐하우스 ICT 기준", desc: "1,000㎡ 비닐하우스에 ICT 기초 장비를 갖추는 비용이에요", value: 4000, format: "integer", unit: "만 원", color: "primary" },
+    confidenceNote: "스마트팜 시설 투자액은 공식 조사가 없어 보조율과 교육 지원을 보여 드려요",
+    /* 10/3 정정: 출처가 농진청이 아니라 농식품부 ICT 융복합 확산사업. 보조율은 해마다·세부 사업마다 달라 계획 연도와 함께 적는다 */
+    hero: { label: "ICT 융복합 보조", desc: `온실 ICT 장비·신축 사업비의 국비 ${SMARTFARM_ICT.national}%·지방비 ${SMARTFARM_ICT.local}%를 보조받아요 (${SMARTFARM_ICT.year} 계획 · 지자체 공모)`, value: SMARTFARM_ICT.national + SMARTFARM_ICT.local, format: "plain", unit: "%", color: "primary" },
     cards: [
-      { label: "ICT·시설 비중", desc: "하우스 구조물과 환경 제어 장비에 비용이 집중돼요", value: 85, format: "decimal1", unit: "%", color: "primary" },
-      { label: "평균 준비 기간", desc: "혁신밸리 교육 포함, 창업까지 걸리는 기간이에요", value: 12, format: "decimal1", unit: "개월", color: "amber" },
-      /* 10/3 정정: 출처가 농진청이 아니라 농식품부 ICT 융복합 확산사업. 보조율은 해마다·세부 사업마다 달라 2026 계획값을 연도와 함께 적는다 */
-      { label: "ICT 융복합 보조", desc: "온실 ICT 장비·신축 사업비의 국비 25%·지방비 30%를 보조받아요(지자체 공모)", value: 55, format: "plain", unit: "%", source: "농림축산식품부 2026 스마트농업 육성 시행계획", color: "primary" },
-      { label: "농업창업자금 융자", desc: "스마트팜 설비와 농지 확보를 위한 융자 한도예요", value: 3, format: "plain", unit: "억원", source: "농림축산식품부 융자사업", color: "muted" },
+      { label: "같은 사업 융자", desc: `나머지는 융자 ${SMARTFARM_ICT.loan}%와 자부담 ${SMARTFARM_ICT.self}%예요`, value: SMARTFARM_ICT.loan, format: "plain", unit: "%", source: `농림축산식품부 ${SMARTFARM_ICT.year} 시행계획`, color: "muted" },
+      { label: "혁신밸리 교육", desc: `${_youthAge} 청년이 스마트팜 혁신밸리 4곳에서 국비 무료로 교육받아요`, value: SMARTFARM_INCUBATOR.months, format: "plain", unit: "개월", source: "스마트팜 청년창업 보육센터", color: "amber" },
+      { label: "실습비", desc: "보육센터 실습 기간에 매달 받는 최대 금액이에요", value: SMARTFARM_INCUBATOR.practiceManwon, format: "plain", unit: "만 원", source: "스마트팜 청년창업 보육센터", color: "primary" },
+      { label: "농업창업자금 융자", desc: "스마트팜 설비와 농지 확보에도 쓸 수 있는 융자 한도예요", value: _startupEok, format: "plain", unit: "억 원", source: _loanSource, color: "muted" },
     ],
     snapshot: {
-      totalLabel: "스마트팜 초기 투자 (시설별)",
-      totalValue: "4,000~2억",
-      totalRaw: 4000,
-      totalUnit: "만 원+",
-      totalSub: "유리온실은 <strong>1억~2억 원</strong>, 식물공장은 <strong>5억 원+</strong>",
+      totalLabel: `ICT 융복합 보조율 (${SMARTFARM_ICT.year} 계획)`,
+      totalValue: `${SMARTFARM_ICT.national + SMARTFARM_ICT.local}`,
+      totalRaw: SMARTFARM_ICT.national + SMARTFARM_ICT.local,
+      totalUnit: "%",
+      totalSub: `국비 <strong>${SMARTFARM_ICT.national}%</strong> + 지방비 <strong>${SMARTFARM_ICT.local}%</strong> · 지자체 공모`,
       items: [
-        { label: "비닐하우스 + ICT", value: "3,000만~5,000만 원", sub: "1,000㎡ 기준" },
-        { label: "유리온실 + ICT", value: "1억~2억 원", sub: "1,000㎡ 기준" },
-        { label: "ICT 융복합 보조", value: "국비 25%·지방비 30%", sub: "2026 계획 · 지자체 공모" },
-        { label: "혁신밸리 임대형", value: "보증금 1,000만~3,000만", sub: "청년 창업 지원" },
+        { label: "융자", value: `${SMARTFARM_ICT.loan}%`, sub: "ICT 융복합 확산사업" },
+        { label: "자부담", value: `${SMARTFARM_ICT.self}%`, sub: "ICT 융복합 확산사업" },
+        { label: "혁신밸리 교육", value: `${SMARTFARM_INCUBATOR.months}개월 무료`, sub: `실습비 월 최대 ${SMARTFARM_INCUBATOR.practiceManwon}만 원` },
+        { label: "농업창업자금", value: `최대 ${formatManwon(_loan.startupMaxManwon.value)}`, sub: `융자 · ${_loan.interestRate.value}` },
       ],
     },
-    /* 10/3 정정(DE-B): 'compare' 제외 — 스마트팜 비교 행(주거비·5년차 소득의 도시 값·시설농 매출·생활 만족도)이 모두 근거가 없었다 */
-    visibleSections: ["crop", "strategy", "simulator"],
+    /* 10/10: 'simulator' 제외 — 시설 단가·규모 계수·작물 소득(딸기 ICT 월 600만 원 등)에 원문이 없었다 */
+    visibleSections: ["crop", "strategy"],
   },
 };
 
-/* ── 정착 비용 데이터 (출처: 2025 귀농귀촌 실태조사) ── */
+/* ── 연령별 투자액 (출처: 2025 귀농귀촌 실태조사 보도자료 별첨) ── */
 
 export interface CostByAge {
   age: string;
@@ -768,12 +823,12 @@ export interface CostByAge {
   raw: number; // 만원 단위 — 차트 비율 계산용
 }
 
-export const costByAge: CostByAge[] = [
-  { age: "30대 이하", amount: "8,209만 원", raw: 8209 },
-  { age: "40대", amount: "9,547만 원", raw: 9547 },
-  { age: "50대", amount: "6,485만 원", raw: 6485 },
-  { age: "60대", amount: "5,512만 원", raw: 5512 },
-];
+/** stats.ts investmentByAge 에서 만든다 — 70대 이상까지(10/10: 예전엔 60대까지만, 값은 손 입력) */
+export const costByAge: CostByAge[] = investmentByAge.map((d) => ({
+  age: d.age,
+  amount: _man(d.amount),
+  raw: d.amount,
+}));
 
 /* ── 준비 단계별 비용 집중도 (로드맵 연계) ── */
 

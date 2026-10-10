@@ -16,7 +16,9 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Article } from "schema-dts";
+import { settlementSurvey } from "@/lib/data/stats";
 import s from "./page.module.css";
+import { POLICY_TEXT, RETURN_FARM_LOAN } from "@/lib/data/policy-facts";
 
 export const metadata: Metadata = {
   ...pageMetadata({
@@ -79,7 +81,7 @@ const TIPS_50S = [
   },
   {
     title: "지원사업 적극 활용",
-    desc: "농촌 정착금(최대 3억 원 융자), 영농 자금 대출, 주택 수리비 지원(최대 2,000만 원) 등을 놓치지 마세요.",
+    desc: `귀농 창업자금(최대 ${POLICY_TEXT.returnFarmStartupMax} 융자), 영농 자금 대출, 시·군의 주택 수리비 지원(금액은 시·군마다 달라요) 등을 놓치지 마세요.`,
   },
 ];
 
@@ -154,7 +156,7 @@ export default function Budget50sGuidePage() {
           <Icon icon={AlertTriangle} size="md" color="warning" variant="soft" />
           <p className={s.cautionText}>
             <AutoGlossary
-              text="귀농 투자 평균 약 5,260만 원. 안정된 기반을 마련하는 데 4~5년이 걸리므로, 그 기간의 여유자금을 반드시 별도 확보하세요."
+              text={`귀농 가구의 농지·가축·시설 투자액은 평균 ${settlementSurvey.investment.toLocaleString("ko-KR")}만 원이에요(${settlementSurvey.year} 실태조사). 안정된 기반을 마련하는 데 4~5년이 걸리므로, 그 기간의 여유자금을 반드시 별도 확보하세요.`}
               maxHighlights={2}
             />
           </p>
@@ -183,7 +185,7 @@ export default function Budget50sGuidePage() {
             <Icon icon={Banknote} size="md" variant="soft" />
             <div className={s.supportBody}>
               <strong>귀농 창업 정착금</strong>
-              <span>최대 3억 원 융자 (이자 2%대)</span>
+              <span>최대 {POLICY_TEXT.returnFarmStartupMax} 융자 ({RETURN_FARM_LOAN.interestRate.value})</span>
             </div>
           </div>
           <div className={s.supportItem}>
@@ -197,7 +199,7 @@ export default function Budget50sGuidePage() {
             <Icon icon={Banknote} size="md" variant="soft" />
             <div className={s.supportBody}>
               <strong>주택 수리비 지원</strong>
-              <span>최대 2,000만 원 (빈집 수리 포함)</span>
+              <span>시·군마다 달라요 (빈집 수리 포함)</span>
             </div>
           </div>
         </div>

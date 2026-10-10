@@ -17,9 +17,15 @@ import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { RegionShareMenu } from "@/components/region/region-share-menu";
 import { PROVINCES } from "@/lib/data/regions";
-import { SIGUNGUS, getSigunguBySidoAndId } from "@/lib/data/sigungus";
+import {
+  SIGUNGUS,
+  getMainCropEntries,
+  getSigunguBySidoAndId,
+  mainCropsEmptyMessage,
+  mainCropsEmptyReason,
+} from "@/lib/data/sigungus";
+import { MAIN_CROPS_SOURCE } from "@/lib/data/sigungu-main-crops";
 import { hasGuDistricts } from "@/lib/data/gus";
-import { getEnrichedHighlights } from "@/lib/data/popular-tags";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
 import { Icon } from "@/components/ui/icon";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -101,8 +107,8 @@ export async function generateMetadata({
 
   const mainCropsLabel = sigungu.mainCrops.slice(0, 3).join("·");
   const title = `${sidoName} ${sigungu.name} 귀농 — 지원사업·작물·인프라`;
-  // 대표 작물 근거가 없는 곳(인천 제물포구 등 원도심)은 '대표 작물: .' 이 되지 않게 그 구절을 뺀다
-  const cropsClause = mainCropsLabel ? ` 대표 작물: ${mainCropsLabel}.` : "";
+  // 주요 작물(2025 농림어업총조사 재배면적 상위)이 없는 곳은 '주요 작물: .' 이 되지 않게 그 구절을 뺀다
+  const cropsClause = mainCropsLabel ? ` 주요 작물: ${mainCropsLabel}.` : "";
   const description = `${sidoName} ${sigungu.name} 농촌 정착 정보.${cropsClause} 인구, 의료·교육 인프라, 농촌 정착 지원사업을 확인하세요. ${sigungu.description}`;
   return {
     // 공유 카드까지 같은 값에서 — 종전엔 사이트 기본 제목·설명을 물려받고 og:url 도 없었다(10/6 QA1 Q2-W3).
@@ -137,24 +143,17 @@ export default async function SigunguDetailPage({ params }: PageProps) {
   // 시·군·구 자체 개편 안내가 없을 때만 시·도 단위 안내(10/7 전남광주통합특별시)
   const sidoReorg = reorg ? null : getSidoReorganization(province.id);
 
-  // 대표 작물 매칭 + 평수 환산 + 수익 정렬 (시도 페이지와 동일 패턴)
-  const allMatchedCrops = CROPS.flatMap((crop) => {
-    const detail = CROP_DETAILS.find((d) => d.id === crop.id);
-    if (!detail) return [];
-    const matched =
-      sigungu.mainCrops.some(
-        (mc) => crop.name === mc || crop.name.includes(mc),
-      ) ||
-      (detail.majorRegions?.includes(province.name) &&
-        sigungu.mainCrops.some(
-          (mc) =>
-            detail.majorRegions?.some((r) => r.includes(mc)) ||
-            crop.name.includes(mc),
-        ));
-    if (!matched) return [];
+  // 주요 작물 — 2025 농림어업총조사 재배면적 큰 순(최대 3, sigungu-main-crops.ts). 예전엔 손 입력 mainCrops 를
+  // 이름 부분 일치·시·도 주산지까지 섞어 넓게 맞추고 수익 순으로 정렬했다(10/10 정정 — 순서도 면적 순).
+  const mainCropEntries = getMainCropEntries(sigungu.id);
+  const mainCropsEmpty = mainCropsEmptyReason(sigungu.id, sigungu.sidoId);
+  const allMatchedCrops = mainCropEntries.flatMap((entry) => {
+    const crop = CROPS.find((c) => c.id === entry.cropId);
+    const detail = CROP_DETAILS.find((d) => d.id === entry.cropId);
+    if (!crop || !detail) return [];
     const { value, label } = convertToPyeongLabel(detail.income.revenueRange);
-    return [{ crop, detail, revenueValue: value, revenueLabel: label }];
-  }).sort((a, b) => (b.revenueValue ?? 0) - (a.revenueValue ?? 0));
+    return [{ crop, detail, revenueValue: value, revenueLabel: label, areaHa: entry.areaHa }];
+  });
 
   const topCrops = allMatchedCrops.slice(0, 6);
   const remainingCount = allMatchedCrops.length - topCrops.length;
@@ -184,7 +183,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
   }
   if (allMatchedCrops.length > 0) {
     stickyChips.push({
-      label: `추천 작물 ${allMatchedCrops.length}종`,
+      label: `주요 작물 ${allMatchedCrops.length}종`,
       href: "#sigungu-crops",
     });
   }
@@ -208,7 +207,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
     ...(sigunguSettlementScore !== null && dimScores
       ? [{ id: "settlement-score", label: "정착 점수" }]
       : []),
-    { id: "sigungu-crops", label: "대표 작물" },
+    { id: "sigungu-crops", label: "주요 작물" },
     ...(sigunguCenter ? [{ id: "sigungu-center", label: "지원센터" }] : []),
     { id: "sigungu-programs", label: "지원사업" },
     { id: "sigungu-land", label: "필지·임지" },
@@ -361,7 +360,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
           </>
         )}
         <div className={s.heroTags}>
-          {getEnrichedHighlights(sigungu.sgisCode, sigungu.highlights).map(
+          {sigungu.highlights.map(
             (tag) => (
               <span key={tag} className={s.heroTag}>
                 {tag}
@@ -396,7 +395,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
                   ? [
                       {
                         id: "crops",
-                        label: "대표 작물",
+                        label: "주요 작물",
                         content: (
                           <>
                             <div className={st.sideTabCropList}>
@@ -474,19 +473,19 @@ export default async function SigunguDetailPage({ params }: PageProps) {
             />
           )}
 
-          {/* ── 대표 작물 (시도 페이지와 동일한 CropRichCard 패턴) ── */}
+          {/* ── 주요 작물 — 2025 농림어업총조사 재배면적 큰 순 (10/10, 시도 페이지와 같은 CropRichCard) ── */}
           <section
             className={s.section}
-            aria-label="대표 작물"
+            aria-label="주요 작물"
             id="sigungu-crops"
           >
             <div className={s.sectionHeader}>
               <Icon icon={Sprout} size="lg" />
               <div className={s.sectionHeaderBody}>
-                <h2 className={s.sectionTitle}>대표 작물</h2>
-                {(topCrops.length > 0 || sigungu.mainCrops.length > 0) && (
+                <h2 className={s.sectionTitle}>주요 작물</h2>
+                {mainCropEntries.length > 0 && (
                   <p className={s.sectionDesc}>
-                    {sigungu.name}에서 주로 재배되는 작물이에요.
+                    {sigungu.name} 농가가 가장 넓게 재배하는 작물이에요.
                   </p>
                 )}
               </div>
@@ -503,13 +502,13 @@ export default async function SigunguDetailPage({ params }: PageProps) {
             {topCrops.length > 0 ? (
               <>
                 <div className={s.cropGrid}>
-                  {featuredCrops.map(({ crop, detail, revenueValue, revenueLabel }) => (
+                  {featuredCrops.map(({ crop, detail, revenueValue, revenueLabel, areaHa }) => (
                     <CropRichCard
                       key={crop.id}
                       cropId={crop.id}
                       name={crop.name}
                       href={`/crops/${crop.id}`}
-                      meta={`${crop.growingSeason} 재배`}
+                      meta={`재배면적 ${Math.round(areaHa).toLocaleString("ko-KR")}ha`}
                       revenueLabel={revenueLabel}
                       revenueValue={revenueValue}
                       revenueMax={cropRevenueMax > 0 ? cropRevenueMax : null}
@@ -537,17 +536,16 @@ export default async function SigunguDetailPage({ params }: PageProps) {
                     {sigungu.name}의 다른 작물 {remainingCount}개 더 보기 →
                   </Link>
                 )}
+                <DataSource
+                  source={MAIN_CROPS_SOURCE}
+                  note="농가 주소지 기준 재배면적이라 논밭이 다른 지역에 있을 수 있어요. 버섯·약초·화훼·축산은 이 표에 없어요."
+                />
               </>
-            ) : sigungu.mainCrops.length > 0 ? (
-              <div className={s.mainCropsList}>
-                {sigungu.mainCrops.map((crop) => (
-                  <span key={crop} className={s.mainCropBadge}>
-                    {crop}
-                  </span>
-                ))}
-              </div>
             ) : (
-              <EmptyState icon={<Icon icon={Sprout} size="lg" />} message="대표 작물로 꼽을 공식 자료가 없어요." />
+              <EmptyState
+                icon={<Icon icon={Sprout} size="lg" />}
+                message={mainCropsEmptyMessage(mainCropsEmpty)}
+              />
             )}
           </section>
 
@@ -743,7 +741,7 @@ export default async function SigunguDetailPage({ params }: PageProps) {
               ...(typeof sigungu.area === "number" && sigungu.area > 0
                 ? [{ label: "면적", value: `${sigungu.area.toLocaleString()} km²` }]
                 : []),
-              { label: "대표 작물", value: sigungu.mainCrops.slice(0, 3).join("·") || "—" },
+              { label: "주요 작물", value: sigungu.mainCrops.slice(0, 3).join("·") || "—" },
             ]}
             chips={sigungu.highlights?.slice(0, 4)}
             ctas={[

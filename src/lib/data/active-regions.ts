@@ -6,15 +6,15 @@
  *   대한 데이터가 있으면 그런 지역을 알려주는 데이터도 있으면 좋겠어."
  *
  * 데이터 출처:
- *   - 귀농 / 귀촌: 통계청 KOSIS 귀농·귀촌인 통계 (2023년 기준)
+ *   - 귀농 / 귀촌: 국가데이터처 KOSIS 귀농어·귀촌인 통계 — active-regions-stats.ts(생성본, scripts/collect-active-regions-stats.ts).
+ *     10/10 전엔 "147가구"·"12,840가구" 같은 2023 손 입력 수치였고 KOSIS 2025 와 단위·순위가 달랐다.
  *   - 청년농: 농식품부 그린대로 청년농업인 영농정착지원 사업
  *   - 귀산촌: 산림청 귀산촌인 통계
  *   - 스마트팜: 농식품부 스마트팜 혁신밸리 (4개) + 보급 시·군
  *   - 치유농업: 농촌진흥청 치유농업 인증농장 분포
  *   - 사회적 농업: 농식품부 사회적농업 활성화 지원사업단 분포
  *
- * 갱신 주기: 연 1회 (KOSIS 발표 시점 기준 매년 6월 갱신).
- *   다음 갱신 예정: 2026-06-30
+ * 갱신 주기: 연 1회 — 귀농·귀촌은 KOSIS 공표(매년 6월 말) 뒤 수집 스크립트 재실행.
  *
  * 큐레이션 원칙:
  *   - sigungus.ts에 존재하는 ID만 사용 (deep link 보장)
@@ -23,6 +23,12 @@
  */
 
 import { SIGUNGUS } from "./sigungus";
+import {
+  ACTIVE_RETURN_YEAR,
+  RETURN_FARM_TOP,
+  RETURN_RURAL_TOP,
+  type ActiveRegionStat,
+} from "./active-regions-stats";
 
 export type ActiveCategoryId =
   | "jeonin" // 귀농 (전업 정착자)
@@ -111,6 +117,17 @@ function buildEntry(
   };
 }
 
+/** KOSIS 상위 5 → 항목. 코멘트도 데이터에서만(순위 + 2025 농림어업총조사 주요 작물) — 손 코멘트는 근거가 없었다 */
+function fromStats(stats: ActiveRegionStat[], who: string, withCrops: boolean): ActiveRegionEntry[] {
+  return stats
+    .map((st) => {
+      const crops = withCrops ? SIGUNGU_BY_ID.get(st.sigunguId)?.mainCrops.slice(0, 2) ?? [] : [];
+      const note = `${who} 전국 ${st.rank}위${crops.length > 0 ? ` · 주요 작물 ${crops.join("·")}` : ""}`;
+      return buildEntry(st.sigunguId, `${st.count.toLocaleString("ko-KR")}명`, note);
+    })
+    .filter((x): x is ActiveRegionEntry => x !== null);
+}
+
 /**
  * 큐레이션 정의 — 카테고리별 Top 5.
  * undefined 항목은 빌드 시 필터링됨 (buildEntry null 반환 시).
@@ -119,34 +136,20 @@ const RAW: ActiveCategory[] = [
   {
     id: "jeonin",
     label: "귀농",
-    desc: "전업 정착자가 많이 모이는 지역",
-    sourceLabel: "통계청 KOSIS 귀농어귀촌인통계 (2023)",
-    sourceUrl:
-      "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20631&conn_path=I3",
-    basisYear: "2023년",
-    regions: [
-      buildEntry("uiseong", "147가구", "마늘·사과 주산, 5060 귀농 1위권"),
-      buildEntry("sangju", "131가구", "삼백의 고장, 청년 귀농 거점"),
-      buildEntry("goesan", "118가구", "유기농 특구, 친환경 귀농 활발"),
-      buildEntry("goheung", "112가구", "유자·석류, 남해안 귀농 강세"),
-      buildEntry("yeongam", "98가구", "무화과·쌀, 호남 귀농 인기"),
-    ].filter((x): x is ActiveRegionEntry => x !== null),
+    desc: "귀농인이 많이 정착한 곳",
+    sourceLabel: `KOSIS 귀농어·귀촌인통계 (${ACTIVE_RETURN_YEAR})`,
+    sourceUrl: "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1A02002",
+    basisYear: `${ACTIVE_RETURN_YEAR}년`,
+    regions: fromStats(RETURN_FARM_TOP, "귀농인", true),
   },
   {
     id: "gwichon",
     label: "귀촌",
-    desc: "도시 직장 유지하며 옮겨오는 곳",
-    sourceLabel: "통계청 KOSIS 귀농어귀촌인통계 (2023)",
-    sourceUrl:
-      "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20631&conn_path=I3",
-    basisYear: "2023년",
-    regions: [
-      buildEntry("hwaseong", "12,840가구", "수도권 접근, 귀촌 1위"),
-      buildEntry("cheongju", "9,610가구", "충북 거점, 직장·농촌 양립"),
-      buildEntry("pyeongtaek", "8,750가구", "경기 남부, 산업·농업 공존"),
-      buildEntry("cheonan", "7,920가구", "수도권 1시간, 농촌 전환 인기"),
-      buildEntry("jeonju", "6,480가구", "한옥마을 + 로컬푸드 라이프"),
-    ].filter((x): x is ActiveRegionEntry => x !== null),
+    desc: "도시에서 읍·면으로 옮겨 온 사람이 많은 곳",
+    sourceLabel: `KOSIS 귀농어·귀촌인통계 (${ACTIVE_RETURN_YEAR})`,
+    sourceUrl: "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1A02015",
+    basisYear: `${ACTIVE_RETURN_YEAR}년`,
+    regions: fromStats(RETURN_RURAL_TOP, "귀촌인", false),
   },
   {
     id: "youthFarm",

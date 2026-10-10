@@ -299,49 +299,39 @@ function nextStepsFor(id: HubLaneId, laneLabel: string): NextStep[] {
     steps.splice(1, 0, {
       label: "비용 가이드",
       href: `/costs?type=${costType}`,
-      desc: "초기 투자금과 준비 기간을 항목별로 볼 수 있어요",
+      desc: "평균 투자액과 지원 한도를 항목별로 볼 수 있어요",
       icon: "wallet",
     });
   }
   return steps;
 }
 
-/* ── 대표 작물 비용 카드 ── */
+/* ── 대표 작물 소득 카드 (10/10: 비용 → 작물 상세의 공식 소득·노동일) ── */
 
 interface LaneCostCard {
   id: string;
   name: string;
-  /** 작물 DB id — 일러스트·상세 링크용. 비용 표기("산양삼"·"장미 (화훼)")가 DB 에 없으면 null */
+  /** 작물 DB id — 일러스트·상세 링크용 */
   cropId: string | null;
-  initialCost: string;
-  annual: string;
-  breakEven: string;
+  /** 10a당 소득 — 작물 상세 공식 통계 값("약 180만 원"), 없으면 "자료 없음" (10/10: 원문 없던 초기 투자·운영비·손익분기 대신) */
+  income: string;
+  /** 소득 기준 — "시설재배 기준" */
+  basis: string | null;
+  /** 연간 노동일수 — 작물 상세 값 */
+  labor: string;
   difficulty: CropCost["difficulty"];
-  facilityType: string | null;
   source: string;
-}
-
-const CROP_ID_BY_NAME = new Map(CROPS.map((c) => [c.name, c.id]));
-
-/**
- * 비용 행 → 작물 id. `cropPageId`(비용 데이터가 직접 단 상세 링크)가 1순위,
- * 없으면 괄호 표기를 뗀 이름이 작물 DB 이름과 **정확히** 같을 때만(부분 일치 금지 — "엽채"가 "상추"로 둔갑하지 않게).
- */
-function resolveCostCropId(row: Pick<CropCost, "name" | "cropPageId">): string | null {
-  if (row.cropPageId && CROPS.some((c) => c.id === row.cropPageId)) return row.cropPageId;
-  return CROP_ID_BY_NAME.get(baseCropName(row.name)) ?? null;
 }
 
 function costCardsFor(rows: readonly CropCost[]): LaneCostCard[] {
   return rows.map((c) => ({
     id: c.id,
     name: c.name,
-    cropId: resolveCostCropId(c),
-    initialCost: c.initialCost,
-    annual: c.annual,
-    breakEven: c.breakEven,
+    cropId: CROPS.some((crop) => crop.id === c.cropPageId) ? c.cropPageId : null,
+    income: c.income,
+    basis: c.basis ?? null,
+    labor: c.labor,
     difficulty: c.difficulty,
-    facilityType: c.facilityType ?? null,
     source: c.source,
   }));
 }

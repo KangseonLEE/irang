@@ -46,6 +46,7 @@ export function seoulAreaCompare(area: number): { ratio: string; sentence: strin
  * - "10a당 약 N~M만 원" → (N+M)/2
  * - "1ha당 약 N(~M)만 원" → ÷10 정규화 후 동일 처리 (1ha = 10×10a)
  * - 임야 1,000평 기준·연 N만 원 등 기준이 다른 표기는 매칭 안 됨 → null (차트 제외)
+ * - "추정 10a당 …"(공식 소득 통계에 없는 작목, 10/10)도 선두가 달라 null — 정렬·검색 결과 설명·산점도에서 빠진다
  *
  * ⚠️ 선두(^)만 매칭. "사과 대비 약 6배" 같은 후행 보조 설명은 영향 없음.
  * ⚠️ "만\s*원" — "만원"/"만 원" 표기 모두 허용.
@@ -88,6 +89,8 @@ export function convertToPyeongLabel(revenueRange: string): {
   label: string;
 } {
   if (!revenueRange) return { value: null, label: revenueRange };
+  // '추정' 값(공식 소득 통계에 없는 작목, 10/10)은 숫자로 바꿔 정렬·비교에 넣지 않는다 — 원문 그대로
+  if (/^\s*추정/.test(revenueRange)) return { value: null, label: revenueRange };
 
   // 단위 판정: "1ha당" → 10으로 나눠 10a 기준으로 통일
   const isHectare = /1\s*ha\s*당/.test(revenueRange);

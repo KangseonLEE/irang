@@ -11,6 +11,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";
+import {
+  FOREST_VILLAGE_LOAN,
+  POLICY_TEXT,
+  RETURN_FARM_LOAN,
+  YOUTH_SETTLEMENT,
+  formatManwon,
+} from "./policy-facts";
 
 /* ── 타입 ── */
 
@@ -92,14 +99,14 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     agency: "농림축산식품부 · 각 지자체",
     icon: Sprout,
     summary:
-      "도시에서 농촌으로 이주하여 농업에 종사하려는 분을 위한 포괄적 정착 지원 사업이에요. 창업자금 최대 3억 원(연 2%, 5년 거치 10년 상환)과 주택구입비 최대 7,500만 원을 융자 지원해요.",
+      `도시에서 농촌으로 이주하여 농업에 종사하려는 분을 위한 포괄적 정착 지원 사업이에요. 창업자금 최대 ${POLICY_TEXT.returnFarmStartupMax}(${RETURN_FARM_LOAN.interestRate.value}, ${RETURN_FARM_LOAN.repayment.value})과 주택구입비 최대 ${POLICY_TEXT.returnFarmHousingMax}을 융자 지원해요.`,
     targetAudience: "귀농인 · 재촌비농업인(주택자금 제외) · 귀농 희망자 (만 18~65세, 주택 구입·신축 자금은 연령 상한 없음)",
-    supportAmount: "창업자금 최대 3억 원 + 주택자금 최대 7,500만 원 (융자)",
+    supportAmount: `창업자금 최대 ${POLICY_TEXT.returnFarmStartupMax} + 주택자금 최대 ${POLICY_TEXT.returnFarmHousingMax} (융자)`,
     supportType: "융자",
     eligibility: [
       {
         label: "정착 교육 이수",
-        detail: "농업교육 8시간 이상 이수 — 100시간 미만이면 심사 최저 등급(D)이라 100시간 이상 권장",
+        detail: `농업교육 ${RETURN_FARM_LOAN.minEducationHours.value}시간 이상 이수 — ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 미만이면 심사 최저 등급(D)이라 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 이상 권장`,
         required: true,
       },
       {
@@ -114,7 +121,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       },
       {
         label: "농업경영체 등록",
-        detail: "농업경영체 등록 (AGRIX 시스템)",
+        detail: "농업경영체 등록 (국립농산물품질관리원)",
         required: true,
       },
       {
@@ -142,7 +149,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         order: 1,
         title: "정착 교육 이수",
         description:
-          "농림수산식품교육문화정보원(농정원) 또는 각 시·도 농업기술원에서 운영하는 정착 교육을 이수해요. 자격 요건은 8시간 이상이지만, 100시간 미만이면 심사에서 최저 등급(D)을 받아 사실상 100시간 이상이 필요해요.",
+          `농림수산식품교육문화정보원(농정원) 또는 각 시·도 농업기술원에서 운영하는 정착 교육을 이수해요. 자격 요건은 ${RETURN_FARM_LOAN.minEducationHours.value}시간 이상이지만, ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 미만이면 심사에서 최저 등급(D)을 받아 사실상 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 이상이 필요해요.`,
         duration: "2~6개월",
         tips: [
           "온라인 교육은 최대 50시간까지 인정돼요",
@@ -166,7 +173,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         order: 3,
         title: "주민등록 전입 + 농업경영체 등록",
         description:
-          "선택한 농촌 지역으로 전입신고를 하고, 농업경영정보시스템(AGRIX)에 농업경영체 등록을 해요.",
+          "선택한 농촌 지역으로 전입신고를 하고, 국립농산물품질관리원(농관원)에 농업경영체 등록을 해요.",
         duration: "1~2주",
         documents: [
           "전입신고서",
@@ -187,7 +194,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         documents: [
           "사업 신청서 (지자체 양식)",
           "농업창업계획서 (작물, 규모, 투자 계획)",
-          "정착 교육 이수 확인서 (8시간 이상 · 100시간 이상 권장)",
+          `정착 교육 이수 확인서 (${RETURN_FARM_LOAN.minEducationHours.value}시간 이상 · ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 이상 권장)`,
           "농업경영체 등록 확인서",
           "주민등록등본 (농촌 전입 확인)",
           "가족관계증명서",
@@ -215,7 +222,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     requiredDocuments: [
       "사업 신청서 (지자체 양식)",
       "농업창업계획서 (작물, 규모, 투자 계획)",
-      "정착 교육 이수 확인서 (8시간 이상 · 100시간 이상 권장)",
+      `정착 교육 이수 확인서 (${RETURN_FARM_LOAN.minEducationHours.value}시간 이상 · ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 이상 권장)`,
       "농업경영체 등록 확인서",
       "주민등록등본 (농촌 전입 확인)",
       "가족관계증명서",
@@ -227,13 +234,13 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     ],
     obligations: [
       "선정 후 5년 이상 계속 영농 종사 의무",
-      "융자금 상환: 연 2%, 5년 거치 10년 원금균등분할",
+      `융자금 상환: ${RETURN_FARM_LOAN.interestRate.value}, ${RETURN_FARM_LOAN.repayment.value}(원금균등분할)`,
       "매년 영농 실적 보고 (시·군·구에 제출)",
       "사업 목적 외 자금 사용 시 전액 환수",
       "농촌 거주지 이탈(도시 전출) 시 지원금 반환",
     ],
     caution:
-      "교육은 최소 8시간만 이수해도 신청할 수 있지만, 100시간 미만이면 심사에서 최저 등급(D)을 받아 사실상 100시간이 기준이에요. 교육은 반드시 사전에 완료해야 하며, 일부 지자체는 해당 지역 교육만 인정하는 경우도 있으니 공고문을 꼼꼼히 확인하세요.",
+      `교육은 최소 ${RETURN_FARM_LOAN.minEducationHours.value}시간만 이수해도 신청할 수 있지만, ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 미만이면 심사에서 최저 등급(D)을 받아 사실상 ${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간이 기준이에요. 교육은 반드시 사전에 완료해야 하며, 일부 지자체는 해당 지역 교육만 인정하는 경우도 있으니 공고문을 꼼꼼히 확인하세요.`,
     relatedLinks: [
       { label: "지역 비교하기", href: "/regions" },
       { label: "귀농 5단계 가이드", href: "/guide" },
@@ -277,9 +284,9 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     agency: "농림축산식품부",
     icon: UserCheck,
     summary:
-      "만 18~39세 청년이 새롭게 농업에 진입할 수 있도록 영농 정착금(월 최대 110만 원)을 최대 3년간 지원해요. 2026년부터 선발 규모는 시·도, 시·군별로 자체 수립하며, 청년농업희망카드(바우처)로 지급돼요.",
+      `만 ${YOUTH_SETTLEMENT.ageRange.value[0]}~${YOUTH_SETTLEMENT.ageRange.value[1]}세 청년이 새롭게 농업에 진입할 수 있도록 영농 정착금(${POLICY_TEXT.youthMonthlyMax})을 최대 3년간 지원해요. 2026년부터 선발 규모는 시·도, 시·군별로 자체 수립하며, 청년농업희망카드(바우처)로 지급돼요.`,
     targetAudience: "만 18~39세, 영농 경력이 없거나 3년 이하인 청년",
-    supportAmount: "월 최대 110만 원 (최대 3년, 매년 감액)",
+    supportAmount: `${POLICY_TEXT.youthMonthlyMax} (최대 3년, 매년 감액)`,
     supportType: "보조금",
     eligibility: [
       {
@@ -299,7 +306,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       },
       {
         label: "영농 교육 이수",
-        detail: "신청 자격은 아니에요 — 농고·농대 미졸업자는 2022년 이후 농업교육 이수 시간이 서류평가 배점(10점)에 반영되고, 100시간 이상이면 만점",
+        detail: `신청 자격은 아니에요 — 농고·농대 미졸업자는 2022년 이후 농업교육 이수 시간이 서류평가 배점(10점)에 반영되고, ${YOUTH_SETTLEMENT.educationFullScoreHours.value}시간 이상이면 만점`,
         required: false,
       },
       {
@@ -344,7 +351,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         order: 2,
         title: "교육 이수 및 경영 계획 수립",
         description:
-          "5개년 영농(창농) 계획서를 작성해요. 농고·농대를 나오지 않았다면 농업교육 이수 시간이 서류평가에 반영되니(100시간 이상 만점) 미리 채워두면 유리해요.",
+          `5개년 영농(창농) 계획서를 작성해요. 농고·농대를 나오지 않았다면 농업교육 이수 시간이 서류평가에 반영되니(${YOUTH_SETTLEMENT.educationFullScoreHours.value}시간 이상 만점) 미리 채워두면 유리해요.`,
         duration: "2~6개월",
         tips: [
           "농업 마이스터대학, 농업기술센터 교육 모두 인정",
@@ -356,7 +363,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         order: 3,
         title: "신청서 접수",
         description:
-          "농림사업정보시스템(Agrix, uni.agrix.go.kr)에서 온라인으로만 신청해요. 오프라인 접수는 받지 않아요. 독립경영 예정자는 영농 기반을 마련할 시·군에 신청해요.",
+          `${YOUTH_SETTLEMENT.applyChannel.value}으로 신청해요(2026년 대상 1차는 당시 시스템 Agrix로 받았어요). 방문 접수는 받지 않아요. 독립경영 예정자는 영농 기반을 마련할 시·군에 신청해요.`,
         duration: "공고 후 2~3주",
         documents: [
           "사업 신청서 (소정 양식)",
@@ -386,7 +393,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         order: 5,
         title: "선정 및 정착금 지급",
         description:
-          "선정 후 청년농업희망카드(바우처)로 매월 정착금이 지급돼요. 1년차 월 110만 원, 2년차 월 100만 원, 3년차 월 90만 원으로 체감돼요.",
+          `선정 후 청년농업희망카드(바우처)로 매월 정착금이 지급돼요. ${POLICY_TEXT.youthMonthly}으로 해마다 줄어요.`,
         duration: "최대 3년",
         tips: [
           "분기별 영농 활동 보고서를 제출해야 해요",
@@ -681,7 +688,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     summary:
       "산촌 지역으로 이주하여 산림 자원을 활용한 창업을 하려는 분에게 창업 자금과 주거 지원을 제공해요. 임산물 재배, 산촌 체험, 목재 가공 등이 대상이에요.",
     targetAudience: "산촌 이주 후 산림 자원 활용 창업 희망자",
-    supportAmount: "창업자금 세대당 최대 3억 원 + 주택구입 세대당 최대 7,500만 원 (융자, 연 2%, 5년 거치 10년 분할 상환)",
+    supportAmount: `창업자금 세대당 최대 ${formatManwon(FOREST_VILLAGE_LOAN.startupMaxManwon.value)} + 주택구입 세대당 최대 ${formatManwon(FOREST_VILLAGE_LOAN.housingMaxManwon.value)} (융자, ${FOREST_VILLAGE_LOAN.interestRate.value}, ${FOREST_VILLAGE_LOAN.repayment.value})`,
     supportType: "융자",
     eligibility: [
       {
@@ -696,7 +703,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       },
       {
         label: "귀산촌 교육 이수",
-        detail: "귀산촌·귀농귀촌 등 인정 교육 5년 이내 60시간 이상 이수 (주택구입·목조주택 신축 자금은 교육 불필요)",
+        detail: `귀산촌·귀농귀촌 등 인정 교육 5년 이내 ${FOREST_VILLAGE_LOAN.educationHours.value}시간 이상 이수 (주택구입·목조주택 신축 자금은 교육 불필요)`,
         required: true,
       },
       {

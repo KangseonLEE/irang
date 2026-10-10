@@ -5,6 +5,7 @@
  * 개인화된 단계별 가이드를 제공합니다.
  */
 import type { FarmTypeId } from "./match-questions";
+import { POLICY_TEXT } from "./policy-facts";
 
 interface RoadmapStep {
   step: number;
@@ -385,7 +386,7 @@ const ROADMAPS: FarmTypeRoadmap[] = [
         step: 3,
         title: "영농정착금·창업 지원 확보",
         description:
-          "청년 전용 영농정착금(월 최대 110만 원, 3년)과 창업 지원 사업을 신청해요.",
+          `청년 전용 영농정착금(${POLICY_TEXT.youthMonthlyMax}, 3년)과 창업 지원 사업을 신청해요.`,
         duration: "1~2개월",
         link: { href: "/programs", label: "지원사업 찾기" },
         checklist: [

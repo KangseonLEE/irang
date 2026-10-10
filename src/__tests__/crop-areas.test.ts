@@ -64,18 +64,42 @@ describe("작물 시·도 재배면적", () => {
 
 describe("작물 주산지(majorRegions) = 재배면적 순 (10/10 정정)", () => {
   // 규칙: 1위 시·도 + 전국의 5% 이상인 시·도를 큰 순으로, 최대 max(3, 그 작물 칸 수)
+  // 근거: 농작물생산조사(CROP_AREAS) → 없으면 2025 농림어업총조사 시·도 행(CROP_SIGUNGU_AREAS.provinces)
+  function expectAreaOrder(id: string, majorRegions: string[], provinces: { provinceId: string; area: number }[], total: number) {
+    const names = provinces.map((p) => PROVINCES.find((x) => x.id === p.provinceId)!.name);
+    expect(majorRegions[0], `${id} 주산지 1위`).toBe(names[0]);
+    expect(majorRegions, id).toEqual(names.slice(0, majorRegions.length));
+    for (const r of majorRegions.slice(1)) {
+      const p = provinces[names.indexOf(r)];
+      expect(p.area / total, `${id} ${r} 비중`).toBeGreaterThanOrEqual(0.05);
+    }
+    // 5% 이상인데 빠진 시·도가 칸 수 안에 남아 있으면 안 된다(최대 max(3, 칸 수))
+    const cap = Math.max(3, majorRegions.length);
+    const eligible = provinces.filter((p, i) => i === 0 || p.area / total >= 0.05).length;
+    expect(majorRegions.length, `${id} 칸 수`).toBe(Math.min(cap, eligible));
+  }
+
   it("KOSIS 면적이 있는 작물은 주산지가 면적 순 상위 시·도와 같다", async () => {
     const { CROP_DETAILS } = await import("@/lib/data/crops");
     for (const d of CROP_DETAILS) {
       const a = CROP_AREAS[d.id];
       if (!a) continue;
-      const names = a.provinces.map((p) => PROVINCES.find((x) => x.id === p.provinceId)!.name);
-      expect(d.majorRegions[0], `${d.id} 주산지 1위`).toBe(names[0]);
-      expect(d.majorRegions, d.id).toEqual(names.slice(0, d.majorRegions.length));
-      for (const r of d.majorRegions.slice(1)) {
-        const p = a.provinces[names.indexOf(r)];
-        expect(p.areaHa / a.totalHa, `${d.id} ${r} 비중`).toBeGreaterThanOrEqual(0.05);
-      }
+      expectAreaOrder(d.id, d.majorRegions, a.provinces.map((p) => ({ provinceId: p.provinceId, area: p.areaHa })), a.totalHa);
     }
+  });
+
+  it("농작물생산조사가 없고 총조사 시·도 행이 있는 작물도 같은 규칙", async () => {
+    const { CROP_DETAILS } = await import("@/lib/data/crops");
+    const { CROP_SIGUNGU_AREAS } = await import("@/lib/data/crop-sigungu-areas");
+    const checked: string[] = [];
+    for (const d of CROP_DETAILS) {
+      if (CROP_AREAS[d.id]) continue;
+      const c = CROP_SIGUNGU_AREAS[d.id];
+      if (!c) continue;
+      expectAreaOrder(d.id, d.majorRegions, c.provinces, c.totalArea);
+      checked.push(d.id);
+    }
+    // 인삼·블루베리·밤·호두·방울토마토·파프리카·가지
+    expect(checked.sort()).toEqual(["blueberry", "cherry-tomato", "chestnut", "eggplant", "ginseng", "paprika", "walnut"]);
   });
 });

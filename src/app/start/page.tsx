@@ -18,7 +18,7 @@ export const revalidate = 21600;
 /** 유형 이름·수는 레인 배열에서 센다 — 유형이 늘면 문구가 같이 따라온다(하드코딩 금지) */
 const LANE_NAMES = START_LANES.map((l) => l.label).join("·");
 const LANE_KINDS = kindsLabel(START_LANES.length);
-const DESCRIPTION = `${LANE_NAMES} ${LANE_KINDS} 시작을 지원사업 수, 진입 난이도, 추세, 초기 투자금으로 나란히 비교해요.`;
+const DESCRIPTION = `${LANE_NAMES} ${LANE_KINDS} 시작을 지원사업 수, 진입 난이도, 추세, 평균 투자액으로 나란히 비교해요.`;
 
 export const metadata: Metadata = {
   title: `어떤 시작이 나에게 맞을까요? — ${LANE_NAMES} 비교`,
@@ -36,9 +36,9 @@ export default async function StartComparePage() {
   }));
   /* 행 라벨은 **타일 순번 기준 일반 명칭**으로 고정한다.
      첫 열(귀농) 타일의 label 을 그대로 쓰면 "2024년 귀농 인구" 행에 귀촌 인구·귀산촌 가구가
-     나란히 오고, "초기 투자금 평균" 행에 귀촌의 "비교할 시·군·구"가 들어온다(9/29 실측).
+     나란히 오고, 4번째 행은 레인마다 투자액·보완 수치(작물 수 등)가 섞인다(9/29 실측, 10/10 투자액으로 교체).
      레인별 실제 지표명은 각 셀 안에 작은 글씨로 병기한다(선택 화면 타일과 같은 위계). */
-  const ROW_LABELS = ["지금 볼 수 있는 지원사업", "진입 난이도", "최근 추세", "규모 · 초기 투자금"];
+  const ROW_LABELS = ["지금 볼 수 있는 지원사업", "진입 난이도", "최근 추세", "투자액 · 규모"];
 
   return (
     <div className={s.page}>

@@ -8,6 +8,7 @@
  * - 계측: data-track="start_card:{id}" → LandingClickTracker. 섹션 노출은 ScrollReveal trackId="start_cards".
  */
 
+import { DIMENSION_SCORES } from "@/lib/data/dimension-scores";
 import { PROGRAMS_DUE_HREF } from "./hero-search-hub";
 import { StartCards, type StartCard } from "./start-cards";
 import s from "./start-cards-section.module.css";
@@ -43,7 +44,8 @@ export function StartCardsSection({ openProgramCount, dueSoonProgramCount }: Pro
       href: "/regions/ranking",
       tag: "맞춤 시군구 찾기",
       title: "어디에 정착할까?",
-      desc: "자녀·통근·의료 같은 내 조건으로 229곳 순위를 봐요",
+      // 10/10: "229곳" 하드코딩 → 순위 화면과 같은 배열 길이(인천 개편 뒤 230)
+      desc: `자녀·통근·의료 같은 내 조건으로 ${DIMENSION_SCORES.length}곳 순위를 봐요`,
       image: "/landing/personas/commuter.webp",
       alt: "시골 간이역에서 출근 준비 중인 직장인",
     },

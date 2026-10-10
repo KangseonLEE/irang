@@ -370,7 +370,7 @@
 /* 헤더 행 */
 .cropRowHeader {
   display: grid;
-  grid-template-columns: 80px 1fr 1fr 80px 110px 64px;
+  grid-template-columns: 96px 1.2fr 1fr 110px 64px; /* 10/10: 작물·10a당 소득·소득 기준·노동일·난이도 5칸 */
   gap: 0;
   padding: 12px 20px;
   background: var(--muted, #f9fafb);
@@ -379,7 +379,7 @@
 
 @media (min-width: 1024px) {
   .cropRowHeader {
-    grid-template-columns: 100px 1fr 1fr 80px 120px 72px;
+    grid-template-columns: 112px 1.2fr 1fr 130px 72px;
   }
 }
 
@@ -393,7 +393,7 @@
 /* 데이터 행 */
 .cropRowData {
   display: grid;
-  grid-template-columns: 80px 1fr 1fr 80px 110px 64px;
+  grid-template-columns: 96px 1.2fr 1fr 110px 64px; /* 10/10: 작물·10a당 소득·소득 기준·노동일·난이도 5칸 */
   align-items: center;
   gap: 0;
   padding: 16px 20px;
@@ -441,7 +441,7 @@
 
 @media (min-width: 1024px) {
   .cropRowData {
-    grid-template-columns: 100px 1fr 1fr 80px 120px 72px;
+    grid-template-columns: 112px 1.2fr 1fr 130px 72px;
   }
 }
 

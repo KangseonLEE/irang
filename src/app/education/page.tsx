@@ -54,6 +54,7 @@ import { SectionNav } from "@/components/layout/section-nav";
 import { Pagination } from "@/components/ui/pagination";
 import s from "./page.module.css";
 import dt from "@/components/ui/data-table.module.css";
+import { RETURN_FARM_LOAN } from "@/lib/data/policy-facts";
 
 const TABLE_PAGE_SIZE = 20;
 
@@ -63,8 +64,7 @@ const sectionNavItems = [
   { href: "/events", label: "체험·행사" },
 ];
 
-const DESCRIPTION =
-  "귀농 귀촌 교육 과정을 검색하세요. 정착 교육(100시간 이상 권장), 온라인·오프라인 실습, 멘토링 프로그램 일정과 신청 방법을 한눈에 비교해요.";
+const DESCRIPTION = `귀농 귀촌 교육 과정을 검색하세요. 정착 교육(${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 이상 권장), 온라인·오프라인 실습, 멘토링 프로그램 일정과 신청 방법을 한눈에 비교해요.`;
 
 export const metadata: Metadata = {
   title: "귀농 교육 — 온라인·현장 실습·멘토링 과정 검색",

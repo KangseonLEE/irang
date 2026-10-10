@@ -3,6 +3,8 @@
    10문항 · 5차원 · 4등급
    ========================================================================== */
 
+import { POLICY_TEXT, YOUTH_SETTLEMENT } from "./policy-facts";
+
 /* ── 타입 ── */
 
 export type DimensionId =
@@ -360,8 +362,9 @@ export function getDemographicHints(demo: DemographicAnswers): string[] {
   const hints: string[] = [];
 
   if (demo.ageGroup === "youth") {
-    hints.push("청년 귀농 정착지원금(월 최대 110만 원, 최장 3년)을 신청할 수 있어요.");
-    hints.push("청년 창업농 영농정착 지원사업도 확인해보세요.");
+    // 10/10: 두 문장이 같은 사업(SP-002)을 다른 이름으로 두 번 안내했다 — 금액은 policy-facts 에서
+    hints.push(`청년농업인 영농정착지원금(${POLICY_TEXT.youthMonthlyMax}, 최장 ${YOUTH_SETTLEMENT.monthlyManwonByYear.value.length}년)을 신청할 수 있어요.`);
+    hints.push("스마트팜 청년창업 보육센터 교육도 확인해 보세요.");
   }
 
   if (demo.gender === "female") {

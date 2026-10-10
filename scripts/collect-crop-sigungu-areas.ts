@@ -72,7 +72,13 @@ async function main() {
   const cropIds = new Set(CROPS.map((c) => c.id));
   const provinceById = new Map(PROVINCES.map((p) => [p.id, p]));
   const problems: string[] = [];
-  const out: Record<string, { items: string[]; unit: string; top: { sigunguId: string; area: number }[] }> = {};
+  const out: Record<string, {
+    items: string[];
+    unit: string;
+    totalArea: number;
+    provinces: { provinceId: string; area: number }[];
+    top: { sigunguId: string; area: number }[];
+  }> = {};
 
   for (const [cropId, items] of Object.entries(CROP_SIGUNGU_TABLES)) {
     if (!cropIds.has(cropId)) { problems.push(`${cropId}: CROPS 에 없는 작물`); continue; }
@@ -109,6 +115,16 @@ async function main() {
       }
     }
 
+    // 시·도 행(원천 2자리 코드) — 주산지(majorRegions) 근거. 전국 행이 있으면 시·도 합 = 전국도 본다
+    const provinces = PROVINCES.map((p) => ({ provinceId: p.id, area: Math.round((byCode.get(p.sgisCode)?.area ?? 0) * 10) / 10 }))
+      .sort((a, b) => b.area - a.area);
+    const totalArea = Math.round(provinces.reduce((a, p) => a + p.area, 0) * 10) / 10;
+    const nation = byCode.get("00");
+    if (nation && Math.abs(nation.area - totalArea) > PROVINCES.length * 0.5 + nation.area * 0.005) {
+      problems.push(`${cropId}: 원천 전국 ${nation.area} ≠ 시·도 합 ${totalArea}`);
+    }
+    if (totalArea <= 0) problems.push(`${cropId}: 시·도 합 0`);
+
     // 우리 시·군·구 ↔ 원천 행 (이름)
     const rows: { sigunguId: string; area: number }[] = [];
     for (const sg of SIGUNGUS) {
@@ -121,8 +137,15 @@ async function main() {
       if (!code) { problems.push(`${cropId}: 짝 없음/여럿 ${p.shortName} ${sg.name} (${cands.length})`); continue; }
       rows.push({ sigunguId: sg.id, area: Math.round(byCode.get(code)!.area * 10) / 10 });
     }
-    const top = rows.filter((r) => r.area > 0).sort((a, b) => b.area - a.area).slice(0, TOP_N);
-    out[cropId] = { items: items.map((i) => `${i.tblId} ${i.itemName}`), unit: [...units][0], top };
+    // 주산지로 보이기 위한 하한(10/10): 총조사 재배면적은 농가 **주소지** 기준이라 서울 구에 논·과수가 쏠려 잡힌다
+    // (서울 논벼 총조사 2,003ha vs 경작지 기준 생산조사 175.6ha) → 서울은 빼고, 1위의 5% 미만이거나 10ha 미만은 뺀다
+    // (감귤 서귀포 8,911ha 옆의 나주 27ha 같은 값이 '주요 산지'로 보이지 않게).
+    const sorted = rows.filter((r) => r.area > 0 && !r.sigunguId.startsWith("__")).sort((a, b) => b.area - a.area);
+    const seoulIds = new Set(SIGUNGUS.filter((sg) => sg.sidoId === "seoul").map((sg) => sg.id));
+    const nonSeoul = sorted.filter((r) => !seoulIds.has(r.sigunguId));
+    const floor = Math.max(10, (nonSeoul[0]?.area ?? 0) * 0.05);
+    const top = nonSeoul.filter((r) => r.area >= floor).slice(0, TOP_N);
+    out[cropId] = { items: items.map((i) => `${i.tblId} ${i.itemName}`), unit: [...units][0], totalArea, provinces, top };
     const name = (id: string) => SIGUNGUS.find((s) => s.id === id)!;
     console.log(`✓ ${cropId.padEnd(20)} ${top.slice(0, 4).map((t) => `${name(t.sigunguId).shortName} ${Math.round(t.area)}`).join(" | ")} (${[...units][0]})`);
   }
@@ -137,7 +160,8 @@ async function main() {
  * 작물별 재배면적 상위 시·군·구 — 2025 농림어업총조사 (scripts/collect-crop-sigungu-areas.ts 가 생성, 손으로 고치지 않는다)
  *
  * 항목: crop-sigungu-tables.ts. 수집 때 항목 이름·단위·시·군·구 짝·원천 시·도 = 시·군·구 합을 확인했다.
- * 작물 상세 '주요 산지 (시·군·구)' 칩이 이 순서를 쓴다. 수집일: ${new Date().toISOString().slice(0, 10)}
+ * 작물 상세 '주요 산지 (시·군·구)' 칩이 이 순서를 쓴다. 시·도 행(provinces)은 CROP_AREAS(농작물생산조사)가 없는 작물의
+ * 주산지(majorRegions) 근거다 — 원천 시·도 행 값, 큰 순. 수집일: ${new Date().toISOString().slice(0, 10)}
  */
 
 export interface CropSigunguArea {
@@ -145,6 +169,10 @@ export interface CropSigunguArea {
   items: string[];
   /** 원천 단위 */
   unit: string;
+  /** 시·도 행 합 */
+  totalArea: number;
+  /** 시·도별 재배면적(원천 시·도 행), 큰 순 */
+  provinces: { provinceId: string; area: number }[];
   /** 재배면적 큰 순 상위 시·군·구 */
   top: { sigunguId: string; area: number }[];
 }

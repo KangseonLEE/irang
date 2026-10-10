@@ -9,7 +9,6 @@
 import { hasCollectorDefaults } from "@/lib/programs/display";
 import { CROPS, type CropInfo } from "./crops";
 import { PROGRAMS, type SupportProgram } from "./programs";
-import { SIGUNGUS } from "./sigungus";
 import { CROP_COSTS_BY_TYPE } from "./cost-by-type";
 import { getCropPersonaFit, getProgramPersonaFit } from "./persona-fit";
 import {
@@ -21,6 +20,10 @@ import {
   smartfarmSummary,
   youthData,
   youthSummary,
+  settlementSurvey,
+  investmentByAge,
+  mountainVillageArea,
+  smartfarmAdoption,
 } from "./stats";
 import { deriveStatus, isUnannounced } from "../program-status";
 import type { PersonaId } from "./personas";
@@ -66,7 +69,7 @@ export const LANE_PERSONA: Record<string, PersonaId | undefined> = {
 
 export const LANE_COST_TYPE: Record<string, CostTypeId | undefined> = {
   guinong: "farming",
-  guichon: "village", // 데이터 0건 — 타일 생략
+  guichon: "village", // 작물 행 0건 — 투자액 타일만(실태조사 귀촌 가구)
   forest: "forestry",
   youth: "youth",
   smartfarm: "smartfarm",
@@ -168,36 +171,6 @@ export function topCropsFor(persona: PersonaId, n = 5): CropInfo[] {
     .map((x) => x.crop);
 }
 
-/**
- * "300만~500만 원" · "1.5억~2.5억 원" · "1억 5,000만 원" → 만원 단위 중앙값.
- * 비용 데이터는 단일값 금지(범위 표기) 규칙이라 항상 두 토큰이다.
- */
-export function parseCostRangeMan(text: string): number | null {
-  const parts = text.split("~");
-  const values = parts
-    .map((raw) => {
-      const t = raw.replace(/\s|원/g, "");
-      const eok = /([\d.,]+)억/.exec(t);
-      const man = /([\d,]+)만/.exec(t);
-      let v = 0;
-      if (eok) v += Number(eok[1].replace(/,/g, "")) * 10_000;
-      if (man) v += Number(man[1].replace(/,/g, ""));
-      return v;
-    })
-    .filter((v) => v > 0);
-  if (!values.length) return null;
-  return values.reduce((a, b) => a + b, 0) / values.length;
-}
-
-/** 만원 → "1,800만 원" · "1.3억 원" */
-function formatMan(man: number): string {
-  if (man >= 10_000) {
-    const eok = Math.round((man / 10_000) * 10) / 10;
-    return `${eok >= 10 ? Math.round(eok) : eok}억 원`;
-  }
-  return `${(Math.round(man / 100) * 100).toLocaleString()}만 원`;
-}
-
 function pct(now: number, before: number): string {
   const v = ((now / before - 1) * 100).toFixed(1);
   return `${Number(v) >= 0 ? "+" : ""}${v}%`;
@@ -233,7 +206,7 @@ function difficultyTile(laneId: string): LaneTile | null {
     return {
       value: DIFFICULTY_LABEL[Math.min(2, Math.max(0, Math.round(avg) - 1))],
       label: "진입 난이도",
-      source: `농촌진흥청 ICT 스마트팜 단가 · ${list.length}종 평균`,
+      source: `이랑 작물 DB · ${list.length}종 평균`,
     };
   } else if (persona) {
     crops = topCropsFor(persona);
@@ -310,31 +283,39 @@ function trendTile(laneId: string): LaneTile | null {
   };
 }
 
+/**
+ * 비용 타일 — 실태조사 투자액(농지·가축·시설). 10/10 정정: 예전엔 비용 화면 작물 행의 '초기 투자금' 범위를 평균했는데
+ * 그 범위에 원문이 없어 지웠다. 공식 투자액이 있는 귀농·귀촌·청년(30대 이하)만 만들고, 귀산촌·스마트팜은 보완 타일로 넘긴다.
+ */
 function costTile(laneId: string): LaneTile | null {
   const type = LANE_COST_TYPE[laneId];
-  if (!type) return null;
-  const crops = CROP_COSTS_BY_TYPE[type];
-  const values = crops.map((c) => parseCostRangeMan(c.initialCost)).filter((v): v is number => v !== null);
-  if (!values.length) return null; // village 은 작물 데이터가 없어 타일을 만들지 않는다
-  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  /* 대표 1건만 적으면 나머지 출처를 숨기는 셈이라 "외 N" 으로 몇 곳이 섞였는지 드러낸다.
-     전부 나열하면 타일 폭(≈150px)에서 4줄로 늘어져 선택 화면 높이를 밀어낸다(9/29 실측) */
-  const sources = [...new Set(crops.map((c) => c.source))];
-  return {
-    value: formatMan(avg),
-    label: "초기 투자금 평균",
-    source: sources.length > 1 ? `${sources[0]} 외 ${sources.length - 1}` : sources[0],
-  };
+  const source = `농림축산식품부 ${settlementSurvey.year} 귀농귀촌 실태조사`;
+  const man = (n: number) => `${n.toLocaleString("ko-KR")}만 원`;
+  if (type === "farming") return { value: man(settlementSurvey.investment), label: "평균 투자액", source: `${source} · 귀농 가구` };
+  if (type === "village") return { value: man(settlementSurvey.ruralInvestment), label: "평균 투자액", source: `${source} · 귀촌 가구` };
+  if (type === "youth") {
+    const young = investmentByAge[0];
+    return { value: man(young.amount), label: `${young.age} 평균 투자액`, source };
+  }
+  return null;
 }
 
 /** 비용 타일이 없는 레인을 위한 보완 타일 */
 function extraTile(laneId: string): LaneTile | null {
-  if (laneId === "guichon") {
-    const count = Object.values(SIGUNGUS).flat().length;
+  /* 10/10: 귀촌은 실태조사 투자액 타일이 생겨 시·군·구 수 보완 타일이 필요 없어졌다.
+     귀산촌·스마트팜은 공식 투자액이 없어 '규모' 지표로 채운다 — 화면 비교 표 4번째 행 "투자액 · 규모" */
+  if (laneId === "forest") {
     return {
-      value: `${count}곳`,
-      label: "비교할 시·군·구",
-      source: "행정안전부 행정구역 · 이랑 정착 점수",
+      value: `${mountainVillageArea.eupmyeon}곳`,
+      label: "산촌 읍·면",
+      source: `산림청 ${mountainVillageArea.year} 산촌기초조사`,
+    };
+  }
+  if (laneId === "smartfarm") {
+    return {
+      value: `${smartfarmAdoption.pct}%`,
+      label: "스마트온실 도입률",
+      source: `농림축산식품부 · ${smartfarmAdoption.year}`,
     };
   }
   if (laneId === "undecided") {

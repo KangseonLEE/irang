@@ -96,8 +96,8 @@ export const PROVINCES: Province[] = [
     name: "경기도",
     shortName: "경기",
     area: 10207.71,
-    description: "수도권 소비시장과 가까운 근교 농업의 최적지",
-    highlights: ["근교 농업", "직거래 유통", "스마트팜", "체험농장"],
+    description: "수도권 소비시장과 가까운 근교 농업 지역",
+    highlights: ["근교 농업", "직거래 유통", "체험농장"],
     stationIds: ["119"],
     representativeStationId: "119",
     sgisCode: "31",
@@ -108,12 +108,12 @@ export const PROVINCES: Province[] = [
       {
         title: "서울 생활권을 유지하면서 농업을 시작하려는 분",
         description:
-          "서울과 1시간 내 접근이 가능해, 가족의 교육·문화 생활을 병행할 수 있어요.",
+          "서울로 오가기 쉬워 가족의 교육·문화 생활을 병행할 수 있어요.",
       },
       {
         title: "직거래·체험농장으로 6차산업에 도전하려는 분",
         description:
-          "수도권 2,500만 소비자를 인접시장으로 활용해 높은 수익성을 기대할 수 있어요.",
+          "수도권 소비시장이 가까워 직거래·체험농장 판로를 찾기 좋아요.",
       },
     ],
   },
@@ -134,7 +134,7 @@ export const PROVINCES: Province[] = [
       {
         title: "깨끗한 자연 속에서 건강한 먹거리를 키우고 싶은 분",
         description:
-          "고랭지 배추, 감자 등 청정 프리미엄 작물 재배에 최적인 환경이에요.",
+          "감자 재배면적 전국 1위(2024), 배추 2위(2024)로 고랭지 채소 재배가 많아요.",
       },
       {
         title: "체력에 자신 있고, 조용한 산촌 생활을 꿈꾸는 분",
@@ -153,7 +153,7 @@ export const PROVINCES: Province[] = [
     name: "충청북도",
     shortName: "충북",
     area: 7406.69,
-    description: "내륙 중심의 유기농·친환경 농업 선도 지역",
+    description: "바다 없는 내륙, 유기농·친환경 농업을 하는 지역",
     highlights: ["유기농", "친환경 인증", "내륙 기후", "교통 요충지"],
     stationIds: ["131"],
     representativeStationId: "131",
@@ -165,12 +165,12 @@ export const PROVINCES: Province[] = [
       {
         title: "유기농·친환경 농업에 관심 있는 분",
         description:
-          "유기농 전환 지원 사업이 활발하며, 친환경 인증 농가 비율이 높아요.",
+          "괴산 등 유기농·친환경 농업을 하는 시·군이 있어요.",
       },
       {
         title: "전국 어디든 접근 좋은 중앙 위치를 원하는 분",
         description:
-          "서울에서 1시간 반, KTX·고속도로 교통이 편리해 유통에 유리해요.",
+          "KTX·고속도로로 전국 어디든 이어져 유통에 유리해요.",
       },
     ],
   },
@@ -179,8 +179,8 @@ export const PROVINCES: Province[] = [
     name: "세종특별자치시",
     shortName: "세종",
     area: 464.99,
-    description: "행정수도의 도농복합 도시, 스마트팜과 귀농의 새 거점",
-    highlights: ["도농복합", "스마트팜", "행정수도", "신도시 인프라"],
+    description: "행정중심복합도시와 읍·면 농촌이 함께 있는 도농복합 도시",
+    highlights: ["도농복합", "행정수도", "신도시 인프라"],
     stationIds: ["239"],
     representativeStationId: "239",
     sgisCode: "29",
@@ -196,7 +196,7 @@ export const PROVINCES: Province[] = [
       {
         title: "정부 지원 사업에 가까이 접근하고 싶은 분",
         description:
-          "농림축산식품부 등 정부 부처가 소재해 귀농·귀촌 정책 정보를 가장 빠르게 얻을 수 있어요.",
+          "농림축산식품부 등 정부 부처가 있는 도시라 정책 설명회·상담 기관에 가기 쉬워요.",
       },
     ],
   },
@@ -205,8 +205,8 @@ export const PROVINCES: Province[] = [
     name: "대전광역시",
     shortName: "대전",
     area: 539.83,
-    description: "과학기술 도시에서 시작하는 스마트 농업",
-    highlights: ["스마트팜", "연구기관 연계", "교통 허브", "도시 근교"],
+    description: "연구단지가 모인 과학기술 도시, 근교 농업",
+    highlights: ["연구기관", "교통 허브", "도시 근교"],
     stationIds: ["133"],
     representativeStationId: "133",
     sgisCode: "25",
@@ -217,7 +217,7 @@ export const PROVINCES: Province[] = [
       {
         title: "기술 기반 스마트팜에 관심 있는 분",
         description:
-          "KAIST, 충남대 등 연구기관이 밀집해 농업 기술 협력 기회가 풍부해요.",
+          "KAIST·충남대와 대덕연구개발특구 연구기관이 모여 있어요.",
       },
       {
         title: "충청권 도시 생활을 병행하며 농업을 준비하는 분",
@@ -232,7 +232,7 @@ export const PROVINCES: Province[] = [
     shortName: "충남",
     area: 8248.14,
     description: "쌀·인삼·딸기의 전통 농업 강호, 서해안 온화한 기후",
-    highlights: ["쌀 주산지", "인삼 특구", "서해안 기후", "농촌 정착 지원 활발"],
+    highlights: ["쌀 주산지", "인삼 특구", "서해안 기후"],
     stationIds: ["238"],
     representativeStationId: "238",
     sgisCode: "34",
@@ -243,7 +243,7 @@ export const PROVINCES: Province[] = [
       {
         title: "전통 농업(쌀·인삼·참깨)의 안정적 수익을 원하는 분",
         description:
-          "전국 쌀 생산 1위 지역이며, 금산 인삼 등 특화 작물 클러스터가 형성되어 있어요.",
+          "논벼 재배면적 전국 2위(2025)이고, 금산은 인삼 재배면적 전국 1위(2025)예요.",
       },
       {
         title: "농촌 정착 지원 혜택을 최대한 활용하고 싶은 분",
@@ -269,7 +269,7 @@ export const PROVINCES: Province[] = [
       {
         title: "넓은 평야에서 곡물·식량 작물을 재배하고 싶은 분",
         description:
-          "전국 최대의 곡창지대로 농지 확보가 용이하고, 쌀·콩 등 식량 작물 생산성이 높아요.",
+          "호남평야가 있는 곡창지대로, 콩 재배면적 전국 1위·논벼 3위(2025)예요.",
       },
       {
         title: "한국 전통 식문화와 연계한 농업을 꿈꾸는 분",
@@ -300,7 +300,7 @@ export const PROVINCES: Province[] = [
       {
         title: "로컬푸드·직거래에 관심 있는 분",
         description:
-          "광주광역시 로컬푸드 직매장이 잘 갖춰져 있어 안정적 판로 확보가 가능해요.",
+          "광주 로컬푸드 직매장 같은 직거래 판로를 이용할 수 있어요.",
       },
     ],
   },
@@ -326,7 +326,7 @@ export const PROVINCES: Province[] = [
       {
         title: "농촌 정착 지원금 등 실질적 혜택을 원하는 분",
         description:
-          "순천시 농촌 정착 지원금, 주택 수리비 지원 등 전남 지역만의 파격적인 지원 혜택이 있어요.",
+          "시·군마다 정착 지원금·주택 수리비 지원 사업이 있어요. 조건은 시·군 공고로 확인하세요.",
       },
       {
         title: "바다와 가까운 자연환경을 선호하는 분",
@@ -352,7 +352,7 @@ export const PROVINCES: Province[] = [
       {
         title: "도시 농업·옥상 텃밭으로 농업을 시작하려는 분",
         description:
-          "부산시 도시농업 지원 사업이 활발하며, 기장군 등 근교에서 원예·화훼 재배가 가능해요.",
+          "기장군·강서구 등 근교에서 원예·화훼를 재배해요.",
       },
       {
         title: "경남 정착 준비의 거점으로 활용하려는 분",
@@ -383,7 +383,7 @@ export const PROVINCES: Province[] = [
       {
         title: "경상북도 농촌 정착을 준비하며 도시 생활을 병행하려는 분",
         description:
-          "경북 영주·봉화 등과 1시간 내 연결되어 준비 단계에서 거점으로 활용 가능해요.",
+          "경북 과수 산지로 오가며 준비 단계의 거점으로 쓸 수 있어요.",
       },
     ],
   },
@@ -404,12 +404,12 @@ export const PROVINCES: Province[] = [
       {
         title: "울주군에서 배·감 등 과수 농업을 시작하려는 분",
         description:
-          "울주군은 전국적으로 유명한 배 산지이며, 과수원 조성 지원 사업이 있어요.",
+          "울주군은 배 재배면적 전국 6위(2025)인 배 산지예요.",
       },
       {
         title: "산업도시 소득을 병행하며 농촌 정착을 준비하는 분",
         description:
-          "울산 도심에서 30분 내 울주군 농촌에 접근 가능해, 단계적 정착 준비에 적합해요.",
+          "울산 도심과 가까운 울주군 농촌에서 단계적으로 정착을 준비할 수 있어요.",
       },
     ],
   },
@@ -419,7 +419,7 @@ export const PROVINCES: Province[] = [
     shortName: "경북",
     area: 18428.19,
     description: "사과·포도·인삼의 과수 강국, 전통 농촌 마을 보존",
-    highlights: ["사과 주산지", "포도·인삼", "전통 농촌", "스마트팜 단지"],
+    highlights: ["사과 주산지", "포도·인삼", "전통 농촌"],
     stationIds: ["271", "272"],
     representativeStationId: "272",
     sgisCode: "37",
@@ -430,17 +430,17 @@ export const PROVINCES: Province[] = [
       {
         title: "과수(사과·포도) 전문 농가를 꿈꾸는 분",
         description:
-          "영주·봉화 지역은 전국 최고 품질의 사과 산지이며, 과수원 조성 지원 사업이 있어요.",
+          "청송·영주·안동이 사과 재배면적 전국 1~3위(2025)이고, 경북이 전국 사과 면적의 절반을 넘어요.",
       },
       {
         title: "스마트팜·첨단 시설농업에 투자하려는 분",
         description:
-          "경북 스마트팜 시설 지원 사업이 활발하고, ICT 기반 과수 관리 기술이 보급되고 있어요.",
+          "스마트팜 시설 지원 사업은 시·군 공고를 먼저 확인해 보세요.",
       },
       {
         title: "전통 농촌 공동체에서 정착하고 싶은 분",
         description:
-          "마을 단위 농촌 정착 프로그램이 잘 갖춰져 있어 초기 적응이 수월해요.",
+          "마을 단위로 운영하는 농촌 정착 프로그램이 있는지 시·군에 확인해 보세요.",
       },
     ],
   },
@@ -461,12 +461,12 @@ export const PROVINCES: Province[] = [
       {
         title: "마늘·양파·딸기 등 채소·과수 농업을 원하는 분",
         description:
-          "의령 마늘, 진주 딸기 등 전국적 브랜드 작물이 많아 판로가 안정적이에요.",
+          "창녕 마늘(재배면적 전국 1위)·진주 딸기(2위)처럼 주산지가 많아요(2025).",
       },
       {
         title: "약용작물·특수작물에 관심 있는 분",
         description:
-          "산청 지리산 자락의 약용작물 재배 지원 사업이 있으며, 한방 특구와 연계돼요.",
+          "산청은 지리산 자락의 약용작물 산지로, 한방약초특구가 있어요.",
       },
       {
         title: "산과 바다를 모두 누리고 싶은 분",
@@ -480,7 +480,7 @@ export const PROVINCES: Province[] = [
     name: "제주특별자치도",
     shortName: "제주",
     area: 1850.14,
-    description: "아열대 기후의 감귤 왕국, 관광과 농업의 융합",
+    description: "감귤 재배의 중심, 관광과 농업이 함께하는 섬",
     highlights: ["감귤·아열대", "관광 연계", "팜스테이", "청정 환경"],
     stationIds: ["184", "189"],
     representativeStationId: "184",
@@ -492,12 +492,12 @@ export const PROVINCES: Province[] = [
       {
         title: "감귤·아열대 작물에 도전하고 싶은 분",
         description:
-          "감귤 신품종 보급 지원이 있으며, 온난화로 망고·패션프루트 등 아열대 작물 재배가 확대 중이에요.",
+          "감귤 재배면적 거의 전부가 제주이고(2024), 망고 같은 아열대 작물을 시도하는 농가도 있어요.",
       },
       {
         title: "관광·체험과 결합한 6차산업을 구상하는 분",
         description:
-          "연간 1,500만 관광객을 활용한 팜스테이·농촌 체험이 높은 수익을 기대할 수 있어요.",
+          "관광객이 많은 제주 특성을 살려 팜스테이·농촌 체험을 꾸릴 수 있어요.",
       },
       {
         title: "독특한 자연환경에서 새로운 삶을 시작하려는 분",

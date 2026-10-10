@@ -27,6 +27,7 @@ import { kstToday } from "@/lib/program-status";
 import { orderProgramsForList, scoringProgramPersona } from "@/lib/programs/list-order";
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import { shareMetadata } from "@/lib/seo/share-metadata";
+import { POLICY_TEXT, YOUTH_SETTLEMENT } from "@/lib/data/policy-facts";
 import Link from "next/link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ProgramList } from "./program-list";
@@ -48,8 +49,8 @@ const sectionNavItems = [
   { href: "/events", label: "체험·행사" },
 ];
 
-const DESCRIPTION =
-  "전국 귀농·귀촌 지원사업을 지역별로 검색하세요. 정착금 최대 3억, 주택 지원, 영농 자금 등 자격 조건과 신청 방법을 비교해요.";
+// 10/10: '정착금 최대 3억'은 융자(귀농 농업창업자금)를 지원금처럼 적은 문구였다 — policy-facts 로
+const DESCRIPTION = `전국 귀농·귀촌 지원사업을 지역별로 검색하세요. 청년 영농정착지원금(${POLICY_TEXT.youthMonthlyMax}), 창업자금 융자(최대 ${POLICY_TEXT.returnFarmStartupMax}), 주택 지원 등 자격 조건과 신청 방법을 비교해요.`;
 
 export const metadata: Metadata = {
   title: "귀농·귀촌 지원사업 — 정착금·주택·영농자금 검색",
@@ -196,7 +197,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
               name: "농촌 정착 지원금 자격 조건은 무엇인가요?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "지자체마다 다르지만 일반적으로 농촌 지역 전입, 일정 기간 거주, 영농 계획서 제출이 기본 조건이에요. 청년(만 39세 이하)은 별도 우대 조건이 있어요.",
+                text: `사업마다 달라요. 귀농 창업·주택자금 융자는 농촌 전입 후 6년이 지나지 않은 세대주가 ${POLICY_TEXT.educationRequirement}을 이수해야 하고, 청년 영농정착지원은 ${POLICY_TEXT.youthAgeMaxLabel}·영농경력 ${YOUTH_SETTLEMENT.maxFarmingYears.value}년 이하가 조건이에요. 지자체 사업은 공고마다 확인하세요.`,
               },
             },
             {
@@ -204,7 +205,8 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
               name: "농촌 정착금은 얼마나 받을 수 있나요?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "지자체별로 월 50만~100만 원 수준의 정착 지원금을 최대 3년간 받을 수 있어요. 영농 정착 자금은 최대 3억 원까지 장기 저리 대출도 가능해요.",
+                // 10/10: '지자체별 월 50만~100만 원 최대 3년'은 근거 없는 문구였다 — 국비 사업 원문 값으로
+                text: `청년 영농정착지원사업(국비 보조금)은 ${POLICY_TEXT.youthMonthly}을 최대 3년간 받아요. 귀농 창업·주택자금은 지원금이 아니라 융자로, ${POLICY_TEXT.returnFarmLoan}이에요. 시·군 자체 정착지원금은 금액과 기간이 지역마다 달라요.`,
               },
             },
           ],

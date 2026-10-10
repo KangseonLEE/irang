@@ -11,7 +11,6 @@ import {
 import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
 import {
   matchLanePrograms,
-  parseCostRangeMan,
 } from "@/lib/data/journey-lanes-stats";
 import { PROGRAMS } from "@/lib/data/programs";
 import { CROP_COSTS_BY_TYPE } from "@/lib/data/cost-by-type";
@@ -104,9 +103,9 @@ describe("여정 레인 허브 — 레인마다 볼 것이 있다", () => {
     }
   });
 
-  it("귀촌만 비용 유형이 null 이다 (village 작물 비용 0건)", () => {
+  it("작물 행이 없는 유형(귀촌·귀산촌)만 비용 유형이 null 이다", () => {
     for (const hub of hubs) {
-      const expected = CROP_COSTS_BY_TYPE.village.length === 0 && hub.id === "guichon";
+      const expected = hub.id === "guichon" || hub.id === "forest";
       expect(hub.costType === null, `${hub.id} costType`).toBe(expected);
     }
   });
@@ -244,24 +243,10 @@ describe("여정 레인 허브 — 하드코딩 금지 가드 (값은 전부 데
     expect(counted).toBeGreaterThan(0);
   });
 
-  /**
-   * 손계산 ②: 귀산촌 초기 투자금 평균.
-   * 임업 비용 표 6종의 범위 중앙값 평균을 테스트에서 다시 계산해 타일 문자열과 맞춘다.
-   */
-  it("귀산촌 '초기 투자금 평균'이 임업 비용 표 평균과 일치한다", () => {
-    const values = CROP_COSTS_BY_TYPE.forestry
-      .map((c) => parseCostRangeMan(c.initialCost))
-      .filter((v): v is number => v !== null);
-    expect(values).toHaveLength(CROP_COSTS_BY_TYPE.forestry.length);
-    const avgMan = values.reduce((a, b) => a + b, 0) / values.length;
-    const expected =
-      avgMan >= 10_000
-        ? `${Math.round((avgMan / 10_000) * 10) / 10}억 원`
-        : `${(Math.round(avgMan / 100) * 100).toLocaleString()}만 원`;
-
+  /* 10/10: 귀산촌 '초기 투자금 평균'(임산물 비용 표 평균, 원문 없음)은 지웠다 — 공식 투자액이 없으면 타일을 만들지 않는다 */
+  it("귀산촌에는 투자액 타일이 없다 (공식 조사 없음)", () => {
     const hub = hubs.find((h) => h.id === "forest")!;
-    const tile = hub.tiles.find((t) => t.label === "초기 투자금 평균")!;
-    expect(tile.value).toBe(expected);
+    expect(hub.tiles.some((t) => t.label.includes("투자"))).toBe(false);
   });
 
   it("스마트팜 대표 작물은 시설 비용 표 ∩ 작물 DB 에서만 나온다", () => {
@@ -292,12 +277,11 @@ describe("여정 레인 허브 — 비용 카드·차트·교육·체험 (10/2)"
         expect(hasCropIllustration(c.cropId), `${hub.id} ${c.name} 일러스트`).toBe(true);
       }
     }
-    // 산양삼은 작물 DB 에 없다 — 부분 일치로 다른 작물이 붙지 않아야 한다
-    const forest = hubs.find((h) => h.id === "forest")!;
-    expect(forest.costCards.find((c) => c.name === "산양삼")?.cropId).toBeNull();
+    // 10/10: 행은 작물 DB id 로만 만든다 — 작물 DB 에 없는 표기(산양삼 등)는 행 자체가 없다
+    for (const hub of hubs) for (const c of hub.costCards) expect(c.cropId, `${hub.id} ${c.name}`).not.toBeNull();
   });
 
-  it("비용 카드 수는 비용 표 행 수와 같다 (귀촌은 0)", () => {
+  it("비용 카드 수는 비용 표 행 수와 같다 (귀촌·귀산촌은 0)", () => {
     for (const hub of hubs) {
       const rows = hub.costType ? CROP_COSTS_BY_TYPE[hub.costType].length : 0;
       expect(hub.costCards.length, hub.id).toBe(rows);
