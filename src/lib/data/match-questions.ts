@@ -135,13 +135,13 @@ export const QUESTIONS: Question[] = [
         id: "vegetable",
         label: "채소",
         icon: Leaf,
-        description: "고추, 마늘, 배추, 양파 등",
+        description: "고추, 마늘, 배추, 딸기·수박 등",
       },
       {
         id: "fruit",
         label: "과수",
         icon: Apple,
-        description: "사과, 딸기, 포도, 감귤 등",
+        description: "사과, 배, 포도, 감귤 등",
       },
       {
         id: "special",

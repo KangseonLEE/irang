@@ -135,7 +135,8 @@ export const ALL_CROP_NAMES: string[] = CROPS.map((c) => c.name);
  */
 const OPEN_FIELD_VEG = new Set(["고추", "배추", "마늘", "양파", "무", "대파", "당근"]);
 const GREENHOUSE_VEG_CROP_NAMES: string[] = CROPS.filter(
-  (c) => (c.category === "채소" && !OPEN_FIELD_VEG.has(c.name)) || ["딸기", "수박", "참외"].includes(c.name)
+  // 생강은 10/11 통계 분류(조미채소)로 '채소'가 됐지만 노지 작물이라 시설원예 사업에 붙이지 않는다
+  (c) => (c.category === "채소" && !OPEN_FIELD_VEG.has(c.name) && c.name !== "생강") || ["딸기", "수박", "참외"].includes(c.name)
 ).map((c) => c.name);
 const FLOWER_CROP_NAMES: string[] = CROPS.filter((c) => c.category === "화훼").map((c) => c.name);
 const MUSHROOM_CROP_NAMES: string[] = CROPS.filter((c) => c.name.endsWith("버섯")).map((c) => c.name);

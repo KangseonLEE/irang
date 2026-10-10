@@ -355,7 +355,7 @@ export const CROPS: CropInfo[] = [
   {
     id: "strawberry",
     name: "딸기",
-    category: "과수",
+    category: "채소",
     growingSeason: "9월~5월",
     difficulty: "어려움",
     description:
@@ -485,7 +485,7 @@ export const CROPS: CropInfo[] = [
   {
     id: "watermelon",
     name: "수박",
-    category: "과수",
+    category: "채소",
     growingSeason: "3월~7월 (시설), 5월~8월 (노지)",
     difficulty: "보통",
     description:
@@ -545,7 +545,7 @@ export const CROPS: CropInfo[] = [
   {
     id: "melon",
     name: "참외",
-    category: "과수",
+    category: "채소",
     growingSeason: "2월~7월 (시설재배)",
     difficulty: "보통",
     description:
@@ -587,7 +587,7 @@ export const CROPS: CropInfo[] = [
   {
     id: "ginger",
     name: "생강",
-    category: "특용",
+    category: "채소",
     growingSeason: "4월~10월",
     difficulty: "보통",
     description:

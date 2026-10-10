@@ -27,6 +27,12 @@ export function excerpt(description: string): string {
 
 const CORRECTION_LOG: CorrectionEntry[] = [
   {
+    date: "2026-10-11",
+    field: "작물 분류 — 통계 기준(딸기·수박·참외는 채소)",
+    description:
+      "딸기·수박·참외를 '과수'로, 생강을 '특용'으로 분류해 왔는데, 국가데이터처 농작물생산조사는 딸기·수박·참외를 채소의 과채류로, 생강을 조미채소로 분류해요. 통계 기준에 맞춰 네 작물을 '채소'로 옮겼어요. 작물 목록의 분류 필터와 유형 진단의 작물 선호 점수가 이 분류를 따라요. 검색에서 '과일'로 찾으면 딸기·수박·참외도 함께 나와요.",
+  },
+  {
     date: "2026-10-10",
     field: "쌀 소득 — 2025년산으로",
     description:
