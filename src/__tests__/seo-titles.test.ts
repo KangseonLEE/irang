@@ -49,9 +49,9 @@ describe("작물 상세 — 55종 전부", () => {
 
   it("주산지는 짧은 이름, 끝 글자 받침에 맞춰 이에요/예요", () => {
     const blueberry = all.find((c) => c.id === "blueberry")!;
-    expect(cropSeoDescription(blueberry)).toContain("주산지는 경남·전북·경기예요.");
-    const ginseng = all.find((c) => c.id === "ginseng")!;
-    expect(cropSeoDescription(ginseng)).toContain("주산지는 강원·충남·경기예요.");
+    expect(cropSeoDescription(blueberry)).toContain("주산지는 경남·전북·충남이에요.");
+    const pear = all.find((c) => c.id === "pear")!;
+    expect(cropSeoDescription(pear)).toContain("주산지는 전남·충남·경기예요.");
   });
 
   it("재배면적 통계가 없는 손 입력 주산지는 검색 결과 설명에 싣지 않는다(10/10)", () => {

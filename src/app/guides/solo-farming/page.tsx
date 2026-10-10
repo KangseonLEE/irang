@@ -17,6 +17,7 @@ import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Article } from "schema-dts";
+import { settlementSurvey } from "@/lib/data/stats";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -44,7 +45,7 @@ const REALITY_CHECK = [
   {
     icon: Wallet,
     title: "필요 자본",
-    desc: "임대 기준 3,000만~5,000만 원으로 시작할 수 있어요. 매입보다 임대로 시작하는 게 리스크를 줄이는 방법이에요.",
+    desc: `시작 자금은 지역·작목·임대 여부에 따라 크게 달라요. 귀농 가구의 농지·가축·시설 투자액은 평균 ${settlementSurvey.investment.toLocaleString("ko-KR")}만 원이었어요(${settlementSurvey.year} 실태조사). 매입보다 임대로 시작하는 게 리스크를 줄이는 방법이에요.`,
   },
   {
     icon: AlertTriangle,
@@ -177,7 +178,7 @@ export default function SoloFarmingGuidePage() {
           </div>
           <div className={s.summaryItem}>
             <span className={s.summaryLabel}>시작 자본</span>
-            <span className={s.summaryValue}>임대 기준 3,000만~5,000만 원</span>
+            <span className={s.summaryValue}>평균 투자 {settlementSurvey.investment.toLocaleString("ko-KR")}만 원 (실태조사)</span>
           </div>
           <div className={s.summaryItem}>
             <span className={s.summaryLabel}>권장 면적</span>

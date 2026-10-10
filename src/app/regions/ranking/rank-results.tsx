@@ -149,10 +149,12 @@ export function RankResults({
                   : "";
 
           // 회장 결재 Sprint 1 (2026-05-16) — 카드 chip 1~2개로 축약.
-          // 1순위: mainCrops[0] (페르소나·차원 무관 일관성)
+          // 1순위: mainCrops 상위 2개 (페르소나·차원 무관 일관성)
           // 2순위: D-7 마감 임박 chip (있을 때만)
           // 나머지(rawLabel·밀도·활성 chip 5종 통합·강약점)는 modal 안에서 노출.
-          const mainCrop = item.sg.mainCrops[0] ?? null;
+          // 10/10: 주요 작물이 2025 농림어업총조사 면적 순이 되자 230곳 중 181곳의 1위가 '쌀'이라
+          // 1위만 보이면 카드끼리 구분이 안 된다 → 상위 2개를 한 칩에(예: '쌀·사과').
+          const mainCrop = item.sg.mainCrops.slice(0, 2).join("·") || null;
           const { urgentDeadlineCount } = item.stats;
           const showMetaRow = Boolean(mainCrop) || urgentDeadlineCount > 0;
 

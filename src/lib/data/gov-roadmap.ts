@@ -788,7 +788,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
         tips: [
           "자금 용도: 시설비, 운영비, 장비 구입 등",
           "용도 외 사용 적발 시 즉시 회수 및 제재",
-          "5년 거치 후 10년간 분할 상환이에요 (연리 2%)",
+          `${FOREST_VILLAGE_LOAN.repayment.value}이에요 (${FOREST_VILLAGE_LOAN.interestRate.value})`,
         ],
       },
     ],

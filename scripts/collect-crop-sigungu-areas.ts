@@ -15,15 +15,16 @@
  */
 
 import { config } from "dotenv";
-import { writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-config({ path: resolve(__dirname, "../.env.local") });
+config({ path: resolve(__dirname, "../.env.local"), quiet: true });
 import { PROVINCES } from "../src/lib/data/regions";
 import { SIGUNGUS } from "../src/lib/data/sigungus";
 import { CROPS } from "../src/lib/data/crops";
 import { getSgisComposite } from "../src/lib/data/region-composites";
 import { CROP_SIGUNGU_TABLES } from "../src/lib/data/crop-sigungu-tables";
+import { judgeResidenceSkew, RICE_SKEW_MAX, ALL_SKEW_MAX, LAND_TABLE, type SkewJudgment } from "./lib/residence-skew";
 
 const YEAR = 2025;
 const TOP_N = 10;
@@ -39,9 +40,13 @@ interface KosisRow {
 }
 
 const cache = new Map<string, KosisRow[]>();
+/** KOSIS_RAW_CACHE=<json> 이 있으면 그 파일(표/항목 → 응답 배열)을 먼저 읽는다 — collect-sigungu-main-crops 와 같은 형식 */
+const rawCache: Record<string, KosisRow[]> = process.env.KOSIS_RAW_CACHE && existsSync(process.env.KOSIS_RAW_CACHE)
+  ? JSON.parse(readFileSync(process.env.KOSIS_RAW_CACHE, "utf8"))
+  : {};
 async function fetchItem(tblId: string, itmId: string): Promise<KosisRow[]> {
   const ck = `${tblId}/${itmId}`;
-  const hit = cache.get(ck);
+  const hit = cache.get(ck) ?? rawCache[ck];
   if (hit) return hit;
   const key = (process.env.KOSIS_API_KEY ?? "").trim();
   if (!key) throw new Error("KOSIS_API_KEY 없음");
@@ -72,6 +77,7 @@ async function main() {
   const cropIds = new Set(CROPS.map((c) => c.id));
   const provinceById = new Map(PROVINCES.map((p) => [p.id, p]));
   const problems: string[] = [];
+  const skewNotes: string[] = [];
   const out: Record<string, {
     items: string[];
     unit: string;
@@ -79,6 +85,29 @@ async function main() {
     provinces: { provinceId: string; area: number }[];
     top: { sigunguId: string; area: number }[];
   }> = {};
+
+  // ── 주소지 쏠림 판정(시·군·구 단위) — 37개 작물 합·벼를 최상위 시·군·구마다 모아 실제 경지면적과 견준다 ──
+  const census = new Map<string, { name: string; rice: number; all: number }>();
+  for (const [cropId, items] of Object.entries(CROP_SIGUNGU_TABLES)) {
+    for (const it of items) {
+      for (const r of await fetchItem(it.tblId, it.itmId)) {
+        if (r.C1.length !== 5 || /^\d{2}00[345]$/.test(r.C1)) continue;
+        const u = census.get(r.C1) ?? { name: r.C1_NM, rice: 0, all: 0 };
+        const v = num(r.DT);
+        if (Number.isFinite(v)) { u.all += v; if (cropId === "rice") u.rice += v; }
+        census.set(r.C1, u);
+      }
+    }
+  }
+  const censusCodes = [...census.keys()];
+  const cityCodes = new Set(censusCodes.filter((c) => c.endsWith("0") && censusCodes.some((g) => g !== c && g.slice(0, 4) === c.slice(0, 4))));
+  const censusTop = new Map([...census].filter(([c]) => cityCodes.has(c) || ![...cityCodes].some((x) => x !== c && x.slice(0, 4) === c.slice(0, 4))));
+  const skew = await judgeResidenceSkew(censusTop, rawCache as Record<string, unknown[]>);
+  problems.push(...skew.problems);
+  for (const l of skew.lines) console.log(l);
+  /** 우리 시·군·구 id → 판정 */
+  const skewBySigungu = new Map<string, SkewJudgment>();
+  const skewOut: Record<string, { rice: boolean; all: boolean }> = {};
 
   for (const [cropId, items] of Object.entries(CROP_SIGUNGU_TABLES)) {
     if (!cropIds.has(cropId)) { problems.push(`${cropId}: CROPS 에 없는 작물`); continue; }
@@ -135,20 +164,49 @@ async function main() {
       const pick = cands.length === 1 ? cands[0] : cands.filter((c) => !codes.some((x) => x !== c && x.slice(0, 4) === c.slice(0, 4) && x.endsWith("0") && x < c));
       const code = Array.isArray(pick) ? (pick.length === 1 ? pick[0] : null) : pick;
       if (!code) { problems.push(`${cropId}: 짝 없음/여럿 ${p.shortName} ${sg.name} (${cands.length})`); continue; }
+      const j = skew.byCode.get(code);
+      if (!j) { problems.push(`쏠림 판정 없음: ${p.shortName} ${sg.name}`); continue; }
+      skewBySigungu.set(sg.id, j);
+      if (j.rice || j.all) skewOut[sg.id] = { rice: j.rice, all: j.all };
       rows.push({ sigunguId: sg.id, area: Math.round(byCode.get(code)!.area * 10) / 10 });
     }
-    // 주산지로 보이기 위한 하한(10/10): 총조사 재배면적은 농가 **주소지** 기준이라 서울 구에 논·과수가 쏠려 잡힌다
-    // (서울 논벼 총조사 2,003ha vs 경작지 기준 생산조사 175.6ha) → 서울은 빼고, 1위의 5% 미만이거나 10ha 미만은 뺀다
-    // (감귤 서귀포 8,911ha 옆의 나주 27ha 같은 값이 '주요 산지'로 보이지 않게).
+    // 주산지로 보이기 위한 하한(10/10): 총조사 재배면적은 농가 **주소지** 기준이라 도시 시·구에 논·과수가 쏠려 잡힌다
+    // (안양 벼 262ha vs 실제 논 0ha) → 주소지 쏠림 단위(벼는 벼 판정, 그 밖의 작물은 전체 판정)는 빼고,
+    // 1위의 5% 미만이거나 10ha 미만은 뺀다(감귤 서귀포 8,911ha 옆의 나주 27ha 같은 값이 '주요 산지'로 보이지 않게).
     const sorted = rows.filter((r) => r.area > 0 && !r.sigunguId.startsWith("__")).sort((a, b) => b.area - a.area);
-    const seoulIds = new Set(SIGUNGUS.filter((sg) => sg.sidoId === "seoul").map((sg) => sg.id));
-    const nonSeoul = sorted.filter((r) => !seoulIds.has(r.sigunguId));
-    const floor = Math.max(10, (nonSeoul[0]?.area ?? 0) * 0.05);
-    const top = nonSeoul.filter((r) => r.area >= floor).slice(0, TOP_N);
-    out[cropId] = { items: items.map((i) => `${i.tblId} ${i.itemName}`), unit: [...units][0], totalArea, provinces, top };
+    const kept = sorted.filter((r) => {
+      const j = skewBySigungu.get(r.sigunguId)!;
+      return !(j.all || (cropId === "rice" && j.rice));
+    });
+    const floor = Math.max(10, (kept[0]?.area ?? 0) * 0.05);
+    const top = kept.filter((r) => r.area >= floor).slice(0, TOP_N);
+    // 시·도 합(provinces)도 쏠림 단위 몫을 뺀 값으로 낸다(10/10 3차 — 시·군·구 칩과 같은 판정이어야 주산지와 칩이 어긋나지 않는다).
+    // 원천 대조(시·도 = 시·군·구 합, 전국 = 시·도 합)는 위에서 원래 값으로 이미 했다.
+    const skewShare = new Map<string, number>();
+    for (const r of sorted) {
+      const j = skewBySigungu.get(r.sigunguId)!;
+      if (j.all || (cropId === "rice" && j.rice)) {
+        const sid = SIGUNGUS.find((s) => s.id === r.sigunguId)!.sidoId;
+        skewShare.set(sid, (skewShare.get(sid) ?? 0) + r.area);
+      }
+    }
+    if (skewShare.size) {
+      const provArea = (pid: string) => byCode.get(provinceById.get(pid)!.sgisCode)?.area ?? 0;
+      const rank = (adj: boolean) => PROVINCES.map((p) => ({ id: p.id, a: provArea(p.id) - (adj ? skewShare.get(p.id) ?? 0 : 0) }))
+        .sort((a, b) => b.a - a.a).slice(0, 5).map((x) => x.id).join(",");
+      if (rank(false) !== rank(true)) skewNotes.push(`${cropId}: 시·도 상위 5 ${rank(false)} → 쏠림 단위 빼면 ${rank(true)}`);
+    }
+    const adjProvinces = provinces
+      .map((p) => ({ provinceId: p.provinceId, area: Math.round(Math.max(0, p.area - (skewShare.get(p.provinceId) ?? 0)) * 10) / 10 }))
+      .sort((x, y) => y.area - x.area);
+    const adjTotal = Math.round(adjProvinces.reduce((acc, p) => acc + p.area, 0) * 10) / 10;
+    out[cropId] = { items: items.map((i) => `${i.tblId} ${i.itemName}`), unit: [...units][0], totalArea: adjTotal, provinces: adjProvinces, top };
     const name = (id: string) => SIGUNGUS.find((s) => s.id === id)!;
     console.log(`✓ ${cropId.padEnd(20)} ${top.slice(0, 4).map((t) => `${name(t.sigunguId).shortName} ${Math.round(t.area)}`).join(" | ")} (${[...units][0]})`);
   }
+
+  if (skewNotes.length) console.log(`\n시·도 합 쏠림 영향(provinces 는 쏠림 몫을 뺀 값으로 씀):\n  ${skewNotes.join("\n  ")}`);
+  else console.log("\n시·도 합 쏠림 영향: 상위 5 시·도 순서가 바뀌는 작물 없음");
 
   if (problems.length) {
     console.error(`\n✗ 문제 ${problems.length}건 — 아무것도 쓰지 않았어요`);
@@ -162,6 +220,8 @@ async function main() {
  * 항목: crop-sigungu-tables.ts. 수집 때 항목 이름·단위·시·군·구 짝·원천 시·도 = 시·군·구 합을 확인했다.
  * 작물 상세 '주요 산지 (시·군·구)' 칩이 이 순서를 쓴다. 시·도 행(provinces)은 CROP_AREAS(농작물생산조사)가 없는 작물의
  * 주산지(majorRegions) 근거다 — 원천 시·도 행 값, 큰 순. 수집일: ${new Date().toISOString().slice(0, 10)}
+ * 상위 목록(top)은 주소지 쏠림 단위를 뺐다 — 실제 경지면적(${LAND_TABLE.tblId} ${LAND_TABLE.year}) 대비 벼 > ${RICE_SKEW_MAX}배면 벼, 37개 작물 합 > ${ALL_SKEW_MAX}배면
+ * 모든 작물(CROP_SIGUNGU_RESIDENCE_SKEW, scripts/lib/residence-skew.ts).
  */
 
 export interface CropSigunguArea {
@@ -180,6 +240,9 @@ export interface CropSigunguArea {
 export const CROP_SIGUNGU_YEAR = ${YEAR};
 
 export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = ${JSON.stringify(out, null, 2)};
+
+/** 주소지 쏠림으로 상위 목록에서 뺀 시·군·구 id → { rice: 벼만, all: 전부 } */
+export const CROP_SIGUNGU_RESIDENCE_SKEW: Record<string, { rice: boolean; all: boolean }> = ${JSON.stringify(skewOut, null, 2)};
 `;
   writeFileSync(resolve(__dirname, "../src/lib/data/crop-sigungu-areas.ts"), body);
   console.log(`\n${Object.keys(out).length}종 → src/lib/data/crop-sigungu-areas.ts`);

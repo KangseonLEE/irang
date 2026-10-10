@@ -56,9 +56,11 @@ export function StepOverview({ steps, basePath = "/guide" }: StepOverviewProps) 
 
             {/* 비용 */}
             <div className={s.cost}>
-              <span className={`${s.costAmount} ${step.cost.highlight ? s.costHighlight : ""}`}>
-                {step.cost.amount}
-              </span>
+              {step.cost.amount && (
+                <span className={`${s.costAmount} ${step.cost.highlight ? s.costHighlight : ""}`}>
+                  {step.cost.amount}
+                </span>
+              )}
               <span className={s.costDesc}>{step.cost.desc}</span>
             </div>
 

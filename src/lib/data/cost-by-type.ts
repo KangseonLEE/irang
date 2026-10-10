@@ -20,6 +20,7 @@ import {
   YOUTH_SETTLEMENT,
   EXCELLENT_SUCCESSOR,
   formatManwon,
+  FOREST_VILLAGE_LOAN,
 } from "./policy-facts";
 
 /* ── 타입 정의 ── */
@@ -265,8 +266,8 @@ export const STRATEGIES_BY_TYPE: Record<CostTypeId, CostStrategy[]> = {
   forestry: [
     {
       title: "산림청 귀산촌 창업자금",
-      desc: "임야 매입·시설 투자·임산물 생산에 최대 3억 원을 저금리로 융자해요.",
-      saving: "최대 3억 원",
+      desc: `임야 매입·시설 투자·임산물 생산에 최대 ${formatManwon(FOREST_VILLAGE_LOAN.startupMaxManwon.value)}을 ${FOREST_VILLAGE_LOAN.interestRate.value}로 융자해요.`,
+      saving: `최대 ${formatManwon(FOREST_VILLAGE_LOAN.startupMaxManwon.value)}`,
       href: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?cmsId=FC_000434&mn=AR02_06_02_02",
       type: "융자",
       external: true,

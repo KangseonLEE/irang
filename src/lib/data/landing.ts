@@ -32,6 +32,7 @@ import {
   YOUTH_SETTLEMENT,
   POLICY_TEXT,
   formatManwon,
+  FOREST_VILLAGE_LOAN,
 } from "./policy-facts";
 
 
@@ -65,12 +66,12 @@ const _man = (n: number) => `${n.toLocaleString("ko-KR")}만 원`;
  * 5년 이내 60시간 이수 · 신청시기 (상반기) 2~3월 / (하반기) 6~7월 · 귀산촌 예정지 관할지역 산림조합". gov-roadmap 과 같은 값.
  */
 const FOREST_FUND = {
-  startupManwon: 30_000,
-  housingManwon: 7_500,
-  rate: "연 2%",
-  repayment: "5년 거치 10년 분할 상환",
-  eduHours: 60,
-  applyPeriod: "상반기 2~3월 · 하반기 6~7월",
+  startupManwon: FOREST_VILLAGE_LOAN.startupMaxManwon.value,
+  housingManwon: FOREST_VILLAGE_LOAN.housingMaxManwon.value,
+  rate: FOREST_VILLAGE_LOAN.interestRate.value,
+  repayment: FOREST_VILLAGE_LOAN.repayment.value,
+  eduHours: FOREST_VILLAGE_LOAN.educationHours.value,
+  applyPeriod: FOREST_VILLAGE_LOAN.applicationWindow.value,
   source: "산림청 귀산촌 창업·주택 자금 안내",
 } as const;
 

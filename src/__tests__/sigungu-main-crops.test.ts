@@ -19,6 +19,7 @@ import { CROPS } from "@/lib/data/crops";
 import {
   GU_MAIN_CROPS,
   MAIN_CROP_RULE,
+  MAIN_CROPS_RESIDENCE_SKEW,
   MAIN_CROPS_SKEWED_PROVINCES,
   SIGUNGU_MAIN_CROPS,
 } from "@/lib/data/sigungu-main-crops";
@@ -60,6 +61,38 @@ describe("주요 작물 — 2025 농림어업총조사 생성본", () => {
       expect(sg.mainCrops).toEqual([]);
       expect(mainCropsEmptyReason(sg.id, sg.sidoId)).toBe("residence-skew");
     }
+  });
+
+  it("주소지 쏠림(시·군·구 단위, 10/10 QA) — 실제 경지보다 크게 넓은 단위는 결과에 없다", () => {
+    // 전체 쏠림: 총조사 37개 작물 합이 실제 경지(DT_1EB002 2025)의 1.3배 초과 → 주요 작물 없음
+    for (const id of ["anyang", "seongnam", "mokpo", "suwon", "jangan-gu", "bundang-gu", "manan-gu"]) {
+      expect(MAIN_CROPS_RESIDENCE_SKEW[id]?.all, id).toBe(true);
+      expect(getMainCropEntries(id), id).toEqual([]);
+      expect(mainCropsEmptyReason(id, "gyeonggi"), id).toBe("residence-skew");
+    }
+    // 벼만 쏠림: 총조사 벼가 실제 논의 1.6배 초과 → 쌀만 빠지고 다른 작물은 남는다
+    for (const id of ["uiwang", "dongducheon", "hanam"]) {
+      expect(MAIN_CROPS_RESIDENCE_SKEW[id], id).toMatchObject({ rice: true, all: false });
+      const crops = getMainCropEntries(id).map((e) => e.cropId);
+      expect(crops, id).not.toContain("rice");
+      expect(crops.length, id).toBeGreaterThan(0);
+    }
+    // 계약: 판정이 있으면 결과에 반영돼 있다
+    const all = { ...SIGUNGU_MAIN_CROPS, ...GU_MAIN_CROPS };
+    for (const [id, j] of Object.entries(MAIN_CROPS_RESIDENCE_SKEW)) {
+      expect(id in all, id).toBe(true);
+      if (j.all) expect(all[id], id).toEqual([]);
+      if (j.rice) expect(all[id].some((e) => e.cropId === "rice"), id).toBe(false);
+      if (j.rice && j.riceRatio !== null) expect(j.riceRatio).toBeGreaterThan(MAIN_CROP_RULE.riceSkewMax);
+      if (j.all && j.allRatio !== null) expect(j.allRatio).toBeGreaterThan(MAIN_CROP_RULE.allSkewMax);
+    }
+    // 시 아래 구는 부모 시 판정을 따른다(경지면적 표에 구 행이 없다)
+    for (const g of GUS) {
+      if (getSgisComposite(g.sgisCode)) continue;
+      expect(MAIN_CROPS_RESIDENCE_SKEW[g.id], g.id).toEqual(MAIN_CROPS_RESIDENCE_SKEW[g.parentSigunguId]);
+    }
+    // 정상 농촌은 걸리지 않는다
+    for (const id of ["haenam", "dangjin", "iksan", "cheongsong", "gimje"]) expect(MAIN_CROPS_RESIDENCE_SKEW[id], id).toBeUndefined();
   });
 
   it("손 입력 재유입 차단 — 원본 표에 mainCrops·'정착 인기' 리터럴이 없다", () => {

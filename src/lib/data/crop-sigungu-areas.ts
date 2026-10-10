@@ -4,6 +4,8 @@
  * 항목: crop-sigungu-tables.ts. 수집 때 항목 이름·단위·시·군·구 짝·원천 시·도 = 시·군·구 합을 확인했다.
  * 작물 상세 '주요 산지 (시·군·구)' 칩이 이 순서를 쓴다. 시·도 행(provinces)은 CROP_AREAS(농작물생산조사)가 없는 작물의
  * 주산지(majorRegions) 근거다 — 원천 시·도 행 값, 큰 순. 수집일: 2026-10-10
+ * 상위 목록(top)은 주소지 쏠림 단위를 뺐다 — 실제 경지면적(DT_1EB002 2025) 대비 벼 > 1.6배면 벼, 37개 작물 합 > 1.3배면
+ * 모든 작물(CROP_SIGUNGU_RESIDENCE_SKEW, scripts/lib/residence-skew.ts).
  */
 
 export interface CropSigunguArea {
@@ -27,11 +29,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25401 재배 면적"
     ],
     "unit": "ha",
-    "totalArea": 547620,
+    "totalArea": 532523,
     "provinces": [
       {
         "provinceId": "jeonnam",
-        "area": 108008
+        "area": 107444
       },
       {
         "provinceId": "chungnam",
@@ -47,7 +49,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 60060
+        "area": 56287
       },
       {
         "provinceId": "gyeongnam",
@@ -59,43 +61,43 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gangwon",
-        "area": 22772
+        "area": 22770
       },
       {
         "provinceId": "incheon",
         "area": 9365
       },
       {
-        "provinceId": "gwangju",
-        "area": 6275
-      },
-      {
         "provinceId": "daegu",
-        "area": 5654
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 3140
+        "area": 3746
       },
       {
         "provinceId": "sejong",
         "area": 3032
       },
       {
+        "provinceId": "gwangju",
+        "area": 2597
+      },
+      {
         "provinceId": "busan",
         "area": 2262
       },
       {
-        "provinceId": "daejeon",
-        "area": 2070
-      },
-      {
-        "provinceId": "seoul",
-        "area": 2003
+        "provinceId": "ulsan",
+        "area": 2057
       },
       {
         "provinceId": "jeju",
-        "area": 23
+        "area": 7
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
       }
     ],
     "top": [
@@ -146,7 +148,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25402 옥수수_면적"
     ],
     "unit": "ha",
-    "totalArea": 13291,
+    "totalArea": 12758,
     "provinces": [
       {
         "provinceId": "gangwon",
@@ -158,11 +160,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 1764
+        "area": 1617
       },
       {
         "provinceId": "jeonnam",
-        "area": 904
+        "area": 891
       },
       {
         "provinceId": "chungnam",
@@ -181,18 +183,6 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 466
       },
       {
-        "provinceId": "seoul",
-        "area": 150
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 137
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 86
-      },
-      {
         "provinceId": "sejong",
         "area": 84
       },
@@ -201,20 +191,32 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 79
       },
       {
-        "provinceId": "busan",
-        "area": 68
+        "provinceId": "ulsan",
+        "area": 71
       },
       {
-        "provinceId": "daegu",
-        "area": 67
+        "provinceId": "busan",
+        "area": 68
       },
       {
         "provinceId": "jeju",
         "area": 67
       },
       {
+        "provinceId": "daegu",
+        "area": 25
+      },
+      {
         "provinceId": "gwangju",
-        "area": 40
+        "area": 11
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -265,7 +267,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25402 콩_면적"
     ],
     "unit": "ha",
-    "totalArea": 49670,
+    "totalArea": 48198,
     "provinces": [
       {
         "provinceId": "jeonbuk",
@@ -280,16 +282,16 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 6239
       },
       {
-        "provinceId": "gyeonggi",
-        "area": 5655
-      },
-      {
         "provinceId": "chungbuk",
         "area": 5306
       },
       {
+        "provinceId": "gyeonggi",
+        "area": 5303
+      },
+      {
         "provinceId": "jeonnam",
-        "area": 5065
+        "area": 5029
       },
       {
         "provinceId": "gangwon",
@@ -308,32 +310,32 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 413
       },
       {
-        "provinceId": "gwangju",
-        "area": 366
-      },
-      {
-        "provinceId": "seoul",
-        "area": 342
-      },
-      {
-        "provinceId": "daegu",
-        "area": 328
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 295
-      },
-      {
         "provinceId": "sejong",
         "area": 180
       },
       {
-        "provinceId": "ulsan",
-        "area": 108
+        "provinceId": "daegu",
+        "area": 164
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 143
       },
       {
         "provinceId": "busan",
         "area": 63
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 47
+      },
+      {
+        "provinceId": "seoul",
+        "area": 1
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -384,19 +386,19 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25402 감자_면적"
     ],
     "unit": "ha",
-    "totalArea": 14489,
+    "totalArea": 13689,
     "provinces": [
       {
         "provinceId": "gangwon",
         "area": 4795
       },
       {
-        "provinceId": "gyeonggi",
-        "area": 1644
-      },
-      {
         "provinceId": "chungnam",
         "area": 1508
+      },
+      {
+        "provinceId": "gyeonggi",
+        "area": 1391
       },
       {
         "provinceId": "gyeongbuk",
@@ -404,7 +406,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "jeonnam",
-        "area": 1048
+        "area": 1041
       },
       {
         "provinceId": "gyeongnam",
@@ -427,32 +429,32 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 228
       },
       {
-        "provinceId": "seoul",
-        "area": 184
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 148
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 126
-      },
-      {
-        "provinceId": "daegu",
-        "area": 125
-      },
-      {
         "provinceId": "busan",
         "area": 82
       },
       {
-        "provinceId": "gwangju",
-        "area": 66
-      },
-      {
         "provinceId": "sejong",
         "area": 64
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 45
+      },
+      {
+        "provinceId": "daegu",
+        "area": 41
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 23
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -503,15 +505,15 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25402 고구마_면적"
     ],
     "unit": "ha",
-    "totalArea": 18047,
+    "totalArea": 16663,
     "provinces": [
       {
         "provinceId": "jeonnam",
-        "area": 3665
+        "area": 3626
       },
       {
         "provinceId": "gyeonggi",
-        "area": 3514
+        "area": 3156
       },
       {
         "provinceId": "jeonbuk",
@@ -542,26 +544,6 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 656
       },
       {
-        "provinceId": "seoul",
-        "area": 330
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 248
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 220
-      },
-      {
-        "provinceId": "daegu",
-        "area": 178
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 171
-      },
-      {
         "provinceId": "busan",
         "area": 108
       },
@@ -570,8 +552,28 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 97
       },
       {
+        "provinceId": "gwangju",
+        "area": 55
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 55
+      },
+      {
+        "provinceId": "daegu",
+        "area": 50
+      },
+      {
         "provinceId": "jeju",
         "area": 31
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -623,11 +625,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 배추_면적"
     ],
     "unit": "ha",
-    "totalArea": 23009,
+    "totalArea": 21621,
     "provinces": [
       {
         "provinceId": "jeonnam",
-        "area": 7226
+        "area": 7166
       },
       {
         "provinceId": "gangwon",
@@ -639,7 +641,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 1947
+        "area": 1736
       },
       {
         "provinceId": "chungbuk",
@@ -658,40 +660,40 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 961
       },
       {
-        "provinceId": "daegu",
-        "area": 471
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 284
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 260
-      },
-      {
         "provinceId": "busan",
         "area": 228
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 226
-      },
-      {
-        "provinceId": "seoul",
-        "area": 182
       },
       {
         "provinceId": "incheon",
         "area": 147
       },
       {
+        "provinceId": "daegu",
+        "area": 132
+      },
+      {
         "provinceId": "jeju",
         "area": 121
       },
       {
+        "provinceId": "ulsan",
+        "area": 90
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 78
+      },
+      {
         "provinceId": "sejong",
         "area": 54
+      },
+      {
+        "provinceId": "seoul",
+        "area": 4
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 2
       }
     ],
     "top": [
@@ -743,7 +745,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 무_면적"
     ],
     "unit": "ha",
-    "totalArea": 11363,
+    "totalArea": 10808,
     "provinces": [
       {
         "provinceId": "jeju",
@@ -755,11 +757,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 1090
+        "area": 971
       },
       {
         "provinceId": "jeonnam",
-        "area": 823
+        "area": 811
       },
       {
         "provinceId": "jeonbuk",
@@ -782,36 +784,36 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 269
       },
       {
-        "provinceId": "gwangju",
-        "area": 158
-      },
-      {
-        "provinceId": "daegu",
-        "area": 145
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 118
-      },
-      {
         "provinceId": "busan",
         "area": 112
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 93
       },
       {
         "provinceId": "incheon",
         "area": 86
       },
       {
-        "provinceId": "seoul",
-        "area": 85
+        "provinceId": "gwangju",
+        "area": 83
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 47
+      },
+      {
+        "provinceId": "daegu",
+        "area": 43
       },
       {
         "provinceId": "sejong",
         "area": 28
+      },
+      {
+        "provinceId": "seoul",
+        "area": 2
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -863,7 +865,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 고추_면적"
     ],
     "unit": "ha",
-    "totalArea": 33736,
+    "totalArea": 32009,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
@@ -875,7 +877,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "jeonnam",
-        "area": 3784
+        "area": 3746
       },
       {
         "provinceId": "chungnam",
@@ -886,12 +888,12 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 3565
       },
       {
-        "provinceId": "gyeonggi",
-        "area": 3386
-      },
-      {
         "provinceId": "gyeongnam",
         "area": 3156
+      },
+      {
+        "provinceId": "gyeonggi",
+        "area": 3060
       },
       {
         "provinceId": "chungbuk",
@@ -902,36 +904,36 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 499
       },
       {
-        "provinceId": "daegu",
-        "area": 496
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 492
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 314
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 250
-      },
-      {
-        "provinceId": "seoul",
-        "area": 226
-      },
-      {
         "provinceId": "busan",
         "area": 210
+      },
+      {
+        "provinceId": "daegu",
+        "area": 188
       },
       {
         "provinceId": "sejong",
         "area": 126
       },
       {
+        "provinceId": "gwangju",
+        "area": 117
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 109
+      },
+      {
         "provinceId": "jeju",
         "area": 62
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 1
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
       }
     ],
     "top": [
@@ -982,11 +984,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25403 양파_면적"
     ],
     "unit": "ha",
-    "totalArea": 10526,
+    "totalArea": 10200,
     "provinces": [
       {
         "provinceId": "jeonnam",
-        "area": 4278
+        "area": 4222
       },
       {
         "provinceId": "gyeongnam",
@@ -1010,47 +1012,47 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 298
+        "area": 270
       },
       {
         "provinceId": "daegu",
-        "area": 229
+        "area": 144
       },
       {
         "provinceId": "chungbuk",
         "area": 105
       },
       {
-        "provinceId": "gwangju",
-        "area": 94
-      },
-      {
         "provinceId": "gangwon",
         "area": 85
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 61
       },
       {
         "provinceId": "busan",
         "area": 57
       },
       {
-        "provinceId": "daejeon",
+        "provinceId": "gwangju",
         "area": 29
-      },
-      {
-        "provinceId": "seoul",
-        "area": 27
       },
       {
         "provinceId": "incheon",
         "area": 27
       },
       {
+        "provinceId": "ulsan",
+        "area": 24
+      },
+      {
         "provinceId": "sejong",
         "area": 18
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 1
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
       }
     ],
     "top": [
@@ -1101,11 +1103,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25403 대파_면적"
     ],
     "unit": "ha",
-    "totalArea": 7894,
+    "totalArea": 7529,
     "provinces": [
       {
         "provinceId": "jeonnam",
-        "area": 2989
+        "area": 2931
       },
       {
         "provinceId": "gangwon",
@@ -1113,7 +1115,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 858
+        "area": 781
       },
       {
         "provinceId": "jeonbuk",
@@ -1144,32 +1146,32 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 174
       },
       {
-        "provinceId": "daegu",
-        "area": 81
-      },
-      {
-        "provinceId": "seoul",
-        "area": 68
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 48
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 44
-      },
-      {
         "provinceId": "incheon",
         "area": 35
       },
       {
-        "provinceId": "gwangju",
-        "area": 34
-      },
-      {
         "provinceId": "sejong",
         "area": 20
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 16
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 14
+      },
+      {
+        "provinceId": "daegu",
+        "area": 12
+      },
+      {
+        "provinceId": "seoul",
+        "area": 2
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 1
       }
     ],
     "top": [
@@ -1220,7 +1222,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25403 마늘_면적"
     ],
     "unit": "ha",
-    "totalArea": 18289,
+    "totalArea": 17691,
     "provinces": [
       {
         "provinceId": "gyeongnam",
@@ -1236,7 +1238,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "jeonnam",
-        "area": 2511
+        "area": 2471
       },
       {
         "provinceId": "jeju",
@@ -1248,31 +1250,19 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 679
-      },
-      {
-        "provinceId": "daegu",
-        "area": 669
+        "area": 600
       },
       {
         "provinceId": "chungbuk",
         "area": 516
       },
       {
+        "provinceId": "daegu",
+        "area": 480
+      },
+      {
         "provinceId": "gangwon",
         "area": 170
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 104
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 102
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 101
       },
       {
         "provinceId": "busan",
@@ -1283,12 +1273,24 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 73
       },
       {
-        "provinceId": "seoul",
-        "area": 51
+        "provinceId": "ulsan",
+        "area": 41
       },
       {
         "provinceId": "sejong",
         "area": 34
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 27
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
       }
     ],
     "top": [
@@ -1340,7 +1342,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 시금치_면적"
     ],
     "unit": "ha",
-    "totalArea": 4224,
+    "totalArea": 4043,
     "provinces": [
       {
         "provinceId": "gyeongnam",
@@ -1348,11 +1350,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 1060
+        "area": 1026
       },
       {
         "provinceId": "jeonnam",
-        "area": 793
+        "area": 780
       },
       {
         "provinceId": "gyeongbuk",
@@ -1367,16 +1369,8 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 68
       },
       {
-        "provinceId": "daegu",
-        "area": 63
-      },
-      {
         "provinceId": "busan",
         "area": 55
-      },
-      {
-        "provinceId": "seoul",
-        "area": 46
       },
       {
         "provinceId": "jeonbuk",
@@ -1387,10 +1381,6 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 31
       },
       {
-        "provinceId": "gwangju",
-        "area": 28
-      },
-      {
         "provinceId": "incheon",
         "area": 22
       },
@@ -1399,16 +1389,28 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 20
       },
       {
-        "provinceId": "ulsan",
-        "area": 18
+        "provinceId": "daegu",
+        "area": 12
       },
       {
         "provinceId": "sejong",
         "area": 8
       },
       {
-        "provinceId": "daejeon",
+        "provinceId": "ulsan",
+        "area": 6
+      },
+      {
+        "provinceId": "gwangju",
         "area": 4
+      },
+      {
+        "provinceId": "seoul",
+        "area": 3
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -1460,11 +1462,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 상추_면적"
     ],
     "unit": "ha",
-    "totalArea": 3154,
+    "totalArea": 2889,
     "provinces": [
       {
         "provinceId": "gyeonggi",
-        "area": 637
+        "area": 584
       },
       {
         "provinceId": "chungnam",
@@ -1492,43 +1494,43 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "jeonnam",
-        "area": 105
-      },
-      {
-        "provinceId": "daegu",
-        "area": 97
+        "area": 102
       },
       {
         "provinceId": "busan",
         "area": 87
       },
       {
-        "provinceId": "seoul",
-        "area": 62
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 32
-      },
-      {
         "provinceId": "jeju",
         "area": 32
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 26
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 26
       },
       {
         "provinceId": "incheon",
         "area": 25
       },
       {
+        "provinceId": "daegu",
+        "area": 15
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 10
+      },
+      {
         "provinceId": "sejong",
         "area": 10
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 7
+      },
+      {
+        "provinceId": "seoul",
+        "area": 1
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 1
       }
     ],
     "top": [
@@ -1580,7 +1582,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 호박_면적"
     ],
     "unit": "ha",
-    "totalArea": 4459,
+    "totalArea": 4290,
     "provinces": [
       {
         "provinceId": "gangwon",
@@ -1592,15 +1594,15 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "jeonnam",
-        "area": 585
-      },
-      {
-        "provinceId": "gyeonggi",
-        "area": 498
+        "area": 580
       },
       {
         "provinceId": "gyeongbuk",
         "area": 480
+      },
+      {
+        "provinceId": "gyeonggi",
+        "area": 457
       },
       {
         "provinceId": "chungbuk",
@@ -1619,15 +1621,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 228
       },
       {
-        "provinceId": "gwangju",
-        "area": 49
-      },
-      {
         "provinceId": "busan",
-        "area": 37
-      },
-      {
-        "provinceId": "daegu",
         "area": 37
       },
       {
@@ -1635,20 +1629,28 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 34
       },
       {
-        "provinceId": "seoul",
-        "area": 32
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 31
-      },
-      {
         "provinceId": "sejong",
         "area": 24
       },
       {
-        "provinceId": "ulsan",
+        "provinceId": "gwangju",
         "area": 22
+      },
+      {
+        "provinceId": "daegu",
+        "area": 11
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 9
+      },
+      {
+        "provinceId": "seoul",
+        "area": 4
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 2
       }
     ],
     "top": [
@@ -1700,7 +1702,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 오이_면적"
     ],
     "unit": "ha",
-    "totalArea": 3224,
+    "totalArea": 3056,
     "provinces": [
       {
         "provinceId": "gangwon",
@@ -1712,7 +1714,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 486
+        "area": 448
       },
       {
         "provinceId": "gyeongbuk",
@@ -1736,11 +1738,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "daegu",
-        "area": 92
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 68
+        "area": 58
       },
       {
         "provinceId": "sejong",
@@ -1756,19 +1754,23 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gwangju",
-        "area": 22
-      },
-      {
-        "provinceId": "seoul",
-        "area": 20
+        "area": 14
       },
       {
         "provinceId": "busan",
         "area": 14
       },
       {
+        "provinceId": "seoul",
+        "area": 6
+      },
+      {
         "provinceId": "ulsan",
-        "area": 11
+        "area": 5
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -1819,11 +1821,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25403 가지_면적"
     ],
     "unit": "ha",
-    "totalArea": 506,
+    "totalArea": 461,
     "provinces": [
       {
         "provinceId": "gyeonggi",
-        "area": 146
+        "area": 133
       },
       {
         "provinceId": "gangwon",
@@ -1842,10 +1844,6 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 25
       },
       {
-        "provinceId": "daegu",
-        "area": 19
-      },
-      {
         "provinceId": "chungbuk",
         "area": 17
       },
@@ -1862,32 +1860,36 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 11
       },
       {
-        "provinceId": "seoul",
-        "area": 9
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 7
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 7
+        "provinceId": "daegu",
+        "area": 8
       },
       {
         "provinceId": "incheon",
         "area": 6
       },
       {
-        "provinceId": "ulsan",
-        "area": 6
+        "provinceId": "gwangju",
+        "area": 3
       },
       {
         "provinceId": "jeju",
         "area": 3
       },
       {
+        "provinceId": "seoul",
+        "area": 2
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 2
+      },
+      {
         "provinceId": "sejong",
         "area": 2
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 1
       }
     ],
     "top": [
@@ -1927,7 +1929,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 수박_면적"
     ],
     "unit": "ha",
-    "totalArea": 7092,
+    "totalArea": 7053,
     "provinces": [
       {
         "provinceId": "chungnam",
@@ -1954,16 +1956,16 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 235
       },
       {
-        "provinceId": "daegu",
-        "area": 181
-      },
-      {
         "provinceId": "jeonnam",
         "area": 171
       },
       {
+        "provinceId": "daegu",
+        "area": 168
+      },
+      {
         "provinceId": "gyeonggi",
-        "area": 159
+        "area": 150
       },
       {
         "provinceId": "jeju",
@@ -1974,28 +1976,28 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 30
       },
       {
-        "provinceId": "gwangju",
-        "area": 17
-      },
-      {
         "provinceId": "incheon",
         "area": 9
       },
       {
-        "provinceId": "daejeon",
+        "provinceId": "gwangju",
         "area": 8
       },
       {
         "provinceId": "seoul",
-        "area": 6
+        "area": 5
       },
       {
         "provinceId": "busan",
         "area": 4
       },
       {
+        "provinceId": "daejeon",
+        "area": 2
+      },
+      {
         "provinceId": "ulsan",
-        "area": 3
+        "area": 2
       }
     ],
     "top": [
@@ -2046,7 +2048,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25403 당근_면적"
     ],
     "unit": "ha",
-    "totalArea": 2247,
+    "totalArea": 2229,
     "provinces": [
       {
         "provinceId": "jeju",
@@ -2061,12 +2063,12 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 174
       },
       {
-        "provinceId": "gyeonggi",
-        "area": 53
-      },
-      {
         "provinceId": "busan",
         "area": 50
+      },
+      {
+        "provinceId": "gyeonggi",
+        "area": 47
       },
       {
         "provinceId": "gyeongbuk",
@@ -2089,16 +2091,8 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 10
       },
       {
-        "provinceId": "seoul",
-        "area": 5
-      },
-      {
-        "provinceId": "daegu",
-        "area": 4
-      },
-      {
         "provinceId": "ulsan",
-        "area": 4
+        "area": 2
       },
       {
         "provinceId": "incheon",
@@ -2109,12 +2103,20 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 2
       },
       {
-        "provinceId": "daejeon",
+        "provinceId": "gwangju",
         "area": 2
       },
       {
-        "provinceId": "gwangju",
-        "area": 2
+        "provinceId": "seoul",
+        "area": 1
+      },
+      {
+        "provinceId": "daegu",
+        "area": 0
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -2141,7 +2143,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25403 인삼_면적"
     ],
     "unit": "ha",
-    "totalArea": 6195,
+    "totalArea": 5977,
     "provinces": [
       {
         "provinceId": "gangwon",
@@ -2152,12 +2154,12 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 1125
       },
       {
-        "provinceId": "gyeonggi",
-        "area": 1042
-      },
-      {
         "provinceId": "chungbuk",
         "area": 1026
+      },
+      {
+        "provinceId": "gyeonggi",
+        "area": 995
       },
       {
         "provinceId": "jeonbuk",
@@ -2166,10 +2168,6 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       {
         "provinceId": "gyeongbuk",
         "area": 485
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 140
       },
       {
         "provinceId": "jeonnam",
@@ -2188,16 +2186,8 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 26
       },
       {
-        "provinceId": "seoul",
-        "area": 25
-      },
-      {
         "provinceId": "daegu",
-        "area": 4
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 3
+        "area": 1
       },
       {
         "provinceId": "busan",
@@ -2206,6 +2196,18 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       {
         "provinceId": "ulsan",
         "area": 1
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 0
       },
       {
         "provinceId": "jeju",
@@ -2260,7 +2262,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25403 참깨_면적"
     ],
     "unit": "ha",
-    "totalArea": 7723,
+    "totalArea": 7376,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
@@ -2268,7 +2270,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "jeonnam",
-        "area": 1361
+        "area": 1336
       },
       {
         "provinceId": "chungbuk",
@@ -2283,12 +2285,12 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 729
       },
       {
-        "provinceId": "gyeonggi",
-        "area": 619
-      },
-      {
         "provinceId": "gyeongnam",
         "area": 587
+      },
+      {
+        "provinceId": "gyeonggi",
+        "area": 571
       },
       {
         "provinceId": "gangwon",
@@ -2296,15 +2298,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "daegu",
-        "area": 229
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 77
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 70
+        "area": 127
       },
       {
         "provinceId": "jeju",
@@ -2315,12 +2309,8 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 45
       },
       {
-        "provinceId": "ulsan",
-        "area": 37
-      },
-      {
-        "provinceId": "seoul",
-        "area": 36
+        "provinceId": "gwangju",
+        "area": 33
       },
       {
         "provinceId": "incheon",
@@ -2329,6 +2319,18 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       {
         "provinceId": "busan",
         "area": 21
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 15
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
       }
     ],
     "top": [
@@ -2379,11 +2381,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25403 들깨_면적"
     ],
     "unit": "ha",
-    "totalArea": 23148,
+    "totalArea": 21841,
     "provinces": [
       {
         "provinceId": "gyeonggi",
-        "area": 4626
+        "area": 4282
       },
       {
         "provinceId": "chungnam",
@@ -2411,19 +2413,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "jeonnam",
-        "area": 945
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 445
-      },
-      {
-        "provinceId": "daegu",
-        "area": 292
-      },
-      {
-        "provinceId": "seoul",
-        "area": 225
+        "area": 939
       },
       {
         "provinceId": "incheon",
@@ -2434,20 +2424,32 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 217
       },
       {
-        "provinceId": "ulsan",
-        "area": 81
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 78
+        "provinceId": "daegu",
+        "area": 111
       },
       {
         "provinceId": "busan",
         "area": 43
       },
       {
+        "provinceId": "ulsan",
+        "area": 28
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 25
+      },
+      {
         "provinceId": "jeju",
         "area": 12
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
       }
     ],
     "top": [
@@ -2498,7 +2500,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 참외_면적"
     ],
     "unit": "ha",
-    "totalArea": 2910,
+    "totalArea": 2837,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
@@ -2506,7 +2508,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "daegu",
-        "area": 233
+        "area": 160
       },
       {
         "provinceId": "gyeonggi",
@@ -2589,7 +2591,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 토마토(일반)_면적"
     ],
     "unit": "ha",
-    "totalArea": 1522,
+    "totalArea": 1475,
     "provinces": [
       {
         "provinceId": "gangwon",
@@ -2617,47 +2619,47 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 94
+        "area": 85
       },
       {
         "provinceId": "chungnam",
         "area": 81
       },
       {
-        "provinceId": "daegu",
-        "area": 42
-      },
-      {
         "provinceId": "chungbuk",
         "area": 38
       },
       {
-        "provinceId": "gwangju",
-        "area": 19
+        "provinceId": "daegu",
+        "area": 27
       },
       {
         "provinceId": "incheon",
         "area": 14
       },
       {
-        "provinceId": "ulsan",
-        "area": 9
+        "provinceId": "gwangju",
+        "area": 12
       },
       {
         "provinceId": "sejong",
         "area": 8
       },
       {
+        "provinceId": "jeju",
+        "area": 4
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 3
+      },
+      {
         "provinceId": "seoul",
-        "area": 5
+        "area": 0
       },
       {
         "provinceId": "daejeon",
-        "area": 5
-      },
-      {
-        "provinceId": "jeju",
-        "area": 4
+        "area": 0
       }
     ],
     "top": [
@@ -2708,7 +2710,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 토마토(방울)_면적"
     ],
     "unit": "ha",
-    "totalArea": 1534,
+    "totalArea": 1499,
     "provinces": [
       {
         "provinceId": "chungnam",
@@ -2720,7 +2722,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "jeonnam",
-        "area": 205
+        "area": 204
       },
       {
         "provinceId": "chungbuk",
@@ -2736,7 +2738,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 77
+        "area": 68
       },
       {
         "provinceId": "gyeongbuk",
@@ -2744,7 +2746,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gwangju",
-        "area": 42
+        "area": 28
       },
       {
         "provinceId": "incheon",
@@ -2760,23 +2762,23 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "daegu",
-        "area": 7
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 6
+        "area": 4
       },
       {
         "provinceId": "sejong",
         "area": 4
       },
       {
-        "provinceId": "seoul",
-        "area": 2
-      },
-      {
         "provinceId": "ulsan",
         "area": 1
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
       }
     ],
     "top": [
@@ -2827,7 +2829,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 딸기_면적"
     ],
     "unit": "ha",
-    "totalArea": 4070,
+    "totalArea": 4006,
     "provinces": [
       {
         "provinceId": "gyeongnam",
@@ -2851,7 +2853,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 78
+        "area": 76
       },
       {
         "provinceId": "chungbuk",
@@ -2866,36 +2868,36 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 34
       },
       {
-        "provinceId": "gwangju",
-        "area": 32
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 21
-      },
-      {
         "provinceId": "jeju",
         "area": 17
-      },
-      {
-        "provinceId": "daegu",
-        "area": 15
       },
       {
         "provinceId": "busan",
         "area": 11
       },
       {
+        "provinceId": "gwangju",
+        "area": 9
+      },
+      {
         "provinceId": "incheon",
         "area": 7
       },
       {
+        "provinceId": "daegu",
+        "area": 6
+      },
+      {
         "provinceId": "ulsan",
-        "area": 7
+        "area": 1
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       },
       {
         "provinceId": "seoul",
-        "area": 3
+        "area": 0
       }
     ],
     "top": [
@@ -2946,7 +2948,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25407 파프리카_면적"
     ],
     "unit": "ha",
-    "totalArea": 406,
+    "totalArea": 403,
     "provinces": [
       {
         "provinceId": "gangwon",
@@ -2973,10 +2975,6 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 4
       },
       {
-        "provinceId": "gwangju",
-        "area": 3
-      },
-      {
         "provinceId": "chungbuk",
         "area": 1
       },
@@ -2987,6 +2985,10 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       {
         "provinceId": "busan",
         "area": 1
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 0
       },
       {
         "provinceId": "seoul",
@@ -3057,7 +3059,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25411 사과_면적"
     ],
     "unit": "ha",
-    "totalArea": 27086,
+    "totalArea": 26369,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
@@ -3085,19 +3087,15 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 653
+        "area": 561
       },
       {
         "provinceId": "daegu",
-        "area": 631
+        "area": 310
       },
       {
         "provinceId": "jeonnam",
-        "area": 288
-      },
-      {
-        "provinceId": "seoul",
-        "area": 126
+        "area": 286
       },
       {
         "provinceId": "incheon",
@@ -3108,24 +3106,28 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 94
       },
       {
-        "provinceId": "ulsan",
-        "area": 94
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 77
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 56
-      },
-      {
         "provinceId": "sejong",
         "area": 34
       },
       {
+        "provinceId": "ulsan",
+        "area": 33
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 18
+      },
+      {
         "provinceId": "jeju",
         "area": 3
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -3176,11 +3178,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25411 배_면적"
     ],
     "unit": "ha",
-    "totalArea": 7423,
+    "totalArea": 6974,
     "provinces": [
       {
         "provinceId": "jeonnam",
-        "area": 1682
+        "area": 1680
       },
       {
         "provinceId": "chungnam",
@@ -3188,7 +3190,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 1295
+        "area": 1189
       },
       {
         "provinceId": "gyeongbuk",
@@ -3204,7 +3206,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "ulsan",
-        "area": 335
+        "area": 264
       },
       {
         "provinceId": "chungbuk",
@@ -3219,18 +3221,6 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 136
       },
       {
-        "provinceId": "gwangju",
-        "area": 106
-      },
-      {
-        "provinceId": "seoul",
-        "area": 98
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 74
-      },
-      {
         "provinceId": "incheon",
         "area": 59
       },
@@ -3239,12 +3229,24 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 49
       },
       {
-        "provinceId": "daegu",
+        "provinceId": "gwangju",
         "area": 44
+      },
+      {
+        "provinceId": "daegu",
+        "area": 8
       },
       {
         "provinceId": "jeju",
         "area": 1
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -3295,7 +3297,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25411 복숭아_면적"
     ],
     "unit": "ha",
-    "totalArea": 15912,
+    "totalArea": 15017,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
@@ -3311,15 +3313,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 840
-      },
-      {
-        "provinceId": "daegu",
-        "area": 709
+        "area": 781
       },
       {
         "provinceId": "jeonnam",
-        "area": 630
+        "area": 624
       },
       {
         "provinceId": "gyeongnam",
@@ -3338,32 +3336,36 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 256
       },
       {
-        "provinceId": "daejeon",
-        "area": 113
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 89
-      },
-      {
-        "provinceId": "seoul",
-        "area": 67
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 60
+        "provinceId": "daegu",
+        "area": 157
       },
       {
         "provinceId": "busan",
         "area": 57
       },
       {
+        "provinceId": "gwangju",
+        "area": 34
+      },
+      {
         "provinceId": "incheon",
         "area": 20
       },
       {
+        "provinceId": "ulsan",
+        "area": 17
+      },
+      {
         "provinceId": "jeju",
         "area": 6
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
       }
     ],
     "top": [
@@ -3415,7 +3417,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25411 떫은감_면적"
     ],
     "unit": "ha",
-    "totalArea": 20423,
+    "totalArea": 18832,
     "provinces": [
       {
         "provinceId": "gyeongnam",
@@ -3427,19 +3429,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "jeonnam",
-        "area": 4022
+        "area": 3972
       },
       {
         "provinceId": "jeonbuk",
         "area": 1069
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 674
-      },
-      {
-        "provinceId": "daegu",
-        "area": 577
       },
       {
         "provinceId": "chungbuk",
@@ -3454,24 +3448,24 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 433
       },
       {
-        "provinceId": "ulsan",
-        "area": 364
+        "provinceId": "gwangju",
+        "area": 244
       },
       {
         "provinceId": "gyeonggi",
-        "area": 261
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 188
+        "area": 174
       },
       {
         "provinceId": "gangwon",
         "area": 173
       },
       {
-        "provinceId": "seoul",
-        "area": 116
+        "provinceId": "ulsan",
+        "area": 124
+      },
+      {
+        "provinceId": "daegu",
+        "area": 96
       },
       {
         "provinceId": "jeju",
@@ -3484,6 +3478,14 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       {
         "provinceId": "sejong",
         "area": 41
+      },
+      {
+        "provinceId": "seoul",
+        "area": 1
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -3535,7 +3537,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25411 시설 포도_면적"
     ],
     "unit": "ha",
-    "totalArea": 11411,
+    "totalArea": 10926,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
@@ -3547,7 +3549,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 1239
+        "area": 1173
       },
       {
         "provinceId": "chungnam",
@@ -3562,48 +3564,48 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 339
       },
       {
-        "provinceId": "daegu",
-        "area": 240
-      },
-      {
         "provinceId": "jeonnam",
-        "area": 212
+        "area": 210
       },
       {
         "provinceId": "gangwon",
         "area": 147
       },
       {
-        "provinceId": "daejeon",
-        "area": 138
-      },
-      {
         "provinceId": "incheon",
         "area": 126
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 36
-      },
-      {
-        "provinceId": "seoul",
-        "area": 35
       },
       {
         "provinceId": "sejong",
         "area": 31
       },
       {
-        "provinceId": "busan",
-        "area": 20
+        "provinceId": "daegu",
+        "area": 30
       },
       {
-        "provinceId": "ulsan",
+        "provinceId": "busan",
         "area": 20
       },
       {
         "provinceId": "jeju",
         "area": 18
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 10
+      },
+      {
+        "provinceId": "seoul",
+        "area": 5
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 5
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 2
       }
     ],
     "top": [
@@ -3655,7 +3657,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25411 시설 감귤_면적"
     ],
     "unit": "ha",
-    "totalArea": 16052,
+    "totalArea": 15966,
     "provinces": [
       {
         "provinceId": "jeju",
@@ -3663,19 +3665,15 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "jeonnam",
-        "area": 113
-      },
-      {
-        "provinceId": "seoul",
-        "area": 57
-      },
-      {
-        "provinceId": "gyeonggi",
-        "area": 48
+        "area": 112
       },
       {
         "provinceId": "gyeongnam",
         "area": 37
+      },
+      {
+        "provinceId": "gyeonggi",
+        "area": 35
       },
       {
         "provinceId": "jeonbuk",
@@ -3694,20 +3692,12 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 12
       },
       {
-        "provinceId": "gwangju",
-        "area": 9
-      },
-      {
         "provinceId": "chungbuk",
         "area": 8
       },
       {
-        "provinceId": "daegu",
-        "area": 6
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 4
+        "provinceId": "gwangju",
+        "area": 3
       },
       {
         "provinceId": "incheon",
@@ -3718,12 +3708,24 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 3
       },
       {
+        "provinceId": "daejeon",
+        "area": 2
+      },
+      {
+        "provinceId": "seoul",
+        "area": 1
+      },
+      {
         "provinceId": "ulsan",
-        "area": 3
+        "area": 1
       },
       {
         "provinceId": "gangwon",
         "area": 1
+      },
+      {
+        "provinceId": "daegu",
+        "area": 0
       }
     ],
     "top": [
@@ -3742,7 +3744,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25411 자두_면적"
     ],
     "unit": "ha",
-    "totalArea": 4475,
+    "totalArea": 4155,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
@@ -3750,7 +3752,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "daegu",
-        "area": 530
+        "area": 299
       },
       {
         "provinceId": "chungbuk",
@@ -3761,16 +3763,16 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 204
       },
       {
-        "provinceId": "gyeonggi",
-        "area": 92
-      },
-      {
         "provinceId": "gangwon",
         "area": 88
       },
       {
+        "provinceId": "gyeonggi",
+        "area": 77
+      },
+      {
         "provinceId": "jeonnam",
-        "area": 75
+        "area": 74
       },
       {
         "provinceId": "jeonbuk",
@@ -3781,27 +3783,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 43
       },
       {
-        "provinceId": "daejeon",
-        "area": 35
-      },
-      {
         "provinceId": "busan",
         "area": 26
       },
       {
-        "provinceId": "seoul",
-        "area": 20
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 18
-      },
-      {
         "provinceId": "sejong",
-        "area": 13
-      },
-      {
-        "provinceId": "gwangju",
         "area": 13
       },
       {
@@ -3809,8 +3795,24 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 8
       },
       {
+        "provinceId": "ulsan",
+        "area": 5
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 5
+      },
+      {
+        "provinceId": "seoul",
+        "area": 3
+      },
+      {
         "provinceId": "jeju",
         "area": 2
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -3851,8 +3853,8 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 79
       },
       {
-        "sigunguId": "dong-gu-daegu",
-        "area": 64
+        "sigunguId": "chungju",
+        "area": 56
       }
     ]
   },
@@ -3861,11 +3863,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25411 매실_면적"
     ],
     "unit": "ha",
-    "totalArea": 4493,
+    "totalArea": 4007,
     "provinces": [
       {
         "provinceId": "jeonnam",
-        "area": 1735
+        "area": 1724
       },
       {
         "provinceId": "gyeongnam",
@@ -3873,7 +3875,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 341
+        "area": 263
       },
       {
         "provinceId": "gyeongbuk",
@@ -3896,28 +3898,8 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 113
       },
       {
-        "provinceId": "daegu",
-        "area": 113
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 106
-      },
-      {
-        "provinceId": "seoul",
-        "area": 89
-      },
-      {
-        "provinceId": "daejeon",
-        "area": 83
-      },
-      {
         "provinceId": "gangwon",
         "area": 68
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 63
       },
       {
         "provinceId": "jeju",
@@ -3928,8 +3910,28 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 45
       },
       {
+        "provinceId": "gwangju",
+        "area": 28
+      },
+      {
         "provinceId": "sejong",
         "area": 27
+      },
+      {
+        "provinceId": "daegu",
+        "area": 15
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 14
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
       }
     ],
     "top": [
@@ -3980,7 +3982,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25411 블루베리_면적"
     ],
     "unit": "ha",
-    "totalArea": 2685,
+    "totalArea": 2485,
     "provinces": [
       {
         "provinceId": "gyeongnam",
@@ -3991,24 +3993,24 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 374
       },
       {
-        "provinceId": "gyeonggi",
-        "area": 311
-      },
-      {
         "provinceId": "chungnam",
         "area": 281
+      },
+      {
+        "provinceId": "gyeonggi",
+        "area": 280
       },
       {
         "provinceId": "gyeongbuk",
         "area": 275
       },
       {
-        "provinceId": "jeonnam",
-        "area": 265
-      },
-      {
         "provinceId": "chungbuk",
         "area": 262
+      },
+      {
+        "provinceId": "jeonnam",
+        "area": 261
       },
       {
         "provinceId": "gangwon",
@@ -4023,32 +4025,32 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 52
       },
       {
-        "provinceId": "daejeon",
-        "area": 49
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 49
-      },
-      {
-        "provinceId": "daegu",
-        "area": 48
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 41
-      },
-      {
-        "provinceId": "seoul",
-        "area": 28
-      },
-      {
         "provinceId": "incheon",
         "area": 20
       },
       {
+        "provinceId": "gwangju",
+        "area": 18
+      },
+      {
+        "provinceId": "ulsan",
+        "area": 17
+      },
+      {
         "provinceId": "sejong",
         "area": 12
+      },
+      {
+        "provinceId": "daegu",
+        "area": 11
+      },
+      {
+        "provinceId": "seoul",
+        "area": 3
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 1
       }
     ],
     "top": [
@@ -4099,7 +4101,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25411 밤_면적"
     ],
     "unit": "ha",
-    "totalArea": 13738,
+    "totalArea": 13392,
     "provinces": [
       {
         "provinceId": "chungnam",
@@ -4127,47 +4129,47 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       },
       {
         "provinceId": "gyeonggi",
-        "area": 278
+        "area": 235
       },
       {
         "provinceId": "gangwon",
         "area": 189
       },
       {
-        "provinceId": "daejeon",
-        "area": 156
-      },
-      {
         "provinceId": "gyeongbuk",
         "area": 137
-      },
-      {
-        "provinceId": "seoul",
-        "area": 84
       },
       {
         "provinceId": "busan",
         "area": 47
       },
       {
-        "provinceId": "daegu",
-        "area": 46
-      },
-      {
         "provinceId": "incheon",
         "area": 33
       },
       {
-        "provinceId": "gwangju",
-        "area": 25
+        "provinceId": "daegu",
+        "area": 12
       },
       {
         "provinceId": "ulsan",
-        "area": 16
+        "area": 8
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 4
       },
       {
         "provinceId": "jeju",
         "area": 1
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 0
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
       }
     ],
     "top": [
@@ -4218,7 +4220,7 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
       "DT_1AG25411 호두_면적"
     ],
     "unit": "ha",
-    "totalArea": 2669,
+    "totalArea": 2369,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
@@ -4233,23 +4235,11 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 220
       },
       {
-        "provinceId": "gyeonggi",
-        "area": 178
-      },
-      {
         "provinceId": "jeonbuk",
         "area": 151
       },
       {
-        "provinceId": "daegu",
-        "area": 140
-      },
-      {
         "provinceId": "gangwon",
-        "area": 125
-      },
-      {
-        "provinceId": "jeonnam",
         "area": 125
       },
       {
@@ -4257,36 +4247,48 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 125
       },
       {
-        "provinceId": "daejeon",
-        "area": 54
+        "provinceId": "jeonnam",
+        "area": 124
       },
       {
-        "provinceId": "seoul",
-        "area": 51
+        "provinceId": "gyeonggi",
+        "area": 120
       },
       {
         "provinceId": "sejong",
         "area": 28
       },
       {
+        "provinceId": "daegu",
+        "area": 25
+      },
+      {
         "provinceId": "busan",
         "area": 21
-      },
-      {
-        "provinceId": "gwangju",
-        "area": 16
-      },
-      {
-        "provinceId": "ulsan",
-        "area": 15
       },
       {
         "provinceId": "incheon",
         "area": 14
       },
       {
+        "provinceId": "ulsan",
+        "area": 5
+      },
+      {
         "provinceId": "jeju",
         "area": 5
+      },
+      {
+        "provinceId": "gwangju",
+        "area": 4
+      },
+      {
+        "provinceId": "daejeon",
+        "area": 1
+      },
+      {
+        "provinceId": "seoul",
+        "area": 0
       }
     ],
     "top": [
@@ -4331,5 +4333,253 @@ export const CROP_SIGUNGU_AREAS: Record<string, CropSigunguArea> = {
         "area": 54
       }
     ]
+  }
+};
+
+/** 주소지 쏠림으로 상위 목록에서 뺀 시·군·구 id → { rice: 벼만, all: 전부 } */
+export const CROP_SIGUNGU_RESIDENCE_SKEW: Record<string, { rice: boolean; all: boolean }> = {
+  "jongno": {
+    "rice": true,
+    "all": true
+  },
+  "jung-gu-seoul": {
+    "rice": true,
+    "all": true
+  },
+  "yongsan": {
+    "rice": true,
+    "all": true
+  },
+  "seongdong": {
+    "rice": true,
+    "all": true
+  },
+  "gwangjin": {
+    "rice": true,
+    "all": true
+  },
+  "dongdaemun": {
+    "rice": true,
+    "all": true
+  },
+  "jungnang": {
+    "rice": true,
+    "all": true
+  },
+  "seongbuk": {
+    "rice": true,
+    "all": true
+  },
+  "gangbuk": {
+    "rice": true,
+    "all": true
+  },
+  "dobong": {
+    "rice": true,
+    "all": true
+  },
+  "nowon": {
+    "rice": true,
+    "all": true
+  },
+  "eunpyeong": {
+    "rice": true,
+    "all": true
+  },
+  "seodaemun": {
+    "rice": true,
+    "all": true
+  },
+  "mapo": {
+    "rice": true,
+    "all": true
+  },
+  "yangcheon": {
+    "rice": true,
+    "all": true
+  },
+  "gangseo": {
+    "rice": true,
+    "all": true
+  },
+  "guro": {
+    "rice": true,
+    "all": true
+  },
+  "geumcheon": {
+    "rice": true,
+    "all": true
+  },
+  "yeongdeungpo": {
+    "rice": true,
+    "all": true
+  },
+  "dongjak": {
+    "rice": true,
+    "all": true
+  },
+  "gwanak": {
+    "rice": true,
+    "all": true
+  },
+  "seocho": {
+    "rice": true,
+    "all": true
+  },
+  "gangnam": {
+    "rice": true,
+    "all": true
+  },
+  "songpa": {
+    "rice": true,
+    "all": true
+  },
+  "gangdong": {
+    "rice": true,
+    "all": true
+  },
+  "suwon": {
+    "rice": true,
+    "all": true
+  },
+  "seongnam": {
+    "rice": true,
+    "all": true
+  },
+  "uijeongbu": {
+    "rice": true,
+    "all": true
+  },
+  "anyang": {
+    "rice": true,
+    "all": true
+  },
+  "bucheon": {
+    "rice": false,
+    "all": true
+  },
+  "gwangmyeong": {
+    "rice": true,
+    "all": false
+  },
+  "dongducheon": {
+    "rice": true,
+    "all": false
+  },
+  "gwacheon": {
+    "rice": true,
+    "all": false
+  },
+  "guri": {
+    "rice": true,
+    "all": true
+  },
+  "osan": {
+    "rice": true,
+    "all": true
+  },
+  "gunpo": {
+    "rice": true,
+    "all": true
+  },
+  "uiwang": {
+    "rice": true,
+    "all": false
+  },
+  "hanam": {
+    "rice": true,
+    "all": false
+  },
+  "taebaek": {
+    "rice": true,
+    "all": false
+  },
+  "dong-gu-daejeon": {
+    "rice": true,
+    "all": true
+  },
+  "jung-gu-daejeon": {
+    "rice": true,
+    "all": true
+  },
+  "seo-gu-daejeon": {
+    "rice": true,
+    "all": true
+  },
+  "yuseong": {
+    "rice": true,
+    "all": true
+  },
+  "daedeok": {
+    "rice": true,
+    "all": true
+  },
+  "dong-gu-gwangju": {
+    "rice": true,
+    "all": true
+  },
+  "seo-gu-gwangju": {
+    "rice": true,
+    "all": true
+  },
+  "nam-gu-gwangju": {
+    "rice": true,
+    "all": true
+  },
+  "buk-gu-gwangju": {
+    "rice": true,
+    "all": true
+  },
+  "mokpo": {
+    "rice": true,
+    "all": true
+  },
+  "jung-gu-daegu": {
+    "rice": true,
+    "all": true
+  },
+  "dong-gu-daegu": {
+    "rice": true,
+    "all": true
+  },
+  "seo-gu-daegu": {
+    "rice": true,
+    "all": true
+  },
+  "nam-gu-daegu": {
+    "rice": true,
+    "all": true
+  },
+  "buk-gu-daegu": {
+    "rice": true,
+    "all": true
+  },
+  "suseong": {
+    "rice": true,
+    "all": true
+  },
+  "dalseo": {
+    "rice": true,
+    "all": true
+  },
+  "jung-gu-ulsan": {
+    "rice": true,
+    "all": true
+  },
+  "nam-gu-ulsan": {
+    "rice": true,
+    "all": true
+  },
+  "dong-gu-ulsan": {
+    "rice": true,
+    "all": true
+  },
+  "buk-gu-ulsan": {
+    "rice": true,
+    "all": true
+  },
+  "jeju-si": {
+    "rice": true,
+    "all": false
   }
 };

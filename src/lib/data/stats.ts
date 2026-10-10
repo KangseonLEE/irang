@@ -6,6 +6,7 @@
    2026-10-03 전면 정정 — 연도별 수치를 KOSIS 통계표·보도자료 원문과 1:1 대조해 바꿨다(corrections.ts).
    수치는 배열에서 계산해 문구를 만든다. 문구 안에 숫자를 손으로 적지 않는다.
    ════════════════════════════════════════════ */
+import { FOREST_VILLAGE_LOAN, formatManwon } from "./policy-facts";
 
 /* ── 공통 타입 ── */
 
@@ -541,9 +542,9 @@ export const mountainCauses: CauseAnalysis[] = [
     relatedYears: [2024, 2025],
   },
   {
-    label: "산림청 귀산촌 자금 — 창업 3억·주택 7,500만 원",
+    label: `산림청 귀산촌 자금 — 창업 ${formatManwon(FOREST_VILLAGE_LOAN.startupMaxManwon.value).replace(" 원", "")}·주택 ${formatManwon(FOREST_VILLAGE_LOAN.housingMaxManwon.value)}`,
     description:
-      "산림청은 귀산촌인에게 창업자금 세대당 최대 3억 원, 주택 구입·신축 세대당 최대 7,500만 원을 연 2%(5년 거치 10년 분할 상환)로 융자해요. 창업자금은 인정 교육을 5년 이내 60시간 이상 이수해야 하고(주택 자금은 교육 불필요), 신청은 귀산촌 예정지 관할 산림조합에서 해요.",
+      `산림청은 귀산촌인에게 창업자금 세대당 최대 ${formatManwon(FOREST_VILLAGE_LOAN.startupMaxManwon.value)}, 주택 구입·신축 세대당 최대 ${formatManwon(FOREST_VILLAGE_LOAN.housingMaxManwon.value)}을 ${FOREST_VILLAGE_LOAN.interestRate.value}(${FOREST_VILLAGE_LOAN.repayment.value})로 융자해요. 창업자금은 인정 교육을 5년 이내 ${FOREST_VILLAGE_LOAN.educationHours.value}시간 이상 이수해야 하고(주택 자금은 교육 불필요), 신청은 ${FOREST_VILLAGE_LOAN.applyOffice.value}에서 해요.`,
     source: "산림청, 귀산촌 길라잡이",
     sourceUrl: "https://www.forest.go.kr/kfsweb/kfi/kfs/cms/cmsView.do?cmsId=FC_000434&mn=AR02_06_02_02",
     relatedYears: [2024, 2025],

@@ -1,6 +1,7 @@
 import {
   GU_MAIN_CROPS,
   MAIN_CROP_RULE,
+  MAIN_CROPS_RESIDENCE_SKEW,
   MAIN_CROPS_SKEWED_PROVINCES,
   SIGUNGU_MAIN_CROPS,
   type MainCropEntry,
@@ -430,14 +431,15 @@ export function getMainCropEntries(unitId: string): MainCropEntry[] {
 /**
  * 주요 작물이 빈 이유 — 화면 안내 문구용.
  *  - "not-in-census": 2025 총조사 표에 없는 단위(인천·화성 2026 신설 구)
- *  - "residence-skew": 농가 주소지 기준 값이 경작지와 크게 어긋나는 시·도(서울)
+ *  - "residence-skew": 농가 주소지 기준 값이 실제 경지면적보다 크게 넓은 단위(MAIN_CROPS_RESIDENCE_SKEW — 서울·수원·성남·
+ *    목포 등, 10/10 시·군·구 단위 판정)라 작물을 뺀 곳
  *  - "small": 기준 면적(10ha)을 넘는 작물이 없음
  */
 export function mainCropsEmptyReason(unitId: string, sidoId: string): "not-in-census" | "residence-skew" | "small" | null {
   const entries = SIGUNGU_MAIN_CROPS[unitId] ?? GU_MAIN_CROPS[unitId];
   if (entries && entries.length > 0) return null;
   if (!entries) return "not-in-census";
-  if (MAIN_CROPS_SKEWED_PROVINCES.includes(sidoId)) return "residence-skew";
+  if (MAIN_CROPS_RESIDENCE_SKEW[unitId] || MAIN_CROPS_SKEWED_PROVINCES.includes(sidoId)) return "residence-skew";
   return "small";
 }
 
@@ -449,7 +451,7 @@ export function mainCropsEmptyMessage(reason: ReturnType<typeof mainCropsEmptyRe
         ? `새로 생긴 구라 2025 농림어업총조사에 구 단위 값이 없어요. ${parentName} 전체 값을 확인해 보세요.`
         : "새로 생긴 구라 2025 농림어업총조사에 구 단위 값이 없어요.";
     case "residence-skew":
-      return "농림어업총조사 재배면적은 농가 주소지 기준이라, 서울은 다른 지역 논밭이 섞여 주요 작물로 꼽지 않았어요.";
+      return "농림어업총조사 재배면적은 농가 주소지 기준이에요. 이곳은 실제 논밭보다 훨씬 넓게 잡혀(다른 지역 논밭이 섞여) 주요 작물로 꼽지 않았어요.";
     case "small":
       return `2025 농림어업총조사 작물 ${MAIN_CROP_RULE.cropCount}종 가운데 ${MAIN_CROP_RULE.minAreaHa}ha 넘게 재배하는 작물이 없어요.`;
     default:

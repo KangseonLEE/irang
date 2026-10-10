@@ -365,8 +365,8 @@ export default function GuidePage() {
                 return (
                   <div className={`${s.stepCostCard} ${stepCost.highlight ? s.stepCostHighlight : ""}`}>
                     <div className={s.stepCostHeader}>
-                      <span className={s.stepCostLabel}>예상 비용</span>
-                      <span className={s.stepCostAmount}>{stepCost.amount}</span>
+                      <span className={s.stepCostLabel}>{stepCost.amount ? "예상 비용" : "드는 비용"}</span>
+                      {stepCost.amount && <span className={s.stepCostAmount}>{stepCost.amount}</span>}
                     </div>
                     <span className={s.stepCostDesc}>{stepCost.desc}</span>
                   </div>

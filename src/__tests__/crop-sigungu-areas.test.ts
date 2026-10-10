@@ -5,7 +5,8 @@
  * 이 테스트는 생성본이 설정(crop-sigungu-tables.ts)과 어긋나지 않는지, 시·군·구 짝이 실재하는지, 순서가 면적 순인지 본다.
  */
 import { describe, it, expect } from "vitest";
-import { CROP_SIGUNGU_AREAS } from "@/lib/data/crop-sigungu-areas";
+import { CROP_SIGUNGU_AREAS, CROP_SIGUNGU_RESIDENCE_SKEW } from "@/lib/data/crop-sigungu-areas";
+import { MAIN_CROPS_RESIDENCE_SKEW } from "@/lib/data/sigungu-main-crops";
 import { CROP_SIGUNGU_TABLES } from "@/lib/data/crop-sigungu-tables";
 import { CROPS } from "@/lib/data/crops";
 import { SIGUNGUS } from "@/lib/data/sigungus";
@@ -78,6 +79,23 @@ describe("작물 시·군·구 재배면적 (2025 농림어업총조사)", () =>
       const sig = a.top.map((t) => `${t.sigunguId}:${t.area}`).join(",");
       expect(seen.get(sig), `${id} 와 ${seen.get(sig)}`).toBeUndefined();
       seen.set(sig, id);
+    }
+  });
+
+  it("주소지 쏠림 단위는 상위 목록에 없다(벼는 벼 판정, 그 밖은 전체 판정) — 주요 작물과 같은 판정", () => {
+    for (const [id, a] of Object.entries(CROP_SIGUNGU_AREAS)) {
+      for (const t of a.top) {
+        const j = CROP_SIGUNGU_RESIDENCE_SKEW[t.sigunguId];
+        if (!j) continue;
+        expect(j.all, `${id} ${t.sigunguId}`).toBe(false);
+        if (id === "rice") expect(j.rice, `${id} ${t.sigunguId}`).toBe(false);
+      }
+    }
+    for (const id of ["anyang", "seongnam", "mokpo", "suwon"]) expect(CROP_SIGUNGU_RESIDENCE_SKEW[id]?.all, id).toBe(true);
+    // 두 생성기가 같은 판정을 썼다(scripts/lib/residence-skew.ts)
+    for (const sg of SIGUNGUS) {
+      const m = MAIN_CROPS_RESIDENCE_SKEW[sg.id];
+      expect(CROP_SIGUNGU_RESIDENCE_SKEW[sg.id] ?? null, sg.id).toEqual(m ? { rice: m.rice, all: m.all } : null);
     }
   });
 });

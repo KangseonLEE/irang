@@ -26,7 +26,7 @@ export const RETURN_FARM_LOAN = {
   /** 주택구입자금 한도 (만 원) */
   housingMaxManwon: fact(7500, "농림축산식품부 귀농 농업창업 및 주택구입 지원사업 시행지침(정부24)", "2026-09-28"),
   /** 금리 표기 — 보조금24 154300000011(최종수정 2026.08.14) '창업 3억 원(한도), 2.0% / 주택 7.5천만 원(한도), 2.0%' */
-  interestRate: fact("연 2% 이내", "보조금24 귀농 농업창업 및 주택구입지원 사업(154300000011)", "2026-10-10"),
+  interestRate: fact("연 2.0%", "보조금24 귀농 농업창업 및 주택구입지원 사업(154300000011)", "2026-10-10"),
   /** 상환 조건 */
   repayment: fact("5년 거치 10년 상환", "농림축산식품부 귀농 농업창업 및 주택구입 지원사업 시행지침(정부24)", "2026-09-28"),
   /** 교육 이수 자격 (시간) */
@@ -99,7 +99,7 @@ export function formatManwon(manwon: number): string {
 
 /** 자주 쓰는 문장 조각 */
 export const POLICY_TEXT = {
-  /** "농업창업 최대 3억 원·주택구입 최대 7,500만 원 융자(연 2% 이내, 5년 거치 10년 상환)" */
+  /** "농업창업 최대 3억 원·주택구입 최대 7,500만 원 융자(연 2.0%, 5년 거치 10년 상환)" */
   returnFarmLoan: `농업창업 최대 ${formatManwon(RETURN_FARM_LOAN.startupMaxManwon.value)}·주택구입 최대 ${formatManwon(RETURN_FARM_LOAN.housingMaxManwon.value)} 융자(${RETURN_FARM_LOAN.interestRate.value}, ${RETURN_FARM_LOAN.repayment.value})`,
   /** "1년차 월 110만 원·2년차 100만 원·3년차 90만 원" */
   youthMonthly: (() => {

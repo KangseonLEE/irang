@@ -19,8 +19,9 @@ const KOSIS_TABLE = {
   RETURN_RURAL_PERSON: "DT_1A02015",
   // 작물별 시·도 재배면적은 런타임 조회를 쓰지 않는다 — scripts/collect-crop-areas.ts → lib/data/crop-areas.ts (10/9).
   // (10/8: 과실생산량 표를 항목 필터 없이 읽어 콩·마늘 상세에 과일 면적이 그려질 상태였다)
-  /** 논벼 생산비 — 10a당 총수입·경영비·소득·순수익 */
-  RICE_COST: "DT_1EA1501",
+  /** 도별 논벼 소득분석 — C1 도별(00 전국평균) × C2 소득항목(10 총수입·20 생산비·40 순수익·50 경영비·60 소득), ITM 10a당/농가당 (원).
+   *  10/10: 종전 DT_1EA1501 은 농가경제조사 표라 항목이 안 맞아 가드가 늘 막았다 */
+  RICE_INCOME: "DT_1EC0010",
   /** 마늘 소득분석 — 10a당 총수입·경영비·소득·순수익 */
   GARLIC_INCOME: "DT_1EC0044",
   /** 양파 소득분석 — 10a당 총수입·경영비·소득·순수익 */
@@ -60,8 +61,8 @@ export interface RiceIncomeData {
 /**
  * KOSIS에서 쌀(논벼) 10a당 소득 데이터를 조회한다.
  *
- * 통계표: DT_1EA1501 (농축산물생산비조사 - 논벼)
- * 발표: 매년 3월 (전년산 데이터)
+ * 통계표: DT_1EC0010 (농축산물생산비조사 — 도별 논벼 소득분석), 전국평균 행만
+ * 발표: 매년 3월 (전년산 데이터 — 2025년산은 2026-03-25)
  *
  * @returns 최신 연도의 소득 데이터, 조회 실패 시 null
  */
@@ -88,15 +89,16 @@ async function fetchRiceIncomeFromKOSIS(
   url.searchParams.set("method", "getList");
   url.searchParams.set("apiKey", apiKey);
   url.searchParams.set("itmId", "ALL");
-  url.searchParams.set("objL1", "ALL");
-  url.searchParams.set("objL2", "");
+  url.searchParams.set("objL1", "00"); // 전국평균
+  url.searchParams.set("objL2", "ALL"); // 소득항목
+  url.searchParams.set("objL3", "");
   url.searchParams.set("format", "json");
   url.searchParams.set("jsonVD", "Y");
   url.searchParams.set("prdSe", "Y");
   url.searchParams.set("startPrdDe", String(year));
   url.searchParams.set("endPrdDe", String(year));
   url.searchParams.set("orgId", "101");
-  url.searchParams.set("tblId", KOSIS_TABLE.RICE_COST);
+  url.searchParams.set("tblId", KOSIS_TABLE.RICE_INCOME);
 
   try {
     const res = await fetch(url.toString(), {
@@ -109,61 +111,50 @@ async function fetchRiceIncomeFromKOSIS(
     const json = await res.json();
     if (!Array.isArray(json) || json.length === 0) return null;
 
-    return parseRiceIncomeItems(json as KOSISRawItem[], year);
+    return parseRiceIncomeItems(json as KOSISRiceRawItem[], year);
   } catch {
     return null;
   }
 }
 
+/** DT_1EC0010 응답 원본 — C1 = 도별, C2 = 소득항목, ITM = 10a당/농가당 */
+export interface KOSISRiceRawItem {
+  C1: string;
+  C1_NM: string;
+  C2_NM: string;
+  ITM_NM: string;
+  UNIT_NM: string;
+  DT: string;
+  PRD_DE: string;
+}
+
 /**
- * 쌀 생산비조사 KOSIS 응답에서 10a당 주요 지표를 추출한다.
- *
- * ITM_NM 패턴 예시: "10a당 총수입", "10a당 경영비", "10a당 소득",
- *                   "10a당 생산비(비용가)", "10a당 순수익"
+ * 도별 논벼 소득분석(DT_1EC0010) 응답에서 전국평균·10a당·원 단위 지표만 꺼낸다.
+ * 다른 연도·도·단위 행이 섞여 있어도 무시한다. 총수입·경영비·소득 중 하나라도 없으면 null —
+ * 계산으로 메우지 않는다(항목을 잘못 짚었는지 가드가 소득 = 총수입 − 경영비로 확인한다).
  */
-function parseRiceIncomeItems(
-  raw: KOSISRawItem[],
+export function parseRiceIncomeItems(
+  raw: KOSISRiceRawItem[],
   year: number,
 ): RiceIncomeData | null {
-  let grossRevenue = 0;
-  let operatingCost = 0;
-  let income = 0;
-  let productionCost = 0;
-  let netProfit = 0;
-  let found = false;
-
+  const v: Record<string, number> = {};
   for (const item of raw) {
+    if (item.C1 !== "00" || item.ITM_NM !== "10a당" || item.UNIT_NM !== "원") continue;
+    if (item.PRD_DE !== String(year)) continue;
     const value = parseFloat(item.DT);
-    if (isNaN(value)) continue;
-
-    const name = item.ITM_NM;
-
-    if (name.includes("총수입") && name.includes("10a")) {
-      grossRevenue = value;
-      found = true;
-    } else if (name.includes("경영비") && name.includes("10a")) {
-      operatingCost = value;
-    } else if (name.includes("소득") && !name.includes("순수익") && name.includes("10a")) {
-      income = value;
-    } else if (name.includes("생산비") && name.includes("10a")) {
-      productionCost = value;
-    } else if (name.includes("순수익") && name.includes("10a")) {
-      netProfit = value;
-    }
+    if (!Number.isFinite(value)) continue;
+    v[item.C2_NM] = value;
   }
-
-  if (!found) return null;
-
-  // 소득이 직접 제공되지 않으면 계산
-  if (income === 0 && grossRevenue > 0 && operatingCost > 0) {
-    income = grossRevenue - operatingCost;
-  }
-  // 순수익이 직접 제공되지 않으면 계산
-  if (netProfit === 0 && grossRevenue > 0 && productionCost > 0) {
-    netProfit = grossRevenue - productionCost;
-  }
-
-  return { grossRevenue, operatingCost, income, productionCost, netProfit, year };
+  const { 총수입: grossRevenue, 경영비: operatingCost, 소득: income, 생산비: productionCost, 순수익: netProfit } = v;
+  if (grossRevenue === undefined || operatingCost === undefined || income === undefined) return null;
+  return {
+    grossRevenue,
+    operatingCost,
+    income,
+    productionCost: productionCost ?? 0,
+    netProfit: netProfit ?? (productionCost !== undefined ? grossRevenue - productionCost : 0),
+    year,
+  };
 }
 
 // ── 작물 소득분석 조회 (DT_1EC 시리즈: 마늘·양파·콩 등) ──

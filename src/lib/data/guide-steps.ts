@@ -12,7 +12,8 @@ export interface GuideStepSummary {
   title: string;
   period: string;
   cost: {
-    amount: string;
+    /** 공식 통계로 확인된 금액만 (10/10 — 근거 없던 30~50만·50~100만·960만 원 제거). 없으면 항목 설명만 보인다 */
+    amount?: string;
     desc: string;
     /** 비용이 집중되는 단계 */
     highlight?: boolean;
@@ -24,19 +25,19 @@ export const GUIDE_STEP_SUMMARIES: GuideStepSummary[] = [
     step: 1,
     title: "정보 탐색",
     period: "1~3개월",
-    cost: { amount: "약 30~50만 원", desc: "서적·자료비, 교통비, 온라인 강의" },
+    cost: { desc: "서적·자료비, 교통비, 온라인 강의" },
   },
   {
     step: 2,
     title: "교육 이수",
     period: "3~6개월",
-    cost: { amount: "약 50~100만 원", desc: "교육비, 체류형 숙박비, 교통비" },
+    cost: { desc: "교육비, 체류형 숙박비, 교통비" },
   },
   {
     step: 3,
     title: "지역 선정",
     period: "6~12개월",
-    cost: { amount: "약 50~100만 원", desc: "답사 교통비, 임시 숙박비" },
+    cost: { desc: "답사 교통비, 임시 숙박비" },
   },
   {
     step: 4,
@@ -48,6 +49,6 @@ export const GUIDE_STEP_SUMMARIES: GuideStepSummary[] = [
     step: 5,
     title: "정착",
     period: "18~27개월",
-    cost: { amount: "약 960만 원", desc: "주택 마련, 초기 생활 안정" },
+    cost: { desc: "주택 마련, 초기 생활 안정" },
   },
 ];

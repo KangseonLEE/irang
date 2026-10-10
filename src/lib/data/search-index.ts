@@ -392,7 +392,7 @@ function getSearchIndex(): SearchItem[] {
     type: "guide" as const,
     id: `step-${gs.step}`,
     title: `${gs.step}단계: ${gs.title}`,
-    subtitle: truncate(`${gs.period} · ${gs.cost.amount}`, 50),
+    subtitle: truncate(gs.cost.amount ? `${gs.period} · ${gs.cost.amount}` : gs.period, 50),
     href: `/guide#step-${gs.step}`,
     keywords: [
       gs.title,

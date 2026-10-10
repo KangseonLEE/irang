@@ -2,10 +2,11 @@
  * 시·군·구·구 '주요 작물' — 2025 농림어업총조사 재배면적 (scripts/collect-sigungu-main-crops.ts 가 생성, 손으로 고치지 않는다)
  *
  * 규칙: 그 단위 안에서 재배면적 큰 순 최대 3개, 각 10ha 이상. 대상은 총조사에 항목이 있는 우리 작물
- * 37종(crop-sigungu-tables.ts). 원천: 국가데이터처 KOSIS orgId 101 DT_1AG25401·25402·25403·25407·25411,
+ * 37종(crop-sigungu-tables.ts). 원천: 국가데이터처 KOSIS orgId 101 DT_1AG25401·25402·25403·25407·25411(경지면적 DT_1EB002),
  * 2025-12-01 기준. 수집 때 항목 이름·단위·짝·원천 시·도 = 시·군·구 합·시 = 구 합을 확인했다. 수집일: 2026-10-10
- * 값은 농가 주소지 기준(경작지가 다른 시·군·구에 있을 수 있다). 주소지 쏠림이 큰 시·도(seoul)와
- * 표에 없는 단위(인천·화성 2026 신설 구)는 키가 없거나 빈 배열 — 화면은 '자료 없음'.
+ * 값은 농가 주소지 기준(경작지가 다른 시·군·구에 있을 수 있다). 실제 경지면적(DT_1EB002 2025)보다
+ * 크게 넓게 잡힌 단위는 벼(벼 ÷ 논 > 1.6) 또는 전체(37개 작물 ÷ 경지 > 1.3)를 뺐다(MAIN_CROPS_RESIDENCE_SKEW, 구는 부모 시 판정).
+ * 표에 없는 단위(인천·화성 2026 신설 구)는 키가 없다 — 화면은 '자료 없음'.
  */
 
 export interface MainCropEntry {
@@ -17,9 +18,536 @@ export interface MainCropEntry {
 }
 
 export const MAIN_CROPS_SOURCE = "2025 농림어업총조사(국가데이터처)";
-export const MAIN_CROP_RULE = { maxCrops: 3, minAreaHa: 10, residenceSkewMax: 3, cropCount: 37 } as const;
-/** 주소지 쏠림으로 제외한 시·도 id */
-export const MAIN_CROPS_SKEWED_PROVINCES: readonly string[] = ["seoul"];
+export const MAIN_CROP_RULE = { maxCrops: 3, minAreaHa: 10, riceSkewMax: 1.6, allSkewMax: 1.3, cropCount: 37 } as const;
+/** 시·군·구가 전부 '전체' 쏠림인 시·도 id */
+export const MAIN_CROPS_SKEWED_PROVINCES: readonly string[] = ["seoul","daejeon"];
+
+export interface ResidenceSkew {
+  /** 판정한 경지면적 원천 단위(광역시 자치구는 'OO군외' 묶음, 서울·대전은 시·도 전체) */
+  landUnit: string;
+  /** 벼를 뺐다(총조사 벼 ÷ 실제 논 > 1.6) */
+  rice: boolean;
+  /** 작물을 전부 뺐다(총조사 37개 작물 ÷ 실제 경지 > 1.3) */
+  all: boolean;
+  /** null = 논(경지) 0 */
+  riceRatio: number | null;
+  allRatio: number | null;
+}
+
+/** 주소지 쏠림으로 작물을 뺀 시·군·구·구 id → 판정 */
+export const MAIN_CROPS_RESIDENCE_SKEW: Record<string, ResidenceSkew> = {
+  "jongno": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "jung-gu-seoul": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "yongsan": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "seongdong": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "gwangjin": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "dongdaemun": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "jungnang": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "seongbuk": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "gangbuk": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "dobong": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "nowon": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "eunpyeong": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "seodaemun": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "mapo": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "yangcheon": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "gangseo": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "guro": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "geumcheon": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "yeongdeungpo": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "dongjak": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "gwanak": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "seocho": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "gangnam": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "songpa": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "gangdong": {
+    "landUnit": "서울 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 10.22,
+    "allRatio": 8.13
+  },
+  "suwon": {
+    "landUnit": "수원시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 3.22,
+    "allRatio": 2.46
+  },
+  "seongnam": {
+    "landUnit": "성남시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 54.01,
+    "allRatio": 2.3
+  },
+  "uijeongbu": {
+    "landUnit": "의정부시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 4.42,
+    "allRatio": 3.87
+  },
+  "anyang": {
+    "landUnit": "안양시",
+    "rice": true,
+    "all": true,
+    "riceRatio": null,
+    "allRatio": 20.59
+  },
+  "bucheon": {
+    "landUnit": "부천시",
+    "rice": false,
+    "all": true,
+    "riceRatio": 1.39,
+    "allRatio": 1.56
+  },
+  "gwangmyeong": {
+    "landUnit": "광명시",
+    "rice": true,
+    "all": false,
+    "riceRatio": 2.11,
+    "allRatio": 1.11
+  },
+  "dongducheon": {
+    "landUnit": "동두천시",
+    "rice": true,
+    "all": false,
+    "riceRatio": 8.31,
+    "allRatio": 0.96
+  },
+  "gwacheon": {
+    "landUnit": "과천시",
+    "rice": true,
+    "all": false,
+    "riceRatio": 16.26,
+    "allRatio": 0.58
+  },
+  "guri": {
+    "landUnit": "구리시",
+    "rice": true,
+    "all": true,
+    "riceRatio": null,
+    "allRatio": 1.58
+  },
+  "osan": {
+    "landUnit": "오산시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 2.22,
+    "allRatio": 2.04
+  },
+  "gunpo": {
+    "landUnit": "군포시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 2.13,
+    "allRatio": 1.7
+  },
+  "uiwang": {
+    "landUnit": "의왕시",
+    "rice": true,
+    "all": false,
+    "riceRatio": 20.59,
+    "allRatio": 1.03
+  },
+  "hanam": {
+    "landUnit": "하남시",
+    "rice": true,
+    "all": false,
+    "riceRatio": 4.07,
+    "allRatio": 0.79
+  },
+  "taebaek": {
+    "landUnit": "태백시",
+    "rice": true,
+    "all": false,
+    "riceRatio": null,
+    "allRatio": 0.57
+  },
+  "dong-gu-daejeon": {
+    "landUnit": "대전 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 1.93,
+    "allRatio": 1.51
+  },
+  "jung-gu-daejeon": {
+    "landUnit": "대전 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 1.93,
+    "allRatio": 1.51
+  },
+  "seo-gu-daejeon": {
+    "landUnit": "대전 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 1.93,
+    "allRatio": 1.51
+  },
+  "yuseong": {
+    "landUnit": "대전 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 1.93,
+    "allRatio": 1.51
+  },
+  "daedeok": {
+    "landUnit": "대전 전체",
+    "rice": true,
+    "all": true,
+    "riceRatio": 1.93,
+    "allRatio": 1.51
+  },
+  "dong-gu-gwangju": {
+    "landUnit": "광주 광산구외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 1.71,
+    "allRatio": 1.55
+  },
+  "seo-gu-gwangju": {
+    "landUnit": "광주 광산구외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 1.71,
+    "allRatio": 1.55
+  },
+  "nam-gu-gwangju": {
+    "landUnit": "광주 광산구외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 1.71,
+    "allRatio": 1.55
+  },
+  "buk-gu-gwangju": {
+    "landUnit": "광주 광산구외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 1.71,
+    "allRatio": 1.55
+  },
+  "mokpo": {
+    "landUnit": "목포시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 5.94,
+    "allRatio": 2.67
+  },
+  "jung-gu-daegu": {
+    "landUnit": "대구 달성군외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 4.92,
+    "allRatio": 2.87
+  },
+  "dong-gu-daegu": {
+    "landUnit": "대구 달성군외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 4.92,
+    "allRatio": 2.87
+  },
+  "seo-gu-daegu": {
+    "landUnit": "대구 달성군외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 4.92,
+    "allRatio": 2.87
+  },
+  "nam-gu-daegu": {
+    "landUnit": "대구 달성군외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 4.92,
+    "allRatio": 2.87
+  },
+  "buk-gu-daegu": {
+    "landUnit": "대구 달성군외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 4.92,
+    "allRatio": 2.87
+  },
+  "suseong": {
+    "landUnit": "대구 달성군외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 4.92,
+    "allRatio": 2.87
+  },
+  "dalseo": {
+    "landUnit": "대구 달성군외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 4.92,
+    "allRatio": 2.87
+  },
+  "jung-gu-ulsan": {
+    "landUnit": "울산 울주군외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 2.62,
+    "allRatio": 1.44
+  },
+  "nam-gu-ulsan": {
+    "landUnit": "울산 울주군외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 2.62,
+    "allRatio": 1.44
+  },
+  "dong-gu-ulsan": {
+    "landUnit": "울산 울주군외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 2.62,
+    "allRatio": 1.44
+  },
+  "buk-gu-ulsan": {
+    "landUnit": "울산 울주군외",
+    "rice": true,
+    "all": true,
+    "riceRatio": 2.62,
+    "allRatio": 1.44
+  },
+  "jeju-si": {
+    "landUnit": "제주시",
+    "rice": true,
+    "all": false,
+    "riceRatio": null,
+    "allRatio": 0.5
+  },
+  "jangan-gu": {
+    "landUnit": "수원시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 3.22,
+    "allRatio": 2.46
+  },
+  "gwonseon-gu": {
+    "landUnit": "수원시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 3.22,
+    "allRatio": 2.46
+  },
+  "paldal-gu": {
+    "landUnit": "수원시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 3.22,
+    "allRatio": 2.46
+  },
+  "yeongtong-gu": {
+    "landUnit": "수원시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 3.22,
+    "allRatio": 2.46
+  },
+  "sujeong-gu": {
+    "landUnit": "성남시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 54.01,
+    "allRatio": 2.3
+  },
+  "jungwon-gu": {
+    "landUnit": "성남시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 54.01,
+    "allRatio": 2.3
+  },
+  "bundang-gu": {
+    "landUnit": "성남시",
+    "rice": true,
+    "all": true,
+    "riceRatio": 54.01,
+    "allRatio": 2.3
+  },
+  "manan-gu": {
+    "landUnit": "안양시",
+    "rice": true,
+    "all": true,
+    "riceRatio": null,
+    "allRatio": 20.59
+  },
+  "dongan-gu": {
+    "landUnit": "안양시",
+    "rice": true,
+    "all": true,
+    "riceRatio": null,
+    "allRatio": 20.59
+  },
+  "wonmi-gu": {
+    "landUnit": "부천시",
+    "rice": false,
+    "all": true,
+    "riceRatio": 1.39,
+    "allRatio": 1.56
+  },
+  "sosa-gu": {
+    "landUnit": "부천시",
+    "rice": false,
+    "all": true,
+    "riceRatio": 1.39,
+    "allRatio": 1.56
+  },
+  "ojeong-gu": {
+    "landUnit": "부천시",
+    "rice": false,
+    "all": true,
+    "riceRatio": 1.39,
+    "allRatio": 1.56
+  }
+};
 
 /** SIGUNGUS.id → 주요 작물 */
 export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
@@ -167,97 +695,12 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "areaHa": 56
     }
   ],
-  "suwon": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 1513
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 130
-    },
-    {
-      "cropId": "perilla-seed",
-      "crop": "들깨",
-      "areaHa": 126
-    }
-  ],
-  "seongnam": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 209
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 47
-    },
-    {
-      "cropId": "potato",
-      "crop": "감자",
-      "areaHa": 40
-    }
-  ],
-  "uijeongbu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 229
-    },
-    {
-      "cropId": "perilla-seed",
-      "crop": "들깨",
-      "areaHa": 71
-    },
-    {
-      "cropId": "soybean",
-      "crop": "콩",
-      "areaHa": 55
-    }
-  ],
-  "anyang": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 262
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 38
-    },
-    {
-      "cropId": "soybean",
-      "crop": "콩",
-      "areaHa": 31
-    }
-  ],
-  "bucheon": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 357
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 43
-    },
-    {
-      "cropId": "soybean",
-      "crop": "콩",
-      "areaHa": 35
-    }
-  ],
+  "suwon": [],
+  "seongnam": [],
+  "uijeongbu": [],
+  "anyang": [],
+  "bucheon": [],
   "gwangmyeong": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 125
-    },
     {
       "cropId": "sweet-potato",
       "crop": "고구마",
@@ -267,6 +710,11 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "cropId": "chili-pepper",
       "crop": "고추",
       "areaHa": 21
+    },
+    {
+      "cropId": "soybean",
+      "crop": "콩",
+      "areaHa": 19
     }
   ],
   "pyeongtaek": [
@@ -288,11 +736,6 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
   ],
   "dongducheon": [
     {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 106
-    },
-    {
       "cropId": "perilla-seed",
       "crop": "들깨",
       "areaHa": 64
@@ -301,6 +744,11 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "cropId": "soybean",
       "crop": "콩",
       "areaHa": 45
+    },
+    {
+      "cropId": "chili-pepper",
+      "crop": "고추",
+      "areaHa": 23
     }
   ],
   "ansan": [
@@ -337,30 +785,8 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "areaHa": 141
     }
   ],
-  "gwacheon": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 47
-    }
-  ],
-  "guri": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 46
-    },
-    {
-      "cropId": "green-onion",
-      "crop": "대파",
-      "areaHa": 25
-    },
-    {
-      "cropId": "perilla-seed",
-      "crop": "들깨",
-      "areaHa": 23
-    }
-  ],
+  "gwacheon": [],
+  "guri": [],
   "namyangju": [
     {
       "cropId": "perilla-seed",
@@ -378,23 +804,7 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "areaHa": 152
     }
   ],
-  "osan": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 535
-    },
-    {
-      "cropId": "soybean",
-      "crop": "콩",
-      "areaHa": 37
-    },
-    {
-      "cropId": "perilla-seed",
-      "crop": "들깨",
-      "areaHa": 27
-    }
-  ],
+  "osan": [],
   "siheung": [
     {
       "cropId": "rice",
@@ -412,29 +822,8 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "areaHa": 61
     }
   ],
-  "gunpo": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 165
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 24
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 23
-    }
-  ],
+  "gunpo": [],
   "uiwang": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 98
-    },
     {
       "cropId": "sweet-potato",
       "crop": "고구마",
@@ -444,14 +833,14 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "cropId": "chili-pepper",
       "crop": "고추",
       "areaHa": 18
+    },
+    {
+      "cropId": "perilla-seed",
+      "crop": "들깨",
+      "areaHa": 17
     }
   ],
   "hanam": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 81
-    },
     {
       "cropId": "chili-pepper",
       "crop": "고추",
@@ -461,6 +850,11 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "cropId": "sweet-potato",
       "crop": "고구마",
       "areaHa": 32
+    },
+    {
+      "cropId": "perilla-seed",
+      "crop": "들깨",
+      "areaHa": 25
     }
   ],
   "yongin": [
@@ -1194,91 +1588,11 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "areaHa": 285
     }
   ],
-  "dong-gu-daejeon": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 125
-    },
-    {
-      "cropId": "perilla-seed",
-      "crop": "들깨",
-      "areaHa": 78
-    },
-    {
-      "cropId": "grape",
-      "crop": "포도",
-      "areaHa": 65
-    }
-  ],
-  "jung-gu-daejeon": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 239
-    },
-    {
-      "cropId": "perilla-seed",
-      "crop": "들깨",
-      "areaHa": 74
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 64
-    }
-  ],
-  "seo-gu-daejeon": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 691
-    },
-    {
-      "cropId": "perilla-seed",
-      "crop": "들깨",
-      "areaHa": 138
-    },
-    {
-      "cropId": "soybean",
-      "crop": "콩",
-      "areaHa": 93
-    }
-  ],
-  "yuseong": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 728
-    },
-    {
-      "cropId": "napa-cabbage",
-      "crop": "배추",
-      "areaHa": 153
-    },
-    {
-      "cropId": "perilla-seed",
-      "crop": "들깨",
-      "areaHa": 94
-    }
-  ],
-  "daedeok": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 287
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 70
-    },
-    {
-      "cropId": "perilla-seed",
-      "crop": "들깨",
-      "areaHa": 62
-    }
-  ],
+  "dong-gu-daejeon": [],
+  "jung-gu-daejeon": [],
+  "seo-gu-daejeon": [],
+  "yuseong": [],
+  "daedeok": [],
   "cheonan": [
     {
       "cropId": "rice",
@@ -1772,74 +2086,10 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "areaHa": 181
     }
   ],
-  "dong-gu-gwangju": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 204
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 52
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 15
-    }
-  ],
-  "seo-gu-gwangju": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 923
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 109
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 70
-    }
-  ],
-  "nam-gu-gwangju": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 1131
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 230
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 91
-    }
-  ],
-  "buk-gu-gwangju": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 1420
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 178
-    },
-    {
-      "cropId": "soybean",
-      "crop": "콩",
-      "areaHa": 78
-    }
-  ],
+  "dong-gu-gwangju": [],
+  "seo-gu-gwangju": [],
+  "nam-gu-gwangju": [],
+  "buk-gu-gwangju": [],
   "gwangsan": [
     {
       "cropId": "rice",
@@ -1857,23 +2107,7 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "areaHa": 142
     }
   ],
-  "mokpo": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 564
-    },
-    {
-      "cropId": "napa-cabbage",
-      "crop": "배추",
-      "areaHa": 60
-    },
-    {
-      "cropId": "green-onion",
-      "crop": "대파",
-      "areaHa": 58
-    }
-  ],
+  "mokpo": [],
   "yeosu": [
     {
       "cropId": "rice",
@@ -2436,125 +2670,13 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "areaHa": 53
     }
   ],
-  "jung-gu-daegu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 45
-    },
-    {
-      "cropId": "peach",
-      "crop": "복숭아",
-      "areaHa": 15
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 14
-    }
-  ],
-  "dong-gu-daegu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 269
-    },
-    {
-      "cropId": "peach",
-      "crop": "복숭아",
-      "areaHa": 177
-    },
-    {
-      "cropId": "apple",
-      "crop": "사과",
-      "areaHa": 112
-    }
-  ],
-  "seo-gu-daegu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 81
-    },
-    {
-      "cropId": "napa-cabbage",
-      "crop": "배추",
-      "areaHa": 33
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 18
-    }
-  ],
-  "nam-gu-daegu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 47
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 20
-    },
-    {
-      "cropId": "peach",
-      "crop": "복숭아",
-      "areaHa": 10
-    }
-  ],
-  "buk-gu-daegu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 336
-    },
-    {
-      "cropId": "napa-cabbage",
-      "crop": "배추",
-      "areaHa": 122
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 81
-    }
-  ],
-  "suseong": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 281
-    },
-    {
-      "cropId": "peach",
-      "crop": "복숭아",
-      "areaHa": 187
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 143
-    }
-  ],
-  "dalseo": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 849
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 125
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 99
-    }
-  ],
+  "jung-gu-daegu": [],
+  "dong-gu-daegu": [],
+  "seo-gu-daegu": [],
+  "nam-gu-daegu": [],
+  "buk-gu-daegu": [],
+  "suseong": [],
+  "dalseo": [],
   "dalseong": [
     {
       "cropId": "rice",
@@ -2589,74 +2711,10 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "areaHa": 269
     }
   ],
-  "jung-gu-ulsan": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 254
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 90
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 52
-    }
-  ],
-  "nam-gu-ulsan": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 368
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 86
-    },
-    {
-      "cropId": "napa-cabbage",
-      "crop": "배추",
-      "areaHa": 50
-    }
-  ],
-  "dong-gu-ulsan": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 50
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 23
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 19
-    }
-  ],
-  "buk-gu-ulsan": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 411
-    },
-    {
-      "cropId": "persimmon",
-      "crop": "감",
-      "areaHa": 41
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 35
-    }
-  ],
+  "jung-gu-ulsan": [],
+  "nam-gu-ulsan": [],
+  "dong-gu-ulsan": [],
+  "buk-gu-ulsan": [],
   "ulju": [
     {
       "cropId": "rice",
@@ -3376,159 +3434,15 @@ export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
 
 /** GUS.id → 주요 작물 */
 export const GU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
-  "jangan-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 307
-    },
-    {
-      "cropId": "perilla-seed",
-      "crop": "들깨",
-      "areaHa": 40
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 37
-    }
-  ],
-  "gwonseon-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 581
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 46
-    },
-    {
-      "cropId": "perilla-seed",
-      "crop": "들깨",
-      "areaHa": 44
-    }
-  ],
-  "paldal-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 203
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 18
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 17
-    }
-  ],
-  "yeongtong-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 422
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 43
-    },
-    {
-      "cropId": "soybean",
-      "crop": "콩",
-      "areaHa": 31
-    }
-  ],
-  "sujeong-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 54
-    },
-    {
-      "cropId": "potato",
-      "crop": "감자",
-      "areaHa": 14
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 12
-    }
-  ],
-  "jungwon-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 26
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 10
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 10
-    }
-  ],
-  "bundang-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 130
-    },
-    {
-      "cropId": "pear",
-      "crop": "배",
-      "areaHa": 25
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 25
-    }
-  ],
-  "manan-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 103
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 15
-    },
-    {
-      "cropId": "chili-pepper",
-      "crop": "고추",
-      "areaHa": 14
-    }
-  ],
-  "dongan-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 159
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 23
-    },
-    {
-      "cropId": "potato",
-      "crop": "감자",
-      "areaHa": 19
-    }
-  ],
+  "jangan-gu": [],
+  "gwonseon-gu": [],
+  "paldal-gu": [],
+  "yeongtong-gu": [],
+  "sujeong-gu": [],
+  "jungwon-gu": [],
+  "bundang-gu": [],
+  "manan-gu": [],
+  "dongan-gu": [],
   "sangnok-gu": [
     {
       "cropId": "rice",
@@ -3665,37 +3579,9 @@ export const GU_MAIN_CROPS: Record<string, MainCropEntry[]> = {
       "areaHa": 30
     }
   ],
-  "wonmi-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 201
-    },
-    {
-      "cropId": "sweet-potato",
-      "crop": "고구마",
-      "areaHa": 26
-    },
-    {
-      "cropId": "soybean",
-      "crop": "콩",
-      "areaHa": 23
-    }
-  ],
-  "sosa-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 54
-    }
-  ],
-  "ojeong-gu": [
-    {
-      "cropId": "rice",
-      "crop": "쌀",
-      "areaHa": 102
-    }
-  ],
+  "wonmi-gu": [],
+  "sosa-gu": [],
+  "ojeong-gu": [],
   "sangdang-gu": [
     {
       "cropId": "rice",

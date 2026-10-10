@@ -206,7 +206,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
               acceptedAnswer: {
                 "@type": "Answer",
                 // 10/10: '지자체별 월 50만~100만 원 최대 3년'은 근거 없는 문구였다 — 국비 사업 원문 값으로
-                text: `청년 영농정착지원사업(국비 보조금)은 ${POLICY_TEXT.youthMonthly}을 최대 3년간 받아요. 귀농 창업·주택자금은 지원금이 아니라 융자로, ${POLICY_TEXT.returnFarmLoan}이에요. 시·군 자체 정착지원금은 금액과 기간이 지역마다 달라요.`,
+                text: `청년 영농정착지원사업(국비 보조금)은 ${POLICY_TEXT.youthMonthly}을 최대 3년간 받아요. 귀농 창업·주택자금은 지원금이 아니라 융자예요 — ${POLICY_TEXT.returnFarmLoan}. 시·군 자체 정착지원금은 금액과 기간이 지역마다 달라요.`,
               },
             },
           ],

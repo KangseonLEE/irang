@@ -32,19 +32,16 @@ import { GUS } from "../src/lib/data/gus";
 import { CROPS } from "../src/lib/data/crops";
 import { getSgisComposite } from "../src/lib/data/region-composites";
 import { CROP_SIGUNGU_TABLES } from "../src/lib/data/crop-sigungu-tables";
-import { CROP_AREAS } from "../src/lib/data/crop-areas";
+import { judgeResidenceSkew, RICE_SKEW_MAX, ALL_SKEW_MAX, LAND_TABLE, type SkewJudgment } from "./lib/residence-skew";
 
 const YEAR = 2025;
 const MAX_CROPS = 3;
 const MIN_AREA_HA = 10;
 /**
- * 총조사 재배면적은 **농가 주소지** 기준이다 — 서울 농가가 경기·강원에 논을 두면 서울 구의 값이 된다.
- * 경작지 기준인 농작물생산조사(crop-areas.ts, 같은 해 논벼)와 시·도 논벼 면적을 견줘, 전국 비율 대비 이 배수를 넘는
- * 시·도는 그 아래 단위의 '주요 작물'을 만들지 않는다(빈 배열). 2025: 서울 2,003ha vs 175.6ha → 전국 대비 약 14배.
- * 논이 거의 없는 시·도(제주 4.4ha)는 비율이 흔들려 판정하지 않는다(경작지 논벼 < SKEW_MIN_LAND_HA).
+ * 총조사 재배면적은 **농가 주소지** 기준이다 — 도시 시에 사는 농가가 다른 시·군 논밭을 지으면 도시 시의 값이 된다.
+ * 10/10 QA 후속: 시·도 단위(서울만) 판정 → 시·군·구 단위 판정(scripts/lib/residence-skew.ts, 실제 경지면적 DT_1EB002 대비).
+ * 벼가 실제 논보다 크게 넓으면 벼를, 37개 작물 합이 실제 경지보다 크게 넓으면 그 단위 작물을 전부 뺀다. 구는 부모 시 판정.
  */
-const RESIDENCE_SKEW_MAX = 3;
-const SKEW_MIN_LAND_HA = 100;
 const KOSIS_URL = "https://kosis.kr/openapi/Param/statisticsParameterData.do";
 
 interface KosisRow {
@@ -147,26 +144,20 @@ async function main() {
     }
   }
 
-  // ── 주소지 기준 쏠림: 총조사 논벼 ÷ 농작물생산조사 논벼 (시·도), 전국 비율로 나눈 배수 ──
-  const landRice = CROP_AREAS.rice;
-  if (!landRice || landRice.year !== YEAR) problems.push(`crop-areas.ts 논벼가 ${YEAR}년이 아님 — 쏠림 판정 불가`);
-  const censusNational = sidoArea.get("00/rice");
-  if (censusNational === undefined) problems.push("총조사 전국 논벼 행 없음");
-  const skewed = new Set<string>();
-  if (landRice && censusNational) {
-    const base = censusNational / landRice.totalHa;
-    const ratios: string[] = [];
-    for (const p of PROVINCES) {
-      const land = landRice.provinces.find((x) => x.provinceId === p.id)?.areaHa;
-      const cen = sidoArea.get(`${p.sgisCode}/rice`);
-      if (!land || cen === undefined) { problems.push(`쏠림 판정 값 없음 ${p.name}`); continue; }
-      if (land < SKEW_MIN_LAND_HA) { ratios.push(`${p.shortName} 판정 안 함(논 ${land}ha)`); continue; }
-      const r = cen / land / base;
-      ratios.push(`${p.shortName} ${r.toFixed(2)}`);
-      if (r > RESIDENCE_SKEW_MAX) skewed.add(p.id);
+  // ── 주소지 기준 쏠림: 시·군·구 단위 (총조사 ÷ 실제 경지면적) ──
+  const censusTop = new Map<string, { name: string; rice: number; all: number }>();
+  for (const p of PROVINCES) {
+    const ss = subs(p.sgisCode);
+    const cities = new Set(ss.filter((c) => c.endsWith("0") && ss.some((g) => g !== c && g.slice(0, 4) === c.slice(0, 4))));
+    for (const c of ss.filter((c) => cities.has(c) || ![...cities].some((x) => x !== c && x.slice(0, 4) === c.slice(0, 4)))) {
+      const areas = units.get(c)!.areas;
+      censusTop.set(c, { name: units.get(c)!.name, rice: areas.get("rice") ?? 0, all: [...areas.values()].reduce((x, y) => x + y, 0) });
     }
-    console.log(`주소지 쏠림 배수(전국=1): ${ratios.join(" · ")} → 제외 ${[...skewed].join(",") || "없음"}`);
   }
+  const skew = await judgeResidenceSkew(censusTop, rawCache as Record<string, unknown[]>);
+  problems.push(...skew.problems);
+  for (const l of skew.lines) console.log(l);
+  const judgmentOf = (code: string): SkewJudgment | undefined => skew.byCode.get(code);
 
   // ── 우리 단위 ↔ 원천 행 (이름) ──
   const provinceById = new Map(PROVINCES.map((p) => [p.id, p]));
@@ -179,9 +170,9 @@ async function main() {
     }
     return cands.length === 1 ? cands[0] : null;
   };
-  const pick = (code: string) =>
-    [...units.get(code)!.areas.entries()]
-      .filter(([, ha]) => ha >= MIN_AREA_HA)
+  const pick = (code: string, j: SkewJudgment | undefined) =>
+    j?.all ? [] : [...units.get(code)!.areas.entries()]
+      .filter(([cropId, ha]) => ha >= MIN_AREA_HA && !(j?.rice && cropId === "rice"))
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
       .slice(0, MAX_CROPS)
       .map(([cropId, ha]) => ({ cropId, crop: cropById.get(cropId)!.name, areaHa: Math.round(ha * 10) / 10 }));
@@ -190,13 +181,22 @@ async function main() {
   const sigunguOut: Record<string, Entry[]> = {};
   const codeBySigunguId = new Map<string, string>();
   const skipped: string[] = [];
+  type SkewOut = { landUnit: string; rice: boolean; all: boolean; riceRatio: number | null; allRatio: number | null };
+  const skewOut: Record<string, SkewOut> = {};
+  const r2 = (x: number) => (Number.isFinite(x) ? Math.round(x * 100) / 100 : null);
+  const noteSkew = (id: string, j: SkewJudgment | undefined) => {
+    if (j && (j.rice || j.all)) skewOut[id] = { landUnit: j.landUnit, rice: j.rice, all: j.all, riceRatio: r2(j.riceRatio), allRatio: r2(j.allRatio) };
+  };
   for (const sg of SIGUNGUS) {
     if (getSgisComposite(sg.sgisCode)) { skipped.push(`${sg.name}(${sg.id})`); continue; }
     const p = provinceById.get(sg.sidoId)!;
     const code = findCode(p.sgisCode, sg.name);
     if (!code) { problems.push(`시·군·구 짝 없음/여럿: ${p.shortName} ${sg.name}`); continue; }
     codeBySigunguId.set(sg.id, code);
-    sigunguOut[sg.id] = skewed.has(sg.sidoId) ? [] : pick(code);
+    const j = judgmentOf(code);
+    if (!j) { problems.push(`쏠림 판정 없음: ${p.shortName} ${sg.name}`); continue; }
+    noteSkew(sg.id, j);
+    sigunguOut[sg.id] = pick(code, j);
   }
   const guOut: Record<string, Entry[]> = {};
   for (const g of GUS) {
@@ -205,7 +205,11 @@ async function main() {
     const parent = codeBySigunguId.get(g.parentSigunguId);
     const code = parent ? findCode(p.sgisCode, g.name, parent) : null;
     if (!code) { problems.push(`구 짝 없음/여럿: ${p.shortName} ${g.name}`); continue; }
-    guOut[g.id] = skewed.has(g.sidoId) ? [] : pick(code);
+    // 경지면적 표엔 구 행이 없다 — 부모 시 판정을 따른다
+    const j = judgmentOf(parent!);
+    if (!j) { problems.push(`쏠림 판정 없음: ${p.shortName} ${g.name}(부모 시)`); continue; }
+    noteSkew(g.id, j);
+    guOut[g.id] = pick(code, j);
   }
 
   if (problems.length) {
@@ -218,15 +222,21 @@ async function main() {
   const empty = (o: Record<string, Entry[]>) => Object.values(o).filter((v) => v.length === 0).length;
   console.log(`시·군·구 ${Object.keys(sigunguOut).length}곳 값 ${count(sigunguOut)}개(빈 곳 ${empty(sigunguOut)}) · 구 ${Object.keys(guOut).length}곳 값 ${count(guOut)}개(빈 곳 ${empty(guOut)})`);
   console.log(`원천에 없어 건너뜀: ${skipped.join(", ")}`);
+  // 시·도 안 모든 시·군·구가 '전체' 쏠림이면 그 시·도 id (검색 주산지 필터 호환 — 2025: 서울)
+  const skewedProvinces = PROVINCES.filter((p) => {
+    const ids = SIGUNGUS.filter((sg) => sg.sidoId === p.id && sigunguOut[sg.id]).map((sg) => sg.id);
+    return ids.length > 0 && ids.every((id) => skewOut[id]?.all);
+  }).map((p) => p.id);
 
   const body = `/**
  * 시·군·구·구 '주요 작물' — ${YEAR} 농림어업총조사 재배면적 (scripts/collect-sigungu-main-crops.ts 가 생성, 손으로 고치지 않는다)
  *
  * 규칙: 그 단위 안에서 재배면적 큰 순 최대 ${MAX_CROPS}개, 각 ${MIN_AREA_HA}ha 이상. 대상은 총조사에 항목이 있는 우리 작물
- * ${Object.keys(CROP_SIGUNGU_TABLES).length}종(crop-sigungu-tables.ts). 원천: 국가데이터처 KOSIS orgId 101 DT_1AG25401·25402·25403·25407·25411,
+ * ${Object.keys(CROP_SIGUNGU_TABLES).length}종(crop-sigungu-tables.ts). 원천: 국가데이터처 KOSIS orgId 101 DT_1AG25401·25402·25403·25407·25411(경지면적 DT_1EB002),
  * ${YEAR}-12-01 기준. 수집 때 항목 이름·단위·짝·원천 시·도 = 시·군·구 합·시 = 구 합을 확인했다. 수집일: ${new Date().toISOString().slice(0, 10)}
- * 값은 농가 주소지 기준(경작지가 다른 시·군·구에 있을 수 있다). 주소지 쏠림이 큰 시·도(${[...skewed].join(", ") || "없음"})와
- * 표에 없는 단위(인천·화성 2026 신설 구)는 키가 없거나 빈 배열 — 화면은 '자료 없음'.
+ * 값은 농가 주소지 기준(경작지가 다른 시·군·구에 있을 수 있다). 실제 경지면적(${LAND_TABLE.tblId} ${LAND_TABLE.year})보다
+ * 크게 넓게 잡힌 단위는 벼(벼 ÷ 논 > ${RICE_SKEW_MAX}) 또는 전체(37개 작물 ÷ 경지 > ${ALL_SKEW_MAX})를 뺐다(MAIN_CROPS_RESIDENCE_SKEW, 구는 부모 시 판정).
+ * 표에 없는 단위(인천·화성 2026 신설 구)는 키가 없다 — 화면은 '자료 없음'.
  */
 
 export interface MainCropEntry {
@@ -238,9 +248,24 @@ export interface MainCropEntry {
 }
 
 export const MAIN_CROPS_SOURCE = "${YEAR} 농림어업총조사(국가데이터처)";
-export const MAIN_CROP_RULE = { maxCrops: ${MAX_CROPS}, minAreaHa: ${MIN_AREA_HA}, residenceSkewMax: ${RESIDENCE_SKEW_MAX}, cropCount: ${Object.keys(CROP_SIGUNGU_TABLES).length} } as const;
-/** 주소지 쏠림으로 제외한 시·도 id */
-export const MAIN_CROPS_SKEWED_PROVINCES: readonly string[] = ${JSON.stringify([...skewed])};
+export const MAIN_CROP_RULE = { maxCrops: ${MAX_CROPS}, minAreaHa: ${MIN_AREA_HA}, riceSkewMax: ${RICE_SKEW_MAX}, allSkewMax: ${ALL_SKEW_MAX}, cropCount: ${Object.keys(CROP_SIGUNGU_TABLES).length} } as const;
+/** 시·군·구가 전부 '전체' 쏠림인 시·도 id */
+export const MAIN_CROPS_SKEWED_PROVINCES: readonly string[] = ${JSON.stringify(skewedProvinces)};
+
+export interface ResidenceSkew {
+  /** 판정한 경지면적 원천 단위(광역시 자치구는 'OO군외' 묶음, 서울·대전은 시·도 전체) */
+  landUnit: string;
+  /** 벼를 뺐다(총조사 벼 ÷ 실제 논 > ${RICE_SKEW_MAX}) */
+  rice: boolean;
+  /** 작물을 전부 뺐다(총조사 37개 작물 ÷ 실제 경지 > ${ALL_SKEW_MAX}) */
+  all: boolean;
+  /** null = 논(경지) 0 */
+  riceRatio: number | null;
+  allRatio: number | null;
+}
+
+/** 주소지 쏠림으로 작물을 뺀 시·군·구·구 id → 판정 */
+export const MAIN_CROPS_RESIDENCE_SKEW: Record<string, ResidenceSkew> = ${JSON.stringify(skewOut, null, 2)};
 
 /** SIGUNGUS.id → 주요 작물 */
 export const SIGUNGU_MAIN_CROPS: Record<string, MainCropEntry[]> = ${JSON.stringify(sigunguOut, null, 2)};
