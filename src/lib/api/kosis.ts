@@ -17,12 +17,8 @@ const KOSIS_TABLE = {
   RETURN_FARM_HOUSEHOLD: "DT_1A02008",
   /** 시군구별·성별 귀촌인 (귀촌인수) */
   RETURN_RURAL_PERSON: "DT_1A02015",
-  /** 시군별 논벼 생산량 (재배면적 ha, 생산량 톤) */
-  RICE_PRODUCTION: "DT_1ET0034",
-  // 10/8 삭제(원천 대조): DT_1ET0292 는 '농작물 생산조사 통합'이 아니라 「과실생산량(성과수+미과수)」 — 사과·배·
-  // 복숭아·포도… 면적이 한 표에 섞여 있어, 항목 필터 없이 쓰면 지역마다 마지막 과일 면적이 남는다(콩·마늘 등 10종
-  // 상세가 이 표를 보고 있었다). DT_1AG20411 은 2024·2025 err 30(데이터 없음), DT_1ET0017 은 objL 없이 err 20.
-  // 작물별 재배면적을 다시 붙일 땐 표·항목을 원천에서 확인하고 crop-kosis-config.test.ts 허용 목록에 올린다.
+  // 작물별 시·도 재배면적은 런타임 조회를 쓰지 않는다 — scripts/collect-crop-areas.ts → lib/data/crop-areas.ts (10/9).
+  // (10/8: 과실생산량 표를 항목 필터 없이 읽어 콩·마늘 상세에 과일 면적이 그려질 상태였다)
   /** 논벼 생산비 — 10a당 총수입·경영비·소득·순수익 */
   RICE_COST: "DT_1EA1501",
   /** 마늘 소득분석 — 10a당 총수입·경영비·소득·순수익 */
@@ -41,14 +37,6 @@ interface KOSISRawItem {
   UNIT_NM: string; // 단위
   PRD_DE: string; // 기간
   TBL_NM: string; // 테이블명
-}
-
-export interface CropStatItem {
-  regionName: string;
-  cropName: string;
-  cultivationArea: number; // 재배면적 (ha)
-  production: number; // 생산량 (톤)
-  year: number;
 }
 
 // ── 쌀 생산비(소득) 조회 ──
@@ -302,133 +290,6 @@ function parseCropIncomeItems(
   }
 
   return { grossRevenue, operatingCost, income, productionCost, netProfit, year };
-}
-
-// ── 작물 생산 통계 조회 ──
-
-/**
- * KOSIS 통계표에서 작물 통계 데이터를 조회한다.
- *
- * 농업 통계는 보통 전년도가 최신이므로,
- * 당해년도를 먼저 시도한 뒤 데이터가 없으면 전년도로 fallback한다.
- */
-export async function fetchCropStats(
-  tblId: string,
-  objL1Code?: string
-): Promise<CropStatItem[]> {
-  const apiKey = process.env.KOSIS_API_KEY;
-  if (!apiKey) return [];
-
-  const currentYear = new Date().getFullYear();
-
-  // 당해년도 시도
-  const items = await fetchFromKOSIS(tblId, apiKey, currentYear, objL1Code);
-  if (items.length > 0) return items;
-
-  // fallback: 전년도
-  return fetchFromKOSIS(tblId, apiKey, currentYear - 1, objL1Code);
-}
-
-// --- 내부 함수 ---
-
-async function fetchFromKOSIS(
-  tblId: string,
-  apiKey: string,
-  year: number,
-  objL1Code?: string
-): Promise<CropStatItem[]> {
-  const url = new URL(API_BASE);
-  url.searchParams.set("method", "getList");
-  url.searchParams.set("apiKey", apiKey);
-  url.searchParams.set("itmId", "ALL");
-  url.searchParams.set("objL1", objL1Code || "ALL");
-  url.searchParams.set("objL2", "");
-  url.searchParams.set("format", "json");
-  url.searchParams.set("jsonVD", "Y");
-  url.searchParams.set("prdSe", "Y");
-  url.searchParams.set("startPrdDe", String(year));
-  url.searchParams.set("endPrdDe", String(year));
-  url.searchParams.set("orgId", "101");
-  url.searchParams.set("tblId", tblId);
-
-  try {
-    const res = await fetch(url.toString(), {
-      next: { revalidate: 86400 }, // 24시간 캐시
-      signal: AbortSignal.timeout(FETCH_TIMEOUT),
-    });
-
-    if (!res.ok) {
-      throw new Error(`KOSIS HTTP ${res.status}`);
-    }
-
-    const json = await res.json();
-
-    // KOSIS 는 에러 시에도 200을 반환하며 err 필드를 포함할 수 있다
-    if (!Array.isArray(json)) return [];
-
-    const raw: KOSISRawItem[] = json;
-    return parseRawItems(raw);
-  } catch {
-    return [];
-  }
-}
-
-/**
- * KOSIS 원본 응답을 CropStatItem 으로 변환한다.
- *
- * 동일 지역의 여러 항목(재배면적, 생산량 등)을 하나의 레코드로 합친다.
- */
-function parseRawItems(raw: KOSISRawItem[]): CropStatItem[] {
-  // 지역별로 그룹핑
-  const regionMap = new Map<
-    string,
-    { cultivationArea: number; production: number; cropName: string; year: number }
-  >();
-
-  for (const item of raw) {
-    const value = parseFloat(item.DT);
-    if (isNaN(value)) continue;
-
-    const key = item.C1_NM;
-    if (!regionMap.has(key)) {
-      regionMap.set(key, {
-        cultivationArea: 0,
-        production: 0,
-        cropName: extractCropName(item.ITM_NM, item.TBL_NM),
-        year: parseInt(item.PRD_DE, 10),
-      });
-    }
-
-    const entry = regionMap.get(key)!;
-    const itmLower = item.ITM_NM.toLowerCase();
-
-    if (itmLower.includes("재배면적") || itmLower.includes("면적")) {
-      entry.cultivationArea = value;
-    } else if (itmLower.includes("생산량") || itmLower.includes("수확량")) {
-      entry.production = value;
-    }
-  }
-
-  return Array.from(regionMap.entries()).map(([regionName, data]) => ({
-    regionName,
-    cropName: data.cropName,
-    cultivationArea: data.cultivationArea,
-    production: data.production,
-    year: data.year,
-  }));
-}
-
-/** 항목명 또는 테이블명에서 작물 이름을 추출한다. */
-function extractCropName(itmName: string, tblName: string): string {
-  // "논벼:재배면적" → "논벼"
-  const colonIdx = itmName.indexOf(":");
-  if (colonIdx > 0) return itmName.slice(0, colonIdx);
-
-  // 테이블명에서 추출 ("시군별 논벼 생산량" → "논벼")
-  const match = tblName.match(/(?:시군별|시도별)\s+(.+?)(?:\s+(?:생산량|재배|면적))/);
-  if (match) return match[1];
-
-  return itmName;
 }
 
 // ── 귀농·귀촌 시군구별 통계 조회 ──
