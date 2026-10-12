@@ -1,5 +1,5 @@
 /**
- * SGIS population.json 5년치 일괄 수집 스크립트.
+ * SGIS population.json 최근 5년치(끝 = 올해 − 2) 일괄 수집 스크립트.
  *
  * - 17개 시도(sgisCode 2자리) × 5년치 → low_search=1 한 번씩 호출 (총 85회)
  * - 결과를 src/lib/data/population-trend.ts 의 정적 폴백으로 자동 직렬화
@@ -31,8 +31,14 @@ const AUTH_URL =
 const POPULATION_URL =
   "https://sgisapi.mods.go.kr/OpenAPI3/stats/population.json";
 
-/** 수집 대상 연도 (5년치). SGIS 인구통계는 1~2년 지연. */
-const YEARS = [2018, 2019, 2020, 2021, 2022];
+/**
+ * 수집 대상 연도 — 최근 5년. 끝 연도는 화면이 SGIS 에 실시간으로 묻는 해(sgis.ts: 올해 − 2)와 같아야 한다.
+ * 2026-10-12: 2018~2022 로 고정돼 있어, 실시간 조회가 실패한 순간 화면이 2년 묵은 2022년 값을 연도 표기 없이
+ * 보여 주고 하루 캐시했다(청주 상당구 191,510 vs 2024년 195,499 — 주간 정합성 대조 #173).
+ * 해가 바뀌면 끝 연도가 따라 움직이고, data-sources.yml 주간 재수집이 생성본과 달라졌다고 알린다.
+ */
+const LAST_YEAR = new Date().getFullYear() - 2;
+const YEARS = Array.from({ length: 5 }, (_, i) => LAST_YEAR - 4 + i);
 
 /**
  * 구 분할 시(통합시) 매핑 — sgis.ts 의 GU_CODES_MAP 과 동일.

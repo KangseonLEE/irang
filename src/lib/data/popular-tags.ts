@@ -3,7 +3,7 @@
  *
  * 생성 스크립트: scripts/compute-popular-tags.ts
  * 데이터 소스: src/lib/data/return-farm-rate.ts (KOSIS 농촌 정착 인구 비율)
- * 마지막 갱신: 2026-10-07
+ * 마지막 갱신: 2026-10-12
  *
  * ⚠ 절대 수동 편집 금지. 갱신은 `npx tsx scripts/compute-popular-tags.ts`
  *
@@ -22,8 +22,8 @@ export const POPULAR_RETURN_FARM_CODES: ReadonlySet<string> = new Set([
   "37530",
   "22520",
   "35540",
-  "36630",
   "36520",
+  "36630",
   "35520",
   "37520",
   "37540",
@@ -33,23 +33,23 @@ export const POPULAR_RETURN_FARM_CODES: ReadonlySet<string> = new Set([
   "38560",
   "33560",
   "36560",
-  "35570",
   "33520",
+  "35570",
   "36580",
+  "37610",
   "36590",
   "38570",
-  "37610",
-  "36650",
-  "32530",
   "35550",
   "38510",
   "38600",
-  "38580",
-  "36610",
+  "36650",
+  "32530",
   "38550",
+  "38580",
   "34530",
   "35580",
   "35530",
+  "37550",
   "36670",
   "36600",
 ]);
