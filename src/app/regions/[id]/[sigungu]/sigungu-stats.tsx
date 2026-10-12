@@ -72,7 +72,7 @@ export interface SigunguStatsProps {
     population: number;
     sidoAvg?: number;
   }>;
-  /** 인구 추이 연도 (예: [2018,2019,2020,2021,2022]) */
+  /** 인구 추이 연도 (최근 5년, 예: [2020,2021,2022,2023,2024]) */
   populationTrendYears: number[];
   /** 인구 5년 변화율 (%, 양수=증가) */
   populationChangePct: number | null;

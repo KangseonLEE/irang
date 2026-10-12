@@ -8,7 +8,7 @@
  *
  * 비율 계산:
  *   returnFarmRate = (귀농인 수 / 전체 인구) × 100
- *   - 시군구 인구: src/lib/data/population-trend.ts 의 POPULATION_TREND_SIGUNGU 최신 연도(2022)
+ *   - 시군구 인구: src/lib/data/population-trend.ts 의 POPULATION_TREND_SIGUNGU 마지막 해(= SGIS_POPULATION_YEAR, 2026년 기준 2024)
  *     (POPULATION_FALLBACK은 시도 단위만 보유 — 시군구는 trend 데이터 사용)
  *
  * 코드 매핑 주의 — 회장 메모(SGIS 코드 체계 vs 행안부 코드):

@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 import { GET } from "@/app/api/population-trend/route";
+import { SGIS_POPULATION_YEAR } from "@/lib/data/population-year";
 
 function stubSgis(failOnce: Set<number>, failAlways: Set<number>) {
   const calls = new Map<number, number>();
@@ -50,7 +51,7 @@ afterEach(() => {
 
 describe("인구 추이 API — 일시 실패한 해", () => {
   it("한 번 실패한 해는 다시 물어 10년을 다 채우고, 하루 캐시", async () => {
-    const latest = new Date().getFullYear() - 2;
+    const latest = SGIS_POPULATION_YEAR;
     const calls = stubSgis(new Set([latest - 8, latest - 4]), new Set());
     const res = await GET(req());
     const body = await res.json();
@@ -60,7 +61,7 @@ describe("인구 추이 API — 일시 실패한 해", () => {
   });
 
   it("다시 물어도 빠진 해가 있으면 받은 해만 내고 5분만 캐시", async () => {
-    const latest = new Date().getFullYear() - 2;
+    const latest = SGIS_POPULATION_YEAR;
     stubSgis(new Set(), new Set([latest - 4]));
     const res = await GET(req());
     const body = await res.json();

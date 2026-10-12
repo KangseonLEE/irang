@@ -3,8 +3,8 @@
  *
  * 생성 스크립트: scripts/collect-population-trend.ts
  * 데이터 소스: 통계청 SGIS 인구통계 (1~2년 지연)
- * 수집 연도: 2018, 2019, 2020, 2021, 2022
- * 마지막 수집: 2026-10-08
+ * 수집 연도: 2020, 2021, 2022, 2023, 2024
+ * 마지막 수집: 2026-10-12
  *
  * ⚠ 절대 수동 편집 금지. 갱신은 `npx tsx scripts/collect-population-trend.ts`
  *
@@ -28,410 +28,10 @@ export interface PopulationTrendPoint {
 }
 
 /** 수집 대상 연도 */
-export const POPULATION_TREND_YEARS = [2018,2019,2020,2021,2022] as const;
+export const POPULATION_TREND_YEARS = [2020,2021,2022,2023,2024] as const;
 
 /** 시군구 인구 시계열 (SGIS 5자리 × 연도) */
 export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
-  {
-    "sgisCode": "11010",
-    "name": "종로구",
-    "year": 2018,
-    "population": 157967,
-    "householdCount": 63773,
-    "agingRate": 15.2
-  },
-  {
-    "sgisCode": "11020",
-    "name": "중구",
-    "year": 2018,
-    "population": 129797,
-    "householdCount": 53102,
-    "agingRate": 15.2
-  },
-  {
-    "sgisCode": "11030",
-    "name": "용산구",
-    "year": 2018,
-    "population": 226931,
-    "householdCount": 92497,
-    "agingRate": 14.6
-  },
-  {
-    "sgisCode": "11040",
-    "name": "성동구",
-    "year": 2018,
-    "population": 306796,
-    "householdCount": 123963,
-    "agingRate": 13.3
-  },
-  {
-    "sgisCode": "11050",
-    "name": "광진구",
-    "year": 2018,
-    "population": 362304,
-    "householdCount": 148735,
-    "agingRate": 12.2
-  },
-  {
-    "sgisCode": "11060",
-    "name": "동대문구",
-    "year": 2018,
-    "population": 358141,
-    "householdCount": 146974,
-    "agingRate": 15.2
-  },
-  {
-    "sgisCode": "11070",
-    "name": "중랑구",
-    "year": 2018,
-    "population": 391668,
-    "householdCount": 159444,
-    "agingRate": 15.2
-  },
-  {
-    "sgisCode": "11080",
-    "name": "성북구",
-    "year": 2018,
-    "population": 438734,
-    "householdCount": 171943,
-    "agingRate": 14.7
-  },
-  {
-    "sgisCode": "11090",
-    "name": "강북구",
-    "year": 2018,
-    "population": 309138,
-    "householdCount": 127551,
-    "agingRate": 18
-  },
-  {
-    "sgisCode": "11100",
-    "name": "도봉구",
-    "year": 2018,
-    "population": 328243,
-    "householdCount": 126286,
-    "agingRate": 16.6
-  },
-  {
-    "sgisCode": "11110",
-    "name": "노원구",
-    "year": 2018,
-    "population": 534092,
-    "householdCount": 202325,
-    "agingRate": 13.9
-  },
-  {
-    "sgisCode": "11120",
-    "name": "은평구",
-    "year": 2018,
-    "population": 462552,
-    "householdCount": 181338,
-    "agingRate": 15.9
-  },
-  {
-    "sgisCode": "11130",
-    "name": "서대문구",
-    "year": 2018,
-    "population": 318874,
-    "householdCount": 127197,
-    "agingRate": 14.9
-  },
-  {
-    "sgisCode": "11140",
-    "name": "마포구",
-    "year": 2018,
-    "population": 368188,
-    "householdCount": 154943,
-    "agingRate": 12.9
-  },
-  {
-    "sgisCode": "11150",
-    "name": "양천구",
-    "year": 2018,
-    "population": 445591,
-    "householdCount": 162039,
-    "agingRate": 12.5
-  },
-  {
-    "sgisCode": "11160",
-    "name": "강서구",
-    "year": 2018,
-    "population": 578539,
-    "householdCount": 235754,
-    "agingRate": 13.2
-  },
-  {
-    "sgisCode": "11170",
-    "name": "구로구",
-    "year": 2018,
-    "population": 433765,
-    "householdCount": 156235,
-    "agingRate": 14.5
-  },
-  {
-    "sgisCode": "11180",
-    "name": "금천구",
-    "year": 2018,
-    "population": 249344,
-    "householdCount": 96298,
-    "agingRate": 14.4
-  },
-  {
-    "sgisCode": "11190",
-    "name": "영등포구",
-    "year": 2018,
-    "population": 395286,
-    "householdCount": 149831,
-    "agingRate": 14
-  },
-  {
-    "sgisCode": "11200",
-    "name": "동작구",
-    "year": 2018,
-    "population": 397980,
-    "householdCount": 161495,
-    "agingRate": 14.4
-  },
-  {
-    "sgisCode": "11210",
-    "name": "관악구",
-    "year": 2018,
-    "population": 510303,
-    "householdCount": 236761,
-    "agingRate": 13.8
-  },
-  {
-    "sgisCode": "11220",
-    "name": "서초구",
-    "year": 2018,
-    "population": 409491,
-    "householdCount": 155418,
-    "agingRate": 12.6
-  },
-  {
-    "sgisCode": "11230",
-    "name": "강남구",
-    "year": 2018,
-    "population": 507810,
-    "householdCount": 203083,
-    "agingRate": 12.4
-  },
-  {
-    "sgisCode": "11240",
-    "name": "송파구",
-    "year": 2018,
-    "population": 638167,
-    "householdCount": 243547,
-    "agingRate": 12.2
-  },
-  {
-    "sgisCode": "11250",
-    "name": "강동구",
-    "year": 2018,
-    "population": 414231,
-    "householdCount": 159233,
-    "agingRate": 13.7
-  },
-  {
-    "sgisCode": "11010",
-    "name": "종로구",
-    "year": 2019,
-    "population": 154969,
-    "householdCount": 62652,
-    "agingRate": 15.9
-  },
-  {
-    "sgisCode": "11020",
-    "name": "중구",
-    "year": 2019,
-    "population": 130957,
-    "householdCount": 54496,
-    "agingRate": 15.9
-  },
-  {
-    "sgisCode": "11030",
-    "name": "용산구",
-    "year": 2019,
-    "population": 227174,
-    "householdCount": 93174,
-    "agingRate": 14.9
-  },
-  {
-    "sgisCode": "11040",
-    "name": "성동구",
-    "year": 2019,
-    "population": 299688,
-    "householdCount": 122770,
-    "agingRate": 14
-  },
-  {
-    "sgisCode": "11050",
-    "name": "광진구",
-    "year": 2019,
-    "population": 359766,
-    "householdCount": 149905,
-    "agingRate": 12.9
-  },
-  {
-    "sgisCode": "11060",
-    "name": "동대문구",
-    "year": 2019,
-    "population": 355094,
-    "householdCount": 148349,
-    "agingRate": 15.9
-  },
-  {
-    "sgisCode": "11070",
-    "name": "중랑구",
-    "year": 2019,
-    "population": 386331,
-    "householdCount": 160776,
-    "agingRate": 16.2
-  },
-  {
-    "sgisCode": "11080",
-    "name": "성북구",
-    "year": 2019,
-    "population": 445327,
-    "householdCount": 176729,
-    "agingRate": 15.1
-  },
-  {
-    "sgisCode": "11090",
-    "name": "강북구",
-    "year": 2019,
-    "population": 303871,
-    "householdCount": 128012,
-    "agingRate": 19
-  },
-  {
-    "sgisCode": "11100",
-    "name": "도봉구",
-    "year": 2019,
-    "population": 323543,
-    "householdCount": 126831,
-    "agingRate": 17.6
-  },
-  {
-    "sgisCode": "11110",
-    "name": "노원구",
-    "year": 2019,
-    "population": 522480,
-    "householdCount": 201458,
-    "agingRate": 14.9
-  },
-  {
-    "sgisCode": "11120",
-    "name": "은평구",
-    "year": 2019,
-    "population": 461530,
-    "householdCount": 184890,
-    "agingRate": 16.7
-  },
-  {
-    "sgisCode": "11130",
-    "name": "서대문구",
-    "year": 2019,
-    "population": 319394,
-    "householdCount": 128635,
-    "agingRate": 15.3
-  },
-  {
-    "sgisCode": "11140",
-    "name": "마포구",
-    "year": 2019,
-    "population": 369334,
-    "householdCount": 156888,
-    "agingRate": 13.2
-  },
-  {
-    "sgisCode": "11150",
-    "name": "양천구",
-    "year": 2019,
-    "population": 440354,
-    "householdCount": 162867,
-    "agingRate": 13.3
-  },
-  {
-    "sgisCode": "11160",
-    "name": "강서구",
-    "year": 2019,
-    "population": 574097,
-    "householdCount": 240135,
-    "agingRate": 14.1
-  },
-  {
-    "sgisCode": "11170",
-    "name": "구로구",
-    "year": 2019,
-    "population": 435560,
-    "householdCount": 160378,
-    "agingRate": 15.4
-  },
-  {
-    "sgisCode": "11180",
-    "name": "금천구",
-    "year": 2019,
-    "population": 249747,
-    "householdCount": 99315,
-    "agingRate": 15.2
-  },
-  {
-    "sgisCode": "11190",
-    "name": "영등포구",
-    "year": 2019,
-    "population": 394083,
-    "householdCount": 153923,
-    "agingRate": 14.6
-  },
-  {
-    "sgisCode": "11200",
-    "name": "동작구",
-    "year": 2019,
-    "population": 400368,
-    "householdCount": 164963,
-    "agingRate": 14.9
-  },
-  {
-    "sgisCode": "11210",
-    "name": "관악구",
-    "year": 2019,
-    "population": 507828,
-    "householdCount": 242154,
-    "agingRate": 14.4
-  },
-  {
-    "sgisCode": "11220",
-    "name": "서초구",
-    "year": 2019,
-    "population": 404960,
-    "householdCount": 155377,
-    "agingRate": 13.2
-  },
-  {
-    "sgisCode": "11230",
-    "name": "강남구",
-    "year": 2019,
-    "population": 509199,
-    "householdCount": 206524,
-    "agingRate": 13.1
-  },
-  {
-    "sgisCode": "11240",
-    "name": "송파구",
-    "year": 2019,
-    "population": 648600,
-    "householdCount": 252212,
-    "agingRate": 12.9
-  },
-  {
-    "sgisCode": "11250",
-    "name": "강동구",
-    "year": 2019,
-    "population": 415287,
-    "householdCount": 162976,
-    "agingRate": 14.6
-  },
   {
     "sgisCode": "11010",
     "name": "종로구",
@@ -1033,116 +633,404 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 17.3
   },
   {
-    "sgisCode": "23040",
-    "name": "연수구",
-    "year": 2018,
-    "population": 349963,
-    "householdCount": 120190,
-    "agingRate": 8.7
+    "sgisCode": "11010",
+    "name": "종로구",
+    "year": 2023,
+    "population": 146179,
+    "householdCount": 64507,
+    "agingRate": 18.7
   },
   {
-    "sgisCode": "23050",
-    "name": "남동구",
-    "year": 2018,
-    "population": 537389,
-    "householdCount": 201623,
-    "agingRate": 11.6
+    "sgisCode": "11020",
+    "name": "중구",
+    "year": 2023,
+    "population": 127576,
+    "householdCount": 59265,
+    "agingRate": 19.3
   },
   {
-    "sgisCode": "23060",
-    "name": "부평구",
-    "year": 2018,
-    "population": 525014,
-    "householdCount": 195852,
-    "agingRate": 12.5
+    "sgisCode": "11030",
+    "name": "용산구",
+    "year": 2023,
+    "population": 214791,
+    "householdCount": 98322,
+    "agingRate": 17.7
   },
   {
-    "sgisCode": "23070",
-    "name": "계양구",
-    "year": 2018,
-    "population": 307598,
-    "householdCount": 114050,
-    "agingRate": 10.7
+    "sgisCode": "11040",
+    "name": "성동구",
+    "year": 2023,
+    "population": 277683,
+    "householdCount": 123124,
+    "agingRate": 17.4
   },
   {
-    "sgisCode": "23090",
-    "name": "미추홀구",
-    "year": 2018,
-    "population": 415102,
-    "householdCount": 162813,
-    "agingRate": 14.9
+    "sgisCode": "11050",
+    "name": "광진구",
+    "year": 2023,
+    "population": 348160,
+    "householdCount": 158612,
+    "agingRate": 16.2
   },
   {
-    "sgisCode": "23510",
-    "name": "강화군",
-    "year": 2018,
-    "population": 64432,
-    "householdCount": 26728,
-    "agingRate": 30.9
+    "sgisCode": "11060",
+    "name": "동대문구",
+    "year": 2023,
+    "population": 355999,
+    "householdCount": 159457,
+    "agingRate": 18.4
   },
   {
-    "sgisCode": "23520",
-    "name": "옹진군",
-    "year": 2018,
-    "population": 19207,
-    "householdCount": 9149,
-    "agingRate": 23.5
+    "sgisCode": "11070",
+    "name": "중랑구",
+    "year": 2023,
+    "population": 376621,
+    "householdCount": 171823,
+    "agingRate": 20.5
   },
   {
-    "sgisCode": "23040",
-    "name": "연수구",
-    "year": 2019,
-    "population": 374413,
-    "householdCount": 130428,
-    "agingRate": 9
+    "sgisCode": "11080",
+    "name": "성북구",
+    "year": 2023,
+    "population": 432874,
+    "householdCount": 184404,
+    "agingRate": 18.2
   },
   {
-    "sgisCode": "23050",
-    "name": "남동구",
-    "year": 2019,
-    "population": 533119,
-    "householdCount": 203704,
-    "agingRate": 12.4
+    "sgisCode": "11090",
+    "name": "강북구",
+    "year": 2023,
+    "population": 284155,
+    "householdCount": 131363,
+    "agingRate": 23.6
   },
   {
-    "sgisCode": "23060",
-    "name": "부평구",
-    "year": 2019,
-    "population": 514385,
-    "householdCount": 194930,
-    "agingRate": 13.4
+    "sgisCode": "11100",
+    "name": "도봉구",
+    "year": 2023,
+    "population": 299931,
+    "householdCount": 129149,
+    "agingRate": 23
   },
   {
-    "sgisCode": "23070",
-    "name": "계양구",
-    "year": 2019,
-    "population": 298912,
-    "householdCount": 112858,
-    "agingRate": 11.7
+    "sgisCode": "11110",
+    "name": "노원구",
+    "year": 2023,
+    "population": 492979,
+    "householdCount": 205769,
+    "agingRate": 19.1
   },
   {
-    "sgisCode": "23090",
-    "name": "미추홀구",
-    "year": 2019,
-    "population": 411612,
-    "householdCount": 166240,
-    "agingRate": 15.6
+    "sgisCode": "11120",
+    "name": "은평구",
+    "year": 2023,
+    "population": 452988,
+    "householdCount": 198534,
+    "agingRate": 20.2
   },
   {
-    "sgisCode": "23510",
-    "name": "강화군",
-    "year": 2019,
-    "population": 65235,
-    "householdCount": 27048,
-    "agingRate": 31.7
+    "sgisCode": "11130",
+    "name": "서대문구",
+    "year": 2023,
+    "population": 320168,
+    "householdCount": 138166,
+    "agingRate": 17.6
   },
   {
-    "sgisCode": "23520",
-    "name": "옹진군",
-    "year": 2019,
-    "population": 19040,
-    "householdCount": 8862,
-    "agingRate": 24.7
+    "sgisCode": "11140",
+    "name": "마포구",
+    "year": 2023,
+    "population": 361380,
+    "householdCount": 167410,
+    "agingRate": 15.5
+  },
+  {
+    "sgisCode": "11150",
+    "name": "양천구",
+    "year": 2023,
+    "population": 422248,
+    "householdCount": 169479,
+    "agingRate": 17.7
+  },
+  {
+    "sgisCode": "11160",
+    "name": "강서구",
+    "year": 2023,
+    "population": 549557,
+    "householdCount": 255617,
+    "agingRate": 18.2
+  },
+  {
+    "sgisCode": "11170",
+    "name": "구로구",
+    "year": 2023,
+    "population": 423397,
+    "householdCount": 171257,
+    "agingRate": 19.7
+  },
+  {
+    "sgisCode": "11180",
+    "name": "금천구",
+    "year": 2023,
+    "population": 245860,
+    "householdCount": 111789,
+    "agingRate": 19.2
+  },
+  {
+    "sgisCode": "11190",
+    "name": "영등포구",
+    "year": 2023,
+    "population": 400544,
+    "householdCount": 174908,
+    "agingRate": 17.5
+  },
+  {
+    "sgisCode": "11200",
+    "name": "동작구",
+    "year": 2023,
+    "population": 384089,
+    "householdCount": 173897,
+    "agingRate": 18.1
+  },
+  {
+    "sgisCode": "11210",
+    "name": "관악구",
+    "year": 2023,
+    "population": 493677,
+    "householdCount": 263166,
+    "agingRate": 17.2
+  },
+  {
+    "sgisCode": "11220",
+    "name": "서초구",
+    "year": 2023,
+    "population": 385267,
+    "householdCount": 157290,
+    "agingRate": 16.5
+  },
+  {
+    "sgisCode": "11230",
+    "name": "강남구",
+    "year": 2023,
+    "population": 511084,
+    "householdCount": 218895,
+    "agingRate": 16.3
+  },
+  {
+    "sgisCode": "11240",
+    "name": "송파구",
+    "year": 2023,
+    "population": 630744,
+    "householdCount": 265857,
+    "agingRate": 16.8
+  },
+  {
+    "sgisCode": "11250",
+    "name": "강동구",
+    "year": 2023,
+    "population": 446561,
+    "householdCount": 189599,
+    "agingRate": 18.3
+  },
+  {
+    "sgisCode": "11010",
+    "name": "종로구",
+    "year": 2024,
+    "population": 144486,
+    "householdCount": 64643,
+    "agingRate": 19.7
+  },
+  {
+    "sgisCode": "11020",
+    "name": "중구",
+    "year": 2024,
+    "population": 126899,
+    "householdCount": 59849,
+    "agingRate": 20.2
+  },
+  {
+    "sgisCode": "11030",
+    "name": "용산구",
+    "year": 2024,
+    "population": 203401,
+    "householdCount": 93491,
+    "agingRate": 18.3
+  },
+  {
+    "sgisCode": "11040",
+    "name": "성동구",
+    "year": 2024,
+    "population": 274688,
+    "householdCount": 122894,
+    "agingRate": 18.3
+  },
+  {
+    "sgisCode": "11050",
+    "name": "광진구",
+    "year": 2024,
+    "population": 345130,
+    "householdCount": 158609,
+    "agingRate": 17.2
+  },
+  {
+    "sgisCode": "11060",
+    "name": "동대문구",
+    "year": 2024,
+    "population": 355789,
+    "householdCount": 160767,
+    "agingRate": 19.2
+  },
+  {
+    "sgisCode": "11070",
+    "name": "중랑구",
+    "year": 2024,
+    "population": 375066,
+    "householdCount": 173326,
+    "agingRate": 21.7
+  },
+  {
+    "sgisCode": "11080",
+    "name": "성북구",
+    "year": 2024,
+    "population": 429210,
+    "householdCount": 184228,
+    "agingRate": 19
+  },
+  {
+    "sgisCode": "11090",
+    "name": "강북구",
+    "year": 2024,
+    "population": 280470,
+    "householdCount": 130929,
+    "agingRate": 24.9
+  },
+  {
+    "sgisCode": "11100",
+    "name": "도봉구",
+    "year": 2024,
+    "population": 296997,
+    "householdCount": 129841,
+    "agingRate": 24.4
+  },
+  {
+    "sgisCode": "11110",
+    "name": "노원구",
+    "year": 2024,
+    "population": 486446,
+    "householdCount": 205666,
+    "agingRate": 20.2
+  },
+  {
+    "sgisCode": "11120",
+    "name": "은평구",
+    "year": 2024,
+    "population": 448142,
+    "householdCount": 198916,
+    "agingRate": 21.3
+  },
+  {
+    "sgisCode": "11130",
+    "name": "서대문구",
+    "year": 2024,
+    "population": 316345,
+    "householdCount": 137979,
+    "agingRate": 18.4
+  },
+  {
+    "sgisCode": "11140",
+    "name": "마포구",
+    "year": 2024,
+    "population": 358927,
+    "householdCount": 167967,
+    "agingRate": 16.1
+  },
+  {
+    "sgisCode": "11150",
+    "name": "양천구",
+    "year": 2024,
+    "population": 417397,
+    "householdCount": 169044,
+    "agingRate": 18.8
+  },
+  {
+    "sgisCode": "11160",
+    "name": "강서구",
+    "year": 2024,
+    "population": 543974,
+    "householdCount": 256036,
+    "agingRate": 19.3
+  },
+  {
+    "sgisCode": "11170",
+    "name": "구로구",
+    "year": 2024,
+    "population": 418832,
+    "householdCount": 171388,
+    "agingRate": 20.9
+  },
+  {
+    "sgisCode": "11180",
+    "name": "금천구",
+    "year": 2024,
+    "population": 243662,
+    "householdCount": 112676,
+    "agingRate": 20.5
+  },
+  {
+    "sgisCode": "11190",
+    "name": "영등포구",
+    "year": 2024,
+    "population": 400799,
+    "householdCount": 176587,
+    "agingRate": 18.3
+  },
+  {
+    "sgisCode": "11200",
+    "name": "동작구",
+    "year": 2024,
+    "population": 381172,
+    "householdCount": 173615,
+    "agingRate": 18.9
+  },
+  {
+    "sgisCode": "11210",
+    "name": "관악구",
+    "year": 2024,
+    "population": 490493,
+    "householdCount": 264148,
+    "agingRate": 17.9
+  },
+  {
+    "sgisCode": "11220",
+    "name": "서초구",
+    "year": 2024,
+    "population": 386254,
+    "householdCount": 158384,
+    "agingRate": 17.2
+  },
+  {
+    "sgisCode": "11230",
+    "name": "강남구",
+    "year": 2024,
+    "population": 528194,
+    "householdCount": 226333,
+    "agingRate": 16.8
+  },
+  {
+    "sgisCode": "11240",
+    "name": "송파구",
+    "year": 2024,
+    "population": 628648,
+    "householdCount": 267817,
+    "agingRate": 17.7
+  },
+  {
+    "sgisCode": "11250",
+    "name": "강동구",
+    "year": 2024,
+    "population": 454023,
+    "householdCount": 194369,
+    "agingRate": 19.2
   },
   {
     "sgisCode": "23040",
@@ -1313,708 +1201,116 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 29
   },
   {
-    "sgisCode": "31011",
-    "name": "수원시 장안구",
-    "year": 2018,
-    "population": 288719,
-    "householdCount": 103605,
-    "agingRate": 11.4
-  },
-  {
-    "sgisCode": "31012",
-    "name": "수원시 권선구",
-    "year": 2018,
-    "population": 379845,
-    "householdCount": 141227,
-    "agingRate": 9.5
-  },
-  {
-    "sgisCode": "31013",
-    "name": "수원시 팔달구",
-    "year": 2018,
-    "population": 194288,
-    "householdCount": 75216,
-    "agingRate": 13
-  },
-  {
-    "sgisCode": "31014",
-    "name": "수원시 영통구",
-    "year": 2018,
-    "population": 357697,
-    "householdCount": 131449,
-    "agingRate": 6.3
-  },
-  {
-    "sgisCode": "31021",
-    "name": "성남시 수정구",
-    "year": 2018,
-    "population": 240405,
-    "householdCount": 96967,
-    "agingRate": 13.8
-  },
-  {
-    "sgisCode": "31022",
-    "name": "성남시 중원구",
-    "year": 2018,
-    "population": 221034,
-    "householdCount": 88527,
-    "agingRate": 13.6
-  },
-  {
-    "sgisCode": "31023",
-    "name": "성남시 분당구",
-    "year": 2018,
-    "population": 469954,
-    "householdCount": 173828,
-    "agingRate": 11.5
-  },
-  {
-    "sgisCode": "31030",
-    "name": "의정부시",
-    "year": 2018,
-    "population": 432286,
-    "householdCount": 164439,
-    "agingRate": 13.7
-  },
-  {
-    "sgisCode": "31041",
-    "name": "안양시 만안구",
-    "year": 2018,
-    "population": 251818,
-    "householdCount": 93094,
-    "agingRate": 13.6
-  },
-  {
-    "sgisCode": "31042",
-    "name": "안양시 동안구",
-    "year": 2018,
-    "population": 314756,
-    "householdCount": 111890,
-    "agingRate": 10.3
-  },
-  {
-    "sgisCode": "31051",
-    "name": "부천시 원미구",
-    "year": 2018,
-    "population": 428218,
-    "householdCount": 157585,
-    "agingRate": 10.7
-  },
-  {
-    "sgisCode": "31052",
-    "name": "부천시 소사구",
-    "year": 2018,
-    "population": 245437,
-    "householdCount": 88436,
-    "agingRate": 12.7
-  },
-  {
-    "sgisCode": "31053",
-    "name": "부천시 오정구",
-    "year": 2018,
-    "population": 175101,
-    "householdCount": 65847,
-    "agingRate": 12.3
-  },
-  {
-    "sgisCode": "31060",
-    "name": "광명시",
-    "year": 2018,
-    "population": 323460,
-    "householdCount": 117086,
-    "agingRate": 12.1
-  },
-  {
-    "sgisCode": "31070",
-    "name": "평택시",
-    "year": 2018,
-    "population": 504485,
-    "householdCount": 187813,
-    "agingRate": 11.1
-  },
-  {
-    "sgisCode": "31080",
-    "name": "동두천시",
-    "year": 2018,
-    "population": 97535,
-    "householdCount": 37226,
-    "agingRate": 18.2
-  },
-  {
-    "sgisCode": "31091",
-    "name": "안산시 상록구",
-    "year": 2018,
-    "population": 367063,
-    "householdCount": 137013,
-    "agingRate": 9.8
-  },
-  {
-    "sgisCode": "31092",
-    "name": "안산시 단원구",
-    "year": 2018,
-    "population": 353042,
-    "householdCount": 114405,
-    "agingRate": 8.4
-  },
-  {
-    "sgisCode": "31101",
-    "name": "고양시 덕양구",
-    "year": 2018,
-    "population": 436865,
-    "householdCount": 164489,
-    "agingRate": 13.4
-  },
-  {
-    "sgisCode": "31103",
-    "name": "고양시 일산동구",
-    "year": 2018,
-    "population": 287473,
-    "householdCount": 107411,
+    "sgisCode": "23040",
+    "name": "연수구",
+    "year": 2023,
+    "population": 408476,
+    "householdCount": 148578,
     "agingRate": 11.6
   },
   {
-    "sgisCode": "31104",
-    "name": "고양시 일산서구",
-    "year": 2018,
-    "population": 282654,
-    "householdCount": 98208,
-    "agingRate": 11.5
+    "sgisCode": "23050",
+    "name": "남동구",
+    "year": 2023,
+    "population": 500087,
+    "householdCount": 209484,
+    "agingRate": 17.2
   },
   {
-    "sgisCode": "31110",
-    "name": "과천시",
-    "year": 2018,
-    "population": 53740,
-    "householdCount": 18678,
-    "agingRate": 13.5
+    "sgisCode": "23060",
+    "name": "부평구",
+    "year": 2023,
+    "population": 498558,
+    "householdCount": 205580,
+    "agingRate": 17.7
   },
   {
-    "sgisCode": "31120",
-    "name": "구리시",
-    "year": 2018,
-    "population": 195872,
-    "householdCount": 71875,
-    "agingRate": 11.8
+    "sgisCode": "23070",
+    "name": "계양구",
+    "year": 2023,
+    "population": 279818,
+    "householdCount": 116641,
+    "agingRate": 16.9
   },
   {
-    "sgisCode": "31130",
-    "name": "남양주시",
-    "year": 2018,
-    "population": 661866,
-    "householdCount": 232836,
-    "agingRate": 12.9
+    "sgisCode": "23090",
+    "name": "미추홀구",
+    "year": 2023,
+    "population": 414941,
+    "householdCount": 180687,
+    "agingRate": 19.2
   },
   {
-    "sgisCode": "31140",
-    "name": "오산시",
-    "year": 2018,
-    "population": 228059,
-    "householdCount": 83469,
-    "agingRate": 8.3
+    "sgisCode": "23510",
+    "name": "강화군",
+    "year": 2023,
+    "population": 66246,
+    "householdCount": 29379,
+    "agingRate": 36.9
   },
   {
-    "sgisCode": "31150",
-    "name": "시흥시",
-    "year": 2018,
-    "population": 480201,
-    "householdCount": 165423,
-    "agingRate": 8.1
+    "sgisCode": "23520",
+    "name": "옹진군",
+    "year": 2023,
+    "population": 19286,
+    "householdCount": 9877,
+    "agingRate": 30.8
   },
   {
-    "sgisCode": "31160",
-    "name": "군포시",
-    "year": 2018,
-    "population": 276860,
-    "householdCount": 98728,
-    "agingRate": 11.5
-  },
-  {
-    "sgisCode": "31170",
-    "name": "의왕시",
-    "year": 2018,
-    "population": 149599,
-    "householdCount": 53682,
-    "agingRate": 12.6
-  },
-  {
-    "sgisCode": "31180",
-    "name": "하남시",
-    "year": 2018,
-    "population": 238592,
-    "householdCount": 89479,
-    "agingRate": 12
-  },
-  {
-    "sgisCode": "31191",
-    "name": "용인시 처인구",
-    "year": 2018,
-    "population": 259524,
-    "householdCount": 92279,
+    "sgisCode": "23040",
+    "name": "연수구",
+    "year": 2024,
+    "population": 417391,
+    "householdCount": 153239,
     "agingRate": 12.4
   },
   {
-    "sgisCode": "31192",
-    "name": "용인시 기흥구",
-    "year": 2018,
-    "population": 421515,
-    "householdCount": 144809,
-    "agingRate": 11.7
+    "sgisCode": "23050",
+    "name": "남동구",
+    "year": 2024,
+    "population": 492920,
+    "householdCount": 209333,
+    "agingRate": 18.7
   },
   {
-    "sgisCode": "31193",
-    "name": "용인시 수지구",
-    "year": 2018,
-    "population": 344019,
-    "householdCount": 118537,
-    "agingRate": 12.5
+    "sgisCode": "23060",
+    "name": "부평구",
+    "year": 2024,
+    "population": 504885,
+    "householdCount": 210282,
+    "agingRate": 18.7
   },
   {
-    "sgisCode": "31200",
-    "name": "파주시",
-    "year": 2018,
-    "population": 447906,
-    "householdCount": 159143,
-    "agingRate": 12.6
+    "sgisCode": "23070",
+    "name": "계양구",
+    "year": 2024,
+    "population": 278600,
+    "householdCount": 118278,
+    "agingRate": 18.3
   },
   {
-    "sgisCode": "31210",
-    "name": "이천시",
-    "year": 2018,
-    "population": 220599,
-    "householdCount": 78535,
-    "agingRate": 12.4
+    "sgisCode": "23090",
+    "name": "미추홀구",
+    "year": 2024,
+    "population": 421789,
+    "householdCount": 184785,
+    "agingRate": 20
   },
   {
-    "sgisCode": "31220",
-    "name": "안성시",
-    "year": 2018,
-    "population": 201135,
-    "householdCount": 72418,
-    "agingRate": 14.7
+    "sgisCode": "23510",
+    "name": "강화군",
+    "year": 2024,
+    "population": 66309,
+    "householdCount": 29769,
+    "agingRate": 38.7
   },
   {
-    "sgisCode": "31230",
-    "name": "김포시",
-    "year": 2018,
-    "population": 424865,
-    "householdCount": 147297,
-    "agingRate": 11.1
-  },
-  {
-    "sgisCode": "31240",
-    "name": "화성시",
-    "year": 2018,
-    "population": 776657,
-    "householdCount": 271029,
-    "agingRate": 8
-  },
-  {
-    "sgisCode": "31250",
-    "name": "광주시",
-    "year": 2018,
-    "population": 364178,
-    "householdCount": 131002,
-    "agingRate": 11.4
-  },
-  {
-    "sgisCode": "31260",
-    "name": "양주시",
-    "year": 2018,
-    "population": 217776,
-    "householdCount": 77928,
-    "agingRate": 14.3
-  },
-  {
-    "sgisCode": "31270",
-    "name": "포천시",
-    "year": 2018,
-    "population": 161564,
-    "householdCount": 58539,
-    "agingRate": 15.7
-  },
-  {
-    "sgisCode": "31280",
-    "name": "여주시",
-    "year": 2018,
-    "population": 112096,
-    "householdCount": 42310,
-    "agingRate": 19
-  },
-  {
-    "sgisCode": "31550",
-    "name": "연천군",
-    "year": 2018,
-    "population": 43383,
-    "householdCount": 18089,
-    "agingRate": 23.5
-  },
-  {
-    "sgisCode": "31570",
-    "name": "가평군",
-    "year": 2018,
-    "population": 59957,
-    "householdCount": 24724,
-    "agingRate": 23
-  },
-  {
-    "sgisCode": "31580",
-    "name": "양평군",
-    "year": 2018,
-    "population": 111094,
-    "householdCount": 44928,
-    "agingRate": 23
-  },
-  {
-    "sgisCode": "31011",
-    "name": "수원시 장안구",
-    "year": 2019,
-    "population": 282288,
-    "householdCount": 103478,
-    "agingRate": 12.1
-  },
-  {
-    "sgisCode": "31012",
-    "name": "수원시 권선구",
-    "year": 2019,
-    "population": 374771,
-    "householdCount": 141422,
-    "agingRate": 10.3
-  },
-  {
-    "sgisCode": "31013",
-    "name": "수원시 팔달구",
-    "year": 2019,
-    "population": 189051,
-    "householdCount": 74469,
-    "agingRate": 13.8
-  },
-  {
-    "sgisCode": "31014",
-    "name": "수원시 영통구",
-    "year": 2019,
-    "population": 369409,
-    "householdCount": 138288,
-    "agingRate": 6.7
-  },
-  {
-    "sgisCode": "31021",
-    "name": "성남시 수정구",
-    "year": 2019,
-    "population": 241256,
-    "householdCount": 98955,
-    "agingRate": 14.6
-  },
-  {
-    "sgisCode": "31022",
-    "name": "성남시 중원구",
-    "year": 2019,
-    "population": 216005,
-    "householdCount": 88878,
-    "agingRate": 14.5
-  },
-  {
-    "sgisCode": "31023",
-    "name": "성남시 분당구",
-    "year": 2019,
-    "population": 462634,
-    "householdCount": 173580,
-    "agingRate": 12.1
-  },
-  {
-    "sgisCode": "31030",
-    "name": "의정부시",
-    "year": 2019,
-    "population": 440357,
-    "householdCount": 170040,
-    "agingRate": 14.5
-  },
-  {
-    "sgisCode": "31041",
-    "name": "안양시 만안구",
-    "year": 2019,
-    "population": 246200,
-    "householdCount": 92620,
-    "agingRate": 14.6
-  },
-  {
-    "sgisCode": "31042",
-    "name": "안양시 동안구",
-    "year": 2019,
-    "population": 311139,
-    "householdCount": 113075,
-    "agingRate": 11.1
-  },
-  {
-    "sgisCode": "31051",
-    "name": "부천시 원미구",
-    "year": 2019,
-    "population": 422301,
-    "householdCount": 157785,
-    "agingRate": 11.6
-  },
-  {
-    "sgisCode": "31052",
-    "name": "부천시 소사구",
-    "year": 2019,
-    "population": 243473,
-    "householdCount": 88599,
-    "agingRate": 13.7
-  },
-  {
-    "sgisCode": "31053",
-    "name": "부천시 오정구",
-    "year": 2019,
-    "population": 170977,
-    "householdCount": 65526,
-    "agingRate": 13.1
-  },
-  {
-    "sgisCode": "31060",
-    "name": "광명시",
-    "year": 2019,
-    "population": 313462,
-    "householdCount": 115414,
-    "agingRate": 12.9
-  },
-  {
-    "sgisCode": "31070",
-    "name": "평택시",
-    "year": 2019,
-    "population": 521172,
-    "householdCount": 197997,
-    "agingRate": 11.4
-  },
-  {
-    "sgisCode": "31080",
-    "name": "동두천시",
-    "year": 2019,
-    "population": 96541,
-    "householdCount": 37297,
-    "agingRate": 19.1
-  },
-  {
-    "sgisCode": "31091",
-    "name": "안산시 상록구",
-    "year": 2019,
-    "population": 356620,
-    "householdCount": 134952,
-    "agingRate": 10.6
-  },
-  {
-    "sgisCode": "31092",
-    "name": "안산시 단원구",
-    "year": 2019,
-    "population": 358030,
-    "householdCount": 118188,
-    "agingRate": 8.9
-  },
-  {
-    "sgisCode": "31101",
-    "name": "고양시 덕양구",
-    "year": 2019,
-    "population": 448571,
-    "householdCount": 172880,
-    "agingRate": 13.9
-  },
-  {
-    "sgisCode": "31103",
-    "name": "고양시 일산동구",
-    "year": 2019,
-    "population": 287041,
-    "householdCount": 109198,
-    "agingRate": 12.3
-  },
-  {
-    "sgisCode": "31104",
-    "name": "고양시 일산서구",
-    "year": 2019,
-    "population": 289033,
-    "householdCount": 102943,
-    "agingRate": 12.1
-  },
-  {
-    "sgisCode": "31110",
-    "name": "과천시",
-    "year": 2019,
-    "population": 53830,
-    "householdCount": 18901,
-    "agingRate": 14
-  },
-  {
-    "sgisCode": "31120",
-    "name": "구리시",
-    "year": 2019,
-    "population": 192270,
-    "householdCount": 71974,
-    "agingRate": 12.7
-  },
-  {
-    "sgisCode": "31130",
-    "name": "남양주시",
-    "year": 2019,
-    "population": 681077,
-    "householdCount": 243802,
-    "agingRate": 13.5
-  },
-  {
-    "sgisCode": "31140",
-    "name": "오산시",
-    "year": 2019,
-    "population": 233998,
-    "householdCount": 87151,
-    "agingRate": 8.9
-  },
-  {
-    "sgisCode": "31150",
-    "name": "시흥시",
-    "year": 2019,
-    "population": 508749,
-    "householdCount": 178734,
-    "agingRate": 8.4
-  },
-  {
-    "sgisCode": "31160",
-    "name": "군포시",
-    "year": 2019,
-    "population": 275154,
-    "householdCount": 100586,
-    "agingRate": 12.3
-  },
-  {
-    "sgisCode": "31170",
-    "name": "의왕시",
-    "year": 2019,
-    "population": 155826,
-    "householdCount": 57061,
-    "agingRate": 13.1
-  },
-  {
-    "sgisCode": "31180",
-    "name": "하남시",
-    "year": 2019,
-    "population": 260544,
-    "householdCount": 101231,
-    "agingRate": 12.3
-  },
-  {
-    "sgisCode": "31191",
-    "name": "용인시 처인구",
-    "year": 2019,
-    "population": 266647,
-    "householdCount": 95858,
-    "agingRate": 12.9
-  },
-  {
-    "sgisCode": "31192",
-    "name": "용인시 기흥구",
-    "year": 2019,
-    "population": 434075,
-    "householdCount": 151111,
-    "agingRate": 12.2
-  },
-  {
-    "sgisCode": "31193",
-    "name": "용인시 수지구",
-    "year": 2019,
-    "population": 351807,
-    "householdCount": 124783,
-    "agingRate": 12.9
-  },
-  {
-    "sgisCode": "31200",
-    "name": "파주시",
-    "year": 2019,
-    "population": 454328,
-    "householdCount": 164306,
-    "agingRate": 13
-  },
-  {
-    "sgisCode": "31210",
-    "name": "이천시",
-    "year": 2019,
-    "population": 222995,
-    "householdCount": 80367,
-    "agingRate": 12.8
-  },
-  {
-    "sgisCode": "31220",
-    "name": "안성시",
-    "year": 2019,
-    "population": 202284,
-    "householdCount": 74066,
-    "agingRate": 15.3
-  },
-  {
-    "sgisCode": "31230",
-    "name": "김포시",
-    "year": 2019,
-    "population": 442910,
-    "householdCount": 156040,
-    "agingRate": 11.5
-  },
-  {
-    "sgisCode": "31240",
-    "name": "화성시",
-    "year": 2019,
-    "population": 838102,
-    "householdCount": 298091,
-    "agingRate": 8.1
-  },
-  {
-    "sgisCode": "31250",
-    "name": "광주시",
-    "year": 2019,
-    "population": 375238,
-    "householdCount": 136730,
-    "agingRate": 12.1
-  },
-  {
-    "sgisCode": "31260",
-    "name": "양주시",
-    "year": 2019,
-    "population": 224684,
-    "householdCount": 81582,
-    "agingRate": 15.1
-  },
-  {
-    "sgisCode": "31270",
-    "name": "포천시",
-    "year": 2019,
-    "population": 159871,
-    "householdCount": 58273,
-    "agingRate": 16.6
-  },
-  {
-    "sgisCode": "31280",
-    "name": "여주시",
-    "year": 2019,
-    "population": 111981,
-    "householdCount": 42903,
-    "agingRate": 19.9
-  },
-  {
-    "sgisCode": "31550",
-    "name": "연천군",
-    "year": 2019,
-    "population": 42540,
-    "householdCount": 17681,
-    "agingRate": 24.5
-  },
-  {
-    "sgisCode": "31570",
-    "name": "가평군",
-    "year": 2019,
-    "population": 59823,
-    "householdCount": 24950,
-    "agingRate": 24
-  },
-  {
-    "sgisCode": "31580",
-    "name": "양평군",
-    "year": 2019,
-    "population": 111836,
-    "householdCount": 45895,
-    "agingRate": 24.2
+    "sgisCode": "23520",
+    "name": "옹진군",
+    "year": 2024,
+    "population": 19192,
+    "householdCount": 9883,
+    "agingRate": 32.5
   },
   {
     "sgisCode": "31011",
@@ -3073,292 +2369,708 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 27.9
   },
   {
-    "sgisCode": "32010",
-    "name": "춘천시",
-    "year": 2018,
-    "population": 284985,
-    "householdCount": 112917,
-    "agingRate": 15.7
+    "sgisCode": "31011",
+    "name": "수원시 장안구",
+    "year": 2023,
+    "population": 275209,
+    "householdCount": 110588,
+    "agingRate": 15.6
   },
   {
-    "sgisCode": "32020",
-    "name": "원주시",
-    "year": 2018,
-    "population": 344168,
-    "householdCount": 137823,
-    "agingRate": 13.5
+    "sgisCode": "31012",
+    "name": "수원시 권선구",
+    "year": 2023,
+    "population": 372852,
+    "householdCount": 154095,
+    "agingRate": 13.6
   },
   {
-    "sgisCode": "32030",
-    "name": "강릉시",
-    "year": 2018,
-    "population": 215528,
-    "householdCount": 90664,
-    "agingRate": 18.7
+    "sgisCode": "31013",
+    "name": "수원시 팔달구",
+    "year": 2023,
+    "population": 211665,
+    "householdCount": 91149,
+    "agingRate": 16
   },
   {
-    "sgisCode": "32040",
-    "name": "동해시",
-    "year": 2018,
-    "population": 87830,
-    "householdCount": 35984,
+    "sgisCode": "31014",
+    "name": "수원시 영통구",
+    "year": 2023,
+    "population": 366636,
+    "householdCount": 147736,
+    "agingRate": 9
+  },
+  {
+    "sgisCode": "31021",
+    "name": "성남시 수정구",
+    "year": 2023,
+    "population": 241230,
+    "householdCount": 105884,
+    "agingRate": 18.2
+  },
+  {
+    "sgisCode": "31022",
+    "name": "성남시 중원구",
+    "year": 2023,
+    "population": 210665,
+    "householdCount": 93755,
     "agingRate": 18.4
   },
   {
-    "sgisCode": "32050",
-    "name": "태백시",
-    "year": 2018,
-    "population": 43488,
-    "householdCount": 18663,
-    "agingRate": 21.9
+    "sgisCode": "31023",
+    "name": "성남시 분당구",
+    "year": 2023,
+    "population": 451221,
+    "householdCount": 180364,
+    "agingRate": 15.2
   },
   {
-    "sgisCode": "32060",
-    "name": "속초시",
-    "year": 2018,
-    "population": 78312,
-    "householdCount": 33623,
+    "sgisCode": "31030",
+    "name": "의정부시",
+    "year": 2023,
+    "population": 458966,
+    "householdCount": 193577,
+    "agingRate": 17.8
+  },
+  {
+    "sgisCode": "31041",
+    "name": "안양시 만안구",
+    "year": 2023,
+    "population": 234408,
+    "householdCount": 95384,
+    "agingRate": 19.1
+  },
+  {
+    "sgisCode": "31042",
+    "name": "안양시 동안구",
+    "year": 2023,
+    "population": 302751,
+    "householdCount": 118431,
+    "agingRate": 14.7
+  },
+  {
+    "sgisCode": "31051",
+    "name": "부천시 원미구",
+    "year": 2023,
+    "population": 405077,
+    "householdCount": 162567,
+    "agingRate": 16.1
+  },
+  {
+    "sgisCode": "31052",
+    "name": "부천시 소사구",
+    "year": 2023,
+    "population": 242773,
+    "householdCount": 92784,
+    "agingRate": 18.3
+  },
+  {
+    "sgisCode": "31053",
+    "name": "부천시 오정구",
+    "year": 2023,
+    "population": 155662,
+    "householdCount": 65056,
+    "agingRate": 18.2
+  },
+  {
+    "sgisCode": "31060",
+    "name": "광명시",
+    "year": 2023,
+    "population": 275397,
+    "householdCount": 107445,
+    "agingRate": 16.8
+  },
+  {
+    "sgisCode": "31070",
+    "name": "평택시",
+    "year": 2023,
+    "population": 605678,
+    "householdCount": 253667,
+    "agingRate": 12.8
+  },
+  {
+    "sgisCode": "31080",
+    "name": "동두천시",
+    "year": 2023,
+    "population": 91301,
+    "householdCount": 39014,
+    "agingRate": 23.7
+  },
+  {
+    "sgisCode": "31091",
+    "name": "안산시 상록구",
+    "year": 2023,
+    "population": 355957,
+    "householdCount": 142660,
+    "agingRate": 13.8
+  },
+  {
+    "sgisCode": "31092",
+    "name": "안산시 단원구",
+    "year": 2023,
+    "population": 353190,
+    "householdCount": 125368,
+    "agingRate": 12.5
+  },
+  {
+    "sgisCode": "31101",
+    "name": "고양시 덕양구",
+    "year": 2023,
+    "population": 484424,
+    "householdCount": 203461,
+    "agingRate": 16.9
+  },
+  {
+    "sgisCode": "31103",
+    "name": "고양시 일산동구",
+    "year": 2023,
+    "population": 285959,
+    "householdCount": 117087,
+    "agingRate": 16.2
+  },
+  {
+    "sgisCode": "31104",
+    "name": "고양시 일산서구",
+    "year": 2023,
+    "population": 277209,
+    "householdCount": 106524,
+    "agingRate": 15.9
+  },
+  {
+    "sgisCode": "31110",
+    "name": "과천시",
+    "year": 2023,
+    "population": 76824,
+    "householdCount": 27702,
+    "agingRate": 14.7
+  },
+  {
+    "sgisCode": "31120",
+    "name": "구리시",
+    "year": 2023,
+    "population": 183048,
+    "householdCount": 74350,
+    "agingRate": 16.7
+  },
+  {
+    "sgisCode": "31130",
+    "name": "남양주시",
+    "year": 2023,
+    "population": 716123,
+    "householdCount": 276687,
+    "agingRate": 16.8
+  },
+  {
+    "sgisCode": "31140",
+    "name": "오산시",
+    "year": 2023,
+    "population": 243832,
+    "householdCount": 98406,
+    "agingRate": 11.8
+  },
+  {
+    "sgisCode": "31150",
+    "name": "시흥시",
+    "year": 2023,
+    "population": 568455,
+    "householdCount": 213014,
+    "agingRate": 11.2
+  },
+  {
+    "sgisCode": "31160",
+    "name": "군포시",
+    "year": 2023,
+    "population": 263939,
+    "householdCount": 105892,
+    "agingRate": 16.7
+  },
+  {
+    "sgisCode": "31170",
+    "name": "의왕시",
+    "year": 2023,
+    "population": 154788,
+    "householdCount": 60145,
+    "agingRate": 16.9
+  },
+  {
+    "sgisCode": "31180",
+    "name": "하남시",
+    "year": 2023,
+    "population": 320562,
+    "householdCount": 131044,
+    "agingRate": 14.6
+  },
+  {
+    "sgisCode": "31191",
+    "name": "용인시 처인구",
+    "year": 2023,
+    "population": 274005,
+    "householdCount": 107739,
+    "agingRate": 16.1
+  },
+  {
+    "sgisCode": "31192",
+    "name": "용인시 기흥구",
+    "year": 2023,
+    "population": 428463,
+    "householdCount": 162728,
+    "agingRate": 15.6
+  },
+  {
+    "sgisCode": "31193",
+    "name": "용인시 수지구",
+    "year": 2023,
+    "population": 364511,
+    "householdCount": 134824,
+    "agingRate": 14.9
+  },
+  {
+    "sgisCode": "31200",
+    "name": "파주시",
+    "year": 2023,
+    "population": 495339,
+    "householdCount": 194815,
+    "agingRate": 15.6
+  },
+  {
+    "sgisCode": "31210",
+    "name": "이천시",
+    "year": 2023,
+    "population": 228695,
+    "householdCount": 90581,
+    "agingRate": 15.8
+  },
+  {
+    "sgisCode": "31220",
+    "name": "안성시",
+    "year": 2023,
+    "population": 210390,
+    "householdCount": 82975,
+    "agingRate": 18.2
+  },
+  {
+    "sgisCode": "31230",
+    "name": "김포시",
+    "year": 2023,
+    "population": 496323,
+    "householdCount": 188422,
+    "agingRate": 14.2
+  },
+  {
+    "sgisCode": "31240",
+    "name": "화성시",
+    "year": 2023,
+    "population": 974156,
+    "householdCount": 375093,
+    "agingRate": 9.8
+  },
+  {
+    "sgisCode": "31250",
+    "name": "광주시",
+    "year": 2023,
+    "population": 394667,
+    "householdCount": 154441,
+    "agingRate": 16
+  },
+  {
+    "sgisCode": "31260",
+    "name": "양주시",
+    "year": 2023,
+    "population": 269641,
+    "householdCount": 105751,
     "agingRate": 17.4
   },
   {
-    "sgisCode": "32070",
-    "name": "삼척시",
-    "year": 2018,
-    "population": 67881,
-    "householdCount": 29470,
-    "agingRate": 21.9
+    "sgisCode": "31270",
+    "name": "포천시",
+    "year": 2023,
+    "population": 157111,
+    "householdCount": 62070,
+    "agingRate": 21.5
   },
   {
-    "sgisCode": "32510",
-    "name": "홍천군",
-    "year": 2018,
-    "population": 67177,
-    "householdCount": 28314,
-    "agingRate": 23.5
+    "sgisCode": "31280",
+    "name": "여주시",
+    "year": 2023,
+    "population": 116045,
+    "householdCount": 48619,
+    "agingRate": 24.1
   },
   {
-    "sgisCode": "32520",
-    "name": "횡성군",
-    "year": 2018,
-    "population": 44116,
-    "householdCount": 18612,
-    "agingRate": 26.6
+    "sgisCode": "31550",
+    "name": "연천군",
+    "year": 2023,
+    "population": 41007,
+    "householdCount": 18647,
+    "agingRate": 30.2
   },
   {
-    "sgisCode": "32530",
-    "name": "영월군",
-    "year": 2018,
-    "population": 36762,
-    "householdCount": 16642,
-    "agingRate": 27.3
+    "sgisCode": "31570",
+    "name": "가평군",
+    "year": 2023,
+    "population": 59893,
+    "householdCount": 27241,
+    "agingRate": 29.4
   },
   {
-    "sgisCode": "32540",
-    "name": "평창군",
-    "year": 2018,
-    "population": 40025,
-    "householdCount": 17612,
-    "agingRate": 25.2
+    "sgisCode": "31580",
+    "name": "양평군",
+    "year": 2023,
+    "population": 119320,
+    "householdCount": 52242,
+    "agingRate": 29.3
   },
   {
-    "sgisCode": "32550",
-    "name": "정선군",
-    "year": 2018,
-    "population": 35580,
-    "householdCount": 15539,
-    "agingRate": 24.8
-  },
-  {
-    "sgisCode": "32560",
-    "name": "철원군",
-    "year": 2018,
-    "population": 44346,
-    "householdCount": 17064,
-    "agingRate": 20.3
-  },
-  {
-    "sgisCode": "32570",
-    "name": "화천군",
-    "year": 2018,
-    "population": 23950,
-    "householdCount": 10169,
-    "agingRate": 20.3
-  },
-  {
-    "sgisCode": "32580",
-    "name": "양구군",
-    "year": 2018,
-    "population": 22101,
-    "householdCount": 9076,
-    "agingRate": 18.6
-  },
-  {
-    "sgisCode": "32590",
-    "name": "인제군",
-    "year": 2018,
-    "population": 30373,
-    "householdCount": 12768,
-    "agingRate": 19
-  },
-  {
-    "sgisCode": "32600",
-    "name": "고성군",
-    "year": 2018,
-    "population": 28127,
-    "householdCount": 12031,
-    "agingRate": 24.9
-  },
-  {
-    "sgisCode": "32610",
-    "name": "양양군",
-    "year": 2018,
-    "population": 25642,
-    "householdCount": 11513,
-    "agingRate": 28.4
-  },
-  {
-    "sgisCode": "32010",
-    "name": "춘천시",
-    "year": 2019,
-    "population": 284753,
-    "householdCount": 113550,
+    "sgisCode": "31011",
+    "name": "수원시 장안구",
+    "year": 2024,
+    "population": 280812,
+    "householdCount": 114321,
     "agingRate": 16.4
   },
   {
-    "sgisCode": "32020",
-    "name": "원주시",
-    "year": 2019,
-    "population": 349319,
-    "householdCount": 142352,
-    "agingRate": 14.1
+    "sgisCode": "31012",
+    "name": "수원시 권선구",
+    "year": 2024,
+    "population": 370600,
+    "householdCount": 155236,
+    "agingRate": 14.9
   },
   {
-    "sgisCode": "32030",
-    "name": "강릉시",
-    "year": 2019,
-    "population": 216357,
-    "householdCount": 92093,
-    "agingRate": 19.4
+    "sgisCode": "31013",
+    "name": "수원시 팔달구",
+    "year": 2024,
+    "population": 208817,
+    "householdCount": 90276,
+    "agingRate": 17
   },
   {
-    "sgisCode": "32040",
-    "name": "동해시",
-    "year": 2019,
-    "population": 86780,
-    "householdCount": 36214,
-    "agingRate": 19.4
+    "sgisCode": "31014",
+    "name": "수원시 영통구",
+    "year": 2024,
+    "population": 364750,
+    "householdCount": 148731,
+    "agingRate": 9.6
   },
   {
-    "sgisCode": "32050",
-    "name": "태백시",
-    "year": 2019,
-    "population": 42474,
-    "householdCount": 18536,
-    "agingRate": 23.2
+    "sgisCode": "31021",
+    "name": "성남시 수정구",
+    "year": 2024,
+    "population": 246990,
+    "householdCount": 109006,
+    "agingRate": 19
   },
   {
-    "sgisCode": "32060",
-    "name": "속초시",
-    "year": 2019,
-    "population": 78643,
-    "householdCount": 34213,
-    "agingRate": 18.4
+    "sgisCode": "31022",
+    "name": "성남시 중원구",
+    "year": 2024,
+    "population": 205957,
+    "householdCount": 93112,
+    "agingRate": 19.8
   },
   {
-    "sgisCode": "32070",
-    "name": "삼척시",
-    "year": 2019,
-    "population": 67210,
-    "householdCount": 29361,
-    "agingRate": 22.7
+    "sgisCode": "31023",
+    "name": "성남시 분당구",
+    "year": 2024,
+    "population": 447920,
+    "householdCount": 180886,
+    "agingRate": 16.1
   },
   {
-    "sgisCode": "32510",
-    "name": "홍천군",
-    "year": 2019,
-    "population": 66634,
-    "householdCount": 28356,
-    "agingRate": 24.6
+    "sgisCode": "31030",
+    "name": "의정부시",
+    "year": 2024,
+    "population": 456516,
+    "householdCount": 194238,
+    "agingRate": 18.9
   },
   {
-    "sgisCode": "32520",
-    "name": "횡성군",
-    "year": 2019,
-    "population": 44431,
-    "householdCount": 18912,
-    "agingRate": 27.6
+    "sgisCode": "31041",
+    "name": "안양시 만안구",
+    "year": 2024,
+    "population": 229980,
+    "householdCount": 95009,
+    "agingRate": 20.6
   },
   {
-    "sgisCode": "32530",
-    "name": "영월군",
-    "year": 2019,
-    "population": 36332,
-    "householdCount": 16608,
-    "agingRate": 28.5
+    "sgisCode": "31042",
+    "name": "안양시 동안구",
+    "year": 2024,
+    "population": 315820,
+    "householdCount": 125090,
+    "agingRate": 15.4
   },
   {
-    "sgisCode": "32540",
-    "name": "평창군",
-    "year": 2019,
-    "population": 39657,
-    "householdCount": 17758,
-    "agingRate": 26.7
+    "sgisCode": "31051",
+    "name": "부천시 원미구",
+    "year": 2024,
+    "population": 401522,
+    "householdCount": 164060,
+    "agingRate": 17.5
   },
   {
-    "sgisCode": "32550",
-    "name": "정선군",
-    "year": 2019,
-    "population": 35255,
-    "householdCount": 15595,
-    "agingRate": 25.7
-  },
-  {
-    "sgisCode": "32560",
-    "name": "철원군",
-    "year": 2019,
-    "population": 43520,
-    "householdCount": 16770,
-    "agingRate": 21.4
-  },
-  {
-    "sgisCode": "32570",
-    "name": "화천군",
-    "year": 2019,
-    "population": 23425,
-    "householdCount": 9713,
-    "agingRate": 21.4
-  },
-  {
-    "sgisCode": "32580",
-    "name": "양구군",
-    "year": 2019,
-    "population": 21780,
-    "householdCount": 8519,
+    "sgisCode": "31052",
+    "name": "부천시 소사구",
+    "year": 2024,
+    "population": 240865,
+    "householdCount": 93540,
     "agingRate": 19.7
   },
   {
-    "sgisCode": "32590",
-    "name": "인제군",
-    "year": 2019,
-    "population": 30133,
-    "householdCount": 12326,
-    "agingRate": 19.6
+    "sgisCode": "31053",
+    "name": "부천시 오정구",
+    "year": 2024,
+    "population": 151695,
+    "householdCount": 64770,
+    "agingRate": 20.1
   },
   {
-    "sgisCode": "32600",
-    "name": "고성군",
-    "year": 2019,
-    "population": 27144,
-    "householdCount": 11132,
-    "agingRate": 26.6
+    "sgisCode": "31060",
+    "name": "광명시",
+    "year": 2024,
+    "population": 272371,
+    "householdCount": 107268,
+    "agingRate": 18
   },
   {
-    "sgisCode": "32610",
-    "name": "양양군",
-    "year": 2019,
-    "population": 26280,
-    "householdCount": 11934,
-    "agingRate": 29.1
+    "sgisCode": "31070",
+    "name": "평택시",
+    "year": 2024,
+    "population": 615755,
+    "householdCount": 260328,
+    "agingRate": 13.5
+  },
+  {
+    "sgisCode": "31080",
+    "name": "동두천시",
+    "year": 2024,
+    "population": 89466,
+    "householdCount": 38765,
+    "agingRate": 25.2
+  },
+  {
+    "sgisCode": "31091",
+    "name": "안산시 상록구",
+    "year": 2024,
+    "population": 348328,
+    "householdCount": 141317,
+    "agingRate": 15
+  },
+  {
+    "sgisCode": "31092",
+    "name": "안산시 단원구",
+    "year": 2024,
+    "population": 353223,
+    "householdCount": 126632,
+    "agingRate": 13.6
+  },
+  {
+    "sgisCode": "31101",
+    "name": "고양시 덕양구",
+    "year": 2024,
+    "population": 482446,
+    "householdCount": 204590,
+    "agingRate": 17.9
+  },
+  {
+    "sgisCode": "31103",
+    "name": "고양시 일산동구",
+    "year": 2024,
+    "population": 288578,
+    "householdCount": 118943,
+    "agingRate": 17.3
+  },
+  {
+    "sgisCode": "31104",
+    "name": "고양시 일산서구",
+    "year": 2024,
+    "population": 273944,
+    "householdCount": 106542,
+    "agingRate": 17.2
+  },
+  {
+    "sgisCode": "31110",
+    "name": "과천시",
+    "year": 2024,
+    "population": 81213,
+    "householdCount": 29182,
+    "agingRate": 15.1
+  },
+  {
+    "sgisCode": "31120",
+    "name": "구리시",
+    "year": 2024,
+    "population": 182102,
+    "householdCount": 75031,
+    "agingRate": 17.9
+  },
+  {
+    "sgisCode": "31130",
+    "name": "남양주시",
+    "year": 2024,
+    "population": 718385,
+    "householdCount": 280404,
+    "agingRate": 17.9
+  },
+  {
+    "sgisCode": "31140",
+    "name": "오산시",
+    "year": 2024,
+    "population": 254071,
+    "householdCount": 103897,
+    "agingRate": 12.4
+  },
+  {
+    "sgisCode": "31150",
+    "name": "시흥시",
+    "year": 2024,
+    "population": 571982,
+    "householdCount": 214491,
+    "agingRate": 12.2
+  },
+  {
+    "sgisCode": "31160",
+    "name": "군포시",
+    "year": 2024,
+    "population": 258110,
+    "householdCount": 105395,
+    "agingRate": 18.2
+  },
+  {
+    "sgisCode": "31170",
+    "name": "의왕시",
+    "year": 2024,
+    "population": 151306,
+    "householdCount": 59181,
+    "agingRate": 18.3
+  },
+  {
+    "sgisCode": "31180",
+    "name": "하남시",
+    "year": 2024,
+    "population": 320872,
+    "householdCount": 131561,
+    "agingRate": 15.6
+  },
+  {
+    "sgisCode": "31191",
+    "name": "용인시 처인구",
+    "year": 2024,
+    "population": 286273,
+    "householdCount": 113692,
+    "agingRate": 16.7
+  },
+  {
+    "sgisCode": "31192",
+    "name": "용인시 기흥구",
+    "year": 2024,
+    "population": 429488,
+    "householdCount": 165282,
+    "agingRate": 16.5
+  },
+  {
+    "sgisCode": "31193",
+    "name": "용인시 수지구",
+    "year": 2024,
+    "population": 361720,
+    "householdCount": 134781,
+    "agingRate": 15.6
+  },
+  {
+    "sgisCode": "31200",
+    "name": "파주시",
+    "year": 2024,
+    "population": 510689,
+    "householdCount": 201200,
+    "agingRate": 16.1
+  },
+  {
+    "sgisCode": "31210",
+    "name": "이천시",
+    "year": 2024,
+    "population": 230189,
+    "householdCount": 92642,
+    "agingRate": 16.7
+  },
+  {
+    "sgisCode": "31220",
+    "name": "안성시",
+    "year": 2024,
+    "population": 215739,
+    "householdCount": 86190,
+    "agingRate": 18.9
+  },
+  {
+    "sgisCode": "31230",
+    "name": "김포시",
+    "year": 2024,
+    "population": 499536,
+    "householdCount": 190489,
+    "agingRate": 15.2
+  },
+  {
+    "sgisCode": "31240",
+    "name": "화성시",
+    "year": 2024,
+    "population": 1004079,
+    "householdCount": 388620,
+    "agingRate": 10.4
+  },
+  {
+    "sgisCode": "31250",
+    "name": "광주시",
+    "year": 2024,
+    "population": 402335,
+    "householdCount": 158681,
+    "agingRate": 17
+  },
+  {
+    "sgisCode": "31260",
+    "name": "양주시",
+    "year": 2024,
+    "population": 293000,
+    "householdCount": 116280,
+    "agingRate": 17.6
+  },
+  {
+    "sgisCode": "31270",
+    "name": "포천시",
+    "year": 2024,
+    "population": 157166,
+    "householdCount": 62351,
+    "agingRate": 23.2
+  },
+  {
+    "sgisCode": "31280",
+    "name": "여주시",
+    "year": 2024,
+    "population": 117477,
+    "householdCount": 49618,
+    "agingRate": 25.3
+  },
+  {
+    "sgisCode": "31550",
+    "name": "연천군",
+    "year": 2024,
+    "population": 40386,
+    "householdCount": 18486,
+    "agingRate": 31.8
+  },
+  {
+    "sgisCode": "31570",
+    "name": "가평군",
+    "year": 2024,
+    "population": 60384,
+    "householdCount": 27941,
+    "agingRate": 31
+  },
+  {
+    "sgisCode": "31580",
+    "name": "양평군",
+    "year": 2024,
+    "population": 121622,
+    "householdCount": 54017,
+    "agingRate": 30.8
   },
   {
     "sgisCode": "32010",
@@ -3793,228 +3505,292 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 32.7
   },
   {
-    "sgisCode": "33020",
-    "name": "충주시",
-    "year": 2018,
-    "population": 215224,
-    "householdCount": 88711,
-    "agingRate": 17.3
+    "sgisCode": "32010",
+    "name": "춘천시",
+    "year": 2023,
+    "population": 292504,
+    "householdCount": 128682,
+    "agingRate": 19.8
   },
   {
-    "sgisCode": "33030",
-    "name": "제천시",
-    "year": 2018,
-    "population": 136101,
-    "householdCount": 56476,
-    "agingRate": 19.1
+    "sgisCode": "32020",
+    "name": "원주시",
+    "year": 2023,
+    "population": 364912,
+    "householdCount": 162343,
+    "agingRate": 17.5
   },
   {
-    "sgisCode": "33041",
-    "name": "청주시 상당구",
-    "year": 2018,
-    "population": 170119,
-    "householdCount": 63905,
-    "agingRate": 14.7
+    "sgisCode": "32030",
+    "name": "강릉시",
+    "year": 2023,
+    "population": 213786,
+    "householdCount": 98918,
+    "agingRate": 23.7
   },
   {
-    "sgisCode": "33042",
-    "name": "청주시 서원구",
-    "year": 2018,
-    "population": 216410,
-    "householdCount": 83080,
-    "agingRate": 12.3
+    "sgisCode": "32040",
+    "name": "동해시",
+    "year": 2023,
+    "population": 86222,
+    "householdCount": 39492,
+    "agingRate": 23.8
   },
   {
-    "sgisCode": "33043",
-    "name": "청주시 흥덕구",
-    "year": 2018,
-    "population": 258037,
-    "householdCount": 100525,
-    "agingRate": 9.9
+    "sgisCode": "32050",
+    "name": "태백시",
+    "year": 2023,
+    "population": 38425,
+    "householdCount": 18657,
+    "agingRate": 29.3
   },
   {
-    "sgisCode": "33044",
-    "name": "청주시 청원구",
-    "year": 2018,
-    "population": 200470,
-    "householdCount": 77513,
-    "agingRate": 11.1
+    "sgisCode": "32060",
+    "name": "속초시",
+    "year": 2023,
+    "population": 80497,
+    "householdCount": 38042,
+    "agingRate": 22.6
   },
   {
-    "sgisCode": "33520",
-    "name": "보은군",
-    "year": 2018,
-    "population": 32507,
-    "householdCount": 14080,
-    "agingRate": 31.6
+    "sgisCode": "32070",
+    "name": "삼척시",
+    "year": 2023,
+    "population": 63542,
+    "householdCount": 30225,
+    "agingRate": 27.4
   },
   {
-    "sgisCode": "33530",
-    "name": "옥천군",
-    "year": 2018,
-    "population": 49756,
-    "householdCount": 20362,
-    "agingRate": 27.5
+    "sgisCode": "32510",
+    "name": "홍천군",
+    "year": 2023,
+    "population": 65109,
+    "householdCount": 30685,
+    "agingRate": 31.4
   },
   {
-    "sgisCode": "33540",
-    "name": "영동군",
-    "year": 2018,
-    "population": 48475,
-    "householdCount": 20915,
-    "agingRate": 28.5
+    "sgisCode": "32520",
+    "name": "횡성군",
+    "year": 2023,
+    "population": 45789,
+    "householdCount": 21006,
+    "agingRate": 33.5
   },
   {
-    "sgisCode": "33550",
-    "name": "진천군",
-    "year": 2018,
-    "population": 83915,
-    "householdCount": 31023,
-    "agingRate": 14.6
+    "sgisCode": "32530",
+    "name": "영월군",
+    "year": 2023,
+    "population": 35581,
+    "householdCount": 18013,
+    "agingRate": 34.2
   },
   {
-    "sgisCode": "33560",
-    "name": "괴산군",
-    "year": 2018,
-    "population": 38449,
-    "householdCount": 16764,
-    "agingRate": 29.6
+    "sgisCode": "32540",
+    "name": "평창군",
+    "year": 2023,
+    "population": 38959,
+    "householdCount": 19175,
+    "agingRate": 32.9
   },
   {
-    "sgisCode": "33570",
-    "name": "음성군",
-    "year": 2018,
-    "population": 105539,
-    "householdCount": 39808,
-    "agingRate": 16.7
-  },
-  {
-    "sgisCode": "33580",
-    "name": "단양군",
-    "year": 2018,
-    "population": 28444,
-    "householdCount": 12684,
-    "agingRate": 28.2
-  },
-  {
-    "sgisCode": "33590",
-    "name": "증평군",
-    "year": 2018,
-    "population": 37485,
-    "householdCount": 15131,
-    "agingRate": 15.2
-  },
-  {
-    "sgisCode": "33020",
-    "name": "충주시",
-    "year": 2019,
-    "population": 216446,
-    "householdCount": 90191,
-    "agingRate": 18
-  },
-  {
-    "sgisCode": "33030",
-    "name": "제천시",
-    "year": 2019,
-    "population": 136093,
-    "householdCount": 57422,
-    "agingRate": 20
-  },
-  {
-    "sgisCode": "33041",
-    "name": "청주시 상당구",
-    "year": 2019,
-    "population": 173786,
-    "householdCount": 66169,
-    "agingRate": 15.2
-  },
-  {
-    "sgisCode": "33042",
-    "name": "청주시 서원구",
-    "year": 2019,
-    "population": 210270,
-    "householdCount": 83743,
-    "agingRate": 13.2
-  },
-  {
-    "sgisCode": "33043",
-    "name": "청주시 흥덕구",
-    "year": 2019,
-    "population": 266301,
-    "householdCount": 105115,
-    "agingRate": 10.4
-  },
-  {
-    "sgisCode": "33044",
-    "name": "청주시 청원구",
-    "year": 2019,
-    "population": 200581,
-    "householdCount": 79404,
-    "agingRate": 11.6
-  },
-  {
-    "sgisCode": "33520",
-    "name": "보은군",
-    "year": 2019,
-    "population": 32001,
-    "householdCount": 14044,
+    "sgisCode": "32550",
+    "name": "정선군",
+    "year": 2023,
+    "population": 32793,
+    "householdCount": 16413,
     "agingRate": 32.8
   },
   {
-    "sgisCode": "33530",
-    "name": "옥천군",
-    "year": 2019,
-    "population": 49117,
-    "householdCount": 20331,
-    "agingRate": 28.5
+    "sgisCode": "32560",
+    "name": "철원군",
+    "year": 2023,
+    "population": 40702,
+    "householdCount": 17365,
+    "agingRate": 26.1
   },
   {
-    "sgisCode": "33540",
-    "name": "영동군",
-    "year": 2019,
-    "population": 48004,
-    "householdCount": 20749,
-    "agingRate": 29.5
+    "sgisCode": "32570",
+    "name": "화천군",
+    "year": 2023,
+    "population": 22372,
+    "householdCount": 10239,
+    "agingRate": 26.4
   },
   {
-    "sgisCode": "33550",
-    "name": "진천군",
-    "year": 2019,
-    "population": 87525,
-    "householdCount": 32901,
-    "agingRate": 14.6
+    "sgisCode": "32580",
+    "name": "양구군",
+    "year": 2023,
+    "population": 20943,
+    "householdCount": 9027,
+    "agingRate": 24.5
   },
   {
-    "sgisCode": "33560",
-    "name": "괴산군",
-    "year": 2019,
-    "population": 38808,
-    "householdCount": 17013,
+    "sgisCode": "32590",
+    "name": "인제군",
+    "year": 2023,
+    "population": 31490,
+    "householdCount": 14021,
+    "agingRate": 23.1
+  },
+  {
+    "sgisCode": "32600",
+    "name": "고성군",
+    "year": 2023,
+    "population": 27811,
+    "householdCount": 12866,
     "agingRate": 30.2
   },
   {
-    "sgisCode": "33570",
-    "name": "음성군",
-    "year": 2019,
-    "population": 104823,
-    "householdCount": 39538,
-    "agingRate": 17.6
+    "sgisCode": "32610",
+    "name": "양양군",
+    "year": 2023,
+    "population": 26577,
+    "householdCount": 13241,
+    "agingRate": 34.1
   },
   {
-    "sgisCode": "33580",
-    "name": "단양군",
-    "year": 2019,
-    "population": 28095,
-    "householdCount": 12719,
-    "agingRate": 29.5
+    "sgisCode": "32010",
+    "name": "춘천시",
+    "year": 2024,
+    "population": 291783,
+    "householdCount": 129466,
+    "agingRate": 20.8
   },
   {
-    "sgisCode": "33590",
-    "name": "증평군",
-    "year": 2019,
-    "population": 37493,
-    "householdCount": 15374,
-    "agingRate": 16
+    "sgisCode": "32020",
+    "name": "원주시",
+    "year": 2024,
+    "population": 365720,
+    "householdCount": 164385,
+    "agingRate": 18.6
+  },
+  {
+    "sgisCode": "32030",
+    "name": "강릉시",
+    "year": 2024,
+    "population": 212352,
+    "householdCount": 98987,
+    "agingRate": 25.1
+  },
+  {
+    "sgisCode": "32040",
+    "name": "동해시",
+    "year": 2024,
+    "population": 85673,
+    "householdCount": 39776,
+    "agingRate": 25.1
+  },
+  {
+    "sgisCode": "32050",
+    "name": "태백시",
+    "year": 2024,
+    "population": 37590,
+    "householdCount": 18551,
+    "agingRate": 31
+  },
+  {
+    "sgisCode": "32060",
+    "name": "속초시",
+    "year": 2024,
+    "population": 79758,
+    "householdCount": 38116,
+    "agingRate": 24
+  },
+  {
+    "sgisCode": "32070",
+    "name": "삼척시",
+    "year": 2024,
+    "population": 62953,
+    "householdCount": 30275,
+    "agingRate": 28.8
+  },
+  {
+    "sgisCode": "32510",
+    "name": "홍천군",
+    "year": 2024,
+    "population": 65719,
+    "householdCount": 31062,
+    "agingRate": 32.7
+  },
+  {
+    "sgisCode": "32520",
+    "name": "횡성군",
+    "year": 2024,
+    "population": 45947,
+    "householdCount": 21229,
+    "agingRate": 35.2
+  },
+  {
+    "sgisCode": "32530",
+    "name": "영월군",
+    "year": 2024,
+    "population": 35449,
+    "householdCount": 18107,
+    "agingRate": 35.6
+  },
+  {
+    "sgisCode": "32540",
+    "name": "평창군",
+    "year": 2024,
+    "population": 39016,
+    "householdCount": 19383,
+    "agingRate": 34.4
+  },
+  {
+    "sgisCode": "32550",
+    "name": "정선군",
+    "year": 2024,
+    "population": 32503,
+    "householdCount": 16473,
+    "agingRate": 34.3
+  },
+  {
+    "sgisCode": "32560",
+    "name": "철원군",
+    "year": 2024,
+    "population": 40069,
+    "householdCount": 17349,
+    "agingRate": 27.5
+  },
+  {
+    "sgisCode": "32570",
+    "name": "화천군",
+    "year": 2024,
+    "population": 22278,
+    "householdCount": 10287,
+    "agingRate": 27.4
+  },
+  {
+    "sgisCode": "32580",
+    "name": "양구군",
+    "year": 2024,
+    "population": 20443,
+    "householdCount": 8967,
+    "agingRate": 25.9
+  },
+  {
+    "sgisCode": "32590",
+    "name": "인제군",
+    "year": 2024,
+    "population": 31167,
+    "householdCount": 14093,
+    "agingRate": 24.4
+  },
+  {
+    "sgisCode": "32600",
+    "name": "고성군",
+    "year": 2024,
+    "population": 27774,
+    "householdCount": 12838,
+    "agingRate": 31.4
+  },
+  {
+    "sgisCode": "32610",
+    "name": "양양군",
+    "year": 2024,
+    "population": 26687,
+    "householdCount": 13259,
+    "agingRate": 35.2
   },
   {
     "sgisCode": "33020",
@@ -4353,20 +4129,228 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 18.9
   },
   {
-    "sgisCode": "29010",
-    "name": "세종시",
-    "year": 2018,
-    "population": 312374,
-    "householdCount": 119029,
-    "agingRate": 8.9
+    "sgisCode": "33020",
+    "name": "충주시",
+    "year": 2023,
+    "population": 215990,
+    "householdCount": 97709,
+    "agingRate": 22
   },
   {
-    "sgisCode": "29010",
-    "name": "세종시",
-    "year": 2019,
-    "population": 338136,
-    "householdCount": 129664,
-    "agingRate": 9
+    "sgisCode": "33030",
+    "name": "제천시",
+    "year": 2023,
+    "population": 131583,
+    "householdCount": 59900,
+    "agingRate": 25.2
+  },
+  {
+    "sgisCode": "33041",
+    "name": "청주시 상당구",
+    "year": 2023,
+    "population": 197451,
+    "householdCount": 82951,
+    "agingRate": 17.5
+  },
+  {
+    "sgisCode": "33042",
+    "name": "청주시 서원구",
+    "year": 2023,
+    "population": 195222,
+    "householdCount": 85942,
+    "agingRate": 17.6
+  },
+  {
+    "sgisCode": "33043",
+    "name": "청주시 흥덕구",
+    "year": 2023,
+    "population": 281394,
+    "householdCount": 122901,
+    "agingRate": 12.9
+  },
+  {
+    "sgisCode": "33044",
+    "name": "청주시 청원구",
+    "year": 2023,
+    "population": 196291,
+    "householdCount": 84993,
+    "agingRate": 14.7
+  },
+  {
+    "sgisCode": "33520",
+    "name": "보은군",
+    "year": 2023,
+    "population": 30226,
+    "householdCount": 14460,
+    "agingRate": 38.6
+  },
+  {
+    "sgisCode": "33530",
+    "name": "옥천군",
+    "year": 2023,
+    "population": 47771,
+    "householdCount": 21650,
+    "agingRate": 33.4
+  },
+  {
+    "sgisCode": "33540",
+    "name": "영동군",
+    "year": 2023,
+    "population": 44331,
+    "householdCount": 21114,
+    "agingRate": 35.3
+  },
+  {
+    "sgisCode": "33550",
+    "name": "진천군",
+    "year": 2023,
+    "population": 94405,
+    "householdCount": 38111,
+    "agingRate": 16.7
+  },
+  {
+    "sgisCode": "33560",
+    "name": "괴산군",
+    "year": 2023,
+    "population": 37607,
+    "householdCount": 18191,
+    "agingRate": 36.5
+  },
+  {
+    "sgisCode": "33570",
+    "name": "음성군",
+    "year": 2023,
+    "population": 104615,
+    "householdCount": 42185,
+    "agingRate": 21.2
+  },
+  {
+    "sgisCode": "33580",
+    "name": "단양군",
+    "year": 2023,
+    "population": 26473,
+    "householdCount": 13086,
+    "agingRate": 36.4
+  },
+  {
+    "sgisCode": "33590",
+    "name": "증평군",
+    "year": 2023,
+    "population": 38122,
+    "householdCount": 17038,
+    "agingRate": 19.8
+  },
+  {
+    "sgisCode": "33020",
+    "name": "충주시",
+    "year": 2024,
+    "population": 215904,
+    "householdCount": 98610,
+    "agingRate": 23.1
+  },
+  {
+    "sgisCode": "33030",
+    "name": "제천시",
+    "year": 2024,
+    "population": 130733,
+    "householdCount": 59785,
+    "agingRate": 26.6
+  },
+  {
+    "sgisCode": "33041",
+    "name": "청주시 상당구",
+    "year": 2024,
+    "population": 195499,
+    "householdCount": 82964,
+    "agingRate": 18.6
+  },
+  {
+    "sgisCode": "33042",
+    "name": "청주시 서원구",
+    "year": 2024,
+    "population": 190979,
+    "householdCount": 84953,
+    "agingRate": 18.9
+  },
+  {
+    "sgisCode": "33043",
+    "name": "청주시 흥덕구",
+    "year": 2024,
+    "population": 291048,
+    "householdCount": 128364,
+    "agingRate": 13.3
+  },
+  {
+    "sgisCode": "33044",
+    "name": "청주시 청원구",
+    "year": 2024,
+    "population": 195842,
+    "householdCount": 85315,
+    "agingRate": 15.7
+  },
+  {
+    "sgisCode": "33520",
+    "name": "보은군",
+    "year": 2024,
+    "population": 29858,
+    "householdCount": 14470,
+    "agingRate": 40.1
+  },
+  {
+    "sgisCode": "33530",
+    "name": "옥천군",
+    "year": 2024,
+    "population": 47416,
+    "householdCount": 21622,
+    "agingRate": 34.6
+  },
+  {
+    "sgisCode": "33540",
+    "name": "영동군",
+    "year": 2024,
+    "population": 43730,
+    "householdCount": 20939,
+    "agingRate": 36.8
+  },
+  {
+    "sgisCode": "33550",
+    "name": "진천군",
+    "year": 2024,
+    "population": 96544,
+    "householdCount": 38826,
+    "agingRate": 17.3
+  },
+  {
+    "sgisCode": "33560",
+    "name": "괴산군",
+    "year": 2024,
+    "population": 37346,
+    "householdCount": 18293,
+    "agingRate": 38
+  },
+  {
+    "sgisCode": "33570",
+    "name": "음성군",
+    "year": 2024,
+    "population": 106652,
+    "householdCount": 42537,
+    "agingRate": 21.8
+  },
+  {
+    "sgisCode": "33580",
+    "name": "단양군",
+    "year": 2024,
+    "population": 26597,
+    "householdCount": 13172,
+    "agingRate": 37.6
+  },
+  {
+    "sgisCode": "33590",
+    "name": "증평군",
+    "year": 2024,
+    "population": 38180,
+    "householdCount": 17138,
+    "agingRate": 20.8
   },
   {
     "sgisCode": "29010",
@@ -4393,84 +4377,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 10.1
   },
   {
-    "sgisCode": "25010",
-    "name": "동구",
-    "year": 2018,
-    "population": 237297,
-    "householdCount": 99157,
-    "agingRate": 16.2
+    "sgisCode": "29010",
+    "name": "세종시",
+    "year": 2023,
+    "population": 386261,
+    "householdCount": 156444,
+    "agingRate": 10.5
   },
   {
-    "sgisCode": "25020",
-    "name": "중구",
-    "year": 2018,
-    "population": 239284,
-    "householdCount": 95807,
-    "agingRate": 17.2
-  },
-  {
-    "sgisCode": "25030",
-    "name": "서구",
-    "year": 2018,
-    "population": 484492,
-    "householdCount": 194136,
+    "sgisCode": "29010",
+    "name": "세종시",
+    "year": 2024,
+    "population": 390156,
+    "householdCount": 158901,
     "agingRate": 11.1
-  },
-  {
-    "sgisCode": "25040",
-    "name": "유성구",
-    "year": 2018,
-    "population": 365833,
-    "householdCount": 140085,
-    "agingRate": 8
-  },
-  {
-    "sgisCode": "25050",
-    "name": "대덕구",
-    "year": 2018,
-    "population": 184308,
-    "householdCount": 72990,
-    "agingRate": 13.4
-  },
-  {
-    "sgisCode": "25010",
-    "name": "동구",
-    "year": 2019,
-    "population": 237273,
-    "householdCount": 100718,
-    "agingRate": 17
-  },
-  {
-    "sgisCode": "25020",
-    "name": "중구",
-    "year": 2019,
-    "population": 234995,
-    "householdCount": 96106,
-    "agingRate": 18.3
-  },
-  {
-    "sgisCode": "25030",
-    "name": "서구",
-    "year": 2019,
-    "population": 480920,
-    "householdCount": 196870,
-    "agingRate": 11.8
-  },
-  {
-    "sgisCode": "25040",
-    "name": "유성구",
-    "year": 2019,
-    "population": 366544,
-    "householdCount": 143172,
-    "agingRate": 8.5
-  },
-  {
-    "sgisCode": "25050",
-    "name": "대덕구",
-    "year": 2019,
-    "population": 179107,
-    "householdCount": 72177,
-    "agingRate": 14.3
   },
   {
     "sgisCode": "25010",
@@ -4593,260 +4513,84 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 17.6
   },
   {
-    "sgisCode": "34011",
-    "name": "천안시 동남구",
-    "year": 2018,
-    "population": 276455,
-    "householdCount": 104705,
-    "agingRate": 12
+    "sgisCode": "25010",
+    "name": "동구",
+    "year": 2023,
+    "population": 230134,
+    "householdCount": 106617,
+    "agingRate": 20.6
   },
   {
-    "sgisCode": "34012",
-    "name": "천안시 서북구",
-    "year": 2018,
-    "population": 395344,
-    "householdCount": 152244,
-    "agingRate": 7.6
+    "sgisCode": "25020",
+    "name": "중구",
+    "year": 2023,
+    "population": 220292,
+    "householdCount": 98670,
+    "agingRate": 23
   },
   {
-    "sgisCode": "34020",
-    "name": "공주시",
-    "year": 2018,
-    "population": 110119,
-    "householdCount": 44552,
-    "agingRate": 22.7
+    "sgisCode": "25030",
+    "name": "서구",
+    "year": 2023,
+    "population": 469031,
+    "householdCount": 210520,
+    "agingRate": 15.2
   },
   {
-    "sgisCode": "34030",
-    "name": "보령시",
-    "year": 2018,
-    "population": 100229,
-    "householdCount": 41506,
-    "agingRate": 23.1
+    "sgisCode": "25040",
+    "name": "유성구",
+    "year": 2023,
+    "population": 379100,
+    "householdCount": 162551,
+    "agingRate": 11.2
   },
   {
-    "sgisCode": "34040",
-    "name": "아산시",
-    "year": 2018,
-    "population": 342272,
-    "householdCount": 120613,
-    "agingRate": 11
+    "sgisCode": "25050",
+    "name": "대덕구",
+    "year": 2023,
+    "population": 171779,
+    "householdCount": 76451,
+    "agingRate": 18.9
   },
   {
-    "sgisCode": "34050",
-    "name": "서산시",
-    "year": 2018,
-    "population": 174177,
-    "householdCount": 68462,
-    "agingRate": 16.9
-  },
-  {
-    "sgisCode": "34060",
-    "name": "논산시",
-    "year": 2018,
-    "population": 122843,
-    "householdCount": 48759,
-    "agingRate": 23.1
-  },
-  {
-    "sgisCode": "34070",
-    "name": "계룡시",
-    "year": 2018,
-    "population": 41557,
-    "householdCount": 14905,
-    "agingRate": 10.5
-  },
-  {
-    "sgisCode": "34080",
-    "name": "당진시",
-    "year": 2018,
-    "population": 169965,
-    "householdCount": 67159,
-    "agingRate": 16.6
-  },
-  {
-    "sgisCode": "34510",
-    "name": "금산군",
-    "year": 2018,
-    "population": 55015,
-    "householdCount": 22889,
-    "agingRate": 26.3
-  },
-  {
-    "sgisCode": "34530",
-    "name": "부여군",
-    "year": 2018,
-    "population": 66527,
-    "householdCount": 28265,
-    "agingRate": 31.1
-  },
-  {
-    "sgisCode": "34540",
-    "name": "서천군",
-    "year": 2018,
-    "population": 52604,
-    "householdCount": 22804,
-    "agingRate": 33.4
-  },
-  {
-    "sgisCode": "34550",
-    "name": "청양군",
-    "year": 2018,
-    "population": 31181,
-    "householdCount": 13493,
-    "agingRate": 32.4
-  },
-  {
-    "sgisCode": "34560",
-    "name": "홍성군",
-    "year": 2018,
-    "population": 103044,
-    "householdCount": 41721,
-    "agingRate": 21
-  },
-  {
-    "sgisCode": "34570",
-    "name": "예산군",
-    "year": 2018,
-    "population": 79136,
-    "householdCount": 32641,
-    "agingRate": 27.8
-  },
-  {
-    "sgisCode": "34580",
-    "name": "태안군",
-    "year": 2018,
-    "population": 60948,
-    "householdCount": 26406,
-    "agingRate": 28.2
-  },
-  {
-    "sgisCode": "34011",
-    "name": "천안시 동남구",
-    "year": 2019,
-    "population": 279153,
-    "householdCount": 108123,
-    "agingRate": 12.5
-  },
-  {
-    "sgisCode": "34012",
-    "name": "천안시 서북구",
-    "year": 2019,
-    "population": 400590,
-    "householdCount": 156260,
-    "agingRate": 8
-  },
-  {
-    "sgisCode": "34020",
-    "name": "공주시",
-    "year": 2019,
-    "population": 109877,
-    "householdCount": 44816,
-    "agingRate": 23.4
-  },
-  {
-    "sgisCode": "34030",
-    "name": "보령시",
-    "year": 2019,
-    "population": 99320,
-    "householdCount": 41410,
-    "agingRate": 24
-  },
-  {
-    "sgisCode": "34040",
-    "name": "아산시",
-    "year": 2019,
-    "population": 347032,
-    "householdCount": 123229,
-    "agingRate": 11.3
-  },
-  {
-    "sgisCode": "34050",
-    "name": "서산시",
-    "year": 2019,
-    "population": 175204,
-    "householdCount": 70024,
-    "agingRate": 17.4
-  },
-  {
-    "sgisCode": "34060",
-    "name": "논산시",
-    "year": 2019,
-    "population": 122111,
-    "householdCount": 49004,
-    "agingRate": 24
-  },
-  {
-    "sgisCode": "34070",
-    "name": "계룡시",
-    "year": 2019,
-    "population": 41153,
-    "householdCount": 15028,
-    "agingRate": 11.4
-  },
-  {
-    "sgisCode": "34080",
-    "name": "당진시",
-    "year": 2019,
-    "population": 169171,
-    "householdCount": 67758,
-    "agingRate": 17.2
-  },
-  {
-    "sgisCode": "34510",
-    "name": "금산군",
-    "year": 2019,
-    "population": 54442,
-    "householdCount": 22450,
-    "agingRate": 27.3
-  },
-  {
-    "sgisCode": "34530",
-    "name": "부여군",
-    "year": 2019,
-    "population": 65337,
-    "householdCount": 27982,
-    "agingRate": 32.6
-  },
-  {
-    "sgisCode": "34540",
-    "name": "서천군",
-    "year": 2019,
-    "population": 51826,
-    "householdCount": 22581,
-    "agingRate": 34.5
-  },
-  {
-    "sgisCode": "34550",
-    "name": "청양군",
-    "year": 2019,
-    "population": 30783,
-    "householdCount": 13382,
-    "agingRate": 33.5
-  },
-  {
-    "sgisCode": "34560",
-    "name": "홍성군",
-    "year": 2019,
-    "population": 102791,
-    "householdCount": 42235,
+    "sgisCode": "25010",
+    "name": "동구",
+    "year": 2024,
+    "population": 229875,
+    "householdCount": 106763,
     "agingRate": 21.7
   },
   {
-    "sgisCode": "34570",
-    "name": "예산군",
-    "year": 2019,
-    "population": 78963,
-    "householdCount": 32933,
-    "agingRate": 28.7
+    "sgisCode": "25020",
+    "name": "중구",
+    "year": 2024,
+    "population": 220497,
+    "householdCount": 99781,
+    "agingRate": 23.8
   },
   {
-    "sgisCode": "34580",
-    "name": "태안군",
-    "year": 2019,
-    "population": 60896,
-    "householdCount": 26887,
-    "agingRate": 29
+    "sgisCode": "25030",
+    "name": "서구",
+    "year": 2024,
+    "population": 462226,
+    "householdCount": 209783,
+    "agingRate": 16.3
+  },
+  {
+    "sgisCode": "25040",
+    "name": "유성구",
+    "year": 2024,
+    "population": 384024,
+    "householdCount": 165705,
+    "agingRate": 12
+  },
+  {
+    "sgisCode": "25050",
+    "name": "대덕구",
+    "year": 2024,
+    "population": 170471,
+    "householdCount": 76799,
+    "agingRate": 20.3
   },
   {
     "sgisCode": "34011",
@@ -5233,244 +4977,260 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 32.9
   },
   {
-    "sgisCode": "35011",
-    "name": "전주시 완산구",
-    "year": 2018,
-    "population": 348108,
-    "householdCount": 137053,
-    "agingRate": 14.2
+    "sgisCode": "34011",
+    "name": "천안시 동남구",
+    "year": 2023,
+    "population": 275944,
+    "householdCount": 115739,
+    "agingRate": 16
   },
   {
-    "sgisCode": "35012",
-    "name": "전주시 덕진구",
-    "year": 2018,
-    "population": 310804,
-    "householdCount": 118551,
-    "agingRate": 12.9
+    "sgisCode": "34012",
+    "name": "천안시 서북구",
+    "year": 2023,
+    "population": 413907,
+    "householdCount": 175824,
+    "agingRate": 10.3
   },
   {
-    "sgisCode": "35020",
-    "name": "군산시",
-    "year": 2018,
-    "population": 272204,
-    "householdCount": 108539,
-    "agingRate": 16.3
+    "sgisCode": "34020",
+    "name": "공주시",
+    "year": 2023,
+    "population": 105498,
+    "householdCount": 47452,
+    "agingRate": 28.3
   },
   {
-    "sgisCode": "35030",
-    "name": "익산시",
-    "year": 2018,
-    "population": 294787,
-    "householdCount": 118435,
-    "agingRate": 17
+    "sgisCode": "34030",
+    "name": "보령시",
+    "year": 2023,
+    "population": 96890,
+    "householdCount": 43912,
+    "agingRate": 28.4
   },
   {
-    "sgisCode": "35040",
-    "name": "정읍시",
-    "year": 2018,
-    "population": 108271,
-    "householdCount": 45514,
-    "agingRate": 25.5
-  },
-  {
-    "sgisCode": "35050",
-    "name": "남원시",
-    "year": 2018,
-    "population": 78483,
-    "householdCount": 33134,
-    "agingRate": 26.6
-  },
-  {
-    "sgisCode": "35060",
-    "name": "김제시",
-    "year": 2018,
-    "population": 81410,
-    "householdCount": 34621,
-    "agingRate": 29.5
-  },
-  {
-    "sgisCode": "35510",
-    "name": "완주군",
-    "year": 2018,
-    "population": 98002,
-    "householdCount": 37860,
-    "agingRate": 19.7
-  },
-  {
-    "sgisCode": "35520",
-    "name": "진안군",
-    "year": 2018,
-    "population": 23306,
-    "householdCount": 10374,
-    "agingRate": 33.2
-  },
-  {
-    "sgisCode": "35530",
-    "name": "무주군",
-    "year": 2018,
-    "population": 23058,
-    "householdCount": 10251,
-    "agingRate": 31.7
-  },
-  {
-    "sgisCode": "35540",
-    "name": "장수군",
-    "year": 2018,
-    "population": 21285,
-    "householdCount": 9214,
-    "agingRate": 31.7
-  },
-  {
-    "sgisCode": "35550",
-    "name": "임실군",
-    "year": 2018,
-    "population": 26377,
-    "householdCount": 11940,
-    "agingRate": 33.8
-  },
-  {
-    "sgisCode": "35560",
-    "name": "순창군",
-    "year": 2018,
-    "population": 27136,
-    "householdCount": 11577,
-    "agingRate": 33
-  },
-  {
-    "sgisCode": "35570",
-    "name": "고창군",
-    "year": 2018,
-    "population": 54425,
-    "householdCount": 23647,
-    "agingRate": 31.7
-  },
-  {
-    "sgisCode": "35580",
-    "name": "부안군",
-    "year": 2018,
-    "population": 50501,
-    "householdCount": 22270,
-    "agingRate": 31.1
-  },
-  {
-    "sgisCode": "35011",
-    "name": "전주시 완산구",
-    "year": 2019,
-    "population": 341123,
-    "householdCount": 136857,
-    "agingRate": 15.1
-  },
-  {
-    "sgisCode": "35012",
-    "name": "전주시 덕진구",
-    "year": 2019,
-    "population": 320963,
-    "householdCount": 124521,
+    "sgisCode": "34040",
+    "name": "아산시",
+    "year": 2023,
+    "population": 376632,
+    "householdCount": 146899,
     "agingRate": 13.2
   },
   {
-    "sgisCode": "35020",
-    "name": "군산시",
-    "year": 2019,
-    "population": 270635,
-    "householdCount": 108999,
-    "agingRate": 17.2
+    "sgisCode": "34050",
+    "name": "서산시",
+    "year": 2023,
+    "population": 178618,
+    "householdCount": 77564,
+    "agingRate": 20.3
   },
   {
-    "sgisCode": "35030",
-    "name": "익산시",
-    "year": 2019,
-    "population": 290119,
-    "householdCount": 118313,
-    "agingRate": 17.9
+    "sgisCode": "34060",
+    "name": "논산시",
+    "year": 2023,
+    "population": 115925,
+    "householdCount": 50401,
+    "agingRate": 28.3
   },
   {
-    "sgisCode": "35040",
-    "name": "정읍시",
-    "year": 2019,
-    "population": 107348,
-    "householdCount": 45455,
-    "agingRate": 26.3
+    "sgisCode": "34070",
+    "name": "계룡시",
+    "year": 2023,
+    "population": 44822,
+    "householdCount": 18349,
+    "agingRate": 14.5
   },
   {
-    "sgisCode": "35050",
-    "name": "남원시",
-    "year": 2019,
-    "population": 77690,
-    "householdCount": 33242,
-    "agingRate": 27.4
+    "sgisCode": "34080",
+    "name": "당진시",
+    "year": 2023,
+    "population": 174955,
+    "householdCount": 75714,
+    "agingRate": 19.7
   },
   {
-    "sgisCode": "35060",
-    "name": "김제시",
-    "year": 2019,
-    "population": 80422,
-    "householdCount": 34491,
-    "agingRate": 30.4
+    "sgisCode": "34510",
+    "name": "금산군",
+    "year": 2023,
+    "population": 53124,
+    "householdCount": 23354,
+    "agingRate": 31.4
   },
   {
-    "sgisCode": "35510",
-    "name": "완주군",
-    "year": 2019,
-    "population": 96212,
-    "householdCount": 37510,
-    "agingRate": 20.6
+    "sgisCode": "34530",
+    "name": "부여군",
+    "year": 2023,
+    "population": 60991,
+    "householdCount": 27956,
+    "agingRate": 38.2
   },
   {
-    "sgisCode": "35520",
-    "name": "진안군",
-    "year": 2019,
-    "population": 23013,
-    "householdCount": 10348,
-    "agingRate": 34.2
+    "sgisCode": "34540",
+    "name": "서천군",
+    "year": 2023,
+    "population": 49294,
+    "householdCount": 23135,
+    "agingRate": 39.4
   },
   {
-    "sgisCode": "35530",
-    "name": "무주군",
-    "year": 2019,
-    "population": 22852,
-    "householdCount": 10296,
-    "agingRate": 32.7
+    "sgisCode": "34550",
+    "name": "청양군",
+    "year": 2023,
+    "population": 29972,
+    "householdCount": 13801,
+    "agingRate": 37.9
   },
   {
-    "sgisCode": "35540",
-    "name": "장수군",
-    "year": 2019,
-    "population": 21267,
-    "householdCount": 9248,
-    "agingRate": 32.3
+    "sgisCode": "34560",
+    "name": "홍성군",
+    "year": 2023,
+    "population": 100015,
+    "householdCount": 43845,
+    "agingRate": 25.3
   },
   {
-    "sgisCode": "35550",
-    "name": "임실군",
-    "year": 2019,
-    "population": 26144,
-    "householdCount": 11985,
-    "agingRate": 34.5
+    "sgisCode": "34570",
+    "name": "예산군",
+    "year": 2023,
+    "population": 79229,
+    "householdCount": 35961,
+    "agingRate": 32.4
   },
   {
-    "sgisCode": "35560",
-    "name": "순창군",
-    "year": 2019,
-    "population": 26642,
-    "householdCount": 11476,
-    "agingRate": 33.6
+    "sgisCode": "34580",
+    "name": "태안군",
+    "year": 2023,
+    "population": 60516,
+    "householdCount": 28725,
+    "agingRate": 34.1
   },
   {
-    "sgisCode": "35570",
-    "name": "고창군",
-    "year": 2019,
-    "population": 53260,
-    "householdCount": 23540,
-    "agingRate": 32.8
+    "sgisCode": "34011",
+    "name": "천안시 동남구",
+    "year": 2024,
+    "population": 279621,
+    "householdCount": 118114,
+    "agingRate": 16.9
   },
   {
-    "sgisCode": "35580",
-    "name": "부안군",
-    "year": 2019,
-    "population": 49733,
-    "householdCount": 22026,
-    "agingRate": 32
+    "sgisCode": "34012",
+    "name": "천안시 서북구",
+    "year": 2024,
+    "population": 415144,
+    "householdCount": 176860,
+    "agingRate": 11.1
+  },
+  {
+    "sgisCode": "34020",
+    "name": "공주시",
+    "year": 2024,
+    "population": 104393,
+    "householdCount": 47903,
+    "agingRate": 29.5
+  },
+  {
+    "sgisCode": "34030",
+    "name": "보령시",
+    "year": 2024,
+    "population": 96182,
+    "householdCount": 43802,
+    "agingRate": 29.4
+  },
+  {
+    "sgisCode": "34040",
+    "name": "아산시",
+    "year": 2024,
+    "population": 392509,
+    "householdCount": 153914,
+    "agingRate": 13.5
+  },
+  {
+    "sgisCode": "34050",
+    "name": "서산시",
+    "year": 2024,
+    "population": 178586,
+    "householdCount": 78442,
+    "agingRate": 21.3
+  },
+  {
+    "sgisCode": "34060",
+    "name": "논산시",
+    "year": 2024,
+    "population": 114692,
+    "householdCount": 50237,
+    "agingRate": 29.6
+  },
+  {
+    "sgisCode": "34070",
+    "name": "계룡시",
+    "year": 2024,
+    "population": 45026,
+    "householdCount": 18551,
+    "agingRate": 15.5
+  },
+  {
+    "sgisCode": "34080",
+    "name": "당진시",
+    "year": 2024,
+    "population": 177715,
+    "householdCount": 77685,
+    "agingRate": 20.3
+  },
+  {
+    "sgisCode": "34510",
+    "name": "금산군",
+    "year": 2024,
+    "population": 53212,
+    "householdCount": 23752,
+    "agingRate": 32.1
+  },
+  {
+    "sgisCode": "34530",
+    "name": "부여군",
+    "year": 2024,
+    "population": 59930,
+    "householdCount": 27807,
+    "agingRate": 39.5
+  },
+  {
+    "sgisCode": "34540",
+    "name": "서천군",
+    "year": 2024,
+    "population": 48575,
+    "householdCount": 22881,
+    "agingRate": 40.5
+  },
+  {
+    "sgisCode": "34550",
+    "name": "청양군",
+    "year": 2024,
+    "population": 29818,
+    "householdCount": 13709,
+    "agingRate": 38.7
+  },
+  {
+    "sgisCode": "34560",
+    "name": "홍성군",
+    "year": 2024,
+    "population": 102178,
+    "householdCount": 45485,
+    "agingRate": 25.7
+  },
+  {
+    "sgisCode": "34570",
+    "name": "예산군",
+    "year": 2024,
+    "population": 79848,
+    "householdCount": 36320,
+    "agingRate": 33.2
+  },
+  {
+    "sgisCode": "34580",
+    "name": "태안군",
+    "year": 2024,
+    "population": 60814,
+    "householdCount": 29076,
+    "agingRate": 35.1
   },
   {
     "sgisCode": "35011",
@@ -5833,84 +5593,244 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 35.6
   },
   {
-    "sgisCode": "24010",
-    "name": "동구",
-    "year": 2018,
-    "population": 99870,
-    "householdCount": 43155,
-    "agingRate": 20.6
+    "sgisCode": "35011",
+    "name": "전주시 완산구",
+    "year": 2023,
+    "population": 333353,
+    "householdCount": 146921,
+    "agingRate": 18.7
   },
   {
-    "sgisCode": "24020",
-    "name": "서구",
-    "year": 2018,
-    "population": 302189,
-    "householdCount": 121889,
-    "agingRate": 12.7
+    "sgisCode": "35012",
+    "name": "전주시 덕진구",
+    "year": 2023,
+    "population": 324679,
+    "householdCount": 137271,
+    "agingRate": 15.7
   },
   {
-    "sgisCode": "24030",
-    "name": "남구",
-    "year": 2018,
-    "population": 217345,
-    "householdCount": 84578,
-    "agingRate": 16
+    "sgisCode": "35020",
+    "name": "군산시",
+    "year": 2023,
+    "population": 265764,
+    "householdCount": 116911,
+    "agingRate": 21.1
   },
   {
-    "sgisCode": "24040",
-    "name": "북구",
-    "year": 2018,
-    "population": 450023,
-    "householdCount": 177427,
-    "agingRate": 13.2
+    "sgisCode": "35030",
+    "name": "익산시",
+    "year": 2023,
+    "population": 274350,
+    "householdCount": 121458,
+    "agingRate": 22.1
   },
   {
-    "sgisCode": "24050",
-    "name": "광산구",
-    "year": 2018,
-    "population": 420665,
-    "householdCount": 151510,
-    "agingRate": 8.4
+    "sgisCode": "35040",
+    "name": "정읍시",
+    "year": 2023,
+    "population": 102507,
+    "householdCount": 47323,
+    "agingRate": 30.2
   },
   {
-    "sgisCode": "24010",
-    "name": "동구",
-    "year": 2019,
-    "population": 103754,
-    "householdCount": 44954,
-    "agingRate": 20.6
+    "sgisCode": "35050",
+    "name": "남원시",
+    "year": 2023,
+    "population": 74554,
+    "householdCount": 34712,
+    "agingRate": 31.4
   },
   {
-    "sgisCode": "24020",
-    "name": "서구",
-    "year": 2019,
-    "population": 298033,
-    "householdCount": 122889,
-    "agingRate": 13.4
+    "sgisCode": "35060",
+    "name": "김제시",
+    "year": 2023,
+    "population": 79663,
+    "householdCount": 36483,
+    "agingRate": 33.5
   },
   {
-    "sgisCode": "24030",
-    "name": "남구",
-    "year": 2019,
-    "population": 217972,
-    "householdCount": 86172,
-    "agingRate": 16.5
+    "sgisCode": "35510",
+    "name": "완주군",
+    "year": 2023,
+    "population": 101002,
+    "householdCount": 44049,
+    "agingRate": 23.1
   },
   {
-    "sgisCode": "24040",
-    "name": "북구",
-    "year": 2019,
-    "population": 446661,
-    "householdCount": 178759,
-    "agingRate": 13.9
+    "sgisCode": "35520",
+    "name": "진안군",
+    "year": 2023,
+    "population": 22843,
+    "householdCount": 10928,
+    "agingRate": 38.3
   },
   {
-    "sgisCode": "24050",
-    "name": "광산구",
-    "year": 2019,
-    "population": 423310,
-    "householdCount": 154385,
-    "agingRate": 8.8
+    "sgisCode": "35530",
+    "name": "무주군",
+    "year": 2023,
+    "population": 22401,
+    "householdCount": 10864,
+    "agingRate": 36.3
+  },
+  {
+    "sgisCode": "35540",
+    "name": "장수군",
+    "year": 2023,
+    "population": 19914,
+    "householdCount": 9456,
+    "agingRate": 37.7
+  },
+  {
+    "sgisCode": "35550",
+    "name": "임실군",
+    "year": 2023,
+    "population": 24509,
+    "householdCount": 12066,
+    "agingRate": 38.7
+  },
+  {
+    "sgisCode": "35560",
+    "name": "순창군",
+    "year": 2023,
+    "population": 25368,
+    "householdCount": 11941,
+    "agingRate": 36.7
+  },
+  {
+    "sgisCode": "35570",
+    "name": "고창군",
+    "year": 2023,
+    "population": 50731,
+    "householdCount": 23871,
+    "agingRate": 37.2
+  },
+  {
+    "sgisCode": "35580",
+    "name": "부안군",
+    "year": 2023,
+    "population": 46853,
+    "householdCount": 22521,
+    "agingRate": 36.8
+  },
+  {
+    "sgisCode": "35011",
+    "name": "전주시 완산구",
+    "year": 2024,
+    "population": 327406,
+    "householdCount": 146418,
+    "agingRate": 19.9
+  },
+  {
+    "sgisCode": "35012",
+    "name": "전주시 덕진구",
+    "year": 2024,
+    "population": 322228,
+    "householdCount": 137378,
+    "agingRate": 16.7
+  },
+  {
+    "sgisCode": "35020",
+    "name": "군산시",
+    "year": 2024,
+    "population": 265473,
+    "householdCount": 117450,
+    "agingRate": 22
+  },
+  {
+    "sgisCode": "35030",
+    "name": "익산시",
+    "year": 2024,
+    "population": 272392,
+    "householdCount": 121801,
+    "agingRate": 23.3
+  },
+  {
+    "sgisCode": "35040",
+    "name": "정읍시",
+    "year": 2024,
+    "population": 101887,
+    "householdCount": 47287,
+    "agingRate": 31
+  },
+  {
+    "sgisCode": "35050",
+    "name": "남원시",
+    "year": 2024,
+    "population": 73781,
+    "householdCount": 34859,
+    "agingRate": 32.4
+  },
+  {
+    "sgisCode": "35060",
+    "name": "김제시",
+    "year": 2024,
+    "population": 79692,
+    "householdCount": 36667,
+    "agingRate": 34.1
+  },
+  {
+    "sgisCode": "35510",
+    "name": "완주군",
+    "year": 2024,
+    "population": 102877,
+    "householdCount": 45051,
+    "agingRate": 23.5
+  },
+  {
+    "sgisCode": "35520",
+    "name": "진안군",
+    "year": 2024,
+    "population": 22855,
+    "householdCount": 11014,
+    "agingRate": 39.1
+  },
+  {
+    "sgisCode": "35530",
+    "name": "무주군",
+    "year": 2024,
+    "population": 22904,
+    "householdCount": 10864,
+    "agingRate": 36.4
+  },
+  {
+    "sgisCode": "35540",
+    "name": "장수군",
+    "year": 2024,
+    "population": 19838,
+    "householdCount": 9479,
+    "agingRate": 38.6
+  },
+  {
+    "sgisCode": "35550",
+    "name": "임실군",
+    "year": 2024,
+    "population": 24275,
+    "householdCount": 12027,
+    "agingRate": 39.8
+  },
+  {
+    "sgisCode": "35560",
+    "name": "순창군",
+    "year": 2024,
+    "population": 25494,
+    "householdCount": 11990,
+    "agingRate": 37.4
+  },
+  {
+    "sgisCode": "35570",
+    "name": "고창군",
+    "year": 2024,
+    "population": 51371,
+    "householdCount": 23951,
+    "agingRate": 37.6
+  },
+  {
+    "sgisCode": "35580",
+    "name": "부안군",
+    "year": 2024,
+    "population": 46363,
+    "householdCount": 22385,
+    "agingRate": 37.9
   },
   {
     "sgisCode": "24010",
@@ -6033,356 +5953,84 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 10.3
   },
   {
-    "sgisCode": "36010",
-    "name": "목포시",
-    "year": 2018,
-    "population": 231798,
-    "householdCount": 93021,
-    "agingRate": 15.2
+    "sgisCode": "24010",
+    "name": "동구",
+    "year": 2023,
+    "population": 112016,
+    "householdCount": 52727,
+    "agingRate": 22
   },
   {
-    "sgisCode": "36020",
-    "name": "여수시",
-    "year": 2018,
-    "population": 270947,
-    "householdCount": 108824,
-    "agingRate": 17.6
+    "sgisCode": "24020",
+    "name": "서구",
+    "year": 2023,
+    "population": 284014,
+    "householdCount": 128794,
+    "agingRate": 17.1
   },
   {
-    "sgisCode": "36030",
-    "name": "순천시",
-    "year": 2018,
-    "population": 268284,
-    "householdCount": 104561,
-    "agingRate": 14.6
+    "sgisCode": "24030",
+    "name": "남구",
+    "year": 2023,
+    "population": 211536,
+    "householdCount": 90635,
+    "agingRate": 20.4
   },
   {
-    "sgisCode": "36040",
-    "name": "나주시",
-    "year": 2018,
-    "population": 109862,
-    "householdCount": 45864,
-    "agingRate": 21.3
+    "sgisCode": "24040",
+    "name": "북구",
+    "year": 2023,
+    "population": 432033,
+    "householdCount": 190468,
+    "agingRate": 17.4
   },
   {
-    "sgisCode": "36060",
-    "name": "광양시",
-    "year": 2018,
-    "population": 144027,
-    "householdCount": 55698,
-    "agingRate": 12
+    "sgisCode": "24050",
+    "name": "광산구",
+    "year": 2023,
+    "population": 417491,
+    "householdCount": 164978,
+    "agingRate": 11
   },
   {
-    "sgisCode": "36510",
-    "name": "담양군",
-    "year": 2018,
-    "population": 43749,
-    "householdCount": 17730,
-    "agingRate": 29.5
+    "sgisCode": "24010",
+    "name": "동구",
+    "year": 2024,
+    "population": 111289,
+    "householdCount": 52807,
+    "agingRate": 22.9
   },
   {
-    "sgisCode": "36520",
-    "name": "곡성군",
-    "year": 2018,
-    "population": 28116,
-    "householdCount": 12464,
-    "agingRate": 33.4
+    "sgisCode": "24020",
+    "name": "서구",
+    "year": 2024,
+    "population": 278639,
+    "householdCount": 127177,
+    "agingRate": 18.2
   },
   {
-    "sgisCode": "36530",
-    "name": "구례군",
-    "year": 2018,
-    "population": 24246,
-    "householdCount": 10839,
-    "agingRate": 33.5
-  },
-  {
-    "sgisCode": "36550",
-    "name": "고흥군",
-    "year": 2018,
-    "population": 60664,
-    "householdCount": 28993,
-    "agingRate": 39.5
-  },
-  {
-    "sgisCode": "36560",
-    "name": "보성군",
-    "year": 2018,
-    "population": 39373,
-    "householdCount": 17970,
-    "agingRate": 36.8
-  },
-  {
-    "sgisCode": "36570",
-    "name": "화순군",
-    "year": 2018,
-    "population": 60040,
-    "householdCount": 24869,
-    "agingRate": 25.5
-  },
-  {
-    "sgisCode": "36580",
-    "name": "장흥군",
-    "year": 2018,
-    "population": 35875,
-    "householdCount": 16356,
-    "agingRate": 32.5
-  },
-  {
-    "sgisCode": "36590",
-    "name": "강진군",
-    "year": 2018,
-    "population": 33298,
-    "householdCount": 15012,
-    "agingRate": 33.1
-  },
-  {
-    "sgisCode": "36600",
-    "name": "해남군",
-    "year": 2018,
-    "population": 66209,
-    "householdCount": 28634,
-    "agingRate": 30.7
-  },
-  {
-    "sgisCode": "36610",
-    "name": "영암군",
-    "year": 2018,
-    "population": 57175,
-    "householdCount": 22736,
-    "agingRate": 22.8
-  },
-  {
-    "sgisCode": "36620",
-    "name": "무안군",
-    "year": 2018,
-    "population": 81324,
-    "householdCount": 31570,
-    "agingRate": 18.9
-  },
-  {
-    "sgisCode": "36630",
-    "name": "함평군",
-    "year": 2018,
-    "population": 30600,
-    "householdCount": 13412,
-    "agingRate": 34.5
-  },
-  {
-    "sgisCode": "36640",
-    "name": "영광군",
-    "year": 2018,
-    "population": 49570,
-    "householdCount": 21324,
-    "agingRate": 28.2
-  },
-  {
-    "sgisCode": "36650",
-    "name": "장성군",
-    "year": 2018,
-    "population": 41850,
-    "householdCount": 16850,
-    "agingRate": 28.6
-  },
-  {
-    "sgisCode": "36660",
-    "name": "완도군",
-    "year": 2018,
-    "population": 48340,
-    "householdCount": 20922,
-    "agingRate": 30.1
-  },
-  {
-    "sgisCode": "36670",
-    "name": "진도군",
-    "year": 2018,
-    "population": 29366,
-    "householdCount": 13185,
-    "agingRate": 31.9
-  },
-  {
-    "sgisCode": "36680",
-    "name": "신안군",
-    "year": 2018,
-    "population": 35639,
-    "householdCount": 16572,
-    "agingRate": 35.3
-  },
-  {
-    "sgisCode": "36010",
-    "name": "목포시",
-    "year": 2019,
-    "population": 228876,
-    "householdCount": 92846,
-    "agingRate": 15.8
-  },
-  {
-    "sgisCode": "36020",
-    "name": "여수시",
-    "year": 2019,
-    "population": 270283,
-    "householdCount": 109473,
-    "agingRate": 18.3
-  },
-  {
-    "sgisCode": "36030",
-    "name": "순천시",
-    "year": 2019,
-    "population": 270202,
-    "householdCount": 106414,
-    "agingRate": 15.1
-  },
-  {
-    "sgisCode": "36040",
-    "name": "나주시",
-    "year": 2019,
-    "population": 112101,
-    "householdCount": 46928,
+    "sgisCode": "24030",
+    "name": "남구",
+    "year": 2024,
+    "population": 208707,
+    "householdCount": 90230,
     "agingRate": 21.6
   },
   {
-    "sgisCode": "36060",
-    "name": "광양시",
-    "year": 2019,
-    "population": 143656,
-    "householdCount": 56134,
-    "agingRate": 12.6
+    "sgisCode": "24040",
+    "name": "북구",
+    "year": 2024,
+    "population": 433088,
+    "householdCount": 193108,
+    "agingRate": 18.5
   },
   {
-    "sgisCode": "36510",
-    "name": "담양군",
-    "year": 2019,
-    "population": 43804,
-    "householdCount": 17663,
-    "agingRate": 29.8
-  },
-  {
-    "sgisCode": "36520",
-    "name": "곡성군",
-    "year": 2019,
-    "population": 27858,
-    "householdCount": 12630,
-    "agingRate": 33.9
-  },
-  {
-    "sgisCode": "36530",
-    "name": "구례군",
-    "year": 2019,
-    "population": 23836,
-    "householdCount": 10786,
-    "agingRate": 34.8
-  },
-  {
-    "sgisCode": "36550",
-    "name": "고흥군",
-    "year": 2019,
-    "population": 60332,
-    "householdCount": 28933,
-    "agingRate": 40.1
-  },
-  {
-    "sgisCode": "36560",
-    "name": "보성군",
-    "year": 2019,
-    "population": 38339,
-    "householdCount": 17708,
-    "agingRate": 37.6
-  },
-  {
-    "sgisCode": "36570",
-    "name": "화순군",
-    "year": 2019,
-    "population": 59671,
-    "householdCount": 24708,
-    "agingRate": 26.3
-  },
-  {
-    "sgisCode": "36580",
-    "name": "장흥군",
-    "year": 2019,
-    "population": 35494,
-    "householdCount": 16350,
-    "agingRate": 33.1
-  },
-  {
-    "sgisCode": "36590",
-    "name": "강진군",
-    "year": 2019,
-    "population": 32805,
-    "householdCount": 14918,
-    "agingRate": 33.6
-  },
-  {
-    "sgisCode": "36600",
-    "name": "해남군",
-    "year": 2019,
-    "population": 65175,
-    "householdCount": 28491,
-    "agingRate": 31.3
-  },
-  {
-    "sgisCode": "36610",
-    "name": "영암군",
-    "year": 2019,
-    "population": 57476,
-    "householdCount": 22747,
-    "agingRate": 23
-  },
-  {
-    "sgisCode": "36620",
-    "name": "무안군",
-    "year": 2019,
-    "population": 81789,
-    "householdCount": 32078,
-    "agingRate": 19.3
-  },
-  {
-    "sgisCode": "36630",
-    "name": "함평군",
-    "year": 2019,
-    "population": 30556,
-    "householdCount": 13434,
-    "agingRate": 35
-  },
-  {
-    "sgisCode": "36640",
-    "name": "영광군",
-    "year": 2019,
-    "population": 50004,
-    "householdCount": 21345,
-    "agingRate": 28.2
-  },
-  {
-    "sgisCode": "36650",
-    "name": "장성군",
-    "year": 2019,
-    "population": 42193,
-    "householdCount": 17059,
-    "agingRate": 28.7
-  },
-  {
-    "sgisCode": "36660",
-    "name": "완도군",
-    "year": 2019,
-    "population": 48366,
-    "householdCount": 20810,
-    "agingRate": 30.2
-  },
-  {
-    "sgisCode": "36670",
-    "name": "진도군",
-    "year": 2019,
-    "population": 29295,
-    "householdCount": 13090,
-    "agingRate": 31.8
-  },
-  {
-    "sgisCode": "36680",
-    "name": "신안군",
-    "year": 2019,
-    "population": 35432,
-    "householdCount": 16481,
-    "agingRate": 35.7
+    "sgisCode": "24050",
+    "name": "광산구",
+    "year": 2024,
+    "population": 412447,
+    "householdCount": 165228,
+    "agingRate": 11.9
   },
   {
     "sgisCode": "36010",
@@ -6913,260 +6561,356 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 39
   },
   {
-    "sgisCode": "21010",
-    "name": "중구",
-    "year": 2018,
-    "population": 42766,
-    "householdCount": 19886,
-    "agingRate": 23.3
+    "sgisCode": "36010",
+    "name": "목포시",
+    "year": 2023,
+    "population": 217950,
+    "householdCount": 96911,
+    "agingRate": 19.9
   },
   {
-    "sgisCode": "21020",
-    "name": "서구",
-    "year": 2018,
-    "population": 107028,
-    "householdCount": 46072,
-    "agingRate": 22.3
+    "sgisCode": "36020",
+    "name": "여수시",
+    "year": 2023,
+    "population": 267392,
+    "householdCount": 116299,
+    "agingRate": 22.1
   },
   {
-    "sgisCode": "21030",
-    "name": "동구",
-    "year": 2018,
-    "population": 84557,
-    "householdCount": 37194,
-    "agingRate": 24.6
-  },
-  {
-    "sgisCode": "21040",
-    "name": "영도구",
-    "year": 2018,
-    "population": 120731,
-    "householdCount": 50356,
-    "agingRate": 22.8
-  },
-  {
-    "sgisCode": "21050",
-    "name": "부산진구",
-    "year": 2018,
-    "population": 357723,
-    "householdCount": 151852,
-    "agingRate": 17.4
-  },
-  {
-    "sgisCode": "21060",
-    "name": "동래구",
-    "year": 2018,
-    "population": 258386,
-    "householdCount": 100613,
-    "agingRate": 17
-  },
-  {
-    "sgisCode": "21070",
-    "name": "남구",
-    "year": 2018,
-    "population": 282645,
-    "householdCount": 111261,
-    "agingRate": 17.2
-  },
-  {
-    "sgisCode": "21080",
-    "name": "북구",
-    "year": 2018,
-    "population": 291675,
-    "householdCount": 112896,
-    "agingRate": 14.6
-  },
-  {
-    "sgisCode": "21090",
-    "name": "해운대구",
-    "year": 2018,
-    "population": 396601,
-    "householdCount": 155092,
-    "agingRate": 15.3
-  },
-  {
-    "sgisCode": "21100",
-    "name": "사하구",
-    "year": 2018,
-    "population": 326655,
-    "householdCount": 129242,
-    "agingRate": 15.9
-  },
-  {
-    "sgisCode": "21110",
-    "name": "금정구",
-    "year": 2018,
-    "population": 247681,
-    "householdCount": 100993,
-    "agingRate": 17.7
-  },
-  {
-    "sgisCode": "21120",
-    "name": "강서구",
-    "year": 2018,
-    "population": 121351,
-    "householdCount": 44028,
-    "agingRate": 10.3
-  },
-  {
-    "sgisCode": "21130",
-    "name": "연제구",
-    "year": 2018,
-    "population": 199887,
-    "householdCount": 80104,
-    "agingRate": 17.4
-  },
-  {
-    "sgisCode": "21140",
-    "name": "수영구",
-    "year": 2018,
-    "population": 170296,
-    "householdCount": 72556,
-    "agingRate": 19.7
-  },
-  {
-    "sgisCode": "21150",
-    "name": "사상구",
-    "year": 2018,
-    "population": 226961,
-    "householdCount": 90355,
-    "agingRate": 15
-  },
-  {
-    "sgisCode": "21510",
-    "name": "기장군",
-    "year": 2018,
-    "population": 160335,
-    "householdCount": 61108,
-    "agingRate": 14.5
-  },
-  {
-    "sgisCode": "21010",
-    "name": "중구",
-    "year": 2019,
-    "population": 41958,
-    "householdCount": 19847,
-    "agingRate": 24.4
-  },
-  {
-    "sgisCode": "21020",
-    "name": "서구",
-    "year": 2019,
-    "population": 105847,
-    "householdCount": 46608,
-    "agingRate": 23.4
-  },
-  {
-    "sgisCode": "21030",
-    "name": "동구",
-    "year": 2019,
-    "population": 85673,
-    "householdCount": 38163,
-    "agingRate": 25.1
-  },
-  {
-    "sgisCode": "21040",
-    "name": "영도구",
-    "year": 2019,
-    "population": 117959,
-    "householdCount": 49823,
-    "agingRate": 24.1
-  },
-  {
-    "sgisCode": "21050",
-    "name": "부산진구",
-    "year": 2019,
-    "population": 352390,
-    "householdCount": 152433,
-    "agingRate": 18.3
-  },
-  {
-    "sgisCode": "21060",
-    "name": "동래구",
-    "year": 2019,
-    "population": 260986,
-    "householdCount": 103176,
-    "agingRate": 17.7
-  },
-  {
-    "sgisCode": "21070",
-    "name": "남구",
-    "year": 2019,
-    "population": 278849,
-    "householdCount": 111594,
+    "sgisCode": "36030",
+    "name": "순천시",
+    "year": 2023,
+    "population": 272041,
+    "householdCount": 116484,
     "agingRate": 18
   },
   {
-    "sgisCode": "21080",
-    "name": "북구",
-    "year": 2019,
-    "population": 285098,
-    "householdCount": 112242,
-    "agingRate": 15.7
+    "sgisCode": "36040",
+    "name": "나주시",
+    "year": 2023,
+    "population": 117012,
+    "householdCount": 52082,
+    "agingRate": 23
   },
   {
-    "sgisCode": "21090",
-    "name": "해운대구",
-    "year": 2019,
-    "population": 393132,
-    "householdCount": 156356,
-    "agingRate": 16.2
+    "sgisCode": "36060",
+    "name": "광양시",
+    "year": 2023,
+    "population": 147378,
+    "householdCount": 62702,
+    "agingRate": 15.6
   },
   {
-    "sgisCode": "21100",
-    "name": "사하구",
-    "year": 2019,
-    "population": 319828,
-    "householdCount": 128548,
-    "agingRate": 17.3
+    "sgisCode": "36510",
+    "name": "담양군",
+    "year": 2023,
+    "population": 43763,
+    "householdCount": 19234,
+    "agingRate": 33.2
   },
   {
-    "sgisCode": "21110",
-    "name": "금정구",
-    "year": 2019,
-    "population": 244440,
-    "householdCount": 101168,
-    "agingRate": 18.9
+    "sgisCode": "36520",
+    "name": "곡성군",
+    "year": 2023,
+    "population": 26273,
+    "householdCount": 13018,
+    "agingRate": 37.9
   },
   {
-    "sgisCode": "21120",
-    "name": "강서구",
-    "year": 2019,
-    "population": 128809,
-    "householdCount": 47138,
-    "agingRate": 10.6
+    "sgisCode": "36530",
+    "name": "구례군",
+    "year": 2023,
+    "population": 22894,
+    "householdCount": 11254,
+    "agingRate": 38.8
   },
   {
-    "sgisCode": "21130",
-    "name": "연제구",
-    "year": 2019,
-    "population": 203959,
-    "householdCount": 83398,
-    "agingRate": 18.2
+    "sgisCode": "36550",
+    "name": "고흥군",
+    "year": 2023,
+    "population": 58735,
+    "householdCount": 30024,
+    "agingRate": 43.5
   },
   {
-    "sgisCode": "21140",
-    "name": "수영구",
-    "year": 2019,
-    "population": 170414,
-    "householdCount": 74187,
-    "agingRate": 20.7
+    "sgisCode": "36560",
+    "name": "보성군",
+    "year": 2023,
+    "population": 35955,
+    "householdCount": 17986,
+    "agingRate": 42
   },
   {
-    "sgisCode": "21150",
-    "name": "사상구",
-    "year": 2019,
-    "population": 222618,
-    "householdCount": 90171,
-    "agingRate": 16.2
+    "sgisCode": "36570",
+    "name": "화순군",
+    "year": 2023,
+    "population": 59354,
+    "householdCount": 26750,
+    "agingRate": 29.7
   },
   {
-    "sgisCode": "21510",
-    "name": "기장군",
-    "year": 2019,
-    "population": 160732,
-    "householdCount": 62178,
-    "agingRate": 15.3
+    "sgisCode": "36580",
+    "name": "장흥군",
+    "year": 2023,
+    "population": 33396,
+    "householdCount": 16463,
+    "agingRate": 37.5
+  },
+  {
+    "sgisCode": "36590",
+    "name": "강진군",
+    "year": 2023,
+    "population": 31266,
+    "householdCount": 15392,
+    "agingRate": 37.8
+  },
+  {
+    "sgisCode": "36600",
+    "name": "해남군",
+    "year": 2023,
+    "population": 62459,
+    "householdCount": 29232,
+    "agingRate": 35.1
+  },
+  {
+    "sgisCode": "36610",
+    "name": "영암군",
+    "year": 2023,
+    "population": 59689,
+    "householdCount": 24977,
+    "agingRate": 24.1
+  },
+  {
+    "sgisCode": "36620",
+    "name": "무안군",
+    "year": 2023,
+    "population": 90426,
+    "householdCount": 38330,
+    "agingRate": 19.6
+  },
+  {
+    "sgisCode": "36630",
+    "name": "함평군",
+    "year": 2023,
+    "population": 29259,
+    "householdCount": 13808,
+    "agingRate": 39.3
+  },
+  {
+    "sgisCode": "36640",
+    "name": "영광군",
+    "year": 2023,
+    "population": 49493,
+    "householdCount": 22526,
+    "agingRate": 31.1
+  },
+  {
+    "sgisCode": "36650",
+    "name": "장성군",
+    "year": 2023,
+    "population": 40187,
+    "householdCount": 17903,
+    "agingRate": 32.7
+  },
+  {
+    "sgisCode": "36660",
+    "name": "완도군",
+    "year": 2023,
+    "population": 47655,
+    "householdCount": 21172,
+    "agingRate": 32.8
+  },
+  {
+    "sgisCode": "36670",
+    "name": "진도군",
+    "year": 2023,
+    "population": 29233,
+    "householdCount": 13647,
+    "agingRate": 34.4
+  },
+  {
+    "sgisCode": "36680",
+    "name": "신안군",
+    "year": 2023,
+    "population": 34858,
+    "householdCount": 17055,
+    "agingRate": 39.1
+  },
+  {
+    "sgisCode": "36010",
+    "name": "목포시",
+    "year": 2024,
+    "population": 214701,
+    "householdCount": 96786,
+    "agingRate": 21.1
+  },
+  {
+    "sgisCode": "36020",
+    "name": "여수시",
+    "year": 2024,
+    "population": 265859,
+    "householdCount": 116709,
+    "agingRate": 23.3
+  },
+  {
+    "sgisCode": "36030",
+    "name": "순천시",
+    "year": 2024,
+    "population": 271376,
+    "householdCount": 117060,
+    "agingRate": 19.2
+  },
+  {
+    "sgisCode": "36040",
+    "name": "나주시",
+    "year": 2024,
+    "population": 118018,
+    "householdCount": 52573,
+    "agingRate": 23.6
+  },
+  {
+    "sgisCode": "36060",
+    "name": "광양시",
+    "year": 2024,
+    "population": 150390,
+    "householdCount": 64822,
+    "agingRate": 16.3
+  },
+  {
+    "sgisCode": "36510",
+    "name": "담양군",
+    "year": 2024,
+    "population": 43310,
+    "householdCount": 19299,
+    "agingRate": 34.7
+  },
+  {
+    "sgisCode": "36520",
+    "name": "곡성군",
+    "year": 2024,
+    "population": 25990,
+    "householdCount": 13048,
+    "agingRate": 39
+  },
+  {
+    "sgisCode": "36530",
+    "name": "구례군",
+    "year": 2024,
+    "population": 22724,
+    "householdCount": 11253,
+    "agingRate": 40
+  },
+  {
+    "sgisCode": "36550",
+    "name": "고흥군",
+    "year": 2024,
+    "population": 58776,
+    "householdCount": 30127,
+    "agingRate": 44.3
+  },
+  {
+    "sgisCode": "36560",
+    "name": "보성군",
+    "year": 2024,
+    "population": 36033,
+    "householdCount": 17925,
+    "agingRate": 42.6
+  },
+  {
+    "sgisCode": "36570",
+    "name": "화순군",
+    "year": 2024,
+    "population": 59174,
+    "householdCount": 26850,
+    "agingRate": 30.9
+  },
+  {
+    "sgisCode": "36580",
+    "name": "장흥군",
+    "year": 2024,
+    "population": 33351,
+    "householdCount": 16425,
+    "agingRate": 38.3
+  },
+  {
+    "sgisCode": "36590",
+    "name": "강진군",
+    "year": 2024,
+    "population": 31042,
+    "householdCount": 15375,
+    "agingRate": 39
+  },
+  {
+    "sgisCode": "36600",
+    "name": "해남군",
+    "year": 2024,
+    "population": 62068,
+    "householdCount": 29171,
+    "agingRate": 36.1
+  },
+  {
+    "sgisCode": "36610",
+    "name": "영암군",
+    "year": 2024,
+    "population": 60323,
+    "householdCount": 25057,
+    "agingRate": 24.6
+  },
+  {
+    "sgisCode": "36620",
+    "name": "무안군",
+    "year": 2024,
+    "population": 92913,
+    "householdCount": 39706,
+    "agingRate": 19.8
+  },
+  {
+    "sgisCode": "36630",
+    "name": "함평군",
+    "year": 2024,
+    "population": 29009,
+    "householdCount": 13804,
+    "agingRate": 40.1
+  },
+  {
+    "sgisCode": "36640",
+    "name": "영광군",
+    "year": 2024,
+    "population": 50012,
+    "householdCount": 22967,
+    "agingRate": 31.5
+  },
+  {
+    "sgisCode": "36650",
+    "name": "장성군",
+    "year": 2024,
+    "population": 40067,
+    "householdCount": 18036,
+    "agingRate": 33.5
+  },
+  {
+    "sgisCode": "36660",
+    "name": "완도군",
+    "year": 2024,
+    "population": 48182,
+    "householdCount": 21134,
+    "agingRate": 33
+  },
+  {
+    "sgisCode": "36670",
+    "name": "진도군",
+    "year": 2024,
+    "population": 29448,
+    "householdCount": 13637,
+    "agingRate": 34.5
+  },
+  {
+    "sgisCode": "36680",
+    "name": "신안군",
+    "year": 2024,
+    "population": 35572,
+    "householdCount": 17248,
+    "agingRate": 39
   },
   {
     "sgisCode": "21010",
@@ -7553,148 +7297,260 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 17.3
   },
   {
-    "sgisCode": "22010",
+    "sgisCode": "21010",
     "name": "중구",
-    "year": 2018,
-    "population": 76935,
-    "householdCount": 34109,
-    "agingRate": 19.2
+    "year": 2023,
+    "population": 40487,
+    "householdCount": 21497,
+    "agingRate": 29.2
   },
   {
-    "sgisCode": "22020",
-    "name": "동구",
-    "year": 2018,
-    "population": 342396,
-    "householdCount": 138759,
-    "agingRate": 17.6
-  },
-  {
-    "sgisCode": "22030",
+    "sgisCode": "21020",
     "name": "서구",
-    "year": 2018,
-    "population": 183857,
-    "householdCount": 76111,
-    "agingRate": 19.5
+    "year": 2023,
+    "population": 103883,
+    "householdCount": 49104,
+    "agingRate": 27.5
   },
   {
-    "sgisCode": "22040",
-    "name": "남구",
-    "year": 2018,
-    "population": 150132,
-    "householdCount": 68263,
-    "agingRate": 21.3
-  },
-  {
-    "sgisCode": "22050",
-    "name": "북구",
-    "year": 2018,
-    "population": 444759,
-    "householdCount": 171041,
-    "agingRate": 12.6
-  },
-  {
-    "sgisCode": "22060",
-    "name": "수성구",
-    "year": 2018,
-    "population": 418834,
-    "householdCount": 156596,
-    "agingRate": 14.3
-  },
-  {
-    "sgisCode": "22070",
-    "name": "달서구",
-    "year": 2018,
-    "population": 576746,
-    "householdCount": 220531,
-    "agingRate": 12.2
-  },
-  {
-    "sgisCode": "22510",
-    "name": "달성군",
-    "year": 2018,
-    "population": 250753,
-    "householdCount": 92106,
-    "agingRate": 11.3
-  },
-  {
-    "sgisCode": "22520",
-    "name": "군위군",
-    "year": 2018,
-    "population": 22277,
-    "householdCount": 10565,
-    "agingRate": 37.7
-  },
-  {
-    "sgisCode": "22010",
-    "name": "중구",
-    "year": 2019,
-    "population": 75561,
-    "householdCount": 34207,
-    "agingRate": 19.5
-  },
-  {
-    "sgisCode": "22020",
+    "sgisCode": "21030",
     "name": "동구",
-    "year": 2019,
-    "population": 337439,
-    "householdCount": 139168,
-    "agingRate": 18.5
+    "year": 2023,
+    "population": 87477,
+    "householdCount": 42678,
+    "agingRate": 28.4
   },
   {
-    "sgisCode": "22030",
-    "name": "서구",
-    "year": 2019,
-    "population": 175243,
-    "householdCount": 73980,
-    "agingRate": 21
+    "sgisCode": "21040",
+    "name": "영도구",
+    "year": 2023,
+    "population": 109389,
+    "householdCount": 50216,
+    "agingRate": 29.9
   },
   {
-    "sgisCode": "22040",
+    "sgisCode": "21050",
+    "name": "부산진구",
+    "year": 2023,
+    "population": 355644,
+    "householdCount": 169534,
+    "agingRate": 21.9
+  },
+  {
+    "sgisCode": "21060",
+    "name": "동래구",
+    "year": 2023,
+    "population": 265047,
+    "householdCount": 112749,
+    "agingRate": 21.7
+  },
+  {
+    "sgisCode": "21070",
     "name": "남구",
-    "year": 2019,
-    "population": 147500,
-    "householdCount": 68268,
+    "year": 2023,
+    "population": 258412,
+    "householdCount": 112697,
     "agingRate": 22.3
   },
   {
-    "sgisCode": "22050",
+    "sgisCode": "21080",
     "name": "북구",
-    "year": 2019,
-    "population": 446050,
-    "householdCount": 174696,
-    "agingRate": 13.4
+    "year": 2023,
+    "population": 270951,
+    "householdCount": 116981,
+    "agingRate": 21.6
   },
   {
-    "sgisCode": "22060",
-    "name": "수성구",
-    "year": 2019,
-    "population": 415283,
-    "householdCount": 157906,
-    "agingRate": 15
+    "sgisCode": "21090",
+    "name": "해운대구",
+    "year": 2023,
+    "population": 370849,
+    "householdCount": 160219,
+    "agingRate": 21.1
   },
   {
-    "sgisCode": "22070",
-    "name": "달서구",
-    "year": 2019,
-    "population": 574390,
-    "householdCount": 224644,
+    "sgisCode": "21100",
+    "name": "사하구",
+    "year": 2023,
+    "population": 298826,
+    "householdCount": 131845,
+    "agingRate": 22.9
+  },
+  {
+    "sgisCode": "21110",
+    "name": "금정구",
+    "year": 2023,
+    "population": 221890,
+    "householdCount": 100914,
+    "agingRate": 24.2
+  },
+  {
+    "sgisCode": "21120",
+    "name": "강서구",
+    "year": 2023,
+    "population": 144102,
+    "householdCount": 56762,
     "agingRate": 13
   },
   {
-    "sgisCode": "22510",
-    "name": "달성군",
-    "year": 2019,
-    "population": 258474,
-    "householdCount": 95751,
-    "agingRate": 11.7
+    "sgisCode": "21130",
+    "name": "연제구",
+    "year": 2023,
+    "population": 198491,
+    "householdCount": 88825,
+    "agingRate": 22.9
   },
   {
-    "sgisCode": "22520",
-    "name": "군위군",
-    "year": 2019,
-    "population": 22206,
-    "householdCount": 10560,
-    "agingRate": 38.5
+    "sgisCode": "21140",
+    "name": "수영구",
+    "year": 2023,
+    "population": 170220,
+    "householdCount": 81720,
+    "agingRate": 24.8
+  },
+  {
+    "sgisCode": "21150",
+    "name": "사상구",
+    "year": 2023,
+    "population": 208245,
+    "householdCount": 93814,
+    "agingRate": 21.8
+  },
+  {
+    "sgisCode": "21510",
+    "name": "기장군",
+    "year": 2023,
+    "population": 175691,
+    "householdCount": 72849,
+    "agingRate": 18.2
+  },
+  {
+    "sgisCode": "21010",
+    "name": "중구",
+    "year": 2024,
+    "population": 39599,
+    "householdCount": 21368,
+    "agingRate": 30.7
+  },
+  {
+    "sgisCode": "21020",
+    "name": "서구",
+    "year": 2024,
+    "population": 103413,
+    "householdCount": 49325,
+    "agingRate": 28.6
+  },
+  {
+    "sgisCode": "21030",
+    "name": "동구",
+    "year": 2024,
+    "population": 85665,
+    "householdCount": 42435,
+    "agingRate": 29.6
+  },
+  {
+    "sgisCode": "21040",
+    "name": "영도구",
+    "year": 2024,
+    "population": 106825,
+    "householdCount": 49844,
+    "agingRate": 31.5
+  },
+  {
+    "sgisCode": "21050",
+    "name": "부산진구",
+    "year": 2024,
+    "population": 356874,
+    "householdCount": 172688,
+    "agingRate": 22.8
+  },
+  {
+    "sgisCode": "21060",
+    "name": "동래구",
+    "year": 2024,
+    "population": 265089,
+    "householdCount": 113922,
+    "agingRate": 22.8
+  },
+  {
+    "sgisCode": "21070",
+    "name": "남구",
+    "year": 2024,
+    "population": 260090,
+    "householdCount": 114573,
+    "agingRate": 23.1
+  },
+  {
+    "sgisCode": "21080",
+    "name": "북구",
+    "year": 2024,
+    "population": 265364,
+    "householdCount": 116545,
+    "agingRate": 23.4
+  },
+  {
+    "sgisCode": "21090",
+    "name": "해운대구",
+    "year": 2024,
+    "population": 365974,
+    "householdCount": 160164,
+    "agingRate": 22.4
+  },
+  {
+    "sgisCode": "21100",
+    "name": "사하구",
+    "year": 2024,
+    "population": 293036,
+    "householdCount": 131455,
+    "agingRate": 24.5
+  },
+  {
+    "sgisCode": "21110",
+    "name": "금정구",
+    "year": 2024,
+    "population": 215539,
+    "householdCount": 99693,
+    "agingRate": 25.9
+  },
+  {
+    "sgisCode": "21120",
+    "name": "강서구",
+    "year": 2024,
+    "population": 145762,
+    "householdCount": 57178,
+    "agingRate": 13.6
+  },
+  {
+    "sgisCode": "21130",
+    "name": "연제구",
+    "year": 2024,
+    "population": 207871,
+    "householdCount": 93609,
+    "agingRate": 23.1
+  },
+  {
+    "sgisCode": "21140",
+    "name": "수영구",
+    "year": 2024,
+    "population": 167787,
+    "householdCount": 81578,
+    "agingRate": 26.1
+  },
+  {
+    "sgisCode": "21150",
+    "name": "사상구",
+    "year": 2024,
+    "population": 205140,
+    "householdCount": 93578,
+    "agingRate": 23.5
+  },
+  {
+    "sgisCode": "21510",
+    "name": "기장군",
+    "year": 2024,
+    "population": 173228,
+    "householdCount": 72607,
+    "agingRate": 19.3
   },
   {
     "sgisCode": "22010",
@@ -7913,84 +7769,148 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 42.6
   },
   {
-    "sgisCode": "26010",
+    "sgisCode": "22010",
     "name": "중구",
-    "year": 2018,
-    "population": 227054,
-    "householdCount": 87707,
-    "agingRate": 12.6
+    "year": 2023,
+    "population": 85775,
+    "householdCount": 41035,
+    "agingRate": 19.2
   },
   {
-    "sgisCode": "26020",
-    "name": "남구",
-    "year": 2018,
-    "population": 327561,
-    "householdCount": 128089,
-    "agingRate": 10.4
-  },
-  {
-    "sgisCode": "26030",
+    "sgisCode": "22020",
     "name": "동구",
-    "year": 2018,
-    "population": 166992,
-    "householdCount": 61714,
-    "agingRate": 9.8
+    "year": 2023,
+    "population": 335589,
+    "householdCount": 151103,
+    "agingRate": 22.5
   },
   {
-    "sgisCode": "26040",
+    "sgisCode": "22030",
+    "name": "서구",
+    "year": 2023,
+    "population": 161396,
+    "householdCount": 74822,
+    "agingRate": 26.4
+  },
+  {
+    "sgisCode": "22040",
+    "name": "남구",
+    "year": 2023,
+    "population": 141259,
+    "householdCount": 71002,
+    "agingRate": 26.1
+  },
+  {
+    "sgisCode": "22050",
     "name": "북구",
-    "year": 2018,
-    "population": 203675,
-    "householdCount": 71603,
-    "agingRate": 7.2
+    "year": 2023,
+    "population": 430146,
+    "householdCount": 185594,
+    "agingRate": 17.1
   },
   {
-    "sgisCode": "26510",
-    "name": "울주군",
-    "year": 2018,
-    "population": 224832,
-    "householdCount": 82278,
-    "agingRate": 12.5
+    "sgisCode": "22060",
+    "name": "수성구",
+    "year": 2023,
+    "population": 396295,
+    "householdCount": 163311,
+    "agingRate": 18.7
   },
   {
-    "sgisCode": "26010",
+    "sgisCode": "22070",
+    "name": "달서구",
+    "year": 2023,
+    "population": 539884,
+    "householdCount": 229085,
+    "agingRate": 17.3
+  },
+  {
+    "sgisCode": "22510",
+    "name": "달성군",
+    "year": 2023,
+    "population": 267045,
+    "householdCount": 106343,
+    "agingRate": 15
+  },
+  {
+    "sgisCode": "22520",
+    "name": "군위군",
+    "year": 2023,
+    "population": 21799,
+    "householdCount": 10943,
+    "agingRate": 43.6
+  },
+  {
+    "sgisCode": "22010",
     "name": "중구",
-    "year": 2019,
-    "population": 219428,
-    "householdCount": 86756,
-    "agingRate": 13.8
+    "year": 2024,
+    "population": 94128,
+    "householdCount": 44817,
+    "agingRate": 18.4
   },
   {
-    "sgisCode": "26020",
-    "name": "남구",
-    "year": 2019,
-    "population": 322135,
-    "householdCount": 128579,
-    "agingRate": 11.3
-  },
-  {
-    "sgisCode": "26030",
+    "sgisCode": "22020",
     "name": "동구",
-    "year": 2019,
-    "population": 162104,
-    "householdCount": 60684,
-    "agingRate": 10.9
+    "year": 2024,
+    "population": 336051,
+    "householdCount": 153872,
+    "agingRate": 23.6
   },
   {
-    "sgisCode": "26040",
+    "sgisCode": "22030",
+    "name": "서구",
+    "year": 2024,
+    "population": 164111,
+    "householdCount": 76914,
+    "agingRate": 27.4
+  },
+  {
+    "sgisCode": "22040",
+    "name": "남구",
+    "year": 2024,
+    "population": 136119,
+    "householdCount": 69820,
+    "agingRate": 27.8
+  },
+  {
+    "sgisCode": "22050",
     "name": "북구",
-    "year": 2019,
-    "population": 213524,
-    "householdCount": 76681,
-    "agingRate": 7.5
+    "year": 2024,
+    "population": 422633,
+    "householdCount": 185284,
+    "agingRate": 18.4
   },
   {
-    "sgisCode": "26510",
-    "name": "울주군",
-    "year": 2019,
-    "population": 226501,
-    "householdCount": 84394,
-    "agingRate": 13.1
+    "sgisCode": "22060",
+    "name": "수성구",
+    "year": 2024,
+    "population": 398685,
+    "householdCount": 166264,
+    "agingRate": 19.6
+  },
+  {
+    "sgisCode": "22070",
+    "name": "달서구",
+    "year": 2024,
+    "population": 532999,
+    "householdCount": 229849,
+    "agingRate": 18.7
+  },
+  {
+    "sgisCode": "22510",
+    "name": "달성군",
+    "year": 2024,
+    "population": 263117,
+    "householdCount": 106027,
+    "agingRate": 16.2
+  },
+  {
+    "sgisCode": "22520",
+    "name": "군위군",
+    "year": 2024,
+    "population": 21493,
+    "householdCount": 10883,
+    "agingRate": 45.5
   },
   {
     "sgisCode": "26010",
@@ -8113,372 +8033,84 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 16.5
   },
   {
-    "sgisCode": "37011",
-    "name": "포항시 남구",
-    "year": 2018,
-    "population": 236268,
-    "householdCount": 95390,
-    "agingRate": 14.8
+    "sgisCode": "26010",
+    "name": "중구",
+    "year": 2023,
+    "population": 203534,
+    "householdCount": 87430,
+    "agingRate": 19.1
   },
   {
-    "sgisCode": "37012",
-    "name": "포항시 북구",
-    "year": 2018,
-    "population": 268114,
-    "householdCount": 106066,
+    "sgisCode": "26020",
+    "name": "남구",
+    "year": 2023,
+    "population": 308537,
+    "householdCount": 133445,
     "agingRate": 15.5
   },
   {
-    "sgisCode": "37020",
-    "name": "경주시",
-    "year": 2018,
-    "population": 264282,
-    "householdCount": 107484,
-    "agingRate": 19.3
+    "sgisCode": "26030",
+    "name": "동구",
+    "year": 2023,
+    "population": 157071,
+    "householdCount": 63118,
+    "agingRate": 15.7
   },
   {
-    "sgisCode": "37030",
-    "name": "김천시",
-    "year": 2018,
-    "population": 139894,
-    "householdCount": 56670,
-    "agingRate": 21.1
+    "sgisCode": "26040",
+    "name": "북구",
+    "year": 2023,
+    "population": 214918,
+    "householdCount": 83685,
+    "agingRate": 10.6
   },
   {
-    "sgisCode": "37040",
-    "name": "안동시",
-    "year": 2018,
-    "population": 162186,
-    "householdCount": 68050,
-    "agingRate": 22.1
+    "sgisCode": "26510",
+    "name": "울주군",
+    "year": 2023,
+    "population": 223371,
+    "householdCount": 90451,
+    "agingRate": 17.6
   },
   {
-    "sgisCode": "37050",
-    "name": "구미시",
-    "year": 2018,
-    "population": 422196,
-    "householdCount": 163406,
-    "agingRate": 8.3
+    "sgisCode": "26010",
+    "name": "중구",
+    "year": 2024,
+    "population": 203766,
+    "householdCount": 88674,
+    "agingRate": 20.3
   },
   {
-    "sgisCode": "37060",
-    "name": "영주시",
-    "year": 2018,
-    "population": 107034,
-    "householdCount": 44681,
-    "agingRate": 24.2
+    "sgisCode": "26020",
+    "name": "남구",
+    "year": 2024,
+    "population": 305176,
+    "householdCount": 133777,
+    "agingRate": 16.7
   },
   {
-    "sgisCode": "37070",
-    "name": "영천시",
-    "year": 2018,
-    "population": 98686,
-    "householdCount": 42328,
-    "agingRate": 26
+    "sgisCode": "26030",
+    "name": "동구",
+    "year": 2024,
+    "population": 158268,
+    "householdCount": 63721,
+    "agingRate": 17
   },
   {
-    "sgisCode": "37080",
-    "name": "상주시",
-    "year": 2018,
-    "population": 97562,
-    "householdCount": 42328,
-    "agingRate": 28.7
+    "sgisCode": "26040",
+    "name": "북구",
+    "year": 2024,
+    "population": 215421,
+    "householdCount": 84332,
+    "agingRate": 11.7
   },
   {
-    "sgisCode": "37090",
-    "name": "문경시",
-    "year": 2018,
-    "population": 68895,
-    "householdCount": 29855,
-    "agingRate": 28.4
-  },
-  {
-    "sgisCode": "37100",
-    "name": "경산시",
-    "year": 2018,
-    "population": 284517,
-    "householdCount": 109175,
-    "agingRate": 14
-  },
-  {
-    "sgisCode": "37520",
-    "name": "의성군",
-    "year": 2018,
-    "population": 49620,
-    "householdCount": 23678,
-    "agingRate": 39.9
-  },
-  {
-    "sgisCode": "37530",
-    "name": "청송군",
-    "year": 2018,
-    "population": 24160,
-    "householdCount": 11518,
-    "agingRate": 35.4
-  },
-  {
-    "sgisCode": "37540",
-    "name": "영양군",
-    "year": 2018,
-    "population": 16559,
-    "householdCount": 7585,
-    "agingRate": 34.9
-  },
-  {
-    "sgisCode": "37550",
-    "name": "영덕군",
-    "year": 2018,
-    "population": 36096,
-    "householdCount": 17027,
-    "agingRate": 35
-  },
-  {
-    "sgisCode": "37560",
-    "name": "청도군",
-    "year": 2018,
-    "population": 40878,
-    "householdCount": 18438,
-    "agingRate": 35.1
-  },
-  {
-    "sgisCode": "37570",
-    "name": "고령군",
-    "year": 2018,
-    "population": 32660,
-    "householdCount": 13506,
-    "agingRate": 27.5
-  },
-  {
-    "sgisCode": "37580",
-    "name": "성주군",
-    "year": 2018,
-    "population": 41299,
-    "householdCount": 17677,
-    "agingRate": 29.5
-  },
-  {
-    "sgisCode": "37590",
-    "name": "칠곡군",
-    "year": 2018,
-    "population": 120983,
-    "householdCount": 47160,
-    "agingRate": 13.4
-  },
-  {
-    "sgisCode": "37600",
-    "name": "예천군",
-    "year": 2018,
-    "population": 51082,
-    "householdCount": 22350,
-    "agingRate": 30.1
-  },
-  {
-    "sgisCode": "37610",
-    "name": "봉화군",
-    "year": 2018,
-    "population": 30872,
-    "householdCount": 14044,
-    "agingRate": 34.6
-  },
-  {
-    "sgisCode": "37620",
-    "name": "울진군",
-    "year": 2018,
-    "population": 48057,
-    "householdCount": 21409,
-    "agingRate": 26
-  },
-  {
-    "sgisCode": "37630",
-    "name": "울릉군",
-    "year": 2018,
-    "population": 8729,
-    "householdCount": 4145,
-    "agingRate": 22.7
-  },
-  {
-    "sgisCode": "37011",
-    "name": "포항시 남구",
-    "year": 2019,
-    "population": 233172,
-    "householdCount": 95137,
-    "agingRate": 15.9
-  },
-  {
-    "sgisCode": "37012",
-    "name": "포항시 북구",
-    "year": 2019,
-    "population": 268892,
-    "householdCount": 107355,
-    "agingRate": 16.5
-  },
-  {
-    "sgisCode": "37020",
-    "name": "경주시",
-    "year": 2019,
-    "population": 264314,
-    "householdCount": 108194,
-    "agingRate": 20.1
-  },
-  {
-    "sgisCode": "37030",
-    "name": "김천시",
-    "year": 2019,
-    "population": 139902,
-    "householdCount": 57408,
-    "agingRate": 21.8
-  },
-  {
-    "sgisCode": "37040",
-    "name": "안동시",
-    "year": 2019,
-    "population": 160344,
-    "householdCount": 68285,
-    "agingRate": 23
-  },
-  {
-    "sgisCode": "37050",
-    "name": "구미시",
-    "year": 2019,
-    "population": 420319,
-    "householdCount": 164752,
-    "agingRate": 8.8
-  },
-  {
-    "sgisCode": "37060",
-    "name": "영주시",
-    "year": 2019,
-    "population": 105235,
-    "householdCount": 44303,
-    "agingRate": 25.4
-  },
-  {
-    "sgisCode": "37070",
-    "name": "영천시",
-    "year": 2019,
-    "population": 100487,
-    "householdCount": 43310,
-    "agingRate": 26.3
-  },
-  {
-    "sgisCode": "37080",
-    "name": "상주시",
-    "year": 2019,
-    "population": 96641,
-    "householdCount": 42579,
-    "agingRate": 29.7
-  },
-  {
-    "sgisCode": "37090",
-    "name": "문경시",
-    "year": 2019,
-    "population": 68542,
-    "householdCount": 30068,
-    "agingRate": 29.2
-  },
-  {
-    "sgisCode": "37100",
-    "name": "경산시",
-    "year": 2019,
-    "population": 290088,
-    "householdCount": 112324,
-    "agingRate": 14.5
-  },
-  {
-    "sgisCode": "37520",
-    "name": "의성군",
-    "year": 2019,
-    "population": 49477,
-    "householdCount": 23767,
-    "agingRate": 40.6
-  },
-  {
-    "sgisCode": "37530",
-    "name": "청송군",
-    "year": 2019,
-    "population": 23958,
-    "householdCount": 11512,
-    "agingRate": 36.4
-  },
-  {
-    "sgisCode": "37540",
-    "name": "영양군",
-    "year": 2019,
-    "population": 16146,
-    "householdCount": 7539,
-    "agingRate": 36.2
-  },
-  {
-    "sgisCode": "37550",
-    "name": "영덕군",
-    "year": 2019,
-    "population": 35672,
-    "householdCount": 16918,
-    "agingRate": 35.9
-  },
-  {
-    "sgisCode": "37560",
-    "name": "청도군",
-    "year": 2019,
-    "population": 41054,
-    "householdCount": 18616,
-    "agingRate": 35.9
-  },
-  {
-    "sgisCode": "37570",
-    "name": "고령군",
-    "year": 2019,
-    "population": 32191,
-    "householdCount": 13468,
-    "agingRate": 28.6
-  },
-  {
-    "sgisCode": "37580",
-    "name": "성주군",
-    "year": 2019,
-    "population": 41314,
-    "householdCount": 17835,
-    "agingRate": 30.3
-  },
-  {
-    "sgisCode": "37590",
-    "name": "칠곡군",
-    "year": 2019,
-    "population": 118517,
-    "householdCount": 46237,
-    "agingRate": 14.3
-  },
-  {
-    "sgisCode": "37600",
-    "name": "예천군",
-    "year": 2019,
-    "population": 53020,
-    "householdCount": 23382,
-    "agingRate": 30
-  },
-  {
-    "sgisCode": "37610",
-    "name": "봉화군",
-    "year": 2019,
-    "population": 30308,
-    "householdCount": 13992,
-    "agingRate": 35.7
-  },
-  {
-    "sgisCode": "37620",
-    "name": "울진군",
-    "year": 2019,
-    "population": 47651,
-    "householdCount": 21332,
-    "agingRate": 26.7
-  },
-  {
-    "sgisCode": "37630",
-    "name": "울릉군",
-    "year": 2019,
-    "population": 8704,
-    "householdCount": 4061,
-    "agingRate": 23.5
+    "sgisCode": "26510",
+    "name": "울주군",
+    "year": 2024,
+    "population": 224263,
+    "householdCount": 91838,
+    "agingRate": 18.7
   },
   {
     "sgisCode": "37011",
@@ -9033,356 +8665,372 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 27.4
   },
   {
-    "sgisCode": "38030",
-    "name": "진주시",
-    "year": 2018,
-    "population": 352333,
-    "householdCount": 137960,
-    "agingRate": 14.9
+    "sgisCode": "37011",
+    "name": "포항시 남구",
+    "year": 2023,
+    "population": 226936,
+    "householdCount": 101417,
+    "agingRate": 20.9
   },
   {
-    "sgisCode": "38050",
-    "name": "통영시",
-    "year": 2018,
-    "population": 131407,
-    "householdCount": 53250,
-    "agingRate": 16.8
-  },
-  {
-    "sgisCode": "38060",
-    "name": "사천시",
-    "year": 2018,
-    "population": 112248,
-    "householdCount": 45623,
-    "agingRate": 19.7
-  },
-  {
-    "sgisCode": "38070",
-    "name": "김해시",
-    "year": 2018,
-    "population": 539401,
-    "householdCount": 194797,
-    "agingRate": 9.9
-  },
-  {
-    "sgisCode": "38080",
-    "name": "밀양시",
-    "year": 2018,
-    "population": 103762,
-    "householdCount": 44774,
-    "agingRate": 25.2
-  },
-  {
-    "sgisCode": "38090",
-    "name": "거제시",
-    "year": 2018,
-    "population": 252889,
-    "householdCount": 93740,
-    "agingRate": 9
-  },
-  {
-    "sgisCode": "38100",
-    "name": "양산시",
-    "year": 2018,
-    "population": 344995,
-    "householdCount": 132069,
-    "agingRate": 11.8
-  },
-  {
-    "sgisCode": "38111",
-    "name": "창원시 의창구",
-    "year": 2018,
-    "population": 209219,
-    "householdCount": 79680,
-    "agingRate": 11.6
-  },
-  {
-    "sgisCode": "38112",
-    "name": "창원시 성산구",
-    "year": 2018,
-    "population": 268606,
-    "householdCount": 98367,
-    "agingRate": 7.1
-  },
-  {
-    "sgisCode": "38113",
-    "name": "창원시 마산합포구",
-    "year": 2018,
-    "population": 178440,
-    "householdCount": 72241,
-    "agingRate": 18.5
-  },
-  {
-    "sgisCode": "38114",
-    "name": "창원시 마산회원구",
-    "year": 2018,
-    "population": 197674,
-    "householdCount": 75850,
-    "agingRate": 14.9
-  },
-  {
-    "sgisCode": "38115",
-    "name": "창원시 진해구",
-    "year": 2018,
-    "population": 190276,
-    "householdCount": 73215,
-    "agingRate": 12.6
-  },
-  {
-    "sgisCode": "38510",
-    "name": "의령군",
-    "year": 2018,
-    "population": 26401,
-    "householdCount": 12196,
-    "agingRate": 34.5
-  },
-  {
-    "sgisCode": "38520",
-    "name": "함안군",
-    "year": 2018,
-    "population": 67520,
-    "householdCount": 26844,
+    "sgisCode": "37012",
+    "name": "포항시 북구",
+    "year": 2023,
+    "population": 266458,
+    "householdCount": 115312,
     "agingRate": 21
   },
   {
-    "sgisCode": "38530",
-    "name": "창녕군",
-    "year": 2018,
-    "population": 62703,
-    "householdCount": 26707,
-    "agingRate": 27.5
+    "sgisCode": "37020",
+    "name": "경주시",
+    "year": 2023,
+    "population": 259505,
+    "householdCount": 114793,
+    "agingRate": 24.1
   },
   {
-    "sgisCode": "38540",
-    "name": "고성군",
-    "year": 2018,
-    "population": 51778,
-    "householdCount": 22148,
-    "agingRate": 28
+    "sgisCode": "37030",
+    "name": "김천시",
+    "year": 2023,
+    "population": 137413,
+    "householdCount": 61530,
+    "agingRate": 25.5
   },
   {
-    "sgisCode": "38550",
-    "name": "남해군",
-    "year": 2018,
-    "population": 42696,
-    "householdCount": 19431,
-    "agingRate": 35.5
+    "sgisCode": "37040",
+    "name": "안동시",
+    "year": 2023,
+    "population": 154581,
+    "householdCount": 72259,
+    "agingRate": 27
   },
   {
-    "sgisCode": "38560",
-    "name": "하동군",
-    "year": 2018,
-    "population": 43001,
-    "householdCount": 19352,
-    "agingRate": 32.4
+    "sgisCode": "37050",
+    "name": "구미시",
+    "year": 2023,
+    "population": 407458,
+    "householdCount": 177393,
+    "agingRate": 11.9
   },
   {
-    "sgisCode": "38570",
-    "name": "산청군",
-    "year": 2018,
-    "population": 34122,
-    "householdCount": 15406,
-    "agingRate": 33.8
+    "sgisCode": "37060",
+    "name": "영주시",
+    "year": 2023,
+    "population": 100479,
+    "householdCount": 46254,
+    "agingRate": 29.9
   },
   {
-    "sgisCode": "38580",
-    "name": "함양군",
-    "year": 2018,
-    "population": 38005,
-    "householdCount": 17119,
-    "agingRate": 31.8
+    "sgisCode": "37070",
+    "name": "영천시",
+    "year": 2023,
+    "population": 100492,
+    "householdCount": 46589,
+    "agingRate": 30.3
   },
   {
-    "sgisCode": "38590",
-    "name": "거창군",
-    "year": 2018,
-    "population": 60020,
-    "householdCount": 25430,
-    "agingRate": 26
+    "sgisCode": "37080",
+    "name": "상주시",
+    "year": 2023,
+    "population": 92990,
+    "householdCount": 43933,
+    "agingRate": 34
   },
   {
-    "sgisCode": "38600",
-    "name": "합천군",
-    "year": 2018,
-    "population": 42856,
-    "householdCount": 20195,
-    "agingRate": 37.6
+    "sgisCode": "37090",
+    "name": "문경시",
+    "year": 2023,
+    "population": 66535,
+    "householdCount": 31254,
+    "agingRate": 33.9
   },
   {
-    "sgisCode": "38030",
-    "name": "진주시",
-    "year": 2019,
-    "population": 354166,
-    "householdCount": 140718,
-    "agingRate": 15.5
+    "sgisCode": "37100",
+    "name": "경산시",
+    "year": 2023,
+    "population": 296453,
+    "householdCount": 127547,
+    "agingRate": 17.6
   },
   {
-    "sgisCode": "38050",
-    "name": "통영시",
-    "year": 2019,
-    "population": 129931,
-    "householdCount": 53200,
-    "agingRate": 17.7
+    "sgisCode": "37520",
+    "name": "의성군",
+    "year": 2023,
+    "population": 47920,
+    "householdCount": 24646,
+    "agingRate": 45.5
   },
   {
-    "sgisCode": "38060",
-    "name": "사천시",
-    "year": 2019,
-    "population": 111110,
-    "householdCount": 45589,
-    "agingRate": 20.7
+    "sgisCode": "37530",
+    "name": "청송군",
+    "year": 2023,
+    "population": 23099,
+    "householdCount": 11928,
+    "agingRate": 41.6
   },
   {
-    "sgisCode": "38070",
-    "name": "김해시",
-    "year": 2019,
-    "population": 549331,
-    "householdCount": 201314,
-    "agingRate": 10.4
+    "sgisCode": "37540",
+    "name": "영양군",
+    "year": 2023,
+    "population": 15197,
+    "householdCount": 7730,
+    "agingRate": 41.1
   },
   {
-    "sgisCode": "38080",
-    "name": "밀양시",
-    "year": 2019,
-    "population": 103402,
-    "householdCount": 44923,
-    "agingRate": 26.1
+    "sgisCode": "37550",
+    "name": "영덕군",
+    "year": 2023,
+    "population": 33492,
+    "householdCount": 16982,
+    "agingRate": 40.5
   },
   {
-    "sgisCode": "38090",
-    "name": "거제시",
-    "year": 2019,
-    "population": 251226,
-    "householdCount": 93728,
-    "agingRate": 9.6
+    "sgisCode": "37560",
+    "name": "청도군",
+    "year": 2023,
+    "population": 40008,
+    "householdCount": 19396,
+    "agingRate": 40.5
   },
   {
-    "sgisCode": "38100",
-    "name": "양산시",
-    "year": 2019,
-    "population": 347221,
-    "householdCount": 134260,
-    "agingRate": 12.6
+    "sgisCode": "37570",
+    "name": "고령군",
+    "year": 2023,
+    "population": 30518,
+    "householdCount": 13781,
+    "agingRate": 33.2
   },
   {
-    "sgisCode": "38111",
-    "name": "창원시 의창구",
-    "year": 2019,
-    "population": 211040,
-    "householdCount": 81571,
-    "agingRate": 12.3
-  },
-  {
-    "sgisCode": "38112",
-    "name": "창원시 성산구",
-    "year": 2019,
-    "population": 264912,
-    "householdCount": 99046,
-    "agingRate": 7.7
-  },
-  {
-    "sgisCode": "38113",
-    "name": "창원시 마산합포구",
-    "year": 2019,
-    "population": 177583,
-    "householdCount": 73297,
-    "agingRate": 19.6
-  },
-  {
-    "sgisCode": "38114",
-    "name": "창원시 마산회원구",
-    "year": 2019,
-    "population": 192442,
-    "householdCount": 74960,
-    "agingRate": 16.2
-  },
-  {
-    "sgisCode": "38115",
-    "name": "창원시 진해구",
-    "year": 2019,
-    "population": 190885,
-    "householdCount": 74650,
-    "agingRate": 13.3
-  },
-  {
-    "sgisCode": "38510",
-    "name": "의령군",
-    "year": 2019,
-    "population": 26040,
-    "householdCount": 12144,
+    "sgisCode": "37580",
+    "name": "성주군",
+    "year": 2023,
+    "population": 41073,
+    "householdCount": 18994,
     "agingRate": 35.1
   },
   {
-    "sgisCode": "38520",
-    "name": "함안군",
-    "year": 2019,
-    "population": 66611,
-    "householdCount": 26560,
-    "agingRate": 22.2
+    "sgisCode": "37590",
+    "name": "칠곡군",
+    "year": 2023,
+    "population": 112465,
+    "householdCount": 49152,
+    "agingRate": 18
   },
   {
-    "sgisCode": "38530",
-    "name": "창녕군",
-    "year": 2019,
-    "population": 62370,
-    "householdCount": 26590,
-    "agingRate": 28.3
+    "sgisCode": "37600",
+    "name": "예천군",
+    "year": 2023,
+    "population": 54263,
+    "householdCount": 25184,
+    "agingRate": 32.1
   },
   {
-    "sgisCode": "38540",
-    "name": "고성군",
-    "year": 2019,
-    "population": 50887,
-    "householdCount": 21824,
-    "agingRate": 29.2
+    "sgisCode": "37610",
+    "name": "봉화군",
+    "year": 2023,
+    "population": 28430,
+    "householdCount": 14213,
+    "agingRate": 41.3
   },
   {
-    "sgisCode": "38550",
-    "name": "남해군",
-    "year": 2019,
-    "population": 42169,
-    "householdCount": 19316,
-    "agingRate": 36
+    "sgisCode": "37620",
+    "name": "울진군",
+    "year": 2023,
+    "population": 45697,
+    "householdCount": 21988,
+    "agingRate": 30.5
   },
   {
-    "sgisCode": "38560",
-    "name": "하동군",
-    "year": 2019,
-    "population": 42583,
-    "householdCount": 19387,
-    "agingRate": 33.3
+    "sgisCode": "37630",
+    "name": "울릉군",
+    "year": 2023,
+    "population": 8418,
+    "householdCount": 4319,
+    "agingRate": 28.1
   },
   {
-    "sgisCode": "38570",
-    "name": "산청군",
-    "year": 2019,
-    "population": 33579,
-    "householdCount": 15356,
-    "agingRate": 35.2
+    "sgisCode": "37011",
+    "name": "포항시 남구",
+    "year": 2024,
+    "population": 222544,
+    "householdCount": 100981,
+    "agingRate": 22.4
   },
   {
-    "sgisCode": "38580",
-    "name": "함양군",
-    "year": 2019,
-    "population": 37384,
-    "householdCount": 17165,
-    "agingRate": 32.7
+    "sgisCode": "37012",
+    "name": "포항시 북구",
+    "year": 2024,
+    "population": 270531,
+    "householdCount": 118722,
+    "agingRate": 22.1
   },
   {
-    "sgisCode": "38590",
-    "name": "거창군",
-    "year": 2019,
-    "population": 59888,
-    "householdCount": 25491,
-    "agingRate": 26.7
+    "sgisCode": "37020",
+    "name": "경주시",
+    "year": 2024,
+    "population": 258733,
+    "householdCount": 115464,
+    "agingRate": 25.3
   },
   {
-    "sgisCode": "38600",
-    "name": "합천군",
-    "year": 2019,
-    "population": 42449,
-    "householdCount": 20124,
-    "agingRate": 38.3
+    "sgisCode": "37030",
+    "name": "김천시",
+    "year": 2024,
+    "population": 136187,
+    "householdCount": 61623,
+    "agingRate": 26.6
+  },
+  {
+    "sgisCode": "37040",
+    "name": "안동시",
+    "year": 2024,
+    "population": 153692,
+    "householdCount": 72810,
+    "agingRate": 27.8
+  },
+  {
+    "sgisCode": "37050",
+    "name": "구미시",
+    "year": 2024,
+    "population": 407365,
+    "householdCount": 180308,
+    "agingRate": 12.8
+  },
+  {
+    "sgisCode": "37060",
+    "name": "영주시",
+    "year": 2024,
+    "population": 99151,
+    "householdCount": 46210,
+    "agingRate": 31.2
+  },
+  {
+    "sgisCode": "37070",
+    "name": "영천시",
+    "year": 2024,
+    "population": 99523,
+    "householdCount": 46469,
+    "agingRate": 31.8
+  },
+  {
+    "sgisCode": "37080",
+    "name": "상주시",
+    "year": 2024,
+    "population": 92458,
+    "householdCount": 43835,
+    "agingRate": 35.1
+  },
+  {
+    "sgisCode": "37090",
+    "name": "문경시",
+    "year": 2024,
+    "population": 65505,
+    "householdCount": 31172,
+    "agingRate": 35.4
+  },
+  {
+    "sgisCode": "37100",
+    "name": "경산시",
+    "year": 2024,
+    "population": 298529,
+    "householdCount": 129430,
+    "agingRate": 18.4
+  },
+  {
+    "sgisCode": "37520",
+    "name": "의성군",
+    "year": 2024,
+    "population": 47094,
+    "householdCount": 24419,
+    "agingRate": 46.9
+  },
+  {
+    "sgisCode": "37530",
+    "name": "청송군",
+    "year": 2024,
+    "population": 23079,
+    "householdCount": 11965,
+    "agingRate": 42.7
+  },
+  {
+    "sgisCode": "37540",
+    "name": "영양군",
+    "year": 2024,
+    "population": 15059,
+    "householdCount": 7698,
+    "agingRate": 41.8
+  },
+  {
+    "sgisCode": "37550",
+    "name": "영덕군",
+    "year": 2024,
+    "population": 32655,
+    "householdCount": 16834,
+    "agingRate": 42
+  },
+  {
+    "sgisCode": "37560",
+    "name": "청도군",
+    "year": 2024,
+    "population": 39479,
+    "householdCount": 19368,
+    "agingRate": 42.4
+  },
+  {
+    "sgisCode": "37570",
+    "name": "고령군",
+    "year": 2024,
+    "population": 30934,
+    "householdCount": 14069,
+    "agingRate": 34.2
+  },
+  {
+    "sgisCode": "37580",
+    "name": "성주군",
+    "year": 2024,
+    "population": 41068,
+    "householdCount": 19015,
+    "agingRate": 36.5
+  },
+  {
+    "sgisCode": "37590",
+    "name": "칠곡군",
+    "year": 2024,
+    "population": 110043,
+    "householdCount": 48695,
+    "agingRate": 19.2
+  },
+  {
+    "sgisCode": "37600",
+    "name": "예천군",
+    "year": 2024,
+    "population": 53609,
+    "householdCount": 25009,
+    "agingRate": 33
+  },
+  {
+    "sgisCode": "37610",
+    "name": "봉화군",
+    "year": 2024,
+    "population": 27972,
+    "householdCount": 14081,
+    "agingRate": 42.6
+  },
+  {
+    "sgisCode": "37620",
+    "name": "울진군",
+    "year": 2024,
+    "population": 45274,
+    "householdCount": 21992,
+    "agingRate": 31.4
+  },
+  {
+    "sgisCode": "37630",
+    "name": "울릉군",
+    "year": 2024,
+    "population": 8515,
+    "householdCount": 4428,
+    "agingRate": 29.4
   },
   {
     "sgisCode": "38030",
@@ -9913,36 +9561,356 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 42
   },
   {
-    "sgisCode": "39010",
-    "name": "제주시",
-    "year": 2018,
-    "population": 482932,
-    "householdCount": 180880,
-    "agingRate": 12.9
+    "sgisCode": "38030",
+    "name": "진주시",
+    "year": 2023,
+    "population": 348272,
+    "householdCount": 152167,
+    "agingRate": 19.1
   },
   {
-    "sgisCode": "39020",
-    "name": "서귀포시",
-    "year": 2018,
-    "population": 175350,
-    "householdCount": 68118,
-    "agingRate": 17.7
+    "sgisCode": "38050",
+    "name": "통영시",
+    "year": 2023,
+    "population": 121626,
+    "householdCount": 54144,
+    "agingRate": 22.9
   },
   {
-    "sgisCode": "39010",
-    "name": "제주시",
-    "year": 2019,
-    "population": 487688,
-    "householdCount": 184488,
-    "agingRate": 13.3
+    "sgisCode": "38060",
+    "name": "사천시",
+    "year": 2023,
+    "population": 109008,
+    "householdCount": 48983,
+    "agingRate": 24.6
   },
   {
-    "sgisCode": "39020",
-    "name": "서귀포시",
-    "year": 2019,
-    "population": 177360,
-    "householdCount": 69228,
-    "agingRate": 18.2
+    "sgisCode": "38070",
+    "name": "김해시",
+    "year": 2023,
+    "population": 548672,
+    "householdCount": 217871,
+    "agingRate": 13.6
+  },
+  {
+    "sgisCode": "38080",
+    "name": "밀양시",
+    "year": 2023,
+    "population": 102738,
+    "householdCount": 47747,
+    "agingRate": 31.2
+  },
+  {
+    "sgisCode": "38090",
+    "name": "거제시",
+    "year": 2023,
+    "population": 238671,
+    "householdCount": 97648,
+    "agingRate": 13.8
+  },
+  {
+    "sgisCode": "38100",
+    "name": "양산시",
+    "year": 2023,
+    "population": 355412,
+    "householdCount": 148613,
+    "agingRate": 16.5
+  },
+  {
+    "sgisCode": "38111",
+    "name": "창원시 의창구",
+    "year": 2023,
+    "population": 214516,
+    "householdCount": 90347,
+    "agingRate": 16.5
+  },
+  {
+    "sgisCode": "38112",
+    "name": "창원시 성산구",
+    "year": 2023,
+    "population": 243412,
+    "householdCount": 100848,
+    "agingRate": 11.6
+  },
+  {
+    "sgisCode": "38113",
+    "name": "창원시 마산합포구",
+    "year": 2023,
+    "population": 178496,
+    "householdCount": 79384,
+    "agingRate": 24.3
+  },
+  {
+    "sgisCode": "38114",
+    "name": "창원시 마산회원구",
+    "year": 2023,
+    "population": 180058,
+    "householdCount": 77093,
+    "agingRate": 21.8
+  },
+  {
+    "sgisCode": "38115",
+    "name": "창원시 진해구",
+    "year": 2023,
+    "population": 190660,
+    "householdCount": 80649,
+    "agingRate": 17
+  },
+  {
+    "sgisCode": "38510",
+    "name": "의령군",
+    "year": 2023,
+    "population": 24827,
+    "householdCount": 12594,
+    "agingRate": 39.6
+  },
+  {
+    "sgisCode": "38520",
+    "name": "함안군",
+    "year": 2023,
+    "population": 62173,
+    "householdCount": 26738,
+    "agingRate": 27.8
+  },
+  {
+    "sgisCode": "38530",
+    "name": "창녕군",
+    "year": 2023,
+    "population": 58475,
+    "householdCount": 26965,
+    "agingRate": 34
+  },
+  {
+    "sgisCode": "38540",
+    "name": "고성군",
+    "year": 2023,
+    "population": 48650,
+    "householdCount": 22477,
+    "agingRate": 34.1
+  },
+  {
+    "sgisCode": "38550",
+    "name": "남해군",
+    "year": 2023,
+    "population": 39706,
+    "householdCount": 19653,
+    "agingRate": 40.1
+  },
+  {
+    "sgisCode": "38560",
+    "name": "하동군",
+    "year": 2023,
+    "population": 39125,
+    "householdCount": 19461,
+    "agingRate": 39.5
+  },
+  {
+    "sgisCode": "38570",
+    "name": "산청군",
+    "year": 2023,
+    "population": 32892,
+    "householdCount": 16149,
+    "agingRate": 40.6
+  },
+  {
+    "sgisCode": "38580",
+    "name": "함양군",
+    "year": 2023,
+    "population": 35505,
+    "householdCount": 17493,
+    "agingRate": 37.8
+  },
+  {
+    "sgisCode": "38590",
+    "name": "거창군",
+    "year": 2023,
+    "population": 58588,
+    "householdCount": 27105,
+    "agingRate": 30.5
+  },
+  {
+    "sgisCode": "38600",
+    "name": "합천군",
+    "year": 2023,
+    "population": 39667,
+    "householdCount": 20347,
+    "agingRate": 42.8
+  },
+  {
+    "sgisCode": "38030",
+    "name": "진주시",
+    "year": 2024,
+    "population": 346145,
+    "householdCount": 153161,
+    "agingRate": 20.1
+  },
+  {
+    "sgisCode": "38050",
+    "name": "통영시",
+    "year": 2024,
+    "population": 120204,
+    "householdCount": 53934,
+    "agingRate": 24.4
+  },
+  {
+    "sgisCode": "38060",
+    "name": "사천시",
+    "year": 2024,
+    "population": 109218,
+    "householdCount": 49561,
+    "agingRate": 25.4
+  },
+  {
+    "sgisCode": "38070",
+    "name": "김해시",
+    "year": 2024,
+    "population": 549861,
+    "householdCount": 220514,
+    "agingRate": 14.6
+  },
+  {
+    "sgisCode": "38080",
+    "name": "밀양시",
+    "year": 2024,
+    "population": 102535,
+    "householdCount": 47882,
+    "agingRate": 32.6
+  },
+  {
+    "sgisCode": "38090",
+    "name": "거제시",
+    "year": 2024,
+    "population": 241284,
+    "householdCount": 98902,
+    "agingRate": 14.7
+  },
+  {
+    "sgisCode": "38100",
+    "name": "양산시",
+    "year": 2024,
+    "population": 359629,
+    "householdCount": 152501,
+    "agingRate": 17.5
+  },
+  {
+    "sgisCode": "38111",
+    "name": "창원시 의창구",
+    "year": 2024,
+    "population": 210801,
+    "householdCount": 90150,
+    "agingRate": 17.9
+  },
+  {
+    "sgisCode": "38112",
+    "name": "창원시 성산구",
+    "year": 2024,
+    "population": 244140,
+    "householdCount": 101990,
+    "agingRate": 12.8
+  },
+  {
+    "sgisCode": "38113",
+    "name": "창원시 마산합포구",
+    "year": 2024,
+    "population": 178265,
+    "householdCount": 80293,
+    "agingRate": 25.6
+  },
+  {
+    "sgisCode": "38114",
+    "name": "창원시 마산회원구",
+    "year": 2024,
+    "population": 178865,
+    "householdCount": 77674,
+    "agingRate": 23.1
+  },
+  {
+    "sgisCode": "38115",
+    "name": "창원시 진해구",
+    "year": 2024,
+    "population": 188972,
+    "householdCount": 80717,
+    "agingRate": 18
+  },
+  {
+    "sgisCode": "38510",
+    "name": "의령군",
+    "year": 2024,
+    "population": 24609,
+    "householdCount": 12507,
+    "agingRate": 40.7
+  },
+  {
+    "sgisCode": "38520",
+    "name": "함안군",
+    "year": 2024,
+    "population": 61675,
+    "householdCount": 26561,
+    "agingRate": 28.9
+  },
+  {
+    "sgisCode": "38530",
+    "name": "창녕군",
+    "year": 2024,
+    "population": 57766,
+    "householdCount": 26927,
+    "agingRate": 35.5
+  },
+  {
+    "sgisCode": "38540",
+    "name": "고성군",
+    "year": 2024,
+    "population": 47664,
+    "householdCount": 22367,
+    "agingRate": 35.6
+  },
+  {
+    "sgisCode": "38550",
+    "name": "남해군",
+    "year": 2024,
+    "population": 39011,
+    "householdCount": 19482,
+    "agingRate": 41.3
+  },
+  {
+    "sgisCode": "38560",
+    "name": "하동군",
+    "year": 2024,
+    "population": 38704,
+    "householdCount": 19384,
+    "agingRate": 40.6
+  },
+  {
+    "sgisCode": "38570",
+    "name": "산청군",
+    "year": 2024,
+    "population": 32480,
+    "householdCount": 16182,
+    "agingRate": 41.9
+  },
+  {
+    "sgisCode": "38580",
+    "name": "함양군",
+    "year": 2024,
+    "population": 35073,
+    "householdCount": 17420,
+    "agingRate": 38.8
+  },
+  {
+    "sgisCode": "38590",
+    "name": "거창군",
+    "year": 2024,
+    "population": 58393,
+    "householdCount": 27491,
+    "agingRate": 31.7
+  },
+  {
+    "sgisCode": "38600",
+    "name": "합천군",
+    "year": 2024,
+    "population": 38950,
+    "householdCount": 20180,
+    "agingRate": 44.3
   },
   {
     "sgisCode": "39010",
@@ -9993,20 +9961,36 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 20.3
   },
   {
-    "sgisCode": "31010",
-    "name": "수원시",
-    "year": 2018,
-    "population": 1220549,
-    "householdCount": 451497,
-    "agingRate": 9.6
+    "sgisCode": "39010",
+    "name": "제주시",
+    "year": 2023,
+    "population": 495553,
+    "householdCount": 202367,
+    "agingRate": 16.1
   },
   {
-    "sgisCode": "31010",
-    "name": "수원시",
-    "year": 2019,
-    "population": 1215519,
-    "householdCount": 457657,
-    "agingRate": 10.2
+    "sgisCode": "39020",
+    "name": "서귀포시",
+    "year": 2023,
+    "population": 181214,
+    "householdCount": 75948,
+    "agingRate": 21.1
+  },
+  {
+    "sgisCode": "39010",
+    "name": "제주시",
+    "year": 2024,
+    "population": 493908,
+    "householdCount": 203478,
+    "agingRate": 17
+  },
+  {
+    "sgisCode": "39020",
+    "name": "서귀포시",
+    "year": 2024,
+    "population": 180909,
+    "householdCount": 76179,
+    "agingRate": 22.1
   },
   {
     "sgisCode": "31010",
@@ -10033,20 +10017,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 12.3
   },
   {
-    "sgisCode": "31020",
-    "name": "성남시",
-    "year": 2018,
-    "population": 931393,
-    "householdCount": 359322,
-    "agingRate": 12.6
+    "sgisCode": "31010",
+    "name": "수원시",
+    "year": 2023,
+    "population": 1226362,
+    "householdCount": 503568,
+    "agingRate": 13.1
   },
   {
-    "sgisCode": "31020",
-    "name": "성남시",
-    "year": 2019,
-    "population": 919895,
-    "householdCount": 361413,
-    "agingRate": 13.3
+    "sgisCode": "31010",
+    "name": "수원시",
+    "year": 2024,
+    "population": 1224979,
+    "householdCount": 508564,
+    "agingRate": 14
   },
   {
     "sgisCode": "31020",
@@ -10073,20 +10057,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 15.9
   },
   {
-    "sgisCode": "31040",
-    "name": "안양시",
-    "year": 2018,
-    "population": 566574,
-    "householdCount": 204984,
-    "agingRate": 11.8
+    "sgisCode": "31020",
+    "name": "성남시",
+    "year": 2023,
+    "population": 903116,
+    "householdCount": 380003,
+    "agingRate": 16.7
   },
   {
-    "sgisCode": "31040",
-    "name": "안양시",
-    "year": 2019,
-    "population": 557339,
-    "householdCount": 205695,
-    "agingRate": 12.6
+    "sgisCode": "31020",
+    "name": "성남시",
+    "year": 2024,
+    "population": 900867,
+    "householdCount": 383004,
+    "agingRate": 17.7
   },
   {
     "sgisCode": "31040",
@@ -10113,20 +10097,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 15.5
   },
   {
-    "sgisCode": "31050",
-    "name": "부천시",
-    "year": 2018,
-    "population": 848756,
-    "householdCount": 311868,
-    "agingRate": 11.6
+    "sgisCode": "31040",
+    "name": "안양시",
+    "year": 2023,
+    "population": 537159,
+    "householdCount": 213815,
+    "agingRate": 16.6
   },
   {
-    "sgisCode": "31050",
-    "name": "부천시",
-    "year": 2019,
-    "population": 836751,
-    "householdCount": 311910,
-    "agingRate": 12.5
+    "sgisCode": "31040",
+    "name": "안양시",
+    "year": 2024,
+    "population": 545800,
+    "householdCount": 220099,
+    "agingRate": 17.6
   },
   {
     "sgisCode": "31050",
@@ -10153,20 +10137,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 15.9
   },
   {
-    "sgisCode": "31090",
-    "name": "안산시",
-    "year": 2018,
-    "population": 720105,
-    "householdCount": 251418,
-    "agingRate": 9.1
+    "sgisCode": "31050",
+    "name": "부천시",
+    "year": 2023,
+    "population": 803512,
+    "householdCount": 320407,
+    "agingRate": 17.2
   },
   {
-    "sgisCode": "31090",
-    "name": "안산시",
-    "year": 2019,
-    "population": 714650,
-    "householdCount": 253140,
-    "agingRate": 9.7
+    "sgisCode": "31050",
+    "name": "부천시",
+    "year": 2024,
+    "population": 794082,
+    "householdCount": 322370,
+    "agingRate": 18.7
   },
   {
     "sgisCode": "31090",
@@ -10193,20 +10177,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 12.2
   },
   {
-    "sgisCode": "31100",
-    "name": "고양시",
-    "year": 2018,
-    "population": 1006992,
-    "householdCount": 370108,
-    "agingRate": 12.4
+    "sgisCode": "31090",
+    "name": "안산시",
+    "year": 2023,
+    "population": 709147,
+    "householdCount": 268028,
+    "agingRate": 13.2
   },
   {
-    "sgisCode": "31100",
-    "name": "고양시",
-    "year": 2019,
-    "population": 1024645,
-    "householdCount": 385021,
-    "agingRate": 12.9
+    "sgisCode": "31090",
+    "name": "안산시",
+    "year": 2024,
+    "population": 701551,
+    "householdCount": 267949,
+    "agingRate": 14.3
   },
   {
     "sgisCode": "31100",
@@ -10233,20 +10217,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 15.5
   },
   {
-    "sgisCode": "31190",
-    "name": "용인시",
-    "year": 2018,
-    "population": 1025058,
-    "householdCount": 355625,
-    "agingRate": 12.1
+    "sgisCode": "31100",
+    "name": "고양시",
+    "year": 2023,
+    "population": 1047592,
+    "householdCount": 427072,
+    "agingRate": 16.4
   },
   {
-    "sgisCode": "31190",
-    "name": "용인시",
-    "year": 2019,
-    "population": 1052529,
-    "householdCount": 371752,
-    "agingRate": 12.6
+    "sgisCode": "31100",
+    "name": "고양시",
+    "year": 2024,
+    "population": 1044968,
+    "householdCount": 430075,
+    "agingRate": 17.6
   },
   {
     "sgisCode": "31190",
@@ -10273,20 +10257,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 14.7
   },
   {
-    "sgisCode": "33010",
-    "name": "청주시",
-    "year": 2018,
-    "population": 845036,
-    "householdCount": 325023,
-    "agingRate": 11.8
+    "sgisCode": "31190",
+    "name": "용인시",
+    "year": 2023,
+    "population": 1066979,
+    "householdCount": 405291,
+    "agingRate": 15.5
   },
   {
-    "sgisCode": "33010",
-    "name": "청주시",
-    "year": 2019,
-    "population": 850938,
-    "householdCount": 334431,
-    "agingRate": 12.4
+    "sgisCode": "31190",
+    "name": "용인시",
+    "year": 2024,
+    "population": 1077481,
+    "householdCount": 413755,
+    "agingRate": 16.3
   },
   {
     "sgisCode": "33010",
@@ -10313,20 +10297,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 14.7
   },
   {
-    "sgisCode": "34010",
-    "name": "천안시",
-    "year": 2018,
-    "population": 671799,
-    "householdCount": 256949,
-    "agingRate": 9.4
+    "sgisCode": "33010",
+    "name": "청주시",
+    "year": 2023,
+    "population": 870358,
+    "householdCount": 376787,
+    "agingRate": 15.4
   },
   {
-    "sgisCode": "34010",
-    "name": "천안시",
-    "year": 2019,
-    "population": 679743,
-    "householdCount": 264383,
-    "agingRate": 9.8
+    "sgisCode": "33010",
+    "name": "청주시",
+    "year": 2024,
+    "population": 873368,
+    "householdCount": 381596,
+    "agingRate": 16.2
   },
   {
     "sgisCode": "34010",
@@ -10353,20 +10337,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 11.9
   },
   {
-    "sgisCode": "35010",
-    "name": "전주시",
-    "year": 2018,
-    "population": 658912,
-    "householdCount": 255604,
-    "agingRate": 13.6
+    "sgisCode": "34010",
+    "name": "천안시",
+    "year": 2023,
+    "population": 689851,
+    "householdCount": 291563,
+    "agingRate": 12.6
   },
   {
-    "sgisCode": "35010",
-    "name": "전주시",
-    "year": 2019,
-    "population": 662086,
-    "householdCount": 261378,
-    "agingRate": 14.2
+    "sgisCode": "34010",
+    "name": "천안시",
+    "year": 2024,
+    "population": 694765,
+    "householdCount": 294974,
+    "agingRate": 13.4
   },
   {
     "sgisCode": "35010",
@@ -10393,20 +10377,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 16.4
   },
   {
-    "sgisCode": "37010",
-    "name": "포항시",
-    "year": 2018,
-    "population": 504382,
-    "householdCount": 201456,
-    "agingRate": 15.2
+    "sgisCode": "35010",
+    "name": "전주시",
+    "year": 2023,
+    "population": 658032,
+    "householdCount": 284192,
+    "agingRate": 17.2
   },
   {
-    "sgisCode": "37010",
-    "name": "포항시",
-    "year": 2019,
-    "population": 502064,
-    "householdCount": 202492,
-    "agingRate": 16.2
+    "sgisCode": "35010",
+    "name": "전주시",
+    "year": 2024,
+    "population": 649634,
+    "householdCount": 283796,
+    "agingRate": 18.3
   },
   {
     "sgisCode": "37010",
@@ -10433,20 +10417,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 19.8
   },
   {
-    "sgisCode": "38010",
-    "name": "창원시",
-    "year": 2018,
-    "population": 1044215,
-    "householdCount": 399353,
-    "agingRate": 12.4
+    "sgisCode": "37010",
+    "name": "포항시",
+    "year": 2023,
+    "population": 493394,
+    "householdCount": 216729,
+    "agingRate": 21
   },
   {
-    "sgisCode": "38010",
-    "name": "창원시",
-    "year": 2019,
-    "population": 1036862,
-    "householdCount": 403524,
-    "agingRate": 13.3
+    "sgisCode": "37010",
+    "name": "포항시",
+    "year": 2024,
+    "population": 493075,
+    "householdCount": 219703,
+    "agingRate": 22.2
   },
   {
     "sgisCode": "38010",
@@ -10473,132 +10457,20 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "agingRate": 16.6
   },
   {
-    "sgisCode": "23100",
-    "name": "제물포구",
-    "year": 2018,
-    "population": 114149,
-    "householdCount": 45633,
-    "agingRate": 20.2
+    "sgisCode": "38010",
+    "name": "창원시",
+    "year": 2023,
+    "population": 1007142,
+    "householdCount": 428321,
+    "agingRate": 17.7
   },
   {
-    "sgisCode": "23110",
-    "name": "영종구",
-    "year": 2018,
-    "population": 70550,
-    "householdCount": 28932,
-    "agingRate": 9.3
-  },
-  {
-    "sgisCode": "23120",
-    "name": "서해구",
-    "year": 2018,
-    "population": 375085,
-    "householdCount": 135771,
-    "agingRate": 9.4
-  },
-  {
-    "sgisCode": "23130",
-    "name": "검단구",
-    "year": 2018,
-    "population": 157628,
-    "householdCount": 54008,
-    "agingRate": 9.1
-  },
-  {
-    "sgisCode": "31241",
-    "name": "만세구",
-    "year": 2018,
-    "population": 225646,
-    "householdCount": 77921,
-    "agingRate": 11
-  },
-  {
-    "sgisCode": "31242",
-    "name": "효행구",
-    "year": 2018,
-    "population": 121284,
-    "householdCount": 41471,
-    "agingRate": 11
-  },
-  {
-    "sgisCode": "31243",
-    "name": "병점구",
-    "year": 2018,
-    "population": 150919,
-    "householdCount": 54422,
-    "agingRate": 7.7
-  },
-  {
-    "sgisCode": "31244",
-    "name": "동탄구",
-    "year": 2018,
-    "population": 278808,
-    "householdCount": 97215,
-    "agingRate": 4.4
-  },
-  {
-    "sgisCode": "23100",
-    "name": "제물포구",
-    "year": 2019,
-    "population": 110403,
-    "householdCount": 44668,
-    "agingRate": 21.6
-  },
-  {
-    "sgisCode": "23110",
-    "name": "영종구",
-    "year": 2019,
-    "population": 84463,
-    "householdCount": 36175,
-    "agingRate": 9.2
-  },
-  {
-    "sgisCode": "23120",
-    "name": "서해구",
-    "year": 2019,
-    "population": 382288,
-    "householdCount": 140735,
-    "agingRate": 9.9
-  },
-  {
-    "sgisCode": "23130",
-    "name": "검단구",
-    "year": 2019,
-    "population": 158367,
-    "householdCount": 54928,
-    "agingRate": 9.8
-  },
-  {
-    "sgisCode": "31241",
-    "name": "만세구",
-    "year": 2019,
-    "population": 237534,
-    "householdCount": 82614,
-    "agingRate": 11.1
-  },
-  {
-    "sgisCode": "31242",
-    "name": "효행구",
-    "year": 2019,
-    "population": 123000,
-    "householdCount": 43072,
-    "agingRate": 11.5
-  },
-  {
-    "sgisCode": "31243",
-    "name": "병점구",
-    "year": 2019,
-    "population": 149904,
-    "householdCount": 55054,
-    "agingRate": 8.4
-  },
-  {
-    "sgisCode": "31244",
-    "name": "동탄구",
-    "year": 2019,
-    "population": 327664,
-    "householdCount": 117351,
-    "agingRate": 4.4
+    "sgisCode": "38010",
+    "name": "창원시",
+    "year": 2024,
+    "population": 1001043,
+    "householdCount": 430824,
+    "agingRate": 19
   },
   {
     "sgisCode": "23100",
@@ -10791,27 +10663,139 @@ export const POPULATION_TREND_SIGUNGU: PopulationTrendPoint[] = [
     "population": 380684,
     "householdCount": 145079,
     "agingRate": 5.5
+  },
+  {
+    "sgisCode": "23100",
+    "name": "제물포구",
+    "year": 2023,
+    "population": 104279,
+    "householdCount": 46209,
+    "agingRate": 26.3
+  },
+  {
+    "sgisCode": "23110",
+    "name": "영종구",
+    "year": 2023,
+    "population": 112411,
+    "householdCount": 50678,
+    "agingRate": 10.7
+  },
+  {
+    "sgisCode": "23120",
+    "name": "서해구",
+    "year": 2023,
+    "population": 393711,
+    "householdCount": 158539,
+    "agingRate": 13.3
+  },
+  {
+    "sgisCode": "23130",
+    "name": "검단구",
+    "year": 2023,
+    "population": 228137,
+    "householdCount": 86516,
+    "agingRate": 10.8
+  },
+  {
+    "sgisCode": "31241",
+    "name": "만세구",
+    "year": 2023,
+    "population": 271227,
+    "householdCount": 100440,
+    "agingRate": 12.9
+  },
+  {
+    "sgisCode": "31242",
+    "name": "효행구",
+    "year": 2023,
+    "population": 139921,
+    "householdCount": 54533,
+    "agingRate": 14.1
+  },
+  {
+    "sgisCode": "31243",
+    "name": "병점구",
+    "year": 2023,
+    "population": 174294,
+    "householdCount": 70126,
+    "agingRate": 10.2
+  },
+  {
+    "sgisCode": "31244",
+    "name": "동탄구",
+    "year": 2023,
+    "population": 388714,
+    "householdCount": 149994,
+    "agingRate": 5.9
+  },
+  {
+    "sgisCode": "23100",
+    "name": "제물포구",
+    "year": 2024,
+    "population": 101960,
+    "householdCount": 45705,
+    "agingRate": 27.8
+  },
+  {
+    "sgisCode": "23110",
+    "name": "영종구",
+    "year": 2024,
+    "population": 120921,
+    "householdCount": 55277,
+    "agingRate": 11
+  },
+  {
+    "sgisCode": "23120",
+    "name": "서해구",
+    "year": 2024,
+    "population": 393148,
+    "householdCount": 160135,
+    "agingRate": 14.4
+  },
+  {
+    "sgisCode": "23130",
+    "name": "검단구",
+    "year": 2024,
+    "population": 240918,
+    "householdCount": 91447,
+    "agingRate": 11.6
+  },
+  {
+    "sgisCode": "31241",
+    "name": "만세구",
+    "year": 2024,
+    "population": 279898,
+    "householdCount": 103516,
+    "agingRate": 13.7
+  },
+  {
+    "sgisCode": "31242",
+    "name": "효행구",
+    "year": 2024,
+    "population": 153544,
+    "householdCount": 60327,
+    "agingRate": 14.3
+  },
+  {
+    "sgisCode": "31243",
+    "name": "병점구",
+    "year": 2024,
+    "population": 173413,
+    "householdCount": 70187,
+    "agingRate": 11
+  },
+  {
+    "sgisCode": "31244",
+    "name": "동탄구",
+    "year": 2024,
+    "population": 397224,
+    "householdCount": 154590,
+    "agingRate": 6.4
   }
 ];
 
 /** 시도 인구 시계열 (SGIS 2자리 × 연도, 시군구 합산) */
 const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
-  {
-    "sgisCode": "11",
-    "name": "서울",
-    "year": 2018,
-    "population": 9673932,
-    "householdCount": 3839765,
-    "agingRate": 14
-  },
-  {
-    "sgisCode": "11",
-    "name": "서울",
-    "year": 2019,
-    "population": 9639541,
-    "householdCount": 3896389,
-    "agingRate": 14.7
-  },
   {
     "sgisCode": "11",
     "name": "서울",
@@ -10837,20 +10821,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 17.4
   },
   {
-    "sgisCode": "23",
-    "name": "인천",
-    "year": 2018,
-    "population": 2936117,
-    "householdCount": 1094749,
-    "agingRate": 12.2
+    "sgisCode": "11",
+    "name": "서울",
+    "year": 2023,
+    "population": 9384512,
+    "householdCount": 4141659,
+    "agingRate": 18.3
   },
   {
-    "sgisCode": "23",
-    "name": "인천",
-    "year": 2019,
-    "population": 2952237,
-    "householdCount": 1120576,
-    "agingRate": 12.8
+    "sgisCode": "11",
+    "name": "서울",
+    "year": 2024,
+    "population": 9335444,
+    "householdCount": 4159502,
+    "agingRate": 19.2
   },
   {
     "sgisCode": "23",
@@ -10877,20 +10861,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 15.4
   },
   {
-    "sgisCode": "31",
-    "name": "경기",
-    "year": 2018,
-    "population": 13103192,
-    "householdCount": 4751498,
-    "agingRate": 11.7
+    "sgisCode": "23",
+    "name": "인천",
+    "year": 2023,
+    "population": 3025950,
+    "householdCount": 1242168,
+    "agingRate": 16.4
   },
   {
-    "sgisCode": "31",
-    "name": "경기",
-    "year": 2019,
-    "population": 13300900,
-    "householdCount": 4907660,
-    "agingRate": 12.3
+    "sgisCode": "23",
+    "name": "인천",
+    "year": 2024,
+    "population": 3058033,
+    "householdCount": 1268133,
+    "agingRate": 17.4
   },
   {
     "sgisCode": "31",
@@ -10917,20 +10901,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 14.5
   },
   {
-    "sgisCode": "32",
-    "name": "강원",
-    "year": 2018,
-    "population": 1520391,
-    "householdCount": 628484,
-    "agingRate": 18.4
+    "sgisCode": "31",
+    "name": "경기",
+    "year": 2023,
+    "population": 13815367,
+    "householdCount": 5500024,
+    "agingRate": 15.4
   },
   {
-    "sgisCode": "32",
-    "name": "강원",
-    "year": 2019,
-    "population": 1520127,
-    "householdCount": 633942,
-    "agingRate": 19.2
+    "sgisCode": "31",
+    "name": "경기",
+    "year": 2024,
+    "population": 13914479,
+    "householdCount": 5592072,
+    "agingRate": 16.3
   },
   {
     "sgisCode": "32",
@@ -10957,20 +10941,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 22.3
   },
   {
-    "sgisCode": "33",
-    "name": "충북",
-    "year": 2018,
-    "population": 1620931,
-    "householdCount": 640977,
-    "agingRate": 15.8
+    "sgisCode": "32",
+    "name": "강원",
+    "year": 2023,
+    "population": 1528014,
+    "householdCount": 698410,
+    "agingRate": 23.4
   },
   {
-    "sgisCode": "33",
-    "name": "충북",
-    "year": 2019,
-    "population": 1629343,
-    "householdCount": 654713,
-    "agingRate": 16.4
+    "sgisCode": "32",
+    "name": "강원",
+    "year": 2024,
+    "population": 1522881,
+    "householdCount": 702603,
+    "agingRate": 24.7
   },
   {
     "sgisCode": "33",
@@ -10997,20 +10981,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 19.1
   },
   {
-    "sgisCode": "29",
-    "name": "세종",
-    "year": 2018,
-    "population": 312374,
-    "householdCount": 119029,
-    "agingRate": 8.9
+    "sgisCode": "33",
+    "name": "충북",
+    "year": 2023,
+    "population": 1641481,
+    "householdCount": 720231,
+    "agingRate": 19.9
   },
   {
-    "sgisCode": "29",
-    "name": "세종",
-    "year": 2019,
-    "population": 338136,
-    "householdCount": 129664,
-    "agingRate": 9
+    "sgisCode": "33",
+    "name": "충북",
+    "year": 2024,
+    "population": 1646328,
+    "householdCount": 726988,
+    "agingRate": 20.8
   },
   {
     "sgisCode": "29",
@@ -11037,20 +11021,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 10.1
   },
   {
-    "sgisCode": "25",
-    "name": "대전",
-    "year": 2018,
-    "population": 1511214,
-    "householdCount": 602175,
-    "agingRate": 12.4
+    "sgisCode": "29",
+    "name": "세종",
+    "year": 2023,
+    "population": 386261,
+    "householdCount": 156444,
+    "agingRate": 10.5
   },
   {
-    "sgisCode": "25",
-    "name": "대전",
-    "year": 2019,
-    "population": 1498839,
-    "householdCount": 609043,
-    "agingRate": 13.1
+    "sgisCode": "29",
+    "name": "세종",
+    "year": 2024,
+    "population": 390156,
+    "householdCount": 158901,
+    "agingRate": 11.1
   },
   {
     "sgisCode": "25",
@@ -11077,20 +11061,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 15.8
   },
   {
-    "sgisCode": "34",
-    "name": "충남",
-    "year": 2018,
-    "population": 2181416,
-    "householdCount": 851124,
+    "sgisCode": "25",
+    "name": "대전",
+    "year": 2023,
+    "population": 1470336,
+    "householdCount": 654809,
     "agingRate": 16.6
   },
   {
-    "sgisCode": "34",
-    "name": "충남",
-    "year": 2019,
-    "population": 2188649,
-    "householdCount": 864102,
-    "agingRate": 17.2
+    "sgisCode": "25",
+    "name": "대전",
+    "year": 2024,
+    "population": 1467093,
+    "householdCount": 658831,
+    "agingRate": 17.6
   },
   {
     "sgisCode": "34",
@@ -11117,20 +11101,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 19.6
   },
   {
-    "sgisCode": "35",
-    "name": "전북",
-    "year": 2018,
-    "population": 1818157,
-    "householdCount": 732980,
-    "agingRate": 19.2
+    "sgisCode": "34",
+    "name": "충남",
+    "year": 2023,
+    "population": 2216332,
+    "householdCount": 948631,
+    "agingRate": 20.1
   },
   {
-    "sgisCode": "35",
-    "name": "전북",
-    "year": 2019,
-    "population": 1807423,
-    "householdCount": 738307,
-    "agingRate": 19.9
+    "sgisCode": "34",
+    "name": "충남",
+    "year": 2024,
+    "population": 2238243,
+    "householdCount": 964538,
+    "agingRate": 20.8
   },
   {
     "sgisCode": "35",
@@ -11157,20 +11141,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 22.6
   },
   {
-    "sgisCode": "24",
-    "name": "광주",
-    "year": 2018,
-    "population": 1490092,
-    "householdCount": 578559,
-    "agingRate": 12.6
+    "sgisCode": "35",
+    "name": "전북",
+    "year": 2023,
+    "population": 1768491,
+    "householdCount": 786775,
+    "agingRate": 23.4
   },
   {
-    "sgisCode": "24",
-    "name": "광주",
-    "year": 2019,
-    "population": 1489730,
-    "householdCount": 587159,
-    "agingRate": 13.2
+    "sgisCode": "35",
+    "name": "전북",
+    "year": 2024,
+    "population": 1758836,
+    "householdCount": 788621,
+    "agingRate": 24.4
   },
   {
     "sgisCode": "24",
@@ -11197,20 +11181,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 15.4
   },
   {
-    "sgisCode": "36",
-    "name": "전남",
-    "year": 2018,
-    "population": 1790352,
-    "householdCount": 737406,
-    "agingRate": 21.9
+    "sgisCode": "24",
+    "name": "광주",
+    "year": 2023,
+    "population": 1457090,
+    "householdCount": 627602,
+    "agingRate": 16.3
   },
   {
-    "sgisCode": "36",
-    "name": "전남",
-    "year": 2019,
-    "population": 1787543,
-    "householdCount": 741026,
-    "agingRate": 22.3
+    "sgisCode": "24",
+    "name": "광주",
+    "year": 2024,
+    "population": 1444170,
+    "householdCount": 628550,
+    "agingRate": 17.3
   },
   {
     "sgisCode": "36",
@@ -11237,20 +11221,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 24.7
   },
   {
-    "sgisCode": "21",
-    "name": "부산",
-    "year": 2018,
-    "population": 3395278,
-    "householdCount": 1363608,
-    "agingRate": 16.9
+    "sgisCode": "36",
+    "name": "전남",
+    "year": 2023,
+    "population": 1776668,
+    "householdCount": 793249,
+    "agingRate": 25.4
   },
   {
-    "sgisCode": "21",
-    "name": "부산",
-    "year": 2019,
-    "population": 3372692,
-    "householdCount": 1377030,
-    "agingRate": 17.9
+    "sgisCode": "36",
+    "name": "전남",
+    "year": 2024,
+    "population": 1778338,
+    "householdCount": 799012,
+    "agingRate": 26.3
   },
   {
     "sgisCode": "21",
@@ -11277,20 +11261,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 21.3
   },
   {
-    "sgisCode": "22",
-    "name": "대구",
-    "year": 2018,
-    "population": 2466689,
-    "householdCount": 968081,
-    "agingRate": 14.8
+    "sgisCode": "21",
+    "name": "부산",
+    "year": 2023,
+    "population": 3279604,
+    "householdCount": 1462404,
+    "agingRate": 22.4
   },
   {
-    "sgisCode": "22",
-    "name": "대구",
-    "year": 2019,
-    "population": 2452146,
-    "householdCount": 979180,
-    "agingRate": 15.6
+    "sgisCode": "21",
+    "name": "부산",
+    "year": 2024,
+    "population": 3257256,
+    "householdCount": 1470562,
+    "agingRate": 23.6
   },
   {
     "sgisCode": "22",
@@ -11317,20 +11301,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 18.5
   },
   {
-    "sgisCode": "26",
-    "name": "울산",
-    "year": 2018,
-    "population": 1150114,
-    "householdCount": 431391,
-    "agingRate": 10.6
+    "sgisCode": "22",
+    "name": "대구",
+    "year": 2023,
+    "population": 2379188,
+    "householdCount": 1033238,
+    "agingRate": 19.4
   },
   {
-    "sgisCode": "26",
-    "name": "울산",
-    "year": 2019,
-    "population": 1143692,
-    "householdCount": 437094,
-    "agingRate": 11.4
+    "sgisCode": "22",
+    "name": "대구",
+    "year": 2024,
+    "population": 2369336,
+    "householdCount": 1043730,
+    "agingRate": 20.6
   },
   {
     "sgisCode": "26",
@@ -11357,20 +11341,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 14.5
   },
   {
-    "sgisCode": "37",
-    "name": "경북",
-    "year": 2018,
-    "population": 2650629,
-    "householdCount": 1083970,
-    "agingRate": 19.1
+    "sgisCode": "26",
+    "name": "울산",
+    "year": 2023,
+    "population": 1107431,
+    "householdCount": 458129,
+    "agingRate": 15.7
   },
   {
-    "sgisCode": "37",
-    "name": "경북",
-    "year": 2019,
-    "population": 2645948,
-    "householdCount": 1092374,
-    "agingRate": 19.9
+    "sgisCode": "26",
+    "name": "울산",
+    "year": 2024,
+    "population": 1106894,
+    "householdCount": 462342,
+    "agingRate": 16.8
   },
   {
     "sgisCode": "37",
@@ -11397,20 +11381,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 22.9
   },
   {
-    "sgisCode": "38",
-    "name": "경남",
-    "year": 2018,
-    "population": 3350352,
-    "householdCount": 1306394,
-    "agingRate": 15.2
+    "sgisCode": "37",
+    "name": "경북",
+    "year": 2023,
+    "population": 2589880,
+    "householdCount": 1166594,
+    "agingRate": 23.8
   },
   {
-    "sgisCode": "38",
-    "name": "경남",
-    "year": 2019,
-    "population": 3347209,
-    "householdCount": 1321213,
-    "agingRate": 15.9
+    "sgisCode": "37",
+    "name": "경북",
+    "year": 2024,
+    "population": 2578999,
+    "householdCount": 1174597,
+    "agingRate": 24.9
   },
   {
     "sgisCode": "38",
@@ -11437,20 +11421,20 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "agingRate": 19
   },
   {
-    "sgisCode": "39",
-    "name": "제주",
-    "year": 2018,
-    "population": 658282,
-    "householdCount": 248998,
-    "agingRate": 14.2
+    "sgisCode": "38",
+    "name": "경남",
+    "year": 2023,
+    "population": 3271149,
+    "householdCount": 1404476,
+    "agingRate": 20
   },
   {
-    "sgisCode": "39",
-    "name": "제주",
-    "year": 2019,
-    "population": 665048,
-    "householdCount": 253716,
-    "agingRate": 14.6
+    "sgisCode": "38",
+    "name": "경남",
+    "year": 2024,
+    "population": 3264244,
+    "householdCount": 1415780,
+    "agingRate": 21.1
   },
   {
     "sgisCode": "39",
@@ -11475,6 +11459,22 @@ const POPULATION_TREND_SIDO: PopulationTrendPoint[] = [
     "population": 676375,
     "householdCount": 276225,
     "agingRate": 16.7
+  },
+  {
+    "sgisCode": "39",
+    "name": "제주",
+    "year": 2023,
+    "population": 676767,
+    "householdCount": 278315,
+    "agingRate": 17.4
+  },
+  {
+    "sgisCode": "39",
+    "name": "제주",
+    "year": 2024,
+    "population": 674817,
+    "householdCount": 279657,
+    "agingRate": 18.4
   }
 ];
 
