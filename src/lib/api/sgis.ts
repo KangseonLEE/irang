@@ -27,10 +27,11 @@ import {
   POPULATION_TREND_SIGUNGU,
   POPULATION_TREND_YEARS,
 } from "@/lib/data/population-trend";
+import { SGIS_POPULATION_YEAR } from "@/lib/data/population-year";
 import { FETCH_TIMEOUT } from "./_build-phase";
 
 /**
- * 시군구 인구 정적 폴백 인덱스 (POPULATION_TREND 최신 연도 = 2022).
+ * 시군구 인구 정적 폴백 인덱스 (POPULATION_TREND 마지막 해 = SGIS_POPULATION_YEAR — 실시간 조회와 같은 해).
  * SGIS 단건 호출이 -100 반환하는 통합시·일부 시군구를 위한 보호 장치.
  * 시도 폴백되기 전에 우선 사용 — 시도 인구가 시군구로 잘못 표시되는 사고 방지.
  */
@@ -204,8 +205,8 @@ async function fetchFromSGIS(
 export async function fetchSigunguPopulationData(
   sgisCode: string
 ): Promise<PopulationData | null> {
-  // SGIS 통계는 보통 1~2년 지연 — 현재 연도 - 2를 안전한 최신으로 사용
-  const year = new Date().getFullYear() - 2;
+  // 정적 인구 추이의 마지막 해와 같은 해를 묻는다 — 실패해도 대체값이 같은 해 값 (lib/data/population-year)
+  const year = SGIS_POPULATION_YEAR;
   const accessToken = await getAccessToken();
 
   // 토큰 발급 실패 → 정적 폴백 즉시 반환 (시도 폴백 안 거침)
@@ -396,8 +397,8 @@ export async function fetchSubRegionPopulations(
     }
   }
 
-  // SGIS 통계는 보통 1~2년 지연 — 현재 연도 - 2를 안전한 최신으로 사용
-  const year = new Date().getFullYear() - 2;
+  // 정적 인구 추이의 마지막 해와 같은 해 (lib/data/population-year)
+  const year = SGIS_POPULATION_YEAR;
   const accessToken = await getAccessToken();
   if (!accessToken) return fallbackMap;
 
@@ -483,8 +484,8 @@ export async function fetchPopulationData(
 ): Promise<PopulationData[]> {
   // 중복 제거
   const uniqueCodes = [...new Set(regionCodes)];
-  // SGIS 통계는 보통 1~2년 지연 — 현재 연도 - 2를 안전한 최신으로 사용
-  const year = new Date().getFullYear() - 2;
+  // 정적 인구 추이의 마지막 해와 같은 해 (lib/data/population-year)
+  const year = SGIS_POPULATION_YEAR;
 
   // SGIS 토큰 발급 시도
   const accessToken = await getAccessToken();

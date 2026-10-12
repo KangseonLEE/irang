@@ -132,7 +132,9 @@ async function fetchProvinceSubPopulation(
       last = e instanceof Error ? e.message : String(e);
     }
   }
-  throw new Error(`SGIS 인구 sgis=${provinceSgisCode} year=${year} 세 번 실패(${last}) — 정적 데이터 갱신 중단`);
+  // 끝 연도(올해 − 2)는 해가 바뀐 직후 SGIS 공표 전이라 없을 수 있다 — 원천 장애와 구분해 알린다
+  const hint = year === LAST_YEAR ? ` · ${year}년 자료가 SGIS 에 아직 공표되지 않았을 수 있어요(화면은 직전 수집 연도를 계속 써요)` : "";
+  throw new Error(`SGIS 인구 sgis=${provinceSgisCode} year=${year} 세 번 실패(${last}) — 정적 데이터 갱신 중단${hint}`);
 }
 
 function calcAgingRate(item: PopulationApiItem): number {
@@ -198,10 +200,10 @@ async function main() {
       const matched = all.filter(
         (p) => p.year === year && guSet.has(p.sgisCode),
       );
-      // 구 하나라도 없으면 그 해는 뺀다 — 덜 센 합을 추이로 남기지 않는다 (10/7)
+      // 구 하나라도 없으면 멈춘다 — 덜 센 합도, 그 해만 빠진 추이도 남기지 않는다 (10/7 · 10/12: 예전엔 그 해를 건너뛰고
+      // 파일을 써서, 순위 점수의 '5년 변화율'이 다른 기간 값이 되고 주간 재수집도 성공으로 봤다)
       if (matched.length !== guSet.size) {
-        console.warn(`[skip] 통합시 ${cityCode} ${year}: 구 ${matched.length}/${guSet.size}`);
-        continue;
+        throw new Error(`통합시 ${cityCode} ${year}: 구 ${matched.length}/${guSet.size} — 정적 데이터 갱신 중단`);
       }
       const totalPop = matched.reduce((s, p) => s + p.population, 0);
       const totalHousehold = matched.reduce(
@@ -293,8 +295,8 @@ async function main() {
       const guRows = rawByProvinceYear.get(`${c.sgisCode.slice(0, 2)}/${year}`) ?? [];
       const rows = compositePopulationRows(c, guRows, dongRowsByGu, oaRowsByDong);
       if (!rows) {
-        console.warn(`[skip] 신설 구 ${c.name} ${year}: 행정동 정의와 응답이 맞지 않음`);
-        continue;
+        // 그 해만 빠진 추이를 쓰지 않는다 (10/12) — 행정동 정의(region-composites)를 원천과 다시 맞춘 뒤 수집
+        throw new Error(`신설 구 ${c.name} ${year}: 행정동 정의와 응답이 맞지 않음 — 정적 데이터 갱신 중단`);
       }
       const population = rows.reduce((a, r) => a + (parseInt(r.tot_ppltn, 10) || 0), 0);
       const elderly = rows.reduce((a, r) => a + (parseInt(r.tot_ppltn, 10) || 0) * (calcAgingRate(r) / 100), 0);
@@ -371,6 +373,19 @@ export function getPopulationTrend(
     .sort((a, b) => a.year - b.year);
 }
 `;
+
+  // 마지막 가드 (10/12): 모든 지역이 수집 연도 전부를 정확히 한 번씩 갖는지 — 빠진 해·겹친 해가 있으면 쓰지 않는다
+  const yearsOk = (rows: { sgisCode: string; year: number }[], label: string) => {
+    const byCode = new Map<string, number[]>();
+    for (const r of rows) byCode.set(r.sgisCode, [...(byCode.get(r.sgisCode) ?? []), r.year]);
+    const want = YEARS.join(",");
+    const bad = [...byCode].filter(([, ys]) => [...ys].sort((a, b) => a - b).join(",") !== want);
+    if (bad.length) {
+      throw new Error(`${label} 연도 불완전 ${bad.length}곳 (예: ${bad.slice(0, 3).map(([c, ys]) => `${c}=[${ys.join(",")}]`).join(" ")}) — 정적 데이터 갱신 중단`);
+    }
+  };
+  yearsOk(all, "시·군·구");
+  yearsOk(sidoArr, "시·도");
 
   writeFileSync(filePath, body, "utf-8");
   console.log(`[collect-population-trend] wrote ${filePath}`);

@@ -45,6 +45,7 @@ import { AREA_NOT_YET_IN_CADASTRE, fetchCadastreAreas, matchCadastreArea } from 
 import { REGION_REORGANIZATIONS } from "@/lib/data/region-reorganizations";
 import { INTEGRATED_CITY_GU_CODES } from "@/lib/data/integrated-cities";
 import { OA_TRANSFERS, REPLACED_SGIS_GU, compositePopulationRows, compositesInProvince, getSgisComposite, oaDongsOf, oaTransferActive, splitGuOf } from "@/lib/data/region-composites";
+import { SGIS_POPULATION_YEAR } from "@/lib/data/population-year";
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => {
@@ -222,7 +223,8 @@ async function hiraItems(sidoCd: string, sgguCd: string): Promise<HiraRow[]> {
 type SgisRow = { adm_cd: string; adm_nm?: string; tot_ppltn: string; tot_family: string };
 type SgisJson<T> = { errCd?: number | string; errMsg?: string; result?: T };
 /** 앱(lib/api/sgis.ts)과 같은 연도 — 통계는 1~2년 늦게 나온다 */
-const SGIS_YEAR = new Date().getFullYear() - 2;
+// 앱이 보여 주는 해(lib/data/population-year — 정적 추이 마지막 해). 연도 선택만 앱을 따르고 값은 원천에서 직접
+const SGIS_YEAR = SGIS_POPULATION_YEAR;
 const SGIS_BASE = "https://sgisapi.kostat.go.kr/OpenAPI3";
 let sgisAccess: string | null | undefined;
 /** 인구 대조를 건너뛴 이유(키 없음·인증 실패) — null 이면 대조함 */

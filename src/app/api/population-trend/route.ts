@@ -14,6 +14,7 @@ import { SIGUNGUS } from "@/lib/data/sigungus";
 import { GUS } from "@/lib/data/gus";
 import { getSgisComposite } from "@/lib/data/region-composites";
 import { fetchCompositePopulationTrend } from "@/lib/api/sgis";
+import { SGIS_POPULATION_YEAR } from "@/lib/data/population-year";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -53,11 +54,10 @@ const STATS_URL =
   "https://sgisapi.mods.go.kr/OpenAPI3/stats/population.json";
 
 /**
- * 통계 데이터 최신 가용 연도.
- * SGIS 통계는 보통 1~2년 지연 — 현재 연도 - 2를 안전한 최신으로 사용.
+ * 통계 데이터 최신 연도 — 카드·정적 추이와 같은 해 (lib/data/population-year).
  */
 function getLatestAvailableYear(): number {
-  return new Date().getFullYear() - 2; // 2026 → 2024
+  return SGIS_POPULATION_YEAR;
 }
 
 /**
