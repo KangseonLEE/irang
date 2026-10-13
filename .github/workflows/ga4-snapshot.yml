@@ -21,7 +21,7 @@ permissions:
 jobs:
   snapshot:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -35,6 +35,19 @@ jobs:
           GA4_DAYS: ${{ github.event.inputs.days || '28' }}
           GA4_DIAG: ${{ github.event.inputs.diag == 'true' && '1' || '' }}
         run: node scripts/watchman/ga4-snapshot.mjs | tee snapshot.md
+      # 결과 0건 검색어 재대조 (10/13) — 그때 0건이던 검색어가 지금은 어떤지 + 붙여 쓴 지역명 착수 기준(3회)
+      # 검색 인덱스(TS)를 그대로 돌려야 해서 의존성 설치가 필요하다. 실패해도 GA 스냅샷 이슈는 발행한다.
+      - name: Install deps (zero-result recheck)
+        if: github.event.inputs.diag != 'true'
+        continue-on-error: true
+        run: npm ci --no-audit --no-fund
+      - name: Zero-result recheck
+        if: github.event.inputs.diag != 'true'
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npx tsx scripts/watchman/zero-result-recheck.ts --ci | tee -a snapshot.md
       - name: Open issue
         if: github.event.inputs.diag != 'true'
         env:
