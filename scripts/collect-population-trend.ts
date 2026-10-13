@@ -40,6 +40,10 @@ const POPULATION_URL =
 const LAST_YEAR = new Date().getFullYear() - 2;
 const YEARS = Array.from({ length: 5 }, (_, i) => LAST_YEAR - 4 + i);
 
+/** 끝 연도가 SGIS 에 아직 없을 때만 — 원천 장애·가드 위반과 구분하는 종료 코드 (data-sources.yml 이 읽는다) */
+const UNPUBLISHED_EXIT = 3;
+class UnpublishedYearError extends Error {}
+
 /**
  * 구 분할 시(통합시) 매핑 — sgis.ts 의 GU_CODES_MAP 과 동일.
  * SGIS는 통합시 코드(예: 성남시 31020)를 인식하지 못하므로,
@@ -116,6 +120,7 @@ async function fetchProvinceSubPopulation(
   // 일시 오류(SGIS 응답 지연·errCd)는 두 번 더 묻고, 그래도 안 되면 멈춘다 — 예전엔 그 해를 빈 목록으로 넘겨
   // 시·도 합을 0 으로 쓴 채 성공으로 끝났다(10/7 독립 QA 재현: 서울 2018 = 0). 덜 받은 파일을 쓰지 않는다
   let last = "";
+  let lastErrCd = "";
   for (let attempt = 0; attempt < 3; attempt++) {
     if (attempt) await new Promise((r) => setTimeout(r, 1500 * attempt));
     try {
@@ -127,14 +132,19 @@ async function fetchProvinceSubPopulation(
         last = "빈 결과";
       } else {
         last = `${json.errMsg ?? json.errCd}`;
+        lastErrCd = String(json.errCd);
       }
     } catch (e) {
       last = e instanceof Error ? e.message : String(e);
     }
   }
-  // 끝 연도(올해 − 2)는 해가 바뀐 직후 SGIS 공표 전이라 없을 수 있다 — 원천 장애와 구분해 알린다
-  const hint = year === LAST_YEAR ? ` · ${year}년 자료가 SGIS 에 아직 공표되지 않았을 수 있어요(화면은 직전 수집 연도를 계속 써요)` : "";
-  throw new Error(`SGIS 인구 sgis=${provinceSgisCode} year=${year} 세 번 실패(${last}) — 정적 데이터 갱신 중단${hint}`);
+  // 끝 연도(올해 − 2)는 해가 바뀐 직후 SGIS 공표 전이라 없다(-100 '검색결과가 존재하지 않습니다', 10/12 실측: 2025·2026).
+  // 원천 장애와 구분한다 — 주간 재수집(data-sources.yml)이 공표 전 몇 달 동안 매주 실패 이슈를 띄워
+  // 다른 수집기 신호를 가리지 않게(10/12 2차 QA 🟡). 화면은 SGIS_POPULATION_YEAR(정적 마지막 해)를 계속 쓴다
+  if (year === LAST_YEAR && lastErrCd === "-100") {
+    throw new UnpublishedYearError(`SGIS 인구 ${year}년 자료 아직 공표 전(sgis=${provinceSgisCode}, -100 ${last}) — 생성본 유지`);
+  }
+  throw new Error(`SGIS 인구 sgis=${provinceSgisCode} year=${year} 세 번 실패(${last}) — 정적 데이터 갱신 중단`);
 }
 
 function calcAgingRate(item: PopulationApiItem): number {
@@ -392,6 +402,11 @@ export function getPopulationTrend(
 }
 
 main().catch((err) => {
+  if (err instanceof UnpublishedYearError) {
+    // 실패가 아니라 '아직 새 해 없음' — data-sources.yml 이 exit 3 을 이슈 없는 안내로 처리한다
+    console.log(`[collect-population-trend] ${err.message}`);
+    process.exit(UNPUBLISHED_EXIT);
+  }
   console.error(err);
   process.exit(1);
 });

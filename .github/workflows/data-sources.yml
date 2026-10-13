@@ -5,8 +5,9 @@
 #   - 작물 시·도 재배면적(crop-areas) · 작물 시·군·구 재배면적·주산지 근거(crop-sigungu-areas)
 #   - 시·군·구 주요 작물(sigungu-main-crops) · 활발한 지역 귀농·귀촌(active-regions-stats)
 #   - 농가(farms) · 면적(collect-areas → regions/sigungus/gus) · 귀농 비율(return-farm-rate)
-#   - 인구 추이(population-trend, 통계청 SGIS — 2026-10-12 추가). 끝 연도 = 올해 − 2 라 해가 바뀌면 생성본이 달라져
-#     재수집 이슈가 뜬다 → 수집 + 귀농 비율·순위 점수 재계산. 귀농 비율이 이 파일의 최신 인구를 분모로 쓰므로 맨 앞에서 돈다.
+#   - 인구 추이(population-trend, 통계청 SGIS — 2026-10-12 추가). 끝 연도 = 올해 − 2. 해가 바뀐 뒤 SGIS 가 그 해를
+#     공표하기 전엔 수집기가 exit 3(공표 전)으로 끝나 이슈 없이 안내만, 공표되면 생성본이 달라져 이슈가 뜬다
+#     → 수집 + 귀농 비율·순위 점수 재계산. 귀농 비율이 이 파일의 최신 인구를 분모로 쓰므로 맨 앞에서 돈다.
 # 각 수집기는 원천 항목 이름·단위·지역 짝·합계를 확인하고, 하나라도 어긋나면 파일을 쓰지 않고 실패한다.
 #
 # 결과:
@@ -59,7 +60,14 @@ jobs:
           : > failed.txt
           for s in collect-population-trend collect-crop-areas collect-crop-sigungu-areas collect-sigungu-main-crops collect-active-regions-stats collect-farms collect-areas collect-return-farm-rate; do
             echo "::group::$s"
-            if ! npx tsx "scripts/$s.ts" > "log-$s.txt" 2>&1; then
+            set +e
+            npx tsx "scripts/$s.ts" > "log-$s.txt" 2>&1
+            code=$?
+            set -e
+            # exit 3 = 끝 연도가 원천에 아직 공표 전(인구 추이, 해가 바뀐 직후 몇 달) — 실패가 아니라 이슈 없이 안내만
+            if [ "$code" = "3" ]; then
+              echo "::notice::$s — 새 연도 자료 아직 공표 전, 생성본 유지"
+            elif [ "$code" != "0" ]; then
               echo "$s" >> failed.txt
             fi
             tail -15 "log-$s.txt"

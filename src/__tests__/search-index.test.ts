@@ -774,6 +774,22 @@ describe("결과 0건 — 검색어에 포함된 실재 작물·지역 안내 (9
     expect(getNoResultSuggestions("무화과잼")).not.toContain("무");
   });
 
+  it("하스카프 철자 변형은 블루베리 카드로 안내하고 자동 대체하지 않는다 (10/13)", () => {
+    for (const q of ["하스카프", "하스카프베리", "하스카프벨", "카스하프베리", "허니베리"]) {
+      expect(searchAll(q), q).toHaveLength(0);
+      expect(getNoResultSuggestions(q), q).toEqual([]);
+      expect(getNoResultHintItems(q).map((i) => i.title), q).toEqual(["블루베리"]);
+    }
+  });
+
+  it("붙여 쓴 시설 자금 검색어도 시설 지원사업이 나온다 (10/13 '시설투자' 0건)", () => {
+    for (const q of ["시설투자", "시설자금", "시설지원", "시설비"]) {
+      const r = searchAll(q);
+      expect(r.length, q).toBeGreaterThan(0);
+      expect(r.some((i) => i.type === "program" && i.title.includes("시설")), q).toBe(true);
+    }
+  });
+
   it("시드 힌트(고사리·명이나물)는 그대로 유지된다", () => {
     expect(getNoResultHintItems("명이나물").map((i) => i.title)).toEqual(["더덕", "도라지"]);
   });
