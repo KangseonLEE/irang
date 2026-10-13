@@ -255,7 +255,7 @@ export const CROPS: CropInfo[] = [
     growingSeason: "4월~8월",
     difficulty: "쉬움",
     description:
-      "생육 기간이 짧고 재배가 간편. 찰옥수수, 초당옥수수 등 고부가가치 품종도 인기이에요.",
+      "생육 기간이 짧고 재배가 간편. 찰옥수수, 초당옥수수 등 고부가가치 품종도 인기예요.",
     emoji: "🌽",
   },
 
@@ -307,7 +307,7 @@ export const CROPS: CropInfo[] = [
     growingSeason: "3월~11월",
     difficulty: "쉬움",
     description:
-      "생육 기간이 짧아 연중 다회 수확 가능. 소규모 시설재배에 적합한 입문용 채소이에요.",
+      "생육 기간이 짧아 연중 다회 수확 가능. 소규모 시설재배에 적합한 입문용 채소예요.",
     emoji: "🥗",
   },
 
@@ -489,7 +489,7 @@ export const CROPS: CropInfo[] = [
     growingSeason: "3월~7월 (시설), 5월~8월 (노지)",
     difficulty: "보통",
     description:
-      "여름 대표 과일로 시장 수요가 확실해요. 최근 미니수박·씨 없는 수박 등 프리미엄 품종이 인기이에요.",
+      "여름 대표 과일로 시장 수요가 확실해요. 최근 미니수박·씨 없는 수박 등 프리미엄 품종이 인기예요.",
     emoji: "🍉",
   },
   {
@@ -529,7 +529,7 @@ export const CROPS: CropInfo[] = [
     growingSeason: "3월~8월",
     difficulty: "보통",
     description:
-      "건강 과일 수요 증가로 재배 면적이 꾸준히 늘고 있어요. 체험농장·직거래와 궁합이 좋은 과수이에요.",
+      "건강 과일 수요 증가로 재배 면적이 꾸준히 늘고 있어요. 체험농장·직거래와 궁합이 좋은 과수예요.",
     emoji: "🫐",
   },
   {
@@ -539,7 +539,7 @@ export const CROPS: CropInfo[] = [
     growingSeason: "3월~6월",
     difficulty: "어려움",
     description:
-      "국산 체리는 수입산 대비 신선도에서 우위가 있어요. 재배 난이도가 높지만 kg당 단가가 매우 높은 프리미엄 과수이에요.",
+      "국산 체리는 수입산 대비 신선도에서 우위가 있어요. 재배 난이도가 높지만 kg당 단가가 매우 높은 프리미엄 과수예요.",
     emoji: "🍒",
   },
   {
@@ -1939,7 +1939,7 @@ export const CROP_DETAILS: CropDetailInfo[] = [
     tips: [
       "연작이 불가하므로 인삼을 심은 적 없는 토지를 확보해야 해요.",
       "금산·풍기 등 산지 인근에 정착하면 기존 유통망을 활용할 수 있어요.",
-      "수확까지 4~6년이 걸리므로, 그 기간 동안의 생활비 계획이 필수이에요.",
+      "수확까지 4~6년이 걸리므로, 그 기간 동안의 생활비 계획이 필수예요.",
       "홍삼 가공까지 하면 부가가치가 크게 올라가요.",
     ],
     relatedCropIds: ["sesame", "chili-pepper"],

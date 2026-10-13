@@ -5,7 +5,7 @@
  *  사용: npx tsx scripts/watchman/zero-result-recheck.ts        (로컬 — .env.local)
  *  CI:   npx tsx scripts/watchman/zero-result-recheck.ts --ci   (ga4-snapshot.yml, 매월 1일)
  *
- *  배경: 10/13 0건 로그(6개월 380건 중 37건)를 지금 검색으로 하나씩 다시 돌려 보니
+ *  배경: 10/13 0건 로그(4/6~10/13 전체 380건 중 37건, 이 스크립트의 180일 창으로는 18건)를 지금 검색으로 하나씩 다시 돌려 보니
  *        13종은 그 사이 데이터·규칙 정정으로 이미 결과가 나왔고, 남은 0건은 '안내 있음'과
  *        '아무 안내 없음'으로 갈렸다. 0건 '비율'은 하루 수 건 규모에선 출렁여서 판정에
  *        못 쓴다 → "그때 0건이던 검색어가 지금은 어떤가"를 매달 표로 남긴다(회장 결재).
@@ -22,9 +22,11 @@ import { createClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
 import { appendFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { searchAll, getNoResultSuggestions, getNoResultHintItems } from "../../src/lib/data/search-index";
-import { findTypoCandidates } from "../../src/lib/typo-correct";
-import { isCompoundRegionQuery } from "../../src/lib/compound-region";
+// 검색 인덱스는 main() 안에서 동적 import — 의존성 설치 실패·모듈 오류도 catch 로 잡혀 이슈 본문에 '실패' 줄이 남는다(10/13 2차 QA)
+type SearchMod = typeof import("../../src/lib/data/search-index");
+let search: SearchMod;
+let findTypoCandidates: typeof import("../../src/lib/typo-correct").findTypoCandidates;
+let isCompoundRegionQuery: typeof import("../../src/lib/compound-region").isCompoundRegionQuery;
 
 const CI_MODE = process.argv.includes("--ci");
 if (!CI_MODE) config({ path: resolve(__dirname, "../../.env.local") });
@@ -34,16 +36,24 @@ const COMPOUND_REGION_TRIGGER = 3;
 const MAX_ROWS = 30;
 
 function guidance(q: string): string {
-  const suggest = getNoResultSuggestions(q);
+  const suggest = search.getNoResultSuggestions(q);
   if (suggest.length) return `대체·제안: ${suggest.join(", ")}`;
   const typo = findTypoCandidates(q.toLowerCase());
   if (typo.length) return `오타 제안: ${typo.join(", ")}`;
-  const cards = getNoResultHintItems(q).map((x) => x.title);
+  const cards = search.getNoResultHintItems(q).map((x) => x.title);
   if (cards.length) return `추천 카드: ${cards.join(", ")}`;
   return "**안내 없음**";
 }
 
+/** 사용자 검색어를 이슈 본문 표에 넣을 때 — 표 구분자·멘션·교차 참조·HTML 을 무력화 */
+function mdCell(q: string): string {
+  return q.replace(/[|<>`]/g, (c) => `\\${c}`).replace(/[@#]/g, (c) => `${c}\u200b`);
+}
+
 async function main() {
+  search = await import("../../src/lib/data/search-index");
+  ({ findTypoCandidates } = await import("../../src/lib/typo-correct"));
+  ({ isCompoundRegionQuery } = await import("../../src/lib/compound-region"));
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
   if (!url || !key) {
@@ -71,7 +81,7 @@ async function main() {
   }
 
   const rows = [...byQuery.entries()].map(([q, v]) => {
-    const now = searchAll(q).length;
+    const now = search.searchAll(q).length;
     return { q, ...v, now, note: now > 0 ? "해소" : guidance(q) };
   });
   // 아직 0건 → 안내 없음 우선, 그다음 횟수
@@ -92,11 +102,11 @@ async function main() {
 
 0건 기록 ${total}회 · 검색어 ${rows.length}종 → 지금은 결과 있음 ${resolved.length}종 · 아직 0건 ${rows.length - resolved.length}종(그중 안내 없음 ${bare.length}종)
 
-붙여 쓴 지역명 0건: ${compoundCount}회${compound.length ? ` (${compound.map((r) => r.q).join(", ")})` : ""} — 착수 기준 ${COMPOUND_REGION_TRIGGER}회${compoundCount >= COMPOUND_REGION_TRIGGER ? " **도달 → 지역명 분리 착수 안건**" : " 미달"}
+붙여 쓴 지역명 0건: ${compoundCount}회${compound.length ? ` (${compound.map((r) => mdCell(r.q)).join(", ")})` : ""} — 착수 기준 ${COMPOUND_REGION_TRIGGER}회${compoundCount >= COMPOUND_REGION_TRIGGER ? " **도달 → 지역명 분리 착수 안건**" : " 미달"}
 
 | 검색어 | 0건 횟수 | 마지막 | 지금 결과 | 지금 안내 |
 |---|---|---|---|---|
-${rows.slice(0, MAX_ROWS).map((r) => `| ${r.q.replace(/\|/g, "\\|")} | ${r.count} | ${r.last} | ${r.now} | ${r.note} |`).join("\n") || "| (없음) | | | | |"}
+${rows.slice(0, MAX_ROWS).map((r) => `| ${mdCell(r.q)} | ${r.count} | ${r.last} | ${r.now} | ${r.note} |`).join("\n") || "| (없음) | | | | |"}
 ${rows.length > MAX_ROWS ? `\n…외 ${rows.length - MAX_ROWS}종\n` : ""}
 > '안내 없음'이 반복되면(월 5회+) 정식 작물·동의어·추천 카드 후보예요. 작물이 아닌 검색어(박스·조직 등)는 요청 버튼으로 충분해요.
 `;
