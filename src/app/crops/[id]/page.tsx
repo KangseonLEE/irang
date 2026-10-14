@@ -587,6 +587,11 @@ export default async function CropDetailPage({
                   </p>
                 </div>
               </div>
+              {/* 진단 진입 위쪽 배치 (10/14 회장 — 11/1 M7 판정까지 2주 반 테스트). 작물 상세가 유입 1위인데
+                  하단 배너는 문서 77%(모바일 6.6화면)라 28일 2명만 눌렀다. 하단 crop_detail 은 그대로 두고 라벨로 가른다 */}
+              <div className={s.overviewCta}>
+                <PersonaCta from="crop_detail_top" copy="이 작물이 내 조건에 맞을까요?" />
+              </div>
             </div>
           </section>
 

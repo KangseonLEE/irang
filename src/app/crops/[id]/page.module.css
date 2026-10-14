@@ -539,6 +539,11 @@
   margin: 0 0 20px;
 }
 
+/* 개요 아래 진단 진입 (10/14 테스트) */
+.overviewCta {
+  margin-top: 16px;
+}
+
 /* 매칭 박스 (토스 + 카카오뱅크 패턴) */
 .matchBox {
   display: flex;
@@ -748,7 +753,7 @@
   gap: 4px;
   font-size: var(--fs-caption);
   font-weight: 500;
-  color: color-mix(in srgb, var(--warning, #d97706) 90%, transparent);
+  color: var(--warning-fg-strong, #92400e); /* 대비 4.5 미달이던 warning 90% → 공용 진한 앰버(10/14) */
   background: color-mix(in srgb, var(--warning, #d97706) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--warning, #d97706) 20%, transparent);
   border-radius: 4px;

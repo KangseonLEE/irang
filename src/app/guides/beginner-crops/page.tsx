@@ -15,6 +15,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Article } from "schema-dts";
 import { CROPS, CROP_DETAILS } from "@/lib/data/crops";
+import { PersonaCta } from "@/components/persona/persona-cta";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -98,6 +99,9 @@ export default function BeginnerCropsGuidePage() {
         title="처음 농촌으로 정착한다면, 이 작물부터"
         description="난이도 낮고 안정적인 작물로 시작하세요."
       />
+
+      {/* 진단 진입 (10/14 — 유입 상위 가이드인데 진입이 0개였다, 11/1 판정까지 테스트) */}
+      <PersonaCta from="guide_beginner_crops" copy="나한테 맞는 작물이 따로 있을까요?" />
 
       {/* -- 추천 작물 TOP 5 -- */}
       <section className={s.cropsSection}>
