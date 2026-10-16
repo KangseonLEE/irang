@@ -61,17 +61,17 @@ const COLLECTED: Row[] = [
   {
     name: "의견·정보 요청",
     detail:
-      "만족도·추천 평가(좋아요·아쉬워요), 요청 종류, 직접 적은 내용, 보낸 화면 이름을 남겨요. 서비스 개선과 정보 추가에 써요.",
+      "만족도, 추천 평가(좋아요·아쉬워요)와 평가한 추천 항목·페르소나, 요청 종류·분류, 직접 적은 내용, 보낸 화면 이름을 남겨요. 서비스 개선과 정보 추가에 써요.",
   },
   {
     name: "진단 결과",
     detail:
-      "진단 답변, 추천된 유형·지역·작물·지원사업, 고른 연령대(선택), 들어온 경로(이전 페이지 주소), 브라우저 정보(User-Agent)를 남겨요. 결과 링크로 다시 보기·공유와 진단 개선에 써요. 결과 링크를 아는 사람은 같은 결과를 볼 수 있어요.",
+      "진단 답변, 추천된 유형·지역·작물·지원사업, 고른 연령대(선택), 들어온 경로(이전 페이지 주소 또는 유입 표시값), 브라우저 정보(User-Agent)를 남겨요. 결과 링크로 다시 보기·공유와 진단 개선에 써요. 결과 링크를 아는 사람은 같은 결과를 볼 수 있어요.",
   },
   {
     name: "현장 이야기",
     detail:
-      "남긴 글, 닉네임(선택), 브라우저 정보, 암호화한 IP 값을 남겨요. 글은 검토 뒤 닉네임과 함께 공개돼요. 공감·신고는 암호화한 IP 값과 신고 사유(선택)만 남겨 중복을 막아요.",
+      "남긴 글, 닉네임(선택), 브라우저 정보, IP 주소의 되돌리기 어려운 해시(비공개 키를 섞은 SHA-256) 값을 남겨요. 글은 검토 뒤 닉네임과 함께 공개돼요. 공감·신고는 같은 해시 값과 신고 사유(선택)만 남겨 중복을 막아요.",
   },
   {
     name: "장애 기록",
@@ -81,7 +81,7 @@ const COLLECTED: Row[] = [
   {
     name: "관리자 로그인 시도",
     detail:
-      "관리자 화면 로그인을 시도하면 암호화한 IP 값과 시각을 남겨 무차별 대입을 막아요.",
+      "관리자 화면 로그인을 시도하면 IP 주소의 해시 값과 시각을 남겨 무차별 대입을 막아요.",
   },
 ];
 
@@ -92,7 +92,8 @@ const COLLECTED: Row[] = [
 const RETENTION: Row[] = [
   {
     name: "관리자 로그인 시도",
-    detail: "24시간이 지나면 자동으로 지워요.",
+    detail:
+      "다음 로그인 시도가 있을 때 24시간 지난 기록을 함께 지워요. 정기 삭제 작업은 따로 없어서, 그 사이 시도가 없으면 기록이 남아 있을 수 있어요.",
   },
   {
     name: "검색어·의견·진단 결과·현장 이야기·장애 기록",
@@ -132,50 +133,69 @@ const BROWSER_STORAGE: Row[] = [
   {
     name: "운영자 표식 쿠키",
     detail:
-      "운영자 브라우저에만 붙이는 표식(irang-internal)이에요. 운영자 접속을 방문 통계와 저장 기록에서 빼는 데 쓰고, 일반 이용자에게는 만들지 않아요.",
+      "운영자 브라우저에만 붙이는 표식(irang-internal)이에요. 쿠키라서 요청할 때마다 이랑 서버로 함께 가고, 서버는 이 표식을 보고 방문 통계와 저장 기록에서 운영자 접속을 빼요. 일반 이용자에게는 만들지 않아요.",
   },
 ];
 
+/**
+ * Supabase 프로젝트 리전 — 코드·응답 헤더로는 알 수 없어 회장 확인 뒤 채운다(대시보드 → Project Settings → General).
+ * 예: "대한민국(서울)", "일본(도쿄)", "미국(버지니아)".
+ */
+const SUPABASE_DATA_COUNTRY = "업체 데이터센터 소재국";
+
+interface Processor {
+  name: string;
+  /** 맡기는 일과 전달되는 정보 */
+  task: string;
+  /** 이전 국가 */
+  country: string;
+}
+
 /*
  * 근거: vercel.json regions icn1, src/app/layout.tsx Analytics·SpeedInsights·GoogleAnalytics,
- *   src/instrumentation-client.ts·sentry.server.config.ts, src/lib/supabase.ts,
- *   src/app/api/search-errata/route.ts(네이버 errata — 서버 호출, 검색어만),
+ *   src/instrumentation-client.ts·sentry.server/edge.config.ts(tracesSampleRate 0.1, 오류 리플레이 10%),
+ *   src/lib/supabase.ts, src/app/api/search-errata/route.ts(네이버 errata — 서버 호출, 검색어만),
  *   kakao-share-button.tsx 등(카카오 JS SDK — t1.kakaocdn.net)
  */
-const PROCESSORS: Row[] = [
+const PROCESSORS: Processor[] = [
   {
-    name: "Vercel (미국)",
-    detail:
-      "사이트 호스팅과 서버 실행(서울 지역)이에요. 접속 기록(IP·요청 주소·브라우저 정보)이 남을 수 있어요. 방문 페이지·성능 통계(Vercel Web Analytics·Speed Insights)도 맡겨요.",
+    name: "Vercel",
+    country: "미국 (서버 실행은 서울 지역)",
+    task:
+      "사이트 호스팅과 서버 실행이에요. 접속 기록(IP·요청 주소·브라우저 정보)이 남을 수 있어요. 방문 페이지·성능 통계(Vercel Web Analytics·Speed Insights)도 맡겨요.",
   },
   {
-    name: "Cloudflare (미국)",
-    detail:
-      "사이트 앞단의 전송·보안이에요. 접속 IP를 보고 해외·자동화 접속을 막아요.",
+    name: "Cloudflare",
+    country: "미국",
+    task: "사이트 앞단의 전송·보안이에요. 접속 IP를 보고 해외·자동화 접속을 막아요.",
   },
   {
     name: "Supabase",
-    detail:
-      "위 '처리하는 정보'를 보관하는 데이터베이스예요. 업체의 서비스 제공 지역 데이터센터에 보관돼요.",
+    country: SUPABASE_DATA_COUNTRY,
+    task: "위 '처리하는 정보'를 보관하는 데이터베이스와 홍보 이미지 저장소예요.",
   },
   {
-    name: "Google Analytics (미국)",
-    detail:
+    name: "Google Analytics",
+    country: "미국",
+    task:
       "방문 통계예요. 본 페이지, 누른 메뉴, 검색어 같은 이용 기록과 기기·브라우저 정보가 쿠키로 수집돼요.",
   },
   {
-    name: "Sentry (미국)",
-    detail:
-      "오류 기록이에요. 오류가 난 화면 주소, 브라우저 정보, 오류 내용을 받아요. 오류가 난 경우 일부(10%)는 화면 재현 기록이 붙는데, 글자·입력값·이미지는 가린 채 보내요. '관리자에게 알리기'로 보낸 내용도 여기에 저장돼요.",
+    name: "Sentry",
+    country: "미국",
+    task:
+      "오류·성능 기록이에요. 오류가 나면 화면 주소, 브라우저 정보, 오류 내용을 받아요. 그중 일부(10%)는 화면 재현 기록이 붙는데, 글자·입력값·이미지는 가린 채 보내요. 오류와 무관하게 페이지 이동의 약 10%도 성능 기록으로 보내는데, 여기엔 화면 주소(검색어가 든 주소 포함)와 브라우저 정보가 담겨요. '관리자에게 알리기'로 보낸 내용도 여기에 저장돼요.",
   },
   {
-    name: "네이버 (대한민국)",
-    detail:
+    name: "네이버",
+    country: "대한민국",
+    task:
       "검색 결과가 없을 때 철자 교정 제안을 받으려고 검색어만 이랑 서버에서 네이버 검색 API로 보내요. 이용자의 IP나 브라우저 정보는 보내지 않아요.",
   },
   {
-    name: "카카오 (대한민국)",
-    detail:
+    name: "카카오",
+    country: "대한민국",
+    task:
       "카카오톡 공유 버튼이 있는 화면에서 카카오 공유 스크립트를 불러와요. 공유 버튼을 누르면 공유할 페이지 정보가 카카오로 전달돼요.",
   },
 ];
@@ -233,7 +253,7 @@ export default function PrivacyPage() {
             </li>
             <li>
               IP 주소는 원래 값을 저장하지 않아요. 중복 방지가 필요한 곳(현장 이야기, 관리자 로그인)에는
-              되돌릴 수 없게 암호화한 값만 남겨요. 과다 요청 제한을 위해 서버 메모리에서 잠시 쓰는 IP는
+              되돌리기 어려운 해시(비공개 키를 섞은 SHA-256) 값만 남겨요. 과다 요청 제한을 위해 서버 메모리에서 잠시 쓰는 IP는
               저장하지 않아요.
             </li>
             <li>자동화 테스트와 운영자 접속은 방문 통계에서 빼요.</li>
@@ -269,8 +289,8 @@ export default function PrivacyPage() {
         </div>
         <div className={s.sectionBody}>
           <p>
-            편의를 위해 아래 정보를 이 기기의 브라우저 저장소(로컬 저장소·쿠키)에 남겨요. 이랑 서버로는
-            보내지 않아요.
+            편의를 위해 아래 정보를 이 기기의 브라우저 저장소에 남겨요. 운영자 표식 쿠키를 빼면 이랑
+            서버로 보내지 않아요.
           </p>
           <ul className={s.sourceList}>
             {BROWSER_STORAGE.map((row) => (
@@ -321,10 +341,20 @@ export default function PrivacyPage() {
             {PROCESSORS.map((row) => (
               <li key={row.name} className={s.sourceItem}>
                 <span className={s.sourceName}>{row.name}</span>
-                <span>{row.detail}</span>
+                <span>
+                  {row.task} 이전 국가: {row.country}.
+                </span>
               </li>
             ))}
           </ul>
+          <ul className={s.list}>
+            <li>이전 방법: 서비스를 이용할 때 네트워크로 그때그때 전송돼요.</li>
+            <li>보유 기간: 각 업체의 보관 정책을 따라요.</li>
+          </ul>
+          <p>
+            본문 글꼴(jsDelivr), 언론사 기사 썸네일, YouTube 썸네일, 홍보 이미지(Supabase 저장소)는
+            브라우저가 그 서버에서 직접 불러와요. 이때 IP 주소와 브라우저 정보가 그 서버로 전달돼요.
+          </p>
           <p>
             위 위탁 외에는 이용자 정보를 다른 회사나 기관에 팔거나 제공하지 않아요. 법령에 따라
             요청받은 경우는 예외예요.
@@ -361,7 +391,7 @@ export default function PrivacyPage() {
         <div className={s.sectionBody}>
           <ul className={s.list}>
             <li>검색어·의견·진단 결과·현장 이야기는 브라우저가 아니라 이랑 서버를 거쳐 저장해요.</li>
-            <li>IP 주소는 암호화한 값으로만 남겨요.</li>
+            <li>IP 주소는 되돌리기 어려운 해시(비공개 키를 섞은 SHA-256) 값으로만 남겨요.</li>
             <li>관리자 화면은 비밀번호로 보호하고, 로그인 시도 횟수를 제한해요.</li>
           </ul>
         </div>
