@@ -31,7 +31,7 @@
  * exit 0 = 정합 / exit 1 = 불일치 발견 (누락 항목 명시)
  */
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { LIST_PAGE_NORMALIZE_OPTIONS } from "../src/lib/search-params/normalize";
@@ -59,9 +59,23 @@ const SORT_OPTIONS_BY_ROUTE: Record<string, readonly { value: string }[]> = {
   "/interviews": INTERVIEW_SORT_OPTIONS,
 };
 
-/** route "/x/y" → "src/app/x/y/page.tsx" */
+/**
+ * route "/x/y" → "src/app/x/y/page.tsx" — 라우트 그룹 `(이름)` 안의 페이지도 찾는다
+ * (2026-10-17: /crops·/programs 목록이 `crops/(list)/page.tsx` 로 옮겨져 MISSING_PAGE 오판).
+ * 못 찾으면 기본 경로를 돌려줘 MISSING_PAGE 로 보고된다.
+ */
 function pageFileForRoute(route: string): string {
-  return resolve(REPO_ROOT, `src/app${route}/page.tsx`);
+  const direct = resolve(REPO_ROOT, `src/app${route}/page.tsx`);
+  if (existsSync(direct)) return direct;
+  const dir = resolve(REPO_ROOT, `src/app${route}`);
+  if (existsSync(dir)) {
+    for (const n of readdirSync(dir)) {
+      if (!(n.startsWith("(") && n.endsWith(")"))) continue;
+      const p = resolve(dir, n, "page.tsx");
+      if (statSync(resolve(dir, n)).isDirectory() && existsSync(p)) return p;
+    }
+  }
+  return direct;
 }
 
 /**
