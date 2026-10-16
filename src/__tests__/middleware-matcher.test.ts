@@ -35,7 +35,6 @@ describe("middleware matcher", () => {
       "/interviews/x.jpg",
       "/assess/result/a.png",
       "/r/a.png",
-      "/fonts/x.woff2",
     ]) {
       expect(runs(url), url).toBe(true);
     }
@@ -60,6 +59,7 @@ describe("middleware matcher", () => {
       "/promo/a.webp",
       "/updates/a.webp",
       "/file.svg",
+      "/fonts/nanum-myeongjo-800-irang.woff2",
     ]) {
       expect(runs(url), url).toBe(false);
     }

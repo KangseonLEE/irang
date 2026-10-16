@@ -33,6 +33,7 @@ const STATIC_WITHOUT_LOADING = new Set([
   "start",
   "start/[lane]",
   "terms",
+  "privacy", // 10/17 개인정보 처리방침 — 정적(데이터 조회 없음)
 ]);
 
 function pageDirs(dir: string): string[] {
