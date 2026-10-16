@@ -429,9 +429,14 @@ export const config = {
    * `/_next/image` 는 계속 제외한다 — 미들웨어를 태우면 이미지 요청마다 함수 호출이 붙는데(Hobby 한도),
    * 남용 면은 remotePatterns 축소(파일·경로 단위)로 좁혔다. 오리진 직접 접속으로 변환 한도를 쓰는 경로는
    * Vercel Firewall 룰("x-irang-edge-secret 없음 → deny")로 막는 것이 정확하다(운영 결정 사항).
+   *
+   * 2026-10-17 보안 3차 QA B1: 확장자 예외를 **public/ 의 실제 위치로만** 좁혔다 — 루트 파일(`/icon.png` 등)과
+   * `crops/illustrations`·`interviews/illustrations`·`images`·`landing`·`promo`·`updates` 아래. 예전엔 `/events/x.png`·
+   * `/programs/<임의>.png` 가 정적 파일처럼 보여 오리진 잠금을 건너뛰고 상세 SSR 함수까지 실행됐다(오리진 직접 접속 200).
+   * public/ 에 새 최상위 폴더를 만들면 여기와 middleware-matcher.test.ts 를 같이 고친다(테스트가 public/ 을 스캔해 잡는다).
    * 판정은 src/__tests__/middleware-matcher.test.ts 가 unstable_doesMiddlewareMatch 로 고정한다.
    */
   matcher: [
-    "/((?!_next/static|_next/image|favicon\\.ico$|icon\\.svg$|manifest\\.json$|robots\\.txt$|sitemap[^/]*\\.xml$|sitemap/[^/]*\\.xml$|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf)$).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico$|icon\\.svg$|manifest\\.json$|robots\\.txt$|sitemap[^/]*\\.xml$|sitemap/[^/]*\\.xml$|(?:[^/]+|(?:crops/illustrations|interviews/illustrations|images|landing|promo|updates)/.+)\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf)$).*)",
   ],
 };

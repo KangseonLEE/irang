@@ -6,6 +6,8 @@
 
 import { describe, expect, it } from "vitest";
 import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
+import { readdirSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
 import { config } from "../../middleware";
 
 const runs = (url: string) => unstable_doesMiddlewareMatch({ config, url });
@@ -24,6 +26,16 @@ describe("middleware matcher", () => {
       "/admin/community",
       "/api/assess",
       "/.well-known/acme-challenge/tok",
+      // 3차 QA B1 — 동적 라우트 끝에 확장자를 붙여도 미들웨어(잠금)를 탄다
+      "/programs/x.png",
+      "/events/x.png",
+      "/education/a.webp",
+      "/regions/gyeonggi/x.png",
+      "/crops/x.png",
+      "/interviews/x.jpg",
+      "/assess/result/a.png",
+      "/r/a.png",
+      "/fonts/x.woff2",
     ]) {
       expect(runs(url), url).toBe(true);
     }
@@ -43,11 +55,28 @@ describe("middleware matcher", () => {
       "/sitemap/0.xml",
       "/crops/illustrations/apple.webp",
       "/landing/hero/a.jpg",
-      "/fonts/x.woff2",
-      // 정적 파일 모양으로 끝나는 경로는 파일 목록 없이 구분할 수 없어 여전히 건너뛴다 — 남은 면(보고서 참조)
-      "/programs/x.png",
+      "/images/regions/a.webp",
+      "/interviews/illustrations/a.webp",
+      "/promo/a.webp",
+      "/updates/a.webp",
+      "/file.svg",
     ]) {
       expect(runs(url), url).toBe(false);
     }
+  });
+
+  it("public/ 의 실제 정적 파일은 전부 건너뛴다 — 새 최상위 폴더를 만들면 matcher 도 고치라는 신호", () => {
+    const root = join(__dirname, "../../public");
+    const files: string[] = [];
+    const walk = (d: string) => {
+      for (const n of readdirSync(d)) {
+        const p = join(d, n);
+        if (statSync(p).isDirectory()) walk(p);
+        else if (/\.(svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf)$/.test(n)) files.push("/" + relative(root, p));
+      }
+    };
+    walk(root);
+    expect(files.length).toBeGreaterThan(0);
+    for (const url of files) expect(runs(url), url).toBe(false);
   });
 });
