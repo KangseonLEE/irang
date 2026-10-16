@@ -138,10 +138,10 @@ const BROWSER_STORAGE: Row[] = [
 ];
 
 /**
- * Supabase 프로젝트 리전 — 코드·응답 헤더로는 알 수 없어 회장 확인 뒤 채운다(대시보드 → Project Settings → General).
- * 예: "대한민국(서울)", "일본(도쿄)", "미국(버지니아)".
+ * Supabase 프로젝트 리전 — 연결 주소 aws-1-ap-northeast-2.pooler.supabase.com(supabase/.temp/pooler-url, 10/17 확인)
+ * = AWS 서울 리전. 리전을 옮기면 여기를 고친다.
  */
-const SUPABASE_DATA_COUNTRY = "업체 데이터센터 소재국";
+const SUPABASE_DATA_COUNTRY = "대한민국 (AWS 서울 리전, 운영사는 미국 법인)";
 
 interface Processor {
   name: string;
